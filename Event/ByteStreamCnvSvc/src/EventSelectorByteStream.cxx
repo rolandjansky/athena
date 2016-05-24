@@ -11,7 +11,6 @@
 #include "EventContextByteStream.h"
 #include "ByteStreamCnvSvc/ByteStreamInputSvc.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
-#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "ByteStreamCnvSvc/ByteStreamExceptions.h"
 
 #include "GaudiKernel/ClassID.h"
@@ -39,13 +38,12 @@ EventSelectorByteStream::EventSelectorByteStream(const std::string& name, ISvcLo
 	m_beginIter(0),
 	m_endIter(0),
 	m_eventSource(0),
-	m_robProvider("ROBDataProviderSvc", name),
         m_incidentSvc("IncidentSvc", name),
         m_evtStore( "StoreGateSvc", name ),
         m_firstFileFired(false),
         m_beginFileFired(false),
 	m_NumEvents(0),
- 	m_sharedMemoryTool("", this),
+ 	m_eventStreamingTool("", this),
         m_helperTools(this),
         m_counterTool("", this) {
    declareProperty("ByteStreamInputSvc",  m_eventSourceName);
@@ -57,7 +55,7 @@ EventSelectorByteStream::EventSelectorByteStream(const std::string& name, ISvcLo
 
    declareProperty("HelperTools",         m_helperTools);
    declareProperty("CounterTool",         m_counterTool);
-   declareProperty("SharedMemoryTool",    m_sharedMemoryTool);
+   declareProperty("SharedMemoryTool",    m_eventStreamingTool);
 
    // RunNumber, OldRunNumber and OverrideRunNumberFromInput are used
    // to override the run number coming in on the input stream
@@ -155,10 +153,6 @@ StatusCode EventSelectorByteStream::initialize() {
       return(StatusCode::FAILURE);
    }
    m_eventSource->addRef();
-   if (!m_robProvider.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get ROBDataProviderSvc");
-      return(StatusCode::FAILURE);
-   }
    if (!m_evtStore.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Cannot get StoreGateSvc");
       return(StatusCode::FAILURE);
@@ -179,11 +173,9 @@ StatusCode EventSelectorByteStream::initialize() {
       }
    }
    // Get SharedMemoryTool (if configured)
-   if (!m_sharedMemoryTool.empty()) {
-      if (!m_sharedMemoryTool.retrieve().isSuccess()) {
-         ATH_MSG_FATAL("Cannot get AthenaSharedMemoryTool");
-         return(StatusCode::FAILURE);
-      }
+   if (!m_eventStreamingTool.empty() && !m_eventStreamingTool.retrieve().isSuccess()) {
+      ATH_MSG_FATAL("Cannot get AthenaSharedMemoryTool");
+      return(StatusCode::FAILURE);
    }
 
    // Register this service for 'I/O' events
@@ -347,10 +339,8 @@ StatusCode EventSelectorByteStream::finalize() {
    delete m_beginIter; m_beginIter = 0;
    delete m_endIter; m_endIter = 0;
    // Release AthenaSharedMemoryTool
-   if (!m_sharedMemoryTool.empty()) {
-      if (!m_sharedMemoryTool.release().isSuccess()) {
-         ATH_MSG_WARNING("Cannot release AthenaSharedMemoryTool");
-      }
+   if (!m_eventStreamingTool.empty() && !m_eventStreamingTool.release().isSuccess()) {
+      ATH_MSG_WARNING("Cannot release AthenaSharedMemoryTool");
    }
    // Release CounterTool
    if (!m_counterTool.empty()) {
@@ -363,9 +353,6 @@ StatusCode EventSelectorByteStream::finalize() {
       ATH_MSG_WARNING("Cannot release " << m_helperTools);
    }
    if (m_eventSource) m_eventSource->release();
-   if (!m_robProvider.release().isSuccess()) {
-      ATH_MSG_WARNING("Cannot release ROBDataProviderSvc");
-   }
    // Finalize the Service base class.
    return(AthService::finalize());
 }
@@ -433,15 +420,15 @@ StatusCode EventSelectorByteStream::createContext(IEvtSelector::Context*& it) co
 StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
    static int n_bad_events = 0;   // cross loop counter of bad events
    // Check if this is an athenaMP client process
-   if (!m_sharedMemoryTool.empty() && m_sharedMemoryTool->isClient()) {
+   if (!m_eventStreamingTool.empty() && m_eventStreamingTool->isClient()) {
       void* source = 0;
       unsigned int status = 0;
-      if (!m_sharedMemoryTool->getLockedEvent(&source, status).isSuccess()) {
+      if (!m_eventStreamingTool->getLockedEvent(&source, status).isSuccess()) {
          ATH_MSG_FATAL("Cannot get NextEvent from AthenaSharedMemoryTool");
          return(StatusCode::FAILURE);
       }
       m_eventSource->setEvent(static_cast<char*>(source), status);
-      return(m_sharedMemoryTool->unlockEvent());
+      return(StatusCode::SUCCESS);
    }
    // Call all selector tool preNext before starting loop
    for (std::vector<ToolHandle<IAthenaSelectorTool> >::const_iterator iter = m_helperTools.begin(),
@@ -465,6 +452,7 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
          this->nextFile();
          if (this->openNewRun().isFailure()) {
             ATH_MSG_DEBUG("Event source found no more valid files left in input list");
+            m_NumEvents = -1;
             return StatusCode::FAILURE; 
          }
       }
@@ -506,10 +494,6 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
 	 }
          ATH_MSG_WARNING("Continue with bad event");
       }
-
-      // Set RE for rob data provider svc
-      m_robProvider->setNextEvent(pre);
-      m_robProvider->setEventStatus(m_eventSource->currentEventStatus());
       // Build a DH for use by other components
       StatusCode rec_sg = m_eventSource->generateDataHeader();
         if (rec_sg != StatusCode::SUCCESS) {
@@ -546,32 +530,32 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
             }
             break;
          }
+
+         // Validate the event
+         try {
+            m_eventSource->validateEvent();
+         }
+         catch (ByteStreamExceptions::badFragmentData) { 
+            ATH_MSG_ERROR("badFragment data encountered");
+
+            ++n_bad_events;
+            ATH_MSG_INFO("Bad event encountered, current count at " << n_bad_events);
+
+            bool toomany = (m_maxBadEvts >= 0 && n_bad_events > m_maxBadEvts);
+	    if (toomany) {ATH_MSG_FATAL("too many bad events ");}
+            if (!m_procBadEvent || toomany) {
+               // End of file
+	       it = *m_endIter;
+	       return(StatusCode::FAILURE);
+   	    }
+            ATH_MSG_WARNING("Continue with bad event");
+         }
       } else {
          if (!m_skipEventSequence.empty() && m_NumEvents == m_skipEventSequence.front()) {
             m_skipEventSequence.erase(m_skipEventSequence.begin());
          }
          ATH_MSG_DEBUG("Skipping event " << m_NumEvents - 1);
 	 m_incidentSvc->fireIncident(Incident(name(), "SkipEvent"));
-      }
-
-      // Validate the event
-      try {
-         m_eventSource->validateEvent();
-      }
-      catch (ByteStreamExceptions::badFragmentData) { 
-         ATH_MSG_ERROR("badFragment data encountered");
-
-         ++n_bad_events;
-         ATH_MSG_INFO("Bad event encountered, current count at " << n_bad_events);
-
-         bool toomany = (m_maxBadEvts >= 0 && n_bad_events > m_maxBadEvts);
-	 if (toomany) {ATH_MSG_FATAL("too many bad events ");}
-         if (!m_procBadEvent || toomany) {
-            // End of file
-	    it = *m_endIter;
-	    return(StatusCode::FAILURE);
-	 }
-         ATH_MSG_WARNING("Continue with bad event");
       }
    } // for loop
    return(StatusCode::SUCCESS);
@@ -898,54 +882,74 @@ int EventSelectorByteStream::curEvent() const {
 
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::makeServer(int /*num*/) {
-   if (m_sharedMemoryTool.empty()) {
+   if (m_eventStreamingTool.empty()) {
       return(StatusCode::FAILURE);
    }
-   return(m_sharedMemoryTool->makeServer());
+   return(m_eventStreamingTool->makeServer(1));
 }
 
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::makeClient(int /*num*/) {
-   if (m_sharedMemoryTool.empty()) {
+   if (m_eventStreamingTool.empty()) {
       return(StatusCode::FAILURE);
    }
-   return(m_sharedMemoryTool->makeClient());
+   return(m_eventStreamingTool->makeClient(0));
 }
 
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::share(int evtNum) {
-   if (m_sharedMemoryTool.empty()) {
+   if (m_eventStreamingTool.empty()) {
       return(StatusCode::FAILURE);
    }
-   if (m_sharedMemoryTool->isClient()) {
-      return(m_sharedMemoryTool->lockEvent(evtNum));
+   if (m_eventStreamingTool->isClient()) {
+      StatusCode sc = m_eventStreamingTool->lockEvent(evtNum);
+      while (sc.isRecoverable()) {
+         usleep(1000);
+         sc = m_eventStreamingTool->lockEvent(evtNum);
+      }
+      return(sc);
    }
    return(StatusCode::FAILURE);
 }
 
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::readEvent(int maxevt) {
-   if (m_sharedMemoryTool.empty()) {
+   if (m_eventStreamingTool.empty()) {
       return(StatusCode::FAILURE);
    }
-   for (int i = 0; i < maxevt; ++i) {
+   ATH_MSG_VERBOSE("Called read Event " << maxevt);
+   for (int i = 0; i < maxevt || maxevt == -1; ++i) {
       //const RawEvent* pre = m_eventSource->nextEvent();
       const RawEvent* pre = 0;
       if (this->next(*m_beginIter).isSuccess()) {
          pre = m_eventSource->currentEvent();
       } else {
+         if (m_NumEvents == -1) {
+            ATH_MSG_VERBOSE("Called read Event and read last event from input: " << i);
+            break;
+         }
          ATH_MSG_ERROR("Unable to retrieve next event for " << i << "/" << maxevt);
          return(StatusCode::FAILURE);
       }
       if (pre == 0) {
          // End of file, wait for last event to be taken
-         if (!m_sharedMemoryTool->putEvent(0, 0, 0, 0).isSuccess()) {
+         StatusCode sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
+         while (sc.isRecoverable()) {
+            usleep(1000);
+            sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
+         }
+         if (!sc.isSuccess()) {
             ATH_MSG_ERROR("Cannot put last Event marker to AthenaSharedMemoryTool");
          }
          return(StatusCode::FAILURE);
       }
-      if (m_sharedMemoryTool->isServer()) {
-         if (!m_sharedMemoryTool->putEvent(m_NumEvents - 1, pre->start(), pre->fragment_size_word() * sizeof(uint32_t), m_eventSource->currentEventStatus()).isSuccess()) {
+      if (m_eventStreamingTool->isServer()) {
+         StatusCode sc = m_eventStreamingTool->putEvent(m_NumEvents - 1, pre->start(), pre->fragment_size_word() * sizeof(uint32_t), m_eventSource->currentEventStatus());
+         while (sc.isRecoverable()) {
+            usleep(1000);
+            sc = m_eventStreamingTool->putEvent(m_NumEvents - 1, pre->start(), pre->fragment_size_word() * sizeof(uint32_t), m_eventSource->currentEventStatus());
+         }
+         if (!sc.isSuccess()) {
             ATH_MSG_ERROR("Cannot put Event " << m_NumEvents - 1 << " to AthenaSharedMemoryTool");
             return(StatusCode::FAILURE);
          }

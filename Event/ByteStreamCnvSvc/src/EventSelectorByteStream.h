@@ -123,7 +123,6 @@ private:
    StringArrayProperty m_inputCollectionsProp;
    mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator;
    void inputCollectionsHandler(Property&);
-   ServiceHandle<IROBDataProviderSvc> m_robProvider;
    ServiceHandle<IIncidentSvc> m_incidentSvc;
    ServiceHandle<StoreGateSvc> m_evtStore;
 
@@ -135,7 +134,7 @@ private:
    bool m_beginFileFired;
    mutable long m_NumEvents; // Number of Events read so far.
 
-   ToolHandle<IAthenaIPCTool> m_sharedMemoryTool;
+   ToolHandle<IAthenaIPCTool> m_eventStreamingTool;
 
    BooleanProperty    m_procBadEvent;  //!< process bad events, which fail check_tree().
 

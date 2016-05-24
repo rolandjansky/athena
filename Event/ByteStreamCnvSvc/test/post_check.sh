@@ -24,10 +24,13 @@ else
 	grep -v "TEnvRec::ChangeValue:0: RuntimeWarning: duplicate entry" |\
 	grep -v "Note: (file \"(tmpfile)\", line 2) " |\
 	grep -v "Warning in <TEnvRec::ChangeValue>:" |\
+	grep -v "Warning in <TInterpreter::ReadRootmapFile>: class" |\
 	grep -v "Welcome to ApplicationMgr " |\
 	grep -v "using release " |\
 	grep -v "running on " |\
 	grep -v "Skipping" |\
+	# For some reason, this gives problems, but they are not mine...
+	grep -v "AthenaCommon/Execution.py" |\
 	# Locally this produces strange characters
 	grep -v "ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0" |\
 	# Py:Athena will be Athena

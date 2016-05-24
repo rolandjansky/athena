@@ -10,8 +10,10 @@
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  **/
 
-#include "EventStorage/DataWriter.h"
+#include <memory>
+
 #include "EventStorage/EventStorageRecords.h"
+#include "ByteStreamDataWriter.h"
 
 #include "ByteStreamCnvSvc/ByteStreamOutputSvc.h"
 #include "ByteStreamCnvSvc/IByteStreamFreeMetadataSvc.h"
@@ -20,9 +22,6 @@
 #include "GaudiKernel/IIoComponent.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-namespace EventStorage {
-   class DataWriter;
-}
 class EventInfo;
 class ByteStreamMetadata;
 
@@ -60,7 +59,7 @@ private: // internal member functions
 
 private: // data
    int                m_totalEventCounter; //!< number of event counter
-   EventStorage::DataWriter* m_dataWriter; //!< pointer to DataWriter
+   std::unique_ptr<ByteStreamDataWriter> m_dataWriter; //!< pointer to DataWriter
 
 private: // properties
    StringProperty        m_inputDir;       //!< directory for the data files
@@ -79,6 +78,8 @@ private: // properties
    UnsignedIntegerProperty m_maxFileMB;    //!< number of MB per file
    UnsignedIntegerProperty m_maxFileNE;    //!< number of events per file
 
+   StringProperty     m_eformatVersion;    //!< eformat event version to produce, "v40" for run1, or "current"
+   StringProperty     m_eventStorageVersion;  //!< EventStorage BS version to produce, "v5" for run1, or "current"
    StringProperty     m_bsOutputStreamName;//!< stream name for multiple output
    StringProperty     m_simpleFileName;    //!< use this string for filename, not from the "AgreedFileName"
    std::vector<std::string> m_keys;

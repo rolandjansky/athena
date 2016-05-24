@@ -7,7 +7,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 
-#include "EventStorage/DataWriter.h"
 #include "EventStorage/EventStorageRecords.h"
 #include "EventStorage/RawFileName.h"
 #include "EventStorage/SimpleFileName.h"
@@ -23,6 +22,10 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
+#include "ByteStreamCnvSvcLegacy/offline_eformat/old/util.h"
+
+#include "ByteStreamDataWriter.h"
+
 #include <boost/shared_ptr.hpp>
 #include <stdlib.h>
 
@@ -30,7 +33,6 @@
 ByteStreamEventStorageOutputSvc::ByteStreamEventStorageOutputSvc(const std::string& name, ISvcLocator* svcloc) :
 		ByteStreamOutputSvc(name,svcloc),
 	m_totalEventCounter(0),
-	m_dataWriter(0), 
         m_attlistsvc("ByteStreamAttListMetadataSvc", name)
 {
    declareProperty("OutputDirectory", m_inputDir);
@@ -61,6 +63,13 @@ ByteStreamEventStorageOutputSvc::ByteStreamEventStorageOutputSvc(const std::stri
    declareProperty("MaxFileMB", m_maxFileMB = 10000);
    declareProperty("MaxFileNE", m_maxFileNE = 100000);
    declareProperty("AttributeListKeys", m_keys);
+
+   declareProperty("EformatVersion", m_eformatVersion = "current",
+                   "Version of the event format data, use \"v40\" or \"run1\" "
+                   "for run1, \"current\" for most current version (default).");
+   declareProperty("EventStorageVersion", m_eventStorageVersion = "current",
+                   "Version of the ByteStream file data, use \"v5\" or \"run1\" "
+                   "for run1, \"current\" for most current version (default).");
 }
 //__________________________________________________________________________
 ByteStreamEventStorageOutputSvc::~ByteStreamEventStorageOutputSvc() {
@@ -100,6 +109,20 @@ StatusCode ByteStreamEventStorageOutputSvc::initialize() {
       return(StatusCode::FAILURE);
    }
 
+   // validate m_eformatVersion and m_eventStorageVersion
+   const char* choices_ef[] = {"current", "v40", "run1"};
+   if (std::find(std::begin(choices_ef), std::end(choices_ef), m_eformatVersion.value()) == std::end(choices_ef)) {
+       ATH_MSG_FATAL("Unexpected value for EformatVersion property: " << m_eformatVersion);
+       return(StatusCode::FAILURE);
+   }
+   const char* choices_es[] = {"current", "v5", "run1"};
+   if (std::find(std::begin(choices_es), std::end(choices_es), m_eventStorageVersion.value()) == std::end(choices_es)) {
+       ATH_MSG_FATAL("Unexpected value for EventStorageVersion property: " << m_eventStorageVersion);
+       return(StatusCode::FAILURE);
+   }
+   ATH_MSG_INFO("eformat version to use: \"" << m_eformatVersion.value() << "\"");
+   ATH_MSG_INFO("event storage (BS) version to use: \"" << m_eventStorageVersion.value() << "\"");
+
    return(this->reinit());
 
 }
@@ -131,7 +154,7 @@ StatusCode ByteStreamEventStorageOutputSvc::stop() {
 StatusCode ByteStreamEventStorageOutputSvc::finalize() {
    // clean up
    ATH_MSG_DEBUG("deleting DataWriter");
-   delete m_dataWriter; m_dataWriter = 0;
+   m_dataWriter.reset();
    ATH_MSG_INFO("number of events written: " << m_totalEventCounter);
    return(StatusCode::SUCCESS);
 }
@@ -255,30 +278,28 @@ bool ByteStreamEventStorageOutputSvc::initDataWriterContents(const EventInfo* ev
 
 
    std::string fileNameCore;
+   EventStorage::CompressionType compression = m_compressEvents ? EventStorage::ZLIB : EventStorage::NONE;
+   int eventStorageVersion = 0;
+   if (m_eventStorageVersion.value() == "v5" || m_eventStorageVersion.value() == "run1") {
+       eventStorageVersion = 5;
+   }
    if (!m_simpleFileName.value().empty()) {
       fileNameCore = m_simpleFileName.value();
       boost::shared_ptr<EventStorage::SimpleFileName> sfn(new EventStorage::SimpleFileName(m_simpleFileName.value()));
-      if (m_compressEvents) {
-         m_dataWriter = new EventStorage::DataWriter(m_inputDir.value(), sfn, runPara, m_projectTag.value(),
-		         m_streamType.value(), m_streamName.value(), m_streamType.value() + "_" + m_streamName.value(),
-		         lumiNum, m_appName.value(), freeMetaDataStrings, EventStorage::ZLIB);
-      } else {
-         m_dataWriter = new EventStorage::DataWriter(m_inputDir.value(), sfn, runPara, m_projectTag.value(),
-		         m_streamType.value(), m_streamName.value(), m_streamType.value() + "_" + m_streamName.value(),
-		         lumiNum, m_appName.value(), freeMetaDataStrings);
-      }
+      m_dataWriter = ByteStreamDataWriter::makeWriter(eventStorageVersion,
+                         m_inputDir.value(), sfn, runPara, m_projectTag.value(),
+                         m_streamType.value(), m_streamName.value(),
+                         m_streamType.value() + "_" + m_streamName.value(),
+                         lumiNum, m_appName.value(), freeMetaDataStrings,
+                         m_maxFileNE.value(), m_maxFileMB.value(), compression);
    } else {
       // construct file name
       daq::RawFileName fileNameObj(m_projectTag.value(), run, m_streamType.value(), m_streamName.value(), lumiNum, m_appName.value());
       fileNameCore = fileNameObj.fileNameCore();
-      if (m_compressEvents) {
-         m_dataWriter = new EventStorage::DataWriter(m_inputDir.value(), fileNameCore, runPara, freeMetaDataStrings, EventStorage::ZLIB);
-      } else {
-         m_dataWriter = new EventStorage::DataWriter(m_inputDir.value(), fileNameCore, runPara, freeMetaDataStrings);
-      }
+      m_dataWriter = ByteStreamDataWriter::makeWriter(eventStorageVersion,
+                         m_inputDir.value(), fileNameCore, runPara, freeMetaDataStrings,
+                         m_maxFileNE.value(), m_maxFileMB.value(), compression);
    }
-   m_dataWriter->setMaxFileNE(m_maxFileNE);
-   m_dataWriter->setMaxFileMB(m_maxFileMB);
    if (!m_dataWriter->good()) {
       ATH_MSG_ERROR("Unable to initialize file");
       return(false);
@@ -337,12 +358,37 @@ bool ByteStreamEventStorageOutputSvc::putEvent(RawEvent* re) {
    OFFLINE_FRAGMENTS_NAMESPACE::PointerType st;
    re->start(st);
    ATH_MSG_DEBUG("event size =  " << size << "  start = " << st);
+
+   // convert to different version
+   bool deleteBuffer = false;
+   if (m_eformatVersion.value() == "v40" or m_eformatVersion.value() == "run1") {
+       // allocate some extra space just in case
+       uint32_t bufSize = size + 128;
+       auto buf = new OFFLINE_FRAGMENTS_NAMESPACE::DataType[bufSize];
+
+       // This builds no-checksum headers, should use the same
+       // checksum type as original event
+       size = offline_eformat::old::convert_to_40(st, buf, bufSize);
+       if (size == 0) {
+           // not enough space in buffer
+           ATH_MSG_ERROR("Failed to convert event, buffer is too small");
+           delete [] buf;
+           return false;
+       }
+
+       st = buf;
+       deleteBuffer = true;
+       ATH_MSG_DEBUG("event size after conversion =  " << size << "  version = " << st[3]);
+   }
+
    if (m_dataWriter->putData(sizeof(OFFLINE_FRAGMENTS_NAMESPACE::DataType) * size,
 	   reinterpret_cast<void*>(const_cast<OFFLINE_FRAGMENTS_NAMESPACE::DataType*>(st))) != EventStorage::DWOK) {
       ATH_MSG_ERROR("Failed to write event to DataWriter");
+      if (deleteBuffer) delete [] st;
       return(false);
    }
    ++m_totalEventCounter;
+   if (deleteBuffer) delete [] st;
    return(true);
 }
 //__________________________________________________________________________

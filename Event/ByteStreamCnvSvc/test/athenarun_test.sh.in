@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# $Id: athenarun_test.sh.in 740489 2016-04-15 09:17:00Z krasznaa $
+#
+# This script template is used to create the scripts for the package that
+# executes its integration tests.
+#
+
+# Transmit errors:
+set -e
+
+# Execute the job:
+@toExecute@

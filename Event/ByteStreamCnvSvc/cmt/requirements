@@ -32,6 +32,7 @@ use EventInfo             EventInfo-*             Event
 use PersistentDataModel   PersistentDataModel-*   Database
 use AthenaPoolUtilities   AthenaPoolUtilities-*   Database/AthenaPOOL
 use AthenaPoolKernel      AthenaPoolKernel-*      Database/AthenaPOOL
+use ByteStreamCnvSvcLegacy ByteStreamCnvSvcLegacy-*  Event
 
 # Setup automatic testing which runs with gmake check
 
@@ -49,9 +50,6 @@ macro test_pattern_opt_only "athenarun_test" \
 
 # BSEventSelector
 apply_pattern athenarun_test name="BSEventSelector" pre_script="../cmt/setup.sh ; rm -rf ../run/*" options="ByteStreamCnvSvc/BSEventSelector_test_jobOptions.py" post_script="../test/post_check.sh BSEventSelector"
-
-# BSEventSelector evsel
-apply_pattern athenarun_test name="BSEventSelector2" pre_script="../cmt/setup.sh ; rm -rf ../run/*" options="ByteStreamCnvSvc/BSEventSelector_test_evsel_jobOptions.py" post_script="../test/post_check.sh BSEventSelector2"
 
 # BSEventSelector 2 files
 #apply_pattern athenarun_test name="BSEventSelector_redux" pre_script="../cmt/setup.sh ; rm -rf ../run/*" options="ByteStreamCnvSvc/BSEventSelector_test_jobOptions_redux.py" post_script="../test/post_check.sh BSEventSelector_redux"
