@@ -13,10 +13,10 @@
 
 UserActionBase::UserActionBase(const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type,name,parent),
-    fpEventManager(nullptr),
-    stackManager(nullptr),
-    fpSteppingManager(nullptr),
-    fpTrackingManager(nullptr),
+    m_fpEventManager(nullptr),
+    m_stackManager(nullptr),
+    m_fpSteppingManager(nullptr),
+    m_fpTrackingManager(nullptr),
     m_regions()
 {
 
@@ -35,17 +35,17 @@ StatusCode
 UserActionBase::queryInterface(const InterfaceID& riid, void** ppvIf)
 {
   if ( riid == IUserAction::interfaceID() )
-  {
-    *ppvIf = (IUserAction*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }
+    {
+      *ppvIf = (IUserAction*)this;
+      addRef();
+      return StatusCode::SUCCESS;
+    }
   return AthAlgTool::queryInterface( riid, ppvIf );
 }
 
 void UserActionBase::printRoles(){
 
-  
+
   ATH_MSG_INFO("Roles enabled are:");
 
   for(auto p: m_roles){
