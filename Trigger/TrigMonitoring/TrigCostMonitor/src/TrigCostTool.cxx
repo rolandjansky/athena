@@ -41,7 +41,9 @@
 TrigCostTool::TrigCostTool(const std::string& type,
          const std::string& name,
          const IInterface* parent)
-  :AthAlgTool(type, name, parent), 
+  :AthAlgTool(type, name, parent),
+   m_appId(0),
+   m_appName(), 
    m_parentAlg(0),
    m_timer(0),
    m_timerSvc("TrigTimerSvc/TrigTimerSvc", name),
