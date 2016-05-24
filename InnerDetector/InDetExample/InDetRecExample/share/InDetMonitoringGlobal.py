@@ -121,14 +121,14 @@ if InDetFlags.doMonitoringGlobal():
   # BCM TOOL                                         #
   #                                                  #
   ####################################################
-  from InDetGlobalMonitoring.InDetGlobalMonitoringConf import InDetGlobalBCMTool
-  InDetGlobalBCMTool=InDetGlobalBCMTool( name          = "InDetGlobalBCMTool")
+  # from InDetGlobalMonitoring.InDetGlobalMonitoringConf import InDetGlobalBCMTool
+  # InDetGlobalBCMTool=InDetGlobalBCMTool( name          = "InDetGlobalBCMTool")
 
-  if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-    InDetGlobalBCMTool.FilterTools.append(monFilledBunchFilterTool)
-  ToolSvc += InDetGlobalBCMTool
-  if (InDetFlags.doPrintConfigurables()):
-      print InDetGlobalBCMTool
+  # if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
+  #   InDetGlobalBCMTool.FilterTools.append(monFilledBunchFilterTool)
+  # ToolSvc += InDetGlobalBCMTool
+  # if (InDetFlags.doPrintConfigurables()):
+  #     print InDetGlobalBCMTool
 
   ####################################################
   #                                                  #
@@ -154,9 +154,11 @@ if InDetFlags.doMonitoringGlobal():
   # Assign tools to global mon manager               #
   #                                                  #
   ####################################################
+  # InDetGlobalManager.AthenaMonTools += [ InDetGlobalSynchMonTool,
+  #                                        InDetGlobalTrackMonTool,
+  #                                        InDetGlobalBCMTool]
   InDetGlobalManager.AthenaMonTools += [ InDetGlobalSynchMonTool,
-                                         InDetGlobalTrackMonTool,
-                                         InDetGlobalBCMTool]
+                                         InDetGlobalTrackMonTool ]
   if DetFlags.haveRIO.pixel_on():
       InDetGlobalManager.AthenaMonTools += [ InDetGlobalPixelTool ]
 
@@ -206,17 +208,9 @@ if InDetFlags.doMonitoringGlobal():
                                                 DoControlPlots = False,
                                                 histFolder = "InDetGlobal/PrimaryVertexMultiplicity"
                                                 )
-  
-  if not hasattr(ToolSvc, 'monTrigDecTool') and rec.doTrigger == True:
-    print "Trigger decision tool not found: including it now"
-    from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-    monTrigDecTool = Trig__TrigDecisionTool(name=DQMonFlags.nameTrigDecTool(),
-                                            OutputLevel=ERROR,
-                                            PublicChainGroups = {"EFRandom": "EF_rd0_filled_NoAlg"}
-                                            )
-    ToolSvc += monTrigDecTool
-  
-  if rec.doTrigger == True:
+
+  from AthenaMonitoring.DQMonFlags import DQMonFlags
+  if rec.doTrigger == True and hasattr(ToolSvc, DQMonFlags.nameTrigDecTool()):
     InDetVertexMonitoring.TrigDecisionTool = monTrigDecTool
     InDetVertexMonitoring.TriggerChain = "EF_rd0_filled_NoAlg"
   
