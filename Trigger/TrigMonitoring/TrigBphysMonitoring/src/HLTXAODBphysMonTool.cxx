@@ -159,6 +159,8 @@ m_muonMass(105.66)
     declareProperty("Eta_max"                      , m_eta_max              , "Maximum Eta");
     declareProperty("Mu_pt_min"                    , m_mu_pt_min            , "Minimum muon pT");
     declareProperty("Mu_pt_max"                    , m_mu_pt_max            , "Maximum muon pT");
+    declareProperty("Trk_pt_min"                   , m_trk_pt_min           , "Minimum ID track pT");
+    declareProperty("Trk_pt_max"                   , m_trk_pt_max           , "Maximum ID track pT");
     declareProperty("Z0_min"                       , m_z0_min               , "Minimum z0");
     declareProperty("Z0_max"                       , m_z0_max               , "Maximum z0");
     declareProperty("D0_min"                       , m_d0_min               , "Minimum d0");
@@ -173,6 +175,8 @@ m_muonMass(105.66)
     declareProperty("PtSum_max"                    , m_ptsum_max            , "Maximum pT sum of muons");
     declareProperty("OniaMass_min"                 , m_oniamass_min         , "Minimum onia mass");
     declareProperty("OniaMass_max"                 , m_oniamass_max         , "Maximum onia mass");
+    declareProperty("TauMass_min"                  , m_taumass_min          , "Minimum tau mass");
+    declareProperty("TauMass_max"                  , m_taumass_max          , "Maximum tau mass");
     declareProperty("OniaPt_min"                   , m_oniapt_min           , "Minimum onia pt");
     declareProperty("OniaPt_max"                   , m_oniapt_max           , "Maximum onia pt");
 
@@ -315,7 +319,14 @@ StatusCode HLTXAODBphysMonTool::fill()
 //-----------------------------------------------------------
 {
     ATH_MSG_DEBUG ("fill... ");
-
+    
+    // Check HLTResult
+    if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()){
+        ATH_MSG_WARNING("HLTResult truncated, skip event");
+        return StatusCode::SUCCESS;
+        //return false;
+    }
+    
     // fill the offline di-muon hists
     ATH_MSG_DEBUG ("fill... JpsiFinder");
     if (fillJpsiFinder().isFailure()) {ATH_MSG_WARNING("Problems filling JpsiFinder method");}
@@ -896,24 +907,30 @@ StatusCode HLTXAODBphysMonTool::bookJpsiFinder() {
         addHistogram( new TH1F(prefix+"_Jpsi_dphi_central_"+trigpair.first, prefix+"_Jpsi_dphi_central_"+trigpair.second, 32,  0.,3.2) );
         addHistogram( new TH1F(prefix+"_Jpsi_deta_central_"+trigpair.first, prefix+"_Jpsi_deta_central_"+trigpair.second, 30, 0.,3.) );
         addHistogram( new TH1F(prefix+"_Jpsi_pt_central_"+trigpair.first, prefix+"_Jpsi_pt_central_"+trigpair.second, nptmumus,ptmumus) );
-        addHistogram( new TH1F(prefix+"_Jpsi_tau_bs_central_"+trigpair.first, prefix+"_Jpsi_tau_bs_central_"+trigpair.second, ntaus,taus) );
-        addHistogram( new TH1F(prefix+"_Jpsi_lxy_bs_central_"+trigpair.first, prefix+"_Jpsi_lxy_bs_central_"+trigpair.second, ntaus,taus) );
+//         addHistogram( new TH1F(prefix+"_Jpsi_tau_bs_central_"+trigpair.first, prefix+"_Jpsi_tau_bs_central_"+trigpair.second, ntaus,taus) );
+//         addHistogram( new TH1F(prefix+"_Jpsi_lxy_bs_central_"+trigpair.first, prefix+"_Jpsi_lxy_bs_central_"+trigpair.second, ntaus,taus) );
+        addHistogram( new TH1F(prefix+"_Jpsi_tau_bs_central_"+trigpair.first, prefix+"_Jpsi_tau_bs_central_"+trigpair.second, 105,-1.,20.) );
+        addHistogram( new TH1F(prefix+"_Jpsi_lxy_bs_central_"+trigpair.first, prefix+"_Jpsi_lxy_bs_central_"+trigpair.second, 105,-1.,20.) );
         
         addHistogram( new TH1F(prefix+"_Jpsi_mass_forward_"+trigpair.first, prefix+"_Jpsi_mass_forward_"+trigpair.second, 50, 2950,3250) );
         addHistogram( new TH1F(prefix+"_Jpsi_rap_forward_"+trigpair.first, prefix+"_Jpsi_rap_forward_"+trigpair.second, 50, -2.5,2.5) );
         addHistogram( new TH1F(prefix+"_Jpsi_dphi_forward_"+trigpair.first, prefix+"_Jpsi_dphi_forward_"+trigpair.second, 32,  0.,3.2) );
         addHistogram( new TH1F(prefix+"_Jpsi_deta_forward_"+trigpair.first, prefix+"_Jpsi_deta_forward_"+trigpair.second, 30, 0.,3.) );
         addHistogram( new TH1F(prefix+"_Jpsi_pt_forward_"+trigpair.first, prefix+"_Jpsi_pt_forward_"+trigpair.second, nptmumus,ptmumus) );
-        addHistogram( new TH1F(prefix+"_Jpsi_tau_bs_forward_"+trigpair.first, prefix+"_Jpsi_tau_bs_forward_"+trigpair.second, ntaus,taus) );
-        addHistogram( new TH1F(prefix+"_Jpsi_lxy_bs_forward_"+trigpair.first, prefix+"_Jpsi_lxy_bs_forward_"+trigpair.second, ntaus,taus) );
+//         addHistogram( new TH1F(prefix+"_Jpsi_tau_bs_forward_"+trigpair.first, prefix+"_Jpsi_tau_bs_forward_"+trigpair.second, ntaus,taus) );
+//         addHistogram( new TH1F(prefix+"_Jpsi_lxy_bs_forward_"+trigpair.first, prefix+"_Jpsi_lxy_bs_forward_"+trigpair.second, ntaus,taus) );
+        addHistogram( new TH1F(prefix+"_Jpsi_tau_bs_forward_"+trigpair.first, prefix+"_Jpsi_tau_bs_forward_"+trigpair.second,  105,-1.,20.) );
+        addHistogram( new TH1F(prefix+"_Jpsi_lxy_bs_forward_"+trigpair.first, prefix+"_Jpsi_lxy_bs_forward_"+trigpair.second,  105,-1.,20.) );
         
         addHistogram( new TH1F(prefix+"_Jpsi_mass_"+trigpair.first, prefix+"_Jpsi_mass_"+trigpair.second, 50, 2950,3250) );
         addHistogram( new TH1F(prefix+"_Jpsi_rap_"+trigpair.first, prefix+"_Jpsi_rap_"+trigpair.second, 50, -2.5,2.5) );
         addHistogram( new TH1F(prefix+"_Jpsi_dphi_"+trigpair.first, prefix+"_Jpsi_dphi_"+trigpair.second, 32,  0.,3.2) );
         addHistogram( new TH1F(prefix+"_Jpsi_deta_"+trigpair.first, prefix+"_Jpsi_deta_"+trigpair.second, 30, 0.,3.) );
         addHistogram( new TH1F(prefix+"_Jpsi_pt_"+trigpair.first, prefix+"_Jpsi_pt_"+trigpair.second, nptmumus,ptmumus) );
-        addHistogram( new TH1F(prefix+"_Jpsi_tau_bs_"+trigpair.first, prefix+"_Jpsi_tau_bs_"+trigpair.second, ntaus,taus) );
-        addHistogram( new TH1F(prefix+"_Jpsi_lxy_bs_"+trigpair.first, prefix+"_Jpsi_lxy_bs_"+trigpair.second, ntaus,taus) );
+//         addHistogram( new TH1F(prefix+"_Jpsi_tau_bs_"+trigpair.first, prefix+"_Jpsi_tau_bs_"+trigpair.second, ntaus,taus) );
+//         addHistogram( new TH1F(prefix+"_Jpsi_lxy_bs_"+trigpair.first, prefix+"_Jpsi_lxy_bs_"+trigpair.second, ntaus,taus) );
+        addHistogram( new TH1F(prefix+"_Jpsi_tau_bs_"+trigpair.first, prefix+"_Jpsi_tau_bs_"+trigpair.second,  105,-1.,20.) );
+        addHistogram( new TH1F(prefix+"_Jpsi_lxy_bs_"+trigpair.first, prefix+"_Jpsi_lxy_bs_"+trigpair.second,  105,-1.,20.) );
     }
 
 
@@ -1593,7 +1610,10 @@ void HLTXAODBphysMonTool::bookTrigBphysHists(const std::string & groupName ,cons
     //************ SHIFTER ************* //
     addMonGroup(new MonGroup(this,m_base_path_shifter+"/"+path,run));
     
-    addHistogram( new TH1F(Form("%s_%s_mass",pref,name) ,     Form("%s_%s_mass;mass(#mu#mu)[GeV];Candidates",pref,detTitle) ,    200, m_oniamass_min,m_oniamass_max) );
+    if ( chainName.find("bTau") != std::string::npos) 
+      addHistogram( new TH1F(Form("%s_%s_mass",pref,name) ,     Form("%s_%s_mass;mass(#mu#mu)[MeV];Candidates",pref,detTitle) ,    200, m_taumass_min,m_taumass_max) );
+    else
+      addHistogram( new TH1F(Form("%s_%s_mass",pref,name) ,     Form("%s_%s_mass;mass(#mu#mu)[MeV];Candidates",pref,detTitle) ,    200, m_oniamass_min,m_oniamass_max) );
     addHistogram( new TH1F(Form("%s_%s_eta",pref,name) ,      Form("%s_%s_eta;#eta(#mu#mu);Candidates",pref,detTitle) ,     30, m_eta_min,m_eta_max) );
     addHistogram( new TH1F(Form("%s_%s_dR",pref,name) ,       Form("%s_%s_dR;dR(#mu_{1,2});Candidates",pref,detTitle) ,     30, m_dr_min,m_dr_max) );
     
@@ -1608,8 +1628,18 @@ void HLTXAODBphysMonTool::bookTrigBphysHists(const std::string & groupName ,cons
         addHistogram( new TH1F(Form("%s_%s_dphi",pref,name) ,     Form("%s_%s_dphi;d#phi(#mu_{1,2});Candidates",pref,detTitle) ,     32, m_dphi_min,m_dphi_max) );
         addHistogram( new TH1F(Form("%s_%s_deta",pref,name) ,     Form("%s_%s_deta;d#eta(#mu_{1,2});Candidates",pref,detTitle) ,     30, m_deta_min,m_deta_max) );
         addHistogram( new TH1F(Form("%s_%s_pTsum",pref,name) ,    Form("%s_%s_pTsum;#Sigmap_{T}(#mu_{1,2})[GeV];Candidates",pref,detTitle) ,    nptmumus,ptmumus) );
-        addHistogram( new TH1F(Form("%s_%s_fitmass",pref,name) ,  Form("%s_%s_fitmass;fitmass(#mu#mu)[GeV];Candidates",pref,detTitle) ,    200, m_oniamass_min,m_oniamass_max) );
+        if ( chainName.find("bTau") != std::string::npos) 
+          addHistogram( new TH1F(Form("%s_%s_fitmass",pref,name) ,  Form("%s_%s_fitmass;fitmass(#mu#mu)[MeV];Candidates",pref,detTitle) ,    200, m_taumass_min,m_taumass_max) );
+        else
+          addHistogram( new TH1F(Form("%s_%s_fitmass",pref,name) ,  Form("%s_%s_fitmass;fitmass(#mu#mu)[MeV];Candidates",pref,detTitle) ,    200, m_oniamass_min,m_oniamass_max) );
         addHistogram( new TH1F(Form("%s_%s_fitchi2",pref,name) ,  Form("%s_%s_fitchi2;#chi^{2}(#mu#mu);Candidates",pref,detTitle) ,    50, 0.,20.) );
+        // ID tracks monitoring for Bmumux-like chains
+        if ( chainName.find("bBmumux") != std::string::npos ) {
+          addHistogram( new TH1F(Form("%s_%s_pTtrk",pref,name) ,    Form("%s_%s_pTtrk;p_{T}(trk)[GeV];Candidates",pref,detTitle) ,    50, m_trk_pt_min,m_trk_pt_max) );
+          addHistogram( new TH1F(Form("%s_%s_z0trk",pref,name) ,    Form("%s_%s_z0trk;z_{0}(trk)[mm];Candidates",pref,detTitle) ,    150, m_z0_min,m_z0_max) );
+          addHistogram( new TH1F(Form("%s_%s_d0trk",pref,name) ,    Form("%s_%s_d0trk;d_{0}(trk)[mm];Candidates",pref,detTitle) ,    220, m_d0_min,m_d0_max) );
+          
+        }
     }
 
     //************ EXPERT ************* //
@@ -1663,7 +1693,7 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
     }
 
     if (trackVector.size() %2 != 0) {
-        ATH_MSG_DEBUG(" REGTEST uneven number of tracks " );
+        ATH_MSG_DEBUG(" REGTEST uneven number of tracks (may be ok for Bmumux-like chains)" );
     }
 
     
@@ -1686,7 +1716,6 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
     std::vector<ElementLink<xAOD::TrackParticleContainer> >::const_iterator trkIt1=trackVector.begin();
     std::vector<ElementLink<xAOD::TrackParticleContainer> >::const_iterator trkIt2=trackVector.begin();
     for (; trkIt1!= trackVector.end(); ++trkIt1) {
-        trkIt2 = trkIt1 +1; // for track two
         
         if (!(trkIt1->isValid())) {
             ATH_MSG_WARNING("TrackParticleContainer::Invalid ElementLink to track ");
@@ -1714,15 +1743,29 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
         int pixHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfPixelHits)  ?  tmpValue : -99;
         int trtHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfTRTHits)    ?  tmpValue : -99;
         
+        if( chainName.find("bBmumux") != std::string::npos && trkIt1->dataID().find("Bphysics_IDTrig") != std::string::npos ) {
+          // first fill ID track histograms
+          hist(Form("%s_%s_pTtrk",pref,name))->Fill(ptTrk1/1000.);
+          hist(Form("%s_%s_d0trk",pref,name))->Fill(d0Trk1);
+          hist(Form("%s_%s_z0trk",pref,name))->Fill(z0Trk1);
+          continue; // not consider ID tracks which appear in Bmumux-like chains
+        }
+        
         
         ATH_MSG_DEBUG("track1 "  << " pt phi eta " << ptTrk1 << " " <<
                       phiTrk1 << " " << etaTrk1 << "SCT hits: " << sctHitsTrk1);
-
+        
+        // assume that if we found a muon track, the next one is the second muon
+        trkIt2 = trkIt1 +1; // for track two
+        
         if (trkIt2 != trackVector.end()) {
             if (!(trkIt2->isValid())) {
                 ATH_MSG_WARNING("TrackParticleContainer::Invalid ElementLink to track ");
                 continue;
             }
+            
+            if( chainName.find("bBmumux") != std::string::npos && trkIt2->dataID().find("Bphysics_IDTrig") != std::string::npos )
+              continue; // not consider ID tracks which appear in Bmumux-like chains
             
             const xAOD::TrackParticle * ptl2 = **trkIt2;
             if (!ptl2) {
@@ -2094,7 +2137,13 @@ float HLTXAODBphysMonTool::cosMethod(const TLorentzVector & Mu1, const TLorentzV
     
     double pp = MuMu.Px()*MuPlus.Px() + MuMu.Py()*MuPlus.Py() + MuMu.Pz()*MuPlus.Pz();
     
-    float cosTheta = (float)((MuMu.Energy()*pp - P_MuMu*P_MuMu*MuPlus.Energy())/(MuMu_mass*ps*P_MuMu));
+    //ATH_MSG_DEBUG("pssq = " << pssq << ", ps = " << ps << ", P_MuMu = " << P_MuMu << ", MuMu_mass = " << MuMu_mass);
+    
+    float cosTheta(-99.);
+    if(ps == 0.) 
+      ATH_MSG_DEBUG("Two muons with equal momenta - cosTheta will return an unphysical value");
+    else
+      cosTheta = (float)((MuMu.Energy()*pp - P_MuMu*P_MuMu*MuPlus.Energy())/(MuMu_mass*ps*P_MuMu));
     
     
     return cosTheta;

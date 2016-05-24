@@ -6,7 +6,7 @@
 # ------------------------
 # SET UP FITTER 
 # ------------------------
-include( "JpsiUpsilonTools/configureServices.py" )
+include( "TrigBphysMonitoring/configureBphysTrackingServices.py" )
 
 #print "JWW: apply temp fix TrkVKalVrtFitter.firstMeasuredPoint = False"
 TrkVKalVrtFitter.FirstMeasuredPoint = False

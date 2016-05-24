@@ -136,6 +136,8 @@ private:
     double m_eta_max;
     double m_mu_pt_min;
     double m_mu_pt_max;
+    double m_trk_pt_min;
+    double m_trk_pt_max;
     double m_z0_min;
     double m_z0_max;
     double m_d0_min;
@@ -150,6 +152,8 @@ private:
     double m_ptsum_max;
     double m_oniamass_min;
     double m_oniamass_max;
+    double m_taumass_min;
+    double m_taumass_max;
     double m_oniapt_min;
     double m_oniapt_max ;
 
