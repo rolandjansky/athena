@@ -276,7 +276,7 @@ long int fitVertex(VKVertex * vk, long int iflag)
 /*   Also set up localBMAG in dXYZST if nonuniform field is used    */
 /* ---------------------------------------------------------------- */
         extrapolationDone=false;
-        if( vShift>20. || it==1 || forcedExtrapolation){
+        if( vShift>vkalShiftToTrigExtrapolation || it==1 || forcedExtrapolation){
           extrapolationDone=true;
           forcedExtrapolation=false;
           double oldX=0., oldY=0., oldZ=0.;
@@ -365,7 +365,7 @@ long int fitVertex(VKVertex * vk, long int iflag)
           double ddz=savedExtrapVertices[it-1].Z-savedExtrapVertices[it-2].Z;
           double ddstep=sqrt(ddx*ddx+ddy*ddy+ddz*ddz);
 //std::cout<<" Huge degradation due to extrapolation. Limit step! it="<<it<<" step="<<ddstep<<'\n';
-          if( ddstep > 20.) { 
+          if( ddstep > 10.*vkalShiftToTrigExtrapolation) { 
             dxyzst[0]=(savedExtrapVertices[it-1].X + 2.*savedExtrapVertices[it-2].X)/3.;
             dxyzst[1]=(savedExtrapVertices[it-1].Y + 2.*savedExtrapVertices[it-2].Y)/3.;
             dxyzst[2]=(savedExtrapVertices[it-1].Z + 2.*savedExtrapVertices[it-2].Z)/3.;
@@ -375,7 +375,7 @@ long int fitVertex(VKVertex * vk, long int iflag)
         }
         chi21s = vk->Chi2;
 	chi22s = chi21s * 1.01 + 10.; //for safety 
-	if ( vShift < 20.) {              // REASONABLE DISPLACEMENT (<14mm) - RECALCULATE
+	if ( vShift < 10.*vkalShiftToTrigExtrapolation) {              // REASONABLE DISPLACEMENT - RECALCULATE
 /* ROBUSTIFICATION */
 	  if (forcft_1.irob != 0) {robtest(vk, 1);}  // ROBUSTIFICATION new data structure
 //Reset mag.field
@@ -422,12 +422,12 @@ long int fitVertex(VKVertex * vk, long int iflag)
 	//std::cout<<"-----------------------------------------------"<<'\n';
 /*  Test of convergence */
 	chi2df = fabs(chi21s - chi22s);
-	//std::cout<<"Convergence="<< chi2df <<" cnst="<<cnstRemnants<<'\n';
   /*---------------------Normal convergence--------------------*/
         double PrecLimit = min(chi22s*1.e-4, forcft_1.IterationPrecision);
+	//std::cout<<"Convergence="<< chi2df <<"<"<<PrecLimit<<" cnst="<<cnstRemnants<<"<"<<ConstraintAccuracy<<'\n';
 	if ((chi2df < PrecLimit) && (vShift < 0.001) && it>1 && (cnstRemnants<ConstraintAccuracy)){
 	   double dstFromExtrapPnt=sqrt(vk->fitV[0]*vk->fitV[0] + vk->fitV[1]*vk->fitV[1]+ vk->fitV[2]*vk->fitV[2]);
-	   if( dstFromExtrapPnt>2. && it < forcft_1.IterationNumber){
+	   if( dstFromExtrapPnt>vkalShiftToTrigExtrapolation/2. && it < forcft_1.IterationNumber-15){
 	     forcedExtrapolation=true;
 	     continue;          // Make another extrapolation exactly to found vertex position
            }
