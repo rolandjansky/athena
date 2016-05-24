@@ -5,6 +5,7 @@
 // System include(s):
 #include <memory>
 #include <cstdlib>
+#include "boost/unordered_map.hpp"
 
 // ROOT include(s):
 #include <TFile.h>
@@ -25,16 +26,15 @@
 #include "xAODCore/ShallowCopy.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"
+#include "xAODCore/tools/IOStats.h"
+#include "xAODCore/tools/ReadStats.h"
+#include "AsgTools/Check.h"
+
 #include "PATInterfaces/SystematicCode.h"
 
 // Local include(s):
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 #include "MuonSelectorTools/MuonSelectionTool.h"
-
-#include "boost/unordered_map.hpp"
-
-// Framework include(s):
-#include "AsgTools/Check.h"
 
 int main( int argc, char* argv[] ) {
 
@@ -60,7 +60,7 @@ int main( int argc, char* argv[] ) {
   if( !ifile ) Error( APP_NAME, "Cannot find file " + fileName );
 
   //::: Create a TEvent object:
-  xAOD::TEvent event( ifile, xAOD::TEvent::kClassAccess );
+  xAOD::TEvent event( ifile, xAOD::TEvent::kAthenaAccess );
   Info( APP_NAME, "Number of events in the file: %i", static_cast< int >( event.getEntries() ) );
 
   //::: Create a transient object store. Needed for the tools.
@@ -79,9 +79,9 @@ int main( int argc, char* argv[] ) {
 
   //::: Muon Calibration and Smearing
   CP::MuonCalibrationAndSmearingTool corrTool( "MuonCorrectionTool" );
-  corrTool.msg().setLevel( MSG::INFO );
+  //corrTool.msg().setLevel( MSG::DEBUG );
   //ATH_CHECK( corrTool.initialize() );
-  corrTool.setProperty( "Release", "PreRecs" );
+  //corrTool.setProperty( "Release", "PreRecs" );
   corrTool.initialize();
 
   //::: Muon Selection
@@ -91,20 +91,23 @@ int main( int argc, char* argv[] ) {
   selTool.initialize();
 
   //::: Systematics initialization
-  const CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
-  const CP::SystematicSet& recommendedSystematics = registry.recommendedSystematics();
   std::vector< CP::SystematicSet > sysList;
   sysList.push_back( CP::SystematicSet() );
+  /*
+  const CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
+  const CP::SystematicSet& recommendedSystematics = registry.recommendedSystematics();
   for( CP::SystematicSet::const_iterator sysItr = recommendedSystematics.begin(); sysItr != recommendedSystematics.end(); ++sysItr ) {
     sysList.push_back( CP::SystematicSet() );
     sysList.back().insert( *sysItr );
   }
+  */
   std::vector< CP::SystematicSet >::const_iterator sysListItr;
 
   //::: Output initialization
   Float_t InitPtCB( 0. ), InitPtID( 0. ), InitPtMS( 0. );
   Float_t CorrPtCB( 0. ), CorrPtID( 0. ), CorrPtMS( 0. );
   Float_t Eta( 0. ), Phi( 0. ), Charge( 0. );
+  Float_t ExpResoCB( 0. ), ExpResoID( 0. ), ExpResoMS( 0. );
   TFile* outputFile = TFile::Open( "output.root", "recreate" );
   boost::unordered_map< CP::SystematicSet, TTree* > sysTreeMap;
   for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {
@@ -120,6 +123,9 @@ int main( int argc, char* argv[] ) {
     sysTree->Branch( "Eta", &Eta, "Eta/F" );
     sysTree->Branch( "Phi", &Phi, "Phi/F" );
     sysTree->Branch( "Charge", &Charge, "Charge/F" );
+    sysTree->Branch( "ExpResoCB", &ExpResoCB, "ExpResoCB/F" );
+    sysTree->Branch( "ExpResoID", &ExpResoID, "ExpResoID/F" );
+    sysTree->Branch( "ExpResoMS", &ExpResoMS, "ExpResoMS/F" );
 
     sysTreeMap[ *sysListItr ] = sysTree;
   }
@@ -140,7 +146,7 @@ int main( int argc, char* argv[] ) {
     const xAOD::MuonContainer* muons = 0;
     //ATH_CHECK( event.retrieve( muons, "Muons" ) );
     event.retrieve( muons, "Muons" );
-    Info( APP_NAME, "Number of muons: %i", static_cast< int >( muons->size() ) );
+    //Info( APP_NAME, "Number of muons: %i", static_cast< int >( muons->size() ) );
 
     // create a shallow copy of the muons container
     std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > muons_shallowCopy = xAOD::shallowCopyContainer( *muons );
@@ -190,7 +196,7 @@ int main( int argc, char* argv[] ) {
           CorrPtID = mu->auxdata< float >( "InnerDetectorPt" );
           CorrPtMS = mu->auxdata< float >( "MuonSpectrometerPt" );
 
-          Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", mu->eta(), mu->phi(), mu->pt(), mu->auxdata< float >( "InnerDetectorPt" ), mu->auxdata< float >( "MuonSpectrometerPt" ) );
+          //Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", mu->eta(), mu->phi(), mu->pt(), mu->auxdata< float >( "InnerDetectorPt" ), mu->auxdata< float >( "MuonSpectrometerPt" ) );
 
           sysTreeMap[ *sysListItr ]->Fill();
 
@@ -198,6 +204,7 @@ int main( int argc, char* argv[] ) {
           delete mu;
         }
         else {
+          //if( muon->type() == 0 ) continue;
           if( !corrTool.applyCorrection( *muon ) ) {
             Error( APP_NAME, "Cannot really apply calibration nor smearing" );
             continue;
@@ -205,8 +212,12 @@ int main( int argc, char* argv[] ) {
           CorrPtCB = muon->pt();
           CorrPtID = muon->auxdata< float >( "InnerDetectorPt" );
           CorrPtMS = muon->auxdata< float >( "MuonSpectrometerPt" );
+          ExpResoCB = corrTool.ExpectedResolution( "CB", *muon );
+          ExpResoID = corrTool.ExpectedResolution( "ID", *muon );
+          ExpResoMS = corrTool.ExpectedResolution( "MS", *muon );
 
-          Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muon->eta(), muon->phi(), muon->pt(), muon->auxdata< float >( "InnerDetectorPt" ), muon->auxdata< float >( "MuonSpectrometerPt" ) );
+          Info( APP_NAME, "resoCB = %g, resoID = %g, resoMS = %g", ExpResoCB, ExpResoID, ExpResoMS );
+          //Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muon->eta(), muon->phi(), muon->pt(), muon->auxdata< float >( "InnerDetectorPt" ), muon->auxdata< float >( "MuonSpectrometerPt" ) );
 
           sysTreeMap[ *sysListItr ]->Fill();
         }
@@ -223,6 +234,8 @@ int main( int argc, char* argv[] ) {
 
   //::: Close output file
   outputFile->Close();
+
+  xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
 
   //::: Return gracefully:
   return 0;
