@@ -160,7 +160,7 @@ namespace Analysis {
 
     TMVA::Reader* tmvaReader=0;     std::map<std::string, TMVA::Reader*>::iterator pos;
     TMVA::MethodBase * kl=0;        std::map<std::string, TMVA::MethodBase*>::iterator it_mb;
-    egammaMVACalibNmsp::BDT *bdt=0; std::map<std::string, egammaMVACalibNmsp::BDT*>::iterator it_egammaBDT;
+    MVAUtils::BDT *bdt=0; std::map<std::string, MVAUtils::BDT*>::iterator it_egammaBDT;
     
     /*KM: Retrieval of objects from the calibration file and store it back in the calibration broker temporarily*/
     if(calibHasChanged) {
@@ -283,7 +283,7 @@ namespace Analysis {
 	  TObjArray trees, variables, classes;
 	  TString *vars = egammaMVACalib::getVariables(tmvaReader);  assert(vars);
 	  TMVA::MethodBDT* tbdt= dynamic_cast<TMVA::MethodBDT*>(method);  assert(tbdt);
-	  bdt= new egammaMVACalibNmsp::BDT(tbdt);
+	  bdt= new MVAUtils::BDT(tbdt);
 	  TFile *f = new TFile(filename.data(),"recreate");
 	  TTree *tree = bdt->WriteTree(m_treeName.data());
 	  variables.AddAtAndExpand(new TObjString(*vars),0);
@@ -315,13 +315,13 @@ namespace Analysis {
 
       }
       else {//if m_useEgammaMethodMV2
-	ATH_MSG_INFO("#BTAG# Booking egammaMVACalibNmsp::BDT for "<<m_taggerNameBase);
+	ATH_MSG_INFO("#BTAG# Booking MVAUtils::BDT for "<<m_taggerNameBase);
 
 	// TDirectoryFile* f= (TDirectoryFile*)calib.first;
 	// TTree *tree = (TTree*) f->Get(treeName.data());
 	
 	if (tree) {
-	  bdt = new egammaMVACalibNmsp:: BDT(tree);
+	  bdt = new MVAUtils:: BDT(tree);
 	  delete tree;//<- Crash at finalization if w/o this
 	}
 	else {
@@ -338,6 +338,7 @@ namespace Analysis {
 	if ( inputVars.size()!=nConfgVar or badVariableFound ) {
 	  ATH_MSG_WARNING( "#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
 	  m_disableAlgo=true;
+	  delete bdt;
 	  return StatusCode::SUCCESS;
 	}
 
@@ -443,21 +444,21 @@ namespace Analysis {
     m_sv1_cu = BTag->calcLLR(sv1_pc,sv1_pu);
 
     /*** Accessing JetFitter output variables ***/
-    if("JetFitterCombNN"==m_jfprob_infosource){
-      jfc_pb=BTag->JetFitterCombNN_pb();
-      jfc_pu=BTag->JetFitterCombNN_pu();
-      jfc_pc=BTag->JetFitterCombNN_pc();
-    }
-    else if ("JetFitter"==m_jfprob_infosource){
-      jfc_pb=BTag->JetFitter_pb();
-      jfc_pu=BTag->JetFitter_pu();
-      jfc_pc=BTag->JetFitter_pc();
-    } 
-    else {
-      BTag->variable<double>(m_jfprob_infosource, "pu", jfc_pu);
-      BTag->variable<double>(m_jfprob_infosource, "pb", jfc_pb);
-      BTag->variable<double>(m_jfprob_infosource, "pc", jfc_pc);
-    }
+    // if("JetFitterCombNN"==m_jfprob_infosource){
+    //   jfc_pb=BTag->JetFitterCombNN_pb();
+    //   jfc_pu=BTag->JetFitterCombNN_pu();
+    //   jfc_pc=BTag->JetFitterCombNN_pc();
+    // }
+    // else if ("JetFitter"==m_jfprob_infosource){
+    //   jfc_pb=BTag->JetFitter_pb();
+    //   jfc_pu=BTag->JetFitter_pu();
+    //   jfc_pc=BTag->JetFitter_pc();
+    // } 
+    // else {
+    //   BTag->variable<double>(m_jfprob_infosource, "pu", jfc_pu);
+    //   BTag->variable<double>(m_jfprob_infosource, "pb", jfc_pb);
+    //   BTag->variable<double>(m_jfprob_infosource, "pc", jfc_pc);
+    // }
     
     /*** Accessing SV0 variables ***/    
     std::vector< ElementLink< xAOD::VertexContainer > > myVertices;
@@ -626,6 +627,130 @@ namespace Analysis {
       m_jf_scaled_efc  = m_jf_ntrkv + m_jf_nvtx1t>0 ? m_jf_efrc * (static_cast<float>(ntrks) / (m_jf_ntrkv + m_jf_nvtx1t)) : -1;
     }
 
+    /*** Generating MV2cl100 variables *****/
+
+    //MV2cl100 default values
+    m_nTrk_vtx1 = 0;
+    m_mass_first_vtx = -100;
+    m_e_first_vtx = -100;
+    m_e_frac_vtx1 = 0;
+    m_closestVtx_L3D = -10;
+    m_JF_Lxy1 = -5;
+    m_vtx1_MaxTrkRapidity_jf_path = 0;
+    m_vtx1_AvgTrkRapidity_jf_path = 0;
+    m_vtx1_MinTrkRapidity_jf_path = 0;
+    m_MaxTrkRapidity_jf_path = 0;
+    m_MinTrkRapidity_jf_path = 0;
+    m_AvgTrkRapidity_jf_path = 0;   
+
+    std::vector< ElementLink< xAOD::TrackParticleContainer > > assocTracks;
+    try{
+      assocTracks = BTag->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >("BTagTrackToJetAssociator");
+    } catch (...) {}
+    
+    std::vector<ElementLink<xAOD::BTagVertexContainer> > jfvertices;
+    try {
+      jfvertices =  BTag->auxdata<std::vector<ElementLink<xAOD::BTagVertexContainer> > >("JetFitter_JFvertices");
+    } catch (...) {}
+
+    std::vector<float> fittedPosition = BTag->auxdata<std::vector<float> >("JetFitter_fittedPosition");
+    
+    if(fittedPosition.size() > 0){
+      
+      float jf_phi = fittedPosition[3];
+      float jf_theta = fittedPosition[4];
+      TVector3 flightDir(0,0,0);
+      flightDir.SetMagThetaPhi(1., jf_theta, jf_phi ); //flight directon of JF decay chain
+
+      //loop over position of JF vertices, find index of secondary vertex
+      int secondary_vertex_index = -1;
+      for (unsigned int jfv = 0; jfv < jfvertices.size(); jfv++) {
+        float tmpL3D = fittedPosition[jfv + 5];
+        if (tmpL3D > 0 && (m_closestVtx_L3D > tmpL3D || m_closestVtx_L3D < 0) ){
+          m_closestVtx_L3D = tmpL3D;
+          secondary_vertex_index = jfv;
+        }
+      }
+
+      //loop over tracks, collect total 4 momentum, and 4 momentum of secondary vertex, calculate pseudo rapidity of track   
+      TLorentzVector tracksTot4Mom(0,0,0,0);
+      TLorentzVector tracksTot4Mom_firstVtx(0,0,0,0);
+      float sumTrackRapidity = 0;
+      float vtx1_sumTrackRapidity = 0;
+      int vtx1_first_track = 0;
+      float track_mass = 139.570;
+      int trkIndex=0;
+
+
+
+        //track loop, (slightly reused from MVb section)
+        
+        for(auto trkIter = assocTracks.begin(); trkIter != assocTracks.end(); ++trkIter) {
+
+          const xAOD::TrackParticle* aTemp = **trkIter;
+         
+          TLorentzVector trk;
+          trk.SetPtEtaPhiM(aTemp->pt(), aTemp->eta(), aTemp->phi(), track_mass);
+          tracksTot4Mom += trk;
+
+          TVector3 trkvector(0,0,0);
+          trkvector = trk.Vect();
+          
+          float trackRapidity = (-1)*log( tan( 0.5*trkvector.Angle(flightDir) ) );
+          
+          sumTrackRapidity += trackRapidity;
+
+          if(trkIndex==0){
+            m_MaxTrkRapidity_jf_path = trackRapidity;
+            m_MinTrkRapidity_jf_path = trackRapidity;
+          }else{
+            m_MaxTrkRapidity_jf_path = trackRapidity > m_MaxTrkRapidity_jf_path ? trackRapidity : m_MaxTrkRapidity_jf_path;
+            m_MinTrkRapidity_jf_path = trackRapidity < m_MinTrkRapidity_jf_path ? trackRapidity : m_MinTrkRapidity_jf_path;
+          }
+          
+            if(secondary_vertex_index >= 0){
+              //get track links to secondary vertex
+                const xAOD::BTagVertex *tmpVertex = *(jfvertices.at(secondary_vertex_index));
+                const std::vector< ElementLink<xAOD::TrackParticleContainer> > tmpVect = tmpVertex->track_links();
+              //check association to JF vertex
+              int particleInCollection = 0;
+              for (unsigned int iT = 0; iT < tmpVect.size(); iT++) {
+                      if (aTemp == *(tmpVect.at(iT))) particleInCollection=1;
+              }
+              if (particleInCollection){
+                m_nTrk_vtx1 += 1;
+                
+                tracksTot4Mom_firstVtx += trk;
+                vtx1_sumTrackRapidity += trackRapidity;
+                
+                if(vtx1_first_track==0){
+                  m_vtx1_MaxTrkRapidity_jf_path = trackRapidity;
+                  m_vtx1_MinTrkRapidity_jf_path = trackRapidity;
+                  vtx1_first_track=1;
+                }else{
+                  m_vtx1_MaxTrkRapidity_jf_path = trackRapidity > m_vtx1_MaxTrkRapidity_jf_path ? trackRapidity : m_vtx1_MaxTrkRapidity_jf_path;
+                  m_vtx1_MinTrkRapidity_jf_path = trackRapidity < m_vtx1_MinTrkRapidity_jf_path ? trackRapidity : m_vtx1_MinTrkRapidity_jf_path;               
+                }
+
+              }
+            }
+
+          trkIndex++;
+          } //end of trk loop
+
+    // assign the remaining MV2cl100 variables 
+      m_AvgTrkRapidity_jf_path = trkIndex > 0 ? sumTrackRapidity/trkIndex : 0;
+
+      if(m_nTrk_vtx1 > 0){
+        m_JF_Lxy1 = m_closestVtx_L3D*sin(jf_theta);
+        m_mass_first_vtx = tracksTot4Mom_firstVtx.M();
+        m_e_first_vtx = tracksTot4Mom_firstVtx.E();
+        m_e_frac_vtx1 = m_e_first_vtx/tracksTot4Mom.E();
+        m_vtx1_AvgTrkRapidity_jf_path = vtx1_sumTrackRapidity/m_nTrk_vtx1;
+      }
+    } // end if fittedPosition.size() > 0
+
+  
     /*** Retrieving soft muon variables ***/
     BTag->variable<float>(m_softmuon_infosource, "mu_pt"           , m_sm_mu_pt          );
     BTag->variable<float>(m_softmuon_infosource, "dR"              , m_sm_dR             );
@@ -652,6 +777,20 @@ namespace Analysis {
       BTag->setVariable<float>(m_decTagName, "trk3_d0sig"    , m_trk3_d0sig    );
       BTag->setVariable<float>(m_decTagName, "trk3_z0sig"    , m_trk3_z0sig    );
       BTag->setVariable<int>  (m_decTagName, "n_trk_sigd0cut",   n_trk_d0cut   );
+      //MV2cl100 inputs
+      BTag->setVariable<float>(m_decTagName, "nTrk_vtx1", m_nTrk_vtx1);
+      BTag->setVariable<float>(m_decTagName, "mass_first_vtx" , m_mass_first_vtx );
+      BTag->setVariable<float>(m_decTagName, "e_first_vtx" , m_e_first_vtx );
+      BTag->setVariable<float>(m_decTagName, "e_frac_vtx1"    , m_e_frac_vtx1    );
+      BTag->setVariable<float>(m_decTagName, "closestVtx_L3D"    , m_closestVtx_L3D    );
+      BTag->setVariable<int>  (m_decTagName, "JF_Lxy1",   m_JF_Lxy1   );
+      BTag->setVariable<int>  (m_decTagName, "vtx1_MaxTrkRapidity_jf_path",   m_vtx1_MaxTrkRapidity_jf_path   );
+      BTag->setVariable<int>  (m_decTagName, "vtx1_AvgTrkRapidity_jf_path",   m_vtx1_AvgTrkRapidity_jf_path   );
+      BTag->setVariable<int>  (m_decTagName, "vtx1_MinTrkRapidity_jf_path",   m_vtx1_MinTrkRapidity_jf_path   );
+      BTag->setVariable<int>  (m_decTagName, "MaxTrkRapidity_jf_path",   m_MaxTrkRapidity_jf_path   );
+      BTag->setVariable<int>  (m_decTagName, "MinTrkRapidity_jf_path",   m_MinTrkRapidity_jf_path   );
+      BTag->setVariable<int>  (m_decTagName, "AvgTrkRapidity_jf_path",   m_AvgTrkRapidity_jf_path   );
+
     }
 
     //KM: These aren't used anymore though, just in case...
@@ -824,6 +963,22 @@ namespace Analysis {
      m_trk3_z0sig=-10;
      m_sv_scaled_efc=-1;
      m_jf_scaled_efc=-1;
+
+     m_pt_alternative = -1;
+     m_nTrk_vtx1 = -1;
+     m_mass_first_vtx = -1;
+     m_e_first_vtx = -1;
+     m_e_frac_vtx1 = -1;
+     m_closestVtx_L3D = -1;
+     m_JF_Lxy1 = -1;
+     m_vtx1_MaxTrkRapidity_jf_path = -1;
+     m_vtx1_AvgTrkRapidity_jf_path = -1;
+     m_vtx1_MinTrkRapidity_jf_path = -1;
+     m_MaxTrkRapidity_jf_path = -1;
+     m_MinTrkRapidity_jf_path = -1;
+     m_AvgTrkRapidity_jf_path = -1;
+
+
   }
 
   void MV2Tag::PrintInputs() {
@@ -894,12 +1049,27 @@ namespace Analysis {
 		  ", jf_mass_unco= " << m_jf_mass_unco
 		  );
     ATH_MSG_DEBUG("#BTAG# MV2 mvb inputs: " <<
-		  "  width= "         <<m_width         <<
+      "  width= "         <<m_width         <<
 		  ", n_trk_sigd0cut= "<<m_n_trk_sigd0cut<<
 		  ", trk3_d0sig= "    <<m_trk3_d0sig    <<
 		  ", trk3_z0sig= "    <<m_trk3_z0sig    <<
 		  ", sv_scaled_efc= " <<m_sv_scaled_efc <<
 		  ", jf_scaled_efc= " <<m_jf_scaled_efc);
+    
+    ATH_MSG_DEBUG("#BTAG# MV2 mv2cl100 inputs: " <<
+      "nTrk_vtx1"                   <<m_nTrk_vtx1                  <<
+      "mass_first_vtx"              <<m_mass_first_vtx             <<
+      "e_first_vtx"                 <<m_e_first_vtx                <<
+      "e_frac_vtx1"                 <<m_e_frac_vtx1                <<
+      "closestVtx_L3D"              <<m_closestVtx_L3D             <<
+      "JF_Lxy1"                     <<m_JF_Lxy1                    <<
+      "vtx1_MaxTrkRapidity_jf_path" <<m_vtx1_MaxTrkRapidity_jf_path<<
+      "vtx1_AvgTrkRapidity_jf_path" <<m_vtx1_AvgTrkRapidity_jf_path<<
+      "vtx1_MinTrkRapidity_jf_path" <<m_vtx1_MinTrkRapidity_jf_path<<
+      "MaxTrkRapidity_jf_path"      <<m_MaxTrkRapidity_jf_path     <<
+      "MinTrkRapidity_jf_path"      <<m_MinTrkRapidity_jf_path     <<
+      "AvgTrkRapidity_jf_path"      <<m_AvgTrkRapidity_jf_path);
+
   }
 
   void MV2Tag::SetVariableRefs(const std::vector<std::string> inputVars, TMVA::Reader* tmvaReader, unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers) {
@@ -987,6 +1157,19 @@ namespace Analysis {
       else if (inputVars.at(ivar)=="trk3_z0sig"    ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_trk3_z0sig      ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_trk3_z0sig      ); nConfgVar++; }
       else if (inputVars.at(ivar)=="sv_scaled_efc" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv_scaled_efc   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv_scaled_efc   ); nConfgVar++; }
       else if (inputVars.at(ivar)=="jf_scaled_efc" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_scaled_efc   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_scaled_efc   ); nConfgVar++; }
+      //MV2cl100 input variables
+      else if (inputVars.at(ivar)== "nTrk_vtx1"                    ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_nTrk_vtx1                  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_nTrk_vtx1); nConfgVar++; }
+      else if (inputVars.at(ivar)== "mass_first_vtx"               ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_mass_first_vtx             ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_mass_first_vtx); nConfgVar++; }
+      else if (inputVars.at(ivar)== "e_first_vtx"                  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_e_first_vtx                ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_e_first_vtx); nConfgVar++; }
+      else if (inputVars.at(ivar)== "e_frac_vtx1"                  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_e_frac_vtx1                ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_e_frac_vtx1); nConfgVar++; }
+      else if (inputVars.at(ivar)== "closestVtx_L3D"               ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_closestVtx_L3D             ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_closestVtx_L3D); nConfgVar++; }
+      else if (inputVars.at(ivar)== "JF_Lxy1"                      ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_JF_Lxy1                    ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_JF_Lxy1); nConfgVar++; }
+      else if (inputVars.at(ivar)== "vtx1_MaxTrkRapidity_jf_path"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_vtx1_MaxTrkRapidity_jf_path) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_vtx1_MaxTrkRapidity_jf_path); nConfgVar++; }
+      else if (inputVars.at(ivar)== "vtx1_AvgTrkRapidity_jf_path"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_vtx1_AvgTrkRapidity_jf_path) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_vtx1_AvgTrkRapidity_jf_path); nConfgVar++; }
+      else if (inputVars.at(ivar)== "vtx1_MinTrkRapidity_jf_path"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_vtx1_MinTrkRapidity_jf_path) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_vtx1_MinTrkRapidity_jf_path); nConfgVar++; }
+      else if (inputVars.at(ivar)== "MaxTrkRapidity_jf_path"       ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_MaxTrkRapidity_jf_path     ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_MaxTrkRapidity_jf_path); nConfgVar++; }
+      else if (inputVars.at(ivar)== "MinTrkRapidity_jf_path"       ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_MinTrkRapidity_jf_path     ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_MinTrkRapidity_jf_path); nConfgVar++; }
+      else if (inputVars.at(ivar)== "AvgTrkRapidity_jf_path"       ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_AvgTrkRapidity_jf_path    ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_AvgTrkRapidity_jf_path); nConfgVar++; }
       //soft muon input variables		  			                                       	  								      
       else if (inputVars.at(ivar)=="sm_mu_pt"           ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_mu_pt          ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_mu_pt          ); nConfgVar++; }
       else if (inputVars.at(ivar)=="sm_dR"              ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_dR             ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_dR             ); nConfgVar++; }
@@ -1005,67 +1188,5 @@ namespace Analysis {
     //std::cout<<std::endl;
 
   }
-
-  //KM: The fuctions below will be migrated to the new class, somewhere in common btwn egamma/b-tagging
-  std::vector<float> MV2Tag::GetMulticlassResponse(egammaMVACalibNmsp::BDT* bdt,const std::vector<float>& values) const {
-    std::vector<double> sum(m_nClasses,0);
-    std::vector<float> v_out;
-    
-    for (unsigned it=0; it <bdt->GetForest().size() ; it++) 
-      sum[it%m_nClasses]  += bdt->GetForest().at(it)->GetResponse(values);
-    
-    
-    for (unsigned icl=0; icl<m_nClasses; icl++) {
-      double norm=0;
-      for (unsigned jcl=0; jcl<m_nClasses; jcl++) {
-	if (icl!=jcl) norm+= exp(sum[jcl]-sum[icl]);
-      }
-      v_out.push_back(1/(1+norm));
-    }
-
-    if (v_out.size()!=m_nClasses)
-      ATH_MSG_WARNING("#BTAG# Unkown error, outputs vector size not "<<m_nClasses<<"!!!" );
-    
-    return v_out;
-  }
-  std::vector<float> MV2Tag::GetMulticlassResponse(egammaMVACalibNmsp::BDT* bdt,const std::vector<float*>& pointers) const {
-    std::vector<double> sum(m_nClasses,0);
-    std::vector<float> v_out;
-
-    for (unsigned it=0; it <bdt->GetForest().size() ; it++)
-      sum[it%m_nClasses]  += bdt->GetForest().at(it)->GetResponse(pointers);
-    
-
-    for (unsigned icl=0; icl<m_nClasses; icl++) {
-      double norm=0;
-      for (unsigned jcl=0; jcl<m_nClasses; jcl++) {
-    	if (icl!=jcl) norm+= exp(sum[jcl]-sum[icl]);
-      }
-      v_out.push_back(1/(1+norm));
-    }
-
-    if (v_out.size()!=m_nClasses)
-      ATH_MSG_WARNING("#BTAG# Unkown error, outputs vector size not "<<m_nClasses<<"!!!" );
-    
-    return v_out;
-  }
-  
-  double MV2Tag::GetClassResponse(egammaMVACalibNmsp::BDT* bdt,const std::vector<float>& values) const {
-    double sum=0;
-    std::vector<egammaMVACalibNmsp::Node*>::const_iterator it;
-    for (it = bdt->GetForest().begin(); it != bdt->GetForest().end(); ++it) {
-      sum  += (*it)->GetResponse(values);
-    }
-    return 2./(1+exp(-2*sum))-1;//output shaping for gradient boosted decision tree (-1,1)
-  }
-  double MV2Tag::GetClassResponse(egammaMVACalibNmsp::BDT* bdt,const std::vector<float*>& pointers) const {
-    double sum=0;
-    std::vector<egammaMVACalibNmsp::Node*>::const_iterator it;
-    for (it = bdt->GetForest().begin(); it != bdt->GetForest().end(); ++it) {
-      sum  += (*it)->GetResponse(pointers);
-    }
-    return 2./(1+exp(-2*sum))-1;//output shaping for gradient boosted decision tree (-1,1)
-  }
-
 
 }//end namespace

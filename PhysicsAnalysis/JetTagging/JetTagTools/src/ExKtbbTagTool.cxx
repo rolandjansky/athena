@@ -12,7 +12,16 @@
 namespace Analysis{
 
 ExKtbbTagTool::ExKtbbTagTool(std::string myname):
-  JetModifierBase(myname)
+  JetModifierBase(myname),
+  m_JetAlgorithm(""),
+  m_JetRadius(0.),
+  m_PtMin(0.),
+  m_ExclusiveNJets(0),
+  m_SubjetRecorderTool("SubjetRecorderTool"),
+  m_SubjetLabel(""),
+  m_SubjetContainerName(""),
+  m_SubjetAlgorithm_BTAG(""),
+  m_SubjetRadius_BTAG(0.)
 {
   declareProperty("JetAlgorithm", m_JetAlgorithm);
   declareProperty("JetRadius", m_JetRadius);
@@ -21,6 +30,7 @@ ExKtbbTagTool::ExKtbbTagTool(std::string myname):
 
   declareProperty("SubjetRecorder", m_SubjetRecorderTool);
   declareProperty("SubjetLabel", m_SubjetLabel);
+  declareProperty("SubjetContainerName", m_SubjetContainerName);
   declareProperty("SubjetAlgorithm_BTAG", m_SubjetAlgorithm_BTAG);
   declareProperty("SubjetRadius_BTAG", m_SubjetRadius_BTAG);
 }
@@ -53,6 +63,25 @@ int ExKtbbTagTool::modifyJet(xAOD::Jet& jet) const {
   // record subjets //
 
   auto subjets_nonconst = m_SubjetRecorderTool->recordSubjets(subjets_pj, jet);   // since we are using customized constituent pseudo-jet, constituents information will not be stored here
+
+  // store the subjet container name and index //
+
+  // We do this since ElementLink to the subjet could be broken after the deep-copy in b-tagging part. This was not a problem before 20.7. The reason behind it is still unknown.
+  // Assuming the subjet container order is un-changed during b-tagging deep-copy, which SHOULD be valid.
+
+  std::vector<const xAOD::Jet*> ExKtSubJets;
+  if(!jet.getAssociatedObjects<xAOD::Jet>(m_SubjetLabel.c_str(), ExKtSubJets)){
+    ATH_MSG_WARNING("Unable to fetch subjet collection in ExKtbbTagTool::modifyJet : " << m_SubjetLabel.c_str());
+    ATH_MSG_WARNING("Nothing to be done for this problem. But you might crash very soon.");
+  }
+
+  jet.auxdata<std::string>(m_SubjetLabel + "_ContainerName") = m_SubjetContainerName;
+
+  std::vector<int> SubjetIndexVector;
+  for(auto subjet : ExKtSubJets){
+    SubjetIndexVector.push_back(subjet->index());
+  }
+  jet.auxdata<std::vector<int> >(m_SubjetLabel + "_IndexList") = SubjetIndexVector;
 
   // overwrite something / store constituents //
 
@@ -92,6 +121,12 @@ int ExKtbbTagTool::modifyJet(xAOD::Jet& jet) const {
     // set correct constituent signal state
     subjet_nonconst->setConstituentsSignalState(jet.getConstituentsSignalState());
   }
+
+  // for(auto subjet : ExKtSubJets){
+  //   if(!subjet){
+  //     std::cout << "Empty ptr to subjet in ExKtbbTagTool::modifyJet at position 2!" << std::endl;
+  //   }
+  // }
 
   return 0;
 }

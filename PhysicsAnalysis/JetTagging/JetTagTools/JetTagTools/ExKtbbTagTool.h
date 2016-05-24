@@ -50,7 +50,9 @@ class ExKtbbTagTool : public JetModifierBase {
     ToolHandle<ISubjetRecorderTool> m_SubjetRecorderTool;     
 
 
-    std::string m_SubjetLabel;                       // must be exactly the same label as the oen used by SubjetRecorder inside SubjetFinder. 
+    std::string m_SubjetLabel;                       // must be exactly the same label as the one used by SubjetRecorder inside SubjetFinder. 
+                                                     // At this moment, there is no way to figure out this name given SubjetFinderTool
+    std::string m_SubjetContainerName;               // must be exactly the same container name as the one used by SubjetRecorder inside SubjetFinder.
                                                      // At this moment, there is no way to figure out this name given SubjetFinderTool
     std::string m_SubjetAlgorithm_BTAG;
     float       m_SubjetRadius_BTAG;

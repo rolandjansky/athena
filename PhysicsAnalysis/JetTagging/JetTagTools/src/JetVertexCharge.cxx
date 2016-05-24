@@ -188,7 +188,12 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
    if (m_doForcedCalib) author = m_ForcedCalibName;
    std::string alias = m_calibrationTool->channelAlias(author);
 
+
    ClearVars();
+
+   m_jet_uPt = jetToTag.pt();
+
+
 
    // if(m_runModus=="analysis" && !m_alreadySetup ) {
    //   StatusCode sc = SetupReaders(author, alias, JC_SVC_noMu );
@@ -259,6 +264,9 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
 
       if(denom != 0) m_jc = charge / denom;
       if(denom_all != 0) m_jc_all= charge_all / denom_all;
+      m_jc_jetPt = charge/jetToTag.pt();
+      m_jc_all_jetPt = charge_all/jetToTag.pt();
+
 
    }
 
@@ -363,6 +371,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
          denom += pow( tp->pt(), m_kappa_SV);
       }
       if(denom != 0)  m_svc = charge/denom;
+      m_svc_jetPt = charge/jetToTag.pt();
 
       m_sv_dist =  svx.pos;
       m_sv_err =  svx.err;
@@ -399,6 +408,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
      if(denom != 0) m_tvc = charge/denom;
      m_tv_dist =  tvx.pos;
      m_tv_err =  tvx.err;
+     m_tvc_jetPt = charge/jetToTag.pt();
 
 
 
@@ -463,7 +473,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
 
         float iso = -1;
         m->isolation( iso,  xAOD::Iso::IsolationType::ptvarcone40); 
-        if( iso/m->pt() < 0.05 ) continue;  //FIXME change it
+//        if( iso/m->pt() < 0.05 ) continue;  
 
         if( m->pt() > ptmax ) { //Select the hardest one
 	    myMuon = m;
@@ -516,8 +526,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
    //==============================================================
 
 
-   int mvaCat = category();   // m_jc, m_svc, m_tvc, fabs(m_mu_charge) ); 
-   //int mvaCat = category( m_jc, m_svc, m_tvc, fabs(m_mu_charge) ); 
+   int mvaCat = category(); 
 
    m_sv_err  = ( m_sv_err>5.)? 5. : m_sv_err;
    m_tv_err  = ( m_tv_err>5.)? 5. : m_tv_err;
@@ -572,6 +581,12 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
    
    if( m_runModus == "reference") {
 
+      BTag->setVariable<float>(m_taggerNameBase, "jet_uncalibrated_pt", m_jet_uPt );
+      BTag->setVariable<float>(m_taggerNameBase, "JC_jetPt", m_jc_jetPt);
+      BTag->setVariable<float>(m_taggerNameBase, "JC_all_jetPt", m_jc_all_jetPt);
+      BTag->setVariable<float>(m_taggerNameBase, "SVC_jetPt", m_svc_jetPt);
+      BTag->setVariable<float>(m_taggerNameBase, "TVC_jetPt", m_tvc_jetPt);
+
       BTag->setVariable<float>(m_taggerNameBase, "JC_all", m_jc_all );
       BTag->setVariable<float>(m_taggerNameBase, "firstGoodTrkPt", m_jc_track_pt );
       BTag->setVariable<float>(m_taggerNameBase, "firstTrkPt_SV", m_sv_track_pt);
@@ -599,7 +614,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
       BTag->setVariable<float>(m_taggerNameBase, "mu_vtx", m_mu_vtx);
 
       BTag->setVariable<int>(m_taggerNameBase, "category", mvaCat );
-      BTag->setVariable<double>(m_taggerNameBase, "discriminant", -3. ); 
+      BTag->setVariable<double>(m_taggerNameBase, "discriminant", -7. ); 
 
    } 
    else if( m_runModus == "analysis") {   
@@ -621,7 +636,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
        return StatusCode::SUCCESS;
      } 
      else if(mvaCat < 0 ) {   //NULL cat
-       BTag->setVariable<double>(m_taggerNameBase, "discriminant", -3. );
+       BTag->setVariable<double>(m_taggerNameBase, "discriminant", -7. );
        return StatusCode::SUCCESS;
      } 
 
@@ -771,7 +786,7 @@ float  JetVertexCharge::logLikelihoodRatio( int mvaCat, float mvaWeight, std::st
     histo_neg = m_calibrationTool->retrieveHistogram(m_taggerNameBase, author, "jvc_JC_all_b"); 
   }
   else if(mvaCat == -1) {
-    return -3; 
+    return -7; 
   }
 
   bool histosHaveChanged = (histo_pos.second || histo_neg.second); 
@@ -869,7 +884,7 @@ float  JetVertexCharge::logLikelihoodRatio( int mvaCat, float mvaWeight, std::st
 
 StatusCode JetVertexCharge::SetupReaders( std::string /*author*/, std::string alias , int mvaCat, TList* list) {
 
-   ATH_MSG_DEBUG("JVC setting up reader for category "<<mvaCat);
+   ATH_MSG_DEBUG("#BTAG# setting up reader for category "<<mvaCat);
 
 
    // std::pair<TList*, bool> calib;
@@ -931,6 +946,11 @@ StatusCode JetVertexCharge::SetupReaders( std::string /*author*/, std::string al
 	 while (posi != std::string::npos) {
 	   varExpress.replace(posi, 4, ">");
 	   posi = varExpress.find("&gt;");
+	 }
+	 posi = varExpress.find("&amp;"); 
+	 while (posi != std::string::npos) {
+	   varExpress.replace(posi, 5, "&");
+	   posi = varExpress.find("&amp;");
 	 }
 	 inputVars.push_back(varExpress);
        }
@@ -1043,9 +1063,13 @@ StatusCode JetVertexCharge::SetupReaders( std::string /*author*/, std::string al
 
 void JetVertexCharge::PrintVariables()  {
 
+
+
+
    ATH_MSG_DEBUG("#BTAG# ===============================================================================");
    ATH_MSG_DEBUG("#BTAG# Printing input variables: ");
    ATH_MSG_DEBUG("#BTAG# JC="<<m_jc<<"  SVC="<<m_svc<<"  TVC="<<m_tvc<<"  mu charge="<<m_mu_charge<<" JC all="<<m_jc_all);
+   ATH_MSG_DEBUG("#BTAG# JC_jetPt="<<m_jc_jetPt<<"  SVC_jetPt="<<m_svc_jetPt<<"  TVC_jetPt="<<m_tvc_jetPt<<"  mu charge="<<m_mu_charge<<" JC_all_jetPt="<<m_jc_all_jetPt);
    ATH_MSG_DEBUG("#BTAG# ngood trk="<<m_ngoodtrk<<"  JC pt="<<m_jc_track_pt<<"  SV pt= "<<m_sv_track_pt); 
    ATH_MSG_DEBUG("#BTAG# ntrkSV="<<m_sv_ntrk<<"  distSV="<<m_sv_dist<<"  errSV="<<m_sv_err<<" mass SV="<<m_sv_mass_pions);
    ATH_MSG_DEBUG("#BTAG# ntrkTV="<<m_tv_ntrk<<"  distTV="<<m_tv_dist<<"  errTV="<<m_tv_err<<" mass TV="<<m_tv_mass_kaons);
@@ -1092,9 +1116,20 @@ void JetVertexCharge::initializeVariablePtrs() {
   m_variablePtr["JC"]            = &m_jc;
   m_variablePtr["track_good_pt"] = &m_jc_track_pt;
   m_variablePtr["ngoodtrk"]      = &m_ngoodtrk;
+  m_variablePtr["jet_uncalibrated_pt"]      = &m_jet_uPt;
+  m_variablePtr["JC_jetPt"]      = &m_jc_jetPt;
+  m_variablePtr["JC_all_jetPt"]  = &m_jc_all_jetPt;
+  m_variablePtr["SVC_jetPt"]     = &m_svc_jetPt;
+  m_variablePtr["TVC_jetPt"]     = &m_tvc_jetPt;
 }
 
 void JetVertexCharge::ClearVars()  {
+
+  m_jet_uPt = -999.;
+  m_jc_jetPt = -999.;
+  m_jc_all_jetPt = -999.;
+  m_svc_jetPt = -9.;
+  m_tvc_jetPt = -9.;
 
   m_jc = -3;
   m_jc_all = -3;

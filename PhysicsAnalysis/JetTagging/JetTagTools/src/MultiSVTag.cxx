@@ -134,7 +134,7 @@ namespace Analysis
     TMVA::Reader* tmvaReader = nullptr;
     std::map<std::string, TMVA::Reader*>::iterator pos;
     TMVA::MethodBase * kl=0;        std::map<std::string, TMVA::MethodBase*>::iterator it_mb;
-    egammaMVACalibNmsp::BDT *bdt=0; std::map<std::string, egammaMVACalibNmsp::BDT*>::iterator it_egammaBDT;
+    MVAUtils::BDT *bdt=0; std::map<std::string, MVAUtils::BDT*>::iterator it_egammaBDT;
     ATH_MSG_DEBUG("#BTAG# Jet author for MultiSVTag: " << author << ", alias: " << alias );
     /* check if calibration (neural net structure or weights) has to be updated: */
     std::pair<TObject*, bool> calib=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib");
@@ -230,7 +230,7 @@ namespace Analysis
 	iss.clear();
       }
       else {//if m_useEgammaMethodMultiSV
-	ATH_MSG_INFO("#BTAG# Booking egammaMVACalibNmsp::BDT for "<<m_taggerNameBase);
+	ATH_MSG_INFO("#BTAG# Booking MVAUtils::BDT for "<<m_taggerNameBase);
 
 	// TDirectoryFile* f= (TDirectoryFile*)calib.first;
 	// TTree *tree = (TTree*) f->Get(treeName.data());
@@ -238,7 +238,7 @@ namespace Analysis
 	TTree *tree = (TTree*) calibTree.first;
 	
 	if (tree) {
-	  bdt = new egammaMVACalibNmsp:: BDT(tree);
+	  bdt = new MVAUtils:: BDT(tree);
 	  delete tree;//<- Crash at finalization if w/o this
 	}
 	else {
@@ -588,23 +588,5 @@ namespace Analysis
     //std::cout<<std::endl;
 
   }
-
-  double MultiSVTag::GetClassResponse(egammaMVACalibNmsp::BDT* bdt,const std::vector<float>& values) const {
-    double sum=0;
-    std::vector<egammaMVACalibNmsp::Node*>::const_iterator it;
-    for (it = bdt->GetForest().begin(); it != bdt->GetForest().end(); ++it) {
-      sum  += (*it)->GetResponse(values);
-    }
-    return 2./(1+exp(-2*sum))-1;//output shaping for gradient boosted decision tree (-1,1)
-  }
-  double MultiSVTag::GetClassResponse(egammaMVACalibNmsp::BDT* bdt,const std::vector<float*>& pointers) const {
-    double sum=0;
-    std::vector<egammaMVACalibNmsp::Node*>::const_iterator it;
-    for (it = bdt->GetForest().begin(); it != bdt->GetForest().end(); ++it) {
-      sum  += (*it)->GetResponse(pointers);
-    }
-    return 2./(1+exp(-2*sum))-1;//output shaping for gradient boosted decision tree (-1,1)
-  }
-
 
 }//end namespace

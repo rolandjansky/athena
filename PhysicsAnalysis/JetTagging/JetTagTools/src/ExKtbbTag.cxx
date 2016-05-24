@@ -212,13 +212,41 @@ bool ExKtbbTag::CalculateInputVariables(xAOD::Jet& jetToTag, xAOD::BTagging* BTa
   BTag->setVariable<double>(m_taggerName, "JFDLError", -1.);
   BTag->setVariable<double>(m_taggerName, "JFDLSignificance", -1.);
 
-  // fetch subjets and sort by pT
-  std::vector<const xAOD::Jet*> ExKtSubJets;
-  if(!jetToTag.getAssociatedObjects<xAOD::Jet>(m_SubJetLabel.c_str(), ExKtSubJets)){
-    ATH_MSG_ERROR("Unable to fetch subjet collection " << m_SubJetLabel.c_str());
+  if(m_debug) ATH_MSG_INFO("Fetching subjets");
+
+  // Bug fix in 20.7. Rebuild the link to subjet. 
+
+  auto SubjetContainer = evtStore()->tryRetrieve<xAOD::JetContainer>(jetToTag.auxdata<std::string>(m_SubJetLabel + "_ContainerName"));
+  if(SubjetContainer == 0){
+    ATH_MSG_ERROR("Unable to get subjet container " << m_SubJetLabel << "_ContainerName !");
     return false;
   }
+
+  auto SubjetIndexList = jetToTag.auxdata<std::vector<int> >(m_SubJetLabel + "_IndexList");
+  std::vector<const xAOD::Jet*> ExKtSubJets;
+  for(auto index : SubjetIndexList){
+    ExKtSubJets.push_back(SubjetContainer->at(index));
+  }
+
+  // overwrite the original subjet link built in subjetrecorder, since it might be broken after b-tagging deep-copy
+
+  jetToTag.setAssociatedObjects(m_SubJetLabel, ExKtSubJets);
+
+  if(m_debug) ATH_MSG_INFO("Check if subjets ptr is valid");
+
+  // check if each subjet is valid
+  for(auto subjet : ExKtSubJets){
+    if(!subjet){
+      ATH_MSG_ERROR("Empty ptr to subjet! You will crash soon...");
+      return false;
+    }
+  }
+
+  if(m_debug) ATH_MSG_INFO("Sort subjets by pT");
+
   std::sort(ExKtSubJets.begin(), ExKtSubJets.end(), ExKtbbTag::SortPt);
+
+  if(m_debug) ATH_MSG_INFO("Begin computing inputs");
 
   // validity check
   if(ExKtSubJets.size() == 2){
