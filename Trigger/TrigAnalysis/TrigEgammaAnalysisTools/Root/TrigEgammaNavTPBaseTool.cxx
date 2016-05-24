@@ -114,16 +114,17 @@ bool TrigEgammaNavTPBaseTool::EventWiseSelection(){
     m_jets = 0;
     m_truthContainer=0;
 
+    // Check HLTResult
+    if(tdt()->ExperimentalAndExpertMethods()->isHLTTruncated()){
+        ATH_MSG_WARNING("HLTResult truncated, skip event");
+        return false;
+    }
+    
     if ( (m_storeGate->retrieve(m_eventInfo, "EventInfo")).isFailure() ){
         ATH_MSG_WARNING("Failed to retrieve eventInfo ");
         return false;
     }
-
-    if (m_eventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error) {
-        ATH_MSG_DEBUG("Event not passing LAr");
-        return false;
-    }
-
+    
     if(m_storeGate->contains<xAOD::TruthParticleContainer>("egammaTruthParticles")){
       if(m_storeGate->retrieve(m_truthContainer,"egammaTruthParticles").isFailure()){
         ATH_MSG_WARNING("Could not retrieve xAOD::TruthParticleContainer 'egammaTruthParticles'");
@@ -131,6 +132,11 @@ bool TrigEgammaNavTPBaseTool::EventWiseSelection(){
       }
     }// protection
 
+    if (m_eventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error) {
+        ATH_MSG_DEBUG("Event not passing LAr");
+        return false;
+    }
+    
     hist1(m_anatype+"_CutCounter")->Fill("LAr",1);
     
     if ( (m_storeGate->retrieve(m_offElectrons,m_offElContKey)).isFailure() ){

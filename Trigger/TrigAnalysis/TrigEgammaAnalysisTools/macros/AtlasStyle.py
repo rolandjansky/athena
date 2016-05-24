@@ -24,8 +24,8 @@ def AtlasStyle():
   atlasStyle.SetPaperSize(20,26)
 
   # set margin sizes
-  atlasStyle.SetPadTopMargin(0.05)
-  atlasStyle.SetPadRightMargin(0.05)
+  atlasStyle.SetPadTopMargin(0.07)
+  atlasStyle.SetPadRightMargin(0.09)
   atlasStyle.SetPadBottomMargin(0.16)
   atlasStyle.SetPadLeftMargin(0.16)
 
@@ -75,6 +75,7 @@ def AtlasStyle():
   # put tick marks on top and RHS of plots
   atlasStyle.SetPadTickX(1)
   atlasStyle.SetPadTickY(1)
+  atlasStyle.SetPalette(1)
   return atlasStyle
 
 from ROOT import TLatex, gPad
@@ -92,4 +93,24 @@ def ATLASLabel(x,y,text="Internal",color=1):
     p.SetTextFont(42);
     p.SetTextColor(color);
     p.DrawLatex(x+delx,y,text);
-    #    p.DrawLatex(x,y,"#sqrt{s}=900GeV");
+    #p.DrawLatex(x,y,"#sqrt{s}=900GeV");
+
+def ATLASRunNumberLabel(x,y,runnumber,color=1):
+    l = TLatex()
+    l.SetNDC();
+    l.SetTextFont(42);
+    l.SetTextSize(0.045);
+    l.SetTextColor(color);
+    dely = 0.115*472*gPad.GetWh()/(506*gPad.GetWw());
+    label="Run " + runnumber
+    l.DrawLatex(x,y-dely,label);
+
+def ATLASLumiLabel(x,y,lumi="78",color=1):   
+    l = TLatex()
+    l.SetNDC();
+    l.SetTextFont(42);
+    l.SetTextSize(0.045);
+    l.SetTextColor(color);
+    dely = 0.115*472*gPad.GetWh()/(506*gPad.GetWw());
+    label="Data 2016, #sqrt{s}=13 TeV, "+lumi+" pb^{-1}"
+    l.DrawLatex(x,y-dely,label);

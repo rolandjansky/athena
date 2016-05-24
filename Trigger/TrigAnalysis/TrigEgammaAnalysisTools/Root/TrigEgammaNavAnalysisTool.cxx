@@ -75,8 +75,8 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
 
     cd(m_dir+"/Expert/Event");
     if( !TrigEgammaNavBaseTool::EventWiseSelection() ) {
-        ATH_MSG_DEBUG("Unable to retrieve offline containers");
-        return StatusCode::FAILURE;
+        ATH_MSG_DEBUG("Fails EventWise selection");
+        return StatusCode::SUCCESS; //return nicely
     }
 
     TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex();
