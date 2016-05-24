@@ -4,9 +4,10 @@ private
 
 use TestPolicy TestPolicy-*
 
-use TrigInDetValidation TrigInDetValidation-* Trigger/TrigValidation
+# use TrigInDetValidation TrigInDetValidation-* Trigger/TrigValidation
 
 apply_pattern validate_xml
+
 
 public
 

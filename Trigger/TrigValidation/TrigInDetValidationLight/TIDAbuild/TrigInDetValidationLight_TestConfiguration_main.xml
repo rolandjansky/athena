@@ -39,7 +39,9 @@
 
 #     include   "TrigInDetValidation_minBias.xml"
 
-#     include   "TrigInDetValidation_FTK_mu_ttbar.xml"
+#     include   "TrigInDetValidation_FTK_bjet_ttbar.xml"
+
+#     include   "TrigInDetValidation_FTK_tau_tautau.xml"
 
       </jobList>
 

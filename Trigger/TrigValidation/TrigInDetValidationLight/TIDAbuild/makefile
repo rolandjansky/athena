@@ -14,7 +14,8 @@
 ######################################################################### 
 
 
-TIDV = $(ATLAS_TEST_AREA)/Trigger/TrigValidation/TrigInDetValidation/TrigInDetValidation-00-07-18/build
+# TIDV = $(ATLAS_TEST_AREA)/Trigger/TrigValidation/TrigInDetValidation/TrigInDetValidation-00-07-18/build
+TIDV = $(ATLAS_TEST_AREA)/InstallArea/share/TIDAbuild
 
 JOBS =  \
         $(TIDV)/TrigInDetValidation_el_Zee_IBL_pu40.xml                         \
@@ -26,7 +27,7 @@ JOBS =  \
         $(TIDV)/TrigInDetValidation_FTK_mu_ttbar.xml                            
 
 
-AUXFILES = TrigInDetValidation_aux.xml
+AUXFILES = $(TIDV)/TrigInDetValidation_aux.xml
 
 
 VPATH += $(TIDV)

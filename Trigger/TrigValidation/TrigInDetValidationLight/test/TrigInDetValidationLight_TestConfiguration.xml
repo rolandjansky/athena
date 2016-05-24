@@ -1196,15 +1196,15 @@
 
 
 
-         <athena trendId='FTKMergingTrend' userJobId='TrigInDetValidation_FTK_mu_ttbar'>
-            <doc>Muon slice FTK ttbar sample</doc>
-            <displayName>MuonSlice FTK ttbar sample</displayName>
-	    <commandLineFlags>EventMax=5000;runMergedChain=True;doFTK=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+         <athena trendId='FTKMergingTrend' userJobId='TrigInDetValidation_FTK_bjet_ttbar'>
+            <doc>Bjetslice, ttbar, FTK chains</doc>
+            <displayName>BjetSlice, ttbar, FYK chains</displayName>
+	    <commandLineFlags>EventMax=500;runMergedChain=True;doFTK=True</commandLineFlags>
+            <options>TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
-
+	   
 
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000001.RDO_FTK.pool.root</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000002.RDO_FTK.pool.root</dataset>
@@ -1220,6 +1220,197 @@
 
 
 
+            <action position="01">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat -f data-bjet-FTK.root -b Test_bin.dat </argvalue>
+                </arg>
+            </action>
+
+           <action position="02">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDAcomparitor.exe</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-FTK.root data-FTK_bjet_ttbar-reference.root HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_FTKVtx_InDetTrigTrackingxAODCnv_Bjet_FTF HLT_j55_bperf_split_FTK_InDetTrigTrackingxAODCnv_Bjet_FTK  HLT_j55_bperf_split_FTKRefit_InDetTrigTrackingxAODCnv_Bjet_FTKRefit -d HLTL2-plots </argvalue>
+                </arg>
+            </action>
+
+           <action position="03">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDAcomparitor.exe</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-FTK.root data-FTK_bjet_ttbar-reference.root HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_FTKVtx_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_FTK_InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig  HLT_j55_bperf_split_FTKRefit_InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig -d HLTEF-plots </argvalue>
+                </arg>
+            </action>
+
+
+
+
+            <action position="20">
+              <modulename>RttLibraryTools</modulename>
+              <testname>ExeRunner</testname>
+              <arg>
+                <argname>exeName</argname>
+                <argvalue>TIDAcpucost.exe</argvalue>
+              </arg>
+              <arg>
+                <argname>exeParamString</argname>
+                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
+              </arg>
+            </action>
+
+
+
+            <action position="30">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>RunTrigCostD3PD.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+              </arg> 
+            </action>
+
+            <action position="31">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall --auto -d "/Algorithm" -p "_Time_perCall" </argvalue>
+              </arg> 
+            </action>
+
+            <action position="32">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent --auto -d "/Algorithm" -p "_Time_perEvent" </argvalue>
+              </arg> 
+            </action>
+
+
+
+
+            <action position="33">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall-chain --auto -d "/Chain_Algorithm" -p "_Time_perCall" </argvalue>
+              </arg> 
+            </action>
+
+            <action position="34">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname> 
+              <arg> 
+                <argname>exeName</argname> 
+                <argvalue>TIDAcpucost.exe</argvalue> 
+              </arg> 
+              <arg> 
+                <argname>exeParamString</argname> 
+                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent-chain --auto -d "/Chain_Algorithm" -p "_Time_perEvent" </argvalue>
+              </arg> 
+            </action>
+
+        <action position="40">
+             <modulename>CheckLog_TriggerTest</modulename>
+             <testname>CheckLog_TriggerTest</testname>
+             <arg>
+                <argname>command</argname>
+                <argvalue>check_log.pl --conf checklogTriggerTest.conf  %JOBLOG</argvalue>
+             </arg>
+        </action>
+
+
+
+        
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+
+            <auxFilePattern>data-FTK_bjet_ttbar-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-FTK_bjet_ttbar-ref.root</auxFilePattern>
+
+
+            <auxFilePattern>TIDA*.dat</auxFilePattern>
+            <auxFilePattern>Test_bin.dat</auxFilePattern>
+ 
+            <auxFilePattern>TIDAWeb/*</auxFilePattern>
+            <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
+            <auxFilePattern>TIDAindex.html</auxFilePattern>
+            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
+            <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
+            <auxFilePattern>TIDAindex*.php</auxFilePattern>
+            <auxFilePattern>TIDAstyle.css</auxFilePattern>
+
+   
+         <athenaCommonFlags /> 
+         </athena>
+
+
+
+
+
+         <athena trendId='FTKMergingTrend' userJobId='TrigInDetValidation_FTK_tau_tautau'>
+            <doc>Tau slice FTK tautau sample</doc>
+            <displayName>TauSlice FTK tautau sample</displayName>
+	    <commandLineFlags>EventMax=5000;runMergedChain=True;doFTK=True</commandLineFlags>
+            <options>TrigInDetValidation_RTT_topOptions_TauSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+
+
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000001.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000002.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000003.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000004.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000005.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000006.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000007.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000008.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000009.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000010.RDO_FTK.pool.root</dataset>
+
+
+
+
 
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
@@ -1230,7 +1421,7 @@
                 </arg>
                 <arg>
                     <argname>exeParamString</argname>
-                    <argvalue>TIDAdata11-rtt.dat -f data-muon-FTK.root -p 13  -b Test_bin.dat </argvalue>
+                    <argvalue>TIDAdata11-rtt.dat -f data-tau-FTK.root   -b Test_bin.dat </argvalue>
                 </arg>
             </action>
 
@@ -1244,7 +1435,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-FTK.root data-FTK_mu_ttbar-reference.root  HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  HLT_mu24_FTK_idperf_InDetTrigTrackingxAODCnv_Muon_FTK  HLT_mu24_FTKRefit_idperf_InDetTrigTrackingxAODCnv_Muon_FTKRefit  -d HLTL2-plots </argvalue>
+                <argvalue>data-tau-FTK.root data-FTK_tau_tautau-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF  HLT_tau25_idperf_FTK:InDetTrigTrackingxAODCnv_Tau_FTK HLT_tau25_idperf_FTKRefit:InDetTrigTrackingxAODCnv_Tau_FTKRefit  -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -1257,33 +1448,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-FTK.root data-FTK_mu_ttbar-reference.root  HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig  HLT_mu24_FTK_idperf_InDetTrigTrackingxAODCnv_Muon_FTK_IDTrig HLT_mu24_FTKRefit_idperf_InDetTrigTrackingxAODCnv_Muon_FTKRefit_IDTrig   -d HLTEF-plots </argvalue>
-              </arg>
-            </action>
-
-     <action position="04">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-muon-FTK.root data-FTK_mu_ttbar-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF  HLT_mu6_FTK_idperf_InDetTrigTrackingxAODCnv_Muon_FTK HLT_mu6_FTKRefit_idperf_InDetTrigTrackingxAODCnv_Muon_FTKRefit   -d HLTL2-plots-lowpt </argvalue>
-              </arg>
-            </action>
-
-     <action position="05">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-muon-FTK.root data-FTK_mu_ttbar-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig  HLT_mu6_FTK_idperf_InDetTrigTrackingxAODCnv_Muon_FTK_IDTrig HLT_mu6_FTKRefit_idperf_InDetTrigTrackingxAODCnv_Muon_FTKRefit_IDTrig    -d HLTEF-plots-lowpt </argvalue>
+                <argvalue>data-tau-FTK.root data-FTK_tau_tautau-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig  HLT_tau25_idperf_FTK:InDetTrigTrackingxAODCnv_Tau_FTK_IDTrig HLT_tau25_idperf_FTKRefit:InDetTrigTrackingxAODCnv_Tau_FTKRefit_IDTrig  -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
@@ -1390,8 +1555,8 @@
             </testToRemove>
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
-	    <auxFilePattern>data-FTK_mu_ttbar-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-FTK_mu_ttbar-ref.root</auxFilePattern>
+	    <auxFilePattern>data-FTK_tau_tautau-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-FTK_tau_tautau-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
