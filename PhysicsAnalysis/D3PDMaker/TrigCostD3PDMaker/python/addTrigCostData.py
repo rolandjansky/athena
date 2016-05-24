@@ -59,5 +59,5 @@ def addTrigCostData(mode = "COST", fileName = "trig_cost.root", costConfigL2 = F
         d3pdalg.MetadataTools += [ _trigCostTool ]
 
     if (mode != "EBWEIGHT"):
-      from TrigCostD3PDMaker.TrigConfMetadata import addTrigConfMetadata
-      addTrigConfMetadata( d3pdalg, costConfigL2, costConfigEF, costConfigHLT, _tuplePath )
+      from TrigCostD3PDMaker.TrigCostConfMetadata import addTrigCostConfMetadata
+      addTrigCostConfMetadata( d3pdalg, costConfigL2, costConfigEF, costConfigHLT, _tuplePath )

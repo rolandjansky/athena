@@ -5,8 +5,8 @@
 */
 
 // $Id: TrigConfMetadataTool.h 603620 2014-06-25 17:55:37Z tamartin $
-#ifndef TRIGGERD3PDMAKER_TRIGCONFMETADATATOOL_H
-#define TRIGGERD3PDMAKER_TRIGCONFMETADATATOOL_H
+#ifndef TRIGGERD3PDMAKER_TRIGCOSTCONFMETADATATOOL_H
+#define TRIGGERD3PDMAKER_TRIGCOSTCONFMETADATATOOL_H
 
 // STL include(s):
 #include <map>
@@ -53,13 +53,13 @@ namespace D3PD {
     * $Revision: 603620 $
     * $Date: 2014-06-25 19:55:37 +0200 (Wed, 25 Jun 2014) $
     */
-   class TrigConfMetadataTool : public AthAlgTool,
+   class TrigCostConfMetadataTool : public AthAlgTool,
                                 public IMetadataTool,
                                 public IIncidentListener {
 
    public:
       /// Regular AlgTool constructor
-      TrigConfMetadataTool( const std::string& type, const std::string& name,
+      TrigCostConfMetadataTool( const std::string& type, const std::string& name,
                             const IInterface* parent );
 
       /// AlgTool initialization function
@@ -165,4 +165,4 @@ namespace D3PD {
 
 } // namespace D3PD
 
-#endif // TRIGGERD3PDMAKER_TRIGCONFMETADATATOOL_H
+#endif // TRIGGERD3PDMAKER_TRIGCOSTCONFMETADATATOOL_H
