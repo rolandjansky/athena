@@ -300,17 +300,12 @@ const RawEvent* ByteStreamEventStorageInputSvc::previousEvent() {
   if (m_dump) {
     DumpFrags::dump(m_re);
   }
-  // Build a DH for use by other components
-  StatusCode rec_sg = generateDataHeader();
-  if (rec_sg != StatusCode::SUCCESS) {
-    ATH_MSG_ERROR("Fail to record BS DataHeader in StoreGate. Skipping events?! " << rec_sg);
-  }
   return(m_re);
 }
 //------------------------------------------------------------------------------
 // Read the next event.
 const RawEvent* ByteStreamEventStorageInputSvc::nextEvent() {
- 
+
   // Load data buffer from file
   char *buf;
   unsigned int eventSize;
@@ -378,11 +373,6 @@ const RawEvent* ByteStreamEventStorageInputSvc::nextEvent() {
   // dump
   if (m_dump) {
     DumpFrags::dump(m_re);
-  }
-  // Build a DH for use by other components
-  StatusCode rec_sg = generateDataHeader();
-  if (rec_sg != StatusCode::SUCCESS) {
-    ATH_MSG_ERROR("Fail to record BS DataHeader in StoreGate. Skipping events?! " << rec_sg);
   }
   return(m_re);
 }
@@ -606,7 +596,7 @@ long ByteStreamEventStorageInputSvc::getBlockIterator(const std::string fileName
    ++m_fileCount;
 
    // enable sequentialReading if multiple files
-   if (m_sequential > 1) {
+   if (m_sequential) {
       bool test = setSequentialRead();
       if (!test) return -1;
    }

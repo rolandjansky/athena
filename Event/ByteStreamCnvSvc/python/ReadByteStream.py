@@ -22,9 +22,9 @@ if not hasattr (svcMgr, 'EventSelector'):
     svcMgr += CfgMgr.EventSelectorByteStream ("EventSelector")
 theApp.EvtSel = "EventSelector"
 
-from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoSelectorTool 
-xconv = xAODMaker__EventInfoSelectorTool()
-svcMgr.EventSelector.HelperTools += [xconv]
+#from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoSelectorTool 
+#xconv = xAODMaker__EventInfoSelectorTool()
+#svcMgr.EventSelector.HelperTools += [xconv]
 
 # Load ByteStreamCnvSvc
 if not hasattr (svcMgr, 'ByteStreamCnvSvc'):
@@ -48,6 +48,20 @@ svcMgr.ProxyProviderSvc.ProviderNames += [ "ByteStreamAddressProviderSvc" ]
 if not hasattr (svcMgr, 'MetaDataSvc'):
     svcMgr += CfgMgr.MetaDataSvc ("MetaDataSvc")
 svcMgr.ProxyProviderSvc.ProviderNames += [ "MetaDataSvc" ]
+
+# Add in MetaData Stores
+from StoreGate.StoreGateConf import StoreGateSvc
+if not hasattr (svcMgr, 'InputMetaDataStore'):
+    svcMgr += StoreGateSvc( "MetaDataStore" )
+if not hasattr (svcMgr, 'MetaDataStore'):
+    svcMgr += StoreGateSvc( "InputMetaDataStore" )
+
+# enable IOVDbSvc to read metadata
+svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"
+svcMgr.MetaDataSvc.MetaDataTools += [ "IOVDbMetaDataTool" ]
+
+if not hasattr (svcMgr.ToolSvc, 'IOVDbMetaDataTool'):
+    svcMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
 
 # Enable ByteStream to read MetaData
 svcMgr.MetaDataSvc.MetaDataTools += [ "ByteStreamMetadataTool" ]

@@ -134,18 +134,18 @@ const RawEvent* ByteStreamSingleEventInputSvc::getEvent(const std::string& filen
    unsigned int eventSize;
 
    // Temporarily, until tdaq-common switches to "long long int" for event position
-   long int m_pos;
-   m_pos = (long)pos;
+   long int tmppos;
+   tmppos = (long)pos;
    // Another sanity check for truncation error of conversion of "long long" to "long".
    // Probably never needed after tdaq update, mildly useful before that.
-   long long int m_check_pos;
-   m_check_pos = (long long)m_pos;
-   if (m_check_pos != pos) {
+   long long int check_pos;
+   check_pos = (long long)tmppos;
+   if (check_pos != pos) {
       // Truncation error here
-      ATH_MSG_ERROR("Truncation error for event position in file " << pos << ": " << m_check_pos);
+      ATH_MSG_ERROR("Truncation error for event position in file " << pos << ": " << check_pos);
       return(0);
    }
-   DRError ecode = m_reader->getData(eventSize, &buf, m_pos);
+   DRError ecode = m_reader->getData(eventSize, &buf, tmppos);
    if (DROK != ecode) {
       ATH_MSG_ERROR("Error reading event in position: " << pos);
       return(0);

@@ -32,6 +32,7 @@ use EventInfo             EventInfo-*             Event
 use PersistentDataModel   PersistentDataModel-*   Database
 use AthenaPoolUtilities   AthenaPoolUtilities-*   Database/AthenaPOOL
 use AthenaPoolKernel      AthenaPoolKernel-*      Database/AthenaPOOL
+use ByteStreamCnvSvcLegacy ByteStreamCnvSvcLegacy-*  Event
 
 # Setup automatic testing which runs with gmake check
 

@@ -41,6 +41,7 @@ public:
   virtual long getBlockIterator(const std::string /* file */);
   virtual void closeBlockIterator(bool);
   virtual bool ready();
+  virtual StatusCode generateDataHeader(); 
   virtual long positionInBlock();
   virtual void validateEvent();
 };
@@ -59,6 +60,7 @@ inline unsigned int ByteStreamInputSvc::currentEventStatus() const {
 inline long ByteStreamInputSvc::getBlockIterator(const std::string /* file */) {return -1;}
 inline void ByteStreamInputSvc::closeBlockIterator(bool) {}
 inline bool ByteStreamInputSvc::ready() {return false;}
+inline StatusCode ByteStreamInputSvc::generateDataHeader() {return StatusCode::SUCCESS;}
 inline long ByteStreamInputSvc::positionInBlock() {return -1;} 
 inline void ByteStreamInputSvc::validateEvent() {}
 #endif
