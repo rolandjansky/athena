@@ -13,6 +13,11 @@ use GaudiInterface             GaudiInterface-*         External
 use StoreGate                  StoreGate-*              Control
 use SGTools                    SGTools-*                Control
 
+# Config interface
+use TrigConfInterfaces         TrigConfInterfaces-*     Trigger/TrigConfiguration
+use TrigConfL1Data             TrigConfL1Data-*         Trigger/TrigConfiguration
+use TrigConfHLTData            TrigConfHLTData-*        Trigger/TrigConfiguration
+
 # D3PDMaker packages:
 use D3PDMakerInterfaces        D3PDMakerInterfaces-*    PhysicsAnalysis/D3PDMaker
 
