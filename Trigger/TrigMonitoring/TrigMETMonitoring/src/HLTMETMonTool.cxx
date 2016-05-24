@@ -209,9 +209,11 @@ StatusCode HLTMETMonTool::book() {
   for (it = m_hlt_met_signatures_tolook.begin(); it != m_hlt_met_signatures_tolook.end(); it++) {
     std::string name = it->first;
     std::string mu_profname = "Eff_mu_"+name;
-    addProfile(new TProfile(mu_profname.c_str(), "Efficiency on Wmunu-like events wrt Offline MET", m_eff_bins, m_eff_min, m_eff_max));
+    std::string mu_prof_title = mu_profname + " Efficiency Missing E_{T};ME_{T} (GeV) (Wmunu-like events)";
+    addProfile(new TProfile(mu_profname.c_str(), mu_prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
     std::string el_profname = "Eff_el_"+name;
-    addProfile(new TProfile(el_profname.c_str(), "Efficiency on Wenu-like events wrt Offline MET", m_eff_bins, m_eff_min, m_eff_max));
+    std::string el_prof_title = el_profname + " Efficiency Missing E_{T};ME_{T} (GeV) (Wenu-like events)";
+    addProfile(new TProfile(el_profname.c_str(), el_prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
   }
 
 
@@ -607,7 +609,14 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
   StatusCode sc = StatusCode::SUCCESS;
 
-  // retrieve xAOD L1 ROI 
+  // Check HLTResult
+  if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()){
+    ATH_MSG_WARNING("HLTResult truncated, skip event");
+    return false;
+  }
+
+
+ // retrieve xAOD L1 ROI 
   const xAOD::EnergySumRoI *m_l1_roi_cont = 0;
   sc = m_storeGate->retrieve(m_l1_roi_cont, m_lvl1_roi_key);
   if(sc.isFailure() || !m_l1_roi_cont) {
@@ -966,7 +975,8 @@ StatusCode HLTMETMonTool::fillMETHist() {
       
       electronEtaReq = ( fabsf(eg->eta()) < 1.37 || fabsf(eg->eta()) > 1.52 ) && fabsf(eg->eta()) < 2.47; 
 
-      if (eg->pt()/CLHEP::GeV > m_electron_pt_thresh && electronEtaReq && eg->trackParticle()) {
+      //if (eg->pt()/CLHEP::GeV > m_electron_pt_thresh && electronEtaReq && eg->trackParticle()) {
+      if (eg->pt()/CLHEP::GeV > m_electron_pt_thresh && electronEtaReq) {
         METElectronFilled = true;
       }
     }
@@ -1261,23 +1271,28 @@ StatusCode HLTMETMonTool::fillMETHist() {
 	if ((h = hist("HLT_XS"))) h->Fill(hlt_significance);
 
 	// status histogram; available only for cell MET
-	missETEF = *(m_hlt_cell_met_cont->begin());
-	//ATH_MSG_INFO("missETEF = " << missETEF);
-	//ATH_MSG_INFO("missETEF flag = " << missETEF->flag());
-        TH1F *h1i(0);
-        bool m_fill_stat = false;
-        if((h1i = (TH1F *) hist("HLT_MET_status"))) m_fill_stat = true;
-        for (int i=0; i<32; ++i) {
-          unsigned mask = (1<<i);
-          if (missETEF->flag() & mask) {
+	const xAOD::TrigMissingET *missETEF_cell = 0;
+	if (m_hlt_cell_met_cont && m_hlt_cell_met_cont->size()) {
+	  missETEF_cell = *(m_hlt_cell_met_cont->begin());
+	  //ATH_MSG_INFO("missETEF_cell = " << missETEF_cell);
+	  //ATH_MSG_INFO("missETEF_cell flag = " << missETEF_cell->flag());
+	}
+	if(missETEF_cell) {
+	  TH1F *h1i(0);
+	  bool m_fill_stat = false;
+	  if((h1i = (TH1F *) hist("HLT_MET_status"))) m_fill_stat = true;
+	  for (int i=0; i<32; ++i) {
+	    unsigned mask = (1<<i);
+	    if (missETEF_cell->flag() & mask) {
               if(m_fill_stat && h1i) h1i->Fill(i,1.);
-	      ATH_MSG_DEBUG("missETEF flag Trig = " << missETEF->flag());
+	      ATH_MSG_DEBUG("missETEF_cell flag Trig = " << missETEF_cell->flag());
               //m_status_flag[i] = 1;
-          } else {
+	    } else {
               if(m_fill_stat && h1i) h1i->Fill(i,0);
               //m_status_flag[i] = 0;
-          }
-        }
+	    }
+	  }
+	}
 
       }
 
@@ -1488,10 +1503,10 @@ StatusCode HLTMETMonTool::fillMETHist() {
   int electronMult = 0;
   if (electronContEmpty == false) {
     for (auto eg : *m_hlt_electronEFcontainer) {
-      if (eg->trackParticle()) {
-          if((h = hist("HLT_electronpt") )) h->Fill(eg->pt()/CLHEP::GeV);
-          electronMult += 1;
-      }
+      //if (eg->trackParticle()) {
+      if((h = hist("HLT_electronpt") )) h->Fill(eg->pt()/CLHEP::GeV);
+      electronMult += 1;
+      //}
     }
     ATH_MSG_DEBUG("Electron multiciplicity: " << electronMult);
     if((h = hist("HLT_electronmult") )) h->Fill(electronMult);
