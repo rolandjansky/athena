@@ -13,13 +13,13 @@ namespace Trk {
 
 
   VKTrack::VKTrack(long int iniId, double Perigee[], double Covariance[], VKVertex * vk, double m):
-  Chi2(0), mass(m)
+  Chi2(0), m_mass(m)
   {
      Id = iniId; Charge=1; if(Perigee[4]<0)Charge=-1;
      for(int i=0; i<3;  i++) {fitP[i]=0; cnstP[i]=0.; iniP[i]=0.;}
      for(int i=0; i<5;  i++) {Perig[i]=refPerig[i]=Perigee[i]; rmnd[i]=0;}
      for(int i=0; i<15; i++) {refCovar[i]=Covariance[i];}
-     originVertex = vk;
+     m_originVertex = vk;
   }
   VKTrack::~VKTrack(){}
 
@@ -34,7 +34,7 @@ namespace Trk {
 
 //  VKTrack::VKTrack(const VKTrack & src )                 // copy operator
 //  {  Charge  =src.Charge;
-//     mass    =src.mass;
+//     m_mass    =src.m_mass;
 //     for(int i=0; i<5;  i++) {Perig[i]=src.Perig[i];refPerig[i]=src.refPerig[i];}
 //     for(int i=0; i<15; i++) {refCovar[i]=src.refCovar[i];WgtM[i]=src.WgtM[i];}
 //     for(int i=0; i<3;  i++) {fitP[i]=src.fitP[i];}

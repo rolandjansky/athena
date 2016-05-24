@@ -40,12 +40,12 @@ namespace Trk {
       double *get_dzp() const;
 
     private:
-      double *dphi;
-      double *deps;
-      double *drho;
-      double *dtet;
-      double *dzp;
-      long int NSIZE;
+      double *m_dphi;
+      double *m_deps;
+      double *m_drho;
+      double *m_dtet;
+      double *m_dzp;
+      long int m_NSIZE;
   };
 
 }

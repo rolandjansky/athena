@@ -26,6 +26,8 @@ extern int translateToFittedPos(double Step=1.);
 extern void vkvFastV( double* , double* , double*, double , double*);
 extern long int  vtcfit( VKVertex * vk);
 extern void cfdcopy(double *source, double *target, int);
+
+int initCascadeEngine();
  
 void startCascade( VKVertex * vk)
 {  
@@ -74,8 +76,6 @@ int makeCascade(long int NTRK, long int *ich, double *wm, double *inp_Trk5, doub
                    std::vector< std::vector<int> > cascadeDefinition,
 		   double definedCnstAccuracy=1.e-4)
 {
-    int initCascadeEngine();
-    
     long int  tk;
     int iv,it;
     if( vertexDefinition.size() != cascadeDefinition.size() ){
