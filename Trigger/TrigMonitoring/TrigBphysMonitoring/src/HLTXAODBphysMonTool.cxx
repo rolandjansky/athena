@@ -319,7 +319,14 @@ StatusCode HLTXAODBphysMonTool::fill()
 //-----------------------------------------------------------
 {
     ATH_MSG_DEBUG ("fill... ");
-
+    
+    // Check HLTResult
+    if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()){
+        ATH_MSG_WARNING("HLTResult truncated, skip event");
+        return StatusCode::SUCCESS;
+        //return false;
+    }
+    
     // fill the offline di-muon hists
     ATH_MSG_DEBUG ("fill... JpsiFinder");
     if (fillJpsiFinder().isFailure()) {ATH_MSG_WARNING("Problems filling JpsiFinder method");}
