@@ -12,10 +12,13 @@ import sys
 ##############
 #InputFiles = ['/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0331._0001.1']
 
+InputFiles = ['/hep300/data/khamano/data16/data16_13TeV.00298967.physics_Main.merge.AOD.f696_m1588/data16_13TeV.00298967.physics_Main.merge.AOD.f696_m1588._lb0157._0006.1']
+
+
 # xs trigger
 #InputFiles = ['/hep300/data/khamano/data15/data15_13TeV.00276952.physics_EnhancedBias.merge.AOD.r7124_p2424_tid06589898_00/AOD.06589898._000130.pool.root.1','/hep300/data/khamano/data15/data15_13TeV.00280500.physics_EnhancedBias.merge.AOD.r7128_p2424_tid06595858_00/AOD.06595858._000083.pool.root.1']
 
-InputFiles = ['/hep300/data/khamano/data15/data15_13TeV.00276952.physics_EnhancedBias.merge.AOD.r7124_p2424_tid06589898_00/AOD.06589898._000130.pool.root.1']
+#InputFiles = ['/hep300/data/khamano/data15/data15_13TeV.00276952.physics_EnhancedBias.merge.AOD.r7124_p2424_tid06589898_00/AOD.06589898._000130.pool.root.1']
 
 #InputFiles = ['/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0331._0001.1']
 
@@ -114,6 +117,7 @@ globalflags.DetGeo = 'atlas'
 
 from RecExConfig.RecFlags import rec
 rec.readRDO = False
+rec.readESD = False
 rec.readAOD = True
 rec.doWriteESD = False
 rec.doWriteAOD = False
