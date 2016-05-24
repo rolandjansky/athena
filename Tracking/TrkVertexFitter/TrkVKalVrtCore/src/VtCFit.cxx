@@ -688,8 +688,14 @@ extern DerivT derivt_;
 
     for (it = 0; it < NTRK; ++it) {    //Check if curvature sign is changed or change in Pt is too big
       if(vk->TrackList[it]->Id >= 0){
-        double Ratio=vk->TrackList[it]->fitP[2]/vk->TrackList[it]->iniP[2]; if(fabs(Ratio)<1.)Ratio=1./Ratio;
-        if(Ratio<0. || Ratio > vkalAllowedPtChange ) return -21;
+        double Ratio=vk->TrackList[it]->fitP[2]/vk->TrackList[it]->Perig[4]; if(fabs(Ratio)<1.)Ratio=1./Ratio;
+        if(Ratio<0. || Ratio > vkalAllowedPtChange ){
+          if(fabs(vk->TrackList[it]->fitP[2])<fabs(vk->TrackList[it]->Perig[4]) || Ratio<0 ){	
+             vk->TrackList[it]->fitP[2]=vk->TrackList[it]->Perig[4]/vkalAllowedPtChange;
+          }else{
+             vk->TrackList[it]->fitP[2]=vk->TrackList[it]->Perig[4]*vkalAllowedPtChange;
+          }
+	}
       }
     }
 
@@ -779,6 +785,8 @@ extern DerivT derivt_;
 		          alf = alfLowLim;
 			  PostFitIteration=4;  //Something is wrong. Don't make second optimisation
 		       }
+                       if(NCNST && alf>vkalInternalStepLimit/totalShift)
+	                 { alf=vkalInternalStepLimit/totalShift; PostFitIteration=4; icadd=2; limitationMade=true; }
         }
 
 //Having 3 points (0,-0.02,0.02) find a pabolic minimum
