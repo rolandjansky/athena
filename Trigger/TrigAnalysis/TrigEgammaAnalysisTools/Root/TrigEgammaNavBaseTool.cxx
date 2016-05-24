@@ -101,6 +101,12 @@ bool TrigEgammaNavBaseTool::EventWiseSelection( ){
     m_eventInfo=0;
     m_truthContainer = 0;
 
+    // Check HLTResult
+    if(tdt()->ExperimentalAndExpertMethods()->isHLTTruncated()){
+        ATH_MSG_WARNING("HLTResult truncated, skip event");
+        return false;
+    }
+    
     if ( (m_storeGate->retrieve(m_eventInfo, "EventInfo")).isFailure() ){
         ATH_MSG_WARNING("Failed to retrieve eventInfo ");
         return false;
@@ -123,7 +129,8 @@ bool TrigEgammaNavBaseTool::EventWiseSelection( ){
         ATH_MSG_WARNING("Failed to retrieve offline Photons ");
         return false; 
     }
-    
+
+
     for(const auto& eg : *m_offElectrons ){
         ATH_MSG_DEBUG("ApplyElectronPid...");
         if(ApplyElectronPid(eg,"Loose")) hist1(m_anatype+"_electrons")->AddBinContent(1);
