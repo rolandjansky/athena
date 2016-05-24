@@ -11,9 +11,8 @@
 
 // random number service includes
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"  // for RandGaussZiggurat
 
 // constructor
 SCT_TimeWalkGenerator::SCT_TimeWalkGenerator(const std::string& type, const std::string& name,const IInterface* parent )

@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// #include <math.h>
 #include "SCT_DetailedSurfaceChargesGenerator.h"
 
 double SCT_DetailedSurfaceChargesGenerator::EyValue150(int& ix, int& iy) {

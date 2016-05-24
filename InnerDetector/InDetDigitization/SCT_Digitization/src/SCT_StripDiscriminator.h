@@ -22,8 +22,7 @@
 // Gaudi
 #include "GaudiKernel/ToolHandle.h"
 
-#include "SiDigitization/SiChargedDiodeCollection.h"
-
+class SiChargedDiodeCollection;
 class ISCT_TimeWalkGenerator;
 
 namespace CLHEP {

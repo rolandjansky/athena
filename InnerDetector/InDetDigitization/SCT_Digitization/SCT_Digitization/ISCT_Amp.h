@@ -16,6 +16,8 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "InDetSimEvent/SiTotalCharge.h"
 
+#include <vector>
+
 static const InterfaceID IID_ISCT_Amp("ISCT_Amp",1,0);
 
 class ISCT_Amp : virtual public IAlgTool {
@@ -39,11 +41,11 @@ public:
   // process the collection of charged diodes
   /** main purpose: CR-RC^3 response to a list of charges with times */
   virtual float response(const list_t &Charges, const float timeOverThreshold) const =0;
-  virtual void response(const list_t &Charges, const float timeOverThreshold, float resp[], short resp_size) const =0;
+  virtual void response(const list_t &Charges, const float timeOverThreshold, std::vector<float> &resp) const =0;
 
   /** Neighbour strip cross talk response strip to a list of charges with times */
   virtual float crosstalk(const list_t &Charges, const float timeOverThreshold) const =0;
-  virtual void crosstalk(const list_t &Charges, const float timeOverThreshold, float resp[], short resp_size) const =0;
+  virtual void crosstalk(const list_t &Charges, const float timeOverThreshold, std::vector<float> &resp) const =0;
 
   /** diagnostics */
   virtual void AccumulateAverages(const list_t &Charges) =0;

@@ -11,19 +11,26 @@
 
 // random number service includes
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"  // for RandGaussZiggurat
 
 // CLHEP
 #include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Vector/TwoVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "GeneratorObjects/HepMcParticleLink.h"
+// ROOT
+#include "TMath.h"                      // for Log
+#include "TProfile.h"                   // for TProfile
+#include "TProfile2D.h"                 // for TProfile2D
 
-#include "SiPropertiesSvc/ISiPropertiesSvc.h"
+// Gaudi
+#include "GaudiKernel/ITHistSvc.h"      // for ITHistSvc
+
+// Athena
+#include "GeneratorObjects/HepMcParticleLink.h"
+#include "InDetSimEvent/SiHit.h"        // for SiHit, SiHit::::xDep, etc
 #include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
+#include "SiPropertiesSvc/ISiPropertiesSvc.h"
 
 using InDetDD::SiDetectorElement;
 using InDetDD::SCT_ModuleSideDesign;
@@ -44,7 +51,26 @@ SCT_DetailedSurfaceChargesGenerator::SCT_DetailedSurfaceChargesGenerator(const s
     m_doDistortions(false),
     m_doHistoTrap(false),
     m_doTrapping(false),
+    
+    m_thistSvc(nullptr),
+    h_efieldz(nullptr),
+    h_yzRamo(nullptr),
+    h_yzEfield(nullptr),
+    h_yEfield(nullptr),
+    h_zEfield(nullptr),
+    
     m_hashId(0),
+    m_bulk_depth(0.0285), //<!285 micron, expressed in cm units
+    m_strip_pitch(0.0080), //<! 80 micron, expressed in cm units
+    m_depletion_depth(0.0285),
+    m_y_origin_min(0.0), //<! zero unless under-depleted
+    m_kB(1.38E-23),      //<! Boltzmann const [m^2*kg/s^2/K]
+    m_e(1.602E-19),       //<! electron charge [Coulomb]
+    m_vs_e(11615084.7393), //<! mobility at 273.15K
+    m_Ec_e(6034.20429),
+    m_vs_h(8761659.83530), //<! hole mobility at 273.15K
+    m_Ec_h(15366.52650), 
+    m_theta {}, //<! NEVER USED??
     m_distortionsTool("SCT_DistortionsTool"),
     m_siConditionsSvc("SCT_SiliconConditionsSvc",name),
     m_siPropertiesSvc("SCT_SiPropertiesSvc",name),
@@ -74,7 +100,21 @@ SCT_DetailedSurfaceChargesGenerator::SCT_DetailedSurfaceChargesGenerator(const s
   declareProperty("SCTDistortionsTool", m_distortionsTool, "Tool to retrieve SCT distortions");
   declareProperty("doHistoTrap", m_doHistoTrap, "Allow filling of histos for charge trapping effect"); 
   declareProperty("doTrapping", m_doTrapping, "Simulation of charge trapping effect"); 
-  declareProperty("Fluence", m_Fluence, "Fluence for charge trapping effect"); 
+  declareProperty("Fluence", m_Fluence, "Fluence for charge trapping effect");
+  // 
+  m_beta_e = 2.57E-2* pow(m_sensorTemperature,0.66);
+  m_beta_h = 0.46 * pow(m_sensorTemperature,0.17);
+  double Emean = m_biasVoltage / m_depletion_depth;
+  m_driftMobility  = mud_h(Emean);
+  m_diffusion = m_kB * m_sensorTemperature * m_driftMobility/ m_e;
+  double r_h = 0.72 - 0.0005*(m_sensorTemperature-273.15);
+  m_tanLA = r_h * m_driftMobility * m_magneticField * 1.E-4;
+  // sroe: the following were never initialised before, which begs the question:
+  // Did this code *ever* work? Has it *ever* been used?
+  m_stripCharge_ixmax = 80;
+  m_stripCharge_iymax = 284;
+  m_stripCharge_dx=1;
+  m_stripCharge_dy=1;
 }
 
 // Destructor:
@@ -405,7 +445,7 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiHit& phit, const 
 
   //check the status of truth information for this SiHit
   //some Truth information is cut for pile up events
-  HepMcParticleLink trklink = HepMcParticleLink(phit.trackNumber(),p_eventId);
+  HepMcParticleLink trklink = HepMcParticleLink(phit.trackNumber(), p_eventId);
   SiCharge::Process hitproc = SiCharge::track;
   if(phit.trackNumber()!=0)
     {
@@ -486,7 +526,7 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiHit& phit, const 
 	}
 	
 	double stripPitch         = p_design->stripPitch();
-        double stripPatternCentre = b_design->phiStripPatternCentre();
+  double stripPatternCentre = b_design->phiStripPatternCentre();
 	double dstrip=(y1-stripPatternCentre)/stripPitch;
 
 	// need the distance from the nearest strips edge not centre, xtaka = 1/2*stripPitch

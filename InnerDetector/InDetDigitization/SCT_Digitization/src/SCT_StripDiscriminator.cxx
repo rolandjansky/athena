@@ -2,26 +2,28 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "SCT_StripDiscriminator.h"
 
 // Base class
-#include "SCT_Digitization/ISCT_TimeWalkGenerator.h"
 #include "SiDigitization/SiHelper.h"
 
-//CLHEP
+// Random number
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"  // for RandGaussZiggurat
 
+// Athena
 #include "InDetSimEvent/SiTotalCharge.h"
+#include "SiDigitization/SiChargedDiode.h"  // for SiChargedDiode
+#include "SiDigitization/SiChargedDiodeCollection.h"
+#include "SCT_Digitization/ISCT_TimeWalkGenerator.h"
 
 using namespace InDetDD;
 
 // constructor
 SCT_StripDiscriminator::SCT_StripDiscriminator(const std::string& type, const std::string& name,const IInterface* parent )
   : AthAlgTool(type,name,parent),
+    m_rndmEngine(nullptr),
     m_sct_TimeWalkGen("SCT_TimeWalkGenerator")
 {
   declareInterface< ISCT_StripDiscriminator >( this );
@@ -38,32 +40,31 @@ SCT_StripDiscriminator::~SCT_StripDiscriminator() {}
 // Initialize
 //----------------------------------------------------------------------
 StatusCode SCT_StripDiscriminator::initialize() {
-
+	/** not needed now?
   StatusCode sc = AthAlgTool::initialize();
   if (sc.isFailure()) return sc;
+  **/
   ATH_MSG_DEBUG ( "SCT_StripDiscriminator::initialize()");
 
-  //++ Get an the Time Walk generator tool  
-  sc = m_sct_TimeWalkGen.retrieve() ;
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR ( "\tCan't get SCT Time Walk Generator tool"<<m_sct_TimeWalkGen);
-    return sc;
-  }
-  ATH_MSG_INFO ( "\tRetrieved and initialised tool " <<m_sct_TimeWalkGen );
-  return sc ;
+  //++ Get  the Time Walk generator tool  
+  ATH_CHECK( m_sct_TimeWalkGen.retrieve()) ;
+  ATH_MSG_DEBUG ( "\tRetrieved and initialised tool " <<m_sct_TimeWalkGen );
+  return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------
 // Finalize
 //----------------------------------------------------------------------
 StatusCode SCT_StripDiscriminator::finalize() {
+  /**not needed?
   StatusCode sc = AthAlgTool::finalize();
   if (sc.isFailure()) {
     ATH_MSG_FATAL ( "SCT_StripDiscriminator::finalize() failed");
     return sc ;
   }
+  **/
   ATH_MSG_DEBUG ( "SCT_StripDiscriminator::finalize()");
-  return sc ;
+  return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------
@@ -85,8 +86,6 @@ void SCT_StripDiscriminator::process(SiChargedDiodeCollection &collection) const
   for(; i_chargedDiode!=i_chargedDiode_end; ++i_chargedDiode) {
 
     int BCN = m_timeBCN ;
-
-    //Identifier diodeID = (*i_chargedDiode).first;
 
     /**
      * calculate the threshold: 

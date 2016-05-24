@@ -162,22 +162,14 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
         ServiceMgr += InDetSCT_ReadCalibChipDataSvc
     # DataCompressionMode: 1 is level mode x1x (default), 2 is edge mode 01x, 3 is expanded any hit xxx
     from AthenaCommon.BeamFlags import jobproperties
-    if (jobproperties.Beam.bunchSpacing() <= 25):
-        kwargs.setdefault("DataCompressionMode", 2)
-    elif (jobproperties.Beam.bunchSpacing() <= 50):
-        kwargs.setdefault("DataCompressionMode", 1)
-    else:
-        kwargs.setdefault("DataCompressionMode", 3)
+    if (jobproperties.Beam.bunchSpacing() <= 50):
+        kwargs.setdefault("DataCompressionMode", 1) 
+    else: 
+        kwargs.setdefault("DataCompressionMode", 3) 
         kwargs.setdefault("NoiseExpandedMode", True)
-
-    if 'doDevFrontEnd' in digitizationFlags.experimentalDigi():
-        kwargs.setdefault("DataReadOutMode", 0)
-        kwargs.setdefault("DataCompressionMode", 1)
-        from SCT_Digitization.SCT_DigitizationConf import SCT_FrontEndDev
-        return SCT_FrontEndDev(name, **kwargs)
-    else:
-        from SCT_Digitization.SCT_DigitizationConf import SCT_FrontEnd
-        return SCT_FrontEnd(name, **kwargs)
+    kwargs.setdefault("DataReadOutMode", 1) # 0 is condensed mode and 1 is expanded mode
+    from SCT_Digitization.SCT_DigitizationConf import SCT_FrontEnd
+    return SCT_FrontEnd(name, **kwargs)
 
 ######################################################################################
 def getPileupSCT_FrontEnd(name="PileupSCT_FrontEnd", **kwargs):

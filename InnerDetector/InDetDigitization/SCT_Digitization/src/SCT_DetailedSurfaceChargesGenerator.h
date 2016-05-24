@@ -3,28 +3,11 @@
 */
 
 /**
- * Header file for SCT_SurfaceChargesGenerator Class
+ * Header file for SCT_DetailedSurfaceChargesGenerator Class
  * @brief Class to drift the charged hits to the sensor surface for SCT
- * version 1.0a Szymon Gadomski 31.05.2001
- * @author Szymon.Gadomski@cern.ch, Awatif.Belymam@cern.ch, Davide.Costanzo@cern.ch,    
- * tgcornel@nikhef.nl, Grant.Gorfine@cern.ch, Paul.Bell@cern.ch, Jorgen.Dalmau@cern.ch, 
- * This is based on the SCTtest3SurfaceChargesGenerator
- * compared to "test3", changes are all related to interfaces
- * this should work with the new SCT_BarrelModuleSideDesign
- * Compared to "test2" the following have been added in "test3":
- * - a possibility to work with long steps and to smear charge along
- *   the step in smaller steps
- * - Lorentz angle
- * 19/04/2001 -  change of hit class to SiTrackerHit
- * version 1.0 Szymon Gadomski 09/06/2001, compiles with framework
- * 26/07/2001 - changed to work with SiDigitization-00-02-00, tested
- * 20/10/2002 - Awatif Belymam
- * 29/10/2002 - the thickness of sensors is obtained from the objects
- *            - of SCT_ModuleSideDesign type instead from its jobOptions file.
- *            - Changes are done as well in jobOptions files.
- * 06/01/2004 - Everything is now in CLHEP units (mm, ns, MeV)
+ * Based on SCT_SurfaceChargesGenerator
  * 23/08/2007 - Kondo.Gnanvo@cern.ch           
- *            - Conversion of the SCT_SurfaceChargesGenerator code Al gTool
+ *            - Conversion of the SCT_SurfaceChargesGenerator code AlgTool
  */
 
 #ifndef SCT_DIGITIZATION_SCT_DETAILEDSURFACECHARGESGENERATOR_H
@@ -35,25 +18,22 @@
 #include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
 #include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
 
-#include "GaudiKernel/ToolHandle.h"
+// C++ Standard Library
 #include <iostream>
 
-// Charges and hits
-#include "InDetSimEvent/SiHit.h"
-#include "SiDigitization/SiSurfaceCharge.h"
+// Gaudi
+#include "GaudiKernel/ToolHandle.h"
 
+// Athena
 #include "Identifier/IdentifierHash.h"
 
+// Charges and hits
+class SiHit;
+
 // -- do histos
-#include "GaudiKernel/ITHistSvc.h"
-#include "TH1.h"
-#include "TH2.h" 
-#include "TProfile.h"
-#include "TMath.h"
-//#include "TRandom.h"
-//#include "TRandom3.h"
-#include "TVector.h"
-#include "TProfile2D.h"
+class ITHistSvc;
+class TProfile;
+class TProfile2D;
 
 namespace InDetDD{
   class SiDetectorElement;
@@ -63,9 +43,14 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-//class IdentifierHash;
 class ISiliconConditionsSvc;
 class ISiPropertiesSvc;
+
+/**
+ * Class to take calculate Charge Transport in the SCT with a detailed charge transport model.
+ * It's not clear (29 April 2016) that the code has ever been used successfully; prior to this edit
+ * certain key parameters were uninitialised and yet used.
+ **/
 
 class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_SurfaceChargesGenerator {
  public:
