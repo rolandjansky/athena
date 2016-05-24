@@ -6,24 +6,19 @@
 #define SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTTOOL_H
 ///STL
 #include <stdint.h>
-#include <map>
 ///Base classes 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_RawDataByteStreamCnv/ISCTRawContByteStreamTool.h"
 ///Gaudi
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-///InDet
-#include "InDetRawData/InDetRawDataCLASS_DEF.h"
-#include "InDetRawData/SCT_RDO_Collection.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 ///other athena
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
-#include "ByteStreamCnvSvcBase/SrcIdMap.h" 
 
-class ISCT_CablingSvc;
-class SCT_ID;
 class ISCT_RodEncoder;
+class ISCT_CablingSvc;
+class SrcIdMap;
+class SCT_ID;
 namespace InDetDD {
   class SCT_DetectorManager;
 }

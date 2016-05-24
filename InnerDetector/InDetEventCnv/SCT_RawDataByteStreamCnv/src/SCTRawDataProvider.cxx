@@ -3,10 +3,10 @@
 */
 
 #include "SCTRawDataProvider.h"
+
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "InDetIdentifier/SCT_ID.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "InDetIdentifier/SCT_ID.h"
 
 /// --------------------------------------------------------------------
 /// Constructor

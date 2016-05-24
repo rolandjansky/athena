@@ -6,15 +6,15 @@
 #include "SCT_RodEncoder.h" 
 
 ///SCT
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
 
 ///InDet
 #include "InDetIdentifier/SCT_ID.h"
 
 ///Athena
-#include "Identifier/IdentifierHash.h"
 #include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
+#include "InDetRawData/SCT_RDORawData.h"
 
 ///STL
 #include <set>
@@ -47,7 +47,18 @@ SCT_RodEncoder::SCT_RodEncoder
   :  AthAlgTool(type,name,parent),
      m_cabling("SCT_CablingSvc",name),
      m_bsErrs("SCT_ByteStreamErrorsSvc",name),
-     m_sct_id(0)
+     m_sct_id(nullptr),
+     m_rodid(0),
+     m_condensed(false),
+     m_WriteByteStreamSummary(false),
+     m_swapModuleId{},
+     m_singleCondHitNumber(0),
+     m_pairedCondHitNumber(0),
+     m_firstExpHitNumber(0),
+     m_evenExpHitNumber(0),
+     m_lastExpHitNumber(0),
+     m_headerNumber(0),
+     m_trailerNumber(0)
 {
   declareInterface< ISCT_RodEncoder  >( this );
   declareProperty("CondensedMode",m_condensed=true);
@@ -61,28 +72,16 @@ SCT_RodEncoder::~SCT_RodEncoder() {
 
 
 StatusCode SCT_RodEncoder::initialize() {
-
-  StatusCode sc = AlgTool::initialize(); 
-  msg(MSG::INFO) <<"SCT_RodEncoder::initialize()"<<endreq;
+	//prob. dont need this next line now:
+  ATH_CHECK( AlgTool::initialize()); 
+  ATH_MSG_DEBUG("SCT_RodEncoder::initialize()");
   
   /** Retrieve cabling service */
-  sc = m_cabling.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve service " << m_cabling << endreq;
-    return sc;
-  } else 
-    msg(MSG::DEBUG) << "Retrieved service " << m_cabling << endreq;
-
-  sc = detStore()->retrieve(m_sct_id,"SCT_ID") ;
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Cannot retrieve SCT Id helper!"  << endreq;
-    return StatusCode::FAILURE;
-  } 
-
-  if (m_bsErrs.retrieve().isFailure()) 
-    msg(MSG::FATAL) <<"Failed to get ByteStreamErrorSvc"<<endreq;
-
-  return sc;
+  ATH_CHECK( m_cabling.retrieve());
+  ATH_MSG_DEBUG( "Retrieved service " << m_cabling );
+  ATH_CHECK( detStore()->retrieve(m_sct_id,"SCT_ID") );
+  ATH_CHECK(m_bsErrs.retrieve());
+  return StatusCode::SUCCESS;
 }
 
 StatusCode SCT_RodEncoder::finalize() {
@@ -122,7 +121,7 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>&  v32rod, uint32_t robid,
   std::vector<int> vtbin ;
   std::vector<uint16_t> v16data ;
   int strip1    = 0 ;
-  int theTimeBin      = 0 ;
+  int theTimeBin  = 0 ;
   int groupsize = 0 ;
   
   /** loop over errors here - just add headers (w/ errors), trailers (w/errors), 
@@ -361,7 +360,7 @@ void SCT_RodEncoder::packFragments( std::vector<uint16_t>& v16, std::vector<uint
     v32.push_back(v32word);
     i += nWords;
 #ifdef SCT_DEBUG
-    log<<MSG::INFO<<"SCT encoder -> PackFragments: Output rod "<<std::hex<<v32word<<endreq ;
+    ATH_MSG_INFO("SCT encoder -> PackFragments: Output rod 0x"<<std::hex<<v32word<<std::dec) ;
 #endif
   }
   
@@ -386,6 +385,12 @@ uint32_t SCT_RodEncoder::set32bits(const unsigned short int * v16, const unsigne
 ///=========================================================================
 ///  Link and Side Numbers 
 ///=========================================================================
+/** Strip number  */ 
+int SCT_RodEncoder::strip(const RDO * rdo) {
+  Identifier rdoId     = rdo->identify() ;               
+  return m_sct_id->strip(rdoId) ;
+}
+
 /** RDO ID  */
 Identifier SCT_RodEncoder::offlineId(const RDO * rdo) {
   Identifier rdoId     = rdo->identify() ;               

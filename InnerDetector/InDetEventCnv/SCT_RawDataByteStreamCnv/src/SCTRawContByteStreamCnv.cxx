@@ -3,12 +3,16 @@
 */
 
 #include "SCTRawContByteStreamCnv.h"
-#include "SCT_RawDataByteStreamCnv/ISCTRawContByteStreamTool.h"
-#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h" 
+
+// Gaudi
+#include "GaudiKernel/DataObject.h"
+
+// Athena
+#include "StoreGate/StoreGateSvc.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h" 
 #include "ByteStreamData/RawEvent.h" 
-#include "GaudiKernel/DataObject.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
+#include "SCT_RawDataByteStreamCnv/ISCTRawContByteStreamTool.h"
 
 /// ------------------------------------------------------
 /// constructor
