@@ -99,6 +99,8 @@ from BTagging.BTaggingConfiguration_MV2c20Tag import *
 from BTagging.BTaggingConfiguration_MV2c20FlipTag import *
 from BTagging.BTaggingConfiguration_MV2c100Tag import *
 from BTagging.BTaggingConfiguration_MV2c100FlipTag import *
+from BTagging.BTaggingConfiguration_MV2cl100Tag import *
+from BTagging.BTaggingConfiguration_MV2cl100FlipTag import *
 from BTagging.BTaggingConfiguration_MV2mTag import *
 from BTagging.BTaggingConfiguration_MV2mFlipTag import *
 from BTagging.BTaggingConfiguration_MV2c10hpTag import *
@@ -117,6 +119,9 @@ from BTagging.BTaggingConfiguration_MultivariateFlipTagManager import *
 # DL1 tagger
 from BTagging.BTaggingConfiguration_DL1Tag import *
 from BTagging.BTaggingConfiguration_DL1FlipTag import *
+
+# TagNtupleDumper
+from BTagging.BTaggingConfiguration_TagNtupleDumper import *
 
 # Global dictionary keeping track of all tool collections                                       
 _BTaggingConfig_ToolCollections = {}
@@ -1579,8 +1584,8 @@ def taggerIsPossible(tagger):
                       'TrackCountingFlip',
                       'MultiSVTag',
                       'GbbNNTag',
-                      #'DL1',
-                      #'DL1Flip',
+                      'DL1',
+                      'DL1Flip',
                       'MV1',
                       'MV2',
                       'MV1Flip',

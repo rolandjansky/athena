@@ -5,7 +5,7 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 
 metaMultivariateFlipTagManager = { 'IsATagger'          : True,
-              'xAODBaseName'       : 'MultivariateFlipTagManager',
+#              'xAODBaseName'       : 'MultivariateFlipTagManager',
               'DependsOn'          : ['AtlasExtrapolator',
                                       'BTagTrackToVertexTool',
                                       'IP2DNegTag',

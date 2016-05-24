@@ -159,6 +159,10 @@ namespace Analysis {
           // const-correctness intact, as StoreGate could tell us whether it's allowed
           // to modify the BTagging object or not.
           xAOD::BTagging* tagInfo = const_cast<xAOD::BTagging*>((*jetIter)->btagging());
+          if (!tagInfo) {
+            ATH_MSG_FATAL("The pointer from Jet to BTagging object is invalid");
+            return StatusCode::FAILURE;
+          }
 	  std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks;
 	  for (std::vector<const xAOD::TrackParticle*>::const_iterator trkIter = assocs[i]->begin(); trkIter != assocs[i]->end(); ++trkIter) {
 	    ElementLink<xAOD::TrackParticleContainer> EL;

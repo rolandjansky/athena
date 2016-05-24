@@ -5,7 +5,7 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 
 metaMultivariateTagManager = { 'IsATagger'          : True,
-              'xAODBaseName'       : 'MultivariateTagManager',
+#              'xAODBaseName'       : 'MultivariateTagManager',
               'DependsOn'          : ['AtlasExtrapolator',
                                       'BTagTrackToVertexTool',
                                       'IP2DTag',
@@ -21,9 +21,6 @@ def toolMultivariateTagManager(name, useBTagFlagsDefaults = True, **options):
     The following options have BTaggingFlags defaults:
 
     OutputLevel                         default: BTaggingFlags.OutputLevel
-    Runmodus                            default: BTaggingFlags.Runmodus
-    taggerName                          default: "MultivariateTagManager"
-    taggerNameBase                      default: "MultivariateTagManager"
     inputSV0SourceName                  default: "SV0"
     inputSV1SourceName                  default: "SV1"
     inputIP2DSourceName                 default: "IP2D"

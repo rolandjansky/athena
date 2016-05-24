@@ -529,10 +529,11 @@ namespace Analysis {
 	   //++btagvxi;
 	   }
      }
-      
-
+     typedef std::vector<ElementLink<xAOD::BTagVertexContainer> > BTagVertices;
+     ATH_MSG_DEBUG("#BTAGJF# filling vertices for basename:" << basename);
       newBTag->setVariable<std::vector<ElementLink<xAOD::BTagVertexContainer> > >(basename, "JFvertices", JFVerticesLinks);
       newBTag->setDynBTagVxELName(basename, "JFvertices");
+      ATH_MSG_DEBUG("#BTAGJF# n vertices: " << newBTag->auxdata<BTagVertices>(basename + "_JFvertices").size());
 
 
       const Trk::RecVertexPositions& recVtxposition = vxjetcand->getRecVertexPositions();

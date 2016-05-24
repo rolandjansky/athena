@@ -1,33 +1,33 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# Configuration functions for MV2c10hpFlipTag
-# Author: Wouter van den Wollenberg (2013-2014)
+# Configuration functions for MV2cl100FlipTag
+# Author: Wouter van den Wollenberg (2013-2014) Jonathan Shlomi (2016)
 from BTagging.BTaggingFlags import BTaggingFlags
 
-metaMV2c10hpFlipTag = { 'IsATagger'          : True,
-                  'xAODBaseName'       : 'MV2c10hpFlip',
-                  'DependsOn'          : ['AtlasExtrapolator',
-                                          'BTagTrackToVertexTool',
-                                          'BTagCalibrationBrokerTool',
-                                          'IP2DNegTag',
-                                          'IP3DNegTag',
-#                                          'JetFitterTagCOMBNNIP3DNeg',
-                                          'NewJetFitterVxFinderFlip',
-                                          'SV0Tag',
-                                          'SV1FlipTag'],
-                  'CalibrationFolders' : ['MV2c10hp',],
-                  'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
-                  'ToolCollection'     : 'MV2c10hpFlipTag' }
+metaMV2cl100FlipTag = { 'IsATagger'          : True,
+                       'xAODBaseName'       : 'MV2cl100Flip',
+                       'DependsOn'          : ['AtlasExtrapolator',
+                                               'BTagTrackToVertexTool',
+                                               'BTagCalibrationBrokerTool',
+                                               'IP2DNegTag',
+                                               'IP3DNegTag',
+#                                               'JetFitterTagCOMBNNIP3DNeg',
+                                               'NewJetFitterVxFinderFlip',
+                                               'SV0Tag',
+                                               'SV1FlipTag'],
+                       'CalibrationFolders' : ['MV2cl100',],
+                       'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
+                       'ToolCollection'     : 'MV2cl100FlipTag' }
 
-def toolMV2c10hpFlipTag(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a MV2c10hpFlipTag tool and returns it.
+def toolMV2cl100FlipTag(name, useBTagFlagsDefaults = True, **options):
+    """Sets up a MV2cl100FlipTag tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
     OutputLevel                         default: BTaggingFlags.OutputLevel
     Runmodus                            default: BTaggingFlags.Runmodus
-    taggerName                          default: "MV2c10hpFlip"
-    taggerNameBase                      default: "MV2c10hpFlip"
+    taggerName                          default: "MV2cl100Flip"
+    taggerNameBase                      default: "MV2cl100"
     forceMV2CalibrationAlias            default: BTaggingFlags.ForceMV2CalibrationAlias
     MV2CalibAlias                       default: BTaggingFlags.MV2CalibAlias
     inputSV0SourceName                  default: "SV0"
@@ -45,8 +45,8 @@ def toolMV2c10hpFlipTag(name, useBTagFlagsDefaults = True, **options):
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
-                     'taggerName'                       : 'MV2c10hpFlip',
-                     'taggerNameBase'                   : 'MV2c10hpFlip',
+                     'taggerName'                       : 'MV2cl100Flip',
+                     'taggerNameBase'                   : 'MV2cl100',
                      'forceMV2CalibrationAlias'         : BTaggingFlags.ForceMV2CalibrationAlias,
                      'MV2CalibAlias'                    : BTaggingFlags.MV2CalibAlias,
                      'inputSV0SourceName'               : 'SV0',
