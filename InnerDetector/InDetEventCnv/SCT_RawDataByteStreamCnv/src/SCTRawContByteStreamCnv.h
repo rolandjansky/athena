@@ -5,22 +5,21 @@
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTCNV_H
 #define SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTCNV_H
 
+// Gaudi
 #include "GaudiKernel/Converter.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
-#include "InDetRawData/InDetRawDataCLASS_DEF.h"
 
-
-class DataObject;
-class ISCTRawContByteStreamTool ; 
-class IByteStreamEventAccess   ;
-
-
+// C++ Standard Library
 #include <string>
 
-/** Abstract factory to create the converter */
-template <class TYPE> class CnvFactory;
+// Athena
+#include "InDetRawData/InDetRawDataCLASS_DEF.h"
+
+class DataObject;
+class IByteStreamEventAccess;
+class ISCTRawContByteStreamTool;
 
 /** Externals */ 
 extern long ByteStream_StorageType;

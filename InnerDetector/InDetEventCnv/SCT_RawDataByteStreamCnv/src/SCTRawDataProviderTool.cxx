@@ -3,17 +3,13 @@
 */
 
 #include "SCTRawDataProviderTool.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "InDetRawData/SCT_RDORawData.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "ByteStreamData/RawEvent.h" 
-#include "InDetRawData/InDetTimeCollection.h"
-#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
-#include "SCT_RawDataByteStreamCnv/ISCT_RodEncoder.h"
 #include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "EventInfo/EventInfo.h"
+#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 
 //using xAOD::EventInfo;
 
