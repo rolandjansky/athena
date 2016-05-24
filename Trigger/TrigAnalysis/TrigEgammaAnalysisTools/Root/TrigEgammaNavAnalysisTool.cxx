@@ -75,8 +75,8 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
 
     cd(m_dir+"/Expert/Event");
     if( !TrigEgammaNavBaseTool::EventWiseSelection() ) {
-        ATH_MSG_DEBUG("Unable to retrieve offline containers");
-        return StatusCode::FAILURE;
+        ATH_MSG_DEBUG("Fails EventWise selection");
+        return StatusCode::SUCCESS; //return nicely
     }
 
     TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex();
@@ -86,6 +86,7 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
         ATH_MSG_DEBUG("Start Chain Analysis ============================= " << trigger 
                 << " " << getTrigInfo(trigger).trigName); 
 
+        if(isPrescaled(trigger)) continue; //Account for L1 and HLT prescale discard event
         // Trigger counts
         cd(m_dir+"/Expert/Event");
         if(tdt()->isPassed(trigger)) hist1(m_anatype+"_trigger_counts")->AddBinContent(ilist+1);

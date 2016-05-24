@@ -101,6 +101,7 @@ protected:
 
   /*! Check if electron fulfils isolation criteria */
   bool isIsolated(const xAOD::Electron*, const std::string);
+  bool isPrescaled(const std::string); 
 
   std::string getProbePid(const std::string);// {return m_offProbeTightness;}
   /*! book common histograms for analysis */

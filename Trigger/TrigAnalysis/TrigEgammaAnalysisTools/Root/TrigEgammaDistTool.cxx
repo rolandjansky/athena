@@ -91,27 +91,28 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
         ATH_MSG_DEBUG("Distributions:: Retrieve features for chain " << info.trigName << " type " << info.trigType << l1trig);
         const auto fcl1 = (tdt()->features(l1trig, TrigDefs::alsoDeactivateTEs));
         const auto fc = (tdt()->features(info.trigName, TrigDefs::alsoDeactivateTEs));
-        if(m_detailedHists){
-            const auto initRois = fcl1.get<TrigRoiDescriptor>();
-            ATH_MSG_DEBUG("Size of initialRoI" << initRois.size());
-            for(const auto feat : initRois){
-                if(feat.te()==NULL) {
-                    ATH_MSG_DEBUG("initial RoI feature NULL");
-                    continue;
-                }
-                const TrigRoiDescriptor *roi = feat.cptr();
+        const auto initRois = fcl1.get<TrigRoiDescriptor>();
+        ATH_MSG_DEBUG("Size of initialRoI" << initRois.size());
+        for(const auto feat : initRois){
+            if(feat.te()==NULL) {
+                ATH_MSG_DEBUG("initial RoI feature NULL");
+                continue;
+            }
+            const TrigRoiDescriptor *roi = feat.cptr();
+            cd(dir+"HLT");
+            hist1("rejection")->Fill("L1Calo",1);
+            if(m_detailedHists){               
                 cd(dir+"RoI");
                 hist1("roi_eta")->Fill(roi->eta());
                 hist1("roi_phi")->Fill(roi->phi());
                 auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(feat);
                 const xAOD::EmTauRoI *l1 = itEmTau.cptr();
                 if(l1==NULL) continue;
-                cd(dir+"HLT");
-                hist1("rejection")->Fill("L1Calo",1);
                 fillL1Calo(dir+"L1Calo",l1);
             }
         }
 
+        // Only fill distributions for TP triggers 
         if(m_tp){
             if(info.trigType=="electron"){
                 const auto vec_el = fc.get<xAOD::ElectronContainer>("egamma_Electrons",TrigDefs::alsoDeactivateTEs);
@@ -136,29 +137,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                     }
                 }
             }
-            else if(info.trigType=="photon"){
-                const auto vec_ph = fc.get<xAOD::PhotonContainer>("egamma_Photons",TrigDefs::alsoDeactivateTEs);
-                for (const auto feat : vec_ph){
-                    if(feat.te()==NULL) continue;
-                    const auto* cont = getFeature<xAOD::PhotonContainer>(feat.te());
-                    const auto *bits = getFeature<TrigPassBits>(feat.te());
-                    if(cont==NULL) continue;
-                    cd(dir+"HLT");
-                    if(ancestorPassed<xAOD::PhotonContainer>(feat.te()))
-                        hist1("rejection")->Fill("HLT",1);
-                    for(const auto& obj : *cont){
-                        // Only consider passing objects
-                        if(!obj) continue;
-                        if(bits==NULL){
-                            fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
-                        }
-                        // Only consider passing objects if bits available
-                        else if(!HLT::isPassing(bits,obj,cont)) continue;
-                        fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
-                    }
-                }
-            }
-            else ATH_MSG_WARNING("Chain type not specified");
+            else ATH_MSG_WARNING("Chain type not Electron for TP Trigger");
         }
         else {
             const auto vec_l2em = fc.get<xAOD::TrigEMCluster>("",TrigDefs::alsoDeactivateTEs);

@@ -52,4 +52,7 @@ atlas_add_component( TrigEgammaAnalysisTools
 atlas_install_headers( TrigEgammaAnalysisTools )
 atlas_install_python_modules( python/TrigEgamma*.py )
 atlas_install_joboptions( share/test*.py )
+atlas_install_generic( macros/trigEgammaDQ.py macros/get_trigEgammaDQ.sh 
+                        DESTINATION share/bin
+                        EXECUTABLE )
 
