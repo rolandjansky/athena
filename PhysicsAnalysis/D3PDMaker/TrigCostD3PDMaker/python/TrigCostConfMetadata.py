@@ -6,7 +6,7 @@
 # metadata to the D3PD.
 #
 
-def addTrigConfMetadata( d3pdalg = None, doCostL2 = False, doCostEF = False, doCostHLT = False, tuplePath = "" ):
+def addTrigCostConfMetadata( d3pdalg = None, doCostL2 = False, doCostEF = False, doCostHLT = False, tuplePath = "" ):
 
     """Helper function that adds the necessary tool(s) and service(s) to the
        job to save the trigger configuration metadata to the output D3PD
@@ -53,24 +53,24 @@ def addTrigConfMetadata( d3pdalg = None, doCostL2 = False, doCostEF = False, doC
                                                D3PDSvc = _d3pdSvc )
 
     # Add the metadata tool:
-    _d3pdToolName = "TrigConfMetadataTool"
+    _d3pdToolName = "TrigCostConfMetadataTool"
     if not _d3pdToolName in [ t.name() for t in d3pdalg.MetadataTools ]:
         import TrigCostD3PDMaker
         if (tuplePath == ""):
           tuplePath = d3pdalg.TuplePath
-        _trigConfTool = TrigCostD3PDMaker.TrigConfMetadataTool( _d3pdToolName,
-                                                               D3PDSvc = _d3pdSvc,
-                                                               ConfigDir = tuplePath + "Meta" )
+        _trigConfTool = TrigCostD3PDMaker.TrigCostConfMetadataTool( _d3pdToolName,
+                                                                   D3PDSvc = _d3pdSvc,
+                                                                   ConfigDir = tuplePath + "Meta" )
         # Figure out if old or new style HLT if using CostMon to get correct storegate key
         # Old key fomat was HLT_OPI_HLT_monitoring_config
         if (doCostL2 == True or doCostEF == True or doCostHLT == True):
-          logger.info( "TrigConfMetadataTool will use passed arguments [L2="+str(doCostL2)+",EF="+str(doCostEF)+",HLT="+str(doCostHLT)+"]" )
+          logger.info( "TrigCostConfMetadataTool will use passed arguments [L2="+str(doCostL2)+",EF="+str(doCostEF)+",HLT="+str(doCostHLT)+"]" )
           if (doCostL2 == True or doCostEF == True):
             _trigConfTool.keyConfig = "HLT_TrigMonConfigCollection_OPI_EF_monitoring_config"
           elif (doCostHLT == True):
             _trigConfTool.keyConfig = "HLT_TrigMonConfigCollection_OPI_HLT_monitoring_config"
         else: 
-          logger.info( "TrigConfMetadataTool will use TriggerFlags flags for config" )
+          logger.info( "TrigCostConfMetadataTool will use TriggerFlags flags for config" )
           from TriggerJobOpts.TriggerFlags import TriggerFlags
           if TriggerFlags.doHLT() and not (TriggerFlags.doEF() or TriggerFlags.doLVL2()):
             _trigConfTool.keyConfig = "HLT_TrigMonConfigCollection_OPI_HLT_monitoring_config"
@@ -79,6 +79,6 @@ def addTrigConfMetadata( d3pdalg = None, doCostL2 = False, doCostEF = False, doC
         logger.info( "TrigConfMetadataTool will use the StoreGate key " + _trigConfTool.keyConfig )
         d3pdalg.MetadataTools += [ _trigConfTool ]
     else:
-      logger.info( "TrigConfMetadataTool was already added to the D3PD::MakerAlg" )
+      logger.info( "TrigCostConfMetadataTool was already added to the D3PD::MakerAlg" )
 
     return

@@ -31,11 +31,11 @@
 #include "D3PDMakerInterfaces/ID3PD.h"
 
 // Local include(s):
-#include "TrigConfMetadataTool.h"
+#include "TrigCostConfMetadataTool.h"
 
 namespace D3PD {
 
-   TrigConfMetadataTool::TrigConfMetadataTool( const std::string& type,
+   TrigCostConfMetadataTool::TrigCostConfMetadataTool( const std::string& type,
                                                const std::string& name,
                                                const IInterface* parent )
       : AthAlgTool( type, name, parent ),
@@ -99,7 +99,7 @@ namespace D3PD {
       declareProperty( "keyConfig", m_keyConfig = "HLT_OPI_HLT_monitoring_config"); ///< [TrigMonConfig] Name of TrigerConfigurationObject
    }
 
-   StatusCode TrigConfMetadataTool::initialize() {
+   StatusCode TrigCostConfMetadataTool::initialize() {
 
       ATH_MSG_INFO( "Initializing. Package version: " << PACKAGE_VERSION );
 
@@ -191,7 +191,7 @@ namespace D3PD {
       return StatusCode::SUCCESS;
    }
 
-   StatusCode TrigConfMetadataTool::queryInterface( const InterfaceID& riid,
+   StatusCode TrigCostConfMetadataTool::queryInterface( const InterfaceID& riid,
                                                     void** ppvIf ) {
 
       if( riid == IMetadataTool::interfaceID() ) {
@@ -211,7 +211,7 @@ namespace D3PD {
     * The function is actually empty. The metadata should already be in the output
     * file at this point...
     */
-   StatusCode TrigConfMetadataTool::writeMetadata( ID3PD* ) {
+   StatusCode TrigCostConfMetadataTool::writeMetadata( ID3PD* ) {
 
       ATH_MSG_INFO( "Trigger configuration available in the D3PD in directory: \""
                     << m_configDir << "\"" );
@@ -227,7 +227,7 @@ namespace D3PD {
     *
     * @param inc The incident that happened
     */
-   void TrigConfMetadataTool::handle( const Incident& inc ) {
+   void TrigCostConfMetadataTool::handle( const Incident& inc ) {
 
       //
       // Handle trigger configuration change incidents:
@@ -251,7 +251,7 @@ namespace D3PD {
     * To get this full summary, set UseTrigConfEventSummaries=True and
     * ensure that the cost monitoring infrastructure is enabled.
     */
-   void TrigConfMetadataTool::handleNewTrigConfFromDataStore( const Incident& ) {
+   void TrigCostConfMetadataTool::handleNewTrigConfFromDataStore( const Incident& ) {
       
       const TrigMonConfigCollection *configCol = 0;
  
