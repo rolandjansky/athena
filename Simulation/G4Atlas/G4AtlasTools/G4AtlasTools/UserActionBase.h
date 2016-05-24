@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4ATLASTOOLS_USERACTIONBASE_H 
+#ifndef G4ATLASTOOLS_USERACTIONBASE_H
 #define G4ATLASTOOLS_USERACTIONBASE_H
 
 // Base classes
@@ -47,23 +47,25 @@ class UserActionBase : virtual public IUserAction , public AthAlgTool {
 
   virtual std::vector<std::string > GetRegions() override final {return m_regions;};
 
-  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
+  virtual StatusCode queryInterface(const InterfaceID&, void**);
 
-  virtual void setManagers(G4EventManager* em, G4TrackingManager* tm, G4StackManager* stam, G4SteppingManager* stem) override final {
-    fpEventManager=em;
-    stackManager=stam;
-    fpSteppingManager=stem;
-    fpTrackingManager=tm;
+  virtual void setManagers(G4EventManager* em, G4TrackingManager* tm, G4StackManager* stam, G4SteppingManager* stem){
+    m_fpEventManager=em;
+    m_stackManager=stam;
+    m_fpSteppingManager=stem;
+    m_fpTrackingManager=tm;
   };
 
- private:
+ protected:
 
-  // private pointers to main G4 managers
+  // private (for dervived classes) pointers to main G4 managers
   // these are passed by the UserActionService after registration of the actions to the G4RunManager
-  G4EventManager* fpEventManager;
-  G4StackManager* stackManager;
-  G4SteppingManager* fpSteppingManager;
-  G4TrackingManager* fpTrackingManager;
+  G4EventManager* m_fpEventManager;
+  G4StackManager* m_stackManager;
+  G4SteppingManager* m_fpSteppingManager;
+  G4TrackingManager* m_fpTrackingManager;
+
+ private:
 
   std::map< G4AtlasUA::Role, unsigned int> m_roles; ///!< The roles of this action
   std::vector<std::string> m_regions; ///!< stepping actions can be activated only in some specific region

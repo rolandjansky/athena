@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 
+/// @todo NEEDS DOCUMENTATION
 class DetectorGeometryBase : virtual public IDetectorGeometryTool, public AthAlgTool
 {
 public:

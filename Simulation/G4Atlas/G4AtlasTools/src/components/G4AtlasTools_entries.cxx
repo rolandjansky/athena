@@ -14,6 +14,8 @@
 #include "G4AtlasTools/AddPhysicsDecayTool.h"
 #include "../SensitiveDetectorMasterTool.h"
 #include "../FastSimulationMasterTool.h"
+#include "G4AtlasTools/GlobalFieldManagerTool.h"
+#include "G4AtlasTools/DetectorFieldManagerTool.h"
 
 DECLARE_TOOL_FACTORY( PhysicsListToolBase )
 DECLARE_TOOL_FACTORY( DetectorGeometryBase )
@@ -29,3 +31,5 @@ DECLARE_TOOL_FACTORY( UserLimitsTool )
 DECLARE_TOOL_FACTORY( SensitiveDetectorMasterTool )
 DECLARE_TOOL_FACTORY( FastSimulationMasterTool )
 DECLARE_TOOL_FACTORY( AddPhysicsDecayTool )
+DECLARE_TOOL_FACTORY( GlobalFieldManagerTool )
+DECLARE_TOOL_FACTORY( DetectorFieldManagerTool )
