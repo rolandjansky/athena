@@ -121,6 +121,8 @@ def TrigBphysMonitoringTool():
                                   Eta_max             =  3.,
                                   Mu_pt_min           =  0.,
                                   Mu_pt_max           =  50.,
+                                  Trk_pt_min          =  0.,
+                                  Trk_pt_max          =  25.,
                                   Z0_min              =  -150.,
                                   Z0_max              =  150.,
                                   D0_min              =  -11.,
