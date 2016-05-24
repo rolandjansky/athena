@@ -17,12 +17,18 @@ s_ref_file = 'root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/
 print "check if the ATN output file exists..."
 s_file = "";
 
-import os.path
+import os
 if not (os.path.isfile(s_nightly_aod_yesterday)):
     print "WARNING: it seems that the yesterday's ATN TrigHLT_Run1BStoxAOD in AtlasAnalysis,20.7.X-VAL was unsuccessful, going to use input file from the eos space"
     s_file = s_ref_file
 else:
     s_file = s_nightly_aod_yesterday
+
+# if this is AthAnalysisBase,2.3, it won't work with the root file prepared in current 20.7.X-VAL due to different xAOD schema version
+rc_release = os.environ['ROOTCORE_RELEASE_SERIES']
+if int(rc_release) == 23:
+    print "This is ROOTCORE_RELEASE_SERIES = 23, will use the corresponding input file"
+    s_file = s_ref_file
 
 print s_file," will be used as the input for this test"
 

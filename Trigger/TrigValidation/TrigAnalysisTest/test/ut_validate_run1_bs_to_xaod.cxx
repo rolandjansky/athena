@@ -29,8 +29,9 @@ int main()
   s_nightly_aod_yesterday.Form("/afs/cern.ch/atlas/software/builds/nightlies/20.7.X-VAL/AtlasAnalysis/rel_%i/NICOS_area/NICOS_atntest207XVAL64BS6G49AnlOpt/triganalysistest_testconfiguration_work/TrigHLT_Run1BStoxAOD/myAOD.pool.root", i_yesterday);
   std::cout << "the path for AOD from yesterday's ATN is: " << s_nightly_aod_yesterday << std::endl;
   // use this file if the ATN test upstream was not successful
+  // it is also used for ROOTCORE_RELEASE_SERIES = 23
   TString s_ref_file = "root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_xAODmadeWithAtlasAnalysis207XVAL151124_forATNAnalysisBase.root";
-
+  
   std::cout << "check if the ATN output file exists..." << std::endl;
   Long_t id,size,flags,modtime;
   TString s_file = "";
@@ -39,6 +40,13 @@ int main()
     s_file = s_ref_file;
   } else {
     s_file = s_nightly_aod_yesterday;
+  }
+
+  // if this is AnalysisBase,2.3, it won't work with the root file prepared in current 20.7.X-VAL due to different xAOD schema version
+  int rc_release = atoi(gSystem->Getenv("ROOTCORE_RELEASE_SERIES"));
+  if(rc_release == 23) {
+    std::cout << "This is ROOTCORE_RELEASE_SERIES = 23, will use the corresponding input file" << std::endl;
+    s_file = s_ref_file;
   }
 
   std::cout << s_file << " will be used as the input for this test" << std::endl;
