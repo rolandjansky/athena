@@ -51,7 +51,7 @@ use  VxVertex                   VxVertex-*                      Tracking/TrkEven
 #use  tauEvent                   tauEvent-*                      Reconstruction
 use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD
 use  xAODPFlow                  xAODPFlow-*                     Event/xAOD
-use TauAnalysisTools            TauAnalysisTools-*              PhysicsAnalysis/TauID
+use InDetTrackSelectionTool InDetTrackSelectionTool-* InnerDetector/InDetRecTools
 
 
 

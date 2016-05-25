@@ -37,6 +37,7 @@ TauPi0ClusterScaler::TauPi0ClusterScaler( const string& name ) :
     declareProperty("ParticleCaloExtensionTool", m_caloExtensionTool);
     declareProperty("ChargedPFOContainerName", m_chargedPFOContainerName); 
     declareProperty("runOnAOD", m_AODmode=false);
+    declareProperty("storeCaloSamplings", m_storeCaloSamplings=true);
 }
 
 //-------------------------------------------------------------------------
@@ -53,10 +54,6 @@ StatusCode TauPi0ClusterScaler::initialize()
     // retrieve tools
     ATH_MSG_DEBUG( "Retrieving tools" );
     CHECK( m_caloExtensionTool.retrieve() );
-    // Create vector with default values
-    for (int layer = 0 ; layer != CaloCell_ID::FCAL0; ++layer) {
-        m_defaultValues.push_back(-10.);
-    }
 
     return StatusCode::SUCCESS;
 }
@@ -77,7 +74,19 @@ StatusCode TauPi0ClusterScaler::eventInitialize() {
     CHECK( evtStore()->retrieve(m_chargedPFOContainer, m_chargedPFOContainerName) );
     CHECK( evtStore()->retrieve( m_chargedPFOAuxStore, m_chargedPFOContainerName + "Aux." ) );
   }
-    return StatusCode::SUCCESS;
+
+  //Check if TauTracks have sampling decorations
+  const xAOD::TauTrackContainer* tauTracks = 0;
+  ATH_CHECK( evtStore()->retrieve(tauTracks, "TauTracks") );
+  for( const xAOD::TauTrack* trk : *tauTracks ){
+    if( trk->isAvailable<float>("CaloSamplingEtaEM") ) {
+      m_caloSamplingsStored = true;
+      break;
+    }
+    m_caloSamplingsStored = false;
+  }
+
+  return StatusCode::SUCCESS;
 
 }
 
@@ -93,23 +102,11 @@ StatusCode TauPi0ClusterScaler::execute(xAOD::TauJet& pTau)
     // Clear vector of cell-based charged PFO Links. Required when rerunning on xAOD level.
     pTau.clearProtoChargedPFOLinks();
 
-    //---------------------------------------------------------------------
-    // only run on 1-5 prong taus 
-    //---------------------------------------------------------------------
-    if (pTau.nTracks() == 0 || pTau.nTracks() >5 ) {
-        return StatusCode::SUCCESS;
-    }
-    ATH_MSG_DEBUG("ClusterScaler: new tau. \tpt = " << pTau.pt() << "\teta = " << pTau.eta() << "\tphi = " << pTau.phi() << "\tnprongs = " << pTau.nTracks());
-
+    //incase tau is rejected, still fill vector of samplings
+    //so that TauTracks are consistently decorated
     //---------------------------------------------------------------------
     // get tau tracks
     //---------------------------------------------------------------------
-    vector<const xAOD::TrackParticle*> tracks;
-    for(unsigned iTrack = 0; iTrack<pTau.nTracks();++iTrack){
-        const xAOD::TrackParticle* track = pTau.track(iTrack);
-        tracks.push_back(track);
-    }
-
     //---------------------------------------------------------------------
     // prepare extrapolation of tracks to calo layers 
     //---------------------------------------------------------------------
@@ -118,16 +115,54 @@ StatusCode TauPi0ClusterScaler::execute(xAOD::TauJet& pTau)
     // which is called once per event (and not once per tau)
     m_tracksEtaAtSampling.clear();
     m_tracksPhiAtSampling.clear();
-    m_extrapolatedSamplings.clear();
-    // Fill with default values
-    for(int layer = 0 ; layer != CaloCell_ID::FCAL0; ++layer) {
-         m_extrapolatedSamplings.push_back(false);
-    }
-    for(unsigned iTrack = 0; iTrack<tracks.size();++iTrack){
-        m_tracksEtaAtSampling.push_back( m_defaultValues );
-        m_tracksPhiAtSampling.push_back( m_defaultValues );
-    }
+    vector<const xAOD::TauTrack*> tracks;
+    for(xAOD::TauTrack* track : pTau.allTracks()){
+      
+      float extrap_eta_EM, extrap_phi_EM, extrap_eta_Had, extrap_phi_Had;
 
+      if(m_caloSamplingsStored==false) {
+	//no decorations, so do calo extrapolations
+	int sampling_EM, sampling_Had;
+	if(fabs(track->eta())<1.45) sampling_EM = CaloSampling::EMB2;//2
+	else sampling_EM = CaloSampling::EME2;//6
+	if(fabs(track->eta())<1.0) sampling_Had = CaloSampling::TileBar1;
+	else if(fabs(track->eta())<1.5) sampling_Had = CaloSampling::TileExt1;
+	else sampling_Had = CaloSampling::HEC1;
+
+	getExtrapolatedPositions(track, sampling_EM, extrap_eta_EM, extrap_phi_EM);
+	getExtrapolatedPositions(track, sampling_Had, extrap_eta_Had, extrap_phi_Had);	
+	if(m_storeCaloSamplings) {
+	  //store the values in tracks
+	  track->setDetail(xAOD::TauJetParameters::CaloSamplingEtaEM, extrap_eta_EM);
+	  track->setDetail(xAOD::TauJetParameters::CaloSamplingPhiEM, extrap_phi_EM);
+	  track->setDetail(xAOD::TauJetParameters::CaloSamplingEtaHad, extrap_eta_Had);
+	  track->setDetail(xAOD::TauJetParameters::CaloSamplingPhiHad, extrap_phi_Had);
+	}
+      }
+      else {
+	//no need to perform calo extrapolation
+	track->detail(xAOD::TauJetParameters::CaloSamplingEtaEM, extrap_eta_EM );
+	track->detail(xAOD::TauJetParameters::CaloSamplingPhiEM, extrap_phi_EM );
+	track->detail(xAOD::TauJetParameters::CaloSamplingEtaHad, extrap_eta_Had);
+	track->detail(xAOD::TauJetParameters::CaloSamplingPhiHad, extrap_phi_Had);
+      }
+      if(track->flag(xAOD::TauJetParameters::classifiedCharged)) {
+	//now fill the extrapolated values in the v<v<float> >
+	tracks.push_back(track);
+	m_tracksEtaAtSampling.push_back({extrap_eta_EM, extrap_eta_Had});
+	m_tracksPhiAtSampling.push_back({extrap_phi_EM, extrap_phi_Had});
+      }
+    }
+    
+
+    //---------------------------------------------------------------------
+    // only run on 1-5 prong taus 
+    //---------------------------------------------------------------------
+    if (pTau.nTracks() == 0 || pTau.nTracks() >5 ) {
+        return StatusCode::SUCCESS;
+    }
+    ATH_MSG_DEBUG("ClusterScaler: new tau. \tpt = " << pTau.pt() << "\teta = " << pTau.eta() << "\tphi = " << pTau.phi() << "\tnprongs = " << pTau.nTracks());
+    
     //---------------------------------------------------------------------
     // get energy in HCal associated to the different tracks
     //---------------------------------------------------------------------
@@ -138,10 +173,10 @@ StatusCode TauPi0ClusterScaler::execute(xAOD::TauJet& pTau)
     // Create charged PFOs
     //---------------------------------------------------------------------
     for(unsigned iTrack = 0; iTrack<tracks.size();++iTrack){
-        const xAOD::TrackParticle* track = tracks.at(iTrack);
+        const xAOD::TrackParticle* track = tracks.at(iTrack)->track();
         xAOD::PFO* chargedPFO = new xAOD::PFO();
         m_chargedPFOContainer->push_back(chargedPFO);
-        ElementLink<xAOD::TrackParticleContainer> myTrackLink = pTau.trackLinks().at(iTrack);
+        ElementLink<xAOD::TrackParticleContainer> myTrackLink = pTau.trackNonConst(iTrack)->trackLinks()[0];
         if(!chargedPFO->setTrackLink(myTrackLink)) ATH_MSG_WARNING("Could not add Track to PFO");
         chargedPFO->setCharge(track->charge());
         chargedPFO->setP4(track->pt(),track->eta(),track->phi(),track->m());
@@ -169,19 +204,12 @@ StatusCode TauPi0ClusterScaler::execute(xAOD::TauJet& pTau)
     unsigned nNeutPFO = pTau.nProtoNeutralPFOs();
     for(unsigned int iNeutPFO=0; iNeutPFO<nNeutPFO; iNeutPFO++, thisCluster++) {
         const xAOD::PFO* curNeutPFO_const = pTau.protoNeutralPFO( iNeutPFO );
-        int maxESample = 2;
-        if (fabs(curNeutPFO_const->eta()) > 1.45) maxESample = 6;
-        // check if tracks have been extrapolated to this sampling. Do so if this is not the case
-        if(m_extrapolatedSamplings.at(maxESample)==false){
-           this->getExtrapolatedPositions(tracks,maxESample);
-           m_extrapolatedSamplings.at(maxESample)=true;
-        }
 
         for(unsigned iTrack = 0; iTrack<tracks.size();++iTrack){
             if(EestInEcal.at(iTrack)<0.001) continue; // No need to subtract
 
             TLorentzVector extTrack;
-            extTrack.SetPtEtaPhiE(tracks.at(iTrack)->pt(), m_tracksEtaAtSampling.at(iTrack).at(maxESample), m_tracksPhiAtSampling.at(iTrack).at(maxESample), tracks.at(iTrack)->e());
+            extTrack.SetPtEtaPhiE(tracks.at(iTrack)->pt(), m_tracksEtaAtSampling.at(iTrack).at(0), m_tracksPhiAtSampling.at(iTrack).at(0), tracks.at(iTrack)->e());
             // get eta/phi distance of cell to track
             double deltaEta = extTrack.Eta()-curNeutPFO_const->eta();
             double deltaPhi = TVector2::Phi_mpi_pi( extTrack.Phi() - curNeutPFO_const->phi());;
@@ -252,35 +280,33 @@ StatusCode TauPi0ClusterScaler::execute(xAOD::TauJet& pTau)
 }
 
 void TauPi0ClusterScaler::getExtrapolatedPositions(
-    vector<const xAOD::TrackParticle*> tracks,
-    int sampling)
+    const xAOD::TauTrack* track,
+    int sampling, float& extrap_eta, float& extrap_phi)
 {
-    for (unsigned iTrack = 0 ; iTrack < tracks.size(); ++iTrack ) {
-        // get the extrapolation into the calo
-        ATH_MSG_DEBUG( "Try extrapolation of track with pt = " << tracks.at(iTrack)->pt() << ", eta " << tracks.at(iTrack)->eta() << ", phi" << tracks.at(iTrack)->phi()
-                      << " to layer " << sampling);
-        const Trk::CaloExtension* caloExtension = 0;
-        if (!m_caloExtensionTool->caloExtension(*tracks.at(iTrack),caloExtension)
-            || caloExtension->caloLayerIntersections().size() < (unsigned int)(sampling+1)) return;
-
-        // store if track extrapolation successful, only use entry layer
-        const Trk::TrackParameters* param_at_calo = caloExtension->caloLayerIntersections().at(sampling);
-        if (param_at_calo) {
-            ATH_MSG_DEBUG( "Extrapolated track with eta=" << tracks.at(iTrack)->eta()
-                            << " phi="<<tracks.at(iTrack)->phi()
-                            << " to eta=" << param_at_calo->position().eta()
-                            << " phi="<<param_at_calo->position().phi()
-                            );
-            m_tracksEtaAtSampling.at(iTrack).at(sampling)=param_at_calo->position().eta();
-            m_tracksPhiAtSampling.at(iTrack).at(sampling)=param_at_calo->position().phi();
-        }
-        else ATH_MSG_DEBUG("Could not extrapolate track with pt = " << tracks.at(iTrack)->pt() << ", eta " << tracks.at(iTrack)->eta() << ", phi" << tracks.at(iTrack)->phi()
-                          << " to layer " << sampling);
-    }
+  extrap_eta=-10;
+  extrap_phi=-10;
+  ATH_MSG_DEBUG( "Try extrapolation of track with pt = " << track->pt() << ", eta " << track->eta() << ", phi" << track->phi()
+		 << " to layer " << sampling);
+  const Trk::CaloExtension* caloExtension = 0;
+  if (!m_caloExtensionTool->caloExtension(*track->track(),caloExtension)
+      || caloExtension->caloLayerIntersections().size() < (unsigned int)(sampling+1)) return;
+  // store if track extrapolation successful, only use entry layer
+  const Trk::TrackParameters* param_at_calo = caloExtension->caloLayerIntersections().at(sampling);
+  if (param_at_calo) {
+    ATH_MSG_DEBUG( "Extrapolated track with eta=" << track->eta()
+		   << " phi="<<track->phi()
+		   << " to eta=" << param_at_calo->position().eta()
+		   << " phi="<<param_at_calo->position().phi()
+		   );
+    extrap_eta=param_at_calo->position().eta();
+    extrap_phi=param_at_calo->position().phi();
+  }
+  else ATH_MSG_DEBUG("Could not extrapolate track with pt = " << track->pt() << ", eta " << track->eta() << ", phi" << track->phi()
+		       << " to layer " << sampling);
 }
 
 vector<double> TauPi0ClusterScaler::getEstEcalEnergy(
-    vector<const xAOD::TrackParticle*> tracks,
+    vector<const xAOD::TauTrack*> tracks,
     const xAOD::TauJet& pTau,
     vector<vector<ElementLink<xAOD::IParticleContainer> > >& hadPFOLinks)
 {
@@ -310,28 +336,16 @@ vector<double> TauPi0ClusterScaler::getEstEcalEnergy(
                      "\t deltaEtaToTau = " << deltaEtaToTau << "\t deltaPhiToTau = " << deltaPhiToTau << "\t deltaRToTau_squared = " << deltaRToTau_squared );
         */
 
-        // Decide which sampling to extrapolate to. Choose Hcal samplings that usually contain most energy (|eta| dependent)
-        int                                   sample = 13; //         |eta| <= 1.0
-        if     ( fabs(curHadPFO->eta())>1.5 ) sample =  9; //  1.5 <  |eta| 
-        else if( fabs(curHadPFO->eta())>1.0 ) sample = 19; //  1.0 <  |eta| <= 1.5
-
-        // check if tracks have been extrapolated to this sampling. Do so if this is not the case
-        if(m_extrapolatedSamplings.at(sample)==false){
-           this->getExtrapolatedPositions(tracks,sample);
-           ATH_MSG_DEBUG("Extrapolate to layer " << sample << "\teta = "
-                         << m_tracksEtaAtSampling.at(0).at(sample) << "\t phi = " << m_tracksPhiAtSampling.at(0).at(sample) );
-           m_extrapolatedSamplings.at(sample)=true;
-        }
 
         // Assign PFO to track
         int closestTrack = -1;
         double dRToClosestTrack_squared = 0.16; // XXX can be tuned later
         for(unsigned iTrack = 0; iTrack<tracks.size();++iTrack){
-            const xAOD::TrackParticle* track = tracks.at(iTrack);
+	    const xAOD::TrackParticle* track = tracks.at(iTrack)->track();
 
             // set extrapolated track direction
             TLorentzVector extTrack;
-            extTrack.SetPtEtaPhiE(track->pt(), m_tracksEtaAtSampling.at(iTrack).at(sample), m_tracksPhiAtSampling.at(iTrack).at(sample), track->e());
+            extTrack.SetPtEtaPhiE(track->pt(), m_tracksEtaAtSampling.at(iTrack).at(1), m_tracksPhiAtSampling.at(iTrack).at(1), track->e());
 
             // get eta/phi distance of cell to track
             double deltaEta = extTrack.Eta()-curHadPFO->eta();

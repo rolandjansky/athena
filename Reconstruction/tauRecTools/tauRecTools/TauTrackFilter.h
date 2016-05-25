@@ -40,6 +40,7 @@ public:
 private:
     std::string m_configPath;
     std::string m_trackContainerName;
+    std::string m_tauTrackConName;
     std::vector<bool> m_TrkPass;
     int m_nProng;
     int m_flag;

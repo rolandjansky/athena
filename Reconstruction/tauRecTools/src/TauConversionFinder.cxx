@@ -119,21 +119,24 @@ StatusCode TauConversionFinder::eventFinalize() {
                 // Find conversion in normal tau tracks
                 if (m_do_normal) {
                     for (unsigned int j = 0; j < numTracks; ++j) {
-                        const xAOD::TrackParticle *pTauTrack = pTau.track(j);
-                        const Trk::Track* tau_trk_def = pTauTrack->track();
+		        //const xAOD::TrackParticle *pTauTrack = pTau.track(j);
+		        xAOD::TauTrack *pTauTrack = pTau.trackNonConst(j);
+		        const Trk::Track* tau_trk_def = pTauTrack->track()->track();
 
                         if (conv_trk == tau_trk_def) {
 
                             if (conv_trk->trackSummary()->getPID(Trk::eProbabilityHT) > m_eProb_cut) {
-                              if (!pTau.trackFlag(pTauTrack, xAOD::TauJetParameters::isConversion)) {
+                              //if (!pTau.trackFlag(pTauTrack, xAOD::TauJetParameters::isConversion)) {
+                              if (!pTauTrack->flag(xAOD::TauJetParameters::isConversionOld)) {
                                   ElementLink<xAOD::TrackParticleContainer> phoConvLink ;
-                                  phoConvLink.setElement(pTauTrack) ;
+                                  //phoConvLink.setElement(pTauTrack) ;
+				  phoConvLink.setElement(pTauTrack->track()) ;
                                   phoConvLink.setStorableObject( *trackContainer ) ;
-                                  phoConvLink.index();
-                                  pTau.addTrackLink( phoConvLink ) ;
-                                  pTau.setTrackFlag(pTauTrack, xAOD::TauJetParameters::isConversion, true);
+                                  //phoConvLink.index();
+				  pTauTrack->addTrackLink( phoConvLink );
+				  pTauTrack->setFlag(xAOD::TauJetParameters::isConversionOld, true);
                                     if (m_adjust_tau_charge)
-                                        pTau.setCharge(pTau.charge() - pTau.track(j)->charge());
+				      pTau.setCharge(pTau.charge() - pTau.track(j)->track()->charge());
 
                                     m_numProng--;
                                 }

@@ -43,12 +43,6 @@ m_clusterCone(0.2)  //not used
     declareProperty("isCaloOnly",    m_isCaloOnly);
 }
 
-TauCalibrateLC::TauCalibrateLC() :
-  TauCalibrateLC("TauCalibrateLC")//c++11
-{
-}
-
-
 /********************************************************************/
 TauCalibrateLC::~TauCalibrateLC() {
 }
@@ -73,7 +67,7 @@ StatusCode TauCalibrateLC::initialize() {
         etaBinHist = dynamic_cast<TH1 *> (obj);
     }
     if (etaBinHist) {
-        TH1 * tmp = const_cast<TH1*> (etaBinHist);
+        TH1 * tmp = dynamic_cast<TH1*> (obj);
         tmp->SetDirectory(0);
     } else {
         ATH_MSG_FATAL("Failed to get an object with  key " << key);
@@ -99,7 +93,7 @@ StatusCode TauCalibrateLC::initialize() {
         etaCorrectionHist = dynamic_cast<TH1 *> (obj);
     }
     if (etaCorrectionHist) {
-        TH1 * tmp = const_cast<TH1*> (etaCorrectionHist);
+        TH1 * tmp = dynamic_cast<TH1*> (obj);
         tmp->SetDirectory(0);
     } else {
         ATH_MSG_FATAL("Failed to get an object with  key " << key);
@@ -116,7 +110,7 @@ StatusCode TauCalibrateLC::initialize() {
             slopeNPVHist[i] = dynamic_cast<TH1 *> (obj);
         }
         if (slopeNPVHist[i]) {
-            TH1 * tmp = const_cast<TH1*> (slopeNPVHist[i]);
+            TH1 * tmp = dynamic_cast<TH1*> (obj);
             tmp->SetDirectory(0);
         } else {
             ATH_MSG_FATAL("Failed to get an object with  key " << tmpSlopKey[i]);

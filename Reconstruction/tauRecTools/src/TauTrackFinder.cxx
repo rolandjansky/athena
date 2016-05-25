@@ -8,6 +8,7 @@
 
 #include "xAODTau/TauJet.h"
 #include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauTrackContainer.h"
 
 #include "TauTrackFinder.h"
 #include "tauRecTools/KineUtils.h"
@@ -19,6 +20,7 @@ TauTrackFinder::TauTrackFinder(const std::string& name ) :
                 m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
 		m_trackSelectorTool_tau(""),
 		m_trackToVertexTool("Reco::TrackToVertex"),
+		m_trackSelectorTool_tau_xAOD(""),
 		m_z0maxDelta(1000),
 		m_applyZ0cut(false),
 		m_storeInOtherTrks(true),
@@ -28,12 +30,15 @@ TauTrackFinder::TauTrackFinder(const std::string& name ) :
 	declareProperty("MaxJetDrTau", m_maxJetDr_tau = 0.2);
 	declareProperty("MaxJetDrWide", m_maxJetDr_wide = 0.4);
 	declareProperty("TrackSelectorToolTau", m_trackSelectorTool_tau);
+	declareProperty("TrackSelectorToolTauxAOD", m_trackSelectorTool_tau_xAOD);
 	declareProperty("TrackParticleContainer", m_inputTrackParticleContainerName = "InDetTrackParticles");
+	declareProperty("TrackParticleContainer", m_inputTauTrackContainerName = "TauTracks");
         declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
         declareProperty("TrackToVertexTool",m_trackToVertexTool);
 	declareProperty("maxDeltaZ0wrtLeadTrk", m_z0maxDelta);
 	declareProperty("removeTracksOutsideZ0wrtLeadTrk", m_applyZ0cut);
         declareProperty("StoreRemovedCoreWideTracksInOtherTracks", m_storeInOtherTrks = true);
+	declareProperty("removeDuplicateCoreTracks", m_removeDuplicateCoreTracks = true);
 	declareProperty("BypassSelector", m_bypassSelector = false);
 	declareProperty("BypassExtrapolator", m_bypassExtrapolator = false);
 }
@@ -46,6 +51,7 @@ StatusCode TauTrackFinder::initialize() {
 
 	// Get the TrackSelectorTool
 	if (!retrieveTool(m_trackSelectorTool_tau)) return StatusCode::FAILURE;
+	//if (!retrieveTool(m_trackSelectorTool_tau_xAOD)) return StatusCode::FAILURE;
 
 	// Get the TJVA
 	if (!retrieveTool(m_trackToVertexTool)) return StatusCode::FAILURE;
@@ -77,14 +83,26 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
 	StatusCode sc;
 	// get the track particle container from StoreGate
 	const xAOD::TrackParticleContainer* trackParticleCont = 0;
+	xAOD::TauTrackContainer* tauTrackCon = 0;
 
 	//for tau trigger
 	bool inTrigger = tauEventData()->inTrigger();
-	if (inTrigger)   sc = tauEventData()->getObject( "TrackContainer", trackParticleCont );
+	if (inTrigger)   {
+	  ATH_CHECK(tauEventData()->getObject( "TrackContainer", trackParticleCont ));	
+	  ATH_CHECK(tauEventData()->getObject( "TauTrackContainer", tauTrackCon ));
+	}
 
 	if( !inTrigger || !trackParticleCont || sc.isFailure() ) {
 		// try standard
 		if (!openContainer(trackParticleCont, m_inputTrackParticleContainerName)) {
+			if (!inTrigger) return StatusCode::FAILURE; // in offline we don't reconstruct tau candidates without having a track container
+			else return StatusCode::SUCCESS; // we don't want stop trigger if there is no track container
+		}
+	}
+
+	if( !inTrigger || !tauTrackCon || sc.isFailure() ) {
+		// try standard
+		if (!openContainer(tauTrackCon, m_inputTauTrackContainerName)) {
 			if (!inTrigger) return StatusCode::FAILURE; // in offline we don't reconstruct tau candidates without having a track container
 			else return StatusCode::SUCCESS; // we don't want stop trigger if there is no track container
 		}
@@ -106,12 +124,6 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
 		this->removeOffsideTracksWrtLeadTrk(tauTracks, wideTracks, otherTracks, pVertex, m_z0maxDelta);
 	}
 
-	//clear tracks first (needed for "rerun mode" if called on AODs again)
-	pTau.clearTrackLinks();
-	pTau.clearWideTrackLinks();
-	pTau.clearOtherTrackLinks();
-
-	bool alreadyUsed = false;
 	//check for tracks used in multiple taus
 	xAOD::TauJetContainer* pContainer = tauEventData()->xAODTauContainer;
 	if(pContainer==0){
@@ -122,33 +134,24 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
 	  return StatusCode::FAILURE;
 	}
 
-	
-	for (std::vector<const xAOD::TrackParticle*>::iterator track_it = tauTracks.begin(); track_it != tauTracks.end() ;)
-	{
-		alreadyUsed = false;
 
-		//loop over all up-to-now reconstructed tau candidates
-		xAOD::TauJetContainer::const_iterator tau_it = pContainer->begin();
-		xAOD::TauJetContainer::const_iterator tau_end = pContainer->end();
-		for( ; tau_it != tau_end; tau_it++ )
-		{
-		        if( (*tau_it) == &pTau ) continue;
-			//loop over core tracks
-			for (unsigned int j = 0; j < (*tau_it)->nTracks(); ++j)
-			{
-				if ((*track_it) == (*tau_it)->track(j))
-				{
-					ATH_MSG_WARNING("Found a track that is identical with a track already associated to another tau. Will not add this track to more than one tau candidate");
-					alreadyUsed = true;
-				}
-			}
-		}
-
-		//if this track has already been used by another tau, don't associate it to this new one
-		if (alreadyUsed)    track_it = tauTracks.erase(track_it);
-		else ++track_it;
+	if(m_removeDuplicateCoreTracks){
+	  bool alreadyUsed = false;
+	  for (std::vector<const xAOD::TrackParticle*>::iterator track_it = tauTracks.begin(); track_it != tauTracks.end() ;)
+	    {
+	      alreadyUsed = false;
+	      
+	      //loop over all up-to-now core tracks
+	      for( const xAOD::TauTrack* tau_trk : (*tauTrackCon) ) {
+		if(! tau_trk->flagWithMask( (1<<xAOD::TauJetParameters::TauTrackFlag::coreTrack) | (1<<xAOD::TauJetParameters::TauTrackFlag::passTrkSelector))) continue; //originally it was coreTrack&passTrkSelector
+		if( (*track_it) == tau_trk->track()) alreadyUsed = true;
+	      }
+	      //if this track has already been used by another tau, don't associate it to this new one
+	      if(alreadyUsed) ATH_MSG_WARNING( "Found Already Used track new, now removing: " << *track_it );
+	      if (alreadyUsed)    track_it = tauTracks.erase(track_it);
+	      else ++track_it;
+	    }
 	}
-
 
 	// associated track to tau candidate and calculate charge
 	float charge = 0;
@@ -160,9 +163,24 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
 				<< " phi " << trackParticle->phi()
 		);
 		charge += trackParticle->charge();
+
+		xAOD::TauTrack* track = new xAOD::TauTrack();
+		tauTrackCon->push_back(track);
 		ElementLink<xAOD::TrackParticleContainer> linkToTrackParticle;
 		linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
-		pTau.addTrackLink(linkToTrackParticle);
+		track->addTrackLink(linkToTrackParticle);
+		track->setP4(trackParticle->pt(), trackParticle->eta(), trackParticle->phi(), trackParticle->m());
+		//track->setCharge(track->charge());
+		track->setFlag(xAOD::TauJetParameters::TauTrackFlag::coreTrack, true);
+		track->setFlag(xAOD::TauJetParameters::TauTrackFlag::passTrkSelector, true);
+		// in case TrackClassifier is not run, still get sensible results
+		track->setFlag(xAOD::TauJetParameters::TauTrackFlag::classifiedCharged, true); 
+		track->setFlag(xAOD::TauJetParameters::TauTrackFlag::unclassified, true); 
+		//track->setFlag(xAOD::TauJetParameters::TauTrackFlag::passTrkSelectionTight, m_trackSelectorTool_tau_xAOD->accept(trackParticle));
+		ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
+		linkToTauTrack.toContainedElement(*tauTrackCon, track);
+		pTau.addTauTrackLink(linkToTauTrack);
+
 		ATH_MSG_VERBOSE(name() 	<< " added core track nr: " << i
 				<< " eta " << pTau.track(i)->eta()
 				<< " phi " << pTau.track(i)->phi()
@@ -182,13 +200,24 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
 				<< " eta " << trackParticle->eta()
 				<< " phi " << trackParticle->phi()
 		);
+
+		xAOD::TauTrack* track = new xAOD::TauTrack();
+		tauTrackCon->push_back(track);
 		ElementLink<xAOD::TrackParticleContainer> linkToTrackParticle;
 		linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
-		pTau.addWideTrackLink(linkToTrackParticle);
-		ATH_MSG_VERBOSE(name() 	<< " added wide track nr: " << i
-				<< " eta " << pTau.wideTrack(i)->eta()
-				<< " phi " << pTau.wideTrack(i)->phi()
-		);
+		track->addTrackLink(linkToTrackParticle);
+		track->setP4(trackParticle->pt(), trackParticle->eta(), trackParticle->phi(), trackParticle->m());
+		//track->setCharge(track->charge());
+		track->setFlag(xAOD::TauJetParameters::TauTrackFlag::wideTrack, true);
+		track->setFlag(xAOD::TauJetParameters::TauTrackFlag::passTrkSelector, true);
+		// in case TrackClassifier is not run, still get sensible results
+		track->setFlag(xAOD::TauJetParameters::TauTrackFlag::classifiedIsolation, true); // for sake of trigger, reset in TauTrackClassifier
+		track->setFlag(xAOD::TauJetParameters::TauTrackFlag::unclassified, true); 
+		//track->setFlag(xAOD::TauJetParameters::TauTrackFlag::passTrkSelectionTight, m_trackSelectorTool_tau_xAOD->accept(trackParticle));
+		ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
+		linkToTauTrack.toContainedElement(*tauTrackCon, track);
+		pTau.addTauTrackLink(linkToTauTrack);
+
 	}
 
 	/// was
@@ -201,13 +230,24 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
 				<< " eta " << trackParticle->eta()
 				<< " phi " << trackParticle->phi()
 		);
-		ElementLink<xAOD::TrackParticleContainer> linkToTrackParticle;
-		linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
-		pTau.addOtherTrackLink(linkToTrackParticle);
-		ATH_MSG_VERBOSE(name() 	<< " added other track nr: " << i
-				<< " eta " << pTau.otherTrack(i)->eta()
-				<< " phi " << pTau.otherTrack(i)->phi()
-		);
+
+		// bool accepted=m_trackSelectorTool_tau_xAOD->accept(trackParticle);
+		// if(accepted){
+		  xAOD::TauTrack* track = new xAOD::TauTrack();
+		  tauTrackCon->push_back(track);
+		  ElementLink<xAOD::TrackParticleContainer> linkToTrackParticle;
+		  linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
+		  track->addTrackLink(linkToTrackParticle);
+		  track->setP4(trackParticle->pt(), trackParticle->eta(), trackParticle->phi(), trackParticle->m());
+		  float dR = track->p4().DeltaR(pTau.p4());
+		  if(dR<=0.2) track->setFlag(xAOD::TauJetParameters::TauTrackFlag::coreTrack, true);
+		  else track->setFlag(xAOD::TauJetParameters::TauTrackFlag::wideTrack, true);
+		  track->setFlag(xAOD::TauJetParameters::TauTrackFlag::unclassified, true); 
+		  // track->setFlag(xAOD::TauJetParameters::TauTrackFlag::passTrkSelectionTight, accepted);
+		  ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
+		  linkToTauTrack.toContainedElement(*tauTrackCon, track);
+		  pTau.addTauTrackLink(linkToTauTrack);
+		// }
 	}
 
 
@@ -287,10 +327,11 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
 
         Trk::TrackParametersIdHelper parsIdHelper;
 
-	for (unsigned int itr = 0; itr < 10 && itr < pTau.nTracks(); ++itr) {
-
-		const xAOD::TrackParticle *orgTrack = pTau.track(itr);
-                
+	//	for (unsigned int itr = 0; itr < 10 && itr < pTau.nAllTracks(); ++itr) {
+	
+	for( xAOD::TauTrack* tauTrack : pTau.allTracks() ) {
+		const xAOD::TrackParticle *orgTrack = tauTrack->track();
+		
                 if( !orgTrack ) continue;
 
                 // get the extrapolation into the calo
@@ -306,8 +347,8 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
                   CaloSampling::CaloSample sample = parsIdHelper.caloSample((*cur)->cIdentifier());
                   
                   if( sample == CaloSampling::EME1 || sample == CaloSampling::EMB1 ){
-                    pTau.setTrackEtaStrip( itr,  (*cur)->position().eta() );
-                    pTau.setTrackPhiStrip( itr,  (*cur)->position().phi() );
+		    tauTrack->setEtaStrip((*cur)->position().eta());
+		    tauTrack->setPhiStrip((*cur)->position().phi());
                     break;
                   }
                 }

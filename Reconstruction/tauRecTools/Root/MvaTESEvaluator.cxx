@@ -7,7 +7,7 @@
 
 // tools include(s) 
 
-#include "TauAnalysisTools/HelperFunctions.h"
+//#include "TauAnalysisTools/HelperFunctions.h"
 
 //_____________________________________________________________________________
 MvaTESEvaluator::MvaTESEvaluator(const std::string& name)
@@ -75,36 +75,34 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
   nVtx = xTau.auxdata<int>("nVtx");
   
   // Retrieve seed jet info
-  center_lambda = xTau.auxdata<double>("center_lambda");
-  first_eng_dens = xTau.auxdata<double>("first_eng_dens");
-  em_probability = xTau.auxdata<double>("em_probability");
-  second_lambda = xTau.auxdata<double>("second_lambda");
-  presampler_frac = xTau.auxdata<double>("presampler_frac");
-  nMuSeg = (float)xTau.auxdata<int>("GhostMuonSegmentCount");
-  
+  xTau.detail(xAOD::TauJetParameters::ClustersMeanCenterLambda, center_lambda);
+  xTau.detail(xAOD::TauJetParameters::ClustersMeanFirstEngDens, first_eng_dens);
+  xTau.detail(xAOD::TauJetParameters::ClustersMeanEMProbability,em_probability);
+  xTau.detail(xAOD::TauJetParameters::ClustersMeanSecondLambda, second_lambda);
+  xTau.detail(xAOD::TauJetParameters::ClustersMeanPresamplerFrac, presampler_frac);
+  int nMuSeg_i=0;
+  xTau.detail(xAOD::TauJetParameters::GhostMuonSegmentCount, nMuSeg_i);
+  nMuSeg=nMuSeg_i;
+
   // Retrieve pantau and LC-precalib TES
-  seedCalo_eta    = xTau.auxdata<float>("seedCalo_eta");
-  float pT_LC     = xTau.auxdata<float>("LC_TES_precalib");
+  seedCalo_eta    = xTau.etaDetectorAxis();
+  float pT_LC     = xTau.ptDetectorAxis();
   float pT_pantau = xTau.ptPanTauCellBased();
-  interpolPt      = xTau.auxdata<double>("LC_pantau_interpolPt");
+  xTau.detail(xAOD::TauJetParameters::LC_pantau_interpolPt, interpolPt);
   LC_D_interpolPt     = pT_LC / interpolPt;
   pantau_D_interpolPt = pT_pantau / interpolPt;
   
   // Retrieve substructures info
   nTracks = (float)xTau.nTracks();
-  nPi0PFOs = (float)xTau.auxdata<int>("nPi0PFOs");
-  PFOEngRelDiff = xTau.auxdata<double>("PFOEngRelDiff");  
+  nPi0PFOs = (float) xTau.nPi0s();
+  xTau.detail(xAOD::TauJetParameters::PFOEngRelDiff, PFOEngRelDiff);  
 
   // "Retrieve" spectator variables
   truthPtVis = 0.;
 
-  //  xTau.auxdecor<float>("ptMvaTES") = float( interpolPt * reader->EvaluateRegression( 0, "BDTG" ) );
   float ptMVA = float( interpolPt * reader->EvaluateRegression( 0, "BDTG" ) );
   if(ptMVA<1) ptMVA=1;
-  xTau.auxdecor<float>("ptFinalCalib") = ptMVA;
-  xTau.auxdecor<float>("etaFinalCalib") = xTau.auxdata<float>("etaPanTauCellBased");
-  xTau.auxdecor<float>("phiFinalCalib") = xTau.auxdata<float>("phiPanTauCellBased");
-  xTau.auxdecor<float>("mFinalCalib") = 0;
+  xTau.setP4(xAOD::TauJetParameters::FinalCalib, ptMVA, xTau.etaPanTauCellBased(), xTau.phiPanTauCellBased(), 0);
 
   return StatusCode::SUCCESS;
 

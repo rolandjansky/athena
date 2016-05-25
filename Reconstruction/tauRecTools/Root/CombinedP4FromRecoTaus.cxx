@@ -5,7 +5,7 @@
 // Framework include(s)
 #include "PathResolver/PathResolver.h"
 
-#include "TauAnalysisTools/HelperFunctions.h"
+//#include "TauAnalysisTools/HelperFunctions.h"
 
 // local include(s)
 #include "tauRecTools/CombinedP4FromRecoTaus.h"
@@ -139,7 +139,7 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
 StatusCode CombinedP4FromRecoTaus::execute(xAOD::TauJet& xTau) {
   xAOD::TauJet* Tau = &xTau;
   int tmpDecayModeProto;
-  xTau.panTauDetail(xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_DecayModeProto, tmpDecayModeProto);
+  xTau.panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayModeProto, tmpDecayModeProto);
   if(tmpDecayModeProto>xAOD::TauJetParameters::Mode_3pXn){
     xTau.auxdecor<float>("pt_combined")  = 1.;    
     return StatusCode::SUCCESS;
@@ -554,7 +554,7 @@ TLorentzVector CombinedP4FromRecoTaus::getCombinedP4(const xAOD::TauJet* tau) {
   ATH_MSG_DEBUG( "TauRecET: " << tauRecP4.Et() );
   xAOD::TauJetParameters::DecayMode decayMode = xAOD::TauJetParameters::DecayMode::Mode_Error;
   int tmpDecayMode;
-  if (tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_DecayMode, tmpDecayMode)) {
+  if (tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, tmpDecayMode)) {
     decayMode = static_cast< xAOD::TauJetParameters::DecayMode>(tmpDecayMode);
   }
   ATH_MSG_DEBUG( "Decaymode is: " << decayMode );
@@ -598,7 +598,7 @@ TLorentzVector CombinedP4FromRecoTaus::getCalibratedConstituentP4(const xAOD::Ta
 
   xAOD::TauJetParameters::DecayMode decayMode = xAOD::TauJetParameters::DecayMode::Mode_Error;
   int tmpDecayMode;
-  if (tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_DecayMode, tmpDecayMode)) {
+  if (tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, tmpDecayMode)) {
     decayMode = static_cast< xAOD::TauJetParameters::DecayMode>(tmpDecayMode);
   }
   ATH_MSG_DEBUG( "Decaymode is: " << decayMode );
@@ -638,7 +638,7 @@ TLorentzVector CombinedP4FromRecoTaus::getCalibratedTauRecP4(const xAOD::TauJet*
   ATH_MSG_DEBUG( "TauRecET: " << tauRecP4.Et() );
   xAOD::TauJetParameters::DecayMode decayMode = xAOD::TauJetParameters::DecayMode::Mode_Error;
   int tmpDecayMode;
-  if (tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_DecayMode, tmpDecayMode)) {
+  if (tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, tmpDecayMode)) {
     decayMode = static_cast< xAOD::TauJetParameters::DecayMode>(tmpDecayMode);
   }
   ATH_MSG_DEBUG( "Decaymode is: " << decayMode );
@@ -679,7 +679,7 @@ TLorentzVector CombinedP4FromRecoTaus::getWeightedP4(const xAOD::TauJet* tau) {
   ATH_MSG_DEBUG( "TauRecET: " << tauRecP4.Et() );
   xAOD::TauJetParameters::DecayMode decayMode = xAOD::TauJetParameters::DecayMode::Mode_Error;
   int tmpDecayMode;
-  if (tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::pantau_CellBasedInput_DecayMode, tmpDecayMode)) {
+  if (tau->panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, tmpDecayMode)) {
     decayMode = static_cast< xAOD::TauJetParameters::DecayMode>(tmpDecayMode);
   }
   ATH_MSG_DEBUG( "Decaymode is: " << decayMode );

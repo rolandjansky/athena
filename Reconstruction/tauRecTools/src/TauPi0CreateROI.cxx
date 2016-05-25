@@ -166,7 +166,7 @@ void TauPi0CreateROI::storeCell(const CaloCell* cell){
 
     if(isNewCell){
         CaloCell* copyCell = cell->clone();
-        m_pPi0CellContainer->push_back(const_cast<CaloCell*> (copyCell));
+        m_pPi0CellContainer->push_back(copyCell);
         m_addedCellsMap[cellHash] = copyCell;
     }
 }
