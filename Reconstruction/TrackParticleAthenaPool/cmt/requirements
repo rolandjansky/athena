@@ -27,4 +27,28 @@ macro_append TrackParticleAthenaPoolPoolCnv_dependencies " install_includes"
 #macro_append AtlasCxxPolicy_pp_cppflags " -DNDEBUG "
 
 
+private
+use TestTools            TestTools-*                AtlasTest -no_auto_imports
 
+apply_pattern declare_joboptions files="-s=../share *.py"
+
+
+apply_pattern athenarun_test \
+   name="TrackParticleTPCnv_16.6.3" \
+   options="TrackParticleAthenaPool/TrackParticleTPCnv_16.6.3_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh TrackParticleTPCnv_16.6.3" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh TrackParticleTPCnv_16.6.3"
+
+
+apply_pattern athenarun_test \
+   name="TrackParticleTPCnv_17.2.8" \
+   options="TrackParticleAthenaPool/TrackParticleTPCnv_17.2.8_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh TrackParticleTPCnv_17.2.8" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh TrackParticleTPCnv_17.2.8"
+
+
+apply_pattern athenarun_test \
+   name="TrackParticleTPCnv_18.0.0" \
+   options="TrackParticleAthenaPool/TrackParticleTPCnv_18.0.0_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh TrackParticleTPCnv_18.0.0" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh TrackParticleTPCnv_18.0.0"
