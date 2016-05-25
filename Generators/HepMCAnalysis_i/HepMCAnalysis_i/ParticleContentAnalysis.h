@@ -67,7 +67,18 @@ class ParticleContentAnalysis: public baseAnalysis
   TH1D *m_BottomHadron_status;
   TH1D *m_BottomHadron_decay_multiplicity;
   TH1D *m_BottomHadron_decay_charged_multiplicity;
+
+  TH1D *m_BottomHadron_tight_pt;
+  TH1D *m_BottomHadron_tight_eta;
+  TH1D *m_BottomHadron_tight_phi;
+  TH1D *m_BottomHadron_tight_flightlength; 
+  TH1D *m_BottomHadron_tight_status;
+  TH1D *m_BottomHadron_tight_decay_multiplicity;
+  TH1D *m_BottomHadron_tight_decay_charged_multiplicity;
   
+  TH1D *m_BottomMeson_number;
+  TH1D *m_BottomBaryon_number;
+
   //D hadron plots
   TH1D *m_CharmHadron_pt;
   TH1D *m_CharmHadron_eta;
@@ -76,6 +87,9 @@ class ParticleContentAnalysis: public baseAnalysis
   TH1D *m_CharmHadron_status;
   TH1D *m_CharmHadron_decay_multiplicity;
   TH1D *m_CharmHadron_decay_charged_multiplicity;
+
+  TH1D *m_CharmMeson_number;
+  TH1D *m_CharmBaryon_number;
 
   //S hadron plots
   TH1D *m_StrangeHadron_pt;

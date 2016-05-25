@@ -20,7 +20,7 @@
 #include "TMath.h"
 #include "TLorentzVector.h"
 
-#include "TruthUtils/HepMCUtils.h"
+#include "TruthUtils/HepMCHelpers.h"
 
 #include "../HepMCAnalysis_i/ParticleContentAnalysis.h"
 
@@ -63,6 +63,18 @@ void ParticleContentAnalysis::InitPlots()
   m_BottomHadron_decay_multiplicity =             new TH1D(  "BottomHadron_decay_multiplicity" ,            "multiplicity of bottom hadron decay" ,     11., -0.5, 10.5 );
   m_BottomHadron_decay_charged_multiplicity =     new TH1D(  "BottomHadron_decay_charged_multiplicity" ,    "charged multiplicity of bottom hadron decay" ,             11., -0.5, 10.5 );
 
+  m_BottomHadron_tight_pt =           new TH1D(  "BottomHadron_tight_Pt" ,            "p_{T} of bottom hadron" ,          200., 0., 400. );
+  m_BottomHadron_tight_eta =          new TH1D(  "BottomHadron_tight_Eta" ,           "#eta of bottom hadron" ,           60, -6., 6. );
+  m_BottomHadron_tight_phi =          new TH1D(  "BottomHadron_tight_Phi" ,           "#Phi of bottom hadron" ,           48, -3.15, 3.15 );
+  m_BottomHadron_tight_flightlength =  new TH1D(  "BottomHadron_tight_FlightLength" ,   "flight length of bottom hadron" ,   100., -0.05, 150.05 );
+  m_BottomHadron_tight_status =       new TH1D(  "BottomHadron_tight_Status" ,        "status of bottom hadron" ,         150., -0.05, 150.05 );
+  m_BottomHadron_tight_decay_multiplicity =             new TH1D(  "BottomHadron_tight_decay_multiplicity" ,            "multiplicity of bottom hadron decay" ,     11., -0.5, 10.5 );
+  m_BottomHadron_tight_decay_charged_multiplicity =     new TH1D(  "BottomHadron_tight_decay_charged_multiplicity" ,    "charged multiplicity of bottom hadron decay" ,             11., -0.5, 10.5 );
+
+  m_BottomMeson_number  = new TH1D("NumBottomMeson",     "number of bottom meson",  81, -0.5, 80.5);
+  m_BottomBaryon_number = new TH1D("NumBottomBaryon",     "number of bottom baryon",  81, -0.5, 80.5);
+
+
   //charmed hadron plots
   m_CharmHadron_pt =           new TH1D(  "CharmHadron_Pt" ,            "p_{T} of charmed hadron" ,           200., 0., 400.);
   m_CharmHadron_eta =          new TH1D(  "CharmHadron_Eta" ,           "#eta of charmed hadron" ,            60, -6., 6.);
@@ -71,6 +83,10 @@ void ParticleContentAnalysis::InitPlots()
   m_CharmHadron_status =       new TH1D(  "CharmHadron_Status" ,        "status of charmed hadron" ,          150., -0.05, 150.05 );
   m_CharmHadron_decay_multiplicity =             new TH1D(  "CharmHadron_decay_multiplicity" ,            "multiplicity of charmed hadron decay" ,     11., -0.5, 10.5 );
   m_CharmHadron_decay_charged_multiplicity =     new TH1D(  "CharmHadron_decay_charged_multiplicity" ,    "charged multiplicity of charmed hadron decay" ,             11., -0.5, 10.5 );
+
+  m_CharmMeson_number  = new TH1D("NumCharmMeson",     "number of charm meson",  81, -0.5, 80.5);
+  m_CharmBaryon_number = new TH1D("NumCharmBaryon",     "number of charm baryon",  81, -0.5, 80.5);
+
 
   //strange hadron plots
   m_StrangeHadron_pt =           new TH1D(  "StrangeHadron_Pt" ,            "p_{T} of strange hadron" ,                      200., 0., 400. );
@@ -127,6 +143,17 @@ void ParticleContentAnalysis::InitPlots()
   m_BottomHadron_decay_multiplicity -> Sumw2();
   m_BottomHadron_decay_charged_multiplicity -> Sumw2();
 
+  m_BottomHadron_tight_pt -> Sumw2();
+  m_BottomHadron_tight_eta -> Sumw2();
+  m_BottomHadron_tight_phi -> Sumw2();
+  m_BottomHadron_tight_flightlength -> Sumw2();
+  m_BottomHadron_tight_status -> Sumw2();
+  m_BottomHadron_tight_decay_multiplicity -> Sumw2();
+  m_BottomHadron_tight_decay_charged_multiplicity -> Sumw2();
+
+  m_BottomMeson_number -> Sumw2();
+  m_BottomBaryon_number -> Sumw2();
+
   m_CharmHadron_pt -> Sumw2();
   m_CharmHadron_eta -> Sumw2();
   m_CharmHadron_phi -> Sumw2();
@@ -134,6 +161,9 @@ void ParticleContentAnalysis::InitPlots()
   m_CharmHadron_status -> Sumw2();
   m_CharmHadron_decay_multiplicity -> Sumw2();
   m_CharmHadron_decay_charged_multiplicity -> Sumw2();
+
+  m_CharmMeson_number -> Sumw2();
+  m_CharmBaryon_number -> Sumw2();
 
   m_StrangeHadron_pt -> Sumw2();
   m_StrangeHadron_unstable_pt -> Sumw2();
@@ -202,6 +232,18 @@ int ParticleContentAnalysis::Init(double tr_max_eta, double tr_min_pt)
   m_BottomHadron_status =       initHist( string( "BottomHadron_Status" ),        string( "status of bottom hadron" ),      string("status" ),      151., -0.5, 150.5  );
   m_BottomHadron_decay_multiplicity =             initHist( string( "BottomHadron_decay_multiplicity" ),            string( "multiplicity of bottom hadron decay" ),   string("N" ),   11., -0.5, 10.5 );
   m_BottomHadron_decay_charged_multiplicity =     initHist( string( "BottomHadron_decay_charged_multiplicity" ),    string( "charged multiplicity of bottom hadron decay" ),           string("N" ),      11., -0.5, 10.5 );
+
+  m_BottomHadron_tight_pt =           initHist( string( "BottomHadron_tight_Pt" ),           string( "p_{T} of bottom hadron" ),        string( "p_{T} [GeV]" ),   200., 0., 400. );
+  m_BottomHadron_tight_eta =          initHist( string( "BottomHadron_tight_Eta" ),          string( "#eta of bottom hadron" ),         string(" #eta" ),          60, -6., 6. );
+  m_BottomHadron_tight_phi =          initHist( string( "BottomHadron_tight_Phi" ),          string( "#Phi of bottom hadron" ),         string( "#Phi" ),          48, -3.15, 3.15 );
+  m_BottomHadron_tight_flightlength =  initHist( string( "BottomHadron_tight_FlightLength" ),  string( "flight length of bottom hadron" ), string( "length" ),         100., -0.05, 150.05 );
+  m_BottomHadron_tight_status =       initHist( string( "BottomHadron_tight_Status" ),        string( "status of bottom hadron" ),      string("status" ),      151., -0.5, 150.5  );
+  m_BottomHadron_tight_decay_multiplicity =             initHist( string( "BottomHadron_tight_decay_multiplicity" ),            string( "multiplicity of bottom hadron decay" ),   string("N" ),   11., -0.5, 10.5 );
+  m_BottomHadron_tight_decay_charged_multiplicity =     initHist( string( "BottomHadron_tight_decay_charged_multiplicity" ),    string( "charged multiplicity of bottom hadron decay" ),           string("N" ),      11., -0.5, 10.5 );
+
+  m_BottomMeson_number  = initHist( string( "NumBottomMeson"),     string( "number of bottom meson"), string( "number"), 81, -0.5, 80.5);
+  m_BottomBaryon_number = initHist( string( "NumBottomBaryon"),     string( "number of bottom baryon"), string( "number"),  81, -0.5, 80.5);
+
   //charmed hadron plots
   m_CharmHadron_pt =           initHist( string( "CharmHadron_Pt" ),           string( "p_{T} of charmed hadron" ),        string( "p_{T} [GeV]" ),   200., 0., 400.);
   m_CharmHadron_eta =          initHist( string( "CharmHadron_Eta" ),          string( "#eta of charmed hadron" ),         string( "#eta" ),          60, -6., 6.);
@@ -210,6 +252,9 @@ int ParticleContentAnalysis::Init(double tr_max_eta, double tr_min_pt)
   m_CharmHadron_status =       initHist( string( "CharmHadron_Status" ),        string( "status of charmed hadron" ),      string("status" ),      151., -0.5, 150.5  );
   m_CharmHadron_decay_multiplicity =             initHist( string( "CharmHadron_decay_multiplicity" ),            string( "multiplicity of charmed hadron decay" ),   string("N" ),   11., -0.5, 10.5 );
   m_CharmHadron_decay_charged_multiplicity =     initHist( string( "CharmHadron_decay_charged_multiplicity" ),    string( "charged multiplicity of charmed hadron decay" ),           string("N" ),      11., -0.5, 10.5 );
+  m_CharmMeson_number  = initHist( string( "NumCharmMeson"),     string( "number of charm meson"), string( "number"), 81, -0.5, 80.5);
+  m_CharmBaryon_number = initHist( string( "NumCharmBaryon"),     string( "number of charm baryon"), string( "number"),  81, -0.5, 80.5);
+
   //strange hadron plots
   m_StrangeHadron_pt =           initHist( string( "StrangeHadron_Pt" ),           string( "p_{T} of strange hadron" ),        string( "p_{T} [GeV]" ),             200., 0., 400. );
   m_StrangeHadron_unstable_pt =  initHist( string( "StrangeHadron_Unstable_Pt" ),  string("p_{T} of the last strange hadron (unstable)" ), string( "p_{T} [GeV]" ), 200.,0.,400. );
@@ -265,6 +310,17 @@ int ParticleContentAnalysis::Init(double tr_max_eta, double tr_min_pt)
   m_BottomHadron_decay_multiplicity -> Sumw2();
   m_BottomHadron_decay_charged_multiplicity -> Sumw2();
 
+  m_BottomHadron_tight_pt -> Sumw2();
+  m_BottomHadron_tight_eta -> Sumw2();
+  m_BottomHadron_tight_phi -> Sumw2();
+  m_BottomHadron_tight_flightlength -> Sumw2();
+  m_BottomHadron_tight_status -> Sumw2();
+  m_BottomHadron_tight_decay_multiplicity -> Sumw2();
+  m_BottomHadron_tight_decay_charged_multiplicity -> Sumw2();
+
+  m_BottomMeson_number -> Sumw2();
+  m_BottomBaryon_number -> Sumw2();
+
   m_CharmHadron_pt -> Sumw2();
   m_CharmHadron_eta -> Sumw2();
   m_CharmHadron_phi -> Sumw2();
@@ -272,6 +328,9 @@ int ParticleContentAnalysis::Init(double tr_max_eta, double tr_min_pt)
   m_CharmHadron_status -> Sumw2();
   m_CharmHadron_decay_multiplicity -> Sumw2();
   m_CharmHadron_decay_charged_multiplicity -> Sumw2();
+
+  m_CharmMeson_number -> Sumw2();
+  m_CharmBaryon_number -> Sumw2();
 
   m_StrangeHadron_pt -> Sumw2();
   m_StrangeHadron_unstable_pt -> Sumw2();
@@ -317,10 +376,16 @@ int ParticleContentAnalysis::Process(HepMC::GenEvent* hepmcevt)
   HepMC::GenParticle *uncharged_pion = 0;
   HepMC::GenParticle *tau_neutrino = 0;
 
+  //tight b-hadron cuts
+  double tight_bottom_pt = 5;
+  double tight_bottom_eta = 2.5;
+
   //counter variable
   int cmult=0;
 
   int NumStrangeMeson = 0, NumStrangeBaryon = 0;
+  int NumCharmMeson = 0, NumCharmBaryon = 0;
+  int NumBottomMeson = 0, NumBottomBaryon = 0;
 
   // Fill the eventnumber
   m_evtnr->Fill(hepmcevt->event_number());
@@ -328,6 +393,8 @@ int ParticleContentAnalysis::Process(HepMC::GenEvent* hepmcevt)
   weight = MC::get_weight(hepmcevt, 0 );
   m_evtweight -> Fill(weight);
   m_evtweight_zoom -> Fill(weight);
+
+  bool isTightBottomHadron = false;
 
   // loop over the particles and select pid and pt
   for ( HepMC::GenEvent::particle_const_iterator p = hepmcevt->particles_begin(); p != hepmcevt->particles_end(); ++p ){
@@ -351,20 +418,37 @@ int ParticleContentAnalysis::Process(HepMC::GenEvent* hepmcevt)
 	m_BottomHadron_flightlength -> Fill(bflightlength, weight);
 	m_BottomHadron_status -> Fill((*p) -> status(), weight);
 
-	decay_vertex = (*p) -> end_vertex();
+	if((*p) -> momentum().perp() > tight_bottom_pt && fabs((*p) -> momentum().eta())< tight_bottom_eta) isTightBottomHadron = true;
+	if(isTightBottomHadron){
+	  m_BottomHadron_tight_pt -> Fill((*p) -> momentum().perp(), weight);
+	  m_BottomHadron_tight_eta -> Fill((*p) -> momentum().eta(), weight);
+	  m_BottomHadron_tight_phi -> Fill((*p) -> momentum().phi(), weight);
+	  m_BottomHadron_tight_flightlength -> Fill(bflightlength, weight);
+	  m_BottomHadron_tight_status -> Fill((*p) -> status(), weight);
+	}
 
+
+
+	decay_vertex = (*p) -> end_vertex();
 	Int_t NBD = 0;
 	Int_t NBCD = 0;
 	if (decay_vertex){
-	for (HepMC::GenVertex::particle_iterator current_daughter = decay_vertex -> particles_begin(HepMC::children); current_daughter != decay_vertex -> particles_end(HepMC::children); ++current_daughter)
+	for (HepMC::GenVertex::particle_iterator current_daughter = decay_vertex -> particles_begin(HepMC::children);
+	     current_daughter != decay_vertex -> particles_end(HepMC::children); ++current_daughter)
 	  {
 	    NBD++;
 	    if (MC::isCharged(*current_daughter))NBCD++;
 	  }
 	m_BottomHadron_decay_multiplicity -> Fill(NBD, weight);
 	m_BottomHadron_decay_charged_multiplicity -> Fill(NBCD, weight);
+	if(isTightBottomHadron) m_BottomHadron_tight_decay_multiplicity -> Fill(NBD, weight);
+	if(isTightBottomHadron) m_BottomHadron_tight_decay_charged_multiplicity -> Fill(NBCD, weight);
 	}
       }
+
+    if ((MC::isBottomMeson(*p))  && MC::isLastReplica(*p))   NumBottomMeson++;
+    if ((MC::isBottomBaryon(*p))  && MC::isLastReplica(*p))  NumBottomBaryon++;
+
 
     if ((MC::isCharmHadron(*p)) && MC::isLastReplica(*p))
       {
@@ -389,6 +473,10 @@ int ParticleContentAnalysis::Process(HepMC::GenEvent* hepmcevt)
 	m_CharmHadron_decay_charged_multiplicity -> Fill(NDCD, weight);
 	}
       }
+
+    if ((MC::isCharmMeson(*p))  && MC::isLastReplica(*p))   NumCharmMeson++;
+    if ((MC::isCharmBaryon(*p))  && MC::isLastReplica(*p))  NumCharmBaryon++;
+
 
     if ((MC::isStrangeHadron(*p))  && MC::isLastReplica(*p))
       {
@@ -419,14 +507,11 @@ int ParticleContentAnalysis::Process(HepMC::GenEvent* hepmcevt)
 
       }
 
-    if ((MC::isStrangeMeson(*p))  && MC::isLastReplica(*p))
-      NumStrangeMeson++;
-
-    if ((MC::isStrangeBaryon(*p))  && MC::isLastReplica(*p))
-      NumStrangeBaryon++;
+    if ((MC::isStrangeMeson(*p))  && MC::isLastReplica(*p))   NumStrangeMeson++;
+    if ((MC::isStrangeBaryon(*p))  && MC::isLastReplica(*p))  NumStrangeBaryon++;
 
 
-    if (((abs((*p) -> pdg_id()) == 15) || (abs((*p) -> pdg_id()) == 17))  && MC::isLastReplica(*p) )
+    if (  abs((*p) -> pdg_id()) == 15  && MC::isLastReplica(*p) )
     {
       Int_t NTauDecay = 0;
       Int_t NTauChargedDecay = 0;
@@ -481,6 +566,12 @@ int ParticleContentAnalysis::Process(HepMC::GenEvent* hepmcevt)
 
   m_StrangeMeson_number -> Fill(NumStrangeMeson, weight);
   m_StrangeBaryon_number -> Fill(NumStrangeBaryon, weight);
+
+  m_CharmMeson_number -> Fill(NumCharmMeson, weight);
+  m_CharmBaryon_number -> Fill(NumCharmBaryon, weight);
+
+  m_BottomMeson_number -> Fill(NumBottomMeson, weight);
+  m_BottomBaryon_number -> Fill(NumBottomBaryon, weight);
 
   return true;
 } //end Process
