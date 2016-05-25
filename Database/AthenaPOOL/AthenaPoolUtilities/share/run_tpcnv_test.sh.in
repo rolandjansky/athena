@@ -1,0 +1,15 @@
+#!/bin/sh
+
+if [ -f @CMAKE_CURRENT_SOURCE_DIR@/share/@refName@.pool.root.ref ] &&
+    [ "@CMAKE_CURRENT_SOURCE_DIR@" != "@CMAKE_CURRENT_BINARY_DIR@" ]; then
+    @CMAKE_COMMAND@ -E make_directory ../share
+    @CMAKE_COMMAND@ -E create_symlink \
+     @CMAKE_CURRENT_SOURCE_DIR@/share/@refName@.pool.root.ref ../share/@refName@.pool.root.ref
+fi
+
+testdir=@testName@
+rm -rf $testdir
+mkdir $testdir
+cd $testdir
+
+athena.py @pkgName@/@testName@_test.py

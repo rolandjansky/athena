@@ -10,6 +10,7 @@ use AtlasCORAL            AtlasCORAL-*       External
 use AthenaKernel          AthenaKernel-*     Control
 use CLIDSvc               CLIDSvc-*          Control
 use DataModel             DataModel-*        Control
+use PersistentDataModel   PersistentDataModel-*  Database
 use DBDataModel           DBDataModel-*      Database/AthenaPOOL
 
 apply_tag NEEDS_CORAL_BASE
@@ -102,6 +103,8 @@ use TestPolicy            TestPolicy-*
 
 private
 apply_pattern install_runtime method=-symlink
+
+apply_pattern declare_joboptions files="*.py"
 
 # The following use is to get the lcgdict pattern.
 # This is "hidden" behind "private" and "no_auto_imports" to keep 

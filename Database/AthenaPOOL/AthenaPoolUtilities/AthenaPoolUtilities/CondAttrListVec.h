@@ -50,7 +50,8 @@ class CondAttrListVec : public DataObject
   // copy constructor and assignment operator - have to be explicitly 
   // implemented to control use of the cachced AttributeListSpecification
   CondAttrListVec(const CondAttrListVec& rhs);
-  CondAttrListVec& operator=(const CondAttrListVec& rhs);
+  // no copy operator with new Gaudi 
+  CondAttrListVec& operator=(const CondAttrListVec& rhs) = delete;
 
   // access to iterate over channel/AttributeList pairs
   const_iterator begin() const;
@@ -163,40 +164,41 @@ inline CondAttrListVec::CondAttrListVec(const CondAttrListVec& rhs) :
     }
   }
 }
-  
-inline CondAttrListVec& CondAttrListVec::operator=(const CondAttrListVec& rhs) {
-  // catch assignment to self - do nothing
-  if (this==&rhs) return *this;
-  // assign base class
-  DataObject::operator=(rhs);
-  // assign members with normal semantics
-  m_iovmap=rhs.m_iovmap;
-  m_minrange=rhs.m_minrange;
-  m_uniqueiov=rhs.m_uniqueiov;
-  m_runevent=rhs.m_runevent;
-  m_indexed=false;
-  // make a new cache AttributeListSpecification and make the payload map
-  // use it
-  if (m_spec!=0) m_spec->release();
-  if (rhs.m_data.size()>0) {
-    m_spec=new coral::AttributeListSpecification();
-    const coral::AttributeList& atr1=rhs.m_data.begin()->second;
-    for (coral::AttributeList::const_iterator itr=atr1.begin();itr!=atr1.end();
-	 ++itr) {
-      const coral::AttributeSpecification& aspec=itr->specification();
-      m_spec->extend(aspec.name(),aspec.typeName());
-    }
-    m_data.clear();
-    for (const_iterator itr=rhs.m_data.begin();itr!=rhs.m_data.end();++itr) {
-      m_data.push_back(AttrListPair(itr->first,
-				    coral::AttributeList(*m_spec,true)));
-      (m_data.back().second).fastCopyData(itr->second);
-    }
-  } else {
-    m_spec=0;
-  }
-  return *this;
-}
+
+// no copy operator with new Gaudi
+// inline CondAttrListVec& CondAttrListVec::operator=(const CondAttrListVec& rhs) {
+//   // catch assignment to self - do nothing
+//   if (this==&rhs) return *this;
+//   // assign base class
+//   DataObject::operator=(rhs);
+//   // assign members with normal semantics
+//   m_iovmap=rhs.m_iovmap;
+//   m_minrange=rhs.m_minrange;
+//   m_uniqueiov=rhs.m_uniqueiov;
+//   m_runevent=rhs.m_runevent;
+//   m_indexed=false;
+//   // make a new cache AttributeListSpecification and make the payload map
+//   // use it
+//   if (m_spec!=0) m_spec->release();
+//   if (rhs.m_data.size()>0) {
+//     m_spec=new coral::AttributeListSpecification();
+//     const coral::AttributeList& atr1=rhs.m_data.begin()->second;
+//     for (coral::AttributeList::const_iterator itr=atr1.begin();itr!=atr1.end();
+// 	 ++itr) {
+//       const coral::AttributeSpecification& aspec=itr->specification();
+//       m_spec->extend(aspec.name(),aspec.typeName());
+//     }
+//     m_data.clear();
+//     for (const_iterator itr=rhs.m_data.begin();itr!=rhs.m_data.end();++itr) {
+//       m_data.push_back(AttrListPair(itr->first,
+// 				    coral::AttributeList(*m_spec,true)));
+//       (m_data.back().second).fastCopyData(itr->second);
+//     }
+//   } else {
+//     m_spec=0;
+//   }
+//   return *this;
+// }
 
 inline CondAttrListVec::const_iterator CondAttrListVec::begin() const
 { return m_data.begin(); }

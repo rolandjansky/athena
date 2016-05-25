@@ -95,7 +95,7 @@ int main( int argc, const char* argv[] )
     std::string queryStrInsert = "";
     for (unsigned int i=1; i<=numRows; i++)
     {
-      std::sprintf(countStr, "%i", i);
+      std::sprintf(countStr, "%u", i);
       std::sprintf(boolStr, "%i", i%2);
       std::sprintf(smallIntStr, "%i", i+1);
       std::sprintf(intStr, "%i", i+2);

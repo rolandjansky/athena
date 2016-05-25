@@ -29,7 +29,8 @@ public:
     /// Copy Constructor
     CondAttrListVecAddress(const CondAttrListVecAddress& copy);
     /// Assignment
-    CondAttrListVecAddress& operator=(const CondAttrListVecAddress& copy);
+    // not allowed with new Gaudi
+    CondAttrListVecAddress& operator=(const CondAttrListVecAddress& copy) = delete;
     /// Constructor from GA
     CondAttrListVecAddress(const GenericAddress& copy);
     /// Standard Constructor
@@ -73,18 +74,19 @@ CondAttrListVecAddress::CondAttrListVecAddress(const CondAttrListVecAddress& cop
     if (m_attrListVec) m_attrListVec->addRef();
 }
 
-inline     
-CondAttrListVecAddress&
-CondAttrListVecAddress::operator=(const CondAttrListVecAddress& copy)
-{
-  if (this != &copy) {
-    GenericAddress::operator= (copy);
-    if (m_attrListVec) m_attrListVec->release();
-    m_attrListVec = copy.m_attrListVec;
-    if (m_attrListVec) m_attrListVec->addRef();
-  }
-  return *this;
-}
+// not allowed with new Gaudi
+// inline     
+// CondAttrListVecAddress&
+// CondAttrListVecAddress::operator=(const CondAttrListVecAddress& copy)
+// {
+//   if (this != &copy) {
+//     GenericAddress::operator= (copy);
+//     if (m_attrListVec) m_attrListVec->release();
+//     m_attrListVec = copy.m_attrListVec;
+//     if (m_attrListVec) m_attrListVec->addRef();
+//   }
+//   return *this;
+// }
 
 inline     
 CondAttrListVecAddress::CondAttrListVecAddress(const GenericAddress& copy)

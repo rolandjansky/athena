@@ -79,7 +79,8 @@ public:
     // copy constructor and assignment operator - have to be explicitly 
     // implemented to control use of the cachced AttributeListSpecification
     CondAttrListCollection(const CondAttrListCollection& rhs);
-    CondAttrListCollection& operator=(const CondAttrListCollection& rhs);
+    // no copy with new Gaudi
+    CondAttrListCollection& operator=(const CondAttrListCollection& rhs) = delete;
 
     /// Access to Chan/AttributeList pairs via channel number: returns map iterator
     const_iterator      chanAttrListPair(ChanNum chanNum) const;
@@ -251,40 +252,41 @@ inline CondAttrListCollection::CondAttrListCollection(
   }
 }
 
-inline CondAttrListCollection& CondAttrListCollection::operator=(
-				    const CondAttrListCollection& rhs) {
-  // catch assignment to self - do nothing
-  if (this==&rhs) return *this;
-  // assign base class
-  DataObject::operator=(rhs);
-  // assign members with normal semantics
-  m_attrMap             = rhs.m_attrMap;
-  m_iovMap              = rhs.m_iovMap;
-  m_nameMap             = rhs.m_nameMap;
-  m_minRange            = rhs.m_minRange;
-  m_hasUniqueIOV        = rhs.m_hasUniqueIOV;
-  m_hasRunLumiBlockTime = rhs.m_hasRunLumiBlockTime;
-  // make a new cache AttributeListSpecification and make the payload map
-  // use it
-  if (m_spec!=0) m_spec->release();
-  if (rhs.m_attrMap.size()>0) {
-    m_spec = new coral::AttributeListSpecification();
-    const coral::AttributeList& atr1 = rhs.m_attrMap.begin()->second;
-    for (coral::AttributeList::const_iterator itr = atr1.begin();itr!=atr1.end();++itr) {
-      const coral::AttributeSpecification& aspec = itr->specification();
-      m_spec->extend(aspec.name(),aspec.typeName());
-    }
-    m_attrMap.clear();
-    const_iterator itr=rhs.m_attrMap.begin(); 
-    for (; itr != rhs.m_attrMap.end(); ++itr) {
-      m_attrMap[itr->first] = coral::AttributeList(*m_spec,true);
-      m_attrMap[itr->first].fastCopyData(itr->second);
-    }
-  } else {
-    m_spec = 0;
-  }
-  return *this;
-}
+// no copy with new Gaudi
+// inline CondAttrListCollection& CondAttrListCollection::operator=(
+// 				    const CondAttrListCollection& rhs) {
+//   // catch assignment to self - do nothing
+//   if (this==&rhs) return *this;
+//   // assign base class
+//   DataObject::operator=(rhs);
+//   // assign members with normal semantics
+//   m_attrMap             = rhs.m_attrMap;
+//   m_iovMap              = rhs.m_iovMap;
+//   m_nameMap             = rhs.m_nameMap;
+//   m_minRange            = rhs.m_minRange;
+//   m_hasUniqueIOV        = rhs.m_hasUniqueIOV;
+//   m_hasRunLumiBlockTime = rhs.m_hasRunLumiBlockTime;
+//   // make a new cache AttributeListSpecification and make the payload map
+//   // use it
+//   if (m_spec!=0) m_spec->release();
+//   if (rhs.m_attrMap.size()>0) {
+//     m_spec = new coral::AttributeListSpecification();
+//     const coral::AttributeList& atr1 = rhs.m_attrMap.begin()->second;
+//     for (coral::AttributeList::const_iterator itr = atr1.begin();itr!=atr1.end();++itr) {
+//       const coral::AttributeSpecification& aspec = itr->specification();
+//       m_spec->extend(aspec.name(),aspec.typeName());
+//     }
+//     m_attrMap.clear();
+//     const_iterator itr=rhs.m_attrMap.begin();
+//     for (; itr != rhs.m_attrMap.end(); ++itr) {
+//       m_attrMap[itr->first] = coral::AttributeList(*m_spec,true);
+//       m_attrMap[itr->first].fastCopyData(itr->second);
+//     }
+//   } else {
+//     m_spec = 0;
+//   }
+//   return *this;
+// }
 
 /// Access to Chan/AttributeList pairs via channel number
 inline CondAttrListCollection::const_iterator
