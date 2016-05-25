@@ -104,6 +104,8 @@ use TestPolicy            TestPolicy-*
 private
 apply_pattern install_runtime method=-symlink
 
+apply_pattern declare_joboptions files="*.py"
+
 # The following use is to get the lcgdict pattern.
 # This is "hidden" behind "private" and "no_auto_imports" to keep 
 # clients of IOVDbTestConditions from seeing excess dependencies

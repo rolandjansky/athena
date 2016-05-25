@@ -51,7 +51,7 @@ class CondAttrListVec : public DataObject
   // implemented to control use of the cachced AttributeListSpecification
   CondAttrListVec(const CondAttrListVec& rhs);
   // no copy operator with new Gaudi 
-  // CondAttrListVec& operator=(const CondAttrListVec& rhs);
+  CondAttrListVec& operator=(const CondAttrListVec& rhs) = delete;
 
   // access to iterate over channel/AttributeList pairs
   const_iterator begin() const;

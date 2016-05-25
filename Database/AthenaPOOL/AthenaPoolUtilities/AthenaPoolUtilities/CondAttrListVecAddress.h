@@ -30,7 +30,7 @@ public:
     CondAttrListVecAddress(const CondAttrListVecAddress& copy);
     /// Assignment
     // not allowed with new Gaudi
-    // CondAttrListVecAddress& operator=(const CondAttrListVecAddress& copy);
+    CondAttrListVecAddress& operator=(const CondAttrListVecAddress& copy) = delete;
     /// Constructor from GA
     CondAttrListVecAddress(const GenericAddress& copy);
     /// Standard Constructor

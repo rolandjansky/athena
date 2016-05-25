@@ -80,7 +80,7 @@ public:
     // implemented to control use of the cachced AttributeListSpecification
     CondAttrListCollection(const CondAttrListCollection& rhs);
     // no copy with new Gaudi
-    // CondAttrListCollection& operator=(const CondAttrListCollection& rhs);
+    CondAttrListCollection& operator=(const CondAttrListCollection& rhs) = delete;
 
     /// Access to Chan/AttributeList pairs via channel number: returns map iterator
     const_iterator      chanAttrListPair(ChanNum chanNum) const;
