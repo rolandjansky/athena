@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
   resultsurl = "https://atlas-rtt.cern.ch/index.php?q=%28release="+releaseArr[9]+";packagename=Tier0ChainTests;branch="+releaseArr[7]+";cmtconfig="+cmtconfig+";project=AtlasProduction;verbosity=vvv;%29"
 
-  comparisonlogurl = "https://atlas-rtt.cern.ch/prod/tct/%s/%s/build/x86_64-slc6-gcc48-opt/offline/Tier0ChainTests/ESDTAGCOMM_comparison/ESDTAGCOMM_comparison_log" % (releaseArr[9], releaseArr[7])
+  comparisonlogurl = "https://atlas-rtt.cern.ch/prod/tct/%s/%s/build/%s/offline/Tier0ChainTests/ESDTAGCOMM_comparison/ESDTAGCOMM_comparison_log" % (releaseArr[9], releaseArr[7],cmtconfig)
 
   msgbody = """<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>

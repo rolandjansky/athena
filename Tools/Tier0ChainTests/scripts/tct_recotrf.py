@@ -245,6 +245,7 @@ def parseCmdLine(args):
     parser.add_option("--geometryVersion", dest="geometryVersion", help="geometryVersion", default='')
     parser.add_option("--conditionsTag", dest="conditionsTag", help="conditionsTag", default='')
     parser.add_option("--ignoreErrors", dest="ignoreErrors", help="ignoreErrors", action='store_true', default='False')
+    parser.add_option("--ignorePatterns", dest="ignorePatterns", help="ignorePatterns", default='')
     #parser.add_option("--ignoreerrors", dest="ignoreerrors", help="ignoreErrors", action='store_true', default='NONE')
     #parser.add_option("--beamType", dest="beamType", help="Beam type", default='')
     parser.add_option("--preExec", dest="preExec", help="Pre-execute options (overwrite)", default='')
@@ -256,6 +257,7 @@ def parseCmdLine(args):
     parser.add_option("--postExec_e2a", dest="postExec_e2a", help="postExec_e2a options", default='')
     parser.add_option("--triggerConfig", dest="triggerConfig", help="Trigger configuration", default='')
     parser.add_option("--RunNumber", dest="RunNumber", help="Run number", default='')
+    parser.add_option("--steering", dest="steering", help="transform steering", default='')
     parser.add_option("--HI", dest="doHI_", help="Run with Heavy ions settings",
                       action='store_true', default=False)
     parser.add_option("--HIP", dest="doHIP_", help="Run with proton-lead settings",
@@ -307,16 +309,18 @@ def generateRecoTrfCmd(config):
         drawlist = []
         #ntuplist = ['NTUP_HI','NTUP_TRKVALID']
         ntuplist = []
+        config.outputAODFile = "myAOD_%s_%d.pool.root" % (config.trigStream_,config.jobnum_)
         config.outputTAGFile = "myTAG_%s_%d.root" % (config.trigStream_,config.jobnum_)
     elif config.doHIP_:
         desdlist = []
         drawlist = []
         #ntuplist = ['NTUP_HI','NTUP_MINBIAS','NTUP_TRKVALID']
         ntuplist = []
+        config.outputAODFile = "myAOD_%s_%d.pool.root" % (config.trigStream_,config.jobnum_)
         config.outputTAGFile = "myTAG_%s_%d.root" % (config.trigStream_,config.jobnum_)
     else:
-        config.outputTAGFile = "myTAG_%s_%d.root" % (config.trigStream_,config.jobnum_)
         config.outputAODFile = "myAOD_%s_%d.AOD.pool.root" % (config.trigStream_,config.jobnum_)
+        config.outputTAGFile = "myTAG_%s_%d.root" % (config.trigStream_,config.jobnum_)
     #if config.beamType == 'cosmics':
     #    desdlist = ['DESD_PIXELCOMM','DESD_IDCOMM','DESD_CALOCOMM','DESD_MUONCOMM','DESD_TILECOMM']
     #    pass
