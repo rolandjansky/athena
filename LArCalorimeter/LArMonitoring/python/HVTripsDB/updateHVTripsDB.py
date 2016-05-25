@@ -14,7 +14,7 @@ date = date+":07:30:00"
 ##date = "2012-11-12:07:30:00"
 print date
 
-os.system( "export AtlasSetup=/afs/cern.ch/atlas/software/dist/AtlasSetup; source $AtlasSetup/scripts/asetup.sh 16.6.2.4; python %s/CheckHVStatus_daily.py %s" % (path, date) )
+os.system( "export AtlasSetup=/afs/cern.ch/atlas/software/dist/AtlasSetup; source $AtlasSetup/scripts/asetup.sh 19.1.0,AtlasOffline; python %s/CheckHVStatus_daily.py %s" % (path, date) )
 
 os.system( "cp -f %s/trips.dat %s/trips.dat.bak" % (path, path) )
 

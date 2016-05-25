@@ -6,8 +6,8 @@
 import os, sys
 from optparse import OptionParser
 
-dataDir = 'HVHistoryDat'  # No '/' here!
-pictDir = 'HVHistoryPic'
+dataDir = '/afs/cern.ch/user/l/larmon/public/WebTools-scratch/HVHistoryDat'  # No '/' here!
+pictDir = '/afs/cern.ch/user/l/larmon/public/WebTools-scratch/HVHistoryPic'
 
 parser=OptionParser()
 (options,args)=parser.parse_args()

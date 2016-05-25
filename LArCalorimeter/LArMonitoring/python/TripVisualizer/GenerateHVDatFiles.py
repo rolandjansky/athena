@@ -19,7 +19,7 @@ from PyCool import cool
 import math
 
 outputList = {}
-dataDir = 'HVHistoryDat'
+dataDir = '/afs/cern.ch/user/l/larmon/public/WebTools-scratch/HVHistoryDat'
 
 def PrintHVInfo(hvline,tmstmp,folderName):
    
@@ -30,7 +30,9 @@ def PrintHVInfo(hvline,tmstmp,folderName):
     outputList["time"] = []
  
     dbSvc = cool.DatabaseSvcFactory.databaseService()
-    db=dbSvc.openDatabase("oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=COMP200")
+    #The "COMP200" DB contains information from prior to 2014
+    #db=dbSvc.openDatabase("oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=COMP200")
+    db=dbSvc.openDatabase("oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=CONDBR2")
     folder=db.getFolder(folderName)
     
     range=3*60*60*1e9 # 1 day in ns
@@ -57,7 +59,9 @@ def PrintLumiBlockTimes(tmstmp, minLB, maxLB, file):
     tmstmp = int(time.mktime(time.strptime(tmstmp,"%Y-%m-%d %H:%M:%S")))*1000000000L
 
     dbSvc = cool.DatabaseSvcFactory.databaseService()
-    db=dbSvc.openDatabase("oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=COMP200")
+    #The "COMP200" DB contains information from prior to 2014                                                                                   
+    #db=dbSvc.openDatabase("oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=COMP200")
+    db=dbSvc.openDatabase("oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2")
     folder=db.getFolder("/TRIGGER/LUMI/LBTIME")
     timerange=60*60*1e9 # 1 hour in ns
     t1=long(tmstmp-timerange)
@@ -138,7 +142,8 @@ def GetHVlineHistory(tripID, hvline, timestamp, startLB, stopLB):
     for it in outputList["time"]:
         ts_list.append(int(timegm(ConvertToUTC(it)))*1000000000L)
 
-    GetCOOLInfo("/TRIGGER/LUMI/LBTIME","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=COMP200",0,ts_list,["Run","LumiBlock"])
+    #GetCOOLInfo("/TRIGGER/LUMI/LBTIME","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=COMP200",0,ts_list,["Run","LumiBlock"])
+    GetCOOLInfo("/TRIGGER/LUMI/LBTIME","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2",0,ts_list,["Run","LumiBlock"])
     GetCOOLInfo("/LHC/DCS/FILLSTATE","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=COMP200",1,ts_list,["StableBeams","FillNumber","NumBunchColl"])
     GetCOOLInfo("/EXT/DCS/MAGNETS/SENSORDATA","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=COMP200",[1,3],ts_list,["value"])
 
@@ -300,7 +305,8 @@ except Exception, e:
 
 #Connect to the database
 
-dbName='trips.db'
+#dbName='trips.db'
+dbName='/afs/cern.ch/user/l/larmon/public/prod/HVTripsDB/trips.db'
 conn = sqlite3.connect(dbName,detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
 
 c = conn.cursor()

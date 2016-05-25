@@ -290,7 +290,7 @@ if __name__=='__main__':
                 rampStartLB = GetCOOLInfo("/TRIGGER/LUMI/LBTIME","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2",0,rampStartts,["Run","LumiBlock"])["LumiBlock0"]
                 #print "ramp start",rampStartLB
 
-            fillDict = GetCOOLInfo("/LHC/DCS/FILLSTATE","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=COMP200",1,ts,["StableBeams","FillNumber","NumBunchColl"])
+            fillDict = GetCOOLInfo("/LHC/DCS/FILLSTATE","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=CONDBR2",1,ts,["StableBeams","FillNumber","NumBunchColl"])
             magnetDict = GetCOOLInfo("/EXT/DCS/MAGNETS/SENSORDATA","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=CONDBR2",[1,3],ts,["value"])
 
             if abs(magnetDict["value1"]-7730.) < 10:
