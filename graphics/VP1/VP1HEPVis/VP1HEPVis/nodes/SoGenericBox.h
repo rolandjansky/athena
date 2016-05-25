@@ -18,6 +18,7 @@
 #ifndef SOGENERICBOX_H
 #define SOGENERICBOX_H
 
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/fields/SoSFNode.h>
 #include <Inventor/fields/SoSFBool.h>
 #include <Inventor/nodes/SoShape.h>

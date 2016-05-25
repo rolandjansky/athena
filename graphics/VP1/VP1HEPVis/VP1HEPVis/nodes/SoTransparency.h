@@ -12,6 +12,7 @@
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/fields/SoSFFloat.h>
 #include <Inventor/fields/SoSFBool.h>
 #include <Inventor/nodes/SoSubNode.h>

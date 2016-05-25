@@ -12,6 +12,7 @@
 #ifndef HEPVis_SoTubs_h
 #define HEPVis_SoTubs_h
 
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/fields/SoSFFloat.h>
 #include <Inventor/fields/SoSFNode.h>
 #include <Inventor/fields/SoSFBool.h>

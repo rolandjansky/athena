@@ -13,6 +13,7 @@
 #ifndef HEPVis_SoLAr_h
 #define HEPVis_SoLAr_h
 
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/fields/SoSFFloat.h>
 #include <Inventor/fields/SoMFFloat.h>
 #include <Inventor/fields/SoSFInt32.h>

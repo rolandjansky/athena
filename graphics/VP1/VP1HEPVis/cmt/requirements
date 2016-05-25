@@ -18,7 +18,11 @@ macro VP1HEPVis_cppflags  " -ansi -D_REENTRANT -I/usr/X11R6/include" \
       target-darwin              " -ansi -D_REENTRANT"
 
 #Fixme: The linkopts (apart from the first) come from a run of coin-config --libs. We should call this instead of hardcoding!!
-macro VP1HEPVis_linkopts " -lVP1HEPVis -lGL  -lXext  -lSM -lICE -lX11  -ldl -lpthread  -lm" \
+# ORIGINAL
+#macro VP1HEPVis_linkopts " -lVP1HEPVis -lGL  -lXext  -lSM -lICE -lX11  -ldl -lpthread  -lm" \
+#      target-darwin             " -lVP1HEPVis -lpthread"
+# TEST
+macro VP1HEPVis_linkopts " -lVP1HEPVis -lGL  -lXext -lICE -lX11  -ldl -lpthread  -lm" \
       target-darwin             " -lVP1HEPVis -lpthread"
 
 macro VP1HEPVis_shlibflags_toBeAppended " -lGL " \

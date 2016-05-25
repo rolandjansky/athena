@@ -17,6 +17,7 @@
 #define HEPVis_SoPolyhedron_h
 
 // Inheritance :
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoShape.h>
 #include <Inventor/fields/SoSFBool.h>
 
