@@ -30,14 +30,17 @@ TauRecToolBase(name),
 m_doEnergyCorr(false),
 m_doAxisCorr(false),
 m_printMissingContainerINFO(true),
+m_isCaloOnly(false),
 m_clusterCone(0.2)  //not used
 {
+    declareProperty("ConfigPath", m_configPath);
     declareProperty("tauContainerKey", tauContainerKey = "TauJets");
     declareProperty("calibrationFile", calibrationFile = "EnergyCalibrationLC2012.root");
     declareProperty("vertexContainerKey", vertexContainerKey = "PrimaryVertices");
     declareProperty("doEnergyCorrection", m_doEnergyCorr);
     declareProperty("doAxisCorrection",    m_doAxisCorr);
     declareProperty("ClusterCone", m_clusterCone); //not used
+    declareProperty("isCaloOnly",    m_isCaloOnly);
 }
 
 /********************************************************************/
@@ -64,7 +67,7 @@ StatusCode TauCalibrateLC::initialize() {
         etaBinHist = dynamic_cast<TH1 *> (obj);
     }
     if (etaBinHist) {
-        TH1 * tmp = const_cast<TH1*> (etaBinHist);
+        TH1 * tmp = dynamic_cast<TH1*> (obj);
         tmp->SetDirectory(0);
     } else {
         ATH_MSG_FATAL("Failed to get an object with  key " << key);
@@ -90,7 +93,7 @@ StatusCode TauCalibrateLC::initialize() {
         etaCorrectionHist = dynamic_cast<TH1 *> (obj);
     }
     if (etaCorrectionHist) {
-        TH1 * tmp = const_cast<TH1*> (etaCorrectionHist);
+        TH1 * tmp = dynamic_cast<TH1*> (obj);
         tmp->SetDirectory(0);
     } else {
         ATH_MSG_FATAL("Failed to get an object with  key " << key);
@@ -107,7 +110,7 @@ StatusCode TauCalibrateLC::initialize() {
             slopeNPVHist[i] = dynamic_cast<TH1 *> (obj);
         }
         if (slopeNPVHist[i]) {
-            TH1 * tmp = const_cast<TH1*> (slopeNPVHist[i]);
+            TH1 * tmp = dynamic_cast<TH1*> (obj);
             tmp->SetDirectory(0);
         } else {
             ATH_MSG_FATAL("Failed to get an object with  key " << tmpSlopKey[i]);
@@ -279,6 +282,13 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
 	pTau.setP4(xAOD::TauJetParameters::TauEtaCalib, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
      
     }
+
+    if (m_isCaloOnly == true && tauEventData()->inTrigger() == true){
+
+	pTau.setP4(xAOD::TauJetParameters::TrigCaloOnly, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
+      
+    }
+
 
     return StatusCode::SUCCESS;
 }

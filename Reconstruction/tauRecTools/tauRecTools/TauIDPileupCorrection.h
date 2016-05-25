@@ -26,10 +26,22 @@ class TF1;
  *                                                                              
  */
 
+struct TauConversion {
+  std::string detailName;
+  xAOD::TauJetParameters::Detail detailUncorr;
+  xAOD::TauJetParameters::Detail detailCorr;
+  
+  TauConversion();
+TauConversion(std::string name, xAOD::TauJetParameters::Detail detail1, xAOD::TauJetParameters::Detail detail2)
+: detailName(name), detailUncorr(detail1), detailCorr(detail2)
+  { }
+};
+
+
 class TauIDPileupCorrection : virtual public TauRecToolBase {
 public:
 
-    TauIDPileupCorrection(const std::string& name) ;
+    TauIDPileupCorrection(const std::string& name="TauIDPileupCorrection") ;
     ASG_TOOL_CLASS2(TauIDPileupCorrection, TauRecToolBase, ITauToolBase)
     ~TauIDPileupCorrection();
 
@@ -44,23 +56,17 @@ public:
 
 
 private:
+    std::string m_configPath;
     std::string m_tauContainerKey;
     std::string m_vertexContainerKey;
     std::string m_file1P; //!< energy calibration file
     std::string m_file3P; //!< energy calibration file
     
-    std::map<std::string, TF1> m_calibFunctions1P;
-    std::map<std::string, TF1> m_calibFunctions3P;
+    std::map<std::string, TF1*> m_calibFunctions1P;
+    std::map<std::string, TF1*> m_calibFunctions3P;
     
-    struct TauConversion {
-      std::string detailName;
-      xAOD::TauJetParameters::Detail detailUncorr;
-      xAOD::TauJetParameters::Detail detailCorr;
-      
-    TauConversion(std::string name, xAOD::TauJetParameters::Detail detail1, xAOD::TauJetParameters::Detail detail2)
-    : detailName(name), detailUncorr(detail1), detailCorr(detail2)
-      { }
-    };
+
+    StatusCode fillCalibMap( const std::string& file_name, std::map<std::string, TF1*> &calib_map);
     
     std::vector<TauConversion> m_conversion;
     

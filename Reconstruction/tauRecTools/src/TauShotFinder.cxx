@@ -12,18 +12,18 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#include "GaudiKernel/IToolSvc.h"
+//#include "GaudiKernel/IToolSvc.h"
 
-#include "CaloEvent/CaloCellContainer.h"
+//#include "CaloEvent/CaloCellContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
-#include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloIdentifier/LArNeighbours.h"
+//#include "CaloIdentifier/CaloCell_ID.h"
+//#include "CaloIdentifier/LArNeighbours.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloUtils/CaloCellList.h"
-#include "CaloUtils/CaloCellESort.h"
-#include "CaloInterface/IHadronicCalibrationTool.h"
-#include "FourMomUtils/P4Helpers.h"
+//#include "CaloUtils/CaloCellESort.h"
+//#include "CaloInterface/IHadronicCalibrationTool.h"
+//#include "FourMomUtils/P4Helpers.h"
 #include "TauShotFinder.h"
 #include "TauShotVariableHelpers.h"
 //#include "TMVA/Reader.h"
@@ -44,9 +44,14 @@ TauShotFinder::TauShotFinder(   const string& name ) :
     , m_caloCellContainerName("AllCalo")
     , m_shotClusterContainer(NULL)
     , m_shotClusterContainerName("TauShotClusters")
+    , m_PFOShotContainer(0)
     , m_shotPFOContainerName("TauShotParticleFlowObjects")
+    , m_PFOShotAuxStore(0)
     , m_calo_dd_man(NULL)
     , m_calo_id(NULL)
+    , m_pt1(0)
+    , m_pt3(0)
+    , m_pt5(0)
 {
     declareProperty("CaloWeightTool", m_caloWeightTool);
     declareProperty("CaloCellContainerName", m_caloCellContainerName); 

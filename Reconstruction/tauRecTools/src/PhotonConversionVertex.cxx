@@ -16,7 +16,7 @@ parameters.
 
 #include "PhotonConversionVertex.h"
 
-#include "tauEvent/TauJetContainer.h"
+//#include "tauEvent/TauJetContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "InDetRecToolInterfaces/IVertexFinder.h"
@@ -124,10 +124,14 @@ bool PhotonConversionVertex::openContainer(T* &container, std::string containerN
 
 template <class T>
 bool PhotonConversionVertex::saveContainer(T* &container, std::string containerName) {
-    StatusCode sc = evtStore()->record(container, containerName);
-    if (!container || sc.isFailure())
-        ATH_MSG_FATAL("Container (" << containerName << ") cannot be saved in StoreGate");
-    return container;
+  if(!container){
+    ATH_MSG_FATAL("Container (" << containerName << ") cannot be saved in StoreGate");
+    return false;
+  }
+  StatusCode sc = evtStore()->record(container, containerName);
+  if (sc.isFailure())
+    ATH_MSG_FATAL("Container (" << containerName << ") cannot be saved in StoreGate");
+  return container;
 }
 
 template <class T>

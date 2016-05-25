@@ -30,18 +30,18 @@
 #include <math.h>
 #include <sstream>
 
-#include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/Property.h"
+//#include "GaudiKernel/ListItem.h"
+//#include "GaudiKernel/IToolSvc.h"
+//#include "GaudiKernel/Property.h"
 
-#include "CaloUtils/CaloCellList.h"
-#include "CaloEvent/CaloCluster.h"
-#include "CaloEvent/CaloCell.h"
+//#include "CaloUtils/CaloCellList.h"
+//#include "CaloEvent/CaloCluster.h"
+//#include "CaloEvent/CaloCell.h"
 #include "CaloUtils/CaloVertexedCell.h"
-#include "AtlasDetDescr/AtlasDetectorID.h"
-#include "CaloIdentifier/CaloID.h"
-#include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloGeoHelpers/CaloSampling.h"
+//#include "AtlasDetDescr/AtlasDetectorID.h"
+//#include "CaloIdentifier/CaloID.h"
+//#include "CaloIdentifier/CaloCell_ID.h"
+//#include "CaloGeoHelpers/CaloSampling.h"
 
 #include "xAODTau/TauJet.h"
 #include "xAODJet/Jet.h"
@@ -166,7 +166,7 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
 
     // get the extrapolation into the calo
     const Trk::CaloExtension* caloExtension = 0;
-    if( !m_caloExtensionTool->caloExtension(*pTau.track(0),caloExtension) || caloExtension->caloLayerIntersections().empty() ){
+    if( !m_caloExtensionTool->caloExtension(*pTau.track(0)->track(),caloExtension) || caloExtension->caloLayerIntersections().empty() ){
       ATH_MSG_WARNING("extrapolation of leading track to calo surfaces failed  " );
       return StatusCode::SUCCESS;
     }
@@ -340,23 +340,25 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
     uint8_t TRTHTOutliers;
     uint8_t TRTHits;
     uint8_t TRTOutliers;
+
+    const xAOD::TrackParticle* leadTrack = pTau.track(0)->track();
       
-    if ( !pTau.track(0)->summaryValue( TRTHits, xAOD::SummaryType::numberOfTRTHits ) )
+    if ( !leadTrack->summaryValue( TRTHits, xAOD::SummaryType::numberOfTRTHits ) )
       {
 	ATH_MSG_DEBUG("retrieval of track summary value failed. Not filling electron veto variables for this one prong candidate");
 	return StatusCode::SUCCESS;
       }
-    if ( !pTau.track(0)->summaryValue( TRTHTHits, xAOD::SummaryType::numberOfTRTHighThresholdHits ) )
+    if ( !leadTrack->summaryValue( TRTHTHits, xAOD::SummaryType::numberOfTRTHighThresholdHits ) )
       {
 	ATH_MSG_DEBUG("retrieval of track summary value failed. Not filling electron veto variables for this one prong candidate");
 	return StatusCode::SUCCESS;
       }
-    if ( !pTau.track(0)->summaryValue( TRTOutliers, xAOD::SummaryType::numberOfTRTOutliers ) )
+    if ( !leadTrack->summaryValue( TRTOutliers, xAOD::SummaryType::numberOfTRTOutliers ) )
       {
 	ATH_MSG_DEBUG("retrieval of track summary value failed. Not filling electron veto variables for this one prong candidate");
 	return StatusCode::SUCCESS;
       }
-    if ( !pTau.track(0)->summaryValue( TRTHTOutliers, xAOD::SummaryType::numberOfTRTHighThresholdOutliers ) )
+    if ( !leadTrack->summaryValue( TRTHTOutliers, xAOD::SummaryType::numberOfTRTHighThresholdOutliers ) )
       {
 	ATH_MSG_DEBUG("retrieval of track summary value failed. Not filling electron veto variables for this one prong candidate");
 	return StatusCode::SUCCESS;

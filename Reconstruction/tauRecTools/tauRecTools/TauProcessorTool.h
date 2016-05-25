@@ -28,18 +28,27 @@ class TauProcessorTool : public asg::AsgTool, virtual public ITauToolExecBase {
   virtual StatusCode execute();
   virtual StatusCode finalize();
 
+  inline void setIsConfigured(bool v=true){ m_configured=v; }
+
  private:
+  std::string find_file(const std::string& fname) const;
+  std :: string                 m_ConfigPath;
   std :: string                 m_tauContainerName;
   std :: string                 m_tauAuxContainerName; 
+  bool                          m_configured;
   bool                          m_AODmode;
   bool                          m_deep_copy_chargedPFOContainer;
   bool                          m_deep_copy_hadronicPFOContainer;
   bool                          m_deep_copy_neutralPFOContainer;
   bool                          m_deep_copy_SecVtxContainer;
+  bool                          m_deep_copy_TauTrackContainer;
   TauEventData m_data;
   ToolHandleArray<ITauToolBase>  m_tools;
 
  public:
+
+  StatusCode readConfig();
+
   //-------------------------------------------------------------------------
   // make a deep copy of conatiner a
   // xAOD::TauJetContainer *cont(0);
@@ -83,8 +92,13 @@ template<class T, class U, class V>
     *newV = *v;    
   }  
 
+#ifdef ASGTOOL_STANDALONE
+  ATH_CHECK( evtStore()->record(container, containerName+"Fix") ); //TODO? make "Fix" configurable
+  ATH_CHECK( evtStore()->record(containerStore, containerName+"FixAux.") );
+#else
   ATH_CHECK( evtStore()->overwrite(container, containerName, true, false) );
   ATH_CHECK( evtStore()->overwrite(containerStore, containerNameAux, true, false) );
+#endif
 
   return StatusCode::SUCCESS;
 }

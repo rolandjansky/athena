@@ -32,6 +32,8 @@ class TauBuilderTool : public asg::AsgTool, virtual public ITauToolExecBase {
  private:
   std :: string                 m_tauContainerName;             //!< tau output container
   std :: string                 m_tauAuxContainerName;             //!< tau output aux store container
+  std::string m_tauTrackContainerName;
+  std::string m_tauTrackAuxContainerName;
   std::string m_seedContainerName;            //!< seed input container
   double m_maxEta; //!< only build taus with eta_seed < m_maxeta
   double m_minPt;  //!< only build taus with pt_seed > m_minpt

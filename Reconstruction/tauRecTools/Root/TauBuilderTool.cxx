@@ -10,15 +10,18 @@
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
 #include "xAODTau/TauDefs.h"
+#include "xAODTau/TauTrackContainer.h"
+#include "xAODTau/TauTrackAuxContainer.h"
 
 #include "tauRecTools/TauEventData.h"
-
 
 //________________________________________
 TauBuilderTool::TauBuilderTool(const std::string& type) :
   asg::AsgTool(type),
   m_tauContainerName("TauJets"),
   m_tauAuxContainerName("TauJetsAux."),
+  m_tauTrackContainerName("TauTracks"),
+  m_tauTrackAuxContainerName("TauTracksAux."),
   m_seedContainerName(""),
   m_maxEta(2.5),
   m_minPt(10000),
@@ -26,6 +29,8 @@ TauBuilderTool::TauBuilderTool(const std::string& type) :
 {
   declareProperty("TauContainer", m_tauContainerName);
   declareProperty("TauAuxContainer", m_tauAuxContainerName);
+  declareProperty("TauTrackContainer", m_tauTrackContainerName);
+  declareProperty("TauTrackAuxContainer", m_tauTrackAuxContainerName);
   declareProperty("SeedContainer", m_seedContainerName);
   declareProperty("MaxEta", m_maxEta);
   declareProperty("MinPt", m_minPt);
@@ -95,7 +100,8 @@ StatusCode TauBuilderTool::execute(){
 
   xAOD::TauJetContainer * pContainer = 0;
   xAOD::TauJetAuxContainer* pAuxContainer = 0;
-
+  xAOD::TauTrackContainer* pTracks = 0;
+  xAOD::TauTrackAuxContainer* pAuxTracks = 0;
 
 
   if (m_doCreateTauContainers) {        
@@ -122,6 +128,13 @@ StatusCode TauBuilderTool::execute(){
     pContainer->setStore( pAuxContainer );
     ATH_MSG_DEBUG( "Recorded xAOD tau jets with key: "
 		   << m_tauAuxContainerName );
+
+
+    pTracks = new xAOD::TauTrackContainer();
+    ATH_CHECK( evtStore()->record( pTracks, m_tauTrackContainerName) );
+    pAuxTracks = new xAOD::TauTrackAuxContainer();
+    ATH_CHECK( evtStore()->record( pAuxTracks, m_tauTrackAuxContainerName));
+    pTracks->setStore( pAuxTracks );
 
   } else {
     //-------------------------------------------------------------------------
@@ -192,7 +205,8 @@ StatusCode TauBuilderTool::execute(){
 
   ATH_MSG_VERBOSE("Number of seeds in the container: " << pSeedContainer->size());
 
-  for (; itS != itSE; ++itS) {
+  for (; itS != itSE; ++itS) {  
+
     const xAOD::Jet *pSeed = (*itS);
     ATH_MSG_VERBOSE("Seeds eta:" << pSeed->eta() << ", pt:" << pSeed->pt());
 
@@ -261,11 +275,24 @@ StatusCode TauBuilderTool::execute(){
 	(*p_itT1)->cleanup(&m_data);
 	(*p_itT1)->cleanup(&m_data);
       */
+      
+      //remove orphaned tracks before tau is deleted via pop_back
+      xAOD::TauJet* bad_tau = pContainer->back();
+      ATH_MSG_DEBUG("Deleting " << bad_tau->nAllTracks() << "Tracks associated with tau: ");
+      pTracks->erase(pTracks->end()-bad_tau->nAllTracks(), pTracks->end());
+
       //m_data.xAODTauContainer->pop_back();
       pContainer->pop_back();
-    } else
+    } else{
+      
+      //remove orphaned tracks before tau is deleted via pop_back
+      xAOD::TauJet* bad_tau = pContainer->back();
+      ATH_MSG_DEBUG("Deleting " << bad_tau->nAllTracks() << "Tracks associated with tau: ");
+      pTracks->erase(pTracks->end()-bad_tau->nAllTracks(), pTracks->end());
+      
       //m_data.xAODTauContainer->pop_back();
       pContainer->pop_back();
+    }
   }
 
 
@@ -281,6 +308,7 @@ StatusCode TauBuilderTool::execute(){
     if (sc != StatusCode::SUCCESS)
       return StatusCode::FAILURE;
   }
+
 
   //keep this here for future use (in case more than one seeding algo exist)
   /*

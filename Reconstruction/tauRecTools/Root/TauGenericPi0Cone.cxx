@@ -34,6 +34,7 @@
 
 TauGenericPi0Cone::TauGenericPi0Cone(const std::string &name) :
 TauRecToolBase(name) {
+    declareProperty("ConfigPath", m_configPath);
 }
 
 
@@ -92,10 +93,10 @@ StatusCode TauGenericPi0Cone::execute(xAOD::TauJet& pTau) {
      }
 
     // Convert to dR.
-    m_pi0conedr = std::min(pi0angle*cosh(tau.Eta()), 0.2);
+    float pi0conedr = std::min(pi0angle*cosh(tau.Eta()), 0.2);
 
     // Store result
-    pTau.setPi0ConeDR(m_pi0conedr);
+    pTau.setPi0ConeDR(pi0conedr);
 
     return StatusCode::SUCCESS;
 }

@@ -10,13 +10,13 @@
 // 
 //-----------------------------------------------------------------------------
 
-#include <GaudiKernel/IToolSvc.h>
-#include <GaudiKernel/ListItem.h>
+//#include <GaudiKernel/IToolSvc.h>
+//#include <GaudiKernel/ListItem.h>
 
-#include "FourMomUtils/P4Helpers.h"
-#include "FourMom/P4EEtaPhiM.h"
-#include "CLHEP/Vector/LorentzVector.h"
-#include "Particle/TrackParticle.h"
+//#include "FourMomUtils/P4Helpers.h"
+//#include "FourMom/P4EEtaPhiM.h"
+//#include "CLHEP/Vector/LorentzVector.h"
+//#include "Particle/TrackParticle.h"
 
 
 #include "tauRecTools/TauEventData.h"

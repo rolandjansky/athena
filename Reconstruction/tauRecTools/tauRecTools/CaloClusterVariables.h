@@ -6,10 +6,19 @@
 #define CALOCLUSTERVARIABLES_H
 
 #include <vector>
+#ifndef XAOD_ANALYSIS
 #include "CaloUtils/CaloVertexedCluster.h"
+typedef xAOD::CaloVertexedCluster CaloVertexedClusterType;
+#else
+#include "xAODCaloEvent/CaloVertexedTopoCluster.h"
+typedef xAOD::CaloVertexedTopoCluster CaloVertexedClusterType;
+#endif
 //#include "CaloEvent/CaloVertexedCluster.h"
 #include "CxxUtils/fpcompare.h"
 #include "xAODTau/TauJet.h"
+
+#include "TLorentzVector.h"
+
 
 /** Provide calculations of cluster based variables using the clusters associated to the jet seed of the tau candidate. */
 class CaloClusterVariables {
@@ -58,7 +67,7 @@ private:
     unsigned int m_numCells;
 
     /** Calculate the geometrical center of the tau constituents */
-		CLHEP::HepLorentzVector calculateTauCentroid(int nConst, const std::vector<xAOD::CaloVertexedCluster>& constituents);
+    TLorentzVector calculateTauCentroid(int nConst, const std::vector<CaloVertexedClusterType>& constituents);
     
     /** 
      * Enable cell origin correction.
@@ -71,11 +80,19 @@ private:
 //! Descending order by energy
 //-------------------------------------------------------------------------
 struct CaloClusterCompare { 
-  bool operator()(const xAOD::CaloVertexedCluster& left, const xAOD::CaloVertexedCluster& right) {
-        //volatile double leftE = left.e();
-        //volatile double rightE = right.e();
-        return CxxUtils::fpcompare::greater (left.e(),right.e());
-    }
+  bool operator()(const CaloVertexedClusterType& left, const CaloVertexedClusterType& right) {
+    //volatile double leftE = left.e();
+    //volatile double rightE = right.e();
+    return CxxUtils::fpcompare::greater (left.e(),right.e());
+  }
+};
+
+struct DefCaloClusterCompare { 
+  bool operator()(const xAOD::CaloCluster* left, const xAOD::CaloCluster* right) {
+    //volatile double leftE = left.e();
+    //volatile double rightE = right.e();
+    return CxxUtils::fpcompare::greater (left->e(),right->e());
+  }
 };
 
 #endif

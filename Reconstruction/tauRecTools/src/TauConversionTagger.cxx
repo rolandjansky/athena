@@ -12,19 +12,19 @@
 //-----------------------------------------------------------------------------
 //TODO:
 
-#include <GaudiKernel/IToolSvc.h>
-#include <GaudiKernel/ListItem.h>
+//#include <GaudiKernel/IToolSvc.h>
+//#include <GaudiKernel/ListItem.h>
 
-#include "FourMomUtils/P4Helpers.h"
-#include "FourMom/P4EEtaPhiM.h"
-#include "CLHEP/Vector/LorentzVector.h"
-#include "Particle/TrackParticle.h"
+//#include "FourMomUtils/P4Helpers.h"
+//#include "FourMom/P4EEtaPhiM.h"
+//#include "CLHEP/Vector/LorentzVector.h"
+//#include "Particle/TrackParticle.h"
 
-#include "TrkParameters/TrackParameters.h"
+//#include "TrkParameters/TrackParameters.h"
 
 #include "tauRecTools/TauEventData.h"
-#include "tauEvent/TauCommonDetails.h"
-#include "tauEvent/TauJetParameters.h"
+//#include "tauEvent/TauCommonDetails.h"
+//#include "tauEvent/TauJetParameters.h"
 
 #include "TauConversionTagger.h"
 
@@ -34,7 +34,9 @@
 
 TauConversionTagger::TauConversionTagger(const std::string &name) :
   TauRecToolBase(name),
-        m_trackToVertexTool("Reco::TrackToVertex")
+  m_TrkIsConv(false),
+  m_TRTHighTOutliersRatio(0),
+  m_trackToVertexTool("Reco::TrackToVertex")
 {
     declareProperty("ConversionTaggerVersion", m_ConvTaggerVer = 1);
     declareProperty("TrackContainerName", m_trackContainerName = "InDetTrackParticles");
@@ -88,7 +90,7 @@ StatusCode TauConversionTagger::execute(xAOD::TauJet& pTau) {
 
   for(unsigned int j=0; j<pTau.nTracks(); j++ ) {
 
-    const xAOD::TrackParticle *TauJetTrack = pTau.track(j);
+    const xAOD::TrackParticle *TauJetTrack = pTau.track(j)->track();
     const Trk::Perigee* perigee = m_trackToVertexTool->perigeeAtVertex(*TauJetTrack, (*pTau.vertexLink())->position());
 
     // Declare TrackSummary info
@@ -167,8 +169,11 @@ StatusCode TauConversionTagger::execute(xAOD::TauJet& pTau) {
     }
 
     ATH_MSG_VERBOSE("Is tau track a conversion? : " << m_TrkIsConv);
-    if (m_TrkIsConv && !pTau.trackFlag(TauJetTrack, xAOD::TauJetParameters::isConversion))
-      pTau.setTrackFlag(TauJetTrack, xAOD::TauJetParameters::isConversion, true);
+    // if (m_TrkIsConv && !pTau.trackFlag(TauJetTrack, xAOD::TauJetParameters::isConversion))
+    //   pTau.setTrackFlag(TauJetTrack, xAOD::TauJetParameters::isConversion, true);
+    xAOD::TauTrack* tauTrack = pTau.trackNonConst(j);
+    if(m_TrkIsConv && !tauTrack->flag(xAOD::TauJetParameters::isConversionOld))
+      tauTrack->setFlag( xAOD::TauJetParameters::isConversionOld, true);
   }
 
   return StatusCode::SUCCESS;

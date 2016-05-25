@@ -21,7 +21,7 @@ public:
     //-------------------------------------------------------------
     //! Constructor
     //-------------------------------------------------------------
-    TauGenericPi0Cone(const std::string& name);
+    TauGenericPi0Cone(const std::string& name="TauGenericPi0Cone");
     ASG_TOOL_CLASS2(TauGenericPi0Cone, TauRecToolBase, ITauToolBase)
 
     //-------------------------------------------------------------
@@ -38,8 +38,7 @@ public:
     virtual void print() const { }
 
 private:
-    
-    float m_pi0conedr;
+    std::string m_configPath;
 
 };
 

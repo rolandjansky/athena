@@ -42,14 +42,13 @@ private:
     ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool;
 
     /** @brief extrapolated position of tracks and vector of bools to keep track for which samplings this has already been done */
-    std::vector<std::vector<double> > m_tracksEtaAtSampling;
-    std::vector<std::vector<double> > m_tracksPhiAtSampling;
-    std::vector<bool> m_extrapolatedSamplings;
-    std::vector<double> m_defaultValues;
+    //inner vector is size 2: EM, Had layers
+    std::vector<std::vector<float> > m_tracksEtaAtSampling;
+    std::vector<std::vector<float> > m_tracksPhiAtSampling;
 
     /** @brief get extrapolated track position at each layer */
-    void getExtrapolatedPositions( std::vector<const xAOD::TrackParticle*>,
-                                   int sampling);
+    void getExtrapolatedPositions( const xAOD::TauTrack*,
+                                   int sampling, float& eta, float& phi);
 
     /** @brief new charged PFO container and name */
     xAOD::PFOContainer* m_chargedPFOContainer;
@@ -58,10 +57,12 @@ private:
 
     /** @brief run on AOD */
     bool m_AODmode;
+    bool m_storeCaloSamplings;//configurable to store whether you want calo samplings on TauTracks
+    bool m_caloSamplingsStored=false;//check whether TauJets have sampling decorations or not
 
     /** @brief estimate energy deposited in Ecal by each charged pion */
     std::vector<double> getEstEcalEnergy(
-            std::vector<const xAOD::TrackParticle*> tracks,
+            std::vector<const xAOD::TauTrack*> tracks,
             const xAOD::TauJet& pTau,
             std::vector<std::vector<ElementLink<xAOD::IParticleContainer> > >& hadPFOLinks);
             

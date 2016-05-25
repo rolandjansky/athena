@@ -58,14 +58,14 @@ public:
     /* //think about changing this to IParticle */
     /* const xAOD::Jet  *seed=0; */
     const xAOD::JetContainer *seedContainer=0;
-    unsigned int                        detailsNum;
+    unsigned int                        detailsNum=0;
 
     std :: map<std :: string, boost :: any> m_ptrMap;
 
     void clear();
 
     inline void setInTrigger(bool v=true);
-    inline bool inTrigger();
+    inline bool inTrigger() const;
    
  private:
     //don't clear this infomation
@@ -117,11 +117,11 @@ inline void TauEventData :: clear(){
   m_ptrMap.clear();
 }
 
-inline void TauEventData :: setInTrigger(bool v){
+inline void TauEventData :: setInTrigger(bool v) {
   m_inTrigger=v;
 }
 
-inline bool TauEventData :: inTrigger(){
+inline bool TauEventData :: inTrigger() const{
   return m_inTrigger;
 }
 

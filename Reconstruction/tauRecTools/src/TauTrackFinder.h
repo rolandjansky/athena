@@ -15,6 +15,9 @@
 
 #include "VxVertex/RecVertex.h"
 
+// xAOD Tracking Tool
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+
 namespace Trk {
   class ITrackSelectorTool;
   class IParticleCaloExtensionTool;
@@ -110,6 +113,7 @@ private:
     std::string m_inputTauJetContainerName;
     std::string m_inputTrackParticleContainerName;
     std::string m_inputPrimaryVertexContainerName;
+    std::string m_inputTauTrackContainerName;
 
     //-------------------------------------------------------------
     //! tools
@@ -117,6 +121,8 @@ private:
     ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
     ToolHandle<Trk::ITrackSelectorTool> m_trackSelectorTool_tau;
     ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectorTool_tau_xAOD;
+
     
     //-------------------------------------------------------------
     //! Input parameters for algorithm
@@ -130,6 +136,7 @@ private:
     float m_z0maxDelta;
     bool m_applyZ0cut;
     bool m_storeInOtherTrks;
+    bool m_removeDuplicateCoreTracks;
     std::vector<float> m_vDeltaZ0coreTrks;
     std::vector<float> m_vDeltaZ0wideTrks;
 

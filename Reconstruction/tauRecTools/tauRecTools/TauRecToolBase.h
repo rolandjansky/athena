@@ -55,18 +55,30 @@ class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
   virtual StatusCode finalize();
 
   std::string find_file(const std::string& fname) const;
+  StatusCode readConfig();
 
   void setTauEventData(TauEventData* data);
   TauEventData* tauEventData();
+  const TauEventData* tauEventData() const;
 
 
 
  protected:
   TauEventData* m_data = 0;
+  bool m_in_trigger = false;
+  std::string m_tauRecToolsTag;
+
+  bool inTrigger() const;
 
 };
 
+inline bool TauRecToolBase::inTrigger() const { return m_in_trigger; }
+
 inline TauEventData* TauRecToolBase::tauEventData() { 
+  return m_data;
+}
+
+inline const TauEventData* TauRecToolBase::tauEventData() const { 
   return m_data;
 }
 
