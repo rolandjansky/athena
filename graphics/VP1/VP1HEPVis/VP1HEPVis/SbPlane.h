@@ -1,3 +1,5 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -30,6 +32,7 @@
  * Used by the BooleanProcessor.
  */
 
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/SbVec3d.h>
 
 namespace HEPVis {

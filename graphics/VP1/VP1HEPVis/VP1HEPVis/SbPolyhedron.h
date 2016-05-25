@@ -165,6 +165,7 @@
 // - added a new GetVertexFast(), from Guy Barrand.
 //
 
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/SbLinear.h>
 
 

@@ -3,6 +3,8 @@
 */
 
 // this :
+
+#include <Inventor/C/errors/debugerror.h>
 #define private public
 #include <Inventor/SbPList.h>//hack to work around numitems not initialised in coin
 #undef private

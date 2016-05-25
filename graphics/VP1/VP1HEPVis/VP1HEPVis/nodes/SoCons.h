@@ -12,6 +12,7 @@
 #ifndef HEPVis_SoCons_h
 #define HEPVis_SoCons_h
 
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/fields/SoSFFloat.h>
 #include <Inventor/fields/SoSFInt32.h>
 #include <Inventor/fields/SoSFNode.h>
