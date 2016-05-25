@@ -151,24 +151,24 @@ namespace Trk {
          defined 0. if 1/pt=0*/
       double charge () const { return (double)m_chargeDefinition; };
 
+      /** Update method for single defined parameters parameters,
+          this deletes the covariance and overwrites if the pointer value differs  */ 
+      virtual void updateParameter(DefinedParameter updatedParameter,
+                                   AmgSymMatrix(DIM)* updatedCovariance = 0) const = 0;
+                                   
+      /** Update method for measurement parameter update and material effects update,
+          this deletes the covariance and overwrites if the pointer value differs  */ 
+      virtual void updateParameters(const AmgVector(DIM)& updatedParameters,
+                                    AmgSymMatrix(DIM)* updatedCovariance = 0) const = 0;
+       
+
+
     protected:
       /** --- PROTECTED METHOD: access is controlled via fiend list 
           Checkout method for covariance matrix,
           this sets the pointer to 0, but does not delete it, ownership is passed back */
       AmgSymMatrix(DIM)* checkoutCovariance() const;
 
-      /** --- PROTECTED METHOD: access is controlled via friend list 
-          Update method for single defined parameters parameters,
-          this deletes the covariance and overwrites if the pointer value differs  */ 
-      virtual void updateParameter(DefinedParameter updatedParameter,
-                                   AmgSymMatrix(DIM)* updatedCovariance = 0) const = 0;
-                                   
-      /** ---- PROTECTED METHOD: access is controlled via friend list 
-          Update method for measurement parameter update and material effects update,
-          this deletes the covariance and overwrites if the pointer value differs  */ 
-      virtual void updateParameters(const AmgVector(DIM)& updatedParameters,
-                                    AmgSymMatrix(DIM)* updatedCovariance = 0) const = 0;
-       
       mutable AmgVector(DIM)        m_parameters;       //!< contains the n parameters
       mutable AmgSymMatrix(DIM)*    m_covariance;       //!< contains the n x n covariance matrix
       mutable T                     m_chargeDefinition; //!< charge definition template

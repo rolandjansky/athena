@@ -245,9 +245,14 @@ template <int DIM, class T, class S> Trk::ParametersT<DIM, T, S>::ParametersT
   ParametersBase<DIM,T>::m_momentum = Amg::Vector3D(p*cos(ParametersBase<DIM,T>::m_parameters[Trk::phi])*sin(ParametersBase<DIM,T>::m_parameters[Trk::theta]),
                              p*sin(ParametersBase<DIM,T>::m_parameters[Trk::phi])*sin(ParametersBase<DIM,T>::m_parameters[Trk::theta]),
                              p*cos(ParametersBase<DIM,T>::m_parameters[Trk::theta]));
-  m_surface->localToGlobal(ParametersBase<DIM,T>::localPosition(), 
-                           ParametersBase<DIM,T>::m_momentum, 
-                           ParametersBase<DIM,T>::m_position);
+  if (m_surface)
+    m_surface->localToGlobal(ParametersBase<DIM,T>::localPosition(), 
+                             ParametersBase<DIM,T>::m_momentum, 
+                             ParametersBase<DIM,T>::m_position);
+  else {
+    ParametersBase<DIM,T>::m_momentum.setZero();
+    ParametersBase<DIM,T>::m_position.setZero();
+  }
 }
 
 // return the measurementFrame */
