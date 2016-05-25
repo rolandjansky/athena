@@ -2,10 +2,10 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-years = ('2011','2012')
-allDbNames = {'2012': 'trips.db', '2011': 'trips2011.db'}
-allDatNames = {'2012': 'trips.dat', '2011':'trips2011.dat'}
-allPicsDirNames = {'2012': 'HVHistoryPic', '2011': 'HVHistoryPic2011'}
+years = ('2011','2012', '2015')
+allDbNames = {'2015': 'trips.db', '2012': 'trips2012.db', '2011': 'trips2011.db'}
+allDatNames = {'2015': 'trips.dat', '2012': 'trips2012.dat', '2011':'trips2011.dat'}
+allPicsDirNames = {'2015': 'HVHistoryPic', '2012': 'HVHistoryPic2012', '2011': 'HVHistoryPic2011'}
 
 
 print 'Content-type: text/html;charset=utf-8\n'
@@ -27,7 +27,6 @@ selected_from = form.getvalue('FROM','')
 selected_to = form.getvalue('TO', '')
 selected_limit = int(form.getvalue('LIMIT', '100'))
 selected_run = form.getvalue('RUN', '')
-selected_status = form.getvalue('STATUS', '')
 
 dbName = allDbNames[selected_year]
 datName = allDatNames[selected_year]
@@ -36,7 +35,11 @@ picsDirName = allPicsDirNames[selected_year]
 dt1 = datetime.datetime.fromtimestamp(os.stat(dbName).st_mtime)
 dt2 = datetime.datetime.fromtimestamp(os.stat(datName).st_mtime)
 
-cmd = 'select  trips.rowid,*  from trips INNER JOIN details ON trips.HVLINE = details.HVLINE order by trips.TripTimeStamp desc limit %d;' % selected_limit
+#cmd = 'select trips.rowid, trips.HVLINE, trips.TripTimeStamp, trips.TripRunNumber, trips.TripLB, trips.StableZero, trips.RampUp, trips.RecoveryTimeStamp, trips.RecoveryRunNumber, trips.RecoveryLB, trips.StableBeams, trips.FillNumber, trips.NumCollBunches, trips.Solenoid, trips.Toroid, details.Module, details.Channel, details.Det, details.Side, details.PhiWedge, details.SubPhiWedge, details.EtaSector, details.ElectrodeSide, details.Map, details.PoweredElectrodes from trips INNER JOIN details ON trips.HVLINE = details.HVLINE order by trips.TripTimeStamp desc limit %d;' % selected_limit
+
+
+cmd = "select  trips.rowid,*  from trips INNER JOIN details ON trips.HVLINE = details.HVLINE order by trips.TripTimeStamp desc limit %d;" % selected_limit
+
 if form.has_key('query'): 
     cmd = form.getvalue('query')
 
@@ -50,7 +53,7 @@ print '''
 <link rel="Stylesheet" href="styles.css" type="text/css" />
 <script>
 
-function get_query(detail, stable_beam, module, channel, detector, side, from, to, run, status, limit) {
+function get_query(detail, stable_beam, module, channel, detector, side, from, to, run, limit) {
   var query = "select  trips.rowid,*  from trips";
   if (detail) query += " INNER JOIN details ON trips.HVLINE = details.HVLINE";
   selections = [];
@@ -63,7 +66,7 @@ function get_query(detail, stable_beam, module, channel, detector, side, from, t
   if (from)             selections.push("strftime('%s', '" + from + "') < strftime('%s', TripTimeStamp)");
   if (to)               selections.push("strftime('%s', '" + to + "') > strftime('%s', TripTimeStamp) + 24*3600");
   if (run)              selections.push("TripRunNumber=" + run);
-  if (status)           selections.push("status='" + status + "'");
+
 //  console.log(selections)
   if (selections.length) query += " where " + selections.join(" and ");
   query += " order by trips.TripTimeStamp desc";  
@@ -81,10 +84,9 @@ function change_query() {
   from = document.getElementById("FROM").value;
   to = document.getElementById("TO").value;
   limit = document.getElementById("LIMIT").value;
-  status = document.getElementById("STATUS").value;
   run = document.getElementById("RUN").value;  
 
-  query = get_query(true, stable_beam, module, channel, detector, side, from, to, run, status, limit);
+  query = get_query(true, stable_beam, module, channel, detector, side, from, to, run, limit);
   query_field = document.getElementById("qq");
   query_field.value = query;
 };
@@ -142,14 +144,6 @@ print '''
 print print_options(sides, selected_side)
 print '''
 </select></p>
-<p>
-<label for="STATUS">Status</label>
-<select onchange="javascript:change_query()" id="STATUS" name="STATUS">
-'''
-print print_options(hv_statuses, selected_status)
-print '''
-</select>
-</p>
 <p>
 <label for="RUN">Trip RunNumber</label>
 <input oninput="javascript:change_query()" type="text" id="RUN" name="RUN" size="10" value="%(run)s" />
@@ -213,14 +207,36 @@ conn = sqlite3.connect(dbName,detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE
 c = conn.cursor()
 
 
-
-
-detcols = ['HVLINE','Trip\nTimeStamp','Trip\nRunNumber','Trip\nLB','Stable\nZero','Ramp\nUp','Recovery\nTimeStamp','Recovery\nRunNumber','Recovery\nLB', 'Stable\nBeams','Fill\nNumber','Num\nCollBunches','Solenoid','Toroid','Module','Channel','Det','Side','Phi\nWedge','SubPhi\nWedge','Eta\nSector','Electrode\nSide','Map', 'Powered\nElectrodes','HVLINE\nStatus',]
+detcols = ['HVLINE','Trip\nTimeStamp','Trip\nRunNumber','Trip\nLB','Stable\nZero','Ramp\nUp','Recovery\nTimeStamp','Recovery\nRunNumber','Recovery\nLB', 'Stable\nBeams','Fill\nNumber','Num\nCollBunches','Solenoid','Toroid','Module','Channel','Det','Side','Phi\nWedge','SubPhi\nWedge','Eta\nSector','Electrode\nSide','Map', 'Powered\nElectrodes']
 
 
 print '<br> Executing query command <b>'+cmd+' </b><br>'
 
 c.execute(cmd)
+
+translations = {'rowid': 'TripdId',
+                'HVLINE': 'HVLINE',
+                'TripTimeStamp': 'Trip TimeStamp',
+                'TripRunNumber': 'Trip\nRunNumber',
+                'TripLB': 'Trip\nLB',
+                'StableZero': 'Stable\nZero',
+                'RampUp': 'Ramp\nUp',
+                'RecoveryTimeStamp': 'Recovery\nTimeStamp',
+                'RecoveryRunNumber': 'Recovery\nRunNumber',
+                'RecoveryLB': 'Recovery LB',
+                'StableBeams': 'Stable Beams',
+                'FillNumber': 'Fill\nNumber',
+                'NumCollBunches': 'Num\nCollBunches',
+                'PhiWedge': 'Phi\nWedge',
+                'SubPhiWedge': 'SubPhi\nWedge',
+                'EtaSector': 'Eta\nSector',
+                'ElectrodeSide': 'Electrode\nSide',
+                'PoweredElectrodes': 'Powered\nElectrodes'}
+
+detcols = [translations.get(cc[0], cc[0]) for cc in c.description]
+detcols = sorted(set(detcols), key=lambda x: detcols.index(x))
+detcols = [d for d in detcols if d != 'status']
+
 r = c.fetchall()
 
 print '<br><font style="font-size:20pt">Query result:</font><p font style="font-size:10pt">%d results returned</font></p>' % (len(r))
@@ -230,13 +246,13 @@ print 'HINT3: Clicking on the TripId entry pops up a visualization of the trip. 
 
 print '<table class="list">\n<tr>\n'
 print '</tr>\n<tr>\n'
-print '<td>TripId</td>'
 for i in detcols: 
     print '<td>%s</td>\n' % (i)
 
 print '</tr>\n<tr>\n'
 
-for i in range(len(r)):
+
+for i, row in enumerate(r):
   #incompleteRow = False
   #for k in r[i]:
     #if k == 'Not entered' or k =='9998.12.31 00:00:00': 
@@ -247,7 +263,7 @@ for i in range(len(r)):
   #else: 
     print '<tr class="g%d">\n' % (i%2)
     curColumn = 0
-    for j in r[i]:
+    for j in row[:-1]:  # remove the last column 
         if curColumn == 3 or curColumn == 8:
           print '<td><a href="http://atlas-runquery.cern.ch/query.py?q=find+run+%s+and+ready+/+show+all+and+dq+lar+DCSOFL+" target="_blank">%s</a></td>' % (j,j)
         elif curColumn == 1:
@@ -259,6 +275,7 @@ for i in range(len(r)):
         elif curColumn == 0 and len(r[i])>10:
             if r[i][10]=='Y':
                 picPath = picsDirName+'/trip_%s.png' % (j)
+#                print "Stable beam - %s"%(picPath)
                 if os.path.isfile(picPath):
                     print '<td><a href="%s" target="_blank">%s</a></td>' % (picPath,j)
                 else:

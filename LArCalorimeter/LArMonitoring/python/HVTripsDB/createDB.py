@@ -15,9 +15,12 @@ f = file('trips.dat','r')
 
 for l in f:
   a = l.split()
-  
-  tripString = a[1]
-  recoveryString = a[6]
+  try:
+    tripString = a[1]
+    recoveryString = a[6]
+  except IndexError:
+    print "problem with line '%s'" % l
+    raise
   tripDateTime=datetime.datetime.strptime(tripString, '%Y-%m-%d:%H:%M:%S')
   recoveryDateTime=datetime.datetime.strptime(recoveryString, '%Y-%m-%d:%H:%M:%S')
   b = (a[0],tripDateTime.strftime('%Y-%m-%d %H:%M:%S'),a[2],a[3],a[4],a[5],recoveryDateTime.strftime('%Y-%m-%d %H:%M:%S'),a[7],a[8],a[9].upper(),a[10],a[11],a[12].upper(),a[13].upper())

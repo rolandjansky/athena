@@ -1,16 +1,15 @@
 
-basePath=/afs/cern.ch/user/l/larmon/public/TripVisualizer
+#basePath=/afs/cern.ch/user/l/larmon/public/development/LArCalorimeter/LArMonitoring/python/TripVisualizer
+basePath=$(pwd)
+#pushd $basePath  #seems like the visualizer package was not written with absolute paths, temporary workaround
 
-pushd $basePath  #seems like the visualizer package was not written with absolute paths, temporary workaround
-
-
-
-if [ "$AtlasSetup" = "" ]; then
+#if [ "$AtlasSetup" = "" ]; then
     export AtlasSetup=/afs/cern.ch/atlas/software/dist/AtlasSetup
-    source $AtlasSetup/scripts/asetup.sh 16.6.2.4
-fi
+    source $AtlasSetup/scripts/asetup.sh 19.1.0,AtlasOffline
+    #source $AtlasSetup/scripts/asetup.sh 16.6.2.4
+#fi
 
-last=`ls -t ${basePath}/HVHistoryDat | head -1 |sed -e "s/trip_//" -e "s/.dat// " `
+last=`ls -t /afs/cern.ch/user/l/larmon/public/WebTools-scratch/HVHistoryDat | head -1 |sed -e "s/trip_//" -e "s/.dat// " `
 echo $last
 
 next=$((last+1))

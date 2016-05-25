@@ -23,8 +23,8 @@ public class DataVisualizer
 	// Allocating plot drawer
 	PlotDrawer p = new PlotDrawer();
 
-	String folderData = "../HVHistoryDat";
-	String folderPict = "../HVHistoryPic";
+	String folderData = "/afs/cern.ch/user/l/larmon/public/WebTools-scratch/HVHistoryDat";
+	String folderPict = "/afs/cern.ch/user/l/larmon/public/WebTools-scratch/HVHistoryPic";
 
 
 	if ( ! processAllFiles)

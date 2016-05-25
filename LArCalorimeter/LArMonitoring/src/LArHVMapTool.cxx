@@ -31,6 +31,8 @@
 #include "LArReadoutGeometry/HECCellConstLink.h"
 #include "LArReadoutGeometry/FCALTubeConstLink.h"
 
+#include "LArTools/LArHVCablingTool.h"
+
 #include "LArHV/LArHVManager.h"
 
 
@@ -49,8 +51,16 @@ StatusCode LArHVMapTool::initialize(){
   m_larhec_id   = m_caloIdMgr->getHEC_ID();
   m_larfcal_id   = m_caloIdMgr->getFCAL_ID();
 
-   CHECK(detStore()->retrieve(m_calodetdescrmgr));
+  CHECK(detStore()->retrieve(m_calodetdescrmgr));
 
+
+   return StatusCode::SUCCESS;
+}
+
+StatusCode LArHVMapTool::execute() {
+
+
+  CHECK(m_hvCablingTool.retrieve());
    return StatusCode::SUCCESS;
 }
 
@@ -58,10 +68,11 @@ StatusCode LArHVMapTool::initialize(){
 std::vector<int> LArHVMapTool::GetHVLines(const Identifier& id) {
   std::set<int> hv;
 
+  int counter=0;
   // LAr EMB
   if (m_larem_id->is_lar_em(id) && m_larem_id->sampling(id)>0) {
     if (abs(m_larem_id->barrel_ec(id))==1) {
-      const EMBDetectorElement* embElement = dynamic_cast<EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
+      const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
       if (embElement) {
 	const EMBCellConstLink cell = embElement->getEMBCell();
 	unsigned int nelec = cell->getNumElectrodes();
@@ -76,7 +87,7 @@ std::vector<int> LArHVMapTool::GetHVLines(const Identifier& id) {
 	msg(MSG::ERROR) << "Failed d'cast to EMBDetectorElement" << std::endl;
       }
     } else { // LAr EMEC
-      const EMECDetectorElement* emecElement = dynamic_cast<EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
+      const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
       if (emecElement) {
 	const EMECCellConstLink cell = emecElement->getEMECCell();
 	unsigned int nelec = cell->getNumElectrodes();
@@ -90,7 +101,7 @@ std::vector<int> LArHVMapTool::GetHVLines(const Identifier& id) {
       }
     } 
   } else if (m_larhec_id->is_lar_hec(id)) { // LAr HEC
-    const HECDetectorElement* hecElement = dynamic_cast<HECDetectorElement*>(m_calodetdescrmgr->get_element(id));
+    const HECDetectorElement* hecElement = dynamic_cast<const HECDetectorElement*>(m_calodetdescrmgr->get_element(id));
     if (hecElement) {
       const HECCellConstLink cell = hecElement->getHECCell();
       unsigned int nsubgaps = cell->getNumSubgaps();
@@ -103,7 +114,7 @@ std::vector<int> LArHVMapTool::GetHVLines(const Identifier& id) {
       msg(MSG::ERROR) << "Failed d'cast to HECDetectorElement" << std::endl;
     }
   } else if (m_larfcal_id->is_lar_fcal(id)) { // LAr FCAL
-    const FCALDetectorElement* fcalElement = dynamic_cast<FCALDetectorElement*>(m_calodetdescrmgr->get_element(id));
+    const FCALDetectorElement* fcalElement = dynamic_cast<const FCALDetectorElement*>(m_calodetdescrmgr->get_element(id));
     if (fcalElement) {
       const FCALTile* tile = fcalElement->getFCALTile();
       unsigned int nlines = tile->getNumHVLines();
@@ -126,7 +137,7 @@ std::vector<int> LArHVMapTool::GetHVLines(const Identifier& id) {
  
   } else if (m_larem_id->is_lar_em(id) && m_larem_id->sampling(id)==0) { // Presamplers
     if (abs(m_larem_id->barrel_ec(id))==1) {
-      const EMBDetectorElement* embElement = dynamic_cast<EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
+      const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
       if (embElement) {
 	const EMBCellConstLink cell = embElement->getEMBCell();
 	const EMBPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule();
@@ -136,7 +147,7 @@ std::vector<int> LArHVMapTool::GetHVLines(const Identifier& id) {
 	msg(MSG::ERROR) << "Failed d'cast to EMBDetectorElement (for presampler)" << std::endl;
       }
     } else {
-      const EMECDetectorElement* emecElement = dynamic_cast<EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
+      const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
       if (emecElement) {
 	const EMECCellConstLink cell = emecElement->getEMECCell();
 	const EMECPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule ();

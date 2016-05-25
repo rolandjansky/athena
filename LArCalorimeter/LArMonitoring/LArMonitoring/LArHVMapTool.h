@@ -8,14 +8,14 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "Identifier/Identifier.h"
+#include "CaloIdentifier/CaloIdManager.h"
+#include "LArTools/LArHVCablingTool.h"
 
-class CaloDetDescrManager;
-class Identifier;
-class CaloIdManager;
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
-
 
 static const InterfaceID IID_LArHVMapTool("LArHVMapTool", 1 ,0);
 
@@ -31,6 +31,7 @@ class LArHVMapTool: public AthAlgTool
           static const InterfaceID& interfaceID() { return IID_LArHVMapTool; }
 
           virtual StatusCode initialize();
+          virtual StatusCode execute();
           virtual StatusCode finalize(){return StatusCode::SUCCESS;}
 
 
@@ -43,6 +44,8 @@ class LArHVMapTool: public AthAlgTool
           const LArEM_ID* m_larem_id;
           const LArHEC_ID* m_larhec_id;
           const LArFCAL_ID* m_larfcal_id;
+
+          ToolHandle<LArHVCablingTool> m_hvCablingTool;
 };
 
 #endif
