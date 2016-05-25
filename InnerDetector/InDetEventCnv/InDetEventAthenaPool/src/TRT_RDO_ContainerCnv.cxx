@@ -132,28 +132,28 @@ TRT_RDO_Container* TRT_RDO_ContainerCnv::createTransient() {
 
   if( compareClassGuid(TP2_guid) ) {
     ATH_MSG_DEBUG("createTransient(): New TP version - TP2 branch");
-    std::auto_ptr< InDetRawDataContainer_p2 >   col_vect( poolReadObject< InDetRawDataContainer_p2 >() );
+    std::unique_ptr< InDetRawDataContainer_p2 >   col_vect( poolReadObject< InDetRawDataContainer_p2 >() );
     TRT_RDO_Container *res = m_converter_TP2.createTransient( col_vect.get(), msg() );
     ATH_MSG_DEBUG("createTransient(), TP2 branch: returns TRANS = "<<shortPrint(res));
     return res;
   }
   else if( compareClassGuid(TP1_guid) ) {
     ATH_MSG_DEBUG("createTransient(): New TP version - TP1 branch");
-    std::auto_ptr< InDetRawDataContainer_p1 >   col_vect( poolReadObject< InDetRawDataContainer_p1 >() );
+    std::unique_ptr< InDetRawDataContainer_p1 >   col_vect( poolReadObject< InDetRawDataContainer_p1 >() );
     TRT_RDO_Container *res = m_converter_TP1.createTransient( col_vect.get(), msg() );
     ATH_MSG_DEBUG("createTransient(), TP1 branch: returns TRANS = "<<shortPrint(res));
     return res;
   }
   else if( compareClassGuid(p1_guid) ) {
     ATH_MSG_DEBUG("createTransient(): New input file - p1 branch");
-    std::auto_ptr< TRT_RDO_Container_p1 > col_vect( poolReadObject< TRT_RDO_Container_p1 >() );
+    std::unique_ptr< TRT_RDO_Container_p1 > col_vect( poolReadObject< TRT_RDO_Container_p1 >() );
     TRT_RDO_Container *res = m_converter_p1.createTransient( col_vect.get(), msg() );
     ATH_MSG_DEBUG("createTransient(), p1 branch: returns TRANS = "<<shortPrint(res));
     return res;
   }
   else if( compareClassGuid(p0_guid) ) {
     ATH_MSG_DEBUG("createTransient(): Old input file - p0 branch");
-    std::auto_ptr< TRT_RDO_Container_p0 >   col_vect( poolReadObject< TRT_RDO_Container_p0 >() );
+    std::unique_ptr< TRT_RDO_Container_p0 >   col_vect( poolReadObject< TRT_RDO_Container_p0 >() );
     TRT_RDO_Container *res = m_converter_p0.createTransient( col_vect.get(), msg() );
     ATH_MSG_DEBUG("createTransient(), p0 branch: returns TRANS = "<<shortPrint(res));
     return res;

@@ -5,7 +5,7 @@
 #ifndef TRT_RDO_CONTAINERCNV_P0_H
 #define TRT_RDO_CONTAINERCNV_P0_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "InDetRawData/TRT_RDO_Container.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"

@@ -2,20 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetRawData/Pixel1RawData.h"
 #include "InDetEventAthenaPool/InDetRawData_p1.h"
 #include "InDetEventAthenaPool/InDetRawDataCollection_p1.h"
 #include "InDetRawData/PixelRDO_Container.h"
-#undef private
-#undef protected
-
 #include "InDetIdentifier/PixelID.h"
 #include "InDetRawData/PixelRDO_Collection.h"
 #include "Pixel1RawDataCnv_p1.h"
 #include "Pixel1RawDataContainerCnv_p1.h"
-#include "DataModel/DataPool.h"
 #include "MsgUtil.h"
 
 void Pixel1RawDataContainerCnv_p1::transToPers(const PixelRDO_Container* transCont, InDetRawDataContainer_p1* persCont, MsgStream &log) 
@@ -130,7 +124,7 @@ void  Pixel1RawDataContainerCnv_p1::persToTrans(const InDetRawDataContainer_p1* 
 
 //================================================================
 PixelRDO_Container* Pixel1RawDataContainerCnv_p1::createTransient(const InDetRawDataContainer_p1* persObj, MsgStream& log) {
-    std::auto_ptr<PixelRDO_Container> trans(new PixelRDO_Container(m_pixId->wafer_hash_max()));
+    std::unique_ptr<PixelRDO_Container> trans(new PixelRDO_Container(m_pixId->wafer_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }

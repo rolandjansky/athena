@@ -25,7 +25,7 @@ class SCT_ID;
 class SCT1_RawDataContainerCnv_p1 : public T_AthenaPoolTPCnvBase<SCT_RDO_Container, InDetRawDataContainer_p1>
 {
  private:
-  const SCT_ID *m_sctId;
+  const SCT_ID *m_sctId = nullptr;
  public:
   SCT1_RawDataContainerCnv_p1() {};
   

@@ -16,7 +16,7 @@ Author: Davide Costanzo
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "InDetIdentifier/InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/PixelID.h"
 
 class MsgStream;
 
@@ -30,7 +30,7 @@ public:
   virtual void          transToPers(const Pixel1RawData* transObj, InDetRawData_p1* persObj, MsgStream &log);
 
 private:
-  const PixelID *m_pixId;
+  const PixelID *m_pixId = nullptr;
   bool m_isInitialized;
   StatusCode initialize(MsgStream &log);
 };

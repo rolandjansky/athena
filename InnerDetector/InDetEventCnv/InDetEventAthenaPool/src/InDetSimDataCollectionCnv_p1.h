@@ -11,12 +11,12 @@
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetEventAthenaPool/InDetSimDataCollection_p1.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
-#include "InDetIdentifier/InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/PixelID.h"
 
 class InDetSimDataCollectionCnv_p1 : public T_AthenaPoolTPCnvBase<InDetSimDataCollection, InDetSimDataCollection_p1>
 {
  public:
-  InDetSimDataCollectionCnv_p1() : m_isInitialized(false) {};
+  InDetSimDataCollectionCnv_p1() {}
   
   virtual void	persToTrans(const InDetSimDataCollection_p1* persCont,
 			    InDetSimDataCollection* transCont,
@@ -26,8 +26,8 @@ class InDetSimDataCollectionCnv_p1 : public T_AthenaPoolTPCnvBase<InDetSimDataCo
 			    MsgStream &log) ;
 
 private:
-  const PixelID *m_pixId;
-  bool m_isInitialized;
+  const PixelID *m_pixId = nullptr;
+  bool m_isInitialized = false;
   StatusCode initialize(MsgStream &log);
   
 };

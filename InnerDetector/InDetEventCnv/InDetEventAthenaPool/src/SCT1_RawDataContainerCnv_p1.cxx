@@ -2,20 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetRawData/SCT1_RawData.h"
 #include "InDetEventAthenaPool/InDetRawData_p1.h"
 #include "InDetEventAthenaPool/InDetRawDataCollection_p1.h"
 #include "InDetRawData/SCT_RDO_Container.h"
-#undef private
-#undef protected
-
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetRawData/SCT_RDO_Collection.h"
 #include "SCT1_RawDataCnv_p1.h"
 #include "SCT1_RawDataContainerCnv_p1.h"
-#include "DataModel/DataPool.h"
 #include "MsgUtil.h"
 
 void SCT1_RawDataContainerCnv_p1::transToPers(const SCT_RDO_Container* transCont, InDetRawDataContainer_p1* persCont, MsgStream &log) 
@@ -123,7 +117,7 @@ void  SCT1_RawDataContainerCnv_p1::persToTrans(const InDetRawDataContainer_p1* p
 
 //================================================================
 SCT_RDO_Container* SCT1_RawDataContainerCnv_p1::createTransient(const InDetRawDataContainer_p1* persObj, MsgStream& log) {
-    std::auto_ptr<SCT_RDO_Container> trans(new SCT_RDO_Container(m_sctId->wafer_hash_max()));
+    std::unique_ptr<SCT_RDO_Container> trans(new SCT_RDO_Container(m_sctId->wafer_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }

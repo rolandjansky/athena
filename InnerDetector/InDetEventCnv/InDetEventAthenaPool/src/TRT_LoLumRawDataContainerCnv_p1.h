@@ -25,7 +25,7 @@ class TRT_ID;
 class TRT_LoLumRawDataContainerCnv_p1 : public T_AthenaPoolTPCnvBase<TRT_RDO_Container, InDetRawDataContainer_p1>
 {
  private:
-  const TRT_ID *m_trtId;
+  const TRT_ID *m_trtId = nullptr;
  public:
   TRT_LoLumRawDataContainerCnv_p1() {};
   

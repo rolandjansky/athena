@@ -28,7 +28,7 @@ class SCT_RawDataContainer_p1
 /// Default constructor
   SCT_RawDataContainer_p1 ();
   friend class SCT_RawDataContainerCnv_p1;
- private:
+  //private:
   std::vector<InDetRawDataCollection_p1>  m_collections;
   std::vector<InDetRawData_p1>            m_rawdata;
   std::vector<SCT3_RawData_p1>            m_sct3data;

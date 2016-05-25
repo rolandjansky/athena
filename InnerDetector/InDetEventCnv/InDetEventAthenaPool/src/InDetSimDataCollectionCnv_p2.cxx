@@ -2,17 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetSimData/InDetSimData.h"
 #include "InDetSimData/InDetSimDataCollection.h"
-#undef private
-#undef protected
-
 #include "InDetEventAthenaPool/InDetSimDataCollection_p2.h"
 #include "InDetSimDataCollectionCnv_p2.h"
 #include "InDetSimDataCnv_p1.h"
 #include "Identifier/Identifier.h"
+#include "SGTools/CurrentEventStore.h"
 #include "MsgUtil.h"
 
 void InDetSimDataCollectionCnv_p2::transToPers(const InDetSimDataCollection* transCont, InDetSimDataCollection_p2* persCont, MsgStream &log)
@@ -40,13 +36,14 @@ void InDetSimDataCollectionCnv_p2::transToPers(const InDetSimDataCollection* tra
 void  InDetSimDataCollectionCnv_p2::persToTrans(const InDetSimDataCollection_p2* persCont, InDetSimDataCollection* transCont, MsgStream &log)
 {
 
-    typedef InDetSimDataCollection_p2 PERS;
+    //typedef InDetSimDataCollection_p2 PERS;
     typedef std::vector<std::pair<Identifier::value_type, InDetSimData_p1 > >::const_iterator COLLITER;
     InDetSimDataCnv_p1  simDataCnv;
 
     COLLITER it_Coll     = persCont->m_simdata.begin();
     COLLITER it_CollEnd  = persCont->m_simdata.end();
     MSG_DEBUG(log," Preparing " << persCont->m_simdata.size() << "Collections");
+    simDataCnv.setCurrentStore (SG::CurrentEventStore::store());
     for (int collIndex=0 ; it_Coll != it_CollEnd; it_Coll++, collIndex++)  {
         // Add in new collection
         const InDetSimData_p1& psimData = persCont->m_simdata[collIndex].second;

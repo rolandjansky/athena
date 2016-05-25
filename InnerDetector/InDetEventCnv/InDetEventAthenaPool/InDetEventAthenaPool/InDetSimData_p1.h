@@ -13,7 +13,7 @@ class InDetSimData_p1 {
   InDetSimData_p1()  {};
 // List of Cnv classes that convert this into SimData objects
   friend class InDetSimDataCnv_p1;
- private:
+  //private:
   unsigned int m_word; // sim data word
   std::vector<HepMcParticleLink_p1> m_links; // HepMCPLs
   std::vector<float> m_enDeposits; //  energy deposits

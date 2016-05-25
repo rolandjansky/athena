@@ -10,9 +10,10 @@ use GeneratorObjectsTPCnv GeneratorObjectsTPCnv-* Generators
 private
 
 use CLIDSvc              CLIDSvc-*              Control
-use DataModel            DataModel-*            Control
+use SGTools              SGTools-*              Control
+use AthContainers        AthContainers-*        Control
 use GaudiInterface 	 GaudiInterface-*       External
-use InDetEventTPCnv      InDetEventTPCnv-*	   InnerDetector/InDetEventCnv
+use InDetEventTPCnv      InDetEventTPCnv-*	InnerDetector/InDetEventCnv
 use InDetIdentifier      InDetIdentifier-*      InnerDetector/InDetDetDescr
 use InDetLowBetaInfo	 InDetLowBetaInfo-*	InnerDetector/InDetRecEvent
 use InDetPrepRawData     InDetPrepRawData-*     InnerDetector/InDetRecEvent
@@ -23,7 +24,7 @@ use TrkTrack             TrkTrack-*             Tracking/TrkEvent
 use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
 use InDetSimData	 InDetSimData-*		InnerDetector/InDetRawEvent
 use AtlasReflex          AtlasReflex-*          External 
-use AthenaBaseComps      AthenaBaseComps-*              Control
+use AthenaBaseComps      AthenaBaseComps-*      Control
 
 
 # Converters for the rdo containers and hit collections
@@ -42,5 +43,19 @@ macro_append InDetEventAthenaPoolPoolCnvGen_dependencies " InDetEventAthenaPoolC
 apply_pattern lcgdict dict=InDetEventAthenaPoolCnv  selectionfile=selection.xml headerfiles="../InDetEventAthenaPool/InDetEventAthenaPoolCnvDict.h" 
 
 private 
+use AthenaKernel     AthenaKernel-*     Control
 use AthenaPoolCnvSvc AthenaPoolCnvSvc-* Database/AthenaPOOL
 use AtlasSealCLHEP AtlasSealCLHEP-* Database
+
+
+private
+use TestTools            TestTools-*                AtlasTest -no_auto_imports
+
+apply_pattern declare_joboptions files="-s=../share *.py"
+
+apply_pattern athenarun_test \
+   name="InDetEventTPCnv_16.6.2.1" \
+   options="InDetEventAthenaPool/InDetEventTPCnv_16.6.2.1_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh InDetEventTPCnv_16.6.2.1" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh InDetEventTPCnv_16.6.2.1"
+

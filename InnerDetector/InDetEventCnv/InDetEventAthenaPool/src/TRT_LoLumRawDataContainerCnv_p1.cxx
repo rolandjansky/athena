@@ -2,19 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetRawData/TRT_LoLumRawData.h"
 #include "InDetEventAthenaPool/InDetRawData_p1.h"
 #include "InDetEventAthenaPool/InDetRawDataCollection_p1.h"
 #include "InDetRawData/TRT_RDO_Container.h"
-#undef private
-#undef protected
-
 #include "InDetIdentifier/TRT_ID.h"
 #include "TRT_LoLumRawDataCnv_p1.h"
 #include "TRT_LoLumRawDataContainerCnv_p1.h"
-#include "DataModel/DataPool.h"
 #include "MsgUtil.h"
 
 void TRT_LoLumRawDataContainerCnv_p1::transToPers(const TRT_RDO_Container* transCont, InDetRawDataContainer_p1* persCont, MsgStream &log) 
@@ -130,7 +124,7 @@ void  TRT_LoLumRawDataContainerCnv_p1::persToTrans(const InDetRawDataContainer_p
 
 //================================================================
 TRT_RDO_Container* TRT_LoLumRawDataContainerCnv_p1::createTransient(const InDetRawDataContainer_p1* persObj, MsgStream& log) {
-    std::auto_ptr<TRT_RDO_Container> trans(new TRT_RDO_Container(m_trtId->straw_layer_hash_max()));
+    std::unique_ptr<TRT_RDO_Container> trans(new TRT_RDO_Container(m_trtId->straw_layer_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }

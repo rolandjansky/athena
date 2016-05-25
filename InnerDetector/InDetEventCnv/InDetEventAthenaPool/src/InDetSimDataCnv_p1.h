@@ -16,15 +16,20 @@ Author: Davide Costanzo
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 class MsgStream;
+class IProxyDict;
 
 
 class InDetSimDataCnv_p1  : public T_AthenaPoolTPCnvBase<InDetSimData, InDetSimData_p1>
 {
 public:
 
-  InDetSimDataCnv_p1() {}
+  InDetSimDataCnv_p1();
   virtual void          persToTrans(const InDetSimData_p1* persObj, InDetSimData* transObj, MsgStream &log);
   virtual void          transToPers(const InDetSimData* transObj, InDetSimData_p1* persObj, MsgStream &log);
+  void setCurrentStore (IProxyDict* store);
+
+private:
+  IProxyDict* m_sg;
 };
 
 

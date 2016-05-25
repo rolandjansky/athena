@@ -2,13 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetSimData/InDetSimData.h"
 #include "InDetSimData/InDetSimDataCollection.h"
-#undef private
-#undef protected
-
 #include "InDetEventAthenaPool/InDetSimDataCollection_p1.h"
 #include "InDetSimDataCollectionCnv_p1.h"
 #include "InDetSimDataCnv_p1.h"
@@ -41,7 +36,7 @@ void InDetSimDataCollectionCnv_p1::transToPers(const InDetSimDataCollection* tra
 void  InDetSimDataCollectionCnv_p1::persToTrans(const InDetSimDataCollection_p1* persCont, InDetSimDataCollection* transCont, MsgStream &log)
 {
 
-    typedef InDetSimDataCollection_p1 PERS;
+    //typedef InDetSimDataCollection_p1 PERS;
     typedef std::vector<std::pair<Identifier32::value_type, InDetSimData_p1 > >::const_iterator COLLITER;
     InDetSimDataCnv_p1  simDataCnv;
 
@@ -64,15 +59,11 @@ void  InDetSimDataCollectionCnv_p1::persToTrans(const InDetSimDataCollection_p1*
         // For 64-bit ids, when reading in the old 32-bit ids, we must
         // treat pixel channel ids specially before creating a new
         // 64-bit id
-#ifdef __IDENTIFIER_64BIT__
         Identifier id;
         if (m_pixId->is_shortened_pixel_id(it_Coll->first)) { 
             id = m_pixId->pixel_id_from_shortened(it_Coll->first); }
         else { id = it_Coll->first; }
         transCont->insert( transCont->end(), std :: make_pair( id, simData ) );
-#else
-        transCont->insert( transCont->end(), std :: make_pair( Identifier( it_Coll->first ), simData ) );
-#endif
     }
     MSG_DEBUG(log," ***  Reading InDetSimdataCollection");
 

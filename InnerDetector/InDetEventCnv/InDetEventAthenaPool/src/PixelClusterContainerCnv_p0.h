@@ -5,17 +5,12 @@
 #ifndef PIXELCLUSTERCONTAINERCNV_P0_H
 #define PIXELCLUSTERCONTAINERCNV_P0_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "StoreGate/StoreGateSvc.h"
-
-#define private public
-#define protected public
+#include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 typedef DataVector<Trk::PrepRawDataCollection<InDet::PixelCluster> > PixelClusterContainer_p0;
-#undef private
-#undef protected
 
-#include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 class PixelID;
 namespace InDetDD{
@@ -27,20 +22,21 @@ class PixelClusterContainerCnv_p0  : public T_AthenaPoolTPCnvBase<InDet::PixelCl
  private:
    const PixelID*  m_pixId;
    const InDetDD::PixelDetectorManager* m_pixMgr;
-   StoreGateSvc*  m_storeGate;
  public:
-  virtual void   persToTrans(const PixelClusterContainer_p0*, InDet::PixelClusterContainer*, MsgStream&) {
+  virtual void   persToTrans(const PixelClusterContainer_p0*, InDet::PixelClusterContainer*, MsgStream&) override {
     // everything is done in createTransient()
   }
 
-  virtual void   transToPers(const InDet::PixelClusterContainer*, PixelClusterContainer_p0*, MsgStream&){
+  virtual void   transToPers(const InDet::PixelClusterContainer*, PixelClusterContainer_p0*, MsgStream&) override {
    throw std::runtime_error("Writing Pixel PRDs in the old format is not supported");
   }
 
-  virtual InDet::PixelClusterContainer* createTransient(const PixelClusterContainer_p0* persObj, MsgStream& log);
+  virtual InDet::PixelClusterContainer* createTransient(const PixelClusterContainer_p0* /*persObj*/, MsgStream& /*log*/)
+  { std::abort(); }
+  InDet::PixelClusterContainer* createTransient(PixelClusterContainer_p0* persObj, MsgStream& log);
 
   // ID helper can't be used in the constructor, need initialize()
-  virtual StatusCode initialize( MsgStream &log );
+  StatusCode initialize( MsgStream &log );
 };
 
 #endif

@@ -6,16 +6,11 @@
 #define SCT_CLUSTERCONTAINERCNV_P0_H
 
 #include "StoreGate/StoreGateSvc.h"
-#include "DataModel/DataVector.h"
-
-#define private public
-#define protected public
+#include "AthContainers/DataVector.h"
+#include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 typedef DataVector<Trk::PrepRawDataCollection<InDet::SCT_Cluster> > SCT_ClusterContainer_p0;
-#undef private
-#undef protected
 
-#include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 class SCT_ID;
 namespace InDetDD{
@@ -27,20 +22,21 @@ class SCT_ClusterContainerCnv_p0  : public T_AthenaPoolTPCnvBase<InDet::SCT_Clus
  private:
    const SCT_ID*  m_sctId;
    const InDetDD::SCT_DetectorManager* m_sctMgr;
-   StoreGateSvc*  m_storeGate;
  public:
-  virtual void   persToTrans(const SCT_ClusterContainer_p0*, InDet::SCT_ClusterContainer*, MsgStream&) {
+  virtual void   persToTrans(const SCT_ClusterContainer_p0*, InDet::SCT_ClusterContainer*, MsgStream&) override {
     // everything is done in createTransient()
   }
 
-  virtual void   transToPers(const InDet::SCT_ClusterContainer*, SCT_ClusterContainer_p0*, MsgStream&){
+  virtual void   transToPers(const InDet::SCT_ClusterContainer*, SCT_ClusterContainer_p0*, MsgStream&) override {
    throw std::runtime_error("Writing SCT PRDs in the old format is not supported");
   }
 
-  virtual InDet::SCT_ClusterContainer* createTransient(const SCT_ClusterContainer_p0* persObj, MsgStream& log);
+  virtual InDet::SCT_ClusterContainer* createTransient(const SCT_ClusterContainer_p0* /*persObj*/, MsgStream& /*log*/)
+  { std::abort(); }
+  InDet::SCT_ClusterContainer* createTransient(SCT_ClusterContainer_p0* persObj, MsgStream& log);
 
   // ID helper can't be used in the constructor, need initialize()
-  virtual StatusCode initialize( MsgStream &log );
+  StatusCode initialize( MsgStream &log );
 };
 
 #endif
