@@ -25,8 +25,7 @@ public:
 
   ASG_TOOL_CLASS2( TauCalibrateLC, TauRecToolBase, ITauToolBase )
 
-  TauCalibrateLC(const std::string& type);
-  TauCalibrateLC();
+  TauCalibrateLC(const std::string& name="TauCalibrateLC");
     ~TauCalibrateLC();
 
     virtual StatusCode initialize();

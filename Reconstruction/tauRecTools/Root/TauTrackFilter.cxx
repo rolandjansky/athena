@@ -23,18 +23,19 @@
 #include "tauRecTools/TauTrackFilterUtils.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTau/TauxAODHelpers.h"
 
 #include "TLorentzVector.h"
 
 void TrackFilterAlg(TLorentzVector tau,
-                    std::vector<TLorentzVector>* inputtracks20,
-                    std::vector<int>* inputtracks20charge,
-                    std::vector<TLorentzVector>* inputtracks40,
-                    std::vector<int>* inputtracks40charge,
-                    std::vector<TLorentzVector>* outputtracksgood,
-                    std::vector<int>* outputtracksgoodcharge,
-                    std::vector<TLorentzVector>* outputtracksbad,
-                    std::vector<int>* outputtracksbadcharge,
+                    std::vector<TLorentzVector>& inputtracks20,
+                    std::vector<int>& inputtracks20charge,
+                    std::vector<TLorentzVector>& inputtracks40,
+                    std::vector<int>& inputtracks40charge,
+                    std::vector<TLorentzVector>& outputtracksgood,
+                    std::vector<int>& outputtracksgoodcharge,
+                    std::vector<TLorentzVector>& outputtracksbad,
+                    std::vector<int>& outputtracksbadcharge,
                     int& nProng,
                     int& flag);
 
@@ -49,6 +50,7 @@ TauTrackFilter::TauTrackFilter(const std::string &name ) :
 {
     declareProperty("ConfigPath", m_configPath);
     declareProperty("TrackContainerName", m_trackContainerName = "InDetTrackParticles");
+    declareProperty("TauTrackContainerName", m_tauTrackConName = "TauTracks");
 }
 
 //-----------------------------------------------------------------------------
@@ -104,14 +106,14 @@ StatusCode TauTrackFilter::execute(xAOD::TauJet& pTau) {
                      pTau.phi(),
                      pTau.e()/1000); //GeV
 
-    std::vector<TLorentzVector>* inputtracks20 = new std::vector<TLorentzVector>;
-    std::vector<TLorentzVector>* inputtracks40 = new std::vector<TLorentzVector>;
-    std::vector<int>* inputtracks20charge = new std::vector<int>;
-    std::vector<int>* inputtracks40charge = new std::vector<int>;
-    std::vector<TLorentzVector>* outputtracksgood = new std::vector<TLorentzVector>;
-    std::vector<TLorentzVector>* outputtracksbad = new std::vector<TLorentzVector>;
-    std::vector<int>* outputtracksgoodcharge = new std::vector<int>;
-    std::vector<int>* outputtracksbadcharge = new std::vector<int>;
+    std::vector<TLorentzVector> inputtracks20;
+    std::vector<TLorentzVector> inputtracks40;
+    std::vector<int> inputtracks20charge;
+    std::vector<int> inputtracks40charge;
+    std::vector<TLorentzVector> outputtracksgood;
+    std::vector<TLorentzVector> outputtracksbad;
+    std::vector<int> outputtracksgoodcharge;
+    std::vector<int> outputtracksbadcharge;
     int nProng = 0;
     int flag = 0;
 
@@ -121,7 +123,7 @@ StatusCode TauTrackFilter::execute(xAOD::TauJet& pTau) {
     m_TrkPass.clear();
 
     for(unsigned int j=0; j<pTau.nTracks(); j++ ) {
-        const xAOD::TrackParticle *TauJetTrack = pTau.track(j);
+      const xAOD::TrackParticle *TauJetTrack = pTau.track(j)->track();
         TLorentzVector inputTrack;
         inputTrack.SetPtEtaPhiE(TauJetTrack->pt()/1000, //GeV
                                 TauJetTrack->eta(),
@@ -129,13 +131,13 @@ StatusCode TauTrackFilter::execute(xAOD::TauJet& pTau) {
                                 TauJetTrack->e()/1000); //GeV
         float dR = tau.DeltaR(inputTrack);
         if (dR < 0.2) {
-            inputtracks20->push_back(inputTrack);
-            inputtracks20charge->push_back(TauJetTrack->charge());
+            inputtracks20.push_back(inputTrack);
+            inputtracks20charge.push_back(TauJetTrack->charge());
             inputtracks20index.push_back(j);
         }
         else if (dR < 0.4) {
-            inputtracks40->push_back(inputTrack);
-            inputtracks40charge->push_back(TauJetTrack->charge());
+            inputtracks40.push_back(inputTrack);
+            inputtracks40charge.push_back(TauJetTrack->charge());
             inputtracks40index.push_back(j);
         }
 
@@ -157,14 +159,14 @@ StatusCode TauTrackFilter::execute(xAOD::TauJet& pTau) {
                    flag);
 
     // Store results
-    for (unsigned int j=0; j<outputtracksgood->size(); j++ ) {
-        for (unsigned int k=0; k<inputtracks20->size(); k++ ) {
-            if (outputtracksgood->at(j) == inputtracks20->at(k)) {
+    for (unsigned int j=0; j<outputtracksgood.size(); j++ ) {
+        for (unsigned int k=0; k<inputtracks20.size(); k++ ) {
+            if (outputtracksgood.at(j) == inputtracks20.at(k)) {
                 m_TrkPass.at(inputtracks20index.at(k)) = true;
             }
         }
-        for (unsigned int k=0; k<inputtracks40->size(); k++ ) {
-            if (outputtracksgood->at(j) == inputtracks40->at(k)) {
+        for (unsigned int k=0; k<inputtracks40.size(); k++ ) {
+            if (outputtracksgood.at(j) == inputtracks40.at(k)) {
                 m_TrkPass.at(inputtracks40index.at(k)) = true;
             }
         }
@@ -172,19 +174,12 @@ StatusCode TauTrackFilter::execute(xAOD::TauJet& pTau) {
     m_nProng = nProng;
     m_flag = flag;
 
-    // Cleanup
-    delete inputtracks20;
-    delete inputtracks20charge;
-    delete inputtracks40;
-    delete inputtracks40charge;
-    delete outputtracksgood;
-    delete outputtracksbad;
-    delete outputtracksgoodcharge;
-    delete outputtracksbadcharge;
-
     // Set values in EDM
+    xAOD::TauTrackContainer* tauTracks = 0;
+    ATH_CHECK(evtStore()->retrieve(tauTracks, m_tauTrackConName));
     for (unsigned int numTrack=0; numTrack<m_TrkPass.size(); numTrack++) {
-      pTau.setTrackFlag(pTau.track(numTrack), xAOD::TauJetParameters::failTrackFilter, !m_TrkPass.at(numTrack));
+      xAOD::TauTrack* tauTrk = xAOD::TauHelpers::tauTrackNonConst(&pTau, tauTracks, numTrack); //pTau.trackNonConst(numTrack);
+      tauTrk->setFlag(xAOD::TauJetParameters::failTrackFilter, !m_TrkPass.at(numTrack));
     }
     pTau.setTrackFilterProngs(m_nProng);
     pTau.setTrackFilterQuality(m_flag);
@@ -197,24 +192,24 @@ StatusCode TauTrackFilter::execute(xAOD::TauJet& pTau) {
 // Main algorithm
 //-----------------------------------------------------------------------------
 void TrackFilterAlg(TLorentzVector tau,
-                    std::vector<TLorentzVector>* inputtracks20,
-                    std::vector<int>* inputtracks20charge,
-                    std::vector<TLorentzVector>* inputtracks40,
-                    std::vector<int>* inputtracks40charge,
-                    std::vector<TLorentzVector>* outputtracksgood,
-                    std::vector<int>* outputtracksgoodcharge,
-                    std::vector<TLorentzVector>* outputtracksbad,
-                    std::vector<int>* outputtracksbadcharge,
+                    std::vector<TLorentzVector>& inputtracks20,
+                    std::vector<int>& inputtracks20charge,
+                    std::vector<TLorentzVector>& inputtracks40,
+                    std::vector<int>& inputtracks40charge,
+                    std::vector<TLorentzVector>& outputtracksgood,
+                    std::vector<int>& outputtracksgoodcharge,
+                    std::vector<TLorentzVector>& outputtracksbad,
+                    std::vector<int>& outputtracksbadcharge,
                     int& nProng,
                     int& flag) {
 
    std::vector<TauTrackFilterUtils::TrackInfo> unsorted,tracks,SScombination;
    TauTrackFilterUtils::TrackInfo track;
-   unsigned int tracknum = inputtracks20->size();
-   unsigned int widetracknum = inputtracks40->size();
+   unsigned int tracknum = inputtracks20.size();
+   unsigned int widetracknum = inputtracks40.size();
    for(unsigned int i=0;i<tracknum;i++){
-      track.p4 = (*inputtracks20)[i];
-      track.charge = (*inputtracks20charge)[i];
+      track.p4 = (inputtracks20)[i];
+      track.charge = (inputtracks20charge)[i];
       unsorted.push_back(track);
    }
    while (unsorted.size() > 0){
@@ -235,8 +230,8 @@ void TrackFilterAlg(TLorentzVector tau,
    
    bool test3prong = true, test2prong = true, test1prong = true;
    for(unsigned int i=0;i<widetracknum;i++){
-   	outputtracksbad->push_back((*inputtracks40)[i]);
-   	outputtracksbadcharge->push_back((*inputtracks40charge)[i]);
+   	outputtracksbad.push_back((inputtracks40)[i]);
+   	outputtracksbadcharge.push_back((inputtracks40charge)[i]);
    }
    if(tracknum > 4){ //Anything with more than 4 tracks is a fake.
       flag = 0;
@@ -283,8 +278,8 @@ void TrackFilterAlg(TLorentzVector tau,
       if(goodcombo){  //A Combination is found which passes 3prong hypothesis
          for(unsigned int i=0;i<combination.size();i++){
             if (isSS) SScombination.push_back(combination[i]);
-            outputtracksgood->push_back(combination[i].p4);
-            outputtracksgoodcharge->push_back(combination[i].charge);
+            outputtracksgood.push_back(combination[i].p4);
+            outputtracksgoodcharge.push_back(combination[i].charge);
          }
          if(isSS) flag = 0;
          else flag = 1;
@@ -293,8 +288,8 @@ void TrackFilterAlg(TLorentzVector tau,
          test2prong = false;
          if(!test1prong){ //Fill Bad Track in the Case of 4 trk taus
             if(tracknum == 4){
-            	outputtracksbad->push_back(tracks[3].p4);
-            	outputtracksbadcharge->push_back(tracks[3].charge);
+            	outputtracksbad.push_back(tracks[3].p4);
+            	outputtracksbadcharge.push_back(tracks[3].charge);
             }
          }
       }
@@ -305,14 +300,14 @@ void TrackFilterAlg(TLorentzVector tau,
       if(TauTrackFilterUtils::pass2prong(pair,tau)){
       	nProng = 2;
          for(unsigned int i=0;i<pair.size();i++){ //Fill Good Tracks
-            outputtracksgood->push_back(pair[i].p4);
-            outputtracksgoodcharge->push_back(pair[i].charge);
+            outputtracksgood.push_back(pair[i].p4);
+            outputtracksgoodcharge.push_back(pair[i].charge);
          }
          test1prong = false;
          if(tracknum == 3){
             flag = 2;
-         	outputtracksbad->push_back(tracks[2].p4); //Fill Bad Track in Case of 3 trk Taus
-         	outputtracksbadcharge->push_back(tracks[2].charge);
+         	outputtracksbad.push_back(tracks[2].p4); //Fill Bad Track in Case of 3 trk Taus
+         	outputtracksbadcharge.push_back(tracks[2].charge);
          }
          else flag = 1; //Good 2 Prong if only 2 trks
       }
@@ -338,13 +333,13 @@ void TrackFilterAlg(TLorentzVector tau,
             if(tracks[1].p4.Pt()/tracks[0].p4.Pt() < ratio10) goodcase = true; //Test 2trk taus most likely to actually be 1pngs
          }
          if((TauTrackFilterUtils::pass1prong(tracks[0].p4,tau))&&(goodcase)){ //A track is found which passes 1prong hypothesis
-            outputtracksgood->push_back(tracks[0].p4);
-            outputtracksgoodcharge->push_back(tracks[0].charge);
+            outputtracksgood.push_back(tracks[0].p4);
+            outputtracksgoodcharge.push_back(tracks[0].charge);
             nProng = 1;
             if (tracknum == 2){
                flag = 2;
-            	outputtracksbad->push_back(tracks[1].p4); //Fill Bad Track in Case of 3 trk Taus
-            	outputtracksbadcharge->push_back(tracks[1].charge);
+            	outputtracksbad.push_back(tracks[1].p4); //Fill Bad Track in Case of 3 trk Taus
+            	outputtracksbadcharge.push_back(tracks[1].charge);
             }
             else flag = 1;
          }

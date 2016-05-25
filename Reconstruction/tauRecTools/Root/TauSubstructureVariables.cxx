@@ -110,7 +110,7 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 		if (!taujetseed) ATH_MSG_DEBUG("Taujet->jet() pointer is NULL: calo cluster variables will be set to -1111");
 		else ATH_MSG_DEBUG("problem in calculating calo cluster variables -> will be set to -1111");
 
-		pTau.setDetail(xAOD::TauJetParameters::numCells , static_cast<int>(0) );
+		if(!m_inAODmode) pTau.setDetail(xAOD::TauJetParameters::numCells , static_cast<int>(0) );
 		pTau.setDetail(xAOD::TauJetParameters::numTopoClusters , static_cast<int>(DEFAULT) );
 		pTau.setDetail(xAOD::TauJetParameters::numEffTopoClusters , static_cast<float>(DEFAULT) );
 		pTau.setDetail(xAOD::TauJetParameters::topoInvMass,  static_cast<float>(DEFAULT) );
@@ -312,7 +312,7 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	}
 
 	// set new approximate energy flow variables for tau ID
-	pTau.setDetail(xAOD::TauJetParameters::ptRatioEflowApprox, static_cast<float>(approxSubstructure4Vec.Pt()/ pTau.detail<float>(xAOD::TauJetParameters::LC_TES_precalib)) );
+	pTau.setDetail(xAOD::TauJetParameters::ptRatioEflowApprox, static_cast<float>(approxSubstructure4Vec.Pt()/ pTau.ptDetectorAxis()) );
 	pTau.setDetail(xAOD::TauJetParameters::mEflowApprox, static_cast<float>(approxSubstructure4Vec.M()) );
 
 

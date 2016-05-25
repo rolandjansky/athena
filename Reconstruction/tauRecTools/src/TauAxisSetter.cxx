@@ -88,6 +88,10 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau)
         if (BaryCenter.DeltaR(tempClusterVector) > m_clusterCone)
             continue;
 
+	ElementLink<xAOD::IParticleContainer> linkToCluster;
+	linkToCluster.toContainedElement( *(static_cast<const xAOD::IParticleContainer*> ((*cItr)->rawConstituent()->container())), (*cItr)->rawConstituent() );
+	pTau.addClusterLink(linkToCluster);
+
 	nConstituents++;
 	tauDetectorAxis += tempClusterVector;
     }
@@ -111,10 +115,6 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau)
 
     ATH_MSG_VERBOSE("jet axis:" << (*pTau.jetLink())->pt()<< " " << (*pTau.jetLink())->eta() << " " << (*pTau.jetLink())->phi()  << " " << (*pTau.jetLink())->e() );
     // save values for detector axis.
-    // FixMe: consider dropping these details variables as they are duplicated in the detector axis 4 vector
-    pTau.setDetail(xAOD::TauJetParameters::LC_TES_precalib , static_cast<float>( tauDetectorAxis.Pt() ) );		  
-    pTau.setDetail(xAOD::TauJetParameters::seedCalo_eta, static_cast<float>( tauDetectorAxis.Eta() ) );
-    pTau.setDetail(xAOD::TauJetParameters::seedCalo_phi, static_cast<float>( tauDetectorAxis.Phi() ) );
     ATH_MSG_VERBOSE("detector axis:" << tauDetectorAxis.Pt()<< " " << tauDetectorAxis.Eta() << " " << tauDetectorAxis.Phi()  << " " << tauDetectorAxis.E() );
 
     // detectorAxis (set default) 

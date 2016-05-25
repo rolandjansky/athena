@@ -29,6 +29,7 @@
 #include "tauRecTools/TauBuilderTool.h"
 #include "tauRecTools/MvaTESEvaluator.h"
 #include "tauRecTools/MvaTESVariableDecorator.h"
+#include "tauRecTools/TauTrackClassifier.h"
 #include "tauRecTools/CombinedP4FromRecoTaus.h"
 
 
@@ -65,4 +66,6 @@ DECLARE_TOOL_FACTORY( TauProcessorTool             )
 DECLARE_TOOL_FACTORY( TauBuilderTool             )
 DECLARE_TOOL_FACTORY( MvaTESVariableDecorator )
 DECLARE_TOOL_FACTORY( MvaTESEvaluator )
+DECLARE_NAMESPACE_TOOL_FACTORY( tauRecTools, TauTrackClassifier  )
+DECLARE_NAMESPACE_TOOL_FACTORY( tauRecTools, TrackMVABDT         )
 DECLARE_TOOL_FACTORY( CombinedP4FromRecoTaus )

@@ -24,7 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODPFlow
                           GaudiKernel
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
-                          PhysicsAnalysis/TauID/TauAnalysisTools
+			  InnerDetector/InDetRecTools/InDetTrackSelectionTool
                           Reconstruction/Jet/JetEDM
                           Reconstruction/Particle
                           Reconstruction/RecoTools/ITrackToVertex

@@ -179,8 +179,8 @@ StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) {
 		// SL/SX trigger mode with negative jet_seed - do not set TauJet eta and phi in JetSeedBuilder
 		ATH_MSG_DEBUG("TauJet eta/phi will be set in Level2 Trigger for negative energy jet");
 
-		pTau.setDetail(xAOD::TauJetParameters::seedCalo_eta , static_cast<float>( pTau.eta() ) );
-		pTau.setDetail(xAOD::TauJetParameters::seedCalo_phi , static_cast<float>( pTau.phi() ) );
+		// pTau.setDetail(xAOD::TauJetParameters::seedCalo_eta , static_cast<float>( pTau.eta() ) );
+		// pTau.setDetail(xAOD::TauJetParameters::seedCalo_phi , static_cast<float>( pTau.phi() ) );
 
 		pTau.setP4(pJetSeed->pt(),pTau.eta(),pTau.phi(),0.0);
 
@@ -192,12 +192,12 @@ StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) {
 			// sigstateH.controlObject(pJetSeed);
 		}
 
-		pTau.setDetail(xAOD::TauJetParameters::seedCalo_eta , static_cast<float>( pJetSeed->eta() ) );
-		pTau.setDetail(xAOD::TauJetParameters::seedCalo_phi , static_cast<float>( pJetSeed->phi() ) );
+		// pTau.setDetail(xAOD::TauJetParameters::seedCalo_eta , static_cast<float>( pJetSeed->eta() ) );
+		// pTau.setDetail(xAOD::TauJetParameters::seedCalo_phi , static_cast<float>( pJetSeed->phi() ) );
 		if ( pJetSeed->pt() > 1e-7)
 			pTau.setP4(static_cast<float>( pJetSeed->pt() ) ,static_cast<float>( pJetSeed->eta() ) ,static_cast<float>( pJetSeed->phi() ) ,0.0 );
 		else
-			pTau.setP4(static_cast<float>( pJetSeed->pt() ) ,static_cast<float>( pJetSeed->eta() ) ,static_cast<float>( pJetSeed->phi() ) , 0.0 );
+			pTau.setP4(static_cast<float>( 1e-7 ) ,static_cast<float>( pJetSeed->eta() ) ,static_cast<float>( pJetSeed->phi() ) , 0.0 );
 
 		//store 4-vector of seed
 		pTau.setP4( xAOD::TauJetParameters::JetSeed, pJetSeed->pt(), pJetSeed->eta(), pJetSeed->phi(), pJetSeed->m() );

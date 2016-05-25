@@ -51,7 +51,7 @@ StatusCode TauPi0Selector::execute(xAOD::TauJet& pTau)
     // Clear vector of cell-based pi0 PFO Links. Required when rerunning on xAOD level.
     pTau.clearProtoPi0PFOLinks();
     // Set proto decay mode to "not set". Will be overwritten for taus with 1-5 tracks
-    pTau.setPanTauDetail(xAOD::TauJetParameters::pantau_CellBasedInput_DecayModeProto, xAOD::TauJetParameters::DecayMode::Mode_NotSet);
+    pTau.setPanTauDetail(xAOD::TauJetParameters::PanTau_DecayModeProto, xAOD::TauJetParameters::DecayMode::Mode_NotSet);
 
     //---------------------------------------------------------------------
     // only run on 1-5 prong taus 
@@ -61,7 +61,7 @@ StatusCode TauPi0Selector::execute(xAOD::TauJet& pTau)
     }
 
     // Set proto decay mode to "other". Will be overwritten for taus with 1 or 3 tracks
-    pTau.setPanTauDetail(xAOD::TauJetParameters::pantau_CellBasedInput_DecayModeProto, xAOD::TauJetParameters::DecayMode::Mode_Other);
+    pTau.setPanTauDetail(xAOD::TauJetParameters::PanTau_DecayModeProto, xAOD::TauJetParameters::DecayMode::Mode_Other);
 
     //---------------------------------------------------------------------
     // retrieve neutral PFOs from tau. Apply selection and create links to
@@ -115,13 +115,13 @@ StatusCode TauPi0Selector::execute(xAOD::TauJet& pTau)
     // pTau.setMPanTauCellBasedProto(  p4.M());
 
     if(pTau.nTracks()==1){
-      if(nRecoPi0s==0)      pTau.setPanTauDetail(xAOD::TauJetParameters::pantau_CellBasedInput_DecayModeProto, xAOD::TauJetParameters::DecayMode::Mode_1p0n);
-      else if(nRecoPi0s==1) pTau.setPanTauDetail(xAOD::TauJetParameters::pantau_CellBasedInput_DecayModeProto, xAOD::TauJetParameters::DecayMode::Mode_1p1n);
-      else                  pTau.setPanTauDetail(xAOD::TauJetParameters::pantau_CellBasedInput_DecayModeProto, xAOD::TauJetParameters::DecayMode::Mode_1pXn);
+      if(nRecoPi0s==0)      pTau.setPanTauDetail(xAOD::TauJetParameters::PanTau_DecayModeProto, xAOD::TauJetParameters::DecayMode::Mode_1p0n);
+      else if(nRecoPi0s==1) pTau.setPanTauDetail(xAOD::TauJetParameters::PanTau_DecayModeProto, xAOD::TauJetParameters::DecayMode::Mode_1p1n);
+      else                  pTau.setPanTauDetail(xAOD::TauJetParameters::PanTau_DecayModeProto, xAOD::TauJetParameters::DecayMode::Mode_1pXn);
     }
     if(pTau.nTracks()==3){
-      if(nRecoPi0s==0) pTau.setPanTauDetail(xAOD::TauJetParameters::pantau_CellBasedInput_DecayModeProto, xAOD::TauJetParameters::DecayMode::Mode_3p0n);
-      else             pTau.setPanTauDetail(xAOD::TauJetParameters::pantau_CellBasedInput_DecayModeProto, xAOD::TauJetParameters::DecayMode::Mode_3pXn);
+      if(nRecoPi0s==0) pTau.setPanTauDetail(xAOD::TauJetParameters::PanTau_DecayModeProto, xAOD::TauJetParameters::DecayMode::Mode_3p0n);
+      else             pTau.setPanTauDetail(xAOD::TauJetParameters::PanTau_DecayModeProto, xAOD::TauJetParameters::DecayMode::Mode_3pXn);
     }
 
     

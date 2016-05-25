@@ -5,6 +5,8 @@
 #include "tauRecTools/TauProcessorTool.h"
 
 #include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauTrackContainer.h"
+#include "xAODTau/TauTrackAuxContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODPFlow/PFOContainer.h"
@@ -41,6 +43,7 @@ TauProcessorTool::TauProcessorTool(const std::string& type) :
   declareProperty("deepCopyHadronicPFOContainer", m_deep_copy_hadronicPFOContainer=true);
   declareProperty("deepCopyNeutralPFOContainer", m_deep_copy_neutralPFOContainer=true);
   declareProperty("deepCopySecVtxContainer", m_deep_copy_SecVtxContainer=false);  
+  declareProperty("deepCopyTauTrackContainer", m_deep_copy_TauTrackContainer=true);
 }
 
 //________________________________________
@@ -139,6 +142,12 @@ StatusCode TauProcessorTool::execute(){
       xAOD::VertexAuxContainer* pSecVtxAuxContainer(0);
       xAOD::Vertex* v(0);
       ATH_CHECK(deepCopy(pSecVtxContainer, pSecVtxAuxContainer, v, "TauSecondaryVertices"));
+    }
+    if(m_deep_copy_TauTrackContainer){
+      xAOD::TauTrackContainer* pTrackContainer(0);
+      xAOD::TauTrackAuxContainer* pTauTrackAuxContainer(0);
+      xAOD::TauTrack* v(0);
+      ATH_CHECK(deepCopy(pTrackContainer, pTauTrackAuxContainer, v, "TauTracks"));
     }
 
     if(m_deep_copy_neutralPFOContainer){

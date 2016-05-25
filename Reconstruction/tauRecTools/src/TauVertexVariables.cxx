@@ -131,7 +131,7 @@ StatusCode TauVertexVariables::execute(xAOD::TauJet& pTau) {
 	    if (tauEventData()->hasObject("Beamspot")) scBeam = tauEventData()->getObject("Beamspot", vxcand);
 
 	    if(scBeam){
-	      myIPandSigma = m_trackToVertexIPEstimator->estimate(pTau.track(0), vxcand);
+	      myIPandSigma = m_trackToVertexIPEstimator->estimate(pTau.track(0)->track(), vxcand);
 	    } else {
 	      ATH_MSG_DEBUG("No Beamspot object in tau candidate");
 	    }
@@ -142,7 +142,7 @@ StatusCode TauVertexVariables::execute(xAOD::TauJet& pTau) {
 
 	    //check if vertex has a valid type (skip if vertex has type NoVtx)
 	    if (vxcand->vertexType() > 0){
-	      myIPandSigma = m_trackToVertexIPEstimator->estimate(pTau.track(0), vxcand);
+	      myIPandSigma = m_trackToVertexIPEstimator->estimate(pTau.track(0)->track(), vxcand);
 	    }
 
 	  }
@@ -204,10 +204,10 @@ StatusCode TauVertexVariables::execute(xAOD::TauJet& pTau) {
 	std::vector<const xAOD::TrackParticle*> xaodTracks;
 	std::vector<const Trk::Track*> origTracks;
 	for (unsigned i = 0; i < pTau.nTracks(); ++i) {
-		xaodTracks.push_back(pTau.track(i));
+                xaodTracks.push_back(pTau.track(i)->track());
 		ATH_MSG_VERBOSE("xAOD::TrackParticle " <<i<<": "<< pTau.track(i)->pt() << " "  << pTau.track(i)->eta()  << " "  << pTau.track(i)->phi());
 		if (pTau.track(i)->track()) {
-			origTracks.push_back(pTau.track(i)->track());
+		  origTracks.push_back(pTau.track(i)->track()->track());
 
 			// for debugging
 			/*
