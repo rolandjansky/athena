@@ -12,6 +12,9 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "TrkTrack/TrackInfo.h"
 #include "InDetRecToolInterfaces/IPixelClusterSplitProbTool.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkTrackSummary/TrackSummary.h"
+
 #include <map>
 #include <ext/functional>
 #include <iterator>
@@ -42,17 +45,21 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   AthAlgTool(t,n,p),
   m_incidentSvc("IncidentSvc", n),
   m_scoringTool("Trk::TrackScoringTool/TrackScoringTool"), 
+  m_observerTool("Trk::TrkObserverTool/TrkObserverTool"),
   m_fitterTool ("Trk::KalmanFitter/InDetTrackFitter"), 
+  m_extrapolatorTool("Trk::Extrapolator/AtlasExtrapolator"),
   m_selectionTool("InDet::InDetDenseEnvAmbiTrackSelectionTool/InDetAmbiTrackSelectionTool"),
   m_splitProbTool("InDet::NnPixelClusterSplitProbTool/NnPixelClusterSplitProbTool"),  
   m_assoTool("Trk::PRD_AssociationTool/DEAmbi_PRD_AssociationTool"),
   m_finalTracks(0),
+  m_refitTracks(0),
   m_Nevents(0),
   m_Ncandidates(4), m_NcandScoreZero(4), m_NcandDouble(4),
   m_NscoreOk(4),m_NscoreZeroBremRefit(4),m_NscoreZeroBremRefitFailed(4),
   m_NscoreZeroBremRefitScoreZero(4),m_NscoreZero(4),
   m_Naccepted(4),m_NsubTrack(4),m_NnoSubTrack(4),m_NacceptedBrem(4),
   m_NbremFits(4),m_Nfits(4),m_NrecoveryBremFits(4),m_NgoodFits(4),m_NfailedFits(4),
+  m_monitorTracks(false),
   m_splitClusterMap(0),
   m_splitClusterMapName("SplitClusterAmbiguityMap")
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
@@ -68,11 +75,14 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   declareProperty("DropDouble"           , m_dropDouble         = true);
   declareProperty("ForceRefit"           , m_forceRefit         = true);
   declareProperty("RefitPrds"            , m_refitPrds          = true); //  True to allow for updated NN information to be taken into account
+  declareProperty("applydRcorrection"    , m_applydRcorrection  = false);
   declareProperty("MatEffects"           , m_matEffects         = 3); // pion
   declareProperty("IncidentService"      , m_incidentSvc );
   declareProperty("ScoringTool"          , m_scoringTool);
+  declareProperty("ObserverTool"         , m_observerTool);
   declareProperty("SelectionTool"        , m_selectionTool);
   declareProperty("Fitter"               , m_fitterTool );
+  declareProperty("TrackExtrapolator"    , m_extrapolatorTool);
   declareProperty("SplitProbTool"        , m_splitProbTool);
   declareProperty("AssociationTool"      , m_assoTool);
   declareProperty("SuppressHoleSearch"   , m_suppressHoleSearch = false);
@@ -84,7 +94,8 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   declareProperty("sharedProbCut"        , m_sharedProbCut           = 0.3);
   declareProperty("sharedProbCut2"       , m_sharedProbCut2          = 0.3);
   declareProperty("SplitClusterAmbiguityMap" , m_splitClusterMapName);
-
+  declareProperty("MonitorAmbiguitySolving"  , m_monitorTracks = false);
+  declareProperty("MonitorAmbiguitySolving"  , m_monitorTracks = false);
 
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
   declareProperty("TruthLocationTRT"       , m_truth_locationTRT     );  
@@ -139,6 +150,17 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
   else 
     ATH_MSG_INFO( "Retrieved tool " << m_scoringTool );
   
+  if (m_monitorTracks) {
+    sc = m_observerTool.retrieve(); //Dot, not asterik! This is a method of the observerTool, not of the tool it holds.
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR("Failed to retrieve AlgTool " << m_observerTool);
+      m_monitorTracks = false;
+      //return sc;		// continue without observer tool
+    }
+    else 
+      ATH_MSG_INFO( "Retrieved tool " << m_observerTool );
+  }
+  
   sc = m_selectionTool.retrieve();
   if (sc.isFailure()) 
   {
@@ -156,8 +178,16 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
   } 
   else 
     ATH_MSG_INFO( "Retrieved tool " << m_fitterTool );
-  
 
+  sc = m_extrapolatorTool.retrieve();
+  if (sc.isFailure()) 
+  {
+    ATH_MSG_FATAL("Failed to retrieve tool " << m_extrapolatorTool );
+    return sc;
+  } 
+  else 
+    ATH_MSG_INFO( "Retrieved tool " << m_extrapolatorTool );
+  
   if (!m_splitProbTool.empty() && m_splitProbTool.retrieve().isFailure()) {
     ATH_MSG_FATAL( "Could not retrieve the split probability tool " << m_splitProbTool << "'.");
     return StatusCode::FAILURE;
@@ -172,10 +202,7 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
   } 
   else
     ATH_MSG_INFO( "Retrieved tool " << m_assoTool );
-  
-  
-  
-  
+   
   // suppress refit overwrites force refit
   if (m_forceRefit && m_suppressTrackFit ) 
   {
@@ -440,6 +467,11 @@ TrackCollection*  Trk::DenseEnvironmentsAmbiguityProcessorTool::process(const Tr
   // clear all caches etc.
   reset();
   
+  if (m_monitorTracks) {
+    m_observerTool->storeInputTracks(*tracks);
+    //m_observerTool->dumpTrackMap();
+  }
+  
   //put tracks into maps etc
   ATH_MSG_DEBUG ("Adding input track candidates to list");
   addNewTracks(tracks);
@@ -460,6 +492,23 @@ TrackCollection*  Trk::DenseEnvironmentsAmbiguityProcessorTool::process(const Tr
   ATH_MSG_DEBUG ("Solving Tracks");
   solveTracks();
   
+  if(m_applydRcorrection)
+  {
+      // create map of track dRs
+      storeTrkDistanceMapdR(*m_finalTracks);
+      if(m_refitTracks){
+          for(auto track : *m_refitTracks)
+          {
+              refitTrack(track);
+          }
+      }
+  }
+
+  if (m_monitorTracks && msgLvl(MSG::INFO)) m_observerTool->dumpTrackMap();
+
+  if (m_monitorTracks)
+    m_observerTool->saveTracksToxAOD();
+
   if (msgLvl(MSG::INFO)) dumpTracks(*m_finalTracks);
   
   // memory defragmantation fix. Cleaning before returning the result 
@@ -482,7 +531,11 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::reset()
 
   //final copy - ownership is passed out of algorithm
   m_finalTracks = new TrackCollection;
+  
+  m_refitTracks = new TrackCollection;
 
+  if (m_monitorTracks)
+    m_observerTool->reset();
 
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
   numOutliersDiff  = 0;
@@ -532,6 +585,8 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addNewTracks(const TrackColle
     // veto tracks with score 0
     if (score==0) { 
       ATH_MSG_DEBUG ("Candidate score is zero, reject it");
+      if (m_monitorTracks)
+        m_observerTool->updateTrackMap(**trackIt, static_cast<double>(score), 2);		// rejection location 2: when score is zero
       // statistic
       increment_by_eta(m_NcandScoreZero,*trackIt);
       reject = true;
@@ -553,6 +608,9 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addNewTracks(const TrackColle
     } else {
 
       ATH_MSG_DEBUG ("Track Score is "<< score);
+      
+      if (m_monitorTracks)
+        m_observerTool->updateScore(**trackIt, static_cast<double>(score));		// save score for this observed track
       // double track rejection
       if (m_dropDouble) {
         std::vector<const Trk::PrepRawData*> prds = m_selectionTool->getPrdsOnTrack(*trackIt);
@@ -567,6 +625,8 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addNewTracks(const TrackColle
           // statistic
           increment_by_eta(m_NcandDouble,*trackIt);
           reject = true;
+          if (m_monitorTracks)
+            m_observerTool->rejectTrack(**trackIt, 3);		// rejection location 3: double track rejection
         } else {
           ATH_MSG_DEBUG ("Insert new track in PrdSignatureSet");
         }
@@ -580,6 +640,11 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addNewTracks(const TrackColle
       // add track to map, map is sorted small to big ! set if fitted
       ATH_MSG_VERBOSE ("Track ("<< *trackIt <<" --> "<< track << ") has score "<<score);
       m_trackScoreTrackMap.insert( make_pair(-score, make_pair(track, !m_forceRefit)) );
+
+      if (m_monitorTracks) {
+      	m_observerTool->rejectTrack(**trackIt, 1);		// "rejection" location 1: actually no "real rejection" because it is a deep copy, but memory adress (=id) changes
+      	m_observerTool->addSubTrack(*track, **trackIt);		// a new generated (copied) track to observer tool
+      }
 
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
       keepTrackOfTracks(*trackIt,track);
@@ -620,6 +685,9 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(const Trk::Track* tr
 
   score = m_scoringTool->score( *track, suppressHoleSearch );
 
+  if (m_monitorTracks)
+		m_observerTool->updateScore(*track, static_cast<double>(score));		// update score for observed track
+
   // do we accept the track ?
   if (score!=0)
   {
@@ -651,12 +719,21 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(const Trk::Track* tr
       increment_by_eta(m_NscoreZeroBremRefitFailed,track);
       increment_by_eta(m_NfailedFits,track);
 
+      if (m_monitorTracks)	// Update observed Track (reject)			
+        m_observerTool->rejectTrack(*track, 6);		// rejection location 6: "Brem refit failed"
+
       // clean up
       delete(track);
 
     }
     else
     {
+      if (m_monitorTracks) {			
+        // Update observed track
+        m_observerTool->rejectTrack(*track, 7);		// rejection location 7: "Brem refit worked - new subtrack created"
+        m_observerTool->addSubTrack(*bremTrack, *track);		// add new subtrack
+      }
+
       // clean up
       delete(track);
 
@@ -665,6 +742,11 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(const Trk::Track* tr
 
       // rerun score
       score = m_scoringTool->score( *bremTrack, suppressHoleSearch );
+
+      if (m_monitorTracks) {
+        // Update observed track score
+        m_observerTool->updateScore(*track, static_cast<double>(score));	
+      }
 
       // do we accept the track ?
       if (score!=0)
@@ -683,6 +765,11 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(const Trk::Track* tr
         // statistic
         increment_by_eta(m_NscoreZeroBremRefitScoreZero,bremTrack);
 
+        if (m_monitorTracks) {
+          // Update observed track
+          m_observerTool->rejectTrack(*bremTrack, 8);		// rejection location 8: "Brem refit gave still track score zero"
+        }
+
         // clean up
         delete(bremTrack);
       }
@@ -691,6 +778,12 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(const Trk::Track* tr
   else  
   {
     ATH_MSG_DEBUG ("Track score is zero, reject it");
+
+    if (m_monitorTracks) {
+      // Update observed track
+			m_observerTool->rejectTrack(*track, 9);		// rejection location 9: "Refit track score 0"
+    }
+
     // statistic
     increment_by_eta(m_NscoreZero,track);
 
@@ -784,6 +877,11 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks()
       keepTrackOfTracks(itnext->second.first, cleanedTrack);
 #endif    
     
+      if (m_monitorTracks) {
+        // ObserverTool: Track already marked as bad (reject because subtrack created) in the SelectionTool - only need to create the subtrack in the observerMap
+        m_observerTool->addSubTrack(*cleanedTrack, *(itnext->second.first));		// add new subtrack, maybe move this to SelectionTool
+      }
+
       // now delete original track
       delete itnext->second.first;
       // don't forget to drop track from map
@@ -1181,6 +1279,13 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::refitTrack( const Trk::Track*
   if (newTrack!=0) 
   {
     ATH_MSG_DEBUG ("New track successfully fitted "<<newTrack);
+
+    if (m_monitorTracks) {
+      // add new track to observed tracks and mark "old" one as rejected
+			m_observerTool->rejectTrack(*track, 4);		// rejection location 4: "refit OK" (not a real rejection, but new track copy is made)
+			m_observerTool->addSubTrack(*newTrack, *track);		// add new subtrack 
+    }
+
     addTrack( newTrack, true );
 
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
@@ -1191,6 +1296,11 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::refitTrack( const Trk::Track*
   }
   else { 
     ATH_MSG_DEBUG ("Fit failed !");
+
+    if (m_monitorTracks) {
+      // reject observed track
+      m_observerTool->rejectTrack(*track, 5);		// rejection location 5: "refit failed"
+    }
     
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
     ATH_MSG_INFO( "The Track: " << origTrack(track) << " failed to fit" );
@@ -1361,6 +1471,110 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::dumpTracks( const TrackCollec
 
 //==================================================================================================
 
+void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( const TrackCollection& tracks )
+{
+  ATH_MSG_VERBOSE ("Creating track Distance dR map");
+  m_dRMap = new InDet::DRMap;
+  if ( evtStore()->record(m_dRMap,m_dRMapName).isFailure()){
+    ATH_MSG_WARNING("Could not record Distance dR map.");
+    delete m_dRMap; m_dRMap = 0;
+  } else{
+    ATH_MSG_VERBOSE("Distance dR map recorded as '" << m_dRMapName <<"'.");
+  }
+
+  for (auto track : tracks){
+      bool refit = false;
+      const DataVector<const TrackStateOnSurface>* tsosVec = track->trackStateOnSurfaces();  
+      if(!tsosVec){
+        ATH_MSG_WARNING("TSOS vector does not exist");
+        continue;   
+      }  
+      ATH_MSG_VERBOSE("---> Looping over TSOS's to allow  for cluster updates: "<< tsosVec->size() );
+      for(auto tsos : *tsosVec){
+          const MeasurementBase* measurement = tsos->measurementOnTrack(); 
+          if(!measurement || ! tsos->trackParameters()){
+            ATH_MSG_VERBOSE("---- TSOS has either no measurement or parameters: "<< measurement << "  " << tsos->trackParameters() );
+            continue;           
+          }
+          
+          if(!tsos->type(Trk::TrackStateOnSurface::Measurement)) {continue;}
+          
+          auto globalPosition = measurement->globalPosition();
+          double radius = sqrt(globalPosition[0]*globalPosition[0]+globalPosition[1]*globalPosition[1]);
+          // get the associated prd
+          const Trk::RIO_OnTrack* rio = dynamic_cast<const Trk::RIO_OnTrack*> ( measurement );
+          if(!rio){
+              continue;
+          }
+          const InDet::PixelCluster* pixel = dynamic_cast<const InDet::PixelCluster*> ( rio->prepRawData() );
+          // not pixel or not split
+          if (!pixel || !pixel->isSplit() ) {continue ;}
+
+          CylinderSurface iblSurface(radius,3000.0);
+          
+          const TrackParameters * trackParams = m_extrapolatorTool->extrapolate(*track,iblSurface);
+          
+          double yOnPix = trackParams->position().y();
+          double zOnPix = trackParams->position().z();
+          
+          double Pi = acos(0);
+          double twoPi = 2.*Pi;
+          
+          // now, find closest track  
+          double dr = 0.; 
+          double mindR = 99999999.;
+          double mindX = 99999999.;
+          double mindZ = 99999999.;
+          
+          for (auto track2 : tracks){
+              if(track==track2) continue;
+              float dEta = track->perigeeParameters()->momentum().eta() - track2->perigeeParameters()->momentum().eta();
+              float dPhi2 = track->perigeeParameters()->momentum().phi() - track2->perigeeParameters()->momentum().phi();
+              dr =  sqrtf(dEta*dEta + dPhi2*dPhi2);
+              if(dr>0.4) continue;
+              
+              //extrapolation to pixel hit radius
+              const TrackParameters * track2Params = m_extrapolatorTool->extrapolate(*track2,iblSurface);
+          
+              double y2OnPix = track2Params->position().y();
+              double z2OnPix = track2Params->position().z();
+              
+              float dPhi = asin(yOnPix/radius) -asin(y2OnPix/radius);
+              if (dPhi >= Pi) dPhi -= twoPi;
+              if (dPhi < -Pi) dPhi += twoPi;
+              
+              double dx = fabs(radius*dPhi);
+              double dz = fabs(zOnPix - z2OnPix);
+              if(dx>mindX && dz>mindZ) continue;
+              dr = sqrt(dx*dx + dz*dz);
+              
+              if(dr<mindR && dr > 1.e-4){
+                  mindR = dr;
+                  mindX = dx;
+                  mindZ = dz;
+              }
+         }
+         refit = true;
+         std::pair<InDet::DRMap::iterator,bool> ret;
+         std::pair<float,float> min (mindX, mindZ);
+         ret = m_dRMap->insert ( std::pair<const InDet::PixelCluster*,std::pair<float,float> >(pixel,min));
+         // if we already have a dR for this prd, we update it, if current value is smaller
+         if (ret.second==false) {
+            InDet::DRMap::iterator it;
+            it = m_dRMap->find(pixel);
+            if(sqrt(pow((*it).second.first,2)+pow((*it).second.second,2)) > (float)mindR) {
+                (*it).second.first  = (float)mindX;
+                (*it).second.second = (float)mindZ;
+	        }
+         }
+      }
+      if(refit) m_refitTracks->push_back(track);
+  }
+  return;
+}
+
+//==================================================================================================
+
 void Trk::DenseEnvironmentsAmbiguityProcessorTool::handle(const Incident& inc) 
 {
 
@@ -1407,7 +1621,9 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::handle(const Incident& inc)
   
   if ( inc.type() == IncidentType::EndEvent ){
     ATH_MSG_VERBOSE("'EndEvent' incident caught. Refreshing Cache.");
-    m_splitClusterMap = 0;    
+
+    m_splitClusterMap = 0;   
+    m_dRMap = 0;
   }     
 }
 
