@@ -278,16 +278,6 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="AthenaTrigRDO_IDpreRTTtest" type="script" suite="tt_7"> 
-            <options_atn>trigtest.pl --test AthenaTrigRDO_IDpreRTTtest --run AthenaTrigRDO_IDpreRTTtest --conf TriggerTest.conf</options_atn> 
-            <timelimit>30</timelimit> 
-            <author>Trigger Validation</author>
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST> 
-        
         <!-- FIN -->
         <!-- Summary table -->
         <TEST name="atn_timeline" type="script" suite="tt_index0">
@@ -344,7 +334,6 @@
     <!-- RTT tests -->
     <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
         
-        <!--refRelease>13.0.10</refRelease-->
         <!--rttContactPerson>David Strom (dstrom@uoregon.edu)</rttContactPerson>
          <rttContactPerson>Simon George (S.George@rhul.ac.uk)</rttContactPerson>
          <rttContactPerson>Patrick Czodrowski (czodrows@cern)</rttContactPerson-->
