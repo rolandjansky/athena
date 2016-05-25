@@ -41,7 +41,7 @@ InDet::InDetLowBetaCandidate* InDetLowBetaCandidateCnv::createTransient() {
   
   if (compareClassGuid(tlp1_guid) ) {
     ATH_MSG_DEBUG("InDetLowBetaCandidateCnv::reading tlp1 persistent object");
-    std::auto_ptr<InDetLowBetaCandidate_tlp1> col_vect(this->poolReadObject<InDetLowBetaCandidate_tlp1>());
+    std::unique_ptr<InDetLowBetaCandidate_tlp1> col_vect(this->poolReadObject<InDetLowBetaCandidate_tlp1>());
     trans_cont = m_TPConverter->createTransient(col_vect.get(), msg());
   } else {
     throw std::runtime_error("Unsupported persistent version of Data container");

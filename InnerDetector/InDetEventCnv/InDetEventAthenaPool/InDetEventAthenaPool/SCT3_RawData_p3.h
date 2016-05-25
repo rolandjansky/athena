@@ -17,7 +17,7 @@ class SCT3_RawData_p3 {
   SCT3_RawData_p3()  {};
 // List of Cnv classes that convert this into Rdo objects
   friend class SCT3_RawDataCnv_p3;
- private:
+  //private:
   Identifier::value_type m_rdoId; //Offline ID for readout channel
   unsigned int m_word; // raw data word 
 

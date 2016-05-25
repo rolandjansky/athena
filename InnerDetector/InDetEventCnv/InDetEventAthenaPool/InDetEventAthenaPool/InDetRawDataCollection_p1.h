@@ -25,7 +25,7 @@ public:
     // container cnv does conversion
     friend class InDetRawDataContainerCnv_p1;
     
-private:
+    //private:
   
     // Identifier of this collection
     Identifier32::value_type m_id;

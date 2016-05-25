@@ -5,12 +5,8 @@
 #ifndef SCT_CLUSTERCONTAINERCNV_H
 #define SCT_CLUSTERCONTAINERCNV_H
 
-#define private public
-#define protected public
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
-#undef private
-#undef protected
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
 

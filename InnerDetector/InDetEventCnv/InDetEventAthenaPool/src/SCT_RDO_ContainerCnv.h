@@ -20,13 +20,8 @@
 #include "SCT_RawDataContainerCnv_p3.h"
 
 // the latest persistent representation type of DataCollection:
-#ifndef __IDENTIFIER_64BIT__
-typedef  SCT_RawDataContainer_p2     SCT_RDO_Container_PERS;
-typedef  SCT_RawDataContainerCnv_p2  SCT_RDO_ContainerCnv_PERS;
-#else /* __IDENTIFIER_64BIT__ */
 typedef  SCT_RawDataContainer_p3     SCT_RDO_Container_PERS;
 typedef  SCT_RawDataContainerCnv_p3  SCT_RDO_ContainerCnv_PERS;
-#endif /* __IDENTIFIER_64BIT__ */
 
 typedef  T_AthenaPoolCustomCnv<SCT_RDO_Container, SCT_RDO_Container_PERS >   SCT_RDO_ContainerCnvBase;
 

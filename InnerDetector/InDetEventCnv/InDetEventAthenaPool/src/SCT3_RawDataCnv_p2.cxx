@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetRawData/SCT3_RawData.h"
-#undef private
-#undef protected
-
 #include "MsgUtil.h"
 
 // Persistent class and converter header file
@@ -25,11 +20,10 @@ SCT3_RawDataCnv_p2::persToTrans(const SCT3_RawData_p2* persObj, SCT3_RawData* tr
 //#ifdef SCT_DEBUG
   MSG_DEBUG(log,"SCT3_RawDataCnv_p2::persToTrans called ");
 //#endif
-// ugly way to modify a const private object
-   Identifier *id =const_cast<Identifier*>(&(transObj->m_rdoId));
-   *id = Identifier(persObj->m_rdoId);
-   unsigned int *wd = const_cast<unsigned int*>(&(transObj->m_word));
-   *wd = persObj->m_word;
+
+   *transObj = SCT3_RawData (Identifier(persObj->m_rdoId),
+                             persObj->m_word,
+                             std::vector<int>());
 }
 
 void
@@ -38,7 +32,7 @@ SCT3_RawDataCnv_p2::transToPers(const SCT3_RawData* transObj, SCT3_RawData_p2* p
 //#ifdef SCT_DEBUG
    MSG_DEBUG(log,"SCT3_RawDataCnv_p2::transToPers called ");
 //#endif
-   persObj->m_rdoId = transObj->m_rdoId.get_compact();
-   persObj->m_word = transObj->m_word;
+   persObj->m_rdoId = transObj->identify().get_compact();
+   persObj->m_word = transObj->getWord();
 
 }

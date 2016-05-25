@@ -16,6 +16,7 @@
 
 //================================================================
 namespace {
+#if 0
   std::string shortPrint(const TRT_RDO_Container *main_input_TRT, unsigned maxprint=25) {
     std::ostringstream os;
     if(main_input_TRT) {
@@ -34,6 +35,7 @@ namespace {
     }
     return os.str();
   }
+#endif
 
   //----------------------------------------------------------------
   std::string persistentTRT_ToString(const TRT_RDO_colvector& rdoV, unsigned maxprint = 20) {
@@ -121,14 +123,14 @@ void TRT_RDO_ContainerCnv_p1::persToTrans(const TRT_RDO_Container_p1* pers, TRT_
 
 //================================================================
 TRT_RDO_Container* TRT_RDO_ContainerCnv_p1::createTransient(const TRT_RDO_Container_p1* persObj, MsgStream& log) {
-    std::auto_ptr<TRT_RDO_Container> trans(new TRT_RDO_Container(m_trtId->straw_layer_hash_max()));
+    std::unique_ptr<TRT_RDO_Container> trans(new TRT_RDO_Container(m_trtId->straw_layer_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }
 
 //================================================================
 TRT_RDO_Container_p1* TRT_RDO_ContainerCnv_p1::createPersistent(const TRT_RDO_Container* transObj, MsgStream &log) {
-  std::auto_ptr<TRT_RDO_Container_p1> pers(new TRT_RDO_Container_p1(SG::VIEW_ELEMENTS));
+  std::unique_ptr<TRT_RDO_Container_p1> pers(new TRT_RDO_Container_p1(SG::VIEW_ELEMENTS));
   transToPers(transObj, pers.get(), log);
   return(pers.release());
 }

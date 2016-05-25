@@ -11,7 +11,11 @@
 
 #include <iostream>
 
-  PixelClusterContainerCnv::PixelClusterContainerCnv (ISvcLocator* svcloc) : PixelClusterContainerCnvBase(svcloc) {}
+  PixelClusterContainerCnv::PixelClusterContainerCnv (ISvcLocator* svcloc)
+    : PixelClusterContainerCnvBase(svcloc),
+      m_converter_p0(),
+      m_storeGate(nullptr)
+  {}
   PixelClusterContainerCnv::~PixelClusterContainerCnv() {}
 
 
@@ -75,23 +79,23 @@ InDet::PixelClusterContainer* PixelClusterContainerCnv::createTransient() {
   InDet::PixelClusterContainer* p_collection(0);
   if( compareClassGuid(p3_guid) ) {
     ATH_MSG_DEBUG("createTransient(): T/P version 3 detected");
-    std::auto_ptr< InDet::PixelClusterContainer_p3 >  p_coll( poolReadObject< InDet::PixelClusterContainer_p3 >() );
+    std::unique_ptr< InDet::PixelClusterContainer_p3 >  p_coll( poolReadObject< InDet::PixelClusterContainer_p3 >() );
     p_collection = m_converter_p3.createTransient( p_coll.get(), msg() );
   } else if( compareClassGuid(p2_guid) ) {
     ATH_MSG_DEBUG("createTransient(): T/P version 2 detected");
-    std::auto_ptr< InDet::PixelClusterContainer_p2 >  p_coll( poolReadObject< InDet::PixelClusterContainer_p2 >() );
+    std::unique_ptr< InDet::PixelClusterContainer_p2 >  p_coll( poolReadObject< InDet::PixelClusterContainer_p2 >() );
     p_collection = m_converter_p2.createTransient( p_coll.get(), msg() );
   } else if( compareClassGuid(p1_guid) ) {
     ATH_MSG_DEBUG("createTransient(): T/P version 1 detected");
     usingTPCnvForReading( m_TPConverter );
-    std::auto_ptr< InDet::PixelClusterContainer_tlp1 >  p_coll( poolReadObject< InDet::PixelClusterContainer_tlp1 >() );
+    std::unique_ptr< InDet::PixelClusterContainer_tlp1 >  p_coll( poolReadObject< InDet::PixelClusterContainer_tlp1 >() );
     p_collection = m_TPConverter.createTransient( p_coll.get(), msg() );
   }
   //----------------------------------------------------------------
   else if( compareClassGuid(p0_guid) ) {
     ATH_MSG_DEBUG("createTransient(): Old input file");
 
-    std::auto_ptr< PixelClusterContainer_p0 >   col_vect( poolReadObject< PixelClusterContainer_p0 >() );
+    std::unique_ptr< PixelClusterContainer_p0 >   col_vect( poolReadObject< PixelClusterContainer_p0 >() );
     p_collection = m_converter_p0.createTransient( col_vect.get(), msg() );
   }
   else {

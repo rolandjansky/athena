@@ -14,7 +14,7 @@
 
 //================================================================
 SCT_RDO_Container* SCT_RDO_ContainerCnv_p0::createTransient(const SCT_RDO_Container_p0* persObj, MsgStream& log) {
-  std::auto_ptr<SCT_RDO_Container> trans(new SCT_RDO_Container(m_sctId->wafer_hash_max()));
+  std::unique_ptr<SCT_RDO_Container> trans(new SCT_RDO_Container(m_sctId->wafer_hash_max()));
 
   //  MSG_DEBUG(log,"Read RDO vector, size " << persObj->size());
   

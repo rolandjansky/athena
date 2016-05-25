@@ -16,7 +16,7 @@
 
 //================================================================
 TRT_RDO_Container* TRT_RDO_ContainerCnv_p0::createTransient(const TRT_RDO_Container_p0* persObj, MsgStream& log) {
-  std::auto_ptr<TRT_RDO_Container> trans(new TRT_RDO_Container(m_trtId->straw_layer_hash_max()));
+  std::unique_ptr<TRT_RDO_Container> trans(new TRT_RDO_Container(m_trtId->straw_layer_hash_max()));
 
   MSG_DEBUG(log,"Read RDO vector, size " << persObj->size());
   

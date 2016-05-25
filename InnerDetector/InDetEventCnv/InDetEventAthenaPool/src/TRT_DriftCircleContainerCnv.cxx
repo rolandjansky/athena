@@ -10,7 +10,11 @@
 
 #include <iostream>
 
-  TRT_DriftCircleContainerCnv::TRT_DriftCircleContainerCnv (ISvcLocator* svcloc) : TRT_DriftCircleContainerCnvBase(svcloc) {}
+  TRT_DriftCircleContainerCnv::TRT_DriftCircleContainerCnv (ISvcLocator* svcloc)
+    : TRT_DriftCircleContainerCnvBase(svcloc),
+      m_converter_p0(),
+      m_storeGate(nullptr)
+  {}
   TRT_DriftCircleContainerCnv::~TRT_DriftCircleContainerCnv() {} 
 
 
@@ -74,21 +78,21 @@ InDet::TRT_DriftCircleContainer* TRT_DriftCircleContainerCnv::createTransient() 
   InDet::TRT_DriftCircleContainer* p_collection(0);
   if( compareClassGuid(p2_guid) ) {
     ATH_MSG_DEBUG("createTransient(): T/P version 2 detected");  
-    std::auto_ptr< InDet::TRT_DriftCircleContainer_p2 >   col_vect( poolReadObject< InDet::TRT_DriftCircleContainer_p2 >() );
+    std::unique_ptr< InDet::TRT_DriftCircleContainer_p2 >   col_vect( poolReadObject< InDet::TRT_DriftCircleContainer_p2 >() );
     ATH_MSG_DEBUG("Delegate TP converter ");
     p_collection = m_TPConverter2.createTransient( col_vect.get(), msg() );
   }
   else if( compareClassGuid(p1_guid) ) {
     ATH_MSG_DEBUG("createTransient(): T/P version 1 detected");
     usingTPCnvForReading( m_TPConverter );
-    std::auto_ptr< InDet::TRT_DriftCircleContainer_tlp1 >  p_coll( poolReadObject< InDet::TRT_DriftCircleContainer_tlp1 >() );
+    std::unique_ptr< InDet::TRT_DriftCircleContainer_tlp1 >  p_coll( poolReadObject< InDet::TRT_DriftCircleContainer_tlp1 >() );
     p_collection = m_TPConverter.createTransient( p_coll.get(), msg() );
   }
   //----------------------------------------------------------------
   else if( compareClassGuid(p0_guid) ) {
     ATH_MSG_DEBUG("createTransient(): Old input file");
 
-    std::auto_ptr< TRT_DriftCircleContainer_p0 >   col_vect( poolReadObject< TRT_DriftCircleContainer_p0 >() );
+    std::unique_ptr< TRT_DriftCircleContainer_p0 >   col_vect( poolReadObject< TRT_DriftCircleContainer_p0 >() );
     p_collection = m_converter_p0.createTransient( col_vect.get(), msg() );
   }
   else {

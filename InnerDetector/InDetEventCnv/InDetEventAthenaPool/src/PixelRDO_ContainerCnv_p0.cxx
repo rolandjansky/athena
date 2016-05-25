@@ -16,7 +16,7 @@
 
 //================================================================
 PixelRDO_Container* PixelRDO_ContainerCnv_p0::createTransient(const PixelRDO_Container_p0* persObj, MsgStream& log) {
-  std::auto_ptr<PixelRDO_Container> trans(new PixelRDO_Container(m_pixId->wafer_hash_max()));
+  std::unique_ptr<PixelRDO_Container> trans(new PixelRDO_Container(m_pixId->wafer_hash_max()));
 
   MSG_DEBUG(log,"Read RDO vector, size " << persObj->size());
   

@@ -131,7 +131,7 @@ PixelRDO_Container* PixelRDO_ContainerCnv::createTransient() {
   if( compareClassGuid(TP2_guid) ) {
     ATH_MSG_DEBUG("createTransient(): New TP version - TP2 branch");
                                                                                                                                                              
-    std::auto_ptr< InDetRawDataContainer_p2 >   col_vect( poolReadObject< InDetRawDataContainer_p2 >() );
+    std::unique_ptr< InDetRawDataContainer_p2 >   col_vect( poolReadObject< InDetRawDataContainer_p2 >() );
     PixelRDO_Container *res = m_converter_TP2.createTransient( col_vect.get(), msg() );
                                                                                                                                                              
     ATH_MSG_DEBUG("createTransient(), TP2 branch: returns TRANS = "<<shortPrint(res));
@@ -143,7 +143,7 @@ PixelRDO_Container* PixelRDO_ContainerCnv::createTransient() {
   else if( compareClassGuid(TP1_guid) ) {
     ATH_MSG_DEBUG("createTransient(): New TP version - TP1 branch");
                                                                                                                                                              
-    std::auto_ptr< InDetRawDataContainer_p1 >   col_vect( poolReadObject< InDetRawDataContainer_p1 >() );
+    std::unique_ptr< InDetRawDataContainer_p1 >   col_vect( poolReadObject< InDetRawDataContainer_p1 >() );
     PixelRDO_Container *res = m_converter_TP1.createTransient( col_vect.get(), msg() );
                                                                                                                                                              
     ATH_MSG_DEBUG("createTransient(), TP1 branch: returns TRANS = "<<shortPrint(res));
@@ -155,7 +155,7 @@ PixelRDO_Container* PixelRDO_ContainerCnv::createTransient() {
   else if( compareClassGuid(p0_guid) ) {
     ATH_MSG_DEBUG("createTransient(): Old input file - p0 branch");
 
-    std::auto_ptr< PixelRDO_Container_p0 >   col_vect( poolReadObject< PixelRDO_Container_p0 >() );
+    std::unique_ptr< PixelRDO_Container_p0 >   col_vect( poolReadObject< PixelRDO_Container_p0 >() );
     PixelRDO_Container *res = m_converter_p0.createTransient( col_vect.get(), msg() );
 
     ATH_MSG_DEBUG("createTransient(), p0 branch: returns TRANS = "<<shortPrint(res));

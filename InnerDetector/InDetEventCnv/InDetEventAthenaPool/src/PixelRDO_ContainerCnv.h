@@ -18,13 +18,8 @@
 #include "Pixel1RawDataContainerCnv_p2.h"
 
 // the latest persistent representation type of DataCollection:
-#ifndef __IDENTIFIER_64BIT__
-typedef  InDetRawDataContainer_p1      PixelRDO_Container_PERS;
-typedef  Pixel1RawDataContainerCnv_p1  PixelRDO_ContainerCnv_PERS;
-#else /* __IDENTIFIER_64BIT__ */
 typedef  InDetRawDataContainer_p2      PixelRDO_Container_PERS;
 typedef  Pixel1RawDataContainerCnv_p2  PixelRDO_ContainerCnv_PERS;
-#endif /* __IDENTIFIER_64BIT__ */
 
 typedef  T_AthenaPoolCustomCnv<PixelRDO_Container, PixelRDO_Container_PERS >   PixelRDO_ContainerCnvBase;
 
@@ -42,7 +37,11 @@ class PixelRDO_ContainerCnv : public PixelRDO_ContainerCnvBase {
   StoreGateSvc*  m_storeGate;
 
 protected:
-  PixelRDO_ContainerCnv (ISvcLocator* svcloc) : PixelRDO_ContainerCnvBase(svcloc) {}
+  PixelRDO_ContainerCnv (ISvcLocator* svcloc)
+    : PixelRDO_ContainerCnvBase(svcloc),
+      m_converter_p0(),
+      m_storeGate(nullptr)
+  {}
   virtual PixelRDO_Container_PERS*   createPersistent (PixelRDO_Container* transCont);
   virtual PixelRDO_Container* createTransient ();
 

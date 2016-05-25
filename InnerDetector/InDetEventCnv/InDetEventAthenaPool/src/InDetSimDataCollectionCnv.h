@@ -14,13 +14,8 @@
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 // typedef to the latest persistent version
-#ifndef __IDENTIFIER_64BIT__
-typedef  InDetSimDataCollection_p1     InDetSimDataCollection_PERS;
-typedef  InDetSimDataCollectionCnv_p1  InDetSimDataCollectionCnv_PERS;
-#else /* __IDENTIFIER_64BIT__ */
 typedef  InDetSimDataCollection_p2     InDetSimDataCollection_PERS;
 typedef  InDetSimDataCollectionCnv_p2  InDetSimDataCollectionCnv_PERS;
-#endif /* __IDENTIFIER_64BIT__ */
 
 // base class 
 typedef  T_AthenaPoolCustomCnv<InDetSimDataCollection, InDetSimDataCollection_PERS >   InDetSimDataCollectionCnvBase;
