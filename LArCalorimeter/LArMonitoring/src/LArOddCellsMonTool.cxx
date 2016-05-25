@@ -372,7 +372,7 @@ LArOddCellsMonTool::fillHistograms()
     m_evtId = thisEventInfo->eventNumber();
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Event nb " << thisEventInfo->eventNumber() << endreq;
     int Ofst = thisEventInfo->timeStamp()/(24*3600);
-    m_evtTime = float(thisEventInfo->timeStamp() - (Ofst*24*3600))/60;
+    m_evtTime = float(thisEventInfo->timeStamp() - (Ofst*24*3600))*(1./60);
 
     // If stream awareness is enabled, retrieve stream info    
     if (m_noise_streams.size() != 0){
