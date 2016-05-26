@@ -35,3 +35,15 @@ atlas_add_dictionary( InDetSimEventAthenaPoolCnvDict
 atlas_install_headers( InDetSimEventAthenaPool )
 atlas_install_joboptions( share/*.py )
 
+# Set up (a) test(s) for the converter(s):
+if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities )
+   set( AthenaPoolUtilitiesTest_DIR
+      ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities/cmake )
+endif()
+find_package( AthenaPoolUtilitiesTest )
+
+if( ATHENAPOOLUTILITIESTEST_FOUND )
+  run_tpcnv_test( InDetSimEventTPCnv_HITS   HITS.04919495._000416 )
+else()
+   message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
+endif()   
