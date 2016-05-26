@@ -38,7 +38,9 @@ LuminosityTool::LuminosityTool(const std::string& type,
     m_preferredChannel(0),
     m_luminousBunches(0),
     m_bunchInstLumiBlob(NULL),
-    m_calibChannel(0)
+    m_calibChannel(0),
+    m_calibBackupChannel(112),
+    m_skipInvalid(true)
 {
   declareInterface<ILuminosityTool>(this);
   declareProperty("LumiFolderName", m_lumiFolderName);
@@ -48,6 +50,8 @@ LuminosityTool::LuminosityTool(const std::string& type,
   declareProperty("BunchGroupTool", m_bunchGroupTool);
   declareProperty("OnlineLumiCalibrationTool", m_onlineLumiCalibrationTool);
   declareProperty("LBLBFolderName", m_lblbFolderName);
+  declareProperty("CalibBackupChannel", m_calibBackupChannel);
+  declareProperty("SkipInvalid", m_skipInvalid);
 
   m_LBAvInstLumi = 0.;
   m_LBAvEvtsPerBX = 0.;
@@ -291,15 +295,19 @@ LuminosityTool::updateAvgLumi( IOVSVC_CALLBACK_ARGS_P(/*idx*/, /*keys*/) )
   }
 
   if (attrList["Valid"].isNull()) {
-    ATH_MSG_WARNING( " NULL validity information ... set lumi to 0" );
-    return StatusCode::SUCCESS;
+      ATH_MSG_WARNING( " NULL validity information ... set lumi to 0" );
+      return StatusCode::SUCCESS;
   }
 
   // Check validity (don't bother continuing if invalid)
   m_Valid = attrList["Valid"].data<cool::UInt32>();
   if (m_Valid & 0x01) {
-    ATH_MSG_WARNING( " Invalid LB Average luminosity ... set lumi to 0" );
-    return StatusCode::SUCCESS;
+    if (m_skipInvalid) {
+      ATH_MSG_WARNING( " Invalid LB Average luminosity ... set lumi to 0" );
+      return StatusCode::SUCCESS;
+    } else {
+      ATH_MSG_WARNING( " Invalid LB Average luminosity ... continuing because skipInvalid == FALSE" );
+    }
   }
 
   // Get preferred channel (needed for per-BCID calculation)
@@ -350,7 +358,7 @@ LuminosityTool::updateAvgLumi( IOVSVC_CALLBACK_ARGS_P(/*idx*/, /*keys*/) )
 
   // Check validity of per-BCID luminosity (will issue warning in recalcPerBCIDLumi
   int perBcidValid = (m_Valid/10) % 10;
-  if (perBcidValid > 0) {
+  if ((perBcidValid > 0) && m_skipInvalid) {
     return StatusCode::SUCCESS;
   }
 
@@ -427,6 +435,20 @@ LuminosityTool::recalculatePerBCIDLumi()
     // This is the only correct way to do this!
     // The division below gives average mu (over all bunches) to total lumi
     m_MuToLumi = m_onlineLumiCalibrationTool->getMuToLumi(m_calibChannel);
+
+    // Check if this is reasonable
+    if (m_MuToLumi < 0.) {
+      ATH_MSG_INFO(" Found muToLumi = " << m_MuToLumi << " for channel " << m_calibChannel << ". Try backup channel..." );
+      m_MuToLumi = m_onlineLumiCalibrationTool->getMuToLumi(m_calibBackupChannel);
+      ATH_MSG_INFO(" Found muToLumi = " << m_MuToLumi << " for channel " << m_calibBackupChannel);
+
+      if (m_MuToLumi < 0.) {
+	ATH_MSG_WARNING(" Found invalid muToLumi = " << m_MuToLumi << " for backup channel " << m_calibBackupChannel << "!");
+	m_MuToLumi = 0.;
+      }
+
+    }
+
     //} else if (m_LBAvEvtsPerBX > 0.) {
     //m_MuToLumi = m_LBAvInstLumi / m_LBAvEvtsPerBX;
   } else {

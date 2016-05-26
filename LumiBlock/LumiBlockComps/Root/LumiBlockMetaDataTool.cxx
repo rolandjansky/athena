@@ -5,7 +5,7 @@
 /** Modified from @file ReadMeta.cxx
  *  @brief The LumiBlockMetaDataTool reads luminosity metadata from input files and transfers it to output files
  *  @author Marjorie Shapiro <mdshapiro@lbl.gov> based on work from Peter van Gemmeren <gemmeren@anl.gov> 
- *  $Id: LumiBlockMetaDataTool.cxx 716108 2015-12-29 03:49:11Z ssnyder $
+ *  $Id: LumiBlockMetaDataTool.cxx 725529 2016-02-22 16:07:11Z will $
  **/
 
 #include "LumiBlockComps/LumiBlockMetaDataTool.h"
@@ -244,7 +244,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
 // 
 // stop() is called whenever the event loop is finished.
 // ======================================================
-   ATH_MSG_INFO(  " finishUp: write lumiblocks to meta data store " );
+   ATH_MSG_VERBOSE(  " finishUp: write lumiblocks to meta data store " );
 
    xAOD::LumiBlockRangeContainer* piovComplete = new xAOD::LumiBlockRangeContainer();
    xAOD::LumiBlockRangeAuxContainer* piovCompleteAux = new xAOD::LumiBlockRangeAuxContainer();
@@ -261,7 +261,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
    xAOD::LumiBlockRangeContainer::const_iterator it;
 
    if(m_cacheSuspectOutputRangeContainer->size()>0) {
-     msg(MSG::INFO) <<  "Suspect OutputRangeCollection with size " << m_cacheSuspectOutputRangeContainer->size() << endreq;
+     ATH_MSG_VERBOSE("Suspect OutputRangeCollection with size " << m_cacheSuspectOutputRangeContainer->size());
      for(it=m_cacheSuspectOutputRangeContainer->begin(); it!=m_cacheSuspectOutputRangeContainer->end(); it++) {
        xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*it));
        piovSuspect->push_back(iovr);
@@ -269,7 +269,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
    }
 
    if(m_cacheOutputRangeContainer->size()>0) {
-     msg(MSG::INFO) <<  "OutputRangeCollection with size " << m_cacheOutputRangeContainer->size() << endreq;
+     ATH_MSG_VERBOSE("OutputRangeCollection with size " << m_cacheOutputRangeContainer->size());
      m_cacheOutputRangeContainer->sort(xAOD::SortLumiBlockRangeByStart());
 
      //  Use tmp collection to do the merging
@@ -284,7 +284,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
      xAOD::LumiBlockRangeContainer::const_iterator ilast = m_cacheOutputRangeContainer->begin();
      xAOD::LumiBlockRange* iovr = new xAOD::LumiBlockRange(*(*i));
      p_tempLBColl->push_back(iovr);
-     ATH_MSG_INFO(  "Push_back tmpLBColl with run  " 
+     ATH_MSG_VERBOSE(  "Push_back tmpLBColl with run  " 
 		<< (*i)->startRunNumber() << " LB " << (*i)->startLumiBlockNumber() << " events seen "     
 		    << (*ilast)->eventsSeen() << " expected " << (*i)->eventsExpected());
      i++;
@@ -299,7 +299,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
 	 	 		  << (*ilast)->eventsExpected() << " and " << (*i)->eventsExpected() );
 	 }
          else {
-	   ATH_MSG_INFO(  "Merge Run " << (*i)->startRunNumber() << " LB " << (*i)->startLumiBlockNumber() 
+	   ATH_MSG_VERBOSE(  "Merge Run " << (*i)->startRunNumber() << " LB " << (*i)->startLumiBlockNumber() 
 			               << " events seen "  << iovr->eventsSeen() << "+" 
                                        << (*i)->eventsSeen() << " and events expected "
 				       << iovr->eventsExpected() );
@@ -310,7 +310,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
        else {
          iovr = new xAOD::LumiBlockRange(*(*i));
 
-         ATH_MSG_INFO(  "Push_back tmpLBColl with run  " 
+         ATH_MSG_VERBOSE(  "Push_back tmpLBColl with run  " 
 		<< iovr->startRunNumber() << " LB " << iovr->startLumiBlockNumber() << " events seen "     
 		    << iovr->eventsSeen() << " expected " << iovr->eventsExpected());
 
@@ -333,7 +333,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
 
 
   if(piovComplete->size()>0) {
-    ATH_MSG_INFO( "Number of Complete LumiBlocks:" << piovComplete->size() );
+    ATH_MSG_DEBUG( "Number of Complete LumiBlocks:" << piovComplete->size() );
     xAOD::LumiBlockRangeContainer::const_iterator it;
     for(it=piovComplete->begin(); it!=piovComplete->end(); it++) {
       msg(MSG::INFO) << "\t [ ("
@@ -348,7 +348,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
   }
 
   if(piovUnfinished->size()>0) {
-    ATH_MSG_INFO( "Number of Unfinished LumiBlocks:" << piovUnfinished->size() );
+    ATH_MSG_DEBUG( "Number of Unfinished LumiBlocks:" << piovUnfinished->size() );
     xAOD::LumiBlockRangeContainer::const_iterator it;
     for(it=piovUnfinished->begin(); it!=piovUnfinished->end(); it++) {
       msg(MSG::INFO) << "\t [ ("
@@ -362,7 +362,7 @@ StatusCode   LumiBlockMetaDataTool::finishUp() {
     }
   }
   if(piovSuspect->size()>0) {
-    ATH_MSG_INFO( "Number of Suspect LumiBlocks:"  << piovSuspect->size() );
+    ATH_MSG_DEBUG( "Number of Suspect LumiBlocks:"  << piovSuspect->size() );
     xAOD::LumiBlockRangeContainer::const_iterator it;
     for(it=piovSuspect->begin(); it!=piovSuspect->end(); it++) {
       msg(MSG::INFO) << "\t [ ("
