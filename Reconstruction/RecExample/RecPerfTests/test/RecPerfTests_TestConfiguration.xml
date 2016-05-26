@@ -42,7 +42,7 @@
 	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
 	</jobTransformCmd>
 	<group>TrfRecPerf</group>
-	<queue>short</queue>
+	<queue>atlasrttperf</queue>
       </jobTransform>
 
       <jobTransform userJobId="combined_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40">
