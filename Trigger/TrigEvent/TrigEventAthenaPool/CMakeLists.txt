@@ -46,3 +46,20 @@ atlas_add_poolcnv_library( TrigEventAthenaPoolPoolCnv
 atlas_install_headers( TrigEventAthenaPool )
 atlas_install_joboptions( share/*.py )
 
+# Set up (a) test(s) for the converter(s):
+if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities )
+   set( AthenaPoolUtilitiesTest_DIR
+      ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities/cmake )
+endif()
+find_package( AthenaPoolUtilitiesTest )
+
+if( ATHENAPOOLUTILITIESTEST_FOUND )
+  run_tpcnv_test( TrigEventAthenaPool_15.6.1    ESD-15.6.1 )
+  run_tpcnv_test( TrigEventAthenaPool_15.6.13.2 AOD-15.6.13.2-full )
+  run_tpcnv_test( TrigEventAthenaPool_16.0.3.3  AOD-16.0.3.3-full )
+  run_tpcnv_test( TrigEventAthenaPool_17.0.6    AOD-17.0.6-full )
+  run_tpcnv_test( TrigEventAthenaPool_18.0.0    AOD-18.0.0-full )
+  run_tpcnv_test( TrigEventAthenaPool_20.1.7.2  ESD-20.1.7.2 )
+else()
+   message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
+endif()   
