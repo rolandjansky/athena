@@ -22,7 +22,7 @@ CaloCellContainerCnv::CaloCellContainerCnv(ISvcLocator* svcloc)
     CaloCellContainerCnvBase::T_AthenaPoolCustomCnv(svcloc),
     m_detMgr(0), 
 	m_compactCellTool(0), 
-	p1_guid("91B7AAA5-E302-4666-A4F6-7B331240AF23")
+        m_p1_guid("91B7AAA5-E302-4666-A4F6-7B331240AF23")
 {}
 
 CaloCellContainerCnv::~CaloCellContainerCnv(){
@@ -42,7 +42,7 @@ CaloCellContainerPERS* CaloCellContainerCnv::createPersistent(CaloCellContainer*
 CaloCellContainer* CaloCellContainerCnv::createTransient() {
    MsgStream log(messageService(), "CaloCellContainerCnv" );
    CaloCellContainer* trans=new CaloCellContainer();
-   if (compareClassGuid(p1_guid)) {
+   if (compareClassGuid(m_p1_guid)) {
      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Reading CaloCellContainer_p1. GUID=" << m_classID.toString() << endreq;
      CaloCompactCellContainer* pers=poolReadObject<CaloCompactCellContainer>();
      m_converter1.persToTrans(pers,trans);

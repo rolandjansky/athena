@@ -41,7 +41,7 @@ private:
    const CaloDetDescrManager* m_detMgr;
    ICaloCompactCellTool* m_compactCellTool;
    CaloCellContainerCnv_p1 m_converter1;
-   pool::Guid   p1_guid;
+   pool::Guid   m_p1_guid;
    
 };
 
