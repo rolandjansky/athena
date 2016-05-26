@@ -16,3 +16,16 @@ apply_pattern poolcnv files="-s=${ZdcEvent_root}/ZdcEvent ZdcDigitsCollection.h 
 
 macro_append ZdcEventAthenaPoolPoolCnv_shlibflags "$(ZdcEventAthenaPool_dict_linkopts)"
 
+
+apply_pattern declare_joboptions files="*.py"
+
+
+private
+use TestTools            TestTools-*                AtlasTest -no_auto_imports
+
+
+apply_pattern athenarun_test \
+   name="ZdcEventTPCnv_15.6.7" \
+   options="ZdcEventAthenaPool/ZdcEventTPCnv_15.6.7_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh ZdcEventTPCnv_15.6.7" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh ZdcEventTPCnv_15.6.7"
