@@ -1,26 +1,28 @@
-Mon Apr 18 22:58:45 CEST 2016
+Tue May 24 20:06:17 CEST 2016
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AtlasOffline-21.0.0] [x86_64-slc6-gcc49-dbg] [21.X.Y-VAL/rel_1] -- built on [2016-04-17 22:40]
+Py:Athena            INFO using release [WorkDir-21.0.0] [x86_64-slc6-gcc49-opt] [private/private] -- built on [2016-05-24 20:03]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Warning in <TInterpreter::ReadRootmapFile>: class  Event found in libG4AtlasControlDict.so  is already in libtest_GPyTestDict.so 
+Warning in <TInterpreter::ReadRootmapFile>: class  UCharDbArray found in libStorageSvcDict.so  is already in libRootCnvDict.so 
 Py:Athena            INFO executing ROOT6Setup
 [?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "TrigEventAthenaPool/TrigEventAthenaPool_16.0.3.3_test.py"
 Py:Athena            INFO including file "AthenaPoolUtilities/TPCnvTest.py"
-Py:ConfigurableDb    INFO Read module info for 4949 configurables from 10 genConfDb files
-Py:ConfigurableDb WARNING Found 1 duplicates among the 10 genConfDb files :
+Py:ConfigurableDb    INFO Read module info for 5012 configurables from 9 genConfDb files
+Py:ConfigurableDb WARNING Found 1 duplicates among the 9 genConfDb files :
 Py:ConfigurableDb WARNING --------------------------------------------------
 Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
 Py:ConfigurableDb WARNING --------------------------------------------------
 Py:ConfigurableDb WARNING   -D3PD__TrigConfMetadataTool: TriggerD3PDMaker.TriggerD3PDMakerConf - ['TrigCostD3PDMaker.TrigCostD3PDMakerConf']
 Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
 Py:Athena            INFO including file "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py"
-EventInfoMgtInit: Got release version  AtlasOffline-rel_1
+EventInfoMgtInit: Got release version  AtlasOffline-rel_2
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
-Data source lookup using /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_1/InstallArea/XML/AtlasAuthentication/dblookup.xml file
+Data source lookup using /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_2/InstallArea/x86_64-slc6-gcc49-opt/XML/AtlasAuthentication/dblookup.xml file
 loading ISF_Geant4Tools
-Py:ConfiguredFactory    INFO imported 105 confDb modules in 7.97 seconds
+Py:ConfiguredFactory    INFO imported 104 confDb modules in 28.25 seconds
 SetGeometryVersion.py obtained major release version 21
 Py:TileInfoConf.     INFO Adding TileCablingSvc to ServiceMgr
 Py:TileInfoConf.     INFO Adding default TileBadChanTool to ToolSvc
@@ -29,50 +31,48 @@ Py:TileInfoConf.     INFO Adding default TileCondToolEmscale to ToolSvc
 Py:TileInfoConf.     INFO Adding default TileCondToolNoiseSample to ToolSvc
 Py:TileInfoConf.     INFO Adding default TileCondToolTiming to ToolSvc
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r4)
-                                          running on lxplus067.cern.ch on Mon Apr 18 22:59:44 2016
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
+                                          running on lxplus033.cern.ch on Tue May 24 20:07:26 2016
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 StatusCodeSvc        INFO initialize
-JobIDSvc             INFO Initializing JobIDSvc - package version AthenaServices-01-60-08
+JobIDSvc             INFO Initializing JobIDSvc - package version AthenaServices-01-60-14
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-19
-ClassIDSvc           INFO  getRegistryEntries: read 6014 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-20
+ClassIDSvc           INFO  getRegistryEntries: read 6212 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-06-37
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-60-08
-InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-03-06-37
-MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-03-06-37
-AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-28-18
-PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-25-02
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-06-43
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-60-14
+InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-03-06-43
+MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-03-06-43
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-28-20
+PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-25-03
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://aiatlas036.cern.ch:8000/atlr)(serverurl=http://aiatlas034.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli02.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca18.cern.ch:3128)(proxyurl=http://ca17.cern.ch:3128)(proxyurl=http://atlast0fsquid.cern.ch:3128)(proxyurl=http://atlassquid1.cern.ch:3128)(proxyurl=http://atlassquid2.cern.ch:3128)(proxyurl=http://atlassquid4.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_1/InstallArea/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus067.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus033.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Re-initializing PoolSvc
-PoolSvc              INFO Resolved path (via DATAPATH) is /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_1/InstallArea/share/poolcond/PoolCat_oflcond.xml
+PoolSvc           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml via PathResolver, check your DATAPATH variable
 PoolSvc              INFO Resolved path (via ATLAS_POOLCOND_PATH) is /afs/cern.ch/atlas/conditions/poolcond/catalogue/poolcond/PoolCat_oflcond.xml
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
 XMLFileCatalog Info Connecting to the catalog
-XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info File PoolFileCatalog.xml does not exist, a new one is created
 PoolXMLFileCatalog Info Read-only filesystem
-PoolXMLFileCatalog Info Read-only filesystem
-EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-19-10
-TagMetaDataStore     INFO Initializing TagMetaDataStore - package version StoreGate-03-06-37
+EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-19-11
+TagMetaDataStore     INFO Initializing TagMetaDataStore - package version StoreGate-03-06-43
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
 PoolSvc              INFO File is not in Catalog! Attempt to open it anyway.
@@ -105,77 +105,77 @@ ImplicitCollection Info and a name "POOLContainer_DataHeader"
 PoolSvc              INFO Failed to find container MetaDataHdr(DataHeader) to get Token.
 PoolSvc              INFO Failed to find container MetaDataHdr(DataHeader) to get Token.
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
-AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-19-10
+AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-19-11
 IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
 IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
 IOVDbSvc             INFO Cache alignment will be done in 3 slices
 IOVDbSvc             INFO Read from meta data only for folder /TagInfo
 IOVDbSvc             INFO Initialised with 4 connections and 11 folders
 IOVDbSvc             INFO Service IOVDbSvc initialised successfully
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-07
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-08
 IOVDbSvc             INFO Folder /TagInfo will be taken from file metadata
 IOVDbSvc             INFO Found 15 metadata containers in input file, 1 will be used
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-06-37
-ConditionStore       INFO Initializing ConditionStore - package version StoreGate-03-06-37
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-06-43
+ConditionStore       INFO Initializing ConditionStore - package version StoreGate-03-06-43
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
 IOVSvcTool           INFO IOVRanges will be checked at every Event
-IOVDbSvc             INFO Opening COOL connection for COOLOFL_INDET/OFLP200
+IOVDbSvc             INFO Opening COOL connection for COOLOFL_TRT/OFLP200
 CoralApplication Info Create a cool::CoralApplication...
 CoralApplication Info Create a new own CORAL connection service
 CoralApplication Info Create the COOL database service
 RalDatabaseSvc Info Instantiate the RalDatabaseSvc
 CoralApplication Info Create a cool::CoralApplication... DONE
-RalSessionMgr Info Instantiate a R/O RalSessionMgr for 'COOLOFL_INDET/OFLP200'
+RalSessionMgr Info Instantiate a R/O RalSessionMgr for 'COOLOFL_TRT/OFLP200'
 RalSessionMgr Info Connect to the database server
 RalSessionMgr Warning Use COOL_DISABLE_CORALCONNECTIONPOOLCLEANUP
 CORAL/Services/ConnectionService Info ConnectionServiceConfiguration::setConnectionTimeOut 0
 CORAL/Services/ConnectionService Info Re-ordering 3 replicas using installed algorithm
 CORAL/Services/ConnectionService Info Sorting algorithm selected 4 replicas
-CORAL/Services/ConnectionService Warning Failed to connect to service sqlite200/ALLP200.db (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/ssnyder/atlas-work3/Trigger/TrigEvent/TrigEventAthenaPool/run/TrigEventAthenaPool_16.0.3.3-x86_64-slc6-gcc49-dbg/sqlite200 is not writable" )' - do NOT retry
+CORAL/Services/ConnectionService Warning Failed to connect to service sqlite200/ALLP200.db (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/work/s/ssnyder/builds/atlas-work3e/build-x86_64-slc6-gcc49-opt/Trigger/TrigEvent/TrigEventAthenaPool/unitTestRun/TrigEventAthenaPool_16.0.3.3/sqlite200 is not writable" )' - do NOT retry
 CORAL/Services/ConnectionService Info Connection to service "sqlite200/ALLP200.db" with connectionID=C#3 will be disconnected
-CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/ssnyder/atlas-work3/Trigger/TrigEvent/TrigEventAthenaPool/run/TrigEventAthenaPool_16.0.3.3-x86_64-slc6-gcc49-dbg/sqlite200 is not writable" )
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/work/s/ssnyder/builds/atlas-work3e/build-x86_64-slc6-gcc49-opt/Trigger/TrigEvent/TrigEventAthenaPool/unitTestRun/TrigEventAthenaPool_16.0.3.3/sqlite200 is not writable" )
 CORAL/RelationalPlugins/frontier Info The current compresion level is 5
 CORAL/Services/ConnectionService Info New connection to service "ATLF/()" with connectionID=C#4 has been connected
 CORAL/Services/ConnectionService Info New user session with sessionID=S#2(C#4.s#1) started on connectionID=C#4 to service "ATLF/()" for user "" in read-only mode
 RalSessionMgr Info Start a read-only transaction active for the duration of the database connection
-RelationalDatabase Info Instantiate a R/O RalDatabase for 'COOLOFL_INDET/OFLP200'
+RelationalDatabase Info Instantiate a R/O RalDatabase for 'COOLOFL_TRT/OFLP200'
 RelationalDatabase Info Release number backward compatibility - NO SCHEMA EVOLUTION REQUIRED: database with OLDER release number 2.8.0 will be opened using CURRENT client release number 3.1.3
-IOVDbSvc             INFO Opening COOL connection for COOLOFL_TRT/OFLP200
-RalSessionMgr Info Instantiate a R/O RalSessionMgr for 'COOLOFL_TRT/OFLP200'
+IOVDbSvc             INFO Opening COOL connection for COOLOFL_INDET/OFLP200
+RalSessionMgr Info Instantiate a R/O RalSessionMgr for 'COOLOFL_INDET/OFLP200'
 RalSessionMgr Info Connect to the database server
 CORAL/Services/ConnectionService Info Re-ordering 3 replicas using installed algorithm
 CORAL/Services/ConnectionService Info Sorting algorithm selected 4 replicas
-CORAL/Services/ConnectionService Warning Failed to connect to service sqlite200/ALLP200.db (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/ssnyder/atlas-work3/Trigger/TrigEvent/TrigEventAthenaPool/run/TrigEventAthenaPool_16.0.3.3-x86_64-slc6-gcc49-dbg/sqlite200 is not writable" )' - do NOT retry
+CORAL/Services/ConnectionService Warning Failed to connect to service sqlite200/ALLP200.db (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/work/s/ssnyder/builds/atlas-work3e/build-x86_64-slc6-gcc49-opt/Trigger/TrigEvent/TrigEventAthenaPool/unitTestRun/TrigEventAthenaPool_16.0.3.3/sqlite200 is not writable" )' - do NOT retry
 CORAL/Services/ConnectionService Info Connection to service "sqlite200/ALLP200.db" with connectionID=C#5 will be disconnected
-CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/ssnyder/atlas-work3/Trigger/TrigEvent/TrigEventAthenaPool/run/TrigEventAthenaPool_16.0.3.3-x86_64-slc6-gcc49-dbg/sqlite200 is not writable" )
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/work/s/ssnyder/builds/atlas-work3e/build-x86_64-slc6-gcc49-opt/Trigger/TrigEvent/TrigEventAthenaPool/unitTestRun/TrigEventAthenaPool_16.0.3.3/sqlite200 is not writable" )
 CORAL/Services/ConnectionService Info New user session with sessionID=S#3(C#4.s#2) started on connectionID=C#4 to service "ATLF/()" for user "" in read-only mode
 RalSessionMgr Info Start a read-only transaction active for the duration of the database connection
-RelationalDatabase Info Instantiate a R/O RalDatabase for 'COOLOFL_TRT/OFLP200'
+RelationalDatabase Info Instantiate a R/O RalDatabase for 'COOLOFL_INDET/OFLP200'
 RelationalDatabase Info Release number backward compatibility - NO SCHEMA EVOLUTION REQUIRED: database with OLDER release number 2.8.0 will be opened using CURRENT client release number 3.1.3
-IOVDbSvc             INFO Disconnecting from COOLOFL_INDET/OFLP200
+IOVDbSvc             INFO Disconnecting from COOLOFL_TRT/OFLP200
 RalSessionMgr Info Commit the read-only transaction active for the duration of the database connection
 RalSessionMgr Info Disconnect from the database server
 CORAL/Services/ConnectionService Info User session with sessionID=S#2(C#4.s#1) will be ended on connectionID=C#4
-RelationalDatabase Info Delete the RalDatabase for 'COOLOFL_INDET/OFLP200'
-RalSessionMgr Info Delete the RalSessionMgr for 'COOLOFL_INDET/OFLP200'
+RelationalDatabase Info Delete the RalDatabase for 'COOLOFL_TRT/OFLP200'
+RalSessionMgr Info Delete the RalSessionMgr for 'COOLOFL_TRT/OFLP200'
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
 RalSessionMgr Info Instantiate a R/O RalSessionMgr for 'COOLOFL_LAR/OFLP200'
 RalSessionMgr Info Connect to the database server
 CORAL/Services/ConnectionService Info Re-ordering 3 replicas using installed algorithm
 CORAL/Services/ConnectionService Info Sorting algorithm selected 4 replicas
-CORAL/Services/ConnectionService Warning Failed to connect to service sqlite200/ALLP200.db (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/ssnyder/atlas-work3/Trigger/TrigEvent/TrigEventAthenaPool/run/TrigEventAthenaPool_16.0.3.3-x86_64-slc6-gcc49-dbg/sqlite200 is not writable" )' - do NOT retry
+CORAL/Services/ConnectionService Warning Failed to connect to service sqlite200/ALLP200.db (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/work/s/ssnyder/builds/atlas-work3e/build-x86_64-slc6-gcc49-opt/Trigger/TrigEvent/TrigEventAthenaPool/unitTestRun/TrigEventAthenaPool_16.0.3.3/sqlite200 is not writable" )' - do NOT retry
 CORAL/Services/ConnectionService Info Connection to service "sqlite200/ALLP200.db" with connectionID=C#6 will be disconnected
-CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/ssnyder/atlas-work3/Trigger/TrigEvent/TrigEventAthenaPool/run/TrigEventAthenaPool_16.0.3.3-x86_64-slc6-gcc49-dbg/sqlite200 is not writable" )
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/work/s/ssnyder/builds/atlas-work3e/build-x86_64-slc6-gcc49-opt/Trigger/TrigEvent/TrigEventAthenaPool/unitTestRun/TrigEventAthenaPool_16.0.3.3/sqlite200 is not writable" )
 CORAL/Services/ConnectionService Info New user session with sessionID=S#4(C#4.s#3) started on connectionID=C#4 to service "ATLF/()" for user "" in read-only mode
 RalSessionMgr Info Start a read-only transaction active for the duration of the database connection
 RelationalDatabase Info Instantiate a R/O RalDatabase for 'COOLOFL_LAR/OFLP200'
 RelationalDatabase Info Release number backward compatibility - NO SCHEMA EVOLUTION REQUIRED: database with OLDER release number 2.7.0 will be opened using CURRENT client release number 3.1.3
-IOVDbSvc             INFO Disconnecting from COOLOFL_TRT/OFLP200
+IOVDbSvc             INFO Disconnecting from COOLOFL_INDET/OFLP200
 RalSessionMgr Info Commit the read-only transaction active for the duration of the database connection
 RalSessionMgr Info Disconnect from the database server
 CORAL/Services/ConnectionService Info User session with sessionID=S#3(C#4.s#2) will be ended on connectionID=C#4
-RelationalDatabase Info Delete the RalDatabase for 'COOLOFL_TRT/OFLP200'
-RalSessionMgr Info Delete the RalSessionMgr for 'COOLOFL_TRT/OFLP200'
+RelationalDatabase Info Delete the RalDatabase for 'COOLOFL_INDET/OFLP200'
+RalSessionMgr Info Delete the RalSessionMgr for 'COOLOFL_INDET/OFLP200'
 IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
 RalSessionMgr Info Commit the read-only transaction active for the duration of the database connection
 RalSessionMgr Info Disconnect from the database server
@@ -243,14 +243,14 @@ ToolSvc.MGM_Ali...   INFO proxy transient Address found
 GeoModelSvc          INFO Retrieved DetectorTools = PrivateToolHandleArray(['PixelDetectorTool/PixelDetectorTool','SCT_DetectorTool/SCT_DetectorTool','TRT_DetectorTool/TRT_DetectorTool','InDetServMatTool/InDetServMatTool','LArDetectorToolNV/LArDetectorToolNV','TileDetectorTool/TileDetectorTool','MuonDetectorTool/MuonDetectorTool','BeamPipeDetectorTool/BeamPipeDetectorTool'])
 CORAL/Services/ConnectionService Info Re-ordering 3 replicas using installed algorithm
 CORAL/Services/ConnectionService Info Sorting algorithm selected 4 replicas
-CORAL/Services/ConnectionService Warning Failed to connect to service geomDB/geomDB_sqlite (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/ssnyder/atlas-work3/Trigger/TrigEvent/TrigEventAthenaPool/run/TrigEventAthenaPool_16.0.3.3-x86_64-slc6-gcc49-dbg/geomDB is not writable" )' - do NOT retry
+CORAL/Services/ConnectionService Warning Failed to connect to service geomDB/geomDB_sqlite (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/work/s/ssnyder/builds/atlas-work3e/build-x86_64-slc6-gcc49-opt/Trigger/TrigEvent/TrigEventAthenaPool/unitTestRun/TrigEventAthenaPool_16.0.3.3/geomDB is not writable" )' - do NOT retry
 CORAL/Services/ConnectionService Info Connection to service "geomDB/geomDB_sqlite" with connectionID=C#7 will be disconnected
-CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:geomDB/geomDB_sqlite": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/ssnyder/atlas-work3/Trigger/TrigEvent/TrigEventAthenaPool/run/TrigEventAthenaPool_16.0.3.3-x86_64-slc6-gcc49-dbg/geomDB is not writable" )
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:geomDB/geomDB_sqlite": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/work/s/ssnyder/builds/atlas-work3e/build-x86_64-slc6-gcc49-opt/Trigger/TrigEvent/TrigEventAthenaPool/unitTestRun/TrigEventAthenaPool_16.0.3.3/geomDB is not writable" )
 CORAL/RelationalPlugins/frontier Info The current compresion level is 5
 CORAL/Services/ConnectionService Info New connection to service "ATLF/()" with connectionID=C#8 has been connected
 CORAL/Services/ConnectionService Info New user session with sessionID=S#5(C#8.s#1) started on connectionID=C#8 to service "ATLF/()" for user "" in read-only mode
-GeoModelSvc.Pix...   INFO Building Pixel Detector with Version Tag: ATLAS-GEO-10-00-00 at Node: ATLAS
-GeoModelSvc.Pix...   INFO Pixel Version: Pixel-GEO-02  Package Version: PixelGeoModel-00-09-56
+GeoModelSvc.Pix...   INFO Building Pixel Detector with Version Tag: ATLAS-R1-2012-03-01-00 at Node: ATLAS
+GeoModelSvc.Pix...   INFO Pixel Version: Pixel-GEO-13  Package Version: PixelGeoModel-00-09-58
 EventPersistenc...   INFO Added successfully Conversion service:DetDescrCnvSvc
 PixelIDDetDescrCnv   INFO in createObj: creating a PixelID helper object in the detector store
 IdDictDetDescrCnv    INFO in initialize
@@ -261,12 +261,12 @@ IdDictDetDescrCnv    INFO Reading LArCalorimeter   IdDict file IdDictParser/IdDi
 IdDictDetDescrCnv    INFO Reading TileCalorimeter  IdDict file IdDictParser/IdDictTileCalorimeter.xml
 IdDictDetDescrCnv    INFO Reading Calorimeter      IdDict file IdDictParser/IdDictCalorimeter_L1Onl.xml
 IdDictDetDescrCnv    INFO Reading MuonSpectrometer IdDict file IdDictParser/IdDictMuonSpectrometer_R.01.xml
-IdDictDetDescrCnv    INFO Reading ForwardDetectors IdDict file IdDictParser/IdDictForwardDetectors.xml
+IdDictDetDescrCnv    INFO Reading ForwardDetectors IdDict file IdDictParser/IdDictForwardDetectors_2010.xml
 IdDictDetDescrCnv    INFO Found id dicts:
 IdDictDetDescrCnv    INFO Using dictionary tag: destaged_layout
 IdDictDetDescrCnv    INFO Dictionary ATLAS                version default              DetDescr tag (using default) file 
 IdDictDetDescrCnv    INFO Dictionary Calorimeter          version default              DetDescr tag CaloIdentifier-LVL1-02 file IdDictParser/IdDictCalorimeter_L1Onl.xml
-IdDictDetDescrCnv    INFO Dictionary ForwardDetectors     version default              DetDescr tag ForDetIdentifier-00       file IdDictParser/IdDictForwardDetectors.xml
+IdDictDetDescrCnv    INFO Dictionary ForwardDetectors     version default              DetDescr tag ForDetIdentifier-01       file IdDictParser/IdDictForwardDetectors_2010.xml
 IdDictDetDescrCnv    INFO Dictionary InnerDetector        version default              DetDescr tag InDetIdentifier-05        file IdDictParser/IdDictInnerDetector.xml
 IdDictDetDescrCnv    INFO Dictionary LArCalorimeter       version fullAtlas            DetDescr tag LArIdentifier-DC3-05-Comm file IdDictParser/IdDictLArCalorimeter_DC3-05-Comm-01.xml
 IdDictDetDescrCnv    INFO Dictionary LArElectrode         version fullAtlas            DetDescr tag (using default) file 
@@ -304,13 +304,13 @@ ToolSvc.InDetDD...   INFO BLMBuilder initialize() successful in ToolSvc.InDetDD:
 GeoModelSvc.Pix...   INFO BLM_GeoModel tool retrieved: BLM_Tool = PublicToolHandle('InDetDD::BLM_Builder/InDetDD::BLM_Builder')
 GeoModelSvc.Pix...   INFO Service builder tool not specified.
 PixelGeoModel        INFO Retrieving Record Sets from database ...
-PixelGeoModel        INFO Key = ATLAS-GEO-10-00-00 Node = ATLAS
+PixelGeoModel        INFO Key = ATLAS-R1-2012-03-01-00 Node = ATLAS
 PixelGeoModel        INFO ... Record Sets retrieved.
 PixelGeoModel        INFO DBM switch = SetDBMFlag: 0
 PixelGeoModel        INFO Building Pixel Detector
-PixelGeoModel        INFO  Version: Pixel-GEO-02, Name: DC3, Layout: Final, Code Version: 5.01.00, Description: DC3 Geometry
+PixelGeoModel        INFO  Version: Pixel-GEO-13, Name: DC3, Layout: Final, Code Version: 5.01.00, Description: DC3 Geometry
 GEOPIXELSERVICES pixel : 40 245 //  3460
-GEOPIXELSERVICES barrel : 42 245 //  -460 460
+GEOPIXELSERVICES barrel : 42 143 //  -460 460
 GEOPIXELSERVICES endcap : 82 175 //  484 670
 PixelGeoModel        INFO *** LAYER 0  planar/3D modules : 0 0
 PixelGeoModel        INFO Layer 0 in/out radius 46.2723  64.1329
@@ -318,9 +318,10 @@ PixelGeoModel        INFO *** LAYER 1  planar/3D modules : 0 0
 PixelGeoModel        INFO Layer 1 in/out radius 83.7078  102.132
 PixelGeoModel        INFO *** LAYER 2  planar/3D modules : 0 0
 PixelGeoModel        INFO Layer 2 in/out radius 117.51  136.132
-ToolSvc.InDetDD...   INFO Building BCM with Version Tag: ATLAS-GEO-10-00-00 at Node: ATLAS
+Warning in material CabCoolEcD3. Mass fractions sum to 0.9999; renormalizing to 1.0
+ToolSvc.InDetDD...   INFO Building BCM with Version Tag: ATLAS-R1-2012-03-01-00 at Node: ATLAS
 ToolSvc.InDetDD...   INFO BCM Version: BCM-00  Package Version: BCM_GeoModel-00-02-07
-ToolSvc.InDetDD...   INFO Building BLM with Version Tag: ATLAS-GEO-10-00-00 at Node: ATLAS
+ToolSvc.InDetDD...   INFO Building BLM with Version Tag: ATLAS-R1-2012-03-01-00 at Node: ATLAS
 ToolSvc.InDetDD...   INFO BLM Version: BLM-00  Package Version: BLM_GeoModel-00-01-05
 PixelGeoModel        INFO  Static run1 type alignment folder structure found
 PixelDetectorMa...   INFO Registering alignment channel with key /Indet/Align/ID, level 2, with frame global.
@@ -336,9 +337,9 @@ PixelDetectorMa...   INFO Registering alignment channel with key /Indet/Align/PI
 PixelDetectorMa...   INFO Registering alignment channel with key /Indet/Align/PIXEC2, level 0, with frame local.
 PixelDetectorMa...   INFO Registering alignment channel with key /Indet/Align/PIXEC3, level 0, with frame local.
 GeoModelSvc.Pix...   INFO Lorentz angle service not requested.
-GeoModelSvc          INFO GeoModelSvc.PixelDetectorTool	 SZ= 14484Kb 	 Time = 0.42S
-GeoModelSvc.SCT...   INFO Building SCT with Version Tag: ATLAS-GEO-10-00-00 at Node: ATLAS
-GeoModelSvc.SCT...   INFO SCT Version: SCT-GEO-00  Package Version: SCT_GeoModel-00-12-08
+GeoModelSvc          INFO GeoModelSvc.PixelDetectorTool	 SZ= 12676Kb 	 Time = 0.49S
+GeoModelSvc.SCT...   INFO Building SCT with Version Tag: ATLAS-R1-2012-03-01-00 at Node: ATLAS
+GeoModelSvc.SCT...   INFO SCT Version: SCT-GEO-01  Package Version: SCT_GeoModel-00-12-08
 SCT_IDDetDescrCnv    INFO in createObj: creating a SCT_ID helper object in the detector store
 SCT_ID               INFO Initialize from dictionary
 AtlasDetectorID      INFO initialize_from_dictionary - OK
@@ -352,7 +353,7 @@ side0 0:1 1 fffffbffffffffff 42 1 21
 strip0 0:767 3ff fffffc00ffffffff 32 10 22
 SCT_ID               INFO  SCT_ID::initialize_from_dict 
 SCT_GeoModel         INFO Building SCT Detector.
-SCT_GeoModel         INFO  Version: SCT-GEO-00, Name: GEO, Layout: Final, Code Version: 3.06.00, Description: Atlas Geometry 2008
+SCT_GeoModel         INFO  Version: SCT-GEO-01, Name: GEO, Layout: Final, Code Version: 3.06.00, Description: Atlas Geometry 2008
 SCT_GeoModel         INFO Retrieving Record Sets from database ...
 SCT_GeoModel         INFO  Static run1 type alignment folder structure found
 SCTDetectorManager   INFO Registering alignment channel with key /Indet/Align/ID, level 3, with frame global.
@@ -380,8 +381,8 @@ SCTDetectorManager   INFO Registering alignment channel with key /Indet/Align/SC
 SCTDetectorManager   INFO Registering alignment channel with key /Indet/Align/SCTEC8, level 1, with frame local.
 SCTDetectorManager   INFO Registering alignment channel with key /Indet/Align/SCTEC9, level 1, with frame local.
 GeoModelSvc.SCT...   INFO Lorentz angle service not requested.
-GeoModelSvc          INFO GeoModelSvc.SCT_DetectorTool	 SZ= 14336Kb 	 Time = 0.28S
-GeoModelSvc.TRT...   INFO Building TRT with Version Tag: ATLAS-GEO-10-00-00 at Node: ATLAS
+GeoModelSvc          INFO GeoModelSvc.SCT_DetectorTool	 SZ= 13312Kb 	 Time = 0.32S
+GeoModelSvc.TRT...   INFO Building TRT with Version Tag: ATLAS-R1-2012-03-01-00 at Node: ATLAS
 GeoModelSvc.TRT...   INFO TRT Version: TRT-GEO-00  Package Version: TRT_GeoModel-00-02-70
 GeoModelSvc.TRT...   INFO Creating the TRT
 GeoModelSvc.TRT...   INFO TRT Geometry Options:
@@ -397,7 +398,7 @@ TRT_GeoModel      WARNING The folder of /TRT/Cond/StatusHT is NOT available, WHO
 TRT_GeoModel      WARNING Tool setup will force to NOT to use ARGON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION
 TRT_GeoModel      WARNING Tool setup will force to NOT to use KRYPTON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION
 TRT_IDDetDescrCnv    INFO in createObj: creating a TRT_ID helper object in the detector store
-TRT_ID               INFO Initialize from dictionary msgSvc 0x60c7420
+TRT_ID               INFO Initialize from dictionary msgSvc 0xb408e50
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 TRT_GeoModel         INFO In TRT Detector Factory (For DC2 and later geometries)
 TRT_GeoModel         INFO  Version: TRT-GEO-00, Name: DC3, Layout: Initial, Code Version: 4.01.01, Description: DC3 Geometry
@@ -408,41 +409,45 @@ TRTDetectorManager   INFO Registering alignment channel with key /TRT/Align/B1, 
 TRTDetectorManager   INFO Registering alignment channel with key /TRT/Align/B2, level 2, with frame global.
 TRTDetectorManager   INFO Registering alignment channel with key /TRT/Align/L2A, level 1, with frame global.
 TRTDetectorManager   INFO Registering alignment channel with key /TRT/Align/L2C, level 1, with frame global.
-GeoModelSvc          INFO GeoModelSvc.TRT_DetectorTool	 SZ= 21176Kb 	 Time = 0.28S
+GeoModelSvc          INFO GeoModelSvc.TRT_DetectorTool	 SZ= 22200Kb 	 Time = 0.25S
 GeoModelSvc.InD...   INFO InDetServMat Package Version: InDetServMatGeoModel-00-04-32
 GeoModelSvc.InD...   INFO Building Inner Detector Service Material. Version: CSC
-GeoModelSvc          INFO GeoModelSvc.InDetServMatTool	 SZ= 0Kb 	 Time = 0.07S
-GeoModelSvc.LAr...   INFO Keys for LAr are ATLAS-GEO-10-00-00  ATLAS
-GeoModelSvc.LAr...   INFO Building LAr version LAr-Revised-06 while ATLAS version is ATLAS-GEO-10-00-00
+GeoModelSvc          INFO GeoModelSvc.InDetServMatTool	 SZ= 0Kb 	 Time = 0.11S
+GeoModelSvc.LAr...   INFO Keys for LAr are ATLAS-R1-2012-03-01-00  ATLAS
+GeoModelSvc.LAr...   INFO Building LAr version LAr-Revised-14 while ATLAS version is ATLAS-R1-2012-03-01-00
 GeoModelSvc.LAr...   INFO LAr Geometry Options:
 GeoModelSvc.LAr...   INFO   Sagging           = false
 GeoModelSvc.LAr...   INFO   Barrel            = ON
 GeoModelSvc.LAr...   INFO   Endcap            = ON
-LAr::DetectorFa...   INFO  old description withut bold in the geometry database 
-LAr::DetectorFa...   INFO  old coil bumper description 
-BarrelConstruction   INFO Getting primary numbers for ATLAS, ATLAS-GEO-10-00-00
-BarrelConstruction   INFO   Makes detailed absorber sandwich  ? 0 0
+LAr::DetectorFa...   INFO  new description with barrel croystat bolts
+LAr::DetectorFa...   INFO  new coil bumper description 
+BarrelConstruction   INFO Getting primary numbers for ATLAS, ATLAS-R1-2012-03-01-00
+BarrelConstruction   INFO   Makes detailed absorber sandwich  ? 1 1
 BarrelConstruction   INFO   Use sagging in geometry  ? 0
-ClassIDSvc           INFO  getRegistryEntries: read 15564 CLIDRegistry entries for module ALL
+============== EMEC Construction ===============
+  multi-layered version of absorbers activated, mlabs == 1
+================================================
+ClassIDSvc           INFO  getRegistryEntries: read 20528 CLIDRegistry entries for module ALL
 CaloIDHelper_ID...   INFO in createObj: creating a TileTBID helper object in the detector store
 TileTBID             INFO initialize_from_dictionary 
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 EndcapDMConstru...   INFO Start building EC electronics geometry
-EndcapDMConstru...   INFO Skip building EC electronics. Database flag not set
+============== EMEC Construction ===============
+  multi-layered version of absorbers activated, mlabs == 1
+================================================
 EndcapDMConstru...   INFO Start building EC electronics geometry
-EndcapDMConstru...   INFO Skip building EC electronics. Database flag not set
-GeoModelSvc          INFO GeoModelSvc.LArDetectorToolNV	 SZ= 31988Kb 	 Time = 2.38S
+GeoModelSvc          INFO GeoModelSvc.LArDetectorToolNV	 SZ= 30536Kb 	 Time = 4.11S
 GeoModelSvc.Til...   INFO  Entering TileDetectorTool::create()
-GeoModelSvc.Til...   INFO TileDddbManager: m_tag = ATLAS-GEO-10-00-00
+GeoModelSvc.Til...   INFO TileDddbManager: m_tag = ATLAS-R1-2012-03-01-00
 GeoModelSvc.Til...   INFO TileDddbManager: n_tiglob = 5
 GeoModelSvc.Til...   INFO TileDddbManager: n_timod = 320
 GeoModelSvc.Til...   INFO TileDddbManager: n_cuts = 9
 GeoModelSvc.Til...   INFO TileDddbManager: n_saddle = 1
-GeoModelSvc.Til...   INFO TileDddbManager: n_tilb = 19
+GeoModelSvc.Til...   INFO TileDddbManager: n_tilb = 20
 GeoModelSvc.Til...   INFO TileDddbManager: n_tileSwitches = 1
 CaloIDHelper_ID...   INFO in createObj: creating a TileID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-TileNeighbour        INFO Reading file  /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/TileNeighbour_reduced.txt
+TileNeighbour        INFO Reading file  /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/TileNeighbour_reduced.txt
 CaloIDHelper_ID...   INFO in createObj: creating a CaloCell_ID helper object in the detector store
 CaloIDHelper_ID...   INFO in createObj: creating a LArEM_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
@@ -450,9 +455,9 @@ CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_ID helper object in th
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/FCal2DNeighbors-DC3-05-Comm-01.txt
-LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/FCal3DNeighborsNext-DC3-05-Comm-01.txt
-LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/FCal3DNeighborsPrev-DC3-05-Comm-01.txt
+LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/FCal2DNeighbors-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/FCal3DNeighborsNext-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/FCal3DNeighborsPrev-April2011.txt
 CaloIDHelper_ID...   INFO in createObj: creating a LArMiniFCAL_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
@@ -460,7 +465,7 @@ AtlasDetectorID      INFO initialize_from_dictionary - OK
 TileHWIDDetDesc...   INFO in createObj: creating a TileHWID helper object in the detector store
 TileHWID             INFO initialize_from_dictionary 
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-GeoModelSvc.Til...   INFO  U-shape parameter from database is: 0
+GeoModelSvc.Til...   INFO  U-shape parameter from database is: 1
 GeoModelSvc.Til...   INFO  Entering TileAtlasFactory::create()
 GeoModelSvc.Til...   INFO  Tile Geometry with Saddle supports, starting from TileCal-CSC-02 xxx
 GeoModelSvc.Til...   INFO  => New BFingerLengthPos 430.5
@@ -472,27 +477,27 @@ GeoModelSvc.Til...   INFO  Positioning positive ext.barrel with translation 4854
 GeoModelSvc.Til...   INFO  Positioning positive ext.barrel finger with translation ztrans= 6338.5
 GeoModelSvc.Til...   INFO  Positioning positive ext.barrel saddle with translation ztrans= 6192.5
 GeoModelSvc.Til...   INFO  Positive ITC envelope parameters: PLUG1  Rmin= 3438.85 Rmax= 4250 dzITC1= 154.5
-GeoModelSvc.Til...   INFO                                    PLUG2  Rmin= 2988.85 Rmax= 3440 dzITC2= 47.425
+GeoModelSvc.Til...   INFO                                    PLUG2  Rmin= 2981 Rmax= 3440 dzITC2= 47.425
 GeoModelSvc.Til...   INFO  Positioning positive ITC with translation 3405
-GeoModelSvc.Til...   INFO  Positioning positive Gap with translation 3548.5
+GeoModelSvc.Til...   INFO  Positioning positive Gap with translation 3552
 GeoModelSvc.Til...   INFO  Positioning positive Crack with translation 3536
 GeoModelSvc.Til...   INFO  Positioning negative ext.barrel with translation ztrans -4854.75
 GeoModelSvc.Til...   INFO  Positioning negative ext.barrel finger with translation ztrans= -6338.5
 GeoModelSvc.Til...   INFO  Positioning negative ext.barrel saddle with translation ztrans= -6192.5
 GeoModelSvc.Til...   INFO  Negative ITC envelope parameters: PLUG1  Rmin= 3438.85 Rmax= 4250 dzITC1= 154.5
-GeoModelSvc.Til...   INFO                                    PLUG2  Rmin= 2988.85 Rmax= 3440 dzITC2= 47.425
+GeoModelSvc.Til...   INFO                                    PLUG2  Rmin= 2981 Rmax= 3440 dzITC2= 47.425
 GeoModelSvc.Til...   INFO  Positioning negative ITC with translation -3405
-GeoModelSvc.Til...   INFO  Positioning negative Gap with translation -3548.5
+GeoModelSvc.Til...   INFO  Positioning negative Gap with translation -3552
 GeoModelSvc.Til...   INFO  Positioning negative Crack with translation -3536
 GeoModelSvc.Til...   INFO  Global positioning of barrel with rotation (0,0,0)) and translation (0,0,0) CLHEP::cm
 GeoModelSvc.Til...   INFO  Global positioning of positive ext.barrel with rotation (0,0,0)) and translation (0,0,0) CLHEP::cm
 GeoModelSvc.Til...   INFO  Global positioning of negative ext.barrel with rotation (0,0,0)) and translation (0,0,1) CLHEP::cm
 GeoModelSvc.Til...   INFO  TileDetDescrManager: entering create_elements() 
-GeoModelSvc          INFO GeoModelSvc.TileDetectorTool	 SZ= 11524Kb 	 Time = 0.83S
+GeoModelSvc          INFO GeoModelSvc.TileDetectorTool	 SZ= 14764Kb 	 Time = 1S
 GeoModelSvc.Muo...   INFO create MuonDetectorTool - package version = MuonGeoModel-01-09-13
-GeoModelSvc.Muo...   INFO (from GeoModelSvc)    AtlasVersion = <ATLAS-GEO-10-00-00>  MuonVersion = <>
-GeoModelSvc.Muo...   INFO Keys for Muon Switches are  (key) ATLAS-GEO-10-00-00 (node) ATLAS
-GeoModelSvc.Muo...   INFO (from GeoModelSvc) in AtlasVersion = <ATLAS-GEO-10-00-00>  default MuonVersion is <MuonSpectrometer-R.03.11>
+GeoModelSvc.Muo...   INFO (from GeoModelSvc)    AtlasVersion = <ATLAS-R1-2012-03-01-00>  MuonVersion = <>
+GeoModelSvc.Muo...   INFO Keys for Muon Switches are  (key) ATLAS-R1-2012-03-01-00 (node) ATLAS
+GeoModelSvc.Muo...   INFO (from GeoModelSvc) in AtlasVersion = <ATLAS-R1-2012-03-01-00>  default MuonVersion is <MuonSpectrometer-R.06.04>
 GeoModelSvc.Muo...   INFO Properties have been set as follows: 
 GeoModelSvc.Muo...   INFO     LayoutName                     R
 GeoModelSvc.Muo...   INFO     IncludeCutouts                 0
@@ -506,11 +511,11 @@ GeoModelSvc.Muo...   INFO     ControlCscIntAlines   reset to 0
 GeoModelSvc.Muo...   INFO     EnableMdtDeformations          0
 GeoModelSvc.Muo...   INFO     EnableMdtAsBuiltParameters     0
 MuonGeoModel         INFO MuonDetectorFactory - constructor  MuonSystem OuterRadius 13000 Length 22030
-MuGM:MuonFactory     INFO MuonLayout set to <R.03.11> = Development version for DC3 - infrastructures 
+MuGM:MuonFactory     INFO MuonLayout set to <R.06.04> = Development version for DC3 - infrastructures 
 MuGM:MuonFactory     INFO                    BOG cutouts are activated 1 , all other cutouts are disabled 1
-MuGM:MuonFactory     INFO Manager created for geometry version R.03.11 from DB MuonVersion <MuonSpectrometer-R.03.11>
-MuonGeoModel_MYSQL   INFO GeometryVersion set to <R.03.11>
-MuGM:MuonFactory     INFO Mysql helper class created here for geometry version R.03.11 from DB MuonVersion <MuonSpectrometer-R.03.11>
+MuGM:MuonFactory     INFO Manager created for geometry version R.06.04 from DB MuonVersion <MuonSpectrometer-R.06.04>
+MuonGeoModel_MYSQL   INFO GeometryVersion set to <R.06.04>
+MuGM:MuonFactory     INFO Mysql helper class created here for geometry version R.06.04 from DB MuonVersion <MuonSpectrometer-R.06.04>
 MuGM:MuonFactory     INFO MDTIDHELPER retrieved from DetStore
 MDT_IDDetDescrCnv    INFO in createObj: creating a MdtIdHelper object in the detector store
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
@@ -584,7 +589,7 @@ AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary!
  AtlasDetectorID::initialize_from_dictionary - OK 
 MuGM:MuonFactory     INFO  **************** MuonDetectorFactory001 ************************
 MuGM:MuonFactory     INFO  *** Start building the Muon Geometry Tree **********************
-MuGM:RDBReadAtlas    INFO Start retriving dbObjects with tag = <ATLAS-GEO-10-00-00> node <ATLAS>
+MuGM:RDBReadAtlas    INFO Start retriving dbObjects with tag = <ATLAS-R1-2012-03-01-00> node <ATLAS>
 MuGM:RDBReadAtlas    INFO After getQuery XtomoData
 In DblQ00Xtomo(data)
 No XtomoData table in the MuonDD Database
@@ -594,33 +599,34 @@ MuGM:RDBReadAtlas    INFO No Ascii aszt input found: looking for A-lines in ORAC
 MuGM:RDBReadAtlas    INFO ASZT table found in Oracle
 MuGM:RDBReadAtlas    INFO ASZT size is 32
 MuGM:RDBReadAtlas    INFO No Ascii iacsc input found: looking for A-lines in ORACLE
-MuGM:RDBReadAtlas    INFO No ISZT table in Oracle
+MuGM:RDBReadAtlas    INFO ISZT table found in Oracle
 MuGM:RDBReadAtlas    INFO Access granted for all dbObjects needed by muon detectors
-MuonGeoModel_MYSQL   INFO LayoutName (from DBAM) set to <R.03>  -- relevant for CTB2004
+MuonGeoModel_MYSQL   INFO LayoutName (from DBAM) set to <R.06>  -- relevant for CTB2004
 MuGM:ProcStations    INFO  Processing Stations and Components
 MuGM:ProcStations    INFO  Processing Stations and Components DONE
 MuGM:ProcTechnol.s   INFO nMDT 8 nCSC 2 nTGC 22 nRPC 22
 MuGM:ProcTechnol.s   INFO nDED 2 nSUP 4 nSPA 2
-MuGM:ProcTechnol.s   INFO nCHV 4 nCRO 4 nCMI 3 nLBI 4
+MuGM:ProcTechnol.s   INFO nCHV 5 nCRO 5 nCMI 4 nLBI 4
 MuGM:ProcPosition    INFO  *** N. of stations positioned in the setup 226
 MuGM:ProcPosition    INFO  *** N. of stations described in mysql      226
 MuGM:ProcPosition    INFO  *** N. of types  30 size of jtypvec 30
 MuGM:ProcPosition    INFO  *** : 226 kinds of stations (type*sub_type) 
 MuGM:ProcPosition    INFO  *** : 1740 physical stations in space - according to the MuonDD DataBase
-MuGM:ProcCutouts     INFO  Processing Cutouts for geometry layout R.03
+MuGM:ProcCutouts     INFO  Processing Cutouts for geometry layout R.06
 MuGM:ProcCutouts     INFO  Processing Cutouts DONE
 MuGM:RDBReadAtlas    INFO  ProcessTGCreadout - version 7 wirespacing 1.8
+MGM::MuonDetect...   INFO Creating now the CscInternalAlignmentMapContainer
 MuGM:RDBReadAtlas    INFO Intermediate Objects built from primary numbers
 MuGM:MuonFactory     INFO  theMaterialManager retrieven successfully from the DetStore
-MuGM:MuonFactory     INFO MuonSystem description from OracleTag=<ATLAS-GEO-10-00-00> and node=<ATLAS>
+MuGM:MuonFactory     INFO MuonSystem description from OracleTag=<ATLAS-R1-2012-03-01-00> and node=<ATLAS>
 MuGM:MuonFactory     INFO  TreeTop added to the Manager
-MuGM:MuonFactory     INFO  Muon Layout R.03.11
+MuGM:MuonFactory     INFO  Muon Layout R.06.04
 MuGM:MuonFactory     INFO Fine Clash Fixing disabled: (should be ON/OFF for Simulation/Reconstruction)
 MuGM:MuonFactory     INFO  **************** MuonDetectorFactory001 ****************************
 MuGM:MuonFactory     INFO  *** The Muon Chamber Geometry Tree is built with 
 MuGM:MuonFactory     INFO  *** 1740 child volumes 
 MuGM:MuonFactory     INFO  *** 1729 independent elements and 
-MuGM:MuonFactory     INFO  *** 11439 elements cloned or shared 
+MuGM:MuonFactory     INFO  *** 11375 elements cloned or shared 
 MuGM:MuonFactory     INFO  *** 226 kinds of stations
 MuGM:MuonFactory     INFO  *** 1740 stations with alignable transforms
 MuGM:MuonFactory     INFO  *** 136 stations are described as Assemblies
@@ -635,10 +641,11 @@ MuGM:MuonFactory     INFO  *** The Muon Geometry Tree has 1740 child vol.s in to
 MuGM:MuonFactory     INFO  ********************************************************************
 
 MGM::MuonDetect...   INFO Init A/B Line Containers - done - size is respectively 1740/0
-MGM::MuonDetect...   INFO No Aline for CSC wire layers loaded 
-GeoModelSvc          INFO GeoModelSvc.MuonDetectorTool	 SZ= 36832Kb 	 Time = 1.54S
+MGM::MuonDetect...   INFO I-Line for CSC wire layers loaded (Csc Internal Alignment)
+MGM::MuonDetect...   INFO According to configuration parameters they WILL BE UPDATED FROM CONDDB 
+GeoModelSvc          INFO GeoModelSvc.MuonDetectorTool	 SZ= 33000Kb 	 Time = 1.11S
 GeoModelSvc.Bea...   INFO Building Beam Pipe
-GeoModelSvc          INFO GeoModelSvc.BeamPipeDetectorTool	 SZ= 0Kb 	 Time = 0.01S
+GeoModelSvc          INFO GeoModelSvc.BeamPipeDetectorTool	 SZ= 1024Kb 	 Time = 0.01S
 CORAL/Services/ConnectionService Info User session with sessionID=S#5(C#8.s#1) will be ended on connectionID=C#8
 CORAL/Services/ConnectionService Info Connection to service "ATLF/()" with connectionID=C#8 will be disconnected
 GeoModelSvc.Pix...WARNING Unable to register callback on global Container with folder /Indet/AlignL1/ID
@@ -657,79 +664,50 @@ GeoModelSvc.Muo...   INFO This is OK unless you expect to read alignment and def
 ClassIDSvc           INFO  getRegistryEntries: read 61 CLIDRegistry entries for module ALL
 TileInfoLoader       INFO Initializing....TileInfoLoader
 TileInfoLoader       INFO TileInfoLoader in geoInit() ...
-TileInfoLoader       INFO New ATLAS geometry detected: ATLAS-GEO-10-00-00 (100000)
+TileInfoLoader       INFO New ATLAS geometry detected: ATLAS-R1-2012-03-01-00 (01-0-0)
 TileInfoLoader       INFO Changing TTL1 calib from 4.1 to 6.9
 TileInfoLoader       INFO Changing TTL1 noise sigma from 2.5 to 2.8
-TileInfoLoader       INFO ATLAS geometry 100000 < 180000 - use old default sampling fraction
-TileInfoLoader       INFO If you want to override old default, put negative value in jobOptions
-TileInfoLoader       INFO ATLAS geometry 100000 < 140000 - disabling special sampling fractions for gap/crack scin
-TileInfoLoader       INFO Sampling fraction for normal cells 1/34.3
-TileInfoLoader       INFO Sampling fraction for special C10 cells 1/34.3
-TileInfoLoader       INFO Sampling fraction for E1 cells 1/75
-TileInfoLoader       INFO Sampling fraction for E2 cells 1/75
-TileInfoLoader       INFO Sampling fraction for E3 cells 1/75
+TileInfoLoader       INFO ATLAS geometry 1 >= 140000 - special sampling fractions for gap/crack scin are allowed
+TileInfoLoader       INFO Special C10 in EB module 39
+TileInfoLoader       INFO Special C10 in EB module 40
+TileInfoLoader       INFO Special C10 in EB module 41
+TileInfoLoader       INFO Special C10 in EB module 42
+TileInfoLoader       INFO Special C10 in EB module 55
+TileInfoLoader       INFO Special C10 in EB module 56
+TileInfoLoader       INFO Special C10 in EB module 57
+TileInfoLoader       INFO Special C10 in EB module 58
+TileInfoLoader       INFO Sampling fraction for normal cells 1/34
+TileInfoLoader       INFO Sampling fraction for special C10 cells 1/45
+TileInfoLoader       INFO Sampling fraction for E1 cells 1/125
+TileInfoLoader       INFO Sampling fraction for E2 cells 1/107
+TileInfoLoader       INFO Sampling fraction for E3 cells 1/97
 TileInfoLoader       INFO Sampling fraction for E4 cells 1/75
 TileInfoLoader       INFO Sampling fraction for E4' cells 1/75
-TileInfoLoader       INFO Reading file  /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/pulsehi_physics.dat
-TileInfoLoader       INFO Reading file  /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/pulselo_physics.dat
-TileInfoLoader       INFO Reading file  /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/pulse_adder_tower_physics.dat
-TileInfoLoader       INFO Reading file  /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/pulse_adder_muonRcv_physics.dat
-TileInfoLoader       INFO Reading file  /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/pulse_adder_muon_physics.dat
+TileInfoLoader       INFO Reading file  /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/pulsehi_physics.dat
+TileInfoLoader       INFO Reading file  /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/pulselo_physics.dat
+TileInfoLoader       INFO Reading file  /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/pulse_adder_tower_physics.dat
+TileInfoLoader       INFO Reading file  /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/pulse_adder_muonRcv_physics.dat
+TileInfoLoader       INFO Reading file  /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/pulse_adder_muon_physics.dat
 CaloIDHelper_ID...   INFO in createObj: creating a CaloLVL1_ID helper object in the detector store
 CaloLVL1_ID          INFO initialize_from_dictionary
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-TileCablingSvc       INFO RUN1 ATLAS geometry detected: ATLAS-GEO-10-00-00
+TileCablingSvc       INFO RUN1 ATLAS geometry detected: ATLAS-R1-2012-03-01-00
 TileCablingSvc       INFO Setting Cabling type to 2
-ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflCisLin) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/TileDefault.cisFitLin"
-ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflCisNln) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/TileDefault.cisFitNln"
-ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflLasLin) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/TileDefault.lasLin"
-ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflLasNln) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/TileDefault.lasNln"
-ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflCes) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/TileDefault.ces"
-ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflEms) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/TileDefault.ems"
-ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflLasFib) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/TileDefault.lasFib"
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflCisLin) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/TileDefault.cisFitLin"
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflCisNln) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/TileDefault.cisFitNln"
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflLasLin) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/TileDefault.lasLin"
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflLasNln) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/TileDefault.lasNln"
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflCes) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/TileDefault.ces"
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflEms) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/TileDefault.ems"
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflLasFib) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/TileDefault.lasFib"
 ToolSvc.TileCon...   INFO ProxyOflLasFib is set up and can be used
 ToolSvc.TileCon...   INFO Loading of online calibration folders not requested, since OnlCacheUnit=Invalid
-ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolNoiseSample.TileCondProxyFile_NoiseSample) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/TileDefault.ped"
-ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolTiming.TileCondProxyFile_AdcOffset) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/TileDefault.tcphy"
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolNoiseSample.TileCondProxyFile_NoiseSample) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/TileDefault.ped"
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolTiming.TileCondProxyFile_AdcOffset) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/TileDefault.tcphy"
 ToolSvc.TileCon...   INFO TileCondToolTiming::recache() has been triggered by: 'ASCII files' 
 TileInfoLoader       INFO Placed TileInfo object in the detector store.
-CaloMgrDetDescrCnv   INFO in createObj: creating a Calo Detector Manager object in the detector store
-CaloIdMgrDetDes...   INFO in createObj: creating a CaloDescrManager object in the detector store
-ClassIDSvc           INFO  getRegistryEntries: read 60 CLIDRegistry entries for module ALL
-CaloIDHelper_ID...   INFO in createObj: creating a CaloDM_ID helper object in the detector store
-CaloDM_ID            INFO initialize_from_dictionary
-AtlasDetectorID      INFO initialize_from_dictionary - OK
-CaloIDHelper_ID...   INFO in createObj: creating a TTOnlineID helper object in the detector store
-TTOnlineID           INFO initialize_from_dictionary
-AtlasDetectorID      INFO initialize_from_dictionary - OK
-CaloIDHelper_ID...   INFO in createObj: creating a CaloCell_SuperCell_ID helper object in the detector store
-CaloIDHelper_ID...   INFO in createObj: creating a LArEM_SuperCell_ID helper object in the detector store
-AtlasDetectorID      INFO initialize_from_dictionary - OK
-CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_SuperCell_ID helper object in the detector store
-AtlasDetectorID      INFO initialize_from_dictionary - OK
-CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_SuperCell_ID helper object in the detector store
-AtlasDetectorID      INFO initialize_from_dictionary - OK
-LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/FCalSuperCells2DNeighborsNew-April2014.txt
-LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
-LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
-CaloIDHelper_ID...   INFO in createObj: creating a Tile_SuperCell_ID helper object in the detector store
-AtlasDetectorID      INFO initialize_from_dictionary - OK
-TileNeighbour        INFO Reading file  /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/TileSuperCellNeighbour.txt
-AtlasDetectorID      INFO initialize_from_dictionary - OK
-CaloIdMgrDetDes...   INFO  Finished 
-CaloIdMgrDetDes...   INFO Initializing CaloIdMgr from values in CaloIdMgrDetDescrCnv 
-CORAL/Services/ConnectionService Info Re-ordering 3 replicas using installed algorithm
-CORAL/Services/ConnectionService Info Sorting algorithm selected 4 replicas
-CORAL/Services/ConnectionService Warning Failed to connect to service geomDB/geomDB_sqlite (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/ssnyder/atlas-work3/Trigger/TrigEvent/TrigEventAthenaPool/run/TrigEventAthenaPool_16.0.3.3-x86_64-slc6-gcc49-dbg/geomDB is not writable" )' - do NOT retry
-CORAL/Services/ConnectionService Info Connection to service "geomDB/geomDB_sqlite" with connectionID=C#9 will be disconnected
-CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:geomDB/geomDB_sqlite": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/ssnyder/atlas-work3/Trigger/TrigEvent/TrigEventAthenaPool/run/TrigEventAthenaPool_16.0.3.3-x86_64-slc6-gcc49-dbg/geomDB is not writable" )
-CORAL/RelationalPlugins/frontier Info The current compresion level is 5
-CORAL/Services/ConnectionService Info New connection to service "ATLF/()" with connectionID=C#10 has been connected
-CORAL/Services/ConnectionService Info New user session with sessionID=S#6(C#10.s#1) started on connectionID=C#10 to service "ATLF/()" for user "" in read-only mode
-CORAL/Services/ConnectionService Info User session with sessionID=S#6(C#10.s#1) will be ended on connectionID=C#10
-CORAL/Services/ConnectionService Info Connection to service "ATLF/()" with connectionID=C#10 will be disconnected
-ToolSvc.TileBad...   INFO Creating TileCondProxyFile(ToolSvc.TileBadChanTool.TileCondProxyFile_OnlBch) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/TileDefault.onlBch"
-ToolSvc.TileBad...   INFO Creating TileCondProxyFile(ToolSvc.TileBadChanTool.TileCondProxyFile_OflBch) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_1/InstallArea/share/TileDefault.oflBch"
+ToolSvc.TileBad...   INFO Creating TileCondProxyFile(ToolSvc.TileBadChanTool.TileCondProxyFile_OnlBch) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/TileDefault.onlBch"
+ToolSvc.TileBad...   INFO Creating TileCondProxyFile(ToolSvc.TileBadChanTool.TileCondProxyFile_OflBch) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/TileDefault.oflBch"
 ToolSvc.TileBad...   INFO ProxyOnlBch and ProxyOflBch will be used for bad channel status
 ToolSvc.TileBad...   INFO TileBadChanTool::recache() has been triggered by: 'ASCII files' 
 ToolSvc.TileBad...   INFO No TileBchStatus::isBad() definition found in DB, using defaults
@@ -741,14 +719,14 @@ ToolSvc.TileBad...   INFO TileBchStatus::isNoisy() is defined by: Large HF noise
 ToolSvc.TileBad...   INFO TileBchStatus::isNoGainL1() is defined by: ADC dead; No PMT connected; No HV; Channel masked for LV1 (unspecified); LV1 channel no gain; LV1 channel noisy; <no description available>; 
 ToolSvc.TileBad...   INFO TileBchStatus::isBadTiming() is defined by: Bad timing; Online bad timing; 
 ToolSvc.TileBad...   INFO No drawer trips probabilities found in DB
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-08
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-14
 AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
 AthAlgSeq            INFO Member list: PyAthena::Alg/dumper
 PyComponentMgr       INFO Initializing PyComponentMgr...
 dumper               INFO Initializing dumper...
 HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
-ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-06-37
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-06-43
 ApplicationMgr       INFO Application Manager Initialized successfully
 InputMetaDataStore   INFO Start InputMetaDataStore
 MetaDataStore        INFO Start MetaDataStore
@@ -776,18 +754,18 @@ PoolSvc              INFO Failed to find container MetaDataHdr(DataHeader) to ge
 AthenaEventLoopMgr   INFO   ===>>>  start of run 105200    <<<===
 EventPersistenc...   INFO Added successfully Conversion service:TagInfoMgr
 IOVDbSvc             INFO Global tag: OFLCOND-DR-BS7T-ANom-11 set from input file
-ClassIDSvc           INFO  getRegistryEntries: read 36 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 11 CLIDRegistry entries for module ALL
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_INDET/OFLP200
 RalSessionMgr Info Instantiate a R/O RalSessionMgr for 'COOLOFL_INDET/OFLP200'
 RalSessionMgr Info Connect to the database server
 CORAL/Services/ConnectionService Info Re-ordering 3 replicas using installed algorithm
 CORAL/Services/ConnectionService Info Sorting algorithm selected 4 replicas
-CORAL/Services/ConnectionService Warning Failed to connect to service sqlite200/ALLP200.db (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/ssnyder/atlas-work3/Trigger/TrigEvent/TrigEventAthenaPool/run/TrigEventAthenaPool_16.0.3.3-x86_64-slc6-gcc49-dbg/sqlite200 is not writable" )' - do NOT retry
-CORAL/Services/ConnectionService Info Connection to service "sqlite200/ALLP200.db" with connectionID=C#11 will be disconnected
-CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/ssnyder/atlas-work3/Trigger/TrigEvent/TrigEventAthenaPool/run/TrigEventAthenaPool_16.0.3.3-x86_64-slc6-gcc49-dbg/sqlite200 is not writable" )
+CORAL/Services/ConnectionService Warning Failed to connect to service sqlite200/ALLP200.db (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/work/s/ssnyder/builds/atlas-work3e/build-x86_64-slc6-gcc49-opt/Trigger/TrigEvent/TrigEventAthenaPool/unitTestRun/TrigEventAthenaPool_16.0.3.3/sqlite200 is not writable" )' - do NOT retry
+CORAL/Services/ConnectionService Info Connection to service "sqlite200/ALLP200.db" with connectionID=C#9 will be disconnected
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/work/s/ssnyder/builds/atlas-work3e/build-x86_64-slc6-gcc49-opt/Trigger/TrigEvent/TrigEventAthenaPool/unitTestRun/TrigEventAthenaPool_16.0.3.3/sqlite200 is not writable" )
 CORAL/RelationalPlugins/frontier Info The current compresion level is 5
-CORAL/Services/ConnectionService Info New connection to service "ATLF/()" with connectionID=C#12 has been connected
-CORAL/Services/ConnectionService Info New user session with sessionID=S#7(C#12.s#1) started on connectionID=C#12 to service "ATLF/()" for user "" in read-only mode
+CORAL/Services/ConnectionService Info New connection to service "ATLF/()" with connectionID=C#10 has been connected
+CORAL/Services/ConnectionService Info New user session with sessionID=S#6(C#10.s#1) started on connectionID=C#10 to service "ATLF/()" for user "" in read-only mode
 RalSessionMgr Info Start a read-only transaction active for the duration of the database connection
 RelationalDatabase Info Instantiate a R/O RalDatabase for 'COOLOFL_INDET/OFLP200'
 RelationalDatabase Info Release number backward compatibility - NO SCHEMA EVOLUTION REQUIRED: database with OLDER release number 2.8.0 will be opened using CURRENT client release number 3.1.3
@@ -797,8 +775,8 @@ IOVDbSvc             INFO HVS tag OFLCOND-DR-BS7T-ANom-11 resolved to InDetPixel
 IOVDbSvc             INFO Disconnecting from COOLOFL_INDET/OFLP200
 RalSessionMgr Info Commit the read-only transaction active for the duration of the database connection
 RalSessionMgr Info Disconnect from the database server
-CORAL/Services/ConnectionService Info User session with sessionID=S#7(C#12.s#1) will be ended on connectionID=C#12
-CORAL/Services/ConnectionService Info Connection to service "ATLF/()" with connectionID=C#12 will be disconnected
+CORAL/Services/ConnectionService Info User session with sessionID=S#6(C#10.s#1) will be ended on connectionID=C#10
+CORAL/Services/ConnectionService Info Connection to service "ATLF/()" with connectionID=C#10 will be disconnected
 RelationalDatabase Info Delete the RalDatabase for 'COOLOFL_INDET/OFLP200'
 RalSessionMgr Info Delete the RalSessionMgr for 'COOLOFL_INDET/OFLP200'
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
@@ -806,12 +784,12 @@ RalSessionMgr Info Instantiate a R/O RalSessionMgr for 'COOLOFL_LAR/OFLP200'
 RalSessionMgr Info Connect to the database server
 CORAL/Services/ConnectionService Info Re-ordering 3 replicas using installed algorithm
 CORAL/Services/ConnectionService Info Sorting algorithm selected 4 replicas
-CORAL/Services/ConnectionService Warning Failed to connect to service sqlite200/ALLP200.db (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/ssnyder/atlas-work3/Trigger/TrigEvent/TrigEventAthenaPool/run/TrigEventAthenaPool_16.0.3.3-x86_64-slc6-gcc49-dbg/sqlite200 is not writable" )' - do NOT retry
-CORAL/Services/ConnectionService Info Connection to service "sqlite200/ALLP200.db" with connectionID=C#13 will be disconnected
-CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/ssnyder/atlas-work3/Trigger/TrigEvent/TrigEventAthenaPool/run/TrigEventAthenaPool_16.0.3.3-x86_64-slc6-gcc49-dbg/sqlite200 is not writable" )
+CORAL/Services/ConnectionService Warning Failed to connect to service sqlite200/ALLP200.db (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/work/s/ssnyder/builds/atlas-work3e/build-x86_64-slc6-gcc49-opt/Trigger/TrigEvent/TrigEventAthenaPool/unitTestRun/TrigEventAthenaPool_16.0.3.3/sqlite200 is not writable" )' - do NOT retry
+CORAL/Services/ConnectionService Info Connection to service "sqlite200/ALLP200.db" with connectionID=C#11 will be disconnected
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/work/s/ssnyder/builds/atlas-work3e/build-x86_64-slc6-gcc49-opt/Trigger/TrigEvent/TrigEventAthenaPool/unitTestRun/TrigEventAthenaPool_16.0.3.3/sqlite200 is not writable" )
 CORAL/RelationalPlugins/frontier Info The current compresion level is 5
-CORAL/Services/ConnectionService Info New connection to service "ATLF/()" with connectionID=C#14 has been connected
-CORAL/Services/ConnectionService Info New user session with sessionID=S#8(C#14.s#1) started on connectionID=C#14 to service "ATLF/()" for user "" in read-only mode
+CORAL/Services/ConnectionService Info New connection to service "ATLF/()" with connectionID=C#12 has been connected
+CORAL/Services/ConnectionService Info New user session with sessionID=S#7(C#12.s#1) started on connectionID=C#12 to service "ATLF/()" for user "" in read-only mode
 RalSessionMgr Info Start a read-only transaction active for the duration of the database connection
 RelationalDatabase Info Instantiate a R/O RalDatabase for 'COOLOFL_LAR/OFLP200'
 RelationalDatabase Info Release number backward compatibility - NO SCHEMA EVOLUTION REQUIRED: database with OLDER release number 2.7.0 will be opened using CURRENT client release number 3.1.3
@@ -820,8 +798,8 @@ IOVDbSvc             INFO HVS tag OFLCOND-DR-BS7T-ANom-11 resolved to LArCellPos
 IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
 RalSessionMgr Info Commit the read-only transaction active for the duration of the database connection
 RalSessionMgr Info Disconnect from the database server
-CORAL/Services/ConnectionService Info User session with sessionID=S#8(C#14.s#1) will be ended on connectionID=C#14
-CORAL/Services/ConnectionService Info Connection to service "ATLF/()" with connectionID=C#14 will be disconnected
+CORAL/Services/ConnectionService Info User session with sessionID=S#7(C#12.s#1) will be ended on connectionID=C#12
+CORAL/Services/ConnectionService Info Connection to service "ATLF/()" with connectionID=C#12 will be disconnected
 RelationalDatabase Info Delete the RalDatabase for 'COOLOFL_LAR/OFLP200'
 RalSessionMgr Info Delete the RalSessionMgr for 'COOLOFL_LAR/OFLP200'
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_TRT/OFLP200
@@ -829,12 +807,12 @@ RalSessionMgr Info Instantiate a R/O RalSessionMgr for 'COOLOFL_TRT/OFLP200'
 RalSessionMgr Info Connect to the database server
 CORAL/Services/ConnectionService Info Re-ordering 3 replicas using installed algorithm
 CORAL/Services/ConnectionService Info Sorting algorithm selected 4 replicas
-CORAL/Services/ConnectionService Warning Failed to connect to service sqlite200/ALLP200.db (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/ssnyder/atlas-work3/Trigger/TrigEvent/TrigEventAthenaPool/run/TrigEventAthenaPool_16.0.3.3-x86_64-slc6-gcc49-dbg/sqlite200 is not writable" )' - do NOT retry
-CORAL/Services/ConnectionService Info Connection to service "sqlite200/ALLP200.db" with connectionID=C#15 will be disconnected
-CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/user/s/ssnyder/atlas-work3/Trigger/TrigEvent/TrigEventAthenaPool/run/TrigEventAthenaPool_16.0.3.3-x86_64-slc6-gcc49-dbg/sqlite200 is not writable" )
+CORAL/Services/ConnectionService Warning Failed to connect to service sqlite200/ALLP200.db (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/work/s/ssnyder/builds/atlas-work3e/build-x86_64-slc6-gcc49-opt/Trigger/TrigEvent/TrigEventAthenaPool/unitTestRun/TrigEventAthenaPool_16.0.3.3/sqlite200 is not writable" )' - do NOT retry
+CORAL/Services/ConnectionService Info Connection to service "sqlite200/ALLP200.db" with connectionID=C#13 will be disconnected
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/work/s/ssnyder/builds/atlas-work3e/build-x86_64-slc6-gcc49-opt/Trigger/TrigEvent/TrigEventAthenaPool/unitTestRun/TrigEventAthenaPool_16.0.3.3/sqlite200 is not writable" )
 CORAL/RelationalPlugins/frontier Info The current compresion level is 5
-CORAL/Services/ConnectionService Info New connection to service "ATLF/()" with connectionID=C#16 has been connected
-CORAL/Services/ConnectionService Info New user session with sessionID=S#9(C#16.s#1) started on connectionID=C#16 to service "ATLF/()" for user "" in read-only mode
+CORAL/Services/ConnectionService Info New connection to service "ATLF/()" with connectionID=C#14 has been connected
+CORAL/Services/ConnectionService Info New user session with sessionID=S#8(C#14.s#1) started on connectionID=C#14 to service "ATLF/()" for user "" in read-only mode
 RalSessionMgr Info Start a read-only transaction active for the duration of the database connection
 RelationalDatabase Info Instantiate a R/O RalDatabase for 'COOLOFL_TRT/OFLP200'
 RelationalDatabase Info Release number backward compatibility - NO SCHEMA EVOLUTION REQUIRED: database with OLDER release number 2.8.0 will be opened using CURRENT client release number 3.1.3
@@ -846,8 +824,8 @@ IOVDbSvc             INFO HVS tag OFLCOND-DR-BS7T-ANom-11 resolved to TrtStrawSt
 IOVDbSvc             INFO Disconnecting from COOLOFL_TRT/OFLP200
 RalSessionMgr Info Commit the read-only transaction active for the duration of the database connection
 RalSessionMgr Info Disconnect from the database server
-CORAL/Services/ConnectionService Info User session with sessionID=S#9(C#16.s#1) will be ended on connectionID=C#16
-CORAL/Services/ConnectionService Info Connection to service "ATLF/()" with connectionID=C#16 will be disconnected
+CORAL/Services/ConnectionService Info User session with sessionID=S#8(C#14.s#1) will be ended on connectionID=C#14
+CORAL/Services/ConnectionService Info Connection to service "ATLF/()" with connectionID=C#14 will be disconnected
 RelationalDatabase Info Delete the RalDatabase for 'COOLOFL_TRT/OFLP200'
 RalSessionMgr Info Delete the RalSessionMgr for 'COOLOFL_TRT/OFLP200'
 DbSession Info     Open     DbSession    
@@ -867,12 +845,63 @@ RootDatabase.open Success /afs/cern.ch/atlas/conditions/poolcond/vol0/cond09_mc.
 Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] DAC670C2-A429-DE11-8C8A-0015C5098AA3
 Domain[ROOT_All] Info                           /afs/cern.ch/atlas/conditions/poolcond/vol0/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0041.pool.root
 RootDatabase.open Success /afs/cern.ch/atlas/conditions/poolcond/vol0/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0041.pool.root File version:52200
+GeoModelSvc       WARNING *** *** Geometry configured through jobOptions does not match TagInfo tags! *** ***
+GeoModelSvc          INFO ** Job Option configuration: 
+GeoModelSvc          INFO * ATLAS tag: ATLAS-R1-2012-03-01-00
+GeoModelSvc          INFO * InDet tag: 
+GeoModelSvc          INFO * Pixel tag: 
+GeoModelSvc          INFO * SCT   tag: 
+GeoModelSvc          INFO * TRT   tag: 
+GeoModelSvc          INFO * LAr   tag: 
+GeoModelSvc          INFO * Tile  tag: 
+GeoModelSvc          INFO * Muon  tag: 
+GeoModelSvc          INFO * Calo  tag: 
+GeoModelSvc          INFO * MagField  tag: 
+GeoModelSvc          INFO * CavernInfra  tag: 
+GeoModelSvc          INFO * ForwardDetectors  tag: 
+GeoModelSvc          INFO ** TAG INFO configuration: 
+GeoModelSvc          INFO * ATLAS tag: ATLAS-GEO-10-00-00
+CaloMgrDetDescrCnv   INFO in createObj: creating a Calo Detector Manager object in the detector store
+CaloIdMgrDetDes...   INFO in createObj: creating a CaloDescrManager object in the detector store
+ClassIDSvc           INFO  getRegistryEntries: read 147 CLIDRegistry entries for module ALL
+CaloIDHelper_ID...   INFO in createObj: creating a CaloDM_ID helper object in the detector store
+CaloDM_ID            INFO initialize_from_dictionary
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIDHelper_ID...   INFO in createObj: creating a TTOnlineID helper object in the detector store
+TTOnlineID           INFO initialize_from_dictionary
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIDHelper_ID...   INFO in createObj: creating a CaloCell_SuperCell_ID helper object in the detector store
+CaloIDHelper_ID...   INFO in createObj: creating a LArEM_SuperCell_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_SuperCell_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_SuperCell_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/FCalSuperCells2DNeighborsNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
+CaloIDHelper_ID...   INFO in createObj: creating a Tile_SuperCell_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+TileNeighbour        INFO Reading file  /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_2/InstallArea/x86_64-slc6-gcc49-opt/share/TileSuperCellNeighbour.txt
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIdMgrDetDes...   INFO  Finished 
+CaloIdMgrDetDes...   INFO Initializing CaloIdMgr from values in CaloIdMgrDetDescrCnv 
+CORAL/Services/ConnectionService Info Re-ordering 3 replicas using installed algorithm
+CORAL/Services/ConnectionService Info Sorting algorithm selected 4 replicas
+CORAL/Services/ConnectionService Warning Failed to connect to service geomDB/geomDB_sqlite (coral::Exception): 'CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/work/s/ssnyder/builds/atlas-work3e/build-x86_64-slc6-gcc49-opt/Trigger/TrigEvent/TrigEventAthenaPool/unitTestRun/TrigEventAthenaPool_16.0.3.3/geomDB is not writable" )' - do NOT retry
+CORAL/Services/ConnectionService Info Connection to service "geomDB/geomDB_sqlite" with connectionID=C#15 will be disconnected
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:geomDB/geomDB_sqlite": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/work/s/ssnyder/builds/atlas-work3e/build-x86_64-slc6-gcc49-opt/Trigger/TrigEvent/TrigEventAthenaPool/unitTestRun/TrigEventAthenaPool_16.0.3.3/geomDB is not writable" )
+CORAL/RelationalPlugins/frontier Info The current compresion level is 5
+CORAL/Services/ConnectionService Info New connection to service "ATLF/()" with connectionID=C#16 has been connected
+CORAL/Services/ConnectionService Info New user session with sessionID=S#9(C#16.s#1) started on connectionID=C#16 to service "ATLF/()" for user "" in read-only mode
+CORAL/Services/ConnectionService Info User session with sessionID=S#9(C#16.s#1) will be ended on connectionID=C#16
+CORAL/Services/ConnectionService Info Connection to service "ATLF/()" with connectionID=C#16 will be disconnected
 Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 8667C6F2-1559-DE11-A611-000423D9A21A
 Domain[ROOT_All] Info                           /afs/cern.ch/atlas/conditions/poolcond/vol0/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root
 RootDatabase.open Success /afs/cern.ch/atlas/conditions/poolcond/vol0/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root File version:52200
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #105200 0 events processed so far  <<<===
-ClassIDSvc           INFO  getRegistryEntries: read 368 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 3249 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 204 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2021 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 66 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 6 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 58 CLIDRegistry entries for module ALL
@@ -880,12 +909,12 @@ ClassIDSvc           INFO  getRegistryEntries: read 3 CLIDRegistry entries for m
 ClassIDSvc           INFO  getRegistryEntries: read 10 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 87 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 2 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 66 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 73 CLIDRegistry entries for module ALL
 TrackParticleCo...   INFO TrackParticleContainerCnv::initialize()
-ClassIDSvc           INFO  getRegistryEntries: read 57 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 14 CLIDRegistry entries for module ALL
 AtlasIDDetDescrCnv   INFO in createObj: creating a AtlasDetectorID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-ClassIDSvc           INFO  getRegistryEntries: read 485 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 334 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #105200 1 events processed so far  <<<===
 /afs/cern.ch/atlas/conditions/poolcond/vol0/oflcond.000002.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0029.pool.root Info Database being retired...
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 0E3CF1E5-143D-DB11-92C7-000CF1DA62DD
@@ -893,10 +922,10 @@ Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 0E3CF1E5-14
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] D67CA215-C5CB-DF11-954C-000423DC2158
 /afs/cern.ch/atlas/conditions/poolcond/vol0/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0041.pool.root Info Database being retired...
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] DAC670C2-A429-DE11-8C8A-0015C5098AA3
-/afs/cern.ch/atlas/conditions/poolcond/vol0/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 8667C6F2-1559-DE11-A611-000423D9A21A
 /afs/cern.ch/atlas/conditions/poolcond/vol0/oflcond.000002.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0028.pool.root Info Database being retired...
 Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 8E91164C-1E3C-DB11-8CAB-00132046AB63
+/afs/cern.ch/atlas/conditions/poolcond/vol0/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 8667C6F2-1559-DE11-A611-000423D9A21A
 Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #105200 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #105200 2 events processed so far  <<<===
@@ -935,45 +964,45 @@ AthAlgSeq            INFO Finalizing AthAlgSeq...
 AthOutSeq            INFO Finalizing AthOutSeq...
 AthRegSeq            INFO Finalizing AthRegSeq...
 AthMasterSeq         INFO Finalizing AthMasterSeq...
-StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-03-06-37
+StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-03-06-43
 PyComponentMgr       INFO Finalizing PyComponentMgr...
 IdDictDetDescrCnv    INFO in finalize
-DetectorStore        INFO Finalizing DetectorStore - package version StoreGate-03-06-37
-ConditionStore       INFO Finalizing ConditionStore - package version StoreGate-03-06-37
-IOVDbSvc             INFO Folder /Indet/Align (PoolColl) db-read 1/1 objs/chan/bytes 34/43/5440 ((     1.29 ))s
-IOVDbSvc             INFO Folder /Indet/IBLDist (AttrListColl) db-read 1/1 objs/chan/bytes 14/14/280 ((     0.31 ))s
-IOVDbSvc             INFO Folder /Indet/PixelDist (PoolRef) db-read 1/0 objs/chan/bytes 1/1/174 ((     0.42 ))s
+DetectorStore        INFO Finalizing DetectorStore - package version StoreGate-03-06-43
+ConditionStore       INFO Finalizing ConditionStore - package version StoreGate-03-06-43
+IOVDbSvc             INFO Folder /Indet/Align (PoolColl) db-read 1/1 objs/chan/bytes 34/43/5440 ((     0.06 ))s
+IOVDbSvc             INFO Folder /Indet/IBLDist (AttrListColl) db-read 1/1 objs/chan/bytes 14/14/280 ((     0.03 ))s
+IOVDbSvc             INFO Folder /Indet/PixelDist (PoolRef) db-read 1/0 objs/chan/bytes 1/1/174 ((     0.04 ))s
 IOVDbSvc          WARNING Folder /Indet/PixelDist is requested but no data retrieved
-IOVDbSvc             INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/170 ((     1.25 ))s
-IOVDbSvc             INFO Folder /TRT/Align (PoolColl) db-read 1/1 objs/chan/bytes 32/32/5120 ((     0.69 ))s
-IOVDbSvc             INFO Folder /TRT/Calib/DX (PoolRef) db-read 1/1 objs/chan/bytes 1/1/183 ((     0.91 ))s
-IOVDbSvc             INFO Folder /TRT/Cond/Status (PoolColl) db-read 1/0 objs/chan/bytes 36/36/6732 ((     0.67 ))s
+IOVDbSvc             INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/170 ((     0.09 ))s
+IOVDbSvc             INFO Folder /TRT/Align (PoolColl) db-read 1/1 objs/chan/bytes 32/32/5120 ((     0.05 ))s
+IOVDbSvc             INFO Folder /TRT/Calib/DX (PoolRef) db-read 1/1 objs/chan/bytes 1/1/183 ((     0.03 ))s
+IOVDbSvc             INFO Folder /TRT/Cond/Status (PoolColl) db-read 1/0 objs/chan/bytes 36/36/6732 ((     0.04 ))s
 IOVDbSvc          WARNING Folder /TRT/Cond/Status is requested but no data retrieved
-IOVDbSvc             INFO Folder /TRT/Cond/StatusHT (PoolColl) db-read 1/0 objs/chan/bytes 35/35/6370 ((     0.59 ))s
+IOVDbSvc             INFO Folder /TRT/Cond/StatusHT (PoolColl) db-read 1/0 objs/chan/bytes 35/35/6370 ((     0.04 ))s
 IOVDbSvc          WARNING Folder /TRT/Cond/StatusHT is requested but no data retrieved
-IOVDbSvc             INFO Folder /TRT/Cond/StatusPermanent (PoolColl) db-read 1/0 objs/chan/bytes 35/36/6545 ((     0.58 ))s
+IOVDbSvc             INFO Folder /TRT/Cond/StatusPermanent (PoolColl) db-read 1/0 objs/chan/bytes 35/36/6545 ((     0.04 ))s
 IOVDbSvc          WARNING Folder /TRT/Cond/StatusPermanent is requested but no data retrieved
 IOVDbSvc             INFO Folder /TagInfo (AttrListColl) db-read 0/2 objs/chan/bytes 2/0/0 ((     0.00 ))s
-IOVDbSvc             INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/195 ((     0.08 ))s
-IOVDbSvc             INFO Total payload read from COOL: 31209 bytes in ((      6.80 ))s
+IOVDbSvc             INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/195 ((     0.03 ))s
+IOVDbSvc             INFO Total payload read from COOL: 31209 bytes in ((      0.45 ))s
 IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
-IOVDbSvc             INFO Connection COOLOFL_INDET/OFLP200 : nConnect: 2 nFolders: 3 ReadTime: ((     2.02 ))s
-IOVDbSvc             INFO Connection COOLOFL_TRT/OFLP200 : nConnect: 2 nFolders: 5 ReadTime: ((     3.44 ))s
-IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 2 ReadTime: ((     1.33 ))s
-TagMetaDataStore     INFO Finalizing TagMetaDataStore - package version StoreGate-03-06-37
-PoolSvc              INFO I/O finalization...
+IOVDbSvc             INFO Connection COOLOFL_TRT/OFLP200 : nConnect: 2 nFolders: 5 ReadTime: ((     0.20 ))s
+IOVDbSvc             INFO Connection COOLOFL_INDET/OFLP200 : nConnect: 2 nFolders: 3 ReadTime: ((     0.13 ))s
+IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 2 ReadTime: ((     0.12 ))s
+TagMetaDataStore     INFO Finalizing TagMetaDataStore - package version StoreGate-03-06-43
 XMLFileCatalog Info Updating the catalog
 PoolXMLFileCatalog Info XercesC termination number 0
-MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-03-06-37
-InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-03-06-37
+PoolSvc              INFO I/O finalization...
+MetaDataStore        INFO Finalizing MetaDataStore - package version StoreGate-03-06-43
+InputMetaDataStore   INFO Finalizing InputMetaDataStore - package version StoreGate-03-06-43
 TileInfoLoader       INFO TileInfoLoader::finalize()
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-AthenaSealSvc::...   INFO Time User   : Tot=    1 [ms]                                             #=  1
-ChronoStatSvc        INFO Time User   : Tot= 77.4  [s]                                             #=  1
+AthenaSealSvc::...   INFO Time User   : Tot=    0 [us]                                             #=  1
+ChronoStatSvc        INFO Time User   : Tot= 72.5  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

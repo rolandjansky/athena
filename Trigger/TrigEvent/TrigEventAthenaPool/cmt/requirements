@@ -158,5 +158,3 @@ apply_pattern athenarun_test \
    options="TrigEventAthenaPool/TrigEventAthenaPool_20.1.7.2_test.py" \
    pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh TrigEventAthenaPool_20.1.7.2" \
    post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh TrigEventAthenaPool_20.1.7.2"
-
-
