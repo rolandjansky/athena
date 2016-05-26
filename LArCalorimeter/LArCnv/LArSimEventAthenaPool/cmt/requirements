@@ -28,3 +28,14 @@ macro_append LArSimEventAthenaPoolPoolCnv_shlibflags "$(LArSimEventAthenaPool_di
 #apply_pattern lcgdict dict=LArSimEventAthenaPoolCnv  selectionfile=selection.xml headerfiles="../LArSimEventAthenaPool/LArSimEventAthenaPoolCnvDict.h"
 
 #macro_append LArSimEventAthenaPoolPoolCnv_dependencies " LArSimEventAthenaPool "
+
+
+private
+use TestTools            TestTools-*                AtlasTest -no_auto_imports
+
+
+apply_pattern athenarun_test \
+   name="LArSimEventTPCnv_HITS" \
+   options="LArSimEventAthenaPool/LArSimEventTPCnv_HITS_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh LArSimEventTPCnv_HITS" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh LArSimEventTPCnv_HITS"
