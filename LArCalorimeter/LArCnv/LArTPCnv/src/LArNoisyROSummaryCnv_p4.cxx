@@ -30,7 +30,7 @@ void LArNoisyROSummaryCnv_p4::transToPers(const LArNoisyROSummary* trans, LArNoi
     }
 
   size_t smnbloosefebs = trans->m_MNBLoose_febs.size();
-  pers->m_MNBLoose_febs.resize(sfebs);
+  pers->m_MNBLoose_febs.resize(smnbloosefebs);
   for ( size_t i = 0; i < smnbloosefebs; i++ )
     {
       pers->m_MNBLoose_febs[i] = trans->m_MNBLoose_febs[i].get_identifier32().get_compact();
