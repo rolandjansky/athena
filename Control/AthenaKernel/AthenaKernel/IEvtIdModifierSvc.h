@@ -55,7 +55,7 @@ class IEvtIdModifierSvc
 
   /** @brief return the current evt-nbr (after modification)
    */
-  virtual number_type event_number() const =0;
+  virtual uint64_t event_number() const =0;
 
   /** @brief return the current time-stamp (after modification)
    */
