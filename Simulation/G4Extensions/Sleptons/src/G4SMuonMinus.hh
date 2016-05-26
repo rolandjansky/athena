@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4SMuonMinus_H
-#define G4SMuonMinus_H
+#ifndef SLEPTONS_G4SMuonMinus_H
+#define SLEPTONS_G4SMuonMinus_H
 
 #include "globals.hh"
 #include "G4ios.hh"
@@ -18,11 +18,11 @@ private:
   static G4SMuonMinus* theInstance;
   G4SMuonMinus(){}
   ~G4SMuonMinus(){}
-  
+
 public:
 
-  static G4SMuonMinus* Definition();
+  static G4SMuonMinus* Definition(G4double mass=-1, G4double width=-1, G4double charge=-1, G4double PDG=-1, G4bool stable=true, G4double lifetime=-1, G4bool shortlived=false);
 
 };
 
-#endif
+#endif //SLEPTONS_G4SMuonMinus_H
