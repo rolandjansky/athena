@@ -34,7 +34,7 @@ StatusCode FourLeptonMassFilter::filterInitialize() {
 
 StatusCode FourLeptonMassFilter::filterEvent() {
   McEventCollection::const_iterator itr;
-  for (itr = events()->begin(); itr!=events()->end(); ++itr) {
+  for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = *itr;
     for (HepMC::GenEvent::particle_const_iterator pitr1 = genEvt->particles_begin(); pitr1 != genEvt->particles_end(); ++pitr1) {
 	  if ((*pitr1)->status() != 1) continue;
