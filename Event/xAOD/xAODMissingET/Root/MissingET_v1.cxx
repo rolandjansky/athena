@@ -9,7 +9,7 @@
 using namespace xAOD;
 
 MissingET_v1::MissingET_v1( bool createStore )
-   : SG::AuxElement() {
+  : SG::AuxElement() {
 
    if( createStore ) {
       createPrivateStore();
@@ -23,6 +23,7 @@ MissingET_v1::MissingET_v1( const std::string& name,
    createPrivateStore();
    setName( name );
    setSource( src );
+
 }
 
 MissingET_v1::MissingET_v1( double mpx, double mpy, double sumet,
@@ -79,7 +80,7 @@ void MissingET_v1::add(const IParticle* particle,double scale)
   this->add(px,py,pt);
 }
 
-void xAOD::MissingET_v1::add(double px,double py, double pt) 
+void xAOD::MissingET_v1::add(double px,double py, double pt)
 { this->f_mpx() -= px; this->f_mpy() -= py; this->f_sumet() += pt; }
 
 MissingET_v1& MissingET_v1::operator=(const MissingET_v1& met)
@@ -106,8 +107,8 @@ MissingET_v1& MissingET_v1::operator-=(const IParticle* particle)
 ///
 void MissingET_v1::createPrivateStore() {
 
-   makePrivateStore(); 
-   setName( MissingETBase::Strings::unknownString() ); 
-   setSource( MissingETBase::Source::unknown() ); 
-   clear(); 
+   makePrivateStore();
+   setName( MissingETBase::Strings::unknownString() );
+   setSource( MissingETBase::Source::unknown() );
+   clear();
 }
