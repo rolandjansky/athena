@@ -21,8 +21,8 @@ class ILuminosityTool: virtual public IAlgTool {
 
   // Gaudi Boilerplate
   static const InterfaceID& interfaceID() {
-    static const InterfaceID _ILuminosityTool( "ILuminosityTool", 1, 0);
-    return _ILuminosityTool;
+    static const InterfaceID ILuminosityTool( "ILuminosityTool", 1, 0);
+    return ILuminosityTool;
   }
 
   // Standard tool methods

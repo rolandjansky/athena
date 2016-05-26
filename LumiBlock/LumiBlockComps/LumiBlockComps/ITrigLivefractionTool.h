@@ -21,8 +21,8 @@ class ITrigLivefractionTool: virtual public IAlgTool {
 
   // Gaudi Boilerplate
   static const InterfaceID& interfaceID() {
-    static const InterfaceID _ITrigLivefractionTool( "ITrigLivefractionTool", 1, 0);
-    return _ITrigLivefractionTool;
+    static const InterfaceID ITrigLivefractionTool( "ITrigLivefractionTool", 1, 0);
+    return ITrigLivefractionTool;
   }
 
   // Standard tool methods

@@ -27,8 +27,8 @@ class ILumiBlockMetaDataTool : virtual public IAlgTool {
 
    /// Gaudi boilerplate
    static const InterfaceID& interfaceID() {
-     static const InterfaceID _ILumiBlockMetaDataTool( "ILumiBlockMetaDataTool", 1, 0 );
-     return _ILumiBlockMetaDataTool;
+     static const InterfaceID ILumiBlockMetaDataTool( "ILumiBlockMetaDataTool", 1, 0 );
+     return ILumiBlockMetaDataTool;
    }
 
    /// get grl collection

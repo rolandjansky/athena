@@ -20,8 +20,8 @@ class ILumiBlockMuTool: virtual public IAlgTool {
 
   // Gaudi Boilerplate
   static const InterfaceID& interfaceID() {
-    static const InterfaceID _ILumiBlockMuTool( "ILumiBlockMuTool", 1, 0);
-    return _ILumiBlockMuTool;
+    static const InterfaceID ILumiBlockMuTool( "ILumiBlockMuTool", 1, 0);
+    return ILumiBlockMuTool;
   }
 
   // Standard tool methods

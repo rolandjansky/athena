@@ -159,6 +159,9 @@ class LuminosityToolOnline(LuminosityTool):
         super (LuminosityToolOnline, self).__init__(name)
 
         mlog = logging.getLogger(name)
+
+        # Keep values for invalid data
+        self.SkipInvalid = False
         
         from IOVDbSvc.CondDB import conddb
         if conddb.dbdata == "COMP200": # Run1
