@@ -44,16 +44,16 @@ MissingEtCalo* MissingEtCaloCnv::createTransient()
   if ( compareClassGuid(tr_guid) ) { // regular object from before the T/P separation
     return poolReadObject<MissingEtCalo>();
   }else if ( compareClassGuid(p1_guid) ) {
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<MissingEtCalo_p1> persObj( poolReadObject<MissingEtCalo_p1>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<MissingEtCalo_p1> persObj( poolReadObject<MissingEtCalo_p1>() );
     MissingEtCaloCnv_p1 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
   }else if ( compareClassGuid(p2_guid) ) {
-    std::auto_ptr<MissingEtCalo_p2> persObj( poolReadObject<MissingEtCalo_p2>() );
+    std::unique_ptr<MissingEtCalo_p2> persObj( poolReadObject<MissingEtCalo_p2>() );
     MissingEtCaloCnv_p2 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
   }else if ( compareClassGuid(p3_guid) ) {
-    std::auto_ptr<MissingEtCalo_p3> persObj( poolReadObject<MissingEtCalo_p3>() );
+    std::unique_ptr<MissingEtCalo_p3> persObj( poolReadObject<MissingEtCalo_p3>() );
     MissingEtCaloCnv_p3 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );    
   } else {

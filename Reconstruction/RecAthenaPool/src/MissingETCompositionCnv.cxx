@@ -26,18 +26,18 @@ MissingETComposition* MissingETCompositionCnv::createTransient()
   if( compareClassGuid(p2_guid) ){
       if ( ! bool(m_TPconverter_p2) )
 	      m_TPconverter_p2 = new MissingETCompositionCnv_p2();
-      // using auto_ptr ensures deletion of the persistent object
-      std::auto_ptr<MissingETComposition_p2> shapestore( poolReadObject< MissingETComposition_p2 >() );
+      // using unique_ptr ensures deletion of the persistent object
+      std::unique_ptr<MissingETComposition_p2> shapestore( poolReadObject< MissingETComposition_p2 >() );
       MsgStream report( messageService(), "MissingETCompositionCnv" );
       // report << MSG::INFO << "Reading MissingETComposition_p1" << endreq; 
       return m_TPconverter_p2->createTransient( shapestore.get(), report );
     }
     else if( compareClassGuid(p1_guid) ) {
-  	    MissingETCompositionCnv_p1 m_TPconverter_p1;
-        std::auto_ptr<MissingETComposition_p1> shapestore( poolReadObject< MissingETComposition_p1 >() );
+  	    MissingETCompositionCnv_p1 TPconverter_p1;
+        std::unique_ptr<MissingETComposition_p1> shapestore( poolReadObject< MissingETComposition_p1 >() );
         MsgStream report( messageService(), "MissingETCompositionCnv" );
         // report << MSG::INFO << "Reading MissingETComposition_p1" << endreq; 
-        return m_TPconverter_p1.createTransient( shapestore.get(), report );
+        return TPconverter_p1.createTransient( shapestore.get(), report );
     }
   throw std::runtime_error("Unsupported persistent version of MissingETComposition");
 }

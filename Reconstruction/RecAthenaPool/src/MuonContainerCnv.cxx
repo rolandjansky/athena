@@ -84,22 +84,22 @@ Analysis::MuonContainer* MuonContainerCnv::createTransient()
 
   if ( compareClassGuid(p6_guid) ) {
 
-    std::auto_ptr<MuonContainer_p6> persObj(poolReadObject<MuonContainer_p6>());
+    std::unique_ptr<MuonContainer_p6> persObj(poolReadObject<MuonContainer_p6>());
     transObj = m_cnv_p6.createTransient( persObj.get(), msg );
 
   } else if ( compareClassGuid(p5_guid) ) {
 
-    std::auto_ptr<MuonContainer_p5> persObj(poolReadObject<MuonContainer_p5>());
+    std::unique_ptr<MuonContainer_p5> persObj(poolReadObject<MuonContainer_p5>());
     transObj = m_cnv_p5.createTransient( persObj.get(), msg );
 
   }  else if ( compareClassGuid(p4_guid) ) {
 
-    std::auto_ptr<MuonContainer_p4> persObj(poolReadObject<MuonContainer_p4>());
+    std::unique_ptr<MuonContainer_p4> persObj(poolReadObject<MuonContainer_p4>());
     transObj = m_cnv_p4.createTransient( persObj.get(), msg );
 
   } else if ( compareClassGuid(p3_guid) ) {
 
-    std::auto_ptr<MuonContainer_p3> persObj(poolReadObject<MuonContainer_p3>());
+    std::unique_ptr<MuonContainer_p3> persObj(poolReadObject<MuonContainer_p3>());
     transObj = m_cnv_p3.createTransient( persObj.get(), msg );
 
   } else if ( compareClassGuid(p2_guid) ) {
@@ -111,7 +111,7 @@ Analysis::MuonContainer* MuonContainerCnv::createTransient()
        }
     }
  
-    std::auto_ptr<MuonContainer_p2> persObj( poolReadObject<MuonContainer_p2>() );
+    std::unique_ptr<MuonContainer_p2> persObj( poolReadObject<MuonContainer_p2>() );
     transObj = m_cnv_p2.createTransient( persObj.get(), msg );
 
   } else if ( compareClassGuid(p1_guid) ) {
@@ -123,8 +123,8 @@ Analysis::MuonContainer* MuonContainerCnv::createTransient()
        }
     }
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<MuonContainer_p1> persObj( poolReadObject<MuonContainer_p1>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<MuonContainer_p1> persObj( poolReadObject<MuonContainer_p1>() );
     transObj = m_cnv_p1.createTransient( persObj.get(), msg );
 
  } else if ( compareClassGuid(tr_guid) ) {
