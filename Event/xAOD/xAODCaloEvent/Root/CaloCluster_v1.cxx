@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCluster_v1.cxx 741209 2016-04-19 02:25:46Z ssnyder $
+// $Id: CaloCluster_v1.cxx 744492 2016-05-03 14:20:44Z krasznaa $
 
 // System include(s):
 #include <cmath>
@@ -14,6 +14,7 @@
 // EDM include(s):
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "xAODCore/AuxStoreAccessorMacros.h"
+#include "AthLinks/ElementLink.h"
 
 // Local include(s):
 #include "xAODCaloEvent/versions/CaloCluster_v1.h"
@@ -994,8 +995,6 @@ namespace xAOD {
       return;
    }
 
-
-  
   const CaloCluster_v1* CaloCluster_v1::getSisterCluster() const {
     static Accessor< ElementLink< xAOD::CaloClusterContainer_v1 > > accSisterCluster("SisterCluster");
     if (!accSisterCluster.isAvailable(*this)) return 0;
@@ -1005,7 +1004,8 @@ namespace xAOD {
     else
       return 0;
   }
-    
+
+#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
   bool CaloCluster_v1::setSisterCluster(const std::string& sisterSgKey, const unsigned sisterIndex, 
 					IProxyDictWithPool* sg /*nullptr*/)  {
 
@@ -1014,5 +1014,6 @@ namespace xAOD {
     accSisterCluster(*this)=link;
     return true;
   }
+#endif
 
 } // namespace xAOD
