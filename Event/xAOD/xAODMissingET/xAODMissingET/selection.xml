@@ -1,8 +1,10 @@
-<!-- $Id: selection.xml 693950 2015-09-09 15:29:18Z khoo $ -->
+<!-- $Id: selection.xml 742675 2016-04-25 14:50:23Z rsmith $ -->
 <lcgdict>
 
   <!-- MissingET_v1 dictionaries: -->
-  <class name="xAOD::MissingET_v1" />
+  <class name="xAOD::MissingET_v1">
+      <field name="m_nameHashPair" transient="true" />
+  </class>
   <class name="DataVector<xAOD::MissingET_v1>" />
   <class name="xAOD::MissingETContainer_v1" id="F49162FE-6BC0-49BC-A7DA-A792136BD939" />
   <class name="xAOD::MissingETAuxContainer_v1" id="2F92EC94-8CD1-49F3-BCA4-3D78599D4D60" />

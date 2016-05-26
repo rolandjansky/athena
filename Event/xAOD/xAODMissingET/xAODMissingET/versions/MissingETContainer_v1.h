@@ -37,6 +37,7 @@ namespace xAOD
     /*!@{*/
     const_iterator find(const std::string& name) const;            /*!< @brief Find non-modifiable MET object by name */
     iterator       find(const std::string& name);                   /*!< @brief Find modifiable MET object by name */
+
     const_iterator find(MissingETBase::Types::bitmask_t src) const; /*!< @brief Find non-modifiable MET object by source indicator */
     iterator       find(MissingETBase::Types::bitmask_t src);       /*!< @brief Find modifiable MET object by source indicator */
     /*!@}*/
