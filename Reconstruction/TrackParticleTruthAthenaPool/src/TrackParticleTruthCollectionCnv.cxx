@@ -16,9 +16,9 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // This is release 12 guid for TrackParticleTruthVector.
-pool::Guid TrackParticleTruthCollectionCnv::p0_guid("B35041E8-D980-458E-AC06-79028CF79D5D");
+pool::Guid TrackParticleTruthCollectionCnv::s_p0_guid("B35041E8-D980-458E-AC06-79028CF79D5D");
 
-pool::Guid TrackParticleTruthCollectionCnv::p1_guid("D62AFEEE-EF2C-437A-B7BE-CA926D38CCFA");
+pool::Guid TrackParticleTruthCollectionCnv::s_p1_guid("D62AFEEE-EF2C-437A-B7BE-CA926D38CCFA");
 
 
 //================================================================
@@ -40,13 +40,13 @@ TrackParticleTruthCollection* TrackParticleTruthCollectionCnv::createTransient()
   MsgStream log(messageService(), "TrackParticleTruthCollectionCnv" );
   std::auto_ptr<TrackParticleTruthCollection> trans(new TrackParticleTruthCollection());
   
-  if (compareClassGuid(p1_guid)) {
+  if (compareClassGuid(s_p1_guid)) {
     log<<MSG::DEBUG<<"Read TrackParticleTruthCollection_p1. GUID="<<m_classID.toString()<<endreq;
     Rec::TrackParticleTruthCollection_p1* pers=poolReadObject<Rec::TrackParticleTruthCollection_p1>();
     m_converter_p1.persToTrans(pers, trans.get(), log);
     delete pers;
   }
-  else if (compareClassGuid(p0_guid)) {
+  else if (compareClassGuid(s_p0_guid)) {
     log<<MSG::DEBUG<<"Read version p0 of TrackParticleTruthCollection. GUID="<<m_classID.toString()<<endreq;
     TrackParticleTruthVector *pers = poolReadObject<TrackParticleTruthVector>();
     m_converter_p0.persToTrans(pers, trans.get(), log);
