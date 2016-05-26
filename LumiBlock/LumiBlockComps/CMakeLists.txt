@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/StoreGate
+                          Control/xAODRootAccess
                           Database/AthenaPOOL/AthenaPoolKernel
                           Database/CoolLumiUtilities
                           Event/xAOD/xAODLuminosity
@@ -45,6 +46,11 @@ atlas_add_component( LumiBlockComps
 atlas_add_dictionary( LumiBlockCompsDict
                       LumiBlockComps/LumiBlockCompsDict.h
                       LumiBlockComps/selection.xml
+                      INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests CoolLumiUtilitiesLib xAODLuminosity GaudiKernel LumiBlockCoolQuery GoodRunsListsLib AthenaPoolUtilities DBDataModel EventInfo LumiBlockCompsLib )
+
+atlas_add_executable( getLumi
+                      util/getLumi.cxx
                       INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                       LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests CoolLumiUtilitiesLib xAODLuminosity GaudiKernel LumiBlockCoolQuery GoodRunsListsLib AthenaPoolUtilities DBDataModel EventInfo LumiBlockCompsLib )
 
