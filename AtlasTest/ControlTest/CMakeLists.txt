@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 730270 2016-03-16 07:57:19Z krasznaa $
+# $Id: CMakeLists.txt 750131 2016-05-26 21:19:06Z ssnyder $
 ################################################################################
 # Package: ControlTest
 ################################################################################
@@ -103,18 +103,22 @@ endif()
 
 atlas_add_test( StoreGateReentrant
    SCRIPT test/StoreGateReentrant.sh
+   PROPERTIES TIMEOUT 300
    EXTRA_PATTERNS "^Py:ConfigurableDb +(WARNING|INFO|ERROR)|Py:Athena +INFO including file |Warning in .TEnvRec::ChangeValue.: duplicate entry|ToolSvc.finalize.. +INFO|^WriteData +INFO in initialize$$| [A-Z]+ 2[0-9][0-9][0-9]$$${SGGoptignore}|^Py:Athena +INFO|[Rr]oo[Ff]it|NIKHEF|DeprecationWarning: object.__new__|^  newobj =|^\*+$$|drop-and-reload|^ *$$|we will keep the configuration around|object not modifiable when retrieved|Retrieved const handle to default|type EventInfo|^StoreGateSvc +DEBUG|^ of type|object modifiable when retrieved|ApplicationMgr +INFO|Start StoreGateSvc" )
 
 atlas_add_test( StoreGateGen
    SCRIPT test/StoreGateGen.sh
+   PROPERTIES TIMEOUT 300
    EXTRA_PATTERNS "^Py:ConfigurableDb +(WARNING|INFO|ERROR)|Py:Athena +INFO including file |Warning in .TEnvRec::ChangeValue.: duplicate entry|ToolSvc.finalize.. +INFO|^WriteData +INFO in initialize$$| [A-Z]+ 2[0-9][0-9][0-9]$$${SGGoptignore}|^Py:Athena +INFO|[Rr]oo[Ff]it|NIKHEF|DeprecationWarning: object.__new__|^  newobj =|^\*+$$|drop-and-reload|^ *$$|we will keep the configuration around|object not modifiable when retrieved|Retrieved const handle to default|type EventInfo|^StoreGateSvc +DEBUG|^ of type|object modifiable when retrieved|ApplicationMgr +INFO|Start StoreGateSvc" )
 
 atlas_add_test( StoreGateDFlow
    SCRIPT test/StoreGateDFlow.sh
+   PROPERTIES TIMEOUT 300
    EXTRA_PATTERNS "^Py:ConfigurableDb +(WARNING|INFO|ERROR)|Py:Athena +INFO including file |Warning in .TEnvRec::ChangeValue.: duplicate entry|ToolSvc.finalize.. +INFO|^WriteData +INFO in initialize$$| [A-Z]+ 2[0-9][0-9][0-9]$$${SGGoptignore}|^Py:Athena +INFO|[Rr]oo[Ff]it|NIKHEF|DeprecationWarning: object.__new__|^  newobj =|^\*+$$|drop-and-reload|^ *$$|we will keep the configuration around|object not modifiable when retrieved|Retrieved const handle to default|type EventInfo|^StoreGateSvc +DEBUG|^ of type|object modifiable when retrieved|ApplicationMgr +INFO|WARNING could not get proxy for key|Start StoreGateSvc" )
 
 atlas_add_test( test_interactive_athena
    SCRIPT test/test_interactive_athena.sh
+   PROPERTIES TIMEOUT 300
    EXTRA_PATTERNS "^Py:ConfigurableDb +(WARNING|INFO|ERROR)|Py:Athena +INFO including file |Warning in .TEnvRec::ChangeValue.: duplicate entry|calling initialize_|ToolSvc.finalize.. +INFO| [A-Z]+ 2[0-9][0-9][0-9]$$|^Py:Athena +INFO|[Rr]oo[Ff]it|NIKHEF|DeprecationWarning: object.__new__|^  newobj =|^\*+$$|drop-and-reload|^ *$$|we will keep the configuration around|ApplicationMgr +INFO|Start StoreGateSvc|already in TClassTable" )
 
 # Install files from the package:
