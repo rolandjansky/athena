@@ -11,6 +11,9 @@
 # **/
 test=$1
 select=$2
+if [ "$select" = "" ]; then
+  select="LArConditionsTe"
+fi
 #echo "args 1> $1 2> $2 "
 #if [ -z "$status" ]
 #    then
@@ -40,7 +43,8 @@ select=$2
 	        egrep -a -v 'seal.opts' |\
 	        egrep -a -v 'release' |\
 		egrep -a -v 'getRegistryEntries' |\
-		egrep -a -v 'is not writable'
+		egrep -a -v 'is not writable' |\
+                egrep -a -v 'DEBUG input handles:|DEBUG output handles:|DEBUG Data Deps for|DEBUG Property update for OutputLevel :'
 	    else 
 #	    echo " post.sh> Now comparing output with reference"
 		diff -a -b -B  $joblog $reflog |\

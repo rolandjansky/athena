@@ -10,7 +10,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
-#include "LArTools/LArSuperCellCablingTool.h"
+#include "LArCabling/LArSuperCellCablingTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
 

@@ -17,7 +17,7 @@
 
 #include "LArConditionsTest/LArFecLvTempDcsTest.h" 
 #include "LArRawConditions/LArFecLvTempDcs.h" 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 /////////////////////////////////////////////////////////////////////

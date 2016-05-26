@@ -184,7 +184,7 @@ quadrant:
 #include "GaudiKernel/IToolSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "LArTools/LArCablingService.h" 
+#include "LArCabling/LArCablingService.h" 
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArTools/LArOnOffIdMap.h"
 #include "LArTools/LArFebRodMap.h"

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -e
+
+# Turn off pool verbose printing
+export POOL_OUTMSG_LEVEL=4
+
+athena.py LArConditionsTest/@testName@_jobOptions.py
+

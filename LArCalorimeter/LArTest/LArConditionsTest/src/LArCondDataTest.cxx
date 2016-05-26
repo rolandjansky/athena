@@ -17,7 +17,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "LArTools/LArCablingService.h" 
+#include "LArCabling/LArCablingService.h" 
 #include "LArIdentifier/LArOnlineID.h"
 
 #include "GaudiKernel/MsgStream.h"

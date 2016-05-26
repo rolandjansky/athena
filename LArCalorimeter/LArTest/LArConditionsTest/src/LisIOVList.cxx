@@ -55,7 +55,12 @@ class LisIOVList {
 
 LisIOVList::LisIOVList(const std::string lisdb, const std::string lisfolder, 
 		     const std::string filename, const std::string tagprefix) :
-  m_lisdbstr(lisdb), m_lisfolder(lisfolder), m_filename(filename), m_tagprefix(tagprefix)
+  m_lisdbstr(lisdb), m_lisfolder(lisfolder), m_filename(filename), m_tagprefix(tagprefix),
+  m_lisdb(nullptr),
+  m_lisacc(nullptr),
+  m_lisfold(nullptr),
+  m_listag(nullptr),
+  m_runevent(false)
 {
   std::cout << "LisIOVList initialised" << std::endl;
   std::cout << "Read from Lisbon DB: " << m_lisdbstr << " folder " <<
