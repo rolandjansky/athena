@@ -39,6 +39,8 @@ class CmtOptions(object):
         "AtlasHLT",
         "AtlasOffline",
         "AtlasProduction",
+        "AtlasDerivation",
+        "AthAnalysisBase"
         ]
 
     ## number of spaces in the output of the 'cmt show uses' to represent
