@@ -52,8 +52,8 @@ keys = [
     'CombinedTower',
          ]
 
-from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = 'ATLAS-GEO-10-00-00'
+#from AthenaCommon.JobProperties import jobproperties
+#jobproperties.Global.DetDescrVersion = 'ATLAS-GEO-10-00-00'
 
 from AthenaCommon.DetFlags      import DetFlags
 DetFlags.detdescr.Calo_setOn()

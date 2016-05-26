@@ -29,3 +29,20 @@ atlas_add_poolcnv_library( CaloAthenaPoolPoolCnv
 atlas_install_headers( CaloAthenaPool )
 atlas_install_joboptions( share/*.py )
 
+
+# Set up (a) test(s) for the converter(s):
+if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities )
+   set( AthenaPoolUtilitiesTest_DIR
+      ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities/cmake )
+endif()
+find_package( AthenaPoolUtilitiesTest )
+
+if( ATHENAPOOLUTILITIESTEST_FOUND )
+  run_tpcnv_test( CaloTPCnv_14.5.0   AOD-14.5.0-full )
+  run_tpcnv_test( CaloTPCnv_15.1.0   AOD-15.1.0-full )
+  run_tpcnv_test( CaloTPCnv_15.5.0   AOD-15.5.0-full )
+  run_tpcnv_test( CaloTPCnv_18.0.0   ESD-18.0.0 )
+  run_tpcnv_test( CaloTPCnv_20.1.7.2 ESD-20.1.7.2 )
+else()
+   message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
+endif()   
