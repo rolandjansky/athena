@@ -109,6 +109,11 @@ include ( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )
 #  Use OutputConditionsAlg to write
 #--------------------------------------------------------------
 
+# Explicitly specify the output file catalog
+# to avoid races when running tests in parallel.
+PoolSvc = Service( "PoolSvc" )
+PoolSvc.WriteCatalog = "file:Catalog3.xml"
+
 from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
 OutputConditionsAlg=OutputConditionsAlg("OutputConditionsAlg","LarCondTestNoReg.root")
 

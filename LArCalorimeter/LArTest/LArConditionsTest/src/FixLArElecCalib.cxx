@@ -816,7 +816,7 @@ StatusCode FixLArElecCalib::fix5() {
        }
        
        int mod,phi,eta;
-       sscanf(ch_id, "A%d.%d.%d", &mod,&phi,&eta);
+       sscanf(ch_id, "A%80d.%80d.%80d", &mod,&phi,&eta);
        if(phi>7){
          ATH_MSG_DEBUG(" skipping phi"<<str_id<<" phi="<<phi);
           continue; 
@@ -1061,7 +1061,7 @@ StatusCode FixLArElecCalib::fix6() {
        }
 
        int mod,phi,eta;
-       sscanf(ch_id, "A%d.%d.%d", &mod,&phi,&eta);
+       sscanf(ch_id, "A%80d.%80d.%80d", &mod,&phi,&eta);
        if(phi>7){
           ATH_MSG_INFO(" skipping phi"<<str_id<<" phi="<<phi);
           continue; 
@@ -1444,7 +1444,7 @@ StatusCode FixLArElecCalib::addMphysOverMcal() {
        }
 
        int mod,phi,eta;
-       sscanf(ch_id, "A%d.%d.%d", &mod,&phi,&eta);
+       sscanf(ch_id, "A%80d.%80d.%80d", &mod,&phi,&eta);
        if(phi>7){
           ATH_MSG_INFO(" skipping phi"<<str_id<<" phi="<<phi);
           continue; 
