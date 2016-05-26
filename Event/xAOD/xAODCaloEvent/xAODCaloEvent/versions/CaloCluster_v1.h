@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCluster_v1.h 732844 2016-03-30 07:50:29Z wlampl $
+// $Id: CaloCluster_v1.h 749805 2016-05-26 08:03:45Z wlampl $
 #ifndef XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 #define XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 
@@ -44,8 +44,8 @@ namespace xAOD {
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    /// @author Walter Lampl <Walter.Lampl@cern.ch>
    ///
-   /// $Revision: 732844 $
-   /// $Date: 2016-03-30 09:50:29 +0200 (Wed, 30 Mar 2016) $
+   /// $Revision: 749805 $
+   /// $Date: 2016-05-26 10:03:45 +0200 (Thu, 26 May 2016) $
    ///
    class CaloCluster_v1 : public IParticle {
      friend class ::CaloClusterChangeSignalState;
@@ -80,6 +80,8 @@ namespace xAOD {
          Topo_633   = 12,
          // transient cluster for AODCellContainer
          SW_7_11    = 13,
+	 //New (2016) egamma cluster
+	 SuperCluster=14,
          CSize_Unknown = 99
       };
 
@@ -519,9 +521,11 @@ namespace xAOD {
      
      /// Get a pointer to a 'sister' cluster (eg the non-calibrated counterpart)
      const CaloCluster_v1* getSisterCluster() const;
-     
+
+#if !(defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
      /// Set a pointer to a 'sister' cluster (eg the non-calibrated counterpart)
      bool setSisterCluster(const std::string& sisterSgKey, const unsigned sisterIndex, IProxyDictWithPool* sg= nullptr);
+#endif
 
      //For debugging only...
      //std::vector<std::pair<std::string,float> > getAllMoments();
