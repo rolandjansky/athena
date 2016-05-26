@@ -18,7 +18,7 @@ keys = [
     'MuGirlSegments',
          ]
 
-from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = 'ATLAS-GEO-10-00-00'
+#from AthenaCommon.JobProperties import jobproperties
+#jobproperties.Global.DetDescrVersion = 'ATLAS-GEO-10-00-00'
 
 include ('AthenaPoolUtilities/TPCnvTest.py')
