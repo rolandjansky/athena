@@ -26,7 +26,7 @@
 #include "LArTPCnv/LArNoisyROSummary_p1.h" 
 #include "LArTPCnv/LArNoisyROSummary_p2.h" 
 #include "LArTPCnv/LArNoisyROSummary_p3.h" 
-
+#include "LArTPCnv/LArNoisyROSummary_p4.h"
 
 struct GCCXML_DUMMY_INSTANTIATION_LARTPCNV {
     std::pair<unsigned int, std::vector<int> >  m_pair1;
