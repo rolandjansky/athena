@@ -15,7 +15,6 @@ import commands
 import re
 import sys
 import subprocess
-from string import rstrip
 
 ### monkey-patch subprocess (fwd compat w/ py-3.x) ----------------------------
 import PyCmt.bwdcompat
@@ -40,6 +39,8 @@ class CmtOptions(object):
         "AtlasHLT",
         "AtlasOffline",
         "AtlasProduction",
+        "AtlasDerivation",
+        "AthAnalysisBase"
         ]
 
     ## number of spaces in the output of the 'cmt show uses' to represent
@@ -504,28 +505,9 @@ class CmtWrapper(object):
 
         Return: Tag or None on error
         """
-        ## This is not really CMT related but fits nicely in this module anyways
-        
-        svnroot = os.environ.get("SVNROOT")
-        if svnroot==None:
-            self.msg.error("SVNROOT is not set.")
-            return None
+        from PyUtils.WorkAreaLib import get_latest_pkg_tag
+        return get_latest_pkg_tag(fullPkgName)
 
-        _cmd = "svn ls %s" % os.path.join(svnroot, fullPkgName, "tags")
-        if fullPkgName.startswith('Gaudi'):
-            _cmd = "svn ls %s" % os.path.join(svnroot, 'tags', fullPkgName)
-        self.msg.debug('running [%s]...', _cmd)        
-        p = subprocess.Popen(_cmd, shell = True,
-                             stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-        tags = p.communicate()[0].splitlines()
-        if len(tags)==0 or p.returncode!=0: return None
-
-        pkg_name = os.path.basename(fullPkgName)
-
-        # enforce atlas convention of tags (pkgname-xx-yy-zz-aa)
-        tags = [t for t in tags if t.startswith(pkg_name)]
-        latest_tag = rstrip(tags[-1],"/\n ")
-        return latest_tag
 
     def show_clients(self, pkgName):
         """return the list of clients of a given `pkgName` CMT package
