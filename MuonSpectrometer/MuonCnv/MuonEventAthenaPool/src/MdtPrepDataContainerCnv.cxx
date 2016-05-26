@@ -58,7 +58,7 @@ Muon::MdtPrepDataContainer* MdtPrepDataContainerCnv::createTransient() {
     Muon::MdtPrepDataContainer* p_collection(0);
     if( compareClassGuid(p2_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 2 detected"<<endreq;
-        std::auto_ptr< MdtPrepDataContainer_PERS >   col_vect( poolReadObject< MdtPrepDataContainer_PERS >() );
+        std::unique_ptr< MdtPrepDataContainer_PERS >   col_vect( poolReadObject< MdtPrepDataContainer_PERS >() );
         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Delegate TP converter " << endreq;
         p_collection = m_converter_p2.createTransient( col_vect.get(), log );
     } else if( compareClassGuid(p1_guid) ) {

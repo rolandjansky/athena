@@ -12,12 +12,7 @@ Author: Marcin Nowak
         CERN, January, 2006
 
 */
-#define private public
-#define protected public
 #include "MuonRDO/CscRawDataCollection.h"
-#undef private
-#undef protected
-
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "MuonEventAthenaPool/CscRawDataCollection_p2.h"
 

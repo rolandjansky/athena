@@ -6,13 +6,8 @@
 #define MUONEVENTATHENAPOOL_RPCPREPDATACONTAINERCNV_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-#define private public
-#define protected public
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
-#undef private
-#undef protected
-
 #include "MuonEventTPCnv/RpcPrepDataContainerCnv_tlp1.h"
 #include "MuonEventTPCnv/MuonPrepRawData/RpcPrepDataContainerCnv_p3.h"
 

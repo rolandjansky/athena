@@ -36,11 +36,11 @@ MdtCsmContainerCnv::createTransient()
     static pool::Guid	p0_guid("CFDA6FF6-557F-40CB-9C54-B5A7404A9175");
 
     if( compareClassGuid(p1_guid) ) {
-        std::auto_ptr< MdtCsmContainer_p1 > col_vect( poolReadObject< MdtCsmContainer_p1 >() );
+        std::unique_ptr< MdtCsmContainer_p1 > col_vect( poolReadObject< MdtCsmContainer_p1 >() );
         trans_cont = m_TPconverter.createTransient( col_vect.get(), log );
     } else if(compareClassGuid(p0_guid) ) {
         // old version from before TP separation
-        std::auto_ptr< COLL_vector >	col_vect(  this->poolReadObject< COLL_vector >() );
+        std::unique_ptr< COLL_vector >	col_vect(  this->poolReadObject< COLL_vector >() );
         trans_cont =  createTransientFrom_p0( col_vect.get(), log );
     } else {
         throw std::runtime_error("Unsupported persistent version of CSC RDO container");

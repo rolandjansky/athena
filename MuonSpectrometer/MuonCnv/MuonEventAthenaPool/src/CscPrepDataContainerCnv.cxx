@@ -60,11 +60,11 @@ Muon::CscPrepDataContainer* CscPrepDataContainerCnv::createTransient() {
     Muon::CscPrepDataContainer* p_collection(0);
     if( compareClassGuid(p2_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 2 detected"<<endreq;
-        std::auto_ptr< Muon::CscPrepDataContainer_p2 >  p_coll( poolReadObject< Muon::CscPrepDataContainer_p2 >() );
+        std::unique_ptr< Muon::CscPrepDataContainer_p2 >  p_coll( poolReadObject< Muon::CscPrepDataContainer_p2 >() );
         p_collection = m_converter_p2.createTransient( p_coll.get(), log );
     } else if( compareClassGuid(p1_guid) ) {
       CscPrepDataContainerCnv_tlp1 tpConvertor_p1;
-      std::auto_ptr< Muon::CscPrepDataContainer_tlp1 > col_vect( poolReadObject< Muon::CscPrepDataContainer_tlp1 >() );
+      std::unique_ptr< Muon::CscPrepDataContainer_tlp1 > col_vect( poolReadObject< Muon::CscPrepDataContainer_tlp1 >() );
       p_collection = m_TPConverter.createTransient( col_vect.get(), log );
       if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endreq;
     }
@@ -72,7 +72,7 @@ Muon::CscPrepDataContainer* CscPrepDataContainerCnv::createTransient() {
     else if( compareClassGuid(p0_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): Old input file"<<std::endl;
         throw std::runtime_error("Not currently supporting reading non TP-split PRDs");
-        //std::auto_ptr< CscPrepDataContainer_p0 >   col_vect( poolReadObject< CscPrepDataContainer_p0 >() );
+        //std::unique_ptr< CscPrepDataContainer_p0 >   col_vect( poolReadObject< CscPrepDataContainer_p0 >() );
         //p_collection = m_converter_p0.createTransient( col_vect.get(), log );
     }
     else {

@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "MuonRDO/CscRawData.h"
-#undef private
-#undef protected
-
 #include "CscRawDataCnv_p1.h"
 
 #include "GaudiKernel/GaudiException.h"
@@ -26,11 +21,9 @@ CscRawDataCnv_p1::persToTrans(const CscRawData_p1* pers, CscRawData* trans, MsgS
        now add that during conversion : pedestal set to 2048 ADC counts
        Ketevi A. Assamagan - April 11, 2007 */
    unsigned int size = (pers->m_amps).size();
-   for (unsigned int i=0; i<size; ++i) {
-     uint16_t adc = (pers->m_amps)[i] + 2048;
-     (trans->m_amps).push_back( adc );
-   }
-   //trans->m_amps        = pers->m_amps;
+   std::vector<uint16_t> amps(size);
+   for (unsigned int i=0; i<size; ++i)
+     amps[i] = pers->m_amps[i] + 2048;
 
 
   /** conversion of the chamnerLayer index into the new format */
@@ -63,7 +56,7 @@ CscRawDataCnv_p1::persToTrans(const CscRawData_p1* pers, CscRawData* trans, MsgS
   }
   
   // build the address
-  trans->m_address = nameIndex    << 16 |
+  uint32_t address = nameIndex    << 16 |
                      phiIndex     << 13 |
                      etaIndex     << 12 |
                      chamberIndex << 11 |
@@ -79,8 +72,7 @@ CscRawDataCnv_p1::persToTrans(const CscRawData_p1* pers, CscRawData* trans, MsgS
   if ( stripType == 0 ) spuID = static_cast<uint16_t>( nameIndex*5 + layerIndex );
   else spuID = static_cast<uint16_t>( (nameIndex+1)*5-1 );
 
-  trans->m_id          = pers->m_id;
-  trans->m_rpuID       = spuID;
-  trans->m_width       = 1; 
+  *trans = CscRawData (amps, address, pers->m_id,
+                       spuID, 1);
 }
 

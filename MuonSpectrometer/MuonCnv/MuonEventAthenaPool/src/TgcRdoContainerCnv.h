@@ -45,22 +45,22 @@ TgcRdoContainerCnv::createTransient()
    static pool::Guid	p0_guid("FBF8D72D-A6B9-4689-8E02-BB0F435BF2F7");
 
    if( compareClassGuid(p3_guid) ) {
-      std::auto_ptr< TgcRdoContainer_p3 >  col_vect( this->poolReadObject<TgcRdoContainer_p3>() );
+      std::unique_ptr< TgcRdoContainer_p3 >  col_vect( this->poolReadObject<TgcRdoContainer_p3>() );
       trans_cont =  m_TPconverter.createTransient( col_vect.get(), log );
    }
    else if( compareClassGuid(p2_guid) ) {
-      std::auto_ptr< TgcRdoContainer_p2 >  col_vect( this->poolReadObject<TgcRdoContainer_p2>() );
+      std::unique_ptr< TgcRdoContainer_p2 >  col_vect( this->poolReadObject<TgcRdoContainer_p2>() );
       TgcRdoContainerCnv_p2 cnv;
       trans_cont =  cnv.createTransient( col_vect.get(), log );
    }
    else if( compareClassGuid(p1_guid) ) {
-      std::auto_ptr< TgcRdoContainer_p1 >  col_vect( this->poolReadObject<TgcRdoContainer_p1>() );
+      std::unique_ptr< TgcRdoContainer_p1 >  col_vect( this->poolReadObject<TgcRdoContainer_p1>() );
       TgcRdoContainerCnv_p1 cnv;
       trans_cont =  cnv.createTransient( col_vect.get(), log );
    }
    else if(compareClassGuid(p0_guid) ) {
       // old version from before TP separation
-      std::auto_ptr< COLL_vector >	col_vect(  this->poolReadObject< COLL_vector >() );
+      std::unique_ptr< COLL_vector >	col_vect(  this->poolReadObject< COLL_vector >() );
       trans_cont =  createTransientFrom_p0( col_vect.get(), log );
    }
    else {

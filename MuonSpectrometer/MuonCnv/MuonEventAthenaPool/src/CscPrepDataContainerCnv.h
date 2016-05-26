@@ -7,12 +7,8 @@
 
 //#include "AthenaPoolCnvSvc/T_AthenaPoolCustCnv.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-#define private public
-#define protected public
 #include "MuonPrepRawData/CscPrepDataCollection.h"
 #include "MuonPrepRawData/CscPrepDataContainer.h"
-#undef private
-#undef protected
 
 #include "MuonEventTPCnv/CscPrepDataContainerCnv_tlp1.h"
 #include "MuonEventTPCnv/MuonPrepRawData/CscPrepDataContainerCnv_p2.h"

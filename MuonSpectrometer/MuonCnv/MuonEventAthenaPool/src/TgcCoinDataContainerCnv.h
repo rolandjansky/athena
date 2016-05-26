@@ -8,13 +8,8 @@
 
 //#include "AthenaPoolCnvSvc/T_AthenaPoolCustCnv.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-#define private public
-#define protected public
 #include "MuonTrigCoinData/TgcCoinDataCollection.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
-#undef private
-#undef protected
-
 #include "MuonEventTPCnv/TgcCoinDataContainerCnv_tlp1.h"
 #include "MuonEventTPCnv/TgcCoinDataContainerCnv_tlp2.h"
 #include "MuonEventTPCnv/TgcCoinDataContainerCnv_tlp3.h"

@@ -2,15 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "MuonRDO/RpcPad.h"
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonEventAthenaPool/RpcPad_p1.h"
 #include "MuonEventAthenaPool/RpcPadContainer_p1.h"
-#undef private
-#undef protected
-
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "RpcPadCnv_p1.h"
@@ -164,7 +159,7 @@ RpcPadContainer* RpcPadContainerCnv_p1::createTransient(const RpcPadContainer_p1
     }
     // log<<MSG::INFO<<"creating new pad container with hashmax= "<<m_RpcId->module_hash_max()<<endreq;
     
-    std::auto_ptr<RpcPadContainer> trans(new RpcPadContainer(m_rpcCabling->padHashFunction()->max() ));
+    std::unique_ptr<RpcPadContainer> trans(new RpcPadContainer(m_rpcCabling->padHashFunction()->max() ));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }
