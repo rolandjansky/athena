@@ -14,6 +14,7 @@ use YODA                       YODA-*                  External
 #macro LCG_ROOT "/afs/.cern.ch/sw/lcg"
 #macro LCG_external "$(LCG_ROOT)/external"
 #macro myLCG_config_version "67c"
+macro myLCG_config_version ""
 
 #macro Rivet_home "$(LCG_external)/MCGenerators_lcgcmt$(myLCG_config_version)/rivet"
 macro Rivet_home "$(LCG_external)/MCGenerators/rivet"
@@ -41,7 +42,7 @@ include_dirs $(Rivet_dir)/include
 
 ## Install scripts
 apply_pattern declare_scripts files=" -s=$(Rivet_bin) *"
-apply_pattern declare_scripts files=" -s=../scripts rivet-*"
+apply_pattern declare_scripts files=" -s=../scripts rivet-buildplugin-atlas rivet-config-atlas"
 path_prepend PATH "$(Rivet_bin)"
 
 ## Install Python modules
