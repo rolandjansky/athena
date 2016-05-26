@@ -1,5 +1,5 @@
 package TrigConfInterfaces
-# $Id: requirements 612008 2014-08-15 13:35:58Z krasznaa $
+# $Id: requirements 749937 2016-05-26 15:34:24Z krasznaa $
 
 author Joerg Stelzer        <stelzer@cern.ch>
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
@@ -18,3 +18,4 @@ apply_pattern lcgdict dict=TrigConfInterfaces selectionfile=selection.xml \
               headerfiles="../TrigConfInterfaces/TrigConfInterfacesDict.h"
 
 end_private
+
