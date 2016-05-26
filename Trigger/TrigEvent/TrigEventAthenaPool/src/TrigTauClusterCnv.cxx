@@ -8,8 +8,9 @@
 #include "TrigCaloEventTPCnv/TrigTauCluster_tlp2.h"
 #include "TrigCaloEventTPCnv/TrigTauClusterCnv_tlp2.h"
 
-struct TrigTauClusterCnv_impl
+class TrigTauClusterCnv_impl
 {
+public:
   TrigTauClusterCnv_tlp1 m_TPConverter1;
   TrigTauClusterCnv_tlp2 m_TPConverter2;
 };

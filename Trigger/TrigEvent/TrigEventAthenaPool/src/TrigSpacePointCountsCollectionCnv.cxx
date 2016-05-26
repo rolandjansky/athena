@@ -8,7 +8,7 @@
 #include "TrigInDetEventTPCnv/TrigSpacePointCountsCollection_p4.h"
 #include "TrigInDetEventTPCnv/TrigSpacePointCountsCollectionCnv_p4.h"
 
-static TrigSpacePointCountsCollectionCnv_tlp1 m_TPConverter;
+static TrigSpacePointCountsCollectionCnv_tlp1 TPConverter_tlp1;
 static TrigSpacePointCountsCollectionCnv_p4   TPConverter;
 
 //createPersistent 
@@ -44,7 +44,7 @@ TrigSpacePointCountsCollection * TrigSpacePointCountsCollectionCnv::createTransi
   }  else if( compareClassGuid( tlp1_guid ) ) {
          std::auto_ptr< TrigSpacePointCountsCollection_tlp1 > col_vect( poolReadObject< TrigSpacePointCountsCollection_tlp1 >() );
          //  std::cout << "Reading IMFC tlp1" << std::endl;
-         return m_TPConverter.createTransient( col_vect.get(), mlog );
+         return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
 
     } else if( compareClassGuid( p0_guid ) ) {
          return poolReadObject< TrigSpacePointCountsCollection >();

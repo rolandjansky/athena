@@ -6,7 +6,7 @@
 #include "TrigCaloEventTPCnv/TrigT2MbtsBitsContainerCnv_tlp1.h" 
 #include "TrigCaloEventTPCnv/TrigT2MbtsBitsContainerCnv_p3.h" 
 
-static TrigT2MbtsBitsContainerCnv_tlp1 m_TPConverter;
+static TrigT2MbtsBitsContainerCnv_tlp1 TPConverter_tlp1;
 static TrigT2MbtsBitsContainerCnv_p3   TPConverter;
 static TrigT2MbtsBitsContainerCnv_p1   TP1Converter;
 
@@ -46,7 +46,7 @@ TrigT2MbtsBitsContainer* TrigT2MbtsBitsContainerCnv::createTransient()
 
          std::auto_ptr< TrigT2MbtsBitsContainer_tlp1 > col_vect( poolReadObject< TrigT2MbtsBitsContainer_tlp1 >() );
          //  std::cout << "Reading IMFC tlp1" << std::endl;
-         return m_TPConverter.createTransient( col_vect.get(), mlog );
+         return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
 
   } else if(compareClassGuid(p1_guid)) {
 

@@ -6,7 +6,7 @@
 #include "TrigParticleTPCnv/TrigTauContainerCnv_tlp1.h"
 #include "TrigParticleTPCnv/TrigTauContainerCnv_p3.h"
 
-static TrigTauContainerCnv_tlp1 m_TPConverter_tlp1;
+static TrigTauContainerCnv_tlp1 TPConverter_tlp1;
 static TrigTauContainerCnv_p3   TPConverter;
 
 //createPersistent 
@@ -38,7 +38,7 @@ TrigTauContainer * TrigTauContainerCnv::createTransient()
          return TPConverter.createTransient( col_vect.get(), mlog ) ;
   } else if( compareClassGuid( tlp1_guid ) ) {
         std::auto_ptr< TrigTauContainer_tlp1 > col_vect( poolReadObject< TrigTauContainer_tlp1 >() );
-        return m_TPConverter_tlp1.createTransient( col_vect.get(), mlog );
+        return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
   } else { throw std::runtime_error( "Unsupported persistent version of TrigTauContainer" ); }
    
 }//end of create transient method

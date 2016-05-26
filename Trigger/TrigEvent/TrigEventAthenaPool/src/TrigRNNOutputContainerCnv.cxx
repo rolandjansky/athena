@@ -7,7 +7,7 @@
 #include "TrigCaloEventTPCnv/TrigRNNOutputContainer_p2.h"
 #include "TrigCaloEventTPCnv/TrigRNNOutputContainerCnv_p2.h"
 
-static TrigRNNOutputContainerCnv_tlp1   m_TPConverter_tlp1;
+static TrigRNNOutputContainerCnv_tlp1   TPConverter_tlp1;
 static TrigRNNOutputContainerCnv_p2     TPConverter;
 
 //createPersistent 
@@ -41,7 +41,7 @@ TrigRNNOutputContainer * TrigRNNOutputContainerCnv::createTransient()
       return TPConverter.createTransient( col_vect.get(), mlog ) ;
   } else if ( compareClassGuid( tlp1_guid ) ) {
       std::auto_ptr< TrigRNNOutputContainer_tlp1 > col_vect( poolReadObject< TrigRNNOutputContainer_tlp1 >() );
-      return m_TPConverter_tlp1.createTransient( col_vect.get(), mlog );
+      return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
   } else if (compareClassGuid(tr_guid)) {
       // regular object from before the T/P separation
       return poolReadObject<TrigRNNOutputContainer>();

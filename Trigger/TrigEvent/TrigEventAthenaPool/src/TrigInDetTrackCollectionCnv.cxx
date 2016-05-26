@@ -56,27 +56,27 @@ TrigInDetTrackCollection* TrigInDetTrackCollectionCnv::createTransient() {
   if( compareClassGuid(tlp4_guid) ) {
     
     mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::reading tlp4 persistent object" << endreq;
-    TrigInDetTrackCollectionCnv_tlp4 m_tlp4_Converter;
-    poolReadObject< TrigInDetTrackCollection_tlp4 >( m_tlp4_Converter );
-    transObj = m_tlp4_Converter.createTransient( mlog );
+    TrigInDetTrackCollectionCnv_tlp4 tlp4_Converter;
+    poolReadObject< TrigInDetTrackCollection_tlp4 >( tlp4_Converter );
+    transObj = tlp4_Converter.createTransient( mlog );
   } else  if( compareClassGuid(tlp3_guid) ) {
     
     mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::reading tlp3 persistent object" << endreq;
-    TrigInDetTrackCollectionCnv_tlp3 m_tlp3_Converter;
-    poolReadObject< TrigInDetTrackCollection_tlp3 >( m_tlp3_Converter );
-    transObj = m_tlp3_Converter.createTransient( mlog );
+    TrigInDetTrackCollectionCnv_tlp3 tlp3_Converter;
+    poolReadObject< TrigInDetTrackCollection_tlp3 >( tlp3_Converter );
+    transObj = tlp3_Converter.createTransient( mlog );
   } else if( compareClassGuid(tlp2_guid) ) {
     
     mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::reading tlp2 persistent object" << endreq;
-    TrigInDetTrackCollectionCnv_tlp2 m_tlp2_Converter;
-    poolReadObject< TrigInDetTrackCollection_tlp2 >( m_tlp2_Converter );
-    transObj = m_tlp2_Converter.createTransient( mlog );
+    TrigInDetTrackCollectionCnv_tlp2 tlp2_Converter;
+    poolReadObject< TrigInDetTrackCollection_tlp2 >( tlp2_Converter );
+    transObj = tlp2_Converter.createTransient( mlog );
   } else if( compareClassGuid(tlp1_guid) ) {
       
     mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::reading tlp1 persistent object" << endreq;
-    TrigInDetTrackCollectionCnv_tlp1 m_tlp1_Converter;
-    poolReadObject< TrigInDetTrackCollection_tlp1 >( m_tlp1_Converter );
-    transObj = m_tlp1_Converter.createTransient( mlog );
+    TrigInDetTrackCollectionCnv_tlp1 tlp1_Converter;
+    poolReadObject< TrigInDetTrackCollection_tlp1 >( tlp1_Converter );
+    transObj = tlp1_Converter.createTransient( mlog );
     
   }
   

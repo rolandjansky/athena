@@ -21,18 +21,10 @@
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
-#ifdef __IDENTIFIER_64BIT__
-    class TrigInDetTrackCollection_tlp4;
-    class TrigInDetTrackCollectionCnv_tlp4;
-    typedef TrigInDetTrackCollection_tlp4  TrigInDetTrackCollection_PERS;
-    typedef TrigInDetTrackCollectionCnv_tlp4  TrigInDetTrackCollectionCnv_PERS;
-#else
-    class TrigInDetTrackCollection_tlp3;
-    class TrigInDetTrackCollectionCnv_tlp3;
-    typedef TrigInDetTrackCollection_tlp3  TrigInDetTrackCollection_PERS;
-    typedef TrigInDetTrackCollectionCnv_tlp3  TrigInDetTrackCollectionCnv_PERS;
-#endif
-
+class TrigInDetTrackCollection_tlp4;
+class TrigInDetTrackCollectionCnv_tlp4;
+typedef TrigInDetTrackCollection_tlp4  TrigInDetTrackCollection_PERS;
+typedef TrigInDetTrackCollectionCnv_tlp4  TrigInDetTrackCollectionCnv_PERS;
 
 typedef T_AthenaPoolCustomCnv<TrigInDetTrackCollection, TrigInDetTrackCollection_PERS > TrigInDetTrackCollectionCnvBase; 
 

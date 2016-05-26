@@ -9,7 +9,7 @@
 #include "TrigMuonEventTPCnv/TrigMuonEFContainerCnv_p2.h"
 
 
-static TrigMuonEFContainerCnv_tlp1 m_TPConverter;
+static TrigMuonEFContainerCnv_tlp1 TPConverter_tlp1;
 static TrigMuonEFContainerCnv_p2   TPConverter;
 
 //createPersistent 
@@ -45,7 +45,7 @@ TrigMuonEFContainer * TrigMuonEFContainerCnv::createTransient()
   } else if( compareClassGuid( p1_guid ) ) {
          std::auto_ptr< TrigMuonEFContainer_tlp1 > col_vect( poolReadObject< TrigMuonEFContainer_tlp1 >() );
          //  std::cout << "Reading IMFC tlp1" << std::endl;
-         return m_TPConverter.createTransient( col_vect.get(), mlog );
+         return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
       
   } else if( compareClassGuid( p0_guid ) ){
       

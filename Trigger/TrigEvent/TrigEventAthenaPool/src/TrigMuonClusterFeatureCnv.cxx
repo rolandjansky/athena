@@ -6,7 +6,7 @@
 #include "TrigMuonEventTPCnv/TrigMuonClusterFeature_tlp1.h" 
 #include "TrigMuonEventTPCnv/TrigMuonClusterFeatureCnv_tlp1.h"
 
-static TrigMuonClusterFeatureCnv_tlp1 m_TPConverter;
+static TrigMuonClusterFeatureCnv_tlp1 TPConverter;
 
 //-----------------------------------------------------------------------------
 // Create persistent 
@@ -19,7 +19,7 @@ TrigMuonClusterFeatureCnv::createPersistent( TrigMuonClusterFeature *transObj)
   
   mlog << MSG::DEBUG << "TrigMuonClusterFeatureCnv::createPersistent" << endreq;
 
-  TrigMuonClusterFeature_PERS *persObj = m_TPConverter.createPersistent( transObj, mlog );
+  TrigMuonClusterFeature_PERS *persObj = TPConverter.createPersistent( transObj, mlog );
   
   return persObj;
 }
@@ -38,7 +38,7 @@ TrigMuonClusterFeature *TrigMuonClusterFeatureCnv::createTransient()
 
   if( compareClassGuid( p1_guid ) ) {
     std::auto_ptr< TrigMuonClusterFeature_tlp1 > col_vect( poolReadObject< TrigMuonClusterFeature_tlp1 >() );
-    return m_TPConverter.createTransient( col_vect.get(), mlog );
+    return TPConverter.createTransient( col_vect.get(), mlog );
   }
   else if( compareClassGuid(p0_guid) ) {
     // old version from before TP separation, just return it

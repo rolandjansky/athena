@@ -59,9 +59,9 @@ TrigEFBphysContainer * TrigEFBphysContainerCnv::createTransient()
    
   } else if( compareClassGuid( tlp1_guid ) ) {
 
-    TrigEFBphysContainerCnv_tlp1  m_tlp1_Converter;
-    poolReadObject< TrigEFBphysContainer_tlp1 >(m_tlp1_Converter);
-    p_collection = m_tlp1_Converter.createTransient( m_impl->m_log );
+    TrigEFBphysContainerCnv_tlp1  tlp1_Converter;
+    poolReadObject< TrigEFBphysContainer_tlp1 >(tlp1_Converter);
+    p_collection = tlp1_Converter.createTransient( m_impl->m_log );
    
   }else if( compareClassGuid( p0_guid ) || compareClassGuid( p0_guid2 ) ){
 

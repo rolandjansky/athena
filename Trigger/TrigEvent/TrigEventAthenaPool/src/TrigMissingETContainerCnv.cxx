@@ -9,7 +9,7 @@
 #include "TrigMissingEtEventTPCnv/TrigMissingETContainerCnv_p3.h"
 #include "TrigMissingEtEventTPCnv/TrigMissingETContainer_p3.h"
 
-static TrigMissingETContainerCnv_tlp1 m_converter_tlp1;
+static TrigMissingETContainerCnv_tlp1 converter_tlp1;
 static TrigMissingETContainerCnv_p3   TPConverter;   
 
 //createPersistent 
@@ -44,7 +44,7 @@ TrigMissingETContainer* TrigMissingETContainerCnv::createTransient()
   } else if( compareClassGuid( tlp1_guid ) ) {
         std::auto_ptr< TrigMissingETContainer_tlp1 > col_vect( poolReadObject< TrigMissingETContainer_tlp1 >() );
          //  std::cout << "Reading IMFC tlp1" << std::endl;
-         return m_converter_tlp1.createTransient( col_vect.get(), mlog );
+         return converter_tlp1.createTransient( col_vect.get(), mlog );
        
   } else  throw std::runtime_error( "Unsupported persistent version of TrigMissingETContainer" );
   

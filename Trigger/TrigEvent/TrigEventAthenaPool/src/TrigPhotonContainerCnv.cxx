@@ -10,8 +10,8 @@
 #include "TrigParticleTPCnv/TrigPhotonContainer_p3.h"
 #include "TrigParticleTPCnv/TrigPhotonContainerCnv_p3.h"
 
-static TrigPhotonContainerCnv_tlp1   m_TPConverter_tlp1;
-static TrigPhotonContainerCnv_tlp2   m_TPConverter_tlp2;
+static TrigPhotonContainerCnv_tlp1   TPConverter_tlp1;
+static TrigPhotonContainerCnv_tlp2   TPConverter_tlp2;
 static TrigPhotonContainerCnv_p3     TPConverter;
 
 
@@ -50,12 +50,12 @@ TrigPhotonContainer * TrigPhotonContainerCnv::createTransient()
   } else if( compareClassGuid( tlp2_guid ) )     
     {
       std::auto_ptr< TrigPhotonContainer_tlp2 > col_vect( poolReadObject< TrigPhotonContainer_tlp2 >() );
-      return m_TPConverter_tlp2.createTransient( col_vect.get(), mlog );
+      return TPConverter_tlp2.createTransient( col_vect.get(), mlog );
     }   
   else if( compareClassGuid( tlp1_guid ) )     
     {
       std::auto_ptr< TrigPhotonContainer_tlp1 > col_vect( poolReadObject< TrigPhotonContainer_tlp1 >() );
-      return m_TPConverter_tlp1.createTransient( col_vect.get(), mlog );
+      return TPConverter_tlp1.createTransient( col_vect.get(), mlog );
     }
   else if( compareClassGuid( p0_guid ) || compareClassGuid( p0_guid2 ) ){
 
