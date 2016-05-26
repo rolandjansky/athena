@@ -132,7 +132,7 @@ TrackCollection *TrackCollectionCnv::createTransient()
     else if( compareClassGuid( p1_guid ) )  {
         /*
        usingTPCnvForReading( m_TPConverter );
-       std::auto_ptr< TrackCollection_PERS >
+       std::unique_ptr< TrackCollection_PERS >
 	  p_coll( poolReadObject< TrackCollection_PERS >() );
        p_collection = m_TPConverter.createTransient( p_coll.get(), m_log );
        */
