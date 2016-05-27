@@ -184,7 +184,7 @@ namespace Trk{
     m_IterationPrecision = Prec;
   }
 
-  void TrkVKalVrtFitter::setVertexForConstraint(const RecVertex & Vrt)
+  void TrkVKalVrtFitter::setVertexForConstraint(const xAOD::Vertex & Vrt)
   {  m_VertexForConstraint.clear();
      m_VertexForConstraint.push_back(Vrt.position().x());
      m_VertexForConstraint.push_back(Vrt.position().y());
