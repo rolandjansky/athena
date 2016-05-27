@@ -31,14 +31,16 @@
 TrigJetSplitterAllTE::TrigJetSplitterAllTE(const std::string & name, ISvcLocator* pSvcLocator) :
   HLT::AllTEAlgo(name, pSvcLocator)
 {
-  declareProperty ("JetInputKey",  m_jetInputKey  = "TrigJetRec");
-  declareProperty ("JetOutputKey", m_jetOutputKey = "SplitJet");
-  declareProperty ("PriVtxKey",    m_priVtxKey    = "xPrimVx"); //"EFHistoPrmVtx" 
-  declareProperty ("EtaHalfWidth", m_etaHalfWidth = 0.4);
-  declareProperty ("PhiHalfWidth", m_phiHalfWidth = 0.4);
-  declareProperty ("ZHalfWidth",   m_zHalfWidth   = 20.0);// in mm?
-  declareProperty ("JetMinEt",     m_minJetEt     = 15.0); // in GeV ==> Can't be any higher than the lowest pT chain that will run
-  declareProperty ("JetMaxEta",    m_maxJetEta    = 2.5+m_etaHalfWidth);  // tracker acceptance + jet half-width
+  declareProperty ("JetInputKey",        m_jetInputKey        = "TrigJetRec");
+  declareProperty ("JetOutputKey",       m_jetOutputKey       = "SplitJet");
+  declareProperty ("PriVtxKey",          m_priVtxKey          = "xPrimVx"); //"EFHistoPrmVtx" 
+  declareProperty ("UsePriVtxKeyBackup", m_usePriVtxKeyBackup = true);
+  declareProperty ("PriVtxKeyBackup",    m_priVtxKeyBackup    = "EFHistoPrmVtx");
+  declareProperty ("EtaHalfWidth",       m_etaHalfWidth       = 0.4);
+  declareProperty ("PhiHalfWidth",       m_phiHalfWidth       = 0.4);
+  declareProperty ("ZHalfWidth",         m_zHalfWidth         = 20.0);// in mm?
+  declareProperty ("JetMinEt",           m_minJetEt           = 15.0); // in GeV ==> Can't be any higher than the lowest pT chain that will run
+  declareProperty ("JetMaxEta",          m_maxJetEta          = 2.5+m_etaHalfWidth);  // tracker acceptance + jet half-width
 }
 
 
@@ -154,26 +156,119 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
     const xAOD::VertexContainer* vertices = 0;
     HLT::ErrorCode statusVertices = getFeature(vtxTE.front(), vertices, m_priVtxKey);  
     
+    //
+    // Retrieve the vertiecies (Fallback to HistoPrmVtx if failure) 
+    //
     if (statusVertices != HLT::OK) {
-      if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (PV)" << endreq;
-      return HLT::NAV_ERROR;
+      if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (PV) " << m_priVtxKey << endreq;
+      
+      //
+      // Try for HistoPrmVtx instead
+      //
+      if(m_usePriVtxKeyBackup){
+	statusVertices = getAndCheckHistoPrmVtx(vtxTE.front(), vertices);
+      
+	if(statusVertices != HLT::OK){
+	  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (PV) " << m_priVtxKeyBackup << endreq;
+	  return statusVertices;
+	}
+	
+      }else{
+	return HLT::NAV_ERROR;
+      }
+      
     }
     
+    //
+    //  Check pointer (Fallback to HistoPrmVtx if failure) 
+    //
     if(vertices==0) {
-      if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (vertices)." << endreq;
-      return HLT::MISSING_FEATURE;
+      if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (vertices): " << m_priVtxKey << endreq;
+
+      //
+      // Try for HistoPrmVtx instead
+      //
+      if(m_usePriVtxKeyBackup){
+	statusVertices = getAndCheckHistoPrmVtx(vtxTE.front(), vertices);
+      
+	if(statusVertices != HLT::OK){
+	  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (PV) " << m_priVtxKeyBackup << endreq;
+	  return statusVertices;
+	}
+	if(vertices==0) {
+	  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (vertices): " << m_priVtxKeyBackup << endreq;
+	  return HLT::MISSING_FEATURE;
+	}
+      } else {
+	return HLT::MISSING_FEATURE;
+      }
+
+
     }
-    
-    
-    
-    if(vertices->size() == 0) {
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " No primary vertices: returning HLT:OK" << endreq;
-      return HLT::OK;
-    } else if(vertices->size() > 1) {
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Retrieved " << vertices->size() << " primary vertices.  Using the first." << endreq;
+
+    //
+    //  Check size (Fallback to HistoPrmVtx if failure) 
+    //
+    if(vertices->empty()) {
+      if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (vertices): " << m_priVtxKey << endreq;
+
+      //
+      // Try for HistoPrmVtx instead
+      //
+      if(m_usePriVtxKeyBackup){
+	statusVertices = getAndCheckHistoPrmVtx(vtxTE.front(), vertices);
+      
+	if(statusVertices != HLT::OK){
+	  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (PV) " << m_priVtxKeyBackup << endreq;
+	  return statusVertices;
+	}
+	if(vertices==0) {
+	  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (vertices): " << m_priVtxKeyBackup << endreq;
+	  return HLT::MISSING_FEATURE;
+	}
+	if(vertices->empty()) {
+	  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (vertices): " << m_priVtxKeyBackup << endreq;
+	  return HLT::MISSING_FEATURE;
+	}
+      } else {
+	return HLT::MISSING_FEATURE;
+      }
+
+
     }
-    
-    const xAOD::Vertex* prmVtx = vertices->at(0);
+
+    //
+    // Get the first primary vertex
+    //
+    const xAOD::Vertex* prmVtx = getPrimaryVertex(vertices);
+
+    //
+    // If no PV revert to the HistoPV
+    //
+    if(!prmVtx){
+      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " No primary vertices in " << m_priVtxKey << " checking HistoPV" << endreq;      
+
+      //
+      // Try for HistoPrmVtx instead
+      //
+      if(m_usePriVtxKeyBackup){
+	statusVertices = getAndCheckHistoPrmVtx(vtxTE.front(), vertices);
+	if(statusVertices != HLT::OK){
+	  if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (PV) " << m_priVtxKeyBackup << endreq;
+	  return statusVertices;
+	}
+
+	const xAOD::Vertex* prmVtx = getPrimaryVertex(vertices);      
+	if(!prmVtx){
+	  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " No primary vertices in " << m_priVtxKeyBackup << " return HLT::OL" << endreq;      
+	  return HLT::OK;
+	}
+      } else{
+	return HLT::OK;
+      }
+
+    }
+
     prmVtx_z = prmVtx->z();
     if (msgLvl() <= MSG::DEBUG)
       msg() << MSG::DEBUG << "Primary vertex z-position = " << prmVtx_z << endreq;
@@ -299,4 +394,36 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltFinalize() {
 }
 
 
+
+HLT::ErrorCode TrigJetSplitterAllTE::getAndCheckHistoPrmVtx(HLT::TriggerElement* vtxTriggerElement , const xAOD::VertexContainer* vertices) {
+  //std::cout << "checking histoprmvtx " << std::endl;
+  HLT::ErrorCode statusHistoPrmVtx = getFeature(vtxTriggerElement, vertices, m_priVtxKeyBackup);
+      
+  if(statusHistoPrmVtx != HLT::OK){
+    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (PV) " << m_priVtxKeyBackup << endreq;
+    return HLT::NAV_ERROR;
+  }
+
+  if(vertices == 0){
+    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (vertices): " << m_priVtxKeyBackup << endreq;
+    return HLT::MISSING_FEATURE;
+  }
+
+  return HLT::OK;
+}
+
+
+const xAOD::Vertex* TrigJetSplitterAllTE::getPrimaryVertex(const xAOD::VertexContainer* vertexContainer)
+{
+  // vertex types are listed on L328 of                                                                                                                                                                                              
+  // https://svnweb.cern.ch/trac/atlasoff/browser/Event/xAOD/xAODTracking/trunk/xAODTracking/TrackingPrimitives.h                                                                                                                    
+  for( auto vtx_itr : *vertexContainer )
+    {
+      if(vtx_itr->vertexType() != xAOD::VxType::VertexType::PriVtx) { continue; }
+      return vtx_itr;
+    }
+  Warning("HelperFunctions::getPrimaryVertex()","No primary vertex was found! Returning nullptr");
+
+  return 0;
+}
 
