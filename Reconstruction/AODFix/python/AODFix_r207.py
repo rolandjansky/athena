@@ -20,8 +20,17 @@ class AODFix_r207(AODFix_base):
     @staticmethod
     def latestAODFixVersion():
         """The latest version of the AODFix."""
-        return "r207v2"
+        return "r207v3" 
 
+    def muon_postSystemRec(self, topSequence):
+        """This fixes the muon momenta to match that of its primary TrackParticle.
+        JIRA: https://its.cern.ch/jira/browse/ATLASRECTS-3121
+        Reco meeting: https://indico.cern.ch/event/532806/
+        Incremented version to r207v3.
+        """
+        from xAODMuonCnv.xAODMuonCnvConf import xAOD__MuonAODFixAlg
+        topSequence+=xAOD__MuonAODFixAlg()
+        
     def postSystemRec(self):
         if self.doAODFix:
 
@@ -568,5 +577,4 @@ class AODFix_r207(AODFix_base):
                 ParticleFlowJetSequence += METMakerAlg_PF
 
             # Muon AODfix
-            #from xAODMuonCnv.xAODMuonCnvConf import xAOD__MuonAODFixAlg
-            #topSequence+=xAOD__MuonAODFixAlg()
+            self.muon_postSystemRec(topSequence)

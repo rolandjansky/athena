@@ -28,6 +28,7 @@ from AODFix_base import AODFix_base
 from AODFix_r191 import AODFix_r191
 from AODFix_r201 import AODFix_r201
 from AODFix_r207 import AODFix_r207
+from AODFix_r21 import AODFix_r21
 
 _aodFixInstance = AODFix_base()
 
@@ -173,8 +174,11 @@ def AODFix_Init():
               (metadataOnly or rec.doApplyAODFix.is_locked() or 
                (prevReleaseSplit[0] == '20' and prevReleaseSplit[1] == '7'))):
             _aodFixInstance = AODFix_r207(prevAODFix, metadataOnly, rec.doApplyAODFix.is_locked())
+        elif (curReleaseSplit[0] == '21' and curReleaseSplit[1] == '0' and 
+              (metadataOnly or rec.doApplyAODFix.is_locked() or 
+               (prevReleaseSplit[0] == '21' and prevReleaseSplit[1] == '0'))):
+            _aodFixInstance = AODFix_r21(prevAODFix, metadataOnly, rec.doApplyAODFix.is_locked())
         else:
-            print curReleaseSplit[0],curReleaseSplit[1],metadataOnly,rec.doApplyAODFix.is_locked(),prevReleaseSplit[0],prevReleaseSplit[1]
             logAODFix.info("No AODFix scheduled for this release.")
 
     # file produced by nightly ?
