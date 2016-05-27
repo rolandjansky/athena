@@ -18,6 +18,7 @@ use TrkMaterialOnTrack	       TrkMaterialOnTrack-*	     Tracking/TrkEvent
 use TrkMeasurementBase	       TrkMeasurementBase-*	     Tracking/TrkEvent
 use TrkRIO_OnTrack	       TrkRIO_OnTrack-*		     Tracking/TrkEvent
 use TrkSurfaces		       TrkSurfaces-*		     Tracking/TrkDetDescr
+use MuonCompetingRIOsOnTrack   MuonCompetingRIOsOnTrack-*    MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use Identifier                 Identifier-*                  DetectorDescription
 
 public 
