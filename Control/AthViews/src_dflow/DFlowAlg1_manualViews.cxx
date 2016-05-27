@@ -4,14 +4,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// DFlowAlg1.cxx 
-// Implementation file for class DFlowAlg1
+// DFlowAlg1_manualViews.cxx 
+// Implementation file for class DFlowAlg1_manualViews
 // Modifed by bwynne to add simple tests for views
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 
 // AthExStoreGateExample includes
-#include "DFlowAlg1.h"
+#include "DFlowAlg1_manualViews.h"
 
 // STL includes
 
@@ -33,11 +33,13 @@ namespace AthViews {
 
 // Constructors
 ////////////////
-DFlowAlg1::DFlowAlg1( const std::string& name, 
+DFlowAlg1_manualViews::DFlowAlg1_manualViews( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
-  ::AthViewAlgorithm( name, pSvcLocator ),
+  ::AthAlgorithm( name, pSvcLocator ),
   m_r_int( "view_start" ),
-  m_w_int( "dflow_int" )
+  m_w_int( "dflow_int" ),
+  m_viewName( "view1" ),
+  m_r_views( "all_views" )
 {
   //
   // Property declaration
@@ -47,34 +49,62 @@ DFlowAlg1::DFlowAlg1( const std::string& name,
   declareProperty( "IntFlow", m_w_int, "Data flow of int" );
 
   declareProperty( "ViewStart", m_r_int, "Seed data of view" );
+
+  declareProperty( "ViewName", m_viewName, "Name of event view to use" );
+
+  declareProperty( "AllViews", m_r_views, "All views" );
 }
 
 // Destructor
 ///////////////
-DFlowAlg1::~DFlowAlg1()
+DFlowAlg1_manualViews::~DFlowAlg1_manualViews()
 {}
 
 // Athena Algorithm's Hooks
 ////////////////////////////
-StatusCode DFlowAlg1::initialize()
+StatusCode DFlowAlg1_manualViews::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode DFlowAlg1::finalize()
+StatusCode DFlowAlg1_manualViews::finalize()
 {
   ATH_MSG_INFO ("Finalizing " << name() << "...");
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode DFlowAlg1::execute()
+StatusCode DFlowAlg1_manualViews::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  useView();
+  //Use views if told to
+  if ( m_viewName != "" )
+  {
+    if ( !m_r_views.isValid() )
+    {
+      ATH_MSG_ERROR( "Failed to access views container" );
+      return StatusCode::FAILURE;
+    }
+
+    //Examine all views
+    bool foundView = false;
+    for ( SG::View * view : *( m_r_views ) )
+    {
+      //Find the view by name
+      if ( view->name() == m_viewName )
+      {
+        foundView = true;
+        StatusCode sc = m_r_int.setStore( view );
+        sc = m_w_int.setStore( view );
+        if ( !sc.isSuccess() ) ATH_MSG_ERROR( "Failed to load view " << m_viewName );
+        break;
+      }
+    }
+    if ( !foundView ) ATH_MSG_ERROR( "Failed to find view " << m_viewName );
+  }
 
   if ( !m_r_int.isValid() ) return StatusCode::FAILURE;
   int seedData = *m_r_int;

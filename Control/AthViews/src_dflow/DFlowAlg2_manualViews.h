@@ -1,23 +1,29 @@
+///////////////////////// -*- C++ -*- /////////////////////////////
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ATHVIEWS_ATHVIEWS_VIEWSUBGRAPHALG_H
-#define ATHVIEWS_ATHVIEWS_VIEWSUBGRAPHALG_H 1
+// DFlowAlg2_manualViews.h 
+// Header file for class DFlowAlg2_manualViews
+// Author: S.Binet<binet@cern.ch>
+/////////////////////////////////////////////////////////////////// 
+#ifndef ATHVIEWS_ATHVIEWS_DFLOWALG2_MANUALVIEWS_H
+#define ATHVIEWS_ATHVIEWS_DFLOWALG2_MANUALVIEWS_H 1
 
 // STL includes
 #include <string>
-#include <vector>
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "SGTools/BuiltinsClids.h"
-#include "AthViews/View.h"
+#include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
+//#include "StoreGate/UpdateHandle.h"
+#include "AthViews/View.h"
 
 namespace AthViews {
 
-class ViewSubgraphAlg
+class DFlowAlg2_manualViews
   : public ::AthAlgorithm
 { 
 
@@ -29,10 +35,13 @@ class ViewSubgraphAlg
   // Copy constructor: 
 
   /// Constructor with parameters: 
-  ViewSubgraphAlg( const std::string& name, ISvcLocator* pSvcLocator );
+  DFlowAlg2_manualViews( const std::string& name, ISvcLocator* pSvcLocator );
 
   /// Destructor: 
-  virtual ~ViewSubgraphAlg(); 
+  virtual ~DFlowAlg2_manualViews(); 
+
+  // Assignment operator: 
+  //DFlowAlg2_manualViews &operator=(const DFlowAlg2_manualViews &alg); 
 
   // Athena algorithm's Hooks
   virtual StatusCode  initialize();
@@ -53,14 +62,16 @@ class ViewSubgraphAlg
  private: 
 
   /// Default constructor: 
-  ViewSubgraphAlg();
+  DFlowAlg2_manualViews();
 
   /// Containers
   
   // vars
-  SG::WriteHandle< std::vector< SG::View* > > m_w_views;
-  SG::WriteHandle<int> m_w_int;
-  std::vector< std::string > m_viewNames;
+  SG::ReadHandle<int>  m_r_int;
+  //SG::UpdateHandle<int> m_rw_int;
+  SG::WriteHandle<std::vector<int> > m_ints;
+  std::string m_viewName;
+  SG::ReadHandle< std::vector< SG::View* > > m_r_views;
 }; 
 
 // I/O operators
@@ -71,5 +82,4 @@ class ViewSubgraphAlg
 /////////////////////////////////////////////////////////////////// 
 
 } //> end namespace AthViews
-
-#endif //> !ATHVIEWS_ATHVIEWS_VIEWMAKEALG_H
+#endif //> !ATHVIEWS_ATHVIEWS_DFLOWALG2_MANUALVIEWS_H

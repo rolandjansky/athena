@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ATHVIEWS_ATHVIEWS_VIEWSUBGRAPHALG_H
-#define ATHVIEWS_ATHVIEWS_VIEWSUBGRAPHALG_H 1
+#ifndef ATHVIEWS_ATHVIEWS_VIEWMAKEALG_H
+#define ATHVIEWS_ATHVIEWS_VIEWMAKEALG_H 1
 
 // STL includes
 #include <string>
@@ -17,7 +17,7 @@
 
 namespace AthViews {
 
-class ViewSubgraphAlg
+class ViewMakeAlg
   : public ::AthAlgorithm
 { 
 
@@ -29,10 +29,10 @@ class ViewSubgraphAlg
   // Copy constructor: 
 
   /// Constructor with parameters: 
-  ViewSubgraphAlg( const std::string& name, ISvcLocator* pSvcLocator );
+  ViewMakeAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
   /// Destructor: 
-  virtual ~ViewSubgraphAlg(); 
+  virtual ~ViewMakeAlg(); 
 
   // Athena algorithm's Hooks
   virtual StatusCode  initialize();
@@ -53,7 +53,7 @@ class ViewSubgraphAlg
  private: 
 
   /// Default constructor: 
-  ViewSubgraphAlg();
+  ViewMakeAlg();
 
   /// Containers
   

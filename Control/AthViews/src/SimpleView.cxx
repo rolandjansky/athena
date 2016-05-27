@@ -2,10 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <iostream>
 #include "AthViews/SimpleView.h"
-
-using namespace std;
 
 SimpleView::SimpleView() :
 	m_store( "StoreGateSvc", "SimpleView" ),
@@ -33,7 +30,6 @@ SimpleView::~SimpleView()
  */
 SG::DataProxy * SimpleView::proxy_exact( SG::sgkey_t sgkey ) const
 {
-	cout << "BEN SimpleView::proxy_exact" << endl;
 	//TODO - view rename
 	return m_store->proxy_exact( sgkey );
 }
@@ -67,7 +63,6 @@ SG::DataProxy * SimpleView::proxy( const CLID& id, const std::string& key ) cons
  */
 SG::DataProxy * SimpleView::proxy( const void* const pTransient ) const
 {
-	cout << "BEN SimpleView::proxy" << endl;
 	//TODO - view rename
 	return m_store->proxy( pTransient );
 }
@@ -113,7 +108,6 @@ StatusCode SimpleView::addToStore( CLID id, SG::DataProxy * proxy )
  */
 bool SimpleView::tryELRemap( sgkey_t sgkey_in, size_t index_in, sgkey_t & sgkey_out, size_t & index_out )
 {
-	cout << "BEN SimpleView::tryELRemap" << endl;
 	//TODO - view rename
 	return m_store->tryELRemap( sgkey_in, index_in, sgkey_out, index_out );
 }
@@ -173,22 +167,19 @@ void SimpleView::unboundHandle( IResetable * handle )
 
 unsigned long SimpleView::addRef()
 {
-	cout << "BEN SimpleView::addRef" << endl;
 	return 0; //FIX
 }
 unsigned long SimpleView::release()
 {
-	cout << "BEN SimpleView::release" << endl;
 	return 0; //FIX
 }
-StatusCode SimpleView::queryInterface( const InterfaceID &/*ti*/, void** /*pp*/ )
+StatusCode SimpleView::queryInterface( const InterfaceID &ti, void** pp )
 {
-	cout << "BEN SimpleView::queryInterface" << endl;
 	return StatusCode::FAILURE; //FIX
 }
 const std::string& SimpleView::name() const
 {
-	return m_name;
+	return m_name; //FIX
 }
 
 //IStringPool
@@ -199,13 +190,11 @@ IStringPool::sgkey_t SimpleView::stringToKey( const std::string& str, CLID clid 
 }
 const std::string* SimpleView::keyToString( IStringPool::sgkey_t key ) const
 {
-	cout << "BEN SimpleView::keyToString" << endl;
 	//TODO - view rename maybe?
 	return m_store->keyToString( key );
 }
 const std::string* SimpleView::keyToString( IStringPool::sgkey_t key, CLID& clid ) const
 {
-	cout << "BEN SimpleView::keyToString" << endl;
 	//TODO - view rename maybe?
 	return m_store->keyToString( key, clid ); 
 }

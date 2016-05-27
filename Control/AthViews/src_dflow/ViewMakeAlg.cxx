@@ -3,11 +3,7 @@
 */
 
 // AthExStoreGateExample includes
-#include "ViewSubgraphAlg.h"
-#include "GaudiKernel/EventContext.h"
-#include "AthViews/GraphExecutionTask.h"
-
-#include "tbb/task.h"
+#include "ViewMakeAlg.h"
 
 // STL includes
 
@@ -28,7 +24,7 @@ namespace AthViews {
 
 // Constructors
 ////////////////
-ViewSubgraphAlg::ViewSubgraphAlg( const std::string& name, 
+ViewMakeAlg::ViewMakeAlg( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
   m_w_int( "view_start" ),
@@ -49,31 +45,31 @@ ViewSubgraphAlg::ViewSubgraphAlg( const std::string& name,
 
 // Destructor
 ///////////////
-ViewSubgraphAlg::~ViewSubgraphAlg()
+ViewMakeAlg::~ViewMakeAlg()
 {
 }
 
 // Athena Algorithm's Hooks
 ////////////////////////////
-StatusCode ViewSubgraphAlg::initialize()
+StatusCode ViewMakeAlg::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode ViewSubgraphAlg::finalize()
+StatusCode ViewMakeAlg::finalize()
 {
   ATH_MSG_INFO ("Finalizing " << name() << "...");
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode ViewSubgraphAlg::execute()
+StatusCode ViewMakeAlg::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  //Subgraph a view for each name given
+  //Make a view for each name given
   m_w_views.record( CxxUtils::make_unique< std::vector< SG::View* > >() );
   for ( unsigned int viewIndex = 0; viewIndex < m_viewNames.size(); viewIndex++ )
   {
@@ -88,15 +84,6 @@ StatusCode ViewSubgraphAlg::execute()
     StatusCode sc = m_w_int.setStore( newView );
     if ( !sc.isSuccess() ) ATH_MSG_ERROR( "setStore() failed for new view" );
     m_w_int.record( CxxUtils::make_unique<int>( ( viewIndex * 10 ) + 10 + m_event_context->evt() ) );
-
-    //Make a context with the view attached
-    EventContext * viewContext = new EventContext( *m_event_context );
-    viewContext->setProxy( newView );
-
-    //Make a subgraph
-    std::vector< std::string > algorithmNameSequence = { "dflow_alg1", "dflow_alg2", "dflow_alg3" };
-    tbb::task * t = new( tbb::task::allocate_root() )GraphExecutionTask( algorithmNameSequence, viewContext, serviceLocator() );
-    tbb::task::enqueue( *t );
   }
 
   return StatusCode::SUCCESS;

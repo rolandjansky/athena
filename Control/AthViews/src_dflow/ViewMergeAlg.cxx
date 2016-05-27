@@ -4,12 +4,14 @@
 
 // AthExStoreGateExample includes
 #include "ViewMergeAlg.h"
-#include "AthViews/ViewHelper.h"
 
 // STL includes
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
+
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
 
 #include "CxxUtils/make_unique.h"
 
@@ -24,8 +26,8 @@ namespace AthViews {
 ViewMergeAlg::ViewMergeAlg( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_w_ints( "dflow_ints" ),
   m_r_ints( "dflow_ints" ),
+  m_w_ints( "dflow_ints" ),
   m_r_views( "all_views" )
 {
   //
@@ -69,14 +71,29 @@ StatusCode ViewMergeAlg::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  //Merge results
+  //Loop over all views
   std::vector< int > outputVector;
-  ViewHelper::MergeViewCollection( *m_r_views,		//Vector of views (inside ReadHandle)
-		  		m_r_ints,		//ReadHandle to access the views (the handle itself)
-				outputVector );		//Container to merge results into
+  for ( SG::View * view : *( m_r_views ) )
+  {
+	  ATH_MSG_INFO( "Merging view: " << view->name() );
+
+	  //Retrieve the view data
+	  StatusCode sc = m_r_ints.setStore( view );
+	  if ( !sc.isSuccess() )
+	  {
+		  ATH_MSG_ERROR( "Unable to load view " << view->name() );
+		  continue;
+	  }
+
+	  //Merge the view data
+	  if ( m_r_ints.isValid() )
+	  {
+		  outputVector.insert( outputVector.end(), m_r_ints->begin(), m_r_ints->end() );
+	  }
+  }
 
   //Output the merged data
-  if ( !m_w_ints.setProxyDict( 0 ).isSuccess() )
+  if ( !m_w_ints.setStore( 0 ).isSuccess() )
   {
 	  ATH_MSG_INFO( "Unable to load main event store" );
   }

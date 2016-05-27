@@ -3,17 +3,15 @@
 */
 
 // AthExStoreGateExample includes
-#include "ViewSubgraphAlg.h"
-#include "GaudiKernel/EventContext.h"
-#include "AthViews/GraphExecutionTask.h"
-
-#include "tbb/task.h"
+#include "ViewIncidentMakeAlg.h"
+//#include "AthViews/AthEventContext.h"
 
 // STL includes
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IScheduler.h"
+//#include "GaudiKernel/IAlgResourcePool.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -28,53 +26,57 @@ namespace AthViews {
 
 // Constructors
 ////////////////
-ViewSubgraphAlg::ViewSubgraphAlg( const std::string& name, 
+ViewIncidentMakeAlg::ViewIncidentMakeAlg( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator ),
-  m_w_int( "view_start" ),
-  m_w_views( "all_views" ),
-  m_viewNames( std::vector< std::string >() )
+  ::AthViewAlgorithm( name, pSvcLocator )
 {
   //
   // Property declaration
   // 
   //declareProperty( "Property", m_nProperty );
 
-  declareProperty( "ViewStart", m_w_int, "A number to start off the view" );
+  declareProperty("ViewStart",
+                  m_w_int = SG::WriteHandle< int >("view_start"),
+                  "A number to start off the view");
 
-  declareProperty( "AllViews", m_w_views, "All views" );
+  declareProperty("AllViews",
+                  m_w_views = SG::WriteHandle< std::vector< SG::View* > >("all_views"),
+                  "All views");
 
-  declareProperty( "ViewNames", m_viewNames, "View names" );
+  declareProperty("ViewNames",
+                  m_viewNames = std::vector< std::string >(),
+                  "View names");
 }
 
 // Destructor
 ///////////////
-ViewSubgraphAlg::~ViewSubgraphAlg()
+ViewIncidentMakeAlg::~ViewIncidentMakeAlg()
 {
 }
 
 // Athena Algorithm's Hooks
 ////////////////////////////
-StatusCode ViewSubgraphAlg::initialize()
+StatusCode ViewIncidentMakeAlg::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode ViewSubgraphAlg::finalize()
+StatusCode ViewIncidentMakeAlg::finalize()
 {
   ATH_MSG_INFO ("Finalizing " << name() << "...");
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode ViewSubgraphAlg::execute()
+StatusCode ViewIncidentMakeAlg::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  //Subgraph a view for each name given
-  m_w_views.record( CxxUtils::make_unique< std::vector< SG::View* > >() );
+  //Make a view for each name given
+  m_w_views = CxxUtils::make_unique< std::vector< SG::View* > >();
+  //m_w_views = std::vector< SG::View* >();
   for ( unsigned int viewIndex = 0; viewIndex < m_viewNames.size(); viewIndex++ )
   {
     std::string const viewName = m_viewNames[ viewIndex ];
@@ -85,18 +87,28 @@ StatusCode ViewSubgraphAlg::execute()
     m_w_views->push_back( newView );
 
     //Write data to the new view
-    StatusCode sc = m_w_int.setStore( newView );
-    if ( !sc.isSuccess() ) ATH_MSG_ERROR( "setStore() failed for new view" );
-    m_w_int.record( CxxUtils::make_unique<int>( ( viewIndex * 10 ) + 10 + m_event_context->evt() ) );
+    CHECK( m_w_int.setStore( newView ) );
+    m_w_int = CxxUtils::make_unique<int>( ( viewIndex * 10 ) + 10 + m_event_context->evt() );
+    //m_w_int = int( ( viewIndex * 10 ) + 10 + m_event_context->evt() );
 
-    //Make a context with the view attached
-    EventContext * viewContext = new EventContext( *m_event_context );
-    viewContext->setProxy( newView );
+    //Try this out
+    /*SmartIF< IAlgResourcePool > m_algResourcePool = 0;
+    m_algResourcePool = serviceLocator()->service( "AlgResourcePool" );
+    IAlgorithm * ialgoPtr = nullptr;
+    StatusCode testPool = m_algResourcePool->acquireAlgorithm( name(), ialgoPtr );
+    ATH_MSG_INFO( "This should fail because I'm me: " << testPool );*/
 
-    //Make a subgraph
-    std::vector< std::string > algorithmNameSequence = { "dflow_alg1", "dflow_alg2", "dflow_alg3" };
-    tbb::task * t = new( tbb::task::allocate_root() )GraphExecutionTask( algorithmNameSequence, viewContext, serviceLocator() );
-    tbb::task::enqueue( *t );
+    SmartIF< IScheduler > m_scheduler = 0;
+    m_scheduler = serviceLocator()->service( "ForwardSchedulerSvc" );
+
+    //Test the HACK
+    //AthEventContext * testNewContext = new AthEventContext( m_event_context );
+    EventContext * testNewContext = new EventContext( *m_event_context );
+    //testNewContext->setView( newView );
+    testNewContext->setProxy( newView );
+    ATH_MSG_INFO( "BEN scheduling dflow_algs in context " << testNewContext );
+    StatusCode sc = m_scheduler->runAlgorithm( "dflow_alg1#dflow_alg2#dflow_alg3", testNewContext );
+    ATH_MSG_INFO( "BEN scheduling result: " << sc );
   }
 
   return StatusCode::SUCCESS;

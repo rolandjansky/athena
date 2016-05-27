@@ -12,7 +12,7 @@
 
 from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
 svcMgr += ForwardSchedulerSvc()
-#svcMgr.ForwardSchedulerSvc.CheckDependencies = True # fails when views are dynamic
+svcMgr.ForwardSchedulerSvc.CheckDependencies = True
 
 # Use McEventSelector so we can run with AthenaMP
 import AthenaCommon.AtlasUnixGeneratorJob
@@ -21,30 +21,37 @@ import AthenaCommon.AtlasUnixGeneratorJob
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
-viewList = []
-for viewNumber in range( 2 ):
-	viewList += [ "view" + str( viewNumber ) ]
+manualViewName1 = "view1"
+manualViewName2 = "view2"
 
 #Make views
-job += CfgMgr.AthViews__ViewSubgraphAlg("make_alg")
-job.make_alg.ViewNames = viewList
-for viewName in viewList:
-	job.make_alg.ExtraOutputs += [ ( 'int', viewName + '_view_start' ) ]
+job += CfgMgr.AthViews__ViewMakeAlg("make_alg")
+job.make_alg.ViewNames = [ manualViewName1, manualViewName2 ]
+job.make_alg.ExtraOutputs = [ ( 'int', manualViewName1 + '_view_start' ), ( 'int', manualViewName2 + '_view_start' ) ]
 
 #Make one view
 job += CfgMgr.AthViews__DFlowAlg1("dflow_alg1")
-job.dflow_alg1.RequireView = True
+job.dflow_alg1.ViewName = manualViewName1
 #
 job += CfgMgr.AthViews__DFlowAlg2("dflow_alg2")
-job.dflow_alg2.RequireView = True
+job.dflow_alg2.ViewName = manualViewName1
 #
 job += CfgMgr.AthViews__DFlowAlg3("dflow_alg3")
-job.dflow_alg3.RequireView = True
+job.dflow_alg3.ViewName = manualViewName1
+
+#Make another view
+job += CfgMgr.AthViews__DFlowAlg1("dflow_alg4")
+job.dflow_alg4.ViewName = manualViewName2
+#
+job += CfgMgr.AthViews__DFlowAlg2("dflow_alg5")
+job.dflow_alg5.ViewName = manualViewName2
+#
+job += CfgMgr.AthViews__DFlowAlg3("dflow_alg6")
+job.dflow_alg6.ViewName = manualViewName2
 
 #Merge views
 job += CfgMgr.AthViews__ViewMergeAlg("merge_alg")
-for viewName in viewList:
-	job.merge_alg.ExtraInputs += [ ( 'int', viewName + '_dflow_dummy' ) ]
+job.merge_alg.ExtraInputs = [ ( 'int', manualViewName1 + '_dflow_dummy' ), ( 'int', manualViewName2 + '_dflow_dummy' ) ]
 
 #--------------------------------------------------------------
 # Event related parameters

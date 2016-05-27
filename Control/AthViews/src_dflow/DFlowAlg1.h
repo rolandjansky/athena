@@ -21,6 +21,9 @@
 #include "StoreGate/WriteHandle.h"
 #include "AthViews/View.h"
 
+// eventinfo
+#include "EventInfo/EventInfo.h"
+
 namespace AthViews {
 
 class DFlowAlg1

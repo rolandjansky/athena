@@ -2,35 +2,25 @@
 # Package: AthViews
 ################################################################################
 
-find_package( TBB )
-
 # Declare the package name:
 atlas_subdir( AthViews )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/SGTools
                           Control/StoreGate
                           GaudiKernel
                           PRIVATE
-                          Control/CxxUtils )
+                          Control/CxxUtils
+                          Event/EventInfo )
 
 # Component(s) in the package:
-atlas_add_library( AthViews
-                   src/*.cxx
-                   src/components/*.cxx
-                   PUBLIC_HEADERS AthViews
-                   INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib GaudiKernel CxxUtils )
-
 atlas_add_component( AthViewsDFlow
                      src_dflow/*.cxx
                      src_dflow/components/*.cxx
-                     INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib GaudiKernel CxxUtils AthViews )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests GaudiKernel CxxUtils EventInfo )
 
 # Install files from the package:
 atlas_install_headers( AthViews )

@@ -4,13 +4,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// DFlowAlg3.cxx 
-// Implementation file for class DFlowAlg3
+// DFlowAlg3_manualViews.cxx 
+// Implementation file for class DFlowAlg3_manualViews
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 
 // AthExStoreGateExample includes
-#include "DFlowAlg3.h"
+#include "DFlowAlg3_manualViews.h"
 
 // STL includes
 
@@ -28,13 +28,15 @@ namespace AthViews {
 
 // Constructors
 ////////////////
-DFlowAlg3::DFlowAlg3( const std::string& name, 
+DFlowAlg3_manualViews::DFlowAlg3_manualViews( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
-  ::AthViewAlgorithm( name, pSvcLocator ),
+  ::AthAlgorithm( name, pSvcLocator ),
   m_r_int( "dflow_int" ),
   m_r_ints( "dflow_ints" ),
   //m_rw_ints( "dflow_ints" ),
-  m_w_dflowDummy( "dflow_dummy" )
+  m_w_dflowDummy( "dflow_dummy" ),
+  m_viewName( "view1" ),
+  m_r_views( "all_views" )
 {
   //
   // Property declaration
@@ -50,34 +52,58 @@ DFlowAlg3::DFlowAlg3( const std::string& name,
 
   declareProperty( "DFlowDummy", m_w_dflowDummy, "Dummy object to fix dependencies" );
 
+  declareProperty( "ViewName", m_viewName, "Name of event view to use" );
+
+  declareProperty( "AllViews", m_r_views, "All views" );
 }
 
 // Destructor
 ///////////////
-DFlowAlg3::~DFlowAlg3()
+DFlowAlg3_manualViews::~DFlowAlg3_manualViews()
 {}
 
 // Athena Algorithm's Hooks
 ////////////////////////////
-StatusCode DFlowAlg3::initialize()
+StatusCode DFlowAlg3_manualViews::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode DFlowAlg3::finalize()
+StatusCode DFlowAlg3_manualViews::finalize()
 {
   ATH_MSG_INFO ("Finalizing " << name() << "...");
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode DFlowAlg3::execute()
+StatusCode DFlowAlg3_manualViews::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  useView();
+  //Use views if told to
+  IProxyDict * thisView = 0;
+  if ( m_viewName != "" )
+  {
+    //Examine all views
+    bool foundView = false;
+    for ( SG::View * view : *( m_r_views ) )
+    {
+      //Find the view by name
+      if ( view->name() == m_viewName )
+      {
+        foundView = true;
+	thisView = view;
+        StatusCode sc = m_r_int.setStore( view );
+        sc = m_r_ints.setStore( view );
+        //sc = m_rw_ints.setStore( view );
+        if ( !sc.isSuccess() ) ATH_MSG_ERROR( "Failed to load view " << m_viewName );
+        break;
+      }
+    }
+    if ( !foundView ) ATH_MSG_ERROR( "Failed to find view " << m_viewName );
+  }
 
   ATH_MSG_INFO("================================");
   ATH_MSG_INFO("myint r-handle...");
@@ -118,8 +144,11 @@ StatusCode DFlowAlg3::execute()
 
   // create a temporary r-handle
   SG::ReadHandle<std::vector<int> > ints(m_r_ints.name());
-  StatusCode sc = ints.setStore( eventView() );
-  if ( !sc.isSuccess() ) ATH_MSG_INFO( "Failed to load view " );
+  if ( thisView ) //Apparently it needs to run in the current view
+  {
+	  StatusCode sc = ints.setStore( thisView );
+	  if ( !sc.isSuccess() ) ATH_MSG_INFO( "Failed to load view " << m_viewName );
+  }
   ATH_MSG_INFO("temporary r-handle[ints] - size: " << ints->size());
   /*ATH_MSG_INFO("compare pointers: ok=" << (ints.ptr() == m_r_ints.ptr()));
   ATH_MSG_INFO("compare pointers: ok=" << (ints.ptr() == m_rw_ints.ptr()));
@@ -245,7 +274,18 @@ StatusCode DFlowAlg3::execute()
   }
 
   //Dummy object to fix the data flow
-  m_w_dflowDummy.record( CxxUtils::make_unique<int>(1) );
+  if ( thisView )
+  {
+    StatusCode sc = m_w_dflowDummy.setStore( thisView );
+    if ( sc.isSuccess() )
+    {
+      m_w_dflowDummy.record( CxxUtils::make_unique<int>( 1 ) );
+    }
+    else
+    {
+      ATH_MSG_ERROR( "Failed to load view " << m_viewName );
+    }
+  }
 
   return StatusCode::SUCCESS;
 }

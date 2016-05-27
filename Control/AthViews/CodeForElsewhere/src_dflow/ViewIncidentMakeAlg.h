@@ -2,23 +2,23 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ATHVIEWS_ATHVIEWS_VIEWSUBGRAPHALG_H
-#define ATHVIEWS_ATHVIEWS_VIEWSUBGRAPHALG_H 1
+#ifndef ATHVIEWS_ATHVIEWS_VIEWINCIDENTMAKEALG_H
+#define ATHVIEWS_ATHVIEWS_VIEWINCIDENTMAKEALG_H 1
 
 // STL includes
 #include <string>
 #include <vector>
 
 // FrameWork includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthViews/AthViewAlgorithm.h"
 #include "SGTools/BuiltinsClids.h"
 #include "AthViews/View.h"
 #include "StoreGate/WriteHandle.h"
 
 namespace AthViews {
 
-class ViewSubgraphAlg
-  : public ::AthAlgorithm
+class ViewIncidentMakeAlg
+  : public ::AthViewAlgorithm
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -29,10 +29,10 @@ class ViewSubgraphAlg
   // Copy constructor: 
 
   /// Constructor with parameters: 
-  ViewSubgraphAlg( const std::string& name, ISvcLocator* pSvcLocator );
+  ViewIncidentMakeAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
   /// Destructor: 
-  virtual ~ViewSubgraphAlg(); 
+  virtual ~ViewIncidentMakeAlg(); 
 
   // Athena algorithm's Hooks
   virtual StatusCode  initialize();
@@ -53,7 +53,7 @@ class ViewSubgraphAlg
  private: 
 
   /// Default constructor: 
-  ViewSubgraphAlg();
+  ViewIncidentMakeAlg();
 
   /// Containers
   
@@ -72,4 +72,4 @@ class ViewSubgraphAlg
 
 } //> end namespace AthViews
 
-#endif //> !ATHVIEWS_ATHVIEWS_VIEWMAKEALG_H
+#endif //> !ATHVIEWS_ATHVIEWS_VIEWINCIDENTMAKEALG_H

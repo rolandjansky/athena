@@ -56,6 +56,8 @@ class AthViewAlgorithm : public AthAlgorithm
   //flags for whether the algorithm can only be run in a view (or not)
   bool m_require_view;
   bool m_require_not_view;
+  std::string m_viewName;
+  SG::ReadHandle< std::vector< SG::View* > > m_r_views;
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 
