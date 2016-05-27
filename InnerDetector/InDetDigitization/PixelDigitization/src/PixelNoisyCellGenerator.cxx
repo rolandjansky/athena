@@ -292,7 +292,7 @@ void PixelNoisyCellGenerator::addCell(SiChargedDiodeCollection &collection,const
 	<< circuit << "," << column << "," << row);
 #endif
     ATH_MSG_DEBUG ( "addCell 2 circuit = " << circuit << ", column = " << column << ", row = " << row);
-  if (row>159) row = row+8; // jump over ganged pixels - rowsPerCircuit == 320 above
+  if (row>159 && design->rowsPerCircuit() != 336) row = row+8; // jump over ganged pixels - rowsPerCircuit == 320 above
     ATH_MSG_DEBUG ( "addCell 3 circuit = " << circuit << ", column = " << column << ", row = " << row);
     
   SiReadoutCellId roCell(row, design->columnsPerCircuit() * circuit + column);
