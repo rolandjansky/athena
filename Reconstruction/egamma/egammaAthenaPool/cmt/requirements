@@ -62,4 +62,3 @@ apply_pattern athenarun_test \
    options="egammaAthenaPool/egammaEventTPCnv_18.0.0_test.py" \
    pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh egammaEventTPCnv_18.0.0" \
    post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh egammaEventTPCnv_18.0.0"
-
