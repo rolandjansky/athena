@@ -56,6 +56,7 @@ namespace met {
     std::string m_mapname;
     std::string m_corename;
     std::string m_outname;
+    bool m_overwrite;
 
     std::string m_softclname;
     std::string m_softtrkname;

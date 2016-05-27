@@ -42,6 +42,7 @@ namespace met {
     declareProperty( "METMapName",     m_mapname   = "METAssoc"          );
     declareProperty( "METCoreName",    m_corename  = "MET_Core"          );
     declareProperty( "METName",        m_outname   = "MET_Reference"     );
+    declareProperty( "AllowOverwrite", m_overwrite = false               );
 
     declareProperty( "METSoftClName",  m_softclname  = "SoftClus"        );
     declareProperty( "METSoftTrkName", m_softtrkname = "PVSoftTrk"       );
@@ -112,16 +113,33 @@ namespace met {
   StatusCode METMakerAlg::execute() {
     ATH_MSG_VERBOSE("Executing " << name() << "...");
 
-    // Create a MissingETContainer with its aux store
-    MissingETContainer* newMet = new MissingETContainer();
-    if( evtStore()->record(newMet, m_outname).isFailure() ) {
-      ATH_MSG_WARNING("Unable to record MissingETContainer: " << m_outname);
+    bool containerExists = evtStore()->contains<xAOD::MissingETContainer>(m_outname);
+    if(!m_overwrite && containerExists) {
+      ATH_MSG_WARNING("METContainer \"" << m_outname << "\" is already present and AllowOverwrite=False, exiting.");
       return StatusCode::SUCCESS;
     }
+
+    // Create a MissingETContainer with its aux store
+    MissingETContainer* newMet = new MissingETContainer();
     MissingETAuxContainer* metAuxCont = new MissingETAuxContainer();
-    if( evtStore()->record(metAuxCont, m_outname+"Aux.").isFailure() ) {
-      ATH_MSG_WARNING("Unable to record MissingETAuxContainer: " << m_outname+"Aux.");
-      return StatusCode::SUCCESS;
+    if(m_overwrite) {
+      if( evtStore()->overwrite(newMet, m_outname,true,false).isFailure() ) {
+	ATH_MSG_WARNING("Unable to record MissingETContainer: " << m_outname);
+	return StatusCode::SUCCESS;
+      }
+      if( evtStore()->overwrite(metAuxCont, m_outname+"Aux.",true,false).isFailure() ) {
+	ATH_MSG_WARNING("Unable to record MissingETAuxContainer: " << m_outname+"Aux.");
+	return StatusCode::SUCCESS;
+      }
+    } else {
+      if( evtStore()->record(newMet, m_outname).isFailure() ) {
+	ATH_MSG_WARNING("Unable to record MissingETContainer: " << m_outname);
+	return StatusCode::SUCCESS;
+      }
+      if( evtStore()->record(metAuxCont, m_outname+"Aux.").isFailure() ) {
+	ATH_MSG_WARNING("Unable to record MissingETAuxContainer: " << m_outname+"Aux.");
+	return StatusCode::SUCCESS;
+      }
     }
     newMet->setStore(metAuxCont);
 
