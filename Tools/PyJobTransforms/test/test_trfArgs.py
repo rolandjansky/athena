@@ -5,7 +5,7 @@
 ## @Package test_trfArgs.py
 #  @brief Unittests for trfArgs.py
 #  @author maddocks.harvey@gmail.com, graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfArgs.py 745237 2016-05-06 02:33:15Z ssnyder $
+#  @version $Id: test_trfArgs.py 748303 2016-05-19 09:46:48Z graemes $
 
 import argparse
 import json
@@ -67,22 +67,6 @@ class trfArgsUnitTests(unittest.TestCase):
         properArgDict = {'r2e': 'MC:TRIGGERDB:124,154,132', 'e2e': 'MC:TRIGGERDB:124,154,132'}
         self.assertTrue(isinstance(myArgDict, dict))
         self.assertEquals(myArgDict['triggerConfig']._value, properArgDict)
-        
-    # def test_Pickle(self):
-    #     myParser = trfArgParser(description='test parser for pickled arguments, %s' % __name__)
-    #     addStandardTrfArgs(myParser)
-    #     addAthenaArguments(myParser)
-    #     import pickle
-    #     pickleArgs = {'cupsOfTea' : '3', 'mugVolume' : '314.56', 'teaType' : 'earl grey', 'drinkers': 'graeme,bjorn,mark'}
-    #     pickle.dump(pickleArgs, open("testorama", "wb"))
-    #     from PyJobTransforms.transform import transform
-    #     tf = transform()
-    #     addTeaArguments(tf.parser)
-    #     self.assertEquals(tf.parseCmdLineArgs(['--argdict', 'testorama']), None)
-    #     try:
-    #         os.unlink('testorama')
-    #     except OSError:
-    #         pass
 
 
 class trfIntArgsUnitTests(unittest.TestCase):

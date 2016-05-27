@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 743343 2016-04-27 15:47:21Z graemes $
+# @version $Id: trfArgClasses.py 750283 2016-05-27 12:30:08Z graemes $
 
 import argparse
 import bz2
@@ -511,6 +511,7 @@ class argFile(argList):
         self._guid = guid
         self._mergeTargetSize = mergeTargetSize
         self._auxiliaryFile = auxiliaryFile
+        self._originalName = None
         
         # User setter to get valid value check
         self.io = io
@@ -598,7 +599,7 @@ class argFile(argList):
         
     ## @brief Set the argFile value, but allow parameters here
     #  @note Normally athena only takes a single value for an output file, but when AthenaMP runs
-    #  it can produce multiple output files - this is allowed by setting  <tt>allowMultiOutputs = False</tt>
+    #  it can produce multiple output files - this is allowed by setting  <tt>allowMultiOutputs = True</tt>
     #  @note The setter protects against the same file being added multiple times
     def valueSetter(self, value):
         prodSysPattern = re.compile(r'(?P<prefix>.*)\[(?P<expand>[\d\.,_]+)\](?P<suffix>.*)')
@@ -695,7 +696,7 @@ class argFile(argList):
                         msg.debug('Prefix: {0}; Numerical expansion: {1}; Suffix: {2}'.format(prodsysGlob.group('prefix'), prodsysGlob.group('expand'), prodsysGlob.group('suffix')))
                         numbers = prodsysGlob.group('expand').split(',')
                         for number in numbers:
-                            # Add a final '.*' to match against the .AttemptNumber invisible extension
+                            # Add a final '*' to match against the .AttemptNumber invisible extension
                             globName = prodsysGlob.group('prefix') + str(number) + prodsysGlob.group('suffix') + '*'
                             msg.debug('Will try globbing against {0}'.format(globName))
                             globbedNames = glob.glob(globName)
@@ -836,6 +837,14 @@ class argFile(argList):
     @dataset.setter
     def dataset(self, value):
         self._dataset = value
+    
+    @property
+    def orignalName(self):
+        return self._originalName
+    
+    @orignalName.setter
+    def originalName(self, value):
+        self._originalName = value
     
     @property
     def type(self):
@@ -1299,10 +1308,12 @@ class argBSFile(argAthenaFile):
     ## @brief Method which can be used to merge files of this type
     #  @param output Target filename for this merge
     #  @param inputs List of files to merge
+    #  @param counter Index counter used as a suffix on the merge executor (sometimes we have
+    #   multiple merges per output file type)
     #  @param argdict argdict of the transform
     #  @note @c argdict is not normally used as this is a @em vanilla merge
-    def selfMerge(self, output, inputs, argdict={}):
-        msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
+    def selfMerge(self, output, inputs, counter=0, argdict={}):
+        msg.debug('selfMerge attempted for {0} -> {1} with {2} (index {3})'.format(inputs, output, argdict, counter))
         
         # First do a little sanity check
         for fname in inputs:
@@ -1324,7 +1335,7 @@ class argBSFile(argAthenaFile):
         myDataDictionary = {'BS_MRG_INPUT' : argBSFile(inputs, type=self.type, io='input'),
                             'BS_MRG_OUTPUT' : argBSFile(output, type=self.type, io='output')}
         myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
-        myMerger = bsMergeExecutor(name='BSMerge_AthenaMP.{0}'.format(self._subtype), conf=myMergeConf, exe = 'file_merging',
+        myMerger = bsMergeExecutor(name='BSMergeAthenaMP{0}{1}'.format(self._subtype, counter), conf=myMergeConf, exe = 'file_merging',
                                   inData=set(['BS_MRG_INPUT']), outData=set(['BS_MRG_OUTPUT']))
         myMerger.doAll(input=set(['BS_MRG_INPUT']), output=set(['BS_MRG_OUTPUT']))
         
@@ -1365,7 +1376,7 @@ class argPOOLFile(argAthenaFile):
     #  @param inputs List of files to merge
     #  @param argdict argdict of the transform
     #  @note @c argdict is not normally used as this is a @em vanilla merge
-    def selfMerge(self, output, inputs, argdict={}):
+    def selfMerge(self, output, inputs, counter=0, argdict={}):
         msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
         
         # First do a little sanity check
@@ -1385,7 +1396,7 @@ class argPOOLFile(argAthenaFile):
         myDataDictionary = {'POOL_MRG_INPUT' : argPOOLFile(inputs, type=self.type, io='input'),
                             'POOL_MRG_OUTPUT' : argPOOLFile(output, type=self.type, io='output')}
         myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
-        myMerger = athenaExecutor(name='POOLMerge_AthenaMP.{0}'.format(self._subtype), conf=myMergeConf, 
+        myMerger = athenaExecutor(name='POOLMergeAthenaMP{0}{1}'.format(self._subtype, counter), conf=myMergeConf, 
                                   skeletonFile = 'RecJobTransforms/skeleton.MergePool_tf.py',
                                   inData=set(['POOL_MRG_INPUT']), outData=set(['POOL_MRG_OUTPUT']), perfMonFile = 'ntuple_POOLMerge.pmon.gz')
         myMerger.doAll(input=set(['POOL_MRG_INPUT']), output=set(['POOL_MRG_OUTPUT']))
@@ -1405,7 +1416,7 @@ class argHITSFile(argPOOLFile):
     integrityFunction = "returnIntegrityOfPOOLFile"
 
     ## @brief Method which can be used to merge HITS files
-    def selfMerge(self, output, inputs, argdict={}):
+    def selfMerge(self, output, inputs, counter=0, argdict={}):
         msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
         
         # First do a little sanity check
@@ -1415,7 +1426,7 @@ class argHITSFile(argPOOLFile):
                                                             "File {0} is not part of this agument: {1}".format(fname, self))
         
         ## @note Modify argdict
-        mySubstepName = 'HITSMerge_AthenaMP'
+        mySubstepName = 'HITSMergeAthenaMP{0}'.format(counter)
         myargdict = self._mergeArgs(argdict)
         
         from PyJobTransforms.trfExe import athenaExecutor, executorConfig
@@ -1442,7 +1453,7 @@ class argRDOFile(argPOOLFile):
     integrityFunction = "returnIntegrityOfPOOLFile"
 
     ## @brief Method which can be used to merge RDO files
-    def selfMerge(self, output, inputs, argdict={}):
+    def selfMerge(self, output, inputs, counter=0, argdict={}):
         msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
         
         # First do a little sanity check
@@ -1458,7 +1469,7 @@ class argRDOFile(argPOOLFile):
         myDataDictionary = {'RDO' : argHITSFile(inputs, type=self.type, io='input'),
                             'RDO_MRG' : argHITSFile(output, type=self.type, io='output')}
         myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
-        myMerger = athenaExecutor(name = 'RDOMerge_AthenaMP', skeletonFile = 'RecJobTransforms/skeleton.MergeRDO_tf.py',
+        myMerger = athenaExecutor(name = 'RDOMergeAthenaMP{0}'.format(counter), skeletonFile = 'RecJobTransforms/skeleton.MergeRDO_tf.py',
                                   conf=myMergeConf, 
                                   inData=set(['RDO']), outData=set(['RDO_MRG']), perfMonFile = 'ntuple_RDOMerge.pmon.gz')
         myMerger.doAll(input=set(['RDO']), output=set(['RDO_MRG']))
@@ -1503,7 +1514,7 @@ class argTAGFile(argPOOLFile):
     #  @param inputs List of files to merge
     #  @param argdict argdict of the transform
     #  @note @c argdict is not normally used as this is a @em vanilla merge
-    def selfMerge(self, output, inputs, argdict={}):
+    def selfMerge(self, output, inputs, counter=0, argdict={}):
         msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
         
         # First do a little sanity check
@@ -1521,7 +1532,7 @@ class argTAGFile(argPOOLFile):
         myDataDictionary = {'TAG_MRG_INPUT' : argTAGFile(inputs, type=self.type, io='input'),
                             'TAG_MRG_OUTPUT' : argTAGFile(output, type=self.type, io='output')}
         myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
-        myMerger = tagMergeExecutor(name='TAGMerge_AthenaMP.{0}'.format(self._subtype), exe = 'CollAppend', 
+        myMerger = tagMergeExecutor(name='TAGMergeAthenaMP{0}{1}'.format(self._subtype, counter), exe = 'CollAppend', 
                                         conf=myMergeConf, 
                                         inData=set(['TAG_MRG_INPUT']), outData=set(['TAG_MRG_OUTPUT']),)
         myMerger.doAll(input=set(['TAG_MRG_INPUT']), output=set(['TAG_MRG_OUTPUT']))
@@ -1623,7 +1634,7 @@ class argNTUPFile(argFile):
                 self._fileMetadata[fname]['integrity'] = False
                 
                 
-    def selfMerge(self, output, inputs, argdict={}):
+    def selfMerge(self, output, inputs, counter=0, argdict={}):
         msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
         
         # First do a little sanity check
@@ -1641,7 +1652,7 @@ class argNTUPFile(argFile):
         myDataDictionary = {'NTUP_MRG_INPUT' : argNTUPFile(inputs, type=self.type, io='input'),
                             'NYUP_MRG_OUTPUT' : argNTUPFile(output, type=self.type, io='output')}
         myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
-        myMerger = NTUPMergeExecutor(name='NTUPMerge_AthenaMP.{0}'.format(self._subtype), conf=myMergeConf, 
+        myMerger = NTUPMergeExecutor(name='NTUPMergeAthenaMP{0}{1}'.format(self._subtype, counter), conf=myMergeConf, 
                                      inData=set(['NTUP_MRG_INPUT']), outData=set(['NTUP_MRG_OUTPUT']))
         myMerger.doAll(input=set(['NTUP_MRG_INPUT']), output=set(['NYUP_MRG_OUTPUT']))
         

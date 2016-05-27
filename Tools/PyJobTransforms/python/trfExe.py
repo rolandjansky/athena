@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 745958 2016-05-10 15:15:37Z graemes $
+# @version $Id: trfExe.py 750283 2016-05-27 12:30:08Z graemes $
 
 import copy
 import json
@@ -727,7 +727,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 745958 2016-05-10 15:15:37Z graemes $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 750283 2016-05-27 12:30:08Z graemes $')
         else:
             self._jobOptionsTemplate = None
 
@@ -826,7 +826,7 @@ class athenaExecutor(scriptExecutor):
                     self._athenaMPStrategy = None
             # See if we have options for the target output file size
             if 'athenaMPMergeTargetSize' in self.conf.argdict:
-                for dataType in self.conf._dataDictionary:
+                for dataType in output:
                     if dataType in self.conf.argdict['athenaMPMergeTargetSize'].value:
                         self.conf._dataDictionary[dataType].mergeTargetSize = self.conf.argdict['athenaMPMergeTargetSize'].value[dataType] * 1000000 # Convert from MB to B
                         msg.info('Set target merge size for {0} to {1}'.format(dataType, self.conf._dataDictionary[dataType].mergeTargetSize))
@@ -842,6 +842,13 @@ class athenaExecutor(scriptExecutor):
                         if not matchedViaGlob and "ALL" in self.conf.argdict['athenaMPMergeTargetSize'].value:
                             self.conf._dataDictionary[dataType].mergeTargetSize = self.conf.argdict['athenaMPMergeTargetSize'].value["ALL"] * 1000000 # Convert from MB to B
                             msg.info('Set target merge size for {0} to {1} from "ALL" value'.format(dataType, self.conf._dataDictionary[dataType].mergeTargetSize))
+            # For AthenaMP jobs we ensure that the athena outputs get the suffix _000
+            # so that the mother process output file (if it exists) can be used directly
+            # as soft linking is can lead to problems in the PoolFileCatalog (see ATLASJT-317) 
+            for dataType in output:
+                self.conf._dataDictionary[dataType].originalName = self.conf._dataDictionary[dataType].value[0]
+                self.conf._dataDictionary[dataType].value[0] += "_000"
+                msg.info("Updated athena output filename for {0} to {1}".format(dataType, self.conf._dataDictionary[dataType].value[0]))
         else:
             self._athenaMPWorkerTopDir = self._athenaMPFileReport = None
 
@@ -1208,9 +1215,6 @@ class athenaExecutor(scriptExecutor):
     ## @brief Manage smart merging of output files
     #  @param fileArg File argument to merge
     def _smartMerge(self, fileArg):
-        ## @note Produce a list of merge jobs - this is a list of lists
-        #  @todo This should be configurable!
-        
         ## @note only file arguments which support selfMerge() can be merged
         if 'selfMerge' not in dir(fileArg):
             msg.info('Files in {0} cannot merged (no selfMerge() method is implemented)'.format(fileArg.name))
@@ -1220,6 +1224,7 @@ class athenaExecutor(scriptExecutor):
             msg.info('Files in {0} will not be merged as target size is set to 0)'.format(fileArg.name))
             return
 
+        ## @note Produce a list of merge jobs - this is a list of lists
         mergeCandidates = [list()]
         currentMergeSize = 0
         for fname in fileArg.value:
@@ -1246,20 +1251,31 @@ class athenaExecutor(scriptExecutor):
             
         msg.debug('First pass splitting will merge files in this way: {0}'.format(mergeCandidates))
         
-        counter = 0
-        for mergeGroup in mergeCandidates:
-            # Note that the individual worker files get numbered with 3 digit padding,
-            # so these non-padded merges should be fine
-            mergeName = fileArg.originalName + '_{0}'.format(counter)
-            while path.exists(mergeName):
-                counter += 1
+        if len(mergeCandidates) == 1:
+            # Merging to a single file, so use the original filename that the transform
+            # was started with
+            mergeNames = [fileArg.originalName]
+        else:
+            # Multiple merge targets, so we need a set of unique names
+            counter = 0
+            mergeNames = []
+            for mergeGroup in mergeCandidates:
+                # Note that the individual worker files get numbered with 3 digit padding,
+                # so these non-padded merges should be fine
                 mergeName = fileArg.originalName + '_{0}'.format(counter)
-            msg.info('Want to merge files {0} to {1}'.format(mergeGroup, mergeName))
+                while path.exists(mergeName):
+                    counter += 1
+                    mergeName = fileArg.originalName + '_{0}'.format(counter)
+                mergeNames.append(mergeName)
+                counter += 1
+        # Now actually do the merges
+        for targetName, mergeGroup, counter in zip(mergeNames, mergeCandidates, range(len(mergeNames))):
+            msg.info('Want to merge files {0} to {1}'.format(mergeGroup, targetName))
             if len(mergeGroup) <= 1:
                 msg.info('Skip merging for single file')
             else:
                 ## We want to parallelise this part!
-                self._myMerger.append(fileArg.selfMerge(output=mergeName, inputs=mergeGroup, argdict=self.conf.argdict))
+                self._myMerger.append(fileArg.selfMerge(output=targetName, inputs=mergeGroup, counter=counter, argdict=self.conf.argdict))
 
 
     def _targzipJiveXML(self):
