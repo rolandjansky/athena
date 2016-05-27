@@ -16,7 +16,7 @@
 #endif
 
 class MvaTESEvaluator
-: virtual public TauRecToolBase
+: public TauRecToolBase
 {
  public:
   ASG_TOOL_CLASS2(MvaTESEvaluator, TauRecToolBase, ITauToolBase)

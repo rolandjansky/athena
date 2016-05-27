@@ -16,7 +16,7 @@
  */
 
 
-class TauConversionTagger : virtual public TauRecToolBase {
+class TauConversionTagger : public TauRecToolBase {
 public:
     //-------------------------------------------------------------
     //! Constructor

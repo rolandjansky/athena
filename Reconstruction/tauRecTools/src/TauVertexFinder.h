@@ -24,7 +24,7 @@
  * @author Felix Friedrich <Felix.Friedrich@cern.ch>
  */
 
-class TauVertexFinder : virtual public TauRecToolBase {
+class TauVertexFinder : public TauRecToolBase {
 public:
   //-------------------------------------------------------------
   //! Constructor and Destructor

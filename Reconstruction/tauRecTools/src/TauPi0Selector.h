@@ -16,7 +16,7 @@
  * @author Stephanie Yuen <stephanie.yuen@cern.ch>
  */
 
-class TauPi0Selector : virtual public TauRecToolBase {
+class TauPi0Selector : public TauRecToolBase {
 public:
     TauPi0Selector(const std::string& name);
     ASG_TOOL_CLASS2(TauPi0Selector, TauRecToolBase, ITauToolBase);

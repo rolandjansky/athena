@@ -22,7 +22,7 @@ namespace TMVA{
  * @author Stephanie Yuen <stephanie.yuen@cern.ch>
  */
 
-class TauPi0ScoreCalculator : virtual public TauRecToolBase {
+class TauPi0ScoreCalculator : public TauRecToolBase {
 public:
     TauPi0ScoreCalculator(const std::string& name);
     ASG_TOOL_CLASS2(TauPi0ScoreCalculator, TauRecToolBase, ITauToolBase);

@@ -16,7 +16,7 @@
 
 #include "tauRecTools/TauRecToolBase.h"
 
-class TauGenericPi0Cone : virtual public TauRecToolBase {
+class TauGenericPi0Cone : public TauRecToolBase {
 public:
     //-------------------------------------------------------------
     //! Constructor

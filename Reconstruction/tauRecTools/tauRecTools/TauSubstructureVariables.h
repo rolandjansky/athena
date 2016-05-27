@@ -15,7 +15,7 @@
  * 
  */
 
-class TauSubstructureVariables : virtual public TauRecToolBase
+class TauSubstructureVariables : public TauRecToolBase
 {
     public: 
         

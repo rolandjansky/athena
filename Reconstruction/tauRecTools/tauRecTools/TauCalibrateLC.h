@@ -20,7 +20,7 @@ class TF1;
  *                                                                              
  */
 
-class TauCalibrateLC : virtual public TauRecToolBase {
+class TauCalibrateLC : public TauRecToolBase {
 public:
 
   ASG_TOOL_CLASS2( TauCalibrateLC, TauRecToolBase, ITauToolBase )

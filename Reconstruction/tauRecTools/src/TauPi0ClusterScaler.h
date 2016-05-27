@@ -22,7 +22,7 @@
 namespace Trk {
     class IParticleCaloExtensionTool;
 }
-class TauPi0ClusterScaler : virtual public TauRecToolBase {
+class TauPi0ClusterScaler : public TauRecToolBase {
 public:
     TauPi0ClusterScaler(const std::string& name);
     ASG_TOOL_CLASS2(TauPi0ClusterScaler, TauRecToolBase, ITauToolBase);
