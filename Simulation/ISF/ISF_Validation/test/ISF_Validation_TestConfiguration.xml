@@ -273,7 +273,7 @@
             <jobTransform userJobId="G4_MC15_ZPrime_QuasiStable_1sim">
               <doc>Test detector functionality for ISF G4 using ttbar</doc>
               <jobTransformJobName>G4_MC15_ZPrime_QuasiStable_1sim</jobTransformJobName>
-              <jobTransformCmd>xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/jira/ATLASSIM-1795/EVNT.04607198._000001.pool.root.1 EVNT.04607198._000001.pool.root.1; Sim_tf.py --inputEVNTFile="EVNT.04607198._000001.pool.root.1" --DataRunNumber="222525" --conditionsTag="OFLCOND-RUN12-SDR-20" --geometryVersion="ATLAS-R2-2015-02-01-00" --maxEvents="10" --outputHITSFile="Hits.pool.root" --physicsList="FTFP_BERT" --postInclude="PyJobTransforms/UseFrontier.py" --preInclude EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py --randomSeed="8" --simulator="MC12G4_longLived" --truthStrategy MC15 --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
+              <jobTransformCmd>xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/jira/ATLASSIM-1795/EVNT.04607198._000001.pool.root.1 EVNT.04607198._000001.pool.root.1; Sim_tf.py --inputEVNTFile="EVNT.04607198._000001.pool.root.1" --DataRunNumber="222525" --conditionsTag="OFLCOND-RUN12-SDR-20" --geometryVersion="ATLAS-R2-2015-03-01-00_VALIDATION" --maxEvents="10" --outputHITSFile="Hits.pool.root" --physicsList="FTFP_BERT" --postInclude="PyJobTransforms/UseFrontier.py" --preInclude EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py --randomSeed="8" --simulator="MC12G4_longLived" --truthStrategy MC15 --postInclude=G4AtlasTests/postInclude.DCubeTest.py</jobTransformCmd>
               <group>ISF_Validation_sim</group>
               <queue>medium</queue>
 
@@ -505,7 +505,7 @@
       <jobTransform userJobId="G4_cosmics_1sim">
         <doc>Running cosmic simulation transform from track records</doc>
         <jobTransformJobName>G4_cosmics_1sim</jobTransformJobName>
-        <jobTransformCmd>Sim_tf.py --simulator MC12G4 --inputEVNT_COSMICSFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/Cosmics.TR.pool.root --outputHITSFile testCosmics.HITS.pool.root --maxEvents -1 --randomSeed 1234 --DataRunNumber '10' --geometryVersion ATLAS-R2-2015-01-01-00 --conditionsTag OFLCOND-RUN12-SDR-01 --firstEvent 0 --physicsList QGSP_BERT --preInclude SimulationJobOptions/preInclude.Cosmics.py --beamType cosmics
+        <jobTransformCmd>Sim_tf.py --simulator MC12G4 --inputEVNT_COSMICSFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/Cosmics.TR.pool.root --outputHITSFile testCosmics.HITS.pool.root --maxEvents -1 --randomSeed 1234 --DataRunNumber '10' --geometryVersion ATLAS-R2-2015-03-01-00_VALIDATION --conditionsTag OFLCOND-RUN12-SDR-19 --firstEvent 0 --physicsList QGSP_BERT --preInclude SimulationJobOptions/preInclude.Cosmics.py --beamType cosmics
         </jobTransformCmd>
         <group>ISF_Validation_sim</group>
         <queue>short</queue>
@@ -515,7 +515,7 @@
       <jobTransform userJobId="G4_cosmicsTR_1sim">
         <doc>Running cosmic simulation transform from track records</doc>
         <jobTransformJobName>G4_cosmicsTR_1sim</jobTransformJobName>
-        <jobTransformCmd>Sim_tf.py --simulator MC12G4 --outputEVNT_COSMICSTRFile 'testCosmics.TR.pool.root' --outputHITSFile 'testCosmics.HITS.pool.root' --maxEvents '1500' --randomSeed '1234' --DataRunNumber '10' --physicsList 'QGSP_BERT' --CosmicFilterVolume 'Calo' --CosmicFilterVolume2 'NONE' --preInclude 'SimulationJobOptions/preInclude.Cosmics.py' --geometryVersion 'ATLAS-R2-2015-01-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-01' --CosmicPtSlice 'NONE' --beamType 'cosmics'
+        <jobTransformCmd>Sim_tf.py --simulator MC12G4 --outputEVNT_COSMICSTRFile 'testCosmics.TR.pool.root' --outputHITSFile 'testCosmics.HITS.pool.root' --maxEvents '1500' --randomSeed '1234' --DataRunNumber '10' --physicsList 'QGSP_BERT' --CosmicFilterVolume 'Calo' --CosmicFilterVolume2 'NONE' --preInclude 'SimulationJobOptions/preInclude.Cosmics.py' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --CosmicPtSlice 'NONE' --beamType 'cosmics'
         </jobTransformCmd>
         <group>ISF_Validation_sim</group>
         <queue>medium</queue>
