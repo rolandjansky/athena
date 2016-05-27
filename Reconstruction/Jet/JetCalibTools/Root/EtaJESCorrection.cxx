@@ -164,10 +164,7 @@ StatusCode EtaJESCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const 
   //Apply the JES calibration scale factor
   //Takes the uncorrected jet eta (in case the origin and/or 4vector jet area corrections were applied
   float detectorEta = jet.getAttribute<float>("DetectorEta");
-  if(m_dev){
-    float JESFactor = getJES( jetStartP4.e(),detectorEta );
-    jet.setAttribute<float>("JetJESCalibFactor",JESFactor);
-  }
+
   xAOD::JetFourMom_t calibP4 = jetStartP4*getJES( jetStartP4.e(), detectorEta );
 
   const double etaCorr = calibP4.eta() + getEtaCorr( calibP4.e(), detectorEta );
@@ -177,6 +174,11 @@ StatusCode EtaJESCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const 
   TLorentzVector TLVjet;
   TLVjet.SetPtEtaPhiM( calibP4.P()/cosh(etaCorr),etaCorr,calibP4.phi(),massCorr );
   calibP4.SetPxPyPzE( TLVjet.Px(), TLVjet.Py(), TLVjet.Pz(), TLVjet.E() );
+
+  if(m_dev){
+    float JESFactor = calibP4.e()/jetStartP4.e();
+    jet.setAttribute<float>("JetJESCalibFactor",JESFactor);
+  }
   
   //Transfer calibrated jet properties to the Jet object
   jet.setAttribute<xAOD::JetFourMom_t>("JetEtaJESScaleMomentum",calibP4);
