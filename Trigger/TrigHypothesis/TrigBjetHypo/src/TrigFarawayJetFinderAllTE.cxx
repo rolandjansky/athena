@@ -157,7 +157,7 @@ HLT::ErrorCode TrigFarawayJetFinderAllTE::hltExecute(std::vector<std::vector<HLT
 
     std::vector<const  xAOD::Jet*>::const_iterator Jet = theJets.begin();
 
-    std::cout << "=====================> Jet" << iJet << std::endl;
+    //std::cout << "=====================> Jet" << iJet << std::endl;
     
     float minimumDeltaR = 9e9;
     

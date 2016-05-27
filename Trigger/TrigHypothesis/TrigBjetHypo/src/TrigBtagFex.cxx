@@ -57,7 +57,9 @@ TrigBtagFex::TrigBtagFex(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("TaggerBaseNames",    m_TaggerBaseNames);
   declareProperty("TrackKey",           m_trackKey = "");
   declareProperty("JetKey",             m_jetKey = "");
-  declareProperty("PriVtxKey",          m_priVtxKey = "");
+  declareProperty("PriVtxKey",          m_priVtxKey = "xPrimVx");
+  declareProperty("UsePriVtxKeyBackup", m_usePriVtxKeyBackup = true);
+  declareProperty("PriVtxKeyBackup",    m_priVtxKeyBackup = "EFHistoPrmVtx");
 
   declareProperty("BTagTool",           m_bTagTool);
   declareProperty("BTagTrackAssocTool", m_bTagTrackAssocTool);
@@ -222,10 +224,29 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
 
   // Get primary vertex 
   const xAOD::VertexContainer* vertexes = nullptr;
+  bool usePVBackup=true;
   if (getFeature(outputTE, vertexes, m_priVtxKey) == HLT::OK && vertexes != nullptr) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: " << "nVertexes = " << vertexes->size() << endreq;
-  } else {
-    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "INPUT - No xAOD::VertexContainer" << endreq;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: " << m_priVtxKey << " has nVertexes = " << vertexes->size() << endreq;
+    if (!(vertexes->empty()))
+      if ((*(vertexes->begin()))->vertexType()==xAOD::VxType::PriVtx) {
+	usePVBackup=false;
+	if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKey << endreq;
+      }
+  }
+  if(m_usePriVtxKeyBackup && usePVBackup) {
+    vertexes = nullptr;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKey << " - proceeding with backup option" << endreq;
+    if (getFeature(outputTE, vertexes, m_priVtxKeyBackup) == HLT::OK && vertexes != nullptr) {
+      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: " << m_priVtxKeyBackup << " has nVertexes = " << vertexes->size() << endreq;
+      if (!(vertexes->empty()))
+	if ((*(vertexes->begin()))->vertexType()==xAOD::VxType::PriVtx) {
+	  usePVBackup=false;
+	  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKeyBackup << endreq;
+	}
+    }
+  }
+  if(usePVBackup) {
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKeyBackup << " - aborting..." << endreq;
     return HLT::MISSING_FEATURE;
   }
 
