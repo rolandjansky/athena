@@ -42,4 +42,3 @@ atlas_add_component( TrkiPatFitter
 
 # Install files from the package:
 atlas_install_headers( TrkiPatFitter )
-
