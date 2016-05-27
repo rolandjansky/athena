@@ -190,6 +190,8 @@ except:
         from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
         topSeq += CopyEventWeight()
 
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("BeamEffectsAlg")
 
 #--- Geant4 flags ---------------------------------------------
 
