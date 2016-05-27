@@ -62,43 +62,43 @@ StatusCode HLTMuonMonTool::bookMuonEFDQA()
   //histograms in each 10LBs 
   if( newRun || newLowStat ){
 
-    addHistogram( new TH2F("EFMS_eta_vs_phi_in_10LBs",           "TrigMuonEF TrackBuilder eta vs phi in 10LBs; #eta ; #phi",           27, -2.7, 2.7, 16, -CLHEP::pi, CLHEP::pi), histdircoverage );
-    addHistogram( new TH2F("EFSA_eta_vs_phi_in_10LBs",           "TrigMuonEF Extrapolator eta vs phi in 10LBs; #eta ; #phi",           27, -2.7, 2.7, 16, -CLHEP::pi, CLHEP::pi), histdircoverage );
-    addHistogram( new TH2F("EFCB_eta_vs_phi_in_10LBs",           "TrigMuonEF Combiner eta vs phi in 10LBs; #eta ; #phi",               27, -2.7, 2.7, 16, -CLHEP::pi, CLHEP::pi), histdircoverage );
+    addHistogram( new TH2F("EFMS_eta_vs_phi_in_10LBs",           "TrigMuonEF TrackBuilder eta vs phi in 10LBs; #eta ; #phi",           27, -2.7, 2.7, 16, -CLHEP::pi, CLHEP::pi), m_histdircoverage );
+    addHistogram( new TH2F("EFSA_eta_vs_phi_in_10LBs",           "TrigMuonEF Extrapolator eta vs phi in 10LBs; #eta ; #phi",           27, -2.7, 2.7, 16, -CLHEP::pi, CLHEP::pi), m_histdircoverage );
+    addHistogram( new TH2F("EFCB_eta_vs_phi_in_10LBs",           "TrigMuonEF Combiner eta vs phi in 10LBs; #eta ; #phi",               27, -2.7, 2.7, 16, -CLHEP::pi, CLHEP::pi), m_histdircoverage );
 
   }
 
   if( newRun ){
 
-    addHistogram( new TH1F("EFMS_pt",    "TrigMuonEF TrackBuilder pT; p_{T}[GeV/c]; Entries",    105, 0.,105.), histdirmuonef );
-    addHistogram( new TH1F("EFMS_signed_pt",    "TrigMuonEF TrackBuilder signed pT; signed p_{T}[GeV/c]; Entries",    210, -105.,105.), histdirmuonef );
-    addHistogram( new TH1F("EFMS_eta",   "TrigMuonEF TrackBuilder eta; #eta; Entries",   108,-2.7,2.7), histdirmuonef );
-    addHistogram( new TH1F("EFMS_phi",   "TrigMuonEF TrackBuilder phi; #phi[rad]; Entries",   96,-CLHEP::pi, CLHEP::pi), histdirmuonef );
-    addHistogram( new TH2F("EFMS_eta_vs_phi",           "TrigMuonEF TrackBuilder eta vs phi; #eta ; #phi",           108, -2.7, 2.7, 96, -CLHEP::pi, CLHEP::pi), histdirmuonef );
+    addHistogram( new TH1F("EFMS_pt",    "TrigMuonEF TrackBuilder pT; p_{T}[GeV/c]; Entries",    105, 0.,105.), m_histdirmuonef );
+    addHistogram( new TH1F("EFMS_signed_pt",    "TrigMuonEF TrackBuilder signed pT; signed p_{T}[GeV/c]; Entries",    210, -105.,105.), m_histdirmuonef );
+    addHistogram( new TH1F("EFMS_eta",   "TrigMuonEF TrackBuilder eta; #eta; Entries",   108,-2.7,2.7), m_histdirmuonef );
+    addHistogram( new TH1F("EFMS_phi",   "TrigMuonEF TrackBuilder phi; #phi[rad]; Entries",   96,-CLHEP::pi, CLHEP::pi), m_histdirmuonef );
+    addHistogram( new TH2F("EFMS_eta_vs_phi",           "TrigMuonEF TrackBuilder eta vs phi; #eta ; #phi",           108, -2.7, 2.7, 96, -CLHEP::pi, CLHEP::pi), m_histdirmuonef );
 
-    addHistogram( new TH1F("EFSA_pt",    "TrigMuonEF Extrapolator pT; p_{T}[GeV/c]; Entries",    105,0.,105.), histdirmuonef );
-    addHistogram( new TH1F("EFSA_signed_pt",    "TrigMuonEF Extrapolator signed pT; signed p_{T}[GeV/c]; Entries",    210,-105.,105.), histdirmuonef );
-    addHistogram( new TH1F("EFSA_eta",   "TrigMuonEF Extrapolator eta; #eta; Entries",   108,-2.7,2.7), histdirmuonef );
-    addHistogram( new TH1F("EFSA_phi",   "TrigMuonEF Extrapolator phi; #phi[rad]; Entries",   100,-3.15,3.15), histdirmuonef );
-    addHistogram( new TH2F("EFSA_eta_vs_phi",           "TrigMuonEF Extrapolator eta vs phi; #eta ; #phi",           108, -2.7, 2.7, 96, -CLHEP::pi, CLHEP::pi), histdirmuonef );
+    addHistogram( new TH1F("EFSA_pt",    "TrigMuonEF Extrapolator pT; p_{T}[GeV/c]; Entries",    105,0.,105.), m_histdirmuonef );
+    addHistogram( new TH1F("EFSA_signed_pt",    "TrigMuonEF Extrapolator signed pT; signed p_{T}[GeV/c]; Entries",    210,-105.,105.), m_histdirmuonef );
+    addHistogram( new TH1F("EFSA_eta",   "TrigMuonEF Extrapolator eta; #eta; Entries",   108,-2.7,2.7), m_histdirmuonef );
+    addHistogram( new TH1F("EFSA_phi",   "TrigMuonEF Extrapolator phi; #phi[rad]; Entries",   100,-3.15,3.15), m_histdirmuonef );
+    addHistogram( new TH2F("EFSA_eta_vs_phi",           "TrigMuonEF Extrapolator eta vs phi; #eta ; #phi",           108, -2.7, 2.7, 96, -CLHEP::pi, CLHEP::pi), m_histdirmuonef );
 
-    addHistogram( new TH1F("EFCB_pt",    "TrigMuonEF Combiner pT; p_{T}; Entries",    105,0.,105.), histdirmuonef );
-    addHistogram( new TH1F("EFCB_signed_pt",    "TrigMuonEF Combiner signed pT; signed p_{T}; Entries",    210, -105.,105.), histdirmuonef );
-    addHistogram( new TH1F("EFCB_eta",   "TrigMuonEF Combiner eta; #eta; Entries",   108,-2.7,2.7), histdirmuonef );
-    addHistogram( new TH1F("EFCB_phi",   "TrigMuonEF Combiner phi; #phi[rad]; Entries",   96,-CLHEP::pi, CLHEP::pi), histdirmuonef );
-    addHistogram( new TH2F("EFCB_eta_vs_phi",           "TrigMuonEF Combiner eta vs phi; #eta ; #phi",               108, -2.7, 2.7, 96, -CLHEP::pi, CLHEP::pi), histdirmuonef );
+    addHistogram( new TH1F("EFCB_pt",    "TrigMuonEF Combiner pT; p_{T}; Entries",    105,0.,105.), m_histdirmuonef );
+    addHistogram( new TH1F("EFCB_signed_pt",    "TrigMuonEF Combiner signed pT; signed p_{T}; Entries",    210, -105.,105.), m_histdirmuonef );
+    addHistogram( new TH1F("EFCB_eta",   "TrigMuonEF Combiner eta; #eta; Entries",   108,-2.7,2.7), m_histdirmuonef );
+    addHistogram( new TH1F("EFCB_phi",   "TrigMuonEF Combiner phi; #phi[rad]; Entries",   96,-CLHEP::pi, CLHEP::pi), m_histdirmuonef );
+    addHistogram( new TH2F("EFCB_eta_vs_phi",           "TrigMuonEF Combiner eta vs phi; #eta ; #phi",               108, -2.7, 2.7, 96, -CLHEP::pi, CLHEP::pi), m_histdirmuonef );
 
-    addHistogram( new TH1F("RecMS_pt",    "Offline Muon Spectrometer pT; p_{T}[GeV/c]; Entries",    105, 0.,105.), histdirmuonef );
-    addHistogram( new TH1F("RecMS_eta",   "Offline Muon Spectrometer eta; #eta; Entries",   108,-2.7,2.7), histdirmuonef );
-    addHistogram( new TH1F("RecMS_phi",   "Offline Muon Spectrometer phi; #phi[rad]; Entries",   96,-CLHEP::pi, CLHEP::pi), histdirmuonef );
+    addHistogram( new TH1F("RecMS_pt",    "Offline Muon Spectrometer pT; p_{T}[GeV/c]; Entries",    105, 0.,105.), m_histdirmuonef );
+    addHistogram( new TH1F("RecMS_eta",   "Offline Muon Spectrometer eta; #eta; Entries",   108,-2.7,2.7), m_histdirmuonef );
+    addHistogram( new TH1F("RecMS_phi",   "Offline Muon Spectrometer phi; #phi[rad]; Entries",   96,-CLHEP::pi, CLHEP::pi), m_histdirmuonef );
 
-    addHistogram( new TH1F("RecSA_pt",    "Offline Muon Extrapolator pT; p_{T}[GeV/c]; Entries",    105, 0.,105.), histdirmuonef );
-    addHistogram( new TH1F("RecSA_eta",   "Offline Muon Extrapolator eta; #eta; Entries",   108,-2.7,2.7), histdirmuonef );
-    addHistogram( new TH1F("RecSA_phi",   "Offline Muon Extrapolator phi; #phi[rad]; Entries",   96,-CLHEP::pi, CLHEP::pi), histdirmuonef );
+    addHistogram( new TH1F("RecSA_pt",    "Offline Muon Extrapolator pT; p_{T}[GeV/c]; Entries",    105, 0.,105.), m_histdirmuonef );
+    addHistogram( new TH1F("RecSA_eta",   "Offline Muon Extrapolator eta; #eta; Entries",   108,-2.7,2.7), m_histdirmuonef );
+    addHistogram( new TH1F("RecSA_phi",   "Offline Muon Extrapolator phi; #phi[rad]; Entries",   96,-CLHEP::pi, CLHEP::pi), m_histdirmuonef );
 
-    addHistogram( new TH1F("RecCB_pt",    "Offline Muon Combiner pT; p_{T}[GeV/c]; Entries",    105,0.,105.), histdirmuonef );
-    addHistogram( new TH1F("RecCB_eta",   "Offline Muon Combiner eta; #eta; Entries",   108,-2.7,2.7), histdirmuonef );
-    addHistogram( new TH1F("RecCB_phi",   "Offline Muon Combiner phi; #phi[rad]; Entries",   96,-CLHEP::pi, CLHEP::pi), histdirmuonef );
+    addHistogram( new TH1F("RecCB_pt",    "Offline Muon Combiner pT; p_{T}[GeV/c]; Entries",    105,0.,105.), m_histdirmuonef );
+    addHistogram( new TH1F("RecCB_eta",   "Offline Muon Combiner eta; #eta; Entries",   108,-2.7,2.7), m_histdirmuonef );
+    addHistogram( new TH1F("RecCB_phi",   "Offline Muon Combiner phi; #phi[rad]; Entries",   96,-CLHEP::pi, CLHEP::pi), m_histdirmuonef );
 
 
     /*
@@ -108,123 +108,123 @@ StatusCode HLTMuonMonTool::bookMuonEFDQA()
     */
 
     // correlation histograms -- EFMS vs RecMSmuon
-    addHistogram(new TH2F("EF_MSMuon_RecMSMuon_PtCor", "PtCor_EFMS_Recmuon ; RecMSmuon_Pt [GeV/c]; EFMSmuon_Pt [GeV/c]", 100, 0.,100., 100, 0.,100.), histdirmuonef);
-    addHistogram(new TH2F("EF_MSMuon_RecMSMuon_EtaCor", "EtaCor_EFMS_Recmuon ; RecMSmuon_Eta ; EFMSmuon_Eta", 100,-3.2,3.2, 100,-3.2,3.2), histdirmuonef);
-    addHistogram(new TH2F("EF_MSMuon_RecMSMuon_PhiCor", "PhiCor_EFMS_Recmuon ; RecMSmuon_Phi [rad]; EFMSmuon_Phi [rad]", 100,-3.15,3.15, 100,-3.15,3.15), histdirmuonef);
-    addHistogram(new TH1F("EF_MSMuon_RecMSMuon_dPt", "dPt_EFMS_Recmuon ; dPt [GeV/c]", 100,-10.,10.), histdirmuonef);
-    addHistogram(new TH1F("EF_MSMuon_RecMSMuon_dEta", "dEta_EFMS_Recmuon ; dEta", 200,-5.,5.), histdirmuonef);
-    addHistogram(new TH1F("EF_MSMuon_RecMSMuon_dPhi", "dPhi_EFMS_Recmuon ; dPhi [rad]", 100,-3.15,3.15), histdirmuonef);
-    addHistogram(new TH1F("EF_MSMuon_RecMSMuon_dR", "dR_EFMS_Recmuon ; dR", 110,0.,11.), histdirmuonef);
+    addHistogram(new TH2F("EF_MSMuon_RecMSMuon_PtCor", "PtCor_EFMS_Recmuon ; RecMSmuon_Pt [GeV/c]; EFMSmuon_Pt [GeV/c]", 100, 0.,100., 100, 0.,100.), m_histdirmuonef);
+    addHistogram(new TH2F("EF_MSMuon_RecMSMuon_EtaCor", "EtaCor_EFMS_Recmuon ; RecMSmuon_Eta ; EFMSmuon_Eta", 100,-3.2,3.2, 100,-3.2,3.2), m_histdirmuonef);
+    addHistogram(new TH2F("EF_MSMuon_RecMSMuon_PhiCor", "PhiCor_EFMS_Recmuon ; RecMSmuon_Phi [rad]; EFMSmuon_Phi [rad]", 100,-3.15,3.15, 100,-3.15,3.15), m_histdirmuonef);
+    addHistogram(new TH1F("EF_MSMuon_RecMSMuon_dPt", "dPt_EFMS_Recmuon ; dPt [GeV/c]", 100,-10.,10.), m_histdirmuonef);
+    addHistogram(new TH1F("EF_MSMuon_RecMSMuon_dEta", "dEta_EFMS_Recmuon ; dEta", 200,-5.,5.), m_histdirmuonef);
+    addHistogram(new TH1F("EF_MSMuon_RecMSMuon_dPhi", "dPhi_EFMS_Recmuon ; dPhi [rad]", 100,-3.15,3.15), m_histdirmuonef);
+    addHistogram(new TH1F("EF_MSMuon_RecMSMuon_dR", "dR_EFMS_Recmuon ; dR", 110,0.,11.), m_histdirmuonef);
 
     // MS  aware  histo
-    addHistogram(new TH1F("RecAwareMSmuon_pt", "RecMSmuon_pt ; p_{T}[GeV/c]", 100,0.,100.), histdirmuonef);
-    addHistogram(new TH1F("RecAwareMSmuon_eta", "RecMSmuon_eta ; #eta", 200,-5.,5.), histdirmuonef);
-    addHistogram(new TH1F("RecAwareMSmuon_phi", "RecMSmuon_phi ; #phi[rad]", 100,-3.15,3.15), histdirmuonef);
+    addHistogram(new TH1F("RecAwareMSmuon_pt", "RecMSmuon_pt ; p_{T}[GeV/c]", 100,0.,100.), m_histdirmuonef);
+    addHistogram(new TH1F("RecAwareMSmuon_eta", "RecMSmuon_eta ; #eta", 200,-5.,5.), m_histdirmuonef);
+    addHistogram(new TH1F("RecAwareMSmuon_phi", "RecMSmuon_phi ; #phi[rad]", 100,-3.15,3.15), m_histdirmuonef);
 
     // correlation histograms -offline/online EFSA vs RecSAmuon
-    addHistogram(new TH2F("EF_SAMuon_RecSAMuon_PtCor", "PtCor_EFSA_Recmuon ; RecSAmuon_Pt [GeV/c]; EFSAmuon_Pt [GeV/c]", 100, 0.,100., 100, 0.,100.), histdirmuonef);
-    addHistogram(new TH2F("EF_SAMuon_RecSAMuon_EtaCor", "EtaCor_EFSA_Recmuon ; RecSAmuon_Eta ; EFSAmuon_Eta", 100,-3.2,3.2, 100,-3.2,3.2), histdirmuonef);
-    addHistogram(new TH2F("EF_SAMuon_RecSAMuon_PhiCor", "PhiCor_EFSA_Recmuon ; RecSAmuon_Phi [rad]; EFSAmuon_Phi [rad]", 100,-3.15,3.15, 100,-3.15,3.15), histdirmuonef);
-    addHistogram(new TH1F("EF_SAMuon_RecSAMuon_dPt", "dPt_EFSA_Recmuon ; dPt [GeV/c]", 100,-0.5,0.5), histdirmuonef);
-    addHistogram(new TH1F("EF_SAMuon_RecSAMuon_dEta", "dEta_EFSA_Recmuon ; dEta", 200,-5.,5.), histdirmuonef);
-    addHistogram(new TH1F("EF_SAMuon_RecSAMuon_dPhi", "dPhi_EFSA_Recmuon ; dPhi [rad]", 100,-3.15,3.15), histdirmuonef);
-    addHistogram(new TH1F("EF_SAMuon_RecSAMuon_dR", "dR_EFSA_Recmuon ; dR", 110,0.,11.), histdirmuonef);
+    addHistogram(new TH2F("EF_SAMuon_RecSAMuon_PtCor", "PtCor_EFSA_Recmuon ; RecSAmuon_Pt [GeV/c]; EFSAmuon_Pt [GeV/c]", 100, 0.,100., 100, 0.,100.), m_histdirmuonef);
+    addHistogram(new TH2F("EF_SAMuon_RecSAMuon_EtaCor", "EtaCor_EFSA_Recmuon ; RecSAmuon_Eta ; EFSAmuon_Eta", 100,-3.2,3.2, 100,-3.2,3.2), m_histdirmuonef);
+    addHistogram(new TH2F("EF_SAMuon_RecSAMuon_PhiCor", "PhiCor_EFSA_Recmuon ; RecSAmuon_Phi [rad]; EFSAmuon_Phi [rad]", 100,-3.15,3.15, 100,-3.15,3.15), m_histdirmuonef);
+    addHistogram(new TH1F("EF_SAMuon_RecSAMuon_dPt", "dPt_EFSA_Recmuon ; dPt [GeV/c]", 100,-0.5,0.5), m_histdirmuonef);
+    addHistogram(new TH1F("EF_SAMuon_RecSAMuon_dEta", "dEta_EFSA_Recmuon ; dEta", 200,-5.,5.), m_histdirmuonef);
+    addHistogram(new TH1F("EF_SAMuon_RecSAMuon_dPhi", "dPhi_EFSA_Recmuon ; dPhi [rad]", 100,-3.15,3.15), m_histdirmuonef);
+    addHistogram(new TH1F("EF_SAMuon_RecSAMuon_dR", "dR_EFSA_Recmuon ; dR", 110,0.,11.), m_histdirmuonef);
 
     // Stand Alone Trigger aware histograms
-    addHistogram(new TH1F("RecAwareSAmuon_pt", "RecSAmuon_pt ; p_{T}[GeV/c]", 100,0.,0.5), histdirmuonef);
-    addHistogram(new TH1F("RecAwareSAmuon_eta", "RecSAmuon_eta ; #eta", 200,-5.,5.), histdirmuonef);
-    addHistogram(new TH1F("RecAwareSAmuon_phi", "RecSAmuon_phi ; #phi[rad]", 100,-3.15,3.15), histdirmuonef);
+    addHistogram(new TH1F("RecAwareSAmuon_pt", "RecSAmuon_pt ; p_{T}[GeV/c]", 100,0.,0.5), m_histdirmuonef);
+    addHistogram(new TH1F("RecAwareSAmuon_eta", "RecSAmuon_eta ; #eta", 200,-5.,5.), m_histdirmuonef);
+    addHistogram(new TH1F("RecAwareSAmuon_phi", "RecSAmuon_phi ; #phi[rad]", 100,-3.15,3.15), m_histdirmuonef);
 
     //  correlation histograms -offline/online EFCB vs RecCBmuon
-    addHistogram(new TH2F("EF_CBMuon_RecCBMuon_PtCor", "PtCor_EFCB_Recmuon ; RecCBmuon_Pt [GeV/c]; EFCBmuon_Pt [GeV/c]", 100, 0.,100.,100, 0.,100.), histdirmuonef);
-    addHistogram(new TH2F("EF_CBMuon_RecCBMuon_EtaCor", "EtaCor_EFCB_Recmuon ; RecCBmuon_Eta ; EFCBmuon_Eta", 100,-3.2,3.2,100,-3.2,3.2), histdirmuonef);
-    addHistogram(new TH2F("EF_CBMuon_RecCBMuon_PhiCor", "PhiCor_EFCB_Recmuon ; RecCBmuon_Phi [rad]; EFCBmuon_Phi [rad]", 100,-3.15,3.15, 100,-3.15,3.15), histdirmuonef);
-    addHistogram(new TH1F("EF_CBMuon_RecCBMuon_dPt", "dPt_EFCB_Recmuon ; dPt [GeV/c]", 100,-0.5,0.5), histdirmuonef);
-    addHistogram(new TH1F("EF_CBMuon_RecCBMuon_dEta", "dEta_EFCB_Recmuon ; dEta", 200,-5.,5.), histdirmuonef);
-    addHistogram(new TH1F("EF_CBMuon_RecCBMuon_dPhi", "dPhi_EFCB_Recmuon ; dPhi [rad]", 100,-3.15,3.15), histdirmuonef);
-    addHistogram(new TH1F("EF_CBMuon_RecCBMuon_dR", "dR_EFCB_Recmuon ; dR", 110,0.,11.), histdirmuonef);
+    addHistogram(new TH2F("EF_CBMuon_RecCBMuon_PtCor", "PtCor_EFCB_Recmuon ; RecCBmuon_Pt [GeV/c]; EFCBmuon_Pt [GeV/c]", 100, 0.,100.,100, 0.,100.), m_histdirmuonef);
+    addHistogram(new TH2F("EF_CBMuon_RecCBMuon_EtaCor", "EtaCor_EFCB_Recmuon ; RecCBmuon_Eta ; EFCBmuon_Eta", 100,-3.2,3.2,100,-3.2,3.2), m_histdirmuonef);
+    addHistogram(new TH2F("EF_CBMuon_RecCBMuon_PhiCor", "PhiCor_EFCB_Recmuon ; RecCBmuon_Phi [rad]; EFCBmuon_Phi [rad]", 100,-3.15,3.15, 100,-3.15,3.15), m_histdirmuonef);
+    addHistogram(new TH1F("EF_CBMuon_RecCBMuon_dPt", "dPt_EFCB_Recmuon ; dPt [GeV/c]", 100,-0.5,0.5), m_histdirmuonef);
+    addHistogram(new TH1F("EF_CBMuon_RecCBMuon_dEta", "dEta_EFCB_Recmuon ; dEta", 200,-5.,5.), m_histdirmuonef);
+    addHistogram(new TH1F("EF_CBMuon_RecCBMuon_dPhi", "dPhi_EFCB_Recmuon ; dPhi [rad]", 100,-3.15,3.15), m_histdirmuonef);
+    addHistogram(new TH1F("EF_CBMuon_RecCBMuon_dR", "dR_EFCB_Recmuon ; dR", 110,0.,11.), m_histdirmuonef);
 
     // Combined Trigger aware histograms
-    addHistogram(new TH1F("RecAwareCBmuon_pt", "RecCBmuon_pt ; p_{T}[GeV/c]", 100,0.,100.), histdirmuonef);
-    addHistogram(new TH1F("RecAwareCBmuon_eta", "RecCBmuon_eta ; #eta", 200,-5.,5.), histdirmuonef);
-    addHistogram(new TH1F("RecAwareCBmuon_phi", "RecCBmuon_phi ; #phi[rad]", 100,-3.15,3.15), histdirmuonef);
+    addHistogram(new TH1F("RecAwareCBmuon_pt", "RecCBmuon_pt ; p_{T}[GeV/c]", 100,0.,100.), m_histdirmuonef);
+    addHistogram(new TH1F("RecAwareCBmuon_eta", "RecCBmuon_eta ; #eta", 200,-5.,5.), m_histdirmuonef);
+    addHistogram(new TH1F("RecAwareCBmuon_phi", "RecCBmuon_phi ; #phi[rad]", 100,-3.15,3.15), m_histdirmuonef);
 
     // correlation histograms -- EFMS vs Reco muons which passed LVL2 MuFast
-    addHistogram(new TH2F("EF_SAwrtRecL2Aware_PtCor", "PtCor_SAwrtRecMuFastAware ; RecSAmuon_Pt [GeV/c]; EFSAmuon_Pt [GeV/c]", 100, 0.,100., 100, 0.,100.), histdirmuonef);
-    addHistogram(new TH2F("EF_SAwrtRecL2Aware_EtaCor", "EtaCor_SAwrtRecMuFastAware ; RecSAmuon_Eta ; EFSAmuon_Eta", 100,-3.2,3.2, 100,-3.2,3.2), histdirmuonef);
-    addHistogram(new TH2F("EF_SAwrtRecL2Aware_PhiCor", "PhiCor_SAwrtRecMuFastAware ; RecSAmuon_Phi [rad]; EFSAmuon_Phi [rad]", 100,-3.15,3.15, 100,-3.15,3.15), histdirmuonef);
-    addHistogram(new TH1F("EF_SAwrtRecL2Aware_dPt", "dPt_SAwrtRecMuFastAware ; dPt [GeV/c]", 100,-0.5,0.5), histdirmuonef);
-    addHistogram(new TH1F("EF_SAwrtRecL2Aware_dEta", "dEta_SAwrtRecMuFastAware ; dEta", 200,-5.,5.), histdirmuonef);
-    addHistogram(new TH1F("EF_SAwrtRecL2Aware_dPhi", "dPhi_SAwrtRecMuFastAware ; dPhi [rad]", 100,-3.15,3.15), histdirmuonef);
+    addHistogram(new TH2F("EF_SAwrtRecL2Aware_PtCor", "PtCor_SAwrtRecMuFastAware ; RecSAmuon_Pt [GeV/c]; EFSAmuon_Pt [GeV/c]", 100, 0.,100., 100, 0.,100.), m_histdirmuonef);
+    addHistogram(new TH2F("EF_SAwrtRecL2Aware_EtaCor", "EtaCor_SAwrtRecMuFastAware ; RecSAmuon_Eta ; EFSAmuon_Eta", 100,-3.2,3.2, 100,-3.2,3.2), m_histdirmuonef);
+    addHistogram(new TH2F("EF_SAwrtRecL2Aware_PhiCor", "PhiCor_SAwrtRecMuFastAware ; RecSAmuon_Phi [rad]; EFSAmuon_Phi [rad]", 100,-3.15,3.15, 100,-3.15,3.15), m_histdirmuonef);
+    addHistogram(new TH1F("EF_SAwrtRecL2Aware_dPt", "dPt_SAwrtRecMuFastAware ; dPt [GeV/c]", 100,-0.5,0.5), m_histdirmuonef);
+    addHistogram(new TH1F("EF_SAwrtRecL2Aware_dEta", "dEta_SAwrtRecMuFastAware ; dEta", 200,-5.,5.), m_histdirmuonef);
+    addHistogram(new TH1F("EF_SAwrtRecL2Aware_dPhi", "dPhi_SAwrtRecMuFastAware ; dPhi [rad]", 100,-3.15,3.15), m_histdirmuonef);
 
     // Muon EF SA Efficiencies: SA Muons wrt Reco muons which passed LVL2 MuFast
-    addHistogram(new TH1F("EffSA_L2Aware_pt", "pt ; p_{T}[GeV/c]", 100,0.,100.), histdirmuonef);
-    addHistogram(new TH1F("EffSA_L2Aware_eta", "eta ; #eta", 200,-5.,5.), histdirmuonef);
-    addHistogram(new TH1F("EffSA_L2Aware_phi", "phi ; #phi[rad]", 100,-3.15,3.15), histdirmuonef);
+    addHistogram(new TH1F("EffSA_L2Aware_pt", "pt ; p_{T}[GeV/c]", 100,0.,100.), m_histdirmuonef);
+    addHistogram(new TH1F("EffSA_L2Aware_eta", "eta ; #eta", 200,-5.,5.), m_histdirmuonef);
+    addHistogram(new TH1F("EffSA_L2Aware_phi", "phi ; #phi[rad]", 100,-3.15,3.15), m_histdirmuonef);
 
 
     // correlation histograms -- EFCB vs Reco muons which passed LVL2 MuComb
-    addHistogram(new TH2F("EF_CBwrtRecL2Aware_PtCor", "PtCor_CBwrtRecMuCombAware ; RecCBmuon_Pt [GeV/c]; EFCBmuon_Pt [GeV/c]", 100, 0.,100., 100, 0.,100.), histdirmuonef);
-    addHistogram(new TH2F("EF_CBwrtRecL2Aware_EtaCor", "EtaCor_CBwrtRecMuCombAware ; RecCBmuon_Eta ; EFCBmuon_Eta", 100,-3.2,3.2, 100,-3.2,3.2), histdirmuonef);
-    addHistogram(new TH2F("EF_CBwrtRecL2Aware_PhiCor", "PhiCor_CBwrtRecMuCombAware ; RecCBmuon_Phi [rad]; EFCBmuon_Phi [rad]", 100,-3.15,3.15, 100,-3.15,3.15), histdirmuonef);
-    addHistogram(new TH1F("EF_CBwrtRecL2Aware_dPt", "dPt_CBwrtRecMuCombAware ; dPt [GeV/c]", 100,-0.5,0.5), histdirmuonef);
-    addHistogram(new TH1F("EF_CBwrtRecL2Aware_dEta", "dEta_CBwrtRecMuCombAware ; dEta", 200,-5.,5.), histdirmuonef);
-    addHistogram(new TH1F("EF_CBwrtRecL2Aware_dPhi", "dPhi_CBwrtRecMuCombAware ; dPhi [rad]", 100,-3.15,3.15), histdirmuonef);
+    addHistogram(new TH2F("EF_CBwrtRecL2Aware_PtCor", "PtCor_CBwrtRecMuCombAware ; RecCBmuon_Pt [GeV/c]; EFCBmuon_Pt [GeV/c]", 100, 0.,100., 100, 0.,100.), m_histdirmuonef);
+    addHistogram(new TH2F("EF_CBwrtRecL2Aware_EtaCor", "EtaCor_CBwrtRecMuCombAware ; RecCBmuon_Eta ; EFCBmuon_Eta", 100,-3.2,3.2, 100,-3.2,3.2), m_histdirmuonef);
+    addHistogram(new TH2F("EF_CBwrtRecL2Aware_PhiCor", "PhiCor_CBwrtRecMuCombAware ; RecCBmuon_Phi [rad]; EFCBmuon_Phi [rad]", 100,-3.15,3.15, 100,-3.15,3.15), m_histdirmuonef);
+    addHistogram(new TH1F("EF_CBwrtRecL2Aware_dPt", "dPt_CBwrtRecMuCombAware ; dPt [GeV/c]", 100,-0.5,0.5), m_histdirmuonef);
+    addHistogram(new TH1F("EF_CBwrtRecL2Aware_dEta", "dEta_CBwrtRecMuCombAware ; dEta", 200,-5.,5.), m_histdirmuonef);
+    addHistogram(new TH1F("EF_CBwrtRecL2Aware_dPhi", "dPhi_CBwrtRecMuCombAware ; dPhi [rad]", 100,-3.15,3.15), m_histdirmuonef);
 
     // Muon EF CB Efficiencies: CB Muons wrt Reco muons which passed LVL2 MuComb
-    addHistogram(new TH1F("EffCB_L2Aware_pt", "MuCombAware_pt ; p_{T}[GeV/c]", 100,-0.5,0.5), histdirmuonef);
-    addHistogram(new TH1F("EffCB_L2Aware_eta", "MuCombAware_eta ; #eta", 200,-5.,5.), histdirmuonef);
-    addHistogram(new TH1F("EffCB_L2Aware_phi", "MuCombAware_phi ; #phi[rad]", 100,-3.15,3.15), histdirmuonef);
+    addHistogram(new TH1F("EffCB_L2Aware_pt", "MuCombAware_pt ; p_{T}[GeV/c]", 100,-0.5,0.5), m_histdirmuonef);
+    addHistogram(new TH1F("EffCB_L2Aware_eta", "MuCombAware_eta ; #eta", 200,-5.,5.), m_histdirmuonef);
+    addHistogram(new TH1F("EffCB_L2Aware_phi", "MuCombAware_phi ; #phi[rad]", 100,-3.15,3.15), m_histdirmuonef);
 
     // Efficiency of TrrigMuonEF wrt Offline
-    addHistogram( new TH1F("EFMS_effi_toOffl_pt", 	     "TrigMuonEF TrackBuilder effi pt (GeV/c); p_{T}[GeV/c]; Efficiency",		  26, 0, 52), histdireff);
-    addHistogram( new TH1F("EFMS_effi_toOffl_pt_numer",    "TrigMuonEF TrackBuilder effi pt (GeV/c) numer; p_{T}[GeV/c]; Entries",	     26, 0, 52), histdirmuonef);
-    addHistogram( new TH1F("EFMS_effi_toOffl_pt_denom",    "TrigMuonEF TrackBuilder effi pt (GeV/c) denom; p_{T}[GeV/c]; Entries",	     26, 0, 52), histdirmuonef);
-    addHistogram( new TH1F("EFMS_effi_toOffl_eta",	     "TrigMuonEF TrackBuilder effi eta; #eta; Efficiency",	    32, -3.2, 3.2), histdireff );
-    addHistogram( new TH1F("EFMS_effi_toOffl_eta_numer",   "TrigMuonEF TrackBuilder effi eta numer; #eta; Entries", 32, -3.2, 3.2), histdirmuonef);
-    addHistogram( new TH1F("EFMS_effi_toOffl_eta_denom",   "TrigMuonEF TrackBuilder effi eta denom; #eta; Entries", 32, -3.2, 3.2), histdirmuonef);
-    addHistogram( new TH1F("EFMS_effi_toOffl_phi",	     "TrigMuonEF TrackBuilder effi phi; #phi[rad]; Efficiency",	   32, -CLHEP::pi, CLHEP::pi), histdireff );
-    addHistogram( new TH1F("EFMS_effi_toOffl_phi_numer",   "TrigMuonEF TrackBuilder effi phi numer; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), histdirmuonef );
-    addHistogram( new TH1F("EFMS_effi_toOffl_phi_denom",   "TrigMuonEF TrackBuilder effi phi denom; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), histdirmuonef );
+    addHistogram( new TH1F("EFMS_effi_toOffl_pt", 	     "TrigMuonEF TrackBuilder effi pt (GeV/c); p_{T}[GeV/c]; Efficiency",		  26, 0, 52), m_histdireff);
+    addHistogram( new TH1F("EFMS_effi_toOffl_pt_numer",    "TrigMuonEF TrackBuilder effi pt (GeV/c) numer; p_{T}[GeV/c]; Entries",	     26, 0, 52), m_histdirmuonef);
+    addHistogram( new TH1F("EFMS_effi_toOffl_pt_denom",    "TrigMuonEF TrackBuilder effi pt (GeV/c) denom; p_{T}[GeV/c]; Entries",	     26, 0, 52), m_histdirmuonef);
+    addHistogram( new TH1F("EFMS_effi_toOffl_eta",	     "TrigMuonEF TrackBuilder effi eta; #eta; Efficiency",	    32, -3.2, 3.2), m_histdireff );
+    addHistogram( new TH1F("EFMS_effi_toOffl_eta_numer",   "TrigMuonEF TrackBuilder effi eta numer; #eta; Entries", 32, -3.2, 3.2), m_histdirmuonef);
+    addHistogram( new TH1F("EFMS_effi_toOffl_eta_denom",   "TrigMuonEF TrackBuilder effi eta denom; #eta; Entries", 32, -3.2, 3.2), m_histdirmuonef);
+    addHistogram( new TH1F("EFMS_effi_toOffl_phi",	     "TrigMuonEF TrackBuilder effi phi; #phi[rad]; Efficiency",	   32, -CLHEP::pi, CLHEP::pi), m_histdireff );
+    addHistogram( new TH1F("EFMS_effi_toOffl_phi_numer",   "TrigMuonEF TrackBuilder effi phi numer; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), m_histdirmuonef );
+    addHistogram( new TH1F("EFMS_effi_toOffl_phi_denom",   "TrigMuonEF TrackBuilder effi phi denom; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), m_histdirmuonef );
 
-    addHistogram( new TH1F("EFSA_effi_toOffl_pt",	    "TrigMuonEF Extrapolator effi pt (GeV/c); p_{T}[GeV/c]; Efficiency",		 26, 0, 52), histdireff);
-    addHistogram( new TH1F("EFSA_effi_toOffl_pt_numer",   "TrigMuonEF Extrapolator effi pt (GeV/c) numer; p_{T}[GeV/c]; Entries",	    26, 0, 52), histdirmuonef);
-    addHistogram( new TH1F("EFSA_effi_toOffl_pt_denom",   "TrigMuonEF Extrapolator effi pt (GeV/c) denom; p_{T}[GeV/c]; Entries",	    26, 0, 52), histdirmuonef);
-    //addHistogram( new TH1F("EFSA_effi_toOffl_eta",	    "TrigMuonEF Extrapolator effi eta; #eta; Efficiency",	   32, -3.2, 3.2), histdireff );
-    //addHistogram( new TH1F("EFSA_effi_toOffl_eta_numer",  "TrigMuonEF Extrapolator effi eta numer; #eta; Entries", 32, -3.2, 3.2), histdirmuonef);
-    //addHistogram( new TH1F("EFSA_effi_toOffl_eta_denom",  "TrigMuonEF Extrapolator effi eta denom; #eta; Entries", 32, -3.2, 3.2), histdirmuonef);
-    //addHistogram( new TH1F("EFSA_effi_toOffl_phi",	    "TrigMuonEF Extrapolator effi phi; #phi[rad]; Efficiency",	  32, -CLHEP::pi, CLHEP::pi), histdireff );
-    //addHistogram( new TH1F("EFSA_effi_toOffl_phi_numer",  "TrigMuonEF Extrapolator effi phi numer; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), histdirmuonef );
-    //addHistogram( new TH1F("EFSA_effi_toOffl_phi_denom",  "TrigMuonEF Extrapolator effi phi denom; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), histdirmuonef );
+    addHistogram( new TH1F("EFSA_effi_toOffl_pt",	    "TrigMuonEF Extrapolator effi pt (GeV/c); p_{T}[GeV/c]; Efficiency",		 26, 0, 52), m_histdireff);
+    addHistogram( new TH1F("EFSA_effi_toOffl_pt_numer",   "TrigMuonEF Extrapolator effi pt (GeV/c) numer; p_{T}[GeV/c]; Entries",	    26, 0, 52), m_histdirmuonef);
+    addHistogram( new TH1F("EFSA_effi_toOffl_pt_denom",   "TrigMuonEF Extrapolator effi pt (GeV/c) denom; p_{T}[GeV/c]; Entries",	    26, 0, 52), m_histdirmuonef);
+    //addHistogram( new TH1F("EFSA_effi_toOffl_eta",	    "TrigMuonEF Extrapolator effi eta; #eta; Efficiency",	   32, -3.2, 3.2), m_histdireff );
+    //addHistogram( new TH1F("EFSA_effi_toOffl_eta_numer",  "TrigMuonEF Extrapolator effi eta numer; #eta; Entries", 32, -3.2, 3.2), m_histdirmuonef);
+    //addHistogram( new TH1F("EFSA_effi_toOffl_eta_denom",  "TrigMuonEF Extrapolator effi eta denom; #eta; Entries", 32, -3.2, 3.2), m_histdirmuonef);
+    //addHistogram( new TH1F("EFSA_effi_toOffl_phi",	    "TrigMuonEF Extrapolator effi phi; #phi[rad]; Efficiency",	  32, -CLHEP::pi, CLHEP::pi), m_histdireff );
+    //addHistogram( new TH1F("EFSA_effi_toOffl_phi_numer",  "TrigMuonEF Extrapolator effi phi numer; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), m_histdirmuonef );
+    //addHistogram( new TH1F("EFSA_effi_toOffl_phi_denom",  "TrigMuonEF Extrapolator effi phi denom; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), m_histdirmuonef );
 
-    addHistogram( new TH1F("EFCB_effi_toOffl_pt",	    "TrigMuonEF Combiner effi pt (GeV/c); p_{T}[GeV/c]; Efficiency",		 26, 0, 52), histdireff);
-    addHistogram( new TH1F("EFCB_effi_toOffl_pt_numer",   "TrigMuonEF Combiner effi pt (GeV/c) numer; p_{T}[GeV/c]; Entries",	    26, 0, 52), histdirmuonef);
-    addHistogram( new TH1F("EFCB_effi_toOffl_pt_denom",   "TrigMuonEF Combiner effi pt (GeV/c) denom; p_{T}[GeV/c]; Entries",	    26, 0, 52), histdirmuonef);
-    //addHistogram( new TH1F("EFCB_effi_toOffl_eta",	    "TrigMuonEF Combiner effi eta; #eta; Efficiency",	   32, -3.2, 3.2), histdireff );
-    //addHistogram( new TH1F("EFCB_effi_toOffl_eta_numer",  "TrigMuonEF Combiner effi eta numer; #eta; Entries", 32, -3.2, 3.2), histdirmuonef);
-    //addHistogram( new TH1F("EFCB_effi_toOffl_eta_denom",  "TrigMuonEF Combiner effi eta denom; #eta; Entries", 32, -3.2, 3.2), histdirmuonef);
-    //addHistogram( new TH1F("EFCB_effi_toOffl_phi",	    "TrigMuonEF Combiner effi phi; #phi[rad]; Efficiency",	  32, -CLHEP::pi, CLHEP::pi), histdireff );
-    //addHistogram( new TH1F("EFCB_effi_toOffl_phi_numer",  "TrigMuonEF Combiner effi phi numer; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), histdirmuonef );
-    //addHistogram( new TH1F("EFCB_effi_toOffl_phi_denom",  "TrigMuonEF Combiner effi phi denom; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), histdirmuonef );
+    addHistogram( new TH1F("EFCB_effi_toOffl_pt",	    "TrigMuonEF Combiner effi pt (GeV/c); p_{T}[GeV/c]; Efficiency",		 26, 0, 52), m_histdireff);
+    addHistogram( new TH1F("EFCB_effi_toOffl_pt_numer",   "TrigMuonEF Combiner effi pt (GeV/c) numer; p_{T}[GeV/c]; Entries",	    26, 0, 52), m_histdirmuonef);
+    addHistogram( new TH1F("EFCB_effi_toOffl_pt_denom",   "TrigMuonEF Combiner effi pt (GeV/c) denom; p_{T}[GeV/c]; Entries",	    26, 0, 52), m_histdirmuonef);
+    //addHistogram( new TH1F("EFCB_effi_toOffl_eta",	    "TrigMuonEF Combiner effi eta; #eta; Efficiency",	   32, -3.2, 3.2), m_histdireff );
+    //addHistogram( new TH1F("EFCB_effi_toOffl_eta_numer",  "TrigMuonEF Combiner effi eta numer; #eta; Entries", 32, -3.2, 3.2), m_histdirmuonef);
+    //addHistogram( new TH1F("EFCB_effi_toOffl_eta_denom",  "TrigMuonEF Combiner effi eta denom; #eta; Entries", 32, -3.2, 3.2), m_histdirmuonef);
+    //addHistogram( new TH1F("EFCB_effi_toOffl_phi",	    "TrigMuonEF Combiner effi phi; #phi[rad]; Efficiency",	  32, -CLHEP::pi, CLHEP::pi), m_histdireff );
+    //addHistogram( new TH1F("EFCB_effi_toOffl_phi_numer",  "TrigMuonEF Combiner effi phi numer; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), m_histdirmuonef );
+    //addHistogram( new TH1F("EFCB_effi_toOffl_phi_denom",  "TrigMuonEF Combiner effi phi denom; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), m_histdirmuonef );
 
     // MuonEF rate
     // pt > 4GeV
-    addHistogram( new TH1F("Number_Of_EF_MS_Muons_4GeV_Cut",     "Number_Of_EF_MS_Muons_4GeV_Cut; LB ; Muons",  400, 1., 801.), histdirrate );
-    addHistogram( new TH1F("Number_Of_EF_SA_Muons_4GeV_Cut",     "Number_Of_EF_SA_Muons_4GeV_Cut; LB ; Muons",  400, 1., 801.), histdirrate );
-    addHistogram( new TH1F("Number_Of_EF_CB_Muons_4GeV_Cut",     "Number_Of_EF_CB_Muons_4GeV_Cut; LB ; Muons",  400, 1., 801.), histdirrate );
+    addHistogram( new TH1F("Number_Of_EF_MS_Muons_4GeV_Cut",     "Number_Of_EF_MS_Muons_4GeV_Cut; LB ; Muons",  400, 1., 801.), m_histdirrate );
+    addHistogram( new TH1F("Number_Of_EF_SA_Muons_4GeV_Cut",     "Number_Of_EF_SA_Muons_4GeV_Cut; LB ; Muons",  400, 1., 801.), m_histdirrate );
+    addHistogram( new TH1F("Number_Of_EF_CB_Muons_4GeV_Cut",     "Number_Of_EF_CB_Muons_4GeV_Cut; LB ; Muons",  400, 1., 801.), m_histdirrate );
 
-    addHistogram( new TH1F("EF_MS_Over_Moore_MS_4GeV_Cut",     "EF_MS_Over_Moore_MS_4GeV_Cut; LB ; Ratio",  400, 1., 801.), histdirrateratio );
-    addHistogram( new TH1F("EF_SA_Over_Moore_SA_4GeV_Cut",     "EF_SA_Over_Moore_SA_4GeV_Cut; LB ; Ratio",  400, 1., 801.), histdirrateratio );
-    addHistogram( new TH1F("EF_CB_Over_Muid_4GeV_Cut",         "EF_CB_Over_Muid_4GeV_Cut; LB ; Ratio",  400, 1., 801.), histdirrateratio );
+    addHistogram( new TH1F("EF_MS_Over_Moore_MS_4GeV_Cut",     "EF_MS_Over_Moore_MS_4GeV_Cut; LB ; Ratio",  400, 1., 801.), m_histdirrateratio );
+    addHistogram( new TH1F("EF_SA_Over_Moore_SA_4GeV_Cut",     "EF_SA_Over_Moore_SA_4GeV_Cut; LB ; Ratio",  400, 1., 801.), m_histdirrateratio );
+    addHistogram( new TH1F("EF_CB_Over_Muid_4GeV_Cut",         "EF_CB_Over_Muid_4GeV_Cut; LB ; Ratio",  400, 1., 801.), m_histdirrateratio );
 
     // pt > 10GeV
-    addHistogram( new TH1F("Number_Of_EF_MS_Muons_10GeV_Cut",     "Number_Of_EF_MS_Muons_10GeV_Cut; LB ; Muons",  400, 1., 801.), histdirrate );
-    addHistogram( new TH1F("Number_Of_EF_SA_Muons_10GeV_Cut",     "Number_Of_EF_SA_Muons_10GeV_Cut; LB ; Muons",  400, 1., 801.), histdirrate );
-    addHistogram( new TH1F("Number_Of_EF_CB_Muons_10GeV_Cut",     "Number_Of_EF_CB_Muons_10GeV_Cut; LB ; Muons",  400, 1., 801.), histdirrate );
+    addHistogram( new TH1F("Number_Of_EF_MS_Muons_10GeV_Cut",     "Number_Of_EF_MS_Muons_10GeV_Cut; LB ; Muons",  400, 1., 801.), m_histdirrate );
+    addHistogram( new TH1F("Number_Of_EF_SA_Muons_10GeV_Cut",     "Number_Of_EF_SA_Muons_10GeV_Cut; LB ; Muons",  400, 1., 801.), m_histdirrate );
+    addHistogram( new TH1F("Number_Of_EF_CB_Muons_10GeV_Cut",     "Number_Of_EF_CB_Muons_10GeV_Cut; LB ; Muons",  400, 1., 801.), m_histdirrate );
 
-    addHistogram( new TH1F("EF_MS_Over_Moore_MS_10GeV_Cut",     "EF_MS_Over_Moore_MS_10GeV_Cut; LB ; Ratio",  400, 1., 801.), histdirrateratio );
-    addHistogram( new TH1F("EF_SA_Over_Moore_SA_10GeV_Cut",     "EF_SA_Over_Moore_SA_10GeV_Cut; LB ; Ratio",  400, 1., 801.), histdirrateratio );
-    addHistogram( new TH1F("EF_CB_Over_Muid_10GeV_Cut",         "EF_CB_Over_Muid_10GeV_Cut; LB ; Ratio",  400, 1., 801.), histdirrateratio );
+    addHistogram( new TH1F("EF_MS_Over_Moore_MS_10GeV_Cut",     "EF_MS_Over_Moore_MS_10GeV_Cut; LB ; Ratio",  400, 1., 801.), m_histdirrateratio );
+    addHistogram( new TH1F("EF_SA_Over_Moore_SA_10GeV_Cut",     "EF_SA_Over_Moore_SA_10GeV_Cut; LB ; Ratio",  400, 1., 801.), m_histdirrateratio );
+    addHistogram( new TH1F("EF_CB_Over_Muid_10GeV_Cut",         "EF_CB_Over_Muid_10GeV_Cut; LB ; Ratio",  400, 1., 801.), m_histdirrateratio );
 
   }else if( newLumiBlock ){
   }
@@ -234,7 +234,7 @@ StatusCode HLTMuonMonTool::bookMuonEFDQA()
 
 StatusCode HLTMuonMonTool::fillMuonEFDQA()
 {
-  hist("Common_Counter", histdir )->Fill((float)MUONEF);
+  hist("Common_Counter", m_histdir )->Fill((float)MUONEF);
 
   const float DR_MATCHED      = 0.5;
   const float ZERO_LIMIT       = 0.00001;
@@ -246,55 +246,55 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   const float EFFI_PT_OVFL    =  51;
 
   //Clear Vectors
-  pt_EFMSmuon.clear();
-  eta_EFMSmuon.clear();
-  phi_EFMSmuon.clear();
+  m_pt_EFMSmuon.clear();
+  m_eta_EFMSmuon.clear();
+  m_phi_EFMSmuon.clear();
   
-  pt_EFSAmuon.clear();
-  eta_EFSAmuon.clear();
-  phi_EFSAmuon.clear();
+  m_pt_EFSAmuon.clear();
+  m_eta_EFSAmuon.clear();
+  m_phi_EFSAmuon.clear();
   
-  pt_EFCBmuon.clear();
-  eta_EFCBmuon.clear();
-  phi_EFCBmuon.clear();
+  m_pt_EFCBmuon.clear();
+  m_eta_EFCBmuon.clear();
+  m_phi_EFCBmuon.clear();
 
-  pt_RecMSmuon.clear();
-  eta_RecMSmuon.clear();
-  phi_RecMSmuon.clear();
-  charge_RecMSmuon.clear();
-  index_EFMS_RecoMS_corr.clear();
+  m_pt_RecMSmuon.clear();
+  m_eta_RecMSmuon.clear();
+  m_phi_RecMSmuon.clear();
+  m_charge_RecMSmuon.clear();
+  m_index_EFMS_RecoMS_corr.clear();
 
-  pt_RecSAmuon.clear();
-  eta_RecSAmuon.clear();
-  phi_RecSAmuon.clear();
-  charge_RecSAmuon.clear();
-  index_EFSA_RecoSA_corr.clear();
+  m_pt_RecSAmuon.clear();
+  m_eta_RecSAmuon.clear();
+  m_phi_RecSAmuon.clear();
+  m_charge_RecSAmuon.clear();
+  m_index_EFSA_RecoSA_corr.clear();
 
-  pt_RecCBmuon.clear();
-  eta_RecCBmuon.clear();
-  phi_RecCBmuon.clear();
-  charge_RecCBmuon.clear();
-  index_EFCB_RecoCB_corr.clear();
+  m_pt_RecCBmuon.clear();
+  m_eta_RecCBmuon.clear();
+  m_phi_RecCBmuon.clear();
+  m_charge_RecCBmuon.clear();
+  m_index_EFCB_RecoCB_corr.clear();
 
-  pt_LVL2FASTmuon.clear();
-  eta_LVL2FASTmuon.clear();
-  phi_LVL2FASTmuon.clear();
+  m_pt_LVL2FASTmuon.clear();
+  m_eta_LVL2FASTmuon.clear();
+  m_phi_LVL2FASTmuon.clear();
 
-  pt_LVL2COMBmuon.clear();
-  eta_LVL2COMBmuon.clear();
-  phi_LVL2COMBmuon.clear();
+  m_pt_LVL2COMBmuon.clear();
+  m_eta_LVL2COMBmuon.clear();
+  m_phi_LVL2COMBmuon.clear();
 
-  pt_lvl2_RecoSA_corr.clear();
-  eta_lvl2_RecoSA_corr.clear();
-  phi_lvl2_RecoSA_corr.clear();
-  index_lvl2_RecoSA_corr.clear();
-  index_EFSA_RecoSA_andL2_corr.clear();
+  m_pt_lvl2_RecoSA_corr.clear();
+  m_eta_lvl2_RecoSA_corr.clear();
+  m_phi_lvl2_RecoSA_corr.clear();
+  m_index_lvl2_RecoSA_corr.clear();
+  m_index_EFSA_RecoSA_andL2_corr.clear();
 
-  pt_lvl2_RecoCB_corr.clear();
-  eta_lvl2_RecoCB_corr.clear();
-  phi_lvl2_RecoCB_corr.clear();
-  index_lvl2_RecoCB_corr.clear();
-  index_EFCB_RecoCB_andL2_corr.clear();
+  m_pt_lvl2_RecoCB_corr.clear();
+  m_eta_lvl2_RecoCB_corr.clear();
+  m_phi_lvl2_RecoCB_corr.clear();
+  m_index_lvl2_RecoCB_corr.clear();
+  m_index_EFCB_RecoCB_andL2_corr.clear();
 
 
   int nMuonEFiMS=0, nMuonEFiSA=0, nMuonEFiCB=0;
@@ -341,16 +341,16 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	if (xAOD::Muon::MuonType::Combined == muontype) {
 	  nMuonEFCB++;
 
-	  pt_EFCBmuon.push_back(pt);
-	  eta_EFCBmuon.push_back(eta);
-	  phi_EFCBmuon.push_back(phi);
+	  m_pt_EFCBmuon.push_back(pt);
+	  m_eta_EFCBmuon.push_back(eta);
+	  m_phi_EFCBmuon.push_back(phi);
 		
-	  hist("EFCB_pt", histdirmuonef) ->Fill(pt_hist);
-	  hist("EFCB_signed_pt", histdirmuonef) ->Fill(signed_pt_hist);
-	  hist("EFCB_eta", histdirmuonef)->Fill(eta);
-	  hist("EFCB_phi", histdirmuonef)->Fill(phi);
-	  hist2("EFCB_eta_vs_phi", histdirmuonef)->Fill(eta,phi);
-	  hist2("EFCB_eta_vs_phi_in_10LBs", histdircoverage)->Fill(eta,phi);
+	  hist("EFCB_pt", m_histdirmuonef) ->Fill(pt_hist);
+	  hist("EFCB_signed_pt", m_histdirmuonef) ->Fill(signed_pt_hist);
+	  hist("EFCB_eta", m_histdirmuonef)->Fill(eta);
+	  hist("EFCB_phi", m_histdirmuonef)->Fill(phi);
+	  hist2("EFCB_eta_vs_phi", m_histdirmuonef)->Fill(eta,phi);
+	  hist2("EFCB_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta,phi);
 	}
 
 	// fill corresponding MS muon information
@@ -374,32 +374,32 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	  if( signed_pt_hist > PT_HISTMAX ) { signed_pt_hist =  PT_OVFL; }
 	  else if ( signed_pt_hist < -PT_HISTMAX ){ signed_pt_hist = -PT_OVFL; }
 
-	  pt_EFMSmuon.push_back(pt);
-	  eta_EFMSmuon.push_back(eta);
-	  phi_EFMSmuon.push_back(phi);
+	  m_pt_EFMSmuon.push_back(pt);
+	  m_eta_EFMSmuon.push_back(eta);
+	  m_phi_EFMSmuon.push_back(phi);
 		
-	  hist("EFMS_pt", histdirmuonef) ->Fill(pt_hist);
-	  hist("EFMS_signed_pt", histdirmuonef) ->Fill(signed_pt_hist);
-	  hist("EFMS_eta", histdirmuonef)->Fill(eta);
-	  hist("EFMS_phi", histdirmuonef)->Fill(phi);
-	  hist2("EFMS_eta_vs_phi", histdirmuonef)->Fill(eta,phi);
-	  hist2("EFMS_eta_vs_phi_in_10LBs", histdircoverage)->Fill(eta,phi);
+	  hist("EFMS_pt", m_histdirmuonef) ->Fill(pt_hist);
+	  hist("EFMS_signed_pt", m_histdirmuonef) ->Fill(signed_pt_hist);
+	  hist("EFMS_eta", m_histdirmuonef)->Fill(eta);
+	  hist("EFMS_phi", m_histdirmuonef)->Fill(phi);
+	  hist2("EFMS_eta_vs_phi", m_histdirmuonef)->Fill(eta,phi);
+	  hist2("EFMS_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta,phi);
 
 	}
 
 	if ( xAOD::Muon::MuonType::MuonStandAlone == muontype ) {
 	  nMuonEFSA++;
 
-	  pt_EFSAmuon.push_back(pt);
-	  eta_EFSAmuon.push_back(eta);
-	  phi_EFSAmuon.push_back(phi);              
+	  m_pt_EFSAmuon.push_back(pt);
+	  m_eta_EFSAmuon.push_back(eta);
+	  m_phi_EFSAmuon.push_back(phi);              
  
-	  hist("EFSA_pt", histdirmuonef) ->Fill(pt_hist);
-	  hist("EFSA_signed_pt", histdirmuonef) ->Fill(signed_pt_hist);
-	  hist("EFSA_eta", histdirmuonef)->Fill(eta);
-	  hist("EFSA_phi", histdirmuonef)->Fill(phi);
-	  hist2("EFSA_eta_vs_phi", histdirmuonef)->Fill(eta,phi);
-	  hist2("EFSA_eta_vs_phi_in_10LBs", histdircoverage)->Fill(eta,phi);
+	  hist("EFSA_pt", m_histdirmuonef) ->Fill(pt_hist);
+	  hist("EFSA_signed_pt", m_histdirmuonef) ->Fill(signed_pt_hist);
+	  hist("EFSA_eta", m_histdirmuonef)->Fill(eta);
+	  hist("EFSA_phi", m_histdirmuonef)->Fill(phi);
+	  hist2("EFSA_eta_vs_phi", m_histdirmuonef)->Fill(eta,phi);
+	  hist2("EFSA_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta,phi);
 	}
 	
       }
@@ -428,7 +428,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	ATH_MSG_DEBUG( " ====== START HLTMuon TrigMuonEFContainer MonTool ====== " );
 	for ( ; teContainerIt != teContainerEnd; teContainerIt++) {
 	  for (TrigMuonEFContainer::const_iterator efit = teContainerIt->begin();efit != teContainerIt->end();efit++) {
-	    TrigMuonEF* thisMuo = *efit;
+	    const TrigMuonEF* thisMuo = *efit;
 	    int muonType=-1;
 	    if (thisMuo) {
 	      if ((*efit)->MuonCode()==3) muonType=0;
@@ -454,42 +454,42 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 		if (muonType==0) {
 		  nMuonEFMS++;
 
-		  pt_EFMSmuon.push_back(pt);
-		  eta_EFMSmuon.push_back(eta);
-		  phi_EFMSmuon.push_back(phi);
+		  m_pt_EFMSmuon.push_back(pt);
+		  m_eta_EFMSmuon.push_back(eta);
+		  m_phi_EFMSmuon.push_back(phi);
 		
-		  hist("EFMS_pt", histdirmuonef) ->Fill(pt_hist);
-		  hist("EFMS_signed_pt", histdirmuonef) ->Fill(signed_pt_hist);
-		  hist("EFMS_eta", histdirmuonef)->Fill(eta);
-		  hist("EFMS_phi", histdirmuonef)->Fill(phi);
-		  hist2("EFMS_eta_vs_phi", histdirmuonef)->Fill(eta,phi);
-		  hist2("EFMS_eta_vs_phi_in_10LBs", histdircoverage)->Fill(eta,phi);
+		  hist("EFMS_pt", m_histdirmuonef) ->Fill(pt_hist);
+		  hist("EFMS_signed_pt", m_histdirmuonef) ->Fill(signed_pt_hist);
+		  hist("EFMS_eta", m_histdirmuonef)->Fill(eta);
+		  hist("EFMS_phi", m_histdirmuonef)->Fill(phi);
+		  hist2("EFMS_eta_vs_phi", m_histdirmuonef)->Fill(eta,phi);
+		  hist2("EFMS_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta,phi);
 		}else if (muonType==1) {
 		  nMuonEFSA++;
 
-		  pt_EFSAmuon.push_back(pt);
-		  eta_EFSAmuon.push_back(eta);
-		  phi_EFSAmuon.push_back(phi);              
+		  m_pt_EFSAmuon.push_back(pt);
+		  m_eta_EFSAmuon.push_back(eta);
+		  m_phi_EFSAmuon.push_back(phi);              
  
-		  hist("EFSA_pt", histdirmuonef) ->Fill(pt_hist);
-		  hist("EFSA_signed_pt", histdirmuonef) ->Fill(signed_pt_hist);
-		  hist("EFSA_eta", histdirmuonef)->Fill(eta);
-		  hist("EFSA_phi", histdirmuonef)->Fill(phi);
-		  hist2("EFSA_eta_vs_phi", histdirmuonef)->Fill(eta,phi);
-		  hist2("EFSA_eta_vs_phi_in_10LBs", histdircoverage)->Fill(eta,phi);
+		  hist("EFSA_pt", m_histdirmuonef) ->Fill(pt_hist);
+		  hist("EFSA_signed_pt", m_histdirmuonef) ->Fill(signed_pt_hist);
+		  hist("EFSA_eta", m_histdirmuonef)->Fill(eta);
+		  hist("EFSA_phi", m_histdirmuonef)->Fill(phi);
+		  hist2("EFSA_eta_vs_phi", m_histdirmuonef)->Fill(eta,phi);
+		  hist2("EFSA_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta,phi);
 		}else if (muonType==2) {
 		  nMuonEFCB++;
 
-		  pt_EFCBmuon.push_back(pt);
-		  eta_EFCBmuon.push_back(eta);
-		  phi_EFCBmuon.push_back(phi);
+		  m_pt_EFCBmuon.push_back(pt);
+		  m_eta_EFCBmuon.push_back(eta);
+		  m_phi_EFCBmuon.push_back(phi);
 		
-		  hist("EFCB_pt", histdirmuonef) ->Fill(pt_hist);
-		  hist("EFCB_signed_pt", histdirmuonef) ->Fill(signed_pt_hist);
-		  hist("EFCB_eta", histdirmuonef)->Fill(eta);
-		  hist("EFCB_phi", histdirmuonef)->Fill(phi);
-		  hist2("EFCB_eta_vs_phi", histdirmuonef)->Fill(eta,phi);
-		  hist2("EFCB_eta_vs_phi_in_10LBs", histdircoverage)->Fill(eta,phi);
+		  hist("EFCB_pt", m_histdirmuonef) ->Fill(pt_hist);
+		  hist("EFCB_signed_pt", m_histdirmuonef) ->Fill(signed_pt_hist);
+		  hist("EFCB_eta", m_histdirmuonef)->Fill(eta);
+		  hist("EFCB_phi", m_histdirmuonef)->Fill(phi);
+		  hist2("EFCB_eta_vs_phi", m_histdirmuonef)->Fill(eta,phi);
+		  hist2("EFCB_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta,phi);
 		}
 	      }
 	    }
@@ -511,7 +511,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	for (; MuonItr != MuonItrE; MuonItr++ ) {
 	  ATH_MSG_DEBUG( "loop over MuonEF track iterator");
 	  float pt, signed_pt, eta, phi;
-	  TrigMuonEFInfo* muonInfo = (*MuonItr);
+	  const TrigMuonEFInfo* muonInfo = (*MuonItr);
 	  if (!muonInfo){
 	    ATH_MSG_DEBUG( "No TrigMuonEFInfo found" );
 	    continue;
@@ -519,9 +519,9 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	  ATH_MSG_DEBUG( " muonInfo exists " );
 	  // YY another to be fixed
 	  if (muonInfo->hasTrack()) {
-	    TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();
+	    const TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();
 	    for (TrigMuonEFInfoTrackContainer::const_iterator TrackItr = tc->begin() ; TrackItr!=tc->end(); TrackItr++) {  // loop over container content
-	      TrigMuonEFInfoTrack* muonInfoTr = (*TrackItr);
+	      const TrigMuonEFInfoTrack* muonInfoTr = (*TrackItr);
 	      TrigMuonEFTrack* muonTrack = muonInfoTr->SpectrometerTrack();
 	      if (!muonTrack) {
 		ATH_MSG_DEBUG( "No MuonEF Spectrometer track found" );
@@ -548,20 +548,20 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 		
 		  nMuonEFiMS++;
 		  if( pt > 4 )
-		    hist("Number_Of_EF_MS_Muons_4GeV_Cut",histdirrate)->Fill(m_lumiblock);
+		    hist("Number_Of_EF_MS_Muons_4GeV_Cut",m_histdirrate)->Fill(m_lumiblock);
 		  if( pt > 10 )
-		    hist("Number_Of_EF_MS_Muons_10GeV_Cut",histdirrate)->Fill(m_lumiblock);
+		    hist("Number_Of_EF_MS_Muons_10GeV_Cut",m_histdirrate)->Fill(m_lumiblock);
 		
-		  pt_EFMSmuon.push_back(pt);
-		  eta_EFMSmuon.push_back(eta);
-		  phi_EFMSmuon.push_back(phi);
+		  m_pt_EFMSmuon.push_back(pt);
+		  m_eta_EFMSmuon.push_back(eta);
+		  m_phi_EFMSmuon.push_back(phi);
 		
-		  hist("EFMS_pt", histdirmuonef) ->Fill(pt_hist);
-		  hist("EFMS_signed_pt", histdirmuonef) ->Fill(signed_pt_hist);
-		  hist("EFMS_eta", histdirmuonef)->Fill(eta);
-		  hist("EFMS_phi", histdirmuonef)->Fill(phi);
-		  hist2("EFMS_eta_vs_phi", histdirmuonef)->Fill(eta,phi);
-		  hist2("EFMS_eta_vs_phi_in_10LBs", histdircoverage)->Fill(eta,phi);
+		  hist("EFMS_pt", m_histdirmuonef) ->Fill(pt_hist);
+		  hist("EFMS_signed_pt", m_histdirmuonef) ->Fill(signed_pt_hist);
+		  hist("EFMS_eta", m_histdirmuonef)->Fill(eta);
+		  hist("EFMS_phi", m_histdirmuonef)->Fill(phi);
+		  hist2("EFMS_eta_vs_phi", m_histdirmuonef)->Fill(eta,phi);
+		  hist2("EFMS_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta,phi);
 		}
 	      }
 	      muonTrack = muonInfoTr->ExtrapolatedTrack();
@@ -591,20 +591,20 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 		
 		  nMuonEFiSA++;
 		  if( pt > 4 )
-		    hist("Number_Of_EF_SA_Muons_4GeV_Cut",histdirrate)->Fill(m_lumiblock);
+		    hist("Number_Of_EF_SA_Muons_4GeV_Cut",m_histdirrate)->Fill(m_lumiblock);
 		  if( pt > 10 )
-		    hist("Number_Of_EF_SA_Muons_10GeV_Cut",histdirrate)->Fill(m_lumiblock);
+		    hist("Number_Of_EF_SA_Muons_10GeV_Cut",m_histdirrate)->Fill(m_lumiblock);
 		
-		  pt_EFSAmuon.push_back(pt);
-		  eta_EFSAmuon.push_back(eta);
-		  phi_EFSAmuon.push_back(phi);
+		  m_pt_EFSAmuon.push_back(pt);
+		  m_eta_EFSAmuon.push_back(eta);
+		  m_phi_EFSAmuon.push_back(phi);
 		
-		  hist("EFSA_pt", histdirmuonef) ->Fill(pt_hist);
-		  hist("EFSA_signed_pt", histdirmuonef) ->Fill(signed_pt_hist);
-		  hist("EFSA_eta", histdirmuonef)->Fill(eta);
-		  hist("EFSA_phi", histdirmuonef)->Fill(phi);
-		  hist2("EFSA_eta_vs_phi", histdirmuonef)->Fill(eta,phi);
-		  hist2("EFSA_eta_vs_phi_in_10LBs", histdircoverage)->Fill(eta,phi);
+		  hist("EFSA_pt", m_histdirmuonef) ->Fill(pt_hist);
+		  hist("EFSA_signed_pt", m_histdirmuonef) ->Fill(signed_pt_hist);
+		  hist("EFSA_eta", m_histdirmuonef)->Fill(eta);
+		  hist("EFSA_phi", m_histdirmuonef)->Fill(phi);
+		  hist2("EFSA_eta_vs_phi", m_histdirmuonef)->Fill(eta,phi);
+		  hist2("EFSA_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta,phi);
 		}
 	      }
 	      TrigMuonEFCbTrack* muonCbTrack = muonInfoTr->CombinedTrack();
@@ -633,20 +633,20 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	      
 		  nMuonEFiCB++;
 		  if( pt > 4 )
-		    hist("Number_Of_EF_CB_Muons_4GeV_Cut",histdirrate)->Fill(m_lumiblock);
+		    hist("Number_Of_EF_CB_Muons_4GeV_Cut",m_histdirrate)->Fill(m_lumiblock);
 		  if( pt > 10 )
-		    hist("Number_Of_EF_CB_Muons_10GeV_Cut",histdirrate)->Fill(m_lumiblock);
+		    hist("Number_Of_EF_CB_Muons_10GeV_Cut",m_histdirrate)->Fill(m_lumiblock);
 		
-		  pt_EFCBmuon.push_back(pt);
-		  eta_EFCBmuon.push_back(eta);
-		  phi_EFCBmuon.push_back(phi);
+		  m_pt_EFCBmuon.push_back(pt);
+		  m_eta_EFCBmuon.push_back(eta);
+		  m_phi_EFCBmuon.push_back(phi);
 		
-		  hist("EFCB_pt", histdirmuonef) ->Fill(pt_hist);
-		  hist("EFCB_signed_pt", histdirmuonef) ->Fill(signed_pt_hist);
-		  hist("EFCB_eta", histdirmuonef)->Fill(eta);
-		  hist("EFCB_phi", histdirmuonef)->Fill(phi);
-		  hist2("EFCB_eta_vs_phi", histdirmuonef)->Fill(eta,phi);
-		  hist2("EFCB_eta_vs_phi_in_10LBs", histdircoverage)->Fill(eta,phi);
+		  hist("EFCB_pt", m_histdirmuonef) ->Fill(pt_hist);
+		  hist("EFCB_signed_pt", m_histdirmuonef) ->Fill(signed_pt_hist);
+		  hist("EFCB_eta", m_histdirmuonef)->Fill(eta);
+		  hist("EFCB_phi", m_histdirmuonef)->Fill(phi);
+		  hist2("EFCB_eta_vs_phi", m_histdirmuonef)->Fill(eta,phi);
+		  hist2("EFCB_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta,phi);
 		}
 	      }
 	    }
@@ -660,9 +660,9 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   } // else xAOD muon found
 
   ATH_MSG_DEBUG(  "finish to loop over TrigMuonEFInfo Container " );
-  if(nMuonEFiMS)hist("Common_Counter", histdir)->Fill((float)MUONEFMSFOUND);
-  if(nMuonEFiSA)hist("Common_Counter", histdir)->Fill((float)MUONEFSAFOUND);
-  if(nMuonEFiCB)hist("Common_Counter", histdir)->Fill((float)MUONEFCBFOUND);
+  if(nMuonEFiMS)hist("Common_Counter", m_histdir)->Fill((float)MUONEFMSFOUND);
+  if(nMuonEFiSA)hist("Common_Counter", m_histdir)->Fill((float)MUONEFSAFOUND);
+  if(nMuonEFiCB)hist("Common_Counter", m_histdir)->Fill((float)MUONEFCBFOUND);
   ATH_MSG_DEBUG(  "filled numbers of MuonEF muons" );
 
 
@@ -706,14 +706,14 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	phi = mooreMuon->phi();
 	charge = mooreMuon->charge();
 		  
-	pt_RecMSmuon.push_back(pt);
-	eta_RecMSmuon.push_back(eta);
-	phi_RecMSmuon.push_back(phi);
-	charge_RecMSmuon.push_back(charge);
+	m_pt_RecMSmuon.push_back(pt);
+	m_eta_RecMSmuon.push_back(eta);
+	m_phi_RecMSmuon.push_back(phi);
+	m_charge_RecMSmuon.push_back(charge);
 	  
-	hist("RecMS_pt", histdirmuonef)->Fill(pt);
-	hist("RecMS_eta", histdirmuonef)->Fill(eta);
-	hist("RecMS_phi", histdirmuonef)->Fill(phi);
+	hist("RecMS_pt", m_histdirmuonef)->Fill(pt);
+	hist("RecMS_eta", m_histdirmuonef)->Fill(eta);
+	hist("RecMS_phi", m_histdirmuonef)->Fill(phi);
 
       } 
       ATH_MSG_DEBUG(  "check SA muon " );
@@ -730,26 +730,26 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	phi = muidCBMuon->phi();
 	charge = muidCBMuon->charge();
 
-	pt_RecCBmuon.push_back(pt);
-	eta_RecCBmuon.push_back(eta);
-	phi_RecCBmuon.push_back(phi);
-	charge_RecCBmuon.push_back(charge);
+	m_pt_RecCBmuon.push_back(pt);
+	m_eta_RecCBmuon.push_back(eta);
+	m_phi_RecCBmuon.push_back(phi);
+	m_charge_RecCBmuon.push_back(charge);
 	  
-	hist("RecCB_pt", histdirmuonef)->Fill(pt);
-	hist("RecCB_eta", histdirmuonef)->Fill(eta);
-	hist("RecCB_phi", histdirmuonef)->Fill(phi);
+	hist("RecCB_pt", m_histdirmuonef)->Fill(pt);
+	hist("RecCB_eta", m_histdirmuonef)->Fill(eta);
+	hist("RecCB_phi", m_histdirmuonef)->Fill(phi);
 	  
       }
     } // end loop on offline muon container
   } // successfully retrieve offline muon container
 
       // TrigMuonEF TrackBuilder
-      for(int i_offl=0;i_offl<(int)pt_RecMSmuon.size();i_offl++) {
+      for(int i_offl=0;i_offl<(int)m_pt_RecMSmuon.size();i_offl++) {
 
-        float pt_offl  = pt_RecMSmuon.at(i_offl);
-        float eta_offl = eta_RecMSmuon.at(i_offl);
-        float phi_offl = phi_RecMSmuon.at(i_offl);
-        float charge_offl = charge_RecMSmuon.at(i_offl);
+        float pt_offl  = m_pt_RecMSmuon.at(i_offl);
+        float eta_offl = m_eta_RecMSmuon.at(i_offl);
+        float phi_offl = m_phi_RecMSmuon.at(i_offl);
+        float charge_offl = m_charge_RecMSmuon.at(i_offl);
   
         float pt_offl_hist = fabs(pt_offl);
         if( pt_offl_hist > EFFI_PT_HISTMAX )  pt_offl_hist = EFFI_PT_OVFL;
@@ -758,9 +758,9 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
         if( signed_pt_offl_hist > EFFI_PT_HISTMAX )  signed_pt_offl_hist = EFFI_PT_OVFL;
         else if( signed_pt_offl_hist < -EFFI_PT_HISTMAX )  signed_pt_offl_hist = -EFFI_PT_OVFL;
   	  
-        hist("EFMS_effi_toOffl_pt_denom", histdirmuonef)->Fill(pt_offl_hist);
-        hist("EFMS_effi_toOffl_eta_denom", histdirmuonef)->Fill(eta_offl);
-        hist("EFMS_effi_toOffl_phi_denom", histdirmuonef)->Fill(phi_offl);
+        hist("EFMS_effi_toOffl_pt_denom", m_histdirmuonef)->Fill(pt_offl_hist);
+        hist("EFMS_effi_toOffl_eta_denom", m_histdirmuonef)->Fill(eta_offl);
+        hist("EFMS_effi_toOffl_phi_denom", m_histdirmuonef)->Fill(phi_offl);
   
         // check whether matching TrigMuonEF TrackBuilder track is there
         float dRmin  = 1000.;
@@ -768,11 +768,11 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
         // float eta_efms = 0.; 
         // float phi_efms = 0.; 
 
-	for(unsigned int i_MS=0; i_MS<pt_EFMSmuon.size(); i_MS++){
-		float pt = pt_EFMSmuon[i_MS];
+	for(unsigned int i_MS=0; i_MS<m_pt_EFMSmuon.size(); i_MS++){
+		float pt = m_pt_EFMSmuon[i_MS];
 		if(pt < ZERO_LIMIT) continue;
-		float eta = eta_EFMSmuon[i_MS];
-		float phi = phi_EFMSmuon[i_MS];
+		float eta = m_eta_EFMSmuon[i_MS];
+		float phi = m_phi_EFMSmuon[i_MS];
 		float dR = calc_dR(eta, phi, eta_offl, phi_offl);        
 		if( dR < dRmin ) {
 			dRmin = dR;
@@ -782,22 +782,22 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 		}
 	}
  
-        ///hist("EFMS_dR_toOffl", histdirmuonef)->Fill(dRmin);
+        ///hist("EFMS_dR_toOffl", m_histdirmuonef)->Fill(dRmin);
         if( dRmin > DR_MATCHED ) continue; // not matched to TrigMuonEF Combiner
   
-        hist("EFMS_effi_toOffl_pt_numer", histdirmuonef)->Fill(pt_offl_hist);
-        hist("EFMS_effi_toOffl_eta_numer", histdirmuonef)->Fill(eta_offl);
-        hist("EFMS_effi_toOffl_phi_numer", histdirmuonef)->Fill(phi_offl);
+        hist("EFMS_effi_toOffl_pt_numer", m_histdirmuonef)->Fill(pt_offl_hist);
+        hist("EFMS_effi_toOffl_eta_numer", m_histdirmuonef)->Fill(eta_offl);
+        hist("EFMS_effi_toOffl_phi_numer", m_histdirmuonef)->Fill(phi_offl);
   
       } // end of offline muon loop for TrigMuonEF TrackBuilder
 
       // TrigMuonEF Extrapolator
-      for(int i_offl=0;i_offl<(int)pt_RecSAmuon.size();i_offl++) {
+      for(int i_offl=0;i_offl<(int)m_pt_RecSAmuon.size();i_offl++) {
 
-        float pt_offl     = pt_RecSAmuon.at(i_offl);
-        float eta_offl    = eta_RecSAmuon.at(i_offl);
-        float phi_offl    = phi_RecSAmuon.at(i_offl);
-        float charge_offl = charge_RecSAmuon.at(i_offl);
+        float pt_offl     = m_pt_RecSAmuon.at(i_offl);
+        float eta_offl    = m_eta_RecSAmuon.at(i_offl);
+        float phi_offl    = m_phi_RecSAmuon.at(i_offl);
+        float charge_offl = m_charge_RecSAmuon.at(i_offl);
   
         float pt_offl_hist = fabs(pt_offl);
         if( pt_offl_hist > EFFI_PT_HISTMAX )  pt_offl_hist = EFFI_PT_OVFL;
@@ -806,9 +806,9 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
         if( signed_pt_offl_hist > EFFI_PT_HISTMAX )  signed_pt_offl_hist = EFFI_PT_OVFL;
         else if( signed_pt_offl_hist < -EFFI_PT_HISTMAX )  signed_pt_offl_hist = -EFFI_PT_OVFL;
   	  
-        hist("EFSA_effi_toOffl_pt_denom", histdirmuonef)->Fill(pt_offl_hist);
-        //hist("EFSA_effi_toOffl_eta_denom", histdirmuonef)->Fill(eta_offl);
-        //hist("EFSA_effi_toOffl_phi_denom", histdirmuonef)->Fill(phi_offl);
+        hist("EFSA_effi_toOffl_pt_denom", m_histdirmuonef)->Fill(pt_offl_hist);
+        //hist("EFSA_effi_toOffl_eta_denom", m_histdirmuonef)->Fill(eta_offl);
+        //hist("EFSA_effi_toOffl_phi_denom", m_histdirmuonef)->Fill(phi_offl);
   
         // check whether matching TrigMuonEF Combiner track is there
         float dRmin  = 1000.;
@@ -816,11 +816,11 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
         // float eta_efsa = 0.; 
         // float phi_efsa = 0.; 
 
-	for(unsigned int i_SA=0; i_SA<pt_EFSAmuon.size(); i_SA++){
-		float pt = pt_EFSAmuon[i_SA];
+	for(unsigned int i_SA=0; i_SA<m_pt_EFSAmuon.size(); i_SA++){
+		float pt = m_pt_EFSAmuon[i_SA];
 		if(pt < ZERO_LIMIT) continue; 
-		float eta = eta_EFSAmuon[i_SA];
-		float phi = phi_EFSAmuon[i_SA];
+		float eta = m_eta_EFSAmuon[i_SA];
+		float phi = m_phi_EFSAmuon[i_SA];
 		float dR = calc_dR(eta, phi, eta_offl, phi_offl);        
 		if( dR < dRmin ) {
 			dRmin = dR;
@@ -831,22 +831,22 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	}
 
 	
-        ///hist("EFSA_dR_toOffl", histdirmuonef)->Fill(dRmin);
+        ///hist("EFSA_dR_toOffl", m_histdirmuonef)->Fill(dRmin);
         if( dRmin > DR_MATCHED ) continue; // not matched to TrigMuonEF Combiner
   
-        hist("EFSA_effi_toOffl_pt_numer", histdirmuonef)->Fill(pt_offl_hist);
-        //hist("EFSA_effi_toOffl_eta_numer", histdirmuonef)->Fill(eta_offl);
-        //hist("EFSA_effi_toOffl_phi_numer", histdirmuonef)->Fill(phi_offl);
+        hist("EFSA_effi_toOffl_pt_numer", m_histdirmuonef)->Fill(pt_offl_hist);
+        //hist("EFSA_effi_toOffl_eta_numer", m_histdirmuonef)->Fill(eta_offl);
+        //hist("EFSA_effi_toOffl_phi_numer", m_histdirmuonef)->Fill(phi_offl);
   
       } // end of offline muon loop for TrigMuonEF Extrapolator
 
       // TrigMuonEF Combiner
-      for(int i_offl=0;i_offl<(int)pt_RecCBmuon.size();i_offl++) {
+      for(int i_offl=0;i_offl<(int)m_pt_RecCBmuon.size();i_offl++) {
 
-        float pt_offl  = pt_RecCBmuon.at(i_offl);
-        float eta_offl = eta_RecCBmuon.at(i_offl);
-        float phi_offl = phi_RecCBmuon.at(i_offl);
-        float charge_offl = charge_RecCBmuon.at(i_offl);
+        float pt_offl  = m_pt_RecCBmuon.at(i_offl);
+        float eta_offl = m_eta_RecCBmuon.at(i_offl);
+        float phi_offl = m_phi_RecCBmuon.at(i_offl);
+        float charge_offl = m_charge_RecCBmuon.at(i_offl);
         
         float pt_offl_hist = fabs(pt_offl);
         if( pt_offl_hist > EFFI_PT_HISTMAX )  pt_offl_hist = EFFI_PT_OVFL;
@@ -855,9 +855,9 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
         if( signed_pt_offl_hist > EFFI_PT_HISTMAX )  signed_pt_offl_hist = EFFI_PT_OVFL;
         else if( signed_pt_offl_hist < -EFFI_PT_HISTMAX )  signed_pt_offl_hist = -EFFI_PT_OVFL;
   	  
-        hist("EFCB_effi_toOffl_pt_denom", histdirmuonef)->Fill(pt_offl_hist);
-        //hist("EFCB_effi_toOffl_eta_denom", histdirmuonef)->Fill(eta_offl);
-        //hist("EFCB_effi_toOffl_phi_denom", histdirmuonef)->Fill(phi_offl);
+        hist("EFCB_effi_toOffl_pt_denom", m_histdirmuonef)->Fill(pt_offl_hist);
+        //hist("EFCB_effi_toOffl_eta_denom", m_histdirmuonef)->Fill(eta_offl);
+        //hist("EFCB_effi_toOffl_phi_denom", m_histdirmuonef)->Fill(phi_offl);
   
         // check whether matching TrigMuonEF Combiner track is there
         float dRmin  = 1000.;
@@ -865,11 +865,11 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
         // float eta_efcb = 0.; 
         // float phi_efcb = 0.; 
 
- 	for(unsigned int i_CB=0; i_CB<pt_EFCBmuon.size(); i_CB++){
-		float pt = pt_EFCBmuon[i_CB];
+ 	for(unsigned int i_CB=0; i_CB<m_pt_EFCBmuon.size(); i_CB++){
+		float pt = m_pt_EFCBmuon[i_CB];
 		if(pt < ZERO_LIMIT) continue; 
-		float eta = eta_EFCBmuon[i_CB];
-		float phi = phi_EFCBmuon[i_CB];
+		float eta = m_eta_EFCBmuon[i_CB];
+		float phi = m_phi_EFCBmuon[i_CB];
 		float dR = calc_dR(eta, phi, eta_offl, phi_offl);        
 		if( dR < dRmin ) {
 			dRmin = dR;
@@ -879,13 +879,13 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 		}
 	}
 
-        ///hist("EFCB_dR_toOffl", histdirmuonef)->Fill(dRmin);
+        ///hist("EFCB_dR_toOffl", m_histdirmuonef)->Fill(dRmin);
 
         if( dRmin > DR_MATCHED ) continue; // not matched to TrigMuonEF Combiner
   
-        hist("EFCB_effi_toOffl_pt_numer", histdirmuonef)->Fill(pt_offl_hist);
-        //hist("EFCB_effi_toOffl_eta_numer", histdirmuonef)->Fill(eta_offl);
-        //hist("EFCB_effi_toOffl_phi_numer", histdirmuonef)->Fill(phi_offl);
+        hist("EFCB_effi_toOffl_pt_numer", m_histdirmuonef)->Fill(pt_offl_hist);
+        //hist("EFCB_effi_toOffl_eta_numer", m_histdirmuonef)->Fill(eta_offl);
+        //hist("EFCB_effi_toOffl_phi_numer", m_histdirmuonef)->Fill(phi_offl);
   
       } // end of offline muon loop for TrigMuonEF Combiner
 
@@ -928,9 +928,9 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
      
       if( fabs(pt)>FAILED_PT_THRES ){
 	nMuFast++;
-	pt_LVL2FASTmuon.push_back(pt);
-	eta_LVL2FASTmuon.push_back(eta);
-	phi_LVL2FASTmuon.push_back(phi);
+	m_pt_LVL2FASTmuon.push_back(pt);
+	m_eta_LVL2FASTmuon.push_back(eta);
+	m_phi_LVL2FASTmuon.push_back(phi);
       } 
        
     } // loop over muonFeature
@@ -953,8 +953,8 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 
       for (int k=0; k<n_RecSAmuon; k++) {
 
-	deta = eta_RecSAmuon.at(k)-eta_LVL2FASTmuon.at(j);
-	dphi = phi_RecSAmuon.at(k)-phi_LVL2FASTmuon.at(j);
+	deta = m_eta_RecSAmuon.at(k)-m_eta_LVL2FASTmuon.at(j);
+	dphi = m_phi_RecSAmuon.at(k)-m_phi_LVL2FASTmuon.at(j);
 
 	if (dphi > acos(-1.)) dphi -= 2.*acos(-1.);
 	if (dphi < -acos(-1.)) dphi += 2.*acos(-1.);
@@ -968,17 +968,17 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 
  
       if(kmin>-1 && deltaR < m_deltaRCut ) {
-	pt_ToUPDATE = pt_RecSAmuon.at(kmin);
-	eta_ToUPDATE = eta_RecSAmuon.at(kmin);
-	phi_ToUPDATE = phi_RecSAmuon.at(kmin);
+	pt_ToUPDATE = m_pt_RecSAmuon.at(kmin);
+	eta_ToUPDATE = m_eta_RecSAmuon.at(kmin);
+	phi_ToUPDATE = m_phi_RecSAmuon.at(kmin);
        
 	n_Recmuons_PassesdLVL2MuFast++;
       }     
        
-      pt_lvl2_RecoSA_corr.push_back(pt_ToUPDATE);
-      eta_lvl2_RecoSA_corr.push_back(eta_ToUPDATE);
-      phi_lvl2_RecoSA_corr.push_back(phi_ToUPDATE);
-      index_lvl2_RecoSA_corr.push_back(kmin);
+      m_pt_lvl2_RecoSA_corr.push_back(pt_ToUPDATE);
+      m_eta_lvl2_RecoSA_corr.push_back(eta_ToUPDATE);
+      m_phi_lvl2_RecoSA_corr.push_back(phi_ToUPDATE);
+      m_index_lvl2_RecoSA_corr.push_back(kmin);
     }//end of loop on j
   }
 
@@ -999,7 +999,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 
     for (int j=0; j<nMuFast; j++) {
 
-      if (index_lvl2_RecoSA_corr.at(j) < 0)
+      if (m_index_lvl2_RecoSA_corr.at(j) < 0)
 	continue;
 
       double deltaR = 999.;
@@ -1015,8 +1015,8 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	double deta = -999.;
 	double dphi = -999.;
 
-	deta = eta_lvl2_RecoSA_corr.at(j)-eta_EFSAmuon.at(k);
-	dphi = phi_lvl2_RecoSA_corr.at(j)-phi_EFSAmuon.at(k);
+	deta = m_eta_lvl2_RecoSA_corr.at(j)-m_eta_EFSAmuon.at(k);
+	dphi = m_phi_lvl2_RecoSA_corr.at(j)-m_phi_EFSAmuon.at(k);
 
 	if (dphi > acos(-1.)) dphi -= 2.*acos(-1.);
 	if (dphi < -acos(-1.)) dphi += 2.*acos(-1.);
@@ -1032,17 +1032,17 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
       // correlation with Recmuon
       if(kmin > -1 && deltaR < m_deltaRCut){
   
-	hist2("EF_SAwrtRecL2Aware_PtCor", histdirmuonef)->Fill(pt_lvl2_RecoSA_corr.at(j),pt_EFSA_RecoSA_corr);
-	hist2("EF_SAwrtRecL2Aware_EtaCor", histdirmuonef)->Fill(eta_lvl2_RecoSA_corr.at(j),eta_EFSA_RecoSA_corr);
-	hist2("EF_SAwrtRecL2Aware_PhiCor", histdirmuonef)->Fill(phi_lvl2_RecoSA_corr.at(j),phi_EFSA_RecoSA_corr);
-	hist("EF_SAwrtRecL2Aware_dPt", histdirmuonef)->Fill(pt_EFSA_RecoSA_corr-pt_lvl2_RecoSA_corr.at(j));
-	hist("EF_SAwrtRecL2Aware_dEta", histdirmuonef)->Fill(eta_EFSA_RecoSA_corr-eta_lvl2_RecoSA_corr.at(j));
-	hist("EF_SAwrtRecL2Aware_dPhi", histdirmuonef)->Fill(phi_EFSA_RecoSA_corr-phi_lvl2_RecoSA_corr.at(j));
+	hist2("EF_SAwrtRecL2Aware_PtCor", m_histdirmuonef)->Fill(m_pt_lvl2_RecoSA_corr.at(j),pt_EFSA_RecoSA_corr);
+	hist2("EF_SAwrtRecL2Aware_EtaCor", m_histdirmuonef)->Fill(m_eta_lvl2_RecoSA_corr.at(j),eta_EFSA_RecoSA_corr);
+	hist2("EF_SAwrtRecL2Aware_PhiCor", m_histdirmuonef)->Fill(m_phi_lvl2_RecoSA_corr.at(j),phi_EFSA_RecoSA_corr);
+	hist("EF_SAwrtRecL2Aware_dPt", m_histdirmuonef)->Fill(pt_EFSA_RecoSA_corr-m_pt_lvl2_RecoSA_corr.at(j));
+	hist("EF_SAwrtRecL2Aware_dEta", m_histdirmuonef)->Fill(eta_EFSA_RecoSA_corr-m_eta_lvl2_RecoSA_corr.at(j));
+	hist("EF_SAwrtRecL2Aware_dPhi", m_histdirmuonef)->Fill(phi_EFSA_RecoSA_corr-m_phi_lvl2_RecoSA_corr.at(j));
      
        
-	hist("EffSA_L2Aware_pt", histdirmuonef)->Fill(pt_EFSA_RecoSA_corr);
-	hist("EffSA_L2Aware_eta", histdirmuonef)->Fill(eta_EFSA_RecoSA_corr);
-	hist("EffSA_L2Aware_phi", histdirmuonef)->Fill(phi_EFSA_RecoSA_corr);
+	hist("EffSA_L2Aware_pt", m_histdirmuonef)->Fill(pt_EFSA_RecoSA_corr);
+	hist("EffSA_L2Aware_eta", m_histdirmuonef)->Fill(eta_EFSA_RecoSA_corr);
+	hist("EffSA_L2Aware_phi", m_histdirmuonef)->Fill(phi_EFSA_RecoSA_corr);
       }
 
    
@@ -1081,9 +1081,9 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 
       if( fabs(pt)>FAILED_PT_THRES ){
 	nMuComb++;
-	pt_LVL2COMBmuon.push_back(pt);
-	eta_LVL2COMBmuon.push_back(eta);
-	phi_LVL2COMBmuon.push_back(phi);
+	m_pt_LVL2COMBmuon.push_back(pt);
+	m_eta_LVL2COMBmuon.push_back(eta);
+	m_phi_LVL2COMBmuon.push_back(phi);
       }
      
     }
@@ -1104,8 +1104,8 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 
       for (int k=0; k<n_RecCBmuon; k++) {
        
-	deta = eta_RecCBmuon.at(k)-eta_LVL2COMBmuon.at(j);
-	dphi = phi_RecCBmuon.at(k)-phi_LVL2COMBmuon.at(j);
+	deta = m_eta_RecCBmuon.at(k)-m_eta_LVL2COMBmuon.at(j);
+	dphi = m_phi_RecCBmuon.at(k)-m_phi_LVL2COMBmuon.at(j);
 
 	if (dphi > acos(-1.)) dphi -= 2.*acos(-1.);
 	if (dphi < -acos(-1.)) dphi += 2.*acos(-1.);
@@ -1118,18 +1118,18 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
       } // close loop on k
 	 	
       if(kmin>-1 && deltaR < m_deltaRCut ) {
-	pt_ToUPDATE = pt_RecCBmuon.at(kmin);
-	eta_ToUPDATE = eta_RecCBmuon.at(kmin);
-	phi_ToUPDATE = phi_RecCBmuon.at(kmin);
+	pt_ToUPDATE = m_pt_RecCBmuon.at(kmin);
+	eta_ToUPDATE = m_eta_RecCBmuon.at(kmin);
+	phi_ToUPDATE = m_phi_RecCBmuon.at(kmin);
        
 	n_Recmuons_PassesdLVL2MuComb++;
      
       }     
        
-      pt_lvl2_RecoCB_corr.push_back(pt_ToUPDATE);
-      eta_lvl2_RecoCB_corr.push_back(eta_ToUPDATE);
-      phi_lvl2_RecoCB_corr.push_back(phi_ToUPDATE);
-      index_lvl2_RecoCB_corr.push_back(kmin);
+      m_pt_lvl2_RecoCB_corr.push_back(pt_ToUPDATE);
+      m_eta_lvl2_RecoCB_corr.push_back(eta_ToUPDATE);
+      m_phi_lvl2_RecoCB_corr.push_back(phi_ToUPDATE);
+      m_index_lvl2_RecoCB_corr.push_back(kmin);
     }//end of loop on j
   }
    
@@ -1155,7 +1155,7 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 
     for (int j=0; j<nMuComb; j++) {
 
-      if (index_lvl2_RecoCB_corr.at(j) < 0)
+      if (m_index_lvl2_RecoCB_corr.at(j) < 0)
 	continue;
 
       double deltaR = 999.;
@@ -1171,8 +1171,8 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
 	double deta = -999.;
 	double dphi = -999.;
 
-	deta = eta_lvl2_RecoCB_corr.at(j)-eta_EFCBmuon.at(k);
-	dphi = phi_lvl2_RecoCB_corr.at(j)-phi_EFCBmuon.at(k);
+	deta = m_eta_lvl2_RecoCB_corr.at(j)-m_eta_EFCBmuon.at(k);
+	dphi = m_phi_lvl2_RecoCB_corr.at(j)-m_phi_EFCBmuon.at(k);
 
 	if (dphi > acos(-1.)) dphi -= 2.*acos(-1.);
 	if (dphi < -acos(-1.)) dphi += 2.*acos(-1.);
@@ -1189,17 +1189,17 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
       // correlation with Recmuon
       if(kmin > -1 && deltaR < m_deltaRCut){
   
-	hist2("EF_CBwrtRecL2Aware_PtCor", histdirmuonef)->Fill(pt_lvl2_RecoCB_corr.at(j),pt_EFCB_RecoCB_corr);
-	hist2("EF_CBwrtRecL2Aware_EtaCor", histdirmuonef)->Fill(eta_lvl2_RecoCB_corr.at(j),eta_EFCB_RecoCB_corr);
-	hist2("EF_CBwrtRecL2Aware_PhiCor", histdirmuonef)->Fill(phi_lvl2_RecoCB_corr.at(j),phi_EFCB_RecoCB_corr);
-	hist("EF_CBwrtRecL2Aware_dPt", histdirmuonef)->Fill(pt_EFCB_RecoCB_corr-pt_lvl2_RecoCB_corr.at(j));
-	hist("EF_CBwrtRecL2Aware_dEta", histdirmuonef)->Fill(eta_EFCB_RecoCB_corr-eta_lvl2_RecoCB_corr.at(j));
-	hist("EF_CBwrtRecL2Aware_dPhi", histdirmuonef)->Fill(phi_EFCB_RecoCB_corr-phi_lvl2_RecoCB_corr.at(j));
+	hist2("EF_CBwrtRecL2Aware_PtCor", m_histdirmuonef)->Fill(m_pt_lvl2_RecoCB_corr.at(j),pt_EFCB_RecoCB_corr);
+	hist2("EF_CBwrtRecL2Aware_EtaCor", m_histdirmuonef)->Fill(m_eta_lvl2_RecoCB_corr.at(j),eta_EFCB_RecoCB_corr);
+	hist2("EF_CBwrtRecL2Aware_PhiCor", m_histdirmuonef)->Fill(m_phi_lvl2_RecoCB_corr.at(j),phi_EFCB_RecoCB_corr);
+	hist("EF_CBwrtRecL2Aware_dPt", m_histdirmuonef)->Fill(pt_EFCB_RecoCB_corr-m_pt_lvl2_RecoCB_corr.at(j));
+	hist("EF_CBwrtRecL2Aware_dEta", m_histdirmuonef)->Fill(eta_EFCB_RecoCB_corr-m_eta_lvl2_RecoCB_corr.at(j));
+	hist("EF_CBwrtRecL2Aware_dPhi", m_histdirmuonef)->Fill(phi_EFCB_RecoCB_corr-m_phi_lvl2_RecoCB_corr.at(j));
      
        
-	hist("EffCB_L2Aware_pt", histdirmuonef)->Fill(pt_EFCB_RecoCB_corr);
-	hist("EffCB_L2Aware_eta", histdirmuonef)->Fill(eta_EFCB_RecoCB_corr);
-	hist("EffCB_L2Aware_phi", histdirmuonef)->Fill(phi_EFCB_RecoCB_corr);
+	hist("EffCB_L2Aware_pt", m_histdirmuonef)->Fill(pt_EFCB_RecoCB_corr);
+	hist("EffCB_L2Aware_eta", m_histdirmuonef)->Fill(eta_EFCB_RecoCB_corr);
+	hist("EffCB_L2Aware_phi", m_histdirmuonef)->Fill(phi_EFCB_RecoCB_corr);
       }
 
    
@@ -1233,8 +1233,8 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   
       for (int k=0; k<n_RecMSmuon; k++) {
        
-	deta = eta_RecMSmuon.at(k)-eta_EFMSmuon.at(j);
-	dphi = phi_RecMSmuon.at(k)-phi_EFMSmuon.at(j);
+	deta = m_eta_RecMSmuon.at(k)-m_eta_EFMSmuon.at(j);
+	dphi = m_phi_RecMSmuon.at(k)-m_phi_EFMSmuon.at(j);
 
 	if (dphi > acos(-1.)) dphi -= 2.*acos(-1.);
 	if (dphi < -acos(-1.)) dphi += 2.*acos(-1.);
@@ -1251,24 +1251,24 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
       // correlation with RecMSmuon
       if(kmin > -1 && deltaR < m_deltaRCut){
         
-        pt_MScorrelation =  pt_RecMSmuon.at(kmin);
-        eta_MScorrelation = eta_RecMSmuon.at(kmin);
-        phi_MScorrelation = phi_RecMSmuon.at(kmin);
-        index_EFMS_RecoMS_corr.push_back(kmin);
+        pt_MScorrelation =  m_pt_RecMSmuon.at(kmin);
+        eta_MScorrelation = m_eta_RecMSmuon.at(kmin);
+        phi_MScorrelation = m_phi_RecMSmuon.at(kmin);
+        m_index_EFMS_RecoMS_corr.push_back(kmin);
         n_Recmuons_passedEFMS++;
 	
-	hist2("EF_MSMuon_RecMSMuon_PtCor", histdirmuonef)->Fill(pt_MScorrelation,pt_EFMSmuon.at(j));
-	hist2("EF_MSMuon_RecMSMuon_EtaCor", histdirmuonef)->Fill(eta_MScorrelation,eta_EFMSmuon.at(j));
-	hist2("EF_MSMuon_RecMSMuon_PhiCor", histdirmuonef)->Fill(phi_MScorrelation,phi_EFMSmuon.at(j));
-	hist("EF_MSMuon_RecMSMuon_dPt", histdirmuonef)->Fill(pt_MScorrelation-pt_EFMSmuon.at(j));
-	hist("EF_MSMuon_RecMSMuon_dEta", histdirmuonef)->Fill(eta_MScorrelation-eta_EFMSmuon.at(j));
-	hist("EF_MSMuon_RecMSMuon_dPhi", histdirmuonef)->Fill(phi_MScorrelation-phi_EFMSmuon.at(j));
+	hist2("EF_MSMuon_RecMSMuon_PtCor", m_histdirmuonef)->Fill(pt_MScorrelation,m_pt_EFMSmuon.at(j));
+	hist2("EF_MSMuon_RecMSMuon_EtaCor", m_histdirmuonef)->Fill(eta_MScorrelation,m_eta_EFMSmuon.at(j));
+	hist2("EF_MSMuon_RecMSMuon_PhiCor", m_histdirmuonef)->Fill(phi_MScorrelation,m_phi_EFMSmuon.at(j));
+	hist("EF_MSMuon_RecMSMuon_dPt", m_histdirmuonef)->Fill(pt_MScorrelation-m_pt_EFMSmuon.at(j));
+	hist("EF_MSMuon_RecMSMuon_dEta", m_histdirmuonef)->Fill(eta_MScorrelation-m_eta_EFMSmuon.at(j));
+	hist("EF_MSMuon_RecMSMuon_dPhi", m_histdirmuonef)->Fill(phi_MScorrelation-m_phi_EFMSmuon.at(j));
 
-	hist("RecAwareMSmuon_pt", histdirmuonef)->Fill(pt_MScorrelation);
-	hist("RecAwareMSmuon_eta", histdirmuonef)->Fill(eta_MScorrelation);
-	hist("RecAwareMSmuon_phi", histdirmuonef)->Fill(phi_MScorrelation);
+	hist("RecAwareMSmuon_pt", m_histdirmuonef)->Fill(pt_MScorrelation);
+	hist("RecAwareMSmuon_eta", m_histdirmuonef)->Fill(eta_MScorrelation);
+	hist("RecAwareMSmuon_phi", m_histdirmuonef)->Fill(phi_MScorrelation);
 
-	hist("EF_MSMuon_RecMSMuon_dR", histdirmuonef)->Fill(deltaR);
+	hist("EF_MSMuon_RecMSMuon_dR", m_histdirmuonef)->Fill(deltaR);
 
       }
 
@@ -1307,8 +1307,8 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   
       for (int k=0; k<n_RecSAmuon; k++) {
        
-	deta = eta_RecSAmuon.at(k)-eta_EFSAmuon.at(j);
-	dphi = phi_RecSAmuon.at(k)-phi_EFSAmuon.at(j);
+	deta = m_eta_RecSAmuon.at(k)-m_eta_EFSAmuon.at(j);
+	dphi = m_phi_RecSAmuon.at(k)-m_phi_EFSAmuon.at(j);
 
 	if (dphi > acos(-1.)) dphi -= 2.*acos(-1.);
 	if (dphi < -acos(-1.)) dphi += 2.*acos(-1.);
@@ -1325,25 +1325,25 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
       // correlation with RecSAmuon
       if(kmin > -1 && deltaR < m_deltaRCut){
 
-        pt_SAcorrelation =  pt_RecSAmuon.at(kmin);
-        eta_SAcorrelation = eta_RecSAmuon.at(kmin);
-        phi_SAcorrelation = phi_RecSAmuon.at(kmin);
-        index_EFSA_RecoSA_corr.push_back(kmin);
+        pt_SAcorrelation =  m_pt_RecSAmuon.at(kmin);
+        eta_SAcorrelation = m_eta_RecSAmuon.at(kmin);
+        phi_SAcorrelation = m_phi_RecSAmuon.at(kmin);
+        m_index_EFSA_RecoSA_corr.push_back(kmin);
 
         n_Recmuons_passedEFSA++;
 
-	hist2("EF_SAMuon_RecSAMuon_PtCor", histdirmuonef)->Fill(pt_SAcorrelation,pt_EFSAmuon.at(j));
-	hist2("EF_SAMuon_RecSAMuon_EtaCor", histdirmuonef)->Fill(eta_SAcorrelation,eta_EFSAmuon.at(j));
-	hist2("EF_SAMuon_RecSAMuon_PhiCor", histdirmuonef)->Fill(phi_SAcorrelation,phi_EFSAmuon.at(j));
-	hist("EF_SAMuon_RecSAMuon_dPt", histdirmuonef)->Fill(pt_SAcorrelation-pt_EFSAmuon.at(j));
-	hist("EF_SAMuon_RecSAMuon_dEta", histdirmuonef)->Fill(eta_SAcorrelation-eta_EFSAmuon.at(j));
-	hist("EF_SAMuon_RecSAMuon_dPhi", histdirmuonef)->Fill(phi_SAcorrelation-phi_EFSAmuon.at(j));
+	hist2("EF_SAMuon_RecSAMuon_PtCor", m_histdirmuonef)->Fill(pt_SAcorrelation,m_pt_EFSAmuon.at(j));
+	hist2("EF_SAMuon_RecSAMuon_EtaCor", m_histdirmuonef)->Fill(eta_SAcorrelation,m_eta_EFSAmuon.at(j));
+	hist2("EF_SAMuon_RecSAMuon_PhiCor", m_histdirmuonef)->Fill(phi_SAcorrelation,m_phi_EFSAmuon.at(j));
+	hist("EF_SAMuon_RecSAMuon_dPt", m_histdirmuonef)->Fill(pt_SAcorrelation-m_pt_EFSAmuon.at(j));
+	hist("EF_SAMuon_RecSAMuon_dEta", m_histdirmuonef)->Fill(eta_SAcorrelation-m_eta_EFSAmuon.at(j));
+	hist("EF_SAMuon_RecSAMuon_dPhi", m_histdirmuonef)->Fill(phi_SAcorrelation-m_phi_EFSAmuon.at(j));
 
-	hist("RecAwareSAmuon_pt", histdirmuonef)->Fill(pt_SAcorrelation);
-	hist("RecAwareSAmuon_eta", histdirmuonef)->Fill(eta_SAcorrelation);
-	hist("RecAwareSAmuon_phi", histdirmuonef)->Fill(phi_SAcorrelation);
+	hist("RecAwareSAmuon_pt", m_histdirmuonef)->Fill(pt_SAcorrelation);
+	hist("RecAwareSAmuon_eta", m_histdirmuonef)->Fill(eta_SAcorrelation);
+	hist("RecAwareSAmuon_phi", m_histdirmuonef)->Fill(phi_SAcorrelation);
 
-	hist("EF_SAMuon_RecSAMuon_dR", histdirmuonef)->Fill(deltaR);
+	hist("EF_SAMuon_RecSAMuon_dR", m_histdirmuonef)->Fill(deltaR);
       }
 
     } // close loop on j
@@ -1383,8 +1383,8 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   
       for (int k=0; k<n_RecCBmuon; k++) {
        
-	deta = eta_RecCBmuon.at(k)-eta_EFCBmuon.at(j);
-	dphi = phi_RecCBmuon.at(k)-phi_EFCBmuon.at(j);
+	deta = m_eta_RecCBmuon.at(k)-m_eta_EFCBmuon.at(j);
+	dphi = m_phi_RecCBmuon.at(k)-m_phi_EFCBmuon.at(j);
 
 	if (dphi > acos(-1.)) dphi -= 2.*acos(-1.);
 	if (dphi < -acos(-1.)) dphi += 2.*acos(-1.);
@@ -1402,25 +1402,25 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
       // correlation with RecCBmuon
       if(kmin > -1 && deltaR < m_deltaRCut){
 
-        pt_CBcorrelation =  pt_RecCBmuon.at(kmin);
-        eta_CBcorrelation = eta_RecCBmuon.at(kmin);
-        phi_CBcorrelation = phi_RecCBmuon.at(kmin);
-        index_EFCB_RecoCB_corr.push_back(kmin);
+        pt_CBcorrelation =  m_pt_RecCBmuon.at(kmin);
+        eta_CBcorrelation = m_eta_RecCBmuon.at(kmin);
+        phi_CBcorrelation = m_phi_RecCBmuon.at(kmin);
+        m_index_EFCB_RecoCB_corr.push_back(kmin);
 
         n_Recmuons_passedEFCB++;
 
-	hist2("EF_CBMuon_RecCBMuon_PtCor", histdirmuonef)->Fill(pt_CBcorrelation,pt_EFCBmuon.at(j));
-	hist2("EF_CBMuon_RecCBMuon_EtaCor", histdirmuonef)->Fill(eta_CBcorrelation,eta_EFCBmuon.at(j));
-	hist2("EF_CBMuon_RecCBMuon_PhiCor", histdirmuonef)->Fill(phi_CBcorrelation,phi_EFCBmuon.at(j));
-	hist("EF_CBMuon_RecCBMuon_dPt", histdirmuonef)->Fill(pt_CBcorrelation-pt_EFCBmuon.at(j));
-	hist("EF_CBMuon_RecCBMuon_dEta", histdirmuonef)->Fill(eta_CBcorrelation-eta_EFCBmuon.at(j));
-	hist("EF_CBMuon_RecCBMuon_dPhi", histdirmuonef)->Fill(phi_CBcorrelation-phi_EFCBmuon.at(j));
+	hist2("EF_CBMuon_RecCBMuon_PtCor", m_histdirmuonef)->Fill(pt_CBcorrelation,m_pt_EFCBmuon.at(j));
+	hist2("EF_CBMuon_RecCBMuon_EtaCor", m_histdirmuonef)->Fill(eta_CBcorrelation,m_eta_EFCBmuon.at(j));
+	hist2("EF_CBMuon_RecCBMuon_PhiCor", m_histdirmuonef)->Fill(phi_CBcorrelation,m_phi_EFCBmuon.at(j));
+	hist("EF_CBMuon_RecCBMuon_dPt", m_histdirmuonef)->Fill(pt_CBcorrelation-m_pt_EFCBmuon.at(j));
+	hist("EF_CBMuon_RecCBMuon_dEta", m_histdirmuonef)->Fill(eta_CBcorrelation-m_eta_EFCBmuon.at(j));
+	hist("EF_CBMuon_RecCBMuon_dPhi", m_histdirmuonef)->Fill(phi_CBcorrelation-m_phi_EFCBmuon.at(j));
 
-	hist("RecAwareCBmuon_pt", histdirmuonef)->Fill(pt_CBcorrelation);
-	hist("RecAwareCBmuon_eta", histdirmuonef)->Fill(eta_CBcorrelation);
-	hist("RecAwareCBmuon_phi", histdirmuonef)->Fill(phi_CBcorrelation);
+	hist("RecAwareCBmuon_pt", m_histdirmuonef)->Fill(pt_CBcorrelation);
+	hist("RecAwareCBmuon_eta", m_histdirmuonef)->Fill(eta_CBcorrelation);
+	hist("RecAwareCBmuon_phi", m_histdirmuonef)->Fill(phi_CBcorrelation);
 
-	hist("EF_CBMuon_RecCBMuon_dR", histdirmuonef)->Fill(deltaR);
+	hist("EF_CBMuon_RecCBMuon_dR", m_histdirmuonef)->Fill(deltaR);
       }
 
     } // close loop on j
@@ -1437,46 +1437,46 @@ StatusCode HLTMuonMonTool::procMuonEFDQA()
     ATH_MSG_DEBUG("procMuonEFDQA");
 
     //EF rate pT > 4GeV
-    hist("EF_MS_Over_Moore_MS_4GeV_Cut", histdirrateratio)->Sumw2();
-    hist("EF_MS_Over_Moore_MS_4GeV_Cut", histdirrateratio)->Divide( hist("Number_Of_EF_MS_Muons_4GeV_Cut", histdirrate), hist("Number_Of_Moore_MS_Muons_4GeV_Cut", histdirrate), 1, 1, "B" );
+    hist("EF_MS_Over_Moore_MS_4GeV_Cut", m_histdirrateratio)->Sumw2();
+    hist("EF_MS_Over_Moore_MS_4GeV_Cut", m_histdirrateratio)->Divide( hist("Number_Of_EF_MS_Muons_4GeV_Cut", m_histdirrate), hist("Number_Of_Moore_MS_Muons_4GeV_Cut", m_histdirrate), 1, 1, "B" );
     
-    hist("EF_SA_Over_Moore_SA_4GeV_Cut", histdirrateratio)->Sumw2();
-    hist("EF_SA_Over_Moore_SA_4GeV_Cut", histdirrateratio)->Divide( hist("Number_Of_EF_SA_Muons_4GeV_Cut", histdirrate), hist("Number_Of_Moore_SA_Muons_4GeV_Cut", histdirrate), 1, 1, "B" );
+    hist("EF_SA_Over_Moore_SA_4GeV_Cut", m_histdirrateratio)->Sumw2();
+    hist("EF_SA_Over_Moore_SA_4GeV_Cut", m_histdirrateratio)->Divide( hist("Number_Of_EF_SA_Muons_4GeV_Cut", m_histdirrate), hist("Number_Of_Moore_SA_Muons_4GeV_Cut", m_histdirrate), 1, 1, "B" );
     
-    hist("EF_CB_Over_Muid_4GeV_Cut", histdirrateratio)    ->Sumw2();
-    hist("EF_CB_Over_Muid_4GeV_Cut", histdirrateratio)    ->Divide( hist("Number_Of_EF_CB_Muons_4GeV_Cut", histdirrate), hist("Number_Of_Muid_Muons_4GeV_Cut", histdirrate), 1, 1, "B" );
+    hist("EF_CB_Over_Muid_4GeV_Cut", m_histdirrateratio)    ->Sumw2();
+    hist("EF_CB_Over_Muid_4GeV_Cut", m_histdirrateratio)    ->Divide( hist("Number_Of_EF_CB_Muons_4GeV_Cut", m_histdirrate), hist("Number_Of_Muid_Muons_4GeV_Cut", m_histdirrate), 1, 1, "B" );
 
     //EF rate pT > 10GeV
-    hist("EF_MS_Over_Moore_MS_10GeV_Cut", histdirrateratio)->Sumw2();
-    hist("EF_MS_Over_Moore_MS_10GeV_Cut", histdirrateratio)->Divide( hist("Number_Of_EF_MS_Muons_10GeV_Cut", histdirrate), hist("Number_Of_Moore_MS_Muons_10GeV_Cut", histdirrate), 1, 1, "B" );
+    hist("EF_MS_Over_Moore_MS_10GeV_Cut", m_histdirrateratio)->Sumw2();
+    hist("EF_MS_Over_Moore_MS_10GeV_Cut", m_histdirrateratio)->Divide( hist("Number_Of_EF_MS_Muons_10GeV_Cut", m_histdirrate), hist("Number_Of_Moore_MS_Muons_10GeV_Cut", m_histdirrate), 1, 1, "B" );
     
-    hist("EF_SA_Over_Moore_SA_10GeV_Cut", histdirrateratio)->Sumw2();
-    hist("EF_SA_Over_Moore_SA_10GeV_Cut", histdirrateratio)->Divide( hist("Number_Of_EF_SA_Muons_10GeV_Cut", histdirrate), hist("Number_Of_Moore_SA_Muons_10GeV_Cut", histdirrate), 1, 1, "B" );
+    hist("EF_SA_Over_Moore_SA_10GeV_Cut", m_histdirrateratio)->Sumw2();
+    hist("EF_SA_Over_Moore_SA_10GeV_Cut", m_histdirrateratio)->Divide( hist("Number_Of_EF_SA_Muons_10GeV_Cut", m_histdirrate), hist("Number_Of_Moore_SA_Muons_10GeV_Cut", m_histdirrate), 1, 1, "B" );
     
-    hist("EF_CB_Over_Muid_10GeV_Cut", histdirrateratio)    ->Sumw2();
-    hist("EF_CB_Over_Muid_10GeV_Cut", histdirrateratio)    ->Divide( hist("Number_Of_EF_CB_Muons_10GeV_Cut", histdirrate), hist("Number_Of_Muid_Muons_10GeV_Cut", histdirrate), 1, 1, "B" );
+    hist("EF_CB_Over_Muid_10GeV_Cut", m_histdirrateratio)    ->Sumw2();
+    hist("EF_CB_Over_Muid_10GeV_Cut", m_histdirrateratio)    ->Divide( hist("Number_Of_EF_CB_Muons_10GeV_Cut", m_histdirrate), hist("Number_Of_Muid_Muons_10GeV_Cut", m_histdirrate), 1, 1, "B" );
 
     //efficiency
-    hist("EFMS_effi_toOffl_pt", histdireff)->Sumw2();
-    hist("EFMS_effi_toOffl_pt", histdireff)->Divide( hist("EFMS_effi_toOffl_pt_numer", histdirmuonef), hist("EFMS_effi_toOffl_pt_denom", histdirmuonef), 1, 1, "B" );
-    hist("EFMS_effi_toOffl_eta", histdireff)->Sumw2();
-    hist("EFMS_effi_toOffl_eta", histdireff)->Divide( hist("EFMS_effi_toOffl_eta_numer", histdirmuonef), hist("EFMS_effi_toOffl_eta_denom", histdirmuonef), 1, 1, "B" );
-    hist("EFMS_effi_toOffl_phi", histdireff)->Sumw2();
-    hist("EFMS_effi_toOffl_phi", histdireff)->Divide( hist("EFMS_effi_toOffl_phi_numer", histdirmuonef), hist("EFMS_effi_toOffl_phi_denom", histdirmuonef), 1, 1, "B" );
+    hist("EFMS_effi_toOffl_pt", m_histdireff)->Sumw2();
+    hist("EFMS_effi_toOffl_pt", m_histdireff)->Divide( hist("EFMS_effi_toOffl_pt_numer", m_histdirmuonef), hist("EFMS_effi_toOffl_pt_denom", m_histdirmuonef), 1, 1, "B" );
+    hist("EFMS_effi_toOffl_eta", m_histdireff)->Sumw2();
+    hist("EFMS_effi_toOffl_eta", m_histdireff)->Divide( hist("EFMS_effi_toOffl_eta_numer", m_histdirmuonef), hist("EFMS_effi_toOffl_eta_denom", m_histdirmuonef), 1, 1, "B" );
+    hist("EFMS_effi_toOffl_phi", m_histdireff)->Sumw2();
+    hist("EFMS_effi_toOffl_phi", m_histdireff)->Divide( hist("EFMS_effi_toOffl_phi_numer", m_histdirmuonef), hist("EFMS_effi_toOffl_phi_denom", m_histdirmuonef), 1, 1, "B" );
 
-    hist("EFSA_effi_toOffl_pt", histdireff)->Sumw2();
-    hist("EFSA_effi_toOffl_pt", histdireff)->Divide( hist("EFSA_effi_toOffl_pt_numer", histdirmuonef), hist("EFSA_effi_toOffl_pt_denom", histdirmuonef), 1, 1, "B" );
-    //hist("EFSA_effi_toOffl_eta", histdireff)->Sumw2();
-    //hist("EFSA_effi_toOffl_eta", histdireff)->Divide( hist("EFSA_effi_toOffl_eta_numer", histdirmuonef), hist("EFSA_effi_toOffl_eta_denom", histdirmuonef), 1, 1, "B" );
-    //hist("EFSA_effi_toOffl_phi", histdireff)->Sumw2();
-    //hist("EFSA_effi_toOffl_phi", histdireff)->Divide( hist("EFSA_effi_toOffl_phi_numer", histdirmuonef), hist("EFSA_effi_toOffl_phi_denom", histdirmuonef), 1, 1, "B" );
+    hist("EFSA_effi_toOffl_pt", m_histdireff)->Sumw2();
+    hist("EFSA_effi_toOffl_pt", m_histdireff)->Divide( hist("EFSA_effi_toOffl_pt_numer", m_histdirmuonef), hist("EFSA_effi_toOffl_pt_denom", m_histdirmuonef), 1, 1, "B" );
+    //hist("EFSA_effi_toOffl_eta", m_histdireff)->Sumw2();
+    //hist("EFSA_effi_toOffl_eta", m_histdireff)->Divide( hist("EFSA_effi_toOffl_eta_numer", m_histdirmuonef), hist("EFSA_effi_toOffl_eta_denom", m_histdirmuonef), 1, 1, "B" );
+    //hist("EFSA_effi_toOffl_phi", m_histdireff)->Sumw2();
+    //hist("EFSA_effi_toOffl_phi", m_histdireff)->Divide( hist("EFSA_effi_toOffl_phi_numer", m_histdirmuonef), hist("EFSA_effi_toOffl_phi_denom", m_histdirmuonef), 1, 1, "B" );
 
-    hist("EFCB_effi_toOffl_pt", histdireff)->Sumw2();
-    hist("EFCB_effi_toOffl_pt", histdireff)->Divide( hist("EFCB_effi_toOffl_pt_numer", histdirmuonef), hist("EFCB_effi_toOffl_pt_denom", histdirmuonef), 1, 1, "B" );
-    //hist("EFCB_effi_toOffl_eta", histdireff)->Sumw2();
-    //hist("EFCB_effi_toOffl_eta", histdireff)->Divide( hist("EFCB_effi_toOffl_eta_numer", histdirmuonef), hist("EFCB_effi_toOffl_eta_denom", histdirmuonef), 1, 1, "B" );
-    //hist("EFCB_effi_toOffl_phi", histdireff)->Sumw2();
-    //hist("EFCB_effi_toOffl_phi", histdireff)->Divide( hist("EFCB_effi_toOffl_phi_numer", histdirmuonef), hist("EFCB_effi_toOffl_phi_denom", histdirmuonef), 1, 1, "B" );
+    hist("EFCB_effi_toOffl_pt", m_histdireff)->Sumw2();
+    hist("EFCB_effi_toOffl_pt", m_histdireff)->Divide( hist("EFCB_effi_toOffl_pt_numer", m_histdirmuonef), hist("EFCB_effi_toOffl_pt_denom", m_histdirmuonef), 1, 1, "B" );
+    //hist("EFCB_effi_toOffl_eta", m_histdireff)->Sumw2();
+    //hist("EFCB_effi_toOffl_eta", m_histdireff)->Divide( hist("EFCB_effi_toOffl_eta_numer", m_histdirmuonef), hist("EFCB_effi_toOffl_eta_denom", m_histdirmuonef), 1, 1, "B" );
+    //hist("EFCB_effi_toOffl_phi", m_histdireff)->Sumw2();
+    //hist("EFCB_effi_toOffl_phi", m_histdireff)->Divide( hist("EFCB_effi_toOffl_phi_numer", m_histdirmuonef), hist("EFCB_effi_toOffl_phi_denom", m_histdirmuonef), 1, 1, "B" );
 
 
     

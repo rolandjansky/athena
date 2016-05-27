@@ -78,7 +78,6 @@
 #include "TH1F.h"
 #include "TH2I.h"
 #include "TH2F.h"
-#include "TGraphAsymmErrors.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -112,105 +111,107 @@ StatusCode HLTMuonMonTool::bookCommonDQA()
 
     ATH_MSG_INFO("start booking Common histograms for newRun");
   
-    addHistogram( new TH1F("Common_Counter",           "Event Counter",  30, 0., 30.), histdir );
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(EVENT+1,"Event");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(MUFAST+1,"muFast");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(MUFASTFOUND+1,"muFast found");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(MUFASTDFOUND+1,"muFast D found");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(MUCOMB+1,"muComb");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(MUCOMBFOUND+1,"muComb found");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(MUISO+1,"muIso");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(MUISOFOUND+1,"muIso found");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(TILEMU+1,"TileMu");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(TILEMUFOUND+1,"TileMu found");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(TILEMUTRACKFOUND+1,"TileMuTrack found");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(MUONEF+1,"MuonEF");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(MUONEFMSFOUND+1,"MuonEF MS found");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(MUONEFSAFOUND+1,"MuonEF SA found");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(MUONEFCBFOUND+1,"MuonEF CB found");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(MUZTP+1,"MuonZTP");
+    addHistogram( new TH1F("HI_PP_Flag", "HI_PP_Flag",4,0,4), m_histdir); 
+    addHistogram( new TH1F("Monitoring_Chain", "Monitoring_Chain",20,0,20), m_histdir);
+    addHistogram( new TH1F("Common_Counter",           "Event Counter",  30, 0., 30.), m_histdir );
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(EVENT+1,"Event");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUFAST+1,"muFast");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUFASTFOUND+1,"muFast found");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUFASTDFOUND+1,"muFast D found");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUCOMB+1,"muComb");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUCOMBFOUND+1,"muComb found");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUISO+1,"muIso");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUISOFOUND+1,"muIso found");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(TILEMU+1,"TileMu");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(TILEMUFOUND+1,"TileMu found");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(TILEMUTRACKFOUND+1,"TileMuTrack found");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUONEF+1,"MuonEF");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUONEFMSFOUND+1,"MuonEF MS found");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUONEFSAFOUND+1,"MuonEF SA found");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUONEFCBFOUND+1,"MuonEF CB found");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUZTP+1,"MuonZTP");
 
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(OFLFOUND+1,"Offline found");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(OFLMSFOUND+1,"Offline MS found");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(OFLSAFOUND+1,"Offline SA found");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(OFLCBFOUND+1,"Offline CB found");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(OFLCBSELFOUND+1,"selected CB found");
-    hist("Common_Counter", histdir)->GetXaxis()->SetBinLabel(OFLLPTFOUND+1,"Offline LPT found");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(OFLFOUND+1,"Offline found");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(OFLMSFOUND+1,"Offline MS found");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(OFLSAFOUND+1,"Offline SA found");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(OFLCBFOUND+1,"Offline CB found");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(OFLCBSELFOUND+1,"selected CB found");
+    hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(OFLLPTFOUND+1,"Offline LPT found");
 
-    hist("Common_Counter", histdir)->GetXaxis()->LabelsOption("v");
+    hist("Common_Counter", m_histdir)->GetXaxis()->LabelsOption("v");
 
-    addHistogram( new TH1F("Number_Of_Events",        "Number_Of_Event; LB ; Events Per 2LBs",  400, 1., 801.), histdirrate );
-    hist( "Number_Of_Events", histdirrate ) -> Sumw2(); 
+    addHistogram( new TH1F("Number_Of_Events",        "Number_Of_Event; LB ; Events Per 2LBs",  400, 1., 801.), m_histdirrate );
+    hist( "Number_Of_Events", m_histdirrate ) -> Sumw2(); 
 
     //pt > 4GeV
-    addHistogram( new TH1F("Number_Of_Moore_MS_Muons_4GeV_Cut", "Number_Of_Moore_MS_Muon_4GeV_Cut; LB ; Moore MS Muons",  400, 1., 801.), histdirrate );
-    addHistogram( new TH1F("Number_Of_Moore_SA_Muons_4GeV_Cut", "Number_Of_Moore_SA_Muon_4GeV_Cut; LB ; Moore SA Muons",  400, 1., 801.), histdirrate );
-    addHistogram( new TH1F("Number_Of_Muid_Muons_4GeV_Cut",     "Number_Of_Muid_Muon_4GeV_Cut; LB ; Muid Muons",  400, 1., 801.), histdirrate );
+    addHistogram( new TH1F("Number_Of_Moore_MS_Muons_4GeV_Cut", "Number_Of_Moore_MS_Muon_4GeV_Cut; LB ; Moore MS Muons",  400, 1., 801.), m_histdirrate );
+    addHistogram( new TH1F("Number_Of_Moore_SA_Muons_4GeV_Cut", "Number_Of_Moore_SA_Muon_4GeV_Cut; LB ; Moore SA Muons",  400, 1., 801.), m_histdirrate );
+    addHistogram( new TH1F("Number_Of_Muid_Muons_4GeV_Cut",     "Number_Of_Muid_Muon_4GeV_Cut; LB ; Muid Muons",  400, 1., 801.), m_histdirrate );
     //pt > 10GeV
-    addHistogram( new TH1F("Number_Of_Moore_MS_Muons_10GeV_Cut", "Number_Of_Moore_MS_Muon_10GeV_Cut; LB ; Moore MS Muons",  400, 1., 801.), histdirrate );
-    addHistogram( new TH1F("Number_Of_Moore_SA_Muons_10GeV_Cut", "Number_Of_Moore_SA_Muon_10GeV_Cut; LB ; Moore SA Muons",  400, 1., 801.), histdirrate );
-    addHistogram( new TH1F("Number_Of_Muid_Muons_10GeV_Cut",     "Number_Of_Muid_Muon_10GeV_Cut; LB ; Muid Muons",  400, 1., 801.), histdirrate );
+    addHistogram( new TH1F("Number_Of_Moore_MS_Muons_10GeV_Cut", "Number_Of_Moore_MS_Muon_10GeV_Cut; LB ; Moore MS Muons",  400, 1., 801.), m_histdirrate );
+    addHistogram( new TH1F("Number_Of_Moore_SA_Muons_10GeV_Cut", "Number_Of_Moore_SA_Muon_10GeV_Cut; LB ; Moore SA Muons",  400, 1., 801.), m_histdirrate );
+    addHistogram( new TH1F("Number_Of_Muid_Muons_10GeV_Cut",     "Number_Of_Muid_Muon_10GeV_Cut; LB ; Muid Muons",  400, 1., 801.), m_histdirrate );
 
-    addHistogram( new TH1F("Offline_Number_Of_Muon",             "Number of Offline Muon; # of Muon; Entries",  11, 0., 11.), histdir  );
-    addHistogram( new TH1F("Offline_Number_Of_MS_Muon",          "Number of Offline MS Muon; # of Muon; Entries",  11, 0., 11.), histdir  );
-    addHistogram( new TH1F("Offline_Number_Of_SA_Muon",          "Number of Offline SA Muon; # of Muon; Entries",  11, 0., 11.), histdir  );
-    addHistogram( new TH1F("Offline_Number_Of_LPT_Muon",         "Number of Offline LPT Muon; # of Muon; Entries",  11, 0., 11.), histdir  );
-    addHistogram( new TH1F("Offline_Number_Of_CB_Muon",          "Number of Offline CB Muon; # of Muon; Entries",  11, 0., 11.), histdir );
-    addHistogram( new TH1F("Offline_Number_Of_Selected_CB_Muon", "Number of Offline Selected CB Muon; # of Muon; Entries",  11, 0., 11.), histdir  );
+    addHistogram( new TH1F("Offline_Number_Of_Muon",             "Number of Offline Muon; # of Muon; Entries",  11, 0., 11.), m_histdir  );
+    addHistogram( new TH1F("Offline_Number_Of_MS_Muon",          "Number of Offline MS Muon; # of Muon; Entries",  11, 0., 11.), m_histdir  );
+    addHistogram( new TH1F("Offline_Number_Of_SA_Muon",          "Number of Offline SA Muon; # of Muon; Entries",  11, 0., 11.), m_histdir  );
+    addHistogram( new TH1F("Offline_Number_Of_LPT_Muon",         "Number of Offline LPT Muon; # of Muon; Entries",  11, 0., 11.), m_histdir  );
+    addHistogram( new TH1F("Offline_Number_Of_CB_Muon",          "Number of Offline CB Muon; # of Muon; Entries",  11, 0., 11.), m_histdir );
+    addHistogram( new TH1F("Offline_Number_Of_Selected_CB_Muon", "Number of Offline Selected CB Muon; # of Muon; Entries",  11, 0., 11.), m_histdir  );
 
     //trigger overlap
     int nbin = m_chainsOverlap.size();
     //std::cout << " m_chainsOverlap.size() " << nbin << std::endl;
 
-    addHistogram( new TH2F("Trigger_Overlap", "Trigger overlap for passed events", nbin , 0., (double)nbin, nbin, 0., (double)nbin ), histdir  );
-    addHistogram( new TH2F("Trigger_Overlap_Including_Passthrough", "Trigger overlap for passed and pass through events",  nbin, 0., (double)nbin, nbin, 0., (double)nbin ), histdir  );
+    addHistogram( new TH2F("Trigger_Overlap", "Trigger overlap for passed events", nbin , 0., (double)nbin, nbin, 0., (double)nbin ), m_histdir  );
+    addHistogram( new TH2F("Trigger_Overlap_Including_Passthrough", "Trigger overlap for passed and pass through events",  nbin, 0., (double)nbin, nbin, 0., (double)nbin ), m_histdir  );
 
-    addHistogram( new TH2F("Trigger_Overlap_Fraction", "Trigger overlap fraction for passed events",  nbin , 0., (double)nbin, nbin, 0., (double)nbin ), histdir  );
-    addHistogram( new TH2F("Trigger_Overlap_Fraction_Including_Passthrough", "Trigger overlap fraction for passed and pass through events", nbin , 0., (double)nbin, nbin, 0., (double)nbin ), histdir  );
+    addHistogram( new TH2F("Trigger_Overlap_Fraction", "Trigger overlap fraction for passed events",  nbin , 0., (double)nbin, nbin, 0., (double)nbin ), m_histdir  );
+    addHistogram( new TH2F("Trigger_Overlap_Fraction_Including_Passthrough", "Trigger overlap fraction for passed and pass through events", nbin , 0., (double)nbin, nbin, 0., (double)nbin ), m_histdir  );
 
     //Trigger aware
     for(int i=0; i < (int)m_chainsOverlap.size(); i++ ){
 
       TString s = m_chainsOverlap[i];
       s.ReplaceAll("HLT_","");
-      hist2( "Trigger_Overlap", histdir   )->GetXaxis()->SetBinLabel( i + 1, s );
-      hist2( "Trigger_Overlap_Including_Passthrough", histdir   )->GetXaxis()->SetBinLabel( i + 1, s );
-      hist2( "Trigger_Overlap_Fraction", histdir   )->GetXaxis()->SetBinLabel( i + 1, s );
-      hist2( "Trigger_Overlap_Fraction_Including_Passthrough", histdir   )->GetXaxis()->SetBinLabel( i + 1, s );
+      hist2( "Trigger_Overlap", m_histdir   )->GetXaxis()->SetBinLabel( i + 1, s );
+      hist2( "Trigger_Overlap_Including_Passthrough", m_histdir   )->GetXaxis()->SetBinLabel( i + 1, s );
+      hist2( "Trigger_Overlap_Fraction", m_histdir   )->GetXaxis()->SetBinLabel( i + 1, s );
+      hist2( "Trigger_Overlap_Fraction_Including_Passthrough", m_histdir   )->GetXaxis()->SetBinLabel( i + 1, s );
 
-      hist2( "Trigger_Overlap", histdir   )->GetYaxis()->SetBinLabel( i + 1, s );
-      hist2( "Trigger_Overlap_Including_Passthrough", histdir   )->GetYaxis()->SetBinLabel( i + 1, s );
-      hist2( "Trigger_Overlap_Fraction", histdir   )->GetYaxis()->SetBinLabel( i + 1, s );
-      hist2( "Trigger_Overlap_Fraction_Including_Passthrough", histdir   )->GetYaxis()->SetBinLabel( i + 1, s );
+      hist2( "Trigger_Overlap", m_histdir   )->GetYaxis()->SetBinLabel( i + 1, s );
+      hist2( "Trigger_Overlap_Including_Passthrough", m_histdir   )->GetYaxis()->SetBinLabel( i + 1, s );
+      hist2( "Trigger_Overlap_Fraction", m_histdir   )->GetYaxis()->SetBinLabel( i + 1, s );
+      hist2( "Trigger_Overlap_Fraction_Including_Passthrough", m_histdir   )->GetYaxis()->SetBinLabel( i + 1, s );
 
     }
 
-    hist2( "Trigger_Overlap", histdir   )->GetXaxis()->LabelsOption("v");
-    hist2( "Trigger_Overlap_Including_Passthrough", histdir   )->GetXaxis()->LabelsOption("v");
-    hist2( "Trigger_Overlap_Fraction", histdir   )->GetXaxis()->LabelsOption("v");
-    hist2( "Trigger_Overlap_Fraction_Including_Passthrough", histdir   )->GetXaxis()->LabelsOption("v");
+    hist2( "Trigger_Overlap", m_histdir   )->GetXaxis()->LabelsOption("v");
+    hist2( "Trigger_Overlap_Including_Passthrough", m_histdir   )->GetXaxis()->LabelsOption("v");
+    hist2( "Trigger_Overlap_Fraction", m_histdir   )->GetXaxis()->LabelsOption("v");
+    hist2( "Trigger_Overlap_Fraction_Including_Passthrough", m_histdir   )->GetXaxis()->LabelsOption("v");
 
-    hist2( "Trigger_Overlap", histdir   )->GetYaxis()->LabelsOption("v");
-    hist2( "Trigger_Overlap_Including_Passthrough", histdir   )->GetYaxis()->LabelsOption("v");
-    hist2( "Trigger_Overlap_Fraction", histdir   )->GetYaxis()->LabelsOption("v");
-    hist2( "Trigger_Overlap_Fraction_Including_Passthrough", histdir   )->GetYaxis()->LabelsOption("v");
+    hist2( "Trigger_Overlap", m_histdir   )->GetYaxis()->LabelsOption("v");
+    hist2( "Trigger_Overlap_Including_Passthrough", m_histdir   )->GetYaxis()->LabelsOption("v");
+    hist2( "Trigger_Overlap_Fraction", m_histdir   )->GetYaxis()->LabelsOption("v");
+    hist2( "Trigger_Overlap_Fraction_Including_Passthrough", m_histdir   )->GetYaxis()->LabelsOption("v");
 
     //label size
-    hist2( "Trigger_Overlap", histdir   )->GetXaxis()->SetLabelSize(0.025);
-    hist2( "Trigger_Overlap_Including_Passthrough", histdir   )->GetXaxis()->SetLabelSize(0.025);
-    hist2( "Trigger_Overlap_Fraction", histdir   )->GetXaxis()->SetLabelSize(0.025);
-    hist2( "Trigger_Overlap_Fraction_Including_Passthrough", histdir   )->GetXaxis()->SetLabelSize(0.025);
+    hist2( "Trigger_Overlap", m_histdir   )->GetXaxis()->SetLabelSize(0.025);
+    hist2( "Trigger_Overlap_Including_Passthrough", m_histdir   )->GetXaxis()->SetLabelSize(0.025);
+    hist2( "Trigger_Overlap_Fraction", m_histdir   )->GetXaxis()->SetLabelSize(0.025);
+    hist2( "Trigger_Overlap_Fraction_Including_Passthrough", m_histdir   )->GetXaxis()->SetLabelSize(0.025);
 
-    hist2( "Trigger_Overlap", histdir   )->GetYaxis()->SetLabelSize(0.025);
-    hist2( "Trigger_Overlap_Including_Passthrough", histdir   )->GetYaxis()->SetLabelSize(0.025);
-    hist2( "Trigger_Overlap_Fraction", histdir   )->GetYaxis()->SetLabelSize(0.025);
-    hist2( "Trigger_Overlap_Fraction_Including_Passthrough", histdir   )->GetYaxis()->SetLabelSize(0.025);
+    hist2( "Trigger_Overlap", m_histdir   )->GetYaxis()->SetLabelSize(0.025);
+    hist2( "Trigger_Overlap_Including_Passthrough", m_histdir   )->GetYaxis()->SetLabelSize(0.025);
+    hist2( "Trigger_Overlap_Fraction", m_histdir   )->GetYaxis()->SetLabelSize(0.025);
+    hist2( "Trigger_Overlap_Fraction_Including_Passthrough", m_histdir   )->GetYaxis()->SetLabelSize(0.025);
 
     //marker size (text size = 0.02*padheight*markersize)
-    hist2( "Trigger_Overlap", histdir   )->SetMarkerSize(0.6);
-    hist2( "Trigger_Overlap_Including_Passthrough", histdir   )->SetMarkerSize(0.6);
-    hist2( "Trigger_Overlap_Fraction", histdir   )->SetMarkerSize(0.6);
-    hist2( "Trigger_Overlap_Fraction_Including_Passthrough", histdir   )->SetMarkerSize(0.6);
+    hist2( "Trigger_Overlap", m_histdir   )->SetMarkerSize(0.6);
+    hist2( "Trigger_Overlap_Including_Passthrough", m_histdir   )->SetMarkerSize(0.6);
+    hist2( "Trigger_Overlap_Fraction", m_histdir   )->SetMarkerSize(0.6);
+    hist2( "Trigger_Overlap_Fraction_Including_Passthrough", m_histdir   )->SetMarkerSize(0.6);
 
     //Trigger aware
     for(std::map<std::string, std::string>::iterator  it=m_ztpmap.begin(); it != m_ztpmap.end() ; it++ ){
@@ -218,51 +219,51 @@ StatusCode HLTMuonMonTool::bookCommonDQA()
       std::string name     = "Number_Of_"+ it->second + "_Passed_Events" ;
       std::string nameaxis = name + "; LB ; Events" ;
 
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), 400, 1., 801.),histdirrate );
-      hist( name, histdirrate ) -> Sumw2(); 
+      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), 400, 1., 801.),m_histdirrate );
+      hist( name, m_histdirrate ) -> Sumw2(); 
 
       name     = it->second + "_Triggers_Rate" ;
       nameaxis = name + "; LB ; Trigger Rate [Hz]" ;
 
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), 400, 1., 801.),histdirrate );
-      hist( name, histdirrate ) -> Sumw2(); 
+      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), 400, 1., 801.),m_histdirrate );
+      hist( name, m_histdirrate ) -> Sumw2(); 
 
       name     = it->second + "_Triggers_Per_Event" ;
       nameaxis = name + "; LB ; Triggers per Event" ;
 
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), 400, 1., 801.),histdirrateratio );
-      hist( name, histdirrateratio ) -> Sumw2(); 
+      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), 400, 1., 801.),m_histdirrateratio );
+      hist( name, m_histdirrateratio ) -> Sumw2(); 
 
     }
 
     //ES trigger counter
     nbin = m_allESchain.size();
-    addHistogram( new TH1F("Number_Of_ES_Triggers",     "Number_Of_ES_Triggers;; Entries", nbin , 0., (double)nbin), histdir );
+    addHistogram( new TH1F("Number_Of_ES_Triggers",     "Number_Of_ES_Triggers;; Entries", nbin , 0., (double)nbin), m_histdir );
 
     for(int i=0; i < (int)m_allESchain.size(); i++ ){
 
       TString s = m_allESchain[i];
       s.ReplaceAll("HLT_","");
-      hist( "Number_Of_ES_Triggers", histdir   )->GetXaxis()->SetBinLabel( i + 1, s );
+      hist( "Number_Of_ES_Triggers", m_histdir   )->GetXaxis()->SetBinLabel( i + 1, s );
      
     }
 
 
     std::string name     = "L1_MUB_L1_MUE_match_muon_RoIs";
     std::string nameaxis = name + "; category(1-4 good) ; Events" ;
-    addHistogram(new TH1F(name.c_str(), nameaxis.c_str(), 8, 0.5, 8.5), histdirrate);
+    addHistogram(new TH1F(name.c_str(), nameaxis.c_str(), 8, 0.5, 8.5), m_histdirrate);
 
     // 2D eta-phi histograms for L1RoI 
     name     = "L1RoI_etaphi";
     nameaxis = name + "; #eta; #phi";
-    int eta_nbins = 108;
+    int eta_nbins = 54;
     float eta_range = 2.7;
-    int phi_bins = 96;
+    int phi_bins = 64;
     float phi_range = CLHEP::pi;
 
     addHistogram( new TH2F( name.c_str(), nameaxis.c_str(),
-      		      eta_nbins, -eta_range, eta_range, phi_bins, -phi_range, phi_range), histdirdist2d);
-    hist2(name, histdirdist2d)->Sumw2();
+      		      eta_nbins, -eta_range, eta_range, phi_bins, -phi_range, phi_range), m_histdirdist2d);
+    hist2(name, m_histdirdist2d)->Sumw2();
 
 
     ATH_MSG_INFO("finished booking Common histograms for newRun");
@@ -393,49 +394,34 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
 
     //ES, trigger not-aware
     for (int i = 0; i <= m_maxESbr; i++) {
-      if(!MS_mon_ESbr[i])continue; 
+      if(!m_MS_mon_ESbr[i])continue; 
       name     = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA_Denominator";
       nameaxis = name + "; Muid SA pT (GeV); Events";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-      hist(name, histdireffnumdenom)->Sumw2();
+      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+      hist(name, m_histdireffnumdenom)->Sumw2();
 
       // New L1 eff. turn-on curves
       name     = chainName + m_triggerES[i] + "_L1" + "_Turn_On_Curve_wrt_MuidSA";
       nameaxis = name + "; Muid SA pT (GeV); Efficiency";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-      hist(name, histdireff)->Sumw2();
+      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+      hist(name, m_histdireff)->Sumw2();
       
-      // added for base release <- uncommented by YY 12.04.10
-      TGraphAsymmErrors* g = new TGraphAsymmErrors();
-      g->SetName( (name + "_Fit").c_str() );
-      g->SetMarkerStyle(22);
-      g->SetMaximum(1.05);
-      addGraph( g, histdireff );
-      // YY end
-
       for (int be = 0; be < 2; be++) {
 	name     = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA" + bestr[be] + "_Denominator";
 	nameaxis = name + "; Muid CB pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+	hist(name, m_histdireffnumdenom)->Sumw2();
 
 	name     = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
 	nameaxis = name + "; Muid CB pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+	hist(name, m_histdireffnumdenom)->Sumw2();
 
 	name     = chainName + m_triggerES[i] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidSA";
 	nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	hist(name, histdireff)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+	hist(name, m_histdireff)->Sumw2();
 	
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors* g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, histdireff );
-	// YY end
       }
     }
 
@@ -454,15 +440,15 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
      if( ihpt > 0 ) continue; 
       name     = chainName + "_Turn_On_Curve_wrt_MuidSA_Denominator";
       nameaxis = name + "; Muid SA pT (GeV); Events";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-      hist(name, histdireffnumdenom)->Sumw2();
+      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+      hist(name, m_histdireffnumdenom)->Sumw2();
 
       // Barrel/endcap (YY 27.05.10) - Monitoring MuFast, MuonEFSA wrt offline
       for (int be = 0; be < 2; be++) {
 	name     = chainName + "_Turn_On_Curve_wrt_MuidSA" + bestr[be] + "_Denominator";
 	nameaxis = name + "; Muid SA pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+	hist(name, m_histdireffnumdenom)->Sumw2();
       }
     }
 
@@ -490,40 +476,23 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
 	
 	name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
 	nameaxis = name + "; Muid SA pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+	hist(name, m_histdireffnumdenom)->Sumw2();
 	
 	name     = chainName + monalg[alg] + "_Turn_On_Curve_Numerator";
 	nameaxis = name + "; Muid SA pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+	hist(name, m_histdireffnumdenom)->Sumw2();
 	
 	name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidSA";
 	nameaxis = name + "; Muid SA pT (GeV); Efficiency";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	hist(name, histdireff)->Sumw2();
-	
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors* g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, histdireff );
-	// YY end
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+	hist(name, m_histdireff)->Sumw2();
 	
 	name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
 	nameaxis = name + "; Muid SA pT (GeV); Efficiency";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	hist(name, histdireff)->Sumw2();
-	
-	// added for base release <- uncommented by YY 12.04.10
-	g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, histdireff );
-	// YY end
-	
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+	hist(name, m_histdireff)->Sumw2();
       }
       
       chainName = cName;
@@ -532,46 +501,30 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
       
       // ES histograms
       for (int i = 0; i <= m_maxESbr; i++) {
-        if(!MS_mon_ESbr[i])continue; 
+        if(!m_MS_mon_ESbr[i])continue; 
 	name     = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
 	nameaxis = name + "; Muid SA pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+	hist(name, m_histdireffnumdenom)->Sumw2();
 	
 	name     = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
 	nameaxis = name + "; Muid SA pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+	hist(name, m_histdireffnumdenom)->Sumw2();
 	
 	name     = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt_MuidSA";
 	nameaxis = name + "; Muid SA pT (GeV); Efficiency";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	hist(name, histdireff)->Sumw2();
-	
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors* g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, histdireff );
-	// YY end
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+	hist(name, m_histdireff)->Sumw2();
       }
       
 
       for (int i = 0; i <= m_maxESbr; i++) {
-        if(!MS_mon_ESbr[i])continue; 
+        if(!m_MS_mon_ESbr[i])continue; 
 	name     = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
 	nameaxis = name + "; Muid SA pT (GeV); Efficiency";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	hist(name, histdireff)->Sumw2();
-
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors* g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, histdireff );
-	// YY end
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+	hist(name, m_histdireff)->Sumw2();
       }
       
       // Barrel/endcap (YY 27.05.10) - Monitoring MuFast, MuonEFSA wrt upstream / offline
@@ -593,36 +546,23 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
 	  for (int be = 0; be < 2; be++) {
 	    name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be] + "_Denominator";
 	    nameaxis = name + "; Muid SA pT (GeV); Events";
-	    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	    hist(name, histdireffnumdenom)->Sumw2();
+	    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+	    hist(name, m_histdireffnumdenom)->Sumw2();
 
 	    name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be];
 	    nameaxis = name + "; Muid SA pT (GeV); Efficiency";
-	    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	    hist(name, histdireff)->Sumw2();
+	    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+	    hist(name, m_histdireff)->Sumw2();
 
-	    TGraphAsymmErrors* g = new TGraphAsymmErrors();
-	    g->SetName( (name + "_Fit").c_str() );
-	    g->SetMarkerStyle(22);
-	    g->SetMaximum(1.05);
-	    addGraph( g, histdireff );
-      
 	    name     = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
 	    nameaxis = name + "; Muid SA pT (GeV); Events";
-	    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	    hist(name, histdireffnumdenom)->Sumw2();
+	    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+	    hist(name, m_histdireffnumdenom)->Sumw2();
       
 	    name     = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidSA";
 	    nameaxis = name + "; Muid SA pT (GeV); Efficiency";
-	    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	    hist(name, histdireff)->Sumw2();
-
-	    g = new TGraphAsymmErrors();
-	    g->SetName( (name + "_Fit").c_str() );
-	    g->SetMarkerStyle(22);
-	    g->SetMaximum(1.05);
-	    addGraph( g, histdireff );
-
+	    addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+	    hist(name, m_histdireff)->Sumw2();
 	  }
 	}
       }
@@ -635,25 +575,25 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
       name     = chainName + monalg[alg] + "_etaphi_wrt_MuidCB";
       nameaxis = name + "; #eta; #phi";
       addHistogram( new TH2F( name.c_str(), nameaxis.c_str(),
-			      eta_nbins, -eta_range, eta_range, phi_bins, -phi_range, phi_range), histdirdist2d);
-      hist2(name, histdirdist2d)->Sumw2();
+			      eta_nbins, -eta_range, eta_range, phi_bins, -phi_range, phi_range), m_histdirdist2d);
+      hist2(name, m_histdirdist2d)->Sumw2();
 
       // coarse histograms
       name     = chainName + monalg[alg] + "_etaphi_coarse_wrt_MuidCB";
       nameaxis = name + "; #eta; #phi";
       addHistogram( new TH2F( name.c_str(), nameaxis.c_str(),
-			      eta_cnbins, bins_eta, phi_cnbins, bins_phi), histdirdist2d);
-      hist2(name, histdirdist2d)->Sumw2();
+			      s_eta_cnbins, m_bins_eta, s_phi_cnbins, m_bins_phi), m_histdirdist2d);
+      hist2(name, m_histdirdist2d)->Sumw2();
       name     = chainName + monalg[alg] + "_etaphi_coarse1d_wrt_MuidCB";
       nameaxis = name + "; (i_bin#phi * N_#eta + i_bin#eta); Number of events / area";
       addHistogram( new TH1F( name.c_str(), nameaxis.c_str(),
-			      eta_cnbins * phi_cnbins, 0., (Double_t)(eta_cnbins * eta_cnbins)), histdirdist2d);
-      hist(name, histdirdist2d)->Sumw2();
+			      s_eta_cnbins * s_phi_cnbins, 0., (Double_t)(s_eta_cnbins * s_eta_cnbins)), m_histdirdist2d);
+      hist(name, m_histdirdist2d)->Sumw2();
 
       if( alg==2 )continue;
       name     = chainName + "_deltaR_btw_L1_MuidSA_For" + monalg[alg];
       nameaxis = name + "; deltaR; Events";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), dr_nbins, dr_min, dr_max ), histdireffnumdenom );
+      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), dr_nbins, dr_min, dr_max ), m_histdireffnumdenom );
 
 
     }
@@ -663,8 +603,8 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
     for (std::vector<std::string>::const_iterator itr = m_vectkwd.begin(); itr < m_vectkwd.end(); itr++) {
       name = chainName + "_highpt_effsummary_by" + *itr;
       nameaxis = name + "; Algorithm ; Efficiency 60-100GeV"; 
-      addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 0.5+fEFSA), histdireff);
-      TH1 *h = hist(name, histdireff);
+      addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 0.5+m_fEFSA), m_histdireff);
+      TH1 *h = hist(name, m_histdireff);
       h->GetXaxis()->SetBinLabel(iMuFast+1, "MuFast");
       h->GetXaxis()->SetBinLabel(iEFSA+1, "EF SA");
     }
@@ -672,8 +612,8 @@ StatusCode HLTMuonMonTool::bookChainDQA_MSonly(const std::string& cName )
     // High-pt 3-bin summary:
     name = chainName + "_highpt3bins_effwrtL1";
     nameaxis = name + "; pt bins; efficiency";
-    addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), histdireff);
-    TH1 *h = hist(name, histdireff);
+    addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), m_histdireff);
+    TH1 *h = hist(name, m_histdireff);
     h->GetXaxis()->SetBinLabel(1, "50-100 GeV Z T&P");
     h->GetXaxis()->SetBinLabel(2, "100-500 GeV Z T&P");
     
@@ -726,129 +666,99 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
 
        //*****************************************//
         // add by Yuan :  to book the histogram //
-    std::string m_bestr[2] = {"_Barrel", "_Endcap"};
+    std::string bestr[2] = {"_Barrel", "_Endcap"};
 
     if(chainName.find("EFFS")!= string::npos){
 
 	// require one muon match with the pre_trigger ROI
         name = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-        hist(name, histdireffnumdenom)->Sumw2();
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+        hist(name, m_histdireffnumdenom)->Sumw2();
     
         name = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-        hist(name, histdireffnumdenom)->Sumw2();
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+        hist(name, m_histdireffnumdenom)->Sumw2();
     
         name = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-        hist(name, histdireff)->Sumw2();
-
-        TGraphAsymmErrors* g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, histdireff );
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+        hist(name, m_histdireff)->Sumw2();
 
 	// require one muon match with the pre_trigger ROI,  mu  <= 15
         name = chainName + "_tagEFFSpre_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-        hist(name, histdireffnumdenom)->Sumw2();
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+        hist(name, m_histdireffnumdenom)->Sumw2();
     
         name = chainName + "_tagEFFSpre_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-        hist(name, histdireffnumdenom)->Sumw2();
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+        hist(name, m_histdireffnumdenom)->Sumw2();
     
         name = chainName + "_tagEFFSpre_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-        hist(name, histdireff)->Sumw2();
-
-        g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, histdireff );
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+        hist(name, m_histdireff)->Sumw2();
 
 	// require one muon match with the pre_trigger ROI,  15 < mu  < 20 
         name = chainName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-        hist(name, histdireffnumdenom)->Sumw2();
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+        hist(name, m_histdireffnumdenom)->Sumw2();
     
         name = chainName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-        hist(name, histdireffnumdenom)->Sumw2();
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+        hist(name, m_histdireffnumdenom)->Sumw2();
     
         name = chainName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-        hist(name, histdireff)->Sumw2();
-
-        g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, histdireff );
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+        hist(name, m_histdireff)->Sumw2();
 
 	// require one muon match with the pre_trigger ROI,  20 < mu  
         name = chainName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-        hist(name, histdireffnumdenom)->Sumw2();
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+        hist(name, m_histdireffnumdenom)->Sumw2();
     
         name = chainName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-        hist(name, histdireffnumdenom)->Sumw2();
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+        hist(name, m_histdireffnumdenom)->Sumw2();
     
         name = chainName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-        hist(name, histdireff)->Sumw2();
-
-        g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, histdireff );
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+        hist(name, m_histdireff)->Sumw2();
 
         // FS trigger efficiency summary for different mu range 
         name = chainName + "_EFplateau_wrtOffline_mu_dependence";
         nameaxis = name + "; <#mu>; efficiency";
-        addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 3, -0.5, 2.5), histdireff);
-        TH1 *h = hist(name, histdireff);
+        addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 3, -0.5, 2.5), m_histdireff);
+        TH1 *h = hist(name, m_histdireff);
         h->GetXaxis()->SetBinLabel(1, "#mu <= 15");
         h->GetXaxis()->SetBinLabel(2, "15 < #mu <= 20");
         h->GetXaxis()->SetBinLabel(3, "#mu > 20");
 
 	// check the efficiency separately for barrel and endcap region
        for(int be = 0; be < 2; be++){
-         name     = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[be] + "_Denominator";
+         name     = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + bestr[be] + "_Denominator";
          nameaxis = name + "; Muid CB pT (GeV); Events";
-         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-         hist(name, histdireffnumdenom)->Sumw2();
+         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+         hist(name, m_histdireffnumdenom)->Sumw2();
 
-         name     = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[be] + "_Numerator";
+         name     = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + bestr[be] + "_Numerator";
          nameaxis = name + "; Muid CB pT (GeV); Events";
-         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-         hist(name, histdireffnumdenom)->Sumw2();
+         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+         hist(name, m_histdireffnumdenom)->Sumw2();
 
-         name     = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[be];
+         name     = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + bestr[be];
          nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-         hist(name, histdireff)->Sumw2();
-
-	 g = new TGraphAsymmErrors();
-	 g->SetName( (name + "_Fit").c_str() );
-	 g->SetMarkerStyle(22);
-	 g->SetMaximum(1.05);
-	 addGraph( g, histdireff );
+         addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+         hist(name, m_histdireff)->Sumw2();
 
        }
 
@@ -856,92 +766,66 @@ StatusCode HLTMuonMonTool::bookChainDQA_standard(const std::string& cName )
         // FS trigger efficiency summary for barrel and endcap
         name = chainName + "_EFplateau_wrtOffline";
         nameaxis = name + "; region; efficiency";
-        addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), histdireff);
-        h = hist(name, histdireff);
+        addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), m_histdireff);
+        h = hist(name, m_histdireff);
         h->GetXaxis()->SetBinLabel(1, "Barrel 10-100 GeV");
         h->GetXaxis()->SetBinLabel(2, "Endcap 10-100 GeV");
 
 	// not requiring one muon match with the pre_trigger ROI, only check the efficiency vs subleading pT muon
         name = chainName + "_Turn_On_Curve_wrt_subleading_MuidCB" + "_Denominator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-        hist(name, histdireffnumdenom)->Sumw2();
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+        hist(name, m_histdireffnumdenom)->Sumw2();
     
         name = chainName + "_Turn_On_Curve_wrt_subleading_MuidCB" + "_Numerator";
         nameaxis = name + "; Muid CB pT (GeV); Events";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-        hist(name, histdireffnumdenom)->Sumw2();
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+        hist(name, m_histdireffnumdenom)->Sumw2();
       
         name = chainName + "_Turn_On_Curve_wrt_subleading_MuidCB";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-        hist(name, histdireff)->Sumw2();
-
-        g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, histdireff );
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+        hist(name, m_histdireff)->Sumw2();
 
 	// pseudo T&P method to check the pre trigger efficiency 
         name = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB_Denominator";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-        hist(name, histdireffnumdenom)->Sumw2();
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+        hist(name, m_histdireffnumdenom)->Sumw2();
 
         name = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB_Numerator";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-        hist(name, histdireffnumdenom)->Sumw2();
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+        hist(name, m_histdireffnumdenom)->Sumw2();
 
         name = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff);
-        hist(name, histdireff)->Sumw2();
-
-        g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, histdireff );
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff);
+        hist(name, m_histdireff)->Sumw2();
 
 	// pseudo T&P method to check the pre trigger efficiency w.r.t L1
         name = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB_Denominator";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-        hist(name, histdireffnumdenom)->Sumw2();
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+        hist(name, m_histdireffnumdenom)->Sumw2();
 
         name = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB_Numerator";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-        hist(name, histdireffnumdenom)->Sumw2();
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+        hist(name, m_histdireffnumdenom)->Sumw2();
 
         name = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff);
-        hist(name, histdireff)->Sumw2();
-
-        g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, histdireff );
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff);
+        hist(name, m_histdireff)->Sumw2();
 
         // pseudo T&P method to check the pre trigger L1 efficiency w.r.t offline 
         name = "EFFSpre_dimuonTP_L1_Turn_On_Curve_wrt_probe_MuidCB";
         nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff);
-        hist(name, histdireff)->Sumw2();
-
-        g = new TGraphAsymmErrors();
-        g->SetName( (name + "_Fit").c_str() );
-        g->SetMarkerStyle(22);
-        g->SetMaximum(1.05);
-        addGraph( g, histdireff );
-
+        addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff);
+        hist(name, m_histdireff)->Sumw2();
 
         return StatusCode::SUCCESS;
-
     }
         //*****************************************//
 
@@ -1031,49 +915,34 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 
     // for ES
     for (int i = 0; i <= m_maxESbr; i++) {
-      if(!CB_mon_ESbr[i])continue; 
+      if(!m_CB_mon_ESbr[i])continue; 
       name     = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
       nameaxis = name + "; Muid CB pT (GeV); Events";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-      hist(name, histdireffnumdenom)->Sumw2();
+      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+      hist(name, m_histdireffnumdenom)->Sumw2();
       
       // New L1 eff. turn-on curves
       name     = chainName + m_triggerES[i] + "_L1" + "_Turn_On_Curve_wrt_MuidCB";
       nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-      hist(name, histdireff)->Sumw2();
+      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+      hist(name, m_histdireff)->Sumw2();
       
-      // added for base release <- uncommented by YY 12.04.10
-      TGraphAsymmErrors* g = new TGraphAsymmErrors();
-      g->SetName( (name + "_Fit").c_str() );
-      g->SetMarkerStyle(22);
-      g->SetMaximum(1.05);
-      addGraph( g, histdireff );
-      // YY end
-
       for (int be = 0; be < 2; be++) {
 	name     = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
 	nameaxis = name + "; Muid CB pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+	hist(name, m_histdireffnumdenom)->Sumw2();
 
 	name     = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
 	nameaxis = name + "; Muid CB pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+	hist(name, m_histdireffnumdenom)->Sumw2();
 
 	name     = chainName + m_triggerES[i] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
 	nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	hist(name, histdireff)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+	hist(name, m_histdireff)->Sumw2();
 	
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors* g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, histdireff );
-	// YY end
       }
     }
     
@@ -1103,15 +972,15 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
       //trigger not-aware
       name     = chainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
       nameaxis = name + "; Muid CB pT (GeV); Events";
-      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-      hist(name, histdireffnumdenom)->Sumw2();
+      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+      hist(name, m_histdireffnumdenom)->Sumw2();
 
       // Barrel/endcap (YY 20.05.10) - Monitoring MuFast, MuComb, MuonEFCB wrt offline
       for (int be = 0; be < 2; be++) {
 	name     = chainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
 	nameaxis = name + "; Muid CB pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+	hist(name, m_histdireffnumdenom)->Sumw2();
       }
     }
 
@@ -1146,47 +1015,31 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 
 	name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
 	nameaxis = name + "; Muid CB pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+	hist(name, m_histdireffnumdenom)->Sumw2();
 	
 	// YY 20.05.10 - booking histos below, which been perhaps missing?
 	// name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
 	// nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-	// addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	// hist(name, histdireff)->Sumw2();
+	// addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+	// hist(name, m_histdireff)->Sumw2();
 
 	name     = chainName + monalg[alg] + "_Turn_On_Curve_Numerator";
 	nameaxis = name + "; Muid CB pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+	hist(name, m_histdireffnumdenom)->Sumw2();
 	
 	name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
 	nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	hist(name, histdireff)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+	hist(name, m_histdireff)->Sumw2();
 	
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors* g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, histdireff );
-	// YY end
-
 	name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
 	nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	hist(name, histdireff)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+	hist(name, m_histdireff)->Sumw2();
 	
-	// added for base release <- uncommented by YY 12.04.10
-	g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, histdireff );
-	// YY end
       }
-
 
       // Reset necessary inside the loop ....
       chainName = cName;
@@ -1197,47 +1050,33 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 
       // for ES
       for (int i = 0; i <= m_maxESbr; i++) {
-        if(!CB_mon_ESbr[i])continue; 
+        if(!m_CB_mon_ESbr[i])continue; 
 	
 	name     = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
 	nameaxis = name + "; Muid CB pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+	hist(name, m_histdireffnumdenom)->Sumw2();
 	
 	name     = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
 	nameaxis = name + "; Muid CB pT (GeV); Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	hist(name, histdireffnumdenom)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+	hist(name, m_histdireffnumdenom)->Sumw2();
 	
 	name     = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
 	nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	hist(name, histdireff)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+	hist(name, m_histdireff)->Sumw2();
 
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors *g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, histdireff );
-	// YY end
       }
 
 
       for (int i = 0; i <= m_maxESbr; i++) {
-        if(!CB_mon_ESbr[i])continue; 
+        if(!m_CB_mon_ESbr[i])continue; 
 	name     = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
 	nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	hist(name, histdireff)->Sumw2();
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+	hist(name, m_histdireff)->Sumw2();
 	
-	// added for base release <- uncommented by YY 12.04.10
-	TGraphAsymmErrors *g = new TGraphAsymmErrors();
-	g->SetName( (name + "_Fit").c_str() );
-	g->SetMarkerStyle(22);
-	g->SetMaximum(1.05);
-	addGraph( g, histdireff );
-	// YY end
       }
       
 
@@ -1271,35 +1110,24 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	for (int be = 0; be < 2; be++) {
 	  name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be] + "_Denominator";
 	  nameaxis = name + "; Muid CB pT (GeV); Events";
-	  addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	  hist(name, histdireffnumdenom)->Sumw2();
+	  addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+	  hist(name, m_histdireffnumdenom)->Sumw2();
 	  
 	  name     = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be];
 	  nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-	  addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	  hist(name, histdireff)->Sumw2();
+	  addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+	  hist(name, m_histdireff)->Sumw2();
 
-	  TGraphAsymmErrors *g = new TGraphAsymmErrors();
-	  g->SetName( (name + "_Fit").c_str() );
-	  g->SetMarkerStyle(22);
-	  g->SetMaximum(1.05);
-	  addGraph( g, histdireff );
-	  
 	  name     = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
 	  nameaxis = name + "; Muid CB pT (GeV); Events";
-	  addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireffnumdenom );
-	  hist(name, histdireffnumdenom)->Sumw2();
+	  addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireffnumdenom );
+	  hist(name, m_histdireffnumdenom)->Sumw2();
 	    
 	  name     = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
 	  nameaxis = name + "; Muid CB pT (GeV); Efficiency";
-	  addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdireff );
-	  hist(name, histdireff)->Sumw2();
+	  addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdireff );
+	  hist(name, m_histdireff)->Sumw2();
 	  
-	  g = new TGraphAsymmErrors();
-	  g->SetName( (name + "_Fit").c_str() );
-	  g->SetMarkerStyle(22);
-	  g->SetMaximum(1.05);
-	  addGraph( g, histdireff );
 	}
       }
 
@@ -1312,37 +1140,37 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
       name     = chainName + monalg[alg] + "_etaphi_wrt_MuidCB";
       nameaxis = name + "; #eta; #phi";
       addHistogram( new TH2F( name.c_str(), nameaxis.c_str(),
-			      eta_nbins, -eta_range, eta_range, phi_bins, -phi_range, phi_range), histdirdist2d);
-      hist2(name, histdirdist2d)->Sumw2();
+			      eta_nbins, -eta_range, eta_range, phi_bins, -phi_range, phi_range), m_histdirdist2d);
+      hist2(name, m_histdirdist2d)->Sumw2();
 
       name     = chainName + monalg[alg] + "_etaphi_coarse_wrt_MuidCB";
       nameaxis = name + "; #eta; #phi";
       addHistogram( new TH2F( name.c_str(), nameaxis.c_str(),
-			      eta_cnbins, bins_eta, phi_cnbins, bins_phi), histdirdist2d);
-      hist2(name, histdirdist2d)->Sumw2();
+			      s_eta_cnbins, m_bins_eta, s_phi_cnbins, m_bins_phi), m_histdirdist2d);
+      hist2(name, m_histdirdist2d)->Sumw2();
       name     = chainName + monalg[alg] + "_etaphi_coarse1d_wrt_MuidCB";
       nameaxis = name + "; (i_bin#phi * N_#eta + i_bin#eta); Number of events / area";
       addHistogram( new TH1F( name.c_str(), nameaxis.c_str(),
-			      eta_cnbins * phi_cnbins, 0., (Double_t)(eta_cnbins * eta_cnbins)), histdirdist2d);
-      hist(name, histdirdist2d)->Sumw2();
+			      s_eta_cnbins * s_phi_cnbins, 0., (Double_t)(s_eta_cnbins * s_eta_cnbins)), m_histdirdist2d);
+      hist(name, m_histdirdist2d)->Sumw2();
 
       // YY: 1D eta-phi histogram added for mufast
       if (alg == 0) {
 	name     = chainName + monalg[alg] + "_eta_wrt_MuidCB";
 	nameaxis = name + "; #eta";
-	addHistogram(new TH1F(name.c_str(), nameaxis.c_str(), eta_nbins, -eta_range, eta_range), histdirdist2d);
-	hist(name, histdirdist2d)->Sumw2();
+	addHistogram(new TH1F(name.c_str(), nameaxis.c_str(), eta_nbins, -eta_range, eta_range), m_histdirdist2d);
+	hist(name, m_histdirdist2d)->Sumw2();
 	name     = chainName + monalg[alg] + "_phi_wrt_MuidCB";
 	nameaxis = name + "; #phi";
-	addHistogram(new TH1F(name.c_str(), nameaxis.c_str(), phi_bins, -phi_range, phi_range), histdirdist2d);
-	hist(name, histdirdist2d)->Sumw2();
+	addHistogram(new TH1F(name.c_str(), nameaxis.c_str(), phi_bins, -phi_range, phi_range), m_histdirdist2d);
+	hist(name, m_histdirdist2d)->Sumw2();
       }
 
       // if( alg != 0 && alg != 2 )continue;
       if ( alg == 0 || alg == 2 ) {
 	name     = chainName + "_deltaR_btw_L1_MuidCB_For" + monalg[alg];
 	nameaxis = name + "; deltaR; Events";
-	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), dr_nbins, dr_min, dr_max ), histdireffnumdenom );
+	addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), dr_nbins, dr_min, dr_max ), m_histdireffnumdenom );
       }
     }
 
@@ -1351,19 +1179,19 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
     for (int imtyp = 0; imtyp < 4; imtyp++) {
       name = chainName + m_EFAlgName[imtyp] + "_pt_wrt_MuidCB";
       nameaxis  = name + "; pT; Events";
-      addHistogram( new TH1F(name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), histdirdist2d);
+      addHistogram( new TH1F(name.c_str(), nameaxis.c_str(), pt_nbins, pt_bins), m_histdirdist2d);
       name = chainName + m_EFAlgName[imtyp] + "_eta_wrt_MuidCB";
       nameaxis  = name + "; #eta; Events";
-      addHistogram( new TH1F(name.c_str(), nameaxis.c_str(), eta_nbins, -eta_range, eta_range), histdirdist2d);
+      addHistogram( new TH1F(name.c_str(), nameaxis.c_str(), eta_nbins, -eta_range, eta_range), m_histdirdist2d);
       name = chainName + m_EFAlgName[imtyp] + "_phi_wrt_MuidCB";
       nameaxis  = name + "; #phi; Events";
-      addHistogram( new TH1F(name.c_str(), nameaxis.c_str(), phi_bins, -phi_range, phi_range), histdirdist2d);
+      addHistogram( new TH1F(name.c_str(), nameaxis.c_str(), phi_bins, -phi_range, phi_range), m_histdirdist2d);
     }
 
     name = chainName + "_EFMuonType_wrt_MuidCB";
     nameaxis = name + "; Algorithm; Events";
-    addHistogram(new TH1F(name.c_str(), nameaxis.c_str(), 3, 0.5, 3.5), histdirdist2d);
-    TH1 *hhh = hist(name, histdirdist2d);
+    addHistogram(new TH1F(name.c_str(), nameaxis.c_str(), 3, 0.5, 3.5), m_histdirdist2d);
+    TH1 *hhh = hist(name, m_histdirdist2d);
     // hhh->GetXaxis()->SetBinLabel(1, "iPt = 0");
     hhh->GetXaxis()->SetBinLabel(1, m_EFAlgName[0].c_str());
     hhh->GetXaxis()->SetBinLabel(2, m_EFAlgName[1].c_str());
@@ -1373,11 +1201,11 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 
     //    for (std::vector<std::string>::const_iterator itr = m_vectkwd.begin(); itr < m_vectkwd.end(); itr++) {
     for (int ies = 0; ies <= m_maxESbr; ies++) {
-      if(!CB_mon_ESbr[ies])continue; 
+      if(!m_CB_mon_ESbr[ies])continue; 
       name = chainName + "_highpt_effsummary_by" + m_triggerES[ies]; // for generic: make summary for all histograms
       nameaxis = name + "; Algorithm ; Express efficiency 40-100GeV"; 
-      addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 3, -0.5, 0.5+fEFCB), histdireff); // for generic
-      TH1 *h = hist(name, histdireff);
+      addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 3, -0.5, 0.5+m_fEFCB), m_histdireff); // for generic
+      TH1 *h = hist(name, m_histdireff);
       h->GetXaxis()->SetBinLabel(iMuFast+1, "MuFast");
       h->GetXaxis()->SetBinLabel(iMuComb+1, "MuComb");
       h->GetXaxis()->SetBinLabel(iEFCB+1, "EF algorithm"); // for generic
@@ -1388,15 +1216,15 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
     if (!isIsoOffline) {
       name = chainName + "_highpt3bins_effwrtL1";
       nameaxis = name + "; pt bins; efficiency";
-      addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), histdireff);
-      TH1 *h = hist(name, histdireff);
+      addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), m_histdireff);
+      TH1 *h = hist(name, m_histdireff);
       h->GetXaxis()->SetBinLabel(1, "50-100 GeV Z T&P");
       h->GetXaxis()->SetBinLabel(2, "100-500 GeV Z T&P");
     } else {
       name = chainName + "_highpt3bins_effwrtL1";
       nameaxis = name + "; pt bins; efficiency";
-      addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), histdireff);
-      TH1 *h = hist(name, histdireff);
+      addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), m_histdireff);
+      TH1 *h = hist(name, m_histdireff);
       h->GetXaxis()->SetBinLabel(1, "30-50 GeV Z T&P");
       h->GetXaxis()->SetBinLabel(2, "50-100 GeV Z T&P");
     }      
@@ -1404,8 +1232,8 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
     // High-pt L1 plateau summary (Barrel and Endcap): for generic chain
     name = chainName + "_highptL1plateau_wrtOffline";
     nameaxis = name + "; region; efficiency";
-    addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), histdireff);
-    TH1 *h = hist(name, histdireff);
+    addHistogram(new TH1F (name.c_str(), nameaxis.c_str(), 2, -0.5, 1.5), m_histdireff);
+    TH1 *h = hist(name, m_histdireff);
     h->GetXaxis()->SetBinLabel(1, "Barrel 30-100 GeV Z T&P");
     h->GetXaxis()->SetBinLabel(2, "Endcap 30-100 GeV Z T&P");
 
@@ -1453,13 +1281,13 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
   StatusCode sc = m_storeGate->retrieve(evt);
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR(" Cannot retrieve EventInfo ");
-    hist("Number_Of_Events", histdirrate )->Fill( m_lumiblock );
+    hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
     return StatusCode::FAILURE;
   }
   
   if( !evt.isValid() ){
     ATH_MSG_FATAL(" Could not find event");
-    hist("Number_Of_Events", histdirrate )->Fill( m_lumiblock );
+    hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
     return StatusCode::FAILURE;
   }
 
@@ -1467,14 +1295,14 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
 
   if(! evtid ){
     ATH_MSG_FATAL(" no evtid object");
-    hist("Number_Of_Events", histdirrate )->Fill( m_lumiblock );
+    hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
     return StatusCode::FAILURE;
   }
 
   m_lumiblock = evtid->lumi_block() ;
   m_event     = evtid->event_number() ;
 
-  hist("Number_Of_Events", histdirrate )->Fill( m_lumiblock );
+  hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
 
 
   //Trigger aware
@@ -1484,17 +1312,17 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
     if( getTDT()->isPassed( (it->first) )  ){
       //ATH_MSG_FATAL(" pass" << *it );
       std::string name     = "Number_Of_"+ it->second + "_Passed_Events" ;
-      hist( name, histdirrate )->Fill( m_lumiblock );
+      hist( name, m_histdirrate )->Fill( m_lumiblock );
 
       name     = it->second + "_Triggers_Rate" ;
-      hist( name, histdirrate )->Fill( m_lumiblock, 1/120. );
+      hist( name, m_histdirrate )->Fill( m_lumiblock, 1/120. );
       
     }
     //cosmic
     if( getTDT()->isPassed( (it->first + "_cosmic") )  ){
       //ATH_MSG_FATAL(" pass" << *it <<"_cosmic");
       std::string name     = "Number_Of_"+ it->second + "_Passed_Events" ;
-      hist( name, histdirrate )->Fill( m_lumiblock );
+      hist( name, m_histdirrate )->Fill( m_lumiblock );
       
     }
   }//chains
@@ -1637,8 +1465,8 @@ StatusCode HLTMuonMonTool::fillChainDQA()
   // getting ES vector moved to CommonDQA
 
   for (int i=0; i < (int)m_allESchain.size() ; i++ ){
-    //if ( isPassedES( m_esvect, m_allESchain[i] ) ) hist("Number_Of_ES_Triggers", histdir)->Fill(i);
-    if ( getTDT()->isPassed(m_allESchain[i]) ) hist("Number_Of_ES_Triggers", histdir)->Fill(i);
+    //if ( isPassedES( m_esvect, m_allESchain[i] ) ) hist("Number_Of_ES_Triggers", m_histdir)->Fill(i);
+    if ( getTDT()->isPassed(m_allESchain[i]) ) hist("Number_Of_ES_Triggers", m_histdir)->Fill(i);
   }
 
   
@@ -1897,7 +1725,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
        << m_RecMuonSA_hasCB[i_rec] << " pt " << m_RecMuonSA_pt[i_rec]); */
     if (!m_RecMuonSA_isGoodCB[i_rec]) {
       ATH_MSG_DEBUG("HLTMuonMon: fillChainDQA_MSonly: not a good combined muon" << i_rec);
-      //continue;  //for LS1, remove requirements on Hits and impact parameter, attention
+      continue;  //for LS1, remove requirements on Hits and impact parameter, attention
     }
     
     float rec_eta = m_RecMuonSA_eta[i_rec];
@@ -1924,27 +1752,27 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
     if (EF_lower_passed) {
       name     = histcName + "_Turn_On_Curve_wrt_MuidSA_Denominator";
       ATH_MSG_DEBUG( name << " filling" ); 
-      hist(name, histdireffnumdenom)->Fill(rec_pt);
+      hist(name, m_histdireffnumdenom)->Fill(rec_pt);
       
       // Barrel/Endcap (YY 27.05.10) Denominator for "wrtOffline"
       name     = histcName + "_Turn_On_Curve_wrt_MuidSA" + bestr[iBarrelSA] + "_Denominator";
       ATH_MSG_DEBUG( name << " filling" );
-      hist(name, histdireffnumdenom)->Fill(rec_pt);
+      hist(name, m_histdireffnumdenom)->Fill(rec_pt);
     }
     
 
     // if (ES_lower_passed) 
     // ES trigger-aware
     for (int i = 0; i <= m_maxESbr; i++) {
-      if(!MS_mon_ESbr[i])continue; 
+      if(!m_MS_mon_ESbr[i])continue; 
       if (m_passedES[i]) {
 	name     = histcName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA_Denominator";
 	ATH_MSG_DEBUG( name << " filling" ); 
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
+	hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	// New Barrel/endcap for ES L1
 	name     = histcName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA" + bestr[iBarrelSA] + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
+	hist(name, m_histdireffnumdenom)->Fill(rec_pt);
       }
     }
 
@@ -1964,7 +1792,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
         float dr = calc_dR(rec_eta,rec_phi,initRois[0].cptr()->eta(),initRois[0].cptr()->phi());
         name     = histcName + "_deltaR_btw_L1_MuidSA_For" + monalg;
         ATH_MSG_DEBUG( name << " filling" ); 
-        hist(name, histdireffnumdenom)->Fill(dr);
+        hist(name, m_histdireffnumdenom)->Fill(dr);
         if( dr < dr_min_l2 ) { 
           dr_min_l2 = dr;
           id_min_l2 = iL2; 
@@ -1973,30 +1801,30 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
     }
 
     //    if( dr_min_l2 < DR_CUT && (EF_lower_passed || ES_lower_passed)) 
-    if( dr_min_l2 < DR_CUT ) {
+    if( dr_min_l2 < DR_CUT && id_min_l2 != -1 ) {
       if (EF_lower_passed) {
 	ATH_MSG_DEBUG("L2: dRmin=" << dr_min_l2); 
 	name     = histcName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
+	hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	
 	// Barrel/Endcap
 	name     = histcName + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelSA] + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
+	hist(name, m_histdireffnumdenom)->Fill(rec_pt);
       }
       // if (ES_lower_passed) 
       for (int i = 0; i <= m_maxESbr; i++) {
-        if(!MS_mon_ESbr[i])continue; 
+        if(!m_MS_mon_ESbr[i])continue; 
 	if (m_passedES[i]) {
 	  ATH_MSG_DEBUG("L2: dRmin=" << dr_min_l2);
 	  name     = histcName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  // Barrel/Endcap for L1  : monalg = MuFast, wrtalg = L1
 	  name     = histcName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelSA] + "_Denominator";
 	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	}
       }
     
@@ -2017,27 +1845,27 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
 	if (EF_lower_passed) {
 	  name     = histcName + monalg + "_Turn_On_Curve_Numerator";
 	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  
 	  // Barrel/Endcap
 	  name     = histcName + monalg + bestr[iBarrelSA] + "_Turn_On_Curve_Numerator";
 	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  
 	  // 2D coverage hist
 	  name     = histcName + monalg + "_etaphi_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(mf_eta, mf_phi);
+	  hist2(name, m_histdirdist2d)->Fill(mf_eta, mf_phi);
 	  name     = histcName + monalg + "_etaphi_coarse_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(mf_eta, mf_phi);
+	  hist2(name, m_histdirdist2d)->Fill(mf_eta, mf_phi);
 	}
 
 	// if (ES_lower_passed) 
 	for (int i = 0; i <= m_maxESbr; i++) {
-          if(!MS_mon_ESbr[i])continue; 
+          if(!m_MS_mon_ESbr[i])continue; 
 	  if (m_passedES[i]) {
 	    name     = histcName + m_triggerES[i] + monalg + "_Turn_On_Curve_Numerator";
 	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
+	    hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  }
 	}
       }
@@ -2079,7 +1907,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
         float dr = calc_dR(rec_eta,rec_phi,initRois[0].cptr()->eta(),initRois[0].cptr()->phi());
         name     = histcName + "_deltaR_btw_L1_MuidSA_For" + monalg;
         ATH_MSG_DEBUG( name << " filling" );
-        hist(name, histdireffnumdenom)->Fill(dr);
+        hist(name, m_histdireffnumdenom)->Fill(dr);
         if( dr < dr_min_ef ) { 
           dr_min_ef = dr;  
           id_min_ef = iEF; 
@@ -2120,29 +1948,29 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
       if (EF_lower_passed) {
 	name     = histcName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
+	hist(name, m_histdireffnumdenom)->Fill(rec_pt);
     
 	name     = histcName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
+	hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	
 	// Barrel/Endcap
 	name     = histcName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelSA] + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
+	hist(name, m_histdireffnumdenom)->Fill(rec_pt);
       }
       // if (ES_lower_passed) 
       // ES trigger-aware
       for (int i = 0; i <= m_maxESbr; i++) {
-        if(!MS_mon_ESbr[i])continue; 
+        if(!m_MS_mon_ESbr[i])continue; 
 	if (m_passedES[i]) {
 	  name     = histcName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
     
 	  name     = histcName + m_triggerES[i] + monalg2 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	}
       }
       //
@@ -2327,22 +2155,22 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
 	  ATH_MSG_DEBUG("MSonly MS passed last step " << last_step );
 	  name     = histcName + monalg + "_Turn_On_Curve_Numerator";
 	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  // 2D coverage hist
 	  name     = histcName + monalg + "_etaphi_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(ef_ms_eta, ef_ms_phi);
+	  hist2(name, m_histdirdist2d)->Fill(ef_ms_eta, ef_ms_phi);
 	  name     = histcName + monalg + "_etaphi_coarse_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(ef_ms_eta, ef_ms_phi);
+	  hist2(name, m_histdirdist2d)->Fill(ef_ms_eta, ef_ms_phi);
 	}
 	// if (ES_lower_passed) 
 	// ES trigger-aware
 	for (int i = 0; i <= m_maxESbr; i++) {
-          if(!MS_mon_ESbr[i])continue; 
+          if(!m_MS_mon_ESbr[i])continue; 
 	  if (m_passedES[i]) {
 	    ATH_MSG_DEBUG("MSonly MS passed last step " << last_step );
 	    name     = histcName + m_triggerES[i] + monalg + "_Turn_On_Curve_Numerator";
 	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
+	    hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  }
 	}
       }
@@ -2355,28 +2183,28 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
 	  ATH_MSG_DEBUG("MSonly last step " << last_step );
 	  name     = histcName + monalg2 + "_Turn_On_Curve_Numerator";
 	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  
 	  // Barrel/Endcap
 	  name     = histcName + monalg2 + bestr[iBarrelSA] + "_Turn_On_Curve_Numerator";
 	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 
 	  // 2D coverage hist
 	  name     = histcName + monalg2 + "_etaphi_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(ef_sa_eta, ef_sa_phi);
+	  hist2(name, m_histdirdist2d)->Fill(ef_sa_eta, ef_sa_phi);
 	  name     = histcName + monalg2 + "_etaphi_coarse_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(ef_sa_eta, ef_sa_phi);
+	  hist2(name, m_histdirdist2d)->Fill(ef_sa_eta, ef_sa_phi);
 	}
 	// if (ES_lower_passed) 
 	// ES trigger-aware
 	for (int i = 0; i <= m_maxESbr; i++) {
-          if(!MS_mon_ESbr[i])continue; 
+          if(!m_MS_mon_ESbr[i])continue; 
 	  if (m_passedES[i]) {
 	    ATH_MSG_DEBUG("MSonly last step " << last_step );
 	    name     = histcName + m_triggerES[i] + monalg2 + "_Turn_On_Curve_Numerator";
 	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
+	    hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  }
 	}     
       }else{
@@ -2401,13 +2229,13 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, c
 
   //*****************************************//
   // add by Yuan //
-  std::string m_bestr[2] = {"_Barrel", "_Endcap"};
-  std::vector<std::pair<float, int> > m_RecMuonCB_pt_index;
-  if(m_RecMuonCB_pt_index.size()!=0)m_RecMuonCB_pt_index.clear();
+  std::string bestr[2] = {"_Barrel", "_Endcap"};
+  std::vector<std::pair<float, int> > RecMuonCB_pt_index;
+  if(RecMuonCB_pt_index.size()!=0)RecMuonCB_pt_index.clear();
 
   StatusCode sc;
   StoreGateSvc* p_detStore;
-  std::string m_tag;
+  std::string tag;
 
   //Set pointer on DetectorStore
   sc = service("DetectorStore", p_detStore);
@@ -2423,7 +2251,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, c
     ATH_MSG_WARNING("Could not get TagInfo");
     return StatusCode::RECOVERABLE;
   } else {
-    tagInfo->findTag("triggerStreamOfFile",m_tag);
+    tagInfo->findTag("triggerStreamOfFile",tag);
   }
 
   if(chainName.find("noL1")!= string::npos){
@@ -2439,27 +2267,27 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, c
                         continue;
                 }
                 float rec_pt  = m_RecMuonCB_pt[i_rec];
-                m_RecMuonCB_pt_index.push_back(std::make_pair(rec_pt,i_rec));
+                RecMuonCB_pt_index.push_back(std::make_pair(rec_pt,i_rec));
         }  // end the loop on muon
-        if(m_RecMuonCB_pt_index.size()<=1) return StatusCode::SUCCESS;
+        if(RecMuonCB_pt_index.size()<=1) return StatusCode::SUCCESS;
 
-        std::sort(m_RecMuonCB_pt_index.begin(),m_RecMuonCB_pt_index.end(),my_sort<std::pair<float, int> >());  // sorted the muon pt
-        if(m_RecMuonCB_pt_index[0].first < 18 || m_RecMuonCB_pt_index[1].first < 3) return StatusCode::SUCCESS;
-        int mu1_index = m_RecMuonCB_pt_index[0].second;
-        int mu2_index = m_RecMuonCB_pt_index[1].second;
+        std::sort(RecMuonCB_pt_index.begin(),RecMuonCB_pt_index.end(),my_sort<std::pair<float, int> >());  // sorted the muon pt
+        if(RecMuonCB_pt_index[0].first < 18 || RecMuonCB_pt_index[1].first < 3) return StatusCode::SUCCESS;
+        int mu1_index = RecMuonCB_pt_index[0].second;
+        int mu2_index = RecMuonCB_pt_index[1].second;
 
         std::string EF_pre_trigger= m_FS_pre_trigger;   
         std::string EF_pre_trigger_second= m_FS_pre_trigger_second;   
 
-	if( m_tag == "express" && !m_passedES[ESSTD]) return StatusCode::SUCCESS; 
+	if( tag == "express" && !m_passedES[ESSTD]) return StatusCode::SUCCESS; 
         if(getTDT()->isPassed(EF_pre_trigger.c_str())!=1 && getTDT()->isPassed(EF_pre_trigger_second.c_str())!=1) return StatusCode::SUCCESS;
 
         std::string name = histcName + "_Turn_On_Curve_wrt_subleading_MuidCB" + "_Denominator";
-        hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[mu2_index]);
+        hist(name, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[mu2_index]);
 	std::string EF_FS_trigger = chainName;
         if(getTDT()->isPassed(EF_FS_trigger.c_str())){
                 name =  histcName + "_Turn_On_Curve_wrt_subleading_MuidCB" + "_Numerator";
-                hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[mu2_index]);
+                hist(name, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[mu2_index]);
         }
 
         int match_L2_RoI[2];
@@ -2500,7 +2328,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, c
                         }
                 }
 
-                if( my_dr_min_l2 < DR_CUT ) {
+                if( my_dr_min_l2 < DR_CUT && my_id_min_l2 != -1) {
 
                         match_L2_RoI[n_mu] = 1;
                         // check the muon fire mu24_tight ROI or not   MuFast
@@ -2576,7 +2404,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, c
                         }
                 }
 
-                if( my_dr_min_l2 < DR_CUT ) {
+                if( my_dr_min_l2 < DR_CUT && my_id_min_l2 != -1 ) {
 
                         match_L2_RoI[n_mu] = 1;
                         // check the muon fire mu24_tight ROI or not   MuFast
@@ -2702,63 +2530,63 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, c
 
                 // for the Full Scan efficiency //
                 std::string name = histcName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
-                hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
+                hist(name, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 
-                name = histcName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[probe_iBarrelCB] + "_Denominator";
-                hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
+                name = histcName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + bestr[probe_iBarrelCB] + "_Denominator";
+                hist(name, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 
 		if(mean_mu <= 15){
 			name = histcName + "_tagEFFSpre_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
-			hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
+			hist(name, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 		} else if(mean_mu <= 20){
 			name = histcName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
-			hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
+			hist(name, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 		} else {
 			name = histcName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
-			hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
+			hist(name, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 		} 
 
 
                 if(getTDT()->isPassed(EF_FS_trigger.c_str())){
                         name = histcName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
-                        hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
+                        hist(name, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 
-			name = histcName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[probe_iBarrelCB] + "_Numerator";
-			hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
+			name = histcName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + bestr[probe_iBarrelCB] + "_Numerator";
+			hist(name, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 
 			if(mean_mu <= 15){
 				name = histcName + "_tagEFFSpre_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
-				hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
+				hist(name, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 			} else if(mean_mu <= 20){
 				name = histcName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
-				hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
+				hist(name, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 			} else {
 				name = histcName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
-				hist(name, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
+				hist(name, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
 			} 
 
                 }
 
                 // for the preselection trigger efficiency //
                 std::string denom = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB_Denominator";
-                hist(denom, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
+                hist(denom, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
                 std::string nomin = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB_Numerator";
                 if(probe_muon_pass) {
-                        hist(nomin, histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
+                        hist(nomin, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[probe_muon_index]);
                         // swap the tag and probe muons //
-                        hist(denom, histdireffnumdenom)->Fill(m_RecMuonCB_pt[tag_muon_index]);
-                        hist(nomin, histdireffnumdenom)->Fill(m_RecMuonCB_pt[tag_muon_index]);
+                        hist(denom, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[tag_muon_index]);
+                        hist(nomin, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[tag_muon_index]);
                 }
 
                 if(matched_tag_muon_index > -1){
                   denom = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB_Denominator";
-                  hist(denom, histdireffnumdenom)->Fill(m_RecMuonCB_pt[matched_probe_muon_index]);
+                  hist(denom, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[matched_probe_muon_index]);
                   nomin = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB_Numerator";
                   if(matched_probe_muon_pass){
-                        hist(nomin, histdireffnumdenom)->Fill(m_RecMuonCB_pt[matched_probe_muon_index]);
+                        hist(nomin, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[matched_probe_muon_index]);
                         // swap the tag and probe muons //
-                        hist(denom, histdireffnumdenom)->Fill(m_RecMuonCB_pt[matched_tag_muon_index]);
-                        hist(nomin, histdireffnumdenom)->Fill(m_RecMuonCB_pt[matched_tag_muon_index]);
+                        hist(denom, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[matched_tag_muon_index]);
+                        hist(nomin, m_histdireffnumdenom)->Fill(m_RecMuonCB_pt[matched_tag_muon_index]);
 
                   }
                 }
@@ -2840,34 +2668,34 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
     if (EF_lower_passed) {
       name     = HistchainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
       ATH_MSG_DEBUG( name << " filling" );
-      hist(name, histdireffnumdenom)->Fill(rec_pt);
+      hist(name, m_histdireffnumdenom)->Fill(rec_pt);
       if (MS_lower_passed) {
 	name     = HistchainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
+	hist(name, m_histdireffnumdenom)->Fill(rec_pt);
       }
 
       // Barrel/Endcap (YY 20.05.10) Denominator for "wrtOffline"
       name     = HistchainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[iBarrelCB] + "_Denominator";
       ATH_MSG_DEBUG( name << " filling" );
-      hist(name, histdireffnumdenom)->Fill(rec_pt);
+      hist(name, m_histdireffnumdenom)->Fill(rec_pt);
       if (MS_lower_passed) {
 	name     = HistchainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[iBarrelCB] + "_Denominator";
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
+	hist(name, m_histdireffnumdenom)->Fill(rec_pt);
       }
     }
 
     // if (ES_lower_passed) {}
     // ES trigger-aware
     for (int i = 0; i <= m_maxESbr; i++) {
-      if(!CB_mon_ESbr[i])continue; 
+      if(!m_CB_mon_ESbr[i])continue; 
       if (m_passedES[i]) {
 	name     = HistchainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
+	hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	// New Barrel/endcap for ES L1
 	name     = HistchainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB" + bestr[iBarrelCB] + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
+	hist(name, m_histdireffnumdenom)->Fill(rec_pt);
       }
     }
       
@@ -2891,45 +2719,45 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
         float dr = calc_dR(rec_eta,rec_phi,initRois[0].cptr()->eta(),initRois[0].cptr()->phi());
         name     = HistchainName + "_deltaR_btw_L1_MuidCB_For" + monalg;
         ATH_MSG_DEBUG( name << " filling" ); 
-        hist(name, histdireffnumdenom)->Fill(dr);
+        hist(name, m_histdireffnumdenom)->Fill(dr);
         if( dr < dr_min_l2 ) {
           dr_min_l2 = dr; 
           id_min_l2 = iL2;
         }
       }
     }
-    if( dr_min_l2 < DR_CUT ) {
+    if( dr_min_l2 < DR_CUT && id_min_l2 != -1) {
       if (EF_lower_passed) {
 	ATH_MSG_DEBUG("L2: dRmin=" << dr_min_l2);
 	name     = HistchainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
+	hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	if (MS_lower_passed) {
 	  name     = HistchainName + m_MSchainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	}
 	// Barrel/Endcap
 	name     = HistchainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
+	hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	if (MS_lower_passed) {
 	  name     = HistchainName + m_MSchainName + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	}
       }
       // if (ES_lower_passed) {}
       // ES trigger-aware
       for (int i = 0; i <= m_maxESbr; i++) {
-        if(!CB_mon_ESbr[i])continue; 
+        if(!m_CB_mon_ESbr[i])continue; 
 	ATH_MSG_DEBUG("L2: dRmin=" << dr_min_l2);
 	if (m_passedES[i]) {
 	  name     = HistchainName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  // Barrel/Endcap for L1  : monalg = MuFast, wrtalg = L1
 	  name     = HistchainName + m_triggerES[i] + monalg + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
 	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	}
       }
       
@@ -2954,19 +2782,19 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 	if (EF_lower_passed) { // if EF_lower_passed is always true, it is a catch-all branch.
 	  name     = HistchainName + monalg + "_Turn_On_Curve_Numerator";
 	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  if (MS_lower_passed ) {
 	    name     = HistchainName + m_MSchainName + monalg + "_Turn_On_Curve_Numerator";
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
+	    hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  }
 	  
 	  // Barrel/Endcap
 	  name     = HistchainName + monalg + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
 	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  if (MS_lower_passed) {
 	    name     = HistchainName + m_MSchainName + monalg + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
+	    hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  }
 	  
 	  // 2D coverage hist
@@ -2974,23 +2802,23 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 	  ATH_MSG_DEBUG ( "Offline/muFast eta" << rec_eta << ", " << mf_eta );
 	  ATH_MSG_DEBUG ( "Offline/muFast phi" << rec_phi << ", " << mf_phi );
 	  name     = HistchainName + monalg + "_etaphi_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(mf_eta, mf_phi);
+	  hist2(name, m_histdirdist2d)->Fill(mf_eta, mf_phi);
 	  name     = HistchainName + monalg + "_etaphi_coarse_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(mf_eta, mf_phi);
+	  hist2(name, m_histdirdist2d)->Fill(mf_eta, mf_phi);
 	  // 1D covarage: muFast only
 	  name     = HistchainName + monalg + "_eta_wrt_MuidCB";
-	  hist(name, histdirdist2d)->Fill(mf_eta);
+	  hist(name, m_histdirdist2d)->Fill(mf_eta);
 	  name     = HistchainName + monalg + "_phi_wrt_MuidCB";
-	  hist(name, histdirdist2d)->Fill(mf_phi);
+	  hist(name, m_histdirdist2d)->Fill(mf_phi);
 	}
 
 	// ES trigger-aware
 	for (int i = 0; i <= m_maxESbr; i++) {
-          if(!CB_mon_ESbr[i])continue; 
+          if(!m_CB_mon_ESbr[i])continue; 
 	  if (m_passedES[i]) {
 	    name     = HistchainName + m_triggerES[i] + monalg + "_Turn_On_Curve_Numerator";
 	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
+	    hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  }
 	}
       }
@@ -3001,41 +2829,32 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 	if (EF_lower_passed) {
 	  name     = HistchainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + "_Denominator";
 	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  if (MS_lower_passed) {
 	    name     = HistchainName + m_MSchainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + "_Denominator";
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
+	    hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  }
 	  // Barrel/Endcap
 	  name     = HistchainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + bestr[iBarrelCB] + "_Denominator";
 	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  if (MS_lower_passed) {
 	    name     = HistchainName + m_MSchainName + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + bestr[iBarrelCB] + "_Denominator";
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
+	    hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  }
 	}
 	// if (ES_lower_passed) {}
 	// ES trigger-aware
 	for (int i = 0; i <= m_maxESbr; i++) {
-          if(!CB_mon_ESbr[i])continue; 
+          if(!m_CB_mon_ESbr[i])continue; 
 	  if (m_passedES[i]) {
 	    name     = HistchainName + m_triggerES[i] + monalg2 + "_Turn_On_Curve_wrt" + wrtalg2 + "_Denominator";
 	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
+	    hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  }
 	}
 
 	//
-//*        std::vector< Feature<CombinedMuonFeature> > combMf = combsHLT[id_min_l2].get<CombinedMuonFeature>("",TrigDefs::alsoDeactivateTEs);
-//*        if( combMf.size() == 1 ) {
-//*          combMf_active = combMf[0].te()->getActiveState();
-//*          ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active); 
-//*        }
-//*        if( combMf_active ) {
-//*	  float combMf_pt = combMf[0].cptr()->pt() / CLHEP::GeV;
-//*	  float combMf_eta = combMf[0].cptr()->eta();
-//*	  float combMf_phi = combMf[0].cptr()->phi();
 
       std::vector< Feature<xAOD::L2CombinedMuonContainer> > combMf = combsHLT[id_min_l2].get<xAOD::L2CombinedMuonContainer>("MuonL2CBInfo",TrigDefs::alsoDeactivateTEs);
 
@@ -3057,19 +2876,19 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 	  if (EF_lower_passed) {
 	    name     = HistchainName + monalg2 + "_Turn_On_Curve_Numerator";
 	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
+	    hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	    if (MS_lower_passed) {
 	      name     = HistchainName + m_MSchainName + monalg2 + "_Turn_On_Curve_Numerator";
-	      hist(name, histdireffnumdenom)->Fill(rec_pt);
+	      hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	    }
 	    
 	    // Barrel/Endcap
 	    name     = HistchainName + monalg2 + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
 	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
+	    hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	    if (MS_lower_passed) {
 	      name     = HistchainName + m_MSchainName + monalg2 + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
-	      hist(name, histdireffnumdenom)->Fill(rec_pt);
+	      hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	    }
 	    
 	    // 2D coverage hist
@@ -3077,17 +2896,17 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 	    ATH_MSG_DEBUG ( "Offline/muComb eta" << rec_eta << ", " << combMf_eta );
 	    ATH_MSG_DEBUG ( "Offline/muComb phi" << rec_phi << ", " << combMf_phi );
 	    name     = HistchainName + monalg2 + "_etaphi_wrt_MuidCB";
-	    hist2(name, histdirdist2d)->Fill(combMf_eta, combMf_phi);
+	    hist2(name, m_histdirdist2d)->Fill(combMf_eta, combMf_phi);
 	    name     = HistchainName + monalg2 + "_etaphi_coarse_wrt_MuidCB";
-	    hist2(name, histdirdist2d)->Fill(combMf_eta, combMf_phi);
+	    hist2(name, m_histdirdist2d)->Fill(combMf_eta, combMf_phi);
 	  }
 	  // ES trigger-aware
 	  for (int i = 0; i <= m_maxESbr; i++) {
-            if(!CB_mon_ESbr[i])continue; 
+            if(!m_CB_mon_ESbr[i])continue; 
 	    if (m_passedES[i]) {
 	      name     = HistchainName + m_triggerES[i] + monalg2 + "_Turn_On_Curve_Numerator";
 	      ATH_MSG_DEBUG( name << " filling" );
-	      hist(name, histdireffnumdenom)->Fill(rec_pt);
+	      hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	    }
 	  }     
         }
@@ -3127,7 +2946,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
         float dr = calc_dR(rec_eta,rec_phi,initRois[0].cptr()->eta(),initRois[0].cptr()->phi());
         name     = HistchainName + "_deltaR_btw_L1_MuidCB_For" + monalg3; // YY changed from monalg -> monalg3
         ATH_MSG_DEBUG( name << " filling" );
-        hist(name, histdireffnumdenom)->Fill(dr);
+        hist(name, m_histdireffnumdenom)->Fill(dr);
         if( dr < dr_min_ef ) {
           dr_min_ef = dr; 
           id_min_ef = iEF;
@@ -3165,32 +2984,32 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
       if (EF_lower_passed) {
 	name     = HistchainName + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
+	hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 
 	// Barrel/Endcap
 	name     = HistchainName + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
 	ATH_MSG_DEBUG( name << " filling" );
-	hist(name, histdireffnumdenom)->Fill(rec_pt);
+	hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 
 	// repeating, with highPT range
 	if (MS_lower_passed) {
 	  name     = HistchainName + m_MSchainName + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  
 	  // Barrel/Endcap
 	  name     = HistchainName + m_MSchainName + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + bestr[iBarrelCB] + "_Denominator";
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	}
 
       }
       // if (ES_lower_passed) {}
       // ES trigger-aware
       for (int i = 0; i <= m_maxESbr; i++) {
-        if(!CB_mon_ESbr[i])continue; 
+        if(!m_CB_mon_ESbr[i])continue; 
 	if (m_passedES[i]) {
 	  name     = HistchainName + m_triggerES[i] + monalg3 + "_Turn_On_Curve_wrt" + wrtalg + "_Denominator";
 	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	}
       }
     
@@ -3226,7 +3045,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 		const xAOD::TrackParticle *ef_cb_trk;
 		ef_cb_trk = (*iCont)->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle);
 		
-		ef_cb_pt = (*iCont)->pt();
+		ef_cb_pt = (*iCont)->pt()/ CLHEP::GeV;
 		ef_cb_eta = (*iCont)->eta();
 		ef_cb_phi = (*iCont)->phi();
 		ef_cb_mtype = (*iCont)->muonType();
@@ -3262,18 +3081,18 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 	  
 	  name     = HistchainName + monalg3 + "_Turn_On_Curve_Numerator";
 	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  if (MS_lower_passed) {
 	    name     = HistchainName + m_MSchainName + monalg3 + "_Turn_On_Curve_Numerator";
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
+	    hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  }
 	  // Barrel/Endcap
 	  name     = HistchainName + monalg3 + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
 	  ATH_MSG_DEBUG( name << " filling" );
-	  hist(name, histdireffnumdenom)->Fill(rec_pt);
+	  hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  if (MS_lower_passed) {
 	    name     = HistchainName + m_MSchainName + monalg3 + bestr[iBarrelCB] + "_Turn_On_Curve_Numerator";
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
+	    hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  }
 	  
 	  // 2D coverage hist
@@ -3281,43 +3100,43 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 	  ATH_MSG_DEBUG( "Offline/EFCB eta" << rec_eta << ", " << ef_cb_eta );
 	  ATH_MSG_DEBUG( "Offline/EFCB phi" << rec_phi << ", " << ef_cb_phi );
 	  name     = HistchainName + monalg3 + "_etaphi_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(ef_cb_eta, ef_cb_phi);
+	  hist2(name, m_histdirdist2d)->Fill(ef_cb_eta, ef_cb_phi);
 	  name     = HistchainName + monalg3 + "_etaphi_coarse_wrt_MuidCB";
-	  hist2(name, histdirdist2d)->Fill(ef_cb_eta, ef_cb_phi);
+	  hist2(name, m_histdirdist2d)->Fill(ef_cb_eta, ef_cb_phi);
 
 	  if (ef_cb_mtype > 0 and ef_cb_mtype <= 3) {
 	    // MuonType-dependent distribution histos, inclusive
 	    name     = HistchainName + m_EFAlgName[ef_cb_mtype - 1] + "_pt_wrt_MuidCB";
-	    hist(name, histdirdist2d)->Fill(ef_cb_pt);
+	    hist(name, m_histdirdist2d)->Fill(ef_cb_pt);
 	    name     = HistchainName + m_EFAlgName[ef_cb_mtype - 1] + "_eta_wrt_MuidCB";
-	    hist(name, histdirdist2d)->Fill(ef_cb_eta);
+	    hist(name, m_histdirdist2d)->Fill(ef_cb_eta);
 	    name     = HistchainName + m_EFAlgName[ef_cb_mtype - 1] + "_phi_wrt_MuidCB";
-	    hist(name, histdirdist2d)->Fill(ef_cb_phi);
+	    hist(name, m_histdirdist2d)->Fill(ef_cb_phi);
 	    name     = HistchainName + m_EFAlgName[3] + "_pt_wrt_MuidCB";
-	    hist(name, histdirdist2d)->Fill(ef_cb_pt);
+	    hist(name, m_histdirdist2d)->Fill(ef_cb_pt);
 	    name     = HistchainName + m_EFAlgName[3] + "_eta_wrt_MuidCB";
-	    hist(name, histdirdist2d)->Fill(ef_cb_eta);
+	    hist(name, m_histdirdist2d)->Fill(ef_cb_eta);
 	    name     = HistchainName + m_EFAlgName[3] + "_phi_wrt_MuidCB";
-	    hist(name, histdirdist2d)->Fill(ef_cb_phi);
+	    hist(name, m_histdirdist2d)->Fill(ef_cb_phi);
 	  } else {
 	    ATH_MSG_DEBUG("ef_cb_mtype " << ef_cb_mtype);
 	  }
 
 	  // stat info on MuonType
 	  name = HistchainName + "_EFMuonType_wrt_MuidCB";
-	  hist(name, histdirdist2d)->Fill(float(ef_cb_mtype));
+	  hist(name, m_histdirdist2d)->Fill(float(ef_cb_mtype));
 	  
 	}
 
 	// if (ES_lower_passed) {}
 	// ES trigger-aware
 	for (int i = 0; i <= m_maxESbr; i++) {
-          if(!CB_mon_ESbr[i])continue; 
+          if(!m_CB_mon_ESbr[i])continue; 
 	  if (m_passedES[i]) {
 	    ATH_MSG_DEBUG("last step " << last_step );
 	    name     = HistchainName + m_triggerES[i] + monalg3 + "_Turn_On_Curve_Numerator";
 	    ATH_MSG_DEBUG( name << " filling" );
-	    hist(name, histdireffnumdenom)->Fill(rec_pt);
+	    hist(name, m_histdireffnumdenom)->Fill(rec_pt);
 	  }
 	}
     
@@ -3397,7 +3216,7 @@ StatusCode HLTMuonMonTool::procChainDQA()
       std::string name1     = "Number_Of_"+ it->second + "_Passed_Events" ;
       std::string name2     = it->second + "_Triggers_Per_Event" ;
      
-      hist( name2, histdirrateratio ) -> Divide ( hist(name1, histdirrate), hist("Number_Of_Events", histdirrate));
+      //hist( name2, m_histdirrateratio ) -> Divide ( hist(name1, m_histdirrate), hist("Number_Of_Events", m_histdirrate));
       
     }
   }
@@ -3425,14 +3244,13 @@ StatusCode HLTMuonMonTool::procChainDQA_MSonly(const std::string& chainName )
       denom = chainName + "_Turn_On_Curve_wrt_MuidSA_Denominator";
       numer = chainName + monalg[alg] + "_Turn_On_Curve_Numerator";
       effi  = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidSA";
-      hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
+      //hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
       // Uncommented by YY 12.04.10
-      dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 
       if (true) { // all
 	double sumeff, sumerr;
-	double sumn = hist(numer, histdireffnumdenom)->Integral(iMSL, iMSH);
-	double sumd = hist(denom, histdireffnumdenom)->Integral(iMSL, iMSH);
+	double sumn = hist(numer, m_histdireffnumdenom)->Integral(m_iMSL, m_iMSH);
+	double sumd = hist(denom, m_histdireffnumdenom)->Integral(m_iMSL, m_iMSH);
 	if (sumd == 0.) {
 	  sumeff = 0.;
 	  sumerr = 0.;
@@ -3442,29 +3260,28 @@ StatusCode HLTMuonMonTool::procChainDQA_MSonly(const std::string& chainName )
 	}
 	int ibin_holx = -1;
 	if (0 == alg) {
-	  ibin_holx = iMuFast;
+	  int ibintmp = iMuFast;
+	  ibin_holx = ibintmp;
 	} else if (2 == alg) {
-	    ibin_holx = iEFSA;
+	  int ibintmp = iEFSA;  
+	  ibin_holx = ibintmp;
 	}
 
 	if (ibin_holx >= 0) {
 	  std::string s = chainName + "_highpt_effsummary_by" + m_vectkwd.at(4);
 	  ATH_MSG_DEBUG("hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr);
-	  hist(s, histdireff)->SetBinContent(ibin_holx+1, sumeff);
-	  hist(s, histdireff)->SetBinError(ibin_holx+1, sumerr);
+	  hist(s, m_histdireff)->SetBinContent(ibin_holx+1, sumeff);
+	  hist(s, m_histdireff)->SetBinError(ibin_holx+1, sumerr);
 	}
       }
 
       denom = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
       numer = chainName + monalg[alg] + "_Turn_On_Curve_Numerator";
       effi = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-      hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-      // Uncommented by YY 12.04.10
-      dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 
       //  for ES ------------------------------------------------------------------------------------
       for (int i = 0; i <= m_maxESbr; i++) {
-        if(!MS_mon_ESbr[i])continue; 
+        if(!m_MS_mon_ESbr[i])continue; 
 
 	if (0 == alg) {
 	  // L1 efficiency: new for 2011 HI runs and afterward
@@ -3472,31 +3289,23 @@ StatusCode HLTMuonMonTool::procChainDQA_MSonly(const std::string& chainName )
 	  denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA_Denominator";
 	  numer = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + "_Denominator";
 	  effi  = chainName + m_triggerES[i] + "_L1" + "_Turn_On_Curve_wrt_MuidSA";
-	  hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 	  // Need to implement barrel and endcap ...
 	  for (int be = 0; be < 2; be++) {
 	    denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA" + bestr[be] + "_Denominator";
 	    numer = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
 	    effi  = chainName + m_triggerES[i] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidSA";
-	    hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-	    dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 	  }
 	}
 
 	denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidSA_Denominator";
 	numer = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
 	effi  = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt_MuidSA";
-	hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-	
-	// Uncommented by YY 12.04.10
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 
 	// MSonly summary: viewed only by EStag sample
 	if (ESTAG == i || ESINDEP == i) {
 	  double sumeff, sumerr;
-	  double sumn = hist(numer, histdireffnumdenom)->Integral(iMSL, iMSH);
-	  double sumd = hist(denom, histdireffnumdenom)->Integral(iMSL, iMSH);
+	  double sumn = hist(numer, m_histdireffnumdenom)->Integral(m_iMSL, m_iMSH);
+	  double sumd = hist(denom, m_histdireffnumdenom)->Integral(m_iMSL, m_iMSH);
 	  if (sumd == 0.) {
 	    sumeff = 0.;
 	    sumerr = 0.;
@@ -3514,18 +3323,14 @@ StatusCode HLTMuonMonTool::procChainDQA_MSonly(const std::string& chainName )
 	  if (ibin_holx >= 0) {
 	    std::string s = chainName + "_highpt_effsummary_by" + m_triggerES[i];
 	    ATH_MSG_DEBUG("hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr);
-	    hist(s, histdireff)->SetBinContent(ibin_holx+1, sumeff);
-	    hist(s, histdireff)->SetBinError(ibin_holx+1, sumerr);
+	    hist(s, m_histdireff)->SetBinContent(ibin_holx+1, sumeff);
+	    hist(s, m_histdireff)->SetBinError(ibin_holx+1, sumerr);
 	  }
 	}
 
 	denom = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
 	numer = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
 	effi = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-	hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-	
-	// Uncommented by YY 12.04.10
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
       }
       //  for ES : END ------------------------------------------------------------------------------
 
@@ -3535,21 +3340,15 @@ StatusCode HLTMuonMonTool::procChainDQA_MSonly(const std::string& chainName )
 	  denom = chainName + "_Turn_On_Curve_wrt_MuidSA" + bestr[be] + "_Denominator";
 	  numer = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
 	  effi  = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidSA";
-	  hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
+	  //hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
       
 	  // Uncommented by YY 12.04.10
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
 
 	  denom = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be] + "_Denominator";
 	  numer = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
 	  effi = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be];
-	  hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
+	  //hist(effi, m_histdireff)->Divide( hist(numer, m_histdireffnumdenom), hist(denom, m_histdireffnumdenom), 1, 1, "B" );
       
-	  // Uncommented by YY 12.04.10
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-
 	}
       } 
       
@@ -3559,8 +3358,8 @@ StatusCode HLTMuonMonTool::procChainDQA_MSonly(const std::string& chainName )
       denom = chainName + monalg[ialg] + "_etaphi_coarse_wrt_MuidCB";
       numer = chainName + monalg[ialg] + "_etaphi_coarse1d_wrt_MuidCB";
       // ATH_MSG_INFO("denom " << denom << " numer " << numer);
-      TH2F *h2d = (TH2F *)hist2(denom, histdirdist2d);
-      TH1F *h1d = (TH1F *)hist(numer, histdirdist2d);
+      TH2F *h2d = (TH2F *)hist2(denom, m_histdirdist2d);
+      TH1F *h1d = (TH1F *)hist(numer, m_histdirdist2d);
       refill_2d1d_coarse(h2d, h1d);
     }
     
@@ -3577,8 +3376,8 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
   std::string denom;
   std::string numer;
   std::string effi;
-  int m_iSTDL = 39;
-  int m_iSTDH = 120;
+  int iSTDL = 39;
+  int iSTDH = 120;
 
   if( endOfRun ){
 
@@ -3586,7 +3385,7 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
         // add by Yuan :  to book the histogram //
     if(chainName.find("EFFS")!= string::npos){
 
-	std::string m_bestr[2] = {"_Barrel", "_Endcap"};
+	std::string bestr[2] = {"_Barrel", "_Endcap"};
 
         denom = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
 
@@ -3594,24 +3393,17 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
 
         effi =  chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB";
 
-        hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
 	for (int be =0; be<2; be++){
 
-          denom = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[be] + "_Denominator";
+          denom = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + bestr[be] + "_Denominator";
 
-          numer = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[be] + "_Numerator";
+          numer = chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + bestr[be] + "_Numerator";
 
-          effi =  chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + m_bestr[be];
+          effi =  chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB" + bestr[be];
 
-          hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) ); 
             double sumd, sumn, sumeff, sumerr;
-            sumn = hist(numer, histdireffnumdenom)->Integral(m_iSTDL, m_iSTDH);
-            sumd = hist(denom, histdireffnumdenom)->Integral(m_iSTDL, m_iSTDH);
+            sumn = hist(numer, m_histdireffnumdenom)->Integral(iSTDL, iSTDH);
+            sumd = hist(denom, m_histdireffnumdenom)->Integral(iSTDL, iSTDH);
             if (sumd == 0.) {
               sumeff = 0.;
               sumerr = 0.;
@@ -3621,8 +3413,8 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
             }
             std::string s = chainName + "_EFplateau_wrtOffline" ;
             ATH_MSG_DEBUG("hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr);
-            hist(s, histdireff)->SetBinContent(be+1, sumeff);
-            hist(s, histdireff)->SetBinError(be+1, sumerr);
+            hist(s, m_histdireff)->SetBinContent(be+1, sumeff);
+            hist(s, m_histdireff)->SetBinError(be+1, sumerr);
 
 
 
@@ -3634,19 +3426,11 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
 
         effi =  chainName + "_tagEFFSpre_mu0_15" + "_Turn_On_Curve_wrt_probe_MuidCB";
 
-        hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
         denom = chainName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
 
         numer = chainName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Numerator";
 
         effi =  chainName + "_tagEFFSpre_mu15_20" + "_Turn_On_Curve_wrt_probe_MuidCB";
-
-        hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 
         denom = chainName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB" + "_Denominator";
 
@@ -3654,26 +3438,19 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
 
         effi =  chainName + "_tagEFFSpre_mu20" + "_Turn_On_Curve_wrt_probe_MuidCB";
 
-        hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
-	std::string m_mu_range[3] = {"_mu0_15", "_mu15_20","_mu20"};
+	std::string mu_range_names[3] = {"_mu0_15", "_mu15_20","_mu20"};
 
 	for (int mu_range =0; mu_range<3; mu_range++){
 
-          denom = chainName + "_tagEFFSpre" + m_mu_range[mu_range] + "_Turn_On_Curve_wrt_probe_MuidCB"  + "_Denominator";
+          denom = chainName + "_tagEFFSpre" + mu_range_names[mu_range] + "_Turn_On_Curve_wrt_probe_MuidCB"  + "_Denominator";
 
-          numer = chainName + "_tagEFFSpre" + m_mu_range[mu_range] + "_Turn_On_Curve_wrt_probe_MuidCB"  + "_Numerator";
+          numer = chainName + "_tagEFFSpre" + mu_range_names[mu_range] + "_Turn_On_Curve_wrt_probe_MuidCB"  + "_Numerator";
 
-          effi =  chainName + "_tagEFFSpre" + m_mu_range[mu_range] + "_Turn_On_Curve_wrt_probe_MuidCB" ;
+          effi =  chainName + "_tagEFFSpre" + mu_range_names[mu_range] + "_Turn_On_Curve_wrt_probe_MuidCB" ;
 
-          hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) ); 
             double sumd, sumn, sumeff, sumerr;
-            sumn = hist(numer, histdireffnumdenom)->Integral(m_iSTDL, m_iSTDH);
-            sumd = hist(denom, histdireffnumdenom)->Integral(m_iSTDL, m_iSTDH);
+            sumn = hist(numer, m_histdireffnumdenom)->Integral(iSTDL, iSTDH);
+            sumd = hist(denom, m_histdireffnumdenom)->Integral(iSTDL, iSTDH);
             if (sumd == 0.) {
               sumeff = 0.;
               sumerr = 0.;
@@ -3683,8 +3460,8 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
             }
             std::string s = chainName + "_EFplateau_wrtOffline_mu_dependence" ;
             ATH_MSG_DEBUG("hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr);
-            hist(s, histdireff)->SetBinContent(mu_range+1, sumeff);
-            hist(s, histdireff)->SetBinError(mu_range+1, sumerr);
+            hist(s, m_histdireff)->SetBinContent(mu_range+1, sumeff);
+            hist(s, m_histdireff)->SetBinError(mu_range+1, sumerr);
 
 	}
 
@@ -3695,19 +3472,11 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
 
         effi =  chainName + "_Turn_On_Curve_wrt_subleading_MuidCB";
 
-        hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
         denom = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB_Denominator";
 
         numer = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB_Numerator";
 
         effi =  "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB";
-
-        hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 
         denom = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB_Denominator";
 
@@ -3715,22 +3484,11 @@ StatusCode HLTMuonMonTool::procChainDQA_standard(const std::string& chainName )
 
         effi =  "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB";
 
-        hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
         denom = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_probe_MuidCB_Denominator";
 
         numer = "EFFSpre_dimuonTP_Turn_On_Curve_wrt_L1_probe_MuidCB_Denominator";
 
         effi =  "EFFSpre_dimuonTP_L1_Turn_On_Curve_wrt_probe_MuidCB";
-
-        hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
- 
-        dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom)
- );     
-
-
 
 
     }
@@ -3761,42 +3519,22 @@ StatusCode HLTMuonMonTool::procChainDQA_generic(const std::string& chainName )
       denom = chainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
       numer = chainName + monalg[alg] + "_Turn_On_Curve_Numerator";
       effi  = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-      hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-      // Uncommented by YY 12.04.10
-      dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
 
       denom = chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
       numer = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_Numerator";
       effi  = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-      hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-      // Uncommented by YY 12.04.10
-      dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-      
-      // Summary all - removed
       
       denom = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
       numer = chainName + monalg[alg] + "_Turn_On_Curve_Numerator";
       effi = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-      hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-      // Uncommented by YY 12.04.10
-      dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
-
 
       denom = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
       numer = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_Numerator";
       effi = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-      hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-
-      // Uncommented by YY 12.04.10
-      dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 
       //  for ES ------------------------------------------------------------------------------------
       for (int i = 0; i <= m_maxESbr; i++) {
-        if(!CB_mon_ESbr[i])continue; 
+        if(!m_CB_mon_ESbr[i])continue; 
 
 	if (0 == alg) {
 	  // L1 efficiency: new for 2011 HI runs and afterward
@@ -3804,21 +3542,17 @@ StatusCode HLTMuonMonTool::procChainDQA_generic(const std::string& chainName )
 	  denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
 	  numer = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + "_Denominator";
 	  effi  = chainName + m_triggerES[i] + "_L1" + "_Turn_On_Curve_wrt_MuidCB";
-	  hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 	  // Need to implement barrel and endcap ...
 	  for (int be = 0; be < 2; be++) {
 	    denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
 	    numer = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
 	    effi  = chainName + m_triggerES[i] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
-	    hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-	    dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 
 	    if (ESINDEP == i) {
 	      // integrating over and fill in a summary histogram
 	      double sumeff, sumerr;
-	      double sumn = hist(numer, histdireffnumdenom)->Integral(iSTDL, iSTDH); // 30-50 GeV
-	      double sumd = hist(denom, histdireffnumdenom)->Integral(iSTDL, iSTDH);
+	      double sumn = hist(numer, m_histdireffnumdenom)->Integral(m_iSTDL, m_iSTDH); // 30-50 GeV
+	      double sumd = hist(denom, m_histdireffnumdenom)->Integral(m_iSTDL, m_iSTDH);
 	      if (sumd == 0.) {
 		sumeff = 0.;
 		sumerr = 0.;
@@ -3829,8 +3563,8 @@ StatusCode HLTMuonMonTool::procChainDQA_generic(const std::string& chainName )
 	      
 	      std::string s = chainName + "_L1plateau_wrtOffline_by_ESindep";
 	      ATH_MSG_DEBUG("hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr);
-	      hist(s, histdireff)->SetBinContent(be+1, sumeff);
-	      hist(s, histdireff)->SetBinError(be+1, sumerr);
+	      hist(s, m_histdireff)->SetBinContent(be+1, sumeff);
+	      hist(s, m_histdireff)->SetBinError(be+1, sumerr);
 	    }
 	  }	  
 	}
@@ -3838,17 +3572,13 @@ StatusCode HLTMuonMonTool::procChainDQA_generic(const std::string& chainName )
 	denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
 	numer = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
 	effi  = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
-	hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-	
-	// Uncommented by YY 12.04.10
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 
 	// Summary ESid and ESindep
 	if (0 == alg || 1 == alg || 2 == alg) {
 	  // if (ESID == i || ESINDEP == i) {
 	  double sumd, sumn, sumeff, sumerr;
-	  sumn = hist(numer, histdireffnumdenom)->Integral(iSTDL, iSTDH);  // 40 - 100 GeV
-	  sumd = hist(denom, histdireffnumdenom)->Integral(iSTDL, iSTDH);
+	  sumn = hist(numer, m_histdireffnumdenom)->Integral(m_iSTDL, m_iSTDH);  // 40 - 100 GeV
+	  sumd = hist(denom, m_histdireffnumdenom)->Integral(m_iSTDL, m_iSTDH);
 	  if (sumd == 0.) {
 	    sumeff = 0.;
 	    sumerr = 0.;
@@ -3867,17 +3597,13 @@ StatusCode HLTMuonMonTool::procChainDQA_generic(const std::string& chainName )
 	  
 	  std::string s = chainName + "_highpt_effsummary_by" + m_triggerES[i];
 	  ATH_MSG_DEBUG("hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr);
-	  hist(s, histdireff)->SetBinContent(ibin_holx+1, sumeff);
-	  hist(s, histdireff)->SetBinError(ibin_holx+1, sumerr);
+	  hist(s, m_histdireff)->SetBinContent(ibin_holx+1, sumeff);
+	  hist(s, m_histdireff)->SetBinError(ibin_holx+1, sumerr);
 	}
 	
 	denom = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
 	numer = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
 	effi = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
-	hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-	
-	// Uncommented by YY 12.04.10
-	dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 
       }
       //  for ES : END ------------------------------------------------------------------------------
@@ -3888,10 +3614,7 @@ StatusCode HLTMuonMonTool::procChainDQA_generic(const std::string& chainName )
 	  denom = chainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
 	  numer = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
 	  effi  = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
-	  hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
       
-	  // Uncommented by YY 12.04.10
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 	}
 
 
@@ -3899,30 +3622,18 @@ StatusCode HLTMuonMonTool::procChainDQA_generic(const std::string& chainName )
 	  denom = chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
 	  numer = chainName + m_MSchainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
 	  effi  = chainName + m_MSchainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
-	  hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-      
-	  // Uncommented by YY 12.04.10
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 	}
 
 	for (int be = 0; be < 2; be++) {
 	  denom = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be] + "_Denominator";
 	  numer = chainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
 	  effi = chainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be];
-	  hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-      
-	  // Uncommented by YY 12.04.10
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 	}
 
 	for (int be = 0; be < 2; be++) {
 	  denom = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be] + "_Denominator";
 	  numer = chainName + m_MSchainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
 	  effi = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be];
-	  hist(effi, histdireff)->Divide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom), 1, 1, "B" );
-      
-	  // Uncommented by YY 12.04.10
-	  dynamic_cast<TGraphAsymmErrors*>( graph(effi + "_Fit", histdireff ) )->BayesDivide( hist(numer, histdireffnumdenom), hist(denom, histdireffnumdenom) );
 	}
 
       }
@@ -3932,8 +3643,8 @@ StatusCode HLTMuonMonTool::procChainDQA_generic(const std::string& chainName )
       denom = chainName + monalg[ialg] + "_etaphi_coarse_wrt_MuidCB";
       numer = chainName + monalg[ialg] + "_etaphi_coarse1d_wrt_MuidCB";
       // ATH_MSG_INFO("denom " << denom << " numer " << numer);
-      TH2F *h2d = (TH2F *)hist2(denom, histdirdist2d);
-      TH1F *h1d = (TH1F *)hist(numer, histdirdist2d);
+      TH2F *h2d = (TH2F *)hist2(denom, m_histdirdist2d);
+      TH1F *h1d = (TH1F *)hist(numer, m_histdirdist2d);
       refill_2d1d_coarse(h2d, h1d);
     }
   } else if( endOfLumiBlock ){
@@ -4041,8 +3752,8 @@ StatusCode HLTMuonMonTool::procChainDQA_HighPt()
 	  sumeff = (double)sumn / (double) sumd;
 	  sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
 	}
-	hist(sumhist, histdireff)->SetBinContent(ibin-1, sumeff);
-	hist(sumhist, histdireff)->SetBinError(ibin-1, sumerr);
+	hist(sumhist, m_histdireff)->SetBinContent(ibin-1, sumeff);
+	hist(sumhist, m_histdireff)->SetBinError(ibin-1, sumerr);
       }
 
       /* 3. Picking up chainDQ MSonly graph   abandoned!!! */   
@@ -4054,8 +3765,8 @@ StatusCode HLTMuonMonTool::procChainDQA_HighPt()
 
 	// Integrate 100-300 GeV
 	double sumeff, sumerr;
-	double sumn = hist(histChNum, histdireffnumdenom)->Integral(21, 28);
-	double sumd = hist(histChDen, histdireffnumdenom)->Integral(21, 28);
+	double sumn = hist(histChNum, m_histdireffnumdenom)->Integral(21, 28);
+	double sumd = hist(histChDen, m_histdireffnumdenom)->Integral(21, 28);
 	if (sumd == 0.) {
 	  sumeff = 0.;
 	  sumerr = 0.;
@@ -4063,8 +3774,8 @@ StatusCode HLTMuonMonTool::procChainDQA_HighPt()
 	  sumeff = (double)sumn / (double) sumd;
 	  sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
 	}
-	hist(sumhist, histdireff)->SetBinContent(3, sumeff);
-	hist(sumhist, histdireff)->SetBinError(3, sumerr);
+	hist(sumhist, m_histdireff)->SetBinContent(3, sumeff);
+	hist(sumhist, m_histdireff)->SetBinError(3, sumerr);
       }
       */	
 
@@ -4087,8 +3798,8 @@ StatusCode HLTMuonMonTool::procChainDQA_HighPt()
 	  sumeff = (double)sumn / (double) sumd;
 	  sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
 	}
-	hist(sumhist, histdireff)->SetBinContent(1, sumeff);
-	hist(sumhist, histdireff)->SetBinError(1, sumerr);
+	hist(sumhist, m_histdireff)->SetBinContent(1, sumeff);
+	hist(sumhist, m_histdireff)->SetBinError(1, sumerr);
 
 	sumn = hist(histZtpNumE, hdirztp)->Integral(7, 10);
 	sumd = hist(histZtpDenE, hdirztp)->Integral(7, 10);
@@ -4099,8 +3810,8 @@ StatusCode HLTMuonMonTool::procChainDQA_HighPt()
 	  sumeff = (double)sumn / (double) sumd;
 	  sumerr = sqrt((double)sumn * (1.-sumeff)) / (double)sumd;
 	}
-	hist(sumhist, histdireff)->SetBinContent(2, sumeff);
-	hist(sumhist, histdireff)->SetBinError(2, sumerr);
+	hist(sumhist, m_histdireff)->SetBinContent(2, sumeff);
+	hist(sumhist, m_histdireff)->SetBinError(2, sumerr);
 
       }
     }
@@ -4232,7 +3943,7 @@ StatusCode HLTMuonMonTool::fillRecMuon()
 
   // need to select vertex!!!
   xAOD::VertexContainer::const_iterator p;
-  xAOD::Vertex* vtx = 0;
+  const xAOD::Vertex* vtx = 0;
   for (p = vxCont->begin(); p != vxCont->end(); ++p) {
     //reject dummy vertex.
     //note1: Trk::NoVtx(=0) means dummy vertex.
@@ -4287,9 +3998,9 @@ StatusCode HLTMuonMonTool::fillRecMuon()
       ms_trk = *((*muonItr)->muonSpectrometerTrackParticleLink());
       pt = ms_trk->pt() / CLHEP::GeV ;
       if( pt > 4 )
-	      hist("Number_Of_Moore_MS_Muons_4GeV_Cut",histdirrate)->Fill(m_lumiblock);
+	      hist("Number_Of_Moore_MS_Muons_4GeV_Cut",m_histdirrate)->Fill(m_lumiblock);
       if( pt > 10 )
-	      hist("Number_Of_Moore_MS_Muons_10GeV_Cut",histdirrate)->Fill(m_lumiblock);
+	      hist("Number_Of_Moore_MS_Muons_10GeV_Cut",m_histdirrate)->Fill(m_lumiblock);
     }
 
     if((*muonItr)->muonSpectrometerTrackParticleLink().isValid()){
@@ -4302,21 +4013,17 @@ StatusCode HLTMuonMonTool::fillRecMuon()
       //pt = ms_trk->pt() / CLHEP::GeV ;
       pt = fabs((*muonItr)->pt())/CLHEP::GeV; // there seem to be bug in MS trk pt, so use rec pt now
       if( pt > 4 )
-        hist("Number_Of_Moore_SA_Muons_4GeV_Cut",histdirrate)->Fill(m_lumiblock);
+        hist("Number_Of_Moore_SA_Muons_4GeV_Cut",m_histdirrate)->Fill(m_lumiblock);
       if( pt > 10 )
-        hist("Number_Of_Moore_SA_Muons_10GeV_Cut",histdirrate)->Fill(m_lumiblock);
+        hist("Number_Of_Moore_SA_Muons_10GeV_Cut",m_histdirrate)->Fill(m_lumiblock);
       float eta = ms_trk->eta();
       float phi = ms_trk->phi();
       float d0 = 0.;
       float z0 = 0.;
       float charge = ms_trk->charge();
-      const  Trk::Perigee ms_measPerigee = ms_trk->perigeeParameters();
-      if(&ms_measPerigee.parameters()) {
-        d0  = ms_measPerigee.parameters()[Trk::d0];
-        z0  = ms_measPerigee.parameters()[Trk::z0];
-      }else{
-        ATH_MSG_WARNING(" no measuredPerigee pointer for SA muon");
-      }
+      const  Trk::Perigee& ms_measPerigee = ms_trk->perigeeParameters();
+      d0  = ms_measPerigee.parameters()[Trk::d0];
+      z0  = ms_measPerigee.parameters()[Trk::z0];
 
       // YY: CB, isGoodCB;
       bool hasCB = ((*muonItr)->muonType()==xAOD::Muon::Combined);
@@ -4336,7 +4043,8 @@ StatusCode HLTMuonMonTool::fillRecMuon()
 	  uint8_t nSCTcomb = 0;
 	  comb->summaryValue(nSCTcomb, xAOD::numberOfSCTHits);
 	  if (vtx != 0) {
-	    if (nPixcomb >= 1 && nSCTcomb >= 6 && abs(z0comb - (vtx->position()).z()) < 5. && abs(d0comb) < 1.5) {
+	    // if (nPixcomb >= 1 && nSCTcomb >= 6 && abs(z0comb - (vtx->position()).z()) < 5. && abs(d0comb) < 1.5) { } // Run 1 requirement
+	    if ((*muonItr)->quality()<= xAOD::Muon::Medium && (*muonItr)->passesIDCuts() && ((*muonItr)->author()==xAOD::Muon::Author::MuidCo || (*muonItr)->author()==xAOD::Muon::Author::STACO)) {
 	      isGoodCB = true;
 	    }
 	    ATH_MSG_DEBUG("HLTMuonMon: SA: good " << isGoodCB << " nPix " << nPixcomb << " nSCT " << nSCTcomb
@@ -4369,9 +4077,9 @@ StatusCode HLTMuonMonTool::fillRecMuon()
       comb = *((*muonItr)->combinedTrackParticleLink());
       float pt = comb->pt() / CLHEP::GeV ;
       if( pt > 4 )
-        hist("Number_Of_Muid_Muons_4GeV_Cut",histdirrate)->Fill(m_lumiblock);
+        hist("Number_Of_Muid_Muons_4GeV_Cut",m_histdirrate)->Fill(m_lumiblock);
       if( pt > 10 )
-        hist("Number_Of_Muid_Muons_10GeV_Cut",histdirrate)->Fill(m_lumiblock);
+        hist("Number_Of_Muid_Muons_10GeV_Cut",m_histdirrate)->Fill(m_lumiblock);
 
       float eta = comb->eta();
       float phi = comb->phi();
@@ -4387,7 +4095,8 @@ StatusCode HLTMuonMonTool::fillRecMuon()
       comb->summaryValue(nSCTcomb, xAOD::numberOfSCTHits);
 
       if (vtx != 0) {
-	if (nPixcomb >= 1 && nSCTcomb >= 6 && abs(z0comb - (vtx->position()).z()) < 5. && abs(d0comb) < 1.5) {
+	//if (nPixcomb >= 1 && nSCTcomb >= 6 && abs(z0comb - (vtx->position()).z()) < 5. && abs(d0comb) < 1.5) { } // Run 1 requirement
+	if ((*muonItr)->quality()<= xAOD::Muon::Medium && (*muonItr)->passesIDCuts()  && ((*muonItr)->author()==xAOD::Muon::Author::MuidCo || (*muonItr)->author()==xAOD::Muon::Author::STACO)) {
 	  isGoodCB = true;
 	}
 	ATH_MSG_DEBUG("HLTMuonMon: CB: good " << isGoodCB << " nPix " << nPixcomb << " nSCT " << nSCTcomb
@@ -4403,18 +4112,18 @@ StatusCode HLTMuonMonTool::fillRecMuon()
 	ATH_MSG_DEBUG("HLTMuonMon: CB: isgood " << isGoodCB << " pt " << pt); 
 	//m_RecMuonCB_eloss.push_back( (*muonItr)->energyLoss().first );
 	m_RecMuonCB_eloss.push_back( (*muonItr)->energyLossType() );
-	float m_ptcone20;
-	(*muonItr)->isolation(m_ptcone20, xAOD::Iso::ptcone20);
-	m_RecMuonCB_ptcone.push_back( m_ptcone20 );
-	float m_etcone20;
-	(*muonItr)->isolation(m_etcone20, xAOD::Iso::etcone20);
-	m_RecMuonCB_etcone.push_back( m_etcone20 );
-	float m_etcone30;
-	(*muonItr)->isolation(m_etcone30, xAOD::Iso::etcone30);
-	m_RecMuonCB_etcone30.push_back( m_etcone30 );
-	float m_ptcone30;
-	(*muonItr)->isolation(m_ptcone30, xAOD::Iso::ptcone30);
-	m_RecMuonCB_ptcone30.push_back( m_ptcone30 );
+	float ptcone20;
+	(*muonItr)->isolation(ptcone20, xAOD::Iso::ptcone20);
+	m_RecMuonCB_ptcone.push_back( ptcone20 );
+	float etcone20;
+	(*muonItr)->isolation(etcone20, xAOD::Iso::etcone20);
+	m_RecMuonCB_etcone.push_back( etcone20 );
+	float etcone30;
+	(*muonItr)->isolation(etcone30, xAOD::Iso::etcone30);
+	m_RecMuonCB_etcone30.push_back( etcone30 );
+	float ptcone30;
+	(*muonItr)->isolation(ptcone30, xAOD::Iso::ptcone30);
+	m_RecMuonCB_ptcone30.push_back( ptcone30 );
 
 	isCombined++;
       }
@@ -4429,19 +4138,19 @@ StatusCode HLTMuonMonTool::fillRecMuon()
   if(isCombined >10) isCombined=10;
 
   ATH_MSG_DEBUG(" fill nMuon"); 
-  hist("Offline_Number_Of_Muon", histdir )->Fill(nOFL);
-  hist("Offline_Number_Of_MS_Muon", histdir )->Fill(nOFLMS);
-  hist("Offline_Number_Of_SA_Muon", histdir )->Fill(nOFLSA);
-  hist("Offline_Number_Of_LPT_Muon", histdir )->Fill(nOFLLPT);
-  hist("Offline_Number_Of_CB_Muon", histdir )->Fill(nOFLCB);
-  hist("Offline_Number_Of_Selected_CB_Muon", histdir )->Fill(isCombined);
+  hist("Offline_Number_Of_Muon", m_histdir )->Fill(nOFL);
+  hist("Offline_Number_Of_MS_Muon", m_histdir )->Fill(nOFLMS);
+  hist("Offline_Number_Of_SA_Muon", m_histdir )->Fill(nOFLSA);
+  hist("Offline_Number_Of_LPT_Muon", m_histdir )->Fill(nOFLLPT);
+  hist("Offline_Number_Of_CB_Muon", m_histdir )->Fill(nOFLCB);
+  hist("Offline_Number_Of_Selected_CB_Muon", m_histdir )->Fill(isCombined);
 
-  if(nOFL)      hist("Common_Counter", histdir )->Fill((float)OFLFOUND);
-  if(nOFLMS)    hist("Common_Counter", histdir )->Fill((float)OFLMSFOUND);
-  if(nOFLSA)    hist("Common_Counter", histdir )->Fill((float)OFLSAFOUND);
-  if(nOFLLPT)   hist("Common_Counter", histdir )->Fill((float)OFLLPTFOUND);
-  if(nOFLCB)    hist("Common_Counter", histdir )->Fill((float)OFLCBFOUND);
-  if(isCombined) hist("Common_Counter", histdir )->Fill((float)OFLCBSELFOUND);
+  if(nOFL)      hist("Common_Counter", m_histdir )->Fill((float)OFLFOUND);
+  if(nOFLMS)    hist("Common_Counter", m_histdir )->Fill((float)OFLMSFOUND);
+  if(nOFLSA)    hist("Common_Counter", m_histdir )->Fill((float)OFLSAFOUND);
+  if(nOFLLPT)   hist("Common_Counter", m_histdir )->Fill((float)OFLLPTFOUND);
+  if(nOFLCB)    hist("Common_Counter", m_histdir )->Fill((float)OFLCBFOUND);
+  if(isCombined) hist("Common_Counter", m_histdir )->Fill((float)OFLCBSELFOUND);
 
 
   return StatusCode::SUCCESS;
@@ -4569,8 +4278,8 @@ void
 HLTMuonMonTool::fillTriggerOverlap()
 {
 
-  TH2* h_ol    = hist2( "Trigger_Overlap", histdir   );
-  TH2* h_olpt  = hist2( "Trigger_Overlap_Including_Passthrough", histdir   );
+  TH2* h_ol    = hist2( "Trigger_Overlap", m_histdir   );
+  TH2* h_olpt  = hist2( "Trigger_Overlap_Including_Passthrough", m_histdir   );
 
   //Trigger
   for(int i=0; i < (int)m_chainsOverlap.size(); i++ ){
@@ -4604,11 +4313,11 @@ HLTMuonMonTool::procTriggerOverlap()
 
 
 
-  TH2* h_ol     = hist2( "Trigger_Overlap", histdir   );
-  TH2* h_olpt   = hist2( "Trigger_Overlap_Including_Passthrough", histdir   );
+  TH2* h_ol     = hist2( "Trigger_Overlap", m_histdir   );
+  TH2* h_olpt   = hist2( "Trigger_Overlap_Including_Passthrough", m_histdir   );
 
-  TH2* h_olf    = hist2( "Trigger_Overlap_Fraction", histdir   );
-  TH2* h_olfpt  = hist2( "Trigger_Overlap_Fraction_Including_Passthrough", histdir   );
+  TH2* h_olf    = hist2( "Trigger_Overlap_Fraction", m_histdir   );
+  TH2* h_olfpt  = hist2( "Trigger_Overlap_Fraction_Including_Passthrough", m_histdir   );
 
   //Trigger
   for(int i=0; i < (int)m_chainsOverlap.size(); i++ ){
@@ -4651,13 +4360,13 @@ HLTMuonMonTool::procTriggerOverlap()
 void HLTMuonMonTool::refill_2d1d_coarse(TH2F *h2, TH1F *h1)
 {
 
-  for (int ieta = 1; ieta <= eta_cnbins; ieta++) {
-    for (int iphi = 1; iphi <= phi_cnbins; iphi++) {
-      int ibin = (ieta - 1) * phi_cnbins + iphi;
+  for (int ieta = 1; ieta <= s_eta_cnbins; ieta++) {
+    for (int iphi = 1; iphi <= s_phi_cnbins; iphi++) {
+      int ibin = (ieta - 1) * s_phi_cnbins + iphi;
       // ATH_MSG_INFO("ibin " << ibin << "Histname " << h2->GetName() << " and " << h1->GetName());
       Double_t bincont = h2->GetBinContent(ieta, iphi);
       Double_t binerr = h2->GetBinError(ieta, iphi);
-      Double_t area = (bins_eta[ieta] - bins_eta[ieta-1])*TMath::Pi()/8.;
+      Double_t area = (m_bins_eta[ieta] - m_bins_eta[ieta-1])*TMath::Pi()/8.;
       bincont = bincont / area;
       binerr = binerr / area;
       h1->SetBinContent(ibin, bincont);
@@ -4699,7 +4408,7 @@ StatusCode HLTMuonMonTool::fillL1MuRoI()
   sc = m_storeGate->retrieve(eventInfo);
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR(" Cannot retrieve EventInfo ");
-    hist("Number_Of_Events", histdirrate )->Fill( m_lumiblock );
+    hist("Number_Of_Events", m_histdirrate )->Fill( m_lumiblock );
     return StatusCode::FAILURE;
   }
   EventID::number_type bcid = eventInfo->event_ID()->bunch_crossing_id();
@@ -4720,7 +4429,7 @@ StatusCode HLTMuonMonTool::fillL1MuRoI()
     int nEndcapRoi = 0;
     int nForwardRoi = 0;
     for ( ; muItr != muEnd; ++muItr) {
-      hist2(name, histdirdist2d)->Fill((*muItr)->eta(), (*muItr)->phi());
+      hist2(name, m_histdirdist2d)->Fill((*muItr)->eta(), (*muItr)->phi());
 
       if (!(*muItr)->isVetoed()) { // YY for removing MuCTPI overlap-removed RoIs
 	if (xAOD::MuonRoI::Barrel == (*muItr)->getSource()) {
@@ -4750,34 +4459,34 @@ StatusCode HLTMuonMonTool::fillL1MuRoI()
     name     = "L1_MUB_L1_MUE_match_muon_RoIs";
 
     if (mub && nBarrelRoi > 0) {
-      hist(name, histdirrate)->Fill(3.);
+      hist(name, m_histdirrate)->Fill(3.);
     }
     if (mue && nEC_F_Roi > 0) {
-      hist(name, histdirrate)->Fill(4.);
+      hist(name, m_histdirrate)->Fill(4.);
     }
     if (!mub && nBarrelRoi == 0) {
-      hist(name, histdirrate)->Fill(1.);
+      hist(name, m_histdirrate)->Fill(1.);
     }
     if (!mue && nEC_F_Roi == 0) {
-      hist(name, histdirrate)->Fill(2.);
+      hist(name, m_histdirrate)->Fill(2.);
     }
     if (!mub && nBarrelRoi > 0) { // no L1_MUB hit
-      hist(name, histdirrate)->Fill(5.);
+      hist(name, m_histdirrate)->Fill(5.);
       ATH_MSG_DEBUG("L1_MUB: 5");
       ATH_MSG_DEBUG("BCID " << bcid << " isFilled " << filled << " isUnpaired " << unpaired);
     }
     if (!mue && nEC_F_Roi > 0) { // no L1_MUE hit
-      hist(name, histdirrate)->Fill(6.);
+      hist(name, m_histdirrate)->Fill(6.);
       ATH_MSG_DEBUG("L1_MUE: 6");
       ATH_MSG_DEBUG("BCID " << bcid << " isFilled " << filled << " isUnpaired " << unpaired);
     }
     if (mub && nBarrelRoi == 0) { // L1_MUB fired while no RoI
-      hist(name, histdirrate)->Fill(7.);
+      hist(name, m_histdirrate)->Fill(7.);
       ATH_MSG_DEBUG("L1_MUB: 7");
       ATH_MSG_DEBUG("BCID " << bcid << " isFilled " << filled << " isUnpaired " << unpaired);
     }
     if (mue && nEC_F_Roi == 0) { // L1_MUE fired while no RoI
-      hist(name, histdirrate)->Fill(8.);
+      hist(name, m_histdirrate)->Fill(8.);
       ATH_MSG_DEBUG("L1_MUE: 8");
       ATH_MSG_DEBUG("BCID " << bcid << " isFilled " << filled << " isUnpaired " << unpaired);
     }
