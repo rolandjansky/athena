@@ -36,15 +36,43 @@ int JetClusterMomentsTool::modifyJet(xAOD::Jet& jet) const {
 }
 
 
-const xAOD::CaloCluster * JetClusterMomentsTool::findLeadingCluster(xAOD::Jet& jet) const {
+
+
+const xAOD::CaloCluster * findLeadingClusterImpl(const xAOD::Jet& jet)  {
+
     // Retrieve the associated clusters.
-    const xAOD::CaloCluster * cl_leading = 0;
-    if ( !jet.numConstituents() || jet.rawConstituent(0)->type() != xAOD::Type::CaloCluster ) return cl_leading; // skip if constituents are not CaloClusters
+
+  if ( jet.numConstituents() == 0 ) return NULL;
+  const xAOD::CaloCluster * cl_leading = NULL;
+
+
+  switch( jet.rawConstituent(0)->type() ) {
+  case xAOD::Type::CaloCluster : {
     for (size_t i_cl = 0; i_cl < jet.numConstituents(); i_cl++){ // loop all constituents
-        const xAOD::CaloCluster * cl_current = dynamic_cast<const xAOD::CaloCluster*> (jet.rawConstituent(i_cl));
-        if (!cl_leading || cl_leading->pt() < cl_current->pt() ) cl_leading = cl_current;
+      const xAOD::CaloCluster * cl_current = dynamic_cast<const xAOD::CaloCluster*> (jet.rawConstituent(i_cl));
+      if(!cl_current) continue;
+      if (!cl_leading || cl_leading->pt() < cl_current->pt() ) cl_leading = cl_current;
     }
-    return cl_leading;
+    
+  } break;
+    
+  case xAOD::Type::Jet: {
+    for (size_t i_cl = 0; i_cl < jet.numConstituents(); i_cl++){ // loop all constituents
+      const xAOD::Jet * jet_constit = dynamic_cast<const xAOD::Jet*> (jet.rawConstituent(i_cl));
+      if(!jet_constit) continue;
+      const xAOD::CaloCluster * cl_current = findLeadingClusterImpl( *jet_constit ) ;
+      if(cl_current)  if (!cl_leading || cl_leading->pt() < cl_current->pt() ) cl_leading = cl_current;
+    }
+    
+  } break;
+  default:
+    break;
+  } // end switch
+  return cl_leading;
+}
+
+const xAOD::CaloCluster * JetClusterMomentsTool::findLeadingCluster(xAOD::Jet& jet) const {
+  return findLeadingClusterImpl(jet);
 }
 
 
