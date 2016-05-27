@@ -1,15 +1,44 @@
 #
 # MakeHitPlots.py
 #
-TrackNTRTHits = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"Ntrthits_per_track","noFit",rootFiles,nFiles,normaliseHistos)
-DrawPlots(TrackNTRTHits, outputDir+"/"+"nTRTHits."+oFext, "TRT hits on track", "N Tracks",
-          "N TRT Hits", 0.18, 0.68, "",
-          canvasText,makeOutput, 0.15,0.88)
+
+print " <MakeResidualPlots.MakeResidualPlots> userCollectOutput=",userCollectOutput
+print "                                       userWebMonitoring=",userWebMonitoring
+#
+psname = "/Users/martis/projectes/atlas/alineament/webmonitoringtest/InDetAlignmentWebMonitor/trunk/WebPage/detailed_plots/2016/PlotsOfHits.pdf"
+if (userWebMonitoring):
+    psname = "/var/vhost/atlas-alignment/secure/detailed_plots/2016/PlotsOfHits.pdf"
+
+def initPsFile():
+    NullCanvas = TCanvas()
+    NullCanvas.Print(psname+"[")
+    return NullCanvas
+	
+def closePsFile(NullCanvas):
+    NullCanvas.Print(psname+"]")
+
+Canvases = []
+if (userCollectOutput):    
+    NullCanvas = initPsFile()
+
+##########################
+TrackNPIXHits = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"Npixhits_per_track","noFit",rootFiles,nFiles,normaliseHistos)
+thiscan = DrawPlots(TrackNPIXHits, outputDir+"/"+"nPIXHits."+oFext, "", "N Tracks",
+                    "N PIX Hits", 0.69, 0.6, "",
+                    canvasText,makeOutput)
+if (userCollectOutput): Canvases.append(thiscan)
 
 TrackNSCTHits = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"Nscthits_per_track","noFit",rootFiles,nFiles,normaliseHistos)
-DrawPlots(TrackNSCTHits, outputDir+"/"+"nSCTHits."+oFext, "", "N Tracks",
-          "N SCT Hits", 0.69, 0.6, "",
-          canvasText,makeOutput)
+thiscan = DrawPlots(TrackNSCTHits, outputDir+"/"+"nSCTHits."+oFext, "", "N Tracks",
+                    "N SCT Hits", 0.69, 0.6, "",
+                    canvasText,makeOutput)
+if (userCollectOutput): Canvases.append(thiscan)
+
+TrackNTRTHits = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"Ntrthits_per_track","noFit",rootFiles,nFiles,normaliseHistos)
+thiscan = DrawPlots(TrackNTRTHits, outputDir+"/"+"nTRTHits."+oFext, "TRT hits on track", "N Tracks",
+                    "N TRT Hits", 0.18, 0.68, "",
+                    canvasText,makeOutput, 0.15,0.88)
+if (userCollectOutput): Canvases.append(thiscan)
 
 TrackNSCTHitsBarrel = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"Nscthits_per_track_barrel","noFit",rootFiles,nFiles,normaliseHistos)
 DrawPlots(TrackNSCTHitsBarrel, outputDir+"/"+"nSCTHitsBarrel."+oFext, "", "N Tracks",
@@ -24,11 +53,6 @@ DrawPlots(TrackNSCTHitsEca, outputDir+"/"+"nSCTHitsEca."+oFext, "", "N Tracks",
 TrackNSCTHitsEcc = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"Nscthits_per_track_ecc","noFit",rootFiles,nFiles,normaliseHistos)
 DrawPlots(TrackNSCTHitsEcc, outputDir+"/"+"nSCTHitsEcc."+oFext, "", "N Tracks",
           "N SCT Hits Ecc", 0.69, 0.6, "",
-          canvasText,makeOutput)
-
-TrackNPIXHits = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"Npixhits_per_track","noFit",rootFiles,nFiles,normaliseHistos)
-DrawPlots(TrackNPIXHits, outputDir+"/"+"nPIXHits."+oFext, "", "N Tracks",
-          "N PIX Hits", 0.69, 0.6, "",
           canvasText,makeOutput)
 
 TrackNPIXHitsBarrel = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"Npixhits_per_track_barrel","noFit",rootFiles,nFiles,normaliseHistos)
@@ -99,13 +123,13 @@ DrawPlots(TRTB2HitEff, outputDir+"/"+"TRTB2HitEff."+oFext, "TRT Barrel Layer 2 H
 #          canvasText,makeOutput,0.60,0.41,False)
 
 
-if (userExtended):
-    PIXHits = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"PIXHitsvEta","noFit",rootFiles,nFiles, False)
-    DrawPlots(PIXHits,outputDir+"/"+"NPIXvsETA.png","","Average PIX hits", "#eta",0.2,0.9,"", canvasText,makeOutput, 0.60, 0.91, False);
-    SCTHits = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"SCTHitsvEta","noFit",rootFiles,nFiles, False)
-    DrawPlots(SCTHits,outputDir+"/"+"NSCTvsETA.png","","Average SCT hits", "#eta",0.2,0.9,"", canvasText,makeOutput, 0.60, 0.91, False);
-    TRTHits = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"TRTHitsvEta","noFit",rootFiles,nFiles, False)
-    DrawPlots(TRTHits,outputDir+"/"+"NTRTvsETA.png","","Average TRT hits", "#eta",0.2,0.9,"", canvasText,makeOutput, 0.60, 0.91, False);
+#if (userExtended):
+#    PIXHits = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"PIXHitsvEta","noFit",rootFiles,nFiles, False)
+#    DrawPlots(PIXHits,outputDir+"/"+"NPIXvsETA.png","","Average PIX hits", "#eta",0.2,0.9,"", canvasText,makeOutput, 0.60, 0.91, False);
+#    SCTHits = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"SCTHitsvEta","noFit",rootFiles,nFiles, False)
+#    DrawPlots(SCTHits,outputDir+"/"+"NSCTvsETA.png","","Average SCT hits", "#eta",0.2,0.9,"", canvasText,makeOutput, 0.60, 0.91, False);
+#    TRTHits = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"TRTHitsvEta","noFit",rootFiles,nFiles, False)
+#    DrawPlots(TRTHits,outputDir+"/"+"NTRTvsETA.png","","Average TRT hits", "#eta",0.2,0.9,"", canvasText,makeOutput, 0.60, 0.91, False);
 
 
 # SivsTRT
@@ -120,14 +144,23 @@ if siTRTDir[0] != "":
               "Track Phi", 0.19, 0.41, "",
               canvasText,makeOutput,0.60,0.41,False)
 
-
+#    
 NTracks = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"NPixPerLumiBlock","noFit",rootFiles,nFiles,False)
-DrawPlots(NTracks, outputDir+"/"+"NPixPerLumiBlock.png", "", "# pixel hits", "LumiBlock", 0.19, 0.9, "#mum", canvasText,makeOutput)
+thiscan = DrawPlots(NTracks, outputDir+"/"+"NPixPerLumiBlock.png", "Pixel hits vs LumiBlock", "#PIXEL hits", "LumiBlock", 0.19, 0.9, "#mum", canvasText,makeOutput)
+if (userCollectOutput): Canvases.append(thiscan)
 
 NTracks = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"NSCTPerLumiBlock","noFit",rootFiles,nFiles,False)
-DrawPlots(NTracks, outputDir+"/"+"NSCTPerLumiBlock.png", "", "#SCT hits", "LumiBlock", 0.19, 0.9, "#mum", canvasText,makeOutput)
-
+thiscan = DrawPlots(NTracks, outputDir+"/"+"NSCTPerLumiBlock.png", "SCT hits vs LumiBlock", "#SCT hits", "LumiBlock", 0.19, 0.9, "#mum", canvasText,makeOutput)
+if (userCollectOutput): Canvases.append(thiscan)
+    
 NTracks = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"NTRTPerLumiBlock","noFit",rootFiles,nFiles,False)
-DrawPlots(NTracks, outputDir+"/"+"NTRTPerLumiBlock.png", "", "#TRT hits", "LumiBlock", 0.19, 0.9, "#mum", canvasText,makeOutput)
+thiscan = DrawPlots(NTracks, outputDir+"/"+"NTRTPerLumiBlock.png", "TRT hits vs LumiBlock", "#TRT hits", "LumiBlock", 0.19, 0.9, "#mum", canvasText,makeOutput)
+if (userCollectOutput): Canvases.append(thiscan)
 
+if (userCollectOutput):
+    print " <MakeHitPlots> PsFile = ",psname
+    for canvas in Canvases:
+        print "  <MakeHitPlots> storing canvas: ", canvas 
+        PsFile = canvas.Print(psname)
+    closePsFile(NullCanvas)
 

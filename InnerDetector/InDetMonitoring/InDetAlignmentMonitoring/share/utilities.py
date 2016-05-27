@@ -507,13 +507,16 @@ def DrawPlots(inputTuple, outputName, plotTitle, yAxisTitle, xAxisTitle, legendL
         marker9 = legendTuple[0]
         marker9.Draw("same")
 
-    if (debug): print " <DrawPlots> going to save file ... "
+    if (debug): print " <DrawPlots> going to save file ... as ", outputName
+    print " <DrawPlots> going to save file ... as ", outputName
 
     if makeOutput:
         can.SaveAs(outputName)
+        print " <DrawPlots> file ", outputName, " succesfuly stored "
 
     if (debug): print " <DrawPlots> -- completed -- "
-
+    return can    
+        
 ##########################################################################################################
 def DrawEvolutionPlot(inputTuple, outputName, plotTitle, yAxisTitle, legendLeftX, legendUpperY, units, 
               canvasText, makeOutput, textBoxLeftX=0.59, textBoxUpperY=0.87, dynamicYRange=True, plotCosmetics="Default"):
@@ -557,6 +560,7 @@ def DrawEvolutionPlot(inputTuple, outputName, plotTitle, yAxisTitle, legendLeftX
         can.SaveAs(outputName)
         
     if (debug): print " <DrawEvolutionPlot> -- completed -- "
+    return can
 ###########################################################################################################################################
 def MakePlots2D(histogramDir,legendTitles,markerColors,markerStyles,histogramName,rootFiles,nFiles,profile=False):
     debug = False
@@ -1189,6 +1193,14 @@ def MakeProfPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyles,hist
     normaliseHistos = False # not normalization
     unitArea = False # not unit area
 
+    # make sure the styles are integers
+    markerStyle = []
+    for marker in markerStyles:
+        markerStyle.append(int(marker))
+    markerColor = []
+    for marker in markerColors:
+        markerColor.append(int(marker))
+    
     # in case we limit the range of bins
     rangeLimit = False
     if (binRangeLower > 0): rangeLimit = True
@@ -1241,7 +1253,7 @@ def MakeProfPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyles,hist
         if tempProf[i].GetMinimum() < -maxval:
             maxval = -tempProf[i].GetMinimum()
         maxval = 1.20 * maxval
-        maxval = 0.009
+        maxval = 0.020
         if (SubtractFirstHistoTest): maxval = 0.020
         #if (maxval < 0.45): maxval = 0.450
         #if (maxval < 0.10): maxval = 0.100
@@ -1249,9 +1261,9 @@ def MakeProfPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyles,hist
         # build the returned histograms
         returnHistogram[i] = TH1F("new_"+histoGram[i].GetName(), histoGram[i].GetTitle(),                                  
                            histoGram[i].GetNbinsX(), histoGram[i].GetXaxis().GetXmin(), histoGram[i].GetXaxis().GetXmax())
-        returnHistogram[i].SetMarkerStyle(markerStyles[i])
-        returnHistogram[i].SetMarkerColor(markerColors[i])
-        returnHistogram[i].SetLineColor(markerColors[i])
+        returnHistogram[i].SetMarkerStyle(markerStyle[i])
+        returnHistogram[i].SetMarkerColor(markerColor[i])
+        returnHistogram[i].SetLineColor(markerColor[i])
 
         for bin in range(histoGram[i].GetNbinsX()):
             returnHistogram[i].SetBinContent(bin+1, tempProf[i].GetBinContent(bin+1))
@@ -1389,6 +1401,15 @@ def MakexResSagittaPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyl
     normaliseHistos = False # not normalization
     unitArea = False # not unit area
 
+    # make sure the styles are integers
+    markerStyle = []
+    for marker in markerStyles:
+        markerStyle.append(int(marker))
+    markerColor = []
+    for marker in markerColors:
+        markerColor.append(int(marker))
+    
+
     # in case we limit the range of bins
     rangeLimit = False
     if (binRangeLower > 0): rangeLimit = True
@@ -1481,9 +1502,9 @@ def MakexResSagittaPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyl
         # buld the returned histograms
         returnHistogram[i] = TH1F("new_"+histoGram[i].GetName()+"_"+str(i), histoGram[i].GetTitle(),                                  
                            tempProf[i].GetNbinsX(), tempProf[i].GetXaxis().GetXmin(), tempProf[i].GetXaxis().GetXmax())
-        returnHistogram[i].SetMarkerStyle(markerStyles[i])
-        returnHistogram[i].SetMarkerColor(markerColors[i])
-        returnHistogram[i].SetLineColor(markerColors[i])
+        returnHistogram[i].SetMarkerStyle(markerStyle[i])
+        returnHistogram[i].SetMarkerColor(markerColor[i])
+        returnHistogram[i].SetLineColor(markerColor[i])
         
         for bin in range(tempProf[i].GetNbinsX()):
             if (bin == 14): continue
@@ -1627,6 +1648,14 @@ def MakeModuleResPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyles
     #if ring = -50 --> entire stave
     if (ring == -50): doStave = True
     if (True and doStave): print " <MakeModuleResPlotsFrom3D> === Draw the entire stave", sector
+
+    # make sure the styles are integers
+    markerStyle = []
+    for marker in markerStyles:
+        markerStyle.append(int(marker))
+    markerColor = []
+    for marker in markerColors:
+        markerColor.append(int(marker))
         
     # in case we limit the range of bins
     if ("pix_b0" in histogramName): # IBL
@@ -1665,10 +1694,10 @@ def MakeModuleResPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyles
         
         
         # perform the deired fit to the histogram
-        fit = MakeFit(returnHistogram[i], fitType, markerColors[i])
-        returnHistogram[i].SetMarkerStyle(markerStyles[i])
-        returnHistogram[i].SetMarkerColor(markerColors[i])
-        returnHistogram[i].SetLineColor(markerColors[i])
+        fit = MakeFit(returnHistogram[i], fitType, markerColor[i])
+        returnHistogram[i].SetMarkerStyle(markerStyle[i])
+        returnHistogram[i].SetMarkerColor(markerColor[i])
+        returnHistogram[i].SetLineColor(markerColor[i])
 
         # make a tuple object that can be passed to draw method
         Tuples[i] = returnTuple(fit, returnHistogram[i], legendTitles[i])
@@ -2188,6 +2217,11 @@ def MakeErrVsPtHisto(histogramName,histogramDir,rootFile):
 def GetHistogram(rootFile,histogramDir,histogramName,markerColor,markerStyle, fileID=0):
 
     debug = False
+
+    # make sure the styles are integers
+    markerStyle = int(markerStyle)
+    markerColor = int(markerColor)
+
     if (debug): 
         print " -- GetHistogram -- -- START -- -- "
         print "    rootFile = ", rootFile
@@ -2490,7 +2524,7 @@ def GetHistogram(rootFile,histogramDir,histogramName,markerColor,markerStyle, fi
         #or histogramName=="si_ecc_resX_mean" or histogramName=="si_eca_resX_mean" or histogramName=="si_barrel_resX_mean": Peo 
         histoGram.GetYaxis().SetRangeUser(-.02,.02) #pri
     if histogramName=="pix_b_yresvsmodphi" or histogramName=="pix_eca_yresvsmodphi" or histogramName=="pix_ecc_yresvsmodphi":
-        histoGram.GetYaxis().SetRangeUser(-.02,.02) #pri
+        histoGram.GetYaxis().SetRangeUser(-.1,.1) #pri
     if histogramName=="sct_b_xresvsmodeta" or histogramName=="pix_b_xresvsmodeta": 
         histoGram.GetYaxis().SetRangeUser(-.02,.02) #pri
     if histogramName=="sct_b_xresvsmodphi" or histogramName=="sct_eca_xresvsmodphi" or histogramName=="sct_ecc_xresvsmodphi":   
@@ -2632,6 +2666,9 @@ def RemoveNegativeYAxis(histoGram,histogramName):
 
 ###########################################################################        
 def MakeFit(histoGram, fitType, markerColor):
+
+    # make sure the styles are integers
+    markerColor = int(markerColor)
     
     if fitType=="noFit": #do not perform a fit
         fit = noFit(histoGram)
@@ -4013,7 +4050,7 @@ def DrawHitMaps(inputTuple, outputName, xAxisTitle, yAxisTitle, zAxisTitle, lege
     if makeOutput:
         can.SaveAs(outputName)
 
-    return
+    return can
 
 ###########################################################################################################################
 def DrawModuleGrid(detecName, inputHisto, layer=0):
@@ -4244,6 +4281,16 @@ def SetNextInputFile(myFile, myLegend, myMarker, myColor, myTrackColl="", myPref
     thePrefix.append(myPrefix)
 
     return
+
+##########################################################################################################
+def SetCanvasText(userText):
+    newcanvastext = ["","","",""]
+    if (len(userText)>=1): newcanvastext[0] = userText[0] 
+    if (len(userText)>=2): newcanvastext[1] = userText[1] 
+    if (len(userText)>=3): newcanvastext[2] = userText[2] 
+    if (len(userText)>=4): newcanvastext[3] = userText[3]
+    
+    return newcanvastext
 ##########################################################################################################
 def nFilesGiven():
 
