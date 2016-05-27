@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: rhadd.py 543578 2013-04-04 13:45:02Z graemes $
+# $Id: rhadd.py 677431 2015-06-23 08:09:12Z graemes $
 #
 # Recursive historgam adder, wrapping around hadd
 # Author: Graeme A Stewart <graeme.andrew.stewart@cern.ch>
@@ -31,7 +31,7 @@ import os
 import sys
 
 from multiprocessing import Pool
-from subprocess import Popen, STDOUT, PIPE, CalledProcessError
+from subprocess import Popen, STDOUT, PIPE
 from tempfile import mkstemp
 
 logging.basicConfig(level=logging.INFO)
