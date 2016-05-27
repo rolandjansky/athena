@@ -67,36 +67,36 @@ egammaContainer* egammaContainerCnv::createTransient()
 
   if ( compareClassGuid(p5_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<egammaContainer_p5> persObj( poolReadObject<egammaContainer_p5>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<egammaContainer_p5> persObj( poolReadObject<egammaContainer_p5>() );
     egammaContainerCnv_p5 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 
   } else if ( compareClassGuid(p4_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<egammaContainer_p4> persObj( poolReadObject<egammaContainer_p4>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<egammaContainer_p4> persObj( poolReadObject<egammaContainer_p4>() );
     egammaContainerCnv_p4 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 
   } else if ( compareClassGuid(p3_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<egammaContainer_p3> persObj( poolReadObject<egammaContainer_p3>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<egammaContainer_p3> persObj( poolReadObject<egammaContainer_p3>() );
     egammaContainerCnv_p3 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 
   } else if ( compareClassGuid(p2_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<egammaContainer_p2> persObj( poolReadObject<egammaContainer_p2>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<egammaContainer_p2> persObj( poolReadObject<egammaContainer_p2>() );
     egammaContainerCnv_p2 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 
   } else if ( compareClassGuid(p1_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<egammaContainer_p1> persObj( poolReadObject<egammaContainer_p1>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<egammaContainer_p1> persObj( poolReadObject<egammaContainer_p1>() );
     egammaContainerCnv_p1 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 

@@ -56,8 +56,8 @@ CaloRingsContainer* CaloRingsContainerCnv::createTransient()
   static pool::Guid p1_guid("E6E0435E-BFEC-11DE-B657-001CC0754D20");
 
   if ( compareClassGuid(p1_guid) ) {
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<CaloRingsContainer_p1> persObj( poolReadObject<CaloRingsContainer_p1>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<CaloRingsContainer_p1> persObj( poolReadObject<CaloRingsContainer_p1>() );
     CaloRingsContainerCnv_p1 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
   } else if ( compareClassGuid(tr_guid) ) {

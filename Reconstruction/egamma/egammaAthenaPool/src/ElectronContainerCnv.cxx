@@ -66,36 +66,36 @@ ElectronContainer* ElectronContainerCnv::createTransient()
 
   if ( compareClassGuid(p5_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<ElectronContainer_p5> persObj( poolReadObject<ElectronContainer_p5>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<ElectronContainer_p5> persObj( poolReadObject<ElectronContainer_p5>() );
     ElectronContainerCnv_p5 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 
   } else if ( compareClassGuid(p4_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<ElectronContainer_p4> persObj( poolReadObject<ElectronContainer_p4>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<ElectronContainer_p4> persObj( poolReadObject<ElectronContainer_p4>() );
     ElectronContainerCnv_p4 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 
   } else if ( compareClassGuid(p3_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<ElectronContainer_p3> persObj( poolReadObject<ElectronContainer_p3>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<ElectronContainer_p3> persObj( poolReadObject<ElectronContainer_p3>() );
     ElectronContainerCnv_p3 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 
   } else if ( compareClassGuid(p2_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<ElectronContainer_p2> persObj( poolReadObject<ElectronContainer_p2>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<ElectronContainer_p2> persObj( poolReadObject<ElectronContainer_p2>() );
     ElectronContainerCnv_p2 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 
   } else if ( compareClassGuid(p1_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<ElectronContainer_p1> persObj( poolReadObject<ElectronContainer_p1>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<ElectronContainer_p1> persObj( poolReadObject<ElectronContainer_p1>() );
     ElectronContainerCnv_p1 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 
