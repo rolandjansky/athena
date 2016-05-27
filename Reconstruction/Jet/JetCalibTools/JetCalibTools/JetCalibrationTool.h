@@ -103,6 +103,7 @@ private:
   std::string m_config;
   std::string m_calibSeq;
   std::string m_calibAreaTag;
+  bool m_devMode;
   bool m_isData;
   bool m_mass;
   std::string m_rhoKey;

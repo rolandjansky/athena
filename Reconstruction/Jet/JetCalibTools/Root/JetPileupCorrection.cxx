@@ -6,19 +6,19 @@
 
 JetPileupCorrection::JetPileupCorrection()
   : asg::AsgTool( "JetPileupCorrection::JetPileupCorrection" ), JetCalibrationToolBase::JetCalibrationToolBase(),
-    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_doResidual(false), m_doOrigin(false), m_isData(false),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false), m_doResidual(false), m_doOrigin(false), m_isData(false),
     m_useFull4vectorArea(false), m_residualOffsetCorr(NULL)
 { }
 
 JetPileupCorrection::JetPileupCorrection(const std::string& name)
   : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(), m_doResidual(false), m_doOrigin(false), m_isData(false),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(), m_dev(false), m_doResidual(false), m_doOrigin(false), m_isData(false),
     m_useFull4vectorArea(false), m_residualOffsetCorr(NULL)
 { }
 
-JetPileupCorrection::JetPileupCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool doResidual, bool doOrigin, bool isData)
+JetPileupCorrection::JetPileupCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool doResidual, bool doOrigin, bool isData, bool dev)
   : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_doResidual(doResidual), m_doOrigin(doOrigin), m_isData(isData),
+    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev), m_doResidual(doResidual), m_doOrigin(doOrigin), m_isData(isData),
     m_useFull4vectorArea(false), m_residualOffsetCorr(NULL)
 { }
 
@@ -39,13 +39,14 @@ StatusCode JetPileupCorrection::initializeTool(const std::string& name) {
   }
 
   m_useFull4vectorArea = m_config->GetValue("ApplyFullJetArea4MomentumCorrection", false);
-  ATH_MSG_INFO("  Jet area pile up correction will be applied.\n");
+  ATH_MSG_INFO("Jet area pile up correction will be applied.\n");
   if ( m_useFull4vectorArea ) ATH_MSG_INFO("  Full 4-vector jet area correction is activated.\n"); 
-  ATH_MSG_INFO(" \n");
+  //ATH_MSG_INFO(" \n");
 
   if ( m_doResidual ) { 
     std::string suffix = "_Residual";
-    m_residualOffsetCorr = new ResidualOffsetCorrection(name+suffix,m_config,m_jetAlgo,m_calibAreaTag,m_isData);
+    m_residualOffsetCorr = new ResidualOffsetCorrection(name+suffix,m_config,m_jetAlgo,m_calibAreaTag,m_isData,m_dev);
+    m_residualOffsetCorr->msg().setLevel( this->msg().level() );
     ATH_CHECK( m_residualOffsetCorr->initializeTool(name+suffix) );
   }
 

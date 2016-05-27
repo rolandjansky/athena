@@ -28,7 +28,7 @@
 
 GlobalSequentialCorrection::GlobalSequentialCorrection()
   : asg::AsgTool( "GlobalSequentialCorrection::GlobalSequentialCorrection" ), JetCalibrationToolBase::JetCalibrationToolBase(),
-    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false),
     m_binSize(0.1), m_depth(0), 
     m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35), m_chargedFractionMaxEtaBin(27),
     m_punchThroughMinPt(50)
@@ -37,16 +37,16 @@ GlobalSequentialCorrection::GlobalSequentialCorrection()
 
 GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name)
   : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""),
+    m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false),
     m_binSize(0.1), m_depth(0), 
     m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35), m_chargedFractionMaxEtaBin(27),
     m_punchThroughMinPt(50)
    
 { }
 
-GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag)
+GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool dev)
   : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
-    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag),
+    m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev),
     m_binSize(0.1), m_depth(0),
     m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35), m_chargedFractionMaxEtaBin(27),
     m_punchThroughMinPt(50)
@@ -58,7 +58,7 @@ GlobalSequentialCorrection::~GlobalSequentialCorrection() {
 
 StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
 
-  ATH_MSG_INFO("  \nInitializing the Global Sequential Calibration tool\n\n");
+  ATH_MSG_INFO("Initializing the Global Sequential Calibration tool");
 
   // Set m_PFlow
   if( m_jetAlgo == "AntiKt4EMPFlow" ) m_PFlow = true;
@@ -79,7 +79,11 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
     ATH_MSG_FATAL("NO GSCFactorsFile specified. Aborting.");
     return StatusCode::FAILURE;
   }
-  GSCFile.Insert(14,m_calibAreaTag);
+  if(m_dev){
+    GSCFile.Insert(0,"JetCalibTools/");
+    GSCFile.Insert(28,m_calibAreaTag);
+  }
+  else{GSCFile.Insert(14,m_calibAreaTag);}
   TString fileName = PathResolverFindCalibFile(GSCFile.Data());
   TFile *inputFile = TFile::Open(fileName);
   if (!inputFile) ATH_MSG_FATAL("Cannot open GSC factors file" << fileName);
@@ -90,13 +94,11 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_INFO("  for " << m_jetAlgo << " jets\n\n");
+  //ATH_MSG_INFO("  for " << m_jetAlgo << " jets\n\n");
 
-  if( !m_PFlow ){
-    if ( depthString.Contains("PunchThrough") || depthString.Contains("Full") ) {
-      setPunchThroughEtaBins( JetCalibUtils::VectorizeD( m_config->GetValue("PunchThroughEtaBins","") ) );
-      setPunchThroughMinPt( m_config->GetValue("PunchThroughMinPt",50) );
-    }
+  if ( depthString.Contains("PunchThrough") || depthString.Contains("Full") ) {
+    setPunchThroughEtaBins( JetCalibUtils::VectorizeD( m_config->GetValue("PunchThroughEtaBins","") ) );
+    setPunchThroughMinPt( m_config->GetValue("PunchThroughMinPt",50) );
   }
 
   //set the depth private variable, used to determine which parts of the GS calibration are applied
@@ -109,7 +111,8 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
     else { ATH_MSG_FATAL("depthString flag not properly set, please check your config file."); return StatusCode::FAILURE; }
   } 
   else{
-    if ( depthString.Contains("EM3") || depthString.Contains("Full") ) m_depth = ApplyChargedFraction | ApplyTile0 | ApplyEM3;
+    if ( depthString.Contains("PunchThrough") || depthString.Contains("Full") ) m_depth = ApplyChargedFraction | ApplyTile0 | ApplyEM3 | ApplyPunchThrough;
+    else if ( depthString.Contains("EM3") ) m_depth = ApplyChargedFraction | ApplyTile0 | ApplyEM3;
     else if ( depthString.Contains("Tile0") ) m_depth = ApplyChargedFraction | ApplyTile0;
     else if ( depthString.Contains("ChargedFraction") ) m_depth = ApplyChargedFraction;
     else { ATH_MSG_FATAL("depthString flag not properly set, please check your config file."); return StatusCode::FAILURE; }
@@ -163,7 +166,7 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
       ATH_MSG_FATAL("Vector of PunchThrough histograms may be empty. Please check your GSCFactors file: " << GSCFile);
       return StatusCode::FAILURE;
     }
-    else ATH_MSG_INFO("\n  GSC Tool has been initialized with binning and eta fit factors from " << fileName << "\n");
+    else ATH_MSG_INFO("GSC Tool has been initialized with binning and eta fit factors from: " << fileName << "\n");
   }
   else{
     if ( (m_depth & ApplyChargedFraction) && m_respFactorsChargedFraction.size() < 3 ) {
@@ -178,7 +181,11 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
       ATH_MSG_FATAL("Vector of Tile0 histograms may be empty. Please check your GSCFactors file: " << GSCFile);
       return StatusCode::FAILURE;
     }
-    else ATH_MSG_INFO("\n  GSC Tool has been initialized with binning and eta fit factors from " << fileName << "\n");
+    else if ( (m_depth & ApplyPunchThrough) && m_respFactorsPunchThrough.size() < 2 ) {
+      ATH_MSG_FATAL("Vector of PunchThrough histograms may be empty. Please check your GSCFactors file: " << GSCFile);
+      return StatusCode::FAILURE;
+    }
+    else ATH_MSG_INFO("GSC Tool has been initialized with binning and eta fit factors from: " << fileName << "\n");
   }
   return StatusCode::SUCCESS;
 
@@ -299,6 +306,12 @@ double GlobalSequentialCorrection::getGSCCorrection(xAOD::JetFourMom_t jetP4, do
     if (m_depth & ApplyChargedFraction) Corr*=1./getChargedFractionResponse(jetP4.pt()/m_GeV, etabin, ChargedFraction);
     if (m_depth & ApplyTile0)           Corr*=1./getTile0Response(jetP4.pt()/m_GeV*Corr, etabin, Tile0);
     if (m_depth & ApplyEM3)             Corr*=1./getEM3Response(jetP4.pt()/m_GeV*Corr, etabin, EM3);
+    if ( jetP4.pt() < m_punchThroughMinPt ) return Corr; //Applying punch through correction to low pT jets introduces a bias, default threshold is 50 GeV
+    //eta binning for the punch through correction differs from the rest of the GSC, so the eta bin is determined in the GetPunchThroughResponse method
+    else if (m_depth & ApplyPunchThrough) {
+      jetP4*=Corr; //The punch through correction is binned in E instead of pT, so we determine E from the corrected jet here
+      Corr*=1/getPunchThroughResponse(jetP4.e()/m_GeV,eta,Nsegments);
+    }
   }
   return Corr;
 }
@@ -364,8 +377,12 @@ StatusCode GlobalSequentialCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInf
   }
   //Nsegments number of ghost associated muon segments behind each jet
   int Nsegments;
-  if( !m_PFlow ) Nsegments = jet.getAttribute<int>("GhostMuonSegmentCount");
-  else{Nsegments=0;}
+  if( jet.isAvailable< int >( "GhostMuonSegmentCount" ) ) {
+    Nsegments = jet.getAttribute<int>("GhostMuonSegmentCount");
+  } else {
+    Nsegments = 0;
+    ATH_MSG_WARNING("GhostMuonSegmentCount is not available, Nsegments=0 will be used, so NO PunchThrough Correction will be applied!");
+  }
 
   xAOD::JetFourMom_t jetconstitP4 = jet.getAttribute<xAOD::JetFourMom_t>("JetConstitScaleMomentum");
 
