@@ -7,10 +7,10 @@
 #include <cmath>
 #include <iostream>
 #include <limits>
-using namespace std;
 #include "EventInfo/PileUpEventInfo.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/TriggerInfo.h"
+using namespace std;
 
 int main() {
   cout << "*** PileUpEventInfo_test starts ***" << endl;

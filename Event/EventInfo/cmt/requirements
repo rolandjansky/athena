@@ -43,3 +43,4 @@ apply_pattern UnitTest_run unit_test=MergedEventInfo
 #FIXME apply_pattern UnitTest_run unit_test=AtlasMcWeight
 
 # application testEventInfo ../src/testEventInfo.cxx
+
