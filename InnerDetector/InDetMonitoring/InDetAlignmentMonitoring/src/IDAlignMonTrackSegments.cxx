@@ -22,8 +22,7 @@
 #include "InDetTrackSplitterTool/IInDetTrackSplitterTool.h"
 #include "TrackSelectionTool.h"
 #include <iostream>
-using std::cout;
-using std::endl;
+
 
 struct IDAlignMonTrackSegments::UpperLowerHistograms{
 
@@ -588,11 +587,11 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
   const DataVector<Trk::Track>* tracksUpper(0);
   const DataVector<Trk::Track>* tracksLower(0);
 
-  if (false) {
-    std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- START -- upper track collection = "<< m_upperTracksName << std::endl
-	      << "                                                                 lower track collection = "<< m_lowerTracksName 
-	      << std::endl;
-  }
+  //if (false) {
+  //  std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- START -- upper track collection = "<< m_upperTracksName << std::endl
+  //	      << "                                                                 lower track collection = "<< m_lowerTracksName 
+  //	      << std::endl;
+  //}
 
   if(m_useCTBSplitTracks){
     
@@ -635,45 +634,45 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     StatusCode sc = evtStore()->retrieve(tracksIn, m_inputTracksName);
     if (sc.isFailure()) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<m_inputTracksName<<" found in StoreGate" << endreq;
-      if (false) std::cout << " -- SALVA -- No TrackCollection with name "<<m_inputTracksName<<" found in StoreGate" << std::endl;
+      
     }else{
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksIn->size() <<" Input Tracks from StoreGate" << endreq;
-      if (false) std::cout << " -- SALVA -- Retrieved "<< tracksIn->size() <<" Input Tracks from StoreGate" << std::endl;
+      
     }
-    if (false) {
-      std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- going to split tracks for track collection: " << m_inputTracksName 
-		<< " with size: " <<  tracksIn->size()                                                                 
-		<< std::endl;
-    }
+    //if (false) {
+    //std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- going to split tracks for track collection: " << m_inputTracksName 
+    //		<< " with size: " <<  tracksIn->size()                                                                 
+    //		<< std::endl;
+    //}
     //This records the upper and lower track collections to storeGate 
     m_trackSplitter->splitTracks(tracksIn);
-    if (false) {
-      std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- track collection: " << m_inputTracksName 
-		<< " (size: " <<  tracksIn->size() <<" ) splitting completed "                                                                 
-		<< std::endl;
-    }
+    //if (false) {
+    //std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- track collection: " << m_inputTracksName 
+    //		<< " (size: " <<  tracksIn->size() <<" ) splitting completed "                                                                 
+    //		<< std::endl;
+    //}
     //Get the Upper Tracks
     tracksUpper = m_trackSelectionUpper->selectTracks(m_upperTracksName);
     if (!tracksUpper) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_upperTracksName<<" is NULL" << endreq;
-      std::cout << "TrackCollection with name "<<m_upperTracksName<<" is NULL" << std::endl;
+      
     }
 
     //Get the Lower Tracks
     tracksLower = m_trackSelectionLower->selectTracks(m_lowerTracksName);
     if (!tracksLower) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endreq;
-      if (false) std::cout << " -- SALVA -- TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endl;
+      
     }
 
   }
 
-  if (false) {
-    std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- retrieve upper and lower track segments that satisfy the track selection " << std::endl
-	      << "                                                     upper track collection = "<< m_upperTracksName << "   size: " << tracksUpper->size() << std::endl
-	      << "                                                     lower track collection = "<< m_lowerTracksName << "   size: " << tracksLower->size() 
-	      << std::endl;
-  }
+  //if (false) {
+  //std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- retrieve upper and lower track segments that satisfy the track selection " << std::endl
+  //	      << "                                                     upper track collection = "<< m_upperTracksName << "   size: " << tracksUpper->size() << std::endl
+  //	      << "                                                     lower track collection = "<< m_lowerTracksName << "   size: " << tracksLower->size() 
+  //	      << std::endl;
+  //}
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksUpper->size() <<" Upper Tracks." << endreq;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksLower->size() <<" Lower Tracks from Track from StoreGate" << endreq;
@@ -1019,11 +1018,11 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
   
   delete tracksLower;
   delete tracksUpper;
-  if (true) {
-    std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- COMPLETED -- "<< m_upperTracksName << " size: " << tracksUpper->size() 
-	      << "    "<< m_lowerTracksName << " size: " << tracksLower->size() 
-	      << std::endl;
-  }
+  //if (true) {
+  //std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- COMPLETED -- "<< m_upperTracksName << " size: " << tracksUpper->size() 
+  //	      << "    "<< m_lowerTracksName << " size: " << tracksLower->size() 
+  //	      << std::endl;
+  //}
   
   return StatusCode::SUCCESS;
 }

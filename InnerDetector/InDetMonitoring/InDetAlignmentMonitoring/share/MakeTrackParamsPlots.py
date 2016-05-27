@@ -6,19 +6,17 @@ DrawPlots(TrackD0, outputDir+"/"+"d0.png", "", "N Tracks",
           canvasText,makeOutput)
 
 TrackD0 = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"d0_bscorr","noFitWithStats",rootFiles,nFiles,normaliseHistos)
-DrawPlots(TrackD0, outputDir+"/"+"d0BS.png", "", "N Tracks",
-          "Impact Parameter [mm]", 0.19, 0.9, "#mum",
-          canvasText,makeOutput)
+DrawPlots(TrackD0, outputDir+"/"+"d0BS.png", "", "N Tracks", "Impact Parameter [mm]", 0.19, 0.9, "#mum", canvasText, makeOutput)
 
-TrackD0 = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"d0_pvcorr","noFitWithStats",rootFiles,nFiles,normaliseHistos)
-DrawPlots(TrackD0, outputDir+"/"+"d0PV.png", "", "N Tracks",
-          "Impact Parameter [mm]", 0.19, 0.9, "#mum",
-          canvasText,makeOutput)
+#TrackD0 = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"d0_pvcorr","noFitWithStats",rootFiles,nFiles,normaliseHistos)
+#DrawPlots(TrackD0, outputDir+"/"+"d0PV.png", "", "N Tracks",
+#          "Impact Parameter [mm]", 0.19, 0.9, "#mum",
+#          canvasText,makeOutput)
 
-TrackZ0PV = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"z0_pvcorr","noFitWithStats",rootFiles,nFiles,normaliseHistos)
-DrawPlots(TrackZ0PV, outputDir+"/"+"z0PV.png", "", "N Tracks",
-          "z0 w.r.t PV [mm]", 0.19, 0.9, "#mum",
-          canvasText,makeOutput)
+#TrackZ0PV = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"z0_pvcorr","noFitWithStats",rootFiles,nFiles,normaliseHistos)
+#DrawPlots(TrackZ0PV, outputDir+"/"+"z0PV.png", "", "N Tracks",
+#          "z0 w.r.t PV [mm]", 0.19, 0.9, "#mum",
+#          canvasText,makeOutput)
 
 
 TrackZ0 = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"z0","noFit",rootFiles,nFiles,normaliseHistos)
@@ -42,9 +40,7 @@ DrawPlots(TrackETAAsym, outputDir+"/"+"eta_asym.png", "", "(pos-neg)/(pos+neg)",
           canvasText,makeOutput)
 
 TrackPT = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"pT","noFit",rootFiles,nFiles,normaliseHistos)
-DrawPlots(TrackPT, outputDir+"/"+"pT.png", "", "N Tracks",
-          "q p_{T} [GeV]", 0.19, 0.9, "",
-          canvasText,makeOutput,0.60,0.91,False)
+DrawPlots(TrackPT, outputDir+"/"+"pT.png", "", "N Tracks", "q p_{T} [GeV]", 0.19, 0.9, "", canvasText,makeOutput,0.60,0.86,False)
 
 TrackPT = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"pT_nolog","noFit",rootFiles,nFiles,normaliseHistos)
 DrawPlots(TrackPT, outputDir+"/"+"pT_nolog.png", "", "N Tracks",
@@ -52,9 +48,7 @@ DrawPlots(TrackPT, outputDir+"/"+"pT_nolog.png", "", "N Tracks",
           canvasText,makeOutput,0.60,0.91,False)
 
 TrackPTqdiff = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"pT_diff","noFit",rootFiles,nFiles,normaliseHistos)
-DrawPlots(TrackPTqdiff, outputDir+"/"+"pTAqdiff.png", "Positive - Negative", "N Tracks",
-          "p_{T} [GeV]", 0.19, 0.9, "",
-          canvasText,makeOutput,0.60,0.91,False)
+DrawPlots(TrackPTqdiff, outputDir+"/"+"pTAqdiff.png", "Positive - Negative", "N Tracks", "p_{T} [GeV]", 0.19, 0.9, "", canvasText, makeOutput, 0.60,0.85,False)
 
 TrackPT_NQ = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"pT_n","noFit",rootFiles,nFiles,normaliseHistos)
 DrawPlots(TrackPT_NQ, outputDir+"/"+"pT_negativeQ.png", "", "N Tracks",
@@ -76,17 +70,19 @@ DrawPlots(TrackCHI2DOF, outputDir+"/"+"chi2oDoF.png", "", "N Tracks",
           "Chi2/DOF", 0.69, 0.6, "",
           canvasText,makeOutput)
 
-ERRD0VSP = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"errD0VsP","noFit",rootFiles,nFiles,False)
-DrawPlots(ERRD0VSP,outputDir+"/"+"D0ErrorVsP.png","","#sigma d_{0} [mm]", "p [GeV]",0.2,0.9,"#mum", canvasText,makeOutput, 0.60, 0.91, False);
+errD0 = False
+if (userExtended and errD0):
+    ERRD0VSP = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"errD0VsP","noFit",rootFiles,nFiles,False)
+    DrawPlots(ERRD0VSP,outputDir+"/"+"D0ErrorVsP.png","","#sigma d_{0} [mm]", "p [GeV]",0.2,0.9,"#mum", canvasText,makeOutput, 0.60, 0.80, False);
 
-ERRD0VSEta = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"errD0VsEta","noFit",rootFiles,nFiles,False)
-DrawPlots(ERRD0VSEta,outputDir+"/"+"D0ErrorVsEta.png","","#sigma d_{0} [mm]", "#eta",0.2,0.9," ", canvasText,makeOutput, 0.60, 0.91, False);
+    ERRD0VSEta = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"errD0VsEta","noFit",rootFiles,nFiles,False)
+    DrawPlots(ERRD0VSEta,outputDir+"/"+"D0ErrorVsEta.png","","#sigma d_{0} [mm]", "#eta",0.2,0.9," ", canvasText,makeOutput, 0.60, 0.91, False);
 
-ERRD0VSPhi = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"errD0VsPhi","noFit",rootFiles,nFiles,False)
-DrawPlots(ERRD0VSPhi,outputDir+"/"+"D0ErrorVsPhi.png","","#sigma d_{0} [mm]", "#phi_{0} [rad]",0.2,0.9," ", canvasText,makeOutput, 0.60, 0.91, False);
+    ERRD0VSPhi = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"errD0VsPhi","noFit",rootFiles,nFiles,False)
+    DrawPlots(ERRD0VSPhi,outputDir+"/"+"D0ErrorVsPhi.png","","#sigma d_{0} [mm]", "#phi_{0} [rad]",0.2,0.9," ", canvasText,makeOutput, 0.60, 0.91, False);
 
-ERRD0VSPhi = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"errD0VsPhiBarrel","noFit",rootFiles,nFiles,False)
-DrawPlots(ERRD0VSPhi,outputDir+"/"+"D0ErrorVsPhiBarrel.png","","#sigma d_{0} [mm]", "#phi_{0} [rad]",0.2,0.9," ", canvasText,makeOutput, 0.60, 0.91, False);
+    ERRD0VSPhi = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"errD0VsPhiBarrel","noFit",rootFiles,nFiles,False)
+    DrawPlots(ERRD0VSPhi,outputDir+"/"+"D0ErrorVsPhiBarrel.png","","#sigma d_{0} [mm]", "#phi_{0} [rad]",0.2,0.9," ", canvasText,makeOutput, 0.60, 0.91, False);
 
 TrackNTRACKS = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"ntracks","noFit",rootFiles,nFiles,normaliseHistos)
 DrawPlots(TrackNTRACKS, outputDir+"/"+"ntracks.png", "Tracks/Event", "N Events",
@@ -143,13 +139,13 @@ NTracks = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"Tra
 DrawPlots(NTracks, outputDir+"/"+"NTracksPerLumiBlock.png", "", "N Tracks", "LumiBlock", 0.19, 0.9, "#mum", canvasText,makeOutput)
 
 NTracks = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"NPixPerLumiBlock","noFit",rootFiles,nFiles,False)
-DrawPlots(NTracks, outputDir+"/"+"NPixPerLumiBlock.png", "", "N Tracks", "LumiBlock", 0.19, 0.9, "#mum", canvasText,makeOutput)
+DrawPlots(NTracks, outputDir+"/"+"NPixPerLumiBlock.png", "", "# pixel hits", "LumiBlock", 0.19, 0.9, "#mum", canvasText,makeOutput)
 
 NTracks = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"NSCTPerLumiBlock","noFit",rootFiles,nFiles,False)
-DrawPlots(NTracks, outputDir+"/"+"NSCTPerLumiBlock.png", "", "N Tracks", "LumiBlock", 0.19, 0.9, "#mum", canvasText,makeOutput)
+DrawPlots(NTracks, outputDir+"/"+"NSCTPerLumiBlock.png", "", "#SCT hits", "LumiBlock", 0.19, 0.9, "#mum", canvasText,makeOutput)
 
 NTracks = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"NTRTPerLumiBlock","noFit",rootFiles,nFiles,False)
-DrawPlots(NTracks, outputDir+"/"+"NTRTPerLumiBlock.png", "", "N Tracks", "LumiBlock", 0.19, 0.9, "#mum", canvasText,makeOutput)
+DrawPlots(NTracks, outputDir+"/"+"NTRTPerLumiBlock.png", "", "#TRT hits", "LumiBlock", 0.19, 0.9, "#mum", canvasText,makeOutput)
 
 
 

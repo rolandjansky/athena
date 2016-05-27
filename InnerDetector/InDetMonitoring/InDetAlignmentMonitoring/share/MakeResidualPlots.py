@@ -2,19 +2,51 @@
 #
 # Basic Barrel Residual distributions
 #
-# Pixel
-PIXX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
-DrawPlots(PIXX, outputDir+"/"+"PIXX."+oFext, "Pixel barrel + IBL", "Hits on tracks / 12 #mum",
-          "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+print " <MakeResidualPlots.MakeResidualPlots> userCollectOutput=",userCollectOutput
+print "                                       userWebMonitoring=",userWebMonitoring
+#
+psname = "/Users/martis/projectes/atlas/alineament/webmonitoringtest/InDetAlignmentWebMonitor/trunk/WebPage/detailed_plots/2016/ResidualDistributions.pdf"
+if (userWebMonitoring):
+    psname = "/var/vhost/atlas-alignment/secure/detailed_plots/2016/ResidualDistributions.pdf"
 
+def initPsFile():
+    NullCanvas = TCanvas()
+    NullCanvas.Print(psname+"[")
+    return NullCanvas
+	
+def closePsFile(NullCanvas):
+    NullCanvas.Print(psname+"]")
+
+Canvases = []
+if (userCollectOutput):    
+    NullCanvas = initPsFile()
+    
+
+# Pixel
+PIXX0 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
+thiscan = DrawPlots(PIXX0, outputDir+"/"+"PIXIBL_X."+oFext, "IBL", "Hits on tracks / 12 #mum",
+                    "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+if (userCollectOutput): Canvases.append(thiscan)
+
+thiscan = DrawEvolutionPlot(PIXX0, outputDir+"/"+"Evol_PIXIBL_X."+oFext, "Pixel Barrel IBL", "Mean local x residual [mm]", 0.15, 0.89, "#mum",canvasText,makeOutput,0.60, 0.88)    
+if (userCollectOutput): Canvases.append(thiscan)
+
+PIXX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
+thiscan = DrawPlots(PIXX, outputDir+"/"+"PIXX."+oFext, "Pixel barrel + IBL", "Hits on tracks / 12 #mum",
+                    "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+if (userCollectOutput): Canvases.append(thiscan)
+    
 PIXY = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b_residualy","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
-DrawPlots(PIXY, outputDir+"/"+"PIXY."+oFext, "Pixel barrel + IBL", "Hits on tracks / 16 #mum",
-          "Local y residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+thiscan = DrawPlots(PIXY, outputDir+"/"+"PIXY."+oFext, "Pixel barrel + IBL", "Hits on tracks / 16 #mum",
+                    "Local y residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+if (userCollectOutput): Canvases.append(thiscan)
 
 # SCT
 SCTX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_b_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
-DrawPlots(SCTX, outputDir+"/"+"SCTX."+oFext, "SCT barrel", "Hits on tracks / 8 #mum",
-          "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+thiscan = DrawPlots(SCTX, outputDir+"/"+"SCTX."+oFext, "SCT barrel", "Hits on tracks / 8 #mum",
+                    "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+if (userCollectOutput): Canvases.append(thiscan)
+print " <MakeResidualPlots> canvases: ",len(Canvases), " --> ", Canvases 
 
 #SCTY = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_b_residualy","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
 #DrawPlots(SCTY, outputDir+"/"+"SCTY."+oFext, "SCT barrel", "Hits on tracks / 10 #mum",
@@ -22,23 +54,21 @@ DrawPlots(SCTX, outputDir+"/"+"SCTX."+oFext, "SCT barrel", "Hits on tracks / 8 #
 
 # TRT
 TRTR = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_b_residualR","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
-DrawPlots(TRTR, outputDir+"/"+"TRTR."+oFext, "TRT barrel", "Hits on tracks / 22 #mum",
-          "residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
-
+thiscan = DrawPlots(TRTR, outputDir+"/"+"TRTR."+oFext, "TRT barrel", "Hits on tracks / 22 #mum",
+                    "residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+if (userCollectOutput): Canvases.append(thiscan)
+    
 ## Individual Barrel Layer Residual Distributions
-
-PIXX0 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(PIXX0, outputDir+"/"+"PIXIBL_X."+oFext, "IBL", "Hits on tracks / 12 #mum",
-          "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
-
 PIXX1 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b1_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(PIXX1, outputDir+"/"+"PIXX1."+oFext, "Pixel Barrel L0", "Hits on tracks / 12 #mum",
-          "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
-
+thiscan = DrawPlots(PIXX1, outputDir+"/"+"PIXX1."+oFext, "Pixel Barrel L0", "Hits on tracks / 12 #mum",
+                    "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+if (userCollectOutput): Canvases.append(thiscan)
+    
 PIXX2 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b2_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(PIXX2, outputDir+"/"+"PIXX2."+oFext, "Pixel Barrel L1", "Hits on tracks / 12 #mum",
-          "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
-
+thiscan = DrawPlots(PIXX2, outputDir+"/"+"PIXX2."+oFext, "Pixel Barrel L1", "Hits on tracks / 12 #mum",
+                    "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+if (userCollectOutput): Canvases.append(thiscan)
+    
 PIXX3 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b3_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
 DrawPlots(PIXX3, outputDir+"/"+"PIXX3."+oFext, "Pixel Barrel L2", "Hits on tracks / 12 #mum",
           "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
@@ -88,6 +118,98 @@ DrawPlots(SCTX2, outputDir+"/"+"SCTX2."+oFext, "SCT Barrel L2", "Hits on tracks 
 SCTX3 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_b3_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
 DrawPlots(SCTX3, outputDir+"/"+"SCTX3."+oFext, "SCT Barrel L3", "Hits on tracks / 8 #mum",
           "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+
+
+
+
+
+
+
+
+
+## Basic Endcap Residual distributions
+
+# draws combined ECA and ECC residual distribution
+PIXECX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_ec_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
+DrawPlots(PIXECX, outputDir+"/"+"PIXECX."+oFext, "Pixel end-caps", "Hits on tracks / 12 #mum",
+          "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+
+# Priscilla, for approval plot like in https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/CONFNOTES/ATLAS-CONF-2011-012/fig_14b.png
+PIXECY = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_ec_residualy","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
+DrawPlots(PIXECY, outputDir+"/"+"PIXECY."+oFext, "Pixel end-caps", "Hits on tracks / 16 #mum",
+          "Local y residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+
+PIXECAX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_eca_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
+DrawPlots(PIXECAX, outputDir+"/"+"PIXECAX."+oFext, "PIX Endcap A", "Hits on tracks / 12 #mum",
+          "Local x residual [mm]", 0.18, 0.88, "#mum",
+          canvasText,makeOutput)
+
+PIXECCX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_ecc_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
+DrawPlots(PIXECCX, outputDir+"/"+"PIXECCX."+oFext, "PIX Endcap C", "Hits on tracks / 12 #mum",
+          "Local x residual [mm]", 0.18, 0.88, "#mum",
+          canvasText,makeOutput)
+
+PIXECAY = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_eca_residualy","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
+DrawPlots(PIXECAY, outputDir+"/"+"PIXECAY."+oFext, "PIX Endcap A", "Hits on tracks / 16 #mum",
+          "Local y residual [mm]", 0.18, 0.88, "#mum",
+          canvasText,makeOutput)
+
+PIXECCY = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_ecc_residualy","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
+DrawPlots(PIXECCY, outputDir+"/"+"PIXECCY."+oFext, "PIX Endcap C", "Hits on tracks / 16 #mum",
+          "Local y residual [mm]", 0.18, 0.88, "#mum",
+          canvasText,makeOutput)
+
+
+# draws combined ECA and ECC residual distribution
+SCTECX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_ec_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
+DrawPlots(SCTECX, outputDir+"/"+"SCTECX."+oFext, "SCT Endcap", "Hits on tracks / 8 #mum",
+          "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+
+
+SCTECAX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_eca_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
+DrawPlots(SCTECAX, outputDir+"/"+"SCTECAX."+oFext, "SCT Endcap A", "Hits on tracks / 8 #mum",
+          "x residual [mm]", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87)
+
+SCTECCX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_ecc_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
+DrawPlots(SCTECCX, outputDir+"/"+"SCTECCX."+oFext, "SCT Endcap C", "Hits on tracks / 8 #mum",
+          "x residual [mm]", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87)
+
+TRTECA = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_ec_residualR_Endcap_A","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
+DrawPlots(TRTECA, outputDir+"/"+"TRTECA."+oFext, "TRT Endcap A", "Hits on tracks / 22 #mum",
+          "residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput)
+
+TRTECC = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_ec_residualR_Endcap_C","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
+DrawPlots(TRTECC, outputDir+"/"+"TRTECC."+oFext, "TRT Endcap C", "Hits on tracks / 22 #mum",
+          "residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput)
+
+TRTEC = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_ec_residualR","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
+DrawPlots(TRTEC, outputDir+"/"+"TRTEC."+oFext, "TRT end-caps", "Hits on tracks / 22 #mum",
+          "residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput)
+
+
+TRTBprof = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_b_aveResOverPhiVsStrawLayer","noFit",rootFiles,nFiles,False)
+DrawPlots(TRTBprof, outputDir+"/"+"TRTBprof."+oFext, "TRT Barrel", "residual [#mum]", "wire number", 
+          0.18, 0.88, "#mum", canvasText, makeOutput, 0.59, 0.87, False)
+
+TRTB0R = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_b_aveRes_l0","noFit",rootFiles,nFiles,False)
+DrawPlots(TRTB0R, outputDir+"/"+"TRTB0R."+oFext, "TRT Barrel layer 0", "residual [#mum]", "sector", 
+          0.18, 0.88, "#mum", canvasText, makeOutput, 0.59, 0.87, False)
+
+TRTB1R = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_b_aveRes_l1","noFit",rootFiles,nFiles,False)
+DrawPlots(TRTB1R, outputDir+"/"+"TRTB1R."+oFext, "TRT Barrel layer 1", "residual [#mum]", "sector", 
+          0.18, 0.88, "#mum", canvasText, makeOutput, 0.59, 0.87, False)
+
+TRTB2R = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_b_aveRes_l2","noFit",rootFiles,nFiles,False)
+DrawPlots(TRTB2R, outputDir+"/"+"TRTB2R."+oFext, "TRT Barrel layer 2", "residual [#mum]", "sector", 
+          0.18, 0.88, "#mum", canvasText, makeOutput, 0.59, 0.87, False)
+
+
+#Modified eta/phi plots
+
+
+#PIXMODETA =  MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b_"
 
 #
 # Residual mean and width distributions as a function of layer, ring, stave in barrel 
@@ -218,98 +340,6 @@ DrawPlots(SiBarrelResXWidth, outputDir+"/"+"SiBarrelResXWidth."+oFext, "Pixel/SC
 
 
 
-
-
-
-
-
-
-## Basic Endcap Residual distributions
-
-# draws combined ECA and ECC residual distribution
-PIXECX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_ec_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(PIXECX, outputDir+"/"+"PIXECX."+oFext, "Pixel end-caps", "Hits on tracks / 12 #mum",
-          "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
-
-# Priscilla, for approval plot like in https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/CONFNOTES/ATLAS-CONF-2011-012/fig_14b.png
-PIXECY = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_ec_residualy","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
-DrawPlots(PIXECY, outputDir+"/"+"PIXECY."+oFext, "Pixel end-caps", "Hits on tracks / 16 #mum",
-          "Local y residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
-
-PIXECAX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_eca_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(PIXECAX, outputDir+"/"+"PIXECAX."+oFext, "PIX Endcap A", "Hits on tracks / 12 #mum",
-          "Local x residual [mm]", 0.18, 0.88, "#mum",
-          canvasText,makeOutput)
-
-PIXECCX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_ecc_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(PIXECCX, outputDir+"/"+"PIXECCX."+oFext, "PIX Endcap C", "Hits on tracks / 12 #mum",
-          "Local x residual [mm]", 0.18, 0.88, "#mum",
-          canvasText,makeOutput)
-
-PIXECAY = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_eca_residualy","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(PIXECAY, outputDir+"/"+"PIXECAY."+oFext, "PIX Endcap A", "Hits on tracks / 16 #mum",
-          "Local y residual [mm]", 0.18, 0.88, "#mum",
-          canvasText,makeOutput)
-
-PIXECCY = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_ecc_residualy","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(PIXECCY, outputDir+"/"+"PIXECCY."+oFext, "PIX Endcap C", "Hits on tracks / 16 #mum",
-          "Local y residual [mm]", 0.18, 0.88, "#mum",
-          canvasText,makeOutput)
-
-
-# draws combined ECA and ECC residual distribution
-SCTECX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_ec_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
-DrawPlots(SCTECX, outputDir+"/"+"SCTECX."+oFext, "SCT Endcap", "Hits on tracks / 8 #mum",
-          "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
-
-
-SCTECAX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_eca_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(SCTECAX, outputDir+"/"+"SCTECAX."+oFext, "SCT Endcap A", "Hits on tracks / 8 #mum",
-          "x residual [mm]", 0.18, 0.88, "#mum",
-          canvasText,makeOutput,0.59, 0.87)
-
-SCTECCX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_ecc_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(SCTECCX, outputDir+"/"+"SCTECCX."+oFext, "SCT Endcap C", "Hits on tracks / 8 #mum",
-          "x residual [mm]", 0.18, 0.88, "#mum",
-          canvasText,makeOutput,0.59, 0.87)
-
-TRTECA = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_ec_residualR_Endcap_A","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(TRTECA, outputDir+"/"+"TRTECA."+oFext, "TRT Endcap A", "Hits on tracks / 22 #mum",
-          "residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput)
-
-TRTECC = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_ec_residualR_Endcap_C","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(TRTECC, outputDir+"/"+"TRTECC."+oFext, "TRT Endcap C", "Hits on tracks / 22 #mum",
-          "residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput)
-
-TRTEC = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_ec_residualR","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
-DrawPlots(TRTEC, outputDir+"/"+"TRTEC."+oFext, "TRT end-caps", "Hits on tracks / 22 #mum",
-          "residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput)
-
-
-TRTBprof = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_b_aveResOverPhiVsStrawLayer","noFit",rootFiles,nFiles,False)
-DrawPlots(TRTBprof, outputDir+"/"+"TRTBprof."+oFext, "TRT Barrel", "residual [#mum]", "wire number", 
-          0.18, 0.88, "#mum", canvasText, makeOutput, 0.59, 0.87, False)
-
-TRTB0R = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_b_aveRes_l0","noFit",rootFiles,nFiles,False)
-DrawPlots(TRTB0R, outputDir+"/"+"TRTB0R."+oFext, "TRT Barrel layer 0", "residual [#mum]", "sector", 
-          0.18, 0.88, "#mum", canvasText, makeOutput, 0.59, 0.87, False)
-
-TRTB1R = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_b_aveRes_l1","noFit",rootFiles,nFiles,False)
-DrawPlots(TRTB1R, outputDir+"/"+"TRTB1R."+oFext, "TRT Barrel layer 1", "residual [#mum]", "sector", 
-          0.18, 0.88, "#mum", canvasText, makeOutput, 0.59, 0.87, False)
-
-TRTB2R = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_b_aveRes_l2","noFit",rootFiles,nFiles,False)
-DrawPlots(TRTB2R, outputDir+"/"+"TRTB2R."+oFext, "TRT Barrel layer 2", "residual [#mum]", "sector", 
-          0.18, 0.88, "#mum", canvasText, makeOutput, 0.59, 0.87, False)
-
-
-#Modified eta/phi plots
-
-
-#PIXMODETA =  MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b_"
-
-
-
 #
 # -- Extended plots
 #
@@ -346,7 +376,7 @@ if (userExtended or True):
 
 
 
-if (userExtended):
+if (userExtended and userClusters):
     PIXX0vsINCANG = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_residualx_inciphi","noFit",rootFiles,nFiles,True)
     DrawPlots(PIXX0vsINCANG,outputDir+"/"+"PIXIBL_XvsINCANG."+oFext,"IBL","Local x residual [mm]","Incident angle [radians]",0.15,0.89,"#mum", canvasText,makeOutput, 0.59, 0.87, False);
     
@@ -425,5 +455,12 @@ if (userExtended):
     SCTSides = MakePlotsFrom3D(residualsDir,legendTitles,markerColors,markerStyles, "sct_b0_xresvsmodetaphi_3d", "noFitWithStats", rootFiles, nFiles, False, 0, 4) 
     DrawPlots(SCTSides, outputDir+"/"+"SCT_sides."+oFext, "SCT Layer 0 sides", "Average local x residual [mm]",
               "local x residual [mm]", 0.17, 0.89, "#mum",canvasText,makeOutput,0.65,0.89, False)
+
+if (userCollectOutput):
+    print " <MakeResidualPlots> PsFile = ",psname
+    for canvas in Canvases:
+        print "  <MakeResidualPlots> storing canvas: ", canvas 
+        PsFile = canvas.Print(psname)
+    closePsFile(NullCanvas)
 
 print " -- MakeResidualPlots -- completed "

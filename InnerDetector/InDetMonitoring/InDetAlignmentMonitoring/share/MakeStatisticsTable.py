@@ -13,7 +13,7 @@ for i in range(nFiles):
     histoGram = GetHistogram(rootFiles[i],genericTracksDir[i],"Nhits_per_track",markerColors[i],markerStyles[i], i)
     nRecoTracks.append(histoGram.GetEntries()) 
 
-    histoGram = GetHistogram(rootFiles[i],"/"+thePrefix[i]+"/IDAlignMon/AlignTracks_all/GenericTracks/","Nhits_per_track",markerColors[i],markerStyles[i], i)
+    histoGram = GetHistogram(rootFiles[i],genericTracksDir[i],"Nhits_per_track",markerColors[i],markerStyles[i], i)
     nAlignTracks.append(histoGram.GetEntries())
     
     histoGram = GetHistogram(rootFiles[i],residualsDir[i],"pix_b0_residualx",markerColors[i],markerStyles[i], i)
