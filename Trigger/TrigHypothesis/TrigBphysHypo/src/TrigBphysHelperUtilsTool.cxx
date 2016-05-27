@@ -292,7 +292,7 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
 
     
     xAOD::TrackParticle::FourMom_t fourMom = (*particles[0])->p4() + (*particles[1])->p4();
-    double massMuMu = invariantMass( *particles[0], *particles[1], 105.6583715,105.6583715); // #FIXME - don't hardcode!
+    double massMuMu = invariantMass( *particles[0], *particles[1], m_massMuon,m_massMuon); 
     
     double rap      = fourMom.Rapidity();
     double phi      = fourMom.Phi();

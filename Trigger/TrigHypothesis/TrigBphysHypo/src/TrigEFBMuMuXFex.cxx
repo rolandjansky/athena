@@ -98,6 +98,7 @@ HLT::ComboAlgo(name, pSvcLocator)
 ,m_countPassedBplusMass(0)
 ,m_countPassedBplusVtx(0)
 ,m_countPassedBplusVtxChi2(0)
+,m_countBpToStore(0)
 
 ,m_countPassedKstarMass(0)
 ,m_countPassedBdMass(0)
@@ -105,6 +106,7 @@ HLT::ComboAlgo(name, pSvcLocator)
 ,m_countPassedKstarVtxChi2(0)
 ,m_countPassedBdVtx(0)
 ,m_countPassedBdVtxChi2(0)
+,m_countBdToStore(0)
 
 ,m_countPassedPhi1020Mass(0)
 ,m_countPassedBsMass(0)
@@ -112,6 +114,7 @@ HLT::ComboAlgo(name, pSvcLocator)
 ,m_countPassedPhi1020VtxChi2(0)
 ,m_countPassedBsVtx(0)
 ,m_countPassedBsVtxChi2(0)
+,m_countBsToStore(0)
 
 ,m_countPassedLambdaMass(0)
 ,m_countPassedLbMass(0)
@@ -119,6 +122,7 @@ HLT::ComboAlgo(name, pSvcLocator)
 ,m_countPassedLambdaVtxChi2(0)
 ,m_countPassedLbVtx(0)
 ,m_countPassedLbVtxChi2(0)
+,m_countLbToStore(0)
 
 ,m_countPassedPhiDsMass(0)
 ,m_countPassedDsMass(0)
@@ -127,6 +131,7 @@ HLT::ComboAlgo(name, pSvcLocator)
 ,m_countPassedDsVtxChi2(0)
 ,m_countPassedBcVtx(0)
 ,m_countPassedBcVtxChi2(0)
+,m_countBcToStore(0)
 {
     declareProperty("AcceptAll",    m_acceptAll=true); // Should we just accept all events
     // sign & mass cuts
@@ -151,6 +156,7 @@ HLT::ComboAlgo(name, pSvcLocator)
     //   declareProperty("UpperBVtxMassCut", m_upperBVtxMassCut = 5900.);                      // default = 5900.0 MeV
     declareProperty("DoB_KMuMuVertexing", m_doB_KMuMuVertexing = true);
     declareProperty("BVtxChi2Cut", m_bVtxChi2Cut = 300.);                                // default = 300.0
+    declareProperty("MaxBpToStore", m_maxBpToStore = -1);
     
     // Bd->K*MuMu cuts
     declareProperty("DoBd_KstarMuMuDecay", m_doBd_KstarMuMuDecay = true);                //Proceed Bd->K*MuMu part of algorithm
@@ -168,6 +174,7 @@ HLT::ComboAlgo(name, pSvcLocator)
     declareProperty("DoBd_KstarMuMuVertexing", m_doBd_KstarMuMuVertexing = true);
     declareProperty("KstarVtxChi2Cut", m_kStarVtxChi2Cut = 60.);                        // default = 60.0
     declareProperty("BdVtxChi2Cut", m_bDVtxChi2Cut = 60.);                              // default = 60.0
+    declareProperty("MaxBdToStore", m_maxBdToStore = -1);
     
     // Bs->PhiMuMu cuts
     declareProperty("DoBs_Phi1020MuMuDecay", m_doBs_Phi1020MuMuDecay = true);            //Proceed Bs->PhiMuMu part of algorithm
@@ -185,6 +192,7 @@ HLT::ComboAlgo(name, pSvcLocator)
     declareProperty("DoBs_Phi1020MuMuVertexing", m_doBs_Phi1020MuMuVertexing = true);
     declareProperty("Phi1020VtxChi2Cut", m_phi1020VtxChi2Cut = 60.);                    // default = 60.0
     declareProperty("BsVtxChi2Cut", m_bSVtxChi2Cut = 60.);                              // default = 60.0
+    declareProperty("MaxBsToStore", m_maxBsToStore = -1);
     
     // Lb->LMuMu cuts // cuts optimalization in progress
     declareProperty("DoLb_LambdaMuMuDecay", m_doLb_LambdaMuMuDecay = true);              //Proceed Lb->LMuMu part of algorithm
@@ -205,6 +213,7 @@ HLT::ComboAlgo(name, pSvcLocator)
     //   declareProperty("LbVtxDistanceCut", m_lBVtxDistanceCut = 0.);                      // default = 0.0
     //   declareProperty("PiImpactCut", m_piImpactCut = 0.);                                // default = 0.0
     //   declareProperty("PrImpactCut", m_prImpactCut = 0.);                                // default = 0.0
+    declareProperty("MaxLbToStore", m_maxLbToStore = -1);
     
     // Bc->DsMuMu cuts
     declareProperty("DoBc_DsMuMuDecay", m_doBc_DsMuMuDecay = true);             // Proceed Bc->DsMuMu part of algorithm
@@ -218,6 +227,7 @@ HLT::ComboAlgo(name, pSvcLocator)
     declareProperty("DoBc_DsMuMuVertexing", m_doBc_DsMuMuVertexing = true);
     declareProperty("DsVtxChi2Cut", m_DsVtxChi2Cut =  90.);                    // default =  90.0
     declareProperty("BcVtxChi2Cut", m_bCVtxChi2Cut = 120.);                    // default = 120.0
+    declareProperty("MaxBcToStore", m_maxBcToStore = -1);
 
     // FTK Flag
     declareProperty("DoFTK",    m_FTK=false); // Are we using FTK??
@@ -601,6 +611,11 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     if(IdEvent!=m_lastEvent) {
         m_countTotalEvents++;
         m_lastEvent = IdEvent;
+        m_countBpToStore = 0;
+        m_countBdToStore = 0;
+        m_countBsToStore = 0;
+        m_countLbToStore = 0;
+        m_countBcToStore = 0;
     }
     m_countTotalRoI++;
     
@@ -1233,9 +1248,20 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                         ++nTriedCombinations;
                         if (trigPartBplusMuMuKplus) {
                             m_bphysHelperTool->setBeamlineDisplacement(trigPartBplusMuMuKplus,{*trackEL3,*trackELmu1,*trackELmu2});
-                            mTrigBphysColl_b->push_back(trigPartBplusMuMuKplus);
+                            if(m_maxBpToStore >= 0 && m_countBpToStore >= m_maxBpToStore) {
+                              if(m_countBpToStore == m_maxBpToStore) {
+                                ATH_MSG(WARNING) << "Reached maximum number of B+ candidates to store " << m_maxBpToStore << "; following candidates won't be written out" << endreq;
+                                mon_Errors.push_back(ERROR_MaxNumBpReached);
+                              }
+                              else
+                                ATH_MSG(DEBUG) << "Do not write out " << m_countBpToStore+1 << "th B+ candidate" << endreq;
+                            }
+                            else {
+                              mTrigBphysColl_b->push_back(trigPartBplusMuMuKplus);
+                            }
                             result=true;
                             mon_BMuMuK_n++;
+                            m_countBpToStore++;
                             if(IdEvent!=m_lastEventPassedBplus) {
                                 m_countPassedEventsBplus++;
                                 m_lastEventPassedBplus = IdEvent;
@@ -1372,11 +1398,22 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                     if (xaod_trigPartBdMuMuKstar) {
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBdMuMuKstar,{*trackEL3,*trackEL4,*trackELmu1,*trackELmu2});
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL3,*trackEL4});
-
-                                        mTrigBphysColl_b->push_back(xaod_trigPartBdMuMuKstar);
-                                        mTrigBphysColl_X->push_back(xaod_trigPartKstar );
+                                        
+                                        if(m_maxBdToStore >= 0 && m_countBdToStore >= m_maxBdToStore) {
+                                          if(m_countBdToStore == m_maxBdToStore) {
+                                            ATH_MSG(WARNING) << "Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" << endreq;
+                                            mon_Errors.push_back(ERROR_MaxNumBdReached);
+                                          }
+                                          else
+                                            ATH_MSG(DEBUG) << "Do not write out " << m_countBdToStore+1 << "th Bd candidate" << endreq;
+                                        }
+                                        else {
+                                          mTrigBphysColl_b->push_back(xaod_trigPartBdMuMuKstar);
+                                          mTrigBphysColl_X->push_back(xaod_trigPartKstar );
+                                        }
                                         result=true;
                                         mon_BdMuMuKs_n++;
+                                        m_countBdToStore++;
                                         if(IdEvent!=m_lastEventPassedBplus) {
                                             m_countPassedEventsBplus++;
                                             m_lastEventPassedBplus = IdEvent;
@@ -1407,10 +1444,21 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                     if (xaod_trigPartBdMuMuKstar) {
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBdMuMuKstar,{*trackEL4,*trackEL3,*trackELmu1,*trackELmu2});
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL4,*trackEL3});
-                                        mTrigBphysColl_b->push_back(xaod_trigPartBdMuMuKstar);
-                                        mTrigBphysColl_X->push_back(xaod_trigPartKstar );
+                                        if(m_maxBdToStore >= 0 && m_countBdToStore >= m_maxBdToStore) {
+                                          if(m_countBdToStore == m_maxBdToStore) {
+                                            ATH_MSG(WARNING) << "Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" << endreq;
+                                            mon_Errors.push_back(ERROR_MaxNumBdReached);
+                                          }
+                                          else
+                                            ATH_MSG(DEBUG) << "Do not write out " << m_countBdToStore+1 << "th Bd candidate" << endreq;
+                                        }
+                                        else {
+                                          mTrigBphysColl_b->push_back(xaod_trigPartBdMuMuKstar);
+                                          mTrigBphysColl_X->push_back(xaod_trigPartKstar );
+                                        }
                                         result=true;
                                         mon_BdMuMuKs_n++;
+                                        m_countBdToStore++;
                                         if(IdEvent!=m_lastEventPassedBplus) {
                                             m_countPassedEventsBplus++;
                                             m_lastEventPassedBplus = IdEvent;
@@ -1599,10 +1647,21 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBsMuMuPhi,{*trackEL3,*trackEL4,*trackELmu1,*trackELmu2});
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartPhi,        {*trackEL3,*trackEL4});
                                         
-                                        mTrigBphysColl_b->push_back(xaod_trigPartBsMuMuPhi);
-                                        mTrigBphysColl_X->push_back(xaod_trigPartPhi );
+                                        if(m_maxBsToStore >= 0 && m_countBsToStore >= m_maxBsToStore) {
+                                          if(m_countBsToStore == m_maxBsToStore) {
+                                            ATH_MSG(WARNING) << "Reached maximum number of Bs candidates to store " << m_maxBsToStore << "; following candidates won't be written out" << endreq;
+                                            mon_Errors.push_back(ERROR_MaxNumBsReached);
+                                          }
+                                          else
+                                            ATH_MSG(DEBUG) << "Do not write out " << m_countBsToStore+1 << "th Bs candidate" << endreq;
+                                        }
+                                        else {
+                                          mTrigBphysColl_b->push_back(xaod_trigPartBsMuMuPhi);
+                                          mTrigBphysColl_X->push_back(xaod_trigPartPhi );
+                                        }
                                         result=true;
                                         mon_BsMuMuPhi_n++;
+                                        m_countBsToStore++;
                                         if(IdEvent!=m_lastEventPassedBplus) {
                                             m_countPassedEventsBplus++;
                                             m_lastEventPassedBplus = IdEvent;
@@ -1715,10 +1774,21 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLbMuMuLambda,{*trackEL3,*trackEL4,*trackELmu1,*trackELmu2});
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLambda,      {*trackEL3,*trackEL4});
                                         
-                                        mTrigBphysColl_b->push_back(xaod_trigPartLbMuMuLambda);
-                                        mTrigBphysColl_X->push_back(xaod_trigPartLambda );
+                                        if(m_maxLbToStore >= 0 && m_countLbToStore >= m_maxLbToStore) {
+                                          if(m_countLbToStore == m_maxLbToStore) {
+                                            ATH_MSG(WARNING) << "Reached maximum number of Lb candidates to store " << m_maxLbToStore << "; following candidates won't be written out" << endreq;
+                                            mon_Errors.push_back(ERROR_MaxNumLbReached);
+                                          }
+                                          else
+                                            ATH_MSG(DEBUG) << "Do not write out " << m_countLbToStore+1 << "th Lb candidate" << endreq;
+                                        }
+                                        else {
+                                          mTrigBphysColl_b->push_back(xaod_trigPartLbMuMuLambda);
+                                          mTrigBphysColl_X->push_back(xaod_trigPartLambda );
+                                        }
                                         result=true;
                                         mon_LbMuMuLambda_n++;
+                                        m_countLbToStore++;
                                         if(IdEvent!=m_lastEventPassedBplus) {
                                             m_countPassedEventsBplus++;
                                             m_lastEventPassedBplus = IdEvent;
@@ -1748,10 +1818,21 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLbMuMuLambda,{*trackEL4,*trackEL3,*trackELmu1,*trackELmu2});
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLambda,      {*trackEL4,*trackEL3});
                                         
-                                        mTrigBphysColl_b->push_back(xaod_trigPartLbMuMuLambda);
-                                        mTrigBphysColl_X->push_back(xaod_trigPartLambda );
+                                        if(m_maxLbToStore >= 0 && m_countLbToStore >= m_maxLbToStore) {
+                                          if(m_countLbToStore == m_maxLbToStore) {
+                                            ATH_MSG(WARNING) << "Reached maximum number of Lb candidates to store " << m_maxLbToStore << "; following candidates won't be written out" << endreq;
+                                            mon_Errors.push_back(ERROR_MaxNumLbReached);
+                                          }
+                                          else
+                                            ATH_MSG(DEBUG) << "Do not write out " << m_countLbToStore+1 << "th Lb candidate" << endreq;
+                                        }
+                                        else {
+                                          mTrigBphysColl_b->push_back(xaod_trigPartLbMuMuLambda);
+                                          mTrigBphysColl_X->push_back(xaod_trigPartLambda );
+                                        }
                                         result=true;
                                         mon_LbMuMuLambda_n++;
+                                        m_countLbToStore++;
                                         if(IdEvent!=m_lastEventPassedBplus) {
                                             m_countPassedEventsBplus++;
                                             m_lastEventPassedBplus = IdEvent;
@@ -2005,8 +2086,18 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                                                                   xPhiMass,trigPartDs);
                                                 nTriedCombinations++;
                                                 if (trigPartBcMuMuDs) {
-                                                    mTrigBphysColl_b->push_back( trigPartBcMuMuDs );
-                                                    mTrigBphysColl_X->push_back( trigPartDs );
+                                                    if(m_maxBcToStore >= 0 && m_countBcToStore >= m_maxBcToStore) {
+                                                      if(m_countBcToStore == m_maxBcToStore) {
+                                                        ATH_MSG(WARNING) << "Reached maximum number of Bc candidates to store " << m_maxBcToStore << "; following candidates won't be written out" << endreq;
+                                                        mon_Errors.push_back(ERROR_MaxNumBcReached);
+                                                      }
+                                                      else
+                                                        ATH_MSG(DEBUG) << "Do not write out " << m_countBcToStore+1 << "th Bc candidate" << endreq;
+                                                    }
+                                                    else {
+                                                      mTrigBphysColl_b->push_back( trigPartBcMuMuDs );
+                                                      mTrigBphysColl_X->push_back( trigPartDs );
+                                                    }
 
                                                     m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDs,
                                                                                                {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
@@ -2028,6 +2119,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                     
                                                     result=true;
                                                     mon_BcMuMuDs_n++;
+                                                    m_countBcToStore++;
                                                     if(IdEvent!=m_lastEventPassedBc) {
                                                         m_countPassedEventsBc++;
                                                         m_lastEventPassedBc = IdEvent;

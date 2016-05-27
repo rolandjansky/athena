@@ -661,8 +661,19 @@ void TrigEFBMuMuFex::buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *m
     if (result) {
         mon_Acceptance.push_back( ACCEPT_Dimuon_Built );
         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Including result" << endreq;
-        m_resultsHolder.push_back(result);
         double massMuMu = result->mass();
+        
+        // apply loosened mass cut here to avoid too large containers
+        if(massMuMu < m_lowerMassCut - 5000.) {
+          if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Reject due to lower mass cut" << endreq;
+          return;
+        }
+        if(m_ApplyupperMassCut && massMuMu > m_upperMassCut + 5000.) {
+          if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Reject due to upper mass cut" << endreq;
+          return;
+        }
+        
+        m_resultsHolder.push_back(result);
         mon_MuMumass = massMuMu * 0.001;
         mon_BmassFit = result->fitmass() * 0.001;
         mon_Chi2 = result->fitchi2();

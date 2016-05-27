@@ -98,6 +98,7 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
 //     float m_upperBVtxMassCut;
     bool m_doB_KMuMuVertexing;
     float m_bVtxChi2Cut;
+    int m_maxBpToStore;
     
     bool m_doBd_KstarMuMuDecay;
     float m_lowerKstar_KaonMassCut;
@@ -112,6 +113,7 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     bool m_doBd_KstarMuMuVertexing;
     float m_kStarVtxChi2Cut;
     float m_bDVtxChi2Cut;
+    int m_maxBdToStore;
     
     bool m_doBs_Phi1020MuMuDecay;
     float m_lowerPhi1020_KaonMassCut;
@@ -126,6 +128,7 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     bool m_doBs_Phi1020MuMuVertexing;
     float m_phi1020VtxChi2Cut;
     float m_bSVtxChi2Cut;
+    int m_maxBsToStore;
     
     bool m_doLb_LambdaMuMuDecay;
     float m_lowerLambda_PrPiMassCut;
@@ -140,6 +143,7 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     bool m_doLb_LambdaMuMuVertexing;
     float m_lambdaVtxChi2Cut;
     float m_lBVtxChi2Cut;
+    int m_maxLbToStore;
     
     bool m_doBc_DsMuMuDecay;
     float m_lowerPhiDs_MassCut;
@@ -152,6 +156,7 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     bool m_doBc_DsMuMuVertexing;
     float m_DsVtxChi2Cut;
     float m_bCVtxChi2Cut;
+    int m_maxBcToStore;
     
     // FTK Flag
     bool m_FTK;
@@ -304,6 +309,7 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     unsigned int m_countPassedBplusMass;
     unsigned int m_countPassedBplusVtx;
     unsigned int m_countPassedBplusVtxChi2;
+    int m_countBpToStore;
     
     unsigned int m_countPassedKstarMass;
     unsigned int m_countPassedBdMass;
@@ -311,6 +317,7 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     unsigned int m_countPassedKstarVtxChi2;
     unsigned int m_countPassedBdVtx;
     unsigned int m_countPassedBdVtxChi2;
+    int m_countBdToStore;
     
     unsigned int m_countPassedPhi1020Mass;
     unsigned int m_countPassedBsMass;
@@ -318,6 +325,7 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     unsigned int m_countPassedPhi1020VtxChi2;
     unsigned int m_countPassedBsVtx;
     unsigned int m_countPassedBsVtxChi2;
+    int m_countBsToStore;
     
     unsigned int m_countPassedLambdaMass;
     unsigned int m_countPassedLbMass;
@@ -325,6 +333,7 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     unsigned int m_countPassedLambdaVtxChi2;
     unsigned int m_countPassedLbVtx;
     unsigned int m_countPassedLbVtxChi2;
+    int m_countLbToStore;
     
     unsigned int m_countPassedPhiDsMass;
     unsigned int m_countPassedDsMass;
@@ -333,6 +342,7 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     unsigned int m_countPassedDsVtxChi2;
     unsigned int m_countPassedBcVtx;
     unsigned int m_countPassedBcVtxChi2;
+    int m_countBcToStore;
 
     
     void addUnique(std::vector<const Trk::Track*>&, const Trk::Track*);
@@ -408,6 +418,12 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
 
 #define ERROR_TooManyComb_Acc        18
 #define ERROR_TooManyComb_Rej        19
+
+#define ERROR_MaxNumBpReached        20
+#define ERROR_MaxNumBdReached        21
+#define ERROR_MaxNumBsReached        22
+#define ERROR_MaxNumLbReached        23
+#define ERROR_MaxNumBcReached        24
 
 // // Define the bins for acceptance-monitoring histogram
 // #define ACCEPT_Input                 0
