@@ -14,6 +14,7 @@
 #include "MuonAODFixAlg.h"
 
 // Misc
+#include "CxxUtils/make_unique.h"
 #include <memory>
 
 namespace xAOD {
@@ -52,7 +53,7 @@ namespace xAOD {
                                        m_containerName) );
     
       muons = new xAOD::MuonContainer;
-      auto store = std::make_unique<xAOD::MuonAuxContainer>();
+      auto store = CxxUtils::make_unique<xAOD::MuonAuxContainer>();
       muons->setStore (store.get());
       for (const xAOD::Muon* oldMuon : *originalMuons) {
         xAOD::Muon* muon = new xAOD::Muon;
