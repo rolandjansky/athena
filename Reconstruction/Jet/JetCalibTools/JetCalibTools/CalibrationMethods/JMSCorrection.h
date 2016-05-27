@@ -13,6 +13,7 @@
 #include <TEnv.h>
 #include <TAxis.h>
 #include <TH2F.h>
+#include <TH2D.h>
 
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCalibTools/JetCalibrationToolBase.h"
@@ -27,6 +28,7 @@ class JMSCorrection
  public:
   //Some convenient typedefs
   typedef std::vector<TH2F*> VecTH2F;
+  typedef std::vector<TH2D*> VecTH2D;
   typedef std::vector<double> VecD;
   typedef unsigned int uint;
 
@@ -43,27 +45,43 @@ class JMSCorrection
  private:
   float getMassCorr(double pT_uncorr, double m_uncorr, int etabin) const;
   float getTrackAssistedMassCorr(double pT_uncorr, double m_uncorr, int etabin) const;
+  float getCaloWeight(double pT_uncorr, double m_over_pt_uncorr, int etabin) const;
+  float getTAWeight(double pT_uncorr, double m_over_pt_uncorr, int etabin) const;
 
   void setMassEtaBins(VecD etabins) { 
     if (etabins.size()==0) ATH_MSG_ERROR("Please check that the mass eta binning is properly set in your config file");
     m_massEtaBins=etabins;
   }
 
+  void setMassCombinationEtaBins(VecD etabins) { 
+    if (etabins.size()==0) ATH_MSG_ERROR("Please check that the mass combination eta binning is properly set in your config file");
+    m_massCombinationEtaBins=etabins;
+  }
+
  private:
 
   //Private members set in the constructor
   TEnv * m_config;
-  TString m_jetAlgo, m_calibAreaTag;
+  TString m_jetAlgo, m_calibAreaTag, m_jetOutScale;
   bool m_dev;
 
   double m_pTMinCorr;
 
   bool m_trackAssistedJetMassCorr;
 
+  mutable int m_warning_counter_mTACorr;
+
+  bool m_pTfixed; // false: pT will be corrected (large-R), if true: the energy will be corrected and pT will be fixed (small-R)
+
+  bool m_combination; // Mass Combination of calo mass with track-assisted mass
+
   //Private members set during initialization
   VecTH2F m_respFactorsMass;
   VecD m_massEtaBins;
   VecTH2F m_respFactorsTrackAssistedMass;
+  VecD m_massCombinationEtaBins;
+  VecTH2D m_caloWeightsMassCombination; // Calo Mass Weights
+  VecTH2D m_taWeightsMassCombination;   // Track-Assisted Mass Weights
   
 };
 

@@ -131,6 +131,13 @@ StatusCode InsituDataCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) co
 
   if(m_applyRelativeandAbsoluteInsitu) calibP4=calibP4*getInsituCorr( jetStartP4.pt(), detectorEta, "RelativeAbs" );
 
+  // If the jet mass calibration was applied the calibrated mass needs to be used!
+  if(m_jetStartScale.Contains("JetJMSScaleMomentum")){
+    TLorentzVector TLVjet;
+    TLVjet.SetPtEtaPhiM( calibP4.pt(), jetStartP4.eta(), jetStartP4.phi(), jetStartP4.mass() ); // mass at JMS
+    calibP4.SetPxPyPzE( TLVjet.Px(), TLVjet.Py(), TLVjet.Pz(), TLVjet.E() ); 
+  }
+
   //Transfer calibrated jet properties to the Jet object
   jet.setAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentum",calibP4);
   jet.setJetP4( calibP4 );

@@ -12,6 +12,8 @@
  *  1 14/03/16  First Version              J. Bossio (jbossios@cern.ch) * 
 \************************************************************************/
 
+// This will only run in RootCore
+#ifdef ROOTCORE
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
 
@@ -241,4 +243,4 @@ int main(int argc, char* argv[]){
 
 }
 
-
+#endif
