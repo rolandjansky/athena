@@ -15,6 +15,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "Identifier/Identifier.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkExInterfaces/IIntersector.h"
@@ -24,12 +25,14 @@
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
+#include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkSurfaces/Surface.h"
+#include "TrkTrack/AlignmentEffectsOnTrack.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkiPatFitterUtils/ExtrapolationType.h"
@@ -616,6 +619,31 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&		  measurements,
 			     ParticleHypothesis				  particleHypothesis,
 			     const DataVector<const TrackStateOnSurface>& trackStateOnSurfaces) const
 {
+    // create vector of any TSOS'es which require fitted alignment corrections
+//    std::vector<const TrackStateOnSurface*> misAlignedTSOS;
+    std::vector<Identifier> misAlignedTSOS;
+    std::vector<int> misAlignmentNumbers;
+    int	misAlignmentNumber				= 0;
+//  BUG that shifts ...   misAlignmentNumbers.push_back(misAlignmentNumber);
+    for (DataVector<const TrackStateOnSurface>::const_iterator
+	     r = trackStateOnSurfaces.begin();
+	     r != trackStateOnSurfaces.end();
+	     ++r)
+    {
+	if (! (**r).alignmentEffectsOnTrack() || ! (**r).trackParameters()) continue;
+	++misAlignmentNumber;
+	for (std::vector<Identifier>::const_iterator
+		 a = (**r).alignmentEffectsOnTrack()->vectorOfAffectedTSOS().begin();
+	         a != (**r).alignmentEffectsOnTrack()->vectorOfAffectedTSOS().end();
+	     ++a)
+	{
+	    misAlignedTSOS.push_back(*a);
+	    misAlignmentNumbers.push_back(misAlignmentNumber);
+            std::cout << " misAlignedTSOS.size() " << misAlignedTSOS.size()  << " misAlignmentNumber " << misAlignmentNumber << " tsos " << *a << std::endl; 
+	}
+    }
+    
+    // create ordered list of FitMeasurements	    
     bool haveMaterial					= false;
     bool haveMeasurement				= false;
     int hit						= measurements.size();
@@ -675,6 +703,15 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&		  measurements,
 		    haveMaterial	= true;
 	    }
 	}
+	else if ((**s).alignmentEffectsOnTrack() && (**s).trackParameters())
+	{
+	    Amg::Vector3D direction	= (**s).trackParameters()->momentum().unit();
+	    Amg::Vector3D position	= (**s).trackParameters()->position();
+	    measurement1		= new FitMeasurement((**s).alignmentEffectsOnTrack(),
+							     direction,
+							     position);
+
+	}
 	if ((**s).measurementOnTrack())
 	{
 	    // option to skip vertex measurement (i.e. when not at front of list)
@@ -687,7 +724,45 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&		  measurements,
 	    surface			= &(**s).measurementOnTrack()->associatedSurface();
 	    measurement2		= new FitMeasurement(hit,0,(**s).measurementOnTrack());
 	    if ((**s).type(TrackStateOnSurface::Outlier)) measurement2->setOutlier();
-	    if (measurement2->isCluster() || measurement2->isDrift()) haveMeasurement = true;
+	    // redundant surely??
+	    // if (measurement2->isCluster() || measurement2->isDrift()) haveMeasurement = true;
+//	    if (misAlignmentNumber && misAlignedTSOS.back() == *s)
+//	    {
+//		measurement2->alignmentParameter(misAlignmentNumber);
+//		misAlignedTSOS.pop_back();
+//		misAlignmentNumbers.pop_back();
+//		misAlignmentNumber	= misAlignmentNumbers.back();
+//	    }
+//
+//	    Peter 
+//	    measurement2->alignmentParameter(0);
+	    if (misAlignmentNumber) {
+               const Trk::MeasurementBase* meas = (**s).measurementOnTrack();
+               Identifier id = Identifier();
+               if(meas) {
+                 const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(meas);
+                 if(rot) {
+                   id = rot->identify();
+                 } else {
+                    const Muon::CompetingMuonClustersOnTrack* crot = dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(meas);
+                    if(crot&&!crot->containedROTs().empty()&&crot->containedROTs().front()) {
+                       id = crot->containedROTs().front()->identify();
+                    }
+                  }
+               }
+               for (unsigned int im = 0; im < misAlignedTSOS.size(); im++) {
+                  if(misAlignedTSOS[im]==id) {
+                    std::cout << "  misAlignmentNumber " << misAlignmentNumbers[im] << " tsos " << *s << std::endl;
+                    measurement2->alignmentParameter(misAlignmentNumbers[im]);
+                    if(measurement2->isDrift()) {
+                        std::cout << " Drift Measurement im " << im << "  with misAlignmentNumber " << misAlignmentNumbers[im] << " tsos " << *s << std::endl;
+                    } else { 
+                        std::cout << " No Drift Measurement im " << im << " with misAlignmentNumber " << misAlignmentNumbers[im] << " tsos " << *s << std::endl;
+                    }
+                  }
+               }
+            }
+
 	}
 	else if (! measurement1 && (**s).trackParameters())
 	{
@@ -717,7 +792,11 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&		  measurements,
 	else if ((**s).materialEffectsOnTrack())
 	{	
 	    surface			= &(**s).materialEffectsOnTrack()->associatedSurface();
-	}	
+	}
+	else if ((**s).alignmentEffectsOnTrack())
+	{	
+	    surface			= &(**s).alignmentEffectsOnTrack()->associatedSurface();
+	}
 	else
 	{
 	    // skip TSOS with missing trackParameters
