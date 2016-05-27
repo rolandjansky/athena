@@ -162,6 +162,45 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
 
     return CfgMgr.LArPileUpTool(name, **kwargs)
 
+def getLArRangeHGTD(name="LArRangeHGTD", **kwargs):
+    # bunch crossing range in ns
+    kwargs.setdefault('FirstXing', -1 )
+    kwargs.setdefault('LastXing', 1 )
+    kwargs.setdefault('ItemList', ["LArHitContainer#LArHitHGTD"] )
+    return CfgMgr.PileUpXingFolder(name, **kwargs)
+
+
+def getHGTDPileUpTool(name='HGTDPileUpTool', **kwargs): 
+    from AthenaCommon.Logging import logging
+    mlog = logging.getLogger( 'HGTDPileUpToolDefault:' )
+    mlog.info(" ---- in getHGTDPileUpTool " )
+    # the LAr and Calo detector description package
+    ## FIXME includes to be replaced by confGetter configuration.
+    if not isOverlay():
+        from AthenaCommon.Resilience import protectedInclude
+        protectedInclude( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
+        protectedInclude( "LArDetDescr/LArDetDescr_joboptions.py" )
+        protectedInclude("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
+
+    from Digitization.DigitizationFlags import digitizationFlags
+    if digitizationFlags.doXingByXingPileUp():
+        kwargs.setdefault('FirstXing', -1 )
+        kwargs.setdefault('LastXing', 1 )
+
+    from LArDigitization.LArDigitizationFlags import jobproperties
+
+    kwargs.setdefault('RndmEvtOverlay', isOverlay() )
+    kwargs.setdefault('DigitContainer', 'HGTDDigitContainer_MC' ) ##FIXME - should not be hard-coded
+
+    # pileup configuration "algorithm" way
+    if not digitizationFlags.doXingByXingPileUp():
+        from AthenaCommon.DetFlags import DetFlags
+        if DetFlags.pileup.LAr_on() or isOverlay():
+            kwargs.setdefault('PileUp', True )
+
+    return CfgMgr.HGTDPileUpTool(name, **kwargs)
+
+
 def getLArDigitMaker(name="digitmaker1" , **kwargs):
     print "in getLArDigitMaker "
     kwargs.setdefault('LArPileUpTool', 'LArPileUpTool')

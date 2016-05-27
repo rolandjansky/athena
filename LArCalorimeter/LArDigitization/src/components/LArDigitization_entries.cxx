@@ -6,12 +6,14 @@
 #include "LArDigitization/LArHitMerger.h"
 #include "LArDigitization/LArHitFilter.h"
 #include "LArDigitization/LArPileUpTool.h"
+#include "LArDigitization/HGTDPileUpTool.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY( LArDigitMaker )
 DECLARE_ALGORITHM_FACTORY( LArHitMerger )
 DECLARE_ALGORITHM_FACTORY( LArHitFilter )
 DECLARE_TOOL_FACTORY( LArPileUpTool )
+DECLARE_TOOL_FACTORY( HGTDPileUpTool )
 
 DECLARE_FACTORY_ENTRIES(LArDigitization) {
 
@@ -19,5 +21,6 @@ DECLARE_FACTORY_ENTRIES(LArDigitization) {
   DECLARE_ALGORITHM(LArHitMerger)
   DECLARE_ALGORITHM(LArHitFilter)
   DECLARE_TOOL(LArPileUpTool)
+  DECLARE_TOOL(HGTDPileUpTool)
 
 }

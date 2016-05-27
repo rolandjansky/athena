@@ -5,4 +5,6 @@ addTool("LArDigitization.LArDigitizationConfig.getLArRangeEM"            , "LArR
 addTool("LArDigitization.LArDigitizationConfig.getLArRangeHEC"           , "LArRangeHEC")
 addTool("LArDigitization.LArDigitizationConfig.getLArRangeFCAL"          , "LArRangeFCAL")
 addTool("LArDigitization.LArDigitizationConfig.getLArPileUpTool"         , "LArPileUpTool")
+addTool("LArDigitization.LArDigitizationConfig.getLArRangeHGTD"          , "LArRangeHGTD")
+addTool("LArDigitization.LArDigitizationConfig.getHGTDPileUpTool"        , "HGTDPileUpTool")
 addAlgorithm("LArDigitization.LArDigitizationConfig.getLArDigitMaker"    , "digitmaker1")
