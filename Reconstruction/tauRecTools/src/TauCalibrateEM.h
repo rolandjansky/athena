@@ -11,7 +11,7 @@
 class TF1;
 
 /** implementation of tau EM energy scale (depreciated) */
-class TauCalibrateEM : virtual public TauRecToolBase {
+class TauCalibrateEM : public TauRecToolBase {
 public:
     TauCalibrateEM(const std::string& name);
     ASG_TOOL_CLASS2(TauCalibrateEM, TauRecToolBase, ITauToolBase);

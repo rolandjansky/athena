@@ -16,7 +16,7 @@
 
 #include "tauRecTools/TauRecToolBase.h"
 
-class TauTrackFilter : virtual public TauRecToolBase {
+class TauTrackFilter : public TauRecToolBase {
 public:
     //-------------------------------------------------------------
     //! Constructor

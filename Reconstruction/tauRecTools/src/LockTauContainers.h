@@ -13,7 +13,7 @@
  * @author Felix Friedrich
  */
 
-class LockTauContainers : virtual public TauRecToolBase
+class LockTauContainers : public TauRecToolBase
 {
     public: 
   LockTauContainers(const std::string& name);

@@ -38,7 +38,7 @@ TauConversion(std::string name, xAOD::TauJetParameters::Detail detail1, xAOD::Ta
 };
 
 
-class TauIDPileupCorrection : virtual public TauRecToolBase {
+class TauIDPileupCorrection : public TauRecToolBase {
 public:
 
     TauIDPileupCorrection(const std::string& name="TauIDPileupCorrection") ;

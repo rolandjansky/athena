@@ -35,7 +35,7 @@ namespace Trk {
  * @author Felix Friedrich
  */
 
-class TauTrackFinder : virtual public TauRecToolBase {
+class TauTrackFinder : public TauRecToolBase {
 public:
     //-------------------------------------------------------------
     //! Constructor and Destructor

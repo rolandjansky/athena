@@ -33,7 +33,7 @@ class TrackMVABDT;
   
 //______________________________________________________________________________
 class TauTrackClassifier
-  : virtual public TauRecToolBase
+  : public TauRecToolBase
 {
 public:
 

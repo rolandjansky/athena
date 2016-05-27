@@ -16,7 +16,7 @@ class TileID;
  * @authors  Srini Rajagopalan, Anna Kaczmarska, Felix Friedrich
  */
 
-class TauCellVariables : virtual public TauRecToolBase {
+class TauCellVariables : public TauRecToolBase {
 
 public:
     TauCellVariables(const std::string& name);
