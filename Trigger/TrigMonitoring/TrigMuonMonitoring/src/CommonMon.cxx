@@ -112,6 +112,7 @@ StatusCode HLTMuonMonTool::bookCommonDQA()
     ATH_MSG_INFO("start booking Common histograms for newRun");
   
     addHistogram( new TH1F("HI_PP_Flag", "HI_PP_Flag",4,0,4), m_histdir); 
+    addHistogram( new TH1F("Monitoring_Chain", "Monitoring_Chain",20,0,20), m_histdir);
     addHistogram( new TH1F("Common_Counter",           "Event Counter",  30, 0., 30.), m_histdir );
     hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(EVENT+1,"Event");
     hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUFAST+1,"muFast");
