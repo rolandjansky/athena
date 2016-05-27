@@ -46,10 +46,10 @@ def returnIntegrityOfBSFile(fname):
 
 ### @brief Integrity function for file class argTAGFile
 def returnIntegrityOfTAGFile(fname):
-    from PyJobTransforms.trfFileUtils import AthenaFileInfo
-    dictionaryOfAthenaFileInfo = AthenaFileInfo([str(fname),], retrieveKeys = ['nentries',])
+    from PyJobTransforms.trfFileUtils import AthenaLiteFileInfo
+    dictionaryOfAthenaFileInfo = AthenaLiteFileInfo(fname, "TAG", retrieveKeys = ['nentries',])
     msg.debug("dictionary of Athena file information: {a}".format(a = dictionaryOfAthenaFileInfo))
-    eventCount = dictionaryOfAthenaFileInfo[str(fname)]['nentries']
+    eventCount = dictionaryOfAthenaFileInfo[fname]['nentries']
     if eventCount is None:
         return (False, "integrity of {fileName} bad: got a bad event count in {fileName}: {eventCount}".format(fileName = str(fname), eventCount = eventCount))
     else:

@@ -6,10 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 740537 2016-04-15 11:28:11Z graemes $
+#  @version $Id: trfReports.py 747041 2016-05-13 14:29:48Z lerrenst $
 #
 
-__version__ = '$Revision: 740537 $'
+__version__ = '$Revision: 747041 $'
 
 import cPickle as pickle
 import json
@@ -105,10 +105,12 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '1.1.0'
+    _reportVersion = '2.0.2'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
+    _dbDataTotal = 0
+    _dbTimeTotal = 0.0
 
     ## @brief Constructor
     #  @param parentTrf Mandatory link to the transform this job report represents
@@ -137,14 +139,6 @@ class trfJobReport(trfReport):
         else:
             myDict['exitMsg'] = self._trf.exitMsg
             myDict['exitMsgExtra'] = ""
-            
-        # Iterate over argValues...
-        myDict['argValues'] = {}
-        for k, v in self._trf.argdict.iteritems():
-            if isinstance(v, trfArgClasses.argument):
-                myDict['argValues'][k] = v.value
-            else:
-                myDict['argValues'][k] = v
 
         # Iterate over files
         for fileType in ('input', 'output', 'temporary'):
@@ -171,9 +165,12 @@ class trfJobReport(trfReport):
                 myDict['executor'].append(trfExecutorReport(exe).python(fast = fast))
                 # Executor resources are gathered here to unify where this information is held
                 # and allow T0/PanDA to just store this JSON fragment on its own
-                myDict['resource']['executor'][exe.name] = exeResourceReport(exe)
-                if exe.myMerger:
-                    myDict['resource']['executor'][exe.myMerger.name] = exeResourceReport(exe.myMerger)
+                myDict['resource']['executor'][exe.name] = exeResourceReport(exe, self)
+                for mergeStep in exe.myMerger:
+                    myDict['resource']['executor'][mergeStep.name] = exeResourceReport(mergeStep, self)
+            if self._dbDataTotal > 0 or self._dbTimeTotal > 0:
+                myDict['resource']['dbDataTotal'] = self._dbDataTotal
+                myDict['resource']['dbTimeTotal'] = self._dbTimeTotal
         # Resource consumption
         reportTime = os.times()
  
@@ -406,34 +403,6 @@ class trfFileReport(object):
                 else:
                     fileArgProps['subFiles'].append(subFile)
 
-        if type == 'full':
-            # move metadata to subFile dict, before it can be compressed
-            metaData = self._fileArg._fileMetadata
-            for fileName in metaData.keys():
-                msg.info("Examining metadata for file {0}".format(fileName))
-                if basenameReport == False:
-                    searchFileName = fileName
-                else:
-                    searchFileName = os.path.basename(fileName)
-
-                thisFile = None
-                for subFile in fileArgProps['subFiles']:
-                    if subFile['name'] == searchFileName:
-                        thisFile = subFile
-                        break
-
-                if thisFile is None:
-                    if searchFileName in suppressed:
-                        continue
-                    else:
-                        raise trfExceptions.TransformReportException(trfExit.nameToCode('TRF_INTERNAL_REPORT_ERROR'),
-                                                                 'file metadata mismatch in subFiles dict')
-
-                # append metadata keys, except all existing, to subfile dict and ignore _exists
-                for k, v in metaData[fileName].iteritems():
-                    if k not in thisFile.keys() and k != '_exists':
-                        thisFile[k] = v
-
         return fileArgProps
 
     ## @brief Return unique metadata for a single file in an argFile class
@@ -454,7 +423,7 @@ class trfFileReport(object):
             entry.update(self._fileArg.getMetadata(files = filename, populate = not fast, metadataKeys = ['file_guid'])[filename])
         elif type is 'full':
             # Suppress io because it's the key at a higher level and _exists because it's internal
-            entry.update(self._fileArg.getMetadata(files = filename, populate = not fast, maskMetadataKeys = ['io', '_exists'])[filename])
+            entry.update(self._fileArg.getMetadata(files = filename, populate = not fast, maskMetadataKeys = ['io', '_exists', 'integrity', 'file_type'])[filename])
         else:
             raise trfExceptions.TransformReportException(trfExit.nameToCode('TRF_INTERNAL_REPORT_ERROR'),
                                                          'Unknown file report type ({0}) in the file report for {1}'.format(type, self._fileArg))
@@ -597,7 +566,7 @@ def pyJobReportToFileDict(jobReport, io = 'all'):
     return dataDict
 
 
-def exeResourceReport(exe):
+def exeResourceReport(exe, report):
     exeResource = {'cpuTime': exe.cpuTime, 
                    'wallTime': exe.wallTime,}
     if exe.memStats:
@@ -609,4 +578,6 @@ def exeResourceReport(exe):
     if exe.dbMonitor:
         exeResource['dbData'] = exe.dbMonitor['bytes']
         exeResource['dbTime'] = exe.dbMonitor['time']
+        report._dbDataTotal += exeResource['dbData']
+        report._dbTimeTotal += exeResource['dbTime']
     return exeResource
