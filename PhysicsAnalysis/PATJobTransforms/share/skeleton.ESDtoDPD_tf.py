@@ -131,6 +131,15 @@ if hasattr(runArgs,"outputNTUP_LARNOISEFile"):
         athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputESDFile )
     include("LArMonitoring/LArNoiseBursts_prodJO.py")
 
+
+if hasattr(runArgs,"outputNTUP_FastCaloSimFile"):
+    from ISF_FastCaloSimParametrization.ISF_NativeFastCaloSimJobProperties import ISF_NativeFastCaloSimFlags
+    ISF_NativeFastCaloSimFlags.outputFile = runArgs.outputNTUP_FastCaloSimFile
+    if hasattr(runArgs,"inputESDFile") and not hasattr(runArgs,"inputFile"):
+        athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputESDFile )
+    include("ISF_FastCaloSimParametrization/prodOptions.ISF_ntuple.py")
+
+
 ## Import D3PD flags before preExec, for convenience
 try:
     from D3PDMakerConfig.D3PDProdFlags  import oldProdFlags
