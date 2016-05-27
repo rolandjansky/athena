@@ -56,28 +56,22 @@ def defineCPSGroups():
 
         ########################################################################
 
-        "RATE:CPS:HLT_e12_vloose_L1EM10VH"        : ['e12_vloose_L1EM10VH', 
-                                                     'e12_lhvloose_L1EM10VH',
+        "RATE:CPS:HLT_e12_vloose_L1EM10VH"        :  ['e12_lhvloose_L1EM10VH',
                                                      'e12_lhvloose_nod0_L1EM10VH'],
         
-        "RATE:CPS:HLT_e15_vloose_L1EM13VH"        : ['e15_vloose_L1EM13VH', 
-                                                     'e15_lhvloose_L1EM13VH',
+        "RATE:CPS:HLT_e15_vloose_L1EM13VH"        : ['e15_lhvloose_L1EM13VH',
                                                      'e15_lhvloose_nod0_L1EM13VH'],
         
-        "RATE:CPS:HLT_e17_vloose"        : ['e17_vloose', 
-                                            'e17_lhvloose',
+        "RATE:CPS:HLT_e17_vloose"        : ['e17_lhvloose',
                                             'e17_lhvloose_nod0'],
         
-        "RATE:CPS:HLT_e20_vloose"        : ['e20_vloose', 
-                                            'e20_lhvloose', 
+        "RATE:CPS:HLT_e20_vloose"        : ['e20_lhvloose', 
                                             'e20_lhvloose_nod0'],
 
-        "RATE:CPS:HLT_e40_vloose"        : ['e40_vloose', 
-                                            'e40_lhvloose', 
+        "RATE:CPS:HLT_e40_vloose"        : ['e40_lhvloose', 
                                             'e40_lhvloose_nod0'],
 
-        "RATE:CPS:HLT_e60_vloose"        : ['e60_vloose', 
-                                            'e60_lhvloose', 
+        "RATE:CPS:HLT_e60_vloose"        : ['e60_lhvloose', 
                                             'e60_lhvloose_nod0'],
 
 
@@ -89,16 +83,14 @@ def defineCPSGroups():
                                                 'e24_lhtight_nod0_L1EM20VH',
                                                 ],
         
-        'RATE:CPS:HLT_e9_tight_e4_etcut_Jpsiee' :['e9_tight_e4_etcut_Jpsiee',
-                                                 'e9_lhtight_e4_etcut_Jpsiee',
+        'RATE:CPS:HLT_e9_tight_e4_etcut_Jpsiee' :['e9_lhtight_e4_etcut_Jpsiee',
                                                  'e9_lhtight_nod0_e4_etcut_Jpsiee'],
 
         'RATE:CPS:HLT_e9_etcut_e5_tight_Jpsiee': ['e9_etcut_e5_tight_Jpsiee',
                                                  'e9_etcut_e5_lhtight_Jpsiee',
                                                  'e9_etcut_e5_lhtight_nod0_Jpsiee'],
         
-        'RATE:CPS:HLT_e14_tight_e4_etcut_Jpsiee': ['e14_tight_e4_etcut_Jpsiee',
-                                                  'e14_lhtight_e4_etcut_Jpsiee',
+        'RATE:CPS:HLT_e14_tight_e4_etcut_Jpsiee': ['e14_lhtight_e4_etcut_Jpsiee',
                                                   'e14_lhtight_nod0_e4_etcut_Jpsiee'],
         
         'RATE:CPS:HLT_e14_etcut_e5_tight_Jpsiee' :['e14_etcut_e5_tight_Jpsiee',
@@ -113,37 +105,28 @@ def defineCPSGroups():
         #                                                 'e5_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5',],
 
 
-        'RATE:CPS:HLT_e24_vloose_L1EM18VH': ['e24_vloose_L1EM18VH',
-                                             'e24_lhvloose_L1EM18VH',
+        'RATE:CPS:HLT_e24_vloose_L1EM18VH': ['e24_lhvloose_L1EM18VH',
                                              'e24_lhvloose_nod0_L1EM18VH',],
         
-        'RATE:CPS:HLT_e24_vloose_L1EM20VH' :['e24_vloose_L1EM20VH',
-                                             'e24_lhvloose_L1EM20VH',
+        'RATE:CPS:HLT_e24_vloose_L1EM20VH' :['e24_lhvloose_L1EM20VH',
                                              'e24_lhvloose_nod0_L1EM20VH',],
         
-        'RATE:CPS:HLT_e26_vloose_L1EM20VH' : ['e26_vloose_L1EM20VH',
-                                              'e26_lhvloose_L1EM20VH',
+        'RATE:CPS:HLT_e26_vloose_L1EM20VH' : ['e26_lhvloose_L1EM20VH',
                                               'e26_lhvloose_nod0_L1EM20VH',],
         
-        'RATE:CPS:HLT_e5_tight_e4_etcut' : ['e5_tight_e4_etcut',
-                                            'e5_lhtight_e4_etcut',
+        'RATE:CPS:HLT_e5_tight_e4_etcut' : ['e5_lhtight_e4_etcut',
                                             'e5_lhtight_nod0_e4_etcut',],
 
-        'RATE:CPS:HLT_e5_tight_e4_etcut_Jpsiee' : ['e5_tight_e4_etcut_Jpsiee',
-                                                   'e5_lhtight_e4_etcut_Jpsiee',
+        'RATE:CPS:HLT_e5_tight_e4_etcut_Jpsiee' : ['e5_lhtight_e4_etcut_Jpsiee',
                                                    'e5_lhtight_nod0_e4_etcut_Jpsiee',],
         
-        'RATE:CPS:HLT_e5_loose_idperf' : ['e5_loose_idperf',
-                                          'e5_lhloose_idperf',],
+        'RATE:CPS:HLT_e5_loose_idperf' : ['e5_lhloose_idperf',],
         
-        'RATE:CPS:HLT_e5_tight_idperf':['e5_tight_idperf',
-                                        'e5_lhtight_idperf',],
+        'RATE:CPS:HLT_e5_tight_idperf':['e5_lhtight_idperf',],
         
-        'RATE:CPS:HLT_e10_tight_idperf' :['e10_tight_idperf',
-                                          'e10_lhtight_idperf',],
+        'RATE:CPS:HLT_e10_tight_idperf' :['e10_lhtight_idperf',],
         
-        'RATE:CPS:HLT_e24_medium_idperf_L1EM20VH' :[ 'e24_medium_idperf_L1EM20VH',
-                                                     'e24_lhmedium_idperf_L1EM20VH',],
+        'RATE:CPS:HLT_e24_medium_idperf_L1EM20VH' :['e24_lhmedium_idperf_L1EM20VH',],
         
         
         
@@ -172,29 +155,18 @@ def defineCPSGroups():
       
         'RATE:CPS:HLT_e26_lhvloose_L1EM20VH_6j15noL1' : ['e26_lhvloose_L1EM20VH_6j15noL1',
                                                          'e26_lhvloose_nod0_L1EM20VH_6j15noL1',],
-      
-        'RATE:CPS:HLT_e5_loose' : ['e5_loose',
-                                   'e5_lhloose',],
-        
+              
         'RATE:CPS:HLT_2e12_vloose_L12EM10VH' :['2e12_lhvloose_L12EM10VH',
                                                '2e12_lhvloose_nod0_L12EM10VH',],
 
-        'RATE:CPS:HLT_e18_etcut_trkcut_xs20' :['e18_etcut_trkcut_xs20',
-                                               'e18_etcut_trkcut_xs20_mt35',
-                                               'e18_etcut_trkcut_j20_perf_xe20_6dphi15',
+        'RATE:CPS:HLT_e18_etcut_trkcut_xs20' :['e18_etcut_trkcut_xs20_mt35',
                                                'e18_etcut_trkcut_j20_perf_xe20_6dphi15_mt35',
-                                               'e18_etcut_trkcut_xs20_j20_perf_xe20_6dphi15',
                                                'e18_etcut_trkcut_xs20_j20_perf_xe20_6dphi15_mt35',],
 
-        'RATE:CPS:HLT_e13_etcut_trkcut_xs15' :['e13_etcut_trkcut_xs15',
-                                               'e13_etcut_trkcut_xs15_mt25',
-                                               'e13_etcut_trkcut_j20_perf_xe15_6dphi05',
+        'RATE:CPS:HLT_e13_etcut_trkcut_xs15' :['e13_etcut_trkcut_xs15_mt25',
                                                'e13_etcut_trkcut_j20_perf_xe15_6dphi05_mt25',
-                                               'e13_etcut_trkcut_xs15_j20_perf_xe15_6dphi05',
                                                'e13_etcut_trkcut_xs15_j20_perf_xe15_6dphi05_mt25',
-                                               'e13_etcut_trkcut_j20_perf_xe15_2dphi05',
                                                'e13_etcut_trkcut_j20_perf_xe15_2dphi05_mt25',
-                                               'e13_etcut_trkcut_xs15_j20_perf_xe15_2dphi05',
                                                'e13_etcut_trkcut_xs15_j20_perf_xe15_2dphi05_mt25',],
 
         #tau chains   
@@ -577,6 +549,17 @@ def defineCPSGroups():
 #        "RATE:CPS:HLT_e15_vloose_L1EM7" : ['e15_lhvloose_L1EM7',
 #                                           'e15_lhvloose_nod0_L1EM7'],
 
+        'RATE:CPS:HLT_e13_etcut_trkcut_xs30' :['e13_etcut_trkcut_xs30_xe30_mt35',
+                                               'e13_etcut_trkcut_xs30_j15_perf_xe30_6dphi05_mt35',
+                                               'e13_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35',
+                                               'e13_etcut_trkcut_xs30_j15_perf_xe30_2dphi05_mt35',
+                                               'e13_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35',],
+
+         'RATE:CPS:HLT_e18_etcut_trkcut_xs30' :['e18_etcut_trkcut_xs30_xe30_mt35',
+                                                'e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi05_mt35',
+                                                'e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35',
+                                                'e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi05_mt35',
+                                                'e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35',],
 
         "RATE:CPS:HLT_e20_vloose_L1EM12" : ['e20_lhvloose_L1EM12',
                                             'e20_lhvloose_nod0_L1EM12',],

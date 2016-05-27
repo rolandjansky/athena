@@ -973,12 +973,17 @@ class GenerateMenu:
                 log.error('              chain: %s   ' %chain)
             
         log.info ('Check the List of chains in rerun with a special stream tag')
+
         self.GetStreamTagForRerunChains()
 
         log.info('generate END')
 
 
-    def GetStreamTagForRerunChains(self):
+    def GetStreamTagForRerunChains(self):        
+        if TriggerFlags.triggerMenuSetup().find("Physics_pp_v")==-1:
+            log.info('do not retrieve list of stream tags for rerun chain for non-Physics menu ')        
+            return []
+
         log.info('retrieve list of stream tags for rerun chain ')        
         list= getStreamTagForRerunChains(self.triggerPythonConfig, self.HLTPrescales)
         if not list:
