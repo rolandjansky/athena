@@ -2,19 +2,51 @@
 #
 # Basic Barrel Residual distributions
 #
-# Pixel
-PIXX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
-DrawPlots(PIXX, outputDir+"/"+"PIXX."+oFext, "Pixel barrel + IBL", "Hits on tracks / 12 #mum",
-          "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+print " <MakeResidualPlots.MakeResidualPlots> userCollectOutput=",userCollectOutput
+print "                                       userWebMonitoring=",userWebMonitoring
+#
+psname = "/Users/martis/projectes/atlas/alineament/webmonitoringtest/InDetAlignmentWebMonitor/trunk/WebPage/detailed_plots/2016/ResidualDistributions.pdf"
+if (userWebMonitoring):
+    psname = "/var/vhost/atlas-alignment/secure/detailed_plots/2016/ResidualDistributions.pdf"
 
+def initPsFile():
+    NullCanvas = TCanvas()
+    NullCanvas.Print(psname+"[")
+    return NullCanvas
+	
+def closePsFile(NullCanvas):
+    NullCanvas.Print(psname+"]")
+
+Canvases = []
+if (userCollectOutput):    
+    NullCanvas = initPsFile()
+    
+
+# Pixel
+PIXX0 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
+thiscan = DrawPlots(PIXX0, outputDir+"/"+"PIXIBL_X."+oFext, "IBL", "Hits on tracks / 12 #mum",
+                    "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+if (userCollectOutput): Canvases.append(thiscan)
+
+thiscan = DrawEvolutionPlot(PIXX0, outputDir+"/"+"Evol_PIXIBL_X."+oFext, "Pixel Barrel IBL", "Mean local x residual [mm]", 0.15, 0.89, "#mum",canvasText,makeOutput,0.60, 0.88)    
+if (userCollectOutput): Canvases.append(thiscan)
+
+PIXX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
+thiscan = DrawPlots(PIXX, outputDir+"/"+"PIXX."+oFext, "Pixel barrel + IBL", "Hits on tracks / 12 #mum",
+                    "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+if (userCollectOutput): Canvases.append(thiscan)
+    
 PIXY = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b_residualy","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
-DrawPlots(PIXY, outputDir+"/"+"PIXY."+oFext, "Pixel barrel + IBL", "Hits on tracks / 16 #mum",
-          "Local y residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+thiscan = DrawPlots(PIXY, outputDir+"/"+"PIXY."+oFext, "Pixel barrel + IBL", "Hits on tracks / 16 #mum",
+                    "Local y residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+if (userCollectOutput): Canvases.append(thiscan)
 
 # SCT
 SCTX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_b_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
-DrawPlots(SCTX, outputDir+"/"+"SCTX."+oFext, "SCT barrel", "Hits on tracks / 8 #mum",
-          "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+thiscan = DrawPlots(SCTX, outputDir+"/"+"SCTX."+oFext, "SCT barrel", "Hits on tracks / 8 #mum",
+                    "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+if (userCollectOutput): Canvases.append(thiscan)
+print " <MakeResidualPlots> canvases: ",len(Canvases), " --> ", Canvases 
 
 #SCTY = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_b_residualy","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
 #DrawPlots(SCTY, outputDir+"/"+"SCTY."+oFext, "SCT barrel", "Hits on tracks / 10 #mum",
@@ -22,23 +54,21 @@ DrawPlots(SCTX, outputDir+"/"+"SCTX."+oFext, "SCT barrel", "Hits on tracks / 8 #
 
 # TRT
 TRTR = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_b_residualR","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
-DrawPlots(TRTR, outputDir+"/"+"TRTR."+oFext, "TRT barrel", "Hits on tracks / 22 #mum",
-          "residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
-
+thiscan = DrawPlots(TRTR, outputDir+"/"+"TRTR."+oFext, "TRT barrel", "Hits on tracks / 22 #mum",
+                    "residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+if (userCollectOutput): Canvases.append(thiscan)
+    
 ## Individual Barrel Layer Residual Distributions
-
-PIXX0 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(PIXX0, outputDir+"/"+"PIXIBL_X."+oFext, "IBL", "Hits on tracks / 12 #mum",
-          "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
-
 PIXX1 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b1_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(PIXX1, outputDir+"/"+"PIXX1."+oFext, "Pixel Barrel L0", "Hits on tracks / 12 #mum",
-          "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
-
+thiscan = DrawPlots(PIXX1, outputDir+"/"+"PIXX1."+oFext, "Pixel Barrel L0", "Hits on tracks / 12 #mum",
+                    "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+if (userCollectOutput): Canvases.append(thiscan)
+    
 PIXX2 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b2_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(PIXX2, outputDir+"/"+"PIXX2."+oFext, "Pixel Barrel L1", "Hits on tracks / 12 #mum",
-          "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
-
+thiscan = DrawPlots(PIXX2, outputDir+"/"+"PIXX2."+oFext, "Pixel Barrel L1", "Hits on tracks / 12 #mum",
+                    "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+if (userCollectOutput): Canvases.append(thiscan)
+    
 PIXX3 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b3_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
 DrawPlots(PIXX3, outputDir+"/"+"PIXX3."+oFext, "Pixel Barrel L2", "Hits on tracks / 12 #mum",
           "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
@@ -346,7 +376,7 @@ if (userExtended or True):
 
 
 
-if (userExtended):
+if (userExtended and userClusters):
     PIXX0vsINCANG = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_residualx_inciphi","noFit",rootFiles,nFiles,True)
     DrawPlots(PIXX0vsINCANG,outputDir+"/"+"PIXIBL_XvsINCANG."+oFext,"IBL","Local x residual [mm]","Incident angle [radians]",0.15,0.89,"#mum", canvasText,makeOutput, 0.59, 0.87, False);
     
@@ -425,5 +455,12 @@ if (userExtended):
     SCTSides = MakePlotsFrom3D(residualsDir,legendTitles,markerColors,markerStyles, "sct_b0_xresvsmodetaphi_3d", "noFitWithStats", rootFiles, nFiles, False, 0, 4) 
     DrawPlots(SCTSides, outputDir+"/"+"SCT_sides."+oFext, "SCT Layer 0 sides", "Average local x residual [mm]",
               "local x residual [mm]", 0.17, 0.89, "#mum",canvasText,makeOutput,0.65,0.89, False)
+
+if (userCollectOutput):
+    print " <MakeResidualPlots> PsFile = ",psname
+    for canvas in Canvases:
+        print "  <MakeResidualPlots> storing canvas: ", canvas 
+        PsFile = canvas.Print(psname)
+    closePsFile(NullCanvas)
 
 print " -- MakeResidualPlots -- completed "

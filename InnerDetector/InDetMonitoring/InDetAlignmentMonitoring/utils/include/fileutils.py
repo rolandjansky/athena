@@ -3,8 +3,8 @@
 DoFStrings = ['Tx','Ty','Tz','Rx','Ry','Rz','Bx']
 OutputLevel = 1
 
-
-
+runWebMonitor = False
+runLocalTest = False
     
 def openFile(file):
     try:
@@ -26,10 +26,20 @@ def writeCorr(outputfile, detector):
     
 def readConstants(file, useBarrels=True,  useEndCaps=True):
     import imp
-    m_utils = imp.load_source('Module', 'include/moduleutils.py')
-    m_utils = imp.load_source('Detector', 'include/moduleutils.py')
+    print " <fileutils.readconstants> runWebMonitor=",runWebMonitor, "   runLocalTest = ", runLocalTest
     #from module import Module
     #from module import Detector
+    if (runWebMonitor):
+        if (runLocalTest):
+            m_utils = imp.load_source('Module', '/Users/martis/projectes/atlas/alineament/webmonitoringtest/InDetAlignmentWebMonitor/trunk/WebPage/plot/module.py')
+            m_utils = imp.load_source('Detector', '/Users/martis/projectes/atlas/alineament/webmonitoringtest/InDetAlignmentWebMonitor/trunk/WebPage/plot/module.py')
+        else:
+            m_utils = imp.load_source('Module', '/var/vhost/atlas-alignment/secure/plot/module.py')
+            m_utils = imp.load_source('Detector', '/var/vhost/atlas-alignment/secure/plot/module.py')
+    else:
+        m_utils = imp.load_source('Module', 'include/moduleutils.py')
+        m_utils = imp.load_source('Detector', 'include/moduleutils.py')   
+
     alignText = openFile(file).splitlines()
     # initialize variables
     level, det, bec, layer, phi, eta = -999,-999,-999,-999,-999,-999

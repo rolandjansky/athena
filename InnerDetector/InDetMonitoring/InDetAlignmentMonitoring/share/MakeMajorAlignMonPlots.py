@@ -36,7 +36,9 @@ def optParsing():
 	parser = OptionParser()
 	parser.add_option("--ALL", dest="inputALL", help="Do plot all categories apart from Track Segments", action="store_true", default = False)
 	parser.add_option("--BeamSpot", dest="inputBeamSpot", help="Plot beam spot related histograms", action="store_true",default=False)
+	parser.add_option("--canvasText", dest="canvasText", help="Global labels for all the plots (max 4 labels)", default="")
 	parser.add_option("--Clusters", dest="inputClusters", help="Plot of cluster size and residuals vs cluster size", action="store_true",default=False)
+	parser.add_option("--collectOutput", dest="collectOutput", help= "if output is stored as pdf, then they are collected in one single file", action="store_true", default = False)
 	parser.add_option("--Cosmetics", dest="inputCosmetics", help="choose among listed plot cosmetics (Default, ApprovedPlots...", default="")
 	parser.add_option("--eps", dest="inputEPS", help="output files saved as EPSs", action="store_true", default = False)
 	parser.add_option("--Extended", dest="inputExtended", help="Draw more plots", action="store_true", default = False)
@@ -44,8 +46,16 @@ def optParsing():
 	parser.add_option("--HitMaps", dest="inputHitMaps", help="Do hit maps plots for all systems layer by layer", action="store_true",default=False)
 	parser.add_option("--Hits", dest="inputHits", help="Do hit plots for all systems and layer by layer", action="store_true",default=False)
 	parser.add_option("--IBLresiduals", dest="inputIBL", help="print detailed residual distributions in IBL", action="store_true", default = False)
+	parser.add_option("--inputColors",dest="inputColors",help="colors to be used with the input files", default = "")
+	parser.add_option("--inputFiles",dest="inputFiles",help="list of files", default = "")
+	parser.add_option("--inputLabels",dest="inputLabels",help="labels to be used with the input files", default = "")
+	parser.add_option("--inputMarkers",dest="inputMarkers",help="markers to be used with the input files", default = "")
+	parser.add_option("--inputTrackCollection", dest="inputTrackCollection",help = "Track collection to be drawn from an input file", default ="")
+	parser.add_option("--inputFolder", dest="inputFolder",help = "Main folder of the input files where monitoring histograms are kept", default ="")
 	parser.add_option("--Modules", dest="inputResByModule", help="Print the residuals module by module", action="store_true", default=False)
+	parser.add_option("--outputFolder", dest="outputFolder", help= "Name of the folder where output files are kept", default ="../plots")
 	parser.add_option("--pdf", dest="inputPDF", help="output files saved as PDFs", action="store_true", default = False)
+	parser.add_option("--Prefix", dest="inputPrefix", help="prexif added to all output file names", default = "")
 	parser.add_option("--Pulls", dest="inputPulls", help="Do pulls plots for all systems and then layer by layer", action="store_true",default=False)
 	parser.add_option("--ResidualMaps", dest="inputResidualMaps", help="Do residuals plots for all systems layer by layer", action="store_true",default=False)
 	parser.add_option("--Residuals", dest="inputResiduals", help="Do residuals plots for all systems and then layer by layer", action="store_true",default=False)
@@ -54,11 +64,7 @@ def optParsing():
 	parser.add_option("--ShowPlots", dest="inputSetBatch", help="When ShowPlots is used the histogram display is open", action="store_false", default=True)
 	parser.add_option("--TrackParams", dest="inputTrackParams", help="Do track parameter plots", action="store_true",default=False)
 	parser.add_option("--TrackSegments", dest="inputTrackSegments", help="Do track segment matching plots", action="store_true",default=False)
-	parser.add_option("--inputFiles",dest="inputFiles",help="list of files", default = "")
-	parser.add_option("--inputLabels",dest="inputLabels",help="labels to be used with the input files", default = "")
-	parser.add_option("--inputMarkers",dest="inputMarkers",help="markers to be used with the input files", default = "")
-	parser.add_option("--inputTrackCollection", dest="inputTrackCollection",help = "Track collection to be drawn from an input file", default ="")
-	parser.add_option("--inputFolder", dest="inputFolder",help = "Main folder of the input files where monitoring histograms are kept", default ="")
+	parser.add_option("--WebMonitoring", dest="WebMonitoring", help="to be set in case of producing output for the web monitoring", action="store_true",default=False)
     
 	(config, sys.argv[1:]) = parser.parse_args(sys.argv[1:])
 
@@ -90,22 +96,28 @@ userCosmetics = config.inputCosmetics
 userInputFiles = config.inputFiles.split()
 userInputLabels = config.inputLabels.split()
 userInputMarkers = config.inputMarkers.split()
+userColors = config.inputColors.split()
 userInputTrackCollection = config.inputTrackCollection.split()
 userInputFolder = config.inputFolder.split()
+userOuputFolder = config.outputFolder
+userCollectOutput = config.collectOutput and userPDF
+userWebMonitoring = config.WebMonitoring
+userCanvasText = config.canvasText.split()
+userPrefix = config.inputPrefix    
 
 if (config.inputALL):
-    userHitErrors = True
+    userHitErrors = False
     userHitMaps = True
     userHits = True
-    userIBL = True
+    userIBL = False
     userPulls = True
-    userResidualMaps = True
+    userResidualMaps = False
     userResiduals = True
     userTrackParams = True
     userExtended = True
     userResByModule = False # as this plots to many histograms, this can be only activated on purpose
-    userBeamSpot = True
-    userClusters = True
+    userBeamSpot = False
+    userClusters = False
 
 
 
@@ -114,6 +126,10 @@ configFileName = ""
 makeOutput = True
 if (userSetBatch): 
     gROOT.SetBatch()
+#
+outputFileExtension = "png"
+if (userPDF): outputFileExtension="pdf"
+
 #
 doResiduals = False or userResiduals 
 doResidualProfiles = False 
