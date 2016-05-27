@@ -161,7 +161,7 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       msg() << MSG::WARNING << "Failed to get BTaggingContainer" << endreq;
     return HLT::OK;
   }
-  if(msgLvl() <= MSG::DEBUG) {
+  if(msgLvl() <= MSG::DEBUG && trigBTaggingContainer != 0) {
     msg() << MSG::DEBUG << "Got BTaggingContainer with " << trigBTaggingContainer->size() << " BTagging object" << endreq;
   }
   if(trigBTaggingContainer->size() > 1) {

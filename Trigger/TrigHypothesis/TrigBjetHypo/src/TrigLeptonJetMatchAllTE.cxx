@@ -51,6 +51,11 @@ TrigLeptonJetMatchAllTE::TrigLeptonJetMatchAllTE(const std::string& name, ISvcLo
   declareMonitoredVariable("MuonEFEta",    m_muonEFEta);
   declareMonitoredVariable("MuonEFPhi",    m_muonEFPhi);
 
+  declareMonitoredVariable("DeltaRPass",    m_deltaRPass);
+  declareMonitoredVariable("DeltaRAll",    m_deltaRAll);
+  declareMonitoredVariable("DeltaZPass",    m_deltaZPass);
+  declareMonitoredVariable("DeltaZAll",    m_deltaZAll);
+
 }
 
 
@@ -117,6 +122,8 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
   m_cutCounter   = -1;
   m_deltaEtaPass = -9; m_muonEFEta = -9;
   m_deltaPhiPass = -9; m_muonEFPhi = -9;
+  m_deltaRPass=-9;   m_deltaRAll=-9;
+  m_deltaZPass=-9;   m_deltaZAll=-9;
 
   if (inputTE.size() < 2) {
     msg() << MSG::ERROR << "Number of input TEs is " <<  inputTE.size() << " and not 2. Configuration problem." << endreq;  
@@ -152,7 +159,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
       // If the ID PV-finding fails then use the PV from T2HistoPrmVtx instead
       // This is not ideal... investigate why ID PV finding fails
       if (m_priVtxKey == "xPrimVx" && getPrmVtxCollection(pointerToPrmVtxCollections, inputTE[1].front(), "EFHistoPrmVtx") != HLT::OK) {
-        msg() << MSG::WARNING << "No primary vertex collection retrieved with name EFHistoPrmVtx either..." << endreq;
+        msg() << MSG::DEBUG<< "No primary vertex collection retrieved with name EFHistoPrmVtx either..." << endreq;
       }
       else if (msgLvl() <= MSG::DEBUG) {
         msg() << MSG::DEBUG << "Didn't manage to find " << m_priVtxKey << " PV, so using EFHistoPrmVtx instead." << endreq;
@@ -302,13 +309,14 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
 	//<< " which gives " << muontype == xAOD::Muon::MuonType::Combined 
 	<<  endreq;
 
-	if(!(muontype == xAOD::Muon::MuonType::Combined) ) continue;
+	if(muontype != xAOD::Muon::MuonType::Combined) continue;
 
         muonEta = Muon->eta();
         muonPhi = Muon->phi();
         muonZ=0; 
 
-        muonZ= (*(Muon->combinedTrackParticleLink()))->z0();
+        //        muonZ= (*(Muon->combinedTrackParticleLink()))->z0();
+        muonZ = (*(Muon->combinedTrackParticleLink()))->z0()  + (*(Muon->combinedTrackParticleLink()))->vz();
 
         //   msg() << MSG::DEBUG << "Z je " <<tr->z0() << " = " <<muonZ <<  endreq;
       
@@ -340,12 +348,17 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
           if (msgLvl() <= MSG::DEBUG) 
             msg() << MSG::DEBUG << "deltaR = "<< dR << "; deltaZ = " << m_deltaZ <<  endreq; 
 
+          m_deltaRAll=dR;
+          m_deltaZAll=m_deltaZ;
+
           switch (m_workingMode) {
 
           case 1:
             if (dR < m_deltaRCut && m_deltaZ <= m_deltaZCut) {
               m_deltaEtaPass = m_deltaEta; m_deltaPhiPass = m_deltaPhi; 
               m_muonEFEta = muonEta; m_muonEFPhi = muonPhi;
+              m_deltaRPass=dR;
+              m_deltaZPass=m_deltaZ;
               pass = true;
               break;
             }
@@ -492,7 +505,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::getPrmVtxCollection(const xAOD::VertexCo
   
   if (pPrmVtxColl == lastPrmVtxColl) {
     pointerToEFPrmVtxCollections = 0;
-    msg() << MSG::WARNING << "No primary vertex collection found" << endreq;
+    msg() << MSG::DEBUG << "No primary vertex collection found" << endreq;
     return HLT::ERROR;
   } 
   else {

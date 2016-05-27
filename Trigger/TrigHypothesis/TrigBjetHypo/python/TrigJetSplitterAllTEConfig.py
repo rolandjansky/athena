@@ -8,6 +8,10 @@ from AthenaCommon.SystemOfUnits import GeV
 def getJetSplitterAllTEInstance( ):
     return JetSplitterAllTE( name="JetSplitterAllTE" )
 
+def getJetSplitterFTKAllTEInstance( ):
+    thejetSplitterFTK = JetSplitterAllTE( name="JetSplitterFTKAllTE" )
+    thejetSplitterFTK.PriVtxKey    = "HLT_PrimVertexFTK"
+    return thejetSplitterFTK
 
 class JetSplitterAllTE (TrigJetSplitterAllTE):
     __slots__ = []
@@ -20,3 +24,4 @@ class JetSplitterAllTE (TrigJetSplitterAllTE):
         self.EtaHalfWidth = 0.4
         self.PhiHalfWidth = 0.4
         self.PriVtxKey    = "xPrimVx"
+

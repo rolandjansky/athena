@@ -157,7 +157,7 @@ HLT::ErrorCode TrigFarawayJetFinderAllTE::hltExecute(std::vector<std::vector<HLT
 
     std::vector<const  xAOD::Jet*>::const_iterator Jet = theJets.begin();
 
-    std::cout << "=====================> Jet" << iJet << std::endl;
+    //std::cout << "=====================> Jet" << iJet << std::endl;
     
     float minimumDeltaR = 9e9;
     
@@ -212,7 +212,7 @@ HLT::ErrorCode TrigFarawayJetFinderAllTE::hltExecute(std::vector<std::vector<HLT
 	iMuon++;
 	
 	const xAOD::Muon::MuonType muontype = Muon->muonType();
-	if(!(muontype == xAOD::Muon::MuonType::Combined) ) continue;
+	if(muontype != xAOD::Muon::MuonType::Combined) continue;
 	
 	float muonPt = Muon->pt();
 	float muonEta = Muon->eta();

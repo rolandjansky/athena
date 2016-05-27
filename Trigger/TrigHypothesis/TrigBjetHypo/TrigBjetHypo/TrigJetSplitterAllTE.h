@@ -29,9 +29,14 @@ class TrigJetSplitterAllTE : public HLT::AllTEAlgo {
 
  private:
 
+  HLT::ErrorCode      getAndCheckHistoPrmVtx(HLT::TriggerElement* vtxTriggerElement , const xAOD::VertexContainer* vertices);
+  const xAOD::Vertex* getPrimaryVertex(const xAOD::VertexContainer* vertexContainer);
+
   std::string m_jetInputKey;
   std::string m_jetOutputKey;
   std::string m_priVtxKey;
+  bool        m_usePriVtxKeyBackup;
+  std::string m_priVtxKeyBackup;
 
   double m_etaHalfWidth;
   double m_phiHalfWidth;
