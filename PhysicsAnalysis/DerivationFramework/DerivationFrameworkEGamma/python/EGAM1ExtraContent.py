@@ -6,17 +6,27 @@
 ExtraContentElectrons=[]
 
 ExtraContentMuons=[
-    "Muons.DFCommonGoodMuon",
-    "Muons.DFCommonMuonsLoose",
-    "Muons.DFCommonMuonsMedium",
-    "Muons.DFCommonMuonsTight",
+#    "Muons.DFCommonGoodMuon",
+#    "Muons.DFCommonMuonsLoose",
+#    "Muons.DFCommonMuonsMedium",
+#    "Muons.DFCommonMuonsTight",
+    "Muons.DFCommonMuonsPreselection",
     "Muons.ptcone20",
     "Muons.ptcone30",
     "Muons.ptcone40",
     "Muons.etcone20",
     "Muons.etcone30",
     "Muons.etcone40"
-    ]
+#    "Muons.PromptLepton_TrackJetNTrack",
+#    "Muons.PromptLepton_sv1_ntkv",
+#    "Muons.PromptLepton_jf_ntrkv",
+#    "Muons.PromptLepton_ip2",
+#    "Muons.PromptLepton_ip2_cu",
+#    "Muons.PromptLepton_ip3",
+#    "Muons.PromptLepton_ip3_cu",
+#    "Muons.PromptLepton_EtTopoCone20Rel",
+#    "Muons.PromptLepton_TagWeight"
+]   
 
 ExtraMuonsTruth=[
     "MuonTruthParticles.e",
