@@ -111,22 +111,15 @@ print "EGAM5 offline skimming tool:", EGAM5_ThirdSkimmingTool
 
 
 #====================================================================
-# Cell sum decoration tool
+# Gain and cluster energies per layer decoration tool
 #====================================================================
-
-#from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CellDecorator
-#EGAM5_CellDecoratorTool = DerivationFramework__CellDecorator( name                    = "EGAM5_CellDecoratorTool",
-#                                                              SGKey_electrons         = "Electrons",
-#                                                              SGKey_photons           = "Photons",
-#                                                              CaloFillRectangularTool_5x5  = EGAMCOM_caloFillRect55,
-#                                                              CaloFillRectangularTool_3x5  = EGAMCOM_caloFillRect35,
-#                                                              CaloFillRectangularTool_3x7  = EGAMCOM_caloFillRect37,
-#                                                              CaloFillRectangularTool_7x11  = EGAMCOM_caloFillRect711
-#                                                              )
-#ToolSvc += EGAM5_CellDecoratorTool
-from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
 EGAM5_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM5_GainDecoratorTool
+
+cluster_sizes = (3,5), (5,7), (7,7), (7,11)
+EGAM5_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
+
 
 #====================================================================                                                                                                    
 # Max Cell sum decoration tool                                                                                                                                                  
@@ -149,7 +142,7 @@ ToolSvc+=EGAM5SkimmingTool
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM5Kernel",
-                                                                       AugmentationTools = [EGAM5_MTTool,EGAM5_GainDecoratorTool,EGAM5_MaxCellDecoratorTool],
+                                                                       AugmentationTools = [EGAM5_MTTool,EGAM5_GainDecoratorTool,EGAM5_MaxCellDecoratorTool] + EGAM5_ClusterEnergyPerLayerDecorators,
                                                                        SkimmingTools = [EGAM5SkimmingTool]
                                                                        )
 
@@ -197,6 +190,9 @@ if globalflags.DataSource()!='geant4':
 if globalflags.DataSource()=='geant4':
     EGAM5SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM5SlimmingHelper.AllVariables += ExtraContainersTruth
+
+for tool in EGAM5_ClusterEnergyPerLayerDecorators:
+    EGAM5SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
 
 # This line must come after we have finished configuring EGAM5SlimmingHelper
 EGAM5SlimmingHelper.AppendContentToStream(EGAM5Stream)

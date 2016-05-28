@@ -24,7 +24,8 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 # gamma: reco, ET>10 GeV, |eta|<2.5
 #====================================================================
 
-requirement = 'Muons.pt>9.5*GeV && abs(Muons.eta)<2.7 && Muons.DFCommonGoodMuon'
+#requirement = 'Muons.pt>9.5*GeV && abs(Muons.eta)<2.7 && Muons.DFCommonGoodMuon'
+requirement = 'Muons.pt>9.5*GeV && abs(Muons.eta)<2.7 && Muons.DFCommonMuonsPreselection'
 
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGInvariantMassTool
 EGAM4_MuMuMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM4_MuMuMassTool",
@@ -61,22 +62,14 @@ thinningTools=[]
 # TO BE ADDED
 
 #====================================================================
-# Cell sum decoration tool
+# Gain and cluster energies per layer decoration tool
 #====================================================================
-
-#from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CellDecorator
-#EGAM4_CellDecoratorTool = DerivationFramework__CellDecorator( name                    = "EGAM4_CellDecoratorTool",
-#                                                              SGKey_electrons         = "Electrons",
-#                                                              SGKey_photons           = "Photons",
-#                                                              CaloFillRectangularTool_5x5  = EGAMCOM_caloFillRect55,
-#                                                              CaloFillRectangularTool_3x5  = EGAMCOM_caloFillRect35,
-#                                                              CaloFillRectangularTool_3x7  = EGAMCOM_caloFillRect37,
-#                                                              CaloFillRectangularTool_7x11  = EGAMCOM_caloFillRect711
-#                                                              )
-#ToolSvc += EGAM4_CellDecoratorTool
-from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
 EGAM4_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM4_GainDecoratorTool
+
+cluster_sizes = (3,5), (5,7), (7,7), (7,11)
+EGAM4_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
 
 
 #=======================================
@@ -86,7 +79,7 @@ ToolSvc += EGAM4_GainDecoratorTool
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM4Kernel",
                                                                        #AugmentationTools = [EGAM4_MuMuMassTool,EGAM4_CellDecoratorTool],
-                                                                       AugmentationTools = [EGAM4_MuMuMassTool,EGAM4_GainDecoratorTool],
+                                                                       AugmentationTools = [EGAM4_MuMuMassTool,EGAM4_GainDecoratorTool] +  EGAM4_ClusterEnergyPerLayerDecorators,
                                                                        SkimmingTools = [EGAM4SkimmingTool],
                                                                        ThinningTools = thinningTools
                                                                        )
@@ -142,6 +135,9 @@ if globalflags.DataSource()!='geant4':
 if globalflags.DataSource()=='geant4':
     EGAM4SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM4SlimmingHelper.AllVariables += ExtraContainersTruth
+
+for tool in EGAM4_ClusterEnergyPerLayerDecorators:
+    EGAM4SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
 
 # This line must come after we have finished configuring EGAM4SlimmingHelper
 EGAM4SlimmingHelper.AppendContentToStream(EGAM4Stream)

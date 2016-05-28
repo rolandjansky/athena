@@ -61,12 +61,14 @@ ToolSvc += EGAM8SkimmingTool
 print "EGAM8 skimming tool:", EGAM8SkimmingTool
 
 #====================================================================
-# Cell sum decoration tool
+# Gain and cluster energies per layer decoration tool
 #====================================================================
-from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
 EGAM8_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM8_GainDecoratorTool
 
+cluster_sizes = (3,5), (5,7), (7,7), (7,11)
+EGAM8_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
 
 
 #====================================================================                                                                              
@@ -180,7 +182,7 @@ print "EGAM8 thinningTools: ", thinningTools
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM8Kernel",
-                                                                       AugmentationTools = [EGAM8_ZEEMassTool, EGAM8_GainDecoratorTool, EGAM8_MaxCellDecoratorTool],
+                                                                       AugmentationTools = [EGAM8_ZEEMassTool, EGAM8_GainDecoratorTool, EGAM8_MaxCellDecoratorTool] + EGAM8_ClusterEnergyPerLayerDecorators,
                                                                        SkimmingTools = [EGAM8SkimmingTool],
                                                                        ThinningTools = thinningTools
                                                                        )
@@ -243,6 +245,8 @@ if globalflags.DataSource()=='geant4':
     EGAM8SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM8SlimmingHelper.AllVariables += ExtraContainersTruth
 
+for tool in EGAM8_ClusterEnergyPerLayerDecorators:
+    EGAM8SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
 
 # This line must come after we have finished configuring EGAM8SlimmingHelper
 EGAM8SlimmingHelper.AppendContentToStream(EGAM8Stream)
