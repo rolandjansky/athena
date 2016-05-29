@@ -2,11 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "LArRawEvent/LArRawChannelContainer.h"
-#undef private
-#undef protected
 
 // LArRawChannelContainerCnv_p1, used for T/P separation
 // author R.Seuster <seuster@cern.ch>

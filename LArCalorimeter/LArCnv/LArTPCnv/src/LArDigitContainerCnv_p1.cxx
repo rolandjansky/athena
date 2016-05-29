@@ -3,11 +3,7 @@
 */
 
 #include "LArTPCnv/LArDigitContainerCnv_p1.h"
-#define private public
-#define protected public
 #include "LArRawEvent/LArDigitContainer.h"
-#undef private
-#undef protected
 #include "Identifier/Identifier.h"
 #include "LArTPCnv/LArDigitContainer_p1.h"
 
@@ -30,14 +26,16 @@ LArDigitContainerCnv_p1::persToTrans(const LArDigitContainer_p1* pers,
   std::vector<unsigned short>::const_iterator sample_it_e;
 
   for (unsigned i=0;i<nDigits;i++) {
-        LArDigit* transDig=new LArDigit();
-    transDig->m_hardwareID=HWIdentifier(Identifier32(pers->m_channelID[i]));
-    transDig->m_gain=(CaloGain::CaloGain)pers->m_gain[i];
-
     sample_it_e=sample_it+pers->m_nSamples[i];
-    transDig->m_samples.assign(sample_it,sample_it_e);
-    sample_it=sample_it_e;
-    trans->push_back(transDig);
+    std::vector<short> samples (sample_it,sample_it_e);
+
+    trans->push_back (new LArDigit (HWIdentifier(Identifier32(pers->m_channelID[i])),
+                                    (CaloGain::CaloGain)pers->m_gain[i],
+                                    std::move(samples)));
+
+    sample_it = sample_it_e;
+                                    
+                                    
     //std:: cout << "Working on channel "<< i << "(" << std::hex 
     //	       << pers->m_channelID[i] <<std::dec << ")" <<std::endl;
   }
@@ -59,15 +57,12 @@ LArDigitContainerCnv_p1::transToPers(const LArDigitContainer* trans,
 			    * nDigits);
 
   for (const LArDigit* transDigit : *trans) {
-    pers->m_channelID.push_back(transDigit->m_hardwareID.get_identifier32().get_compact());
-    pers->m_gain.push_back((unsigned char)transDigit->m_gain);
-    pers->m_nSamples.push_back(transDigit->m_samples.size());
-    std::vector<short>::const_iterator it_dig=transDigit->m_samples.begin();
-    std::vector<short>::const_iterator it_dig_e=transDigit->m_samples.end();
-    for(;it_dig!=it_dig_e;it_dig++)
-      pers->m_samples.push_back(*it_dig);
-    //std:: cout << "Working on channel "<< i++ << "(" << std::hex 
-    //	       << transDigit->m_hardwareID.get_compact() <<std::dec << ")" <<std::endl;
+    pers->m_channelID.push_back(transDigit->hardwareID().get_identifier32().get_compact());
+    pers->m_gain.push_back((unsigned char)transDigit->gain());
+    pers->m_nSamples.push_back(transDigit->samples().size());
+    pers->m_samples.insert (pers->m_samples.end(),
+                            transDigit->samples().begin(),
+                            transDigit->samples().end());
   }
 }
 

@@ -2,13 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "LArRawEvent/LArFebErrorSummary.h"
-#undef private
-#undef protected
-
-
 #include "CaloIdentifier/CaloGain.h"
 #include "LArTPCnv/LArFebErrorSummaryCnv_p1.h"
 
@@ -17,21 +11,19 @@
 
 void LArFebErrorSummaryCnv_p1::transToPers(const LArFebErrorSummary* trans, LArFebErrorSummary_p1* pers, MsgStream &/*log*/) 
 {
+  unsigned int sz = trans->get_all_febs().size();
 
-  unsigned int sz = trans->m_feb_errors.size();
+  pers->m_feb_errors.clear();
+  pers->m_feb_ids.clear();
+  pers->m_feb_errors.reserve(sz);
+  pers->m_feb_ids.reserve(sz);
 
-  pers->m_feb_errors.resize(sz);
-  pers->m_feb_ids.resize(sz);
-
-  std::map<unsigned int, uint16_t>::const_iterator it = trans->m_feb_errors.begin();
-  std::map<unsigned int, uint16_t>::const_iterator it_e = trans->m_feb_errors.end();
-  unsigned int i=0 ; 
-  for (; it!=it_e;++it){
-    pers->m_feb_ids[i]=(*it).first      ;
-    pers->m_feb_errors[i]=(*it).second    ;
-    ++i; 
+  for (const std::pair<const unsigned int, uint16_t>& p :
+         trans->get_all_febs())
+  {
+    pers->m_feb_ids.push_back (p.first);
+    pers->m_feb_errors.push_back (p.second);
   }
-
 }
 
 void LArFebErrorSummaryCnv_p1::persToTrans(const LArFebErrorSummary_p1* pers, LArFebErrorSummary* trans, MsgStream & log) 

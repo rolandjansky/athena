@@ -34,11 +34,4 @@ class LArRawChannel_p1 {
   int m_qualityandgain;
 };
 
-#include "LArRawEvent/LArRawChannel.h"
-
-std::ostream& operator << ( std::ostream& sl, const LArRawChannel& data);
-
 #endif
-
-
-

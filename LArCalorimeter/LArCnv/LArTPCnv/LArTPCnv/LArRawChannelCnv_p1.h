@@ -7,6 +7,7 @@
 #define LARTPCNV_LARRAWCHANNELCNV_P1_H
 
 #include "LArTPCnv/LArRawChannel_p1.h"
+#include "LArRawEvent/LArRawChannel.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 // LArRawChannelCnv_p1, used for T/P separation
