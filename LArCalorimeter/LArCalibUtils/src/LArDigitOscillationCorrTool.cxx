@@ -31,7 +31,9 @@ LArDigitOscillationCorrTool::LArDigitOscillationCorrTool(const std::string& type
   : AthAlgTool(type, name, parent) , 
     m_priority(1400), 
     m_nSigma(3.0), 
+    m_eventPhase(0),
     m_omega(1.024e6*hertz),
+    m_emId(0), m_fcalId(0), m_hecId(0), m_lar_on_id(0),
     m_cablingService("LArCablingService")
 {
   declareInterface<ILArDigitOscillationCorrTool>(this);
