@@ -29,10 +29,13 @@ globalflags.InputFormat.set_Value_and_Lock('bytestream')
 athenaCommonFlags.BSRDOInput.set_Value_and_Lock(runArgs.inputBSFile)
 
 from RecExConfig.RecFlags import rec
-from RecExConfig.AutoConfiguration import GetProjectName
+from RecExConfig.AutoConfiguration import GetProjectName,ConfigureTriggerStream
 rec.projectName=GetProjectName()
 rec.doWriteESD=False
 rec.doWriteAOD=False
+
+ConfigureTriggerStream()
+#print rec.triggerStream()
 
 from AthenaCommon.JobProperties import jobproperties
 if hasattr(runArgs,'geometryVersion'):
@@ -52,7 +55,16 @@ DetFlags.LVL1_setOff()
 DetFlags.digitize.all_setOff()
 DetFlags.Print()
 
-
+if hasattr(runArgs,"preExec"):
+    recoLog.info("transform pre-exec")
+    for cmd in runArgs.preExec:
+        recoLog.info(cmd)
+        exec(cmd)
+ 
+ ## Pre-include
+if hasattr(runArgs,"preInclude"): 
+    for fragment in runArgs.preInclude:
+        include(fragment)
 
 
 #from RecExConfig.RecFlags import rec
@@ -103,6 +115,9 @@ theByteStreamAddressProviderSvc = svcMgr.ByteStreamAddressProviderSvc
 theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/FREE"]
 theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
 
+from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+topSequence+=xAODMaker__EventInfoCnvAlg()
+
 include("LArROD/LArFebErrorSummaryMaker_jobOptions.py")
 febSummaryMaker.CheckAllFEB=False
 
@@ -149,7 +164,7 @@ theLArRawChannelBuilder.PedestalTools  = [theLArRawChannelBuilderPedestalDataBas
 ToolSvc += theLArRawChannelBuilderPedestalDataBase
 
 from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-theLArADC2MeVTool=LArADC2MeVToolDefault()
+theLArADC2MeVTool=LArADC2MeVToolDefault("LArADC2MeVTool")
 ToolSvc+=theLArADC2MeVTool
 
 from LArROD.LArRODConf import LArRawChannelBuilderADC2EDataBase
@@ -162,6 +177,10 @@ from LArRecUtils.LArRecUtilsConf import LArOFPeakRecoTool
 theLArOFPeakRecoTool=LArOFPeakRecoTool()
 theLArOFPeakRecoTool.UseShape=True 
 ToolSvc += theLArOFPeakRecoTool
+
+
+include("LArCellRec/LArTimeVetoAlg_jobOptions.py")
+
 
 ####################
 from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
@@ -203,11 +222,21 @@ from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
 ToolSvc+=theCaloNoiseTool
 
+from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+
+
 from LArCafJobs.LArCafJobsConfig import DefaultShapeDumper
 DefaultShapeDumper('LArShapeDumper', 'FREE', noiseSignifCut = 5, doShape = True, doTrigger = True, caloType = 'EMHECFCAL')
 topSequence.LArShapeDumper.CaloNoiseTool=theCaloNoiseTool
 topSequence.LArShapeDumper.TrigDecisionTool=tdt
 topSequence.LArShapeDumper.FileName=runArgs.outputNTUP_SAMPLESMONFile
+topSequence.LArShapeDumper.OutputLevel=DEBUG
+topSequence.LArShapeDumper.BunchCrossingTool=BunchCrossingTool()
+
+if ("Empty" in rec.triggerStream()):
+    print "LArCellsEmpty: Process only empty bunch crossings"
+    topSequence.LArShapeDumper.onlyEmptyBC=True 
+
 
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
     "ROIB::RoIBResult/RoIBResult",
@@ -224,6 +253,11 @@ svcMgr += THistSvc()
 if hasattr(runArgs,"outputNTUP_SAMPLESMONFile"):
     svcMgr.THistSvc.Output += ["AANT DATAFILE='"+runArgs.outputNTUP_SAMPLESMONFile+"' OPT='RECREATE'"]
 
+if hasattr(runArgs,"outputNTUP_HECNOISEFile"):
+    from LArCafJobs.LArCafJobsConf import LArHECNoise
+    topSequence += LArHECNoise('LArHECNoise')
+    #topSequence.LArHECNoise.OutputLevel=DEBUG
+    svcMgr.THistSvc.Output += ["HEC DATAFILE='"+runArgs.outputNTUP_HECNOISEFile+"' OPT='RECREATE'"]
 
 from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
 svcMgr += AthenaEventLoopMgr()
@@ -246,17 +280,27 @@ svcMgr.ChronoStatSvc.PrintEllapsedTime = True
 
 theApp.AuditAlgorithms = True
 
-#Hack to load the right dict to write vector< vector < X > > to TTRee
-#import AthenaPython.PyAthena as PyAthena
-#PyAthena.load_library('AtlasSTLAddReflexDict')
 
 
-#svcMgr.ToolSvc.OutputLevel=DEBUG
 
 svcMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M"
-svcMgr.MessageSvc.defaultLimit = 9999999  # all messages
-svcMgr.MessageSvc.useColors = False
-svcMgr.MessageSvc.defaultLimit=1000000
+#svcMgr.MessageSvc.defaultLimit = 9999999  # all messages
+#svcMgr.MessageSvc.useColors = False
 #svcMgr.MessageSvc.OutputLevel=DEBUG
 
 #svcMgr.StoreGateSvc.Dump=True
+#svcMgr.ToolSvc.OutputLevel=DEBUG
+
+## Post-include
+if hasattr(runArgs,"postInclude"): 
+    for fragment in runArgs.postInclude:
+        include(fragment)
+ 
+## Post-exec
+if hasattr(runArgs,"postExec"):
+    print "transform post-exec"
+    for cmd in runArgs.postExec:
+        print cmd
+        exec(cmd)
+    
+

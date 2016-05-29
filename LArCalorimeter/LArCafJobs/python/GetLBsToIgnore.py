@@ -110,7 +110,7 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False, dropNonRea
   
   multicall = xmlrpclib.MultiCall(server)
   run_spec = {'source': source, 'high_run': runnum, 'stream': stream, 'proc_ver': proc, 'low_run': runnum}
-  multicall.get_dqmf_all_results(run_spec,'LAr/LAR_GLOBAL/Collisions/LArCollTimeLumiBlockTimeCut')
+  multicall.get_dqmf_all_results(run_spec,'LAr/LAR_GLOBAL/Collisions-Bkg/LArCollTimeLumiBlockTimeCut')
   results = multicall()
   RE = re.compile(r'\((?P<lb>\S+)\.0*\)')
 
@@ -134,12 +134,14 @@ def getLBsToIgnore(runnum,burstsFromCosmic=True,bulkProcessing=False, dropNonRea
     histoName = {'EMBC':'BarrelC','EMBA':'BarrelA','EMECC':'EMECC','EMECA':'EMECA'}
     for iPart in histoName.keys():
       multicall = xmlrpclib.MultiCall(server)
-      multicall.get_dqmf_all_results(run_spec,'LAr/%s/Noise/Partition/NoisyEvent_TimeVeto_%s'%(iPart,histoName[iPart]))
+      #multicall.get_dqmf_all_results(run_spec,'LAr/%s/Noise/Partition/NoisyEvent_TimeVeto_%s'%(iPart,histoName[iPart]))
+      multicall.get_dqmf_all_results(run_spec,'/LAr/%s/Occupancy-Noise/Noise_Burst/NoisyEvent_TimeVeto_%s'%(iPart,iPart))
+
       results = multicall()
       try:
-        list = results[0][str(runnum)]
+        resultlist = results[0][str(runnum)]
         #print "Got %i items for NoisyEvent_TimeVeto_%s" % (len(list),histoName[iPart])
-        for item in list:
+        for item in resultlist:
           if 'NBins' in item: continue
           m = RE.search(item).groupdict()
           lb=int(m['lb'])
