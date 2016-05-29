@@ -33,7 +33,7 @@ StatusCode LArCablingService::initialize ()
   const LArOnlineID* onlineId;
   StatusCode sc=detStore()->retrieve(onlineId, "LArOnlineID");
   if (sc.isFailure()) {
-    msg() <<  MSG::FATAL << "Could not get LArOnlineID helper !" << endmsg;
+    msg() <<  MSG::FATAL << "Could not get LArOnlineID helper !" << endreq;
     return StatusCode::FAILURE;
   } 
 
@@ -42,7 +42,7 @@ StatusCode LArCablingService::initialize ()
   const CaloCell_ID* caloCell_ID;
   sc=detStore()->retrieve(caloCell_ID,"CaloCell_ID");
   if (sc.isFailure()) {
-    msg() <<  MSG::FATAL << "Could not get CaloCell_ID helper !" << endmsg;
+    msg() <<  MSG::FATAL << "Could not get CaloCell_ID helper !" << endreq;
     return StatusCode::FAILURE;
   } 
   m_caloId=caloCell_ID; //Cast to base-class
@@ -50,12 +50,12 @@ StatusCode LArCablingService::initialize ()
   unsigned nCallbacks=0;
 
   if (m_onOffIdKey.size()) {
-    sc=detStore()->regFcn(&LArCablingService::iovCallBack,this,m_attrOnOff,m_onOffIdKey,true);
+    sc=detStore()->regFcn(&LArCablingService::iovCallBack,this,m_attrOnOff,m_onOffIdKey);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to register callback on SG key" << m_onOffIdKey << endmsg;
+      msg(MSG::ERROR) << "Failed to register callback on SG key" << m_onOffIdKey << endreq;
     }
     else {
-      msg(MSG::INFO) << "Successfully installed callback on folder" << m_onOffIdKey << endmsg;
+      msg(MSG::INFO) << "Successfully installed callback on folder" << m_onOffIdKey << endreq;
       nCallbacks++;
     }
   }
@@ -63,42 +63,41 @@ StatusCode LArCablingService::initialize ()
   if (m_calibIdKey.size()) {
     sc=detStore()->regFcn(&LArCablingService::iovCallBack,this,m_attrCalib,m_calibIdKey);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to register callback on SG key" << m_calibIdKey << endmsg;
+      msg(MSG::ERROR) << "Failed to register callback on SG key" << m_calibIdKey << endreq;
     }
     else {
-      msg(MSG::INFO) << "Successfully installed callback on folder" << m_calibIdKey << endmsg;
+      msg(MSG::INFO) << "Successfully installed callback on folder" << m_calibIdKey << endreq;
       nCallbacks++;
     }
   }
   if (m_febRodMapKey.size()) {
     sc=detStore()->regFcn(&LArCablingService::iovCallBack,this, m_attrFebRod,m_febRodMapKey); 
     if (sc.isFailure()) {
-      msg() <<MSG::ERROR<<"Failed to register callback on SG key" << m_febRodMapKey << endmsg;
+      msg() <<MSG::ERROR<<"Failed to register callback on SG key" << m_febRodMapKey << endreq;
     }
     else {
-      msg(MSG::INFO) << "Successfully installed callback on folder" << m_febRodMapKey << endmsg;
+      msg(MSG::INFO) << "Successfully installed callback on folder" << m_febRodMapKey << endreq;
       nCallbacks++;
     }
   }
 
   if (nCallbacks==0) {
-    msg(MSG::ERROR) << "No callback was sucessfully installed! Configuration problem?" << endmsg;
+    msg(MSG::ERROR) << "No callback was sucessfully installed! Configuration problem?" << endreq;
     return StatusCode::FAILURE;
   }
-  msg(MSG::INFO)<< "Sucessfully initialized LArCablingService with " << nCallbacks << " callbacks." << endmsg; 
+  msg(MSG::INFO)<< "Sucessfully initialized LArCablingService with " << nCallbacks << " callbacks." << endreq; 
   return StatusCode::SUCCESS;
 }
 
 
 
 StatusCode LArCablingService::iovCallBack(IOVSVC_CALLBACK_ARGS_K(keys)) {
-  msg() << MSG::INFO<<" ====> iovCallBack " << endmsg;
+  msg() << MSG::INFO<<" ====> iovCallBack " << endreq;
   
   for (std::list<std::string>::const_iterator itr=keys.begin(); itr!=keys.end(); ++itr) {
     ATH_MSG_DEBUG("IOV callback for key " << *itr);
     if (*itr==m_onOffIdKey) {
       m_onOffValid=false;
-      readOnlOffMap();
       continue;
     }
     if (*itr==m_calibIdKey) {
@@ -110,7 +109,7 @@ StatusCode LArCablingService::iovCallBack(IOVSVC_CALLBACK_ARGS_K(keys)) {
       continue;
     }
 
-    msg(MSG::WARNING) << "Callback fired for unknown key " << *itr << endmsg;
+    msg(MSG::WARNING) << "Callback fired for unknown key " << *itr << endreq;
   } //end loop over keys
   return StatusCode::SUCCESS;
 }
@@ -118,12 +117,12 @@ StatusCode LArCablingService::iovCallBack(IOVSVC_CALLBACK_ARGS_K(keys)) {
 
 
 bool LArCablingService::readCalibMap() {
-  msg(MSG::DEBUG) << "Start reading calibration line mapping" << endmsg;
+  msg(MSG::DEBUG) << "Start reading calibration line mapping" << endreq;
   m_calibValid=false;
   m_onlHashToCalibLines.clear();
   StatusCode sc=detStore()->retrieve(m_attrCalib,m_calibIdKey);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to read AthenaAttributeList with key " << m_calibIdKey << endmsg;
+    msg(MSG::ERROR) << "Failed to read AthenaAttributeList with key " << m_calibIdKey << endreq;
     return false;
   }
   const coral::Blob& blobCalib=(*m_attrCalib)["OnlineHashToCalibIds"].data<coral::Blob>();
@@ -142,7 +141,7 @@ bool LArCablingService::readCalibMap() {
     const unsigned nCalibLines=pBlobCalib[blobIdx++];
     totCalibLines+=nCalibLines;
     if (nCalibLines>4) {
-      msg(MSG::ERROR) << "Found unresonable large number of calib lines (" << nCalibLines << ") for channel hash " << chanIdx << endmsg;
+      msg(MSG::ERROR) << "Found unresonable large number of calib lines (" << nCalibLines << ") for channel hash " << chanIdx << endreq;
       return false;
     }
     m_onlHashToCalibLines[chanIdx].clear();
@@ -150,7 +149,7 @@ bool LArCablingService::readCalibMap() {
       m_onlHashToCalibLines[chanIdx].push_back(HWIdentifier(pBlobCalib[blobIdx++])); //FIXME C++11 emplace_back
     }//End loop over calib-lines
   }//end loop over channels
-  msg() << MSG::INFO << "Done reading readout/calibration line mapping." << endmsg;
+  msg() << MSG::INFO << "Done reading readout/calibration line mapping." << endreq;
   ATH_MSG_DEBUG("BlobIdx=" << blobIdx<<", chanIdx=" << chanIdx << ", totCalibLines=" << totCalibLines);
   m_calibValid=true;
   return m_calibValid;
@@ -164,7 +163,7 @@ bool LArCablingService::readFebRodMap() {
   m_readoutModuleIDVec.clear();
   StatusCode sc=detStore()->retrieve(m_attrFebRod,m_febRodMapKey);
   if (sc.isFailure()) {
-    msg() << MSG::ERROR << "Failed to read AthenaAttributeList with key " << m_febRodMapKey << endmsg;
+    msg() << MSG::ERROR << "Failed to read AthenaAttributeList with key " << m_febRodMapKey << endreq;
     return false;
   }
   const coral::Blob& blobFebRod=(*m_attrFebRod)["FebHashToRODs"].data<coral::Blob>();
@@ -183,7 +182,7 @@ bool LArCablingService::readFebRodMap() {
   }
 
   m_febRodValid=true;
-  msg(MSG::INFO) << "Done reading Feb/Rod mapping. Found " << nFebRod << " Febs and " <<  m_readoutModuleIDVec.size() << " Rods" << endmsg;
+  msg(MSG::INFO) << "Done reading Feb/Rod mapping. Found " << nFebRod << " Febs and " <<  m_readoutModuleIDVec.size() << " Rods" << endreq;
   return  m_febRodValid;
 }
 
