@@ -68,6 +68,12 @@ atlas_add_test( LArNoisyROSummaryCnv_p3_test
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib LArRawEvent LArRecEvent TestTools CaloIdentifier AthenaKernel Identifier LArTPCnv )
 
+atlas_add_test( LArNoisyROSummaryCnv_p4_test
+                SOURCES
+                test/LArNoisyROSummaryCnv_p4_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib LArRawEvent LArRecEvent TestTools CaloIdentifier AthenaKernel Identifier LArTPCnv )
+
 atlas_add_test( LArRawChannelCnv_p2_test
                 SOURCES
                 test/LArRawChannelCnv_p2_test.cxx
