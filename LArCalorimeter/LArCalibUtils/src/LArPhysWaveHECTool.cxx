@@ -82,7 +82,7 @@ LArPhysWaveHECTool::~LArPhysWaveHECTool() {}
 
 StatusCode LArPhysWaveHECTool::initialize()
 {    
-  ATH_CHECK( detStore()->retrieve(onlineHelper, "LArOnlineID") );
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   return StatusCode::SUCCESS;
 }
 
@@ -156,9 +156,9 @@ StatusCode LArPhysWaveHECTool::makeLArPhysWaveHEC(LArWFParams& wfParam, LArCaliW
   }
 
   
-  int FT      = onlineHelper->feedthrough(chid);
-  int Slot    = onlineHelper->slot(chid);
-  int Channel = onlineHelper->channel(chid);
+  int FT      = m_onlineHelper->feedthrough(chid);
+  int Slot    = m_onlineHelper->slot(chid);
+  int Channel = m_onlineHelper->channel(chid);
   int adc = 128*(Slot-5)+ Channel+1;
 
   ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> FT=" << FT   << " Slot=" << Slot << " Channel=" <<Channel<< " adc=" << adc << " gain=" << gain );

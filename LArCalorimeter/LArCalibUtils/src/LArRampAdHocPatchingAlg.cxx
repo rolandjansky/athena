@@ -23,6 +23,10 @@ LArRampAdHocPatchingAlg::LArRampAdHocPatchingAlg (const std::string& name, ISvcL
   declareProperty("PatchesToBeAppliedMG",m_patchesToBeAppliedMG);
   declareProperty("PatchesToBeAppliedLG",m_patchesToBeAppliedLG);
 
+  declareProperty("ValuesToBeAppliedHG",m_valuesToBeAppliedHG);
+  declareProperty("ValuesToBeAppliedMG",m_valuesToBeAppliedMG);
+  declareProperty("ValuesToBeAppliedLG",m_valuesToBeAppliedLG);
+
   declareProperty("UseCorrChannels",m_useCorrChannel,
 		  "True: Use separate correction COOL channel, False: Correction + data in the same channel");
 }
@@ -44,21 +48,39 @@ StatusCode LArRampAdHocPatchingAlg::initialize()
     ATH_MSG_ERROR ( "Wrong size of HIGH gain input vectors!" );
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_INFO ( m_channelsToBePatchedHG.size() << " ad-hoc patches to be applied in HIGH gain" );
+     unsigned count =  std::count_if (m_patchesToBeAppliedHG.begin(), m_patchesToBeAppliedHG.end(), std::bind2nd(std::equal_to<int>(),1) ); // 1 is to apply values
+     if ( (count > 0) && (m_valuesToBeAppliedHG.size() != count)) {
+         ATH_MSG_ERROR ( "Wrong size of HIGH gain values vector ! " << count << " " << m_valuesToBeAppliedHG.size());
+         return StatusCode::FAILURE;
+     } else {
+        ATH_MSG_INFO ( m_channelsToBePatchedHG.size() << " ad-hoc patches to be applied in HIGH gain" );
+     }
   } 
 
   if ( m_channelsToBePatchedMG.size() && ( m_channelsToBePatchedMG.size() !=  m_patchesToBeAppliedMG.size() ) ) {
     ATH_MSG_ERROR ( "Wrong size of MEDIUM gain input vectors!" );
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_INFO ( m_channelsToBePatchedMG.size() << " ad-hoc patches to be applied in MEDIUM gain" );
+     unsigned count =  std::count_if (m_patchesToBeAppliedMG.begin(), m_patchesToBeAppliedMG.end(), std::bind2nd(std::equal_to<int>(),1) ); // 1 is to apply values
+     if ( (count > 0) && (m_valuesToBeAppliedMG.size() != count)) {
+         ATH_MSG_ERROR ( "Wrong size of MEDIUM gain values vector !" );
+         return StatusCode::FAILURE;
+     } else {
+        ATH_MSG_INFO ( m_channelsToBePatchedMG.size() << " ad-hoc patches to be applied in MEDIUM gain" );
+     }
   } 
 
   if ( m_channelsToBePatchedLG.size() && ( m_channelsToBePatchedLG.size() !=  m_patchesToBeAppliedLG.size() ) ) {
     ATH_MSG_ERROR ( "Wrong size of LOW gain input vectors!" );
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_INFO ( m_channelsToBePatchedLG.size() << " ad-hoc patches to be applied in LOW gain" );
+     unsigned count =  std::count_if (m_patchesToBeAppliedLG.begin(), m_patchesToBeAppliedLG.end(), std::bind2nd(std::equal_to<int>(),1) ); // 1 is to apply values
+     if ( (count > 0) && (m_valuesToBeAppliedLG.size() != count)) {
+         ATH_MSG_ERROR ( "Wrong size of LOW gain values vector !" );
+         return StatusCode::FAILURE;
+     } else {
+       ATH_MSG_INFO ( m_channelsToBePatchedLG.size() << " ad-hoc patches to be applied in LOW gain" );
+     }
   } 
 
   return StatusCode::SUCCESS;
@@ -87,17 +109,17 @@ StatusCode LArRampAdHocPatchingAlg::stop()
 
   if (m_channelsToBePatchedHG.size()) {
     ATH_MSG_INFO ( "Going to apply ad-hoc patches to HIGH gain ramps." );
-    ATH_CHECK( ApplyAdHocPatches(m_channelsToBePatchedHG,m_patchesToBeAppliedHG,0) );
+    ATH_CHECK( ApplyAdHocPatches(m_channelsToBePatchedHG,m_patchesToBeAppliedHG,m_valuesToBeAppliedHG, 0) );
   }
 
   if (m_channelsToBePatchedMG.size()) {
     ATH_MSG_INFO ( "Going to apply ad-hoc patches to MEDIUM gain ramps." );
-    ATH_CHECK( ApplyAdHocPatches(m_channelsToBePatchedMG,m_patchesToBeAppliedMG,1) );
+    ATH_CHECK( ApplyAdHocPatches(m_channelsToBePatchedMG,m_patchesToBeAppliedMG,m_valuesToBeAppliedMG,1) );
   }
 
   if (m_channelsToBePatchedLG.size()) {
     ATH_MSG_INFO ( "Going to apply ad-hoc patches to LOW gain ramps." );
-    ATH_CHECK( ApplyAdHocPatches(m_channelsToBePatchedLG,m_patchesToBeAppliedLG,2) );
+    ATH_CHECK( ApplyAdHocPatches(m_channelsToBePatchedLG,m_patchesToBeAppliedLG,m_valuesToBeAppliedLG,2) );
   }
 
   ATH_MSG_INFO ( "Done with LArRampAdHocPatchingAlg" );
@@ -106,20 +128,29 @@ StatusCode LArRampAdHocPatchingAlg::stop()
 
 
 
-StatusCode LArRampAdHocPatchingAlg::ApplyAdHocPatches(std::vector<unsigned>& channelsToBePatched , std::vector<unsigned>& patchesToBeApplied, unsigned gain)
+StatusCode LArRampAdHocPatchingAlg::ApplyAdHocPatches(std::vector<unsigned>& channelsToBePatched , std::vector<unsigned>& patchesToBeApplied, std::vector<std::vector<double> >& valuesToBeApplied, unsigned gain)
 { 
   if (channelsToBePatched.size() != patchesToBeApplied.size())
     return StatusCode::FAILURE;
+  unsigned putcount=0;
   for (unsigned ich=0;ich<channelsToBePatched.size();++ich ) {    
     const HWIdentifier chid    = (HWIdentifier)channelsToBePatched[ich];
-    // check if the channel to be patched is there...
-    if (m_contIn->get(chid,gain).isEmpty()) continue;
     // ... if so, proceed with ad-hoc patching(s)
     const unsigned patchMethod = patchesToBeApplied[ich];
     //bool status = false;    
     switch (patchMethod) {
-    case ZeroIntercept:
-      /*status =*/ ZeroTheIntercept(chid,gain);
+    case ZeroIntercept: {
+      // check if the channel to be patched is there...
+      if (m_contIn->get(chid,gain).isEmpty()) continue;
+      ZeroTheIntercept(chid,gain);
+      break;
+                        }
+    case PutValues: {
+         if ( valuesToBeApplied[putcount].size() == 0 ) return StatusCode::FAILURE;
+         PutTheValues(chid,valuesToBeApplied[putcount],gain);
+         ++putcount;
+         break;
+                    }
     }
     /*
     if (status) {
@@ -154,5 +185,30 @@ bool LArRampAdHocPatchingAlg::ZeroTheIntercept(HWIdentifier chid, unsigned gain)
     ATH_MSG_INFO ( "Successfully zeroed the ramp intercept channel 0x" 
                    << MSG::hex << chid.get_compact()  << MSG::dec << ", gain " << gain << "." );
     return true;
+  }
+}
+
+bool LArRampAdHocPatchingAlg::PutTheValues(HWIdentifier chid, std::vector<double>& rvalues, unsigned gain)
+{
+  unsigned s = rvalues.size();
+  LArRampObj patch;
+  patch.m_vRamp.clear();
+  patch.m_vRamp.resize(s);
+  ATH_MSG_INFO ( "Size of the patched object: "<<s);
+  if(s==0) return false;
+  for (unsigned i=0;i<s;++i){ // copy the values
+    patch.m_vRamp[i] = rvalues[i];
+  }
+  StatusCode sc;
+  try { sc=m_contOut->insertCorrection(chid,patch,gain,m_useCorrChannel);}
+  catch(...) { ATH_MSG_INFO ("Skipping insert of corrections, maybe it's not about this partition");}
+  if (sc.isFailure()) {
+      ATH_MSG_ERROR ( "Failed to put the values for channel 0x" 
+                    << MSG::hex << chid.get_compact()  << MSG::dec << ", gain " << gain << "." );
+      return false;
+  } else {
+      ATH_MSG_INFO ( "Successfully put the values for channel 0x" 
+                   << MSG::hex << chid.get_compact()  << MSG::dec << ", gain " << gain << "." );
+      return true;
   }
 }

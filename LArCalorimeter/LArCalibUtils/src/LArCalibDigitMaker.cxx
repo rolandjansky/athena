@@ -66,7 +66,8 @@ StatusCode LArCalibDigitMaker::initialize()
       return StatusCode::FAILURE;
     }
     LArCalibParams* calibParams=new LArCalibParams;
-    calibParams->initialize() ; 
+    ATH_CHECK( calibParams->initialize() ); 
+
     //void LArCalibParams::set(const HWIdentifier CalibModuleID, const unsigned nTrigger,
     //		 const  std::vector<unsigned>& Pattern, const std::vector<unsigned>& DAC, const std::vector<unsigned>& Delay)
     for (std::vector<unsigned>::const_iterator it=m_vBoardIDs.begin();it!=m_vBoardIDs.end();it++) {

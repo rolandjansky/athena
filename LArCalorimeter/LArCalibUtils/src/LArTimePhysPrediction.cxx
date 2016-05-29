@@ -158,8 +158,8 @@ StatusCode LArTimePhysPrediction::stop()
   //Define helpers
   LArWaveHelper larWaveHelper;
   
-  const LArOnlineID* m_onlineHelper = nullptr;
-  ATH_CHECK(  detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
+  const LArOnlineID* onlineHelper = nullptr;
+  ATH_CHECK(  detStore()->retrieve(onlineHelper, "LArOnlineID") );
   
   //Calo DDM gives "detector description"
   //including real positions of cells
@@ -172,15 +172,12 @@ StatusCode LArTimePhysPrediction::stop()
     }
     
   //const CaloCell_ID* m_caloCID = m_caloDDM->getCaloCell_ID();
-  const CaloIdManager *m_caloIdMgr=CaloIdManager::instance() ;
+  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   
   //Get identifiers
-  const LArEM_ID* m_emId;
-  m_emId=m_caloIdMgr->getEM_ID();
-  const LArHEC_ID* m_hecId;
-  m_hecId=m_caloIdMgr->getHEC_ID();
-  const LArFCAL_ID* m_fcalId; 
-  m_fcalId=m_caloIdMgr->getFCAL_ID();
+  const LArEM_ID* emId = caloIdMgr->getEM_ID();
+  const LArHEC_ID* hecId = caloIdMgr->getHEC_ID();
+  const LArFCAL_ID* fcalId = caloIdMgr->getFCAL_ID();
   
   //------------------------------------------------------------------------------------------------------------------------------
   //--------------Start to loop on the LArCaliWaveContainer------------------------------------------------------------------------
@@ -220,7 +217,7 @@ StatusCode LArTimePhysPrediction::stop()
 	// Calo DDM gives "detector description"
 	// including real positions of cells
 	caloDDM = CaloDetDescrManager::instance() ;
-	const CaloCell_ID* m_caloCID = caloDDM->getCaloCell_ID();
+	const CaloCell_ID* caloCID = caloDDM->getCaloCell_ID();
 	
 	try {
 	  id = larCablingSvc->cnvToIdentifier(chid);   
@@ -229,42 +226,42 @@ StatusCode LArTimePhysPrediction::stop()
 	  continue;
 	}
 
-	Channel = m_onlineHelper->channel(chid);
+	Channel = onlineHelper->channel(chid);
 
 	const std::vector<HWIdentifier>& calibLineV = larCablingSvc->calibSlotLine(chid);
         std::vector<HWIdentifier>::const_iterator calibLineIt = calibLineV.begin();   
-	CalibLine = m_onlineHelper->channel(*calibLineIt) ;
+	CalibLine = onlineHelper->channel(*calibLineIt) ;
 	
 	//indexes eta/phi/layer
-	if (m_emId->is_lar_em(id)) {
-	  eta=m_emId->eta(id); 
-	  phi=m_emId->phi(id);
-	  layer=m_emId->sampling(id);}
-	else if (m_hecId->is_lar_hec(id)) {
-	  eta=m_hecId->eta(id); 
-	  phi=m_hecId->phi(id);
-	  layer=m_hecId->sampling(id);}
-	else if (m_fcalId->is_lar_fcal(id)) {
-	  eta=m_fcalId->eta(id); 
-	  phi=m_fcalId->phi(id);
-	  layer=m_fcalId->module(id);}
+	if (emId->is_lar_em(id)) {
+	  eta=emId->eta(id); 
+	  phi=emId->phi(id);
+	  layer=emId->sampling(id);}
+	else if (hecId->is_lar_hec(id)) {
+	  eta=hecId->eta(id); 
+	  phi=hecId->phi(id);
+	  layer=hecId->sampling(id);}
+	else if (fcalId->is_lar_fcal(id)) {
+	  eta=fcalId->eta(id); 
+	  phi=fcalId->phi(id);
+	  layer=fcalId->module(id);}
 	else {
           ATH_MSG_INFO ( "cell not in the calorimeters " );
           continue;
         }
 	  
 	//identification using the online helper (common to all LAr calorimeters)
-	pos_neg = m_onlineHelper->pos_neg(chid);
-	barrel_ec = m_onlineHelper->barrel_ec(chid);
-	FT   = m_onlineHelper->feedthrough(chid);
-	slot = m_onlineHelper->slot(chid);
+	pos_neg = onlineHelper->pos_neg(chid);
+	barrel_ec = onlineHelper->barrel_ec(chid);
+	FT   = onlineHelper->feedthrough(chid);
+	slot = onlineHelper->slot(chid);
 
 	//get the FT online identifier
-	HWIdentifier febid = m_onlineHelper->feb_Id(chid);
+	HWIdentifier febid = onlineHelper->feb_Id(chid);
 	m_FEBid = febid.get_identifier32().get_compact();
 	
 	//real eta and phi: need the hash identifier
-	IdentifierHash theHash = m_caloCID->calo_cell_hash(id) ;
+	IdentifierHash theHash = caloCID->calo_cell_hash(id) ;
 	const CaloDetDescrElement* theDDE = caloDDM->get_element(theHash) ;
 	
 	if(theDDE==0) {
@@ -279,16 +276,16 @@ StatusCode LArTimePhysPrediction::stop()
 	//use the "best" available parametrisation of the shower depth at the time of development
 	//WARNING: use the CaloDepthTool's convention radius=r(barrel), radius=z(end-cap)
 	//for HEC and FCAL: lengths could be moved in the job options
-	if(m_emId->is_lar_em(id)){
+	if(emId->is_lar_em(id)){
 	  radius = m_CaloDepthTool->cscopt2_parametrized(sample,real_eta,real_phi);
 	}
-	else if(m_hecId->is_lar_hec(id)){//assumption: "arrival point" = middle of the compartment 
+	else if(hecId->is_lar_hec(id)){//assumption: "arrival point" = middle of the compartment 
 	  if(layer==0) radius=4398.;
 	  if(layer==1) radius=4806.;
 	  if(layer==2) radius=5359.;
 	  if(layer==3) radius=5840.;
 	}
-	else if(m_fcalId->is_lar_fcal(id)){//assumption: "arrival point" = middle of the compartment 
+	else if(fcalId->is_lar_fcal(id)){//assumption: "arrival point" = middle of the compartment 
 	  if(layer==1) {radius=4916.;LSignalFCAL=m_vLSignal_FCAL[0];}
 	  if(layer==2) {radius=5366.;LSignalFCAL=m_vLSignal_FCAL[1];}
 	  if(layer==3) {radius=5816.;LSignalFCAL=m_vLSignal_FCAL[2];}
@@ -321,22 +318,22 @@ StatusCode LArTimePhysPrediction::stop()
 	  t0=rT0;
 	  	  
 	  //----step 2: compute the TOF
-	  if(m_emId->is_lar_em(id) && barrel_ec==0) TOF = fabs(radius)*TMath::CosH(real_eta)* meter2ns/1000;//EMB
+	  if(emId->is_lar_em(id) && barrel_ec==0) TOF = fabs(radius)*TMath::CosH(real_eta)* meter2ns/1000;//EMB
 	  else TOF = fabs(radius)/TMath::TanH(fabs(real_eta))* meter2ns/1000;//EC
 	  
 	  //----step 3: deduction of the propagation time due to the propagation of the calibration pulse
 	  //from the pulse until the calibration board
-	  if(m_emId->is_lar_em(id) && barrel_ec==0){//EMB
+	  if(emId->is_lar_em(id) && barrel_ec==0){//EMB
 	    for(int ieta=0;ieta<16;ieta++){
 	      if(fabs(real_eta)>ieta*0.1 && fabs(real_eta)<(ieta+1)*0.1) CalibCables=0.7*m_sPig+m_vLCalib_EMB[layer][ieta]*m_sCalib; 
 	    }
 	  }
-	  else if(m_emId->is_lar_em(id) && abs(barrel_ec)==1) CalibCables=0.9*m_sPig+m_vLCalib_EMEC*m_sCalib;//EMEC
-	  else if(m_hecId->is_lar_hec(id)) CalibCables=m_vLCalib_HEC*m_sCalib;//HEC
-	  else if(m_fcalId->is_lar_fcal(id)) CalibCables=-LSignalFCAL*m_sSignal;//FCAL
+	  else if(emId->is_lar_em(id) && abs(barrel_ec)==1) CalibCables=0.9*m_sPig+m_vLCalib_EMEC*m_sCalib;//EMEC
+	  else if(hecId->is_lar_hec(id)) CalibCables=m_vLCalib_HEC*m_sCalib;//HEC
+	  else if(fcalId->is_lar_fcal(id)) CalibCables=-LSignalFCAL*m_sSignal;//FCAL
 	  	  	  
 	  //----step 4: deduction of the propagation times due to the optical fibers from USA15 to FEC
-	  if(m_emId->is_lar_em(id) && barrel_ec==0){
+	  if(emId->is_lar_em(id) && barrel_ec==0){
 	    if(pos_neg==1) DeltaTTC=m_vDeltaTTC_EMB[1][FT];//EMBA
 	    else DeltaTTC=m_vDeltaTTC_EMB[0][FT];//EMBC 
 	  }
@@ -345,64 +342,64 @@ StatusCode LArTimePhysPrediction::stop()
 	    else DeltaTTC=m_vDeltaTTC_EC[0][FT];//ECC
 	    //correction for special crates
 	    //A FTs 2/3
-	    if(m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==2 && real_eta>0 && slot<11) DeltaTTC=m_vDeltaTTC_ECA_SPEC[0][0];
-	    if((m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==2 && real_eta>0 && slot>10) || (m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==3 && real_eta>0 && slot<3)) DeltaTTC=m_vDeltaTTC_ECA_SPEC[0][1];
-	    if(m_hecId->is_lar_hec(id) && abs(barrel_ec)==1 && FT==3 && real_eta>0) DeltaTTC=m_vDeltaTTC_ECA_SPEC[0][2];
+	    if(emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==2 && real_eta>0 && slot<11) DeltaTTC=m_vDeltaTTC_ECA_SPEC[0][0];
+	    if((emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==2 && real_eta>0 && slot>10) || (emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==3 && real_eta>0 && slot<3)) DeltaTTC=m_vDeltaTTC_ECA_SPEC[0][1];
+	    if(hecId->is_lar_hec(id) && abs(barrel_ec)==1 && FT==3 && real_eta>0) DeltaTTC=m_vDeltaTTC_ECA_SPEC[0][2];
 	    //A FTs 9/10
-	    if(m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==9 && real_eta>0 && slot<11) DeltaTTC=m_vDeltaTTC_ECA_SPEC[1][0];
-	    if((m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==9 && real_eta>0 && slot>10) || (m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==10 && real_eta>0 && slot<3)) DeltaTTC=m_vDeltaTTC_ECA_SPEC[1][1];
-	    if(m_hecId->is_lar_hec(id) && abs(barrel_ec)==1 && FT==10 && real_eta>0) DeltaTTC=m_vDeltaTTC_ECA_SPEC[1][2];
+	    if(emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==9 && real_eta>0 && slot<11) DeltaTTC=m_vDeltaTTC_ECA_SPEC[1][0];
+	    if((emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==9 && real_eta>0 && slot>10) || (emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==10 && real_eta>0 && slot<3)) DeltaTTC=m_vDeltaTTC_ECA_SPEC[1][1];
+	    if(hecId->is_lar_hec(id) && abs(barrel_ec)==1 && FT==10 && real_eta>0) DeltaTTC=m_vDeltaTTC_ECA_SPEC[1][2];
 	    //A FTs 15/16
-	    if(m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==15 && real_eta>0 && slot<11) DeltaTTC=m_vDeltaTTC_ECA_SPEC[2][0];
-	    if((m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==15 && real_eta>0 && slot>10) || (m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==16 && real_eta>0 && slot<3)) DeltaTTC=m_vDeltaTTC_ECA_SPEC[2][1];
-	    if(m_hecId->is_lar_hec(id) && abs(barrel_ec)==1 && FT==16 && real_eta>0) DeltaTTC=m_vDeltaTTC_ECA_SPEC[2][2];
+	    if(emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==15 && real_eta>0 && slot<11) DeltaTTC=m_vDeltaTTC_ECA_SPEC[2][0];
+	    if((emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==15 && real_eta>0 && slot>10) || (emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==16 && real_eta>0 && slot<3)) DeltaTTC=m_vDeltaTTC_ECA_SPEC[2][1];
+	    if(hecId->is_lar_hec(id) && abs(barrel_ec)==1 && FT==16 && real_eta>0) DeltaTTC=m_vDeltaTTC_ECA_SPEC[2][2];
 	    //A FTs 21/22
-	    if(m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==21 && real_eta>0 && slot<11) DeltaTTC=m_vDeltaTTC_ECA_SPEC[3][0];;
-	    if((m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==21 && real_eta>0 && slot>10) || (m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==21 && real_eta>0 && slot<3)) DeltaTTC=m_vDeltaTTC_ECA_SPEC[3][1];
-	    if(m_hecId->is_lar_hec(id) && abs(barrel_ec)==1 && FT==22 && real_eta>0) DeltaTTC=m_vDeltaTTC_ECA_SPEC[3][2];
+	    if(emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==21 && real_eta>0 && slot<11) DeltaTTC=m_vDeltaTTC_ECA_SPEC[3][0];;
+	    if((emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==21 && real_eta>0 && slot>10) || (emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==21 && real_eta>0 && slot<3)) DeltaTTC=m_vDeltaTTC_ECA_SPEC[3][1];
+	    if(hecId->is_lar_hec(id) && abs(barrel_ec)==1 && FT==22 && real_eta>0) DeltaTTC=m_vDeltaTTC_ECA_SPEC[3][2];
 	    //C FTs 2/3
-	    if(m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==2 && real_eta<0 && slot<11) DeltaTTC=m_vDeltaTTC_ECC_SPEC[0][0];
-	    if((m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==2 && real_eta<0 && slot>10) || (m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==3 && real_eta<0 && slot<3)) DeltaTTC=m_vDeltaTTC_ECC_SPEC[0][1];
-	    if(m_hecId->is_lar_hec(id) && abs(barrel_ec)==1 && FT==3 && real_eta>0) DeltaTTC=m_vDeltaTTC_ECC_SPEC[0][2];
+	    if(emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==2 && real_eta<0 && slot<11) DeltaTTC=m_vDeltaTTC_ECC_SPEC[0][0];
+	    if((emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==2 && real_eta<0 && slot>10) || (emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==3 && real_eta<0 && slot<3)) DeltaTTC=m_vDeltaTTC_ECC_SPEC[0][1];
+	    if(hecId->is_lar_hec(id) && abs(barrel_ec)==1 && FT==3 && real_eta>0) DeltaTTC=m_vDeltaTTC_ECC_SPEC[0][2];
 	    //C FTs 9/10
-	    if(m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==9 && real_eta<0 && slot<11) DeltaTTC=m_vDeltaTTC_ECC_SPEC[1][0];
-	    if((m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==9 && real_eta<0 && slot>10) || (m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==10 && real_eta<0 && slot<3)) DeltaTTC=m_vDeltaTTC_ECC_SPEC[1][1];
-	    if(m_hecId->is_lar_hec(id) && abs(barrel_ec)==1 && FT==10 && real_eta<0) DeltaTTC=m_vDeltaTTC_ECC_SPEC[1][2];
+	    if(emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==9 && real_eta<0 && slot<11) DeltaTTC=m_vDeltaTTC_ECC_SPEC[1][0];
+	    if((emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==9 && real_eta<0 && slot>10) || (emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==10 && real_eta<0 && slot<3)) DeltaTTC=m_vDeltaTTC_ECC_SPEC[1][1];
+	    if(hecId->is_lar_hec(id) && abs(barrel_ec)==1 && FT==10 && real_eta<0) DeltaTTC=m_vDeltaTTC_ECC_SPEC[1][2];
 	    //C FTs 15/16
-	    if(m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==15 && real_eta<0 && slot<11) DeltaTTC=m_vDeltaTTC_ECC_SPEC[2][0];
-	    if((m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==15 && real_eta<0 && slot>10) || (m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==16 && real_eta<0 && slot<3)) DeltaTTC=m_vDeltaTTC_ECC_SPEC[2][1];
-	    if(m_hecId->is_lar_hec(id) && abs(barrel_ec)==1 && FT==16 && real_eta<0) DeltaTTC=m_vDeltaTTC_ECC_SPEC[2][2];
+	    if(emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==15 && real_eta<0 && slot<11) DeltaTTC=m_vDeltaTTC_ECC_SPEC[2][0];
+	    if((emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==15 && real_eta<0 && slot>10) || (emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==16 && real_eta<0 && slot<3)) DeltaTTC=m_vDeltaTTC_ECC_SPEC[2][1];
+	    if(hecId->is_lar_hec(id) && abs(barrel_ec)==1 && FT==16 && real_eta<0) DeltaTTC=m_vDeltaTTC_ECC_SPEC[2][2];
 	    //C FTs 21/22
-	    if(m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==21 && real_eta<0 && slot<11) DeltaTTC=m_vDeltaTTC_ECC_SPEC[3][0];
-	    if((m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==21 && real_eta<0 && slot>10) || (m_emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==21 && real_eta<0 && slot<3)) DeltaTTC=m_vDeltaTTC_ECC_SPEC[3][1];
-	    if(m_hecId->is_lar_hec(id) && abs(barrel_ec)==1 && FT==22 && real_eta<0) DeltaTTC=m_vDeltaTTC_ECC_SPEC[3][2];
+	    if(emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==21 && real_eta<0 && slot<11) DeltaTTC=m_vDeltaTTC_ECC_SPEC[3][0];
+	    if((emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==21 && real_eta<0 && slot>10) || (emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==21 && real_eta<0 && slot<3)) DeltaTTC=m_vDeltaTTC_ECC_SPEC[3][1];
+	    if(hecId->is_lar_hec(id) && abs(barrel_ec)==1 && FT==22 && real_eta<0) DeltaTTC=m_vDeltaTTC_ECC_SPEC[3][2];
 	  }				     
 	  
   	  //----step 5: computation of tphys
 	  //tphys=tcali-CalibCables+TOF-DeltaTTC;
 	  //add the effect from LTP cables: LTPI->LTP and LTP->LTP (hard coded)
 	  //for A-C sides difference: a 8 ns is set (derived from September 2008 splash events)
-	  if(pos_neg==1 && m_emId->is_lar_em(id) && abs(barrel_ec)==0) tphys=tcali-CalibCables+TOF+DeltaTTC+8+0.3*m_sLTP;//EMBA
-	  else if(pos_neg==0 && m_emId->is_lar_em(id) && abs(barrel_ec)==0) tphys=tcali-CalibCables+TOF+DeltaTTC+0.3*m_sLTP;//EMBC
-	  else if(pos_neg==1 && m_emId->is_lar_em(id) && abs(barrel_ec)==1) tphys=tcali-CalibCables+TOF+DeltaTTC+8;//EMECA
-	  else if(real_eta>0 && (m_emId->is_lar_hec(id)||m_emId->is_lar_fcal(id))) tphys=tcali-CalibCables+TOF+DeltaTTC+8+0.3*m_sLTP;//HEC,FCAL A
-	  else if(real_eta<0 && (m_emId->is_lar_hec(id)||m_emId->is_lar_fcal(id))) tphys=tcali-CalibCables+TOF+DeltaTTC+0.3*m_sLTP;//HEC,FCAL C 
+	  if(pos_neg==1 && emId->is_lar_em(id) && abs(barrel_ec)==0) tphys=tcali-CalibCables+TOF+DeltaTTC+8+0.3*m_sLTP;//EMBA
+	  else if(pos_neg==0 && emId->is_lar_em(id) && abs(barrel_ec)==0) tphys=tcali-CalibCables+TOF+DeltaTTC+0.3*m_sLTP;//EMBC
+	  else if(pos_neg==1 && emId->is_lar_em(id) && abs(barrel_ec)==1) tphys=tcali-CalibCables+TOF+DeltaTTC+8;//EMECA
+	  else if(real_eta>0 && (emId->is_lar_hec(id)||emId->is_lar_fcal(id))) tphys=tcali-CalibCables+TOF+DeltaTTC+8+0.3*m_sLTP;//HEC,FCAL A
+	  else if(real_eta<0 && (emId->is_lar_hec(id)||emId->is_lar_fcal(id))) tphys=tcali-CalibCables+TOF+DeltaTTC+0.3*m_sLTP;//HEC,FCAL C 
 	  else tphys=tcali-CalibCables+TOF+DeltaTTC;//EMECC
 	  
 	  //prediction of the expected calibration time
 	  //not finalized (EMEC signal cables lengths not implemented)
-	  if(m_emId->is_lar_em(id) && abs(barrel_ec)==0){//EMB
+	  if(emId->is_lar_em(id) && abs(barrel_ec)==0){//EMB
 	    for(int ieta=0;ieta<16;ieta++){
 	      if(fabs(real_eta)>ieta*0.1 && fabs(real_eta)<(ieta+1)*0.1 && (layer==0 || (layer==1 && fabs(real_eta)<0.6))) m_SignalCables=0.9*m_sPig+m_vLSignal_EMB[layer][ieta]*m_sSignal;
 	      else if(fabs(real_eta)>ieta*0.1 && fabs(real_eta)<(ieta+1)*0.1) m_SignalCables=0.7*m_sPig+m_vLSignal_EMB[layer][ieta]*m_sSignal;
 	    }
 	  }
-	  else if(m_emId->is_lar_em(id) && abs(barrel_ec)==1) m_SignalCables=0.9*m_sPig+m_vLSignal_EMEC*m_sSignal;//EMEC
-	  else if(m_hecId->is_lar_hec(id)) m_SignalCables=m_vLSignal_HEC*m_sSignal;//HEC
-	  else if(m_fcalId->is_lar_fcal(id)) m_SignalCables=0.;//FCAL
+	  else if(emId->is_lar_em(id) && abs(barrel_ec)==1) m_SignalCables=0.9*m_sPig+m_vLSignal_EMEC*m_sSignal;//EMEC
+	  else if(hecId->is_lar_hec(id)) m_SignalCables=m_vLSignal_HEC*m_sSignal;//HEC
+	  else if(fcalId->is_lar_fcal(id)) m_SignalCables=0.;//FCAL
 	  
 	  m_tCalibPredicted=m_SignalCables+CalibCables+tcali-t0;
-	  if(m_fcalId->is_lar_fcal(id))m_tCalibPredicted=tcali-t0;
+	  if(fcalId->is_lar_fcal(id))m_tCalibPredicted=tcali-t0;
 	  
 	  //fill larPhysCaliTdiffComplete (needed to fill the DB)
 	  //larPhysCaliTdiffComplete->set(chid,gain_it,tphys);
@@ -437,11 +434,11 @@ StatusCode LArTimePhysPrediction::stop()
 	  */
 	  
 	  //write the ntuple
-	  if(m_emId->is_lar_em(id)) m_is_lar_em=1;
+	  if(emId->is_lar_em(id)) m_is_lar_em=1;
 	  else m_is_lar_em=0;
-	  if(m_emId->is_lar_hec(id)) m_is_lar_hec=1;
+	  if(emId->is_lar_hec(id)) m_is_lar_hec=1;
 	  else m_is_lar_hec=0;
-	  if(m_emId->is_lar_fcal(id)) m_is_lar_fcal=1;
+	  if(emId->is_lar_fcal(id)) m_is_lar_fcal=1;
 	  else m_is_lar_fcal=0;
 	  m_Chid=chid.get_identifier32().get_compact();
 	  m_Channel=Channel;

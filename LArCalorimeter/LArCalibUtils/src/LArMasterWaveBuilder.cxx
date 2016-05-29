@@ -340,10 +340,9 @@ StatusCode LArMasterWaveBuilder::stop()
 	    minOverallDiff = thisOverallDiff ;
 	  }
       }
-      int refDAC = thisDAC[refIndex] ;
-
       // reject strongly non-linear waves (if reference wave was found)
       if ( refIndex >=0 ) {
+          int refDAC = thisDAC[refIndex] ;
           ATH_MSG_DEBUG ( "Check non-linearity against DAC " << refDAC );
 	  for ( unsigned i=0 ; i<nDACs ; i++ ) {
 	    if ( ! usable[i] ) continue ;

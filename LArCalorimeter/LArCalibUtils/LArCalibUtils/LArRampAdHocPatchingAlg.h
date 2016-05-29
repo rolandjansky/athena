@@ -78,13 +78,19 @@ class LArRampAdHocPatchingAlg : public AthAlgorithm
   std::vector<unsigned> m_patchesToBeAppliedMG;
   std::vector<unsigned> m_patchesToBeAppliedLG;
 
+  std::vector<std::vector<double> > m_valuesToBeAppliedHG;
+  std::vector<std::vector<double> > m_valuesToBeAppliedMG;
+  std::vector<std::vector<double> > m_valuesToBeAppliedLG;
+
   enum patchMethod{
-    ZeroIntercept
+    ZeroIntercept,
+    PutValues
   };
 
   
   bool ZeroTheIntercept(HWIdentifier chid, unsigned gain);
-  StatusCode ApplyAdHocPatches( std::vector<unsigned>& m_channelsToBePatched,  std::vector<unsigned>& m_patchesTobeApplied, unsigned gain );
+  bool PutTheValues(HWIdentifier chid, std::vector<double>& rvalues, unsigned gain);
+  StatusCode ApplyAdHocPatches( std::vector<unsigned>& channelsToBePatched,  std::vector<unsigned>& patchesTobeApplied, std::vector<std::vector<double> >& valuesToBeApplied, unsigned gain );
 
   bool m_useCorrChannel;
 

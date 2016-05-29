@@ -345,18 +345,18 @@ std::vector<HWIdentifier>& LArCalibPatchingAlg<CONDITIONSCONTAINER>::getFEBChans
   for (int i=0;i<128;++i) {
       HWIdentifier fchan = m_onlineHelper->channel_Id(febid,i);
       if(fchan == chid) continue;
-      try {
-        const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
-        if(m_onlineHelper->isEMBchannel(chid) || m_onlineHelper->isEMECchannel(chid)) {
-           if(!m_emId->is_connected(id)) continue;
-        } else if (m_onlineHelper->isHECchannel(chid)) {
-           if(!m_hecId->is_connected(id)) continue;
-        } else {
-           if(!m_fcalId->is_connected(id)) continue;
-        }
-      } catch(LArID_Exception& except) {
-        ATH_MSG_ERROR ( "LArID_Exception caught!" );
-      }
+      //try {
+        //const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
+        //if(m_onlineHelper->isEMBchannel(chid) || m_onlineHelper->isEMECchannel(chid)) {
+        //   if(!m_emId->is_connected(id)) continue;
+        //} else if (m_onlineHelper->isHECchannel(chid)) {
+        //   if(!m_hecId->is_connected(id)) continue;
+        //} else {
+        //   if(!m_fcalId->is_connected(id)) continue;
+        //}
+      //} catch(LArID_Exception& except) {
+      //  ATH_MSG_ERROR ( "LArID_Exception caught!" );
+      //}
       ATH_MSG_VERBOSE  ( " Adding channel =" << i );
       if (m_badChannelTool->status(fchan).good()) {
 	m_idList.push_back(fchan);

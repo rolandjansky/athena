@@ -18,6 +18,7 @@ LArAutoCorrDecoderTool::LArAutoCorrDecoderTool(const std::string& type,
 					       const IInterface* parent) 
   : 
   AthAlgTool(type, name, parent),
+  m_onlineID(0),
   m_cablingService("LArCablingService")
 {
   declareInterface<ILArAutoCorrDecoderTool>(this);

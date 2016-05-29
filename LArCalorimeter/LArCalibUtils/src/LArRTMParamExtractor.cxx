@@ -358,7 +358,7 @@ StatusCode LArRTMParamExtractor::stop()
           int PosNeg    = onlineHelper->pos_neg(itVec.channelId());
           int FT        = onlineHelper->feedthrough(itVec.channelId());
 	  std::vector<int>::const_iterator selectFT = std::find(m_FT.begin(),m_FT.end(),FT);
-	  if ( PosNeg!=m_PosNeg && selectFT==m_FT.end() ) {
+	  if ( PosNeg!=m_PosNeg || selectFT==m_FT.end() ) {
 	    ATH_MSG_DEBUG( "Channel 0x" << MSG::hex << itVec.channelId() << MSG::dec 
 			   << " does not match FT selection (FT = " << FT << ", PosNeg = " << PosNeg 
 			   << "), skipping...");

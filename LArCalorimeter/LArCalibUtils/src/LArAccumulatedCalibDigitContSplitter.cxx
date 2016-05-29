@@ -61,7 +61,9 @@ StatusCode LArAccumulatedCalibDigitContSplitter::execute()
  } 
  
  // execute() method...
- return executeWithAccumulatedDigits();
+ ATH_CHECK( executeWithAccumulatedDigits() );
+ return StatusCode::SUCCESS;
+
 }
 
 StatusCode LArAccumulatedCalibDigitContSplitter::executeWithAccumulatedDigits()
