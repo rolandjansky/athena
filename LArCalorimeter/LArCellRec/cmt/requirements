@@ -45,7 +45,7 @@ use GeneratorObjects GeneratorObjects-*     Generators
 use CaloTriggerTool  CaloTriggerTool-*      Calorimeter
 use LArRecEvent      LArRecEvent-*          LArCalorimeter
 #use LArRecUtils      LArRecUtils-*          LArCalorimeter
-use LArTools         LArTools-*             LArCalorimeter
+use LArCabling       LArCabling-*           LArCalorimeter
 # for deadOTX correction using L1 energies (These packages are in AtlasConditions and AtlasEvent)
 use TrigT1CaloCalibConditions TrigT1CaloCalibConditions-* Trigger/TrigT1
 # use TrigT1CaloEvent  TrigT1CaloEvent-*      Trigger/TrigT1

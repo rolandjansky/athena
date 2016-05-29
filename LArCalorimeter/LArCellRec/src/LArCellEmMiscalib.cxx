@@ -44,10 +44,14 @@ LArCellEmMiscalib::LArCellEmMiscalib(
 			     const std::string& name, 
 			     const IInterface* parent)
   : CaloCellCorrection(type, name, parent),
+    m_larem_id(nullptr),
+    m_AtRndmGenSvc(nullptr),
+    m_engine(nullptr),
     m_seed(1234),
     m_sigmaPerRegion(0.005),
     m_sigmaPerCell(0.007),
-    m_undo(false)
+    m_undo(false),
+    m_ncellem(0)
 {
   declareInterface<CaloCellCorrection>(this); 
   declareProperty("Seed",   m_seed, "seed : should always be the same");

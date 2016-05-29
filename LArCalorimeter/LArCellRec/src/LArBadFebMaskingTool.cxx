@@ -32,7 +32,7 @@ PURPOSE:
 #include "LArIdentifier/LArOnlineID.h" 
 #include "LArRecConditions/ILArBadChanTool.h"
 #include "LArRecConditions/LArBadFeb.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArRecEvent/LArEventBitInfo.h"
 #include "xAODEventInfo/EventInfo.h"
 
@@ -51,8 +51,12 @@ LArBadFebMaskingTool::LArBadFebMaskingTool(
    m_maskScaOutOfRange(true),m_maskGainMismatch(true),m_maskTypeMismatch(true),m_maskNumOfSamples(true),
    m_maskEmptyDataBlock(true),m_maskDspBlockSize(true),m_maskCheckSum(true),m_maskMissingHeader(true),
    m_maskBadGain(true),
-   m_larFebErrorSummaryKey("LArFebErrorSummary")
-
+   m_larFebErrorSummaryKey("LArFebErrorSummary"),
+   m_errorToMask(0),
+   m_calo_id(nullptr),
+   m_onlineID(nullptr),
+   m_evt(0),
+   m_mask(0)
 { 
   declareInterface<ICaloCellMakerTool>(this); 
 

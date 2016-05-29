@@ -13,7 +13,7 @@
 
 #include "LArRecEvent/LArCell.h"
 #include "LArCellRec/LArCellBuilderFromLArRawChannelTool.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArRecEvent/LArCell.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -37,9 +37,11 @@ LArCellBuilderFromLArRawChannelTool::LArCellBuilderFromLArRawChannelTool(
    m_addDeadOTX(true),
    m_initialDataPoolSize(-1),
    m_nTotalCells(0),
+   m_caloDDM(nullptr),
    m_cablingSvc("LArCablingService"),
+   m_onlineID(nullptr),
+   m_caloCID(nullptr),
    m_badChannelTool("LArBadChanTool"),
- 
    m_nDeadFEBs(0)
 { 
   declareInterface<ICaloCellMakerTool>(this); 
@@ -215,7 +217,7 @@ StatusCode LArCellBuilderFromLArRawChannelTool::fillCompleteCellCont(const LArRa
     LArCell* larcell=getCell(*itrRawChannel,hashid,pool);
     if (larcell) {
       if ((*theCellContainer)[hashid]) {
-	msg(MSG::ERROR) << "Channel added twice! Data corruption? hash=" << hashid  
+	msg(MSG::WARNING) << "Channel added twice! Data corruption? hash=" << hashid  
 			<< " online ID=0x" << std::hex << itrRawChannel->channelID().get_compact() 
 			<< "  " << m_onlineID->channel_name(itrRawChannel->channelID()) << endreq;
       }
