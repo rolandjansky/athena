@@ -46,6 +46,17 @@ class LArNoisyROSummary
   //** add a FEB to the bad FEB list */
   void add_noisy_feb(HWIdentifier febid);
 
+  //** Set the list of MNB Tight FEBs via the FEB HWIdentifiers */
+  void set_MNBTight_febs(const std::vector<HWIdentifier>& );
+
+  //** add an MNB Tight FEB to the bad FEB list */
+  void add_MNBTight_feb(HWIdentifier febid);
+
+  //** Set the list of MNB Tight FEBs via the FEB HWIdentifiers */
+  void set_MNBLoose_febs(const std::vector<HWIdentifier>& );
+
+  //** add an MNB Tight FEB to the bad FEB list */
+  void add_MNBLoose_feb(HWIdentifier febid);
 
   //** Set the list of noisy preamps: for each FEB identifier via HWIdentifier keep the noisy preamps as the first channel number for that preamp */
   void set_noisy_preamps(const std::vector< std::pair<HWIdentifier, std::vector<int> > >&);
@@ -76,6 +87,12 @@ class LArNoisyROSummary
   //** retrieve noisy FEBs by id */
   const std::vector<HWIdentifier>& get_noisy_febs() const;
 
+  //** retrieve MNB Tight FEBs by id */
+  const std::vector<HWIdentifier>& get_MNBTight_febs() const;
+
+  //** retrieve MNB Loose FEBs by id */
+  const std::vector<HWIdentifier>& get_MNBLoose_febs() const;
+
   //** retrieve noisy preamplifiers */
   const std::vector<std::pair<HWIdentifier, std::vector<int> > >& get_noisy_preamps() const;
 
@@ -103,6 +120,11 @@ class LArNoisyROSummary
   //** List of noisy FEBs */
   std::vector<HWIdentifier> m_noisy_febs;
 
+  //** List of MNB Tight FEBs */
+  std::vector<HWIdentifier> m_MNBTight_febs;
+
+  //** List of MNB Loose FEBs */
+  std::vector<HWIdentifier> m_MNBLoose_febs;
 
   //** List of noisy preamps, for each FEB identifier via HWIdentifier keep the noisy preamps as the first channel number for that preamp */
   std::vector< std::pair<HWIdentifier, std::vector<int> > > m_noisy_preamps;
