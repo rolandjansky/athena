@@ -18,14 +18,15 @@
 #include "LArRecEvent/LArNoisyROSummary.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h" 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
 
 LArNoisyROTool::LArNoisyROTool( const std::string& type, 
 				const std::string& name, 
 				const IInterface* parent ) : 
   ::AthAlgTool  ( type, name, parent   ),
-  m_calo_id(0), m_onlineID(0) , m_invocation_counter(0),m_SaturatedCellTightCutEvents(0)
+  m_calo_id(0), m_onlineID(0) , m_invocation_counter(0),m_SaturatedCellTightCutEvents(0),
+  m_partitionMask({{LArNoisyROSummary::EMECAMask,LArNoisyROSummary::EMBAMask,LArNoisyROSummary::EMBCMask,LArNoisyROSummary::EMECCMask}}) //beware: The order matters! 
 {
   declareInterface<ILArNoisyROTool >(this);
   declareProperty( "BadChanPerFEB", m_BadChanPerFEB=30 );
@@ -51,6 +52,20 @@ LArNoisyROTool::LArNoisyROTool( const std::string& type,
   // 3ba98000   EndcapAFT12RSpeMiddle1      ECA12RSpeM1      EndcapAFT21Slot04     [4.4.1.1.21.4]  
   // 3bb08000   EndcapAFT12LEMInner2        ECA12LEMI2       EndcapAFT22Slot02     [4.4.1.1.22.2]  
   // 3bc00000   EndcapAFT13LStdPresampler   ECA13LStdPs      EndcapAFT24Slot01     [4.4.1.1.24.1]  
+
+  declareProperty( "KnownMNBFEBs", m_knownMNBFEBsVec={951255040, // EMBC FT 22 Slot 7
+	                                              953810944, // EMBC FT 27 Slot 5
+       	                                              954105856, // EMBC FT 27 Slot 14
+	                                              961052672, // EMBA FT 9 Slot 2
+  	                                              961839104, // EMBA FT 10 Slot 10
+	                                              961970176, // EMBA FT 10 Slot 14
+	                                              972980224  // EMBA FT 31 Slot 14
+	                                             });
+
+  declareProperty( "MNBLooseCut",m_MNBLooseCut=9,"Number of cells above CellQualityCut");
+  declareProperty( "MNBTightCut",m_MNBTightCut=33,"Number of cells above CellQualityCut");
+
+  
   declareProperty( "OutputKey", m_outputKey="LArNoisyROSummary");
   declareProperty( "SaturatedCellQualityCut", m_SaturatedCellQualityCut=65535);
   declareProperty( "SaturatedCellEnergyTightCut", m_SaturatedCellEnergyTightCut=1000.);
@@ -69,7 +84,12 @@ LArNoisyROTool::~LArNoisyROTool()
 StatusCode LArNoisyROTool::initialize() {
 
   if ( m_CellQualityCut > m_SaturatedCellQualityCut ) {
-    msg(MSG::FATAL) << "LArNoisyROAlg assumes that the QFactor cut to declare a channel noisy is softer than the QFactor cut to declare the quality saturated !" << endreq;
+    msg(MSG::FATAL) << "Configuration problem: LArNoisyROTool assumes that the QFactor cut to declare a channel noisy is softer than the QFactor cut to declare the quality saturated !" << endreq;
+    return StatusCode::FAILURE;
+  }
+
+  if ( m_MNBLooseCut > m_MNBTightCut) {
+    msg(MSG::FATAL) << "Configuration problem: LArNoisyROTool assumes that MNBLooseCut is smaller than MNBTightCut" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -80,17 +100,20 @@ StatusCode LArNoisyROTool::initialize() {
   //convert std::vector (jobO) to std::set (internal representation)
   m_knownBadFEBs.insert(m_knownBadFEBsVec.begin(),m_knownBadFEBsVec.end());
 
+  for (unsigned fID : m_knownMNBFEBsVec) 
+    m_knownMNBFEBs.insert(HWIdentifier(fID));
+
   return StatusCode::SUCCESS;
 }
+
+
 
 std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContainer* cellContainer) {
 
   ++m_invocation_counter;
   std::unique_ptr<LArNoisyROSummary> noisyRO(new LArNoisyROSummary);
   
-// reset counters
-  for ( FEBEvtStatMapIt it = m_FEBstats.begin(); it != m_FEBstats.end(); it++ )
-    it->second.resetCounters();
+  FEBEvtStatMap FEBStats; //counter per FEB
 
   unsigned int NsaturatedTightCutBarrelA = 0;
   unsigned int NsaturatedTightCutBarrelC = 0;
@@ -155,7 +178,7 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
       HWIdentifier febid = m_onlineID->feb_Id(hwid);
       unsigned int FEBindex = febid.get_identifier32().get_compact();
       unsigned int channel = m_onlineID->channel(hwid);    
-      m_FEBstats[FEBindex].addBadChannel(channel);
+      FEBStats[FEBindex].addBadChannel(channel);
     }
   }
 
@@ -177,13 +200,23 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
   }
 
 
+  
   // are there any bad FEB or preamp ?
-  for ( FEBEvtStatMapCstIt it = m_FEBstats.begin(); it != m_FEBstats.end(); it++ ) {
+  for ( FEBEvtStatMapCstIt it = FEBStats.begin(); it != FEBStats.end(); it++ ) {
+    ATH_MSG_DEBUG(" bad FEB " << it->first << " with " << it->second.badChannels() << " bad channels");
     if ( it->second.badChannels() > m_BadChanPerFEB ) {
-      ATH_MSG_DEBUG(" bad FEB " << it->first << " with " << it->second.badChannels() << " bad channels");
       noisyRO->add_noisy_feb(HWIdentifier(it->first));
       if (m_printSummary) m_badFEB_counters[it->first]++;
       //BadFEBCount++;
+    }
+    // Tight MNBs
+    if ( it->second.badChannels() > m_MNBTightCut ){
+       noisyRO->add_MNBTight_feb(HWIdentifier(it->first));
+    }
+
+    // Loose MNBs
+    if ( it->second.badChannels() > m_MNBLooseCut ){
+       noisyRO->add_MNBLoose_feb(HWIdentifier(it->first));
     }
  
     const unsigned int* PAcounters = it->second.PAcounters();
@@ -195,7 +228,9 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
 	 if (m_printSummary) m_badPA_counters[PAid]++;
       }
     }
-  }//end loop over m_FEBstats
+
+  }//end loop over m_FEBats
+
 
   // Count noisy FEB per partition EMEC-EMB - Simple and weighted quantities
   unsigned int NBadFEBEMECA = 0; unsigned int NBadFEBEMECA_W = 0;
@@ -261,74 +296,38 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
   bool badFEBFlag_W = (BadFEBPartitions_W != 0);
   if ( badFEBFlag_W ) noisyRO-> SetBadFEB_WFlaggedPartitions(BadFEBPartitions_W);
 
-  //std::cout << " Bad FEBS " <<  BadFEBCount << " EMBA " << NBadFEBEMBA << " EMBC " <<  NBadFEBEMBC << " EMECA " << NBadFEBEMECA << " EMECC " <<NBadFEBEMECC << std::endl; 
-  //if ( BadFEBCount  > m_MinBadFEB && !badFEBFlag ) std::cout << "Not flagged now ! " << std::endl; 
 
-  /*
-  if ( badFEBFlag || badFEBFlag_W || badSaturatedTightCut ) 
-  {
-    // retrieve EventInfo
-    const xAOD::EventInfo* eventInfo_c=0;
-    sc = evtStore()->retrieve(eventInfo_c);
-    if (sc.isFailure()) 
-    {
-      msg(MSG::WARNING) << " cannot retrieve EventInfo, will not set LAr bit information " << endreq;
-    }
-    xAOD::EventInfo* eventInfo=0;
-    if (eventInfo_c)
-    {
-      eventInfo = const_cast<xAOD::EventInfo*>(eventInfo_c);
-    }
 
-    if ( eventInfo )
-    {
-      if ( badFEBFlag )
-      {
-	// set warning flag except if the error flag has been already set
-	if ( eventInfo->errorState(EventInfo::LAr) != EventInfo::Error )
-	{
-	  if (!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Warning)) 
-	  {
-	    msg(MSG::WARNING) << " cannot set error state for LAr " << endreq;
-	  }
-	}
-	// set reason why event was flagged
-	if (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::BADFEBS) )
-	{
-	    msg(MSG::WARNING) << " cannot set flag bit for LAr " << endreq;
-	}
+  //Check for Mini Noise Bursts:
+  uint8_t MNBTightPartition=0;
+  uint8_t MNBLoosePartition=0;
+  
+  std::array<unsigned,5> nTightMNBFEBSperPartition({{0,0,0,0,0}});
+  std::array<unsigned,5> nLooseMNBFEBSperPartition({{0,0,0,0,0}});
+  for (HWIdentifier febid: m_knownMNBFEBs) { //Loop over known MNB FEBs
+    FEBEvtStatMapCstIt statIt=FEBStats.find(febid.get_identifier32().get_compact());
+    if (statIt!=FEBStats.end()) {
+      if (statIt->second.badChannels()>=m_MNBLooseCut) {
+	(nLooseMNBFEBSperPartition[partitionNumber(febid)])++;
+	if (statIt->second.badChannels()>=m_MNBTightCut)
+	  (nTightMNBFEBSperPartition[partitionNumber(febid)])++;
       }
+    }//End FEB in list of bad-Q FEBs
+  }//end loop over known MNB Febs
 
-      if ( badFEBFlag_W )
-      {
-	// set warning flag except if the error flag has been already set
-	if ( eventInfo->errorState(EventInfo::LAr) != EventInfo::Error )
-	{
-	  if (!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Warning)) 
-	  {
-	    msg(MSG::WARNING) << " cannot set error state for LAr " << endreq;
-	  }
-	}
-	// set reason why event was flagged
-	if (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::BADFEBS_W) )
-	{
-	    msg(MSG::WARNING) << " cannot set flag bit for LAr " << endreq;
-	}
-      }
 
-      if ( badSaturatedTightCut )
-      {
-	//msg(MSG::INFO) << "Too many saturated Q cells (tight) "  << eventInfo->event_ID()->run_number() << " " << eventInfo->event_ID()->event_number() << " " << eventInfo->event_ID()->lumi_block() << endreq;
-	// set reason why event is supicious but not the error state
-	if (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ)) 
-	{
-	    msg(MSG::WARNING) << " cannot set flag bit for LAr " << endreq;
-	}
-      }
-
+  for (unsigned iP=0;iP<4;++iP) {
+    if (msgLvl(MSG::DEBUG)) {      
+      msg(MSG::DEBUG) << "Partition " << iP << ": Found " << nLooseMNBFEBSperPartition[iP] << " MNB FEBs with more than " <<  m_MNBLooseCut << " bad-Q channels" << endreq;
+      msg(MSG::DEBUG) << "Partition " << iP << ": Found " << nTightMNBFEBSperPartition[iP] << " MNB FEBs with more than " <<  m_MNBTightCut << " bad-Q channels" << endreq;
     }
-  }
-  */
+    if (nLooseMNBFEBSperPartition[iP]>0) MNBLoosePartition |= m_partitionMask[iP];
+    if (nTightMNBFEBSperPartition[iP]>0) MNBTightPartition |= m_partitionMask[iP];
+  }// end loop over partitions      
+  
+  noisyRO->SetMNBTightFlaggedPartitions(MNBTightPartition);
+  noisyRO->SetMNBLooseFlaggedPartitions(MNBLoosePartition);
+
   return noisyRO;
 }
 

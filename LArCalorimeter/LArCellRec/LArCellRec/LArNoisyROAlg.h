@@ -34,10 +34,9 @@ class LArNoisyROAlg : public AthAlgorithm
   virtual StatusCode execute();   
   virtual StatusCode finalize();
 
-  enum LARFLAGREASON { BADFEBS=0, MEDIUMSATURATEDQ=1, TIGHTSATURATEDQ=2, BADFEBS_W=3} ;
-
- private:  // classes
-  unsigned m_event_counter;
+ 
+ private: 
+  //unsigned m_event_counter;
 
   ToolHandle<ILArNoisyROTool> m_noisyROTool;
 

@@ -11,7 +11,7 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h" 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
 #include "LArRecEvent/LArEventBitInfo.h"
@@ -24,7 +24,6 @@ using xAOD::EventInfo;
 
 LArNoisyROAlg::LArNoisyROAlg(const std::string &name,ISvcLocator *pSvcLocator):
   AthAlgorithm (name, pSvcLocator), 
-  m_event_counter(0),
   m_noisyROTool("LArNoisyROTool",this)
 {
   declareProperty( "CaloCellContainer", m_CaloCellContainerName = "AllCalo" );
@@ -34,16 +33,12 @@ LArNoisyROAlg::LArNoisyROAlg(const std::string &name,ISvcLocator *pSvcLocator):
 
 StatusCode LArNoisyROAlg::initialize()
 {
-  m_event_counter = 0;
-
   CHECK(m_noisyROTool.retrieve());
   return StatusCode::SUCCESS;
 }
 
 StatusCode LArNoisyROAlg::execute() 
 {
-
-  m_event_counter++;
 
   const CaloCellContainer* cellContainer(0);
   StatusCode sc = evtStore()->retrieve(cellContainer, m_CaloCellContainerName);
@@ -58,8 +53,12 @@ StatusCode LArNoisyROAlg::execute()
   bool badFEBFlag=noisyRO->BadFEBFlaggedPartitions();
   bool badFEBFlag_W=noisyRO->BadFEB_WFlaggedPartitions();
   bool badSaturatedTightCut=noisyRO->SatTightFlaggedPartitions();
+  bool MNBLooseCut=noisyRO->MNBLooseFlaggedPartitions();
+  bool MNBTightCut=noisyRO->MNBTightFlaggedPartitions();
+  
 
-  if ( badFEBFlag || badFEBFlag_W || badSaturatedTightCut ) 
+
+  if ( badFEBFlag || badFEBFlag_W || badSaturatedTightCut || MNBLooseCut || MNBTightCut) 
   {
     // retrieve EventInfo
     const xAOD::EventInfo* eventInfo_c=0;
@@ -74,53 +73,41 @@ StatusCode LArNoisyROAlg::execute()
       eventInfo = const_cast<xAOD::EventInfo*>(eventInfo_c);
     }
 
-    if ( eventInfo )
-    {
-      if ( badFEBFlag )
-      {
-	// set warning flag except if the error flag has been already set
-	if ( eventInfo->errorState(EventInfo::LAr) != EventInfo::Error )
-	{
-	  if (!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Warning)) 
-	  {
-	    msg(MSG::WARNING) << " cannot set error state for LAr " << endreq;
-	  }
-	}
-	// set reason why event was flagged
-	if (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::BADFEBS) )
-	{
-	    msg(MSG::WARNING) << " cannot set flag bit for LAr " << endreq;
-	}
-      }
 
-      if ( badFEBFlag_W )
-      {
-	// set warning flag except if the error flag has been already set
-	if ( eventInfo->errorState(EventInfo::LAr) != EventInfo::Error )
-	{
-	  if (!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Warning)) 
-	  {
-	    msg(MSG::WARNING) << " cannot set error state for LAr " << endreq;
-	  }
-	}
-	// set reason why event was flagged
-	if (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::BADFEBS_W) )
-	{
-	    msg(MSG::WARNING) << " cannot set flag bit for LAr " << endreq;
-	}
-      }
+    bool failSetWARN=false;
+    bool failSetWARNREASON=false;
+    // set warning flag except if the error flag has been already set
+    if ( eventInfo &&  eventInfo->errorState(EventInfo::LAr) != EventInfo::Error) {
+      if ( badFEBFlag ) {
+	failSetWARN |= (!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Warning));
+	failSetWARNREASON |= (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::BADFEBS));
+      }//endif badFEBFlag
 
-      if ( badSaturatedTightCut )
-      {
-	//msg(MSG::INFO) << "Too many saturated Q cells (tight) "  << eventInfo->event_ID()->run_number() << " " << eventInfo->event_ID()->event_number() << " " << eventInfo->event_ID()->lumi_block() << endreq;
-	// set reason why event is supicious but not the error state
-	if (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ)) 
-	{
-	    msg(MSG::WARNING) << " cannot set flag bit for LAr " << endreq;
-	}
-      }
+      if ( badFEBFlag_W ) {
+	//Set WARNING Flag
+	failSetWARN |=(!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Warning));
+	// Set reason why event was flagged
+	failSetWARNREASON |=(!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::BADFEBS_W));
+      }// end if badFEBFlag_W
 
+      if ( badSaturatedTightCut ){
+	failSetWARNREASON |= (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ));
+      }
     }
+
+    if ( MNBTightCut ) {
+      failSetWARN |=(!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Warning));
+      // Set reason why event was flagged
+      failSetWARNREASON |=(!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::MININOISEBURSTTIGHT));
+    }
+
+    if ( MNBLooseCut ) { //FIXME Tight cut actually implies loose cut too
+      failSetWARNREASON |=(!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::MININOISEBURSTLOOSE));
+    }
+
+    if (failSetWARN) msg(MSG::WARNING) << "Failure during EventInfo::setEventErrorState(EventInfo::LAR,EventInfo::WARNING)" << endreq;
+    if (failSetWARNREASON) msg(MSG::WARNING) << "Failure during setEventFlagBit(EventInfo::LAr,...)" << endreq;
+  
   }
 
   CHECK(evtStore()->record(std::move(noisyRO),m_outputKey));
@@ -129,25 +116,7 @@ StatusCode LArNoisyROAlg::execute()
 }
 
 StatusCode LArNoisyROAlg::finalize()
-{
-  /*
-  msg(MSG::INFO) << "List of bad FEBs found in all events " << endreq;
-  for ( SG::unordered_map<unsigned int, unsigned int>::const_iterator it = m_badFEB_counters.begin(); it != m_badFEB_counters.end(); it++ )
-  {
-    msg(MSG::INFO) << "FEB " << it->first << " declared noisy in " << it->second << " events " << endreq; 
-  }
-
-  msg(MSG::INFO) << "List of bad preamps found in at least max(2,0.1%) events" << endreq;
-  unsigned int cut = static_cast<unsigned int>(0.001*static_cast<float>(m_event_counter));
-  if ( cut < 2 ) cut = 2;
-  uint64_t PAfactor = 1000000000L;
-  for ( std::map<uint64_t, unsigned int>::const_iterator it = m_badPA_counters.begin(); it != m_badPA_counters.end(); it++ )
-  {
-    if ( it->second > cut ) msg(MSG::INFO) << "Preamplifier " << (it->first)/PAfactor << " of FEB " << (it->first)%PAfactor << " declared noisy in " << it->second << " events " << endreq; 
-  }
-
-  msg(MSG::INFO) << "Number of events with too many saturated QFactor cells (Tight cuts): " << m_SaturatedCellTightCutEvents << endreq;
-  */
+{  
   return StatusCode::SUCCESS;
 }
 

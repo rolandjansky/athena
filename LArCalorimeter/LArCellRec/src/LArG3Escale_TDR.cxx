@@ -39,13 +39,14 @@ Updated: Jan. 7, 2001    (SR)
 
 // Constants needed for computation of the Energy Scale:
 
-    const double LArG3Escale_TDR::gap0 = 0.13;
-    const double LArG3Escale_TDR::etacr = 2.5;
-    const double LArG3Escale_TDR::ecdg_scale = 1.055;
-    const double LArG3Escale_TDR::sfgin[4] = 
+    const double LArG3Escale_TDR::s_gap0 = 0.13;
+    const double LArG3Escale_TDR::s_etacr = 2.5;
+    const double LArG3Escale_TDR::s_ecdg_scale = 1.055;
+    const double LArG3Escale_TDR::s_sfgin[4] = 
                  {1.1753, -0.44802, 0.16489, -0.00994};
-    const double LArG3Escale_TDR::sfgout[4] = 
+    const double LArG3Escale_TDR::s_sfgout[4] = 
                  {1.1205, -0.32666, 0.26374, -0.02668};
+
 
 // Constructor:
 
@@ -228,19 +229,19 @@ double LArG3Escale_TDR::scalee(double abseta)
   double scale; 
   double corr; 
   
-  if(abseta > etacr)                // Inner Wheel
+  if(abseta > s_etacr)                // Inner Wheel
   {
-    double sfg13 = sfgin[0] + sfgin[1]*abseta +
-      sfgin[2]*abseta*abseta + sfgin[3]*abseta*abseta*abseta;
+    double sfg13 = s_sfgin[0] + s_sfgin[1]*abseta +
+      s_sfgin[2]*abseta*abseta + s_sfgin[3]*abseta*abseta*abseta;
     corr = 0.8589 + 0.06758*abseta ; 
 
-    scale = (1.-(abseta-1.8)*0.04)/sfg13/ecdg_scale/pow(gap0,1.3)*corr;
+    scale = (1.-(abseta-1.8)*0.04)/(sfg13*s_ecdg_scale*pow(s_gap0,1.3))*corr;
   }
 
   else 
   {
-    double sfg13 = sfgout[0] + sfgout[1]*abseta + 
-      sfgout[2]*abseta*abseta + sfgout[3]*abseta*abseta*abseta;
+    double sfg13 = s_sfgout[0] + s_sfgout[1]*abseta + 
+      s_sfgout[2]*abseta*abseta + s_sfgout[3]*abseta*abseta*abseta;
          
     if(abseta < 1.56) 
     {
@@ -272,7 +273,7 @@ double LArG3Escale_TDR::scalee(double abseta)
       corr = 0.4286 + 0.555*abseta - 0.13204*abseta*abseta;
     }
 
-    scale = (1.-(abseta-1.8)*0.04)/sfg13/ecdg_scale/pow(gap0,1.3)*corr;
+    scale = (1.-(abseta-1.8)*0.04)/(sfg13*s_ecdg_scale*pow(s_gap0,1.3))*corr;
     
   }
 

@@ -44,10 +44,14 @@ LArCellEmMiscalib::LArCellEmMiscalib(
 			     const std::string& name, 
 			     const IInterface* parent)
   : CaloCellCorrection(type, name, parent),
+    m_larem_id(nullptr),
+    m_AtRndmGenSvc(nullptr),
+    m_engine(nullptr),
     m_seed(1234),
     m_sigmaPerRegion(0.005),
     m_sigmaPerCell(0.007),
-    m_undo(false)
+    m_undo(false),
+    m_ncellem(0)
 {
   declareInterface<CaloCellCorrection>(this); 
   declareProperty("Seed",   m_seed, "seed : should always be the same");
@@ -216,11 +220,11 @@ void LArCellEmMiscalib::smearingPerRegion()
 int LArCellEmMiscalib::region(int barrelec, double eta, double phi)
 {
  int iregion=-1;
- if (phi<0.) phi=phi+6.283185;
- int iphi=(int)(phi/6.283185*16.);
+ if (phi<0.) phi=phi+2*M_PI;
+ int iphi=(int)(phi*(16./(2*M_PI)));
  if (iphi>15) iphi=15;
  if (abs(barrelec)==1) {
-    int ieta=(int)(eta/0.2);
+    int ieta=(int)(eta*(1./0.2));
     if (ieta>7) ieta=7;
     iregion=16*ieta+iphi;
     if (barrelec==1) iregion=iregion+128;

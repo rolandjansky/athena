@@ -18,7 +18,7 @@ PACKAGE:  offline/Calorimeter/CaloRec
 
 #include "CaloEvent/CaloCellContainer.h"
 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 
 /////////////////////////////////////////////////////////////////////
@@ -29,7 +29,10 @@ LArCellMaskingTool::LArCellMaskingTool(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AthAlgTool(type, name, parent)
+  : AthAlgTool(type, name, parent),
+    m_onlineID(nullptr),
+    m_offlineID(nullptr),
+    m_larCablingSvc(nullptr)
 {
   declareInterface<ICaloCellMakerTool>(this); 
   //List of strings to determine detector parts to be masked.

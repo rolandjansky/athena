@@ -23,7 +23,7 @@ PURPOSE:
 #include "Identifier/IdentifierHash.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 
 /////////////////////////////////////////////////////////////////////
@@ -36,6 +36,7 @@ LArCellMerger::LArCellMerger(
 			     const IInterface* parent)
   :AthAlgTool(type, name, parent),
    m_rawChannelContainerName("LArRawChannels_digits"),
+   m_calo_id(nullptr),
    m_evt(0),
    m_ncell(0)
 { 

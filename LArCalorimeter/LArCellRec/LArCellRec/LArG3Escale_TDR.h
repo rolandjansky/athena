@@ -48,11 +48,11 @@ class LArG3Escale_TDR : public CaloCellCorrection
     double scaleb(double eta);
     double scalee(double eta);
 
-    static const double gap0;
-    static const double etacr;
-    static const double ecdg_scale;
-    static const double sfgin[4];
-    static const double sfgout[4];
+    static const double s_gap0;
+    static const double s_etacr;
+    static const double s_ecdg_scale;
+    static const double s_sfgin[4];
+    static const double s_sfgout[4];
 
     float m_OverallScale;
     bool  m_FromHit;//MATTHIEU 
