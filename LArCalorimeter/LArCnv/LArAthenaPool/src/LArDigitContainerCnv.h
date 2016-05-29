@@ -26,8 +26,8 @@ class LArDigitContainerCnv : public LArDigitContainerCnvBase
   virtual LArDigitContainerPERS* createPersistent(LArDigitContainer*);
  private:
   LArDigitContainerCnv_p1 m_converter;
-  pool::Guid   p0_guid;
-  pool::Guid   p1_guid;
+  pool::Guid   m_p0_guid;
+  pool::Guid   m_p1_guid;
 
 };
 
