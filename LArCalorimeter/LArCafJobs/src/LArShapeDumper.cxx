@@ -63,6 +63,10 @@ using namespace LArSamples;
 LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator),
   m_count(0),
+  m_nWrongBunchGroup(0),
+  m_nPrescaledAway(0),
+  m_nLArError(0),
+  m_nNoDigits(0),
   m_dumperTool("LArShapeDumperTool"),
   m_larCablingSvc("LArCablingService"),
   m_caloNoiseTool("CaloNoiseToolDefault"),
@@ -71,6 +75,7 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   m_adc2mevTool("LArADC2MeVTool"),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
+  m_bcidTool("BunchCrossingTool"),
   m_larPedestal(nullptr),
   m_caloDetDescrMgr(nullptr),
   m_onlineHelper(nullptr),
@@ -95,6 +100,7 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   declareProperty("BadChannelTool", m_badChannelTool),
   declareProperty("BadChannelMasker", m_badChannelMasker);
   declareProperty("ADC2MeVTool", m_adc2mevTool);
+  declareProperty("BunchCrossingTool",m_bcidTool);
   declareProperty("DoStream", m_doStream = false);
   declareProperty("DoTrigger", m_doTrigger = true);
   declareProperty("DoOFCIter", m_doOFCIter = true);
@@ -104,6 +110,7 @@ LArShapeDumper::LArShapeDumper(const std::string & name, ISvcLocator * pSvcLocat
   declareProperty("TrigDecisionTool", m_trigDec, "The tool to access TrigDecision");
   declareProperty("TriggerNames", m_triggerNames);
   declareProperty("DoAllLvl1", m_doAllLvl1 = true);
+  declareProperty("onlyEmptyBC",m_onlyEmptyBC=false);
 }
 
 
@@ -134,7 +141,6 @@ StatusCode LArShapeDumper::initialize()
   ATH_CHECK( m_dumperTool.retrieve() );
 
   if (m_dumperTool->doShape()) {
-    if (m_count == 1) ATH_MSG_INFO ( "Reading LArAutoCorr handle" );
     ATH_CHECK( detStore()->regHandle(m_autoCorr, "LArAutoCorr") );
   }
   
@@ -148,6 +154,9 @@ StatusCode LArShapeDumper::initialize()
   m_gains[CaloGain::LARMEDIUMGAIN] = (m_gainSpec.find("MEDIUM") != std::string::npos);
   m_gains[CaloGain::LARLOWGAIN]    = (m_gainSpec.find("LOW")    != std::string::npos);
   
+  if (m_onlyEmptyBC)
+    ATH_CHECK(m_bcidTool.retrieve());
+
   return StatusCode::SUCCESS; 
 }
 
@@ -241,12 +250,13 @@ StatusCode LArShapeDumper::beginRun()
 
 StatusCode LArShapeDumper::execute()
 {    
+  m_count++;
+
   if ((m_prescale > 1 && m_random.Rndm() > 1.0/m_prescale) || m_prescale <= 0) {
     ATH_MSG_VERBOSE ( "======== prescaling event "<< m_count << " ========" );
+    m_nPrescaledAway++;
     return StatusCode::SUCCESS;
   }
-
-  m_count++;
 
   ATH_MSG_VERBOSE ( "======== executing event "<< m_count << " ========" );
 
@@ -257,6 +267,22 @@ StatusCode LArShapeDumper::execute()
   int run       = eventInfo->runNumber();
   int lumiBlock = eventInfo->lumiBlock();
   int bunchId   = eventInfo->bcid();
+
+  
+  if (m_onlyEmptyBC) {
+    const Trig::IBunchCrossingTool::BunchCrossingType bcType=m_bcidTool->bcType(bunchId);
+    if (bcType!=Trig::IBunchCrossingTool::BunchCrossingType::Empty) {
+      ATH_MSG_DEBUG("Ignoring Event with bunch crossing type " << bcType);
+      m_nWrongBunchGroup++;
+      return StatusCode::SUCCESS;
+    }
+  }
+
+  if (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error) {
+    ATH_MSG_DEBUG("Ignoring Event b/c of LAr ERROR");
+    m_nLArError++;
+    return StatusCode::SUCCESS;
+  }
 
   EventData* eventData = 0;
   int eventIndex = -1;
@@ -273,22 +299,20 @@ StatusCode LArShapeDumper::execute()
 
   if (larDigitContainer->size() == 0) {
     ATH_MSG_WARNING ( "LArDigitContainer with key=" << m_digitsKey << " is empty!" );
+    m_nNoDigits++;
     return StatusCode::SUCCESS;
   }
 
   const LArRawChannelContainer* rawChannelContainer = 0;
   ATH_CHECK( evtStore()->retrieve(rawChannelContainer, m_channelsKey) );
   
-  if (m_count == 1) ATH_MSG_INFO ( "Reading pedestal" );
   ATH_CHECK( detStore()->retrieve(m_larPedestal) );
 
   const LArOFIterResultsContainer* ofIterResult = 0;
   if (m_doOFCIter) {
-    if (m_count == 1) ATH_MSG_INFO ( "Reading LArOFIterResult" );
     ATH_CHECK( evtStore()->retrieve(ofIterResult, "LArOFIterResult") );
   }
 
-  if (m_count == 1) ATH_MSG_INFO ( "Reading LArFebErrorSummary" );
   const LArFebErrorSummary* larFebErrorSummary = 0;
   ATH_CHECK( evtStore()->retrieve(larFebErrorSummary, "LArFebErrorSummary") );
   const std::map<unsigned int,uint16_t>& febErrorMap = larFebErrorSummary->get_all_febs();
@@ -457,6 +481,11 @@ StatusCode LArShapeDumper::endRun()
 StatusCode LArShapeDumper::finalize()
 {
   ATH_MSG_DEBUG ("in finalize() ");
+
+  if (m_prescale>1) ATH_MSG_INFO("Prescale dropped " <<  m_nPrescaledAway << "/" << m_count << " events"); 
+  if (m_onlyEmptyBC) ATH_MSG_INFO("Dropped " << m_nWrongBunchGroup << "/" << m_count << " events b/c of wrong bunch group"); 
+  ATH_MSG_INFO("Dropped " << m_nLArError << "/" <<  m_count << " Events b/c of LAr Veto (Noise burst or corruption)");
+
 
   int n = 0;
   for (unsigned int i = 0; i < m_samples->nChannels(); i++)

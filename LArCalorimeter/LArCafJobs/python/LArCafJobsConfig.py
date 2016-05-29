@@ -27,8 +27,8 @@ class DefaultShapeDumperTool(LArShapeDumperTool) :
 
       #Run 1 version:
       #conddb.addFolder('LAR_OFL', '/LAR/ElecCalibOfl/Shape/RTM/5samples3bins17phases<tag>LARElecCalibOflShapeRTM5samples3bins17phases-RUN2-UPD3-00</tag><key>LArShape5samples3bins17phases</key>')
-      if (nSamples==5):
-        conddb.addFolder('LAR_OFL', '/LAR/ElecCalibOfl/Shape/RTM/5samples3bins17phases<tag>LARElecCalibOflShapeRTM5samples3bins17phases-UPD3-00</tag><key>LArShape17phases</key>')
+      if (nSamples>=5):
+        conddb.addFolder('LAR_OFL', '/LAR/ElecCalibOfl/Shape/RTM/5samples3bins17phases<tag>LARElecCalibOflShapeRTM5samples3bins17phases-RUN2-UPD3-00</tag><key>LArShape17phases</key>')
       elif (nSamples==4):
         conddb.addFolder('LAR_OFL', '/LAR/ElecCalibOfl/Shape/RTM/4samples3bins17phases<tag>LARElecCalibOflShapeRTM4samples3bins17phases-RUN2-UPD3-00</tag><key>LArShape17phases</key>')
       else:
