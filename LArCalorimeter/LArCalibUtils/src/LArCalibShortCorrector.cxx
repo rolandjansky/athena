@@ -103,7 +103,7 @@ StatusCode LArCalibShortCorrector::findShortedNeighbors() {
      }//end this channel has a short
    }//End loop over all identifiers
 
-   if (this->outputLevel() <= MSG::INFO) {
+   if (msgLvl(MSG::INFO)) {
      ATH_MSG_INFO ( "Found " << m_shortedNeighbors.size() << " pairs of shorted neighbors" );
      std::vector<std::pair<HWIdentifier,HWIdentifier> >::const_iterator itm=m_shortedNeighbors.begin();
      std::vector<std::pair<HWIdentifier,HWIdentifier> >::const_iterator itm_e=m_shortedNeighbors.end();
