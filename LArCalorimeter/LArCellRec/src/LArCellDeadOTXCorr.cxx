@@ -55,7 +55,7 @@
 #include "LArRawEvent/LArFebErrorSummary.h" 
 #include "LArIdentifier/LArOnlineID.h" 
 #include "LArRecConditions/ILArBadChanTool.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h" 
 // #include "TrigT1CaloCalibTools/L1CaloTTIdTools.h"
 //#include "TrigT1CaloEvent/TriggerTowerCollection.h"
@@ -123,7 +123,14 @@ LArCellDeadOTXCorr::LArCellDeadOTXCorr(
 		const std::string& type, 
 		const std::string& name, 
 		const IInterface* parent)
-:AthAlgTool(type, name, parent)
+  : AthAlgTool(type, name, parent),
+    m_caloMgr(nullptr),
+    m_lvl1Helper(nullptr),
+    m_calo_id(nullptr),
+    m_onlineID(nullptr),
+    m_TT_ID(nullptr),
+    m_l1CondSvc(nullptr),
+    m_ttSvc(nullptr)
 {
 	declareInterface<ICaloCellMakerTool>(this); 
 	declareProperty("triggerTowerLocation", m_TTLocation  = "xAODTriggerTowers");

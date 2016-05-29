@@ -11,7 +11,7 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h" 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
 #include "LArRecEvent/LArEventBitInfo.h"

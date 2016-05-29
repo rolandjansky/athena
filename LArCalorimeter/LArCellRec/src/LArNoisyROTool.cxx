@@ -18,7 +18,7 @@
 #include "LArRecEvent/LArNoisyROSummary.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h" 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
 
 LArNoisyROTool::LArNoisyROTool( const std::string& type, 
@@ -208,6 +208,15 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
       noisyRO->add_noisy_feb(HWIdentifier(it->first));
       if (m_printSummary) m_badFEB_counters[it->first]++;
       //BadFEBCount++;
+    }
+    // Tight MNBs
+    if ( it->second.badChannels() > m_MNBTightCut ){
+       noisyRO->add_MNBTight_feb(HWIdentifier(it->first));
+    }
+
+    // Loose MNBs
+    if ( it->second.badChannels() > m_MNBLooseCut ){
+       noisyRO->add_MNBLoose_feb(HWIdentifier(it->first));
     }
  
     const unsigned int* PAcounters = it->second.PAcounters();
