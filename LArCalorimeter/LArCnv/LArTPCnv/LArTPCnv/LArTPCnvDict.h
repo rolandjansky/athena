@@ -21,6 +21,7 @@
 #include "LArTPCnv/LArNoisyROSummary_p1.h" 
 #include "LArTPCnv/LArNoisyROSummary_p2.h" 
 #include "LArTPCnv/LArNoisyROSummary_p3.h" 
+#include "LArTPCnv/LArNoisyROSummary_p4.h" 
 
 #include "Identifier/HWIdentifier.h"
 
