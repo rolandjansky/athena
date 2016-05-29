@@ -11,8 +11,6 @@ keys = [
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DataSource.set_Value('data')
 
-#from AthenaCommon.JobProperties import jobproperties
-#jobproperties.Global.DetDescrVersion = 'ATLAS-GEO-10-00-00'
 noMuon = True
 noID = True
 
