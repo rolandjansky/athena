@@ -25,6 +25,7 @@ using namespace LArSamples;
 LArShapeDumperTool::LArShapeDumperTool(const std::string& type, const std::string& name,
                                        const IInterface* parent)
   : AthAlgTool(type, name, parent),
+    m_caloDetDescrMgr(0), m_onlineHelper(0),
     m_emId(0), m_hecId(0), m_fcalId(0)
 {
   declareInterface<ILArShapeDumperTool>(this);

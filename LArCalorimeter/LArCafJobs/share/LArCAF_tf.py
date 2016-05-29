@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
     executorSet = set()
     executorSet.add(athenaExecutor(name = 'LArCAFcalib', skeletonFile = 'LArCafJobs/skeleton.LArCAF.py',
-                                   substep = 'r2e', inData = ['BS',], outData = ['NTUP_SAMPLESMON']))
+                                   substep = 'r2e', inData = ['BS',], outData = ['NTUP_SAMPLESMON','NTUP_HECNOISE']))
     
     trf = transform(executor = executorSet)  
     addAthenaArguments(trf.parser)
@@ -24,6 +24,10 @@ if __name__ == '__main__':
     trf.parser.add_argument('--outputNTUP_SAMPLESMONFile', nargs='+',
                             type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, io='output', treeNames="events"),
                             help='Output LAr Samples Mon file', group='Ntuple Files')
+
+    trf.parser.add_argument('--outputNTUP_HECNOISEFile', nargs='+',
+                            type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, io='output'),
+                            help='Output HECNoise file', group='Ntuple Files')
 
     trf.parseCmdLineArgs(sys.argv[1:])
     trf.execute()
