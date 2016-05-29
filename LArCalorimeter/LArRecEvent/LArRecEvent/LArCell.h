@@ -91,10 +91,18 @@ public:
           uint16_t provenance,
           CaloGain::CaloGain gain);
 
-  
   /** @brief default destructor */
   virtual ~LArCell ();
   
+  /** @brief For initializing a cell we get from a @c DataPool. */
+  void assign (const CaloDetDescrElement* caloDDE, 
+               const Identifier& id,
+               double energy, 
+               double time,
+               uint16_t quality,
+               uint16_t provenance,
+               CaloGain::CaloGain gain);
+
   /** @brief get deltaR (using 4mom helper) with respect to another cell */
   double deltaR	(const LArCell* other) const ; 
   
@@ -180,6 +188,18 @@ inline LArCell::LArCell(const CaloDetDescrElement* caloDDE,
     CaloCell(caloDDE,id,energy,time,quality,provenance,gain)
 {}
 
+
+
+inline void LArCell::assign(const CaloDetDescrElement* caloDDE, 
+                            const Identifier& id, 
+                            double energy, 
+                            double time,
+                            uint16_t quality,
+                            uint16_t provenance,
+                            CaloGain::CaloGain gain)
+{
+  CaloCell::assign(caloDDE,id,energy,time,quality,provenance,gain);
+}
 
 
 inline void LArCell::add_energy(double energy) 	 
