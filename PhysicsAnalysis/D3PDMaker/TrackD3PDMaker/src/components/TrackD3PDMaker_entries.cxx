@@ -13,7 +13,7 @@
 #include "../CovarianceFillerTool.h"
 #include "../ImpactSigmaFillerTool.h"
 #include "../PerigeeFillerTool.h"
-#include "../PerigeeUnbiasedIPAtPVFillerTool.h"
+//#include "../PerigeeUnbiasedIPAtPVFillerTool.h"
 #include "../PerigeeBLPredictionFillerTool.h"
 #include "../TrackStateOnSurfaceFillerTool.h"
 #include "../TrackTrackSummaryFillerTool.h"
@@ -85,7 +85,7 @@
 // Vertex associators
 #include "../VertexFitQualityAssociationTool.h"
 #include "../VertexCovarianceAssociationTool.h"
-#include "../VertexTrackAssociationTool.h"
+//#include "../VertexTrackAssociationTool.h"
 #include "../VertexTrackParticleAssociationTool.h"
 
 // Other associators
@@ -138,7 +138,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, TrackFitQualityFillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, CovarianceFillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, ImpactSigmaFillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, PerigeeFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, PerigeeUnbiasedIPAtPVFillerTool)
+//DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, PerigeeUnbiasedIPAtPVFillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, PerigeeBLPredictionFillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, TrackStateOnSurfaceFillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, TrackTrackSummaryFillerTool)
@@ -194,7 +194,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, TrkTrackTruthAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, TrkTrackDetailedTruthAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, VertexFitQualityAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, VertexCovarianceAssociationTool)
-DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, VertexTrackAssociationTool)
+//DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, VertexTrackAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, VertexTrackParticleAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, PerigeePairOldPerigeeAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY   (D3PD, TrackBeamlineParametersAssociationTool)
@@ -246,7 +246,7 @@ DECLARE_FACTORY_ENTRIES(TrackD3PDMaker) {
   DECLARE_NAMESPACE_TOOL   (D3PD, CovarianceFillerTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, ImpactSigmaFillerTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, PerigeeFillerTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, PerigeeUnbiasedIPAtPVFillerTool)
+  //DECLARE_NAMESPACE_TOOL   (D3PD, PerigeeUnbiasedIPAtPVFillerTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, PerigeeBLPredictionFillerTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, TrackStateOnSurfaceFillerTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, TrackTrackSummaryFillerTool)
@@ -305,7 +305,7 @@ DECLARE_FACTORY_ENTRIES(TrackD3PDMaker) {
   DECLARE_NAMESPACE_TOOL   (D3PD, TrkTrackDetailedTruthAssociationTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, VertexFitQualityAssociationTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, VertexCovarianceAssociationTool)
-  DECLARE_NAMESPACE_TOOL   (D3PD, VertexTrackAssociationTool)
+  //DECLARE_NAMESPACE_TOOL   (D3PD, VertexTrackAssociationTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, VertexTrackParticleAssociationTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, TrkTrackGetterTool)
   DECLARE_NAMESPACE_TOOL   (D3PD, TrackParticleGetterTool)
