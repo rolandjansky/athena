@@ -20,17 +20,18 @@ use_ifndef pplist="XAOD_ANALYSIS" pkg="LumiBlock/LumiCalc"
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Database/CoolLumiUtilities"
 use xAODLuminosity		xAODLuminosity-*     Event/xAOD
 #use LumiBlockData               LumiBlockData-*      LumiBlock
-use_ifndef pplist="XAOD_ANALYSIS" pkg="LumiBlock/LumiBlockData"
+#use_ifndef pplist="XAOD_ANALYSIS" pkg="LumiBlock/LumiBlockData"
 
 private
 use AtlasCOOL  			AtlasCOOL-*  	     External
 use AthenaPoolUtilities         AthenaPoolUtilities-*   Database/AthenaPOOL
 use CoraCool   			CoraCool-*   		Database -no_auto_imports
 #use CoolConvUtilities		CoolConvUtilities-*	Database -no_auto_imports
-use_ifndef pplist="XAOD_ANALYSIS" pkg="Database/CoolConvUtilities"
+#use_ifndef pplist="XAOD_ANALYSIS" pkg="Database/CoolConvUtilities"
 use DBDataModel                 DBDataModel-*           Database/AthenaPOOL
 use EventInfo                   EventInfo-*             Event
 use GoodRunsLists		GoodRunsLists-*	     DataQuality
+end_private
 
 # Create a dual_use library since the lcgdict pattern doesn't work with component libraries using cmake.
 # This pollutes the linkopts for clients, but is otherwise harmless.
@@ -44,6 +45,11 @@ apply_pattern declare_joboptions files="*.py"
 # Create dictionary for LumiBlockComps
 private
 use AtlasReflex  AtlasReflex-*  External
-
 apply_pattern lcgdict dict=LumiBlockComps selectionfile=selection.xml headerfiles="../LumiBlockComps/LumiBlockCompsDict.h"
+end_private
+
+use_if tag=AthAnalysisBase pkg=xAODRootAccess ver=xAODRootAccess-* root=Control
+application getLumi ../util/getLumi.cxx
+macro_append getLumi_dependencies " GoodRunsLists LumiBlockCompsLib "
+
 
