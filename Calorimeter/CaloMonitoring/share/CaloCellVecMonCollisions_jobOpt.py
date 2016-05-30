@@ -84,6 +84,11 @@ tmp_sporadicSwitch = FALSE
 if (rec.triggerStream()=='CosmicCalo') and not (DQMonFlags.monManEnvironment() == 'online'):
    tmp_sporadicSwitch = TRUE
 
+tmp_oc2D = FALSE # All 2D plot occupancy are activate only for express and cosmiccalo
+if (rec.triggerStream()=='CosmicCalo' or rec.triggerStream()=='express') or (DQMonFlags.monManEnvironment() == 'online'):
+   tmp_oc2D = TRUE
+
+
 CaloCellMon = CaloCellVecMon(
     name = "CaloCellMon",
     CaloCellContainer = "AllCalo",
@@ -162,24 +167,24 @@ CaloCellMon = CaloCellVecMon(
     TriggersToExclude      = ["none"   , "none" , "none"      ],
 
     DoPercentageOccupancy  = [ FALSE   , FALSE  , FALSE       , TRUE    , FALSE   , FALSE  , FALSE         , FALSE  ],
-    DoEtaPhiOccupancy      = [ FALSE   , FALSE  , FALSE       , FALSE   , TRUE    , TRUE   , TRUE          , FALSE  ],
+    DoEtaPhiOccupancy      = [ FALSE   , FALSE  , FALSE       , FALSE   , tmp_oc2D,tmp_oc2D, tmp_oc2D      , FALSE  ],
     DoEtaOccupancy         = [ FALSE   , FALSE  , FALSE       , TRUE    ],
     DoPhiOccupancy         = [ FALSE   , FALSE  , FALSE       , TRUE    ],
 
-    DoEtaPhiAverageEnergy  = [ FALSE   , FALSE  , TRUE        , FALSE   , TRUE    ],
+    DoEtaPhiAverageEnergy  = [ FALSE   , FALSE  , tmp_oc2D    , FALSE   , tmp_oc2D],
     DoEtaPhiTotalEnergy    = [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   ],
     DoEtaPhiEnergyRMS      = [ FALSE   , FALSE  , FALSE       ],
     DoEtaPhiRMSvsDBnoise   = [ FALSE   , FALSE  , FALSE       ],
 
     DoEtaPhiAverageQuality = [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   ],
-    DoEtaPhiFractionOverQth= [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   , TRUE   , TRUE          ],
+    DoEtaPhiFractionOverQth= [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   , tmp_oc2D , tmp_oc2D        ],
     QualityFactorThreshold = [ 4000.   ],
 
     DoEtaPhiAverageTime    = [ FALSE   , FALSE  , FALSE       , FALSE   , TRUE    ],
     DoEtaPhiFractionPastTth= [ FALSE   , FALSE  , FALSE       , FALSE   , TRUE    ],
     TimeThreshold          = [ 4.      ],
 
-    MaskEmptyBins          = [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   , TRUE   , TRUE          , FALSE  ], #bins w/o calocell = -1  
+    MaskEmptyBins          = [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   , FALSE  , FALSE         , FALSE  ], #bins w/o calocell = -1  
     DoBeamBackgroundRemoval= [ TRUE    , TRUE   , TRUE        , TRUE    , TRUE    , TRUE   , FALSE         , TRUE   ],
 
     # Defaults: (Can be over ridden by layer specific values) ; plots will be made for all layers with DefaultThreshold != -9999999
