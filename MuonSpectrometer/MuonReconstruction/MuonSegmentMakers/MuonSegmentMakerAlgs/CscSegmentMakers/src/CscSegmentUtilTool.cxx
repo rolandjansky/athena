@@ -2092,7 +2092,10 @@ get2dSegments(  Identifier eta_id, Identifier phi_id,
  
     int lay0 = 0;
     int lay1 = 1;
-    if(eventInfo->runNumber() > 207489 && eventInfo->runNumber() < 217000 && col_station == 2 && col_eta < 0 && col_phisec == 1) {
+    bool use2LaySegFinding=false;
+    if(eventInfo->runNumber()>=300415 && col_station == 2 && col_eta < 0 && col_phisec == 1) use2LaySegFinding=true;
+    if(eventInfo->runNumber() > 207489 && eventInfo->runNumber() < 217000 && col_station == 2 && col_eta < 0 && col_phisec == 1) use2LaySegFinding=true;
+    if(use2LaySegFinding){
       ATH_MSG_VERBOSE ( " start find find_2dseg2hit eta ");
       find_2dseg2hit(false, col_station, col_eta, col_phisec, lay0, lay1, eta_clus, lpos000, eta_segs2hit, eta_segs, pos_eta, slope_eta);
       ATH_MSG_VERBOSE ( " start find find_2dseg2hit phi ");
