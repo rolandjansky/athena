@@ -116,7 +116,7 @@ namespace MuonGM {
     void setIdentifier(Identifier id);
     
     /** set methods only to be used by MuonGeoModel */
-    void setChamberLayer(int ml) {_ml=ml;}
+    void setChamberLayer(int ml) {m_ml=ml;}
   private:
 
     //MuonChannelDesign m_phiDesign;
@@ -125,7 +125,7 @@ namespace MuonGM {
     std::vector<int> m_nStrips;
     int m_nlayers;
     
-    int _ml; 
+    int m_ml; 
     Identifier m_parentId;
  
     // surface dimensions
@@ -134,7 +134,7 @@ namespace MuonGM {
     double m_maxHalfY;
 
     // transforms (RE->layer)
-    Amg::Transform3D _Xlg[4];
+    Amg::Transform3D m_Xlg[4];
   };
 
   inline int MMReadoutElement::surfaceHash( const Identifier& id ) const {

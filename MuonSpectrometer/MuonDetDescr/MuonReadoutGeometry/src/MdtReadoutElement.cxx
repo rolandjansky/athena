@@ -87,7 +87,7 @@ MdtReadoutElement::MdtReadoutElement(GeoVFullPhysVol* pv, std::string stName,
   if (zi<0 && !is_mirrored) m_descratzneg = true;
 
   setStationName(stName);
-  _zsignRO_tubeFrame = 0;
+  m_zsignRO_tubeFrame = 0;
 
 
 }
@@ -394,8 +394,8 @@ double MdtReadoutElement::signedRODistanceFromTubeCentre(int multilayer, int tub
     }
 
     int amdb_plus_minus1 = 1;
-    //std::cerr<<"MdtReadoutElement::signedRODistanceFromTubeCentre // _zsignRO_tubeFrame = "<<_zsignRO_tubeFrame<<std::endl;
-    if ( _zsignRO_tubeFrame == 0 )
+    //std::cerr<<"MdtReadoutElement::signedRODistanceFromTubeCentre // zsignRO_tubeFrame = "<<_m_zsignRO_tubeFrame<<std::endl;
+    if ( m_zsignRO_tubeFrame == 0 )
     {
         const MdtIdHelper* idh = manager()->mdtIdHelper();
         Identifier id = idh->channelID(idh->parentID(identify()), multilayer, tubelayer, tube);
@@ -413,11 +413,11 @@ double MdtReadoutElement::signedRODistanceFromTubeCentre(int multilayer, int tub
             //std::cerr<<"MdtReadoutElement::signedRODistanceFromTubeCentre // temporary point in glob r.f. "<<temGlo<<std::endl;
             Amg::Vector3D ROtubeFrame = nodeform_globalToLocalCoords(temGlo, id);
             //std::cerr<<"MdtReadoutElement::signedRODistanceFromTubeCentre // ROtubeFrame= "<<ROtubeFrame<<std::endl;
-            if (ROtubeFrame.z()<0) _zsignRO_tubeFrame = -1;
-            else _zsignRO_tubeFrame = 1;
+            if (ROtubeFrame.z()<0) m_zsignRO_tubeFrame = -1;
+            else m_zsignRO_tubeFrame = 1;
         }
     }
-    if ( _zsignRO_tubeFrame == 0)
+    if ( m_zsignRO_tubeFrame == 0)
     { // if no CRO in a chamber in AMDB (BIS in layout R), use the standard convention for RO-HV side
         int sign = 0;
         if (barrel()) 
@@ -448,9 +448,9 @@ double MdtReadoutElement::signedRODistanceFromTubeCentre(int multilayer, int tub
                 else sign = 1;
             }
         }
-        _zsignRO_tubeFrame = sign;
+        m_zsignRO_tubeFrame = sign;
     }
-    amdb_plus_minus1 = _zsignRO_tubeFrame;
+    amdb_plus_minus1 = m_zsignRO_tubeFrame;
     if (amdb_plus_minus1 == 0)
     {
         //MsgStream log(m_msgSvc, "MuGM:MdtReadout");     

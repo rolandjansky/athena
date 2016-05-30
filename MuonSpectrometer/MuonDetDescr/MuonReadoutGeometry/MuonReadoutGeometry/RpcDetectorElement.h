@@ -82,9 +82,9 @@ namespace MuonGM {
 
   private:
 
-    const RpcIdHelper* _helper;
-    int _ndbz;
-    const RpcReadoutElement* _rpcVector[NDoubletZ];
+    const RpcIdHelper* m_helper;
+    int m_ndbz;
+    const RpcReadoutElement* m_rpcVector[NDoubletZ];
     //here is the std::vector of pointers to ReadoutElements in this DetectorElement
 
     mutable std::vector<const Trk::Surface*> m_detectorSurfaces;

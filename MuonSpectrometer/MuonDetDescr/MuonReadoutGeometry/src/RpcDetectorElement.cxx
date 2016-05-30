@@ -25,13 +25,13 @@ RpcDetectorElement::RpcDetectorElement(GeoVFullPhysVol* pv,
                                        MuonDetectorManager* mgr,
                                        Identifier id,
                                        IdentifierHash idHash) :
-   MuonDetectorElement(pv, mgr, id, idHash), _ndbz(0)
+   MuonDetectorElement(pv, mgr, id, idHash), m_ndbz(0)
 {
     //m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:RpcDetectorElement");
   //std::cerr<<"Costruttore di RpcDetectorElement per idhash = "<<idHash<<std::endl;
-  for (unsigned int i=0; i<NDoubletZ; i++) _rpcVector[i] = NULL; 
-  _nREinDetectorElement=0;
-  _helper=manager()->rpcIdHelper();
+  for (unsigned int i=0; i<NDoubletZ; i++) m_rpcVector[i] = NULL; 
+  m_nREinDetectorElement=0;
+  m_helper=manager()->rpcIdHelper();
 }
 
 
@@ -39,12 +39,12 @@ void RpcDetectorElement::addRpcReadoutElement(const RpcReadoutElement* rpc, int 
 {
   //std::cout << "index: " << index << std::endl;
   if (index < NDoubletZ) {
-    if (_rpcVector[index] == NULL) {
-      _rpcVector[index] = rpc;
+    if (m_rpcVector[index] == NULL) {
+      m_rpcVector[index] = rpc;
       // everything ok
-      _nREinDetectorElement++;
+      m_nREinDetectorElement++;
       //std::cerr<<" This is rpcDE with hashID = "<<identifyHash();
-      //std::cerr<<" index "<<index<<" _rpcVector[index] filled with RpcReadoutElement @ "
+      //std::cerr<<" index "<<index<<" m_rpcVector[index] filled with RpcReadoutElement @ "
       //         <<rpc<<std::endl;
     } else {
       std::cerr << "RpcDetectorElement::add -- problems for idhash " << identifyHash()
@@ -61,8 +61,8 @@ void RpcDetectorElement::addRpcReadoutElement(const RpcReadoutElement* rpc, int 
 const RpcReadoutElement*
 RpcDetectorElement::getRpcReadoutElement(Identifier id) const
 {
-  int dbz = _helper->doubletZ(id);
-  int dbp = _helper->doubletPhi(id);
+  int dbz = m_helper->doubletZ(id);
+  int dbp = m_helper->doubletPhi(id);
   return getRpcReadoutElement(dbz, dbp);
 }
 
@@ -71,14 +71,14 @@ const RpcReadoutElement*
 RpcDetectorElement::getRpcReadoutElement(int dbz, int dbp) const
 {
   int dbz_index = dbz - 1;
-  std::string stName = _rpcVector[0]->getStationName();
+  std::string stName = m_rpcVector[0]->getStationName();
 
   //std::cerr<<"RpcDetectorElement::readoutElement("<<dbz<<", "<<dbp<<") - stName, stEta, dbr = "
   //         << stName<<" "<<stEta<<" "<<dbr<<" "<<std::endl;  
     
   if (stName  == "BMS") {
-    int stEta = _rpcVector[0]->getStationEta();
-    int dbr = _rpcVector[0]->getDoubletR();
+    int stEta = m_rpcVector[0]->getStationEta();
+    int dbr = m_rpcVector[0]->getDoubletR();
     if (abs(stEta) == 2 && dbz == 3) {
       if (dbp == 2) dbz_index++;
 
@@ -95,24 +95,24 @@ RpcDetectorElement::getRpcReadoutElement(int dbz, int dbp) const
   }
 
   //    std::cerr<<" ==============>>> dbz_index = "<<dbz_index<<" must be < nReadoutElements()="<<_ndbz_nRE<<std::endl;
-  if (dbz_index < (int)nReadoutElements() && dbz_index >= 0) return _rpcVector[dbz_index];
+  if (dbz_index < (int)nReadoutElements() && dbz_index >= 0) return m_rpcVector[dbz_index];
   else return NULL;
 }
 
 const Amg::Transform3D& RpcDetectorElement::transform() const
-{return _rpcVector[0]->transform();}
+{return m_rpcVector[0]->transform();}
 
 const Trk::Surface& RpcDetectorElement::surface() const
-{return _rpcVector[0]->surface();}
+{return m_rpcVector[0]->surface();}
 
 const Trk::SurfaceBounds& RpcDetectorElement::bounds() const
-{return _rpcVector[0]->bounds();}
+{return m_rpcVector[0]->bounds();}
 
 const Amg::Vector3D& RpcDetectorElement::center() const
-{return _rpcVector[0]->center();}
+{return m_rpcVector[0]->center();}
 
 const Amg::Vector3D& RpcDetectorElement::normal() const
-{return _rpcVector[0]->normal();}
+{return m_rpcVector[0]->normal();}
 
 const Trk::Surface& 
 RpcDetectorElement::surface(const Identifier& id) const
@@ -135,14 +135,14 @@ RpcDetectorElement::center(const Identifier& id) const
 
 const Amg::Vector3D& 
 RpcDetectorElement::normal(const Identifier& id) const
-  {return _rpcVector[0]->normal(id);}
+  {return m_rpcVector[0]->normal(id);}
 
 const std::vector<const Trk::Surface*>&  RpcDetectorElement::surfaces() const
 {
    // needs to be created each time because there's no clearCache() method
    m_detectorSurfaces.clear();
    for (unsigned int i=0; i<NDoubletZ; i++)
-     m_detectorSurfaces.insert(m_detectorSurfaces.end(),_rpcVector[i]->surfaces().begin(),_rpcVector[i]->surfaces().end());
+     m_detectorSurfaces.insert(m_detectorSurfaces.end(),m_rpcVector[i]->surfaces().begin(),m_rpcVector[i]->surfaces().end());
 
    return m_detectorSurfaces;
 }
