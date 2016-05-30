@@ -31,6 +31,7 @@
 #include "TrigDecisionTool/CacheGlobalMemory.h"
 #include "TrigDecisionTool/Logger.h"
 
+#include "xAODTrigger/TrigDecision.h"
 Trig::ExpertMethods::ExpertMethods(Trig::CacheGlobalMemory* cgm) 
   : m_cacheGlobalMemory(cgm),
     useExperimentalAndExpertMethods(false)   
@@ -103,13 +104,24 @@ Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
 
 bool Trig::ExpertMethods::isHLTTruncated() const {
 #if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
-const HLT::HLTResult* res(0);
-auto navigation = dynamic_cast<HLT::NavigationCore*>(const_cast<HLT::TrigNavStructure*>(cgm()->navigation()));
-if(navigation->getAccessProxy()->retrieve(res, "HLTResult_HLT").isFailure()) {
-ATH_MSG_WARNING("TDT has not ben able to get HLTResult_HLT");
-return false;
-} 
-return res->isHLTResultTruncated();    
+    const HLT::HLTResult* res(0);
+    const xAOD::TrigDecision* trigDec(0);
+    auto navigation = getNavigation();
+    bool contains_xAOD_decision = cgm()->store()->transientContains<xAOD::TrigDecision>("xTrigDecision");
+    if(!contains_xAOD_decision){
+        if(!navigation || navigation->getAccessProxy()->retrieve(res, "HLTResult_HLT").isFailure()) {
+            ATH_MSG_WARNING("TDT has not ben able to get HLTResult_HLT");
+            return false;
+        } 
+        return res->isHLTResultTruncated();   
+    }
+    else {
+        if(cgm()->store()->retrieve(trigDec,"xTrigDecision").isFailure()){
+            ATH_MSG_WARNING("TDT has not been able to retrieve xTrigDecision");
+            return false;
+        }
+        return trigDec->efTruncated();
+    }
 #else
 ATH_MSG_ERROR("isHLTTruncated only supported in full Athena");
 return false;
