@@ -10,5 +10,17 @@ use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  GaudiInterface             GaudiInterface-*                External
 end_private
 
-library AsgExampleTools *.cxx ../Root/AsgHelloTool.cxx -s=components *.cxx
-apply_pattern component_library
+apply_pattern dual_use_library files="*.cxx ../Root/AsgHelloTool.cxx ../Root/UnitTestTool1.cxx ../Root/UnitTestTool2.cxx ../Root/UnitTestTool1A.cxx"
+
+private
+# make the unit tests work
+use TestTools      TestTools-*         AtlasTest
+use AtlasGoogleTest AtlasGoogleTest-* External
+apply_pattern UnitTest_run unit_test=gt_ToolHandle
+apply_pattern UnitTest_run unit_test=gt_AnaToolHandle
+macro_append all_dependencies " check "
+macro_append gt_ToolHandle_test_dependencies " AsgExampleTools "
+macro_append gt_AnaToolHandle_test_dependencies " AsgExampleTools "
+
+# keep the debugging symbols
+macro SEPARATEDEBUG ""

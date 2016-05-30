@@ -16,10 +16,10 @@ PACKAGE_DEP      = AsgTools
 PACKAGE_TRYDEP   = 
 PACKAGE_CLEAN    = 
 PACKAGE_NOGRID   = 
-PACKAGE_PEDANTIC = 0
+PACKAGE_PEDANTIC = 1
 PACKAGE_NOOPT    = 0
 PACKAGE_NOCC     = 0
-PACKAGE_REFLEX   = 0
+PACKAGE_REFLEX   = 1
 
 #PACKAGE_SRCFILES = $(wildcard ../src/*.cxx) $(wildcard ../src/standalone/*.cxx)
 PACKAGE_PRGDIR = ../utils
