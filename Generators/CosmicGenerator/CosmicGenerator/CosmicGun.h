@@ -19,7 +19,7 @@ public:
   float InitializeGenerator();  // returns flux after all cuts in cm2/s
 private:
   CosmicGun(void);
-  static CosmicGun* mpointer;
+  static CosmicGun* s_mpointer;
 
   int   m_event;
   int   m_printevt, m_printmod;
