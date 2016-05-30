@@ -499,46 +499,67 @@ StatusCode ISF::ParticleBrokerDynamicOnReadIn::finalizeEvent() {
   for ( ; fSimSelIter != fSimSelIterEnd; ++fSimSelIter )
     (*fSimSelIter)->endEvent();
 
-  for (size_t i=0;i<m_extraParticles.size();i++) {delete m_extraParticles[i];}
-  m_extraParticles.clear();
-
   return StatusCode::SUCCESS;
 }
 
 
 /** add a new particle to the stack and link it to its parent */
-void ISF::ParticleBrokerDynamicOnReadIn::push( ISFParticle *particle, const ISFParticle* /*parent*/) {
+void ISF::ParticleBrokerDynamicOnReadIn::push( ISFParticle *particlePtr, const ISFParticle *parentPtr) {
   // this call does not make much sense with no given particle
-  assert(particle);
+  assert(particlePtr);
 
-  // FIXME This next block of code will not work if we are using
-  // anything other than the LegacyBarcodeService at the moment. ATLASSIM-2146
-  // // set extraBC for daughter to parent extraBC (may be overwritten later by a better extraBC)
-  // if ( m_barcodeSvc->hasBitCalculator() ) {
-  //   Barcode::ParticleBarcode extrabc = parent->getExtraBC();
-  //   particle->setExtraBC( extrabc );
-  // }
-  // else {
-  //   ATH_MSG_ERROR ( m_barcodeSvc.name() << " has no bit calculator!" );
-  // }
+  ISFParticle &particle = *particlePtr;
 
-  registerParticle(particle);
+  if (parentPtr) {
+    Barcode::ParticleBarcode extrabc = parentPtr->getExtraBC();
+    particle.setExtraBC( extrabc );
+  }
 
   // get the particle's next geoID
-  AtlasDetDescr::AtlasRegion geoID = particle->nextGeoID();
+  AtlasDetDescr::AtlasRegion geoID = particle.nextGeoID();
+
+  // if GeoID not set (e.g. ISF::fUndefinedGeoID) or a flag is set to always use the GeoIDSvc
+  // -> let the geoIDSvc find the next geoID
+  if ( m_forceGeoIDSvc || !validAtlasRegion(geoID) ) {
+    geoID = m_geoIDSvcQuick->identifyAndRegNextGeoID(particle);
+  }
+  // inform the entry layer tool about this particle
+  ISF::EntryLayer layer = m_entryLayerToolQuick->registerParticle( particle );
+
+  // ---> if validation mode: fill the corresponding entry layer ROOT tree
+  if ( m_validationOutput ) {
+    // fill the push() position TTree
+    fillPosValTree( m_t_pushPosition, particle);
+    // in case particle was added to an entry layer, add it to the corresponding TTree
+    if ( validEntryLayer(layer) ) {
+      fillPosValTree( m_t_entryLayerPos[layer], particle);
+    }
+  }
+  // <--- end validation output
+
+  // validation mode: check whether the particle position corresponds to the GeoID given
+  // by the particle itself
+  if ( m_validateGeoID) {
+    AtlasDetDescr::AtlasRegion identifiedGeoID = m_geoIDSvcQuick->identifyNextGeoID(particle);
+    if ( (geoID!=AtlasDetDescr::fUndefinedAtlasRegion) && (geoID!=identifiedGeoID) ) {
+      ATH_MSG_WARNING("Validating GeoID: GeoIDSvc resolves a particle's position to a different GeoID than stored in the particle:");
+      ATH_MSG_WARNING("     assigned=" << geoID << "  GeoIDSvc=" << identifiedGeoID);
+      ATH_MSG_WARNING("     Particle: " << particle);
+    }
+  }
 
   // only process particles with well defined geoID
   if ( !validAtlasRegion( geoID) ) {
     ATH_MSG_ERROR( m_screenOutputPrefix << "Trying to push particle onto the stack with unknown geoID=" << geoID
                    << ". Dropping this particle.");
-    delete particle;
+    delete particlePtr;
     return;
   }
 
   // (*) let the Selectors select the particle
   //       - if a Selector selects a particle -> it is pushed onto the active stack
   //       - if it is not selected -> particle is dropped (deleted)
-  selectAndStore( particle);
+  selectAndStore( particlePtr );
 }
 
 /** Get vectors of ISF particles from the broker */
@@ -613,44 +634,3 @@ StatusCode ISF::ParticleBrokerDynamicOnReadIn::queryInterface(const InterfaceID&
   return StatusCode::SUCCESS;
 }
 
-
-/** Register the particle */
-void ISF::ParticleBrokerDynamicOnReadIn::registerParticle( ISFParticle* particle, ISF::EntryLayer layerInput, bool takeOwnership )
-{
-
-  // get the particle's next geoID
-  AtlasDetDescr::AtlasRegion geoID = particle->nextGeoID();
-
-  // if GeoID not set (e.g. ISF::fUndefinedGeoID) or a flag is set to always use the GeoIDSvc
-  // -> let the geoIDSvc find the next geoID
-  if ( !validAtlasRegion(geoID) || m_forceGeoIDSvc) {
-    geoID = m_geoIDSvcQuick->identifyAndRegNextGeoID(*particle);
-  }
-  // inform the entry layer tool about this particle
-  ISF::EntryLayer layer = m_entryLayerToolQuick->registerParticle( *particle, layerInput);
-
-  // ---> if validation mode: fill the corresponding entry layer ROOT tree
-  if ( m_validationOutput) {
-    // fill the push() position TTree
-    fillPosValTree( m_t_pushPosition, *particle);
-    // in case particle was added to an entry layer, add it to the corresponding TTree
-    if ( validEntryLayer(layer) )
-      fillPosValTree( m_t_entryLayerPos[layer], *particle);
-  }
-  // <--- end validation output
-
-  // validation mode: check whether the particle position corresponds to the GeoID given
-  // by the particle itself
-  if ( m_validateGeoID) {
-    AtlasDetDescr::AtlasRegion identifiedGeoID = m_geoIDSvcQuick->identifyNextGeoID(*particle);
-    if ( (geoID!=AtlasDetDescr::fUndefinedAtlasRegion) && (geoID!=identifiedGeoID) ) {
-      ATH_MSG_WARNING("Validating GeoID: GeoIDSvc resolves a particle's position to a different GeoID than stored in the particle:");
-      ATH_MSG_WARNING("     assigned=" << geoID << "  GeoIDSvc=" << identifiedGeoID);
-      ATH_MSG_WARNING("     Particle: " << *particle);
-    }
-  }
-
-  if (takeOwnership) m_extraParticles.push_back(particle);
-
-  return;
-}
