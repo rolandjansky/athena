@@ -138,31 +138,31 @@ namespace G4UA{
     SG::ReadHandle <TrackRecordCollection> coll2(m_config.collectionName2);
     if (!coll2.isValid())
       {
-	ATH_MSG_WARNING( "Cannot retrieve TrackRecordCollection " );
+        ATH_MSG_WARNING( "Cannot retrieve TrackRecordCollection " );
       }
     else
       {
-	counterTwo = coll2->size();
+        counterTwo = coll2->size();
       }
     
     SG::ReadHandle <TrackRecordCollection> coll3(m_config.collectionName3);
     if (! coll3.isValid())
       {
-	ATH_MSG_WARNING( "Cannot retrieve TrackRecordCollection" );
+        ATH_MSG_WARNING( "Cannot retrieve TrackRecordCollection" );
       }
     else
       {
-	counterThree = coll3->size();
+        counterThree = coll3->size();
       }
     
     if (counterOne==0 && counterTwo==0 && counterThree==0)
       {
-	ATH_MSG_INFO("aborting event due to failing OR filter");
-	G4RunManager::GetRunManager()->AbortEvent();
+        ATH_MSG_INFO("aborting event due to failing OR filter");
+        G4RunManager::GetRunManager()->AbortEvent();
       }
     else
       {
-	m_report.npass++;
+        m_report.npass++;
     }
   return;
  
