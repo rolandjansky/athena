@@ -23,7 +23,7 @@ PURPOSE:  eflow object data class
  
 #include "GaudiKernel/ContainedObject.h"
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 #include "CaloEvent/CaloCluster.h"
 #include "CaloEvent/CaloClusterContainer.h"
@@ -98,18 +98,22 @@ class eflowObject : public P4EEtaPhiM, virtual public INavigable4Momentum
   eflowTrack_iterator track_begin() const  { return m_eflowTrack.begin(); }
   eflowTrack_iterator track_end() const    { return m_eflowTrack.end(); }
 
-  const Rec::TrackParticle* track(int i) const         { return m_eflowTrack[i]; }
+  const Rec::TrackParticle* track(size_t i) const         { return m_eflowTrack[i]; }
+  const ElementLink<Rec::TrackParticleContainer> trackLink(size_t i) const
+  { return m_eflowTrack.linkAt(i); }
 
-  void addTrack(ElementLink<Rec::TrackParticleContainer> trackElementLink);
+  void addTrack(const ElementLink<Rec::TrackParticleContainer>& trackElementLink);
 
   // clus Accessor Methods:
 
   eflowClus_iterator clus_begin() const  { return m_eflowClus.begin(); }
   eflowClus_iterator clus_end() const    { return m_eflowClus.end(); }
 
-  const CaloCluster* clus(int i) const         { return m_eflowClus[i]; }
+  const CaloCluster* clus(size_t i) const         { return m_eflowClus[i]; }
+  const ElementLink<CaloClusterContainer> clusLink(size_t i) const
+  { return m_eflowClus.linkAt(i); }
 
-  void addClus(ElementLink<CaloClusterContainer> clusElementLink);
+  void addClus(const ElementLink<CaloClusterContainer>& clusElementLink);
   void addClus(const CaloCluster* clus);
 
   // Other Methods
@@ -118,12 +122,12 @@ class eflowObject : public P4EEtaPhiM, virtual public INavigable4Momentum
   int numClus() const              { return m_eflowClus.size(); }
  
   const Analysis::Muon* muon() const ; 
-  ElementLink<Analysis::MuonContainer> muonLink() const;
-  void addMuon(ElementLink<Analysis::MuonContainer> muonElementLink) { m_muonElementLink = muonElementLink; }
+  const ElementLink<Analysis::MuonContainer>& muonLink() const;
+  void addMuon(const ElementLink<Analysis::MuonContainer>& muonElementLink) { m_muonElementLink = muonElementLink; }
 
   const Trk::VxCandidate* conversion() const         { return *m_convElementLink; }
-  ElementLink<VxContainer> conversionLink() const;
-  void addConversion(ElementLink<VxContainer> convElementLink) { m_convElementLink = convElementLink; }
+  const ElementLink<VxContainer>& conversionLink() const;
+  void addConversion(const ElementLink<VxContainer>& convElementLink) { m_convElementLink = convElementLink; }
 
   // Set/get parameters
 
@@ -152,6 +156,7 @@ class eflowObject : public P4EEtaPhiM, virtual public INavigable4Momentum
 
   bool isValid() const               { return m_valid; }
   void set_notValid()                { m_valid = false; }
+  void set_valid(bool flag=true)     { m_valid = flag; }
 
   double getPi0MVA() const { return m_pi0MVA;}
   void setPi0MVA(double Pi0MVA) {m_pi0MVA = Pi0MVA;}
@@ -168,13 +173,13 @@ class eflowObject : public P4EEtaPhiM, virtual public INavigable4Momentum
   std::vector<CaloClusterContainer*>::iterator lastClusContainer() { return  m_eflowClusContainers.end(); }
 
   void setPassEOverPCheck(bool check) { m_passedEOverPCheck = check;}
-  bool getPassEOverPCheck() { return m_passedEOverPCheck;}
+  bool getPassEOverPCheck() const { return m_passedEOverPCheck;}
 
   void setIsSubtracted(bool isSubtracted) { m_isSubtracted = isSubtracted;}
-  bool getIsSubtracted() { return m_isSubtracted;}
+  bool getIsSubtracted() const { return m_isSubtracted;}
 
   void setIsDuplicated(bool isDuplicated) { m_isDuplicated = isDuplicated;}
-  bool getIsDuplicated() { return m_isDuplicated;}
+  bool getIsDuplicated() const { return m_isDuplicated;}
 
   void setCaloRecoStatus(CaloRecoStatus status) {m_recoStatus = status;}
   CaloRecoStatus getCaloRecoStatus() const  { return m_recoStatus;}

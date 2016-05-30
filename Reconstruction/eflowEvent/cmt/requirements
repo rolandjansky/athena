@@ -9,7 +9,8 @@ use AtlasBoost		AtlasBoost-*		 External
 use AtlasReflex         AtlasReflex-*            External
 
 use CLIDSvc		CLIDSvc-*		 Control
-use DataModel 		DataModel-* 		 Control
+use AthContainers       AthContainers-*          Control
+use AthLinks            AthLinks-*               Control
 use FourMom             FourMom-*                Event
 
 use VxVertex            VxVertex-*             Tracking/TrkEvent
@@ -35,4 +36,3 @@ apply_pattern lcgdict dict=eflowEvent  selectionfile=selection.xml navigables="e
 library eflowEvent *.cxx
 
 apply_pattern installed_library
-
