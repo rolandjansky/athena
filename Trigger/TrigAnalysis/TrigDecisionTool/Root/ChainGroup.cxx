@@ -211,6 +211,9 @@ bool Trig::ChainGroup::isPassed(unsigned int condition) const
   for ( iIt = conf_item_begin(); iIt != conf_item_end(); ++iIt) {
     RESULT = RESULT || L1Result((*iIt)->name(),condition);
   }
+
+  ATH_MSG_DEBUG(" Got CG Result " << RESULT);
+
   return RESULT;
 }
 

@@ -11,9 +11,9 @@
 
 
 #include "TrigDecisionTool/IDecisionUnpacker.h"
+#include "TrigDecisionTool/Logger.h"
 #include "AsgTools/AsgMessaging.h"
 
-#include "DecisionObjectHandleAthena.h"
 
 class StoreGateSvc;
 
@@ -27,7 +27,9 @@ namespace LVL1CTP{
 }
 
 namespace Trig{  
-  
+
+
+  class DecisionObjectHandleAthena;  
 
   class DecisionUnpackerAthena : public IDecisionUnpacker, public Logger {
   public:

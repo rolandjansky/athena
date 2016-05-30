@@ -17,8 +17,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigNavStructure/TrigNavStructure.h"
 #include "TrigDecisionTool/DecisionUnpackerAthena.h"
-
-
+#include "TrigDecisionTool/DecisionObjectHandleAthena.h"
 #include "TrigNavigation/NavigationCore.h"
 
 namespace Trig {
@@ -104,6 +103,7 @@ namespace Trig {
 
     // L2 chains
     l2chainsByName.clear();
+    ATH_MSG_DEBUG("Unpacking of L2 chains");
     if ( dec->getL2Result().getHLTLevel() != HLT::UNKNOWN ) {
       const std::vector<uint32_t>& l2_serialized_chains = dec->getL2Result().getChainResult();
       ATH_MSG_DEBUG(l2_serialized_chains.size() << " L2 chains");
@@ -114,6 +114,7 @@ namespace Trig {
     }
   
     // EF chains
+    ATH_MSG_DEBUG("Unpacking of EF/HLT chains");
     efchainsByName.clear();
     const std::vector<uint32_t>& ef_serialized_chains = dec->getEFResult().getChainResult();
     ATH_MSG_DEBUG(ef_serialized_chains.size() << " EF/HLT chains");

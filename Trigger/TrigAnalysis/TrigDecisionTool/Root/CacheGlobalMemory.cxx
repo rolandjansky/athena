@@ -312,6 +312,9 @@ const LVL1CTP::Lvl1Item* Trig::CacheGlobalMemory::item(const std::string& name) 
 
 
 bool Trig::CacheGlobalMemory::assert_decision() {
+
+  ATH_MSG_VERBOSE("asserting decision with unpacker " << m_unpacker);
+
   // here we unpack the decision. Note: the navigation will be unpacked only on demand (see navigation())
   if(!m_unpacker){
     ATH_MSG_INFO("decision not set on first (?) assert. deciding how to unpack");
@@ -357,8 +360,13 @@ bool Trig::CacheGlobalMemory::assert_decision() {
   }//if(!m_unpacker)
   
   if( m_unpacker->assert_handle() ) {
+    ATH_MSG_VERBOSE("asserted handle");
+
     if( unpackDecision().isFailure() ) {
       ATH_MSG_WARNING( "TrigDecion object incorrect (for chains)" );
+    }
+    else{
+      ATH_MSG_VERBOSE("unpacked decision");
     }
     m_unpacker->validate_handle();
   }

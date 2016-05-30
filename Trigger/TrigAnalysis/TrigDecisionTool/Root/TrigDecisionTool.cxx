@@ -15,19 +15,13 @@
  ***********************************************************************************/
 
 #include "AsgTools/AsgToolsConf.h"
-//never in full Athena
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
-#else
-
-
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
 #include "TrigDecisionTool/DecisionUnpackerAthena.h"
-#endif
+
 
 
 #include "TrigDecisionTool/DecisionUnpackerStandalone.h"
 #include "TrigNavStructure/StandaloneNavigation.h"
-#include "TrigDecisionTool/TrigDecisionToolStandalone.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
@@ -41,27 +35,27 @@ static std::vector<std::string> s_instances;
 Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
   asg::AsgMetadataTool(name),
   m_configKeysCache(),
-  m_configTool("TrigConf::xAODConfigTool"),
   m_configKeysCached( false )
 #ifndef XAOD_ANALYSIS
-  ,m_configSvc("TrigConf::xAODConfigSvc", name)
+  ,m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name)
   ,m_fullNavigation("HLT::Navigation/Navigation", this)
   ,m_navigation(0) //should initialize it... it's dangerous not to
 #else
+  ,m_configTool("TrigConf::xAODConfigTool")
   ,m_navigation(new HLT::StandaloneNavigation())
 #endif
 {
    declareProperty( "TrigDecisionKey", m_decisionKey="xTrigDecision", "StoreGate key of TrigDecision object. Consult checkSG.py for the actual name.");
    declareProperty( "PublicChainGroups", m_publicChainGroups, "Pre-created chain groups");
    declareProperty( "UseAODDecision", m_useAODDecision = false );
-   declareProperty( "ConfigTool", m_configTool);
-
 
    //full Athena env
 #ifndef XAOD_ANALYSIS
    declareProperty( "TrigConfigSvc", m_configSvc, "Trigger Config Service");
    declareProperty( "Navigation", m_fullNavigation); 
    m_navigation = &*m_fullNavigation; 
+#else
+   declareProperty( "ConfigTool", m_configTool);
 #endif
 
    //just for Athena/AthAnalysisBase
@@ -99,9 +93,12 @@ Trig::TrigDecisionTool::initialize() {
      ATH_MSG_WARNING("This not to efficent from performance perspective. Access of the same EDM objects will give warnings. Continues anyway ..." );      
    }
 
-   ATH_MSG_INFO("Initializing Trig::TrigDecisionTool");
+   ATH_MSG_INFO("Initializing Trig::TrigDecisionTool (standalone version even for athena)");
   
 #if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+   //This is the full Athena Environment
+   //we setup the full TrigConfigSvc
+   
    StatusCode sc = m_configSvc.retrieve();
    if ( sc.isFailure() ) {
      ATH_MSG_FATAL("Unable to get pointer to TrigConfigSvc");
@@ -118,28 +115,15 @@ Trig::TrigDecisionTool::initialize() {
      ATH_MSG_FATAL( "Unable to get Navigation tool");
      return sc;
    }
+#else
+   ATH_CHECK(m_configTool.retrieve());
 #endif
 
-   ATH_CHECK(m_configTool.retrieve());
+
 
    cgm()->navigation(&*m_navigation);
    cgm()->setStore(&*evtStore());
-
-   if(m_useAODDecision){
-     ATH_MSG_INFO("using old decision");
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
-     DecisionUnpackerAthena* unpacker = new DecisionUnpackerAthena(&*evtStore(), m_decisionKey);
-     cgm()->setUnpacker(unpacker);
-#else
-     ATH_MSG_WARNING("old decision only available in Athena proper");
-#endif
-   }
-   else{
-     ATH_MSG_INFO("using new decision");
-     DecisionUnpackerStandalone* unpacker = new DecisionUnpackerStandalone(&*evtStore(),m_decisionKey,"TrigNavigation");
-     cgm()->setUnpacker(unpacker);
-   }
-
+   
 #ifdef ASGTOOL_ATHENA
    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
    if (incSvc.retrieve().isFailure()) {
@@ -172,17 +156,22 @@ Trig::TrigDecisionTool::initialize() {
 }
 
 StatusCode Trig::TrigDecisionTool::beginEvent() {
-  //#if defined(ASGTOOL_STANDALONE) || defined(XAOD_ANALYSIS)
-  ATH_MSG_DEBUG("beginEvent: updating config ");
   //invalidate handle so that we read a new decision object
-  cgm()->unpacker()->invalidate_handle();
+  if(cgm()->unpacker()){
+    ATH_MSG_VERBOSE("beginEvent: invalidating handle");
+    cgm()->unpacker()->invalidate_handle();
+  }
+ 
 
-
+#ifdef XAOD_ANALYSIS
+  //for analysis releases we check whether we need to update the config
+  ATH_MSG_DEBUG("beginEvent: check if config update is nessecary (via config Tool)");
+  
   bool keysMatch = configKeysMatch(m_configTool->masterKey(),m_configTool->lvl1PrescaleKey(),m_configTool->hltPrescaleKey());
   if(!m_configKeysCached || !keysMatch){
     ATH_MSG_INFO("updating config with SMK: " << m_configTool->masterKey() << " and L1PSK: " << m_configTool->lvl1PrescaleKey() << " and HLTPSK: " << m_configTool->hltPrescaleKey());
-
-
+    
+    
     m_configKeysCache[0]    = m_configTool->masterKey();
     m_configKeysCache[1]    = m_configTool->lvl1PrescaleKey();     
     m_configKeysCache[2]    = m_configTool->hltPrescaleKey();
@@ -192,12 +181,12 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
   else{
     ATH_MSG_DEBUG("keysmatch: " << keysMatch << " cached: " << m_configKeysCached);
   }
-  //#endif
+#endif
   return StatusCode::SUCCESS;
 }
 
 StatusCode Trig::TrigDecisionTool::beginInputFile() {
-
+  
    // We need to update the cached configuration when switching to a new input
    // file:
    //have to do this at the next beginEvent, because the event info isn't ready at this point (e.g. if the file has no events!)
@@ -224,22 +213,20 @@ Trig::TrigDecisionTool::finalize() {
 void
 Trig::TrigDecisionTool::handle(const Incident& inc) {
    // an update configuration incident triggers the update of the configuration
-  ATH_MSG_VERBOSE("got  incident type:" << inc.type()  << " source: " << inc.source() );
-
-   if ( inc.type()=="TrigConf" ) {
-      configurationUpdate( m_configSvc->chainList(), 
-                           m_configSvc->ctpConfig() );
-   }
-   /*
-   if ( inc.type()=="BeginEvent"){
-     StatusCode sc = beginEvent();
-     if(sc.isFailure()){
-       ATH_MSG_WARNING("handling of BeginEvent failed");
-     }
-     }*/
-   //call the parent handle 
-   AsgMetadataTool::handle(inc);
+   ATH_MSG_DEBUG("got  incident type:" << inc.type()  << " source: " << inc.source() );
    
+   if ( inc.type()=="TrigConf" ) {
+     ATH_MSG_INFO("updating config via config svc");
+     
+     
+     configurationUpdate( m_configSvc->chainList(), 
+     			  m_configSvc->ctpConfig() 
+     			  );
+   }
+   else {
+     //call the parent handle
+     AsgMetadataTool::handle(inc);
+   }
 }
 #endif
 
@@ -261,4 +248,3 @@ Trig::TrigDecisionTool::isPassedBits( const std::string& chain ) const {
 }
 
 
-#endif // never in full Athena
