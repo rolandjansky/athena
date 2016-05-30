@@ -1,0 +1,8 @@
+<!-- $Id: selection.xml 744643 2016-05-03 19:12:00Z krumnack $ -->
+<lcgdict>
+
+   <!-- Unit test types: -->
+   <class name="asg::UnitTestTool2" />
+   <class name="asg::UnitTestTool1A" />
+   
+</lcgdict>
