@@ -52,7 +52,7 @@ StatusCode ISF::ISFEnvelopeDefSvc::initialize()
   double rMin    = std::numeric_limits<double>::max();
   double zAtRMin = 0.;
   {
-    int    rMinPos = -1;
+    unsigned int    rMinPos = 0;
 
     // find the  smallest radius of the ID volume
     for ( unsigned int curPos=0; curPos<m_rposzInDet.size(); curPos++ ) {
