@@ -367,6 +367,7 @@ class CaloCellVecMon : public CaloMonToolBase {
 
   bool m_doKnownBadChannelsVsEtaPhi;
   bool m_doDBNormalized1DEnergy;
+  bool m_doEnergyVsTime;
   bool m_doUnnormalized1DEnergy;
   bool m_useLogarithmicEnergyBinning;
   bool m_useWeightedEffMerging;

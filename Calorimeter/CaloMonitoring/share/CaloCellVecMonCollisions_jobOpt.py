@@ -25,9 +25,8 @@ from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
 theLArChanMasker=LArBadChannelMasker("LArChanMasker")
 theLArChanMasker.DoMasking=True
 theLArChanMasker.ProblemsToMask=[
-     "deadReadout","deadPhys","almostDead","short",
+     "deadReadout","deadPhys","short",
      "sporadicBurstNoise",
-     "unstableNoiseLG","unstableNoiseMG","unstableNoiseHG",
      "highNoiseHG","highNoiseMG","highNoiseLG"
 ]
 ToolSvc+=theLArChanMasker
@@ -49,16 +48,15 @@ else:
 if DQMonFlags.monManEnvironment() == 'online':
   tmp_useReadyFilterTool=FALSE
 else:
-#  tmp_useReadyFilterTool=FALSE
   tmp_useReadyFilterTool=TRUE
 
 if DQMonFlags.monManEnvironment() == 'online':
    tmp_useLArNoisyAlg = FALSE
 else:
-   tmp_useLArNoisyAlg = TRUE 
+   tmp_useLArNoisyAlg = TRUE
 
 tmp_useElectronicNoiseOnly = FALSE
-tmp_useTwoGaus = TRUE 
+tmp_useTwoGaus = TRUE
 
 if DQMonFlags.monManEnvironment() == 'online':
    tmp_useBeamBackgroundRemoval = FALSE
@@ -72,15 +70,24 @@ if not (rec.triggerStream()=='CosmicCalo'):
 print "tmp_useBeamBackgroundRemoval=", tmp_useBeamBackgroundRemoval
 
 
-tmp_useTrigger = TRUE  
+tmp_useTrigger = TRUE 
 if 'DQMonFlags' in dir():
    if not DQMonFlags.useTrigger:
-      tmp_useTrigger = FALSE 
+      tmp_useTrigger = FALSE
 
-if DQMonFlags.monManEnvironment() == 'online':
-   tmp_sporadicSwitch = FALSE 
-else:
+#if DQMonFlags.monManEnvironment() == 'online':
+#   tmp_sporadicSwitch = FALSE
+#else:
+#   tmp_sporadicSwitch = TRUE
+
+tmp_sporadicSwitch = FALSE
+if (rec.triggerStream()=='CosmicCalo') and not (DQMonFlags.monManEnvironment() == 'online'):
    tmp_sporadicSwitch = TRUE
+
+tmp_oc2D = FALSE # All 2D plot occupancy are activate only for express and cosmiccalo
+if (rec.triggerStream()=='CosmicCalo' or rec.triggerStream()=='express') or (DQMonFlags.monManEnvironment() == 'online'):
+   tmp_oc2D = TRUE
+
 
 CaloCellMon = CaloCellVecMon(
     name = "CaloCellMon",
@@ -122,7 +129,7 @@ CaloCellMon = CaloCellVecMon(
     # Database Record Plots (filled in first event)
     doDatabaseNoiseVsEtaPhi     = TRUE,
     doKnownBadChannelsVsEtaPhi  = TRUE,
-    doDBNoiseNormalized1DEnergy = TRUE,
+    doDBNoiseNormalized1DEnergy = FALSE,
     doUnnormalized1DEnergy      = TRUE,
     useLogarithmicEnergyBinning = TRUE,
 
@@ -159,30 +166,30 @@ CaloCellMon = CaloCellVecMon(
     TriggersToInclude      = ["all"    , "all"  , "all"       , "all"   , "all"   , "all"  , "all"         , "met"  ],
     TriggersToExclude      = ["none"   , "none" , "none"      ],
 
-    DoPercentageOccupancy  = [ TRUE    , FALSE  , FALSE       , TRUE    , FALSE   , FALSE  , FALSE         , FALSE  ],
-    DoEtaPhiOccupancy      = [ FALSE   , FALSE  , FALSE       , TRUE    , TRUE    , TRUE   , TRUE          , TRUE   ],
+    DoPercentageOccupancy  = [ FALSE   , FALSE  , FALSE       , TRUE    , FALSE   , FALSE  , FALSE         , FALSE  ],
+    DoEtaPhiOccupancy      = [ FALSE   , FALSE  , FALSE       , FALSE   , tmp_oc2D,tmp_oc2D, tmp_oc2D      , FALSE  ],
     DoEtaOccupancy         = [ FALSE   , FALSE  , FALSE       , TRUE    ],
     DoPhiOccupancy         = [ FALSE   , FALSE  , FALSE       , TRUE    ],
-  
-    DoEtaPhiAverageEnergy  = [ FALSE   , FALSE  , TRUE        , TRUE    , TRUE    ],
-    DoEtaPhiTotalEnergy    = [ FALSE   , FALSE  , FALSE       , FALSE   , TRUE    ],
-    DoEtaPhiEnergyRMS      = [ FALSE   , FALSE  , TRUE        ],
-    DoEtaPhiRMSvsDBnoise   = [ FALSE   , FALSE  , TRUE        ],
 
-    DoEtaPhiAverageQuality = [ FALSE   , FALSE  , FALSE       , FALSE   , TRUE    ],
-    DoEtaPhiFractionOverQth= [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   , TRUE   , TRUE          ],
+    DoEtaPhiAverageEnergy  = [ FALSE   , FALSE  , tmp_oc2D    , FALSE   , tmp_oc2D],
+    DoEtaPhiTotalEnergy    = [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   ],
+    DoEtaPhiEnergyRMS      = [ FALSE   , FALSE  , FALSE       ],
+    DoEtaPhiRMSvsDBnoise   = [ FALSE   , FALSE  , FALSE       ],
+
+    DoEtaPhiAverageQuality = [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   ],
+    DoEtaPhiFractionOverQth= [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   , tmp_oc2D , tmp_oc2D        ],
     QualityFactorThreshold = [ 4000.   ],
 
     DoEtaPhiAverageTime    = [ FALSE   , FALSE  , FALSE       , FALSE   , TRUE    ],
     DoEtaPhiFractionPastTth= [ FALSE   , FALSE  , FALSE       , FALSE   , TRUE    ],
     TimeThreshold          = [ 4.      ],
 
-    MaskEmptyBins          = [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   , TRUE   , TRUE          , FALSE  ], #bins w/o calocell = -1  
+    MaskEmptyBins          = [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   , FALSE  , FALSE         , FALSE  ], #bins w/o calocell = -1  
     DoBeamBackgroundRemoval= [ TRUE    , TRUE   , TRUE        , TRUE    , TRUE    , TRUE   , FALSE         , TRUE   ],
-    
+
     # Defaults: (Can be over ridden by layer specific values) ; plots will be made for all layers with DefaultThreshold != -9999999
-    DefaultThresholdTitles= ["default" , 
-                             "no Threshold", 
+    DefaultThresholdTitles= ["default" ,
+                             "no Threshold",
                              "no Threshold",
                              "|E_{cell}| > %0.f#sigma_{noise}^{database}",
                              "E_{cell} beyond %0.f#sigma_{noise}^{database}",
@@ -193,33 +200,29 @@ CaloCellMon = CaloCellVecMon(
     DefaultThresholdNames = ["default" ,"noEth","noEth"], ## if none specified, use threshold type for name
     DefaultThresholds     = [-9999999.,-4000000.,-4000000.    , 3.      , 5.      , 500.   , 500.          , 1000.  ],
     DefaultUseNoiseTool   = [ FALSE    , FALSE  , FALSE       , TRUE    , TRUE    , FALSE  , FALSE         , FALSE  ],
- 
+
     ThresholdColumnType   = ["hiEth", "hiEth_noVeto"],
 
     # EMB
     EMBP_Thresh           = [ 800.  , 800.          ],
     EMB1_Thresh           = [ 600.  , 600.          ],
-    EMB2_Thresh           = [ 600.  , 600.          ],  
-    EMB3_Thresh           = [ 600.  , 600.          ],  
+    EMB2_Thresh           = [ 600.  , 600.          ],
+    EMB3_Thresh           = [ 600.  , 600.          ],
     # EMEC
-    EMECP_Thresh          = [ 1200. , 1200.         ],  
-    EMEC1_Thresh          = [ 800.  , 800.          ],  
-    EMEC2_Thresh          = [ 800.  , 800.          ],  
-    EMEC3_Thresh          = [ 800.  , 800.          ],  
+    EMECP_Thresh          = [ 1200. , 1200.         ],
+    EMEC1_Thresh          = [ 800.  , 800.          ],
+    EMEC2_Thresh          = [ 800.  , 800.          ],
+    EMEC3_Thresh          = [ 800.  , 800.          ],
     # HEC
-    HEC0_Thresh           = [ 4000. , 4000.         ],  
-    HEC1_Thresh           = [ 4000. , 4000.         ],  
-    HEC2_Thresh           = [ 4000. , 4000.         ],  
-    HEC3_Thresh           = [ 4000. , 4000.         ],  
+    HEC0_Thresh           = [ 4000. , 4000.         ],
+    HEC1_Thresh           = [ 4000. , 4000.         ],
+    HEC2_Thresh           = [ 4000. , 4000.         ],
+    HEC3_Thresh           = [ 4000. , 4000.         ],
     # FCAL
-    FCAL1_Thresh          = [ 6000. , 6000.         ],  
-    FCAL2_Thresh          = [ 6000. , 6000.         ],  
+    FCAL1_Thresh          = [ 6000. , 6000.         ],
+    FCAL2_Thresh          = [ 6000. , 6000.         ],
     FCAL3_Thresh          = [ 6000. , 6000.         ],
 )
-
-#if 'DQMonFlags' in dir():
-#    if not DQMonFlags.useTrigger:
-#        CaloCellMon.useTrigger=False
 
 ToolSvc+=CaloCellMon
 CaloMon.AthenaMonTools += [CaloCellMon]
