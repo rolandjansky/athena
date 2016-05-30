@@ -36,4 +36,3 @@ apply_pattern lcgdict dict=eflowEvent  selectionfile=selection.xml navigables="e
 library eflowEvent *.cxx
 
 apply_pattern installed_library
-
