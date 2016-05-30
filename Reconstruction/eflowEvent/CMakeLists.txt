@@ -34,6 +34,7 @@ atlas_add_library( eflowEvent
                    PUBLIC_HEADERS eflowEvent
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloEvent AthContainers AthLinks Navigation SGTools EventKernel FourMom NavFourMom xAODCaloEvent xAODPFlow xAODTracking GaudiKernel muonEvent Particle VxVertex )
+atlas_generate_cliddb( eflowEvent )
 
 atlas_add_dictionary( eflowEventDict
                       eflowEvent/eflowEventDict.h
