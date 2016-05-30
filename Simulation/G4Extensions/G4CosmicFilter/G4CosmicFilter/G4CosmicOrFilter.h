@@ -16,11 +16,10 @@
 
 class G4CosmicOrFilter final: public UserActionBase {
  private:
-
-  int ntracks;
-
+  /** Counters for filter efficiency calculations */
   int m_ntot,m_npass;
 
+  /** Names for filtering collections */
   std::string m_collectionName;
   std::string m_collectionName2;
   std::string m_collectionName3;
@@ -66,8 +65,8 @@ namespace G4UA{
       int ntot=0;
       int npass=0;
       void merge(const Report& rep){
-	ntot+=rep.ntot;
-	npass+=rep.npass;
+        ntot+=rep.ntot;
+        npass+=rep.npass;
       }
     };
     
