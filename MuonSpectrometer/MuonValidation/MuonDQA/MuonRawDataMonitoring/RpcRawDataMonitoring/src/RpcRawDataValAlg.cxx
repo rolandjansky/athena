@@ -745,8 +745,12 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		rpc2DEtaStation->Fill(irpcstationEta, Settore-1 + PlaneTipo*16);
 		if(irpcgasGap==1) rpc2DEtaStationGap1	->Fill(irpcstationEta, Settore-1 + PlaneTipo*16 	);
 		if(irpcgasGap==2) rpc2DEtaStationGap2	->Fill(irpcstationEta, Settore-1 + PlaneTipo*16 	);
-		if(PlaneTipo<2  ) GlobalHitsPerRPCMiddle->Fill(irpcstationEta, Settore-1+(irpcdoubletPhi-1)*0.5 ); 
-		if(PlaneTipo==2 ) GlobalHitsPerRPCOuter ->Fill(irpcstationEta, Settore-1+(irpcdoubletPhi-1)*0.5 );
+		
+		int NPanel_sign = ShiftEtaPanelsTot ;
+		if(irpcstationEta<0)NPanel_sign=-NPanel_sign ;
+		
+		if(PlaneTipo<2  ) GlobalHitsPerRPCMiddle->Fill(NPanel_sign , Settore-1+(irpcdoubletPhi-1)*0.5 ); 
+		if(PlaneTipo==2 ) GlobalHitsPerRPCOuter ->Fill(NPanel_sign , Settore-1+(irpcdoubletPhi-1)*0.5 );
 	      
 
 		//dq histo from Mauro 
@@ -4007,16 +4011,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  ///////////////////////////////
 	  // RPC global
 	 	  
-	  TH2 * GlobalHitsPerRPCMiddle = new TH2I("GlobalHitsPerRPCMiddle","GlobalHitsPerRPCMiddle",15, -7, 8, 32, 0, 16);
+	  TH2 * GlobalHitsPerRPCMiddle = new TH2I("GlobalHitsPerRPCMiddle","GlobalHitsPerRPCMiddle",26, -13, 13, 32, 0, 16);
 	  sc = rpc_dqmf_global.regHist( GlobalHitsPerRPCMiddle );
 	  GlobalHitsPerRPCMiddle->SetOption("COLZ");
-	  GlobalHitsPerRPCMiddle->GetXaxis()->SetTitle("Chamber_EtaId");
+	  GlobalHitsPerRPCMiddle->GetXaxis()->SetTitle("Rpc Eta Panel");
 	  GlobalHitsPerRPCMiddle->GetYaxis()->SetTitle("Sectors")      ;
 	
-	  TH2 * GlobalHitsPerRPCOuter = new TH2I("GlobalHitsPerRPCOuter","GlobalHitsPerRPCOuter",13, -6, 7, 32, 0, 16);
+	  TH2 * GlobalHitsPerRPCOuter = new TH2I("GlobalHitsPerRPCOuter","GlobalHitsPerRPCOuter",26, -13, 13, 32, 0, 16);
 	  sc = rpc_dqmf_global.regHist( GlobalHitsPerRPCOuter );
 	  GlobalHitsPerRPCOuter->SetOption("COLZ");
-	  GlobalHitsPerRPCOuter->GetXaxis()->SetTitle("Chamber_EtaId");
+	  GlobalHitsPerRPCOuter->GetXaxis()->SetTitle("RPC Eta Panel");
 	  GlobalHitsPerRPCOuter->GetYaxis()->SetTitle("Sectors")      ;
 	
 	  TH2 * EtavsPhi_TriggeredMuons_LowPt = new TH2I("EtavsPhi_TriggeredMuons_LowPt", "EtavsPhi_TriggeredMuons_LowPt", 100, -1.2, 1.2, 100, -CLHEP::pi, CLHEP::pi);
