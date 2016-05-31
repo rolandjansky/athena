@@ -4,7 +4,7 @@
 # Author: Wouter van den Wollenberg (2013-2014)
 from BTagging.BTaggingFlags import BTaggingFlags
 
-metaMVbFlipTag = { 'IsATagger'          : True,
+metaMVbFlipTag = { 'IsATagger'          : False,
                    'xAODBaseName'       : 'MVbFlip',
                    'DependsOn'          : ['AtlasExtrapolator',
                                            'BTagTrackToVertexTool',
