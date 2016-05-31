@@ -139,7 +139,7 @@ public:
  * new version
  */
 //____________________________________________________________________
-VP1EventDisplayEditor::VP1EventDisplayEditor(VP1MainWindow* mainWindow, QList<int> listRunEventNumberTimestamp)
+VP1EventDisplayEditor::VP1EventDisplayEditor(VP1MainWindow* mainWindow, QList<unsigned long long> listRunEventNumberTimestamp)
 //: QWidget(0,Qt::WindowStaysOnTopHint), d(new Imp)
 : QWidget(0), d(new Imp)
 {

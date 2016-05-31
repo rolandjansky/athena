@@ -468,7 +468,7 @@ void VP1ExecutionScheduler::setNextRequestedEventFile(const QString& f)
 }
 
 //___________________________________________________________________
-bool VP1ExecutionScheduler::executeNewEvent(const int& runnumber, const int& eventnumber, const unsigned& triggerType, const unsigned& time)
+bool VP1ExecutionScheduler::executeNewEvent(const int& runnumber, const unsigned long long& eventnumber, const unsigned& triggerType, const unsigned& time)
 {
 	VP1Msg::messageDebug("VP1ExecutionScheduler::executeNewEvent()");
 

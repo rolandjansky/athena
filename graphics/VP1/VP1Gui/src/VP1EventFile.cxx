@@ -27,7 +27,7 @@ public:
   QString fileName;
   QString md5Sum;
   int runNumber;
-  int eventNumber;
+  unsigned long long eventNumber;
   unsigned rawTime;
   bool valid;
 
@@ -69,7 +69,7 @@ VP1EventFile::Imp * VP1EventFile::Imp::initFromFilename(const QString& filename,
   if (!ok||time>2058991200/*april 1 2035*/)//No lower bound sanity check, since the events sometimes have faulty ~1970 timestamps!
     return new Imp;
 
-  int eventnumber = eventinfoparts.at(eventinfoparts.count()-2).toInt(&ok);
+  unsigned long long eventnumber = eventinfoparts.at(eventinfoparts.count()-2).toInt(&ok);
   if (!ok)
     return new Imp;
   int runnumber = eventinfoparts.at(eventinfoparts.count()-3).toInt(&ok);
@@ -86,7 +86,7 @@ VP1EventFile::VP1EventFile(const QString& filename, const QString& md5sum)
 
 //____________________________________________________________________
 VP1EventFile::VP1EventFile(const QString& filename,const QString& md5sum,
-			   int runnumber,int eventnumber,unsigned time,bool isvalid)
+		int runnumber, unsigned long long eventnumber,unsigned time,bool isvalid)
   : d(new Imp(filename,md5sum,runnumber,eventnumber,time,isvalid))
 {
 }
@@ -170,7 +170,7 @@ int VP1EventFile::runNumber() const
 }
 
 //____________________________________________________________________
-int VP1EventFile::eventNumber() const
+unsigned long long VP1EventFile::eventNumber() const
 {
   return d->eventNumber;
 }
