@@ -350,6 +350,8 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   declareProperty("CoolUpdateTool",           m_coolHelper);
   declareProperty("maxPrepareForRunSleepSec", m_prepareForRunSleep = 0, "Max number of seconds to sleep at the beginning of prepareForRun");
   declareProperty("Lvl1CTPROBcheck",          m_lvl1CTPROBcheck=true);
+  declareProperty("WriteTruncatedHLTtoDebug", m_writeHltTruncationToDebug=false);
+  declareProperty("HltTruncationDebugStreamName",  m_HltTruncationDebugStreamName ="TruncatedHLTResult");
 }
 
 //=========================================================================
@@ -528,6 +530,9 @@ StatusCode HltEventLoopMgr::initialize()
     logStream() << MSG::INFO << " | It takes precedence over ForceHltAccept  | "  << endreq ;
     logStream() << MSG::INFO << " +------------------------------------------+ "  << endreq ;
   }
+
+  logStream() << MSG::INFO << " ---> Write events with truncated HLT result to debug stream  = " << m_writeHltTruncationToDebug << endreq;
+  logStream() << MSG::INFO << " ---> Debug stream name for events with truncated HLT result  = " << m_HltTruncationDebugStreamName << endreq;
 
   //-------------------------------------------------------------------------
   // Setup the StoreGateSvc
@@ -1842,6 +1847,14 @@ hltonl::PSCErrorCode HltEventLoopMgr::HltResultROBs(
                             bunch_crossing_id, l1_Trigger_Type, l1_detev_type);
       if(!ecode)
         recordEDMSizeInfo(dobj->getNavigationResult().size(), serializationOk);
+
+      // The HLT result got truncated, put the event on a special debug stream if requested 
+      if ((!serializationOk) && 
+	  (!m_HltTruncationDebugStreamName.value().empty()) &&
+	  (m_writeHltTruncationToDebug.value())) {
+	  hlt_result.stream_tag.clear();
+	  addDebugStreamTag(hlt_result, m_HltTruncationDebugStreamName);
+      }
     }
   }
 

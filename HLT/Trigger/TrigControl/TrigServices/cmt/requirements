@@ -47,3 +47,4 @@ macro_append TrigServices_linkopts \
 private
 macro_append TrigServices_linkopts " $(Boost_linkopts) $(Boost_linkopts_regex) "
 macro_append TrigServices_linkopts " $(HLTtdaq_linkopts) -lhltinterface -lCTPfragment -lomniORB4 -lomnithread -lipc -lis -lowl "
+apply_pattern cmake_add_command command="find_package( tdaq COMPONENTS hltinterface omniORB4 omnithread ipc is owl )"

@@ -19,13 +19,7 @@
 #include "eformat/Version.h"
 
 #include <iostream>
-#ifndef HAVE_NEW_IOSTREAMS
-#include <strstream>  /*gnu-specific*/
-typedef strstream __sstream;
-#else
 #include <sstream>
-typedef std::ostringstream __sstream;
-#endif
 #include <iomanip>
 #include <cassert> 
 #include <bitset> 
@@ -516,7 +510,7 @@ void HltROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
       // ---------------------------------------------------------------
       //
       if(logLevel() <= MSG::DEBUG) {
-	__sstream ost;
+	std::ostringstream ost;
 	ost << "      Number of scheduled ROB Ids = " << vRobIds.size() << "\n" ;
 	unsigned int rob_counter = 1;
 	for (std::vector<uint32_t>::const_iterator rob_it=vRobIds.begin(); rob_it!=vRobIds.end(); ++rob_it,++rob_counter)
@@ -527,9 +521,6 @@ void HltROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
               << "      Lvl1 id                     = " << m_currentLvl1ID << "\n"
               << ost.str()
               << endreq;
-#ifndef HAVE_NEW_IOSTREAMS
-          ost.freeze(false);
-#endif
       }
       // reserve the ROBs in the DCM
       hltinterface::DataCollector::instance()->reserveROBData(m_currentLvl1ID, vRobIds);
@@ -804,7 +795,7 @@ std::string HltROBDataProviderSvc::dumpROBcache() const {
   ONLINE_ROBMAP::const_iterator cache_end = m_online_robmap.end() ;
   int nrob = 0;
 
-  __sstream ost;
+  std::ostringstream ost;
   ost << " --- Dump of ROB cache ids --- total size = "
       << m_online_robmap.size() <<"\n";  
   for(; cache_it!=cache_end; ++cache_it){
@@ -814,9 +805,6 @@ std::string HltROBDataProviderSvc::dumpROBcache() const {
         << std::dec << "  decimal: source id = " << (*cache_it).second.source_id() << "\n";
   }
   std::string ret(ost.str());
-#ifndef HAVE_NEW_IOSTREAMS
-  ost.freeze(false);
-#endif
   return ret;
 }
 
@@ -850,7 +838,7 @@ int HltROBDataProviderSvc::collectCompleteEventData(const std::string callerName
   if ( m_doMonitoring || m_doDetailedROBMonitoring.value() ) gettimeofday(&time_stop, 0);
 
   if (logLevel() <= MSG::DEBUG) {
-    __sstream ost;
+    std::ostringstream ost;
     unsigned int rob_counter = 1;
     for (ROBInfoVec::const_iterator rob_it = vRobInfos.begin(); rob_it != vRobInfos.end(); ++rob_it,++rob_counter)
       ost << "       # = "<< std::setw(5) << rob_counter << " ROB id = 0x" << std::hex << rob_it->robFragment.source_id() << std::dec << "\n" ; 
@@ -860,9 +848,6 @@ int HltROBDataProviderSvc::collectCompleteEventData(const std::string callerName
         << "      Number of actually received ROB Ids                 = " << vRobInfos.size() << "\n"
         << ost.str()
         << endreq;
-#ifndef HAVE_NEW_IOSTREAMS
-    ost.freeze(false);
-#endif
   }
 
   // detailed ROB monitoring
@@ -1160,7 +1145,7 @@ void HltROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForRe
   }
 
   if((logLevel() <= MSG::DEBUG) && ((vRobIds.size()!=0) || (vMETRobIds.size()!=0))) {
-    __sstream ost;
+    std::ostringstream ost;
     unsigned int rob_counter = 1;
     for (ROBInfoVec::const_iterator rob_it = vRobInfos.begin(); rob_it != vRobInfos.end(); ++rob_it,++rob_counter)
       ost << "       # = "<< std::setw(5) << rob_counter << " ROB id = 0x" << std::hex << rob_it->robFragment.source_id() << std::dec << "\n" ; 
@@ -1172,9 +1157,6 @@ void HltROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForRe
         << "      Number of actually received ROB Ids                 = " << vRobInfos.size() << "\n"
         << ost.str()
         << endreq;
-#ifndef HAVE_NEW_IOSTREAMS
-    ost.freeze(false);
-#endif
   }
 
   if ( m_doMonitoring || p_robMonStruct ) {
