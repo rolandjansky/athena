@@ -762,10 +762,10 @@
       <Generic name="NumResultBits" value="1"/>
     </Fixed>
     <Variable>
-      <Parameter pos="0" name="MinET" value="150"/>
-      <Parameter pos="1" name="EtaMin" value="4"/>
-      <Parameter pos="2" name="EtaMax" value="19"/>
-      <Parameter pos="3" name="PhiMin" value="18"/>
+      <Parameter pos="0" name="MinET" value="40"/>
+      <Parameter pos="1" name="EtaMin" value="0"/>
+      <Parameter pos="2" name="EtaMax" value="15"/>
+      <Parameter pos="3" name="PhiMin" value="17"/>
       <Parameter pos="4" name="PhiMax" value="22"/>
     </Variable>
   </DecisionAlgo>

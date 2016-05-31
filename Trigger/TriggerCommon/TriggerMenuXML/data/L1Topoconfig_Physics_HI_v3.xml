@@ -248,6 +248,22 @@
     </Variable>
   </SortAlgo>
 
+  <SortAlgo type="JetSelect" name="Jab" output="Jab" algoId="11">
+    <Fixed>
+      <Input name="JetTobArray" value="JetTobArray"/>
+      <Output name="TobArrayOut" value="Jab"/>
+      <Generic name="InputWidth" value=":InputWidthJET:"/>
+      <Generic name="InputWidth1stStage" value=":InputWidth1stStageSelectJET:"/>
+      <Generic name="OutputWidth" value=":OutputWidthSelectJET:"/>
+      <Generic name="JetSize" value="2"/>
+    </Fixed>
+    <Variable>
+      <Parameter pos="0" name="MinET" value="20"/>
+      <Parameter pos="1" name="MinEta" value="0"/>
+      <Parameter pos="2" name="MaxEta" value="31"/>
+    </Variable>
+  </SortAlgo>
+
   <SortAlgo type="JetSelect" name="CJab" output="CJab" algoId="12">
     <Fixed>
       <Input name="JetTobArray" value="JetTobArray"/>
@@ -264,19 +280,18 @@
     </Variable>
   </SortAlgo>
 
-  <SortAlgo type="JetSelect" name="Jab" output="Jab" algoId="11">
+  <SortAlgo type="JetSort" name="AJjs" output="AJjs" algoId="13">
     <Fixed>
       <Input name="JetTobArray" value="JetTobArray"/>
-      <Output name="TobArrayOut" value="Jab"/>
+      <Output name="TobArrayOut" value="AJjs"/>
       <Generic name="InputWidth" value=":InputWidthJET:"/>
-      <Generic name="InputWidth1stStage" value=":InputWidth1stStageSelectJET:"/>
-      <Generic name="OutputWidth" value=":OutputWidthSelectJET:"/>
-      <Generic name="JetSize" value="2"/>
+      <Generic name="InputWidth1stStage" value=":InputWidth1stStageSortJET:"/>
+      <Generic name="OutputWidth" value=":OutputWidthSortJET:"/>
+      <Generic name="JetSize" value="1"/>
     </Fixed>
     <Variable>
-      <Parameter pos="0" name="MinET" value="20"/>
-      <Parameter pos="1" name="MinEta" value="0"/>
-      <Parameter pos="2" name="MaxEta" value="31"/>
+      <Parameter pos="0" name="MinEta" value="0"/>
+      <Parameter pos="1" name="MaxEta" value="49"/>
     </Variable>
   </SortAlgo>
 
@@ -307,21 +322,6 @@
     <Variable>
       <Parameter pos="0" name="MinEta" value="0"/>
       <Parameter pos="1" name="MaxEta" value="31"/>
-    </Variable>
-  </SortAlgo>
-
-  <SortAlgo type="JetSort" name="AJjs" output="AJjs" algoId="13">
-    <Fixed>
-      <Input name="JetTobArray" value="JetTobArray"/>
-      <Output name="TobArrayOut" value="AJjs"/>
-      <Generic name="InputWidth" value=":InputWidthJET:"/>
-      <Generic name="InputWidth1stStage" value=":InputWidth1stStageSortJET:"/>
-      <Generic name="OutputWidth" value=":OutputWidthSortJET:"/>
-      <Generic name="JetSize" value="1"/>
-    </Fixed>
-    <Variable>
-      <Parameter pos="0" name="MinEta" value="0"/>
-      <Parameter pos="1" name="MaxEta" value="49"/>
     </Variable>
   </SortAlgo>
 
@@ -739,10 +739,10 @@
       <Generic name="NumResultBits" value="1"/>
     </Fixed>
     <Variable>
-      <Parameter pos="0" name="MinET" value="150"/>
-      <Parameter pos="1" name="EtaMin" value="4"/>
-      <Parameter pos="2" name="EtaMax" value="19"/>
-      <Parameter pos="3" name="PhiMin" value="18"/>
+      <Parameter pos="0" name="MinET" value="40"/>
+      <Parameter pos="1" name="EtaMin" value="0"/>
+      <Parameter pos="2" name="EtaMax" value="15"/>
+      <Parameter pos="3" name="PhiMin" value="17"/>
       <Parameter pos="4" name="PhiMax" value="22"/>
     </Variable>
   </DecisionAlgo>
