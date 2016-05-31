@@ -5,9 +5,6 @@ keys = [
     'TileHitVec@100',
          ]
 
-#from AthenaCommon.JobProperties import jobproperties
-#jobproperties.Global.DetDescrVersion = 'ATLAS-GEO-10-00-00'
-
 theApp.EvtMax = 10
 
 from AthenaCommon.DetFlags      import DetFlags
