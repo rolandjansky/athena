@@ -86,6 +86,7 @@ ptfrac(const APVector& apins, const xAOD::JetContainer& jets, FloatVector& ptfs)
   }
   if ( ptden < 0.0 ) return -2;
   if ( ptden < 1.e-20 ) return 0;
+  const double inv_ptden = 1. / ptden;
   ATH_MSG_DEBUG("Match jet count: " << jets.size());
   for ( unsigned int ijet=0; ijet<jets.size(); ++ijet ) {
     const Jet* pjet = jets[ijet];
@@ -97,7 +98,7 @@ ptfrac(const APVector& apins, const xAOD::JetContainer& jets, FloatVector& ptfs)
       if ( ppar == 0 ) return -4;
       ptsum += ppar->pt();
     }
-    ptfs[ijet] = ptsum/ptden;
+    ptfs[ijet] = ptsum*inv_ptden;
   }
   return 0;
 }

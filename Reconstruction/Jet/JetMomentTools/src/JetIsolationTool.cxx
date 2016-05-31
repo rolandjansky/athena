@@ -187,7 +187,7 @@ namespace jet {
     ISOAREA( IsoKR , jetRadius*param, )  ;
     ISOAREA( IsoDelta, jetRadius+param, )  ;
     ISOAREA( IsoFixedCone, param, )  ; 
-    ISOAREA( IsoFixedArea, sqrt(jetRadius*jetRadius+param/M_PI) , )  ;
+    ISOAREA( IsoFixedArea, sqrt(jetRadius*jetRadius+param*M_1_PI) , )  ;
 
     // For Iso6To8 we need to redefine inIsolationArea
     ISOAREA( Iso6To8, 0.8 ,  bool inIsolationArea(const xAOD::Jet* j, jet::ParticlePosition& constit)const ;  )  ;
@@ -261,7 +261,7 @@ StatusCode JetIsolationTool::initialize() {
     string calcId = isocriteria + param_s;
     IsolationCalculator*& isoC = calcMap[calcId];
     if ( isoC == nullptr ) {
-      isoC = createCalulator( isocriteria, std::stod(param_s)/10. );
+      isoC = createCalulator( isocriteria, std::stod(param_s)*0.1 );
     }
     if( isoC == NULL ) {
       ATH_MSG_ERROR(" Unkown isolation criteria "<< isocriteria << "  from "<< m_isolationCodes[i] );

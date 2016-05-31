@@ -19,23 +19,23 @@
 //stl
 #include <string>
 #include <vector>
-using std::vector;
+//using std::vector;
 
 // boost polygon
 #include <boost/polygon/voronoi.hpp>
-using boost::polygon::voronoi_builder;
-using boost::polygon::voronoi_diagram;
-typedef voronoi_diagram<double>              VoronoiBoost;
-typedef voronoi_diagram<double>::vertex_type VoronoiVtxBoost;
-typedef voronoi_diagram<double>::cell_type   VoronoiCellBoost;
-typedef voronoi_diagram<double>::edge_type   VoronoiEdgeBoost;
+//using boost::polygon::voronoi_builder;
+//using boost::polygon::voronoi_diagram;
+typedef boost::polygon::voronoi_diagram<double>              VoronoiBoost;
+typedef boost::polygon::voronoi_diagram<double>::vertex_type VoronoiVtxBoost;
+typedef boost::polygon::voronoi_diagram<double>::cell_type   VoronoiCellBoost;
+typedef boost::polygon::voronoi_diagram<double>::edge_type   VoronoiEdgeBoost;
 
 // boost geometry
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
-using boost::geometry::area;
-using boost::geometry::intersection;
+//using boost::geometry::area;
+//using boost::geometry::intersection;
 typedef boost::geometry::model::d2::point_xy<double> VoronoiPointBoost;
 typedef boost::geometry::model::polygon<VoronoiPointBoost> VoronoiPolygonBoost;
 
@@ -48,7 +48,7 @@ namespace JetVoronoiDiagramHelpers {
     /// @class Point
     /// Default object of 2D space. 
     struct Point{
-        Point(coord _x=0, coord _y=0): x(_x), y(_y){};
+        Point(coord the_x=0, coord the_y=0): x(the_x), y(the_y){};
         Point(const Point &a): x(a.x), y(a.y) {};
         // data members
         coord x;
@@ -91,7 +91,7 @@ namespace JetVoronoiDiagramHelpers {
 
     /// @class Polygon
     /// List of points in 2D space. Not necessary to be closed polygon.
-    struct Polygon : public vector<Point> {
+    struct Polygon : public std::vector<Point> {
         void Add(coord x, coord y){
             push_back(Point(x,y));
         }
@@ -109,12 +109,12 @@ namespace JetVoronoiDiagramHelpers {
 
     /// @typedef PolygonList
     /// List of polygons.
-    typedef vector<Polygon> PolygonList;
+    typedef std::vector<Polygon> PolygonList;
 
 
     /// @class SegmentList
     /// List of segments.
-    struct SegmentList : public vector<Segment> {
+    struct SegmentList : public std::vector<Segment> {
         void Add(coord x1, coord y1, coord x2, coord y2) {
             push_back(Segment(x1,y1,x2,y2));
         }
@@ -144,7 +144,7 @@ namespace JetVoronoiDiagramHelpers {
         double m_scaleIntFloat;
         Polygon m_borders;
         Polygon m_voro_vtx;
-        vector<double> m_area_cells;
+        std::vector<double> m_area_cells;
         double m_area_borders;
         // Polygon m_voro_cells; //!< needed for future implementation of "within"
         size_t m_N_points;
@@ -153,40 +153,40 @@ namespace JetVoronoiDiagramHelpers {
 
 
 // interfacing  Helpers to Boost
-using JetVoronoiDiagramHelpers::coord;
-using JetVoronoiDiagramHelpers::Point;
-using JetVoronoiDiagramHelpers::Segment;
-using JetVoronoiDiagramHelpers::SegmentList;
-using JetVoronoiDiagramHelpers::Polygon;
-using JetVoronoiDiagramHelpers::PolygonList;
-using JetVoronoiDiagramHelpers::Diagram;
+//using JetVoronoiDiagramHelpers::coord;
+//using JetVoronoiDiagramHelpers::Point;
+//using JetVoronoiDiagramHelpers::Segment;
+//using JetVoronoiDiagramHelpers::SegmentList;
+//using JetVoronoiDiagramHelpers::Polygon;
+//using JetVoronoiDiagramHelpers::PolygonList;
+//using JetVoronoiDiagramHelpers::Diagram;
 
 namespace boost {
     namespace polygon {
         // Point concept
         template <>
-            struct geometry_concept<Point> {
+            struct geometry_concept<JetVoronoiDiagramHelpers::Point> {
                 typedef point_concept type;
             };
         template <>
-            struct point_traits<Point> {
-                typedef coord coordinate_type;
+            struct point_traits<JetVoronoiDiagramHelpers::Point> {
+                typedef JetVoronoiDiagramHelpers::coord coordinate_type;
                 static inline coordinate_type get(
-                        const Point& point, orientation_2d orient) {
+                        const JetVoronoiDiagramHelpers::Point& point, orientation_2d orient) {
                     return (orient == HORIZONTAL) ? point.x : point.y;
                 }
             };
         template <>
-            struct point_mutable_traits<Point> {
-                typedef coord coordinate_type;
-                static inline void set(Point& point, orientation_2d orient, int value) {
+            struct point_mutable_traits<JetVoronoiDiagramHelpers::Point> {
+                typedef JetVoronoiDiagramHelpers::coord coordinate_type;
+                static inline void set(JetVoronoiDiagramHelpers::Point& point, orientation_2d orient, int value) {
                     if(orient == HORIZONTAL)
                         point.x = value;
                     else
                         point.y = value;
                 }
-                static inline Point construct(int x_value, int y_value) {
-                    Point retval;
+                static inline JetVoronoiDiagramHelpers::Point construct(int x_value, int y_value) {
+                    JetVoronoiDiagramHelpers::Point retval;
                     retval.x = x_value;
                     retval.y = y_value; 
                     return retval;
@@ -195,14 +195,14 @@ namespace boost {
 
         // Segment concept
         template <>
-            struct geometry_concept<Segment> {
+            struct geometry_concept<JetVoronoiDiagramHelpers::Segment> {
                 typedef segment_concept type;
             };
         template <>
-            struct segment_traits<Segment> {
-                typedef coord coordinate_type;
-                typedef Point point_type;
-                static inline point_type get(const Segment& segment, direction_1d dir) {
+            struct segment_traits<JetVoronoiDiagramHelpers::Segment> {
+                typedef JetVoronoiDiagramHelpers::coord coordinate_type;
+                typedef JetVoronoiDiagramHelpers::Point point_type;
+                static inline point_type get(const JetVoronoiDiagramHelpers::Segment& segment, direction_1d dir) {
                     return dir.to_int() ? segment.p1 : segment.p0;
                 }
             };

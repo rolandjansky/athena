@@ -53,14 +53,14 @@ StatusCode JetVertexTaggerTool::initialize() {
   }
 
   // Use the Path Resolver to find the jvt file and retrieve the likelihood histogram
-  fn =  PathResolverFindCalibFile(m_jvtfileName);	
+  m_fn =  PathResolverFindCalibFile(m_jvtfileName);	
   ATH_MSG_INFO("  Reading JVT file from:\n    " << m_jvtfileName << "\n");
-  ATH_MSG_INFO("                     resolved in  :\n    " << fn << "\n\n");
+  ATH_MSG_INFO("                     resolved in  :\n    " << m_fn << "\n\n");
 
-  m_jvtfile = TFile::Open(fn);
-  if ( !m_jvtfile ) { ATH_MSG_FATAL( "Cannot open JVTLikelihoodFile: " << fn ); return StatusCode::FAILURE; }
+  m_jvtfile = TFile::Open(m_fn);
+  if ( !m_jvtfile ) { ATH_MSG_FATAL( "Cannot open JVTLikelihoodFile: " << m_fn ); return StatusCode::FAILURE; }
 
- ATH_MSG_VERBOSE("\n Reading JVT likelihood histogram from:\n    " << fn << "\n\n");
+ ATH_MSG_VERBOSE("\n Reading JVT likelihood histogram from:\n    " << m_fn << "\n\n");
 
  m_jvthisto = (TH2F*)m_jvtfile->Get(m_jvtlikelihoodHistName.c_str() );
  if ( !m_jvthisto ) 
@@ -106,11 +106,6 @@ int JetVertexTaggerTool::modify(xAOD::JetContainer& jetCont) const {
   }
 
   const xAOD::Vertex* HSvertex = findHSVertex(vertices);
-
-  if (HSvertex==nullptr ) {
-      ATH_MSG_WARNING("There is no vertex of type PriVx. Exiting"); 
-      return 5;
-  }
 
   // Count pileup tracks - currently done for each collection
   const int n_putracks = getPileupTrackCount(HSvertex, tracksCont, tva);
@@ -306,7 +301,8 @@ const xAOD::Vertex* JetVertexTaggerTool::findHSVertex(const xAOD::VertexContaine
       return vertices->at(iVertex);
     }
   }
-  return nullptr;
+  ATH_MSG_WARNING("There is no vertex of type PriVx. Taking default vertex.");
+  return vertices->at(0);
 }
 
 //**********************************************************************

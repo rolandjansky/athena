@@ -2,12 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-
-
-
-
 #include "JetMomentTools/JetVoronoiDiagramHelpers.h"
+
+
+using boost::geometry::area;
+using boost::geometry::intersection;
+
 
 namespace JetVoronoiDiagramHelpers{
     // operators *
