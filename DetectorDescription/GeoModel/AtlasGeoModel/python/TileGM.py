@@ -14,6 +14,6 @@ if ( DetFlags.detdescr.Tile_on() ):
     from TileGeoModel.TileGeoModelConf import TileDetectorTool
     GeoModelSvc.DetectorTools += [ TileDetectorTool() ]
 
-    if ( jobproperties.Global.DetGeo() == "ctbh8" and jobproperties.Global.DetGeo() == "ctbh6" ):
+    if ( jobproperties.Global.DetGeo() == "ctbh8" or jobproperties.Global.DetGeo() == "ctbh6" ):
        GeoModelSvc.DetectorTools[ "TileDetectorTool" ].TestBeam = True 
 
