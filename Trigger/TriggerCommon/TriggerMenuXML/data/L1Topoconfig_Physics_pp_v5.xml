@@ -280,21 +280,6 @@
     </Variable>
   </SortAlgo>
 
-  <SortAlgo type="JetSort" name="Js" output="Js" algoId="15">
-    <Fixed>
-      <Input name="JetTobArray" value="JetTobArray"/>
-      <Output name="TobArrayOut" value="Js"/>
-      <Generic name="InputWidth" value=":InputWidthJET:"/>
-      <Generic name="InputWidth1stStage" value=":InputWidth1stStageSortJET:"/>
-      <Generic name="OutputWidth" value=":OutputWidthSortJET:"/>
-      <Generic name="JetSize" value="2"/>
-    </Fixed>
-    <Variable>
-      <Parameter pos="0" name="MinEta" value="0"/>
-      <Parameter pos="1" name="MaxEta" value="31"/>
-    </Variable>
-  </SortAlgo>
-
   <SortAlgo type="JetSort" name="AJjs" output="AJjs" algoId="13">
     <Fixed>
       <Input name="JetTobArray" value="JetTobArray"/>
@@ -322,6 +307,21 @@
     <Variable>
       <Parameter pos="0" name="MinEta" value="0"/>
       <Parameter pos="1" name="MaxEta" value="49"/>
+    </Variable>
+  </SortAlgo>
+
+  <SortAlgo type="JetSort" name="Js" output="Js" algoId="15">
+    <Fixed>
+      <Input name="JetTobArray" value="JetTobArray"/>
+      <Output name="TobArrayOut" value="Js"/>
+      <Generic name="InputWidth" value=":InputWidthJET:"/>
+      <Generic name="InputWidth1stStage" value=":InputWidth1stStageSortJET:"/>
+      <Generic name="OutputWidth" value=":OutputWidthSortJET:"/>
+      <Generic name="JetSize" value="2"/>
+    </Fixed>
+    <Variable>
+      <Parameter pos="0" name="MinEta" value="0"/>
+      <Parameter pos="1" name="MaxEta" value="31"/>
     </Variable>
   </SortAlgo>
 
@@ -739,10 +739,10 @@
       <Generic name="NumResultBits" value="1"/>
     </Fixed>
     <Variable>
-      <Parameter pos="0" name="MinET" value="150"/>
-      <Parameter pos="1" name="EtaMin" value="4"/>
-      <Parameter pos="2" name="EtaMax" value="19"/>
-      <Parameter pos="3" name="PhiMin" value="18"/>
+      <Parameter pos="0" name="MinET" value="40"/>
+      <Parameter pos="1" name="EtaMin" value="0"/>
+      <Parameter pos="2" name="EtaMax" value="15"/>
+      <Parameter pos="3" name="PhiMin" value="17"/>
       <Parameter pos="4" name="PhiMax" value="22"/>
     </Variable>
   </DecisionAlgo>
