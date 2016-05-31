@@ -7,7 +7,8 @@ from AthenaCommon import CfgMgr
 
 clusterSigStates = {
     'EMScale':0,
-    'LocHad':1
+    'LocHad':1,
+    'Mod':1
 }
 
 defaultSelection = {
@@ -31,7 +32,9 @@ defaultInputKey = {
    'SoftPFlow':'JetETMissNeutralParticleFlowObjects',
    'PrimaryVx':'PrimaryVertices',
    'Truth'    :'TruthParticles',
-   'Calo'     :'AllCalo'
+   'Calo'     :'AllCalo',
+   'LCOCSoftClus':'LCOriginTopoClusters',
+   'EMOCSoftClus':'EMOriginTopoClusters',
    }
 
 defaultOutputKey = {
@@ -59,7 +62,7 @@ class BuildConfig:
         self.outputKey = outputKey
         self.inputKey = inputKey
 
-def getBuilder(config,suffix,doTracks,doCells,doTriggerMET):
+def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
     tool = None
     # Construct tool and set defaults for case-specific configuration
     if config.objType == 'Ele':
@@ -83,10 +86,13 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET):
     if config.objType == 'SoftTrk':
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftTrkTool_'+suffix)
         tool.InputComposition = 'Tracks'
-    if config.objType == 'SoftClus':
+    if config.objType.endswith('SoftClus'):
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftClusTool_'+suffix)
         tool.InputComposition = 'Clusters'
-        tool.SignalState = clusterSigStates['LocHad']
+        if doOriginCorrClus:
+            tool.SignalState = clusterSigStates['Mod']
+        else:
+            tool.SignalState = clusterSigStates['LocHad']
     if config.objType == 'SoftPFlow':
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftPFlowTool_'+suffix)
         tool.InputComposition = 'PFlow'
@@ -192,7 +198,8 @@ class METConfig:
                 print prefix, 'Config '+self.suffix+' already contains a builder of type '+config.objType
                 raise LookupError
             else:
-                builder = getBuilder(config,self.suffix,self.doTracks,self.doCells,self.doTriggerMET)
+                builder = getBuilder(config,self.suffix,self.doTracks,self.doCells,
+                                     self.doTriggerMET,self.doOriginCorrClus)
                 self.builders[config.objType] = builder
                 self.buildlist.append(builder)
                 print prefix, '  Added '+config.objType+' tool named '+builder.name()
@@ -226,13 +233,15 @@ class METConfig:
     #
     def __init__(self,suffix,buildconfigs=[],refconfigs=[],
                  doTracks=False,doSum=False,doRegions=False,
-                 doCells=False,doTriggerMET=True,duplicateWarning=True):
+                 doCells=False,doTriggerMET=True,duplicateWarning=True,
+                 doOriginCorrClus=False):
         print prefix, 'Creating MET config \''+suffix+'\''
         self.suffix = suffix
         self.doSum = doSum
         self.doTracks = doTracks
         self.doRegions = doRegions
-        self.doCells = doCells
+        self.doCells = doCells,
+        self.doOriginCorrClus = doOriginCorrClus
         self.doTriggerMET = doTriggerMET
         self.duplicateWarning = duplicateWarning
         #

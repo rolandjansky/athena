@@ -39,6 +39,7 @@ namespace met {
     declareProperty( "MissingETKey",    m_output_met_key      );
     declareProperty( "SignalState",     m_signalstate = 0     );
     declareProperty( "UseRapidity",     m_useRapidity = false );
+    declareProperty( "ModifiedClusKey", m_mod_clus_key = ""   );
   }
 
   // Destructor
@@ -51,6 +52,9 @@ namespace met {
   StatusCode METBuilderTool::initialize()
   {
     ATH_MSG_DEBUG ("Initializing " << name() << "...");
+
+    // Determine if modified clusters are used for jet inputs
+    m_useModClus = !m_mod_clus_key.empty();
 
     return StatusCode::SUCCESS;
   }

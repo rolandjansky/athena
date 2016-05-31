@@ -72,6 +72,8 @@ namespace met{
     METSoftAssociator();
 
     bool m_decorateSoftTermConst;
+    std::string m_lcmodclus_key;
+    std::string m_emmodclus_key;
 
   }; 
 

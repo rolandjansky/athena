@@ -36,7 +36,8 @@ globalflags.DetDescrVersion = inputFileSummary['geometry']
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.all_setOff()
-DetFlags.detdescr.Calo_setOn()
+#DetFlags.detdescr.Calo_setOn()
+if hasattr(DetFlags,'BField_on'): DetFlags.BField_setOn()
 
 include('RecExCond/AllDet_detDescr.py')
 from AthenaCommon.AlgSequence import AlgSequence
@@ -44,16 +45,16 @@ topSequence = AlgSequence()
 
 ############################################################################
 # Set up muon and egamma topocluster links
-egammaTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("EgammaTCLinks",
-                                                 ClustersToDecorate="egammaClusters")
-egammatopoTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("TopoEgammaTCLinks",
-                                                     ClustersToDecorate="egammaTopoSeededClusters")
-muonTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("MuonTCLinks",
-                                               ClustersToDecorate="MuonClusterCollection",
-                                               UseLeadCellEtaPhi=True)
-topSequence += egammaTCLinkAlg
-topSequence += egammatopoTCLinkAlg
-topSequence += muonTCLinkAlg
+#egammaTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("EgammaTCLinks",
+#                                                 ClustersToDecorate="egammaClusters")
+#egammatopoTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("TopoEgammaTCLinks",
+#                                                     ClustersToDecorate="egammaTopoSeededClusters")
+#muonTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("MuonTCLinks",
+#                                               ClustersToDecorate="MuonClusterCollection",
+#                                               UseLeadCellEtaPhi=True)
+#topSequence += egammaTCLinkAlg
+#topSequence += egammatopoTCLinkAlg
+# topSequence += muonTCLinkAlg
 
 # Set up default configurations
 #import METReconstruction.METConfig_Associator
@@ -84,7 +85,21 @@ cfg_akt4em = METAssocConfig('NewAntiKt4EMTopo',
 metFlags.METAssocConfigs()[cfg_akt4em.suffix] = cfg_akt4em
 metFlags.METAssocOutputList().append(cfg_akt4em.suffix)
 
-#from METReconstruction.METRecoFlags import metFlags
+associators = [AssocConfig(JetType),
+               AssocConfig('Muon'),
+               AssocConfig('Ele'),
+               AssocConfig('Gamma'),
+               AssocConfig('Tau'),
+               AssocConfig('Soft')]
+cfg_akt4emoc = METAssocConfig('NewAntiKt4EMTopo_OriginCorr',
+                              associators,
+                              doPFlow=False,
+                              doOriginCorrClus=True
+                              )
+
+metFlags.METAssocConfigs()[cfg_akt4emoc.suffix] = cfg_akt4emoc
+metFlags.METAssocOutputList().append(cfg_akt4emoc.suffix)
+
 from METReconstruction.METAssocConfig import getMETAssocAlg
 
 # Get the configuration directly from METRecoFlags
@@ -97,7 +112,23 @@ for key,conf in metFlags.METAssocConfigs().iteritems():
     if not conf.doTruth:
         makerAlg = getMETMakerAlg(conf.suffix,jetColl="AntiKt4EMTopoJets")
         topSequence += makerAlg
-ToolSvc.METMaker_NewAntiKt4EMTopo.OutputLevel = 1
+ToolSvc.METMaker_NewAntiKt4EMTopo.OutputLevel = DEBUG
+ToolSvc.METMaker_NewAntiKt4EMTopo_OriginCorr.OutputLevel = DEBUG
+
+from METReconstruction.METRecoConfig import METConfig,BuildConfig
+
+cfg_lht = METConfig('LocHadTopo_OriginCorr',[BuildConfig('LCOCSoftClus','LocHadTopo')],
+                    doRegions=True,
+                    doOriginCorrClus=True
+                    )
+
+metFlags.METConfigs()[cfg_lht.suffix] = cfg_lht
+metFlags.METOutputList().append(cfg_lht.suffix)
+metFlags.METOutputList().append(cfg_lht.suffix+'Regions')
+
+from METReconstruction.METRecoConfig import getMETRecoAlg
+metAlg2 = getMETRecoAlg('METReconstruction')
+topSequence += metAlg2
 
 from Valkyrie.JobOptCfg import ValgrindSvc
 svcMgr += ValgrindSvc( OutputLevel = INFO,
@@ -119,6 +150,9 @@ if write_xAOD:
     xaodStream = MSMgr.NewPoolRootStream( "StreamAOD", "xAOD.pool.root" )
     for item in MissingETAODList:
         xaodStream.AddItem(item)
+
+    xaodStream.AddItem('xAOD::MissingETContainer#MET_LocHadTopo')
+    xaodStream.AddItem('xAOD::MissingETAuxContainer#MET_LocHadTopoAux.')
 
 theApp.EvtMax = 10
 ServiceMgr.EventSelector.SkipEvents = 0

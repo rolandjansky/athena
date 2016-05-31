@@ -75,6 +75,7 @@ namespace met {
     bool m_useTracks;
     bool m_useRapidity;
     bool m_useIsolationTools;
+    bool m_useModifiedClus;
 
     ToolHandle<CP::IRetrievePFOTool> m_pfotool;
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
