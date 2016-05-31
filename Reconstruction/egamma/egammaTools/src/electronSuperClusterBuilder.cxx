@@ -22,6 +22,9 @@
 #include "TrkMaterialOnTrack/EstimatedBremOnTrack.h"
 #include "FourMomUtils/P4Helpers.h"
 
+#include "egammaInterfaces/IegammaSwTool.h"
+#include "egammaMVACalib/IegammaMVATool.h"
+
 using CLHEP::GeV;
 namespace{
   const float cellEtaSize = 0.025;
@@ -36,7 +39,8 @@ electronSuperClusterBuilder::electronSuperClusterBuilder(const std::string& type
 							 const std::string& name,
 							 const IInterface* parent) :
   AthAlgTool(type, name, parent),
-  m_extrapolationTool("EMExtrapolationTools")
+  m_extrapolationTool("EMExtrapolationTools"),
+  m_clusterCorrectionTool("egammaSwTool/egammaswtool")
 {
   declareProperty("WindowDelEtaCells", m_delEtaCells = 3);
 
@@ -56,21 +60,30 @@ electronSuperClusterBuilder::electronSuperClusterBuilder(const std::string& type
 
   declareProperty("TrackOverlapDelPhi", m_trackOverlapDelPhi = 0.15);
 
-  declareProperty("SumRemaining3x5Cells", m_sumRemainingCellsin3x5 = false);
+  declareProperty("SumRemainingCellsInWindow", m_sumRemainingCellsInWindow = false);
 
   declareProperty("ExtrapolationTool", m_extrapolationTool, "Handle of the extrapolation tool");
 
-  declareProperty("InputClusterContainerName", m_inputClusterContainerName = "egammaTopoCluster", "Name of input cluster container");
+  //declareProperty("InputClusterContainerName", m_inputClusterContainerName = "egammaTopoCluster", "Name of input cluster container");
 
   declareProperty("InputEgammaRecContainerName", m_inputEgammaRecContainerName = "egammaRecCollection");
 
-  declareProperty("TrackParticleContainerName", m_trackParticleContainerName = "GSFTrackParticles");
+  //declareProperty("TrackParticleContainerName", m_trackParticleContainerName = "GSFTrackParticles");
 
   declareProperty("SuperElectronRecCollectionName", m_electronSuperRecCollectionName = "ElectronSuperRecCollection");
 
   declareProperty("SuperClusterCollestionName",  m_outputElectronSuperClusters  = "ElectronSuperClusters");
 
   declareProperty("NumberOfReqSiHits", m_numberOfSiHits = 4);
+
+  declareProperty("CorrectClusters", m_correctClusters = false, 
+		  "Whether to run cluster corrections");
+  
+  declareProperty("CalibrateClusters", m_calibrateClusters = true, 
+		  "Whether to run cluster calibrations");
+  
+  declareProperty("MVACalibTool", m_MVACalibTool);
+  declareProperty("ClusterCorrectionTool", m_clusterCorrectionTool);
 
   m_delPhi = m_delPhiCells *cellPhiSize * 0.5;
   m_delEta = m_delEtaCells *cellEtaSize * 0.5;
@@ -89,6 +102,14 @@ StatusCode electronSuperClusterBuilder::initialize() {
     ATH_MSG_ERROR("initialize: Cannot retrieve extrapolationTool " << m_extrapolationTool);
     return StatusCode::FAILURE;
   }
+
+  if (m_correctClusters) {
+    ATH_CHECK(m_clusterCorrectionTool.retrieve());
+  }
+  if (m_calibrateClusters) {
+    ATH_CHECK(m_MVACalibTool.retrieve());
+  }
+
   m_delPhi = m_delPhiCells *cellPhiSize * 0.5;
   m_delEta = m_delEtaCells *cellEtaSize * 0.5;
   return StatusCode::SUCCESS;
@@ -130,7 +151,7 @@ StatusCode electronSuperClusterBuilder::execute(){
     ATH_MSG_ERROR("Failed to retrieve "<< m_inputEgammaRecContainerName);
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("Retrieved "<< m_inputEgammaRecContainerName);
+  ATH_MSG_DEBUG("Retrieved "<< m_inputEgammaRecContainerName);
 
   //Reserve a vector to keep track of what is used
   std::vector<bool> isUsed (egammaRecs->size(),0);
@@ -216,6 +237,7 @@ StatusCode electronSuperClusterBuilder::execute(){
     //Take the full list of cluster , now stored in the secondaries and add their cells together
     xAOD::CaloCluster *newClus = AddTopoClusters(accumulatedClusters);
     if (newClus) {
+
       // Decorate the supercluster with a vector of ElementLinks to the constituent clusters.
       static const SG::AuxElement::Accessor < std::vector< ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
       std::vector< ElementLink< xAOD::CaloClusterContainer > > clusLinks;
@@ -246,6 +268,10 @@ StatusCode electronSuperClusterBuilder::execute(){
       outputClusterContainer->push_back(newClus);
       ElementLink< xAOD::CaloClusterContainer > clusterLink(newClus, *outputClusterContainer);
       std::vector< ElementLink<xAOD::CaloClusterContainer> > elClusters {clusterLink};
+
+      // Apply calibration (if requested) and fill some extra variables
+      ATH_CHECK(CalibrateCluster(newClus, egRec));
+
       ////////////////////////////////////////////////////////////////////
       //Make egammaRec object, and push it back into output container.
       egammaRec *newEgRec = new egammaRec(*egRec);
@@ -331,6 +357,7 @@ xAOD::CaloCluster *electronSuperClusterBuilder::AddTopoClusters(const std::vecto
   ATH_MSG_DEBUG("Adding Topo Clusters Together");
   xAOD::CaloCluster* myCluster = CaloClusterStoreHelper::makeCluster(clusters.at(0)->getCellLinks()->getCellContainer());
   if (myCluster) { 
+    myCluster->setClusterSize(xAOD::CaloCluster::SuperCluster);
     //Use only the EM cells to calculate the energy.
     AddEMCellsToCluster(myCluster, clusters.at(0));
     CaloClusterKineHelper::calculateKine(myCluster, true, true);
@@ -340,17 +367,24 @@ xAOD::CaloCluster *electronSuperClusterBuilder::AddTopoClusters(const std::vecto
   }
   ATH_MSG_DEBUG("Raw energy of original seed cluster: " << clusters.at(0)->rawE());
   ATH_MSG_DEBUG("Energy of EM-only part of the seed cluster: "      << myCluster->e());
-  
-  ////////////////////////////////////////////////////////////////////////
-  //C.A still not sure if needed , but if yes we need them also for photons
-  //Can we decide soon as this is kind of EDM
-  static const SG::AuxElement::Accessor<float> seedE  ("seedSuperClusterE");
-  static const SG::AuxElement::Accessor<float> seedEta  ("seedSuperClusterEta");
-  static const SG::AuxElement::Accessor<float> seedPhi  ("seedSuperClusterPhi");
-  float seed_eta(myCluster->eta()), seed_phi(myCluster->phi());
-  seedE(*myCluster)     = myCluster->e();
-  seedEta(*myCluster)     = seed_eta;
-  seedPhi(*myCluster)     = seed_phi;
+
+  // Change this to use Alt* values in cluster  
+  // ////////////////////////////////////////////////////////////////////////
+  // //C.A still not sure if needed , but if yes we need them also for photons
+  // //Can we decide soon as this is kind of EDM
+  // static const SG::AuxElement::Accessor<float> seedE  ("seedSuperClusterE");
+  // static const SG::AuxElement::Accessor<float> seedEta  ("seedSuperClusterEta");
+  // static const SG::AuxElement::Accessor<float> seedPhi  ("seedSuperClusterPhi");
+  // float seed_eta(myCluster->eta()), seed_phi(myCluster->phi());
+  // seedE(*myCluster)     = myCluster->e();
+  // seedEta(*myCluster)     = seed_eta;
+  // seedPhi(*myCluster)     = seed_phi;
+  const auto seed_eta = myCluster->eta();
+  const auto seed_phi = myCluster->phi();
+  myCluster->setAltE(myCluster->e());
+  myCluster->setAltEta(seed_eta);
+  myCluster->setAltPhi(seed_phi);
+
   //Skip the first one which already is added
   std::vector<const xAOD::CaloCluster*>::const_iterator  matchedClusters    = clusters.begin()+1;
   std::vector<const xAOD::CaloCluster*>::const_iterator  matchedClustersEnd = clusters.end();
@@ -361,7 +395,8 @@ xAOD::CaloCluster *electronSuperClusterBuilder::AddTopoClusters(const std::vecto
     AddEMCellsToCluster(myCluster, *matchedClusters);
   }
 
-  //Update cluster kinematics.
+  //Update cluster kinematics. 
+  // JM: Is it necessary to do this here? Also done after summing remaining cells
   CaloClusterKineHelper::calculateKine(myCluster,true,true);
   if (clusters.size() > 1) {
     ATH_MSG_DEBUG("Cluster energy after adding satellites: " << myCluster->e());
@@ -369,7 +404,7 @@ xAOD::CaloCluster *electronSuperClusterBuilder::AddTopoClusters(const std::vecto
   ///////////////////////////////////////////////////////
   // If requested, sum also any cells that are in
   // fixed 3x5 window around seed, but WEREN'T added  the first time around.
-  if (m_sumRemainingCellsin3x5) {
+  if (m_sumRemainingCellsInWindow) {
     ATH_MSG_DEBUG("Add Remaining cells in 3x5 window");
     std::vector<const CaloCell*> cells;
     cells.reserve(100);
@@ -382,7 +417,8 @@ xAOD::CaloCluster *electronSuperClusterBuilder::AddTopoClusters(const std::vecto
 							   CaloSampling::EMB2,
 							   CaloSampling::EME2,
 							   CaloSampling::EMB3,
-							   CaloSampling::EME3};
+							   CaloSampling::EME3,
+							   CaloSampling::TileGap3};
     
     for ( auto samp : samples ) {
       myList.select(seed_eta, seed_phi, m_delEta, m_delPhi,samp);
@@ -392,6 +428,10 @@ xAOD::CaloCluster *electronSuperClusterBuilder::AddTopoClusters(const std::vecto
       if( !cell || !cell->caloDDE() ) {continue;}
       int index = inputcells->findIndex(cell->caloDDE()->calo_hash());
       if( index == -1 ) {continue;}
+      if (CaloCell_ID::TileGap3 == cell->caloDDE()->getSampling() && 
+	  (std::abs(cell->eta()) <= 1.4 || std::abs(cell->eta()) >= 1.6)) {
+	continue; // only take them in the gap
+      }
       //Check if it's already used.
       if (std::find(m_cellsin3x5.begin(),m_cellsin3x5.end(),cell) != m_cellsin3x5.end()) {
 	continue;
@@ -586,4 +626,55 @@ void electronSuperClusterBuilder::AddEMCellsToCluster(xAOD::CaloCluster*       s
       }
     }//TileGap
   }//Loop over cells
+}
+
+StatusCode electronSuperClusterBuilder::CalibrateCluster(xAOD::CaloCluster* newCluster,
+						       const egammaRec* egRec)
+{
+
+  // first do the corrections
+  if (m_correctClusters) {
+    ATH_CHECK(m_clusterCorrectionTool->execute(newCluster));
+  }
+  ATH_CHECK(fillPositionsInCalo(newCluster));
+  
+  //Fill the raw state before doing any calibrations
+  newCluster->setRawE(newCluster->e());
+  newCluster->setRawEta(newCluster->eta());
+  newCluster->setRawPhi(newCluster->phi());
+
+  // This is where we calibrate the cluster
+  if (m_calibrateClusters) {
+    ATH_CHECK(m_MVACalibTool->execute(newCluster,egRec,xAOD::EgammaParameters::electron));
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
+// ==========================================================================
+StatusCode electronSuperClusterBuilder::fillPositionsInCalo(xAOD::CaloCluster* cluster) 
+{
+
+  bool isBarrel = xAOD::EgammaHelpers::isBarrel(cluster);
+  CaloCell_ID::CaloSample sample = isBarrel ? CaloCell_ID::EMB2 : CaloCell_ID::EME2;
+  // eta and phi of the cluster in the calorimeter frame
+  double eta, phi;
+  m_caloCellDetPos.getDetPosition(sample, cluster->eta(), cluster->phi(), eta, phi); 
+
+  cluster->insertMoment(xAOD::CaloCluster::ETACALOFRAME,eta);
+  cluster->insertMoment(xAOD::CaloCluster::PHICALOFRAME,phi);
+
+  //  eta in the second sampling
+  m_caloCellDetPos.getDetPosition(sample, cluster->etaBE(2), cluster->phiBE(2), eta, phi);
+  cluster->insertMoment(xAOD::CaloCluster::ETA2CALOFRAME,eta);
+  cluster->insertMoment(xAOD::CaloCluster::PHI2CALOFRAME,phi);
+  //  eta in the first sampling 
+  sample = isBarrel ? CaloCell_ID::EMB1 : CaloCell_ID::EME1;
+  m_caloCellDetPos.getDetPosition(sample, cluster->etaBE(1), cluster->phiBE(1),eta, phi);
+  cluster->insertMoment(xAOD::CaloCluster::ETA1CALOFRAME,eta);
+  cluster->insertMoment(xAOD::CaloCluster::PHI1CALOFRAME,phi);
+
+  return StatusCode::SUCCESS;
+
 }

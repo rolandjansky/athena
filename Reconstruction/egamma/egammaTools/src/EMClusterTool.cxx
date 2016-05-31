@@ -249,20 +249,20 @@ xAOD::CaloCluster* EMClusterTool::makeNewSuperCluster(const xAOD::CaloCluster& c
   //Here we could apply corrections
   //
   //Fill position in calo frame
-  fillPositionsInCalo(newClus);
+  // fillPositionsInCalo(newClus);
   //Fill the raw state using the original super cluster
-  newClus->setRawE(cluster.e());
-  newClus->setRawEta(cluster.eta());
-  newClus->setRawPhi(cluster.phi());
-  //if we apply correctiong this could be after corrections but before MVA calib
-  //no copy over
-  newClus->setAltE(cluster.e());
-  newClus->setAltEta(cluster.eta());
-  newClus->setAltPhi(cluster.phi());
+  // newClus->setRawE(cluster.e());
+  // newClus->setRawEta(cluster.eta());
+  // newClus->setRawPhi(cluster.phi());
+  // Now we decided that Alt* values are the seed values, and they are already set
+  // by the supercluster builder, so don't overwrite
+  // newClus->setAltE(cluster.e());
+  // newClus->setAltEta(cluster.eta());
+  // newClus->setAltPhi(cluster.phi());
   //Here is should be a call to MVA calib, now again copy over
-  newClus->setCalE(cluster.e());
-  newClus->setCalEta(cluster.eta());
-  newClus->setCalPhi(cluster.phi());
+  // newClus->setCalE(cluster.e());
+  // newClus->setCalEta(cluster.eta());
+  // newClus->setCalPhi(cluster.phi());
   ////
   return newClus;
 }

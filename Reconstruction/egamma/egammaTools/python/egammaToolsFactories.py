@@ -90,17 +90,16 @@ egammaTopoClusterCopier = ToolFactory( egammaToolsConf.egammaTopoClusterCopier,
 
 
 electronSuperClusterBuilder = ToolFactory( egammaToolsConf.electronSuperClusterBuilder,
-                                         name = 'electronSuperClusterBuilder',
-                                         WindowDelEtaCells = 3,
-                                         WindowDelPhiCells = 5,
-                                         SumRemaining3x5Cells=False,
-                                         InputClusterContainerName=jobproperties.egammaRecFlags.egammaTopoClusterCollection(),
-                                         ExtrapolationTool=EMExtrapolationTools,
-                                         UseBremFinder=jobproperties.egammaRecFlags.doBremFinding() )
+                                           name = 'electronSuperClusterBuilder',
+                                           ExtrapolationTool=EMExtrapolationTools,
+                                           UseBremFinder=jobproperties.egammaRecFlags.doBremFinding(),
+                                           MVACalibTool= egammaMVATool
+                                         )
 
 
 photonSuperClusterBuilder = ToolFactory( egammaToolsConf.photonSuperClusterBuilder,
-                                         name = 'photonSuperClusterBuilder'
+                                         name = 'photonSuperClusterBuilder',
+                                         MVACalibTool= egammaMVATool
                                          )
 
 egammaTopoClusterMap = ToolFactory( egammaToolsConf.egammaTopoClusterMap,

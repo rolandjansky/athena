@@ -17,9 +17,13 @@
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "egammaRecEvent/egammaRecContainer.h"
+#include "CaloUtils/CaloCellDetPos.h"
+
 class CaloCellContainer;
 class CaloCell;
 class IEMExtrapolationTools;
+class IegammaSwTool;
+class IegammaMVATool;
 
 class electronSuperClusterBuilder : public AthAlgTool,  virtual public IelectronSuperClusterBuilder {
 
@@ -60,6 +64,12 @@ class electronSuperClusterBuilder : public AthAlgTool,  virtual public Ielectron
 							    std::vector<bool>& isUsed);
   bool  MatchesInWindow(const xAOD::CaloCluster *ref,
 			const xAOD::CaloCluster *clus) const;
+
+  StatusCode CalibrateCluster(xAOD::CaloCluster* newCluster,
+			      const egammaRec* egRec);
+
+  StatusCode fillPositionsInCalo(xAOD::CaloCluster* cluster);
+
   /////////////////////////////////////////////////////////////////////
   //internal variables
   std::vector<const CaloCell*> m_cellsin3x5;  
@@ -83,15 +93,26 @@ class electronSuperClusterBuilder : public AthAlgTool,  virtual public Ielectron
   float m_trackOverlapDelPhi;
   float m_secondaryEmFracCut;
   float m_numberOfSiHits;
-  bool  m_sumRemainingCellsin3x5;
-  std::string m_trackParticleContainerName;
+  bool  m_sumRemainingCellsInWindow;
+  //std::string m_trackParticleContainerName;
   std::string m_inputEgammaRecContainerName;
-  std::string m_inputClusterContainerName;
+  //std::string m_inputClusterContainerName;
   std::string m_electronSuperRecCollectionName;
   std::string m_outputElectronSuperClusters;
 
   /** @brief Tool for extrapolation */
   ToolHandle<IEMExtrapolationTools> m_extrapolationTool;
+
+  bool m_correctClusters;  //!< Whether to run cluster correction
+  bool m_calibrateClusters;  //!< Whether to run cluster calibration
+
+  /** @breif Handle to the MVA calibration Tool **/
+  ToolHandle<IegammaMVATool>  m_MVACalibTool;  
+  /** @brief Tool to handle cluster corrections */
+  ToolHandle<IegammaSwTool>   m_clusterCorrectionTool;
+  /** @brief Position in Calo frame**/  
+  CaloCellDetPos m_caloCellDetPos;
+
 };
 
 #endif

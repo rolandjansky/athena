@@ -17,6 +17,10 @@
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "xAODEgamma/EgammaEnums.h"
+#include "CaloUtils/CaloCellDetPos.h"
+
+class IegammaSwTool;
+class IegammaMVATool;
 
 class photonSuperClusterBuilder : public AthAlgTool,  virtual public IphotonSuperClusterBuilder {
 
@@ -42,7 +46,9 @@ class photonSuperClusterBuilder : public AthAlgTool,  virtual public IphotonSupe
   std::vector<std::size_t> 
     SearchForSecondaryClusters(std::size_t photonInd,
 			       const EgammaRecContainer *egammaRecs,
-			       std::vector<bool>& isUsed) const;
+			       std::vector<bool>& isUsed,
+			       int& nWindowClusters,
+			       int& nExtraClusters) const;
 
   /** Is clus in window center around ref? */
   bool MatchesInWindow(const xAOD::CaloCluster *ref,
@@ -59,7 +65,17 @@ class photonSuperClusterBuilder : public AthAlgTool,  virtual public IphotonSupe
 
 
   StatusCode AddEMCellsToCluster(xAOD::CaloCluster* self,
-				 const xAOD::CaloCluster* ref);
+				 const xAOD::CaloCluster* ref,
+				 std::vector<const CaloCell*>& cellsInWindow) const;
+
+  StatusCode AddRemainingCellsToCluster(xAOD::CaloCluster *myCluster,
+					float seed_eta, float seed_phi,
+					std::vector<const CaloCell*>& cellsInWindow) const;
+
+  StatusCode CalibrateCluster(xAOD::CaloCluster* newCluster,
+			      const egammaRec* egRec);
+
+  StatusCode fillPositionsInCalo(xAOD::CaloCluster* cluster);
 
   /////////////////////////////////////////////////////////////////////
   //internal variables
@@ -77,7 +93,7 @@ class photonSuperClusterBuilder : public AthAlgTool,  virtual public IphotonSupe
   bool m_useOnlySi; //!< use only vertices/tracks with silicon tracks
   bool m_addClustersMatchingVtxTracks; //!< add the topoclusters matching conversion vertex tracks
   bool m_useOnlyLeadingTrack; //!< use only the leading track for matching
-  // bool m_addAllCellsInWindow; //!< add all the cells in window (not implemented yet)
+  bool m_sumRemainingCellsInWindow; //!< add all the cells in window 
 
   /** @brief Size of window in eta */
   int   m_delEtaCells;
@@ -88,8 +104,16 @@ class photonSuperClusterBuilder : public AthAlgTool,  virtual public IphotonSupe
   float m_delEta; //!< half of window size, converted to units of eta
   float m_delPhi; //!< half of window size, converted to units of phi
 
-  //clusters added to seed clusters.
-  //int m_n3x5Clusters, m_nExtrapClusters;
+  bool m_correctClusters;  //!< Whether to run cluster correction
+  bool m_calibrateClusters;  //!< Whether to run cluster calibration
+
+  /** @breif Handle to the MVA calibration Tool **/
+  ToolHandle<IegammaMVATool>  m_MVACalibTool;  
+  /** @brief Tool to handle cluster corrections */
+  ToolHandle<IegammaSwTool>   m_clusterCorrectionTool;
+  /** @brief Position in Calo frame**/  
+  CaloCellDetPos m_caloCellDetPos;
+
 
 };
 
