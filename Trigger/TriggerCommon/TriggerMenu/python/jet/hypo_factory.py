@@ -6,18 +6,18 @@ from eta_string_conversions import eta_string_to_floats
 
 def hypo_factory(key, args):
 
-    if key == 'standard':
+    if key == 'run1hypo':
         return JetStandardHypo(args)
-    if key == 'single_region':
+    if key == 'HLTSRhypo':
         return JetSingleEtaRegionHypo(args)
-    if key == 'single_region_cleaning':
-        return JetSingleEtaRegionCleaningHypo(args)
-    if key == 'maximum_bipartite':
+    if key == 'HLThypo':
         return JetMaximumBipartiteHypo(args)
     if key == 'ht':
         return HTHypo(args)
+    if key == 'tla':
+        return TLAHypo(args)
 
-    raise RuntimeError('hypo_factory: unknoen key %s' % key)
+    raise RuntimeError('hypo_factory: unknown key %s' % key)
 
 class HypoAlg(object):
     """ Argument checking class that holds the  parameters for an
@@ -105,7 +105,7 @@ class JetHypo(HypoAlg):
 
 
 class JetStandardHypo(JetHypo):
-    hypo_type = 'standard'
+    hypo_type = 'run1hypo'
 
     def __init__(self, ddict):
         JetHypo.__init__(self, ddict)
@@ -126,21 +126,14 @@ class JetStandardHypo(JetHypo):
 
 
 class JetSingleEtaRegionHypo(JetStandardHypo):
-    hypo_type = 'single_region'
-
-    def __init__(self, ddict):
-        JetStandardHypo.__init__(self, ddict)
-
-
-class JetSingleEtaRegionCleaningHypo(JetStandardHypo):
-    hypo_type = 'single_region_cleaning'
+    hypo_type = 'HLTSRhypo'
 
     def __init__(self, ddict):
         JetStandardHypo.__init__(self, ddict)
 
 
 class JetMaximumBipartiteHypo(JetHypo):
-    hypo_type = 'maximum_bipartite'
+    hypo_type = 'HLThypo'
 
     def __init__(self, ddict):
         JetHypo.__init__(self, ddict)
@@ -169,5 +162,30 @@ class HTHypo(HypoAlg):
         return '_'.join(['ht' + str(int(self.ht_threshold)),
                          self.eta_range,
                          'j' + str(int(self.jet_et_threshold))])
+         
+
+class TLAHypo(HypoAlg):
+    """ Store paramters for the HT hypoAlg"""
+
+    hypo_type = 'tla'
+    
+    def __init__(self, ddict):
+        HypoAlg.__init__(self, ddict)
+
+
+    def _check_args(self, ddict):
+        """check the constructor args"""
+
+        must_have = ('chain_name',
+                     'tla_string',
+                     'indexlo',
+                     'indexhi',
+                     'mass_min',
+                     'mass_max')
+
+        HypoAlg.check_missing_args(self, must_have, ddict)
+
+    def attributes_to_string(self):
+        return 'tla_' + self.tla_string
         
 

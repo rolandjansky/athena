@@ -46,10 +46,17 @@ from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
 
 from TrigJetHypo.TrigJetHypoConfig import EFCentFullScanMultiJetHypo
 
-from TrigJetHypo.TrigJetHypoConf import TrigHLTJetHypo
+from TrigHLTJetHypo.TrigHLTJetHypoConfig import TrigHLTJetHypoMon
 
 from TrigJetHypo.TrigEFHTHypoConfig import EFHT
 from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter
+
+from TrigHIRec.TrigHICaloRec import (TrigCaloTowerMaker_hijet,
+                                     TrigHIClusterMaker_hijet,
+                                     TrigHIEventShapeMaker_hijet,
+                                    )
+                                    
+from TrigHIRec.TrigHLTHIJetRecConfig import TrigHLTHIJetRecFromHICluster
 
 abomination_to_keep_config_weakvalue_dict_intact = []
 

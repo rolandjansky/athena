@@ -27,7 +27,6 @@ class ChainConfig(object):
                  chain_name,
                  seed,
                  run_hypo,
-                 hypo_type,
                  data_scouting,
                  menu_data,
                  run_rtt_diags,
@@ -36,7 +35,6 @@ class ChainConfig(object):
         self.chain_name = chain_name
         self.seed = seed
         self.run_hypo = run_hypo
-        self.hypo_type = hypo_type
         self.data_scouting = data_scouting
         self.run_rtt_diags = run_rtt_diags  # flag to run RTT the diagonistics.
 

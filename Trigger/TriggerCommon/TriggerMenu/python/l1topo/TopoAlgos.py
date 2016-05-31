@@ -109,7 +109,6 @@ class DecisionAlgo(TopoAlgo):
         
         s='  <DecisionAlgo type="%s" name="%s" algoId="%i">\n' % (self.classtype, self.name, self.algoId )
         s+='    <Fixed>\n'
-
         input_woovlp = []
         for (tobid, _input) in enumerate(self.inputs):
             if len(self.inputs)>1:

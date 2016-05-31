@@ -27,7 +27,7 @@ class ThresholdDef:
         # EM 
         ThresholdValue.setDefaults('EM',{'isobits' : '00000', 'use_relIso' : True })
 
-        for thrV in [3, 4, 5, 6, 7, 8, 10, 12, 14, 15, 16, 30, 50]:
+        for thrV in [3, 4, 5, 6, 7, 8, 10, 12, 14, 15, 16, 18, 20, 22, 30, 50]:
             tc.registerThr('EM%i' % thrV, 'EM').addThrValue(thrV)
 
 
@@ -146,7 +146,15 @@ class ThresholdDef:
             .addThrValue(21, -17, -15, priority=2).addThrValue(21, 15, 17, priority=2)\
             .addThrValue(23, -25, -17, priority=2).addThrValue(23, 17, 25, priority=2)
         
-
+        tc.registerThr( 'EM24VHI', type='EM').addThrValue(24, priority=1)\
+            .addThrValue(26, -7, 0, priority=2).addThrValue(26, 0, 7, priority=2)\
+            .addThrValue(25, -8, -7, priority=2).addThrValue(25, 7, 8, priority=2)\
+            .addThrValue(24, -11, -8, priority=2).addThrValue(24, 8, 11, priority=2)\
+            .addThrValue(23, -13, -11, priority=2).addThrValue(23, 11, 13, priority=2)\
+            .addThrValue(22, -14, -13, priority=2).addThrValue(22, 13, 14, priority=2)\
+            .addThrValue(21, -15, -14, priority=2).addThrValue(21, 14, 15, priority=2)\
+            .addThrValue(23, -17, -15, priority=2).addThrValue(23, 15, 17, priority=2)\
+            .addThrValue(25, -25, -17, priority=2).addThrValue(25, 17, 25, priority=2)
 
 
         tc.registerThr( 'EM3HI', type='EM').addThrValue(3, priority=1)\
@@ -167,7 +175,7 @@ class ThresholdDef:
 
         ThresholdValue.setDefaults('TAU',{'isobits' : '00000', 'use_relIso' : True })
 
-        for thrV in [6, 8, 12, 15, 20, 25, 30, 40, 60]:
+        for thrV in [6, 8, 12, 15, 20, 25, 30, 35, 40, 50, 60]:
             tc.registerThr('HA%i' % thrV, 'TAU').addThrValue(thrV)
 
         # beam splashes     
@@ -228,7 +236,7 @@ class ThresholdDef:
         
 
         # Central jet
-        for (thrV, etamax) in [(15,25), (17,22), (20,28), (25,23), (20,49), (30,49) ]:
+        for (thrV, etamax) in [(15,25), (17,22), (20,28), (25,23), (20,49), (30,49), (40,25)]:
             tc.registerThr('J%i.0ETA%i'  % (thrV, etamax), 'JET').addThrValue(JetOff).addThrValue( thrV, etamin = -etamax,  etamax = etamax, priority=1)  
 
         # Standard forward jet
@@ -236,7 +244,7 @@ class ThresholdDef:
             tc.registerThr('J%i.31ETA49' % thrV, 'JET').addThrValue(JetOff).addThrValue( thrV, etamin=31,  etamax=49, priority=1).addThrValue( thrV, etamin=-49, etamax=-31, priority=1)
 
         # Custom Forward jet and VBF jets
-        for (thrV, etamin, etamax) in [ (15,23,49), (15,24,49), (15,28,31), (20,28,31) ]:
+        for (thrV, etamin, etamax) in [ (15,23,49), (15,24,49), (20,28,31) ]:
             tc.registerThr('J%i.%iETA%i' % (thrV, etamin,etamax), 'JET').addThrValue(JetOff).addThrValue( thrV, etamin  =  etamin, etamax=etamax, priority=1).addThrValue( thrV, etamin = -etamax, etamax = -etamin, priority=1)
 
         ##4x4 jet windows for forward electrons
@@ -266,25 +274,30 @@ class ThresholdDef:
 
         
         # TE
-        for thrV in [0, 5, 10, 15, 20, 30, 40, 50, 60, 100, 200, 300, 2000, 4000, 10000, 12000, 14000]:
+        for thrV in [0, 3, 5, 10, 15, 20, 25, 30, 40, 45, 50, 55, 60, 65, 70, 100, 200, 300, 2000, 4000, 10000, 12000, 14000]:
             tc.registerThr('TE%i' % thrV, 'TE').addThrValue(thrV)
 
         # XE
-        for thrV in [35, 40, 45, 50, 55, 60, 70, 80]:
+        for thrV in [10, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 150, 300]:
             tc.registerThr('XE%i' % thrV, 'XE').addThrValue(thrV)
 
         # XS
         for thrV in [20, 25, 30, 35, 40, 45, 50, 55, 60, 65]:
             tc.registerThr('XS%i' % thrV, 'XS').addThrValue(thrV)
 
-        # Restricted range TE
+        # Restricted range TE |eta|<2.4
         etamax = 24
-        for thrV in [0, 3, 5, 10, 20, 30, 40, 50, 60, 1000, 2000]:
+        for thrV in [0, 3, 5, 10, 15, 20, 25, 30, 40, 45, 50, 55, 60, 65, 70, 1000, 2000]:
             tc.registerThr('TE%i.0ETA%i' % (thrV, etamax), 'TE').addThrValue(EtSumOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1)
-            
+        
         # RXE (restriced range ET miss)
         for thrV in [35, 40, 45, 50, 55, 60, 70, 80]:
             tc.registerThr('XE%i.0ETA%i'    % (thrV, etamax), 'XE').addThrValue(EtMissOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1) 
+
+	 # Restricted range TE |eta|<4.9
+        etamax = 49
+        for thrV in [500, 1500, 3000, 3500, 5000, 6500, 8000, 9000]:
+            tc.registerThr('TE%i.0ETA%i' % (thrV, etamax), 'TE').addThrValue(EtSumOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1)
 
 
         ##RESTRICTED ETA THRESHOLD FOR TE and XE HAVE TO USE THE SAME ETA RANGE. Only possible for thesholds 8-15
@@ -352,6 +365,13 @@ class ThresholdDef:
         tc.registerThr('LUCID_COMM', 'LUCID').addThrValue(650)
         tc.registerThr('LUCID_05', 'LUCID').addThrValue(650)
         tc.registerThr('LUCID_06', 'LUCID').addThrValue(650)
+
+        ## AFP
+        tc.registerThr('AFP_NSC', 'NIM', mapping=2).addThrValue(50)
+        tc.registerThr('AFP_FSC', 'NIM', mapping=3).addThrValue(50)
+        tc.registerThr('AFP_NSA', 'NIM', mapping=4).addThrValue(50)
+        tc.registerThr('AFP_FSA', 'NIM', mapping=5).addThrValue(50)
+        
 
         # Diamond beam monitors
         #for i in range(8):

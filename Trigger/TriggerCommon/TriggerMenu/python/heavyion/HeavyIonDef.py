@@ -7,54 +7,26 @@
 #########################################################################
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
+log = logging.getLogger(__name__)
 
-logHeavyIonDef = logging.getLogger("TriggerMenu.heavyion.HeavyIonDef")
+from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
 
-from AthenaCommon import CfgGetter
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from TrigT2MinBias.TrigT2MinBiasConfig import MbMbtsHypo, L2MbMbtsFex, L2MbSpFex, L2MbSpUPC
 
-import re
-
-from TriggerJobOpts.TriggerFlags            import TriggerFlags
-
-from TriggerMenu.heavyion.HeavyIonSliceFlags  import HeavyIonSliceFlags
-
-from TriggerMenu.menu.HltConfig import *
-
-from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
-
-#theTrigEFIDInsideOut_FullScan = TrigEFIDSequence("FullScan","fullScan")
-
-from TrigT2MinBias.TrigT2MinBiasConfig import *
 from InDetTrigRecExample.EFInDetConfig import TrigEFIDSequence
 #fexes.efid = TrigEFIDSequence("minBias","minBias","InsideOut").getSequence()
 #fexes.efid2P = TrigEFIDSequence("minBias2P","minBias2","InsideOutLowPt").getSequence()
-
 efiddataprep = TrigEFIDSequence("minBias","minBias","DataPrep").getSequence()
 efid = TrigEFIDSequence("minBias","minBias","InsideOut").getSequence()
 efid_heavyIon = TrigEFIDSequence("heavyIonFS","heavyIonFS","InsideOut").getSequence()
 efid2P = TrigEFIDSequence("minBias2P","minBias2","InsideOutLowPt").getSequence()
 
-from TrigMinBias.TrigMinBiasConfig import *
-
-
 from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyRoI
-from TrigGenericAlgs.TrigGenericAlgsConf import PrescaleAlgo
 dummyRoI=DummyRoI(name='MinBiasDummyRoI', createRoIDescriptors = True, NumberOfOutputTEs=1)
-terminateAlgo = PrescaleAlgo('terminateAlgo')
-
 
 # for HI
 from TrigHIHypo.TrigHIHypoConfig import HIEFTrackHypo_AtLeastOneTrack
 atLeastOneTrack = HIEFTrackHypo_AtLeastOneTrack(name='HIEFTrackHypo_AtLeastOneTrack')
-
-from TrigHIHypo.TrigHIHypoConfig import *
-#hypos.update(hi_hypos)
-
-#L2 pileup suppression
-from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_FullScan_ZF_OnlyA  #TrigL2SiTrackFinder_FullScanA_ZF_OnlyA
-
-theL2PileupSup = TrigL2SiTrackFinder_FullScan_ZF_OnlyA()
 
 ###########################################################################
 #  All min bias
@@ -95,6 +67,8 @@ class L2EFChain_HI(L2EFChainDef):
             self.setup_hi_eventshape()
         elif "ucc" in self.chainPart['recoAlg']:
             self.setup_hi_ultracentral()
+        elif "upc" in self.chainPart['recoAlg']:
+            self.setup_hi_ultraperipheral()
         
         L2EFChainDef.__init__(self, self.chainName, self.L2Name, self.chainCounter, self.chainL1Item, self.EFName, self.chainCounter, self.L2InputTE)
 
@@ -124,17 +98,34 @@ class L2EFChain_HI(L2EFChainDef):
         EShypo_temp = self.chainPart['extra']
         ESth=EShypo_temp.lstrip('th')
         #print 'igb: ES threshold:', ESth
-
-        if 'v2' in self.chainPart['eventShape']:
+        VetoHypo = None
+        ESHypo=None
+        ESDiHypo=None
+        if 'v2' == self.chainPart['eventShape']:
             from TrigHIHypo.VnHypos import V2_th
             chainSuffix = 'v2_th'+ESth
             assert V2_th.has_key(int(ESth)), "Missing V2 configuration for threshold "+ESth
-            EShypo=V2_th[int(ESth)] 
-        elif 'v3' in self.chainPart['eventShape']:
-            from TrigHIHypo.VnHypos import *
+            ESHypo=V2_th[int(ESth)] 
+            if self.chainPart['eventShapeVeto'] == 'veto3':
+                from TrigHIHypo.VnHypos import V3_th1_veto
+                VetoHypo = V3_th1_veto
+                
+        elif 'v3' == self.chainPart['eventShape']:
+            from TrigHIHypo.VnHypos import V3_th
             chainSuffix = 'v3_th'+ESth
-            assert V3_th.has_key(int(ESth)), "Missing V2 configuration for threshold "+ESth            
-            EShypo=V3_th[int(ESth)] 
+            assert V3_th.has_key(int(ESth)), "Missing V3 configuration for threshold "+ESth         
+            ESHypo=V3_th[int(ESth)] 
+            if self.chainPart['eventShapeVeto']  == 'veto2':
+                from TrigHIHypo.VnHypos import V2_th1_veto
+                VetoHypo = V2_th1_veto
+
+        elif 'v23' == self.chainPart['eventShape']:
+            from TrigHIHypo.VnHypos import V3_th,V2_th
+            chainSuffix = 'th'+ESth
+            th=int(ESth)
+            ESDiHypo = [V2_th[th], V3_th[th]]
+
+        print "WTF", ESHypo, VetoHypo, ESDiHypo, " when making chain ", self.chainPart
 
         from TrigHIHypo.UE import theUEMaker, theFSCellMaker
 
@@ -148,37 +139,64 @@ class L2EFChain_HI(L2EFChainDef):
         self.EFsequenceList += [[['EF_hi_step1_fs'], 
                                  [theUEMaker], 'EF_hi_step1_ue']]
 
-        self.EFsequenceList += [[['EF_hi_step1_ue'], 
-                                 [EShypo], 'EF_hi_step2']]
-
-        ########### Signatures ###########
         self.L2signatureList += [ [['L2_hi_step1']] ]
         self.EFsignatureList += [ [['EF_hi_step1_fs']] ]
         self.EFsignatureList += [ [['EF_hi_step1_ue']] ]
-        self.EFsignatureList += [ [['EF_hi_step2']] ]
+
+        if ESHypo:
+            self.EFsequenceList += [[['EF_hi_step1_ue'], 
+                                     [ESHypo], 'EF_hi_step2']]
+            self.EFsignatureList += [ [['EF_hi_step2']] ]
+
+        if VetoHypo:
+            self.EFsequenceList += [[['EF_hi_step2'], 
+                                     [VetoHypo], 'EF_hi_step_veto']]
+            self.EFsignatureList += [ [['EF_hi_step_veto']] ]
+
+        if ESDiHypo:
+            self.EFsequenceList += [[['EF_hi_step1_ue'], 
+                                     [ESDiHypo[0]], 'EF_hi_step2']]
+            self.EFsequenceList += [[['EF_hi_step2'], 
+                                     [ESDiHypo[1]], 'EF_hi_step3']]
+
+            self.EFsignatureList += [ [['EF_hi_step2']] ]
+            self.EFsignatureList += [ [['EF_hi_step3']] ]
+
     
         self.TErenamingDict = {
             'L2_hi_step1': mergeRemovingOverlap('L2_hi_step1_', chainSuffix),
             'EF_hi_step1_fs': mergeRemovingOverlap('EF_hi_fs_', chainSuffix),
             'EF_hi_step1_ue': mergeRemovingOverlap('EF_hi_ue_', chainSuffix),
             'EF_hi_step2': mergeRemovingOverlap('EF_hi_', chainSuffix),
+            'EF_hi_step3': mergeRemovingOverlap('EF_hi_', '_and_v3_'+chainSuffix),
+            'EF_hi_step_veto': mergeRemovingOverlap('EF_hi_veto_', chainSuffix),
             }
 
 ###########################
     def setup_hi_ultracentral(self):
 
-        if 'perf'  in self.chainPart['extra']:
+        if 'perfzdc' in self.chainPart['extra']:
+            from TrigHIHypo.UltraCentralHypos import UltraCentral_PT
+            from TrigT2MinBias.TrigT2MinBiasConfig import L2MbZdcFex_LG, L2MbZdcFex_HG, L2MbZdcHypo_PT
+            theL2Fex1  = L2MbZdcFex_LG
+            theL2Fex2  = L2MbZdcFex_HG
+            theL2Hypo1 = L2MbZdcHypo_PT
+            chainSuffix = 'perfzdc_ucc'
+            UChypo=UltraCentral_PT("UltraCentralHypo_PT")
+        elif 'perf'  in self.chainPart['extra']:
             from TrigHIHypo.UltraCentralHypos import UltraCentral_PT
             chainSuffix = 'perf_ucc'
-            UChypo=UltraCentral_PT("UltraCentralHypo_PT") 
+            UChypo=UltraCentral_PT("UltraCentralHypo_PT")
         else:
-            from TrigHIHypo.UltraCentralHypos import UltraCentral
-            UChypo_temp = self.chainPart['hypoEFsumEtInfo']
-            UCth=UChypo_temp.lstrip('fcalet')
-            #print 'igb: UCC threshold:', UCth
-        
-            chainSuffix = 'fcalet'+UCth
-            UChypo=UltraCentral("UltraCentralHypo_"+UCth, float(UCth)*1000., -1.) 
+            from TrigHIHypo.UltraCentralHypos import UCC_th
+            threshold = self.chainPart['extra']
+            UChypo=UCC_th[threshold]
+            chainSuffix = threshold
+            if 'zdcpu' in self.chainPart['pileupInfo']:
+                from TrigT2MinBias.TrigT2MinBiasConfig import L2MbZdcFex_LG
+                from TrigT2MinBias.TrigT2MinBiasConfig import L2MbZdcHypo_sideAC_zdc_LG
+                theL2Fex1  = L2MbZdcFex_LG
+                theL2Hypo1 = L2MbZdcHypo_sideAC_zdc_LG
 
         from TrigHIHypo.UE import theUEMaker, theFSCellMaker
 
@@ -194,20 +212,93 @@ class L2EFChain_HI(L2EFChainDef):
 
         self.EFsequenceList += [[['EF_hi_step1_ue'], 
                                  [UChypo], 'EF_hi_step2']]
+        if 'perfzdc' in self.chainPart['extra']:
+            self.EFsequenceList += [[['EF_hi_step2'],
+                                     [theL2Fex1], 'EF_hi_step3']]
+            self.EFsequenceList += [[['EF_hi_step3'],
+                                     [theL2Fex2, theL2Hypo1], 'EF_hi_step4']]
+        if 'zdcpu' in self.chainPart['pileupInfo']:
+            self.EFsequenceList += [[['EF_hi_step2'],
+                                     [theL2Fex1, theL2Hypo1], 'EF_hi_step3']]
+
 
         ########### Signatures ###########
         self.L2signatureList += [ [['L2_hi_step1']] ]
         self.EFsignatureList += [ [['EF_hi_step1_fs']] ]
         self.EFsignatureList += [ [['EF_hi_step1_ue']] ]
         self.EFsignatureList += [ [['EF_hi_step2']] ]
+        if 'perfzdc' in self.chainPart['extra']:
+            self.EFsignatureList += [ [['EF_hi_step3']] ]
+            self.EFsignatureList += [ [['EF_hi_step4']] ]
+        if 'zdcpu' in self.chainPart['pileupInfo']:
+            self.EFsignatureList += [ [['EF_hi_step3']] ]
     
         self.TErenamingDict = {
             'L2_hi_step1': mergeRemovingOverlap('L2_hi_step1_', chainSuffix),
             'EF_hi_step1_fs': mergeRemovingOverlap('EF_hi_fs_', chainSuffix),
             'EF_hi_step1_ue': mergeRemovingOverlap('EF_hi_ue_', chainSuffix),
-            'EF_hi_step2': mergeRemovingOverlap('EF_hi_', chainSuffix),
+            'EF_hi_step2': mergeRemovingOverlap('EF_hi_lg_', chainSuffix),
             }
+        if 'perfzdc' in self.chainPart['extra']:
+            self.TErenamingDict['EF_hi_step3'] = mergeRemovingOverlap('EF_hi_hg_', chainSuffix)
+            self.TErenamingDict['EF_hi_step4'] = mergeRemovingOverlap('EF_hi_', chainSuffix)
+        if 'zdcpu' in self.chainPart['pileupInfo']:
+            self.TErenamingDict['EF_hi_step3'] = mergeRemovingOverlap('EF_hi_', chainSuffix+'_zdcpu')
+
+###########################
+    def setup_hi_ultraperipheral(self):
+
+        theL2MbtsFex=L2MbMbtsFex
+        theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_veto")
+        theL2PixelFex  = L2MbSpFex
+
+        if 'loose' in self.chainPart['hypoL2Info']:
+            minPixel=6
+            maxPixel=40
+            chainSuffix = 'loose_upc'
+        if 'medium' in self.chainPart['hypoL2Info']:
+            minPixel=6
+            maxPixel=30
+            chainSuffix = 'medium_upc'
+        if 'tight' in self.chainPart['hypoL2Info']:
+            minPixel=6
+            maxPixel=25
+            chainSuffix = 'tight_upc'
+        if 'gg' in self.chainPart['hypoL2Info']:
+            minPixel=0
+            maxPixel=10
+            chainSuffix = 'gg_upc'
+
+        theL2PixelHypo  = L2MbSpUPC("MbPixelSpUPC_min"+str(minPixel)+'_max'+str(maxPixel), minPixel, maxPixel)
         
+        ########### Sequence List ##############
+        self.L2sequenceList += [["",
+                                 [dummyRoI],
+                                 'L2_hi_step1']] 
+        self.L2sequenceList += [[['L2_hi_step1'], 
+                                     [theL2MbtsFex, theL2MbtsHypo], 'L2_hi_mbtsveto']]
+        self.L2sequenceList += [['L2_hi_mbtsveto',
+                                     efiddataprep,
+                                 'L2_hi_iddataprep']]
+        self.L2sequenceList += [[['L2_hi_iddataprep'],
+                                 [theL2PixelFex, theL2PixelHypo],
+                                 'L2_hi_pixel']]
+
+
+
+        ########### Signatures ###########
+        self.L2signatureList += [ [['L2_hi_step1']] ]
+        self.L2signatureList += [ [['L2_hi_mbtsveto']] ]
+        self.L2signatureList += [ [['L2_hi_iddataprep']] ]
+        self.L2signatureList += [ [['L2_hi_pixel']] ]
+    
+        self.TErenamingDict = {
+            'L2_hi_step1': mergeRemovingOverlap('L2_hi_step1_', chainSuffix),
+            'L2_hi_mbtsveto': mergeRemovingOverlap('EF_hi_mbtsveto_', chainSuffix),
+            'L2_hi_iddataprep': mergeRemovingOverlap('EF_hi_iddataprep_', chainSuffix),
+            'L2_hi_pixel': mergeRemovingOverlap('EF_hi_pixel_', chainSuffix),
+            }
+
 #####################################################################
     
 #if __name__ == '__main__':

@@ -142,15 +142,18 @@ def findFreeCTPIDs(menu):
     
 def main():
     if len(sys.argv)==1:
-        generateL1Menu(menu="Physics_pp_v5")
-        generateL1Menu(menu="MC_pp_v5")
-        generateL1Menu(menu="LS1_v1" )
+#        generateL1Menu(menu="Physics_pp_v5")
+#        generateL1Menu(menu="MC_pp_v5")
+        generateL1Menu(menu="Physics_pp_v6")
+        generateL1Menu(menu="MC_pp_v6")
+#        generateL1Menu(menu="LS1_v1" )
         #generateL1Menu(menu="DC14")
-        generateL1Menu(menu="MC_pp_v5_no_prescale")
-        generateL1Menu(menu="MC_pp_v5_loose_mc_prescale")
-        generateL1Menu(menu="MC_pp_v5_tight_mc_prescale")
-        generateL1Menu(menu="Physics_HI_v3")  # currently disabled since not defined in JobProp
-        generateL1Menu(menu="MC_HI_v3")  # currently disabled since not defined in JobProp
+#        generateL1Menu(menu="MC_pp_v5_no_prescale")
+#        generateL1Menu(menu="MC_pp_v5_loose_mc_prescale")
+#        generateL1Menu(menu="MC_pp_v5_tight_mc_prescale")
+#        generateL1Menu(menu="MC_pp_v6_tight_mc_prescale")
+#        generateL1Menu(menu="Physics_HI_v3")  # currently disabled since not defined in JobProp
+#        generateL1Menu(menu="MC_HI_v3")  # currently disabled since not defined in JobProp
         return 0
 
     printCabling = False
@@ -164,7 +167,7 @@ def main():
         return 0
     
     if sys.argv[1].lower().startswith("phy"):
-        menu = generateL1Menu(menu="Physics_pp_v5")
+        menu = generateL1Menu(menu="Physics_pp_v6")
         if printCabling:
             menu.printCabling()
         return 0
@@ -174,7 +177,7 @@ def main():
         return 0
 
     if sys.argv[1].lower().startswith("mc"):
-        generateL1Menu(menu="MC_pp_v5")
+        generateL1Menu(menu="MC_pp_v6")
         return 0
 
     if sys.argv[1].lower().startswith("mcp"):
@@ -192,10 +195,13 @@ def main():
         generateL1Menu(menu="DC14", useTopoMenu="Physics_pp_v5")
         return 0
 
-    if sys.argv[1].lower().startswith("hi"):
+    if sys.argv[1].lower().startswith("hiphy"):
         generateL1Menu(menu="Physics_HI_v3")
         return 0
 
+    if sys.argv[1].lower().startswith("himc"):
+        generateL1Menu(menu="MC_HI_v3")
+        return 0
 
 if __name__=="__main__":
     sys.exit( main() )

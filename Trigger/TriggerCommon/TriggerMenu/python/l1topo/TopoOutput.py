@@ -43,6 +43,8 @@ class TriggerLine(object):
         self.ordinal  = ordinal 
         self.firstbit = firstbit
 
+    def __str__(self):
+        return "{0} on cable {1}, fpga {2}, bit {3}, ordinal {4}".format(self.trigger,self.cable, self.fpga, self.bit, self.ordinal)
 
     @staticmethod
     def createTriggerlinesFromTopoOutput(topoOutput):
@@ -75,7 +77,7 @@ class TriggerLine(object):
             if not m:
                 raise RuntimeError("Triggerline %s does not match multibit pattern 'line[bit]'" % tl.trigger)
 
-            cs.add( (m.groupdict()['line'], tl.bit - int(m.groupdict()['bit']), tl.cable, tl.clock, tl.fpga) )
+            cs.add( (m.groupdict()['line'], tl.bit - int(m.groupdict()['bit']), tl.cable, tl.clock, tl.fpga, tl.ordinal-int(m.groupdict()['bit'])) )
 
             bitlist += [ int(m.groupdict()['bit']) ]
 
@@ -88,6 +90,6 @@ class TriggerLine(object):
 
         uniqueDescription = cs.pop()
 
-        (commonNameOfLines, firstbit, cable, clock, fpga) = uniqueDescription
+        (commonNameOfLines, firstbit, cable, clock, fpga, ordinal) = uniqueDescription
 
-        return (commonNameOfLines, firstbit, numberOfBits, cable, clock, fpga)
+        return (commonNameOfLines, firstbit, numberOfBits, cable, clock, fpga, ordinal)

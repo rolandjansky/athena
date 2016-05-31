@@ -21,6 +21,10 @@ from SequenceTree import SequenceLinear
 from ChainConfigMaker import ChainConfigMaker
 from AlgFactory import AlgFactory
 
+from JetCleanMonitoring import JetChainsToKeepMonitoring
+from TriggerMenu.menu.CleanMonitoring import KeepMonitoring
+from TriggerMenu.menu.CleanMonitoring import DisableMonitoringButValAndTime
+
 try:
     from AthenaCommon.Logging import logging
     logger = logging.getLogger("TriggerMenu.jet.generateJetChainDefs")
@@ -43,19 +47,10 @@ def _check_input(in_data):
                 in_data.keys())
             raise RuntimeError(msg)
 
-    # expect two chain parts for bjets: these sepecify different
-    # multiplicities and thresholds for the jet hypo.
-    # all remaining dictionaries should be the same.
-
-    chain_parts = in_data['chainParts']
-    if len(chain_parts) > 2:
-        msg = '%s Unexpected input data: no of chain' \
-            ' parts %s: max: 2' % (err_hdr, len(chain_parts))
-        raise RuntimeError(msg)
-
     # if there are more than one chain part, the differences should
     # only refer to the jet hypo. If this is not the case, we do
     # not know what is going on
+    chain_parts = in_data['chainParts']
     _check_chainpart_consistency(chain_parts)
     _check_values(chain_parts)
 
@@ -74,7 +69,7 @@ def _check_values(chain_parts):
 
     # input data check
     must_have = ('etaRange', 'threshold', 'recoAlg', 'dataType', 'calib',
-                 'addInfo', 'jetCalib')
+                 'addInfo', 'jetCalib', 'cleaning')
 
     for cp in chain_parts:
         missing = [k for k in must_have if k not in cp]
@@ -84,7 +79,7 @@ def _check_values(chain_parts):
             raise RuntimeError(msg)
 
     dataTypes = [p['dataType'] for p in chain_parts]
-    bad = [r for r in dataTypes if r not in ('TT', 'tc')]
+    bad = [r for r in dataTypes if r not in ('TT', 'tc', 'ion')]
 
     if bad:
         msg = '%s unknown dataType(s): %s' % (err_hdr, ' '.join(bad))
@@ -172,9 +167,18 @@ def _make_chaindef(from_central, instantiator):
                          lower_chain_name=chain_config.seed)
 
     # add sequence and signature (check point) information to it
+
+    disableMon = not KeepMonitoring(final_chain_name,JetChainsToKeepMonitoring, strictComparison = True) #reduce number of online histograms according to a whitelist, strictComparison is needed as e.g. j25 is found as a substring in other chain names
+
     sig_ind = 0
     for s in sequences:
-
+        
+        if disableMon: #if block used to remove online histograms of a hypo's AthenaMonTools
+            if "hypo" in s.alias:
+                for thisalg in s.alg_list:
+                    if hasattr(thisalg,"AthenaMonTools"):
+                        thisalg.AthenaMonTools = DisableMonitoringButValAndTime(thisalg.AthenaMonTools)
+    
         sig_ind += 1
         chain_def.addSequence(listOfAlgorithmInstances=s.alg_list,
                               te_in=s.te_in,
@@ -243,6 +247,11 @@ def generateHLTChainDef(caller_data):
 
     Debug and testing actions are controlled by environment variables.
     See commnets in usage()."""
+
+    # selected_chains = ('j85_lcw',)
+    # chain_name = caller_data['chainName']
+    # if chain_name not in selected_chains:
+    #    return ErrorChainDef('Not a selected chain', chain_name)
 
     # maintain a copy of the incoming dictionary - to be used
     # for debugging, will not be overwritten.
@@ -357,8 +366,8 @@ if __name__ == '__main__':
             assert False, "unhandled option"
 
     # chain_defs = run_test()
-    from test_functions import run_strawman_test
-    chain_defs = run_strawman_test()
+    from test_functions import run_test_dicts
+    chain_defs = run_test_dicts()
     for c in chain_defs:
         print '\n-----------------------\n'
         print c

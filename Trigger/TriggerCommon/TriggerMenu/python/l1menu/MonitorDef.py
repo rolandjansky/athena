@@ -147,10 +147,12 @@ class MonitorDef:
             "L1_XE35", "L1_XE80", "L1_XS20", "L1_XS60", "L1_TE20", "L1_TE20.0ETA24", "L1_TE50",
             "L1_MBTS_4_A", "L1_MBTS_4_C", "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
             "L1_LUCID", "L1_LUCID_A_C_EMPTY", "L1_ALFA_ANY",
-             "L1_BTAG-MU4J30", "L1_3J15_BTAG-MU4J30", "L1_BPH-DR-2MU4-BO_BPH-4M8-2MU4-BO","L1_HT190-J15.ETA21","L1_JPSI-1M5-EM7","L1_J40_DPHI-J20XE50","L1_MJJ-100",
+            "L1_ZDC_A", "L1_ZDC_C", "L1_ZDC_AND",
+            "L1_BTAG-MU4J30", "L1_3J15_BTAG-MU4J30", "L1_BPH-DR-2MU4-BO_BPH-4M8-2MU4-BO","L1_HT190-J15.ETA21","L1_JPSI-1M5-EM7","L1_J40_DPHI-J20XE50","L1_MJJ-100",
             "L1_BPTX0_BGRP0","L1_BPTX1_BGRP0",
             "L1_LHCF",
-            "L1_CALREQ2"
+            "L1_CALREQ2",
+            "L1_AFP_NSC","L1_AFP_FSC",
             ]
 
         monItemsHF[TBP|TAP|TAV] = [

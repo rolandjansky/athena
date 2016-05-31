@@ -41,6 +41,11 @@ class SequenceTree(object):
     (1/6/2014) Currently sequence trees are simple linear chains of
     sequences. More complex trees were present in 2012."""
 
+    # impose a limit on Sequence aliases
+    # to limit the length of trigger element names
+    
+    max_alias_length = 50  
+    
     def __init__(self, start_te, alglists, chain_name):
         """Create a DAG of sequences. The first sequence of the list
         is taken to be the root"""
@@ -58,19 +63,38 @@ class SequenceTree(object):
         self._make_sequences(root, start_te)
         self._check()
 
-    def _make_sequences(self, alglist, te_in):
-        """Convert alglist objects to sequence objects"""
-
-        # use te_in and the seuquence alias to form te_out.
-        # the formeer defines the input, the latter defines
+    def _make_teout_name(self, te_in, alias):
+        
+        # use te_in and the sequence alias to form te_out.
+        # the former defines the input, the latter defines
         # the sequence state (alg parameters).Both are needed to
         # specify what the sequence calculates.
+        #
+        # 17/5/2016 the te names have grown in length as more
+        # complicated chains have been created. Ensure that the
+        # name is not excessivey long.
+
+        # te_in is the name of the input trigger element (type string)
+        # alias is a string that describes the content of the sequence.
+        # this is created in JetSeqeunceBuilder.
+
+        assert self.max_alias_length
+        if len(alias) > self.max_alias_length:
+
+            # the 0th token gives generic information about the
+            # sequence. Keep this for human readers
+            toks = alias.split('_')
+            # hash the rest to get a shorter name
+            ah = hash(alias)
+            alias = '%s_%d' % (toks[0], ah)
+            
+            
         if te_in:
             # te_out = te_in + '__' + alglist.alias
             hash_in = ('%s' % hash(te_in)).replace('-', '_')
-            te_out = '%s_%s' % (hash_in, alglist.alias)
+            te_out = '%s_%s' % (hash_in, alias)
         else:
-            te_out = alglist.alias
+            te_out = alias
 
         # te_out = alglist.alias
 
@@ -79,6 +103,13 @@ class SequenceTree(object):
         if not te_out.startswith('EF_'):
             te_out = 'EF_' + te_out
 
+        return te_out
+    
+    def _make_sequences(self, alglist, te_in):
+        """Convert alglist objects to sequence objects"""
+
+        te_out = self._make_teout_name(te_in, alglist.alias)
+        
         new_sequence = Sequence(te_in,
                                 alglist.alg_list,
                                 alglist.alias,  # for debugging

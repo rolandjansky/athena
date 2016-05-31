@@ -108,6 +108,7 @@ class L2EFChain_MB(L2EFChainDef):
         elif "noalg" in self.chainPart['recoAlg']:
             self.setup_mb_noalg()
 
+
         L2EFChainDef.__init__(self, self.chainName, self.L2Name, self.chainCounter, self.chainL1Item, self.EFName, self.chainCounter, self.L2InputTE)
 
     def defineSequences(self):
@@ -136,6 +137,10 @@ class L2EFChain_MB(L2EFChainDef):
         if 'ion' in self.chainPart['extra']:
             doHeavyIon=True
 
+        doSpNcb=False
+        if 'ncb' in  self.chainPart['extra']:
+            doSpNcb=True
+
         doSptrk=False
         if "sptrk" in self.chainPart['recoAlg']: #do EFID
             doSptrk=True
@@ -146,11 +151,20 @@ class L2EFChain_MB(L2EFChainDef):
             theL2MbtsFex=L2MbMbtsFex
             theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_veto")
 
+        if "vetombts1side2in" in self.chainPart['extra']: #do EFID
+            doMbtsVeto=True
+            theL2MbtsFex=L2MbMbtsFex
+            theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_one_side_veto")
+
         ########## L2 algos ##################
         #if "sptrk" or "sp" in self.chainPart['recoAlg']:
         if "noisesup" in self.chainPart['extra']:
             chainSuffix = "sptrk_noisesup"
             theL2Fex  = L2MbSpFex_SCTNoiseSup
+        elif doSpNcb:
+            # spacepoint halo trigger is SCT only
+            theL2Fex  = L2MbSpFex_noPix
+            chainSuffix = "sp_ncb"
         else:
             theL2Fex  = L2MbSpFex
             if doSptrk:
@@ -159,9 +173,15 @@ class L2EFChain_MB(L2EFChainDef):
                 chainSuffix = "sp"
         
         if doMbtsVeto:
-            chainSuffix = chainSuffix+"_vetombts2in"
+            if "vetombts2in" in self.chainPart['extra']:
+                chainSuffix = chainSuffix+"_vetombts2in"
+            if "vetombts1side2in" in self.chainPart['extra']:
+                chainSuffix = chainSuffix+"_vetombts1side2in"
 
-        theL2Hypo = L2MbSpHypo
+        if doSpNcb:
+            theL2Hypo = L2MbSpHypo_ncb
+        else:
+            theL2Hypo = L2MbSpHypo
 
         ########## EF algos ##################
         #if "sptrk" in self.chainPart['recoAlg']:
@@ -385,6 +405,17 @@ class L2EFChain_MB(L2EFChainDef):
         if 'ion' in self.chainPart['extra']:
             doHeavyIon=True
 
+        theL2Fex  = L2MbMbtsFex
+
+        doMbtsVeto=False
+        if "vetombts2in" in self.chainPart['extra']: #do EFID
+            doMbtsVeto=True
+            theL2MbtsVetoHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_veto")
+
+        if "vetombts1side2in" in self.chainPart['extra']: #do EFID
+            doMbtsVeto=True
+            theL2MbtsVetoHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_one_side_veto")
+
         ########## L2 algos ##################
         if "mbts" in self.chainPart['recoAlg']:
             l2hypo = self.chainName
@@ -406,40 +437,55 @@ class L2EFChain_MB(L2EFChainDef):
 
             chainSuffix = "mbts"
             theL2Fex  = L2MbMbtsFex
+            
+            if not doMbtsVeto:
+                theL2Hypo = MbMbtsHypo('L2MbMbtsHypo_'+l2HypoCut)
+                theL2Hypo.AcceptAll = False
+                theL2Hypo.TimeCut = trigT2MinBiasProperties.mbtsTimeCut()
 
-            theL2Hypo = MbMbtsHypo('L2MbMbtsHypo_'+l2HypoCut)
-            theL2Hypo.AcceptAll = False
-            theL2Hypo.TimeCut = trigT2MinBiasProperties.mbtsTimeCut()
-
-            if(len(l2HypoCut) == 1):
-                 theL2Hypo.MbtsCounters = int(l2HypoCut)
-                 theL2Hypo.Coincidence = False
-            elif(len(l2HypoCut) == 3):
-                 L2th = l2HypoCut.split("_")[0]
+                if(len(l2HypoCut) == 1):
+                    theL2Hypo.MbtsCounters = int(l2HypoCut)
+                    theL2Hypo.Coincidence = False
+                elif(len(l2HypoCut) == 3):
+                    L2th = l2HypoCut.split("_")[0]
                  #print 'igb: threshold: ', L2th
-                 theL2Hypo.MbtsCounters = int(L2th)
-                 theL2Hypo.Coincidence = True
+                    theL2Hypo.MbtsCounters = int(L2th)
+                    theL2Hypo.Coincidence = True
+                else:
+                    logMinBiasDef.error("Something weird in the setup_mb_mbts(), please check")
             else:
-                 logMinBiasDef.error("Something weird in the setup_mb_mbts(), please check")
-
+                theL2Hypo = theL2MbtsVetoHypo
+                if "vetombts2in" in self.chainPart['extra']:
+                    chainSuffix = chainSuffix+"_vetombts2in"
+                if "vetombts1side2in" in self.chainPart['extra']:
+                    chainSuffix = chainSuffix+"_vetombts1side2in"
+                
         ########## EF algos ##################
 
-        ########### Sequence List ##############
+        ########theL2MbtsVetoHypo### Sequence List ##############
 
         self.L2sequenceList += [["",
                                  [dummyRoI],
                                  'L2_mb_step0']] 
-
-        self.L2sequenceList += [[['L2_mb_step0'],
-                                 [theL2Fex, theL2Hypo],
-                                 'L2_mb_step1']]
+        if not doMbtsVeto:
+            self.L2sequenceList += [[['L2_mb_step0'],
+                                     [theL2Fex, theL2Hypo],
+                                     'L2_mb_step1']]
+        else:
+            self.L2sequenceList += [[['L2_mb_step0'],
+                                     [theL2Fex, theL2Hypo],
+                                     'L2_mb_mbtsveto']]
 
         ########### Signatures ###########
-        self.L2signatureList += [ [['L2_mb_step0']] ]
-        self.L2signatureList += [ [['L2_mb_step1']] ]
-
-        self.TErenamingDict = {
-            'L2_mb_step1': mergeRemovingOverlap('L2_', ''+chainSuffix+'_'+l2HypoCut),
+        if not doMbtsVeto:
+            self.L2signatureList += [ [['L2_mb_step1']] ]
+            self.TErenamingDict = {
+                'L2_mb_step1': mergeRemovingOverlap('L2_', ''+chainSuffix+'_'+l2HypoCut),
+                }
+        else:
+            self.L2signatureList += [ [['L2_mb_mbtsveto']] ]
+            self.TErenamingDict = {
+                'L2_mb_mbtsveto': mergeRemovingOverlap('L2_mbtsveto_', ''+chainSuffix),
             }
 
 ########################### high multiplicity triggers
@@ -642,8 +688,10 @@ class L2EFChain_MB(L2EFChainDef):
         shortName=chainName.strip('mb_')
         self.chainName       = shortName
         
+
 #####################################################################
-    
+
+
 #if __name__ == '__main__':
 #    triggerPythonConfig = TriggerPythonConfig('hlt.xml', None)
 #    for m in Muons:

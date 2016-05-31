@@ -26,7 +26,7 @@ class Lvl1MonCounter(object):
 
     def __init__(self, name, multiplicity, montype):
         self.name = name
-        self.multiplicity = multiplicity
+        self.multiplicity = int(multiplicity)
         self.montype = montype
         pass
 

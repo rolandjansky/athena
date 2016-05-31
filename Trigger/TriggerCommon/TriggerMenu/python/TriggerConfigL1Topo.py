@@ -29,6 +29,8 @@ class TriggerConfigL1Topo:
         # all registered algos
         self.registeredAlgos = {}
 
+        self.runningid=0
+        
         # menu
         self.menu = L1TopoMenu(self.menuName)
         
@@ -67,14 +69,18 @@ class TriggerConfigL1Topo:
             raise RuntimeError('L1Topo algo %s is already registered' % algo.name)
             
         self.registeredAlgos[algo.name] = algo
-        log.debug("Added %s in the algo list: " % algo.name)
+        log.debug("Added in the algo list: {0}, ID:{1}" .format(algo.name,algo.algoId))
         return algo
 
 
-
+    
     def getRegisteredAlgo(self, name):
         if name in self.registeredAlgos:
+#            print "Returning algo: {0}, ID:{1}, reassigning to {2}" .format(self.registeredAlgos[name].name,self.registeredAlgos[name].algoId,self.runningid )
+#            self.registeredAlgos[name].algoId=self.runningid
+            self.runningid+=1
             return self.registeredAlgos[name]
+        
         return None
 
 

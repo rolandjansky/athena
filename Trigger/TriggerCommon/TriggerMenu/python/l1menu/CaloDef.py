@@ -17,7 +17,7 @@ class CaloDef:
 
 
         caloInfo = tc.menu.CaloInfo
-
+        menuName = tc.menuName
         # global scale
         em_scale=2
         if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):
@@ -52,31 +52,40 @@ class CaloDef:
         priority   : 0
         """
 
+
+        # for unused bits, fill with the loosest existing option (ATR-13892)
         caloInfo.isolation["EMIsoForEMthr"] .addIsolation( isobit=1, slope=0, offset=0, upperlimit=0)\
                                             .addIsolation( isobit=2, slope=80, offset=-18, mincut=20, upperlimit=50)\
                                             .addIsolation( isobit=3, slope=80, offset=-18, mincut=20, upperlimit=50)\
                                             .addIsolation( isobit=4, slope=80, offset=-18, mincut=20, upperlimit=50)\
-                                            .addIsolation( isobit=5, slope=0, offset=0, upperlimit=0)
-                                            
+                                            .addIsolation( isobit=5, slope=80, offset=-18, mincut=20, upperlimit=50)
+
         caloInfo.isolation["HAIsoForEMthr"] .addIsolation( isobit=1, slope=230, offset=-2, mincut=10, upperlimit=50)\
                                             .addIsolation( isobit=2, slope=0, offset=0, upperlimit=0)\
                                             .addIsolation( isobit=3, slope=230, offset=-2, mincut=10, upperlimit=50)\
                                             .addIsolation( isobit=4, slope=230, offset=-2, mincut=10, upperlimit=50)\
-                                            .addIsolation( isobit=5, slope=0, offset=0, upperlimit=0)
+                                            .addIsolation( isobit=5, slope=230, offset=-2, mincut=10, upperlimit=50)
 
         caloInfo.isolation["EMIsoForTAUthr"] .addIsolation( isobit=1, slope=100, offset=30, upperlimit=60 )\
                                              .addIsolation( isobit=2, slope=100, offset=20, upperlimit=60 )\
                                              .addIsolation( isobit=3, slope=100, offset=15, upperlimit=60 )\
-                                             .addIsolation( isobit=4, slope=0, offset=40)\
-                                             .addIsolation( isobit=5, slope=0, offset=0, upperlimit=0)
+                                             .addIsolation( isobit=4, slope=0, offset=40, upperlimit=124 )\
+                                             .addIsolation( isobit=5, slope=100, offset=30, upperlimit=60 )
+
 
 
         # min PT for TOBs
-        caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="EM", ptmin=3) ]
-        caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="TAU", ptmin=4) ]
-        caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETS", ptmin=8, window=4) ]
-        caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETL", ptmin=12, window=8) ]
-
+        if "HI_" in menuName:
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="EM", ptmin=7) ]
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="TAU", ptmin=12) ]
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETS", ptmin=10, window=4) ]
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETL", ptmin=10, window=8) ]
+        else:
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="EM", ptmin=3) ]
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="TAU", ptmin=8) ]
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETS", ptmin=12, window=4) ]
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETL", ptmin=12, window=8) ]
+            
         # jet weights
         if len( tc.menu.thresholds.allThresholdsOf('JET') ) <= 8:
             caloInfo.setJetWeights( CaloInfo.calcJetWeightsFromThresholds(tc) )  # no more jet weights in the new menu

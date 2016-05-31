@@ -7,7 +7,6 @@ import copy
 import unittest
 from mock import MagicMock
 from JetDef import generateHLTChainDef, usage
-from test_functions import run_strawman_test
 
 from ChainConfigMaker import JetAttributes
 
@@ -86,17 +85,41 @@ class TestJetDef(unittest.TestCase):
     def test_9(self):
         'test error handling: topo TT is one of the dataTypes'
 
-        self.from_central['chainParts'][0]['dataType'] = 'TT'
-        chain_def = generateHLTChainDef(self.from_central)
-        #if chain_def.__class__.__name__ != 'ChainDef':
-        #    print chain_def
-        # No TT alg yet
-        # if 'JETDEF_NO_INSTANTIATION' in os.environ:
-        #     self.assertTrue(chain_def.__class__.__name__ == 'ChainDef')
-        # else:
-        #    self.assertTrue(chain_def.__class__.__name__ == 'ErrorChainDef')
+        d = {'EBstep': -1,
+             'L1item': 'L1_J20',
+             'chainCounter': 763,
+             'chainName': 'j60_TT',
+             'chainParts': [{'L1item': '',
+                             'TLA': '',
+                            'addInfo': [],
+                             'bConfig': [],
+                             'bMatching': [],
+                             'bTag': '',
+                             'bTracking': '',
+                             'calib': 'em',
+                             'chainPartName': 'j60_TT',
+                             'cleaning': 'noCleaning',
+                             'dataScouting': '',
+                             'dataType': 'TT',
+                             'etaRange': '0eta320',
+                             'extra': '',
+                             'jetCalib': 'subjes',
+                             'multiplicity': '1',
+                             'recoAlg': 'a4',
+                             'scan': 'FS',
+                             'signature': 'Jet',
+                             'threshold': '60',
+                             'topo': [],
+                             'trigType': 'j'}],
+             'groups': ['RATE:SingleJet', 'BW:Jets'],
+             'signature': 'Jet',
+             'signatures': '',
+             'stream': ['Main'],
+             'topo': [],
+            'topoStartFrom': False,
+             'topoThreshold': None}
 
-        # TT alg now under development
+        chain_def = generateHLTChainDef(d)
         if chain_def.__class__.__name__ != 'ChainDef':
             print 'real error ---> ', chain_def
             print chain_def
@@ -170,6 +193,67 @@ class TestJetDef(unittest.TestCase):
     def test_17(self):
         """excercise usage message"""
         usage()
+
+    def test_18(self):
+        """test exception thrown of two hypos specified"""
+        d = {'EBstep': -1,
+             'L1item': 'L1_J100',
+             'chainCounter': 727,
+             'chainName': '2hypochain',
+            'chainParts': [{'L1item': '',
+                            'TLA': '1i2c500m700TLA',
+                            'addInfo': [],
+                            'bConfig': ['split'],
+                            'bMatching': [],
+                            'bTag': 'bmv2c2060',
+                            'bTracking': '',
+                            'calib': 'em',
+                            'chainPartName': 'j175_bmv2c2060_split',
+                            'cleaning': 'noCleaning',
+                            'dataScouting': '',
+                            'dataType': 'tc',
+                            'etaRange': '0eta320',
+                            'extra': '',
+                            'jetCalib': 'subjes',
+                            'multiplicity': '1',
+                            'recoAlg': 'a4',
+                            'scan': 'FS',
+                            'signature': 'Jet',
+                            'threshold': '0',
+                            'topo': [],
+                            'trigType': 'j'},
+                           {'L1item': '',
+                            'TLA': '',
+                            'addInfo': [],
+                            'bConfig': ['split'],
+                            'bMatching': [],
+                            'bTag': 'bmv2c2050',
+                            'bTracking': '',
+                            'calib': 'em',
+                            'chainPartName': 'j50_bmv2c2050_split',
+                            'cleaning': 'noCleaning',
+                            'dataScouting': '',
+                            'dataType': 'tc',
+                            'etaRange': '0eta320',
+                            'extra': '',
+                            'jetCalib': 'subjes',
+                            'multiplicity': '1',
+                            'recoAlg': 'a4',
+                            'scan': 'FS',
+                            'signature': 'Jet',
+                            'threshold': '50',
+                            'topo': [],
+                            'trigType': 'j'}],
+             'groups': ['RATE:MultiBJet', 'BW:Bjet'],
+             'signature': 'Jet',
+             'signatures': '',
+             'stream': ['Main'],
+             'topo': [],
+             'topoStartFrom': False,
+             'topoThreshold': None}
+        
+        chain_def = generateHLTChainDef(d)
+        
 
 if __name__ == '__main__':
     unittest.main()
