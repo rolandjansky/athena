@@ -89,8 +89,17 @@ int PFlowPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli)
 
     //If there is no primary vertex, then we cannot correct pflow inputs and hence we return (because this should not happen).
     if (nullptr == vtx) {
-      ATH_MSG_WARNING("Could not find a primary vertex in this event " );
-      return 1;
+      ATH_MSG_VERBOSE("Could not find a primary vertex in this event " );
+      for (auto theVertex : *pvtxs) {
+	if (xAOD::VxType::NoVtx == theVertex->vertexType() ) {
+	  vtx = theVertex;
+	  break;
+	}
+      }
+      if (nullptr == vtx) {
+	ATH_MSG_WARNING("Could not find a NoVtx in this event " );
+	return 1;
+      }
     }
   }
 
@@ -190,7 +199,7 @@ int PFlowPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli)
 		  float expectedPt = expectedEnergy/cosh(pcpf->eta());
 		  if (1.0 == weight) filler.fill(pcpf, pcpf->p4()*weight );
 		else{
-		  float secondWeight = expectedPt + weight*(ptrk->pt()-expectedPt)/ptrk->pt();
+		  float secondWeight = (expectedPt + weight*(ptrk->pt()-expectedPt))/ptrk->pt();
 		  filler.fill(pcpf, pcpf->p4()*secondWeight );
 		}
 		}
