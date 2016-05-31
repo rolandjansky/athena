@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: LCGConfig.cmake 746545 2016-05-12 11:40:48Z krasznaa $
+# $Id: LCGConfig.cmake 751138 2016-05-31 13:50:48Z krasznaa $
 #
 # File implementing the code that gets called when a project imports
 # LCG using something like:
@@ -381,6 +381,8 @@ set( PYTHON_LIBRARY ${PYTHON_LIBRARY}
 list( APPEND CMAKE_PREFIX_PATH ${DOXYGEN_ROOT} )
 set( GSL_ROOT_DIR ${GSL_ROOT} )
 list( APPEND CMAKE_PREFIX_PATH ${QT_ROOT} )
+list( APPEND CMAKE_PREFIX_PATH ${QT5_ROOT} )
+list( APPEND CMAKE_PREFIX_PATH ${GRAPHVIZ_ROOT} )
 list( APPEND CMAKE_PREFIX_PATH ${COIN3D_ROOT} )
 list( APPEND CMAKE_PREFIX_PATH ${EXPAT_ROOT} )
 
