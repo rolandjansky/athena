@@ -362,7 +362,9 @@ class DictFromChainName(object):
 
             # ---- assign L1 to chain parts from L1 item list in menu ----
             # ---- check if enough L1 items given for chain parts ----
+            #print "BETTA: ", L1items_chainParts
             if (len(L1items_chainParts) > 0):
+                #print "BETTA: ",len(L1items_chainParts), len(multichainparts)
                 if (len(L1items_chainParts) != len(multichainparts)):
                     logDict.info("Not enough L1 items for chain parts of chain %s defined => fix in menu please!",
                                  genchainDict['chainName'])

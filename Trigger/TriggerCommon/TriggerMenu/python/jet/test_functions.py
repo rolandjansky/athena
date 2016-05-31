@@ -3,14 +3,25 @@
 """Excerciser functions for JetDef.py"""
 
 import getopt, sys, os
-
+from StdOutController import StdOutController
 
 from generateJetChainDefs import  generateChainDefs
 
 
-def run_mc_pp_v5(use_atlas_config=True, debug=True, printChains=True):
-    from MC_pp_V5_dicts import MC_pp_V5_dicts
-    dicts = MC_pp_V5_dicts
+def _generate(d):
+    controller = StdOutController()
+
+    controller.off()
+    cd  = generateChainDefs(d)
+    sys.settrace(None)
+    controller.on()
+    return cd
+
+
+def run_triggerMenuXML_dicts(use_atlas_config=True,
+                             debug=True,
+                             printChains=True):
+    from triggerMenuXML_dicts import triggerMenuXML_dicts as dicts
     m =  'have [%d] dicts, set $JETDEF_DEBUG, $JETDEF_DEBUG_NO_INSTANTIATION'\
          ' to write to disk' % (
         len(dicts))
@@ -23,13 +34,15 @@ def run_mc_pp_v5(use_atlas_config=True, debug=True, printChains=True):
     result = []
     ndicts = 0
     for d in dicts:
-        if d['chainName'] == 'j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO': continue
+        if d['chainName'] == 'j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO':
+            print 'Excluding j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO'
+            continue
         
         if printChains: print ndicts, d['chainName']
         # sys.stdout = devnull
         # sys.stderr = devnull
         try:
-            result.append(generateChainDefs(d))
+            result.append(_generate(d))
         except Exception, e:
             assert False
         ndicts += 1
@@ -41,33 +54,45 @@ def run_mc_pp_v5(use_atlas_config=True, debug=True, printChains=True):
 
 def run_test_dicts():
     """Function to run jetdef from a text file containing a single dict"""
-    from test_dicts import test_dicts
-    chainDefs = [generateChainDefs(d) for d in test_dicts] 
-    for c in chainDefs:
-        print c
+    from test_dicts import triggerMenuXML_dicts as dicts
+    print 'run_test_dicts: found %d dicts for chains:' % len(dicts)
+    for d in dicts:
+        print d['chainName']
+
+
+    chainDefs = []
+    for d in dicts:
+        print d['chainName']
+        try:
+            cd = _generate(d)
+        except Exception, e:
+            print '(Error)ChainDef creation failed: ', str(e)
+        print cd
+        chainDefs.append(cd)
+
     return chainDefs
+
 
 def run_from_topo():
 
     assert ('JETDEF_DEBUG2' in os.environ)
-    from MC_pp_V5_dicts import MC_pp_V5_dicts
-
 
     def has_topo(d):
         for c in d['chainParts']:
             if c['topo']: return True
         return False
 
-    dicts = [d for d in MC_pp_V5_dicts if has_topo(d)]
+    from triggerMenuXML_dicts import triggerMenuXML_dicts as dicts
+    dicts = [d for d in dicts if has_topo(d)]
     print 'have [%d] chaindefs, use env variables to write to disk' % (
         len(dicts))
-    return [generateChainDefs(d) for d in MC_pp_V5_dicts]
+    return [_generate(d) for d in dicts]
         
 def usage():
     print 'test_functions: Create ChainDefs instances from dictionaries'
-    print '   -m run all the MC_pp_V5 dicts'
+    print '   -m run all the dicts gathered from building TriggerMenuXML'
     print '   -f run from test_dicts.'
-    print '   -t run topo chains from . MC_pp_V5 dicts'
+    print '   -t run topo chains from . TriggerMEnuXML dicts'
 
 if __name__ == '__main__':
     try:
@@ -84,7 +109,7 @@ if __name__ == '__main__':
     
     for o, a in opts:
         if o == '-m':
-            run_mc_pp_v5(printChains=True)
+            run_triggerMenuXML_dicts(printChains=True)
         elif o == '-f':
             run_test_dicts()
         elif o == '-t':

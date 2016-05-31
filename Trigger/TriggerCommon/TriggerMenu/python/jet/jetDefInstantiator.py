@@ -46,7 +46,7 @@ from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
 
 from TrigJetHypo.TrigJetHypoConfig import EFCentFullScanMultiJetHypo
 
-from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigHLTJetHypo
+from TrigHLTJetHypo.TrigHLTJetHypoConfig import TrigHLTJetHypoMon
 
 from TrigJetHypo.TrigEFHTHypoConfig import EFHT
 from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter

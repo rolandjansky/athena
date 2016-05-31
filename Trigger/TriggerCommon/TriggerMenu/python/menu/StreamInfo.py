@@ -21,7 +21,7 @@ physicsStreams = ['Main',
                   'ZeroBias',
                   'TauOverlay',
                   'Standby', 
-                  'L1Muon', 'L1Calo', 'L1MinBias', 
+                  'L1Muon', 'L1Calo', 'L1MinBias', 'L1Topo',
                   'IDCosmic','CosmicCalo',
                   'HLTPassthrough',
                   'JetTauEtmiss', # needed for LS1menu

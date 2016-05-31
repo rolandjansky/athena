@@ -132,9 +132,9 @@ class L2EFChain_met(L2EFChainDef):
         theL2MuonFex = L2TrigMissingETMuon_Fex()
         
         ##FEB MET at L2
-        theL2FEBL1Check  =  L2CaloMissingET_Fex_ReadL2L1()
+#        theL2FEBL1Check  =  L2CaloMissingET_Fex_ReadL2L1()
         
-        theL2FEBMuonFex  =  L2CaloTrigMissingETMuon_Fex() 
+#        theL2FEBMuonFex  =  L2CaloTrigMissingETMuon_Fex() 
 
         mucorr=  '_wMu' if L2muon else '' 
         if L2recoAlg=="L2FS":
@@ -260,17 +260,16 @@ class L2EFChain_met(L2EFChainDef):
             self.L2sequenceList += [[ self.l2_input_tes,              [theL2Fex],                      'L2_xe_step1']]
             ##Moun Correction to L1 MET
             self.L2sequenceList += [[ ['L2_xe_step1', muonSeed],  [theL2MuonFex],                  'L2_xe_step2']]
-            ##FEB Met
-            self.L2sequenceList += [[ 'L2_xe_step2',                 [theL2FEBL1Check],               'L2_xe_step3']]
+            
+            # ##FEB Met
+            # self.L2sequenceList += [[ 'L2_xe_step2',                 [theL2FEBL1Check],               'L2_xe_step3']]
 
-            if L2recoAlg=="l2fsperf":
-                #Only execute Muon FEB MET and muon correction
-                self.L2sequenceList += [[ ['L2_xe_step3',muonSeed],   [theL2FEBMuonFex], 'L2_xe_step4']]            
-            if L2recoAlg=="L2FS":
-                #Hypo on FEB MET
-                self.L2sequenceList += [[ ['L2_xe_step3',muonSeed],   [theL2FEBMuonFex,theL2MuonHypo], 'L2_xe_step4']]
-
-        
+            # if L2recoAlg=="l2fsperf":
+            #     #Only execute Muon FEB MET and muon correction
+            #     self.L2sequenceList += [[ ['L2_xe_step3',muonSeed],   [theL2FEBMuonFex], 'L2_xe_step4']]            
+            # if L2recoAlg=="L2FS":
+            #     #Hypo on FEB MET
+            #     self.L2sequenceList += [[ ['L2_xe_step3',muonSeed],   [theL2FEBMuonFex,theL2MuonHypo], 'L2_xe_step4']]
 
         # --- EF ---                
         #topocluster
@@ -300,8 +299,8 @@ class L2EFChain_met(L2EFChainDef):
         if L2recoAlg=="l2fsperf" or  L2recoAlg=="L2FS" :
             self.L2signatureList += [ [['L2_xe_step1']] ]
             self.L2signatureList += [ [['L2_xe_step2']] ]
-            self.L2signatureList += [ [['L2_xe_step3']] ]
-            self.L2signatureList += [ [['L2_xe_step4']] ]
+#            self.L2signatureList += [ [['L2_xe_step3']] ]
+#            self.L2signatureList += [ [['L2_xe_step4']] ]
 
 
         self.EFsignatureList += [ [['EF_xe_step1']] ]
@@ -314,8 +313,8 @@ class L2EFChain_met(L2EFChainDef):
         if L2recoAlg=="l2fsperf" or  L2recoAlg=="L2FS" :
             self.TErenamingDict['L2_xe_step1']= mergeRemovingOverlap('L2_', self.sig_id_noMult+'_step1')
             self.TErenamingDict['L2_xe_step2']= mergeRemovingOverlap('L2_', self.sig_id_noMult+'_step2')
-            self.TErenamingDict['L2_xe_step3']= mergeRemovingOverlap('L2_', self.sig_id_noMult+'_step3')
-            self.TErenamingDict['L2_xe_step4']= mergeRemovingOverlap('L2_', self.sig_id_noMult+'_step4')
+#            self.TErenamingDict['L2_xe_step3']= mergeRemovingOverlap('L2_', self.sig_id_noMult+'_step3')
+#            self.TErenamingDict['L2_xe_step4']= mergeRemovingOverlap('L2_', self.sig_id_noMult+'_step4')
             
         self.TErenamingDict['EF_xe_step1']= mergeRemovingOverlap('EF_', self.sig_id_noMult+'_step1')
         self.TErenamingDict['EF_xe_step2']= mergeRemovingOverlap('EF_', self.sig_id_noMult)

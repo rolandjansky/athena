@@ -392,7 +392,7 @@ def defineMenu():
 
         # single tau
         "L1_TAU12", "L1_TAU12IL",  "L1_TAU12IM",  "L1_TAU12IT", "L1_TAU20", "L1_TAU20IL", "L1_TAU20IM", "L1_TAU20IT", 
-        "L1_TAU30", "L1_TAU40", "L1_TAU60", "L1_TAU8", "L1_TAU8_EMPTY", 
+        "L1_TAU30","L1_TAU30_EMPTY","L1_TAU30_UNPAIRED_ISO", "L1_TAU40", "L1_TAU60", "L1_TAU8", "L1_TAU8_EMPTY", 
         "L1_TAU8_UNPAIRED_ISO", "L1_TAU8_FIRSTEMPTY", 
 
         # multi tau
@@ -903,6 +903,7 @@ def defineMenu():
         'L1_MU10_TAU12IM' : 63,
         'L1_MU10_TAU12IM_J25_2J12' : 64,
         'L1_EM7_MU10':65,
+        'L1_TAU30_EMPTY':341,
         #        'L1_MU10_TAU12_J25_2J12' : 65,
 #        'L1_MU10_TAU20' : 66,
         'L1_MU10_TAU20IM' : 67,
@@ -912,7 +913,7 @@ def defineMenu():
         'L1_DR-MU10TAU12I_TAU12I-J25' : 72,
         'L1_MU10_TAU12I-J25' : 73,
         'L1_TAU20IM_2J20_XE45' : 74,
-#        'L1_TAU20_2J20_XE45' : 75,
+        'L1_TAU30_UNPAIRED_ISO' :343,
         'L1_XE45_TAU20-J20' : 77,
         'L1_EM15HI_2TAU12IM_XE35' : 78,
         'L1_XE35_EM15-TAU12I' : 79,

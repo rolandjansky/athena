@@ -1,3 +1,16 @@
+2016-05-18   Peter Sherwood  <peter@MacBook-Pro-7.fritz.box>
+
+	* triggerMenuXML_dicts.py  - replaces MC_pp_V5_dicts.
+	* StdOutController - allows stdout to be turned on/off
+	* test_functions - make output less verbose, rename some functions.
+	* list_sequences - produces a list of sequences calculated using
+	triggerMenuXML_dicts
+	* JetSequenceBuilder.py modify sequence aliases so they start with
+	<meaningfulDescription>_<rest> to aid TE name shortening
+	* SequenceTree - in the caclulation of the output te name,
+	shorten the alias (see above) to <meaningFulDescription>_<hash(rest)>
+	
+
 2016-04-12   Peter Sherwood  <peter@pb-d-128-141-159-167.cern.ch>
 
 	* ChainConfigMaker.py (ChainConfigMaker._process_part): 

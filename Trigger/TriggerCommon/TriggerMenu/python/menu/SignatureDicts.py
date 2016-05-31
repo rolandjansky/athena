@@ -53,7 +53,7 @@ ChainDictTemplate = {
 #==========================================================
 AllowedTopos_e = ["Jpsiee","Zeg","Zee"]
 AllowedTopos_mu = ['Jpsimumu']
-AllowedTopos_xe = ['1dphi10', '2dphi05', '6dphi05', '6dphi15', 'mt25', 'mt35', 'razor140', 'razor170', 'razor200','razor100','razor185','razor195']
+AllowedTopos_xe = ['1dphi10', '2dphi05', '6dphi05', '6dphi15', '2dphi05', '2dphi15', 'mt25', 'mt35', 'razor140', 'razor170', 'razor200','razor100','razor185','razor195']
 AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu', 
                       'bJpsimumu', 'bUpsimumu', 
                       'bBmumu', 'bBmumux', 
@@ -238,7 +238,7 @@ TauChainParts = {
     'chainPartName': '',
     'threshold'    : '',
     'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'trackcalo', 'tracktwocalo','tracktwo2015'],
-    'selection'    : ['loose1', 'medium1', 'tight1', 'perf', 'r1medium1', 'r1perf', 'cosmic', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight',  'medium1HighptL', 'medium1HighptM', 'medium1HighptH'],
+    'selection'    : ['loose1', 'medium1', 'tight1', 'perf', 'r1medium1', 'r1perf', 'cosmic', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight',  'medium1HighptL', 'medium1HighptM', 'medium1HighptH'],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
     'trkInfo'      : ['idperf'],
@@ -606,7 +606,7 @@ StreamingChainParts = {
     'multiplicity'   : '',
     'streamingInfo'  : ['bkg', 'idmon', 'mb', 'eb', 'zb','to','standby',
                         'hltpassthrough', 'jettauetmiss', 'larcells', 
-                        'cosmiccalo', 'cosmicmuons','idcosmic', 'dcmmon','zb', 'l1calo'],
+                        'cosmiccalo', 'cosmicmuons','idcosmic', 'dcmmon','zb', 'l1calo', 'l1topo'],
     'trigType'       : 'streamer', 
     'extra'          : '',
     'streamType'        : AllowedStreamingChainIdentifiers,
