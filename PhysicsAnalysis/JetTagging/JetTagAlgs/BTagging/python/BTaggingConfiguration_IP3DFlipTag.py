@@ -59,7 +59,7 @@ def toolIP3DFlipTag(name, useBTagFlagsDefaults = True, **options):
                      'referenceType'                    : BTaggingFlags.ReferenceType,
                      'impactParameterView'              : '3D',
                      'trackGradePartitions'             : [ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ],
-                     'RejectBadTracks'                  : False,
+                     'RejectBadTracks'                  : True,
                      'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'jetWithInfoPlus'                  : BTaggingFlags.JetsWithInfoPlus,

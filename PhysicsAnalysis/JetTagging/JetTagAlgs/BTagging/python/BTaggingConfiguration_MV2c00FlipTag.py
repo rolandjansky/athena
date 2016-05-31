@@ -4,20 +4,14 @@
 # Author: Wouter van den Wollenberg (2013-2014)
 from BTagging.BTaggingFlags import BTaggingFlags
 
-metaMV2c00FlipTag = { 'IsATagger'          : True,
-                      'xAODBaseName'       : 'MV2c00Flip',
-                      'DependsOn'          : ['AtlasExtrapolator',
-                                              'BTagTrackToVertexTool',
-                                              'BTagCalibrationBrokerTool',
-                                              'IP2DNegTag',
-                                              'IP3DNegTag',
-#                                              'JetFitterTagCOMBNNIP3DNeg',
-                                              'NewJetFitterVxFinderFlip',
-                                              'SV0Tag',
-                                              'SV1FlipTag'],
-                      'CalibrationFolders' : ['MV2c00',],
-                      'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
-                      'ToolCollection'     : 'MV2c00FlipTag' }
+metaMV2c00FlipTag = { 'IsATagger'          : False,#True,
+                  'xAODBaseName'       : 'MV2c00Flip',
+                  'DependsOn'          : ['AtlasExtrapolator',
+                                          'BTagCalibrationBrokerTool',
+                                          'BTagTrackToVertexTool'],
+                  'CalibrationFolders' : ['MV2c00',],
+                  'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
+                  'ToolCollection'     : 'MV2c00FlipTag'}
 
 def toolMV2c00FlipTag(name, useBTagFlagsDefaults = True, **options):
     """Sets up a MV2c00Tag tool and returns it.
@@ -30,13 +24,6 @@ def toolMV2c00FlipTag(name, useBTagFlagsDefaults = True, **options):
     taggerNameBase                      default: "MV2c00"
     forceMV2CalibrationAlias            default: BTaggingFlags.ForceMV2CalibrationAlias
     MV2CalibAlias                       default: BTaggingFlags.MV2CalibAlias
-    inputSV0SourceName                  default: "SV0"
-    inputSV1SourceName                  default: "SV1Flip"
-    inputIP2DSourceName                 default: "IP2DNeg"
-    inputIP3DSourceName                 default: "IP3DNeg"
-    inputJFSourceName                   default: "JetFitterFlip"
-    inputJFProbSourceName               default: "JetFitterCombNNIP3DNeg"
-    trainingConfig                      default: BTaggingFlags.MV2cTrainingConfig
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -49,13 +36,6 @@ def toolMV2c00FlipTag(name, useBTagFlagsDefaults = True, **options):
                      'taggerNameBase'                   : 'MV2c00',
                      'forceMV2CalibrationAlias'         : BTaggingFlags.ForceMV2CalibrationAlias,
                      'MV2CalibAlias'                    : BTaggingFlags.MV2CalibAlias,
-                     'inputSV0SourceName'               : 'SV0',
-                     'inputSV1SourceName'               : 'SV1Flip',
-                     'inputIP2DSourceName'              : 'IP2DNeg',
-                     'inputIP3DSourceName'              : 'IP3DNeg',
-                     'inputJFSourceName'                : 'JetFitterFlip',
-                     'inputJFProbSourceName'            : 'JetFitterCombNNIP3DNeg',
-                     'trainingConfig'                   : BTaggingFlags.MV2cTrainingConfig,
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])

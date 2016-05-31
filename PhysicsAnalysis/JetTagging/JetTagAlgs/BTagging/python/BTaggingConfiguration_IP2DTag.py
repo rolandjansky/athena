@@ -4,7 +4,12 @@
 # Author: Wouter van den Wollenberg (2013-2014)
 from BTagging.BTaggingFlags import BTaggingFlags
 from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-btagrun1 = (geoFlags.Run() == "RUN1" or (geoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
+from IOVDbSvc.CondDB import conddb
+btagrun1=False
+if conddb.dbdata == 'COMP200':
+    btagrun1=True
+elif conddb.isMC:
+    btagrun1 = (geoFlags.Run() == "RUN1" or (geoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
 
 metaIP2DTag = { 'IsATagger'         : True,
                 'xAODBaseName'      : 'IP2D',
@@ -66,7 +71,7 @@ def toolIP2DTag(name, useBTagFlagsDefaults = True, **options):
                      'jetPtMinRef'                      : BTaggingFlags.JetPtMinRef,
                      'impactParameterView'              : '2D',
                      'trackGradePartitions'             : grades,
-                     'RejectBadTracks'                  : False,
+                     'RejectBadTracks'                  : True,
                      'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'unbiasIPEstimation'               : False,

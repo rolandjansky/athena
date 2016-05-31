@@ -60,7 +60,7 @@ from BTagging.BTaggingConfiguration_NewJetFitterIP3DNegCollection import *
 # Lepton taggers
 #from BTagging.BTaggingConfiguration_SoftElectronTag import *
 #from BTagging.BTaggingConfiguration_SoftMuonTagChi2 import *
-#from BTagging.BTaggingConfiguration_SoftMuonTag import *
+from BTagging.BTaggingConfiguration_SoftMuonTag import *
 
 # Track counting
 #from BTagging.BTaggingConfiguration_TrackCountingFlip import *
@@ -99,13 +99,29 @@ from BTagging.BTaggingConfiguration_MV2c20Tag import *
 from BTagging.BTaggingConfiguration_MV2c20FlipTag import *
 from BTagging.BTaggingConfiguration_MV2c100Tag import *
 from BTagging.BTaggingConfiguration_MV2c100FlipTag import *
+from BTagging.BTaggingConfiguration_MV2cl100Tag import *
+from BTagging.BTaggingConfiguration_MV2cl100FlipTag import *
 from BTagging.BTaggingConfiguration_MV2mTag import *
 from BTagging.BTaggingConfiguration_MV2mFlipTag import *
+from BTagging.BTaggingConfiguration_MV2c10hpTag import *
+from BTagging.BTaggingConfiguration_MV2c10hpFlipTag import *
 
 #JetVertexCharge tool
 from BTagging.BTaggingConfiguration_JetVertexCharge import *
 
+#ExKtbb tool
+from BTagging.BTaggingConfiguration_ExKtbbTag import *
 
+# MultivariateTagManager
+from BTagging.BTaggingConfiguration_MultivariateTagManager import *
+from BTagging.BTaggingConfiguration_MultivariateFlipTagManager import *
+
+# DL1 tagger
+from BTagging.BTaggingConfiguration_DL1Tag import *
+from BTagging.BTaggingConfiguration_DL1FlipTag import *
+
+# TagNtupleDumper
+from BTagging.BTaggingConfiguration_TagNtupleDumper import *
 
 # Global dictionary keeping track of all tool collections                                       
 _BTaggingConfig_ToolCollections = {}
@@ -1568,10 +1584,12 @@ def taggerIsPossible(tagger):
                       'TrackCountingFlip',
                       'MultiSVTag',
                       'GbbNNTag',
+                      'DL1',
+                      'DL1Flip',
                       'MV1',
                       'MV2',
                       'MV1Flip',
-                      'MV2Flip' ]:
+                      'MV2Flip']:
             print '#BTAG# - WARNING - Disabling '+tagger+' tagger due to reference run modus...'
             return False
     # disable taggers accordingly to reconstruction scoping levels

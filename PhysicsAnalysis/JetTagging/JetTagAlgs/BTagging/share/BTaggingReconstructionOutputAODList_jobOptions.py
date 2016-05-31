@@ -10,7 +10,7 @@ if len(BTaggingAODList) == 0:
     # Therefore, we duplicate here some code from BTagging/share/BTagging_jobOptions.py to specify the relevant Jet collections.
     # Clearly this duplication is undesirable and should be replaced with a single function.
     #JetCollectionList = ['AntiKt4LCTopoJets', 'AntiKt10LCTopoJets', 'AntiKt4EMTopoJets', 'AntiKt4TrackJets', 'AntiKt3TrackJets']
-    JetCollectionList = ['AntiKt4LCTopoJets', 'AntiKt4EMTopoJets', 'AntiKt4TrackJets', 'AntiKt3TrackJets', 'AntiKt2TrackJets']
+    JetCollectionList = ['AntiKt4LCTopoJets', 'AntiKt4EMTopoJets', 'AntiKt4TrackJets', 'AntiKt4EMPFlowJets', 'AntiKt2TrackJets']
     from JetRec.JetRecFlags import jetFlags
     # VD: disbling b-tagging on TruthJets
     #if jetFlags.useTruth():

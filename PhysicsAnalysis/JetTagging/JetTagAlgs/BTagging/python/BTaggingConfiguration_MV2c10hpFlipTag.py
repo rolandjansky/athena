@@ -1,27 +1,27 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# Configuration functions for MV2c20FlipTag
+# Configuration functions for MV2c10hpFlipTag
 # Author: Wouter van den Wollenberg (2013-2014)
 from BTagging.BTaggingFlags import BTaggingFlags
 
-metaMV2c20FlipTag = { 'IsATagger'          : False,#True,
-                  'xAODBaseName'       : 'MV2c20Flip',
+metaMV2c10hpFlipTag = { 'IsATagger'          : False,#True,
+                  'xAODBaseName'       : 'MV2c10hpFlip',
                   'DependsOn'          : ['AtlasExtrapolator',
                                           'BTagCalibrationBrokerTool',
                                           'BTagTrackToVertexTool'],
-                  'CalibrationFolders' : ['MV2c20',],
+                  'CalibrationFolders' : ['MV2c10hp',],
                   'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
-                  'ToolCollection'     : 'MV2c20FlipTag'}
+                  'ToolCollection'     : 'MV2c10hpFlipTag'}
 
-def toolMV2c20FlipTag(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a MV2c20Tag tool and returns it.
+def toolMV2c10hpFlipTag(name, useBTagFlagsDefaults = True, **options):
+    """Sets up a MV2c10hpFlipTag tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
     OutputLevel                         default: BTaggingFlags.OutputLevel
     Runmodus                            default: BTaggingFlags.Runmodus
-    taggerName                          default: "MV2c20Flip"
-    taggerNameBase                      default: "MV2c20"
+    taggerName                          default: "MV2c10hpFlip"
+    taggerNameBase                      default: "MV2c10hpFlip"
     forceMV2CalibrationAlias            default: BTaggingFlags.ForceMV2CalibrationAlias
     MV2CalibAlias                       default: BTaggingFlags.MV2CalibAlias
 
@@ -32,8 +32,8 @@ def toolMV2c20FlipTag(name, useBTagFlagsDefaults = True, **options):
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
-                     'taggerName'                       : 'MV2c20Flip',
-                     'taggerNameBase'                   : 'MV2c20',
+                     'taggerName'                       : 'MV2c10hpFlip',
+                     'taggerNameBase'                   : 'MV2c10hpFlip',
                      'forceMV2CalibrationAlias'         : BTaggingFlags.ForceMV2CalibrationAlias,
                      'MV2CalibAlias'                    : BTaggingFlags.MV2CalibAlias,
                      }
