@@ -14,7 +14,7 @@ namespace G4UA
   G4TrackCounterTool::
   G4TrackCounterTool(const std::string& type, const std::string& name,
                      const IInterface* parent)
-    : ActionToolBase<G4TrackCounter>(type, name, parent)
+    : ActionToolBaseReport<G4TrackCounter>(type, name, parent)
   {}
 
   //---------------------------------------------------------------------------
@@ -33,21 +33,13 @@ namespace G4UA
   {
     ATH_MSG_INFO("finalize");
 
-    // Loop over the thread-local tools and sum their counts
-    G4TrackCounter::TrackCounts totalCounts;
-    for(auto tidAction : actions()) {
-      auto& counts = tidAction.second->getCounts();
-      totalCounts.nEvents += counts.nEvents;
-      totalCounts.nPrimaryTracks += counts.nPrimaryTracks;
-      totalCounts.nSecondaryTracks += counts.nSecondaryTracks;
-      totalCounts.n50MeVTracks += counts.n50MeVTracks;
-    }
+    mergeReports();
 
     // Report the totals
-    ATH_MSG_INFO("nEvents          " << totalCounts.nEvents);
-    ATH_MSG_INFO("nPrimaryTracks   " << totalCounts.nPrimaryTracks);
-    ATH_MSG_INFO("nSecondaryTracks " << totalCounts.nSecondaryTracks);
-    ATH_MSG_INFO("n50MeVTracks     " << totalCounts.n50MeVTracks);
+    ATH_MSG_INFO("nEvents          " << m_report.nEvents);
+    ATH_MSG_INFO("nPrimaryTracks   " << m_report.nPrimaryTracks);
+    ATH_MSG_INFO("nSecondaryTracks " << m_report.nSecondaryTracks);
+    ATH_MSG_INFO("n50MeVTracks     " << m_report.n50MeVTracks);
 
     return StatusCode::SUCCESS;
   }

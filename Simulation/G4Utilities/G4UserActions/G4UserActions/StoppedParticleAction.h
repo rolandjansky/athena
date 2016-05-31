@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef StoppedParticleAction_h
-#define StoppedParticleAction_h
+#ifndef G4UserActions_StoppedParticleAction_h
+#define G4UserActions_StoppedParticleAction_h
 
 
 #include "G4AtlasTools/UserActionBase.h"
@@ -22,13 +22,32 @@ class StoppedParticleAction final: public UserActionBase {
   virtual StatusCode initialize() override;
   virtual StatusCode queryInterface(const InterfaceID&, void**) override;
 
- protected: 
+ protected:
 
   bool isSUSYParticle(const int) const;
-  TrackFastSimSD * m_fsSD;  
+  TrackFastSimSD * m_fsSD;
   bool m_init;
 
 };
 
-#endif
+#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
+namespace G4UA
+{
+
+  /// @brief NEEDS DOCUMENTATION
+  class StoppedParticleAction : public AthMessaging, public ISteppingAction
+  {
+    public:
+      StoppedParticleAction();
+      virtual void processStep(const G4Step*) override;
+    private:
+      bool isSUSYParticle(const int) const;
+      TrackFastSimSD * m_fsSD;
+      bool m_init;
+  }; // class StoppedParticleAction
+
+} // namespace G4UA
+
+#endif

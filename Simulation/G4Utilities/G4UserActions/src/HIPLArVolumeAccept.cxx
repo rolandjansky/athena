@@ -38,8 +38,7 @@ void HIPLArVolumeAccept::BeginOfRun(const G4Run*)
 		   "## no highly-ionizing particle reach   ##"<<std::endl<<
 		   "## the LAr main volume                 ##"<<std::endl<<
 		   "#########################################");
-  HIPevts=0;
-  HIPevts_failed=0;
+
 }
 void HIPLArVolumeAccept::EndOfRun(const G4Run*)
 {
@@ -52,16 +51,16 @@ void HIPLArVolumeAccept::EndOfRun(const G4Run*)
    ATH_MSG_INFO(HIPevts_failed<<" events were killed because they had no HIP in EMB or EMEC");
    double HIPfraction=1.*(HIPevts-HIPevts_failed)/HIPevts;
    ATH_MSG_INFO("HIP Acceptance: "<<HIPfraction);
-          
+
 }
 void HIPLArVolumeAccept::Step(const G4Step* aStep)
 {
   int PDGcode=aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
 
   // check if PDG code compatible with HIP (Monopole:411xxx0 or Qball:100xxxx0)
-  if(abs(PDGcode)>4000000 && abs(PDGcode)<90000000)          // likely a HIP, no heavy ion 
+  if(abs(PDGcode)>4000000 && abs(PDGcode)<90000000)          // likely a HIP, no heavy ion
   {
-    // in EM calorimeter barrel mother volume (beyond presampler)  
+    // in EM calorimeter barrel mother volume (beyond presampler)
     if(!HIPacc && aStep->GetTrack()->GetVolume()->GetName()=="Total LAR Volume") // EMB
     {
       HIPacc=1;
@@ -70,11 +69,11 @@ void HIPLArVolumeAccept::Step(const G4Step* aStep)
 	       <<" entered the volume "
 	       <<aStep->GetTrack()->GetVolume()->GetName());
     }
-    // in EM calorimeter endcap mother volume  
+    // in EM calorimeter endcap mother volume
     if(!HIPacc && aStep->GetTrack()->GetVolume()->GetName()=="LArEndcapPos")     // EMEC
     {
       HIPacc=1;
-      ATH_MSG_INFO("HIPLArVolumeAccept: a particle with PDG code " 
+      ATH_MSG_INFO("HIPLArVolumeAccept: a particle with PDG code "
                <<PDGcode
 	       <<" entered the volume "
 	       <<aStep->GetTrack()->GetVolume()->GetName());
@@ -84,7 +83,7 @@ void HIPLArVolumeAccept::Step(const G4Step* aStep)
 
 
 
-StatusCode HIPLArVolumeAccept::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+StatusCode HIPLArVolumeAccept::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
   if ( IUserAction::interfaceID().versionMatch(riid) ) {
     *ppvInterface = dynamic_cast<IUserAction*>(this);
@@ -95,3 +94,72 @@ StatusCode HIPLArVolumeAccept::queryInterface(const InterfaceID& riid, void** pp
   }
   return StatusCode::SUCCESS;
 }
+
+
+//=============================================================================
+// New design of user actions for multithreading
+//=============================================================================
+
+namespace G4UA
+{
+
+  //---------------------------------------------------------------------------
+  HIPLArVolumeAccept::HIPLArVolumeAccept()
+    : AthMessaging(Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc"),
+                   "HIPLArVolumeAccept"),
+      m_report()
+  {}
+
+  //---------------------------------------------------------------------------
+  void HIPLArVolumeAccept::processStep(const G4Step* aStep){
+
+
+    int PDGcode=aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+
+    // check if PDG code compatible with HIP (Monopole:411xxx0 or Qball:100xxxx0)
+    if(abs(PDGcode)>4000000 && abs(PDGcode)<90000000)          // likely a HIP, no heavy ion
+      {
+	// in EM calorimeter barrel mother volume (beyond presampler)
+	if(!HIPacc && aStep->GetTrack()->GetVolume()->GetName()=="Total LAR Volume") // EMB
+	  {
+	    HIPacc=1;
+	    ATH_MSG_INFO("HIPLArVolumeAccept: a particle with PDG code "
+			 <<PDGcode
+			 <<" entered the volume "
+			 <<aStep->GetTrack()->GetVolume()->GetName());
+	  }
+	// in EM calorimeter endcap mother volume
+	if(!HIPacc && aStep->GetTrack()->GetVolume()->GetName()=="LArEndcapPos")     // EMEC
+	  {
+	    HIPacc=1;
+	    ATH_MSG_INFO("HIPLArVolumeAccept: a particle with PDG code "
+			 <<PDGcode
+			 <<" entered the volume "
+			 <<aStep->GetTrack()->GetVolume()->GetName());
+	  }
+      }
+
+  }
+
+  //---------------------------------------------------------------------------
+  void HIPLArVolumeAccept::beginOfEvent(const G4Event*){
+    HIPacc=false;
+  }
+
+  //---------------------------------------------------------------------------
+  void HIPLArVolumeAccept::endOfEvent(const G4Event*){
+
+    m_report.HIPevts++;
+    if(!HIPacc)
+      {
+	//anEvent->SetEventAborted();
+	G4RunManagerKernel *rmk = G4RunManagerKernel::GetRunManagerKernel();
+	rmk->GetEventManager()->AbortCurrentEvent();
+	rmk->GetEventManager()->GetNonconstCurrentEvent()->SetEventAborted();
+	m_report.HIPevts_failed++;
+	ATH_MSG_INFO("HIPLArVolumeAccept: no HIP reach the LAr detector volumes. Event aborted.");
+      }
+
+  }
+
+} // namespace G4UA
