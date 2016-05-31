@@ -1,5 +1,5 @@
 package xAODCoreCnv
-# $Id: requirements 742532 2016-04-25 07:57:58Z krasznaa $
+# $Id: requirements 751107 2016-05-31 11:23:23Z krasznaa $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -16,6 +16,7 @@ use AthenaBaseComps         AthenaBaseComps-*         Control
 use AthenaKernel            AthenaKernel-*            Control
 use AthContainers           AthContainers-*           Control
 use AthContainersInterfaces AthContainersInterfaces-* Control
+use AthLinks                AthLinks-*                Control
 use SGTools                 SGTools-*                 Control
 
 # EDM package(s):
@@ -29,5 +30,3 @@ apply_pattern component_library
 
 # Install the jobOptions:
 apply_pattern declare_joboptions files=*.py
-
-# Useless comment, to allow modifying the CMakeLists.txt file
