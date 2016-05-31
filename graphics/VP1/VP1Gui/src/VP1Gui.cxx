@@ -193,8 +193,14 @@ void VP1Gui::cleanup()
 }
 
 //____________________________________________________________________
-bool VP1Gui::executeNewEvent( const int& run, const int& event, const unsigned& triggerType, const unsigned& time )
+bool VP1Gui::executeNewEvent( const int& run, const uint64_t& event, const unsigned& triggerType, const unsigned& time )
 {
+	//tests
+	int evN = event;
+	qulonglong evNqu = event;
+
+	qDebug() << "tests:" << QString::number(event) << QString::number(evN) << QString::number(evNqu);
+
   VP1Msg::messageDebug("Examining new event ( run# "+QString::number(run)+", event# "+QString::number(event)+" )");
 
   bool b = d->the_scheduler->executeNewEvent(run,event,triggerType,time);

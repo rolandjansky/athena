@@ -65,7 +65,7 @@ public:
   static void cleanup(VP1ExecutionScheduler*);
 
   //Call when new event data are available (returns false when the user closes the program)
-  bool executeNewEvent(const int& runnumber, const int& eventnumber, const unsigned& triggerType = 0, const unsigned& time = 0);//
+  bool executeNewEvent(const int& runnumber, const unsigned long long& eventnumber, const unsigned& triggerType = 0, const unsigned& time = 0);//
 
   VP1ExecutionScheduler(QObject * parent,
 			StoreGateSvc*eventStore,StoreGateSvc*detStore,

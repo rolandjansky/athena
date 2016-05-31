@@ -126,7 +126,7 @@ public slots:
   //For use when going to a new event (this updates system lists and quit()'s the app):
   void goToNextEvent();
 public:
-  void setRunEvtNumber(const int& runnumber, const int& eventnumber, const unsigned& triggerType = 0, const unsigned& time = 0, const bool& printmessage = true );
+  void setRunEvtNumber(const int& runnumber, const unsigned long long& eventnumber, const unsigned& triggerType = 0, const unsigned& time = 0, const bool& printmessage = true );
   bool mustQuit() const;
 
   VP1ChannelManager * channelManager() const { return channelmanager; }
@@ -135,7 +135,7 @@ public:
   bool userRequestedExit() { return m_userRequestedExit; }
 
   int getRunNumber() { return runnumber; }
-  int getEventNumber() { return eventnumber; }
+  unsigned long long getEventNumber() { return eventnumber; }
   int getEventTimestamp() { return timestamp; }
 
 protected:
@@ -143,7 +143,7 @@ protected:
   VP1TabManager * tabmanager;
   QString currentconfigfile;
   int runnumber;
-  int eventnumber;
+  unsigned long long eventnumber;
   unsigned timestamp;
   bool betweenevents;
 

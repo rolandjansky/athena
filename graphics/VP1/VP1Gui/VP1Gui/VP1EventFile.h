@@ -25,7 +25,7 @@ public:
   //The interesting bits:
   //Event identity:
   int runNumber() const;
-  int eventNumber() const;
+  unsigned long long eventNumber() const;
   unsigned rawTime() const;
   QDateTime time() const;
 
@@ -45,7 +45,7 @@ public:
   VP1EventFile(const VP1EventFile & );
   VP1EventFile & operator= (const VP1EventFile & );
   VP1EventFile(const QString& filename,const QString& md5sum,
-	       int runnumber,int eventnumber,unsigned time, bool isvalid = true );
+	       int runnumber, unsigned long long eventnumber,unsigned time, bool isvalid = true );
   VP1EventFile(const QString&, const QString& md5sum = 0);//will attempt to decode from file name (e.g. vp1_234_123_1321334.pool.root). Instance becomes invalid if not succesful.
 private:
   class Imp;

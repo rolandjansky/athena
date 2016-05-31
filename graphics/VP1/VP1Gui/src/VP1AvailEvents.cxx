@@ -39,8 +39,8 @@ public:
 
   class EventID {
   public:
-    EventID(int r,int e) : eventNumber(e), runNumber(r) {}
-    int eventNumber;
+    EventID(int r, unsigned long long e) : eventNumber(e), runNumber(r) {}
+    unsigned long long eventNumber;
     int runNumber;
     bool operator==(const EventID & o) const{
       return eventNumber==o.eventNumber && runNumber==o.runNumber;
