@@ -15,6 +15,7 @@
 // METReconstruction includes
 #include "METReconstruction/METSoftAssociator.h"
 #include "xAODCaloEvent/CaloClusterChangeSignalState.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 namespace met {
 
@@ -28,6 +29,8 @@ namespace met {
     METAssociator(name)
   {
     declareProperty("DecorateSoftConst", m_decorateSoftTermConst=false);
+    declareProperty("LCModClusterKey",   m_lcmodclus_key = "LCOriginTopoClusters");
+    declareProperty("EMModClusterKey",   m_emmodclus_key = "EMOriginTopoClusters");
   }
 
   // Destructor
@@ -124,20 +127,37 @@ namespace met {
         dec_softConst(*metCoreCl) = std::vector<ElementLink<IParticleContainer> >();
         dec_softConst(*metCoreCl).reserve(uniqueClusters->size());
       }
+      const CaloClusterContainer *lctc(0), *emtc(0);
+      if(m_useModifiedClus) {
+	ATH_CHECK( evtStore()->retrieve(lctc,m_lcmodclus_key) );
+	ATH_CHECK( evtStore()->retrieve(emtc,m_emmodclus_key) );
+      }
       for(const auto& cl : *uniqueClusters) {
 	if (cl->e()>0) {
-	  // clusters at LC scale
-	  if (cl->type()==xAOD::Type::CaloCluster) {
-	    CaloClusterChangeSignalState statehelperLC(static_cast<const CaloCluster*>(cl),xAOD::CaloCluster::CALIBRATED);
-	    *metCoreCl += cl;
-          } else *metCoreCl += cl;
-	  if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(cl->container()),cl->index()));
-	  // clusters at EM scale
-	  if (cl->type()==xAOD::Type::CaloCluster) {
-	    CaloClusterChangeSignalState statehelperEM(static_cast<const CaloCluster*>(cl),xAOD::CaloCluster::UNCALIBRATED);
-	    *metCoreEMCl += cl;
-	  } else *metCoreEMCl += cl;
-
+	  if(m_useModifiedClus) {
+	    if(lctc && emtc) {
+	      size_t cl_idx(cl->index());
+	      // clusters at LC scale
+	      *metCoreCl += (*lctc)[cl_idx];
+	      if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(lctc),cl->index()));
+	      // clusters at EM scale
+	      *metCoreEMCl += (*emtc)[cl_idx];
+	    } else {
+	      ATH_MSG_WARNING("Invalid LC/EM modified cluster collections -- cannot add cluster to soft term!");
+	    }
+	  } else {
+	    // clusters at LC scale
+	    if (cl->type()==xAOD::Type::CaloCluster) {
+	      CaloClusterChangeSignalState statehelperLC(static_cast<const CaloCluster*>(cl),xAOD::CaloCluster::CALIBRATED);
+	      *metCoreCl += cl;
+	    } else *metCoreCl += cl;
+	    if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(cl->container()),cl->index()));
+	    // clusters at EM scale
+	    if (cl->type()==xAOD::Type::CaloCluster) {
+	      CaloClusterChangeSignalState statehelperEM(static_cast<const CaloCluster*>(cl),xAOD::CaloCluster::UNCALIBRATED);
+	      *metCoreEMCl += cl;
+	    } else *metCoreEMCl += cl;
+	  }
 	}
       }
       if(pv) {

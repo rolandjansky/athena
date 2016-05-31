@@ -50,6 +50,7 @@ namespace met {
     declareProperty( "PrimVxColl",         m_pvcoll      = "PrimaryVertices"     );
     declareProperty( "TrkColl",            m_trkcoll     = "InDetTrackParticles" );
     declareProperty( "ClusColl",           m_clcoll      = "CaloCalTopoClusters" );
+    declareProperty( "UseModifiedClus",    m_useModifiedClus = false           );
     declareProperty( "UseTracks",          m_useTracks   = true                  );
     declareProperty( "PFlow",              m_pflow       = false                 );
     declareProperty( "UseRapidity",        m_useRapidity = false                 );
@@ -79,7 +80,21 @@ namespace met {
     ATH_CHECK(m_trkIsolationTool.retrieve());
     ATH_CHECK(m_caloIsolationTool.retrieve());
 
-    ATH_MSG_INFO("Should I use tracks? " << m_useTracks);
+    if(m_clcoll == "CaloCalTopoClusters") {
+      if(m_useModifiedClus) {
+	ATH_MSG_ERROR("Configured to use modified topocluster collection but \"CaloCalTopoClusters\" collection specified!");
+	return StatusCode::FAILURE;
+      } else {
+	ATH_MSG_INFO("Configured to use standard topocluster collection.");
+      }
+    } else {
+      if(m_useModifiedClus) {
+	ATH_MSG_INFO("Configured to use modified topocluster collection \"" << m_clcoll << "\".");
+      } else {
+	ATH_MSG_INFO("Configured to use topocluster collection \"" << m_clcoll << "\", but modified clusters flag not set!");
+	return StatusCode::FAILURE;
+      }
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -117,17 +132,17 @@ namespace met {
       }
       ATH_MSG_DEBUG("Successfully retrieved topocluster collection");
     } else {
-      TString hybridname = "Etmiss";
+      std::string hybridname = "Etmiss";
       hybridname += m_clcoll;
       hybridname += m_foreta;
       hybridname += m_forcoll;
-      if( evtStore()->contains<xAOD::IParticleContainer>(hybridname.Data()) ) {
-        ATH_CHECK(evtStore()->retrieve(tcCont,hybridname.Data()));
+      if( evtStore()->contains<IParticleContainer>(hybridname) ) {
+        ATH_CHECK(evtStore()->retrieve(tcCont,hybridname));
       } else {
-        xAOD::IParticleContainer *hybridCont = new xAOD::IParticleContainer(SG::VIEW_ELEMENTS);
+        ConstDataVector<IParticleContainer> *hybridCont = new ConstDataVector<IParticleContainer>(SG::VIEW_ELEMENTS);
 
-        const xAOD::IParticleContainer *centCont = 0;
-        const xAOD::IParticleContainer *forCont = 0;
+        const IParticleContainer *centCont = 0;
+        const IParticleContainer *forCont = 0;
         if( evtStore()->retrieve(centCont, m_clcoll).isFailure() ) {
           ATH_MSG_WARNING("Unable to retrieve central container " << m_clcoll << " for overlap removal");
           return StatusCode::FAILURE;
@@ -138,8 +153,8 @@ namespace met {
         }
         for(const auto& clus : *centCont) if (fabs(clus->eta())<m_foreta) hybridCont->push_back(clus);
         for(const auto& clus : *forCont) if (fabs(clus->eta())>=m_foreta) hybridCont->push_back(clus);
-        ATH_CHECK( evtStore()->record(hybridCont,hybridname.Data()));
-        tcCont = hybridCont;
+        ATH_CHECK( evtStore()->record(hybridCont,hybridname));
+        tcCont = hybridCont->asDataVector();
       }
     }
 
@@ -169,7 +184,7 @@ namespace met {
 
       trkCont=0;
       ATH_CHECK( evtStore()->retrieve(trkCont, m_trkcoll) );
-      if(m_useIsolationTools) ATH_CHECK( filterTracks(trkCont,pv) );
+      if(!m_useIsolationTools) ATH_CHECK( filterTracks(trkCont,pv) );
 
       if(m_pflow) {
 	pfoCont = 0;
@@ -235,7 +250,17 @@ namespace met {
 	  MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
 	}
       } else {
-        ATH_CHECK( this->extractTopoClusters(obj,constlist,tcCont) );
+	std::vector<const IParticle*> tclist;
+	tclist.reserve(20);
+        ATH_CHECK( this->extractTopoClusters(obj,tclist,tcCont) );
+	if(m_useModifiedClus) {
+	  for(const auto& cl : tclist) {
+	    // use index-parallelism to identify shallow copied constituents
+	    constlist.push_back((*tcCont)[cl->index()]);
+	  }
+	} else {
+	  constlist = tclist;
+	}
 	if(m_useTracks) ATH_CHECK( this->extractTracks(obj,constlist,tcCont,pv) );
         MissingETComposition::insert(metMap,obj,constlist);
       }

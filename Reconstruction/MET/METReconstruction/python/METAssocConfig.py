@@ -9,7 +9,8 @@ from AthenaCommon import CfgMgr
 
 clusterSigStates = {
     'EMScale':0,
-    'LocHad':1
+    'LocHad':1,
+    'Mod':1
 }
 
 defaultInputKey = {
@@ -25,6 +26,8 @@ defaultInputKey = {
    'TrkColl'   :'InDetTrackParticles',
    'PrimVxColl':'PrimaryVertices',
    'Truth'     :'TruthParticles',
+   'LCOCClusColl':'LCOriginTopoClusters',
+   'EMOCClusColl':'EMOriginTopoClusters',
    }
 
 # # old naming scheme
@@ -53,7 +56,9 @@ class AssocConfig:
         self.objType = objType
         self.inputKey = inputKey
 
-def getAssociator(config,suffix,doPFlow=False,trkseltool=None,trkisotool=None,caloisotool=None):
+def getAssociator(config,suffix,doPFlow=False,
+                  trkseltool=None,trkisotool=None,caloisotool=None,
+                  doOriginCorrClus=True):
     tool = None
 
     import cppyy
@@ -80,6 +85,9 @@ def getAssociator(config,suffix,doPFlow=False,trkseltool=None,trkisotool=None,ca
         tool = CfgMgr.met__METMuonAssociator('MET_MuonAssociator_'+suffix)
     if config.objType == 'Soft':
         tool = CfgMgr.met__METSoftAssociator('MET_SoftAssociator_'+suffix)
+        if doOriginCorrClus:
+            tool.LCModClusterKey = defaultInputKey['LCOCClusColl']
+            tool.EMModClusterKey = defaultInputKey['EMOCClusColl']
     if config.objType == 'Truth':
         tool = CfgMgr.met__METTruthAssociator('MET_TruthAssociator_'+suffix)
         ToolSvc == tool
@@ -89,18 +97,22 @@ def getAssociator(config,suffix,doPFlow=False,trkseltool=None,trkisotool=None,ca
         ToolSvc += pfotool
         tool.PFOTool = pfotool
         tool.PFlow = True
+    else:
+        tool.UseModifiedClus = doOriginCorrClus
+
     # set input/output key names
     if config.inputKey == '':
         tool.InputCollection = defaultInputKey[config.objType]
         config.inputKey = tool.InputCollection
-        tool.ClusColl = defaultInputKey['ClusColl']
+        if doOriginCorrClus:
+            tool.ClusColl = defaultInputKey['LCOCClusColl']
+            if 'EMTopo' in suffix: tool.ClusColl = defaultInputKey['EMOCClusColl']
         tool.TrkColl = defaultInputKey['TrkColl']
     else:
         tool.InputCollection = config.inputKey
 
     from METReconstruction.METRecoFlags import metFlags
     tool.UseTracks = metFlags.UseTracks()
-    #
     #
     tool.TrackSelectorTool = trkseltool
     #
@@ -134,7 +146,8 @@ class METAssocConfig:
                                            doPFlow=self.doPFlow,
                                            trkseltool=self.trkseltool,
                                            trkisotool=self.trkisotool,
-                                           caloisotool=self.caloisotool)
+                                           caloisotool=self.caloisotool,
+                                           doOriginCorrClus=self.doOriginCorrClus)
                 from METReconstruction.METRecoFlags import metFlags
                 if config.objType == 'Soft' and metFlags.DecorateSoftConst:
                     print "activate soft term decoration"
@@ -145,13 +158,14 @@ class METAssocConfig:
     #
     def __init__(self,suffix,buildconfigs=[],
                  doPFlow=False,doTruth=False,
-                 trksel=None):
+                 trksel=None,doOriginCorrClus=False):
         if doTruth:
             print prefix, 'Creating MET TruthAssoc config \''+suffix+'\''
         else:
             print prefix, 'Creating MET Assoc config \''+suffix+'\''
         self.suffix = suffix
         self.doPFlow = doPFlow
+        self.doOriginCorrClus=doOriginCorrClus
         self.doTruth = doTruth
         from AthenaCommon.AppMgr import ToolSvc
         if trksel:
@@ -186,6 +200,8 @@ def getMETAssocTool(topconfig):
     else:
         tcstate = clusterSigStates['LocHad']
         if 'EMTopo' in topconfig.suffix: tcstate = clusterSigStates['EMScale']
+        if topconfig.doOriginCorrClus:
+            tcstate = clusterSigStates['Mod']
         assocTool = CfgMgr.met__METAssociationTool('MET_AssociationTool_'+topconfig.suffix,
                                                    METAssociators = topconfig.assoclist,
                                                    METSuffix = topconfig.suffix,

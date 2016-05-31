@@ -15,7 +15,8 @@ associators = [AssocConfig(JetType),
                AssocConfig('Soft')]
 cfg_akt4lc = METAssocConfig('AntiKt4LCTopo',
                             associators,
-                            doPFlow=False
+                            doPFlow=False,
+                            doOriginCorrClus=metFlags.UseTracks()
                             )
 
 metFlags.METAssocConfigs()[cfg_akt4lc.suffix] = cfg_akt4lc
@@ -33,7 +34,8 @@ associators = [AssocConfig(JetType),
                AssocConfig('Soft')]
 cfg_akt4em = METAssocConfig('AntiKt4EMTopo',
                             associators,
-                            doPFlow=False
+                            doPFlow=False,
+                            doOriginCorrClus=metFlags.UseTracks()
                             )
 
 metFlags.METAssocConfigs()[cfg_akt4em.suffix] = cfg_akt4em
