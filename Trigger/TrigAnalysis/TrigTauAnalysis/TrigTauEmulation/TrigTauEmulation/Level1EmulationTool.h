@@ -44,6 +44,7 @@ namespace TrigTauEmul {
 
     /// Copy constructor for reflex in Athena
     Level1EmulationTool(const Level1EmulationTool& other);
+    Level1EmulationTool& operator=(const Level1EmulationTool& other) = delete;
 
     /// virtual destructor
     virtual ~Level1EmulationTool();

@@ -21,6 +21,7 @@ class EnergySumSelectionTool : public virtual IEnergySumSelectionTool, public Le
 
     EnergySumSelectionTool(const std::string& name);
     EnergySumSelectionTool(const EnergySumSelectionTool& other);
+    EnergySumSelectionTool& operator=(const EnergySumSelectionTool& other) = delete;
     virtual ~EnergySumSelectionTool() {};
 
     // Tool initialization

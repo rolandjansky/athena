@@ -183,6 +183,14 @@ class Stack {
         const_iterator(const_iterator&& a) : value(nullptr) {
             std::swap(a.value, value);
         }
+        const_iterator& operator=(const_iterator& a) {
+            a.value = value;
+            return *this;
+        }
+        const_iterator& operator=(const_iterator&& a) {
+            std::swap(a.value, value);
+            return *this;
+        }
         ~const_iterator() {
         }
         inline T operator*() const {

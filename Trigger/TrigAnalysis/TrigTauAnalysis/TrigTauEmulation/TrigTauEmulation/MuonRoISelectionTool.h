@@ -20,13 +20,9 @@ class MuonRoISelectionTool : public virtual IMuonRoISelectionTool, public Level1
 
   public:
 
-    // Default Constructor 
     MuonRoISelectionTool(const std::string& name);
-
-    // Copy Constructor 
     MuonRoISelectionTool(const MuonRoISelectionTool& other);
-
-    // Destructor
+    MuonRoISelectionTool& operator=(const MuonRoISelectionTool& other) = delete;
     virtual ~MuonRoISelectionTool() {};
 
     // Tool initialization
