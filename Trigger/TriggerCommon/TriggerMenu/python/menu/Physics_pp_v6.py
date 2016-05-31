@@ -393,9 +393,10 @@ def setupMenu():
 
         # Test chains, to be removed
         ['j85_cleanLLP',                    'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j0_1i2c300m500TLA',             'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 
+        ['j0_1i2c300m500TLA',             'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         ['j0_0i1c500m900TLA',             'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j0_1i2c200m8000TLA',             'L1_J100',  [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 
         ['10j40_L16J15', 'L1_6J15' , [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         
