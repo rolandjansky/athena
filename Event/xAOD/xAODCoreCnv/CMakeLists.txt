@@ -11,6 +11,7 @@ atlas_depends_on_subdirs(
    PRIVATE
    Control/AthContainers
    Control/AthContainersInterfaces
+   Control/AthLinks
    Control/AthenaBaseComps
    Control/AthenaKernel
    Control/SGTools
@@ -20,7 +21,7 @@ atlas_depends_on_subdirs(
 # Component(s) in the package:
 atlas_add_component( xAODCoreCnv
    src/*.h src/*.cxx src/components/*.cxx
-   LINK_LIBRARIES AthContainers AthenaBaseComps AthenaKernel SGTools
+   LINK_LIBRARIES AthContainers AthLinks AthenaBaseComps AthenaKernel SGTools
    xAODCore GaudiKernel )
 
 # Install files from the package:
