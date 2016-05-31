@@ -220,11 +220,20 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   //Define configurable adccut and TGC/RPC keys
   float m_ADCCut;
   float m_ADCCut_Bkgrd;
-  float m_TDCCut_Bkgrd;
+//  float m_TDCCut_Bkgrd;
   float m_curTime;
-  int m_TGCKey;
-  int m_RPCKey;
+//  int m_TGCKey;
+//  int m_RPCKey;
 
+  
+  //nobody looks at these histograms --> remove for now, to improve memory consumption
+  //TH1* mdtevents_RPCtrig; // Total number of MDT digits RPCtrig
+  //TH1* mdtevents_TGCtrig; // Total number of MDT digits TGCtrig
+  //TH1* mdthitsvseventnum;
+  //TH1* mdthitsvseventnumcut;
+  //TH1* overalltdccut_RPCtrig; // all chambers tdc superimposed with adc cut
+  //TH1* overalltdccut_TGCtrig; // all chambers tdc superimposed with adc cut
+    
   //From Old BS
   TH2* overalltdcadcLumi; // all chambers tdc vs adc superimposed
   TH2* overalltdcadcPRLumi[4]; // all chambers tdc vs adc superimposed
@@ -240,8 +249,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   TH1* overalladccutPRLumi[4]; // all chambers adc superimposed per region with adc noise cut
   TH1* overalltdccutPRLumi_RPCtrig[4]; // all chambers tdc superimposed with adc cut per region
   TH1* overalltdccutPRLumi_TGCtrig[4]; // all chambers tdc superimposed with adc cut per region
-  TH1* overalltdccut_RPCtrig; // all chambers tdc superimposed with adc cut
-  TH1* overalltdccut_TGCtrig; // all chambers tdc superimposed with adc cut
+  
   
   TH2* overalltdcadcHighOcc; // all chambers tdc vs adc superimposed, events with > m_HighOccThreshold hits
   TH1* overalltdcHighOcc; // all chambers tdc superimposed, events with > m_HighOccThreshold hits
@@ -259,16 +267,14 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   //  TH2* overallPR_mdt_DRvsDRerr[4];
   TH2* overallPR_mdt_DRvsSegD[4];
   TH2* MdtNHitsvsRpcNHits;  
-  TH1* mdtevents_RPCtrig; // Total number of MDT digits RPCtrig
-  TH1* mdtevents_TGCtrig; // Total number of MDT digits TGCtrig
+  
+
   TH1* mdteventscutLumi; // Total number of MDT digits with a cut on ADC
   TH1* mdteventscutLumi_big; // Total number of MDT digits with a cut on ADC (for high mult. evt)
   TH1* mdteventsLumi; // Total number of MDT digits without a cut on ADC
   TH1* mdteventsLumi_big; // Total number of MDT digits without a cut on ADC (for high mult. evt)
-  TH1* mdthitsvseventnum;
-  TH1* mdthitsvseventnumcut;
+
   TH1* mdtglobalhitstime;
-  TH1* mdtglobalhitstruetime;
   
   TH1* nummdtchamberswithhits; // Number of MDT chambers with hits
   TH1* nummdtchamberswithhits_ADCCut; // Number of MDT chambers with hits
