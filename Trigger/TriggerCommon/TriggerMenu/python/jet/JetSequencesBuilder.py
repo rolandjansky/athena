@@ -214,7 +214,7 @@ class JetSequencesBuilder(object):
         """Return Energy Density Alg"""
 
         fex_params = self.chain_config.menu_data.fex_params
-        alias = 'rho_04_%s' % fex_params.cluster_calib
+        alias = 'rho04_%s' % fex_params.cluster_calib
 
         algs = []
         [algs.extend(f()) for f in (self.alg_factory.energyDensityAlg,)]
@@ -325,7 +325,7 @@ class JetSequencesBuilder(object):
         menu_data = self.chain_config.menu_data
         hypo = menu_data.hypo_params
 
-        alias_base = 'hypo_' + hypo.jet_attributes_tostring()
+        alias_base = hypo.hypo_type+ '_' + hypo.jet_attributes_tostring()
         alias_base += '_' + hypo.cleaner
 
         alias = alias_base  # copy
@@ -343,8 +343,6 @@ class JetSequencesBuilder(object):
                 self.__class__.__name__, str(hypo.hypo_type))
             raise RuntimeError(msg)
 
-        alias += '_' + hypo.hypo_type
-
         return AlgList(f(), alias)
 
 
@@ -353,7 +351,7 @@ class JetSequencesBuilder(object):
 
         menu_data = self.chain_config.menu_data
         hypo = menu_data.hypo_params
-        alias = 'hypo_%s' % str(hypo.attributes_to_string())
+        alias = 'hthypo_%s' % str(hypo.attributes_to_string())
 
         return AlgList(self.alg_factory.ht_hypo(), alias)
 
@@ -363,7 +361,7 @@ class JetSequencesBuilder(object):
 
         menu_data = self.chain_config.menu_data
         hypo = menu_data.hypo_params
-        alias = 'hypo_%s' % str(hypo.tla_string)
+        alias = 'tlahypo_%s' % str(hypo.tla_string)
 
         return AlgList(self.alg_factory.hlt_hypo_tla(), alias)
 
@@ -372,7 +370,7 @@ class JetSequencesBuilder(object):
         """Create an alg_list for the trigger tower unpacker"""
 
         algs = self.alg_factory.tt_maker()
-        return AlgList(alg_list=algs, alias='tt_maker')
+        return AlgList(alg_list=algs, alias='ttmaker')
         
 
     def make_jhd(self):
@@ -380,7 +378,7 @@ class JetSequencesBuilder(object):
 
         # ensure diagnostics have te names according to the chain_name
         # else collosions.
-        alias='jethypo_diagnostics_%s' % self.chain_name_esc
+        alias='jethypodiagnostics_%s' % self.chain_name_esc
 
         return AlgList(alg_list=diag_alg,
                        alias=alias)
@@ -400,7 +398,7 @@ class JetSequencesBuilder(object):
 
         # ensure diagnostics have te names according to the chain_name
         # else collosions.
-        alias='jetfex_diagnostics_%s' % self.chain_name_esc
+        alias='jetfexdiagnostics_%s' % self.chain_name_esc
 
         return AlgList(alg_list=algs, alias=alias)
 
@@ -412,5 +410,5 @@ class JetSequencesBuilder(object):
               'ds2': self.alg_factory.getDataScoutingAlgs2}.get(
                   self.chain_config.data_scouting)
 
-        alias='data_scouting_%s' % self.chain_config.chain_name
+        alias='datascouting_%s' % self.chain_config.chain_name
         return AlgList(alg_list=ff(), alias=alias)

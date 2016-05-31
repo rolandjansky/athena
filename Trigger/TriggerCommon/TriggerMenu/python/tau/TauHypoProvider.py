@@ -67,27 +67,32 @@ class TauHypoProvider:
                     if criteria== 'perf' or criteria== 'cosmic': 
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo_tauNoCut
                         currentHypo = EFTauMVHypo_tauNoCut(currentHypoKey.replace(threshold, ''))
-                    elif criteria=='dikaon' or criteria=='dikaontight':
+
+                    elif criteria=='dikaon' or criteria=='dikaontight' or criteria=='dikaonmass' or criteria=='dikaonmasstight' or criteria=='kaonpi1' or criteria=='kaonpi2' or criteria=='dipion1' or criteria=='dipion1loose' or criteria=='dipion2':
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauDiKaonHypo
-                        theVars = ['massTrkSysMin', 'massTrkSysMax', 'leadTrkPtMin','EtCalibMin','EMPOverTrkSysPMax']
+                        theVars = ['massTrkSysMin', 'massTrkSysMax', 'massTrkSysKaonMin', 'massTrkSysKaonMax', 'massTrkSysKaonPiMin', 'massTrkSysKaonPiMax', 'targetMassTrkSysKaonPi', 'leadTrkPtMin','EtCalibMin','EMPOverTrkSysPMax']
                         theThresh = self.thresholdsEF_dikaon[(criteria, int(threshold))]
                         currentHypo = EFTauDiKaonHypo(currentHypoKey, theVars, theThresh)
-                    elif criteria=='dikaonmass' or criteria=='dikaonmasstight':
-                        from TrigTauHypo.TrigTauHypoConfig2012 import EFTauDiKaonHypo
-                        theVars = ['massTrkSysKaonMin', 'massTrkSysKaonMax', 'leadTrkPtMin','EtCalibMin','EMPOverTrkSysPMax','nWideTrackMax']
-                        theThresh = self.thresholdsEF_dikaonmass[(criteria, int(threshold))]
-                        currentHypo = EFTauDiKaonHypo(currentHypoKey, theVars, theThresh)
+
+#                    elif criteria=='dikaonmass' or criteria=='dikaonmasstight':
+#                        from TrigTauHypo.TrigTauHypoConfig2012 import EFTauDiKaonHypo
+#                        theVars = ['massTrkSysKaonMin', 'massTrkSysKaonMax', 'leadTrkPtMin','EtCalibMin','EMPOverTrkSysPMax','nWideTrackMax']
+#                        theThresh = self.thresholdsEF_dikaonmass[(criteria, int(threshold))]
+#                        currentHypo = EFTauDiKaonHypo(currentHypoKey, theVars, theThresh)
+
                     elif criteria=='singlepion' or criteria=='singlepiontight':
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauDiKaonHypo
                         theVars = ['leadTrkPtMin','EtCalibMin','nTrackMax','nWideTrackMax','dRmaxMax','etOverPtLeadTrkMin','etOverPtLeadTrkMax']
                         theThresh = self.thresholdsEF_singlepion[(criteria, int(threshold))]
                         currentHypo = EFTauDiKaonHypo(currentHypoKey, theVars, theThresh)
+
                     elif criteria=='medium1HighptL' or criteria=='medium1HighptM' or criteria=='medium1HighptH':
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo_highpt
                         theVars = ['NTrackMax', 'EtCalibMin', 'Level','HighptTrkThr','HighptIDThr','HighptJetThr']
                         theThresh = self.thresholdsEF[(criteria, int(threshold))]
                         theThresh.extend(self.thresholdsHighpt[(criteria)])
                         currentHypo = EFTauMVHypo_highpt(currentHypoKey, theVars, theThresh)
+
                     else:
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
                         theVars = ['NTrackMax', 'EtCalibMin', 'Level']
@@ -299,16 +304,23 @@ class TauHypoProvider:
         }
 
     thresholdsEF_dikaon = {
-        ('dikaon', 25): [0.2*GeV, 0.45*GeV, 15.0*GeV, 25.0*GeV, 1.5],
-        ('dikaon', 35): [0.2*GeV, 0.45*GeV, 25.0*GeV, 35.0*GeV, 1.5], 
-        ('dikaontight', 25): [0.2*GeV, 0.45*GeV, 15.0*GeV, 25.0*GeV, 1.0],
-        ('dikaontight', 35): [0.2*GeV, 0.45*GeV, 25.0*GeV, 35.0*GeV, 1.0]
-        }
-    thresholdsEF_dikaonmass = {
-        ('dikaonmass', 25): [0.987*GeV, 1.060*GeV, 15.0*GeV, 25.0*GeV, 1.5, 1],
-        ('dikaonmass', 35): [0.987*GeV, 1.060*GeV, 25.0*GeV, 35.0*GeV, 1.5, 1],
-        ('dikaonmasstight', 25): [0.987*GeV, 1.060*GeV, 15.0*GeV, 25.0*GeV, 1.0, 1],
-        ('dikaonmasstight', 35): [0.987*GeV, 1.060*GeV, 25.0*GeV, 35.0*GeV, 1.0, 1]
+        ('dikaon', 25):          [0.2*GeV, 0.45*GeV,    0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   15.0*GeV, 25.0*GeV, 1.5],
+        ('dikaon', 35):          [0.2*GeV, 0.45*GeV,    0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 35.0*GeV, 1.5], 
+        ('dikaontight', 25):     [0.2*GeV, 0.45*GeV,    0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   15.0*GeV, 25.0*GeV, 1.0],
+        ('dikaontight', 35):     [0.2*GeV, 0.45*GeV,    0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 35.0*GeV, 1.0],
+        ('dikaonmass', 25):      [0.0*GeV, 1000.0*GeV,  0.987*GeV, 1.060*GeV, 0.0*GeV, 1000.0*GeV, 0.0*GeV,   15.0*GeV, 25.0*GeV, 1.5],
+        ('dikaonmass', 35):      [0.0*GeV, 1000.0*GeV,  0.987*GeV, 1.060*GeV, 0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 35.0*GeV, 1.5],
+        ('dikaonmasstight', 25): [0.0*GeV, 1000.0*GeV,  0.987*GeV, 1.060*GeV, 0.0*GeV, 1000.0*GeV, 0.0*GeV,   15.0*GeV, 25.0*GeV, 1.0],
+        ('dikaonmasstight', 35): [0.0*GeV, 1000.0*GeV,  0.987*GeV, 1.060*GeV, 0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 35.0*GeV, 1.0],
+        ('kaonpi1', 25):         [0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV,  0.79*GeV, 0.99*GeV,  0.89*GeV,  15.0*GeV, 25.0*GeV, 1.0],
+        ('kaonpi1', 35):         [0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV,  0.79*GeV, 0.99*GeV,  0.89*GeV,  25.0*GeV, 35.0*GeV, 1.0],
+        ('kaonpi2', 25):         [0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV,  1.8*GeV, 1.93*GeV,   1.865*GeV, 15.0*GeV, 25.0*GeV, 1.0],
+        ('kaonpi2', 35):         [0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV,  1.8*GeV, 1.93*GeV,   1.865*GeV, 25.0*GeV, 35.0*GeV, 1.0],
+        ('dipion1', 25):         [0.475*GeV, 1.075*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   15.0*GeV, 25.0*GeV, 1.0],
+        ('dipion1', 35):         [0.475*GeV, 1.075*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 35.0*GeV, 1.0],
+        ('dipion1loose', 35):    [0.475*GeV, 1.075*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 35.0*GeV, 1.5],
+        ('dipion2', 25):         [0.460*GeV, 0.538*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   15.0*GeV, 25.0*GeV, 1.0],
+        ('dipion2', 35):         [0.460*GeV, 0.538*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 35.0*GeV, 1.0]
         }
 
 

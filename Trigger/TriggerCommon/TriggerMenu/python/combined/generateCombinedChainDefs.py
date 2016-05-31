@@ -104,15 +104,12 @@ def _addTopoInfo(theChainDef,chainDicts,listOfChainDefs,doAtL2AndEF=True):
 #Helper
 
 def isJetTE(myString):
-    
-    
-    #print "BETTA: ", myString
-
-    if re.match("EF_[_0-9]+_hypo",myString) or re.match("EF_[_0-9]+_jetrec",myString) :
-        print "BETTA Pass :",myString
+        
+    if re.match("EF_[_0-9]+_HLThypo",myString) or re.match("EF_[_0-9]+_jetrec",myString) :
+        #print "BETTA Pass :",myString
         return True
     else:
-        print "BETTA Fail :",myString
+        #print "BETTA Fail :",myString
         return False
 
 ##############################################################################

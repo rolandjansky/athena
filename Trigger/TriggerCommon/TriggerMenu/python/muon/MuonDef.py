@@ -1003,9 +1003,12 @@ class L2EFChain_mu(L2EFChainDef):
     else:
       self.EFsequenceList += [['',
                                [PESA__DummyUnseededAllTEAlgo("EFDummyAlgo")]+
-                               [CfgGetter.getAlgorithm("TrigMuSuperEF_FSSA"),
-                                theTrigMuonEFSA_FS_Hypo],
+                               [CfgGetter.getAlgorithm("TrigMuSuperEF_FSSA")],
                                'EF_SA_FS']]
+ 
+      self.EFsequenceList += [['EF_SA_FS',
+                               [theTrigMuonEFSA_FS_Hypo],
+                               'EF_SA_FS2']]
  
       self.EFsequenceList += [['EF_SA_FS',
                                [CfgGetter.getAlgorithm("TrigMuonEFFSRoiMaker")],
@@ -1032,10 +1035,11 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsignatureList += [ [['EF_SA_FS']] ]
     else:
       self.EFsignatureList += [ [['EF_SA_FS']] ]
+      self.EFsignatureList += [ [['EF_SA_FS2']] ]
       self.EFsignatureList += [ [['EF_SAR_FS']] ]
       self.EFsignatureList += [ [['EF_FStracksMuon']] ]
       self.EFsignatureList += [ [['EF_CB_FS_single']] ]
-      self.EFsignatureList += [ [['EF_CB_FS']] ]
+      self.EFsignatureList += [ [['EF_CB_FS','EF_SA_FS2']] ]
 
     ########### TE renaming ##########
 
@@ -1045,10 +1049,11 @@ class L2EFChain_mu(L2EFChainDef):
          }
     else:
       self.TErenamingDict = {
-        'EF_SA_FS': mergeRemovingOverlap('EF_SA_FS_','SAFSHypo'+hypocut),
-        'EF_SAR_FS': mergeRemovingOverlap('EF_SAR_FS_','SAFSHypo'+hypocut),
-        'EF_FStracksMuon': mergeRemovingOverlap('EF_FStracksMuon_', 'SAFSHypo'+hypocut),
-        'EF_CB_FS_single': mergeRemovingOverlap('EF_CB_FS_single_','SAFSHypo'+hypocut), 
+        'EF_SA_FS': mergeRemovingOverlap('EF_SA_FS_','SAFSHypo'),
+        'EF_SA_FS2': mergeRemovingOverlap('EF_SA_FS2_','SAFSHypo'+hypocut),
+        'EF_SAR_FS': mergeRemovingOverlap('EF_SAR_FS_','SAFSHypo'),
+        'EF_FStracksMuon': mergeRemovingOverlap('EF_FStracksMuon_', 'SAFSHypo'),
+        'EF_CB_FS_single': mergeRemovingOverlap('EF_CB_FS_single_','SAFSHypo'), 
         'EF_CB_FS': mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
 
       }
