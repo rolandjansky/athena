@@ -19,6 +19,7 @@
 
 #include <string>
 #include <vector>
+#include <cstdint> // for uint64_t (unsigned long long)
 
 class StoreGateSvc;
 class IToolSvc;
@@ -45,7 +46,7 @@ public:
 
   //Called every algorithm refresh:
   bool executeNewEvent( const int& run,
-			const int& event,
+			const uint64_t & event,
 			const unsigned& triggerType = 0,//When available
 			const unsigned& time = 0 //When available (seconds since 1970)
 			);

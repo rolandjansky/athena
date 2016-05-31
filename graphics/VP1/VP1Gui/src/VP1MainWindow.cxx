@@ -843,7 +843,7 @@ void VP1MainWindow::closeEvent(QCloseEvent * event)
 }
 
 //_________________________________________________________________________________
-void VP1MainWindow::setRunEvtNumber(const int& r, const int& e, const unsigned& triggerType, const unsigned& time, const bool& printmessage ) {
+void VP1MainWindow::setRunEvtNumber(const int& r, const unsigned long long& e, const unsigned& triggerType, const unsigned& time, const bool& printmessage ) {
 
 	scheduler->setNextRequestedEventFile("");
 	const bool sameasold(runnumber==r&&eventnumber==e);
@@ -862,7 +862,8 @@ void VP1MainWindow::setRunEvtNumber(const int& r, const int& e, const unsigned& 
 	}
 
 	if(printmessage) {
-		QString evtstr = "run# "+QString::number(runnumber)+", event# "+QString::number(eventnumber)+(sameasold?" (reused)":"");
+		qulonglong evNumber = eventnumber;
+		QString evtstr = "run# "+QString::number(runnumber)+", event# "+QString::number(evNumber)+(sameasold?" (reused)":"");
 		QString trighex = triggerType > 0 ? "0x"+QString::number(triggerType, 16).toUpper().rightJustified(sizeof(triggerType),'0') : "";
 		QString expandedevtstr = evtstr
 				+ QString(trighex.isEmpty()?QString(""):", triggerType: "+trighex)
@@ -955,7 +956,7 @@ void VP1MainWindow::makeAllChannelsEventDisplay()
 
 	QList<QPixmap> list;
 	QStringList listNames;
-	QList<int> listRunEventNumberTimestamp;
+	QList<unsigned long long> listRunEventNumberTimestamp;
 
 	getAllChannelsIntoSnapshots(list, listNames);
 
