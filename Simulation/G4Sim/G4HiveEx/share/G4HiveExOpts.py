@@ -104,10 +104,10 @@ athenaCommonFlags.EvtMax = evtMax
 ## Detector flags
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOn()
-DetFlags.Calo_setOff()
+DetFlags.Calo_setOn()
 DetFlags.Muon_setOn()
 DetFlags.Lucid_setOff()
-DetFlags.Truth_setOff()
+DetFlags.Truth_setOn()
 
 ## Global conditions tag
 from AthenaCommon.GlobalFlags import jobproperties
@@ -130,12 +130,18 @@ simFlags.EventFilter.set_Off()
 #simFlags.LArParameterization = 2
 
 ## No magnetic field
-simFlags.MagneticField.set_Off()
+simFlags.MagneticField.set_On()
 
 ## Change the field stepper or use verbose G4 tracking
 #from G4AtlasApps import callbacks
 #simFlags.InitFunctions.add_function("postInit", callbacks.use_simplerunge_stepper)
 #simFlags.InitFunctions.add_function("preInitG4", callbacks.use_verbose_tracking)
+
+# Activate new user actions for multithreading
+simFlags.UseV2UserActions = True
+
+# Debug output
+#CfgGetter.getPublicTool('G4UA::AthenaTrackingActionTool').OutputLevel = DEBUG
 
 # Setup the algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
@@ -157,15 +163,24 @@ topSeq += CfgMgr.SGInputLoader(OutputLevel = INFO, ShowEventDump=False)
 # Is uses the same syntax as Algorithmic dependency declarations
 topSeq.SGInputLoader.Load = [('McEventCollection','GEN_EVENT')]
 
+# Add the beam effects algorithm
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
+
 ## Add the G4 simulation service
 from G4AtlasApps.PyG4Atlas import PyG4AtlasSvc
 svcMgr += PyG4AtlasSvc()
+
 # TODO: make this declaration more automatic
-topSeq.G4AtlasAlg.ExtraInputs =  [('McEventCollection','GEN_EVENT')]
+topSeq.G4AtlasAlg.ExtraInputs =  [('McEventCollection','BeamTruthEvent')]
 topSeq.G4AtlasAlg.ExtraOutputs = [('SiHitCollection','SCT_Hits')]
 
 topSeq.StreamHITS.ExtraInputs += topSeq.G4AtlasAlg.ExtraOutputs
 
+# Disable all of the LAr SDs because they are not yet thread-safe
+sdMaster = ToolSvc.SensitiveDetectorMasterTool
+larSDs = [sd for sd in sdMaster.SensitiveDetectors if sd.name().startswith('LAr')]
+for sd in larSDs: sdMaster.SensitiveDetectors.remove(sd)
 
 # Increase verbosity of the output stream
 #topSeq.StreamHITS.OutputLevel = DEBUG
@@ -185,7 +200,6 @@ algCardinality = jp.ConcurrencyFlags.NumThreads()
 if (algCardinality != 1):
     for alg in topSeq:
         name = alg.name()
-#        if name in ["SGInputLoader", "StreamHITS"]:
         if name in ["StreamHITS"]:
             print 'Disabling cloning/cardinality for', name
             # Don't clone these algs
