@@ -45,4 +45,3 @@ atlas_add_component( JetRecTools
 # Install files from the package:
 atlas_install_headers( JetRecTools )
 atlas_install_python_modules( python/*.py )
-

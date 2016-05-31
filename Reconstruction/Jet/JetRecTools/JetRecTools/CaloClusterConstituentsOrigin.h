@@ -1,3 +1,5 @@
+// this file is -*- C++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -21,17 +23,24 @@
 #include "xAODTracking/Vertex.h"
 
 class CaloClusterConstituentsOrigin: public JetConstituentModifierBase {
-ASG_TOOL_CLASS(CaloClusterConstituentsOrigin, IJetConstituentModifier) 
-
-  protected:
-  std::string m_vertexContName = "";
-
- public:
-	
+  ASG_TOOL_CLASS(CaloClusterConstituentsOrigin, IJetConstituentModifier) 
+  
+  public:
+  
   CaloClusterConstituentsOrigin(const std::string & name); // MEN: constructor 
   StatusCode process(xAOD::IParticleContainer* cont) const; 
   StatusCode process(xAOD::CaloClusterContainer* cont, const xAOD::Vertex *vert) const; // MEN: Might need to rename this process
+  
+  
+protected:
 
+  StatusCode processLC(xAOD::CaloClusterContainer* cont, const xAOD::Vertex *vert) const; // MEN: Might need to rename this process
+  StatusCode processEM(xAOD::CaloClusterContainer* cont, const xAOD::Vertex *vert) const; // MEN: Might need to rename this process
+
+
+  std::string m_vertexContName = "";
+  bool m_useEMScale = false;
+  
 };
 
 #endif
