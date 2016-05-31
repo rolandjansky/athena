@@ -27,5 +27,4 @@ apply_pattern lcgdict dict=xAODLuminosity selectionfile=selection.xml \
                       headerfiles="../xAODLuminosity/xAODLuminosityDict.h" \
                       extralibfiles=../Root/dict/*.cxx
 
-
 apply_pattern do_genCLIDDB library=xAODLuminosity
