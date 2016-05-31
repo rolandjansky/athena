@@ -272,11 +272,8 @@ const Root::TAccept& FastTrackSelection::accept(const xAOD::TauJet * presel_tau)
 
   // Track Counting
   int Ncore = presel_tau->nTracks();
-#ifdef XAODTAU_VERSIONS_TAUJET_V3_H
+  //int Niso  = presel_tau->nWideTracks();
   int Niso  = presel_tau->nTracksIsolation();
-#else
-  int Niso  = presel_tau->nWideTracks();
-#endif
 
   //std::cout << "\t \t \t \t Presel tau " << presel_tau->index() 
         //<< ": pt / eta / phi / Ncore / Niso = " 
