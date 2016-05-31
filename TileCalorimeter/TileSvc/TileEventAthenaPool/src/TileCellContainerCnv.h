@@ -39,16 +39,16 @@ private:
 
     int m_version;
 
-    static const int nSide = 2;
-    static const int nPhi  = 8;
-    static const int nEta  = 2;
-    static const int nCellMBTS = nSide*nPhi*nEta;
+    static const int NSIDE = 2;
+    static const int NPHI  = 8;
+    static const int NETA  = 2;
+    static const int NCELLMBTS = NSIDE*NPHI*NETA;
 
-    inline int cell_index(int side, int phi, int eta) const { return (side*nPhi+phi)*nEta+eta; }
+    inline int cell_index(int side, int phi, int eta) const { return (side*NPHI+phi)*NETA+eta; }
     void initIdToIndex();
   
-    Identifier m_id[nCellMBTS];
-    CaloDetDescrElement * m_dde[nCellMBTS];
+    Identifier m_id[NCELLMBTS];
+    CaloDetDescrElement * m_dde[NCELLMBTS];
     int m_gainIndex[17];
     int m_gain[8];
 

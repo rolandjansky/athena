@@ -74,9 +74,9 @@ StatusCode TileCellContainerCnv::initialize()
       // log << MSG::FATAL << "No TileTBID helper" << endreq;
       // return StatusCode::FAILURE;
     } else {
-      for (int side=0; side<nSide; ++side) {
-        for (int phi=0; phi<nPhi; ++phi) {
-          for (int eta=0; eta<nEta; ++eta) {
+      for (int side=0; side<NSIDE; ++side) {
+        for (int phi=0; phi<NPHI; ++phi) {
+          for (int eta=0; eta<NETA; ++eta) {
             m_id[cell_index(side,phi,eta)] = m_tileTBID->channel_id((side>0)?1:-1,phi,eta);
           }
         }
@@ -88,9 +88,9 @@ StatusCode TileCellContainerCnv::initialize()
       log << MSG::WARNING << "Unable to retrieve MbtsDetDescrManager from DetectorStore" << endreq;
       memset(m_dde,0,sizeof(m_dde));
     } else {
-      for (int side=0; side<nSide; ++side) {
-        for (int phi=0; phi<nPhi; ++phi) {
-          for (int eta=0; eta<nEta; ++eta) {
+      for (int side=0; side<NSIDE; ++side) {
+        for (int phi=0; phi<NPHI; ++phi) {
+          for (int eta=0; eta<NETA; ++eta) {
             m_dde[cell_index(side,phi,eta)] = m_mbtsMgr->get_element(m_id[cell_index(side,phi,eta)]);
           }
         }
@@ -113,9 +113,9 @@ StatusCode TileCellContainerCnv::initialize()
 
 void TileCellContainerCnv::initIdToIndex()
 {
-  for (int side=0; side<nSide; ++side) {
-    for (int phi=0; phi<nPhi; ++phi) {
-      for (int eta=0; eta<nEta; ++eta) {
+  for (int side=0; side<NSIDE; ++side) {
+    for (int phi=0; phi<NPHI; ++phi) {
+      for (int eta=0; eta<NETA; ++eta) {
         m_id[cell_index(side,phi,eta)] = (Identifier)cell_index(side,phi,eta);
       }
     }
@@ -135,14 +135,14 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
     if ( m_vecCellAll.find(name) == m_vecCellAll.end()) {
       m_vecCellAll.insert(std::pair<std::string,TileCellVec>(name,TileCellVec()));
     }
-    TileCellVec & m_vecCell = m_vecCellAll[name];
+    TileCellVec & vecCell = m_vecCellAll[name];
 
     if (lDebug) log << MSG::DEBUG << "storing TileCells from " << name << " in POOL" << endreq;
 
     // Clear vector from previous write
-    m_vecCell.clear();
+    vecCell.clear();
 
-    m_vecCell.push_back(m_version);
+    vecCell.push_back(m_version);
     int nMBTSfound=0;
 
     std::vector<const TileCell *> allCells;
@@ -165,9 +165,9 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
         unsigned int qua = std::max(0, std::min(0xFF, (int)cell->qual1()));
         unsigned int gai = std::max(0, std::min(0xFF,   0x80   + (int)(cell->gain())));
         unsigned int tqg = (tim<<16) | (qua<<8) | gai;
-        m_vecCell.push_back(id);
-        m_vecCell.push_back((unsigned int)ene);
-        m_vecCell.push_back(tqg);
+        vecCell.push_back(id);
+        vecCell.push_back((unsigned int)ene);
+        vecCell.push_back(tqg);
         if (lVerbose)
           log << MSG::VERBOSE << "packing cell in three words " 
               << MSG::hex << id << " " << ene << " " << tqg << MSG::dec << endreq;
@@ -177,7 +177,7 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
     case 2: // 1 or 2 words for MBTS cells, 3 words for others, energy scale factor is 1000, time scale factor is 100
 
       // prepare vector with all cells first, expect at least 32 MBTS cells
-      allCells.resize(nCellMBTS);
+      allCells.resize(NCELLMBTS);
       for (TileCellContainer::const_iterator it = cont->begin(); it != cont->end(); ++it) {
         const TileCell* cell = *it;
         Identifier id = cell->ID();
@@ -186,7 +186,7 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
           int phi  = m_tileTBID->module(id);
           int eta  = m_tileTBID->channel(id);
           int ind  = cell_index(side,phi,eta);
-          if (eta<nEta && phi<nPhi && ind < nCellMBTS) {
+          if (eta<NETA && phi<NPHI && ind < NCELLMBTS) {
             allCells[ind] = cell;
             ++nMBTSfound;
           } else {
@@ -201,7 +201,7 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
 
       // save first 32 cells (MBTS) without identifiers, 2 words per cell, put zeros for empty cells
       // if MBTS energy is in pCb, then LSB corresponds to 1/12 ADC count of high gain
-      for (int ind=0; ind<nCellMBTS; ++ind) {
+      for (int ind=0; ind<NCELLMBTS; ++ind) {
         int energy = 0;
         int time   = 0;
         int quality= 0;
@@ -239,7 +239,7 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
           unsigned int qua = std::max(0, std::min(0xFF, quality)); // 8 bits for quality
           unsigned int gai = m_gainIndex[-gain];
           unsigned int gqe = (gai << 28) | (qua<<20) | ene; // upper most bit is always 1 here
-          m_vecCell.push_back(gqe);
+          vecCell.push_back(gqe);
 
           if (lVerbose)
             log << MSG::VERBOSE << "packing cell " << ind << " in one word "
@@ -253,8 +253,8 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
           unsigned int qua = std::max(0, std::min(0xFF, quality)); // 8 bits for quality
           unsigned int gai = std::max(0, std::min(0xFF,   0x80   + gain));
           unsigned int tqg = (tim<<16) | (qua<<8) | gai;
-          m_vecCell.push_back(ene);
-          m_vecCell.push_back(tqg);
+          vecCell.push_back(ene);
+          vecCell.push_back(tqg);
 
           if (lVerbose)
             log << MSG::VERBOSE << "packing cell " << ind << " in two words "
@@ -264,11 +264,11 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
 
      } else {
 
-       m_vecCell[0] = 1; // no MBTS found - use version 1 for packing 
+       vecCell[0] = 1; // no MBTS found - use version 1 for packing 
      }
 
       // keep all other cells (if any) with identifiers, 3 words per cell
-      for (unsigned int ind=nCellMBTS; ind<allCells.size(); ++ind) {
+      for (unsigned int ind=NCELLMBTS; ind<allCells.size(); ++ind) {
         
         const TileCell* cell = allCells[ind];
 
@@ -287,9 +287,9 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
         unsigned int qua = std::max(0, std::min(0xFF, (int)cell->qual1()));
         unsigned int gai = std::max(0, std::min(0xFF,   0x80   + (int)(cell->gain())));
         unsigned int tqg = (tim<<16) | (qua<<8) | gai;
-        m_vecCell.push_back(id);
-        m_vecCell.push_back((unsigned int)ene);
-        m_vecCell.push_back(tqg);
+        vecCell.push_back(id);
+        vecCell.push_back((unsigned int)ene);
+        vecCell.push_back(tqg);
 
         if (lVerbose)
           log << MSG::VERBOSE << "packing cell " << ind << " in three words "
@@ -304,7 +304,7 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
     }
 
     if (lDebug) log << MSG::DEBUG << "Storing data vector of size " << m_vecCellAll[name].size() << " with version " << m_vecCellAll[name][0] << endreq;
-    persObj = &m_vecCell;
+    persObj = &vecCell;
 
     return StatusCode::SUCCESS; 
 }
@@ -338,8 +338,8 @@ StatusCode TileCellContainerCnv::persToTrans(TileCellContainer*& cont, TileCellV
         int ene = (int)(*it++);
         unsigned int tqg = *it++;
       
-        float ener = ene/1000.;
-        float time = ((int)(tqg>>16) - 0x8000 ) / 100.;
+        float ener = ene*1e-3;
+        float time = ((int)(tqg>>16) - 0x8000 ) * 0.01;
         uint16_t qual = ((tqg>>8) & 0xFF);
         uint16_t qbit = TileCell::MASK_CMPC | TileCell::MASK_TIME;
         int   gain = (int)(tqg & 0xFF) - 0x80;
@@ -372,7 +372,7 @@ StatusCode TileCellContainerCnv::persToTrans(TileCellContainer*& cont, TileCellV
         if (lVerbose)
           log << MSG::VERBOSE << "reading cell " << iCell << " ";
 
-        if (iCell < nCellMBTS) { // first 32 cells are MBTS cells without identifier
+        if (iCell < NCELLMBTS) { // first 32 cells are MBTS cells without identifier
 
           id = m_id[iCell]; // identifier is taken from array
           dde = m_dde[iCell]; // mbtsDDE is taken from array
@@ -388,7 +388,7 @@ StatusCode TileCellContainerCnv::persToTrans(TileCellContainer*& cont, TileCellV
               log << endreq;
 
             time = 0.0;   // time was zero and it was not saved
-            ener = ((ene & 0xFFFFF) - 0x10000) / 1000.;
+            ener = ((ene & 0xFFFFF) - 0x10000) * 1e-3;
             qual = ((ene>>20) & 0xFF);
             gain = m_gain[((ene>>28) & 0x7)]; // gain is taken from array
             
@@ -398,8 +398,8 @@ StatusCode TileCellContainerCnv::persToTrans(TileCellContainer*& cont, TileCellV
             if (lVerbose)
               log << MSG::hex << tqg << MSG::dec << endreq;
 
-            ener = (ene - 0x40000000) / 1000.;
-            time = ((int)(tqg>>16) - 0x8000 ) / 100.;
+            ener = (ene - 0x40000000) * 1e-3;
+            time = ((int)(tqg>>16) - 0x8000 ) * 0.01;
             qual = ((tqg>>8) & 0xFF);
             gain = (int)(tqg & 0xFF) - 0x80;
           }
@@ -414,8 +414,8 @@ StatusCode TileCellContainerCnv::persToTrans(TileCellContainer*& cont, TileCellV
             log << MSG::hex << id << MSG::dec << " " << ene << " " 
                 << MSG::hex << tqg << MSG::dec << endreq;
 
-          ener = ene/1000.;
-          time = ((int)(tqg>>16) - 0x8000 ) / 100.;
+          ener = ene*1e-3;
+          time = ((int)(tqg>>16) - 0x8000 ) * 0.01;
           qual = ((tqg>>8) & 0xFF);
           gain = (int)(tqg & 0xFF) - 0x80;
         }
