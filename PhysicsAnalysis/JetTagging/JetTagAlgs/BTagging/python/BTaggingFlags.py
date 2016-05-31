@@ -472,8 +472,8 @@ class _BTaggingFlags:
                               "AntiKt4Truth->AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
                               "AntiKt4TruthWZ->AntiKt4TruthWZ,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
                               "AntiKt4Track->AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
-                              "AntiKt3Track->AntiKt3Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
-                              "AntiKt2Track->AntiKt2Track,AntiKt3Track,AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
+                              "AntiKt3Track->AntiKt3Track,AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
+                              "AntiKt2Track->AntiKt2Track,AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
                               "AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo"])
 
       for attr in self._CalibrationSingleFolder:
@@ -630,10 +630,9 @@ class _BTaggingFlags:
       # The function which uses this list is JetCollectionIsSupported() in
       # ./python/BTaggingConfiguration.py
       self.SupportedJetCollections = ["AntiKt4LCTopo",
-                                      "AntiKt10LCTopo",
                                       "AntiKt4EMTopo",
                                       "AntiKt4Track",
-                                      "AntiKt3Track",
+                                      "AntiKt4EMPFlow",
                                       "AntiKt10TruthWZ",
                                       "AntiKt4TruthWZ",
                                       ]

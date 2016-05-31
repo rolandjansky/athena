@@ -10,11 +10,13 @@ metaJetVertexCharge = { 'IsATagger'           : True,
                                                  'BTagTrackToVertexTool',   #LC FIXME  check if it works  
                                                  'NewJetFitterVxFinder',
                                                  'BTagCalibrationBrokerTool',
+                                                 'MuonCorrectionsTool',
                                                  'MuonSelectorTool',
                                                  ],
                         'CalibrationFolders'  : ['JetVertexCharge',], 
-                        'PassByPointer'       : {'calibrationTool' : 'BTagCalibrationBrokerTool',
-                                                 'muonSelectorTool': 'MuonSelectorTool' },
+                        'PassByPointer'       : {'calibrationTool'    : 'BTagCalibrationBrokerTool',
+                                                 'muonCorrectionTool' : 'MuonCorrectionsTool' ,
+                                                 'muonSelectorTool'   : 'MuonSelectorTool' },
                         'ToolCollection'      : 'JetVertexCharge' }
 
 def toolJetVertexCharge(name, useBTagFlagsDefaults = True, **options):
@@ -71,6 +73,27 @@ def toolJetVertexCharge(name, useBTagFlagsDefaults = True, **options):
     options['name'] = name
     from JetTagTools.JetTagToolsConf import Analysis__JetVertexCharge
     return Analysis__JetVertexCharge(**options)
+
+
+
+metaMuonCorrectionsTool = {  'ToolCollection' : 'JetVertexCharge' }
+
+def toolMuonCorrectionsTool(name, useBTagFlagsDefaults = True, **options):
+    """Sets up the CP MuonCorrection tool and returns it.
+
+    The following options have BTaggingFlags defaults:
+
+    OutputLevel                         default: BTaggingFlags.OutputLevel"""
+    
+    if useBTagFlagsDefaults:
+        defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
+                     }
+        for option in defaults:
+            options.setdefault(option, defaults[option])
+    options['name'] = name
+    from MuonMomentumCorrections.MuonMomentumCorrectionsConf import CP__MuonCalibrationAndSmearingTool 
+    return CP__MuonCalibrationAndSmearingTool(**options)
+
 
 
 

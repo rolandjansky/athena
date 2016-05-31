@@ -4,36 +4,26 @@
 # Author: Wouter van den Wollenberg (2013-2014)
 from BTagging.BTaggingFlags import BTaggingFlags
 
-metaMVbTag = { 'IsATagger'          : True,
-               'xAODBaseName'       : 'MV2c10b',
-               'DependsOn'          : ['AtlasExtrapolator',
-                                       'BTagTrackToVertexTool',
-                                       'BTagCalibrationBrokerTool',
-                                       'IP2DTag',
-                                       'IP3DTag',
-#                                           'JetFitterTagCOMBNN',
-                                       'NewJetFitterVxFinder',
-                                       'SV0Tag',
-                                       'SV1Tag'],              
-               'CalibrationFolders' : ['MV2c10b',],
-               'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
-               'ToolCollection'     : 'MV2c10bTag' }
+metaMVbTag = { 'IsATagger'          : False,#True,
+                  'xAODBaseName'       : 'MV2c10b',
+                  'DependsOn'          : ['AtlasExtrapolator',
+                                          'BTagCalibrationBrokerTool',
+                                          'BTagTrackToVertexTool'],
+                  'CalibrationFolders' : ['MV2c10b',],
+                  'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
+                  'ToolCollection'     : 'MV2c10bTag'}
 
 def toolMVbTag(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a MVbTag tool and returns it.
+    """Sets up a MV2b tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
     OutputLevel                         default: BTaggingFlags.OutputLevel
     Runmodus                            default: BTaggingFlags.Runmodus
-    taggerName                          default: "MVb"
-    taggerNameBase                      default: "MVb"
-    inputSV0SourceName                  default: "SV0"
-    inputSV1SourceName                  default: "SV1"
-    inputIP2DSourceName                 default: "IP2D"
-    inputIP3DSourceName                 default: "IP3D"
-    inputJFSourceName                   default: "JetFitter"
-    inputJFProbSourceName               default: "JetFitterCombNN"
+    taggerName                          default: "MV2c10b"
+    taggerNameBase                      default: "MV2c10b"
+    forceMV2CalibrationAlias            default: BTaggingFlags.ForceMV2CalibrationAlias
+    MV2CalibAlias                       default: BTaggingFlags.MV2CalibAlias
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -46,12 +36,6 @@ def toolMVbTag(name, useBTagFlagsDefaults = True, **options):
                      'taggerNameBase'                   : 'MV2c10b',
                      'forceMV2CalibrationAlias'         : BTaggingFlags.ForceMV2CalibrationAlias,
                      'MV2CalibAlias'                    : BTaggingFlags.MV2CalibAlias,
-                     'inputSV0SourceName'               : 'SV0',
-                     'inputSV1SourceName'               : 'SV1',
-                     'inputIP2DSourceName'              : 'IP2D',
-                     'inputIP3DSourceName'              : 'IP3D',
-                     'inputJFSourceName'                : 'JetFitter',
-                     'inputJFProbSourceName'            : 'JetFitterCombNN',
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])
