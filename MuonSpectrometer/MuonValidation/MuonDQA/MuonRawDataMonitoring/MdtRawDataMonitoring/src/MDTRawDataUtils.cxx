@@ -1208,7 +1208,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB(TH2* &h, int region, int layer){
   if(region == 0 || region == 1){//Barrel
     if(layer == 0){ //Inner
       //Add Labels
-      h->SetBins(500,1,1501,122,0,122);
+      h->SetBins(834,1,2502,122,0,122);
       h->GetYaxis()->SetBinLabel(1,"BI1");
       h->GetYaxis()->SetBinLabel(19,"BI2");
       h->GetYaxis()->SetBinLabel(37,"BI3");
@@ -1240,7 +1240,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB(TH2* &h, int region, int layer){
     }
 
     else if(layer == 1){ //Middle
-      h->SetBins(500,1,1501,89,0,89);
+      h->SetBins(834,1,2502,89,0,89);
       //Add Labels
       h->GetYaxis()->SetBinLabel(1,"BM1");
       h->GetYaxis()->SetBinLabel(17,"BM2");
@@ -1262,7 +1262,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB(TH2* &h, int region, int layer){
     }
 
     else if(layer == 2 && region == 0){ //Outer, side A 
-      h->SetBins(500,1,1501,118,0,118);
+      h->SetBins(834,1,2502,118,0,118);
       //Add labels
       h->GetYaxis()->SetBinLabel(1,"BO0");
       h->GetYaxis()->SetBinLabel(4,"BO1");
@@ -1294,7 +1294,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB(TH2* &h, int region, int layer){
     }
 
     else if(layer == 2 && region == 1){ //Outer, side C (no eta = 0)
-      h->SetBins(500,1,1501,116,0,116);
+      h->SetBins(834,1,2502,116,0,116);
       //Add labels
       h->GetYaxis()->SetBinLabel(1,"BO1");
       h->GetYaxis()->SetBinLabel(17,"BO2");
@@ -1326,7 +1326,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB(TH2* &h, int region, int layer){
 
   else{ //Endcap
     if(layer == 0){ //Inner
-      h->SetBins(500,1,1501,50,0,50);
+      h->SetBins(834,1,2502,50,0,50);
       //Add labels
       h->GetYaxis()->SetBinLabel(1,"EI1");
       h->GetYaxis()->SetBinLabel(17,"EI2");
@@ -1346,7 +1346,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB(TH2* &h, int region, int layer){
     }
 
     else if(layer == 1){ //Middle
-      h->SetBins(500,1,1501,80,0,80);
+      h->SetBins(834,1,2502,80,0,80);
       //Add labels 
       h->GetYaxis()->SetBinLabel(1,"EM1");
       h->GetYaxis()->SetBinLabel(17,"EM2");
@@ -1368,7 +1368,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB(TH2* &h, int region, int layer){
     else if(layer == 2){ //Outer + extra
 
       if(region == 2){ //side A
-	h->SetBins(500,1,1501,103,0,103);
+	h->SetBins(834,1,2502,103,0,103);
 	//Add labels
 	h->GetYaxis()->SetBinLabel(1,"EO1");
 	h->GetYaxis()->SetBinLabel(17,"EO2");
@@ -1392,7 +1392,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB(TH2* &h, int region, int layer){
 	TLine* l7 = new TLine(1,100,50,100); h->GetListOfFunctions()->Add(l7);
       }
       else if(region == 3){ //side C
-	h->SetBins(500,1,1501,127,0,127);
+	h->SetBins(834,1,2502,127,0,127);
 	//Add labels
 	h->GetYaxis()->SetBinLabel(1,"EO1");
 	h->GetYaxis()->SetBinLabel(17,"EO2");
@@ -1428,7 +1428,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
   if(region == 0 || region == 1){//Barrel
     if(crate == 0){ //Crate BA01 or BC01
       //Add Labels
-      h->SetBins(500,1,1501,73,0,73);
+      h->SetBins(834,1,2502,73,0,73);
       h->GetYaxis()->SetBinLabel(1,"BIL");
       h->GetYaxis()->SetBinLabel(13,"BIS");
       h->GetYaxis()->SetBinLabel(25,"BME");
@@ -1452,7 +1452,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
     }
 
     else if(crate == 1){ //BA02, BC02
-      h->SetBins(500,1,1501,73,0,73);
+      h->SetBins(834,1,2502,73,0,73);
       //Add Labels
       h->GetYaxis()->SetBinLabel(1,"BIL");
       h->GetYaxis()->SetBinLabel(13,"BIS");
@@ -1475,7 +1475,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
     }
     else if(crate == 2){ //BA03, BC03
      //Add Labels
-      h->SetBins(500,1,1501,77,0,77);
+      h->SetBins(834,1,2502,77,0,77);
       h->GetYaxis()->SetBinLabel(1,"BIL");
       h->GetYaxis()->SetBinLabel(7,"BIM");
       h->GetYaxis()->SetBinLabel(12,"BIR");
@@ -1518,7 +1518,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
 
     else if(crate == 3){ //BA04, BC04
      //Add Labels
-      h->SetBins(500,1,1501,76,0,76);
+      h->SetBins(834,1,2502,76,0,76);
       h->GetYaxis()->SetBinLabel(1,"BIL");
       h->GetYaxis()->SetBinLabel(7,"BIM");
       h->GetYaxis()->SetBinLabel(12,"BIR");
@@ -1563,7 +1563,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
 
   else{ //Endcap
     if(crate == 0 || crate == 2){ //EA01, EC01 and EA03, EC03 are the same
-      h->SetBins(500,1,1501,73,0,73);
+      h->SetBins(834,1,2502,73,0,73);
       //Add labels
       h->GetYaxis()->SetBinLabel(1,"BEE");
       h->GetYaxis()->SetBinLabel(5,"BIS");
@@ -1592,7 +1592,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
       TLine* l10 = new TLine(1,61,50,61);  h->GetListOfFunctions()->Add(l10);
     }
     else if(crate == 1){ //EA02, EC02
-      h->SetBins(500,1,1501,71,0,71);
+      h->SetBins(834,1,2502,71,0,71);
       //Add labels
       h->GetYaxis()->SetBinLabel(1,"BEE");
       h->GetYaxis()->SetBinLabel(5,"BIS");
@@ -1621,7 +1621,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
       TLine* l10 = new TLine(1,59,50,59);  h->GetListOfFunctions()->Add(l10);
     }
     else if(crate == 3){ //EA04, EC04
-      h->SetBins(500,1,1501,72,0,72);
+      h->SetBins(834,1,2502,72,0,72);
       //Add labels
       h->GetYaxis()->SetBinLabel(1,"BEE");
       h->GetYaxis()->SetBinLabel(5,"BIS");

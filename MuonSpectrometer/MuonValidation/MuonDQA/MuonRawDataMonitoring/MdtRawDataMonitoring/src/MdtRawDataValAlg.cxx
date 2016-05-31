@@ -1350,28 +1350,28 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
           if(ilayer == 2) lbhisttitle = "OccupancyVsLB_"+ecap[iecap]+layer[ilayer]+"PlusExtra";
           else lbhisttitle = "OccupancyVsLB_"+ecap[iecap]+layer[ilayer];
           if(iecap==enumBarrelA){
-            sc = bookMDTHisto_OccVsLB(mdtoccvslb[iecap][ilayer],lbhisttitle,"LB","[Eta,Phi]",500,1,1501,100,1,100,mg->mongroup_brA_shift);
+            sc = bookMDTHisto_OccVsLB(mdtoccvslb[iecap][ilayer],lbhisttitle,"LB","[Eta,Phi]",834,1,2502,100,1,100,mg->mongroup_brA_shift);
             if(sc.isFailure()) {
               ATH_MSG_ERROR("mdtoccvslb Failed to register histogram " );       
               return sc;
             }
           }
           else if(iecap==enumBarrelC){
-            sc = bookMDTHisto_OccVsLB(mdtoccvslb[iecap][ilayer],lbhisttitle,"LB","[Eta,Phi]",500,1,1501,100,0,100,mg->mongroup_brC_shift);
+            sc = bookMDTHisto_OccVsLB(mdtoccvslb[iecap][ilayer],lbhisttitle,"LB","[Eta,Phi]",834,1,2502,100,0,100,mg->mongroup_brC_shift);
             if(sc.isFailure()) {
               ATH_MSG_ERROR("mdtoccvslb Failed to register histogram " );       
               return sc;
             }
           }
           else if(iecap==enumEndCapA){
-            sc = bookMDTHisto_OccVsLB(mdtoccvslb[iecap][ilayer],lbhisttitle,"LB","[Eta,Phi]",500,1,1501,100,0,100,mg->mongroup_ecA_shift);
+            sc = bookMDTHisto_OccVsLB(mdtoccvslb[iecap][ilayer],lbhisttitle,"LB","[Eta,Phi]",834,1,2502,100,0,100,mg->mongroup_ecA_shift);
             if(sc.isFailure()) {
               ATH_MSG_ERROR("mdtoccvslb Failed to register histogram " );       
               return sc;
             }
           }
           else{
-            sc = bookMDTHisto_OccVsLB(mdtoccvslb[iecap][ilayer],lbhisttitle,"LB","[Eta,Phi]",500,1,1501,100,0,100,mg->mongroup_ecC_shift);
+            sc = bookMDTHisto_OccVsLB(mdtoccvslb[iecap][ilayer],lbhisttitle,"LB","[Eta,Phi]",834,1,2502,100,0,100,mg->mongroup_ecC_shift);
             if(sc.isFailure()) {
               ATH_MSG_ERROR("mdtoccvslb Failed to register histogram " );       
               return sc;
@@ -1392,28 +1392,28 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
 
         std::string lbCrate_histtitle = "OccupancyVsLB_"+ecap[iecap]+crate[ilayer];
         if(iecap==enumBarrelA){
-          sc = bookMDTHisto_OccVsLB(mdtoccvslb_by_crate[iecap][ilayer],lbCrate_histtitle,"LB","[Eta,Phi]",500,1,1501,100,1,100,mg->mongroup_brA_shift);
+          sc = bookMDTHisto_OccVsLB(mdtoccvslb_by_crate[iecap][ilayer],lbCrate_histtitle,"LB","[Eta,Phi]",834,1,2502,100,1,100,mg->mongroup_brA_shift);
           if(sc.isFailure()) {
             ATH_MSG_ERROR("mdtoccvslb_by_crate Failed to register histogram " );       
             return sc;
           }
         }
         else if(iecap==enumBarrelC){
-          sc = bookMDTHisto_OccVsLB(mdtoccvslb_by_crate[iecap][ilayer],lbCrate_histtitle,"LB","[Eta,Phi]",500,1,1501,100,0,100,mg->mongroup_brC_shift);
+          sc = bookMDTHisto_OccVsLB(mdtoccvslb_by_crate[iecap][ilayer],lbCrate_histtitle,"LB","[Eta,Phi]",834,1,2502,100,0,100,mg->mongroup_brC_shift);
           if(sc.isFailure()) {
             ATH_MSG_ERROR("mdtoccvslb_by_crate Failed to register histogram " );       
             return sc;
           }
         }
         else if(iecap==enumEndCapA){
-          sc = bookMDTHisto_OccVsLB(mdtoccvslb_by_crate[iecap][ilayer],lbCrate_histtitle,"LB","[Eta,Phi]",500,1,1501,100,0,100,mg->mongroup_ecA_shift);
+          sc = bookMDTHisto_OccVsLB(mdtoccvslb_by_crate[iecap][ilayer],lbCrate_histtitle,"LB","[Eta,Phi]",834,1,2502,100,0,100,mg->mongroup_ecA_shift);
           if(sc.isFailure()) {
             ATH_MSG_ERROR("mdtoccvslb_by_crate Failed to register histogram " );       
             return sc;
           }
         }
         else{
-          sc = bookMDTHisto_OccVsLB(mdtoccvslb_by_crate[iecap][ilayer],lbCrate_histtitle,"LB","[Eta,Phi]",500,1,1501,100,0,100,mg->mongroup_ecC_shift);
+          sc = bookMDTHisto_OccVsLB(mdtoccvslb_by_crate[iecap][ilayer],lbCrate_histtitle,"LB","[Eta,Phi]",834,1,2502,100,0,100,mg->mongroup_ecC_shift);
           if(sc.isFailure()) {
             ATH_MSG_ERROR("mdtoccvslb_by_crate Failed to register histogram " );       
             return sc;
@@ -1954,7 +1954,7 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
 
           if(mrot->prepRawData()->adc()>m_ADCCut) { // This is somewhat redundant because this is usual cut for segment-reconstruction, but that's OK
             if(statphi > 15) {
-              ATH_MSG_ERROR( "MDT StaionPhi: " << statphi << " Is too high.  Chamber name: " << chamber->getName() );
+              ATH_MSG_ERROR( "MDT StationPhi: " << statphi << " Is too high.  Chamber name: " << chamber->getName() );
               continue;
             }
 
