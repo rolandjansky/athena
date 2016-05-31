@@ -28,9 +28,6 @@
 
 using namespace std;
 
-static const int NSECTOR = 64;
-static const int NMAXHIT = 200;
-
 
 //***********************************************************************************************************************
 //***********************************************************************************************************************
@@ -64,6 +61,32 @@ StatusCode RpcLv1RawDataSectorLogic::initialize()
 
   StatusCode sc;
 
+   rpc_eventstotal = 0;
+   rpc_event_inarea = 0; 
+   i_padid1 = 0 ;
+   i_ptid = 0 ;
+   i_roi = 0 ;
+   i_roi1 = 0 ;
+   i_outerPlane = 0 ;
+   i_overlapPhi = 0 ;
+   i_overlapEta = 0 ;
+   i_triggerBcid = 0 ;
+   i_triggerBcid1 = 0 ;
+   i_sectorid = 0 ;
+   sli = 0 ;
+   m_nTriggerHits = 0 ;
+   m_nTriggerHits_out = 0 ;
+   m_nTriggerHitsperSector = 0 ;
+   m_Diff_triggerBCid = 0 ;
+   m_in_triggerBCid = 0 ;
+   m_out_triggerBCid = 0 ;
+   m_in_rowinBCid = 0 ;
+   m_out_rowinBCid = 0 ;
+   m_Tower_out = 0 ;
+   m_Tower_in = 0 ;
+   m_in_sectorid = 0 ;
+   sectorLogicContainer = 0 ;
+      
   // Store Gate store
   sc = serviceLocator() -> service("StoreGateSvc", m_eventStore);
   if (sc != StatusCode::SUCCESS ) {
@@ -89,9 +112,9 @@ StatusCode RpcLv1RawDataSectorLogic::initialize()
   
   // Ignore the checking code
   ManagedMonitorToolBase::initialize().ignore();
-  
-  rpc_eventstotal = 0;
-  rpc_event_inarea = 0;
+   
+      
+    
 
   return StatusCode::SUCCESS;
 }

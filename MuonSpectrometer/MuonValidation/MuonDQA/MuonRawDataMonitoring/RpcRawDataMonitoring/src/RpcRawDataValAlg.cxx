@@ -248,7 +248,39 @@ StatusCode RpcRawDataValAlg::initialize(){
   StationPivotSectorSize[10]= 1235*2*128*3;
   StationPivotSectorSize[53]=  965*6*128*3;
  
-  m_first = true ;
+ 
+ 
+ 
+   Nphi_Zstrips = 0 ;
+   NetaPanelsTot = 0 ;
+   ShiftEtaPanelsTot = 0 ;
+   NetaPanelsTotSideA = 0 ;
+   NetaPanelsTotSideC = 0 ;
+   rpcpanel_dbindex = 0 ;
+   rpctower_dbindex = 0 ;
+   rpc2DEtaStatBinX_BA = 0 ;
+   rpc2DEtaStatBinX_BC = 0 ;
+   rpc2DEtaStatBinY = 0 ;
+   etaStatShiftX_BA = 0 ;
+   etaStatShiftX_BC = 0 ;
+   binz = 0 ;
+   binminz = 0 ;
+   binmaxz = 0 ;
+   binx = 0 ;
+   binminx = 0 ;
+   binmaxx = 0 ;
+   panelBin = 0 ;
+   indexplane = 0 ;
+   NTrigger_Eta_LowPt = 0 ;
+   NTrigger_Phi_LowPt = 0 ;
+   NTrigger_Eta_HighPt = 0 ;
+   NTrigger_Phi_HighPt = 0 ;
+   rpcCool_StripProfile = 0 ;
+   rpcCool_PanelIdHist = 0 ;
+ 
+ 
+   m_first = true ;
+  
   
   return StatusCode::SUCCESS;
 }
@@ -713,8 +745,12 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		rpc2DEtaStation->Fill(irpcstationEta, Settore-1 + PlaneTipo*16);
 		if(irpcgasGap==1) rpc2DEtaStationGap1	->Fill(irpcstationEta, Settore-1 + PlaneTipo*16 	);
 		if(irpcgasGap==2) rpc2DEtaStationGap2	->Fill(irpcstationEta, Settore-1 + PlaneTipo*16 	);
-		if(PlaneTipo<2  ) GlobalHitsPerRPCMiddle->Fill(irpcstationEta, Settore-1+(irpcdoubletPhi-1)*0.5 ); 
-		if(PlaneTipo==2 ) GlobalHitsPerRPCOuter ->Fill(irpcstationEta, Settore-1+(irpcdoubletPhi-1)*0.5 );
+		
+		int NPanel_sign = ShiftEtaPanelsTot ;
+		if(irpcstationEta<0)NPanel_sign=-NPanel_sign ;
+		
+		if(PlaneTipo<2  ) GlobalHitsPerRPCMiddle->Fill(NPanel_sign , Settore-1+(irpcdoubletPhi-1)*0.5 ); 
+		if(PlaneTipo==2 ) GlobalHitsPerRPCOuter ->Fill(NPanel_sign , Settore-1+(irpcdoubletPhi-1)*0.5 );
 	      
 
 		//dq histo from Mauro 
@@ -1471,6 +1507,8 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		    if(EtaStripSign>0){
 		      rpc2DPanelHits[enum_Eta_LowPt]->Fill(ShiftEtaPanelsTot, Settore + 0.5*(irpcdoubletPhi-1)-1);
 		      rpc1DvsLBPanelHits[enum_Eta_LowPt]->Fill(lumiblock, float(rpcpanel_dbindex)  + float(irpcdoubletPhi-1)*0.5-1     );
+		      rpc2DPanelHits[enum_Eta_LowPt_BA]->Fill(ShiftEtaPanelsTot, Settore + 0.5*(irpcdoubletPhi-1)-1);
+		      rpc1DvsLBPanelHits[enum_Eta_LowPt_BA]->Fill(lumiblock, float(rpcpanel_dbindex)  + float(irpcdoubletPhi-1)*0.5-1     );
 		     
 		      rpc1DvsLBTrigTowerHits[enum_Eta_TrigTowerLowPt_BA]->Fill(lumiblock, float(rpctower_dbindex) + float(irpcdoubletPhi-1)*0.5-1      );
 			
@@ -1479,6 +1517,8 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		    else{
 		      rpc2DPanelHits[enum_Eta_LowPt]->Fill(-ShiftEtaPanelsTot-1, Settore + 0.5*(irpcdoubletPhi-1)-1);
 		      rpc1DvsLBPanelHits[enum_Eta_LowPt]->Fill(lumiblock, -float(rpcpanel_dbindex) - float(irpcdoubletPhi-1)*0.5 + 0.5    );
+		      rpc2DPanelHits[enum_Eta_LowPt_BC]->Fill(ShiftEtaPanelsTot, Settore + 0.5*(irpcdoubletPhi-1)-1);
+		      rpc1DvsLBPanelHits[enum_Eta_LowPt_BC]->Fill(lumiblock, float(rpcpanel_dbindex)  + float(irpcdoubletPhi-1)*0.5-1     );
 		     
 		      rpc1DvsLBTrigTowerHits[enum_Eta_TrigTowerLowPt_BC]->Fill(lumiblock, float(rpctower_dbindex) + float(irpcdoubletPhi-1)*0.5-1      );
 			
@@ -1490,6 +1530,8 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		    if(EtaStripSign>0){
 		      rpc2DPanelHits[enum_Phi_LowPt]->Fill(ShiftEtaPanelsTot, Settore + 0.5*(irpcdoubletPhi-1)-1);
 		      rpc1DvsLBPanelHits[enum_Phi_LowPt]->Fill(lumiblock, float(rpcpanel_dbindex)  + float(irpcdoubletPhi-1)*0.5-1     );
+		      rpc2DPanelHits[enum_Phi_LowPt_BA]->Fill(ShiftEtaPanelsTot, Settore + 0.5*(irpcdoubletPhi-1)-1);
+		      rpc1DvsLBPanelHits[enum_Phi_LowPt_BA]->Fill(lumiblock, float(rpcpanel_dbindex)  + float(irpcdoubletPhi-1)*0.5-1     );
 		     
 		      rpc1DvsLBTrigTowerHits[enum_Phi_TrigTowerLowPt_BA]->Fill(lumiblock, float(rpctower_dbindex) + float(irpcdoubletPhi-1)*0.5-1      );
 		     
@@ -1498,6 +1540,8 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		    else{
 		      rpc2DPanelHits[enum_Phi_LowPt]->Fill(-ShiftEtaPanelsTot-1, Settore + 0.5*(irpcdoubletPhi-1)-1);
 		      rpc1DvsLBPanelHits[enum_Phi_LowPt]->Fill(lumiblock, -float(rpcpanel_dbindex) - float(irpcdoubletPhi-1)*0.5  + 0.5    );
+		      rpc2DPanelHits[enum_Phi_LowPt_BC]->Fill(ShiftEtaPanelsTot, Settore + 0.5*(irpcdoubletPhi-1)-1);
+		      rpc1DvsLBPanelHits[enum_Phi_LowPt_BC]->Fill(lumiblock, float(rpcpanel_dbindex)  + float(irpcdoubletPhi-1)*0.5-1     );
 		     
 		      rpc1DvsLBTrigTowerHits[enum_Phi_TrigTowerLowPt_BC]->Fill(lumiblock, float(rpctower_dbindex) + float(irpcdoubletPhi-1)*0.5-1      );
 		     
@@ -1524,6 +1568,8 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		    if(EtaStripSign>0){
 		      rpc2DPanelHits[enum_Eta_HighPt]->Fill(ShiftEtaPanelsTot, Settore + 0.5*(irpcdoubletPhi-1)-1);
 		      rpc1DvsLBPanelHits[enum_Eta_HighPt]->Fill(lumiblock, float(rpcpanel_dbindex)  + float(irpcdoubletPhi-1)*0.5-1    );
+		      rpc2DPanelHits[enum_Eta_HighPt_BA]->Fill(ShiftEtaPanelsTot, Settore + 0.5*(irpcdoubletPhi-1)-1);
+		      rpc1DvsLBPanelHits[enum_Eta_HighPt_BA]->Fill(lumiblock, float(rpcpanel_dbindex)  + float(irpcdoubletPhi-1)*0.5-1     );
 		     
 		      rpc1DvsLBTrigTowerHits[enum_Eta_TrigTowerHighPt_BA]->Fill(lumiblock, float(rpctower_dbindex) + float(irpcdoubletPhi-1)*0.5-1      );
 		     
@@ -1532,6 +1578,8 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		    else{
 		      rpc2DPanelHits[enum_Eta_HighPt]->Fill(-ShiftEtaPanelsTot-1, Settore + 0.5*(irpcdoubletPhi-1)-1);
 		      rpc1DvsLBPanelHits[enum_Eta_HighPt]->Fill(lumiblock, -float(rpcpanel_dbindex) - float(irpcdoubletPhi-1)*0.5  + 0.5    );
+		      rpc2DPanelHits[enum_Eta_HighPt_BC]->Fill(ShiftEtaPanelsTot, Settore + 0.5*(irpcdoubletPhi-1)-1);
+		      rpc1DvsLBPanelHits[enum_Eta_HighPt_BC]->Fill(lumiblock, float(rpcpanel_dbindex)  + float(irpcdoubletPhi-1)*0.5-1     );
 		     
 		      rpc1DvsLBTrigTowerHits[enum_Eta_TrigTowerHighPt_BC]->Fill(lumiblock, float(rpctower_dbindex) + float(irpcdoubletPhi-1)*0.5-1      );
 		     
@@ -1542,6 +1590,8 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		    if(EtaStripSign>0){
 		      rpc2DPanelHits[enum_Phi_HighPt]->Fill(ShiftEtaPanelsTot, Settore + 0.5*(irpcdoubletPhi-1)-1);
 		      rpc1DvsLBPanelHits[enum_Phi_HighPt]->Fill(lumiblock, float(rpcpanel_dbindex)  + float(irpcdoubletPhi-1)*0.5-1  );
+		      rpc2DPanelHits[enum_Phi_HighPt_BA]->Fill(ShiftEtaPanelsTot, Settore + 0.5*(irpcdoubletPhi-1)-1);
+		      rpc1DvsLBPanelHits[enum_Phi_HighPt_BA]->Fill(lumiblock, float(rpcpanel_dbindex)  + float(irpcdoubletPhi-1)*0.5-1     );
 		     
 		      rpc1DvsLBTrigTowerHits[enum_Phi_TrigTowerHighPt_BA]->Fill(lumiblock, float(rpctower_dbindex) + float(irpcdoubletPhi-1)*0.5-1      );
 		     
@@ -1550,6 +1600,8 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		    else{
 		      rpc2DPanelHits[enum_Phi_HighPt]->Fill(-ShiftEtaPanelsTot-1, Settore + 0.5*(irpcdoubletPhi-1)-1);
 		      rpc1DvsLBPanelHits[enum_Phi_HighPt]->Fill(lumiblock, -float(rpcpanel_dbindex) - float(irpcdoubletPhi-1)*0.5   + 0.5    );
+		      rpc2DPanelHits[enum_Phi_HighPt_BC]->Fill(ShiftEtaPanelsTot, Settore + 0.5*(irpcdoubletPhi-1)-1);
+		      rpc1DvsLBPanelHits[enum_Phi_HighPt_BC]->Fill(lumiblock, float(rpcpanel_dbindex)  + float(irpcdoubletPhi-1)*0.5-1     );
 		      
 		     
 		      rpc1DvsLBTrigTowerHits[enum_Phi_TrigTowerHighPt_BC]->Fill(lumiblock, float(rpctower_dbindex) + float(irpcdoubletPhi-1)*0.5-1      );
@@ -1757,11 +1809,30 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 			if ( irpctriggerInfo==106 && m_threshold==3) {
 			  if ( x_atlas!=0 &&  y_atlas!=0 ) { EtavsPhi_TriggeredMuons_Pt6->Fill( eta_atlas, phi_atlas ); }
 			}
-	    
+	                         
+		        //Data Quality Plot Alex Tuna
+		        if(irpcstationEta>=0){
+		         if( irpctriggerInfo==6){
+		          rpc2DPanelHits[enum_EtaPhi_LowPt_BA]->Fill(ShiftEtaPanelsTot, Settore + 0.5*(irpcdoubletPhi-1)-1);
+		          rpc1DvsLBPanelHits[enum_EtaPhi_LowPt_BA]->Fill(lumiblock, float(rpcpanel_dbindex)  + float(irpcdoubletPhi-1)*0.5-1	 ); 
+		         }
+		         else if( irpctriggerInfo==106){
+		          rpc2DPanelHits[enum_EtaPhi_HighPt_BA]->Fill(ShiftEtaPanelsTot, Settore + 0.5*(irpcdoubletPhi-1)-1);
+		          rpc1DvsLBPanelHits[enum_EtaPhi_HighPt_BA]->Fill(lumiblock, float(rpcpanel_dbindex)  + float(irpcdoubletPhi-1)*0.5-1	  );
+		         }
+		        }
+		        else{
+		         if( irpctriggerInfo==6){
+		           rpc2DPanelHits[enum_EtaPhi_LowPt_BC]->Fill(ShiftEtaPanelsTot, Settore + 0.5*(irpcdoubletPhi-1)-1);
+		           rpc1DvsLBPanelHits[enum_EtaPhi_LowPt_BC]->Fill(lumiblock, float(rpcpanel_dbindex)  + float(irpcdoubletPhi-1)*0.5-1	  );
+		         }
+		         else if( irpctriggerInfo==106){
+		          rpc2DPanelHits[enum_EtaPhi_HighPt_BC]->Fill(ShiftEtaPanelsTot, Settore + 0.5*(irpcdoubletPhi-1)-1);
+		          rpc1DvsLBPanelHits[enum_EtaPhi_HighPt_BC]->Fill(lumiblock, float(rpcpanel_dbindex)  + float(irpcdoubletPhi-1)*0.5-1	  );
+		         }
+		        }
 			  
 		      }//same gasgap
-    
-
 		    }//phi and eta
     
 		    //////////same chamber, plane, phi-phi, eta-eta
@@ -1797,7 +1868,7 @@ StatusCode RpcRawDataValAlg::fillHistograms()
 		      }//phi-phi or eta-eta		     
 		    } //end if on m_rpcchamberhist or ESD  
  
-		  }  ////////////// End Loop on the second prd
+		  }  ////////////// End Loop on the second coin
             
 		m_nTrig++ ;
     
@@ -2513,6 +2584,209 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
 	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
 
+	  // 2D panels Phi trigger hits LowPt_BA 
+	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiPanelTriggerHits_LowPt_BA","rpc2DPhiPanelTriggerHits_LowPt_BA", 13, 0, 13,  16*2, 0, 16 ) ); 
+	  sc=rpcprd_dq_BA_Panel.regHist(rpc2DPanelHits.back()) ; 
+	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
+	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
+	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi Panel  Side A");
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
+	
+	  // 2D panels Phi trigger hits HighPt_BA 
+	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiPanelTriggerHits_HighPt_BA","rpc2DPhiPanelTriggerHits_HighPt_BA", 13, 0, 13,  16*2, 0, 16 ) ); 
+	  sc=rpcprd_dq_BA_Panel.regHist(rpc2DPanelHits.back()) ; 
+	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
+	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
+	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi Panel Side A");
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
+	
+	  // 2D panels Eta trigger hits LowPt_BA 
+	  rpc2DPanelHits.push_back( new TH2I("rpc2DEtaPanelTriggerHits_LowPt_BA","rpc2DEtaPanelTriggerHits_LowPt_BA", 13, 0, 13,  16*2, 0, 16 ) ); 
+	  sc=rpcprd_dq_BA_Panel.regHist(rpc2DPanelHits.back()) ; 
+	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
+	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
+	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Eta Panel Side A");
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
+	
+	  // 2D panels Eta trigger hits HighPt_BA 
+	  rpc2DPanelHits.push_back( new TH2I("rpc2DEtaPanelTriggerHits_HighPt_BA","rpc2DEtaPanelTriggerHits_HighPt_BA", 13, 0, 13,  16*2, 0, 16 ) ); 
+	  sc=rpcprd_dq_BA_Panel.regHist(rpc2DPanelHits.back()) ; 
+	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
+	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
+	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Eta Panel Side A");
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+          
+	  // 2D panels Phi trigger hits LowPt_BC 
+	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiPanelTriggerHits_LowPt_BC","rpc2DPhiPanelTriggerHits_LowPt_BC", 13, 0, 13,  16*2, 0, 16 ) ); 
+	  sc=rpcprd_dq_BC_Panel.regHist(rpc2DPanelHits.back()) ; 
+	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
+	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
+	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi Panel Side C");
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+
+	
+	  // 2D panels Phi trigger hits HighPt_BC 
+	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiPanelTriggerHits_HighPt_BC","rpc2DPhiPanelTriggerHits_HighPt_BC", 13, 0, 13,  16*2, 0, 16 ) ); 
+	  sc=rpcprd_dq_BC_Panel.regHist(rpc2DPanelHits.back()) ; 
+	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
+	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
+	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi Panel Side C");
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+
+	
+	  // 2D panels Eta trigger hits LowPt_BC 
+	  rpc2DPanelHits.push_back( new TH2I("rpc2DEtaPanelTriggerHits_LowPt_BC","rpc2DEtaPanelTriggerHits_LowPt_BC", 13, 0, 13,  16*2, 0, 16 ) ); 
+	  sc=rpcprd_dq_BC_Panel.regHist(rpc2DPanelHits.back()) ; 
+	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
+	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
+	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi Panel Side C");
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+
+	
+	  // 2D panels Eta trigger hits HighPt_BC 
+	  rpc2DPanelHits.push_back( new TH2I("rpc2DEtaPanelTriggerHits_HighPt_BC","rpc2DEtaPanelTriggerHits_HighPt_BC", 13, 0, 13,  16*2, 0, 16 ) ); 
+	  sc=rpcprd_dq_BC_Panel.regHist(rpc2DPanelHits.back()) ; 
+	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
+	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
+	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi Panel Side C");
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+          
+          //eta-phi trigger
+	  // 2D panels PhiEndEta trigger hits LowPt_BA 
+	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiEndEtaPanelTriggerHits_LowPt_BA","rpc2DPhiEndEtaPanelTriggerHits_LowPt_BA", 13, 0, 13,  16*2, 0, 16 ) ); 
+	  sc=rpcprd_dq_BA_Panel.regHist(rpc2DPanelHits.back()) ; 
+	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
+	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
+	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi&Phi Panel Side C");
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
+	
+	  // 2D panels PhiEndEta trigger hits HighPt_BA 
+	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiEndEtaPanelTriggerHits_HighPt_BA","rpc2DPhiEndEtaPanelTriggerHits_HighPt_BA", 13, 0, 13,  16*2, 0, 16 ) ); 
+	  sc=rpcprd_dq_BA_Panel.regHist(rpc2DPanelHits.back()) ; 
+	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
+	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
+	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi&End Panel Side A");
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
+	
+	  // 2D panels PhiEndEta trigger hits LowPt_BC 
+	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiEndEtaPanelTriggerHits_LowPt_BC","rpc2DPhiEndEtaPanelTriggerHits_LowPt_BC", 13, 0, 13,  16*2, 0, 16 ) ); 
+	  sc=rpcprd_dq_BC_Panel.regHist(rpc2DPanelHits.back()) ; 
+	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
+	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
+	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi&Phi Panel Side A");
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
+	
+	  // 2D panels PhiEndEta trigger hits HighPt_BC 
+	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiEndEtaPanelTriggerHits_HighPt_BC","rpc2DPhiEndEtaPanelTriggerHits_HighPt_BC", 13, 0, 13,  16*2, 0, 16 ) ); 
+	  sc=rpcprd_dq_BC_Panel.regHist(rpc2DPanelHits.back()) ; 
+	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
+	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
+	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi&Phi Panel Side C");
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+	  
+	  ////// End Trigger Plots
 	
 	  // 2D panels Phi  hits LowPt0_BA 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiPanelHits_LowPt0_BA","rpc2DPhiPanelHits_LowPt0_BA", 12, 0, 12,  16*2, 0, 16 ) ); 
@@ -2955,6 +3229,109 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc1DvsLBPanelHits.back()->SetMarkerSize(0.2);
 	  rpc1DvsLBPanelHits.back()->GetXaxis()->SetTitle("Lumiblock");
 	  rpc1DvsLBPanelHits.back()->GetYaxis()->SetTitle("") ;
+
+
+	 
+	  // 1DvsLB panels Phi trigger hits LowPt_BA 
+	  rpc1DvsLBPanelHits.push_back( new TH2I("rpc1DvsLBPhiPanelTriggerHits_LowPt_BA","rpc1DvsLBPhiPanelTriggerHits_LowPt_BA", m_LB_Nbins, 0, m_LBmax,  2*188, 0, 188 ) ); 
+	  sc=rpcprd_dq_BA_Panel.regHist(rpc1DvsLBPanelHits.back()) ; 
+	  rpc1DvsLBPanelHits.back()->SetOption("COLZ") ;    
+	  rpc1DvsLBPanelHits.back()->SetMarkerSize(0.2);
+	  rpc1DvsLBPanelHits.back()->GetXaxis()->SetTitle("Lumiblock");
+	  rpc1DvsLBPanelHits.back()->GetYaxis()->SetTitle("") ;
+	
+	  // 1DvsLB panels Phi trigger hits HighPt_BA 
+	  rpc1DvsLBPanelHits.push_back( new TH2I("rpc1DvsLBPhiPanelTriggerHits_HighPt_BA","rpc1DvsLBPhiPanelTriggerHits_HighPt_BA", m_LB_Nbins, 0, m_LBmax,  2*188, 0, 188 ) );    
+	  sc=rpcprd_dq_BA_Panel.regHist(rpc1DvsLBPanelHits.back()) ; 
+	  rpc1DvsLBPanelHits.back()->SetOption("COLZ") ;    
+	  rpc1DvsLBPanelHits.back()->SetMarkerSize(0.2);
+	  rpc1DvsLBPanelHits.back()->GetXaxis()->SetTitle("Lumiblock");
+	  rpc1DvsLBPanelHits.back()->GetYaxis()->SetTitle("") ;
+	
+	  // 1DvsLB panels Eta trigger hits LowPt_BA 
+	  rpc1DvsLBPanelHits.push_back( new TH2I("rpc1DvsLBEtaPanelTriggerHits_LowPt_BA","rpc1DvsLBEtaPanelTriggerHits_LowPt_BA", m_LB_Nbins, 0, m_LBmax,   2*188, 0, 188 ) );   
+	  sc=rpcprd_dq_BA_Panel.regHist(rpc1DvsLBPanelHits.back()) ; 
+	  rpc1DvsLBPanelHits.back()->SetOption("COLZ") ;    
+	  rpc1DvsLBPanelHits.back()->SetMarkerSize(0.2);
+	  rpc1DvsLBPanelHits.back()->GetXaxis()->SetTitle("Lumiblock");
+	  rpc1DvsLBPanelHits.back()->GetYaxis()->SetTitle("") ;
+	
+	  // 1DvsLB panels Eta trigger hits HighPt_BA 
+	  rpc1DvsLBPanelHits.push_back( new TH2I("rpc1DvsLBEtaPanelTriggerHits_HighPt_BA","rpc1DvsLBEtaPanelTriggerHits_HighPt_BA", m_LB_Nbins, 0, m_LBmax,   2*188, 0, 188 ) );   
+	  sc=rpcprd_dq_BA_Panel.regHist(rpc1DvsLBPanelHits.back()) ; 
+	  rpc1DvsLBPanelHits.back()->SetOption("COLZ") ;    
+	  rpc1DvsLBPanelHits.back()->SetMarkerSize(0.2);
+	  rpc1DvsLBPanelHits.back()->GetXaxis()->SetTitle("Lumiblock");
+	  rpc1DvsLBPanelHits.back()->GetYaxis()->SetTitle("") ;
+
+
+	 
+	  // 1DvsLB panels Phi trigger hits LowPt_BC 
+	  rpc1DvsLBPanelHits.push_back( new TH2I("rpc1DvsLBPhiPanelTriggerHits_LowPt_BC","rpc1DvsLBPhiPanelTriggerHits_LowPt_BC", m_LB_Nbins, 0, m_LBmax,  2*187, 0, 187 ) ); 
+	  sc=rpcprd_dq_BC_Panel.regHist(rpc1DvsLBPanelHits.back()) ; 
+	  rpc1DvsLBPanelHits.back()->SetOption("COLZ") ;    
+	  rpc1DvsLBPanelHits.back()->SetMarkerSize(0.2);
+	  rpc1DvsLBPanelHits.back()->GetXaxis()->SetTitle("Lumiblock");
+	  rpc1DvsLBPanelHits.back()->GetYaxis()->SetTitle("") ;
+	
+	  // 1DvsLB panels Phi trigger hits HighPt_BC 
+	  rpc1DvsLBPanelHits.push_back( new TH2I("rpc1DvsLBPhiPanelTriggerHits_HighPt_BC","rpc1DvsLBPhiPanelTriggerHits_HighPt_BC", m_LB_Nbins, 0, m_LBmax,  2*187, 0, 187 ) );      
+	  sc=rpcprd_dq_BC_Panel.regHist(rpc1DvsLBPanelHits.back()) ; 
+	  rpc1DvsLBPanelHits.back()->SetOption("COLZ") ;    
+	  rpc1DvsLBPanelHits.back()->SetMarkerSize(0.2);
+	  rpc1DvsLBPanelHits.back()->GetXaxis()->SetTitle("Lumiblock");
+	  rpc1DvsLBPanelHits.back()->GetYaxis()->SetTitle("") ;
+	
+	  // 1DvsLB panels Eta trigger hits LowPt_BC 
+	  rpc1DvsLBPanelHits.push_back( new TH2I("rpc1DvsLBEtaPanelTriggerHits_LowPt_BC","rpc1DvsLBEtaPanelTriggerHits_LowPt_BC", m_LB_Nbins, 0, m_LBmax,  2*187, 0, 187 ) );     
+	  sc=rpcprd_dq_BC_Panel.regHist(rpc1DvsLBPanelHits.back()) ; 
+	  rpc1DvsLBPanelHits.back()->SetOption("COLZ") ;    
+	  rpc1DvsLBPanelHits.back()->SetMarkerSize(0.2);
+	  rpc1DvsLBPanelHits.back()->GetXaxis()->SetTitle("Lumiblock");
+	  rpc1DvsLBPanelHits.back()->GetYaxis()->SetTitle("") ;
+	
+	  // 1DvsLB panels Eta trigger hits HighPt_BC 
+	  rpc1DvsLBPanelHits.push_back( new TH2I("rpc1DvsLBEtaPanelTriggerHits_HighPt_BC","rpc1DvsLBEtaPanelTriggerHits_HighPt_BC", m_LB_Nbins, 0, m_LBmax,  2*187, 0, 187 ) );     
+	  sc=rpcprd_dq_BC_Panel.regHist(rpc1DvsLBPanelHits.back()) ; 
+	  rpc1DvsLBPanelHits.back()->SetOption("COLZ") ;    
+	  rpc1DvsLBPanelHits.back()->SetMarkerSize(0.2);
+	  rpc1DvsLBPanelHits.back()->GetXaxis()->SetTitle("Lumiblock");
+	  rpc1DvsLBPanelHits.back()->GetYaxis()->SetTitle("") ;
+
+
+	 
+	  // 1DvsLB panels PhiEta trigger hits LowPt_BA 
+	  rpc1DvsLBPanelHits.push_back( new TH2I("rpc1DvsLBPhiEtaPanelTriggerHits_LowPt_BA","rpc1DvsLBPhiEtaPanelTriggerHits_LowPt_BA", m_LB_Nbins, 0, m_LBmax,  2*188, 0, 188 ) ); 
+	  sc=rpcprd_dq_BA_Panel.regHist(rpc1DvsLBPanelHits.back()) ; 
+	  rpc1DvsLBPanelHits.back()->SetOption("COLZ") ;    
+	  rpc1DvsLBPanelHits.back()->SetMarkerSize(0.2);
+	  rpc1DvsLBPanelHits.back()->GetXaxis()->SetTitle("Lumiblock");
+	  rpc1DvsLBPanelHits.back()->GetYaxis()->SetTitle("") ;
+	
+	  // 1DvsLB panels PhiEta trigger hits HighPt_BA 
+	  rpc1DvsLBPanelHits.push_back( new TH2I("rpc1DvsLBPhiEtaPanelTriggerHits_HighPt_BA","rpc1DvsLBPhiEtaPanelTriggerHits_HighPt_BA", m_LB_Nbins, 0, m_LBmax,  2*188, 0, 188 ) );      
+	  sc=rpcprd_dq_BA_Panel.regHist(rpc1DvsLBPanelHits.back()) ; 
+	  rpc1DvsLBPanelHits.back()->SetOption("COLZ") ;    
+	  rpc1DvsLBPanelHits.back()->SetMarkerSize(0.2);
+	  rpc1DvsLBPanelHits.back()->GetXaxis()->SetTitle("Lumiblock");
+	  rpc1DvsLBPanelHits.back()->GetYaxis()->SetTitle("") ;
+	
+	  // 1DvsLB panels PhiEta trigger hits LowPt_BC 
+	  rpc1DvsLBPanelHits.push_back( new TH2I("rpc1DvsLBPhiEtaPanelTriggerHits_LowPt_BC","rpc1DvsLBPhiEtaPanelTriggerHits_LowPt_BC", m_LB_Nbins, 0, m_LBmax,  2*187, 0, 187 ) );     
+	  sc=rpcprd_dq_BC_Panel.regHist(rpc1DvsLBPanelHits.back()) ; 
+	  rpc1DvsLBPanelHits.back()->SetOption("COLZ") ;    
+	  rpc1DvsLBPanelHits.back()->SetMarkerSize(0.2);
+	  rpc1DvsLBPanelHits.back()->GetXaxis()->SetTitle("Lumiblock");
+	  rpc1DvsLBPanelHits.back()->GetYaxis()->SetTitle("") ;
+	
+	  // 1DvsLB panels PhiEta trigger hits HighPt_BC 
+	  rpc1DvsLBPanelHits.push_back( new TH2I("rpc1DvsLBPhiEtaPanelTriggerHits_HighPt_BC","rpc1DvsLBPhiEtaPanelTriggerHits_HighPt_BC", m_LB_Nbins, 0, m_LBmax,  2*187, 0, 187 ) );     
+	  sc=rpcprd_dq_BC_Panel.regHist(rpc1DvsLBPanelHits.back()) ; 
+	  rpc1DvsLBPanelHits.back()->SetOption("COLZ") ;    
+	  rpc1DvsLBPanelHits.back()->SetMarkerSize(0.2);
+	  rpc1DvsLBPanelHits.back()->GetXaxis()->SetTitle("Lumiblock");
+	  rpc1DvsLBPanelHits.back()->GetYaxis()->SetTitle("") ;	  
+//end trigger plot
 	
 	  // 1DvsLB panels Phi  hits LowPt0_BA 
 	  rpc1DvsLBPanelHits.push_back( new TH2I("rpc1DvsLBPhiPanelHits_LowPt0_BA","rpc1DvsLBPhiPanelHits_LowPt0_BA", m_LB_Nbins, 0, m_LBmax,  2*158, 0, 158 ) ); 
@@ -3149,68 +3526,68 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc1DvsLBPanelHits.back()->GetYaxis()->SetTitle("") ;
 
 	  // 1DvsLB TrigTower Phi  hits LowPt_BA 
-	  rpc1DvsLBTrigTowerHits.push_back( new TH2I("rpc1DvsLBPhiTrigTowerHits_LowPt_BA","rpc1DvsLBPhiTrigTowerHits_LowPt_BA", m_LB_Nbins, 0, m_LBmax,	2*188, 0, 188 ) ); 
+	  rpc1DvsLBTrigTowerHits.push_back( new TH2I("rpc1DvsLBPhiTrigTowerHits_LowPt_BA","rpc1DvsLBPhiTrigTowerHits_LowPt_BA", m_LB_Nbins, 0, m_LBmax,	2*108, 0, 108 ) ); 
 	  sc=rpcprd_dq_BA_TrigTower.regHist(rpc1DvsLBTrigTowerHits.back()) ; 
 	  rpc1DvsLBTrigTowerHits.back()->SetOption("COLZ") ;    
 	  rpc1DvsLBTrigTowerHits.back()->SetMarkerSize(0.2);
 	  rpc1DvsLBTrigTowerHits.back()->GetXaxis()->SetTitle("Lumiblock");
-	  rpc1DvsLBTrigTowerHits.back()->GetYaxis()->SetTitle("RPC Trigger Tower index (a.u.)") ; 
+	  rpc1DvsLBTrigTowerHits.back()->GetYaxis()->SetTitle("") ; 
 
 	  // 1DvsLB TrigTower Phi  hits HighPt_BA 
-	  rpc1DvsLBTrigTowerHits.push_back( new TH2I("rpc1DvsLBPhiTrigTowerHits_HighPt_BA","rpc1DvsLBPhiTrigTowerHits_HighPt_BA", m_LB_Nbins, 0, m_LBmax,	2*188, 0, 188 ) ); 
+	  rpc1DvsLBTrigTowerHits.push_back( new TH2I("rpc1DvsLBPhiTrigTowerHits_HighPt_BA","rpc1DvsLBPhiTrigTowerHits_HighPt_BA", m_LB_Nbins, 0, m_LBmax,	2*108, 0, 108 ) ); 
 	  sc=rpcprd_dq_BA_TrigTower.regHist(rpc1DvsLBTrigTowerHits.back()) ; 
 	  rpc1DvsLBTrigTowerHits.back()->SetOption("COLZ") ;    
 	  rpc1DvsLBTrigTowerHits.back()->SetMarkerSize(0.2);
 	  rpc1DvsLBTrigTowerHits.back()->GetXaxis()->SetTitle("Lumiblock");
-	  rpc1DvsLBTrigTowerHits.back()->GetYaxis()->SetTitle("RPC Trigger Tower index (a.u.)") ; 
+	  rpc1DvsLBTrigTowerHits.back()->GetYaxis()->SetTitle("") ; 
 
 	  // 1DvsLB TrigTower Eta  hits LowPt_BA 
-	  rpc1DvsLBTrigTowerHits.push_back( new TH2I("rpc1DvsLBEtaTrigTowerHits_LowPt_BA","rpc1DvsLBEtaTrigTowerHits_LowPt_BA", m_LB_Nbins, 0, m_LBmax,	2*188, 0, 188 ) ); 
+	  rpc1DvsLBTrigTowerHits.push_back( new TH2I("rpc1DvsLBEtaTrigTowerHits_LowPt_BA","rpc1DvsLBEtaTrigTowerHits_LowPt_BA", m_LB_Nbins, 0, m_LBmax,	2*108, 0, 108 ) ); 
 	  sc=rpcprd_dq_BA_TrigTower.regHist(rpc1DvsLBTrigTowerHits.back()) ; 
 	  rpc1DvsLBTrigTowerHits.back()->SetOption("COLZ") ;    
 	  rpc1DvsLBTrigTowerHits.back()->SetMarkerSize(0.2);
 	  rpc1DvsLBTrigTowerHits.back()->GetXaxis()->SetTitle("Lumiblock");
-	  rpc1DvsLBTrigTowerHits.back()->GetYaxis()->SetTitle("RPC Trigger Tower index (a.u.)") ; 
+	  rpc1DvsLBTrigTowerHits.back()->GetYaxis()->SetTitle("") ; 
 
 	  // 1DvsLB TrigTower Eta  hits HighPt_BA 
-	  rpc1DvsLBTrigTowerHits.push_back( new TH2I("rpc1DvsLBEtaTrigTowerHits_HighPt_BA","rpc1DvsLBEtaTrigTowerHits_HighPt_BA", m_LB_Nbins, 0, m_LBmax,	2*188, 0, 188 ) ); 
+	  rpc1DvsLBTrigTowerHits.push_back( new TH2I("rpc1DvsLBEtaTrigTowerHits_HighPt_BA","rpc1DvsLBEtaTrigTowerHits_HighPt_BA", m_LB_Nbins, 0, m_LBmax,	2*108, 0, 108 ) ); 
 	  sc=rpcprd_dq_BA_TrigTower.regHist(rpc1DvsLBTrigTowerHits.back()) ; 
 	  rpc1DvsLBTrigTowerHits.back()->SetOption("COLZ") ;    
 	  rpc1DvsLBTrigTowerHits.back()->SetMarkerSize(0.2);
 	  rpc1DvsLBTrigTowerHits.back()->GetXaxis()->SetTitle("Lumiblock");
-	  rpc1DvsLBTrigTowerHits.back()->GetYaxis()->SetTitle("RPC Trigger Tower index (a.u.)") ; 
+	  rpc1DvsLBTrigTowerHits.back()->GetYaxis()->SetTitle("") ; 
 
 	  // 1DvsLB TrigTower Phi  hits LowPt_BC 
-	  rpc1DvsLBTrigTowerHits.push_back( new TH2I("rpc1DvsLBPhiTrigTowerHits_LowPt_BC","rpc1DvsLBPhiTrigTowerHits_LowPt_BC", m_LB_Nbins, 0, m_LBmax,	2*187, 0, 187 ) ); 
+	  rpc1DvsLBTrigTowerHits.push_back( new TH2I("rpc1DvsLBPhiTrigTowerHits_LowPt_BC","rpc1DvsLBPhiTrigTowerHits_LowPt_BC", m_LB_Nbins, 0, m_LBmax,	2*108, 0, 108 ) ); 
 	  sc=rpcprd_dq_BC_TrigTower.regHist(rpc1DvsLBTrigTowerHits.back()) ; 
 	  rpc1DvsLBTrigTowerHits.back()->SetOption("COLZ") ;    
 	  rpc1DvsLBTrigTowerHits.back()->SetMarkerSize(0.2);
 	  rpc1DvsLBTrigTowerHits.back()->GetXaxis()->SetTitle("Lumiblock");
-	  rpc1DvsLBTrigTowerHits.back()->GetYaxis()->SetTitle("RPC Trigger Tower index (a.u.)") ; 
+	  rpc1DvsLBTrigTowerHits.back()->GetYaxis()->SetTitle("") ; 
 
 	  // 1DvsLB TrigTower Phi  hits HighPt_BC 
-	  rpc1DvsLBTrigTowerHits.push_back( new TH2I("rpc1DvsLBPhiTrigTowerHits_HighPt_BC","rpc1DvsLBPhiTrigTowerHits_HighPt_BC", m_LB_Nbins, 0, m_LBmax,	2*187, 0, 187 ) ); 
+	  rpc1DvsLBTrigTowerHits.push_back( new TH2I("rpc1DvsLBPhiTrigTowerHits_HighPt_BC","rpc1DvsLBPhiTrigTowerHits_HighPt_BC", m_LB_Nbins, 0, m_LBmax,	2*108, 0, 108 ) ); 
 	  sc=rpcprd_dq_BC_TrigTower.regHist(rpc1DvsLBTrigTowerHits.back()) ; 
 	  rpc1DvsLBTrigTowerHits.back()->SetOption("COLZ") ;    
 	  rpc1DvsLBTrigTowerHits.back()->SetMarkerSize(0.2);
 	  rpc1DvsLBTrigTowerHits.back()->GetXaxis()->SetTitle("Lumiblock");
-	  rpc1DvsLBTrigTowerHits.back()->GetYaxis()->SetTitle("RPC Trigger Tower index (a.u.)") ; 
+	  rpc1DvsLBTrigTowerHits.back()->GetYaxis()->SetTitle("") ; 
 
 	  // 1DvsLB TrigTower Eta  hits LowPt_BC 
-	  rpc1DvsLBTrigTowerHits.push_back( new TH2I("rpc1DvsLBEtaTrigTowerHits_LowPt_BC","rpc1DvsLBEtaTrigTowerHits_LowPt_BC", m_LB_Nbins, 0, m_LBmax,	2*187, 0, 187 ) ); 
+	  rpc1DvsLBTrigTowerHits.push_back( new TH2I("rpc1DvsLBEtaTrigTowerHits_LowPt_BC","rpc1DvsLBEtaTrigTowerHits_LowPt_BC", m_LB_Nbins, 0, m_LBmax,	2*108, 0, 108 ) ); 
 	  sc=rpcprd_dq_BC_TrigTower.regHist(rpc1DvsLBTrigTowerHits.back()) ; 
 	  rpc1DvsLBTrigTowerHits.back()->SetOption("COLZ") ;    
 	  rpc1DvsLBTrigTowerHits.back()->SetMarkerSize(0.2);
 	  rpc1DvsLBTrigTowerHits.back()->GetXaxis()->SetTitle("Lumiblock");
-	  rpc1DvsLBTrigTowerHits.back()->GetYaxis()->SetTitle("RPC Trigger Tower index (a.u.)") ; 
+	  rpc1DvsLBTrigTowerHits.back()->GetYaxis()->SetTitle("") ; 
 
 	  // 1DvsLB TrigTower Eta  hits HighPt_BC 
-	  rpc1DvsLBTrigTowerHits.push_back( new TH2I("rpc1DvsLBEtaTrigTowerHits_HighPt_BC","rpc1DvsLBEtaTrigTowerHits_HighPt_BC", m_LB_Nbins, 0, m_LBmax,	2*187, 0, 187 ) ); 
+	  rpc1DvsLBTrigTowerHits.push_back( new TH2I("rpc1DvsLBEtaTrigTowerHits_HighPt_BC","rpc1DvsLBEtaTrigTowerHits_HighPt_BC", m_LB_Nbins, 0, m_LBmax,	2*108, 0, 108 ) ); 
 	  sc=rpcprd_dq_BC_TrigTower.regHist(rpc1DvsLBTrigTowerHits.back()) ; 
 	  rpc1DvsLBTrigTowerHits.back()->SetOption("COLZ") ;    
 	  rpc1DvsLBTrigTowerHits.back()->SetMarkerSize(0.2);
 	  rpc1DvsLBTrigTowerHits.back()->GetXaxis()->SetTitle("Lumiblock");
-	  rpc1DvsLBTrigTowerHits.back()->GetYaxis()->SetTitle("RPC Trigger Tower index (a.u.)") ; 
+	  rpc1DvsLBTrigTowerHits.back()->GetYaxis()->SetTitle("") ; 
  
  
 	   
@@ -3233,7 +3610,8 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
      Identifier idr = rpc->identify();
      std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, idr, 0)  ;
 		rpcpanel_dbindex   =  rpcstripshift[23];
-		PlaneTipo          =  rpcstripshift[15]; 
+		PlaneTipo          =  rpcstripshift[15];
+		rpctower_dbindex   =  rpcstripshift[24]; 
 		  if(iname== 2){
 		    sprintf(NAME,"BML");
 		    ismall=1;
@@ -3290,16 +3668,32 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 			    rpc1DvsLBPanelHits[enum_Phi_Pivot1_BA]->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
 			    rpc1DvsLBPanelHits[enum_Eta_Pivot0_BA]->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
 			    rpc1DvsLBPanelHits[enum_Eta_Pivot1_BA]->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
-			    rpc1DvsLBTrigTowerHits[enum_Phi_TrigTowerLowPt_BA]->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
-			    rpc1DvsLBTrigTowerHits[enum_Eta_TrigTowerLowPt_BA]->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
+			    rpc1DvsLBPanelHits[enum_Phi_LowPt_BA]    ->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
+			    rpc1DvsLBPanelHits[enum_Phi_HighPt_BA]   ->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
+			    rpc1DvsLBPanelHits[enum_Eta_LowPt_BA]    ->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
+			    rpc1DvsLBPanelHits[enum_Eta_HighPt_BA]   ->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
+			    rpc1DvsLBPanelHits[enum_EtaPhi_LowPt_BA] ->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
+			    rpc1DvsLBPanelHits[enum_EtaPhi_HighPt_BA]->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
+			    rpc1DvsLBTrigTowerHits[ enum_Phi_TrigTowerLowPt_BA]->GetYaxis()->SetBinLabel(rpctower_dbindex*2,BinLabel);
+			    rpc1DvsLBTrigTowerHits[ enum_Eta_TrigTowerLowPt_BA]->GetYaxis()->SetBinLabel(rpctower_dbindex*2,BinLabel);
+			    rpc1DvsLBTrigTowerHits[enum_Phi_TrigTowerHighPt_BA]->GetYaxis()->SetBinLabel(rpctower_dbindex*2,BinLabel);
+			    rpc1DvsLBTrigTowerHits[enum_Eta_TrigTowerHighPt_BA]->GetYaxis()->SetBinLabel(rpctower_dbindex*2,BinLabel);
 			  } 
 			  if(ieta<0){
 			    rpc1DvsLBPanelHits[enum_Phi_Pivot0_BC]->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
 			    rpc1DvsLBPanelHits[enum_Phi_Pivot1_BC]->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
 			    rpc1DvsLBPanelHits[enum_Eta_Pivot0_BC]->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
 			    rpc1DvsLBPanelHits[enum_Eta_Pivot1_BC]->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
-			    rpc1DvsLBTrigTowerHits[enum_Phi_TrigTowerLowPt_BC]->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
-			    rpc1DvsLBTrigTowerHits[enum_Eta_TrigTowerLowPt_BC]->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
+			    rpc1DvsLBPanelHits[enum_Phi_LowPt_BC]    ->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
+			    rpc1DvsLBPanelHits[enum_Phi_HighPt_BC]   ->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
+			    rpc1DvsLBPanelHits[enum_Eta_LowPt_BC]    ->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
+			    rpc1DvsLBPanelHits[enum_Eta_HighPt_BC]   ->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
+			    rpc1DvsLBPanelHits[enum_EtaPhi_LowPt_BC] ->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
+			    rpc1DvsLBPanelHits[enum_EtaPhi_HighPt_BC]->GetYaxis()->SetBinLabel(rpcpanel_dbindex*2,BinLabel);
+			    rpc1DvsLBTrigTowerHits[ enum_Phi_TrigTowerLowPt_BC]->GetYaxis()->SetBinLabel(rpctower_dbindex*2,BinLabel);
+			    rpc1DvsLBTrigTowerHits[ enum_Eta_TrigTowerLowPt_BC]->GetYaxis()->SetBinLabel(rpctower_dbindex*2,BinLabel);
+			    rpc1DvsLBTrigTowerHits[enum_Phi_TrigTowerHighPt_BC]->GetYaxis()->SetBinLabel(rpctower_dbindex*2,BinLabel);
+			    rpc1DvsLBTrigTowerHits[enum_Eta_TrigTowerHighPt_BC]->GetYaxis()->SetBinLabel(rpctower_dbindex*2,BinLabel);
 			  } 
 			} 
 			if(PlaneTipo==2){
@@ -3319,7 +3713,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 		      }}}}		 
  
 	
-	
+        	
 	
 	
 	  if ( m_doTrigEvol ) {
@@ -3617,16 +4011,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  ///////////////////////////////
 	  // RPC global
 	 	  
-	  TH2 * GlobalHitsPerRPCMiddle = new TH2I("GlobalHitsPerRPCMiddle","GlobalHitsPerRPCMiddle",15, -7, 8, 32, 0, 16);
+	  TH2 * GlobalHitsPerRPCMiddle = new TH2I("GlobalHitsPerRPCMiddle","GlobalHitsPerRPCMiddle",26, -13, 13, 32, 0, 16);
 	  sc = rpc_dqmf_global.regHist( GlobalHitsPerRPCMiddle );
 	  GlobalHitsPerRPCMiddle->SetOption("COLZ");
-	  GlobalHitsPerRPCMiddle->GetXaxis()->SetTitle("Chamber_EtaId");
+	  GlobalHitsPerRPCMiddle->GetXaxis()->SetTitle("Rpc Eta Panel");
 	  GlobalHitsPerRPCMiddle->GetYaxis()->SetTitle("Sectors")      ;
 	
-	  TH2 * GlobalHitsPerRPCOuter = new TH2I("GlobalHitsPerRPCOuter","GlobalHitsPerRPCOuter",13, -6, 7, 32, 0, 16);
+	  TH2 * GlobalHitsPerRPCOuter = new TH2I("GlobalHitsPerRPCOuter","GlobalHitsPerRPCOuter",26, -13, 13, 32, 0, 16);
 	  sc = rpc_dqmf_global.regHist( GlobalHitsPerRPCOuter );
 	  GlobalHitsPerRPCOuter->SetOption("COLZ");
-	  GlobalHitsPerRPCOuter->GetXaxis()->SetTitle("Chamber_EtaId");
+	  GlobalHitsPerRPCOuter->GetXaxis()->SetTitle("RPC Eta Panel");
 	  GlobalHitsPerRPCOuter->GetYaxis()->SetTitle("Sectors")      ;
 	
 	  TH2 * EtavsPhi_TriggeredMuons_LowPt = new TH2I("EtavsPhi_TriggeredMuons_LowPt", "EtavsPhi_TriggeredMuons_LowPt", 100, -1.2, 1.2, 100, -CLHEP::pi, CLHEP::pi);
@@ -4115,7 +4509,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	    DB_list.push_back( "Profile" );
 	
 	    for ( std::vector<std::string>::const_iterator iter=DB_list.begin(); iter!=DB_list.end(); iter++ ) {
-	      for ( int isec=0; isec!=16; isec++ ) {
+	      for ( int isec=0; isec!=15+1; isec++ ) {
 		for ( int idblPhi=0; idblPhi!=2; idblPhi ++) {
 		  bookRPCCoolHistograms( iter, isec, idblPhi, "Pivot0" ) ;
 		  bookRPCCoolHistograms( iter, isec, idblPhi, "Pivot1" ) ;
@@ -4123,8 +4517,6 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 		  bookRPCCoolHistograms( iter, isec, idblPhi, "LowPt1" ) ;
 		  bookRPCCoolHistograms( iter, isec, idblPhi, "HighPt0") ;
 		  bookRPCCoolHistograms( iter, isec, idblPhi, "HighPt1") ;
-		  if(isec==11||isec==13)bookRPCCoolHistograms( iter, isec, idblPhi, "ExtraFeet0") ;
-		  if(isec==11||isec==13)bookRPCCoolHistograms( iter, isec, idblPhi, "ExtraFeet1") ;
 		}
 	      }
 	    }
@@ -4514,7 +4906,8 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
   int ig        = 0          ;
   int iNameMax  = 0          ;
   
-  if ( m_isec!=11 &&  m_isec!=13) {
+  //BML7(dr=1) is associated to LowPt and not Pivot
+  if ( m_isec<11 ||  m_isec>13) {
     // if ( m_layer.find("Pivot",0) )
     if ( m_layer == "Pivot0" || m_layer == "Pivot1" )   {
       iName = 2 + (m_isec%2 ) ;
@@ -4532,11 +4925,33 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
       ig    = atoi( (m_layer.substr(6,1)).c_str() ) ; 
     }
     iNameMax  =  iName         ;
+  }  
+  else if ( m_isec==12) {
+    // if ( m_layer.find("Pivot",0) )
+    if ( m_layer == "Pivot0" || m_layer == "Pivot1" )   {
+      iName     =  1      ;
+      iNameMax  =  2      ; 
+      ir    = 2 	      ;		
+      ig    = atoi( (m_layer.substr(5,1)).c_str() ) ;
+    }
+    if ( m_layer == "LowPt0" || m_layer == "LowPt1" )   {
+      iName     =  1      ;
+      iNameMax  =  2      ; 
+      ir    = 1 	      ;
+      ig    = atoi( (m_layer.substr(5,1)).c_str() ) ;
+    }
+    if ( m_layer == "HighPt0" || m_layer == "HighPt1" ) {
+      iName = 4               ;
+      ir    = 1 	      ;
+      ig    = atoi( (m_layer.substr(6,1)).c_str() ) ; 
+      iNameMax  =  iName      ; 
+    }
+     
   }
   else {
     if ( m_layer == "Pivot0" || m_layer == "Pivot1" )   {
-      iName = 8 ;
-      iNameMax  =  iName         ;
+      iName     =   8  ;
+      iNameMax  =  10  ;
       ir    = 2 ;   
       ig    = atoi( (m_layer.substr(5,1)).c_str() ) ;   
     }
@@ -4552,19 +4967,15 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
       ir    = 1 ; // doubletR=2 -> upgrade of Atlas
       ig    = atoi( (m_layer.substr(6,1)).c_str() ) ; 
     }
-    if ( m_layer == "ExtraFeet0" || m_layer == "ExtraFeet1") {
-      iName = 9 ; // or 10 ;
-      iNameMax=10          ;
-      ir    = 2 ; // doubletR=2 -> upgrade of Atlas
-      ig    = atoi( (m_layer.substr(6,1)).c_str() ) ; 
-    }
   } // end sectors 12 and 14
   
   int NTotStripsSideA = 1;
   int NTotStripsSideC = 1;     
  
-  const MuonGM::RpcReadoutElement* rpc   = m_muonMgr->getRpcRElement_fromIdFields( iName,  2 , istatPhi+1, ir, 1, m_idblPhi+1 );   
-  const MuonGM::RpcReadoutElement* rpc_c = m_muonMgr->getRpcRElement_fromIdFields( iName, -2 , istatPhi+1, ir, 1, m_idblPhi+1 );  
+  int kName = iName ;
+  if(kName==1)kName=53;//BMLE
+  const MuonGM::RpcReadoutElement* rpc   = m_muonMgr->getRpcRElement_fromIdFields( kName,  1 , istatPhi+1, ir, 1, m_idblPhi+1 );   
+  const MuonGM::RpcReadoutElement* rpc_c = m_muonMgr->getRpcRElement_fromIdFields( kName, -1 , istatPhi+1, ir, 1, m_idblPhi+1 );  
   
   if(rpc != NULL ){  
     Identifier idr = rpc->identify();
@@ -4572,8 +4983,10 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
     NTotStripsSideA = rpcstripshift[6]+rpcstripshift[17];
     Identifier idr_c = rpc_c->identify();
     std::vector<int>   rpcstripshift_c = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, idr_c, 0)  ;
-    NTotStripsSideC = rpcstripshift_c[7]+rpcstripshift_c[18]; 
-  }
+    NTotStripsSideC = rpcstripshift_c[7]+rpcstripshift_c[18];
+   
+  } 
+   
   TH1 *rpcCoolHisto = new TH1F(histName.c_str(), histName.c_str(), NTotStripsSideC+NTotStripsSideA, -NTotStripsSideC, NTotStripsSideA );
 
   sc=rpcCoolDb.regHist(rpcCoolHisto) ;
@@ -4595,15 +5008,18 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
     
       
     for (int ieta=0; ieta!=17; ieta++) {
+      //if((ieta-8)!=6)continue;//932
       for ( int iNameF=iName; iNameF!= iNameMax+1 ; iNameF++ ) {
+        int kNameF = iNameF;
+	if(kNameF==1)kNameF=53;//BMLE
     	for (int iz=0; iz!=3; iz++ ) {
 	  int irc = ir ;	
-	  if(abs(ieta-8)==7&&ir==1&&iNameF==2)continue;	
-	  if(m_isec==12&&abs(ieta-8)==6&&ir==1&&iNameF==2)continue;
-	  if(abs(ieta-8)==7&&ir==2)irc=1; 
-	  if(m_isec==12&&abs(ieta-8)==6&&ir==2)irc=1;	 
+	  if(abs(ieta-8)==7&&ir==1&&kNameF==2)continue;	
+	  if(m_isec==12&&abs(ieta-8)==6&&ir==1&&kNameF==2)continue;
+	  if(abs(ieta-8)==7&&ir==2&&kNameF==2)irc=1; 
+	  if(m_isec==12&&abs(ieta-8)==6&&ir==2&&kNameF==2)irc=1;	 
 											   
-    	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(iNameF, ieta-8, istatPhi+1, irc, iz+1, m_idblPhi+1);  
+    	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(kNameF, ieta-8, istatPhi+1, irc, iz+1, m_idblPhi+1);  
     	  if( rpc == NULL ) continue;   
 	  
     	  if  ( iz+1 != rpc->getDoubletZ() ) { 
@@ -4613,17 +5029,17 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
     	  rpcElemPhiStrip = int (rpc->NphiStrips() ) ;
     	  rpcElemEtaStrip = int (rpc->NetaStrips() ) ;
 	  
-	  
     	  for ( int istripEta=0; istripEta!=rpcElemEtaStrip; istripEta++ ) {
     	    Identifier strip_id  =  m_rpcIdHelper->channelID(idr, iz+1, m_idblPhi+1, ig+1, 0, istripEta+1) ;
     	    Identifier panel_id  =  m_rpcIdHelper->panelID( strip_id ) ;
 	    
 	    
-	    //  if((istatPhi+1)==4&&iNameF==2&&(ieta-8)==-1&&irc==1&&(iz+1==1)&&(m_idblPhi+1==1)&&(ig+1==2)){ 
-	    //std::cout << istripEta << " FOUND!!! and panel_Id= " << panel_id  << " " <<panel_id.get_identifier32().get_compact() << " " << strip_id<<std::endl;
+	    //  if((istatPhi+1)==4&&kNameF==2&&(ieta-8)==-1&&irc==1&&(iz+1==1)&&(m_idblPhi+1==1)&&(ig+1==2)){ 
+	    //std::cout << istripEta << " ETA FOUND!!! and panel_Id= " << panel_id  << " " <<panel_id.get_identifier32().get_compact() << " " << strip_id<<std::endl;
 	    //}
     	    if( strip_id == 0 ) continue;
     	    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, strip_id, 0)).at(16);
+	    //std::cout << " coolStripIndex "<<coolStripIndex << " kNameF, eta, irc, iz+1, m_idblPhi+1, ig+1, istripEta+1 "<<kNameF << " " <<ieta-8 <<" " <<irc << " "<< iz+1<< " "<< m_idblPhi+1<< " "<< ig+1 << " "<< " "<< istripEta+1<< " "<<std::endl;
 	    //if(panel_id.get_identifier32().get_compact()<1000)std::cout<< "Less than 1000: "  << panel_id.get_identifier32().get_compact()<<std::endl;
     	    rpcCool_PanelIdHist->Fill(coolStripIndex, panel_id.get_identifier32().get_compact()) ;
           }
@@ -4632,133 +5048,20 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
     	    Identifier panel_id  =  m_rpcIdHelper->panelID( strip_id ) ;
 	    
 	     
- 	    //if((istatPhi+1)==4&&iNameF==2&&(ieta-8)==-1&&irc==1&&(iz+1==1)&&(m_idblPhi+1==1)&&(ig+1==2)){ 
- 	    //std::cout << istripPhi << " FOUND!!! and panel_Id= " << panel_id  << " " <<panel_id.get_identifier32().get_compact() << " " << strip_id<<std::endl;
+ 	    //if((istatPhi+1)==4&&kNameF==2&&(ieta-8)==-1&&irc==1&&(iz+1==1)&&(m_idblPhi+1==1)&&(ig+1==2)){ 
+ 	    //std::cout << istripPhi << " PHI FOUND!!! and panel_Id= " << panel_id  << " " <<panel_id.get_identifier32().get_compact() << " " << strip_id<<std::endl;
  	    //}
 	    
-    	    if( strip_id == 0 ) continue;
-    	    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, strip_id, 0)).at(16);
+    	    if( strip_id == 0 ) continue;    	    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, strip_id, 0)).at(16);
+	    //std::cout << " coolStripIndex "<<coolStripIndex << " kNameF, eta, irc, iz+1, m_idblPhi+1, ig+1, istripPhi+1 "<<kNameF << " " <<ieta-8 <<" " <<irc << " "<< iz+1<< " "<< m_idblPhi+1<< " "<< ig+1 << " "<< " "<< istripPhi+1<< " "<< std::endl;
+
 	    //if(panel_id.get_identifier32().get_compact()<1000)std::cout<< "Less than 1000: "  << panel_id.get_identifier32().get_compact()<<std::endl;
     	    rpcCool_PanelIdHist->Fill(coolStripIndex, panel_id.get_identifier32().get_compact() );
           }
         } // end loop on doubletZ
       }
     }  // end loop on stationeta
-    /*
-   
-     
-    //Identifier strip_id ;
-    
-    if ( m_isec!=11 &&  m_isec!=13) {
-    // if ( m_layer.find("Pivot",0) )
-    if ( m_layer == "Pivot0" || m_layer == "Pivot1" )   {
-    iName = 2 + (m_isec%2 ) ;
-    ir    = 2		;
-    ig    = atoi( (m_layer.substr(5,1)).c_str() ) ; 
-    }
-    if ( m_layer == "LowPt0" || m_layer == "LowPt1" )   {
-    iName = 2 + (m_isec%2 ) ;
-    ir    = 1		;
-    ig    = atoi( (m_layer.substr(5,1)).c_str() ) ; 
-    }
-    if ( m_layer == "HighPt0" || m_layer == "HighPt1" ) {
-    iName = 4 + (m_isec%2 ) ;
-    ir    = 1		;
-    ig    = atoi( (m_layer.substr(6,1)).c_str() ) ; 
-    } 
-                 
-    for (int ieta=0; ieta!=17; ieta++) {
-    for (int iz=0; iz!=3; iz++ ) {
-    const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(iName, ieta-8, istatPhi+1, ir, iz+1, m_idblPhi+1);
-    if( rpc == NULL ) continue;
-    if  ( iz+1 != rpc->getDoubletZ() ) { 
-    continue ;
-    }
-    Identifier idr = m_rpcIdHelper->parentID( rpc->identify() );
-    rpcElemPhiStrip = int (rpc->NphiStrips() ) ;
-    rpcElemEtaStrip = int (rpc->NetaStrips() ) ;
-	  
-    for ( int istripEta=0; istripEta!=rpcElemEtaStrip; istripEta++ ) {
-    Identifier strip_id  =  m_rpcIdHelper->channelID(idr, iz+1, m_idblPhi+1, ig+1, 0, istripEta+1) ;
-    Identifier panel_id  =  m_rpcIdHelper->panelID( strip_id ) ;
-	    	    
-    if( strip_id == 0 ) continue;
-    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, strip_id, 0)).at(16);
-    rpcCool_PanelIdHist->Fill(coolStripIndex, (unsigned int)panel_id) ;
-    }
-    for ( int istripPhi=0; istripPhi!=rpcElemPhiStrip; istripPhi++ ) {
-    Identifier strip_id  =  m_rpcIdHelper->channelID(idr, iz+1, m_idblPhi+1, ig+1, 1, istripPhi+1) ;
-    Identifier panel_id  =  m_rpcIdHelper->panelID( strip_id ) ;
-	    
-    if( strip_id == 0 ) continue;
-    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, strip_id, 0)).at(16);
-    rpcCool_PanelIdHist->Fill(coolStripIndex, (unsigned int)panel_id );
-    } 
-    } // end loop on doubletZ
-    } // end loop on stationEta
-      
-    }
-    else {
-    // sectors 12 and 14
-    int iNameMax=8;
-    if ( m_layer == "Pivot0" || m_layer == "Pivot1" )   {
-    iName = 8 ;
-    ir    = 2 ;   
-    ig    = atoi( (m_layer.substr(5,1)).c_str() ) ; 
-    }
-    if ( m_layer == "LowPt0" || m_layer == "LowPt1" )   {
-    iName = 8 ;
-    ir    = 1 ;
-    ig    = atoi( (m_layer.substr(5,1)).c_str() ) ;
-    }
-    if ( m_layer == "HighPt0" || m_layer == "HighPt1" ) {
-    iName = 9 ; // or 10 ;
-    iNameMax=10;
-    ir    = 1 ; // doubletR=2 -> upgrade of Atlas
-    ig    = atoi( (m_layer.substr(6,1)).c_str() ) ; 
-    }
-    if ( m_layer == "ExtraFeet0" || m_layer == "ExtraFeet1" ) {
-    iName = 9 ; // or 10 ;
-    iNameMax=10;
-    ir    = 2 ; // doubletR=2 -> upgrade of Atlas
-    ig    = atoi( (m_layer.substr(6,1)).c_str() ) ; 
-    }
-    //
-    for (int ieta=0; ieta!=17; ieta++) {
-    for ( int iNameF=iName; iNameF!= iNameMax+1 ; iNameF++ ) {
-    for (int iz=0; iz!=3; iz++ ) { 
- 
-    const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(iNameF, ieta-8, istatPhi+1, ir, iz+1, m_idblPhi+1);
-    if( rpc == NULL ) continue;
-    if  ( iz+1 != rpc->getDoubletZ() ) { 
-    continue ;
-    }
-    Identifier idr = m_rpcIdHelper->parentID( rpc->identify() );
-    rpcElemPhiStrip = int (rpc->NphiStrips() ) ;
-    rpcElemEtaStrip = int (rpc->NetaStrips() ) ;
-    for ( int istripEta=0; istripEta!=rpcElemEtaStrip; istripEta++ ) {
-    Identifier strip_id  =  m_rpcIdHelper->channelID(idr, iz+1, m_idblPhi+1, ig+1, 0, istripEta+1) ;
-    Identifier panel_id  =  m_rpcIdHelper->panelID( strip_id ) ;
-    if( strip_id == 0 ) continue;
-    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, strip_id, 0)).at(16);
-    rpcCool_PanelIdHist->Fill(coolStripIndex, (unsigned int)panel_id) ;
-    }
-    for ( int istripPhi=0; istripPhi!=rpcElemPhiStrip; istripPhi++ ) {
-    Identifier strip_id  =  m_rpcIdHelper->channelID(idr, iz+1, m_idblPhi+1, ig+1, 1, istripPhi+1) ;
-    Identifier panel_id  =  m_rpcIdHelper->panelID( strip_id ) ;
-    if( strip_id == 0 ) continue;
-    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, strip_id, 0)).at(16);
-    rpcCool_PanelIdHist->Fill(coolStripIndex, (unsigned int)panel_id );
-    
-    }
-    } // end loop on doubletZ
-    }
-    } // end loop on stationeta
-
-
-    } // end sectors 12 and 14
   
-    */
   } // end fill cool histograms with panelId 
   
   

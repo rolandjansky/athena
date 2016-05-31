@@ -90,6 +90,35 @@ StatusCode RpcLv1RawDataValAlg::initialize()
   ATH_MSG_INFO ( "RpcLv1Hist		" << m_rpclv1hist		);
   ATH_MSG_INFO ( "RpcLv1ReduceNbins	" << m_rpclv1reducenbins	);
   StatusCode sc;
+  rpc_eventstotal=0;
+  rpc_event_inarea=0;
+  n_triggerhighpt = 0 ;
+  n_triggerhighpt_eta = 0 ;
+  n_triggerhighpt_phi = 0 ;
+  n_trigLow_ly = 0 ;
+  n_trigHigh_ly = 0 ;
+  IJKtriggerLowPtPhi = 0 ;
+  IJKtriggerLowPtEta = 0 ;
+  IJKtriggerHighPtPhi = 0 ;
+  IJKtriggerHighPtEta = 0 ;
+  istatPhi = 0 ;
+  iName = 0 ;
+  ir = 0 ;
+  side = 0 ;
+  sector = 0 ;
+  rpcRDO = 0 ;
+  rdoColl = 0 ;
+  m_SL_nSectors = 0 ;
+  m_SL_nTriggerHits = 0 ;
+  sectorLogicContainer = 0 ;
+  N_pad = 0 ;
+  N_bin_profile = 0 ;
+  TriggerCondition_vs_CM = 0 ;
+  rpclv1_logicalOR_LowPt0 = 0 ;
+  rpclv1_logicalOR_LowPt1 = 0 ;
+  rpclv1_logicalOR_HighPt0 = 0 ;
+  rpclv1_logicalOR_HighPt1 = 0 ;
+ 
   // Store Gate store
   sc = serviceLocator()->service("StoreGateSvc", m_eventStore);
   if (sc != StatusCode::SUCCESS ) {
@@ -154,8 +183,6 @@ StatusCode RpcLv1RawDataValAlg::initialize()
   
   ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code;
  
-  rpc_eventstotal=0;
-  rpc_event_inarea=0;
   return StatusCode::SUCCESS;
 }
 

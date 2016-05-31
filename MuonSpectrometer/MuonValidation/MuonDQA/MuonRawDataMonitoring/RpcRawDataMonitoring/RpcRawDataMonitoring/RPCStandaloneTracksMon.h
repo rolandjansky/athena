@@ -20,6 +20,9 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/NTuple.h"
 #include "DataModel/DataLink.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -29,6 +32,18 @@
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
+
+
+#include "xAODTracking/TrackParticle.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODMuon/Muon.h"
+#include "xAODMuon/MuonSegment.h"
+#include "xAODMuon/MuonSegmentContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+
+#include "TrigT1Interfaces/RecMuonRoiSvc.h"
+
+#include "TrigDecisionTool/TrigDecisionTool.h" 
 
 #include <TError.h>
 #include <TH1F.h>
@@ -75,7 +90,16 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   
   ActiveStoreSvc* m_activeStore;
 
-
+  std::string m_muonsName;
+  std::string m_muonSegmentsName;
+  std::string m_muonTracksName;
+  std::string m_msVertexCollection;
+  std::string m_muonExtrapTracksName;
+  std::string m_innerTracksName;
+  // Trigger items
+  bool m_useTrigger; 
+  std::string m_MuonTriggerChainName;
+  std::vector<std::string> m_muon_triggers; 
   std::string m_generic_path_rpcmonitoring ;
   
   //Function for histogram booking and parameterd for fitting
@@ -89,6 +113,24 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   void bookRPCLayerRadiographyHistograms( int m_isec, std::string m_layer_name );
   void bookRPCCoolHistograms_NotNorm(std::vector<std::string>::const_iterator &m_iter , int , int , std::string m_layer );
   void bookRPCCoolHistograms(std::vector<std::string>::const_iterator &m_iter , int , int , std::string m_layer );
+  
+  ServiceHandle< LVL1::RecMuonRoiSvc > m_rpcRoiSvc;
+  ServiceHandle< LVL1::RecMuonRoiSvc > m_tgcRoiSvc;
+  ToolHandle<Trig::TrigDecisionTool>   m_trigDec  ;
+  
+  StringProperty  m_triggerChainGroupRegExp   ;
+  StringProperty  m_triggerChainGroupRegNot   ;
+  BooleanProperty m_selectTriggerChainGroup   ;
+  BooleanProperty m_deselectTriggerChainGroup ;
+  const Trig::ChainGroup*      m_chainGroupSelect ;  
+  const Trig::ChainGroup*      m_chainGroupVeto ;  
+  
+  StatusCode RPC_ROI_Mapping();
+  
+  double EtaROImin[2][32][32];
+  double EtaROImax[2][32][32];
+  double PhiROImin[2][32][32];
+  double PhiROImax[2][32][32];
   
   MuonDQAHistMap m_stationHists;
 
@@ -119,7 +161,9 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   const RpcIdHelper* m_rpcIdHelper;
   
   const IRPCcablingSvc* m_cabling;
-   
+  
+  
+  const RpcSectorLogicContainer* sectorLogicContainer; 
   
   //Declare Properties  
   std::string m_chamberName		;
@@ -160,7 +204,10 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   int m_cosmicStation    		;
   std::string sector_num 		;
   
-  float m_rpc_readout_window            ;
+  float  m_rpc_readout_window           ;
+  double m_MuonDeltaRMatching           ;       
+  bool   m_requireMuonCombinedTight     ;
+  bool   m_StandAloneMatchedWithTrack   ;
   
   int m_nClus;                      // number of clusters
 
@@ -185,23 +232,25 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   TH1* rpctrack_bVTXz0     ;
    
   
-  TH1* rpcchi2dof          ;
-  TH1* rpcetavsphichi2dof  ;
-  TH1* f_rpcchi2dof        ;
-  TH1* rpcNtracks          ;
-  TH1* f_rpcNtracks        ;
-  TH1* rpcPointPerTracks   ;
-  TH1* f_rpcPointPerTracks ;
-  TH1* rpcTimeTrackRes     ;
-  TH1* rpcTimeTrackRMS     ;
-  TH1* rpcPhiResidual      ;
-  TH1* rpcEtaResidual      ;
-  TH1* f_rpcPhiResidual    ;
-  TH1* f_rpcEtaResidual    ;
-  TH1* rpcTrackType        ;
-  TH1* f_rpcTrackType      ;
-  
-  TH1* ResidualVsCS        ;
+  TH1* rpcmergepointdistance          ;
+  TH1* f_rpcmergepointdistance        ;
+  TH1* rpcchi2dof		      ;
+  TH1* rpcetavsphichi2dof	      ;
+  TH1* f_rpcchi2dof		      ;
+  TH1* rpcNtracks		      ;
+  TH1* f_rpcNtracks		      ;
+  TH1* rpcPointPerTracks	      ;
+  TH1* f_rpcPointPerTracks	      ;
+  TH1* rpcTimeTrackRes		      ;
+  TH1* rpcTimeTrackRMS		      ;
+  TH1* rpcPhiResidual		      ;
+  TH1* rpcEtaResidual		      ;
+  TH1* f_rpcPhiResidual 	      ;
+  TH1* f_rpcEtaResidual 	      ;
+  TH1* rpcTrackType		      ;
+  TH1* f_rpcTrackType		      ;
+ 
+  TH1* ResidualVsCS		      ;
  
   TH2* rpcSectorLayerTrackProj		        ;
   TH2* rpcSectorLayerResponse		        ;
@@ -215,6 +264,36 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   TH2* m_rpcCS_angleLong		        ;
   TH2* m_rpcCS_angleTrasv		        ;
   TH2* m_rpcCS_EtavsPhi                         ; 
+  
+  //Trigger efficiency plots
+  TH1* hMEtracks  ;
+  
+  
+  std::vector<TH1F*> hRPCPhiEtaCoinThr       ;
+  std::vector<TH1F*> hRPCPadThr              ;
+  std::vector<TH1F*> hRPCMuctpiThr           ;
+  std::vector<TH1F*> hRPCPhiEtaCoinThr_eff   ;
+  std::vector<TH1F*> hRPCPadThr_eff          ;
+  std::vector<TH1F*> hRPCMuctpiThr_eff       ;
+   
+  std::vector<double> etaminpad   ;
+  std::vector<double> etamaxpad   ;
+  std::vector<double> phiminpad   ;
+  std::vector<double> phimaxpad   ;
+  std::vector<int>    thresholdpad;
+  
+  struct muctpi_rdo {
+        float eta;
+        float phi;
+        short int source;
+        short int hemisphere;
+        short int bcid;
+        short int sectorID;
+        short int thrNumber;
+        short int RoINumber;
+        short int overlapFlags;
+    };
+    
   
   enum {enumSumTrackProj, enumSumHitOnTrack, enumSumHitOnTrack_withCrossStrip, enumSumEfficiency, enumSumGapEfficiency,
         enumSumNoiseTot_NotNorm, enumSumNoiseCorr_NotNorm,
@@ -464,7 +543,9 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   double  irpc_clus_time     ;   
   double  irpc_clus_posx     ;   
   double  irpc_clus_posy     ;   
-  double  irpc_clus_posz     ;   
+  double  irpc_clus_posz     ;    
+  double  irpc_clus_poseta   ;   
+  double  irpc_clus_posphi   ;   
    
   int     irpc_clus_stationII  ;
   int     irpc_clus_etaII      ;    
@@ -478,7 +559,9 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   double  irpc_clus_timeII     ;   
   double  irpc_clus_posxII     ;   
   double  irpc_clus_posyII     ;   
-  double  irpc_clus_poszII     ;  
+  double  irpc_clus_poszII     ;     
+  double  irpc_clus_posetaII   ;   
+  double  irpc_clus_posphiII   ;
 
   int strip                 ; 
   
@@ -531,10 +614,13 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   std::vector<double> Rpc_x_3D      	;
   std::vector<double> Rpc_y_3D      	;
   std::vector<double> Rpc_z_3D      	;
+  std::vector<double> Rpc_eta_3D      	;
+  std::vector<double> Rpc_phi_3D      	;
   std::vector<double> Rpc_t_3D      	;
   std::vector<Identifier> Rpc_id_eta_3D ;
   std::vector<Identifier> Rpc_id_phi_3D ;
   std::vector<Amg::Vector3D > Rpc_Point ;
+  std::vector<int   > Rpc_Matched_mu    ;
   
   double incAngle  ;
   

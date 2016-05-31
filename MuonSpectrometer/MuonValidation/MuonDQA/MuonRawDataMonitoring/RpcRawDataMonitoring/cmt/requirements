@@ -25,12 +25,52 @@ use     MuonPrepRawData		MuonPrepRawData-* 	        MuonSpectrometer/MuonReconst
 use 	muonEvent		muonEvent-*			Reconstruction/MuonIdentification
 use     MuonTrigCoinData        MuonTrigCoinData-*              MuonSpectrometer/MuonReconstruction/MuonRecEvent
 
+public
+# Trigger Decision
+use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1
+use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
+#XAOD dependencies
+use             xAODEventInfo                     xAODEventInfo-*					Event/xAOD
+use             xAODMuon                          xAODMuon-*						Event/xAOD
+use             xAODTracking                      xAODTracking-*					Event/xAOD
+end_public  
+
+
 private
-use     xAODEventInfo           xAODEventInfo-*                 Event/xAOD
-use     EventPrimitives         EventPrimitives-*               Event
-use     GeoPrimitives           GeoPrimitives-*                 DetectorDescription
-use     MuonDigitContainer      MuonDigitContainer-*            MuonSpectrometer
+
+use     EventPrimitives                           EventPrimitives-*                                     Event
+use     GeoPrimitives                             GeoPrimitives-*                                       DetectorDescription
+use     MuonDigitContainer                        MuonDigitContainer-*                                  MuonSpectrometer
+use     TrkMeasurementBase                        TrkMeasurementBase-*                                  Tracking/TrkEvent
+use     TrkMultiComponentStateOnSurface           TrkMultiComponentStateOnSurface-*                     Tracking/TrkEvent
+
+# Trigger Decision
+#use     TrigDecisionInterface  		   TrigDecisionInterface-*				  Trigger/TrigEvent
+#use     TrigConfxAOD                              TrigConfxAOD-*                                          Trigger/TrigConfiguration
+use  TrigConfL1Data             TrigConfL1Data-*                Trigger/TrigConfiguration
+#use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1
+use  TrigT1Result               TrigT1Result-*                  Trigger/TrigT1
+#use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
+
+# Track dependencies
+#use             TrkParameters                     TrkParameters-*                                      Tracking/TrkEvent
+use             TrkTrack                          TrkTrack-*					       Tracking/TrkEvent
+use             TrkEventPrimitives                TrkEventPrimitives-*  			       Tracking/TrkEvent
+#use             TrkToolInterfaces                 TrkToolInterfaces-*				       Tracking/TrkTools
+#use             TrkValHistUtils                   TrkValHistUtils-*				       Tracking/TrkValidation
+
+
+#Muon depenencies
+use             MuonIdHelpers                                           MuonIdHelpers-*                                                         MuonSpectrometer
+#use             MuonHistUtils                                           MuonHistUtils-*                                                         MuonSpectrometer/MuonValidation/MuonHistogramming
+use             MuonPrepRawData                                         MuonPrepRawData-*                                                       MuonSpectrometer/MuonReconstruction/MuonRecEvent
+#use             MuonRecHelperTools                                      MuonRecHelperTools-*                                            MuonSpectrometer/MuonReconstruction/MuonRecTools
+#use             MuonRecToolInterfaces                           MuonRecToolInterfaces-*                                         MuonSpectrometer/MuonReconstruction/MuonRecTools
+#use             MuonSelectorTools                                       MuonSelectorTools-*                                                     PhysicsAnalysis/MuonID
+#use             MuonResonanceTools                                      MuonResonanceTools-*                                            PhysicsAnalysis/MuonID/MuonPerformanceAnalysis
+#use            MuonCombinedToolInterfaces                      MuonCombinedToolInterfaces-*                            Reconstruction/MuonIdentification
 end_private
+
 
  
 # build a component library

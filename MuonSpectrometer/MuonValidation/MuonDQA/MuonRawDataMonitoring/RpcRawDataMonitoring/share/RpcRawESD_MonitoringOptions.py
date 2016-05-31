@@ -76,8 +76,8 @@ rpcTrackMonMan.AthenaMonTools += [ RPCStandaloneTracksMon ]
 topSequence += rpcTrackMonMan
 print rpcTrackMonMan
 
-############################ RpcLv1RawMonManager ######################################
-rpcLv1RawMonMan = AthenaMonManager(name="RpcLv1RawMonManager",
+############################ rpcLv1RawEfficiencyMonManager ######################################
+rpcLv1RawEfficiencyMonMan = AthenaMonManager(name="rpcLv1RawEfficiencyMonManager",
                                FileKey             = DQMonFlags.monManFileKey(),
                                Environment         = DQMonFlags.monManEnvironment(),
                                OutputLevel         = muonOutputLevel)
@@ -91,9 +91,9 @@ if not hasattr(topSequence,"RpcClusterBuilderPRD"):
                                         OutputLevel = FATAL)
 rpcLv1RawDataEfficiency = RpcLv1RawDataEfficiency(name='rpcLv1RawDataEfficiency')
 ToolSvc += rpcLv1RawDataEfficiency
-rpcLv1RawMonMan.AthenaMonTools += [ rpcLv1RawDataEfficiency ]
-topSequence += rpcLv1RawMonMan
-
+rpcLv1RawEfficiencyMonMan.AthenaMonTools += [ rpcLv1RawDataEfficiency ]
+topSequence += rpcLv1RawEfficiencyMonMan
+print rpcLv1RawEfficiencyMonMan
 
 ###################################################################
 #

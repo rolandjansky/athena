@@ -25,7 +25,12 @@
 #include "MuonRDO/RpcCoinMatrix.h"
 #include "MuonRDO/RpcPad.h"
 #include "MuonRDO/RpcPadContainer.h"
-
+#include "MuonRDO/RpcSectorLogicContainer.h"
+ 
+#include "TrigT1Result/MuCTPI_RDO.h"
+#include "TrigT1Result/MuCTPI_DataWord_Decoder.h"
+#include "TrigT1Interfaces/RecMuonRoI.h"
+#include "TrigConfL1Data/TriggerThreshold.h"
 #include "MuonDigitContainer/RpcDigitContainer.h"
  
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
@@ -37,7 +42,17 @@
 #include "MuonDQAUtils/MuonCosmicSetup.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h" 
 
-#include "xAODEventInfo/EventInfo.h" 
+
+#include "MuonIdHelpers/MuonStationIndex.h"
+#include "xAODEventInfo/EventInfo.h"
+
+#include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
+#include "TrkEventPrimitives/ResidualPull.h"
+#include "TrkMeasurementBase/MeasurementBase.h"
+#include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkTrack/TrackCollection.h"
+ 
  
 #include "RpcRawDataMonitoring/RPCStandaloneTracksMon.h"
 #include "RpcRawDataMonitoring/RpcGlobalUtilities.h"  
@@ -54,9 +69,9 @@ static const   int maxClus	      =  1000;
 static const   int timeminrange	      =	 -200;
 static const   int timemaxrange	      =	  200;
 static const   int timeNbin	      =	  128;
-static const   int nstripfiducial     =     0;
+static const   int nstripfiducial     =     2;
 static const   int nstripfiduceff     =    80;
-static const   int MergePointDistance =    50;
+static const   int MergePointDistance =   100;
 static const   int EtaStationSpan     =     2;
 static const   int DoublePhiSpan      =     1;
 static const   int maxCSres           =     8;
@@ -66,7 +81,10 @@ static const float Chi2dofCut         =     1;
 
 RPCStandaloneTracksMon::RPCStandaloneTracksMon( const std::string & type, const std::string & name, const IInterface* parent )
   :ManagedMonitorToolBase( type, name, parent ),
-   m_first(true) 
+   m_first(true), 
+   m_rpcRoiSvc( "LVL1RPC::RPCRecRoiSvc", name ),
+   m_tgcRoiSvc( "LVL1TGC::TGCRecRoiSvc", name ),
+   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
 {
   // Declare the properties 
   declareProperty("DoRpcEsd",            m_doRpcESD		= false	); 
@@ -101,9 +119,38 @@ RPCStandaloneTracksMon::RPCStandaloneTracksMon( const std::string & type, const 
   declareProperty("HPtPointForHPteff",	 m_HPtPointForHPteff 	= true	);
   declareProperty("HPtPointForLPteff",	 m_HPtPointForLPteff 	= true	);
   declareProperty("HPtPointForTracks",	 m_HPtPointForTracks 	= false	);
+
+  declareProperty("UseTriggerVector",	  m_useTrigger);
+  declareProperty("MuonTriggerChainName", m_MuonTriggerChainName);
+  declareProperty("Muon_Trigger_Items",   m_muon_triggers);
+  declareProperty("TriggerDecisionTool",  m_trigDecTool);
+  
+  declareProperty("MuonCollection",		     m_muonsName	    = "Muons");
+  declareProperty("MuonSegmentCollection",	     m_muonSegmentsName     = "MuonSegments");
+  declareProperty("MuonTrackCollection",	     m_muonTracksName	    = "MuonSpectrometerTrackParticles");
+  declareProperty("MuonExtrapolatedTrackCollection", m_muonExtrapTracksName = "ExtrapolatedMuonTrackParticles");
+  declareProperty("InDetTrackParticles",	     m_innerTracksName      = "InDetTrackParticles");
+  declareProperty("MSVertexCollection",              m_msVertexCollection   = "MSDisplacedVertex");
+  
+  
+  
+  declareProperty("MuonDeltaRMatching"          , m_MuonDeltaRMatching         =   0.15 ); 
+  declareProperty("requireMuonCombinedTight"    , m_requireMuonCombinedTight   = false  );
+  declareProperty("StandAloneMatchedWithTrack"  , m_StandAloneMatchedWithTrack = true   );
+  
+  declareProperty( "selectTriggerChainGroup"    , m_selectTriggerChainGroup    = false     );
+  declareProperty( "deSelectTriggerChainGroup"  , m_deselectTriggerChainGroup  = false     );
+  declareProperty( "triggerChainGroupRegNot"    , m_triggerChainGroupRegNot    ="HLT_j.*" ); 
+  declareProperty( "triggerChainGroupRegExp"    , m_triggerChainGroupRegExp    ="HLT_mu.*"  );//".*" all triggers//"HLT_mu.*" all EF muon triggers//"HLT_.*" all EF triggers//"L2_.*"  all L2 triggers//"L1_.*"  all L1 triggers 
+
   
   m_padsId     = 0;
   m_chambersId = 0;
+
+  m_chainGroupSelect=NULL;
+  m_chainGroupVeto=NULL;
+
+
 } 
                             
 RPCStandaloneTracksMon::~RPCStandaloneTracksMon()
@@ -189,6 +236,23 @@ StatusCode RPCStandaloneTracksMon::initialize(){
   hardware_name_list.push_back("XXX");
   
   ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code;
+      
+  sc = RPC_ROI_Mapping();
+  if (sc.isFailure()) {
+    ATH_MSG_WARNING ( "Cannot retrieve PC_ROI_Mapping()" );	
+    return StatusCode::FAILURE;
+  } else { ATH_MSG_DEBUG ( "RPC_ROI_Mapping() done. " );    }
+  
+  
+  
+  if ( m_selectTriggerChainGroup || m_deselectTriggerChainGroup ) {
+     sc = m_trigDec.retrieve();
+     if ( sc.isFailure() ){
+         ATH_MSG_WARNING ("Can't get handle on TrigDecisionTool");
+     } else {
+         ATH_MSG_DEBUG ("Got handle on TrigDecisionTool");
+     }
+  }     
  
   rpc_eventstotal=0;
   
@@ -198,9 +262,51 @@ StatusCode RPCStandaloneTracksMon::initialize(){
   m_SummaryHistRPCBC.clear();
   m_sumTmpHist.clear();
   rpcAverageSide_A.clear(); 
-  rpcAverageSide_C.clear(); 
+  rpcAverageSide_C.clear();  
   
+  hRPCPhiEtaCoinThr.clear()	 ;
+  hRPCPadThr.clear()		 ;
+  hRPCMuctpiThr.clear()  	 ;
   
+  hRPCPhiEtaCoinThr_eff.clear()	 ;
+  hRPCPadThr_eff.clear()		 ;
+  hRPCMuctpiThr_eff.clear()  	 ;
+  
+  etaminpad.clear(); 
+  etamaxpad.clear(); 
+  phiminpad.clear(); 
+  phimaxpad.clear();
+  thresholdpad.clear();
+   
+  binx = 0 ;
+  binminx = 0 ;
+  binmaxx = 0 ;
+  panelBin = 0 ;
+  indexplane = 0 ;
+  RPCLyHitOnTr = 0 ;
+  RPCLyTrkPrj = 0 ;
+  RPCLyEff = 0 ;
+  RPCLyEff_err = 0 ;
+  PanelVal = 0 ;
+  PanelVal_err = 0 ;
+  PanelVal_entries = 0 ;
+  PanelVal_square = 0 ;
+  PanelHitOnTrack = 0 ;
+  PanelTrackProj = 0 ;
+  PanelHitOnTrack_withCrossStrip = 0 ;
+  invgasgaparea = 0 ;
+  invstriparea = 0 ;
+  distance = 0 ;
+  isNoise = 0 ;
+  isNoiseCorr = 0 ;
+  isNoisePhiStrip = 0 ;
+  norm1 = 0 ;
+  norm2 = 0 ;
+  norm3DGaprho = 0 ;
+  Vect3DCosrho = 0 ;
+  
+  sectorLogicContainer = 0 ;
+	 
   return StatusCode::SUCCESS;
 }
 
@@ -210,37 +316,109 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 {
   StatusCode sc = StatusCode::SUCCESS; 
   
-  
   ATH_MSG_DEBUG ( "RPCStandaloneTracksMon::RPCStandaloneTracksMon Histograms being filled" );
   if( m_doRpcESD==true ) { if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD || m_environment == AthenaMonManager::online ) {  
+          
+  // TRIGGER SELECTION BASED ON CHAIN GROUP
+		 
+  if (m_selectTriggerChainGroup || m_deselectTriggerChainGroup){
+    std::string triggerChainGroupRegExp = m_triggerChainGroupRegExp;
+    std::string triggerChainGroupRegNot = m_triggerChainGroupRegNot;
+    m_chainGroupVeto   = m_trigDec->getChainGroup(triggerChainGroupRegNot.c_str());
+    std::vector<std::string> vec_list = m_chainGroupVeto->getListOfTriggers();
+    ATH_MSG_DEBUG(" List of Triggers to be Vetoed "<<vec_list);
+    m_chainGroupSelect = m_trigDec->getChainGroup(triggerChainGroupRegExp.c_str());
+    vec_list = m_chainGroupSelect->getListOfTriggers();
+    ATH_MSG_DEBUG(" List of Triggers to be Selected "<<vec_list);
+    if (m_chainGroupSelect) 
+      {
+	if (!m_chainGroupSelect->isPassed()) 
+	  {
+	    ATH_MSG_DEBUG(" not passed ....  skip ");
+	    return sc;
+	  }
+	else 
+	  {
+	    ATH_MSG_DEBUG(" passed ....  keep event ");
+	  }
+      }
+    if (m_chainGroupVeto) 
+      {
+	if (m_chainGroupVeto->isPassed()) 
+	  {
+	    ATH_MSG_DEBUG(" a trigger to be vetoed is passed ....  skip ");
+	    return sc;
+	  }
+	else 
+	  {
+	    ATH_MSG_DEBUG(" passed ....  keep event ");
+	  }
+      }
+  }
+    
+   //Muon tracks
+     
+//       // retrieve containers
+//       const xAOD::MuonSegmentContainer*     MuonSegments = evtStore()->retrieve< const xAOD::MuonSegmentContainer >        (m_muonSegmentsName);       
+//       const xAOD::TrackParticleContainer*   tracksMS     = evtStore()->retrieve< const xAOD::TrackParticleContainer >        (m_muonTracksName);      
+         const xAOD::MuonContainer*	       Muons        = evtStore()->retrieve< const xAOD::MuonContainer >                      (m_muonsName);
+	 if (!Muons)   {
+	   ATH_MSG_WARNING ("Couldn't retrieve Muons container with key: " << m_muonsName);
+	   return StatusCode::SUCCESS;
+	 } 
+	 ATH_MSG_DEBUG ("Muon container with key: " << m_muonsName<<" found");
+//       const xAOD::VertexContainer*	       MSVertices   = evtStore()->retrieve< const xAOD::VertexContainer >           (m_msVertexCollection);
+//       const xAOD::TrackParticleContainer*   METracks     = evtStore()->retrieve< const xAOD::TrackParticleContainer >( m_muonExtrapTracksName );
+//       const xAOD::TrackParticleContainer*   IDTracks     = evtStore()->retrieve< const xAOD::TrackParticleContainer >     ( m_innerTracksName );
+  
+      
+      
       const Muon::RpcPrepDataContainer* rpc_container;
       sc = (*m_activeStore)->retrieve(rpc_container, m_key_rpc);
       if (sc.isFailure()) {
 	ATH_MSG_ERROR ( " Cannot retrieve RpcPrepDataContainer " << m_key_rpc );
 	return sc;
       }
+      ATH_MSG_DEBUG ( "RpcPrepDataContainer " << m_key_rpc <<" found");
 
       
+
+      const DataHandle<xAOD::EventInfo> eventInfo;
+      sc = m_eventStore->retrieve( eventInfo );
+      if (sc.isFailure()) {
+	ATH_MSG_DEBUG ( "no event info" );
+	return StatusCode::SUCCESS;
+      }
+      else {
+	ATH_MSG_DEBUG ( "yes event info" );
+      }
+
+            
+      //int RunNumber = eventInfo->runNumber();
+      //long int EventNumber = eventInfo->eventNumber();
+      long int BCID   =  eventInfo->       bcid()  ;
+      int lumiBlock   =  eventInfo->  lumiBlock()  ; 
+      
       //select lumiblock for analysis
-      if ( m_selectLB ) {
-	const DataHandle<xAOD::EventInfo> eventInfo;
-	StatusCode sc = m_eventStore->retrieve( eventInfo );
-	if (sc.isFailure()) {
-	  ATH_MSG_DEBUG ( "no event info" );
-	  return StatusCode::SUCCESS;
-	}
-	else {
+      if ( m_selectLB ) {	 
 	  // skip events outside Lb range selected in jobOpt
-	  int lumiBlock = eventInfo->lumiBlock()  ;
 	  if ( lumiBlock<m_minSelLB || lumiBlock>m_maxSelLB ) 
 	    { 
 	      ATH_MSG_INFO ( "event LB " << lumiBlock << " outside range " <<  m_minSelLB <<" "<<m_maxSelLB 
 			     << "   -> skip event " ); 
 	      return sc ;
-	    }  
-	}
+	    }  	 
       }
     
+    
+      // check if data or MC
+      int isMC=0;
+      if (eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION ) ){
+       isMC=1;
+       ATH_MSG_INFO( "SIMULATION");
+      }
+      //   return StatusCode::SUCCESS; // stop this algorithms execute() for this event, here only interested in MC
+        
       ATH_MSG_DEBUG ("****** rpc->size() : " << rpc_container->size());  
     
       Muon::RpcPrepDataContainer::const_iterator containerIt;
@@ -251,14 +429,15 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 
       // recall general histos  
       m_generic_path_rpcmonitoring = "Muon/MuonRawDataMonitoring/RPCStandAloneTrackMon"	 ;
-      MonGroup rpcprd_shift( this, m_generic_path_rpcmonitoring+"/Overview", run, ATTRIB_UNMANAGED  )    ;
-      MonGroup rpcprd_expert( this, m_generic_path_rpcmonitoring+"/Overview", run, ATTRIB_UNMANAGED  )   ;
-      MonGroup rpcprd_expert_sum( this, m_generic_path_rpcmonitoring+"/Summary", run, ATTRIB_UNMANAGED )  	 ;
-      MonGroup rpc_dqmf_global( this, m_generic_path_rpcmonitoring + "/GLOBAL", run, ATTRIB_UNMANAGED  )  ;
-      MonGroup rpcprd_dq_BA( this, m_generic_path_rpcmonitoring + "/RPCBA", run, ATTRIB_UNMANAGED   )     ;
-      MonGroup rpcprd_dq_BC( this, m_generic_path_rpcmonitoring + "/RPCBC", run, ATTRIB_UNMANAGED   )     ;
-      MonGroup rpc_radiography(this, m_generic_path_rpcmonitoring +"/RPCRadiography", run, ATTRIB_UNMANAGED) ;
-      MonGroup rpcCoolDb( this, m_generic_path_rpcmonitoring+"/CoolDB", run, ATTRIB_UNMANAGED )         ;
+      MonGroup rpcprd_shift         ( this, m_generic_path_rpcmonitoring +"/Overview"         , run, ATTRIB_UNMANAGED  );
+      MonGroup rpcprd_expert        ( this, m_generic_path_rpcmonitoring +"/Overview"         , run, ATTRIB_UNMANAGED  );
+      MonGroup rpcprd_expert_sum    ( this, m_generic_path_rpcmonitoring +"/Summary"          , run, ATTRIB_UNMANAGED  )	;
+      MonGroup rpc_dqmf_global      ( this, m_generic_path_rpcmonitoring +"/GLOBAL"	      , run, ATTRIB_UNMANAGED  );
+      MonGroup rpcprd_dq_BA         ( this, m_generic_path_rpcmonitoring +"/RPCBA"	      , run, ATTRIB_UNMANAGED  );
+      MonGroup rpcprd_dq_BC         ( this, m_generic_path_rpcmonitoring +"/RPCBC"	      , run, ATTRIB_UNMANAGED  );
+      MonGroup rpc_radiography      ( this, m_generic_path_rpcmonitoring +"/RPCRadiography"   , run, ATTRIB_UNMANAGED  );
+      MonGroup rpcCoolDb            ( this, m_generic_path_rpcmonitoring +"/CoolDB"           , run, ATTRIB_UNMANAGED  );
+      MonGroup rpc_triggerefficiency( this, m_generic_path_rpcmonitoring +"/TriggerEfficiency", run, ATTRIB_UNMANAGED  );
        
       // begin cluster monitoring
       const Muon::RpcPrepDataContainer* rpc_clusterContainer;
@@ -299,12 +478,15 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	  Rpc_x_3D.clear()         ;
 	  Rpc_y_3D.clear()         ;
 	  Rpc_z_3D.clear()         ;
+	  Rpc_eta_3D.clear()       ;
+	  Rpc_phi_3D.clear()       ;
 	  Rpc_t_3D.clear()         ;
 	  Rpc_avEta_3D.clear()     ;
 	  Rpc_avPhi_3D.clear()	   ;
 	  Rpc_id_eta_3D.clear()    ;
 	  Rpc_id_phi_3D.clear()    ;
 	  Rpc_Point.clear()        ;
+	  Rpc_Matched_mu.clear()   ;
     
 	  sc = rpcprd_shift.getHist(rpctrack_phivseta,"rpctrack_phivseta");		
 	  if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't register rpctrack_phivseta hist to MonGroup" ); 
@@ -341,6 +523,9 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
   
 	  sc = rpcprd_shift.getHist(rpctrack_b,"rpctrack_b");
 	  if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't register rpctrack_b hist to MonGroup" );
+    
+	  sc = rpcprd_shift.getHist(rpcmergepointdistance,"rpcmergepointdistance");
+	  if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't register rpcmergepointdistance hist to MonGroup" );
    
 	  sc = rpcprd_shift.getHist(rpcchi2dof,"rpcchi2dof");
 	  if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't register rpcchi2dof hist to MonGroup" );
@@ -367,6 +552,9 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	  sc = rpcprd_shift.getHist(rpcEtaResidual,"rpcEtaResidual");
 	  if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't register rpcEtaResidual hist to MonGroup" );
     
+    
+	  sc = rpcprd_shift.getHist(f_rpcmergepointdistance,"f_rpcmergepointdistance");
+	  if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't register f_rpcmergepointdistance hist to MonGroup" );
     
 	  sc = rpcprd_shift.getHist(f_rpcchi2dof,"f_rpcchi2dof");
 	  if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't register f_rpcchi2dof hist to MonGroup" );
@@ -419,7 +607,8 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	  sc = rpcprd_shift.getHist(m_rpcCS_EtavsPhi, "CS_EtavsPhi") ;
 	  if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't get CS_EtavsPhi" );
 	 
-         
+	  sc = rpc_triggerefficiency.getHist( hMEtracks  ,"hMEtracks" ) ;		
+	  if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't get " << " hMEtracks " );
      
 	  Muon::RpcPrepDataContainer::const_iterator it = rpc_clusterContainer->begin();
          
@@ -467,9 +656,11 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		  stripPosC = stripPosC / irpc_clus_size ;
 		}
 		avstripphi = av_strip + ShiftStrips;
-		irpc_clus_posx = stripPosC.x() ;
-		irpc_clus_posy = stripPosC.y() ;
-		irpc_clus_posz = stripPosC.z() ;
+		irpc_clus_posx   = stripPosC.x()   ;
+		irpc_clus_posy   = stripPosC.y()   ; 
+		irpc_clus_posz   = stripPosC.z()   ;
+		irpc_clus_poseta = stripPosC.eta() ;
+		irpc_clus_posphi = stripPosC.phi() ;
             
 	    		  
 		//get information from geomodel to book and fill rpc histos with the right max strip number
@@ -642,9 +833,11 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    }
 		    avstripeta += float(ShiftEtaStripsTot)       ;
 		    avstripeta  = avstripeta*float(EtaStripSign) ;
-		    irpc_clus_posxII = stripPosCII.x() ;
-		    irpc_clus_posyII = stripPosCII.y() ;
-		    irpc_clus_poszII = stripPosCII.z() ;
+		    irpc_clus_posxII   = stripPosCII.x()   ;
+		    irpc_clus_posyII   = stripPosCII.y()   ;
+		    irpc_clus_poszII   = stripPosCII.z()   ;
+		    irpc_clus_posetaII = stripPosCII.eta() ;
+		    irpc_clus_posphiII = stripPosCII.phi() ;
 	   
   
 		    //evaluate layer type
@@ -668,8 +861,28 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		      layertype = 6 ;
 		    }
 	      
-		    //build 3D Rpc points without trigger hits //select clusters with size 1 or 2 	      
-		
+		    ATH_MSG_DEBUG("Candidate 3D RPC cluster N_Rpc_Clusters3D = "<<N_Rpc_Clusters3D 
+				  << " station name/phi/eta " << irpc_clus_station << " " << irpc_clus_phi << " " << irpc_clus_eta);
+
+		    //build 3D Rpc points without trigger hits //select clusters with size 1 or 2 
+		    //Check for muon combined match
+	            bool foundmatch3DwithMuon = false;
+		    int nm=0;
+		    if (Muons){	
+                      // CombinedMuons Tight
+	             for (const xAOD::Muon* muons: *Muons)
+	             {       
+	                if ( muons->muonType()!=xAOD::Muon::Combined  || ( muons->quality()!=xAOD::Muon::Tight && m_requireMuonCombinedTight ))continue;
+			++nm;
+			ATH_MSG_DEBUG("muons passing quality cuts to test cluster-muon track matching is now "<<nm);
+	                const xAOD::TrackParticle* metrack = muons->trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle );          
+	                if( !metrack   ) continue;		        
+			
+			ATH_MSG_DEBUG("xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle found for this muon ");
+		        if(  sqrt(fabs(irpc_clus_posetaII-metrack->eta())*fabs(irpc_clus_posetaII-metrack->eta()) +  fabs(irpc_clus_posphi-metrack->phi())*fabs(irpc_clus_posphi-metrack->phi())) <   m_MuonDeltaRMatching) foundmatch3DwithMuon = true ;
+		    	      
+		     }}//end muons
+		    
 		    if( layertype>0 && irpc_clus_size < 3 && irpc_clus_sizeII < 3 ){
 		      if(irpc_clus_station==2||irpc_clus_station==4){
 			// large
@@ -695,19 +908,21 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		      Rpc_GasGap_3D.push_back (irpc_clus_gasgap    )  ;
 		      Rpc_x_3D.push_back      (irpc_clus_posx	 )  ;
 		      Rpc_y_3D.push_back      (irpc_clus_posy	 )  ;
-		      Rpc_z_3D.push_back      (irpc_clus_poszII    )  ;
+		      Rpc_z_3D.push_back      (irpc_clus_poszII          )  ;
+		      Rpc_eta_3D.push_back    (irpc_clus_posetaII	 )  ;
+		      Rpc_phi_3D.push_back    (irpc_clus_posphi          )  ;
 		      Rpc_t_3D.push_back      (irpc_clus_time	 )  ;
 		      Rpc_SL_3D.push_back     (SectorLogic	 )  ;
 		      Rpc_Side_3D.push_back   (Side		 )  ;
 		      Rpc_id_phi_3D.push_back (prd_id  	         )  ;
 		      Rpc_id_eta_3D.push_back (prd_idII  	         )  ;
-		      Rpc_avEta_3D.push_back  (int (avstripeta )   )  ;
-		      Rpc_avPhi_3D.push_back  (int (avstripphi )   )  ;
-		      Amg::Vector3D Vector3D(irpc_clus_posx  , irpc_clus_posy  ,  irpc_clus_poszII);
+		      Rpc_avEta_3D.push_back  (int (avstripeta )         )  ;
+		      Rpc_avPhi_3D.push_back  (int (avstripphi )         )  ;
+		      Amg::Vector3D Vector3D  (irpc_clus_posx  , irpc_clus_posy  ,  irpc_clus_poszII);
 		      Rpc_Point.push_back     (Vector3D 	         )  ;
+		      Rpc_Matched_mu.push_back(foundmatch3DwithMuon 	 )  ;
 		  
 		    
-            
 		      /*
 			std::cout << "Next 3D RPC cluster" << std::endl;
 			std::cout << N_Rpc_Clusters3D << " " << irpc_clus_phi << " " << irpc_clus_station << " " << irpc_clus_eta << std::endl;
@@ -727,8 +942,364 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
  	      }//end clusters collection
  	    }//end if size
 	  }//end clusters container
+	     
+    
+    std::list<muctpi_rdo> muctpi_rdo_roi_list;
+    muctpi_rdo_roi_list.clear();
+    const MuCTPI_RDO* muctpiRDO;
+    sc = (*m_activeStore)->retrieve(muctpiRDO,"MUCTPI_RDO");
+    if (sc.isFailure()) {
+      ATH_MSG_WARNING ( "Cannot retrieve the MuCTPI" );     
+      return StatusCode::SUCCESS;
+    }
+    else {
+        
+        
+        // Create some dummy LVL1 muon thresholds:
+        std::vector< TrigConf::TriggerThreshold* > dummy_thresholds;
+       
+
+        // Loop over the MuCTPI data words, and "reconstruct" them:
+        std::vector< uint32_t >::const_iterator dw_itr = muctpiRDO->dataWord().begin();
+        std::vector< uint32_t >::const_iterator dw_end = muctpiRDO->dataWord().end();
+        for( ; dw_itr != dw_end; ++dw_itr ) {
+            
+            muctpi_rdo  muctpi_rdo_roi;
+            // Use the same class that is used by the LVL2 steering to decode
+            // the muon RoIs:
+
+            uint32_t dataWord = (*dw_itr);
+            uint32_t RoIWord = ( ( dataWord & 0x18000000 ) |
+        			 ( ( dataWord & 0x3fe0000 ) >> 3 ) |
+        			 ( dataWord & 0x3fff ) );
+
+            LVL1::RecMuonRoI roi( RoIWord,
+        			  &( *m_rpcRoiSvc ), &( *m_tgcRoiSvc ),
+        			  &dummy_thresholds );
+            
+            muctpi_rdo_roi.eta= roi.eta() ;
+            muctpi_rdo_roi.phi= roi.phi() ;
+            muctpi_rdo_roi.source= roi.sysID() ;
+            muctpi_rdo_roi.hemisphere= roi.subsysID() ;
+            int muctpi_bcid = ( ( dataWord >> 14 ) & 0x7 );
+            // store difference from L1Acc
+            int dbc = muctpi_bcid;
+            if (!isMC) dbc = dbc - BCID%8;
+            if (dbc<=-4) {
+        	dbc=dbc+8;
+            }else if (dbc>4) {
+        	dbc=dbc-8;
+            }
+            muctpi_rdo_roi.bcid=dbc;	 
+            muctpi_rdo_roi.sectorID= roi.sectorID() ;
+            muctpi_rdo_roi.thrNumber= roi.getThresholdNumber() ;
+            muctpi_rdo_roi.RoINumber= roi.getRoINumber() ;
+            muctpi_rdo_roi.overlapFlags= roi.getOverlap() ;
+
+
+            muctpi_rdo_roi_list.push_back(muctpi_rdo_roi);
+            
+        }
+
+        ATH_MSG_DEBUG(" MUCTPI RoIs = " << muctpi_rdo_roi_list.size() );
+    }
+     
+    // Retrieve the Sector Logic container
+    sc = (*m_activeStore) -> retrieve(sectorLogicContainer);     
+    
+    if (sc.isFailure()) {
+      if (isMC==1) ATH_MSG_DEBUG ( "Cannot retrieve the RpcSectorLogicContainer ... that's normal in MC: no container is produced in digitization" );
+      else 
+	{
+	  ATH_MSG_WARNING ( "Cannot retrieve the RpcSectorLogicContainer ... however, there's no reason to stop here" );     
+	  //return StatusCode::SUCCESS;
+	}
+    }
+    else {
+     ATH_MSG_DEBUG("RpcSectorLogicContainer found with size " << sectorLogicContainer->size());
+
+      ///////////////////////////////////////////
+      // Loop over the Sector Logic containers //
+      ///////////////////////////////////////////
+
+      etaminpad.clear(); 
+      etamaxpad.clear(); 
+      phiminpad.clear(); 
+      phimaxpad.clear();
+      thresholdpad.clear();
+      RpcSectorLogicContainer::const_iterator its = sectorLogicContainer -> begin();
+      
+      for ( ; its != sectorLogicContainer -> end() ; ++its ) 
+	{
+	  	  int i_sectorid = (*its)->sectorId(); 
+	  // Loop over the trigger hits of each sector
+	  RpcSectorLogic::const_iterator ithit = (*its) -> begin(); 
+	  for ( ; ithit != (*its) -> end() ; ++ithit ) 
+	    { 
+	      // from RpcSLTriggerHit
+	      int b_isInput          = (*ithit) -> isInput();
+	      //int i_rowinBcid      = (*ithit) -> rowinBcid();//readout window BCid
+	      //int i_padid          = (*ithit) -> padId();//tower
+	      int i_ptid             = (*ithit) -> ptId();//threshold
+	      int i_roi              = (*ithit) -> roi();//region of interest
+	      //int i_outerPlane     = (*ithit) -> outerPlane();
+	      //int i_overlapPhi     = (*ithit) -> overlapPhi();
+	      //int i_overlapEta     = (*ithit) -> overlapEta();
+	      //int i_triggerBcid    = (*ithit) -> triggerBcid();
+	      int side = 0;
+	      int sl   = i_sectorid;
+	      if(i_sectorid>31){ 
+	       side = 1;
+	       sl = i_sectorid - 32 ;
+	      }
+	      if(b_isInput==0){
+	      
+	       double a =  EtaROImin[side][sl][i_roi];
+	       double b =  EtaROImax[side][sl][i_roi];
+	       double c =  PhiROImin[side][sl][i_roi];
+	       double d =  PhiROImax[side][sl][i_roi];
+	       etaminpad.push_back(a);
+	       etamaxpad.push_back(b);
+	       phiminpad.push_back(c);
+	       phimaxpad.push_back(d);
+	       thresholdpad .push_back(i_ptid);
+	      } 
+	      
+      }}}
+
+      	
+	
+	  /////////////// Trigger hits efficiency
+	  //Trigger hits    
+          const Muon::RpcCoinDataContainer* rpc_coin_container;
+          sc = (*m_activeStore)->retrieve(rpc_coin_container, "RPC_triggerHits" );
+          if (sc.isFailure()) {
+            ATH_MSG_WARNING ( "Cannot retrieve RPC trigger hits container");
+            return sc;
+          }
+	  
+ 
+	  
+	  if (Muons){	
+          // CombinedMuons Tight
+	  for (const xAOD::Muon* muons: *Muons)
+	  {
+ 
+             
+	    if ( muons->muonType()!=xAOD::Muon::Combined  || ( muons->quality()!=xAOD::Muon::Tight && m_requireMuonCombinedTight ))continue;
+	     
+	   
+	    const xAOD::TrackParticle* metrack = muons->trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle );
+            
+	    if( !metrack   ) continue;
+	    if( fabs(metrack->eta())>1) continue;
+	    sc = rpc_triggerefficiency.getHist( hMEtracks  ,"hMEtracks" ) ;		  
+	    if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't get " << " hMEtracks " );
+	    if(hMEtracks)hMEtracks->Fill( metrack->pt() / 1000.);
+	     //std::cout <<" Track " <<  metrack->eta() << " " <<metrack->phi() << std::endl;
+	    
+	    bool foundmatchlowpt_thr0  = false;
+	    bool foundmatchlowpt_thr1  = false;
+	    bool foundmatchlowpt_thr2  = false;
+	    bool foundmatchhighpt_thr0 = false;
+	    bool foundmatchhighpt_thr1 = false;
+	    bool foundmatchhighpt_thr2 = false;
+	    
+	    bool foundmatchpad_thr0  = false;
+	    bool foundmatchpad_thr1  = false;
+	    bool foundmatchpad_thr2  = false;
+	    bool foundmatchpad_thr3  = false;
+	    bool foundmatchpad_thr4  = false;
+	    bool foundmatchpad_thr5  = false;
+	    
+	    bool foundmatchmuctpi_thr0  = false;
+	    bool foundmatchmuctpi_thr1  = false;
+	    bool foundmatchmuctpi_thr2  = false;
+	    bool foundmatchmuctpi_thr3  = false;
+	    bool foundmatchmuctpi_thr4  = false;
+	    bool foundmatchmuctpi_thr5  = false;
+	     
+	   
+	   
+	   
+	   // coin	
+	   
+           Muon::RpcCoinDataContainer::const_iterator  it_container;
+           Muon::RpcCoinDataCollection::const_iterator it_collection;
+           Identifier prdcoll_id;
+           Muon::RpcCoinDataContainer::const_iterator  it_container_phi;
+           Muon::RpcCoinDataCollection::const_iterator it_collection_phi;
+           Identifier prdcoll_id_phi;
+           const MuonGM::RpcReadoutElement* descriptor_Atl;
+           double  eta_atlas, phi_atlas;
+	   for( it_container = rpc_coin_container->begin(); it_container != rpc_coin_container->end(); ++it_container ) {
+            for ( Muon::RpcCoinDataCollection::const_iterator it_collection = (*it_container)->begin(); it_collection != (*it_container)->end(); ++it_collection ) { // each collection is a trigger signal
+	     if( (*it_collection)->isLowPtCoin()  == 0  && (*it_collection)->isHighPtCoin() == 0 ) continue ; 
+	     prdcoll_id   = (*it_collection)->identify();
+             if(m_rpcIdHelper->measuresPhi(prdcoll_id))continue;
+	     int cointhr = (*it_collection)->threshold();
+             descriptor_Atl = m_muonMgr->getRpcReadoutElement( prdcoll_id );
+             eta_atlas = descriptor_Atl->stripPos(prdcoll_id ).eta();
+             phi_atlas = descriptor_Atl->stripPos(prdcoll_id ).phi();
+	     
+	     
+	     //std::cout << " Trigger Hits " << eta_atlas << " "<< phi_atlas <<std::endl;
+             if(m_rpcIdHelper->measuresPhi(prdcoll_id))continue;
+	     if( sqrt( fabs(eta_atlas-metrack->eta())*fabs(eta_atlas-metrack->eta()) +  fabs(phi_atlas-metrack->phi())*fabs(phi_atlas-metrack->phi()) ) < m_MuonDeltaRMatching) { 
+	      //Second coin phi view
+	      for( it_container_phi = rpc_coin_container->begin(); it_container_phi != rpc_coin_container->end(); ++it_container_phi ) {
+               for ( Muon::RpcCoinDataCollection::const_iterator it_collection_phi = (*it_container_phi)->begin(); it_collection_phi != (*it_container_phi)->end(); ++it_collection_phi ) { // each collection is a trigger signal
+	         if( (*it_collection_phi)->isLowPtCoin()  == 0  && (*it_collection_phi)->isHighPtCoin() == 0 ) continue ; ;
+	         prdcoll_id_phi   = (*it_collection_phi)->identify(); 
+	         if(m_rpcIdHelper->measuresPhi(prdcoll_id_phi)==0)continue;
+		 int cointhrphi = (*it_collection)->threshold();
+		 if(m_rpcIdHelper->stationPhi (prdcoll_id) != m_rpcIdHelper->stationPhi (prdcoll_id_phi))  continue ;	   
+		 if(m_rpcIdHelper->stationName(prdcoll_id) != m_rpcIdHelper->stationName(prdcoll_id_phi))  continue ;	   
+		 if(m_rpcIdHelper->stationEta (prdcoll_id) != m_rpcIdHelper->stationEta (prdcoll_id_phi))  continue ;		   
+		 if(m_rpcIdHelper->doubletR   (prdcoll_id) != m_rpcIdHelper->doubletR	(prdcoll_id_phi))  continue ;
+		 if(m_rpcIdHelper->doubletZ   (prdcoll_id) != m_rpcIdHelper->doubletZ	(prdcoll_id_phi))  continue ;
+		 if(m_rpcIdHelper->doubletPhi (prdcoll_id) != m_rpcIdHelper->doubletPhi (prdcoll_id_phi))  continue ;
+		 if(m_rpcIdHelper->gasGap     (prdcoll_id) != m_rpcIdHelper->gasGap	(prdcoll_id_phi))  continue ;  
+            
+		 if( fabs((*it_collection)->time() -  (*it_collection_phi)->time()) > 50. ) continue ;  
+		 if( (*it_collection)->isLowPtCoin() != (*it_collection_phi)->isLowPtCoin()  || (*it_collection)->isHighPtCoin() != (*it_collection_phi)->isHighPtCoin()) continue ; 
+	     
+	          
+                 descriptor_Atl = m_muonMgr->getRpcReadoutElement( prdcoll_id_phi );
+                 eta_atlas = descriptor_Atl->stripPos(prdcoll_id_phi ).eta();
+                 phi_atlas = descriptor_Atl->stripPos(prdcoll_id_phi ).phi(); 
+		 //std::cout <<" Trigger Hits ETA PHI " << eta_atlas<<" "  << phi_atlas << " "<< (*it_collection)-> isLowPtCoin()<< " "  << (*it_collection)->isHighPtCoin() <<" "<<cointhr <<" "<< cointhr<<" "<<cointhrphi<<std::endl;	
+		 if( sqrt( fabs(eta_atlas-metrack->eta())*fabs(eta_atlas-metrack->eta()) +  fabs(phi_atlas-metrack->phi())*fabs(phi_atlas-metrack->phi()) ) < m_MuonDeltaRMatching) {		    
+		    
+		    int minthrview = cointhr ; if(cointhrphi<minthrview)minthrview = cointhrphi; 
+		    if( (*it_collection)-> isLowPtCoin() &&  (*it_collection_phi)-> isLowPtCoin()){
+		     if(minthrview>=0&&!foundmatchlowpt_thr0){
+		      hRPCPhiEtaCoinThr[0]->Fill( metrack->pt() / 1000.);
+		      foundmatchlowpt_thr0=true;
+		     } 
+		     if(minthrview>=1&&!foundmatchlowpt_thr1){
+		      hRPCPhiEtaCoinThr[1]->Fill( metrack->pt() / 1000.);
+		      foundmatchlowpt_thr1=true;
+		     } 
+		     if(minthrview>=2&&!foundmatchlowpt_thr2){
+		      hRPCPhiEtaCoinThr[2]->Fill( metrack->pt() / 1000.);
+		      foundmatchlowpt_thr2=true;
+		     }
+		    } 
+		    if( (*it_collection)->isHighPtCoin() &&  (*it_collection_phi)-> isHighPtCoin()){
+		     if(minthrview>=0&&!foundmatchhighpt_thr0){
+		      hRPCPhiEtaCoinThr[3]->Fill( metrack->pt() / 1000.);
+		      foundmatchhighpt_thr0=true;
+		     } 
+		     if(minthrview>=1&&!foundmatchhighpt_thr1){
+		      hRPCPhiEtaCoinThr[4]->Fill( metrack->pt() / 1000.);
+		      foundmatchhighpt_thr1=true;
+		     } 
+		     if(minthrview>=2&&!foundmatchhighpt_thr2){
+		      hRPCPhiEtaCoinThr[5]->Fill( metrack->pt() / 1000.);
+		      foundmatchhighpt_thr2=true;
+		     }	
+		      
+		    } 
+	           
+		 }  
 		  
-		
+	     }}//End second coin phi view 
+	     }   
+	   }}//end coin loop
+	   
+	   //Pad	 
+	   for (unsigned int i_etaphiPAD=0 ;i_etaphiPAD!=etaminpad.size(); i_etaphiPAD++) { // each collection is a trigger signal
+	            
+		    int sign = 1 ;
+		    if(metrack->eta()<0)sign=-1;
+	   
+		    //std::cout <<thresholdpad.at(i_etaphiPAD) << " PAD " << etaminpad.at(i_etaphiPAD) << " "<< etamaxpad.at(i_etaphiPAD) <<" phi " << phiminpad.at(i_etaphiPAD) << " "<< phimaxpad.at(i_etaphiPAD) <<std::endl;	
+		    if( ( metrack->eta()-etaminpad.at(i_etaphiPAD))*sign> -m_MuonDeltaRMatching ){
+		    if( (-metrack->eta()+etamaxpad.at(i_etaphiPAD))*sign> -m_MuonDeltaRMatching ){
+		    if(   metrack->phi()-phiminpad.at(i_etaphiPAD)      > -m_MuonDeltaRMatching ){
+		    if(  -metrack->phi()+phiminpad.at(i_etaphiPAD)      > -m_MuonDeltaRMatching ){
+		      
+		      int thr = thresholdpad.at(i_etaphiPAD) ;
+		      if(thr>=0&&!foundmatchpad_thr0){
+		       hRPCPadThr[0]->Fill( metrack->pt() / 1000.);
+		       foundmatchpad_thr0=true;
+		      }
+		      if(thr>=1&&!foundmatchpad_thr1){
+		       hRPCPadThr[1]->Fill( metrack->pt() / 1000.);
+		       foundmatchpad_thr1=true;
+		      }
+		      if(thr>=2&&!foundmatchpad_thr2){
+		       hRPCPadThr[2]->Fill( metrack->pt() / 1000.);
+		       foundmatchpad_thr2=true;
+		      }
+		      if(thr>=3&&!foundmatchpad_thr3){
+		       hRPCPadThr[3]->Fill( metrack->pt() / 1000.);
+		       foundmatchpad_thr3=true;
+		      }
+		      if(thr>=4&&!foundmatchpad_thr4){
+		       hRPCPadThr[4]->Fill( metrack->pt() / 1000.);
+		       foundmatchpad_thr4=true;
+		      }
+		      if(thr>=5&&!foundmatchpad_thr5){
+		       hRPCPadThr[5]->Fill( metrack->pt() / 1000.);
+		       foundmatchpad_thr5=true;
+		      }
+		    }}}}  
+	   
+	   }//end pad loop 
+	   
+	   //muctpi
+	   for (auto i_muctpi_rdo_roi_list=muctpi_rdo_roi_list.begin();i_muctpi_rdo_roi_list!=muctpi_rdo_roi_list.end();i_muctpi_rdo_roi_list++) { // each collection is a trigger signal
+	            
+		    //std::cout << i_muctpi_rdo_roi_list->thrNumber << " Muctpi " << i_muctpi_rdo_roi_list->eta  << " "<< i_muctpi_rdo_roi_list->phi <<std::endl;	
+
+		    double deta =   metrack->eta()-i_muctpi_rdo_roi_list->eta ;
+	            double dphi =   metrack->phi()-i_muctpi_rdo_roi_list->phi ;
+		    
+	            double dr   = sqrt(deta*deta+dphi*dphi);
+		    int thr     = i_muctpi_rdo_roi_list->thrNumber;
+		    if(dr<m_MuonDeltaRMatching ){
+		      if(thr>=0&&!foundmatchmuctpi_thr0){
+		       hRPCMuctpiThr[0]->Fill( metrack->pt() / 1000.);
+		       foundmatchmuctpi_thr0=true;
+		      }
+		      if(thr>=1&&!foundmatchmuctpi_thr1){
+		       hRPCMuctpiThr[1]->Fill( metrack->pt() / 1000.);
+		       foundmatchmuctpi_thr1=true;
+		      }
+		      if(thr>=2&&!foundmatchmuctpi_thr2){
+		       hRPCMuctpiThr[2]->Fill( metrack->pt() / 1000.);
+		       foundmatchmuctpi_thr2=true;
+		      }
+		      if(thr>=3&&!foundmatchmuctpi_thr3){
+		       hRPCMuctpiThr[3]->Fill( metrack->pt() / 1000.);
+		       foundmatchmuctpi_thr3=true;
+		      }
+		      if(thr>=4&&!foundmatchmuctpi_thr4){
+		       hRPCMuctpiThr[4]->Fill( metrack->pt() / 1000.);
+		       foundmatchmuctpi_thr4=true;
+		      }
+		      if(thr>=5&&!foundmatchmuctpi_thr5){
+		       hRPCMuctpiThr[5]->Fill( metrack->pt() / 1000.);
+		       foundmatchmuctpi_thr5=true;
+		      }		     
+		    
+		    } 
+	   
+	   } //end muctpi loop
+	   
+	  }//end muon loop
+	  }//end if	
+	  ATH_MSG_DEBUG("-----------------------Search for 3D clusters is OVER-----------------------N_Rpc_Clusters3D "<<N_Rpc_Clusters3D<<" found");
+	  for (int i_3D=0; i_3D!=N_Rpc_Clusters3D; i_3D++) {
+	    ATH_MSG_DEBUG("----listing them-----"<<i_3D<<" layertype/planetype "<<LayerType.at(i_3D)<<"/"<<PlaneType.at(i_3D)
+			  <<" statName/eta/phi "<<Rpc_Station_3D.at(i_3D)<<"/"<<Rpc_Eta_3D.at(i_3D)<<"/"<<Rpc_Phi_3D.at(i_3D)
+			  <<" dbR/Z/P/gg "<<Rpc_DBLr_3D.at(i_3D)<<"/"<<Rpc_DBLz_3D.at(i_3D)<<"/"<<Rpc_DBLphi_3D.at(i_3D)
+			  <<"/"<<Rpc_GasGap_3D.at(i_3D)<<" eta/phi strip = "<<Rpc_avEta_3D.at(i_3D)<<"/"<<Rpc_avPhi_3D.at(i_3D));
+	  }
+			 	  
+     
 	  /////////////// RPC standalone tracking     
 		  
 	  N_RpcTrack = 0 ;
@@ -743,7 +1314,8 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	    Rpc_track = new int[N_Rpc_Clusters3D]; 
 			      
 	    for (int ilayertype=0; ilayertype!=7; ilayertype++) { //ilayertype==6 do tracks with all 6 layers
-            
+	      ATH_MSG_DEBUG("---***---***---***--- Track Search iteration ilayertype="<<ilayertype<<" out of [0-6]");
+
 
 	      for (int i_3D=0; i_3D!=N_Rpc_Clusters3D; i_3D++) { Rpc_track[ i_3D ] = 0; }
                                         
@@ -763,14 +1335,20 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		}	              
 	      */
  	      for (int i_3D0=0; i_3D0!=N_Rpc_Clusters3D; i_3D0++) {
+	        if( !(Rpc_Matched_mu.at(i_3D0)) && m_StandAloneMatchedWithTrack )continue;
  		if(LayerType.at(i_3D0)==ilayertype &&  ilayertype!=6  )continue;
  		if(Rpc_track[ i_3D0 ]>0||PlaneType.at(i_3D0)!=0)continue;//Start always with no-track assigned LowPt plane
  		Phi_Rpc_Track = Rpc_Phi_3D[ i_3D0 ]; 
  		PointperTrack = 1  ;
  		Rpc_track[ i_3D0 ] = N_Rpc_Tracks + 1 ;//preliminary assigned
- 		//std::cout << "First Clusters 3D " << i_3D0 <<" " <<LayerType.at(i_3D0)<<" "<< (Rpc_Point.at(i_3D0)).x() << " " << (Rpc_Point.at(i_3D0)).y() << " " <<(Rpc_Point.at(i_3D0)).z() <<std::endl ;  
+		/*std::cout << "First Cluster 3D " << i_3D0 <<" on LayerType[0-5] =" 
+		  <<LayerType.at(i_3D0)<<" "<< (Rpc_Point.at(i_3D0)).x() << " " << (Rpc_Point.at(i_3D0)).y() << " " <<(Rpc_Point.at(i_3D0)).z() 
+		  <<" station/eta/phi/dbR/dbZ/dbP/gg = "<< Rpc_Station_3D.at(i_3D0)<<"/"<<Rpc_Eta_3D.at(i_3D0)<<"/"<
+		  <Rpc_Phi_3D.at(i_3D0)<<"/"<<Rpc_DBLr_3D.at(i_3D0)<<"/"<<Rpc_DBLz_3D.at(i_3D0)<<"/"<<Rpc_DBLphi_3D.at(i_3D0)
+		  <<"/"<<Rpc_GasGap_3D.at(i_3D0)<<std::endl ;*/
  		linkedtrack   = 0 ;
 		for (int i_3DI=0;i_3DI!=N_Rpc_Clusters3D;i_3DI++) {
+	          if( !(Rpc_Matched_mu.at(i_3DI))  && m_StandAloneMatchedWithTrack )continue;
 		  if(linkedtrack == 1 ) continue ;
 		  if(  abs(Rpc_Eta_3D.at(i_3DI)-Rpc_Eta_3D.at(i_3D0)) > EtaStationSpan )continue;
 		  if(  abs(Rpc_Phi_3D.at(i_3DI)-Rpc_Phi_3D.at(i_3D0)) > DoublePhiSpan  )continue;
@@ -778,24 +1356,33 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		  if(Rpc_track[ i_3DI ]>0||PlaneType.at(i_3DI)!=1)continue;//Second always no-track assigned Pivot plane
 		  Rpc_track[ i_3DI ] = N_Rpc_Tracks + 1 ;
 		  PointperTrack = 2 ;
-		     
-		  //std::cout << "Second Clusters 3D " << i_3DI <<" "<<LayerType.at(i_3DI)<<" " <<(Rpc_Point.at(i_3DI)).x() << " " <<(Rpc_Point.at(i_3DI)).y() << " " <<(Rpc_Point.at(i_3DI)).z() <<std::endl ; 
-	
+		  /*  std::cout << "Second Cluster 3D " << i_3DI <<" on LayerType[0-5] =" <<LayerType.at(i_3DI)<<" "
+		      << (Rpc_Point.at(i_3DI)).x() << " " << (Rpc_Point.at(i_3DI)).y() << " " <<(Rpc_Point.at(i_3DI)).z() 
+		      <<" station/eta/phi/dbR/dbZ/dbP/gg = "<< Rpc_Station_3D.at(i_3DI)<<"/"<<Rpc_Eta_3D.at(i_3DI)<<"/"
+		      <<Rpc_Phi_3D.at(i_3DI)<<"/"<<Rpc_DBLr_3D.at(i_3DI)<<"/"<<Rpc_DBLz_3D.at(i_3DI)<<"/"<<Rpc_DBLphi_3D.at(i_3DI)<<"/"
+		      <<Rpc_GasGap_3D.at(i_3DI)<<std::endl ;*/
 		  SegVector = Rpc_Point.at(i_3DI)-Rpc_Point.at(i_3D0) ;	  
 		  SegPoint  =			Rpc_Point.at(i_3D0) ;
-		  
+		  /*std::cout << "for First-Second cluster pair: start     point="
+		    <<SegPoint.x() << " " <<SegPoint.y()<< " "<< SegPoint.z()
+		    <<" r/phi/z "<<SegPoint.perp()<<"/"<<SegPoint.phi()<<SegPoint.z()<<std::endl ;
+		    std::cout << "for First-Second cluster pair: 1-2Vector point="
+		    <<SegVector.x() << " " <<SegVector.y()<< " "<< SegVector.z()
+		    <<" r/phi/z "<<SegVector.perp()<<"/"<<SegVector.phi()<<SegVector.z()<<std::endl ;*/
 		  lookforthirdII   = 0 ;
 		  thirdlayertypeII = 0 ; 
 		  thirdlayerHPt    = 0 ;
 		
 		  for (int i_3DII=0;i_3DII!=N_Rpc_Clusters3D;i_3DII++) {
+	            if( !(Rpc_Matched_mu.at(i_3DII)) && m_StandAloneMatchedWithTrack )continue;
 		    if(  abs(Rpc_Eta_3D.at(i_3DII)-Rpc_Eta_3D.at(i_3DI)) > EtaStationSpan )continue;
 		    if(  abs(Rpc_Phi_3D.at(i_3DII)-Rpc_Phi_3D.at(i_3DI)) > DoublePhiSpan  )continue;
 		    if(LayerType.at(i_3DII)==ilayertype &&  ilayertype!=6  )continue;
 		    if(Rpc_track[ i_3DII ]>0)continue;//Third no-track assigned LowPt or Pivot or HighPt plane
 		  
-		    //std::cout << "Third Clusters 3D " << i_3DII <<" "<<LayerType.at(i_3DII)<<" " <<(Rpc_Point.at(i_3DII)).x() << " " <<(Rpc_Point.at(i_3DII)).y() << " "<<(Rpc_Point.at(i_3DII)).z() <<std::endl ; 
-		  
+		    /*
+		    std::cout << "Third Cluster 3D " << i_3DII <<" on LayerType[0-5] =" <<LayerType.at(i_3DII)<<" "<< (Rpc_Point.at(i_3DII)).x() << " " << (Rpc_Point.at(i_3DII)).y() << " " <<(Rpc_Point.at(i_3DII)).z() <<" station/eta/phi/dbR/dbZ/dbP/gg = "<< Rpc_Station_3D.at(i_3DII)<<"/"<<Rpc_Eta_3D.at(i_3DII)<<"/"<<Rpc_Phi_3D.at(i_3DII)<<"/"<<Rpc_DBLr_3D.at(i_3DII)<<"/"<<Rpc_DBLz_3D.at(i_3DII)<<"/"<<Rpc_DBLphi_3D.at(i_3DII)<<"/"<<Rpc_GasGap_3D.at(i_3DII)<<std::endl ;*/
+
 		    ImpactVector = (SegPoint-Rpc_Point.at(i_3DII)).cross(SegVector);	    
 		    if(SegVector.mag()!=0)ImpactVector = ImpactVector/ SegVector.mag();	   
 		    
@@ -803,17 +1390,30 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		      std::cout << "ImpactVector "<<ImpactVector.x() << " " <<ImpactVector.y()<< " "<< ImpactVector.z()<<std::endl ;
 		      std::cout << "SegVector "<<SegVector.x() << " " <<SegVector.y()<< " "<< SegVector.z()<<std::endl ;
 		      std::cout << "SegPoint "<<SegPoint.x() << " " <<SegPoint.y()<< " "<< SegPoint.z()<<std::endl ;
-		      std::cout << "Distance " << ImpactVector.mag() <<std::endl ;
+		      std::cout << "Distance " << ImpactVector.mag() <<" to be compared with threshold = "<<MergePointDistance<<std::endl ;
 		    */
-			      
+		    
+		    if(ilayertype<6){
+		     f_rpcmergepointdistance -> Fill (ImpactVector.mag()) ;
+		    } 
+		    else {
+		     rpcmergepointdistance -> Fill (ImpactVector.mag()) ;
+		    }      
+		    
 		    if(ImpactVector.mag()<MergePointDistance){
-		      //std::cout << "Merge " <<std::endl ;
+		      /*
+		      std::cout << "Third (or following) cluster matches the segment built with 1st-2nd 3D cluster pair... 1st,2nd,3rd indices = "
+				<<i_3D0<<"/"
+				<<i_3DI<<"/"
+				<<i_3DII
+				<<" for track index "<<N_Rpc_Tracks + 1<<" at ilayertype iter="<<ilayertype<<std::endl ;
+		      */
 		      Rpc_track[ i_3DII ] = N_Rpc_Tracks + 1 ;
 		      PointperTrack++ ;
 		      lookforthirdII = 1 ;
 		      if (LayerType.at(i_3DII)!=LayerType.at(i_3DI) && LayerType.at(i_3DII)!=LayerType.at(i_3D0) ){ 
 			thirdlayertypeII = 1 ;
-			//std::cout << "third layer found " <<std::endl ;
+			//std::cout << "third cluster found - is not on the same layer as 1st and 2nd  " <<std::endl ;
 		      }
 		      if (LayerType.at(i_3DII)> 3 ){ 
 			thirdlayerHPt = 1 ;
@@ -821,6 +1421,8 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		      }
 		     	    
 		    }
+		    else ATH_MSG_VERBOSE("Third (or following) cluster DO NOT match the segment built with 1st-2nd 3D cluster");
+
 		          
 		    
 		    //merge in costheta not used
@@ -832,7 +1434,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 			
 		  }//Third
 		  //First and Second do not link with different layer type with any Third let free Second
-	
+
+		  /*
+		  std::cout<<"3rd LOOP over clusters is OVER: any good triplet ?? lookforthirdII/thirdlayertypeII/ilayertype/thirdlayerHPt/ = "
+			   <<lookforthirdII<<"/"<<thirdlayertypeII<<"/"<<ilayertype<<"/"<<thirdlayerHPt<<"/"<<m_HPtPointForHPteff<<"/"
+			   <<m_HPtPointForLPteff<<"/"<<m_HPtPointForTracks<<std::endl;
+		  */
+			   
+
 		  if( (lookforthirdII==0||thirdlayertypeII==0)                  ||
 		      (ilayertype==4&&thirdlayerHPt==0&&m_HPtPointForHPteff==1) ||
 		      (ilayertype==5&&thirdlayerHPt==0&&m_HPtPointForHPteff==1) ||
@@ -2055,6 +2664,7 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
       MonGroup rpcprd_dq_BA( this, m_generic_path_rpcmonitoring + "/RPCBA", run, ATTRIB_UNMANAGED  )       ;
       MonGroup rpcprd_dq_BC( this, m_generic_path_rpcmonitoring + "/RPCBC", run, ATTRIB_UNMANAGED )        ;
       MonGroup rpc_radiography(this, m_generic_path_rpcmonitoring +"/RPCRadiography",run, ATTRIB_UNMANAGED) ;
+      MonGroup rpc_triggerefficiency(this, m_generic_path_rpcmonitoring +"/TriggerEfficiency",run, ATTRIB_UNMANAGED) ;
     
       if(newEventsBlock){}
       if(newLumiBlock){}
@@ -2062,8 +2672,210 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 	{      
 	  ATH_MSG_INFO ( "RPCStandaloneTracksMon : begin of run" );
 	
-	
-	
+	  //book triggereff
+	 
+	 //PhiEtaCoin Thr_eff
+	 hRPCPhiEtaCoinThr_eff.push_back( new TH1F("hRPCPhiEtaCoinThr_eff0","hRPCPhiEtaCoinThr_eff0" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr_eff.back()) ; 
+         hRPCPhiEtaCoinThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPhiEtaCoinThr_eff.back()->GetYaxis()->SetTitle("RphiEtaCoin Thr_eff0");   
+	 
+	 hRPCPhiEtaCoinThr_eff.push_back( new TH1F("hRPCPhiEtaCoinThr_eff1","hRPCPhiEtaCoinThr_eff1" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr_eff.back()) ; 
+         hRPCPhiEtaCoinThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPhiEtaCoinThr_eff.back()->GetYaxis()->SetTitle("RphiEtaCoin Thr_eff1");  
+	 
+	 hRPCPhiEtaCoinThr_eff.push_back( new TH1F("hRPCPhiEtaCoinThr_eff2","hRPCPhiEtaCoinThr_eff2" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr_eff.back()) ; 
+         hRPCPhiEtaCoinThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPhiEtaCoinThr_eff.back()->GetYaxis()->SetTitle("RphiEtaCoin Thr_eff2");  
+	 
+	 hRPCPhiEtaCoinThr_eff.push_back( new TH1F("hRPCPhiEtaCoinThr_eff3","hRPCPhiEtaCoinThr_eff3" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr_eff.back()) ; 
+         hRPCPhiEtaCoinThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPhiEtaCoinThr_eff.back()->GetYaxis()->SetTitle("RphiEtaCoin Thr_eff3");  
+	 
+	 hRPCPhiEtaCoinThr_eff.push_back( new TH1F("hRPCPhiEtaCoinThr_eff4","hRPCPhiEtaCoinThr_eff4" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr_eff.back()) ; 
+         hRPCPhiEtaCoinThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPhiEtaCoinThr_eff.back()->GetYaxis()->SetTitle("RphiEtaCoin Thr_eff4"); 
+	  
+	 hRPCPhiEtaCoinThr_eff.push_back( new TH1F("hRPCPhiEtaCoinThr_eff5","hRPCPhiEtaCoinThr_eff5" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr_eff.back()) ; 
+         hRPCPhiEtaCoinThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPhiEtaCoinThr_eff.back()->GetYaxis()->SetTitle("RphiEtaCoin Thr_eff5"); 
+	 
+	 //Pad Thr_eff
+	 hRPCPadThr_eff.push_back( new TH1F("hRPCPadThr_eff0","hRPCPadThr_eff0" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPadThr_eff.back()) ; 
+         hRPCPadThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPadThr_eff.back()->GetYaxis()->SetTitle("RPad Thr_eff0");   
+	 
+	 hRPCPadThr_eff.push_back( new TH1F("hRPCPadThr_eff1","hRPCPadThr_eff1" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPadThr_eff.back()) ; 
+         hRPCPadThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPadThr_eff.back()->GetYaxis()->SetTitle("RPad Thr_eff1");  
+	 
+	 hRPCPadThr_eff.push_back( new TH1F("hRPCPadThr_eff2","hRPCPadThr_eff2" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPadThr_eff.back()) ; 
+         hRPCPadThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPadThr_eff.back()->GetYaxis()->SetTitle("RPad Thr_eff2");  
+	 
+	 hRPCPadThr_eff.push_back( new TH1F("hRPCPadThr_eff3","hRPCPadThr_eff3" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPadThr_eff.back()) ; 
+         hRPCPadThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPadThr_eff.back()->GetYaxis()->SetTitle("RPad Thr_eff3");  
+	 
+	 hRPCPadThr_eff.push_back( new TH1F("hRPCPadThr_eff4","hRPCPadThr_eff4" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPadThr_eff.back()) ; 
+         hRPCPadThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPadThr_eff.back()->GetYaxis()->SetTitle("RPad Thr_eff4"); 
+	  
+	 hRPCPadThr_eff.push_back( new TH1F("hRPCPadThr_eff5","hRPCPadThr_eff5" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPadThr_eff.back()) ; 
+         hRPCPadThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPadThr_eff.back()->GetYaxis()->SetTitle("RPad Thr_eff5");
+	 
+	 //Muctpi Thr_eff
+	 hRPCMuctpiThr_eff.push_back( new TH1F("hRPCMuctpiThr_eff0","hRPCMuctpiThr_eff0" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr_eff.back()) ; 
+         hRPCMuctpiThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCMuctpiThr_eff.back()->GetYaxis()->SetTitle("RMuctpi Thr_eff0");   
+	 
+	 hRPCMuctpiThr_eff.push_back( new TH1F("hRPCMuctpiThr_eff1","hRPCMuctpiThr_eff1" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr_eff.back()) ; 
+         hRPCMuctpiThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCMuctpiThr_eff.back()->GetYaxis()->SetTitle("RMuctpi Thr_eff1");  
+	 
+	 hRPCMuctpiThr_eff.push_back( new TH1F("hRPCMuctpiThr_eff2","hRPCMuctpiThr_eff2" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr_eff.back()) ; 
+         hRPCMuctpiThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCMuctpiThr_eff.back()->GetYaxis()->SetTitle("RMuctpi Thr_eff2");  
+	 
+	 hRPCMuctpiThr_eff.push_back( new TH1F("hRPCMuctpiThr_eff3","hRPCMuctpiThr_eff3" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr_eff.back()) ; 
+         hRPCMuctpiThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCMuctpiThr_eff.back()->GetYaxis()->SetTitle("RMuctpi Thr_eff3");  
+	 
+	 hRPCMuctpiThr_eff.push_back( new TH1F("hRPCMuctpiThr_eff4","hRPCMuctpiThr_eff4" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr_eff.back()) ; 
+         hRPCMuctpiThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCMuctpiThr_eff.back()->GetYaxis()->SetTitle("RMuctpi Thr_eff4"); 
+	  
+	 hRPCMuctpiThr_eff.push_back( new TH1F("hRPCMuctpiThr_eff5","hRPCMuctpiThr_eff5" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr_eff.back()) ; 
+         hRPCMuctpiThr_eff.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCMuctpiThr_eff.back()->GetYaxis()->SetTitle("RMuctpi Thr_eff5");
+
+	 
+	 //PhiEtaCoin thr
+	 hRPCPhiEtaCoinThr.push_back( new TH1F("hRPCPhiEtaCoinThr0","hRPCPhiEtaCoinThr0" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr.back()) ; 
+         hRPCPhiEtaCoinThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPhiEtaCoinThr.back()->GetYaxis()->SetTitle("RphiEtaCoin Thr0");   
+	 
+	 hRPCPhiEtaCoinThr.push_back( new TH1F("hRPCPhiEtaCoinThr1","hRPCPhiEtaCoinThr1" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr.back()) ; 
+         hRPCPhiEtaCoinThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPhiEtaCoinThr.back()->GetYaxis()->SetTitle("RphiEtaCoin Thr1");  
+	 
+	 hRPCPhiEtaCoinThr.push_back( new TH1F("hRPCPhiEtaCoinThr2","hRPCPhiEtaCoinThr2" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr.back()) ; 
+         hRPCPhiEtaCoinThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPhiEtaCoinThr.back()->GetYaxis()->SetTitle("RphiEtaCoin Thr2");  
+	 
+	 hRPCPhiEtaCoinThr.push_back( new TH1F("hRPCPhiEtaCoinThr3","hRPCPhiEtaCoinThr3" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr.back()) ; 
+         hRPCPhiEtaCoinThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPhiEtaCoinThr.back()->GetYaxis()->SetTitle("RphiEtaCoin Thr3");  
+	 
+	 hRPCPhiEtaCoinThr.push_back( new TH1F("hRPCPhiEtaCoinThr4","hRPCPhiEtaCoinThr4" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr.back()) ; 
+         hRPCPhiEtaCoinThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPhiEtaCoinThr.back()->GetYaxis()->SetTitle("RphiEtaCoin Thr4"); 
+	  
+	 hRPCPhiEtaCoinThr.push_back( new TH1F("hRPCPhiEtaCoinThr5","hRPCPhiEtaCoinThr5" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPhiEtaCoinThr.back()) ; 
+         hRPCPhiEtaCoinThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPhiEtaCoinThr.back()->GetYaxis()->SetTitle("RphiEtaCoin Thr5"); 
+	 
+	 //Pad thr
+	 hRPCPadThr.push_back( new TH1F("hRPCPadThr0","hRPCPadThr0" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPadThr.back()) ; 
+         hRPCPadThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPadThr.back()->GetYaxis()->SetTitle("RPad Thr0");   
+	 
+	 hRPCPadThr.push_back( new TH1F("hRPCPadThr1","hRPCPadThr1" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPadThr.back()) ; 
+         hRPCPadThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPadThr.back()->GetYaxis()->SetTitle("RPad Thr1");  
+	 
+	 hRPCPadThr.push_back( new TH1F("hRPCPadThr2","hRPCPadThr2" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPadThr.back()) ; 
+         hRPCPadThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPadThr.back()->GetYaxis()->SetTitle("RPad Thr2");  
+	 
+	 hRPCPadThr.push_back( new TH1F("hRPCPadThr3","hRPCPadThr3" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPadThr.back()) ; 
+         hRPCPadThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPadThr.back()->GetYaxis()->SetTitle("RPad Thr3");  
+	 
+	 hRPCPadThr.push_back( new TH1F("hRPCPadThr4","hRPCPadThr4" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPadThr.back()) ; 
+         hRPCPadThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPadThr.back()->GetYaxis()->SetTitle("RPad Thr4"); 
+	  
+	 hRPCPadThr.push_back( new TH1F("hRPCPadThr5","hRPCPadThr5" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCPadThr.back()) ; 
+         hRPCPadThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCPadThr.back()->GetYaxis()->SetTitle("RPad Thr5");
+	 
+	 //Muctpi thr
+	 hRPCMuctpiThr.push_back( new TH1F("hRPCMuctpiThr0","hRPCMuctpiThr0" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr.back()) ; 
+         hRPCMuctpiThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCMuctpiThr.back()->GetYaxis()->SetTitle("RMuctpi Thr0");   
+	 
+	 hRPCMuctpiThr.push_back( new TH1F("hRPCMuctpiThr1","hRPCMuctpiThr1" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr.back()) ; 
+         hRPCMuctpiThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCMuctpiThr.back()->GetYaxis()->SetTitle("RMuctpi Thr1");  
+	 
+	 hRPCMuctpiThr.push_back( new TH1F("hRPCMuctpiThr2","hRPCMuctpiThr2" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr.back()) ; 
+         hRPCMuctpiThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCMuctpiThr.back()->GetYaxis()->SetTitle("RMuctpi Thr2");  
+	 
+	 hRPCMuctpiThr.push_back( new TH1F("hRPCMuctpiThr3","hRPCMuctpiThr3" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr.back()) ; 
+         hRPCMuctpiThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCMuctpiThr.back()->GetYaxis()->SetTitle("RMuctpi Thr3");  
+	 
+	 hRPCMuctpiThr.push_back( new TH1F("hRPCMuctpiThr4","hRPCMuctpiThr4" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr.back()) ; 
+         hRPCMuctpiThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCMuctpiThr.back()->GetYaxis()->SetTitle("RMuctpi Thr4"); 
+	  
+	 hRPCMuctpiThr.push_back( new TH1F("hRPCMuctpiThr5","hRPCMuctpiThr5" , 400, 0., 100.));	    
+         sc=rpc_triggerefficiency.regHist(hRPCMuctpiThr.back()) ; 
+         hRPCMuctpiThr.back()->GetXaxis()->SetTitle("Pt[GeV]");
+         hRPCMuctpiThr.back()->GetYaxis()->SetTitle("RMuctpi Thr5");
+	  
+	  
+	  TH1 *hMEtracks=new TH1F("hMEtracks","hMEtracks",400,0,100);	  
+	  sc = rpc_triggerefficiency.regHist(hMEtracks) ;  
+	  if(sc.isFailure())
+	    {  ATH_MSG_FATAL ( "hMEtracks Failed to register histogram " );	    
+	      return sc;
+	    }
+	  else {
+	    ATH_MSG_DEBUG ( "INSIDE bookHistograms : hMEtracks");
+	    //ATH_MSG_DEBUG ( "SHIFT : " << shift );
+	    ATH_MSG_DEBUG ( "RUN : " << run );		 
+	    ATH_MSG_DEBUG ( "Booked book hMEtracks successfully" );} 
+	  hMEtracks->SetFillColor(42);
+	  hMEtracks->GetYaxis()->SetTitle("# METracks/0.25GeV");
+	  hMEtracks->GetXaxis()->SetTitle("Pt[GeV]"); 
 	
 	  ////////////////////////book track
 	  //track on surface histo for rpc cluster
@@ -2309,6 +3121,54 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 	    ATH_MSG_DEBUG ( "RUN : " << run );
 	    ATH_MSG_DEBUG ( "Booked bookrpctrack_b successfully" );}
      
+ 
+ 
+     
+	  std::string m_generic_path_rpcmergepointdistance = m_generic_path_rpcmonitoring+"/Overview";
+	  std:: string m_rpcmergepointdistance_title = "rpcmergepointdistance";
+	  const char* m_rpcmergepointdistance_title_char = m_rpcmergepointdistance_title.c_str();
+     
+	  TH1 *rpcmergepointdistance=new TH1F(m_rpcmergepointdistance_title_char,m_rpcmergepointdistance_title_char,1000,0,1000);
+	  sc=rpcprd_shift.regHist(rpcmergepointdistance) ;
+	  if(sc.isFailure())
+	    {  ATH_MSG_FATAL ( "rpcmergepointdistance Failed to register histogram " );
+	      return sc;
+	    }
+	  rpcmergepointdistance->SetFillColor(42);
+	  rpcmergepointdistance->GetYaxis()->SetTitle("[counts]");
+	  rpcmergepointdistance->GetXaxis()->SetTitle("merge point distance [mm]");
+	  {
+	    ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpcmergepointdistance << m_generic_path_rpcmergepointdistance.c_str() );
+	    //ATH_MSG_DEBUG ( "SHIFT : " << shift );
+	    ATH_MSG_DEBUG ( "RUN : " << run );
+	    ATH_MSG_DEBUG ( "Booked bookrpcmergepointdistance successfully" );}
+     
+     
+     
+ 
+	
+	  std::string m_generic_path_f_rpcmergepointdistance = m_generic_path_rpcmonitoring+"/Overview";
+	  std:: string m_f_rpcmergepointdistance_title = "f_rpcmergepointdistance";
+	  const char* m_f_rpcmergepointdistance_title_char = m_f_rpcmergepointdistance_title.c_str();
+	
+	  TH1 *f_rpcmergepointdistance=new TH1F(m_f_rpcmergepointdistance_title_char,m_f_rpcmergepointdistance_title_char,1000,-0,1000);
+	  sc=rpcprd_shift.regHist(f_rpcmergepointdistance) ;
+	  if(sc.isFailure())
+	    {  ATH_MSG_FATAL ( "f_rpcmergepointdistance Failed to register histogram " );
+	      return sc;
+	    }
+	  f_rpcmergepointdistance->SetFillColor(42);
+	  f_rpcmergepointdistance->GetYaxis()->SetTitle("[counts]");
+	  f_rpcmergepointdistance->GetXaxis()->SetTitle("merge point distance [mm]");
+	  {
+	    ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << f_rpcmergepointdistance << m_generic_path_f_rpcmergepointdistance.c_str() );
+	    //ATH_MSG_DEBUG ( "SHIFT : " << shift );
+	    ATH_MSG_DEBUG ( "RUN : " << run );
+	    ATH_MSG_DEBUG ( "Booked bookf_rpcmergepointdistance successfully" );}
+	
+    
+ 
+ 
      
 	  std::string m_generic_path_rpcchi2dof = m_generic_path_rpcmonitoring+"/Overview";
 	  std:: string m_rpcchi2dof_title = "rpcchi2dof";
@@ -2351,8 +3211,6 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 	    //ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	    ATH_MSG_DEBUG ( "RUN : " << run );
 	    ATH_MSG_DEBUG ( "Booked bookf_rpcchi2dof successfully" );}
-	
-
         
 	  std::string m_generic_path_rpcetavsphichi2dof = m_generic_path_rpcmonitoring+"/Overview";
 	  std:: string m_rpcetavsphichi2dof_title = "rpcetavsphichi2dof";
@@ -2630,8 +3488,9 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 	  //////////////////////////////////////
 	  // Booking summary plot
 	  // declare group of summary histograms per readout strip panels
-	 	  
+	  //int TOTPanelsSummary =0;	  
 	  for (int i_sec=0; i_sec!=16; i_sec++) {
+	    
 	    bookRPCSummaryHistograms	(i_sec , "TrackProj"			); //0
 	    bookRPCSummaryHistograms	(i_sec , "HitOnTrack"			); //1
 	    bookRPCSummaryHistograms	(i_sec , "HitOnTrack_withCrossStrip"	); //2
@@ -2666,26 +3525,24 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 	    bookRPCSummaryFinalHistograms	(i_sec , "Occupancy"			); //5
 	    bookRPCSummaryFinalHistograms	(i_sec , "CS"				); //6
 	    bookRPCSummaryFinalHistograms	(i_sec , "Time"				); //7
-	
+	    
+	    
 	    char sector_char[100]   ;
 	    std::string sector_name ;
 	    sprintf(sector_char,"Sector%.2d",i_sec+1) ;  // sector number with 2 digits
 	    sector_name = sector_char ;
 	
 	    // large sectors: (i_sec+1)%2 = 1;  small (i_sec+1)%2 = 0
-	    n_eta_station = ( (i_sec+1) %2 ) + 6 + 1 ;  // small: 1-6, large: 1-7, sec 12+14: 0-8
-	    if ( (i_sec+1)==12 || (i_sec+1)==14 ) n_eta_station = 12 ;
-	 
-	    int n_bin = 72 * n_eta_station   ;  
-	    //  72 = 2*2*2*3*3  measPhi + gap + dblPhi + dblZ + stationName + stationEta
-	  
+	    n_eta_station = ( (i_sec+1) %2 ) + 6 + 1 ;  // small: 1-6, large: 1-7, sec 12+14: 0-6, sec 13: 1-7 (8->7)	    
+	    int n_bin = 72 * n_eta_station   ;  	    
+	    //  72 = 2*2*2*3*3  measPhi + gap + dblPhi + dblZ + stationName + stationEta	  
 	    std::string PanelIndexTitle = "# Panel = View + (gap-1)*2 + (dblPhi-1)*4 + (dblZ-1)*8 + (LowPt=0,Pivot=1,HighPt=2)*24 + (Eta)*72";
 	  
 	    // book panelID histograms
 	    std::string m_SummaryPanelID_title      = "SummaryPanelID_" + sector_name ;
 	    const char* m_SummaryPanelID_title_char = m_SummaryPanelID_title.c_str()  ;
 	  
-	    TH1* SummaryPanelID = new TH1I(m_SummaryPanelID_title_char, m_SummaryPanelID_title_char, 2*n_bin, -n_bin, n_bin);
+	    TH1* SummaryPanelID = new TH1F(m_SummaryPanelID_title_char, m_SummaryPanelID_title_char, 2*n_bin, -n_bin, n_bin);
 	    SummaryPanelID->SetFillColor(2);
 	    SummaryPanelID->GetXaxis()-> SetTitle(PanelIndexTitle.c_str() );
 	    SummaryPanelID->GetXaxis()-> SetTitleSize(0.03)  ;
@@ -2702,11 +3559,12 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 	    indexplane = 0   ;
 	    // Identifier gapId ;
 	    Identifier panelId ;
-	    //std::cout<<" before the loop"<<std::endl;
+	    //std::cout<<" before the loop: sector: "<< i_sec <<std::endl;
 	    
-	    for (int iname=2; iname!=10+1; iname++ ){
-	      if ( (i_sec%2 == 1) && (iname==2 || iname==4) ) continue;  /* small sectors */
-	      if ( (i_sec%2 == 0) && (iname!=2 && iname!=4) ) continue;  /* large sectors */
+	    for (int iname=2; iname!=53+1; iname++ ){
+	      if(iname>10&&iname<53)continue;
+	      if ( (i_sec%2 == 1) && (iname==2 || iname==4  || iname==53) ) continue;  /* small sectors */
+	      if ( (i_sec%2 == 0) && (iname!=2 && iname!=4  && iname!=53) ) continue;  /* large sectors */	      
 	      for(int ieta=0; ieta!= 17; ieta++){
 		for(int ir=0; ir!= 2; ir++){
 		  for(int idbz=0; idbz!= 3; idbz++){
@@ -2714,25 +3572,49 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 		      for ( int imeasphi=0; imeasphi!=2; imeasphi++ ) {
 			for (int igap=0; igap!=2; igap++) {
 			  // need to pay attention to BME case - not yet considered here .... 
-			  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(iname-2, ieta, int(i_sec/2), ir, idbz);
+			  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(iname, (ieta-8), int(i_sec/2)+1, ir+1, idbz+1, idbphi);
+			  //std::cout <<" iname  "<<iname <<" ieta  "<<ieta-8 << " ir "<< ir<<" idbz  "<<idbz << " idbphi "<<idbphi << " imeasphi "<< imeasphi<<" igap "<<igap<< std::endl;
 			  if ( rpc != NULL ) {
+			    
 			    // Identifier gapID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi,int gasGap, bool check=false, bool* isValid=0) const;
 			    // Identifier panelID  (int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi,int gasGap, int measuresPhi, bool check=false, bool* isValid=0) const;
 			    panelId = m_rpcIdHelper->panelID(iname, ieta-8, int(i_sec/2)+1, ir+1, idbz+1, idbphi+1, igap+1, imeasphi) ; 
+			    
 			    indexplane = ir ;
-			    if ( iname!=2 && iname!=3 && iname!=8 )  indexplane+= 2 ;
+			    
+			    if ( ir==0 && (iname==4 || iname==5 || iname == 9 || iname == 10) )  indexplane = 2 ;
+			    
+			    
 			    panelBin = imeasphi + igap*2 + idbphi*4 + idbz*8 + indexplane*24 + abs(ieta-8)*72 ;
-			    if ( iname == 10 ) {
-			      // convention: BOG <-> doubletZ=3 <-> (3-1)*8=16
+			    
+			    //BOG0-4 one panel, BOF1-3 two panels, BOF4 one panel 
+			    if ( ir==0 && iname == 10 ) {
+			      // convention: BOG <-> doubletZ=4 <-> (3-1)*8=16
 			      panelBin = imeasphi + igap*2 + idbphi*4 + 16 + indexplane*24 + abs(ieta-8)*72 ;
 			    }
-			    if ( (ir==1) && (iname==9 || iname==10) ) {
-			      // convention: chambers of RPC upgrade -> eta = eta + 7
-			      panelBin = panelBin + 7*72 ;
+			    if ( ir==1 && iname == 10 ) {//feet extension BOG3-4
+			      // convention: BOG with ir=1 <-> doubletZ=3 <-> (3-1)*8=16
+			      panelBin = imeasphi + igap*2 + idbphi*4 + 16 + indexplane*24 + abs(ieta-8)*72 ;
+			    }
+			    if ( ir==1 && iname ==  9 ) {//feet extension BOF2-3 and BOF4
+			      // convention: BOF with ir=1 <-> eta->eta+2
+			      panelBin = imeasphi + igap*2 + idbphi*4 + idbz*8 + indexplane*24 + (abs(ieta-8)+2)*72 ;
+			    }
+			    //sector 13 BME
+			    if ( iname==53 ) {
+			      // convention: BME <-> doubletZ=3 <-> (3-1)*8=16
+			      panelBin = imeasphi + igap*2 + idbphi*4 + 16 + indexplane*24 + abs(ieta-8)*72 ;
+			    }
+			    //sector 13 BOL8
+			    if ( abs(ieta-8)==8 ) {
+			      // convention: BOL8 <-> eta->eta-1
+			      panelBin = imeasphi + igap*2 + idbphi*4 + 16 + indexplane*24 + 7*72 ;
 			    }
 	          
-			    if ( (ieta-8) <0 ) panelBin = - panelBin;
+			    if ( (ieta-8) <0 ) panelBin = - panelBin; 
 			    SummaryPanelID->Fill(panelBin, panelId.get_identifier32().get_compact() );
+			    //std::cout <<" panelBin "<< panelBin  << " " <<panelId.get_identifier32().get_compact() <<" Entries " << SummaryPanelID->GetEntries()<< std::endl; 
+			    
 			  }
 			}
 		      }
@@ -3013,7 +3895,10 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 	      ATH_MSG_DEBUG ( "RUN : " << run );}
 	
 	    sc = rpcprd_expert_sum.regHist( SummaryTimeDistriPerSector ) ;
-	    if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't register  SummaryTimeDistriPerSector hist to MonGroup" );    
+	    if(sc.isFailure() )  ATH_MSG_WARNING ( "couldn't register  SummaryTimeDistriPerSector hist to MonGroup" ); 
+	    
+	    //TOTPanelsSummary += SummaryPanelID->GetEntries(); 
+	    //std::cout  << " TOTPanelsSummary " << TOTPanelsSummary << std::endl;  
 	 	  
 	  }
 	  m_SummaryHist_Size =  m_SummaryHist.size() ;
@@ -3967,64 +4852,87 @@ void RPCStandaloneTracksMon::bookRPCCoolHistograms_NotNorm( std::vector<std::str
   std::string m_generic_path_rpcmonitoring = "Muon/MuonRawDataMonitoring/RPCStandAloneTrackMon";
   MonGroup rpcCoolDb( this, m_generic_path_rpcmonitoring+"/CoolDB", run, ATTRIB_UNMANAGED );
   
-  //sprintf(histName_char,"Sector%.2d_dblPhi%d_Pivot0", m_isec+1, m_idblPhi+1) ;
   sprintf(histName_char,"Sector%.2d_%s_dblPhi%d", m_isec+1, m_layer.c_str(), m_idblPhi+1) ;
+  // example: Sector01_Pivot0_dblPhi1_StripId
   
   histName  = histName_char  ;
   histName += "_"            ;
   histName += *m_iter        ;  //histName += m_coolQuantity ;
   istatPhi  = int( m_isec/2) ;
-  iName     = 0              ;
- 
-  if ( m_isec!=11 &&  m_isec!=13) {
+  iName     = 0              ; 
+  
+  //BML7(dr=1) is associated to LowPt and not Pivot
+  if ( m_isec<11 ||  m_isec>13) {
     // if ( m_layer.find("Pivot",0) )
     if ( m_layer == "Pivot0" || m_layer == "Pivot1" )   {
       iName = 2 + (m_isec%2 ) ;
-      ir    = 2 	      ;		
+      ir    = 2 	      ; 
     }
     if ( m_layer == "LowPt0" || m_layer == "LowPt1" )   {
       iName = 2 + (m_isec%2 ) ;
-      ir    = 1 	      ;
+      ir    = 1 	      ; 
     }
     if ( m_layer == "HighPt0" || m_layer == "HighPt1" ) {
       iName = 4 + (m_isec%2 ) ;
-      ir    = 1 	      ;
+      ir    = 1   ;
+    }
+  }  
+  else if ( m_isec==12) {
+    // if ( m_layer.find("Pivot",0) )
+    if ( m_layer == "Pivot0" || m_layer == "Pivot1" )   {
+      iName     =  1      ; 
+      ir    = 2 	      ;	 
+    }
+    if ( m_layer == "LowPt0" || m_layer == "LowPt1" )   {
+      iName     =  1      ; 
+      ir    = 1 	      ; 
+    }
+    if ( m_layer == "HighPt0" || m_layer == "HighPt1" ) {
+      iName = 4               ;
+      ir    = 1 	      ;   
     }
      
   }
   else {
     if ( m_layer == "Pivot0" || m_layer == "Pivot1" )   {
-      iName = 8 ;
-      ir    = 2 ;   
+      iName     =   8  ; 
+      ir    = 2 ;     
     }
     if ( m_layer == "LowPt0" || m_layer == "LowPt1" )   {
-      iName = 8 ;
-      ir    = 1 ;
+      iName = 8 ; 
+      ir    = 1 ; 
     }
     if ( m_layer == "HighPt0" || m_layer == "HighPt1" ) {
-      iName = 9 ; // or 10 ;
-      ir    = 1 ; // doubletR=2 -> upgrade of Atlas
+      iName = 9 ; // or 10 ; 
+      ir    = 1 ; // doubletR=2 -> upgrade of Atlas 
     }
   } // end sectors 12 and 14
   
   int NTotStripsSideA = 1;
-  int NTotStripsSideC = 1;  
-  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields( iName, 1 , istatPhi+1, ir, 1, m_idblPhi+1 );
-  if(rpc != NULL ){
-    Identifier idr = rpc->identify();
-    std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,idr, 0)  ;
-    NTotStripsSideA = rpcstripshift[6]+rpcstripshift[17];
-    NTotStripsSideC = rpcstripshift[7]+rpcstripshift[18];
-  }
-  TH1 *rpcCoolHisto = new TH1F(histName.c_str(), histName.c_str(), NTotStripsSideC+NTotStripsSideA, -NTotStripsSideC, NTotStripsSideA );
-  sc=rpcCoolDb.regHist(rpcCoolHisto) ;
-  if(sc.isFailure() )  
-  {  
-    ATH_MSG_WARNING ( "couldn't register " << histName << "hist to MonGroup" );
-    return ;
-  }
+  int NTotStripsSideC = 1;     
  
+  int kName = iName ;
+  if(kName==1)kName=53;//BMLE
+  const MuonGM::RpcReadoutElement* rpc   = m_muonMgr->getRpcRElement_fromIdFields( kName,  1 , istatPhi+1, ir, 1, m_idblPhi+1 );   
+  const MuonGM::RpcReadoutElement* rpc_c = m_muonMgr->getRpcRElement_fromIdFields( kName, -1 , istatPhi+1, ir, 1, m_idblPhi+1 );  
+  
+  if(rpc != NULL ){  
+    Identifier idr = rpc->identify();
+    std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, idr, 0)  ;
+    NTotStripsSideA = rpcstripshift[6]+rpcstripshift[17];
+    Identifier idr_c = rpc_c->identify();
+    std::vector<int>   rpcstripshift_c = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, idr_c, 0)  ;
+    NTotStripsSideC = rpcstripshift_c[7]+rpcstripshift_c[18];
+   
+  } 
+   
+  TH1 *rpcCoolHisto = new TH1F(histName.c_str(), histName.c_str(), NTotStripsSideC+NTotStripsSideA, -NTotStripsSideC, NTotStripsSideA );
+
+  sc=rpcCoolDb.regHist(rpcCoolHisto) ;
+  if(sc.isFailure() ) ATH_MSG_WARNING (  "couldn't register " << histName << "hist to MonGroup" );
   rpcCoolHisto->GetXaxis()->SetTitle("strip");  
+  
+ 
   
 }
   
@@ -4046,68 +4954,91 @@ void RPCStandaloneTracksMon::bookRPCCoolHistograms( std::vector<std::string>::co
   }
   std::string m_generic_path_rpcmonitoring = "Muon/MuonRawDataMonitoring/RPCStandAloneTrackMon";
   MonGroup rpcCoolDb( this, m_generic_path_rpcmonitoring+"/CoolDB", run, ATTRIB_UNMANAGED );
-   
-  //sprintf(histName_char,"Sector%.2d_dblPhi%d_Pivot0", m_isec+1, m_idblPhi+1) ;
+    
   sprintf(histName_char,"Sector%.2d_%s_dblPhi%d", m_isec+1, m_layer.c_str(), m_idblPhi+1) ;
-     
+  // example: Sector01_Pivot0_dblPhi1_StripId
+  
   histName  = histName_char  ;
   histName += "_"            ;
   histName += *m_iter        ;  //histName += m_coolQuantity ;
   istatPhi  = int( m_isec/2) ;
-  iName     = 0              ;
+  iName     = 0              ; 
   
-  if ( m_isec!=11 &&  m_isec!=13) {
+  //BML7(dr=1) is associated to LowPt and not Pivot
+  if ( m_isec<11 ||  m_isec>13) {
     // if ( m_layer.find("Pivot",0) )
-    if ( m_layer == "Pivot0" || m_layer == "Pivot1" )	{
+    if ( m_layer == "Pivot0" || m_layer == "Pivot1" )   {
       iName = 2 + (m_isec%2 ) ;
-      ir    = 2 	      ; 	
+      ir    = 2 	      ;	 
     }
-    if ( m_layer == "LowPt0" || m_layer == "LowPt1" )	{
+    if ( m_layer == "LowPt0" || m_layer == "LowPt1" )   {
       iName = 2 + (m_isec%2 ) ;
-      ir    = 1 	      ;
+      ir    = 1 	      ; 
     }
     if ( m_layer == "HighPt0" || m_layer == "HighPt1" ) {
       iName = 4 + (m_isec%2 ) ;
-      ir    = 1 	      ;
+      ir    = 1 	      ; 
+    } 
+  }  
+  else if ( m_isec==12) {
+    // if ( m_layer.find("Pivot",0) )
+    if ( m_layer == "Pivot0" || m_layer == "Pivot1" )   {
+      iName     =  1      ; 
+      ir    = 2 	      ;	 
     }
-  }
-  else {
-    if ( m_layer == "Pivot0" || m_layer == "Pivot1" )	{
-      iName = 8 ;
-      ir    = 2 ;   
-    }
-    if ( m_layer == "LowPt0" || m_layer == "LowPt1" )	{
-      iName = 8 ;
-      ir    = 1 ;
+    if ( m_layer == "LowPt0" || m_layer == "LowPt1" )   {
+      iName     =  1      ; 
+      ir    = 1 	      ; 
     }
     if ( m_layer == "HighPt0" || m_layer == "HighPt1" ) {
-      iName = 9 ; // or 10 ;
-      ir    = 1 ; // doubletR=2 -> upgrade of Atlas
+      iName = 4               ;
+      ir    = 1 	      ;  
+    }
+     
+  }
+  else {
+    if ( m_layer == "Pivot0" || m_layer == "Pivot1" )   {
+      iName     =   8  ; 
+      ir    = 2 ;      
+    }
+    if ( m_layer == "LowPt0" || m_layer == "LowPt1" )   {
+      iName = 8 ; 
+      ir    = 1 ; 
+    }
+    if ( m_layer == "HighPt0" || m_layer == "HighPt1" ) {
+      iName = 9 ; // or 10 ; 
+      ir    = 1 ; // doubletR=2 -> upgrade of Atlas 
     }
   } // end sectors 12 and 14
-
+  
   int NTotStripsSideA = 1;
-  int NTotStripsSideC = 1;  
-  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields( iName, 1 , istatPhi+1, ir, 1, m_idblPhi+1 );
-  if(rpc != NULL ){
+  int NTotStripsSideC = 1;     
+ 
+  int kName = iName ;
+  if(kName==1)kName=53;//BMLE
+  const MuonGM::RpcReadoutElement* rpc   = m_muonMgr->getRpcRElement_fromIdFields( kName,  1 , istatPhi+1, ir, 1, m_idblPhi+1 );   
+  const MuonGM::RpcReadoutElement* rpc_c = m_muonMgr->getRpcRElement_fromIdFields( kName, -1 , istatPhi+1, ir, 1, m_idblPhi+1 );  
+  
+  if(rpc != NULL ){  
     Identifier idr = rpc->identify();
-    std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,idr, 0)  ;
+    std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, idr, 0)  ;
     NTotStripsSideA = rpcstripshift[6]+rpcstripshift[17];
-    NTotStripsSideC = rpcstripshift[7]+rpcstripshift[18];
-  }
+    Identifier idr_c = rpc_c->identify();
+    std::vector<int>   rpcstripshift_c = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, idr_c, 0)  ;
+    NTotStripsSideC = rpcstripshift_c[7]+rpcstripshift_c[18];
+   
+  } 
+   
+  TH1 *rpcCoolHisto = new TH1F(histName.c_str(), histName.c_str(), NTotStripsSideC+NTotStripsSideA, -NTotStripsSideC, NTotStripsSideA );
 
+  sc=rpcCoolDb.regHist(rpcCoolHisto) ;
+  if(sc.isFailure() ) ATH_MSG_WARNING (  "couldn't register " << histName << "hist to MonGroup" );
+  rpcCoolHisto->GetXaxis()->SetTitle("strip");  
+    
   
   bool doRecursiveReferenceDelete = gROOT->MustClean();
   gROOT->SetMustClean(false);
-    
-  TH1 *rpcCoolHisto = new TH1F(histName.c_str(), histName.c_str(), NTotStripsSideC+NTotStripsSideA, -NTotStripsSideC, NTotStripsSideA );
-  sc = rpcCoolDb.regHist(rpcCoolHisto) ;
-  if(sc.isFailure() )  
-  {  
-    ATH_MSG_INFO ( "couldn't register " << histName << " hist to MonGroup" );
-    return ;
-  }
-  rpcCoolHisto->GetXaxis()->SetTitle("strip");
+  
   
   TDirectory* currentDir = gDirectory;
   TDirectory* targetDir = rpcCoolHisto->GetDirectory();
@@ -4224,16 +5155,15 @@ void RPCStandaloneTracksMon::bookRPCSummaryHistograms( int m_i_sec, const std::s
   std::string sector_name ;
   sprintf(sector_char, "Sector%.2d", m_i_sec+1) ;  // sector number with 2 digits
   sector_name = sector_char ;
-  // large sectors: (m_i_sec+1)%2 = 1;  small (m_i_sec+1)%2 = 0
-  n_eta_station = ( (m_i_sec+1) %2 ) + 6 + 1 ;  // small: 1-6, large: 1-7, sec 12+14: 0-8
-  if ( (m_i_sec+1)==12 || (m_i_sec+1)==14 ) n_eta_station = 12 ;
-  int n_bin = 72 * n_eta_station   ;  
+	
+  // large sectors: (i_sec+1)%2 = 1;  small (i_sec+1)%2 = 0
+  n_eta_station = ( (m_i_sec+1) %2 ) + 6 + 1 ;  // small: 1-6, large: 1-7, sec 12+14: 0-6, sec 13: 1-7 (8->7)	  
+  int n_bin = 72 * n_eta_station   ;   
   //  72 = 2*2*2*3*3  measPhi + gap + dblPhi + dblZ + stationName + stationEta
   std::string PanelIndexTitle = "# Panel = View + (gap-1)*2 + (dblPhi-1)*4 + (dblZ-1)*8 + (LowPt=0,Pivot=1,HighPt=2)*24 + (Eta)*72";
-   
+ 
   std::string m_SummaryHist_title = "Summary" + m_quantity + "_" + sector_name ;
-  const char* m_SummaryHist_title_char = m_SummaryHist_title.c_str();
-  
+  const char* m_SummaryHist_title_char = m_SummaryHist_title.c_str(); 
   m_SummaryHist.push_back (new TH1F(m_SummaryHist_title_char, m_SummaryHist_title_char, 2*n_bin, -n_bin, n_bin));
   m_SummaryHist.back()->SetFillColor(2);
   m_SummaryHist.back()->GetXaxis()-> SetTitle(PanelIndexTitle.c_str() );
@@ -4330,13 +5260,14 @@ void RPCStandaloneTracksMon::bookRPCSummaryFinalHistograms( int m_i_sec, const s
   std::string sector_name ;
   sprintf(sector_char, "Sector%.2d", m_i_sec+1) ;  // sector number with 2 digits
   sector_name = sector_char ;
-  // large sectors: (m_i_sec+1)%2 = 1;  small (m_i_sec+1)%2 = 0
-  n_eta_station = ( (m_i_sec+1) %2 ) + 6 + 1 ;  // small: 1-6, large: 1-7, sec 12+14: 0-8
-  if ( (m_i_sec+1)==12 || (m_i_sec+1)==14 ) n_eta_station = 12 ;
-  int n_bin = 72 * n_eta_station   ;  
+	
+  // large sectors: (i_sec+1)%2 = 1;  small (i_sec+1)%2 = 0
+  n_eta_station = ( (m_i_sec+1) %2 ) + 6 + 1 ;  // small: 1-6, large: 1-7, sec 12+14: 0-6, sec 13: 1-7 (8->7)	  
+  int n_bin = 72 * n_eta_station   ;   
   //  72 = 2*2*2*3*3  measPhi + gap + dblPhi + dblZ + stationName + stationEta
   std::string PanelIndexTitle = "# Panel = View + (gap-1)*2 + (dblPhi-1)*4 + (dblZ-1)*8 + (LowPt=0,Pivot=1,HighPt=2)*24 + (Eta)*72";
-    
+  
+   
   std::string m_SummaryHist_title = "Summary" + m_quantity + "_" + sector_name ;
   const char* m_SummaryHist_title_char = m_SummaryHist_title.c_str();
   bool doRecursiveReferenceDelete = gROOT->MustClean();
@@ -4376,12 +5307,9 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 {
   StatusCode sc = StatusCode::SUCCESS;
   
-  return sc; 
+  ATH_MSG_DEBUG ( "********Reached Last Event in RPCStandaloneTracksMon !!!" );	  
+  ATH_MSG_DEBUG ( "RPCStandaloneTracksMon finalize()" ); 	  
   
-  {
-    ATH_MSG_DEBUG ( "********Reached Last Event in RPCStandaloneTracksMon !!!" );	  
-    ATH_MSG_DEBUG ( "RPCStandaloneTracksMon finalize()" ); 	  
-  }
   if( m_doRpcESD==true ) {if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD || m_environment == AthenaMonManager::online ) {    
       std::string m_generic_path_rpcmonitoring = "Muon/MuonRawDataMonitoring/RPCStandAloneTrackMon" ;	
       MonGroup rpcprd_expert     ( this, m_generic_path_rpcmonitoring+"/Overview"  ,  run, ATTRIB_UNMANAGED );
@@ -4477,6 +5405,177 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
 	
 	
 	}
+	
+	//TriggerEfficiency
+	int nb = hMEtracks->GetNbinsX() ;
+	for (int ibin=0; ibin!=nb; ibin++) {
+	  int TrkPrj = hMEtracks ->GetBinContent ( ibin + 1 ) ;
+	  if ( TrkPrj>0 ) {
+	    //hRPCPhiEtaCoinThr0
+	      int   RPCOnTr    = hRPCPhiEtaCoinThr[0] ->GetBinContent ( ibin + 1 ) ;
+	      float RPCEff     = RPCOnTr / TrkPrj ;
+	      float RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPhiEtaCoinThr_eff[0]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPhiEtaCoinThr_eff[0]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPhiEtaCoinThr1
+	      RPCOnTr      = hRPCPhiEtaCoinThr[1] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPhiEtaCoinThr_eff[1]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPhiEtaCoinThr_eff[1]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPhiEtaCoinThr2
+	      RPCOnTr      = hRPCPhiEtaCoinThr[2] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPhiEtaCoinThr_eff[2]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPhiEtaCoinThr_eff[2]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPhiEtaCoinThr3
+	      RPCOnTr      = hRPCPhiEtaCoinThr[3] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPhiEtaCoinThr_eff[3]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPhiEtaCoinThr_eff[3]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPhiEtaCoinThr4
+	      RPCOnTr      = hRPCPhiEtaCoinThr[4] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPhiEtaCoinThr_eff[4]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPhiEtaCoinThr_eff[4]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPhiEtaCoinThr5
+	      RPCOnTr      = hRPCPhiEtaCoinThr[5] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPhiEtaCoinThr_eff[5]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPhiEtaCoinThr_eff[5]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	    //hRPCPadThr0
+	      RPCOnTr	 = hRPCPadThr[0] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff	 = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPadThr_eff[0]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPadThr_eff[0]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPadThr1
+	      RPCOnTr      = hRPCPadThr[1] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPadThr_eff[1]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPadThr_eff[1]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPadThr2
+	      RPCOnTr      = hRPCPadThr[2] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPadThr_eff[2]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPadThr_eff[2]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPadThr3
+	      RPCOnTr      = hRPCPadThr[3] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPadThr_eff[3]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPadThr_eff[3]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPadThr4
+	      RPCOnTr      = hRPCPadThr[4] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPadThr_eff[4]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPadThr_eff[4]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCPadThr5
+	      RPCOnTr      = hRPCPadThr[5] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCPadThr_eff[5]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCPadThr_eff[5]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	    //hRPCMuctpiThr0
+	      RPCOnTr	 = hRPCMuctpiThr[0] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff	 = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCMuctpiThr_eff[0]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCMuctpiThr_eff[0]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCMuctpiThr1
+	      RPCOnTr      = hRPCMuctpiThr[1] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCMuctpiThr_eff[1]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCMuctpiThr_eff[1]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCMuctpiThr2
+	      RPCOnTr      = hRPCMuctpiThr[2] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCMuctpiThr_eff[2]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCMuctpiThr_eff[2]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCMuctpiThr3
+	      RPCOnTr      = hRPCMuctpiThr[3] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCMuctpiThr_eff[3]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCMuctpiThr_eff[3]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCMuctpiThr4
+	      RPCOnTr      = hRPCMuctpiThr[4] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCMuctpiThr_eff[4]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCMuctpiThr_eff[4]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	      
+	    //hRPCMuctpiThr5
+	      RPCOnTr      = hRPCMuctpiThr[5] ->GetBinContent ( ibin + 1 ) ;
+	      RPCEff     = RPCOnTr / TrkPrj ;
+	      RPCEff_err = sqrt( fabs( RPCOnTr-0.5*0) / TrkPrj ) *
+	      sqrt( 1. - fabs( RPCOnTr-0.5*0) / TrkPrj ) /
+	      sqrt( TrkPrj ) ;	  
+	      hRPCMuctpiThr_eff[5]->SetBinContent ( ibin + 1 , RPCEff     ) ;
+	      hRPCMuctpiThr_eff[5]->SetBinError   ( ibin + 1 , RPCEff_err ) ;
+	  }	
+	
+	}
+	
+	
+	//TriggerEfficiency end
 
     
 	std::vector<int>::const_iterator iter_bin=layer_name_bin_list_panel.begin() ;
@@ -4728,6 +5827,2067 @@ StatusCode RPCStandaloneTracksMon:: finalize()
   m_sumTmpHist.clear();
   rpcAverageSide_A.clear(); 
   rpcAverageSide_C.clear(); 
+  
+  return sc;
+}
+ 
+//======================================================================================//
+/**  finalize */
+//======================================================================================//
+StatusCode RPCStandaloneTracksMon:: RPC_ROI_Mapping() 
+{ 
+ 
+  StatusCode sc = StatusCode::SUCCESS; 
+  ATH_MSG_DEBUG ( "RPCStandaloneTracksMon::RPC_ROI_Mapping()" );
+     EtaROImin[0][ 0][ 0]=  -0.238757;EtaROImax[0][ 0][ 0]=   -0.13107;PhiROImin[0][ 0][ 0]= 0.00296767;PhiROImax[0][ 0][ 0]=	0.113212;
+     EtaROImin[0][ 0][ 1]=	    0;EtaROImax[0][ 0][ 1]=	     0;PhiROImin[0][ 0][ 1]=	      0;PhiROImax[0][ 0][ 1]=	       0;
+     EtaROImin[0][ 0][ 2]=  -0.238757;EtaROImax[0][ 0][ 2]=   -0.13107;PhiROImin[0][ 0][ 2]=   0.116737;PhiROImax[0][ 0][ 2]=	0.224169;
+     EtaROImin[0][ 0][ 3]=	    0;EtaROImax[0][ 0][ 3]=	     0;PhiROImin[0][ 0][ 3]=	      0;PhiROImax[0][ 0][ 3]=	       0;
+     EtaROImin[0][ 0][ 4]=   -0.35049;EtaROImax[0][ 0][ 4]=  -0.246207;PhiROImin[0][ 0][ 4]= 0.00295181;PhiROImax[0][ 0][ 4]=	0.112612;
+     EtaROImin[0][ 0][ 5]=  -0.452099;EtaROImax[0][ 0][ 5]=  -0.350831;PhiROImin[0][ 0][ 5]= 0.00295181;PhiROImax[0][ 0][ 5]=	0.112612;
+     EtaROImin[0][ 0][ 6]=   -0.35049;EtaROImax[0][ 0][ 6]=  -0.246207;PhiROImin[0][ 0][ 6]=   0.116119;PhiROImax[0][ 0][ 6]=	0.223011;
+     EtaROImin[0][ 0][ 7]=  -0.452099;EtaROImax[0][ 0][ 7]=  -0.350831;PhiROImin[0][ 0][ 7]=   0.116119;PhiROImax[0][ 0][ 7]=	0.223011;
+     EtaROImin[0][ 0][ 8]=  -0.554444;EtaROImax[0][ 0][ 8]=  -0.458091;PhiROImin[0][ 0][ 8]= 0.00295181;PhiROImax[0][ 0][ 8]=	0.112612;
+     EtaROImin[0][ 0][ 9]=  -0.648101;EtaROImax[0][ 0][ 9]=  -0.555789;PhiROImin[0][ 0][ 9]= 0.00295181;PhiROImax[0][ 0][ 9]=	0.112612;
+     EtaROImin[0][ 0][10]=  -0.554444;EtaROImax[0][ 0][10]=  -0.458091;PhiROImin[0][ 0][10]=   0.116119;PhiROImax[0][ 0][10]=	0.223011;
+     EtaROImin[0][ 0][11]=  -0.648101;EtaROImax[0][ 0][11]=  -0.555789;PhiROImin[0][ 0][11]=   0.116119;PhiROImax[0][ 0][11]=	0.223011;
+     EtaROImin[0][ 0][12]=  -0.703298;EtaROImax[0][ 0][12]=  -0.655857;PhiROImin[0][ 0][12]= 0.00296767;PhiROImax[0][ 0][12]=	0.113212;
+     EtaROImin[0][ 0][13]=  -0.776449;EtaROImax[0][ 0][13]=  -0.706413;PhiROImin[0][ 0][13]= 0.00296767;PhiROImax[0][ 0][13]=	0.113212;
+     EtaROImin[0][ 0][14]=  -0.703298;EtaROImax[0][ 0][14]=  -0.655857;PhiROImin[0][ 0][14]=   0.116737;PhiROImax[0][ 0][14]=	0.224169;
+     EtaROImin[0][ 0][15]=  -0.776449;EtaROImax[0][ 0][15]=  -0.706413;PhiROImin[0][ 0][15]=   0.116737;PhiROImax[0][ 0][15]=	0.224169;
+     EtaROImin[0][ 0][16]=   -0.82768;EtaROImax[0][ 0][16]=  -0.783867;PhiROImin[0][ 0][16]= 0.00296767;PhiROImax[0][ 0][16]=	0.113212;
+     EtaROImin[0][ 0][17]=  -0.895163;EtaROImax[0][ 0][17]=  -0.830556;PhiROImin[0][ 0][17]= 0.00296767;PhiROImax[0][ 0][17]=	0.113212;
+     EtaROImin[0][ 0][18]=   -0.82768;EtaROImax[0][ 0][18]=  -0.783867;PhiROImin[0][ 0][18]=   0.116737;PhiROImax[0][ 0][18]=	0.224169;
+     EtaROImin[0][ 0][19]=  -0.895163;EtaROImax[0][ 0][19]=  -0.830556;PhiROImin[0][ 0][19]=   0.116737;PhiROImax[0][ 0][19]=	0.224169;
+     EtaROImin[0][ 0][20]=  -0.961344;EtaROImax[0][ 0][20]=  -0.898201;PhiROImin[0][ 0][20]= 0.00295181;PhiROImax[0][ 0][20]=	0.112612;
+     EtaROImin[0][ 0][21]=   -1.02514;EtaROImax[0][ 0][21]=  -0.964674;PhiROImin[0][ 0][21]= 0.00295181;PhiROImax[0][ 0][21]=	0.112612;
+     EtaROImin[0][ 0][22]=  -0.961344;EtaROImax[0][ 0][22]=  -0.898201;PhiROImin[0][ 0][22]=   0.116119;PhiROImax[0][ 0][22]=	0.223011;
+     EtaROImin[0][ 0][23]=   -1.02514;EtaROImax[0][ 0][23]=  -0.964674;PhiROImin[0][ 0][23]=   0.116119;PhiROImax[0][ 0][23]=	0.223011;
+     EtaROImin[0][ 0][24]=   -1.06547;EtaROImax[0][ 0][24]=   -1.03003;PhiROImin[0][ 0][24]= 0.00306876;PhiROImax[0][ 0][24]=	0.113429;
+     EtaROImin[0][ 0][25]=	    0;EtaROImax[0][ 0][25]=	     0;PhiROImin[0][ 0][25]=	      0;PhiROImax[0][ 0][25]=	       0;
+     EtaROImin[0][ 0][26]=   -1.06547;EtaROImax[0][ 0][26]=   -1.03003;PhiROImin[0][ 0][26]=   0.116958;PhiROImax[0][ 0][26]=	0.197143;
+     EtaROImin[0][ 0][27]=	    0;EtaROImax[0][ 0][27]=	     0;PhiROImin[0][ 0][27]=	      0;PhiROImax[0][ 0][27]=	       0;
+     EtaROImin[0][ 0][28]=	    0;EtaROImax[0][ 0][28]=	     0;PhiROImin[0][ 0][28]=	      0;PhiROImax[0][ 0][28]=	       0;
+     EtaROImin[0][ 0][29]=	    0;EtaROImax[0][ 0][29]=	     0;PhiROImin[0][ 0][29]=	      0;PhiROImax[0][ 0][29]=	       0;
+     EtaROImin[0][ 0][30]=	    0;EtaROImax[0][ 0][30]=	     0;PhiROImin[0][ 0][30]=	      0;PhiROImax[0][ 0][30]=	       0;
+     EtaROImin[0][ 0][31]=	    0;EtaROImax[0][ 0][31]=	     0;PhiROImin[0][ 0][31]=	      0;PhiROImax[0][ 0][31]=	       0;
+     EtaROImin[0][ 1][ 0]=  -0.213185;EtaROImax[0][ 1][ 0]=  -0.116816;PhiROImin[0][ 1][ 0]=   0.305953;PhiROImax[0][ 1][ 0]=	0.389909;
+     EtaROImin[0][ 1][ 1]=  -0.118734;EtaROImax[0][ 1][ 1]= -0.0208251;PhiROImin[0][ 1][ 1]=   0.305953;PhiROImax[0][ 1][ 1]=	0.389909;
+     EtaROImin[0][ 1][ 2]=  -0.213185;EtaROImax[0][ 1][ 2]=  -0.116816;PhiROImin[0][ 1][ 2]=   0.219649;PhiROImax[0][ 1][ 2]=	0.302322;
+     EtaROImin[0][ 1][ 3]=  -0.118734;EtaROImax[0][ 1][ 3]= -0.0208251;PhiROImin[0][ 1][ 3]=   0.219649;PhiROImax[0][ 1][ 3]=	0.302322;
+     EtaROImin[0][ 1][ 4]=  -0.416721;EtaROImax[0][ 1][ 4]=   -0.30075;PhiROImin[0][ 1][ 4]=   0.305953;PhiROImax[0][ 1][ 4]=	0.389909;
+     EtaROImin[0][ 1][ 5]=  -0.302928;EtaROImax[0][ 1][ 5]=  -0.222449;PhiROImin[0][ 1][ 5]=   0.305953;PhiROImax[0][ 1][ 5]=	0.389909;
+     EtaROImin[0][ 1][ 6]=  -0.416721;EtaROImax[0][ 1][ 6]=   -0.30075;PhiROImin[0][ 1][ 6]=   0.219649;PhiROImax[0][ 1][ 6]=	0.302322;
+     EtaROImin[0][ 1][ 7]=  -0.302928;EtaROImax[0][ 1][ 7]=  -0.222449;PhiROImin[0][ 1][ 7]=   0.219649;PhiROImax[0][ 1][ 7]=	0.302322;
+     EtaROImin[0][ 1][ 8]=  -0.573871;EtaROImax[0][ 1][ 8]=  -0.501681;PhiROImin[0][ 1][ 8]=   0.305953;PhiROImax[0][ 1][ 8]=	0.389909;
+     EtaROImin[0][ 1][ 9]=  -0.504617;EtaROImax[0][ 1][ 9]=   -0.42967;PhiROImin[0][ 1][ 9]=   0.305953;PhiROImax[0][ 1][ 9]=	0.389909;
+     EtaROImin[0][ 1][10]=  -0.573871;EtaROImax[0][ 1][10]=  -0.501681;PhiROImin[0][ 1][10]=   0.219649;PhiROImax[0][ 1][10]=	0.302322;
+     EtaROImin[0][ 1][11]=  -0.504617;EtaROImax[0][ 1][11]=   -0.42967;PhiROImin[0][ 1][11]=   0.219649;PhiROImax[0][ 1][11]=	0.302322;
+     EtaROImin[0][ 1][12]=  -0.741516;EtaROImax[0][ 1][12]=  -0.649933;PhiROImin[0][ 1][12]=   0.305953;PhiROImax[0][ 1][12]=	0.389909;
+     EtaROImin[0][ 1][13]=  -0.653329;EtaROImax[0][ 1][13]=  -0.583785;PhiROImin[0][ 1][13]=   0.305953;PhiROImax[0][ 1][13]=	0.389909;
+     EtaROImin[0][ 1][14]=  -0.741516;EtaROImax[0][ 1][14]=  -0.649933;PhiROImin[0][ 1][14]=   0.219649;PhiROImax[0][ 1][14]=	0.302322;
+     EtaROImin[0][ 1][15]=  -0.653329;EtaROImax[0][ 1][15]=  -0.583785;PhiROImin[0][ 1][15]=   0.219649;PhiROImax[0][ 1][15]=	0.302322;
+     EtaROImin[0][ 1][16]=	    0;EtaROImax[0][ 1][16]=	     0;PhiROImin[0][ 1][16]=	      0;PhiROImax[0][ 1][16]=	       0;
+     EtaROImin[0][ 1][17]=  -0.837822;EtaROImax[0][ 1][17]=  -0.756521;PhiROImin[0][ 1][17]=   0.305953;PhiROImax[0][ 1][17]=	0.389909;
+     EtaROImin[0][ 1][18]=	    0;EtaROImax[0][ 1][18]=	     0;PhiROImin[0][ 1][18]=	      0;PhiROImax[0][ 1][18]=	       0;
+     EtaROImin[0][ 1][19]=  -0.837822;EtaROImax[0][ 1][19]=  -0.756521;PhiROImin[0][ 1][19]=   0.219649;PhiROImax[0][ 1][19]=	0.302322;
+     EtaROImin[0][ 1][20]=  -0.956037;EtaROImax[0][ 1][20]=  -0.899344;PhiROImin[0][ 1][20]=   0.305953;PhiROImax[0][ 1][20]=	0.389909;
+     EtaROImin[0][ 1][21]=  -0.903324;EtaROImax[0][ 1][21]=  -0.844116;PhiROImin[0][ 1][21]=   0.305953;PhiROImax[0][ 1][21]=	0.389909;
+     EtaROImin[0][ 1][22]=  -0.956037;EtaROImax[0][ 1][22]=  -0.899344;PhiROImin[0][ 1][22]=   0.219649;PhiROImax[0][ 1][22]=	0.302322;
+     EtaROImin[0][ 1][23]=  -0.903324;EtaROImax[0][ 1][23]=  -0.844116;PhiROImin[0][ 1][23]=   0.219649;PhiROImax[0][ 1][23]=	0.302322;
+     EtaROImin[0][ 1][24]=	    0;EtaROImax[0][ 1][24]=	     0;PhiROImin[0][ 1][24]=	      0;PhiROImax[0][ 1][24]=	       0;
+     EtaROImin[0][ 1][25]=	    0;EtaROImax[0][ 1][25]=	     0;PhiROImin[0][ 1][25]=	      0;PhiROImax[0][ 1][25]=	       0;
+     EtaROImin[0][ 1][26]=	    0;EtaROImax[0][ 1][26]=	     0;PhiROImin[0][ 1][26]=	      0;PhiROImax[0][ 1][26]=	       0;
+     EtaROImin[0][ 1][27]=	    0;EtaROImax[0][ 1][27]=	     0;PhiROImin[0][ 1][27]=	      0;PhiROImax[0][ 1][27]=	       0;
+     EtaROImin[0][ 1][28]=	    0;EtaROImax[0][ 1][28]=	     0;PhiROImin[0][ 1][28]=	      0;PhiROImax[0][ 1][28]=	       0;
+     EtaROImin[0][ 1][29]=	    0;EtaROImax[0][ 1][29]=	     0;PhiROImin[0][ 1][29]=	      0;PhiROImax[0][ 1][29]=	       0;
+     EtaROImin[0][ 1][30]=	    0;EtaROImax[0][ 1][30]=	     0;PhiROImin[0][ 1][30]=	      0;PhiROImax[0][ 1][30]=	       0;
+     EtaROImin[0][ 1][31]=	    0;EtaROImax[0][ 1][31]=	     0;PhiROImin[0][ 1][31]=	      0;PhiROImax[0][ 1][31]=	       0;
+     EtaROImin[0][ 2][ 0]=  -0.118734;EtaROImax[0][ 2][ 0]= -0.0208251;PhiROImin[0][ 2][ 0]=   0.395489;PhiROImax[0][ 2][ 0]=	0.479445;
+     EtaROImin[0][ 2][ 1]=  -0.213185;EtaROImax[0][ 2][ 1]=  -0.116816;PhiROImin[0][ 2][ 1]=   0.395489;PhiROImax[0][ 2][ 1]=	0.479445;
+     EtaROImin[0][ 2][ 2]=  -0.118734;EtaROImax[0][ 2][ 2]= -0.0208251;PhiROImin[0][ 2][ 2]=   0.483076;PhiROImax[0][ 2][ 2]=	0.565749;
+     EtaROImin[0][ 2][ 3]=  -0.213185;EtaROImax[0][ 2][ 3]=  -0.116816;PhiROImin[0][ 2][ 3]=   0.483076;PhiROImax[0][ 2][ 3]=	0.565749;
+     EtaROImin[0][ 2][ 4]=  -0.302928;EtaROImax[0][ 2][ 4]=  -0.222449;PhiROImin[0][ 2][ 4]=   0.395489;PhiROImax[0][ 2][ 4]=	0.479445;
+     EtaROImin[0][ 2][ 5]=  -0.416721;EtaROImax[0][ 2][ 5]=   -0.30075;PhiROImin[0][ 2][ 5]=   0.395489;PhiROImax[0][ 2][ 5]=	0.479445;
+     EtaROImin[0][ 2][ 6]=  -0.302928;EtaROImax[0][ 2][ 6]=  -0.222449;PhiROImin[0][ 2][ 6]=   0.483076;PhiROImax[0][ 2][ 6]=	0.565749;
+     EtaROImin[0][ 2][ 7]=  -0.416721;EtaROImax[0][ 2][ 7]=   -0.30075;PhiROImin[0][ 2][ 7]=   0.483076;PhiROImax[0][ 2][ 7]=	0.565749;
+     EtaROImin[0][ 2][ 8]=  -0.504617;EtaROImax[0][ 2][ 8]=   -0.42967;PhiROImin[0][ 2][ 8]=   0.395489;PhiROImax[0][ 2][ 8]=	0.479445;
+     EtaROImin[0][ 2][ 9]=  -0.573871;EtaROImax[0][ 2][ 9]=  -0.501681;PhiROImin[0][ 2][ 9]=   0.395489;PhiROImax[0][ 2][ 9]=	0.479445;
+     EtaROImin[0][ 2][10]=  -0.504617;EtaROImax[0][ 2][10]=   -0.42967;PhiROImin[0][ 2][10]=   0.483076;PhiROImax[0][ 2][10]=	0.565749;
+     EtaROImin[0][ 2][11]=  -0.573871;EtaROImax[0][ 2][11]=  -0.501681;PhiROImin[0][ 2][11]=   0.483076;PhiROImax[0][ 2][11]=	0.565749;
+     EtaROImin[0][ 2][12]=  -0.653329;EtaROImax[0][ 2][12]=  -0.583785;PhiROImin[0][ 2][12]=   0.395489;PhiROImax[0][ 2][12]=	0.479445;
+     EtaROImin[0][ 2][13]=  -0.741516;EtaROImax[0][ 2][13]=  -0.649933;PhiROImin[0][ 2][13]=   0.395489;PhiROImax[0][ 2][13]=	0.479445;
+     EtaROImin[0][ 2][14]=  -0.653329;EtaROImax[0][ 2][14]=  -0.583785;PhiROImin[0][ 2][14]=   0.483076;PhiROImax[0][ 2][14]=	0.565749;
+     EtaROImin[0][ 2][15]=  -0.741516;EtaROImax[0][ 2][15]=  -0.649933;PhiROImin[0][ 2][15]=   0.483076;PhiROImax[0][ 2][15]=	0.565749;
+     EtaROImin[0][ 2][16]=  -0.837822;EtaROImax[0][ 2][16]=  -0.756521;PhiROImin[0][ 2][16]=   0.395489;PhiROImax[0][ 2][16]=	0.479445;
+     EtaROImin[0][ 2][17]=	    0;EtaROImax[0][ 2][17]=	     0;PhiROImin[0][ 2][17]=	      0;PhiROImax[0][ 2][17]=	       0;
+     EtaROImin[0][ 2][18]=  -0.837822;EtaROImax[0][ 2][18]=  -0.756521;PhiROImin[0][ 2][18]=   0.483076;PhiROImax[0][ 2][18]=	0.565749;
+     EtaROImin[0][ 2][19]=	    0;EtaROImax[0][ 2][19]=	     0;PhiROImin[0][ 2][19]=	      0;PhiROImax[0][ 2][19]=	       0;
+     EtaROImin[0][ 2][20]=  -0.903324;EtaROImax[0][ 2][20]=  -0.844116;PhiROImin[0][ 2][20]=   0.395489;PhiROImax[0][ 2][20]=	0.479445;
+     EtaROImin[0][ 2][21]=  -0.956037;EtaROImax[0][ 2][21]=  -0.899344;PhiROImin[0][ 2][21]=   0.395489;PhiROImax[0][ 2][21]=	0.479445;
+     EtaROImin[0][ 2][22]=  -0.903324;EtaROImax[0][ 2][22]=  -0.844116;PhiROImin[0][ 2][22]=   0.483076;PhiROImax[0][ 2][22]=	0.565749;
+     EtaROImin[0][ 2][23]=  -0.956037;EtaROImax[0][ 2][23]=  -0.899344;PhiROImin[0][ 2][23]=   0.483076;PhiROImax[0][ 2][23]=	0.565749;
+     EtaROImin[0][ 2][24]=	    0;EtaROImax[0][ 2][24]=	     0;PhiROImin[0][ 2][24]=	      0;PhiROImax[0][ 2][24]=	       0;
+     EtaROImin[0][ 2][25]=	    0;EtaROImax[0][ 2][25]=	     0;PhiROImin[0][ 2][25]=	      0;PhiROImax[0][ 2][25]=	       0;
+     EtaROImin[0][ 2][26]=	    0;EtaROImax[0][ 2][26]=	     0;PhiROImin[0][ 2][26]=	      0;PhiROImax[0][ 2][26]=	       0;
+     EtaROImin[0][ 2][27]=	    0;EtaROImax[0][ 2][27]=	     0;PhiROImin[0][ 2][27]=	      0;PhiROImax[0][ 2][27]=	       0;
+     EtaROImin[0][ 2][28]=	    0;EtaROImax[0][ 2][28]=	     0;PhiROImin[0][ 2][28]=	      0;PhiROImax[0][ 2][28]=	       0;
+     EtaROImin[0][ 2][29]=	    0;EtaROImax[0][ 2][29]=	     0;PhiROImin[0][ 2][29]=	      0;PhiROImax[0][ 2][29]=	       0;
+     EtaROImin[0][ 2][30]=	    0;EtaROImax[0][ 2][30]=	     0;PhiROImin[0][ 2][30]=	      0;PhiROImax[0][ 2][30]=	       0;
+     EtaROImin[0][ 2][31]=	    0;EtaROImax[0][ 2][31]=	     0;PhiROImin[0][ 2][31]=	      0;PhiROImax[0][ 2][31]=	       0;
+     EtaROImin[0][ 3][ 0]=  -0.238532;EtaROImax[0][ 3][ 0]=  -0.147302;PhiROImin[0][ 3][ 0]=   0.672786;PhiROImax[0][ 3][ 0]=	0.782446;
+     EtaROImin[0][ 3][ 1]=  -0.147437;EtaROImax[0][ 3][ 1]= -0.0554683;PhiROImin[0][ 3][ 1]=   0.672786;PhiROImax[0][ 3][ 1]=	0.782446;
+     EtaROImin[0][ 3][ 2]=  -0.238532;EtaROImax[0][ 3][ 2]=  -0.147302;PhiROImin[0][ 3][ 2]=   0.562387;PhiROImax[0][ 3][ 2]=	0.669279;
+     EtaROImin[0][ 3][ 3]=  -0.147437;EtaROImax[0][ 3][ 3]= -0.0554683;PhiROImin[0][ 3][ 3]=   0.562387;PhiROImax[0][ 3][ 3]=	0.669279;
+     EtaROImin[0][ 3][ 4]=  -0.452099;EtaROImax[0][ 3][ 4]=  -0.350831;PhiROImin[0][ 3][ 4]=   0.672786;PhiROImax[0][ 3][ 4]=	0.782446;
+     EtaROImin[0][ 3][ 5]=   -0.35049;EtaROImax[0][ 3][ 5]=  -0.246207;PhiROImin[0][ 3][ 5]=   0.672786;PhiROImax[0][ 3][ 5]=	0.782446;
+     EtaROImin[0][ 3][ 6]=  -0.452099;EtaROImax[0][ 3][ 6]=  -0.350831;PhiROImin[0][ 3][ 6]=   0.562387;PhiROImax[0][ 3][ 6]=	0.669279;
+     EtaROImin[0][ 3][ 7]=   -0.35049;EtaROImax[0][ 3][ 7]=  -0.246207;PhiROImin[0][ 3][ 7]=   0.562387;PhiROImax[0][ 3][ 7]=	0.669279;
+     EtaROImin[0][ 3][ 8]=  -0.648101;EtaROImax[0][ 3][ 8]=  -0.555789;PhiROImin[0][ 3][ 8]=   0.672786;PhiROImax[0][ 3][ 8]=	0.782446;
+     EtaROImin[0][ 3][ 9]=  -0.554444;EtaROImax[0][ 3][ 9]=  -0.458091;PhiROImin[0][ 3][ 9]=   0.672786;PhiROImax[0][ 3][ 9]=	0.782446;
+     EtaROImin[0][ 3][10]=  -0.648101;EtaROImax[0][ 3][10]=  -0.555789;PhiROImin[0][ 3][10]=   0.562387;PhiROImax[0][ 3][10]=	0.669279;
+     EtaROImin[0][ 3][11]=  -0.554444;EtaROImax[0][ 3][11]=  -0.458091;PhiROImin[0][ 3][11]=   0.562387;PhiROImax[0][ 3][11]=	0.669279;
+     EtaROImin[0][ 3][12]=  -0.776449;EtaROImax[0][ 3][12]=  -0.731124;PhiROImin[0][ 3][12]=   0.672186;PhiROImax[0][ 3][12]=	 0.78243;
+     EtaROImin[0][ 3][13]=  -0.728056;EtaROImax[0][ 3][13]=  -0.655857;PhiROImin[0][ 3][13]=   0.672186;PhiROImax[0][ 3][13]=	 0.78243;
+     EtaROImin[0][ 3][14]=  -0.776449;EtaROImax[0][ 3][14]=  -0.731124;PhiROImin[0][ 3][14]=   0.561229;PhiROImax[0][ 3][14]=	0.668661;
+     EtaROImin[0][ 3][15]=  -0.728056;EtaROImax[0][ 3][15]=  -0.655857;PhiROImin[0][ 3][15]=   0.561229;PhiROImax[0][ 3][15]=	0.668661;
+     EtaROImin[0][ 3][16]=  -0.895163;EtaROImax[0][ 3][16]=  -0.853359;PhiROImin[0][ 3][16]=   0.672186;PhiROImax[0][ 3][16]=	 0.78243;
+     EtaROImin[0][ 3][17]=  -0.850528;EtaROImax[0][ 3][17]=  -0.783867;PhiROImin[0][ 3][17]=   0.672186;PhiROImax[0][ 3][17]=	 0.78243;
+     EtaROImin[0][ 3][18]=  -0.895163;EtaROImax[0][ 3][18]=  -0.853359;PhiROImin[0][ 3][18]=   0.561229;PhiROImax[0][ 3][18]=	0.668661;
+     EtaROImin[0][ 3][19]=  -0.850528;EtaROImax[0][ 3][19]=  -0.783867;PhiROImin[0][ 3][19]=   0.561229;PhiROImax[0][ 3][19]=	0.668661;
+     EtaROImin[0][ 3][20]=   -1.02514;EtaROImax[0][ 3][20]=  -0.964674;PhiROImin[0][ 3][20]=   0.672786;PhiROImax[0][ 3][20]=	0.782446;
+     EtaROImin[0][ 3][21]=  -0.961344;EtaROImax[0][ 3][21]=  -0.898201;PhiROImin[0][ 3][21]=   0.672786;PhiROImax[0][ 3][21]=	0.782446;
+     EtaROImin[0][ 3][22]=   -1.02514;EtaROImax[0][ 3][22]=  -0.964674;PhiROImin[0][ 3][22]=   0.562387;PhiROImax[0][ 3][22]=	0.669279;
+     EtaROImin[0][ 3][23]=  -0.961344;EtaROImax[0][ 3][23]=  -0.898201;PhiROImin[0][ 3][23]=   0.562387;PhiROImax[0][ 3][23]=	0.669279;
+     EtaROImin[0][ 3][24]=	    0;EtaROImax[0][ 3][24]=	     0;PhiROImin[0][ 3][24]=	      0;PhiROImax[0][ 3][24]=	       0;
+     EtaROImin[0][ 3][25]=   -1.06547;EtaROImax[0][ 3][25]=   -1.03003;PhiROImin[0][ 3][25]=   0.671969;PhiROImax[0][ 3][25]=	0.782329;
+     EtaROImin[0][ 3][26]=	    0;EtaROImax[0][ 3][26]=	     0;PhiROImin[0][ 3][26]=	      0;PhiROImax[0][ 3][26]=	       0;
+     EtaROImin[0][ 3][27]=   -1.06547;EtaROImax[0][ 3][27]=   -1.03003;PhiROImin[0][ 3][27]=   0.588255;PhiROImax[0][ 3][27]=	 0.66844;
+     EtaROImin[0][ 3][28]=	    0;EtaROImax[0][ 3][28]=	     0;PhiROImin[0][ 3][28]=	      0;PhiROImax[0][ 3][28]=	       0;
+     EtaROImin[0][ 3][29]=	    0;EtaROImax[0][ 3][29]=	     0;PhiROImin[0][ 3][29]=	      0;PhiROImax[0][ 3][29]=	       0;
+     EtaROImin[0][ 3][30]=	    0;EtaROImax[0][ 3][30]=	     0;PhiROImin[0][ 3][30]=	      0;PhiROImax[0][ 3][30]=	       0;
+     EtaROImin[0][ 3][31]=	    0;EtaROImax[0][ 3][31]=	     0;PhiROImin[0][ 3][31]=	      0;PhiROImax[0][ 3][31]=	       0;
+     EtaROImin[0][ 4][ 0]=  -0.147437;EtaROImax[0][ 4][ 0]= -0.0554683;PhiROImin[0][ 4][ 0]=	0.78835;PhiROImax[0][ 4][ 0]=	0.898011;
+     EtaROImin[0][ 4][ 1]=  -0.238532;EtaROImax[0][ 4][ 1]=  -0.147302;PhiROImin[0][ 4][ 1]=	0.78835;PhiROImax[0][ 4][ 1]=	0.898011;
+     EtaROImin[0][ 4][ 2]=  -0.147437;EtaROImax[0][ 4][ 2]= -0.0554683;PhiROImin[0][ 4][ 2]=   0.901517;PhiROImax[0][ 4][ 2]=	 1.00841;
+     EtaROImin[0][ 4][ 3]=  -0.238532;EtaROImax[0][ 4][ 3]=  -0.147302;PhiROImin[0][ 4][ 3]=   0.901517;PhiROImax[0][ 4][ 3]=	 1.00841;
+     EtaROImin[0][ 4][ 4]=   -0.35049;EtaROImax[0][ 4][ 4]=  -0.246207;PhiROImin[0][ 4][ 4]=	0.78835;PhiROImax[0][ 4][ 4]=	0.898011;
+     EtaROImin[0][ 4][ 5]=  -0.452099;EtaROImax[0][ 4][ 5]=  -0.350831;PhiROImin[0][ 4][ 5]=	0.78835;PhiROImax[0][ 4][ 5]=	0.898011;
+     EtaROImin[0][ 4][ 6]=   -0.35049;EtaROImax[0][ 4][ 6]=  -0.246207;PhiROImin[0][ 4][ 6]=   0.901517;PhiROImax[0][ 4][ 6]=	 1.00841;
+     EtaROImin[0][ 4][ 7]=  -0.452099;EtaROImax[0][ 4][ 7]=  -0.350831;PhiROImin[0][ 4][ 7]=   0.901517;PhiROImax[0][ 4][ 7]=	 1.00841;
+     EtaROImin[0][ 4][ 8]=  -0.554444;EtaROImax[0][ 4][ 8]=  -0.458091;PhiROImin[0][ 4][ 8]=	0.78835;PhiROImax[0][ 4][ 8]=	0.898011;
+     EtaROImin[0][ 4][ 9]=  -0.648101;EtaROImax[0][ 4][ 9]=  -0.555789;PhiROImin[0][ 4][ 9]=	0.78835;PhiROImax[0][ 4][ 9]=	0.898011;
+     EtaROImin[0][ 4][10]=  -0.554444;EtaROImax[0][ 4][10]=  -0.458091;PhiROImin[0][ 4][10]=   0.901517;PhiROImax[0][ 4][10]=	 1.00841;
+     EtaROImin[0][ 4][11]=  -0.648101;EtaROImax[0][ 4][11]=  -0.555789;PhiROImin[0][ 4][11]=   0.901517;PhiROImax[0][ 4][11]=	 1.00841;
+     EtaROImin[0][ 4][12]=  -0.703298;EtaROImax[0][ 4][12]=  -0.655857;PhiROImin[0][ 4][12]=   0.788366;PhiROImax[0][ 4][12]=	 0.89861;
+     EtaROImin[0][ 4][13]=  -0.776449;EtaROImax[0][ 4][13]=  -0.706413;PhiROImin[0][ 4][13]=   0.788366;PhiROImax[0][ 4][13]=	 0.89861;
+     EtaROImin[0][ 4][14]=  -0.703298;EtaROImax[0][ 4][14]=  -0.655857;PhiROImin[0][ 4][14]=   0.902135;PhiROImax[0][ 4][14]=	 1.00957;
+     EtaROImin[0][ 4][15]=  -0.776449;EtaROImax[0][ 4][15]=  -0.706413;PhiROImin[0][ 4][15]=   0.902135;PhiROImax[0][ 4][15]=	 1.00957;
+     EtaROImin[0][ 4][16]=   -0.82768;EtaROImax[0][ 4][16]=  -0.783867;PhiROImin[0][ 4][16]=   0.788366;PhiROImax[0][ 4][16]=	 0.89861;
+     EtaROImin[0][ 4][17]=  -0.895163;EtaROImax[0][ 4][17]=  -0.830556;PhiROImin[0][ 4][17]=   0.788366;PhiROImax[0][ 4][17]=	 0.89861;
+     EtaROImin[0][ 4][18]=   -0.82768;EtaROImax[0][ 4][18]=  -0.783867;PhiROImin[0][ 4][18]=   0.902135;PhiROImax[0][ 4][18]=	 1.00957;
+     EtaROImin[0][ 4][19]=  -0.895163;EtaROImax[0][ 4][19]=  -0.830556;PhiROImin[0][ 4][19]=   0.902135;PhiROImax[0][ 4][19]=	 1.00957;
+     EtaROImin[0][ 4][20]=  -0.961344;EtaROImax[0][ 4][20]=  -0.898201;PhiROImin[0][ 4][20]=	0.78835;PhiROImax[0][ 4][20]=	0.898011;
+     EtaROImin[0][ 4][21]=   -1.02514;EtaROImax[0][ 4][21]=  -0.964674;PhiROImin[0][ 4][21]=	0.78835;PhiROImax[0][ 4][21]=	0.898011;
+     EtaROImin[0][ 4][22]=  -0.961344;EtaROImax[0][ 4][22]=  -0.898201;PhiROImin[0][ 4][22]=   0.901517;PhiROImax[0][ 4][22]=	 1.00841;
+     EtaROImin[0][ 4][23]=   -1.02514;EtaROImax[0][ 4][23]=  -0.964674;PhiROImin[0][ 4][23]=   0.901517;PhiROImax[0][ 4][23]=	 1.00841;
+     EtaROImin[0][ 4][24]=   -1.06547;EtaROImax[0][ 4][24]=   -1.03003;PhiROImin[0][ 4][24]=   0.788467;PhiROImax[0][ 4][24]=	0.898827;
+     EtaROImin[0][ 4][25]=	    0;EtaROImax[0][ 4][25]=	     0;PhiROImin[0][ 4][25]=	      0;PhiROImax[0][ 4][25]=	       0;
+     EtaROImin[0][ 4][26]=   -1.06547;EtaROImax[0][ 4][26]=   -1.03003;PhiROImin[0][ 4][26]=   0.902356;PhiROImax[0][ 4][26]=	0.982541;
+     EtaROImin[0][ 4][27]=	    0;EtaROImax[0][ 4][27]=	     0;PhiROImin[0][ 4][27]=	      0;PhiROImax[0][ 4][27]=	       0;
+     EtaROImin[0][ 4][28]=	    0;EtaROImax[0][ 4][28]=	     0;PhiROImin[0][ 4][28]=	      0;PhiROImax[0][ 4][28]=	       0;
+     EtaROImin[0][ 4][29]=	    0;EtaROImax[0][ 4][29]=	     0;PhiROImin[0][ 4][29]=	      0;PhiROImax[0][ 4][29]=	       0;
+     EtaROImin[0][ 4][30]=	    0;EtaROImax[0][ 4][30]=	     0;PhiROImin[0][ 4][30]=	      0;PhiROImax[0][ 4][30]=	       0;
+     EtaROImin[0][ 4][31]=	    0;EtaROImax[0][ 4][31]=	     0;PhiROImin[0][ 4][31]=	      0;PhiROImax[0][ 4][31]=	       0;
+     EtaROImin[0][ 5][ 0]=  -0.213185;EtaROImax[0][ 5][ 0]=  -0.116816;PhiROImin[0][ 5][ 0]=	1.09135;PhiROImax[0][ 5][ 0]=	 1.17531;
+     EtaROImin[0][ 5][ 1]=  -0.118734;EtaROImax[0][ 5][ 1]= -0.0208251;PhiROImin[0][ 5][ 1]=	1.09135;PhiROImax[0][ 5][ 1]=	 1.17531;
+     EtaROImin[0][ 5][ 2]=  -0.213185;EtaROImax[0][ 5][ 2]=  -0.116816;PhiROImin[0][ 5][ 2]=	1.00505;PhiROImax[0][ 5][ 2]=	 1.08772;
+     EtaROImin[0][ 5][ 3]=  -0.118734;EtaROImax[0][ 5][ 3]= -0.0208251;PhiROImin[0][ 5][ 3]=	1.00505;PhiROImax[0][ 5][ 3]=	 1.08772;
+     EtaROImin[0][ 5][ 4]=  -0.416721;EtaROImax[0][ 5][ 4]=   -0.30075;PhiROImin[0][ 5][ 4]=	1.09135;PhiROImax[0][ 5][ 4]=	 1.17531;
+     EtaROImin[0][ 5][ 5]=  -0.302928;EtaROImax[0][ 5][ 5]=  -0.222449;PhiROImin[0][ 5][ 5]=	1.09135;PhiROImax[0][ 5][ 5]=	 1.17531;
+     EtaROImin[0][ 5][ 6]=  -0.416721;EtaROImax[0][ 5][ 6]=   -0.30075;PhiROImin[0][ 5][ 6]=	1.00505;PhiROImax[0][ 5][ 6]=	 1.08772;
+     EtaROImin[0][ 5][ 7]=  -0.302928;EtaROImax[0][ 5][ 7]=  -0.222449;PhiROImin[0][ 5][ 7]=	1.00505;PhiROImax[0][ 5][ 7]=	 1.08772;
+     EtaROImin[0][ 5][ 8]=  -0.573871;EtaROImax[0][ 5][ 8]=  -0.501681;PhiROImin[0][ 5][ 8]=	1.09135;PhiROImax[0][ 5][ 8]=	 1.17531;
+     EtaROImin[0][ 5][ 9]=  -0.504617;EtaROImax[0][ 5][ 9]=   -0.42967;PhiROImin[0][ 5][ 9]=	1.09135;PhiROImax[0][ 5][ 9]=	 1.17531;
+     EtaROImin[0][ 5][10]=  -0.573871;EtaROImax[0][ 5][10]=  -0.501681;PhiROImin[0][ 5][10]=	1.00505;PhiROImax[0][ 5][10]=	 1.08772;
+     EtaROImin[0][ 5][11]=  -0.504617;EtaROImax[0][ 5][11]=   -0.42967;PhiROImin[0][ 5][11]=	1.00505;PhiROImax[0][ 5][11]=	 1.08772;
+     EtaROImin[0][ 5][12]=  -0.741516;EtaROImax[0][ 5][12]=  -0.649933;PhiROImin[0][ 5][12]=	1.09135;PhiROImax[0][ 5][12]=	 1.17531;
+     EtaROImin[0][ 5][13]=  -0.653329;EtaROImax[0][ 5][13]=  -0.583785;PhiROImin[0][ 5][13]=	1.09135;PhiROImax[0][ 5][13]=	 1.17531;
+     EtaROImin[0][ 5][14]=  -0.741516;EtaROImax[0][ 5][14]=  -0.649933;PhiROImin[0][ 5][14]=	1.00505;PhiROImax[0][ 5][14]=	 1.08772;
+     EtaROImin[0][ 5][15]=  -0.653329;EtaROImax[0][ 5][15]=  -0.583785;PhiROImin[0][ 5][15]=	1.00505;PhiROImax[0][ 5][15]=	 1.08772;
+     EtaROImin[0][ 5][16]=	    0;EtaROImax[0][ 5][16]=	     0;PhiROImin[0][ 5][16]=	      0;PhiROImax[0][ 5][16]=	       0;
+     EtaROImin[0][ 5][17]=  -0.837822;EtaROImax[0][ 5][17]=  -0.756521;PhiROImin[0][ 5][17]=	1.09135;PhiROImax[0][ 5][17]=	 1.17531;
+     EtaROImin[0][ 5][18]=	    0;EtaROImax[0][ 5][18]=	     0;PhiROImin[0][ 5][18]=	      0;PhiROImax[0][ 5][18]=	       0;
+     EtaROImin[0][ 5][19]=  -0.837822;EtaROImax[0][ 5][19]=  -0.756521;PhiROImin[0][ 5][19]=	1.00505;PhiROImax[0][ 5][19]=	 1.08772;
+     EtaROImin[0][ 5][20]=  -0.956037;EtaROImax[0][ 5][20]=  -0.899344;PhiROImin[0][ 5][20]=	1.09135;PhiROImax[0][ 5][20]=	 1.17531;
+     EtaROImin[0][ 5][21]=  -0.903324;EtaROImax[0][ 5][21]=  -0.844116;PhiROImin[0][ 5][21]=	1.09135;PhiROImax[0][ 5][21]=	 1.17531;
+     EtaROImin[0][ 5][22]=  -0.956037;EtaROImax[0][ 5][22]=  -0.899344;PhiROImin[0][ 5][22]=	1.00505;PhiROImax[0][ 5][22]=	 1.08772;
+     EtaROImin[0][ 5][23]=  -0.903324;EtaROImax[0][ 5][23]=  -0.844116;PhiROImin[0][ 5][23]=	1.00505;PhiROImax[0][ 5][23]=	 1.08772;
+     EtaROImin[0][ 5][24]=	    0;EtaROImax[0][ 5][24]=	     0;PhiROImin[0][ 5][24]=	      0;PhiROImax[0][ 5][24]=	       0;
+     EtaROImin[0][ 5][25]=	    0;EtaROImax[0][ 5][25]=	     0;PhiROImin[0][ 5][25]=	      0;PhiROImax[0][ 5][25]=	       0;
+     EtaROImin[0][ 5][26]=	    0;EtaROImax[0][ 5][26]=	     0;PhiROImin[0][ 5][26]=	      0;PhiROImax[0][ 5][26]=	       0;
+     EtaROImin[0][ 5][27]=	    0;EtaROImax[0][ 5][27]=	     0;PhiROImin[0][ 5][27]=	      0;PhiROImax[0][ 5][27]=	       0;
+     EtaROImin[0][ 5][28]=	    0;EtaROImax[0][ 5][28]=	     0;PhiROImin[0][ 5][28]=	      0;PhiROImax[0][ 5][28]=	       0;
+     EtaROImin[0][ 5][29]=	    0;EtaROImax[0][ 5][29]=	     0;PhiROImin[0][ 5][29]=	      0;PhiROImax[0][ 5][29]=	       0;
+     EtaROImin[0][ 5][30]=	    0;EtaROImax[0][ 5][30]=	     0;PhiROImin[0][ 5][30]=	      0;PhiROImax[0][ 5][30]=	       0;
+     EtaROImin[0][ 5][31]=	    0;EtaROImax[0][ 5][31]=	     0;PhiROImin[0][ 5][31]=	      0;PhiROImax[0][ 5][31]=	       0;
+     EtaROImin[0][ 6][ 0]=  -0.118734;EtaROImax[0][ 6][ 0]= -0.0208251;PhiROImin[0][ 6][ 0]=	1.18089;PhiROImax[0][ 6][ 0]=	 1.26484;
+     EtaROImin[0][ 6][ 1]=  -0.213185;EtaROImax[0][ 6][ 1]=  -0.116816;PhiROImin[0][ 6][ 1]=	1.18089;PhiROImax[0][ 6][ 1]=	 1.26484;
+     EtaROImin[0][ 6][ 2]=  -0.118734;EtaROImax[0][ 6][ 2]= -0.0208251;PhiROImin[0][ 6][ 2]=	1.26847;PhiROImax[0][ 6][ 2]=	 1.35115;
+     EtaROImin[0][ 6][ 3]=  -0.213185;EtaROImax[0][ 6][ 3]=  -0.116816;PhiROImin[0][ 6][ 3]=	1.26847;PhiROImax[0][ 6][ 3]=	 1.35115;
+     EtaROImin[0][ 6][ 4]=  -0.302928;EtaROImax[0][ 6][ 4]=  -0.222449;PhiROImin[0][ 6][ 4]=	1.18089;PhiROImax[0][ 6][ 4]=	 1.26484;
+     EtaROImin[0][ 6][ 5]=  -0.416721;EtaROImax[0][ 6][ 5]=   -0.30075;PhiROImin[0][ 6][ 5]=	1.18089;PhiROImax[0][ 6][ 5]=	 1.26484;
+     EtaROImin[0][ 6][ 6]=  -0.302928;EtaROImax[0][ 6][ 6]=  -0.222449;PhiROImin[0][ 6][ 6]=	1.26847;PhiROImax[0][ 6][ 6]=	 1.35115;
+     EtaROImin[0][ 6][ 7]=  -0.416721;EtaROImax[0][ 6][ 7]=   -0.30075;PhiROImin[0][ 6][ 7]=	1.26847;PhiROImax[0][ 6][ 7]=	 1.35115;
+     EtaROImin[0][ 6][ 8]=  -0.504617;EtaROImax[0][ 6][ 8]=   -0.42967;PhiROImin[0][ 6][ 8]=	1.18089;PhiROImax[0][ 6][ 8]=	 1.26484;
+     EtaROImin[0][ 6][ 9]=  -0.573871;EtaROImax[0][ 6][ 9]=  -0.501681;PhiROImin[0][ 6][ 9]=	1.18089;PhiROImax[0][ 6][ 9]=	 1.26484;
+     EtaROImin[0][ 6][10]=  -0.504617;EtaROImax[0][ 6][10]=   -0.42967;PhiROImin[0][ 6][10]=	1.26847;PhiROImax[0][ 6][10]=	 1.35115;
+     EtaROImin[0][ 6][11]=  -0.573871;EtaROImax[0][ 6][11]=  -0.501681;PhiROImin[0][ 6][11]=	1.26847;PhiROImax[0][ 6][11]=	 1.35115;
+     EtaROImin[0][ 6][12]=  -0.653329;EtaROImax[0][ 6][12]=  -0.583785;PhiROImin[0][ 6][12]=	1.18089;PhiROImax[0][ 6][12]=	 1.26484;
+     EtaROImin[0][ 6][13]=  -0.741516;EtaROImax[0][ 6][13]=  -0.649933;PhiROImin[0][ 6][13]=	1.18089;PhiROImax[0][ 6][13]=	 1.26484;
+     EtaROImin[0][ 6][14]=  -0.653329;EtaROImax[0][ 6][14]=  -0.583785;PhiROImin[0][ 6][14]=	1.26847;PhiROImax[0][ 6][14]=	 1.35115;
+     EtaROImin[0][ 6][15]=  -0.741516;EtaROImax[0][ 6][15]=  -0.649933;PhiROImin[0][ 6][15]=	1.26847;PhiROImax[0][ 6][15]=	 1.35115;
+     EtaROImin[0][ 6][16]=  -0.837822;EtaROImax[0][ 6][16]=  -0.756521;PhiROImin[0][ 6][16]=	1.18089;PhiROImax[0][ 6][16]=	 1.26484;
+     EtaROImin[0][ 6][17]=	    0;EtaROImax[0][ 6][17]=	     0;PhiROImin[0][ 6][17]=	      0;PhiROImax[0][ 6][17]=	       0;
+     EtaROImin[0][ 6][18]=  -0.837822;EtaROImax[0][ 6][18]=  -0.756521;PhiROImin[0][ 6][18]=	1.26847;PhiROImax[0][ 6][18]=	 1.35115;
+     EtaROImin[0][ 6][19]=	    0;EtaROImax[0][ 6][19]=	     0;PhiROImin[0][ 6][19]=	      0;PhiROImax[0][ 6][19]=	       0;
+     EtaROImin[0][ 6][20]=  -0.903324;EtaROImax[0][ 6][20]=  -0.844116;PhiROImin[0][ 6][20]=	1.18089;PhiROImax[0][ 6][20]=	 1.26484;
+     EtaROImin[0][ 6][21]=  -0.956037;EtaROImax[0][ 6][21]=  -0.899344;PhiROImin[0][ 6][21]=	1.18089;PhiROImax[0][ 6][21]=	 1.26484;
+     EtaROImin[0][ 6][22]=  -0.903324;EtaROImax[0][ 6][22]=  -0.844116;PhiROImin[0][ 6][22]=	1.26847;PhiROImax[0][ 6][22]=	 1.35115;
+     EtaROImin[0][ 6][23]=  -0.956037;EtaROImax[0][ 6][23]=  -0.899344;PhiROImin[0][ 6][23]=	1.26847;PhiROImax[0][ 6][23]=	 1.35115;
+     EtaROImin[0][ 6][24]=	    0;EtaROImax[0][ 6][24]=	     0;PhiROImin[0][ 6][24]=	      0;PhiROImax[0][ 6][24]=	       0;
+     EtaROImin[0][ 6][25]=	    0;EtaROImax[0][ 6][25]=	     0;PhiROImin[0][ 6][25]=	      0;PhiROImax[0][ 6][25]=	       0;
+     EtaROImin[0][ 6][26]=	    0;EtaROImax[0][ 6][26]=	     0;PhiROImin[0][ 6][26]=	      0;PhiROImax[0][ 6][26]=	       0;
+     EtaROImin[0][ 6][27]=	    0;EtaROImax[0][ 6][27]=	     0;PhiROImin[0][ 6][27]=	      0;PhiROImax[0][ 6][27]=	       0;
+     EtaROImin[0][ 6][28]=	    0;EtaROImax[0][ 6][28]=	     0;PhiROImin[0][ 6][28]=	      0;PhiROImax[0][ 6][28]=	       0;
+     EtaROImin[0][ 6][29]=	    0;EtaROImax[0][ 6][29]=	     0;PhiROImin[0][ 6][29]=	      0;PhiROImax[0][ 6][29]=	       0;
+     EtaROImin[0][ 6][30]=	    0;EtaROImax[0][ 6][30]=	     0;PhiROImin[0][ 6][30]=	      0;PhiROImax[0][ 6][30]=	       0;
+     EtaROImin[0][ 6][31]=	    0;EtaROImax[0][ 6][31]=	     0;PhiROImin[0][ 6][31]=	      0;PhiROImax[0][ 6][31]=	       0;
+     EtaROImin[0][ 7][ 0]=  -0.238313;EtaROImax[0][ 7][ 0]=   -0.14708;PhiROImin[0][ 7][ 0]=	1.45818;PhiROImax[0][ 7][ 0]=	 1.56784;
+     EtaROImin[0][ 7][ 1]=  -0.147216;EtaROImax[0][ 7][ 1]= -0.0552456;PhiROImin[0][ 7][ 1]=	1.45818;PhiROImax[0][ 7][ 1]=	 1.56784;
+     EtaROImin[0][ 7][ 2]=  -0.238313;EtaROImax[0][ 7][ 2]=   -0.14708;PhiROImin[0][ 7][ 2]=	1.34779;PhiROImax[0][ 7][ 2]=	 1.45468;
+     EtaROImin[0][ 7][ 3]=  -0.147216;EtaROImax[0][ 7][ 3]= -0.0552456;PhiROImin[0][ 7][ 3]=	1.34779;PhiROImax[0][ 7][ 3]=	 1.45468;
+     EtaROImin[0][ 7][ 4]=  -0.452099;EtaROImax[0][ 7][ 4]=  -0.350831;PhiROImin[0][ 7][ 4]=	1.45818;PhiROImax[0][ 7][ 4]=	 1.56784;
+     EtaROImin[0][ 7][ 5]=   -0.35049;EtaROImax[0][ 7][ 5]=  -0.246207;PhiROImin[0][ 7][ 5]=	1.45818;PhiROImax[0][ 7][ 5]=	 1.56784;
+     EtaROImin[0][ 7][ 6]=  -0.452099;EtaROImax[0][ 7][ 6]=  -0.350831;PhiROImin[0][ 7][ 6]=	1.34779;PhiROImax[0][ 7][ 6]=	 1.45468;
+     EtaROImin[0][ 7][ 7]=   -0.35049;EtaROImax[0][ 7][ 7]=  -0.246207;PhiROImin[0][ 7][ 7]=	1.34779;PhiROImax[0][ 7][ 7]=	 1.45468;
+     EtaROImin[0][ 7][ 8]=  -0.648101;EtaROImax[0][ 7][ 8]=  -0.555789;PhiROImin[0][ 7][ 8]=	1.45818;PhiROImax[0][ 7][ 8]=	 1.56784;
+     EtaROImin[0][ 7][ 9]=  -0.554444;EtaROImax[0][ 7][ 9]=  -0.458091;PhiROImin[0][ 7][ 9]=	1.45818;PhiROImax[0][ 7][ 9]=	 1.56784;
+     EtaROImin[0][ 7][10]=  -0.648101;EtaROImax[0][ 7][10]=  -0.555789;PhiROImin[0][ 7][10]=	1.34779;PhiROImax[0][ 7][10]=	 1.45468;
+     EtaROImin[0][ 7][11]=  -0.554444;EtaROImax[0][ 7][11]=  -0.458091;PhiROImin[0][ 7][11]=	1.34779;PhiROImax[0][ 7][11]=	 1.45468;
+     EtaROImin[0][ 7][12]=  -0.776449;EtaROImax[0][ 7][12]=  -0.731124;PhiROImin[0][ 7][12]=	1.45758;PhiROImax[0][ 7][12]=	 1.56783;
+     EtaROImin[0][ 7][13]=  -0.728056;EtaROImax[0][ 7][13]=  -0.655857;PhiROImin[0][ 7][13]=	1.45758;PhiROImax[0][ 7][13]=	 1.56783;
+     EtaROImin[0][ 7][14]=  -0.776449;EtaROImax[0][ 7][14]=  -0.731124;PhiROImin[0][ 7][14]=	1.34663;PhiROImax[0][ 7][14]=	 1.45406;
+     EtaROImin[0][ 7][15]=  -0.728056;EtaROImax[0][ 7][15]=  -0.655857;PhiROImin[0][ 7][15]=	1.34663;PhiROImax[0][ 7][15]=	 1.45406;
+     EtaROImin[0][ 7][16]=  -0.895163;EtaROImax[0][ 7][16]=  -0.853359;PhiROImin[0][ 7][16]=	1.45758;PhiROImax[0][ 7][16]=	 1.56783;
+     EtaROImin[0][ 7][17]=  -0.850528;EtaROImax[0][ 7][17]=  -0.783867;PhiROImin[0][ 7][17]=	1.45758;PhiROImax[0][ 7][17]=	 1.56783;
+     EtaROImin[0][ 7][18]=  -0.895163;EtaROImax[0][ 7][18]=  -0.853359;PhiROImin[0][ 7][18]=	1.34663;PhiROImax[0][ 7][18]=	 1.45406;
+     EtaROImin[0][ 7][19]=  -0.850528;EtaROImax[0][ 7][19]=  -0.783867;PhiROImin[0][ 7][19]=	1.34663;PhiROImax[0][ 7][19]=	 1.45406;
+     EtaROImin[0][ 7][20]=   -1.02514;EtaROImax[0][ 7][20]=  -0.964674;PhiROImin[0][ 7][20]=	1.45818;PhiROImax[0][ 7][20]=	 1.56784;
+     EtaROImin[0][ 7][21]=  -0.961344;EtaROImax[0][ 7][21]=  -0.898201;PhiROImin[0][ 7][21]=	1.45818;PhiROImax[0][ 7][21]=	 1.56784;
+     EtaROImin[0][ 7][22]=   -1.02514;EtaROImax[0][ 7][22]=  -0.964674;PhiROImin[0][ 7][22]=	1.34779;PhiROImax[0][ 7][22]=	 1.45468;
+     EtaROImin[0][ 7][23]=  -0.961344;EtaROImax[0][ 7][23]=  -0.898201;PhiROImin[0][ 7][23]=	1.34779;PhiROImax[0][ 7][23]=	 1.45468;
+     EtaROImin[0][ 7][24]=	    0;EtaROImax[0][ 7][24]=	     0;PhiROImin[0][ 7][24]=	      0;PhiROImax[0][ 7][24]=	       0;
+     EtaROImin[0][ 7][25]=   -1.06547;EtaROImax[0][ 7][25]=   -1.03003;PhiROImin[0][ 7][25]=	1.45737;PhiROImax[0][ 7][25]=	 1.56773;
+     EtaROImin[0][ 7][26]=	    0;EtaROImax[0][ 7][26]=	     0;PhiROImin[0][ 7][26]=	      0;PhiROImax[0][ 7][26]=	       0;
+     EtaROImin[0][ 7][27]=   -1.06547;EtaROImax[0][ 7][27]=   -1.03003;PhiROImin[0][ 7][27]=	1.37365;PhiROImax[0][ 7][27]=	 1.45384;
+     EtaROImin[0][ 7][28]=	    0;EtaROImax[0][ 7][28]=	     0;PhiROImin[0][ 7][28]=	      0;PhiROImax[0][ 7][28]=	       0;
+     EtaROImin[0][ 7][29]=	    0;EtaROImax[0][ 7][29]=	     0;PhiROImin[0][ 7][29]=	      0;PhiROImax[0][ 7][29]=	       0;
+     EtaROImin[0][ 7][30]=	    0;EtaROImax[0][ 7][30]=	     0;PhiROImin[0][ 7][30]=	      0;PhiROImax[0][ 7][30]=	       0;
+     EtaROImin[0][ 7][31]=	    0;EtaROImax[0][ 7][31]=	     0;PhiROImin[0][ 7][31]=	      0;PhiROImax[0][ 7][31]=	       0;
+     EtaROImin[0][ 8][ 0]=  -0.147216;EtaROImax[0][ 8][ 0]= -0.0552456;PhiROImin[0][ 8][ 0]=	1.57375;PhiROImax[0][ 8][ 0]=	 1.68341;
+     EtaROImin[0][ 8][ 1]=  -0.238313;EtaROImax[0][ 8][ 1]=   -0.14708;PhiROImin[0][ 8][ 1]=	1.57375;PhiROImax[0][ 8][ 1]=	 1.68341;
+     EtaROImin[0][ 8][ 2]=  -0.147216;EtaROImax[0][ 8][ 2]= -0.0552456;PhiROImin[0][ 8][ 2]=	1.68692;PhiROImax[0][ 8][ 2]=	 1.79381;
+     EtaROImin[0][ 8][ 3]=  -0.238313;EtaROImax[0][ 8][ 3]=   -0.14708;PhiROImin[0][ 8][ 3]=	1.68692;PhiROImax[0][ 8][ 3]=	 1.79381;
+     EtaROImin[0][ 8][ 4]=   -0.35049;EtaROImax[0][ 8][ 4]=  -0.246207;PhiROImin[0][ 8][ 4]=	1.57375;PhiROImax[0][ 8][ 4]=	 1.68341;
+     EtaROImin[0][ 8][ 5]=  -0.452099;EtaROImax[0][ 8][ 5]=  -0.350831;PhiROImin[0][ 8][ 5]=	1.57375;PhiROImax[0][ 8][ 5]=	 1.68341;
+     EtaROImin[0][ 8][ 6]=   -0.35049;EtaROImax[0][ 8][ 6]=  -0.246207;PhiROImin[0][ 8][ 6]=	1.68692;PhiROImax[0][ 8][ 6]=	 1.79381;
+     EtaROImin[0][ 8][ 7]=  -0.452099;EtaROImax[0][ 8][ 7]=  -0.350831;PhiROImin[0][ 8][ 7]=	1.68692;PhiROImax[0][ 8][ 7]=	 1.79381;
+     EtaROImin[0][ 8][ 8]=  -0.554444;EtaROImax[0][ 8][ 8]=  -0.458091;PhiROImin[0][ 8][ 8]=	1.57375;PhiROImax[0][ 8][ 8]=	 1.68341;
+     EtaROImin[0][ 8][ 9]=  -0.648101;EtaROImax[0][ 8][ 9]=  -0.555789;PhiROImin[0][ 8][ 9]=	1.57375;PhiROImax[0][ 8][ 9]=	 1.68341;
+     EtaROImin[0][ 8][10]=  -0.554444;EtaROImax[0][ 8][10]=  -0.458091;PhiROImin[0][ 8][10]=	1.68692;PhiROImax[0][ 8][10]=	 1.79381;
+     EtaROImin[0][ 8][11]=  -0.648101;EtaROImax[0][ 8][11]=  -0.555789;PhiROImin[0][ 8][11]=	1.68692;PhiROImax[0][ 8][11]=	 1.79381;
+     EtaROImin[0][ 8][12]=  -0.703298;EtaROImax[0][ 8][12]=  -0.655857;PhiROImin[0][ 8][12]=	1.57376;PhiROImax[0][ 8][12]=	 1.68401;
+     EtaROImin[0][ 8][13]=  -0.776449;EtaROImax[0][ 8][13]=  -0.706413;PhiROImin[0][ 8][13]=	1.57376;PhiROImax[0][ 8][13]=	 1.68401;
+     EtaROImin[0][ 8][14]=  -0.703298;EtaROImax[0][ 8][14]=  -0.655857;PhiROImin[0][ 8][14]=	1.68753;PhiROImax[0][ 8][14]=	 1.79497;
+     EtaROImin[0][ 8][15]=  -0.776449;EtaROImax[0][ 8][15]=  -0.706413;PhiROImin[0][ 8][15]=	1.68753;PhiROImax[0][ 8][15]=	 1.79497;
+     EtaROImin[0][ 8][16]=   -0.82768;EtaROImax[0][ 8][16]=  -0.783867;PhiROImin[0][ 8][16]=	1.57376;PhiROImax[0][ 8][16]=	 1.68401;
+     EtaROImin[0][ 8][17]=  -0.895163;EtaROImax[0][ 8][17]=  -0.830556;PhiROImin[0][ 8][17]=	1.57376;PhiROImax[0][ 8][17]=	 1.68401;
+     EtaROImin[0][ 8][18]=   -0.82768;EtaROImax[0][ 8][18]=  -0.783867;PhiROImin[0][ 8][18]=	1.68753;PhiROImax[0][ 8][18]=	 1.79497;
+     EtaROImin[0][ 8][19]=  -0.895163;EtaROImax[0][ 8][19]=  -0.830556;PhiROImin[0][ 8][19]=	1.68753;PhiROImax[0][ 8][19]=	 1.79497;
+     EtaROImin[0][ 8][20]=  -0.961344;EtaROImax[0][ 8][20]=  -0.898201;PhiROImin[0][ 8][20]=	1.57375;PhiROImax[0][ 8][20]=	 1.68341;
+     EtaROImin[0][ 8][21]=   -1.02514;EtaROImax[0][ 8][21]=  -0.964674;PhiROImin[0][ 8][21]=	1.57375;PhiROImax[0][ 8][21]=	 1.68341;
+     EtaROImin[0][ 8][22]=  -0.961344;EtaROImax[0][ 8][22]=  -0.898201;PhiROImin[0][ 8][22]=	1.68692;PhiROImax[0][ 8][22]=	 1.79381;
+     EtaROImin[0][ 8][23]=   -1.02514;EtaROImax[0][ 8][23]=  -0.964674;PhiROImin[0][ 8][23]=	1.68692;PhiROImax[0][ 8][23]=	 1.79381;
+     EtaROImin[0][ 8][24]=   -1.06547;EtaROImax[0][ 8][24]=   -1.03003;PhiROImin[0][ 8][24]=	1.57387;PhiROImax[0][ 8][24]=	 1.68423;
+     EtaROImin[0][ 8][25]=	    0;EtaROImax[0][ 8][25]=	     0;PhiROImin[0][ 8][25]=	      0;PhiROImax[0][ 8][25]=	       0;
+     EtaROImin[0][ 8][26]=   -1.06547;EtaROImax[0][ 8][26]=   -1.03003;PhiROImin[0][ 8][26]=	1.68775;PhiROImax[0][ 8][26]=	 1.76794;
+     EtaROImin[0][ 8][27]=	    0;EtaROImax[0][ 8][27]=	     0;PhiROImin[0][ 8][27]=	      0;PhiROImax[0][ 8][27]=	       0;
+     EtaROImin[0][ 8][28]=	    0;EtaROImax[0][ 8][28]=	     0;PhiROImin[0][ 8][28]=	      0;PhiROImax[0][ 8][28]=	       0;
+     EtaROImin[0][ 8][29]=	    0;EtaROImax[0][ 8][29]=	     0;PhiROImin[0][ 8][29]=	      0;PhiROImax[0][ 8][29]=	       0;
+     EtaROImin[0][ 8][30]=	    0;EtaROImax[0][ 8][30]=	     0;PhiROImin[0][ 8][30]=	      0;PhiROImax[0][ 8][30]=	       0;
+     EtaROImin[0][ 8][31]=	    0;EtaROImax[0][ 8][31]=	     0;PhiROImin[0][ 8][31]=	      0;PhiROImax[0][ 8][31]=	       0;
+     EtaROImin[0][ 9][ 0]=  -0.213185;EtaROImax[0][ 9][ 0]=  -0.116816;PhiROImin[0][ 9][ 0]=	1.87675;PhiROImax[0][ 9][ 0]=	 1.96071;
+     EtaROImin[0][ 9][ 1]=  -0.118734;EtaROImax[0][ 9][ 1]= -0.0208251;PhiROImin[0][ 9][ 1]=	1.87675;PhiROImax[0][ 9][ 1]=	 1.96071;
+     EtaROImin[0][ 9][ 2]=  -0.213185;EtaROImax[0][ 9][ 2]=  -0.116816;PhiROImin[0][ 9][ 2]=	1.79045;PhiROImax[0][ 9][ 2]=	 1.87312;
+     EtaROImin[0][ 9][ 3]=  -0.118734;EtaROImax[0][ 9][ 3]= -0.0208251;PhiROImin[0][ 9][ 3]=	1.79045;PhiROImax[0][ 9][ 3]=	 1.87312;
+     EtaROImin[0][ 9][ 4]=  -0.416721;EtaROImax[0][ 9][ 4]=   -0.30075;PhiROImin[0][ 9][ 4]=	1.87675;PhiROImax[0][ 9][ 4]=	 1.96071;
+     EtaROImin[0][ 9][ 5]=  -0.302928;EtaROImax[0][ 9][ 5]=  -0.222449;PhiROImin[0][ 9][ 5]=	1.87675;PhiROImax[0][ 9][ 5]=	 1.96071;
+     EtaROImin[0][ 9][ 6]=  -0.416721;EtaROImax[0][ 9][ 6]=   -0.30075;PhiROImin[0][ 9][ 6]=	1.79045;PhiROImax[0][ 9][ 6]=	 1.87312;
+     EtaROImin[0][ 9][ 7]=  -0.302928;EtaROImax[0][ 9][ 7]=  -0.222449;PhiROImin[0][ 9][ 7]=	1.79045;PhiROImax[0][ 9][ 7]=	 1.87312;
+     EtaROImin[0][ 9][ 8]=  -0.573871;EtaROImax[0][ 9][ 8]=  -0.501681;PhiROImin[0][ 9][ 8]=	1.87675;PhiROImax[0][ 9][ 8]=	 1.96071;
+     EtaROImin[0][ 9][ 9]=  -0.504617;EtaROImax[0][ 9][ 9]=   -0.42967;PhiROImin[0][ 9][ 9]=	1.87675;PhiROImax[0][ 9][ 9]=	 1.96071;
+     EtaROImin[0][ 9][10]=  -0.573871;EtaROImax[0][ 9][10]=  -0.501681;PhiROImin[0][ 9][10]=	1.79045;PhiROImax[0][ 9][10]=	 1.87312;
+     EtaROImin[0][ 9][11]=  -0.504617;EtaROImax[0][ 9][11]=   -0.42967;PhiROImin[0][ 9][11]=	1.79045;PhiROImax[0][ 9][11]=	 1.87312;
+     EtaROImin[0][ 9][12]=  -0.741516;EtaROImax[0][ 9][12]=  -0.649933;PhiROImin[0][ 9][12]=	1.87675;PhiROImax[0][ 9][12]=	 1.96071;
+     EtaROImin[0][ 9][13]=  -0.653329;EtaROImax[0][ 9][13]=  -0.583785;PhiROImin[0][ 9][13]=	1.87675;PhiROImax[0][ 9][13]=	 1.96071;
+     EtaROImin[0][ 9][14]=  -0.741516;EtaROImax[0][ 9][14]=  -0.649933;PhiROImin[0][ 9][14]=	1.79045;PhiROImax[0][ 9][14]=	 1.87312;
+     EtaROImin[0][ 9][15]=  -0.653329;EtaROImax[0][ 9][15]=  -0.583785;PhiROImin[0][ 9][15]=	1.79045;PhiROImax[0][ 9][15]=	 1.87312;
+     EtaROImin[0][ 9][16]=	    0;EtaROImax[0][ 9][16]=	     0;PhiROImin[0][ 9][16]=	      0;PhiROImax[0][ 9][16]=	       0;
+     EtaROImin[0][ 9][17]=  -0.837822;EtaROImax[0][ 9][17]=  -0.756521;PhiROImin[0][ 9][17]=	1.87675;PhiROImax[0][ 9][17]=	 1.96071;
+     EtaROImin[0][ 9][18]=	    0;EtaROImax[0][ 9][18]=	     0;PhiROImin[0][ 9][18]=	      0;PhiROImax[0][ 9][18]=	       0;
+     EtaROImin[0][ 9][19]=  -0.837822;EtaROImax[0][ 9][19]=  -0.756521;PhiROImin[0][ 9][19]=	1.79045;PhiROImax[0][ 9][19]=	 1.87312;
+     EtaROImin[0][ 9][20]=  -0.956037;EtaROImax[0][ 9][20]=  -0.899344;PhiROImin[0][ 9][20]=	1.87675;PhiROImax[0][ 9][20]=	 1.96071;
+     EtaROImin[0][ 9][21]=  -0.903324;EtaROImax[0][ 9][21]=  -0.844116;PhiROImin[0][ 9][21]=	1.87675;PhiROImax[0][ 9][21]=	 1.96071;
+     EtaROImin[0][ 9][22]=  -0.956037;EtaROImax[0][ 9][22]=  -0.899344;PhiROImin[0][ 9][22]=	1.79045;PhiROImax[0][ 9][22]=	 1.87312;
+     EtaROImin[0][ 9][23]=  -0.903324;EtaROImax[0][ 9][23]=  -0.844116;PhiROImin[0][ 9][23]=	1.79045;PhiROImax[0][ 9][23]=	 1.87312;
+     EtaROImin[0][ 9][24]=	    0;EtaROImax[0][ 9][24]=	     0;PhiROImin[0][ 9][24]=	      0;PhiROImax[0][ 9][24]=	       0;
+     EtaROImin[0][ 9][25]=	    0;EtaROImax[0][ 9][25]=	     0;PhiROImin[0][ 9][25]=	      0;PhiROImax[0][ 9][25]=	       0;
+     EtaROImin[0][ 9][26]=	    0;EtaROImax[0][ 9][26]=	     0;PhiROImin[0][ 9][26]=	      0;PhiROImax[0][ 9][26]=	       0;
+     EtaROImin[0][ 9][27]=	    0;EtaROImax[0][ 9][27]=	     0;PhiROImin[0][ 9][27]=	      0;PhiROImax[0][ 9][27]=	       0;
+     EtaROImin[0][ 9][28]=	    0;EtaROImax[0][ 9][28]=	     0;PhiROImin[0][ 9][28]=	      0;PhiROImax[0][ 9][28]=	       0;
+     EtaROImin[0][ 9][29]=	    0;EtaROImax[0][ 9][29]=	     0;PhiROImin[0][ 9][29]=	      0;PhiROImax[0][ 9][29]=	       0;
+     EtaROImin[0][ 9][30]=	    0;EtaROImax[0][ 9][30]=	     0;PhiROImin[0][ 9][30]=	      0;PhiROImax[0][ 9][30]=	       0;
+     EtaROImin[0][ 9][31]=	    0;EtaROImax[0][ 9][31]=	     0;PhiROImin[0][ 9][31]=	      0;PhiROImax[0][ 9][31]=	       0;
+     EtaROImin[0][10][ 0]=  -0.118734;EtaROImax[0][10][ 0]= -0.0208251;PhiROImin[0][10][ 0]=	1.96629;PhiROImax[0][10][ 0]=	 2.05024;
+     EtaROImin[0][10][ 1]=  -0.213185;EtaROImax[0][10][ 1]=  -0.116816;PhiROImin[0][10][ 1]=	1.96629;PhiROImax[0][10][ 1]=	 2.05024;
+     EtaROImin[0][10][ 2]=  -0.118734;EtaROImax[0][10][ 2]= -0.0208251;PhiROImin[0][10][ 2]=	2.05387;PhiROImax[0][10][ 2]=	 2.13655;
+     EtaROImin[0][10][ 3]=  -0.213185;EtaROImax[0][10][ 3]=  -0.116816;PhiROImin[0][10][ 3]=	2.05387;PhiROImax[0][10][ 3]=	 2.13655;
+     EtaROImin[0][10][ 4]=  -0.302928;EtaROImax[0][10][ 4]=  -0.222449;PhiROImin[0][10][ 4]=	1.96629;PhiROImax[0][10][ 4]=	 2.05024;
+     EtaROImin[0][10][ 5]=  -0.416721;EtaROImax[0][10][ 5]=   -0.30075;PhiROImin[0][10][ 5]=	1.96629;PhiROImax[0][10][ 5]=	 2.05024;
+     EtaROImin[0][10][ 6]=  -0.302928;EtaROImax[0][10][ 6]=  -0.222449;PhiROImin[0][10][ 6]=	2.05387;PhiROImax[0][10][ 6]=	 2.13655;
+     EtaROImin[0][10][ 7]=  -0.416721;EtaROImax[0][10][ 7]=   -0.30075;PhiROImin[0][10][ 7]=	2.05387;PhiROImax[0][10][ 7]=	 2.13655;
+     EtaROImin[0][10][ 8]=  -0.504617;EtaROImax[0][10][ 8]=   -0.42967;PhiROImin[0][10][ 8]=	1.96629;PhiROImax[0][10][ 8]=	 2.05024;
+     EtaROImin[0][10][ 9]=  -0.573871;EtaROImax[0][10][ 9]=  -0.501681;PhiROImin[0][10][ 9]=	1.96629;PhiROImax[0][10][ 9]=	 2.05024;
+     EtaROImin[0][10][10]=  -0.504617;EtaROImax[0][10][10]=   -0.42967;PhiROImin[0][10][10]=	2.05387;PhiROImax[0][10][10]=	 2.13655;
+     EtaROImin[0][10][11]=  -0.573871;EtaROImax[0][10][11]=  -0.501681;PhiROImin[0][10][11]=	2.05387;PhiROImax[0][10][11]=	 2.13655;
+     EtaROImin[0][10][12]=  -0.653329;EtaROImax[0][10][12]=  -0.583785;PhiROImin[0][10][12]=	1.96629;PhiROImax[0][10][12]=	 2.05024;
+     EtaROImin[0][10][13]=  -0.741516;EtaROImax[0][10][13]=  -0.649933;PhiROImin[0][10][13]=	1.96629;PhiROImax[0][10][13]=	 2.05024;
+     EtaROImin[0][10][14]=  -0.653329;EtaROImax[0][10][14]=  -0.583785;PhiROImin[0][10][14]=	2.05387;PhiROImax[0][10][14]=	 2.13655;
+     EtaROImin[0][10][15]=  -0.741516;EtaROImax[0][10][15]=  -0.649933;PhiROImin[0][10][15]=	2.05387;PhiROImax[0][10][15]=	 2.13655;
+     EtaROImin[0][10][16]=  -0.837822;EtaROImax[0][10][16]=  -0.756521;PhiROImin[0][10][16]=	1.96629;PhiROImax[0][10][16]=	 2.05024;
+     EtaROImin[0][10][17]=	    0;EtaROImax[0][10][17]=	     0;PhiROImin[0][10][17]=	      0;PhiROImax[0][10][17]=	       0;
+     EtaROImin[0][10][18]=  -0.837822;EtaROImax[0][10][18]=  -0.756521;PhiROImin[0][10][18]=	2.05387;PhiROImax[0][10][18]=	 2.13655;
+     EtaROImin[0][10][19]=	    0;EtaROImax[0][10][19]=	     0;PhiROImin[0][10][19]=	      0;PhiROImax[0][10][19]=	       0;
+     EtaROImin[0][10][20]=  -0.903324;EtaROImax[0][10][20]=  -0.844116;PhiROImin[0][10][20]=	1.96629;PhiROImax[0][10][20]=	 2.05024;
+     EtaROImin[0][10][21]=  -0.956037;EtaROImax[0][10][21]=  -0.899344;PhiROImin[0][10][21]=	1.96629;PhiROImax[0][10][21]=	 2.05024;
+     EtaROImin[0][10][22]=  -0.903324;EtaROImax[0][10][22]=  -0.844116;PhiROImin[0][10][22]=	2.05387;PhiROImax[0][10][22]=	 2.13655;
+     EtaROImin[0][10][23]=  -0.956037;EtaROImax[0][10][23]=  -0.899344;PhiROImin[0][10][23]=	2.05387;PhiROImax[0][10][23]=	 2.13655;
+     EtaROImin[0][10][24]=	    0;EtaROImax[0][10][24]=	     0;PhiROImin[0][10][24]=	      0;PhiROImax[0][10][24]=	       0;
+     EtaROImin[0][10][25]=	    0;EtaROImax[0][10][25]=	     0;PhiROImin[0][10][25]=	      0;PhiROImax[0][10][25]=	       0;
+     EtaROImin[0][10][26]=	    0;EtaROImax[0][10][26]=	     0;PhiROImin[0][10][26]=	      0;PhiROImax[0][10][26]=	       0;
+     EtaROImin[0][10][27]=	    0;EtaROImax[0][10][27]=	     0;PhiROImin[0][10][27]=	      0;PhiROImax[0][10][27]=	       0;
+     EtaROImin[0][10][28]=	    0;EtaROImax[0][10][28]=	     0;PhiROImin[0][10][28]=	      0;PhiROImax[0][10][28]=	       0;
+     EtaROImin[0][10][29]=	    0;EtaROImax[0][10][29]=	     0;PhiROImin[0][10][29]=	      0;PhiROImax[0][10][29]=	       0;
+     EtaROImin[0][10][30]=	    0;EtaROImax[0][10][30]=	     0;PhiROImin[0][10][30]=	      0;PhiROImax[0][10][30]=	       0;
+     EtaROImin[0][10][31]=	    0;EtaROImax[0][10][31]=	     0;PhiROImin[0][10][31]=	      0;PhiROImax[0][10][31]=	       0;
+     EtaROImin[0][11][ 0]=	    0;EtaROImax[0][11][ 0]=	     0;PhiROImin[0][11][ 0]=	      0;PhiROImax[0][11][ 0]=	       0;
+     EtaROImin[0][11][ 1]=  -0.238612;EtaROImax[0][11][ 1]=  -0.130922;PhiROImin[0][11][ 1]=	2.24298;PhiROImax[0][11][ 1]=	 2.35323;
+     EtaROImin[0][11][ 2]=	    0;EtaROImax[0][11][ 2]=	     0;PhiROImin[0][11][ 2]=	      0;PhiROImax[0][11][ 2]=	       0;
+     EtaROImin[0][11][ 3]=  -0.238612;EtaROImax[0][11][ 3]=  -0.130922;PhiROImin[0][11][ 3]=	2.13203;PhiROImax[0][11][ 3]=	 2.23946;
+     EtaROImin[0][11][ 4]=  -0.452099;EtaROImax[0][11][ 4]=  -0.350831;PhiROImin[0][11][ 4]=	2.24358;PhiROImax[0][11][ 4]=	 2.35324;
+     EtaROImin[0][11][ 5]=   -0.35049;EtaROImax[0][11][ 5]=  -0.246207;PhiROImin[0][11][ 5]=	2.24358;PhiROImax[0][11][ 5]=	 2.35324;
+     EtaROImin[0][11][ 6]=  -0.452099;EtaROImax[0][11][ 6]=  -0.350831;PhiROImin[0][11][ 6]=	2.13318;PhiROImax[0][11][ 6]=	 2.24008;
+     EtaROImin[0][11][ 7]=   -0.35049;EtaROImax[0][11][ 7]=  -0.246207;PhiROImin[0][11][ 7]=	2.13318;PhiROImax[0][11][ 7]=	 2.24008;
+     EtaROImin[0][11][ 8]=  -0.648101;EtaROImax[0][11][ 8]=  -0.555789;PhiROImin[0][11][ 8]=	2.24358;PhiROImax[0][11][ 8]=	 2.35324;
+     EtaROImin[0][11][ 9]=  -0.554444;EtaROImax[0][11][ 9]=  -0.458091;PhiROImin[0][11][ 9]=	2.24358;PhiROImax[0][11][ 9]=	 2.35324;
+     EtaROImin[0][11][10]=  -0.648101;EtaROImax[0][11][10]=  -0.555789;PhiROImin[0][11][10]=	2.13318;PhiROImax[0][11][10]=	 2.24008;
+     EtaROImin[0][11][11]=  -0.554444;EtaROImax[0][11][11]=  -0.458091;PhiROImin[0][11][11]=	2.13318;PhiROImax[0][11][11]=	 2.24008;
+     EtaROImin[0][11][12]=  -0.776449;EtaROImax[0][11][12]=  -0.731124;PhiROImin[0][11][12]=	2.24298;PhiROImax[0][11][12]=	 2.35323;
+     EtaROImin[0][11][13]=  -0.728056;EtaROImax[0][11][13]=  -0.655857;PhiROImin[0][11][13]=	2.24298;PhiROImax[0][11][13]=	 2.35323;
+     EtaROImin[0][11][14]=  -0.776449;EtaROImax[0][11][14]=  -0.731124;PhiROImin[0][11][14]=	2.13203;PhiROImax[0][11][14]=	 2.23946;
+     EtaROImin[0][11][15]=  -0.728056;EtaROImax[0][11][15]=  -0.655857;PhiROImin[0][11][15]=	2.13203;PhiROImax[0][11][15]=	 2.23946;
+     EtaROImin[0][11][16]=  -0.895163;EtaROImax[0][11][16]=  -0.853359;PhiROImin[0][11][16]=	2.24298;PhiROImax[0][11][16]=	 2.35323;
+     EtaROImin[0][11][17]=  -0.850528;EtaROImax[0][11][17]=  -0.783867;PhiROImin[0][11][17]=	2.24298;PhiROImax[0][11][17]=	 2.35323;
+     EtaROImin[0][11][18]=  -0.895163;EtaROImax[0][11][18]=  -0.853359;PhiROImin[0][11][18]=	2.13203;PhiROImax[0][11][18]=	 2.23946;
+     EtaROImin[0][11][19]=  -0.850528;EtaROImax[0][11][19]=  -0.783867;PhiROImin[0][11][19]=	2.13203;PhiROImax[0][11][19]=	 2.23946;
+     EtaROImin[0][11][20]=   -1.02514;EtaROImax[0][11][20]=  -0.964674;PhiROImin[0][11][20]=	2.24358;PhiROImax[0][11][20]=	 2.35324;
+     EtaROImin[0][11][21]=  -0.961344;EtaROImax[0][11][21]=  -0.898201;PhiROImin[0][11][21]=	2.24358;PhiROImax[0][11][21]=	 2.35324;
+     EtaROImin[0][11][22]=   -1.02514;EtaROImax[0][11][22]=  -0.964674;PhiROImin[0][11][22]=	2.13318;PhiROImax[0][11][22]=	 2.24008;
+     EtaROImin[0][11][23]=  -0.961344;EtaROImax[0][11][23]=  -0.898201;PhiROImin[0][11][23]=	2.13318;PhiROImax[0][11][23]=	 2.24008;
+     EtaROImin[0][11][24]=	    0;EtaROImax[0][11][24]=	     0;PhiROImin[0][11][24]=	      0;PhiROImax[0][11][24]=	       0;
+     EtaROImin[0][11][25]=   -1.06547;EtaROImax[0][11][25]=   -1.03003;PhiROImin[0][11][25]=	2.24277;PhiROImax[0][11][25]=	 2.35313;
+     EtaROImin[0][11][26]=	    0;EtaROImax[0][11][26]=	     0;PhiROImin[0][11][26]=	      0;PhiROImax[0][11][26]=	       0;
+     EtaROImin[0][11][27]=   -1.06547;EtaROImax[0][11][27]=   -1.03003;PhiROImin[0][11][27]=	2.15905;PhiROImax[0][11][27]=	 2.23924;
+     EtaROImin[0][11][28]=	    0;EtaROImax[0][11][28]=	     0;PhiROImin[0][11][28]=	      0;PhiROImax[0][11][28]=	       0;
+     EtaROImin[0][11][29]=	    0;EtaROImax[0][11][29]=	     0;PhiROImin[0][11][29]=	      0;PhiROImax[0][11][29]=	       0;
+     EtaROImin[0][11][30]=	    0;EtaROImax[0][11][30]=	     0;PhiROImin[0][11][30]=	      0;PhiROImax[0][11][30]=	       0;
+     EtaROImin[0][11][31]=	    0;EtaROImax[0][11][31]=	     0;PhiROImin[0][11][31]=	      0;PhiROImax[0][11][31]=	       0;
+     EtaROImin[0][12][ 0]=  -0.238612;EtaROImax[0][12][ 0]=  -0.130922;PhiROImin[0][12][ 0]=	2.35916;PhiROImax[0][12][ 0]=	 2.46941;
+     EtaROImin[0][12][ 1]=	    0;EtaROImax[0][12][ 1]=	     0;PhiROImin[0][12][ 1]=	      0;PhiROImax[0][12][ 1]=	       0;
+     EtaROImin[0][12][ 2]=  -0.238612;EtaROImax[0][12][ 2]=  -0.130922;PhiROImin[0][12][ 2]=	2.47293;PhiROImax[0][12][ 2]=	 2.58036;
+     EtaROImin[0][12][ 3]=	    0;EtaROImax[0][12][ 3]=	     0;PhiROImin[0][12][ 3]=	      0;PhiROImax[0][12][ 3]=	       0;
+     EtaROImin[0][12][ 4]=   -0.35049;EtaROImax[0][12][ 4]=  -0.246207;PhiROImin[0][12][ 4]=	2.35915;PhiROImax[0][12][ 4]=	 2.46881;
+     EtaROImin[0][12][ 5]=  -0.452099;EtaROImax[0][12][ 5]=  -0.350831;PhiROImin[0][12][ 5]=	2.35915;PhiROImax[0][12][ 5]=	 2.46881;
+     EtaROImin[0][12][ 6]=   -0.35049;EtaROImax[0][12][ 6]=  -0.246207;PhiROImin[0][12][ 6]=	2.47231;PhiROImax[0][12][ 6]=	 2.57921;
+     EtaROImin[0][12][ 7]=  -0.452099;EtaROImax[0][12][ 7]=  -0.350831;PhiROImin[0][12][ 7]=	2.47231;PhiROImax[0][12][ 7]=	 2.57921;
+     EtaROImin[0][12][ 8]=  -0.554444;EtaROImax[0][12][ 8]=  -0.458091;PhiROImin[0][12][ 8]=	2.35915;PhiROImax[0][12][ 8]=	 2.46881;
+     EtaROImin[0][12][ 9]=  -0.648101;EtaROImax[0][12][ 9]=  -0.555789;PhiROImin[0][12][ 9]=	2.35915;PhiROImax[0][12][ 9]=	 2.46881;
+     EtaROImin[0][12][10]=  -0.554444;EtaROImax[0][12][10]=  -0.458091;PhiROImin[0][12][10]=	2.47231;PhiROImax[0][12][10]=	 2.57921;
+     EtaROImin[0][12][11]=  -0.648101;EtaROImax[0][12][11]=  -0.555789;PhiROImin[0][12][11]=	2.47231;PhiROImax[0][12][11]=	 2.57921;
+     EtaROImin[0][12][12]=  -0.703298;EtaROImax[0][12][12]=  -0.655857;PhiROImin[0][12][12]=	2.35916;PhiROImax[0][12][12]=	 2.46941;
+     EtaROImin[0][12][13]=  -0.776449;EtaROImax[0][12][13]=  -0.706413;PhiROImin[0][12][13]=	2.35916;PhiROImax[0][12][13]=	 2.46941;
+     EtaROImin[0][12][14]=  -0.703298;EtaROImax[0][12][14]=  -0.655857;PhiROImin[0][12][14]=	2.47293;PhiROImax[0][12][14]=	 2.58036;
+     EtaROImin[0][12][15]=  -0.776449;EtaROImax[0][12][15]=  -0.706413;PhiROImin[0][12][15]=	2.47293;PhiROImax[0][12][15]=	 2.58036;
+     EtaROImin[0][12][16]=   -0.82768;EtaROImax[0][12][16]=  -0.783867;PhiROImin[0][12][16]=	2.35916;PhiROImax[0][12][16]=	 2.46941;
+     EtaROImin[0][12][17]=  -0.895163;EtaROImax[0][12][17]=  -0.830556;PhiROImin[0][12][17]=	2.35916;PhiROImax[0][12][17]=	 2.46941;
+     EtaROImin[0][12][18]=   -0.82768;EtaROImax[0][12][18]=  -0.783867;PhiROImin[0][12][18]=	2.47293;PhiROImax[0][12][18]=	 2.58036;
+     EtaROImin[0][12][19]=  -0.895163;EtaROImax[0][12][19]=  -0.830556;PhiROImin[0][12][19]=	2.47293;PhiROImax[0][12][19]=	 2.58036;
+     EtaROImin[0][12][20]=  -0.961344;EtaROImax[0][12][20]=  -0.898201;PhiROImin[0][12][20]=	2.35915;PhiROImax[0][12][20]=	 2.46881;
+     EtaROImin[0][12][21]=   -1.02514;EtaROImax[0][12][21]=  -0.964674;PhiROImin[0][12][21]=	2.35915;PhiROImax[0][12][21]=	 2.46881;
+     EtaROImin[0][12][22]=  -0.961344;EtaROImax[0][12][22]=  -0.898201;PhiROImin[0][12][22]=	2.47231;PhiROImax[0][12][22]=	 2.57921;
+     EtaROImin[0][12][23]=   -1.02514;EtaROImax[0][12][23]=  -0.964674;PhiROImin[0][12][23]=	2.47231;PhiROImax[0][12][23]=	 2.57921;
+     EtaROImin[0][12][24]=   -1.06547;EtaROImax[0][12][24]=   -1.03003;PhiROImin[0][12][24]=	2.35926;PhiROImax[0][12][24]=	 2.46962;
+     EtaROImin[0][12][25]=	    0;EtaROImax[0][12][25]=	     0;PhiROImin[0][12][25]=	      0;PhiROImax[0][12][25]=	       0;
+     EtaROImin[0][12][26]=   -1.06547;EtaROImax[0][12][26]=   -1.03003;PhiROImin[0][12][26]=	2.47315;PhiROImax[0][12][26]=	 2.55334;
+     EtaROImin[0][12][27]=	    0;EtaROImax[0][12][27]=	     0;PhiROImin[0][12][27]=	      0;PhiROImax[0][12][27]=	       0;
+     EtaROImin[0][12][28]=	    0;EtaROImax[0][12][28]=	     0;PhiROImin[0][12][28]=	      0;PhiROImax[0][12][28]=	       0;
+     EtaROImin[0][12][29]=	    0;EtaROImax[0][12][29]=	     0;PhiROImin[0][12][29]=	      0;PhiROImax[0][12][29]=	       0;
+     EtaROImin[0][12][30]=	    0;EtaROImax[0][12][30]=	     0;PhiROImin[0][12][30]=	      0;PhiROImax[0][12][30]=	       0;
+     EtaROImin[0][12][31]=	    0;EtaROImax[0][12][31]=	     0;PhiROImin[0][12][31]=	      0;PhiROImax[0][12][31]=	       0;
+     EtaROImin[0][13][ 0]=  -0.214185;EtaROImax[0][13][ 0]=  -0.117369;PhiROImin[0][13][ 0]=	2.66256;PhiROImax[0][13][ 0]=	 2.74612;
+     EtaROImin[0][13][ 1]=  -0.118174;EtaROImax[0][13][ 1]= -0.0207264;PhiROImin[0][13][ 1]=	2.66256;PhiROImax[0][13][ 1]=	 2.74612;
+     EtaROImin[0][13][ 2]=  -0.214185;EtaROImax[0][13][ 2]=  -0.117369;PhiROImin[0][13][ 2]=	2.57665;PhiROImax[0][13][ 2]=	 2.65895;
+     EtaROImin[0][13][ 3]=  -0.118174;EtaROImax[0][13][ 3]= -0.0207264;PhiROImin[0][13][ 3]=	2.57665;PhiROImax[0][13][ 3]=	 2.65895;
+     EtaROImin[0][13][ 4]=  -0.416721;EtaROImax[0][13][ 4]=   -0.30075;PhiROImin[0][13][ 4]=	2.66215;PhiROImax[0][13][ 4]=	  2.7461;
+     EtaROImin[0][13][ 5]=  -0.302928;EtaROImax[0][13][ 5]=  -0.222449;PhiROImin[0][13][ 5]=	2.66215;PhiROImax[0][13][ 5]=	  2.7461;
+     EtaROImin[0][13][ 6]=  -0.416721;EtaROImax[0][13][ 6]=   -0.30075;PhiROImin[0][13][ 6]=	2.57584;PhiROImax[0][13][ 6]=	 2.65852;
+     EtaROImin[0][13][ 7]=  -0.302928;EtaROImax[0][13][ 7]=  -0.222449;PhiROImin[0][13][ 7]=	2.57584;PhiROImax[0][13][ 7]=	 2.65852;
+     EtaROImin[0][13][ 8]=  -0.573871;EtaROImax[0][13][ 8]=  -0.501681;PhiROImin[0][13][ 8]=	2.66215;PhiROImax[0][13][ 8]=	  2.7461;
+     EtaROImin[0][13][ 9]=  -0.504617;EtaROImax[0][13][ 9]=   -0.42967;PhiROImin[0][13][ 9]=	2.66215;PhiROImax[0][13][ 9]=	  2.7461;
+     EtaROImin[0][13][10]=  -0.573871;EtaROImax[0][13][10]=  -0.501681;PhiROImin[0][13][10]=	2.57584;PhiROImax[0][13][10]=	 2.65852;
+     EtaROImin[0][13][11]=  -0.504617;EtaROImax[0][13][11]=   -0.42967;PhiROImin[0][13][11]=	2.57584;PhiROImax[0][13][11]=	 2.65852;
+     EtaROImin[0][13][12]=  -0.741516;EtaROImax[0][13][12]=  -0.649933;PhiROImin[0][13][12]=	2.66215;PhiROImax[0][13][12]=	  2.7461;
+     EtaROImin[0][13][13]=  -0.653329;EtaROImax[0][13][13]=  -0.583785;PhiROImin[0][13][13]=	2.66215;PhiROImax[0][13][13]=	  2.7461;
+     EtaROImin[0][13][14]=  -0.741516;EtaROImax[0][13][14]=  -0.649933;PhiROImin[0][13][14]=	2.57584;PhiROImax[0][13][14]=	 2.65852;
+     EtaROImin[0][13][15]=  -0.653329;EtaROImax[0][13][15]=  -0.583785;PhiROImin[0][13][15]=	2.57584;PhiROImax[0][13][15]=	 2.65852;
+     EtaROImin[0][13][16]=	    0;EtaROImax[0][13][16]=	     0;PhiROImin[0][13][16]=	      0;PhiROImax[0][13][16]=	       0;
+     EtaROImin[0][13][17]=  -0.837822;EtaROImax[0][13][17]=  -0.756521;PhiROImin[0][13][17]=	2.66215;PhiROImax[0][13][17]=	  2.7461;
+     EtaROImin[0][13][18]=	    0;EtaROImax[0][13][18]=	     0;PhiROImin[0][13][18]=	      0;PhiROImax[0][13][18]=	       0;
+     EtaROImin[0][13][19]=  -0.837822;EtaROImax[0][13][19]=  -0.756521;PhiROImin[0][13][19]=	2.57584;PhiROImax[0][13][19]=	 2.65852;
+     EtaROImin[0][13][20]=  -0.956037;EtaROImax[0][13][20]=  -0.899344;PhiROImin[0][13][20]=	2.66215;PhiROImax[0][13][20]=	  2.7461;
+     EtaROImin[0][13][21]=  -0.903324;EtaROImax[0][13][21]=  -0.844116;PhiROImin[0][13][21]=	2.66215;PhiROImax[0][13][21]=	  2.7461;
+     EtaROImin[0][13][22]=  -0.956037;EtaROImax[0][13][22]=  -0.899344;PhiROImin[0][13][22]=	2.57584;PhiROImax[0][13][22]=	 2.65852;
+     EtaROImin[0][13][23]=  -0.903324;EtaROImax[0][13][23]=  -0.844116;PhiROImin[0][13][23]=	2.57584;PhiROImax[0][13][23]=	 2.65852;
+     EtaROImin[0][13][24]=	    0;EtaROImax[0][13][24]=	     0;PhiROImin[0][13][24]=	      0;PhiROImax[0][13][24]=	       0;
+     EtaROImin[0][13][25]=	    0;EtaROImax[0][13][25]=	     0;PhiROImin[0][13][25]=	      0;PhiROImax[0][13][25]=	       0;
+     EtaROImin[0][13][26]=	    0;EtaROImax[0][13][26]=	     0;PhiROImin[0][13][26]=	      0;PhiROImax[0][13][26]=	       0;
+     EtaROImin[0][13][27]=	    0;EtaROImax[0][13][27]=	     0;PhiROImin[0][13][27]=	      0;PhiROImax[0][13][27]=	       0;
+     EtaROImin[0][13][28]=	    0;EtaROImax[0][13][28]=	     0;PhiROImin[0][13][28]=	      0;PhiROImax[0][13][28]=	       0;
+     EtaROImin[0][13][29]=	    0;EtaROImax[0][13][29]=	     0;PhiROImin[0][13][29]=	      0;PhiROImax[0][13][29]=	       0;
+     EtaROImin[0][13][30]=	    0;EtaROImax[0][13][30]=	     0;PhiROImin[0][13][30]=	      0;PhiROImax[0][13][30]=	       0;
+     EtaROImin[0][13][31]=	    0;EtaROImax[0][13][31]=	     0;PhiROImin[0][13][31]=	      0;PhiROImax[0][13][31]=	       0;
+     EtaROImin[0][14][ 0]=  -0.118174;EtaROImax[0][14][ 0]= -0.0207264;PhiROImin[0][14][ 0]=	2.75167;PhiROImax[0][14][ 0]=	 2.83523;
+     EtaROImin[0][14][ 1]=  -0.214185;EtaROImax[0][14][ 1]=  -0.117369;PhiROImin[0][14][ 1]=	2.75167;PhiROImax[0][14][ 1]=	 2.83523;
+     EtaROImin[0][14][ 2]=  -0.118174;EtaROImax[0][14][ 2]= -0.0207264;PhiROImin[0][14][ 2]=	2.83884;PhiROImax[0][14][ 2]=	 2.92113;
+     EtaROImin[0][14][ 3]=  -0.214185;EtaROImax[0][14][ 3]=  -0.117369;PhiROImin[0][14][ 3]=	2.83884;PhiROImax[0][14][ 3]=	 2.92113;
+     EtaROImin[0][14][ 4]=  -0.302928;EtaROImax[0][14][ 4]=  -0.222449;PhiROImin[0][14][ 4]=	2.75168;PhiROImax[0][14][ 4]=	 2.83564;
+     EtaROImin[0][14][ 5]=  -0.416721;EtaROImax[0][14][ 5]=   -0.30075;PhiROImin[0][14][ 5]=	2.75168;PhiROImax[0][14][ 5]=	 2.83564;
+     EtaROImin[0][14][ 6]=  -0.302928;EtaROImax[0][14][ 6]=  -0.222449;PhiROImin[0][14][ 6]=	2.83927;PhiROImax[0][14][ 6]=	 2.92194;
+     EtaROImin[0][14][ 7]=  -0.416721;EtaROImax[0][14][ 7]=   -0.30075;PhiROImin[0][14][ 7]=	2.83927;PhiROImax[0][14][ 7]=	 2.92194;
+     EtaROImin[0][14][ 8]=  -0.504617;EtaROImax[0][14][ 8]=   -0.42967;PhiROImin[0][14][ 8]=	2.75168;PhiROImax[0][14][ 8]=	 2.83564;
+     EtaROImin[0][14][ 9]=  -0.573871;EtaROImax[0][14][ 9]=  -0.501681;PhiROImin[0][14][ 9]=	2.75168;PhiROImax[0][14][ 9]=	 2.83564;
+     EtaROImin[0][14][10]=  -0.504617;EtaROImax[0][14][10]=   -0.42967;PhiROImin[0][14][10]=	2.83927;PhiROImax[0][14][10]=	 2.92194;
+     EtaROImin[0][14][11]=  -0.573871;EtaROImax[0][14][11]=  -0.501681;PhiROImin[0][14][11]=	2.83927;PhiROImax[0][14][11]=	 2.92194;
+     EtaROImin[0][14][12]=  -0.653329;EtaROImax[0][14][12]=  -0.583785;PhiROImin[0][14][12]=	2.75168;PhiROImax[0][14][12]=	 2.83564;
+     EtaROImin[0][14][13]=  -0.741516;EtaROImax[0][14][13]=  -0.649933;PhiROImin[0][14][13]=	2.75168;PhiROImax[0][14][13]=	 2.83564;
+     EtaROImin[0][14][14]=  -0.653329;EtaROImax[0][14][14]=  -0.583785;PhiROImin[0][14][14]=	2.83927;PhiROImax[0][14][14]=	 2.92194;
+     EtaROImin[0][14][15]=  -0.741516;EtaROImax[0][14][15]=  -0.649933;PhiROImin[0][14][15]=	2.83927;PhiROImax[0][14][15]=	 2.92194;
+     EtaROImin[0][14][16]=  -0.837822;EtaROImax[0][14][16]=  -0.756521;PhiROImin[0][14][16]=	2.75168;PhiROImax[0][14][16]=	 2.83564;
+     EtaROImin[0][14][17]=	    0;EtaROImax[0][14][17]=	     0;PhiROImin[0][14][17]=	      0;PhiROImax[0][14][17]=	       0;
+     EtaROImin[0][14][18]=  -0.837822;EtaROImax[0][14][18]=  -0.756521;PhiROImin[0][14][18]=	2.83927;PhiROImax[0][14][18]=	 2.92194;
+     EtaROImin[0][14][19]=	    0;EtaROImax[0][14][19]=	     0;PhiROImin[0][14][19]=	      0;PhiROImax[0][14][19]=	       0;
+     EtaROImin[0][14][20]=  -0.903324;EtaROImax[0][14][20]=  -0.844116;PhiROImin[0][14][20]=	2.75168;PhiROImax[0][14][20]=	 2.83564;
+     EtaROImin[0][14][21]=  -0.956037;EtaROImax[0][14][21]=  -0.899344;PhiROImin[0][14][21]=	2.75168;PhiROImax[0][14][21]=	 2.83564;
+     EtaROImin[0][14][22]=  -0.903324;EtaROImax[0][14][22]=  -0.844116;PhiROImin[0][14][22]=	2.83927;PhiROImax[0][14][22]=	 2.92194;
+     EtaROImin[0][14][23]=  -0.956037;EtaROImax[0][14][23]=  -0.899344;PhiROImin[0][14][23]=	2.83927;PhiROImax[0][14][23]=	 2.92194;
+     EtaROImin[0][14][24]=	    0;EtaROImax[0][14][24]=	     0;PhiROImin[0][14][24]=	      0;PhiROImax[0][14][24]=	       0;
+     EtaROImin[0][14][25]=	    0;EtaROImax[0][14][25]=	     0;PhiROImin[0][14][25]=	      0;PhiROImax[0][14][25]=	       0;
+     EtaROImin[0][14][26]=	    0;EtaROImax[0][14][26]=	     0;PhiROImin[0][14][26]=	      0;PhiROImax[0][14][26]=	       0;
+     EtaROImin[0][14][27]=	    0;EtaROImax[0][14][27]=	     0;PhiROImin[0][14][27]=	      0;PhiROImax[0][14][27]=	       0;
+     EtaROImin[0][14][28]=	    0;EtaROImax[0][14][28]=	     0;PhiROImin[0][14][28]=	      0;PhiROImax[0][14][28]=	       0;
+     EtaROImin[0][14][29]=	    0;EtaROImax[0][14][29]=	     0;PhiROImin[0][14][29]=	      0;PhiROImax[0][14][29]=	       0;
+     EtaROImin[0][14][30]=	    0;EtaROImax[0][14][30]=	     0;PhiROImin[0][14][30]=	      0;PhiROImax[0][14][30]=	       0;
+     EtaROImin[0][14][31]=	    0;EtaROImax[0][14][31]=	     0;PhiROImin[0][14][31]=	      0;PhiROImax[0][14][31]=	       0;
+     EtaROImin[0][15][ 0]=  -0.238476;EtaROImax[0][15][ 0]=  -0.180926;PhiROImin[0][15][ 0]=	3.02838;PhiROImax[0][15][ 0]=	 3.13862;
+     EtaROImin[0][15][ 1]=  -0.177066;EtaROImax[0][15][ 1]= -0.0876766;PhiROImin[0][15][ 1]=	3.02838;PhiROImax[0][15][ 1]=	 3.13862;
+     EtaROImin[0][15][ 2]=  -0.238476;EtaROImax[0][15][ 2]=  -0.180926;PhiROImin[0][15][ 2]=	2.91742;PhiROImax[0][15][ 2]=	 3.02486;
+     EtaROImin[0][15][ 3]=  -0.177066;EtaROImax[0][15][ 3]= -0.0876766;PhiROImin[0][15][ 3]=	2.91742;PhiROImax[0][15][ 3]=	 3.02486;
+     EtaROImin[0][15][ 4]=  -0.452099;EtaROImax[0][15][ 4]=  -0.350831;PhiROImin[0][15][ 4]=	3.02898;PhiROImax[0][15][ 4]=	 3.13864;
+     EtaROImin[0][15][ 5]=   -0.35049;EtaROImax[0][15][ 5]=  -0.246207;PhiROImin[0][15][ 5]=	3.02898;PhiROImax[0][15][ 5]=	 3.13864;
+     EtaROImin[0][15][ 6]=  -0.452099;EtaROImax[0][15][ 6]=  -0.350831;PhiROImin[0][15][ 6]=	2.91858;PhiROImax[0][15][ 6]=	 3.02547;
+     EtaROImin[0][15][ 7]=   -0.35049;EtaROImax[0][15][ 7]=  -0.246207;PhiROImin[0][15][ 7]=	2.91858;PhiROImax[0][15][ 7]=	 3.02547;
+     EtaROImin[0][15][ 8]=  -0.648101;EtaROImax[0][15][ 8]=  -0.555789;PhiROImin[0][15][ 8]=	3.02898;PhiROImax[0][15][ 8]=	 3.13864;
+     EtaROImin[0][15][ 9]=  -0.554444;EtaROImax[0][15][ 9]=  -0.458091;PhiROImin[0][15][ 9]=	3.02898;PhiROImax[0][15][ 9]=	 3.13864;
+     EtaROImin[0][15][10]=  -0.648101;EtaROImax[0][15][10]=  -0.555789;PhiROImin[0][15][10]=	2.91858;PhiROImax[0][15][10]=	 3.02547;
+     EtaROImin[0][15][11]=  -0.554444;EtaROImax[0][15][11]=  -0.458091;PhiROImin[0][15][11]=	2.91858;PhiROImax[0][15][11]=	 3.02547;
+     EtaROImin[0][15][12]=  -0.776449;EtaROImax[0][15][12]=  -0.731124;PhiROImin[0][15][12]=	3.02838;PhiROImax[0][15][12]=	 3.13862;
+     EtaROImin[0][15][13]=  -0.728056;EtaROImax[0][15][13]=  -0.655857;PhiROImin[0][15][13]=	3.02838;PhiROImax[0][15][13]=	 3.13862;
+     EtaROImin[0][15][14]=  -0.776449;EtaROImax[0][15][14]=  -0.731124;PhiROImin[0][15][14]=	2.91742;PhiROImax[0][15][14]=	 3.02486;
+     EtaROImin[0][15][15]=  -0.728056;EtaROImax[0][15][15]=  -0.655857;PhiROImin[0][15][15]=	2.91742;PhiROImax[0][15][15]=	 3.02486;
+     EtaROImin[0][15][16]=  -0.895163;EtaROImax[0][15][16]=  -0.853359;PhiROImin[0][15][16]=	3.02838;PhiROImax[0][15][16]=	 3.13862;
+     EtaROImin[0][15][17]=  -0.850528;EtaROImax[0][15][17]=  -0.783867;PhiROImin[0][15][17]=	3.02838;PhiROImax[0][15][17]=	 3.13862;
+     EtaROImin[0][15][18]=  -0.895163;EtaROImax[0][15][18]=  -0.853359;PhiROImin[0][15][18]=	2.91742;PhiROImax[0][15][18]=	 3.02486;
+     EtaROImin[0][15][19]=  -0.850528;EtaROImax[0][15][19]=  -0.783867;PhiROImin[0][15][19]=	2.91742;PhiROImax[0][15][19]=	 3.02486;
+     EtaROImin[0][15][20]=   -1.02514;EtaROImax[0][15][20]=  -0.964674;PhiROImin[0][15][20]=	3.02898;PhiROImax[0][15][20]=	 3.13864;
+     EtaROImin[0][15][21]=  -0.961344;EtaROImax[0][15][21]=  -0.898201;PhiROImin[0][15][21]=	3.02898;PhiROImax[0][15][21]=	 3.13864;
+     EtaROImin[0][15][22]=   -1.02514;EtaROImax[0][15][22]=  -0.964674;PhiROImin[0][15][22]=	2.91858;PhiROImax[0][15][22]=	 3.02547;
+     EtaROImin[0][15][23]=  -0.961344;EtaROImax[0][15][23]=  -0.898201;PhiROImin[0][15][23]=	2.91858;PhiROImax[0][15][23]=	 3.02547;
+     EtaROImin[0][15][24]=	    0;EtaROImax[0][15][24]=	     0;PhiROImin[0][15][24]=	      0;PhiROImax[0][15][24]=	       0;
+     EtaROImin[0][15][25]=   -1.06547;EtaROImax[0][15][25]=   -1.03003;PhiROImin[0][15][25]=	3.02816;PhiROImax[0][15][25]=	 3.13852;
+     EtaROImin[0][15][26]=	    0;EtaROImax[0][15][26]=	     0;PhiROImin[0][15][26]=	      0;PhiROImax[0][15][26]=	       0;
+     EtaROImin[0][15][27]=   -1.06547;EtaROImax[0][15][27]=   -1.03003;PhiROImin[0][15][27]=	2.94445;PhiROImax[0][15][27]=	 3.02463;
+     EtaROImin[0][15][28]=	    0;EtaROImax[0][15][28]=	     0;PhiROImin[0][15][28]=	      0;PhiROImax[0][15][28]=	       0;
+     EtaROImin[0][15][29]=	    0;EtaROImax[0][15][29]=	     0;PhiROImin[0][15][29]=	      0;PhiROImax[0][15][29]=	       0;
+     EtaROImin[0][15][30]=	    0;EtaROImax[0][15][30]=	     0;PhiROImin[0][15][30]=	      0;PhiROImax[0][15][30]=	       0;
+     EtaROImin[0][15][31]=	    0;EtaROImax[0][15][31]=	     0;PhiROImin[0][15][31]=	      0;PhiROImax[0][15][31]=	       0;
+     EtaROImin[0][16][ 0]=  -0.146097;EtaROImax[0][16][ 0]= -0.0876766;PhiROImin[0][16][ 0]=   -3.13862;PhiROImax[0][16][ 0]=	-3.02838;
+     EtaROImin[0][16][ 1]=  -0.238476;EtaROImax[0][16][ 1]=  -0.149976;PhiROImin[0][16][ 1]=   -3.13862;PhiROImax[0][16][ 1]=	-3.02838;
+     EtaROImin[0][16][ 2]=  -0.146097;EtaROImax[0][16][ 2]= -0.0876766;PhiROImin[0][16][ 2]=   -3.02486;PhiROImax[0][16][ 2]=	-2.91742;
+     EtaROImin[0][16][ 3]=  -0.238476;EtaROImax[0][16][ 3]=  -0.149976;PhiROImin[0][16][ 3]=   -3.02486;PhiROImax[0][16][ 3]=	-2.91742;
+     EtaROImin[0][16][ 4]=   -0.35049;EtaROImax[0][16][ 4]=  -0.246207;PhiROImin[0][16][ 4]=   -3.13864;PhiROImax[0][16][ 4]=	-3.02898;
+     EtaROImin[0][16][ 5]=  -0.452099;EtaROImax[0][16][ 5]=  -0.350831;PhiROImin[0][16][ 5]=   -3.13864;PhiROImax[0][16][ 5]=	-3.02898;
+     EtaROImin[0][16][ 6]=   -0.35049;EtaROImax[0][16][ 6]=  -0.246207;PhiROImin[0][16][ 6]=   -3.02547;PhiROImax[0][16][ 6]=	-2.91858;
+     EtaROImin[0][16][ 7]=  -0.452099;EtaROImax[0][16][ 7]=  -0.350831;PhiROImin[0][16][ 7]=   -3.02547;PhiROImax[0][16][ 7]=	-2.91858;
+     EtaROImin[0][16][ 8]=  -0.554444;EtaROImax[0][16][ 8]=  -0.458091;PhiROImin[0][16][ 8]=   -3.13864;PhiROImax[0][16][ 8]=	-3.02898;
+     EtaROImin[0][16][ 9]=  -0.648101;EtaROImax[0][16][ 9]=  -0.555789;PhiROImin[0][16][ 9]=   -3.13864;PhiROImax[0][16][ 9]=	-3.02898;
+     EtaROImin[0][16][10]=  -0.554444;EtaROImax[0][16][10]=  -0.458091;PhiROImin[0][16][10]=   -3.02547;PhiROImax[0][16][10]=	-2.91858;
+     EtaROImin[0][16][11]=  -0.648101;EtaROImax[0][16][11]=  -0.555789;PhiROImin[0][16][11]=   -3.02547;PhiROImax[0][16][11]=	-2.91858;
+     EtaROImin[0][16][12]=  -0.703298;EtaROImax[0][16][12]=  -0.655857;PhiROImin[0][16][12]=   -3.13862;PhiROImax[0][16][12]=	-3.02838;
+     EtaROImin[0][16][13]=  -0.776449;EtaROImax[0][16][13]=  -0.706413;PhiROImin[0][16][13]=   -3.13862;PhiROImax[0][16][13]=	-3.02838;
+     EtaROImin[0][16][14]=  -0.703298;EtaROImax[0][16][14]=  -0.655857;PhiROImin[0][16][14]=   -3.02486;PhiROImax[0][16][14]=	-2.91742;
+     EtaROImin[0][16][15]=  -0.776449;EtaROImax[0][16][15]=  -0.706413;PhiROImin[0][16][15]=   -3.02486;PhiROImax[0][16][15]=	-2.91742;
+     EtaROImin[0][16][16]=   -0.82768;EtaROImax[0][16][16]=  -0.783867;PhiROImin[0][16][16]=   -3.13862;PhiROImax[0][16][16]=	-3.02838;
+     EtaROImin[0][16][17]=  -0.895163;EtaROImax[0][16][17]=  -0.830556;PhiROImin[0][16][17]=   -3.13862;PhiROImax[0][16][17]=	-3.02838;
+     EtaROImin[0][16][18]=   -0.82768;EtaROImax[0][16][18]=  -0.783867;PhiROImin[0][16][18]=   -3.02486;PhiROImax[0][16][18]=	-2.91742;
+     EtaROImin[0][16][19]=  -0.895163;EtaROImax[0][16][19]=  -0.830556;PhiROImin[0][16][19]=   -3.02486;PhiROImax[0][16][19]=	-2.91742;
+     EtaROImin[0][16][20]=  -0.961344;EtaROImax[0][16][20]=  -0.898201;PhiROImin[0][16][20]=   -3.13864;PhiROImax[0][16][20]=	-3.02898;
+     EtaROImin[0][16][21]=   -1.02514;EtaROImax[0][16][21]=  -0.964674;PhiROImin[0][16][21]=   -3.13864;PhiROImax[0][16][21]=	-3.02898;
+     EtaROImin[0][16][22]=  -0.961344;EtaROImax[0][16][22]=  -0.898201;PhiROImin[0][16][22]=   -3.02547;PhiROImax[0][16][22]=	-2.91858;
+     EtaROImin[0][16][23]=   -1.02514;EtaROImax[0][16][23]=  -0.964674;PhiROImin[0][16][23]=   -3.02547;PhiROImax[0][16][23]=	-2.91858;
+     EtaROImin[0][16][24]=   -1.06547;EtaROImax[0][16][24]=   -1.03003;PhiROImin[0][16][24]=   -3.13852;PhiROImax[0][16][24]=	-3.02816;
+     EtaROImin[0][16][25]=	    0;EtaROImax[0][16][25]=	     0;PhiROImin[0][16][25]=	      0;PhiROImax[0][16][25]=	       0;
+     EtaROImin[0][16][26]=   -1.06547;EtaROImax[0][16][26]=   -1.03003;PhiROImin[0][16][26]=   -3.02463;PhiROImax[0][16][26]=	-2.94445;
+     EtaROImin[0][16][27]=	    0;EtaROImax[0][16][27]=	     0;PhiROImin[0][16][27]=	      0;PhiROImax[0][16][27]=	       0;
+     EtaROImin[0][16][28]=	    0;EtaROImax[0][16][28]=	     0;PhiROImin[0][16][28]=	      0;PhiROImax[0][16][28]=	       0;
+     EtaROImin[0][16][29]=	    0;EtaROImax[0][16][29]=	     0;PhiROImin[0][16][29]=	      0;PhiROImax[0][16][29]=	       0;
+     EtaROImin[0][16][30]=	    0;EtaROImax[0][16][30]=	     0;PhiROImin[0][16][30]=	      0;PhiROImax[0][16][30]=	       0;
+     EtaROImin[0][16][31]=	    0;EtaROImax[0][16][31]=	     0;PhiROImin[0][16][31]=	      0;PhiROImax[0][16][31]=	       0;
+     EtaROImin[0][17][ 0]=  -0.213185;EtaROImax[0][17][ 0]=  -0.116816;PhiROImin[0][17][ 0]=   -2.83564;PhiROImax[0][17][ 0]=	-2.75168;
+     EtaROImin[0][17][ 1]=  -0.118734;EtaROImax[0][17][ 1]= -0.0208251;PhiROImin[0][17][ 1]=   -2.83564;PhiROImax[0][17][ 1]=	-2.75168;
+     EtaROImin[0][17][ 2]=  -0.213185;EtaROImax[0][17][ 2]=  -0.116816;PhiROImin[0][17][ 2]=   -2.92194;PhiROImax[0][17][ 2]=	-2.83927;
+     EtaROImin[0][17][ 3]=  -0.118734;EtaROImax[0][17][ 3]= -0.0208251;PhiROImin[0][17][ 3]=   -2.92194;PhiROImax[0][17][ 3]=	-2.83927;
+     EtaROImin[0][17][ 4]=  -0.416721;EtaROImax[0][17][ 4]=   -0.30075;PhiROImin[0][17][ 4]=   -2.83564;PhiROImax[0][17][ 4]=	-2.75168;
+     EtaROImin[0][17][ 5]=  -0.302928;EtaROImax[0][17][ 5]=  -0.222449;PhiROImin[0][17][ 5]=   -2.83564;PhiROImax[0][17][ 5]=	-2.75168;
+     EtaROImin[0][17][ 6]=  -0.416721;EtaROImax[0][17][ 6]=   -0.30075;PhiROImin[0][17][ 6]=   -2.92194;PhiROImax[0][17][ 6]=	-2.83927;
+     EtaROImin[0][17][ 7]=  -0.302928;EtaROImax[0][17][ 7]=  -0.222449;PhiROImin[0][17][ 7]=   -2.92194;PhiROImax[0][17][ 7]=	-2.83927;
+     EtaROImin[0][17][ 8]=  -0.573871;EtaROImax[0][17][ 8]=  -0.501681;PhiROImin[0][17][ 8]=   -2.83564;PhiROImax[0][17][ 8]=	-2.75168;
+     EtaROImin[0][17][ 9]=  -0.504617;EtaROImax[0][17][ 9]=   -0.42967;PhiROImin[0][17][ 9]=   -2.83564;PhiROImax[0][17][ 9]=	-2.75168;
+     EtaROImin[0][17][10]=  -0.573871;EtaROImax[0][17][10]=  -0.501681;PhiROImin[0][17][10]=   -2.92194;PhiROImax[0][17][10]=	-2.83927;
+     EtaROImin[0][17][11]=  -0.504617;EtaROImax[0][17][11]=   -0.42967;PhiROImin[0][17][11]=   -2.92194;PhiROImax[0][17][11]=	-2.83927;
+     EtaROImin[0][17][12]=  -0.741516;EtaROImax[0][17][12]=  -0.649933;PhiROImin[0][17][12]=   -2.83564;PhiROImax[0][17][12]=	-2.75168;
+     EtaROImin[0][17][13]=  -0.653329;EtaROImax[0][17][13]=  -0.583785;PhiROImin[0][17][13]=   -2.83564;PhiROImax[0][17][13]=	-2.75168;
+     EtaROImin[0][17][14]=  -0.741516;EtaROImax[0][17][14]=  -0.649933;PhiROImin[0][17][14]=   -2.92194;PhiROImax[0][17][14]=	-2.83927;
+     EtaROImin[0][17][15]=  -0.653329;EtaROImax[0][17][15]=  -0.583785;PhiROImin[0][17][15]=   -2.92194;PhiROImax[0][17][15]=	-2.83927;
+     EtaROImin[0][17][16]=	    0;EtaROImax[0][17][16]=	     0;PhiROImin[0][17][16]=	      0;PhiROImax[0][17][16]=	       0;
+     EtaROImin[0][17][17]=  -0.837822;EtaROImax[0][17][17]=  -0.756521;PhiROImin[0][17][17]=   -2.83564;PhiROImax[0][17][17]=	-2.75168;
+     EtaROImin[0][17][18]=	    0;EtaROImax[0][17][18]=	     0;PhiROImin[0][17][18]=	      0;PhiROImax[0][17][18]=	       0;
+     EtaROImin[0][17][19]=  -0.837822;EtaROImax[0][17][19]=  -0.756521;PhiROImin[0][17][19]=   -2.92194;PhiROImax[0][17][19]=	-2.83927;
+     EtaROImin[0][17][20]=  -0.956037;EtaROImax[0][17][20]=  -0.899344;PhiROImin[0][17][20]=   -2.83564;PhiROImax[0][17][20]=	-2.75168;
+     EtaROImin[0][17][21]=  -0.903324;EtaROImax[0][17][21]=  -0.844116;PhiROImin[0][17][21]=   -2.83564;PhiROImax[0][17][21]=	-2.75168;
+     EtaROImin[0][17][22]=  -0.956037;EtaROImax[0][17][22]=  -0.899344;PhiROImin[0][17][22]=   -2.92194;PhiROImax[0][17][22]=	-2.83927;
+     EtaROImin[0][17][23]=  -0.903324;EtaROImax[0][17][23]=  -0.844116;PhiROImin[0][17][23]=   -2.92194;PhiROImax[0][17][23]=	-2.83927;
+     EtaROImin[0][17][24]=	    0;EtaROImax[0][17][24]=	     0;PhiROImin[0][17][24]=	      0;PhiROImax[0][17][24]=	       0;
+     EtaROImin[0][17][25]=	    0;EtaROImax[0][17][25]=	     0;PhiROImin[0][17][25]=	      0;PhiROImax[0][17][25]=	       0;
+     EtaROImin[0][17][26]=	    0;EtaROImax[0][17][26]=	     0;PhiROImin[0][17][26]=	      0;PhiROImax[0][17][26]=	       0;
+     EtaROImin[0][17][27]=	    0;EtaROImax[0][17][27]=	     0;PhiROImin[0][17][27]=	      0;PhiROImax[0][17][27]=	       0;
+     EtaROImin[0][17][28]=	    0;EtaROImax[0][17][28]=	     0;PhiROImin[0][17][28]=	      0;PhiROImax[0][17][28]=	       0;
+     EtaROImin[0][17][29]=	    0;EtaROImax[0][17][29]=	     0;PhiROImin[0][17][29]=	      0;PhiROImax[0][17][29]=	       0;
+     EtaROImin[0][17][30]=	    0;EtaROImax[0][17][30]=	     0;PhiROImin[0][17][30]=	      0;PhiROImax[0][17][30]=	       0;
+     EtaROImin[0][17][31]=	    0;EtaROImax[0][17][31]=	     0;PhiROImin[0][17][31]=	      0;PhiROImax[0][17][31]=	       0;
+     EtaROImin[0][18][ 0]=  -0.118734;EtaROImax[0][18][ 0]= -0.0208251;PhiROImin[0][18][ 0]=	-2.7461;PhiROImax[0][18][ 0]=	-2.66215;
+     EtaROImin[0][18][ 1]=  -0.213185;EtaROImax[0][18][ 1]=  -0.116816;PhiROImin[0][18][ 1]=	-2.7461;PhiROImax[0][18][ 1]=	-2.66215;
+     EtaROImin[0][18][ 2]=  -0.118734;EtaROImax[0][18][ 2]= -0.0208251;PhiROImin[0][18][ 2]=   -2.65852;PhiROImax[0][18][ 2]=	-2.57584;
+     EtaROImin[0][18][ 3]=  -0.213185;EtaROImax[0][18][ 3]=  -0.116816;PhiROImin[0][18][ 3]=   -2.65852;PhiROImax[0][18][ 3]=	-2.57584;
+     EtaROImin[0][18][ 4]=  -0.302928;EtaROImax[0][18][ 4]=  -0.222449;PhiROImin[0][18][ 4]=	-2.7461;PhiROImax[0][18][ 4]=	-2.66215;
+     EtaROImin[0][18][ 5]=  -0.416721;EtaROImax[0][18][ 5]=   -0.30075;PhiROImin[0][18][ 5]=	-2.7461;PhiROImax[0][18][ 5]=	-2.66215;
+     EtaROImin[0][18][ 6]=  -0.302928;EtaROImax[0][18][ 6]=  -0.222449;PhiROImin[0][18][ 6]=   -2.65852;PhiROImax[0][18][ 6]=	-2.57584;
+     EtaROImin[0][18][ 7]=  -0.416721;EtaROImax[0][18][ 7]=   -0.30075;PhiROImin[0][18][ 7]=   -2.65852;PhiROImax[0][18][ 7]=	-2.57584;
+     EtaROImin[0][18][ 8]=  -0.504617;EtaROImax[0][18][ 8]=   -0.42967;PhiROImin[0][18][ 8]=	-2.7461;PhiROImax[0][18][ 8]=	-2.66215;
+     EtaROImin[0][18][ 9]=  -0.573871;EtaROImax[0][18][ 9]=  -0.501681;PhiROImin[0][18][ 9]=	-2.7461;PhiROImax[0][18][ 9]=	-2.66215;
+     EtaROImin[0][18][10]=  -0.504617;EtaROImax[0][18][10]=   -0.42967;PhiROImin[0][18][10]=   -2.65852;PhiROImax[0][18][10]=	-2.57584;
+     EtaROImin[0][18][11]=  -0.573871;EtaROImax[0][18][11]=  -0.501681;PhiROImin[0][18][11]=   -2.65852;PhiROImax[0][18][11]=	-2.57584;
+     EtaROImin[0][18][12]=  -0.653329;EtaROImax[0][18][12]=  -0.583785;PhiROImin[0][18][12]=	-2.7461;PhiROImax[0][18][12]=	-2.66215;
+     EtaROImin[0][18][13]=  -0.741516;EtaROImax[0][18][13]=  -0.649933;PhiROImin[0][18][13]=	-2.7461;PhiROImax[0][18][13]=	-2.66215;
+     EtaROImin[0][18][14]=  -0.653329;EtaROImax[0][18][14]=  -0.583785;PhiROImin[0][18][14]=   -2.65852;PhiROImax[0][18][14]=	-2.57584;
+     EtaROImin[0][18][15]=  -0.741516;EtaROImax[0][18][15]=  -0.649933;PhiROImin[0][18][15]=   -2.65852;PhiROImax[0][18][15]=	-2.57584;
+     EtaROImin[0][18][16]=  -0.837822;EtaROImax[0][18][16]=  -0.756521;PhiROImin[0][18][16]=	-2.7461;PhiROImax[0][18][16]=	-2.66215;
+     EtaROImin[0][18][17]=	    0;EtaROImax[0][18][17]=	     0;PhiROImin[0][18][17]=	      0;PhiROImax[0][18][17]=	       0;
+     EtaROImin[0][18][18]=  -0.837822;EtaROImax[0][18][18]=  -0.756521;PhiROImin[0][18][18]=   -2.65852;PhiROImax[0][18][18]=	-2.57584;
+     EtaROImin[0][18][19]=	    0;EtaROImax[0][18][19]=	     0;PhiROImin[0][18][19]=	      0;PhiROImax[0][18][19]=	       0;
+     EtaROImin[0][18][20]=  -0.903324;EtaROImax[0][18][20]=  -0.844116;PhiROImin[0][18][20]=	-2.7461;PhiROImax[0][18][20]=	-2.66215;
+     EtaROImin[0][18][21]=  -0.956037;EtaROImax[0][18][21]=  -0.899344;PhiROImin[0][18][21]=	-2.7461;PhiROImax[0][18][21]=	-2.66215;
+     EtaROImin[0][18][22]=  -0.903324;EtaROImax[0][18][22]=  -0.844116;PhiROImin[0][18][22]=   -2.65852;PhiROImax[0][18][22]=	-2.57584;
+     EtaROImin[0][18][23]=  -0.956037;EtaROImax[0][18][23]=  -0.899344;PhiROImin[0][18][23]=   -2.65852;PhiROImax[0][18][23]=	-2.57584;
+     EtaROImin[0][18][24]=	    0;EtaROImax[0][18][24]=	     0;PhiROImin[0][18][24]=	      0;PhiROImax[0][18][24]=	       0;
+     EtaROImin[0][18][25]=	    0;EtaROImax[0][18][25]=	     0;PhiROImin[0][18][25]=	      0;PhiROImax[0][18][25]=	       0;
+     EtaROImin[0][18][26]=	    0;EtaROImax[0][18][26]=	     0;PhiROImin[0][18][26]=	      0;PhiROImax[0][18][26]=	       0;
+     EtaROImin[0][18][27]=	    0;EtaROImax[0][18][27]=	     0;PhiROImin[0][18][27]=	      0;PhiROImax[0][18][27]=	       0;
+     EtaROImin[0][18][28]=	    0;EtaROImax[0][18][28]=	     0;PhiROImin[0][18][28]=	      0;PhiROImax[0][18][28]=	       0;
+     EtaROImin[0][18][29]=	    0;EtaROImax[0][18][29]=	     0;PhiROImin[0][18][29]=	      0;PhiROImax[0][18][29]=	       0;
+     EtaROImin[0][18][30]=	    0;EtaROImax[0][18][30]=	     0;PhiROImin[0][18][30]=	      0;PhiROImax[0][18][30]=	       0;
+     EtaROImin[0][18][31]=	    0;EtaROImax[0][18][31]=	     0;PhiROImin[0][18][31]=	      0;PhiROImax[0][18][31]=	       0;
+     EtaROImin[0][19][ 0]=  -0.238294;EtaROImax[0][19][ 0]=  -0.180742;PhiROImin[0][19][ 0]=   -2.46941;PhiROImax[0][19][ 0]=	-2.35916;
+     EtaROImin[0][19][ 1]=  -0.176882;EtaROImax[0][19][ 1]= -0.0874905;PhiROImin[0][19][ 1]=   -2.46941;PhiROImax[0][19][ 1]=	-2.35916;
+     EtaROImin[0][19][ 2]=  -0.238294;EtaROImax[0][19][ 2]=  -0.180742;PhiROImin[0][19][ 2]=   -2.58036;PhiROImax[0][19][ 2]=	-2.47293;
+     EtaROImin[0][19][ 3]=  -0.176882;EtaROImax[0][19][ 3]= -0.0874905;PhiROImin[0][19][ 3]=   -2.58036;PhiROImax[0][19][ 3]=	-2.47293;
+     EtaROImin[0][19][ 4]=  -0.452099;EtaROImax[0][19][ 4]=  -0.350831;PhiROImin[0][19][ 4]=   -2.46881;PhiROImax[0][19][ 4]=	-2.35915;
+     EtaROImin[0][19][ 5]=   -0.35049;EtaROImax[0][19][ 5]=  -0.246207;PhiROImin[0][19][ 5]=   -2.46881;PhiROImax[0][19][ 5]=	-2.35915;
+     EtaROImin[0][19][ 6]=  -0.452099;EtaROImax[0][19][ 6]=  -0.350831;PhiROImin[0][19][ 6]=   -2.57921;PhiROImax[0][19][ 6]=	-2.47231;
+     EtaROImin[0][19][ 7]=   -0.35049;EtaROImax[0][19][ 7]=  -0.246207;PhiROImin[0][19][ 7]=   -2.57921;PhiROImax[0][19][ 7]=	-2.47231;
+     EtaROImin[0][19][ 8]=  -0.648101;EtaROImax[0][19][ 8]=  -0.555789;PhiROImin[0][19][ 8]=   -2.46881;PhiROImax[0][19][ 8]=	-2.35915;
+     EtaROImin[0][19][ 9]=  -0.554444;EtaROImax[0][19][ 9]=  -0.458091;PhiROImin[0][19][ 9]=   -2.46881;PhiROImax[0][19][ 9]=	-2.35915;
+     EtaROImin[0][19][10]=  -0.648101;EtaROImax[0][19][10]=  -0.555789;PhiROImin[0][19][10]=   -2.57921;PhiROImax[0][19][10]=	-2.47231;
+     EtaROImin[0][19][11]=  -0.554444;EtaROImax[0][19][11]=  -0.458091;PhiROImin[0][19][11]=   -2.57921;PhiROImax[0][19][11]=	-2.47231;
+     EtaROImin[0][19][12]=  -0.776449;EtaROImax[0][19][12]=  -0.731124;PhiROImin[0][19][12]=   -2.46941;PhiROImax[0][19][12]=	-2.35916;
+     EtaROImin[0][19][13]=  -0.728056;EtaROImax[0][19][13]=  -0.655857;PhiROImin[0][19][13]=   -2.46941;PhiROImax[0][19][13]=	-2.35916;
+     EtaROImin[0][19][14]=  -0.776449;EtaROImax[0][19][14]=  -0.731124;PhiROImin[0][19][14]=   -2.58036;PhiROImax[0][19][14]=	-2.47293;
+     EtaROImin[0][19][15]=  -0.728056;EtaROImax[0][19][15]=  -0.655857;PhiROImin[0][19][15]=   -2.58036;PhiROImax[0][19][15]=	-2.47293;
+     EtaROImin[0][19][16]=  -0.895163;EtaROImax[0][19][16]=  -0.853359;PhiROImin[0][19][16]=   -2.46941;PhiROImax[0][19][16]=	-2.35916;
+     EtaROImin[0][19][17]=  -0.850528;EtaROImax[0][19][17]=  -0.783867;PhiROImin[0][19][17]=   -2.46941;PhiROImax[0][19][17]=	-2.35916;
+     EtaROImin[0][19][18]=  -0.895163;EtaROImax[0][19][18]=  -0.853359;PhiROImin[0][19][18]=   -2.58036;PhiROImax[0][19][18]=	-2.47293;
+     EtaROImin[0][19][19]=  -0.850528;EtaROImax[0][19][19]=  -0.783867;PhiROImin[0][19][19]=   -2.58036;PhiROImax[0][19][19]=	-2.47293;
+     EtaROImin[0][19][20]=   -1.02514;EtaROImax[0][19][20]=  -0.964674;PhiROImin[0][19][20]=   -2.46881;PhiROImax[0][19][20]=	-2.35915;
+     EtaROImin[0][19][21]=  -0.961344;EtaROImax[0][19][21]=  -0.898201;PhiROImin[0][19][21]=   -2.46881;PhiROImax[0][19][21]=	-2.35915;
+     EtaROImin[0][19][22]=   -1.02514;EtaROImax[0][19][22]=  -0.964674;PhiROImin[0][19][22]=   -2.57921;PhiROImax[0][19][22]=	-2.47231;
+     EtaROImin[0][19][23]=  -0.961344;EtaROImax[0][19][23]=  -0.898201;PhiROImin[0][19][23]=   -2.57921;PhiROImax[0][19][23]=	-2.47231;
+     EtaROImin[0][19][24]=	    0;EtaROImax[0][19][24]=	     0;PhiROImin[0][19][24]=	      0;PhiROImax[0][19][24]=	       0;
+     EtaROImin[0][19][25]=   -1.06547;EtaROImax[0][19][25]=   -1.03003;PhiROImin[0][19][25]=   -2.46962;PhiROImax[0][19][25]=	-2.35926;
+     EtaROImin[0][19][26]=	    0;EtaROImax[0][19][26]=	     0;PhiROImin[0][19][26]=	      0;PhiROImax[0][19][26]=	       0;
+     EtaROImin[0][19][27]=   -1.06547;EtaROImax[0][19][27]=   -1.03003;PhiROImin[0][19][27]=   -2.55334;PhiROImax[0][19][27]=	-2.47315;
+     EtaROImin[0][19][28]=	    0;EtaROImax[0][19][28]=	     0;PhiROImin[0][19][28]=	      0;PhiROImax[0][19][28]=	       0;
+     EtaROImin[0][19][29]=	    0;EtaROImax[0][19][29]=	     0;PhiROImin[0][19][29]=	      0;PhiROImax[0][19][29]=	       0;
+     EtaROImin[0][19][30]=	    0;EtaROImax[0][19][30]=	     0;PhiROImin[0][19][30]=	      0;PhiROImax[0][19][30]=	       0;
+     EtaROImin[0][19][31]=	    0;EtaROImax[0][19][31]=	     0;PhiROImin[0][19][31]=	      0;PhiROImax[0][19][31]=	       0;
+     EtaROImin[0][20][ 0]=  -0.145912;EtaROImax[0][20][ 0]= -0.0874905;PhiROImin[0][20][ 0]=   -2.35323;PhiROImax[0][20][ 0]=	-2.24298;
+     EtaROImin[0][20][ 1]=  -0.238294;EtaROImax[0][20][ 1]=  -0.149792;PhiROImin[0][20][ 1]=   -2.35323;PhiROImax[0][20][ 1]=	-2.24298;
+     EtaROImin[0][20][ 2]=  -0.145912;EtaROImax[0][20][ 2]= -0.0874905;PhiROImin[0][20][ 2]=   -2.23946;PhiROImax[0][20][ 2]=	-2.13203;
+     EtaROImin[0][20][ 3]=  -0.238294;EtaROImax[0][20][ 3]=  -0.149792;PhiROImin[0][20][ 3]=   -2.23946;PhiROImax[0][20][ 3]=	-2.13203;
+     EtaROImin[0][20][ 4]=   -0.35049;EtaROImax[0][20][ 4]=  -0.246207;PhiROImin[0][20][ 4]=   -2.35324;PhiROImax[0][20][ 4]=	-2.24358;
+     EtaROImin[0][20][ 5]=  -0.452099;EtaROImax[0][20][ 5]=  -0.350831;PhiROImin[0][20][ 5]=   -2.35324;PhiROImax[0][20][ 5]=	-2.24358;
+     EtaROImin[0][20][ 6]=   -0.35049;EtaROImax[0][20][ 6]=  -0.246207;PhiROImin[0][20][ 6]=   -2.24008;PhiROImax[0][20][ 6]=	-2.13318;
+     EtaROImin[0][20][ 7]=  -0.452099;EtaROImax[0][20][ 7]=  -0.350831;PhiROImin[0][20][ 7]=   -2.24008;PhiROImax[0][20][ 7]=	-2.13318;
+     EtaROImin[0][20][ 8]=  -0.554444;EtaROImax[0][20][ 8]=  -0.458091;PhiROImin[0][20][ 8]=   -2.35324;PhiROImax[0][20][ 8]=	-2.24358;
+     EtaROImin[0][20][ 9]=  -0.648101;EtaROImax[0][20][ 9]=  -0.555789;PhiROImin[0][20][ 9]=   -2.35324;PhiROImax[0][20][ 9]=	-2.24358;
+     EtaROImin[0][20][10]=  -0.554444;EtaROImax[0][20][10]=  -0.458091;PhiROImin[0][20][10]=   -2.24008;PhiROImax[0][20][10]=	-2.13318;
+     EtaROImin[0][20][11]=  -0.648101;EtaROImax[0][20][11]=  -0.555789;PhiROImin[0][20][11]=   -2.24008;PhiROImax[0][20][11]=	-2.13318;
+     EtaROImin[0][20][12]=  -0.703298;EtaROImax[0][20][12]=  -0.655857;PhiROImin[0][20][12]=   -2.35323;PhiROImax[0][20][12]=	-2.24298;
+     EtaROImin[0][20][13]=  -0.776449;EtaROImax[0][20][13]=  -0.706413;PhiROImin[0][20][13]=   -2.35323;PhiROImax[0][20][13]=	-2.24298;
+     EtaROImin[0][20][14]=  -0.703298;EtaROImax[0][20][14]=  -0.655857;PhiROImin[0][20][14]=   -2.23946;PhiROImax[0][20][14]=	-2.13203;
+     EtaROImin[0][20][15]=  -0.776449;EtaROImax[0][20][15]=  -0.706413;PhiROImin[0][20][15]=   -2.23946;PhiROImax[0][20][15]=	-2.13203;
+     EtaROImin[0][20][16]=   -0.82768;EtaROImax[0][20][16]=  -0.783867;PhiROImin[0][20][16]=   -2.35323;PhiROImax[0][20][16]=	-2.24298;
+     EtaROImin[0][20][17]=  -0.895163;EtaROImax[0][20][17]=  -0.830556;PhiROImin[0][20][17]=   -2.35323;PhiROImax[0][20][17]=	-2.24298;
+     EtaROImin[0][20][18]=   -0.82768;EtaROImax[0][20][18]=  -0.783867;PhiROImin[0][20][18]=   -2.23946;PhiROImax[0][20][18]=	-2.13203;
+     EtaROImin[0][20][19]=  -0.895163;EtaROImax[0][20][19]=  -0.830556;PhiROImin[0][20][19]=   -2.23946;PhiROImax[0][20][19]=	-2.13203;
+     EtaROImin[0][20][20]=  -0.961344;EtaROImax[0][20][20]=  -0.898201;PhiROImin[0][20][20]=   -2.35324;PhiROImax[0][20][20]=	-2.24358;
+     EtaROImin[0][20][21]=   -1.02514;EtaROImax[0][20][21]=  -0.964674;PhiROImin[0][20][21]=   -2.35324;PhiROImax[0][20][21]=	-2.24358;
+     EtaROImin[0][20][22]=  -0.961344;EtaROImax[0][20][22]=  -0.898201;PhiROImin[0][20][22]=   -2.24008;PhiROImax[0][20][22]=	-2.13318;
+     EtaROImin[0][20][23]=   -1.02514;EtaROImax[0][20][23]=  -0.964674;PhiROImin[0][20][23]=   -2.24008;PhiROImax[0][20][23]=	-2.13318;
+     EtaROImin[0][20][24]=   -1.06547;EtaROImax[0][20][24]=   -1.03003;PhiROImin[0][20][24]=   -2.35313;PhiROImax[0][20][24]=	-2.24277;
+     EtaROImin[0][20][25]=	    0;EtaROImax[0][20][25]=	     0;PhiROImin[0][20][25]=	      0;PhiROImax[0][20][25]=	       0;
+     EtaROImin[0][20][26]=   -1.06547;EtaROImax[0][20][26]=   -1.03003;PhiROImin[0][20][26]=   -2.23924;PhiROImax[0][20][26]=	-2.15905;
+     EtaROImin[0][20][27]=	    0;EtaROImax[0][20][27]=	     0;PhiROImin[0][20][27]=	      0;PhiROImax[0][20][27]=	       0;
+     EtaROImin[0][20][28]=	    0;EtaROImax[0][20][28]=	     0;PhiROImin[0][20][28]=	      0;PhiROImax[0][20][28]=	       0;
+     EtaROImin[0][20][29]=	    0;EtaROImax[0][20][29]=	     0;PhiROImin[0][20][29]=	      0;PhiROImax[0][20][29]=	       0;
+     EtaROImin[0][20][30]=	    0;EtaROImax[0][20][30]=	     0;PhiROImin[0][20][30]=	      0;PhiROImax[0][20][30]=	       0;
+     EtaROImin[0][20][31]=	    0;EtaROImax[0][20][31]=	     0;PhiROImin[0][20][31]=	      0;PhiROImax[0][20][31]=	       0;
+     EtaROImin[0][21][ 0]=  -0.203032;EtaROImax[0][21][ 0]=  -0.155043;PhiROImin[0][21][ 0]=   -2.05024;PhiROImax[0][21][ 0]=	-1.96629;
+     EtaROImin[0][21][ 1]=   -0.15183;EtaROImax[0][21][ 1]= -0.0775634;PhiROImin[0][21][ 1]=   -2.05024;PhiROImax[0][21][ 1]=	-1.96629;
+     EtaROImin[0][21][ 2]=  -0.203032;EtaROImax[0][21][ 2]=  -0.155043;PhiROImin[0][21][ 2]=   -2.13655;PhiROImax[0][21][ 2]=	-2.05387;
+     EtaROImin[0][21][ 3]=   -0.15183;EtaROImax[0][21][ 3]= -0.0775634;PhiROImin[0][21][ 3]=   -2.13655;PhiROImax[0][21][ 3]=	-2.05387;
+     EtaROImin[0][21][ 4]=  -0.322732;EtaROImax[0][21][ 4]=  -0.276301;PhiROImin[0][21][ 4]=   -2.04983;PhiROImax[0][21][ 4]=	-1.96627;
+     EtaROImin[0][21][ 5]=  -0.273184;EtaROImax[0][21][ 5]=  -0.200823;PhiROImin[0][21][ 5]=   -2.04983;PhiROImax[0][21][ 5]=	-1.96627;
+     EtaROImin[0][21][ 6]=  -0.322732;EtaROImax[0][21][ 6]=  -0.276301;PhiROImin[0][21][ 6]=   -2.13573;PhiROImax[0][21][ 6]=	-2.05344;
+     EtaROImin[0][21][ 7]=  -0.273184;EtaROImax[0][21][ 7]=  -0.200823;PhiROImin[0][21][ 7]=   -2.13573;PhiROImax[0][21][ 7]=	-2.05344;
+     EtaROImin[0][21][ 8]=   -0.51487;EtaROImax[0][21][ 8]=  -0.439011;PhiROImin[0][21][ 8]=   -2.04536;PhiROImax[0][21][ 8]=	-1.96564;
+     EtaROImin[0][21][ 9]=  -0.441017;EtaROImax[0][21][ 9]=  -0.362484;PhiROImin[0][21][ 9]=   -2.04536;PhiROImax[0][21][ 9]=	-1.96564;
+     EtaROImin[0][21][10]=   -0.51487;EtaROImax[0][21][10]=  -0.439011;PhiROImin[0][21][10]=   -2.12657;PhiROImax[0][21][10]=	-2.04792;
+     EtaROImin[0][21][11]=  -0.441017;EtaROImax[0][21][11]=  -0.362484;PhiROImin[0][21][11]=   -2.12657;PhiROImax[0][21][11]=	-2.04792;
+     EtaROImin[0][21][12]=  -0.659332;EtaROImax[0][21][12]=  -0.566067;PhiROImin[0][21][12]=   -2.05024;PhiROImax[0][21][12]=	-1.96629;
+     EtaROImin[0][21][13]=  -0.569141;EtaROImax[0][21][13]=  -0.470878;PhiROImin[0][21][13]=   -2.05024;PhiROImax[0][21][13]=	-1.96629;
+     EtaROImin[0][21][14]=  -0.659332;EtaROImax[0][21][14]=  -0.566067;PhiROImin[0][21][14]=   -2.13655;PhiROImax[0][21][14]=	-2.05387;
+     EtaROImin[0][21][15]=  -0.569141;EtaROImax[0][21][15]=  -0.470878;PhiROImin[0][21][15]=   -2.13655;PhiROImax[0][21][15]=	-2.05387;
+     EtaROImin[0][21][16]=   -0.72184;EtaROImax[0][21][16]=  -0.671529;PhiROImin[0][21][16]=   -2.04536;PhiROImax[0][21][16]=	-1.96564;
+     EtaROImin[0][21][17]=  -0.674155;EtaROImax[0][21][17]=  -0.622205;PhiROImin[0][21][17]=   -2.04536;PhiROImax[0][21][17]=	-1.96564;
+     EtaROImin[0][21][18]=   -0.72184;EtaROImax[0][21][18]=  -0.671529;PhiROImin[0][21][18]=   -2.12657;PhiROImax[0][21][18]=	-2.04792;
+     EtaROImin[0][21][19]=  -0.674155;EtaROImax[0][21][19]=  -0.622205;PhiROImin[0][21][19]=   -2.12657;PhiROImax[0][21][19]=	-2.04792;
+     EtaROImin[0][21][20]=  -0.893028;EtaROImax[0][21][20]=  -0.833797;PhiROImin[0][21][20]=   -2.04536;PhiROImax[0][21][20]=	-1.96564;
+     EtaROImin[0][21][21]=  -0.831846;EtaROImax[0][21][21]=  -0.744499;PhiROImin[0][21][21]=   -2.04536;PhiROImax[0][21][21]=	-1.96564;
+     EtaROImin[0][21][22]=  -0.893028;EtaROImax[0][21][22]=  -0.833797;PhiROImin[0][21][22]=   -2.12657;PhiROImax[0][21][22]=	-2.04792;
+     EtaROImin[0][21][23]=  -0.831846;EtaROImax[0][21][23]=  -0.744499;PhiROImin[0][21][23]=   -2.12657;PhiROImax[0][21][23]=	-2.04792;
+     EtaROImin[0][21][24]=  -0.905303;EtaROImax[0][21][24]=  -0.846464;PhiROImin[0][21][24]=   -2.05024;PhiROImax[0][21][24]=	-1.96629;
+     EtaROImin[0][21][25]=  -0.850339;EtaROImax[0][21][25]=  -0.788882;PhiROImin[0][21][25]=   -2.05024;PhiROImax[0][21][25]=	-1.96629;
+     EtaROImin[0][21][26]=  -0.905303;EtaROImax[0][21][26]=  -0.846464;PhiROImin[0][21][26]=   -2.13655;PhiROImax[0][21][26]=	-2.05387;
+     EtaROImin[0][21][27]=  -0.850339;EtaROImax[0][21][27]=  -0.788882;PhiROImin[0][21][27]=   -2.13655;PhiROImax[0][21][27]=	-2.05387;
+     EtaROImin[0][21][28]=   -0.98143;EtaROImax[0][21][28]=  -0.954883;PhiROImin[0][21][28]=   -2.03358;PhiROImax[0][21][28]=	-1.98444;
+     EtaROImin[0][21][29]=  -0.953094;EtaROImax[0][21][29]=  -0.911293;PhiROImin[0][21][29]=   -2.03358;PhiROImax[0][21][29]=	-1.98444;
+     EtaROImin[0][21][30]=   -0.98143;EtaROImax[0][21][30]=  -0.954883;PhiROImin[0][21][30]=   -2.12127;PhiROImax[0][21][30]=	-2.03635;
+     EtaROImin[0][21][31]=  -0.953094;EtaROImax[0][21][31]=  -0.911293;PhiROImin[0][21][31]=   -2.12127;PhiROImax[0][21][31]=	-2.03635;
+     EtaROImin[0][22][ 0]=  -0.126072;EtaROImax[0][22][ 0]= -0.0775634;PhiROImin[0][22][ 0]=   -1.96071;PhiROImax[0][22][ 0]=	-1.87675;
+     EtaROImin[0][22][ 1]=  -0.203032;EtaROImax[0][22][ 1]=  -0.129296;PhiROImin[0][22][ 1]=   -1.96071;PhiROImax[0][22][ 1]=	-1.87675;
+     EtaROImin[0][22][ 2]=  -0.126072;EtaROImax[0][22][ 2]= -0.0775634;PhiROImin[0][22][ 2]=   -1.87312;PhiROImax[0][22][ 2]=	-1.79045;
+     EtaROImin[0][22][ 3]=  -0.203032;EtaROImax[0][22][ 3]=  -0.129296;PhiROImin[0][22][ 3]=   -1.87312;PhiROImax[0][22][ 3]=	-1.79045;
+     EtaROImin[0][22][ 4]=  -0.248155;EtaROImax[0][22][ 4]=  -0.200823;PhiROImin[0][22][ 4]=   -1.96072;PhiROImax[0][22][ 4]=	-1.87716;
+     EtaROImin[0][22][ 5]=  -0.322732;EtaROImax[0][22][ 5]=  -0.251292;PhiROImin[0][22][ 5]=   -1.96072;PhiROImax[0][22][ 5]=	-1.87716;
+     EtaROImin[0][22][ 6]=  -0.248155;EtaROImax[0][22][ 6]=  -0.200823;PhiROImin[0][22][ 6]=   -1.87355;PhiROImax[0][22][ 6]=	-1.79126;
+     EtaROImin[0][22][ 7]=  -0.322732;EtaROImax[0][22][ 7]=  -0.251292;PhiROImin[0][22][ 7]=   -1.87355;PhiROImax[0][22][ 7]=	-1.79126;
+     EtaROImin[0][22][ 8]=  -0.441017;EtaROImax[0][22][ 8]=  -0.362484;PhiROImin[0][22][ 8]=   -1.96135;PhiROImax[0][22][ 8]=	-1.88163;
+     EtaROImin[0][22][ 9]=   -0.51487;EtaROImax[0][22][ 9]=  -0.439011;PhiROImin[0][22][ 9]=   -1.96135;PhiROImax[0][22][ 9]=	-1.88163;
+     EtaROImin[0][22][10]=  -0.441017;EtaROImax[0][22][10]=  -0.362484;PhiROImin[0][22][10]=   -1.87907;PhiROImax[0][22][10]=	-1.80042;
+     EtaROImin[0][22][11]=   -0.51487;EtaROImax[0][22][11]=  -0.439011;PhiROImin[0][22][11]=   -1.87907;PhiROImax[0][22][11]=	-1.80042;
+     EtaROImin[0][22][12]=  -0.569141;EtaROImax[0][22][12]=  -0.470878;PhiROImin[0][22][12]=   -1.96071;PhiROImax[0][22][12]=	-1.87675;
+     EtaROImin[0][22][13]=  -0.659332;EtaROImax[0][22][13]=  -0.566067;PhiROImin[0][22][13]=   -1.96071;PhiROImax[0][22][13]=	-1.87675;
+     EtaROImin[0][22][14]=  -0.569141;EtaROImax[0][22][14]=  -0.470878;PhiROImin[0][22][14]=   -1.87312;PhiROImax[0][22][14]=	-1.79045;
+     EtaROImin[0][22][15]=  -0.659332;EtaROImax[0][22][15]=  -0.566067;PhiROImin[0][22][15]=   -1.87312;PhiROImax[0][22][15]=	-1.79045;
+     EtaROImin[0][22][16]=  -0.674155;EtaROImax[0][22][16]=  -0.622205;PhiROImin[0][22][16]=   -1.96135;PhiROImax[0][22][16]=	-1.88163;
+     EtaROImin[0][22][17]=   -0.72184;EtaROImax[0][22][17]=  -0.671529;PhiROImin[0][22][17]=   -1.96135;PhiROImax[0][22][17]=	-1.88163;
+     EtaROImin[0][22][18]=  -0.674155;EtaROImax[0][22][18]=  -0.622205;PhiROImin[0][22][18]=   -1.87907;PhiROImax[0][22][18]=	-1.80042;
+     EtaROImin[0][22][19]=   -0.72184;EtaROImax[0][22][19]=  -0.671529;PhiROImin[0][22][19]=   -1.87907;PhiROImax[0][22][19]=	-1.80042;
+     EtaROImin[0][22][20]=  -0.831846;EtaROImax[0][22][20]=  -0.744499;PhiROImin[0][22][20]=   -1.96135;PhiROImax[0][22][20]=	-1.88163;
+     EtaROImin[0][22][21]=  -0.893028;EtaROImax[0][22][21]=  -0.833797;PhiROImin[0][22][21]=   -1.96135;PhiROImax[0][22][21]=	-1.88163;
+     EtaROImin[0][22][22]=  -0.831846;EtaROImax[0][22][22]=  -0.744499;PhiROImin[0][22][22]=   -1.87907;PhiROImax[0][22][22]=	-1.80042;
+     EtaROImin[0][22][23]=  -0.893028;EtaROImax[0][22][23]=  -0.833797;PhiROImin[0][22][23]=   -1.87907;PhiROImax[0][22][23]=	-1.80042;
+     EtaROImin[0][22][24]=  -0.850339;EtaROImax[0][22][24]=  -0.788882;PhiROImin[0][22][24]=   -1.96071;PhiROImax[0][22][24]=	-1.87675;
+     EtaROImin[0][22][25]=  -0.905303;EtaROImax[0][22][25]=  -0.846464;PhiROImin[0][22][25]=   -1.96071;PhiROImax[0][22][25]=	-1.87675;
+     EtaROImin[0][22][26]=  -0.850339;EtaROImax[0][22][26]=  -0.788882;PhiROImin[0][22][26]=   -1.87312;PhiROImax[0][22][26]=	-1.79045;
+     EtaROImin[0][22][27]=  -0.905303;EtaROImax[0][22][27]=  -0.846464;PhiROImin[0][22][27]=   -1.87312;PhiROImax[0][22][27]=	-1.79045;
+     EtaROImin[0][22][28]=  -0.940931;EtaROImax[0][22][28]=  -0.913486;PhiROImin[0][22][28]=   -1.97686;PhiROImax[0][22][28]=	-1.89087;
+     EtaROImin[0][22][29]=  -0.983719;EtaROImax[0][22][29]=  -0.942741;PhiROImin[0][22][29]=   -1.97686;PhiROImax[0][22][29]=	-1.89087;
+     EtaROImin[0][22][30]=  -0.940931;EtaROImax[0][22][30]=  -0.913486;PhiROImin[0][22][30]=   -1.98444;PhiROImax[0][22][30]=	-1.88811;
+     EtaROImin[0][22][31]=  -0.983719;EtaROImax[0][22][31]=  -0.942741;PhiROImin[0][22][31]=   -1.98444;PhiROImax[0][22][31]=	-1.88811;
+     EtaROImin[0][23][ 0]=  -0.238866;EtaROImax[0][23][ 0]=  -0.131182;PhiROImin[0][23][ 0]=   -1.68341;PhiROImax[0][23][ 0]=	-1.57375;
+     EtaROImin[0][23][ 1]=  -0.132007;EtaROImax[0][23][ 1]=   -0.02338;PhiROImin[0][23][ 1]=   -1.68341;PhiROImax[0][23][ 1]=	-1.57375;
+     EtaROImin[0][23][ 2]=  -0.238866;EtaROImax[0][23][ 2]=  -0.131182;PhiROImin[0][23][ 2]=   -1.79381;PhiROImax[0][23][ 2]=	-1.68692;
+     EtaROImin[0][23][ 3]=  -0.132007;EtaROImax[0][23][ 3]=   -0.02338;PhiROImin[0][23][ 3]=   -1.79381;PhiROImax[0][23][ 3]=	-1.68692;
+     EtaROImin[0][23][ 4]=  -0.452099;EtaROImax[0][23][ 4]=  -0.350831;PhiROImin[0][23][ 4]=   -1.68341;PhiROImax[0][23][ 4]=	-1.57375;
+     EtaROImin[0][23][ 5]=   -0.35049;EtaROImax[0][23][ 5]=  -0.246207;PhiROImin[0][23][ 5]=   -1.68341;PhiROImax[0][23][ 5]=	-1.57375;
+     EtaROImin[0][23][ 6]=  -0.452099;EtaROImax[0][23][ 6]=  -0.350831;PhiROImin[0][23][ 6]=   -1.79381;PhiROImax[0][23][ 6]=	-1.68692;
+     EtaROImin[0][23][ 7]=   -0.35049;EtaROImax[0][23][ 7]=  -0.246207;PhiROImin[0][23][ 7]=   -1.79381;PhiROImax[0][23][ 7]=	-1.68692;
+     EtaROImin[0][23][ 8]=  -0.648101;EtaROImax[0][23][ 8]=  -0.555789;PhiROImin[0][23][ 8]=   -1.68341;PhiROImax[0][23][ 8]=	-1.57375;
+     EtaROImin[0][23][ 9]=  -0.554444;EtaROImax[0][23][ 9]=  -0.458091;PhiROImin[0][23][ 9]=   -1.68341;PhiROImax[0][23][ 9]=	-1.57375;
+     EtaROImin[0][23][10]=  -0.648101;EtaROImax[0][23][10]=  -0.555789;PhiROImin[0][23][10]=   -1.79381;PhiROImax[0][23][10]=	-1.68692;
+     EtaROImin[0][23][11]=  -0.554444;EtaROImax[0][23][11]=  -0.458091;PhiROImin[0][23][11]=   -1.79381;PhiROImax[0][23][11]=	-1.68692;
+     EtaROImin[0][23][12]=  -0.786462;EtaROImax[0][23][12]=  -0.745327;PhiROImin[0][23][12]=   -1.62692;PhiROImax[0][23][12]=	 -1.5708;
+     EtaROImin[0][23][13]=  -0.742545;EtaROImax[0][23][13]=  -0.677222;PhiROImin[0][23][13]=   -1.62692;PhiROImax[0][23][13]=	 -1.5708;
+     EtaROImin[0][23][14]=  -0.786462;EtaROImax[0][23][14]=  -0.745327;PhiROImin[0][23][14]=   -1.69744;PhiROImax[0][23][14]=	-1.63046;
+     EtaROImin[0][23][15]=  -0.742545;EtaROImax[0][23][15]=  -0.677222;PhiROImin[0][23][15]=   -1.69744;PhiROImax[0][23][15]=	-1.63046;
+     EtaROImin[0][23][16]=  -0.895163;EtaROImax[0][23][16]=  -0.853359;PhiROImin[0][23][16]=   -1.68401;PhiROImax[0][23][16]=	-1.57376;
+     EtaROImin[0][23][17]=  -0.850528;EtaROImax[0][23][17]=  -0.783867;PhiROImin[0][23][17]=   -1.68401;PhiROImax[0][23][17]=	-1.57376;
+     EtaROImin[0][23][18]=  -0.895163;EtaROImax[0][23][18]=  -0.853359;PhiROImin[0][23][18]=   -1.79497;PhiROImax[0][23][18]=	-1.68753;
+     EtaROImin[0][23][19]=  -0.850528;EtaROImax[0][23][19]=  -0.783867;PhiROImin[0][23][19]=   -1.79497;PhiROImax[0][23][19]=	-1.68753;
+     EtaROImin[0][23][20]=   -1.02514;EtaROImax[0][23][20]=  -0.964674;PhiROImin[0][23][20]=   -1.68341;PhiROImax[0][23][20]=	-1.57375;
+     EtaROImin[0][23][21]=  -0.961344;EtaROImax[0][23][21]=  -0.898201;PhiROImin[0][23][21]=   -1.68341;PhiROImax[0][23][21]=	-1.57375;
+     EtaROImin[0][23][22]=   -1.02514;EtaROImax[0][23][22]=  -0.964674;PhiROImin[0][23][22]=   -1.79381;PhiROImax[0][23][22]=	-1.68692;
+     EtaROImin[0][23][23]=  -0.961344;EtaROImax[0][23][23]=  -0.898201;PhiROImin[0][23][23]=   -1.79381;PhiROImax[0][23][23]=	-1.68692;
+     EtaROImin[0][23][24]=	    0;EtaROImax[0][23][24]=	     0;PhiROImin[0][23][24]=	      0;PhiROImax[0][23][24]=	       0;
+     EtaROImin[0][23][25]=   -1.06547;EtaROImax[0][23][25]=   -1.03003;PhiROImin[0][23][25]=   -1.68423;PhiROImax[0][23][25]=	-1.57387;
+     EtaROImin[0][23][26]=	    0;EtaROImax[0][23][26]=	     0;PhiROImin[0][23][26]=	      0;PhiROImax[0][23][26]=	       0;
+     EtaROImin[0][23][27]=   -1.06547;EtaROImax[0][23][27]=   -1.03003;PhiROImin[0][23][27]=   -1.76794;PhiROImax[0][23][27]=	-1.68775;
+     EtaROImin[0][23][28]=	    0;EtaROImax[0][23][28]=	     0;PhiROImin[0][23][28]=	      0;PhiROImax[0][23][28]=	       0;
+     EtaROImin[0][23][29]=	    0;EtaROImax[0][23][29]=	     0;PhiROImin[0][23][29]=	      0;PhiROImax[0][23][29]=	       0;
+     EtaROImin[0][23][30]=	    0;EtaROImax[0][23][30]=	     0;PhiROImin[0][23][30]=	      0;PhiROImax[0][23][30]=	       0;
+     EtaROImin[0][23][31]=	    0;EtaROImax[0][23][31]=	     0;PhiROImin[0][23][31]=	      0;PhiROImax[0][23][31]=	       0;
+     EtaROImin[0][24][ 0]=  -0.132007;EtaROImax[0][24][ 0]=   -0.02338;PhiROImin[0][24][ 0]=   -1.56784;PhiROImax[0][24][ 0]=	-1.45818;
+     EtaROImin[0][24][ 1]=  -0.238866;EtaROImax[0][24][ 1]=  -0.131182;PhiROImin[0][24][ 1]=   -1.56784;PhiROImax[0][24][ 1]=	-1.45818;
+     EtaROImin[0][24][ 2]=  -0.132007;EtaROImax[0][24][ 2]=   -0.02338;PhiROImin[0][24][ 2]=   -1.45468;PhiROImax[0][24][ 2]=	-1.34779;
+     EtaROImin[0][24][ 3]=  -0.238866;EtaROImax[0][24][ 3]=  -0.131182;PhiROImin[0][24][ 3]=   -1.45468;PhiROImax[0][24][ 3]=	-1.34779;
+     EtaROImin[0][24][ 4]=   -0.35049;EtaROImax[0][24][ 4]=  -0.246207;PhiROImin[0][24][ 4]=   -1.56784;PhiROImax[0][24][ 4]=	-1.45818;
+     EtaROImin[0][24][ 5]=  -0.452099;EtaROImax[0][24][ 5]=  -0.350831;PhiROImin[0][24][ 5]=   -1.56784;PhiROImax[0][24][ 5]=	-1.45818;
+     EtaROImin[0][24][ 6]=   -0.35049;EtaROImax[0][24][ 6]=  -0.246207;PhiROImin[0][24][ 6]=   -1.45468;PhiROImax[0][24][ 6]=	-1.34779;
+     EtaROImin[0][24][ 7]=  -0.452099;EtaROImax[0][24][ 7]=  -0.350831;PhiROImin[0][24][ 7]=   -1.45468;PhiROImax[0][24][ 7]=	-1.34779;
+     EtaROImin[0][24][ 8]=  -0.554444;EtaROImax[0][24][ 8]=  -0.458091;PhiROImin[0][24][ 8]=   -1.56784;PhiROImax[0][24][ 8]=	-1.45818;
+     EtaROImin[0][24][ 9]=  -0.648101;EtaROImax[0][24][ 9]=  -0.555789;PhiROImin[0][24][ 9]=   -1.56784;PhiROImax[0][24][ 9]=	-1.45818;
+     EtaROImin[0][24][10]=  -0.554444;EtaROImax[0][24][10]=  -0.458091;PhiROImin[0][24][10]=   -1.45468;PhiROImax[0][24][10]=	-1.34779;
+     EtaROImin[0][24][11]=  -0.648101;EtaROImax[0][24][11]=  -0.555789;PhiROImin[0][24][11]=   -1.45468;PhiROImax[0][24][11]=	-1.34779;
+     EtaROImin[0][24][12]=  -0.720119;EtaROImax[0][24][12]=  -0.677222;PhiROImin[0][24][12]=   -1.56798;PhiROImax[0][24][12]=	 -1.5005;
+     EtaROImin[0][24][13]=  -0.786462;EtaROImax[0][24][13]=   -0.72294;PhiROImin[0][24][13]=   -1.56798;PhiROImax[0][24][13]=	 -1.5005;
+     EtaROImin[0][24][14]=  -0.720119;EtaROImax[0][24][14]=  -0.677222;PhiROImin[0][24][14]=	-1.5708;PhiROImax[0][24][14]=	-1.49696;
+     EtaROImin[0][24][15]=  -0.786462;EtaROImax[0][24][15]=   -0.72294;PhiROImin[0][24][15]=	-1.5708;PhiROImax[0][24][15]=	-1.49696;
+     EtaROImin[0][24][16]=   -0.82768;EtaROImax[0][24][16]=  -0.783867;PhiROImin[0][24][16]=   -1.56783;PhiROImax[0][24][16]=	-1.45758;
+     EtaROImin[0][24][17]=  -0.895163;EtaROImax[0][24][17]=  -0.830556;PhiROImin[0][24][17]=   -1.56783;PhiROImax[0][24][17]=	-1.45758;
+     EtaROImin[0][24][18]=   -0.82768;EtaROImax[0][24][18]=  -0.783867;PhiROImin[0][24][18]=   -1.45406;PhiROImax[0][24][18]=	-1.34663;
+     EtaROImin[0][24][19]=  -0.895163;EtaROImax[0][24][19]=  -0.830556;PhiROImin[0][24][19]=   -1.45406;PhiROImax[0][24][19]=	-1.34663;
+     EtaROImin[0][24][20]=  -0.961344;EtaROImax[0][24][20]=  -0.898201;PhiROImin[0][24][20]=   -1.56784;PhiROImax[0][24][20]=	-1.45818;
+     EtaROImin[0][24][21]=   -1.02514;EtaROImax[0][24][21]=  -0.964674;PhiROImin[0][24][21]=   -1.56784;PhiROImax[0][24][21]=	-1.45818;
+     EtaROImin[0][24][22]=  -0.961344;EtaROImax[0][24][22]=  -0.898201;PhiROImin[0][24][22]=   -1.45468;PhiROImax[0][24][22]=	-1.34779;
+     EtaROImin[0][24][23]=   -1.02514;EtaROImax[0][24][23]=  -0.964674;PhiROImin[0][24][23]=   -1.45468;PhiROImax[0][24][23]=	-1.34779;
+     EtaROImin[0][24][24]=   -1.06547;EtaROImax[0][24][24]=   -1.03003;PhiROImin[0][24][24]=   -1.56773;PhiROImax[0][24][24]=	-1.45737;
+     EtaROImin[0][24][25]=	    0;EtaROImax[0][24][25]=	     0;PhiROImin[0][24][25]=	      0;PhiROImax[0][24][25]=	       0;
+     EtaROImin[0][24][26]=   -1.06547;EtaROImax[0][24][26]=   -1.03003;PhiROImin[0][24][26]=   -1.45384;PhiROImax[0][24][26]=	-1.37365;
+     EtaROImin[0][24][27]=	    0;EtaROImax[0][24][27]=	     0;PhiROImin[0][24][27]=	      0;PhiROImax[0][24][27]=	       0;
+     EtaROImin[0][24][28]=	    0;EtaROImax[0][24][28]=	     0;PhiROImin[0][24][28]=	      0;PhiROImax[0][24][28]=	       0;
+     EtaROImin[0][24][29]=	    0;EtaROImax[0][24][29]=	     0;PhiROImin[0][24][29]=	      0;PhiROImax[0][24][29]=	       0;
+     EtaROImin[0][24][30]=	    0;EtaROImax[0][24][30]=	     0;PhiROImin[0][24][30]=	      0;PhiROImax[0][24][30]=	       0;
+     EtaROImin[0][24][31]=	    0;EtaROImax[0][24][31]=	     0;PhiROImin[0][24][31]=	      0;PhiROImax[0][24][31]=	       0;
+     EtaROImin[0][25][ 0]=  -0.203032;EtaROImax[0][25][ 0]=  -0.155043;PhiROImin[0][25][ 0]=   -1.26484;PhiROImax[0][25][ 0]=	-1.18089;
+     EtaROImin[0][25][ 1]=   -0.15183;EtaROImax[0][25][ 1]= -0.0775634;PhiROImin[0][25][ 1]=   -1.26484;PhiROImax[0][25][ 1]=	-1.18089;
+     EtaROImin[0][25][ 2]=  -0.203032;EtaROImax[0][25][ 2]=  -0.155043;PhiROImin[0][25][ 2]=   -1.35115;PhiROImax[0][25][ 2]=	-1.26847;
+     EtaROImin[0][25][ 3]=   -0.15183;EtaROImax[0][25][ 3]= -0.0775634;PhiROImin[0][25][ 3]=   -1.35115;PhiROImax[0][25][ 3]=	-1.26847;
+     EtaROImin[0][25][ 4]=  -0.322732;EtaROImax[0][25][ 4]=  -0.276301;PhiROImin[0][25][ 4]=   -1.26443;PhiROImax[0][25][ 4]=	-1.18087;
+     EtaROImin[0][25][ 5]=  -0.273184;EtaROImax[0][25][ 5]=  -0.200823;PhiROImin[0][25][ 5]=   -1.26443;PhiROImax[0][25][ 5]=	-1.18087;
+     EtaROImin[0][25][ 6]=  -0.322732;EtaROImax[0][25][ 6]=  -0.276301;PhiROImin[0][25][ 6]=   -1.35034;PhiROImax[0][25][ 6]=	-1.26804;
+     EtaROImin[0][25][ 7]=  -0.273184;EtaROImax[0][25][ 7]=  -0.200823;PhiROImin[0][25][ 7]=   -1.35034;PhiROImax[0][25][ 7]=	-1.26804;
+     EtaROImin[0][25][ 8]=  -0.516583;EtaROImax[0][25][ 8]=  -0.440504;PhiROImin[0][25][ 8]=   -1.25967;PhiROImax[0][25][ 8]=	-1.18023;
+     EtaROImin[0][25][ 9]=  -0.439522;EtaROImax[0][25][ 9]=  -0.361231;PhiROImin[0][25][ 9]=   -1.25967;PhiROImax[0][25][ 9]=	-1.18023;
+     EtaROImin[0][25][10]=  -0.516583;EtaROImax[0][25][10]=  -0.440504;PhiROImin[0][25][10]=   -1.34059;PhiROImax[0][25][10]=	-1.26222;
+     EtaROImin[0][25][11]=  -0.439522;EtaROImax[0][25][11]=  -0.361231;PhiROImin[0][25][11]=   -1.34059;PhiROImax[0][25][11]=	-1.26222;
+     EtaROImin[0][25][12]=  -0.659332;EtaROImax[0][25][12]=  -0.566067;PhiROImin[0][25][12]=   -1.26484;PhiROImax[0][25][12]=	-1.18089;
+     EtaROImin[0][25][13]=  -0.569141;EtaROImax[0][25][13]=  -0.470878;PhiROImin[0][25][13]=   -1.26484;PhiROImax[0][25][13]=	-1.18089;
+     EtaROImin[0][25][14]=  -0.659332;EtaROImax[0][25][14]=  -0.566067;PhiROImin[0][25][14]=   -1.35115;PhiROImax[0][25][14]=	-1.26847;
+     EtaROImin[0][25][15]=  -0.569141;EtaROImax[0][25][15]=  -0.470878;PhiROImin[0][25][15]=   -1.35115;PhiROImax[0][25][15]=	-1.26847;
+     EtaROImin[0][25][16]=  -0.724075;EtaROImax[0][25][16]=  -0.673648;PhiROImin[0][25][16]=   -1.25967;PhiROImax[0][25][16]=	-1.18023;
+     EtaROImin[0][25][17]=  -0.672035;EtaROImax[0][25][17]=  -0.620212;PhiROImin[0][25][17]=   -1.25967;PhiROImax[0][25][17]=	-1.18023;
+     EtaROImin[0][25][18]=  -0.724075;EtaROImax[0][25][18]=  -0.673648;PhiROImin[0][25][18]=   -1.34059;PhiROImax[0][25][18]=	-1.26222;
+     EtaROImin[0][25][19]=  -0.672035;EtaROImax[0][25][19]=  -0.620212;PhiROImin[0][25][19]=   -1.34059;PhiROImax[0][25][19]=	-1.26222;
+     EtaROImin[0][25][20]=  -0.893028;EtaROImax[0][25][20]=  -0.833797;PhiROImin[0][25][20]=   -1.25997;PhiROImax[0][25][20]=	-1.18024;
+     EtaROImin[0][25][21]=  -0.831846;EtaROImax[0][25][21]=  -0.744499;PhiROImin[0][25][21]=   -1.25997;PhiROImax[0][25][21]=	-1.18024;
+     EtaROImin[0][25][22]=  -0.893028;EtaROImax[0][25][22]=  -0.833797;PhiROImin[0][25][22]=   -1.34117;PhiROImax[0][25][22]=	-1.26253;
+     EtaROImin[0][25][23]=  -0.831846;EtaROImax[0][25][23]=  -0.744499;PhiROImin[0][25][23]=   -1.34117;PhiROImax[0][25][23]=	-1.26253;
+     EtaROImin[0][25][24]=  -0.905303;EtaROImax[0][25][24]=  -0.846464;PhiROImin[0][25][24]=   -1.26484;PhiROImax[0][25][24]=	-1.18089;
+     EtaROImin[0][25][25]=  -0.850339;EtaROImax[0][25][25]=  -0.788882;PhiROImin[0][25][25]=   -1.26484;PhiROImax[0][25][25]=	-1.18089;
+     EtaROImin[0][25][26]=  -0.905303;EtaROImax[0][25][26]=  -0.846464;PhiROImin[0][25][26]=   -1.35115;PhiROImax[0][25][26]=	-1.26847;
+     EtaROImin[0][25][27]=  -0.850339;EtaROImax[0][25][27]=  -0.788882;PhiROImin[0][25][27]=   -1.35115;PhiROImax[0][25][27]=	-1.26847;
+     EtaROImin[0][25][28]=  -0.984405;EtaROImax[0][25][28]=  -0.957812;PhiROImin[0][25][28]=   -1.20642;PhiROImax[0][25][28]=	-1.15713;
+     EtaROImin[0][25][29]=   -0.95602;EtaROImax[0][25][29]=  -0.914143;PhiROImin[0][25][29]=   -1.20642;PhiROImax[0][25][29]=	-1.15713;
+     EtaROImin[0][25][30]=  -0.984405;EtaROImax[0][25][30]=  -0.957812;PhiROImin[0][25][30]=   -1.29487;PhiROImax[0][25][30]=	 -1.2092;
+     EtaROImin[0][25][31]=   -0.95602;EtaROImax[0][25][31]=  -0.914143;PhiROImin[0][25][31]=   -1.29487;PhiROImax[0][25][31]=	 -1.2092;
+     EtaROImin[0][26][ 0]=  -0.126072;EtaROImax[0][26][ 0]= -0.0775634;PhiROImin[0][26][ 0]=   -1.17531;PhiROImax[0][26][ 0]=	-1.09135;
+     EtaROImin[0][26][ 1]=  -0.203032;EtaROImax[0][26][ 1]=  -0.129296;PhiROImin[0][26][ 1]=   -1.17531;PhiROImax[0][26][ 1]=	-1.09135;
+     EtaROImin[0][26][ 2]=  -0.126072;EtaROImax[0][26][ 2]= -0.0775634;PhiROImin[0][26][ 2]=   -1.08772;PhiROImax[0][26][ 2]=	-1.00505;
+     EtaROImin[0][26][ 3]=  -0.203032;EtaROImax[0][26][ 3]=  -0.129296;PhiROImin[0][26][ 3]=   -1.08772;PhiROImax[0][26][ 3]=	-1.00505;
+     EtaROImin[0][26][ 4]=  -0.248155;EtaROImax[0][26][ 4]=  -0.200823;PhiROImin[0][26][ 4]=   -1.17532;PhiROImax[0][26][ 4]=	-1.09176;
+     EtaROImin[0][26][ 5]=  -0.322732;EtaROImax[0][26][ 5]=  -0.251292;PhiROImin[0][26][ 5]=   -1.17532;PhiROImax[0][26][ 5]=	-1.09176;
+     EtaROImin[0][26][ 6]=  -0.248155;EtaROImax[0][26][ 6]=  -0.200823;PhiROImin[0][26][ 6]=   -1.08815;PhiROImax[0][26][ 6]=	-1.00586;
+     EtaROImin[0][26][ 7]=  -0.322732;EtaROImax[0][26][ 7]=  -0.251292;PhiROImin[0][26][ 7]=   -1.08815;PhiROImax[0][26][ 7]=	-1.00586;
+     EtaROImin[0][26][ 8]=  -0.439522;EtaROImax[0][26][ 8]=  -0.361231;PhiROImin[0][26][ 8]=   -1.17596;PhiROImax[0][26][ 8]=	-1.09652;
+     EtaROImin[0][26][ 9]=  -0.516583;EtaROImax[0][26][ 9]=  -0.440504;PhiROImin[0][26][ 9]=   -1.17596;PhiROImax[0][26][ 9]=	-1.09652;
+     EtaROImin[0][26][10]=  -0.439522;EtaROImax[0][26][10]=  -0.361231;PhiROImin[0][26][10]=   -1.09397;PhiROImax[0][26][10]=	 -1.0156;
+     EtaROImin[0][26][11]=  -0.516583;EtaROImax[0][26][11]=  -0.440504;PhiROImin[0][26][11]=   -1.09397;PhiROImax[0][26][11]=	 -1.0156;
+     EtaROImin[0][26][12]=  -0.569141;EtaROImax[0][26][12]=  -0.470878;PhiROImin[0][26][12]=   -1.17531;PhiROImax[0][26][12]=	-1.09135;
+     EtaROImin[0][26][13]=  -0.659332;EtaROImax[0][26][13]=  -0.566067;PhiROImin[0][26][13]=   -1.17531;PhiROImax[0][26][13]=	-1.09135;
+     EtaROImin[0][26][14]=  -0.569141;EtaROImax[0][26][14]=  -0.470878;PhiROImin[0][26][14]=   -1.08772;PhiROImax[0][26][14]=	-1.00505;
+     EtaROImin[0][26][15]=  -0.659332;EtaROImax[0][26][15]=  -0.566067;PhiROImin[0][26][15]=   -1.08772;PhiROImax[0][26][15]=	-1.00505;
+     EtaROImin[0][26][16]=  -0.672035;EtaROImax[0][26][16]=  -0.620212;PhiROImin[0][26][16]=   -1.17596;PhiROImax[0][26][16]=	-1.09652;
+     EtaROImin[0][26][17]=  -0.724075;EtaROImax[0][26][17]=  -0.673648;PhiROImin[0][26][17]=   -1.17596;PhiROImax[0][26][17]=	-1.09652;
+     EtaROImin[0][26][18]=  -0.672035;EtaROImax[0][26][18]=  -0.620212;PhiROImin[0][26][18]=   -1.09397;PhiROImax[0][26][18]=	 -1.0156;
+     EtaROImin[0][26][19]=  -0.724075;EtaROImax[0][26][19]=  -0.673648;PhiROImin[0][26][19]=   -1.09397;PhiROImax[0][26][19]=	 -1.0156;
+     EtaROImin[0][26][20]=  -0.831846;EtaROImax[0][26][20]=  -0.744499;PhiROImin[0][26][20]=   -1.17595;PhiROImax[0][26][20]=	-1.09623;
+     EtaROImin[0][26][21]=  -0.893028;EtaROImax[0][26][21]=  -0.833797;PhiROImin[0][26][21]=   -1.17595;PhiROImax[0][26][21]=	-1.09623;
+     EtaROImin[0][26][22]=  -0.831846;EtaROImax[0][26][22]=  -0.744499;PhiROImin[0][26][22]=   -1.09367;PhiROImax[0][26][22]=	-1.01502;
+     EtaROImin[0][26][23]=  -0.893028;EtaROImax[0][26][23]=  -0.833797;PhiROImin[0][26][23]=   -1.09367;PhiROImax[0][26][23]=	-1.01502;
+     EtaROImin[0][26][24]=  -0.850339;EtaROImax[0][26][24]=  -0.788882;PhiROImin[0][26][24]=   -1.17531;PhiROImax[0][26][24]=	-1.09135;
+     EtaROImin[0][26][25]=  -0.905303;EtaROImax[0][26][25]=  -0.846464;PhiROImin[0][26][25]=   -1.17531;PhiROImax[0][26][25]=	-1.09135;
+     EtaROImin[0][26][26]=  -0.850339;EtaROImax[0][26][26]=  -0.788882;PhiROImin[0][26][26]=   -1.08772;PhiROImax[0][26][26]=	-1.00505;
+     EtaROImin[0][26][27]=  -0.905303;EtaROImax[0][26][27]=  -0.846464;PhiROImin[0][26][27]=   -1.08772;PhiROImax[0][26][27]=	-1.00505;
+     EtaROImin[0][26][28]=  -0.939363;EtaROImax[0][26][28]=  -0.911945;PhiROImin[0][26][28]=   -1.14955;PhiROImax[0][26][28]=	-1.06384;
+     EtaROImin[0][26][29]=   -0.98211;EtaROImax[0][26][29]=  -0.941171;PhiROImin[0][26][29]=   -1.14955;PhiROImax[0][26][29]=	-1.06384;
+     EtaROImin[0][26][30]=  -0.939363;EtaROImax[0][26][30]=  -0.911945;PhiROImin[0][26][30]=   -1.15713;PhiROImax[0][26][30]=	 -1.0611;
+     EtaROImin[0][26][31]=   -0.98211;EtaROImax[0][26][31]=  -0.941171;PhiROImin[0][26][31]=   -1.15713;PhiROImax[0][26][31]=	 -1.0611;
+     EtaROImin[0][27][ 0]=  -0.238294;EtaROImax[0][27][ 0]=  -0.180742;PhiROImin[0][27][ 0]=   -0.89861;PhiROImax[0][27][ 0]=  -0.788366;
+     EtaROImin[0][27][ 1]=  -0.176882;EtaROImax[0][27][ 1]= -0.0874905;PhiROImin[0][27][ 1]=   -0.89861;PhiROImax[0][27][ 1]=  -0.788366;
+     EtaROImin[0][27][ 2]=  -0.238294;EtaROImax[0][27][ 2]=  -0.180742;PhiROImin[0][27][ 2]=   -1.00957;PhiROImax[0][27][ 2]=  -0.902135;
+     EtaROImin[0][27][ 3]=  -0.176882;EtaROImax[0][27][ 3]= -0.0874905;PhiROImin[0][27][ 3]=   -1.00957;PhiROImax[0][27][ 3]=  -0.902135;
+     EtaROImin[0][27][ 4]=  -0.452099;EtaROImax[0][27][ 4]=  -0.350831;PhiROImin[0][27][ 4]=  -0.898011;PhiROImax[0][27][ 4]=	-0.78835;
+     EtaROImin[0][27][ 5]=   -0.35049;EtaROImax[0][27][ 5]=  -0.246207;PhiROImin[0][27][ 5]=  -0.898011;PhiROImax[0][27][ 5]=	-0.78835;
+     EtaROImin[0][27][ 6]=  -0.452099;EtaROImax[0][27][ 6]=  -0.350831;PhiROImin[0][27][ 6]=   -1.00841;PhiROImax[0][27][ 6]=  -0.901517;
+     EtaROImin[0][27][ 7]=   -0.35049;EtaROImax[0][27][ 7]=  -0.246207;PhiROImin[0][27][ 7]=   -1.00841;PhiROImax[0][27][ 7]=  -0.901517;
+     EtaROImin[0][27][ 8]=  -0.648101;EtaROImax[0][27][ 8]=  -0.555789;PhiROImin[0][27][ 8]=  -0.898011;PhiROImax[0][27][ 8]=	-0.78835;
+     EtaROImin[0][27][ 9]=  -0.554444;EtaROImax[0][27][ 9]=  -0.458091;PhiROImin[0][27][ 9]=  -0.898011;PhiROImax[0][27][ 9]=	-0.78835;
+     EtaROImin[0][27][10]=  -0.648101;EtaROImax[0][27][10]=  -0.555789;PhiROImin[0][27][10]=   -1.00841;PhiROImax[0][27][10]=  -0.901517;
+     EtaROImin[0][27][11]=  -0.554444;EtaROImax[0][27][11]=  -0.458091;PhiROImin[0][27][11]=   -1.00841;PhiROImax[0][27][11]=  -0.901517;
+     EtaROImin[0][27][12]=  -0.776449;EtaROImax[0][27][12]=  -0.731124;PhiROImin[0][27][12]=   -0.89861;PhiROImax[0][27][12]=  -0.788366;
+     EtaROImin[0][27][13]=  -0.728056;EtaROImax[0][27][13]=  -0.655857;PhiROImin[0][27][13]=   -0.89861;PhiROImax[0][27][13]=  -0.788366;
+     EtaROImin[0][27][14]=  -0.776449;EtaROImax[0][27][14]=  -0.731124;PhiROImin[0][27][14]=   -1.00957;PhiROImax[0][27][14]=  -0.902135;
+     EtaROImin[0][27][15]=  -0.728056;EtaROImax[0][27][15]=  -0.655857;PhiROImin[0][27][15]=   -1.00957;PhiROImax[0][27][15]=  -0.902135;
+     EtaROImin[0][27][16]=  -0.895163;EtaROImax[0][27][16]=  -0.853359;PhiROImin[0][27][16]=   -0.89861;PhiROImax[0][27][16]=  -0.788366;
+     EtaROImin[0][27][17]=  -0.850528;EtaROImax[0][27][17]=  -0.783867;PhiROImin[0][27][17]=   -0.89861;PhiROImax[0][27][17]=  -0.788366;
+     EtaROImin[0][27][18]=  -0.895163;EtaROImax[0][27][18]=  -0.853359;PhiROImin[0][27][18]=   -1.00957;PhiROImax[0][27][18]=  -0.902135;
+     EtaROImin[0][27][19]=  -0.850528;EtaROImax[0][27][19]=  -0.783867;PhiROImin[0][27][19]=   -1.00957;PhiROImax[0][27][19]=  -0.902135;
+     EtaROImin[0][27][20]=   -1.02514;EtaROImax[0][27][20]=  -0.964674;PhiROImin[0][27][20]=  -0.898011;PhiROImax[0][27][20]=	-0.78835;
+     EtaROImin[0][27][21]=  -0.961344;EtaROImax[0][27][21]=  -0.898201;PhiROImin[0][27][21]=  -0.898011;PhiROImax[0][27][21]=	-0.78835;
+     EtaROImin[0][27][22]=   -1.02514;EtaROImax[0][27][22]=  -0.964674;PhiROImin[0][27][22]=   -1.00841;PhiROImax[0][27][22]=  -0.901517;
+     EtaROImin[0][27][23]=  -0.961344;EtaROImax[0][27][23]=  -0.898201;PhiROImin[0][27][23]=   -1.00841;PhiROImax[0][27][23]=  -0.901517;
+     EtaROImin[0][27][24]=	    0;EtaROImax[0][27][24]=	     0;PhiROImin[0][27][24]=	      0;PhiROImax[0][27][24]=	       0;
+     EtaROImin[0][27][25]=   -1.06547;EtaROImax[0][27][25]=   -1.03003;PhiROImin[0][27][25]=  -0.898827;PhiROImax[0][27][25]=  -0.788467;
+     EtaROImin[0][27][26]=	    0;EtaROImax[0][27][26]=	     0;PhiROImin[0][27][26]=	      0;PhiROImax[0][27][26]=	       0;
+     EtaROImin[0][27][27]=   -1.06547;EtaROImax[0][27][27]=   -1.03003;PhiROImin[0][27][27]=  -0.982541;PhiROImax[0][27][27]=  -0.902356;
+     EtaROImin[0][27][28]=	    0;EtaROImax[0][27][28]=	     0;PhiROImin[0][27][28]=	      0;PhiROImax[0][27][28]=	       0;
+     EtaROImin[0][27][29]=	    0;EtaROImax[0][27][29]=	     0;PhiROImin[0][27][29]=	      0;PhiROImax[0][27][29]=	       0;
+     EtaROImin[0][27][30]=	    0;EtaROImax[0][27][30]=	     0;PhiROImin[0][27][30]=	      0;PhiROImax[0][27][30]=	       0;
+     EtaROImin[0][27][31]=	    0;EtaROImax[0][27][31]=	     0;PhiROImin[0][27][31]=	      0;PhiROImax[0][27][31]=	       0;
+     EtaROImin[0][28][ 0]=  -0.145912;EtaROImax[0][28][ 0]= -0.0874905;PhiROImin[0][28][ 0]=   -0.78243;PhiROImax[0][28][ 0]=  -0.672186;
+     EtaROImin[0][28][ 1]=  -0.238294;EtaROImax[0][28][ 1]=  -0.149792;PhiROImin[0][28][ 1]=   -0.78243;PhiROImax[0][28][ 1]=  -0.672186;
+     EtaROImin[0][28][ 2]=  -0.145912;EtaROImax[0][28][ 2]= -0.0874905;PhiROImin[0][28][ 2]=  -0.668661;PhiROImax[0][28][ 2]=  -0.561229;
+     EtaROImin[0][28][ 3]=  -0.238294;EtaROImax[0][28][ 3]=  -0.149792;PhiROImin[0][28][ 3]=  -0.668661;PhiROImax[0][28][ 3]=  -0.561229;
+     EtaROImin[0][28][ 4]=   -0.35049;EtaROImax[0][28][ 4]=  -0.246207;PhiROImin[0][28][ 4]=  -0.782446;PhiROImax[0][28][ 4]=  -0.672786;
+     EtaROImin[0][28][ 5]=  -0.452099;EtaROImax[0][28][ 5]=  -0.350831;PhiROImin[0][28][ 5]=  -0.782446;PhiROImax[0][28][ 5]=  -0.672786;
+     EtaROImin[0][28][ 6]=   -0.35049;EtaROImax[0][28][ 6]=  -0.246207;PhiROImin[0][28][ 6]=  -0.669279;PhiROImax[0][28][ 6]=  -0.562387;
+     EtaROImin[0][28][ 7]=  -0.452099;EtaROImax[0][28][ 7]=  -0.350831;PhiROImin[0][28][ 7]=  -0.669279;PhiROImax[0][28][ 7]=  -0.562387;
+     EtaROImin[0][28][ 8]=  -0.554444;EtaROImax[0][28][ 8]=  -0.458091;PhiROImin[0][28][ 8]=  -0.782446;PhiROImax[0][28][ 8]=  -0.672786;
+     EtaROImin[0][28][ 9]=  -0.648101;EtaROImax[0][28][ 9]=  -0.555789;PhiROImin[0][28][ 9]=  -0.782446;PhiROImax[0][28][ 9]=  -0.672786;
+     EtaROImin[0][28][10]=  -0.554444;EtaROImax[0][28][10]=  -0.458091;PhiROImin[0][28][10]=  -0.669279;PhiROImax[0][28][10]=  -0.562387;
+     EtaROImin[0][28][11]=  -0.648101;EtaROImax[0][28][11]=  -0.555789;PhiROImin[0][28][11]=  -0.669279;PhiROImax[0][28][11]=  -0.562387;
+     EtaROImin[0][28][12]=  -0.703298;EtaROImax[0][28][12]=  -0.655857;PhiROImin[0][28][12]=   -0.78243;PhiROImax[0][28][12]=  -0.672186;
+     EtaROImin[0][28][13]=  -0.776449;EtaROImax[0][28][13]=  -0.706413;PhiROImin[0][28][13]=   -0.78243;PhiROImax[0][28][13]=  -0.672186;
+     EtaROImin[0][28][14]=  -0.703298;EtaROImax[0][28][14]=  -0.655857;PhiROImin[0][28][14]=  -0.668661;PhiROImax[0][28][14]=  -0.561229;
+     EtaROImin[0][28][15]=  -0.776449;EtaROImax[0][28][15]=  -0.706413;PhiROImin[0][28][15]=  -0.668661;PhiROImax[0][28][15]=  -0.561229;
+     EtaROImin[0][28][16]=   -0.82768;EtaROImax[0][28][16]=  -0.783867;PhiROImin[0][28][16]=   -0.78243;PhiROImax[0][28][16]=  -0.672186;
+     EtaROImin[0][28][17]=  -0.895163;EtaROImax[0][28][17]=  -0.830556;PhiROImin[0][28][17]=   -0.78243;PhiROImax[0][28][17]=  -0.672186;
+     EtaROImin[0][28][18]=   -0.82768;EtaROImax[0][28][18]=  -0.783867;PhiROImin[0][28][18]=  -0.668661;PhiROImax[0][28][18]=  -0.561229;
+     EtaROImin[0][28][19]=  -0.895163;EtaROImax[0][28][19]=  -0.830556;PhiROImin[0][28][19]=  -0.668661;PhiROImax[0][28][19]=  -0.561229;
+     EtaROImin[0][28][20]=  -0.961344;EtaROImax[0][28][20]=  -0.898201;PhiROImin[0][28][20]=  -0.782446;PhiROImax[0][28][20]=  -0.672786;
+     EtaROImin[0][28][21]=   -1.02514;EtaROImax[0][28][21]=  -0.964674;PhiROImin[0][28][21]=  -0.782446;PhiROImax[0][28][21]=  -0.672786;
+     EtaROImin[0][28][22]=  -0.961344;EtaROImax[0][28][22]=  -0.898201;PhiROImin[0][28][22]=  -0.669279;PhiROImax[0][28][22]=  -0.562387;
+     EtaROImin[0][28][23]=   -1.02514;EtaROImax[0][28][23]=  -0.964674;PhiROImin[0][28][23]=  -0.669279;PhiROImax[0][28][23]=  -0.562387;
+     EtaROImin[0][28][24]=   -1.06547;EtaROImax[0][28][24]=   -1.03003;PhiROImin[0][28][24]=  -0.782329;PhiROImax[0][28][24]=  -0.671969;
+     EtaROImin[0][28][25]=	    0;EtaROImax[0][28][25]=	     0;PhiROImin[0][28][25]=	      0;PhiROImax[0][28][25]=	       0;
+     EtaROImin[0][28][26]=   -1.06547;EtaROImax[0][28][26]=   -1.03003;PhiROImin[0][28][26]=   -0.66844;PhiROImax[0][28][26]=  -0.588255;
+     EtaROImin[0][28][27]=	    0;EtaROImax[0][28][27]=	     0;PhiROImin[0][28][27]=	      0;PhiROImax[0][28][27]=	       0;
+     EtaROImin[0][28][28]=	    0;EtaROImax[0][28][28]=	     0;PhiROImin[0][28][28]=	      0;PhiROImax[0][28][28]=	       0;
+     EtaROImin[0][28][29]=	    0;EtaROImax[0][28][29]=	     0;PhiROImin[0][28][29]=	      0;PhiROImax[0][28][29]=	       0;
+     EtaROImin[0][28][30]=	    0;EtaROImax[0][28][30]=	     0;PhiROImin[0][28][30]=	      0;PhiROImax[0][28][30]=	       0;
+     EtaROImin[0][28][31]=	    0;EtaROImax[0][28][31]=	     0;PhiROImin[0][28][31]=	      0;PhiROImax[0][28][31]=	       0;
+     EtaROImin[0][29][ 0]=  -0.213185;EtaROImax[0][29][ 0]=  -0.116816;PhiROImin[0][29][ 0]=  -0.479445;PhiROImax[0][29][ 0]=  -0.395489;
+     EtaROImin[0][29][ 1]=  -0.118734;EtaROImax[0][29][ 1]= -0.0208251;PhiROImin[0][29][ 1]=  -0.479445;PhiROImax[0][29][ 1]=  -0.395489;
+     EtaROImin[0][29][ 2]=  -0.213185;EtaROImax[0][29][ 2]=  -0.116816;PhiROImin[0][29][ 2]=  -0.565749;PhiROImax[0][29][ 2]=  -0.483076;
+     EtaROImin[0][29][ 3]=  -0.118734;EtaROImax[0][29][ 3]= -0.0208251;PhiROImin[0][29][ 3]=  -0.565749;PhiROImax[0][29][ 3]=  -0.483076;
+     EtaROImin[0][29][ 4]=  -0.416721;EtaROImax[0][29][ 4]=   -0.30075;PhiROImin[0][29][ 4]=  -0.479445;PhiROImax[0][29][ 4]=  -0.395489;
+     EtaROImin[0][29][ 5]=  -0.302928;EtaROImax[0][29][ 5]=  -0.222449;PhiROImin[0][29][ 5]=  -0.479445;PhiROImax[0][29][ 5]=  -0.395489;
+     EtaROImin[0][29][ 6]=  -0.416721;EtaROImax[0][29][ 6]=   -0.30075;PhiROImin[0][29][ 6]=  -0.565749;PhiROImax[0][29][ 6]=  -0.483076;
+     EtaROImin[0][29][ 7]=  -0.302928;EtaROImax[0][29][ 7]=  -0.222449;PhiROImin[0][29][ 7]=  -0.565749;PhiROImax[0][29][ 7]=  -0.483076;
+     EtaROImin[0][29][ 8]=  -0.573871;EtaROImax[0][29][ 8]=  -0.501681;PhiROImin[0][29][ 8]=  -0.479445;PhiROImax[0][29][ 8]=  -0.395489;
+     EtaROImin[0][29][ 9]=  -0.504617;EtaROImax[0][29][ 9]=   -0.42967;PhiROImin[0][29][ 9]=  -0.479445;PhiROImax[0][29][ 9]=  -0.395489;
+     EtaROImin[0][29][10]=  -0.573871;EtaROImax[0][29][10]=  -0.501681;PhiROImin[0][29][10]=  -0.565749;PhiROImax[0][29][10]=  -0.483076;
+     EtaROImin[0][29][11]=  -0.504617;EtaROImax[0][29][11]=   -0.42967;PhiROImin[0][29][11]=  -0.565749;PhiROImax[0][29][11]=  -0.483076;
+     EtaROImin[0][29][12]=  -0.741516;EtaROImax[0][29][12]=  -0.649933;PhiROImin[0][29][12]=  -0.479445;PhiROImax[0][29][12]=  -0.395489;
+     EtaROImin[0][29][13]=  -0.653329;EtaROImax[0][29][13]=  -0.583785;PhiROImin[0][29][13]=  -0.479445;PhiROImax[0][29][13]=  -0.395489;
+     EtaROImin[0][29][14]=  -0.741516;EtaROImax[0][29][14]=  -0.649933;PhiROImin[0][29][14]=  -0.565749;PhiROImax[0][29][14]=  -0.483076;
+     EtaROImin[0][29][15]=  -0.653329;EtaROImax[0][29][15]=  -0.583785;PhiROImin[0][29][15]=  -0.565749;PhiROImax[0][29][15]=  -0.483076;
+     EtaROImin[0][29][16]=	    0;EtaROImax[0][29][16]=	     0;PhiROImin[0][29][16]=	      0;PhiROImax[0][29][16]=	       0;
+     EtaROImin[0][29][17]=  -0.837822;EtaROImax[0][29][17]=  -0.756521;PhiROImin[0][29][17]=  -0.479445;PhiROImax[0][29][17]=  -0.395489;
+     EtaROImin[0][29][18]=	    0;EtaROImax[0][29][18]=	     0;PhiROImin[0][29][18]=	      0;PhiROImax[0][29][18]=	       0;
+     EtaROImin[0][29][19]=  -0.837822;EtaROImax[0][29][19]=  -0.756521;PhiROImin[0][29][19]=  -0.565749;PhiROImax[0][29][19]=  -0.483076;
+     EtaROImin[0][29][20]=  -0.956037;EtaROImax[0][29][20]=  -0.899344;PhiROImin[0][29][20]=  -0.479445;PhiROImax[0][29][20]=  -0.395489;
+     EtaROImin[0][29][21]=  -0.903324;EtaROImax[0][29][21]=  -0.844116;PhiROImin[0][29][21]=  -0.479445;PhiROImax[0][29][21]=  -0.395489;
+     EtaROImin[0][29][22]=  -0.956037;EtaROImax[0][29][22]=  -0.899344;PhiROImin[0][29][22]=  -0.565749;PhiROImax[0][29][22]=  -0.483076;
+     EtaROImin[0][29][23]=  -0.903324;EtaROImax[0][29][23]=  -0.844116;PhiROImin[0][29][23]=  -0.565749;PhiROImax[0][29][23]=  -0.483076;
+     EtaROImin[0][29][24]=	    0;EtaROImax[0][29][24]=	     0;PhiROImin[0][29][24]=	      0;PhiROImax[0][29][24]=	       0;
+     EtaROImin[0][29][25]=	    0;EtaROImax[0][29][25]=	     0;PhiROImin[0][29][25]=	      0;PhiROImax[0][29][25]=	       0;
+     EtaROImin[0][29][26]=	    0;EtaROImax[0][29][26]=	     0;PhiROImin[0][29][26]=	      0;PhiROImax[0][29][26]=	       0;
+     EtaROImin[0][29][27]=	    0;EtaROImax[0][29][27]=	     0;PhiROImin[0][29][27]=	      0;PhiROImax[0][29][27]=	       0;
+     EtaROImin[0][29][28]=	    0;EtaROImax[0][29][28]=	     0;PhiROImin[0][29][28]=	      0;PhiROImax[0][29][28]=	       0;
+     EtaROImin[0][29][29]=	    0;EtaROImax[0][29][29]=	     0;PhiROImin[0][29][29]=	      0;PhiROImax[0][29][29]=	       0;
+     EtaROImin[0][29][30]=	    0;EtaROImax[0][29][30]=	     0;PhiROImin[0][29][30]=	      0;PhiROImax[0][29][30]=	       0;
+     EtaROImin[0][29][31]=	    0;EtaROImax[0][29][31]=	     0;PhiROImin[0][29][31]=	      0;PhiROImax[0][29][31]=	       0;
+     EtaROImin[0][30][ 0]=  -0.118734;EtaROImax[0][30][ 0]= -0.0208251;PhiROImin[0][30][ 0]=  -0.389909;PhiROImax[0][30][ 0]=  -0.305953;
+     EtaROImin[0][30][ 1]=  -0.213185;EtaROImax[0][30][ 1]=  -0.116816;PhiROImin[0][30][ 1]=  -0.389909;PhiROImax[0][30][ 1]=  -0.305953;
+     EtaROImin[0][30][ 2]=  -0.118734;EtaROImax[0][30][ 2]= -0.0208251;PhiROImin[0][30][ 2]=  -0.302322;PhiROImax[0][30][ 2]=  -0.219649;
+     EtaROImin[0][30][ 3]=  -0.213185;EtaROImax[0][30][ 3]=  -0.116816;PhiROImin[0][30][ 3]=  -0.302322;PhiROImax[0][30][ 3]=  -0.219649;
+     EtaROImin[0][30][ 4]=  -0.302928;EtaROImax[0][30][ 4]=  -0.222449;PhiROImin[0][30][ 4]=  -0.389909;PhiROImax[0][30][ 4]=  -0.305953;
+     EtaROImin[0][30][ 5]=  -0.416721;EtaROImax[0][30][ 5]=   -0.30075;PhiROImin[0][30][ 5]=  -0.389909;PhiROImax[0][30][ 5]=  -0.305953;
+     EtaROImin[0][30][ 6]=  -0.302928;EtaROImax[0][30][ 6]=  -0.222449;PhiROImin[0][30][ 6]=  -0.302322;PhiROImax[0][30][ 6]=  -0.219649;
+     EtaROImin[0][30][ 7]=  -0.416721;EtaROImax[0][30][ 7]=   -0.30075;PhiROImin[0][30][ 7]=  -0.302322;PhiROImax[0][30][ 7]=  -0.219649;
+     EtaROImin[0][30][ 8]=  -0.504617;EtaROImax[0][30][ 8]=   -0.42967;PhiROImin[0][30][ 8]=  -0.389909;PhiROImax[0][30][ 8]=  -0.305953;
+     EtaROImin[0][30][ 9]=  -0.573871;EtaROImax[0][30][ 9]=  -0.501681;PhiROImin[0][30][ 9]=  -0.389909;PhiROImax[0][30][ 9]=  -0.305953;
+     EtaROImin[0][30][10]=  -0.504617;EtaROImax[0][30][10]=   -0.42967;PhiROImin[0][30][10]=  -0.302322;PhiROImax[0][30][10]=  -0.219649;
+     EtaROImin[0][30][11]=  -0.573871;EtaROImax[0][30][11]=  -0.501681;PhiROImin[0][30][11]=  -0.302322;PhiROImax[0][30][11]=  -0.219649;
+     EtaROImin[0][30][12]=  -0.653329;EtaROImax[0][30][12]=  -0.583785;PhiROImin[0][30][12]=  -0.389909;PhiROImax[0][30][12]=  -0.305953;
+     EtaROImin[0][30][13]=  -0.741516;EtaROImax[0][30][13]=  -0.649933;PhiROImin[0][30][13]=  -0.389909;PhiROImax[0][30][13]=  -0.305953;
+     EtaROImin[0][30][14]=  -0.653329;EtaROImax[0][30][14]=  -0.583785;PhiROImin[0][30][14]=  -0.302322;PhiROImax[0][30][14]=  -0.219649;
+     EtaROImin[0][30][15]=  -0.741516;EtaROImax[0][30][15]=  -0.649933;PhiROImin[0][30][15]=  -0.302322;PhiROImax[0][30][15]=  -0.219649;
+     EtaROImin[0][30][16]=  -0.837822;EtaROImax[0][30][16]=  -0.756521;PhiROImin[0][30][16]=  -0.389909;PhiROImax[0][30][16]=  -0.305953;
+     EtaROImin[0][30][17]=	    0;EtaROImax[0][30][17]=	     0;PhiROImin[0][30][17]=	      0;PhiROImax[0][30][17]=	       0;
+     EtaROImin[0][30][18]=  -0.837822;EtaROImax[0][30][18]=  -0.756521;PhiROImin[0][30][18]=  -0.302322;PhiROImax[0][30][18]=  -0.219649;
+     EtaROImin[0][30][19]=	    0;EtaROImax[0][30][19]=	     0;PhiROImin[0][30][19]=	      0;PhiROImax[0][30][19]=	       0;
+     EtaROImin[0][30][20]=  -0.903324;EtaROImax[0][30][20]=  -0.844116;PhiROImin[0][30][20]=  -0.389909;PhiROImax[0][30][20]=  -0.305953;
+     EtaROImin[0][30][21]=  -0.956037;EtaROImax[0][30][21]=  -0.899344;PhiROImin[0][30][21]=  -0.389909;PhiROImax[0][30][21]=  -0.305953;
+     EtaROImin[0][30][22]=  -0.903324;EtaROImax[0][30][22]=  -0.844116;PhiROImin[0][30][22]=  -0.302322;PhiROImax[0][30][22]=  -0.219649;
+     EtaROImin[0][30][23]=  -0.956037;EtaROImax[0][30][23]=  -0.899344;PhiROImin[0][30][23]=  -0.302322;PhiROImax[0][30][23]=  -0.219649;
+     EtaROImin[0][30][24]=	    0;EtaROImax[0][30][24]=	     0;PhiROImin[0][30][24]=	      0;PhiROImax[0][30][24]=	       0;
+     EtaROImin[0][30][25]=	    0;EtaROImax[0][30][25]=	     0;PhiROImin[0][30][25]=	      0;PhiROImax[0][30][25]=	       0;
+     EtaROImin[0][30][26]=	    0;EtaROImax[0][30][26]=	     0;PhiROImin[0][30][26]=	      0;PhiROImax[0][30][26]=	       0;
+     EtaROImin[0][30][27]=	    0;EtaROImax[0][30][27]=	     0;PhiROImin[0][30][27]=	      0;PhiROImax[0][30][27]=	       0;
+     EtaROImin[0][30][28]=	    0;EtaROImax[0][30][28]=	     0;PhiROImin[0][30][28]=	      0;PhiROImax[0][30][28]=	       0;
+     EtaROImin[0][30][29]=	    0;EtaROImax[0][30][29]=	     0;PhiROImin[0][30][29]=	      0;PhiROImax[0][30][29]=	       0;
+     EtaROImin[0][30][30]=	    0;EtaROImax[0][30][30]=	     0;PhiROImin[0][30][30]=	      0;PhiROImax[0][30][30]=	       0;
+     EtaROImin[0][30][31]=	    0;EtaROImax[0][30][31]=	     0;PhiROImin[0][30][31]=	      0;PhiROImax[0][30][31]=	       0;
+     EtaROImin[0][31][ 0]=	    0;EtaROImax[0][31][ 0]=	     0;PhiROImin[0][31][ 0]=	      0;PhiROImax[0][31][ 0]=	       0;
+     EtaROImin[0][31][ 1]=  -0.238757;EtaROImax[0][31][ 1]=   -0.13107;PhiROImin[0][31][ 1]=  -0.113212;PhiROImax[0][31][ 1]=-0.00296767;
+     EtaROImin[0][31][ 2]=	    0;EtaROImax[0][31][ 2]=	     0;PhiROImin[0][31][ 2]=	      0;PhiROImax[0][31][ 2]=	       0;
+     EtaROImin[0][31][ 3]=  -0.238757;EtaROImax[0][31][ 3]=   -0.13107;PhiROImin[0][31][ 3]=  -0.224169;PhiROImax[0][31][ 3]=  -0.116737;
+     EtaROImin[0][31][ 4]=  -0.452099;EtaROImax[0][31][ 4]=  -0.350831;PhiROImin[0][31][ 4]=  -0.112612;PhiROImax[0][31][ 4]=-0.00295181;
+     EtaROImin[0][31][ 5]=   -0.35049;EtaROImax[0][31][ 5]=  -0.246207;PhiROImin[0][31][ 5]=  -0.112612;PhiROImax[0][31][ 5]=-0.00295181;
+     EtaROImin[0][31][ 6]=  -0.452099;EtaROImax[0][31][ 6]=  -0.350831;PhiROImin[0][31][ 6]=  -0.223011;PhiROImax[0][31][ 6]=  -0.116119;
+     EtaROImin[0][31][ 7]=   -0.35049;EtaROImax[0][31][ 7]=  -0.246207;PhiROImin[0][31][ 7]=  -0.223011;PhiROImax[0][31][ 7]=  -0.116119;
+     EtaROImin[0][31][ 8]=  -0.648101;EtaROImax[0][31][ 8]=  -0.555789;PhiROImin[0][31][ 8]=  -0.112612;PhiROImax[0][31][ 8]=-0.00295181;
+     EtaROImin[0][31][ 9]=  -0.554444;EtaROImax[0][31][ 9]=  -0.458091;PhiROImin[0][31][ 9]=  -0.112612;PhiROImax[0][31][ 9]=-0.00295181;
+     EtaROImin[0][31][10]=  -0.648101;EtaROImax[0][31][10]=  -0.555789;PhiROImin[0][31][10]=  -0.223011;PhiROImax[0][31][10]=  -0.116119;
+     EtaROImin[0][31][11]=  -0.554444;EtaROImax[0][31][11]=  -0.458091;PhiROImin[0][31][11]=  -0.223011;PhiROImax[0][31][11]=  -0.116119;
+     EtaROImin[0][31][12]=  -0.776449;EtaROImax[0][31][12]=  -0.731124;PhiROImin[0][31][12]=  -0.113212;PhiROImax[0][31][12]=-0.00296767;
+     EtaROImin[0][31][13]=  -0.728056;EtaROImax[0][31][13]=  -0.655857;PhiROImin[0][31][13]=  -0.113212;PhiROImax[0][31][13]=-0.00296767;
+     EtaROImin[0][31][14]=  -0.776449;EtaROImax[0][31][14]=  -0.731124;PhiROImin[0][31][14]=  -0.224169;PhiROImax[0][31][14]=  -0.116737;
+     EtaROImin[0][31][15]=  -0.728056;EtaROImax[0][31][15]=  -0.655857;PhiROImin[0][31][15]=  -0.224169;PhiROImax[0][31][15]=  -0.116737;
+     EtaROImin[0][31][16]=  -0.895163;EtaROImax[0][31][16]=  -0.853359;PhiROImin[0][31][16]=  -0.113212;PhiROImax[0][31][16]=-0.00296767;
+     EtaROImin[0][31][17]=  -0.850528;EtaROImax[0][31][17]=  -0.783867;PhiROImin[0][31][17]=  -0.113212;PhiROImax[0][31][17]=-0.00296767;
+     EtaROImin[0][31][18]=  -0.895163;EtaROImax[0][31][18]=  -0.853359;PhiROImin[0][31][18]=  -0.224169;PhiROImax[0][31][18]=  -0.116737;
+     EtaROImin[0][31][19]=  -0.850528;EtaROImax[0][31][19]=  -0.783867;PhiROImin[0][31][19]=  -0.224169;PhiROImax[0][31][19]=  -0.116737;
+     EtaROImin[0][31][20]=   -1.02514;EtaROImax[0][31][20]=  -0.964674;PhiROImin[0][31][20]=  -0.112612;PhiROImax[0][31][20]=-0.00295181;
+     EtaROImin[0][31][21]=  -0.961344;EtaROImax[0][31][21]=  -0.898201;PhiROImin[0][31][21]=  -0.112612;PhiROImax[0][31][21]=-0.00295181;
+     EtaROImin[0][31][22]=   -1.02514;EtaROImax[0][31][22]=  -0.964674;PhiROImin[0][31][22]=  -0.223011;PhiROImax[0][31][22]=  -0.116119;
+     EtaROImin[0][31][23]=  -0.961344;EtaROImax[0][31][23]=  -0.898201;PhiROImin[0][31][23]=  -0.223011;PhiROImax[0][31][23]=  -0.116119;
+     EtaROImin[0][31][24]=	    0;EtaROImax[0][31][24]=	     0;PhiROImin[0][31][24]=	      0;PhiROImax[0][31][24]=	       0;
+     EtaROImin[0][31][25]=   -1.06547;EtaROImax[0][31][25]=   -1.03003;PhiROImin[0][31][25]=  -0.113429;PhiROImax[0][31][25]=-0.00306876;
+     EtaROImin[0][31][26]=	    0;EtaROImax[0][31][26]=	     0;PhiROImin[0][31][26]=	      0;PhiROImax[0][31][26]=	       0;
+     EtaROImin[0][31][27]=   -1.06547;EtaROImax[0][31][27]=   -1.03003;PhiROImin[0][31][27]=  -0.197143;PhiROImax[0][31][27]=  -0.116958;
+     EtaROImin[0][31][28]=	    0;EtaROImax[0][31][28]=	     0;PhiROImin[0][31][28]=	      0;PhiROImax[0][31][28]=	       0;
+     EtaROImin[0][31][29]=	    0;EtaROImax[0][31][29]=	     0;PhiROImin[0][31][29]=	      0;PhiROImax[0][31][29]=	       0;
+     EtaROImin[0][31][30]=	    0;EtaROImax[0][31][30]=	     0;PhiROImin[0][31][30]=	      0;PhiROImax[0][31][30]=	       0;
+     EtaROImin[0][31][31]=	    0;EtaROImax[0][31][31]=	     0;PhiROImin[0][31][31]=	      0;PhiROImax[0][31][31]=	       0;
+     EtaROImin[1][ 0][ 0]=   0.130922;EtaROImax[1][ 0][ 0]=   0.238612;PhiROImin[1][ 0][ 0]= 0.00295181;PhiROImax[1][ 0][ 0]=	0.112612;
+     EtaROImin[1][ 0][ 1]=  0.0231199;EtaROImax[1][ 0][ 1]=   0.131749;PhiROImin[1][ 0][ 1]= 0.00295181;PhiROImax[1][ 0][ 1]=	0.112612;
+     EtaROImin[1][ 0][ 2]=   0.130922;EtaROImax[1][ 0][ 2]=   0.238612;PhiROImin[1][ 0][ 2]=   0.116119;PhiROImax[1][ 0][ 2]=	0.223011;
+     EtaROImin[1][ 0][ 3]=  0.0231199;EtaROImax[1][ 0][ 3]=   0.131749;PhiROImin[1][ 0][ 3]=   0.116119;PhiROImax[1][ 0][ 3]=	0.223011;
+     EtaROImin[1][ 0][ 4]=   0.350831;EtaROImax[1][ 0][ 4]=   0.452099;PhiROImin[1][ 0][ 4]= 0.00295181;PhiROImax[1][ 0][ 4]=	0.112612;
+     EtaROImin[1][ 0][ 5]=   0.246207;EtaROImax[1][ 0][ 5]=    0.35049;PhiROImin[1][ 0][ 5]= 0.00295181;PhiROImax[1][ 0][ 5]=	0.112612;
+     EtaROImin[1][ 0][ 6]=   0.350831;EtaROImax[1][ 0][ 6]=   0.452099;PhiROImin[1][ 0][ 6]=   0.116119;PhiROImax[1][ 0][ 6]=	0.223011;
+     EtaROImin[1][ 0][ 7]=   0.246207;EtaROImax[1][ 0][ 7]=    0.35049;PhiROImin[1][ 0][ 7]=   0.116119;PhiROImax[1][ 0][ 7]=	0.223011;
+     EtaROImin[1][ 0][ 8]=   0.555789;EtaROImax[1][ 0][ 8]=   0.648101;PhiROImin[1][ 0][ 8]= 0.00295181;PhiROImax[1][ 0][ 8]=	0.112612;
+     EtaROImin[1][ 0][ 9]=   0.458091;EtaROImax[1][ 0][ 9]=   0.554444;PhiROImin[1][ 0][ 9]= 0.00295181;PhiROImax[1][ 0][ 9]=	0.112612;
+     EtaROImin[1][ 0][10]=   0.555789;EtaROImax[1][ 0][10]=   0.648101;PhiROImin[1][ 0][10]=   0.116119;PhiROImax[1][ 0][10]=	0.223011;
+     EtaROImin[1][ 0][11]=   0.458091;EtaROImax[1][ 0][11]=   0.554444;PhiROImin[1][ 0][11]=   0.116119;PhiROImax[1][ 0][11]=	0.223011;
+     EtaROImin[1][ 0][12]=   0.731124;EtaROImax[1][ 0][12]=   0.776449;PhiROImin[1][ 0][12]= 0.00296767;PhiROImax[1][ 0][12]=	0.113212;
+     EtaROImin[1][ 0][13]=   0.655857;EtaROImax[1][ 0][13]=   0.728056;PhiROImin[1][ 0][13]= 0.00296767;PhiROImax[1][ 0][13]=	0.113212;
+     EtaROImin[1][ 0][14]=   0.731124;EtaROImax[1][ 0][14]=   0.776449;PhiROImin[1][ 0][14]=   0.116737;PhiROImax[1][ 0][14]=	0.224169;
+     EtaROImin[1][ 0][15]=   0.655857;EtaROImax[1][ 0][15]=   0.728056;PhiROImin[1][ 0][15]=   0.116737;PhiROImax[1][ 0][15]=	0.224169;
+     EtaROImin[1][ 0][16]=   0.853359;EtaROImax[1][ 0][16]=   0.895163;PhiROImin[1][ 0][16]= 0.00296767;PhiROImax[1][ 0][16]=	0.113212;
+     EtaROImin[1][ 0][17]=   0.783867;EtaROImax[1][ 0][17]=   0.850528;PhiROImin[1][ 0][17]= 0.00296767;PhiROImax[1][ 0][17]=	0.113212;
+     EtaROImin[1][ 0][18]=   0.853359;EtaROImax[1][ 0][18]=   0.895163;PhiROImin[1][ 0][18]=   0.116737;PhiROImax[1][ 0][18]=	0.224169;
+     EtaROImin[1][ 0][19]=   0.783867;EtaROImax[1][ 0][19]=   0.850528;PhiROImin[1][ 0][19]=   0.116737;PhiROImax[1][ 0][19]=	0.224169;
+     EtaROImin[1][ 0][20]=   0.964674;EtaROImax[1][ 0][20]=    1.02514;PhiROImin[1][ 0][20]= 0.00295181;PhiROImax[1][ 0][20]=	0.112612;
+     EtaROImin[1][ 0][21]=   0.898201;EtaROImax[1][ 0][21]=   0.961344;PhiROImin[1][ 0][21]= 0.00295181;PhiROImax[1][ 0][21]=	0.112612;
+     EtaROImin[1][ 0][22]=   0.964674;EtaROImax[1][ 0][22]=    1.02514;PhiROImin[1][ 0][22]=   0.116119;PhiROImax[1][ 0][22]=	0.223011;
+     EtaROImin[1][ 0][23]=   0.898201;EtaROImax[1][ 0][23]=   0.961344;PhiROImin[1][ 0][23]=   0.116119;PhiROImax[1][ 0][23]=	0.223011;
+     EtaROImin[1][ 0][24]=	    0;EtaROImax[1][ 0][24]=	     0;PhiROImin[1][ 0][24]=	      0;PhiROImax[1][ 0][24]=	       0;
+     EtaROImin[1][ 0][25]=    1.03003;EtaROImax[1][ 0][25]=    1.06547;PhiROImin[1][ 0][25]= 0.00306876;PhiROImax[1][ 0][25]=	0.113429;
+     EtaROImin[1][ 0][26]=	    0;EtaROImax[1][ 0][26]=	     0;PhiROImin[1][ 0][26]=	      0;PhiROImax[1][ 0][26]=	       0;
+     EtaROImin[1][ 0][27]=    1.03003;EtaROImax[1][ 0][27]=    1.06547;PhiROImin[1][ 0][27]=   0.116958;PhiROImax[1][ 0][27]=	0.197143;
+     EtaROImin[1][ 0][28]=	    0;EtaROImax[1][ 0][28]=	     0;PhiROImin[1][ 0][28]=	      0;PhiROImax[1][ 0][28]=	       0;
+     EtaROImin[1][ 0][29]=	    0;EtaROImax[1][ 0][29]=	     0;PhiROImin[1][ 0][29]=	      0;PhiROImax[1][ 0][29]=	       0;
+     EtaROImin[1][ 0][30]=	    0;EtaROImax[1][ 0][30]=	     0;PhiROImin[1][ 0][30]=	      0;PhiROImax[1][ 0][30]=	       0;
+     EtaROImin[1][ 0][31]=	    0;EtaROImax[1][ 0][31]=	     0;PhiROImin[1][ 0][31]=	      0;PhiROImax[1][ 0][31]=	       0;
+     EtaROImin[1][ 1][ 0]=  0.0208251;EtaROImax[1][ 1][ 0]=   0.118734;PhiROImin[1][ 1][ 0]=   0.305953;PhiROImax[1][ 1][ 0]=	0.389909;
+     EtaROImin[1][ 1][ 1]=   0.116816;EtaROImax[1][ 1][ 1]=   0.213185;PhiROImin[1][ 1][ 1]=   0.305953;PhiROImax[1][ 1][ 1]=	0.389909;
+     EtaROImin[1][ 1][ 2]=  0.0208251;EtaROImax[1][ 1][ 2]=   0.118734;PhiROImin[1][ 1][ 2]=   0.219649;PhiROImax[1][ 1][ 2]=	0.302322;
+     EtaROImin[1][ 1][ 3]=   0.116816;EtaROImax[1][ 1][ 3]=   0.213185;PhiROImin[1][ 1][ 3]=   0.219649;PhiROImax[1][ 1][ 3]=	0.302322;
+     EtaROImin[1][ 1][ 4]=   0.222449;EtaROImax[1][ 1][ 4]=   0.302928;PhiROImin[1][ 1][ 4]=   0.305953;PhiROImax[1][ 1][ 4]=	0.389909;
+     EtaROImin[1][ 1][ 5]=    0.30075;EtaROImax[1][ 1][ 5]=   0.416721;PhiROImin[1][ 1][ 5]=   0.305953;PhiROImax[1][ 1][ 5]=	0.389909;
+     EtaROImin[1][ 1][ 6]=   0.222449;EtaROImax[1][ 1][ 6]=   0.302928;PhiROImin[1][ 1][ 6]=   0.219649;PhiROImax[1][ 1][ 6]=	0.302322;
+     EtaROImin[1][ 1][ 7]=    0.30075;EtaROImax[1][ 1][ 7]=   0.416721;PhiROImin[1][ 1][ 7]=   0.219649;PhiROImax[1][ 1][ 7]=	0.302322;
+     EtaROImin[1][ 1][ 8]=    0.42967;EtaROImax[1][ 1][ 8]=   0.504617;PhiROImin[1][ 1][ 8]=   0.305953;PhiROImax[1][ 1][ 8]=	0.389909;
+     EtaROImin[1][ 1][ 9]=   0.501681;EtaROImax[1][ 1][ 9]=   0.573871;PhiROImin[1][ 1][ 9]=   0.305953;PhiROImax[1][ 1][ 9]=	0.389909;
+     EtaROImin[1][ 1][10]=    0.42967;EtaROImax[1][ 1][10]=   0.504617;PhiROImin[1][ 1][10]=   0.219649;PhiROImax[1][ 1][10]=	0.302322;
+     EtaROImin[1][ 1][11]=   0.501681;EtaROImax[1][ 1][11]=   0.573871;PhiROImin[1][ 1][11]=   0.219649;PhiROImax[1][ 1][11]=	0.302322;
+     EtaROImin[1][ 1][12]=   0.583785;EtaROImax[1][ 1][12]=   0.653329;PhiROImin[1][ 1][12]=   0.305953;PhiROImax[1][ 1][12]=	0.389909;
+     EtaROImin[1][ 1][13]=   0.649934;EtaROImax[1][ 1][13]=   0.741516;PhiROImin[1][ 1][13]=   0.305953;PhiROImax[1][ 1][13]=	0.389909;
+     EtaROImin[1][ 1][14]=   0.583785;EtaROImax[1][ 1][14]=   0.653329;PhiROImin[1][ 1][14]=   0.219649;PhiROImax[1][ 1][14]=	0.302322;
+     EtaROImin[1][ 1][15]=   0.649934;EtaROImax[1][ 1][15]=   0.741516;PhiROImin[1][ 1][15]=   0.219649;PhiROImax[1][ 1][15]=	0.302322;
+     EtaROImin[1][ 1][16]=   0.756521;EtaROImax[1][ 1][16]=   0.837822;PhiROImin[1][ 1][16]=   0.305953;PhiROImax[1][ 1][16]=	0.389909;
+     EtaROImin[1][ 1][17]=	    0;EtaROImax[1][ 1][17]=	     0;PhiROImin[1][ 1][17]=	      0;PhiROImax[1][ 1][17]=	       0;
+     EtaROImin[1][ 1][18]=   0.756521;EtaROImax[1][ 1][18]=   0.837822;PhiROImin[1][ 1][18]=   0.219649;PhiROImax[1][ 1][18]=	0.302322;
+     EtaROImin[1][ 1][19]=	    0;EtaROImax[1][ 1][19]=	     0;PhiROImin[1][ 1][19]=	      0;PhiROImax[1][ 1][19]=	       0;
+     EtaROImin[1][ 1][20]=   0.844116;EtaROImax[1][ 1][20]=   0.903324;PhiROImin[1][ 1][20]=   0.305953;PhiROImax[1][ 1][20]=	0.389909;
+     EtaROImin[1][ 1][21]=   0.899344;EtaROImax[1][ 1][21]=   0.956037;PhiROImin[1][ 1][21]=   0.305953;PhiROImax[1][ 1][21]=	0.389909;
+     EtaROImin[1][ 1][22]=   0.844116;EtaROImax[1][ 1][22]=   0.903324;PhiROImin[1][ 1][22]=   0.219649;PhiROImax[1][ 1][22]=	0.302322;
+     EtaROImin[1][ 1][23]=   0.899344;EtaROImax[1][ 1][23]=   0.956037;PhiROImin[1][ 1][23]=   0.219649;PhiROImax[1][ 1][23]=	0.302322;
+     EtaROImin[1][ 1][24]=	    0;EtaROImax[1][ 1][24]=	     0;PhiROImin[1][ 1][24]=	      0;PhiROImax[1][ 1][24]=	       0;
+     EtaROImin[1][ 1][25]=	    0;EtaROImax[1][ 1][25]=	     0;PhiROImin[1][ 1][25]=	      0;PhiROImax[1][ 1][25]=	       0;
+     EtaROImin[1][ 1][26]=	    0;EtaROImax[1][ 1][26]=	     0;PhiROImin[1][ 1][26]=	      0;PhiROImax[1][ 1][26]=	       0;
+     EtaROImin[1][ 1][27]=	    0;EtaROImax[1][ 1][27]=	     0;PhiROImin[1][ 1][27]=	      0;PhiROImax[1][ 1][27]=	       0;
+     EtaROImin[1][ 1][28]=	    0;EtaROImax[1][ 1][28]=	     0;PhiROImin[1][ 1][28]=	      0;PhiROImax[1][ 1][28]=	       0;
+     EtaROImin[1][ 1][29]=	    0;EtaROImax[1][ 1][29]=	     0;PhiROImin[1][ 1][29]=	      0;PhiROImax[1][ 1][29]=	       0;
+     EtaROImin[1][ 1][30]=	    0;EtaROImax[1][ 1][30]=	     0;PhiROImin[1][ 1][30]=	      0;PhiROImax[1][ 1][30]=	       0;
+     EtaROImin[1][ 1][31]=	    0;EtaROImax[1][ 1][31]=	     0;PhiROImin[1][ 1][31]=	      0;PhiROImax[1][ 1][31]=	       0;
+     EtaROImin[1][ 2][ 0]=   0.116816;EtaROImax[1][ 2][ 0]=   0.213185;PhiROImin[1][ 2][ 0]=   0.395489;PhiROImax[1][ 2][ 0]=	0.479445;
+     EtaROImin[1][ 2][ 1]=  0.0208251;EtaROImax[1][ 2][ 1]=   0.118734;PhiROImin[1][ 2][ 1]=   0.395489;PhiROImax[1][ 2][ 1]=	0.479445;
+     EtaROImin[1][ 2][ 2]=   0.116816;EtaROImax[1][ 2][ 2]=   0.213185;PhiROImin[1][ 2][ 2]=   0.483076;PhiROImax[1][ 2][ 2]=	0.565749;
+     EtaROImin[1][ 2][ 3]=  0.0208251;EtaROImax[1][ 2][ 3]=   0.118734;PhiROImin[1][ 2][ 3]=   0.483076;PhiROImax[1][ 2][ 3]=	0.565749;
+     EtaROImin[1][ 2][ 4]=    0.30075;EtaROImax[1][ 2][ 4]=   0.416721;PhiROImin[1][ 2][ 4]=   0.395489;PhiROImax[1][ 2][ 4]=	0.479445;
+     EtaROImin[1][ 2][ 5]=   0.222449;EtaROImax[1][ 2][ 5]=   0.302928;PhiROImin[1][ 2][ 5]=   0.395489;PhiROImax[1][ 2][ 5]=	0.479445;
+     EtaROImin[1][ 2][ 6]=    0.30075;EtaROImax[1][ 2][ 6]=   0.416721;PhiROImin[1][ 2][ 6]=   0.483076;PhiROImax[1][ 2][ 6]=	0.565749;
+     EtaROImin[1][ 2][ 7]=   0.222449;EtaROImax[1][ 2][ 7]=   0.302928;PhiROImin[1][ 2][ 7]=   0.483076;PhiROImax[1][ 2][ 7]=	0.565749;
+     EtaROImin[1][ 2][ 8]=   0.501681;EtaROImax[1][ 2][ 8]=   0.573871;PhiROImin[1][ 2][ 8]=   0.395489;PhiROImax[1][ 2][ 8]=	0.479445;
+     EtaROImin[1][ 2][ 9]=    0.42967;EtaROImax[1][ 2][ 9]=   0.504617;PhiROImin[1][ 2][ 9]=   0.395489;PhiROImax[1][ 2][ 9]=	0.479445;
+     EtaROImin[1][ 2][10]=   0.501681;EtaROImax[1][ 2][10]=   0.573871;PhiROImin[1][ 2][10]=   0.483076;PhiROImax[1][ 2][10]=	0.565749;
+     EtaROImin[1][ 2][11]=    0.42967;EtaROImax[1][ 2][11]=   0.504617;PhiROImin[1][ 2][11]=   0.483076;PhiROImax[1][ 2][11]=	0.565749;
+     EtaROImin[1][ 2][12]=   0.649934;EtaROImax[1][ 2][12]=   0.741516;PhiROImin[1][ 2][12]=   0.395489;PhiROImax[1][ 2][12]=	0.479445;
+     EtaROImin[1][ 2][13]=   0.583785;EtaROImax[1][ 2][13]=   0.653329;PhiROImin[1][ 2][13]=   0.395489;PhiROImax[1][ 2][13]=	0.479445;
+     EtaROImin[1][ 2][14]=   0.649934;EtaROImax[1][ 2][14]=   0.741516;PhiROImin[1][ 2][14]=   0.483076;PhiROImax[1][ 2][14]=	0.565749;
+     EtaROImin[1][ 2][15]=   0.583785;EtaROImax[1][ 2][15]=   0.653329;PhiROImin[1][ 2][15]=   0.483076;PhiROImax[1][ 2][15]=	0.565749;
+     EtaROImin[1][ 2][16]=	    0;EtaROImax[1][ 2][16]=	     0;PhiROImin[1][ 2][16]=	      0;PhiROImax[1][ 2][16]=	       0;
+     EtaROImin[1][ 2][17]=   0.756521;EtaROImax[1][ 2][17]=   0.837822;PhiROImin[1][ 2][17]=   0.395489;PhiROImax[1][ 2][17]=	0.479445;
+     EtaROImin[1][ 2][18]=	    0;EtaROImax[1][ 2][18]=	     0;PhiROImin[1][ 2][18]=	      0;PhiROImax[1][ 2][18]=	       0;
+     EtaROImin[1][ 2][19]=   0.756521;EtaROImax[1][ 2][19]=   0.837822;PhiROImin[1][ 2][19]=   0.483076;PhiROImax[1][ 2][19]=	0.565749;
+     EtaROImin[1][ 2][20]=   0.899344;EtaROImax[1][ 2][20]=   0.956037;PhiROImin[1][ 2][20]=   0.395489;PhiROImax[1][ 2][20]=	0.479445;
+     EtaROImin[1][ 2][21]=   0.844116;EtaROImax[1][ 2][21]=   0.903324;PhiROImin[1][ 2][21]=   0.395489;PhiROImax[1][ 2][21]=	0.479445;
+     EtaROImin[1][ 2][22]=   0.899344;EtaROImax[1][ 2][22]=   0.956037;PhiROImin[1][ 2][22]=   0.483076;PhiROImax[1][ 2][22]=	0.565749;
+     EtaROImin[1][ 2][23]=   0.844116;EtaROImax[1][ 2][23]=   0.903324;PhiROImin[1][ 2][23]=   0.483076;PhiROImax[1][ 2][23]=	0.565749;
+     EtaROImin[1][ 2][24]=	    0;EtaROImax[1][ 2][24]=	     0;PhiROImin[1][ 2][24]=	      0;PhiROImax[1][ 2][24]=	       0;
+     EtaROImin[1][ 2][25]=	    0;EtaROImax[1][ 2][25]=	     0;PhiROImin[1][ 2][25]=	      0;PhiROImax[1][ 2][25]=	       0;
+     EtaROImin[1][ 2][26]=	    0;EtaROImax[1][ 2][26]=	     0;PhiROImin[1][ 2][26]=	      0;PhiROImax[1][ 2][26]=	       0;
+     EtaROImin[1][ 2][27]=	    0;EtaROImax[1][ 2][27]=	     0;PhiROImin[1][ 2][27]=	      0;PhiROImax[1][ 2][27]=	       0;
+     EtaROImin[1][ 2][28]=	    0;EtaROImax[1][ 2][28]=	     0;PhiROImin[1][ 2][28]=	      0;PhiROImax[1][ 2][28]=	       0;
+     EtaROImin[1][ 2][29]=	    0;EtaROImax[1][ 2][29]=	     0;PhiROImin[1][ 2][29]=	      0;PhiROImax[1][ 2][29]=	       0;
+     EtaROImin[1][ 2][30]=	    0;EtaROImax[1][ 2][30]=	     0;PhiROImin[1][ 2][30]=	      0;PhiROImax[1][ 2][30]=	       0;
+     EtaROImin[1][ 2][31]=	    0;EtaROImax[1][ 2][31]=	     0;PhiROImin[1][ 2][31]=	      0;PhiROImax[1][ 2][31]=	       0;
+     EtaROImin[1][ 3][ 0]=  0.0231199;EtaROImax[1][ 3][ 0]=   0.131749;PhiROImin[1][ 3][ 0]=   0.672786;PhiROImax[1][ 3][ 0]=	0.782446;
+     EtaROImin[1][ 3][ 1]=   0.130922;EtaROImax[1][ 3][ 1]=   0.238612;PhiROImin[1][ 3][ 1]=   0.672786;PhiROImax[1][ 3][ 1]=	0.782446;
+     EtaROImin[1][ 3][ 2]=  0.0231199;EtaROImax[1][ 3][ 2]=   0.131749;PhiROImin[1][ 3][ 2]=   0.562387;PhiROImax[1][ 3][ 2]=	0.669279;
+     EtaROImin[1][ 3][ 3]=   0.130922;EtaROImax[1][ 3][ 3]=   0.238612;PhiROImin[1][ 3][ 3]=   0.562387;PhiROImax[1][ 3][ 3]=	0.669279;
+     EtaROImin[1][ 3][ 4]=   0.246207;EtaROImax[1][ 3][ 4]=    0.35049;PhiROImin[1][ 3][ 4]=   0.672786;PhiROImax[1][ 3][ 4]=	0.782446;
+     EtaROImin[1][ 3][ 5]=   0.350831;EtaROImax[1][ 3][ 5]=   0.452099;PhiROImin[1][ 3][ 5]=   0.672786;PhiROImax[1][ 3][ 5]=	0.782446;
+     EtaROImin[1][ 3][ 6]=   0.246207;EtaROImax[1][ 3][ 6]=    0.35049;PhiROImin[1][ 3][ 6]=   0.562387;PhiROImax[1][ 3][ 6]=	0.669279;
+     EtaROImin[1][ 3][ 7]=   0.350831;EtaROImax[1][ 3][ 7]=   0.452099;PhiROImin[1][ 3][ 7]=   0.562387;PhiROImax[1][ 3][ 7]=	0.669279;
+     EtaROImin[1][ 3][ 8]=   0.458091;EtaROImax[1][ 3][ 8]=   0.554444;PhiROImin[1][ 3][ 8]=   0.672786;PhiROImax[1][ 3][ 8]=	0.782446;
+     EtaROImin[1][ 3][ 9]=   0.555789;EtaROImax[1][ 3][ 9]=   0.648101;PhiROImin[1][ 3][ 9]=   0.672786;PhiROImax[1][ 3][ 9]=	0.782446;
+     EtaROImin[1][ 3][10]=   0.458091;EtaROImax[1][ 3][10]=   0.554444;PhiROImin[1][ 3][10]=   0.562387;PhiROImax[1][ 3][10]=	0.669279;
+     EtaROImin[1][ 3][11]=   0.555789;EtaROImax[1][ 3][11]=   0.648101;PhiROImin[1][ 3][11]=   0.562387;PhiROImax[1][ 3][11]=	0.669279;
+     EtaROImin[1][ 3][12]=   0.655857;EtaROImax[1][ 3][12]=   0.703298;PhiROImin[1][ 3][12]=   0.672186;PhiROImax[1][ 3][12]=	 0.78243;
+     EtaROImin[1][ 3][13]=   0.706413;EtaROImax[1][ 3][13]=   0.776449;PhiROImin[1][ 3][13]=   0.672186;PhiROImax[1][ 3][13]=	 0.78243;
+     EtaROImin[1][ 3][14]=   0.655857;EtaROImax[1][ 3][14]=   0.703298;PhiROImin[1][ 3][14]=   0.561229;PhiROImax[1][ 3][14]=	0.668661;
+     EtaROImin[1][ 3][15]=   0.706413;EtaROImax[1][ 3][15]=   0.776449;PhiROImin[1][ 3][15]=   0.561229;PhiROImax[1][ 3][15]=	0.668661;
+     EtaROImin[1][ 3][16]=   0.783867;EtaROImax[1][ 3][16]=    0.82768;PhiROImin[1][ 3][16]=   0.672186;PhiROImax[1][ 3][16]=	 0.78243;
+     EtaROImin[1][ 3][17]=   0.830556;EtaROImax[1][ 3][17]=   0.895163;PhiROImin[1][ 3][17]=   0.672186;PhiROImax[1][ 3][17]=	 0.78243;
+     EtaROImin[1][ 3][18]=   0.783867;EtaROImax[1][ 3][18]=    0.82768;PhiROImin[1][ 3][18]=   0.561229;PhiROImax[1][ 3][18]=	0.668661;
+     EtaROImin[1][ 3][19]=   0.830556;EtaROImax[1][ 3][19]=   0.895163;PhiROImin[1][ 3][19]=   0.561229;PhiROImax[1][ 3][19]=	0.668661;
+     EtaROImin[1][ 3][20]=   0.898201;EtaROImax[1][ 3][20]=   0.961344;PhiROImin[1][ 3][20]=   0.672786;PhiROImax[1][ 3][20]=	0.782446;
+     EtaROImin[1][ 3][21]=   0.964674;EtaROImax[1][ 3][21]=    1.02514;PhiROImin[1][ 3][21]=   0.672786;PhiROImax[1][ 3][21]=	0.782446;
+     EtaROImin[1][ 3][22]=   0.898201;EtaROImax[1][ 3][22]=   0.961344;PhiROImin[1][ 3][22]=   0.562387;PhiROImax[1][ 3][22]=	0.669279;
+     EtaROImin[1][ 3][23]=   0.964674;EtaROImax[1][ 3][23]=    1.02514;PhiROImin[1][ 3][23]=   0.562387;PhiROImax[1][ 3][23]=	0.669279;
+     EtaROImin[1][ 3][24]=    1.03003;EtaROImax[1][ 3][24]=    1.06547;PhiROImin[1][ 3][24]=   0.671969;PhiROImax[1][ 3][24]=	0.782329;
+     EtaROImin[1][ 3][25]=	    0;EtaROImax[1][ 3][25]=	     0;PhiROImin[1][ 3][25]=	      0;PhiROImax[1][ 3][25]=	       0;
+     EtaROImin[1][ 3][26]=    1.03003;EtaROImax[1][ 3][26]=    1.06547;PhiROImin[1][ 3][26]=   0.588255;PhiROImax[1][ 3][26]=	 0.66844;
+     EtaROImin[1][ 3][27]=	    0;EtaROImax[1][ 3][27]=	     0;PhiROImin[1][ 3][27]=	      0;PhiROImax[1][ 3][27]=	       0;
+     EtaROImin[1][ 3][28]=	    0;EtaROImax[1][ 3][28]=	     0;PhiROImin[1][ 3][28]=	      0;PhiROImax[1][ 3][28]=	       0;
+     EtaROImin[1][ 3][29]=	    0;EtaROImax[1][ 3][29]=	     0;PhiROImin[1][ 3][29]=	      0;PhiROImax[1][ 3][29]=	       0;
+     EtaROImin[1][ 3][30]=	    0;EtaROImax[1][ 3][30]=	     0;PhiROImin[1][ 3][30]=	      0;PhiROImax[1][ 3][30]=	       0;
+     EtaROImin[1][ 3][31]=	    0;EtaROImax[1][ 3][31]=	     0;PhiROImin[1][ 3][31]=	      0;PhiROImax[1][ 3][31]=	       0;
+     EtaROImin[1][ 4][ 0]=   0.130922;EtaROImax[1][ 4][ 0]=   0.238612;PhiROImin[1][ 4][ 0]=	0.78835;PhiROImax[1][ 4][ 0]=	0.898011;
+     EtaROImin[1][ 4][ 1]=  0.0231199;EtaROImax[1][ 4][ 1]=   0.131749;PhiROImin[1][ 4][ 1]=	0.78835;PhiROImax[1][ 4][ 1]=	0.898011;
+     EtaROImin[1][ 4][ 2]=   0.130922;EtaROImax[1][ 4][ 2]=   0.238612;PhiROImin[1][ 4][ 2]=   0.901517;PhiROImax[1][ 4][ 2]=	 1.00841;
+     EtaROImin[1][ 4][ 3]=  0.0231199;EtaROImax[1][ 4][ 3]=   0.131749;PhiROImin[1][ 4][ 3]=   0.901517;PhiROImax[1][ 4][ 3]=	 1.00841;
+     EtaROImin[1][ 4][ 4]=   0.350831;EtaROImax[1][ 4][ 4]=   0.452099;PhiROImin[1][ 4][ 4]=	0.78835;PhiROImax[1][ 4][ 4]=	0.898011;
+     EtaROImin[1][ 4][ 5]=   0.246207;EtaROImax[1][ 4][ 5]=    0.35049;PhiROImin[1][ 4][ 5]=	0.78835;PhiROImax[1][ 4][ 5]=	0.898011;
+     EtaROImin[1][ 4][ 6]=   0.350831;EtaROImax[1][ 4][ 6]=   0.452099;PhiROImin[1][ 4][ 6]=   0.901517;PhiROImax[1][ 4][ 6]=	 1.00841;
+     EtaROImin[1][ 4][ 7]=   0.246207;EtaROImax[1][ 4][ 7]=    0.35049;PhiROImin[1][ 4][ 7]=   0.901517;PhiROImax[1][ 4][ 7]=	 1.00841;
+     EtaROImin[1][ 4][ 8]=   0.555789;EtaROImax[1][ 4][ 8]=   0.648101;PhiROImin[1][ 4][ 8]=	0.78835;PhiROImax[1][ 4][ 8]=	0.898011;
+     EtaROImin[1][ 4][ 9]=   0.458091;EtaROImax[1][ 4][ 9]=   0.554444;PhiROImin[1][ 4][ 9]=	0.78835;PhiROImax[1][ 4][ 9]=	0.898011;
+     EtaROImin[1][ 4][10]=   0.555789;EtaROImax[1][ 4][10]=   0.648101;PhiROImin[1][ 4][10]=   0.901517;PhiROImax[1][ 4][10]=	 1.00841;
+     EtaROImin[1][ 4][11]=   0.458091;EtaROImax[1][ 4][11]=   0.554444;PhiROImin[1][ 4][11]=   0.901517;PhiROImax[1][ 4][11]=	 1.00841;
+     EtaROImin[1][ 4][12]=   0.731124;EtaROImax[1][ 4][12]=   0.776449;PhiROImin[1][ 4][12]=   0.788366;PhiROImax[1][ 4][12]=	 0.89861;
+     EtaROImin[1][ 4][13]=   0.655857;EtaROImax[1][ 4][13]=   0.728056;PhiROImin[1][ 4][13]=   0.788366;PhiROImax[1][ 4][13]=	 0.89861;
+     EtaROImin[1][ 4][14]=   0.731124;EtaROImax[1][ 4][14]=   0.776449;PhiROImin[1][ 4][14]=   0.902135;PhiROImax[1][ 4][14]=	 1.00957;
+     EtaROImin[1][ 4][15]=   0.655857;EtaROImax[1][ 4][15]=   0.728056;PhiROImin[1][ 4][15]=   0.902135;PhiROImax[1][ 4][15]=	 1.00957;
+     EtaROImin[1][ 4][16]=   0.853359;EtaROImax[1][ 4][16]=   0.895163;PhiROImin[1][ 4][16]=   0.788366;PhiROImax[1][ 4][16]=	 0.89861;
+     EtaROImin[1][ 4][17]=   0.783867;EtaROImax[1][ 4][17]=   0.850528;PhiROImin[1][ 4][17]=   0.788366;PhiROImax[1][ 4][17]=	 0.89861;
+     EtaROImin[1][ 4][18]=   0.853359;EtaROImax[1][ 4][18]=   0.895163;PhiROImin[1][ 4][18]=   0.902135;PhiROImax[1][ 4][18]=	 1.00957;
+     EtaROImin[1][ 4][19]=   0.783867;EtaROImax[1][ 4][19]=   0.850528;PhiROImin[1][ 4][19]=   0.902135;PhiROImax[1][ 4][19]=	 1.00957;
+     EtaROImin[1][ 4][20]=   0.964674;EtaROImax[1][ 4][20]=    1.02514;PhiROImin[1][ 4][20]=	0.78835;PhiROImax[1][ 4][20]=	0.898011;
+     EtaROImin[1][ 4][21]=   0.898201;EtaROImax[1][ 4][21]=   0.961344;PhiROImin[1][ 4][21]=	0.78835;PhiROImax[1][ 4][21]=	0.898011;
+     EtaROImin[1][ 4][22]=   0.964674;EtaROImax[1][ 4][22]=    1.02514;PhiROImin[1][ 4][22]=   0.901517;PhiROImax[1][ 4][22]=	 1.00841;
+     EtaROImin[1][ 4][23]=   0.898201;EtaROImax[1][ 4][23]=   0.961344;PhiROImin[1][ 4][23]=   0.901517;PhiROImax[1][ 4][23]=	 1.00841;
+     EtaROImin[1][ 4][24]=	    0;EtaROImax[1][ 4][24]=	     0;PhiROImin[1][ 4][24]=	      0;PhiROImax[1][ 4][24]=	       0;
+     EtaROImin[1][ 4][25]=    1.03003;EtaROImax[1][ 4][25]=    1.06547;PhiROImin[1][ 4][25]=   0.788467;PhiROImax[1][ 4][25]=	0.898827;
+     EtaROImin[1][ 4][26]=	    0;EtaROImax[1][ 4][26]=	     0;PhiROImin[1][ 4][26]=	      0;PhiROImax[1][ 4][26]=	       0;
+     EtaROImin[1][ 4][27]=    1.03003;EtaROImax[1][ 4][27]=    1.06547;PhiROImin[1][ 4][27]=   0.902356;PhiROImax[1][ 4][27]=	0.982541;
+     EtaROImin[1][ 4][28]=	    0;EtaROImax[1][ 4][28]=	     0;PhiROImin[1][ 4][28]=	      0;PhiROImax[1][ 4][28]=	       0;
+     EtaROImin[1][ 4][29]=	    0;EtaROImax[1][ 4][29]=	     0;PhiROImin[1][ 4][29]=	      0;PhiROImax[1][ 4][29]=	       0;
+     EtaROImin[1][ 4][30]=	    0;EtaROImax[1][ 4][30]=	     0;PhiROImin[1][ 4][30]=	      0;PhiROImax[1][ 4][30]=	       0;
+     EtaROImin[1][ 4][31]=	    0;EtaROImax[1][ 4][31]=	     0;PhiROImin[1][ 4][31]=	      0;PhiROImax[1][ 4][31]=	       0;
+     EtaROImin[1][ 5][ 0]=  0.0208251;EtaROImax[1][ 5][ 0]=   0.118734;PhiROImin[1][ 5][ 0]=	1.09135;PhiROImax[1][ 5][ 0]=	 1.17531;
+     EtaROImin[1][ 5][ 1]=   0.116816;EtaROImax[1][ 5][ 1]=   0.213185;PhiROImin[1][ 5][ 1]=	1.09135;PhiROImax[1][ 5][ 1]=	 1.17531;
+     EtaROImin[1][ 5][ 2]=  0.0208251;EtaROImax[1][ 5][ 2]=   0.118734;PhiROImin[1][ 5][ 2]=	1.00505;PhiROImax[1][ 5][ 2]=	 1.08772;
+     EtaROImin[1][ 5][ 3]=   0.116816;EtaROImax[1][ 5][ 3]=   0.213185;PhiROImin[1][ 5][ 3]=	1.00505;PhiROImax[1][ 5][ 3]=	 1.08772;
+     EtaROImin[1][ 5][ 4]=   0.222449;EtaROImax[1][ 5][ 4]=   0.302928;PhiROImin[1][ 5][ 4]=	1.09135;PhiROImax[1][ 5][ 4]=	 1.17531;
+     EtaROImin[1][ 5][ 5]=    0.30075;EtaROImax[1][ 5][ 5]=   0.416721;PhiROImin[1][ 5][ 5]=	1.09135;PhiROImax[1][ 5][ 5]=	 1.17531;
+     EtaROImin[1][ 5][ 6]=   0.222449;EtaROImax[1][ 5][ 6]=   0.302928;PhiROImin[1][ 5][ 6]=	1.00505;PhiROImax[1][ 5][ 6]=	 1.08772;
+     EtaROImin[1][ 5][ 7]=    0.30075;EtaROImax[1][ 5][ 7]=   0.416721;PhiROImin[1][ 5][ 7]=	1.00505;PhiROImax[1][ 5][ 7]=	 1.08772;
+     EtaROImin[1][ 5][ 8]=    0.42967;EtaROImax[1][ 5][ 8]=   0.504617;PhiROImin[1][ 5][ 8]=	1.09135;PhiROImax[1][ 5][ 8]=	 1.17531;
+     EtaROImin[1][ 5][ 9]=   0.501681;EtaROImax[1][ 5][ 9]=   0.573871;PhiROImin[1][ 5][ 9]=	1.09135;PhiROImax[1][ 5][ 9]=	 1.17531;
+     EtaROImin[1][ 5][10]=    0.42967;EtaROImax[1][ 5][10]=   0.504617;PhiROImin[1][ 5][10]=	1.00505;PhiROImax[1][ 5][10]=	 1.08772;
+     EtaROImin[1][ 5][11]=   0.501681;EtaROImax[1][ 5][11]=   0.573871;PhiROImin[1][ 5][11]=	1.00505;PhiROImax[1][ 5][11]=	 1.08772;
+     EtaROImin[1][ 5][12]=   0.583785;EtaROImax[1][ 5][12]=   0.653329;PhiROImin[1][ 5][12]=	1.09135;PhiROImax[1][ 5][12]=	 1.17531;
+     EtaROImin[1][ 5][13]=   0.649934;EtaROImax[1][ 5][13]=   0.741516;PhiROImin[1][ 5][13]=	1.09135;PhiROImax[1][ 5][13]=	 1.17531;
+     EtaROImin[1][ 5][14]=   0.583785;EtaROImax[1][ 5][14]=   0.653329;PhiROImin[1][ 5][14]=	1.00505;PhiROImax[1][ 5][14]=	 1.08772;
+     EtaROImin[1][ 5][15]=   0.649934;EtaROImax[1][ 5][15]=   0.741516;PhiROImin[1][ 5][15]=	1.00505;PhiROImax[1][ 5][15]=	 1.08772;
+     EtaROImin[1][ 5][16]=   0.756521;EtaROImax[1][ 5][16]=   0.837822;PhiROImin[1][ 5][16]=	1.09135;PhiROImax[1][ 5][16]=	 1.17531;
+     EtaROImin[1][ 5][17]=	    0;EtaROImax[1][ 5][17]=	     0;PhiROImin[1][ 5][17]=	      0;PhiROImax[1][ 5][17]=	       0;
+     EtaROImin[1][ 5][18]=   0.756521;EtaROImax[1][ 5][18]=   0.837822;PhiROImin[1][ 5][18]=	1.00505;PhiROImax[1][ 5][18]=	 1.08772;
+     EtaROImin[1][ 5][19]=	    0;EtaROImax[1][ 5][19]=	     0;PhiROImin[1][ 5][19]=	      0;PhiROImax[1][ 5][19]=	       0;
+     EtaROImin[1][ 5][20]=   0.844116;EtaROImax[1][ 5][20]=   0.903324;PhiROImin[1][ 5][20]=	1.09135;PhiROImax[1][ 5][20]=	 1.17531;
+     EtaROImin[1][ 5][21]=   0.899344;EtaROImax[1][ 5][21]=   0.956037;PhiROImin[1][ 5][21]=	1.09135;PhiROImax[1][ 5][21]=	 1.17531;
+     EtaROImin[1][ 5][22]=   0.844116;EtaROImax[1][ 5][22]=   0.903324;PhiROImin[1][ 5][22]=	1.00505;PhiROImax[1][ 5][22]=	 1.08772;
+     EtaROImin[1][ 5][23]=   0.899344;EtaROImax[1][ 5][23]=   0.956037;PhiROImin[1][ 5][23]=	1.00505;PhiROImax[1][ 5][23]=	 1.08772;
+     EtaROImin[1][ 5][24]=	    0;EtaROImax[1][ 5][24]=	     0;PhiROImin[1][ 5][24]=	      0;PhiROImax[1][ 5][24]=	       0;
+     EtaROImin[1][ 5][25]=	    0;EtaROImax[1][ 5][25]=	     0;PhiROImin[1][ 5][25]=	      0;PhiROImax[1][ 5][25]=	       0;
+     EtaROImin[1][ 5][26]=	    0;EtaROImax[1][ 5][26]=	     0;PhiROImin[1][ 5][26]=	      0;PhiROImax[1][ 5][26]=	       0;
+     EtaROImin[1][ 5][27]=	    0;EtaROImax[1][ 5][27]=	     0;PhiROImin[1][ 5][27]=	      0;PhiROImax[1][ 5][27]=	       0;
+     EtaROImin[1][ 5][28]=	    0;EtaROImax[1][ 5][28]=	     0;PhiROImin[1][ 5][28]=	      0;PhiROImax[1][ 5][28]=	       0;
+     EtaROImin[1][ 5][29]=	    0;EtaROImax[1][ 5][29]=	     0;PhiROImin[1][ 5][29]=	      0;PhiROImax[1][ 5][29]=	       0;
+     EtaROImin[1][ 5][30]=	    0;EtaROImax[1][ 5][30]=	     0;PhiROImin[1][ 5][30]=	      0;PhiROImax[1][ 5][30]=	       0;
+     EtaROImin[1][ 5][31]=	    0;EtaROImax[1][ 5][31]=	     0;PhiROImin[1][ 5][31]=	      0;PhiROImax[1][ 5][31]=	       0;
+     EtaROImin[1][ 6][ 0]=   0.116816;EtaROImax[1][ 6][ 0]=   0.213185;PhiROImin[1][ 6][ 0]=	1.18089;PhiROImax[1][ 6][ 0]=	 1.26484;
+     EtaROImin[1][ 6][ 1]=  0.0208251;EtaROImax[1][ 6][ 1]=   0.118734;PhiROImin[1][ 6][ 1]=	1.18089;PhiROImax[1][ 6][ 1]=	 1.26484;
+     EtaROImin[1][ 6][ 2]=   0.116816;EtaROImax[1][ 6][ 2]=   0.213185;PhiROImin[1][ 6][ 2]=	1.26847;PhiROImax[1][ 6][ 2]=	 1.35115;
+     EtaROImin[1][ 6][ 3]=  0.0208251;EtaROImax[1][ 6][ 3]=   0.118734;PhiROImin[1][ 6][ 3]=	1.26847;PhiROImax[1][ 6][ 3]=	 1.35115;
+     EtaROImin[1][ 6][ 4]=    0.30075;EtaROImax[1][ 6][ 4]=   0.416721;PhiROImin[1][ 6][ 4]=	1.18089;PhiROImax[1][ 6][ 4]=	 1.26484;
+     EtaROImin[1][ 6][ 5]=   0.222449;EtaROImax[1][ 6][ 5]=   0.302928;PhiROImin[1][ 6][ 5]=	1.18089;PhiROImax[1][ 6][ 5]=	 1.26484;
+     EtaROImin[1][ 6][ 6]=    0.30075;EtaROImax[1][ 6][ 6]=   0.416721;PhiROImin[1][ 6][ 6]=	1.26847;PhiROImax[1][ 6][ 6]=	 1.35115;
+     EtaROImin[1][ 6][ 7]=   0.222449;EtaROImax[1][ 6][ 7]=   0.302928;PhiROImin[1][ 6][ 7]=	1.26847;PhiROImax[1][ 6][ 7]=	 1.35115;
+     EtaROImin[1][ 6][ 8]=   0.501681;EtaROImax[1][ 6][ 8]=   0.573871;PhiROImin[1][ 6][ 8]=	1.18089;PhiROImax[1][ 6][ 8]=	 1.26484;
+     EtaROImin[1][ 6][ 9]=    0.42967;EtaROImax[1][ 6][ 9]=   0.504617;PhiROImin[1][ 6][ 9]=	1.18089;PhiROImax[1][ 6][ 9]=	 1.26484;
+     EtaROImin[1][ 6][10]=   0.501681;EtaROImax[1][ 6][10]=   0.573871;PhiROImin[1][ 6][10]=	1.26847;PhiROImax[1][ 6][10]=	 1.35115;
+     EtaROImin[1][ 6][11]=    0.42967;EtaROImax[1][ 6][11]=   0.504617;PhiROImin[1][ 6][11]=	1.26847;PhiROImax[1][ 6][11]=	 1.35115;
+     EtaROImin[1][ 6][12]=   0.649934;EtaROImax[1][ 6][12]=   0.741516;PhiROImin[1][ 6][12]=	1.18089;PhiROImax[1][ 6][12]=	 1.26484;
+     EtaROImin[1][ 6][13]=   0.583785;EtaROImax[1][ 6][13]=   0.653329;PhiROImin[1][ 6][13]=	1.18089;PhiROImax[1][ 6][13]=	 1.26484;
+     EtaROImin[1][ 6][14]=   0.649934;EtaROImax[1][ 6][14]=   0.741516;PhiROImin[1][ 6][14]=	1.26847;PhiROImax[1][ 6][14]=	 1.35115;
+     EtaROImin[1][ 6][15]=   0.583785;EtaROImax[1][ 6][15]=   0.653329;PhiROImin[1][ 6][15]=	1.26847;PhiROImax[1][ 6][15]=	 1.35115;
+     EtaROImin[1][ 6][16]=	    0;EtaROImax[1][ 6][16]=	     0;PhiROImin[1][ 6][16]=	      0;PhiROImax[1][ 6][16]=	       0;
+     EtaROImin[1][ 6][17]=   0.756521;EtaROImax[1][ 6][17]=   0.837822;PhiROImin[1][ 6][17]=	1.18089;PhiROImax[1][ 6][17]=	 1.26484;
+     EtaROImin[1][ 6][18]=	    0;EtaROImax[1][ 6][18]=	     0;PhiROImin[1][ 6][18]=	      0;PhiROImax[1][ 6][18]=	       0;
+     EtaROImin[1][ 6][19]=   0.756521;EtaROImax[1][ 6][19]=   0.837822;PhiROImin[1][ 6][19]=	1.26847;PhiROImax[1][ 6][19]=	 1.35115;
+     EtaROImin[1][ 6][20]=   0.899344;EtaROImax[1][ 6][20]=   0.956037;PhiROImin[1][ 6][20]=	1.18089;PhiROImax[1][ 6][20]=	 1.26484;
+     EtaROImin[1][ 6][21]=   0.844116;EtaROImax[1][ 6][21]=   0.903324;PhiROImin[1][ 6][21]=	1.18089;PhiROImax[1][ 6][21]=	 1.26484;
+     EtaROImin[1][ 6][22]=   0.899344;EtaROImax[1][ 6][22]=   0.956037;PhiROImin[1][ 6][22]=	1.26847;PhiROImax[1][ 6][22]=	 1.35115;
+     EtaROImin[1][ 6][23]=   0.844116;EtaROImax[1][ 6][23]=   0.903324;PhiROImin[1][ 6][23]=	1.26847;PhiROImax[1][ 6][23]=	 1.35115;
+     EtaROImin[1][ 6][24]=	    0;EtaROImax[1][ 6][24]=	     0;PhiROImin[1][ 6][24]=	      0;PhiROImax[1][ 6][24]=	       0;
+     EtaROImin[1][ 6][25]=	    0;EtaROImax[1][ 6][25]=	     0;PhiROImin[1][ 6][25]=	      0;PhiROImax[1][ 6][25]=	       0;
+     EtaROImin[1][ 6][26]=	    0;EtaROImax[1][ 6][26]=	     0;PhiROImin[1][ 6][26]=	      0;PhiROImax[1][ 6][26]=	       0;
+     EtaROImin[1][ 6][27]=	    0;EtaROImax[1][ 6][27]=	     0;PhiROImin[1][ 6][27]=	      0;PhiROImax[1][ 6][27]=	       0;
+     EtaROImin[1][ 6][28]=	    0;EtaROImax[1][ 6][28]=	     0;PhiROImin[1][ 6][28]=	      0;PhiROImax[1][ 6][28]=	       0;
+     EtaROImin[1][ 6][29]=	    0;EtaROImax[1][ 6][29]=	     0;PhiROImin[1][ 6][29]=	      0;PhiROImax[1][ 6][29]=	       0;
+     EtaROImin[1][ 6][30]=	    0;EtaROImax[1][ 6][30]=	     0;PhiROImin[1][ 6][30]=	      0;PhiROImax[1][ 6][30]=	       0;
+     EtaROImin[1][ 6][31]=	    0;EtaROImax[1][ 6][31]=	     0;PhiROImin[1][ 6][31]=	      0;PhiROImax[1][ 6][31]=	       0;
+     EtaROImin[1][ 7][ 0]=  0.0552456;EtaROImax[1][ 7][ 0]=   0.147216;PhiROImin[1][ 7][ 0]=	1.45818;PhiROImax[1][ 7][ 0]=	 1.56784;
+     EtaROImin[1][ 7][ 1]=    0.14708;EtaROImax[1][ 7][ 1]=   0.238313;PhiROImin[1][ 7][ 1]=	1.45818;PhiROImax[1][ 7][ 1]=	 1.56784;
+     EtaROImin[1][ 7][ 2]=  0.0552456;EtaROImax[1][ 7][ 2]=   0.147216;PhiROImin[1][ 7][ 2]=	1.34779;PhiROImax[1][ 7][ 2]=	 1.45468;
+     EtaROImin[1][ 7][ 3]=    0.14708;EtaROImax[1][ 7][ 3]=   0.238313;PhiROImin[1][ 7][ 3]=	1.34779;PhiROImax[1][ 7][ 3]=	 1.45468;
+     EtaROImin[1][ 7][ 4]=   0.246207;EtaROImax[1][ 7][ 4]=    0.35049;PhiROImin[1][ 7][ 4]=	1.45818;PhiROImax[1][ 7][ 4]=	 1.56784;
+     EtaROImin[1][ 7][ 5]=   0.350831;EtaROImax[1][ 7][ 5]=   0.452099;PhiROImin[1][ 7][ 5]=	1.45818;PhiROImax[1][ 7][ 5]=	 1.56784;
+     EtaROImin[1][ 7][ 6]=   0.246207;EtaROImax[1][ 7][ 6]=    0.35049;PhiROImin[1][ 7][ 6]=	1.34779;PhiROImax[1][ 7][ 6]=	 1.45468;
+     EtaROImin[1][ 7][ 7]=   0.350831;EtaROImax[1][ 7][ 7]=   0.452099;PhiROImin[1][ 7][ 7]=	1.34779;PhiROImax[1][ 7][ 7]=	 1.45468;
+     EtaROImin[1][ 7][ 8]=   0.458091;EtaROImax[1][ 7][ 8]=   0.554444;PhiROImin[1][ 7][ 8]=	1.45818;PhiROImax[1][ 7][ 8]=	 1.56784;
+     EtaROImin[1][ 7][ 9]=   0.555789;EtaROImax[1][ 7][ 9]=   0.648101;PhiROImin[1][ 7][ 9]=	1.45818;PhiROImax[1][ 7][ 9]=	 1.56784;
+     EtaROImin[1][ 7][10]=   0.458091;EtaROImax[1][ 7][10]=   0.554444;PhiROImin[1][ 7][10]=	1.34779;PhiROImax[1][ 7][10]=	 1.45468;
+     EtaROImin[1][ 7][11]=   0.555789;EtaROImax[1][ 7][11]=   0.648101;PhiROImin[1][ 7][11]=	1.34779;PhiROImax[1][ 7][11]=	 1.45468;
+     EtaROImin[1][ 7][12]=   0.655857;EtaROImax[1][ 7][12]=   0.703298;PhiROImin[1][ 7][12]=	1.45758;PhiROImax[1][ 7][12]=	 1.56783;
+     EtaROImin[1][ 7][13]=   0.706413;EtaROImax[1][ 7][13]=   0.776449;PhiROImin[1][ 7][13]=	1.45758;PhiROImax[1][ 7][13]=	 1.56783;
+     EtaROImin[1][ 7][14]=   0.655857;EtaROImax[1][ 7][14]=   0.703298;PhiROImin[1][ 7][14]=	1.34663;PhiROImax[1][ 7][14]=	 1.45406;
+     EtaROImin[1][ 7][15]=   0.706413;EtaROImax[1][ 7][15]=   0.776449;PhiROImin[1][ 7][15]=	1.34663;PhiROImax[1][ 7][15]=	 1.45406;
+     EtaROImin[1][ 7][16]=   0.783867;EtaROImax[1][ 7][16]=    0.82768;PhiROImin[1][ 7][16]=	1.45758;PhiROImax[1][ 7][16]=	 1.56783;
+     EtaROImin[1][ 7][17]=   0.830556;EtaROImax[1][ 7][17]=   0.895163;PhiROImin[1][ 7][17]=	1.45758;PhiROImax[1][ 7][17]=	 1.56783;
+     EtaROImin[1][ 7][18]=   0.783867;EtaROImax[1][ 7][18]=    0.82768;PhiROImin[1][ 7][18]=	1.34663;PhiROImax[1][ 7][18]=	 1.45406;
+     EtaROImin[1][ 7][19]=   0.830556;EtaROImax[1][ 7][19]=   0.895163;PhiROImin[1][ 7][19]=	1.34663;PhiROImax[1][ 7][19]=	 1.45406;
+     EtaROImin[1][ 7][20]=   0.898201;EtaROImax[1][ 7][20]=   0.961344;PhiROImin[1][ 7][20]=	1.45818;PhiROImax[1][ 7][20]=	 1.56784;
+     EtaROImin[1][ 7][21]=   0.964674;EtaROImax[1][ 7][21]=    1.02514;PhiROImin[1][ 7][21]=	1.45818;PhiROImax[1][ 7][21]=	 1.56784;
+     EtaROImin[1][ 7][22]=   0.898201;EtaROImax[1][ 7][22]=   0.961344;PhiROImin[1][ 7][22]=	1.34779;PhiROImax[1][ 7][22]=	 1.45468;
+     EtaROImin[1][ 7][23]=   0.964674;EtaROImax[1][ 7][23]=    1.02514;PhiROImin[1][ 7][23]=	1.34779;PhiROImax[1][ 7][23]=	 1.45468;
+     EtaROImin[1][ 7][24]=    1.03003;EtaROImax[1][ 7][24]=    1.06547;PhiROImin[1][ 7][24]=	1.45737;PhiROImax[1][ 7][24]=	 1.56773;
+     EtaROImin[1][ 7][25]=	    0;EtaROImax[1][ 7][25]=	     0;PhiROImin[1][ 7][25]=	      0;PhiROImax[1][ 7][25]=	       0;
+     EtaROImin[1][ 7][26]=    1.03003;EtaROImax[1][ 7][26]=    1.06547;PhiROImin[1][ 7][26]=	1.37365;PhiROImax[1][ 7][26]=	 1.45384;
+     EtaROImin[1][ 7][27]=	    0;EtaROImax[1][ 7][27]=	     0;PhiROImin[1][ 7][27]=	      0;PhiROImax[1][ 7][27]=	       0;
+     EtaROImin[1][ 7][28]=	    0;EtaROImax[1][ 7][28]=	     0;PhiROImin[1][ 7][28]=	      0;PhiROImax[1][ 7][28]=	       0;
+     EtaROImin[1][ 7][29]=	    0;EtaROImax[1][ 7][29]=	     0;PhiROImin[1][ 7][29]=	      0;PhiROImax[1][ 7][29]=	       0;
+     EtaROImin[1][ 7][30]=	    0;EtaROImax[1][ 7][30]=	     0;PhiROImin[1][ 7][30]=	      0;PhiROImax[1][ 7][30]=	       0;
+     EtaROImin[1][ 7][31]=	    0;EtaROImax[1][ 7][31]=	     0;PhiROImin[1][ 7][31]=	      0;PhiROImax[1][ 7][31]=	       0;
+     EtaROImin[1][ 8][ 0]=    0.14708;EtaROImax[1][ 8][ 0]=   0.238313;PhiROImin[1][ 8][ 0]=	1.57375;PhiROImax[1][ 8][ 0]=	 1.68341;
+     EtaROImin[1][ 8][ 1]=  0.0552456;EtaROImax[1][ 8][ 1]=   0.147216;PhiROImin[1][ 8][ 1]=	1.57375;PhiROImax[1][ 8][ 1]=	 1.68341;
+     EtaROImin[1][ 8][ 2]=    0.14708;EtaROImax[1][ 8][ 2]=   0.238313;PhiROImin[1][ 8][ 2]=	1.68692;PhiROImax[1][ 8][ 2]=	 1.79381;
+     EtaROImin[1][ 8][ 3]=  0.0552456;EtaROImax[1][ 8][ 3]=   0.147216;PhiROImin[1][ 8][ 3]=	1.68692;PhiROImax[1][ 8][ 3]=	 1.79381;
+     EtaROImin[1][ 8][ 4]=   0.350831;EtaROImax[1][ 8][ 4]=   0.452099;PhiROImin[1][ 8][ 4]=	1.57375;PhiROImax[1][ 8][ 4]=	 1.68341;
+     EtaROImin[1][ 8][ 5]=   0.246207;EtaROImax[1][ 8][ 5]=    0.35049;PhiROImin[1][ 8][ 5]=	1.57375;PhiROImax[1][ 8][ 5]=	 1.68341;
+     EtaROImin[1][ 8][ 6]=   0.350831;EtaROImax[1][ 8][ 6]=   0.452099;PhiROImin[1][ 8][ 6]=	1.68692;PhiROImax[1][ 8][ 6]=	 1.79381;
+     EtaROImin[1][ 8][ 7]=   0.246207;EtaROImax[1][ 8][ 7]=    0.35049;PhiROImin[1][ 8][ 7]=	1.68692;PhiROImax[1][ 8][ 7]=	 1.79381;
+     EtaROImin[1][ 8][ 8]=   0.555789;EtaROImax[1][ 8][ 8]=   0.648101;PhiROImin[1][ 8][ 8]=	1.57375;PhiROImax[1][ 8][ 8]=	 1.68341;
+     EtaROImin[1][ 8][ 9]=   0.458091;EtaROImax[1][ 8][ 9]=   0.554444;PhiROImin[1][ 8][ 9]=	1.57375;PhiROImax[1][ 8][ 9]=	 1.68341;
+     EtaROImin[1][ 8][10]=   0.555789;EtaROImax[1][ 8][10]=   0.648101;PhiROImin[1][ 8][10]=	1.68692;PhiROImax[1][ 8][10]=	 1.79381;
+     EtaROImin[1][ 8][11]=   0.458091;EtaROImax[1][ 8][11]=   0.554444;PhiROImin[1][ 8][11]=	1.68692;PhiROImax[1][ 8][11]=	 1.79381;
+     EtaROImin[1][ 8][12]=   0.731124;EtaROImax[1][ 8][12]=   0.776449;PhiROImin[1][ 8][12]=	1.57376;PhiROImax[1][ 8][12]=	 1.68401;
+     EtaROImin[1][ 8][13]=   0.655857;EtaROImax[1][ 8][13]=   0.728056;PhiROImin[1][ 8][13]=	1.57376;PhiROImax[1][ 8][13]=	 1.68401;
+     EtaROImin[1][ 8][14]=   0.731124;EtaROImax[1][ 8][14]=   0.776449;PhiROImin[1][ 8][14]=	1.68753;PhiROImax[1][ 8][14]=	 1.79497;
+     EtaROImin[1][ 8][15]=   0.655857;EtaROImax[1][ 8][15]=   0.728056;PhiROImin[1][ 8][15]=	1.68753;PhiROImax[1][ 8][15]=	 1.79497;
+     EtaROImin[1][ 8][16]=   0.853359;EtaROImax[1][ 8][16]=   0.895163;PhiROImin[1][ 8][16]=	1.57376;PhiROImax[1][ 8][16]=	 1.68401;
+     EtaROImin[1][ 8][17]=   0.783867;EtaROImax[1][ 8][17]=   0.850528;PhiROImin[1][ 8][17]=	1.57376;PhiROImax[1][ 8][17]=	 1.68401;
+     EtaROImin[1][ 8][18]=   0.853359;EtaROImax[1][ 8][18]=   0.895163;PhiROImin[1][ 8][18]=	1.68753;PhiROImax[1][ 8][18]=	 1.79497;
+     EtaROImin[1][ 8][19]=   0.783867;EtaROImax[1][ 8][19]=   0.850528;PhiROImin[1][ 8][19]=	1.68753;PhiROImax[1][ 8][19]=	 1.79497;
+     EtaROImin[1][ 8][20]=   0.964674;EtaROImax[1][ 8][20]=    1.02514;PhiROImin[1][ 8][20]=	1.57375;PhiROImax[1][ 8][20]=	 1.68341;
+     EtaROImin[1][ 8][21]=   0.898201;EtaROImax[1][ 8][21]=   0.961344;PhiROImin[1][ 8][21]=	1.57375;PhiROImax[1][ 8][21]=	 1.68341;
+     EtaROImin[1][ 8][22]=   0.964674;EtaROImax[1][ 8][22]=    1.02514;PhiROImin[1][ 8][22]=	1.68692;PhiROImax[1][ 8][22]=	 1.79381;
+     EtaROImin[1][ 8][23]=   0.898201;EtaROImax[1][ 8][23]=   0.961344;PhiROImin[1][ 8][23]=	1.68692;PhiROImax[1][ 8][23]=	 1.79381;
+     EtaROImin[1][ 8][24]=	    0;EtaROImax[1][ 8][24]=	     0;PhiROImin[1][ 8][24]=	      0;PhiROImax[1][ 8][24]=	       0;
+     EtaROImin[1][ 8][25]=    1.03003;EtaROImax[1][ 8][25]=    1.06547;PhiROImin[1][ 8][25]=	1.57387;PhiROImax[1][ 8][25]=	 1.68423;
+     EtaROImin[1][ 8][26]=	    0;EtaROImax[1][ 8][26]=	     0;PhiROImin[1][ 8][26]=	      0;PhiROImax[1][ 8][26]=	       0;
+     EtaROImin[1][ 8][27]=    1.03003;EtaROImax[1][ 8][27]=    1.06547;PhiROImin[1][ 8][27]=	1.68775;PhiROImax[1][ 8][27]=	 1.76794;
+     EtaROImin[1][ 8][28]=	    0;EtaROImax[1][ 8][28]=	     0;PhiROImin[1][ 8][28]=	      0;PhiROImax[1][ 8][28]=	       0;
+     EtaROImin[1][ 8][29]=	    0;EtaROImax[1][ 8][29]=	     0;PhiROImin[1][ 8][29]=	      0;PhiROImax[1][ 8][29]=	       0;
+     EtaROImin[1][ 8][30]=	    0;EtaROImax[1][ 8][30]=	     0;PhiROImin[1][ 8][30]=	      0;PhiROImax[1][ 8][30]=	       0;
+     EtaROImin[1][ 8][31]=	    0;EtaROImax[1][ 8][31]=	     0;PhiROImin[1][ 8][31]=	      0;PhiROImax[1][ 8][31]=	       0;
+     EtaROImin[1][ 9][ 0]=  0.0208251;EtaROImax[1][ 9][ 0]=   0.118734;PhiROImin[1][ 9][ 0]=	1.87675;PhiROImax[1][ 9][ 0]=	 1.96071;
+     EtaROImin[1][ 9][ 1]=   0.116816;EtaROImax[1][ 9][ 1]=   0.213185;PhiROImin[1][ 9][ 1]=	1.87675;PhiROImax[1][ 9][ 1]=	 1.96071;
+     EtaROImin[1][ 9][ 2]=  0.0208251;EtaROImax[1][ 9][ 2]=   0.118734;PhiROImin[1][ 9][ 2]=	1.79045;PhiROImax[1][ 9][ 2]=	 1.87312;
+     EtaROImin[1][ 9][ 3]=   0.116816;EtaROImax[1][ 9][ 3]=   0.213185;PhiROImin[1][ 9][ 3]=	1.79045;PhiROImax[1][ 9][ 3]=	 1.87312;
+     EtaROImin[1][ 9][ 4]=   0.222449;EtaROImax[1][ 9][ 4]=   0.302928;PhiROImin[1][ 9][ 4]=	1.87675;PhiROImax[1][ 9][ 4]=	 1.96071;
+     EtaROImin[1][ 9][ 5]=    0.30075;EtaROImax[1][ 9][ 5]=   0.416721;PhiROImin[1][ 9][ 5]=	1.87675;PhiROImax[1][ 9][ 5]=	 1.96071;
+     EtaROImin[1][ 9][ 6]=   0.222449;EtaROImax[1][ 9][ 6]=   0.302928;PhiROImin[1][ 9][ 6]=	1.79045;PhiROImax[1][ 9][ 6]=	 1.87312;
+     EtaROImin[1][ 9][ 7]=    0.30075;EtaROImax[1][ 9][ 7]=   0.416721;PhiROImin[1][ 9][ 7]=	1.79045;PhiROImax[1][ 9][ 7]=	 1.87312;
+     EtaROImin[1][ 9][ 8]=    0.42967;EtaROImax[1][ 9][ 8]=   0.504617;PhiROImin[1][ 9][ 8]=	1.87675;PhiROImax[1][ 9][ 8]=	 1.96071;
+     EtaROImin[1][ 9][ 9]=   0.501681;EtaROImax[1][ 9][ 9]=   0.573871;PhiROImin[1][ 9][ 9]=	1.87675;PhiROImax[1][ 9][ 9]=	 1.96071;
+     EtaROImin[1][ 9][10]=    0.42967;EtaROImax[1][ 9][10]=   0.504617;PhiROImin[1][ 9][10]=	1.79045;PhiROImax[1][ 9][10]=	 1.87312;
+     EtaROImin[1][ 9][11]=   0.501681;EtaROImax[1][ 9][11]=   0.573871;PhiROImin[1][ 9][11]=	1.79045;PhiROImax[1][ 9][11]=	 1.87312;
+     EtaROImin[1][ 9][12]=   0.583785;EtaROImax[1][ 9][12]=   0.653329;PhiROImin[1][ 9][12]=	1.87675;PhiROImax[1][ 9][12]=	 1.96071;
+     EtaROImin[1][ 9][13]=   0.649934;EtaROImax[1][ 9][13]=   0.741516;PhiROImin[1][ 9][13]=	1.87675;PhiROImax[1][ 9][13]=	 1.96071;
+     EtaROImin[1][ 9][14]=   0.583785;EtaROImax[1][ 9][14]=   0.653329;PhiROImin[1][ 9][14]=	1.79045;PhiROImax[1][ 9][14]=	 1.87312;
+     EtaROImin[1][ 9][15]=   0.649934;EtaROImax[1][ 9][15]=   0.741516;PhiROImin[1][ 9][15]=	1.79045;PhiROImax[1][ 9][15]=	 1.87312;
+     EtaROImin[1][ 9][16]=   0.756521;EtaROImax[1][ 9][16]=   0.837822;PhiROImin[1][ 9][16]=	1.87675;PhiROImax[1][ 9][16]=	 1.96071;
+     EtaROImin[1][ 9][17]=	    0;EtaROImax[1][ 9][17]=	     0;PhiROImin[1][ 9][17]=	      0;PhiROImax[1][ 9][17]=	       0;
+     EtaROImin[1][ 9][18]=   0.756521;EtaROImax[1][ 9][18]=   0.837822;PhiROImin[1][ 9][18]=	1.79045;PhiROImax[1][ 9][18]=	 1.87312;
+     EtaROImin[1][ 9][19]=	    0;EtaROImax[1][ 9][19]=	     0;PhiROImin[1][ 9][19]=	      0;PhiROImax[1][ 9][19]=	       0;
+     EtaROImin[1][ 9][20]=   0.844116;EtaROImax[1][ 9][20]=   0.903324;PhiROImin[1][ 9][20]=	1.87675;PhiROImax[1][ 9][20]=	 1.96071;
+     EtaROImin[1][ 9][21]=   0.899344;EtaROImax[1][ 9][21]=   0.956037;PhiROImin[1][ 9][21]=	1.87675;PhiROImax[1][ 9][21]=	 1.96071;
+     EtaROImin[1][ 9][22]=   0.844116;EtaROImax[1][ 9][22]=   0.903324;PhiROImin[1][ 9][22]=	1.79045;PhiROImax[1][ 9][22]=	 1.87312;
+     EtaROImin[1][ 9][23]=   0.899344;EtaROImax[1][ 9][23]=   0.956037;PhiROImin[1][ 9][23]=	1.79045;PhiROImax[1][ 9][23]=	 1.87312;
+     EtaROImin[1][ 9][24]=	    0;EtaROImax[1][ 9][24]=	     0;PhiROImin[1][ 9][24]=	      0;PhiROImax[1][ 9][24]=	       0;
+     EtaROImin[1][ 9][25]=	    0;EtaROImax[1][ 9][25]=	     0;PhiROImin[1][ 9][25]=	      0;PhiROImax[1][ 9][25]=	       0;
+     EtaROImin[1][ 9][26]=	    0;EtaROImax[1][ 9][26]=	     0;PhiROImin[1][ 9][26]=	      0;PhiROImax[1][ 9][26]=	       0;
+     EtaROImin[1][ 9][27]=	    0;EtaROImax[1][ 9][27]=	     0;PhiROImin[1][ 9][27]=	      0;PhiROImax[1][ 9][27]=	       0;
+     EtaROImin[1][ 9][28]=	    0;EtaROImax[1][ 9][28]=	     0;PhiROImin[1][ 9][28]=	      0;PhiROImax[1][ 9][28]=	       0;
+     EtaROImin[1][ 9][29]=	    0;EtaROImax[1][ 9][29]=	     0;PhiROImin[1][ 9][29]=	      0;PhiROImax[1][ 9][29]=	       0;
+     EtaROImin[1][ 9][30]=	    0;EtaROImax[1][ 9][30]=	     0;PhiROImin[1][ 9][30]=	      0;PhiROImax[1][ 9][30]=	       0;
+     EtaROImin[1][ 9][31]=	    0;EtaROImax[1][ 9][31]=	     0;PhiROImin[1][ 9][31]=	      0;PhiROImax[1][ 9][31]=	       0;
+     EtaROImin[1][10][ 0]=   0.116816;EtaROImax[1][10][ 0]=   0.213185;PhiROImin[1][10][ 0]=	1.96629;PhiROImax[1][10][ 0]=	 2.05024;
+     EtaROImin[1][10][ 1]=  0.0208251;EtaROImax[1][10][ 1]=   0.118734;PhiROImin[1][10][ 1]=	1.96629;PhiROImax[1][10][ 1]=	 2.05024;
+     EtaROImin[1][10][ 2]=   0.116816;EtaROImax[1][10][ 2]=   0.213185;PhiROImin[1][10][ 2]=	2.05387;PhiROImax[1][10][ 2]=	 2.13655;
+     EtaROImin[1][10][ 3]=  0.0208251;EtaROImax[1][10][ 3]=   0.118734;PhiROImin[1][10][ 3]=	2.05387;PhiROImax[1][10][ 3]=	 2.13655;
+     EtaROImin[1][10][ 4]=    0.30075;EtaROImax[1][10][ 4]=   0.416721;PhiROImin[1][10][ 4]=	1.96629;PhiROImax[1][10][ 4]=	 2.05024;
+     EtaROImin[1][10][ 5]=   0.222449;EtaROImax[1][10][ 5]=   0.302928;PhiROImin[1][10][ 5]=	1.96629;PhiROImax[1][10][ 5]=	 2.05024;
+     EtaROImin[1][10][ 6]=    0.30075;EtaROImax[1][10][ 6]=   0.416721;PhiROImin[1][10][ 6]=	2.05387;PhiROImax[1][10][ 6]=	 2.13655;
+     EtaROImin[1][10][ 7]=   0.222449;EtaROImax[1][10][ 7]=   0.302928;PhiROImin[1][10][ 7]=	2.05387;PhiROImax[1][10][ 7]=	 2.13655;
+     EtaROImin[1][10][ 8]=   0.501681;EtaROImax[1][10][ 8]=   0.573871;PhiROImin[1][10][ 8]=	1.96629;PhiROImax[1][10][ 8]=	 2.05024;
+     EtaROImin[1][10][ 9]=    0.42967;EtaROImax[1][10][ 9]=   0.504617;PhiROImin[1][10][ 9]=	1.96629;PhiROImax[1][10][ 9]=	 2.05024;
+     EtaROImin[1][10][10]=   0.501681;EtaROImax[1][10][10]=   0.573871;PhiROImin[1][10][10]=	2.05387;PhiROImax[1][10][10]=	 2.13655;
+     EtaROImin[1][10][11]=    0.42967;EtaROImax[1][10][11]=   0.504617;PhiROImin[1][10][11]=	2.05387;PhiROImax[1][10][11]=	 2.13655;
+     EtaROImin[1][10][12]=   0.649934;EtaROImax[1][10][12]=   0.741516;PhiROImin[1][10][12]=	1.96629;PhiROImax[1][10][12]=	 2.05024;
+     EtaROImin[1][10][13]=   0.583785;EtaROImax[1][10][13]=   0.653329;PhiROImin[1][10][13]=	1.96629;PhiROImax[1][10][13]=	 2.05024;
+     EtaROImin[1][10][14]=   0.649934;EtaROImax[1][10][14]=   0.741516;PhiROImin[1][10][14]=	2.05387;PhiROImax[1][10][14]=	 2.13655;
+     EtaROImin[1][10][15]=   0.583785;EtaROImax[1][10][15]=   0.653329;PhiROImin[1][10][15]=	2.05387;PhiROImax[1][10][15]=	 2.13655;
+     EtaROImin[1][10][16]=	    0;EtaROImax[1][10][16]=	     0;PhiROImin[1][10][16]=	      0;PhiROImax[1][10][16]=	       0;
+     EtaROImin[1][10][17]=   0.756521;EtaROImax[1][10][17]=   0.837822;PhiROImin[1][10][17]=	1.96629;PhiROImax[1][10][17]=	 2.05024;
+     EtaROImin[1][10][18]=	    0;EtaROImax[1][10][18]=	     0;PhiROImin[1][10][18]=	      0;PhiROImax[1][10][18]=	       0;
+     EtaROImin[1][10][19]=   0.756521;EtaROImax[1][10][19]=   0.837822;PhiROImin[1][10][19]=	2.05387;PhiROImax[1][10][19]=	 2.13655;
+     EtaROImin[1][10][20]=   0.899344;EtaROImax[1][10][20]=   0.956037;PhiROImin[1][10][20]=	1.96629;PhiROImax[1][10][20]=	 2.05024;
+     EtaROImin[1][10][21]=   0.844116;EtaROImax[1][10][21]=   0.903324;PhiROImin[1][10][21]=	1.96629;PhiROImax[1][10][21]=	 2.05024;
+     EtaROImin[1][10][22]=   0.899344;EtaROImax[1][10][22]=   0.956037;PhiROImin[1][10][22]=	2.05387;PhiROImax[1][10][22]=	 2.13655;
+     EtaROImin[1][10][23]=   0.844116;EtaROImax[1][10][23]=   0.903324;PhiROImin[1][10][23]=	2.05387;PhiROImax[1][10][23]=	 2.13655;
+     EtaROImin[1][10][24]=	    0;EtaROImax[1][10][24]=	     0;PhiROImin[1][10][24]=	      0;PhiROImax[1][10][24]=	       0;
+     EtaROImin[1][10][25]=	    0;EtaROImax[1][10][25]=	     0;PhiROImin[1][10][25]=	      0;PhiROImax[1][10][25]=	       0;
+     EtaROImin[1][10][26]=	    0;EtaROImax[1][10][26]=	     0;PhiROImin[1][10][26]=	      0;PhiROImax[1][10][26]=	       0;
+     EtaROImin[1][10][27]=	    0;EtaROImax[1][10][27]=	     0;PhiROImin[1][10][27]=	      0;PhiROImax[1][10][27]=	       0;
+     EtaROImin[1][10][28]=	    0;EtaROImax[1][10][28]=	     0;PhiROImin[1][10][28]=	      0;PhiROImax[1][10][28]=	       0;
+     EtaROImin[1][10][29]=	    0;EtaROImax[1][10][29]=	     0;PhiROImin[1][10][29]=	      0;PhiROImax[1][10][29]=	       0;
+     EtaROImin[1][10][30]=	    0;EtaROImax[1][10][30]=	     0;PhiROImin[1][10][30]=	      0;PhiROImax[1][10][30]=	       0;
+     EtaROImin[1][10][31]=	    0;EtaROImax[1][10][31]=	     0;PhiROImin[1][10][31]=	      0;PhiROImax[1][10][31]=	       0;
+     EtaROImin[1][11][ 0]=   0.130922;EtaROImax[1][11][ 0]=   0.238612;PhiROImin[1][11][ 0]=	2.24298;PhiROImax[1][11][ 0]=	 2.35323;
+     EtaROImin[1][11][ 1]=	    0;EtaROImax[1][11][ 1]=	     0;PhiROImin[1][11][ 1]=	      0;PhiROImax[1][11][ 1]=	       0;
+     EtaROImin[1][11][ 2]=   0.130922;EtaROImax[1][11][ 2]=   0.238612;PhiROImin[1][11][ 2]=	2.13203;PhiROImax[1][11][ 2]=	 2.23946;
+     EtaROImin[1][11][ 3]=	    0;EtaROImax[1][11][ 3]=	     0;PhiROImin[1][11][ 3]=	      0;PhiROImax[1][11][ 3]=	       0;
+     EtaROImin[1][11][ 4]=   0.246207;EtaROImax[1][11][ 4]=    0.35049;PhiROImin[1][11][ 4]=	2.24358;PhiROImax[1][11][ 4]=	 2.35324;
+     EtaROImin[1][11][ 5]=   0.350831;EtaROImax[1][11][ 5]=   0.452099;PhiROImin[1][11][ 5]=	2.24358;PhiROImax[1][11][ 5]=	 2.35324;
+     EtaROImin[1][11][ 6]=   0.246207;EtaROImax[1][11][ 6]=    0.35049;PhiROImin[1][11][ 6]=	2.13318;PhiROImax[1][11][ 6]=	 2.24008;
+     EtaROImin[1][11][ 7]=   0.350831;EtaROImax[1][11][ 7]=   0.452099;PhiROImin[1][11][ 7]=	2.13318;PhiROImax[1][11][ 7]=	 2.24008;
+     EtaROImin[1][11][ 8]=   0.458091;EtaROImax[1][11][ 8]=   0.554444;PhiROImin[1][11][ 8]=	2.24358;PhiROImax[1][11][ 8]=	 2.35324;
+     EtaROImin[1][11][ 9]=   0.555789;EtaROImax[1][11][ 9]=   0.648101;PhiROImin[1][11][ 9]=	2.24358;PhiROImax[1][11][ 9]=	 2.35324;
+     EtaROImin[1][11][10]=   0.458091;EtaROImax[1][11][10]=   0.554444;PhiROImin[1][11][10]=	2.13318;PhiROImax[1][11][10]=	 2.24008;
+     EtaROImin[1][11][11]=   0.555789;EtaROImax[1][11][11]=   0.648101;PhiROImin[1][11][11]=	2.13318;PhiROImax[1][11][11]=	 2.24008;
+     EtaROImin[1][11][12]=   0.655857;EtaROImax[1][11][12]=   0.703298;PhiROImin[1][11][12]=	2.24298;PhiROImax[1][11][12]=	 2.35323;
+     EtaROImin[1][11][13]=   0.706413;EtaROImax[1][11][13]=   0.776449;PhiROImin[1][11][13]=	2.24298;PhiROImax[1][11][13]=	 2.35323;
+     EtaROImin[1][11][14]=   0.655857;EtaROImax[1][11][14]=   0.703298;PhiROImin[1][11][14]=	2.13203;PhiROImax[1][11][14]=	 2.23946;
+     EtaROImin[1][11][15]=   0.706413;EtaROImax[1][11][15]=   0.776449;PhiROImin[1][11][15]=	2.13203;PhiROImax[1][11][15]=	 2.23946;
+     EtaROImin[1][11][16]=   0.783867;EtaROImax[1][11][16]=    0.82768;PhiROImin[1][11][16]=	2.24298;PhiROImax[1][11][16]=	 2.35323;
+     EtaROImin[1][11][17]=   0.830556;EtaROImax[1][11][17]=   0.895163;PhiROImin[1][11][17]=	2.24298;PhiROImax[1][11][17]=	 2.35323;
+     EtaROImin[1][11][18]=   0.783867;EtaROImax[1][11][18]=    0.82768;PhiROImin[1][11][18]=	2.13203;PhiROImax[1][11][18]=	 2.23946;
+     EtaROImin[1][11][19]=   0.830556;EtaROImax[1][11][19]=   0.895163;PhiROImin[1][11][19]=	2.13203;PhiROImax[1][11][19]=	 2.23946;
+     EtaROImin[1][11][20]=   0.898201;EtaROImax[1][11][20]=   0.961344;PhiROImin[1][11][20]=	2.24358;PhiROImax[1][11][20]=	 2.35324;
+     EtaROImin[1][11][21]=   0.964674;EtaROImax[1][11][21]=    1.02514;PhiROImin[1][11][21]=	2.24358;PhiROImax[1][11][21]=	 2.35324;
+     EtaROImin[1][11][22]=   0.898201;EtaROImax[1][11][22]=   0.961344;PhiROImin[1][11][22]=	2.13318;PhiROImax[1][11][22]=	 2.24008;
+     EtaROImin[1][11][23]=   0.964674;EtaROImax[1][11][23]=    1.02514;PhiROImin[1][11][23]=	2.13318;PhiROImax[1][11][23]=	 2.24008;
+     EtaROImin[1][11][24]=    1.03003;EtaROImax[1][11][24]=    1.06547;PhiROImin[1][11][24]=	2.24277;PhiROImax[1][11][24]=	 2.35313;
+     EtaROImin[1][11][25]=	    0;EtaROImax[1][11][25]=	     0;PhiROImin[1][11][25]=	      0;PhiROImax[1][11][25]=	       0;
+     EtaROImin[1][11][26]=    1.03003;EtaROImax[1][11][26]=    1.06547;PhiROImin[1][11][26]=	2.15905;PhiROImax[1][11][26]=	 2.23924;
+     EtaROImin[1][11][27]=	    0;EtaROImax[1][11][27]=	     0;PhiROImin[1][11][27]=	      0;PhiROImax[1][11][27]=	       0;
+     EtaROImin[1][11][28]=	    0;EtaROImax[1][11][28]=	     0;PhiROImin[1][11][28]=	      0;PhiROImax[1][11][28]=	       0;
+     EtaROImin[1][11][29]=	    0;EtaROImax[1][11][29]=	     0;PhiROImin[1][11][29]=	      0;PhiROImax[1][11][29]=	       0;
+     EtaROImin[1][11][30]=	    0;EtaROImax[1][11][30]=	     0;PhiROImin[1][11][30]=	      0;PhiROImax[1][11][30]=	       0;
+     EtaROImin[1][11][31]=	    0;EtaROImax[1][11][31]=	     0;PhiROImin[1][11][31]=	      0;PhiROImax[1][11][31]=	       0;
+     EtaROImin[1][12][ 0]=	    0;EtaROImax[1][12][ 0]=	     0;PhiROImin[1][12][ 0]=	      0;PhiROImax[1][12][ 0]=	       0;
+     EtaROImin[1][12][ 1]=   0.130922;EtaROImax[1][12][ 1]=   0.238612;PhiROImin[1][12][ 1]=	2.35916;PhiROImax[1][12][ 1]=	 2.46941;
+     EtaROImin[1][12][ 2]=	    0;EtaROImax[1][12][ 2]=	     0;PhiROImin[1][12][ 2]=	      0;PhiROImax[1][12][ 2]=	       0;
+     EtaROImin[1][12][ 3]=   0.130922;EtaROImax[1][12][ 3]=   0.238612;PhiROImin[1][12][ 3]=	2.47293;PhiROImax[1][12][ 3]=	 2.58036;
+     EtaROImin[1][12][ 4]=   0.350831;EtaROImax[1][12][ 4]=   0.452099;PhiROImin[1][12][ 4]=	2.35915;PhiROImax[1][12][ 4]=	 2.46881;
+     EtaROImin[1][12][ 5]=   0.246207;EtaROImax[1][12][ 5]=    0.35049;PhiROImin[1][12][ 5]=	2.35915;PhiROImax[1][12][ 5]=	 2.46881;
+     EtaROImin[1][12][ 6]=   0.350831;EtaROImax[1][12][ 6]=   0.452099;PhiROImin[1][12][ 6]=	2.47231;PhiROImax[1][12][ 6]=	 2.57921;
+     EtaROImin[1][12][ 7]=   0.246207;EtaROImax[1][12][ 7]=    0.35049;PhiROImin[1][12][ 7]=	2.47231;PhiROImax[1][12][ 7]=	 2.57921;
+     EtaROImin[1][12][ 8]=   0.555789;EtaROImax[1][12][ 8]=   0.648101;PhiROImin[1][12][ 8]=	2.35915;PhiROImax[1][12][ 8]=	 2.46881;
+     EtaROImin[1][12][ 9]=   0.458091;EtaROImax[1][12][ 9]=   0.554444;PhiROImin[1][12][ 9]=	2.35915;PhiROImax[1][12][ 9]=	 2.46881;
+     EtaROImin[1][12][10]=   0.555789;EtaROImax[1][12][10]=   0.648101;PhiROImin[1][12][10]=	2.47231;PhiROImax[1][12][10]=	 2.57921;
+     EtaROImin[1][12][11]=   0.458091;EtaROImax[1][12][11]=   0.554444;PhiROImin[1][12][11]=	2.47231;PhiROImax[1][12][11]=	 2.57921;
+     EtaROImin[1][12][12]=   0.731124;EtaROImax[1][12][12]=   0.776449;PhiROImin[1][12][12]=	2.35916;PhiROImax[1][12][12]=	 2.46941;
+     EtaROImin[1][12][13]=   0.655857;EtaROImax[1][12][13]=   0.728056;PhiROImin[1][12][13]=	2.35916;PhiROImax[1][12][13]=	 2.46941;
+     EtaROImin[1][12][14]=   0.731124;EtaROImax[1][12][14]=   0.776449;PhiROImin[1][12][14]=	2.47293;PhiROImax[1][12][14]=	 2.58036;
+     EtaROImin[1][12][15]=   0.655857;EtaROImax[1][12][15]=   0.728056;PhiROImin[1][12][15]=	2.47293;PhiROImax[1][12][15]=	 2.58036;
+     EtaROImin[1][12][16]=   0.853359;EtaROImax[1][12][16]=   0.895163;PhiROImin[1][12][16]=	2.35916;PhiROImax[1][12][16]=	 2.46941;
+     EtaROImin[1][12][17]=   0.783867;EtaROImax[1][12][17]=   0.850528;PhiROImin[1][12][17]=	2.35916;PhiROImax[1][12][17]=	 2.46941;
+     EtaROImin[1][12][18]=   0.853359;EtaROImax[1][12][18]=   0.895163;PhiROImin[1][12][18]=	2.47293;PhiROImax[1][12][18]=	 2.58036;
+     EtaROImin[1][12][19]=   0.783867;EtaROImax[1][12][19]=   0.850528;PhiROImin[1][12][19]=	2.47293;PhiROImax[1][12][19]=	 2.58036;
+     EtaROImin[1][12][20]=   0.964674;EtaROImax[1][12][20]=    1.02514;PhiROImin[1][12][20]=	2.35915;PhiROImax[1][12][20]=	 2.46881;
+     EtaROImin[1][12][21]=   0.898201;EtaROImax[1][12][21]=   0.961344;PhiROImin[1][12][21]=	2.35915;PhiROImax[1][12][21]=	 2.46881;
+     EtaROImin[1][12][22]=   0.964674;EtaROImax[1][12][22]=    1.02514;PhiROImin[1][12][22]=	2.47231;PhiROImax[1][12][22]=	 2.57921;
+     EtaROImin[1][12][23]=   0.898201;EtaROImax[1][12][23]=   0.961344;PhiROImin[1][12][23]=	2.47231;PhiROImax[1][12][23]=	 2.57921;
+     EtaROImin[1][12][24]=	    0;EtaROImax[1][12][24]=	     0;PhiROImin[1][12][24]=	      0;PhiROImax[1][12][24]=	       0;
+     EtaROImin[1][12][25]=    1.03003;EtaROImax[1][12][25]=    1.06547;PhiROImin[1][12][25]=	2.35926;PhiROImax[1][12][25]=	 2.46962;
+     EtaROImin[1][12][26]=	    0;EtaROImax[1][12][26]=	     0;PhiROImin[1][12][26]=	      0;PhiROImax[1][12][26]=	       0;
+     EtaROImin[1][12][27]=    1.03003;EtaROImax[1][12][27]=    1.06547;PhiROImin[1][12][27]=	2.47315;PhiROImax[1][12][27]=	 2.55334;
+     EtaROImin[1][12][28]=	    0;EtaROImax[1][12][28]=	     0;PhiROImin[1][12][28]=	      0;PhiROImax[1][12][28]=	       0;
+     EtaROImin[1][12][29]=	    0;EtaROImax[1][12][29]=	     0;PhiROImin[1][12][29]=	      0;PhiROImax[1][12][29]=	       0;
+     EtaROImin[1][12][30]=	    0;EtaROImax[1][12][30]=	     0;PhiROImin[1][12][30]=	      0;PhiROImax[1][12][30]=	       0;
+     EtaROImin[1][12][31]=	    0;EtaROImax[1][12][31]=	     0;PhiROImin[1][12][31]=	      0;PhiROImax[1][12][31]=	       0;
+     EtaROImin[1][13][ 0]=  0.0208251;EtaROImax[1][13][ 0]=   0.118734;PhiROImin[1][13][ 0]=	2.66215;PhiROImax[1][13][ 0]=	  2.7461;
+     EtaROImin[1][13][ 1]=   0.116816;EtaROImax[1][13][ 1]=   0.213185;PhiROImin[1][13][ 1]=	2.66215;PhiROImax[1][13][ 1]=	  2.7461;
+     EtaROImin[1][13][ 2]=  0.0208251;EtaROImax[1][13][ 2]=   0.118734;PhiROImin[1][13][ 2]=	2.57584;PhiROImax[1][13][ 2]=	 2.65852;
+     EtaROImin[1][13][ 3]=   0.116816;EtaROImax[1][13][ 3]=   0.213185;PhiROImin[1][13][ 3]=	2.57584;PhiROImax[1][13][ 3]=	 2.65852;
+     EtaROImin[1][13][ 4]=   0.222449;EtaROImax[1][13][ 4]=   0.302928;PhiROImin[1][13][ 4]=	2.66215;PhiROImax[1][13][ 4]=	  2.7461;
+     EtaROImin[1][13][ 5]=    0.30075;EtaROImax[1][13][ 5]=   0.416721;PhiROImin[1][13][ 5]=	2.66215;PhiROImax[1][13][ 5]=	  2.7461;
+     EtaROImin[1][13][ 6]=   0.222449;EtaROImax[1][13][ 6]=   0.302928;PhiROImin[1][13][ 6]=	2.57584;PhiROImax[1][13][ 6]=	 2.65852;
+     EtaROImin[1][13][ 7]=    0.30075;EtaROImax[1][13][ 7]=   0.416721;PhiROImin[1][13][ 7]=	2.57584;PhiROImax[1][13][ 7]=	 2.65852;
+     EtaROImin[1][13][ 8]=    0.42967;EtaROImax[1][13][ 8]=   0.504617;PhiROImin[1][13][ 8]=	2.66215;PhiROImax[1][13][ 8]=	  2.7461;
+     EtaROImin[1][13][ 9]=   0.501681;EtaROImax[1][13][ 9]=   0.573871;PhiROImin[1][13][ 9]=	2.66215;PhiROImax[1][13][ 9]=	  2.7461;
+     EtaROImin[1][13][10]=    0.42967;EtaROImax[1][13][10]=   0.504617;PhiROImin[1][13][10]=	2.57584;PhiROImax[1][13][10]=	 2.65852;
+     EtaROImin[1][13][11]=   0.501681;EtaROImax[1][13][11]=   0.573871;PhiROImin[1][13][11]=	2.57584;PhiROImax[1][13][11]=	 2.65852;
+     EtaROImin[1][13][12]=   0.583785;EtaROImax[1][13][12]=   0.653329;PhiROImin[1][13][12]=	2.66215;PhiROImax[1][13][12]=	  2.7461;
+     EtaROImin[1][13][13]=   0.649934;EtaROImax[1][13][13]=   0.741516;PhiROImin[1][13][13]=	2.66215;PhiROImax[1][13][13]=	  2.7461;
+     EtaROImin[1][13][14]=   0.583785;EtaROImax[1][13][14]=   0.653329;PhiROImin[1][13][14]=	2.57584;PhiROImax[1][13][14]=	 2.65852;
+     EtaROImin[1][13][15]=   0.649934;EtaROImax[1][13][15]=   0.741516;PhiROImin[1][13][15]=	2.57584;PhiROImax[1][13][15]=	 2.65852;
+     EtaROImin[1][13][16]=   0.756521;EtaROImax[1][13][16]=   0.837822;PhiROImin[1][13][16]=	2.66215;PhiROImax[1][13][16]=	  2.7461;
+     EtaROImin[1][13][17]=	    0;EtaROImax[1][13][17]=	     0;PhiROImin[1][13][17]=	      0;PhiROImax[1][13][17]=	       0;
+     EtaROImin[1][13][18]=   0.756521;EtaROImax[1][13][18]=   0.837822;PhiROImin[1][13][18]=	2.57584;PhiROImax[1][13][18]=	 2.65852;
+     EtaROImin[1][13][19]=	    0;EtaROImax[1][13][19]=	     0;PhiROImin[1][13][19]=	      0;PhiROImax[1][13][19]=	       0;
+     EtaROImin[1][13][20]=   0.844116;EtaROImax[1][13][20]=   0.903324;PhiROImin[1][13][20]=	2.66215;PhiROImax[1][13][20]=	  2.7461;
+     EtaROImin[1][13][21]=   0.899344;EtaROImax[1][13][21]=   0.956037;PhiROImin[1][13][21]=	2.66215;PhiROImax[1][13][21]=	  2.7461;
+     EtaROImin[1][13][22]=   0.844116;EtaROImax[1][13][22]=   0.903324;PhiROImin[1][13][22]=	2.57584;PhiROImax[1][13][22]=	 2.65852;
+     EtaROImin[1][13][23]=   0.899344;EtaROImax[1][13][23]=   0.956037;PhiROImin[1][13][23]=	2.57584;PhiROImax[1][13][23]=	 2.65852;
+     EtaROImin[1][13][24]=	    0;EtaROImax[1][13][24]=	     0;PhiROImin[1][13][24]=	      0;PhiROImax[1][13][24]=	       0;
+     EtaROImin[1][13][25]=	    0;EtaROImax[1][13][25]=	     0;PhiROImin[1][13][25]=	      0;PhiROImax[1][13][25]=	       0;
+     EtaROImin[1][13][26]=	    0;EtaROImax[1][13][26]=	     0;PhiROImin[1][13][26]=	      0;PhiROImax[1][13][26]=	       0;
+     EtaROImin[1][13][27]=	    0;EtaROImax[1][13][27]=	     0;PhiROImin[1][13][27]=	      0;PhiROImax[1][13][27]=	       0;
+     EtaROImin[1][13][28]=	    0;EtaROImax[1][13][28]=	     0;PhiROImin[1][13][28]=	      0;PhiROImax[1][13][28]=	       0;
+     EtaROImin[1][13][29]=	    0;EtaROImax[1][13][29]=	     0;PhiROImin[1][13][29]=	      0;PhiROImax[1][13][29]=	       0;
+     EtaROImin[1][13][30]=	    0;EtaROImax[1][13][30]=	     0;PhiROImin[1][13][30]=	      0;PhiROImax[1][13][30]=	       0;
+     EtaROImin[1][13][31]=	    0;EtaROImax[1][13][31]=	     0;PhiROImin[1][13][31]=	      0;PhiROImax[1][13][31]=	       0;
+     EtaROImin[1][14][ 0]=   0.116816;EtaROImax[1][14][ 0]=   0.213185;PhiROImin[1][14][ 0]=	2.75168;PhiROImax[1][14][ 0]=	 2.83564;
+     EtaROImin[1][14][ 1]=  0.0208251;EtaROImax[1][14][ 1]=   0.118734;PhiROImin[1][14][ 1]=	2.75168;PhiROImax[1][14][ 1]=	 2.83564;
+     EtaROImin[1][14][ 2]=   0.116816;EtaROImax[1][14][ 2]=   0.213185;PhiROImin[1][14][ 2]=	2.83927;PhiROImax[1][14][ 2]=	 2.92194;
+     EtaROImin[1][14][ 3]=  0.0208251;EtaROImax[1][14][ 3]=   0.118734;PhiROImin[1][14][ 3]=	2.83927;PhiROImax[1][14][ 3]=	 2.92194;
+     EtaROImin[1][14][ 4]=    0.30075;EtaROImax[1][14][ 4]=   0.416721;PhiROImin[1][14][ 4]=	2.75168;PhiROImax[1][14][ 4]=	 2.83564;
+     EtaROImin[1][14][ 5]=   0.222449;EtaROImax[1][14][ 5]=   0.302928;PhiROImin[1][14][ 5]=	2.75168;PhiROImax[1][14][ 5]=	 2.83564;
+     EtaROImin[1][14][ 6]=    0.30075;EtaROImax[1][14][ 6]=   0.416721;PhiROImin[1][14][ 6]=	2.83927;PhiROImax[1][14][ 6]=	 2.92194;
+     EtaROImin[1][14][ 7]=   0.222449;EtaROImax[1][14][ 7]=   0.302928;PhiROImin[1][14][ 7]=	2.83927;PhiROImax[1][14][ 7]=	 2.92194;
+     EtaROImin[1][14][ 8]=   0.501681;EtaROImax[1][14][ 8]=   0.573871;PhiROImin[1][14][ 8]=	2.75168;PhiROImax[1][14][ 8]=	 2.83564;
+     EtaROImin[1][14][ 9]=    0.42967;EtaROImax[1][14][ 9]=   0.504617;PhiROImin[1][14][ 9]=	2.75168;PhiROImax[1][14][ 9]=	 2.83564;
+     EtaROImin[1][14][10]=   0.501681;EtaROImax[1][14][10]=   0.573871;PhiROImin[1][14][10]=	2.83927;PhiROImax[1][14][10]=	 2.92194;
+     EtaROImin[1][14][11]=    0.42967;EtaROImax[1][14][11]=   0.504617;PhiROImin[1][14][11]=	2.83927;PhiROImax[1][14][11]=	 2.92194;
+     EtaROImin[1][14][12]=   0.649934;EtaROImax[1][14][12]=   0.741516;PhiROImin[1][14][12]=	2.75168;PhiROImax[1][14][12]=	 2.83564;
+     EtaROImin[1][14][13]=   0.583785;EtaROImax[1][14][13]=   0.653329;PhiROImin[1][14][13]=	2.75168;PhiROImax[1][14][13]=	 2.83564;
+     EtaROImin[1][14][14]=   0.649934;EtaROImax[1][14][14]=   0.741516;PhiROImin[1][14][14]=	2.83927;PhiROImax[1][14][14]=	 2.92194;
+     EtaROImin[1][14][15]=   0.583785;EtaROImax[1][14][15]=   0.653329;PhiROImin[1][14][15]=	2.83927;PhiROImax[1][14][15]=	 2.92194;
+     EtaROImin[1][14][16]=	    0;EtaROImax[1][14][16]=	     0;PhiROImin[1][14][16]=	      0;PhiROImax[1][14][16]=	       0;
+     EtaROImin[1][14][17]=   0.756521;EtaROImax[1][14][17]=   0.837822;PhiROImin[1][14][17]=	2.75168;PhiROImax[1][14][17]=	 2.83564;
+     EtaROImin[1][14][18]=	    0;EtaROImax[1][14][18]=	     0;PhiROImin[1][14][18]=	      0;PhiROImax[1][14][18]=	       0;
+     EtaROImin[1][14][19]=   0.756521;EtaROImax[1][14][19]=   0.837822;PhiROImin[1][14][19]=	2.83927;PhiROImax[1][14][19]=	 2.92194;
+     EtaROImin[1][14][20]=   0.899344;EtaROImax[1][14][20]=   0.956037;PhiROImin[1][14][20]=	2.75168;PhiROImax[1][14][20]=	 2.83564;
+     EtaROImin[1][14][21]=   0.844116;EtaROImax[1][14][21]=   0.903324;PhiROImin[1][14][21]=	2.75168;PhiROImax[1][14][21]=	 2.83564;
+     EtaROImin[1][14][22]=   0.899344;EtaROImax[1][14][22]=   0.956037;PhiROImin[1][14][22]=	2.83927;PhiROImax[1][14][22]=	 2.92194;
+     EtaROImin[1][14][23]=   0.844116;EtaROImax[1][14][23]=   0.903324;PhiROImin[1][14][23]=	2.83927;PhiROImax[1][14][23]=	 2.92194;
+     EtaROImin[1][14][24]=	    0;EtaROImax[1][14][24]=	     0;PhiROImin[1][14][24]=	      0;PhiROImax[1][14][24]=	       0;
+     EtaROImin[1][14][25]=	    0;EtaROImax[1][14][25]=	     0;PhiROImin[1][14][25]=	      0;PhiROImax[1][14][25]=	       0;
+     EtaROImin[1][14][26]=	    0;EtaROImax[1][14][26]=	     0;PhiROImin[1][14][26]=	      0;PhiROImax[1][14][26]=	       0;
+     EtaROImin[1][14][27]=	    0;EtaROImax[1][14][27]=	     0;PhiROImin[1][14][27]=	      0;PhiROImax[1][14][27]=	       0;
+     EtaROImin[1][14][28]=	    0;EtaROImax[1][14][28]=	     0;PhiROImin[1][14][28]=	      0;PhiROImax[1][14][28]=	       0;
+     EtaROImin[1][14][29]=	    0;EtaROImax[1][14][29]=	     0;PhiROImin[1][14][29]=	      0;PhiROImax[1][14][29]=	       0;
+     EtaROImin[1][14][30]=	    0;EtaROImax[1][14][30]=	     0;PhiROImin[1][14][30]=	      0;PhiROImax[1][14][30]=	       0;
+     EtaROImin[1][14][31]=	    0;EtaROImax[1][14][31]=	     0;PhiROImin[1][14][31]=	      0;PhiROImax[1][14][31]=	       0;
+     EtaROImin[1][15][ 0]=   0.130922;EtaROImax[1][15][ 0]=   0.238612;PhiROImin[1][15][ 0]=	3.02838;PhiROImax[1][15][ 0]=	 3.13862;
+     EtaROImin[1][15][ 1]=	    0;EtaROImax[1][15][ 1]=	     0;PhiROImin[1][15][ 1]=	      0;PhiROImax[1][15][ 1]=	       0;
+     EtaROImin[1][15][ 2]=   0.130922;EtaROImax[1][15][ 2]=   0.238612;PhiROImin[1][15][ 2]=	2.91742;PhiROImax[1][15][ 2]=	 3.02486;
+     EtaROImin[1][15][ 3]=	    0;EtaROImax[1][15][ 3]=	     0;PhiROImin[1][15][ 3]=	      0;PhiROImax[1][15][ 3]=	       0;
+     EtaROImin[1][15][ 4]=   0.246207;EtaROImax[1][15][ 4]=    0.35049;PhiROImin[1][15][ 4]=	3.02898;PhiROImax[1][15][ 4]=	 3.13864;
+     EtaROImin[1][15][ 5]=   0.350831;EtaROImax[1][15][ 5]=   0.452099;PhiROImin[1][15][ 5]=	3.02898;PhiROImax[1][15][ 5]=	 3.13864;
+     EtaROImin[1][15][ 6]=   0.246207;EtaROImax[1][15][ 6]=    0.35049;PhiROImin[1][15][ 6]=	2.91858;PhiROImax[1][15][ 6]=	 3.02547;
+     EtaROImin[1][15][ 7]=   0.350831;EtaROImax[1][15][ 7]=   0.452099;PhiROImin[1][15][ 7]=	2.91858;PhiROImax[1][15][ 7]=	 3.02547;
+     EtaROImin[1][15][ 8]=   0.458091;EtaROImax[1][15][ 8]=   0.554444;PhiROImin[1][15][ 8]=	3.02898;PhiROImax[1][15][ 8]=	 3.13864;
+     EtaROImin[1][15][ 9]=   0.555789;EtaROImax[1][15][ 9]=   0.648101;PhiROImin[1][15][ 9]=	3.02898;PhiROImax[1][15][ 9]=	 3.13864;
+     EtaROImin[1][15][10]=   0.458091;EtaROImax[1][15][10]=   0.554444;PhiROImin[1][15][10]=	2.91858;PhiROImax[1][15][10]=	 3.02547;
+     EtaROImin[1][15][11]=   0.555789;EtaROImax[1][15][11]=   0.648101;PhiROImin[1][15][11]=	2.91858;PhiROImax[1][15][11]=	 3.02547;
+     EtaROImin[1][15][12]=   0.655857;EtaROImax[1][15][12]=   0.703298;PhiROImin[1][15][12]=	3.02838;PhiROImax[1][15][12]=	 3.13862;
+     EtaROImin[1][15][13]=   0.706413;EtaROImax[1][15][13]=   0.776449;PhiROImin[1][15][13]=	3.02838;PhiROImax[1][15][13]=	 3.13862;
+     EtaROImin[1][15][14]=   0.655857;EtaROImax[1][15][14]=   0.703298;PhiROImin[1][15][14]=	2.91742;PhiROImax[1][15][14]=	 3.02486;
+     EtaROImin[1][15][15]=   0.706413;EtaROImax[1][15][15]=   0.776449;PhiROImin[1][15][15]=	2.91742;PhiROImax[1][15][15]=	 3.02486;
+     EtaROImin[1][15][16]=   0.783867;EtaROImax[1][15][16]=    0.82768;PhiROImin[1][15][16]=	3.02838;PhiROImax[1][15][16]=	 3.13862;
+     EtaROImin[1][15][17]=   0.830556;EtaROImax[1][15][17]=   0.895163;PhiROImin[1][15][17]=	3.02838;PhiROImax[1][15][17]=	 3.13862;
+     EtaROImin[1][15][18]=   0.783867;EtaROImax[1][15][18]=    0.82768;PhiROImin[1][15][18]=	2.91742;PhiROImax[1][15][18]=	 3.02486;
+     EtaROImin[1][15][19]=   0.830556;EtaROImax[1][15][19]=   0.895163;PhiROImin[1][15][19]=	2.91742;PhiROImax[1][15][19]=	 3.02486;
+     EtaROImin[1][15][20]=   0.898201;EtaROImax[1][15][20]=   0.961344;PhiROImin[1][15][20]=	3.02898;PhiROImax[1][15][20]=	 3.13864;
+     EtaROImin[1][15][21]=   0.964674;EtaROImax[1][15][21]=    1.02514;PhiROImin[1][15][21]=	3.02898;PhiROImax[1][15][21]=	 3.13864;
+     EtaROImin[1][15][22]=   0.898201;EtaROImax[1][15][22]=   0.961344;PhiROImin[1][15][22]=	2.91858;PhiROImax[1][15][22]=	 3.02547;
+     EtaROImin[1][15][23]=   0.964674;EtaROImax[1][15][23]=    1.02514;PhiROImin[1][15][23]=	2.91858;PhiROImax[1][15][23]=	 3.02547;
+     EtaROImin[1][15][24]=    1.03003;EtaROImax[1][15][24]=    1.06547;PhiROImin[1][15][24]=	3.02816;PhiROImax[1][15][24]=	 3.13852;
+     EtaROImin[1][15][25]=	    0;EtaROImax[1][15][25]=	     0;PhiROImin[1][15][25]=	      0;PhiROImax[1][15][25]=	       0;
+     EtaROImin[1][15][26]=    1.03003;EtaROImax[1][15][26]=    1.06547;PhiROImin[1][15][26]=	2.94445;PhiROImax[1][15][26]=	 3.02463;
+     EtaROImin[1][15][27]=	    0;EtaROImax[1][15][27]=	     0;PhiROImin[1][15][27]=	      0;PhiROImax[1][15][27]=	       0;
+     EtaROImin[1][15][28]=	    0;EtaROImax[1][15][28]=	     0;PhiROImin[1][15][28]=	      0;PhiROImax[1][15][28]=	       0;
+     EtaROImin[1][15][29]=	    0;EtaROImax[1][15][29]=	     0;PhiROImin[1][15][29]=	      0;PhiROImax[1][15][29]=	       0;
+     EtaROImin[1][15][30]=	    0;EtaROImax[1][15][30]=	     0;PhiROImin[1][15][30]=	      0;PhiROImax[1][15][30]=	       0;
+     EtaROImin[1][15][31]=	    0;EtaROImax[1][15][31]=	     0;PhiROImin[1][15][31]=	      0;PhiROImax[1][15][31]=	       0;
+     EtaROImin[1][16][ 0]=	    0;EtaROImax[1][16][ 0]=	     0;PhiROImin[1][16][ 0]=	      0;PhiROImax[1][16][ 0]=	       0;
+     EtaROImin[1][16][ 1]=   0.130922;EtaROImax[1][16][ 1]=   0.238612;PhiROImin[1][16][ 1]=   -3.13862;PhiROImax[1][16][ 1]=	-3.02838;
+     EtaROImin[1][16][ 2]=	    0;EtaROImax[1][16][ 2]=	     0;PhiROImin[1][16][ 2]=	      0;PhiROImax[1][16][ 2]=	       0;
+     EtaROImin[1][16][ 3]=   0.130922;EtaROImax[1][16][ 3]=   0.238612;PhiROImin[1][16][ 3]=   -3.02486;PhiROImax[1][16][ 3]=	-2.91742;
+     EtaROImin[1][16][ 4]=   0.350831;EtaROImax[1][16][ 4]=   0.452099;PhiROImin[1][16][ 4]=   -3.13864;PhiROImax[1][16][ 4]=	-3.02898;
+     EtaROImin[1][16][ 5]=   0.246207;EtaROImax[1][16][ 5]=    0.35049;PhiROImin[1][16][ 5]=   -3.13864;PhiROImax[1][16][ 5]=	-3.02898;
+     EtaROImin[1][16][ 6]=   0.350831;EtaROImax[1][16][ 6]=   0.452099;PhiROImin[1][16][ 6]=   -3.02547;PhiROImax[1][16][ 6]=	-2.91858;
+     EtaROImin[1][16][ 7]=   0.246207;EtaROImax[1][16][ 7]=    0.35049;PhiROImin[1][16][ 7]=   -3.02547;PhiROImax[1][16][ 7]=	-2.91858;
+     EtaROImin[1][16][ 8]=   0.555789;EtaROImax[1][16][ 8]=   0.648101;PhiROImin[1][16][ 8]=   -3.13864;PhiROImax[1][16][ 8]=	-3.02898;
+     EtaROImin[1][16][ 9]=   0.458091;EtaROImax[1][16][ 9]=   0.554444;PhiROImin[1][16][ 9]=   -3.13864;PhiROImax[1][16][ 9]=	-3.02898;
+     EtaROImin[1][16][10]=   0.555789;EtaROImax[1][16][10]=   0.648101;PhiROImin[1][16][10]=   -3.02547;PhiROImax[1][16][10]=	-2.91858;
+     EtaROImin[1][16][11]=   0.458091;EtaROImax[1][16][11]=   0.554444;PhiROImin[1][16][11]=   -3.02547;PhiROImax[1][16][11]=	-2.91858;
+     EtaROImin[1][16][12]=   0.731124;EtaROImax[1][16][12]=   0.776449;PhiROImin[1][16][12]=   -3.13862;PhiROImax[1][16][12]=	-3.02838;
+     EtaROImin[1][16][13]=   0.655857;EtaROImax[1][16][13]=   0.728056;PhiROImin[1][16][13]=   -3.13862;PhiROImax[1][16][13]=	-3.02838;
+     EtaROImin[1][16][14]=   0.731124;EtaROImax[1][16][14]=   0.776449;PhiROImin[1][16][14]=   -3.02486;PhiROImax[1][16][14]=	-2.91742;
+     EtaROImin[1][16][15]=   0.655857;EtaROImax[1][16][15]=   0.728056;PhiROImin[1][16][15]=   -3.02486;PhiROImax[1][16][15]=	-2.91742;
+     EtaROImin[1][16][16]=   0.853359;EtaROImax[1][16][16]=   0.895163;PhiROImin[1][16][16]=   -3.13862;PhiROImax[1][16][16]=	-3.02838;
+     EtaROImin[1][16][17]=   0.783867;EtaROImax[1][16][17]=   0.850528;PhiROImin[1][16][17]=   -3.13862;PhiROImax[1][16][17]=	-3.02838;
+     EtaROImin[1][16][18]=   0.853359;EtaROImax[1][16][18]=   0.895163;PhiROImin[1][16][18]=   -3.02486;PhiROImax[1][16][18]=	-2.91742;
+     EtaROImin[1][16][19]=   0.783867;EtaROImax[1][16][19]=   0.850528;PhiROImin[1][16][19]=   -3.02486;PhiROImax[1][16][19]=	-2.91742;
+     EtaROImin[1][16][20]=   0.964674;EtaROImax[1][16][20]=    1.02514;PhiROImin[1][16][20]=   -3.13864;PhiROImax[1][16][20]=	-3.02898;
+     EtaROImin[1][16][21]=   0.898201;EtaROImax[1][16][21]=   0.961344;PhiROImin[1][16][21]=   -3.13864;PhiROImax[1][16][21]=	-3.02898;
+     EtaROImin[1][16][22]=   0.964674;EtaROImax[1][16][22]=    1.02514;PhiROImin[1][16][22]=   -3.02547;PhiROImax[1][16][22]=	-2.91858;
+     EtaROImin[1][16][23]=   0.898201;EtaROImax[1][16][23]=   0.961344;PhiROImin[1][16][23]=   -3.02547;PhiROImax[1][16][23]=	-2.91858;
+     EtaROImin[1][16][24]=	    0;EtaROImax[1][16][24]=	     0;PhiROImin[1][16][24]=	      0;PhiROImax[1][16][24]=	       0;
+     EtaROImin[1][16][25]=    1.03003;EtaROImax[1][16][25]=    1.06547;PhiROImin[1][16][25]=   -3.13852;PhiROImax[1][16][25]=	-3.02816;
+     EtaROImin[1][16][26]=	    0;EtaROImax[1][16][26]=	     0;PhiROImin[1][16][26]=	      0;PhiROImax[1][16][26]=	       0;
+     EtaROImin[1][16][27]=    1.03003;EtaROImax[1][16][27]=    1.06547;PhiROImin[1][16][27]=   -3.02463;PhiROImax[1][16][27]=	-2.94445;
+     EtaROImin[1][16][28]=	    0;EtaROImax[1][16][28]=	     0;PhiROImin[1][16][28]=	      0;PhiROImax[1][16][28]=	       0;
+     EtaROImin[1][16][29]=	    0;EtaROImax[1][16][29]=	     0;PhiROImin[1][16][29]=	      0;PhiROImax[1][16][29]=	       0;
+     EtaROImin[1][16][30]=	    0;EtaROImax[1][16][30]=	     0;PhiROImin[1][16][30]=	      0;PhiROImax[1][16][30]=	       0;
+     EtaROImin[1][16][31]=	    0;EtaROImax[1][16][31]=	     0;PhiROImin[1][16][31]=	      0;PhiROImax[1][16][31]=	       0;
+     EtaROImin[1][17][ 0]=  0.0208251;EtaROImax[1][17][ 0]=   0.118734;PhiROImin[1][17][ 0]=   -2.83564;PhiROImax[1][17][ 0]=	-2.75168;
+     EtaROImin[1][17][ 1]=   0.116816;EtaROImax[1][17][ 1]=   0.213185;PhiROImin[1][17][ 1]=   -2.83564;PhiROImax[1][17][ 1]=	-2.75168;
+     EtaROImin[1][17][ 2]=  0.0208251;EtaROImax[1][17][ 2]=   0.118734;PhiROImin[1][17][ 2]=   -2.92194;PhiROImax[1][17][ 2]=	-2.83927;
+     EtaROImin[1][17][ 3]=   0.116816;EtaROImax[1][17][ 3]=   0.213185;PhiROImin[1][17][ 3]=   -2.92194;PhiROImax[1][17][ 3]=	-2.83927;
+     EtaROImin[1][17][ 4]=   0.222449;EtaROImax[1][17][ 4]=   0.302928;PhiROImin[1][17][ 4]=   -2.83564;PhiROImax[1][17][ 4]=	-2.75168;
+     EtaROImin[1][17][ 5]=    0.30075;EtaROImax[1][17][ 5]=   0.416721;PhiROImin[1][17][ 5]=   -2.83564;PhiROImax[1][17][ 5]=	-2.75168;
+     EtaROImin[1][17][ 6]=   0.222449;EtaROImax[1][17][ 6]=   0.302928;PhiROImin[1][17][ 6]=   -2.92194;PhiROImax[1][17][ 6]=	-2.83927;
+     EtaROImin[1][17][ 7]=    0.30075;EtaROImax[1][17][ 7]=   0.416721;PhiROImin[1][17][ 7]=   -2.92194;PhiROImax[1][17][ 7]=	-2.83927;
+     EtaROImin[1][17][ 8]=    0.42967;EtaROImax[1][17][ 8]=   0.504617;PhiROImin[1][17][ 8]=   -2.83564;PhiROImax[1][17][ 8]=	-2.75168;
+     EtaROImin[1][17][ 9]=   0.501681;EtaROImax[1][17][ 9]=   0.573871;PhiROImin[1][17][ 9]=   -2.83564;PhiROImax[1][17][ 9]=	-2.75168;
+     EtaROImin[1][17][10]=    0.42967;EtaROImax[1][17][10]=   0.504617;PhiROImin[1][17][10]=   -2.92194;PhiROImax[1][17][10]=	-2.83927;
+     EtaROImin[1][17][11]=   0.501681;EtaROImax[1][17][11]=   0.573871;PhiROImin[1][17][11]=   -2.92194;PhiROImax[1][17][11]=	-2.83927;
+     EtaROImin[1][17][12]=   0.583785;EtaROImax[1][17][12]=   0.653329;PhiROImin[1][17][12]=   -2.83564;PhiROImax[1][17][12]=	-2.75168;
+     EtaROImin[1][17][13]=   0.649934;EtaROImax[1][17][13]=   0.741516;PhiROImin[1][17][13]=   -2.83564;PhiROImax[1][17][13]=	-2.75168;
+     EtaROImin[1][17][14]=   0.583785;EtaROImax[1][17][14]=   0.653329;PhiROImin[1][17][14]=   -2.92194;PhiROImax[1][17][14]=	-2.83927;
+     EtaROImin[1][17][15]=   0.649934;EtaROImax[1][17][15]=   0.741516;PhiROImin[1][17][15]=   -2.92194;PhiROImax[1][17][15]=	-2.83927;
+     EtaROImin[1][17][16]=   0.756521;EtaROImax[1][17][16]=   0.837822;PhiROImin[1][17][16]=   -2.83564;PhiROImax[1][17][16]=	-2.75168;
+     EtaROImin[1][17][17]=	    0;EtaROImax[1][17][17]=	     0;PhiROImin[1][17][17]=	      0;PhiROImax[1][17][17]=	       0;
+     EtaROImin[1][17][18]=   0.756521;EtaROImax[1][17][18]=   0.837822;PhiROImin[1][17][18]=   -2.92194;PhiROImax[1][17][18]=	-2.83927;
+     EtaROImin[1][17][19]=	    0;EtaROImax[1][17][19]=	     0;PhiROImin[1][17][19]=	      0;PhiROImax[1][17][19]=	       0;
+     EtaROImin[1][17][20]=   0.844116;EtaROImax[1][17][20]=   0.903324;PhiROImin[1][17][20]=   -2.83564;PhiROImax[1][17][20]=	-2.75168;
+     EtaROImin[1][17][21]=   0.899344;EtaROImax[1][17][21]=   0.956037;PhiROImin[1][17][21]=   -2.83564;PhiROImax[1][17][21]=	-2.75168;
+     EtaROImin[1][17][22]=   0.844116;EtaROImax[1][17][22]=   0.903324;PhiROImin[1][17][22]=   -2.92194;PhiROImax[1][17][22]=	-2.83927;
+     EtaROImin[1][17][23]=   0.899344;EtaROImax[1][17][23]=   0.956037;PhiROImin[1][17][23]=   -2.92194;PhiROImax[1][17][23]=	-2.83927;
+     EtaROImin[1][17][24]=	    0;EtaROImax[1][17][24]=	     0;PhiROImin[1][17][24]=	      0;PhiROImax[1][17][24]=	       0;
+     EtaROImin[1][17][25]=	    0;EtaROImax[1][17][25]=	     0;PhiROImin[1][17][25]=	      0;PhiROImax[1][17][25]=	       0;
+     EtaROImin[1][17][26]=	    0;EtaROImax[1][17][26]=	     0;PhiROImin[1][17][26]=	      0;PhiROImax[1][17][26]=	       0;
+     EtaROImin[1][17][27]=	    0;EtaROImax[1][17][27]=	     0;PhiROImin[1][17][27]=	      0;PhiROImax[1][17][27]=	       0;
+     EtaROImin[1][17][28]=	    0;EtaROImax[1][17][28]=	     0;PhiROImin[1][17][28]=	      0;PhiROImax[1][17][28]=	       0;
+     EtaROImin[1][17][29]=	    0;EtaROImax[1][17][29]=	     0;PhiROImin[1][17][29]=	      0;PhiROImax[1][17][29]=	       0;
+     EtaROImin[1][17][30]=	    0;EtaROImax[1][17][30]=	     0;PhiROImin[1][17][30]=	      0;PhiROImax[1][17][30]=	       0;
+     EtaROImin[1][17][31]=	    0;EtaROImax[1][17][31]=	     0;PhiROImin[1][17][31]=	      0;PhiROImax[1][17][31]=	       0;
+     EtaROImin[1][18][ 0]=   0.116816;EtaROImax[1][18][ 0]=   0.213185;PhiROImin[1][18][ 0]=	-2.7461;PhiROImax[1][18][ 0]=	-2.66215;
+     EtaROImin[1][18][ 1]=  0.0208251;EtaROImax[1][18][ 1]=   0.118734;PhiROImin[1][18][ 1]=	-2.7461;PhiROImax[1][18][ 1]=	-2.66215;
+     EtaROImin[1][18][ 2]=   0.116816;EtaROImax[1][18][ 2]=   0.213185;PhiROImin[1][18][ 2]=   -2.65852;PhiROImax[1][18][ 2]=	-2.57584;
+     EtaROImin[1][18][ 3]=  0.0208251;EtaROImax[1][18][ 3]=   0.118734;PhiROImin[1][18][ 3]=   -2.65852;PhiROImax[1][18][ 3]=	-2.57584;
+     EtaROImin[1][18][ 4]=    0.30075;EtaROImax[1][18][ 4]=   0.416721;PhiROImin[1][18][ 4]=	-2.7461;PhiROImax[1][18][ 4]=	-2.66215;
+     EtaROImin[1][18][ 5]=   0.222449;EtaROImax[1][18][ 5]=   0.302928;PhiROImin[1][18][ 5]=	-2.7461;PhiROImax[1][18][ 5]=	-2.66215;
+     EtaROImin[1][18][ 6]=    0.30075;EtaROImax[1][18][ 6]=   0.416721;PhiROImin[1][18][ 6]=   -2.65852;PhiROImax[1][18][ 6]=	-2.57584;
+     EtaROImin[1][18][ 7]=   0.222449;EtaROImax[1][18][ 7]=   0.302928;PhiROImin[1][18][ 7]=   -2.65852;PhiROImax[1][18][ 7]=	-2.57584;
+     EtaROImin[1][18][ 8]=   0.501681;EtaROImax[1][18][ 8]=   0.573871;PhiROImin[1][18][ 8]=	-2.7461;PhiROImax[1][18][ 8]=	-2.66215;
+     EtaROImin[1][18][ 9]=    0.42967;EtaROImax[1][18][ 9]=   0.504617;PhiROImin[1][18][ 9]=	-2.7461;PhiROImax[1][18][ 9]=	-2.66215;
+     EtaROImin[1][18][10]=   0.501681;EtaROImax[1][18][10]=   0.573871;PhiROImin[1][18][10]=   -2.65852;PhiROImax[1][18][10]=	-2.57584;
+     EtaROImin[1][18][11]=    0.42967;EtaROImax[1][18][11]=   0.504617;PhiROImin[1][18][11]=   -2.65852;PhiROImax[1][18][11]=	-2.57584;
+     EtaROImin[1][18][12]=   0.649934;EtaROImax[1][18][12]=   0.741516;PhiROImin[1][18][12]=	-2.7461;PhiROImax[1][18][12]=	-2.66215;
+     EtaROImin[1][18][13]=   0.583785;EtaROImax[1][18][13]=   0.653329;PhiROImin[1][18][13]=	-2.7461;PhiROImax[1][18][13]=	-2.66215;
+     EtaROImin[1][18][14]=   0.649934;EtaROImax[1][18][14]=   0.741516;PhiROImin[1][18][14]=   -2.65852;PhiROImax[1][18][14]=	-2.57584;
+     EtaROImin[1][18][15]=   0.583785;EtaROImax[1][18][15]=   0.653329;PhiROImin[1][18][15]=   -2.65852;PhiROImax[1][18][15]=	-2.57584;
+     EtaROImin[1][18][16]=	    0;EtaROImax[1][18][16]=	     0;PhiROImin[1][18][16]=	      0;PhiROImax[1][18][16]=	       0;
+     EtaROImin[1][18][17]=   0.756521;EtaROImax[1][18][17]=   0.837822;PhiROImin[1][18][17]=	-2.7461;PhiROImax[1][18][17]=	-2.66215;
+     EtaROImin[1][18][18]=	    0;EtaROImax[1][18][18]=	     0;PhiROImin[1][18][18]=	      0;PhiROImax[1][18][18]=	       0;
+     EtaROImin[1][18][19]=   0.756521;EtaROImax[1][18][19]=   0.837822;PhiROImin[1][18][19]=   -2.65852;PhiROImax[1][18][19]=	-2.57584;
+     EtaROImin[1][18][20]=   0.899344;EtaROImax[1][18][20]=   0.956037;PhiROImin[1][18][20]=	-2.7461;PhiROImax[1][18][20]=	-2.66215;
+     EtaROImin[1][18][21]=   0.844116;EtaROImax[1][18][21]=   0.903324;PhiROImin[1][18][21]=	-2.7461;PhiROImax[1][18][21]=	-2.66215;
+     EtaROImin[1][18][22]=   0.899344;EtaROImax[1][18][22]=   0.956037;PhiROImin[1][18][22]=   -2.65852;PhiROImax[1][18][22]=	-2.57584;
+     EtaROImin[1][18][23]=   0.844116;EtaROImax[1][18][23]=   0.903324;PhiROImin[1][18][23]=   -2.65852;PhiROImax[1][18][23]=	-2.57584;
+     EtaROImin[1][18][24]=	    0;EtaROImax[1][18][24]=	     0;PhiROImin[1][18][24]=	      0;PhiROImax[1][18][24]=	       0;
+     EtaROImin[1][18][25]=	    0;EtaROImax[1][18][25]=	     0;PhiROImin[1][18][25]=	      0;PhiROImax[1][18][25]=	       0;
+     EtaROImin[1][18][26]=	    0;EtaROImax[1][18][26]=	     0;PhiROImin[1][18][26]=	      0;PhiROImax[1][18][26]=	       0;
+     EtaROImin[1][18][27]=	    0;EtaROImax[1][18][27]=	     0;PhiROImin[1][18][27]=	      0;PhiROImax[1][18][27]=	       0;
+     EtaROImin[1][18][28]=	    0;EtaROImax[1][18][28]=	     0;PhiROImin[1][18][28]=	      0;PhiROImax[1][18][28]=	       0;
+     EtaROImin[1][18][29]=	    0;EtaROImax[1][18][29]=	     0;PhiROImin[1][18][29]=	      0;PhiROImax[1][18][29]=	       0;
+     EtaROImin[1][18][30]=	    0;EtaROImax[1][18][30]=	     0;PhiROImin[1][18][30]=	      0;PhiROImax[1][18][30]=	       0;
+     EtaROImin[1][18][31]=	    0;EtaROImax[1][18][31]=	     0;PhiROImin[1][18][31]=	      0;PhiROImax[1][18][31]=	       0;
+     EtaROImin[1][19][ 0]=  0.0874905;EtaROImax[1][19][ 0]=   0.145912;PhiROImin[1][19][ 0]=   -2.46941;PhiROImax[1][19][ 0]=	-2.35916;
+     EtaROImin[1][19][ 1]=   0.149792;EtaROImax[1][19][ 1]=   0.238294;PhiROImin[1][19][ 1]=   -2.46941;PhiROImax[1][19][ 1]=	-2.35916;
+     EtaROImin[1][19][ 2]=  0.0874905;EtaROImax[1][19][ 2]=   0.145912;PhiROImin[1][19][ 2]=   -2.58036;PhiROImax[1][19][ 2]=	-2.47293;
+     EtaROImin[1][19][ 3]=   0.149792;EtaROImax[1][19][ 3]=   0.238294;PhiROImin[1][19][ 3]=   -2.58036;PhiROImax[1][19][ 3]=	-2.47293;
+     EtaROImin[1][19][ 4]=   0.246207;EtaROImax[1][19][ 4]=    0.35049;PhiROImin[1][19][ 4]=   -2.46881;PhiROImax[1][19][ 4]=	-2.35915;
+     EtaROImin[1][19][ 5]=   0.350831;EtaROImax[1][19][ 5]=   0.452099;PhiROImin[1][19][ 5]=   -2.46881;PhiROImax[1][19][ 5]=	-2.35915;
+     EtaROImin[1][19][ 6]=   0.246207;EtaROImax[1][19][ 6]=    0.35049;PhiROImin[1][19][ 6]=   -2.57921;PhiROImax[1][19][ 6]=	-2.47231;
+     EtaROImin[1][19][ 7]=   0.350831;EtaROImax[1][19][ 7]=   0.452099;PhiROImin[1][19][ 7]=   -2.57921;PhiROImax[1][19][ 7]=	-2.47231;
+     EtaROImin[1][19][ 8]=   0.458091;EtaROImax[1][19][ 8]=   0.554444;PhiROImin[1][19][ 8]=   -2.46881;PhiROImax[1][19][ 8]=	-2.35915;
+     EtaROImin[1][19][ 9]=   0.555789;EtaROImax[1][19][ 9]=   0.648101;PhiROImin[1][19][ 9]=   -2.46881;PhiROImax[1][19][ 9]=	-2.35915;
+     EtaROImin[1][19][10]=   0.458091;EtaROImax[1][19][10]=   0.554444;PhiROImin[1][19][10]=   -2.57921;PhiROImax[1][19][10]=	-2.47231;
+     EtaROImin[1][19][11]=   0.555789;EtaROImax[1][19][11]=   0.648101;PhiROImin[1][19][11]=   -2.57921;PhiROImax[1][19][11]=	-2.47231;
+     EtaROImin[1][19][12]=   0.655857;EtaROImax[1][19][12]=   0.703298;PhiROImin[1][19][12]=   -2.46941;PhiROImax[1][19][12]=	-2.35916;
+     EtaROImin[1][19][13]=   0.706413;EtaROImax[1][19][13]=   0.776449;PhiROImin[1][19][13]=   -2.46941;PhiROImax[1][19][13]=	-2.35916;
+     EtaROImin[1][19][14]=   0.655857;EtaROImax[1][19][14]=   0.703298;PhiROImin[1][19][14]=   -2.58036;PhiROImax[1][19][14]=	-2.47293;
+     EtaROImin[1][19][15]=   0.706413;EtaROImax[1][19][15]=   0.776449;PhiROImin[1][19][15]=   -2.58036;PhiROImax[1][19][15]=	-2.47293;
+     EtaROImin[1][19][16]=   0.783867;EtaROImax[1][19][16]=    0.82768;PhiROImin[1][19][16]=   -2.46941;PhiROImax[1][19][16]=	-2.35916;
+     EtaROImin[1][19][17]=   0.830556;EtaROImax[1][19][17]=   0.895163;PhiROImin[1][19][17]=   -2.46941;PhiROImax[1][19][17]=	-2.35916;
+     EtaROImin[1][19][18]=   0.783867;EtaROImax[1][19][18]=    0.82768;PhiROImin[1][19][18]=   -2.58036;PhiROImax[1][19][18]=	-2.47293;
+     EtaROImin[1][19][19]=   0.830556;EtaROImax[1][19][19]=   0.895163;PhiROImin[1][19][19]=   -2.58036;PhiROImax[1][19][19]=	-2.47293;
+     EtaROImin[1][19][20]=   0.898201;EtaROImax[1][19][20]=   0.961344;PhiROImin[1][19][20]=   -2.46881;PhiROImax[1][19][20]=	-2.35915;
+     EtaROImin[1][19][21]=   0.964674;EtaROImax[1][19][21]=    1.02514;PhiROImin[1][19][21]=   -2.46881;PhiROImax[1][19][21]=	-2.35915;
+     EtaROImin[1][19][22]=   0.898201;EtaROImax[1][19][22]=   0.961344;PhiROImin[1][19][22]=   -2.57921;PhiROImax[1][19][22]=	-2.47231;
+     EtaROImin[1][19][23]=   0.964674;EtaROImax[1][19][23]=    1.02514;PhiROImin[1][19][23]=   -2.57921;PhiROImax[1][19][23]=	-2.47231;
+     EtaROImin[1][19][24]=    1.03003;EtaROImax[1][19][24]=    1.06547;PhiROImin[1][19][24]=   -2.46962;PhiROImax[1][19][24]=	-2.35926;
+     EtaROImin[1][19][25]=	    0;EtaROImax[1][19][25]=	     0;PhiROImin[1][19][25]=	      0;PhiROImax[1][19][25]=	       0;
+     EtaROImin[1][19][26]=    1.03003;EtaROImax[1][19][26]=    1.06547;PhiROImin[1][19][26]=   -2.55334;PhiROImax[1][19][26]=	-2.47315;
+     EtaROImin[1][19][27]=	    0;EtaROImax[1][19][27]=	     0;PhiROImin[1][19][27]=	      0;PhiROImax[1][19][27]=	       0;
+     EtaROImin[1][19][28]=	    0;EtaROImax[1][19][28]=	     0;PhiROImin[1][19][28]=	      0;PhiROImax[1][19][28]=	       0;
+     EtaROImin[1][19][29]=	    0;EtaROImax[1][19][29]=	     0;PhiROImin[1][19][29]=	      0;PhiROImax[1][19][29]=	       0;
+     EtaROImin[1][19][30]=	    0;EtaROImax[1][19][30]=	     0;PhiROImin[1][19][30]=	      0;PhiROImax[1][19][30]=	       0;
+     EtaROImin[1][19][31]=	    0;EtaROImax[1][19][31]=	     0;PhiROImin[1][19][31]=	      0;PhiROImax[1][19][31]=	       0;
+     EtaROImin[1][20][ 0]=   0.180742;EtaROImax[1][20][ 0]=   0.238294;PhiROImin[1][20][ 0]=   -2.35323;PhiROImax[1][20][ 0]=	-2.24298;
+     EtaROImin[1][20][ 1]=  0.0874905;EtaROImax[1][20][ 1]=   0.176882;PhiROImin[1][20][ 1]=   -2.35323;PhiROImax[1][20][ 1]=	-2.24298;
+     EtaROImin[1][20][ 2]=   0.180742;EtaROImax[1][20][ 2]=   0.238294;PhiROImin[1][20][ 2]=   -2.23946;PhiROImax[1][20][ 2]=	-2.13203;
+     EtaROImin[1][20][ 3]=  0.0874905;EtaROImax[1][20][ 3]=   0.176882;PhiROImin[1][20][ 3]=   -2.23946;PhiROImax[1][20][ 3]=	-2.13203;
+     EtaROImin[1][20][ 4]=   0.350831;EtaROImax[1][20][ 4]=   0.452099;PhiROImin[1][20][ 4]=   -2.35324;PhiROImax[1][20][ 4]=	-2.24358;
+     EtaROImin[1][20][ 5]=   0.246207;EtaROImax[1][20][ 5]=    0.35049;PhiROImin[1][20][ 5]=   -2.35324;PhiROImax[1][20][ 5]=	-2.24358;
+     EtaROImin[1][20][ 6]=   0.350831;EtaROImax[1][20][ 6]=   0.452099;PhiROImin[1][20][ 6]=   -2.24008;PhiROImax[1][20][ 6]=	-2.13318;
+     EtaROImin[1][20][ 7]=   0.246207;EtaROImax[1][20][ 7]=    0.35049;PhiROImin[1][20][ 7]=   -2.24008;PhiROImax[1][20][ 7]=	-2.13318;
+     EtaROImin[1][20][ 8]=   0.555789;EtaROImax[1][20][ 8]=   0.648101;PhiROImin[1][20][ 8]=   -2.35324;PhiROImax[1][20][ 8]=	-2.24358;
+     EtaROImin[1][20][ 9]=   0.458091;EtaROImax[1][20][ 9]=   0.554444;PhiROImin[1][20][ 9]=   -2.35324;PhiROImax[1][20][ 9]=	-2.24358;
+     EtaROImin[1][20][10]=   0.555789;EtaROImax[1][20][10]=   0.648101;PhiROImin[1][20][10]=   -2.24008;PhiROImax[1][20][10]=	-2.13318;
+     EtaROImin[1][20][11]=   0.458091;EtaROImax[1][20][11]=   0.554444;PhiROImin[1][20][11]=   -2.24008;PhiROImax[1][20][11]=	-2.13318;
+     EtaROImin[1][20][12]=   0.731124;EtaROImax[1][20][12]=   0.776449;PhiROImin[1][20][12]=   -2.35323;PhiROImax[1][20][12]=	-2.24298;
+     EtaROImin[1][20][13]=   0.655857;EtaROImax[1][20][13]=   0.728056;PhiROImin[1][20][13]=   -2.35323;PhiROImax[1][20][13]=	-2.24298;
+     EtaROImin[1][20][14]=   0.731124;EtaROImax[1][20][14]=   0.776449;PhiROImin[1][20][14]=   -2.23946;PhiROImax[1][20][14]=	-2.13203;
+     EtaROImin[1][20][15]=   0.655857;EtaROImax[1][20][15]=   0.728056;PhiROImin[1][20][15]=   -2.23946;PhiROImax[1][20][15]=	-2.13203;
+     EtaROImin[1][20][16]=   0.853359;EtaROImax[1][20][16]=   0.895163;PhiROImin[1][20][16]=   -2.35323;PhiROImax[1][20][16]=	-2.24298;
+     EtaROImin[1][20][17]=   0.783867;EtaROImax[1][20][17]=   0.850528;PhiROImin[1][20][17]=   -2.35323;PhiROImax[1][20][17]=	-2.24298;
+     EtaROImin[1][20][18]=   0.853359;EtaROImax[1][20][18]=   0.895163;PhiROImin[1][20][18]=   -2.23946;PhiROImax[1][20][18]=	-2.13203;
+     EtaROImin[1][20][19]=   0.783867;EtaROImax[1][20][19]=   0.850528;PhiROImin[1][20][19]=   -2.23946;PhiROImax[1][20][19]=	-2.13203;
+     EtaROImin[1][20][20]=   0.964674;EtaROImax[1][20][20]=    1.02514;PhiROImin[1][20][20]=   -2.35324;PhiROImax[1][20][20]=	-2.24358;
+     EtaROImin[1][20][21]=   0.898201;EtaROImax[1][20][21]=   0.961344;PhiROImin[1][20][21]=   -2.35324;PhiROImax[1][20][21]=	-2.24358;
+     EtaROImin[1][20][22]=   0.964674;EtaROImax[1][20][22]=    1.02514;PhiROImin[1][20][22]=   -2.24008;PhiROImax[1][20][22]=	-2.13318;
+     EtaROImin[1][20][23]=   0.898201;EtaROImax[1][20][23]=   0.961344;PhiROImin[1][20][23]=   -2.24008;PhiROImax[1][20][23]=	-2.13318;
+     EtaROImin[1][20][24]=	    0;EtaROImax[1][20][24]=	     0;PhiROImin[1][20][24]=	      0;PhiROImax[1][20][24]=	       0;
+     EtaROImin[1][20][25]=    1.03003;EtaROImax[1][20][25]=    1.06547;PhiROImin[1][20][25]=   -2.35313;PhiROImax[1][20][25]=	-2.24277;
+     EtaROImin[1][20][26]=	    0;EtaROImax[1][20][26]=	     0;PhiROImin[1][20][26]=	      0;PhiROImax[1][20][26]=	       0;
+     EtaROImin[1][20][27]=    1.03003;EtaROImax[1][20][27]=    1.06547;PhiROImin[1][20][27]=   -2.23924;PhiROImax[1][20][27]=	-2.15905;
+     EtaROImin[1][20][28]=	    0;EtaROImax[1][20][28]=	     0;PhiROImin[1][20][28]=	      0;PhiROImax[1][20][28]=	       0;
+     EtaROImin[1][20][29]=	    0;EtaROImax[1][20][29]=	     0;PhiROImin[1][20][29]=	      0;PhiROImax[1][20][29]=	       0;
+     EtaROImin[1][20][30]=	    0;EtaROImax[1][20][30]=	     0;PhiROImin[1][20][30]=	      0;PhiROImax[1][20][30]=	       0;
+     EtaROImin[1][20][31]=	    0;EtaROImax[1][20][31]=	     0;PhiROImin[1][20][31]=	      0;PhiROImax[1][20][31]=	       0;
+     EtaROImin[1][21][ 0]=  0.0775634;EtaROImax[1][21][ 0]=   0.126072;PhiROImin[1][21][ 0]=   -2.05024;PhiROImax[1][21][ 0]=	-1.96629;
+     EtaROImin[1][21][ 1]=   0.129296;EtaROImax[1][21][ 1]=   0.203032;PhiROImin[1][21][ 1]=   -2.05024;PhiROImax[1][21][ 1]=	-1.96629;
+     EtaROImin[1][21][ 2]=  0.0775634;EtaROImax[1][21][ 2]=   0.126072;PhiROImin[1][21][ 2]=   -2.13655;PhiROImax[1][21][ 2]=	-2.05387;
+     EtaROImin[1][21][ 3]=   0.129296;EtaROImax[1][21][ 3]=   0.203032;PhiROImin[1][21][ 3]=   -2.13655;PhiROImax[1][21][ 3]=	-2.05387;
+     EtaROImin[1][21][ 4]=   0.200823;EtaROImax[1][21][ 4]=   0.248155;PhiROImin[1][21][ 4]=   -2.04983;PhiROImax[1][21][ 4]=	-1.96627;
+     EtaROImin[1][21][ 5]=   0.251292;EtaROImax[1][21][ 5]=   0.322732;PhiROImin[1][21][ 5]=   -2.04983;PhiROImax[1][21][ 5]=	-1.96627;
+     EtaROImin[1][21][ 6]=   0.200823;EtaROImax[1][21][ 6]=   0.248155;PhiROImin[1][21][ 6]=   -2.13573;PhiROImax[1][21][ 6]=	-2.05344;
+     EtaROImin[1][21][ 7]=   0.251292;EtaROImax[1][21][ 7]=   0.322732;PhiROImin[1][21][ 7]=   -2.13573;PhiROImax[1][21][ 7]=	-2.05344;
+     EtaROImin[1][21][ 8]=   0.362484;EtaROImax[1][21][ 8]=   0.441017;PhiROImin[1][21][ 8]=   -2.04536;PhiROImax[1][21][ 8]=	-1.96564;
+     EtaROImin[1][21][ 9]=   0.439011;EtaROImax[1][21][ 9]=    0.51487;PhiROImin[1][21][ 9]=   -2.04536;PhiROImax[1][21][ 9]=	-1.96564;
+     EtaROImin[1][21][10]=   0.362484;EtaROImax[1][21][10]=   0.441017;PhiROImin[1][21][10]=   -2.12657;PhiROImax[1][21][10]=	-2.04792;
+     EtaROImin[1][21][11]=   0.439011;EtaROImax[1][21][11]=    0.51487;PhiROImin[1][21][11]=   -2.12657;PhiROImax[1][21][11]=	-2.04792;
+     EtaROImin[1][21][12]=   0.470878;EtaROImax[1][21][12]=   0.569141;PhiROImin[1][21][12]=   -2.05024;PhiROImax[1][21][12]=	-1.96629;
+     EtaROImin[1][21][13]=   0.566067;EtaROImax[1][21][13]=   0.659332;PhiROImin[1][21][13]=   -2.05024;PhiROImax[1][21][13]=	-1.96629;
+     EtaROImin[1][21][14]=   0.470878;EtaROImax[1][21][14]=   0.569141;PhiROImin[1][21][14]=   -2.13655;PhiROImax[1][21][14]=	-2.05387;
+     EtaROImin[1][21][15]=   0.566067;EtaROImax[1][21][15]=   0.659332;PhiROImin[1][21][15]=   -2.13655;PhiROImax[1][21][15]=	-2.05387;
+     EtaROImin[1][21][16]=   0.622205;EtaROImax[1][21][16]=   0.674155;PhiROImin[1][21][16]=   -2.04536;PhiROImax[1][21][16]=	-1.96564;
+     EtaROImin[1][21][17]=   0.671529;EtaROImax[1][21][17]=    0.72184;PhiROImin[1][21][17]=   -2.04536;PhiROImax[1][21][17]=	-1.96564;
+     EtaROImin[1][21][18]=   0.622205;EtaROImax[1][21][18]=   0.674155;PhiROImin[1][21][18]=   -2.12657;PhiROImax[1][21][18]=	-2.04792;
+     EtaROImin[1][21][19]=   0.671529;EtaROImax[1][21][19]=    0.72184;PhiROImin[1][21][19]=   -2.12657;PhiROImax[1][21][19]=	-2.04792;
+     EtaROImin[1][21][20]=   0.744499;EtaROImax[1][21][20]=   0.831846;PhiROImin[1][21][20]=   -2.04536;PhiROImax[1][21][20]=	-1.96564;
+     EtaROImin[1][21][21]=   0.833797;EtaROImax[1][21][21]=   0.893028;PhiROImin[1][21][21]=   -2.04536;PhiROImax[1][21][21]=	-1.96564;
+     EtaROImin[1][21][22]=   0.744499;EtaROImax[1][21][22]=   0.831846;PhiROImin[1][21][22]=   -2.12657;PhiROImax[1][21][22]=	-2.04792;
+     EtaROImin[1][21][23]=   0.833797;EtaROImax[1][21][23]=   0.893028;PhiROImin[1][21][23]=   -2.12657;PhiROImax[1][21][23]=	-2.04792;
+     EtaROImin[1][21][24]=   0.788882;EtaROImax[1][21][24]=   0.850339;PhiROImin[1][21][24]=   -2.05024;PhiROImax[1][21][24]=	-1.96629;
+     EtaROImin[1][21][25]=   0.846464;EtaROImax[1][21][25]=   0.905303;PhiROImin[1][21][25]=   -2.05024;PhiROImax[1][21][25]=	-1.96629;
+     EtaROImin[1][21][26]=   0.788882;EtaROImax[1][21][26]=   0.850339;PhiROImin[1][21][26]=   -2.13655;PhiROImax[1][21][26]=	-2.05387;
+     EtaROImin[1][21][27]=   0.846464;EtaROImax[1][21][27]=   0.905303;PhiROImin[1][21][27]=   -2.13655;PhiROImax[1][21][27]=	-2.05387;
+     EtaROImin[1][21][28]=   0.911293;EtaROImax[1][21][28]=   0.938699;PhiROImin[1][21][28]=   -2.03358;PhiROImax[1][21][28]=	-1.98444;
+     EtaROImin[1][21][29]=   0.940507;EtaROImax[1][21][29]=    0.98143;PhiROImin[1][21][29]=   -2.03358;PhiROImax[1][21][29]=	-1.98444;
+     EtaROImin[1][21][30]=   0.911293;EtaROImax[1][21][30]=   0.938699;PhiROImin[1][21][30]=   -2.12127;PhiROImax[1][21][30]=	-2.03635;
+     EtaROImin[1][21][31]=   0.940507;EtaROImax[1][21][31]=    0.98143;PhiROImin[1][21][31]=   -2.12127;PhiROImax[1][21][31]=	-2.03635;
+     EtaROImin[1][22][ 0]=   0.155043;EtaROImax[1][22][ 0]=   0.203032;PhiROImin[1][22][ 0]=   -1.96071;PhiROImax[1][22][ 0]=	-1.87675;
+     EtaROImin[1][22][ 1]=  0.0775634;EtaROImax[1][22][ 1]=    0.15183;PhiROImin[1][22][ 1]=   -1.96071;PhiROImax[1][22][ 1]=	-1.87675;
+     EtaROImin[1][22][ 2]=   0.155043;EtaROImax[1][22][ 2]=   0.203032;PhiROImin[1][22][ 2]=   -1.87312;PhiROImax[1][22][ 2]=	-1.79045;
+     EtaROImin[1][22][ 3]=  0.0775634;EtaROImax[1][22][ 3]=    0.15183;PhiROImin[1][22][ 3]=   -1.87312;PhiROImax[1][22][ 3]=	-1.79045;
+     EtaROImin[1][22][ 4]=   0.276301;EtaROImax[1][22][ 4]=   0.322732;PhiROImin[1][22][ 4]=   -1.96072;PhiROImax[1][22][ 4]=	-1.87716;
+     EtaROImin[1][22][ 5]=   0.200823;EtaROImax[1][22][ 5]=   0.273184;PhiROImin[1][22][ 5]=   -1.96072;PhiROImax[1][22][ 5]=	-1.87716;
+     EtaROImin[1][22][ 6]=   0.276301;EtaROImax[1][22][ 6]=   0.322732;PhiROImin[1][22][ 6]=   -1.87355;PhiROImax[1][22][ 6]=	-1.79126;
+     EtaROImin[1][22][ 7]=   0.200823;EtaROImax[1][22][ 7]=   0.273184;PhiROImin[1][22][ 7]=   -1.87355;PhiROImax[1][22][ 7]=	-1.79126;
+     EtaROImin[1][22][ 8]=   0.439011;EtaROImax[1][22][ 8]=    0.51487;PhiROImin[1][22][ 8]=   -1.96135;PhiROImax[1][22][ 8]=	-1.88163;
+     EtaROImin[1][22][ 9]=   0.362484;EtaROImax[1][22][ 9]=   0.441017;PhiROImin[1][22][ 9]=   -1.96135;PhiROImax[1][22][ 9]=	-1.88163;
+     EtaROImin[1][22][10]=   0.439011;EtaROImax[1][22][10]=    0.51487;PhiROImin[1][22][10]=   -1.87907;PhiROImax[1][22][10]=	-1.80042;
+     EtaROImin[1][22][11]=   0.362484;EtaROImax[1][22][11]=   0.441017;PhiROImin[1][22][11]=   -1.87907;PhiROImax[1][22][11]=	-1.80042;
+     EtaROImin[1][22][12]=   0.566067;EtaROImax[1][22][12]=   0.659332;PhiROImin[1][22][12]=   -1.96071;PhiROImax[1][22][12]=	-1.87675;
+     EtaROImin[1][22][13]=   0.470878;EtaROImax[1][22][13]=   0.569141;PhiROImin[1][22][13]=   -1.96071;PhiROImax[1][22][13]=	-1.87675;
+     EtaROImin[1][22][14]=   0.566067;EtaROImax[1][22][14]=   0.659332;PhiROImin[1][22][14]=   -1.87312;PhiROImax[1][22][14]=	-1.79045;
+     EtaROImin[1][22][15]=   0.470878;EtaROImax[1][22][15]=   0.569141;PhiROImin[1][22][15]=   -1.87312;PhiROImax[1][22][15]=	-1.79045;
+     EtaROImin[1][22][16]=   0.671529;EtaROImax[1][22][16]=    0.72184;PhiROImin[1][22][16]=   -1.96135;PhiROImax[1][22][16]=	-1.88163;
+     EtaROImin[1][22][17]=   0.622205;EtaROImax[1][22][17]=   0.674155;PhiROImin[1][22][17]=   -1.96135;PhiROImax[1][22][17]=	-1.88163;
+     EtaROImin[1][22][18]=   0.671529;EtaROImax[1][22][18]=    0.72184;PhiROImin[1][22][18]=   -1.87907;PhiROImax[1][22][18]=	-1.80042;
+     EtaROImin[1][22][19]=   0.622205;EtaROImax[1][22][19]=   0.674155;PhiROImin[1][22][19]=   -1.87907;PhiROImax[1][22][19]=	-1.80042;
+     EtaROImin[1][22][20]=   0.833797;EtaROImax[1][22][20]=   0.893028;PhiROImin[1][22][20]=   -1.96135;PhiROImax[1][22][20]=	-1.88163;
+     EtaROImin[1][22][21]=   0.744499;EtaROImax[1][22][21]=   0.831846;PhiROImin[1][22][21]=   -1.96135;PhiROImax[1][22][21]=	-1.88163;
+     EtaROImin[1][22][22]=   0.833797;EtaROImax[1][22][22]=   0.893028;PhiROImin[1][22][22]=   -1.87907;PhiROImax[1][22][22]=	-1.80042;
+     EtaROImin[1][22][23]=   0.744499;EtaROImax[1][22][23]=   0.831846;PhiROImin[1][22][23]=   -1.87907;PhiROImax[1][22][23]=	-1.80042;
+     EtaROImin[1][22][24]=   0.846464;EtaROImax[1][22][24]=   0.905303;PhiROImin[1][22][24]=   -1.96071;PhiROImax[1][22][24]=	-1.87675;
+     EtaROImin[1][22][25]=   0.788882;EtaROImax[1][22][25]=   0.850339;PhiROImin[1][22][25]=   -1.96071;PhiROImax[1][22][25]=	-1.87675;
+     EtaROImin[1][22][26]=   0.846464;EtaROImax[1][22][26]=   0.905303;PhiROImin[1][22][26]=   -1.87312;PhiROImax[1][22][26]=	-1.79045;
+     EtaROImin[1][22][27]=   0.788882;EtaROImax[1][22][27]=   0.850339;PhiROImin[1][22][27]=   -1.87312;PhiROImax[1][22][27]=	-1.79045;
+     EtaROImin[1][22][28]=   0.957137;EtaROImax[1][22][28]=   0.983719;PhiROImin[1][22][28]=   -1.97686;PhiROImax[1][22][28]=	-1.89087;
+     EtaROImin[1][22][29]=   0.913486;EtaROImax[1][22][29]=   0.955345;PhiROImin[1][22][29]=   -1.97686;PhiROImax[1][22][29]=	-1.89087;
+     EtaROImin[1][22][30]=   0.957137;EtaROImax[1][22][30]=   0.983719;PhiROImin[1][22][30]=   -1.98444;PhiROImax[1][22][30]=	-1.88811;
+     EtaROImin[1][22][31]=   0.913486;EtaROImax[1][22][31]=   0.955345;PhiROImin[1][22][31]=   -1.98444;PhiROImax[1][22][31]=	-1.88811;
+     EtaROImin[1][23][ 0]=  0.0552456;EtaROImax[1][23][ 0]=   0.147216;PhiROImin[1][23][ 0]=   -1.68341;PhiROImax[1][23][ 0]=	-1.57375;
+     EtaROImin[1][23][ 1]=    0.14708;EtaROImax[1][23][ 1]=   0.238313;PhiROImin[1][23][ 1]=   -1.68341;PhiROImax[1][23][ 1]=	-1.57375;
+     EtaROImin[1][23][ 2]=  0.0552456;EtaROImax[1][23][ 2]=   0.147216;PhiROImin[1][23][ 2]=   -1.79381;PhiROImax[1][23][ 2]=	-1.68692;
+     EtaROImin[1][23][ 3]=    0.14708;EtaROImax[1][23][ 3]=   0.238313;PhiROImin[1][23][ 3]=   -1.79381;PhiROImax[1][23][ 3]=	-1.68692;
+     EtaROImin[1][23][ 4]=   0.246207;EtaROImax[1][23][ 4]=    0.35049;PhiROImin[1][23][ 4]=   -1.68341;PhiROImax[1][23][ 4]=	-1.57375;
+     EtaROImin[1][23][ 5]=   0.350831;EtaROImax[1][23][ 5]=   0.452099;PhiROImin[1][23][ 5]=   -1.68341;PhiROImax[1][23][ 5]=	-1.57375;
+     EtaROImin[1][23][ 6]=   0.246207;EtaROImax[1][23][ 6]=    0.35049;PhiROImin[1][23][ 6]=   -1.79381;PhiROImax[1][23][ 6]=	-1.68692;
+     EtaROImin[1][23][ 7]=   0.350831;EtaROImax[1][23][ 7]=   0.452099;PhiROImin[1][23][ 7]=   -1.79381;PhiROImax[1][23][ 7]=	-1.68692;
+     EtaROImin[1][23][ 8]=   0.458091;EtaROImax[1][23][ 8]=   0.554444;PhiROImin[1][23][ 8]=   -1.68341;PhiROImax[1][23][ 8]=	-1.57375;
+     EtaROImin[1][23][ 9]=   0.555789;EtaROImax[1][23][ 9]=   0.648101;PhiROImin[1][23][ 9]=   -1.68341;PhiROImax[1][23][ 9]=	-1.57375;
+     EtaROImin[1][23][10]=   0.458091;EtaROImax[1][23][10]=   0.554444;PhiROImin[1][23][10]=   -1.79381;PhiROImax[1][23][10]=	-1.68692;
+     EtaROImin[1][23][11]=   0.555789;EtaROImax[1][23][11]=   0.648101;PhiROImin[1][23][11]=   -1.79381;PhiROImax[1][23][11]=	-1.68692;
+     EtaROImin[1][23][12]=   0.677222;EtaROImax[1][23][12]=   0.720119;PhiROImin[1][23][12]=   -1.62692;PhiROImax[1][23][12]=	 -1.5708;
+     EtaROImin[1][23][13]=    0.72294;EtaROImax[1][23][13]=   0.786462;PhiROImin[1][23][13]=   -1.62692;PhiROImax[1][23][13]=	 -1.5708;
+     EtaROImin[1][23][14]=   0.677222;EtaROImax[1][23][14]=   0.720119;PhiROImin[1][23][14]=   -1.69744;PhiROImax[1][23][14]=	-1.63046;
+     EtaROImin[1][23][15]=    0.72294;EtaROImax[1][23][15]=   0.786462;PhiROImin[1][23][15]=   -1.69744;PhiROImax[1][23][15]=	-1.63046;
+     EtaROImin[1][23][16]=   0.783867;EtaROImax[1][23][16]=    0.82768;PhiROImin[1][23][16]=   -1.68401;PhiROImax[1][23][16]=	-1.57376;
+     EtaROImin[1][23][17]=   0.830556;EtaROImax[1][23][17]=   0.895163;PhiROImin[1][23][17]=   -1.68401;PhiROImax[1][23][17]=	-1.57376;
+     EtaROImin[1][23][18]=   0.783867;EtaROImax[1][23][18]=    0.82768;PhiROImin[1][23][18]=   -1.79497;PhiROImax[1][23][18]=	-1.68753;
+     EtaROImin[1][23][19]=   0.830556;EtaROImax[1][23][19]=   0.895163;PhiROImin[1][23][19]=   -1.79497;PhiROImax[1][23][19]=	-1.68753;
+     EtaROImin[1][23][20]=   0.898201;EtaROImax[1][23][20]=   0.961344;PhiROImin[1][23][20]=   -1.68341;PhiROImax[1][23][20]=	-1.57375;
+     EtaROImin[1][23][21]=   0.964674;EtaROImax[1][23][21]=    1.02514;PhiROImin[1][23][21]=   -1.68341;PhiROImax[1][23][21]=	-1.57375;
+     EtaROImin[1][23][22]=   0.898201;EtaROImax[1][23][22]=   0.961344;PhiROImin[1][23][22]=   -1.79381;PhiROImax[1][23][22]=	-1.68692;
+     EtaROImin[1][23][23]=   0.964674;EtaROImax[1][23][23]=    1.02514;PhiROImin[1][23][23]=   -1.79381;PhiROImax[1][23][23]=	-1.68692;
+     EtaROImin[1][23][24]=    1.03003;EtaROImax[1][23][24]=    1.06547;PhiROImin[1][23][24]=   -1.68423;PhiROImax[1][23][24]=	-1.57387;
+     EtaROImin[1][23][25]=	    0;EtaROImax[1][23][25]=	     0;PhiROImin[1][23][25]=	      0;PhiROImax[1][23][25]=	       0;
+     EtaROImin[1][23][26]=    1.03003;EtaROImax[1][23][26]=    1.06547;PhiROImin[1][23][26]=   -1.76794;PhiROImax[1][23][26]=	-1.68775;
+     EtaROImin[1][23][27]=	    0;EtaROImax[1][23][27]=	     0;PhiROImin[1][23][27]=	      0;PhiROImax[1][23][27]=	       0;
+     EtaROImin[1][23][28]=	    0;EtaROImax[1][23][28]=	     0;PhiROImin[1][23][28]=	      0;PhiROImax[1][23][28]=	       0;
+     EtaROImin[1][23][29]=	    0;EtaROImax[1][23][29]=	     0;PhiROImin[1][23][29]=	      0;PhiROImax[1][23][29]=	       0;
+     EtaROImin[1][23][30]=	    0;EtaROImax[1][23][30]=	     0;PhiROImin[1][23][30]=	      0;PhiROImax[1][23][30]=	       0;
+     EtaROImin[1][23][31]=	    0;EtaROImax[1][23][31]=	     0;PhiROImin[1][23][31]=	      0;PhiROImax[1][23][31]=	       0;
+     EtaROImin[1][24][ 0]=    0.14708;EtaROImax[1][24][ 0]=   0.238313;PhiROImin[1][24][ 0]=   -1.56784;PhiROImax[1][24][ 0]=	-1.45818;
+     EtaROImin[1][24][ 1]=  0.0552456;EtaROImax[1][24][ 1]=   0.147216;PhiROImin[1][24][ 1]=   -1.56784;PhiROImax[1][24][ 1]=	-1.45818;
+     EtaROImin[1][24][ 2]=    0.14708;EtaROImax[1][24][ 2]=   0.238313;PhiROImin[1][24][ 2]=   -1.45468;PhiROImax[1][24][ 2]=	-1.34779;
+     EtaROImin[1][24][ 3]=  0.0552456;EtaROImax[1][24][ 3]=   0.147216;PhiROImin[1][24][ 3]=   -1.45468;PhiROImax[1][24][ 3]=	-1.34779;
+     EtaROImin[1][24][ 4]=   0.350831;EtaROImax[1][24][ 4]=   0.452099;PhiROImin[1][24][ 4]=   -1.56784;PhiROImax[1][24][ 4]=	-1.45818;
+     EtaROImin[1][24][ 5]=   0.246207;EtaROImax[1][24][ 5]=    0.35049;PhiROImin[1][24][ 5]=   -1.56784;PhiROImax[1][24][ 5]=	-1.45818;
+     EtaROImin[1][24][ 6]=   0.350831;EtaROImax[1][24][ 6]=   0.452099;PhiROImin[1][24][ 6]=   -1.45468;PhiROImax[1][24][ 6]=	-1.34779;
+     EtaROImin[1][24][ 7]=   0.246207;EtaROImax[1][24][ 7]=    0.35049;PhiROImin[1][24][ 7]=   -1.45468;PhiROImax[1][24][ 7]=	-1.34779;
+     EtaROImin[1][24][ 8]=   0.555789;EtaROImax[1][24][ 8]=   0.648101;PhiROImin[1][24][ 8]=   -1.56784;PhiROImax[1][24][ 8]=	-1.45818;
+     EtaROImin[1][24][ 9]=   0.458091;EtaROImax[1][24][ 9]=   0.554444;PhiROImin[1][24][ 9]=   -1.56784;PhiROImax[1][24][ 9]=	-1.45818;
+     EtaROImin[1][24][10]=   0.555789;EtaROImax[1][24][10]=   0.648101;PhiROImin[1][24][10]=   -1.45468;PhiROImax[1][24][10]=	-1.34779;
+     EtaROImin[1][24][11]=   0.458091;EtaROImax[1][24][11]=   0.554444;PhiROImin[1][24][11]=   -1.45468;PhiROImax[1][24][11]=	-1.34779;
+     EtaROImin[1][24][12]=   0.745327;EtaROImax[1][24][12]=   0.786462;PhiROImin[1][24][12]=   -1.56798;PhiROImax[1][24][12]=	 -1.5005;
+     EtaROImin[1][24][13]=   0.677222;EtaROImax[1][24][13]=   0.742545;PhiROImin[1][24][13]=   -1.56798;PhiROImax[1][24][13]=	 -1.5005;
+     EtaROImin[1][24][14]=   0.745327;EtaROImax[1][24][14]=   0.786462;PhiROImin[1][24][14]=	-1.5708;PhiROImax[1][24][14]=	-1.49696;
+     EtaROImin[1][24][15]=   0.677222;EtaROImax[1][24][15]=   0.742545;PhiROImin[1][24][15]=	-1.5708;PhiROImax[1][24][15]=	-1.49696;
+     EtaROImin[1][24][16]=   0.853359;EtaROImax[1][24][16]=   0.895163;PhiROImin[1][24][16]=   -1.56783;PhiROImax[1][24][16]=	-1.45758;
+     EtaROImin[1][24][17]=   0.783867;EtaROImax[1][24][17]=   0.850528;PhiROImin[1][24][17]=   -1.56783;PhiROImax[1][24][17]=	-1.45758;
+     EtaROImin[1][24][18]=   0.853359;EtaROImax[1][24][18]=   0.895163;PhiROImin[1][24][18]=   -1.45406;PhiROImax[1][24][18]=	-1.34663;
+     EtaROImin[1][24][19]=   0.783867;EtaROImax[1][24][19]=   0.850528;PhiROImin[1][24][19]=   -1.45406;PhiROImax[1][24][19]=	-1.34663;
+     EtaROImin[1][24][20]=   0.964674;EtaROImax[1][24][20]=    1.02514;PhiROImin[1][24][20]=   -1.56784;PhiROImax[1][24][20]=	-1.45818;
+     EtaROImin[1][24][21]=   0.898201;EtaROImax[1][24][21]=   0.961344;PhiROImin[1][24][21]=   -1.56784;PhiROImax[1][24][21]=	-1.45818;
+     EtaROImin[1][24][22]=   0.964674;EtaROImax[1][24][22]=    1.02514;PhiROImin[1][24][22]=   -1.45468;PhiROImax[1][24][22]=	-1.34779;
+     EtaROImin[1][24][23]=   0.898201;EtaROImax[1][24][23]=   0.961344;PhiROImin[1][24][23]=   -1.45468;PhiROImax[1][24][23]=	-1.34779;
+     EtaROImin[1][24][24]=	    0;EtaROImax[1][24][24]=	     0;PhiROImin[1][24][24]=	      0;PhiROImax[1][24][24]=	       0;
+     EtaROImin[1][24][25]=    1.03003;EtaROImax[1][24][25]=    1.06547;PhiROImin[1][24][25]=   -1.56773;PhiROImax[1][24][25]=	-1.45737;
+     EtaROImin[1][24][26]=	    0;EtaROImax[1][24][26]=	     0;PhiROImin[1][24][26]=	      0;PhiROImax[1][24][26]=	       0;
+     EtaROImin[1][24][27]=    1.03003;EtaROImax[1][24][27]=    1.06547;PhiROImin[1][24][27]=   -1.45384;PhiROImax[1][24][27]=	-1.37365;
+     EtaROImin[1][24][28]=	    0;EtaROImax[1][24][28]=	     0;PhiROImin[1][24][28]=	      0;PhiROImax[1][24][28]=	       0;
+     EtaROImin[1][24][29]=	    0;EtaROImax[1][24][29]=	     0;PhiROImin[1][24][29]=	      0;PhiROImax[1][24][29]=	       0;
+     EtaROImin[1][24][30]=	    0;EtaROImax[1][24][30]=	     0;PhiROImin[1][24][30]=	      0;PhiROImax[1][24][30]=	       0;
+     EtaROImin[1][24][31]=	    0;EtaROImax[1][24][31]=	     0;PhiROImin[1][24][31]=	      0;PhiROImax[1][24][31]=	       0;
+     EtaROImin[1][25][ 0]=  0.0775634;EtaROImax[1][25][ 0]=   0.126072;PhiROImin[1][25][ 0]=   -1.26484;PhiROImax[1][25][ 0]=	-1.18089;
+     EtaROImin[1][25][ 1]=   0.129296;EtaROImax[1][25][ 1]=   0.203032;PhiROImin[1][25][ 1]=   -1.26484;PhiROImax[1][25][ 1]=	-1.18089;
+     EtaROImin[1][25][ 2]=  0.0775634;EtaROImax[1][25][ 2]=   0.126072;PhiROImin[1][25][ 2]=   -1.35115;PhiROImax[1][25][ 2]=	-1.26847;
+     EtaROImin[1][25][ 3]=   0.129296;EtaROImax[1][25][ 3]=   0.203032;PhiROImin[1][25][ 3]=   -1.35115;PhiROImax[1][25][ 3]=	-1.26847;
+     EtaROImin[1][25][ 4]=   0.200823;EtaROImax[1][25][ 4]=   0.248155;PhiROImin[1][25][ 4]=   -1.26443;PhiROImax[1][25][ 4]=	-1.18087;
+     EtaROImin[1][25][ 5]=   0.251292;EtaROImax[1][25][ 5]=   0.322732;PhiROImin[1][25][ 5]=   -1.26443;PhiROImax[1][25][ 5]=	-1.18087;
+     EtaROImin[1][25][ 6]=   0.200823;EtaROImax[1][25][ 6]=   0.248155;PhiROImin[1][25][ 6]=   -1.35034;PhiROImax[1][25][ 6]=	-1.26804;
+     EtaROImin[1][25][ 7]=   0.251292;EtaROImax[1][25][ 7]=   0.322732;PhiROImin[1][25][ 7]=   -1.35034;PhiROImax[1][25][ 7]=	-1.26804;
+     EtaROImin[1][25][ 8]=   0.361231;EtaROImax[1][25][ 8]=   0.439522;PhiROImin[1][25][ 8]=   -1.25967;PhiROImax[1][25][ 8]=	-1.18023;
+     EtaROImin[1][25][ 9]=   0.440504;EtaROImax[1][25][ 9]=   0.516583;PhiROImin[1][25][ 9]=   -1.25967;PhiROImax[1][25][ 9]=	-1.18023;
+     EtaROImin[1][25][10]=   0.361231;EtaROImax[1][25][10]=   0.439522;PhiROImin[1][25][10]=   -1.34059;PhiROImax[1][25][10]=	-1.26222;
+     EtaROImin[1][25][11]=   0.440504;EtaROImax[1][25][11]=   0.516583;PhiROImin[1][25][11]=   -1.34059;PhiROImax[1][25][11]=	-1.26222;
+     EtaROImin[1][25][12]=   0.470878;EtaROImax[1][25][12]=   0.569141;PhiROImin[1][25][12]=   -1.26484;PhiROImax[1][25][12]=	-1.18089;
+     EtaROImin[1][25][13]=   0.566067;EtaROImax[1][25][13]=   0.659332;PhiROImin[1][25][13]=   -1.26484;PhiROImax[1][25][13]=	-1.18089;
+     EtaROImin[1][25][14]=   0.470878;EtaROImax[1][25][14]=   0.569141;PhiROImin[1][25][14]=   -1.35115;PhiROImax[1][25][14]=	-1.26847;
+     EtaROImin[1][25][15]=   0.566067;EtaROImax[1][25][15]=   0.659332;PhiROImin[1][25][15]=   -1.35115;PhiROImax[1][25][15]=	-1.26847;
+     EtaROImin[1][25][16]=   0.620212;EtaROImax[1][25][16]=   0.672035;PhiROImin[1][25][16]=   -1.25967;PhiROImax[1][25][16]=	-1.18023;
+     EtaROImin[1][25][17]=   0.673648;EtaROImax[1][25][17]=   0.724075;PhiROImin[1][25][17]=   -1.25967;PhiROImax[1][25][17]=	-1.18023;
+     EtaROImin[1][25][18]=   0.620212;EtaROImax[1][25][18]=   0.672035;PhiROImin[1][25][18]=   -1.34059;PhiROImax[1][25][18]=	-1.26222;
+     EtaROImin[1][25][19]=   0.673648;EtaROImax[1][25][19]=   0.724075;PhiROImin[1][25][19]=   -1.34059;PhiROImax[1][25][19]=	-1.26222;
+     EtaROImin[1][25][20]=   0.744499;EtaROImax[1][25][20]=   0.831846;PhiROImin[1][25][20]=   -1.25997;PhiROImax[1][25][20]=	-1.18024;
+     EtaROImin[1][25][21]=   0.833797;EtaROImax[1][25][21]=   0.893028;PhiROImin[1][25][21]=   -1.25997;PhiROImax[1][25][21]=	-1.18024;
+     EtaROImin[1][25][22]=   0.744499;EtaROImax[1][25][22]=   0.831846;PhiROImin[1][25][22]=   -1.34117;PhiROImax[1][25][22]=	-1.26253;
+     EtaROImin[1][25][23]=   0.833797;EtaROImax[1][25][23]=   0.893028;PhiROImin[1][25][23]=   -1.34117;PhiROImax[1][25][23]=	-1.26253;
+     EtaROImin[1][25][24]=   0.788882;EtaROImax[1][25][24]=   0.850339;PhiROImin[1][25][24]=   -1.26484;PhiROImax[1][25][24]=	-1.18089;
+     EtaROImin[1][25][25]=   0.846464;EtaROImax[1][25][25]=   0.905303;PhiROImin[1][25][25]=   -1.26484;PhiROImax[1][25][25]=	-1.18089;
+     EtaROImin[1][25][26]=   0.788882;EtaROImax[1][25][26]=   0.850339;PhiROImin[1][25][26]=   -1.35115;PhiROImax[1][25][26]=	-1.26847;
+     EtaROImin[1][25][27]=   0.846464;EtaROImax[1][25][27]=   0.905303;PhiROImin[1][25][27]=   -1.35115;PhiROImax[1][25][27]=	-1.26847;
+     EtaROImin[1][25][28]=   0.914143;EtaROImax[1][25][28]=	0.9416;PhiROImin[1][25][28]=   -1.20642;PhiROImax[1][25][28]=	-1.15713;
+     EtaROImin[1][25][29]=   0.943411;EtaROImax[1][25][29]=   0.984405;PhiROImin[1][25][29]=   -1.20642;PhiROImax[1][25][29]=	-1.15713;
+     EtaROImin[1][25][30]=   0.914143;EtaROImax[1][25][30]=	0.9416;PhiROImin[1][25][30]=   -1.29487;PhiROImax[1][25][30]=	 -1.2092;
+     EtaROImin[1][25][31]=   0.943411;EtaROImax[1][25][31]=   0.984405;PhiROImin[1][25][31]=   -1.29487;PhiROImax[1][25][31]=	 -1.2092;
+     EtaROImin[1][26][ 0]=   0.155043;EtaROImax[1][26][ 0]=   0.203032;PhiROImin[1][26][ 0]=   -1.17531;PhiROImax[1][26][ 0]=	-1.09135;
+     EtaROImin[1][26][ 1]=  0.0775634;EtaROImax[1][26][ 1]=    0.15183;PhiROImin[1][26][ 1]=   -1.17531;PhiROImax[1][26][ 1]=	-1.09135;
+     EtaROImin[1][26][ 2]=   0.155043;EtaROImax[1][26][ 2]=   0.203032;PhiROImin[1][26][ 2]=   -1.08772;PhiROImax[1][26][ 2]=	-1.00505;
+     EtaROImin[1][26][ 3]=  0.0775634;EtaROImax[1][26][ 3]=    0.15183;PhiROImin[1][26][ 3]=   -1.08772;PhiROImax[1][26][ 3]=	-1.00505;
+     EtaROImin[1][26][ 4]=   0.276301;EtaROImax[1][26][ 4]=   0.322732;PhiROImin[1][26][ 4]=   -1.17532;PhiROImax[1][26][ 4]=	-1.09176;
+     EtaROImin[1][26][ 5]=   0.200823;EtaROImax[1][26][ 5]=   0.273184;PhiROImin[1][26][ 5]=   -1.17532;PhiROImax[1][26][ 5]=	-1.09176;
+     EtaROImin[1][26][ 6]=   0.276301;EtaROImax[1][26][ 6]=   0.322732;PhiROImin[1][26][ 6]=   -1.08815;PhiROImax[1][26][ 6]=	-1.00586;
+     EtaROImin[1][26][ 7]=   0.200823;EtaROImax[1][26][ 7]=   0.273184;PhiROImin[1][26][ 7]=   -1.08815;PhiROImax[1][26][ 7]=	-1.00586;
+     EtaROImin[1][26][ 8]=   0.440504;EtaROImax[1][26][ 8]=   0.516583;PhiROImin[1][26][ 8]=   -1.17596;PhiROImax[1][26][ 8]=	-1.09652;
+     EtaROImin[1][26][ 9]=   0.361231;EtaROImax[1][26][ 9]=   0.439522;PhiROImin[1][26][ 9]=   -1.17596;PhiROImax[1][26][ 9]=	-1.09652;
+     EtaROImin[1][26][10]=   0.440504;EtaROImax[1][26][10]=   0.516583;PhiROImin[1][26][10]=   -1.09397;PhiROImax[1][26][10]=	 -1.0156;
+     EtaROImin[1][26][11]=   0.361231;EtaROImax[1][26][11]=   0.439522;PhiROImin[1][26][11]=   -1.09397;PhiROImax[1][26][11]=	 -1.0156;
+     EtaROImin[1][26][12]=   0.566067;EtaROImax[1][26][12]=   0.659332;PhiROImin[1][26][12]=   -1.17531;PhiROImax[1][26][12]=	-1.09135;
+     EtaROImin[1][26][13]=   0.470878;EtaROImax[1][26][13]=   0.569141;PhiROImin[1][26][13]=   -1.17531;PhiROImax[1][26][13]=	-1.09135;
+     EtaROImin[1][26][14]=   0.566067;EtaROImax[1][26][14]=   0.659332;PhiROImin[1][26][14]=   -1.08772;PhiROImax[1][26][14]=	-1.00505;
+     EtaROImin[1][26][15]=   0.470878;EtaROImax[1][26][15]=   0.569141;PhiROImin[1][26][15]=   -1.08772;PhiROImax[1][26][15]=	-1.00505;
+     EtaROImin[1][26][16]=   0.673648;EtaROImax[1][26][16]=   0.724075;PhiROImin[1][26][16]=   -1.17596;PhiROImax[1][26][16]=	-1.09652;
+     EtaROImin[1][26][17]=   0.620212;EtaROImax[1][26][17]=   0.672035;PhiROImin[1][26][17]=   -1.17596;PhiROImax[1][26][17]=	-1.09652;
+     EtaROImin[1][26][18]=   0.673648;EtaROImax[1][26][18]=   0.724075;PhiROImin[1][26][18]=   -1.09397;PhiROImax[1][26][18]=	 -1.0156;
+     EtaROImin[1][26][19]=   0.620212;EtaROImax[1][26][19]=   0.672035;PhiROImin[1][26][19]=   -1.09397;PhiROImax[1][26][19]=	 -1.0156;
+     EtaROImin[1][26][20]=   0.833797;EtaROImax[1][26][20]=   0.893028;PhiROImin[1][26][20]=   -1.17595;PhiROImax[1][26][20]=	-1.09623;
+     EtaROImin[1][26][21]=   0.744499;EtaROImax[1][26][21]=   0.831846;PhiROImin[1][26][21]=   -1.17595;PhiROImax[1][26][21]=	-1.09623;
+     EtaROImin[1][26][22]=   0.833797;EtaROImax[1][26][22]=   0.893028;PhiROImin[1][26][22]=   -1.09367;PhiROImax[1][26][22]=	-1.01502;
+     EtaROImin[1][26][23]=   0.744499;EtaROImax[1][26][23]=   0.831846;PhiROImin[1][26][23]=   -1.09367;PhiROImax[1][26][23]=	-1.01502;
+     EtaROImin[1][26][24]=   0.846464;EtaROImax[1][26][24]=   0.905303;PhiROImin[1][26][24]=   -1.17531;PhiROImax[1][26][24]=	-1.09135;
+     EtaROImin[1][26][25]=   0.788882;EtaROImax[1][26][25]=   0.850339;PhiROImin[1][26][25]=   -1.17531;PhiROImax[1][26][25]=	-1.09135;
+     EtaROImin[1][26][26]=   0.846464;EtaROImax[1][26][26]=   0.905303;PhiROImin[1][26][26]=   -1.08772;PhiROImax[1][26][26]=	-1.00505;
+     EtaROImin[1][26][27]=   0.788882;EtaROImax[1][26][27]=   0.850339;PhiROImin[1][26][27]=   -1.08772;PhiROImax[1][26][27]=	-1.00505;
+     EtaROImin[1][26][28]=   0.955553;EtaROImax[1][26][28]=    0.98211;PhiROImin[1][26][28]=   -1.14955;PhiROImax[1][26][28]=	-1.06384;
+     EtaROImin[1][26][29]=   0.911945;EtaROImax[1][26][29]=   0.953764;PhiROImin[1][26][29]=   -1.14955;PhiROImax[1][26][29]=	-1.06384;
+     EtaROImin[1][26][30]=   0.955553;EtaROImax[1][26][30]=    0.98211;PhiROImin[1][26][30]=   -1.15713;PhiROImax[1][26][30]=	 -1.0611;
+     EtaROImin[1][26][31]=   0.911945;EtaROImax[1][26][31]=   0.953764;PhiROImin[1][26][31]=   -1.15713;PhiROImax[1][26][31]=	 -1.0611;
+     EtaROImin[1][27][ 0]=  0.0874905;EtaROImax[1][27][ 0]=   0.145912;PhiROImin[1][27][ 0]=   -0.89861;PhiROImax[1][27][ 0]=  -0.788366;
+     EtaROImin[1][27][ 1]=   0.149792;EtaROImax[1][27][ 1]=   0.238294;PhiROImin[1][27][ 1]=   -0.89861;PhiROImax[1][27][ 1]=  -0.788366;
+     EtaROImin[1][27][ 2]=  0.0874905;EtaROImax[1][27][ 2]=   0.145912;PhiROImin[1][27][ 2]=   -1.00957;PhiROImax[1][27][ 2]=  -0.902135;
+     EtaROImin[1][27][ 3]=   0.149792;EtaROImax[1][27][ 3]=   0.238294;PhiROImin[1][27][ 3]=   -1.00957;PhiROImax[1][27][ 3]=  -0.902135;
+     EtaROImin[1][27][ 4]=   0.246207;EtaROImax[1][27][ 4]=    0.35049;PhiROImin[1][27][ 4]=  -0.898011;PhiROImax[1][27][ 4]=	-0.78835;
+     EtaROImin[1][27][ 5]=   0.350831;EtaROImax[1][27][ 5]=   0.452099;PhiROImin[1][27][ 5]=  -0.898011;PhiROImax[1][27][ 5]=	-0.78835;
+     EtaROImin[1][27][ 6]=   0.246207;EtaROImax[1][27][ 6]=    0.35049;PhiROImin[1][27][ 6]=   -1.00841;PhiROImax[1][27][ 6]=  -0.901517;
+     EtaROImin[1][27][ 7]=   0.350831;EtaROImax[1][27][ 7]=   0.452099;PhiROImin[1][27][ 7]=   -1.00841;PhiROImax[1][27][ 7]=  -0.901517;
+     EtaROImin[1][27][ 8]=   0.458091;EtaROImax[1][27][ 8]=   0.554444;PhiROImin[1][27][ 8]=  -0.898011;PhiROImax[1][27][ 8]=	-0.78835;
+     EtaROImin[1][27][ 9]=   0.555789;EtaROImax[1][27][ 9]=   0.648101;PhiROImin[1][27][ 9]=  -0.898011;PhiROImax[1][27][ 9]=	-0.78835;
+     EtaROImin[1][27][10]=   0.458091;EtaROImax[1][27][10]=   0.554444;PhiROImin[1][27][10]=   -1.00841;PhiROImax[1][27][10]=  -0.901517;
+     EtaROImin[1][27][11]=   0.555789;EtaROImax[1][27][11]=   0.648101;PhiROImin[1][27][11]=   -1.00841;PhiROImax[1][27][11]=  -0.901517;
+     EtaROImin[1][27][12]=   0.655857;EtaROImax[1][27][12]=   0.703298;PhiROImin[1][27][12]=   -0.89861;PhiROImax[1][27][12]=  -0.788366;
+     EtaROImin[1][27][13]=   0.706413;EtaROImax[1][27][13]=   0.776449;PhiROImin[1][27][13]=   -0.89861;PhiROImax[1][27][13]=  -0.788366;
+     EtaROImin[1][27][14]=   0.655857;EtaROImax[1][27][14]=   0.703298;PhiROImin[1][27][14]=   -1.00957;PhiROImax[1][27][14]=  -0.902135;
+     EtaROImin[1][27][15]=   0.706413;EtaROImax[1][27][15]=   0.776449;PhiROImin[1][27][15]=   -1.00957;PhiROImax[1][27][15]=  -0.902135;
+     EtaROImin[1][27][16]=   0.783867;EtaROImax[1][27][16]=    0.82768;PhiROImin[1][27][16]=   -0.89861;PhiROImax[1][27][16]=  -0.788366;
+     EtaROImin[1][27][17]=   0.830556;EtaROImax[1][27][17]=   0.895163;PhiROImin[1][27][17]=   -0.89861;PhiROImax[1][27][17]=  -0.788366;
+     EtaROImin[1][27][18]=   0.783867;EtaROImax[1][27][18]=    0.82768;PhiROImin[1][27][18]=   -1.00957;PhiROImax[1][27][18]=  -0.902135;
+     EtaROImin[1][27][19]=   0.830556;EtaROImax[1][27][19]=   0.895163;PhiROImin[1][27][19]=   -1.00957;PhiROImax[1][27][19]=  -0.902135;
+     EtaROImin[1][27][20]=   0.898201;EtaROImax[1][27][20]=   0.961344;PhiROImin[1][27][20]=  -0.898011;PhiROImax[1][27][20]=	-0.78835;
+     EtaROImin[1][27][21]=   0.964674;EtaROImax[1][27][21]=    1.02514;PhiROImin[1][27][21]=  -0.898011;PhiROImax[1][27][21]=	-0.78835;
+     EtaROImin[1][27][22]=   0.898201;EtaROImax[1][27][22]=   0.961344;PhiROImin[1][27][22]=   -1.00841;PhiROImax[1][27][22]=  -0.901517;
+     EtaROImin[1][27][23]=   0.964674;EtaROImax[1][27][23]=    1.02514;PhiROImin[1][27][23]=   -1.00841;PhiROImax[1][27][23]=  -0.901517;
+     EtaROImin[1][27][24]=    1.03003;EtaROImax[1][27][24]=    1.06547;PhiROImin[1][27][24]=  -0.898827;PhiROImax[1][27][24]=  -0.788467;
+     EtaROImin[1][27][25]=	    0;EtaROImax[1][27][25]=	     0;PhiROImin[1][27][25]=	      0;PhiROImax[1][27][25]=	       0;
+     EtaROImin[1][27][26]=    1.03003;EtaROImax[1][27][26]=    1.06547;PhiROImin[1][27][26]=  -0.982541;PhiROImax[1][27][26]=  -0.902356;
+     EtaROImin[1][27][27]=	    0;EtaROImax[1][27][27]=	     0;PhiROImin[1][27][27]=	      0;PhiROImax[1][27][27]=	       0;
+     EtaROImin[1][27][28]=	    0;EtaROImax[1][27][28]=	     0;PhiROImin[1][27][28]=	      0;PhiROImax[1][27][28]=	       0;
+     EtaROImin[1][27][29]=	    0;EtaROImax[1][27][29]=	     0;PhiROImin[1][27][29]=	      0;PhiROImax[1][27][29]=	       0;
+     EtaROImin[1][27][30]=	    0;EtaROImax[1][27][30]=	     0;PhiROImin[1][27][30]=	      0;PhiROImax[1][27][30]=	       0;
+     EtaROImin[1][27][31]=	    0;EtaROImax[1][27][31]=	     0;PhiROImin[1][27][31]=	      0;PhiROImax[1][27][31]=	       0;
+     EtaROImin[1][28][ 0]=   0.180742;EtaROImax[1][28][ 0]=   0.238294;PhiROImin[1][28][ 0]=   -0.78243;PhiROImax[1][28][ 0]=  -0.672186;
+     EtaROImin[1][28][ 1]=  0.0874905;EtaROImax[1][28][ 1]=   0.176882;PhiROImin[1][28][ 1]=   -0.78243;PhiROImax[1][28][ 1]=  -0.672186;
+     EtaROImin[1][28][ 2]=   0.180742;EtaROImax[1][28][ 2]=   0.238294;PhiROImin[1][28][ 2]=  -0.668661;PhiROImax[1][28][ 2]=  -0.561229;
+     EtaROImin[1][28][ 3]=  0.0874905;EtaROImax[1][28][ 3]=   0.176882;PhiROImin[1][28][ 3]=  -0.668661;PhiROImax[1][28][ 3]=  -0.561229;
+     EtaROImin[1][28][ 4]=   0.350831;EtaROImax[1][28][ 4]=   0.452099;PhiROImin[1][28][ 4]=  -0.782446;PhiROImax[1][28][ 4]=  -0.672786;
+     EtaROImin[1][28][ 5]=   0.246207;EtaROImax[1][28][ 5]=    0.35049;PhiROImin[1][28][ 5]=  -0.782446;PhiROImax[1][28][ 5]=  -0.672786;
+     EtaROImin[1][28][ 6]=   0.350831;EtaROImax[1][28][ 6]=   0.452099;PhiROImin[1][28][ 6]=  -0.669279;PhiROImax[1][28][ 6]=  -0.562387;
+     EtaROImin[1][28][ 7]=   0.246207;EtaROImax[1][28][ 7]=    0.35049;PhiROImin[1][28][ 7]=  -0.669279;PhiROImax[1][28][ 7]=  -0.562387;
+     EtaROImin[1][28][ 8]=   0.555789;EtaROImax[1][28][ 8]=   0.648101;PhiROImin[1][28][ 8]=  -0.782446;PhiROImax[1][28][ 8]=  -0.672786;
+     EtaROImin[1][28][ 9]=   0.458091;EtaROImax[1][28][ 9]=   0.554444;PhiROImin[1][28][ 9]=  -0.782446;PhiROImax[1][28][ 9]=  -0.672786;
+     EtaROImin[1][28][10]=   0.555789;EtaROImax[1][28][10]=   0.648101;PhiROImin[1][28][10]=  -0.669279;PhiROImax[1][28][10]=  -0.562387;
+     EtaROImin[1][28][11]=   0.458091;EtaROImax[1][28][11]=   0.554444;PhiROImin[1][28][11]=  -0.669279;PhiROImax[1][28][11]=  -0.562387;
+     EtaROImin[1][28][12]=   0.731124;EtaROImax[1][28][12]=   0.776449;PhiROImin[1][28][12]=   -0.78243;PhiROImax[1][28][12]=  -0.672186;
+     EtaROImin[1][28][13]=   0.655857;EtaROImax[1][28][13]=   0.728056;PhiROImin[1][28][13]=   -0.78243;PhiROImax[1][28][13]=  -0.672186;
+     EtaROImin[1][28][14]=   0.731124;EtaROImax[1][28][14]=   0.776449;PhiROImin[1][28][14]=  -0.668661;PhiROImax[1][28][14]=  -0.561229;
+     EtaROImin[1][28][15]=   0.655857;EtaROImax[1][28][15]=   0.728056;PhiROImin[1][28][15]=  -0.668661;PhiROImax[1][28][15]=  -0.561229;
+     EtaROImin[1][28][16]=   0.853359;EtaROImax[1][28][16]=   0.895163;PhiROImin[1][28][16]=   -0.78243;PhiROImax[1][28][16]=  -0.672186;
+     EtaROImin[1][28][17]=   0.783867;EtaROImax[1][28][17]=   0.850528;PhiROImin[1][28][17]=   -0.78243;PhiROImax[1][28][17]=  -0.672186;
+     EtaROImin[1][28][18]=   0.853359;EtaROImax[1][28][18]=   0.895163;PhiROImin[1][28][18]=  -0.668661;PhiROImax[1][28][18]=  -0.561229;
+     EtaROImin[1][28][19]=   0.783867;EtaROImax[1][28][19]=   0.850528;PhiROImin[1][28][19]=  -0.668661;PhiROImax[1][28][19]=  -0.561229;
+     EtaROImin[1][28][20]=   0.964674;EtaROImax[1][28][20]=    1.02514;PhiROImin[1][28][20]=  -0.782446;PhiROImax[1][28][20]=  -0.672786;
+     EtaROImin[1][28][21]=   0.898201;EtaROImax[1][28][21]=   0.961344;PhiROImin[1][28][21]=  -0.782446;PhiROImax[1][28][21]=  -0.672786;
+     EtaROImin[1][28][22]=   0.964674;EtaROImax[1][28][22]=    1.02514;PhiROImin[1][28][22]=  -0.669279;PhiROImax[1][28][22]=  -0.562387;
+     EtaROImin[1][28][23]=   0.898201;EtaROImax[1][28][23]=   0.961344;PhiROImin[1][28][23]=  -0.669279;PhiROImax[1][28][23]=  -0.562387;
+     EtaROImin[1][28][24]=	    0;EtaROImax[1][28][24]=	     0;PhiROImin[1][28][24]=	      0;PhiROImax[1][28][24]=	       0;
+     EtaROImin[1][28][25]=    1.03003;EtaROImax[1][28][25]=    1.06547;PhiROImin[1][28][25]=  -0.782329;PhiROImax[1][28][25]=  -0.671969;
+     EtaROImin[1][28][26]=	    0;EtaROImax[1][28][26]=	     0;PhiROImin[1][28][26]=	      0;PhiROImax[1][28][26]=	       0;
+     EtaROImin[1][28][27]=    1.03003;EtaROImax[1][28][27]=    1.06547;PhiROImin[1][28][27]=   -0.66844;PhiROImax[1][28][27]=  -0.588255;
+     EtaROImin[1][28][28]=	    0;EtaROImax[1][28][28]=	     0;PhiROImin[1][28][28]=	      0;PhiROImax[1][28][28]=	       0;
+     EtaROImin[1][28][29]=	    0;EtaROImax[1][28][29]=	     0;PhiROImin[1][28][29]=	      0;PhiROImax[1][28][29]=	       0;
+     EtaROImin[1][28][30]=	    0;EtaROImax[1][28][30]=	     0;PhiROImin[1][28][30]=	      0;PhiROImax[1][28][30]=	       0;
+     EtaROImin[1][28][31]=	    0;EtaROImax[1][28][31]=	     0;PhiROImin[1][28][31]=	      0;PhiROImax[1][28][31]=	       0;
+     EtaROImin[1][29][ 0]=  0.0208251;EtaROImax[1][29][ 0]=   0.118734;PhiROImin[1][29][ 0]=  -0.479445;PhiROImax[1][29][ 0]=  -0.395489;
+     EtaROImin[1][29][ 1]=   0.116816;EtaROImax[1][29][ 1]=   0.213185;PhiROImin[1][29][ 1]=  -0.479445;PhiROImax[1][29][ 1]=  -0.395489;
+     EtaROImin[1][29][ 2]=  0.0208251;EtaROImax[1][29][ 2]=   0.118734;PhiROImin[1][29][ 2]=  -0.565749;PhiROImax[1][29][ 2]=  -0.483076;
+     EtaROImin[1][29][ 3]=   0.116816;EtaROImax[1][29][ 3]=   0.213185;PhiROImin[1][29][ 3]=  -0.565749;PhiROImax[1][29][ 3]=  -0.483076;
+     EtaROImin[1][29][ 4]=   0.222449;EtaROImax[1][29][ 4]=   0.302928;PhiROImin[1][29][ 4]=  -0.479445;PhiROImax[1][29][ 4]=  -0.395489;
+     EtaROImin[1][29][ 5]=    0.30075;EtaROImax[1][29][ 5]=   0.416721;PhiROImin[1][29][ 5]=  -0.479445;PhiROImax[1][29][ 5]=  -0.395489;
+     EtaROImin[1][29][ 6]=   0.222449;EtaROImax[1][29][ 6]=   0.302928;PhiROImin[1][29][ 6]=  -0.565749;PhiROImax[1][29][ 6]=  -0.483076;
+     EtaROImin[1][29][ 7]=    0.30075;EtaROImax[1][29][ 7]=   0.416721;PhiROImin[1][29][ 7]=  -0.565749;PhiROImax[1][29][ 7]=  -0.483076;
+     EtaROImin[1][29][ 8]=    0.42967;EtaROImax[1][29][ 8]=   0.504617;PhiROImin[1][29][ 8]=  -0.479445;PhiROImax[1][29][ 8]=  -0.395489;
+     EtaROImin[1][29][ 9]=   0.501681;EtaROImax[1][29][ 9]=   0.573871;PhiROImin[1][29][ 9]=  -0.479445;PhiROImax[1][29][ 9]=  -0.395489;
+     EtaROImin[1][29][10]=    0.42967;EtaROImax[1][29][10]=   0.504617;PhiROImin[1][29][10]=  -0.565749;PhiROImax[1][29][10]=  -0.483076;
+     EtaROImin[1][29][11]=   0.501681;EtaROImax[1][29][11]=   0.573871;PhiROImin[1][29][11]=  -0.565749;PhiROImax[1][29][11]=  -0.483076;
+     EtaROImin[1][29][12]=   0.583785;EtaROImax[1][29][12]=   0.653329;PhiROImin[1][29][12]=  -0.479445;PhiROImax[1][29][12]=  -0.395489;
+     EtaROImin[1][29][13]=   0.649934;EtaROImax[1][29][13]=   0.741516;PhiROImin[1][29][13]=  -0.479445;PhiROImax[1][29][13]=  -0.395489;
+     EtaROImin[1][29][14]=   0.583785;EtaROImax[1][29][14]=   0.653329;PhiROImin[1][29][14]=  -0.565749;PhiROImax[1][29][14]=  -0.483076;
+     EtaROImin[1][29][15]=   0.649934;EtaROImax[1][29][15]=   0.741516;PhiROImin[1][29][15]=  -0.565749;PhiROImax[1][29][15]=  -0.483076;
+     EtaROImin[1][29][16]=   0.756521;EtaROImax[1][29][16]=   0.837822;PhiROImin[1][29][16]=  -0.479445;PhiROImax[1][29][16]=  -0.395489;
+     EtaROImin[1][29][17]=	    0;EtaROImax[1][29][17]=	     0;PhiROImin[1][29][17]=	      0;PhiROImax[1][29][17]=	       0;
+     EtaROImin[1][29][18]=   0.756521;EtaROImax[1][29][18]=   0.837822;PhiROImin[1][29][18]=  -0.565749;PhiROImax[1][29][18]=  -0.483076;
+     EtaROImin[1][29][19]=	    0;EtaROImax[1][29][19]=	     0;PhiROImin[1][29][19]=	      0;PhiROImax[1][29][19]=	       0;
+     EtaROImin[1][29][20]=   0.844116;EtaROImax[1][29][20]=   0.903324;PhiROImin[1][29][20]=  -0.479445;PhiROImax[1][29][20]=  -0.395489;
+     EtaROImin[1][29][21]=   0.899344;EtaROImax[1][29][21]=   0.956037;PhiROImin[1][29][21]=  -0.479445;PhiROImax[1][29][21]=  -0.395489;
+     EtaROImin[1][29][22]=   0.844116;EtaROImax[1][29][22]=   0.903324;PhiROImin[1][29][22]=  -0.565749;PhiROImax[1][29][22]=  -0.483076;
+     EtaROImin[1][29][23]=   0.899344;EtaROImax[1][29][23]=   0.956037;PhiROImin[1][29][23]=  -0.565749;PhiROImax[1][29][23]=  -0.483076;
+     EtaROImin[1][29][24]=	    0;EtaROImax[1][29][24]=	     0;PhiROImin[1][29][24]=	      0;PhiROImax[1][29][24]=	       0;
+     EtaROImin[1][29][25]=	    0;EtaROImax[1][29][25]=	     0;PhiROImin[1][29][25]=	      0;PhiROImax[1][29][25]=	       0;
+     EtaROImin[1][29][26]=	    0;EtaROImax[1][29][26]=	     0;PhiROImin[1][29][26]=	      0;PhiROImax[1][29][26]=	       0;
+     EtaROImin[1][29][27]=	    0;EtaROImax[1][29][27]=	     0;PhiROImin[1][29][27]=	      0;PhiROImax[1][29][27]=	       0;
+     EtaROImin[1][29][28]=	    0;EtaROImax[1][29][28]=	     0;PhiROImin[1][29][28]=	      0;PhiROImax[1][29][28]=	       0;
+     EtaROImin[1][29][29]=	    0;EtaROImax[1][29][29]=	     0;PhiROImin[1][29][29]=	      0;PhiROImax[1][29][29]=	       0;
+     EtaROImin[1][29][30]=	    0;EtaROImax[1][29][30]=	     0;PhiROImin[1][29][30]=	      0;PhiROImax[1][29][30]=	       0;
+     EtaROImin[1][29][31]=	    0;EtaROImax[1][29][31]=	     0;PhiROImin[1][29][31]=	      0;PhiROImax[1][29][31]=	       0;
+     EtaROImin[1][30][ 0]=   0.116816;EtaROImax[1][30][ 0]=   0.213185;PhiROImin[1][30][ 0]=  -0.389909;PhiROImax[1][30][ 0]=  -0.305953;
+     EtaROImin[1][30][ 1]=  0.0208251;EtaROImax[1][30][ 1]=   0.118734;PhiROImin[1][30][ 1]=  -0.389909;PhiROImax[1][30][ 1]=  -0.305953;
+     EtaROImin[1][30][ 2]=   0.116816;EtaROImax[1][30][ 2]=   0.213185;PhiROImin[1][30][ 2]=  -0.302322;PhiROImax[1][30][ 2]=  -0.219649;
+     EtaROImin[1][30][ 3]=  0.0208251;EtaROImax[1][30][ 3]=   0.118734;PhiROImin[1][30][ 3]=  -0.302322;PhiROImax[1][30][ 3]=  -0.219649;
+     EtaROImin[1][30][ 4]=    0.30075;EtaROImax[1][30][ 4]=   0.416721;PhiROImin[1][30][ 4]=  -0.389909;PhiROImax[1][30][ 4]=  -0.305953;
+     EtaROImin[1][30][ 5]=   0.222449;EtaROImax[1][30][ 5]=   0.302928;PhiROImin[1][30][ 5]=  -0.389909;PhiROImax[1][30][ 5]=  -0.305953;
+     EtaROImin[1][30][ 6]=    0.30075;EtaROImax[1][30][ 6]=   0.416721;PhiROImin[1][30][ 6]=  -0.302322;PhiROImax[1][30][ 6]=  -0.219649;
+     EtaROImin[1][30][ 7]=   0.222449;EtaROImax[1][30][ 7]=   0.302928;PhiROImin[1][30][ 7]=  -0.302322;PhiROImax[1][30][ 7]=  -0.219649;
+     EtaROImin[1][30][ 8]=   0.501681;EtaROImax[1][30][ 8]=   0.573871;PhiROImin[1][30][ 8]=  -0.389909;PhiROImax[1][30][ 8]=  -0.305953;
+     EtaROImin[1][30][ 9]=    0.42967;EtaROImax[1][30][ 9]=   0.504617;PhiROImin[1][30][ 9]=  -0.389909;PhiROImax[1][30][ 9]=  -0.305953;
+     EtaROImin[1][30][10]=   0.501681;EtaROImax[1][30][10]=   0.573871;PhiROImin[1][30][10]=  -0.302322;PhiROImax[1][30][10]=  -0.219649;
+     EtaROImin[1][30][11]=    0.42967;EtaROImax[1][30][11]=   0.504617;PhiROImin[1][30][11]=  -0.302322;PhiROImax[1][30][11]=  -0.219649;
+     EtaROImin[1][30][12]=   0.649934;EtaROImax[1][30][12]=   0.741516;PhiROImin[1][30][12]=  -0.389909;PhiROImax[1][30][12]=  -0.305953;
+     EtaROImin[1][30][13]=   0.583785;EtaROImax[1][30][13]=   0.653329;PhiROImin[1][30][13]=  -0.389909;PhiROImax[1][30][13]=  -0.305953;
+     EtaROImin[1][30][14]=   0.649934;EtaROImax[1][30][14]=   0.741516;PhiROImin[1][30][14]=  -0.302322;PhiROImax[1][30][14]=  -0.219649;
+     EtaROImin[1][30][15]=   0.583785;EtaROImax[1][30][15]=   0.653329;PhiROImin[1][30][15]=  -0.302322;PhiROImax[1][30][15]=  -0.219649;
+     EtaROImin[1][30][16]=	    0;EtaROImax[1][30][16]=	     0;PhiROImin[1][30][16]=	      0;PhiROImax[1][30][16]=	       0;
+     EtaROImin[1][30][17]=   0.756521;EtaROImax[1][30][17]=   0.837822;PhiROImin[1][30][17]=  -0.389909;PhiROImax[1][30][17]=  -0.305953;
+     EtaROImin[1][30][18]=	    0;EtaROImax[1][30][18]=	     0;PhiROImin[1][30][18]=	      0;PhiROImax[1][30][18]=	       0;
+     EtaROImin[1][30][19]=   0.756521;EtaROImax[1][30][19]=   0.837822;PhiROImin[1][30][19]=  -0.302322;PhiROImax[1][30][19]=  -0.219649;
+     EtaROImin[1][30][20]=   0.899344;EtaROImax[1][30][20]=   0.956037;PhiROImin[1][30][20]=  -0.389909;PhiROImax[1][30][20]=  -0.305953;
+     EtaROImin[1][30][21]=   0.844116;EtaROImax[1][30][21]=   0.903324;PhiROImin[1][30][21]=  -0.389909;PhiROImax[1][30][21]=  -0.305953;
+     EtaROImin[1][30][22]=   0.899344;EtaROImax[1][30][22]=   0.956037;PhiROImin[1][30][22]=  -0.302322;PhiROImax[1][30][22]=  -0.219649;
+     EtaROImin[1][30][23]=   0.844116;EtaROImax[1][30][23]=   0.903324;PhiROImin[1][30][23]=  -0.302322;PhiROImax[1][30][23]=  -0.219649;
+     EtaROImin[1][30][24]=	    0;EtaROImax[1][30][24]=	     0;PhiROImin[1][30][24]=	      0;PhiROImax[1][30][24]=	       0;
+     EtaROImin[1][30][25]=	    0;EtaROImax[1][30][25]=	     0;PhiROImin[1][30][25]=	      0;PhiROImax[1][30][25]=	       0;
+     EtaROImin[1][30][26]=	    0;EtaROImax[1][30][26]=	     0;PhiROImin[1][30][26]=	      0;PhiROImax[1][30][26]=	       0;
+     EtaROImin[1][30][27]=	    0;EtaROImax[1][30][27]=	     0;PhiROImin[1][30][27]=	      0;PhiROImax[1][30][27]=	       0;
+     EtaROImin[1][30][28]=	    0;EtaROImax[1][30][28]=	     0;PhiROImin[1][30][28]=	      0;PhiROImax[1][30][28]=	       0;
+     EtaROImin[1][30][29]=	    0;EtaROImax[1][30][29]=	     0;PhiROImin[1][30][29]=	      0;PhiROImax[1][30][29]=	       0;
+     EtaROImin[1][30][30]=	    0;EtaROImax[1][30][30]=	     0;PhiROImin[1][30][30]=	      0;PhiROImax[1][30][30]=	       0;
+     EtaROImin[1][30][31]=	    0;EtaROImax[1][30][31]=	     0;PhiROImin[1][30][31]=	      0;PhiROImax[1][30][31]=	       0;
+     EtaROImin[1][31][ 0]=  0.0231199;EtaROImax[1][31][ 0]=   0.131749;PhiROImin[1][31][ 0]=  -0.112612;PhiROImax[1][31][ 0]=-0.00295181;
+     EtaROImin[1][31][ 1]=   0.130922;EtaROImax[1][31][ 1]=   0.238612;PhiROImin[1][31][ 1]=  -0.112612;PhiROImax[1][31][ 1]=-0.00295181;
+     EtaROImin[1][31][ 2]=  0.0231199;EtaROImax[1][31][ 2]=   0.131749;PhiROImin[1][31][ 2]=  -0.223011;PhiROImax[1][31][ 2]=  -0.116119;
+     EtaROImin[1][31][ 3]=   0.130922;EtaROImax[1][31][ 3]=   0.238612;PhiROImin[1][31][ 3]=  -0.223011;PhiROImax[1][31][ 3]=  -0.116119;
+     EtaROImin[1][31][ 4]=   0.246207;EtaROImax[1][31][ 4]=    0.35049;PhiROImin[1][31][ 4]=  -0.112612;PhiROImax[1][31][ 4]=-0.00295181;
+     EtaROImin[1][31][ 5]=   0.350831;EtaROImax[1][31][ 5]=   0.452099;PhiROImin[1][31][ 5]=  -0.112612;PhiROImax[1][31][ 5]=-0.00295181;
+     EtaROImin[1][31][ 6]=   0.246207;EtaROImax[1][31][ 6]=    0.35049;PhiROImin[1][31][ 6]=  -0.223011;PhiROImax[1][31][ 6]=  -0.116119;
+     EtaROImin[1][31][ 7]=   0.350831;EtaROImax[1][31][ 7]=   0.452099;PhiROImin[1][31][ 7]=  -0.223011;PhiROImax[1][31][ 7]=  -0.116119;
+     EtaROImin[1][31][ 8]=   0.458091;EtaROImax[1][31][ 8]=   0.554444;PhiROImin[1][31][ 8]=  -0.112612;PhiROImax[1][31][ 8]=-0.00295181;
+     EtaROImin[1][31][ 9]=   0.555789;EtaROImax[1][31][ 9]=   0.648101;PhiROImin[1][31][ 9]=  -0.112612;PhiROImax[1][31][ 9]=-0.00295181;
+     EtaROImin[1][31][10]=   0.458091;EtaROImax[1][31][10]=   0.554444;PhiROImin[1][31][10]=  -0.223011;PhiROImax[1][31][10]=  -0.116119;
+     EtaROImin[1][31][11]=   0.555789;EtaROImax[1][31][11]=   0.648101;PhiROImin[1][31][11]=  -0.223011;PhiROImax[1][31][11]=  -0.116119;
+     EtaROImin[1][31][12]=   0.655857;EtaROImax[1][31][12]=   0.703298;PhiROImin[1][31][12]=  -0.113212;PhiROImax[1][31][12]=-0.00296767;
+     EtaROImin[1][31][13]=   0.706413;EtaROImax[1][31][13]=   0.776449;PhiROImin[1][31][13]=  -0.113212;PhiROImax[1][31][13]=-0.00296767;
+     EtaROImin[1][31][14]=   0.655857;EtaROImax[1][31][14]=   0.703298;PhiROImin[1][31][14]=  -0.224169;PhiROImax[1][31][14]=  -0.116737;
+     EtaROImin[1][31][15]=   0.706413;EtaROImax[1][31][15]=   0.776449;PhiROImin[1][31][15]=  -0.224169;PhiROImax[1][31][15]=  -0.116737;
+     EtaROImin[1][31][16]=   0.783867;EtaROImax[1][31][16]=    0.82768;PhiROImin[1][31][16]=  -0.113212;PhiROImax[1][31][16]=-0.00296767;
+     EtaROImin[1][31][17]=   0.830556;EtaROImax[1][31][17]=   0.895163;PhiROImin[1][31][17]=  -0.113212;PhiROImax[1][31][17]=-0.00296767;
+     EtaROImin[1][31][18]=   0.783867;EtaROImax[1][31][18]=    0.82768;PhiROImin[1][31][18]=  -0.224169;PhiROImax[1][31][18]=  -0.116737;
+     EtaROImin[1][31][19]=   0.830556;EtaROImax[1][31][19]=   0.895163;PhiROImin[1][31][19]=  -0.224169;PhiROImax[1][31][19]=  -0.116737;
+     EtaROImin[1][31][20]=   0.898201;EtaROImax[1][31][20]=   0.961344;PhiROImin[1][31][20]=  -0.112612;PhiROImax[1][31][20]=-0.00295181;
+     EtaROImin[1][31][21]=   0.964674;EtaROImax[1][31][21]=    1.02514;PhiROImin[1][31][21]=  -0.112612;PhiROImax[1][31][21]=-0.00295181;
+     EtaROImin[1][31][22]=   0.898201;EtaROImax[1][31][22]=   0.961344;PhiROImin[1][31][22]=  -0.223011;PhiROImax[1][31][22]=  -0.116119;
+     EtaROImin[1][31][23]=   0.964674;EtaROImax[1][31][23]=    1.02514;PhiROImin[1][31][23]=  -0.223011;PhiROImax[1][31][23]=  -0.116119;
+     EtaROImin[1][31][24]=    1.03003;EtaROImax[1][31][24]=    1.06547;PhiROImin[1][31][24]=  -0.113429;PhiROImax[1][31][24]=-0.00306876;
+     EtaROImin[1][31][25]=	    0;EtaROImax[1][31][25]=	     0;PhiROImin[1][31][25]=	      0;PhiROImax[1][31][25]=	       0;
+     EtaROImin[1][31][26]=    1.03003;EtaROImax[1][31][26]=    1.06547;PhiROImin[1][31][26]=  -0.197143;PhiROImax[1][31][26]=  -0.116958;
+     EtaROImin[1][31][27]=	    0;EtaROImax[1][31][27]=	     0;PhiROImin[1][31][27]=	      0;PhiROImax[1][31][27]=	       0;
+     EtaROImin[1][31][28]=	    0;EtaROImax[1][31][28]=	     0;PhiROImin[1][31][28]=	      0;PhiROImax[1][31][28]=	       0;
+     EtaROImin[1][31][29]=	    0;EtaROImax[1][31][29]=	     0;PhiROImin[1][31][29]=	      0;PhiROImax[1][31][29]=	       0;
+     EtaROImin[1][31][30]=	    0;EtaROImax[1][31][30]=	     0;PhiROImin[1][31][30]=	      0;PhiROImax[1][31][30]=	       0;
+     EtaROImin[1][31][31]=	    0;EtaROImax[1][31][31]=	     0;PhiROImin[1][31][31]=	      0;PhiROImax[1][31][31]=	       0;
+
   
   return sc;
 }
