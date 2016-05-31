@@ -477,7 +477,7 @@ namespace Trk
 
     n_iteration=0;
     
-    const RecVertexPositions & myRecPositionBeg=myJetCandidate->getRecVertexPositions();
+    // const RecVertexPositions & myRecPositionBeg=myJetCandidate->getRecVertexPositions();
 
     const std::vector<VxVertexOnJetAxis*> & associatedVertices=myJetCandidate->getVerticesOnJetAxis();
     
