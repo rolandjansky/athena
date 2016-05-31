@@ -28,3 +28,4 @@ atlas_install_joboptions( share/*.py )
 atlas_install_scripts( share/vp1 )
 atlas_install_scripts( share/clear-bash-hash-table-vp1 )
 
+

@@ -22,6 +22,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <iomanip>
+#include <cstdint> // for uint64_t (unsigned long long)
 #include <cstdlib> //For setenv
 
 
@@ -138,7 +139,7 @@ StatusCode VP1Alg::execute()
   StatusCode status = evtStore()->retrieve(evt);
   if(status.isSuccess()) {
     // Get run/event number:
-    int eventNumber = evt->event_ID()->event_number();
+	const uint64_t eventNumber = evt->event_ID()->event_number();
     int runNumber = evt->event_ID()->run_number();
     msg(MSG::DEBUG) << " Got run number = " << runNumber
 	<< ", event number = " << eventNumber << endreq;
