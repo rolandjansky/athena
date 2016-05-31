@@ -34,14 +34,15 @@ HltEventLoopMgr.histHltResultSize=("HltResultSize",0,125000,100)
 #
 try:
     from TrigEDMConfig.TriggerEDM import EDMDetails,getTypeAndKey,keyToLabel
+    from TrigEDMConfig.TriggerEDM import TriggerHLTList
     
     # TODO update to use import TriggerHLTList directly
-    from TrigEDMConfig.TriggerEDM import TriggerL2List,TriggerEFList
-    TriggerHLTList = list(set(TriggerL2List).union(TriggerEFList))
+    #from TrigEDMConfig.TriggerEDM import TriggerL2List,TriggerEFList
+    #TriggerHLTList = list(set(TriggerL2List).union(TriggerEFList))
     
     l = []
     for item in TriggerHLTList:
-        if 'BS' in item[1]:
+        if ('BS' in item[1].split()) or ('DS' in item[1].split()):
             t,k = getTypeAndKey(item[0])
             ctype = t
             if EDMDetails[t].has_key('collection'):

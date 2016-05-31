@@ -433,6 +433,11 @@ private:
   /// Check integrity of CTP ROB and put event to debug stream when it fails
   BooleanProperty           m_lvl1CTPROBcheck ;
 
+  /// Flag to write events with truncated HLT result to a special debug stream
+  BooleanProperty           m_writeHltTruncationToDebug ;
+  /// Debug stream name for events with a truncated HLT result 
+  StringProperty            m_HltTruncationDebugStreamName; 
+
   /// Monitoring
   TH1F*                     m_hist_l1_robs;
 
