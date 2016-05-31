@@ -210,6 +210,16 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
       if (m_printSummary) m_badFEB_counters[it->first]++;
       //BadFEBCount++;
     }
+
+    // Tight MNBs
+    if ( it->second.badChannels() > m_MNBTightCut ){
+       noisyRO->add_MNBTight_feb(HWIdentifier(it->first));
+    }
+    
+    // Loose MNBs
+    if ( it->second.badChannels() > m_MNBLooseCut ){
+       noisyRO->add_MNBLoose_feb(HWIdentifier(it->first));
+    }
  
     const unsigned int* PAcounters = it->second.PAcounters();
     for ( size_t i = 0; i < 32; i++ ) {
