@@ -34,3 +34,4 @@ apply_pattern athenarun_test \
    options="TileSimEventAthenaPool/TileSimEventTPCnv_HITS_test.py" \
    pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh TileSimEventTPCnv_HITS" \
    post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh TileSimEventTPCnv_HITS"
+
