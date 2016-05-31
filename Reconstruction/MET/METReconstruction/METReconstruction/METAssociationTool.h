@@ -55,7 +55,7 @@ namespace met{
    *
    */
   class METAssociationTool final
-    : virtual public asg::AsgTool,
+    : public asg::AsgTool,
       virtual public IMETRecoTool
   { 
     // This macro defines the constructor with the interface declaration
@@ -102,6 +102,7 @@ namespace met{
     std::string m_corename;
 
     int m_signalstate;
+    bool m_overwrite;
 
     ToolHandleArray<IMETAssocToolBase> m_metassociators;
 

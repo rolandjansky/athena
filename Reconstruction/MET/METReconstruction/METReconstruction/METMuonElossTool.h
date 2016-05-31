@@ -29,7 +29,7 @@
 namespace met{
 
   class METMuonElossTool
-    : virtual public METRefinerTool
+    : public METRefinerTool
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METMuonElossTool, IMETToolBase)

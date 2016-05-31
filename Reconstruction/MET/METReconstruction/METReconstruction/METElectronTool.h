@@ -26,7 +26,7 @@
 namespace met{
 
   class METElectronTool
-    : virtual public METEgammaTool
+    : public METEgammaTool
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METElectronTool, IMETToolBase)

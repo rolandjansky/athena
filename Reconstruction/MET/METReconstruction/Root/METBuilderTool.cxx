@@ -35,9 +35,11 @@ namespace met {
   METBuilderTool::METBuilderTool(const std::string& name) : 
     AsgTool(name)
   {
-    declareProperty( "InputCollection", m_input_data_key  );
-    declareProperty( "MissingETKey",    m_output_met_key  );
-    declareProperty( "SignalState",     m_signalstate = 0 );
+    declareProperty( "InputCollection", m_input_data_key      );
+    declareProperty( "MissingETKey",    m_output_met_key      );
+    declareProperty( "SignalState",     m_signalstate = 0     );
+    declareProperty( "UseRapidity",     m_useRapidity = false );
+    declareProperty( "ModifiedClusKey", m_mod_clus_key = ""   );
   }
 
   // Destructor
@@ -49,7 +51,10 @@ namespace met {
   ////////////////////////////
   StatusCode METBuilderTool::initialize()
   {
-    ATH_MSG_INFO ("Initializing " << name() << "...");
+    ATH_MSG_DEBUG ("Initializing " << name() << "...");
+
+    // Determine if modified clusters are used for jet inputs
+    m_useModClus = !m_mod_clus_key.empty();
 
     return StatusCode::SUCCESS;
   }

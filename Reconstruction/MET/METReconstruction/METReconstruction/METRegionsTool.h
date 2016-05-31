@@ -23,7 +23,7 @@
 namespace met{
 
   class METRegionsTool
-    : virtual public METRefinerTool
+    : public METRefinerTool
   {
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METRegionsTool,IMETToolBase)

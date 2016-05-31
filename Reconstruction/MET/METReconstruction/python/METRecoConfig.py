@@ -7,7 +7,8 @@ from AthenaCommon import CfgMgr
 
 clusterSigStates = {
     'EMScale':0,
-    'LocHad':1
+    'LocHad':1,
+    'Mod':1
 }
 
 defaultSelection = {
@@ -24,30 +25,17 @@ defaultInputKey = {
    'Ele'      :'Electrons',
    'Gamma'    :'Photons',
    'Tau'      :'TauJets',
-   'Jet'      :'AntiKt4LCTopoJets',
+   'Jet'      :'AntiKt4EMTopoJets',
    'Muon'     :'Muons',
    'SoftTrk'  :'InDetTrackParticles',
    'SoftClus' :'CaloCalTopoClusters',
    'SoftPFlow':'JetETMissNeutralParticleFlowObjects',
    'PrimaryVx':'PrimaryVertices',
    'Truth'    :'TruthParticles',
-   'Calo'     :'AllCalo'
+   'Calo'     :'AllCalo',
+   'LCOCSoftClus':'LCOriginTopoClusters',
+   'EMOCSoftClus':'EMOriginTopoClusters',
    }
-
-# # old naming scheme
-# defaultInputKey = {
-#     'Ele'      :'ElectronCollection',
-#     'Gamma'    :'PhotonCollection',
-#     'Tau'      :'TauRecContainer',
-#     'Jet'      :'AntiKt4LCTopoJets',
-#     'Muon'     :'Muons',
-#     'SoftTrk'  :'InDetTrackParticles',
-#     'SoftClus' :'CaloCalTopoCluster',
-#     'SoftPFlow':'neutralJetETMissPFO_eflowRec',
-#     'PrimaryVx':'PrimaryVertices',
-#     'Truth'    :'TruthParticle',
-#     'Calo'     :'AllCalo'
-# }
 
 defaultOutputKey = {
     'Ele'      :'RefEle',
@@ -74,7 +62,7 @@ class BuildConfig:
         self.outputKey = outputKey
         self.inputKey = inputKey
 
-def getBuilder(config,suffix,doTracks,doCells):
+def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
     tool = None
     # Construct tool and set defaults for case-specific configuration
     if config.objType == 'Ele':
@@ -98,10 +86,13 @@ def getBuilder(config,suffix,doTracks,doCells):
     if config.objType == 'SoftTrk':
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftTrkTool_'+suffix)
         tool.InputComposition = 'Tracks'
-    if config.objType == 'SoftClus':
+    if config.objType.endswith('SoftClus'):
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftClusTool_'+suffix)
         tool.InputComposition = 'Clusters'
-        tool.SignalState = clusterSigStates['LocHad']
+        if doOriginCorrClus:
+            tool.SignalState = clusterSigStates['Mod']
+        else:
+            tool.SignalState = clusterSigStates['LocHad']
     if config.objType == 'SoftPFlow':
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftPFlowTool_'+suffix)
         tool.InputComposition = 'PFlow'
@@ -117,11 +108,13 @@ def getBuilder(config,suffix,doTracks,doCells):
     if suffix == 'Calo':
         tool = CfgMgr.met__METCaloRegionsTool('MET_CaloRegionsTool')
         if doCells:
-            tool.UseCells    = True                    
-            config.inputKey  = defaultInputKey['Calo'] 
+            tool.UseCells     = True
+            tool.DoTriggerMET = doTriggerMET
+            config.inputKey   = defaultInputKey['Calo'] 
         else:
-            tool.UseCells    = False                   
-            config.inputKey  = defaultInputKey['SoftClus']
+            tool.UseCells     = False                   
+            tool.DoTriggerMET = False
+            config.inputKey   = defaultInputKey['SoftClus']
         config.outputKey = config.objType
 
     # set input/output key names
@@ -148,24 +141,23 @@ class RefConfig:
         self.type = myType
         self.outputKey = outputKey
 
-def getRefiner(config,suffix):
+def getRefiner(config,suffix,trkseltool=None,trkvxtool=None,trkisotool=None,caloisotool=None):
     tool = None
 
     from AthenaCommon.AppMgr import ToolSvc
     if config.type == 'TrackFilter':
         tool = CfgMgr.met__METTrackFilterTool('MET_TrackFilterTool_'+suffix)
         tool.InputPVKey = defaultInputKey['PrimaryVx']
-        trkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_MET",
-                                                         CutLevel="TightPrimary",
-                                                         maxZ0SinTheta=1.5,
-                                                         maxD0overSigmaD0=3)
-        ToolSvc += trkseltool
-        #
-        trkvxtool=CfgMgr.CP__TightTrackVertexAssociationTool("TightTrackVertexAssociationTool", dzSinTheta_cut=1.5, doPV=False)
-        ToolSvc += trkvxtool
-        #
         tool.TrackSelectorTool=trkseltool
         tool.TrackVxAssocTool=trkvxtool
+        #
+        tool.UseIsolationTools = False #True
+        tool.TrackIsolationTool = trkisotool
+        tool.CaloIsolationTool = caloisotool
+        from METReconstruction.METRecoFlags import metFlags
+        tool.DoPVSel = metFlags.UseTracks()
+        tool.DoVxSep = metFlags.UseTracks()
+
     if config.type == 'JetFilter':
         tool = CfgMgr.met__METJetFilterTool('MET_JetFilterTool_'+suffix)
     if config.type == 'MuonEloss':
@@ -178,6 +170,8 @@ def getRefiner(config,suffix):
 # Region tools are a special case of refiners
 
 def getRegions(config,suffix):
+    if suffix == 'Truth':
+        config.outputKey = config.objType
     tool = CfgMgr.met__METRegionsTool('MET_'+config.outputKey+'Regions_'+suffix)
     tool.InputMETContainer = 'MET_'+suffix
     tool.InputMETMap = 'METMap_'+suffix
@@ -204,7 +198,8 @@ class METConfig:
                 print prefix, 'Config '+self.suffix+' already contains a builder of type '+config.objType
                 raise LookupError
             else:
-                builder = getBuilder(config,self.suffix,self.doTracks,self.doCells)
+                builder = getBuilder(config,self.suffix,self.doTracks,self.doCells,
+                                     self.doTriggerMET,self.doOriginCorrClus)
                 self.builders[config.objType] = builder
                 self.buildlist.append(builder)
                 print prefix, '  Added '+config.objType+' tool named '+builder.name()
@@ -217,7 +212,9 @@ class METConfig:
                 print 'Config '+self.suffix+' already contains a refiner of type '+config.type
                 raise LookupError
             else:
-                refiner = getRefiner(config,self.suffix)
+                refiner = getRefiner(config=config,suffix=self.suffix,
+                                     trkseltool=self.trkseltool,trkvxtool=self.trkvxtool,
+                                     trkisotool=self.trkisotool,caloisotool=self.caloisotool)
                 self.refiners[config.type] = refiner
                 self.reflist.append(refiner)
                 print prefix, '  Added '+config.type+' tool named '+refiner.name()
@@ -236,13 +233,16 @@ class METConfig:
     #
     def __init__(self,suffix,buildconfigs=[],refconfigs=[],
                  doTracks=False,doSum=False,doRegions=False,
-                 doCells=False,duplicateWarning=True):
+                 doCells=False,doTriggerMET=True,duplicateWarning=True,
+                 doOriginCorrClus=False):
         print prefix, 'Creating MET config \''+suffix+'\''
         self.suffix = suffix
         self.doSum = doSum
         self.doTracks = doTracks
         self.doRegions = doRegions
-        self.doCells = doCells
+        self.doCells = doCells,
+        self.doOriginCorrClus = doOriginCorrClus
+        self.doTriggerMET = doTriggerMET
         self.duplicateWarning = duplicateWarning
         #
         self.builders = {}
@@ -251,13 +251,30 @@ class METConfig:
         self.refiners = {}
         self.reflist = [] # need an ordered list
         #
-        self.setupBuilders(buildconfigs)
-        self.setupRefiners(refconfigs)
-        #
         self.regions = {}
         self.reglist = [] # need an ordered list
         if doRegions:
             self.setupRegions(buildconfigs)
+        #
+        from AthenaCommon.AppMgr import ToolSvc
+        self.trkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_MET",
+                                                         CutLevel="TightPrimary",
+                                                         maxZ0SinTheta=3,
+                                                         maxD0=2)
+        ToolSvc += self.trkseltool
+        #
+        self.trkvxtool=CfgMgr.CP__TightTrackVertexAssociationTool("TightTrackVertexAssociationTool_MET", dzSinTheta_cut=1.5, doPV=False)
+        ToolSvc += self.trkvxtool
+        #
+        self.trkisotool = CfgMgr.xAOD__TrackIsolationTool("TrackIsolationTool_MET")
+        self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above
+        ToolSvc += self.trkisotool
+        #
+        self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET")
+        ToolSvc += self.caloisotool
+
+        self.setupBuilders(buildconfigs)
+        self.setupRefiners(refconfigs)
 
 # Set up a top-level tool with mostly defaults
 def getMETRecoTool(topconfig):

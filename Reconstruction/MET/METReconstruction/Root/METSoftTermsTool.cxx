@@ -82,7 +82,8 @@ namespace met {
   ////////////////////////////
   StatusCode METSoftTermsTool::initialize()
   {
-    ATH_MSG_INFO ("Initializing " << name() << "...");
+    ATH_CHECK(  METBuilderTool::initialize() );
+    ATH_MSG_VERBOSE ("Initializing " << name() << "...");
 
     // use string property and convert to int?
     if(m_inputType == "Clusters")    m_st_objtype = 0;

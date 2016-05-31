@@ -4,13 +4,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// METElectronAssociator.cxx 
+// METElectronAssociator.cxx
 // Implementation file for class METElectronAssociator
 //
 //  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 //
 // Author: P Loch, S Resconi, TJ Khoo, AS Mete
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
 
 // METReconstruction includes
 #include "METReconstruction/METElectronAssociator.h"
@@ -25,7 +25,7 @@ namespace met {
 
   // Constructors
   ////////////////
-  METElectronAssociator::METElectronAssociator(const std::string& name) : 
+  METElectronAssociator::METElectronAssociator(const std::string& name) :
     AsgTool(name),
     METAssociator(name),
     METEgammaAssociator(name)
@@ -40,6 +40,7 @@ namespace met {
   ////////////////////////////
   StatusCode METElectronAssociator::initialize()
   {
+    ATH_CHECK( METEgammaAssociator::initialize() );
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
     return StatusCode::SUCCESS;
   }
@@ -50,21 +51,21 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
+  ///////////////////////////////////////////////////////////////////
+  // Const methods:
   ///////////////////////////////////////////////////////////////////
 
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
+  ///////////////////////////////////////////////////////////////////
+  // Non-const methods:
+  ///////////////////////////////////////////////////////////////////
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected methods: 
-  /////////////////////////////////////////////////////////////////// 
+  ///////////////////////////////////////////////////////////////////
+  // Protected methods:
+  ///////////////////////////////////////////////////////////////////
 
   // executeTool
   ////////////////
-  StatusCode METElectronAssociator::executeTool(xAOD::MissingETContainer* /*metCont*/, xAOD::MissingETAssociationMap* metMap) 
+  StatusCode METElectronAssociator::executeTool(xAOD::MissingETContainer* /*metCont*/, xAOD::MissingETAssociationMap* metMap)
   {
     ATH_MSG_VERBOSE ("In execute: " << name() << "...");
 
@@ -86,14 +87,14 @@ namespace met {
 
   StatusCode METElectronAssociator::extractTracks(const xAOD::IParticle* obj,
 						  std::vector<const xAOD::IParticle*>& constlist,
-						  const xAOD::CaloClusterContainer* /*tcCont*/,
-					          const xAOD::Vertex* pv)
+						  const xAOD::IParticleContainer* tcCont,
+					          const xAOD::Vertex* pv) const
   {
     const Electron *el = static_cast<const Electron*>(obj);
     for(size_t iTrk=0; iTrk<el->nTrackParticles(); ++iTrk) {
       const TrackParticle* eltrk = EgammaHelpers::getOriginalTrackParticleFromGSF(el->trackParticle(iTrk));
-      // if(acceptTrack(eltrk,pv) && isGoodEoverP(eltrk,tcCont)) {
-      if(acceptTrack(eltrk,pv)) {
+      if(acceptTrack(eltrk,pv) && isGoodEoverP(eltrk,tcCont)) {
+      // if(acceptTrack(eltrk,pv)) {
 	ATH_MSG_VERBOSE("Accept electron track " << eltrk << " px, py = " << eltrk->p4().Px() << ", " << eltrk->p4().Py());
 	constlist.push_back(eltrk);
       }
@@ -107,12 +108,12 @@ namespace met {
 					       std::vector<const xAOD::IParticle*>& pfolist,
 					       const xAOD::PFOContainer* pfoCont,
 					       std::map<const IParticle*,MissingETBase::Types::constvec_t> &momenta,
-					       const xAOD::Vertex* pv)
+					       const xAOD::Vertex* pv) const
   {
     const Electron *el = static_cast<const Electron*>(obj);
     // safe to assume a single SW cluster?
     // will do so for now...
-    const CaloCluster* swclus = el->caloCluster();
+    const IParticle* swclus = el->caloCluster();
     double eg_cl_e = swclus->e();
 
     // the matching strategy depends on how the cluster container is sorted
@@ -156,7 +157,7 @@ namespace met {
 	pfolist.push_back(pfo);
 	sumE_pfo += pfo_e;
 
-        TLorentzVector momentum = pfo->GetVertexCorrectedEMFourVec(*pv);
+        TLorentzVector momentum = pv ? pfo->GetVertexCorrectedEMFourVec(*pv) : pfo->p4EM();
 	momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
 							momentum.E(),momentum.Pt());
       } // if we will retain the topocluster

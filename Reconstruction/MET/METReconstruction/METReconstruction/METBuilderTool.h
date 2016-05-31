@@ -26,6 +26,7 @@
 
 // METRecoInterface includes
 #include "METRecoInterface/IMETToolBase.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 
 // Forward declaration
 namespace xAOD {
@@ -71,7 +72,10 @@ namespace met {
 
     std::string m_input_data_key;
     std::string m_output_met_key;
-    int m_signalstate; // use an int for now - signal states seem to be defined in the object classes, e.g. CaloCluster and Jet
+    std::string m_mod_clus_key;
+    int m_signalstate;  // use an int for now - signal states seem to be defined in the object classes, e.g. CaloCluster and Jet
+    bool m_useRapidity; // by default, use pseudorapidity for matching
+    bool m_useModClus;  // use modified e.g. origin-corrected clusters
 
     // reconstruction process to be defined in the individual tools
     // pure virtual -- we have no default

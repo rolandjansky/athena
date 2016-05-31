@@ -71,6 +71,7 @@ namespace met {
   ////////////////////////////
   StatusCode METElectronTool::initialize()
   {
+    ATH_CHECK( METEgammaTool::initialize() );
     ATH_MSG_INFO ("Initializing " << name() << "...");
 
     // Should put some info about the configuration here

@@ -23,6 +23,7 @@
 // FrameWork includes
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 
 // METRecoInterface includes
 #include "METRecoInterface/IMETToolBase.h"
@@ -69,6 +70,7 @@ namespace met {
   protected:
 
     std::string m_output_met_key;
+    bool m_useRapidity;  // by default, use pseudorapidity for matching
 
     // reconstruction process to be defined in the individual tools
     // pure virtual -- we have no default

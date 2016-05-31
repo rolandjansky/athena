@@ -61,10 +61,14 @@ namespace met {
   ////////////////////////////
   StatusCode METRegionsTool::initialize()
   {
-    ATH_MSG_INFO ("Initializing " << name() << "...");
+    ATH_CHECK( METRefinerTool::initialize() );
+    ATH_MSG_VERBOSE ("Initializing " << name() << "...");
+
+    ATH_MSG_INFO("Base MET container: " << m_base_met_containerKey);
+    ATH_MSG_INFO("Base MET key: " << m_base_met_inputKey);
 
     if( m_base_met_containerKey.size()==0 || m_base_met_inputKey.size()==0 ) {
-      ATH_MSG_FATAL("Both InputMETContainer or InputMETKey must be provided.");
+      ATH_MSG_FATAL("Both InputMETContainer and InputMETKey must be provided.");
       return StatusCode::FAILURE;
     }
 
@@ -161,7 +165,7 @@ namespace met {
       return StatusCode::SUCCESS;
     }
 
-    if( iterBaseConstit == metMap->end() ) {
+    if( iterBaseConstit == base_met_map->end() ) {
       ATH_MSG_WARNING("Could not find base METComponent in MET Map!");
       return StatusCode::SUCCESS;
     }
@@ -174,9 +178,10 @@ namespace met {
         currentMetTerm->setName( m_base_met_inputKey + "_" + m_region_names.at(index) );
       } else { 
         currentMetTerm = new MissingET(0.,0.,0.);
-        currentMetTerm->setName( m_base_met_inputKey + "_" + m_region_names.at(index) );
         ATH_MSG_DEBUG("Adding MET Term " << currentMetTerm->name() << " to MET container" );
-        metCont->push_back( currentMetTerm ); 
+        metCont->push_back( currentMetTerm );
+	// Should also set the source
+        currentMetTerm->setName( m_base_met_inputKey + "_" + m_region_names.at(index) );
         ATH_MSG_DEBUG("Adding MET Term " << currentMetTerm->name() << " to MET map" );
         MissingETComposition::add( metMap, metCont->back() );
       }

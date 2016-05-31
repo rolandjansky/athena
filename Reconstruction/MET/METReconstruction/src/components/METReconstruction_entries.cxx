@@ -18,6 +18,7 @@
 #include "METReconstruction/METSoftAssociator.h"
 // Truth tool
 #include "METReconstruction/METTruthTool.h"
+#include "METReconstruction/METTruthAssociator.h"
 // CaloRegions
 #include "METReconstruction/METCaloRegionsTool.h"
 // Refiners
@@ -47,6 +48,7 @@ DECLARE_TOOL_FACTORY(METMuonAssociator)
 DECLARE_TOOL_FACTORY(METSoftAssociator)
 //
 DECLARE_TOOL_FACTORY(METTruthTool)
+DECLARE_TOOL_FACTORY(METTruthAssociator)
 DECLARE_TOOL_FACTORY(METCaloRegionsTool)
 //
 DECLARE_TOOL_FACTORY(METJetFilterTool)
@@ -74,6 +76,7 @@ DECLARE_FACTORY_ENTRIES(METReconstruction) {
   DECLARE_TOOL(METSoftAssociator)
     //
   DECLARE_TOOL(METTruthTool)
+  DECLARE_TOOL(METTruthAssociator)
   DECLARE_TOOL(METCaloRegionsTool)
     //
   DECLARE_TOOL(METJetFilterTool)

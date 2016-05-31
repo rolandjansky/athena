@@ -20,7 +20,7 @@
 
 namespace met{
   class METElectronAssociator final
-    : virtual public METEgammaAssociator
+    : public METEgammaAssociator
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METElectronAssociator, IMETAssocToolBase)
@@ -57,11 +57,11 @@ namespace met{
 			  std::vector<const xAOD::IParticle*>& pfolist,
 			  const xAOD::PFOContainer* pfoCont,
 			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
-			  const xAOD::Vertex* pv) final;
+			  const xAOD::Vertex* pv) const final;
     StatusCode extractTracks(const xAOD::IParticle* obj,
 			     std::vector<const xAOD::IParticle*>& constlist,
-			     const xAOD::CaloClusterContainer* tcCont,
-			     const xAOD::Vertex* pv) final;
+			     const xAOD::IParticleContainer* tcCont,
+			     const xAOD::Vertex* pv) const final;
 
     private:
  

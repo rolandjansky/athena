@@ -4,25 +4,25 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// METSoftAssociator.h 
-// Header file for class METSoftAssociator
+// METMuonAssociator.h 
+// Header file for class METTruthAssociator
 //
 //  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 //
 // Author: P Loch, S Resconi, TJ Khoo, AS Mete
 /////////////////////////////////////////////////////////////////// 
-#ifndef METRECONSTRUCTION_METSOFTASSOCIATOR_H
-#define METRECONSTRUCTION_METSOFTASSOCIATOR_H 1
+#ifndef METRECONSTRUCTION_METTRUTHASSOCIATOR_H
+#define METRECONSTRUCTION_METTRUTHASSOCIATOR_H 1
 
 // METReconstruction includes
 #include "METReconstruction/METAssociator.h"
 
 namespace met{
-  class METSoftAssociator final
+  class METTruthAssociator final
     : public METAssociator
   { 
     // This macro defines the constructor with the interface declaration
-    ASG_TOOL_CLASS(METSoftAssociator, IMETAssocToolBase)
+    ASG_TOOL_CLASS(METTruthAssociator, IMETAssocToolBase)
 
 
     /////////////////////////////////////////////////////////////////// 
@@ -31,12 +31,12 @@ namespace met{
     public: 
 
     // Constructor with name
-    METSoftAssociator(const std::string& name);
-    ~METSoftAssociator();
+    METTruthAssociator(const std::string& name);
+    ~METTruthAssociator();
 
     // AsgTool Hooks
-    StatusCode initialize();
-    StatusCode finalize();
+    StatusCode  initialize();
+    StatusCode  finalize();
 
     /////////////////////////////////////////////////////////////////// 
     // Const methods: 
@@ -51,7 +51,25 @@ namespace met{
     /////////////////////////////////////////////////////////////////// 
     protected: 
 
+    StatusCode fillAssocMap(xAOD::MissingETAssociationMap* metMap,
+			    const xAOD::IParticleContainer* hardObjs) const;
     StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap);
+    //
+    StatusCode associateJets(xAOD::MissingETAssociationMap* metMap) const;
+    //
+    StatusCode extractTruthParticles(const xAOD::IParticle* obj,
+				     std::vector<const xAOD::IParticle*>& truthlist) const;
+    StatusCode extractTruthFromElectron(const xAOD::IParticle* obj,
+					std::vector<const xAOD::IParticle*>& truthlist) const;
+    StatusCode extractTruthFromPhoton(const xAOD::IParticle* obj,
+				      std::vector<const xAOD::IParticle*>& truthlist) const;
+    StatusCode extractTruthFromMuon(const xAOD::IParticle* obj,
+				    std::vector<const xAOD::IParticle*>& truthlist) const;
+    StatusCode extractTruthFromTau(const xAOD::IParticle* obj,
+				     std::vector<const xAOD::IParticle*>& truthlist) const;
+    //
+    StatusCode computeSoftTerms(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const;
+    //
     StatusCode extractPFO(const xAOD::IParticle*,
 			  std::vector<const xAOD::IParticle*>&,
 			  const xAOD::PFOContainer*,
@@ -67,16 +85,19 @@ namespace met{
 				   const xAOD::IParticleContainer*) const {return StatusCode::FAILURE;} // should not be called
 
     private:
+
+    std::string m_recoJetKey;
+    std::string m_recoElKey;
+    std::string m_recoMuKey;
+    std::string m_recoGamKey;
+    std::string m_recoTauKey;
+    std::string m_truthPartKey;
  
     /// Default constructor: 
-    METSoftAssociator();
-
-    bool m_decorateSoftTermConst;
-    std::string m_lcmodclus_key;
-    std::string m_emmodclus_key;
+    METTruthAssociator();
 
   }; 
 
 }
 
-#endif //> !METRECONSTRUCTION_METSOFTASSOCIATOR_H
+#endif //> !METRECONSTRUCTION_METMUONASSOCIATOR_H

@@ -17,6 +17,7 @@ for config in outputlist:
 
 if len(metFlags.METAssocOutputList())==0:
     assocoutput = ['AntiKt4LCTopo','AntiKt4EMTopo','AntiKt4EMPFlow']
+    # assocoutput += ['Truth_AntiKt4LCTopo','Truth_AntiKt4EMTopo','Truth_AntiKt4EMPFlow']
 else:
     assocoutput = metFlags.METAssocOutputList()
 for config in assocoutput:

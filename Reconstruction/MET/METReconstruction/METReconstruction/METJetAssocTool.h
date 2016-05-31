@@ -19,7 +19,7 @@
 
 namespace met{
   class METJetAssocTool final
-    : virtual public METAssociator
+    : public METAssociator
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METJetAssocTool, IMETAssocToolBase)
@@ -56,21 +56,32 @@ namespace met{
 			  std::vector<const xAOD::IParticle*>&,
 			  const xAOD::PFOContainer*,
 			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t>&,
-			  const xAOD::Vertex*){return StatusCode::FAILURE;} // should not be called
+			  const xAOD::Vertex*) const {return StatusCode::FAILURE;} // should not be called
 
     StatusCode extractTracks(const xAOD::IParticle*,
 			     std::vector<const xAOD::IParticle*>&,
-			     const xAOD::CaloClusterContainer*,
-			     const xAOD::Vertex*){return StatusCode::FAILURE;} // should not be called
+			     const xAOD::IParticleContainer*,
+			     const xAOD::Vertex*) const {return StatusCode::FAILURE;} // should not be called
     StatusCode extractTopoClusters(const xAOD::IParticle*,
 				   std::vector<const xAOD::IParticle*>&,
-				   const xAOD::CaloClusterContainer*){return StatusCode::FAILURE;} // should not be called
+				   const xAOD::IParticleContainer*) const {return StatusCode::FAILURE;} // should not be called
 
     private:
  
     /// Default constructor: 
     METJetAssocTool();
 
+    void getPFOs(const xAOD::Jet *jet,
+                 std::vector<const xAOD::IParticle*> &consts,
+                 const xAOD::Vertex *pv,
+                 const xAOD::PFOContainer *pfoCont,
+                 std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const;
+    void getClus(const xAOD::Jet *jet,std::vector<const xAOD::IParticle*> &consts) const;
+    void getOther(const xAOD::Jet *jet,
+                  std::vector<const xAOD::IParticle*> &consts,
+                  std::set<const xAOD::IParticle*> *newConst) const;
+
+    double m_matchRadius;
   }; 
 
 }

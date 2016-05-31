@@ -19,7 +19,7 @@
 
 namespace met{
   class METTauAssociator final
-    : virtual public METAssociator
+    : public METAssociator
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METTauAssociator, IMETAssocToolBase)
@@ -54,16 +54,16 @@ namespace met{
     StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap);
     StatusCode extractTopoClusters(const xAOD::IParticle* obj,
 				   std::vector<const xAOD::IParticle*>& tclist,
-				   const xAOD::CaloClusterContainer* tcCont);
+				   const xAOD::IParticleContainer* tcCont) const;
     StatusCode extractPFO(const xAOD::IParticle* obj,
 			  std::vector<const xAOD::IParticle*>& pfolist,
 			  const xAOD::PFOContainer* pfoCont,
 			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
-			  const xAOD::Vertex* pv) final;
+			  const xAOD::Vertex* pv) const final;
     StatusCode extractTracks(const xAOD::IParticle* obj,
 			     std::vector<const xAOD::IParticle*>& constlist,
-			     const xAOD::CaloClusterContainer* tcCont,
-			     const xAOD::Vertex* pv) final;
+			     const xAOD::IParticleContainer* tcCont,
+			     const xAOD::Vertex* pv) const final;
 
     private:
  

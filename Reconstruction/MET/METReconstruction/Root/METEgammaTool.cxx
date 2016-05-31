@@ -91,6 +91,7 @@ namespace met {
   ////////////////////////////
   StatusCode METEgammaTool::initialize()
   {
+    ATH_CHECK(  METBuilderTool::initialize() );
     ATH_MSG_INFO ("Initializing " << name() << "...");
 
     return StatusCode::SUCCESS;
@@ -177,8 +178,7 @@ namespace met {
     for(CaloClusterContainer::const_iterator iClus=tcCont->begin();
 	iClus!=tcCont->end(); ++iClus) {
       // this can probably be done more elegantly
-      double dR = swclus->p4().DeltaR((*iClus)->p4());
-      if(dR<0.1 && (*iClus)->e()>0) {
+      if(xAOD::P4Helpers::isInDeltaR(*swclus,**iClus,0.1,m_useRapidity) && (*iClus)->e()>0) {
 	// could consider also requirements on the EM fraction or depth
 	nearbyTC.push_back(*iClus);
       } // match TC in a cone around SW cluster

@@ -63,6 +63,7 @@ namespace met {
   ////////////////////////////
   StatusCode METJetFilterTool::initialize()
   {
+    ATH_CHECK( METRefinerTool::initialize() );
     ATH_MSG_INFO ("Initializing " << name() << "...");
 
     return StatusCode::SUCCESS;

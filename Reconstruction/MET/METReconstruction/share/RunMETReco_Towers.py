@@ -3,17 +3,13 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon import CfgMgr
 
-#import METReconstruction.METConfig_Calo
-
 from RecExConfig.RecFlags import rec
-#if rec.doTruth:
-#    import METReconstruction.METConfig_Truth
 
 filelist = [#"valid2.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s2578_r7226/AOD.06803710._000047.pool.root.1",
             #"valid2.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s2578_r7226/AOD.06803710._000254.pool.root.1",
-    "myESD.pool.root"
+    #"myESD.pool.root"
 #    "/atlas/data1/userdata/khoo/Data15/mc15_ESD/mc15_13TeV.422008.ParticleGun_single_ele_Pt100.recon.ESD.e4459_s2726_r7143_tid06642056_00/ESD.06642056._000021.pool.root.1"
-#    "/atlas/data1/userdata/khoo/Data15/mc15_ESD/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.ESD.e3698_s2608_s2183_r7509_tid07497143_00/ESD.07497143._000004.pool.root.1"
+    "/atlas/data1/userdata/khoo/Data15/mc15_ESD/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.ESD.e3698_s2608_s2183_r7509_tid07497143_00/ESD.07497143._000004.pool.root.1"
     ]
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = filelist
@@ -36,8 +32,7 @@ globalflags.DetDescrVersion = inputFileSummary['geometry']
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.all_setOff()
-#DetFlags.detdescr.Calo_setOn()
-if hasattr(DetFlags,'BField_on'): DetFlags.BField_setOn()
+DetFlags.detdescr.Calo_setOn()
 
 include('RecExCond/AllDet_detDescr.py')
 from AthenaCommon.AlgSequence import AlgSequence
@@ -45,16 +40,16 @@ topSequence = AlgSequence()
 
 ############################################################################
 # Set up muon and egamma topocluster links
-#egammaTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("EgammaTCLinks",
-#                                                 ClustersToDecorate="egammaClusters")
-#egammatopoTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("TopoEgammaTCLinks",
-#                                                     ClustersToDecorate="egammaTopoSeededClusters")
-#muonTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("MuonTCLinks",
-#                                               ClustersToDecorate="MuonClusterCollection",
-#                                               UseLeadCellEtaPhi=True)
-#topSequence += egammaTCLinkAlg
-#topSequence += egammatopoTCLinkAlg
-# topSequence += muonTCLinkAlg
+muonTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("MuonTCLinks",
+                                               ClustersToDecorate="MuonClusterCollection",
+                                               UseLeadCellEtaPhi=True)
+egammaTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("EgammaTCLinks",
+                                                 ClustersToDecorate="egammaClusters")
+egammatopoTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("TopoEgammaTCLinks",
+                                                     ClustersToDecorate="egammaTopoSeededClusters")
+topSequence += muonTCLinkAlg
+topSequence += egammaTCLinkAlg
+topSequence += egammatopoTCLinkAlg
 
 # Set up default configurations
 #import METReconstruction.METConfig_Associator
@@ -81,25 +76,32 @@ cfg_akt4em = METAssocConfig('NewAntiKt4EMTopo',
                             associators,
                             doPFlow=False
                             )
+for assoc in cfg_akt4em.assoclist:
+    assoc.IgnoreJetConst = True
+    assoc.ForwardColl = "CellTowers"
 
-metFlags.METAssocConfigs()[cfg_akt4em.suffix] = cfg_akt4em
-metFlags.METAssocOutputList().append(cfg_akt4em.suffix)
-
-associators = [AssocConfig(JetType),
+associators2 = [AssocConfig(JetType),
                AssocConfig('Muon'),
                AssocConfig('Ele'),
                AssocConfig('Gamma'),
                AssocConfig('Tau'),
                AssocConfig('Soft')]
-cfg_akt4emoc = METAssocConfig('NewAntiKt4EMTopo_OriginCorr',
-                              associators,
-                              doPFlow=False,
-                              doOriginCorrClus=True
-                              )
+cfg_akt4em2 = METAssocConfig('NewAntiKt4EMTopo2',
+                            associators2,
+                            doPFlow=False
+                            )
+for assoc in cfg_akt4em2.assoclist:
+    assoc.IgnoreJetConst = True
+    assoc.ClusColl = "CellTowers"
 
-metFlags.METAssocConfigs()[cfg_akt4emoc.suffix] = cfg_akt4emoc
-metFlags.METAssocOutputList().append(cfg_akt4emoc.suffix)
 
+metFlags.METAssocConfigs()[cfg_akt4em.suffix] = cfg_akt4em
+metFlags.METAssocOutputList().append(cfg_akt4em.suffix)
+
+metFlags.METAssocConfigs()[cfg_akt4em2.suffix] = cfg_akt4em2
+metFlags.METAssocOutputList().append(cfg_akt4em2.suffix)
+
+#from METReconstruction.METRecoFlags import metFlags
 from METReconstruction.METAssocConfig import getMETAssocAlg
 
 # Get the configuration directly from METRecoFlags
@@ -112,23 +114,7 @@ for key,conf in metFlags.METAssocConfigs().iteritems():
     if not conf.doTruth:
         makerAlg = getMETMakerAlg(conf.suffix,jetColl="AntiKt4EMTopoJets")
         topSequence += makerAlg
-ToolSvc.METMaker_NewAntiKt4EMTopo.OutputLevel = DEBUG
-ToolSvc.METMaker_NewAntiKt4EMTopo_OriginCorr.OutputLevel = DEBUG
-
-from METReconstruction.METRecoConfig import METConfig,BuildConfig
-
-cfg_lht = METConfig('LocHadTopo_OriginCorr',[BuildConfig('LCOCSoftClus','LocHadTopo')],
-                    doRegions=True,
-                    doOriginCorrClus=True
-                    )
-
-metFlags.METConfigs()[cfg_lht.suffix] = cfg_lht
-metFlags.METOutputList().append(cfg_lht.suffix)
-metFlags.METOutputList().append(cfg_lht.suffix+'Regions')
-
-from METReconstruction.METRecoConfig import getMETRecoAlg
-metAlg2 = getMETRecoAlg('METReconstruction')
-topSequence += metAlg2
+ToolSvc.METMaker_NewAntiKt4EMTopo.OutputLevel = 1
 
 from Valkyrie.JobOptCfg import ValgrindSvc
 svcMgr += ValgrindSvc( OutputLevel = INFO,
@@ -150,9 +136,6 @@ if write_xAOD:
     xaodStream = MSMgr.NewPoolRootStream( "StreamAOD", "xAOD.pool.root" )
     for item in MissingETAODList:
         xaodStream.AddItem(item)
-
-    xaodStream.AddItem('xAOD::MissingETContainer#MET_LocHadTopo')
-    xaodStream.AddItem('xAOD::MissingETAuxContainer#MET_LocHadTopoAux.')
 
 theApp.EvtMax = 10
 ServiceMgr.EventSelector.SkipEvents = 0

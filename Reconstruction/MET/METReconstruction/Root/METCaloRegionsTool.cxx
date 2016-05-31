@@ -53,9 +53,18 @@ namespace met {
   ////////////////
   METCaloRegionsTool::METCaloRegionsTool(const std::string& name) : 
     AsgTool(name)
+    #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
+    #else
+    ,m_caloNoiseTool("CaloNoiseToolDefault")
+    #endif
   {
-    declareProperty( "InputCollection", m_input_data_key       );
-    declareProperty( "UseCells"       , m_calo_useCells = true );
+    declareProperty( "InputCollection", m_input_data_key            );
+    declareProperty( "UseCells"       , m_calo_useCells      = true );
+    declareProperty( "DoTriggerMET"   , m_calo_doTriggerMet  = true );
+    #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
+    #else
+    declareProperty( "CaloNoiseTool"  , m_caloNoiseTool             );
+    #endif
   }
 
   // Destructor
@@ -67,9 +76,21 @@ namespace met {
   ////////////////////////////
   StatusCode METCaloRegionsTool::initialize()
   {
-    ATH_MSG_INFO ("Initializing " << name() << "...");
+    ATH_MSG_DEBUG("Initializing " << name() << "...");
 
-    return StatusCode::SUCCESS;
+    StatusCode sc = StatusCode::SUCCESS;
+    #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
+    #else
+    sc = m_caloNoiseTool.retrieve();
+    if(sc.isFailure()) {
+      ATH_MSG_WARNING("Unable to find tool for CaloNoiseTool");
+    }
+    else {
+      ATH_MSG_INFO("CaloNoiseTool retrieved");
+    }
+    #endif
+
+    return sc;
   }
 
   StatusCode METCaloRegionsTool::finalize()
@@ -108,6 +129,20 @@ namespace met {
       // Set Name and Source
       metCont->at(i)->setName( CaloRegionNames[i] );      
       metCont->at(i)->setSource( source );      
+    }
+    // The last term is Trigger MET if asked for by the user
+    if( m_calo_useCells && m_calo_doTriggerMet ) {
+      std::string termName = "";
+      for( int i=0; i<3; ++i) {
+        switch(i) {
+          case 0: termName = "AllCells"; break;
+          case 1: termName = "Cells_Abs2S"; break;
+          case 2: termName = "Cells_Abs2S_m5S"; break;
+        }
+        metCont->push_back( new MissingET(0.,0.,0.) ); 
+        metCont->at(REGIONS_TOTAL+i)->setName( termName );      
+        metCont->at(REGIONS_TOTAL+i)->setSource( MissingETBase::Source::Calo );      
+      }
     }
       
     StatusCode sc = StatusCode::SUCCESS;
@@ -217,25 +252,45 @@ namespace met {
       // Retrieve the sampling 
       CaloSampling::CaloSample sample = (CaloSampling::CaloSample) (*iCell)->caloDDE()->getSampling();
 
-      // Eta is only defined if Energy != 0
-      if(fabs((*iCell)->energy())>0) {
-       
-        // Calculate Et/phi
-        double et_cell  = (*iCell)->energy()/cosh((*iCell)->eta());
-        double phi_cell = (*iCell)->phi();
+      // Calculate Et/phi
+      double e_cell   = (*iCell)->energy();
+      double et_cell  = e_cell/cosh((*iCell)->eta());
+      double phi_cell = (*iCell)->phi();
      
-        // Find the associated MET 
-        MissingET* metTerm  = findMetTerm(metContainer, sample); 
-        if(!metTerm) {
-          ATH_MSG_WARNING("Invalid calo sample MET pointer");
-          continue;
-        }
+      // Find the associated MET 
+      MissingET* metTerm  = findMetTerm(metContainer, sample); 
+      if(!metTerm) {
+        ATH_MSG_WARNING("Invalid calo sample MET pointer");
+        continue;
+      }
 
-        // Add to MET
-        metTerm->add(et_cell*cos(phi_cell),
-                     et_cell*sin(phi_cell),
-                     et_cell);
-      } // end if energy>0 if
+      // Add to MET for the Calo regions
+      metTerm->add(et_cell*cos(phi_cell),
+                   et_cell*sin(phi_cell),
+                   et_cell);
+
+      // Trigger MET
+      if(m_calo_doTriggerMet) {
+        #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
+        double noise_cell = 0;
+        #else
+        double noise_cell = m_caloNoiseTool->totalNoiseRMS((*iCell));
+        #endif
+        // All cells
+        metContainer->at(REGIONS_TOTAL)->add(et_cell*cos(phi_cell),
+                                             et_cell*sin(phi_cell),
+                                             et_cell);
+        // |E| > 2*sigma
+        if( fabs(e_cell) <  2.0*noise_cell ) continue;
+        metContainer->at(REGIONS_TOTAL+1)->add(et_cell*cos(phi_cell),
+                                               et_cell*sin(phi_cell),
+                                               et_cell);
+        // E > -5*sigma
+        if( e_cell       < -5.0*noise_cell ) continue;
+        metContainer->at(REGIONS_TOTAL+2)->add(et_cell*cos(phi_cell),
+                                               et_cell*sin(phi_cell),
+                                               et_cell);
+      }
     } // end of loop overall cells
     #endif
     return StatusCode::SUCCESS;

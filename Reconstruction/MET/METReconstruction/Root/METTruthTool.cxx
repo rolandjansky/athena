@@ -9,7 +9,7 @@
 //
 //  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 //
-// Author: P Loch, S Resconi, TJ Khoo
+// Author: P Loch, S Resconi, TJ Khoo, AS Mete
 /////////////////////////////////////////////////////////////////// 
 
 // METReconstruction includes
@@ -23,6 +23,9 @@
 // Truth EDM
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertex.h"
+
+// Truth Utilities
+#include "TruthUtils/TruthParticleHelpers.h"
 
 namespace met {
 
@@ -52,7 +55,7 @@ namespace met {
     declareProperty( "InputComposition", m_inputType = "NonInt" ); // Truth type
     declareProperty( "MaxEtaDet",        m_det_maxEta = 5.      ); // Nominal max detector eta
     declareProperty( "MinPtMu"  ,        m_truthmu_minPt = 6e3  ); // Nominal min muon pt
-    declareProperty( "MaxEtaMu",         m_truthmu_maxEta = 5.  ); // Nominal max MS eta
+    declareProperty( "MaxEtaMu",         m_truthmu_maxEta = 2.7  ); // Nominal max MS eta
   }
 
   // Destructor
@@ -64,7 +67,8 @@ namespace met {
   ////////////////////////////
   StatusCode METTruthTool::initialize()
   {
-    ATH_MSG_INFO ("Initializing " << name() << "...");
+    ATH_CHECK( METBuilderTool::initialize() );
+    ATH_MSG_VERBOSE ("Initializing " << name() << "...");
 
     if(m_inputType=="NonInt") {
       m_truth_type = MissingETBase::Source::truthNonInt();
@@ -133,34 +137,37 @@ namespace met {
   bool METTruthTool::accept_nonint(const xAOD::TruthParticle* truth) const
   {
     ATH_MSG_VERBOSE("Check nonint");
-    // non-interacting
-    if(!isNonInteracting(truth)) return false;
+    // stable and non-interacting
+    if (MC::isGenStable(truth->status(),truth->barcode()) && MC::isNonInteracting(truth->pdgId())) return true;
 
-    return true;
+    return false;
   }
 
   bool METTruthTool::accept_int(const xAOD::TruthParticle* truth) const
   {
     ATH_MSG_VERBOSE("Check int");
     // not muon
-    if(isMuon(truth)) return false;
+    if(truth->isMuon()) return false;
+    // stable
+    if(!MC::isGenStable(truth->status(),truth->barcode())) return false;
     // interacting
-    if(!isInteracting(truth)) return false;
+    if(MC::isNonInteracting(truth->pdgId())) return false;
     // in acceptance
     if(fabs(truth->eta())>m_det_maxEta) return false;
 
     return true;
   }
-
+  
   bool METTruthTool::accept_intout(const xAOD::TruthParticle* truth) const
   {
     ATH_MSG_VERBOSE("Check intout");
-    // not muon
-    if(isMuon(truth)) return false;
+    // not in acceptance (calo or MS)
+    if( (truth->isMuon() && fabs(truth->eta())<m_truthmu_maxEta) ||
+	(fabs(truth->eta())<m_det_maxEta) ) return false;
+    // stable
+    if(!MC::isGenStable(truth->status(),truth->barcode())) return false;
     // interacting
-    if(!isInteracting(truth)) return false;
-    // out of acceptance
-    if(fabs(truth->eta())<m_det_maxEta) return false;
+    if(MC::isNonInteracting(truth->pdgId())) return false;
 
     return true;
   }
@@ -169,9 +176,9 @@ namespace met {
   {
     ATH_MSG_VERBOSE("Check intmuon");
     // muon
-    if(!isMuon(truth)) return false;
-    // interacting
-    if(!isInteracting(truth)) return false;
+    if(!truth->isMuon()) return false;
+    // stable
+    if(!MC::isGenStable(truth->status(),truth->barcode())) return false;
     // in acceptance
     if(truth->pt()<m_truthmu_minPt && fabs(truth->eta())>m_truthmu_maxEta) return false;
 
@@ -240,43 +247,15 @@ namespace met {
   // Non-const methods: 
   /////////////////////////////////////////////////////////////////// 
 
-  // TEMPORARILY recopy some helper from TruthHelper and GeneratorUtils packages
-  //  *** via JetSimTools ***
-  // We'll have to use this package when they work properly with xAOD.
+  // // TEMPORARILY recopy some helper from TruthHelper and GeneratorUtils packages
+  // //  *** via JetSimTools ***
+  // // We'll have to use this package when they work properly with xAOD.
 
-  inline bool isStable(const xAOD::TruthParticle* p) {
-    if (p->barcode() >= 200000) return false; // This particle is from G4
-    if (p->pdgId() == 21 && p->p4().E() == 0) return false; //< Workaround for a gen bug?
-    return ((p->status() % 1000 == 1) || //< Fully stable, even if marked that way by G4
-	    (p->status() % 1000 == 2 && p->decayVtx() != NULL && p->decayVtx()->barcode() < -200000)); //< Gen-stable with G4 decay
-    /// @todo Add a no-descendants-from-G4 check?
-  }
- 
-  bool isInteracting( const xAOD::TruthParticle* const p){
-    if (! isStable(p)) return false;
-    const int apid = abs(p->pdgId() );
-    if (apid==999) return false;
-    if (apid == 12 || apid == 14 || apid == 16) return false;
-    if (p->status() % 1000 == 1 &&
-	(apid == 1000022 || apid == 1000024 || apid == 5100022 ||
-	 apid == 39 || apid == 1000039 || apid == 5000039)) return false;
-    return true;     
-  }
-
-  bool isNonInteracting( const xAOD::TruthParticle* const p){
-    if (! isStable(p)) return false;
-    const int apid = abs(p->pdgId() );
-    if (apid==999) return false;
-    if (apid == 12 || apid == 14 || apid == 16) return true;
-    if (p->status() % 1000 == 1 &&
-	(apid == 1000022 || apid == 1000024 || apid == 5100022 ||
-	 apid == 39 || apid == 1000039 || apid == 5000039)) return true;
-    return false;
-  }
-
-  bool isMuon(const xAOD::TruthParticle* truthPart) {
-    return ( abs(truthPart->pdgId()) == 13) ;       
-  }
-
+  // inline bool isStable(const xAOD::TruthParticle* p) {
+  //   if (p->barcode() >= 200000) return false; // This particle is from G4
+  //   if (p->pdgId() == 21 && p->p4().E() == 0) return false; //< Workaround for a gen bug?
+  //   return ((p->status() % 1000 == 1) || //< Fully stable, even if marked that way by G4
+  // 	    (p->status() % 1000 == 2 && p->decayVtx() != NULL && p->decayVtx()->barcode() < -200000)); //< Gen-stable with G4 decay
+  //   /// @todo Add a no-descendants-from-G4 check?
+  // }
 }
-

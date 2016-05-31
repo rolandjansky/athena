@@ -66,7 +66,8 @@ namespace met {
   ////////////////////////////
   StatusCode METPhotonTool::initialize()
   {
-    ATH_MSG_INFO ("Initializing " << name() << "...");
+    ATH_CHECK( METEgammaTool::initialize() );
+    ATH_MSG_VERBOSE ("Initializing " << name() << "...");
 
     // Provide parser of input data string here? 
     // Or take a list of inputs?
