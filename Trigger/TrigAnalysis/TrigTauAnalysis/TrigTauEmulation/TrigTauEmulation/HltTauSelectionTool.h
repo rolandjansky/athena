@@ -30,6 +30,7 @@ class HltTauSelectionTool : public virtual IHltTauSelectionTool, public Selectio
 
     HltTauSelectionTool(const std::string & name);
     HltTauSelectionTool(const HltTauSelectionTool & other);
+    HltTauSelectionTool& operator=(const HltTauSelectionTool & other) = delete;
     ~HltTauSelectionTool();
 
     virtual StatusCode initialize();

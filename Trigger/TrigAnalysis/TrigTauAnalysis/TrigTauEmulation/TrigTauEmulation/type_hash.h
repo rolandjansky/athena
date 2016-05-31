@@ -26,7 +26,8 @@ along with Bit Powder Libraries.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstdlib>
 
 /** Fast manner of testing types of certain classes, type should be stored in an integer.
- * Typical use case: virtual base class with templated derived classes, and to check if a derived class is of a certain type.
+ * Typical use case: virtual base class with templated derived classes, and to check if a derived class is of a certain
+ * type.
  *
  * Background information: http://www.nerdblog.com/2006/12/how-slow-is-dynamiccast.html
  */
@@ -39,30 +40,29 @@ typedef const ssize_t* FastTypeT;
 
 template <class T>
 struct FastType {
-    const static ssize_t value_addr;
-    constexpr static FastTypeT value = &value_addr;
+  const static ssize_t value_addr;
+  constexpr static FastTypeT value = &value_addr;
 
-    template <class A, FastTypeT A::*type = &A::type>
-    static bool pointer_of_type(A* a) {
-        //fprintf(stdout, "expected %s (%i), got %s (%i)\n", typeid(T).name(), hash_code, typeid(*a).name(), a->*type);
-        return a != nullptr && a->*type == value; // && typeid(*a) == typeid(T);
-    }
+  template <class A, FastTypeT A::*type = &A::type>
+  static bool pointer_of_type(A* a) {
+    // fprintf(stdout, "expected %s (%i), got %s (%i)\n", typeid(T).name(), hash_code, typeid(*a).name(), a->*type);
+    return a != nullptr && a->*type == value;  // && typeid(*a) == typeid(T);
+  }
 
-    template <class A, FastTypeT A::*type = &A::type>
-    static T* cast(A* a) {
-        return pointer_of_type(a) ? static_cast<T*>(a) : nullptr;
-    }
+  template <class A, FastTypeT A::*type = &A::type>
+  static T* cast(A* a) {
+    return pointer_of_type(a) ? static_cast<T*>(a) : nullptr;
+  }
 
-    template <class A, FastTypeT A::*type = &A::type>
-    static const T* cast(const A* a) {
-        return pointer_of_type(a) ? static_cast<const T*>(a) : nullptr;
-    }
-
+  template <class A, FastTypeT A::*type = &A::type>
+  static const T* cast(const A* a) {
+    return pointer_of_type(a) ? static_cast<const T*>(a) : nullptr;
+  }
 };
 
-template <class T> const ssize_t FastType<T>::value_addr = typeid(T).hash_code();
-
+template <class T>
+const ssize_t FastType<T>::value_addr = typeid(T).hash_code();
 }
 }
 
-#endif // TYPE_HASH_H
+#endif  // TYPE_HASH_H

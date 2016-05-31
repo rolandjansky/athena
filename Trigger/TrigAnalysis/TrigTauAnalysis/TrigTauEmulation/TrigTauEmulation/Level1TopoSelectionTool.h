@@ -21,16 +21,11 @@ class Level1TopoSelectionTool : public virtual ILevel1TopoSelectionTool, public 
 
  public:
 
-  // Default Constructor 
   Level1TopoSelectionTool(const std::string& name);
-
-  // Copy Constructor 
   Level1TopoSelectionTool(const Level1TopoSelectionTool& other);
+  Level1TopoSelectionTool& operator=(const Level1TopoSelectionTool& other) = delete;
 
-  // Destructor
   virtual ~Level1TopoSelectionTool() {};
-
-  // Tool initialization
   virtual StatusCode initialize();
 
   // Get the decision for a specific Level1Topo

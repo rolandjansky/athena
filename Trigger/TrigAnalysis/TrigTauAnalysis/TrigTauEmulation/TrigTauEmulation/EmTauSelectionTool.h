@@ -24,7 +24,8 @@ class EmTauSelectionTool : public virtual IEmTauSelectionTool, public Level1Sele
 
     // Copy Constructor 
     EmTauSelectionTool(const EmTauSelectionTool& other);
-
+    EmTauSelectionTool& operator=(const EmTauSelectionTool& other) = delete;
+    
     // Destructor
     virtual ~EmTauSelectionTool() {};
 

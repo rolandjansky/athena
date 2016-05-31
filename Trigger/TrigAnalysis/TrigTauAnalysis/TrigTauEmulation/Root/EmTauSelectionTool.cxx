@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// vim: ts=2 sw=2
 #include "TrigTauEmulation/EmTauSelectionTool.h"
 
 // Default constructor
@@ -23,8 +24,21 @@ EmTauSelectionTool::EmTauSelectionTool(const std::string& name) : Level1Selectio
 }
 
 // Copy constructor
-EmTauSelectionTool::EmTauSelectionTool(const EmTauSelectionTool& other) : Level1SelectionTool(other.name() + "_copy")
-{}
+EmTauSelectionTool::EmTauSelectionTool(const EmTauSelectionTool& other) : Level1SelectionTool(other.name() + "_copy") {
+  m_roi_pt_cut = other.m_roi_pt_cut;
+  m_roi_eta_cut = other.m_roi_eta_cut;
+  m_iso_slope = other.m_iso_slope;
+  m_iso_offset = other.m_iso_offset;
+  m_iso_thresh = other.m_iso_thresh;
+  m_iso_min = other.m_iso_min;
+  m_had_leak_slope = other.m_had_leak_slope;
+  m_had_leak_offset = other.m_had_leak_offset;
+  m_had_leak_thresh = other.m_had_leak_thresh;
+  m_had_leak_min = other.m_had_leak_min;
+  m_use_emclus = other.m_use_emclus;
+  m_use_had_core = other.m_use_had_core;
+  
+}
 
 // Tool initialize
 StatusCode EmTauSelectionTool::initialize()

@@ -15,7 +15,10 @@ MuonRoISelectionTool::MuonRoISelectionTool(const std::string& name) : Level1Sele
 
 // Copy constructor
 MuonRoISelectionTool::MuonRoISelectionTool(const MuonRoISelectionTool& other) : Level1SelectionTool(other.name() + "_copy")
-{}
+{
+  m_roi_pt = other.m_roi_pt;
+  m_roi_eta = other.m_roi_eta;
+}
 
 // Tool initialize
 StatusCode MuonRoISelectionTool::initialize()

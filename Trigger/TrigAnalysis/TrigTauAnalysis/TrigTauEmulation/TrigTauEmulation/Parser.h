@@ -23,17 +23,11 @@ class Parser : public virtual IParser, public asg::AsgTool
 
 
  public:
-
-  // Default Constructor 
   Parser(const std::string& name);
-
-  // Copy Constructor 
   Parser(const Parser& other);
-
-  // Destructor
+  Parser& operator=(const Parser& other) = delete;
   virtual ~Parser() {};
 
-  /* // Tool initialization */
   virtual StatusCode initialize();
 
   // Tool execute
@@ -42,15 +36,11 @@ class Parser : public virtual IParser, public asg::AsgTool
 
 
   int get_pass_number(const std::string & item_name);
-
   bool check_TOPO_type(const std::string & TOPO_type);
 
   std::map<std::string, int> get_items(const std::string & type="");
-
   std::vector<std::string> get_vec_items(const std::string & type="");
-
   std::vector<std::string> get_tool_names(const std::string & type="");
-
   std::string return_TOPO_object_string();
 
  private:

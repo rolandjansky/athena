@@ -35,11 +35,23 @@ namespace TrigTauEmul {
     m_name_parser = new Parser(name + "_ChainParser");
     m_l1orl_tool = new TrigTauORLTool(name + "_orl_tool");
     m_l1topo_tool = new Level1TopoSelectionTool(name + "_topo_tool");
+
+    // This is a fallback initialization mostly meant for athena running - in RootCore, TriggerValidation does this already
+    if(Utils::toolStoreContains<ToolsRegistry>("ToolsRegistry")) {
+      m_registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
+    } else {
+      m_registry = new ToolsRegistry("ToolsRegistry");
+    } 
   }
 
   // Copy constructor
   Level1EmulationTool::Level1EmulationTool(const Level1EmulationTool& other): asg::AsgTool(other.name() + "_copy")
-  {}
+  {
+    m_l1_chains_vec = other.m_l1_chains_vec;
+    m_name_parser = new Parser(other.name() + "_ChainParser_copy");
+    m_l1orl_tool = new TrigTauORLTool(other.name() + "_orl_tool_copy");
+    m_l1topo_tool = new Level1TopoSelectionTool(other.name() + "_topo_tool_copy");    
+  }
 
   void Level1EmulationTool::GetChains() {
     //auto registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
@@ -73,14 +85,8 @@ namespace TrigTauEmul {
     
     MY_MSG_INFO("Initializing L1 chains");
 
-    // This is a fallback initialization mostly meant for athena running - in RootCore, TriggerValidation does this already
-    if(Utils::toolStoreContains<ToolsRegistry>("ToolsRegistry")) {
-      m_registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
-    } else {
-      m_registry = new ToolsRegistry("ToolsRegistry");
-      m_registry->msg().setLevel(this->msg().level());
-      ATH_CHECK(m_registry->initialize());
-    } 
+    m_registry->msg().setLevel(this->msg().level());
+    ATH_CHECK(m_registry->initialize());
 
     for(const auto &chain: m_l1_chains_vec){
       MY_MSG_INFO("Got L1 chain: " << chain);

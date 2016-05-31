@@ -22,8 +22,16 @@ FastTrackSelectionTool::FastTrackSelectionTool(const std::string& name) : asg::A
 }
 
 // Copy constructor
-FastTrackSelectionTool::FastTrackSelectionTool(const FastTrackSelectionTool& other) : asg::AsgTool(other.name() + "_copy")
-{}
+FastTrackSelectionTool::FastTrackSelectionTool(const FastTrackSelectionTool& other) : asg::AsgTool(other.name() + "_copy") {\
+  m_d0 = other.m_d0;
+  m_z0 = other.m_z0;
+  m_delta_z0 = other.m_delta_z0;
+  m_core = other.m_core;
+  m_iso = other.m_iso;
+  m_ncore_bound = other.m_ncore_bound;
+  m_niso_bound = other.m_niso_bound;
+
+}
 
 
 StatusCode FastTrackSelectionTool::initialize()
@@ -207,8 +215,9 @@ const Root::TAccept& FastTrackSelectionTool::accept(const xAOD::TauJet * presel_
 
   // Track Counting
   int Ncore = presel_tau->nTracks();   
-  int Niso  = presel_tau->nWideTracks();
-  
+  //int Niso  = presel_tau->nWideTracks();
+  int Niso  = presel_tau->nTracksIsolation();
+
   //std::cout << "\t \t \t \t Presel tau " << presel_tau->index() 
         //<< ": pt / eta / phi / Ncore / Niso = " 
         //<< presel_tau->pt() << " / " << presel_tau->eta() << " / "

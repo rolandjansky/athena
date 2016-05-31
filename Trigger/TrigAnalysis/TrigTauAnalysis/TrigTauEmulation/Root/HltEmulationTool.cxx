@@ -50,7 +50,25 @@ namespace TrigTauEmul {
 
   // Copy constructor
   HltEmulationTool::HltEmulationTool(const HltEmulationTool& other): asg::AsgTool(other.name() + "_copy")
-  {}
+  {
+#ifdef ASGTOOL_STANDALONE
+    std::string tdt_name = "TrigDecisionTool_copy";
+    m_trigdec_tool = new ToolHandle<Trig::TrigDecisionTool> (tdt_name);
+#endif
+
+#ifdef ASGTOOL_ATHENA
+    m_trigdec_tool = new ToolHandle<Trig::TrigDecisionTool> ();
+    declareProperty("TrigDecTool", *m_trigdec_tool);
+#endif
+   
+    m_hlt_chains_vec = other.m_hlt_chains_vec;
+    m_perform_l1_emulation = other.m_perform_l1_emulation;
+    m_l1_emulation_tool = other.m_l1_emulation_tool;
+
+    m_HLTTriggerCondition = other.m_HLTTriggerCondition;
+    m_L1TriggerCondition = other.m_L1TriggerCondition;
+  
+  }
 
   // Initialize
   StatusCode HltEmulationTool::initialize() {

@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// vim: ts=2 sw=2
 #include "TrigTauEmulation/JetRoISelectionTool.h"
 #include "TrigTauEmulation/MsgStream.h"
 
@@ -10,8 +11,11 @@ JetRoISelectionTool::JetRoISelectionTool(const std::string& name) : Level1Select
   declareProperty("ClusterEta", m_roi_eta=3.2, "cut on the JetRoi |eta|");
 }
 
-JetRoISelectionTool::JetRoISelectionTool(const JetRoISelectionTool& other) : Level1SelectionTool(other.name() + "_copy")
-{}
+JetRoISelectionTool::JetRoISelectionTool(const JetRoISelectionTool& other) : Level1SelectionTool(other.name() + "_copy") {
+  m_roi_pt = other.m_roi_pt;
+  m_roi_eta = other.m_roi_eta;
+
+}
 
 // Tool initialize
 StatusCode JetRoISelectionTool::initialize()

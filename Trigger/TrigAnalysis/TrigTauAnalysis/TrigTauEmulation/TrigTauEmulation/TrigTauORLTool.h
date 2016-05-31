@@ -17,13 +17,9 @@ class TrigTauORLTool : public virtual ITrigTauORLTool, public asg::AsgTool
   
  public:
 
-  // Standard constructor
   TrigTauORLTool(const std::string& name);
-
-  // Copy constructor
   TrigTauORLTool(const TrigTauORLTool& other);
-
-  // Standard desstructor
+  TrigTauORLTool& operator=(const TrigTauORLTool& other) = delete;
   ~TrigTauORLTool() {} 
 
   virtual StatusCode initialize();
