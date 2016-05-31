@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindDoxygen.cmake 719980 2016-01-27 08:38:07Z krasznaa $
+# $Id: FindDoxygen.cmake 751138 2016-05-31 13:50:48Z krasznaa $
 #
 # This file is here to intercept find_package(Doxygen) calls, and extend the
 # environment setup file of the project with the correct Doxygen paths.
@@ -33,5 +33,11 @@ if( DOXYGEN_EXECUTABLE )
    get_filename_component( DOXYGEN_BINARY_PATH ${DOXYGEN_EXECUTABLE} PATH )
 endif()
 
+# This is just needed to set up a proper dependency on graphviz:
+if( DOXYGEN_DOT_FOUND )
+   set( GRAPHVIZ_FOUND TRUE )
+endif()
+
 # Set up the RPM dependency:
 lcg_need_rpm( doxygen )
+lcg_need_rpm( graphviz )
