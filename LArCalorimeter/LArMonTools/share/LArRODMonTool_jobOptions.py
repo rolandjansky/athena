@@ -82,13 +82,12 @@ theLArRODMonTool = LArRODMonTool(name="LArRODMonTool",
                                  #PrecisionERange3 = 512,
                                  #PrecisionERangeMax = 8192,
 
-                                 #Temporary adjustment for 4-sample running (Aug 2015): 
-                                 #Multiply precision with 2
+                                 #Adding 1MeV after Alexis investigation (May 2016): 
                                  PrecisionERange0 = 2, # MeV (Precision on E is on Eoff - Eonl)
-                                 PrecisionERange1 = 16,
-                                 PrecisionERange2 = 128,
-                                 PrecisionERange3 = 1024,
-                                 PrecisionERangeMax = 16384,
+                                 PrecisionERange1 = 9,
+                                 PrecisionERange2 = 65,
+                                 PrecisionERange3 = 513,
+                                 PrecisionERangeMax = 8192,
 
 
                                  # Expected precision for T calculation (in ps)
