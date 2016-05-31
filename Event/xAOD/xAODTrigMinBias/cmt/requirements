@@ -33,8 +33,10 @@ apply_pattern lcgdict dict=xAODTrigMinBias selectionfile=selection.xml \
 # Use "make CppUnit" to run the unit tests for this package.
 #
 
-use TestPolicy                  TestPolicy-*
+#use TestPolicy                  TestPolicy-*
 #use TestTools                  TestTools-*             AtlasTest
 #apply_pattern CppUnit name=TrigSpacePointCounts_test files="-s=../test TrigSpacePointCountsTest_CppUnit.cxx"
 #apply_pattern CppUnit name=TrigT2MbtsBits_test files="-s=../test TrigT2MbtsBitsTest_CppUnit.cxx"
 #apply_pattern CppUnit name=TrigHisto2D_test files="-s=../test TrigHisto2D_CppUnit.cxx"
+
+apply_pattern do_genCLIDDB library=xAODTrigMinBias
