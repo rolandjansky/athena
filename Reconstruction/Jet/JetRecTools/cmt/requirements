@@ -5,11 +5,11 @@ private
 
 #use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
 #use AthenaKernel        AthenaKernel-*          Control
-#use LArRecConditions    LArRecConditions-*      LArCalorimeter     
+#use LArRecConditions    LArRecConditions-*      LArCalorimeter 
+    
 
 #use CaloEvent           CaloEvent-*             Calorimeter
 #use CaloDetDescr        CaloDetDescr-*          Calorimeter
-
 
 use AtlasFastJet            AtlasFastJet-*              External
 use AtlasFastJetContrib     AtlasFastJetContrib-*       External
@@ -36,7 +36,7 @@ use JetInterface        JetInterface-*          Reconstruction/Jet
 use JetRec              JetRec-*              Reconstruction/Jet
 use xAODCore                xAODCore-*                  Event/xAOD
 use xAODBase                xAODBase-*                  Event/xAOD
-use xAODCaloEvent                               xAODCaloEvent-*                                 Event/xAOD
+use xAODCaloEvent           xAODCaloEvent-*             Event/xAOD
 use xAODTracking        xAODTracking-*          Event/xAOD
 use AsgTools            AsgTools-*              Control/AthToolSupport
 
@@ -51,7 +51,7 @@ use xAODPFlow           xAODPFlow-*             Event/xAOD
 end_private
 
 
-#use xAODTracking        xAODTracking-*          Event/xAOD 
+#use xAODTracking        xAODTracking-*          Event/xAOD
 #use TrkToolInterfaces   TrkToolInterfaces-*     Tracking/TrkTools
 
 # Add explicit dependency against xAODPFlow to avoid indirect dependency from PFlowUtils

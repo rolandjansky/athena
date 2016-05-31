@@ -26,6 +26,8 @@ JetConstituentModSequence::JetConstituentModSequence(const std::string &name): a
   declareProperty("OutputContainer", m_outputContainer, "The output container for the sequence.");
   declareProperty("InputType", m_inputTypeName, "The xAOD type name for the input container.");
   declareProperty("Modifiers", m_modifiers, "List of IJet tools.");
+  declareProperty("SaveAsShallow", m_saveAsShallow=true, "Save as shallow copy");
+
 }
 
 #ifdef ASGTOOL_ATHENA
@@ -56,61 +58,33 @@ int JetConstituentModSequence::execute() const {
 
   // Create the shallow copy according to the input type
   switch(m_inputType){
-    case xAOD::Type::CaloCluster : { 
-      const xAOD::CaloClusterContainer * clustCont = dynamic_cast<const xAOD::CaloClusterContainer *>(cont);
-      if(clustCont == 0) {std::cout << "ERROR: No valid CaloClusterContainer" << std::endl;}
-      std::pair< xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > newclust = xAOD::shallowCopyContainer(*clustCont );
-        if(evtStore()->record( newclust.first, m_outputContainer ).isFailure() || evtStore()->record( newclust.second, m_outputContainer+"Aux." ).isFailure() ){
-          ATH_MSG_ERROR("Unable to record cluster collection" << m_inputContainer );
-          return StatusCode::FAILURE;
-        }
-        modifiedCont = newclust.first;
-        break;
-    }
-
-    case xAOD::Type::TruthParticle : {
-      const xAOD::TruthParticleContainer * truthCont = dynamic_cast<const xAOD::TruthParticleContainer *>(cont);
-      if(truthCont == 0) {std::cout << "ERROR: No valid TruthParticleContainer" << std::endl;}
-      std::pair< xAOD::TruthParticleContainer*, xAOD::ShallowAuxContainer* > newtruth = xAOD::shallowCopyContainer(*truthCont );
-        if(evtStore()->record( newtruth.first, m_outputContainer ).isFailure() || evtStore()->record( newtruth.second, m_outputContainer+"Aux." ).isFailure() ){
-          ATH_MSG_ERROR("Unable to record truth collection" << m_inputContainer );
-          return StatusCode::FAILURE;
-        }
-        modifiedCont = newtruth.first;
-        break;
-    }
+  case xAOD::Type::CaloCluster : { 
+    modifiedCont = copyAndRecord<xAOD::CaloClusterContainer>(cont);
+    break; }
+      
+  case xAOD::Type::TruthParticle : {
+    modifiedCont = copyAndRecord<xAOD::TruthParticleContainer>(cont);
+    break;}
+        
+  case xAOD::Type::TrackParticle : {
+    modifiedCont = copyAndRecord<xAOD::TrackParticleContainer>(cont);
+    break;}
 
 
-    case xAOD::Type::TrackParticle : {
-      const xAOD::TrackParticleContainer * trackCont = dynamic_cast<const xAOD::TrackParticleContainer *>(cont);
-      if(trackCont == 0) {std::cout << "ERROR: No valid TrackParticleContainer" << std::endl;}
-      std::pair< xAOD::TrackParticleContainer*, xAOD::ShallowAuxContainer* > newtrack = xAOD::shallowCopyContainer(*trackCont );
-        if(evtStore()->record( newtrack.first, m_outputContainer ).isFailure() || evtStore()->record( newtrack.second, m_outputContainer+"Aux." ).isFailure() ){
-          ATH_MSG_ERROR("Unable to record track collection" << m_inputContainer );
-          return StatusCode::FAILURE;
-        }
-        modifiedCont = newtrack.first;
-        break;
-    }
+  case xAOD::Type::ParticleFlow : {
+    modifiedCont = copyAndRecord<xAOD::PFOContainer>(cont);
+    break; }
 
+  default: {
+    ATH_MSG_ERROR( "Unsupported input type " << m_inputType );
+  }
+    
 
-    case xAOD::Type::ParticleFlow : {
-      const xAOD::PFOContainer * pfoCont = dynamic_cast<const xAOD::PFOContainer *>(cont);
-      if(pfoCont == 0) {std::cout << "ERROR: No valid PFOContainer" << std::endl;}
-      std::pair< xAOD::PFOContainer*, xAOD::ShallowAuxContainer* > newpfo = xAOD::shallowCopyContainer(*pfoCont );
-        if(evtStore()->record( newpfo.first, m_outputContainer ).isFailure() || evtStore()->record( newpfo.second, m_outputContainer+"Aux." ).isFailure() ){
-          ATH_MSG_ERROR("Unable to record pFlow collection" << m_inputContainer );
-          return StatusCode::FAILURE;
-        }
-        modifiedCont = newpfo.first;
-        break;
-    }
+  }
 
-    default: {
-      ATH_MSG_ERROR( "Unsupported input type " << m_inputType );
-    }
-
-
+  if(modifiedCont==0) {
+    ATH_MSG_ERROR("Could not create a copy of "<< m_inputContainer);
+    return -1;
   }
 
   // Now pass the input container shallow copy through the modifiers 

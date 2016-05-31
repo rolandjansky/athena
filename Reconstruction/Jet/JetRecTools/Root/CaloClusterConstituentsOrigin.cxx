@@ -20,12 +20,13 @@ CaloClusterConstituentsOrigin::CaloClusterConstituentsOrigin(const std::string &
   declareInterface<IJetConstituentModifier>(this);
 #endif
   declareProperty("VertexContainer",m_vertexContName="PrimaryVertices");
+  declareProperty("UseEMScale",m_useEMScale=false);
   
 }
 
 StatusCode CaloClusterConstituentsOrigin::process(xAOD::IParticleContainer* cont) const {
    xAOD::CaloClusterContainer* clust = dynamic_cast<xAOD::CaloClusterContainer*> (cont); // Get CaloCluster container
-   std::cout << " processing " << cont << std::endl;
+
    if(clust)
      {
        const xAOD::VertexContainer* vertexContainer=0;
@@ -43,14 +44,30 @@ StatusCode CaloClusterConstituentsOrigin::process(xAOD::IParticleContainer* cont
 StatusCode CaloClusterConstituentsOrigin::process(xAOD::CaloClusterContainer* cont, const xAOD::Vertex *vert) const {
   if (!vert)
     {
-      std::cout << " Unable to find vertex " << vert << std::endl;
+      ATH_MSG_ERROR( " Unable to find vertex " << vert);
       return StatusCode::FAILURE;
     }
+  if(m_useEMScale) return processEM(cont,vert);
+  else return processLC(cont,vert);
+}
 
+StatusCode CaloClusterConstituentsOrigin::processLC(xAOD::CaloClusterContainer* cont, const xAOD::Vertex *vert) const {
 
 
   for(xAOD::CaloCluster* cl : *cont) {
     xAOD::CaloVertexedTopoCluster corrCL( *cl,vert->position());
+    cl->setEta(corrCL.eta());
+    cl->setPhi(corrCL.phi());
+  }
+  return StatusCode::SUCCESS;
+}
+
+StatusCode CaloClusterConstituentsOrigin::processEM(xAOD::CaloClusterContainer* cont, const xAOD::Vertex *vert) const {
+
+
+  for(xAOD::CaloCluster* cl : *cont) {
+    xAOD::CaloVertexedTopoCluster corrCL( *cl,xAOD::CaloCluster::UNCALIBRATED, vert->position());
+    cl->setE(corrCL.e());
     cl->setEta(corrCL.eta());
     cl->setPhi(corrCL.phi());
   }
