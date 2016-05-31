@@ -180,6 +180,7 @@ namespace Trk{
 
     //now create the new jacobian which you should use
     Eigen::Matrix<double,5,Eigen::Dynamic> A=oldA*PosOnJetAxisAndTransformMatrix.second;
+// AISWHAT
 
 #ifdef Updator_DEBUG
       std::cout << "the new jacobian " << A << std::endl;
@@ -351,6 +352,8 @@ namespace Trk{
       //G_b = G_k - G_k*B_k*W_k*B_k^(T)*G_k  
 
       AmgSymMatrix(5) gB = trackParametersWeight - trackParametersWeight*(B*(S*B.transpose()))*trackParametersWeight.transpose();
+	//gB=gB/2.0+gB.transpose().eval()/2.0;
+
 
 //      std::cout << " gB " << gB << std::endl;
 
@@ -397,14 +400,17 @@ namespace Trk{
       try 
       {
 //4.Oct.2014 Temporarily remove smart inversion as it seems to cause negative errors from time to time
-//	std::cout << " SMART INVERT " << std::endl;
-//        smartInvert(new_vrt_cov);
+//	Symmetrize the matix before inversion, to give ride of the precision problem of Eigen.
+//	wesong@cern.ch, 28/05/2016
+	new_vrt_cov=(new_vrt_cov+new_vrt_cov.transpose().eval())/2.0;
+	smartInvert(new_vrt_cov);
         if (new_vrt_cov.determinant() == 0.0) {
           ATH_MSG_ERROR ("The reduced weight matrix is not invertible, returning copy of initial vertex.");
           Trk::RecVertexPositions r_vtx(myPosition);
           return r_vtx;
         }
-        new_vrt_cov = new_vrt_cov.inverse().eval();
+//	After symmetrizing the matirx by hand, as mentioned above, the smart inversion works agian.
+        //new_vrt_cov = new_vrt_cov.inverse().eval();
       }
       catch (std::string a)
       {
@@ -720,6 +726,7 @@ namespace Trk{
     int numRows=new_vrt_weight.rows();
     if (numRows<=6) {
       if(new_vrt_weight.determinant() ==0)
+// if |A|==0; then A is not invertible;
       {
         throw std::string("The reduced weight matrix is not invertible. Previous vertex returned ");
       }
@@ -728,7 +735,7 @@ namespace Trk{
     } 
 
     AmgSymMatrix(5) A = new_vrt_weight.block<5,5>(0,0);
-    Eigen::Matrix<double,5,Eigen::Dynamic> B(5,numRows-5); 
+    Eigen::Matrix<double,5,Eigen::Dynamic> B(5,numRows-5);//Eigen::Dynamic we are not sure about the number of Row minus 5, so a dynamic one is given here. 
     B.setZero();
     for (int i=0;i<5;++i)
     {
@@ -743,13 +750,14 @@ namespace Trk{
     // CLHEP::HepSymMatrix D=new_vrt_weight.sub(6,numRows);
     Amg::MatrixX D = new_vrt_weight.block(5,5,numRows-5,numRows-5); // will be of dim (numrows-5)
 
-//    std::cout << " D " << D << std::endl;
+   //std::cout << " D "<<std::endl << D << std::endl;
     
     // Eigen::DiagonalMatrix<double,Eigen::Dynamic> DdiagINV(D.rows()); // was CLHEP::HepDiagMatrix
 //    if (numRows>6 && D.isDiagonal(/*precision<scalar>=*/1e-7))
-/*
-GP: 4.10.2014 Just ignore that due to numerical precision the non diagonal elements can be ||>1e-6
-    if (numRows>6 && fabs(D(0,1))>1e-6)
+
+//GP: 4.10.2014 Just ignore that due to numerical precision the non diagonal elements can be ||>1e-6
+//This is not necessay, as we will set them to be zero
+/*    if (numRows>6 && fabs(D(0,1))>1e-6)
     {
       //const std::streamsize old = std::cout.precision();
       msg(MSG::ERROR) << std::setprecision(10) << " Will invert normally, because the non diagonal element is: " << D(0,1) << endreq;
@@ -768,8 +776,14 @@ GP: 4.10.2014 Just ignore that due to numerical precision the non diagonal eleme
         throw std::string("Cannot invert diagonal matrix...");
         break;
       }
+//Set the non-diagonal elements of D to be zero, which is as expected; the numerical proplem will change them into non-zero. wesong@cern.ch, 28/05/2016
+	for(unsigned int j=0; j<i; j++){
+	D(i,j)=0;
+	D(j,i)=0;
+	}
       D(i,i) = 1./D(i,i);
     }
+//      D=D.inverse().eval();
 
 //    std::cout << " D after inversion " << D << std::endl;
 
@@ -792,21 +806,27 @@ GP: 4.10.2014 Just ignore that due to numerical precision the non diagonal eleme
 
 //    std::cout << " finalWeight " << finalWeight << std::endl;
 
-    Amg::MatrixX normalInversion=new_vrt_weight.inverse().eval();
-    Amg::MatrixX smartInversion=finalWeight;
+//    Amg::MatrixX normalInversion=new_vrt_weight.inverse().eval();
+//    Amg::MatrixX smartInversion=finalWeight;
     
-    bool mismatch(false);
+/*    bool mismatch(false);
     
     for (int i=0;i<numRows;i++)
     {
       for (int j=0;j<numRows;j++)
       {
-        if (fabs(normalInversion(i,j)-smartInversion(i,j))>1e-4) mismatch=true;
+        if (fabs(normalInversion(i,j)-smartInversion(i,j))/fabs(normalInversion(i,j))>1e-4) 
+	{
+	   mismatch=true;
+	   std::cout<<"(i,j)="<<"("<<i<<","<<j<<")"<<std::endl;
+	}
       }
     }
     if (mismatch) std::cout << " mismatch, normalInv: " << normalInversion << " smartInv " << smartInversion << " det 1 " << normalInversion.determinant() << " det 2 " << smartInversion.determinant() << std::endl;
+*/
 
-    new_vrt_weight = new_vrt_weight.inverse().eval();//finalWeight;//MODIFIED!!
+//    new_vrt_weight = new_vrt_weight.inverse().eval();//finalWeight;//MODIFIED!!
+    new_vrt_weight = finalWeight;//MODIFIED!!
 
     if (new_vrt_weight.determinant()<=0) ATH_MSG_DEBUG("smartInvert() new_vrt_weight FINAL det. is: " << new_vrt_weight.determinant());
 
