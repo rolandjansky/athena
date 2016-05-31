@@ -18,7 +18,7 @@ if (DGeo == "ctbh8"):
     DDversion = "CTB"
 
 elif (DDversion == "CTB"):
-    GeoModelSvc.AtlasVersion = "ATLAS-CTB-00"
+    GeoModelSvc.AtlasVersion = "ATLAS-CTB-01"
     if (DetFlags.Tile_on()): 
        GeoModelSvc.TileVersionOverride = "TileTB-3B-00"
 
