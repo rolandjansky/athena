@@ -45,34 +45,33 @@
 // private helper functions
 //
 
-
 class MdtCalibrationSvc::Imp {
 public:
   
   Imp( std::string name );
 
-  const MuonGM::MdtReadoutElement* getGeometry( const Identifier& id ) {
+  const MuonGM::MdtReadoutElement* getGeometry( const Identifier &id ) {
     assert( m_muonGeoManager );
     return m_muonGeoManager->getMdtReadoutElement( id );
   }
 
-  double applyCorrections( MdtCalibHit& hit,
-			   const MdtCalibrationSvcInput& input,
-			   const MdtCalibrationSvcSettings& settings,
+  double applyCorrections( MdtCalibHit &hit,
+			   const MdtCalibrationSvcInput &input,
+			   const MdtCalibrationSvcSettings &settings,
 			   double adcCal,
-			   const MuonCalib::MdtCorFuncSet* corrections,
-			   const MuonCalib::IRtRelation * rt ) const;
+			   const MuonCalib::MdtCorFuncSet *corrections,
+			   const MuonCalib::IRtRelation *rt ) const;
 
-  const MuonGM::MuonDetectorManager* m_muonGeoManager;
-  const MdtIdHelper*                 m_mdtIdHelper;
+  const MuonGM::MuonDetectorManager *m_muonGeoManager;
+  const MdtIdHelper                 *m_mdtIdHelper;
   MdtCalibrationSvcSettings          settings;
     
-  double m_inverseSpeedOfLight; // in ns/mm
+  double m_inverseSpeedOfLight;      // in ns/mm
   double m_inversePropagationSpeed;  // in ns/mm
   
-  MsgStream* m_log; //!< Pointer to MsgStream - MdtCalibrationSvc now owns this
-  bool m_verbose; //!< True if we should print MSG::VERBOSE messages
-  bool m_debug; //!< True if we should print MSG::DEBUG messages
+  MsgStream *m_log; //!< Pointer to MsgStream - MdtCalibrationSvc now owns this
+  bool m_verbose;   //!< True if we should print MSG::VERBOSE messages
+  bool m_debug;     //!< True if we should print MSG::DEBUG messages
 
   //handle of b-field service - job option
   ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
@@ -99,8 +98,7 @@ MdtCalibrationSvc::Imp::Imp(std::string name)
   m_resTwin(-1.)
 {}
 
-
-MdtCalibrationSvc::MdtCalibrationSvc(const std::string& name,ISvcLocator* sl)
+MdtCalibrationSvc::MdtCalibrationSvc(const std::string &name,ISvcLocator *sl)
   : AthService(name,sl) {
   m_imp = new MdtCalibrationSvc::Imp(name);
   // settable properties
@@ -114,7 +112,7 @@ MdtCalibrationSvc::MdtCalibrationSvc(const std::string& name,ISvcLocator* sl)
   declareProperty("DoWireSagCorrection",m_imp->settings.doWireSag );
   declareProperty("DoSlewingCorrection",m_imp->settings.doSlew );
   declareProperty("DoBackgroundCorrection",m_imp->settings.doBkg );
-  declareProperty("ResolutionTwinTube",   m_imp->m_resTwin    =     1.05, "Twin Tube resolution");
+  declareProperty("ResolutionTwinTube",   m_imp->m_resTwin = 1.05, "Twin Tube resolution");
   declareProperty("MagFieldSvc", m_imp->m_magFieldSvc);
   declareProperty("UpperBoundHitRadius", m_imp->m_unphysicalHitRadiusUpperBound = 20. );
   declareProperty("LowerBoundHitRadius", m_imp->m_unphysicalHitRadiusLowerBound = 0. );
@@ -125,7 +123,7 @@ MdtCalibrationSvc::~MdtCalibrationSvc() {
 }
 
 // queryInterface 
-StatusCode MdtCalibrationSvc::queryInterface(const InterfaceID& riid, void** ppvIF) { 
+StatusCode MdtCalibrationSvc::queryInterface(const InterfaceID &riid, void **ppvIF) { 
   if ( interfaceID().versionMatch(riid) ) { 
     *ppvIF = dynamic_cast<MdtCalibrationSvc*>(this); 
   } else { 
@@ -183,17 +181,15 @@ StatusCode MdtCalibrationSvc::initialize() {
   if( m_imp->settings.doSlewingCorrection() )       ATH_MSG_DEBUG(" Using Slew ");
   if( m_imp->settings.doBackgroundCorrection() )    ATH_MSG_DEBUG(" Using BkgCor");
 
-
   return StatusCode::SUCCESS;
 }  //end MdtCalibrationSvc::initialize
 
 StatusCode MdtCalibrationSvc::finalize() { 
   ATH_MSG_DEBUG( "Finalizing " );
-
   return AthService::finalize();
 }
 
-bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit& hit,
+bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit &hit,
                                              double signedTrackLength,
                                              double triggerTime,
                                              bool resolFromRtrack ) {
@@ -203,15 +199,15 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit& hit,
   return driftRadiusFromTime( hit, inputData, m_imp->settings, resolFromRtrack );
 }
  
-bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit& hit,
-                                             const MdtCalibrationSvcInput& inputData,
+bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit &hit,
+                                             const MdtCalibrationSvcInput &inputData,
                                              bool resolFromRtrack ) {
   return driftRadiusFromTime( hit, inputData, m_imp->settings, resolFromRtrack );
 }
 
-bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit& hit,
-                                             const MdtCalibrationSvcInput& inputData,
-                                             const MdtCalibrationSvcSettings& settings,
+bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit &hit,
+                                             const MdtCalibrationSvcInput &inputData,
+                                             const MdtCalibrationSvcSettings &settings,
                                              bool resolFromRtrack ) {
   
   if( settings.timeWindowUpperBound() < 0. || settings.timeWindowLowerBound() < 0. ) {
@@ -239,9 +235,9 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit& hit,
     msg(MSG::VERBOSE) << endreq;
   }
 
-  const Identifier& id = hit.identify();
+  const Identifier &id = hit.identify();
 
-  const MuonGM::MdtReadoutElement* geo = hit.geometry();
+  const MuonGM::MdtReadoutElement *geo = hit.geometry();
 
   // set geometry pointer if not yet set
   if ( !geo ) {
@@ -255,7 +251,9 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit& hit,
 								     geo->detectorElementHash() ); 
     
   // require at least the MdtRtRelation to be available
-  const MuonCalib::MdtRtRelation* rtRelation  = data.rtRelation;
+  const MuonCalib::MdtRtRelation *rtRelation = data.rtRelation;
+  // Hardcoded MDT tube radius 14.6mm here - not correct for sMDT
+  // on the other hand it should be rare that a tube does not have an RT
   if( !rtRelation ) {
     ATH_MSG_WARNING( "no rtRelation found, cannot calibrate tube" );
     hit.setDriftRadius( 0., 2*14.6/sqrt(12) ); // treat the tube as a 'strip' measurement
@@ -278,13 +276,13 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit& hit,
     }
      
     // extract calibration constants for single tube
-    const MuonCalib::MdtTubeCalibContainer::SingleTubeCalib* singleTubeData = 
+    const MuonCalib::MdtTubeCalibContainer::SingleTubeCalib *singleTubeData = 
       data.tubeCalib->getCalib( ml, layer, tube );
     if( singleTubeData ){
       t0 = singleTubeData->t0;
       inversePropSpeed = singleTubeData->inversePropSpeed;
       adcCal = singleTubeData->adcCal;
-    }else{
+    } else {
       msg(MSG::WARNING) << "failed to access tubedata for "
 			<< ml << " " << layer << " " << tube
 			<< " using defaults.. " << endreq;
@@ -304,6 +302,7 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit& hit,
   // correct for global t0 of rt-region
   t0 += rtRelation->t0Global();
   hit.setTubeT0(t0);
+  hit.setTubeAdcCal(adcCal);
 
   // in order to have clean info in the ntuple set to 0 the 
   // corrections which are not used
@@ -328,7 +327,7 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit& hit,
 
   // calculate drift time
   double driftTime = hit.tdcCount() * tdcBinSize() - hit.timeOfFlight()
-    - hit.tubeT0() - hit.propagationTime();
+                     - hit.tubeT0() - hit.propagationTime();
   hit.setDriftTime( driftTime );
       
   // apply corrections
@@ -412,11 +411,11 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit& hit,
 }  //end MdtCalibrationSvc::driftRadiusFromTime
 
 // + TWIN TUBES
-bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit& hit,
-                                                  MdtCalibHit& secondHit,
+bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit &hit,
+                                                  MdtCalibHit &secondHit,
                                                   double signedTrackLength,
                                                   double secondSignedTrackLength,
-                                                  bool& secondDigitIsPrompt,
+                                                  bool &secondDigitIsPrompt,
                                                   double triggerTime ){
   MdtCalibrationSvcInput inputData;
   inputData.tof = signedTrackLength*m_imp->m_inverseSpeedOfLight;
@@ -429,12 +428,12 @@ bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit& hit,
 				   secondInputData, m_imp->settings, secondDigitIsPrompt );
 }
 
-bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit& hit,
-                                                  MdtCalibHit& secondHit,
-                                                  const MdtCalibrationSvcInput& inputData,
-                                                  const MdtCalibrationSvcInput& secondInputData,
-                                                  const MdtCalibrationSvcSettings& settings,
-                                                  bool& secondDigitIsPrompt ){
+bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit &hit,
+                                                  MdtCalibHit &secondHit,
+                                                  const MdtCalibrationSvcInput &inputData,
+                                                  const MdtCalibrationSvcInput &secondInputData,
+                                                  const MdtCalibrationSvcSettings &settings,
+                                                  bool &secondDigitIsPrompt ) {
 
   // 13/02/2009 A.Koutsman: after discussion with P.Kluit rebuilt this function to use the standard way 
   // of calibrating a MdtCalibHit with driftRadiusFromTime(...) 
@@ -443,16 +442,16 @@ bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit& hit,
   driftRadiusFromTime( secondHit, secondInputData, settings );
   
   // get 'raw' drifttimes of twin pair; we don't use timeofFlight or propagationTime cause they are irrelevant for twin coordinate
-  double driftTime = hit.tdcCount() * tdcBinSize()  - hit.tubeT0();
-  double driftTimeSecond = secondHit.tdcCount() * tdcBinSize() - secondHit.tubeT0();
+  double driftTime = hit.tdcCount()*tdcBinSize()  - hit.tubeT0();
+  double driftTimeSecond = secondHit.tdcCount()*tdcBinSize() - secondHit.tubeT0();
     
   // get Identifier and MdtReadOutElement for twin tubes
   const Identifier& id = hit.identify();
   const Identifier& idSecond = secondHit.identify();
-  const MuonGM::MdtReadoutElement* geo = hit.geometry();
-  const MuonGM::MdtReadoutElement* geoSecond = secondHit.geometry();
+  const MuonGM::MdtReadoutElement *geo = hit.geometry();
+  const MuonGM::MdtReadoutElement *geoSecond = secondHit.geometry();
   if(!geo) {
-    ATH_MSG_WARNING( "Geometry not set for fisrt hit" );
+    ATH_MSG_WARNING( "Geometry not set for first hit" );
     return false;
   }
   if(!geoSecond) {
@@ -484,7 +483,7 @@ bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit& hit,
     }
  
     // extract calibration constants for single tube
-    const MuonCalib::MdtTubeCalibContainer::SingleTubeCalib* singleTubeData = 
+    const MuonCalib::MdtTubeCalibContainer::SingleTubeCalib *singleTubeData = 
       data.tubeCalib->getCalib( ml, layer, tube );
     if ( singleTubeData ){
       //t0 = singleTubeData->t0;
@@ -520,7 +519,7 @@ bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit& hit,
     }
  
     // extract calibration constants for single tube
-    const MuonCalib::MdtTubeCalibContainer::SingleTubeCalib* singleTubeDataSecond = 
+    const MuonCalib::MdtTubeCalibContainer::SingleTubeCalib *singleTubeDataSecond = 
       dataSecond.tubeCalib->getCalib( mlSecond, layerSecond, tubeSecond );
     if ( singleTubeDataSecond ){
       //t0Second = singleTubeDataSecond->t0;
@@ -555,9 +554,9 @@ bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit& hit,
   // twindif = twin_time - prompt_time
 
   Identifier prompthit_id = id;
-  const MuonGM::MdtReadoutElement* prompthit_geo = geo;
+  const MuonGM::MdtReadoutElement *prompthit_geo = geo;
   int prompthit_tdc = 0; //double prompthit_adc = 0;
-  int twinhit_tdc = 0; //double twinhit_adc = 0;
+  int twinhit_tdc = 0;   //double twinhit_adc = 0;
   if ( driftTime < driftTimeSecond) { 
     twin_timedif = driftTimeSecond - driftTime;  
     //prompthit_tdc = hit.tdcCount(); prompthit_adc = adcCal; 
@@ -671,11 +670,11 @@ double MdtCalibrationSvc::tdcBinSize() {
   return 25.0 / 32.0;  // exact number: (1000.0/40.08)/32.0 
 }
 
-double MdtCalibrationSvc::Imp::applyCorrections(MdtCalibHit& hit,
-                                                const MdtCalibrationSvcInput& inputData, 
-						const MdtCalibrationSvcSettings& settings,
+double MdtCalibrationSvc::Imp::applyCorrections(MdtCalibHit &hit,
+                                                const MdtCalibrationSvcInput &inputData, 
+						const MdtCalibrationSvcSettings &settings,
 						double /*adcCal*/,
-                                                const MuonCalib::MdtCorFuncSet* corrections, const MuonCalib::IRtRelation *rt) const{
+                                                const MuonCalib::MdtCorFuncSet *corrections, const MuonCalib::IRtRelation *rt) const {
 
   double corTime(0.);
   // apply corrections
@@ -685,8 +684,7 @@ double MdtCalibrationSvc::Imp::applyCorrections(MdtCalibHit& hit,
     
     // slewing corrections
     if ( settings.doSlew && corrections->slewing() ){
-      double slew_time=corrections->slewing()->correction( hit.driftTime(),
-                                                     hit.adcCount());
+      double slew_time=corrections->slewing()->correction( hit.driftTime(), hit.adcCount());
       corTime -=slew_time;
       hit.setSlewingTime(slew_time);
     }
@@ -732,6 +730,7 @@ double MdtCalibrationSvc::Imp::applyCorrections(MdtCalibHit& hit,
       corTime += hit.TemperatureTime();
     }*/
     
+    // Scale RT function from Tmax difference
     if( settings.doTemp && rt && rt->HasTmaxDiff()) {
       float scle_time=MuonCalib::RtScaleFunction(hit.driftTime(), m_mdtIdHelper->multilayer(hit.identify())==2, *rt);
       hit.setTemperatureTime(scle_time);
@@ -788,14 +787,10 @@ double MdtCalibrationSvc::Imp::applyCorrections(MdtCalibHit& hit,
 	}
       }
       
-      const Amg::Vector3D* pointOfClosestApproach
-	= inputData.pointOfClosestApproach;
-      const Amg::Vector3D* trackDirection
-	= inputData.trackDirection;
-      const Trk::StraightLineSurface* nominalWireSurface
-	= inputData.nominalWireSurface;
-      const Trk::StraightLineSurface* wireSurface
-	= inputData.wireSurface;
+      const Amg::Vector3D *pointOfClosestApproach = inputData.pointOfClosestApproach;
+      const Amg::Vector3D *trackDirection         = inputData.trackDirection;
+      const Trk::StraightLineSurface *nominalWireSurface = inputData.nominalWireSurface;
+      const Trk::StraightLineSurface *wireSurface = inputData.wireSurface;
       
       // check whether all input data is there
       if ( !pointOfClosestApproach || !trackDirection || !nominalWireSurface ){
@@ -815,15 +810,15 @@ double MdtCalibrationSvc::Imp::applyCorrections(MdtCalibHit& hit,
 	}
 
         // store pointer to sagged surface as we get ownership if we recalculate it
-        const Trk::StraightLineSurface* tempSaggedSurface = 0;
+        const Trk::StraightLineSurface *tempSaggedSurface = 0;
 
         // if wire surface is missing, calculate sagged wire position 
         if ( !wireSurface ){
-          const Trk::SaggedLineSurface* nominalSurf = dynamic_cast<const Trk::SaggedLineSurface*>(nominalWireSurface);
+          const Trk::SaggedLineSurface *nominalSurf = dynamic_cast<const Trk::SaggedLineSurface*>(nominalWireSurface);
           if ( nominalSurf ){
             // Local position for calculation of position along the tube,
             // used for wire sag treatment
-            const Amg::Vector2D* tempLocOnWire = nominalSurf->Trk::Surface::globalToLocal(*pointOfClosestApproach,1000.);
+            const Amg::Vector2D *tempLocOnWire = nominalSurf->Trk::Surface::globalToLocal(*pointOfClosestApproach,1000.);
             if ( !tempLocOnWire ){
               *m_log << MSG::WARNING << "globalToLocal failed! " << endreq;
             } else {
@@ -902,7 +897,7 @@ double MdtCalibrationSvc::Imp::applyCorrections(MdtCalibHit& hit,
   return corTime;
 }  //end MdtCalibrationSvc::Imp::applyCorrections
 
-Muon::MdtDriftCircleStatus MdtCalibrationSvc::driftTimeStatus( double driftTime, const MuonCalib::MdtRtRelation* rtRelation, const MdtCalibrationSvcSettings& settings ) {
+Muon::MdtDriftCircleStatus MdtCalibrationSvc::driftTimeStatus( double driftTime, const MuonCalib::MdtRtRelation *rtRelation, const MdtCalibrationSvcSettings &settings ) {
   if( settings.timeWindowUpperBound() < 0. || settings.timeWindowLowerBound() < 0. ) {
       ATH_MSG_WARNING( " Unphysical time window detected, both ranges should be positive: " 
 		       << " lower bound " << settings.timeWindowLowerBound()
