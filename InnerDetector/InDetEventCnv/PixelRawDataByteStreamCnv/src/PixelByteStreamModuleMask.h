@@ -48,7 +48,7 @@ static const uint32_t PRB_HITBITFLIPskip = 13;
 
 // IBL module (condensed) hit word 
 static const uint32_t PRB_FIRSTHITCONDENSEDWORD  = 0xA0000000; // mask for the first hit condensed
-static const uint32_t PRB_HITDATAMASK            = 0xE0000000; // probe first and last hit condensed words
+//static const uint32_t PRB_HITDATAMASK            = 0xE0000000; // probe first and last hit condensed words
 static const uint32_t PRB_MIDDLEHITCONDENSEDWORD = 0x80000000; // probe second and third hit condensed words
 static const uint32_t PRB_LASTHITCONDENSEDWORD  = 0xE0000000; // probe to last of 4 hit condensed words (IBL)
 
@@ -74,8 +74,8 @@ static const uint32_t skipTOT = 8; // length of TOT information in IBL
 //static const uint32_t PRB_HIT_IBL               = 0x601F0000; // IBL not-condensed hit word mask
 //static const uint32_t PRB_HIT_IBL_EMPTY         = 0x00000000; // IBL not condensed hit word probe
 
-static const uint32_t PRB_HIT_IBL_MASK          = 0xE0000000; // mask to recognise IBL not-condensed hit word
-static const uint32_t PRB_HIT_NOTCONDENSED      = 0x80000000; // 
+//static const uint32_t PRB_HIT_IBL_MASK          = 0xE0000000; // mask to recognise IBL not-condensed hit word
+//static const uint32_t PRB_HIT_NOTCONDENSED      = 0x80000000; // 
 static const uint32_t PRB_HIT_PIXEL_MASK        = 0xF000E000; // mask to recognise Pixel hit word
 
 // IBL module (not-condensed) hit word
@@ -173,14 +173,14 @@ static const uint32_t PRB_UNKNOWNWORD = 0xFFFFFFFF;   // unknown word
 static const uint32_t PRB_DATAWORDEMPTY       = 0x1000E000;   // hit word empty bits (filled by ROD with 0's) mask - for Pixel
 static const uint32_t PRB_LINKTRAILEREMPTY    = 0x03FFFFFF;   // module trailer word empty bits (filled by ROD with 0's) mask - for Pixel
 //static const uint32_t PRB_FEERROR1CHECK       = 0x00FFFF00;   // flag word type 1 determined bits mask - for Pixel
-static const uint32_t PRB_FEERROR2CHECK       = 0x00FF0000;   // flag word type 2 determined bits mask - for Pixel
+static const uint32_t PRB_FEERROR2CHECK       = 0x001F0000;   // flag word type 2 determined bits mask - for Pixel
 
 //static const uint32_t PRB_FEERRORCHECK_IBL       = 0x0F81FC00;   // flag word determined bits mask - for IBL
 //static const uint32_t PRB_FEERROR2CHECK_IBL = 0xF81FC00;
 static const uint32_t PRB_FEERROR_IBL = 0x00000000;
 //static const uint32_t PRB_FEERROR1CHECK_IBL = 0x0F800000; 
 //static const uint32_t PRB_FEERROR1CHECKRESULT = 0x00001E00;   // flag word type 1 determined bits mask result - for Pixel
-static const uint32_t PRB_FEERROR2CHECKRESULT = 0x001F0000;   // flag word type 2 determined bits mask result - for Pixel
+//static const uint32_t PRB_FEERROR2CHECKRESULT = 0x001F0000;   // flag word type 2 determined bits mask result - for Pixel
 //static const uint32_t PRB_FEERRORCHECKRESULT_IBL    = 0x00000000;   // flag word type normal and Short - for IBL
 
 
