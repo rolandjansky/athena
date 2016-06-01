@@ -73,6 +73,7 @@ private:
   ToolHandle<Trk::IExtrapolator>        m_extrapolator;
   bool m_createTruthSegment;
   std::string m_muonTruthSegmentContainerName;
+  int m_barcodeOffset;
 };
 
 } // namespace Muon
