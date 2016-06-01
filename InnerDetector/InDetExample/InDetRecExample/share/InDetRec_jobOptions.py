@@ -922,10 +922,8 @@ else:
             InDetKeys.UnslimmedTracks          = InDetKeys.PseudoTracks()
             InDetKeys.TracksTruth              = InDetKeys.PseudoTracksTruth()
             InDetKeys.UnslimmedTracksTruth     = InDetKeys.PseudoTracksTruth()
-            # add as the combined ID collection
-            InputCombinedInDetTracks = [ InDetKeys.PseudoTracks() ]
-        if InDetFlags.doSplitReco() :
-            InputCombinedInDetTracks += [ InDetKeys.PseudoTracks() ]
+        # add as the combined ID collection
+        InputCombinedInDetTracks += [ InDetKeys.PseudoTracks() ]
 
 
         # add final output for statistics
