@@ -5,7 +5,7 @@
 ## @Package test_trfAMI.py
 #  @brief Unittests for trfAMI.py
 #  @author bjorn.sarrazin@cern.ch
-#  @version $Id: test_trfAMI.py 663770 2015-04-29 12:50:46Z volkmer $
+#  @version $Id: test_trfAMI.py 749614 2016-05-25 10:46:26Z lerrenst $
 
 import unittest
 
@@ -63,7 +63,7 @@ class trfAMIUnitTests(unittest.TestCase):
                    'maxEvents': '25',
                    'AMITag': 'q220',
                    'preExec': {'all': ['from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);InDetFlags.useBroadClusterErrors.set_Value_and_Lock(False);DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;DQMonFlags.doCTPMon=False;']},
-                   'geometryVersion': {'all': 'ATLAS-R2-2015-02-00-00'}}
+                   'geometryVersion': {'all': 'ATLAS-R2-2015-03-01-00'}}
 
         tag = TagInfo("q220")
         self.assertTrue(isinstance(tag.trfs[0], TrfConfig))

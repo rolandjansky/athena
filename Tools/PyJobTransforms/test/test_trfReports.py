@@ -5,7 +5,7 @@
 ## @Package test_trfReports.py
 #  @brief Unittests for trfReports.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfReports.py 623865 2014-10-24 12:39:44Z graemes $
+#  @version $Id: test_trfReports.py 745237 2016-05-06 02:33:15Z ssnyder $
 
 import unittest
 
@@ -51,18 +51,18 @@ class trfFileReportUnitTests(unittest.TestCase):
                 pass
 
     def test_fileReportPython(self):
-        self.assertEqual(self.mySingleFileReport.singleFilePython(filename = 'file1'), {'file_guid': '05ACBDD0-5F5F-4E2E-974A-BBF4F4FE6F0B', 'integrity': True, 'name': 'file1', 'file_size': 20})
-        self.assertEqual(self.mySingleFileReport.python(), {'argName': 'inputTEST_SINGLEFile', 'subFiles': [{'file_guid': '05ACBDD0-5F5F-4E2E-974A-BBF4F4FE6F0B', 'integrity': True, 'name': 'file1', 'file_size': 20}], 'type': None, 'dataset': None})
+        self.assertEqual(self.mySingleFileReport.singleFilePython(filename = 'file1'), {'file_guid': '05ACBDD0-5F5F-4E2E-974A-BBF4F4FE6F0B', 'name': 'file1', 'file_size': 20})
+        self.assertEqual(self.mySingleFileReport.python(), {'argName': 'inputTEST_SINGLEFile', 'subFiles': [{'file_guid': '05ACBDD0-5F5F-4E2E-974A-BBF4F4FE6F0B', 'name': 'file1', 'file_size': 20}], 'type': None, 'dataset': None})
         self.assertEqual(self.mySingleFileReport.python(type = 'name'), {'subFiles': [{'file_guid': '05ACBDD0-5F5F-4E2E-974A-BBF4F4FE6F0B', 'name': 'file1'}], 'nentries': 'UNDEFINED', 'dataset': None})
 
     def test_fileReportPythonUnknown(self):
         self.assertRaises(trfExceptions.TransformReportException, self.mySingleFileReport.singleFilePython, filename = 'xxx')
 
     def test_multiFileReportPython(self):
-        self.assertEqual(self.myMultiFileReport.singleFilePython(filename = 'file1'), {'file_guid': '05ACBDD0-5F5F-4E2E-974A-BBF4F4FE6F0B', 'integrity': True, 'name': 'file1', 'file_size': 20})
-        self.assertEqual(self.myMultiFileReport.singleFilePython(filename = 'file2'), {'file_guid': '1368D295-27C6-4A92-8187-704C2A6A5864', 'integrity': True, 'name': 'file2', 'file_size': 13})
-        self.assertEqual(self.myMultiFileReport.singleFilePython(filename = 'file3'), {'file_guid': 'F5BA4602-6CA7-4111-B3C7-CB06486B30D9', 'integrity': True, 'name': 'file3', 'file_size': 174})
-        self.assertEqual(self.myMultiFileReport.python(type = 'full'), {'argName': 'inputTEST_MULTIFile', 'subFiles': [{'file_guid': '05ACBDD0-5F5F-4E2E-974A-BBF4F4FE6F0B', 'name': 'file1', 'file_size': 20, 'integrity': True}, {'file_guid': '1368D295-27C6-4A92-8187-704C2A6A5864', 'name': 'file2', 'file_size': 13, 'integrity': True}, {'file_guid': 'F5BA4602-6CA7-4111-B3C7-CB06486B30D9', 'name': 'file3', 'file_size': 174, 'integrity': True}], 'type': None, 'dataset': None})
+        self.assertEqual(self.myMultiFileReport.singleFilePython(filename = 'file1'), {'file_guid': '05ACBDD0-5F5F-4E2E-974A-BBF4F4FE6F0B', 'name': 'file1', 'file_size': 20})
+        self.assertEqual(self.myMultiFileReport.singleFilePython(filename = 'file2'), {'file_guid': '1368D295-27C6-4A92-8187-704C2A6A5864', 'name': 'file2', 'file_size': 13})
+        self.assertEqual(self.myMultiFileReport.singleFilePython(filename = 'file3'), {'file_guid': 'F5BA4602-6CA7-4111-B3C7-CB06486B30D9', 'name': 'file3', 'file_size': 174})
+        self.assertEqual(self.myMultiFileReport.python(type = 'full'), {'argName': 'inputTEST_MULTIFile', 'subFiles': [{'file_guid': '05ACBDD0-5F5F-4E2E-974A-BBF4F4FE6F0B', 'name': 'file1', 'file_size': 20}, {'file_guid': '1368D295-27C6-4A92-8187-704C2A6A5864', 'name': 'file2', 'file_size': 13}, {'file_guid': 'F5BA4602-6CA7-4111-B3C7-CB06486B30D9', 'name': 'file3', 'file_size': 174}], 'type': None, 'dataset': None})
         self.assertEqual(self.myMultiFileReport.python(type = 'name'), {'subFiles': [{'file_guid': '05ACBDD0-5F5F-4E2E-974A-BBF4F4FE6F0B', 'name': 'file1'}, {'file_guid': '1368D295-27C6-4A92-8187-704C2A6A5864', 'name': 'file2'}, {'file_guid': 'F5BA4602-6CA7-4111-B3C7-CB06486B30D9', 'name': 'file3'}], 'nentries': 'UNDEFINED', 'dataset': None})
 
 

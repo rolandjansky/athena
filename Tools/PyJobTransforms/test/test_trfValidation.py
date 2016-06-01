@@ -5,7 +5,7 @@
 ## @Package test_trfValidation.py
 #  @brief Unittests for trfValidation.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfValidation.py 663754 2015-04-29 12:29:56Z lerrenst $
+#  @version $Id: test_trfValidation.py 749614 2016-05-25 10:46:26Z lerrenst $
 
 import unittest
 
@@ -437,7 +437,33 @@ class athenaLogFileReportTests(unittest.TestCase):
 18:16:06    AthMasterSeq
 18:16:06    AthAlgSeq
 18:16:06    MuonCreatorAlg
-18:16:06 -------------------------------------------------------------------------------------
+18:16:40 There was a crash.
+18:16:40 This is the entire stack trace of all threads:
+18:16:40 ===========================================================
+18:16:40 
+18:16:40 Thread 2 (Thread 0x2ab56efce740 (LWP 9827)):
+18:16:40 #0  0x00002ab55a77420a in timer_helper_thread () from /lib64/librt.so.1
+18:16:40 #1  0x00002ab550498aa1 in start_thread () from /lib64/libpthread.so.0
+18:16:40 #2  0x00002ab550e2293d in clone () from /lib64/libc.so.6
+18:16:40 
+18:16:40 Thread 1 (Thread 0x2ab551811d00 (LWP 9638)):
+18:16:40 #0  0x00002ab550de669d in waitpid () from /lib64/libc.so.6
+18:16:40 #1  0x00002ab550d78609 in do_system () from /lib64/libc.so.6
+18:16:40 #2  0x00002ab550d78940 in system () from /lib64/libc.so.6
+18:16:40 #3  0x00002ab55717bc5a in TUnixSystem::StackTrace() () from /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc49-opt/20.7.5/LCGCMT/LCGCMT_81c/InstallArea/x86_64-slc6-gcc49-opt/lib/libCore.so
+18:16:40 #4  0x00002ab55717dc2c in TUnixSystem::DispatchSignals(ESignals) () from /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc49-opt/20.7.5/LCGCMT/LCGCMT_81c/InstallArea/x86_64-slc6-gcc49-opt/lib/libCore.so
+18:16:40 #5  0x00002ab56e606982 in CoreDumpSvcHandler::action(int, siginfo*, void*) () from /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc49-opt/20.7.5/AtlasCore/20.7.5/InstallArea/x86_64-slc6-gcc49-opt/lib/libAthenaServices.so
+18:16:40 #6  <signal handler called>
+18:16:40 #7  0x00002ab56a40110f in G4VoxelNavigation::ComputeStep (this=this
+18:16:40 entry=0x21c80ea8, localPoint=..., localDirection=..., currentProposedStepLength=currentProposedStepLength
+18:16:40 entry=230844.58122861374, newSafety=
+18:16:40 0x7ffc8fbcd1b8: -1, history=..., validExitNormal=
+18:16:40 0x21c80d89: false, exitNormal=..., exiting=
+18:16:40 0x21c80d5f: false, entering=
+18:16:40 0x21c80d5e: false, pBlockedPhysical=0x21c80d60, blockedReplicaNo=
+18:16:40 0x21c80d68: 0) at src/G4VoxelNavigation.cc:152
+18:16:40 #8  0x00002ab56a3e0f0c in G4Navigator::ComputeStep (this=0x21c80d00, pGlobalpoint=..., pDirection=..., pCurrentProposedStepLength=230844.58122861374, pNewSafety=
+18:16:40 0x7ffc8fbcd1b8: -1) at src/G4Navigator.cc:797
         '''
             
         testCoreDumpNoCurAlg = '''
@@ -445,6 +471,7 @@ class athenaLogFileReportTests(unittest.TestCase):
 18:16:06 -------------------------------------------------------------------------------------
 18:16:06 Core dump from CoreDumpSvc on wn029.datagrid.cea.fr at Fri Mar 13 18:16:06 2015
 18:16:06 -------------------------------------------------------------------------------------
+18:16:06 Caught signal 11(Segmentation fault). Details:
         '''
         
         testMissedBadAlloc = '''
@@ -463,6 +490,10 @@ class athenaLogFileReportTests(unittest.TestCase):
 10:18:14   value  = (0, (nil))
 10:18:14   stack  = (2, 0, (nil))'''
 
+        testDbMonitor = '''
+16:32:37 IOVDbSvc                                             INFO Total payload read from COOL: 123 bytes in ((    4.56 ))s
+16:32:39 IOVDbSvc                                             INFO Total payload read from COOL: 456 bytes in ((    7.89 ))s'''
+
         with open('file1', 'w') as f1:
             print >> f1, 'This is test file 1 w/o meaning'
         with open('file2', 'w') as f2:
@@ -480,6 +511,8 @@ class athenaLogFileReportTests(unittest.TestCase):
             print >> f7, testCoreDumpNoCurAlg
         with open('file8', 'w') as f8:
             print >> f8, testMissedBadAlloc
+        with open('file9', 'w') as f9:
+            print >> f9, testDbMonitor
 
         self.myFileReport1 = athenaLogFileReport('file1')
         self.myFileReport2 = athenaLogFileReport('file2')
@@ -489,9 +522,10 @@ class athenaLogFileReportTests(unittest.TestCase):
         self.myFileReport6 = athenaLogFileReport('file6')
         self.myFileReport7 = athenaLogFileReport('file7')
         self.myFileReport8 = athenaLogFileReport('file8')
+        self.myFileReport9 = athenaLogFileReport('file9')
 
     def tearDown(self):
-        for f in 'file1', 'file2', 'file3', 'file4', 'file5', 'file6', 'file7', 'file8':
+        for f in 'file1', 'file2', 'file3', 'file4', 'file5', 'file6', 'file7', 'file8', 'file9':
             try:
                 os.unlink(f)
             except OSError:
@@ -532,10 +566,16 @@ class athenaLogFileReportTests(unittest.TestCase):
     def test_coreDumpCurAlg(self):
         self.assertEqual(self.myFileReport6.worstError(), {'level': 'FATAL', 'nLevel': logging.FATAL,
                                                            'firstError': {'count': 1, 'firstLine': 4,
-                                                                          'message': 'Event counter: 41; Current algorithm: MuonCreatorAlg'}})
+                                                               'message': 'Segmentation fault: Event counter: 41; Current algorithm: MuonCreatorAlg; Current Function: G4VoxelNavigation::ComputeStep'}})
         self.assertEqual(self.myFileReport7.worstError(), {'level': 'FATAL', 'nLevel': logging.FATAL,
                                                            'firstError': {'count': 1, 'firstLine': 4,
-                                                                          'message': 'Event counter and current algorithm unknown.'}})
+                                                                          'message': 'Segmentation fault: Event counter: unknown; Current algorithm: unknown; Current Function: unknown'}})
+
+    def test_dbMonitor(self):
+        print self.myFileReport9 
+        self.assertEqual(self.myFileReport9.dbMonitor(), {'bytes': 579, 'time': 12.45})
+        self.assertEqual(self.myFileReport8.dbMonitor(), None)
+
     ## TODO
     # Special tests for G4 errors and core dumps
 
