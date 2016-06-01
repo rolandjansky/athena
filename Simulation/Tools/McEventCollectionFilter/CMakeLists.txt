@@ -8,7 +8,6 @@ atlas_subdir( McEventCollectionFilter )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
-                          Control/StoreGate
                           DetectorDescription/GeoPrimitives
                           GaudiKernel
                           Generators/GeneratorObjects

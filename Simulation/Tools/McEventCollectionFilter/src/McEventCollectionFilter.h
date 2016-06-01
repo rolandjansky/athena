@@ -4,30 +4,14 @@
 
 #ifndef MCEVENTCOLLECTIONFILTER_H
 #define MCEVENTCOLLECTIONFILTER_H
- 
-#include "AthenaBaseComps/AthAlgorithm.h"
-//#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"
-//
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "GeneratorObjects/McEventCollection.h"
-//
-#include "InDetSimEvent/SiHitCollection.h"
-#include "InDetSimEvent/SiHit.h"
-#include "InDetSimEvent/TRTUncompressedHitCollection.h"
-#include "MuonSimEvent/MDTSimHitCollection.h"
-#include "MuonSimEvent/RPCSimHitCollection.h"
-#include "MuonSimEvent/TGCSimHitCollection.h"
-#include "MuonSimEvent/CSCSimHitCollection.h"
-#include "MuonSimEvent/TGCSimHit.h"
-#include "MuonSimEvent/CSCSimHit.h"
 
+// Base class include 
+#include "AthenaBaseComps/AthAlgorithm.h"
+
+// std library includes
+#include <string>
 #include <vector>
-#include <iostream>
- 
-class StoreGateSvc;
+
 class McEventCollectionFilter : public AthAlgorithm {
 //
 //
@@ -40,7 +24,7 @@ public:
  
   private:
 
-   StatusCode ReduceMCEvenetCollection();
+   StatusCode ReduceMCEventCollection();
    StatusCode FindTRTElectronHits();
    StatusCode SiHistsTruthRelink();
    StatusCode TRTHistsTruthRelink();
