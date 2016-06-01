@@ -20,9 +20,6 @@
 #include "GaudiKernel/ToolHandle.h"  // for configurables
 #include "AthenaKernel/IOVSvcDefs.h"
 
-//#include "MuonCalibIdentifier/MdtRegion.h"
-//#include "MuonCalibIdentifier/MdtHashTable.h"
-
 #include "MdtCalibData/MdtRtRelationCollection.h"
 #include "MdtCalibData/MdtTubeCalibContainerCollection.h"
 #include "MdtCalibData/MdtCorFuncSetCollection.h"
@@ -45,16 +42,16 @@ namespace MuonCalib{
 class MdtCalibrationDbSvc : public AthService, virtual public IInterface {
 public:
   /** constructor */
-  MdtCalibrationDbSvc(const std::string& name,ISvcLocator* sl);
+  MdtCalibrationDbSvc(const std::string &name,ISvcLocator *sl);
   /** destructor */
   virtual ~MdtCalibrationDbSvc();
   /** IInterface implementation */
-  static const InterfaceID& interfaceID() {
+  static const InterfaceID &interfaceID() {
     static InterfaceID s_iID("MdtCalibrationDbSvc", 1, 0);
     return s_iID;
   }
   /** IInterface implementation */
-  virtual StatusCode queryInterface(const InterfaceID& riid,void** ppvIF);
+  virtual StatusCode queryInterface(const InterfaceID &riid,void **ppvIF);
     
   /** initialization */
   virtual StatusCode initialize(void);
@@ -70,52 +67,52 @@ public:
   virtual StatusCode loadTube(IOVSVC_CALLBACK_ARGS);
     
   /** Access to calibration constants per calibration region/chamber */
-  MuonCalib::MdtFullCalibData getCalibration( const Identifier& id ) const; 
+  MuonCalib::MdtFullCalibData getCalibration( const Identifier &id ) const; 
     
   /** Access to RT calibration constants per calibration region/chamber directly using the hashes */
-  MuonCalib::MdtFullCalibData getCalibration( const IdentifierHash& chamberHash, const IdentifierHash& detElHash ) const;
+  //  MuonCalib::MdtFullCalibData getCalibration( const IdentifierHash &chamberHash, const IdentifierHash &detElHash ) const;
+  MuonCalib::MdtFullCalibData getCalibration( const IdentifierHash &chamberHash, const IdentifierHash &mlhash ) const;
     
   /** Access to RT calibration constants per calibration region/chamber */
-  const MuonCalib::MdtRtRelation* getRtCalibration( const Identifier& id ) const;
+  const MuonCalib::MdtRtRelation* getRtCalibration( const Identifier &id ) const;
     
   /** Access to calibration constants per calibration region/chamber by hash */
-  const MuonCalib::MdtRtRelation* getRtCalibration( const IdentifierHash& detElHash ) const;
+  const MuonCalib::MdtRtRelation* getRtCalibration( const IdentifierHash &detElHash ) const;
     
   /** Access to Tube calibration constants per calibration region/chamber */
-  const MuonCalib::MdtTubeCalibContainer* getTubeCalibContainer( const Identifier& id ) const;
+  const MuonCalib::MdtTubeCalibContainer* getTubeCalibContainer( const Identifier &id ) const;
     
   /** Access to Tube calibration constants per calibration region/chamber by hash */
-  const MuonCalib::MdtTubeCalibContainer* getTubeCalibContainer( const IdentifierHash& chamberHash ) const;
+  const MuonCalib::MdtTubeCalibContainer* getTubeCalibContainer( const IdentifierHash &chamberHash ) const;
     
   /** Access to corrections to calibration constants per calibration 
    * region/chamber */
-  const MuonCalib::MdtCorFuncSet* getCorFunctions( const Identifier& id ) const;
+  const MuonCalib::MdtCorFuncSet* getCorFunctions( const Identifier &id ) const;
     
   /** Access to corrections to calibration constants per calibration 
    * region/chamber by hash */
-  const MuonCalib::MdtCorFuncSet* getCorFunctions( const IdentifierHash& detElHash ) const;
+  const MuonCalib::MdtCorFuncSet* getCorFunctions( const IdentifierHash &detElHash ) const;
     
 private:
   /** Indexed with MdtRegionHash for rt relations*/
-  mutable MdtRtRelationCollection* m_rtData;
+  mutable MdtRtRelationCollection *m_rtData;
     
   /** Indexed with MdtChamberHash */
-  mutable MdtTubeCalibContainerCollection* m_tubeData;
+  mutable MdtTubeCalibContainerCollection *m_tubeData;
     
   /** Indexed with MdtRegionHash for correction function regions */
-  mutable MdtCorFuncSetCollection* m_corData;
+  mutable MdtCorFuncSetCollection *m_corData;
 
   /** handle to region service */
   ServiceHandle<MdtCalibrationRegionSvc> m_regionSvc;
     
-  /** Id Helper used to retreive hashes from IDs */ 
-  const MdtIdHelper* m_mdtIdHelper;
+  /** Id Helper used to retrieve hashes from IDs */ 
+  const MdtIdHelper *m_mdtIdHelper;
     
   /** create the correction functions */
-    
-  void initialize_B_correction(MuonCalib::MdtCorFuncSet* funcSet,
-			       const MuonCalib::MdtRtRelation* rt);
-  void initializeSagCorrection(MuonCalib::MdtCorFuncSet* funcSet);
+  void initialize_B_correction(MuonCalib::MdtCorFuncSet *funcSet,
+			       const MuonCalib::MdtRtRelation *rt);
+  void initializeSagCorrection(MuonCalib::MdtCorFuncSet *funcSet);
     
   /** Tool handling the DB access */
   ToolHandle<MuonCalib::IMdtCalibDBTool> m_dbTool; 
@@ -126,11 +123,11 @@ private:
   std::string m_rtDataLocation;
   std::string m_corDataLocation;
   bool m_create_b_field_function; //<! flag to switch on loading of B field correction
-  bool m_createWireSagFunction; //<! flag to switch on loading of wire sag correction
-  bool m_createSlewingFunction; //<! flag to switch on loading of slewing correction
+  bool m_createWireSagFunction;   //<! flag to switch on loading of wire sag correction
+  bool m_createSlewingFunction;   //<! flag to switch on loading of slewing correction
 
   bool m_getTubeConstants; //<! flag to switch off loading of tube constants
-  bool m_getCorrections; //<! flag to switch off loading of correction function constants
+  bool m_getCorrections;   //<! flag to switch off loading of correction function constants
     
 };
 

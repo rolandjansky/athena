@@ -92,7 +92,7 @@ struct MdtCalibrationSvcSettings {
 
   /** Internal method to check consistency of time window values.
    */
-  bool timeWindowSetToValue(double& window, double value = dummyTimeWindow) const {
+  bool timeWindowSetToValue(double &window, double value = dummyTimeWindow) const {
     return std::abs(window - value) < 1e-3;
   }
 
