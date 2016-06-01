@@ -6,8 +6,20 @@
 // Oleg.Fedin@cern.ch, August 2010
 //////////////////////////////////////////////////////////////////////////
 #include "McEventCollectionFilter.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
+//
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenVertex.h"
+#include "GeneratorObjects/McEventCollection.h"
+//
+#include "InDetSimEvent/SiHitCollection.h"
+#include "InDetSimEvent/SiHit.h"
+#include "InDetSimEvent/TRTUncompressedHitCollection.h"
+#include "MuonSimEvent/MDTSimHitCollection.h"
+#include "MuonSimEvent/RPCSimHitCollection.h"
+#include "MuonSimEvent/TGCSimHitCollection.h"
+#include "MuonSimEvent/CSCSimHitCollection.h"
+#include "MuonSimEvent/TGCSimHit.h"
+#include "MuonSimEvent/CSCSimHit.h"
 // CLHEP
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -45,102 +57,37 @@ StatusCode McEventCollectionFilter::initialize(){
 StatusCode McEventCollectionFilter::execute(){
 //-------------------------------------------------
 
-  StatusCode sc;
-
-  msg(MSG::DEBUG) << " execute..... " << endreq;
-
+  ATH_MSG_DEBUG( " execute..... " );
 
   //... to find  electron barcodes linked to TRT hists
   if(m_IsKeepTRTElect&&m_UseTRTHits) {
-     StatusCode  sc=FindTRTElectronHits();
-    if(sc.isFailure()){
-      msg(MSG::ERROR)  <<"FindTRTElectronHits  failed " << endreq;
-      return sc;
-    }
-    msg(MSG::DEBUG)<< "FindTRTElectronHits succesful   "<< endreq;
+    ATH_CHECK( FindTRTElectronHits() );
   }
 
-  //-------------------------------------
   //.......Reduce McEventCollection
-  //-------------------------------------
+  ATH_CHECK( ReduceMCEventCollection() );
 
-  sc=ReduceMCEvenetCollection();
-  if(sc.isFailure()){
-    msg(MSG::ERROR)  <<"ReduceMCEvenetCollection  failed " << endreq;
-    return sc;
-  }
-  msg(MSG::DEBUG)<< "ReduceMCEvenetCollection succesful   "<< endreq;
-
-  //--------------------------------------------------
   //.......to relink all Si hits to the new particle
-  //-------------------------------------------------
+  ATH_CHECK( SiHistsTruthRelink() );
 
-  sc=SiHistsTruthRelink();
-  if(sc.isFailure()){
-    msg(MSG::ERROR)  <<"SiHistsTruthRelink:: Si hits truth particle relink  failed " << endreq;
-    return sc;
-  }
-  msg(MSG::DEBUG)<< "SiHistsTruthRelink:: Si hits truth particle relink succesful   "<< endreq;
-
-  //--------------------------------------------------
   //.......to relink all TRT hits to the new particle
-  //-------------------------------------------------
-
   if(m_UseTRTHits) {
-   sc=TRTHistsTruthRelink();
-   if(sc.isFailure()){
-     msg(MSG::ERROR)  <<"TRTHistsTruthRelink:: TRT hits truth particle relink  failed " << endreq;
-     return sc;
-   }
-   msg(MSG::DEBUG)<< "TRTHistsTruthRelink:: TRT hits truth particle relink succesful   "<< endreq;
+    ATH_CHECK( TRTHistsTruthRelink() );
   }
 
-  //--------------------------------------------------
   //.......to relink all MDT hits to the new particle
-  //-------------------------------------------------
+  ATH_CHECK( MDTHistsTruthRelink() );
 
-  sc=MDTHistsTruthRelink();
-  if(sc.isFailure()){
-    msg(MSG::ERROR)  <<"MDTHistsTruthRelink:: MDT hits truth particle relink  failed " << endreq;
-    return sc;
-  }
-  msg(MSG::DEBUG)<< "MDTHistsTruthRelink:: MDT hits truth particle relink succesful   "<< endreq;
-
-  //--------------------------------------------------
   //.......to relink all CSC hits to the new particle
-  //-------------------------------------------------
+  ATH_CHECK( CSCHistsTruthRelink() );
 
-  sc=CSCHistsTruthRelink();
-  if(sc.isFailure()){
-    msg(MSG::ERROR)  <<"CSCHistsTruthRelink:: CSC hits truth particle relink  failed " << endreq;
-    return sc;
-  }
-  msg(MSG::DEBUG)<< "CSCHistsTruthRelink:: CSC hits truth particle relink successful   "<< endreq;
-
-  //--------------------------------------------------
   //.......to relink all RPC hits to the new particle
-  //-------------------------------------------------
+  ATH_CHECK( RPCHistsTruthRelink() );
 
-  sc=RPCHistsTruthRelink();
-  if(sc.isFailure()){
-    msg(MSG::ERROR)  <<"RPCHistsTruthRelink:: RPC hits truth particle relink  failed " << endreq;
-    return sc;
-  }
-  msg(MSG::DEBUG)<< "RPCHistsTruthRelink:: RPC hits truth particle relink successful   "<< endreq;
-
-  //--------------------------------------------------
   //.......to relink all TGC hits to the new particle
-  //-------------------------------------------------
+  ATH_CHECK( TGCHistsTruthRelink() );
 
-  sc=TGCHistsTruthRelink();
-  if(sc.isFailure()){
-    msg(MSG::ERROR)  <<"TGCHistsTruthRelink:: TGC hits truth particle relink  failed " << endreq;
-    return sc;
-  }
-  msg(MSG::DEBUG)<< "TGCHistsTruthRelink:: TGC hits truth particle relink successful   "<< endreq;
-
-
-  msg(MSG::DEBUG) << "succeded McEventCollectionFilter ..... " << endreq;
+  ATH_MSG_DEBUG( "succeded McEventCollectionFilter ..... " );
 
   return StatusCode::SUCCESS;
 
@@ -150,15 +97,12 @@ StatusCode McEventCollectionFilter::execute(){
 StatusCode McEventCollectionFilter::finalize(){
 //-------------------------------------------------
 //
-  msg(MSG::DEBUG)
-    << "McEventCollectionFilter:: finalize completed successfully"
-    << endreq;
-
-   return StatusCode::SUCCESS;
+  ATH_MSG_DEBUG( "McEventCollectionFilter:: finalize completed successfully" );
+  return StatusCode::SUCCESS;
 
 }
 //----------------------------------------------------------------
-StatusCode McEventCollectionFilter::ReduceMCEvenetCollection(){
+StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
 //----------------------------------------------------------------
 //.......to reduce McEventCollection for pileup  particles
 //----------------------------------------------------------------
@@ -167,16 +111,7 @@ StatusCode McEventCollectionFilter::ReduceMCEvenetCollection(){
 
   // ....... Retrieve MC truht collection
   const McEventCollection* pMcEvtColl=0;
-  sc=evtStore()->retrieve(pMcEvtColl,m_mcEventCollection);
-  if (sc.isFailure()||!pMcEvtColl){
-    msg(MSG::ERROR)
-      << "Could not retrieve container "
-      << m_mcEventCollection
-      << endreq;
-    return StatusCode::FAILURE;
-  }
-  msg(MSG::DEBUG) <<"McEventCollection succesfully retrived" << endreq;
-
+  ATH_CHECK( evtStore()->retrieve(pMcEvtColl,m_mcEventCollection) );
 
   //.......Create new McEventCollection
   McEventCollection* pMcEvtCollNew= new McEventCollection();
@@ -236,6 +171,10 @@ StatusCode McEventCollectionFilter::ReduceMCEvenetCollection(){
   if(m_IsKeepTRTElect){
     for(int i=0;i<(int) m_elecBarcode.size();i++){
       HepMC::GenParticle* thePart=genEvt->barcode_to_particle(m_elecBarcode[i]);
+      if (!thePart){
+        ATH_MSG_DEBUG( "Could not find particle for barcode " << m_elecBarcode[i] );
+        continue;
+      }
       const HepMC::GenVertex* vx = thePart->production_vertex();
       HepMC::GenParticle* thePart_new=new HepMC::GenParticle( thePart->momentum(),thePart->pdg_id(),
                                                               thePart->status(),thePart->flow(),
@@ -258,20 +197,10 @@ StatusCode McEventCollectionFilter::ReduceMCEvenetCollection(){
 
 
   //......remove old McEventCollection
-  sc=evtStore()->remove(pMcEvtColl);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR)  << "Can't remove McEventCollection" << endreq;
-    return sc;
-  }
-
+  ATH_CHECK( evtStore()->remove(pMcEvtColl) );
 
   //......write new McEventCollection to SG
-  sc=evtStore()->record(pMcEvtCollNew, m_mcEventCollection);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR)  << "Couldn't record new McEventCollection" << endreq;
-    return sc;
-  }
-
+  ATH_CHECK( evtStore()->record(pMcEvtCollNew, m_mcEventCollection) );
 
   return StatusCode::SUCCESS;
 
@@ -292,22 +221,15 @@ StatusCode McEventCollectionFilter::SiHistsTruthRelink(){
 
   for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++){
 
-
     //.......retrive SiHit collection
     const DataHandle<SiHitCollection> pSiHitColl;
     if(evtStore()->contains<SiHitCollection>(m_HitContainer[iHitContainer])) {
-      sc=evtStore()->retrieve(pSiHitColl,m_HitContainer[iHitContainer] );
-      if (sc.isFailure() || !pSiHitColl) {
-        msg(MSG::ERROR) << "Couldn't find the data object '" << m_HitContainer[iHitContainer] << "' !" << endreq;
-        return sc;
-     } else {
-        msg(MSG::DEBUG) <<m_HitContainer[iHitContainer] << " container found " <<pSiHitColl->size()<< endreq;
-       }
-     } else {
-       msg(MSG::ERROR) << "Could not find SiHitCollection containing " <<  m_HitContainer[iHitContainer] << endreq;
-       sc = StatusCode::FAILURE;
-       return sc;
-     }
+      ATH_CHECK( evtStore()->retrieve(pSiHitColl,m_HitContainer[iHitContainer] ) );
+    } else {
+      ATH_MSG_ERROR( "Could not find SiHitCollection containing " <<  m_HitContainer[iHitContainer] );
+      sc = StatusCode::FAILURE;
+      return sc;
+    }
 
     SiHitCollection * pSiHitC = const_cast<SiHitCollection *> (&*pSiHitColl);
 
@@ -333,20 +255,10 @@ StatusCode McEventCollectionFilter::SiHistsTruthRelink(){
     }
 
     //......remove old SiHitCollection
-    sc=evtStore()->remove(pSiHitC);
-    if (sc.isFailure()) {
-      msg(MSG::ERROR)  << "Can not remove SiHitCollection containing " << m_HitContainer[iHitContainer]<<endreq;
-      return sc;
-    }
-    msg(MSG::DEBUG)<< "Remove container "<<m_HitContainer[iHitContainer]<< endreq;
+    ATH_CHECK( evtStore()->remove(pSiHitC) );
 
     //......write new SiHitCollection
-    sc=evtStore()->record(pSiHitCollNew,m_HitContainer[iHitContainer]);
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Can not record new container for " << m_HitContainer[iHitContainer] << endreq;
-      return sc;
-    }
-    msg(MSG::DEBUG)<< "Record new SiHitCollection containing "<<m_HitContainer[iHitContainer]<< endreq;
+    ATH_CHECK( evtStore()->record(pSiHitCollNew,m_HitContainer[iHitContainer]) );
 
   }
 
@@ -367,20 +279,14 @@ StatusCode McEventCollectionFilter::TRTHistsTruthRelink(){
   const DataHandle<TRTUncompressedHitCollection> pTRTHitColl;
 
   if(evtStore()->contains<TRTUncompressedHitCollection>(m_HitName)) {
-    sc=evtStore()->retrieve(pTRTHitColl, m_HitName);
-    if (sc.isFailure() || !pTRTHitColl) {
-      msg(MSG::ERROR) << "Could not find the data object '" << m_HitName << "' !" << endreq;
-      return sc;
-     } else {
-      msg(MSG::DEBUG) << m_HitName << " container found" << endreq;
-    }
+    ATH_CHECK( evtStore()->retrieve(pTRTHitColl, m_HitName) );
   } else {
-    msg(MSG::ERROR) << "Could not find collection containing " << m_HitName << endreq;
-     sc = StatusCode::FAILURE;
-     return sc;
+    ATH_MSG_ERROR( "Could not find collection containing " << m_HitName );
+    sc = StatusCode::FAILURE;
+    return sc;
   }
 
-  msg(MSG::DEBUG) << "Found collection containing " << m_HitName << endreq;
+  ATH_MSG_DEBUG( "Found collection containing " << m_HitName );
 
   TRTUncompressedHitCollection*  pTRTHitC= const_cast<TRTUncompressedHitCollection*> (&*pTRTHitColl);
 
@@ -407,30 +313,16 @@ StatusCode McEventCollectionFilter::TRTHistsTruthRelink(){
     float postZ      = (*i).GetPostStepZ();
     float time       = (*i).GetGlobalTime();
 
-
-
     TRTUncompressedHit newTRTHit(id,CurBarcode,pdgID,kinEnergy,eneDeposit,preX,preY,preZ,postX,postY,postZ,time);
     pTRTHitCollNew->Insert(newTRTHit);
 
-
- }
+  }
 
   //.......remove old TRTUncompressedHitCollection
-  sc=evtStore()->remove(pTRTHitC);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR)  << "Can not remove collection " <<m_HitName<< endreq;
-    return sc;
-  }
-  msg(MSG::DEBUG)<< "Remove collection   "<< m_HitName<< endreq;
+  ATH_CHECK( evtStore()->remove(pTRTHitC) );
 
   //.......write new  TRTUncompressedHitCollection
-  sc=evtStore()->record(pTRTHitCollNew,m_HitName);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << " cannot record new container for TRTUncompressedHits" << endreq;
-    return sc;
-  }
-  msg(MSG::DEBUG)<< "Record new container TRTUncompressedHits"<< endreq;
-
+  ATH_CHECK( evtStore()->record(pTRTHitCollNew,m_HitName) );
 
   return StatusCode::SUCCESS;
 
@@ -447,15 +339,9 @@ StatusCode McEventCollectionFilter::MDTHistsTruthRelink(){
   const DataHandle<MDTSimHitCollection> pMDTHitColl;
 
   if(evtStore()->contains<MDTSimHitCollection>(m_HitName)) {
-    sc=evtStore()->retrieve(pMDTHitColl, m_HitName);
-    if (sc.isFailure() || !pMDTHitColl) {
-      msg(MSG::ERROR) << "Could not find MDTSimHitCollection" << endreq;
-      return sc;
-    } else {
-      msg(MSG::DEBUG) << " MDTSimHitCollection  found " <<pMDTHitColl->size()<< endreq;
-    }
+    ATH_CHECK( evtStore()->retrieve(pMDTHitColl, m_HitName) );
   } else {
-    msg(MSG::ERROR) << "Could not find MDTSimHitCollection  containing " << m_HitName << endreq;
+    ATH_MSG_ERROR( "Could not find MDTSimHitCollection  containing " << m_HitName );
     sc = StatusCode::FAILURE;
     return sc;
   }
@@ -487,24 +373,13 @@ StatusCode McEventCollectionFilter::MDTHistsTruthRelink(){
     pMDTHitCollNew->Insert(newMDTHit);
   }
 
-
   //.......remove old MDTSimHitCollection
-  sc=evtStore()->remove(pMDTHitC);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR)  << "Can not remove MDTSimHitCollection " << endreq;
-    return sc;
-  }
-  msg(MSG::DEBUG)<< "Remove  MDTSimHitCollection  "<< endreq;
+  ATH_CHECK( evtStore()->remove(pMDTHitC) );
 
   //.......write new  MDTSimHitCollection
-  sc=evtStore()->record(pMDTHitCollNew,m_HitName);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << " cannot record new MDTSimHitCollection" << endreq;
-    return sc;
-  }
-   msg(MSG::DEBUG)<< "Record new MDTSimHitCollection"<< endreq;
+  ATH_CHECK( evtStore()->record(pMDTHitCollNew,m_HitName) );
 
-   return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 
 }
 //--------------------------------------------------------
@@ -519,17 +394,11 @@ StatusCode McEventCollectionFilter::CSCHistsTruthRelink(){
   const DataHandle<CSCSimHitCollection> pCSCHitColl;
 
   if(evtStore()->contains<CSCSimHitCollection>(m_HitName)) {
-    sc=evtStore()->retrieve(pCSCHitColl, m_HitName);
-    if (sc.isFailure() || !pCSCHitColl) {
-      msg(MSG::ERROR) << "Could not find CSCSimHitCollection" << endreq;
-      return sc;
-     } else {
-      msg(MSG::DEBUG) << " CSCSimHitCollection  found " <<pCSCHitColl->size()<<endreq;
-    }
+    ATH_CHECK( evtStore()->retrieve(pCSCHitColl, m_HitName) );
   } else {
-    msg(MSG::ERROR) << "Could not find CSCSimHitCollection  containing " << m_HitName << endreq;
-     sc = StatusCode::FAILURE;
-     return sc;
+    ATH_MSG_ERROR( "Could not find CSCSimHitCollection  containing " << m_HitName );
+    sc = StatusCode::FAILURE;
+    return sc;
   }
 
 
@@ -557,24 +426,12 @@ StatusCode McEventCollectionFilter::CSCHistsTruthRelink(){
   }
 
   //.......remove old CSCSimHitCollection
-  sc=evtStore()->remove(pCSCHitC);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR)  << "Can not remove CSCSimHitCollection " << endreq;
-    return sc;
-  }
-  msg(MSG::DEBUG)<< "Remove  CSCSimHitCollection  "<< endreq;
+  ATH_CHECK( evtStore()->remove(pCSCHitC) );
 
   //.......write new  CSCSimHitCollection
-  sc=evtStore()->record(pCSCHitCollNew,m_HitName);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << " cannot record new CSCSimHitCollection" << endreq;
-    return sc;
-  }
-   msg(MSG::DEBUG)<< "Record new CSCSimHitCollection"<< endreq;
+  ATH_CHECK( evtStore()->record(pCSCHitCollNew,m_HitName) );
 
-   return StatusCode::SUCCESS;
-
-
+  return StatusCode::SUCCESS;
 }
 
 //--------------------------------------------------------
@@ -589,19 +446,12 @@ StatusCode McEventCollectionFilter::RPCHistsTruthRelink(){
   const DataHandle<RPCSimHitCollection> pRPCHitColl;
 
   if(evtStore()->contains<RPCSimHitCollection>(m_HitName)) {
-    sc=evtStore()->retrieve(pRPCHitColl, m_HitName);
-    if (sc.isFailure() || !pRPCHitColl) {
-      msg(MSG::ERROR) << "Could not find RPCSimHitCollection" << endreq;
-      return sc;
-     } else {
-      msg(MSG::DEBUG) << " RPCSimHitCollection  found " << pRPCHitColl->size()<<endreq;
-    }
+    ATH_CHECK( evtStore()->retrieve(pRPCHitColl, m_HitName) );
   } else {
-    msg(MSG::ERROR) << "Could not find RPCSimHitCollection  containing " << m_HitName << endreq;
-     sc = StatusCode::FAILURE;
-     return sc;
+    ATH_MSG_ERROR( "Could not find RPCSimHitCollection  containing " << m_HitName );
+    sc = StatusCode::FAILURE;
+    return sc;
   }
-
 
   RPCSimHitCollection* pRPCHitC = const_cast<RPCSimHitCollection*> (&*pRPCHitColl);
 
@@ -629,22 +479,12 @@ StatusCode McEventCollectionFilter::RPCHistsTruthRelink(){
   }
 
   //.......remove old RPCSimHitCollection
-  sc=evtStore()->remove(pRPCHitC);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR)  << "Can not remove RPCSimHitCollection " << endreq;
-    return sc;
-  }
-  msg(MSG::DEBUG)<< "Remove  RPCSimHitCollection  "<< endreq;
+  ATH_CHECK( evtStore()->remove(pRPCHitC) );
 
   //.......write new  RPCSimHitCollection
-  sc=evtStore()->record(pRPCHitCollNew,m_HitName);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << " cannot record new RPCSimHitCollection " << endreq;
-    return sc;
-  }
-  msg(MSG::DEBUG)<< "Record new container RPCSimHitCollection"<< endreq;
+  ATH_CHECK( evtStore()->record(pRPCHitCollNew,m_HitName) );
 
-   return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 //--------------------------------------------------------
@@ -658,19 +498,12 @@ StatusCode McEventCollectionFilter::TGCHistsTruthRelink(){
   const DataHandle<TGCSimHitCollection> pTGCHitColl;
 
   if(evtStore()->contains<TGCSimHitCollection>(m_HitName)) {
-    sc=evtStore()->retrieve(pTGCHitColl, m_HitName);
-    if (sc.isFailure() || !pTGCHitColl) {
-      msg(MSG::ERROR) << "Could not find TGCSimHitCollection" << endreq;
-      return sc;
-     } else {
-      msg(MSG::DEBUG) << " TGCSimHitCollection  found " << pTGCHitColl->size()<<endreq;
-    }
+    ATH_CHECK( evtStore()->retrieve(pTGCHitColl, m_HitName) );
   } else {
-    msg(MSG::ERROR) << "Could not find TGCSimHitCollection  containing " << m_HitName << endreq;
-     sc = StatusCode::FAILURE;
-     return sc;
+    ATH_MSG_ERROR( "Could not find TGCSimHitCollection  containing " << m_HitName );
+    sc = StatusCode::FAILURE;
+    return sc;
   }
-
 
   TGCSimHitCollection* pTGCHitC = const_cast<TGCSimHitCollection*> (&*pTGCHitColl);
 
@@ -697,20 +530,10 @@ StatusCode McEventCollectionFilter::TGCHistsTruthRelink(){
   }
 
   //.......remove old TGCSimHitCollection
-  sc=evtStore()->remove(pTGCHitC);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR)  << "Can not remove TGCSimHitCollection " << endreq;
-    return sc;
-  }
-  msg(MSG::DEBUG)<< "Remove  TGCSimHitCollection  "<< endreq;
+  ATH_CHECK( evtStore()->remove(pTGCHitC) );
 
   //.......write new  TGCSimHitCollection
-  sc=evtStore()->record(pTGCHitCollNew,m_HitName);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << " cannot record new TGCSimHitCollection " << endreq;
-    return sc;
-  }
-  msg(MSG::DEBUG)<< "Record new container TGCSimHitCollection"<< endreq;
+  ATH_CHECK( evtStore()->record(pTGCHitCollNew,m_HitName) );
   return StatusCode::SUCCESS;
 }
 
@@ -726,20 +549,14 @@ StatusCode McEventCollectionFilter::FindTRTElectronHits(){
   const DataHandle<TRTUncompressedHitCollection> pTRTHitColl;
 
   if(evtStore()->contains<TRTUncompressedHitCollection>(m_HitName)) {
-    sc=evtStore()->retrieve(pTRTHitColl, m_HitName);
-    if (sc.isFailure() || !pTRTHitColl) {
-      msg(MSG::ERROR) << "Could not find the data object '" << m_HitName << "' !" << endreq;
-      return sc;
-     } else {
-      msg(MSG::DEBUG) << m_HitName << " container found" << endreq;
-    }
+    ATH_CHECK( evtStore()->retrieve(pTRTHitColl, m_HitName) );
   } else {
-    msg(MSG::ERROR) << "Could not find collection containing " << m_HitName << endreq;
-     sc = StatusCode::FAILURE;
-     return sc;
+    ATH_MSG_ERROR( "Could not find collection containing " << m_HitName );
+    sc = StatusCode::FAILURE;
+    return sc;
   }
 
-  msg(MSG::DEBUG) << "Found collection containing " << m_HitName << endreq;
+  ATH_MSG_DEBUG( "Found collection containing " << m_HitName );
 
   m_elecBarcode.clear();
 
@@ -753,8 +570,5 @@ StatusCode McEventCollectionFilter::FindTRTElectronHits(){
 
   m_elecBarcode.assign(barcode_tmp.begin(),barcode_tmp.end());
 
-
-
   return StatusCode::SUCCESS;
-
 }
