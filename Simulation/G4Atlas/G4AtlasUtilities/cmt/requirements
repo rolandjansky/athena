@@ -2,33 +2,17 @@ package G4AtlasUtilities
 
 public
 use AtlasPolicy             AtlasPolicy-*
-use AtlasCLHEP              AtlasCLHEP-*            External
-use AthenaKernel            AthenaKernel-*          Control
 use FadsKinematics          FadsKinematics-*        Simulation/G4Sim/FADS
-use Geant4                  Geant4-*                External
 
 private
-use AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-* Simulation/Tools
 use AtlasReflex             AtlasReflex-*           External
-use EventInfo               EventInfo-*             Event
-use GaudiInterface          GaudiInterface-*        External
-use InDetBeamSpotService    InDetBeamSpotService-*  InnerDetector/InDetConditions
-use SGTools                 SGTools-*               Control
-use StoreGate               StoreGate-*             Control
+use Geant4                  Geant4-*                External
 end_private
-
-# Add direct dependencey against Eigen for cmake in order to avoid the indirect dependency
-# via the InDetBeamSpotService (which creates a component library and therefore doesn't
-# export its dependencies). Transparent to CMT.
-apply_pattern cmake_add_command command="find_package(Eigen)"
 
 include_dirs "$(G4AtlasUtilities_root)" "$(G4AtlasUtilities_root)/dict"
 
-# Override the library type for cmake so that it is linkable by clients (transparent to CMT)
-apply_pattern cmake_override_library_type library=G4AtlasUtilities type=installed_library
-
 library G4AtlasUtilities *.cxx
-apply_pattern component_library
+apply_pattern installed_library
 
 private
 apply_pattern lcgdict dict=G4AtlasUtilities \
