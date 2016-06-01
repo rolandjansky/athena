@@ -301,6 +301,7 @@ class PySgDumper (PyAthena.Alg):
                     continue
                 n  = str(p.name())
                 tp = _typename(clid)
+                if n.endswith('Aux.'): continue
                 if tp:
                     sg[n] = tp
                 else:
