@@ -38,7 +38,7 @@ public:
 	bool canregistercontroller;
 	bool canregistersystem;
 	int runnumber;
-	int eventnumber;
+	unsigned long long eventnumber;
 	unsigned timestamp;
 };
 
@@ -86,7 +86,7 @@ bool IVP1ChannelWidget::isAccumulator() const
 }
 
 //_______________________________________________________
-void IVP1ChannelWidget::setRunEvtNumber(int runnumber, int eventnumber)
+void IVP1ChannelWidget::setRunEvtNumber(int runnumber, unsigned long long eventnumber)
 {
 	d->runnumber = runnumber;
 	d->eventnumber = eventnumber;
@@ -252,7 +252,7 @@ void IVP1ChannelWidget::turnOff(IVP1System*s,const bool& immediateErase)
 }
 
 //_______________________________________________________
-void IVP1ChannelWidget::getRunEvtNumber(int& runnumber, int& eventnumber)
+void IVP1ChannelWidget::getRunEvtNumber(int& runnumber, unsigned long long& eventnumber)
 {
 	runnumber = d->runnumber;
 	eventnumber = d->eventnumber;

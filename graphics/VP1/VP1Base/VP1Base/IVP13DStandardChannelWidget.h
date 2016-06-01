@@ -73,6 +73,7 @@ private:
 private slots:
   void toggleSystemActive();
   void updateSnapshotDim();
+  void setImageFromPresets();
 
 protected slots:
   void showControlsForSystem();
