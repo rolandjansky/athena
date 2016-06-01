@@ -48,7 +48,7 @@ public:
 
   virtual bool isAccumulator() const;
 
-  void setRunEvtNumber(int runnumber, int eventnumber);
+  void setRunEvtNumber(int runnumber, unsigned long long eventnumber);
 
 protected:
   virtual void create();//Fixme: Abstract!
@@ -65,7 +65,7 @@ protected:
   void turnOn(IVP1System*);
   void turnOff(IVP1System*,const bool& immediateErase=true);
 
-  void getRunEvtNumber(int& runnumber, int& eventnumber);
+  void getRunEvtNumber(int& runnumber, unsigned long long& eventnumber);
 
   void setEvtTimestamp(unsigned timestamp);
   void getEvtTimestamp(unsigned& timestamp);

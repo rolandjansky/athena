@@ -14,6 +14,7 @@
 
 #include "VP1Base/VP1StdCollection.h"
 #include <QtGui/QCheckBox>
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoSeparator.h>

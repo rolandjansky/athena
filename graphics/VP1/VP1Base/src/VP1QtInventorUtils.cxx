@@ -168,22 +168,31 @@ public:
 			exit(1);
 		}
 
-		fread(image, 1, 12, image->file);
+		int bytesRead = fread(image, 1, 12, image->file);
+        
+        if (!bytesRead) {
+            fprintf(stderr, "fread failed!\n");
+        }
+        if (image == NULL) {
+            fprintf(stderr, "image == NULL!\n");
+            return (ImageRec *)malloc(sizeof(ImageRec));
+        }
 
 		if (swapFlag) {
 			ConvertShort(&image->imagic, 6);
 		}
 
-		image->tmp = (unsigned char *)malloc(image->xsize*256);
-		image->tmpR = (unsigned char *)malloc(image->xsize*256);
-		image->tmpG = (unsigned char *)malloc(image->xsize*256);
-		image->tmpB = (unsigned char *)malloc(image->xsize*256);
-		if (image->tmp == NULL || image->tmpR == NULL || image->tmpG == NULL ||
-				image->tmpB == NULL) {
-			fprintf(stderr, "Out of memory!\n");
-			exit(1);
-		}
-
+        if (image) {
+		    image->tmp = (unsigned char *)malloc(image->xsize*256);
+		    image->tmpR = (unsigned char *)malloc(image->xsize*256);
+		    image->tmpG = (unsigned char *)malloc(image->xsize*256);
+		    image->tmpB = (unsigned char *)malloc(image->xsize*256);
+		    if (image->tmp == NULL || image->tmpR == NULL || image->tmpG == NULL ||
+			    	image->tmpB == NULL) {
+			    fprintf(stderr, "Out of memory!\n");
+			    exit(1);
+		    }
+        }
 
 		if ((image->type & 0xFF00) == 0x0100) {
 			x = (image->ysize * image->zsize) * sizeof(unsigned);
@@ -233,9 +242,12 @@ public:
 
 		if (image) {
 			if ((image->type & 0xFF00) == 0x0100) {
-				fseek(image->file, (long)image->rowStart[y+z*image->ysize], SEEK_SET);
-				fread(image->tmp, 1, (unsigned int)image->rowSize[y+z*image->ysize],
+				
+                int okseek = fseek(image->file, (long)image->rowStart[y+z*image->ysize], SEEK_SET);
+				int okread = fread(image->tmp, 1, (unsigned int)image->rowSize[y+z*image->ysize],
 						image->file);
+
+                if( !okseek || !okread ) VP1Msg::messageDebug("fseek or fread failed!!");
 
 				iPtr = image->tmp;
 				oPtr = buf;
@@ -257,7 +269,9 @@ public:
 					}
 				}
 			} else {
-			fseek(image->file, 512+(y*image->xsize)+(z*image->xsize*image->ysize), SEEK_SET);
+			
+            int okstatus = fseek(image->file, 512+(y*image->xsize)+(z*image->xsize*image->ysize), SEEK_SET);
+            if (okstatus) { VP1Msg::messageDebug("fseek failed!!"); }
 
 			size_t bytesRead = 0;
 			bytesRead = fread(buf, 1, image->xsize, image->file);
@@ -281,6 +295,7 @@ public:
 
 		if(!image)
 			return NULL;
+        
 		(*width)=image->xsize;
 		(*height)=image->ysize;
 		(*components)=image->zsize;
@@ -380,9 +395,12 @@ QPixmap VP1QtInventorUtils::pixmapFromRGBFile(const QString& filename)
 //____________________________________________________________________
 QImage VP1QtInventorUtils::imageFromRGBFile(const QString& filename)
 {
-	int width, height, components;
-	unsigned * imagedata = Imp::read_texture(filename.toStdString().c_str(), &width, &height, &components);
+	int width = 0;
+    int height = 0;
+    int components = 0;
 
+	unsigned * imagedata = Imp::read_texture(filename.toStdString().c_str(), &width, &height, &components);
+    if( width == 0 || height == 0 ) std::cout << "VP1QtInventorUtils::imageFromRGBFile - read_texture failed?" << std::endl;
 
 	unsigned char * data = reinterpret_cast<unsigned char*>(imagedata);
 
@@ -684,8 +702,8 @@ QString VP1QtInventorUtils::transparencyType2PrettyString( SoGLRenderAction::Tra
 	case SoGLRenderAction::ADD: return "Add"; break;
 	case SoGLRenderAction::DELAYED_ADD: return "Delayed add"; break;
 	case SoGLRenderAction::SORTED_OBJECT_ADD: return "Sorted object add"; break;
-	case SoGLRenderAction::BLEND: return "Blend"; break;
-	case SoGLRenderAction::SORTED_OBJECT_BLEND: return "Sorted object blend"; break;
+	case SoGLRenderAction::BLEND: return "Blend (Best for Geo volumes)"; break;
+	case SoGLRenderAction::SORTED_OBJECT_BLEND: return "Sorted object blend (Best for physics objects: jets, tracks, ...)"; break;
 	case SoGLRenderAction::SORTED_OBJECT_SORTED_TRIANGLE_ADD: return "Sorted object sorted triangle add"; break;
 	case SoGLRenderAction::SORTED_OBJECT_SORTED_TRIANGLE_BLEND: return "Sorted object sorted triangle blend"; break;
 	case SoGLRenderAction::NONE: return "None"; break;

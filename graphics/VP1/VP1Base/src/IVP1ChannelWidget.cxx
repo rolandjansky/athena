@@ -38,7 +38,7 @@ public:
 	bool canregistercontroller;
 	bool canregistersystem;
 	int runnumber;
-	int eventnumber;
+	unsigned long long eventnumber;
 	unsigned timestamp;
 };
 
@@ -59,12 +59,14 @@ IVP1ChannelWidget::IVP1ChannelWidget(const QString & n, const QString & i, const
 //_______________________________________________________
 IVP1ChannelWidget::~IVP1ChannelWidget()
 {
+	VP1Msg::messageDebug("IVP1ChannelWidget::~IVP1ChannelWidget()");
 	assert(d->state==UNCREATED||d->state==CONSTRUCTED);
 	assert(!d->controller);
 	//Delete systems:
 	std::set<IVP1System *>::iterator it, itE = d->systems.end();
 	for (it=d->systems.begin();it!=itE;++it) {
 		assert((*it)->state()==IVP1System::UNCREATED||(*it)->state()==IVP1System::CONSTRUCTED);
+		VP1Msg::messageDebug("deleting system: "+ (*it)->name());
 		delete *it;
 	}
 	d->systems.clear();
@@ -84,7 +86,7 @@ bool IVP1ChannelWidget::isAccumulator() const
 }
 
 //_______________________________________________________
-void IVP1ChannelWidget::setRunEvtNumber(int runnumber, int eventnumber)
+void IVP1ChannelWidget::setRunEvtNumber(int runnumber, unsigned long long eventnumber)
 {
 	d->runnumber = runnumber;
 	d->eventnumber = eventnumber;
@@ -128,7 +130,7 @@ void IVP1ChannelWidget::create()
 void IVP1ChannelWidget::systemRefreshed(IVP1System*s)
 {
 	assert(d->state==READY);
-	if(! s->state()==IVP1System::REFRESHED) {
+	if( ! (s->state()==IVP1System::REFRESHED) ) {
 		VP1Msg::messageVerbose("s->state() != IVP1System::REFRESHED!");
 	}
 	assert(s->state()==IVP1System::REFRESHED);
@@ -250,7 +252,7 @@ void IVP1ChannelWidget::turnOff(IVP1System*s,const bool& immediateErase)
 }
 
 //_______________________________________________________
-void IVP1ChannelWidget::getRunEvtNumber(int& runnumber, int& eventnumber)
+void IVP1ChannelWidget::getRunEvtNumber(int& runnumber, unsigned long long& eventnumber)
 {
 	runnumber = d->runnumber;
 	eventnumber = d->eventnumber;

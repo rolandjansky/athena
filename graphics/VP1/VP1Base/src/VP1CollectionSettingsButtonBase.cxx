@@ -11,6 +11,7 @@
 
 
 #include "VP1Base/VP1CollectionSettingsButtonBase.h"
+#include "Inventor/C/errors/debugerror.h"
 #include "Inventor/nodes/SoMaterial.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
@@ -19,7 +20,7 @@ class VP1CollectionSettingsButtonBase::Imp {
 public:
 
 //	Imp():theclass(0),editwindow(0),matButton(0), trackDrawStyle(0), trackLightModel(0){}
-	Imp():theclass(0), fallBackMaterial(0) {}
+	Imp():theclass(0), dim(0), fallBackMaterial(0) {}
 
 	// the main class
 	VP1CollectionSettingsButtonBase * theclass;

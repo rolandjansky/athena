@@ -360,22 +360,30 @@ IVP13DSystem::IVP13DSystem( const QString & name, const QString & information, c
 //___________________________________________________________________________________________________________
 IVP13DSystem::~IVP13DSystem()
 {
+  messageDebug("~IVP13DSystem()");
+
   d->selection2lastpathlist.clear();
 
   //Unregister all nodes for this system:
   std::set<SoCooperativeSelection*> sel2unregister;
-  std::map<SoCooperativeSelection*,IVP13DSystem*>::iterator it, itE  =Imp::selection2system.end();
-  for (it  =Imp::selection2system.begin();it!=itE;++it)
+  std::map<SoCooperativeSelection*,IVP13DSystem*>::iterator it, itE = Imp::selection2system.end();
+  for (it = Imp::selection2system.begin();it!=itE;++it)
     if (it->second == this)
       sel2unregister.insert(it->first);
   std::set<SoCooperativeSelection*>::iterator itSel, itSelE = sel2unregister.end();
-  for (itSel = sel2unregister.begin();itSel!=itSelE;++itSel)
+
+  for (itSel = sel2unregister.begin();itSel!=itSelE;++itSel) {
     unregisterSelectionNode(*itSel);
+  }
+
+  messageDebug("Unregistered all nodes. Unref all camera pointers...");
 
   //Unref all camera pointers:
   std::set<SoCamera*> ::iterator itCam, itCamE = d->staticcameras.end();
   for (itCam = d->staticcameras.begin();itCam!=itCamE;++itCam)
     (*itCam)->unref();
+
+  messageDebug("Unref all camera pointers: done.");
 
   delete d; d=0;
 }

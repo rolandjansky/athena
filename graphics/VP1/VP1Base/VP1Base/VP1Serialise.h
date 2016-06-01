@@ -48,6 +48,7 @@ public:
   virtual ~VP1Serialise();
 
   QByteArray result();
+  qint32 version() const;
 
   void ignoreWidget(const QWidget*);//Ignores widget and all children.
   void widgetHandled(const QWidget*);//Indicates that the widget should be considered as handled.

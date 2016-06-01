@@ -16,6 +16,7 @@
 #ifndef VP1QTINVENTORUTILS_H
 #define VP1QTINVENTORUTILS_H
 
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <QtCore/QString>
 #include <QtCore/QByteArray>

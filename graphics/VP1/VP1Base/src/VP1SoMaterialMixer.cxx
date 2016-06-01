@@ -10,6 +10,7 @@
 
 #include "VP1Base/VP1SoMaterialMixer.h"
 #include "VP1Base/VP1Msg.h"
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/sensors/SoNodeSensor.h>
 
