@@ -612,7 +612,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   // Check HLTResult
   if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()){
     ATH_MSG_WARNING("HLTResult truncated, skip event");
-    return false;
+    return sc;
   }
 
 
