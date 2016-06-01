@@ -3,7 +3,6 @@
 #################
 ## Load common flags
 from AthenaCommon.JobProperties import jobproperties as athCommonFlags
-from DerivationFrameworkInDet.InDetCommon import *
 
 # Select active sub-systems
 dumpPixInfo = True
@@ -211,11 +210,9 @@ if dumpUnassociatedHits:
 
 # Add LArCollisionTime augmentation tool
 if dumpLArCollisionTime:
-    from LArCellRec.LArCollisionTimeGetter import LArCollisionTimeGetter
     from RecExConfig.ObjKeyStore           import cfgKeyStore
     # We can only do this if we have the cell container.
     if cfgKeyStore.isInInput ('CaloCellContainer', 'AllCalo'):
-        LArCollisionTimeGetter (topSequence)
 
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__LArCollisionTimeDecorator
         lArCollisionTimeDecorator = DerivationFramework__LArCollisionTimeDecorator (name ='NCBlArCollisionTimeDecorator',
