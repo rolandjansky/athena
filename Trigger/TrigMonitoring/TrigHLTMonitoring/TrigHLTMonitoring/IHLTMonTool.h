@@ -83,6 +83,7 @@ class IHLTMonTool : public ManagedMonitorToolBase {
   MsgStream *m_log;
 
   bool m_cafonly;
+  bool m_ignoreTruncationCheck;
 
   ServiceHandle<StoreGateSvc> m_storeGate;
   ServiceHandle<StoreGateSvc> m_inputMetaStore;
