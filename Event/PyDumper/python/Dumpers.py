@@ -110,6 +110,12 @@ def signalstate (o, state):
     return
 
 
+def daz(f):
+    if abs(f) < 1e-38:
+        return 0.0
+    return f
+
+
 ### library methods ------------------------------------------------------------
 
 #change -0 -> 0
@@ -784,11 +790,15 @@ def dump_TauCommonDetails (t, f):
     print >> f, t.seedTrk_etChrgHad(), t.seedTrk_nOtherCoreTrk(),\
           t.seedTrk_nIsolTrk(), t.seedTrk_etIsolEM(), t.seedTrk_etIsolHad(),
     print >> f, '\n        %d loose tracks' % t.nLooseTrk(),
-    for (i,el) in enumerate(t.looseTrk()):
+    looseTrks = t.looseTrk()
+    for i in range(looseTrks.size()):
+        el = looseTrks[i]
         print >> f, '\n          ', el.index(), el.dataID(), \
               t.seedTrk_etChrgEM01Trk(i), t.seedTrk_etResChrgEMTrk(i),
     print >> f, '\n        %d pi0s' % t.nPi0(),
-    for el in t.pi0LinkVec():
+    vec = t.pi0LinkVec()
+    for i in range(vec.size()):
+        el = vec[i]
         # nb. indices may vary from run to run.  list isn't sorted?
         print >> f, '\n          ', el.dataID(), el.e(),
     print >> f, '\n        pi0 sum:',
@@ -1678,7 +1688,7 @@ def dump_ScatteringAngles (p, f):
     if not p:
         print >> f, None,
         return
-    print >> f, p.deltaPhi(), p.deltaTheta(),
+    print >> f, daz(p.deltaPhi()), daz(p.deltaTheta()),
     print >> f, p.sigmaDeltaPhi(), p.sigmaDeltaTheta(),
     return
 
@@ -3137,7 +3147,9 @@ def dump_TrigEFBphys (j, f):
     if j.pSecondDecay():
         print >> f, '\n     second:',
         dump_TrigEFBphys (j.pSecondDecay(), f)
-    for t in j.trackVector():
+    vec = j.trackVector()
+    for i in range(len(vec)):
+        t = vec[i]
         print >> f, '\n     tv:',
         if t.isValid():
             print >> f, t.dataID(), t.index(),
@@ -3345,7 +3357,7 @@ def dump_MuonFeatureDetails (m, f):
           m.lvl1_id(), m.lumi_block(), m.muondetmask(), \
           m.roi_id(), m.roi_system(), m.roi_subsystem(), \
           m.roi_sector(), m.roi_number(), m.roi_threshold(), \
-          m.roi_eta(), m.roi_phi(), \
+          daz(m.roi_eta()), daz(m.roi_phi()), \
           m.rpc_pad_error(), m.tgc_rdo_error(),
     print >> f, '\n  ',\
           m.rpc1_x(), m.rpc1_y(), m.rpc1_z(), \
@@ -4850,7 +4862,12 @@ dumpspecs = [
     ['xAOD::SlowMuonContainer',              dump_xAOD],
     ['DataVector<xAOD::TauJet_v1>',          dump_xAOD],
     ['DataVector<xAOD::TauJet_v2>',          dump_xAOD],
+    ['DataVector<xAOD::TauJet_v3>',          dump_xAOD],
     ['xAOD::TauJetContainer',                dump_xAOD],
+    ['DataVector<xAOD::TauTrack_v1>',        dump_xAOD],
+    ['xAOD::TauTrackContainer',              dump_xAOD],
+    ['DataVector<xAOD::Particle_v1>',        dump_xAOD],
+    ['xAOD::ParticleContainer',              dump_xAOD],
     ['DataVector<xAOD::TrackParticle_v1>',   dump_xAOD],
     ['xAOD::TrackParticleContainer',         dump_xAOD],
     ['DataVector<xAOD::TrigBphys_v1>',       dump_xAOD],
@@ -4915,8 +4932,11 @@ dumpspecs = [
     ['xAOD::TrigConfKeys_v1',                dump_TrigConfKeys],
     ['xAOD::JetEtRoI_v1',                    dump_xAODObject],
     ['xAOD::EnergySumRoI_v1',                dump_xAODObject],
+    ['xAOD::EnergySumRoI_v2',                dump_xAODObject],
     ['xAOD::TrigNavigation_v1',              dump_xAODObject],
     ['xAOD::TrigNavigation',                 dump_xAODObject],
+    ['xAOD::RoiDescriptorStore_v1',          dump_xAODObject],
+    ['xAOD::RoiDescriptorStore',             dump_xAODObject],
 
     # Make some of these more compact?
 
