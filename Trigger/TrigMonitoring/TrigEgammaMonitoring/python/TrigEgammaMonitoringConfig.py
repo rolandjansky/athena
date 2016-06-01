@@ -101,6 +101,7 @@ def TrigEgammaMonitoringTool():
     from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConf import TrigEgammaMonTool
     TrigEgammaMonTool = TrigEgammaMonTool( name = "HLTEgammaMon", 
             histoPathBase=basePath,
+            IgnoreTruncationCheck=True,
             Tools=["TrigEgammaNavAnalysisTool/HLTEgammaPhotonAnalysis",
                     "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis",
                     "TrigEgammaNavTPAnalysisTool/HLTEgammaTPAnalysis",
