@@ -28,7 +28,7 @@
 // GEANT4 tag $Name: geant4-09-03-patch-01 $
 //
 
-// 
+//
 //
 //        Inline function implementation.
 //
@@ -42,12 +42,12 @@
 inline void
 G4mplAtlasTransportation::SetPropagatorInField( G4PropagatorInField* pFieldPropagator)
 {
-   fFieldPropagator= pFieldPropagator;
+  fFieldPropagator= pFieldPropagator;
 }
 
 inline G4PropagatorInField* G4mplAtlasTransportation::GetPropagatorInField()
 {
-   return fFieldPropagator;
+  return fFieldPropagator;
 }
 
 inline G4bool G4mplAtlasTransportation::DoesGlobalFieldExist()
@@ -74,11 +74,11 @@ inline G4double G4mplAtlasTransportation::GetThresholdWarningEnergy() const
 {
   return fThreshold_Warning_Energy;
 }
- 
+
 inline G4double G4mplAtlasTransportation::GetThresholdImportantEnergy() const
-{ 
+{
   return fThreshold_Important_Energy;
-} 
+}
 
 inline G4int G4mplAtlasTransportation::GetThresholdTrials() const
 {
@@ -92,22 +92,22 @@ inline void G4mplAtlasTransportation::SetThresholdWarningEnergy( G4double newEnW
 
 inline void G4mplAtlasTransportation::SetThresholdImportantEnergy( G4double newEnImp )
 {
-  fThreshold_Important_Energy = newEnImp; 
+  fThreshold_Important_Energy = newEnImp;
 }
 
 inline void G4mplAtlasTransportation::SetThresholdTrials(G4int newMaxTrials )
 {
-  fThresholdTrials = newMaxTrials; 
+  fThresholdTrials = newMaxTrials;
 }
 
-     // Get/Set parameters for killing loopers: 
-     //   Above 'important' energy a 'looping' particle in field will 
-     //   *NOT* be abandoned, except after fThresholdTrials attempts.
-     // Below Warning energy, no verbosity for looping particles is issued
+// Get/Set parameters for killing loopers:
+//   Above 'important' energy a 'looping' particle in field will
+//   *NOT* be abandoned, except after fThresholdTrials attempts.
+// Below Warning energy, no verbosity for looping particles is issued
 
 inline G4double G4mplAtlasTransportation::GetMaxEnergyKilled() const
 {
-  return fMaxEnergyKilled; 
+  return fMaxEnergyKilled;
 }
 
 inline G4double G4mplAtlasTransportation::GetSumEnergyKilled() const
@@ -117,18 +117,18 @@ inline G4double G4mplAtlasTransportation::GetSumEnergyKilled() const
 
 inline void G4mplAtlasTransportation::ResetKilledStatistics(G4int report)
 {
-  if( report ) { 
+  if( report ) {
     G4cout << " G4mplAtlasTransportation: Statistics for looping particles " << G4endl;
     G4cout << "   Sum of energy of loopers killed: " <<  fSumEnergyKilled << G4endl;
     G4cout << "   Max energy of loopers killed: " <<  fMaxEnergyKilled << G4endl;
-  } 
+  }
 
   fSumEnergyKilled= 0;
   fMaxEnergyKilled= -1.0*CLHEP::GeV;
 }
-     // Statistics for tracks killed (currently due to looping in field)
+// Statistics for tracks killed (currently due to looping in field)
 
 inline void G4mplAtlasTransportation::EnableShortStepOptimisation(G4bool optimiseShortStep)
-{ 
+{
   fShortStepOptimisation=optimiseShortStep;
 }

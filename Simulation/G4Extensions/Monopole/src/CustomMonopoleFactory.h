@@ -17,15 +17,15 @@
 
 class CustomMonopoleFactory
 {
- private:
+private:
   static bool loaded;
   //  static std::set<G4ParticleDefinition *> m_particles;
   static std::set<CustomMonopole *> m_particles;
 
- public:
-   static void loadCustomMonopoles();
-   //   static bool isCustomMonopole(G4ParticleDefinition *particle);
-   static bool isCustomMonopole(CustomMonopole *particle);
+public:
+  static void loadCustomMonopoles();
+  //   static bool isCustomMonopole(G4ParticleDefinition *particle);
+  static bool isCustomMonopole(CustomMonopole *particle);
 
 
 };

@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4mplAtlasIonisation.cxx 684372 2015-07-20 15:34:53Z jchapman $
+// $Id: G4mplAtlasIonisation.cxx 729653 2016-03-14 15:55:47Z jchapman $
 // GEANT4 tag $Name: not supported by cvs2svn $
 //
 // -------------------------------------------------------------------
@@ -53,6 +53,7 @@
 #include "G4BohrFluctuations.hh"
 #include "G4Electron.hh"
 #include "G4EmProcessSubType.hh"
+#include "G4Version.hh"
 // CLHEP headers
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -73,7 +74,9 @@ G4mplAtlasIonisation::G4mplAtlasIonisation(G4double mCharge, const G4String& nam
   if(magneticCharge == 0.0) magneticCharge = CLHEP::eplus*0.5/CLHEP::fine_structure_const;
 
   SetDEDXBinning(120);
-  SetLambdaBinning(120);
+#if G4VERSION_NUMBER < 1010
+  SetLambdaBinning(120); //G4 9.6 only
+#endif
   SetMinKinEnergy(0.1*CLHEP::keV);
   SetMaxKinEnergy(100.0*CLHEP::TeV);
   SetVerboseLevel(0);
