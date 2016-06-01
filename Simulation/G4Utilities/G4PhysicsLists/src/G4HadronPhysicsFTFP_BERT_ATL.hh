@@ -23,26 +23,21 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4HadronPhysicsQGSP_BERT.hh 76703 2013-11-14 10:29:11Z gcosmo $
+// $Id$
 //
 //---------------------------------------------------------------------------
+// Author: Alberto Ribon
+// Date:   April 2016
 //
-// ClassName:   G4HadronPhysicsQGSP_BERT
+// Hadron physics for the new physics list FTFP_BERT_ATL.
+// This is a modified version of the FTFP_BERT hadron physics for ATLAS.
+// The hadron physics of FTFP_BERT_ATL has the transition between Bertini
+// (BERT) intra-nuclear cascade model and Fritiof (FTF) string model in the
+// energy region [9, 12] GeV (instead of [4, 5] GeV as in FTFP_BERT).
+//---------------------------------------------------------------------------
 //
-// Author: 2002 J.P. Wellisch
-//
-// Modified:
-// 23.11.2005 G.Folger: migration to non static particles
-// 08.06.2006 V.Ivanchenko: remove stopping
-// 25.04.2007 G.Folger: Add quasielastic option, use this by default
-// 10.12.2007 G.Folger: Add projectilediffrative option for proton/neutron, off by default
-// 31.10.2012 A.Ribon: Use G4MiscBuilder
-// 19.03.2013 A.Ribon: Replace LEP with FTFP
-//
-//----------------------------------------------------------------------------
-//
-#ifndef G4HadronPhysicsQGSP_BERT_MuBias_h
-#define G4HadronPhysicsQGSP_BERT_MuBias_h 1
+#ifndef G4HadronPhysicsFTFP_BERT_ATL_h
+#define G4HadronPhysicsFTFP_BERT_ATL_h 1
 
 #include "globals.hh"
 #include "G4ios.hh"
@@ -50,73 +45,63 @@
 #include "G4VPhysicsConstructor.hh"
 
 #include "G4PiKBuilder.hh"
-#include "G4FTFPPiKBuilder.hh"
-#include "G4QGSPPiKBuilder.hh"
 #include "G4BertiniPiKBuilder.hh"
+#include "G4FTFPPiKBuilder.hh"
 
 #include "G4ProtonBuilder.hh"
-#include "G4FTFPProtonBuilder.hh"
-#include "G4QGSPProtonBuilder.hh"
 #include "G4BertiniProtonBuilder.hh"
+#include "G4FTFPNeutronBuilder.hh"
+#include "G4FTFPProtonBuilder.hh"
 
 #include "G4NeutronBuilder.hh"
-#include "G4FTFPNeutronBuilder.hh"
-#include "G4QGSPNeutronBuilder.hh"
 #include "G4BertiniNeutronBuilder.hh"
+#include "G4FTFPNeutronBuilder.hh"
 
 #include "G4HyperonFTFPBuilder.hh"
 #include "G4AntiBarionBuilder.hh"
 #include "G4FTFPAntiBarionBuilder.hh"
 
-#include "G4Version.hh"
-#if G4VERSION_NUMBER<1000
-#  define G4ThreadLocalStatic static
-#  define G4ThreadLocal 
-#endif
-
-class G4HadronPhysicsQGSP_BERT_MuBias : public G4VPhysicsConstructor
+class G4HadronPhysicsFTFP_BERT_ATL : public G4VPhysicsConstructor
 {
   public: 
-    G4HadronPhysicsQGSP_BERT_MuBias(G4int verbose =1);
-    G4HadronPhysicsQGSP_BERT_MuBias(const G4String& name, G4bool quasiElastic=true);
-    virtual ~G4HadronPhysicsQGSP_BERT_MuBias();
+    G4HadronPhysicsFTFP_BERT_ATL(G4int verbose =1);
+    G4HadronPhysicsFTFP_BERT_ATL(const G4String& name, G4bool quasiElastic=false);
+    virtual ~G4HadronPhysicsFTFP_BERT_ATL();
 
   public: 
     virtual void ConstructParticle();
     virtual void ConstructProcess();
 
-    void SetQuasiElastic(G4bool value) {m_QuasiElastic = value;}; 
-
   private:
     void CreateModels();
+    G4bool QuasiElastic;
 
-    struct ThreadPrivate {
+    // Simplify handling of TLS data, encapsulate everyhing in a structure
+    struct ThreadPrivate { 
       G4NeutronBuilder * theNeutrons;
-      G4FTFPNeutronBuilder * theFTFPNeutron;
-      G4QGSPNeutronBuilder * theQGSPNeutron;
       G4BertiniNeutronBuilder * theBertiniNeutron;
-    
+      G4FTFPNeutronBuilder * theFTFPNeutron;
+ 
       G4PiKBuilder * thePiK;
-      G4FTFPPiKBuilder * theFTFPPiK;
-      G4QGSPPiKBuilder * theQGSPPiK;
       G4BertiniPiKBuilder * theBertiniPiK;
+      G4FTFPPiKBuilder * theFTFPPiK;
     
       G4ProtonBuilder * thePro;
-      G4FTFPProtonBuilder * theFTFPPro;
-      G4QGSPProtonBuilder * theQGSPPro; 
       G4BertiniProtonBuilder * theBertiniPro;
+      G4FTFPProtonBuilder * theFTFPPro;    
     
       G4HyperonFTFPBuilder * theHyperon;
-
+    
       G4AntiBarionBuilder * theAntiBaryon;
-      G4FTFPAntiBarionBuilder * theFTFPAntiBaryon; 
+      G4FTFPAntiBarionBuilder * theFTFPAntiBaryon;
 
+      G4VCrossSectionDataSet * ChipsKaonMinus;
+      G4VCrossSectionDataSet * ChipsKaonPlus;
+      G4VCrossSectionDataSet * ChipsKaonZero;
       G4VCrossSectionDataSet * xsNeutronInelasticXS;
       G4VCrossSectionDataSet * xsNeutronCaptureXS;
     };
-    static G4ThreadLocal ThreadPrivate* s_tpdata;
-
-    G4bool m_QuasiElastic;
+    static G4ThreadLocal ThreadPrivate* tpdata;
 };
 
 #endif

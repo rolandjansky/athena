@@ -147,53 +147,53 @@ private:
 //++++++++++++++++++++++++++++++++++++++++++++++
 // X-section bias factor (ADA 2011/04/27)
 //++++++++++++++++++++++++++++++++++++++++++++++
-  G4double biasFactor;
+  G4double m_biasFactor;
 
 protected:
 
-  const G4ParticleDefinition* particle;
-  G4NistManager*              nist;
+  const G4ParticleDefinition* m_particle;
+  G4NistManager*              m_nist;
 
-  G4double factorForCross;
-  G4double sqrte;
-  G4double particleMass;
-  G4double currentZ;
-  G4double z13;
-  G4double z23;
-  G4double lnZ;
+  G4double m_factorForCross;
+  G4double m_sqrte;
+  G4double m_particleMass;
+  G4double m_currentZ;
+  G4double m_z13;
+  G4double m_z23;
+  G4double m_lnZ;
 
-  static G4double xgi[8],wgi[8];
+  static G4double s_xgi[8],s_wgi[8];
 
 private:
 
-  G4ParticleDefinition*       theElectron;
-  G4ParticleDefinition*       thePositron;
-  G4ParticleChangeForLoss*    fParticleChange;
+  G4ParticleDefinition*       m_theElectron;
+  G4ParticleDefinition*       m_thePositron;
+  G4ParticleChangeForLoss*    m_fParticleChange;
 
-  G4double minPairEnergy;
-  G4double lowestKinEnergy;
+  G4double m_minPairEnergy;
+  G4double m_lowestKinEnergy;
 
   // tables for sampling
-  G4int nzdat;
-  G4int ntdat;
-  G4int nbiny;
-  size_t nmaxElements;
-  static G4double zdat[5], adat[5], tdat[8];
-  G4double ya[1001], proba[5][8][1001];
+  G4int m_nzdat;
+  G4int m_ntdat;
+  G4int m_nbiny;
+  size_t m_nmaxElements;
+  static G4double s_zdat[5], s_adat[5], s_tdat[8];
+  G4double m_ya[1001], m_proba[5][8][1001];
 
-  G4double ymin;
-  G4double ymax;
-  G4double dy;
+  G4double m_ymin;
+  G4double m_ymax;
+  G4double m_dy;
 
-  G4bool  samplingTablesAreFilled;
-  std::vector<G4double> partialSum;
+  G4bool  m_samplingTablesAreFilled;
+  std::vector<G4double> m_partialSum;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 inline void G4BiasedMuPairProductionModel::SetLowestKineticEnergy(G4double e) 
 {
-  lowestKinEnergy = e;
+  m_lowestKinEnergy = e;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -201,9 +201,9 @@ inline void G4BiasedMuPairProductionModel::SetLowestKineticEnergy(G4double e)
 inline
 void G4BiasedMuPairProductionModel::SetParticle(const G4ParticleDefinition* p)
 {
-  if(!particle) {
-    particle = p;
-    particleMass = particle->GetPDGMass();
+  if(!m_particle) {
+    m_particle = p;
+    m_particleMass = m_particle->GetPDGMass();
   }
 }
 
@@ -211,12 +211,12 @@ void G4BiasedMuPairProductionModel::SetParticle(const G4ParticleDefinition* p)
 
 inline void G4BiasedMuPairProductionModel::SetCurrentElement(G4double Z)
 {
-  if(Z != currentZ) {
-    currentZ = Z;
+  if(Z != m_currentZ) {
+    m_currentZ = Z;
     G4int iz = G4int(Z);
-    z13 = nist->GetZ13(iz);
-    z23 = z13*z13;
-    lnZ = nist->GetLOGZ(iz);
+    m_z13 = m_nist->GetZ13(iz);
+    m_z23 = m_z13*m_z13;
+    m_lnZ = m_nist->GetLOGZ(iz);
   }
 }
 
@@ -226,12 +226,12 @@ inline G4double G4BiasedMuPairProductionModel::InterpolatedIntegralCrossSection(
 	        G4double dt, G4double dz,
                 G4int iz, G4int it, G4int iy, G4double z)
 {
-  G4double fac =  1./(zdat[iz]  *(zdat[iz]  +1.));
-  G4double fac1 = 1./(zdat[iz-1]*(zdat[iz-1]+1.));
-  G4double f0 = fac1*proba[iz-1][it-1][iy] + 
-                (fac*proba[iz][it-1][iy]-fac1*proba[iz-1][it-1][iy])*dz;
-  G4double f1 = fac1*proba[iz-1][it  ][iy] + 
-                (fac*proba[iz][it  ][iy]-fac1*proba[iz-1][it  ][iy])*dz;
+  G4double fac =  1./(s_zdat[iz]  *(s_zdat[iz]  +1.));
+  G4double fac1 = 1./(s_zdat[iz-1]*(s_zdat[iz-1]+1.));
+  G4double f0 = fac1*m_proba[iz-1][it-1][iy] + 
+                (fac*m_proba[iz][it-1][iy]-fac1*m_proba[iz-1][it-1][iy])*dz;
+  G4double f1 = fac1*m_proba[iz-1][it  ][iy] + 
+                (fac*m_proba[iz][it  ][iy]-fac1*m_proba[iz-1][it  ][iy])*dz;
   return (f0 + (f1-f0)*dt)*z*(z+1.);
 }
 
@@ -241,7 +241,7 @@ inline void G4BiasedMuPairProductionModel::SetBiasFactor(G4double x)
 {
 	std::cout<<" this is G4BiasedMuPairProductionModel::SetBiasFactor -"<<
 		" bias factor "<<x<<std::endl;
-	biasFactor=x;
+	m_biasFactor=x;
 }
 
 #endif

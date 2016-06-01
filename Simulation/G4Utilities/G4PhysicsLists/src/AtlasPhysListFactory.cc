@@ -2,6 +2,7 @@
 
 //PhysicsList
 #include "QGSP_BERT_MuBias.hh"
+#include "FTFP_BERT_ATL.hh"
 //#include "QGSP_BERT_95NoMsc.hh"
 //#include "ElVariations/QGSP_BERT_Msc95.hh"
 //#include "ElVariations/QGSP_BERT_Brem95.hh"
@@ -10,14 +11,12 @@
 //#include "ElVariations/QGSP_BERT_Msc92.hh"
 
 AtlasPhysListFactory::AtlasPhysListFactory() 
-  : defName("QGSP_BERT_MuBias"),verbose(1)
+  : m_defName("FTFP_BERT_MuBias"),m_verbose(0)
 {
-  nlists = 1;
-  G4String ss[1] = {
-    "QGSP_BERT_MuBias"};
-  for(size_t i=0; i<nlists; ++i) {
-    listnames.push_back(ss[i]);
-  }
+  m_listnames = {
+    "QGSP_BERT_MuBias",
+    "FTFP_BERT_ATL"};
+  m_nlists = m_listnames.size();
 }
 
 AtlasPhysListFactory::~AtlasPhysListFactory()
@@ -32,7 +31,7 @@ AtlasPhysListFactory::ReferencePhysList()
   if (path) {
     name = G4String(path);
   } else {
-    name = defName;
+    name = m_defName;
     G4cout << "### AtlasPhysListFactory WARNING: "
 	   << " environment variable PHYSLIST is not defined"
 	   << G4endl
@@ -46,12 +45,13 @@ AtlasPhysListFactory::ReferencePhysList()
 G4VModularPhysicsList* 
 AtlasPhysListFactory::GetReferencePhysList(const G4String& name)
 {
-  if(0 <++  verbose) {
+  if(0 <= m_verbose) {
     G4cout << "AtlasPhysListFactory::GetReferencePhysList <" << name
 	   << G4endl;
   }
   G4VModularPhysicsList* p = 0;
-  if(name == "QGSP_BERT_MuBias")           {p = new QGSP_BERT_MuBias(verbose);}
+  if(name == "QGSP_BERT_MuBias")           {p = new QGSP_BERT_MuBias(m_verbose);}
+  else if (name=="FTFP_BERT_ATL")          {p = new FTFP_BERT_ATL(m_verbose);}
   else {
     G4cout << "### AtlasPhysListFactory WARNING: "
 	   << "PhysicsList " << name << " is not known"
@@ -70,8 +70,8 @@ G4bool AtlasPhysListFactory::IsReferencePhysList(const G4String& name)
 {
   G4bool res = false;
 
-  for(size_t i=0; i<nlists; ++i) {
-    if(name == listnames[i]) {
+  for(size_t i=0; i<m_nlists; ++i) {
+    if(name == m_listnames[i]) {
       res = true;
       break;
     }
@@ -82,7 +82,7 @@ G4bool AtlasPhysListFactory::IsReferencePhysList(const G4String& name)
 const std::vector<G4String>& 
 AtlasPhysListFactory::AvailablePhysLists() const
 {
-  return listnames;
+  return m_listnames;
 }
 
 
