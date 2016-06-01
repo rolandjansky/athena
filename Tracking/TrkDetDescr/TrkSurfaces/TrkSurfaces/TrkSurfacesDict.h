@@ -22,6 +22,7 @@
 #include "TrkSurfaces/TriangleBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
+#include "TrkSurfaces/AnnulusBounds.h"
 #include "TrkSurfaces/DiscTrapezoidalBounds.h"
 #include "TrkSurfaces/NoBounds.h"
 

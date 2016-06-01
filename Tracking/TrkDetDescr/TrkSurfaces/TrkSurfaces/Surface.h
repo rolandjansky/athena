@@ -395,7 +395,7 @@ namespace Trk {
   {
       Amg::Vector3D dir(mom.unit());
       double cosAlpha = dir.dot(normal());
-      return fabs(1./cosAlpha);
+      return ( cosAlpha!=0 ? fabs(1./cosAlpha) : 1. );   //ST undefined for cosAlpha=0
   }
 
   //* the templated parameters on Surface method */
