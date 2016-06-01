@@ -69,6 +69,7 @@ class HLTMonTool : public IHLTMonTool {
   std::vector<std::string>  m_L2_summary; //!< vector of L2 Chains
   std::vector<std::string>  m_EF_summary; //!< vector of EF Chains
   std::map<std::string,std::string>  m_regexlist; //!< maps Groupnames to corresponding regular expressions
+  std::map<std::string,std::string>  m_run1regexlist; //!< like m_regexlist but for Run-1
   std::vector<std::string> m_rateregex; //!< chains matching one of these regexes will be rate monitored
   std::map<cool::ValidityKey, cool::UInt63> m_lbStartTimes; //!< map of LB to its start time in UNIX time
   std::map<cool::ValidityKey, cool::UInt63> m_lbStopTimes;  //!< map of LB to its stop time in UNIX time
@@ -79,6 +80,15 @@ class HLTMonTool : public IHLTMonTool {
   const xAOD::LumiBlockRangeContainer* m_lbc;
   bool m_scopeLumi;
   int m_nLBs; //# of lumi blocks in run;
+  bool _useRun1Trigger; 
+
+  // this is a hack (recommended by Frank Winklmeier) to determine
+  // if we are processing "old/Run-1 data" (and we should expect 
+  // trigger chain names to begin with L2_ or EF_) vs "new data" 
+  // (where trigger chains names begin with HLT_). It is not the most 
+  // eloquent implementation ever, but it should work
+  bool useRun1Trigger(){return getRunNr() < 222222 && getRunNr() > 0;}
+
 };
 
 #endif
