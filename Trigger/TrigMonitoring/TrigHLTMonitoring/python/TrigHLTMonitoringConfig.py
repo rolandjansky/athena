@@ -5,6 +5,7 @@ def HLTGeneralTool():
     from TrigHLTMonitoring.TrigHLTMonitoringConf import HLTMonTool
     HLTMon = HLTMonTool(    name               = 'HLTMon',
                             histoPathBase      = "/Trigger/HLT/ResultMon",
+                            IgnoreTruncationCheck = True,
                             RegExes = {
                                 'AllChains' : 'HLT_.*', 
                                 'Electrons' : 'HLT_e[0-9]+.*',

@@ -22,7 +22,7 @@ class MenuAwareMonitoringStandalone:
     """Menu-aware Monitoring standalone 'Athena-less' class.
     Provides functionality for the upload/download of trigger-monitoring tool configurations to an Oracle database."""
     
-    def __init__(self,alias="TRIGGERDBR2MAM",database_username="",database_password="",database_name=""):
+    def __init__(self,alias="TRIGGERDBR2MAM",database_username="",database_password="",database_name="",database_directory=""):
         """Setup Menu-aware Monitoring,
         find locally running trigger-monitoring tools,
         connect to the Oracle database,
@@ -62,7 +62,7 @@ class MenuAwareMonitoringStandalone:
         self.replica_db_connection = False
 
         # now connect to oracle
-        self.__connect_to_oracle__(alias,database_username,database_password,database_name)
+        self.__connect_to_oracle__(alias,database_username,database_password,database_name,database_directory)
         if self.connected_to_oracle == False:
             if alias == "TRIGGERDBR2MAM":
                 print "Exiting."
@@ -93,12 +93,12 @@ class MenuAwareMonitoringStandalone:
             # info for user
             print "We are now connecting to the Oracle database"
             
-            if not alias:
+            if alias is "CUSTOM_DB":
                 print "Connecting to database",database_name,"with provided username, password and directory"
-                self.oi.connect_to_oracle(alias,database_username,database_password,database_name)
+                self.oi.connect_to_oracle(database_username,database_password,database_name,database_directory)
                 self.connected_to_oracle = True
 
-            else:
+            elif alias in ("TRIGGERDB","TRIGGERDBREPR","TRIGGERDBR2MAM"):
                 # try catch
                 try:
 
@@ -117,11 +117,12 @@ class MenuAwareMonitoringStandalone:
                         self.replica_db_connection = True
 
                 except :
-
                     # info for user
                     print "Error while connecting to Oracle database." 
                     self.connected_to_oracle = False
-            
+            else:
+                print "Error while connecting to Oracle database: Unrecognised database alias",alias   
+                self.connected_to_oracle = False
 
     def __disconnect_from_oracle__(self):
         "Disconnect from the Oracle server."

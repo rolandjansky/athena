@@ -129,12 +129,6 @@ StatusCode HLTMonTool::fill()
   ATH_MSG_VERBOSE("fill()");
   StatusCode sc = StatusCode::SUCCESS;
 
-  // Check HLTResult
-  if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()){
-    ATH_MSG_WARNING("HLTResult truncated, skip event");
-    return false;
-  }
-  
   //go to original MonGroup
   setCurrentMonGroup("HLT/ResultMon");  
 
