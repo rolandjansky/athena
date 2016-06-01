@@ -33,7 +33,7 @@ class MenuAwareMonitoring:
     as well as reading in of configurations from locally running tools, and application of configurations to these tools."""
 
 
-    def __init__(self,database_username="",database_password="",database_name="",database_directory=""):
+    def __init__(self,alias="TRIGGERDB",database_username="",database_password="",database_name="",database_directory=""):
         """Setup Menu-aware Monitoring,
         find locally running trigger-monitoring tools,
         connect to the Oracle database,
@@ -45,11 +45,8 @@ class MenuAwareMonitoring:
         # flag so that diff instruction are only printed once
         self.firstdiff = True
         
-        # create MaMStandalone interaction object (includes connecting to oracle)
-        if not database_username and not database_password and not database_name and not database_directory:
-            self.ms = MenuAwareMonitoringStandalone("TRIGGERDB",database_username,database_password,database_name)
-        else:
-            self.ms = MenuAwareMonitoringStandalone("",database_username,database_password,database_name)
+        # create MaMStandalone interaction object (includes connecting to oracle)    
+        self.ms = MenuAwareMonitoringStandalone(alias,database_username,database_password,database_name,database_directory)
     
         # holder for current local Athena version
         self.current_athena_version = ""
@@ -146,8 +143,9 @@ class MenuAwareMonitoring:
         "Get the current Athena version."
 
         # get the current local Athena version (there must be a better way!)
-        self.current_athena_version = subprocess.check_output("echo $AtlasVersion", shell=True).replace("\n","")
-
+        AtlasVersion = subprocess.check_output("echo $AtlasVersion", shell=True).replace("\n","")
+        AtlasProject = subprocess.check_output("echo $AtlasProject", shell=True).replace("\n","")
+        self.current_athena_version = AtlasVersion+"-"+AtlasProject
 
     def __update_local_pointer__(self):
         """update self.local to point to self.ms.local_global_info['MONITORING_TOOL_DICT']
@@ -998,6 +996,14 @@ class MenuAwareMonitoring:
 
             # nice spacing for user
             print ""
+
+    def does_mck_athena_version_match_current_athena_version(self, mck_id):
+        "Compares the current Athena version to the one of the requested MCK"
+        
+        mck_info = self.ms.oi.read_mck_info_from_db(mck_id)
+        mck_athena_version = mck_info['MCK_ATHENA_VERSION']
+
+        return mck_athena_version == self.current_athena_version            
 
 
     def apply_mck(self,input1="",print_output_here=""):
