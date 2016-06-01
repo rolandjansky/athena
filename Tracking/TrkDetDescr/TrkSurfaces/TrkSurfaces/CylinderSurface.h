@@ -254,7 +254,7 @@ namespace Trk {
     Amg::Vector3D pcT(pos.x()-center().x(),pos.y()-center().y(),0.) ;
     Amg::Vector3D normalT(pcT.unit()); // transverse normal
     double cosAlpha = normalT.dot(mom.unit());
-    return fabs(1./cosAlpha);
+    return ( cosAlpha!=0 ? fabs(1./cosAlpha) : 1. );   //ST undefined for cosAlpha=0
   }
 
   inline const CylinderBounds& CylinderSurface::bounds() const

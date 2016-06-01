@@ -339,5 +339,5 @@ double Trk::ConeSurface::pathCorrection(const Amg::Vector3D& pos, const Amg::Vec
     if (applyTransform) normalC = transform()*normalC;
     // back in global frame
     double cAlpha = normalC.dot(mom.unit());            
-    return fabs(1./cAlpha);
+    return ( cAlpha!=0.) ? fabs(1./cAlpha) : 1.;      //ST undefined for cAlpha=0
 }

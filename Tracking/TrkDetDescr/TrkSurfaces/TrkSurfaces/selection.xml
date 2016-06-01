@@ -31,5 +31,6 @@
   <class name="Trk::RotatedTrapezoidBounds" />
   <class name="Trk::TrapezoidBounds" />  
   <class name="Trk::DiscTrapezoidalBounds" />  
+  <class name="Trk::AnnulusBounds" />  
   <class name="Trk::NoBounds" />  
  </lcgdict>

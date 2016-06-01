@@ -168,9 +168,11 @@ const Amg::Vector2D* Trk::DiscSurface::localPolarToLocalCartesian(const Amg::Vec
     double phi     = dtbo->averagePhi();
 
     Amg::Vector2D polarCenter(rMedium, phi);
-    Amg::Vector2D cartCenter = *localPolarToCartesian(polarCenter);
-    Amg::Vector2D cartPos = *localPolarToCartesian(locpol);
-    Amg::Vector2D Pos = cartPos - cartCenter;
+    const Amg::Vector2D* cartCenter = localPolarToCartesian(polarCenter);
+    const Amg::Vector2D* cartPos = localPolarToCartesian(locpol);
+    Amg::Vector2D Pos = *cartPos - *cartCenter;
+
+    delete cartCenter; delete cartPos;
     
     Amg::Vector2D locPos(Pos[Trk::locX]*sin(phi) - Pos[Trk::locY]*cos(phi),
 			 Pos[Trk::locY]*sin(phi) + Pos[Trk::locX]*cos(phi)); 

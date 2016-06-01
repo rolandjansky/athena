@@ -11,8 +11,8 @@
 
 
 #include "Identifier/Identifier.h"
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "SGTools/CLASS_DEF.h"
 // Trk
 #include "TrkSurfaces/Surface.h"
 // STL

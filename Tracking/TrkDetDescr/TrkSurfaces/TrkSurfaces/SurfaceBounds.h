@@ -68,7 +68,8 @@ namespace Trk {
         Trapezoid        = 8,
         Triangle         = 9,
 	DiscTrapezoidal  = 10,
-        Other            = 11 
+	Annulus		 = 11,
+        Other            = 12 
         
       };
         
