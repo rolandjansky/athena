@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 741506 2016-04-20 07:47:54Z krasznaa $
+# $Id: CMakeLists.txt 751532 2016-06-01 15:40:24Z krasznaa $
 #
 # Package building Geant4 with all its ATLAS specific patches, for the offline
 # builds.
@@ -24,14 +24,14 @@ find_package( EXPAT )
 
 # Source for Geant4:
 set( _source
-   http://geant4.web.cern.ch/geant4/support/source/geant4.10.01.p01.tar.gz )
+   http://geant4.web.cern.ch/geant4/support/source/geant4.10.01.p03.tar.gz )
 # The patch for Geant4:
 set( _patchDir
-   /afs/cern.ch/atlas/offline/external/geant4/g4.10.1/geant4.10.1.patch01.atlas04 )
+   /afs/cern.ch/atlas/offline/external/geant4/g4.10.1/geant4.10.1.patch03.atlas01 )
 # Version string to replace:
-set( _g4vers_orig "geant4-10-01-patch-01" )
+set( _g4vers_orig "geant4-10-01-patch-03" )
 # Version string to use:
-set( _g4vers_patch "geant4.10.1.patch01.atlas04" )
+set( _g4vers_patch "geant4.10.1.patch03.atlas01" )
 
 # Set some environment variables for the build:
 if( APPLE )
@@ -91,8 +91,8 @@ ExternalProject_Add( Geant4
    -DCLHEP_ROOT_DIR:PATH=${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}
    -DXERCESC_ROOT_DIR:PATH=${XERCESC_ROOT}
    -DGEANT4_USE_SYSTEM_CLHEP:BOOL=ON
-   -DGEANT4_USE_SYSTEM_CLHEP_GRANULAR:BOOL=ON
-   -DGEANT4_BUILD_MULTITHREADED:BOOL=ON
+   -DGEANT4_USE_SYSTEM_CLHEP_GRANULAR:BOOL=OFF
+   -DGEANT4_BUILD_MULTITHREADED:BOOL=OFF
    -DGEANT4_BUILD_TLS_MODEL:STRING=global-dynamic
    -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/build
    -DCMAKE_INSTALL_LIBDIR:STRING=lib
@@ -104,7 +104,7 @@ ExternalProject_Add( Geant4
    BUILD_COMMAND make -j${nCPUs} )
 ExternalProject_Add_Step( Geant4 buildinstall
    COMMAND ${CMAKE_COMMAND} -E remove_directory
-   ${CMAKE_CURRENT_BINARY_DIR}/build/lib/Geant4-10.1.1
+   ${CMAKE_CURRENT_BINARY_DIR}/build/lib/Geant4-10.1.3
    COMMAND ${CMAKE_COMMAND} -E copy_directory
    ${CMAKE_CURRENT_BINARY_DIR}/build/ <INSTALL_DIR>
    COMMENT "Installing Geant4 into the build area"
