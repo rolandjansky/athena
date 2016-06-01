@@ -24,7 +24,7 @@
 // ********************************************************************
 //
 //
-// $Id: G4mplAtlasTransportation.cxx 684372 2015-07-20 15:34:53Z jchapman $
+// $Id: G4mplAtlasTransportation.cxx 729653 2016-03-14 15:55:47Z jchapman $
 // GEANT4 tag $Name: geant4-09-03-patch-01 $
 //
 // ------------------------------------------------------------
@@ -76,6 +76,7 @@
 #include "G4EquationOfMotion.hh"
 #include "G4MagIntegratorDriver.hh"
 #include "G4MagIntegratorStepper.hh"
+#include "G4Version.hh"
 // CLHEP headers
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -90,7 +91,7 @@ G4mplAtlasTransportation::G4mplAtlasTransportation( const CustomMonopole* mpl, G
   : G4VProcess( G4String("mplAtlasTransportation"), fTransportation ),
     fTransportEndKineticEnergy (0.),
     fMomentumChanged( false ),
-    fEnergyChanged( false ),
+    //fEnergyChanged( false ), // Not used?
     fParticleIsLooping( false ),
     fGeometryLimitedStep( false ),
     fPreviousSftOrigin (0.,0.,0.),
@@ -99,7 +100,7 @@ G4mplAtlasTransportation::G4mplAtlasTransportation( const CustomMonopole* mpl, G
     fThreshold_Warning_Energy( 100 * CLHEP::MeV ),
     fThreshold_Important_Energy( 250 * CLHEP::MeV ),
     fThresholdTrials( 10 ),
-    fUnimportant_Energy( 1 * CLHEP::MeV ),
+    //fUnimportant_Energy( 1 * CLHEP::MeV ), // Not used?
     fNoLooperTrials(0),
     fSumEnergyKilled( 0.0 ), fMaxEnergyKilled( 0.0 ),
     fShortStepOptimisation(false),    // Old default: true (=fast short steps)
@@ -317,10 +318,22 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
      G4ThreeVector  EndUnitMomentum ;
      G4double       lengthAlongCurve ;
      G4double       restMass = pParticleDef->GetPDGMass() ;
-
-     fFieldPropagator->SetChargeMomentumMass( particleElCharge,    // in e+ units
+#if G4VERSION_NUMBER > 1009
+     G4double       momentumMagnitude = pParticle->GetTotalMomentum();
+     G4ChargeState  chargeState(particleElCharge,    // in e+ units
+                                pParticleDef->GetPDGSpin(),
+                                0,
+                                0,
+                                particleMagCharge); // in e+ units
+     G4EquationOfMotion* equationOfMotion = (fFieldPropagator->GetChordFinder()->GetIntegrationDriver()->GetStepper())->GetEquationOfMotion();
+     equationOfMotion->SetChargeMomentumMass(chargeState,
+                                             momentumMagnitude,
+                                             -restMass           ); // to distinguish between the monopoles and ordinary particles
+#else
+     fFieldPropagator->SetChargeMomentumMass( particleElCharge,  // in e+ units
                                               particleMagCharge, // in e+ units
-                                              -restMass           ) ;   // to distinguish between the monopoles and ordinary particles
+                                              -restMass           ); // to distinguish between the monopoles and ordinary particles
+#endif
 
      G4ThreeVector spin        = track.GetPolarization() ;
      G4FieldTrack  aFieldTrack = G4FieldTrack( startPosition,

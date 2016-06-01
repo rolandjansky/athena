@@ -47,11 +47,12 @@
 // -------------------------------------------------------------------
 //
 
-#ifndef G4mplAtlasIonisationWithDeltaModel_h
-#define G4mplAtlasIonisationWithDeltaModel_h 1
+#ifndef MONOPOLE_G4mplAtlasIonisationWithDeltaModel_h
+#define MONOPOLE_G4mplAtlasIonisationWithDeltaModel_h 1
 
 #include "G4VEmModel.hh"
 #include "G4VEmFluctuationModel.hh"
+#include "G4Version.hh"
 
 class G4ParticleChangeForLoss;
 
@@ -91,6 +92,18 @@ public:
                                  G4double maxEnergy);
 
 
+#if G4VERSION_NUMBER > 1009
+  virtual G4double SampleFluctuations(const G4MaterialCutsCouple* material,
+                                      const G4DynamicParticle* dp,
+                                      G4double tmax,
+                                      G4double length,
+                                      G4double meanLoss);
+
+  virtual G4double Dispersion(const G4Material*,
+                              const G4DynamicParticle*,
+                              G4double tmax,
+                              G4double length);
+#else
   virtual G4double SampleFluctuations(const G4Material*,
                                       const G4DynamicParticle*,
                                       G4double& tmax,
@@ -101,6 +114,7 @@ public:
                               const G4DynamicParticle*,
                               G4double& tmax,
                               G4double& length);
+#endif
 
 protected:
 

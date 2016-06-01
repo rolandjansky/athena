@@ -3,3 +3,6 @@
 from AthenaCommon import CfgMgr
 def getMonopolePhysicsTool(name="MonopolePhysicsTool", **kwargs):
     return CfgMgr.MonopolePhysicsToolTool(name, **kwargs)
+
+def getG4mplEqMagElectricFieldTool(name="G4mplEqMagElectricField", **kwargs):
+    return CfgMgr.G4mplEqMagElectricFieldTool(name, **kwargs)

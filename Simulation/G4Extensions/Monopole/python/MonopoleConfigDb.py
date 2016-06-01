@@ -2,3 +2,4 @@
 
 from AthenaCommon.CfgGetter import addTool
 addTool("Monopole.MonopoleConfig.getMonopolePhysicsTool"         , "MonopolePhysicsTool" )
+addTool("Monopole.MonopoleConfig.getG4mplEqMagElectricFieldTool", "G4mplEqMagElectricField")
