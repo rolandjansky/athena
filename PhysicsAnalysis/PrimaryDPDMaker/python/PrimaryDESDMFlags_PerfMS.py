@@ -25,8 +25,8 @@ import PyUtils.RootUtils as ru
 ROOT = ru.import_root()
 import PyCintex
 PyCintex.loadDictionary('egammaEnumsDict')
-from ROOT import egammaPID
-from ROOT import egammaParameters
+#from ROOT import egammaPID
+#from ROOT import egammaParameters
 
 
 
