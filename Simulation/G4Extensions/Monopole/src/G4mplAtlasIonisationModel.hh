@@ -66,46 +66,38 @@ public:
 
   virtual ~G4mplAtlasIonisationModel();
 
-  virtual void Initialise(const G4ParticleDefinition*, const G4DataVector&);
+  virtual void Initialise(const G4ParticleDefinition*, const G4DataVector&) override final;
 
   virtual G4double ComputeDEDXPerVolume(const G4Material*,
                                         const G4ParticleDefinition*,
                                         G4double kineticEnergy,
-                                        G4double cutEnergy);
+                                        G4double cutEnergy) override final;
 
   virtual void SampleSecondaries(     std::vector<G4DynamicParticle*>* ,
                                       const G4MaterialCutsCouple*,
                                       const G4DynamicParticle*,
                                       G4double tmin,
-                                      G4double maxEnergy);
+                                      G4double maxEnergy) override final;
 
 
-#if G4VERSION_NUMBER > 1009
   virtual G4double SampleFluctuations(const G4MaterialCutsCouple* material,
                                       const G4DynamicParticle* dp,
                                       G4double tmax,
                                       G4double length,
-                                      G4double meanLoss);
-#else
-  virtual G4double SampleFluctuations(const G4Material*,
-                                      const G4DynamicParticle*,
-                                      G4double& tmax,
-                                      G4double& length,
-                                      G4double& meanLoss);
-#endif
+                                      G4double meanLoss) override final;
 
-  virtual G4double Dispersion(const G4Material*,
-                              const G4DynamicParticle*,
-                              G4double& tmax,
-                              G4double& length);
+  virtual G4double Dispersion(        const G4Material*,
+                                      const G4DynamicParticle*,
+                                      G4double tmax,
+                                      G4double length) override final;
+
+  // hide assignment operator and copy constructor
+  G4mplAtlasIonisationModel & operator=(const  G4mplAtlasIonisationModel &right) = delete;
+  G4mplAtlasIonisationModel(const  G4mplAtlasIonisationModel&) = delete;
 
 private:
 
   void SetParticle(const G4ParticleDefinition* p);
-
-  // hide assignment operator
-  G4mplAtlasIonisationModel & operator=(const  G4mplAtlasIonisationModel &right);
-  G4mplAtlasIonisationModel(const  G4mplAtlasIonisationModel&);
 
   const G4ParticleDefinition* monopole;
   G4ParticleChangeForLoss*    fParticleChange;
@@ -136,8 +128,8 @@ inline void G4mplAtlasIonisationModel::SampleSecondaries(
 inline G4double G4mplAtlasIonisationModel::Dispersion(
                                                       const G4Material* material,
                                                       const G4DynamicParticle* dp,
-                                                      G4double& tmax,
-                                                      G4double& length)
+                                                      G4double tmax,
+                                                      G4double length)
 {
   G4double siga = 0.0;
   G4double tau   = dp->GetKineticEnergy()/mass;
