@@ -14,16 +14,15 @@
 // this package
 #include "MdtCalibSvc/MdtCalibrationRegionSvc.h"
 
-MdtCalibrationRegionSvc::MdtCalibrationRegionSvc(const std::string& name,ISvcLocator* sl)
-  : AthService(name,sl),
-    m_mdtIdHelper(0) {
+MdtCalibrationRegionSvc::MdtCalibrationRegionSvc(const std::string &name,ISvcLocator *sl)
+  : AthService(name,sl), m_mdtIdHelper(0), m_regionType(ONERT), m_numberOfRegions(1) {
 }
 
 MdtCalibrationRegionSvc::~MdtCalibrationRegionSvc() {
 }
 
 // queryInterface 
-StatusCode MdtCalibrationRegionSvc::queryInterface(const InterfaceID& riid, void** ppvIF) { 
+StatusCode MdtCalibrationRegionSvc::queryInterface(const InterfaceID &riid, void **ppvIF) { 
   if( interfaceID().versionMatch(riid) ) {
     *ppvIF = dynamic_cast<MdtCalibrationRegionSvc*>(this);
   } else { 
@@ -49,74 +48,66 @@ StatusCode MdtCalibrationRegionSvc::initialize() {
     return sc;
   }
   
-  initializeRegions();
+  // Initialize RT and correction function regions
+  remapRtRegions("OneRt");
   
   return sc;
-}
+}  //end MdtCalibrationRegionSvc::initialize
 
 StatusCode MdtCalibrationRegionSvc::finalize() { 
   return AthService::finalize();
 }
 
-void MdtCalibrationRegionSvc::initializeRegions() {
-
-  remapRtRegions("OneRt");
-
-  MdtRegionSet corset;
-  MdtRegionHash rhash_cor1(0);
-  MdtRegion region_cor1(rhash_cor1);
-  MdtRegionHash rhash_cor2(1);
-  MdtRegion region_cor2(rhash_cor2);
-  MdtRegionHash rhash_cor3(2);
-  MdtRegion region_cor3(rhash_cor3);
-
-  MdtIdHelper::const_id_iterator it     = m_mdtIdHelper->module_begin();
-  MdtIdHelper::const_id_iterator it_end = m_mdtIdHelper->module_end();
-  for( ; it!=it_end;++it ){
-    if( m_mdtIdHelper->isBarrel(*it) ) region_cor1.addIdentifier( *it );
-    else if( m_mdtIdHelper->isEndcap(*it) ) region_cor2.addIdentifier( *it );
-    else region_cor3.addIdentifier( *it );
-  }
-  corset.push_back( region_cor1 );
-  corset.push_back( region_cor2 );
-  corset.push_back( region_cor3 );
-
-  m_corRegionTool.initialize( corset, m_mdtIdHelper );
-  
-}
-
 void MdtCalibrationRegionSvc::remapRtRegions(std::string mapName) {
-  MdtRegionSet rtset;
-
-  if (mapName=="OnePerChamber"){
-
+  m_regionHash.resize(0);
+    
+// One RT for all chambers
+  if (mapName=="OneRt") {
+    m_regionType = ONERT;
+    m_numberOfRegions = 1;
     MdtIdHelper::const_id_iterator it     = m_mdtIdHelper->module_begin();
     MdtIdHelper::const_id_iterator it_end = m_mdtIdHelper->module_end();
-    int i=0;
-    for( ; it!=it_end;++it ){
-      // create one regione per module 
-      MdtRegionHash rhash_rt(i++);
-      MdtRegion region_rt(rhash_rt);
-      region_rt.addIdentifier( *it );
-      rtset.push_back( region_rt );
+    for( int i=0; it!=it_end; ++it, i++ ) {
+      m_regionHash.push_back(0);    //all chambers use RT 0 
     }
 
-  } else if (mapName=="OneRt") {
-
-    MdtRegionHash rhash_rt(0);
-    MdtRegion region_rt(rhash_rt);
+// One RT per chamber
+// RT/correction functions are stored using chamber hash as index. 
+// Chamber hash is available from
+//      m_mdtIdHelper->get_module_hash( *it, hash );
+// or   m_mdtIdHelper->get_hash( *it, hash, &idCont );
+  } else if (mapName=="OnePerChamber") {
+    m_regionType = ONEPERCHAMBER;
+    m_numberOfRegions = m_mdtIdHelper->module_hash_max();
     MdtIdHelper::const_id_iterator it     = m_mdtIdHelper->module_begin();
     MdtIdHelper::const_id_iterator it_end = m_mdtIdHelper->module_end();
-    for( ; it!=it_end;++it ){
-      // create one big region
-      region_rt.addIdentifier( *it );
+    for( int i=0; it!=it_end; ++it, i++ ) {
+      m_regionHash.push_back(i);   //Ok, silly since rt region = chamber hash
     }
-    rtset.push_back( region_rt );
+
+// One RT per multilayer
+// This is starts out the same as ONEPERCHAMBER except that m_regionHash is used
+// to store the index for m_rtData for each ML.  m_regionHash is initialized here
+// for ML2 to use the ML1 RT.   In MdtCalibDBStrTool if an ML2 RT is read from COOL 
+// then it is added to m_rtData and the hash (index) to for the ML2 is stored in m_regionHash. 
+  } else if (mapName=="OnePerMultilayer") {
+    m_regionType = ONEPERMULTILAYER;
+    m_numberOfRegions = m_mdtIdHelper->module_hash_max();  //initial value; may increase of ML2 RTs are read from COOL
+    //initialize m_regionHash so ML2 uses ML1 hash (i.e. ML2 uses ML1 RT function)
+    //If ML2 RT is read from COOL this is overwritten in MdtCalibDBStrTool
+    //The index, i, of the loop below is effectively a loop over (chamber) hashes.
+    //m_regionHash is filled in the order of ML hashes
+    MdtIdHelper::const_id_iterator it     = m_mdtIdHelper->module_begin();
+    MdtIdHelper::const_id_iterator it_end = m_mdtIdHelper->module_end();
+    for( int i=0; it!=it_end; ++it, i++ ) {
+      m_regionHash.push_back(i);  
+      if( m_mdtIdHelper->numberOfMultilayers(*it) == 2 ) {
+	m_regionHash.push_back(i);
+      }
+    }
 
   } else {
-
     ATH_MSG_ERROR("Rt Regions Map "<<mapName <<" unknown. Keeping previous map ");
   }
 
-  m_rtRegionTool.initialize( rtset, m_mdtIdHelper );
-}
+}  //end MdtCalibrationRegionSvc::remapRtRegions

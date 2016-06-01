@@ -26,8 +26,7 @@
 #include "MdtCalibData/MdtSlewCorFuncHardcoded.h"
 #include "MdtCalibData/CalibFunc.h"
 
-
-MdtCalibrationDbSvc::MdtCalibrationDbSvc(const std::string& n,ISvcLocator* sl)
+MdtCalibrationDbSvc::MdtCalibrationDbSvc(const std::string &n,ISvcLocator *sl)
   : AthService(n,sl), m_rtData(0), m_tubeData(0), m_corData(0), 
     m_regionSvc("MdtCalibrationRegionSvc", name()),
     m_mdtIdHelper(0),
@@ -54,7 +53,7 @@ MdtCalibrationDbSvc::MdtCalibrationDbSvc(const std::string& n,ISvcLocator* sl)
 MdtCalibrationDbSvc::~MdtCalibrationDbSvc() {}
 
 // queryInterface 
-StatusCode MdtCalibrationDbSvc::queryInterface(const InterfaceID& riid, void** ppvIF) {
+StatusCode MdtCalibrationDbSvc::queryInterface(const InterfaceID &riid, void **ppvIF) {
   if ( interfaceID().versionMatch(riid) ) { 
     *ppvIF = dynamic_cast<MdtCalibrationDbSvc*>(this); 
   } else {
@@ -71,19 +70,19 @@ StatusCode MdtCalibrationDbSvc::initialize() {
     ATH_MSG_ERROR( "Failed to retrieve MdtCalibrationRegionSvc" );
     return StatusCode::FAILURE;
   }
-  // initialize the MdtIdHelper
   
   if ( m_detStore.retrieve().isFailure() ) {
     ATH_MSG_FATAL( "Can't locate the DetectorStore" ); 
     return StatusCode::FAILURE;
   }
 
+  // initialize the MdtIdHelper
   if (m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" ).isFailure()) {
     ATH_MSG_ERROR( "Can't retrieve MdtIdHelper" );
     return StatusCode::FAILURE;
   }
   
-  // access the Tool for retreival of DB info
+  // access the Tool for retrieval of DB info
   if (m_dbTool.retrieve().isFailure()) {
     ATH_MSG_FATAL( "Could not find tool " << m_dbTool << ". Exiting." );
     return StatusCode::FAILURE;
@@ -93,8 +92,7 @@ StatusCode MdtCalibrationDbSvc::initialize() {
   // will work for Ascii Tool only
   // for real DB access the callback is registered with 2 functions 
   // within the Tool
-
-  if (m_dbTool.type()=="MuonCalib::MdtCalibDbAsciiTool"){
+  if(m_dbTool.type()=="MuonCalib::MdtCalibDbAsciiTool"){
     const DataHandle<MdtTubeCalibContainerCollection> tubeData;
     if(m_detStore->regFcn(&MdtCalibrationDbSvc::LoadCalibration,dynamic_cast<MdtCalibrationDbSvc*>(this),tubeData,m_tubeDataLocation).isFailure()){
       ATH_MSG_ERROR("Failed to register call-back on tube data");
@@ -113,12 +111,18 @@ StatusCode MdtCalibrationDbSvc::initialize() {
 }  //end MdtCalibrationDbSvc::initialize
 
 StatusCode MdtCalibrationDbSvc::LoadCalibration(IOVSVC_CALLBACK_ARGS_P(I,keys)) {
-  ATH_MSG_DEBUG( "LoadCalibration has been triggered for the following keys " );                                                                                 
   std::list<std::string>::const_iterator itr;
-  for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    msg(MSG::DEBUG) << *itr << " I="<<I<<" ";
+  if( msgLvl(MSG::DEBUG) ) {
+    ATH_MSG_DEBUG( "LoadCalibration has been triggered for the following keys " );
+    for (itr=keys.begin(); itr!=keys.end(); ++itr) {
+      msg(MSG::DEBUG) << *itr << " I="<<I<<" ";
+    }
+    msg(MSG::DEBUG) << endreq;
   }
-  msg(MSG::DEBUG) << endreq;
+  for (itr=keys.begin(); itr!=keys.end(); ++itr) {
+    msg(MSG::INFO) << *itr << " I="<<I<<" ";
+  }
+  msg(MSG::INFO) << endreq;
 
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
     if(*itr==m_tubeDataLocation) {
@@ -138,66 +142,70 @@ StatusCode MdtCalibrationDbSvc::loadTube(IOVSVC_CALLBACK_ARGS) {
 
 StatusCode MdtCalibrationDbSvc::loadRt(IOVSVC_CALLBACK_ARGS) {
   ATH_MSG_DEBUG( "In loadRt " );  
+
+  // Retrieve RT functions from StoreGate
   if( m_detStore->retrieve(m_rtData, m_rtDataLocation).isFailure() ) return StatusCode::FAILURE;
-  // corrections are still missing...
-  
+
+  // Check if doing corrections; return if not  
   if( !m_createSlewingFunction && !m_createWireSagFunction && !m_create_b_field_function ) return StatusCode::SUCCESS;
 
+  //Delete old correction functions and create new ones
+  //The correction functions are made with the same regions as are used for RTs.
   if( m_corData ) delete m_corData;
   m_corData = new MdtCorFuncSetCollection();
   m_corData->resize(m_rtData->size());
   ATH_MSG_DEBUG( "Initializing " << m_corData->size() << " b-field functions" );
   for (unsigned int i=0; i < m_corData->size(); i++) {
     (*m_corData)[i] = new MuonCalib::MdtCorFuncSet();
-    if (m_create_b_field_function) initialize_B_correction((*m_corData)[i], (*m_rtData)[i]);
-    if (m_createWireSagFunction)   initializeSagCorrection((*m_corData)[i]);
-    if (m_createSlewingFunction)   (*m_corData)[i]->setSlewing(new MuonCalib::MdtSlewCorFuncHardcoded(MuonCalib::CalibFunc::ParVec()));
+    if(m_create_b_field_function) initialize_B_correction((*m_corData)[i], (*m_rtData)[i]);
+    if(m_createWireSagFunction)   initializeSagCorrection((*m_corData)[i]);
+    if(m_createSlewingFunction)   (*m_corData)[i]->setSlewing(new MuonCalib::MdtSlewCorFuncHardcoded(MuonCalib::CalibFunc::ParVec()));
   }
 
   return StatusCode::SUCCESS;
-}
+}  //end MdtCalibrationDbSvc::loadRt
 
 StatusCode MdtCalibrationDbSvc::finalize()  {
   if( m_corData ) delete m_corData;
   return AthService::finalize();
 }
 
-MuonCalib::MdtFullCalibData MdtCalibrationDbSvc::getCalibration( const Identifier& idt ) const {
+MuonCalib::MdtFullCalibData MdtCalibrationDbSvc::getCalibration( const Identifier &idt ) const {
 
   Identifier id = m_mdtIdHelper->elementID( idt );
 
-  MdtBasicRegionHash mlHash;
-  IdContext idCont = m_mdtIdHelper->module_context();
-  m_mdtIdHelper->get_hash( id, mlHash, &idCont );
-  
+  IdentifierHash mlHash;     //hash for ML (needed when using ML-RT functions)
+  m_mdtIdHelper->get_detectorElement_hash( id, mlHash );   //hash for the ML 
+
   IdentifierHash chamberHash;
-  idCont = m_mdtIdHelper->module_context();
+  IdContext idCont = m_mdtIdHelper->module_context();
   m_mdtIdHelper->get_hash( id, chamberHash, &idCont );
-  
+
   return getCalibration( chamberHash, mlHash );
 }
 
-MuonCalib::MdtFullCalibData MdtCalibrationDbSvc::getCalibration( const IdentifierHash& chamberHash, const IdentifierHash& /*mlHash*/ ) const {
-
-  const MuonCalib::MdtRtRelation*          rt = 0;
-  const MuonCalib::MdtTubeCalibContainer* tub = 0;
-  const MuonCalib::MdtCorFuncSet*         cor = 0;
-
+MuonCalib::MdtFullCalibData MdtCalibrationDbSvc::getCalibration( const IdentifierHash &chamberHash, const IdentifierHash &mlHash ) const {
+  const MuonCalib::MdtRtRelation         *rt   = 0;
+  const MuonCalib::MdtTubeCalibContainer *tube = 0;
+  const MuonCalib::MdtCorFuncSet         *cor  = 0;
   
-  IdentifierHash rtHash = chamberHash;
-  IdentifierHash corHash = chamberHash;
   IdentifierHash tubeHash = chamberHash;
+  IdentifierHash rtHash;
+  if( m_regionSvc->RegionType()==ONEPERMULTILAYER ) { //if using ML-RTs  
+    rtHash = m_regionSvc->getRegionHash(mlHash);
+  } else {
+    rtHash = m_regionSvc->getRegionHash(chamberHash);
+  }
+  IdentifierHash corHash  = rtHash;   //correction functions done in same regions as RTs
 
-  if ( rtHash.is_valid() ) {
-
+  if( rtHash.is_valid() ) {
     // find rt relation
     rt = getRtCalibration( rtHash );
     if ( !rt ) { 
-      ATH_MSG_WARNING( "Not valid MdtRtRelation found " );
+      ATH_MSG_WARNING( "No valid MdtRtRelation found " );
     } 
-
-  }else{
-    ATH_MSG_WARNING( "--- INVALID HASH, cannot access rt calibration constants " );
+  } else {
+    ATH_MSG_WARNING( "--- INVALID RT HASH, cannot access rt calibration constants " );
   }
    
   // find correction functions 
@@ -207,27 +215,50 @@ MuonCalib::MdtFullCalibData MdtCalibrationDbSvc::getCalibration( const Identifie
 
   // find t0's
   if( m_getTubeConstants && tubeHash.is_valid() ) {
-    tub = getTubeCalibContainer( tubeHash );
-    if( !tub ){
+    tube = getTubeCalibContainer( tubeHash );
+    if( !tube ){
       ATH_MSG_WARNING( "Not valid MdtTubeCalibContainer found " );
     }
   }
   
-  return MuonCalib::MdtFullCalibData( cor, rt, tub );
+  return MuonCalib::MdtFullCalibData( cor, rt, tube );
 }
 
-const MuonCalib::MdtRtRelation* MdtCalibrationDbSvc::getRtCalibration( const Identifier& idt ) const {
-  
+const MuonCalib::MdtTubeCalibContainer* MdtCalibrationDbSvc::getTubeCalibContainer( const Identifier &idt ) const {
   Identifier id = m_mdtIdHelper->elementID( idt );
 
-  MdtBasicRegionHash hash;
+  IdentifierHash hash;
   IdContext idCont = m_mdtIdHelper->module_context();
   m_mdtIdHelper->get_hash( id, hash, &idCont );
+  
+  return getTubeCalibContainer( hash );
+}
 
+const MuonCalib::MdtTubeCalibContainer* MdtCalibrationDbSvc::getTubeCalibContainer( const IdentifierHash &hash ) const {
+  if( !m_tubeData ) return 0;
+
+  // single tube calibrations are accessed per chamber 
+  if ( hash.is_valid() && hash < m_tubeData->size() ) { 
+    return (*m_tubeData)[ hash ]; 
+  }
+  return 0;
+}
+
+const MuonCalib::MdtRtRelation* MdtCalibrationDbSvc::getRtCalibration( const Identifier &idt ) const {
+  Identifier id = m_mdtIdHelper->elementID( idt );
+  IdentifierHash hash;
+
+  if( m_regionSvc->RegionType()==ONEPERMULTILAYER ) {
+    m_mdtIdHelper->get_detectorElement_hash( id, hash );   //hash for the ML 
+  } else {
+    IdContext idCont = m_mdtIdHelper->module_context();
+    m_mdtIdHelper->get_hash( id, hash, &idCont );          //hash for the chamber
+  }
+  hash = m_regionSvc->getRegionHash(hash);
   return getRtCalibration( hash );
 }
 
-const MuonCalib::MdtRtRelation* MdtCalibrationDbSvc::getRtCalibration( const IdentifierHash& hash ) const {
+const MuonCalib::MdtRtRelation* MdtCalibrationDbSvc::getRtCalibration( const IdentifierHash &hash ) const {
   // check whether there are cached rt's
   if( !m_rtData ) {
     ATH_MSG_WARNING( "No rt-calibrations loaded"  );
@@ -238,79 +269,58 @@ const MuonCalib::MdtRtRelation* MdtCalibrationDbSvc::getRtCalibration( const Ide
     ATH_MSG_WARNING( "cannot get rt, invalid hash"  ); 
     return 0;
   }
-  // calculated region hash
-  MdtRegionHash rtRegionHash = m_regionSvc->getRtRegionHash( hash ); 
 
-  // rt goes per region
-  if ( rtRegionHash.is_valid() && rtRegionHash < m_rtData->size() ) { 
-    return (*m_rtData)[ rtRegionHash ]; 
+  // Get the RT using the hash as an index
+  if( hash < m_rtData->size() ) { 
+    return (*m_rtData)[ hash ]; 
   }
-  ATH_MSG_WARNING( "cannot get rt, region hash out of range"  ); 
+  ATH_MSG_WARNING( "cannot get RT, region hash out of range"  ); 
   return 0;
 }
 
-const MuonCalib::MdtTubeCalibContainer* MdtCalibrationDbSvc::getTubeCalibContainer( const Identifier& idt ) const {
+const MuonCalib::MdtCorFuncSet* MdtCalibrationDbSvc::getCorFunctions( const Identifier &idt ) const {
   Identifier id = m_mdtIdHelper->elementID( idt );
+  IdentifierHash hash;
 
-  MdtBasicRegionHash hash;
-  IdContext idCont = m_mdtIdHelper->module_context();
-  m_mdtIdHelper->get_hash( id, hash, &idCont );
-
-  return getTubeCalibContainer( hash );
-}
-
-const MuonCalib::MdtTubeCalibContainer* MdtCalibrationDbSvc::getTubeCalibContainer( const IdentifierHash& hash ) const {
-
-  if( !m_tubeData ) return 0;
-
-  // single tube calibration goes per chamber 
-  if ( hash.is_valid() && hash < m_tubeData->size() ) { 
-    return (*m_tubeData)[ hash ]; 
+  if( m_regionSvc->RegionType()==ONEPERMULTILAYER ) {
+    m_mdtIdHelper->get_detectorElement_hash( id, hash );   //hash for the ML 
+  } else {
+    IdContext idCont = m_mdtIdHelper->module_context();
+    m_mdtIdHelper->get_hash( id, hash, &idCont );          //hash for the chamber
   }
-  return 0;
-}
-
-const MuonCalib::MdtCorFuncSet* MdtCalibrationDbSvc::getCorFunctions( const Identifier& idt ) const {
-  Identifier id = m_mdtIdHelper->elementID( idt );
-
-  MdtBasicRegionHash hash;
-  IdContext idCont = m_mdtIdHelper->module_context();
-  m_mdtIdHelper->get_hash( id, hash, &idCont );
-
+  hash = m_regionSvc->getRegionHash(hash);
   return getCorFunctions( hash );
 }
 
-const MuonCalib::MdtCorFuncSet* MdtCalibrationDbSvc::getCorFunctions( const IdentifierHash& hash ) const {
-  // check whether there are cached rt's
+const MuonCalib::MdtCorFuncSet* MdtCalibrationDbSvc::getCorFunctions( const IdentifierHash &hash ) const {
+  // check whether there are cached correction functions
   if( !m_corData ) return 0;
 
   // check if hash is ok
   if ( !hash.is_valid() ) return 0;
 
-  // correction functions go per region
-  MdtRegionHash corRegionHash = m_regionSvc->getCorRegionHash( hash ); 
+  // Get the correction functions using the hash as an index
+  if( hash < m_corData->size() ) { 
+    return (*m_corData)[ hash ]; 
+  }
 
-  // corrections go per region 
-  if ( corRegionHash.is_valid() && corRegionHash < m_corData->size() ) { 
-    return (*m_corData)[ corRegionHash ]; 
-  }  
   return 0;
 }
 
-void MdtCalibrationDbSvc::initialize_B_correction(MuonCalib::MdtCorFuncSet* funcSet,
-                                                  const MuonCalib::MdtRtRelation* rt_rel) {
+void MdtCalibrationDbSvc::initialize_B_correction(MuonCalib::MdtCorFuncSet *funcSet,
+                                                  const MuonCalib::MdtRtRelation *rt_rel) {
   if (rt_rel==NULL) {
     funcSet->setBField(NULL);
     return;
   }
   ATH_MSG_VERBOSE( "initialize_B_correction..." );
   std::vector<double> corr_params(2);
-  corr_params[0] = 3080.0; // high voltage
-  corr_params[1] = 0.11; // epsilon parameter
+  corr_params[0] = 3080.0; // high voltage (not correct for sMDT which use 2730V!)
+  corr_params[1] = 0.11;   // epsilon parameter
   funcSet->setBField(new MuonCalib::BFieldCorFunc(std::string("medium"), corr_params, rt_rel->rt()));
 }
 
-void MdtCalibrationDbSvc::initializeSagCorrection(MuonCalib::MdtCorFuncSet* funcSet) {
+void MdtCalibrationDbSvc::initializeSagCorrection(MuonCalib::MdtCorFuncSet *funcSet) {
   ATH_MSG_VERBOSE( "initializeSagCorrection..." );
   std::vector<double> corr_params(0);
   funcSet->wireSag(new MuonCalib::WireSagCorFunc(corr_params));

@@ -32,19 +32,19 @@ namespace MuonCalib {
 class MdtCalibrationSvc : virtual public IInterface, public AthService {
 public:
   /** constructor */
-  MdtCalibrationSvc(const std::string& name,ISvcLocator* sl);
+  MdtCalibrationSvc(const std::string &name, ISvcLocator *sl);
 
   /** destructor */
   virtual ~MdtCalibrationSvc();
 
   /** implements IInterface */
-  static const InterfaceID& interfaceID() {
+  static const InterfaceID &interfaceID() {
     static InterfaceID s_iID("MdtCalibrationSvc", 1, 0);
     return s_iID;
   }
 
   /** implements IInterface */
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF);
+  virtual StatusCode queryInterface(const InterfaceID &riid, void **ppvIF);
 
   /** initialization */
   virtual StatusCode initialize();
@@ -79,20 +79,19 @@ public:
       of the distance of the reconstructed track from the anode wire instead of the drift
       radius
   */
-  bool driftRadiusFromTime( MdtCalibHit& hit, double signedTrackLength, double triggerTime = 0.0, bool resolFromRtrack=false );
-
-
-  /** Convert the raw MDT time (+charge) into a drift radius + error.
-      It returns whether the conversion was successful.
-       
-  */
-  bool driftRadiusFromTime( MdtCalibHit& hit, const MdtCalibrationSvcInput& inputData, const MdtCalibrationSvcSettings& settings, bool resolFromRtrack=false  );
+  bool driftRadiusFromTime( MdtCalibHit &hit, double signedTrackLength, double triggerTime = 0.0, bool resolFromRtrack=false );
 
   /** Convert the raw MDT time (+charge) into a drift radius + error.
       It returns whether the conversion was successful.
        
   */
-  bool driftRadiusFromTime( MdtCalibHit& hit, const MdtCalibrationSvcInput& inputData, bool resolFromRtrack=false  );
+  bool driftRadiusFromTime( MdtCalibHit &hit, const MdtCalibrationSvcInput &inputData, const MdtCalibrationSvcSettings &settings, bool resolFromRtrack=false  );
+
+  /** Convert the raw MDT time (+charge) into a drift radius + error.
+      It returns whether the conversion was successful.
+       
+  */
+  bool driftRadiusFromTime( MdtCalibHit &hit, const MdtCalibrationSvcInput &inputData, bool resolFromRtrack=false  );
 
   /** TDC bin size. (25/32 ns for Atlas) */
   double tdcBinSize();
@@ -102,11 +101,11 @@ public:
  
   /** Convert the raw MDT times of two twin hits into a Twin position (coordinate along tube)
       It returns whether the conversion was successful. */
-  bool twinPositionFromTwinHits( MdtCalibHit& hit, MdtCalibHit& twinhit, double signedTrackLength, double twinSignedTrackLength, bool& twinDigitIsPrompt, double triggerTime = 0.0 );
+  bool twinPositionFromTwinHits( MdtCalibHit &hit, MdtCalibHit &twinhit, double signedTrackLength, double twinSignedTrackLength, bool &twinDigitIsPrompt, double triggerTime = 0.0 );
    
   /** Convert the raw MDT times of two twin hits into a Twin position (coordinate along tube)
       It returns whether the conversion was successful. */
-  bool twinPositionFromTwinHits( MdtCalibHit& hit, MdtCalibHit& twinhit, const MdtCalibrationSvcInput& inputData, const MdtCalibrationSvcInput& twinInputData, const MdtCalibrationSvcSettings& settings, bool& twinDigitIsPrompt );
+  bool twinPositionFromTwinHits( MdtCalibHit &hit, MdtCalibHit &twinhit, const MdtCalibrationSvcInput &inputData, const MdtCalibrationSvcInput &twinInputData, const MdtCalibrationSvcSettings &settings, bool &twinDigitIsPrompt );
    
   /** Return status of drift time: in window, above/below window (with upper/lower bounds described by the settings) or invalid.
       @return @c Muon::MdtDriftCircleStatus saying whether the drift time comes before, during or after the bounds of the drift time spectrum.
@@ -114,16 +113,14 @@ public:
       @param[in] rtRelation is used to obtain the upper and lower limits of the r(t) relation.
       @param[in] settings define the extra window around the r(t) relationship bounds that is acceptable.
   */
-  Muon::MdtDriftCircleStatus driftTimeStatus( double driftTime, const MuonCalib::MdtRtRelation* rtRelation, const MdtCalibrationSvcSettings& settings );
-
+  Muon::MdtDriftCircleStatus driftTimeStatus( double driftTime, const MuonCalib::MdtRtRelation *rtRelation, const MdtCalibrationSvcSettings &settings );
    
 private:
 
-  /// please don't add any datamebers here!!
+  /// please don't add any data members here!!
   /// they should be added to Imp to keep the class free from data exposed to clients
   class Imp;
-  Imp* m_imp;
-
+  Imp *m_imp;
 };
 
 #endif
