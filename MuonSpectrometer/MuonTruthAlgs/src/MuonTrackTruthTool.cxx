@@ -129,7 +129,7 @@ namespace Muon {
     }
     
     // sort result per muon and per number of matched hits
-    std::sort(result.begin(),result.end(),SortResultByMatchedHits());
+    std::stable_sort(result.begin(),result.end(),SortResultByMatchedHits());
 
     return result;
   }
@@ -148,7 +148,7 @@ namespace Muon {
     }
     
     // sort result per muon and per number of matched hits
-    std::sort(result.begin(),result.end(),SortResultByMatchedHits());
+    std::stable_sort(result.begin(),result.end(),SortResultByMatchedHits());
 
     return result;
   }

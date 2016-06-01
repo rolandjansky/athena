@@ -61,7 +61,7 @@ namespace Muon {
     m_SDO_TruthNames.push_back("STGC_SDO");
     declareProperty("CSCSDOs",   m_CSC_SDO_TruthNames);
     declareProperty("SDOs",      m_SDO_TruthNames);
-    std::sort(m_SDO_TruthNames.begin(),m_SDO_TruthNames.end());
+    std::stable_sort(m_SDO_TruthNames.begin(),m_SDO_TruthNames.end());
 
     declareProperty("xAODTruthLinkVector",m_truthLinkVecName="xAODTruthLinks");
 
@@ -71,6 +71,7 @@ namespace Muon {
     declareProperty("Extrapolator",        m_extrapolator);
     declareProperty("CreateTruthSegments", m_createTruthSegment = true );
     declareProperty("MuonTruthSegmentName",m_muonTruthSegmentContainerName = "MuonTruthSegments" );
+    declareProperty("BarcodeOffset",       m_barcodeOffset = 1000000 );
   }
 
   // Initialize method:
@@ -412,7 +413,7 @@ namespace Muon {
       // loop over collection and find particle with the same bar code
       for( const auto& particle : *col.first ){
       
-        if( particle.GetBarCode() != barcode ) continue;
+        if( (particle.GetBarCode())%m_barcodeOffset != barcode ) continue;
         CLHEP::Hep3Vector pos = particle.GetPosition();
         CLHEP::Hep3Vector mom = particle.GetMomentum();
         ATH_MSG_VERBOSE("Found associated  " << name << " pt " << mom.perp() << " position: r " << pos.perp() << " z " << pos.z());
@@ -519,7 +520,7 @@ namespace Muon {
       for( const auto& trajectory : *col ){
 
 	// check if gen particle same as input
-	if( trajectory.second->barcode() != barcode ) continue;
+	if( (trajectory.second->barcode())%m_barcodeOffset != barcode ) continue;
 
 	const Identifier& id = trajectory.first;
 	bool measPhi   = m_idHelper->measuresPhi(id);
@@ -580,14 +581,14 @@ namespace Muon {
       + nphiHitsPerChamberLayer[Muon::MuonStationIndex::STGC2];
     uint8_t phiLayer2Hits = nphiHitsPerChamberLayer[Muon::MuonStationIndex::BM2] + nphiHitsPerChamberLayer[Muon::MuonStationIndex::T1];
     uint8_t phiLayer3Hits = nphiHitsPerChamberLayer[Muon::MuonStationIndex::BO1] + nphiHitsPerChamberLayer[Muon::MuonStationIndex::T2];
-    uint8_t phiLayer4Hits = nphiHitsPerChamberLayer[Muon::MuonStationIndex::T4];
+    uint8_t phiLayer4Hits = nphiHitsPerChamberLayer[Muon::MuonStationIndex::BO2] + nphiHitsPerChamberLayer[Muon::MuonStationIndex::T3];
 
     uint8_t etaLayer1Hits = ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BM1] + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T4]
       + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::CSC] + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::STGC1] 
       + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::STGC2];
     uint8_t etaLayer2Hits = ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BM2] + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T1];
     uint8_t etaLayer3Hits = ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BO1] + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T2];
-    uint8_t etaLayer4Hits = ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T4];
+    uint8_t etaLayer4Hits = ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BO2] + ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T3];
 
     uint8_t nprecLayers = 0;
     if( nprecHitsPerChamberLayer[Muon::MuonStationIndex::BIS] + nprecHitsPerChamberLayer[Muon::MuonStationIndex::BIL] > 3 ) ++nprecLayers;
@@ -604,6 +605,7 @@ namespace Muon {
     if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::BM1] > 0 )  ++nphiLayers;
     if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::BM2] > 0 )  ++nphiLayers;
     if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::BO1] > 0 )  ++nphiLayers;
+    if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::BO2] > 0 )  ++nphiLayers;
     if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::T1]  > 0 )  ++nphiLayers;
     if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::T2]  > 0 )  ++nphiLayers;
     if( nphiHitsPerChamberLayer[Muon::MuonStationIndex::T3]  > 0 )  ++nphiLayers;
@@ -615,6 +617,7 @@ namespace Muon {
     if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BM1] > 0 )  ++ntrigEtaLayers;
     if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BM2] > 0 )  ++ntrigEtaLayers;
     if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BO1] > 0 )  ++ntrigEtaLayers;
+    if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::BO2] > 0 )  ++ntrigEtaLayers;
     if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T1]  > 0 )  ++ntrigEtaLayers;
     if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T2]  > 0 )  ++ntrigEtaLayers;
     if( ntrigEtaHitsPerChamberLayer[Muon::MuonStationIndex::T3]  > 0 )  ++ntrigEtaLayers;
