@@ -41,8 +41,9 @@ include_path $(Rivet_dir)/include
 include_dirs $(Rivet_dir)/include
 
 ## Install scripts
-apply_pattern declare_scripts files=" -s=$(Rivet_bin) *"
-apply_pattern declare_scripts files=" -s=../scripts rivet-buildplugin-atlas rivet-config-atlas"
+apply_pattern declare_scripts files=" -s=$(Rivet_bin) * -s=../scripts *"
+#apply_pattern declare_scripts files=" -s=$(Rivet_bin) *"
+#apply_pattern declare_scripts files=" -s=../scripts rivet-buildplugin-atlas rivet-config-atlas"
 path_prepend PATH "$(Rivet_bin)"
 
 ## Install Python modules
