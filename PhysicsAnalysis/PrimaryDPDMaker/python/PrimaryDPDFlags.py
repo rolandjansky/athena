@@ -380,7 +380,7 @@ class WriteDAOD_IDNCBStream(JobProperty):
     DPDMakerScript = "PrimaryDPDMaker/DAOD_IDNCB.py"
     pass
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_IDNCBStream)
-listESDtoDPD.append(WriteDAOD_IDNCBStream.StreamName)
+listRAWtoDPD.append(WriteDAOD_IDNCBStream.StreamName)
 
 class WriteDAOD_IDTRKVALIDStream(JobProperty):
     """ Produce the DPD for DAOD_IDTRKVALID - AOD with PrepRawData """
