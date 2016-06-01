@@ -142,7 +142,7 @@ StatusCode CscOverlay::overlayExecute() {
   msg<<MSG::DEBUG<<"CscOverlay::execute() begin"<<endreq;
 
   //----------------------------------------------------------------
-  unsigned int numsamples;//to be determined from the data
+  unsigned int numsamples=0;//to be determined from the data
   std::auto_ptr<CscRawDataContainer> cdata(0);
   const CscRawDataContainer* data_input_CSC(0);
   if ( !m_isByteStream ) {
@@ -153,9 +153,9 @@ StatusCode CscOverlay::overlayExecute() {
      }
      if ((cdata->begin()==cdata->end()) || !(cdata->begin()->cptr())){
        msg << MSG::WARNING << "Could not get nsamples, cdata empty?"<< endreq;
-       return StatusCode::SUCCESS;
+       //return StatusCode::SUCCESS;
      }
-     numsamples=cdata->begin()->cptr()->numSamples();
+     else {numsamples=cdata->begin()->cptr()->numSamples();}
   } else {
     if(! (m_storeGateData->retrieve(data_input_CSC, m_mainInputCSC_Name).isSuccess()) ) {
       msg << MSG::WARNING << "Could not get real data CSC RDO container \"" << m_mainInputCSC_Name << "\"" << endreq;
@@ -163,9 +163,9 @@ StatusCode CscOverlay::overlayExecute() {
     }
     if ((data_input_CSC->begin()==data_input_CSC->end()) || !(data_input_CSC->begin()->cptr())){
       msg << MSG::WARNING << "Could not get nsamples, data_input_CSC empty?"<< endreq;
-      return StatusCode::SUCCESS;
+      //return StatusCode::SUCCESS;
     }
-    numsamples=data_input_CSC->begin()->cptr()->numSamples();
+    else {numsamples=data_input_CSC->begin()->cptr()->numSamples();}
   }
 
   /** in the simulation stream, run digitization of the fly
@@ -191,25 +191,25 @@ StatusCode CscOverlay::overlayExecute() {
   }
   else{
     msg << MSG::WARNING << "On the fly CSC Digit -> RDO failed - not 2 or 4 samples!" << endreq;
-    return StatusCode::SUCCESS;
+    //return StatusCode::SUCCESS;
   }
   
-  msg << MSG::DEBUG << "Retrieving MC input CSC container" << endreq;
-  const CscRawDataContainer* ovl_input_CSC(0);
-  if(! (m_storeGateMC->retrieve(ovl_input_CSC, m_overlayInputCSC_Name).isSuccess()) ) {
-    msg << MSG::WARNING << "Could not get CSC RDO from the simulation stream ... " << m_overlayInputCSC_Name << endreq;
-    return StatusCode::SUCCESS;
+  if (numsamples>0){
+    msg << MSG::DEBUG << "Retrieving MC input CSC container" << endreq;
+    const CscRawDataContainer* ovl_input_CSC(0);
+    if(! (m_storeGateMC->retrieve(ovl_input_CSC, m_overlayInputCSC_Name).isSuccess()) ) {
+      msg << MSG::WARNING << "Could not get CSC RDO from the simulation stream ... " << m_overlayInputCSC_Name << endreq;
+      return StatusCode::SUCCESS;
+    }
+
+    /* now do the overlay - reading real data from the data stream
+       and reading simulated RDO produced in the previous steps 
+       from the simulation stream */
+    if ( !m_isByteStream ) this->overlayContainer(cdata.get(), ovl_input_CSC);
+    else this->overlayContainer(const_cast<CscRawDataContainer*>(data_input_CSC), ovl_input_CSC); 
   }
 
-  /** now do the overlay - reading real data from the data stream
-      and reading simulated RDO produced in the previous steps 
-      from the simulation stream */
-  if ( !m_isByteStream ) 
-     this->overlayContainer(cdata.get(), ovl_input_CSC);
-  else
-     this->overlayContainer(const_cast<CscRawDataContainer*>(data_input_CSC), ovl_input_CSC); 
-
-  /** record the overlay data to the output stream */
+  /* record the overlay data to the output stream */
   if ( !m_isByteStream ) {
      if ( m_storeGateOutput->record(cdata, m_mainInputCSC_Name).isFailure() ) {
         msg << MSG::WARNING << "Failed to record CSC overlay container to output store " << endreq;
