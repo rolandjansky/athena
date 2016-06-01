@@ -23,64 +23,44 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-//
-// $Id: G4EmStandardPhysics.hh,v 1.5 2010-06-02 17:21:29 vnivanch Exp $
-// GEANT4 tag $Name: geant4-09-04-patch-01 $
+// $Id$
 //
 //---------------------------------------------------------------------------
+// Author: Alberto Ribon
+// Date:   April 2016
 //
-// ClassName:   G4EmStandardPhysics
-//
-// Author:      V.Ivanchenko 09.11.2005
-//
-// Modified:
-// 05.12.2005 V.Ivanchenko add controlled verbosity
-// 23.11.2006 V.Ivanchenko remove mscStepLimit option and improve cout
-//
+// New physics list FTFP_BERT_ATL.
+// This is a modified version of the FTFP_BERT physics list for ATLAS.
+// The physics list FTFP_BERT_ATL has the transition between Bertini (BERT)
+// intra-nuclear cascade model and Fritiof (FTF) string model in the
+// energy region [9, 12] GeV (instead of [4, 5] GeV as in FTFP_BERT).
 //----------------------------------------------------------------------------
 //
-// This class provides construction of default EM standard physics
-//
+#ifndef TFTFP_BERT_ATL_h
+#define TFTFP_BERT_ATL_h 1
 
-#ifndef G4EmStandardPhysics_MuBias_h
-#define G4EmStandardPhysics_MuBias_h 1
+#include <CLHEP/Units/SystemOfUnits.h>
 
-#include "G4VPhysicsConstructor.hh"
 #include "globals.hh"
+#include "G4VModularPhysicsList.hh"
+#include "CompileTimeConstraints.hh"
 
-struct biasValues {
-	double bremsBias;
-	double pairBias;
-	biasValues(): bremsBias(1.),pairBias(1.) {}
-	biasValues(int a,int b): bremsBias(a),pairBias(b) {}
-};
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-class G4EmStandardPhysics_MuBias : public G4VPhysicsConstructor
+template<class T>
+class TFTFP_BERT_ATL: public T
 {
 public:
-  G4EmStandardPhysics_MuBias(G4int ver = 0);
-
-  // obsolete
-  G4EmStandardPhysics_MuBias(G4int ver, const G4String& name);
-
-  virtual ~G4EmStandardPhysics_MuBias();
-
-  virtual void ConstructParticle();
-  virtual void ConstructProcess();
+  TFTFP_BERT_ATL(G4int ver = 1);
+  virtual ~TFTFP_BERT_ATL();
+  
+public:
+  // SetCuts() 
+  virtual void SetCuts();
 
 private:
-  G4int  m_verbose;
-  biasValues m_biases;
+  enum {ok = CompileTimeConstraints::IsA<T, G4VModularPhysicsList>::ok };
 };
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+#include "FTFP_BERT_ATL.icc"
+typedef TFTFP_BERT_ATL<G4VModularPhysicsList> FTFP_BERT_ATL;
 
 #endif
-
-
-
-
-
 
