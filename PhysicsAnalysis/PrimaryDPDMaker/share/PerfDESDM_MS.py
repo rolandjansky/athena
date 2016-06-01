@@ -91,8 +91,8 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 MuonNoAlgTrig_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "MuonNoAlgTrig_TriggerSkimmingTool",
                                                                    TriggerListOR =  ["HLT_noalg_L1MU4", "HLT_noalg_L1MU6", "HLT_noalg_L1MU10",
-                                                                                     "HLT_noalg_L1MU15", "HLT_noalg_L1MU20", "HLT_noalg_L12MU4",
-                                                                                     "HLT_noalg_L12MU6", "HLT_noalg_L12MU10"] )
+                                                                                     "HLT_noalg_L1MU11","HLT_noalg_L1MU15","HLT_noalg_L1MU20",
+                                                                                     "HLT_noalg_L12MU4","HLT_noalg_L12MU6","HLT_noalg_L12MU10"] )
 ToolSvc += MuonNoAlgTrig_TriggerSkimmingTool
 print MuonNoAlgTrig_TriggerSkimmingTool
 
