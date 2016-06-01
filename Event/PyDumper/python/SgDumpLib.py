@@ -43,6 +43,11 @@ def _gen_jobo(dct):
         acf.FilesInput = _input_files
         del _input_files
 
+        from RecExConfig.InputFilePeeker import inputFileSummary
+        file_geo = inputFileSummary.get('geometry')
+        if file_geo and file_geo.find('-GEO-') >= 0:
+            inputFileSummary['geometry'] = 'ATLAS-R1-2012-02-00-00'
+
         from RecExConfig.RecFlags import rec
         rec.AutoConfiguration = ['everything']
         import RecExConfig.AutoConfiguration as auto
@@ -60,8 +65,6 @@ def _gen_jobo(dct):
                      ):
             value = getattr (rec, item)()
             getattr (rec, item).set_Value_and_Lock(value)
-            globals()[item] = value
-            pass
 
         for item in ('doCBNT', 'doWriteBS',
                      'doWriteRDO', 'doWriteESD',
@@ -69,8 +72,8 @@ def _gen_jobo(dct):
                      'doESD',
                      'doAOD',
                      'doDPD',
+                     'doEgamma',  # avoid dict clash
                      ):
-            globals()[item] = False
             getattr (rec, item).set_Value_and_Lock(False)
 
         # disable the time consuming stuff we don't give a damn about
@@ -81,12 +84,10 @@ def _gen_jobo(dct):
                      'doSGAuditor',
                      'doPerfMon', 'doDetailedPerfMon',
                      ):
-            globals()[item] = False
             getattr (rec, item).set_Value_and_Lock(False)
 
         # events to process
         acf.EvtMax = %(evts)s
-        EvtMax = %(evts)s
 
         # prevent AthFile from using the cache
         import PyUtils.AthFile as af
@@ -103,6 +104,8 @@ def _gen_jobo(dct):
         DetFlags.makeRIO.all_setOff()
         # FIXME -- end
         include ('RecExCommon/RecExCommon_topOptions.py')
+
+        svcMgr.GeoModelSvc.IgnoreTagDifference = True
 
         # adding the python dumper algorithm
         from AthenaCommon.AlgSequence import AlgSequence
@@ -123,6 +126,11 @@ def _gen_jobo(dct):
         acf.FilesInput = _input_files
         del _input_files
 
+        from RecExConfig.InputFilePeeker import inputFileSummary
+        file_geo = inputFileSummary.get('geometry')
+        if file_geo and file_geo.find('-GEO-') >= 0:
+            inputFileSummary['geometry'] = 'ATLAS-R1-2012-02-00-00'
+
         # disable (most of) auto-cfg
         #from RecExConfig.RecFlags import rec
         #rec.AutoConfiguration.set_Value_and_Lock([
@@ -140,8 +148,9 @@ def _gen_jobo(dct):
         for item in ('doCBNT', 'doWriteBS',
                      'doWriteRDO', 'doWriteESD',
                      'doWriteAOD', 'doWriteTAG', 'doWriteTAGCOM',
-                     'doESD', 'doAOD',):
-            globals()[item] = False
+                     'doESD', 'doAOD',
+                     'doEgamma',  # avoid dict clash
+                     ):
             getattr(rec, item).set_Value_and_Lock(False)
 
         # disable the time consuming stuff we don't give a damn about
@@ -152,7 +161,6 @@ def _gen_jobo(dct):
                      'doSGAuditor',
                      'doPerfMon', 'doDetailedPerfMon',
                      ):
-            globals()[item] = False
             getattr(rec, item).set_Value_and_Lock(False)
 
         # tell RecExCommon which input file(s) type we are dealing with
@@ -180,7 +188,6 @@ def _gen_jobo(dct):
 
         # events to process
         acf.EvtMax = %(evts)s
-        EvtMax = %(evts)s
     
         # prevent AthFile from using the cache
         import PyUtils.AthFile as af
@@ -193,6 +200,8 @@ def _gen_jobo(dct):
         # main jobos
         include ('RecExCond/RecExCommon_flags.py')
         include ('RecExCommon/RecExCommon_topOptions.py')
+
+        svcMgr.GeoModelSvc.IgnoreTagDifference = True
 
         # adding the python dumper algorithm
         from AthenaCommon.AlgSequence import AlgSequence
