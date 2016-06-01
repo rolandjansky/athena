@@ -14,14 +14,14 @@
 class MsgStream;
 
 class IOVDbParser {
- public:
+public:
 
   IOVDbParser() = delete; 
   IOVDbParser(const std::string& input, MsgStream* log);
 
   bool isValid() const;
   bool getKey(const std::string& key, const std::string& devvalue, 
-	      std::string& value) const;
+              std::string& value) const;
   std::string spaceStrip(const std::string& input) const;
   const std::string& folderName() const;
   unsigned applyOverrides(const IOVDbParser& other, MsgStream* log);
@@ -29,7 +29,7 @@ class IOVDbParser {
   std::string toString() const;
   void clean();
 
- private:
+private:
   MsgStream* m_log;
   bool m_valid;
   typedef std::map<std::string, std::string> KeyValMap;

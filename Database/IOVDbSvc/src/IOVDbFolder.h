@@ -33,9 +33,9 @@ class IIOVDbMetaDataTool;
 class CondAttrListCollection;
 
 class IOVDbFolder {
- public:
+public:
   IOVDbFolder(IOVDbConn* conn,const IOVDbParser& folderprop, MsgStream* msg,
-	      IClassIDSvc* clidsvc,const bool checkglock);
+              IClassIDSvc* clidsvc,const bool checkglock);
   ~IOVDbFolder();
   // enum for folder types
   enum FolderType {
@@ -79,7 +79,7 @@ class IOVDbFolder {
   void setWriteMeta(IIOVDbMetaDataTool* metadatatool);
   // set IOV overrides
   void setIOVOverride(const unsigned int run,const unsigned int lumiblock,
-		      const unsigned int time);
+                      const unsigned int time);
   // mark object as dropped from Storegate
   void setDropped(const bool dropped);
 
@@ -91,7 +91,7 @@ class IOVDbFolder {
 
   // load cache for given validitykey and globalTag
   bool loadCache(const cool::ValidityKey vkey, const unsigned int cacheDiv,
-		 const std::string& globalTag, const bool ignoreMissChan);
+                 const std::string& globalTag, const bool ignoreMissChan);
 
   // reset cache to empty
   void resetCache();
@@ -99,17 +99,17 @@ class IOVDbFolder {
   // fill in object details from cache
   // set poolPayloadRequested flag if a POOL file was referenced
   bool getAddress(const cool::ValidityKey reftime,IAddressCreator* persSvc,
-		  const unsigned int poolSvcContext,
-		  IOpaqueAddress*& address,
-		  IOVRange& range,bool& poolPayloadRequested);
+                  const unsigned int poolSvcContext,
+                  IOpaqueAddress*& address,
+                  IOVRange& range,bool& poolPayloadRequested);
 
   // make summary of usage
   void summary();
   // preload address to Storegate (does folder initialisation from COOL)
   std::unique_ptr<SG::TransientAddress>
-    preLoadFolder(StoreGateSvc* detStore,
-                  const unsigned int cacheRun,
-                  const unsigned int cacheTime);
+  preLoadFolder(StoreGateSvc* detStore,
+                const unsigned int cacheRun,
+                const unsigned int cacheTime);
 
   // print out cache
   void printCache();
@@ -119,16 +119,16 @@ class IOVDbFolder {
                             const std::string& globalTag,
                             cool::IDatabasePtr dbPtr,
                             const ServiceHandle<IIOVSvc>& iovSvc);
-	
- private:
+        
+private:
   // convert COOL ValidityKey to IOVTime, taking into account m_timestamp
   IOVTime makeTime(const cool::ValidityKey key);
   // convert two ValidityKeys into IOVRange, taking into account m_timestamp
   IOVRange makeRange(const cool::ValidityKey since, 
-		     const cool::ValidityKey until);
+                     const cool::ValidityKey until);
   // make a channel ID from its string representation, use defchan if empty
   cool::ChannelId makeChannel(const std::string& strval,
-			      const cool::ChannelId defchan);
+                              const cool::ChannelId defchan);
   // clear cache vectors
   void clearCache();
   // resolve tag in given folder, using global tag if needed
@@ -138,7 +138,7 @@ class IOVDbFolder {
   // call metadata writing tool for given list and range
   // - version for single channel AttributeList
   bool addMetaAttrList(const coral::AttributeList& atrlist,
-		       const IOVRange& range);
+                       const IOVRange& range);
   // - version for multichannel collection
   bool addMetaAttrListColl(const CondAttrListCollection* coll);
   // add type information to calculate size of attributeList
@@ -161,11 +161,11 @@ class IOVDbFolder {
   void specialCacheUpdate(const cool::IObject& obj,
                           const ServiceHandle<IIOVSvc>& iovSvc);
 
-  MsgStream* 			m_log;
-  StoreGateSvc* 		p_detStore; 	// pointer to detector store
-  IClassIDSvc* 			p_clidSvc; 		// pointer to CLID service
-  IIOVDbMetaDataTool* 	p_metaDataTool; // pointer to metadata tool (writing)
-  IOVDbConn* 			m_conn;   		// pointer to corresponding IOVDbConn object (=0 FLMD)
+  MsgStream*           m_log;
+  StoreGateSvc*        p_detStore;     // pointer to detector store
+  IClassIDSvc*         p_clidSvc;      // pointer to CLID service
+  IIOVDbMetaDataTool*  p_metaDataTool; // pointer to metadata tool (writing)
+  IOVDbConn*           m_conn;         // pointer to corresponding IOVDbConn object (=0 FLMD)
   std::string m_foldername; // COOL foldername
   std::string m_key;   // SG key where data is loaded (unique)
   bool m_multiversion; // is folder multiversion
