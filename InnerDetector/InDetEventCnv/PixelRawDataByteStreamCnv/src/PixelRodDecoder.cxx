@@ -267,6 +267,16 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
     // loop over the data in the fragment
     for (uint32_t dataword_it = 0; dataword_it < dataword_it_end; ++dataword_it) {   // loop over ROD
         rawDataWord = vint[dataword_it];   // set the dataword to investigate
+	if (rawDataWord==0xaa1234aa){
+	  generalwarning("Evt marker encountered during loop on ROD datawords");
+	  break;
+	} else if (rawDataWord==0xdd1234dd){
+	  generalwarning("ROB marker encountered during loop on ROD datawords");
+	  break;
+	} else if (rawDataWord==0xee1234ee){
+	  generalwarning("ROD marker encountered during loop on ROD datawords");
+	  break;
+	}
         uint32_t word_type = getDataType(rawDataWord,link_start);   // get type of data word
         unsigned int headererror;
         int trailererror;
