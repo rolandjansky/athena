@@ -5,7 +5,6 @@ use AtlasPolicy             AtlasPolicy-*
 use FadsKinematics          FadsKinematics-*        Simulation/G4Sim/FADS
 
 private
-use AtlasCLHEP              AtlasCLHEP-*            External
 use AtlasReflex             AtlasReflex-*           External
 use Geant4                  Geant4-*                External
 end_private
