@@ -23,8 +23,6 @@ use AtlasHepMC          AtlasHepMC-*            External
 use AthenaBaseComps     AthenaBaseComps-*       Control
 use GeoPrimitives      GeoPrimitives-*    DetectorDescription
 
-use StoreGate           StoreGate-*             Control
-
 use InDetSimEvent       InDetSimEvent-*         InnerDetector
 use MuonSimEvent        MuonSimEvent-*          MuonSpectrometer 
 
