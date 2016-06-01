@@ -21,7 +21,6 @@ use  AtlasROOT                  AtlasROOT-*                     External
 use  AtlasReflex                AtlasReflex-*                   External
 end_private
 
-
 branches Root
 
 # create an installed library, i.e., one where others can inherit from
