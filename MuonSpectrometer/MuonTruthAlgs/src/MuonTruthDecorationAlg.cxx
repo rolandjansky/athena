@@ -61,7 +61,7 @@ namespace Muon {
     m_SDO_TruthNames.push_back("STGC_SDO");
     declareProperty("CSCSDOs",   m_CSC_SDO_TruthNames);
     declareProperty("SDOs",      m_SDO_TruthNames);
-    std::sort(m_SDO_TruthNames.begin(),m_SDO_TruthNames.end());
+    std::stable_sort(m_SDO_TruthNames.begin(),m_SDO_TruthNames.end());
 
     declareProperty("xAODTruthLinkVector",m_truthLinkVecName="xAODTruthLinks");
 
@@ -71,6 +71,7 @@ namespace Muon {
     declareProperty("Extrapolator",        m_extrapolator);
     declareProperty("CreateTruthSegments", m_createTruthSegment = true );
     declareProperty("MuonTruthSegmentName",m_muonTruthSegmentContainerName = "MuonTruthSegments" );
+    declareProperty("BarcodeOffset",       m_barcodeOffset = 1000000 );
   }
 
   // Initialize method:
@@ -412,7 +413,7 @@ namespace Muon {
       // loop over collection and find particle with the same bar code
       for( const auto& particle : *col.first ){
       
-        if( particle.GetBarCode() != barcode ) continue;
+        if( (particle.GetBarCode())%m_barcodeOffset != barcode ) continue;
         CLHEP::Hep3Vector pos = particle.GetPosition();
         CLHEP::Hep3Vector mom = particle.GetMomentum();
         ATH_MSG_VERBOSE("Found associated  " << name << " pt " << mom.perp() << " position: r " << pos.perp() << " z " << pos.z());
@@ -519,7 +520,7 @@ namespace Muon {
       for( const auto& trajectory : *col ){
 
 	// check if gen particle same as input
-	if( trajectory.second->barcode() != barcode ) continue;
+	if( (trajectory.second->barcode())%m_barcodeOffset != barcode ) continue;
 
 	const Identifier& id = trajectory.first;
 	bool measPhi   = m_idHelper->measuresPhi(id);

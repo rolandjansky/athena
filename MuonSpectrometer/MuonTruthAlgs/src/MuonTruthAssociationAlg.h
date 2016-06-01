@@ -32,6 +32,7 @@ private:
   std::string m_muonName;
 
   bool m_associateWithInDetTP;
+  int m_barcodeOffset;
 };
 
 
