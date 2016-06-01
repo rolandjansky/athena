@@ -47,6 +47,7 @@ IHLTMonTool::IHLTMonTool(const std::string & type, const std::string & myname, c
 {
   declareProperty("CAFonly", m_cafonly);
   declareProperty("TDT", m_tdthandle);
+  declareProperty("IgnoreTruncationCheck",m_ignoreTruncationCheck=false); //Default check for truncate HLTResult
   m_log = new MsgStream(msgSvc(), name());
 }
 
@@ -70,6 +71,9 @@ StatusCode IHLTMonTool::initialize() {
     ATH_MSG_ERROR("Could not retrieve TrigDecisionTool!");
     return sc;
   }
+
+  // After retrieve enable Expert methods
+  getTDT()->ExperimentalAndExpertMethods()->enable();
 
   sc = m_storeGate.retrieve();
   if ( sc.isFailure() ) {
@@ -669,7 +673,18 @@ StatusCode IHLTMonTool::fillHistograms() {
   StatusCode sc = StatusCode::SUCCESS;
   try {
     ATH_MSG_DEBUG("Running fill() for " << name());
-    sc = fill();
+   
+    // Do not require check on truncated HLTResult 
+    if(m_ignoreTruncationCheck)
+        sc=fill();
+    else {
+    // Require non-truncated HLTResult
+        if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()) 
+            ATH_MSG_WARNING("HLTResult truncated, skip HLT T0 monitoring for this event");
+        else 
+            sc= fill();
+    }
+
     if (sc.isFailure()) {
       ATH_MSG_ERROR("fill() for " << name() << ", returned StatusCode::FAILURE!");
     }

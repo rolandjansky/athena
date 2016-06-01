@@ -23,11 +23,32 @@ class doGeneral(JobProperty):
 list+=[doGeneral]
 
 class doMaM(JobProperty):
-	""" Switch for menu-aware monitoring """
+	""" Global switch for menu-aware monitoring"""
 	statusOn=True
 	allowedTypes=['bool']
 	StoredValue=False
 list+=[doMaM]
+
+class doMaM_ExtractAndDumpConfigs(JobProperty):
+	""" Switch for menu-aware monitoring: exctraction of tool configurations, and output to a json file"""
+	statusOn=True
+	allowedTypes=['bool']
+	StoredValue=False
+list+=[doMaM_ExtractAndDumpConfigs]
+
+class MaM_OutputJSON(JobProperty):
+	""" Output json file for dumping monitoring tool configurations, for menu-aware monitoring """
+	statusOn=True
+	allowedTypes=['str']
+	StoredValue='mam_configs.json'
+list+=[MaM_OutputJSON]
+
+class doMaM_ApplyMCK(JobProperty):
+	""" Switch for menu-aware monitoring: applying configurations defined by an MCK"""
+	statusOn=True
+	allowedTypes=['bool']
+	StoredValue=False
+list+=[doMaM_ApplyMCK]
 
 class MCK(JobProperty):
 	""" Monitoring Configuration Key (MCK) for menu-aware monitoring """
