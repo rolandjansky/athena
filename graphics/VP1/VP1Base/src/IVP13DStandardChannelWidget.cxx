@@ -73,6 +73,11 @@ public:
   VP1TabWidget* tabwidget;
 
   QSplitter * extradisplaywidget_splitter;
+
+  // restoreFromState versions
+  void restoreFromState_v7(QDataStream& state);
+
+
 };
 
 //___________________________________________________________________________
@@ -184,7 +189,14 @@ void IVP13DStandardChannelWidget::create() {
   connect(d->uisnapshot.radioButton_width,SIGNAL(toggled(bool)),this,SLOT(updateSnapshotDim()));
   connect(d->uisnapshot.radioButton_height,SIGNAL(toggled(bool)),this,SLOT(updateSnapshotDim()));
 
-//   d->systemsAllowedControllers.clear();
+  connect(d->uisnapshot.groupBox_imagePresets,SIGNAL(toggled(bool)),this,SLOT(setImageFromPresets()));
+  connect(d->uisnapshot.radioButton_720p,SIGNAL(toggled(bool)),this,SLOT(setImageFromPresets()));
+  connect(d->uisnapshot.radioButton_1080p,SIGNAL(toggled(bool)),this,SLOT(setImageFromPresets()));
+  connect(d->uisnapshot.radioButton_4K,SIGNAL(toggled(bool)),this,SLOT(setImageFromPresets()));
+  connect(d->uisnapshot.radioButton_8K,SIGNAL(toggled(bool)),this,SLOT(setImageFromPresets()));
+
+
+  //   d->systemsAllowedControllers.clear();
   d->system2switchable.clear();
 
   QMapIterator<QCheckBox*,IVP1System*> it(d->checkbox2system);
@@ -278,7 +290,7 @@ void IVP13DStandardChannelWidget::Imp::autoSnapshot()
 	VP1Msg::messageVerbose("IVP13DStandardChannelWidget::Imp::autoSnapshot()");
 
 	int runnumber(0);
-	int eventnumber(0);
+	unsigned long long eventnumber(0);
 	channel->getRunEvtNumber(runnumber,eventnumber);
 
 	QString snapshotDirName = VP1QtUtils::environmentVariableValue("VP1_SCREENSHOTS_DIR");
@@ -479,6 +491,42 @@ QPixmap IVP13DStandardChannelWidget::getSnapshot(bool transp, int width, bool ba
 }
 
 //___________________________________________________________________________
+void IVP13DStandardChannelWidget::setImageFromPresets()
+{
+	VP1Msg::messageDebug("IVP13DStandardChannelWidget::setImageFromPresets()");
+
+	disconnect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+	disconnect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+
+	if (d->uisnapshot.radioButton_720p->isChecked()) {
+		d->uisnapshot.spinBox_width->setValue(1280);
+		d->uisnapshot.spinBox_height->setValue(720);
+	}
+	else if (d->uisnapshot.radioButton_1080p->isChecked()) {
+		d->uisnapshot.spinBox_width->setValue(1920);
+		d->uisnapshot.spinBox_height->setValue(1080);
+	}
+	else if (d->uisnapshot.radioButton_4K->isChecked()) {
+		d->uisnapshot.spinBox_width->setValue(4096);
+		d->uisnapshot.spinBox_height->setValue(2160);
+	}
+	else if (d->uisnapshot.radioButton_8K->isChecked()) {
+		d->uisnapshot.spinBox_width->setValue(8192);
+		d->uisnapshot.spinBox_height->setValue(4320);
+	}
+	else {
+	VP1Msg::messageDebug("ERROR! Sender unknown!!");
+	}
+
+	connect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+	connect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+
+	// update
+	updateSnapshotDim();
+}
+
+
+//___________________________________________________________________________
 void IVP13DStandardChannelWidget::updateSnapshotDim()
 {
   VP1Msg::messageDebug("IVP13DStandardChannelWidget::updateSnapshotDim()");
@@ -498,8 +546,14 @@ void IVP13DStandardChannelWidget::updateSnapshotDim()
   else if (sender()==d->uisnapshot.spinBox_height)
     d->uisnapshot.radioButton_height->setChecked(true);
 
+  /*
+   * Get widget width and height
+   * Note: the method "getNormalWidget" is from the "SoQtGLWidget" class
+   *       and it returns a QWidget object
+   */
 	int onscreen_width = d->viewer->getNormalWidget()->geometry().width();
 	int onscreen_height = d->viewer->getNormalWidget()->geometry().height();
+
 	if ( d->uisnapshot.checkBox_as_shown->isChecked() ) {
 		disconnect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
 		disconnect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
@@ -508,14 +562,29 @@ void IVP13DStandardChannelWidget::updateSnapshotDim()
 		connect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
 		connect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
 	} else {
-		if (d->uisnapshot.radioButton_width->isChecked()) {
-			disconnect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
-			d->uisnapshot.spinBox_height->setValue(static_cast<int>(d->uisnapshot.spinBox_width->value()*static_cast<double>(onscreen_height)/onscreen_width+0.5));
-			connect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
-		} else {
-			disconnect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
-			d->uisnapshot.spinBox_width->setValue(static_cast<int>(d->uisnapshot.spinBox_height->value()*static_cast<double>(onscreen_width)/onscreen_height+0.5));
-			connect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+		if (d->uisnapshot.checkBox_lockRatio->isChecked()) {
+			VP1Msg::messageDebug("checkBox_lockRatio is checked - updating only rendering size");
+			if (d->uisnapshot.radioButton_width->isChecked()) {
+				disconnect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+				d->uisnapshot.spinBox_height->setValue(static_cast<int>(d->uisnapshot.spinBox_width->value()*static_cast<double>(onscreen_height)/onscreen_width+0.5));
+				connect(d->uisnapshot.spinBox_height,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+			} else {
+				disconnect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+				d->uisnapshot.spinBox_width->setValue(static_cast<int>(d->uisnapshot.spinBox_height->value()*static_cast<double>(onscreen_width)/onscreen_height+0.5));
+				connect(d->uisnapshot.spinBox_width,SIGNAL(valueChanged(int)),this,SLOT(updateSnapshotDim()));
+			}
+		}
+		else {
+			VP1Msg::messageDebug("checkBox_lockRatio is NOT checked - Updating the widget size as well");
+
+//			if (d->uisnapshot.radioButton_width->isChecked() ) {
+//				int newWidth =  static_cast<int>(d->uisnapshot.spinBox_width->value() * static_cast<double>(onscreen_height) / d->uisnapshot.spinBox_height->value() + 0.5);
+//				d->viewer->getNormalWidget()->resize(newWidth, onscreen_height);
+//			} else if (d->uisnapshot.radioButton_height->isChecked()) {
+//				int newHeight = static_cast<int>( onscreen_width * static_cast<double>(d->uisnapshot.spinBox_height->value()) / d->uisnapshot.spinBox_width->value() + 0.5);
+//				d->viewer->resize(onscreen_width, newHeight);
+//			}
+
 		}
 	}
 
@@ -542,6 +611,7 @@ void IVP13DStandardChannelWidget::updateSnapshotDim()
 //___________________________________________________________________________
 void IVP13DStandardChannelWidget::dockResized()
 {
+  VP1Msg::messageVerbose("IVP13DStandardChannelWidget::dockResized()");
   QTimer::singleShot(0, this, SLOT(updateSnapshotDim()));
   IVP1ChannelWidget::dockResized();
 }
@@ -551,160 +621,253 @@ QByteArray IVP13DStandardChannelWidget::saveState()
 {
   VP1Msg::messageVerbose("IVP13DStandardChannelWidget::saveState");
 
+
+   // NEW VERSION
+
+//
+//  // ===> Setup stream writing to a byteArray:
+//  QByteArray byteArray;
+//  QBuffer buffer(&byteArray);
+//  buffer.open(QIODevice::WriteOnly);
+//  QDataStream out(&buffer);
+//
+//  /*
+//   * --- GET DATA TO BE SAVED ---
+//   */
+//
+//  //Systems turned on/off:
+//  //Fixme: Make sure that if you have two copies of the same system,
+//  //that the text in the checkbox gets appended some stuff like [1],
+//  //[2], etc., so that the strings used here will be unique.
+//  QMap<QString, bool> sysname2turnedon;
+//  QMap<QCheckBox*,IVP1System*>::const_iterator it = d->checkbox2system.constBegin();
+//  while (it != d->checkbox2system.constEnd()) {
+//    sysname2turnedon.insert(it.key()->text(),it.key()->isChecked());
+//     ++it;
+//  }
+//
+//
+//  // snapshot settings
+//  bool transp_checked = d->uisnapshot.checkBox_transp->isChecked();
+//  bool widthfixed = d->uisnapshot.radioButton_width->isChecked();
+//  bool as_shown = d->uisnapshot.checkBox_as_shown->isChecked();
+//
+//  bool locked_ratio = d->uisnapshot.checkBox_lockRatio->isChecked();
+//
+//  qint32 width = (qint32)(d->uisnapshot.spinBox_width->value());
+//  qint32 height = (qint32)(d->uisnapshot.spinBox_height->value());
+//
+//  // image presets
+//  bool isUsingPreset = d->uisnapshot.groupBox_imagePresets->isChecked();
+//  bool is720p = d->uisnapshot.radioButton_720p->isChecked();
+//  bool is1080p = d->uisnapshot.radioButton_1080p->isChecked();
+//  bool is4K = d->uisnapshot.radioButton_4K->isChecked();
+//  bool is8K = d->uisnapshot.radioButton_8K->isChecked();
+//
+//  // active tab
+//  QString tab_index = (d->tabwidget ? d->tabwidget->tabText(d->tabwidget->currentIndex()) : QString("") );
+//
+//
+//  /*
+//   * --- WRITE DATA ---
+//   */
+//
+//  // ------- SAVE -------
+//  out << (qint32)7; //version
+//  out << IVP13DChannelWidget::saveState();//Always include state info from the base class.
+//  out << sysname2turnedon;
+//  out << ( d->extradisplaywidget_splitter ? d->extradisplaywidget_splitter->saveState() : QByteArray() );
+//  out << d->viewer->saveState();
+//  out << transp_checked;
+//  out << widthfixed;
+//  out << as_shown;
+//  out << locked_ratio; // new in v. 7
+//  out << width;  // new in v. 7
+//  out << height; // new in v. 7
+//  out << isUsingPreset; // new in v. 7
+//  out << is720p; // new in v. 7
+//  out << is1080p; // new in v. 7
+//  out << is4K; // new in v. 7
+//  out << is8K; // new in v. 7
+//  out << tab_index;
+//  // --------------------
+//
+//  // ===> Finish up:
+//  buffer.close();
+//  return byteArray;
+//
+//
+
+
+
+  // OLD VERSION
+
   // ===> Setup stream writing to a byteArray:
-  QByteArray byteArray;
-  QBuffer buffer(&byteArray);
-  buffer.open(QIODevice::WriteOnly);
-  QDataStream out(&buffer);
+     QByteArray byteArray;
+     QBuffer buffer(&byteArray);
+     buffer.open(QIODevice::WriteOnly);
+     QDataStream out(&buffer);
 
-  // ===> Write Data:
+     // ===> Write Data:
 
-  //Version & base state:
-  out << (qint32)6; //version
-  out << IVP13DChannelWidget::saveState();//Always include state info from the base class.
+     //Version & base state:
+     out << (qint32)6; //version
+     out << IVP13DChannelWidget::saveState();//Always include state info from the base class.
 
-  //version 3 had bgd color output here;
+     //version 3 had bgd color output here;
 
-  //Systems turned on/off:
-  //Fixme: Make sure that if you have two copies of the same system,
-  //that the text in the checkbox gets appended some stuff like [1],
-  //[2], etc., so that the strings used here will be unique.
-  QMap<QString, bool> sysname2turnedon;
-  QMap<QCheckBox*,IVP1System*>::const_iterator it = d->checkbox2system.constBegin();
-  while (it != d->checkbox2system.constEnd()) {
-    sysname2turnedon.insert(it.key()->text(),it.key()->isChecked());
-     ++it;
-  }
+     //Systems turned on/off:
+     //Fixme: Make sure that if you have two copies of the same system,
+     //that the text in the checkbox gets appended some stuff like [1],
+     //[2], etc., so that the strings used here will be unique.
+     QMap<QString, bool> sysname2turnedon;
+     QMap<QCheckBox*,IVP1System*>::const_iterator it = d->checkbox2system.constBegin();
+     while (it != d->checkbox2system.constEnd()) {
+       sysname2turnedon.insert(it.key()->text(),it.key()->isChecked());
+        ++it;
+     }
 
-  //Versions 3+ follow here.
+     //Versions 3+ follow here.
 
-  out << sysname2turnedon;
+     out << sysname2turnedon;
 
-  out << ( d->extradisplaywidget_splitter ? d->extradisplaywidget_splitter->saveState() : QByteArray() );
+     out << ( d->extradisplaywidget_splitter ? d->extradisplaywidget_splitter->saveState() : QByteArray() );
 
-  out << d->viewer->saveState();
+     out << d->viewer->saveState();
 
-  //version <=3 had bool here.
+     //version <=3 had bool here.
 
-  out << d->uisnapshot.checkBox_transp->isChecked();
-  bool widthfixed = d->uisnapshot.radioButton_width->isChecked();
-  bool as_shown = d->uisnapshot.checkBox_as_shown->isChecked();
-  out << widthfixed;
-  out << as_shown;
-  if (!as_shown)
-    out << (qint32)(widthfixed ? d->uisnapshot.spinBox_width->value() : d->uisnapshot.spinBox_height->value());
+     out << d->uisnapshot.checkBox_transp->isChecked();
+     bool widthfixed = d->uisnapshot.radioButton_width->isChecked();
+     bool as_shown = d->uisnapshot.checkBox_as_shown->isChecked();
+     out << widthfixed;
+     out << as_shown;
+     if (!as_shown)
+       out << (qint32)(widthfixed ? d->uisnapshot.spinBox_width->value() : d->uisnapshot.spinBox_height->value());
 
-  if (d->tabwidget)
-    out << d->tabwidget->tabText(d->tabwidget->currentIndex());
-  else
-    out << QString("");
+     if (d->tabwidget)
+       out << d->tabwidget->tabText(d->tabwidget->currentIndex());
+     else
+       out << QString("");
 
-  //In version 5 we output a bool here.
+     //In version 5 we output a bool here.
 
-  // ===> Finish up:
-  buffer.close();
-  return byteArray;
+     // ===> Finish up:
+     buffer.close();
+     return byteArray;
+
+
 }
 
 //___________________________________________________________________________
 void IVP13DStandardChannelWidget::restoreFromState(QByteArray ba)
 {
-  VP1Msg::messageVerbose("IVP13DStandardChannelWidget::restoreFromState");
+	VP1Msg::messageVerbose("IVP13DStandardChannelWidget::restoreFromState");
 
-  // ===> Setup stream for getting the contents of the byteArray:
-  QBuffer buffer(&ba);
-  buffer.open(QIODevice::ReadOnly);
-  QDataStream state(&buffer);
-  // ===> Check version and pass on state info to base class:
-  qint32 version;
-  state >> version;
-  if (version<0||version>6) {
-    message("Warning: State data in .vp1 file is in wrong format - ignoring!");
-    return;
-  }
-  QByteArray basestate;
-  state >> basestate;
-  IVP13DChannelWidget::restoreFromState(basestate);
-  // ===> Decode the state info:
+	// ===> Setup stream for getting the contents of the byteArray:
+	QBuffer buffer(&ba);
+	buffer.open(QIODevice::ReadOnly);
+	QDataStream state(&buffer);
+	// ===> Check version and pass on state info to base class:
+	qint32 version;
+	state >> version;
 
-  if (version<=3) {
-    QColor bgdcol_dummy;
-    state >> bgdcol_dummy;
-  }
+	message("Configuration file version: " + QString::number(version) );
 
-  //Switch systems on/off:
-  QMap<QString, bool> sysname2turnedon;
-  state >> sysname2turnedon;
-  QMap<QCheckBox*,IVP1System*>::const_iterator it = d->checkbox2system.constBegin();
-  while (it != d->checkbox2system.constEnd()) {
-    if (sysname2turnedon.contains(it.key()->text())) {
-      if (sysname2turnedon[it.key()->text()]!=it.key()->isChecked())
-	it.key()->setChecked(sysname2turnedon[it.key()->text()]);
-    } else {
-      message("Warning: Config data does not contain information about switched state of subsystem '"+it.key()->text()+"'");
-    }
-     ++it;
-  }
+	if (version<0||version>7) {
+		message("Warning: State data in .vp1 file is in wrong format - ignoring!");
+		return;
+	}
 
-  if (version<=2) {
-    // We stop here to avoid too messy code.
-    buffer.close();
-    return;
-  }
+	QByteArray basestate;
+	state >> basestate;
+	IVP13DChannelWidget::restoreFromState(basestate);
 
-  //Splitter:
-  QByteArray splitstate;
-  state >> splitstate;
-  if (d->extradisplaywidget_splitter)
-    d->extradisplaywidget_splitter->restoreState(splitstate);
 
-  //Viewer settings:
-  QByteArray ba_viewer;
-  state >> ba_viewer;
-  d->viewer->restoreFromState(ba_viewer);//Fixme: reset camera???
-  d->need_initial_viewall = false;
+	// ===> Decode the state info:
 
-  //Snapshot parameters:
-  bool aa_dummy, transp, widthfixed, as_shown;
-  if (version<=3)
-    state >> aa_dummy;
-  state >> transp; state >> widthfixed; state >> as_shown;
-  d->uisnapshot.checkBox_transp->setChecked(transp);
-  d->uisnapshot.checkBox_as_shown->setChecked(as_shown);
-  if (widthfixed) {
-    d->uisnapshot.radioButton_width->setChecked(true);
-    d->uisnapshot.radioButton_height->setChecked(false);
-  } else {
-    d->uisnapshot.radioButton_width->setChecked(false);
-    d->uisnapshot.radioButton_height->setChecked(true);
-  }
-  if (!as_shown) {
-    qint32 fixval;
-    state >> fixval;
-    if (widthfixed)
-      d->uisnapshot.spinBox_width->setValue(fixval);
-    else
-      d->uisnapshot.spinBox_height->setValue(fixval);
-  }
+	if (version == 7)
+		d->restoreFromState_v7(state);
 
-  QString tabname;
-  state >> tabname;
-  if (d->tabwidget) {
-    for (int i = 0; i < d->tabwidget->count(); ++i) {
-      if (d->tabwidget->tabText(i) == tabname) {
-	d->tabwidget->setCurrentIndex(i);
-	break;
-      }
-    }
-  }
+	if (version<=3) {
+		QColor bgdcol_dummy;
+		state >> bgdcol_dummy;
+	}
 
-  if (version==5) {
-    bool b;
-    state >> b;
-  }
+	//Switch systems on/off:
+	QMap<QString, bool> sysname2turnedon;
+	state >> sysname2turnedon;
+	QMap<QCheckBox*,IVP1System*>::const_iterator it = d->checkbox2system.constBegin();
+	while (it != d->checkbox2system.constEnd()) {
+		if (sysname2turnedon.contains(it.key()->text())) {
+			if (sysname2turnedon[it.key()->text()]!=it.key()->isChecked())
+				it.key()->setChecked(sysname2turnedon[it.key()->text()]);
+		} else {
+			message("Warning: Config data does not contain information about switched state of subsystem '"+it.key()->text()+"'");
+		}
+		++it;
+	}
 
-  // ===> Finish up:
-  buffer.close();
+	if (version<=2) {
+		// We stop here to avoid too messy code.
+		buffer.close();
+		return;
+	}
+
+	//Splitter:
+	QByteArray splitstate;
+	state >> splitstate;
+	if (d->extradisplaywidget_splitter)
+		d->extradisplaywidget_splitter->restoreState(splitstate);
+
+	//Viewer settings:
+	QByteArray ba_viewer;
+	state >> ba_viewer;
+	d->viewer->restoreFromState(ba_viewer);//Fixme: reset camera???
+	d->need_initial_viewall = false;
+
+	//Snapshot parameters:
+	bool aa_dummy, transp, widthfixed, as_shown;
+	if (version<=3)
+		state >> aa_dummy;
+	state >> transp; state >> widthfixed; state >> as_shown;
+	d->uisnapshot.checkBox_transp->setChecked(transp);
+	d->uisnapshot.checkBox_as_shown->setChecked(as_shown);
+	if (widthfixed) {
+		d->uisnapshot.radioButton_width->setChecked(true);
+		d->uisnapshot.radioButton_height->setChecked(false);
+	} else {
+		d->uisnapshot.radioButton_width->setChecked(false);
+		d->uisnapshot.radioButton_height->setChecked(true);
+	}
+	if (!as_shown) {
+		qint32 fixval;
+		state >> fixval;
+		if (widthfixed)
+			d->uisnapshot.spinBox_width->setValue(fixval);
+		else
+			d->uisnapshot.spinBox_height->setValue(fixval);
+	}
+
+	QString tabname;
+	state >> tabname;
+	if (d->tabwidget) {
+		for (int i = 0; i < d->tabwidget->count(); ++i) {
+			if (d->tabwidget->tabText(i) == tabname) {
+				d->tabwidget->setCurrentIndex(i);
+				break;
+			}
+		}
+	}
+
+	if (version==5) {
+		bool b;
+		state >> b;
+	}
+
+
+	// ===> Finish up:
+			buffer.close();
 }
 
 //___________________________________________________________________________
@@ -729,3 +892,124 @@ void IVP13DStandardChannelWidget::showControlsForSystem(  )
   }
   d->tabwidget->setCurrentIndex(index);
 }
+
+
+//___________________________________________________________________________
+void IVP13DStandardChannelWidget::Imp::restoreFromState_v7(QDataStream& state) {
+
+	VP1Msg::messageVerbose("IVP13DStandardChannelWidget::Imp::restoreFromState_v7");
+
+	/*
+	 * --- VARIABLES TO BE RESTORED ---
+	 */
+	//Switch systems on/off:
+	QMap<QString, bool> sysname2turnedon;
+	//Splitter:
+	QByteArray splitstate;
+	//Viewer settings:
+	QByteArray ba_viewer;
+	// Snapshot parameters:
+	bool transp, widthfixed, as_shown;
+	bool locked_ratio;
+	qint32 width, height;
+	// image format presets
+	bool isUsingPresets;
+	bool is720p;
+	bool is1080p;
+	bool is4K;
+	bool is8K;
+	// Active tab
+	QString tabname;
+
+
+	/*
+	 * ------- GET STATE -------
+	 */
+	// 'version' restored already
+	// 'basestate' restored already
+	state >> sysname2turnedon;
+	state >> splitstate;
+	state >> ba_viewer;
+	state >> transp;
+	state >> widthfixed;
+	state >> as_shown;
+	state >> locked_ratio;
+	state >> width;
+	state >> height;
+	state >> isUsingPresets;
+	state >> is720p;
+	state >> is1080p;
+	state >> is4K;
+	state >> is8K;
+	state >> tabname;
+	// -------------------------
+
+
+
+
+	/*
+	 * --- RESTORE VARIABLES ---
+	 */
+
+	//Switch systems on/off:
+	QMap<QCheckBox*,IVP1System*>::const_iterator it = checkbox2system.constBegin();
+	while (it != checkbox2system.constEnd()) {
+		if (sysname2turnedon.contains(it.key()->text())) {
+			if (sysname2turnedon[it.key()->text()]!=it.key()->isChecked())
+				it.key()->setChecked(sysname2turnedon[it.key()->text()]);
+		} else {
+			channel->message("Warning: Config data does not contain information about switched state of subsystem '"+it.key()->text()+"'");
+		}
+		++it;
+	}
+
+
+	//Splitter:
+	if (extradisplaywidget_splitter)
+		extradisplaywidget_splitter->restoreState(splitstate);
+
+	//Viewer settings:
+	viewer->restoreFromState(ba_viewer);//Fixme: reset camera???
+	need_initial_viewall = false;
+
+
+	// Snapshot parameters - Set Width and Height
+	uisnapshot.checkBox_transp->setChecked(transp);
+	uisnapshot.checkBox_as_shown->setChecked(as_shown);
+	if (widthfixed) {
+		uisnapshot.radioButton_width->setChecked(true);
+		uisnapshot.radioButton_height->setChecked(false);
+	} else {
+		uisnapshot.radioButton_width->setChecked(false);
+		uisnapshot.radioButton_height->setChecked(true);
+	}
+	if (!as_shown) {
+		uisnapshot.spinBox_width->setValue(width);
+		uisnapshot.spinBox_height->setValue(height);
+	}
+
+	// image format presets
+	if (isUsingPresets)
+		uisnapshot.groupBox_imagePresets->setChecked(true);
+	if (is720p)
+		uisnapshot.radioButton_720p->setChecked(true);
+	else if (is1080p)
+		uisnapshot.radioButton_1080p->setChecked(true);
+	else if (is4K)
+		uisnapshot.radioButton_4K->setChecked(true);
+	else if (is8K)
+		uisnapshot.radioButton_8K->setChecked(true);
+
+
+	// Set active tab
+	if (tabwidget) {
+		for (int i = 0; i < tabwidget->count(); ++i) {
+			if (tabwidget->tabText(i) == tabname) {
+				tabwidget->setCurrentIndex(i);
+				break;
+			}
+		}
+	}
+}
+
+
