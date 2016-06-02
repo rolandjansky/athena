@@ -41,24 +41,24 @@ class PixelDesignBuilder:  public AthService, virtual public IPixelDesignSvc,  p
   static const InterfaceID & interfaceID();
   
   // IOV CallBack
-    virtual StatusCode callBack(IOVSVC_CALLBACK_ARGS);
-    
- // GeoInit callback
- StatusCode geoInitCallback(IOVSVC_CALLBACK_ARGS);
-    
-    
- InDetDD::PixelModuleDesign* getDesign( const PixelGeoBuilderBasics* basics, int moduleIndex);
- InDetDD::PixelModuleDesign* getDesign( const PixelGeoBuilderBasics* basics, std::string moduleType);
- InDetDD::PixelDiodeMatrix* buildMatrix( double phiPitch, double etaPitch, 
-					 double etaPitchLong, double etaPitchLongEnd,
-					 int circuitsPhi, int circuitsEta,
-					 int diodeRowPerCirc, int diodeColPerCirc);
- 
+  virtual StatusCode callBack(IOVSVC_CALLBACK_ARGS);
+  
+  // GeoInit callback
+  StatusCode geoInitCallback(IOVSVC_CALLBACK_ARGS);
+  
+  
+  InDetDD::PixelModuleDesign* getDesign( const PixelGeoBuilderBasics* basics, int moduleIndex);
+  InDetDD::PixelModuleDesign* getDesign( const PixelGeoBuilderBasics* basics, std::string moduleType);
+  InDetDD::PixelDiodeMatrix* buildMatrix( double phiPitch, double etaPitch, 
+					  double etaPitchLong, double etaPitchLongEnd,
+					  int circuitsPhi, int circuitsEta,
+					  int diodeRowPerCirc, int diodeColPerCirc);
+  
  
  private:
  
- static std::vector<InDetDD::PixelModuleDesign*> s_designs; 
- InDetDD::PixelModuleDesign* build(  const PixelGeoBuilderBasics* basics, int moduleIndex);
+  static std::vector<InDetDD::PixelModuleDesign*> s_designs; 
+  InDetDD::PixelModuleDesign* build(  const PixelGeoBuilderBasics* basics, int moduleIndex);
  
   GeoDetModulePixelMap m_moduleMap;
 };

@@ -15,6 +15,7 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include "PathResolver/PathResolver.h"
+#include "PixelLayoutUtils/DBXMLUtils.h"
 
 #include <algorithm>
 
@@ -102,11 +103,24 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
 
   std::string fileName="PixelModules.xml";
   if(const char* env_p = std::getenv("PIXEL_SILICONMODULES_GEO_XML")) fileName = std::string(env_p);
-  basics->msgStream()<<MSG::INFO<< "XML module file "<<fileName<<endreq;
 
-  InitializeXML();
-  std::string file = PathResolver::find_file (fileName, "DATAPATH");
-  bool bParsed = ParseFile(file);
+  bool readXMLfromDB = basics->ReadInputDataFromDB();
+  bool bParsed=false;
+  if(readXMLfromDB)
+    {
+      basics->msgStream()<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      DBXMLUtils dbUtils(basics);
+      std::string XMLtext = dbUtils.readXMLFromDB(fileName);
+      InitializeXML();
+      bParsed = ParseBuffer(XMLtext,std::string(""));
+    }
+  else
+    {
+      basics->msgStream()<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      std::string file = PathResolver::find_file (fileName, "DATAPATH");
+      InitializeXML();
+      bParsed = ParseFile(file);
+    }
 
   if(!bParsed){
     basics->msgStream()<<MSG::INFO<<"XML file "<<fileName<<" not found"<<endreq;
@@ -186,9 +200,23 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
   if(const char* env_p = std::getenv("PIXEL_SILICONREADOUT_GEO_XML")) fileName = std::string(env_p);
   basics->msgStream()<<MSG::INFO<<"Readout geometry file name : "<<fileName<<endreq;
 
-  InitializeXML();
-  file = PathResolver::find_file (fileName, "DATAPATH");
-  bParsed = ParseFile(file);
+  bParsed=false;
+  if(readXMLfromDB)
+    {
+      basics->msgStream()<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      DBXMLUtils dbUtils(basics);
+      std::string XMLtext = dbUtils.readXMLFromDB(fileName);
+      InitializeXML();
+      bParsed = ParseBuffer(XMLtext,std::string(""));
+    }
+  else
+    {
+      basics->msgStream()<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      InitializeXML();
+      std::string file = PathResolver::find_file (fileName, "DATAPATH");
+      bParsed = ParseFile(file);
+    }
+
   if(!bParsed){
     basics->msgStream()<<MSG::INFO<<"XML file "<<fileName<<" not found"<<endreq;
     return 0;
