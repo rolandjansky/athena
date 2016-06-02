@@ -10,6 +10,8 @@
 
 #include "CMMRoICnv.h"
 
+using namespace LVL1;
+
 //createPersistent 
 CMMRoI_PERS * CMMRoICnv::createPersistent( CMMRoI *transObj)
 {

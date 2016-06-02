@@ -20,7 +20,7 @@ class MsgStream;
 #include "TrigT1EventTPCnv/CMMRoICnv_p1.h"
 
 typedef CMMRoI_p1 CMMRoI_PERS;
-typedef T_AthenaPoolCustomCnv<CMMRoI, CMMRoI_PERS> CMMRoICnvBase;
+typedef T_AthenaPoolCustomCnv<LVL1::CMMRoI, CMMRoI_PERS> CMMRoICnvBase;
 
 class CMMRoICnv: public CMMRoICnvBase {
 friend class CnvFactory<CMMRoICnv>;
@@ -35,8 +35,8 @@ protected:
   
   ~CMMRoICnv() {}
   
-  virtual CMMRoI_PERS*   createPersistent (CMMRoI* transCont);
-  virtual CMMRoI*        createTransient ();
+  virtual CMMRoI_PERS*   createPersistent (LVL1::CMMRoI* transCont);
+  virtual LVL1::CMMRoI*  createTransient ();
 
 private:
   
