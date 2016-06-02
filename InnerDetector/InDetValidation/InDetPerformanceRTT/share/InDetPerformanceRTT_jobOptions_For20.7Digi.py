@@ -18,13 +18,6 @@ from RecExConfig.RecAlgsFlags import recAlgs
 import MagFieldServices.SetupField
 
 #--------------------------------------------------------------
-# Hack to run over samples Digitized with 20.1 see: https://its.cern.ch/jira/browse/ATLASRECTS-2982
-#--------------------------------------------------------------
-from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc;
-SiLorentzAngleSvc.usePixelDefaults=True;
-
-
-#--------------------------------------------------------------
 # Event related parameters and input files
 #--------------------------------------------------------------
 

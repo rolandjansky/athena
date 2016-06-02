@@ -331,7 +331,7 @@
       <athena userJobId="TtbarIDPRTT">
          <doc>ttbar, GlobalChi2Fitter</doc>
          <commandLineFlags>EventMax=500;FitterType = "GlobalChi2Fitter"</commandLineFlags>
-         <options>InDetPerformanceRTT_jobOptions.py</options>
+         <options>InDetPerformanceRTT_jobOptions_For20.7Digi.py</options>
          <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
          <group>TtbarIDPRTT</group>
          <queue>medium</queue>
