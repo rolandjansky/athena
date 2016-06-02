@@ -93,6 +93,7 @@ class IDStandardPerformance : public ManagedMonitorToolBase
 
     TH1F* m_ngenevent;
     TH1F* m_ntrack;
+    TH1F* m_mu;
     TH1F* m_nparticle;
     TH1F* m_nparticleprimary;
     TH1F* m_ntracksel;
@@ -384,11 +385,11 @@ class IDStandardPerformance : public ManagedMonitorToolBase
     TH1F* m_prob_injet;
     TH1F* m_prob_barcode0;
     TH1F* m_prob_barcode_primary;
-    TH1F* m_prob_barcode100000;
+    TH1F* m_prob_barcodeMAXBARCODE;
     TH1F* m_nTrkMatchesSameHmpl;
     TH1F* m_nTrkMatchesSameHmpl_barcode0;
     TH1F* m_nTrkMatchesSameHmpl_barcode_primary;
-    TH1F* m_nTrkMatchesSameHmpl_barcode100000;
+    TH1F* m_nTrkMatchesSameHmpl_barcodeMAXBARCODE;
 
     // Hit map plots
     TH2F*  m_nHits_pixel_2d;
@@ -756,6 +757,7 @@ class IDStandardPerformance : public ManagedMonitorToolBase
     float m_minTrackPhi;
     float m_minProbEff;
     float m_minProbEffLow;
+    std::string m_truthParticleName;
     std::string m_truthJetCollName;
     bool m_doTrackInJet;
     bool m_doUpgrade;

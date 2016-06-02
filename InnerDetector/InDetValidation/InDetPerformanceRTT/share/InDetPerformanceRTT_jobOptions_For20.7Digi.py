@@ -8,7 +8,7 @@ doCaloSeededBrem = True
 # detector description version
 #--------------------------------------------------------------
 #DetDescrVersion = "ATLAS-GEO-16-00-00"
-
+#
 #--------------------------------------------------------------
 # Import config
 #--------------------------------------------------------------
@@ -21,10 +21,10 @@ import MagFieldServices.SetupField
 # Event related parameters and input files
 #--------------------------------------------------------------
 
-# minbias no pileup
-#athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/0c/a1/RDO.07497163._000001.pool.root.1"]
-#athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/74/60/RDO.06718139._000001.pool.root.1"]
-#athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105001.pythia_minbias.digit.RDO.e574_s932_s946_d369/RDO.197112._000270.pool.root.1"]
+# top no pileup (default)
+#athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/60/11/RDO.07497143._000001.pool.root.1"]
+#athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/b6/19/RDO.06718152._000041.pool.root.1"]
+#athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e598_s933_s946_d366/RDO.197091._000015.pool.root.1"]
 #athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/InDetRecExample/mc09_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e510_s624_s633_d287_tid112426_00/RDO.112426._000007.pool.root.1"]
 # H-gamgam, 40 pileup
 # athenaCommonFlags.FilesInput = ["root://eosatlas///eos/atlas/atlasdatadisk/mc11_valid/RDO/e850_s1310_s1300_d577/mc11_valid.106384.PythiaH120gamgam.digit.RDO.e850_s1310_s1300_d577_tid512895_00/RDO.512895._000039.pool.root.1"]
@@ -88,6 +88,7 @@ rec.doDPD.set_Value_and_Lock             (False)
 rec.doCBNT.set_Value_and_Lock            (False)
 rec.doWriteTAG.set_Value_and_Lock        (False)
 rec.doWritexAOD.set_Value_and_Lock       (False)
+#rec.doMonitoring.set_Value_and_Lock      (True)
 
 # --- turn on InDet
 rec.doInDet.set_Value_and_Lock           (True)
@@ -210,8 +211,8 @@ if 'FitterType' in dir():
   if FitterType=="KalmanDNAFitter" or FitterType=="GaussianSumFilter":
     InDetFlags.materialInteractionsType.set_Value_and_Lock         (1)
 
-if 'LowPt' not in dir(): LowPt = True
-InDetFlags.doLowPt.set_Value_and_Lock                              (LowPt)
+if 'LowPt' in dir():
+  InDetFlags.doLowPt.set_Value_and_Lock                            (LowPt)
 
 # IMPORTANT NOTE: initialization of the flags and locking them is done in InDetRec_jobOptions.py!
 # This way RecExCommon just needs to import the properties without doing anything else!
@@ -224,6 +225,10 @@ jtm.addJetFinder("Run2AntiKt4TruthJets", "AntiKt", 0.4, "truth", ghostArea=0.0)
 #--------------------------------------------------------------
 # load master joboptions file
 #--------------------------------------------------------------
+
+#from AthenaMonitoring.DQMonFlags import DQMonFlags
+#DQMonFlags.doTRTElectronMon.set_Value_and_Lock               (False)
+#DQMonFlags.doLArMon.set_Value_and_Lock                       (False)
 
 include ("RecExCommon/RecExCommon_topOptions.py")
 
