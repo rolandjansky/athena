@@ -402,7 +402,7 @@ StatusCode IDStandardPerformance::bookHistograms()
   MonGroup al_debug(this, outputDirName, run);
 
 
-  if (newRun) {
+  if (newRunFlag()) {
     m_ngenevent = create_registeredTH1F(al_expert,"ngenevent","Number of generated MC events; nevent",1000,0,1000);
     m_ntrack = create_registeredTH1F(al_expert, "ntrack","Number of Tracks;Num. tracks",200,0,200);
     m_mu = create_registeredTH1F(al_expert, "mu","mu; mu",50,0,50);
@@ -1815,7 +1815,7 @@ StatusCode IDStandardPerformance::procHistograms()
   //MsgStream log( msgSvc(), name() );
   //  if (m_idHelper) delete m_idHelper;
 
-  if ( endOfRun ) {
+  if ( endOfRunFlag() ) {
  
     int halfEtaBins = m_trackEtaBins/2;
     int fold= m_plotsVsAbsEta ? halfEtaBins : 0;
