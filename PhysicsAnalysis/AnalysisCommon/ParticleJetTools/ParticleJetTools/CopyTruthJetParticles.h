@@ -9,8 +9,10 @@
 
 #include "ParticleJetTools/CopyTruthParticles.h"
 #include "AsgTools/ToolHandle.h"
+#include "xAODTruth/TruthParticle.h"
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
 #include "MCTruthClassifier/IMCTruthClassifier.h"
+#include <vector>
 #include <map>
 
 class CopyTruthJetParticles : public CopyTruthParticles {
@@ -25,8 +27,8 @@ public:
 
   /// Redefine our own Classifier function(s)
   bool classifyJetInput(const xAOD::TruthParticle* tp, int barcodeOffset,
-                        std::vector<const xAOD::TruthParticle*>& WZleptons,
-                        std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const;
+                        std::vector<const xAOD::TruthParticle*>& promptLeptons,
+			std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const;
 
 
   /// The base classify() is not used 
@@ -36,13 +38,13 @@ private:
   // Options for storate
   bool m_includeNu; //!< Include neutrinos in particles
   bool m_includeMu; //!< Include muons in particles
-  bool m_includeWZ; //!< Include particles from W/Z decays
-  bool m_includeTau; //!< Include particles from tau decays
+  bool m_includePromptLeptons; //!< Include particles from prompt decays, i.e. not from hadrons
+  //  bool m_includeTau; //!< Include particles from tau decays
 
-  bool fromWZ( const xAOD::TruthParticle* tp,
-	       std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const;
-  bool fromTau( const xAOD::TruthParticle* tp,
-		std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const;
+  bool isPrompt( const xAOD::TruthParticle* tp,
+		 std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const;
+  // bool fromTau( const xAOD::TruthParticle* tp,
+  // 		std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const;
 
 
   MCTruthPartClassifier::ParticleOrigin getPartOrigin(const xAOD::TruthParticle* tp,
