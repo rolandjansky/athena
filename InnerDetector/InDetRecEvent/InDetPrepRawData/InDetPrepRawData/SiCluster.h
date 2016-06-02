@@ -29,11 +29,23 @@ class SCT_ClusterContainerCnv;
 
 class MsgStream;
 
+class PixelClusterContainerCnv_p2;
+class PixelClusterContainerCnv_p0;
+class SCT_ClusterContainerCnv_p0;
+class SCT_ClusterContainerCnv_p1;
+class SiClusterCnv_p1;
+
 namespace InDet{
 
 class SiCluster :   public Trk::PrepRawData {
   	friend class ::PixelClusterContainerCnv;
  	friend class ::SCT_ClusterContainerCnv;
+        friend class ::PixelClusterContainerCnv_p2;
+        friend class PixelClusterContainerCnv_p1;
+        friend class ::PixelClusterContainerCnv_p0;
+        friend class SCT_ClusterContainerCnv_p1;
+        friend class ::SCT_ClusterContainerCnv_p0;
+        friend class ::SiClusterCnv_p1;
 
 	///////////////////////////////////////////////////////////////////
 	// Public methods:
@@ -43,7 +55,9 @@ class SiCluster :   public Trk::PrepRawData {
 	/** Public, Copy, operator=, constructor*/
 	SiCluster();
 	SiCluster(const SiCluster &);
+	SiCluster(SiCluster &&);
 	SiCluster &operator=(const SiCluster &);
+	SiCluster &operator=(SiCluster &&);
 	
         /** Only constructor for SiCluster.
             Last datamember might not be always filled and will be 0 by default.
@@ -56,6 +70,15 @@ class SiCluster :   public Trk::PrepRawData {
                   const InDet::SiWidth& width,
                   const InDetDD::SiDetectorElement* detEl,
                   const Amg::MatrixX* locErrMat = 0
+                 );
+
+        SiCluster( 
+                  const Identifier& RDOId,
+                  const Amg::Vector2D& locpos, 
+                  std::vector<Identifier>&& rdoList,
+                  const InDet::SiWidth& width,
+                  const InDetDD::SiDetectorElement* detEl,
+                  std::unique_ptr<const Amg::MatrixX> locErrMat
                  );
 
         // Destructor:

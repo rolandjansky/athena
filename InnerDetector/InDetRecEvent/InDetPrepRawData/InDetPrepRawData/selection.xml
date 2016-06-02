@@ -47,6 +47,9 @@
   <class name="std::vector<DataLinkVector<Trk::PrepRawDataCollection<InDet::PixelCluster> >::Entry>" />
   <class name="DataVector<Trk::PrepRawDataCollection<InDet::PixelCluster> >"  id="37B00A31-EA80-45DF-9A3F-2721EC0F0DA6"/>
   <class name="std::vector<Trk::PrepRawDataCollection<InDet::PixelCluster>* >" />
+
+  <class name="ElementLink<InDet::PixelClusterContainer>"/>
+  <class name="ElementLink<InDet::PixelClusterContainer>::Base"/>
   
   <!-- SCT -->
   <class name="InDet::SCT_Cluster" />
@@ -69,6 +72,10 @@
   <class name="std::vector<Trk::PrepRawDataCollection<InDet::SCT_Cluster>* >" />
     
   
+  <class name="ElementLink<InDet::SCT_ClusterContainer>"/>
+  <class name="ElementLink<InDet::SCT_ClusterContainer>::Base"/>
+  
+
   <!-- TRT_DriftCircle -->
   <class name="InDet::TRT_DriftCircle" >
     <field name="m_detEl"             transient="true" />
@@ -91,6 +98,10 @@
   <class name="std::vector<Trk::PrepRawDataCollection<InDet::TRT_DriftCircle>* >" />
 
 
+  <class name="ElementLink<InDet::TRT_DriftCircleContainer>"/>
+  <class name="ElementLink<InDet::TRT_DriftCircleContainer>::Base"/>
+
+
   <class name="PrdWrapper<InDet::PixelClusterContainer>::prd_iterator" />
   <class name="PrdWrapper<InDet::PixelClusterContainer>::prd_entry" />
   <class name="PrdWrapper<InDet::PixelClusterContainer>::prd_data_holder" />
@@ -106,6 +117,9 @@
   <class name="PrdWrapper<InDet::TRT_DriftCircleContainer>::prd_iterator" />
   <class name="PrdWrapper<InDet::TRT_DriftCircleContainer>::prd_entry" />
   <class name="PrdWrapper<InDet::TRT_DriftCircleContainer>::prd_data_holder" />
+
+  <class name="InDet::compare_SiCluster"/>
+  <class name="std::multimap<const InDet::SiCluster*, const InDet::SiCluster*, InDet::compare_SiCluster>"/>
 
 </lcgdict>
 

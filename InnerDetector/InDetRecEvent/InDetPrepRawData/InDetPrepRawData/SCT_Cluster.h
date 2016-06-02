@@ -40,7 +40,9 @@ class SCT_Cluster : public SiCluster {
   /** Public, Copy, operator=, constructor*/
   SCT_Cluster();
   SCT_Cluster(const SCT_Cluster &);
+  SCT_Cluster(SCT_Cluster &&);
   SCT_Cluster &operator=(const SCT_Cluster &);
+  SCT_Cluster &operator=(SCT_Cluster &&);
 
   SCT_Cluster( 
                 const Identifier& RDOId,
@@ -49,6 +51,16 @@ class SCT_Cluster : public SiCluster {
                 const InDet::SiWidth& width,
                 const InDetDD::SiDetectorElement* detEl,
                 const Amg::MatrixX* locErrMat
+              );
+
+  // For use by tp converter.
+  SCT_Cluster( 
+                const Identifier& RDOId,
+                const Amg::Vector2D& locpos, 
+                std::vector<Identifier>&& rdoList,
+                const InDet::SiWidth& width,
+                const InDetDD::SiDetectorElement* detEl,
+                std::unique_ptr<const Amg::MatrixX> locErrMat
               );
 
     /** dump information about the PRD object. */

@@ -50,7 +50,9 @@ namespace InDet{
     /** Public, Copy, operator=, constructor*/
     PixelCluster();
     PixelCluster(const PixelCluster &);
+    PixelCluster(PixelCluster &&);
     PixelCluster & operator=(const PixelCluster & rhs);
+    PixelCluster & operator=(PixelCluster && rhs);
     
 
     // legacy constructor with no ToT not LVL1 information
@@ -102,6 +104,23 @@ namespace InDet{
                   float splitProb1 = 0.,
                   float splitProb2 = 0.
                 );
+
+    // Constructor for use from tp converter.
+    PixelCluster( 
+                  const Identifier& RDOId,
+                  const Amg::Vector2D& locpos, 
+                  std::vector<Identifier>&& rdoList,
+                  const int lvl1a,
+                  int totalToT,
+                  const std::vector<float>& chargeList,
+                  float totalCharge,
+                  const InDet::SiWidth& width,
+                  const InDetDD::SiDetectorElement* detEl,
+                  std::unique_ptr<const Amg::MatrixX> locErrMat,
+                  const float omegax,
+                  const float omegay,
+                  int splitInfoRaw
+                );
     
     float omegax() const; 
     float omegay() const;
@@ -122,6 +141,7 @@ namespace InDet{
     bool  isSplit() const;
     double splitProbability1() const;
     double splitProbability2() const;
+    int splitInfoRaw() const;
     
     int   LVL1A() const;
     /** dump information about the PRD object. */
@@ -225,15 +245,21 @@ inline bool PixelCluster::isSplit() const
 
 inline double PixelCluster::splitProbability1() const
 {
-  return ((m_splitInfo) & SPLITMASK )/double(SPLITMASK);
+  return ((m_splitInfo) & SPLITMASK )*(1./double(SPLITMASK));
 }
 
 inline double PixelCluster::splitProbability2() const
 {
-  return ((m_splitInfo>>SPLITPREC) & SPLITMASK )/double(SPLITMASK);
+  return ((m_splitInfo>>SPLITPREC) & SPLITMASK )*(1./double(SPLITMASK));
 }
 
 
+inline int PixelCluster::splitInfoRaw() const
+{
+  return m_splitInfo;
+}
+
+ 
 // set ambiguous flag
 inline bool PixelCluster::setAmbiguous(bool flag) 
 {

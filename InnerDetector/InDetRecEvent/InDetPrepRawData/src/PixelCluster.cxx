@@ -127,6 +127,37 @@ namespace InDet{
       packSplitInformation(split,splitProb1,splitProb2);
     }
     
+    PixelCluster::PixelCluster( 
+                const Identifier& RDOId,
+                const Amg::Vector2D& locpos, 
+                std::vector<Identifier>&& rdoList,
+                const int lvl1a,
+                int totalToT,
+                const std::vector<float>& chargeList,
+                float totalCharge,
+                const InDet::SiWidth& width,
+                const InDetDD::SiDetectorElement* detEl,
+                std::unique_ptr<const Amg::MatrixX> locErrMat,
+                const float omegax,
+                const float omegay,
+                int splitInfoRaw
+              ) :
+    SiCluster(RDOId, locpos,
+              std::move(rdoList),
+              width, detEl, locErrMat.release()) //call base class constructor
+    {
+      m_omegax = omegax;
+      m_omegay = omegay;
+      m_totalToT=totalToT;
+      m_chargeList= chargeList;
+      m_totalCharge=totalCharge;
+      m_fake = false;
+      m_ambiguous = false;
+      m_lvl1 = lvl1a;
+      m_tooBigToBeSplit = false;
+      m_splitInfo = splitInfoRaw;
+    }
+    
     // Default constructor:
     PixelCluster::PixelCluster():
     	SiCluster()
@@ -158,15 +189,52 @@ namespace InDet{
 			m_tooBigToBeSplit = RIO.m_tooBigToBeSplit;
     }
     
+    //move constructor:
+    PixelCluster::PixelCluster(PixelCluster&& RIO): SiCluster(std::move(RIO))
+    {
+      m_omegax          = RIO.m_omegax;
+      m_omegay          = RIO.m_omegay;
+      m_totList         = std::move(RIO.m_totList);
+      m_totalToT        = RIO.m_totalToT;
+      m_chargeList      = std::move(RIO.m_chargeList);
+      m_totalCharge     = RIO.m_totalCharge;
+      m_fake            = RIO.m_fake;
+      m_ambiguous       = RIO.m_ambiguous;
+      m_lvl1            = RIO.m_lvl1;
+      m_splitInfo       = RIO.m_splitInfo;
+      m_tooBigToBeSplit = RIO.m_tooBigToBeSplit;
+    }
+    
     //assignment
     PixelCluster & 
     PixelCluster::operator=(const PixelCluster & rhs){
-    	if (&rhs ==this) return *this;
+      if (&rhs ==this) return *this;
+      SiCluster::operator= (rhs);
       m_omegax          = rhs.m_omegax;
       m_omegay          = rhs.m_omegay;
       m_totList         = rhs.m_totList;
       m_totalToT        = rhs.m_totalToT;
       m_chargeList      = rhs.m_chargeList;
+      m_totalCharge     = rhs.m_totalCharge;
+      m_fake            = rhs.m_fake;
+      m_ambiguous       = rhs.m_ambiguous;
+      m_lvl1            = rhs.m_lvl1;
+      m_splitInfo       = rhs.m_splitInfo;
+      m_tooBigToBeSplit = rhs.m_tooBigToBeSplit;
+      return *this;
+    }
+
+    
+    //move
+    PixelCluster & 
+    PixelCluster::operator=(PixelCluster && rhs){
+      if (&rhs ==this) return *this;
+      SiCluster::operator= (std::move(rhs));
+      m_omegax          = rhs.m_omegax;
+      m_omegay          = rhs.m_omegay;
+      m_totList         = std::move(rhs.m_totList);
+      m_totalToT        = rhs.m_totalToT;
+      m_chargeList      = std::move(rhs.m_chargeList);
       m_totalCharge     = rhs.m_totalCharge;
       m_fake            = rhs.m_fake;
       m_ambiguous       = rhs.m_ambiguous;

@@ -21,6 +21,7 @@
 #include "InDetReadoutGeometry/TRT_BaseElement.h"
 
 class TRT_DriftCircleContainerCnv;
+class TRT_DriftCircleContainerCnv_p0;
 class MsgStream;
 
 
@@ -29,6 +30,8 @@ namespace InDet{
 class TRT_DriftCircle :   public Trk::PrepRawData
 {
 	friend class ::TRT_DriftCircleContainerCnv;
+	friend class TRT_DriftCircleContainerCnv_p1;
+	friend class ::TRT_DriftCircleContainerCnv_p0;
 	///////////////////////////////////////////////////////////////////
 	// Public methods:
 	///////////////////////////////////////////////////////////////////
@@ -45,6 +48,7 @@ class TRT_DriftCircle :   public Trk::PrepRawData
 	the RDO dataword with additional validity bit 
 	this class owns the pointers passed (except the TRT_BaseElement),
         */
+
 	TRT_DriftCircle( 
 		const Identifier &clusId,
 		const Amg::Vector2D& driftRadius,
@@ -53,7 +57,23 @@ class TRT_DriftCircle :   public Trk::PrepRawData
 		const InDetDD::TRT_BaseElement* detEl,
                 const unsigned int word=0
 		);
+	TRT_DriftCircle( 
+		const Identifier &clusId,
+		const Amg::Vector2D& driftRadius,
+		const Amg::MatrixX* errDriftRadius,
+		const InDetDD::TRT_BaseElement* detEl,
+                const unsigned int word=0
+		);
                 
+        TRT_DriftCircle( 
+                const Identifier &Id, 
+                const Amg::Vector2D& driftRadius,
+		std::vector<Identifier>&& rdoList,
+                std::unique_ptr<const Amg::MatrixX> errDriftRadius,
+                const InDetDD::TRT_BaseElement* detEl,
+                const unsigned int word);
+
+
 	/** Destructor*/
 	virtual ~TRT_DriftCircle();
 

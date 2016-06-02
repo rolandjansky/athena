@@ -32,6 +32,22 @@ SiCluster::SiCluster(
         m_gangedPixel(0),
         m_detEl(detEl) {}
 
+SiCluster::SiCluster(
+        const Identifier &RDOId,
+        const Amg::Vector2D& locpos, 
+        std::vector<Identifier>&& rdoList, 
+        const InDet::SiWidth& width,
+        const InDetDD::SiDetectorElement* detEl,
+        std::unique_ptr<const Amg::MatrixX> locErrMat
+        ) :
+        PrepRawData(RDOId, locpos,
+                    std::move(rdoList),
+                    std::move(locErrMat)), //call base class constructor
+        m_width(width),
+        m_globalPosition(0),
+        m_gangedPixel(0),
+        m_detEl(detEl) {}
+
 // Destructor:
 SiCluster::~SiCluster()
 {
@@ -60,12 +76,39 @@ SiCluster::SiCluster(const SiCluster& RIO):
   m_globalPosition = (RIO.m_globalPosition) ? new Amg::Vector3D(*RIO.m_globalPosition) : 0;
 }
 
+//move constructor:
+SiCluster::SiCluster(SiCluster&& RIO):
+        PrepRawData( std::move(RIO) ),
+	m_width( std::move(RIO.m_width) ),
+	m_globalPosition( RIO.m_globalPosition ),
+	m_gangedPixel( RIO.m_gangedPixel ),
+	m_detEl( RIO.m_detEl )
+
+{
+  RIO.m_globalPosition = nullptr;
+}
+
 //assignment operator
 SiCluster& SiCluster::operator=(const SiCluster& RIO){
       if (&RIO !=this) {
+                Trk::PrepRawData::operator= (RIO);
 		delete m_globalPosition;
 		m_width = RIO.m_width;
 		m_globalPosition = (RIO.m_globalPosition) ? new Amg::Vector3D(*RIO.m_globalPosition) : 0;
+		m_gangedPixel = RIO.m_gangedPixel;
+		m_detEl =  RIO.m_detEl ;
+       }
+       return *this;
+} 
+
+//move operator
+SiCluster& SiCluster::operator=(SiCluster&& RIO){
+      if (&RIO !=this) {
+                Trk::PrepRawData::operator= (std::move(RIO));
+		delete m_globalPosition;
+		m_width = RIO.m_width;
+		m_globalPosition = RIO.m_globalPosition;
+                RIO.m_globalPosition = nullptr;
 		m_gangedPixel = RIO.m_gangedPixel;
 		m_detEl =  RIO.m_detEl ;
        }
