@@ -6,37 +6,34 @@
 // Function to handle 2D maps of modules, one for each region
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "PixelMonitoring/PixelMon2DMapsLW.h"
+#include "PixelMonitoring/PixelMon2DProfilesLW.h"
 #include "InDetIdentifier/PixelID.h"
-//#include "TH2I.h"
-#include "TH2F.h"
-#include "LWHists/TH2F_LW.h"
+#include "TProfile2D.h"
+#include "LWHists/TProfile2D_LW.h"
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
-PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title,bool doIBL, bool errorHist)
-
+PixelMon2DProfilesLW::PixelMon2DProfilesLW(std::string name, std::string title,bool doIBL, bool errorHist)
 {
   std::string setatext = ";shifted eta index of module";
   std::string etatext = ";eta index of module";
   std::string phitext = ";phi index of module";
   std::string disktext = ";disk number";
 
-  IBL3D = TH2F_LW::create((name+"_IBL3D").c_str(), (title + ", IBL 3D modules " + etatext + phitext).c_str(),8,-.5,7.5,14,-0.5,13.5);
-  IBL2D = TH2F_LW::create((name+"_IBL2D").c_str(), (title + ", IBL planar modules " + setatext + phitext).c_str(),12,-6.5,5.5,14,-0.5,13.5);
-  IBL   = TH2F_LW::create((name+"_IBL").c_str(),   (title + ", IBL " + setatext + phitext).c_str(),32,-16.5,15.5,14,-0.5,13.5);
-  B0 = TH2F_LW::create((name+"_B0").c_str(),       (title + ", B0 " + etatext + phitext).c_str(),13,-6.5,6.5,22,-0.5,21.5);
-  B1 = TH2F_LW::create((name+"_B1").c_str(),       (title + ", B1 " + etatext + phitext).c_str(),13,-6.5,6.5,38,-0.5,37.5);
-  B2 = TH2F_LW::create((name+"_B2").c_str(),       (title + ", B2 " + etatext + phitext).c_str(),13,-6.5,6.5,52,-0.5,51.5);
-  A  = TH2F_LW::create((name+"_ECA" ).c_str(),     (title + ", ECA " + disktext + phitext).c_str(),3,-0.5,2.5,48,-0.5,47.5);
-  C  = TH2F_LW::create((name+"_ECC" ).c_str(),     (title + ", ECC " + disktext + phitext).c_str(),3,-0.5,2.5,48,-0.5,47.5);
-  DBMA = TH2F_LW::create((name+"_DBMA" ).c_str(),  (title + ", DBMA " + disktext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
-  DBMC = TH2F_LW::create((name+"_DBMC" ).c_str(),  (title + ", DBMC " + disktext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
-
+  IBL3D = TProfile2D_LW::create((name+"_IBL3D").c_str(), (title + ", IBL 3D modules " + etatext + phitext).c_str(),8,-.5,7.5,14,-0.5,13.5);
+  IBL2D = TProfile2D_LW::create((name+"_IBL2D").c_str(), (title + ", IBL planar modules " + setatext + phitext).c_str(),12,-6.5,5.5,14,-0.5,13.5);
+  IBL   = TProfile2D_LW::create((name+"_IBL").c_str(),   (title + ", IBL " + setatext + phitext).c_str(),32,-16.5,15.5,14,-0.5,13.5);
+  B0 = TProfile2D_LW::create((name+"_B0").c_str(),       (title + ", B0 " + etatext + phitext).c_str(),13,-6.5,6.5,22,-0.5,21.5);
+  B1 = TProfile2D_LW::create((name+"_B1").c_str(),       (title + ", B1 " + etatext + phitext).c_str(),13,-6.5,6.5,38,-0.5,37.5);
+  B2 = TProfile2D_LW::create((name+"_B2").c_str(),       (title + ", B2 " + etatext + phitext).c_str(),13,-6.5,6.5,52,-0.5,51.5);
+  A  = TProfile2D_LW::create((name+"_ECA" ).c_str(),     (title + ", ECA " + disktext + phitext).c_str(),3,-0.5,2.5,48,-0.5,47.5);
+  C  = TProfile2D_LW::create((name+"_ECC" ).c_str(),     (title + ", ECC " + disktext + phitext).c_str(),3,-0.5,2.5,48,-0.5,47.5);
+  //DBMA = TProfile2D_LW::create((name+"_DBMA" ).c_str(),  (title + ", DBMA " + disktext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
+  //DBMC = TProfile2D_LW::create((name+"_DBMC" ).c_str(),  (title + ", DBMC " + disktext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
   formatHist(doIBL,errorHist);
 }
 
-PixelMon2DMapsLW::~PixelMon2DMapsLW()
+PixelMon2DProfilesLW::~PixelMon2DProfilesLW()
 {
    LWHist::safeDelete(IBL3D);
    LWHist::safeDelete(IBL2D);
@@ -46,176 +43,65 @@ PixelMon2DMapsLW::~PixelMon2DMapsLW()
    LWHist::safeDelete(B2);
    LWHist::safeDelete(A);
    LWHist::safeDelete(C);
-   LWHist::safeDelete(DBMA);
-   LWHist::safeDelete(DBMC);
+   //LWHist::safeDelete(DBMA);
+   //LWHist::safeDelete(DBMC);
 }
 
-void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID, bool doIBL,bool errorHist)
+void PixelMon2DProfilesLW::Fill(Identifier &id, const PixelID* pixID, bool doIBL,bool errorHist, float weight)
 {
   int bec = pixID->barrel_ec(id);
    int ld  = pixID->layer_disk(id);
    int pm  = pixID->phi_module(id);
 
-   if(bec==2) A->Fill(ld,pm); 
-   else if(bec==-2) C->Fill(ld,pm);
-   else if(bec==4) DBMA->Fill(ld, pm);
-   else if(bec==-4) DBMC->Fill(ld, pm);
+   if(bec==2) A->Fill(ld,pm,weight); 
+   else if(bec==-2) C->Fill(ld,pm,weight);
+   //else if(bec==4) DBMA->Fill(ld, pm, weight);
+   //else if(bec==-4) DBMC->Fill(ld, pm, weight);
 
    else if(bec==0)
      {
        if(doIBL){ld--;}
        int em  = pixID->eta_module(id);
        if(ld ==0){ 
-	 B0->Fill(em,pm);
+	 B0->Fill(em,pm,weight);
        }
        else if(ld ==1){ 
-	 B1->Fill(em,pm);
+	 B1->Fill(em,pm,weight);
        }
        else if(ld ==2){ 
-	 B2->Fill(em,pm);
+	 B2->Fill(em,pm,weight);
        }
        else if(ld ==-1 && doIBL && !errorHist){
 	 int feid = 0;
 	 int emf = 0;
-    bool copy = false;
+         bool copy = false;
 	 if(em<6 && em>-7){
 	   if(pixID->eta_index(id) >= 80) feid = 1;
 	   emf = 2 * em + feid; 
-	   IBL2D->Fill(em,pm);
-      copy = true;
+	   IBL2D->Fill(em,pm,weight);
+           copy = true;
 	 }
 	 else if(em<-6){
 	   emf = em - 6;
-	   IBL3D->Fill(em+10,pm); 
+	   IBL3D->Fill(em+10,pm,weight); 
 	 }
 	 else{
 	   emf = em + 6;
-	   IBL3D->Fill(em-2,pm); 
+	   IBL3D->Fill(em-2,pm,weight); 
 	 }
-	 IBL->Fill(emf,pm);
-    if(copy) IBL->Fill(emf+1, pm);
+	 IBL->Fill(emf,pm,weight);
+         if(copy) IBL->Fill(emf+1, pm, weight);
        }
      }
 }
 
-void PixelMon2DMapsLW::WeightingFill(Identifier &id, const PixelID* pixID, bool doIBL, float weight)
-{
-   int bec = pixID->barrel_ec(id);
-   int ld  = pixID->layer_disk(id);
-   int pm  = pixID->phi_module(id);
-
-   if(bec==2) A->Fill(ld, pm, weight);
-   else if(bec==-2) C->Fill(ld, pm, weight);
-   else if(bec==4) DBMA->Fill(ld, pm, weight);
-   else if(bec==-4) DBMC->Fill(ld, pm, weight);
-
-   else if(bec==0)
-   {
-      if(doIBL){ld--;}
-      int em  = pixID->eta_module(id);
-      if(ld ==0){ 
-	      B0->Fill(em, pm, weight);
-      }
-      else if(ld ==1){ 
-	      B1->Fill(em, pm, weight);
-      }
-      else if(ld ==2){ 
-	      B2->Fill(em, pm, weight);
-      }
-      else if(ld ==-1){
-	      int feid = 0;
-	      int emf = 0;
-	      if(em<6 && em>-7){
-	         if(pixID->eta_index(id) >= 80) feid = 1;
-	         emf = 2 * em + feid; 
-	         IBL2D->Fill(em, pm, weight);
-	      }
-	      else if(em<-6){
-	         emf = em - 6;
-	         IBL3D->Fill(em+10, pm, weight);
-	      }
-	      else{
-	         emf = em + 6;
-	         IBL3D->Fill(em-2, pm, weight);
-	      }
-	      IBL->Fill(emf, pm, weight);
-      }
-   }
-}   
-
-void PixelMon2DMapsLW::FillNormalized(PixelMon2DMapsLW* old, int nevent)
-{
-   double nactivechannels_ECA   = 1.0*nevent;
-   double nactivechannels_ECC   = 1.0*nevent;
-   double nactivechannels_IBL2D = 1.0*nevent;
-   double nactivechannels_IBL3D = 1.0*nevent;
-   double nactivechannels_IBL   = nactivechannels_IBL2D + nactivechannels_IBL3D;
-   double nactivechannels_B0    = 1.0*nevent;
-   double nactivechannels_B1    = 1.0*nevent;
-   double nactivechannels_B2    = 1.0*nevent;
-
-   for(unsigned int x=1; x<=A->GetXaxis()->GetNbins(); x++){
-      for(unsigned int y=1; y<=A->GetYaxis()->GetNbins(); y++){
-         A->SetBinContent(x, y, old->A->GetBinContent(x, y)/nactivechannels_ECA );
-      }
-   }
-   for(unsigned int x=1; x<=C->GetXaxis()->GetNbins(); x++){
-      for(unsigned int y=1; y<=C->GetYaxis()->GetNbins(); y++){
-         C->SetBinContent(x, y, old->C->GetBinContent(x, y)/nactivechannels_ECC );
-      }
-   }
-   for(unsigned int x=1; x<=B0->GetXaxis()->GetNbins(); x++){
-      for(unsigned int y=1; y<=B0->GetYaxis()->GetNbins(); y++){
-         B0->SetBinContent(x, y, old->B0->GetBinContent(x, y)/nactivechannels_B0 );
-      }
-   }
-   for(unsigned int x=1; x<=B1->GetXaxis()->GetNbins(); x++){
-      for(unsigned int y=1; y<=B1->GetYaxis()->GetNbins(); y++){
-         B1->SetBinContent(x, y, old->B1->GetBinContent(x, y)/nactivechannels_B1 );
-      }
-   }
-   for(unsigned int x=1; x<=B2->GetXaxis()->GetNbins(); x++){
-      for(unsigned int y=1; y<=B2->GetYaxis()->GetNbins(); y++){
-         B2->SetBinContent(x, y, old->B2->GetBinContent(x, y)/nactivechannels_B2 );
-      }
-   }
-   for(unsigned int x=1; x<=IBL->GetXaxis()->GetNbins(); x++){
-      for(unsigned int y=1; y<=IBL->GetYaxis()->GetNbins(); y++){
-         IBL->SetBinContent(x, y, old->IBL->GetBinContent(x, y)/nactivechannels_IBL );
-      }
-   }
-   for(unsigned int x=1; x<=IBL2D->GetXaxis()->GetNbins(); x++){
-      for(unsigned int y=1; y<=IBL2D->GetYaxis()->GetNbins(); y++){
-         IBL2D->SetBinContent(x, y, old->IBL2D->GetBinContent(x, y)/nactivechannels_IBL2D );
-      }
-   }
-   for(unsigned int x=1; x<=IBL3D->GetXaxis()->GetNbins(); x++){
-      for(unsigned int y=1; y<=IBL3D->GetYaxis()->GetNbins(); y++){
-         IBL3D->SetBinContent(x, y, old->IBL3D->GetBinContent(x, y)/nactivechannels_IBL3D );
-      }
-   }
-}
-
-// void PixelMon2DMapsLW::Scale (double number)
-// {
-//    if (number==0) return; //shouldn't happen the way function is called, but dummy check to avoid divide by zero
-
-//    A->Scale((float) 1.0/number);
-//    C->Scale((float) 1.0/number);
-//    B0->Scale((float) 1.0/number);
-//    B1->Scale((float) 1.0/number);
-//    B2->Scale((float) 1.0/number);
-//    IBL2D->Scale((float) 1.0/number);
-//    IBL3D->Scale((float) 1.0/number);
-// }
-
-void PixelMon2DMapsLW::formatHist(bool doIBL, bool errorHist)
+void PixelMon2DProfilesLW::formatHist(bool doIBL, bool errorHist)
 {
    const int ndisk = 3;
    const int nphi  = 48;
    const int nphi_dbm  = 4;
    const char *disk[ndisk] = { "Disk 1", "Disk 2", "Disk 3" };
-   const char *phi_dbm[nphi_dbm] = { "M1","M2","M3","M4"};
+   //const char *phi_dbm[nphi_dbm] = { "M1","M2","M3","M4"};
    const int nmod = 13;
    const int nmodIBL2D = 12;
    const int nmodIBL3D = 8;
@@ -287,15 +173,15 @@ void PixelMon2DMapsLW::formatHist(bool doIBL, bool errorHist)
    }
    for (int i=0; i<nphi_dbm; i++) 
    {
-      DBMA->GetYaxis()->SetBinLabel( i+1, phi_dbm[i] );
-      DBMC->GetYaxis()->SetBinLabel( i+1, phi_dbm[i] );
+      //DBMA->GetYaxis()->SetBinLabel( i+1, phi_dbm[i] );
+      //DBMC->GetYaxis()->SetBinLabel( i+1, phi_dbm[i] );
    }
    for (int i=0; i<ndisk; i++) 
    {
       A->GetXaxis()->SetBinLabel( i+1, disk[i] );
       C->GetXaxis()->SetBinLabel( i+1, disk[i] );
-      DBMA->GetXaxis()->SetBinLabel( i+1, disk[i] );
-      DBMC->GetXaxis()->SetBinLabel( i+1, disk[i] );
+      //DBMA->GetXaxis()->SetBinLabel( i+1, disk[i] );
+      //DBMC->GetXaxis()->SetBinLabel( i+1, disk[i] );
    }
    for (int i=0; i<nmod; i++) 
    {
@@ -361,8 +247,8 @@ void PixelMon2DMapsLW::formatHist(bool doIBL, bool errorHist)
    B2->GetYaxis()->SetLabelSize(0.03);
    A->GetYaxis()->SetLabelSize(0.02);
    C->GetYaxis()->SetLabelSize(0.02);
-   DBMA->GetYaxis()->SetLabelSize(0.02);
-   DBMC->GetYaxis()->SetLabelSize(0.02);
+   //DBMA->GetYaxis()->SetLabelSize(0.02);
+   //DBMC->GetYaxis()->SetLabelSize(0.02);
    //Move the lable so you can read it
    // IBL2D->GetYaxis()->SetTitleOffset(1.35);
    // IBL3D->GetYaxis()->SetTitleOffset(1.35);
@@ -377,16 +263,16 @@ void PixelMon2DMapsLW::formatHist(bool doIBL, bool errorHist)
    B2->SetOption("colz");
    A->SetOption("colz");
    C->SetOption("colz");
-   DBMA->SetOption("colz");
-   DBMC->SetOption("colz");
+   //DBMA->SetOption("colz");
+   //DBMC->SetOption("colz");
    //force the minimum to be 0 so you can spot empty blocks easily
    B0->SetMinimum(0.);
    B1->SetMinimum(0.);
    B2->SetMinimum(0.);
    A->SetMinimum(0.);
    C->SetMinimum(0.);
-   DBMA->SetMinimum(0.);
-   DBMC->SetMinimum(0.);
+   //DBMA->SetMinimum(0.);
+   //DBMC->SetMinimum(0.);
    //Remvoe the stats box because it's in the way
    // IBL2D->SetStats(0.);
    // IBL3D->SetStats(0.);
@@ -398,7 +284,81 @@ void PixelMon2DMapsLW::formatHist(bool doIBL, bool errorHist)
 
 }
 
-StatusCode PixelMon2DMapsLW::regHist(ManagedMonitorToolBase::MonGroup &group, bool doIBL, bool errorHist)
+void PixelMon2DProfilesLW::Fill2DMon(PixelMon2DProfilesLW* oldmap)
+{
+   //for(int x=1; x<=DBMA->GetNbinsX(); x++){
+   //   for(int y=1; y<=DBMA->GetNbinsY(); y++){
+   //      float content = oldmap->DBMA->GetBinContent(x, y);
+   //      DBMA->SetBinContent(x, y, content);
+   //      oldmap->DBMA->SetBinContent(x, y, 0);
+   //   }
+   //}
+   //for(int x=1; x<=DBMC->GetNbinsX(); x++){
+   //   for(int y=1; y<=DBMC->GetNbinsY(); y++){
+   //      float content = oldmap->DBMC->GetBinContent(x, y);
+   //      DBMC->SetBinContent(x, y, content);
+   //      oldmap->DBMC->SetBinContent(x, y, 0);
+   //   }
+   //}
+   for(unsigned int x=1; x<=A->GetNbinsX(); x++){
+      for(unsigned int y=1; y<=A->GetNbinsY(); y++){
+         float content = oldmap->A->GetBinContent(x, y);
+         A->SetBinContent(x, y, content);
+         oldmap->A->SetBinContent(x, y, 0);
+      }
+   }
+   for(unsigned int x=1; x<=C->GetNbinsX(); x++){
+      for(unsigned int y=1; y<=C->GetNbinsY(); y++){
+         float content = oldmap->C->GetBinContent(x, y);
+         C->SetBinContent(x, y, content);
+         oldmap->C->SetBinContent(x, y, 0);
+      }
+   }
+   for(unsigned int x=1; x<=B0->GetNbinsX(); x++){
+      for(unsigned int y=1; y<=B0->GetNbinsY(); y++){
+         float content = oldmap->B0->GetBinContent(x, y);
+         B0->SetBinContent(x, y, content);
+         oldmap->B0->SetBinContent(x, y, 0);
+      }
+   }
+   for(unsigned int x=1; x<=B1->GetNbinsX(); x++){
+      for(unsigned int y=1; y<=B1->GetNbinsY(); y++){
+         float content = oldmap->B1->GetBinContent(x, y);
+         B1->SetBinContent(x, y, content);
+         oldmap->B1->SetBinContent(x, y, 0);
+      }
+   }
+   for(unsigned int x=1; x<=B2->GetNbinsX(); x++){
+      for(unsigned int y=1; y<=B2->GetNbinsY(); y++){
+         float content = oldmap->B2->GetBinContent(x, y);
+         B2->SetBinContent(x, y, content );
+         oldmap->B2->SetBinContent(x, y, 0);
+      }
+   }
+   for(unsigned int x=1; x<=IBL->GetNbinsX(); x++){
+      for(unsigned int y=1; y<=IBL->GetNbinsY(); y++){
+         float content = oldmap->IBL->GetBinContent(x, y);
+         IBL->SetBinContent(x, y, content);
+         oldmap->IBL->SetBinContent(x, y, 0);
+      }
+   }
+   for(unsigned int x=1; x<=IBL2D->GetNbinsX(); x++){
+      for(unsigned int y=1; y<=IBL2D->GetNbinsY(); y++){
+         float content = oldmap->IBL2D->GetBinContent(x, y);
+         IBL2D->SetBinContent(x, y, content);
+         oldmap->IBL2D->SetBinContent(x, y, 0);
+      }
+   }
+   for(unsigned int x=1; x<=IBL3D->GetNbinsX(); x++){
+      for(unsigned int y=1; y<=IBL3D->GetNbinsY(); y++){
+         float content = oldmap->IBL3D->GetBinContent(x, y);
+         IBL3D->SetBinContent(x, y, content);
+         oldmap->IBL3D->SetBinContent(x, y, 0);
+      }
+   }
+}
+
+StatusCode PixelMon2DProfilesLW::regHist(ManagedMonitorToolBase::MonGroup &group, bool doIBL, bool errorHist)
 {
   if(doIBL && !errorHist){
     sc = group.regHist(IBL);
@@ -410,8 +370,8 @@ StatusCode PixelMon2DMapsLW::regHist(ManagedMonitorToolBase::MonGroup &group, bo
     sc = group.regHist(B2);
     sc = group.regHist(A);
     sc = group.regHist(C);
-   sc = group.regHist(DBMA);
-   sc = group.regHist(DBMC);
+   //sc = group.regHist(DBMA);
+   //sc = group.regHist(DBMC);
 
    return sc;
 }

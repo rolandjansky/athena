@@ -22,6 +22,21 @@
 #include "PixelMonitoring/PixelMon2DMaps.h"
 
 
+std::string PixelMainMon :: makeHistname(std::string set, bool ontrk)
+{
+   std::string name = set;
+   if( ontrk && m_doOnTrack ) name += "_OnTrack";
+   return name;
+}
+
+std::string PixelMainMon :: makeHisttitle(std::string set, std::string axis, bool ontrk)
+{
+   std::string name = set;
+   if( ontrk && m_doOnTrack ) name += "_OnTrack";
+   name = name + m_histTitleExt + axis;
+   return name;
+}
+
 int PixelMainMon :: GetPixLayerID(int ec, int ld, bool ibl)
 {
    int layer = 99;

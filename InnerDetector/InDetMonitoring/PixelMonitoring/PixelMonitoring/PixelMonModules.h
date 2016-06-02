@@ -9,7 +9,9 @@
 
 class TH2F;
 class TH1F;
+class TH1F_LW;
 class TProfile;
+class TProfile_LW;
 class Identifier;
 class PixelID;
 class StatusCode;
@@ -67,20 +69,20 @@ class PixelMonModulesProf : public PixelMonModules
 virtual ~PixelMonModulesProf();
  StatusCode regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run, bool doIBL);
 //StatusCode regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run, ManagedMonitorToolBase::MgmtAttr_t m=ATTRIB_MANAGED,bool doIBL);
-      TProfile* IBL[20][14];
-      TProfile* B0[13][22];
-      TProfile* B1[13][38];
-      TProfile* B2[13][52];
-      TProfile* A[3][48];
-      TProfile* C[3][48];
+      TProfile_LW* IBL[20][14];
+      TProfile_LW* B0[13][22];
+      TProfile_LW* B1[13][38];
+      TProfile_LW* B2[13][52];
+      TProfile_LW* A[3][48];
+      TProfile_LW* C[3][48];
       virtual void formatHist(std::string opt="", bool doIBL=false);  //pass the bin lables here if needed
       void Fill(double value0, double value1, Identifier &id, const PixelID* pixID,bool doIBL);
       void SetBinLabel(const char* lable, int binN);
       virtual void Reset();
-      double GetBinContent(double value, Identifier &id, const PixelID* pixID);
+      //double GetBinContent(double value, Identifier &id, const PixelID* pixID);
    private:
-      TProfile* Dummy;           //shouldn't be used unless messed up;
-      TProfile* &getHist(int i); //make looping over all the histos easier.
+      TProfile_LW* Dummy;           //shouldn't be used unless messed up;
+      TProfile_LW* &getHist(int i); //make looping over all the histos easier.
 };
 
 class PixelMonModules2D : public PixelMonModules
