@@ -26,9 +26,8 @@ class IGeoPixelBarrelTool : public virtual IAlgTool {
   /// Retrieve Interface ID
    static const InterfaceID& interfaceID( ) { return IID_IGeoPixelBarrelTool; }
    
-   //   virtual GeoBarrelStd*  buildBarrel() = 0;
    virtual GeoVPhysVol*  buildBarrel(const PixelGeoBuilderBasics* )=0;
-   virtual void preBuild() =0;
+   virtual void preBuild(const PixelGeoBuilderBasics* )=0;
    virtual std::vector<InDetDD::TubeZone*> getSvcRegions() const =0;
    virtual InDet::GeoComponent* getGeoCompVol() const =0;
 };
