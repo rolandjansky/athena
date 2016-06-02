@@ -27,6 +27,7 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "PathResolver/PathResolver.h"
+#include "PixelLayoutUtils/DBXMLUtils.h"
 
 using std::max;
 
@@ -63,9 +64,23 @@ void GeoDetModulePixel::preBuild()
   if(const char* env_p = std::getenv("PIXEL_SILICONMODULES_GEO_XML")) fileName = std::string(env_p);
   m_basics->msgStream()<<MSG::INFO<<"XML file - modules  "<<fileName<<endreq;
 
-  InitializeXML();
-  std::string file = PathResolver::find_file (fileName, "DATAPATH");
-  bool bParsed = ParseFile(file);
+  bool readXMLfromDB = m_basics->ReadInputDataFromDB();
+  bool bParsed=false;
+  if(readXMLfromDB)
+    {
+      m_basics->msgStream()<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      DBXMLUtils dbUtils(m_basics);
+      std::string XMLtext = dbUtils.readXMLFromDB(fileName);
+      InitializeXML();
+      bParsed = ParseBuffer(XMLtext,std::string(""));
+    }
+  else
+    {
+      m_basics->msgStream()<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      InitializeXML();
+      std::string file = PathResolver::find_file (fileName, "DATAPATH");
+      bParsed = ParseFile(file);
+    }
 
   if(!bParsed){
     m_basics->msgStream()<<"XML file "<<fileName<<" not found"<<endreq;
