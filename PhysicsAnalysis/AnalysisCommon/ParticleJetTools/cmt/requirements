@@ -30,7 +30,3 @@ apply_pattern declare_joboptions files="*.py"
 apply_pattern lcgdict dict=ParticleJetTools \
     selectionfile=selection.xml \
     headerfiles="../ParticleJetTools/ParticleJetToolsDict.h"
-
-#private
-#macro cppdebugflags '$(cppdebugflags_s)'
-#macro_remove componentshr_linkopts "-Wl,-s"

@@ -31,8 +31,8 @@ CopyTruthJetParticles::CopyTruthJetParticles(const std::string& name)
 {
   declareProperty("IncludeNeutrinos",  m_includeNu=false, "Include neutrinos in the output collection");
   declareProperty("IncludeMuons",      m_includeMu=false, "Include muons in the output collection");
-  declareProperty("IncludeWZLeptons",  m_includeWZ=true,  "Include leptons from W/Z decays in the output collection");
-  declareProperty("IncludeTauLeptons", m_includeTau=true, "Include leptons from tau decays in the output collection");
+  declareProperty("IncludePromptLeptons",  m_includePromptLeptons=true,  "Include leptons from prompt decays (i.e. not from hadron decays) in the output collection");
+  //  declareProperty("IncludeTauLeptons", m_includeTau=true, "Include leptons from tau decays in the output collection");
   declareProperty("MaxAbsEta", m_maxAbsEta);
   declareProperty("BarCodeOffset", m_barcodeOffset);
   declareProperty("BarCodeFromMetadata", m_barcodeFromMetadata);
@@ -43,7 +43,7 @@ CopyTruthJetParticles::CopyTruthJetParticles(const std::string& name)
 }
 
 bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int barcodeOffset,
-                                             std::vector<const xAOD::TruthParticle*>& WZleptons,
+                                             std::vector<const xAOD::TruthParticle*>& promptLeptons,
                                              std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const {
 
   // Check if this thing is a candidate to be in a truth jet
@@ -60,22 +60,22 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
   // Cannot use the truth helper functions; they're written for HepMC
   // Last two switches only apply if the thing is a lepton and not a tau
   if (MC::PID::isLepton(pdgid) && abs(pdgid)!=15 && tp->hasProdVtx()){
-    bool isFromWZ = fromWZ( tp, originMap );
-    if(isFromWZ && (abs(pdgid)==11 || abs(pdgid)==13)) WZleptons.push_back(tp);
-    if (!m_includeWZ && isFromWZ) {
-      ATH_MSG_VERBOSE("Veto lepton (" << pdgid << ") from W/Z");
+    bool isPromptLepton = isPrompt( tp, originMap );
+    if(isPromptLepton && (abs(pdgid)==11 || abs(pdgid)==13)) promptLeptons.push_back(tp);
+    if (!m_includePromptLeptons && isPromptLepton) {
+      ATH_MSG_VERBOSE("Veto prompt lepton (" << pdgid << ") with pt " << tp->pt() << " origin " << getPartOrigin( tp, originMap ));
       return false;
     }
-    if (!m_includeTau && fromTau( tp, originMap )) {
-      ATH_MSG_VERBOSE("Veto lepton (" << pdgid << ") from tau");
-      return false;
-    }
+    // if (!m_includeTau && fromTau( tp, originMap )) {
+    //   ATH_MSG_VERBOSE("Veto lepton (" << pdgid << ") from tau");
+    //   return false;
+    // }
   }
 
-  if(!m_includeWZ && abs(pdgid)==22 && ( fromWZ( tp, originMap ) || getPartOrigin( tp, originMap )==FSRPhot ) ) {
+  if(!m_includePromptLeptons && abs(pdgid)==22 && ( isPrompt( tp, originMap ) || getPartOrigin( tp, originMap )==FSRPhot ) ) {
     // Only exclude photons within deltaR of leptons (if m_photonCone<0, exclude all photons)
     if(m_photonCone>0) {
-      for(const auto& lep : WZleptons) {
+      for(const auto& lep : promptLeptons) {
   	double deltaR = tp->p4().DeltaR(lep->p4());
   	// if photon within deltaR of lepton, remove along with lepton
   	if( deltaR < m_photonCone ) {
@@ -92,21 +92,43 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
   return true;
 }
 
-bool CopyTruthJetParticles::fromWZ( const xAOD::TruthParticle* tp,
-				    std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const
+bool CopyTruthJetParticles::isPrompt( const xAOD::TruthParticle* tp,
+				      std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const
 {
   ParticleOrigin orig = getPartOrigin(tp, originMap);
-  if(orig==WBoson || orig==ZBoson || orig==DiBoson) return true;
-  return false;
+  switch(orig) {
+  case PhotonConv:
+  case DalitzDec:
+  case ElMagProc:
+  case Mu:
+  case TauLep:
+  case LightMeson:
+  case StrangeMeson:
+  case CharmedMeson:
+  case BottomMeson:
+  case CCbarMeson:
+  case JPsi:
+  case BBbarMeson:
+  case LightBaryon:
+  case StrangeBaryon:
+  case CharmedBaryon:
+  case BottomBaryon:
+  case PionDecay:
+  case KaonDecay:
+    return false;
+  default:
+    break;
+  }
+  return true;
 }
 
-bool CopyTruthJetParticles::fromTau( const xAOD::TruthParticle* tp,
-				     std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const
-{
-  ParticleOrigin orig = getPartOrigin(tp, originMap);
-  if(orig==TauLep) return true;
-  return false;
-}
+// bool CopyTruthJetParticles::fromTau( const xAOD::TruthParticle* tp,
+// 				     std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const
+// {
+//   ParticleOrigin orig = getPartOrigin(tp, originMap);
+//   if(orig==TauLep) return true;
+//   return false;
+// }
 
 
 MCTruthPartClassifier::ParticleOrigin CopyTruthJetParticles::getPartOrigin(const xAOD::TruthParticle* tp,
@@ -159,8 +181,8 @@ int CopyTruthJetParticles::execute() const {
 #endif
   }
 
-  std::vector<const xAOD::TruthParticle*> WZleptons;
-  WZleptons.reserve(10);
+  std::vector<const xAOD::TruthParticle*> promptLeptons;
+  promptLeptons.reserve(10);
 
   /// we recopy the CopyTruthParticles::execute() below, passing the barcodeOffset to the classify function.
   //  we can not change m_barcodeOffset param since this is a const method.
@@ -187,7 +209,7 @@ int CopyTruthJetParticles::execute() const {
     if (tp->pt() < m_ptmin)
         continue;
 
-    if (classifyJetInput(tp, barcodeOffset, WZleptons, originMap)) { // Modification w.r.t CopyTruthParticles : pass the barcodeoffset argument
+    if (classifyJetInput(tp, barcodeOffset, promptLeptons, originMap)) { // Modification w.r.t CopyTruthParticles : pass the barcodeoffset argument
       ipc->push_back(tp);
       numCopied += 1;
     }
