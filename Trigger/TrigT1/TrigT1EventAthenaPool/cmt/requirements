@@ -81,4 +81,3 @@ apply_pattern athenarun_test \
    pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh TrigT1EventTPCnv_18.0.0" \
    post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh TrigT1EventTPCnv_18.0.0"
 
-
