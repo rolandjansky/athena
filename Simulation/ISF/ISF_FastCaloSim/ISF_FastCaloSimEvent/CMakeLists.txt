@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/DataModel
                           Control/SGTools
                           GaudiKernel
+                          Calorimeter/CaloGeoHelpers
                           TileCalorimeter/TileSimEvent )
 
 # External dependencies:

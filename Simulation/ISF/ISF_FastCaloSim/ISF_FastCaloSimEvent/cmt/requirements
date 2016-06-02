@@ -8,6 +8,8 @@ use  GaudiInterface             GaudiInterface-*                External
 use  TileSimEvent               TileSimEvent-*                  TileCalorimeter
 use  CLIDSvc                    CLIDSvc-*                       Control
 use  DataModel                  DataModel-*                     Control
+use AtlasROOT                   AtlasROOT-*                     External
+use CaloGeoHelpers              CaloGeoHelpers-*                Calorimeter
 
 #use  AthenaBaseComps            AthenaBaseComps-*               Control
 #use  AtlasHepMC                 AtlasHepMC-*                    External
@@ -20,8 +22,10 @@ private
 
 public
 
-library ISF_FastCaloSimEvent *.cxx
-apply_pattern installed_library
+library ISF_FastCaloSimEventLib *.cxx
+#apply_pattern installed_library
+apply_pattern named_installed_library library=ISF_FastCaloSimEventLib
+apply_pattern have_root_headers root_headers="IntArray.h" headers_lib="ISF_FastCaloSimEventLib"
 
 #for dictionaries
 private
