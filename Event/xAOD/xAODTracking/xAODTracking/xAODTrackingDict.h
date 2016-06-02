@@ -25,6 +25,7 @@
 #include "xAODTracking/versions/TrackParticleContainer_v1.h"
 #include "xAODTracking/versions/TrackParticleAuxContainer_v1.h"
 #include "xAODTracking/versions/TrackParticleAuxContainer_v2.h"
+#include "xAODTracking/versions/TrackParticleAuxContainer_v3.h"
 #include "xAODTracking/NeutralParticleContainer.h"
 #include "xAODTracking/versions/NeutralParticleContainer_v1.h"
 #include "xAODTracking/versions/NeutralParticleAuxContainer_v1.h"

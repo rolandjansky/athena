@@ -6,7 +6,7 @@
 #define XAODTRACKING_TRACKPARTICLEAUXCONTAINER_H
  
 // Local include(s):
-#include "xAODTracking/versions/TrackParticleAuxContainer_v2.h"
+#include "xAODTracking/versions/TrackParticleAuxContainer_v3.h"
  
 namespace xAOD {
    /// Definition of the current TrackParticle auxiliary container
@@ -16,7 +16,7 @@ namespace xAOD {
    /// the container type as we get new I/O technologies for these
    /// objects.
    ///
-   typedef TrackParticleAuxContainer_v2 TrackParticleAuxContainer;
+   typedef TrackParticleAuxContainer_v3 TrackParticleAuxContainer;
 }
 
 // Set up a CLID and StoreGate inheritance for the class:
