@@ -242,7 +242,7 @@ void test_d0significance() {
 }
 
 int main() {
-   std::cout << "Run:" << __FILE__ << std::endl;
+   //std::cout << "Run:" << __FILE__ << std::endl;
    // Create the main containers to test:
    xAOD::TrackParticleAuxContainer aux;
    xAOD::TrackParticleContainer tpc;
@@ -400,6 +400,6 @@ int main() {
 
    test_d0significance();
 
-   std::cout << "PASSED:" << __FILE__ << std::endl;
+   std::cout << "PASSED." << std::endl;
    return 0;
 }

@@ -6,7 +6,7 @@ numberOfParameters = 2
   - x = 6, y = 7, z = 8, px = 9, py = 10, pz = 11
 parameterPosition( 0 ) = 1
 parameterPosition( 1 ) = 3
- Dumping TrackParticleAuxContainer_v2
+ Dumping TrackParticleAuxContainer_v3
 d0:1, z0:2, phi:1.23, theta:0.5, qOverP:0.25, definingParametersCovMatrix: [0x7fffa0474140]1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 
 d0 = 1, z0 = 2, phi0 = 1.23, theta = 0.5, qOverP = 0.25
 definingParametersCovMatrixVec = [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3]
