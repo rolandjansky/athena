@@ -2,11 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTauJetAuxContainerCnv.cxx 635819 2014-12-13 04:01:46Z ssnyder $
+// $Id: xAODTauJetAuxContainerCnv.cxx 749546 2016-05-25 01:31:32Z griffith $
 
 // System include(s):
 #include <exception>
 #include <memory>
+#include <iostream>
 
 // EDM include(s):
 #include "xAODTau/versions/TauJetAuxContainer_v1.h"
@@ -14,6 +15,7 @@
 // Local include(s):
 #include "xAODTauJetAuxContainerCnv.h"
 #include "xAODTauJetAuxContainerCnv_v1.h"
+#include "xAODTauJetAuxContainerCnv_v2.h"
 #include "AthContainers/tools/copyThinned.h"
 #include "AthenaKernel/IThinningSvc.h"
 
@@ -35,15 +37,29 @@ xAOD::TauJetAuxContainer* xAODTauJetAuxContainerCnv::createTransient() {
    // The known ID(s) for this container:
    static const pool::Guid v1_guid( "EA3CE9A0-18D8-49FD-B978-62857D8D8FD0" );
    static const pool::Guid v2_guid( "2853B3D8-136E-444D-AB48-24B1A0E13083" );
+   static const pool::Guid v3_guid( "77AA6800-DDAD-44E8-AD90-003D48082A94" );
 
    // Check which version of the container we're reading:
-   if( compareClassGuid( v2_guid ) ) {
+   if( compareClassGuid( v3_guid ) ) {
 
       // It's the latest version, read it directly:
       return poolReadObject< xAOD::TauJetAuxContainer >();
 
-   } else if( compareClassGuid( v1_guid ) ) {
+   } else if(compareClassGuid( v2_guid )) {
+      // The v2 converter:
+     static xAODTauJetAuxContainerCnv_v2 converter;
 
+     //      std::cout << "Converting TauJet_v2 --> v3 not fully supported" << std::endl;
+
+      // Read in the v2 object:
+      std::unique_ptr< xAOD::TauJetAuxContainer_v2 >
+         old( poolReadObject< xAOD::TauJetAuxContainer_v2 >() );
+
+      // Return the converted object:
+      return converter.createTransient( old.get(), msg() );
+   }
+   else if( compareClassGuid( v1_guid ) ) {
+  
       // The v1 converter:
       static xAODTauJetAuxContainerCnv_v1 converter;
 
