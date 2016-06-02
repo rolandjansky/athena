@@ -48,9 +48,9 @@ TrigEgammaAnalysisBaseTool::
 TrigEgammaAnalysisBaseTool( const std::string& myname )
     : AsgTool(myname),
     m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool"),
-    m_matchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool",this),
-    m_lumiTool("LuminosityTool"),
-    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
+    m_matchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool"),
+    m_lumiTool("LuminosityTool/OnlLuminosity"),//online mu
+    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool") //offline mu
 {
     declareProperty("MatchTool",m_matchTool);
     declareProperty("PlotTool",m_plot);
@@ -162,6 +162,7 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
     
     }*/
 
+    for(const auto cut:m_trigLevel) m_accept.addCut(cut,cut);
     return sc;
 }
 
@@ -458,6 +459,70 @@ bool TrigEgammaAnalysisBaseTool::isIsolated(const xAOD::Electron *eg, const std:
   return false;
 }
 
+// Check for Prescale at L1 and HLT
+// Check for Rerun decision
+bool TrigEgammaAnalysisBaseTool::isPrescaled(const std::string trigger){
+
+    bool efprescale=false;
+    bool l1prescale=false;
+    bool prescale=false;
+    bool rerun=true; //assume rerun for l1
+    std::string l1item="";
+
+    if(boost::starts_with(trigger, "L1" ))
+        l1item=trigger;
+    if(boost::starts_with(trigger,"HLT")){
+        l1item = getL1Item(trigger);
+        const unsigned int bit=tdt()->isPassedBits(trigger);
+        efprescale=bit & TrigDefs::EF_prescaled;
+        rerun=bit&TrigDefs::EF_resurrected; //Rerun, only check for HLT
+    }
+
+    const unsigned int l1bit=tdt()->isPassedBits(l1item);
+    bool l1_afterpre=l1bit&TrigDefs::L1_isPassedAfterPrescale;
+    bool l1_beforepre=l1bit&TrigDefs::L1_isPassedBeforePrescale;
+    l1prescale=l1_beforepre && !l1_afterpre;
+
+    prescale=efprescale || l1prescale;
+    if(rerun) return false; // Rerun use the event
+    if(prescale) return true; // Prescaled, reject event
+    return false; // Not prescaled, use event
+}
+
+void TrigEgammaAnalysisBaseTool::setAccept(const HLT::TriggerElement *te,const TrigInfo info){
+    ATH_MSG_DEBUG("setAccept");
+    m_accept.clear();
+    bool passedL1Calo=false;
+    bool passedL2Calo=false;
+    bool passedEFCalo=false;
+    bool passedL2=false;
+    bool passedEFTrk=false; 
+    bool passedEF=false;
+    
+    passedL1Calo = ancestorPassed<xAOD::EmTauRoI>(te);
+    if(!info.trigL1){ // HLT item get full decision
+        passedL2Calo = ancestorPassed<xAOD::TrigEMCluster>(te);
+        passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(te,"TrigEFCaloCalibFex");
+        if(info.trigType == "electron"){
+            passedL2=ancestorPassed<xAOD::TrigElectronContainer>(te);
+            passedEF = ancestorPassed<xAOD::ElectronContainer>(te);
+            passedEFTrk = ancestorPassed<xAOD::TrackParticleContainer>(te,"InDetTrigTrackingxAODCnv_Electron_IDTrig");
+        }
+        else if(info.trigType == "photon"){
+            passedL2=ancestorPassed<xAOD::TrigPhotonContainer>(te);
+            passedEF = ancestorPassed<xAOD::PhotonContainer>(te);
+            passedEFTrk=true;// Assume true for photons
+        }
+    }
+
+    m_accept.setCutResult("L1Calo",passedL1Calo);
+    m_accept.setCutResult("L2Calo",passedL2Calo);
+    m_accept.setCutResult("L2",passedL2);
+    m_accept.setCutResult("EFCalo",passedEFCalo);
+    m_accept.setCutResult("EFTrack",passedEFTrk);
+    m_accept.setCutResult("HLT",passedEF);
+}
+
 float TrigEgammaAnalysisBaseTool::dR(const float eta1, const float phi1, const float eta2, const float phi2){
     float deta = fabs(eta1 - eta2);
     float dphi = fabs(phi1 - phi2) < TMath::Pi() ? fabs(phi1 - phi2) : 2*TMath:: \
@@ -640,18 +705,23 @@ GETTER(DeltaE)
 { float val{-99}; \
     eg->isolationValue(val,xAOD::Iso::_name_); \
     return val; } 
-    GETTER(etcone20)
-    GETTER(etcone30)
-    GETTER(etcone40)    
-    GETTER(topoetcone20)
-    GETTER(topoetcone30)
-    GETTER(topoetcone40)    
     GETTER(ptcone20)
     GETTER(ptcone30)
     GETTER(ptcone40)    
     GETTER(ptvarcone20)
     GETTER(ptvarcone30)
     GETTER(ptvarcone40)    
+#undef GETTER    
+#define GETTER(_name_) float TrigEgammaAnalysisBaseTool::getIsolation_##_name_(const xAOD::Egamma* eg) \
+{ float val{-99}; \
+    eg->isolationValue(val,xAOD::Iso::_name_); \
+    return val; } 
+    GETTER(etcone20)
+    GETTER(etcone30)
+    GETTER(etcone40)    
+    GETTER(topoetcone20)
+    GETTER(topoetcone30)
+    GETTER(topoetcone40)    
 #undef GETTER    
 
     // GETTERs for CaloCluster monitoring   
@@ -879,3 +949,7 @@ void TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex(){
 
 }
 
+// definitions
+const std::vector<std::string> TrigEgammaAnalysisBaseTool::m_trigLevel = {"L1Calo","L2Calo","L2","EFCalo","EFTrack","HLT"};
+const std::map<std::string,std::string> TrigEgammaAnalysisBaseTool::m_trigLvlMap = {{"L1Calo","Trigger L1Calo step"},{"L2Calo","Trigger L2Calo step"},
+    {"L2","Trigger L2 step"},{"EFCalo","Trigger EFCalo step"},{"EFTrack","Trigger EFTrack step"},{"HLT","Trigger HLT accept"}};

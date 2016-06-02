@@ -74,7 +74,7 @@ StatusCode TrigEgammaResolutionTool::toolExecute(const std::string basePath,Trig
                 else if(eg->type()==xAOD::Type::Photon){
                     float et = getCluster_et(eg)/1e3;
                     if(et < info.trigThrHLT-5.0) continue; 
-                    resolutionPhoton(dir,pairObj);
+                    resolutionPhoton(dir,pairObj,filliso);
                 } // Offline photon
             }
         }
@@ -82,49 +82,24 @@ StatusCode TrigEgammaResolutionTool::toolExecute(const std::string basePath,Trig
     return StatusCode::SUCCESS;
 }
 
-void TrigEgammaResolutionTool::resolutionPhoton(const std::string basePath,std::pair<const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
+void TrigEgammaResolutionTool::resolutionPhoton(const std::string basePath,std::pair<const xAOD::Egamma*,const HLT::TriggerElement*> pairObj,bool filliso){
     ATH_MSG_DEBUG("Resolution photon "<< basePath);
     std::string dir1 = basePath + "/Resolutions/HLT";
     std::string dir2 = basePath + "/AbsResolutions/HLT";
 
-    const xAOD::Photon* phOff =static_cast<const xAOD::Photon*> (pairObj.first);
-    const HLT::TriggerElement *feat = pairObj.second; 
-    bool passedEFPh = ancestorPassed<xAOD::PhotonContainer>(feat);
-    double deltaR=0.;
-    double dRMax = 100;
+    float dRmax = 100;
     const xAOD::Photon *phEF = NULL;
-
-    const auto* EFPh = getFeature<xAOD::PhotonContainer>(feat);
-    const TrigPassBits *EFbits = getFeature<TrigPassBits>(feat);
-    if(EFbits==NULL) ATH_MSG_DEBUG("PassBits NULL");
-    if(EFPh != NULL && EFbits!=NULL){
-        if(passedEFPh){
-            for(const auto& ph : *EFPh){
-                if( HLT::isPassing(EFbits,ph,EFPh)) ATH_MSG_DEBUG("Found passing Hypo object");
-                else {
-                    ATH_MSG_DEBUG("Failed Hypo Selection");
-                    continue;
-                }
-                if(ph == NULL) {
-                    ATH_MSG_DEBUG("Photon from TE NULL");
-                    continue;
-                }
-                if(ph->caloCluster() && phOff->caloCluster())
-                    deltaR = dR(phOff->caloCluster()->eta(),phOff->caloCluster()->phi(), ph->caloCluster()->eta(),ph->caloCluster()->phi());
-                else
-                    deltaR = dR(phOff->eta(),phOff->phi(),ph->eta(),ph->phi());
-                if (deltaR < dRMax) {
-                    dRMax = deltaR;
-                    phEF =ph;
-                } 
-            } //Loop over EF photons
-        } // Passed Hypo
-        if(dRMax < 0.05){
-            fillHLTResolution(dir1,phEF,phOff);
-            if(m_detailedHists) fillHLTAbsResolution(dir2,phEF,phOff);
+    if(pairObj.second){
+        if(ancestorPassed<xAOD::PhotonContainer>(pairObj.second))
+            phEF=closestObject<xAOD::Photon,xAOD::PhotonContainer>(pairObj,dRmax);
+        if(phEF){    
+            if(dRmax < 0.05){
+                fillHLTResolution(dir1,phEF,pairObj.first);
+                if(filliso) fillIsolationResolution(dir1,phEF,pairObj.first);
+                if(m_detailedHists) fillHLTAbsResolution(dir2,phEF,pairObj.first);
+            }
         }
-    } // Feature Container
-    else ATH_MSG_DEBUG("Feature Container NULL");
+    }
 }
 
 void TrigEgammaResolutionTool::resolutionElectron(const std::string basePath,std::pair<const xAOD::Egamma*,const HLT::TriggerElement*> pairObj,bool filliso){
@@ -136,133 +111,67 @@ void TrigEgammaResolutionTool::resolutionElectron(const std::string basePath,std
     std::string dir7 = basePath + "/Resolutions/L1Calo";
     std::string dir8 = basePath + "/AbsResolutions/L1Calo";
 
-    const xAOD::Electron* elOff =static_cast<const xAOD::Electron*> (pairObj.first);
-    const HLT::TriggerElement *feat = pairObj.second; 
     
-    
-    bool passedEFEl = ancestorPassed<xAOD::ElectronContainer>(feat);
-    double deltaR=0.;
-    double dRMax = 100;
-    const xAOD::Electron *elEF(0);
-
-    const auto* EFEl = getFeature<xAOD::ElectronContainer>(feat);
-    const TrigPassBits *EFbits = getFeature<TrigPassBits>(feat);
-    if(EFbits==NULL) ATH_MSG_DEBUG("PassBits NULL");
-    // Require passing hypo and passing object
-    if(EFEl!=NULL && EFbits!=NULL) {
-        ATH_MSG_DEBUG("Retrieve Electron FC");
-        if(passedEFEl){
-            for(const auto& el : *EFEl){
-                // Only consider passing objects
-                if(!el) continue;
-                if( HLT::isPassing(EFbits,el,EFEl)) ATH_MSG_DEBUG("Found passing Hypo object");
-                else {
-                    ATH_MSG_DEBUG("Failed Hypo Selection");
-                    continue;
+    float dRmax = 100;
+    const xAOD::Electron *elEF = NULL;
+    if(pairObj.second){
+        if(ancestorPassed<xAOD::ElectronContainer>(pairObj.second))
+            elEF=closestObject<xAOD::Electron,xAOD::ElectronContainer>(pairObj,dRmax);
+        if(elEF){    
+            if(dRmax < 0.05){
+                fillHLTResolution(dir1,elEF,pairObj.first);
+                if(filliso) fillIsolationResolution(dir1,elEF,pairObj.first);
+                if(m_detailedHists) fillHLTAbsResolution(dir2,elEF,pairObj.first);
+                const xAOD::TrigEMCluster* clus = getFeature<xAOD::TrigEMCluster>(pairObj.second);
+                if ( clus != NULL ) {
+                    if(m_detailedHists) fillL2CaloResolution(dir5,clus,pairObj.first);
+                    fillL2CaloResolution(dir6,clus,elEF);
                 }
-                if(el->trackParticle() && elOff->trackParticle())
-                        deltaR = dR(elOff->trackParticle()->eta(),elOff->trackParticle()->phi(), el->trackParticle()->eta(),el->trackParticle()->phi());
-                else 
-                    deltaR = dR(elOff->eta(),elOff->phi(),el->eta(),el->phi());
-                if (deltaR < dRMax) {
-                    dRMax=deltaR;
-                    elEF=el;
-                }
-            } // Loop over EF container
-        } // Passed Hypo
-        if(dRMax < 0.05){
-            fillHLTResolution(dir1,elEF,elOff);
-            if(filliso) fillIsolationResolution(dir1,elEF,elOff);
-            if(m_detailedHists) fillHLTAbsResolution(dir2,elEF,elOff);
-	    const xAOD::TrigEMCluster* clus = getFeature<xAOD::TrigEMCluster>(feat);
-	    if ( clus != NULL ) {
-		if(m_detailedHists) fillL2CaloResolution(dir5,clus, elOff );
-		fillL2CaloResolution(dir6,clus, elEF );
-	    }
-        }
-    } // EFEl Feature
-    else ATH_MSG_DEBUG("NULL EFEl Feature");
-    // L1 resolutions
-    if(m_detailedHists){
-        if (feat) {
-            auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(feat);
+            }
+        } 
+        // L1 resolutions
+        if(m_detailedHists){
+            auto itEmTau = tdt()->ancestor<xAOD::EmTauRoI>(pairObj.second);
             const xAOD::EmTauRoI *l1 = itEmTau.cptr();
             if (l1) {
-                fillL1CaloResolution(dir7, l1, elOff);
-                fillL1CaloAbsResolution(dir8, l1, elOff);
+                fillL1CaloResolution(dir7, l1, pairObj.first);
+                fillL1CaloAbsResolution(dir8, l1, pairObj.first);
             }
         }
     }
-    else ATH_MSG_DEBUG("NULL L1 Feature");
 }
 
-void TrigEgammaResolutionTool::resolutionL2Photon(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
-    const xAOD::Photon* phOff =static_cast<const xAOD::Photon*> (pairObj.first);
-    const HLT::TriggerElement *feat = pairObj.second; 
-    bool passedL2Ph = ancestorPassed<xAOD::TrigPhotonContainer>(feat);
-    double deltaR=0.;
-    double dRMax = 100;
+void TrigEgammaResolutionTool::resolutionL2Photon(const std::string dir,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
+    cd(dir);
+    float dRmax = 100;
     const xAOD::TrigPhoton *phL2 = NULL;
-
-    const auto* L2Ph = getFeature<xAOD::TrigPhotonContainer>(feat);
-    dRMax=100.;
-    if(L2Ph != NULL){
-        for(const auto& ph : *L2Ph){
-            if(ph == NULL) {
-                ATH_MSG_DEBUG("TrigPhoton from TE NULL");
-                continue;
+    if(pairObj.second){
+        if(ancestorPassed<xAOD::TrigPhotonContainer>(pairObj.second))
+            phL2=closestObject<xAOD::TrigPhoton,xAOD::TrigPhotonContainer>(pairObj,dRmax);
+        if(phL2){    
+            if(dRmax < 0.05){
+                //Do something here
             }
-            deltaR = dR(phOff->caloCluster()->eta(),phOff->caloCluster()->phi(), ph->eta(),ph->phi());
-            if (deltaR < dRMax) {
-                dRMax = deltaR;
-                phL2 =ph;
-            } 
-        } //Loop over EF photons
-        if(dRMax < 0.05) { 
-            if(passedL2Ph && phL2!=NULL){
-                //fillRes(trigger,phEF,phOff);
-                //fillShowerShapes(trigger,phEF,phOff);           
-            } // Is EF Photon
-        } // Found closest photon match
-    } // Feature Container
-    else ATH_MSG_DEBUG("Feature Container NULL");
+        }
+    }
 }
 
 void TrigEgammaResolutionTool::resolutionL2Electron(const std::string dir,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
     cd(dir);
-    const xAOD::Egamma *eg = pairObj.first;
-    const HLT::TriggerElement *feat = pairObj.second; 
-    bool passedL2Electron = ancestorPassed<xAOD::TrigElectronContainer>(feat);
-    double deltaR=0.;
-    double dRMax = 100;
-    const xAOD::TrigElectron *trigEl = NULL;
-
-    const auto* L2El = getFeature<xAOD::TrigElectronContainer>(feat);
-
-    // Get the pass bits also
-    dRMax=100.;
-    if(L2El!=NULL){
-        for(const auto& el : *L2El){
-            if(el==NULL) {
-                ATH_MSG_DEBUG("TrigElectron from TE NULL");
-                continue;
+    
+    float dRmax = 100;
+    const xAOD::TrigElectron *elL2 = NULL;
+    if(pairObj.second){
+        if(ancestorPassed<xAOD::TrigElectronContainer>(pairObj.second))
+            elL2=closestObject<xAOD::TrigElectron,xAOD::TrigElectronContainer>(pairObj,dRmax);
+        if(elL2){    
+            if(dRmax < 0.05){
+                //Do something here
             }
-            deltaR = dR(eg->caloCluster()->eta(),eg->caloCluster()->phi(), el->eta(),el->phi());
-            if (deltaR < dRMax) {
-                dRMax = deltaR;
-                trigEl=el;
-            } 
-        } //Loop over EF photons
-        if(dRMax < 0.05) { 
-            if(passedL2Electron && trigEl!=NULL){
-                // Do something, fill resolutions and distributions
-                //fillRes(trigger,phEF,phOff);
-                //fillShowerShapes(trigger,phEF,phOff);           
-            } // Is EF Photon
-        } // Found closest photon match
-    } // Feature Container
-    else ATH_MSG_DEBUG("Feature Container NULL");
+        }
+    }
 }
+
 void TrigEgammaResolutionTool::fillL1CaloResolution(const std::string dir,const xAOD::EmTauRoI *l1, const xAOD::Egamma *off){
     cd(dir);
     ATH_MSG_DEBUG("Fill L1CaloResolution");
@@ -557,23 +466,49 @@ void TrigEgammaResolutionTool::fillIsolationResolution(const std::string dir,con
         // ptvarcone20 isolation
         val_off=getIsolation_ptvarcone20(eloff);
         if (val_off > 0.) {
-            hist1("res_ptcone20")->Fill((getIsolation_ptvarcone20(elonl)-val_off)/val_off);
-            hist2("res_ptcone20_onVsOff")->Fill(getIsolation_ptvarcone20(eloff),
+            hist1("res_ptvarcone20")->Fill((getIsolation_ptvarcone20(elonl)-val_off)/val_off);
+            hist2("res_ptvarcone20_onVsOff")->Fill(getIsolation_ptvarcone20(eloff),
                     getIsolation_ptvarcone20(elonl));
             if (getEt(elonl) > 0. && getEt(eloff) > 0.) {
                 const float reliso_onl=getIsolation_ptvarcone20(elonl)/getEt(elonl);
                 const float reliso_off=getIsolation_ptvarcone20(eloff)/getEt(eloff);
-                hist1("res_ptcone20_rel")->Fill((reliso_onl-reliso_off)/reliso_off);
-                hist2("res_ptcone20_relVsEta")->Fill(elonl->eta(),
+                hist1("res_ptvarcone20_rel")->Fill((reliso_onl-reliso_off)/reliso_off);
+                hist2("res_ptvarcone20_relVsEta")->Fill(elonl->eta(),
                         (reliso_onl-reliso_off)/reliso_off);
-                hist2("res_ptcone20_relVsEt")->Fill(getEt(elonl)/1e3,
+                hist2("res_ptvarcone20_relVsEt")->Fill(getEt(elonl)/1e3,
                         (reliso_onl-reliso_off)/reliso_off);
-                hist2("res_ptcone20_relVsMu")->Fill(getAvgMu(),
+                hist2("res_ptvarcone20_relVsMu")->Fill(getAvgMu(),
                         (reliso_onl-reliso_off)/reliso_off);
-                hist2("res_ptcone20VsMu")->Fill(getAvgMu(),
+                hist2("res_ptvarcone20VsMu")->Fill(getAvgMu(),
                         (reliso_onl-reliso_off)/reliso_off);
-                hist2("res_ptcone20_rel_onVsOff")->Fill(getIsolation_ptvarcone20(eloff)/getEt(eloff),
+                hist2("res_ptvarcone20_rel_onVsOff")->Fill(getIsolation_ptvarcone20(eloff)/getEt(eloff),
                         getIsolation_ptvarcone20(elonl)/getEt(elonl));
+            }
+        }
+    }//Electron
+    if(xAOD::EgammaHelpers::isPhoton(onl)){
+        // ptvarcone20 isolation
+        float val_off=getIsolation_topoetcone20(off);
+        float etonl=onl->pt();
+        float etoff=off->pt();
+        if (val_off > 0.) {
+            hist1("res_topoetcone20")->Fill((getIsolation_topoetcone20(onl)-val_off)/val_off);
+            hist2("res_topoetcone20_onVsOff")->Fill(getIsolation_topoetcone20(off),
+                    getIsolation_topoetcone20(onl));
+            if (etonl > 0. && etoff > 0.) {
+                const float reliso_onl=getIsolation_topoetcone20(onl)/etonl;
+                const float reliso_off=getIsolation_topoetcone20(off)/etoff;
+                hist1("res_topoetcone20_rel")->Fill((reliso_onl-reliso_off)/reliso_off);
+                hist2("res_topoetcone20_relVsEta")->Fill(onl->eta(),
+                        (reliso_onl-reliso_off)/reliso_off);
+                hist2("res_topoetcone20_relVsEt")->Fill(etonl/1e3,
+                        (reliso_onl-reliso_off)/reliso_off);
+                hist2("res_topoetcone20_relVsMu")->Fill(getAvgMu(),
+                        (reliso_onl-reliso_off)/reliso_off);
+                hist2("res_topoetcone20VsMu")->Fill(getAvgMu(),
+                        (reliso_onl-reliso_off)/reliso_off);
+                hist2("res_topoetcone20_rel_onVsOff")->Fill(getIsolation_topoetcone20(off)/etoff,
+                        getIsolation_topoetcone20(onl)/etonl);
             }
         }
     }
