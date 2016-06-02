@@ -12,7 +12,7 @@ static const char* fmt_clid = "[CLID=";
 static const char* fmt_tech = "[TECH=%08X]";
 static const char* fmt_oid  = "[OID=%016llX-%016llX]";
 static const char* fmt_oid_old  = "[OID=%08llX-%08llX]";
-static const int KEY_MASK = (~0x0) << CHAR_BIT;
+static const int KEY_MASK = (~0u) << CHAR_BIT;
 static int s_numCount = 0;
 
 int numTokenInstances() { return s_numCount; }
@@ -117,10 +117,12 @@ const std::string Token::toString() const {
    str += text;
    sprintf(text, fmt_oid, m_oid.first, m_oid.second);
    str += text;
+   str += m_auxString;
    return str;
 }
 
 Token& Token::fromString(const std::string& source)    {
+   m_auxString.clear();
    for (const char* p1 = source.c_str(); p1; p1 = ::strchr(++p1,'[')) {
       const char* p2 = ::strchr(p1, '=');
       const char* p3 = ::strchr(p1, ']');
@@ -144,6 +146,9 @@ Token& Token::fromString(const std::string& source)    {
             m_classID.fromString(p1 + 6);
          } else if (::strncmp(fmt_tech, p1, 6) == 0) {
             ::sscanf(p1, fmt_tech, &m_technology);
+         } else {
+            m_auxString = p1;
+            break;
          }
       }
    }

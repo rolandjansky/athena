@@ -14,5 +14,6 @@ apply_pattern installed_library
 private
 use uuid                  v*                         LCG_Interfaces
 use AtlasReflex           AtlasReflex-*              External -no_auto_imports
+use AthenaKernel          AthenaKernel-*             Control
 
 apply_pattern lcgdict dict=PersistentDataModel selectionfile=selection.xml headerfiles="-s=${PersistentDataModel_root}/PersistentDataModel PersistentDataModelDict.h"
