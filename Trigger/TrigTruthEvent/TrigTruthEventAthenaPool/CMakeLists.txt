@@ -29,3 +29,16 @@ atlas_add_poolcnv_library( TrigTruthEventAthenaPoolPoolCnv
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 
+# Set up (a) test(s) for the converter(s):
+if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities )
+   set( AthenaPoolUtilitiesTest_DIR
+      ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities/cmake )
+endif()
+find_package( AthenaPoolUtilitiesTest )
+
+if( ATHENAPOOLUTILITIESTEST_FOUND )
+  run_tpcnv_test( TrigTruthEventTPCnv_15.8.0   AOD-15.8.0-full )
+  run_tpcnv_test( TrigTruthEventTPCnv_18.0.0   AOD-18.0.0-full )
+else()
+   message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
+endif()   

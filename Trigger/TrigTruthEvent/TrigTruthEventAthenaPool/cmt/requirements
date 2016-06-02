@@ -39,3 +39,4 @@ apply_pattern athenarun_test \
    options="TrigTruthEventAthenaPool/TrigTruthEventTPCnv_18.0.0_test.py" \
    pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh TrigTruthEventTPCnv_18.0.0" \
    post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh TrigTruthEventTPCnv_18.0.0"
+
