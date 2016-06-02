@@ -103,8 +103,8 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("PixelConditionsSummarySvc", m_pixelCondSummarySvc);
    declareProperty("PixelByteStreamErrorsSvc",  m_ErrorSvc);
    declareProperty("PixelCablingSvc",           m_pixelCableSvc);
-   declareProperty("HoleSearchTool",  m_holeSearchTool);
-   declareProperty("LuminosityTool",  m_lumiTool);
+   declareProperty("HoleSearchTool",            m_holeSearchTool);
+   declareProperty("LuminosityTool",            m_lumiTool);
 
    //declareProperty("TrkSummaryTool",            m_trkSummaryTool);
 
@@ -152,13 +152,16 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("DetailsMod4",     m_DetailsMod4 = "");
    declareProperty("OccupancyCut",    m_occupancy_cut = 1e-5);
 
+   m_lbRange = 3000;
    m_isNewRun = false;
    m_isNewLumiBlock = false;
    m_newLowStatInterval = false;
    m_doRefresh = false;
+   m_doRefresh5min = false;
    m_firstBookTime = 0;
    isFirstBook = false;
    m_nRefresh = 0;
+   m_nRefresh5min = 0;
 
    //initalize all the histograms to 0 to start
    m_events_per_lumi = 0;
@@ -178,7 +181,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_Atlas_BCID = 0;            
    m_Atlas_BCID_hits = 0;            
    m_BCID_Profile = 0;          
-   m_diff_ROD_BCID = 0;         
+   ///m_diff_ROD_BCID = 0;         
    m_occupancy = 0;
    m_occupancy_10min = 0;
    m_average_pixocc = 0;
@@ -205,8 +208,8 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_Details_mod3_ToT = 0;     
    m_Details_mod4_ToT = 0;  
    m_pixel_occupancy = 0;
-   m_pixel_noise_map = 0;
-   m_pixel_occupancy_spectrum = 0;
+   //m_pixel_noise_map = 0;
+   //m_pixel_occupancy_spectrum = 0;
    m_hit_num_mod = 0;
 
    //-------------------
@@ -237,10 +240,10 @@ PixelMainMon::PixelMainMon(const std::string & type,
    //m_track_phi0 = 0;    
    //m_track_theta = 0;   
    //m_track_eta = 0;    
-   m_tracks_per_lumi = 0;
-   m_trackRate_per_lumi = 0;
-   m_tracksPerEvt_per_lumi = 0;
-   m_tracksPerEvtPerMu_per_lumi = 0;
+   //m_tracks_per_lumi = 0;
+   //m_trackRate_per_lumi = 0;
+   //m_tracksPerEvt_per_lumi = 0;
+   //m_tracksPerEvtPerMu_per_lumi = 0;
    //m_track_dedx = 0;
    //m_track_mass_dedx = 0;
    m_clustot_vs_pt = 0;
@@ -254,6 +257,13 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_tsos_hitmap = 0;
    m_tsos_holemap = 0;
    m_tsos_outliermap = 0;
+   //m_tsos_measratio = 0;
+   //m_tsos_holeratio = 0;
+   m_misshits_ratio = 0;
+   m_tsos_holeratio_tmp = 0;
+   m_tsos_holeratio_mon = 0;
+   m_misshits_ratio_tmp = 0;
+   m_misshits_ratio_mon = 0;
    m_clusters_per_lumi = 0;
    m_largeclusters_per_lumi = 0;
    m_verylargeclusters_per_lumi = 0;
@@ -265,13 +275,13 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_cluster_groupsize = 0;
    m_cluster_col_width = 0;
    m_cluster_row_width = 0;
-   m_cluster_row_width_IBL = 0;
+   //m_cluster_row_width_IBL = 0;
    m_cluster_LVL1A = 0;
    m_clus_LVL1A_sizenot1 = 0; 
-   m_cluster_LVL1A_highToT = 0;
+   //m_cluster_LVL1A_highToT = 0;
    m_clusterSize_eta = 0;
    m_cluster_occupancy = 0;
-   m_clusocc_DBM = 0;
+   //m_clusocc_DBM = 0;
    m_clusocc_sizenot1 = 0; 
    m_cluseff_mod = 0;
    m_cluster_ToT_mod = 0;
@@ -281,7 +291,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_cluster_occupancy_time2 = 0;
    m_cluster_occupancy_time3 = 0;
    m_num_clusters = 0;
-   m_num_clusters_PIX = 0;
+   //m_num_clusters_PIX = 0;
    m_num_clusters_low = 0;
    m_num_clusters_ECA = 0;
    m_num_clusters_ECC = 0;
@@ -306,59 +316,59 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_Status_modules = 0;
    m_status = 0;
    m_dqStatus = 0;
-   m_error1 = 0;            
-   m_errorTypes = 0;        
-   m_otherROD_per_lumi_IBL = 0; 
-   m_chip_per_lumi_IBL = 0; 
+   //m_error1 = 0;            
+   //m_errorTypes = 0;        
+   //m_otherROD_per_lumi_IBL = 0; 
+   //m_chip_per_lumi_IBL = 0; 
    m_error_time1 = 0;       
    m_error_time2 = 0;       
    m_error_time3 = 0;       
    m_errors = 0;
-   m_OpticalErrors = 0;
-   m_SEU_Errors = 0;
-   m_TimeoutErrors = 0;
-   m_SyncErrorsIBL = 0; 
-   m_SyncErrors = 0; 
-   m_SyncCategory = 0; 
-   m_TruncationCategory = 0; 
-   m_OpticalCategory = 0; 
-   m_SEUCategory = 0; 
-   m_TimeoutCategory = 0; 
-   m_TruncationErrors = 0;
-   m_sync_mod_BCID1_per_LB = 0;
-   m_sync_mod_BCID1_int_LB = 0;
-   m_sync_mod_BCID2_per_LB = 0;
-   m_sync_mod_BCID2_int_LB = 0;
-   m_sync_mod_LVL1ID_per_LB = 0;
-   m_sync_mod_LVL1ID_int_LB = 0;
-   m_sync_rod_BCID_per_LB = 0;
-   m_sync_rod_BCID_int_LB = 0;
-   m_sync_rod_LVL1ID_per_LB = 0;
-   m_sync_rod_LVL1ID_int_LB = 0;
-   m_trunc_mod_EOC_per_LB = 0;
-   m_trunc_mod_EOC_int_LB = 0;
-   m_trunc_mod_hitOF_per_LB = 0;
-   m_trunc_mod_hitOF_int_LB = 0;
-   m_trunc_mod_EoEOF_per_LB = 0;
-   m_trunc_mod_EoEOF_int_LB = 0;
-   m_trunc_rod_HTlim_per_LB = 0;
-   m_trunc_rod_HTlim_int_LB = 0;
-   m_trunc_rod_FIFOOF_per_LB = 0;
-   m_trunc_rod_FIFOOF_int_LB = 0;
-   m_optical_error_per_LB = 0;
-   m_optical_error_int_LB = 0;
-   m_seu_hit_parity_per_LB = 0;
-   m_seu_hit_parity_int_LB = 0;
-   m_seu_reg_parity_per_LB = 0;
-   m_seu_reg_parity_int_LB = 0;
-   m_seu_hamming_per_LB = 0;
-   m_seu_hamming_int_LB = 0;
-   m_timeout_per_LB = 0;
-   m_timeout_int_LB = 0;
-   m_FEwarning_per_LB = 0;
-   m_FEwarning_int_LB = 0;
-   m_sync_mod_corr_LVL1ID_BCID2_per_LB = 0;
-   m_sync_rod_corr_LVL1ID_BCID_per_LB = 0;
+   //m_OpticalErrors = 0;
+   //m_SEU_Errors = 0;
+   //m_TimeoutErrors = 0;
+   //m_SyncErrorsIBL = 0; 
+   //m_SyncErrors = 0; 
+   //m_SyncCategory = 0; 
+   //m_TruncationCategory = 0; 
+   //m_OpticalCategory = 0; 
+   //m_SEUCategory = 0; 
+   //m_TimeoutCategory = 0; 
+   //m_TruncationErrors = 0;
+   //m_sync_mod_BCID1_per_LB = 0;
+   //m_sync_mod_BCID1_int_LB = 0;
+   //m_sync_mod_BCID2_per_LB = 0;
+   //m_sync_mod_BCID2_int_LB = 0;
+   //m_sync_mod_LVL1ID_per_LB = 0;
+   //m_sync_mod_LVL1ID_int_LB = 0;
+   //m_sync_rod_BCID_per_LB = 0;
+   //m_sync_rod_BCID_int_LB = 0;
+   //m_sync_rod_LVL1ID_per_LB = 0;
+   //m_sync_rod_LVL1ID_int_LB = 0;
+   //m_trunc_mod_EOC_per_LB = 0;
+   //m_trunc_mod_EOC_int_LB = 0;
+   //m_trunc_mod_hitOF_per_LB = 0;
+   //m_trunc_mod_hitOF_int_LB = 0;
+   //m_trunc_mod_EoEOF_per_LB = 0;
+   //m_trunc_mod_EoEOF_int_LB = 0;
+   //m_trunc_rod_HTlim_per_LB = 0;
+   //m_trunc_rod_HTlim_int_LB = 0;
+   //m_trunc_rod_FIFOOF_per_LB = 0;
+   //m_trunc_rod_FIFOOF_int_LB = 0;
+   //m_optical_error_per_LB = 0;
+   //m_optical_error_int_LB = 0;
+   //m_seu_hit_parity_per_LB = 0;
+   //m_seu_hit_parity_int_LB = 0;
+   //m_seu_reg_parity_per_LB = 0;
+   //m_seu_reg_parity_int_LB = 0;
+   //m_seu_hamming_per_LB = 0;
+   //m_seu_hamming_int_LB = 0;
+   //m_timeout_per_LB = 0;
+   //m_timeout_int_LB = 0;
+   //m_FEwarning_per_LB = 0;
+   //m_FEwarning_int_LB = 0;
+   //m_sync_mod_corr_LVL1ID_BCID2_per_LB = 0;
+   //m_sync_rod_corr_LVL1ID_BCID_per_LB = 0;
    m_num_spacepoints = 0;
    m_num_spacepoints_low = 0;
    m_spHit_x = 0;
@@ -380,6 +390,10 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_num_clusters_LB = 0;                                
    m_num_clusters_low_LB = 0;  
    m_hitmap_mon = 0;
+   m_lowToTHitsFraction_7 = 0;
+   m_lowToTHitsFraction_9 = 0;
+   m_lowToTHitsFraction_11 = 0;
+   m_lowToTHitsFraction_13 = 0;
 
    m_pixelid =0;
    pixelmgr =0;
@@ -418,21 +432,24 @@ PixelMainMon::PixelMainMon(const std::string & type,
       m_hit_ToT_tmp_mod[i] = 0;
       m_hit_ToT_Mon_mod[i] = 0;
       m_avgocc_per_lumi_mod[i] = 0;
+      m_avgocc_per_bcid_mod[i] = 0;
       m_maxocc_per_lumi_mod[i] = 0;
       m_hits_per_lumi_mod[i] = 0;
       m_clusters_per_lumi_mod[i] = 0;
+      m_clusters_col_width_per_lumi_mod[i] = 0;
+      m_clusters_row_width_per_lumi_mod[i] = 0;
       m_totalclusters_per_lumi_mod[i] = 0;
       m_cluster_col_width_mod[i] = 0;
       m_cluster_row_width_mod[i] = 0;
       m_cluster_groupsize_mod[i] = 0;
-      m_clusQ_vs_eta_mod[i] = 0;
-      m_clussize_vs_eta_mod[i] = 0;
+      //m_clusQ_vs_eta_mod[i] = 0;
+      //m_clussize_vs_eta_mod[i] = 0;
       m_bad_mod_errors_mod[i] = 0;
       m_errors_etaid_mod[i] = 0;
       m_hit_ToT_LB_mod[i] = 0;
       m_clusToT_vs_eta_mod[i] = 0;
       m_ToT_vs_clussize_mod[i] = 0;
-      m_Q_vs_clussize_mod[i] = 0;
+      //m_Q_vs_clussize_mod[i] = 0;
       m_nlowToT_vs_clussize_mod[i] = 0;
       m_1cluster_ToT_mod[i] = 0;
       m_2cluster_ToT_mod[i] = 0;
@@ -443,6 +460,8 @@ PixelMainMon::PixelMainMon(const std::string & type,
       m_3cluster_Q_mod[i] = 0;
       m_bigcluster_Q_mod[i] = 0;
       m_cluster_LVL1A1d_mod[i] = 0;
+      m_hiteff_incl_mod[i] = 0;
+      m_hiteff_actv_mod[i] = 0;
    }
    for( int j=0; j<16; j++){
       m_errors_int_LB[j] = 0;
@@ -477,7 +496,8 @@ PixelMainMon::PixelMainMon(const std::string & type,
    }
    for( int i=0; i<16; i++){
       m_ErrorStateMap[i] = 0;
-      m_ErrorStateMap_per_LB[i] = 0;
+      //m_ErrorStateMap_per_LB[i] = 0;
+      for( int j=0 ; j<PixLayer::COUNT-1 ; j++) m_errorStates_per_lumi_mod[j][i] = 0;
    }
 
   // DCS Monitorning
@@ -969,12 +989,22 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
       m_currentTime = thisEventInfo->event_ID()->time_stamp(); 
       //msg(MSG::INFO) << "First booking time:" << m_firstBookTime << " Current time: " << m_currentTime << endreq;
       unsigned int currentdiff = (m_currentTime - m_firstBookTime)/100;
+      unsigned int currentdiff5min = (m_currentTime - m_firstBookTime)/300;
+      /// for 100 sec
       if( currentdiff > m_nRefresh ){
          m_doRefresh = true;
          m_nRefresh = currentdiff;
       //   msg(MSG::INFO) << "m_doRefresh:" << m_doRefresh << " " << m_nRefresh << endreq;
       }else{
          m_doRefresh = false;
+      }
+      /// for 5min
+      if( currentdiff5min > m_nRefresh5min ){
+         m_doRefresh5min = true;
+         m_nRefresh5min = currentdiff5min;
+      //   msg(MSG::INFO) << "m_doRefresh:" << m_doRefresh << " " << m_nRefresh << endreq;
+      }else{
+         m_doRefresh5min = false;
       }
    }
 
@@ -1083,7 +1113,7 @@ StatusCode PixelMainMon::procHistograms()
    if(endOfLumiBlock)
    {
      m_LBendTime = m_currentTime;
-     if (m_doTrack) { sc=ProcTrackMon(); }
+     //if (m_doTrack) { sc=ProcTrackMon(); }
      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endreq; 
    }
    

@@ -81,7 +81,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    std::string atext_ers = ";Error state"; 
    std::string axisTitle_LB = ";lumi block;# errors/event";
    std::string axisTitle_ES = ";Error State;# Errors";
-   int nbins_LB = 2500; float minbin_LB = -0.5; float maxbin_LB = minbin_LB + (1.0*nbins_LB);
+   int nbins_LB = m_lbRange; float minbin_LB = -0.5; float maxbin_LB = minbin_LB + (1.0*nbins_LB);
    int nbins_ES = 32;   float minbin_ES = -0.5; float maxbin_ES = minbin_ES + (1.0*nbins_ES);
    std::string tmp;
    std::string tmp2;
@@ -367,6 +367,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
       bool isIBL=false;
       //bool isError[16] = {false};
       bool hasError[ErrorCategory::COUNT] = {false};
+      bool hasErrorMODROD[ErrorCategoryMODROD::COUNT] = {false};
 
       if (m_ErrorSvc->isActive(id_hash) && m_pixelid->barrel_ec(WaferID)==0 && m_pixelid->layer_disk(WaferID)==0 && m_doIBL){isIBL=true;}
       
@@ -444,8 +445,11 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
 	            }
 	       
 	            /// Count the each error
-               nErrorTypes_mod[pixlayer][ErrorType-1]++;
-               if(pixlayeribl2d3d != 0) nErrorTypes_mod[pixlayeribl2d3d][ErrorType-1]++;
+               if( !hasErrorMODROD[ErrorType-1] ){
+                  nErrorTypes_mod[pixlayer][ErrorType-1]++;
+                  if(pixlayeribl2d3d != 0) nErrorTypes_mod[pixlayeribl2d3d][ErrorType-1]++;
+                  hasErrorMODROD[ErrorType-1] = true;
+               }
                if( !hasError[kErrorCategory] ){
                   if(m_ErrorCategoryMap[kErrorCategory] && !m_doOnline) m_ErrorCategoryMap[kErrorCategory]->Fill(WaferID,m_pixelid,m_doIBL, false);
                   nErrorsCategory_permod[pixlayer][kErrorCategory]++;

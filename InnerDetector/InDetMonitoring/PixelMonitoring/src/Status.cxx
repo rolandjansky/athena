@@ -63,7 +63,7 @@ StatusCode PixelMainMon::BookStatusMon(void)
    std::string tmp;
    std::string tmp2;
 
-   int nbins_LB = 2500; double min_LB = -0.5; double max_LB = min_LB + (1.0*nbins_LB);
+   int nbins_LB = m_lbRange; double min_LB = -0.5; double max_LB = min_LB + (1.0*nbins_LB);
    std::string atext_LB = ";lumi block";
    std::string atext_nmod = ";# modules/event";
    const std::string modlabel[PixLayerIBL2D3D::COUNT] = {"ECA", "ECC", "B0", "B1", "B2", "IBL", "IBL2D", "IBL3D"};
