@@ -15,10 +15,10 @@
 
 using namespace xercesc;
 
-class PixelDiscSupportXMLHelper :  public GeoXMLUtils  {
+class PixelDiscSupportXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
 
  public:
-  PixelDiscSupportXMLHelper();
+  PixelDiscSupportXMLHelper( const PixelGeoBuilderBasics* basics);
   ~PixelDiscSupportXMLHelper();
 
   int getNbSupport(int layer);

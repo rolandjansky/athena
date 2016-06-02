@@ -93,9 +93,9 @@ StatusCode GeoPixelEndcapLoITool::registerCallback( StoreGateSvc*)
 }
 
 
-void GeoPixelEndcapLoITool::preBuild(const PixelGeoBuilderBasics* /*basics*/)
+void GeoPixelEndcapLoITool::preBuild(const PixelGeoBuilderBasics* basics)
 {
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML", basics);
 
   std::cout<<"LoI - GeoPixelEndcapLoITool"<<std::endl;
 

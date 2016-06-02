@@ -69,7 +69,6 @@ StatusCode GeoPixelBarrelLoITool::initialize()
     return StatusCode::FAILURE;
   }
   
-  preBuild();
   return StatusCode::SUCCESS;
 }
 
@@ -107,11 +106,11 @@ StatusCode GeoPixelBarrelLoITool::registerCallback( StoreGateSvc*)
 
 // }
 
-void GeoPixelBarrelLoITool::preBuild()
+void GeoPixelBarrelLoITool::preBuild(const PixelGeoBuilderBasics* basics)
 {
   // prebuild function is used to set service region (called by GeoPixelEnvelope)
 
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
 
   double rmin = genDBHelper.getBarrelRMin();
   double rmax = genDBHelper.getBarrelRMax();
@@ -132,7 +131,7 @@ GeoVPhysVol* GeoPixelBarrelLoITool::buildBarrel(const PixelGeoBuilderBasics* bas
   m_msg = basics->msgStream();
 
   // Pixel general envelope XML reader
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
   double rmin = genDBHelper.getBarrelRMin();
   double rmax = genDBHelper.getBarrelRMax();
   double halflen = genDBHelper.getBarrelHalfLength();

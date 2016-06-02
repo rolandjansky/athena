@@ -5,9 +5,11 @@
 
 #include "PixelLayoutLoI/PixelLoIStaveXMLHelper.h"
 #include "PathResolver/PathResolver.h"
+#include "PixelLayoutUtils/DBXMLUtils.h"
 
-PixelLoIStaveXMLHelper::PixelLoIStaveXMLHelper(int layer):
+PixelLoIStaveXMLHelper::PixelLoIStaveXMLHelper(int layer, const PixelGeoBuilderBasics* basics):
   GeoXMLUtils(),
+  PixelGeoBuilder(basics),
   m_layer(layer)
 {
 
@@ -15,9 +17,22 @@ PixelLoIStaveXMLHelper::PixelLoIStaveXMLHelper(int layer):
   if(const char* env_p = std::getenv("PIXEL_STAVESUPPORT_GEO_XML")) fileName = std::string(env_p);
   std::cout<<"SES - XML "<<fileName<<std::endl;
 
-  std::string file = PathResolver::find_file (fileName, "DATAPATH");
-  InitializeXML();
-  bool bParsed = ParseFile(file);
+  bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
+  bool bParsed=false;
+  if(readXMLfromDB)
+    {
+      basics->msgStream()<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      DBXMLUtils dbUtils(getBasics());
+      std::string XMLtext = dbUtils.readXMLFromDB(fileName);
+      InitializeXML();
+      bParsed = ParseBuffer(XMLtext,std::string(""));
+    }
+  else
+    {
+      std::string file = PathResolver::find_file (fileName, "DATAPATH");
+      InitializeXML();
+      bParsed = ParseFile(file);
+    }
 
   if(!bParsed){
     std::cout<<"XML file "<<fileName<<" not found"<<std::endl;

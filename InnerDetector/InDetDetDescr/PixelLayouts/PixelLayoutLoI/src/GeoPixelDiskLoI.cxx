@@ -131,7 +131,7 @@ GeoVPhysVol* GeoPixelDiskLoI::Build( )
   }
 
   // Read services from xml file
-  PixelDiscSupportXMLHelper discHelper;
+  PixelDiscSupportXMLHelper discHelper(getBasics());
   int nbSvcSupport = discHelper.getNbSupport(m_disk);
   for(int iSvc=0; iSvc<nbSvcSupport; iSvc++){
     

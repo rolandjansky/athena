@@ -15,10 +15,10 @@
 
 using namespace xercesc;
 
-class PixelLoIStaveXMLHelper :  public GeoXMLUtils  {
+class PixelLoIStaveXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder {
 
  public:
-  PixelLoIStaveXMLHelper(int layer);
+  PixelLoIStaveXMLHelper(int layer, const PixelGeoBuilderBasics* basics);
   ~PixelLoIStaveXMLHelper();
 
   double getClearance() const;

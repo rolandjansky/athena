@@ -39,7 +39,7 @@ GeoVPhysVol* GeoPixelStaveSupportLoI::Build() {
 void GeoPixelStaveSupportLoI::preBuild() {
 
   // Access XML file -> build a simple parallepipedic stave support
-  PixelLoIStaveXMLHelper staveDBHelper(m_layer);
+  PixelLoIStaveXMLHelper staveDBHelper(m_layer,getBasics());
 
   msg(MSG::INFO) <<"Build detailed stave support description :  layout "<<m_layer<<endreq;
 
