@@ -22,9 +22,6 @@ keys = [
 ]
 
 
-from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = 'ATLAS-GEO-10-00-00'
-
 noMuon = True
 noID = True
 
