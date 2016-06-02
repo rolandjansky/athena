@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrackStateValidation_v1.cxx 633657 2014-12-04 12:08:28Z amorley $
+// $Id: TrackStateValidation_v1.cxx 717831 2016-01-14 20:03:39Z goetz $
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -16,7 +16,7 @@ namespace xAOD {
     : SG::AuxElement() {    
   }
 
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TrackStateValidation_v1, char, type, setType)
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TrackStateValidation_v1, int, type, setType)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TrackStateValidation_v1, uint64_t, detElementId, setDetElementId)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TrackStateValidation_v1, char, detType, setDetType)
 

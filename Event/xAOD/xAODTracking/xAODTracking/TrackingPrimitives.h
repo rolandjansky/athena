@@ -165,19 +165,21 @@ namespace xAOD {
     /// A track in a CaloROI 
     TrackInCaloROI              = 41,
     /// Entries allowing to distinguish different seed makers
-    SiSpacePointsSeedMaker_ForwardTracks        = 42,
+    SiSpacePointsSeedMaker_ForwardTracks   = 42,
     /// L2Star strategies 
-      strategyA                                   = 43,
-      strategyB                                   = 44,
-      strategyC                                   = 45,
+    strategyA                              = 43,
+    strategyB                              = 44,
+    strategyC                              = 45,
     ///   for tracks from FTK
-      FTK                                        = 46,
+    FTK                                    = 46,
     ///  for tracks seeded by the FastTrackFinder
-      FastTrackFinderSeed                        = 47,
+    FastTrackFinderSeed                    = 47,
     //    for tracks processed by the trigger version of the SiSPSeededFinder
-      SiSPSeededFinderSimple                     = 48,
+    SiSPSeededFinderSimple                 = 48,
+    // Large d0 for displaced vertex searches
+    SiSpacePointsSeedMaker_LargeD0         = 49,
     ///maximum number of enums 
-      NumberOfTrackRecoInfo       = 49
+    NumberOfTrackRecoInfo                  = 50
   };
 
   enum ParticleHypothesis { nonInteracting  = 0,
@@ -270,6 +272,7 @@ namespace xAOD {
     numberOfPhiHoleLayers = 10,        //!< layers with trigger phi holes but no hits [unit8_t].
     numberOfTriggerEtaLayers = 11,     //!< layers with trigger eta hits [unit8_t].
     numberOfTriggerEtaHoleLayers = 12, //!< layers with trigger eta holes but no hits [unit8_t].
+    numberOfGoodPrecisionLayers = 66,  //!< layers with at least 3 hits that are not deweighted [uint8_t]
 
     // --- all
     numberOfOutliersOnTrack         =15,  //!< number of measurements flaged as outliers in TSOS [unit8_t].
@@ -281,7 +284,7 @@ namespace xAOD {
     // removed:   eProbabilityBrem                = 50, //!< Electron probability from Brem fitting (DNA) [float].  
     pixeldEdx                       = 51, //!< the dE/dx estimate, calculated using the pixel clusters [?]
     // -- numbers...
-    numberOfTrackSummaryTypes       = 66
+    numberOfTrackSummaryTypes       = 67
   };
 
   /// Enumerates the different types of information stored in Summary. 
@@ -330,8 +333,22 @@ namespace xAOD {
     etaLayer3Holes = 32,         //!< number of eta holes in the third trigger layer (BOL1 ot T2)
     etaLayer4Holes = 33,         //!< number of eta holes in the fourth trigger layer (T3)
 
+    innerClosePrecisionHits = 34,         //!< number of close precision hits in the inner layer
+    middleClosePrecisionHits = 35,        //!< number of close precision hits in the middle layer
+    outerClosePrecisionHits = 36,         //!< number of close precision hits in the outer layer
+    extendedClosePrecisionHits = 37,      //!< number of close precision hits in the extended layer
+
+    innerOutBoundsPrecisionHits = 38,     //!< number of out-of-bounds hits in the inner layer
+    middleOutBoundsPrecisionHits = 39,    //!< number of out-of-bounds hits in the middle layer
+    outerOutBoundsPrecisionHits = 40,     //!< number of out-of-bounds hits in the outer layer
+    extendedOutBoundsPrecisionHits = 41,  //!< number of out-of-bounds hits in the extended layer
+    combinedTrackOutBoundsPrecisionHits = 42, //!< total out-of-bounds hits on the combined track
+
+    isEndcapGoodLayers = 43,                //!< if non-deweighted track chambers are in endcap
+    isSmallGoodSectors = 44,                //!< if non-deweighted track chambers are small
+
     // -- numbers...
-    numberOfMuonSummaryTypes       = 34
+    numberOfMuonSummaryTypes       = 45
   };
 
   /// A convenience namespace to make the client code easier to understand

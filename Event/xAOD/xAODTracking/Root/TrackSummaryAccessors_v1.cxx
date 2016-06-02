@@ -106,6 +106,7 @@ namespace xAOD {
         DEFINE_ACCESSOR( uint8_t, numberOfTriggerEtaHoleLayers );
         DEFINE_ACCESSOR( uint8_t, numberOfOutliersOnTrack           );
         DEFINE_ACCESSOR( uint8_t, standardDeviationOfChi2OS         );
+	DEFINE_ACCESSOR( uint8_t, numberOfGoodPrecisionLayers       );
       default:                  
          std::cerr << "xAOD::TrackParticle_v1 ERROR Unknown SummaryType ("
                    << type << ") requested" << std::endl;

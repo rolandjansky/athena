@@ -35,13 +35,27 @@ namespace xAOD {
       this->makePrivateStore( other );
    }
 
-   Vertex_v1& Vertex_v1::operator=(const Vertex_v1& tp ){
-     if(this == &tp) return *this;
-  
-     if( ( ! hasStore() ) && ( ! container() ) ) {
-       makePrivateStore();
-     }
-     return *this;
+   Vertex_v1& Vertex_v1::operator=( const Vertex_v1& tp ) {
+
+      // Check if anything needs to be done:
+      if( this == &tp ) {
+         return *this;
+      }
+
+      // If the object doesn't have an auxiliary store yet, make a private
+      // one for it:
+      if( ( ! hasStore() ) && ( ! container() ) ) {
+         makePrivateStore();
+      }
+
+      // Invalidate the cache of the object:
+      resetCache();
+
+      // Now let the base class copy the auxiliary contents:
+      SG::AuxElement::operator=( tp );
+
+      // Return the object:
+      return *this;
    }
 
    Type::ObjectType Vertex_v1::type() const {
