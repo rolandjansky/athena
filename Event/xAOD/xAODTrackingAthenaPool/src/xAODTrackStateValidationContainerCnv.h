@@ -43,8 +43,6 @@ public:
    virtual xAOD::TrackStateValidationContainer* createTransient();
 
 private:
-   /// Function preparing a vertex object for persistence
-   void toPersistent( xAOD::TrackStateValidation* np ) const;
 
    /// StoreGate key of the container just being created
    std::string m_key;

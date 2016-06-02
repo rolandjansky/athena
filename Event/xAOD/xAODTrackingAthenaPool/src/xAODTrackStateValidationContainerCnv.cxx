@@ -40,9 +40,7 @@ createPersistent( xAOD::TrackStateValidationContainer* trans ) {
    // Prepare the objects to be written out:
    xAOD::TrackStateValidationContainer::iterator itr = result->begin();
    xAOD::TrackStateValidationContainer::iterator end = result->end();
-   for( ; itr != end; ++itr ) {
-      toPersistent( *itr );
-   }
+   
 
    // Return the new container:
    return result;
@@ -80,9 +78,4 @@ xAOD::TrackStateValidationContainer* xAODTrackStateValidationContainerCnv::creat
    throw std::runtime_error( "Unsupported version of "
                              "xAOD::TrackStateValidationContainer found" );
    return 0;
-}
-
-void xAODTrackStateValidationContainerCnv::
-toPersistent( xAOD::TrackStateValidation* /*np*/ ) const {
-   return;
 }

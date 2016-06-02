@@ -40,9 +40,6 @@ createPersistent( xAOD::TrackMeasurementValidationContainer* trans ) {
    // Prepare the objects to be written out:
    xAOD::TrackMeasurementValidationContainer::iterator itr = result->begin();
    xAOD::TrackMeasurementValidationContainer::iterator end = result->end();
-   for( ; itr != end; ++itr ) {
-      toPersistent( *itr );
-   }
 
    // Return the new container:
    return result;
@@ -80,9 +77,4 @@ xAOD::TrackMeasurementValidationContainer* xAODTrackMeasurementValidationContain
    throw std::runtime_error( "Unsupported version of "
                              "xAOD::TrackMeasurementValidationContainer found" );
    return 0;
-}
-
-void xAODTrackMeasurementValidationContainerCnv::
-toPersistent( xAOD::TrackMeasurementValidation* /*np*/ ) const {
-   return;
 }
