@@ -10,10 +10,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           GaudiKernel
                           PhysicsAnalysis/TruthParticleID/McParticleEvent
-                          Reconstruction/MuonIdentification/muonEvent
                           Reconstruction/Particle
+                          Reconstruction/MuonIdentification/muonEvent
                           Reconstruction/egamma/egammaEvent
                           Reconstruction/tauEvent
+			  xAOD/xAODMuon
+			  xAOD/xAODEgamma
+			  xAOD/xAODTau
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackSummary

@@ -18,6 +18,10 @@ use  	egammaEvent         	egammaEvent-*                   Reconstruction/egamma
 use 	muonEvent		muonEvent-*			Reconstruction/MuonIdentification
 use     tauEvent                tauEvent-*                      Reconstruction
 
+use  	xAODEgamma         	xAODEgamma-*                    Event/xAOD
+use 	xAODMuon		xAODMuon-*			Event/xAOD
+use     xAODTau                 xAODTau-*                       Event/xAOD
+
 use     TrigDecisionTool        TrigDecisionTool-*              Trigger/TrigAnalysis
 use     TrkParticleCreator      TrkParticleCreator-*            Tracking/TrkTools   
 
@@ -37,7 +41,7 @@ use     TrkToolInterfaces       TrkToolInterfaces-*		Tracking/TrkTools
 private
 
 # use 	AtlasAnalysisRunTime 	AtlasAnalysisRunTime-*
-# use     AthenaMonitoring        AthenaMonitoring-*              Control
+# use   AthenaMonitoring        AthenaMonitoring-*              Control
 
 
 # ============================================================================================
