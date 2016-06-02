@@ -167,6 +167,26 @@ StatusCode InDet::TRT_DriftCircleToolCosmics::finalize()
 }
 
 ///////////////////////////////////////////////////////////////////
+// Test validity gate
+///////////////////////////////////////////////////////////////////
+bool InDet::TRT_DriftCircleToolCosmics::passValidityGate(unsigned int word, float lowGate, float highGate, float t0) const {
+    bool foundInterval = false;
+    unsigned  mask = 0x02000000;
+    int i = 0;
+    while ( !foundInterval && (i < 24) ) {
+       if (word & mask) {
+           float thisTime = ((0.5+i)*3.125)-t0;
+           if (thisTime >= lowGate && thisTime <= highGate) foundInterval = true;
+       }
+       mask >>= 1;
+       if (i == 7 || i == 15) mask >>= 1;
+       i++;
+    }
+    if (foundInterval) return true;
+    return false;
+}
+
+///////////////////////////////////////////////////////////////////
 // Trk::TRT_DriftCircles collection production
 ///////////////////////////////////////////////////////////////////
 
@@ -233,20 +253,22 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
 	continue;
       }
 
-      Identifier   id  = (*r)->identify    ()                          ;
-      int          tdcvalue  = (*r)->driftTimeBin()                    ;
-      int          newtdcvalue  = tdcvalue                             ;
-      unsigned int timepll = 0                                         ;
+      Identifier   id  = (*r)->identify();
+      unsigned int timepll = 0;
+
+      // Leading edge as defined in TRT:LoLumRawData
+      int tdcvalue= (*r)->driftTimeBin();  
+      int LE  = tdcvalue;
 
       // Fix hardware bug in testbeam
       if(m_driftFunctionTool->isTestBeamData()) {
         const TRT_TB04_RawData* tb_rdo = dynamic_cast<TRT_TB04_RawData*>(*r);
         if(tb_rdo) timepll = tb_rdo->getTrigType();
         if(m_coll_pll) {
-          newtdcvalue = tdcvalue - timepll/2 + m_coll_pll/2;
+          LE = tdcvalue - timepll/2 + m_coll_pll/2;
         }
         // Increase precision of timing
-        newtdcvalue=2*newtdcvalue+(m_coll_pll%2);
+        LE=2*LE+(m_coll_pll%2);
       }
 
       //
@@ -266,13 +288,13 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
       double t0=0.;
       double driftTime=0.;
       double radius=0.;
-      double rawTime   = m_driftFunctionTool->rawTime(newtdcvalue);
+      double rawTime   = m_driftFunctionTool->rawTime(LE);
 
 
       //correct for phase
       rawTime-=timecor;
       //make tube hit if first bin is high and no later LE appears
-      if( newtdcvalue==0 || newtdcvalue==24 ) {
+      if( LE==0 || LE==24 ) {
         isOK=false;
       } else {
         radius    = m_driftFunctionTool->driftRadius(rawTime,id,t0,isOK);
@@ -283,11 +305,10 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
       if(!isOK) word &= 0xF7FFFFFF; 
       else word |= 0x08000000;
 
-      std::vector<Identifier>    dvi                                   ;
       if(msgLvl(MSG::VERBOSE)) msg() << " id " << m_trtid->layer_or_wheel(id)
 	  << " " << m_trtid->straw_layer(id)
 	  << " " << m_trtid->straw(id)
-          << " new time bin  " << newtdcvalue << " old bin " << (*r)->driftTimeBin()
+          << " new time bin  " << LE << " old bin " << (*r)->driftTimeBin()
           << " timecor " << timecor
           << " old timepll " << timepll  << " new time " << rawTime  << endreq;
          
@@ -301,7 +322,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
             << " drifttime " << driftTime
 	    << " radius " << radius << " error " << error << endreq;
 
-      if( !isOK || (error==0.&&Mode<2) ) //Drifttime out of range. Make wirehit
+      if( !isOK || (error==0.&& Mode <2) ) //Drifttime out of range. Make wirehit
 	{
 	  ATH_MSG_VERBOSE(" Making wirehit.");
 	  radius = 0.;
@@ -313,9 +334,8 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
 
       Amg::Vector2D loc(radius,0.);
 
-      if(Mode<1) dvi.push_back(id); 
 
-      InDet::TRT_DriftCircle* tdc = new InDet::TRT_DriftCircle(id,loc,dvi,errmat,pE,word);
+      InDet::TRT_DriftCircle* tdc = new InDet::TRT_DriftCircle(id,loc,errmat,pE,word);
 
       if (tdc) {
 	     

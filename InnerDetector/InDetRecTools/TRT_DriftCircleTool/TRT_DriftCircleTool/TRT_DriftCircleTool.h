@@ -61,6 +61,9 @@ public:
   /** make the conversion from RDOs to DriftCircles */
   virtual InDet::TRT_DriftCircleCollection*  
   convert(int,const InDetRawDataCollection<TRT_RDORawData>*, const bool  m_CTBBadChannels );  
+  /** test validity gate for corrected drift times */
+  virtual bool passValidityGate(unsigned int word, float lowGate, float highGate, float t0) const;
+
 
   ///////////////////////////////////////////////////////////////////
   // Private methods:
