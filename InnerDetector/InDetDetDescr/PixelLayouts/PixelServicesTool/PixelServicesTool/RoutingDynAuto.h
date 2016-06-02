@@ -23,7 +23,7 @@ public:
 
   typedef ServicesDynTracker::LayerContainer    LayerContainer;
 
-  RoutingDynAuto(const Athena::MsgStreamMember&);
+  RoutingDynAuto(const Athena::MsgStreamMember&, const PixelGeoBuilderBasics* basics);
 
   void createRoutingVolumes(ServicesDynTracker& tracker);
 

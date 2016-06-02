@@ -10,10 +10,10 @@
 
 #include "PixelLayoutUtils/GeoXMLUtils.h"
 
-class PixelRoutingServiceXMLHelper :  public GeoXMLUtils  {
+class PixelRoutingServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
 
  public:
-  PixelRoutingServiceXMLHelper(std::string envFileName);
+  PixelRoutingServiceXMLHelper(std::string envFileName, const PixelGeoBuilderBasics* basics);
   ~PixelRoutingServiceXMLHelper();
 
   int getRouteNumber() const;

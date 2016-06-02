@@ -78,7 +78,7 @@ void ServicesDynTracker::constructEndcapLayer( double zpos, double rmin, double 
 					       int nModulesPerStave, int nChipsPerModule)
 {
   
-  PixelDynamicServiceXMLHelper svcDynHelper("PIXEL_PIXELDYNAMICSERVICE_GEO_XML");
+  PixelDynamicServiceXMLHelper svcDynHelper("PIXEL_PIXELDYNAMICSERVICE_GEO_XML", getBasics());
 
   if(m_bSvcDynAuto) {
     double rEosMin = svcDynHelper.EndcapEOSRMin(layerNum);  
@@ -99,14 +99,14 @@ void ServicesDynTracker::computeServicesPerLayer()
 {
   if(m_bSvcDynAuto) {
     // Code as defined in the PixelGeoModel package // maintained for LoI geometries
-    RoutingDynAuto routing(msgStream());
+    RoutingDynAuto routing(msgStream(),getBasics());
     routing.createRoutingVolumes(*this);
     finaliseServices();
   }
   else {
     // Code that read routes from XML file
     Athena::MsgStreamMember msgRouting(Athena::Options::Eager,"RoutingDyn");
-    RoutingDyn routing(msgRouting);
+    RoutingDyn routing(msgRouting,getBasics());
     routing.createRoutingVolumes(*this);
     routing.addRouteMaterial(getBasics());
     if(m_bSvcBrlModule){

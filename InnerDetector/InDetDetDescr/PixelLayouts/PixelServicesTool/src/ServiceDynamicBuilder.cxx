@@ -66,7 +66,7 @@ ServiceDynamicBuilder::ServiceDynamicBuilder(const PixelGeoBuilderBasics* basics
   delete tracker;
 
   // Envelope interface
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML", basics);
 
   msg(MSG::INFO) <<" ************************** ServiceDynamicBuilder built - BEGIN  - pixServBuilder ****************************"<<endreq;
 

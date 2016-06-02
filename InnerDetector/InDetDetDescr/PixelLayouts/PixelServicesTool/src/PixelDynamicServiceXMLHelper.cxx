@@ -6,18 +6,33 @@
 #include "PixelServicesTool/PixelDynamicServiceXMLHelper.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "PathResolver/PathResolver.h"
+#include "PixelLayoutUtils/DBXMLUtils.h"
 
-PixelDynamicServiceXMLHelper::PixelDynamicServiceXMLHelper(std::string envFileName):
-  GeoXMLUtils()
+PixelDynamicServiceXMLHelper::PixelDynamicServiceXMLHelper(std::string envFileName, const PixelGeoBuilderBasics* basics):
+  GeoXMLUtils(),
+  PixelGeoBuilder(basics)
 {
     
   std::string envName = envFileName;
-  
   std::string fileName;
   if(const char* env_p = std::getenv(envName.c_str())) fileName = std::string(env_p);
-  std::string file = PathResolver::find_file (fileName, "DATAPATH");
-  InitializeXML();
-  m_bParsed = ParseFile(file);
+
+  bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
+  if(readXMLfromDB)
+    {
+      basics->msgStream()<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      DBXMLUtils dbUtils(getBasics());
+      std::string XMLtext = dbUtils.readXMLFromDB(fileName);
+      InitializeXML();
+      m_bParsed = ParseBuffer(XMLtext,std::string(""));
+    }
+  else
+    {
+      basics->msgStream()<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      std::string file = PathResolver::find_file (fileName, "DATAPATH");
+      InitializeXML();
+      m_bParsed = ParseFile(file);
+    }
   
   if(!m_bParsed) return;
 }

@@ -121,7 +121,7 @@ ServiceStaticBuilder::ServiceStaticBuilder(const PixelGeoBuilderBasics* basics, 
 {
 
   // Envelope interface
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
 
   // We process all tables. 
   bool barrelPresent   = genDBHelper.isBarrelPresent();
@@ -207,7 +207,7 @@ void ServiceStaticBuilder::initialize(const std::string & a)
   IRDBRecordset_ptr table = srvDBHelper.getPixelServiceRecordset(a);
   
   msg(MSG::INFO)<<"ServiceStaticBuilder::initialize : ServiceVolumeMaker "<<a<<endreq;
-  InDetDD::SimpleServiceVolumeMaker volMaker(label, table, schema, &geoAccessor(),false);
+  InDetDD::SimpleServiceVolumeMaker volMaker(label, table, schema, getBasics(),false);
   msg(MSG::INFO)<<"ServiceStaticBuilder::initialize : ServiceVolumeMaker : # services "<<a<<"  "<<volMaker.numElements()<<endreq;
   for (unsigned int i = 0; i < volMaker.numElements(); ++i) {
     m_services.push_back(volMaker.make(i));

@@ -11,11 +11,11 @@
 // XML library
 #include "PixelLayoutUtils/GeoXMLUtils.h"
 
-class PixelSimpleServiceXMLHelper :  public GeoXMLUtils  {
+class PixelSimpleServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
 
  public:
-  PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table, const InDetDD::ServiceVolumeSchema & schema);
-  PixelSimpleServiceXMLHelper(std::string envFileName);
+  PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table, const InDetDD::ServiceVolumeSchema & schema, const PixelGeoBuilderBasics* basics);
+  PixelSimpleServiceXMLHelper(std::string envFileName, const PixelGeoBuilderBasics* basics);
   ~PixelSimpleServiceXMLHelper();
 
     double rmin(int index) const;

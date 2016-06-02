@@ -14,7 +14,7 @@
 #include <iostream>
 using namespace std; // for DEBUG
 
-RoutingDynAuto::RoutingDynAuto(const Athena::MsgStreamMember& msg):
+RoutingDynAuto::RoutingDynAuto(const Athena::MsgStreamMember& msg, const PixelGeoBuilderBasics* basics):
   previousBarrelLayer(0), m_msg(msg)
 {
   m_routePixelBarrelOnPST = false;
@@ -36,9 +36,9 @@ RoutingDynAuto::RoutingDynAuto(const Athena::MsgStreamMember& msg):
 
   m_ISTexists = false;
 
-  m_simpleSrvXMLHelper = new PixelSimpleServiceXMLHelper("PIXEL_PIXELSIMPLESERVICE_GEO_XML");
-  m_genXMLHelper = new PixelGeneralXMLHelper("PIXEL_PIXELGENERAL_GEO_XML");
-  m_svcOtherXMLHelper = new PixelDynamicServiceXMLHelper("PIXEL_PIXELDYNAMICSERVICE_GEO_XML");
+  m_simpleSrvXMLHelper = new PixelSimpleServiceXMLHelper("PIXEL_PIXELSIMPLESERVICE_GEO_XML",basics);
+  m_genXMLHelper = new PixelGeneralXMLHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
+  m_svcOtherXMLHelper = new PixelDynamicServiceXMLHelper("PIXEL_PIXELDYNAMICSERVICE_GEO_XML",basics);
 
   m_routeBarrel = true;
   m_routeEndcap = true;

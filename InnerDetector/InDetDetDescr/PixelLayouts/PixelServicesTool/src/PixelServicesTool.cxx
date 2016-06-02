@@ -145,9 +145,8 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
   m_matMgr = basics->matMgr();
   m_msg = basics->msgStream();
 
-
   // Access to teh xml file that defines the geometry envelope
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
   
   //  const GeoShape * envelopeShape;
   double pixelRmin = genDBHelper.getEnvelopeRMin();

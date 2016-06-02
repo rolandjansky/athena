@@ -27,7 +27,7 @@ public:
 
   typedef ServicesDynTracker::LayerContainer LayerContainer;
 
-  RoutingDyn(const Athena::MsgStreamMember&);
+  RoutingDyn(const Athena::MsgStreamMember&, const PixelGeoBuilderBasics* basics);
 
   void createRoutingVolumes(ServicesDynTracker& tracker);
   void addRouteMaterial(const PixelGeoBuilderBasics* basics);

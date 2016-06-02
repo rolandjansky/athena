@@ -11,10 +11,10 @@
 // XML library
 #include "PixelLayoutUtils/GeoXMLUtils.h"
 
-class PixelDynamicServiceXMLHelper :  public GeoXMLUtils  {
+class PixelDynamicServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
 
  public:
-  PixelDynamicServiceXMLHelper(std::string envFileName);
+  PixelDynamicServiceXMLHelper(std::string envFileName, const PixelGeoBuilderBasics* basics);
   ~PixelDynamicServiceXMLHelper();
 
   bool routeBarrelStandard() const;

@@ -10,6 +10,7 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
 // XML library
+#include "PixelGeoModel/PixelGeoBuilder.h"
 #include "PixelLayoutUtils/GeoXMLUtils.h" 
 
 class IGeometryDBSvc;
@@ -95,12 +96,12 @@ namespace InDetDD {
     std::string m_volId;
   };
 
-  class SimpleServiceVolumeMakerMgr : public GeoXMLUtils {
+  class SimpleServiceVolumeMakerMgr : public GeoXMLUtils, public PixelGeoBuilder {
 
   public:
     SimpleServiceVolumeMakerMgr(IRDBRecordset_ptr table, const ServiceVolumeSchema & schema, 
-				const OraclePixGeoAccessor *geoAccessor, bool readDataFromDB);
-    //			  const InDetDD::AthenaComps * athenaComps);
+				bool readDataFromDB,
+				const PixelGeoBuilderBasics* basics);
     
     double rmin(int index) const;
     double rmax(int index) const;
@@ -129,7 +130,7 @@ namespace InDetDD {
     IRDBRecordset_ptr m_table;
     ServiceVolumeSchema m_schema;
     //    const InDetDD::AthenaComps * m_athenaComps;
-    const OraclePixGeoAccessor* m_geoAccessor;
+    //    const OraclePixGeoAccessor* m_geoAccessor;
     PixelSimpleServiceXMLHelper* m_simpleSrvXMLHelper;
     bool m_readFromDB;
     bool m_XMLdefined;
@@ -140,7 +141,7 @@ namespace InDetDD {
     SimpleServiceVolumeMaker(const std::string & label,
 			     IRDBRecordset_ptr table, 
 			     const ServiceVolumeSchema & schema,
-			     const OraclePixGeoAccessor *geoAccessor,
+			     const PixelGeoBuilderBasics* basics,
 			     bool readDataFromDB) ;
     //		       const InDetDD::AthenaComps *);
     ~SimpleServiceVolumeMaker();

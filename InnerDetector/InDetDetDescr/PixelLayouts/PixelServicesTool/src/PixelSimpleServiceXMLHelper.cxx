@@ -6,9 +6,11 @@
 #include "PixelServicesTool/PixelSimpleServiceXMLHelper.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "PathResolver/PathResolver.h"
+#include "PixelLayoutUtils/DBXMLUtils.h"
 
-PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table, const InDetDD::ServiceVolumeSchema & schema):
+PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table, const InDetDD::ServiceVolumeSchema & schema, const PixelGeoBuilderBasics* basics):
   GeoXMLUtils(),
+  PixelGeoBuilder(basics),
   m_schema(schema),
   m_bXMLdefined(true)
 {
@@ -18,9 +20,30 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table
 
   std::string fileName;
   if(const char* env_p = std::getenv(envName.c_str())) fileName = std::string(env_p);
-  std::string file = PathResolver::find_file (fileName, "DATAPATH");
-  InitializeXML();
-  bool bParsed = ParseFile(file);
+  if(fileName.size()==0){
+    m_bXMLdefined = false;
+    return;
+  }
+
+  std::cout<<"PixelSimpleServiceXMLHelper for node : "<<nodeName<<" - "<<envName<<"  -> "<<fileName<<std::endl;
+
+  bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
+  bool bParsed=false;
+  if(readXMLfromDB)
+    {
+      basics->msgStream()<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      DBXMLUtils dbUtils(getBasics());
+      std::string XMLtext = dbUtils.readXMLFromDB(fileName);
+      InitializeXML();
+      bParsed = ParseBuffer(XMLtext,std::string(""));
+    }
+  else
+    {
+      basics->msgStream()<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      std::string file = PathResolver::find_file (fileName, "DATAPATH");
+      InitializeXML();
+      bParsed = ParseFile(file);
+    }
   
   if(!bParsed){
     m_bXMLdefined = false;
@@ -29,8 +52,9 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table
     }
 }
 
-PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(std::string envFileName):
+PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(std::string envFileName, const PixelGeoBuilderBasics* basics):
   GeoXMLUtils(),
+  PixelGeoBuilder(basics),
   m_bXMLdefined(true)
 {
 
@@ -41,10 +65,26 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(std::string envFileName
   
   std::string fileName;
   if(const char* env_p = std::getenv(envName.c_str())) fileName = std::string(env_p);
-  std::string file = PathResolver::find_file (fileName, "DATAPATH");
-  std::cout<<" PixelServices : "<<file<<std::endl;
-  InitializeXML();
-  bool bParsed = ParseFile(file);
+ 
+  bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
+  msgStream()<<"Build material table from XML  (DB XML file : "<<readXMLfromDB<<endreq;
+  std::cout<<"Build material table from XML  (DB XML file : "<<readXMLfromDB<<" )"<<std::endl;
+
+  bool bParsed=false;
+  if(readXMLfromDB)
+    {
+      DBXMLUtils dbUtils(getBasics());
+      std::string XMLtext = dbUtils.readXMLFromDB(fileName);
+      InitializeXML();
+      bParsed = ParseBuffer(XMLtext,std::string(""));
+    }
+  else
+    {
+      std::string file = PathResolver::find_file (fileName, "DATAPATH");
+      std::cout<<" PixelServices : "<<file<<std::endl;
+      InitializeXML();
+      bParsed = ParseFile(file);
+    }
   
   if(!bParsed){
     m_bXMLdefined = false;

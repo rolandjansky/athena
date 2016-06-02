@@ -19,7 +19,7 @@
 #include <algorithm>
 #include <iostream>
 
-RoutingDyn::RoutingDyn(const Athena::MsgStreamMember& msg):
+RoutingDyn::RoutingDyn(const Athena::MsgStreamMember& msg, const PixelGeoBuilderBasics* basics):
   previousBarrelLayer(0) , m_msgRouting(msg)
 {
   m_routePixelBarrelOnPST = false;
@@ -41,10 +41,10 @@ RoutingDyn::RoutingDyn(const Athena::MsgStreamMember& msg):
 
   m_ISTexists = false;
 
-  m_simpleSrvXMLHelper = new PixelSimpleServiceXMLHelper("PIXEL_PIXELSIMPLESERVICE_GEO_XML");
-  m_genXMLHelper = new PixelGeneralXMLHelper("PIXEL_PIXELGENERAL_GEO_XML");
-  m_svcDynXMLHelper = new PixelDynamicServiceXMLHelper("PIXEL_PIXELDYNAMICSERVICE_GEO_XML");
-  m_svcRoutingXMLHelper = new PixelRoutingServiceXMLHelper("PIXEL_PIXELROUTINGSERVICE_GEO_XML");
+  m_simpleSrvXMLHelper = new PixelSimpleServiceXMLHelper("PIXEL_PIXELSIMPLESERVICE_GEO_XML",basics);
+  m_genXMLHelper = new PixelGeneralXMLHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
+  m_svcDynXMLHelper = new PixelDynamicServiceXMLHelper("PIXEL_PIXELDYNAMICSERVICE_GEO_XML",basics);
+  m_svcRoutingXMLHelper = new PixelRoutingServiceXMLHelper("PIXEL_PIXELROUTINGSERVICE_GEO_XML",basics);
 
   m_routeBarrel = true;
   m_routeEndcap = false;
@@ -1172,9 +1172,19 @@ void RoutingDyn::computeBarrelModuleMaterial(const PixelGeoBuilderBasics* basics
       int nbModuleType = m_bplc[iLayer]->moduleTypeNumber();
       std::vector<int> nbModulePerType_init=m_bplc[iLayer]->modulesPerStave();
 
-      std::vector<int> nbModulePerType;
+      std::map<std::string,std::vector<int> >configurationType;
+      std::vector<int> nbModulePerType_tmp;
       for(int i=0 ; i<nbModuleType; i++) 
-	nbModulePerType.push_back(nbModulePerType_init[i]/2+nbModulePerType_init[i]%2);
+	nbModulePerType_tmp.push_back(nbModulePerType_init[i]/2+nbModulePerType_init[i]%2);
+      configurationType.insert(std::pair<std::string,std::vector<int> >("even",nbModulePerType_tmp));
+      if(nbModulePerType_init[0]%2==1) 
+	{
+	  nbModulePerType_tmp.clear();
+	  nbModulePerType_tmp.push_back(nbModulePerType_init[0]/2);
+	  for(int i=1 ; i<nbModuleType; i++) 
+	    nbModulePerType_tmp.push_back(nbModulePerType_init[i]/2+nbModulePerType_init[i]%2);
+	  configurationType.insert(std::pair<std::string,std::vector<int> >("odd",nbModulePerType_tmp));
+	}
 
       // Material identifiers
       std::string materialId;
@@ -1183,122 +1193,130 @@ void RoutingDyn::computeBarrelModuleMaterial(const PixelGeoBuilderBasics* basics
 	materialId+=m_svcRoutingXMLHelper->getServiceSetNameId(svcSetIndex);
       }
 
-      // Loop over the module : starting from the center of a stave
-      for(int iModule=1; iModule<nbModule+1; iModule++)
+      // Loop over configuration types
+      std::map<std::string,std::vector<int> >::iterator configIterator;
+      for(configIterator=configurationType.begin(); configIterator!=configurationType.end(); ++configIterator)
 	{
 
-	  // Distribute the module number over the different module types
-	  std::vector<int> nbModuleLayer;
-	  for(int i=0; i<nbModuleType; i++)nbModuleLayer.push_back(0);
-	  bool bEndOfLoop=false;
-	  int iCmpt_prev=0;
-	  for(int iType=0 ; iType<nbModuleType&&!bEndOfLoop; iType++) {
-	    int iCmpt_next = iCmpt_prev+nbModulePerType[iType];
-	    if(iModule>=iCmpt_next) nbModuleLayer[iType]=nbModulePerType[iType];
-	    else { nbModuleLayer[iType]=iModule-iCmpt_prev; bEndOfLoop=true; }
-	    iCmpt_prev = iCmpt_next;
-	  }
-
-	  if (msgLvl(MSG::DEBUG)) { 
-	    msg(MSG::DEBUG)<<endreq;
-	    msg(MSG::DEBUG)<<"MODULE per layer : "<<iModule<<" : "; for(int i=0; i<(int)nbModuleLayer.size(); i++) msg(MSG::INFO)<<nbModuleLayer[i]<<"  "; msg(MSG::INFO)<<"// "<<materialId<<endreq;
-	  }
-
-	  std::string matName = constructBarrelLayerName(materialId, nbModuleLayer);
-	  bool bAlreadyDefined = (std::find(brlModuleMaterialNames.begin(), brlModuleMaterialNames.end(), matName)!=brlModuleMaterialNames.end());	 
-
-	  // Register material name
-	  std::ostringstream idName;
-	  idName<<"Barrel_L"<<iLayer;
-	  for(int iType=0 ; iType<nbModuleType; iType++) idName<<"_M"<<nbModuleLayer[iType];
-	  m_svcMaterialNameTable.insert(std::pair<std::string,std::string>(idName.str(),matName));
-
-	  // Material already defined
-	  if(bAlreadyDefined) {
-	    msg(MSG::INFO) <<"Barrel module material "<<matName<<" already defined"<<endreq;
-	  }
-	  else {
-	    // Compute material corresponding to iModule modules
-	    ServiceDynMaterial layerMat = computeRouteMaterial( basics, m_bplc[iLayer]->type(), m_bplc[iLayer]->part(), m_bplc[iLayer]->number(),
-								nbModuleLayer, m_bplc[iLayer]->chipsPerModule(), false);
-
-	    std::vector<std::string> staveMaterialCmpt;
-	    staveMaterialCmpt.clear();
-	    std::vector<std::string> linearComponents;
-	    std::vector<double>      linWeights;
-	    double linWeightsTot = 0.;
-	    for ( ServiceDynMaterial::EntryIter ient= layerMat.components().begin(); ient!=layerMat.components().end(); ient++) {
+	  std::vector<int> nbModulePerType = configIterator->second;
+	  // Loop over the module : starting from the center of a stave
+	  for(int iModule=1; iModule<nbModule+1; iModule++)
+	    {
 	      
-	      msg(MSG::DEBUG)<<"Inside components loop, comp = "<<ient->name<<" number "<<ient->number<<" weight "<<ient->weight<<" linear "<<ient->linear<<endreq;
-
-	      std::string prename = ient->name;	      
-	      // check if material is a stave material -> stave material are taken into account only once
-	      bool bAddMaterialToBudget = true;
-	      for(std::vector<std::string>::iterator itMat=staveMaterialNames.begin(); itMat!=staveMaterialNames.end(); ++itMat) {
-		if(ient->name.find(*itMat)!=std::string::npos) 
-		  {
-		    bool bStaveMaterialCmpt=(std::find(staveMaterialCmpt.begin(), staveMaterialCmpt.end(), (*itMat))!=staveMaterialCmpt.end());	      
-		    if(!bStaveMaterialCmpt)
-		      staveMaterialCmpt.push_back(*itMat);
-		    else
-		      bAddMaterialToBudget = false;
-		  }
+	      // Distribute the module number over the different module types
+	      std::vector<int> nbModuleLayer;
+	      for(int i=0; i<nbModuleType; i++)nbModuleLayer.push_back(0);
+	      bool bEndOfLoop=false;
+	      int iCmpt_prev=0;
+	      for(int iType=0 ; iType<nbModuleType&&!bEndOfLoop; iType++) 
+		{
+		  int iCmpt_next = iCmpt_prev+nbModulePerType[iType];
+		  if(iModule>=iCmpt_next) nbModuleLayer[iType]=nbModulePerType[iType];
+		  else { nbModuleLayer[iType]=iModule-iCmpt_prev; bEndOfLoop=true; }
+		  iCmpt_prev = iCmpt_next;
+		}
+	      
+	      if (msgLvl(MSG::DEBUG)) { 
+		msg(MSG::DEBUG)<<endreq;
+		msg(MSG::DEBUG)<<"MODULE per layer : "<<iModule<<" : "; for(int i=0; i<(int)nbModuleLayer.size(); i++) msg(MSG::INFO)<<nbModuleLayer[i]<<"  "; msg(MSG::INFO)<<"// "<<materialId<<endreq;
 	      }
 	      
-	      if(bAddMaterialToBudget){
-		if (ient->linear) {
-		  std::vector<std::string>::iterator it=std::find(linearComponents.begin(), linearComponents.end(), prename);
-		  if(it!=linearComponents.end()){
-		    int index = std::distance(linearComponents.begin(),it);
-		    linWeights[index] += fabs( ient->number * ient->weight);
+	      std::string matName = constructBarrelLayerName(materialId, nbModuleLayer);
+	      bool bAlreadyDefined = (std::find(brlModuleMaterialNames.begin(), brlModuleMaterialNames.end(), matName)!=brlModuleMaterialNames.end());	 
+	      
+	      // Register material name
+	      std::ostringstream idName;
+	      idName<<"Barrel_L"<<iLayer;
+	      for(int iType=0 ; iType<nbModuleType; iType++) idName<<"_M"<<nbModuleLayer[iType];
+	      m_svcMaterialNameTable.insert(std::pair<std::string,std::string>(idName.str(),matName));
+	      
+	      // Material already defined
+	      if(bAlreadyDefined) {
+		msg(MSG::INFO) <<"Barrel module material "<<matName<<" already defined"<<endreq;
+	      }
+	      else {
+		// Compute material corresponding to iModule modules
+		ServiceDynMaterial layerMat = computeRouteMaterial( basics, m_bplc[iLayer]->type(), m_bplc[iLayer]->part(), m_bplc[iLayer]->number(),
+								    nbModuleLayer, m_bplc[iLayer]->chipsPerModule(), false);
+		
+		std::vector<std::string> staveMaterialCmpt;
+		staveMaterialCmpt.clear();
+		std::vector<std::string> linearComponents;
+		std::vector<double>      linWeights;
+		double linWeightsTot = 0.;
+		for ( ServiceDynMaterial::EntryIter ient= layerMat.components().begin(); ient!=layerMat.components().end(); ient++) {
+		  
+		  msg(MSG::DEBUG)<<"Inside components loop, comp = "<<ient->name<<" number "<<ient->number<<" weight "<<ient->weight<<" linear "<<ient->linear<<endreq;
+		  
+		  std::string prename = ient->name;	      
+		  // check if material is a stave material -> stave material are taken into account only once
+		  bool bAddMaterialToBudget = true;
+		  for(std::vector<std::string>::iterator itMat=staveMaterialNames.begin(); itMat!=staveMaterialNames.end(); ++itMat) {
+		    if(ient->name.find(*itMat)!=std::string::npos) 
+		      {
+			bool bStaveMaterialCmpt=(std::find(staveMaterialCmpt.begin(), staveMaterialCmpt.end(), (*itMat))!=staveMaterialCmpt.end());	      
+			if(!bStaveMaterialCmpt)
+			  staveMaterialCmpt.push_back(*itMat);
+			else
+			  bAddMaterialToBudget = false;
+		      }
+		  }
+		  
+		  if(bAddMaterialToBudget){
+		    if (ient->linear) {
+		      std::vector<std::string>::iterator it=std::find(linearComponents.begin(), linearComponents.end(), prename);
+		      if(it!=linearComponents.end()){
+			int index = std::distance(linearComponents.begin(),it);
+			linWeights[index] += fabs( ient->number * ient->weight);
+		      }
+		      else{
+			linearComponents.push_back( prename);
+			linWeights.push_back( fabs( ient->number * ient->weight));
+		      }
+		    }
+		    else {
+		      linearComponents.push_back( prename);      // the distiction between linear and not is done in the
+		      linWeights.push_back( fabs( ient->weight*ient->number));  // InDetMaterialmanager, based on the weight table flag
+		    }
+		    
+		    linWeightsTot += fabs( ient->number * ient->weight);
 		  }
 		  else{
-		    linearComponents.push_back( prename);
-		    linWeights.push_back( fabs( ient->number * ient->weight));
+		    msg(MSG::DEBUG) << "IGNORE : Inside components loop, comp = " << ient->name <<endreq;
 		  }
 		}
-		else {
-		  linearComponents.push_back( prename);      // the distiction between linear and not is done in the
-		  linWeights.push_back( fabs( ient->weight*ient->number));  // InDetMaterialmanager, based on the weight table flag
-		}
 		
-		linWeightsTot += fabs( ient->number * ient->weight);
+		msg(MSG::DEBUG)<<"Barrel module material "<<matName<<" : "<<linWeightsTot<<endreq;
+		
+		// Register material used as base to build weighted material
+		std::string matName_base = matName+"_Base";
+		GeoMaterial* newMat = new GeoMaterial(matName_base,1.*(CLHEP::g/CLHEP::cm3));
+		double invLinWeightsTot = 1./linWeightsTot;
+		int nbComp = (int)linWeights.size();
+		for(int i=0; i<nbComp; i++)
+		  {
+		    GeoMaterial *matComp = const_cast<GeoMaterial*>(basics->matMgr()->getMaterial(linearComponents[i]));
+		    newMat->add(matComp, linWeights[i]*invLinWeightsTot);
+		  }
+		basics->matMgr()->addMaterial(newMat);
+		
+		// Register weighted material
+		basics->matMgr()->addWeightMaterial(matName, matName_base, linWeightsTot , 1);
+		msg(MSG::DEBUG)<<"Barrel module material "<<matName<<" / "<<matName_base<<" registered"<<endreq;  
+		
+		msg(MSG::DEBUG)<< "  => final material    " << newMat->getName()<<"   density : "<<newMat->getDensity()/(CLHEP::g/CLHEP::cm3)<<" g/cm3     X0 : "<<newMat->getRadLength()/CLHEP::mm<<"mm"<<endreq;
+		
+		// Save material name
+		brlModuleMaterialNames.push_back(matName);
+	      } // end of bAlreadyDefined
+	      
+	      if (msgLvl(MSG::DEBUG)) { 
+		const GeoMaterial * newMat = basics->matMgr()->getMaterialForVolume( matName, 1. );
+		msg(MSG::DEBUG) << "  moduleMat ("<<iLayer<<" "<<iModule<<" "<<newMat->getRadLength()/CLHEP::mm<<"),"<<endreq;
 	      }
-	      else{
-		msg(MSG::DEBUG) << "IGNORE : Inside components loop, comp = " << ient->name <<endreq;
-	      }
-	    }
 
-	    msg(MSG::DEBUG)<<"Barrel module material "<<matName<<" : "<<linWeightsTot<<endreq;
-
-	    // Register material used as base to build weighted material
-	    std::string matName_base = matName+"_Base";
-	    GeoMaterial* newMat = new GeoMaterial(matName_base,1.*(CLHEP::g/CLHEP::cm3));
-	    double invLinWeightsTot = 1./linWeightsTot;
-	    int nbComp = (int)linWeights.size();
-	    for(int i=0; i<nbComp; i++)
-	      {
-		GeoMaterial *matComp = const_cast<GeoMaterial*>(basics->matMgr()->getMaterial(linearComponents[i]));
-		newMat->add(matComp, linWeights[i]*invLinWeightsTot);
-	      }
-	    basics->matMgr()->addMaterial(newMat);
-	    
- 	    // Register weighted material
- 	    basics->matMgr()->addWeightMaterial(matName, matName_base, linWeightsTot , 1);
- 	    msg(MSG::DEBUG)<<"Barrel module material "<<matName<<" / "<<matName_base<<" registered"<<endreq;  
-	    
-	    msg(MSG::DEBUG)<< "  => final material    " << newMat->getName()<<"   density : "<<newMat->getDensity()/(CLHEP::g/CLHEP::cm3)<<" g/cm3     X0 : "<<newMat->getRadLength()/CLHEP::mm<<"mm"<<endreq;
-
-	    // Save material name
-	    brlModuleMaterialNames.push_back(matName);
-	  } // end of bAlreadyDefined
-	  
-	  if (msgLvl(MSG::DEBUG)) { 
-	    const GeoMaterial * newMat = basics->matMgr()->getMaterialForVolume( matName, 1. );
-	    msg(MSG::DEBUG) << "  moduleMat ("<<iLayer<<" "<<iModule<<" "<<newMat->getRadLength()/CLHEP::mm<<"),"<<endreq;
-	  }
-
-	}// end of loop over module
+	    }// end of loop over module
+	} // end of loop over configration (odd/even)
     }// end of loop over layer
 
   msg(MSG::DEBUG) << "********************************************************************************************"<<endreq;

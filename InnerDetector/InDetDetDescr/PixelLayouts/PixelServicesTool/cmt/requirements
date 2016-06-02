@@ -1,6 +1,7 @@
 package PixelServicesTool
+author LAPP team  
 
-private
+private 
 
 use PathResolver   PathResolver-*    Tools
 use AtlasCLHEP      AtlasCLHEP-*      External
