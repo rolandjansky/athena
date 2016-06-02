@@ -30,10 +30,15 @@
 
 #include "TrigInDetTruthEvent/TrigInDetTrackTruthMap.h"
 
+#ifdef XAODTRACKING_TRACKPARTICLE_H
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODTau/TauJetContainer.h"
+#else
 #include "muonEvent/MuonContainer.h"
 #include "egammaEvent/ElectronContainer.h"
 #include "tauEvent/TauJetContainer.h"
-
+#endif
 
 class MsgSvc;
 class StoreGateSvc;
@@ -268,8 +273,8 @@ public:
   bool filterOnRoi()          const { return m_filterOnRoi; }
   bool setFilterOnRoi(bool b)       { return m_filterOnRoi=b; }
 
-  void       setRequireDecision(bool b) { m_requireDecision=b; } 
-  bool requireDecision() const          { return m_requireDecision; } 
+  void setRequireDecision(bool b) { m_requireDecision=b; } 
+  bool requireDecision() const    { return m_requireDecision; } 
   
 protected:
 
@@ -383,7 +388,7 @@ protected:
   ////////////////////////////////////////////////////////////////////////////////////////////
   /// select offline electrons
   ////////////////////////////////////////////////////////////////////////////////////////////
-  unsigned processElectrons( TrigTrackSelector& selectorRef, const unsigned int selection = 0,
+  unsigned processElectrons( TrigTrackSelector& selectorRef, const unsigned int selection=0, double ETOffline=0,
 #                            ifdef XAODTRACKING_TRACKPARTICLE_H
 			     const std::string& containerName = "Electrons"
 #                            else
@@ -433,7 +438,7 @@ protected:
 
       bool good_electron = false;
 #     ifdef XAODTRACKING_TRACKPARTICLE_H
-      good_electron = TIDA::isGoodOffline(*(*elec), selection);
+      good_electron = TIDA::isGoodOffline(*(*elec), selection, ETOffline );
 #     else
       good_electron = TIDA::isGoodOffline(*(*elec));
 #     endif
@@ -450,6 +455,7 @@ protected:
   /// select offline muons
   ////////////////////////////////////////////////////////////////////////////////////////////
   unsigned processMuons(     TrigTrackSelector& selectorRef,
+			     double ETOffline=0,
 #                            ifdef XAODTRACKING_TRACKPARTICLE_H
                              const std::string& containerName = "Muons"
 #                            else
@@ -484,13 +490,11 @@ protected:
     auto muon_end = container->end();
 
     for( ; muon!=muon_end ; ++muon ){
-      if (TIDA::isGoodOffline(*(*muon))) {
-#      ifdef XAODTRACKING_TRACKPARTICLE_H
-       selectorRef.selectTrack(*((*muon)->inDetTrackParticleLink()));
-#      else
-       selectorRef.selectTrack((*muon)->inDetTrackParticle());
-#      endif
-      }
+#     ifdef XAODTRACKING_TRACKPARTICLE_H
+      if (TIDA::isGoodOffline(*(*muon)), ETOffline ) selectorRef.selectTrack(*((*muon)->inDetTrackParticleLink()));
+#     else
+      if (TIDA::isGoodOffline(*(*muon))) selectorRef.selectTrack((*muon)->inDetTrackParticle());
+#     endif
     }
 
     m_provider->msg(MSG::DEBUG) << "found  " << selectorRef.tracks().size() << " muons for " << containerName << endreq;
@@ -503,15 +507,15 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////////////////
     /// select offline taus
     ////////////////////////////////////////////////////////////////////////////////////////////
-unsigned processTaus(      TrigTrackSelector& selectorRef,
-			   bool doThreeProng = true,
-			   double tauEtCutOffline = 0.,
-			   const unsigned int selection = 0,
-#                          ifdef XAODTRACKING_TRACKPARTICLE_H
-			   const std::string& containerName = "TauJets"
-#                          else
-			   const std::string& containerName = "TauRecContainer"
-#                          endif
+unsigned processTaus( TrigTrackSelector& selectorRef,
+		      bool           doThreeProng=true,
+		      const unsigned selection=0,
+		      double         EtCutOffline=0,
+#                     ifdef XAODTRACKING_TRACKPARTICLE_H
+		      const std::string& containerName = "TauJets"
+#                     else
+		      const std::string& containerName = "TauRecContainer"
+#                     endif
 			   ) {
   
 # ifdef XAODTRACKING_TRACKPARTICLE_H
@@ -540,19 +544,19 @@ unsigned processTaus(      TrigTrackSelector& selectorRef,
     return 0;
   }
 
-  auto tau     = container->begin();
-  auto tau_end = container->end();
+  Container::const_iterator tau     = container->begin();
+  Container::const_iterator tau_end = container->end();
 
   unsigned Ntaus = 0;
 
   for ( ; tau!=tau_end ; ++tau ) {
 
     bool good_tau = false;
-#     ifdef XAODTRACKING_TRACKPARTICLE_H
-    good_tau = TIDA::isGoodOffline( *(*tau), doThreeProng, tauEtCutOffline, selection );
-#     else
-    good_tau = TIDA::isGoodOffline( *(*tau), doThreeProng, tauEtCutOffline );
-#     endif
+#   ifdef XAODTRACKING_TRACKPARTICLE_H
+    good_tau = TIDA::isGoodOffline( *(*tau), doThreeProng, selection, EtCutOffline );
+#   else
+    good_tau = TIDA::isGoodOffline( *(*tau), doThreeProng, EtCutOffline );
+#   endif
       
     if (good_tau){
 #     ifdef XAODTRACKING_TRACKPARTICLE_H
@@ -561,8 +565,12 @@ unsigned processTaus(      TrigTrackSelector& selectorRef,
       unsigned N = (*tau)->numTrack(); 
 #     endif
 
-      for ( unsigned i=N ; i-- ; )  {  
+      for ( unsigned i=N ; i-- ; )  {
+#       ifdef XAODTAU_TAUTRACK_H  
+        selectorRef.selectTrack((*tau)->track(i)->track());
+#       else
         selectorRef.selectTrack((*tau)->track(i));
+#       endif
         Ntaus++;
       }
     }
