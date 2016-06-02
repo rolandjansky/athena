@@ -39,6 +39,7 @@
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "PixelMonitoring/PixelMon2DMaps.h"
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
+#include "PixelMonitoring/PixelMon2DProfilesLW.h"
 #include "PixelMonitoring/PixelMonModules.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
@@ -119,6 +120,23 @@ StatusCode PixelMainMon::BookTrackMon(void)
        sc = m_tsos_holemap->regHist(trackHistos, m_doIBL, false);
        m_tsos_outliermap = new PixelMon2DMapsLW("TSOS_Outlier", ("TSOS of type Outlier" + m_histTitleExt), m_doIBL, false);
        sc = m_tsos_outliermap->regHist(trackHistos, m_doIBL, false);
+
+       //m_tsos_measratio = new PixelMon2DProfilesLW("TSOS_MeasRatio", ("TSOS of type Meas per track" + m_histTitleExt), m_doIBL, false);
+       //sc = m_tsos_measratio->regHist(trackHistos, m_doIBL, false);
+       //m_tsos_holeratio = new PixelMon2DProfilesLW("TSOS_HoleRatio", ("TSOS of type Hole per track" + m_histTitleExt), m_doIBL, false);
+       //sc = m_tsos_holeratio->regHist(trackHistos, m_doIBL, false);
+       m_misshits_ratio = new PixelMon2DProfilesLW("MissHitsRatioOnTrack", ("Hole+Outlier per track" + m_histTitleExt), m_doIBL, false);
+       sc = m_misshits_ratio->regHist(trackHistos, m_doIBL, false);
+     }
+     if(m_doOnline){
+       m_tsos_holeratio_tmp = new PixelMon2DProfilesLW("HoleRatio_tmp", ("TSOS of type Hole per track tmp" + m_histTitleExt), m_doIBL, false);
+       sc = m_tsos_holeratio_tmp->regHist(trackHistos, m_doIBL, false);
+       m_tsos_holeratio_mon = new PixelMon2DProfilesLW("HoleRatio_mon", ("TSOS of type Hole per track for monitoring" + m_histTitleExt), m_doIBL, false);
+       sc = m_tsos_holeratio_mon->regHist(trackHistos, m_doIBL, false);
+       m_misshits_ratio_tmp = new PixelMon2DProfilesLW("MissHitsRatioOnTrack_tmp", ("Hole+Outlier per track" + m_histTitleExt), m_doIBL, false);
+       sc = m_misshits_ratio_tmp->regHist(trackHistos, m_doIBL, false);
+       m_misshits_ratio_mon = new PixelMon2DProfilesLW("MissHitsRatioOnTrack_mon", ("Hole+Outlier per track for monitoring" + m_histTitleExt), m_doIBL, false);
+       sc = m_misshits_ratio_mon->regHist(trackHistos, m_doIBL, false);
      }
 
      if(m_doModules){
@@ -160,18 +178,18 @@ StatusCode PixelMainMon::BookTrackMon(void)
      
      sc=trackHistos.regHist(m_degFactorMap = TProfile2D_LW::create("degFactorMap", ("degradation factor map for IP resolution" + m_histTitleExt + ";track #eta;track #phi").c_str(), 60, -3.0, 3.0, 80, -4.0, 4.0));
      m_degFactorMap->SetOption("colz");
-     sc=trackHistos.regHist(m_degFactorMap_per_lumi = TProfile_LW::create("degFactorMap_per_lumi", ("overall degradation factor for IP resolution per lumi" + m_histTitleExt + ";lumi block;overall avg deg. factor").c_str(), 2500, -0.5, 2499.5));
-     sc=trackHistos.regHist(m_degFactorMap_eta_per_lumi = TProfile2D_LW::create("degFactorMap_eta_per_lumi", ("degradation factor (eta) for IP resolution per lumi" + m_histTitleExt + ";lumi block;track #eta").c_str(),  2500, -0.5, 2499.5, 60, -3.0, 3.0 ));
+     sc=trackHistos.regHist(m_degFactorMap_per_lumi = TProfile_LW::create("degFactorMap_per_lumi", ("overall degradation factor for IP resolution per lumi" + m_histTitleExt + ";lumi block;overall avg deg. factor").c_str(), m_lbRange, -0.5, -0.5+(float)m_lbRange));
+     sc=trackHistos.regHist(m_degFactorMap_eta_per_lumi = TProfile2D_LW::create("degFactorMap_eta_per_lumi", ("degradation factor (eta) for IP resolution per lumi" + m_histTitleExt + ";lumi block;track #eta").c_str(),  m_lbRange, -0.5, -0.5+(float)m_lbRange, 60, -3.0, 3.0 ));
      m_degFactorMap_eta_per_lumi->SetOption("colz");
      //sc=trackHistos.regHist(m_degFactorMap_phi_per_lumi = TProfile2D_LW::create("degFactorMap_phi_per_lumi", ("degradation factor (phi) for IP resolution per lumi" + m_histTitleExt + ";lumi block;track #phi").c_str(),  2500, -0.5, 2499.5, 80, -4.0, 4.0 ));
      //m_degFactorMap_phi_per_lumi->SetOption("colz");
       for(int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
          hname = makeHistname(("HitEff_all_"+modlabel[i]), false);
          htitles = makeHisttitle(("hit efficiency, "+modlabel[i]), ";lumi block;hit efficiency", false);
-         sc = trackHistos.regHist(m_hiteff_incl_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), 2500, -0.5, 2499.5));
+         sc = trackHistos.regHist(m_hiteff_incl_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), m_lbRange, -0.5, -0.5+(float)m_lbRange));
          hname = makeHistname(("HitEff_actv_"+modlabel[i]), false);
          htitles = makeHisttitle(("hit efficiency for active modules, "+modlabel[i]), ";lumi block;hit efficiency", false);
-         sc = trackHistos.regHist(m_hiteff_actv_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), 2500, -0.5, 2499.5));
+         sc = trackHistos.regHist(m_hiteff_actv_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), m_lbRange, -0.5, -0.5+(float)m_lbRange));
       }
 
    }
@@ -276,25 +294,27 @@ StatusCode PixelMainMon::FillTrackMon(void)
             id_hash = m_pixelid->wafer_hash(surfaceID); 
             active = m_pixelCondSummarySvc->isActive(id_hash);
 	 }
+
+	 //float nMeasurement = 0.;
+	 float nOutlier = 0.;
+	 float nHole = 0.;
+
 	 if((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){
 	    clus = dynamic_cast< const InDet::SiClusterOnTrack*>(mesb);
-	    if(clus){
-	       clusID = clus->identify();
-	    }
+	    if(clus) clusID = clus->identify();
+	    //nMeasurement = 1.0;
 	 }
 	 
 	 if((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)){
 	   clus = dynamic_cast< const InDet::SiClusterOnTrack*>((*trackStateOnSurfaceIterator)->measurementOnTrack());
-	   if(clus){
-	     clusID = clus->identify();
-	   }
+	   if(clus) clusID = clus->identify();
+	   nOutlier = 1.0;
 	 }
 	  
 	 if((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)){
 	   clus = dynamic_cast< const InDet::SiClusterOnTrack*>((*trackStateOnSurfaceIterator)->measurementOnTrack());
-	   if(clus){
-	     clusID = clus->identify();
-	   }
+	   if(clus) clusID = clus->identify();
+	   nHole = 1.0;
 	 }
 
 
@@ -319,7 +339,22 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	    if( m_hiteff_incl_mod[pixlayer] && passQualityCut ) m_hiteff_incl_mod[pixlayer]->Fill( m_manager->lumiBlockNumber(), 0.0 );
 	    if( m_hiteff_actv_mod[pixlayer] && passQualityCut && active) m_hiteff_actv_mod[pixlayer]->Fill( m_manager->lumiBlockNumber(), 0.0 );
 	 }
-	
+
+	 if(m_idHelper->is_pixel(surfaceID)){
+	   //if(m_tsos_measratio && passQualityCut) m_tsos_measratio->Fill(surfaceID,m_pixelid,m_doIBL,false,nMeasurement);
+	   //if(m_tsos_holeratio && passQualityCut) m_tsos_holeratio->Fill(surfaceID,m_pixelid,m_doIBL,false,nHole);
+	   if(m_doOnline && m_tsos_holeratio_tmp && passQualityCut) m_tsos_holeratio_tmp->Fill(surfaceID,m_pixelid,m_doIBL,false,nHole);
+	   if(passQualityCut){
+             if(nOutlier + nHole > 0.){
+               if(m_misshits_ratio) m_misshits_ratio->Fill(surfaceID,m_pixelid,m_doIBL,false,1.0);
+               if(m_doOnline && m_misshits_ratio_tmp) m_misshits_ratio_tmp->Fill(surfaceID,m_pixelid,m_doIBL,false,1.0);
+             }else{
+               if(m_misshits_ratio) m_misshits_ratio->Fill(surfaceID,m_pixelid,m_doIBL,false,0.0);
+               if(m_doOnline && m_misshits_ratio_tmp) m_misshits_ratio_tmp->Fill(surfaceID,m_pixelid,m_doIBL,false,0.0);
+	     }
+	   }
+	 }
+
          /// Require hits on layers
 	 if(!(*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){continue;}
          if(!clus)continue;
@@ -510,6 +545,13 @@ StatusCode PixelMainMon::FillTrackMon(void)
    //}
    if(m_doOnTrack || m_doOnPixelTrack)sort (m_RDOIDs.begin(), m_RDOIDs.end());
    if(m_doOnTrack || m_doOnPixelTrack)sort (m_ClusterIDs.begin(), m_ClusterIDs.end());
+
+   if(m_doOnline){
+      if(m_doRefresh5min) {
+         if(m_tsos_holeratio_mon && m_tsos_holeratio_tmp) m_tsos_holeratio_mon->Fill2DMon(m_tsos_holeratio_tmp);
+         if(m_misshits_ratio_mon && m_misshits_ratio_tmp) m_misshits_ratio_mon->Fill2DMon(m_misshits_ratio_tmp);
+      }
+   }//end of doOnline loop processing
 
    return StatusCode::SUCCESS;
 }      

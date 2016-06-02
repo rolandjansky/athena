@@ -28,6 +28,7 @@ class PixelMonModules2D;
 class PixelMon2DMaps;
 class DBMMon2DMaps;
 class PixelMon2DMapsLW;
+class PixelMon2DProfilesLW;
 class PixelMonProfiles;
 class PixelMon2DLumiProfiles;
 class PixelMon2DLumiMaps;
@@ -191,6 +192,7 @@ class PixelMainMon:public ManagedMonitorToolBase
     time_t m_startTime;
     bool m_majorityDisabled; //check for each event, true if >50% modules disabled 
 
+    int m_lbRange;
     int m_lumiBlockNum;
     unsigned int m_firstBookTime;
     unsigned int m_currentTime;
@@ -205,6 +207,7 @@ class PixelMainMon:public ManagedMonitorToolBase
     int m_nGood_ECC;
     int m_nGood_ECA;
     unsigned int m_nRefresh;
+    unsigned int m_nRefresh5min;
 
     const AtlasDetectorID* m_idHelper;      
 
@@ -253,6 +256,7 @@ class PixelMainMon:public ManagedMonitorToolBase
     bool m_doTiming;
     bool m_doLumiBlock;   //store module status, error etc for each lumiblock
     bool m_doRefresh;
+    bool m_doRefresh5min;
     bool isFirstBook;
     bool m_doDegFactorMap;
 
@@ -307,6 +311,7 @@ class PixelMainMon:public ManagedMonitorToolBase
 
     TProfile_LW*          m_hits_per_lumi_mod[PixLayer::COUNT];
     TProfile_LW*          m_avgocc_per_lumi_mod[PixLayer::COUNT];
+    TProfile_LW*          m_avgocc_per_bcid_mod[PixLayer::COUNT];
     TH2F_LW*              m_maxocc_per_lumi_mod[PixLayer::COUNT];
     TH1F_LW*              m_nlargeevt_per_lumi_mod[PixLayer::COUNT];
 
@@ -391,6 +396,13 @@ class PixelMainMon:public ManagedMonitorToolBase
     PixelMon2DMapsLW*     m_tsos_hitmap;
     PixelMon2DMapsLW*     m_tsos_holemap;
     PixelMon2DMapsLW*     m_tsos_outliermap;
+    //PixelMon2DProfilesLW* m_tsos_measratio;
+    //PixelMon2DProfilesLW* m_tsos_holeratio;
+    PixelMon2DProfilesLW* m_misshits_ratio;
+    PixelMon2DProfilesLW* m_tsos_holeratio_tmp;
+    PixelMon2DProfilesLW* m_tsos_holeratio_mon;
+    PixelMon2DProfilesLW* m_misshits_ratio_tmp;
+    PixelMon2DProfilesLW* m_misshits_ratio_mon;
 
     TProfile2D_LW*        m_degFactorMap;
     TProfile_LW*          m_degFactorMap_per_lumi;
@@ -403,6 +415,8 @@ class PixelMainMon:public ManagedMonitorToolBase
     TH2F_LW*              m_nlowToT_vs_clussize_mod[PixLayer::COUNT];
     TProfile_LW*          m_clusters_per_lumi;
     TProfile_LW*          m_clusters_per_lumi_mod[PixLayer::COUNT];
+    TProfile_LW*          m_clusters_row_width_per_lumi_mod[PixLayer::COUNT];
+    TProfile_LW*          m_clusters_col_width_per_lumi_mod[PixLayer::COUNT];
     TProfile_LW*          m_largeclusters_per_lumi;
     TProfile_LW*          m_verylargeclusters_per_lumi;
     TH1I_LW*              m_totalclusters_per_lumi;
@@ -480,6 +494,10 @@ class PixelMainMon:public ManagedMonitorToolBase
     PixelMonProfiles*     m_cluster_LVL1A_mod;
     PixelMonProfiles*     m_clus_LVL1A_sizenot1;
     TProfile_LW*          m_clustersOnOffTrack_per_lumi;
+    PixelMon2DProfilesLW* m_lowToTHitsFraction_7;
+    PixelMon2DProfilesLW* m_lowToTHitsFraction_9;
+    PixelMon2DProfilesLW* m_lowToTHitsFraction_11;
+    PixelMon2DProfilesLW* m_lowToTHitsFraction_13;
 
     ///
     ///Status histograms

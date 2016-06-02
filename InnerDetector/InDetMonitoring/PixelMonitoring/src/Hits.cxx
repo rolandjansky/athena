@@ -78,7 +78,7 @@ StatusCode PixelMainMon::BookHitsMon(void)
    std::string hname;
    std::string htitles;
    
-   int nbins_LB = 2500; double min_LB  = -0.5; double max_LB = min_LB + (1.0*nbins_LB);        
+   int nbins_LB = m_lbRange; double min_LB  = -0.5; double max_LB = min_LB + (1.0*nbins_LB);        
    int nbins_tot3 = 300; double min_tot3 = -0.5; double max_tot3 = min_tot3 + (1.0*nbins_tot3);
    int nbins_tot4 = 20;  double min_tot4 = -0.5; double max_tot4 = min_tot4 + (1.0*nbins_tot4);
 
@@ -86,6 +86,7 @@ StatusCode PixelMainMon::BookHitsMon(void)
    static constexpr int nmod_eta[PixLayer::COUNT] = {3, 3, 13, 13, 13, 20};
 
    std::string atext_LB = ";lumi block"; 
+   std::string atext_BCID = ";BCID"; 
    std::string atext_nevt = ";# events"; 
    std::string atext_nhit = ";# hits"; 
    std::string atext_hit = ";# hits/event"; 
@@ -133,6 +134,11 @@ StatusCode PixelMainMon::BookHitsMon(void)
       hname = makeHistname(("nLargeEvent_per_lumi_"+modlabel[i]), false);
       htitles = makeHisttitle(("Number of large events (hitocc > 0.7#times 10^{-3}), "+modlabel[i]), (atext_LB+atext_nevt), false);
       sc = rdoShift.regHist(m_nlargeevt_per_lumi_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
+
+      hname = makeHistname(("AvgOcc_per_BCID_"+modlabel[i]), false);
+      htitles = makeHisttitle(("Average pixel occupancy per BCID, "+modlabel[i]), (atext_BCID+atext_occ), false);
+      sc = rdoExpert.regHist(m_avgocc_per_bcid_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
+
    }
 
    for(int i=0; i<PixLayerIBL2D3DDBM::COUNT; i++){
@@ -699,6 +705,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
    for( int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
       if(nactivechannels_mod[i] > 0) avgocc_mod[i] = nhits_mod[i]/nactivechannels_mod[i];
       if(m_avgocc_per_lumi_mod[i]) m_avgocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(),avgocc_mod[i]);
+      if(m_avgocc_per_bcid_mod[i]) m_avgocc_per_bcid_mod[i]->Fill(prev_pix_bcid, avgocc_mod[i]);
       if(avgocc_mod[i] > 0.0007 && m_nlargeevt_per_lumi_mod[i]) m_nlargeevt_per_lumi_mod[i]->Fill( m_lumiBlockNum );
       if(m_maxocc_per_lumi_mod[i]) m_maxocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_mod[i]);
    }

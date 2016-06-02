@@ -152,13 +152,16 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("DetailsMod4",     m_DetailsMod4 = "");
    declareProperty("OccupancyCut",    m_occupancy_cut = 1e-5);
 
+   m_lbRange = 3000;
    m_isNewRun = false;
    m_isNewLumiBlock = false;
    m_newLowStatInterval = false;
    m_doRefresh = false;
+   m_doRefresh5min = false;
    m_firstBookTime = 0;
    isFirstBook = false;
    m_nRefresh = 0;
+   m_nRefresh5min = 0;
 
    //initalize all the histograms to 0 to start
    m_events_per_lumi = 0;
@@ -254,6 +257,13 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_tsos_hitmap = 0;
    m_tsos_holemap = 0;
    m_tsos_outliermap = 0;
+   //m_tsos_measratio = 0;
+   //m_tsos_holeratio = 0;
+   m_misshits_ratio = 0;
+   m_tsos_holeratio_tmp = 0;
+   m_tsos_holeratio_mon = 0;
+   m_misshits_ratio_tmp = 0;
+   m_misshits_ratio_mon = 0;
    m_clusters_per_lumi = 0;
    m_largeclusters_per_lumi = 0;
    m_verylargeclusters_per_lumi = 0;
@@ -380,6 +390,10 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_num_clusters_LB = 0;                                
    m_num_clusters_low_LB = 0;  
    m_hitmap_mon = 0;
+   m_lowToTHitsFraction_7 = 0;
+   m_lowToTHitsFraction_9 = 0;
+   m_lowToTHitsFraction_11 = 0;
+   m_lowToTHitsFraction_13 = 0;
 
    m_pixelid =0;
    pixelmgr =0;
@@ -418,9 +432,12 @@ PixelMainMon::PixelMainMon(const std::string & type,
       m_hit_ToT_tmp_mod[i] = 0;
       m_hit_ToT_Mon_mod[i] = 0;
       m_avgocc_per_lumi_mod[i] = 0;
+      m_avgocc_per_bcid_mod[i] = 0;
       m_maxocc_per_lumi_mod[i] = 0;
       m_hits_per_lumi_mod[i] = 0;
       m_clusters_per_lumi_mod[i] = 0;
+      m_clusters_col_width_per_lumi_mod[i] = 0;
+      m_clusters_row_width_per_lumi_mod[i] = 0;
       m_totalclusters_per_lumi_mod[i] = 0;
       m_cluster_col_width_mod[i] = 0;
       m_cluster_row_width_mod[i] = 0;
@@ -972,12 +989,22 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
       m_currentTime = thisEventInfo->event_ID()->time_stamp(); 
       //msg(MSG::INFO) << "First booking time:" << m_firstBookTime << " Current time: " << m_currentTime << endreq;
       unsigned int currentdiff = (m_currentTime - m_firstBookTime)/100;
+      unsigned int currentdiff5min = (m_currentTime - m_firstBookTime)/300;
+      /// for 100 sec
       if( currentdiff > m_nRefresh ){
          m_doRefresh = true;
          m_nRefresh = currentdiff;
       //   msg(MSG::INFO) << "m_doRefresh:" << m_doRefresh << " " << m_nRefresh << endreq;
       }else{
          m_doRefresh = false;
+      }
+      /// for 5min
+      if( currentdiff5min > m_nRefresh5min ){
+         m_doRefresh5min = true;
+         m_nRefresh5min = currentdiff5min;
+      //   msg(MSG::INFO) << "m_doRefresh:" << m_doRefresh << " " << m_nRefresh << endreq;
+      }else{
+         m_doRefresh5min = false;
       }
    }
 
