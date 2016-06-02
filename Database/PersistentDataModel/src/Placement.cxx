@@ -12,44 +12,21 @@ static const char* fmt_tech = "[TECH=%08X]";
 Placement::Placement() : m_technology(0L), m_fileName(""), m_containerName("") {
 }
 
-void Placement::setFileName(const std::string& fileName) {
-  m_fileName = fileName;
-}
-
-const std::string& Placement::fileName() const {
-  return m_fileName;
-}
-
-void Placement::setContainerName(const std::string& containerName) {
-  m_containerName = containerName;
-}
-
-const std::string& Placement::containerName() const {
-  return m_containerName;
-}
-
-void Placement::setTechnology(long technology) {
-  m_technology = technology;
-}
-
-long Placement::technology() const {
-  return m_technology;
-}
-
 const std::string Placement::toString() const {
    char text[128];
    std::string str = "[FILE=" + m_fileName + "][CONT=" + m_containerName + "]";
    sprintf(text, fmt_tech, m_technology);
    str += text;
+   str += m_auxString;
    return str;
 }
 
-Placement& Placement::fromString(const std::string& source)    {
+Placement& Placement::fromString(const std::string& source) {
    for (const char* p1 = source.c_str(); p1; p1 = ::strchr(++p1,'[')) {
       const char* p2 = ::strchr(p1, '=');
       const char* p3 = ::strchr(p1, ']');
       if (p2 != 0 && p3 != 0) {
-         if (::strncmp("[FILE=", p1, 6) == 0)  {
+         if (::strncmp("[FILE=", p1, 6) == 0) {
             char* p3mod = const_cast<char*>(p3);
             *p3mod = 0;
             m_fileName = p2 + 1;
@@ -61,6 +38,9 @@ Placement& Placement::fromString(const std::string& source)    {
             *p3mod = ']';
          } else if (::strncmp(fmt_tech, p1, 6) == 0) {
             ::sscanf(p1, fmt_tech, &m_technology);
+         } else {
+            m_auxString = p1;
+            break;
          }
       }
    }

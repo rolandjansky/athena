@@ -71,8 +71,8 @@ public:
    const Guid& classID() const { return m_classID; }
    /// Access database identifier
    Token& setClassID(const Guid& cl_id) { m_classID = cl_id; return *this; }
-   /// Access technoliogy type
-   int  technology() const { return m_technology; }
+   /// Access technology type
+   int technology() const { return m_technology; }
    /// Set technology type
    Token& setTechnology(int t) { m_technology = t; return *this; }
    /// Access object identifier
@@ -85,6 +85,10 @@ public:
    int type() const { return m_type; }
    /// Set token type
    Token& setType(int t) { m_type = t; return *this; }
+   /// Access auxiliary string
+   const std::string& auxString() const { return m_auxString; }
+   /// Set auxiliary string
+   Token& setAuxString(const std::string& auxString) { m_auxString = auxString; return *this; }
 
    /// Retrieve the string representation of the token.
    virtual const std::string toString() const;
@@ -112,6 +116,8 @@ private:
    OID_t m_oid;
    /// Token type
    int m_type;
+   /// Auxiliary string
+   std::string m_auxString;
 };
 
 #endif

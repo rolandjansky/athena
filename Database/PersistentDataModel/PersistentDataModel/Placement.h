@@ -24,20 +24,22 @@ public:
    /// Constructor with initialization
    Placement(const std::string& fileName, const std::string& containerName, long technology);
 
-   /// Set file name
-   void setFileName(const std::string& fileName);
    /// Access file name
-   const std::string& fileName() const;
-
-   /// Set container name
-   void setContainerName(const std::string& containerName);
+   const std::string& fileName() const { return m_fileName; }
+   /// Set file name
+   Placement& setFileName(const std::string& fileName) { m_fileName = fileName; return *this; }
    /// Access container name
-   const std::string& containerName() const;
-
+   const std::string& containerName() const { return m_containerName; }
+   /// Set container name
+   Placement& setContainerName(const std::string& containerName) { m_containerName = containerName; return *this; }
+   /// Access technology type
+   int technology() const { return m_technology; }
    /// Set technology type
-   void setTechnology(long technology);
-   /// Access technoliogy type
-   long technology() const;
+   Placement& setTechnology(int technology) { m_technology = technology; return *this; }
+   /// Access auxiliary string
+   const std::string& auxString() const { return m_auxString; }
+   /// Set auxiliary string
+   Placement& setAuxString(const std::string& auxString) { m_auxString = auxString; return *this; }
 
    /// Retrieve the string representation of the placement.
    const std::string toString() const;
@@ -51,6 +53,8 @@ private:
    std::string m_fileName;
    /// Container name
    std::string m_containerName;
+   /// Auxiliary string
+   std::string m_auxString;
 };
 
 #endif
