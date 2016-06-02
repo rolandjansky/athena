@@ -32,6 +32,7 @@ use xAODTrigRinger              xAODTrigRinger-*                Event/xAOD
 use InDetTrackSelectionTool     InDetTrackSelectionTool-*       InnerDetector/InDetRecTools
 use RecoToolInterfaces          RecoToolInterfaces-*            Reconstruction/RecoTools
 use xAODPrimitives              xAODPrimitives-*                Event/xAOD
+use PATCore                     PATCore-*                       PhysicsAnalysis/AnalysisCommon
 
 private
 use  AthenaBaseComps            AthenaBaseComps-*               Control
@@ -44,6 +45,8 @@ end_private
 
 apply_pattern declare_joboptions files="test*.py"
 apply_pattern declare_python_modules files="TrigEgamma*.py"
-apply_pattern generic_declare_for_link kind=binaries files="-s=../macros trigEgammaDQ.py get_trigEgammaDQ.sh" prefix=share/bin
+apply_pattern declare_scripts files="../share/*.sh \
+                                     ../share/trigEgammaDQ.py"
+#apply_pattern generic_declare_for_link kind=binaries files="-s=../macros trigEgammaDQ.py get_trigEgammaDQ.sh" prefix=share/bin
 library TrigEgammaAnalysisTools *.cxx ../Root/*.cxx -s=components *.cxx
 apply_pattern component_library

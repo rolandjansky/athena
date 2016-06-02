@@ -142,9 +142,14 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
     ATH_MSG_DEBUG("Execute TP selection");
     TrigEgammaNavTPBaseTool::executeTandP();
 
+    // Check HLTResult
+    if(tdt()->ExperimentalAndExpertMethods()->isHLTTruncated()){
+        ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
+        return StatusCode::SUCCESS;
+    }
+
     for(unsigned int ilist = 0; ilist != m_trigList.size(); ilist++) {
         std::string probeTrigger = m_trigList.at(ilist);
-        if(isPrescaled(probeTrigger)) continue; //Account for L1 and HLT prescale, discard event
         const char * cprobeTrigger = m_trigList.at(ilist).c_str();
         ATH_MSG_DEBUG("Start Chain Analysis ============================= " << probeTrigger);
         cd(m_dir+"/Expert/Event");
@@ -164,58 +169,43 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
             if(tool->toolExecute(m_dir+"/Expert",info,m_pairObj).isFailure())
                 ATH_MSG_DEBUG("TE Tool Fails");// Requires offline match
         }
+        if(isPrescaled(probeTrigger)){
+            ATH_MSG_DEBUG(probeTrigger << " prescaled, skipping efficiency");    
+            continue; //Account for L1 and HLT prescale, discard event
+        }
         for(unsigned int i=0;i<m_pairObj.size();i++){
 
             const xAOD::Electron* offEl = static_cast<const xAOD::Electron *> (m_pairObj[i].first);
             float et = getEt(offEl)/1e3;
             if(et < info.trigThrHLT-5.0) continue; 
             if(!offEl->auxdecor<bool>(info.trigPidDecorator)) continue; 
-            bool passedL1Calo=false;
-            bool passedL2Calo=false;
-            bool passedL2=false;
-            bool passedEFCalo=false;
-            bool passedEF=false;
             const HLT::TriggerElement* feat = m_pairObj[i].second;
-
+            setAccept(feat,info); //Sets the trigger accepts
             cd(m_dir+"/Expert/Event");
             if(et > info.trigThrHLT + 1.0)
                 hist1(m_anatype+"_nProbes")->Fill(cprobeTrigger,1);
             if ( feat ) {
-                passedL1Calo=ancestorPassed<xAOD::EmTauRoI>(feat);
-                passedL2Calo = ancestorPassed<xAOD::TrigEMCluster>(feat);
-                passedL2 = ancestorPassed<xAOD::TrigElectronContainer>(feat);
-                passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(feat);
-                passedEF = ancestorPassed<xAOD::ElectronContainer>(feat);
                 if(et > info.trigThrHLT + 1.0){
-                    if( passedL1Calo){
+                    hist1(m_anatype+"_EffL1")->Fill(cprobeTrigger,getAccept().getCutResult("L1Calo"));
+                    hist1(m_anatype+"_EffL2Calo")->Fill(cprobeTrigger,getAccept().getCutResult("L2Calo"));
+                    hist1(m_anatype+"_EffL2")->Fill(cprobeTrigger,getAccept().getCutResult("L2"));
+                    hist1(m_anatype+"_EffEFCalo")->Fill(cprobeTrigger,getAccept().getCutResult("EFCalo"));
+                    hist1(m_anatype+"_EffHLT")->Fill(cprobeTrigger,getAccept().getCutResult("HLT"));
+                    if( getAccept().getCutResult("L1Calo")){
                         hist1(m_anatype+"_nProbesL1")->Fill(cprobeTrigger,1);
-                        hist1(m_anatype+"_EffL1")->Fill(cprobeTrigger,1);
                     }
-                    else  hist1(m_anatype+"_EffL1")->Fill(cprobeTrigger,0);
-
-                    if( passedL2Calo ){
+                    if( getAccept().getCutResult("L2Calo") ){
                         hist1(m_anatype+"_nProbesL2Calo")->Fill(cprobeTrigger,1);
-                        hist1(m_anatype+"_EffL2Calo")->Fill(cprobeTrigger,1);
                     }
-                    else  hist1(m_anatype+"_EffL2Calo")->Fill(cprobeTrigger,0);
-                    
-                    if( passedL2 ){
+                    if( getAccept().getCutResult("L2") ){
                         hist1(m_anatype+"_nProbesL2")->Fill(cprobeTrigger,1);
-                        hist1(m_anatype+"_EffL2")->Fill(cprobeTrigger,1);
                     }
-                    else  hist1(m_anatype+"_EffL2")->Fill(cprobeTrigger,0);
-                    
-                    if( passedEFCalo ){
+                    if( getAccept().getCutResult("EFCalo") ){
                         hist1(m_anatype+"_nProbesEFCalo")->Fill(cprobeTrigger,1);
-                        hist1(m_anatype+"_EffEFCalo")->Fill(cprobeTrigger,1);
                     }
-                    else hist1(m_anatype+"_EffEFCalo")->Fill(cprobeTrigger,0);
-                    
-                    if( passedEF ){
+                    if( getAccept().getCutResult("HLT") ){
                         hist1(m_anatype+"_nProbesHLT")->Fill(cprobeTrigger,1);
-                        hist1(m_anatype+"_EffHLT")->Fill(cprobeTrigger,1);
                     }
-                    else  hist1(m_anatype+"_EffHLT")->Fill(cprobeTrigger,0);
                 }
             } // Features
             // Fill TProfile for no feature found (means no match)

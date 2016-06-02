@@ -56,7 +56,7 @@ else
 fi    
 inputfile=`ls | grep HIST`
 hcg.exe ${inputfile} -d HLT/Egamma -r Egamma TREG --tag "reference = stream=physics_Main:CentrallyManagedReferences_Main;CentrallyManagedReferences" -ds "https://twiki.cern.ch/twiki/bin/view/Atlas/TrigEgammaDataQualityAndMonitoring" --deleteref > ${data}.${stream}.$run.config
-python trigEgammaDQ.py --file ${inputfile} --run ${run} --t0 True
+trigEgammaDQ.py --file ${inputfile} --run ${run} --t0 True
 rm *.bak
 #tar -czf TrigEgammaDQArchive_Run_${run}.tar.gz ${data}.* *.C *.eps --remove-files
 

@@ -101,12 +101,6 @@ bool TrigEgammaNavBaseTool::EventWiseSelection( ){
     m_eventInfo=0;
     m_truthContainer = 0;
 
-    // Check HLTResult
-    if(tdt()->ExperimentalAndExpertMethods()->isHLTTruncated()){
-        ATH_MSG_WARNING("HLTResult truncated, skip event");
-        return false;
-    }
-    
     if ( (m_storeGate->retrieve(m_eventInfo, "EventInfo")).isFailure() ){
         ATH_MSG_WARNING("Failed to retrieve eventInfo ");
         return false;

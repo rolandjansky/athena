@@ -49,8 +49,8 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     : AsgTool(myname),
     m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool"),
     m_matchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool"),
-    m_lumiTool("LuminosityTool"),
-    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
+    m_lumiTool("LuminosityTool/OnlLuminosity"),//online mu
+    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool") //offline mu
 {
     declareProperty("MatchTool",m_matchTool);
     declareProperty("PlotTool",m_plot);
@@ -162,6 +162,7 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
     
     }*/
 
+    for(const auto cut:m_trigLevel) m_accept.addCut(cut,cut);
     return sc;
 }
 
@@ -486,6 +487,40 @@ bool TrigEgammaAnalysisBaseTool::isPrescaled(const std::string trigger){
     if(rerun) return false; // Rerun use the event
     if(prescale) return true; // Prescaled, reject event
     return false; // Not prescaled, use event
+}
+
+void TrigEgammaAnalysisBaseTool::setAccept(const HLT::TriggerElement *te,const TrigInfo info){
+    ATH_MSG_DEBUG("setAccept");
+    m_accept.clear();
+    bool passedL1Calo=false;
+    bool passedL2Calo=false;
+    bool passedEFCalo=false;
+    bool passedL2=false;
+    bool passedEFTrk=false; 
+    bool passedEF=false;
+    
+    passedL1Calo = ancestorPassed<xAOD::EmTauRoI>(te);
+    if(!info.trigL1){ // HLT item get full decision
+        passedL2Calo = ancestorPassed<xAOD::TrigEMCluster>(te);
+        passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(te,"TrigEFCaloCalibFex");
+        if(info.trigType == "electron"){
+            passedL2=ancestorPassed<xAOD::TrigElectronContainer>(te);
+            passedEF = ancestorPassed<xAOD::ElectronContainer>(te);
+            passedEFTrk = ancestorPassed<xAOD::TrackParticleContainer>(te,"InDetTrigTrackingxAODCnv_Electron_IDTrig");
+        }
+        else if(info.trigType == "photon"){
+            passedL2=ancestorPassed<xAOD::TrigPhotonContainer>(te);
+            passedEF = ancestorPassed<xAOD::PhotonContainer>(te);
+            passedEFTrk=true;// Assume true for photons
+        }
+    }
+
+    m_accept.setCutResult("L1Calo",passedL1Calo);
+    m_accept.setCutResult("L2Calo",passedL2Calo);
+    m_accept.setCutResult("L2",passedL2);
+    m_accept.setCutResult("EFCalo",passedEFCalo);
+    m_accept.setCutResult("EFTrack",passedEFTrk);
+    m_accept.setCutResult("HLT",passedEF);
 }
 
 float TrigEgammaAnalysisBaseTool::dR(const float eta1, const float phi1, const float eta2, const float phi2){
@@ -914,3 +949,7 @@ void TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex(){
 
 }
 
+// definitions
+const std::vector<std::string> TrigEgammaAnalysisBaseTool::m_trigLevel = {"L1Calo","L2Calo","L2","EFCalo","EFTrack","HLT"};
+const std::map<std::string,std::string> TrigEgammaAnalysisBaseTool::m_trigLvlMap = {{"L1Calo","Trigger L1Calo step"},{"L2Calo","Trigger L2Calo step"},
+    {"L2","Trigger L2 step"},{"EFCalo","Trigger EFCalo step"},{"EFTrack","Trigger EFTrack step"},{"HLT","Trigger HLT accept"}};
