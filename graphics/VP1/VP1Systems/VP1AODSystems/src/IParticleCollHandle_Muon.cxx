@@ -134,6 +134,23 @@ void IParticleCollHandle_Muon::setupSettingsFromControllerSpecific(AODSystemCont
   connect(d->collSettingsButton,SIGNAL(shownAssociatedObjectsChanged(MuonCollectionSettingsButton::ShownAssociatedObjects)),this,SLOT(updateShownAssociatedObjects()));
 }
 
+
+void IParticleCollHandle_Muon::resetCachedValuesCuts()
+{
+	// TODO: it is not used so far! Check Other collections and update accordingly
+
+	// kinetic cuts
+	setCutAllowedPt(d->collSettingsButton->cutAllowedPt());
+	setCutAllowedEta(d->collSettingsButton->cutAllowedEta());
+	setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
+	// other settings
+	setMinimumQuality(d->collSettingsButton->minimumQuality());
+
+  // TODO: adding "shownAssociatedObjectsChanged" settings as well??
+}
+
+
+
 const MuonCollectionSettingsButton& IParticleCollHandle_Muon::collSettingsButton() const {
   if (!d->collSettingsButton){
     messageVerbose("No collSettingsButton set! Can't call init(), so crash is imminent...");

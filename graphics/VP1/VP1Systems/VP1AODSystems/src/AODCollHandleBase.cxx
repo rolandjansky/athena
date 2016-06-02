@@ -36,7 +36,7 @@
 #include "Inventor/nodes/SoDrawStyle.h"
 #include "Inventor/nodes/SoLightModel.h"
 
-//Athnea
+//Athena
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 

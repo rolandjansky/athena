@@ -97,7 +97,6 @@ public:
   virtual void dumpToJSON( std::ofstream& ) const ;
 
 
-protected:  
 
 private:
 

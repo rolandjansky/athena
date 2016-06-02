@@ -58,6 +58,8 @@ public:
 
 	// vars to store b-tagging weights for different taggers
 	double m_bTagWeightMV1;
+	double m_bTagWeightMV2c20;
+	double m_bTagWeightMV2c10;
 	double m_JetFitterCombNN_pb;
 	double m_JetFitterCombNN_pc;
 	double m_JetFitterCombNN_pu;
@@ -112,6 +114,8 @@ IParticleHandle_Jet::IParticleHandle_Jet(IParticleCollHandleBase* ch, const xAOD
 
 	// get b-tagging weights for different taggers
 	d->m_bTagWeightMV1 = getBTaggingWeight("MV1");
+	d->m_bTagWeightMV2c20 = getBTaggingWeight("MV2c20");
+	d->m_bTagWeightMV2c10 = getBTaggingWeight("MV2c10");
 	d->m_JetFitterCombNN_pb = getBTaggingWeight("JetFitterCombNN_pb");
 	d->m_JetFitterCombNN_pc = getBTaggingWeight("JetFitterCombNN_pc");
 	d->m_JetFitterCombNN_pu = getBTaggingWeight("JetFitterCombNN_pu");
@@ -471,6 +475,8 @@ QStringList IParticleHandle_Jet::clicked() const
 	l += "   - InputType: " + QString::fromStdString( inputType );
 
 
+	l += "   - 'MV2c20' b-tagging weight: " + QString::number( d->m_bTagWeightMV2c20 );
+	l += "   - 'MV2c10' b-tagging weight: " + QString::number( d->m_bTagWeightMV2c10 );
 	l += "   - 'MV1' b-tagging weight: " + QString::number( d->m_bTagWeightMV1 );
 
 
@@ -492,6 +498,8 @@ QString IParticleHandle_Jet::shortInfo() const
 	l += ", e: " + QString::number(d->energy());
 	l += ", eta: " + QString::number(d->eta());
 	l += ", phi: " + QString::number(d->phi());
+	l += ", MV2c20: " + QString::number( d->m_bTagWeightMV2c20 );
+	l += ", MV2c10: " + QString::number( d->m_bTagWeightMV2c10 );
 	l += ", MV1: " + QString::number( d->m_bTagWeightMV1 );
 
 	return l;
@@ -519,7 +527,7 @@ void IParticleHandle_Jet::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfIte
 	//
 
 	dParameters+="pt: ";
-	dParameters+=d->pt();
+	dParameters+=QString::number(d->pt());
 	dParameters+=", e: ";
 	dParameters+=QString::number(d->energy());
 	dParameters+=", eta: ";
@@ -714,6 +722,8 @@ double IParticleHandle_Jet::getBTaggingWeight(std::string tagger)
 		weight = myBTag->JetFitterCombNN_pc();
 	else if (tagger == "JetFitterCombNN_pu")
 		weight = myBTag->JetFitterCombNN_pu();
+	else if ("MV2c20")
+		const bool hasMv2c20 = myBTag->MVx_discriminant("MV2c20", weight);
 	else
 		VP1Msg::message("Tagger '" + QString::fromStdString(tagger) + "' not found! Returning weight=0.0 ...");
 

@@ -28,6 +28,8 @@
 #include "VP1Base/IVP1System.h"
 #include "VP1Base/VP1Msg.h"
 #include "VP1Base/VP1Interval.h"
+#include "VP1Base/VP1Serialise.h"
+#include "VP1Base/VP1Deserialise.h"
 #include "VP1Utils/VP1SGAccessHelper.h"
 #include "VP1Utils/VP1SGContentsHelper.h"
 
@@ -223,6 +225,18 @@ void MissingEtCollHandle::setupSettingsFromControllerSpecific(AODSystemControlle
   //	connect(d->collSettingsButton,SIGNAL(rerandomise()),this,SLOT(rerandomise()));
   //	connect(d->collSettingsButton,SIGNAL(randomJetColoursChanged(const bool&)),this,SLOT(setRandomJetColours(const bool&)));
   //	setRandomJetColours(d->collSettingsButton->randomJetColours());
+}
+
+
+void MissingEtCollHandle::resetCachedValuesCuts()
+{
+	// TODO: it is not used so far! Check Other collections and update accordingly
+
+	// kinetic cuts
+	setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
+	// other settings
+	setMetSize(d->collSettingsButton->metLength());
+
 }
 
 //SoMaterial* MissingEtCollHandle::defaultParameterMaterial() const {
@@ -510,3 +524,71 @@ void MissingEtCollHandle::setCutAllowedPhi(const QList<VP1Interval>& allowedPhi)
   return;
 }
 
+//____________________________________________________________________
+QByteArray MissingEtCollHandle::persistifiableState() const
+{
+  messageDebug("MissingEtCollHandle::persistifiableState() - start...");
+
+  // if (!d->matButton) {
+  //   message("ERROR: persistifiableState() called before init()");
+  //   return QByteArray();
+  // }
+
+
+  VP1Serialise serialise(1/*version*/);
+
+  // settings
+  serialise.disableUnsavedChecks();
+
+  // SAVE THE CHECKED/UNCHECKED STATUS OF THE COLLECTION
+  serialise.save(visible());
+
+  // SAVE THE MATERIAL BUTTON
+  //Q_ASSERT(d->matButton&&"Did you forget to call init() on this VP1StdCollection?");
+  //serialise.save(d->matButton->saveState());
+
+  // SAVE THE EXTRA-STATES
+  serialise.save(extraWidgetsState());//version 1+
+
+  // SAVE MATERIAL SETTINGS / CUTS
+  serialise.save(d->collSettingsButton->saveState());
+
+  messageDebug("MissingEtCollHandle::persistifiableState() - end.");
+  return serialise.result();
+}
+
+//____________________________________________________________________
+void MissingEtCollHandle::setState(const QByteArray&state)
+{
+  messageDebug("MissingEtCollHandle::setState()");
+
+  VP1Deserialise des(state);
+  des.disableUnrestoredChecks();
+  if (des.version()!=0&&des.version()!=1) {
+    messageDebug("Warning: Ignoring state with wrong version");
+    return;
+  }
+
+  // save state
+
+  bool vis = des.restoreBool();
+
+  //	QByteArray matState = des.restoreByteArray();
+  // d->matButton->restoreFromState(matState);
+  QByteArray extraWidgetState = des.version()>=1 ? des.restoreByteArray() : QByteArray();
+  setVisible(vis);
+
+  if (extraWidgetState!=QByteArray())
+    setExtraWidgetsState(extraWidgetState);
+
+  // MATERIAL SETTINGS / CUTS
+  messageDebug("restoring material collection button...");
+  des.restore(d->collSettingsButton);
+
+  messageDebug("reset all caches storing values for cuts...");
+  resetCachedValuesCuts();
+
+  messageDebug("recheck all handles...");
+  recheckCutStatusOfAllVisibleHandles();
+
+}

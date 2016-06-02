@@ -74,7 +74,7 @@ private slots:
 	void setBTaggingCut(const double &);
 	void setBTaggingMaterialChanged(const bool&);
 	void setBTaggingSkinChanged(const bool& ok);
-
+	void resetCachedValuesCuts();
 
 private:
 

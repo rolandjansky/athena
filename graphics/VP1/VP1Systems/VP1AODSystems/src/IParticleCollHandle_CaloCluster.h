@@ -107,6 +107,7 @@ private slots:
 //	void setBTaggingMaterialChanged(const bool&);
 //	void setBTaggingSkinChanged(const bool& ok);
 	void setShowVolumeOutLines(bool);
+	void resetCachedValuesCuts();
 
 
 private:

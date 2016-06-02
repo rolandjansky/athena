@@ -353,7 +353,16 @@ void IParticleCollHandle_CaloCluster::setupSettingsFromControllerSpecific(AODSys
 
 }
 
+void IParticleCollHandle_CaloCluster::resetCachedValuesCuts()
+{
+	// kinetic cuts
+	setCutAllowedPt(d->collSettingsButton->cutAllowedPt());
+	setCutAllowedEta(d->collSettingsButton->cutAllowedEta());
+	setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
+	// other settings
+	setScale( d->collSettingsButton->scale() ); // FIXME:
 
+}
 
 //____________________________________________________________________
 //SoMaterial* IParticleCollHandle_CaloCluster::defaultParameterMaterial() const {
@@ -922,9 +931,14 @@ void IParticleCollHandle_CaloCluster::setState(const QByteArray&state)
     setExtraWidgetsState(extraWidgetState);
 
   // MATERIAL SETTINGS / CUTS
+  messageDebug("restoring material collection button...");
   des.restore(d->collSettingsButton);
 
+  messageDebug("reset all caches storing values for cuts...");
+  resetCachedValuesCuts();
 
+  messageDebug("recheck all handles...");
+  recheckCutStatusOfAllVisibleHandles();
 }
 
 void IParticleCollHandle_CaloCluster::dumpToJSON( std::ofstream& str) const {

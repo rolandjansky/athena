@@ -94,6 +94,7 @@ public:
 
 
 	int dim;
+	QString name;
 	QPoint dragStartPosition;
 
 	void initEditWindow();
@@ -147,7 +148,7 @@ void JetCollectionSettingsButton::Imp::initEditWindow()
 	// set b-tagging taggers
 	ui_disp.bTaggingComboBox->clear(); // remove all taggers defined in the .ui file
 	QStringList bTagList;
-	bTagList << "MV1" << "JetFitterCombNN_pb" << "JetFitterCombNN_pc" << "JetFitterCombNN_pu";
+	bTagList << "MV2c20" << "MV2c10" << "MV1" << "JetFitterCombNN_pb" << "JetFitterCombNN_pc" << "JetFitterCombNN_pu";
 	ui_disp.bTaggingComboBox->insertItems(0, bTagList);
 
 	// set b-tagging "Material" checked by default ("Skin" will be optional)
@@ -237,11 +238,12 @@ bool JetCollectionSettingsButton::is_bTaggingMaterialEnabled() const
 
 
 //____________________________________________________________________
-JetCollectionSettingsButton::JetCollectionSettingsButton(QWidget * parent,int _dim)
+JetCollectionSettingsButton::JetCollectionSettingsButton(QWidget * parent,int _dim, QString name)
 : VP1CollectionSettingsButtonBase(parent,0), d(new Imp)
 //: VP1CollectionSettingsButtonBase(parent,0,"VP1MaterialButton"), d(new Imp)
 {
 	d->dim = _dim;
+	d->name = name;
 
 	d->theclass = this;
 	d->initEditWindow();
@@ -708,8 +710,11 @@ void JetCollectionSettingsButton::restoreFromState( const QByteArray& ba){
 	updateButton();
 
 	// after restoring the state, check if b-tagging checkbox is enabled,
-	if (d->ui_disp.bTaggingCheckBox->isChecked())
+	messageDebug("updating b-tagging status for collection " + d->name + "...");
+	if (d->ui_disp.bTaggingCheckBox->isChecked()) {
 		possibleChange_bTaggingEnabled(true); // init the b-tagging toolbox as active
+
+	}
 	else
 		possibleChange_bTaggingEnabled(false); // init the b-tagging toolbox as not-active
 
@@ -872,7 +877,7 @@ void JetCollectionSettingsButton::possibleChange_maxR()
 //____________________________________________________________________
 void JetCollectionSettingsButton::possibleChange_bTaggingEnabled(bool bb)
 {
-	messageVerbose("possibleChange_bTaggingEnabled()");
+	messageVerbose("possibleChange_bTaggingEnabled() - "+str(bb));
 
 	d->ui_disp.bTaggingAlgLabel->setEnabled(bb);
 	d->ui_disp.bTagginWeightCutLabel->setEnabled(bb);
@@ -880,7 +885,6 @@ void JetCollectionSettingsButton::possibleChange_bTaggingEnabled(bool bb)
 	d->ui_disp.bTaggingSpinBox->setEnabled(bb);
 	d->ui_disp.groupBox_btagging_render->setEnabled(bb);
 	d->ui_disp.matButton_btaggedJets->setEnabled(bb);
-
 	emit bTaggingEnabledChanged(bb);
 }
 
