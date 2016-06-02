@@ -13,9 +13,15 @@
 
 // Local include(s):
 #include "xAODTrackParticleAuxContainerCnv_v1.h"
+#include "xAODTrackParticleAuxContainerCnv_v2.h"
 
 // Declare the T/P converter(s):
 DECLARE_TPCNV_FACTORY( xAODTrackParticleAuxContainerCnv_v1,
                        xAOD::TrackParticleAuxContainer,
                        xAOD::TrackParticleAuxContainer_v1,
+                       Athena::TPCnvVers::Old )
+
+DECLARE_TPCNV_FACTORY( xAODTrackParticleAuxContainerCnv_v2,
+                       xAOD::TrackParticleAuxContainer,
+                       xAOD::TrackParticleAuxContainer_v2,
                        Athena::TPCnvVers::Old )
