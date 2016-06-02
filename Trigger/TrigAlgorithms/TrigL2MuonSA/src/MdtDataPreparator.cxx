@@ -760,6 +760,25 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
 {
    std::vector<IdentifierHash> idList;
 
+   //combine regions of sector and type
+   for(int j_station=0; j_station<4; j_station++) {
+     int cha=0;
+     if (j_station==0) cha = xAOD::L2MuonParameters::Chamber::BarrelInner; 
+     if (j_station==1) cha = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
+     if (j_station==2) cha = xAOD::L2MuonParameters::Chamber::BarrelOuter;
+     if (j_station==3) cha = xAOD::L2MuonParameters::Chamber::BME;
+     phiMinChamber[cha]=mdtRegion.phiMin[cha][0];
+     phiMaxChamber[cha]=mdtRegion.phiMax[cha][0];
+     etaMinChamber[cha]=9999;
+     etaMaxChamber[cha]=-9999;
+     for(int j_sector=0; j_sector<2; j_sector++) {
+       if (mdtRegion.etaMin[cha][j_sector]<etaMinChamber[cha])
+         etaMinChamber[cha]=mdtRegion.etaMin[cha][j_sector];
+       if (mdtRegion.etaMax[cha][j_sector]>etaMaxChamber[cha])
+         etaMaxChamber[cha]=mdtRegion.etaMax[cha][j_sector];
+     }
+   }
+
    // get hashIdlist by using region selector
    for(int i_station=0; i_station<4; i_station++) {
      int chamber=0;
@@ -767,23 +786,20 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
      if (i_station==1) chamber = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
      if (i_station==2) chamber = xAOD::L2MuonParameters::Chamber::BarrelOuter;
      if (i_station==3) chamber = xAOD::L2MuonParameters::Chamber::BME;
+     msg() << MSG::DEBUG << "chamber=" << chamber << endreq;
+     msg() << MSG::DEBUG << "...etaMin/etaMax/phiMin/phiMax="
+       << etaMinChamber[chamber] << "/"
+       << etaMaxChamber[chamber] << "/"
+       << phiMinChamber[chamber] << "/"
+       << phiMaxChamber[chamber] << endreq;
+     TrigRoiDescriptor _roi( 0.5*(etaMinChamber[chamber]+etaMaxChamber[chamber]),
+                             etaMinChamber[chamber], etaMaxChamber[chamber],
+                             HLT::phiMean(phiMinChamber[chamber],phiMaxChamber[chamber]),
+                             phiMinChamber[chamber], phiMaxChamber[chamber] );
      for(int i_sector=0; i_sector<2; i_sector++) {
        for(int i_type=0; i_type<2; i_type++) {
-	 idList.clear();
-	 msg() << MSG::DEBUG << "chamber/sector=" << chamber << "/" << i_sector << endreq;
-	 msg() << MSG::DEBUG << "...etaMin/etaMax/phiMin/phiMax="
-	       << mdtRegion.etaMin[chamber][i_sector] << "/"
-	       << mdtRegion.etaMax[chamber][i_sector] << "/"
-	       << mdtRegion.phiMin[chamber][i_sector] << "/"
-	       << mdtRegion.phiMax[chamber][i_sector] << endreq;
-
-	 TrigRoiDescriptor _roi( 0.5*(mdtRegion.etaMin[chamber][i_sector]+mdtRegion.etaMax[chamber][i_sector]),
-				 mdtRegion.etaMin[chamber][i_sector],
-				 mdtRegion.etaMax[chamber][i_sector],
-				 HLT::phiMean(mdtRegion.phiMin[chamber][i_sector],mdtRegion.phiMax[chamber][i_sector]),
-				 mdtRegion.phiMin[chamber][i_sector],
-				 mdtRegion.phiMax[chamber][i_sector]);
-	 
+         idList.clear();
+         msg() << MSG::DEBUG << "chamber/sector=" << chamber << "/" << i_sector << endreq;
 	 m_regionSelector->DetHashIDList(MDT,static_cast<TYPEID>(mdtRegion.chamberType[chamber][i_sector][i_type]),
 					 _roi, idList);
 	 msg() << MSG::DEBUG << "...chamberType=" << mdtRegion.chamberType[chamber][i_sector][i_type] << endreq;
@@ -810,6 +826,27 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesEndcap(const TrigL2MuonSA::M
 {
    std::vector<IdentifierHash> idList;
 
+   //combine regions of sector and type
+   for(int j_station=0; j_station<6; j_station++) {
+     int cha=0;
+     if (j_station==0) cha = xAOD::L2MuonParameters::Chamber::EndcapInner; 
+     if (j_station==1) cha = xAOD::L2MuonParameters::Chamber::EndcapMiddle;
+     if (j_station==2) cha = xAOD::L2MuonParameters::Chamber::EndcapOuter;
+     if (j_station==3) cha = xAOD::L2MuonParameters::Chamber::EndcapExtra;
+     if (j_station==4) cha = xAOD::L2MuonParameters::Chamber::BarrelInner;
+     if (j_station==5) cha = xAOD::L2MuonParameters::Chamber::BEE;
+     phiMinChamber[cha]=mdtRegion.phiMin[cha][0];
+     phiMaxChamber[cha]=mdtRegion.phiMax[cha][0];
+     etaMinChamber[cha]=9999;
+     etaMaxChamber[cha]=-9999;
+     for(int j_sector=0; j_sector<2; j_sector++) {
+       if (mdtRegion.etaMin[cha][j_sector]<etaMinChamber[cha])
+         etaMinChamber[cha]=mdtRegion.etaMin[cha][j_sector];
+       if (mdtRegion.etaMax[cha][j_sector]>etaMaxChamber[cha])
+         etaMaxChamber[cha]=mdtRegion.etaMax[cha][j_sector];
+     }
+   }
+
    // get hashIdlist by using region selector
    for(int i_station=0; i_station<6; i_station++) {
      int chamber = 0;
@@ -819,22 +856,20 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesEndcap(const TrigL2MuonSA::M
      if (i_station==3) chamber = xAOD::L2MuonParameters::Chamber::EndcapExtra;
      if (i_station==4) chamber = xAOD::L2MuonParameters::Chamber::BarrelInner;
      if (i_station==5) chamber = xAOD::L2MuonParameters::Chamber::BEE;
+     msg() << MSG::DEBUG << "chamber=" << chamber << endreq;
+     msg() << MSG::DEBUG << "...etaMin/etaMax/phiMin/phiMax="
+       << etaMinChamber[chamber] << "/"
+       << etaMaxChamber[chamber] << "/"
+       << phiMinChamber[chamber] << "/"
+       << phiMaxChamber[chamber] << endreq;
+     TrigRoiDescriptor _roi( 0.5*(etaMinChamber[chamber]+etaMaxChamber[chamber]),
+                             etaMinChamber[chamber], etaMaxChamber[chamber],
+                             HLT::phiMean(phiMinChamber[chamber],phiMaxChamber[chamber]),
+                             phiMinChamber[chamber], phiMaxChamber[chamber] );
      for(int i_sector=0; i_sector<2; i_sector++) {
        for(int i_type=0; i_type<2; i_type++) {
 	 idList.clear();
 	 msg() << MSG::DEBUG << "chamber/sector=" << chamber << "/" << i_sector << endreq;
-	 msg() << MSG::DEBUG << "...etaMin/etaMax/phiMin/phiMax="
-	       << mdtRegion.etaMin[chamber][i_sector] << "/"
-	       << mdtRegion.etaMax[chamber][i_sector] << "/"
-	       << mdtRegion.phiMin[chamber][i_sector] << "/"
-	       << mdtRegion.phiMax[chamber][i_sector] << endreq;
-
-	 TrigRoiDescriptor _roi( 0.5*(mdtRegion.etaMin[chamber][i_sector]+mdtRegion.etaMin[chamber][i_sector]),
-				 mdtRegion.etaMin[chamber][i_sector],
-				 mdtRegion.etaMax[chamber][i_sector],
-				 HLT::phiMean(mdtRegion.phiMin[chamber][i_sector],mdtRegion.phiMax[chamber][i_sector]),
-				 mdtRegion.phiMin[chamber][i_sector],
-				 mdtRegion.phiMax[chamber][i_sector]);
 	 
 	 m_regionSelector->DetHashIDList(MDT,static_cast<TYPEID>(mdtRegion.chamberType[chamber][i_sector][i_type]),
 					 _roi, idList);
