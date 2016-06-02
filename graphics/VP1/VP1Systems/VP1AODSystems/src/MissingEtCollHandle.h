@@ -54,6 +54,14 @@ public:
   // This is created in this class, but passed to the JetCollectionButton for control etc. It is used in the Handle.
   //  SoMaterial* defaultParameterMaterial() const;
 
+  /*
+   * Save and restore settings
+   * (implementation of the virtual functions in the base class)
+   */
+  QByteArray persistifiableState() const; // save state
+  void setState(const QByteArray&); // restore state
+
+
 public slots:
   void setCutAllowedPhi(const QList<VP1Interval>&);
 
@@ -69,6 +77,8 @@ protected:
 
 
 private slots:
+
+	void resetCachedValuesCuts();
 //  void showParametersChanged(bool);
 //  void setScale(const double& s);
 

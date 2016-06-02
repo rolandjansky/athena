@@ -154,6 +154,18 @@ void VertexCollHandle::setupSettingsFromControllerSpecific(AODSystemController*)
   setVertexSize(d->collSettingsButton->vertexSize());
 }
 
+void VertexCollHandle::resetCachedValuesCuts()
+{
+	// TODO: it is not used so far! Check Other collections and update accordingly
+
+	// kinetic cuts
+	setCutAllowedR(d->collSettingsButton->cutAllowedR());
+	setCutAllowedZ(d->collSettingsButton->cutAllowedZ());
+	// other settings
+	setVertexSize(d->collSettingsButton->vertexSize());
+}
+
+
 const VertexCollectionSettingsButton& VertexCollHandle::collSettingsButton() const {
   if (!d->collSettingsButton){
     messageVerbose("No collSettingsButton set! Can't call init(), so crash is imminent...");

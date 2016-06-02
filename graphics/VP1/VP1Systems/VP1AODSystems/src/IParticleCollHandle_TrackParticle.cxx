@@ -135,6 +135,19 @@ void IParticleCollHandle_TrackParticle::setupSettingsFromControllerSpecific(AODS
 
 }
 
+void IParticleCollHandle_TrackParticle::resetCachedValuesCuts()
+{
+	// TODO: it is not used so far! Check Other collections and update accordingly
+
+	// kinetic cuts
+	setCutAllowedPt(d->collSettingsButton->cutAllowedPt());
+	setCutAllowedEta(d->collSettingsButton->cutAllowedEta());
+	setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
+
+  // TODO: adding "propagation" and "parameters" settings as well??
+}
+
+
 const TrackParticleCollectionSettingsButton& IParticleCollHandle_TrackParticle::collSettingsButton() const {
   if (!d->collSettingsButton){
     messageVerbose("No collSettingsButton set! Can't call init(), so crash is imminent...");

@@ -53,6 +53,7 @@ protected:
 private slots:
   void showParametersChanged(bool);
   void propagationOptionsChanged();
+  void resetCachedValuesCuts();
 
 private:
 

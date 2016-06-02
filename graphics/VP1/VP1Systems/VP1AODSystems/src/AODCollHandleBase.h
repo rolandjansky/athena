@@ -159,6 +159,7 @@ protected:
 private slots:
   void colourByComboBoxItemChanged();
   void collVisibilityChanged(bool);
+  virtual void resetCachedValuesCuts() = 0; // must be implemented in inherited classes, according to the relevant physics cuts and the related user input form
   
 public slots:
 //  void rerandomiseRandomTrackColours();

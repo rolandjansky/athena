@@ -17,7 +17,7 @@ class JetCollectionSettingsButton : public VP1CollectionSettingsButtonBase {
 
 public:
   
-  JetCollectionSettingsButton(QWidget * parent = 0, int dim = 25);//dim<=0 => Won't change sizepolicy
+  JetCollectionSettingsButton(QWidget * parent = 0, int dim = 25, QString name = "");//dim<=0 => Won't change sizepolicy
   virtual ~JetCollectionSettingsButton();
   
   void setDimension(int dim);

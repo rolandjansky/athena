@@ -59,6 +59,8 @@ public:
 
   Imp () : theclass(0), updateGUICounter(0), collSettingsButton(0), scale(1.0), randomColours(false), bTaggingTagger("MV1"), bTaggingCut(0.98), bTaggingSwitch(0), bTaggingTexture(0), bTaggingMaterial(0) {}
 
+  QString name;
+
   IParticleCollHandle_Jet * theclass;
   int updateGUICounter;
   JetCollectionSettingsButton* collSettingsButton;
@@ -99,6 +101,8 @@ const QString& name, xAOD::Type::ObjectType type)
   d->theclass = this;
   d->updateGUICounter = 0;
   d->collSettingsButton=0;
+
+  d->name = name;
 
   //==========
   // b-tagging
@@ -142,7 +146,7 @@ void IParticleCollHandle_Jet::init(VP1MaterialButtonBase*)
 {
 	messageDebug("IParticleCollHandle_Jet::init()");
 
-  d->collSettingsButton = new JetCollectionSettingsButton;
+  d->collSettingsButton = new JetCollectionSettingsButton(0, 25, d->name); // 0 and 25 are default values
   d->collSettingsButton->setMaterialText(name());
 
   // 1st - CALLING THE "init" OF THE BASE CLASS
@@ -193,10 +197,9 @@ void IParticleCollHandle_Jet::init(VP1MaterialButtonBase*)
   d->bTaggingSwitch->ref();
   //  d->bTaggingTexture->ref();
   //  d->bTaggingMaterial->ref();
+
+  //updateBTaggingAllJets();
   //==========
-
-
-
 
 }
 
@@ -234,7 +237,7 @@ void IParticleCollHandle_Jet::setupSettingsFromControllerSpecific(AODSystemContr
 
   // maxR
   connect(controller, SIGNAL(maxRChanged(const double&)), this, SLOT(setMaxR(const double&)));
-  connect(controller, SIGNAL(signalMaxR(bool)), this, SLOT(setIsMaxR(bool)));
+//  connect(controller, SIGNAL(signalMaxR(bool)), this, SLOT(setIsMaxR(bool)));
 
   // b-tagging
   connect(controller, SIGNAL(bTaggingEnabledChanged(const bool&)), this, SLOT(setBTaggingEnabled(const bool&)));
@@ -493,6 +496,8 @@ bool IParticleCollHandle_Jet::cut(AODHandleBase* c) {
     if (!getPtAllowall() && !getCutAllowedPt().contains(jEnergySqr) ) {
       messageVerbose("Pt cut not passed");
       return false;
+    } else {
+      messageVerbose("Pt cut passed!!");
     }
 
     //------ ETA CUTS
@@ -548,8 +553,9 @@ void IParticleCollHandle_Jet::showParametersChanged(bool val) {
 void IParticleCollHandle_Jet::setBTaggingEnabled(const bool& flag) {
   messageVerbose("IParticleCollHandle_Jet::setBTaggingEnabled - "+str(flag));
   d->bTaggingSwitch->whichChild = (flag ? SO_SWITCH_ALL : SO_SWITCH_NONE);
-  if (flag)
+  if (flag) {
     setBTaggingMaterialChanged(true); // we set default "Material"
+  }
 }
 
 
@@ -678,8 +684,6 @@ void IParticleCollHandle_Jet::updateBTaggingAllJets()
       message("ERROR Handle of wrong type!");
     }
   }
-  
-
   largeChangesEnd();
 }
 
@@ -755,6 +759,8 @@ QByteArray IParticleCollHandle_Jet::persistifiableState() const
 //____________________________________________________________________
 void IParticleCollHandle_Jet::setState(const QByteArray&state)
 {
+  messageDebug("IParticleCollHandle_Jet::setState()");
+
   VP1Deserialise des(state);
   des.disableUnrestoredChecks();
   if (des.version()!=0&&des.version()!=1) {
@@ -775,9 +781,31 @@ void IParticleCollHandle_Jet::setState(const QByteArray&state)
     setExtraWidgetsState(extraWidgetState);
 
   // MATERIAL SETTINGS / CUTS
+  messageDebug("restoring material collection button...");
   des.restore(d->collSettingsButton);
 
+  messageDebug("reset all caches storing values for cuts...");
+  resetCachedValuesCuts();
 
+  messageDebug("recheck all handles...");
+  recheckCutStatusOfAllVisibleHandles();
+
+}
+
+
+void IParticleCollHandle_Jet::resetCachedValuesCuts()
+{
+	// kinetic cuts
+	setCutAllowedPt(d->collSettingsButton->cutAllowedPt());
+	setCutAllowedEta(d->collSettingsButton->cutAllowedEta());
+	setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
+	setScale( this->scale() );
+	// colouring
+	setRandomJetColours(d->collSettingsButton->randomJetColours());
+	// b-tagging
+	setBTaggingEnabled(d->collSettingsButton->bTaggingEnabled());
+	setBTaggingTagger(d->collSettingsButton->bTaggingTagger());
+	setBTaggingCut(d->collSettingsButton->bTaggingCut());
 }
 
 void IParticleCollHandle_Jet::dumpToJSON( std::ofstream& str) const {
