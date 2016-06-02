@@ -17,11 +17,14 @@ class JetCollectionSettingsButton : public VP1CollectionSettingsButtonBase {
 
 public:
   
-  JetCollectionSettingsButton(QWidget * parent = 0, int dim = 25);//dim<=0 => Won't change sizepolicy
+  JetCollectionSettingsButton(QWidget * parent = 0, int dim = 25, QString name = "");//dim<=0 => Won't change sizepolicy
   virtual ~JetCollectionSettingsButton();
   
   void setDimension(int dim);
   
+  VP1MaterialButton* getMaterialButton() const;
+
+
   // The below are necessary to fulfill the interface, but will just be passed onto the VP1MaterialButton owned by the JetCollectionSettingsButton form
   virtual bool setMaterial(SoMaterial*);
   virtual void copyValuesFromMaterial(SoMaterial*);
@@ -94,6 +97,7 @@ public:
   public slots:
   void showEditMaterialDialog();
   void setMaterialText(const QString&);
+
 
   protected slots:
   void updateButton();

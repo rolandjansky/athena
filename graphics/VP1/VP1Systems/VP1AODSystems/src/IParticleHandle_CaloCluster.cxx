@@ -40,59 +40,28 @@
 //____________________________________________________________________
 class IParticleHandle_CaloCluster::Imp {
 public:
-	// constructor and default values
-	//Imp () : theclass(0), controller(0), scale(1.0), bTaggingTagger("MV1"),bTaggingCut(0.98),randomColours(false),bTaggingSwitch(0),bTaggingTexture(0), bTaggingMaterial(0) {} // NOTE: parameters from the old JetCollection
-	//Imp () : theclass(0), scale(1.0) {} // TODO: implement the parameters above, from the old JetCollection
 
 	IParticleHandle_CaloCluster * theclass; // the Jet class
 	const IParticleCollHandle_CaloCluster* theCollHandle; // the CollHandle instance
 
 	const xAOD::CaloCluster * m_cluster; // the single jet
-//	const CaloCluster* m_cluster;
 
 	SoSeparator * sep; // everything hangs from this.
-//	SoCone * cone;//This represents the cone representing the jet.
 	SoGenericBox* m_genericBox; //This is the box representing the calorimeter cluster.
-
-//	SoMaterial * m_randomMat; // random material for jets
-//	SoSwitch   * m_bTagged; // switch for b-tagged jets
-//	SoSwitch   * m_bTaggingCollSwitch; // switch for b-tagged jets
-
-
-	double m_transverseEnergy;
-
-	//QList<std::pair<xAOD::ParameterPosition, Amg::Vector3D> > parametersAndPositions; // cache // TODO: see if useful for jets
 
 	//Settings:
 	bool considerTransverseEnergies = true; // TODO: update with button connection "E/Et" (see VP1JetCollection.cxx)
-//	double coneRPar = -1; // FIXME: add calculation of coneRPar, like in the old VP1 Jet
-//	double scale = (10.0 * Gaudi::Units::m) / (100.0*Gaudi::Units::GeV); // the default scale of all jets: 10m/100GeV
-//	double maxR = 0.0 * Gaudi::Units::m; // default value for maxR is 0.0
-
-	//	SoLineSet * line;//This represents the line(s) representing the trackparticle. Can be interpolated.
-	//	SoPointSet * points;//This represents the points(s) representing the trackparticle's parameters.
-
-
 
 	// Getters
 	const xAOD::CaloCluster* cluster() const { return m_cluster; }
 	SoGenericBox * genericBox() const { return m_genericBox; }
 	double phi() const { /*VP1Msg::messageVerbose("phi: " + QString::number(m_cluster->phi()) );*/ return m_cluster->phi(); }
 	double eta() const { /*VP1Msg::messageVerbose("eta: " + QString::number(m_cluster->eta()) );*/ return m_cluster->eta(); }
-	double energy() const { return m_cluster->e(); }
-	double transverseEnergy() const { return m_transverseEnergy; }
-//	double transverseEnergy() const { return sin(2*atan(exp(-fabs(eta()))))*energy(); }
-//	double coneR() const { return coneRPar > 0 ? coneRPar : 0.4; }
+	double et() const { VP1Msg::messageDebug("et()");return m_cluster->et(); }
+	double e() const { VP1Msg::messageDebug("e()");return m_cluster->e(); }
 
-	double energyForLengthAndCuts(const IParticleCollHandle_CaloCluster* coll_handle) { return coll_handle->isConsiderTransverseEnergy() ? transverseEnergy() : energy(); } // FIXME: is this def used at all??
-	double energyForLengthAndCuts() { return theCollHandle->isConsiderTransverseEnergy() ? transverseEnergy() : energy(); }
-
-//	double energyForLengthAndCuts() const { return considerTransverseEnergies ? transverseEnergy() : energy(); }
-
-	//Create/manipulate 3D objects:
-//	void createShapeFromJetParameters(const IParticleCollHandle_CaloCluster* collHandle, const double& coneR, const double& eta, const double& phi, const double& energy, const SbVec3f& origin);
-//	void updateConeHeightParameters(SoCone*, SoTranslation*, const double& energy) const;
-//	void updateConeHeightParameters() const;
+	double energyForLengthAndCuts(const IParticleCollHandle_CaloCluster* coll_handle) { return coll_handle->isConsiderTransverseEnergy() ? et() : e(); } // TODO: is this used at all??
+	double energyForLengthAndCuts() { VP1Msg::messageDebug("energyForLengthAndCuts()"); return theclass->isConsiderTransverseEnergies() ? et() : e();	}
 
 	// Create/manipulate 3D objects
 	void createShapeFromParameters(const IParticleCollHandle_CaloCluster* coll_handle);
@@ -111,27 +80,15 @@ IParticleHandle_CaloCluster::IParticleHandle_CaloCluster(IParticleCollHandleBase
 	d->m_cluster = cluster;
 	d->sep = 0;
 	d->m_genericBox = 0;
-//	d->cone = 0;
-
-
-	// calculate the transverse energy
-	d->m_transverseEnergy = sin(2*atan(exp(-fabs( d->eta() )))) * d->energy();
-
-
-
-//	d->m_randomMat = 0;
-//	d->m_bTagged = 0;
-//	d->m_bTaggingCollSwitch = new SoSwitch();
-
-//	d->theCollHandle = dynamic_cast<const IParticleCollHandle_CaloCluster*>(collHandle());
 }
+
+
+
 
 //____________________________________________________________________
 IParticleHandle_CaloCluster::~IParticleHandle_CaloCluster()
 {
 	//	VP1Msg::messageVerbose("IParticleHandle_CaloCluster::~IParticleHandle_CaloCluster() - destructor");
-//	if (d->m_randomMat) d->m_randomMat->unref();
-//	if (d->cone) d->cone->unref();
 	if (d->m_genericBox) d->m_genericBox->unref();
 	if (d->sep) d->sep->unref();
 	delete d;
@@ -145,6 +102,15 @@ SoGenericBox* IParticleHandle_CaloCluster::genericBox() const
 	return d->genericBox();
 }
 
+
+//____________________________________________________________________
+bool IParticleHandle_CaloCluster::isConsiderTransverseEnergies() const
+{
+	const IParticleCollHandle_CaloCluster* collHandleJet = dynamic_cast<const IParticleCollHandle_CaloCluster*>(collHandle());
+	bool Et = collHandleJet->isConsiderTransverseEnergy();
+	VP1Msg::messageDebug("IParticleHandle_CaloCluster::isConsiderTransverseEnergies() - " + QString::number(Et));
+	return Et;
+}
 
 // Setter
 ////____________________________________________________________________
@@ -168,10 +134,10 @@ bool IParticleHandle_CaloCluster::has3DObjects()
 void IParticleHandle_CaloCluster::clear3DObjects(){
 	//	VP1Msg::messageVerbose("IParticleHandle_CaloCluster::clear3DObjects()");
 
-//	if (d->m_randomMat) {
-//		d->m_randomMat->unref();
-//		d->m_randomMat = 0;
-//	}
+	//	if (d->m_randomMat) {
+	//		d->m_randomMat->unref();
+	//		d->m_randomMat = 0;
+	//	}
 	if (d->m_genericBox) {
 		d->m_genericBox->unref();
 		d->m_genericBox = 0;
@@ -205,23 +171,13 @@ SoNode* IParticleHandle_CaloCluster::nodes(){
 
 	const IParticleCollHandle_CaloCluster* coll_handle = dynamic_cast<const IParticleCollHandle_CaloCluster*>(collHandle());
 
-	//SbVec3f origin(0.,0.,0.); // it seems it is not used here...
-	/* TODO: ask if origin info is present in xAOD, like in the old Jet class
-	if ( d->m_cluster->origin() ) {
-		origin.setValue(d->m_cluster->origin()->position().x(),
-				d->m_cluster->origin()->position().y(),
-				d->m_cluster->origin()->position().z());
-	}
-	 */
-
 	VP1Msg::messageVerbose("creating the shapes");
-
 
 	/*
 	 * Build the 3D objects for the physics object, and update d->sep.
 	 */
-//	d->createShapeFromJetParameters(collHandle, d->coneR(), d->eta(), d->phi(), d->energyForLengthAndCuts(), origin);
-//	d->createShapeFromParameters(coll_handle, origin);
+	//	d->createShapeFromJetParameters(collHandle, d->coneR(), d->eta(), d->phi(), d->energyForLengthAndCuts(), origin);
+	//	d->createShapeFromParameters(coll_handle, origin);
 	d->createShapeFromParameters(coll_handle);
 
 
@@ -270,11 +226,11 @@ void IParticleHandle_CaloCluster::Imp::createShapeFromParameters(const IParticle
 	VP1Msg::messageVerbose("IParticleHandle_CaloCluster::Imp::createShapeFromParameters()");
 
 	if (!m_genericBox) {	
-			m_genericBox = new SoGenericBox();
-			m_genericBox->drawEdgeLines = coll_handle->showOutlines();
-			m_genericBox->forceEdgeLinesInBaseColour = true;
-			m_genericBox->ref();
-		}
+		m_genericBox = new SoGenericBox();
+		m_genericBox->drawEdgeLines = coll_handle->showOutlines();
+		m_genericBox->forceEdgeLinesInBaseColour = true;
+		m_genericBox->ref();
+	}
 
 	//	m_attached = true;
 	updateShapePars(coll_handle);
@@ -291,77 +247,77 @@ void IParticleHandle_CaloCluster::Imp::createShapeFromParameters(const IParticle
 
 
 
-//	sep = new SoSeparator();
-//	sep->ref();
+	//	sep = new SoSeparator();
+	//	sep->ref();
 
 
-//	cone = new SoCone();
-//	cone->ref();
+	//	cone = new SoCone();
+	//	cone->ref();
 
-//	// coneR IS the opening half-angle of the jet, in delta phi (easy) and in
-//	//  delta eta (trickier)
-//	// to try to get the jet extent right in eta, find theta corresponding
-//	//  to eta+R, eta-R, and take half of the difference:
-//	double thetaMax = 2.*atan(exp(-(eta+inputconeR)));
-//	double thetaMin = 2.*atan(exp(-(eta-inputconeR)));
-//	double deltaTheta = fabs(thetaMax-thetaMin);
-//	double etaScale = deltaTheta/(2.*inputconeR);
-//
-//	// Translate by half cone height and flip 180 deg so point is at IP:
-//	SoTranslation *translate = new SoTranslation();
-//
-//	SoRotationXYZ *flip = new SoRotationXYZ();
-//	flip->axis=SoRotationXYZ::Z;
-//	flip->angle=M_PI;
-//
-//	SoRotationXYZ *ytoz = new SoRotationXYZ();
-//	ytoz->axis=SoRotationXYZ::X;
-//	ytoz->angle=M_PI/2.;
-//
-//	// Cones should now be along Z-axis,point at IP.
-//	SoRotationXYZ *rotationPhi = new SoRotationXYZ();
-//	rotationPhi->axis=SoRotationXYZ::Z;
-//	rotationPhi->angle = phi+M_PI/2.; // starts from -y-axis in x-y plane
-//	// phi is measured from x-axis, so +M_PI/2
-//
-//	SoRotationXYZ *rotationEta = new SoRotationXYZ();
-//	double signEta = fabs(eta)/eta;
-//	double theta = 2.*atan(signEta*exp(-fabs(eta)));
-//	if (theta<0.)theta+=M_PI;
-//	rotationEta->axis=SoRotationXYZ::X;
-//	rotationEta->angle=theta;
-//
-//	//message("Eta: "+QString::number(eta)+" theta: "+QString::number(theta)+" phi: "+QString::number(phi));
-//
-//	updateConeHeightParameters(cone, translate, energy);
-//
-//	// play with Scale:
-//	SoScale* myScale = new SoScale();
-//	//message("Eta scaling factor is "+QString::number(etaScale));
-//	// maybe we need to squish along both axes...
-//	myScale->scaleFactor.setValue(etaScale,1.,etaScale);
-//
-//	// translate to origin vertex rather than (0,0,0)
-//	SoTranslation *transvertex = new SoTranslation();
-//	transvertex->translation = origin;
-//
-//	sep->addChild(transvertex);
-//	sep->addChild(rotationPhi);
-//	sep->addChild(rotationEta);//theta rotation done around x-axis
-//	sep->addChild(ytoz); // now it's along the z-axis
-//	sep->addChild(flip); // flip so tip at origin
-//	sep->addChild(translate); // back it up so base at origin // DO NOT MOVE THIS: ITS POSITION IS USED BY "updateConeHeightParameters(SoSeparator* sep,const double& energy)"
-//	sep->addChild(myScale); // squeeze jet according to eta
-//	//This is the point in the child sequence where we MAY add a random colour when appropriate.
-//	//Thus: The translation is the SIXTH child and the cone is the LAST child.
-//
-//	//	sep->addChild(collHandle->collSettingsButton().defaultParameterMaterial());
-//
-//	std::cout<<"About to add material: "<<collHandle->material()<<std::endl;
-//	sep->addChild(collHandle->material());
-//	// ^^ FIXME - should rearrange so we don't need to reset material
-//
-//	sep->addChild(cone);  // starts along y-axis // DO NOT MOVE THIS: ITS POSITION IS USED BY "updateConeHeightParameters(SoSeparator* sep,const double& energy)"
+	//	// coneR IS the opening half-angle of the jet, in delta phi (easy) and in
+	//	//  delta eta (trickier)
+	//	// to try to get the jet extent right in eta, find theta corresponding
+	//	//  to eta+R, eta-R, and take half of the difference:
+	//	double thetaMax = 2.*atan(exp(-(eta+inputconeR)));
+	//	double thetaMin = 2.*atan(exp(-(eta-inputconeR)));
+	//	double deltaTheta = fabs(thetaMax-thetaMin);
+	//	double etaScale = deltaTheta/(2.*inputconeR);
+	//
+	//	// Translate by half cone height and flip 180 deg so point is at IP:
+	//	SoTranslation *translate = new SoTranslation();
+	//
+	//	SoRotationXYZ *flip = new SoRotationXYZ();
+	//	flip->axis=SoRotationXYZ::Z;
+	//	flip->angle=M_PI;
+	//
+	//	SoRotationXYZ *ytoz = new SoRotationXYZ();
+	//	ytoz->axis=SoRotationXYZ::X;
+	//	ytoz->angle=M_PI/2.;
+	//
+	//	// Cones should now be along Z-axis,point at IP.
+	//	SoRotationXYZ *rotationPhi = new SoRotationXYZ();
+	//	rotationPhi->axis=SoRotationXYZ::Z;
+	//	rotationPhi->angle = phi+M_PI/2.; // starts from -y-axis in x-y plane
+	//	// phi is measured from x-axis, so +M_PI/2
+	//
+	//	SoRotationXYZ *rotationEta = new SoRotationXYZ();
+	//	double signEta = fabs(eta)/eta;
+	//	double theta = 2.*atan(signEta*exp(-fabs(eta)));
+	//	if (theta<0.)theta+=M_PI;
+	//	rotationEta->axis=SoRotationXYZ::X;
+	//	rotationEta->angle=theta;
+	//
+	//	//message("Eta: "+QString::number(eta)+" theta: "+QString::number(theta)+" phi: "+QString::number(phi));
+	//
+	//	updateConeHeightParameters(cone, translate, energy);
+	//
+	//	// play with Scale:
+	//	SoScale* myScale = new SoScale();
+	//	//message("Eta scaling factor is "+QString::number(etaScale));
+	//	// maybe we need to squish along both axes...
+	//	myScale->scaleFactor.setValue(etaScale,1.,etaScale);
+	//
+	//	// translate to origin vertex rather than (0,0,0)
+	//	SoTranslation *transvertex = new SoTranslation();
+	//	transvertex->translation = origin;
+	//
+	//	sep->addChild(transvertex);
+	//	sep->addChild(rotationPhi);
+	//	sep->addChild(rotationEta);//theta rotation done around x-axis
+	//	sep->addChild(ytoz); // now it's along the z-axis
+	//	sep->addChild(flip); // flip so tip at origin
+	//	sep->addChild(translate); // back it up so base at origin // DO NOT MOVE THIS: ITS POSITION IS USED BY "updateConeHeightParameters(SoSeparator* sep,const double& energy)"
+	//	sep->addChild(myScale); // squeeze jet according to eta
+	//	//This is the point in the child sequence where we MAY add a random colour when appropriate.
+	//	//Thus: The translation is the SIXTH child and the cone is the LAST child.
+	//
+	//	//	sep->addChild(collHandle->collSettingsButton().defaultParameterMaterial());
+	//
+	//	std::cout<<"About to add material: "<<collHandle->material()<<std::endl;
+	//	sep->addChild(collHandle->material());
+	//	// ^^ FIXME - should rearrange so we don't need to reset material
+	//
+	//	sep->addChild(cone);  // starts along y-axis // DO NOT MOVE THIS: ITS POSITION IS USED BY "updateConeHeightParameters(SoSeparator* sep,const double& energy)"
 
 }
 
@@ -429,13 +385,32 @@ void IParticleHandle_CaloCluster::Imp::createShapeFromParameters(const IParticle
 //}
 
 
-
+///
+/// This gives the complete information about the object, shown in the main Message Box
+///
 //____________________________________________________________________
 QStringList IParticleHandle_CaloCluster::clicked() const
 {
 	QStringList l;
-	l << "--Jet:";
-	l << IParticleHandleBase::baseInfo();
+	l << "--CaloCluster:";
+	//l << IParticleHandleBase::baseInfo();
+
+	// info and parameters,
+	// they go in the "Information" column in the Browser window
+	// see: http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODCaloEvent/xAODCaloEvent/versions/CaloCluster_v1.h
+	//
+	l +="    - pt: " + QString::number(d->m_cluster->pt() / Gaudi::Units::GeV) +" [GeV]";
+	l +="    - et: " + QString::number(d->et() / Gaudi::Units::GeV) +" [GeV]";
+	l +="    - eta: " + QString::number(d->eta());
+	l +="    - phi: " + QString::number(d->phi());
+	l +="    - m: " + QString::number(d->m_cluster->m() / Gaudi::Units::GeV) +" [GeV] (invariant mass of the particle)";
+	l +="    - e: " + QString::number(d->m_cluster->e() / Gaudi::Units::GeV) +" [GeV] (total energy of the particle)";
+	l +="    - rapidity: " + QString::number(d->m_cluster->rapidity());
+	l +="    - type: " + QString::number(d->m_cluster->type());
+	l +="    - ClusterSize: " + QString::number(d->m_cluster->clusterSize());
+	l +="    - inBarrel: " + QString::number(d->m_cluster->inBarrel());
+	l +="    - inEndcap: " + QString::number(d->m_cluster->inEndcap());
+
 	return l;
 }
 
@@ -483,21 +458,39 @@ unsigned IParticleHandle_CaloCluster::summaryValue(xAOD::SummaryType type) const
  */
 
 
-
+///
+/// This gives the very short summary for the object's properties, shown in the 'Information' field in the Browser, beside the item number (e.g. 'Jet0')
+///
 //____________________________________________________________________
 QString IParticleHandle_CaloCluster::shortInfo() const
 {
-	/*
-  QString l("|P|="+VP1Msg::str(momentum().mag()/Gaudi::Units::GeV)+" [GeV], ");
-  l+= "Pix["+QString::number(getNPixelHits())+"], SCT["+QString::number(getNSCTHits())+"], TRT["+QString::number(getNTRTHits())
-   +"], Muon prec. layers/holes ["+QString::number(getNMuonPrecisionLayers())+"/"+QString::number(getNMuonPrecisionHoleLayers())+"]";
-	 */
-	QString l("xAOD Jet test"); // TODO: implement a meaningful short_info for jets
-	return l;
+	QString dParameters("(");
+
+	// info and parameters,
+	// they go in the "Information" column in the Browser window
+	dParameters +="pt: ";
+	dParameters += QString::number(d->m_cluster->pt() / Gaudi::Units::GeV);
+
+	dParameters +=", et: ";
+	dParameters += QString::number(d->m_cluster->et() / Gaudi::Units::GeV);
+
+	dParameters +=", eta: ";
+	dParameters += QString::number(d->m_cluster->eta());
+
+	dParameters +=", phi: ";
+	dParameters += QString::number(d->m_cluster->phi());
+
+	dParameters+="";
+
+	dParameters+=")" ;
+
+	return dParameters;
 }
 
 
-
+///
+/// This gives the list of object's properties, shown in the 'Information' field in the Browser, once the user clicked on one particular item (e.g. 'Jet0')
+///
 //____________________________________________________________________
 void IParticleHandle_CaloCluster::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfItems)
 {
@@ -506,75 +499,13 @@ void IParticleHandle_CaloCluster::fillObjectBrowser( QList<QTreeWidgetItem *>& l
 	QTreeWidgetItem* TSOSitem = new QTreeWidgetItem(browserTreeItem());
 
 	// Jet "Object" title, in the Browser window
-	TSOSitem->setText(0, QString("Def. Parameters " ) );
+	TSOSitem->setText(0, QString("CaloCluster Parameters " ) );
 
-	QString dParameters("(");
+	QString dParameters = shortInfo();
+	dParameters += " [more info in the main Message Box]";
 
-	/*
-	 * TODO: check the Jets parameters and add them here
-	 */
-	/*
-  dParameters+=QString::number(d->trackparticle->d0());
-  dParameters+=", ";     
-  dParameters+=QString::number(d->trackparticle->z0());
-  dParameters+=", ";     
-  dParameters+=QString::number(d->trackparticle->phi0());
-  dParameters+=", ";     
-  dParameters+=QString::number(d->trackparticle->theta());
-  dParameters+=", ";     
-  dParameters+=QString::number(d->trackparticle->qOverP());
-	 */
-
-	// jet info and parameters,
-	// they go in the "Information" column in the Browser window
-	dParameters+="jets parameters go here!";
-
-	dParameters+=")";
 	TSOSitem->setText(1, dParameters );
 
-	/*
-	 * TODO: check jets parameters
-	 */
-	/*
-	for (unsigned int i=0; i<d->trackparticle->numberOfParameters() ; ++i){
-
-    QTreeWidgetItem* TSOSitem = new QTreeWidgetItem(browserTreeItem());
-    TSOSitem->setText(0, QString("Parameter "+QString::number( i+1 ) ) );
-    QString pos(", Position = (");  
-    pos+=QString::number(d->trackparticle->parameterX(i));
-    pos+=", ";    
-    pos+=QString::number(d->trackparticle->parameterY(i));
-    pos+=", ";
-    pos+=QString::number(d->trackparticle->parameterZ(i));
-    pos+=")";
-
-		switch (d->trackparticle->parameterPosition(i)){
-			case xAOD::BeamLine: 
-		    TSOSitem->setText(1, QString("BeamLine" )+pos );
-				break;
-			case xAOD::FirstMeasurement:
-		    TSOSitem->setText(1, QString("FirstMeasurement")+pos );
-				break;
-			case xAOD::LastMeasurement: 
-		    TSOSitem->setText(1, QString("LastMeasurement" )+pos );
-				break;
-			case xAOD::CalorimeterEntrance:
-		    TSOSitem->setText(1, QString("CalorimeterEntrance")+pos );
-				break;
-			case xAOD::CalorimeterExit: 
-		    TSOSitem->setText(1, QString("CalorimeterExit" )+pos );
-				break;
-			case xAOD::MuonSpectrometerEntrance:
-		    TSOSitem->setText(1, QString("MuonSpectrometerEntrance")+pos );
-				break;
-			default:
-		    TSOSitem->setText(1, QString("Undefined")+pos );
-		}
-	}
-	 */
-
-
-	// TODO - add more.
 }
 
 
@@ -595,15 +526,18 @@ double IParticleHandle_CaloCluster::eta() const {
 
 
 //____________________________________________________________________
-double IParticleHandle_CaloCluster::energy() const { return d->energy(); }
+double IParticleHandle_CaloCluster::e() const { return d->e(); }
 
 
 //____________________________________________________________________
-double IParticleHandle_CaloCluster::energyForCuts() const { return d->energyForLengthAndCuts(); }
+double IParticleHandle_CaloCluster::energyForCuts() const {
+	VP1Msg::messageDebug("IParticleHandle_CaloCluster::energyForCuts()");
+	return d->energyForLengthAndCuts();
+}
 
 
 //____________________________________________________________________
-double IParticleHandle_CaloCluster::transverseEnergy() const { return d->transverseEnergy(); } //sin(2*atan(exp(-fabs(eta()))))*energy();
+double IParticleHandle_CaloCluster::et() const { return d->et(); }
 
 
 ////_____
@@ -619,29 +553,33 @@ void IParticleHandle_CaloCluster::updateMaterial()
 	if ( d->sep == 0 )
 		return;
 
-//	if (!isRandomColors && !d->m_randomMat)
-//		return;//m_randomMat can never have been attached
-//
-//	if (isRandomColors && !d->m_randomMat) {
-//		d->m_randomMat = new SoMaterial;
-//		d->m_randomMat->ref();
-//		rerandomiseMaterial();
-//	}
+	//	if (!isRandomColors && !d->m_randomMat)
+	//		return;//m_randomMat can never have been attached
+	//
+	//	if (isRandomColors && !d->m_randomMat) {
+	//		d->m_randomMat = new SoMaterial;
+	//		d->m_randomMat->ref();
+	//		rerandomiseMaterial();
+	//	}
 
 
-//	int i = d->sep->findChild(d->m_randomMat);
+	//	int i = d->sep->findChild(d->m_randomMat);
 
-//	if ( (i>=0) == isRandomColors ) {
-//		VP1Msg::messageVerbose("(i>=0)==isRandomColors. Returning.");
-//		return;
-//	}
+	//	if ( (i>=0) == isRandomColors ) {
+	//		VP1Msg::messageVerbose("(i>=0)==isRandomColors. Returning.");
+	//		return;
+	//	}
 
-//	if (!isRandomColors )
-//		d->sep->removeChild(d->m_randomMat);
-//	else
-//		d->sep->insertChild(d->m_randomMat, d->sep->getNumChildren()-1);
+	//	if (!isRandomColors )
+	//		d->sep->removeChild(d->m_randomMat);
+	//	else
+	//		d->sep->insertChild(d->m_randomMat, d->sep->getNumChildren()-1);
 }
 
 
-
+void IParticleHandle_CaloCluster::dumpToJSON( std::ofstream& str) const {
+  str << "\"phi\":" <<d->phi() <<", ";
+  str << "\"eta\":" <<d->eta() <<", ";
+  str << "\"energy\":" <<d->e();
+}
 

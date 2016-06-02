@@ -59,7 +59,7 @@ public:
 	QString shortInfo() const;
 
 	void fillObjectBrowser( QList<QTreeWidgetItem *>& listOfItems) ;
-	void updateMaterial(bool);
+	//void updateMaterial(bool);
 
 
 protected:  

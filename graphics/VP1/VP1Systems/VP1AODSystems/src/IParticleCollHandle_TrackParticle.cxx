@@ -28,6 +28,7 @@
 #include <QtCore/QStringList>
 
 // SoCoin
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoMaterial.h>
@@ -134,6 +135,19 @@ void IParticleCollHandle_TrackParticle::setupSettingsFromControllerSpecific(AODS
 
 }
 
+void IParticleCollHandle_TrackParticle::resetCachedValuesCuts()
+{
+	// TODO: it is not used so far! Check Other collections and update accordingly
+
+	// kinetic cuts
+	setCutAllowedPt(d->collSettingsButton->cutAllowedPt());
+	setCutAllowedEta(d->collSettingsButton->cutAllowedEta());
+	setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
+
+  // TODO: adding "propagation" and "parameters" settings as well??
+}
+
+
 const TrackParticleCollectionSettingsButton& IParticleCollHandle_TrackParticle::collSettingsButton() const {
   if (!d->collSettingsButton){
     messageVerbose("No collSettingsButton set! Can't call init(), so crash is imminent...");
@@ -213,12 +227,12 @@ void IParticleCollHandle_TrackParticle::propagationOptionsChanged() {
 }
 
 void IParticleCollHandle_TrackParticle::dumpToJSON( std::ofstream& str) const {
-  str << "\"Tracks\":{";
+  str << "\""<<name().toLatin1().data()<<"\":{";
   
   unsigned int num=0;
   for (auto handle : getHandlesList() ) {
     if (handle->visible()) {
-      if (num) str <<",";
+      if (num) str <<",\n";
       str << "\"Trk "<<num++<< "\":{";
       handle->dumpToJSON(str);
       str << "}";

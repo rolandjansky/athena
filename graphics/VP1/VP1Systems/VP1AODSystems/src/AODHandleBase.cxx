@@ -24,6 +24,7 @@
 
 #include "VP1Utils/SurfaceToSoNode.h"
 
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoVertexProperty.h>
 #include <Inventor/nodes/SoSeparator.h>
@@ -296,6 +297,7 @@ void AODHandleBase::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfItems) {
   d->m_objBrowseTree = new QTreeWidgetItem();
 
   QString l = shortInfo();
+
   d->m_objBrowseTree->setText(0, type()+QString(QString::number(listOfItems.size())) );
   d->m_objBrowseTree->setText(1, l );    
 

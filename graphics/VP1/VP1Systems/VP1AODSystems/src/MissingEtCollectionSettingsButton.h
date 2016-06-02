@@ -2,16 +2,19 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef VP1AODSYSTEMS_VERTEXCOLLSETTINGSBUTTON_H
-#define VP1AODSYSTEMS_VERTEXCOLLSETTINGSBUTTON_H
+#ifndef VP1AODSYSTEMS_MISSINGETCOLLSETTINGSBUTTON_H
+#define VP1AODSYSTEMS_MISSINGETCOLLSETTINGSBUTTON_H
 
-#include "VP1Base/VP1MaterialButton.h"
+//#include "VP1Base/VP1MaterialButton.h"
+#include "VP1Base/VP1CollectionSettingsButtonBase.h"
+
 #include "xAODTracking/TrackingPrimitives.h"
 
 class SoDrawStyle;
 class SoLightModel;
 
-class MissingEtCollectionSettingsButton : public VP1MaterialButtonBase {
+//class MissingEtCollectionSettingsButton : public VP1MaterialButtonBase {
+class MissingEtCollectionSettingsButton : public VP1CollectionSettingsButtonBase {
 
   Q_OBJECT
 
@@ -34,8 +37,8 @@ public:
   VP1Interval cutAllowedZ() const;
    
   //Overall drawstyles, complexities and light models:
-  SoDrawStyle *  vertexDrawStyle() const;
-  SoLightModel * vertexLightModel() const;
+//  SoDrawStyle *  vertexDrawStyle() const;
+//  SoLightModel * vertexLightModel() const;
 
   // Getters
   float            metLength() const;
@@ -74,7 +77,7 @@ private:
   private slots:
   void updateVertexDrawStyle();
   void updateVertexLightModel(bool);
-  void possibleChange_vertexSize();
+//  void possibleChange_vertexSize();
 //  void possibleChange_cutAllowedR();
 //  void possibleChange_cutAllowedZ();
     

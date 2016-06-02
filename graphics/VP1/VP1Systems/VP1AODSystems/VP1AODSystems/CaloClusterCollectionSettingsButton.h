@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef VP1AODSYSTEMS_JETCOLLSETTINGSBUTTON_H
-#define VP1AODSYSTEMS_JETCOLLSETTINGSBUTTON_H
+#ifndef VP1AODSYSTEMS_CALOCLUSTERCOLLSETTINGSBUTTON_H
+#define VP1AODSYSTEMS_CALOCLUSTERCOLLSETTINGSBUTTON_H
 
 #include "VP1Base/VP1CollectionSettingsButtonBase.h"
 #include "VP1AODSystems/AODSystemController.h"
@@ -24,6 +24,7 @@ public:
   
 	void setCollHandle(IParticleCollHandle_CaloCluster* coll);
 	void setDimension(int dim);
+
   
 	// The below are necessary to fulfill the interface, but will just be passed onto the VP1MaterialButton owned by the CaloClusterCollectionSettingsButton form
 	virtual bool setMaterial(SoMaterial*);
@@ -56,18 +57,10 @@ public:
 	VP1Interval cutAllowedPt() const;
 	VP1Interval cutAllowedEta() const;
 	QList<VP1Interval> cutAllowedPhi() const;//All off: empty list. All on: list with one entry: ]-inf,inf[
+	bool isTransverseEnergy() const;
 
-//	// b-tagging
-//	bool bTaggingEnabled() const ;
-//	QString  bTaggingTagger() const;
-//	QString  bTaggingSkin() const; //
-//	double bTaggingCut() const;
-//	bool bTaggingRenderingSkin() const;
-//	bool bTaggingRenderingMaterial() const;
-//	SoMaterial* bTaggingMaterial() const;
-//	bool is_bTaggingSkinEnabled() const;
-//	bool is_bTaggingMaterialEnabled() const;
-
+public slots:
+	void setTransverseEnergy();
 
 
 //	bool        cutOnlyVertexAssocTracks() const; //!< Return true if this collection should only should tracks associated to a vertex
@@ -93,6 +86,8 @@ signals:
 	void cutAllowedPhiChanged(const QList<VP1Interval>&);
 
 	void scaleChanged(const QPair<bool,double>& scale);
+
+	void energyTypeChanged();
 
 //	void randomJetColoursChanged(const bool& ra);
 //	void rerandomise();

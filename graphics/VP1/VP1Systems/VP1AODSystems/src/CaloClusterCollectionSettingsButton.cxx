@@ -79,6 +79,8 @@ public:
 	VP1Interval last_cutAllowedP;
 	VP1Interval last_cutAllowedEta;
 	QList<VP1Interval> last_cutAllowedPhi;
+	bool m_transverseEnergy;
+	bool m_forceRebuild;
 
 	// specific cuts
 	QPair<bool,double> last_scale;
@@ -111,14 +113,17 @@ void CaloClusterCollectionSettingsButton::Imp::initEditWindow()
 	ui_customsettings.setupUi(editwindow);
 
 	//// CUSTOMIZE "Momentum cuts" widget
-	// change labels to match jets' nomenclature
+	// change labels to match object's nomenclature
 	ui_commonsettings.groupBox_cuts_momentum->setTitle("Energy cuts");
 	ui_commonsettings.checkBox_cut_minpt->setText("Min Energy");
 	ui_commonsettings.checkBox_cut_maxpt->setText("Max Energy");
+
 	ui_commonsettings.comboBox_momtype->setItemText(0, "Et");
 	ui_commonsettings.comboBox_momtype->setItemText(1, "E");
+//	ui_commonsettings.comboBox_momtype->setEnabled(false); // TODO: enable it back and make it working, now it is not connected
+
 	// change initial values to match jets' typical values
-	ui_commonsettings.doubleSpinBox_cut_minpt_gev->setValue(10.00);
+	ui_commonsettings.doubleSpinBox_cut_minpt_gev->setValue(2.00);
 	ui_commonsettings.doubleSpinBox_cut_maxpt_gev->setValue(100.00);
 
 	// get a handle on the material button
@@ -213,6 +218,9 @@ CaloClusterCollectionSettingsButton::CaloClusterCollectionSettingsButton(QWidget
 	d->theclass = this;
 	d->initEditWindow();
 
+	d->m_transverseEnergy = true;
+	d->m_forceRebuild = false;
+
 //	// default material for b-jets
 //	d->materialFallback = d->createMaterial(116,255,228);
 //	d->materialFallback->ref();
@@ -229,7 +237,7 @@ CaloClusterCollectionSettingsButton::CaloClusterCollectionSettingsButton(QWidget
 	connect(d->ui_commonsettings.doubleSpinBox_cut_minpt_gev,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedPt()));
 	connect(d->ui_commonsettings.doubleSpinBox_cut_maxpt_gev,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedPt()));
 	connect(d->ui_commonsettings.checkBox_cut_minpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
-	connect(d->ui_commonsettings.comboBox_momtype,SIGNAL(currentIndexChanged(int)),this,SLOT(possibleChange_cutAllowedPt()));
+	connect(d->ui_commonsettings.comboBox_momtype,SIGNAL(currentIndexChanged(int)),this,SLOT(setTransverseEnergy()));
 
 	// -> cutAllowedEta
 	connect(d->ui_commonsettings.etaPhiCutWidget,SIGNAL(allowedEtaChanged(const VP1Interval&)),this,SLOT(possibleChange_cutAllowedEta()));
@@ -546,35 +554,69 @@ void CaloClusterCollectionSettingsButton::restoreFromState( const QByteArray& ba
 	//FIXME - anything else need updating?
 }
 
+
+//____________________________________________________________________
+bool CaloClusterCollectionSettingsButton::isTransverseEnergy() const
+{
+	return d->m_transverseEnergy;
+}
+
+//____________________________________________________________________
+void CaloClusterCollectionSettingsButton::setTransverseEnergy()
+{
+	if(d->ui_commonsettings.comboBox_momtype->currentText()=="Et")
+		d->m_transverseEnergy = true;
+	else
+		d->m_transverseEnergy = false;
+
+
+	messageDebug("setTransverseEnergy: "+QString::number(d->m_transverseEnergy));
+
+//	// when we change Et<-->E we force the rebuild of all objects in the scene
+//	d->m_forceRebuild = true;
+	// then, we rebuild all objects
+	emit energyTypeChanged();
+}
+
 //____________________________________________________________________
 VP1Interval CaloClusterCollectionSettingsButton::cutAllowedPt() const
 {
 	if (!d->editwindow)
 		d->initEditWindow();
+
 	if (!d->ui_commonsettings.checkBox_cut_minpt)
 		return VP1Interval();
 
 	// will set range to negative if we have momcut=P
 	// if minCut unset then min=-inf
 	// if minCut set, and Pt selected, then min=-minCut
-	// if minCut set, and P selected, then min=-maxCut
+	// if minCut set, and P selected, then min=-maxCut // TODO: Check this logic!!!!!  ????
 	// etc
-	bool isPCut = d->ui_commonsettings.comboBox_momtype->currentText()=="P";
+	//bool EtCut = isTransverseEnergy();
 
-	const double minFromInterface=d->ui_commonsettings.doubleSpinBox_cut_minpt_gev->value()*1000;
+	const double minFromInterface=d->ui_commonsettings.doubleSpinBox_cut_minpt_gev->value()*1000; // from GeV to MeV
 	const double maxFromInterface=d->ui_commonsettings.doubleSpinBox_cut_maxpt_gev->value()*1000;
 
 	double min=0.0,max=0.0;
-	if (!isPCut) {
-		//Pt cut
+
+	// TODO: I don't understand this logic...
+	// it looks wrong to me, and the E cut does not currently work...
+	// Moving to a simpler logic.
+	/*
+	if (EtCut) {
+		//Et cut
 		min = (d->ui_commonsettings.checkBox_cut_minpt->isChecked() ? minFromInterface : -std::numeric_limits<double>::infinity());
 		max = (d->ui_commonsettings.checkBox_cut_maxpt->isChecked() ? maxFromInterface : std::numeric_limits<double>::infinity());
 	} else {
+		//E cut
 		min = (d->ui_commonsettings.checkBox_cut_maxpt->isChecked() ? -maxFromInterface : -std::numeric_limits<double>::infinity());
 		max = (d->ui_commonsettings.checkBox_cut_minpt->isChecked() ? -minFromInterface : std::numeric_limits<double>::infinity());
-	}
+	}*/
 
-	//message("cutAllowedPt: min,max="+QString::number(min)+","+QString::number(max));
+	min = (d->ui_commonsettings.checkBox_cut_minpt->isChecked() ? minFromInterface : -std::numeric_limits<double>::infinity());
+	max = (d->ui_commonsettings.checkBox_cut_maxpt->isChecked() ? maxFromInterface : std::numeric_limits<double>::infinity());
+
+	message("cutAllowedPt: min,max="+QString::number(min)+","+QString::number(max));
 
 	if (max<min)
 		return VP1Interval();
@@ -605,7 +647,9 @@ void CaloClusterCollectionSettingsButton::possibleChange_cutAllowedPt()
 {
 	messageVerbose("possibleChange_cutAllowedPt() ");
 
-	if (d->last_cutAllowedPt==cutAllowedPt()) return;
+	if ( d->last_cutAllowedPt==cutAllowedPt()) return;
+//	if ( !d->m_forceRebuild && d->last_cutAllowedPt==cutAllowedPt()) return;
+
 	messageVerbose("cutAllowedPt() changed");
 	d->last_cutAllowedPt= cutAllowedPt();
 	emit cutAllowedPtChanged(d->last_cutAllowedPt);
@@ -691,7 +735,7 @@ QPair<bool,double> CaloClusterCollectionSettingsButton::scale() const
 //  std::cout << "coll->highestVisibleClusterEnergy(): ";
 //  std::cout << d->coll->highestVisibleClusterEnergy() << std::endl;
 
-  IParticleCollHandle_CaloCluster* col = dynamic_cast<IParticleCollHandle_CaloCluster*>(d->coll);
+  //IParticleCollHandle_CaloCluster* col = dynamic_cast<IParticleCollHandle_CaloCluster*>(d->coll);
   if (dynamic_cast<IParticleCollHandle_CaloCluster*>(d->coll)) {
 	  std::cout << "col OK! " << std::endl;
     if ( d->coll && highestvisibleenergy < d->coll->highestVisibleClusterEnergy() )

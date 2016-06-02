@@ -107,8 +107,11 @@ protected:
   virtual bool mayHaveAssociatedObjects() const { return false; }
   
 protected:
-  virtual QColor defaultColor() const { return QColor::fromRgbF(1.0f, 0.5f, 0.5f); }
+  virtual QColor defaultColor() const { return QColor::fromRgbF(1.0f, 0.5f, 0.5f); } // light red
 
+
+private slots:
+	void resetCachedValuesCuts();
   
 public slots:
   void rerandomiseRandomVertexColours();

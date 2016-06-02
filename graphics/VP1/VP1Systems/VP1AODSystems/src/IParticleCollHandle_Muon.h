@@ -54,6 +54,8 @@ protected:
 private slots:
   void setMinimumQuality(unsigned int); // Can't use xAOD::Muon::Quality because of the boost/Qt bug.
   void updateShownAssociatedObjects(); // Will get settings from the button.
+  void resetCachedValuesCuts();
+
 
 private:
 

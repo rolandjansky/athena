@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>406</width>
-    <height>379</height>
+    <width>470</width>
+    <height>411</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -247,20 +247,16 @@
              <string>MV1</string>
             </property>
            </item>
-           <item>
-            <property name="text">
-             <string>MV1c</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>JetFitterCOMBNN</string>
-            </property>
-           </item>
           </widget>
          </item>
          <item row="1" column="2">
           <widget class="QDoubleSpinBox" name="bTaggingSpinBox">
+           <property name="minimum">
+            <double>-1.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>1.000000000000000</double>
+           </property>
            <property name="singleStep">
             <double>0.010000000000000</double>
            </property>

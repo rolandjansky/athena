@@ -324,6 +324,8 @@ void IParticleCollHandle_CaloCluster::setupSettingsFromControllerSpecific(AODSys
   connect(controller,SIGNAL(cutAllowedPtChanged(const VP1Interval&)),this,SLOT(setCutAllowedPt(const VP1Interval&)));
   setCutAllowedPt(controller->cutAllowedPt());
 
+  connect(controller,SIGNAL(energyTypeChanged()),this,SLOT(rebuildAllObjects()));
+
   connect(controller,SIGNAL(cutAllowedEtaChanged(const VP1Interval&)),this,SLOT(setCutAllowedEta(const VP1Interval&)));
   setCutAllowedEta(controller->cutAllowedEta());
 
@@ -351,7 +353,16 @@ void IParticleCollHandle_CaloCluster::setupSettingsFromControllerSpecific(AODSys
 
 }
 
+void IParticleCollHandle_CaloCluster::resetCachedValuesCuts()
+{
+	// kinetic cuts
+	setCutAllowedPt(d->collSettingsButton->cutAllowedPt());
+	setCutAllowedEta(d->collSettingsButton->cutAllowedEta());
+	setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
+	// other settings
+	setScale( d->collSettingsButton->scale() ); // FIXME:
 
+}
 
 //____________________________________________________________________
 //SoMaterial* IParticleCollHandle_CaloCluster::defaultParameterMaterial() const {
@@ -370,13 +381,27 @@ const CaloClusterCollectionSettingsButton& IParticleCollHandle_CaloCluster::coll
 
 
 //____________________________________________________________________
-bool IParticleCollHandle_CaloCluster::isConsiderTransverseEnergy() const
+void IParticleCollHandle_CaloCluster::rebuildAllObjects()
 {
-  VP1Msg::messageVerbose("IParticleCollHandle_CaloCluster::isConsiderTransverseEnergy()");
-  return d->considerTransverseEnergies;
+	VP1Msg::messageVerbose("IParticleCollHandle_CaloCluster::rebuildAllObjects()");
+
+	recheckCutStatusOfAllHandles();
+	recheckCutStatusOfAllNotVisibleHandles(); // Redundant, but needed! TODO: remove this when new 'contains' is ready
 }
 
 
+//____________________________________________________________________
+bool IParticleCollHandle_CaloCluster::isConsiderTransverseEnergy() const
+{
+  VP1Msg::messageVerbose("IParticleCollHandle_CaloCluster::isConsiderTransverseEnergy()");
+  return d->collSettingsButton->isTransverseEnergy();
+}
+
+////____________________________________________________________________
+//void IParticleCollHandle_CaloCluster::setTransverseEnergyForCuts(bool var){
+//  VP1Msg::messageVerbose("IParticleCollHandle_CaloCluster::setTransverseEnergyForCuts()");
+//  d->collSettingsButton->isTransverseEnergy();
+//}
 
 //____________________________________________________________________
 void IParticleCollHandle_CaloCluster::setShowVolumeOutLines(bool b)
@@ -560,38 +585,38 @@ bool IParticleCollHandle_CaloCluster::cut(AODHandleBase* c) {
 	  message("CaloCluster::cut() --- to be implemented......");
 
 
-//    //------ ENERGY CUTS
-//    messageVerbose("jet's energy, allowedPt^2, PtAll: - " + QString::number(handle->energyForCuts()) + " - " + getCutAllowedPt().toString() + " - " + QString::number(int(getPtAllowall()))  );
-//    double jEnergy = handle->energyForCuts();
-//    double jEnergySqr = jEnergy * jEnergy; // in IParticleCollHandleBase the allowedPt is stored as squared, to avoid square-root operations
-//    if (!getPtAllowall() && !getCutAllowedPt().contains(jEnergySqr) ) {
-//      messageVerbose("Pt cut not passed");
-//      return false;
-//    }
-//
-//    //------ ETA CUTS
-//    messageVerbose("jet's eta, etaCut, EtaAll: " + QString::number(handle->eta()) + " - " + getCutAllowedEta().toString() + " - " + QString::number(int(getEtaAllowall())) );
-//    if (!getEtaAllowall() && !getCutAllowedEta().contains(handle->eta())) {
-//      messageVerbose("Eta cut not passed");
-//      return false;
-//    }
-//
-//    //------ PHI CUTS
-//    if (!getPhiAllowall() ) {
-//      double phi = handle->phi();
-//      bool ok(false);
-//      foreach (VP1Interval phirange, getCutAllowedPhi() ) {
-//        messageVerbose("jet's phi, phiCut, PhiAll: " + QString::number(phi)  + " - " + phirange.toString() + " - " + QString::number(int(getPhiAllowall())) );
-//        if (phirange.contains(phi)||phirange.contains(phi+2*M_PI)||phirange.contains(phi-2*M_PI)) {
-//          ok = true;
-//          break;
-//        }
-//      }
-//      if (!ok) {
-//        messageVerbose("Phi cut not passed");
-//        return false;
-//      }
-//    }
+    //------ ENERGY CUTS
+    double jEnergy = handle->energyForCuts();
+    double jEnergySqr = jEnergy * jEnergy; // in IParticleCollHandleBase the allowedPt is stored as squared, to avoid square-root operations
+    messageVerbose("object's energy, object's energy^2, allowedPt^2, isPtAll: " + QString::number(jEnergy) + " - " + QString::number(jEnergySqr) + " - " + getCutAllowedPt().toString() + " - " + QString::number(int(getPtAllowall()))  );
+    if (!getPtAllowall() && !getCutAllowedPt().contains(jEnergySqr) ) {
+      messageVerbose("Energy cut not passed");
+      return false;
+    }
+
+    //------ ETA CUTS
+    messageVerbose("object's eta, etaCut, EtaAll: " + QString::number(handle->eta()) + " - " + getCutAllowedEta().toString() + " - " + QString::number(int(getEtaAllowall())) );
+    if (!getEtaAllowall() && !getCutAllowedEta().contains(handle->eta())) {
+      messageVerbose("Eta cut not passed");
+      return false;
+    }
+
+    //------ PHI CUTS
+    if (!getPhiAllowall() ) {
+      double phi = handle->phi();
+      bool ok(false);
+      foreach (VP1Interval phirange, getCutAllowedPhi() ) {
+        messageVerbose("object's phi, phiCut, PhiAll: " + QString::number(phi)  + " - " + phirange.toString() + " - " + QString::number(int(getPhiAllowall())) );
+        if (phirange.contains(phi)||phirange.contains(phi+2*M_PI)||phirange.contains(phi-2*M_PI)) {
+          ok = true;
+          break;
+        }
+      }
+      if (!ok) {
+        messageVerbose("Phi cut not passed");
+        return false;
+      }
+    }
 //
 //    //------ OTHER CUTS
 //    messageVerbose("Other cuts??? Calling base method...");
@@ -906,7 +931,29 @@ void IParticleCollHandle_CaloCluster::setState(const QByteArray&state)
     setExtraWidgetsState(extraWidgetState);
 
   // MATERIAL SETTINGS / CUTS
+  messageDebug("restoring material collection button...");
   des.restore(d->collSettingsButton);
 
+  messageDebug("reset all caches storing values for cuts...");
+  resetCachedValuesCuts();
 
+  messageDebug("recheck all handles...");
+  recheckCutStatusOfAllVisibleHandles();
 }
+
+void IParticleCollHandle_CaloCluster::dumpToJSON( std::ofstream& str) const {
+  str << "\""<<name().toLatin1().data()<<"\":{";
+  
+  unsigned int num=0;
+  for (auto handle : getHandlesList() ) {
+    if (handle->visible()) {
+      if (num) str <<",\n";
+      str << "\"Clus "<<num++<< "\":{";
+      handle->dumpToJSON(str);
+      str << "}";
+    }
+  }
+  
+  str << "}";
+}
+

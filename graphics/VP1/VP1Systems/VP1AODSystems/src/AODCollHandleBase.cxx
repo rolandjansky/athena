@@ -36,7 +36,7 @@
 #include "Inventor/nodes/SoDrawStyle.h"
 #include "Inventor/nodes/SoLightModel.h"
 
-//Athnea
+//Athena
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -373,8 +373,7 @@ void AODCollHandleBase::updateMaterialOfAllHandles()
 //____________________________________________________________________
 qint32 AODCollHandleBase::provideCollTypeID() const
 {
-  // return TrackType::typeToInt(m_type);
-  return 0;
+  return m_type; // This is the xAOD::Type::ObjectType value
 }
 
 QString AODCollHandleBase::provideSection() const {
@@ -494,6 +493,7 @@ void AODCollHandleBase::fillObjectBrowser()
 //____________________________________________________________________
 void AODCollHandleBase::assignDefaultMaterial(SoMaterial * m) const
 {
+	messageDebug("AODCollHandleBase::assignDefaultMaterial()");
   VP1QtInventorUtils::setMatColor( m, defaultColor(), 0.18/*brightness*/ );
 }
 
@@ -517,6 +517,11 @@ QByteArray AODCollHandleBase::extraWidgetsState() const
 //____________________________________________________________________
 void AODCollHandleBase::setExtraWidgetsState(const QByteArray& ba)
 {
+  messageDebug(" AODCollHandleBase::setExtraWidgetsState() - ba: " + ba);
+
+  if (ba.isEmpty())
+    messageVerbose("ExtraWidgetState ByteArray is empty.");
+
   // VP1Deserialise state(ba, systemBase());
   // if (state.version()!=0)
   //   return;//just ignore silently... i guess we ought to warn?

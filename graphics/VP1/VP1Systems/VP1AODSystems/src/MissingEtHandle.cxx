@@ -18,6 +18,7 @@
 #include "VP1Base/VP1Msg.h"
 
 //SoCoin
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoPointSet.h>
 #include <Inventor/nodes/SoVertexProperty.h>
@@ -350,25 +351,30 @@ void MissingEtHandle::Imp::updateConeHeightParameters() const {
 }
 
 
-
+///
+/// This gives the complete information about the object, shown in the main Message Box
+///
 //____________________________________________________________________
 QStringList MissingEtHandle::clicked() const
 {
 	VP1Msg::messageDebug("MissingEtHandle::clicked()");
 
-  QStringList l;
-  l << "--MissingEt: " + d->name();
-  //l << AODHandleBase::baseInfo();
+	QStringList l;
+	l << "--MissingEt: ";
+	//l << AODHandleBase::baseInfo();
 
-  // info and parameters,
-    // they go in the "Information" column in the Browser window
-    l +="\n - MissingEt: " + QString::number(d->met() / Gaudi::Units::GeV) +" [GeV]";
-    l+="\n - Phi: " + QString::number(d->phi());
-    l+="\n - SumEt: " + QString::number(d->sumet() / Gaudi::Units::GeV) +" [GeV]";
-    l+="\n - mpx: " + QString::number(d->mpx() / Gaudi::Units::GeV) +" [GeV]" ;
-    l+="\n - mpy: " + QString::number(d->mpy() / Gaudi::Units::GeV) +" [GeV]";
+	// info and parameters,
+	// they go in the "Information" column in the Browser window
+	// see: http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODMissingET/xAODMissingET/versions/MissingET_v1.h
+	//
+	l +="   - Name: " + d->name();
+	l +="   - MissingEt: " + QString::number(d->met() / Gaudi::Units::GeV) +" [GeV]";
+	l +="   - Phi: " + QString::number(d->phi());
+	l +="   - SumEt: " + QString::number(d->sumet() / Gaudi::Units::GeV) +" [GeV]";
+	l +="   - mpx: " + QString::number(d->mpx() / Gaudi::Units::GeV) +" [GeV]" ;
+	l +="   - mpy: " + QString::number(d->mpy() / Gaudi::Units::GeV) +" [GeV]";
 
-  return l;
+	return l;
 }
 
 /*
@@ -415,22 +421,27 @@ return 999999;
 */
 
 
-
+///
+/// This gives the very short summary for the object's properties, shown in the 'Information' field in the Browser, beside the item number (e.g. 'MissingEt0')
+///
 //____________________________________________________________________
 QString MissingEtHandle::shortInfo() const
 {
 	VP1Msg::messageDebug("MissingEtHandle::shortInfo()");
 
-//  QString l("xAOD MissingEt collection"); // TODO: implement a meaningful short_info for MET
-  QString l("|P|="+VP1Msg::str(d->met() / Gaudi::Units::GeV )+" [GeV]");
+  QString l;
 
-//  l+= "Pix["+QString::number(getNPixelHits())+"], SCT["+QString::number(getNSCTHits())+"]";
+  l += d->name();
+  l += ", met: " + QString::number(d->met() / Gaudi::Units::GeV) +" [GeV]";
+  l += ", phi: " + QString::number(d->phi());
 
   return l;
 }
 
 
-
+///
+/// This gives the list of object's properties, shown in the 'Information' field in the Browser, once the user clicked on one particular item (e.g. 'MissingEt0')
+///
 //____________________________________________________________________
 void MissingEtHandle::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfItems)
 {
@@ -439,26 +450,27 @@ void MissingEtHandle::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfItems)
   QTreeWidgetItem* TSOSitem = new QTreeWidgetItem(browserTreeItem());
 
   // Jet "Object" title, in the Browser window
-  TSOSitem->setText(0, QString("MissingEt Parameters " ) );
+  TSOSitem->setText(0, QString("Info: " ) );
 
   QString dParameters("(");
 
   // info and parameters,
   // they go in the "Information" column in the Browser window
-  dParameters+=",met: ";
+  dParameters+="name: ";
+  dParameters+=d->name();
+  dParameters+=", met: ";
   dParameters+=QString::number(d->met());
   dParameters+=", phi: ";
   dParameters+=QString::number(d->phi());
   dParameters+=", sumet: ";
   dParameters+=QString::number(d->sumet());
-  dParameters+=", mpx: ";
-  dParameters+=QString::number(d->mpx());
-  dParameters+=", mpy: ";
-  dParameters+=QString::number(d->mpy());
 
   dParameters+="";
 
   dParameters+=")";
+
+  dParameters += " [more info in the main Message Box]";
+
   TSOSitem->setText(1, dParameters );
 
   /*
@@ -580,7 +592,7 @@ double MissingEtHandle::met() const {
 //	VP1MaterialButton::setMaterialParameters(m_randomMat,r, g, b, 0.1, 0.5 );
 //}
 
-
+/*
 //____________________________________________________________________
 //void MissingEtHandle::Imp::updateMaterial()
 void MissingEtHandle::updateMaterial(bool isRandomColors)
@@ -613,3 +625,4 @@ void MissingEtHandle::updateMaterial(bool isRandomColors)
   //	else
   //		d->sep->insertChild(d->m_randomMat, d->sep->getNumChildren()-1);
 }
+*/

@@ -11,8 +11,8 @@
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
-#ifndef VP1AODSYSTEM_H
-#define VP1AODSYSTEM_H
+#ifndef VP1AODSYSTEMS_VP1AODSYSTEM_H
+#define VP1AODSYSTEMS_VP1AODSYSTEM_H
 
 #include "VP1Base/IVP13DSystemSimple.h"
 

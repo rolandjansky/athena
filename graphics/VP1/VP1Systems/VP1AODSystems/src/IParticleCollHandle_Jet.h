@@ -37,6 +37,7 @@ public:
 
 	virtual void init(VP1MaterialButtonBase* matBut=0);//reimplementations must start with a call to this.
 	virtual void setupSettingsFromControllerSpecific(AODSystemController*);
+  virtual void dumpToJSON( std::ofstream& ) const ;
 
 	const JetCollectionSettingsButton& collSettingsButton() const;
 	bool isRandomColors() const;
@@ -55,8 +56,8 @@ public:
 protected:	
 	virtual bool load();
 	virtual bool cut(AODHandleBase*);
-	virtual QColor defaultColor() const { return QColor::fromRgbF(1.0f, 1.0f, 0.5f); }
-
+	virtual QColor defaultColor() const { return QColor::fromRgbF(1.0f, 1.0f, 0.5f); } // light yellow
+	//virtual QString matButtonToolTip() const { return "Edit the material, properties and cuts of "+text(); }
 
 private slots:
 	void showParametersChanged(bool);
@@ -73,7 +74,7 @@ private slots:
 	void setBTaggingCut(const double &);
 	void setBTaggingMaterialChanged(const bool&);
 	void setBTaggingSkinChanged(const bool& ok);
-
+	void resetCachedValuesCuts();
 
 private:
 

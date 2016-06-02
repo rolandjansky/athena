@@ -14,8 +14,8 @@
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
-#ifndef IParticleHandle_CaloCluster_H
-#define IParticleHandle_CaloCluster_H
+#ifndef VP1AODSYSTEMS_IParticleHandle_CaloCluster_H
+#define VP1AODSYSTEMS_IParticleHandle_CaloCluster_H
 
 // local
 #include "IParticleHandleBase.h"
@@ -42,57 +42,70 @@ class IParticleCollHandle_CaloCluster;
 class IParticleHandle_CaloCluster : public IParticleHandleBase {
 public:
 
-	IParticleHandle_CaloCluster(IParticleCollHandleBase*, const xAOD::CaloCluster * );
-	virtual ~IParticleHandle_CaloCluster();
+  IParticleHandle_CaloCluster(IParticleCollHandleBase*, const xAOD::CaloCluster * );
+  virtual ~IParticleHandle_CaloCluster();
 
-	virtual bool has3DObjects();
-	virtual void clear3DObjects();
-	virtual SoNode* nodes();
+  virtual bool has3DObjects();
+  virtual void clear3DObjects();
+  virtual SoNode* nodes();
 
-	// This fills the Jet specific information, and is needed in addition to the parent method.
-	void fillObjectBrowser( QList<QTreeWidgetItem *>& listOfItems) ;
+  // This fills the Jet specific information, and is needed in addition to the parent method.
+  void fillObjectBrowser( QList<QTreeWidgetItem *>& listOfItems) ;
 
-	// Setters
-	void updateShape(IParticleCollHandle_CaloCluster* coll);
-//	void setScale( const double& sc);
-//	void setMaxR(const double& maxR);
-
-
-	// set/update random material
-	void rerandomiseMaterial();
+  // Setters
+  void updateShape(IParticleCollHandle_CaloCluster* coll);
+  //	void setScale( const double& sc);
+  //	void setMaxR(const double& maxR);
 
 
-	virtual QStringList clicked() const;
-	//virtual Amg::Vector3D momentum() const;
-	const xAOD::IParticle& iParticle() const;
+  // set/update random material
+  void rerandomiseMaterial();
 
+
+  virtual QStringList clicked() const;
+  //virtual Amg::Vector3D momentum() const;
+  const xAOD::IParticle& iParticle() const;
+
+//<<<<<<< .working
+//  SoGenericBox * genericBox() const;
+//  virtual double charge() const ;//!< Returns unknown() in case of trouble.
+//  double phi() const;
+//  double eta() const;
+//  double energy() const;
+//  double transverseEnergy() const;
+//  double energyForCuts() const;
+//=======
 	SoGenericBox * genericBox() const;
 	virtual double charge() const ;//!< Returns unknown() in case of trouble.
 	double phi() const;
 	double eta() const;
-	double energy() const;
-	double transverseEnergy() const;
+	double e() const;
+	double et() const;
 	double energyForCuts() const;
+//>>>>>>> .merge-right.r712981
+	bool isConsiderTransverseEnergies() const;
 
-	virtual QString type() const { return QString("CaloCluster"); } //!< return very short word with type (maybe link with collection type?)
+  virtual QString type() const { return QString("CaloCluster"); } //!< return very short word with type (maybe link with collection type?)
 
-	/// This returns the information shown about the object in the object browser
-	QString shortInfo() const;
+  /// This returns the information shown about the object in the object browser
+  QString shortInfo() const;
 
-//	void updateMaterial(bool);
-	void updateMaterial();
-//	void updateBTagging(const std::string& bTaggingTagger, const double& bTaggingCut);
-//	void updateBTaggingSwitch(SoSwitch *bTaggingSwitch);
+  //	void updateMaterial(bool);
+  void updateMaterial();
+  //	void updateBTagging(const std::string& bTaggingTagger, const double& bTaggingCut);
+  //	void updateBTaggingSwitch(SoSwitch *bTaggingSwitch);
+  virtual void dumpToJSON( std::ofstream& ) const ;
 
 
-protected:  
 
 private:
 
-	class Imp;
-	Imp * d;
-	void ensureInitSubSysHitInfo() const;
-//	double getBTaggingWeight(std::string tagger);
+  class Imp;
+  Imp * d;
+  void ensureInitSubSysHitInfo() const;
+  //	double getBTaggingWeight(std::string tagger);
+
+
 
 };
 

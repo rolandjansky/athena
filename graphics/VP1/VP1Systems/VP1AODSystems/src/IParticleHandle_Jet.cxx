@@ -21,6 +21,7 @@
 #include "VP1Utils/SoTools.h"
 
 //SoCoin
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoPointSet.h>
 #include <Inventor/nodes/SoVertexProperty.h>
@@ -54,6 +55,16 @@ public:
 	SoSwitch   * m_bTagged; // switch for b-tagged jets
 	SoSwitch   * m_bTaggingCollSwitch; // switch for b-tagged jets
 
+
+	// vars to store b-tagging weights for different taggers
+	double m_bTagWeightMV1;
+	double m_bTagWeightMV2c20;
+	double m_bTagWeightMV2c10;
+	double m_JetFitterCombNN_pb;
+	double m_JetFitterCombNN_pc;
+	double m_JetFitterCombNN_pu;
+
+
 	//QList<std::pair<xAOD::ParameterPosition, Amg::Vector3D> > parametersAndPositions; // cache // TODO: see if useful for jets
 
 	//Settings:
@@ -68,6 +79,7 @@ public:
 
 
 	// Getters
+	double pt() const { return m_jet->pt(); }
 	double phi() const { /*VP1Msg::messageVerbose("phi: " + QString::number(m_jet->phi()) );*/ return m_jet->phi(); }
 	double eta() const { /*VP1Msg::messageVerbose("eta: " + QString::number(m_jet->eta()) );*/ return m_jet->eta(); }
 	double energy() const { return m_jet->e(); }
@@ -99,6 +111,15 @@ IParticleHandle_Jet::IParticleHandle_Jet(IParticleCollHandleBase* ch, const xAOD
 	d->m_randomMat = 0;
 	d->m_bTagged = 0;
 	d->m_bTaggingCollSwitch = new SoSwitch();
+
+	// get b-tagging weights for different taggers
+	d->m_bTagWeightMV1 = getBTaggingWeight("MV1");
+	d->m_bTagWeightMV2c20 = getBTaggingWeight("MV2c20");
+	d->m_bTagWeightMV2c10 = getBTaggingWeight("MV2c10");
+	d->m_JetFitterCombNN_pb = getBTaggingWeight("JetFitterCombNN_pb");
+	d->m_JetFitterCombNN_pc = getBTaggingWeight("JetFitterCombNN_pc");
+	d->m_JetFitterCombNN_pu = getBTaggingWeight("JetFitterCombNN_pu");
+
 
 //	d->theCollHandle = dynamic_cast<const IParticleCollHandle_Jet*>(collHandle());
 }
@@ -183,6 +204,14 @@ SoNode* IParticleHandle_Jet::nodes(){
 				d->m_jet->origin()->position().z());
 	}
 	 */
+  
+  const xAOD::Vertex * vtx; 
+  bool exists = d->m_jet->getAssociatedObject(xAOD::JetAttribute::OriginVertex, vtx);
+
+  if( exists && vtx ) {
+    origin.setValue(vtx->position().x(),vtx->position().y(),vtx->position().z());
+  }
+  
 
 	VP1Msg::messageVerbose("creating the shapes");
 
@@ -324,7 +353,7 @@ void IParticleHandle_Jet::Imp::updateConeHeightParameters(SoCone*cone, SoTransla
 	SbString strHeight, strRadius;
 	(cone->height).get(strHeight);
 	(cone->bottomRadius).get(strRadius);
-	std::cout << "input - energy: " << energy << " - scale: " << scale << " - maxR: " << maxR << " - h: " << h << " --- updated cone - height: " << strHeight.getString() << " - bottom radius: " << strRadius.getString() << std::endl;
+  // std::cout << "input - energy: " << energy << " - scale: " << scale << " - maxR: " << maxR << " - h: " << h << " --- updated cone - height: " << strHeight.getString() << " - bottom radius: " << strRadius.getString() << std::endl;
 
 	// you can also use the 'writeField()' method, direct to std output
 	//SoDebug::writeField(&(cone->height));
@@ -365,15 +394,6 @@ void IParticleHandle_Jet::Imp::updateConeHeightParameters() const {
 }
 
 
-
-//____________________________________________________________________
-QStringList IParticleHandle_Jet::clicked() const
-{
-	QStringList l;
-	l << "--Jet:";
-	l << IParticleHandleBase::baseInfo();
-	return l;
-}
 
 /*
 //____________________________________________________________________
@@ -419,21 +439,76 @@ unsigned IParticleHandle_Jet::summaryValue(xAOD::SummaryType type) const
  */
 
 
+///
+/// This gives the complete information about the object, shown in the main Message Box
+///
+//____________________________________________________________________
+QStringList IParticleHandle_Jet::clicked() const
+{
+	QStringList l;
 
+	l << "--Jet:";
+
+	//l << IParticleHandleBase::baseInfo();
+
+	l += "   - pt: " + QString::number(d->pt());
+    l += "   - e: " + QString::number(d->energy());
+	l += "   - eta: " + QString::number(d->eta());
+	l += "   - phi: " + QString::number(d->phi());
+	l += "   - m: " + QString::number(d->m_jet->m());
+	l += "   - rapidity: " + QString::number(d->m_jet->rapidity());
+	l += "   - type: " + QString::number(d->m_jet->type());
+	l += "   - px: " + QString::number(d->m_jet->px());
+	l += "   - py: " + QString::number(d->m_jet->py());
+	l += "   - pz: " + QString::number(d->m_jet->pz());
+	l += "   - numConstituents: " + QString::number(d->m_jet->numConstituents());
+
+	l += "   - SizeParameter: " + QString::number(d->m_jet->getSizeParameter());
+//	l += "   - SizeParameter: " + QString::number(int(d->m_jet->getSizeParameter()*10));
+
+	xAOD::JetAlgorithmType::ID jetAlgID =  d->m_jet->getAlgorithmType();
+	std::string algName = xAOD::JetAlgorithmType::algName(jetAlgID);
+	l += "   - AlgorithmType: " + QString::fromStdString( algName );
+
+	 xAOD::JetInput::Type jetAlgType = d->m_jet->getInputType();
+	std::string inputType =  xAOD::JetInput::typeName(jetAlgType);
+	l += "   - InputType: " + QString::fromStdString( inputType );
+
+
+	l += "   - 'MV2c20' b-tagging weight: " + QString::number( d->m_bTagWeightMV2c20 );
+	l += "   - 'MV2c10' b-tagging weight: " + QString::number( d->m_bTagWeightMV2c10 );
+	l += "   - 'MV1' b-tagging weight: " + QString::number( d->m_bTagWeightMV1 );
+
+
+	l << "------";
+
+	return l;
+}
+
+///
+/// This gives the very short summary for the object's properties, shown in the 'Information' field in the Browser, beside the item number (e.g. 'Jet0')
+///
 //____________________________________________________________________
 QString IParticleHandle_Jet::shortInfo() const
 {
-	/*
-  QString l("|P|="+VP1Msg::str(momentum().mag()/Gaudi::Units::GeV)+" [GeV], ");
-  l+= "Pix["+QString::number(getNPixelHits())+"], SCT["+QString::number(getNSCTHits())+"], TRT["+QString::number(getNTRTHits())
-   +"], Muon prec. layers/holes ["+QString::number(getNMuonPrecisionLayers())+"/"+QString::number(getNMuonPrecisionHoleLayers())+"]";
-	 */
-	QString l("xAOD Jet test"); // TODO: implement a meaningful short_info for jets
+
+	QString l;
+
+    l += "pt: " + QString::number(d->pt());
+	l += ", e: " + QString::number(d->energy());
+	l += ", eta: " + QString::number(d->eta());
+	l += ", phi: " + QString::number(d->phi());
+	l += ", MV2c20: " + QString::number( d->m_bTagWeightMV2c20 );
+	l += ", MV2c10: " + QString::number( d->m_bTagWeightMV2c10 );
+	l += ", MV1: " + QString::number( d->m_bTagWeightMV1 );
+
 	return l;
 }
 
 
-
+///
+/// This gives the list of object's properties, shown in the 'Information' field in the Browser, once the user clicked on one particular item (e.g. 'Jet0')
+///
 //____________________________________________________________________
 void IParticleHandle_Jet::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfItems) 
 {
@@ -442,75 +517,37 @@ void IParticleHandle_Jet::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfIte
 	QTreeWidgetItem* TSOSitem = new QTreeWidgetItem(browserTreeItem());
 
 	// Jet "Object" title, in the Browser window
-	TSOSitem->setText(0, QString("Def. Parameters " ) );
+	TSOSitem->setText(0, QString("Info:" ) );
 
 	QString dParameters("(");
 
-	/*
-	 * TODO: check the Jets parameters and add them here
-	 */
-	/*
-  dParameters+=QString::number(d->trackparticle->d0());
-  dParameters+=", ";     
-  dParameters+=QString::number(d->trackparticle->z0());
-  dParameters+=", ";     
-  dParameters+=QString::number(d->trackparticle->phi0());
-  dParameters+=", ";     
-  dParameters+=QString::number(d->trackparticle->theta());
-  dParameters+=", ";     
-  dParameters+=QString::number(d->trackparticle->qOverP());
-	 */
-
 	// jet info and parameters,
 	// they go in the "Information" column in the Browser window
-	dParameters+="jets parameters go here!";
+	// see: http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODJet/xAODJet/versions/Jet_v1.h
+	//
+
+	dParameters+="pt: ";
+	dParameters+=QString::number(d->pt());
+	dParameters+=", e: ";
+	dParameters+=QString::number(d->energy());
+	dParameters+=", eta: ";
+	dParameters+=QString::number(d->eta());
+	dParameters+=", phi: ";
+	dParameters+=QString::number(d->phi());
+	dParameters+=", m: ";
+	dParameters+=QString::number(d->m_jet->m());
+	dParameters+=", rapidity: ";
+	dParameters+=QString::number(d->m_jet->rapidity());
+
+	dParameters+="";
 
 	dParameters+=")";
+
+	dParameters += " [more info in the main Message Box]";
+
 	TSOSitem->setText(1, dParameters );
 
-	/*
-	 * TODO: check jets parameters
-	 */
-	/*
-	for (unsigned int i=0; i<d->trackparticle->numberOfParameters() ; ++i){
 
-    QTreeWidgetItem* TSOSitem = new QTreeWidgetItem(browserTreeItem());
-    TSOSitem->setText(0, QString("Parameter "+QString::number( i+1 ) ) );
-    QString pos(", Position = (");  
-    pos+=QString::number(d->trackparticle->parameterX(i));
-    pos+=", ";    
-    pos+=QString::number(d->trackparticle->parameterY(i));
-    pos+=", ";
-    pos+=QString::number(d->trackparticle->parameterZ(i));
-    pos+=")";
-
-		switch (d->trackparticle->parameterPosition(i)){
-			case xAOD::BeamLine: 
-		    TSOSitem->setText(1, QString("BeamLine" )+pos );
-				break;
-			case xAOD::FirstMeasurement:
-		    TSOSitem->setText(1, QString("FirstMeasurement")+pos );
-				break;
-			case xAOD::LastMeasurement: 
-		    TSOSitem->setText(1, QString("LastMeasurement" )+pos );
-				break;
-			case xAOD::CalorimeterEntrance:
-		    TSOSitem->setText(1, QString("CalorimeterEntrance")+pos );
-				break;
-			case xAOD::CalorimeterExit: 
-		    TSOSitem->setText(1, QString("CalorimeterExit" )+pos );
-				break;
-			case xAOD::MuonSpectrometerEntrance:
-		    TSOSitem->setText(1, QString("MuonSpectrometerEntrance")+pos );
-				break;
-			default:
-		    TSOSitem->setText(1, QString("Undefined")+pos );
-		}
-	}
-	 */
-
-
-	// TODO - add more.
 }
 
 
@@ -679,11 +716,28 @@ double IParticleHandle_Jet::getBTaggingWeight(std::string tagger)
 	// TODO: add the other taggers
 	if (tagger == "MV1")
 		weight = myBTag->MV1_discriminant();
+	else if (tagger == "JetFitterCombNN_pb")
+		weight = myBTag->JetFitterCombNN_pb();
+	else if (tagger == "JetFitterCombNN_pc")
+		weight = myBTag->JetFitterCombNN_pc();
+	else if (tagger == "JetFitterCombNN_pu")
+		weight = myBTag->JetFitterCombNN_pu();
+	else if ("MV2c20")
+		const bool hasMv2c20 = myBTag->MVx_discriminant("MV2c20", weight);
 	else
 		VP1Msg::message("Tagger '" + QString::fromStdString(tagger) + "' not found! Returning weight=0.0 ...");
 
 	return weight;
+
+
+
 }
 
+void IParticleHandle_Jet::dumpToJSON( std::ofstream& str) const {
+  str << "\"coneR\":"<<d->coneR() <<", ";
+  str << "\"phi\":" <<d->phi() <<", ";
+  str << "\"eta\":" <<d->eta() <<", ";
+  str << "\"energy\":" <<d->energyForLengthAndCuts();
+}
 
 

@@ -311,8 +311,12 @@ QByteArray VertexCollectionSettingsButton::saveState() const{
   // if (d->editwindow_ui.checkBox_tracksUseBaseLightModel->isChecked()) messageVerbose("checked!");
   VP1Serialise serialise(1/*version*/);
   
-  serialise.save(d->matButton);  
+  // MATERIAL BUTTON (color,...)
+  serialise.save(d->matButton);
+
   // serialise.disableUnsavedChecks();
+
+  // VERTEX SETTINGS
   serialise.save(d->editwindow_ui.horizontalSlider_vertexSize);
   serialise.save(d->editwindow_ui.checkBox_verticesUseBaseLightModel);
   
@@ -340,8 +344,14 @@ void VertexCollectionSettingsButton::restoreFromState( const QByteArray& ba){
   VP1Deserialise state(ba,systemBase());
   if (state.version()<0||state.version()>1)
     return;//Ignore silently
+
+  // MATERIAL BUTTON (color,...)
   state.restore(d->matButton);
+
+  // VERTEX SETTINGS
+  state.restore(d->editwindow_ui.horizontalSlider_vertexSize);
   state.restore(d->editwindow_ui.checkBox_verticesUseBaseLightModel);
+
   // R
   state.restore(d->editwindow_ui.checkBox_cut_r);  
   state.restore(d->editwindow_ui.checkBox_cut_r_range_forcesymmetric);  

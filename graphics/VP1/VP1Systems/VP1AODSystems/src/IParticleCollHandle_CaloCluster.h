@@ -13,8 +13,8 @@
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
-#ifndef IParticleCollHandle_CaloCluster_H
-#define IParticleCollHandle_CaloCluster_H
+#ifndef VP1AODSYSTEMS_IParticleCollHandle_CaloCluster_H
+#define VP1AODSYSTEMS_IParticleCollHandle_CaloCluster_H
 
 // local
 #include "IParticleCollHandleBase.h"
@@ -49,10 +49,12 @@ public:
 
 	virtual void init(VP1MaterialButtonBase* matBut=0);//reimplementations must start with a call to this.
 	virtual void setupSettingsFromControllerSpecific(AODSystemController*);
+  virtual void dumpToJSON( std::ofstream& ) const ;
 
 	const CaloClusterCollectionSettingsButton& collSettingsButton() const;
 //	bool isRandomColors() const;
 	bool isConsiderTransverseEnergy() const;
+//	void setTransverseEnergyForCuts();
 	double energyToLength(const double& energy) const;
 	bool showOutlines() const;
 
@@ -91,6 +93,7 @@ private slots:
 	void showParametersChanged(bool);
 	void setScale(const QPair<bool,double>&);
 	QPair<bool,double> scale() const;
+	void rebuildAllObjects();
 //	void setScale(const QPair<bool,double>& s);
 //	void setRandomJetColours(const bool&);
 //	void rerandomise();
@@ -104,6 +107,7 @@ private slots:
 //	void setBTaggingMaterialChanged(const bool&);
 //	void setBTaggingSkinChanged(const bool& ok);
 	void setShowVolumeOutLines(bool);
+	void resetCachedValuesCuts();
 
 
 private:

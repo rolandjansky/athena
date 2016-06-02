@@ -11,6 +11,7 @@
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
+#include <Inventor/C/errors/debugerror.h>
 // FIXME! Remove!
 #define protected public
 #include <Inventor/nodes/SoSelection.h>
@@ -182,6 +183,8 @@ int AODSystemController::currentSettingsVersion() const
 void AODSystemController::actualSaveSettings(VP1Serialise&s) const
 {
   messageVerbose("AODSystemController::actualSaveSettings()");
+  messageDebug("version: " + QString::number(s.version()));
+
 }
 
 //____________________________________________________________________

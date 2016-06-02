@@ -203,11 +203,11 @@ bool IParticleCollHandleBase::cut(AODHandleBase* ahand)
           return false;
       }
     }
-    messageVerbose("mom.mag2() == 0.0!!!");
+    messageVerbose("IParticleCollHandleBase::cut() - mom.mag2() == 0.0!!!");
 
   }
 
-  messageVerbose("cut() - Returning true!");
+  messageVerbose("IParticleCollHandleBase::cut() - Returning true!");
   return true;
 }
 

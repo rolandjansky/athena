@@ -92,7 +92,8 @@ public:
   virtual QByteArray persistifiableState() const;//!<Provide specific implementation 
   virtual void setState(const QByteArray&);//!<Provide specific implementation 
   virtual void dumpToJSON( std::ofstream& ) const {}; //!< Dummy implementation does nothing.
-  
+  xAOD::Type::ObjectType xAODType() const {return m_type;} //!< This is actually the same as is returned by provideCollTypeID(), but this is public and more clearly named.
+    
 protected:
 
 //  //Must be called from derived classes when filling in new object handles.
@@ -150,6 +151,7 @@ protected:
   virtual QString provideText() const { return name(); };//FIXME
   virtual void    assignDefaultMaterial(SoMaterial*) const;
   virtual QColor  defaultColor() const = 0;//Will be used in assignDefaultMaterial
+  virtual QString matButtonToolTip() const { return "Edit cuts/properties/material for "+text(); }
   QList<QWidget*> provideExtraWidgetsForGuiRow() const;
   QByteArray      extraWidgetsState() const;
   void            setExtraWidgetsState(const QByteArray&);
@@ -157,6 +159,7 @@ protected:
 private slots:
   void colourByComboBoxItemChanged();
   void collVisibilityChanged(bool);
+  virtual void resetCachedValuesCuts() = 0; // must be implemented in inherited classes, according to the relevant physics cuts and the related user input form
   
 public slots:
 //  void rerandomiseRandomTrackColours();

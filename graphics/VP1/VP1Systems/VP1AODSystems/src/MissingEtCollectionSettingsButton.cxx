@@ -63,7 +63,7 @@ void MissingEtCollectionSettingsButton::Imp::initEditWindow()
 {
   if (editwindow)
     return;
-  theclass->messageVerbose("Initialising material editor dialog");
+  theclass->messageVerbose("Initializing material editor dialog");
   editwindow = new QWidget(0,Qt::WindowStaysOnTopHint);
   editwindow_ui.setupUi(editwindow);
 
@@ -84,7 +84,7 @@ void MissingEtCollectionSettingsButton::setMaterialText(const QString& t)
 
 //____________________________________________________________________
 MissingEtCollectionSettingsButton::MissingEtCollectionSettingsButton(QWidget * parent,int _dim)
-  : VP1MaterialButtonBase(parent,0,"VP1MaterialButton"), d(new Imp)
+  : VP1CollectionSettingsButtonBase(parent,0), d(new Imp)
 {
   d->dim = _dim;
   
@@ -107,6 +107,7 @@ MissingEtCollectionSettingsButton::MissingEtCollectionSettingsButton(QWidget * p
   d->vertexLightModel = new SoLightModel;
   d->vertexLightModel->setName("METLightModel");
   d->vertexLightModel->ref();
+
   updateVertexLightModel(false);
   connect(d->editwindow_ui.checkBox_verticesUseBaseLightModel,SIGNAL(toggled(bool)),this,SLOT(updateVertexLightModel(bool)));
   
@@ -211,6 +212,8 @@ double MissingEtCollectionSettingsButton::lastAppliedBrightness() const
 
 void MissingEtCollectionSettingsButton::updateVertexDrawStyle()
 {
+	// TODO: Do I need this???
+
   // double val = VP1QtInventorUtils::getValueLineWidthSlider(d->editwindow_ui.horizontalSlider_vertexSize);
   // if (d->vertexDrawStyle->lineWidth.getValue()!=val)
   //   d->vertexDrawStyle->lineWidth = val;
@@ -228,15 +231,15 @@ void MissingEtCollectionSettingsButton::updateVertexLightModel(bool base)
 }
 
 
-SoDrawStyle * MissingEtCollectionSettingsButton::vertexDrawStyle() const
-{
-  return d->vertexDrawStyle;
-}
-
-SoLightModel * MissingEtCollectionSettingsButton::vertexLightModel() const
-{
-  return d->vertexLightModel;
-}
+//SoDrawStyle * MissingEtCollectionSettingsButton::vertexDrawStyle() const
+//{
+//  return d->vertexDrawStyle;
+//}
+//
+//SoLightModel * MissingEtCollectionSettingsButton::vertexLightModel() const
+//{
+//  return d->vertexLightModel;
+//}
 
 float MissingEtCollectionSettingsButton::metLength() const
 {
@@ -340,6 +343,10 @@ QByteArray MissingEtCollectionSettingsButton::saveState() const{
   // Light model
   serialise.save(d->editwindow_ui.checkBox_verticesUseBaseLightModel);
   
+  // ETA-PHI CUTS (from VP1Base/VP1EtaPhiCutWidget.cxx)
+  serialise.save(d->editwindow_ui.etaphi_widget);
+
+
 //  // R
 //  serialise.save(d->editwindow_ui.checkBox_cut_r);
 //  serialise.save(d->editwindow_ui.checkBox_cut_r_range_forcesymmetric);
@@ -364,6 +371,8 @@ void MissingEtCollectionSettingsButton::restoreFromState( const QByteArray& ba){
   VP1Deserialise state(ba,systemBase());
   if (state.version()<0||state.version()>1)
     return;//Ignore silently
+
+  // MATERIAL BUTTON (color,...)
   state.restore(d->matButton);
 
   // MET length and thickness
@@ -373,25 +382,15 @@ void MissingEtCollectionSettingsButton::restoreFromState( const QByteArray& ba){
   // Light model
   state.restore(d->editwindow_ui.checkBox_verticesUseBaseLightModel);
 
-//  // R
-//  state.restore(d->editwindow_ui.checkBox_cut_r);
-//  state.restore(d->editwindow_ui.checkBox_cut_r_range_forcesymmetric);
-//  state.restore(d->editwindow_ui.checkBox_cut_r_excludeRange);
-//  state.restore(d->editwindow_ui.doubleSpinBox_cut_r_lower);
-//  state.restore(d->editwindow_ui.doubleSpinBox_cut_r_upper);
-
-//  // Z
-//  state.restore(d->editwindow_ui.checkBox_cut_z);
-//  state.restore(d->editwindow_ui.checkBox_cut_z_range_forcesymmetric);
-//  state.restore(d->editwindow_ui.checkBox_cut_z_excludeRange);
-//  state.restore(d->editwindow_ui.doubleSpinBox_cut_z_lower);
-//  state.restore(d->editwindow_ui.doubleSpinBox_cut_z_upper);
+  // ETA-PHI CUTS (from VP1Base/VP1EtaPhiCutWidget.cxx)
+  state.restore(d->editwindow_ui.etaphi_widget);
 
   state.widgetHandled(this);
   state.warnUnrestored(this);
 
   updateVertexDrawStyle();
   updateVertexLightModel(d->editwindow_ui.checkBox_verticesUseBaseLightModel);
+
   updateButton();
   //FIXME - anything else need updating?
 }
