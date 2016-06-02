@@ -15,7 +15,7 @@
 #include <iostream>
 #include <vector>
 #include "TestTools/initGaudi.h"
-#include "ToyConversion/FooBar.h"
+//#include "ToyConversion/FooBar.h"
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/ISvcLocator.h"
