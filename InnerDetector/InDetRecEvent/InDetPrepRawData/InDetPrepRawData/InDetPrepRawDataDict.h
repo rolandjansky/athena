@@ -21,6 +21,7 @@
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 #include "Identifier/Identifier.h"
+#include "AthLinks/ElementLink.h"
 
 /** helper class to help reflex/gccxml to discover the right types
  */
@@ -41,10 +42,10 @@ struct PrdWrapper
   ::DataLinkVector< Trk::PrepRawDataCollection< T > > m_dummy_dlv_ ## suffix ; \
   T ## Container ::DataHolder m_dummy_holder_ ## suffix ; \
   T ## Container ::Entry m_dummy_entry_ ## suffix ; \
-  T ## Container ::iterator m_dummy_iter_ ## suffix
+  T ## Container ::iterator m_dummy_iter_ ## suffix  
   
 namespace InDet {
-    class InDetPrepRawDataDict_Dummy
+    struct InDetPrepRawDataDict_Dummy
     {
       DataVector<Identifier>                     m_identifierVector;
       DataVector< SiClusterCollection >          m_dummyDVSiClusColl;
@@ -57,6 +58,10 @@ namespace InDet {
       EXPAND_PRD(InDet::PixelCluster, pixel_cluster);
       EXPAND_PRD(InDet::SCT_Cluster, sct_cluster);
       EXPAND_PRD(InDet::TRT_DriftCircle, trt_driftcircle);
+
+      ElementLink<InDet::PixelClusterContainer> m_dummyel_pixel_cluster;
+      ElementLink<InDet::SCT_ClusterContainer> m_dummyel_sct_cluster;
+      ElementLink<InDet::TRT_DriftCircleContainer> m_dummyel_trt_driftcircle;
     };
 }
 
