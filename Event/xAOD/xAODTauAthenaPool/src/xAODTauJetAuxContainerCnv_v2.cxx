@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTauJetAuxContainerCnv_v1.cxx 751655 2016-06-02 03:55:32Z griffith $
+// $Id: xAODTauJetAuxContainerCnv_v2.cxx 653224 2015-03-11 09:59:03Z will $
 
 // System include(s):
 #include <stdexcept>
@@ -11,11 +11,12 @@
 #include "GaudiKernel/MsgStream.h"
 
 // EDM include(s):
-#include "xAODTau/versions/TauJetContainer_v1.h"
+#include "xAODTau/versions/TauJetContainer_v2.h"
 #include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauTrackContainer.h"
 
 // Local include(s):
-#include "xAODTauJetAuxContainerCnv_v1.h"
+#include "xAODTauJetAuxContainerCnv_v2.h"
 
 /// Convenience macro for setting the level of output messages
 #define MSGLVL MSG::DEBUG
@@ -28,34 +29,40 @@
       }                                         \
    } while( 0 )
 
-xAODTauJetAuxContainerCnv_v1::xAODTauJetAuxContainerCnv_v1()
+xAODTauJetAuxContainerCnv_v2::xAODTauJetAuxContainerCnv_v2()
   : T_AthenaPoolTPCnvBase< xAOD::TauJetAuxContainer,
-                           xAOD::TauJetAuxContainer_v1 >() {
+                           xAOD::TauJetAuxContainer_v2 >() {
 
 }
 
-void xAODTauJetAuxContainerCnv_v1::
-persToTrans( const xAOD::TauJetAuxContainer_v1* oldObj,
+void xAODTauJetAuxContainerCnv_v2::
+persToTrans( const xAOD::TauJetAuxContainer_v2* oldObj,
              xAOD::TauJetAuxContainer* newObj,
              MsgStream& log ) {
 
    // Greet the user:
-   ATH_MSG( "Converting xAOD::TauJetAuxContainer_v1 to current version..." );
+   ATH_MSG( "Converting xAOD::TauJetAuxContainer_v2 to current version..." );
 
    // Clear the transient object:
    newObj->resize( 0 );
 
    // Set up interface containers on top of them:
-   xAOD::TauJetContainer_v1 oldInt;
+   xAOD::TauJetContainer_v2 oldInt;
    for( size_t i = 0; i < oldObj->size(); ++i ) {
-     oldInt.push_back( new xAOD::TauJet_v1() );
+     oldInt.push_back( new xAOD::TauJet_v2() );
    }
    oldInt.setStore( oldObj );
    xAOD::TauJetContainer newInt;
    newInt.setStore( newObj );
 
+   // xAOD::TauTrackContainer* pTracks = new xAOD::TauTrackContainer();
+   // ATH_CHECK( evtStore()->record( pTracks, "TauTracks") );
+   // xAOD::TauTrackAuxContainer* pAuxTracks = new xAOD::TauTrackAuxContainer();
+   // ATH_CHECK( evtStore()->record( pAuxTracks, "TauTracksAux." ));
+   // pTracks->setStore( pAuxTracks );
+   
    // Loop over the interface objects, and do the conversion with their help:
-   for( const xAOD::TauJet_v1* oldTau : oldInt ) {
+   for( const xAOD::TauJet_v2* oldTau : oldInt ) {
 
       // Add an object to the output container:
       xAOD::TauJet* newTau = new xAOD::TauJet;
@@ -87,16 +94,16 @@ persToTrans( const xAOD::TauJetAuxContainer_v1* oldObj,
       //copy PID variables
       //
       newTau->setDiscriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans    , oldTau->discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans) );
-      //      newTau->setDiscriminant(xAOD::TauJetParameters::BDTJetScoreBkgTrans    , oldTau->discriminant(xAOD::TauJetParameters::BDTJetScoreBkgTrans) );
+      // newTau->setDiscriminant(xAOD::TauJetParameters::BDTJetScoreBkgTrans    , oldTau->discriminant(xAOD::TauJetParameters::BDTJetScoreBkgTrans) );
       newTau->setDiscriminant(xAOD::TauJetParameters::BDTJetScore    , oldTau->discriminant(xAOD::TauJetParameters::BDTJetScore) );
       newTau->setDiscriminant(xAOD::TauJetParameters::BDTEleScore    , oldTau->discriminant(xAOD::TauJetParameters::BDTEleScore) );
-      // newTau->setDiscriminant(xAOD::TauJetParameters::Likelihood     , oldTau->discriminant(xAOD::TauJetParameters::Likelihood) );
-      // newTau->setDiscriminant(xAOD::TauJetParameters::SafeLikelihood , oldTau->discriminant(xAOD::TauJetParameters::SafeLikelihood) );
+      //      newTau->setDiscriminant(xAOD::TauJetParameters::Likelihood     , oldTau->discriminant(xAOD::TauJetParameters::Likelihood) );
+      //      newTau->setDiscriminant(xAOD::TauJetParameters::SafeLikelihood , oldTau->discriminant(xAOD::TauJetParameters::SafeLikelihood) );
       // newTau->setIsTau(xAOD::TauJetParameters::ElectronVetoLoose  ,   oldTau->isTau(xAOD::TauJetParameters::ElectronVetoLoose) );
       // newTau->setIsTau(xAOD::TauJetParameters::ElectronVetoLoose  ,   oldTau->isTau(xAOD::TauJetParameters::ElectronVetoLoose) );
       // newTau->setIsTau(xAOD::TauJetParameters::ElectronVetoMedium ,   oldTau->isTau(xAOD::TauJetParameters::ElectronVetoMedium) );
       // newTau->setIsTau(xAOD::TauJetParameters::ElectronVetoTight  ,   oldTau->isTau(xAOD::TauJetParameters::ElectronVetoTight) );
-      newTau->setIsTau(xAOD::TauJetParameters::MuonVeto           ,   oldTau->isTau(xAOD::TauJetParameters::MuonVeto) );
+      //      newTau->setIsTau(xAOD::TauJetParameters::MuonVeto           ,   oldTau->isTau(xAOD::TauJetParameters::MuonVeto) );
       // newTau->setIsTau(xAOD::TauJetParameters::TauCutLoose        ,   oldTau->isTau(xAOD::TauJetParameters::TauCutLoose) );
       // newTau->setIsTau(xAOD::TauJetParameters::TauCutMedium       ,   oldTau->isTau(xAOD::TauJetParameters::TauCutMedium) );
       // newTau->setIsTau(xAOD::TauJetParameters::TauCutTight        ,   oldTau->isTau(xAOD::TauJetParameters::TauCutTight) );
@@ -205,8 +212,8 @@ persToTrans( const xAOD::TauJetAuxContainer_v1* oldObj,
       newTau->setPanTauDetail(xAOD::TauJetParameters::PanTau_BDTValue_1p0n_vs_1p1n,                       oldTau->panTauDetail<float>(xAOD::TauJetParameters::PanTau_BDTValue_1p0n_vs_1p1n ));		  
       newTau->setPanTauDetail(xAOD::TauJetParameters::PanTau_BDTValue_1p1n_vs_1pXn, 			oldTau->panTauDetail<float>(xAOD::TauJetParameters::PanTau_BDTValue_1p1n_vs_1pXn ));	  
       newTau->setPanTauDetail(xAOD::TauJetParameters::PanTau_BDTValue_3p0n_vs_3pXn, 			oldTau->panTauDetail<float>(xAOD::TauJetParameters::PanTau_BDTValue_3p0n_vs_3pXn ));		  
-      // newTau->setPanTauDetail(xAOD::TauJetParameters::PanTau_BDTVar_Basic_NNeutralConsts, 		oldTau->panTauDetail<int>(xAOD::TauJetParameters::PanTau_BDTVar_Basic_NNeutralConsts ));		  
-      // newTau->setPanTauDetail(xAOD::TauJetParameters::PanTau_BDTVar_Charged_JetMoment_EtDRxTotalEt, 	oldTau->panTauDetail<float>(xAOD::TauJetParameters::PanTau_BDTVar_Charged_JetMoment_EtDRxTotalEt )); 
+      //      newTau->setPanTauDetail(xAOD::TauJetParameters::PanTau_BDTVar_Basic_NNeutralConsts, 		oldTau->panTauDetail<int>(xAOD::TauJetParameters::PanTau_BDTVar_Basic_NNeutralConsts ));		  
+      //      newTau->setPanTauDetail(xAOD::TauJetParameters::PanTau_BDTVar_Charged_JetMoment_EtDRxTotalEt, 	oldTau->panTauDetail<float>(xAOD::TauJetParameters::PanTau_BDTVar_Charged_JetMoment_EtDRxTotalEt )); 
       newTau->setPanTauDetail(xAOD::TauJetParameters::PanTau_BDTVar_Charged_StdDev_Et_WrtEtAllConsts, 	oldTau->panTauDetail<float>(xAOD::TauJetParameters::PanTau_BDTVar_Charged_StdDev_Et_WrtEtAllConsts )); 
       // newTau->setPanTauDetail(xAOD::TauJetParameters::PanTau_BDTVar_Neutral_HLV_SumM, 			oldTau->panTauDetail<float>(xAOD::TauJetParameters::PanTau_BDTVar_Neutral_HLV_SumM 		     ));  
       newTau->setPanTauDetail(xAOD::TauJetParameters::PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_1, 	oldTau->panTauDetail<float>(xAOD::TauJetParameters::PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_1 ));  
@@ -225,17 +232,17 @@ persToTrans( const xAOD::TauJetAuxContainer_v1* oldObj,
       // newTau->setOtherTrackLinks( oldTau->otherTrackLinks() );
       // newTau->setWideTrackLinks( oldTau->wideTrackLinks() );
 
-      newTau->setNeutralPFOLinks( oldTau->neutral_PFOLinks() );
-      newTau->setChargedPFOLinks( oldTau->charged_PFOLinks() );
-      newTau->setPi0PFOLinks( oldTau->pi0_PFOLinks() );
-      newTau->setShotPFOLinks( oldTau->shot_PFOLinks() );
+      newTau->setNeutralPFOLinks( oldTau->neutralPFOLinks() );
+      newTau->setChargedPFOLinks( oldTau->chargedPFOLinks() );
+      newTau->setPi0PFOLinks( oldTau->pi0PFOLinks() );
+      newTau->setShotPFOLinks( oldTau->shotPFOLinks() );
       /// can't set hadronic pfo links because v1 taujet doesn't have them
       // newTau->setHadronicPFOLinks( oldTau->hadronic_PFOLinks() );
 
       //v2 doesn't have pfo element link with specific type name, so copy cellbased ones into proto
-      newTau->setProtoNeutralPFOLinks( oldTau->cellBased_Neutral_PFOLinks() );
-      newTau->setProtoChargedPFOLinks( oldTau->cellBased_Charged_PFOLinks() );
-      newTau->setProtoPi0PFOLinks( oldTau->cellBased_Pi0_PFOLinks() );
+      newTau->setProtoNeutralPFOLinks( oldTau->protoNeutralPFOLinks() );
+      newTau->setProtoChargedPFOLinks( oldTau->protoChargedPFOLinks() );
+      newTau->setProtoPi0PFOLinks( oldTau->protoPi0PFOLinks() );
      
 
       // //
@@ -260,7 +267,7 @@ persToTrans( const xAOD::TauJetAuxContainer_v1* oldObj,
    }
 
    // Print what happened:
-   ATH_MSG( "Converting xAOD::TauJetAuxContainer_v1 to current version "
+   ATH_MSG( "Converting xAOD::TauJetAuxContainer_v2 to current version "
 	    "[OK]" );
    
    return;
@@ -269,14 +276,14 @@ persToTrans( const xAOD::TauJetAuxContainer_v1* oldObj,
 /// This function should never be called, as we are not supposed to convert
 /// object before writing.
 ///
-void xAODTauJetAuxContainerCnv_v1::transToPers( const xAOD::TauJetAuxContainer*,
-                                                xAOD::TauJetAuxContainer_v1*,
+void xAODTauJetAuxContainerCnv_v2::transToPers( const xAOD::TauJetAuxContainer*,
+                                                xAOD::TauJetAuxContainer_v2*,
                                                 MsgStream& log ) {
 
    log << MSG::ERROR
-       << "Somebody called xAODTauJetAuxContainerCnv_v1::transToPers"
+       << "Somebody called xAODTauJetAuxContainerCnv_v2::transToPers"
        << endmsg;
-   throw std::runtime_error( "Somebody called xAODTauJetAuxContainerCnv_v1::"
+   throw std::runtime_error( "Somebody called xAODTauJetAuxContainerCnv_v2::"
                              "transToPers" );
 
    return;

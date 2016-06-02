@@ -17,8 +17,8 @@ atlas_depends_on_subdirs( PRIVATE
 # Component(s) in the package:
 atlas_add_poolcnv_library( xAODTauAthenaPoolPoolCnv
                            src/*.cxx
-                           FILES xAODTau/TauJetContainer.h xAODTau/TauJetAuxContainer.h xAODTau/DiTauJetContainer.h xAODTau/DiTauJetAuxContainer.h
-                           TYPES_WITH_NAMESPACE xAOD::TauJetContainer xAOD::TauJetAuxContainer xAOD::DiTauJetContainer xAOD::DiTauJetAuxContainer
+                           FILES xAODTau/TauJetContainer.h xAODTau/TauJetAuxContainer.h xAODTau/DiTauJetContainer.h xAODTau/DiTauJetAuxContainer.h xAODTau/TauTrackContainer.h xAODTau/TauTrackAuxContainer.h
+                           TYPES_WITH_NAMESPACE xAOD::TauJetContainer xAOD::TauJetAuxContainer xAOD::DiTauJetContainer xAOD::DiTauJetAuxContainer xAOD::TauTrackContainer xAOD::TauTrackAuxContainer
                            CNV_PFX xAOD
                            LINK_LIBRARIES AthContainers AthenaKernel AthenaPoolCnvSvcLib AthenaPoolUtilities xAODTau GaudiKernel )
 
