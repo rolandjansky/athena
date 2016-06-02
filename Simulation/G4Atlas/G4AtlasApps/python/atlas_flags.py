@@ -21,26 +21,13 @@ class EventFilter(JobProperty):
     The available filters for the full ATLAS simulation are:
      - EtaPhiFilters: (Filters G4PrimaryParticle objects outside of configurable Eta
         and Phi ranges. Not suitable for use with ALFA and ZDC.)
-     - VertexPositioner: (Randomly offsets events so that the primary
-        vertex spread is distributed according to the luminous
-        region. This should be used for those generators which set the
-        vertex position at (0,0,0) by default, but not for Single
-        ParticleGenerator.)
      - VertexRangeChecker: (Filters G4PrimaryVertex objects outside of
         configurable R and Z ranges.)
-     - BeamEffectTransformation: (Boosts primary event particles to
-        account for beam effects. This class applies a Lorentz
-        transformation to the momentum vectors of a primary event to
-        account for effect of the incoming beams, such as crossing angle,
-        beam divergence, and beam energy smearing.)
     """
     statusOn = True
     allowedTypes = ['dict']
     StoredValue = { 'EtaPhiFilters': True,
-                    'VertexPositioner': True,
-                    'VertexRangeChecker': True,
-                    'PrimaryEventRotations' : False,
-                    'BeamEffectTransformation': False }
+                    'VertexRangeChecker': True }
 
     def switchFilterOff(self, filter):
        """Switch the specified filter off"""
@@ -50,7 +37,7 @@ class EventFilter(JobProperty):
            from AthenaCommon.Logging import logging
            _sflog = logging.getLogger('SimFlags')
            _sflog.warning ( "Tried to switch off non-existent EventFilter: " + filter )
-       
+
     def switchFilterOn(self, filter):
        """Switch the specified filter on"""
        if filter in self.get_Value().keys():
@@ -64,7 +51,7 @@ class EventFilter(JobProperty):
        """Switch the specified filter off"""
        for filter in self.get_Value().keys():
            self.get_Value()[filter] = False
-       
+
     def switchAllFiltersOn(self):
        """Switch the specified filter on"""
        for filter in self.get_Value().keys():
@@ -127,6 +114,15 @@ class MagneticField(JobProperty):
     StoredValue = 'AtlasFieldSvc'
 
 
+class TightMuonStepping(JobProperty):
+    """
+    Switch to enable tight muon stepping parameters
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
+
 class ForwardDetectors(JobProperty):
     """
     Decide whether simulation must be run for forward detectors.
@@ -177,38 +173,13 @@ class VertexTimeOffset(JobProperty):
     StoredValue = False
 
 
-class GMSBIndex(JobProperty):
+class PhysicsOptions(JobProperty):
     """
-    Index number of GMSB point.
-
-    Used exclusively in SimuJobTransforms/postOptions.GMSB.py
+    PhysicsOptionTools to be used in this job
     """
-    statusOn = False
-    allowedTypes = ['int']
-    StoredValue = None
-
-
-class AMSBIndex(JobProperty):
-    """
-    Index (non-number) of AMSB point.
-
-    Used exclusively in SimuJobTransforms/postOptions.AMSB.py
-    """
-    statusOn = False
-    allowedTypes = ['str']
-    StoredValue = None
-
-
-class PionIndex(JobProperty):
-    """
-    Index for pion decayer configuration.
-
-    Used exclusively in SimuJobTransforms/postOptions.PionDecayer.py
-    """
-    statusOn = False
-    allowedTypes = ['str']
-    StoredValue = None
-
+    statusOn = True
+    allowedTypes = ['list']
+    StoredValue = []
 
 
 class CavernBG(JobProperty):
@@ -291,7 +262,7 @@ class WriteTR(JobProperty):
 class StoppedParticleFile(JobProperty):
     """
     Enable a fast simulation which kills anything other than SUSY particles
-    meant to stop in the calorimeter, watches those SUSY particles, and 
+    meant to stop in the calorimeter, watches those SUSY particles, and
     writes them out when they drop below the magical energy threshold.
 
     The value assigned is the name of the file to be written out.
@@ -309,26 +280,26 @@ class IncludeParentsInG4Event(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
-class KillAbortedEvents(JobProperty): 
-    """ 
-    If an event is aborted by Geant4 then it should not be written out 
-    to the HITS file. 
-    """ 
-    statusOn = True 
-    allowedTypes = ['bool'] 
-    StoredValue = True 
+class KillAbortedEvents(JobProperty):
+    """
+    If an event is aborted by Geant4 then it should not be written out
+    to the HITS file.
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = True
 
-class FlagAbortedEvents(JobProperty): 
-    """ 
-    If an event is aborted by Geant4 then it should still be written 
-    out to the HITS file, but with the Error flag set in 
-    EventInfo. When this flag is True, KillAbortedEvents should be 
-    False for it to have any effect. 
-    """ 
-    statusOn = True 
-    allowedTypes = ['bool'] 
+class FlagAbortedEvents(JobProperty):
+    """
+    If an event is aborted by Geant4 then it should still be written
+    out to the HITS file, but with the Error flag set in
+    EventInfo. When this flag is True, KillAbortedEvents should be
+    False for it to have any effect.
+    """
+    statusOn = True
+    allowedTypes = ['bool']
     StoredValue = False
-    
+
 class VertexOverrideFile(JobProperty):
     """
     File name (path) for the file that will perform the vertex override in overlay sim
@@ -429,4 +400,3 @@ class TRTRangeCut(JobProperty):
     allowedTypes = ['float']
     allowedValues = [0.05,30.0]
     StoredValue = 0.05
-
