@@ -660,8 +660,8 @@ HLT::ErrorCode TrigMuSuperEF::runCombinerOnly(const HLT::TriggerElement* inputTE
 
 
       ATH_MSG_VERBOSE("Repeated ROI");
-      muonCandidates = cache->MuonCandidates();
-      ATH_MSG_VERBOSE("got muon candidates with size: "<<muonCandidates->size());
+      // muonCandidates = cache->MuonCandidates();
+      // ATH_MSG_VERBOSE("got muon candidates with size: "<<muonCandidates->size());
 
       xAOD::TrackParticleContainer::iterator trk_itr = cache->CombinedTracks().first->begin();
       xAOD::TrackParticleContainer::iterator trk_end = cache->CombinedTracks().first->end();
@@ -740,6 +740,7 @@ HLT::ErrorCode TrigMuSuperEF::runCombinerOnly(const HLT::TriggerElement* inputTE
     }
   }
 
+  if(muonCandidates) delete muonCandidates;
 
   // attach output
   if(attachOutput( TEout, combTrackParticleCont, extrapolatedTracks, saTrackParticleCont, std::move(muonContainerOwn))!=HLT::OK) {
@@ -798,8 +799,8 @@ HLT::ErrorCode TrigMuSuperEF::runCaloTagOnly(const HLT::TriggerElement* inputTE,
   ATH_MSG_DEBUG("Finished CaloTag");
 
   m_ctTrackParticleContainer = new xAOD::TrackParticleContainer();
-  xAOD::TrackParticleAuxContainer* tpAuxCont = new xAOD::TrackParticleAuxContainer();
-  m_ctTrackParticleContainer->setStore( tpAuxCont );
+  xAOD::TrackParticleAuxContainer tpAuxCont;
+  m_ctTrackParticleContainer->setStore( &tpAuxCont );
 
   for (auto idCandidate : inDetCandidates) {
     // Get calotag and select tracks with successful tag
@@ -982,15 +983,9 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
 
 
   // pre-define objects that are needed in muon building
-  xAOD::TrackParticleContainer* combTrackParticleCont = new xAOD::TrackParticleContainer();
-  xAOD::TrackParticleAuxContainer combTrackParticleAuxCont;
   InDetCandidateCollection inDetCandidates;
-  TrackCollection* extrapolatedTracks = new TrackCollection();
   MuonCandidateCollection* muonCandidates= new MuonCandidateCollection();
-  xAOD::TrackParticleContainer* saTrackParticleCont = new xAOD::TrackParticleContainer();
-  xAOD::TrackParticleAuxContainer saTrackParticleAuxCont;
-  saTrackParticleCont->setStore( &saTrackParticleAuxCont );
-  combTrackParticleCont->setStore( &combTrackParticleAuxCont );
+
 
 
   if(m_standaloneOnly) {
@@ -1000,10 +995,11 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
 
     ++m_counter_TrigMuonEF.pass;// check this
 
-    delete muonCandidates;
+    if(muonCandidates) delete muonCandidates;
     
     return hltStatus;
-  } else {     // some kind of combined reco
+  }
+     // some kind of combined reco
     // get xAOD ID tracks
     ElementLinkVector<xAOD::TrackParticleContainer> elv_xaodidtrks;
     ElementLinkVector<xAOD::TrackParticleContainer> elv_xaodidtrksL2;
@@ -1064,6 +1060,14 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
     }
 
 
+  xAOD::TrackParticleContainer* combTrackParticleCont = new xAOD::TrackParticleContainer();
+  xAOD::TrackParticleAuxContainer combTrackParticleAuxCont;
+  xAOD::TrackParticleContainer* saTrackParticleCont = new xAOD::TrackParticleContainer();
+  xAOD::TrackParticleAuxContainer saTrackParticleAuxCont;
+  saTrackParticleCont->setStore( &saTrackParticleAuxCont );
+  combTrackParticleCont->setStore( &combTrackParticleAuxCont );
+  TrackCollection* extrapolatedTracks = new TrackCollection();
+
     if(m_doCache){
       if(!m_doInsideOut) itmap = m_CacheMapTMEFonly.find(m_hashlist);
       else  itmap = m_CacheMap.find(m_hashlist);
@@ -1074,7 +1078,7 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
       	ATH_MSG_VERBOSE("Repeated ROI");
 	
       	//get objects from cache
-      	muonCandidates = cache->MuonCandidates();
+	muonCandidates=cache->MuonCandidates();
 	ATH_MSG_VERBOSE("got muon candidates with size: "<<muonCandidates->size());
 
       	xAOD::TrackParticleContainer::iterator trk_itr = cache->CombinedTracks().first->begin();
@@ -1217,11 +1221,9 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
       	  if(!m_doInsideOut) m_CacheMapTMEFonly[m_hashlist] = cacheStore;
       	  else m_CacheMap[m_hashlist] = cacheStore;
       	}
-        if(muonCandidates) delete muonCandidates;
       }//else no cache or objects not in cache
     }//docache
     else{//not in do cache
-      
       if(m_doOutsideIn && (!m_insideOutFirst || !m_doInsideOut) ) { // run TrigMuonEF
 
 	++m_counter_TrigMuonEF.total;
@@ -1302,7 +1304,7 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
       }
       if(muonCandidates) delete muonCandidates;
     }//not doCache
-  }//combined running
+      
   
 
   ATH_MSG_DEBUG("saTrackParticleCont size after buildMuons = " << saTrackParticleCont->size());
@@ -1363,7 +1365,7 @@ HLT::ErrorCode TrigMuSuperEF::buildCombinedTracks(const MuonCandidateCollection*
   // call the combiner
   ATH_MSG_DEBUG("Call  m_muonCombinedTool->combine, n(muon cand)=" << muonCandidates->size() << " n(ID cand)=" << inDetCandidates.size());
 
-  m_muonCombinedTool->combine( *muonCandidates,  inDetCandidates ) ;
+  if(muonCandidates) m_muonCombinedTool->combine( *muonCandidates,  inDetCandidates ) ;
 
   if(trackFinderTime) trackFinderTime->stop();
   if(dataOutputTime) dataOutputTime->start();
