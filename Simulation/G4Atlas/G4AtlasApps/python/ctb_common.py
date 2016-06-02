@@ -965,32 +965,32 @@ larmaterial.df.SetMaterial("Aluminum")
 #larmaterial_position=AtlasG4Eng.G4Eng.gbl.CLHEP.Hep3Vector(0.,0.,0.)
 
 #=======================================================================
-class CTBRecordingEnvelopes(object):
-    """ Defines the recording envelopes in use in the CTB simulations
-
-         The hits are recorded with the TrackRecorderSD in the
-         TrackRecordCollection collection.
-
-    """
-    class CtbCaloEntryLayer:
-        """ Defines the recording envelope CtbCaloEntryLayer
-
-            Hits in TrackRecordCollection#CaloEntryLayer
-        """
-        def __init__(self):
-            self.recenv=PyG4Atlas.RecEnvelope('CaloEntryLayer','IDET::IDET',2)
-
-    class LArFarUpstreamMaterialExitLayer:
-        """ Defines the recording envelope LArFarUpstreamMaterialExitLayer
-
-            Hits in TrackRecordCollection#LArFarUpstreamMaterialExitLayer
-        """
-        def __init__(self,option):
-            if(option==0):
-                self.recenv=PyG4Atlas.RecEnvelope('LArFarUpstreamMaterialExitLayer',
-                             'LARFARUPSTREAMMATERIAL::LARFARUPSTREAMMATERIAL',2)
-            elif(option==1):
-                self.recenv=PyG4Atlas.RecEnvelope('LArFarUpstreamMaterialExitLayer',
-                             'LARFARUPSTREAMMATERIAL::LARFARUPSTREAMMATERIAL',3)
-
-#=======================================================================
+## class CTBRecordingEnvelopes(object):
+##     """ Defines the recording envelopes in use in the CTB simulations
+##
+##          The hits are recorded with the TrackRecorderSD in the
+##          TrackRecordCollection collection.
+##
+##     """
+##     class CtbCaloEntryLayer:
+##         """ Defines the recording envelope CtbCaloEntryLayer
+##
+##             Hits in TrackRecordCollection#CaloEntryLayer
+##         """
+##         def __init__(self):
+##             self.recenv=PyG4Atlas.RecEnvelope('CaloEntryLayer','IDET::IDET',2)
+##
+##     class LArFarUpstreamMaterialExitLayer:
+##         """ Defines the recording envelope LArFarUpstreamMaterialExitLayer
+##
+##             Hits in TrackRecordCollection#LArFarUpstreamMaterialExitLayer
+##         """
+##         def __init__(self,option):
+##             if(option==0):
+##                 self.recenv=PyG4Atlas.RecEnvelope('LArFarUpstreamMaterialExitLayer',
+##                              'LARFARUPSTREAMMATERIAL::LARFARUPSTREAMMATERIAL',2)
+##             elif(option==1):
+##                 self.recenv=PyG4Atlas.RecEnvelope('LArFarUpstreamMaterialExitLayer',
+##                              'LARFARUPSTREAMMATERIAL::LARFARUPSTREAMMATERIAL',3)
+##
+## #=======================================================================

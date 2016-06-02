@@ -25,6 +25,7 @@ if concurrencyProps.ConcurrencyFlags.NumThreads() > 0:
 else:
     is_hive = False
 
+
 # TODO: Rename to AppProfiler, to avoid class/variable confusion
 class _app_profiler(object):
     """\
@@ -87,13 +88,8 @@ class G4AtlasEngine:
         G4AtlasEngine.Dict = dict()
         G4AtlasEngine.Dict_DetConfig = dict()
         G4AtlasEngine.Dict_Materials = dict()
-        #G4AtlasEngine.Dict_Colors = dict()
         G4AtlasEngine.Dict_MCTruthStrg = dict()
         G4AtlasEngine.Dict_MCTruthStrg['SecondarySavingPolicy'] = 'All'
-        G4AtlasEngine.Dict_Fields = dict()
-        G4AtlasEngine.Dict_UserAction = dict()
-        G4AtlasEngine.Dict_RecEnvelope = dict()
-        G4AtlasEngine.Dict_FieldIntegrationParameters = dict()
         G4AtlasEngine.Dict_SpecialConfiguration = dict()
 
         ## Web doc links
@@ -114,11 +110,6 @@ class G4AtlasEngine:
 
         ## Logging service
         G4AtlasEngine.log = Logging.logging.getLogger('G4AtlasApps')
-        ## Configure the logger to automatically prepend the method it's called from
-        #if not G4AtlasEngine.log.handlers:
-        #    G4AtlasEngine.log.addHandler(Logging.logging.StreamHandler())
-        #fmt = Logging.logging.Formatter('%(name) %(module)s %(funcName)s: %(message)s')
-        #G4AtlasEngine.log.handlers[0].setFormatter(fmt)
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         G4AtlasEngine.log.setLevel(10*(svcMgr.MessageSvc.OutputLevel - 1))
 
@@ -130,9 +121,6 @@ class G4AtlasEngine:
         self.load_Dict('G4AtlasControlDict')
         G4AtlasEngine.gbl = cppyy.makeNamespace("")
         G4AtlasEngine._ctrl = G4AtlasEngine.gbl.SimControl()
-        #self.load_Lib("G4DetectorEnvelopes") #FIXME remove?
-        #self.load_Lib("GeoDetectorPlugIns")  #FIXME remove?
-        #self.load_Lib("G4StepLimitation")    #FIXME still needed?
         self.init_status = 0
 
         self.useISF = useISF
@@ -145,7 +133,6 @@ class G4AtlasEngine:
         G4AtlasEngine.log.info('setting useISF to %s' % useISF)
         self.useISF = useISF
 
-
     def _init_G4(self):
         """ Inits G4
 
@@ -156,7 +143,7 @@ class G4AtlasEngine:
             if G4AtlasEngine.log.level <= 30:
                 g4Command = G4AtlasEngine.gbl.G4Commands()
                 g4Command.run.verbose(2) # FIXME make configurable based on Athena message level?
-            G4AtlasEngine._ctrl.initializeG4()
+            G4AtlasEngine._ctrl.initializeG4(is_hive)
             self._InitList.append('init_G4')
             G4AtlasEngine._app_profiler('_init_G4: ')
         else:
@@ -180,54 +167,6 @@ class G4AtlasEngine:
         else:
             G4AtlasEngine.log.warning('G4AtlasEngine: init_MCTruth is already done')
             G4AtlasEngine._ctrl.mctruthMenu.listStrategies()
-
-
-    def _init_RecEnvelope(self):
-        """ Inits the recording within the envelopes
-
-           (for internal use)
-        """
-        if 'init_RecEnvelope' not in self._InitList:
-            G4AtlasEngine.log.debug('G4AtlasEngine: _init_RecEnvelope: init RecEnvelope  ')
-            if G4AtlasEngine.Dict_RecEnvelope.keys():
-                G4AtlasEngine._ctrl.mctruthMenu.enableEnvelopeRecording()
-                for i in G4AtlasEngine.Dict_RecEnvelope.keys():
-                   G4AtlasEngine.Dict_RecEnvelope.get(i)._construct()
-            self._InitList.append('init_RecEnvelope')
-            G4AtlasEngine._app_profiler('_init_RecEnvelope: ')
-        else:
-            G4AtlasEngine.log.warning('G4AtlasEngine: init_RecEnvelope is already done')
-
-
-    def _init_Fields(self):
-        """ Inits all the fields defined.
-           (for internal use)
-        """
-        if 'init_Fields' not in self._InitList:
-            G4AtlasEngine.log.debug(' G4AtlasEngine: _init_Fields: init magnetic fields ')
-            for mfd in sorted(G4AtlasEngine.Dict_Fields.keys()):
-                mfd_obj = G4AtlasEngine.Dict_Fields.get(mfd)
-                mfd_obj._build()
-            self._InitList.append('init_Fields')
-            G4AtlasEngine._app_profiler('_init_Fields: ')
-        else:
-            G4AtlasEngine.log.warning('G4AtlasEngine: init_Fields is already done')
-
-
-    def _init_FieldIntegrationParameters(self):
-        """ Inits all the field integration parameter objects defined.
-
-           (for internal use)
-        """
-        if 'init_FieldIntegrationParameters' in self._InitList:
-            G4AtlasEngine.log.warning('G4AtlasEngine: init_FieldIntegrationParameters is already done')
-            return
-
-        G4AtlasEngine.log.debug('G4AtlasEngine: _init_FieldIntegrationParameters: init field integration parameters')
-        for fip in G4AtlasEngine.Dict_FieldIntegrationParameters.values():
-            fip._build()
-        self._InitList.append('init_FieldIntegrationParameters')
-        G4AtlasEngine._app_profiler('_init_FieldIntegrationParameters: ')
 
 
     def _init_Graphics(self):
@@ -259,17 +198,15 @@ class G4AtlasEngine:
           pre/postInitG4 - called before/after the init_G4 method
           pre/postInitMCTruth - called before/after the init_MCTruth method
           pre/postInitFields - called before/after the init_Fields method
-          pre/postInitFieldIntegrationParameters - called before/after the init_FieldIntegrationParameters method
-          pre/postInitRecEnvelope - called before/after the init_RecEnvelope method
           pre/postInitGraphics - called before/after the init_Graphics method
           postInit - called after all sim engine initialisation methods
 
         The current init level is stored in G4AtlasEngine.init_status, and its
         name corresponds to the active hook at that point.
         """
+        from G4AtlasApps.SimFlags import simFlags
 
         def _run_init_callbacks(init_level):
-            from G4AtlasApps.SimFlags import simFlags
             if simFlags.InitFunctions.statusOn and init_level in simFlags.InitFunctions.get_Value():
                 #print simFlags.InitFunctions.get_Value()
                 for callback_fn in simFlags.InitFunctions.get_Value()[init_level]:
@@ -295,18 +232,6 @@ class G4AtlasEngine:
         else:
             G4AtlasEngine.log.debug('not initializing MCTruth in G4AtlasEngine because useISF=True')
 
-        _run_init_stage("Fields")
-        _run_init_stage("FieldIntegrationParameters")
-
-        # Doesn't work with hive
-        if not is_hive:
-            if not self.useISF:
-                _run_init_stage("RecEnvelope")
-            else:
-                G4AtlasEngine.log.debug('not initializing RecEnvelope in G4AtlasEngine because useISF=True')
-        else:
-            G4AtlasEngine.log.debug('not initializing RecEnvelope in G4AtlasEngine because this is a G4Hive job.')
-
         _run_init_stage("Graphics")
 
         self.init_status = "postInit"
@@ -314,7 +239,6 @@ class G4AtlasEngine:
         _run_init_callbacks(self.init_status)
 
         ## Check that all the callbacks were indeed called, and warn otherwise
-        from G4AtlasApps.SimFlags import simFlags
         num_reg_callbacks = sum(len(cblist) for cblist in simFlags.InitFunctions.get_Value().values())
         if G4AtlasEngine._callback_counter != num_reg_callbacks:
             G4AtlasEngine.log.warning("G4AtlasEngine: mismatch in num of callbacks regd/called = %d/%d" %
@@ -378,80 +302,6 @@ class G4AtlasEngine:
         """
         print self.Name
         print self.List_LoadedLib
-
-
-
-    class menu_Field:
-        """ Menu for the magnetic fields.
-        """
-
-        @classmethod
-        def list_Fields(cls):
-            """ Lists the existing magnetic fields.
-
-                The libray must be loaded in advance. For example
-               the G4Field can be loaded.
-            """
-            G4AtlasEngine._ctrl.fldMenu.list()
-
-        @classmethod
-        def set_EquationOfMotion(cls, eq_name):
-            """ Set the equation of motion by name
-            """
-            G4AtlasEngine._ctrl.fldMenu.SetEquationOfMotion(eq_name)
-
-
-        @classmethod
-        def add_Field(cls, mag_obj):
-            """ Adds a magnetic field to the simulation.
-
-
-                mag_object must be a Python object of type MagneticField.
-            """
-            if isinstance(mag_obj,MagneticField):
-                if mag_obj.Name not in G4AtlasEngine.Dict_Fields:
-                    G4AtlasEngine.Dict_Fields[mag_obj.Name] = mag_obj
-                    G4AtlasEngine.log.debug(' G4AtlasEngine: menu_Field: add_Field: added ' + mag_obj.Name)
-            else:
-                G4AtlasEngine.log.error(' G4AtlasEngine: menu_Field: add_Field: This is not a MagneticField object!!!')
-
-
-
-    class menu_FieldIntegrationParameters:
-        """ Menu for the field integration parameters.
-
-        """
-
-        @classmethod
-        def list_Parameters(cls):
-            """ Lists the existing field integration parameters.
-            """
-            G4AtlasEngine._ctrl.fldIntMenu.list()
-
-        @classmethod
-        def show_PythonParameters(cls):
-            """ Prints the parameters for all field integration parameters
-                defined in the python layer
-            """
-            for par in G4AtlasEngine.Dict_FieldIntegrationParameters.keys() :
-                G4AtlasEngine.Dict_FieldIntegrationParameters[par].show_Parameters()
-
-
-        @classmethod
-        def add_FieldIntegrationParameters(cls, fip_obj):
-            """ Adds a field integration parameters instance to the simulation.
-
-                fip_obj must be a Python object of type FieldIntegrationParameters.
-            """
-            if isinstance(fip_obj, FieldIntegrationParameters):
-                if fip_obj.Name not in G4AtlasEngine.Dict_FieldIntegrationParameters:
-                    G4AtlasEngine.Dict_FieldIntegrationParameters[fip_obj.Name] = fip_obj
-                    G4AtlasEngine.log.debug('G4AtlasEngine:' +
-                                                  ' menu_FieldIntegrationParameters: add_FieldIntegrationParameters: added '+fip_obj.Name)
-            else:
-                G4AtlasEngine.log.error(' G4AtlasEngine:'+
-                                              ' menu_FieldIntegrationParameters: add_FieldIntegrationParameters: '+
-                                              ' This is not a FieldIntegrationParameters object!!!')
 
 
 
@@ -522,70 +372,6 @@ class G4AtlasEngine:
 
 
 
-    class menu_RecordEnvelope:
-        """ Handles the volumes in which the track record will
-            be applied
-
-            .add_RecEnvelope(RecEnvelope_obj)
-        """
-
-
-        def add_RecEnvelope(self,obj):
-            """ Adds a RecEnvelope object to the simulation
-                engine.
-            """
-            if isinstance(obj,RecEnvelope):
-                G4AtlasEngine.Dict_RecEnvelope[obj.Name]=obj
-                G4AtlasEngine.log.debug(' G4AtlasEngine:'+\
-                'menu_RecordEnvelope:add_RecEnvelope: '+\
-                'added '+obj.Name)
-            else:
-               G4AtlasEngine.log.error(' G4AtlasEngine:'+\
-               'menu_RecordEnvelope:add_RecEnvelope:'+\
-               ' This is not a RecEnvelope object!!!')
-
-
-        def _init(self):
-            """ Done at the init time automatically. """
-            G4AtlasEngine._ctrl.mctruthMenu.enableEnvelopeRecording()
-
-
-
-#    class menu_UserActions:
-#        """
-#        User actions can be added using this menu.
-#        """
-#
-#        @classmethod
-#        def add_UserAction(cls, action_obj):
-#            """Adds a UserAction object to the simulation."""
-#            if isinstance(action_obj,UserAction):
-#                G4AtlasEngine.log.debug('G4AtlasEngine: menu_UserActions:add_UserAction: ' +
-#                                              action_obj.Name)
-#                G4AtlasEngine.Dict_UserAction[action_obj.Name] = action_obj
-#                action_obj._construct()
-#            else:
-#               G4AtlasEngine.log.error('G4AtlasEngine: menu_UserActions:add_UserAction: '+
-#                                             'This is not a UserAction object!!!')
-#
-#        @classmethod
-#        def list_Actions(cls):
-#            """
-#            Lists the possible actions.
-#
-#            The list is extracted from the user-action libraries already loaded.
-#            """
-#            G4AtlasEngine._ctrl.actMenu.actionList()
-#
-#
-#        @classmethod
-#        def load_Lib(cls, Library):
-#            """Loads the library with the user-actions."""
-#            G4AtlasEngine.load_Lib(Library)
-#            G4AtlasEngine._ctrl.actMenu.actionList()
-#
-
-
     class menu_EventFilter(object):
         """
         Access to the event filters
@@ -606,18 +392,8 @@ class G4AtlasEngine:
                     self.VertexRangeChecker.SetZ(  simFlags.WorldZRange.get_Value() )
                 if hasattr(simFlags, 'WorldRRange') and simFlags.WorldRRange.statusOn:
                     self.VertexRangeChecker.SetRmax( simFlags.WorldRRange.get_Value() )
-
-                self.VertexPositioner = G4AtlasEngine.gbl.VertexPositioner('VertexPositioner')
-
-                self.PrimaryEventRotations = G4AtlasEngine.gbl.PrimaryEventRotations('PrimaryEventRotations')
-
-                self.BeamEffectTransformation = G4AtlasEngine.gbl.BeamEffectTransformation('BeamEffectTransformation')
-
                 self.FilterStatusOn = {
                     'EtaPhiFilters' : False,
-                    'PrimaryEventRotations' : False,
-                    'BeamEffectTransformation' : False,
-                    'VertexPositioner' : False,
                     'VertexRangeChecker' : False
                     }
 
@@ -646,10 +422,7 @@ class G4AtlasEngine:
             The filters can be customized from here.
             Available filters are:
             - EtaPhiFilters
-            - PrimaryEventRotations
-            - VertexPositioner
             - VertexRangeChecker
-            - BeamEffectTransformation
             """
             f = getattr(self, name_filter)
             if f is None:
@@ -858,7 +631,6 @@ class G4AtlasEngine:
                 G4command.vis.viewer.flush()
 
 
-
 class DetConfigurator:
     """ DetConfigurator is a hook for the specific sub-detector configuration.
 
@@ -911,261 +683,6 @@ class DetConfigurator:
 
 
 
-class MagneticField:
-    """ Magnetic field.
-
-    The Python object "MagneticField". It can be 'Constant' or
-    magnetic field map 'MapField' type (by default 'Constant'),
-    unless the last argument will be set to 'MapField'.
-    """
-
-    # TODO: change signature so that lib can have a default value (i.e. swap the order of lib & name)
-    # TODO: reinstate stepper="StepperDispatcher"):
-    def __init__(self, lib, name, volume="", typefield="Constant", stepper=None):
-        """\
-        lib    = library (normally 'G4Field')
-        name   = name of the field map
-        volume = Geant4 volume with the syntax: 'name::name' For the Mapfield is not needed and it MUST be an empty string.
-        typefield = Constant | MapField
-        """
-        self._Built = False
-        self.List_Volumes = list()
-        if volume:
-            self.add_Volume(volume)
-        self.Name = name
-        self.Library = lib
-        self.Type = typefield
-        if typefield == 'Constant':
-            self.Bx = 0.0
-            self.By = 0.0
-            self.Bz = 0.0
-        elif typefield == 'MapField':
-            self.DeltaIntersection = dict()
-            self.DeltaOneStep = dict()
-            self.MaximumEpsilonStep = dict()
-            self.MinimumEpsilonStep = dict()
-        else:
-            raise ValueError(' PyG4Atlas.MagneticField not allowed field type: '+str(typefield))
-
-        self.FieldStepper = stepper
-
-
-    def add_Volume(self, vol):
-        """\
-        Adds more volumes to the List_Volumes in which the
-        MagneticField will be applied.The syntax for the
-        volume names is: 'name::name'.
-        """
-        self.List_Volumes.append(vol)
-
-
-    def set_FieldMapFileName(self, fieldmapfilename):
-        """\
-        Sets the name of the file that contains the field map.
-        """
-        if self.Type == 'MapField':
-            self.MapFieldFileName = fieldmapfilename
-
-
-    def set_G4FieldTrackParameters(self, param_name, volume, value):
-        """\
-        The possible parameters are:
-        - DeltaIntersection
-        - DeltaOneStep
-        - MaximumEpsilonStep
-        - MinimumEpsilonStep
-        """
-        if volume in self.List_Volumes:
-            if param_name == 'DeltaIntersection':
-                self.DeltaIntersection[volume] = value
-            elif param_name == 'DeltaOneStep':
-                self.DeltaOneStep[volume] = value
-            elif param_name == 'MaximumEpsilonStep':
-                self.MaximumEpsilonStep[volume] = value
-            elif param_name == 'MinimumEpsilonStep':
-                self.MinimumEpsilonStep[volume] = value
-            else:
-                raise ValueError(' PyG4Atlas.MagneticField.set_G4FieldTrackParameters: invalid parameter')
-        else:
-            G4AtlasEngine.log.debug('PyG4Atlas.MagneticField.set_G4FieldTrackParameters: ' +
-                                          'the volume is not in the list of the MagneticField volumes')
-
-
-    def _build(self):
-        if self.Library not in G4AtlasEngine.List_LoadedLib:
-            G4AtlasEngine.load_Lib(self.Library)
-        if self.Type == 'Constant':
-            if self.Library+'Dict' not in G4AtlasEngine.List_LoadedDict:
-                G4AtlasEngine.load_Dict(self.Library+'Dict')
-            CtFieldHandler = G4AtlasEngine.gbl.ConstantFieldHandler()
-            for volname in self.List_Volumes:
-                G4AtlasEngine._ctrl.fldMenu.assign('ConstantField', self.Name, volname)
-                G4AtlasEngine.log.debug(' MagneticField:_build: Constant field ' + self.Name +
-                                              ' with components (%f, %f, %f)' % (self.Bx, self.By, self.Bz) +
-                                              ' applied to volume ' + volname)
-            CtFieldHandler.setFieldValues(self.Name, self.Bx, self.By, self.Bz)
-            self._Built = True
-        elif self.Type == 'MapField':
-            # Check if this is the main detector field or not
-            from G4AtlasApps.SimFlags import simFlags
-            main_field = hasattr(simFlags, 'MagneticField') and (not simFlags.MagneticField.statusOn or simFlags.MagneticField() in self.Name)
-
-            if main_field: G4AtlasEngine._ctrl.fldMenu.select(self.Name)
-            if main_field: G4AtlasEngine._ctrl.fldMenu.fieldmap(self.MapFieldFileName)
-            for volname in self.List_Volumes:
-                G4AtlasEngine._ctrl.fldMenu.assign(self.Name, self.Name, volname)
-            for volname in self.DeltaIntersection.keys():
-                G4AtlasEngine._ctrl.fldMenu.setDeltaIntersection(volname, self.DeltaIntersection.get(volname))
-            for volname in self.DeltaOneStep.keys():
-                G4AtlasEngine._ctrl.fldMenu.setDeltaOneStep(volname, self.DeltaOneStep.get(volname))
-            for volname in self.MaximumEpsilonStep.keys():
-                G4AtlasEngine._ctrl.fldMenu.setMaximumEpsilonStep(volname, self.MaximumEpsilonStep.get(volname))
-            for volname in self.MinimumEpsilonStep.keys():
-                G4AtlasEngine._ctrl.fldMenu.setMinimumEpsilonStep(volname, self.MinimumEpsilonStep.get(volname))
-            G4AtlasEngine.log.debug(' MagneticField::set_G4FieldTrackParameters: set values')
-            if main_field: G4AtlasEngine._ctrl.fldMenu.initialize()
-            G4AtlasEngine.log.debug(' MagneticField:_build: MapField ' + self.Name)
-
-        ## Enable default stepper
-        stepper = self.FieldStepper
-        if stepper is None: stepper=G4AtlasEngine._ctrl.fldMenu.GetDefaultStepper()
-        G4AtlasEngine.log.debug(' MagneticField:_build: Setting stepper = %s' % stepper)
-        G4AtlasEngine._ctrl.fldMenu.UseStepper(stepper)
-
-        self._Built = True
-        G4AtlasEngine._app_profiler('  _build: MagneticField ' + self.Name)
-
-
-
-class FieldIntegrationParameters:
-    """ Field integration parameters.
-
-       The Python object "FieldIntegrationParameters".
-    """
-    def __init__(self,region):
-        """
-            name   = name of the field integration parameters object
-             based on the region from which it is constructed
-        """
-        self._Built = False
-        self.List_Regions = []
-        if region:
-            self.List_Regions.append(region)
-        # TODO: Calc name dynamically by catting sorted regions list
-        self.Name = '%s_Parameters' % region
-        self.KineticEnergyThreshold = -1
-        self.MaxLengthForConstField = dict()
-        self.MissDistance = dict()
-        self.TypicalLongStep = dict()
-        self.TolerableBiasError = dict()
-        self.TolerableIntegrationError = dict()
-        self.ExpectedNumBoundaries = dict()
-        self.ExpectedTrackLength = dict()
-
-    def add_Region(self, reg):
-        """  Adds more regions to the List_Regions in which the
-            FieldIntegrationParameters will be applied.
-        """
-        if reg:
-            self.List_Regions.append(reg)
-
-    def set_KineticEnergyThreshold(self,val):
-        """ Sets kinetic energy threshold for the region.  Below this threshold
-            electrons and positrons will be treated differently
-        """
-        self.KineticEnergyThreshold = val
-
-    def show_Parameters(self):
-        """ Shows the current values for the parameters of the object
-        """
-        print 'FieldIntegrationParameters with name '+self.Name+' parameters:'
-        if self.KineticEnergyThreshold >= 0:
-            print 'KineticEnergyThreshold : %f MeV' % self.KineticEnergyThreshold
-        else : print 'KineticEnergyThreshold : default'
-        print 'For the following parameters:'
-        print '   idx=0 for e+/e- track below E-threshold'
-        print '   idx=1 for e+/e- track above E-threshold and all other charged track except mu+/mu- of any kinetic energy'
-        print '   idx=2 for mu+/mu- track of any kinetic energy'
-        print 'Any items or entries not listed will take the default values'
-        if len(self.MaxLengthForConstField)>0 : print 'MaxLengthForConstField :',self.MaxLengthForConstField
-        if len(self.MissDistance)>0 : print 'MissDistance :',self.MissDistance
-        if len(self.TypicalLongStep)>0 : print 'TypicalLongStep :',self.TypicalLongStep
-        if len(self.TolerableBiasError)>0 : print 'TolerableBiasError :',self.TolerableBiasError
-        if len(self.TolerableIntegrationError)>0 : print 'TolerableIntegrationError :',self.TolerableIntegrationError
-        if len(self.ExpectedNumBoundaries)>0 : print 'ExpectedNumBoundaries :',self.ExpectedNumBoundaries
-        if len(self.ExpectedTrackLength)>0 : print 'ExpectedTrackLength :',self.ExpectedTrackLength
-        print '\n\n'
-
-    def set_Parameter(self,param_name,index,val):
-        """ Set the value of one of the field integration parameters.  The
-            possible parameter names are:
-            - MaxLengthForConstField : maximum length of a step for which
-               the magnetic field will be considered to be constant
-            - MissDistance : Allowable distance for missing a volume
-            - TypicalLongStep : Length of a long step in the region
-            - TolerableBiasError : The allowable bias that can accumulate
-               during stepping
-            - TolerableIntegrationError : The allowable error on integration
-               during stepping
-            - ExpectedNumBoundaries : The expected number of boundaries that
-               will be crossed by a track traversing the region
-            - ExpectedTrackLength : The expected track length for a track
-               traversing the region
-
-            Index should be 0, 1, or 2 :
-            - idx=0 for e+/e- track below E-threshold
-            - idx=1 for e+/e- track above E-threshold
-               and all other charged track except mu+/mu-
-               of any kinetic energy
-            - idx=2 for mu+/mu- track of any kinetic energy
-        """
-        if (int(index) == 0 or int(index) == 1 or int(index) == 2):
-            if(param_name=='MaxLengthForConstField'):
-                self.MaxLengthForConstField[int(index)]=val
-            elif(param_name=='MissDistance'):
-                self.MissDistance[int(index)]=val
-            elif(param_name=='TypicalLongStep'):
-                self.TypicalLongStep[int(index)]=val
-            elif(param_name=='TolerableBiasError'):
-                self.TolerableBiasError[int(index)]=val
-            elif(param_name=='TolerableIntegrationError'):
-                self.TolerableIntegrationError[int(index)]=val
-            elif(param_name=='ExpectedNumBoundaries'):
-                self.ExpectedNumBoundaries[int(index)]=val
-            elif(param_name=='ExpectedTrackLength'):
-                self.ExpectedTrackLength[int(index)]=val
-            else:
-                raise ValueError,(' PyG4Atlas.FieldIntegrationParameters::'+\
-                'set_Parameter: invalid parameter '+param_name)
-        else:
-            G4AtlasEngine.log.debug(' FieldIntegrationParameters::'+\
-              'set_Parameter the index is not one of 0, 1, or 2 - '+index)
-
-    def _build(self):
-        if not self._Built:
-            for reg in self.List_Regions :
-                if self.KineticEnergyThreshold >= 0:
-                    G4AtlasEngine._ctrl.fldIntMenu.Set_kineticEnergyThreshold( reg , self.KineticEnergyThreshold )
-                for idx in self.MaxLengthForConstField.keys() :
-                    G4AtlasEngine._ctrl.fldIntMenu.Set_maxLengthForConstField( reg , idx , self.MaxLengthForConstField[idx] )
-                for idx in self.MissDistance.keys() :
-                    G4AtlasEngine._ctrl.fldIntMenu.Set_missDistance( reg , idx , self.MissDistance[idx] )
-                for idx in self.TypicalLongStep.keys() :
-                    G4AtlasEngine._ctrl.fldIntMenu.Set_typicalLongStep( reg , idx , self.TypicalLongStep[idx] )
-                for idx in self.TolerableBiasError.keys() :
-                    G4AtlasEngine._ctrl.fldIntMenu.Set_tolerableBiasError( reg , idx , self.TolerableBiasError[idx] )
-                for idx in self.TolerableIntegrationError.keys() :
-                    G4AtlasEngine._ctrl.fldIntMenu.Set_tolerableIntegrationError( reg , idx , self.TolerableIntegrationError[idx] )
-                for idx in self.ExpectedNumBoundaries.keys() :
-                    G4AtlasEngine._ctrl.fldIntMenu.Set_expectedNumBoundaries( reg , idx , self.ExpectedNumBoundaries[idx] )
-                for idx in self.ExpectedTrackLength.keys() :
-                    G4AtlasEngine._ctrl.fldIntMenu.Set_expectedTrackLength( reg , idx , self.ExpectedTrackLength[idx] )
-            G4AtlasEngine.log.debug(' FieldIntegrationParameters:_build: FieldIntegrationParameters '+self.Name)
-            self._Built = True
-        G4AtlasEngine._app_profiler('  _build: FieldIntegrationParameters '+self.Name)
-
-
-
 class MCTruthStrg:
     """ MCTruth strategy.
 
@@ -1209,30 +726,6 @@ class MCTruthStrg:
                                              '_construct: '+self.Name +' and apply it to volume '+i)
            self._Built=True
            G4AtlasEngine._app_profiler('  _build MCTruthStrg: '+self.Name)
-
-
-
-class RecEnvelope:
-    """ Recording envelope.
-
-
-    """
-
-    def __init__(self, name, volume_name, volume_level,allowMods=False):
-        self._Built = False
-        self.Name = name
-        self.Dict_Volumes = dict()
-        self.Dict_Volumes[volume_name] = volume_level
-        self._AllowMods=allowMods
-
-    def _construct(self):
-        if not self._Built:
-           for i in self.Dict_Volumes.keys():
-               G4AtlasEngine._ctrl.mctruthMenu.addRecordingEnvelope(i, self.Dict_Volumes.get(i), self.Name)
-               G4AtlasEngine.log.debug(' RecEnvelope:'+
-                                             '_construct: '+self.Name+' and store at the exit of volume  '+i)
-           self._Built = True
-           G4AtlasEngine._app_profiler('  _build RecEnvelope: '+self.Name)
 
 
 
@@ -1307,14 +800,8 @@ class SimSkeleton(object):
             stream1.ItemList += ["McEventCollection#GEN_EVENT"]
 
         from PyJobTransforms.trfUtils import releaseIsOlderThan
-        if releaseIsOlderThan(20,0):
-            #Hack to maintain compatibility of G4AtlasApps trunk with
-            #19.2.X.Y after EDM changes in release 20.0.0.
-            stream1.ItemList += ["xAOD::JetContainer_v1#*",
-                                 "xAOD::JetAuxContainer_v1#*"]
-        else:
-            stream1.ItemList += ["xAOD::JetContainer#*",
-                                 "xAOD::JetAuxContainer#*"]
+        stream1.ItemList += ["xAOD::JetContainer#*",
+                             "xAOD::JetAuxContainer#*"]
 
         ## Make stream aware of aborted events
         stream1.AcceptAlgs = ["G4AtlasAlg"]
@@ -1348,10 +835,8 @@ class SimSkeleton(object):
             stream1.ItemList += ["LUCID_SimHitCollection#*"]
 
         ## FwdRegion
-        checkFwdRegion = getattr(DetFlags, 'FwdRegion_on', None) #back-compatibility
-        if checkFwdRegion is not None: #back-compatibility
-            if checkFwdRegion():
-                stream1.ItemList += ["SimulationHitCollection#*"]
+        if DetFlags.FwdRegion_on():
+            stream1.ItemList += ["SimulationHitCollection#*"]
 
         ## ZDC
         if DetFlags.ZDC_on():
@@ -1359,15 +844,15 @@ class SimSkeleton(object):
                                  "ZDC_SimStripHit_Collection#*"]
         ## ALFA
         if DetFlags.ALFA_on():
-            stream1.ItemList += ["ALFA_HitCollection#*","ALFA_ODHitCollection#*"]
+            stream1.ItemList += ["ALFA_HitCollection#*",
+                                 "ALFA_ODHitCollection#*"]
 
         ## AFP
-        checkAFP = getattr(DetFlags, 'AFP_on', None) #back-compatibility
-        if checkAFP is not None: #back-compatibility
-            if checkAFP():
-                stream1.ItemList += ["AFP_TDSimHitCollection#*","AFP_SIDSimHitCollection#*"]
+        if DetFlags.AFP_on():
+            stream1.ItemList += ["AFP_TDSimHitCollection#*",
+                                 "AFP_SIDSimHitCollection#*"]
 
-        ## Ancillary scintillators
+        ### Ancillary scintillators
         #stream1.ItemList += ["ScintillatorHitCollection#*"]
 
         ## TimingAlg
@@ -1616,56 +1101,9 @@ class SimSkeleton(object):
         G4AtlasEngine.log.verbose('SimSkeleton._doG4AtlasAlg :: starting')
         from AthenaCommon.AlgSequence import AlgSequence
         job = AlgSequence()
-        from G4AtlasAlg.G4AtlasAlgConf import G4AtlasAlg
-        job += G4AtlasAlg()
-
-        ## Killing neutrinos
-        from G4AtlasApps.SimFlags import simFlags
-        sLayout = simFlags.SimLayout()
-        if "ATLAS" in sLayout:
+        if not hasattr(job, 'G4AtlasAlg'):
             from AthenaCommon import CfgGetter
-            #FIXME move to CfgGetter method
-            CfgGetter.getPublicTool('AthenaStackingAction',tryDefaultConfigurable=True).KillAllNeutrinos = True
-
-        if hasattr(simFlags, 'ReleaseGeoModel') and simFlags.ReleaseGeoModel.statusOn:
-            ## Save the fast simulation
-            job.G4AtlasAlg.ReleaseGeoModel = simFlags.ReleaseGeoModel.get_Value()
-
-        if hasattr(simFlags, 'RecordFlux') and simFlags.RecordFlux.statusOn:
-            ## Record the particle flux during the simulation
-            job.G4AtlasAlg.RecordFlux = simFlags.RecordFlux.get_Value()
-
-        if hasattr(simFlags, 'IncludeParentsInG4Event') and simFlags.IncludeParentsInG4Event.statusOn:
-            ## Propagate quasi-stable particles
-            job.G4AtlasAlg.IncludeParentsInG4Event = simFlags.IncludeParentsInG4Event.get_Value()
-
-        if hasattr(simFlags, 'KillAbortedEvents') and simFlags.KillAbortedEvents.statusOn:
-            ## default true
-            job.G4AtlasAlg.KillAbortedEvents = simFlags.KillAbortedEvents.get_Value()
-
-        if hasattr(simFlags, 'FlagAbortedEvents') and simFlags.FlagAbortedEvents.statusOn:
-            ## default false
-            job.G4AtlasAlg.FlagAbortedEvents = simFlags.FlagAbortedEvents.get_Value()
-            if simFlags.FlagAbortedEvents.get_Value() and simFlags.KillAbortedEvents.get_Value():
-                G4AtlasEngine.log.warning('When G4AtlasAlg.FlagAbortedEvents is True G4AtlasAlg.KillAbortedEvents should be False!!! Setting G4AtlasAlg.KillAbortedEvents = False now!')
-                job.G4AtlasAlg.KillAbortedEvents = False
-
-        if hasattr(simFlags, 'RandomSvc') and simFlags.RandomSvc.statusOn:
-            ## default true
-            job.G4AtlasAlg.AtRndmGenSvc = simFlags.RandomSvc.get_Value()
-
-        ## G4AtlasAlg verbosities (available domains = Navigator, Propagator, Tracking, Stepping, Stacking, Event)
-        ## Set stepper verbose = 1 if the Athena logging level is <= DEBUG
-        # TODO: Why does it complain that G4AtlasAlgConf.G4AtlasAlg has no "Verbosities" object? Fix.
-        #from AthenaCommon.AppMgr import ServiceMgr
-        #if ServiceMgr.MessageSvc.OutputLevel <= 2:
-        #    print dir(job.G4AtlasAlg)
-        #    print job.G4AtlasAlg.Verbosities
-        #    print job.G4AtlasAlg.Verbosities["Tracking"]
-        #    job.G4AtlasAlg.Verbosities["Tracking"] = 1
-
-        # TODO: Add physics list setting from simFlags to the alg here?
-
+            job += CfgGetter.getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
         G4AtlasEngine.log.verbose('SimSkeleton._doG4AtlasAlg :: done')
 
 
@@ -1675,18 +1113,6 @@ class SimSkeleton(object):
         """
         G4AtlasEngine.log.info('SimSkeleton.do_GeoSD :: nothing done')
 
-
-    @classmethod
-    def _do_MagField(cls):
-        """ Place to define the existing magnetic fields.
-        """
-        G4AtlasEngine.log.info('SimSkeleton.do_MagField :: nothing done')
-
-    @classmethod
-    def _do_FieldIntegrationParameters(cls):
-        """ Place to define the settings for default field integration parameters.
-        """
-        G4AtlasEngine.log.info('SimSkeleton.do_FieldIntegrationParameters :: nothing done')
 
     @classmethod
     def do_MCtruth(cls):
@@ -1716,21 +1142,6 @@ class SimSkeleton(object):
 
 
     @classmethod
-    def __checks(cls):
-        """
-        Internals.
-
-        Do not re-write this method. Here it is checked if the
-        user has defined a world volume and a physics list. If
-        this is not the case a default world_volume is created
-        and the QGSP_BERT is selected.
-        """
-        import AtlasG4Eng
-        G4AtlasEngine.log.verbose('SimSkeleton.__checks :: starting')
-        G4AtlasEngine.log.verbose('SimSkeleton.__checks :: done')
-
-
-    @classmethod
     def _do_PreInit(cls):
         """
         Execute all the do_something methods in the phase before Athena initialization.
@@ -1743,11 +1154,11 @@ class SimSkeleton(object):
         from G4AtlasApps.SimFlags import simFlags
         if simFlags.ISFRun:
           known_methods = ['_do_jobproperties', '_do_external', '_do_metadata',
-                           '_do_MagField', '_do_FieldIntegrationParameters','do_UserActions']
+                           'do_UserActions']
         else:
           known_methods = ['_do_jobproperties', '_do_external', '_do_metadata',
-                           '_do_readevgen', '_do_persistency', '_do_G4AtlasAlg','do_UserActions',
-                           '_do_MagField', '_do_FieldIntegrationParameters']
+                           '_do_readevgen', '_do_persistency', '_do_G4AtlasAlg',
+                           'do_UserActions']
 
         ## Execute the known methods from the known_methods in pre_init
         for k in known_methods:
@@ -1769,14 +1180,8 @@ class SimSkeleton(object):
             from AthenaCommon.CfgGetter import getPublicTool
             fastSimulationTool = getPublicTool("FastSimulationMasterTool")
 
-        # Add User actions
-        if not hasattr(ServiceMgr, "UserActionSvc"):
-            from AthenaCommon.CfgGetter import getService
-            userActionSvc = getService("UserActionSvc")
-
         ## Run pre-init callbacks
         G4AtlasEngine.log.debug("G4AtlasEngine:init stage " + "preInit")
-        from G4AtlasApps.SimFlags import simFlags
         if simFlags.InitFunctions.statusOn and "preInit" in simFlags.InitFunctions.get_Value():
             for callback_fn in simFlags.InitFunctions.get_Value()["preInit"]:
                     callback_fn.__call__()
@@ -1815,7 +1220,6 @@ class SimSkeleton(object):
                    import traceback, sys
                    traceback.print_exc(file=sys.stdout)
                    raise RuntimeError('SimSkeleton: found problems with the method %s' % i)
-        cls.__checks()
         G4AtlasEngine.log.verbose('SimSkeleton._do_All :: done')
 
 
@@ -1918,7 +1322,6 @@ class _PyG4AtlasComp(PyG4Atlas_base):
         if athenaCommonFlags.EvtMax.statusOn and theApp.EvtMax == -1:
             theApp.EvtMax = athenaCommonFlags.EvtMax()
         return True
-
 
     def finalize(self):
         import AtlasG4Eng
