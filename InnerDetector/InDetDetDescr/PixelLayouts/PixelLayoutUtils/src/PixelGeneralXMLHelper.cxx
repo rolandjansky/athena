@@ -3,25 +3,41 @@
 */
 
  
+
 #include "PixelLayoutUtils/PixelGeneralXMLHelper.h"
 #include "PathResolver/PathResolver.h"
+#include "PixelGeoModel/PixelGeoBuilder.h"
+#include "PixelLayoutUtils/DBXMLUtils.h"
 
-PixelGeneralXMLHelper::PixelGeneralXMLHelper(std::string envFileName):
-  GeoXMLUtils()
+PixelGeneralXMLHelper::PixelGeneralXMLHelper(std::string envFileName, const PixelGeoBuilderBasics* basics):
+  GeoXMLUtils(), PixelGeoBuilder(basics)
 {
 
   std::cout<<"XML helper - PixelGeneralXMLHelper"<<std::endl;
 
-  // Access XML file
+  bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
+  bool bParsed = false;
   std::string fileName_brl="GenericPixelGeneral.xml";
-  if(const char* env_p = std::getenv(envFileName.c_str())) fileName_brl = std::string(env_p);
-  std::cout<<"XML file - PixelGeneral  "<<fileName_brl<<" / "<<envFileName<<std::endl;
+  if(readXMLfromDB)
+    {
+      if(const char* env_p = std::getenv(envFileName.c_str())) fileName_brl = std::string(env_p);
+      getBasics()->msgStream()<<"XML input : DB CLOB "<<fileName_brl<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      DBXMLUtils dbUtils(basics);
+      std::string XMLtext = dbUtils.readXMLFromDB(fileName_brl);
+      InitializeXML();
+      bParsed = ParseBuffer(XMLtext,std::string(""));
+    }
+  else
+    {
+      // Access XML file
+      if(const char* env_p = std::getenv(envFileName.c_str())) fileName_brl = std::string(env_p);
+      getBasics()->msgStream()<<"XML input : from file "<<fileName_brl<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      std::string file_brl = PathResolver::find_file (fileName_brl, "DATAPATH");
+      InitializeXML();
+      bParsed = ParseFile(file_brl);
+    }
 
-  std::string file_brl = PathResolver::find_file (fileName_brl, "DATAPATH");
-  InitializeXML();
-  bool bParsed_brl = ParseFile(file_brl);
-
-  if(!bParsed_brl){
+  if(!bParsed){
     std::cout<<"XML file "<<fileName_brl<<" not found"<<std::endl;
     return;
   }

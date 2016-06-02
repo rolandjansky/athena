@@ -1,8 +1,7 @@
 package PixelLayoutUtils
 
-private
+private 
 
-use InDetGeoModelUtils   InDetGeoModelUtils-*   InnerDetector/InDetDetDescr
 use PathResolver   PathResolver-*    Tools
 
 public
@@ -12,6 +11,7 @@ use GeoModelKernel       GeoModelKernel-*       DetectorDescription/GeoModel
 use AtlasXercesC         AtlasXercesC-*         External
 
 use PixelGeoModel   PixelGeoModel-*   InnerDetector/InDetDetDescr
+use InDetGeoModelUtils   InDetGeoModelUtils-*   InnerDetector/InDetDetDescr
 
 apply_pattern installed_library
 library PixelLayoutUtils *.cxx

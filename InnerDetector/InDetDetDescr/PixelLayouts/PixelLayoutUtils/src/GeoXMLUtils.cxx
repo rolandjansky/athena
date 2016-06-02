@@ -164,21 +164,34 @@ bool GeoXMLUtils::ParseFile(std::string xmlfile)
     ifsGeo.close();
   }
 
+  if(size==0&&sizeGeo==0) return false;
+  
+  bool bOutput=ParseBuffer(std::string(buffer,size), std::string(bufferGeo,sizeGeo));
+  
+  delete buffer;
+  if(bufferGeo) delete bufferGeo;
 
-  std::string myxml = std::string(buffer,size);
+  return bOutput;
+}
+
+
+bool GeoXMLUtils::ParseBuffer(std::string xmlBuffer, std::string xmlBufferGeo)
+{
+
+  if(xmlBuffer.size()==0) return false;
+
+  std::string myxml = xmlBuffer;
   std::size_t firstChar = myxml.find(std::string("<"));
   std::size_t lastChar = myxml.rfind(std::string(">"));
   myxml = myxml.substr(firstChar,lastChar-firstChar+1);
-  delete buffer;
 
-  if(bufferGeo){
-    std::string myxmlGeo = std::string(bufferGeo,sizeGeo);
+  if(xmlBufferGeo.size()>0){
+    std::string myxmlGeo = xmlBufferGeo;
     std::size_t firstGeo = myxmlGeo.find(std::string(">"))+1;
     std::size_t lastGeo = myxmlGeo.rfind(std::string("<"));
     std::size_t lastXML = myxml.rfind("<");
 
     myxml = myxml.insert(lastXML, myxmlGeo.substr(firstGeo,lastGeo-firstGeo));
-    delete bufferGeo;
   }
 
   //  std::cout<<"---- XML buffer ------------------------------------------------"<<std::endl;

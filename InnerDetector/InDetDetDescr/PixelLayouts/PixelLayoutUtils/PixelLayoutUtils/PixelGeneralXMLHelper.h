@@ -6,6 +6,7 @@
 #define PixelGeneralXMLHelper_H
 
 #include "PixelGeoModel/PixelGeoBuilder.h"
+#include "InDetGeoModelUtils/OraclePixGeoAccessor.h"
 
 // XML library
 #include <xercesc/dom/DOM.hpp>
@@ -13,12 +14,13 @@
 #include <xercesc/util/PlatformUtils.hpp>
 #include "PixelLayoutUtils/GeoXMLUtils.h"
 
+
 using namespace xercesc;
 
-class PixelGeneralXMLHelper :  public GeoXMLUtils  {
+class PixelGeneralXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
 
  public:
-  PixelGeneralXMLHelper(std::string envFileName);
+  PixelGeneralXMLHelper(std::string envFileName, const PixelGeoBuilderBasics* basics);
   ~PixelGeneralXMLHelper();
 
   double getEnvelopeRMin() const;
@@ -48,6 +50,8 @@ class PixelGeneralXMLHelper :  public GeoXMLUtils  {
   bool isEndcapPresentC() const;
     
  private:
+
+  IRDBRecordset_ptr pixelXMLTable_ptr;
 
 };
 

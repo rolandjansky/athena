@@ -37,6 +37,7 @@ class GeoXMLUtils {
   XMLCh* transcode(std::string s);
   
   bool ParseFile(std::string xmlfile);
+  bool ParseBuffer(std::string, std::string);
   std::string getChildValue(const char* parentTag,
 		       int parentIndex,
 		       const char* childTag,

@@ -7,7 +7,7 @@
 // This is built one time per layer. 
 
 #include "PixelLayoutUtils/GeoPixelXMLMaterial.h"
-
+#include "PixelLayoutUtils/DBXMLUtils.h"
 #include "InDetGeoModelUtils/InDetMaterialManager.h" 
 
 #include "GeoModelKernel/GeoBox.h"
@@ -32,26 +32,42 @@ GeoPixelXMLMaterial::GeoPixelXMLMaterial(const PixelGeoBuilderBasics* basics, st
 
 }
 
-GeoVPhysVol* GeoPixelXMLMaterial::Build(std::string prefix) {
+GeoVPhysVol* GeoPixelXMLMaterial::Build(std::string prefix) 
+{
 
-  std::string file = PathResolver::find_file (m_xmlFileName, "DATAPATH");
-  InitializeXML();
-  bool bParsed = ParseFile(file);
+  bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
+  bool bParsed=false;
+  if(readXMLfromDB)
+    {
+      getBasics()->msgStream()<<"XML input : DB CLOB "<<m_xmlFileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      DBXMLUtils dbUtils(getBasics());
+      std::string XMLtext = dbUtils.readXMLFromDB(m_xmlFileName);
+      InitializeXML();
+      bParsed = ParseBuffer(XMLtext,std::string(""));
+    }
+  else
+    {
+      getBasics()->msgStream()<<"XML input : from file "<<m_xmlFileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      std::string file = PathResolver::find_file (m_xmlFileName, "DATAPATH");
+      InitializeXML();
+      bParsed = ParseFile(file);
+    }
 
+  // No XML file was parsed    
   if(!bParsed){
     std::cout<<"XML file "<<m_xmlFileName<<" not found"<<std::endl;
     return 0;
   }
-
+  
   int nbMaterial = getChildCount("PixelMaterials", 0, "Material");
   std::cout<<"MATERIAL NUMBER : "<<nbMaterial<<std::endl;
   
   if(prefix=="none") prefix="pix"; prefix = prefix+"::";
-
+  
   // --------------------------------------------------------------------------------------------------
   // ADD the material defined in the XML file
   // --------------------------------------------------------------------------------------------------
-
+  
   std::vector<std::string> materialDefined;
   bool bAllMaterialDefined = false;
   int iCmpt=0;
