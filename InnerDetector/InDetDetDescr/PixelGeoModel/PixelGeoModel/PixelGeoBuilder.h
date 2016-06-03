@@ -7,6 +7,7 @@
 #define PixelGeoBuilder_H
 
 #include "AthenaKernel/MsgStreamMember.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
  
 class OraclePixGeoAccessor;
 class InDetMaterialManager;
@@ -41,11 +42,13 @@ public:
 			bool geoComp,
 			const PixelID* idHelper,
 			InDetDD::PixelDetectorManager* detMgr,
-			InDetDD::SiCommonItems* commonItems) : 
+			InDetDD::SiCommonItems* commonItems,
+			bool readDataFromDB=false):
     m_geoAccessor(accessor),m_matMgr(matMgr),m_msg(msgStr), m_bGeoComponent(geoComp),
-    m_idHelper(idHelper),m_detectorManager(detMgr),m_commonItems(commonItems) {}
+    m_idHelper(idHelper),m_detectorManager(detMgr),m_commonItems(commonItems),
+    m_readDataFromDB(readDataFromDB ) {}
     
-  ~PixelGeoBuilderBasics() {};
+  ~PixelGeoBuilderBasics(){};
       
   // the geometry DB accessor
   const OraclePixGeoAccessor& geoAccessor() const {return *m_geoAccessor;}
@@ -74,6 +77,9 @@ public:
   // epsilon (1 um by default)
   double epsilon() const { return 0.001; }
 
+  // DB or not.
+  bool ReadInputDataFromDB() const {return m_readDataFromDB; }
+
  private:
   
   const OraclePixGeoAccessor* m_geoAccessor;
@@ -83,6 +89,8 @@ public:
   const PixelID* m_idHelper;
   mutable InDetDD::PixelDetectorManager* m_detectorManager;
   InDetDD::SiCommonItems* m_commonItems;
+  mutable bool m_readDataFromDB; 
+
 };
 
 
@@ -122,7 +130,7 @@ public:
   InDetDD::PixelDetectorManager* getDetectorManager() const { return m_basics->getDetectorManager(); }
   InDetDD::SiCommonItems* getCommonItems() const { return m_basics->getCommonItems(); }
 
-  PixelGeoBuilderBasics* getBasics() const { return m_basics; }
+  const PixelGeoBuilderBasics* getBasics() const { return m_basics; }
 
   // epsilon (1 um by default)
   double epsilon() const { return m_basics->epsilon(); }
@@ -130,35 +138,25 @@ public:
 
 private:
 
-  PixelGeoBuilderBasics* m_basics;
+  const PixelGeoBuilderBasics* m_basics;
 };
-
-
-/* inline PixelGeoBuilder::PixelGeoBuilder( const OraclePixGeoAccessor* ga, */
-/* 					 const InDetMaterialManager* pmm, */
-/* 					 const Athena::MsgStreamMember& msgStr) : */
-/*   m_geoAccessor(ga), m_matMgr( const_cast<InDetMaterialManager*>(pmm)), m_msg(msgStr), m_basics(0) */
-/* {} */
 
 
 inline PixelGeoBuilder::PixelGeoBuilder( PixelGeoBuilderBasics* b)
 {
   m_basics = new PixelGeoBuilderBasics((b->m_geoAccessor),b->m_matMgr, b->m_msg, b->m_bGeoComponent,  
-				       b->m_idHelper, b->m_detectorManager, b->m_commonItems);
-  //  m_basics.setCommonItems(b->m_commonItems);
+				       b->m_idHelper, b->m_detectorManager, b->m_commonItems, b->m_readDataFromDB);
 }
 
 inline PixelGeoBuilder::PixelGeoBuilder( const PixelGeoBuilderBasics* b)
 {
   m_basics = new PixelGeoBuilderBasics((b->m_geoAccessor),b->m_matMgr, b->m_msg, b->m_bGeoComponent,
-				       b->m_idHelper, b->m_detectorManager, b->m_commonItems);
-  //  m_basics.setCommonItems(b->m_commonItems);
+				       b->m_idHelper, b->m_detectorManager, b->m_commonItems, b->m_readDataFromDB);
 }
 
 inline PixelGeoBuilder::~PixelGeoBuilder()
 {
   delete m_basics;
 }
-
 
 #endif

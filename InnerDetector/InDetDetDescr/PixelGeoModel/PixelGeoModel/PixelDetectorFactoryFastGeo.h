@@ -28,7 +28,8 @@ class PixelDetectorFactoryFastGeo : public InDetDD::DetectorFactoryBase {
   PixelDetectorFactoryFastGeo(const PixelGeoModelAthenaComps * athenaComps,
 			      const PixelSwitches & switches,
 			      std::string geoBuilderName,
-			      bool bConfigGeoAlgTool = false);
+			      bool bConfigGeoAlgTool = false,
+			      bool bReadXMLfromDB = false);
   
   // Destructor:
   ~PixelDetectorFactoryFastGeo();
@@ -51,6 +52,7 @@ class PixelDetectorFactoryFastGeo : public InDetDD::DetectorFactoryBase {
   std::string m_geomLayoutName;
   ToolHandle<IGeoPixelEnvelopeTool> m_geomBuilderTool;
   bool m_bConfigGeoAlgTool;
+  bool m_bReadXMLFromDB;
 
   void doChecks();
 

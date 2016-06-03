@@ -13,7 +13,6 @@
 #include "PixelInterfaces/IGeoPixelEnvelopeTool.h"
 #include "PixelGeoModel/PixelGeoBuilder.h"
 #include "InDetReadoutGeometry/SiDetectorElementMap.h"
-#include "PixelGeoComponent/GeoEnvelopeAlpine.h"
 
 // GeoModel includes
 #include "GeoModelKernel/GeoNameTag.h"  
@@ -37,12 +36,14 @@ using InDetDD::SiCommonItems;
 PixelDetectorFactoryFastGeo::PixelDetectorFactoryFastGeo(const PixelGeoModelAthenaComps * athenaComps,
 							 const PixelSwitches & switches,
 							 std::string geoBuilderName,
-							 bool bConfigGeoAlgTool):
+							 bool bConfigGeoAlgTool,
+							 bool readXMLFromDB):
   InDetDD::DetectorFactoryBase(athenaComps),
   m_detectorManager(0),
   m_geomLayoutName(geoBuilderName),
   m_geomBuilderTool(geoBuilderName),
-  m_bConfigGeoAlgTool(bConfigGeoAlgTool)
+  m_bConfigGeoAlgTool(bConfigGeoAlgTool),
+  m_bReadXMLFromDB(readXMLFromDB)
 {
   // Create the detector manager
   m_detectorManager = new PixelDetectorManager(detStore());
@@ -175,13 +176,9 @@ void PixelDetectorFactoryFastGeo::create(GeoPhysVol *world)
 								   bGeoComponent,
 								   m_geometryManager->getIdHelper(),
 								   m_detectorManager,
-								   m_geometryManager->commonItems());
-      if(bGeoComponent){
-	InDet::GeoEnvelopeAlpine* envelope = dynamic_cast<InDet::GeoEnvelopeAlpine*>(m_geomBuilderTool->buildEnvelopeGeoComp(geoBasics));
-	pephys = envelope->physVolume<GeoFullPhysVol>();
-      }
-      else
-	pephys = (m_geomBuilderTool->buildEnvelope(geoBasics));
+								   m_geometryManager->commonItems(),
+								   m_bReadXMLFromDB);
+      pephys = (m_geomBuilderTool->buildEnvelope(geoBasics));
     } 
 
 //   else if(m_geomLayoutName=="GeoPixelEnvelopeAlpine")

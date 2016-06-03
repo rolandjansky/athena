@@ -7,8 +7,7 @@ def getPixelDetectorTool(name="PixelDetectorTool", **kwargs):
     if GeometryFlags.isSLHC():
         kwargs.setdefault("ServiceBuilderTool",    "InDetServMatBuilderToolSLHC");
 
-        envelopeToolName="none"
-        
+        envelopeToolName="none"        
         if GeometryFlags.GeoType() in ["LoIFG","LoIVFFG","ECRingFG"]:
             envelopeToolName="GeoPixelEnvelopeLoITool"
         elif GeometryFlags.GeoType() in ["Alpine"]:

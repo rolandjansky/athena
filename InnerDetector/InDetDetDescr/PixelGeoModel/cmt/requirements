@@ -11,7 +11,6 @@ use DetDescrConditions   DetDescrConditions-*   DetectorDescription/DetDescrCond
 use InDetCondServices    InDetCondServices-*    InnerDetector/InDetConditions
 use InDetIdentifier      InDetIdentifier-*      InnerDetector/InDetDetDescr
 use GeometryDBSvc        GeometryDBSvc-*        DetectorDescription
-use PixelGeoComponent    PixelGeoComponent-*    InnerDetector/InDetDetDescr/PixelLayouts
 
 public
 
@@ -30,9 +29,8 @@ use PixelInterfaces      PixelInterfaces-*      InnerDetector/InDetDetDescr/Pixe
 use RDBAccessSvc         RDBAccessSvc-*         Database/AthenaPOOL
 use AthenaBaseComps	 AthenaBaseComps-*      Control
 
-
-
-
+macro FindGeoTorusFile "`find -L ${GeoModelKernel_include_dirs} -type f -name "GeoTorus.h" | wc -l`"
+macro lib_PixelGeoModel_pp_cppflags "-DGEOTORUS=${FindGeoTorusFile}" 
 
 library PixelGeoModel *.cxx components/*.cxx
 
