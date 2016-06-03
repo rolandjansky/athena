@@ -37,17 +37,35 @@ IsoCorrectionToolTrig = ToolFactory(ICT,
                                     name = "NewLeakageCorrToolTrig",
                                     IsMC = isMC)
 from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool,xAOD__TrackIsolationTool
+from CaloIdentifier import SUBCALO
 CaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "TrigEgammaCaloIsolationTool",
         doEnergyDensityCorrection = False,
         saveOnlyRequestedCorrections = True,
         IsoLeakCorrectionTool          = IsoCorrectionToolTrig,
-        CaloFillRectangularClusterTool = TrigCaloFillRectangularCluster)
+        CaloFillRectangularClusterTool = TrigCaloFillRectangularCluster,
+        EMCaloNums = [SUBCALO.LAREM],
+        HadCaloNums = [SUBCALO.LARHEC,SUBCALO.TILE])
 
+from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
+CaloClustersInConeTool = ToolFactory(xAOD__CaloClustersInConeTool,CaloClusterLocation = "CaloCalTopoCluster")
+
+CaloTopoIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "TrigEgammaCaloTopoIsolationTool",
+        doEnergyDensityCorrection = True,
+        saveOnlyRequestedCorrections = True,
+        IsoLeakCorrectionTool          = IsoCorrectionToolTrig,
+        ClustersInConeTool              = CaloClustersInConeTool,
+        CaloFillRectangularClusterTool = TrigCaloFillRectangularCluster,
+        UseEMScale = True,
+        TopoClusterEDCentralContainer = "HLTTopoClusterIsoCentralEventShape",
+        TopoClusterEDForwardContainer = "HLTTopoClusterIsoForwardEventShape")
 
 TrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool, name = 'TrigEgammaTrackIsolationTool')
 
-#tit = CfgMgr.xAOD__TrackIsolationTool('TrigEgammaTrackIsolationTool')
-#tit.TrackSelectionTool.maxZ0SinTheta = 15
+TrkIsoCfg = CfgMgr.xAOD__TrackIsolationTool('TrigEgammaTrackIsolationTool')
+TrkIsoCfg.TrackSelectionTool.maxZ0SinTheta = 3.
+TrkIsoCfg.TrackSelectionTool.minPt = 1000.
+TrkIsoCfg.TrackSelectionTool.CutLevel = "Loose"
+
 import ROOT, cppyy
 # Need to be sure base dict is loaded first.
 cppyy.loadDictionary('xAODCoreRflxDict')
@@ -101,19 +119,23 @@ TrigEgammaRec = Factory(TrigEgammaRecConf.TrigEgammaRec, name="TrigEgammaRec",do
     # Set the isolation tools
     TrackIsolationTool = TrackIsolationTool, 
     CaloCellIsolationTool = CaloIsolationTool, 
-    CaloTopoIsolationTool = CaloIsolationTool, 
+    CaloTopoIsolationTool = CaloTopoIsolationTool, 
     # Configure types -- define all needed
     # Decreasing order for pt/etcone (what about topocone?)
     IsoTypes = [ 
         [ int(isoPar.ptcone40), ## Be carefull : store them in decreasing dR
-        int(isoPar.ptcone30), 
-        int(isoPar.ptcone20)],
+          int(isoPar.ptcone30), 
+          int(isoPar.ptcone20)],
         [ int(isoPar.etcone40), ## Be carefull : store them in decreasing dR
-            int(isoPar.etcone30), 
-            int(isoPar.etcone20)] ], 
+          int(isoPar.etcone30), 
+          int(isoPar.etcone20)],
+        [ int(isoPar.topoetcone40), ## Be carefull : store them in decreasing dR
+          int(isoPar.topoetcone30),
+          int(isoPar.topoetcone20)]], 
     # Run isolation, easier to config than isotypes
     doTrackIsolation = True,
     doCaloCellIsolation = True,
+    doCaloTopoIsolation = False,
 
     # Names of tools loaded must remain static and are set in TrigEgammaHypo/python/TrigEgammaPidTools.py
     ElectronPIDBuilder = ToolFactory( EMPIDBuilder, name = "TrigElectronPIDBuilder",

@@ -63,7 +63,7 @@ PURPOSE:  Algorithm is an adaptation for the trigger of the egammaBuilder.cxx
 #include "xAODEgamma/ElectronAuxContainer.h"
 #include "xAODEgamma/PhotonAuxContainer.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
-
+#include "xAODEventShape/EventShape.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 
 #include "egammaEvent/egammaParamDefs.h"
@@ -111,7 +111,7 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     declareProperty("PhotonContainerName",   m_photonContainerName="egamma_Photons");
     // Additional property to retrieve slw and topo containers from TE
     declareProperty("SlwCaloClusterContainerName",m_slwClusterContName="TrigEFCaloCalibFex");
-    declareProperty("TopoCaloClusterContainerName",m_topoClusterContName="TrigCaloClusterMaker_topo");
+    declareProperty("TopoCaloClusterContainerName",m_topoClusterContName="TrigCaloClusterMaker_topo_fullscan_egamma");
     // ShowerBuilder (trigger specific)
     declareProperty("ShowerBuilderTool",  m_showerBuilder, "Handle to Shower Builder");
     // FourMomBuilder (trigger specific)
@@ -229,6 +229,22 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
 
     //Vertex-related monitoring for Photons
     //TBD
+    m_timerTotal=nullptr;
+    m_timerTool1=nullptr;
+    m_timerTool2=nullptr;
+    m_timerTool3=nullptr;
+    m_timerTool4=nullptr;
+    m_timerTool5=nullptr;
+    m_timerIsoTool1=nullptr;
+    m_timerIsoTool2=nullptr;
+    m_timerIsoTool3=nullptr;
+    m_timerPIDTool1=nullptr;
+    m_timerPIDTool2=nullptr;
+    m_timerPIDTool3=nullptr;
+    m_eg_container=nullptr;
+    m_electron_container=nullptr;
+    m_photon_container=nullptr;
+
 }
 
 // DESTRUCTOR:
@@ -430,6 +446,10 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
             corrlist.calobitset.set(static_cast<unsigned int>(xAOD::Iso::core57cells));
             // Correct for out of cone leakage as function of pt
             corrlist.calobitset.set(static_cast<unsigned int>(xAOD::Iso::ptCorrection));
+            //ED correction
+            if( flavName == "topoetcone"){
+                corrlist.calobitset.set(static_cast<unsigned int>(xAOD::Iso::pileupCorrection));
+            } 
             cisoH.CorrList = corrlist;
             m_egCaloIso.insert(make_pair(flavName,cisoH));
         } else if (flavName == "ptcone") {
@@ -569,8 +589,10 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     // Retrieve cluster container
     // get pointer to CaloClusterContainer from the trigger element
     std::vector<const xAOD::CaloClusterContainer*> vectorClusterContainer;
-
-    HLT::ErrorCode stat = getFeatures(inputTE, vectorClusterContainer);
+    HLT::ErrorCode stat; 
+    if(m_doTopoIsolation) stat = getFeatures(inputTE, vectorClusterContainer,m_slwClusterContName);
+    else  stat = getFeatures(inputTE, vectorClusterContainer);
+    
     if ( stat!= HLT::OK ) {
         msg() << MSG::ERROR << " REGTEST: No CaloClusterContainers retrieved for the trigger element" << endreq;
         return HLT::OK;
@@ -581,7 +603,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
             << " CaloClusterContainers associated to the TE " << endreq;
 
     // Check that there is only one ClusterContainer in the RoI
-    if (vectorClusterContainer.size() != 1){
+    if (vectorClusterContainer.size() < 1){
         if ( msgLvl() <= MSG::ERROR )
             msg() << MSG::ERROR
                 << "REGTEST: Size of vectorClusterContainer is not 1, it is: "
@@ -601,6 +623,31 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         //return HLT::BAD_JOB_SETUP;
         return HLT::OK;
     }
+    
+
+    bool topoClusTrue = false; 
+    std::vector<const xAOD::CaloClusterContainer*> vectorClusterContainerTopo;
+    if(m_doTopoIsolation){
+        stat = getFeatures(inputTE, vectorClusterContainerTopo,m_topoClusterContName);
+    
+        if ( stat!= HLT::OK ) {
+        msg() << MSG::ERROR << " REGTEST: No CaloClusterContainers retrieved for the trigger element" << endreq;
+        //return HLT::OK; // If you did not get it, it is not a problem, continue!
+        }  
+             
+        //debug message
+        if ( msgLvl() <= MSG::VERBOSE){
+        msg() << MSG::VERBOSE << " REGTEST: Got " << vectorClusterContainerTopo.size()
+             << " CaloCTopoclusterContainers associated to the TE " << endreq;
+        }
+        // Get the last ClusterContainer
+        if ( !vectorClusterContainerTopo.empty() ) {
+        const xAOD::CaloClusterContainer* clusContainerTopo = vectorClusterContainerTopo.back();
+        if (clusContainerTopo->size() > 0) topoClusTrue = true;
+        std::cout << "REGTEST: Number of topo containers : " << clusContainerTopo->size() << std::endl;
+        } // vector of Cluster Container empty?!
+    }
+
 
     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
         << clusContainer->size() << " calo clusters in container" << endreq;
@@ -629,12 +676,12 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     // Create collections used in the navigation
     // Electrons
     m_electron_container = new xAOD::ElectronContainer();
-    xAOD::ElectronAuxContainer electronAux;
+    xAOD::ElectronTrigAuxContainer electronAux;
     m_electron_container->setStore(&electronAux);
 
     // Photons
     m_photon_container = new xAOD::PhotonContainer();
-    xAOD::PhotonAuxContainer photonAux;
+    xAOD::PhotonTrigAuxContainer photonAux;
     m_photon_container->setStore(&photonAux);
     
     //***************************************************************************************************************
@@ -643,12 +690,15 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
 
     // Shower Shape & CaloCellContainer
     const CaloCellContainer* pCaloCellContainer = 0;
-
+    const xAOD::CaloClusterContainer* pTopoClusterContainer = 0;
+    
     // Get vector of pointers to all CaloCellContainers from TE
     std::string clusCollKey="";
     std::vector<const CaloCellContainer*> vectorCellContainer;
+    
+    if(m_doTopoIsolation) stat = getFeatures(inputTE, vectorCellContainer,"TrigCaloCellMaker");
+    else stat = getFeatures(inputTE, vectorCellContainer);
 
-    stat = getFeatures(inputTE, vectorCellContainer);
     if ( stat != HLT::OK ) {
         //m_showerBuilderToExec = false;
         msg() << MSG::ERROR << "REGTEST: No CaloCellContainers retrieved for the trigger element, shower builder to be executed: " << m_showerBuilder << endreq;
@@ -688,6 +738,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
                 if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Running m_showerBuilder: " << m_showerBuilder << endreq;
             } //pCaloCellContainer
         }
+        if(topoClusTrue) pTopoClusterContainer = vectorClusterContainerTopo.back();
     }
 
     //**********************************************************************
@@ -695,6 +746,8 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     // get pointer to TrackParticleContainer from the trigger element and set flag for execution
 
     const xAOD::TrackParticleContainer* pTrackParticleContainer = 0;
+    xAOD::Vertex leadTrkVtx;
+    leadTrkVtx.makePrivateStore();
     std::string TrkCollKey="";
     if (m_doTrackMatching){
         std::vector<const xAOD::TrackParticleContainer*> vectorTrackParticleContainer;
@@ -728,6 +781,20 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
                 else ATH_MSG_DEBUG("Track Collection key in SG: " << TrkCollKey);
             }                
         }
+
+        // Create vertex from leading track in RoI
+        float leadTrkpt=0.0;
+        const xAOD::TrackParticle *leadTrk=NULL;
+        for (const xAOD::TrackParticle *trk:*pTrackParticleContainer) {
+            if(trk->pt() > leadTrkpt) {
+                leadTrkpt = trk->pt();
+                leadTrk=trk;
+            }
+        }
+        // set z vertex position to leading track and shift by vz
+        if(leadTrk!=NULL) leadTrkVtx.setZ(leadTrk->z0()+leadTrk->vz());
+        else ATH_MSG_DEBUG("REGTEST: Lead track pointer null");
+
     }//m_trackMatching
 
     //**********************************************************************
@@ -808,7 +875,8 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     // Run the ambiguity resolving to decide if egRec is Electron or Photon
     //Get the ElementLinks for Tracks, Clusters, Vertices
     ElementLinkVector<xAOD::CaloClusterContainer> clusterLinks;
-    stat=getFeaturesLinks< xAOD::CaloClusterContainer, xAOD::CaloClusterContainer > (inputTE, clusterLinks, "");
+    if(m_doTopoIsolation) stat=getFeaturesLinks< xAOD::CaloClusterContainer, xAOD::CaloClusterContainer > (inputTE, clusterLinks, "TrigEFCaloCalibFex"); 
+    else stat=getFeaturesLinks< xAOD::CaloClusterContainer, xAOD::CaloClusterContainer > (inputTE, clusterLinks, ""); 
     if ( stat != HLT::OK ) {
         ATH_MSG_ERROR("REGTEST: No CaloClusterLinks retrieved for the trigger element");
     } else{
@@ -1017,7 +1085,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
                 /*else if (flav == "topoetcone" )
                     // Add check for topoclusters (when available);
                     //bsc = m_topoIsolationTool->decorateParticle_topoClusterIso(*eg, isoH.help.isoTypes, isoH.CorrList, pTopoClusterContainer);*/
-                if (!bsc) 
+                if (!bsc && flav=="etcone") 
                     ATH_MSG_WARNING("Call to CaloIsolationTool failed for flavour " << flav);
             }
             ATH_MSG_DEBUG(" REGTEST: etcone20   =  " << getIsolation_etcone20(eg));
@@ -1027,6 +1095,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         }
         if(m_doTrackIsolation){
             ATH_MSG_DEBUG("Running TrackIsolationTool for Electrons");
+
             if (timerSvc()) m_timerIsoTool1->start(); //timer
             if(m_egTrackIso.size() != 0) {
                 // Track Isolation types
@@ -1035,10 +1104,8 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
                     TrackIsoHelp isoH = itt->second;
                     std::string flav  = itt->first;
                     const std::set<const xAOD::TrackParticle*> tracksToExclude = xAOD::EgammaHelpers::getTrackParticles(eg, m_useBremAssoc); // For GSF this may need to be property
-                    xAOD::Vertex *vx = 0;
-
                     // Need the decorate methods from IsolationTool
-                    bool bsc = m_trackIsolationTool->decorateParticle(*eg, isoH.help.isoTypes, isoH.CorrList, vx, &tracksToExclude,pTrackParticleContainer);
+                    bool bsc = m_trackIsolationTool->decorateParticle(*eg, isoH.help.isoTypes, isoH.CorrList, &leadTrkVtx, &tracksToExclude,pTrackParticleContainer);
                     if (!bsc) 
                         ATH_MSG_WARNING("Call to TrackIsolationTool failed for flavour " << flav);
                 }
@@ -1097,17 +1164,24 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
                 CaloIsoHelp isoH = itc->second;
                 std::string flav = itc->first;
                 bool bsc = false;
+                bool tbsc = false;
                 if (flav == "etcone" && pCaloCellContainer)
                     bsc = m_caloCellIsolationTool->decorateParticle_caloCellIso(*eg, isoH.help.isoTypes, isoH.CorrList, pCaloCellContainer);
-                /*else if (flav == "topoetcone" )
+                else if (flav == "topoetcone" && topoClusTrue)
                     // Add check for topoclusters (when available);
-                    //bsc = m_topoIsolationTool->decorateParticle_topoClusterIso(*eg, isoH.help.isoTypes, isoH.CorrList, pTopoClusterContainer);*/
-                if (!bsc) 
+                    tbsc = m_topoIsolationTool->decorateParticle_topoClusterIso(*eg, isoH.help.isoTypes, isoH.CorrList, pTopoClusterContainer);
+                if (!bsc && m_doCaloCellIsolation && flav=="etcone") 
                     ATH_MSG_WARNING("Call to CaloIsolationTool failed for flavour " << flav);
+                if (!tbsc && m_doTopoIsolation && flav =="topoetcone") 
+                    ATH_MSG_WARNING("Call to CaloTopoIsolationTool failed for flavour " << flav);
             }
             ATH_MSG_DEBUG(" REGTEST: etcone20   =  " << getIsolation_etcone20(eg));
             ATH_MSG_DEBUG(" REGTEST: etcone30   =  " << getIsolation_etcone30(eg));
             ATH_MSG_DEBUG(" REGTEST: etcone40   =  " << getIsolation_etcone40(eg));
+            ATH_MSG_DEBUG(" REGTEST: topoetcone20   =  " << getIsolation_topoetcone20(eg));
+            ATH_MSG_DEBUG(" REGTEST: topoetcone30   =  " << getIsolation_topoetcone30(eg));
+            ATH_MSG_DEBUG(" REGTEST: topoetcone40   =  " << getIsolation_topoetcone40(eg));
+
             if (timerSvc()) m_timerIsoTool2->stop(); //timer
         }
     
