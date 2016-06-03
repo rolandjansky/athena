@@ -62,8 +62,8 @@ namespace dqutils {
       if (!run_dir.Contains("run") )  { continue;}
 
       std::string run_dir2 = run_dir.Data();
-      int run_number = atoi( (run_dir2.substr(4, run_dir2.size()-4 )).c_str() );
-      run_number=run_number;
+      //int run_number = atoi( (run_dir2.substr(4, run_dir2.size()-4 )).c_str() );
+      //run_number=run_number;
 
       for(std::size_t iec = 0; iec < endc_label.size(); iec++){
         for(std::size_t icoll = 0; icoll < coll_dir_label.size(); icoll++){
