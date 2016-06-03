@@ -20,7 +20,7 @@
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "TimeSvc.h"
-#include "CalibSvc.h"
+#include "PixelConditionsServices/IPixelCalibSvc.h"
 
 #include<fstream>
 #include<sstream>
@@ -38,7 +38,7 @@ const InterfaceID& PixelNoisyCellGenerator::interfaceID( ){ return IID_IPixelNoi
 PixelNoisyCellGenerator::PixelNoisyCellGenerator(const std::string& type, const std::string& name,const IInterface* parent):
   AthAlgTool(type,name,parent),
   m_TimeSvc("TimeSvc",name),
-  m_CalibSvc("CalibSvc",name),
+  m_pixelCalibSvc("PixelCalibSvc", name),
   m_mergeCharge(false),
   m_pixelID(0),
   m_rndmSvc("AtDSFMTGenSvc",name),
@@ -64,54 +64,28 @@ PixelNoisyCellGenerator::~PixelNoisyCellGenerator()
 // Initialize
 //----------------------------------------------------------------------
 StatusCode PixelNoisyCellGenerator::initialize() {
-  StatusCode sc = AthAlgTool::initialize(); 
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "PixelNoisyCellGenerator::initialize() failed");
-    return sc ;
-  }
-  
-  if (m_TimeSvc.retrieve().isFailure()) {
-	ATH_MSG_ERROR("Can't get TimeSvc");
-	return StatusCode::FAILURE;
-  }
-  if (m_CalibSvc.retrieve().isFailure()) {
-	ATH_MSG_ERROR("Can't get CalibSvc");
-	return StatusCode::FAILURE;
-  }
-  if (m_rndmSvc.retrieve().isFailure()) {
-	ATH_MSG_ERROR("Can't get RndmSvc");
-	return StatusCode::FAILURE;
-  }
-  else {
-	ATH_MSG_DEBUG("Retrieved RndmSvc");
-  }
  
-  ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
-  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (m_rndmEngine==0) {
-	ATH_MSG_ERROR ( "Could not find RndmEngine : " << m_rndmEngineName );
-	return StatusCode::FAILURE;
-  } else { 
-	ATH_MSG_DEBUG ( " Found RndmEngine : " << m_rndmEngineName ); 
-  }
-  
+  CHECK(m_TimeSvc.retrieve());
 
-  //  
-  // get PixelID
-  //
-  if ( detStore()->retrieve(m_pixelID,"PixelID").isFailure() ) {
-    // if this fails, it's probably a bug -> FATAL!
-    ATH_MSG_FATAL ( "Could not get Pixel ID helper" );
+  CHECK(m_pixelCalibSvc.retrieve());
+  ATH_MSG_DEBUG("Retrieved PixelCalibSvc");
+
+  CHECK(m_rndmSvc.retrieve());
+  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
+  if (!m_rndmEngine) {
+    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
     return StatusCode::FAILURE;
+  } 
+  else { 
+    ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);  
   }
+
+  CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
+  ATH_MSG_DEBUG("Pixel ID helper retrieved");
 
   ATH_MSG_DEBUG ( "PixelNoisyCellGenerator::initialize()");
   return StatusCode::SUCCESS;
-
 }
-
-  
-
 
 //----------------------------------------------------------------------
 // finalize
@@ -292,7 +266,8 @@ void PixelNoisyCellGenerator::addCell(SiChargedDiodeCollection &collection,const
 	<< circuit << "," << column << "," << row);
 #endif
     ATH_MSG_DEBUG ( "addCell 2 circuit = " << circuit << ", column = " << column << ", row = " << row);
-  if (row>159) row = row+8; // jump over ganged pixels - rowsPerCircuit == 320 above
+
+  if (row>159 && design->rowsPerCircuit() != 336) row = row+8; // jump over ganged pixels - rowsPerCircuit == 320 above
     ATH_MSG_DEBUG ( "addCell 3 circuit = " << circuit << ", column = " << column << ", row = " << row);
     
   SiReadoutCellId roCell(row, design->columnsPerCircuit() * circuit + column);
@@ -325,9 +300,10 @@ void PixelNoisyCellGenerator::addCell(SiChargedDiodeCollection &collection,const
     ATH_MSG_DEBUG ( "addCell 7b circuit = " << circuit << ", column = " << column << ", row = " << row);
     //
     // now, transform the noise ToT to charge. Kind of "inverted calibration"...:
-    double totA = m_CalibSvc->getCalQ2TotA( noisyID );
-    double totE = m_CalibSvc->getCalQ2TotE( noisyID );
-    double totC = m_CalibSvc->getCalQ2TotC( noisyID );
+    double totA = m_pixelCalibSvc->getQ2TotA(noisyID);
+    double totE = m_pixelCalibSvc->getQ2TotE(noisyID);
+    double totC = m_pixelCalibSvc->getQ2TotC(noisyID);
+
     ATH_MSG_DEBUG ( "addCell 7c circuit = " << circuit << ", column = " << column << ", row = " << row);
     const double chargeShape = (totA*totE - ToT*totC)/(ToT-totA); 
     ATH_MSG_DEBUG ( "addCell 7d circuit = " << circuit << ", column = " << column << ", row = " << row);

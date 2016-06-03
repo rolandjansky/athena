@@ -59,7 +59,7 @@
 
 class PixelID;
 class TimeSvc;
-class CalibSvc;
+class IPixelCalibSvc;
 
 class IAtRndmGenSvc;
 namespace CLHEP {
@@ -100,7 +100,7 @@ private:
 
 private:
   ServiceHandle<TimeSvc> m_TimeSvc;
-  ServiceHandle<CalibSvc> m_CalibSvc;
+  ServiceHandle<IPixelCalibSvc> m_pixelCalibSvc;
   bool                     m_mergeCharge;      /**< to merge or not to merge */
   std::vector<double>       m_noiseShape;      /**< ToT shape of noise*/
   void addRandomNoise(SiChargedDiodeCollection &collection, double occupancy) const;

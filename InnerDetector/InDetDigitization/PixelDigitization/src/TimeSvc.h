@@ -117,6 +117,8 @@ virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
                     const double intimethreshold,
                     const SiTotalCharge &totalCharge, bool CTW) const;
 
+  int relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_ec, int layer_disk, int moduleID) const;
+
   /** sets the ComTime */
   void setComTime(const double cT ) { m_comTime = cT;  }
   double getTimePerBCO() {return m_timePerBCO;}
