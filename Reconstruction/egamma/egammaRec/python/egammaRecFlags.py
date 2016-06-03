@@ -130,7 +130,7 @@ class egammaTopoClusterCollection (JobProperty):
 class doBremFinding (egammaRecFlagsJobProperty):
     """ switch to use GSF-based brem finder in superclustering
     """
-    statusOn=True
+    statusOn=False
     allowedTypes=['bool']
     StoredValue=False
 #
