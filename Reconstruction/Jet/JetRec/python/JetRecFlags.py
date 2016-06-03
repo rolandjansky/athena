@@ -89,7 +89,7 @@ class useTracks(JobProperty):
 class useVertices(JobProperty):
   """ If true, vertices are present and used in pflow jet reconstruction.
   """
-  statusOn     = True     
+  statusOn     = False     
   allowedTypes = ['bool']  # type
   StoredValue  = True      # default value
 
@@ -105,7 +105,7 @@ class usePFlow(JobProperty):
   """ If true, pflow objects are present and used in jet reconstruction.
       The status is set in JetRecStandardToolManager.
   """
-  statusOn     = False    
+  statusOn     = True    
   allowedTypes = ['bool']  # type
   StoredValue  = True      # default value
 
@@ -208,6 +208,8 @@ class useTrackVertexTool(JobProperty):
   statusOn = True
   allowedTypes = ['bool']
   StoredValue = False
+
+
 
 jobproperties.add_Container(JetRecFlags)
 

@@ -195,9 +195,9 @@ class JetToolManager:
         sinp = getters[0].Label
         salg = finder.JetAlgorithm
         srad = str(int(10*finder.JetRadius))
-        cname = output.replace(sinp, "Truth")
+        cname = output.replace(sinp, "Truth").replace("EMTopo", "Truth") # attempt replacing "EMTopo" just in case.
         if cname == output:
-          raise TypeError
+            raise TypeError
         # Check that the building of the association tool has been scheduled.
         if not cname in self.jetcons:
           print self.prefix + "Truth association skipped because container is missing: " + cname
@@ -212,9 +212,9 @@ class JetToolManager:
         sinp = getters[0].Label
         salg = finder.JetAlgorithm
         srad = str(int(10*finder.JetRadius))
-        cname = output.replace(sinp, "Track")
+        cname = output.replace(sinp, "Track").replace("EMTopo", "Track") # attempt replacing "EMTopo" just in case.
         if cname == output:
-          raise TypeError
+            raise TypeError
         # Check that the building of the association tool has been scheduled.
         if not cname in self.jetcons:
           print self.prefix + "Track association skipped because container is missing: " + cname
@@ -353,7 +353,9 @@ class JetToolManager:
                    ghostArea =0.0, ptmin =0.0, ptminFilter =0.0, rndseed =1,
                    isTrigger =False, useTriggerStore =False,
                    variableRMinRadius =-1.0, variableRMassScale =-1.0,
-                   calibOpt ="", jetPseudojetCopier =""):
+                   calibOpt ="", jetPseudojetCopier ="",
+                   warnIfDuplicate=True,
+                   overwrite=False):
     self.msg(2, "Adding finder")
     from JetRec.JetRecConf import JetRecTool
     if type(gettersin) == str:
@@ -380,6 +382,9 @@ class JetToolManager:
     self.ptminFilter = ptminSave
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = self.timer
+    jetrec.WarnIfDuplicate = warnIfDuplicate
+    jetrec.Overwrite = overwrite
+
     self += jetrec
     if isTrigger:
       self.trigjetrecs += [jetrec]
