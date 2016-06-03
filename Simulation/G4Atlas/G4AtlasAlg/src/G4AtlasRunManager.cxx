@@ -2,64 +2,57 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "G4AtlasAlg/G4AtlasRunManager.h"
+#include "G4AtlasRunManager.h"
 
-#include "G4StateManager.hh"
-#include "G4UImanager.hh"
-#include "G4Timer.hh"
-#include "G4UserRunAction.hh"
-#include "G4Run.hh"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "FadsKinematics/GeneratorCenter.h" // FIXME: to remove
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
+#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
+#include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
+#include "StoreGate/StoreGateSvc.h"
 
-#include "G4ios.hh"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/Bootstrap.h"
 
 #include "G4Event.hh"
+#include "G4GeometryManager.hh"
+#include "G4ios.hh"
+#include "G4LogicalVolumeStore.hh"
+#include "G4ParallelWorldScoringProcess.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4ParticleTable.hh"
+#include "G4ProcessManager.hh"
+#include "G4ProductionCutsTable.hh"
+#include "G4RegionStore.hh"
+#include "G4Run.hh"
+#include "G4ScoringManager.hh"
+#include "G4StateManager.hh"
+#include "G4TransportationManager.hh"
+#include "G4Timer.hh"
+#include "G4UImanager.hh"
+#include "G4UserRunAction.hh"
 #include "G4Version.hh"
+#include "G4VPhysicalVolume.hh"
 #include "G4VUserDetectorConstruction.hh"
 #include "G4VUserPhysicsList.hh"
-
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/System.h"
-#include "GaudiKernel/IMessageSvc.h"
-
-#include "FadsKinematics/GeneratorCenter.h"
-#include "FadsPhysics/PhysicsListCatalog.h"
-#include "FadsPhysics/DummyPhysicsList.h"
 #include "G4VUserPrimaryGeneratorAction.hh"
 
 #include <string>
 #include <vector>
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/IMessageSvc.h"
-
-#include "G4LogicalVolumeStore.hh"
-#include "G4RegionStore.hh"
-#include "G4ProductionCutsTable.hh"
-#include "G4GeometryManager.hh"
-
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
-#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
-
-#include "G4ScoringManager.hh"
-#include "G4ParticleTable.hh"
-#include "G4TransportationManager.hh"
-#include "G4VPhysicalVolume.hh"
-#include "G4ParticleDefinition.hh"
-#include "G4ProcessManager.hh"
-#include "G4ParallelWorldScoringProcess.hh"
 
 
 G4AtlasRunManager::G4AtlasRunManager()
   : G4RunManager(),
     m_msg("G4AtlasRunManager"),
-    m_pl(NULL),
-    m_sgSvc(NULL),
     m_releaseGeo(false),
+    m_recordFlux(false),
+    // FIXME: these should all be configured by a component (e.g. G4AtlasAlg)
     m_senDetTool("SensitiveDetectorMasterTool"),
-    m_fastSimTool("FastSimulationMasterTool")
+    m_fastSimTool("FastSimulationMasterTool"),
+    m_physListTool("PhysicsListToolBase"),
+    m_userActionSvc("G4UA::UserActionSvc", "G4AtlasRunManager")
 {  }
 
 
@@ -68,14 +61,45 @@ G4AtlasRunManager* G4AtlasRunManager::GetG4AtlasRunManager()
   static G4AtlasRunManager* thisManager=0;
   if (!thisManager)
     {
-      thisManager=new G4AtlasRunManager;
+      thisManager=new G4AtlasRunManager; // Leaked
     }
   return thisManager;
 }
 
 
+void G4AtlasRunManager::Initialize()
+{
+  // Setup the user actions now.
+  if( !m_userActionSvc.name().empty() ) {
+    ATH_MSG_INFO("Creating user actions now");
+    if(m_userActionSvc.retrieve().isFailure()) {
+      throw GaudiException("Could not retrieve UserActionSvc",
+                           "CouldNotRetrieveUASvc", StatusCode::FAILURE);
+    }
+    if(m_userActionSvc->initializeActions().isFailure()) {
+      throw GaudiException("Failed to initialize actions",
+                           "UserActionInitError", StatusCode::FAILURE);
+    }
+  }
+  // Call the base class
+  G4RunManager::Initialize();
+}
+
+
 void G4AtlasRunManager::InitializeGeometry()
 {
+  // FIXME: use a ServiceHandle
+  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
+  IDetectorGeometrySvc *detGeoSvc;
+  if (svcLocator->service("DetectorGeometrySvc",detGeoSvc,true).isFailure())
+    {
+      ATH_MSG_ERROR ( "Could not retrieve the DetectorGeometrySvc" );
+      G4ExceptionDescription description;
+      description << "InitializeGeometry: Failed to retrieve IDetectorGeometrySvc.";
+      G4Exception("G4AtlasRunManager", "CouldNotRetrieveDetGeoSvc", FatalException, description);
+      abort(); // to keep Coverity happy
+    }
+
   G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
   for (unsigned int i=0;i<lvs->size();++i)
     {
@@ -90,6 +114,9 @@ void G4AtlasRunManager::InitializeGeometry()
           ATH_MSG_INFO( "Set smartlessness for LArMgr::LAr::EMB::STAC to 0.5" );
         }
     }
+
+  // Create/assign detector construction
+  G4RunManager::SetUserInitialization(detGeoSvc->GetDetectorConstruction());
 
   if (userDetector)
     {
@@ -131,6 +158,17 @@ void G4AtlasRunManager::InitializePhysics()
   kernel->InitializePhysics();
   physicsInitialized = true;
 
+  // Grab the physics list tool and set the extra options
+  if (m_physListTool.retrieve().isFailure())
+    {
+      ATH_MSG_ERROR ( "Could not retrieve the physics list tool" );
+      G4ExceptionDescription description;
+      description << "InitializePhysics: Failed to retrieve IPhysicsListTool.";
+      G4Exception("G4AtlasRunManager", "CouldNotRetrievePLTool", FatalException, description);
+      abort(); // to keep Coverity happy
+    }
+  m_physListTool->SetPhysicsOptions();
+
   // Fast simulations last
   if (m_fastSimTool.retrieve().isFailure())
     {
@@ -148,79 +186,79 @@ void G4AtlasRunManager::InitializePhysics()
       abort(); // to keep Coverity happy
     }
 
-  G4UImanager *ui = G4UImanager::GetUIpointer();
-  ui->ApplyCommand("/run/setCutForAGivenParticle proton 0 mm");
+  if (m_recordFlux){
+    // @TODO move this block into a separate function.
+    G4UImanager *ui = G4UImanager::GetUIpointer();
+    ui->ApplyCommand("/run/setCutForAGivenParticle proton 0 mm");
 
-  G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
+    G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
 
-  if(!ScM) return;
+    if(!ScM) return;
 
-  //G4UImanager *ui=G4UImanager::GetUIpointer();
+    ui->ApplyCommand("/score/create/cylinderMesh cylMesh_1");
+    //                        R  Z(-24 to 24)
+    ui->ApplyCommand("/score/mesh/cylinderSize 12. 24. m");
+    //                iR iZ
+    //ui->ApplyCommand("/score/mesh/nBin 1 1 1");
+    ui->ApplyCommand("/score/mesh/nBin 120 480 1");
 
-  ui->ApplyCommand("/score/create/cylinderMesh cylMesh_1");
-  //                        R  Z(-24 to 24) 
-  ui->ApplyCommand("/score/mesh/cylinderSize 12. 24. m");
-  //                iR iZ
-  //ui->ApplyCommand("/score/mesh/nBin 1 1 1");
-  ui->ApplyCommand("/score/mesh/nBin 120 480 1");
+    ui->ApplyCommand("/score/quantity/energyDeposit eDep");
 
-  ui->ApplyCommand("/score/quantity/energyDeposit eDep");
+    ui->ApplyCommand("/score/quantity/cellFlux CF_photon");
+    ui->ApplyCommand("/score/filter/particle photonFilter gamma");
+    // above 2 line crete tally for cell flux for gamma
 
-  ui->ApplyCommand("/score/quantity/cellFlux CF_photon");
-  ui->ApplyCommand("/score/filter/particle photonFilter gamma");
-  // above 2 line crete tally for cell flux for gamma 
+    ui->ApplyCommand("/score/quantity/cellFlux CF_neutron");
+    ui->ApplyCommand("/score/filter/particle neutronFilter neutron");
 
-  ui->ApplyCommand("/score/quantity/cellFlux CF_neutron");
-  ui->ApplyCommand("/score/filter/particle neutronFilter neutron");
+    ui->ApplyCommand("/score/quantity/cellFlux CF_HEneutron");
+    ui->ApplyCommand("/score/filter/particleWithKineticEnergy HEneutronFilter 20 7000000 MeV neutron");
 
-  ui->ApplyCommand("/score/quantity/cellFlux CF_HEneutron");
-  ui->ApplyCommand("/score/filter/particleWithKineticEnergy HEneutronFilter 20 7000000 MeV neutron");
+    ui->ApplyCommand("/score/quantity/doseDeposit dose");
 
-  ui->ApplyCommand("/score/quantity/doseDeposit dose");
+    ui->ApplyCommand("/score/close");
+    ui->ApplyCommand("/score/list");
 
-  ui->ApplyCommand("/score/close");
-  ui->ApplyCommand("/score/list");
+    G4int nPar = ScM->GetNumberOfMesh();
 
-  G4int nPar = ScM->GetNumberOfMesh();
+    if(nPar<1) return;
 
-  if(nPar<1) return;
+    G4ParticleTable::G4PTblDicIterator* particleIterator
+      = G4ParticleTable::GetParticleTable()->GetIterator();
 
-  G4ParticleTable::G4PTblDicIterator* particleIterator
-   = G4ParticleTable::GetParticleTable()->GetIterator();
+    for(G4int iw=0;iw<nPar;iw++)
+      {
+        G4VScoringMesh* mesh = ScM->GetMesh(iw);
+        G4VPhysicalVolume* pWorld
+          = G4TransportationManager::GetTransportationManager()
+          ->IsWorldExisting(ScM->GetWorldName(iw));
+        if(!pWorld)
+          {
+            pWorld = G4TransportationManager::GetTransportationManager()
+              ->GetParallelWorld(ScM->GetWorldName(iw));
+            pWorld->SetName(ScM->GetWorldName(iw));
 
-  for(G4int iw=0;iw<nPar;iw++)
-  {
-    G4VScoringMesh* mesh = ScM->GetMesh(iw);
-    G4VPhysicalVolume* pWorld
-       = G4TransportationManager::GetTransportationManager()
-         ->IsWorldExisting(ScM->GetWorldName(iw));
-    if(!pWorld)
-    {
-      pWorld = G4TransportationManager::GetTransportationManager()
-         ->GetParallelWorld(ScM->GetWorldName(iw));
-      pWorld->SetName(ScM->GetWorldName(iw));
+            G4ParallelWorldScoringProcess* theParallelWorldScoringProcess
+              = new G4ParallelWorldScoringProcess(ScM->GetWorldName(iw));
+            theParallelWorldScoringProcess->SetParallelWorld(ScM->GetWorldName(iw));
 
-      G4ParallelWorldScoringProcess* theParallelWorldScoringProcess
-        = new G4ParallelWorldScoringProcess(ScM->GetWorldName(iw));
-      theParallelWorldScoringProcess->SetParallelWorld(ScM->GetWorldName(iw));
+            particleIterator->reset();
+            while( (*particleIterator)() ){
+              G4ParticleDefinition* particle = particleIterator->value();
+              G4ProcessManager* pmanager = particle->GetProcessManager();
+              if(pmanager)
+                {
+                  pmanager->AddProcess(theParallelWorldScoringProcess);
+                  pmanager->SetProcessOrderingToLast(theParallelWorldScoringProcess, idxAtRest);
+                  pmanager->SetProcessOrderingToSecond(theParallelWorldScoringProcess, idxAlongStep);
+                  pmanager->SetProcessOrderingToLast(theParallelWorldScoringProcess, idxPostStep);
+                }
+            }
+          }
 
-      particleIterator->reset();
-      while( (*particleIterator)() ){
-        G4ParticleDefinition* particle = particleIterator->value();
-        G4ProcessManager* pmanager = particle->GetProcessManager();
-        if(pmanager)
-        {
-          pmanager->AddProcess(theParallelWorldScoringProcess);
-          pmanager->SetProcessOrderingToLast(theParallelWorldScoringProcess, idxAtRest);
-          pmanager->SetProcessOrderingToSecond(theParallelWorldScoringProcess, idxAlongStep);
-          pmanager->SetProcessOrderingToLast(theParallelWorldScoringProcess, idxPostStep);
-        }
+        mesh->Construct(pWorld);
       }
-    }
-
-    mesh->Construct(pWorld);
-  }
-
+  } //if (m_recordFlux)
   return;
 }
 
@@ -314,20 +352,21 @@ bool G4AtlasRunManager::SimulateFADSEvent()
       return true;
     }
 
-  G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
-  if(ScM){
-    G4int nPar = ScM->GetNumberOfMesh();
-    G4HCofThisEvent* HCE = currentEvent->GetHCofThisEvent();
-    if(HCE && nPar>0){;
-      G4int nColl = HCE->GetCapacity();
-      for(G4int i=0;i<nColl;i++)
-      {
-        G4VHitsCollection* HC = HCE->GetHC(i);
-        if(HC) ScM->Accumulate(HC);
+  if (m_recordFlux){
+    G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
+    if(ScM){
+      G4int nPar = ScM->GetNumberOfMesh();
+      G4HCofThisEvent* HCE = currentEvent->GetHCofThisEvent();
+      if(HCE && nPar>0){;
+        G4int nColl = HCE->GetCapacity();
+        for(G4int i=0;i<nColl;i++)
+          {
+            G4VHitsCollection* HC = HCE->GetHC(i);
+            if(HC) ScM->Accumulate(HC);
+          }
       }
     }
   }
-
   //      stateManager->SetNewState(G4State_GeomClosed);
   // Register all of the collections if there are any new-style SDs
   if (m_senDetTool)
@@ -360,19 +399,20 @@ bool G4AtlasRunManager::SimulateFADSEvent()
 
 void  G4AtlasRunManager::RunTermination()
 {
-  G4UImanager *ui=G4UImanager::GetUIpointer();
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 eDep edep.txt");
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_neutron neutron.txt");
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_HEneutron HEneutron.txt");
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_photon photon.txt");
-  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 dose dose.txt");
-
+  if (m_recordFlux){
+    G4UImanager *ui=G4UImanager::GetUIpointer();
+    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 eDep edep.txt");
+    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_neutron neutron.txt");
+    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_HEneutron HEneutron.txt");
+    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_photon photon.txt");
+    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 dose dose.txt");
+  }
   // std::cout<<" this is G4AtlasRunManager::RunTermination() "<<std::endl;
 #if G4VERSION_NUMBER < 1010
   for(size_t itr=0;itr<previousEvents->size();itr++)
-  {
-    delete (*previousEvents)[itr];
-  }
+    {
+      delete (*previousEvents)[itr];
+    }
 #else
   this->CleanUpPreviousEvents();
 #endif
@@ -415,4 +455,3 @@ void G4AtlasRunManager::SetCurrentG4Event(int iEvent)
 {
   currentEvent=new G4Event(iEvent);
 }
-

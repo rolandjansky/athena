@@ -3,25 +3,16 @@
 */
 
 // Local includes
-#include "G4AtlasAlg/G4AtlasAlg.h"
-#include "G4AtlasAlg/PreEventActionManager.h"
+#include "G4AtlasAlg.h"
 
-#ifdef ATHENAHIVE
-#include "G4AtlasAlg/G4AtlasMTRunManager.h"
-#include "G4AtlasAlg/G4AtlasWorkerRunManager.h"
-#include "G4AtlasAlg/G4AtlasUserWorkerThreadInitialization.h"
-#else
-#include "G4AtlasAlg/G4AtlasRunManager.h"
-#endif
-
-// Framework includes
-#include "GaudiKernel/AlgFactory.h"
+// Can we safely include all of these?
+#include "G4AtlasMTRunManager.h"
+#include "G4AtlasWorkerRunManager.h"
+#include "G4AtlasUserWorkerThreadInitialization.h"
+#include "G4AtlasRunManager.h"
 
 // FADS includes
 #include "FadsKinematics/GeneratorCenter.h"
-#include "FadsPhysics/PhysicsListCatalog.h"
-#include "FadsPhysics/PhysicsListSteering.h"
-#include "FadsGeometry/FadsDetectorConstruction.h"
 
 // Geant4 includes
 #include "G4TransportationManager.hh"
@@ -33,6 +24,9 @@
 #include "G4StackManager.hh"
 #include "G4UImanager.hh"
 #include "G4ScoringManager.hh"
+
+// CLHEP includes
+#include "CLHEP/Random/RandomEngine.h"
 
 // EDM includes
 #include "EventInfo/EventInfo.h"
@@ -48,8 +42,9 @@ static std::once_flag finalizeOnceFlag;
 G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_rndmGenSvc("AtDSFMTGenSvc", name),
-    m_UASvc("UserActionSvc", name),              // current user action design
-    m_userActionSvc("G4UA::UserActionSvc", name) // new user action design
+    m_UASvc("UserActionSvc", name),           // current user action design
+    m_userActionSvc("G4UA::UserActionSvc", name), // new user action design
+    m_physListTool("PhysicsListToolBase")
 {
   ATH_MSG_DEBUG(std::endl << std::endl << std::endl);
   ATH_MSG_INFO("++++++++++++  G4AtlasAlg created  ++++++++++++" << std::endl << std::endl);
@@ -66,10 +61,18 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
 
   // Service instantiation
   declareProperty("AtRndmGenSvc", m_rndmGenSvc);
+  declareProperty("UserActionSvc", m_UASvc);
+  declareProperty("UserActionSvcV2", m_userActionSvc);
+  declareProperty("PhysicsListTool", m_physListTool);
 
   // Verbosities
-  m_verbosities.clear();
   declareProperty("Verbosities", m_verbosities);
+
+  // Multi-threading specific settings
+  declareProperty("MultiThreading", m_useMT=false);
+
+  // Commands to send to the G4UI
+  declareProperty("G4Commands", m_g4commands);
 }
 
 
@@ -89,23 +92,38 @@ StatusCode G4AtlasAlg::initialize()
     return StatusCode::FAILURE;
   }
 
-#ifdef ATHENAHIVE
-  // Current UA design doesn't work in hive
-#else
-  // Retrieve the user actions
-  ATH_CHECK( m_UASvc.retrieve() );
-#endif
+  // For now, we decide which user action service to setup based on which
+  // handle has a non-empty name configured. Then we can steer it from the
+  // configuration layer. This will go away when we drop V1 actions.
 
-  // New UA design should work in both worlds
-  ATH_CHECK( m_userActionSvc.retrieve() );
+  // V1 user action service
+  if( !m_UASvc.name().empty() ) {
+    ATH_CHECK( m_UASvc.retrieve() );
 
-#ifdef ATHENAHIVE
-  // Retrieve the python service to trigger its initialization. This is done
-  // here just to make sure things are initialized in the proper order.
-  // TODO: Check if this is still needed.
-  ServiceHandle<IService> pyG4Svc("PyAthena::Svc/PyG4AtlasSvc", name());
-  ATH_CHECK( pyG4Svc.retrieve() );
-#endif
+    // Make sure only one user action version is used at a time.
+    if( !m_userActionSvc.name().empty() ) {
+      ATH_MSG_ERROR("Configured to use both V1 and V2 user actions, " <<
+                    "which isn't supported!");
+      return StatusCode::FAILURE;
+    }
+    if(m_useMT) {
+      ATH_MSG_ERROR("Using V1 user action design, which won't work in MT");
+      return StatusCode::FAILURE;
+    }
+  }
+
+  // V2 user action service
+  if( !m_userActionSvc.name().empty() ) {
+    ATH_CHECK( m_userActionSvc.retrieve() );
+  }
+
+  if(m_useMT) {
+    // Retrieve the python service to trigger its initialization. This is done
+    // here just to make sure things are initialized in the proper order.
+    // Hopefully we can drop this at some point.
+    ServiceHandle<IService> pyG4Svc("PyAthena::Svc/PyG4AtlasSvc", name());
+    ATH_CHECK( pyG4Svc.retrieve() );
+  }
 
   ATH_MSG_DEBUG(std::endl << std::endl << std::endl);
   ATH_MSG_INFO("++++++++++++  G4AtlasAlg initialized  ++++++++++++" << std::endl << std::endl);
@@ -117,28 +135,35 @@ StatusCode G4AtlasAlg::initialize()
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 void G4AtlasAlg::initializeOnce()
 {
-  // Create the (master) run manager
-#ifdef ATHENAHIVE
-  auto runMgr = G4AtlasMTRunManager::GetG4AtlasMTRunManager();
-#else
-  auto runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
-  runMgr->SetReleaseGeo( m_releaseGeoModel );
-  runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
-#endif
-
   // Assign physics list
-  G4VUserPhysicsList* physicsList =
-    FADS::PhysicsListCatalog::GetInstance()->GetMainPhysicsList();
-  //runMgr->SetPhysicsList(physicsList); // Is this needed?
-  runMgr->SetUserInitialization(physicsList);
+  if(m_physListTool.retrieve().isFailure())
+    {
+      throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");
+    }
 
-  // Create/assign detector construction
-  runMgr->SetUserInitialization(new FADS::FadsDetectorConstruction);
-
-#ifdef ATHENAHIVE
-  // Worker Thread initialization used to create worker run manager on demand
-  runMgr->SetUserInitialization(new G4AtlasUserWorkerThreadInitialization);
+  // Create the (master) run manager
+  if(m_useMT) {
+#ifdef G4MULTITHREADED
+    auto runMgr = G4AtlasMTRunManager::GetG4AtlasMTRunManager();
+    m_physListTool->SetPhysicsList();
+    // Worker Thread initialization used to create worker run manager on demand.
+    // @TODO use this class to pass any configuration to worker run manager.
+    runMgr->SetUserInitialization( new G4AtlasUserWorkerThreadInitialization );
+    runMgr->SetUserInitialization( m_physListTool->GetPhysicsList() );
+#else
+    throw std::runtime_error("Trying to use multi-threading in non-MT build!");
 #endif
+  }
+  // Single-threaded run manager
+  else {
+    auto runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
+    m_physListTool->SetPhysicsList();
+    runMgr->SetReleaseGeo( m_releaseGeoModel );
+    runMgr->SetRecordFlux( m_recordFlux );
+    runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
+    runMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
+    runMgr->SetUserInitialization(m_physListTool->GetPhysicsList());
+  }
 
   // G4 user interface commands
   G4UImanager *ui = G4UImanager::GetUIpointer();
@@ -179,11 +204,10 @@ void G4AtlasAlg::initializeOnce()
   if (rndmGen=="athena" || rndmGen=="ranecu")	{
     // Set the random number generator to AtRndmGen
     if (m_rndmGenSvc.retrieve().isFailure()) {
-      // We can only retrieve void from here. Let's assume that eventually
+      // We can only return void from here. Let's assume that eventually
       // all this initialization code will be moved elsewhere (like a svc) for
       // better control. Then, for now, let's just throw.
       throw std::runtime_error("Could not initialize ATLAS Random Generator Service");
-      //return StatusCode::FAILURE;
     }
     CLHEP::HepRandomEngine* engine = m_rndmGenSvc->GetEngine("AtlasG4");
     CLHEP::HepRandom::setTheEngine(engine);
@@ -191,6 +215,11 @@ void G4AtlasAlg::initializeOnce()
   }
   else if (rndmGen=="geant4" || rndmGen.empty()) {
     ATH_MSG_INFO("Random nr. generator is set to Geant4");
+  }
+
+  // Send UI commands
+  for (auto g4command : m_g4commands){
+    ui->ApplyCommand( g4command );
   }
 
   // G4 init moved to PyG4AtlasAlg / G4AtlasEngine
@@ -253,11 +282,12 @@ StatusCode G4AtlasAlg::finalize() {
 void G4AtlasAlg::finalizeOnce() {
   ATH_MSG_DEBUG("\t terminating the current G4 run");
   // TODO: could probably just use G4RunManager base class generically.
-#ifdef ATHENAHIVE
-  auto runMgr = G4AtlasMTRunManager::GetG4AtlasMTRunManager();
-#else
-  auto runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
-#endif
+  //#ifdef ATHENAHIVE
+  //  auto runMgr = G4AtlasMTRunManager::GetG4AtlasMTRunManager();
+  //#else
+  //  auto runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
+  //#endif
+  auto runMgr = G4RunManager::GetRunManager();
   runMgr->RunTermination();
 }
 
@@ -266,8 +296,6 @@ void G4AtlasAlg::finalizeOnce() {
 StatusCode G4AtlasAlg::execute()
 {
   static int n_Event=0;
-  static PreEventActionManager *preEvent=PreEventActionManager::
-    GetPreEventActionManager();
   ATH_MSG_DEBUG(std::endl<<std::endl<<std::endl);
   ATH_MSG_INFO("++++++++++++  G4AtlasAlg execute  ++++++++++++" <<std::endl<<std::endl);
 
@@ -277,21 +305,26 @@ StatusCode G4AtlasAlg::execute()
     ATH_MSG_ALWAYS("G4AtlasAlg: Event num. "  << n_Event << " start processing");
   }
 
-  // TODO: is this thread safe??
-  preEvent->Execute();
-
   ATH_MSG_DEBUG("Calling SimulateG4Event");
 
   // Worker run manager
   // Custom class has custom method call: SimulateFADSEvent.
   // So, grab custom singleton class directly, rather than base.
   // Maybe that should be changed! Then we can use a base pointer.
-#ifdef ATHENAHIVE
-  auto workerRM = G4AtlasWorkerRunManager::GetG4AtlasWorkerRunManager();
+  bool abort = false;
+  if(m_useMT) {
+#ifdef G4MULTITHREADED
+    auto workerRM = G4AtlasWorkerRunManager::GetG4AtlasWorkerRunManager();
+    abort = workerRM->SimulateFADSEvent();
 #else
-  auto workerRM = G4AtlasRunManager::GetG4AtlasRunManager();
+    ATH_MSG_ERROR("Trying to use multi-threading in non-MT build!");
+    return StatusCode::FAILURE;
 #endif
-  bool abort = workerRM->SimulateFADSEvent();
+  }
+  else {
+    auto workerRM = G4AtlasRunManager::GetG4AtlasRunManager();
+    abort = workerRM->SimulateFADSEvent();
+  }
 
   if (abort) {
     ATH_MSG_WARNING("Event was aborted !! ");
@@ -304,12 +337,12 @@ StatusCode G4AtlasAlg::execute()
       // TODO: update to VarHandle
       const DataHandle<EventInfo> eic = 0;
       if ( sgSvc()->retrieve( eic ).isFailure() || !eic ){
-	ATH_MSG_WARNING( "Failed to retrieve EventInfo" );
+        ATH_MSG_WARNING( "Failed to retrieve EventInfo" );
       } else {
-	// Gotta cast away the const... sadface
-	EventInfo *ei = const_cast< EventInfo * > (&(*eic));
-	ei->setErrorState(EventInfo::Core,EventInfo::Error);
-	ATH_MSG_WARNING( "Set error state in event info!" );
+        // Gotta cast away the const... sadface
+        EventInfo *ei = const_cast< EventInfo * > (&(*eic));
+        ei->setErrorState(EventInfo::Core,EventInfo::Error);
+        ATH_MSG_WARNING( "Set error state in event info!" );
       }
     }
   }

@@ -2,21 +2,24 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4AtlasAlg_H
-#define G4AtlasAlg_H
+#ifndef G4ATLASALG_G4AtlasAlg_H
+#define G4ATLASALG_G4AtlasAlg_H
 
+// Base class header
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
+
+// Athena headers
 #include "AthenaKernel/IAtRndmGenSvc.h"
-
 #include "G4AtlasInterfaces/IUserActionSvc.h"
+#include "G4AtlasInterfaces/IPhysicsListTool.h"
 
-#include <string>
+// Gaudi headers
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+// STL headers
 #include <map>
-
-// Forward declarations
-template <class ConcreteAlgorithm> class AlgFactory;
-
+#include <string>
 
 /// @class G4AtlasAlg
 /// @brief Primary Athena algorithm for ATLAS simulation.
@@ -31,8 +34,6 @@ template <class ConcreteAlgorithm> class AlgFactory;
 ///
 class G4AtlasAlg : public AthAlgorithm
 {
-
-  friend class AlgFactory<G4AtlasAlg>;
 
 public:
 
@@ -81,7 +82,14 @@ private:
   bool m_killAbortedEvents;
   bool m_flagAbortedEvents;
 
+  /// Verbosity settings for Geant4
   std::map<std::string,std::string> m_verbosities;
+
+  /// Commands to send to the G4 UI
+  std::vector<std::string> m_g4commands;
+
+  /// Activate multi-threading configuration
+  bool m_useMT;
 
   /// Random number service
   ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
@@ -89,7 +97,9 @@ private:
   ServiceHandle<IUserActionSvc> m_UASvc;
   /// New user action service implementation
   ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
+  /// Physics List Tool
+  ToolHandle<IPhysicsListTool> m_physListTool;
 
 };
 
-#endif
+#endif// G4ATLASALG_G4AtlasAlg_H

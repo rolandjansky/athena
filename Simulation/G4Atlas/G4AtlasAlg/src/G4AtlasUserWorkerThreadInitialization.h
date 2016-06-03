@@ -5,6 +5,9 @@
 #ifndef G4ATLASALG_G4ATLASUSERWORKERTHREADINITIALIZATION_H
 #define G4ATLASALG_G4ATLASUSERWORKERTHREADINITIALIZATION_H
 
+// Hide multi-threading classes from builds without G4MT
+#ifdef G4MULTITHREADED
+
 #include "G4UserWorkerThreadInitialization.hh"
 
 /// @brief ATLAS custom class for thread initialization functionality
@@ -32,5 +35,7 @@ public:
   G4WorkerRunManager* CreateWorkerRunManager() const;
 
 }; // class G4AtlasUserWorkerThreadInitialization
+
+#endif // G4MULTITHREADED
 
 #endif

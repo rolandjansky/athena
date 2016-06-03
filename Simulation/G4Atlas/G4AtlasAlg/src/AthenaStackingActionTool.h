@@ -9,7 +9,7 @@
 #include <string>
 
 // Local includes
-#include "G4AtlasAlg/AthenaStackingAction.h"
+#include "AthenaStackingAction.h"
 
 // Infrastructure includes
 #include "G4AtlasInterfaces/IStackingActionTool.h"

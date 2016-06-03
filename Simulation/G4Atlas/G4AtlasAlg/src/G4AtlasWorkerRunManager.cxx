@@ -2,7 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "G4AtlasAlg/G4AtlasWorkerRunManager.h"
+// Hide multi-threading classes from builds without G4MT
+#ifdef G4MULTITHREADED
+
+#include "G4AtlasWorkerRunManager.h"
 
 #include "G4StateManager.hh"
 #include "G4Event.hh"
@@ -25,13 +28,13 @@
 
 #include <mutex>
 
-static std::mutex _workerSDMutex;
 static std::mutex _workerActionMutex;
 
 G4AtlasWorkerRunManager::G4AtlasWorkerRunManager()
   : G4WorkerRunManager(),
     m_msg("G4AtlasWorkerRunManager"),
     // TODO: what if we need to make these configurable?
+    m_detGeoSvc("DetectorGeometrySvc", "G4AtlasWorkerRunManager"),
     m_senDetTool("SensitiveDetectorMasterTool"),
     //m_fastSimTool("FastSimulationMasterTool"),
     m_userActionSvc("G4UA::UserActionSvc", "G4AtlasWorkerRunManager")
@@ -51,19 +54,15 @@ void G4AtlasWorkerRunManager::Initialize()
 {
   ATH_MSG_INFO("Initialize");
 
-  // Setup the user actions on each worker.
-  // We lock this for now to initialize safely.
-  {
-    std::lock_guard<std::mutex> lock(_workerActionMutex);
-    ATH_MSG_INFO("Initializing user actions for worker thread");
-    if(m_userActionSvc.retrieve().isFailure()) {
-      throw GaudiException("Could not retrieve UserActionSvc for worker thread",
-                           "CouldNotRetrieveUASvc", StatusCode::FAILURE);
-    }
-    if(m_userActionSvc->initializeActions().isFailure()) {
-      throw GaudiException("Failed to initialize actions for worker thread",
-                           "WorkerThreadInitError", StatusCode::FAILURE);
-    }
+  // Setup the user actions for current worker thread.
+  ATH_MSG_INFO("Initializing user actions for worker thread");
+  if(m_userActionSvc.retrieve().isFailure()) {
+    throw GaudiException("Could not retrieve UserActionSvc for worker thread",
+                         "CouldNotRetrieveUASvc", StatusCode::FAILURE);
+  }
+  if(m_userActionSvc->initializeActions().isFailure()) {
+    throw GaudiException("Failed to initialize actions for worker thread",
+                         "WorkerThreadInitError", StatusCode::FAILURE);
   }
 
   // Setup geometry and physics via the base class
@@ -93,18 +92,24 @@ void G4AtlasWorkerRunManager::InitializeGeometry()
   kernel->SetNumberOfParallelWorld(masterKernel->GetNumberOfParallelWorld());
 
   // Setup the sensitive detectors on each worker.
-  // We lock this to allow SD tools to initialize safely.
-  {
-    std::lock_guard<std::mutex> lock(_workerSDMutex);
-    ATH_MSG_INFO("Initializing the SDs for this thread");
-    if(m_senDetTool.retrieve().isFailure()){
-      throw GaudiException("Could not retrieve SD master tool",
-                           "CouldNotRetrieveSDMaster", StatusCode::FAILURE);
-    }
-    if(m_senDetTool->initializeSDs().isFailure()){
-      throw GaudiException("Failed to initialize SDs for worker thread",
-                           "WorkerThreadInitError", StatusCode::FAILURE);
-    }
+  ATH_MSG_INFO("Initializing the SDs for this thread");
+  if(m_senDetTool.retrieve().isFailure()){
+    throw GaudiException("Could not retrieve SD master tool",
+                         "CouldNotRetrieveSDMaster", StatusCode::FAILURE);
+  }
+  if(m_senDetTool->initializeSDs().isFailure()){
+    throw GaudiException("Failed to initialize SDs for worker thread",
+                         "WorkerThreadInitError", StatusCode::FAILURE);
+  }
+
+  // Set up the detector magnetic field
+  if(m_detGeoSvc.retrieve().isFailure()) {
+    throw GaudiException("Could not retrieve det geo svc",
+                         "CouldNotRetrieveDetGeoSvc", StatusCode::FAILURE);
+  }
+  if(m_detGeoSvc->initializeFields().isFailure()) {
+    throw GaudiException("Failed to initialize mag field for worker thread",
+                         "WorkerThreadInitError", StatusCode::FAILURE);
   }
 
   // These currently do nothing because we don't override
@@ -177,3 +182,5 @@ void G4AtlasWorkerRunManager::RunTermination()
   // Maybe I can just use the base class?
   G4WorkerRunManager::RunTermination();
 }
+
+#endif // G4MULTITHREADED

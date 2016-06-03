@@ -2,7 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "G4AtlasAlg/G4AtlasMTRunManager.h"
+// Hide multi-threading classes from builds without G4MT
+#ifdef G4MULTITHREADED
+
+#include "G4AtlasMTRunManager.h"
 
 #include "G4StateManager.hh"
 #include "G4GeometryManager.hh"
@@ -24,7 +27,9 @@
 
 G4AtlasMTRunManager::G4AtlasMTRunManager()
   : G4MTRunManager(),
-    m_msg("G4AtlasMTRunManager")
+    m_msg("G4AtlasMTRunManager"),
+    m_detGeoSvc("DetectorGeometrySvc", "G4AtlasMTRunManager"),
+    m_physListTool("PhysicsListToolBase")
 {}
 
 
@@ -56,6 +61,8 @@ void G4AtlasMTRunManager::Initialize()
 void G4AtlasMTRunManager::InitializeGeometry()
 {
   ATH_MSG_INFO("InitializeGeometry");
+
+  // Set smartlessness
   G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
   for (unsigned int i = 0 ; i < lvs->size(); ++i){
     if ( (*lvs)[i]->GetName() == "Muon::MuonSys" ){
@@ -67,10 +74,23 @@ void G4AtlasMTRunManager::InitializeGeometry()
     }
   }
 
+  // Retrieve detector geo service
+  if (m_detGeoSvc.retrieve().isFailure()) {
+    ATH_MSG_ERROR("Could not retrieve the DetectorGeometrySvc");
+    G4ExceptionDescription description;
+    description << "InitializeGeometry: Failed to retrieve IDetectorGeometrySvc.";
+    G4Exception("G4AtlasMTRunManager", "CouldNotRetrieveDetGeoSvc",
+                FatalException, description);
+    abort(); // to keep Coverity happy
+  }
+
+  // Create/assign detector construction
+  SetUserInitialization( m_detGeoSvc->GetDetectorConstruction() );
   if (userDetector) {
     G4RunManager::InitializeGeometry();
   } else {
-    ATH_MSG_WARNING( " User Detector not set!!! Geometry NOT initialized!!!" );
+    // Shouldn't we abort here?
+    ATH_MSG_WARNING("User Detector not set!!! Geometry NOT initialized!!!");
   }
 
   // Setup the sensitive detectors on master.
@@ -84,9 +104,23 @@ void G4AtlasMTRunManager::InitializeGeometry()
 void G4AtlasMTRunManager::InitializePhysics() {
   ATH_MSG_INFO("InitializePhysics");
   kernel->InitializePhysics();
+
   // TODO: find out if we need the special Bertini handling here
   G4CascadeInterface::Initialize();
   physicsInitialized = true;
+
+  // Grab the physics list tool and set the extra options
+  if (m_physListTool.retrieve().isFailure()) {
+    ATH_MSG_ERROR("Could not retrieve the physics list tool");
+    G4ExceptionDescription description;
+    description << "InitializePhysics: Failed to retrieve IPhysicsListTool.";
+    G4Exception("G4AtlasMTRunManager", "CouldNotRetrievePLTool",
+                FatalException, description);
+    abort(); // to keep Coverity happy
+  }
+  m_physListTool->SetPhysicsOptions();
+
+  // TODO: parallel worlds stuff here
 }
 
 
@@ -125,3 +159,5 @@ void G4AtlasMTRunManager::RunTermination()
   userDetector=0;
   userPrimaryGeneratorAction=0;
 }
+
+#endif // G4MULTITHREADED
