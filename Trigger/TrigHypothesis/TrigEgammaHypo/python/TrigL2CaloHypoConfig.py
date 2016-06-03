@@ -83,7 +83,8 @@ class L2CaloHypo_EtCut (TrigL2CaloHypoBase):
         self.AcceptAll = False
 
 	#L2 Threshold
-        self.ETthr          = [(float(threshold) -  5)*GeV]*9
+        #Using 3 GeV below HLT threshold (based on emulation studies)
+        self.ETthr          = [(float(threshold) -  3)*GeV]*9
         # No other cuts applied
         self.dETACLUSTERthr = 9999.
         self.dPHICLUSTERthr = 9999.
@@ -100,8 +101,8 @@ class L2CaloHypo_e_ID (TrigL2CaloHypoBase):
     def __init__(self, name, threshold, IDinfo):
         super( L2CaloHypo_e_ID, self ).__init__( name ) 
         self.AcceptAll = False
-        # self.emEt = float(threshold)*GeV # Change to single cut
-        self.ETthr          = [(float(threshold) - 5)*GeV]*9
+        #Using 3 GeV below HLT threshold (based on emulation studies)
+        self.ETthr          = [(float(threshold) - 3)*GeV]*9
         # e24 cuts        
         self.CAERATIOthr    = [-999., -999., -999., -999., -999., -999., -999., -999., -999.]
         self.HADETthr       = [0.013, 0.013, 0.013, 0.013, 0.013, 0.023, 0.018, 0.017, 0.017]
