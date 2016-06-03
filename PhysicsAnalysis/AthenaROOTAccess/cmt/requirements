@@ -58,4 +58,7 @@ apply_pattern lcgdict dict=AthenaROOTAccessTest selectionfile=test_selection.xml
 
 macro_append AthenaROOTAccess_shlibflags " -lPyROOT"
 
+# Add the PyROOT dependency for CMake as well:
+apply_pattern cmake_add_command command="find_package( ROOT COMPONENTS PyROOT )"
+
 #macro_append DVCollectionProxy_test_use_linkopts "  -ldl -Wl,--no-as-needed  -lCling  -ldl -Wl,--as-needed  "

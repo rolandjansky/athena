@@ -12,8 +12,8 @@
 
 
 #include "AthenaROOTAccess/branchSeek.h"
+#include "RootUtils/TBranchElementClang.h"
 #include "TBranch.h"
-#include "TBranchElement.h"
 #include "TObjArray.h"
 #include <cstring>
 

@@ -31,7 +31,7 @@ class HIEventShapeContainer_v1_fixup
 public:
   /// Run fixup on an object that has just been read in, before associating
   /// aux data.
-  virtual void fixupBeforeAux (void* data) override;
+  virtual void fixupBeforeAux (void* data, long long entry) override;
 };
 
 

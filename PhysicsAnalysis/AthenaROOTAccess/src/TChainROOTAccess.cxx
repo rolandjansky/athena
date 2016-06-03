@@ -14,6 +14,8 @@
 #include "AthenaROOTAccess/TChainROOTAccess.h"
 #include "TROOT.h"
 #include "TError.h"
+#include "TTreeCache.h"
+#include "TFile.h"
 #include <set>
 
 
@@ -81,6 +83,22 @@ void TChainROOTAccess::ResetAll()
        i != s_allchains.end();
        ++i)
     (*i)->Reset();
+}
+
+
+/**
+ * @brief Work around caching crash.
+ */
+Long64_t  TChainROOTAccess::LoadTree(Long64_t entry)
+{
+  if (fFile && fTree) {
+    TTreeCache* c = dynamic_cast<TTreeCache*>(fFile->GetCacheRead (fTree));
+    if (c) {
+      c->ResetCache();
+      fFile->SetCacheRead (nullptr, fTree);
+    }
+  }
+  return TChain::LoadTree (entry);
 }
 
 

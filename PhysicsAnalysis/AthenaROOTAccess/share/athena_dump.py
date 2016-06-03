@@ -29,7 +29,7 @@ theApp.AuditServices=False
 topSequence = AlgSequence()
 
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = 'ATLAS-GEO-02-01-00'
+jobproperties.Global.DetDescrVersion = 'ATLAS-R1-2012-03-01-00'
 import AtlasGeoModel.GeoModelInit
 import AtlasGeoModel.SetGeometryVersion
 svcMgr.GeoModelSvc.IgnoreTagDifference = True
@@ -41,6 +41,15 @@ EventCnvSuperTool = \
 EventCnvSuperTool.DoMuons = False
 EventCnvSuperTool.DoID = False
 ToolSvc += EventCnvSuperTool
+
+from AthenaServices.AthenaServicesConf import FPEControlSvc
+svcMgr += FPEControlSvc()
+theApp.CreateSvc += [ svcMgr.FPEControlSvc.getFullJobOptName() ]
+
+# Work around borked PPS --- it can't find its input file with the
+# default setting.
+from PartPropSvc.PartPropSvcConf import PartPropSvc
+svcMgr += PartPropSvc(InputFile='PDGTABLE.MeV=PDG')
 
 
 import xAODJetCnv.ParticleJetCompatibility

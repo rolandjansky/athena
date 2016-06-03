@@ -64,7 +64,7 @@ getPrimaryTrackParticleLink(xAOD::MuonAuxContainer_v1* aux,
 namespace AthenaROOTAccess {
 
 
-void MuonAuxContainer_v1_fixup::fixupAfterAux (void* data)
+void MuonAuxContainer_v1_fixup::fixupAfterAux (void* data, long long /*entry*/)
 {
   xAOD::MuonAuxContainer_v1* aux =
     reinterpret_cast<xAOD::MuonAuxContainer_v1*> (data);

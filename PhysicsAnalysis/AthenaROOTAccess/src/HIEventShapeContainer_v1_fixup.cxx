@@ -20,7 +20,8 @@
 namespace AthenaROOTAccess {
 
 
-void HIEventShapeContainer_v1_fixup::fixupBeforeAux (void* data)
+void HIEventShapeContainer_v1_fixup::fixupBeforeAux (void* data,
+                                                     long long /*entry*/)
 {
   xAOD::HIEventShapeContainer_v1* c =
     reinterpret_cast<xAOD::HIEventShapeContainer_v1*> (data);

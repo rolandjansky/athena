@@ -36,11 +36,11 @@ public:
 
   /// Run fixup on an object that has just been read in, before associating
   /// aux data.
-  virtual void fixupBeforeAux (void* /*data*/) {}
+  virtual void fixupBeforeAux (void* /*data*/, long long /*entry*/) {}
 
   /// Run fixup on an object that has just been read in, after associating
   /// aux data.
-  virtual void fixupAfterAux (void* /*data*/) {}
+  virtual void fixupAfterAux (void* /*data*/, long long /*entry*/) {}
 };
 
 

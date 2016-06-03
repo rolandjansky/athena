@@ -19,8 +19,8 @@
 
 #include "AthenaROOTAccess/IAuxBranches.h"
 #include "GaudiKernel/ClassID.h"
-#include "SGTools/IStringPool.h"
-#include "TBranchObject.h"
+#include "AthenaKernel/IStringPool.h"
+#include "TBranch.h"
 #include "TMethodCall.h"
 #include "GaudiKernel/MsgStream.h"
 #include <string>
@@ -55,7 +55,7 @@ class IARAFixup;
  * Note: writing to the branch is unimplemented and may behave strangely!
  */
 class TBranchAlias
-  : public TBranchObject, public IAuxBranches
+  : public TBranch, public IAuxBranches
 {
 public:
   /// Destructor.
@@ -88,7 +88,7 @@ public:
    * @param getall If true, ignore branch disable flags.
    * @return The number of bytes read.
    */
-  virtual Int_t GetEntry(Long64_t entry, Int_t getall = 0);
+  virtual Int_t GetEntry(Long64_t entry, Int_t getall = 0) override;
 
 
   /**
@@ -97,7 +97,7 @@ public:
    *
    * This will be forwarded to the aliased branch.
    */
-  virtual void SetAddress (void* addr);
+  virtual void SetAddress (void* addr) override;
 
 
   /**
@@ -106,12 +106,14 @@ public:
    * We'll arrange for this to be called whenever we move to a new
    * file for the target tree.  (Only applicable if it's a chain.)
    */
-  virtual Bool_t      Notify();
+  virtual Bool_t      Notify() override;
+
+  virtual const char* GetClassName() const override;
 
 
-  virtual std::vector<IAuxBranches::auxpair_t> auxBranches() const;
-  virtual TBranch* findAuxBranch (SG::auxid_t auxid) const;
-  virtual StatusCode readAuxBranch (TBranch& br, void* p, long long entry);
+  virtual std::vector<IAuxBranches::auxpair_t> auxBranches() const override;
+  virtual TBranch* findAuxBranch (SG::auxid_t auxid) const override;
+  virtual StatusCode readAuxBranch (TBranch& br, void* p, long long entry) override;
 
 
   /**
@@ -121,7 +123,7 @@ public:
   void setFixup (IARAFixup* fixup);
 
 
-  ClassDef (AthenaROOTAccess::TBranchAlias, 1);
+  ClassDefOverride (AthenaROOTAccess::TBranchAlias, 1);
 
 
 private:
@@ -147,8 +149,9 @@ private:
   /**
    * @brief Set/clear the aux store for our object.
    * @param clear If true, clear the store; otherwise set it if possible.
+   * @param entry Entry number being read.
    */
-  void setStore (bool clear);
+  void setStore (bool clear, long long entry);
 
 
   /**
@@ -227,6 +230,8 @@ private:
 
   /// Fixup to run after reading the branch, if any.
   std::unique_ptr<IARAFixup> m_fixup;
+
+  std::string m_className;
 
   // Disallow copying
   TBranchAlias& operator= (const TBranchAlias&);

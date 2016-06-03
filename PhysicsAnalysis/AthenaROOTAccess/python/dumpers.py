@@ -59,7 +59,24 @@ known_missing = ["egDetailContainer",
                  "BCM_RDO_Container_p0",
                  "TileCellContainer",
                  "TrackCollection",
+                 "BCM_CompactDOs",
+                 "ConverterMBoySegments",
+                 "MooreSegments",
+                 "MuGirlSegments",
+                 'CosmicMuonCollection_tlp1',
+                 'MdtTrackSegmentCollection_p2',
                  ]
+
+_skipTypes = ['DataVector<Trk::Segment>',
+              'DataVector<Trk::Track>',
+              'CosmicMuonCollection',
+              'MdtTrackSegmentCollection',
+              'CaloCellContainer',
+              'CaloCompactCellContainer',
+              'CaloCellLinkContainer',
+              'CaloClusterCellLinkContainer',
+              'CaloCompactCellContainer',
+              ]
 
 _skipBranches = []
 
@@ -103,6 +120,11 @@ def tree_find_type (dhe, tree):
             keys.append (v)
     for k in keys:
         obj = getattr (tree, k, None)
+        if not obj:
+           br = tree.getPersTree().GetBranch(k)
+           if br:
+              dhe.transtype = br.GetClassName()
+              break
         if obj:
             clsname = obj.__class__.__name__
             if clsname.startswith ('ROOT.'):
@@ -113,7 +135,7 @@ def tree_find_type (dhe, tree):
 
         
 
-_typedefs = [('AthenaHitsVector<TrackRecord>' , 'TrackRecordCollection'),
+_typedefs = [('AtlasHitsVector<TrackRecord>'  , 'TrackRecordCollection'),
              ('DataVector<Trk::Segment>'      , 'Trk::SegmentCollection'),
              ('TileContainer<TileMu>'         , 'TileMuContainer'),
              ('DataVector<xAOD::BTagging_v1>' , 'xAOD::BTaggingContainer_v1'),
@@ -132,7 +154,12 @@ _typedefs = [('AthenaHitsVector<TrackRecord>' , 'TrackRecordCollection'),
              ('DataVector<xAOD::Jet_v1>'      , 'xAOD::JetContainer'),
              ('DataVector<xAOD::TauJet_v1>'   , 'xAOD::TauJetContainer_v1'),
              ('DataVector<xAOD::TauJet_v2>'   , 'xAOD::TauJetContainer_v2'),
-             ('DataVector<xAOD::TauJet_v2>'   , 'xAOD::TauJetContainer'),
+             ('DataVector<xAOD::TauJet_v3>'   , 'xAOD::TauJetContainer_v3'),
+             ('DataVector<xAOD::TauJet_v3>'   , 'xAOD::TauJetContainer'),
+             ('DataVector<xAOD::TauTrack_v1>' , 'xAOD::TauTrackContainer_v1'),
+             ('DataVector<xAOD::TauTrack_v1>' , 'xAOD::TauTrackContainer'),
+             ('DataVector<xAOD::Particle_v1>' , 'xAOD::ParticleContainer_v1'),
+             ('DataVector<xAOD::Particle_v1>' , 'xAOD::ParticleContainer'),
              ('DataVector<xAOD::TrackParticle_v1>','xAOD::TrackParticleContainer_v1'),
              ('DataVector<xAOD::TrackParticle_v1>','xAOD::TrackParticleContainer'),
              ('DataVector<xAOD::Vertex_v1>'   , 'xAOD::VertexContainer_v1'),
@@ -166,7 +193,8 @@ _typedefs = [('AthenaHitsVector<TrackRecord>' , 'TrackRecordCollection'),
              ('DataVector<xAOD::SlowMuon_v1>','xAOD::SlowMuonContainer_v1'),
              ('DataVector<xAOD::SlowMuon_v1>','xAOD::SlowMuonContainer'),
              ('DataVector<xAOD::L2StandAloneMuon_v1>','xAOD::L2StandAloneMuonContainer_v1'),
-             ('DataVector<xAOD::L2StandAloneMuon_v1>','xAOD::L2StandAloneMuonContainer'),
+             ('DataVector<xAOD::L2StandAloneMuon_v2>','xAOD::L2StandAloneMuonContainer_v2'),
+             ('DataVector<xAOD::L2StandAloneMuon_v2>','xAOD::L2StandAloneMuonContainer'),
              ('DataVector<xAOD::TrigComposite_v1>','xAOD::TrigCompositeContainer_v1'),
              ('DataVector<xAOD::TrigComposite_v1>','xAOD::TrigCompositeContainer'),
              ('DataVector<xAOD::TrigSpacePointCounts_v1>','xAOD::TrigSpacePointCountsContainer_v1'),
@@ -196,6 +224,10 @@ _typedefs = [('AthenaHitsVector<TrackRecord>' , 'TrackRecordCollection'),
              ('DataVector<xAOD::TruthPileupEvent_v1>' , 'xAOD::TruthPileupEventContainer'),
              ('DataVector<xAOD::HIEventShape_v2>' , 'xAOD::HIEventShapeContainer'),
              ('DataVector<xAOD::HIEventShape_v1>' , 'xAOD::HIEventShapeContainer_v1'),
+             ('DataVector<xAOD::DiTauJet_v1>' , 'xAOD::DiTauJetContainer'),
+             ('DataVector<xAOD::DiTauJet_v1>' , 'xAOD::DiTauJetContainer_v1'),
+             ('DataVector<xAOD::TrigPassBits_v1>' , 'xAOD::TrigPassBitsContainer'),
+             ('DataVector<xAOD::TrigPassBits_v1>' , 'xAOD::TrigPassBitsContainer_v1'),
              
              ('xAOD::MissingETContainer_v1'    , 'xAOD::MissingETContainer'),
              ('xAOD::MissingETComponentMap_v1' , 'xAOD::MissingETComponentMap'),
@@ -204,9 +236,10 @@ _typedefs = [('AthenaHitsVector<TrackRecord>' , 'TrackRecordCollection'),
              ('xAOD::TrigDecision_v1'          , 'xAOD::TrigDecision'),
              ('xAOD::TrigConfKeys_v1'          , 'xAOD::TrigConfKeys'),
              ('xAOD::JetEtRoI_v1'              , 'xAOD::JetEtRoI'),
-             ('xAOD::EnergySumRoI_v1'          , 'xAOD::EnergySumRoI'),
+             ('xAOD::EnergySumRoI_v2'          , 'xAOD::EnergySumRoI'),
              ('xAOD::EventShape_v1'            , 'xAOD::EventShape'),
              ('xAOD::TrigNavigation_v1'        , 'xAOD::TrigNavigation'),
+             ('xAOD::RoiDescriptorStore_v1'    , 'xAOD::RoiDescriptorStore'),
              ]
 
 class Evdump:
@@ -295,6 +328,8 @@ class Evdump:
         print >> self.f, "=== New event ==="
         print >> self.f_rand, "=== New event ==="
         for d in Dumpers.dumpspecs:
+            if d[0] in _skipTypes:
+               continue
             dhes = self.types.get (d[0])
             dumper = d[1]
             nolist = hasattr (dumper, 'nolist') and dumper.nolist
@@ -319,7 +354,7 @@ class Evdump:
                     fout = self.f
                 print >>fout, '--> %s/%s' % (d[0], keyprint)
                 obj = getter (d, dhe, keyprint)
-                if obj == None:
+                if not obj:
                     pass # print >> fout, '   (None)'
                 elif nolist:
                     dumper (obj, fout)

@@ -24,9 +24,9 @@
 #include "AthAllocators/Arena.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/TransientAddress.h"
+#include "RootUtils/TBranchElementClang.h"
 #include "TROOT.h"
 #include "TTree.h"
-#include "TBranchElement.h"
 #include "TClass.h"
 #include "TBaseClass.h"
 #include "TError.h"
@@ -47,6 +47,17 @@ struct Inc
   ~Inc () { --m_target; }
   int& m_target;
 };
+
+bool is_p_class (const TClass* cl)
+{
+  const char* clname = cl->GetName();
+  const char* p = clname + strlen(clname);
+  while (p > clname && isdigit(p[-1]))
+    --p;
+  if (p - clname > 2 && p[-1] == 'p' && p[-2] == '_')
+    return true;
+  return false;
+}
 }
 
 
@@ -75,7 +86,9 @@ TBranchTPConvert::TBranchTPConvert()
     m_duplicateExtConverterID (false),
     m_saw_err (false),
     m_browse_count (0),
-    m_reading_entry (-1)
+    m_reading_entry (-1),
+    m_trans_holder_offset (-1),
+    m_pers_holder_offset (-1)
 {
 }
 
@@ -241,22 +254,21 @@ void TBranchTPConvert::Reset (Option_t* /*=""*/)
 
 /**
  * @brief Standard Root notify routine.
- *
- * This will be called when we're part of an aux tree,
- * and the primary tree has switched files.
  */
 Bool_t TBranchTPConvert::Notify()
 {
   Reset();
 
-  // Find our new persistent tree.
-  TDirectory* dir = m_pers_tree_primary->GetTree()->GetDirectory();
-  m_pers_tree = dynamic_cast<TTree*> (dir->Get (m_pers_tree_name.c_str()));
-  if (!m_pers_tree) {
-    // This can happen for external trees.
-    if (strncmp (m_pers_tree_name.c_str(), "POOLContainer_", 14) != 0) {
-      ::Error ("TBranchTPConvert",
-               "Can't find aux pers tree %s", m_pers_tree_name.c_str());
+  if (m_pers_tree_primary) {
+    // Find our new persistent tree.
+    TDirectory* dir = m_pers_tree_primary->GetTree()->GetDirectory();
+    m_pers_tree = dynamic_cast<TTree*> (dir->Get (m_pers_tree_name.c_str()));
+    if (!m_pers_tree) {
+      // This can happen for external trees.
+      if (strncmp (m_pers_tree_name.c_str(), "POOLContainer_", 14) != 0) {
+        ::Error ("TBranchTPConvert",
+                 "Can't find aux pers tree %s", m_pers_tree_name.c_str());
+      }
     }
   }
 
@@ -515,10 +527,14 @@ TBranchTPConvert::TBranchTPConvert (TTreeTrans* tree,
     m_browse_count (0),
     m_reading_entry (-1)
 {
-  // If this is a branch in an aux tree, then set up the notification hook.
+  // Set up the notification hook.
   if (m_pers_tree_primary) {
     m_notify_chain = perstree_primary->GetNotify();
     perstree_primary->SetNotify (this);
+  }
+  else {
+    m_notify_chain = perstree->GetNotify();
+    perstree->SetNotify (this);
   }
 
   // Set up aux store handling.
@@ -532,7 +548,7 @@ TBranchTPConvert::TBranchTPConvert (TTreeTrans* tree,
   }
   if (holder_cl) {
     TClass* cl = TClass::GetClass (m_pers_branch->GetClassName());
-    if (cl)
+    if (cl && !is_p_class (cl))
       m_pers_holder_offset = cl->GetBaseClassOffset (holder_cl);
   }
 }

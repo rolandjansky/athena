@@ -159,22 +159,24 @@ void* DataBucketVoid::cast (const std::type_info& tinfo,
     }
   }
 
-  if (castobj == 0) {
-    if (!m_baseOffsetMeth.IsValid()) {
-      ::Error ("DataBucketVoid", "Invalid %s::baseOffset",
-               m_cl->GetName());
+  if (castobj == 0 && m_baseOffsetMeth.IsValid()) {
+    m_baseOffsetMeth.ResetParam();
+    m_baseOffsetMeth.SetParam (reinterpret_cast<Long_t> (m_ptr));
+    m_baseOffsetMeth.SetParam (reinterpret_cast<Long_t> (m_dvptr));
+    m_baseOffsetMeth.SetParam (reinterpret_cast<Long_t> (&tinfo));
+    Long_t ret = 0;
+    m_baseOffsetMeth.Execute (ret);
+    if (ret >= 0) {
+      castobj = reinterpret_cast<char*>(m_dvptr) + ret;
+      m_offsets.emplace_back (&tinfo, ret);
     }
-    else {
-      m_baseOffsetMeth.ResetParam();
-      m_baseOffsetMeth.SetParam (reinterpret_cast<Long_t> (m_ptr));
-      m_baseOffsetMeth.SetParam (reinterpret_cast<Long_t> (m_dvptr));
-      m_baseOffsetMeth.SetParam (reinterpret_cast<Long_t> (&tinfo));
-      Long_t ret = 0;
-      m_baseOffsetMeth.Execute (ret);
-      if (ret >= 0) {
-        castobj = reinterpret_cast<char*>(m_dvptr) + ret;
-        m_offsets.emplace_back (&tinfo, ret);
-      }
+  }
+
+  if (castobj == 0) {
+    int offs = m_cl->GetBaseClassOffset (cl);
+    if (offs >= 0) {
+      castobj = reinterpret_cast<char*>(m_dvptr) + offs;
+      m_offsets.emplace_back (&tinfo, offs);
     }
   }
 

@@ -41,16 +41,17 @@ namespace AthenaROOTAccess {
   {
   public:
      AuxStoreARA(IAuxBranches &container, long long entry, bool standalone=false);
-     virtual ~AuxStoreARA() {}
+     virtual ~AuxStoreARA() override;
 
      void GetEntry (long long entry);
+     void SetEntry (long long entry) { m_entry = entry; }
 
      /// implementation of the IAuxStore interface
-     virtual const void*                getData(SG::auxid_t auxid) const;
-     virtual void*                      getData(SG::auxid_t auxid, size_t size, size_t capacity);
+     virtual const void*                getData(SG::auxid_t auxid) const override;
+     virtual void*                      getData(SG::auxid_t auxid, size_t size, size_t capacity) override;
 
      ///  implementation of the IAuxStoreIO interface
-     virtual const void*                getIOData(SG::auxid_t auxid) const;
+     virtual const void*                getIOData(SG::auxid_t auxid) const override;
 
 
      /**
@@ -61,7 +62,7 @@ namespace AthenaROOTAccess {
       * @param capacity The current capacity of the container (in case
       *                 the data item does not already exist).
       */
-     void* getDecoration (SG::auxid_t auxid, size_t size, size_t capacity);
+     virtual void* getDecoration (SG::auxid_t auxid, size_t size, size_t capacity) override;
 
     
   protected:

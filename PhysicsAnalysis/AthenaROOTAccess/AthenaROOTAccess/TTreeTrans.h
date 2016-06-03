@@ -75,9 +75,6 @@ class TTreeTrans
     public IProxyDictWithPool
 {
 public:
-  /// TEMPORARY
-  using IProxyDict::proxy;
-
   //========================================================================
   /** @name Constructors, destructors, and TTreeTrans unique interface. */
   //@{
@@ -168,6 +165,12 @@ public:
   bool sawFile (TFile* file);
 
 
+  /**
+   * @brief Return the associated persistent tree.
+   */
+  TTree* getPersTree() const;
+
+
   //@}
   //========================================================================
   /** @name TTree interface. */
@@ -195,6 +198,12 @@ public:
    * @brief Clear references to all persistent branches.
    */
   void resetBranches();
+
+
+  /**
+   * @brief Set current entry; return local entry.
+   */
+  virtual Long64_t LoadTree(Long64_t entry) override;
 
 
   //@}
@@ -251,12 +260,14 @@ public:
    * @param obj The data object to store.
    * @param key The key as which it should be stored.
    * @param allowMods If false, the object will be recorded as const.
+   * @param returnExisting If true, return proxy if this key already exists.
    *
    * This shouldn't be used from AthenaROOTAccess, and is unimplemented.
    */
-  virtual SG::DataProxy* recordObject (std::unique_ptr<DataObject> obj,
+  virtual SG::DataProxy* recordObject (SG::DataObjectSharedPtr<DataObject> obj,
                                        const std::string& key,
-                                       bool allowMods) override;
+                                       bool allowMods,
+                                       bool returnExisting) override;
 
 
   /**
