@@ -129,8 +129,7 @@ StatusCode VxCandidateXAODVertex::finalize()
        tav->setOrigTrack(elTrackParticle);
 	  
       //linearize with respect to given vertex (do we need/want it here?)
-       Trk::Vertex myVtx(xAODVx.position());
-       Trk::LinearizedTrack* myLinearizedTrack=m_LinearizedTrackFactory->linearizedTrack(elTrackParticle->parameters(),myVtx);
+       Trk::LinearizedTrack* myLinearizedTrack=m_LinearizedTrackFactory->linearizedTrack(elTrackParticle->parameters(),xAODVx.position());
        tav->setLinTrack(myLinearizedTrack);
 
       //TODO: do we need/want to calculate other quantities?
@@ -151,15 +150,14 @@ StatusCode VxCandidateXAODVertex::finalize()
        Trk::LinkToXAODNeutralParticle *elNeutralParticle = new Trk::LinkToXAODNeutralParticle( t );
        tav->setOrigTrack(elNeutralParticle);
        //linearize with respect to given vertex (do we need/want it here?)
-       Trk::Vertex myVtx(xAODVx.position());
-       Trk::LinearizedTrack* myLinearizedTrack=m_LinearizedTrackFactory->linearizedTrack(elNeutralParticle->neutralParameters(),myVtx);
+       Trk::LinearizedTrack* myLinearizedTrack=m_LinearizedTrackFactory->linearizedTrack(elNeutralParticle->neutralParameters(),xAODVx.position());
        tav->setLinTrack(myLinearizedTrack);
        //push back into collection
        tavCollection.push_back(tav);      
      }//end of loop over all neutrals
     }//end of the xod check
 
-    RecVertex recVtx(xAODVx.position(), xAODVx.covariancePosition(), xAODVx.chiSquared(), xAODVx.numberDoF());
+    RecVertex recVtx(xAODVx.position(), xAODVx.covariancePosition(), xAODVx.numberDoF(), xAODVx.chiSquared());
     vxVertex = new VxCandidate(recVtx, tavCollection);
     //TODO: only one enum should survive!
     vxVertex->setVertexType((Trk::VertexType)xAODVx.vertexType());
