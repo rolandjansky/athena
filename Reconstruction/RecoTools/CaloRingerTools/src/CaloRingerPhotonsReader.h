@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingerPhotonsReader.h 668867 2015-05-20 20:23:22Z wsfreund $
+// $Id: CaloRingerPhotonsReader.h 752569 2016-06-03 16:03:26Z ssnyder $
 #ifndef CALORINGERTOOLS_CALORINGERPHOTONSREADER_H
 #define CALORINGERTOOLS_CALORINGERPHOTONSREADER_H
 
@@ -93,7 +93,7 @@ class CaloRingerPhotonsReader : public CaloRingerInputReader,
     BuildCaloRingsFctor<xAOD::Photon> *m_clRingsBuilderPhotonFctor;
 
     /// Whether selectors are available
-    bool m_selectorAvailable;
+    //bool m_selectorAvailable;
     /// @}
 
 };

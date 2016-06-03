@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingerElectronsReader.cxx 713524 2015-12-09 08:56:24Z wsfreund $
+// $Id: CaloRingerElectronsReader.cxx 752385 2016-06-03 15:44:20Z ssnyder $
 // =============================================================================
 #include "CaloRingerElectronsReader.h"
 
@@ -19,6 +19,8 @@ CaloRingerElectronsReader::CaloRingerElectronsReader(const std::string& type,
                                  const std::string& name,
                                  const ::IInterface* parent) :
   CaloRingerInputReader(type, name, parent),
+  m_container(nullptr),
+  m_constContainer(nullptr),
   m_clRingsBuilderElectronFctor(nullptr)
 {
 
