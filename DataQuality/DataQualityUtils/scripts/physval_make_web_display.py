@@ -21,11 +21,12 @@ worst = DQAlgorithm(id='WorstCaseSummary',libname='libdqm_summaries.so')
 ### SOME THINGS YOU MIGHT WANT TO EDIT
 # Edit this to change what algorithm is applied (AuxAlgName--xxx)
 # or to disable printing the number of entries for each reference
+#algorithmparameters = [DQAlgorithmParameter('AuxAlgName--Chi2Test_Prob', 1),
 algorithmparameters = [DQAlgorithmParameter('AuxAlgName--Chi2Test_Chi2_per_NDF', 1),
                        DQAlgorithmParameter('RepeatAlgorithm--ResultsNEntries', 1)]
 
 # Edit this to change thresholds
-chi2thresh = make_thresholds('Chi2_per_NDF', 1.0, 1.5, 'Chi2Thresholds')
+thresh = make_thresholds('Chi2_per_NDF', 1.0, 1.50, 'Chi2Thresholds')
 
 def recurse(rdir, dqregion, ignorepath, refs=None, displaystring='Draw=PE', regex=None, startpath=None, hists=None):
     import re
@@ -56,7 +57,8 @@ def recurse(rdir, dqregion, ignorepath, refs=None, displaystring='Draw=PE', rege
                         'algorithm': repeatalgorithm,
                         'inputdatasource': (startpath + '/' if startpath else '') + name,
                         'algorithmparameters': algorithmparameters,
-                        'thresholds': chi2thresh,
+                        #'thresholds': chi2thresh,
+                        'thresholds': thresh,
                         }
             if refs:
                 dqpargs['references'] = refs
@@ -268,6 +270,8 @@ if __name__=="__main__":
                       help='text file with a list of regexes/histogram names')
     parser.add_option('--scaleref', type=float, default=1,
                       help='Scale references by this value')
+    parser.add_option('--Kolmogorov', default=False, action='store_true',
+                      help='Run Kolmogorov test instead of Chi2 test')
 
 
     options, args = parser.parse_args()
@@ -276,6 +280,10 @@ if __name__=="__main__":
         parser.print_help()
         sys.exit(1)
     fname = args[0]
+    if options.Kolmogorov:
+        algorithmparameters = [DQAlgorithmParameter('AuxAlgName--KolmogorovTest_Prob', 1),
+                               DQAlgorithmParameter('RepeatAlgorithm--ResultsNEntries', 1)]
+        thresh = make_thresholds('P', 0.05, 0.01, 'pThresholds')
 
     rv = super_process(fname, options)
     if rv == True:

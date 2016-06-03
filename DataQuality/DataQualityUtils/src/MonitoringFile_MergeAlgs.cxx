@@ -162,6 +162,9 @@ void MonitoringFile::merge_perBinEffPerCent(TH1& a, const TH1& b)
     return;
   }
 
+  // do not attempt to automatically extend!
+  a.SetCanExtend(TH1::kNoAxis);
+
   const double nEntries = a.GetEntries() + b.GetEntries();
 
   for( int bin = 0; bin < ncells; bin++ ) {
@@ -244,6 +247,9 @@ void MonitoringFile::merge_effAsPerCentAlt( TH1& a, const TH1& b )
     return;
   }
 
+  // do not attempt to automatically extend!
+  a.SetCanExtend(TH1::kNoAxis);
+
   // First extract the denominator
   // It is supposed to be the same for all bins
   // Have to do this in two steps to avoid problem
@@ -312,6 +318,9 @@ void MonitoringFile::merge_weightedAverage( TH1& a, const TH1& b )
     std::cerr<<"merge_weightedAverage \"" << a.GetName() <<"\": attempt to merge histograms of different sizes\n";
     return;
   }
+
+  // do not attempt to automatically extend!
+  a.SetCanExtend(TH1::kNoAxis);
 
   double nEntries = a.GetEntries();
   nEntries += b.GetEntries();
@@ -445,6 +454,9 @@ void MonitoringFile::merge_weightedEff( TH1& a, const TH1& b )
     return;
   }
 
+  // do not attempt to automatically extend!
+  a.SetCanExtend(TH1::kNoAxis);
+
   if (entries_a + entries_b > 0)
   {
     weight_a = entries_a / (entries_a + entries_b);
@@ -553,6 +565,9 @@ void MonitoringFile::merge_RMS( TH1& a, const TH1& b ) {
     std::cerr<<"merge_RMS \""<< a.GetName() <<"\": attempt to merge histograms of different sizes\n";
     return;
   }
+
+  // do not attempt to automatically extend!
+  a.SetCanExtend(TH1::kNoAxis);
 
   double nEntries = a.GetEntries();
   nEntries += b.GetEntries();
@@ -670,6 +685,9 @@ void MonitoringFile::merge_lowerLB( TH1& a, const TH1& b ) {
     std::cerr<<"merge_lowerLB \"" << a.GetName() <<"\": attempt to merge histograms of different sizes\n";
     return;
   }
+
+  // do not attempt to automatically extend!
+  a.SetCanExtend(TH1::kNoAxis);
 
   if (strcmp(a.GetTitle(),b.GetTitle())>0){
     // The LB of histo a is greater than the LB of histo b
