@@ -19,6 +19,14 @@
   * @class Trk::VxProbVertexWeightCalculator 
   *
   * @author Johanna Bronner, April 2009
+  *
+  * ---------------------------------------------------
+  * Changes:
+  *
+  * David Shope <david.richard.shope@cern.ch> (2016-06-01)
+  *
+  *   EDM Migration to xAOD - remove method using VxCandidate
+  *
   */
  
 class TH1;
@@ -27,7 +35,6 @@ class ITHistSvc;
 
  namespace Trk
  {
-   class VxCandidate;
   
    class VxProbVertexWeightCalculator : public AthAlgTool, virtual public IVertexWeightCalculator
    {
@@ -46,12 +53,7 @@ class ITHistSvc;
      virtual ~VxProbVertexWeightCalculator();
      
     /**
-     * WeightCalculator 
-     */
-     virtual double estimateSignalCompatibility(const VxCandidate& vertex);
-
-    /**
-     * WeightCalculator, xAOD implementation
+     * WeightCalculator
      */
     
     virtual double estimateSignalCompatibility(const xAOD::Vertex& vertex);

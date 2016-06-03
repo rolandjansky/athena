@@ -3,7 +3,6 @@
 */
 
 #include "TrkVertexWeightCalculators/VxProbVertexWeightCalculator.h"
-#include "VxVertex/VxCandidate.h"
 #include "VxVertex/VxTrackAtVertex.h"
 #include "TrkParameters/TrackParameters.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -46,60 +45,6 @@
    //destructor
    VxProbVertexWeightCalculator::~VxProbVertexWeightCalculator(){}
    
-   double  VxProbVertexWeightCalculator::estimateSignalCompatibility(const VxCandidate& vertex)
-   { 
-     const std::vector<Trk::VxTrackAtVertex*>* tracks = vertex.vxTrackAtVertex();
-     std::vector<Trk::VxTrackAtVertex*>::const_iterator begintracks=tracks->begin();
-     std::vector<Trk::VxTrackAtVertex*>::const_iterator endtracks=tracks->end();
-     double P0 = 1.;
-     //bool pTtooBig = false; //coverity defect 13650
-     
-     for(std::vector<Trk::VxTrackAtVertex*>::const_iterator i = begintracks; i!=endtracks; ++i) {
-       const Trk::TrackParameters* perigee(0);
-       if ((*i)->perigeeAtVertex()!=0) 
-       {
-         perigee=(*i)->perigeeAtVertex();
-       } 
-       else 
-       {
-         perigee=(*i)->initialPerigee();
-       }     
-       double p_T = std::fabs(1./perigee->parameters()[Trk::qOverP])*sin(perigee->parameters()[Trk::theta])/1000.;
-       
-       TH1F* myHisto = dynamic_cast<TH1F*>(m_hMinBiasPt);
-
-       if (myHisto == 0)
-       {
-         msg(MSG::ERROR) << "VxProbHisto is an empty pointer!!!" << endreq;
-         return 0; //is this a suitable error return value (sroe)?
-       }
-       
-       double IntPt = (myHisto->Integral(myHisto->FindBin(p_T),myHisto->GetNbinsX() + 1)
-                    + myHisto->Integral(myHisto->FindBin(p_T)+1,myHisto->GetNbinsX() + 1))/2.;
-       //if (IntPt == 0)
-       //      pTtooBig=true;
-       // --- Markus Elsing: fake high pt tracks, limit the integral
-       if (IntPt < 0.0001) IntPt = 0.0001;
-         
-       P0 = P0 *IntPt;
-     }
-     double VxProb = 0.;
-     const int numberOfTracks(tracks->size());
-     if (numberOfTracks != 0)
-     {
-       for (int j(0); j < numberOfTracks; ++j)
-       {
-         /** @todo Given that you are looping from zero, the 'Power' and 'Factorial'
-          * could be speeded up by using a simple multiplication on each loop (sroe)
-          **/
-         VxProb = VxProb + (TMath::Power(-TMath::Log(P0),j)/TMath::Factorial(j));
-       }
-       VxProb = -TMath::Log(VxProb*P0);
-     }
-     return  VxProb;
-   }
-
-
    double  VxProbVertexWeightCalculator::estimateSignalCompatibility(const xAOD::Vertex& vertex) 
    {
      double P0 = 1.;
