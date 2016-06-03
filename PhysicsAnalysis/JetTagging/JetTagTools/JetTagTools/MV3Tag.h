@@ -106,38 +106,38 @@ namespace Analysis {
     float m_jf_sig3;
 
     // Now the logs
-    float m_logip2_pu; 
-    float m_logip2_pb; 
+    //float m_logip2_pu; 
+    //float m_logip2_pb; 
     // IP3D posteriors
-    float m_logip3_pu; 
-    float m_logip3_pb; 
-    float m_logip3_pc; 
+    //float m_logip3_pu; 
+    //float m_logip3_pb; 
+    //float m_logip3_pc; 
     //SV1 posteriors
-    float m_logsv1_pu; 
-    float m_logsv1_pb; 
-    float m_logsv1_pc; 
+    //float m_logsv1_pu; 
+    //float m_logsv1_pb; 
+    //float m_logsv1_pc; 
     //JetFitterCombNN posteriors
-    float m_logjfc_pu; 
-    float m_logjfc_pb; 
-    float m_logjfc_pc; 
+    //float m_logjfc_pu; 
+    //float m_logjfc_pb; 
+    //float m_logjfc_pc; 
     //SV0 informations
-    float m_logsv0; 
-    float m_logsv0_ntkv; 
-    float m_logsv0mass; 
-    float m_logsv0_efrc; 
-    float m_logsv0_n2t; 
-    float m_logsv0_radius; 
+    //float m_logsv0; 
+    //float m_logsv0_ntkv; 
+    //float m_logsv0mass; 
+    //float m_logsv0_efrc; 
+    //float m_logsv0_n2t; 
+    //float m_logsv0_radius; 
     //JetFitter informations
-    float m_logjf_mass; 
-    float m_logjf_efrc; 
-    float m_logjf_n2tv; 
-    float m_logjf_ntrkv; 
-    float m_logjf_nvtx; 
-    float m_logjf_nvtx1t; 
-    float m_logjf_dphi; 
-    float m_logjf_deta; 
-    float m_logchi2Ondof; 
-    float m_logjf_sig3;
+    //float m_logjf_mass; 
+    //float m_logjf_efrc; 
+    //float m_logjf_n2tv; 
+    //float m_logjf_ntrkv; 
+    //float m_logjf_nvtx; 
+    //float m_logjf_nvtx1t; 
+    //float m_logjf_dphi; 
+    //float m_logjf_deta; 
+    //float m_logchi2Ondof; 
+    //float m_logjf_sig3;
 
     std::map<std::string, TMVA::Reader*> m_tmvaReaders[10];
     std::list<std::string> m_undefinedReaders; // keep track of undefined readers to prevent too many warnings.

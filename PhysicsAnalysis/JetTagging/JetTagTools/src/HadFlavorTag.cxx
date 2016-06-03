@@ -890,9 +890,9 @@ double HadFlavorTag::TransformLikelihoodOutput( double ps, double pb ) const{
 
     if(fNvars!=5) return -1.;
 
-    double cone,pt,eta,ntrk,trkwidth;
+    double pt,eta,ntrk,trkwidth;
     
-    cone     = inputVars[0];
+    //cone     = inputVars[0];
     pt       = inputVars[1];
     eta      = TMath::Abs( inputVars[2] );
     ntrk     = inputVars[3];

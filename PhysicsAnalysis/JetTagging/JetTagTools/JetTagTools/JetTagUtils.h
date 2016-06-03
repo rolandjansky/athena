@@ -12,4 +12,5 @@ namespace JetTagUtils{
   std::string getJetAuthor(xAOD::Jet& jetToTag);
 
 }
+
 #endif

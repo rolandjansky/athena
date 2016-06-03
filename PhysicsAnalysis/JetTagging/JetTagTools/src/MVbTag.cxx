@@ -13,6 +13,7 @@
 #include "JetTagTools/JetTagUtils.h"
 
 #include "JetTagCalibration/CalibrationBroker.h"
+#include "AthenaKernel/Units.h"
 #include "TMVA/Reader.h"
 #include "TList.h"
 #include "TString.h"
@@ -26,6 +27,8 @@
 
 #include "JetTagInfo/TruthInfo.h"
 
+
+using Athena::Units::GeV;
 
 
 namespace Analysis {
@@ -189,7 +192,7 @@ StatusCode MVbTag::finalize() {
 	  TObjString* ss = (TObjString*)list->At(i);
 	  std::string sss = ss->String().Data();
 	  //KM: if it doesn't find "<" in the string, it starts from non-space character
-	  int posi = sss.find('<')!=-1 ? sss.find('<') : sss.find_first_not_of(" ");
+	  int posi = sss.find('<')!=std::string::npos ? sss.find('<') : sss.find_first_not_of(" ");
 	  std::string tmp = sss.erase(0,posi);
 	  iss << tmp.data();      //iss << sss.Data();
 	}
@@ -247,7 +250,7 @@ StatusCode MVbTag::finalize() {
     /* retrieving MVb inputs*/    
     ATH_MSG_DEBUG("#BTAG# Jet author for MVb: " << author << ", alias: " << alias );
 
-    m_pt   = myJet.pt()/1e3;
+    m_pt   = myJet.pt()/GeV;
     m_eta  = std::fabs(myJet.eta());
     /* retrieving weights: */
     double sv0  = -999;
@@ -304,7 +307,7 @@ StatusCode MVbTag::finalize() {
 	BTag->variable<int>(m_sv0_infosource,   "N2Tpair",  sv0_n2t);
 	BTag->variable<int>(m_sv0_infosource,   "NGTinSvx", sv0_ntrkv);
       }
-      m_sv0_mass/=1000.;
+      m_sv0_mass/=GeV;
     }
 
 
@@ -339,7 +342,7 @@ StatusCode MVbTag::finalize() {
 
       }
       m_jf_deltaR = std::sqrt(std::pow(jf_dphi,2)+std::pow(jf_deta,2));
-      m_jf_mass/=1000.;
+      m_jf_mass/=GeV;
     }
 
 
@@ -378,10 +381,8 @@ StatusCode MVbTag::finalize() {
 
     /* compute MVb: */
     double mvb = -1.;
-    int binnb = -1;
-    if (std::fabs(m_eta)<0.6){
-      binnb=0;
-    } else if (std::fabs(m_eta)>=0.6 && std::fabs(m_eta)<1.2) {
+    int binnb = 0; //if (std::fabs(m_eta)<0.6)
+    if (std::fabs(m_eta)>=0.6 && std::fabs(m_eta)<1.2) {
       binnb=1;
     } else if (std::fabs(m_eta)>=1.2 && std::fabs(m_eta)<1.8) {
       binnb=2;

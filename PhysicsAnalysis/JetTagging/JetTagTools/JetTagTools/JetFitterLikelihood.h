@@ -105,7 +105,7 @@ static const InterfaceID IID_JetFitterLikelihood("Analysis::JetFitterLikelihood"
     std::map<std::string, std::vector<RooDataHist*>* > m_likelihoodHistograms;
     std::map<std::string, RooArgSet* > m_likelihoodObjects;
 
-    ITHistSvc* m_histoSvc;
+    //ITHistSvc* m_histoSvc;
     
     RooArgSet* m_myRooVariables;
     //    std::map<RooAbsCategory*,RooCategory*> m_fictiousToRealCategory;

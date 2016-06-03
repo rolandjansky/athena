@@ -56,7 +56,7 @@ class MVbTag : public AthAlgTool , virtual public ITagTool {
     // points to something in storegate)
     const xAOD::Vertex* m_priVtx;
 
-    bool m_writeInfoBase; // writes a basic info for each tagger with Pb, Pu (IPInfoBase)
+    //bool m_writeInfoBase; // writes a basic info for each tagger with Pb, Pu (IPInfoBase)
 
     /// IP based 
     float m_ip2d; 
@@ -86,7 +86,7 @@ class MVbTag : public AthAlgTool , virtual public ITagTool {
     // keep track of undefined readers to prevent too many warnings.
 
     /** to define the input taggers */
-    bool m_flipMVb;
+    //bool m_flipMVb;
 
     std::string m_ip2d_infosource;
     std::string m_ip3d_infosource;

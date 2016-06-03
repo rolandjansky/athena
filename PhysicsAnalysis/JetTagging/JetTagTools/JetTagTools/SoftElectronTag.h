@@ -163,7 +163,7 @@ namespace Analysis
     /** usually track parameters transported to the primary vertex 
 	are used. for comparison study it is also possible to 
 	use track parameters at the perigee: */
-    bool m_usePerigeeParameters; 
+    //bool m_usePerigeeParameters; 
 
     /** @brief Storage for the primary vertex. 
 	Can be removed when JetTag provides origin(). 
@@ -194,25 +194,25 @@ namespace Analysis
 
     /** @brief Track selection cuts for LifetimeTagging */
     /** @brief minimum pt[GeV] of the track*/
-    double m_minpt;     
+    //double m_minpt;     
     /** @brief max. transverse impact parameter: |d0|<d0Max */
-    double m_d0Max;     
+    //double m_d0Max;     
     /** @brief max z0*/
-    double m_z0Max;     
+    //double m_z0Max;     
     /** @brief maximum pseudo-rapidity */
-    double m_etaMax;    
+    //double m_etaMax;    
     /** @brief at least n hits in Blayer */
-    int m_nHitBLayer;   
+    //int m_nHitBLayer;   
     /** @brief at least n hits in pixels */
-    int m_nHitPix;      
+    //int m_nHitPix;      
     /** @brief at least n hits in pixels+SCT */
-    int m_nHitSi;       
+    //int m_nHitSi;       
     /** @brief at least n hits in TRT */
-    int m_nHitTrt;      
+    //int m_nHitTrt;      
     /** @brief at least n transition hits in TRT */
-    int m_nHitTrtHighE; 
+    //int m_nHitTrtHighE; 
     /** @brief ax. fit chi2 */
-    double m_fitChi2;   
+    //double m_fitChi2;   
     
     /** @brief Preselection routine for the tracks in the jet. */
     bool m_preselect(const xAOD::TrackParticle* track);

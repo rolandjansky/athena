@@ -8,6 +8,7 @@
 #include "xAODJet/Jet.h"
 #include "JetTagTools/JetTagUtils.h"
 #include "JetTagCalibration/CalibrationBroker.h"
+#include "AthenaKernel/Units.h"
 #include "TMVA/Reader.h"
 #include "TList.h"
 #include "TString.h"
@@ -18,6 +19,8 @@
 #include <vector>
 #include <map>
 #include <list>
+
+using Athena::Units::GeV;
 
 namespace Analysis {
 
@@ -87,7 +90,7 @@ namespace Analysis {
 
     /* tweak name for Flip versions: */
 
-    TMVA::Reader* tmvaReader;
+    //TMVA::Reader* tmvaReader;
     std::map<std::string, TMVA::Reader*>::iterator pos;
     /* check if calibration (neural net structure or weights) has to be updated: */
     std::pair<TList*, bool> calib = m_calibrationTool->retrieveTObject<TList>(m_taggerNameBase, author, m_taggerNameBase+"Calib");
@@ -111,7 +114,7 @@ namespace Analysis {
 	TObjString* ss = (TObjString*)list->At(i);
 	std::string sss = ss->String().Data();
 	//KM: if it doesn't find "<" in the string, it starts from non-space character
-	int posi = sss.find('<')!=-1 ? sss.find('<') : sss.find_first_not_of(" ");
+	int posi = sss.find('<')!=std::string::npos ? sss.find('<') : sss.find_first_not_of(" ");
 	std::string tmp = sss.erase(0,posi);
 	//std::cout<<tmp<<std::endl;
 	iss << tmp.data();      //iss << sss.Data();
@@ -206,26 +209,26 @@ namespace Analysis {
 
   /** helper functions to define the jet category: */
   static const int njMV1cptbin = 11;
-  static const double _jMV1cptbins[njMV1cptbin] = { 15., 30., 45., 60., 100., 140., 180., 220., 260., 310., 500. };
-  std::vector<double> _vMV1cptbins(_jMV1cptbins,_jMV1cptbins+njMV1cptbin);
+  static const double jMV1cptbins[njMV1cptbin] = { 15., 30., 45., 60., 100., 140., 180., 220., 260., 310., 500. };
+  std::vector<double> vMV1cptbins(jMV1cptbins,jMV1cptbins+njMV1cptbin);
   static const int nMV1cetabin = 5;
-  static const double _etaMV1cbins[nMV1cetabin] = { 0., 0.6, 1.2, 1.8, 2.5 };
-  std::vector<double> _vMV1cetabins(_etaMV1cbins,_etaMV1cbins+nMV1cetabin);
+  static const double etaMV1cbins[nMV1cetabin] = { 0., 0.6, 1.2, 1.8, 2.5 };
+  std::vector<double> vMV1cetabins(etaMV1cbins,etaMV1cbins+nMV1cetabin);
 
   int MV1cTag::findPtBin(double pt) const {
-    std::vector<double>::iterator pos = std::lower_bound(_vMV1cptbins.begin(), 
-                                                         _vMV1cptbins.end(), pt);
-    return (pos-_vMV1cptbins.begin());
+    std::vector<double>::iterator pos = std::lower_bound(vMV1cptbins.begin(), 
+                                                         vMV1cptbins.end(), pt);
+    return (pos-vMV1cptbins.begin());
   }
   int MV1cTag::findEtaBin(double eta) const {
-    std::vector<double>::iterator pos = std::lower_bound(_vMV1cetabins.begin(), 
-                                                         _vMV1cetabins.end(), eta);
-    return (pos-_vMV1cetabins.begin());
+    std::vector<double>::iterator pos = std::lower_bound(vMV1cetabins.begin(), 
+                                                         vMV1cetabins.end(), eta);
+    return (pos-vMV1cetabins.begin());
   }
 
   int MV1cTag::jetCategory(double pt, double eta) const {
     int cat = 0;
-    double npt = pt/1000.; // input in MeV, internally in GeV
+    double npt = pt/GeV; // input in MeV, internally in GeV
     double nMV1ceta = fabs(eta)+0.00000001; // to get same results for boundaries as Root FindBin()
     int binx = this->findPtBin(npt);
     int biny = this->findEtaBin(nMV1ceta);

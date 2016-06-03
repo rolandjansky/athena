@@ -36,7 +36,41 @@
 
 #include "TLorentzVector.h"
 
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//bool xaodTrackPtSorting(const xAOD::TrackParticle *track1, const xAOD::TrackParticle *track2) { 
+//  return track1->pt()>track2->pt(); 
+//}
+
 namespace Analysis {
+
+  struct myIPxDinfo {
+    ElementLink<xAOD::TrackParticleContainer> trk;
+    double d0;
+    double d0sig;
+    double z0;
+    double z0sig;
+    TrackGrade grade;
+    const xAOD::TrackParticle* trkP;
+    bool fromV0;
+    float wB;
+    float wC;
+    float wU;
+  } ;
+  
+  bool StructPTsorting( myIPxDinfo objA, myIPxDinfo objB) {
+    return (objA.trkP)->pt() > (objB.trkP)->pt();
+  }
+  
+  bool StructD0Sigsorting( myIPxDinfo objA, myIPxDinfo objB) {
+    return fabs(objA.d0sig) > fabs(objB.d0sig);
+  }
+
+  bool StructZ0D0Sigsorting( myIPxDinfo objA, myIPxDinfo objB) {
+    return pow(objA.d0sig,2)+pow(objA.z0sig,2) > pow(objB.d0sig,2)+pow(objB.z0sig,2);
+  }
+  
 
   /** 
       @class IPTag 
@@ -49,84 +83,79 @@ namespace Analysis {
     : AthAlgTool(t,n,p),
       m_runModus("analysis"),
       m_histoHelper(0),
+      //m_secVxFinderNameForV0Removal("InDetVKalVxInJetTool"),
+      //m_secVxFinderNameForIPSign("InDetVKalVxInJetTool"),
+      m_sortPt(false),
+      m_sortD0sig(false),
+      m_sortZ0D0sig(false),
+      m_unbiasIPEstimation(true),
+      m_secVxFinderName("InDetVKalVxInJetTool"),
       m_trackToVertexTool("Reco::TrackToVertex"),
       m_trackSelectorTool("Analysis::TrackSelector"),
       m_likelihoodTool("Analysis::NewLikelihoodTool"),
-      m_InDetTrackSelectorTool("InDet::InDetTrackSelectionTool"),
-      m_TightTrackVertexAssociationTool("CP::TightTrackVertexAssociationTool"),
-      //m_secVxFinderNameForV0Removal("InDetVKalVxInJetTool"),
-      //m_secVxFinderNameForIPSign("InDetVKalVxInJetTool"),
-      m_secVxFinderName("InDetVKalVxInJetTool"),
       m_SVForIPTool("Analysis::SVForIPTool"),
       m_trackGradeFactory("Analysis::BasicTrackGradeFactory"),
-      m_unbiasIPEstimation(true) {
-
-    declareInterface<ITagTool>(this);
-    // global configuration:
-    declareProperty("Runmodus", m_runModus);
-    declareProperty("UseCHypo", m_useCHypo=true);
-    //declareProperty("hypotheses", m_hypotheses);
-    declareProperty("xAODBaseName", m_xAODBaseName);
- 
-    declareProperty("useVariables", m_useVariables);
-    declareProperty("impactParameterView", m_impactParameterView = "2D");
-
-    // track categories:
-    declareProperty("trackGradePartitions", m_trackGradePartitionsDefinition);
-    m_trackGradePartitionsDefinition.push_back("Good");
-    declareProperty("RejectBadTracks", m_RejectBadTracks = false);
-
-    // impact parameter signs and negative tags:
-    declareProperty("SignWithSvx", m_SignWithSvx = false);
-    declareProperty("SVForIPTool",m_SVForIPTool);
-    declareProperty("use2DSignForIP3D", m_use2DSignForIP3D = false);
-    declareProperty("useD0SignForZ0", m_useD0SignForZ0 = false);
-    declareProperty("usePosIP", m_usePosIP = true);
-    declareProperty("useNegIP", m_useNegIP = true);
-    declareProperty("useZIPSignForPosNeg", m_useZIPSignForPosNeg = false);
-    declareProperty("flipIPSign", m_flipIP = false);
-    declareProperty("flipZIPSign", m_flipZIP = false);
-
-    // tools:
-    declareProperty("LikelihoodTool", m_likelihoodTool);
-    declareProperty("trackSelectorTool", m_trackSelectorTool);
-    //declareProperty("trackToVertexTool", m_trackToVertexTool);
-    declareProperty("trackGradeFactory",m_trackGradeFactory);
+      // VD:trackToVertexIPestimator missing
+      m_InDetTrackSelectorTool("InDet::InDetTrackSelectionTool"),
+      m_TightTrackVertexAssociationTool("CP::TightTrackVertexAssociationTool")
+  {
     
-    // information to persistify:
+    declareInterface<ITagTool>(this);
+    
+    // global configuration:
+    declareProperty("Runmodus"      , m_runModus);
+    declareProperty("xAODBaseName"  , m_xAODBaseName);
+    
+    declareProperty("flipIPSign"          , m_flipIP              = false);
+    declareProperty("flipZIPSign"         , m_flipZIP             = false);
+    declareProperty("usePosIP"            , m_usePosIP            = true);
+    declareProperty("useNegIP"            , m_useNegIP            = true);
+    declareProperty("useZIPSignForPosNeg" , m_useZIPSignForPosNeg = false);
+    declareProperty("use2DSignForIP3D"    , m_use2DSignForIP3D    = false);
+    declareProperty("useD0SignForZ0"      , m_useD0SignForZ0      = false);
+    declareProperty("RejectBadTracks"     , m_RejectBadTracks     = true);
+    declareProperty("SignWithSvx"         , m_SignWithSvx         = false);
+    declareProperty("checkOverflows"      , m_checkOverflows      = false);
+    declareProperty("useForcedCalibration", m_doForcedCalib       = false);
+    declareProperty("UseCHypo"            , m_useCHypo            = true);
+    declareProperty("unbiasIPEstimation"  , m_unbiasIPEstimation);
+
+    declareProperty("trackAssociationName"    , m_trackAssociationName = "BTagTrackToJetAssociator");
     declareProperty("originalTPCollectionName", m_originalTPCollectionName = "InDetTrackParticles");
-    // declareProperty("writeInfoBase", m_writeInfoBase = true);
-    // declareProperty("writeInfoPlus", m_writeInfoPlus = true);
-    // declareProperty("infoPlusName", m_infoPlusName = "IPInfoPlus");
+    declareProperty("jetCollectionList"       , m_jetCollectionList);
+    declareProperty("useVariables"            , m_useVariables);
+    declareProperty("impactParameterView"     , m_impactParameterView = "2D");
+    declareProperty("ForcedCalibrationName"   , m_ForcedCalibName = "Cone4H1Tower");
+    
+    declareProperty("trackGradePartitions"    , m_trackGradePartitionsDefinition);
+    m_trackGradePartitionsDefinition.push_back("Good");
 
-    // track-jet association name
-    declareProperty("trackAssociationName", m_trackAssociationName = "BTagTrackToJetAssociator");
-
-    // for making reference histograms:
-    declareProperty("referenceType", m_referenceType = "ALL"); // B, UDSG, ALL
-    declareProperty("truthMatchingName", m_truthMatchingName = "TruthInfo");
-    declareProperty("checkOverflows", m_checkOverflows = false);
-    declareProperty("purificationDeltaR", m_purificationDeltaR = 0.8);
-    declareProperty("jetPtMinRef", m_jetPtMinRef = 15.*Gaudi::Units::GeV);
-
-    declareProperty("jetCollectionList", m_jetCollectionList);
-    // declareProperty("jetWithInfoPlus", m_jetWithInfoPlus);
-    // m_jetWithInfoPlus.push_back("Cone4H1Tower");
-    declareProperty("useForcedCalibration",  m_doForcedCalib   = false);
-    declareProperty("ForcedCalibrationName", m_ForcedCalibName = "Cone4H1Tower");
+    declareProperty("referenceType"           , m_referenceType = "ALL"); // B, UDSG, ALL
+    declareProperty("truthMatchingName"       , m_truthMatchingName = "TruthInfo");
+    declareProperty("purificationDeltaR"      , m_purificationDeltaR = 0.8);
+    declareProperty("jetPtMinRef"             , m_jetPtMinRef = 15.*Gaudi::Units::GeV);
 
     //declareProperty("SecVxFinderNameForV0Removal",m_secVxFinderNameForV0Removal);
-    //declareProperty("SecVxFinderNameForIPSign",m_secVxFinderNameForIPSign);
-    declareProperty("SecVxFinderName",m_secVxFinderName);
+    //declareProperty("SecVxFinderNameForIPSign"   ,m_secVxFinderNameForIPSign)
+    declareProperty("SecVxFinderName"         ,m_secVxFinderName);
 
-    declareProperty("TrackToVertexIPEstimator",m_trackToVertexIPEstimator);
-    
-    declareProperty("unbiasIPEstimation",m_unbiasIPEstimation);
+    declareProperty("NtrkMin"                 , m_NtrkMin =6 );
+    declareProperty("NtrkMax"                 , m_NtrkMax =6 );
+    declareProperty("NtrkFract"               , m_trkFract=1.0 );
+    declareProperty("SortingMode"             , m_sortOption="None"); //"None");
 
-    declareProperty("InDetTrackSelectionTool", m_InDetTrackSelectorTool); //
+    // tools:
+    declareProperty("trackSelectorTool"         , m_trackSelectorTool              );
+    declareProperty("LikelihoodTool"            , m_likelihoodTool                 );
+    declareProperty("SVForIPTool"               , m_SVForIPTool                    );  
+    declareProperty("trackGradeFactory"         , m_trackGradeFactory              );
+    declareProperty("TrackToVertexIPEstimator"  , m_trackToVertexIPEstimator       );
+    declareProperty("InDetTrackSelectionTool"   , m_InDetTrackSelectorTool         ); //
     declareProperty("TrackVertexAssociationTool", m_TightTrackVertexAssociationTool); //
   }
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   IPTag::~IPTag() {
     delete m_histoHelper;
     for (size_t i = 0; i < m_trackGradePartitions.size(); i++)
@@ -134,7 +163,48 @@ namespace Analysis {
   }
 
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   StatusCode IPTag::initialize() {
+    
+    // VD: deciding the track sorting mode
+    if ( m_sortOption=="None" ) {
+      ATH_MSG_DEBUG("#BTAG# No sorting applied ");
+      m_sortPt     =false;
+      m_sortD0sig  =false;
+      m_sortZ0D0sig=false;
+    } else if ( m_sortOption=="SortPt" ) {
+      ATH_MSG_DEBUG("#BTAG# Tracks will be sorted by Pt ");
+      m_sortPt     =true;
+      m_sortD0sig  =false;
+      m_sortZ0D0sig=false;
+    } else if ( m_sortOption=="SortD0" ) {
+      ATH_MSG_DEBUG("#BTAG# Tracks will be sorted by |d0Sig| ");
+      m_sortPt     =false;
+      m_sortD0sig  =true;
+      m_sortZ0D0sig=false;
+    } else if ( m_sortOption=="SortZ0D0" ) {
+      ATH_MSG_DEBUG("#BTAG# Tracks will be sorted by sqrt( |d0Sig|^2 + |z0Sig|^2 ) ");
+      m_sortPt     =false;
+      m_sortD0sig  =false;
+      m_sortZ0D0sig=true;
+    } else {
+      ATH_MSG_ERROR("#BTAG# sorting option NOT recognised (please use: <None>, <SortPt>, <SortD0> ");
+      return StatusCode::FAILURE;
+    }
+
+    if ( m_sortOption=="None" ) {
+      m_NtrkMax =1000;
+      m_NtrkMin =m_NtrkMax;
+      m_trkFract=1.0;
+    } else {
+      if (m_trkFract!=1.0) {
+	ATH_MSG_DEBUG("#BTAG# Considering only first "<< m_trkFract << " % of the tracks in the jet but keeping at least " << m_NtrkMin);     
+      } else {
+	ATH_MSG_DEBUG("#BTAG# Considering only maximum "<< m_NtrkMax << " per jet");     
+      }
+    }
+
 
     m_hypotheses.push_back("B");
     m_hypotheses.push_back("U");
@@ -142,13 +212,12 @@ namespace Analysis {
       m_hypotheses.push_back("C");
     }
 
-
     /** retrieving TrackToVertex: */
     /*if ( m_trackToVertexTool.retrieve().isFailure() ) {
       ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_trackToVertexTool);
       return StatusCode::FAILURE;
     } else {
-      ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_trackToVertexTool);
+      
     }*/
     // FF: comment out V0 finding
     if (m_SVForIPTool.retrieve().isFailure() )  {
@@ -268,7 +337,7 @@ namespace Analysis {
 	  if(m_impactParameterView=="1D") {
 	    for(uint ih=0;ih<m_hypotheses.size();ih++) {
 	      std::string hName = "/RefFile/IP1D/" + m_jetCollectionList[j] + "/"
-		+ m_hypotheses[ih] + "/" + (std::string)grd + "/SipZ0";
+		+ m_hypotheses[ih] + "/" + grd.gradeString() + "/SipZ0";
 	      ATH_MSG_VERBOSE("#BTAG# booking for IP1D: " << hName);
 	      m_histoHelper->bookHisto(hName,"Signed Impact Parameter (z)",400,-40.,60.);
 	    }
@@ -276,7 +345,7 @@ namespace Analysis {
 	  if(m_impactParameterView=="2D") {
 	    for(uint ih=0;ih<m_hypotheses.size();ih++) {
 	      std::string hName = "/RefFile/IP2D/" + m_jetCollectionList[j] + "/"
-		+ m_hypotheses[ih] + "/" + (std::string)grd + "/SipA0";
+		+ m_hypotheses[ih] + "/" + grd.gradeString() + "/SipA0";
 	      ATH_MSG_VERBOSE("#BTAG# booking for IP2D: " << hName);
 	      m_histoHelper->bookHisto(hName,"Signed Impact Parameter (rphi)",400,-40.,60.);
 	    }
@@ -289,7 +358,7 @@ namespace Analysis {
 	    double ybi[nby] = {-40.,-20.,-12.,-8.,-4.,-3.,-2.,-1.,-0.5,0.,0.5,1.,2.,3.,4.,6.,8.,12.,20.,40.,60.};
 	    for(uint ih=0;ih<m_hypotheses.size();ih++) {
 	      std::string hName = "/RefFile/IP3D/" + m_jetCollectionList[j] + "/"
-		                      + m_hypotheses[ih] + "/" + (std::string)grd + "/Sip3D";
+                + m_hypotheses[ih] + "/" + grd.gradeString() + "/Sip3D";
 	      ATH_MSG_VERBOSE("#BTAG# booking for IP3D: " << hName);
 	      m_histoHelper->bookHisto(hName,"Signed IP Z0 vs (rphi)",nbx-1,xbi,nby-1,ybi);
 	    }
@@ -403,13 +472,14 @@ namespace Analysis {
     m_SVForIPTool->getTrkFromV0FromSecondaryVertexInfo(TrkFromV0,//output
                                                        jetToTag,BTag,m_secVxFinderName);//input
     //                                                       jetToTag,BTag,m_secVxFinderNameForV0Removal);//input
-    ATH_MSG_VERBOSE("#BTAG# TrkFromV0 : number of reconstructed bad tracks: " << TrkFromV0.size());
-    
+    ATH_MSG_VERBOSE("#BTAG# VALERIO TrkFromV0 : number of reconstructed bad tracks: " << TrkFromV0.size());
+    if (TrkFromV0.size()!=0)  ATH_MSG_DEBUG("#BTAG# TrkFromV0 : number of reconstructed bad tracks: " << TrkFromV0.size());
+
     /** extract the TrackParticles from the jet and apply track selection: */
     int nbTrak = 0;
     m_trackSelectorTool->primaryVertex(m_priVtx->position());
     m_trackSelectorTool->prepare();
-    std::vector<const xAOD::TrackParticle*>* trackVector = NULL;
+    //std::vector<const xAOD::TrackParticle*>* trackVector = NULL;
     std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks = 
       BTag->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_trackAssociationName);
     double sumTrkpT = 0; unsigned ntrk=0;
@@ -437,21 +507,21 @@ namespace Analysis {
 	if (m_trackSelectorTool->selectTrack(aTemp)) sumTrkpT += aTemp->pt();	
       }
       // m_trackSelectorTool->setSumTrkPt(sumTrkpT);
-
+      
       for( trkIter = associationLinks.begin(); trkIter != associationLinks.end() ; ++trkIter ) {
         const xAOD::TrackParticle* aTemp = **trkIter;
         nbTrak++;
         if( m_trackSelectorTool->selectTrack(aTemp, sumTrkpT) ) {
           TrackGrade* theGrade = m_trackGradeFactory->getGrade(*aTemp, jetToTag.p4() );
-          ATH_MSG_VERBOSE("#BTAG#  result of selectTrack is OK, grade= " << (std::string)(*theGrade) );
-	      bool tobeUsed = false;
+          ATH_MSG_VERBOSE("#BTAG#  result of selectTrack is OK, grade= " << theGrade->gradeString() );
+	  bool tobeUsed = false;
           for(int i=0;i<nbPart;i++) {
             if( std::find( (m_trackGradePartitions[i]->grades()).begin(), 
-			               (m_trackGradePartitions[i]->grades()).end(), 
-			               *theGrade ) 
-		       != (m_trackGradePartitions[i]->grades()).end() ) tobeUsed = true;
+			   (m_trackGradePartitions[i]->grades()).end(), 
+			   *theGrade ) 
+		!= (m_trackGradePartitions[i]->grades()).end() ) tobeUsed = true;
           }
-	      // is it a bad track ?
+	  // is it a bad track ?
           if( std::find(TrkFromV0.begin(),TrkFromV0.end(),aTemp) != TrkFromV0.end() ) {
             ATH_MSG_VERBOSE("#BTAG# Bad track in jet, pt = " << aTemp->pt() << " eta = " 
 	 		    << aTemp->eta() << " phi = " << aTemp->phi() ); 
@@ -494,11 +564,13 @@ namespace Analysis {
     std::vector<double> vectZ0;
     std::vector<double> vectZ0Signi;
     std::vector<TrackGrade> vectGrades;
-    std::vector<const xAOD::TrackParticle*> vectTP;
+    ///////////std::vector<const xAOD::TrackParticle*> vectTP;
     std::vector<bool> vectFromV0;
     std::vector<float> vectWeightB;
     std::vector<float> vectWeightU;
     std::vector<float> vectWeightC;
+    std::vector<myIPxDinfo> vectObj;
+
     // reserve approximate space (optimization):
     const int nbTrackMean = 5;
     vectD0.reserve(nbTrackMean);
@@ -506,11 +578,12 @@ namespace Analysis {
     vectZ0.reserve(nbTrackMean);
     vectZ0Signi.reserve(nbTrackMean);
     vectGrades.reserve(nbTrackMean);
-    vectTP.reserve(nbTrackMean);
+    //////////vectTP.reserve(nbTrackMean);
     vectFromV0.reserve(nbTrackMean);
     vectWeightB.reserve(nbTrackMean);
     vectWeightU.reserve(nbTrackMean);
     vectWeightC.reserve(nbTrackMean);
+    vectObj.reserve(nbTrackMean);
 
     for (std::vector<GradedTrack>::iterator trkItr = m_tracksInJet.begin(); 
          trkItr != m_tracksInJet.end(); ++trkItr) {
@@ -571,12 +644,12 @@ namespace Analysis {
       }
 
       /** significances */
-      double sIP = signOfIP*fabs(d0wrtPriVtx);
+      double sIP         = signOfIP*fabs(d0wrtPriVtx);
       double significance= signOfIP*fabs(d0wrtPriVtx/d0ErrwrtPriVtx);
-      double szIP = signOfZIP*fabs(z0wrtPriVtx);
-      double z0Sig = signOfZIP*fabs(z0wrtPriVtx/z0ErrwrtPriVtx);
+      double szIP        = signOfZIP*fabs(z0wrtPriVtx);
+      double z0Sig       = signOfZIP*fabs(z0wrtPriVtx/z0ErrwrtPriVtx);
 
-      msg(MSG::VERBOSE) << "#BTAG# IPTAG: Trk: grade= " << (std::string) trkItr->grade
+      msg(MSG::VERBOSE) << "#BTAG# IPTAG: Trk: grade= " << trkItr->grade.gradeString()
 			<< " Eta= " << trk->eta() << " Phi= " << trk->phi() << " pT= " << trk->pt()
 			<< " d0= " << sIP
 			<< "+-" << d0ErrwrtPriVtx
@@ -584,8 +657,51 @@ namespace Analysis {
 			<< " z0= " << szIP
 			<< "+-" << z0ErrwrtPriVtx
 			<< " sigz0= " << z0Sig << endreq;
+      
+      // VD: I know that this is ugly but I want to minimise the changes as much as I can
+      myIPxDinfo tmpObj;
+      tmpObj.trk=trkItr->track;
+      tmpObj.d0   =sIP;
+      tmpObj.d0sig=significance;
+      tmpObj.z0   =szIP;
+      tmpObj.z0sig=z0Sig;
+      tmpObj.grade=trkItr->grade;
+      tmpObj.trkP =trk;
+      tmpObj.fromV0=isFromV0;
+      // compute individual track contribution to likelihood:
+      double tpb = 0., tpu = 0., tpc = 0.;
+      this->trackWeight(author,trkItr->grade,significance,z0Sig,tpb,tpu,tpc);
+      tmpObj.wB   =tpb;
+      tmpObj.wU   =tpu;
+      tmpObj.wC   =tpc;
+      vectObj.push_back(tmpObj);
+    }
 
+    if (m_sortPt)      std::sort( vectObj.begin() , vectObj.end() , StructPTsorting );
+    if (m_sortD0sig)   std::sort( vectObj.begin() , vectObj.end() , StructD0Sigsorting );
+    if (m_sortZ0D0sig) std::sort( vectObj.begin() , vectObj.end() , StructZ0D0Sigsorting );
+    
 
+    //std::cout << std::endl;
+    //std::cout << " " << m_NtrkMax << " , " << m_trkFract << " , " << m_NtrkMin << std::endl;
+    int resizeVal=vectObj.size();
+    //int tmpSize=resizeVal;
+    if (m_NtrkMax!=1000) {
+      if ( m_trkFract==1.0 ) {
+	if ( m_NtrkMax<resizeVal ) resizeVal=m_NtrkMax;
+      }	else {
+	int resizeVal2=(int)( (float)resizeVal*m_trkFract);
+	if (resizeVal<m_NtrkMin) resizeVal=m_NtrkMin;
+	if ( resizeVal2<resizeVal ) resizeVal=resizeVal2;
+      }
+    }
+    /////if ( resizeVal!=tmpSize ) std::cout << " Previous size: " << tmpSize << " ... reduced to: " << resizeVal << std::endl;
+    //std::cout << "before resizing: " << vectObj.size() << std::endl;
+    vectObj.resize(resizeVal);
+    //std::cout << "after resizing: " << vectObj.size() << std::endl;
+    
+    for (unsigned int i=0; i<vectObj.size(); i++) {
+      //if( m_impactParameterView=="3D" ) std::cout << i << " track pt: " << ((vectObj[i]).trkP)->pt() << "   d0sig: " << (vectObj[i]).d0sig << std::endl;
       /** fill reference histograms: */
       ///* ms
       if( m_runModus == "reference" ) {
@@ -597,47 +713,44 @@ namespace Analysis {
           std::vector<TrackGrade>::const_iterator listEnd=gradeList.end();
           for ( ; listIter !=listEnd ; ++listIter ) {
             const TrackGrade & grd = (*listIter);
-	    ATH_MSG_DEBUG("#BTAG#   filling ref histo for grade " << (std::string)grd );
-	    if( grd==(*trkItr).grade ) { // check the grade of current track
+	    ATH_MSG_DEBUG("#BTAG#   filling ref histo for grade " << grd.gradeString() );
+	    if( grd==(vectObj[i]).grade ) { // check the grade of current track
 	      ATH_MSG_DEBUG("#BTAG#   track is of required grade ");
-              const std::string suffix = "_" + (std::string)grd;
+              const std::string suffix = "_" + grd.gradeString();
               if( m_impactParameterView=="1D" ) {
 	        std::string hName = "/RefFile/IP1D/" + author + "/"
-		  + pref + "/" + (std::string)grd + "/SipZ0";
+		  + pref + "/" + grd.gradeString() + "/SipZ0";
 	        ATH_MSG_DEBUG("#BTAG#   histo 1D: " << hName);
-		m_histoHelper->fillHisto(hName,z0Sig);
+		m_histoHelper->fillHisto(hName, (vectObj[i]).z0sig );
 	      }
               if( m_impactParameterView=="2D" ) {
 	        std::string hName = "/RefFile/IP2D/" + author + "/"
-		  + pref + "/" + (std::string)grd + "/SipA0";
+		  + pref + "/" + grd.gradeString() + "/SipA0";
 	        ATH_MSG_DEBUG("#BTAG#   histo 2D: " << hName);
-		m_histoHelper->fillHisto(hName,significance);
+		m_histoHelper->fillHisto(hName, (vectObj[i]).d0sig );
 	      }
               if( m_impactParameterView=="3D" ) {
 	        std::string hName = "/RefFile/IP3D/" + author + "/"
-		  + pref + "/" + (std::string)grd + "/Sip3D";
+		  + pref + "/" + grd.gradeString() + "/Sip3D";
 	        ATH_MSG_DEBUG("#BTAG#   histo 3D: " << hName);
-		m_histoHelper->fillHisto(hName,significance,z0Sig);
+		m_histoHelper->fillHisto(hName,(vectObj[i]).d0sig, (vectObj[i]).z0sig);
 	      }
 	    }
 	  }
 	}
-      }//*/
+      }//*/ ////// END of reference mode ....
 
-      IPTracks.push_back(trkItr->track);
-      vectD0.push_back(sIP);
-      vectD0Signi.push_back(significance);
-      vectZ0.push_back(szIP);
-      vectZ0Signi.push_back(z0Sig);
-      vectGrades.push_back(trkItr->grade);
-      vectTP.push_back(trk);
-      vectFromV0.push_back(isFromV0);
-      // compute individual track contribution to likelihood:
-      double tpb = 0., tpu = 0., tpc = 0.;
-      this->trackWeight(author,trkItr->grade,significance,z0Sig,tpb,tpu,tpc);
-      vectWeightB.push_back(tpb);
-      vectWeightU.push_back(tpu);
-      vectWeightC.push_back(tpc);
+      IPTracks.push_back( (vectObj[i]).trk );
+      vectD0.push_back( (vectObj[i]).d0 );
+      vectD0Signi.push_back( (vectObj[i]).d0sig );
+      vectZ0.push_back( (vectObj[i]).z0 );
+      vectZ0Signi.push_back( (vectObj[i]).z0sig );
+      vectGrades.push_back( (vectObj[i]).grade );
+      //////vectTP.push_back( (vectObj[i]).trkP );
+      vectFromV0.push_back( (vectObj[i]).fromV0 );
+      vectWeightB.push_back( (vectObj[i]).wB );
+      vectWeightU.push_back( (vectObj[i]).wU );
+      vectWeightC.push_back( (vectObj[i]).wC );
 
     } // endloop on tracks
 
@@ -651,7 +764,7 @@ namespace Analysis {
           AtomicProperty atom1(vectD0Signi[i],"Significance of IP (rphi)");
           AtomicProperty atom2(vectZ0Signi[i],"Significance of Z0");
           std::string compoName(author+"#");
-          compoName += (std::string)vectGrades[i];
+          compoName += vectGrades[i].gradeString();
           compoName += "/Sip3D";
           Composite compo1(compoName);
           compo1.atoms.push_back(atom1);
@@ -663,7 +776,7 @@ namespace Analysis {
         if(m_impactParameterView=="2D") {
           AtomicProperty atom1(vectD0Signi[i],"Significance of IP (rphi)");
           std::string compoName(author+"#");
-          compoName += (std::string)vectGrades[i];
+          compoName += vectGrades[i].gradeString();
           compoName += "/SipA0";
           Composite compo1(compoName);
           compo1.atoms.push_back(atom1);
@@ -674,7 +787,7 @@ namespace Analysis {
         if(m_impactParameterView=="1D") {
           AtomicProperty atom1(vectZ0Signi[i],"Significance of IP (z)");
           std::string compoName(author+"#");
-          compoName += (std::string)vectGrades[i];
+          compoName += vectGrades[i].gradeString();
           compoName += "/SipZ0";
           Composite compo1(compoName);
           compo1.atoms.push_back(atom1);
@@ -780,7 +893,7 @@ namespace Analysis {
       AtomicProperty atom1(sa0,"Significance of IP (rphi)");
       AtomicProperty atom2(sz0,"Significance of Z0");
       std::string compoName(author+"#");
-      compoName += (std::string)grade;
+      compoName += grade.gradeString();
       compoName += "/Sip3D";
       Composite compo1(compoName);
       compo1.atoms.push_back(atom1);
@@ -792,7 +905,7 @@ namespace Analysis {
     if(m_impactParameterView=="2D") {
       AtomicProperty atom1(sa0,"Significance of IP (rphi)");
       std::string compoName(author+"#");
-      compoName += (std::string)grade;
+      compoName += grade.gradeString();
       compoName += "/SipA0";
       Composite compo1(compoName);
       compo1.atoms.push_back(atom1);
@@ -803,7 +916,7 @@ namespace Analysis {
     if(m_impactParameterView=="1D") {
       AtomicProperty atom1(sz0,"Significance of IP (z)");
       std::string compoName(author+"#");
-      compoName += (std::string)grade;
+      compoName += grade.gradeString();
       compoName += "/SipZ0";
       Composite compo1(compoName);
       compo1.atoms.push_back(atom1);

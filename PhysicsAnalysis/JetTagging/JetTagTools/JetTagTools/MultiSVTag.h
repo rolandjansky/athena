@@ -19,6 +19,8 @@
 #include <vector>
 #include <map>
 #include <list>
+#include "egammaMVACalib/egammaMVACalib.h"
+#include "MVAUtils/BDT.h"
 #include "TMVA/IMethod.h"
 #include "TMVA/MethodBase.h"
 namespace TMVA { class Reader; }
@@ -48,6 +50,9 @@ namespace Analysis
       std::string m_taggerName; 
       std::string m_taggerNameBase;      
       //
+      std::string m_treeName;
+      std::string m_varStrName;
+
       ToolHandle<CalibrationBroker> m_calibrationTool;
       std::string m_MultiSV;
       //
@@ -55,6 +60,10 @@ namespace Analysis
       std::string m_refType;
       const xAOD::Vertex* m_priVtx;
    
+      bool m_disableAlgo;
+      int  m_warnCounter;
+      bool m_useEgammaMethodMultiSV;
+    
       std::vector<std::string> m_jetCollectionList;
       std::vector<std::string> m_hypotheses;
       bool m_doForcedCalib;
@@ -69,6 +78,7 @@ namespace Analysis
       float m_summass;
       float m_totalntrk;
       float m_diffntrkSV0;
+      float m_diffntrkSV1;
     
       float m_normDist;
       //properties of vertex with maximum (and 2nd max) mass:
@@ -89,8 +99,14 @@ namespace Analysis
       //...
       std::map<std::string, TMVA::Reader*> m_tmvaReaders;
       std::map<std::string, TMVA::MethodBase*> m_tmvaMethod; 
+      std::map<std::string, MVAUtils::BDT*> m_egammaBDTs;
       std::list<std::string> m_undefinedReaders;
       std::string m_sv0_infosource;
+      std::string m_sv1_infosource;
+
+      void SetVariableRefs(const std::vector<std::string> inputVars, TMVA::Reader* tmvaReader, 
+			   unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers);
+      double GetClassResponse (MVAUtils::BDT* bdt) const { return (bdt->GetPointers().size() ? bdt->GetGradBoostMVA(bdt->GetPointers()) : -9.); }
     }; // End class
 
 

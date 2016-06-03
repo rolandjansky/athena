@@ -90,17 +90,18 @@ StatusCode JetFitterVariablesFactory::finalize() {
     float deltaeta(0.);
     float chi2(0.);
     int ndof(0);
+    float deltaRFlightDir(0.);
 
     const std::vector<Trk::VxCandidate*>& myVertices = myJetFitterInfo->verticesJF();
     if(myVertices.size() == 0){
       ATH_MSG_WARNING("#BTAG# Trk::VxCandidate not found for jet fitter ");
-      fill(BTag, basename, mass_uncorr, nVTX, nSingleTracks, nTracksAtVtx, mass, energyFraction, significance3d, deltaeta, deltaphi, chi2, ndof);
+      fill(BTag, basename, mass_uncorr, nVTX, nSingleTracks, nTracksAtVtx, mass, energyFraction, significance3d, deltaeta, deltaphi, chi2, ndof, deltaRFlightDir);
       return StatusCode::SUCCESS;
     }
     const Trk::VxJetCandidate* myVxJetCandidate=dynamic_cast<Trk::VxJetCandidate*>(myVertices[0]);
     if (myVxJetCandidate==0) {
       ATH_MSG_WARNING("#BTAG# No correct VxJetCandidate could be retrieved." );
-      fill(BTag, basename, mass_uncorr, nVTX, nSingleTracks, nTracksAtVtx, mass, energyFraction, significance3d, deltaeta, deltaphi, chi2, ndof);
+      fill(BTag, basename, mass_uncorr, nVTX, nSingleTracks, nTracksAtVtx, mass, energyFraction, significance3d, deltaeta, deltaphi, chi2, ndof, deltaRFlightDir);
       return StatusCode::SUCCESS;
     }
 
@@ -111,7 +112,7 @@ StatusCode JetFitterVariablesFactory::finalize() {
         
     //put all needed information inside :-)
     
-    const double s_massks=497.648;
+    //const double s_massks=497.648;
     const double s_pion=139.57018;//hard coded pion mass ;-)
     
     int ntrackPrimaryVtx=myJetCandidate.getPrimaryVertex()->getTracksAtVertex().size();
@@ -161,9 +162,9 @@ StatusCode JetFitterVariablesFactory::finalize() {
 			  vertexPosition[Trk::jet_yv],
 			  vertexPosition[Trk::jet_zv]);
 
-    Amg::Vector3D jetDir(1,1,1);//has to be different from 0
-    Amg::setPhi(jetDir, vertexPosition[Trk::jet_phi]);
-    Amg::setTheta(jetDir, vertexPosition[Trk::jet_theta]);
+    Amg::Vector3D flightAxis(1,1,1);//has to be different from 0
+    Amg::setPhi(flightAxis, vertexPosition[Trk::jet_phi]);
+    Amg::setTheta(flightAxis, vertexPosition[Trk::jet_theta]);
 
     xAOD::IParticle::FourMom_t JetVector = myJet.p4();
     
@@ -324,7 +325,7 @@ StatusCode JetFitterVariablesFactory::finalize() {
 
 	
 	sumPAllVertices+=sumP;
-	double ptadd=sumP.perp(jetDir.unit());
+	double ptadd=sumP.perp(flightAxis.unit());
 	double masswithneutrals=TMath::Sqrt(massThisCluster.mag2()+ptadd*ptadd)+ptadd;
 
         if (m_useSingleTracksAlsoForMass)
@@ -367,30 +368,32 @@ StatusCode JetFitterVariablesFactory::finalize() {
       //port range of mass to maximum 10000.
       if (mass>5000.) {
 	mass = 
-	  5000.+5000./TMath::Pi()*2.*TMath::ATan(TMath::Pi()/2./5000.*(mass-5000.));
+	  5000.+(5000./M_PI)*2.*TMath::ATan((M_PI/2./5000.)*(mass-5000.));
       }
       if (mass_uncorr>5000.) {
 	mass_uncorr = 
-	  5000.+5000./TMath::Pi()*2.*TMath::ATan(TMath::Pi()/2./5000.*(mass_uncorr-5000.));
+	  5000.+(5000./M_PI)*2.*TMath::ATan((M_PI/2./5000.)*(mass_uncorr-5000.));
       }
     }
     
     if (inverrordist!=0) {
       significance3d=dist/TMath::Sqrt(inverrordist);
       //port range of significance 3d to maximum 100.
-      significance3d=100./(TMath::Pi()/2.)*TMath::ATan(TMath::Pi()/2./100.*significance3d);
+      significance3d=100./(M_PI/2.)*TMath::ATan((M_PI/2./100.)*significance3d);
     }
     
     if (fabs(sumPAllVertices.mag())>1e-7) {
       deltaphi=sumPAllVertices.eta()-JetVector.Eta();
       deltaeta=sumPAllVertices.deltaPhi(Amg::Vector3D(JetVector.Px(), JetVector.Py(), JetVector.Pz()));
+      deltaRFlightDir = TMath::Sqrt(sumPAllVertices.deltaPhi(flightAxis)*sumPAllVertices.deltaPhi(flightAxis) + (sumPAllVertices.eta()-flightAxis.eta())*(sumPAllVertices.eta()-flightAxis.eta()));
     } else {
       deltaphi=-10.;
       deltaeta=-10.;
+      deltaRFlightDir = -10;
     }
 
 
-    fill(BTag, basename, mass_uncorr, nVTX, nSingleTracks, nTracksAtVtx, mass, energyFraction, significance3d, deltaeta, deltaphi, chi2, ndof);
+    fill(BTag, basename, mass_uncorr, nVTX, nSingleTracks, nTracksAtVtx, mass, energyFraction, significance3d, deltaeta, deltaphi, chi2, ndof, deltaRFlightDir);
 
     return StatusCode::SUCCESS;
 
@@ -400,11 +403,12 @@ StatusCode JetFitterVariablesFactory::finalize() {
 void
 JetFitterVariablesFactory::fill(xAOD::BTagging* BTag, const std::string& basename, float mass_uncorr,
                                 int nVTX, int nSingleTracks, int nTracksAtVtx, float mass, float energyFraction,
-                                float significance3d, float deltaeta, float deltaphi, float chi2, int ndof) const {
+                                float significance3d, float deltaeta, float deltaphi, float chi2, int ndof, float deltaRFlightDir) const {
 
   BTag->setVariable<float>(basename, "massUncorr", mass_uncorr);
   BTag->setVariable<float>(basename, "chi2", chi2);
   BTag->setVariable<int>(basename, "ndof", ndof);
+  BTag->setVariable<float>(basename, "dRFlightDir", deltaRFlightDir);
 
   if (basename == "JetFitter"){
      BTag->setTaggerInfo(nVTX, xAOD::BTagInfo::JetFitter_nVTX);

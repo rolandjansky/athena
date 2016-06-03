@@ -20,7 +20,7 @@ int back_nVTX(double nVTX)
 
 double norm_nTracksAtVtx(int nTracksAtVtx)
 {
-  return ((double)nTracksAtVtx-1.)/1.6;
+  return ((double)nTracksAtVtx-1.)*(1./1.6);
 }
 
 int back_nTracksAtVtx(double nTracksAtVtx)
@@ -41,7 +41,7 @@ int back_nSingleTracks(double nSingleTracks)
 
 double norm_energyFraction(double energyFraction)
 {
-  return (energyFraction-0.23)/0.33;
+  return (energyFraction-0.23)*(1./0.33);
 }
 
 double back_energyFraction(double energyFraction)
@@ -51,7 +51,7 @@ double back_energyFraction(double energyFraction)
 
 double norm_mass(double mass)
 {
-  return (mass-974.)/1600.;
+  return (mass-974.)*(1./1600.);
 }
 
 double back_mass(double mass)
@@ -61,7 +61,7 @@ double back_mass(double mass)
 
 double norm_significance3d(double s3d)
 {
-  return (s3d-7.)/14.;
+  return (s3d-7.)*(1./14.);
 }
 
 double back_significance3d(double s3d)
@@ -71,7 +71,7 @@ double back_significance3d(double s3d)
 
 double norm_IP3D(double ip3d)
 {
-  return (ip3d-6.3)/6.;
+  return (ip3d-6.3)*(1./6.);
 }
 
 double back_IP3D(double ip3d)
@@ -82,7 +82,7 @@ double back_IP3D(double ip3d)
 
 double norm_cat_pT(int cat_pT)
 {
-  return ((double)cat_pT-3.)/3.;
+  return ((double)cat_pT-3.)*(1./3.);
 }
 
 int back_cat_pT(double cat_pT)

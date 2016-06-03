@@ -2,11 +2,12 @@
 //#include "JetTagTools/LifetimeTag.h"
 //#include "JetTagTools/SecVtxTag.h"
 #include "JetTagTools/IPTag.h"
+#include "JetTagTools/RNNIPTag.h"
 #include "JetTagTools/SVTag.h"
 #include "JetTagTools/MultiSVTag.h"
 //#include "JetTagTools/JetProbTag.h"
 //#include "JetTagTools/SoftElectronTag.h"
-//#include "JetTagTools/SoftMuonTag.h"
+#include "JetTagTools/SoftMuonTag.h"
 //#include "JetTagTools/CombinerTool.h"
 //#include "JetTagTools/CombinerToolTag.h"
 //#include "JetTagTools/LikelihoodTool.h"
@@ -20,6 +21,10 @@
 #include "JetTagTools/MSVVariablesFactory.h"
 //#include "JetTagTools/JetFitterCharmVariablesFactory.h"
 //#include "JetTagTools/GaiaVariablesFactory.h"
+// #include "JetTagTools/BTagVariables.hh"
+#include "JetTagTools/MultivariateTagManager.h"
+#include "JetTagTools/DL1Tag.h"
+#include "JetTagTools/TagNtupleDumper.h"
 #include "JetTagTools/JetFitterNNTool.h"
 //#include "JetTagTools/JetFitterCharmNNTool.h"
 //#include "JetTagTools/GaiaNNTool.h"
@@ -36,6 +41,10 @@
 #include "JetTagTools/MVbTag.h"
 
 #include "JetTagTools/JetVertexCharge.h"
+
+#include "JetTagTools/ExKtbbTag.h"
+#include "JetTagTools/ExKtbbTagTool.h"
+
 //
 //#include "JetTagTools/SharedHitMapper.h"
 //
@@ -45,11 +54,12 @@
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, LifetimeTag )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SecVtxTag )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, IPTag )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, RNNIPTag )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SVTag )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MultiSVTag )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetProbTag )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SoftElectronTag )
-//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SoftMuonTag )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SoftMuonTag )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, CombinerTool )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, CombinerToolTag )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, LikelihoodTool )
@@ -63,6 +73,9 @@ DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterVariablesFactory )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MSVVariablesFactory )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterCharmVariablesFactory )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, GaiaVariablesFactory )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, DL1Tag )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, TagNtupleDumper )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MultivariateTagManager )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterNNTool )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetFitterCharmNNTool )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, GaiaNNTool );
@@ -80,6 +93,10 @@ DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MVbTag )
 
 
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetVertexCharge )
+
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, ExKtbbTag )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, ExKtbbTagTool )
+
 // Until we put it elsewhere
 //DECLARE_ALGORITHM_FACTORY( SharedHitMapper )
 
@@ -96,7 +113,7 @@ DECLARE_FACTORY_ENTRIES( JetTagTools )
   DECLARE_NAMESPACE_TOOL( Analysis, MultiSVTag );
   // DECLARE_NAMESPACE_TOOL( Analysis, JetProbTag );
   // DECLARE_NAMESPACE_TOOL( Analysis, SoftElectronTag );
-  // DECLARE_NAMESPACE_TOOL( Analysis, SoftMuonTag );
+  DECLARE_NAMESPACE_TOOL( Analysis, SoftMuonTag );
   // DECLARE_NAMESPACE_TOOL( Analysis, CombinerTool );
   // DECLARE_NAMESPACE_TOOL( Analysis, LikelihoodTool );
   // DECLARE_NAMESPACE_TOOL( Analysis, CombinerToolTag );
@@ -113,6 +130,9 @@ DECLARE_FACTORY_ENTRIES( JetTagTools )
   DECLARE_NAMESPACE_TOOL( Analysis, JetFitterNNTool );
   // DECLARE_NAMESPACE_TOOL( Analysis, JetFitterCharmNNTool );
   //DECLARE_NAMESPACE_TOOL( Analysis, GaiaNNTool );
+  DECLARE_NAMESPACE_TOOL( Analysis, DL1Tag );
+  DECLARE_NAMESPACE_TOOL( Analysis, TagNtupleDumper );
+  DECLARE_NAMESPACE_TOOL( Analysis, MultivariateTagManager );
   DECLARE_NAMESPACE_TOOL( Analysis, SVForIPTool );
   DECLARE_NAMESPACE_TOOL( Analysis, BasicTrackGradeFactory );
   DECLARE_NAMESPACE_TOOL( Analysis, DetailedTrackGradeFactory );
@@ -125,6 +145,8 @@ DECLARE_FACTORY_ENTRIES( JetTagTools )
   // DECLARE_NAMESPACE_TOOL( Analysis, MV3Tag );
   DECLARE_NAMESPACE_TOOL( Analysis, MVbTag );
   DECLARE_NAMESPACE_TOOL( Analysis, JetVertexCharge );
+  DECLARE_NAMESPACE_TOOL( Analysis, ExKtbbTag );
+  DECLARE_NAMESPACE_TOOL( Analysis, ExKtbbTagTool );
   // //
   // DECLARE_ALGORITHM( SharedHitMapper );
   // //

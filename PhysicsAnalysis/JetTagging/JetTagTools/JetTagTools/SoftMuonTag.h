@@ -21,9 +21,12 @@
 
 namespace Trk  { class VxCandidate; }
 namespace Reco { class ITrackToVertex; }
+namespace Trk  { class ITrackToVertexIPEstimator; }
 //class Jet;
 namespace Analysis { class MuonContainer; }
 class AnalysisTools;
+
+namespace CP { class IMuonSelectionTool; }
 
 namespace Analysis
 {
@@ -49,9 +52,9 @@ namespace Analysis
       /** Set the primary vertex. TODO: This is temporary ! The primary vertex should
 	  be part of the JetTag IParticle interface implementation. The trouble with
 	  ElementLink and persistency has to be solved for that. Revisit ... */
-      void setOrigin(const Trk::VxCandidate* priVtx);
+      void setOrigin(const xAOD::Vertex* priVtx);
       
-      void tagJet(xAOD::Jet& jetToTag);
+      StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag);  
       
       void finalizeHistos();
       
@@ -59,9 +62,16 @@ namespace Analysis
       
       /** TrackToVertex tool */
       ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
+
+      /** GP: Tool for the estimation of the IPs to the Vertex */
+      ToolHandle< Trk::ITrackToVertexIPEstimator > m_trackToVertexIPEstimator;
+    
+      ToolHandle<CP::IMuonSelectionTool> m_muonSelectorTool;
+      int m_muonQualityCut;
+
       /** Likelihood tool */
       ToolHandle< NewLikelihoodTool > m_likelihoodTool;
-      //      ToolHandle< LikelihoodMultiDTool > m_likelihoodTool;
+      
       // Helpers...
       HistoHelperRoot* m_histoHelper;
       
@@ -90,10 +100,10 @@ namespace Analysis
       /** Storage for the primary vertex. Can be removed when JetTag provides origin(). */
       // this pointer does not need to be deleted in the destructor (because it
       // points to something in storegate)
-      const Trk::VxCandidate* m_priVtx;
+       const xAOD::Vertex* m_priVtx;
 
       /** just print some info at the beginning */
-      void m_printParameterSettings();
+      void printParameterSettings();
 
       std::vector<std::string> m_jetCollectionList;
       std::vector<std::string> m_hypothese; // "b" or "c" or "l"
@@ -105,10 +115,11 @@ namespace Analysis
       bool m_writeInfoPlus;
       std::string m_originalMuCollectionName;
       std::string m_muonAssociationName;
-      const MuonContainer* m_originalMuCollection;
+      //const MuonContainer* m_originalMuCollection;
 
   }; // End class
-  inline void SoftMuonTag::setOrigin(const Trk::VxCandidate* priVtx) { m_priVtx=priVtx; }
+ 
+  inline void SoftMuonTag::setOrigin(const xAOD::Vertex* priVtx) { m_priVtx = priVtx; }
 } // End namespace
 
 #endif

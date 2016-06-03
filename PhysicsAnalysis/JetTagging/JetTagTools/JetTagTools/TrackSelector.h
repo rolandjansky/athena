@@ -79,12 +79,12 @@ private:
   int m_nHitSi;       /// at least n hits in pixels+SCT
   int m_nHitTrt;      /// at least n hits in TRT
   int m_nHitTrtHighE; /// at least n transition hits in TRT 
-  bool m_useSharedHitInfo; /// if false the following cuts are ignored
-  int m_nSharedFirstLayer; /// max. number of shared hits in first Si layer
-  int m_nSharedBLayer;/// max. number of shared hits in B layer
-  int m_nSharedPix;   /// max. number of shared hits in pixels
-  int m_nSharedSct;   /// max. number of shared hits in SCT
-  int m_nSharedSi;    /// max. number of shared hits in pixels+SCT
+  //bool m_useSharedHitInfo; /// if false the following cuts are ignored
+  //int m_nSharedFirstLayer; /// max. number of shared hits in first Si layer
+  //int m_nSharedBLayer;/// max. number of shared hits in B layer
+  //int m_nSharedPix;   /// max. number of shared hits in pixels
+  //int m_nSharedSct;   /// max. number of shared hits in SCT
+  //int m_nSharedSi;    /// max. number of shared hits in pixels+SCT
   bool m_useDeadPixInfo;  /// if true uses dead pixel sensors from conddb (except b-layer) to compute nPix
   bool m_useDeadSctInfo;  /// if true uses dead SCT sensors to compute nSct
   bool m_useTrackQualityInfo; /// if false the following cuts are ignored

@@ -10,12 +10,15 @@ PURPOSE:  b-tagging based on soft muon identification
 ********************************************************************/
 #include "JetTagTools/SoftMuonTag.h"
 
-#include "FourMom/P4PxPyPzE.h"
+//#include "FourMom/P4PxPyPzE.h"
 //#include "JetEvent/Jet.h"
 #include "GaudiKernel/MsgStream.h"
 #include "Navigation/NavigationToken.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "ITrackToVertex/ITrackToVertex.h"
+#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
+#include "MuonSelectorTools/IMuonSelectionTool.h" 
+#include "JetTagTools/JetTagUtils.h"
 
 #include "JetTagInfo/TruthInfo.h"
 #include "JetTagInfo/SoftMuonInfo.h"
@@ -23,16 +26,14 @@ PURPOSE:  b-tagging based on soft muon identification
 #include "JetTagInfo/SLTrueInfo.h"
 
 #include "JetTagTools/NewLikelihoodTool.h"
-//#include "JetTagTools/LikelihoodMultiDTool.h"
 #include "JetTagTools/HistoHelperRoot.h"
-//#include "JetTagTools/LikelihoodComponents.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "JetTagCalibration/CalibrationBroker.h"
 
-#include "muonEvent/Muon.h"
-#include "MuonIDEvent/MuonAssociation.h"
-
-#include "StoreGate/StoreGateSvc.h"
+#include "xAODMuon/MuonContainer.h"
+//////#include "MuonIDEvent/MuonAssociation.h"
+//////#include "StoreGate/StoreGateSvc.h"
+//////#include "muonEvent/Muon.h"
 
 namespace Analysis
 {
@@ -40,6 +41,7 @@ namespace Analysis
 SoftMuonTag::SoftMuonTag(const std::string& t, const std::string& n, const IInterface* p)
         : AthAlgTool(t,n,p),
           m_trackToVertexTool("Reco::TrackToVertex"),
+	  m_muonSelectorTool("JVC_MuonSelectorTool"),
           m_likelihoodTool("Analysis::NewLikelihoodTool"),
 	  m_histoHelper(0)
 {
@@ -50,24 +52,19 @@ SoftMuonTag::SoftMuonTag(const std::string& t, const std::string& n, const IInte
     declareProperty("BTagJetPTmin",   m_pTjetmin               = 15.*Gaudi::Units::GeV);
     declareProperty("BTagJetEtamin",  m_etajetmin              = 2.7);
     declareProperty("LikelihoodTool", m_likelihoodTool);
-    declareProperty("TrackToVertexTool", m_trackToVertexTool);
+    declareProperty("TrackToVertexTool"       , m_trackToVertexTool);
+    declareProperty("TrackToVertexIPEstimator", m_trackToVertexIPEstimator);   
+    declareProperty("muonSelectorTool", 	m_muonSelectorTool);
     declareProperty("checkOverflows", m_checkOverflows         = false);
     declareProperty("purificationDeltaR", m_purificationDeltaR = 0.8);
     declareProperty("muonIsolDeltaR", m_muonIsolDeltaR         = 0.7);
     declareProperty("UseBinInterpol", m_UseBinInterpol         = true);
+    
+    declareProperty("jetCollectionList"    , m_jetCollectionList);
+    declareProperty("useForcedCalibration" , m_doForcedCalib   = false);
+    declareProperty("ForcedCalibrationName", m_ForcedCalibName = "Cone4H1Tower");
 
-    declareProperty("jetCollectionList", m_jetCollectionList);
-    m_jetCollectionList.push_back("Cone4CalTower");
-    m_jetCollectionList.push_back("Cone7CalTower");
-    m_jetCollectionList.push_back("Kt4CalTower");
-    m_jetCollectionList.push_back("Kt6CalTower");
-    m_jetCollectionList.push_back("Cone4Topo");
-    m_jetCollectionList.push_back("ConeTopo");
-    m_jetCollectionList.push_back("Kt4Topo");
-    m_jetCollectionList.push_back("Kt6Topo");
-    declareProperty("useForcedCalibration",  m_doForcedCalib   = false);
-    declareProperty("ForcedCalibrationName", m_ForcedCalibName = "Cone4CalTower");
-
+    // VD: not sure which of these is needed ....
     declareProperty("RecAlgorithm",   m_alg                    = 1);
     declareProperty("CutD0",          m_d0cut                  = 4.*Gaudi::Units::mm);
     declareProperty("CutPT",          m_pTcut                  = 4.*Gaudi::Units::GeV);
@@ -77,8 +74,8 @@ SoftMuonTag::SoftMuonTag(const std::string& t, const std::string& n, const IInte
     declareProperty("writeInfoPlus",  m_writeInfoPlus          = true);
 
     declareProperty("originalMuCollectionName", m_originalMuCollectionName = "StacoMuonCollection");
+    declareProperty("MuonAssociationName"     , m_muonAssociationName="Muons");
 
-    declareProperty("MuonAssociationName", m_muonAssociationName="Muons");
     /** number of hypotheses = 3 : b,l,c */
     m_hypothese.push_back("SoftMb");
     m_hypothese.push_back("SoftMl");
@@ -103,7 +100,9 @@ SoftMuonTag::SoftMuonTag(const std::string& t, const std::string& n, const IInte
     m_histoname.push_back("JetETLowPtEffL2D");
     m_histoname.push_back("JetETNormL2D");
     m_histoname.push_back("JetETLowPtNormL2D");
-
+    
+    
+    declareProperty("MuonQuality",		m_muonQualityCut = xAOD::Muon::Medium ); 
 }
 
 SoftMuonTag::~SoftMuonTag()
@@ -114,7 +113,7 @@ StatusCode SoftMuonTag::initialize()
 {
   
   ATH_MSG_INFO("#BTAG# Initializing..."); 
-  m_printParameterSettings();
+  printParameterSettings();
 
   /** retrieving ToolSvc: */
   IToolSvc* toolSvc;
@@ -123,13 +122,31 @@ StatusCode SoftMuonTag::initialize()
     ATH_MSG_ERROR( "#BTAG# Can't get ToolSvc");
     return StatusCode::FAILURE;
   }
+  
+  //Retrieve the Muon Selectot tool
+  sc = m_muonSelectorTool.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_muonSelectorTool);
+    return sc;
+  } else {
+    ATH_MSG_INFO("#BTAG# Retrieved tool " << m_muonSelectorTool);  
+  }
 
   /** retrieving TrackToVertex: */
+  /*
   if ( m_trackToVertexTool.retrieve().isFailure() ) {
     ATH_MSG_FATAL( "#BTAG# Failed to retrieve tool " << m_trackToVertexTool);
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_INFO( "#BTAG# Retrieved tool " << m_trackToVertexTool);
+  }
+  */
+
+  if (m_trackToVertexIPEstimator.retrieve().isFailure() ) {
+    ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_trackToVertexIPEstimator);
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_trackToVertexIPEstimator);
   }
 
   // If the jet author is not known 
@@ -147,6 +164,7 @@ StatusCode SoftMuonTag::initialize()
   /* ------------------------------------------------------------------------- */
   /*                 READ IN REFHISTOS IF IN ANALYSIS MODE                     */
   /* ------------------------------------------------------------------------- */
+  /* // VD: commenting out
   if (m_runModus == "analysis") {
     ATH_MSG_INFO("#BTAG# Reading histos...");
     // retrieve the Likelihood tool
@@ -195,6 +213,7 @@ StatusCode SoftMuonTag::initialize()
     //      m_likelihoodTool->resetLhVariableToUse();
     m_likelihoodTool->printStatus();	
   }
+  */
 
   /* ----------------------------------------------------------------------------------- */
   /*                         BOOK HISTOS IF IN REFERENCE MODE                            */
@@ -260,32 +279,15 @@ StatusCode SoftMuonTag::finalize()
     return StatusCode::SUCCESS;
 }
 
-void SoftMuonTag::tagJet(xAOD::Jet& jetToTag)
-{
+
+StatusCode SoftMuonTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
 
   ATH_MSG_DEBUG( "#BTAG# Starting tagJet");
 
   /** author to know which jet algorithm: */
-  std::string author = jetToTag.jetAuthor();
-  if (m_doForcedCalib) {
-    author = m_ForcedCalibName;
-  } else { 
-    //Check that this author is know in the calibration
-    if (std::find( m_jetCollectionList.begin(), 
-		   m_jetCollectionList.end(), 
-		   author ) == m_jetCollectionList.end()) {
-      ATH_MSG_DEBUG( "#BTAG# Jet Algorithm " << author << " not found in the standard list");
-      ATH_MSG_DEBUG( "#BTAG# Trying to find a similar one...");
-      if      (author.find("Cone4",0) != std::string::npos) author = "Cone4CalTower";
-      else if (author.find("Cone7",0) != std::string::npos) author = "Cone7CalTower";
-      else if (author.find("Kt4",0)   != std::string::npos) author = "Kt4CalTower";
-      else if (author.find("Kt6",0)   != std::string::npos) author = "Kt6CalTower";
-      else {
-	ATH_MSG_DEBUG( "#BTAG# None found, taking " << m_ForcedCalibName << " calibration");
-	author = m_ForcedCalibName;
-      }
-    }
-  }
+  std::string author = JetTagUtils::getJetAuthor(jetToTag);
+  if (m_doForcedCalib) author = m_ForcedCalibName;
+  ATH_MSG_VERBOSE("#BTAG# Using jet type " << author << " for calibrations.");
 
   /* The jet */
   double jeteta = jetToTag.eta(), jetphi = jetToTag.phi(), jetpt = jetToTag.pt();
@@ -300,8 +302,9 @@ void SoftMuonTag::tagJet(xAOD::Jet& jetToTag)
   std::vector<Amg::Vector3D> hardMus;
   if (m_runModus=="reference") {
     // Veto jets containing a muon from direct decay of W/Z/H:
-    bool hasHardMu(false);
-    const SoftLeptonTruthInfo* sltinfo = jetToTag.tagInfo<SoftLeptonTruthInfo>("SoftLeptonTruthInfo");
+    //bool hasHardMu(false);
+    //const SoftLeptonTruthInfo* sltinfo = jetToTag.tagInfo<SoftLeptonTruthInfo>("SoftLeptonTruthInfo");
+    /*
     if (sltinfo) {
       int nslt = sltinfo->numSLTrueInfo();
       ATH_MSG_DEBUG( "#BTAG# SL truth info exist. Found " << nslt << " true leptons in jet");
@@ -328,61 +331,66 @@ void SoftMuonTag::tagJet(xAOD::Jet& jetToTag)
 	}
       }
     }
+    */
     //
-    if(hasHardMu)return; // skip jet
+    /////////////if(hasHardMu)return; // skip jet
     //
     m_histoHelper->fillHisto("/RefFile/SoftMu/"+author+"/controlSoftMu/eta",(double)jeteta);
     if (fabs(jeteta) <= m_etajetmin) {
       m_histoHelper->fillHisto("/RefFile/SoftMu/"+author+"/controlSoftMu/phi",(double)jetphi);
       m_histoHelper->fillHisto("/RefFile/SoftMu/"+author+"/controlSoftMu/pt",(double)jetpt/1.e3);
       //
-      if(jetpt>m_pTjetmin)
-	{
-	  const TruthInfo* mcTrueInfo = jetToTag.tagInfo<TruthInfo>("TruthInfo");
-	  if (mcTrueInfo) {
-	    label = mcTrueInfo->jetTruthLabel();
-	    ATH_MSG_DEBUG ( "#BTAG# Jet label="<<label);
-	    // for purification: require no b or c quark closer than dR=m_purificationDeltaR
-	    double deltaRtoClosestB = mcTrueInfo->deltaRMinTo("B");
-	    double deltaRtoClosestC = mcTrueInfo->deltaRMinTo("C");
-	    double deltaRmin = deltaRtoClosestB < deltaRtoClosestC ? deltaRtoClosestB : deltaRtoClosestC;
-	    //
-	    if ( (    "B"==m_refType &&   "B"==label ) ||  // b-jets    
-		 (    "C"==m_refType &&   "C"==label ) ||  // c-jets
-		 (    "L"==m_refType && "N/A"==label ) ||  // light jets
-		 (  "ALL"==m_refType &&                    // all jets: purify
-		    ( 
-		     ( "B"==label   && deltaRtoClosestC > m_purificationDeltaR ) || 
-		     ( "C"==label   && deltaRtoClosestB > m_purificationDeltaR ) ||
-		     ( "N/A"==label && deltaRmin > m_purificationDeltaR ) ) )
-		 ) {
-	      if ("B"==label) {
-		pref = m_hypothese[0];
-	      } else if ("N/A"==label) {
-		pref = m_hypothese[1];
-	      } else if ("C"==label) {
-		pref = m_hypothese[2];
-	      }
-	      std::string hDir = "/RefFile/SoftMu/"+author+"/"+pref+"/";
-	      m_histoHelper->fillHisto(hDir+"JetETNormL1D",(double)jetpt/1.e3);
-	      m_histoHelper->fillHisto(hDir+"JetETNormL1DL1D",(double)jetpt/1.e3);
-	      m_histoHelper->fillHisto(hDir+"JetETNormL2D",(double)jetpt/1.e3);
-	      m_histoHelper->fillHisto(hDir+"JetETLowPtNormL1D",(double)jetpt/1.e3);
-	      m_histoHelper->fillHisto(hDir+"JetETLowPtNormL1DL1D",(double)jetpt/1.e3);
-	      m_histoHelper->fillHisto(hDir+"JetETLowPtNormL2D",(double)jetpt/1.e3);
+      /*
+      if(jetpt>m_pTjetmin) {
+	const TruthInfo* mcTrueInfo = jetToTag.tagInfo<TruthInfo>("TruthInfo");
+	if (mcTrueInfo) {
+	  label = mcTrueInfo->jetTruthLabel();
+	  ATH_MSG_DEBUG ( "#BTAG# Jet label="<<label);
+	  // for purification: require no b or c quark closer than dR=m_purificationDeltaR
+	  double deltaRtoClosestB = mcTrueInfo->deltaRMinTo("B");
+	  double deltaRtoClosestC = mcTrueInfo->deltaRMinTo("C");
+	  double deltaRmin = deltaRtoClosestB < deltaRtoClosestC ? deltaRtoClosestB : deltaRtoClosestC;
+	  //
+	  if ( (    "B"==m_refType &&   "B"==label ) ||  // b-jets    
+	       (    "C"==m_refType &&   "C"==label ) ||  // c-jets
+	       (    "L"==m_refType && "N/A"==label ) ||  // light jets
+	       (  "ALL"==m_refType &&                    // all jets: purify
+		  ( 
+		   ( "B"==label   && deltaRtoClosestC > m_purificationDeltaR ) || 
+		   ( "C"==label   && deltaRtoClosestB > m_purificationDeltaR ) ||
+		   ( "N/A"==label && deltaRmin > m_purificationDeltaR ) ) )
+	       ) {
+	    if ("B"==label) {
+	      pref = m_hypothese[0];
+	    } else if ("N/A"==label) {
+	      pref = m_hypothese[1];
+	    } else if ("C"==label) {
+	      pref = m_hypothese[2];
 	    }
-	    else return; // unwanted label
-	  } 
-	  else {
-	    ATH_MSG_ERROR( "#BTAG# No Label ! Cannot run on reference mode !");
-	    return;
+	    std::string hDir = "/RefFile/SoftMu/"+author+"/"+pref+"/";
+	    m_histoHelper->fillHisto(hDir+"JetETNormL1D",(double)jetpt/1.e3);
+	    m_histoHelper->fillHisto(hDir+"JetETNormL1DL1D",(double)jetpt/1.e3);
+	    m_histoHelper->fillHisto(hDir+"JetETNormL2D",(double)jetpt/1.e3);
+	    m_histoHelper->fillHisto(hDir+"JetETLowPtNormL1D",(double)jetpt/1.e3);
+	    m_histoHelper->fillHisto(hDir+"JetETLowPtNormL1DL1D",(double)jetpt/1.e3);
+	    m_histoHelper->fillHisto(hDir+"JetETLowPtNormL2D",(double)jetpt/1.e3);
 	  }
+	  else return; // unwanted label
+	} 
+	else {
+	  ATH_MSG_ERROR( "#BTAG# No Label ! Cannot run on reference mode !");
+	  return;
 	}
+      }
       else return; // failed pt cut
+      */
     }
-    else return; // failed eta cut
+    else return StatusCode::SUCCESS; // failed eta cut
   }
 
+  
+  /////// VD: THIS is the part that matters
+  /*
   if(m_runModus=="analysis" && m_writeInfoPlus) {
     bool ppb = true;
     StoreGateSvc* m_StoreGate;
@@ -403,328 +411,337 @@ void SoftMuonTag::tagJet(xAOD::Jet& jetToTag)
       return;
     }
   }
+  */
 
-  const MuonAssociation *mc = jetToTag.getAssociation<MuonAssociation>(m_muonAssociationName);
-
+  //const MuonAssociation *mc = jetToTag.getAssociation<MuonAssociation>(m_muonAssociationName);
+  /*
   if (mc == 0) {
     ATH_MSG_INFO( "#BTAG# No muon constituent");
     return;
   }
+  */
+  std::vector<ElementLink<xAOD::MuonContainer> > assocMuons;
+  assocMuons= BTag->auxdata<std::vector<ElementLink<xAOD::MuonContainer> > >("Muons");
+  if ( assocMuons.size()==0 ) {
+    ATH_MSG_DEBUG( "#BTAG# Found no associated muons to the jet");
+    ///return StatusCode::SUCCESS; /// need to go untill the end to decorate
+  }
 
-  SoftMuonInfo* softmInfo(0);
+  //SoftMuonInfo* softmInfo(0);
   // LOOP OVER MUONS ASSOCIATED WITH THE JET:
-  int muCounter = 0;               // number of muons passing basic selection
-  int muCounterL1D = 0;            // number of muons tagged by L1D algorithm
-  int muCounterLowPt = 0;               // number of muons passing basic selection
-  int muCounterL1DLowPt = 0;            // number of muons tagged by L1D algorithm
-  std::vector<double> bestMuProbi; // likelihood (b, c, l) of the best muon
-  double bestMuWeight = 0;         // weight of the best muon
-  if(m_algMode == "CHI2"){
-    bestMuWeight = 1000.;
-  }
-  double highestPT = 0;       // for reference: if several, use
-  double highestPTrel = 0;    // only the muon with highest pt
-  bool   highestIsLowP = 0;
-  //
-  for(Navigable<MuonContainer,double>::object_iter it = mc->begin(); it!= mc->end(); ++it) {
-    const Muon *m = (*it);
-    if (m != 0) {
-      // Veto muons close to muons from W/Z/H decay in reference mode
-      bool closeToHardMu(false);
-      for(uint i=0;i<hardMus.size();i++)
-	{
-	  Amg::Vector3D v = hardMus[i];
-	  double dR = v.deltaR(Amg::Vector3D(m->p4().Px(),m->p4().Py(),m->p4().Pz()));
-	  ATH_MSG_DEBUG( "#BTAG# DR(mu-mu) info " 
-			 << v.eta() << " " <<  m->eta() << " "
-			 << v.phi() << " " << m->phi() << " "
-			 << dR);
-	  if(dR<0.1) {	    
-	    closeToHardMu = true;
-	  }	  
-	}
-      if(closeToHardMu)
-	{
-	  ATH_MSG_DEBUG( "#BTAG# skipping this muon" );
-	  continue;
-	}
-      // muon selection here:
+  //int muCounter         = 0;       // number of muons passing basic selection
+  //int muCounterL1D      = 0;       // number of muons tagged by L1D algorithm
+  //int muCounterLowPt    = 0;       // number of muons passing basic selection
+  //int muCounterL1DLowPt = 0;       // number of muons tagged by L1D algorithm
+  //std::vector<double> bestMuProbi; // likelihood (b, c, l) of the best muon
+  //double bestMuWeight = 0;         // weight of the best muon
+  //if(m_algMode == "CHI2") bestMuWeight = 1000.;
+  //double highestPT = 0;       // for reference: if several, use
+  //double highestPTrel = 0;    // only the muon with highest pt
+  //bool   highestIsLowP = 0;
 
-      const MuonParameters::Author mAuthor = m->author();
-      ATH_MSG_DEBUG( "#BTAG# Muon Author=" << mAuthor << " " 
-		     << MuonParameters:: mediumPt << " ");
-      // do not use MuTagMedium:
-      if(mAuthor == MuonParameters::mediumPt ) continue;
-      bool isComb(m->isCombinedMuon());
-      bool isLowP(m->isSegmentTaggedMuon() && m->inDetTrackParticle()!=0);
-      bool acceptAlg(true);
-      if( 0==m_alg && ( isLowP || !isComb ) ) acceptAlg = false;     // Use only combined muons
-      else if( 1==m_alg && (!isLowP && !isComb) ) acceptAlg = false; // Use only low-pT and combined muons
-      if(!acceptAlg)continue;
-      //
+  
+  /// variables used to decorate the Btagging object
+  float jet_mu_dRmin_pt=0;
+  float jet_mu_dRmin_dR=10;
+  float jet_mu_dRmin_qOverPratio    = 0;
+  float jet_mu_dRmin_mombalsignif   = 0;
+  float jet_mu_dRmin_scatneighsignif= 0;
+  float jet_mu_dRmin_pTrel=0;
+  float jet_mu_dRmin_d0   =0;
+  float jet_mu_dRmin_z0   =0;
+  float jet_mu_dRmin_ID_qOverP_var  = 0;   
+  int muonIndex=-1;
 
-      double matchChi2 = m->matchChi2OverDoF();
-      ATH_MSG_DEBUG( "#BTAG# Muon Match Chi2=" << matchChi2 << " " << m_MatchChi2cut);
-      if( m->matchChi2OverDoF()>m_MatchChi2cut && (isComb||isLowP) )continue;
-      //
-      bool passD0cut(true);
-      double d0wrtPriVtx(999.);
-      if( isLowP || isComb ) {
-	const xAOD::TrackParticle* trk = m->inDetTrackParticle();
-	d0wrtPriVtx = trk->d0();
-	const Trk::Perigee* perigee =
-	  m_trackToVertexTool->perigeeAtVertex(*trk, m_priVtx->recVertex().position());
-	if (perigee) {
-	  d0wrtPriVtx = perigee->parameters()[Trk::d0];
-	  delete perigee;
-	}
-	if(fabs(d0wrtPriVtx)>m_d0cut)passD0cut = false;
-      }
-      if(!passD0cut)continue;
-      //
-
-
-      double dR = jetToTag.p4().DeltaR(m->p4());
-      double pt(1./m->iPt());
-      double ptrel = m->p4().Vect().Dot((jetToTag.p4()+m->p4()).Vect());
-      //      double ptrel = m->hlv().perp(jetToTag.hlv());
-      double ptN    ( pt    / (pt   +5.*Gaudi::Units::GeV) );
-      double ptrelN ( ptrel / (ptrel+ 0.5*Gaudi::Units::GeV) );
-      //
-      ATH_MSG_DEBUG( "#BTAG# Found muon isLowP=" << isLowP << " isComb=" << isComb 
-		     << " acceptAlg=" << acceptAlg
-		     << " pt=" << pt          << "(cut=" << m_pTcut << ") "
-		     << " d0=" << d0wrtPriVtx << "(cut=" << m_d0cut << ") "
-		     << " dR=" << dR          << "(cut=" << m_DRcut << ") "
-		     << " ptrel=" << ptrel
-		     << " cuts=" << m_d0cut << " " << m_DRcut << " " << m_pTcut);
-      //
-      if(dR<m_DRcut) // basic cut applied to all algMode's
-	{
-	  if(isLowP)muCounterLowPt++;
-	  else muCounter++;
-
-	  if(m_runModus == "reference")
-	    {
-	      if (jetpt >= m_pTjetmin && fabs(jeteta) <= m_etajetmin) { // only once/jet
-		std::string hDir = "/RefFile/SoftMu/"+author+"/"+pref+"/";
-		if(1==muCounter){
-		  m_histoHelper->fillHisto(hDir+"JetETEffL1DL1D",(double)jetpt/1.e3);
-		  m_histoHelper->fillHisto(hDir+"JetETEffL2D",(double)jetpt/1.e3);
-		}
-		if(1==muCounterLowPt){
-		  m_histoHelper->fillHisto(hDir+"JetETLowPtEffL1DL1D",(double)jetpt/1.e3);
-		  m_histoHelper->fillHisto(hDir+"JetETLowPtEffL2D",(double)jetpt/1.e3);
-		}
-		if(pt>highestPT)
-		  {
-		    highestPT    = pt;
-		    highestPTrel = ptrel;
-		    highestIsLowP = isLowP;
-		  }
-	      }
-	    }
-	  else if(m_runModus == "analysis")
-	    {
-	      std::vector<double> probi;
-	      if(m_algMode == "CHI2")
-		{
-		  if(fabs(pt)>m_pTcut)
-		    {
-		      probi.push_back(matchChi2);
-		      if( matchChi2<bestMuWeight )
-			{
-			  bestMuWeight = matchChi2;
-			  bestMuProbi  = probi;
-			}
-		    }
-		}
-	      else
-		{
-		  std::vector<Slice> slices;
-		  AtomicProperty atom2(ptrelN,"pTrel");
-		  if(m_algMode == "L2D")
-		    {
-		      AtomicProperty atom1(ptN,"pT");
-		      Slice slice("L2D");
-		      if(isLowP){
-			Composite compo(author+"#pTpTrelLowPt");
-			compo.atoms.push_back(atom1);
-			compo.atoms.push_back(atom2);
-			slice.composites.push_back(compo);
-		      }
-		      else{
-			Composite compo(author+"#pTpTrel");
-			compo.atoms.push_back(atom1);
-			compo.atoms.push_back(atom2);
-			slice.composites.push_back(compo);
-		      }
-		      slices.push_back(slice);
-		    }
-		  else if(m_algMode == "L1DL1D")
-		    {
-		      AtomicProperty atom1(ptN,"pT");
-		      Slice slice("L1DL1D");
-		      if(isLowP){
-			Composite compo1(author+"#pTLowPt");
-			compo1.atoms.push_back(atom1);
-			slice.composites.push_back(compo1);
-			Composite compo2(author+"#pTrelLowPt");
-			compo2.atoms.push_back(atom2);
-			slice.composites.push_back(compo2);
-		      }
-		      else{
-			Composite compo1(author+"#pT");
-			compo1.atoms.push_back(atom1);
-			slice.composites.push_back(compo1);
-			Composite compo2(author+"#pTrel");
-			compo2.atoms.push_back(atom2);
-			slice.composites.push_back(compo2);
-		      }
-		      slices.push_back(slice);
-		    }
-		  else if(m_algMode == "L1D" && fabs(pt)>m_pTcut)
-		    {
-		      Slice slice("L1D");
-		      if(isLowP){
-			muCounterL1DLowPt++;
-			Composite compo(author+"#pTrelLowPt");
-			compo.atoms.push_back(atom2);
-			slice.composites.push_back(compo);
-		      }
-		      else{
-			muCounterL1D++;
-			Composite compo(author+"#pTrel");
-			compo.atoms.push_back(atom2);
-			slice.composites.push_back(compo);
-		      }
-		      slices.push_back(slice);
-		    }
-		  if(slices.size())
-		    {
-		      m_likelihoodTool->setLhVariableValue(slices);
-		      probi = m_likelihoodTool->calculateLikelihood();
-		      double w(1);
-		      if (probi.size() >= 3)
-			{
-			  ATH_MSG_VERBOSE( "#BTAG# SoftMu probabilities "
-					   <<" p_b = "<<probi[0]
-					   <<" p_c = "<<probi[2]
-					   <<" p_l = "<<probi[1]);
-			  double effb = 0.5, effl = 0.5, effc = 0.5;
-			  if(isLowP){
-			    effb = m_likelihoodTool->getEff(m_hypothese[0],author+"#JetETLowPt",m_algMode);
-			    effl = m_likelihoodTool->getEff(m_hypothese[1],author+"#JetETLowPt",m_algMode);
-			    effc = m_likelihoodTool->getEff(m_hypothese[2],author+"#JetETLowPt",m_algMode);
-			    ATH_MSG_VERBOSE( "#BTAG# SoftMu Low PT efficiencies for jetColl "<<author
-					    <<" eps_b = "<<effb<<" eps_c = "<<effc<<" eps_l = "<<effl);
-			
-			  }
-			  else{
-			    effb = m_likelihoodTool->getEff(m_hypothese[0],author+"#JetET",m_algMode);
-			    effl = m_likelihoodTool->getEff(m_hypothese[1],author+"#JetET",m_algMode);
-			    effc = m_likelihoodTool->getEff(m_hypothese[2],author+"#JetET",m_algMode);
-			    ATH_MSG_VERBOSE( "#BTAG# SoftMu efficiencies for jetColl "<<author
-					     <<" eps_b = "<<effb<<" eps_c = "<<effc<<" eps_l = "<<effl);
-			  }
-			  probi[0] *= effb;
-			  probi[1] *= effl;
-			  probi[2] *= effc;
-			  w = probi[0];
-			}
-		      else 
-			{
-			  ATH_MSG_ERROR( "#BTAG# Missing number in jet probabilities ! "<<probi.size());
-			}
-		          if(w>bestMuWeight)
-			{
-			  bestMuWeight = w;
-			  bestMuProbi  = probi;
-			} 
-		      m_likelihoodTool->clear();
-		    }
-		}
-
-	      if( 0==softmInfo && probi.size() ) // create a SoftMuonInfo only if >0 selected muon in jet
-		{
-		  /* Create the info class and append it to the Jet */
-		  std::string instanceName(name());
-		  softmInfo = new SoftMuonInfo(instanceName.erase(0,8));
-		  jetToTag.addInfo(softmInfo);
-		}
-	      // Add the SMTrackInfo
-	      if(m_writeInfoPlus && probi.size() )
-		{
-		  SMTrackInfo tinfo(m_originalMuCollection,m,d0wrtPriVtx,ptrel,probi);
-		  softmInfo->addTrackInfo(tinfo);
-		}
-	    }
-	}
-    }
-    ATH_MSG_DEBUG( "#BTAG# Done with muon " << m);
-  }
+  for (unsigned int iT=0; iT<assocMuons.size(); iT++) {
+    if ( !assocMuons.at(iT).isValid() ) continue;
+    const xAOD::Muon* tmpMuon= *(assocMuons.at(iT));
+    if ( tmpMuon==0 ) continue;
     
-  // Return if there are no muons
-  if (muCounter+muCounterLowPt<1) {
-    ATH_MSG_DEBUG( "#BTAG# Jet does not contain any good muons");
-    return;
-  }
-  else ATH_MSG_DEBUG( "#BTAG# Jet contains " << muCounter+muCounterLowPt << " muons");
+    if ( tmpMuon->muonType() != xAOD::Muon::Combined) continue;
 
-  if (m_runModus == "reference" && highestPT>0)
-    {
-      std::string hDir = "/RefFile/SoftMu/"+author+"/"+pref+"/";
-      double ptN    ( highestPT    / (highestPT   +5.*Gaudi::Units::GeV) );
-      double ptrelN ( highestPTrel / (highestPTrel+ 0.5*Gaudi::Units::GeV) );
-      if(highestIsLowP){
-	m_histoHelper->fillHisto(hDir+"pTLowPt",ptN);
-	m_histoHelper->fillHisto(hDir+"pTpTrelLowPt",ptN,ptrelN);
-      }
-      else{
-	m_histoHelper->fillHisto(hDir+"pT",ptN);
-	m_histoHelper->fillHisto(hDir+"pTpTrel",ptN,ptrelN);
-      }
-      if(fabs(highestPT)>m_pTcut){
-	if(highestIsLowP){
-	  m_histoHelper->fillHisto(hDir+"JetETLowPtEffL1D",(double)jetpt/1.e3);
-	  m_histoHelper->fillHisto(hDir+"pTrelLowPt",ptrelN);
-	}
-	else{
-	  m_histoHelper->fillHisto(hDir+"JetETEffL1D",(double)jetpt/1.e3);
-	  m_histoHelper->fillHisto(hDir+"pTrel",ptrelN);
-	}
-	hDir = "/RefFile/SoftMu/"+author+"/controlSoftMu/";
-	m_histoHelper->fillHisto(hDir+"smpt",highestPT*1e-3);
-      }
+    // Veto muons close to muons from W/Z/H decay in reference mode
+    //bool closeToHardMu(false);
+    
+    /*
+    for(uint i=0;i<hardMus.size();i++) {
+      Amg::Vector3D v = hardMus[i];
+      double dR = v.deltaR(Amg::Vector3D(m->p4().Px(),m->p4().Py(),m->p4().Pz()));
+      ATH_MSG_DEBUG( "#BTAG# DR(mu-mu) info " 
+		     << v.eta() << " " <<  m->eta() << " "
+		     << v.phi() << " " << m->phi() << " "
+		     << dR);
+      if(dR<0.1) {	    
+	closeToHardMu = true;
+      }	  
     }
-  else if (softmInfo)
-    {
-      softmInfo->setTagLikelihood(bestMuProbi);
-      double w(-100);
-      if(m_algMode == "CHI2"){
-	w = bestMuWeight;
+    if(closeToHardMu) {
+      ATH_MSG_DEBUG( "#BTAG# skipping this muon" );
+      continue;
+    }
+    */
+
+    // muon selection here:
+    float dR = jetToTag.p4().DeltaR(tmpMuon->p4());
+    if(dR>=0.4) continue;
+    
+    const ElementLink< xAOD::TrackParticleContainer >& pMuIDTrack=tmpMuon->inDetTrackParticleLink();
+    const ElementLink< xAOD::TrackParticleContainer >& pMuMSTrack=tmpMuon->muonSpectrometerTrackParticleLink();
+    //const xAOD::Vertex * pVtx   = (*pMuIDTrack)->vertex();
+    if ( !pMuIDTrack.isValid() || !pMuMSTrack.isValid()) continue;
+
+    const std::vector<float>&cov= (*pMuIDTrack)->definingParametersCovMatrixVec();
+    float momBalSignif0=0.;
+    tmpMuon->parameter(momBalSignif0, xAOD::Muon::momentumBalanceSignificance);
+    if( momBalSignif0==0 )          continue;
+    if( (*pMuMSTrack)->qOverP()==0) continue;
+    
+    xAOD::Muon::Quality quality = m_muonSelectorTool->getQuality(*tmpMuon);
+    //just added this cut         
+    if( quality > m_muonQualityCut ) continue; 
+
+    float scatNeighSignif=0.;
+    tmpMuon->parameter(scatNeighSignif, xAOD::Muon::scatteringNeighbourSignificance);
+    TLorentzVector myjet, mymu;
+    myjet.SetPtEtaPhiM(jetToTag.pt(),jetToTag.eta(),jetToTag.phi(),0);
+    mymu.SetPtEtaPhiM(tmpMuon->pt(),tmpMuon->eta(),tmpMuon->phi(),0);
+    float pTrel      =myjet.Vect().Perp(mymu.Vect()); // VD: everything MUST be in MeV
+    float qOverPratio=(*pMuIDTrack)->qOverP()/(*pMuMSTrack)->qOverP();
+    
+    float d0 = tmpMuon->primaryTrackParticle()->d0();
+    float z0 = tmpMuon->primaryTrackParticle()->z0()+(tmpMuon->primaryTrackParticle()->vz())-(m_priVtx->z()) ;
+    //std::cout << " trk: " <<  tmpMuon->primaryTrackParticle()->z0() << "  PVZ: " << m_priVtx->z() << "  and z: " << z0 << std::endl;
+
+    ATH_MSG_DEBUG( "#BTAG# Found muon " << iT << " with PT= " << tmpMuon->pt() 
+		  << " dR= " << dR 
+		  << " qOverPratio= " << qOverPratio
+		  << " ScatNeiSig= " << scatNeighSignif
+		  << " MomBalSig= " <<  momBalSignif0
+		  << " ptrel= " << pTrel
+		  << " z0= " << z0 
+		  << " d0= " << d0
+		  );
+
+    if(dR<jet_mu_dRmin_dR){
+      jet_mu_dRmin_pt=tmpMuon->pt();
+      jet_mu_dRmin_dR=dR;
+      jet_mu_dRmin_qOverPratio    = qOverPratio;
+      jet_mu_dRmin_mombalsignif   = momBalSignif0;
+      jet_mu_dRmin_scatneighsignif= scatNeighSignif;
+      jet_mu_dRmin_pTrel=pTrel;
+      jet_mu_dRmin_d0   =d0;
+      jet_mu_dRmin_z0   =z0;
+      jet_mu_dRmin_ID_qOverP_var  = cov[14];  
+      muonIndex=iT;
+    }
+
+    /*
+    const MuonParameters::Author mAuthor = m->author();
+    ATH_MSG_DEBUG( "#BTAG# Muon Author=" << mAuthor << " " 
+		   << MuonParameters:: mediumPt << " ");
+    // do not use MuTagMedium:
+    if(mAuthor == MuonParameters::mediumPt ) continue;
+    bool isComb(m->isCombinedMuon());
+    bool isLowP(m->isSegmentTaggedMuon() && m->inDetTrackParticle()!=0);
+    bool acceptAlg(true);
+    if( 0==m_alg && ( isLowP || !isComb ) ) acceptAlg = false;     // Use only combined muons
+    else if( 1==m_alg && (!isLowP && !isComb) ) acceptAlg = false; // Use only low-pT and combined muons
+    if(!acceptAlg)continue;
+   
+    double matchChi2 = m->matchChi2OverDoF();
+    ATH_MSG_DEBUG( "#BTAG# Muon Match Chi2=" << matchChi2 << " " << m_MatchChi2cut);
+    if( m->matchChi2OverDoF()>m_MatchChi2cut && (isComb||isLowP) )continue;
+    //
+    bool passD0cut(true);
+    double d0wrtPriVtx(999.);
+    if( isLowP || isComb ) {
+      const xAOD::TrackParticle* trk = m->inDetTrackParticle();
+      d0wrtPriVtx = trk->d0();
+      const Trk::Perigee* perigee =
+	m_trackToVertexTool->perigeeAtVertex(*trk, m_priVtx->recVertex().position());
+      if (perigee) {
+	d0wrtPriVtx = perigee->parameters()[Trk::d0];
+	delete perigee;
       }
-      else if(bestMuProbi.size()>1)
-	{
-	  double pb = bestMuProbi[0];
-	  double pu = bestMuProbi[1];
-	  if(pb<=0.) {
-	    w = -30.;
-	  } else if (pu<=0.) {
-	    w = +100.;
-	  } else {
-	    w = log(pb/pu);
+      if(fabs(d0wrtPriVtx)>m_d0cut)passD0cut = false;
+    }
+    if(!passD0cut)continue;
+    
+    double dR = jetToTag.p4().DeltaR(m->p4());
+    double pt(1./m->iPt());
+    double ptrel = m->p4().Vect().Dot((jetToTag.p4()+m->p4()).Vect());
+    double ptN    ( pt    / (pt   +5.*Gaudi::Units::GeV) );
+    double ptrelN ( ptrel / (ptrel+ 0.5*Gaudi::Units::GeV) );
+    */
+    
+
+    //
+    /*
+    if(dR<m_DRcut) { // basic cut applied to all algMode's
+  
+      if(isLowP)muCounterLowPt++;
+      else muCounter++;
+      
+      if(m_runModus == "analysis") {
+	std::vector<double> probi;
+	if(m_algMode == "CHI2") {
+	  if(fabs(pt)>m_pTcut) {
+	    probi.push_back(matchChi2);
+	    if( matchChi2<bestMuWeight ) {
+	      bestMuWeight = matchChi2;
+	      bestMuProbi  = probi;
+	    }
+	  }
+	} else {
+	  std::vector<Slice> slices;
+	  AtomicProperty atom2(ptrelN,"pTrel");
+	  if(m_algMode == "L2D") {
+	    AtomicProperty atom1(ptN,"pT");
+	    Slice slice("L2D");
+	    if(isLowP){
+	      Composite compo(author+"#pTpTrelLowPt");
+	      compo.atoms.push_back(atom1);
+	      compo.atoms.push_back(atom2);
+	      slice.composites.push_back(compo);
+	    } else{
+	      Composite compo(author+"#pTpTrel");
+	      compo.atoms.push_back(atom1);
+	      compo.atoms.push_back(atom2);
+	      slice.composites.push_back(compo);
+	    }
+	    slices.push_back(slice);
+	  } else if(m_algMode == "L1DL1D") {
+	    AtomicProperty atom1(ptN,"pT");
+	    Slice slice("L1DL1D");
+	    if(isLowP){
+	      Composite compo1(author+"#pTLowPt");
+	      compo1.atoms.push_back(atom1);
+	      slice.composites.push_back(compo1);
+	      Composite compo2(author+"#pTrelLowPt");
+	      compo2.atoms.push_back(atom2);
+	      slice.composites.push_back(compo2);
+	    } else{
+	      Composite compo1(author+"#pT");
+	      compo1.atoms.push_back(atom1);
+	      slice.composites.push_back(compo1);
+	      Composite compo2(author+"#pTrel");
+	      compo2.atoms.push_back(atom2);
+	      slice.composites.push_back(compo2);
+	    }
+	    slices.push_back(slice);
+	  } else if(m_algMode == "L1D" && fabs(pt)>m_pTcut) {
+	    Slice slice("L1D");
+	    if(isLowP){
+	      muCounterL1DLowPt++;
+	      Composite compo(author+"#pTrelLowPt");
+	      compo.atoms.push_back(atom2);
+	      slice.composites.push_back(compo);
+	    } else{
+	      muCounterL1D++;
+	      Composite compo(author+"#pTrel");
+	      compo.atoms.push_back(atom2);
+	      slice.composites.push_back(compo);
+	    }
+	    slices.push_back(slice);
+	  }
+	  if(slices.size()) {
+	    m_likelihoodTool->setLhVariableValue(slices);
+	    probi = m_likelihoodTool->calculateLikelihood();
+	    double w(1);
+	    if (probi.size() >= 3) {
+	      ATH_MSG_VERBOSE( "#BTAG# SoftMu probabilities "
+			       <<" p_b = "<<probi[0]
+			       <<" p_c = "<<probi[2]
+			       <<" p_l = "<<probi[1]);
+	      double effb = 0.5, effl = 0.5, effc = 0.5;
+	      if(isLowP){
+		effb = m_likelihoodTool->getEff(m_hypothese[0],author+"#JetETLowPt",m_algMode);
+		effl = m_likelihoodTool->getEff(m_hypothese[1],author+"#JetETLowPt",m_algMode);
+		effc = m_likelihoodTool->getEff(m_hypothese[2],author+"#JetETLowPt",m_algMode);
+		ATH_MSG_VERBOSE( "#BTAG# SoftMu Low PT efficiencies for jetColl "<<author
+				 <<" eps_b = "<<effb<<" eps_c = "<<effc<<" eps_l = "<<effl);
+		
+	      } else{
+		effb = m_likelihoodTool->getEff(m_hypothese[0],author+"#JetET",m_algMode);
+		effl = m_likelihoodTool->getEff(m_hypothese[1],author+"#JetET",m_algMode);
+		effc = m_likelihoodTool->getEff(m_hypothese[2],author+"#JetET",m_algMode);
+		ATH_MSG_VERBOSE( "#BTAG# SoftMu efficiencies for jetColl "<<author
+				 <<" eps_b = "<<effb<<" eps_c = "<<effc<<" eps_l = "<<effl);
+	      }
+	      probi[0] *= effb;
+	      probi[1] *= effl;
+	      probi[2] *= effc;
+	      w = probi[0];
+	    }
+	    else {
+	      ATH_MSG_ERROR( "#BTAG# Missing number in jet probabilities ! "<<probi.size());
+	    }
+	    if(w>bestMuWeight) {
+	      bestMuWeight = w;
+	      bestMuProbi  = probi;
+	    } 
+	    m_likelihoodTool->clear();
 	  }
 	}
-      softmInfo->setWeight(w);
-      /* Tagging done. Make info object valid, i.e. tag was ok. Fill the JetTag and return ... */
-      softmInfo->makeValid();
+	
+	if( 0==softmInfo && probi.size() ) { // create a SoftMuonInfo only if >0 selected muon in jet
+	//std::string instanceName(name());
+	softmInfo = new SoftMuonInfo(instanceName.erase(0,8));
+	jetToTag.addInfo(softmInfo);
+  }
+  // Add the SMTrackInfo
+	if(m_writeInfoPlus && probi.size() ) {
+	  SMTrackInfo tinfo(m_originalMuCollection,m,d0wrtPriVtx,ptrel,probi);
+	  softmInfo->addTrackInfo(tinfo);
+	}
+      }
     }
-    
-ATH_MSG_DEBUG( "#BTAG# tagJet is done" );
+    */
 
-  return;
+  }
+  
+  if (muonIndex!=-1) ATH_MSG_DEBUG(" #BTAG: choosing muon: " <<  muonIndex);
+
+  // now decorate the b-tagging object
+  std::string xAODBaseName="SMT";
+  BTag->setVariable<float>(xAODBaseName, "mu_pt"           , jet_mu_dRmin_pt);
+  BTag->setVariable<float>(xAODBaseName, "dR"              , jet_mu_dRmin_dR);
+  BTag->setVariable<float>(xAODBaseName, "qOverPratio"     , jet_mu_dRmin_qOverPratio);
+  BTag->setVariable<float>(xAODBaseName, "mombalsignif"    , jet_mu_dRmin_mombalsignif);
+  BTag->setVariable<float>(xAODBaseName, "scatneighsignif" , jet_mu_dRmin_scatneighsignif);
+  BTag->setVariable<float>(xAODBaseName, "pTrel"           , jet_mu_dRmin_pTrel);
+  BTag->setVariable<float>(xAODBaseName, "mu_d0"           , jet_mu_dRmin_d0);
+  BTag->setVariable<float>(xAODBaseName, "mu_z0"           , jet_mu_dRmin_z0);
+  BTag->setVariable<float>(xAODBaseName, "ID_qOverP"       , jet_mu_dRmin_ID_qOverP_var);
+  
+  ElementLink<xAOD::MuonContainer> theLink; 
+  if (muonIndex!=-1) theLink=assocMuons.at(muonIndex);
+  
+  BTag->auxdata< ElementLink<xAOD::MuonContainer> >("SMT_mu_link")=theLink; 
+
+  /*
+  if (softmInfo) {
+    softmInfo->setTagLikelihood(bestMuProbi);
+    double w(-100);
+    if(m_algMode == "CHI2") w = bestMuWeight;
+    else if(bestMuProbi.size()>1) {
+      double pb = bestMuProbi[0];
+      double pu = bestMuProbi[1];
+      if(pb<=0.)       w = -30.;
+      else if (pu<=0.) w = +100.;
+      else             w = log(pb/pu);	  
+    }
+    softmInfo->setWeight(w);
+    softmInfo->makeValid();
+  }
+  */
+
+  //ATH_MSG_DEBUG( "#BTAG# tagJet is done" );
+
+  return  StatusCode::SUCCESS;;
 }
+
+
 
 void SoftMuonTag::finalizeHistos() 
 {
@@ -750,7 +767,8 @@ void SoftMuonTag::finalizeHistos()
   return;
 }
 
-void SoftMuonTag::m_printParameterSettings()
+
+void SoftMuonTag::printParameterSettings()
 {
   ATH_MSG_INFO( "#BTAG# " << name() << "Parameter settings " );
   ATH_MSG_INFO( "#BTAG# I am in " << m_runModus << " modus." );

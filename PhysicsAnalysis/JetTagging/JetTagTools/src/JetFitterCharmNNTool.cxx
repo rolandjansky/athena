@@ -219,7 +219,7 @@ namespace Analysis {
     // TODO: pass casted JetFitterGenericTagInfo to overloaded fillLikelihoodValues
     //       so that this function is simply a caster. 
     try { 
-      dynamic_cast<JetFitterGenericTagInfo&>(in_tag_info); 
+      (void)dynamic_cast<JetFitterGenericTagInfo&>(in_tag_info); 
     }
     catch (const std::bad_cast& c) { 
       std::string error = "JetFitter is configured wrong: " __FILE__ 

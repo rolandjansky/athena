@@ -46,29 +46,30 @@ namespace Analysis {
 
   void SVForIPTool::getDirectionFromSecondaryVertexInfo(Amg::Vector3D & SvxDirection,
                                                         bool & canUseSvxDirection,
-                                                        const xAOD::Jet & jetToTag,
+                                                        const xAOD::Jet & /*jetToTag*/,
                                                         xAOD::BTagging* BTag,
-                                                        const std::string & m_secVxFinderName,
-                                                        const xAOD::Vertex & m_priVtx)
-                                                        // const Trk::RecVertex & m_priVtx)
+                                                        const std::string & secVxFinderName,
+                                                        const xAOD::Vertex & priVtx)
+                                                        // const Trk::RecVertex & priVtx)
   {
     std::vector< ElementLink< xAOD::VertexContainer > > myVertices;
-    BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_secVxFinderName, "vertices", myVertices);
-    // const ISvxAssociation* newSvxAssociation=jetToTag.getAssociation<ISvxAssociation>(m_secVxFinderName);
+    BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(secVxFinderName, "vertices", myVertices);
+    // const ISvxAssociation* newSvxAssociation=jetToTag.getAssociation<ISvxAssociation>(secVxFinderName);
     
     if (myVertices.size() == 0) {
       ATH_MSG_DEBUG(" No secondary vertex found for getting the B flight direction (for the IP sign calculation)");
     } else {
       //const Trk::VxSecVertexInfo* myVertexInfo=newSvxAssociation->vertexInfo();
      
-      int n2track;
-      BTag->variable<int>(m_secVxFinderName, "n2trackvertices", n2track);
-      canUseSvxDirection= n2track>=1?true:false;
-      if (canUseSvxDirection)
-	{
+      // int n2track = 0;
+      // BTag->variable<int>(secVxFinderName, "n2trackvertices", n2track);
+      // canUseSvxDirection= n2track>=1?true:false;
+      //if (canUseSvxDirection)
+      //{
 	  if (myVertices[0].isValid())
 	    {
-	      SvxDirection=(*myVertices[0])->position()-m_priVtx.position();
+	      canUseSvxDirection=true;
+	      SvxDirection=(*myVertices[0])->position()-priVtx.position();
 	      ATH_MSG_VERBOSE(" Get direction from InDetVKalVertex: phi: " << SvxDirection.phi() << 
 			      " theta: " << SvxDirection.theta() );
 	    }
@@ -76,9 +77,9 @@ namespace Analysis {
 	    {
 	      ATH_MSG_WARNING("SVX info seems usable, but no SVX available !!!");
 	    }
-	}
+	  //}
     }	
-    /*      else if (m_secVxFinderName.find("JetFitter") != std::string::npos) // not yet implemented in BTagging/BTagSecVertexing
+    /*      else if (secVxFinderName.find("JetFitter") != std::string::npos) // not yet implemented in BTagging/BTagSecVertexing
 	    {
 	    Trk::VxJetCandidate* myVxJetCandidate=dynamic_cast<Trk::VxJetCandidate*>(myVertices[0]);
 	    if (myVxJetCandidate)
@@ -100,21 +101,21 @@ namespace Analysis {
   
     
   void SVForIPTool::getTrkFromV0FromSecondaryVertexInfo(std::vector<const xAOD::TrackParticle*> & TrkFromV0,
-                                                        const xAOD::Jet & jetToTag,
+                                                        const xAOD::Jet & /*jetToTag*/,
 							xAOD::BTagging* BTag,
-                                                        const std::string & m_secVxFinderName)
+                                                        const std::string & secVxFinderName)
   {
     std::vector<ElementLink<xAOD::TrackParticleContainer> > TrkFromV0_ELs;
     //std::vector<const Trk::TrackParticleBase*> TrkBaseFromV0;
-    //const ISvxAssociation* newSvxAssociation=jetToTag.getAssociation<ISvxAssociation>(m_secVxFinderName);
-    std::vector< ElementLink< xAOD::VertexContainer > > myVertices;
-    BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_secVxFinderName, "vertices", myVertices);
+    //const ISvxAssociation* newSvxAssociation=jetToTag.getAssociation<ISvxAssociation>(secVxFinderName);
+    //std::vector< ElementLink< xAOD::VertexContainer > > myVertices;
+    //BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(secVxFinderName, "vertices", myVertices);
 
-    if (myVertices.size()==0) {
-      ATH_MSG_DEBUG(" No secondary vertex found for getting the V0s from the secondary vertex finder info");
-    } else {
+    //if (myVertices.size()==0) {
+    //ATH_MSG_DEBUG(" No secondary vertex found for getting the V0s from the secondary vertex finder info");
+    //} else {
       
-      BTag->variable<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_secVxFinderName, "badTracksIP", TrkFromV0_ELs);
+      BTag->variable<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(secVxFinderName, "badTracksIP", TrkFromV0_ELs);
       /* // not yet implemented in BTagging/BTagSecVertexing
 	 else
 	 {
@@ -172,7 +173,7 @@ namespace Analysis {
 	 }
 	 }*/
 
-    }
+      //}
   
 
 
