@@ -210,12 +210,12 @@ def getATLAS(name="Atlas", **kwargs):
 
     ## World R range
     if simFlags.WorldRRange.statusOn:
-        if simFlags.WorldRRange.get_Value() > max(self.AtlasOuterR1, self.AtlasOuterR2):
+        if simFlags.WorldRRange.get_Value() > max(AtlasOuterR1, AtlasOuterR2):
             routValue = simFlags.WorldRRange.get_Value()
             for i in xrange(4, 14):
                 outerRadii[i] = routValue
         else:
-            raise RuntimeError('getATLASEnvelope: ERROR simFlags.WorldRRange must be > %f. Current value %f' % max(self.AtlasOuterR1, self.AtlasOuterR2), routValue)
+            raise RuntimeError('getATLASEnvelope: ERROR simFlags.WorldRRange must be > %f. Current value %f' % max(AtlasOuterR1, AtlasOuterR2), routValue)
     kwargs.setdefault("OuterRadii", outerRadii)
 
     ## ZSurfaces

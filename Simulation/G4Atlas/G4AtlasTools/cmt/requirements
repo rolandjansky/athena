@@ -22,5 +22,6 @@ end_private
 
 apply_pattern declare_python_modules files="*.py"
 
+
 # Don't need to specify components for dual use
 apply_pattern dual_use_library files="*.cxx *.cc"
