@@ -120,6 +120,8 @@ private:
   bool m_trigger;
   int m_timer;
   bool m_shallowCopy;
+  bool m_warnIfDuplicate;
+  bool m_overwrite;
 
   // Cached state.
   int m_initCount;

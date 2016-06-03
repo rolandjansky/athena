@@ -36,8 +36,8 @@ if jetFlags.useTracks():
   jtm.addJetFinder("AntiKt3PV0TrackJets", "AntiKt", 0.3, "pv0track", ptmin= 2000)
   jtm.addJetFinder("AntiKt4PV0TrackJets", "AntiKt", 0.4, "pv0track", ptmin= 2000)
 if jetFlags.useTopo():
-  jtm.addJetFinder("AntiKt4EMTopoJets",   "AntiKt", 0.4,   "emtopo", "calib", ghostArea=0.01, ptmin= 2000, ptminFilter= 5000, calibOpt="aro")
-  jtm.addJetFinder("AntiKt4LCTopoJets",   "AntiKt", 0.4,   "lctopo", "calib", ghostArea=0.01, ptmin= 2000, ptminFilter= 7000, calibOpt="aro")
+  jtm.addJetFinder("AntiKt4EMTopoJets",   "AntiKt", 0.4,   "emtopo", "calib", ghostArea=0.01, ptmin= 2000, ptminFilter= 5000, calibOpt="ar")
+  jtm.addJetFinder("AntiKt4LCTopoJets",   "AntiKt", 0.4,   "lctopo", "calib", ghostArea=0.01, ptmin= 2000, ptminFilter= 7000, calibOpt="ar")
   jtm.addJetFinder("AntiKt10LCTopoJets",  "AntiKt", 1.0,   "lctopo", "calib", ghostArea=0.01, ptmin= 2000, ptminFilter=50000, calibOpt="none")
   jtm.addJetFinder("CamKt12LCTopoJets",    "CamKt", 1.2,   "lctopo", "calib", ghostArea=0.01, ptmin= 2000, ptminFilter=50000, calibOpt="none")
 if jetFlags.usePFlow():
@@ -56,6 +56,11 @@ for jetrec in jtm.jetrecs:
   if jetrec.Trigger:
     auxprefix = "Trig"
   jetFlags.jetAODList += [ "xAOD::Jet" + auxprefix + "AuxContainer#" + jetrec.name() + "Aux." ]
+
+if jetFlags.useTracks() and jetFlags.useTopo():
+    jetFlags.jetAODList += [ "xAOD::CaloClusterContainer#EMOriginTopoClusters" , "xAOD::CaloClusterContainer#LCOriginTopoClusters" ,
+                             "xAOD::ShallowAuxContainer#LCOriginTopoClustersAux.", "xAOD::ShallowAuxContainer#EMOriginTopoClustersAux."] 
+
 
 
 # For testing. These blocks should not be enabled in production.
