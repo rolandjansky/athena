@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingsBuilder.cxx 713524 2015-12-09 08:56:24Z wsfreund $
+// $Id: CaloRingsBuilder.cxx 752385 2016-06-03 15:44:20Z ssnyder $
 // =================================================================================
 #include "CaloRingsBuilder.h"
 
@@ -40,7 +40,11 @@ namespace Ringer {
 CaloRingsBuilder::CaloRingsBuilder(const std::string& type,
                                  const std::string& name,
                                  const ::IInterface* parent)
-  : ::AthAlgTool(type, name, parent)
+  : ::AthAlgTool(type, name, parent),
+    m_rsCont(nullptr),
+    m_crCont(nullptr),
+    m_cellCont(nullptr),
+    m_nRingSets(0)
 {
 
   // declare interface

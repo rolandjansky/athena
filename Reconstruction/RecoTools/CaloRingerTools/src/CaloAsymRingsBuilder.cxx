@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloAsymRingsBuilder.cxx 732389 2016-03-25 03:38:58Z ssnyder $
+// $Id: CaloAsymRingsBuilder.cxx 732388 2016-03-25 03:38:54Z ssnyder $
 // =================================================================================
 #include "CaloAsymRingsBuilder.h"
 //#include "CaloRingsBuilder.h"
