@@ -57,7 +57,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	
 	int run_number;
 	run_number = atoi( (run_dir.substr(4, run_dir.size()-4 )).c_str() );
-        //std::cout << "run_number rpc monitoring " << run_number <<std::endl;
+        std::cout << "run_number rpc monitoring " << run_number <<std::endl;
 	
 	std::string pathRawMon     = run_dir + "/Muon/MuonRawDataMonitoring/RPC/"                           ;
 	//std::string pathTrackMon   = run_dir + "/Muon/MuonTrackMonitoring/NoTrigger/RPCStandAloneTrackMon/" ;
@@ -67,11 +67,12 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	std::string dir_sum_raw    = pathRawMon   + "Summary/"  ;
 	std::string dir_dqmf_raw   = pathRawMon   + "Dqmf/"     ;
 	
-  	std::string dir_sideA_track = pathTrackMon + "RPCBA/"    ;
-  	std::string dir_sideC_track = pathTrackMon + "RPCBC/"    ;
-  	std::string dir_glob_track  = pathTrackMon + "GLOBAL/"   ;
-	std::string dir_sum_track   = pathTrackMon + "Summary/"  ;
-	std::string dir_dqmf_track  = pathTrackMon + "Dqmf/"     ;
+  	std::string dir_sideA_track    = pathTrackMon + "RPCBA/"             ;
+  	std::string dir_sideC_track    = pathTrackMon + "RPCBC/"             ;
+  	std::string dir_glob_track     = pathTrackMon + "GLOBAL/"            ;
+	std::string dir_sum_track      = pathTrackMon + "Summary/"           ;
+	std::string dir_dqmf_track     = pathTrackMon + "Dqmf/"              ;
+	std::string dir_trigger_track  = pathTrackMon + "TriggerEfficiency/" ;
 	
 	double n_hit_f, n_tr_p, panel_eff, panel_err_eff;
 	double nEta, nPhi, nEtaPhi, gapEff=0.0, gapErrEff=0.0;
@@ -83,7 +84,289 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	double noiseTot,  noiseTotErr  ;
 	double noiseErrNorm ;
 	
+	// trigger efficiency
+	std::string METracks_name   = dir_trigger_track   + "hMEtracks"            ; 
+	std::string MuctpiThr0_name = dir_trigger_track   + "hRPCMuctpiThr0"       ; 
+	std::string MuctpiThr1_name = dir_trigger_track   + "hRPCMuctpiThr1"       ; 
+	std::string MuctpiThr2_name = dir_trigger_track   + "hRPCMuctpiThr2"       ; 
+	std::string MuctpiThr3_name = dir_trigger_track   + "hRPCMuctpiThr3"       ; 
+	std::string MuctpiThr4_name = dir_trigger_track   + "hRPCMuctpiThr4"       ; 
+	std::string MuctpiThr5_name = dir_trigger_track   + "hRPCMuctpiThr5"       ; 
+	std::string PadThr0_name = dir_trigger_track   + "hRPCPadThr0"       ; 
+	std::string PadThr1_name = dir_trigger_track   + "hRPCPadThr1"       ; 
+	std::string PadThr2_name = dir_trigger_track   + "hRPCPadThr2"       ; 
+	std::string PadThr3_name = dir_trigger_track   + "hRPCPadThr3"       ; 
+	std::string PadThr4_name = dir_trigger_track   + "hRPCPadThr4"       ; 
+	std::string PadThr5_name = dir_trigger_track   + "hRPCPadThr5"       ; 
+	std::string PhiEtaCoinThr0_name = dir_trigger_track   + "hRPCPhiEtaCoinThr0"       ; 
+	std::string PhiEtaCoinThr1_name = dir_trigger_track   + "hRPCPhiEtaCoinThr1"       ; 
+	std::string PhiEtaCoinThr2_name = dir_trigger_track   + "hRPCPhiEtaCoinThr2"       ; 
+	std::string PhiEtaCoinThr3_name = dir_trigger_track   + "hRPCPhiEtaCoinThr3"       ; 
+	std::string PhiEtaCoinThr4_name = dir_trigger_track   + "hRPCPhiEtaCoinThr4"       ; 
+	std::string PhiEtaCoinThr5_name = dir_trigger_track   + "hRPCPhiEtaCoinThr5"       ; 
 	
+	std::string MuctpiThr_eff0_name = dir_trigger_track   + "hRPCMuctpiThr_eff0"       ; 
+	std::string MuctpiThr_eff1_name = dir_trigger_track   + "hRPCMuctpiThr_eff1"       ; 
+	std::string MuctpiThr_eff2_name = dir_trigger_track   + "hRPCMuctpiThr_eff2"       ; 
+	std::string MuctpiThr_eff3_name = dir_trigger_track   + "hRPCMuctpiThr_eff3"       ; 
+	std::string MuctpiThr_eff4_name = dir_trigger_track   + "hRPCMuctpiThr_eff4"       ; 
+	std::string MuctpiThr_eff5_name = dir_trigger_track   + "hRPCMuctpiThr_eff5"       ; 
+	std::string PadThr_eff0_name = dir_trigger_track   + "hRPCPadThr_eff0"       ; 
+	std::string PadThr_eff1_name = dir_trigger_track   + "hRPCPadThr_eff1"       ; 
+	std::string PadThr_eff2_name = dir_trigger_track   + "hRPCPadThr_eff2"       ; 
+	std::string PadThr_eff3_name = dir_trigger_track   + "hRPCPadThr_eff3"       ; 
+	std::string PadThr_eff4_name = dir_trigger_track   + "hRPCPadThr_eff4"       ; 
+	std::string PadThr_eff5_name = dir_trigger_track   + "hRPCPadThr_eff5"       ; 
+	std::string PhiEtaCoinThr_eff0_name = dir_trigger_track   + "hRPCPhiEtaCoinThr_eff0"       ; 
+	std::string PhiEtaCoinThr_eff1_name = dir_trigger_track   + "hRPCPhiEtaCoinThr_eff1"       ; 
+	std::string PhiEtaCoinThr_eff2_name = dir_trigger_track   + "hRPCPhiEtaCoinThr_eff2"       ; 
+	std::string PhiEtaCoinThr_eff3_name = dir_trigger_track   + "hRPCPhiEtaCoinThr_eff3"       ; 
+	std::string PhiEtaCoinThr_eff4_name = dir_trigger_track   + "hRPCPhiEtaCoinThr_eff4"       ; 
+	std::string PhiEtaCoinThr_eff5_name = dir_trigger_track   + "hRPCPhiEtaCoinThr_eff5"       ; 
+ 
+ 	
+	if ( RPCCheckHistogram(f,METracks_name.c_str()) && RPCCheckHistogram(f,MuctpiThr0_name.c_str()) && RPCCheckHistogram(f,MuctpiThr_eff0_name.c_str())) {
+	
+ 	 
+	  TH1I* hist_METracks   = (TH1I*)(f->Get( METracks_name.c_str()));
+	  TH1I* hist_MuctpiThr0 = (TH1I*)(f->Get( MuctpiThr0_name.c_str()));
+	  TH1I* hist_MuctpiThr1 = (TH1I*)(f->Get( MuctpiThr1_name.c_str()));
+	  TH1I* hist_MuctpiThr2 = (TH1I*)(f->Get( MuctpiThr2_name.c_str()));
+	  TH1I* hist_MuctpiThr3 = (TH1I*)(f->Get( MuctpiThr3_name.c_str()));
+	  TH1I* hist_MuctpiThr4 = (TH1I*)(f->Get( MuctpiThr4_name.c_str()));
+	  TH1I* hist_MuctpiThr5 = (TH1I*)(f->Get( MuctpiThr5_name.c_str()));
+	  TH1I* hist_PadThr0 = (TH1I*)(f->Get( PadThr0_name.c_str()));
+	  TH1I* hist_PadThr1 = (TH1I*)(f->Get( PadThr1_name.c_str()));
+	  TH1I* hist_PadThr2 = (TH1I*)(f->Get( PadThr2_name.c_str()));
+	  TH1I* hist_PadThr3 = (TH1I*)(f->Get( PadThr3_name.c_str()));
+	  TH1I* hist_PadThr4 = (TH1I*)(f->Get( PadThr4_name.c_str()));
+	  TH1I* hist_PadThr5 = (TH1I*)(f->Get( PadThr5_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr0 = (TH1I*)(f->Get( PhiEtaCoinThr0_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr1 = (TH1I*)(f->Get( PhiEtaCoinThr1_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr2 = (TH1I*)(f->Get( PhiEtaCoinThr2_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr3 = (TH1I*)(f->Get( PhiEtaCoinThr3_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr4 = (TH1I*)(f->Get( PhiEtaCoinThr4_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr5 = (TH1I*)(f->Get( PhiEtaCoinThr5_name.c_str()));
+	  TH1I* hist_MuctpiThr_eff0 = (TH1I*)(f->Get( MuctpiThr_eff0_name.c_str()));
+	  TH1I* hist_MuctpiThr_eff1 = (TH1I*)(f->Get( MuctpiThr_eff1_name.c_str()));
+	  TH1I* hist_MuctpiThr_eff2 = (TH1I*)(f->Get( MuctpiThr_eff2_name.c_str()));
+	  TH1I* hist_MuctpiThr_eff3 = (TH1I*)(f->Get( MuctpiThr_eff3_name.c_str()));
+	  TH1I* hist_MuctpiThr_eff4 = (TH1I*)(f->Get( MuctpiThr_eff4_name.c_str()));
+	  TH1I* hist_MuctpiThr_eff5 = (TH1I*)(f->Get( MuctpiThr_eff5_name.c_str()));
+	  TH1I* hist_PadThr_eff0 = (TH1I*)(f->Get( PadThr_eff0_name.c_str()));
+	  TH1I* hist_PadThr_eff1 = (TH1I*)(f->Get( PadThr_eff1_name.c_str()));
+	  TH1I* hist_PadThr_eff2 = (TH1I*)(f->Get( PadThr_eff2_name.c_str()));
+	  TH1I* hist_PadThr_eff3 = (TH1I*)(f->Get( PadThr_eff3_name.c_str()));
+	  TH1I* hist_PadThr_eff4 = (TH1I*)(f->Get( PadThr_eff4_name.c_str()));
+	  TH1I* hist_PadThr_eff5 = (TH1I*)(f->Get( PadThr_eff5_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr_eff0 = (TH1I*)(f->Get( PhiEtaCoinThr_eff0_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr_eff1 = (TH1I*)(f->Get( PhiEtaCoinThr_eff1_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr_eff2 = (TH1I*)(f->Get( PhiEtaCoinThr_eff2_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr_eff3 = (TH1I*)(f->Get( PhiEtaCoinThr_eff3_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr_eff4 = (TH1I*)(f->Get( PhiEtaCoinThr_eff4_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr_eff5 = (TH1I*)(f->Get( PhiEtaCoinThr_eff5_name.c_str()));
+	
+	  int nb = hist_METracks->GetNbinsX() ;
+	  double  Ly_eff, Ly_effErr ;
+	  for ( int ib=0; ib!=nb; ib++ ) {
+	     float n_Ly_hitOn = hist_MuctpiThr0->GetBinContent(ib+1) ;  
+	     float n_Ly_TrPrj = hist_METracks  ->GetBinContent(ib+1) ;
+	     
+	     
+	     if ( n_Ly_TrPrj >0 ) {
+	       //MuctpiThr0
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  		   sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		   sqrt( n_Ly_TrPrj ) ;
+	       hist_MuctpiThr_eff0->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_MuctpiThr_eff0->SetBinError  (ib+1, Ly_effErr) ;
+	    
+	       //MuctpiThr1
+	       n_Ly_hitOn = hist_MuctpiThr1->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_MuctpiThr_eff1->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_MuctpiThr_eff1->SetBinError  (ib+1, Ly_effErr) ;
+	       //MuctpiThr2
+	       n_Ly_hitOn = hist_MuctpiThr2->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_MuctpiThr_eff2->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_MuctpiThr_eff2->SetBinError  (ib+1, Ly_effErr) ;
+	       //MuctpiThr3
+	       n_Ly_hitOn = hist_MuctpiThr3->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_MuctpiThr_eff3->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_MuctpiThr_eff3->SetBinError  (ib+1, Ly_effErr) ;
+	       //MuctpiThr4
+	       n_Ly_hitOn = hist_MuctpiThr4->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_MuctpiThr_eff4->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_MuctpiThr_eff4->SetBinError  (ib+1, Ly_effErr) ;
+	       //MuctpiThr5
+	       n_Ly_hitOn = hist_MuctpiThr5->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_MuctpiThr_eff5->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_MuctpiThr_eff5->SetBinError  (ib+1, Ly_effErr) ;
+	       //PadThr0
+	       n_Ly_hitOn = hist_PadThr0->GetBinContent(ib+1) ;
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  		   sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		   sqrt( n_Ly_TrPrj ) ;
+	       hist_PadThr_eff0->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PadThr_eff0->SetBinError  (ib+1, Ly_effErr) ;
+	       //PadThr1
+	       n_Ly_hitOn = hist_PadThr1->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PadThr_eff1->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PadThr_eff1->SetBinError  (ib+1, Ly_effErr) ;
+	       //PadThr2
+	       n_Ly_hitOn = hist_PadThr2->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PadThr_eff2->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PadThr_eff2->SetBinError  (ib+1, Ly_effErr) ;
+	       //PadThr3
+	       n_Ly_hitOn = hist_PadThr3->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PadThr_eff3->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PadThr_eff3->SetBinError  (ib+1, Ly_effErr) ;
+	       //PadThr4
+	       n_Ly_hitOn = hist_PadThr4->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PadThr_eff4->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PadThr_eff4->SetBinError  (ib+1, Ly_effErr) ;
+	       //PadThr5
+	       n_Ly_hitOn = hist_PadThr5->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PadThr_eff5->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PadThr_eff5->SetBinError  (ib+1, Ly_effErr) ;
+	       //PhiEtaCoinThr0
+	       n_Ly_hitOn = hist_PhiEtaCoinThr0->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  		   sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		   sqrt( n_Ly_TrPrj ) ;
+	       hist_PhiEtaCoinThr_eff0->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PhiEtaCoinThr_eff0->SetBinError  (ib+1, Ly_effErr) ;
+	       //PhiEtaCoinThr1
+	       n_Ly_hitOn = hist_PhiEtaCoinThr1->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PhiEtaCoinThr_eff1->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PhiEtaCoinThr_eff1->SetBinError  (ib+1, Ly_effErr) ;
+	       //PhiEtaCoinThr2
+	       n_Ly_hitOn = hist_PhiEtaCoinThr2->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PhiEtaCoinThr_eff2->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PhiEtaCoinThr_eff2->SetBinError  (ib+1, Ly_effErr) ;
+	       //PhiEtaCoinThr3
+	       n_Ly_hitOn = hist_PhiEtaCoinThr3->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PhiEtaCoinThr_eff3->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PhiEtaCoinThr_eff3->SetBinError  (ib+1, Ly_effErr) ;
+	       //PhiEtaCoinThr4
+	       n_Ly_hitOn = hist_PhiEtaCoinThr4->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PhiEtaCoinThr_eff4->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PhiEtaCoinThr_eff4->SetBinError  (ib+1, Ly_effErr) ;
+	       //PhiEtaCoinThr5
+	       n_Ly_hitOn = hist_PhiEtaCoinThr5->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PhiEtaCoinThr_eff5->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PhiEtaCoinThr_eff5->SetBinError  (ib+1, Ly_effErr) ;
+	     }
+	     
+	     
+	            
+	  }
+	
+	  // write out histogram
+	  TDirectory* dir = f->GetDirectory( dir_trigger_track.c_str() ) ;  
+	  if ( dir != 0 ) {
+	    dir->cd() ;
+	    hist_MuctpiThr_eff0->Write("",TObject::kOverwrite);
+	    hist_MuctpiThr_eff1->Write("",TObject::kOverwrite);
+	    hist_MuctpiThr_eff2->Write("",TObject::kOverwrite);
+	    hist_MuctpiThr_eff3->Write("",TObject::kOverwrite);
+	    hist_MuctpiThr_eff4->Write("",TObject::kOverwrite);
+	    hist_MuctpiThr_eff5->Write("",TObject::kOverwrite);
+	    hist_PadThr_eff0->Write("",TObject::kOverwrite);
+	    hist_PadThr_eff1->Write("",TObject::kOverwrite);
+	    hist_PadThr_eff2->Write("",TObject::kOverwrite);
+	    hist_PadThr_eff3->Write("",TObject::kOverwrite);
+	    hist_PadThr_eff4->Write("",TObject::kOverwrite);
+	    hist_PadThr_eff5->Write("",TObject::kOverwrite);
+	    hist_PhiEtaCoinThr_eff0->Write("",TObject::kOverwrite);
+	    hist_PhiEtaCoinThr_eff1->Write("",TObject::kOverwrite);
+	    hist_PhiEtaCoinThr_eff2->Write("",TObject::kOverwrite);
+	    hist_PhiEtaCoinThr_eff3->Write("",TObject::kOverwrite);
+	    hist_PhiEtaCoinThr_eff4->Write("",TObject::kOverwrite);
+	    hist_PhiEtaCoinThr_eff5->Write("",TObject::kOverwrite);
+	  }
+	}
+
 	
 	// layer efficiency
 	std::string LyHit_name, LyPrj_name, LyEff_name ;

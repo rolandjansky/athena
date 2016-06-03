@@ -196,7 +196,7 @@ namespace dqutils {
          if( h_disabled_per_lumi[i] && h_syncerr_per_lumi[i]){
            keyname = "DisabledAndSyncErrorsModules_per_lumi_";
            TString tmpname = keyname + layerName[i] + "_byPostProcess";
-           h_disabled_syncerr_per_lumi[i] = new TH1F(tmpname, ";Lumi block;Avg. fraction per event", 2500, 0, 2500);
+           h_disabled_syncerr_per_lumi[i] = new TH1F(tmpname, "Disable and Sync error per module per event;Lumi block;Avg. fraction per event", 2500, 0, 2500);
            //h_disabled_syncerr_per_lumi[i]->Scale( 1.0/nmodule[i] );
            for(int ibin=0; ibin<2500+1 ; ibin++){
              Double_t cont1 = h_disabled_per_lumi[i]->GetBinContent(ibin) / nmodule[i];
