@@ -20,6 +20,14 @@
   * @class Trk::NNVertexWeightCalculator 
   *
   * @author Johanna Bronner, April 2009
+  *
+  * ---------------------------------------------------
+  * Changes:
+  *
+  * David Shope <david.richard.shope@cern.ch> (2016-06-01)
+  *
+  *   EDM Migration to xAOD - remove method using VxCandidate
+  *
   */
 
 class TTrainedNetwork;
@@ -29,7 +37,6 @@ class ITHistSvc;
  namespace Trk
  {
    class NeuralNetworkToHistoTool;
-   class VxCandidate;
    
    class NNVertexWeightCalculator : public AthAlgTool, virtual public IVertexWeightCalculator
    {
@@ -48,12 +55,7 @@ class ITHistSvc;
      virtual ~NNVertexWeightCalculator();
      
     /**
-     * WeightCalculator 
-     */
-     virtual double estimateSignalCompatibility(const VxCandidate& vertex);
-
-    /**
-     * WeightCalculator, xAOD implementation
+     * WeightCalculator
      */
     virtual double estimateSignalCompatibility(const xAOD::Vertex& vertex);
          
