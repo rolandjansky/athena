@@ -23,10 +23,10 @@ __author__  = 'Pierre-Antoine Delsart (delsart@in2p3.fr), \
                Sergei Chekanov  (chakanau@hep.anl.gov)'
 __doc__     = 'Module for jet comparison'
 
-
-from ROOT import TTree, TFile
-import ROOT
 import re,os,sys
+import argparse
+
+import ROOT
 re_bname = re.compile("([a-zA-Z0-9]+)_.*")
 
 import numpy
@@ -35,14 +35,23 @@ def rel_diff(v1,v2):
         return (v1 - v2)/float(min(abs(v1),abs(v2)))
     except ZeroDivisionError:
         return 0
-def _gettypename(self):
-    return "SimpleBr"
-ROOT.TBranch.GetTypeName = _gettypename
+## def _gettypename(self):
+##     return "SimpleBr"
+## ROOT.TBranch.GetTypeName = _gettypename
 def fullDebug_on( self, r , val='' , val2=''):
-    print self.name , self.b1.GetTypeName(), r, val , val2
+    print self.name , self.b1, r, val , val2
 def fullDebug_off( self, r ,val='', v2='' ):
     pass
 fullDebug = fullDebug_off
+
+
+## if hasattr( ROOT.vector("float"), "data") : # workaround differences in ROOT versions
+##     bufferFromVect = lambda v : v.data()
+## else:
+##     bufferFromVect = lambda v : v.begin().base
+
+def bufferFromVect(v):
+    return v.data()
 
 
 # ROOT <-> numpy 
@@ -55,10 +64,6 @@ cppToNumpyType = {
     'vector<double>' : numpy.bool ,
     }
 
-if hasattr( ROOT.vector("float"), "data") :
-    bufferFromVect = lambda v : v.data()
-else:
-    bufferFromVect = lambda v : v.begin().base
 
 def splitVarName_default( fullname ):
     res = re_bname.search(fullname)
@@ -69,7 +74,20 @@ def splitVarName_default( fullname ):
     vname = bn[len(base):]
     return base, vname
 
+
+
+
+## *************************************
 class VarPairBase(object):
+    """Represents a variable to be compared from 2 sources.
+    Typicaly the same variable from 2 TTrees
+      (ex : tree1.AntiKt4LCTopoJetsAuxDyn.Width vs tree2.AntiKt4LCTopoJetsAuxDyn.Width)
+    but can also be 2 variables from the same tree
+      (ex : tree1.AntiKt4LCTopoJetsAuxDyn.Width vs tree1.AntiKt4LCTopoJets2AuxDyn.Width)
+
+    the class holds TBranch, TTrees and provide methods to load and compare the variables.
+    loading and comparing are implemented in derived class depending if the variables are scalar, vector or vector<vector>
+    """
     tree1 = None
     tree2 = None
 
@@ -79,6 +97,9 @@ class VarPairBase(object):
 
 
     validVariable = True
+
+
+
     
     @staticmethod
     def buildPair(name, b1,b2, MAX_REL_DIFF, isMeV = False):
@@ -185,13 +206,14 @@ class VarPairBase(object):
         
 
 class VarPairVector(VarPairBase):
+    """Specialized representation of variables of type vector<T> """
     maxVecSize = -1
 
     def checkxAODAuxStore(self, one ):
         
         name, b, tree = (self.bname1, self.b1, self.tree1) if one else (self.bname2, self.b2, self.tree2)
         if 'Aux.' in name and not name.endswith('Aux.') :
-            from xAODAuxStoreHelper import initStaticStoreBranch
+            #from xAODAuxStoreHelper import initStaticStoreBranch
             # this properly extracts the vector<> object from the AuxStore
             # and make it available in the tree
             initStaticStoreBranch(tree,b) 
@@ -207,7 +229,6 @@ class VarPairVector(VarPairBase):
         # trick to make them available.
         self.checkxAODAuxStore(one=True)
         self.checkxAODAuxStore(one=False)
-        
         
         self.v1 = getattr(self.tree1, self.bname1)
         self.v2 = getattr(self.tree2, self.bname2)
@@ -269,12 +290,16 @@ class VarPairVector(VarPairBase):
         return result and sizematch
 
 class VarPairVectorMeV(VarPairVector):
+    """Specialized representation of variables of type vector<T> representing energies.
+    The tolereance on the difference is evaluated differently.
+    """
     def relDiff(self, a1, a2):
         d = abs(a1-a2)
-        return numpy.where( d > 0.1 , d , 0 )/abs(a1+0.001) # maximum : avoids division by 0
+        return numpy.where( d > 0.1 , d , 0 )/abs(a1+0.001) 
 
     
 class VarPairVectorVector(VarPairVector):
+    """Specialized representation of variables of type vector<vector<T> > ."""
 
     def compare(self, evt1, evt2):        
 
@@ -310,6 +335,7 @@ class VarPairVectorVector(VarPairVector):
         
 
 class VarPairScalar(VarPairBase):
+    """Specialized representation of variables of simple type (int or float) """
     def initBranch(self):
         b1, b2 = self.b1, self.b2        
         t = b1.GetListOfLeaves()[0].GetTypeName()
@@ -358,33 +384,7 @@ class VarPairScalar(VarPairBase):
             #self.v2 = getattr(t, self.bname2)        
 
 
-# class VarScalarAndVec(VarPairBase):
-#     def initBranch(self):
-#         b1, b2 = self.b1, self.b2
-#         t = b1.GetTitle()[-1]
-#         if t == 'I':
-#             t = numpy.int32
-#         elif t=='F':
-#             t = numpy.float32
-#         self.a1 = numpy.ndarray(1,dtype = t)
-#         self.a2 = numpy.ndarray(1,dtype = t)
-#         b1.GetTree().SetBranchAddress(b1.GetName(),self.a1)
-#         b2.GetTree().SetBranchAddress(b2.GetName(),self.a2)
-#     def getEntry(self,evt1, evt2):
-#         self.b1.GetEntry(evt1), self.b2.GetEntry(evt2)
-#         return self.a1, self.a2
-#     def compare(self, evt1, evt2):
-#         a1, a2 = self.getEntry(evt1, evt2)
-#         rd = 2*abs(a1-a2)/numpy.maximum( a1+a2, 1e-10) # maximum : avoids division by 0
-#         self.nvalues+=1
-#         return self.checkRes(evt1,rd[0], a1[0], 0)
-
     
-
-
-def replace_Jets_by(r):
-    return lambda x : x.replace('Jets',r)
-
 class VarComparator(object):
    
     """Manage lists of VarPair objects associated to 1 or 2 trees """
@@ -402,7 +402,7 @@ class VarComparator(object):
             if not os.path.exists(inputf):
                 print " Can't find ", inputf, '. Exit'
                 sys.exit(1)
-            f = TFile( inputf )
+            f = ROOT.TFile( inputf )
             tree = f.Get(tn)
             self.files.append(f)
             return tree
@@ -474,6 +474,7 @@ class VarComparator(object):
         splitVarName = self.splitVarName
         comparedBranches = []
         for bn in sorted(selected_br):
+            if bn.endswith('Aux.'): continue
             base, vname = splitVarName( bn)
             if vname is None :
                 continue
@@ -561,19 +562,152 @@ class VarComparator(object):
         return 0
         #return ok
 
-def Draw(typ, exp, sel='',evt=None, *args):
-    print exp.replace('X1',typ)
-    if evt:
-        if len(args)==0 : args=['']
-        args += [1,evt]
-    return t1.Draw(exp.replace('X1',typ), sel.replace('X1',typ) , *args)
 
-def Scan(typ, exp, sel='', evt=None, *args):
-    print exp.replace('X1',typ)
-    if evt:
-        if len(args)==0 : args=['']
-        args += [1,evt]
-    return t1.Scan(exp.replace('X1',typ), sel.replace('X1',typ) , *args)
+## *********************************************
+## Helpers to deal with xaod specifics
+## (trick from Wim Lavrjisen)
+cast_offset_str="""
+#include "TBranchElement.h"
+ #include "TObjArray.h"
+ #include "TStreamerElement.h"
+ #include "TStreamerInfo.h"
+
+ Long_t cast_with_offset( TBranchElement* be ) {
+    Long_t offset = ((TStreamerElement*)be->GetInfo()->GetElements()->At(be->GetID()))->GetOffset();
+    return (Long_t)(be->GetObject() + offset);
+ } 
+
+"""
+def initxAODHelper():
+    from  os.path import isfile
+    if not isfile("cast_with_offset.C"):
+        open("cast_with_offset.C","w").write(cast_offset_str)
+    ROOT.gROOT.LoadMacro("cast_with_offset.C+")
+
+    # trick to run the actual code only once 
+    initxAODHelper.func_code = (lambda:None).func_code
+
+def xAOD_initBranch( tree, name ):
+    
+    tree.SetBranchStatus( name, ROOT.kTRUE )
+    be = tree.GetBranch( name )
+    be.GetEntry(0)   # tickle object creation
+    values = ROOT.BindObject( ROOT.cast_with_offset( be ), be.GetTypeName() )
+    setattr( tree, name, values ) 
+    return values
+
+def initStaticStoreBranch(tree, be):
+    initxAODHelper()
+    be.GetEntry(0)   # tickle object creation
+    values = ROOT.BindObject( ROOT.cast_with_offset( be ), be.GetTypeName() )
+    setattr( tree, be.GetName(), values ) 
+    return values
+
+## *********************************************
 
 
 
+
+
+
+
+
+
+
+if __name__ == '__main__':
+
+    
+    testedContainers = ["AntiKt4LCTopoJets","AntiKt10LCTopoJets"]
+    ##################################################
+    # Read and store argument values                 #
+    ##################################################
+
+    parser = argparse.ArgumentParser(description='Compare variables  from pairs of JetContainer and report if they differ')
+
+    parser.add_argument('inFile1', type=str, help='1st input root file')
+    parser.add_argument('inFile2', type=str, default="", nargs='?', help='2nd input root file. If none, then container "XYZ" in inFile1 will be compared against "XYZSuffix" where Suffix is set by --suffix')
+    parser.add_argument('--treeName1', type=str, default="CollectionTree", help="Name of TTree (default: %(default)s)", metavar='name1')
+    parser.add_argument('--treeName2', type=str, default="CollectionTree", help="Name of TTree", metavar='name2')
+    parser.add_argument( '--containers', type=str, default= testedContainers, nargs='*',help="list of containers (ex: --containers cont1 cont2 cont3)", metavar='jetcontname')
+    parser.add_argument('--details', action='store_true', help="Display status for each variable, even if no error")
+    parser.add_argument('--ESD', action='store_true', help="Use this flag if both input files are ESD")
+    parser.add_argument('--AODvsESD', action='store_true', help="Use this flag if file1 is AOD and file2 is  ESD")
+    parser.add_argument('--suffix', type=str, default='Test', help="In case using only 1 input files, uses this suffix to relate containers to be matched. Default to 'Test'")
+    parser.add_argument('--clusters', action='store_true', help="Add basic comparisons of clusters variables in CaloCalTopoClusterAux ")
+
+
+    args = parser.parse_args()
+
+    # reset testedContainers :
+    testedContainers = args.containers
+    print "Will test ", testedContainers
+
+    # if we have only 1 input file, we compare "XXXJets" against "XXXJetsTest" containers
+    if args.inFile2 == '':
+        # define a renamer function
+        branchRenamer = lambda n : n.replace('Jets','Jets'+args.suffix)    
+        # testing only the 2 first entries
+        VarPairVector.maxVecSize = 2
+        # do this as long as area calculation is not reproducible :
+        # in this case calib differs and misordering can happen for low pt jets
+    else:
+        # we compare containers with same name in 2 different files.
+        # No need to rename, renamer function does nothing :
+        branchRenamer = lambda n : n
+
+
+    # Filter --------------
+    def branchFilter(s ):
+        """Return True if branch named s needs to be compared """
+        return any( s.startswith( b ) for b in testedContainers ) #and "Area" not in s
+
+    # Name splitting ----------
+    # In order to nicely categorize results, the system needs to know to which container
+    # a variable "AntiKt4LCTopoJets.Var" belongs. The function below returns ("AntiKt4LCTopoJets","Var")
+    def splitVarName_xAOD( fullname ):
+        try:
+            base, varname = fullname.split('.')
+            return base, varname
+        except:
+            return "none", None
+
+    # act if reading ESD -----------
+    if args.ESD:
+        testedContainers = ["xAOD::JetAuxContainer_v1_"+b for b in testedContainers ]
+    elif args.AODvsESD:
+        branchRenamer = lambda n : "xAOD::JetAuxContainer_v1_"+n
+
+
+
+    # Static aux container branches -----
+    additionalBranches = []
+    for c in testedContainers:
+        bname = c+'Aux.'
+        additionalBranches += [ bname+v for v in ("pt","eta","phi","m") ]
+
+    # add basic clusters comp
+    if args.clusters:
+        bname = "CaloCalTopoClusterAux."
+        if args.ESD:
+            bname = "xAOD::CaloClusterAuxContainer_v1_"+bname
+            branchRenamer = lambda n : n.replace("_v1_CaloCalTopoCluster", "_v2_CaloCalTopoClusters")
+        additionalBranches +=  [bname+v for v in ("rawE","rawEta","rawPhi") ]
+
+    # Build the main Comparator
+    vc = VarComparator( args.inFile1 , args.inFile2 if args.inFile2 else None , treename = args.treeName1, treename2=args.treeName2 )# , treename2="susy")
+    vc.splitVarName  = splitVarName_xAOD
+
+
+    vc.init_trees( base_vars = [],
+                   branch_filter = branchFilter,
+                   branch_replace = branchRenamer,
+                   checkMissing = False,
+                   additionalBranches = additionalBranches,
+                   )
+
+    #numErr = vc.full_compare(debug=True, maxEvent=1)
+    numErr = vc.full_compare(debug=False, maxEvent=100, detailedSummary=args.details)
+
+    exit(numErr) # RTT: success if exit code is 0, failure otherwise
+
+    
