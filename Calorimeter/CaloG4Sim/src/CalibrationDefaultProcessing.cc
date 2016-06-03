@@ -30,9 +30,9 @@
 namespace CaloG4 {
 
   // Register this class with the UserAction class managers.
-  CalibrationDefaultProcessing::CalibrationDefaultProcessing(const std::string& type, const std::string& name, const IInterface* parent) : 
+  CalibrationDefaultProcessing::CalibrationDefaultProcessing(const std::string& type, const std::string& name, const IInterface* parent) :
     UserActionBase(type,name,parent),m_defaultSD(0), m_SDname("Default::Dead::Uninstrumented::Calibration::Region")
-      
+
   {
 
     declareProperty("SDName",m_SDname);
@@ -48,8 +48,6 @@ namespace CaloG4 {
     // retrieve the SD from G4SDManager
     // done here instead of in initialize to leave more flexibility to the rest of the G4 init
 
-     G4SDManager* SDman = G4SDManager::GetSDMpointer();
-
      m_defaultSD = G4SDManager::GetSDMpointer()-> FindSensitiveDetector(m_SDname);
 
      if(!m_defaultSD) ATH_MSG_ERROR("No valid SD name specified. The job will continue, but you should check your configuration");
@@ -59,40 +57,40 @@ namespace CaloG4 {
   void CalibrationDefaultProcessing::Step(const G4Step* a_step)
   {
 
-    
+
     // Do we have a sensitive detector?
     if ( m_defaultSD != 0 )
       {
-	// We only want to perform the default processing if no other
-	// calibration processing has occurred for this step.
+        // We only want to perform the default processing if no other
+        // calibration processing has occurred for this step.
 
-	if ( ! CaloG4::SimulationEnergies::StepWasProcessed() )
-	  {
-	    // We haven't performed any calibration processing for this
-	    // step (probably there is no sensitive detector for the
-	    // volume).  Use the default sensitive detector to process
-	    // this step.  Note that we have to "cast away" const-ness for
-	    // the G4Step*, due to how G4VSensitiveDetector::Hit() is
-	    // defined.
-	    m_defaultSD->Hit( const_cast<G4Step*>(a_step) );
-	  }
+        if ( ! CaloG4::SimulationEnergies::StepWasProcessed() )
+          {
+            // We haven't performed any calibration processing for this
+            // step (probably there is no sensitive detector for the
+            // volume).  Use the default sensitive detector to process
+            // this step.  Note that we have to "cast away" const-ness for
+            // the G4Step*, due to how G4VSensitiveDetector::Hit() is
+            // defined.
+            m_defaultSD->Hit( const_cast<G4Step*>(a_step) );
+          }
 
-	// In any case, clear the flag for the next step.
-	CaloG4::SimulationEnergies::ResetStepProcessed();
+        // In any case, clear the flag for the next step.
+        CaloG4::SimulationEnergies::ResetStepProcessed();
       }
     else
       {
-	static G4bool warningPrinted = false;
-	if ( ! warningPrinted )
-	  {
-	    warningPrinted = true;
-	    G4cout << "CaloG4::CalibrationDefaultProcessing::SteppingAction - "
-		   << G4endl
-		   << "   A default calibration sensitive detector was not defined."
-		   << G4endl
-		   << "   Not all calibration energies will be recorded."
-		   << G4endl;
-	  }
+        static G4bool warningPrinted = false;
+        if ( ! warningPrinted )
+          {
+            warningPrinted = true;
+            G4cout << "CaloG4::CalibrationDefaultProcessing::SteppingAction - "
+                   << G4endl
+                   << "   A default calibration sensitive detector was not defined."
+                   << G4endl
+                   << "   Not all calibration energies will be recorded."
+                   << G4endl;
+          }
       }
   }
 
@@ -101,13 +99,13 @@ namespace CaloG4 {
 //    if ( m_defaultSD != 0 )
 //      {
 //	G4cout << "CaloG4::CalibrationDefaultProcessing::SetDefaultSD - "
-//	       << G4endl
-//	       << "   The default calibration sensitive detector '"
-//	       << m_defaultSD->GetName()
-//	       << "'" << G4endl
-//	       << "   is being replace by sensitive detector '"
-//	       << a_sd->GetName()
-//	       << "'" << G4endl;
+//             << G4endl
+//             << "   The default calibration sensitive detector '"
+//             << m_defaultSD->GetName()
+//             << "'" << G4endl
+//             << "   is being replace by sensitive detector '"
+//             << a_sd->GetName()
+//             << "'" << G4endl;
 //      }
 //
 //    m_defaultSD = a_sd;
@@ -116,7 +114,7 @@ namespace CaloG4 {
 //
 
 
-  StatusCode CalibrationDefaultProcessing::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+  StatusCode CalibrationDefaultProcessing::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
   if ( IUserAction::interfaceID().versionMatch(riid) ) {
     *ppvInterface = dynamic_cast<IUserAction*>(this);
