@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <mutex>
 
 #include "UserActionSvc.h"
 
@@ -9,7 +10,7 @@
 #include "G4RegionStore.hh"
 
 // Constructor
- UserActionSvc::UserActionSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
+ UserActionSvc::UserActionSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
    AthService(name, pSvcLocator),
    m_BoR(),m_EoR(),m_BoE(),m_EoE(),m_Ste(),m_BoT(),m_EoT(),m_StaCla(),m_StaPrepare(),m_StaNewStage(),
    m_legacy_RA(0),m_legacy_EA(0),m_legacy_TA(0),m_legacy_SA(0),m_legacy_StaA(0){
@@ -25,7 +26,7 @@
    declareProperty("StackingActionsPrepareNewEvent",m_StaPrepare);
    declareProperty("StackingActionsNewStage",m_StaNewStage);
  }
- 
+
 
 StatusCode UserActionSvc::initialize(){
 
@@ -92,7 +93,7 @@ void UserActionSvc::fillUserActionsList(ToolHandleArray<IUserAction>& thlist, st
       ATH_MSG_INFO("   ->"<<action->name()<< " [Regional: will be assigned to "<<action->GetRegions().size()<<" regions at begin of run]");
     }
   }
-  
+
 }
 
 
@@ -101,7 +102,7 @@ void UserActionSvc::registerToRunManager(){
   ATH_MSG_INFO( "Registering actions to G4 run manager ");
 
   G4RunManager* manager=G4RunManager::GetRunManager();
-  
+
   manager->SetUserAction((G4UserRunAction*)this);
   manager->SetUserAction((G4UserEventAction*)this);
   manager->SetUserAction((G4UserTrackingAction*)this);
@@ -109,7 +110,7 @@ void UserActionSvc::registerToRunManager(){
   manager->SetUserAction((G4UserStackingAction*)this);
 
   // at this point the internal pointers to the managers have been filled by G4. we pass them to the actual user actions
-  
+
   setManagers(m_BoRquick);
   setManagers(m_BoEquick);
   setManagers(m_BoTquick);
@@ -125,7 +126,7 @@ void UserActionSvc::registerToRunManager(){
 }
 
 StatusCode UserActionSvc::finalize(){
-  
+
   ATH_MSG_INFO( "Finalizing UserActionSvc: " << name() );
 
 
@@ -185,11 +186,11 @@ void  UserActionSvc::PreUserTrackingAction(const G4Track* aTrack){
   // first execute the legacy actions
 
   if(m_legacy_TA) m_legacy_TA->PreUserTrackingAction(aTrack);
-  
+
   // now execute the new actions
-  for(auto action: m_BoTquick) 
+  for(auto action: m_BoTquick)
     action->PreTracking(aTrack);
-  
+
 }
 
 void  UserActionSvc::PostUserTrackingAction(const G4Track* aTrack){
@@ -200,9 +201,9 @@ void  UserActionSvc::PostUserTrackingAction(const G4Track* aTrack){
 
   // now execute the new actions
 
-  for(auto action: m_EoTquick)    
+  for(auto action: m_EoTquick)
     action->PostTracking(aTrack);
-  
+
 }
 void  UserActionSvc::BeginOfEventAction(const G4Event* anEvent){
 
@@ -217,16 +218,16 @@ void  UserActionSvc::BeginOfEventAction(const G4Event* anEvent){
 }
 
 void  UserActionSvc::EndOfEventAction(const G4Event* anEvent){
-  
+
   // first execute the legacy actions
-  
+
    if(m_legacy_EA) m_legacy_EA->EndOfEventAction(anEvent);
 
   // now execute the new actions
 
   for(auto action: m_EoEquick)
     action->EndOfEvent(anEvent);
-  
+
 }
 
 void  UserActionSvc::BeginOfRunAction(const G4Run* aRun ){
@@ -247,11 +248,11 @@ void  UserActionSvc::BeginOfRunAction(const G4Run* aRun ){
 	
       }
     }
-      
+
   }
-  
+
   // first execute the legacy actions
-  
+
   if(m_legacy_RA) m_legacy_RA->BeginOfRunAction(aRun);
 
   // now execute the new actions
@@ -277,56 +278,57 @@ void  UserActionSvc::EndOfRunAction(const G4Run* aRun){
 void  UserActionSvc::UserSteppingAction(const G4Step* aStep){
 
   // first execute the legacy actions
-  
+
    if(m_legacy_SA) m_legacy_SA->UserSteppingAction(aStep);
 
   // now execute the new actions
   for(auto action: m_Stequick)
     action->Step(aStep);
 
-} 
-
-G4ClassificationOfNewTrack  UserActionSvc::ClassifyNewTrack(const G4Track* aTrack){
-
-
-  if(m_legacy_StaA)  m_legacy_StaA->ClassifyNewTrack(aTrack);
-
-  for(auto action: m_StaClaquick)
-    action->ClassifyNewTrack(aTrack);
-
-  // FIXME need to find a better way to handle conflicting classifications...
-  return fUrgent;
-
 }
 
+ G4ClassificationOfNewTrack  UserActionSvc::ClassifyNewTrack(const G4Track* aTrack){
+
+   if(m_legacy_StaA)  m_legacy_StaA->ClassifyNewTrack(aTrack);
+
+   G4ClassificationOfNewTrack classification(fUrgent);
+   for(auto action: m_StaClaquick)
+    {
+      classification = action->ClassifyNewTrack(aTrack);
+      if(fKill==classification) { return fKill; }
+    }
+   // FIXME need to find a better way to handle conflicting classifications... See ATLASSIM-2421
+  return classification;
+ }
+
 void  UserActionSvc::NewStage(){
-  
+
   // first execute the legacy actions
-  
+
   if(m_legacy_StaA) m_legacy_StaA->NewStage();
-  
+
   // now execute the new actions
   for(auto action: m_StaNewStagequick)
     action->NewStage();
-  
-  
+
+
 }
 
 void  UserActionSvc::PrepareNewEvent(){
-  
+
   // first execute the legacy actions
-  
+
   if(m_legacy_StaA) m_legacy_StaA->PrepareNewEvent();
-  
+
   // now execute the new actions
   for(auto action: m_StaPreparequick)
     action->PrepareNewEvent();
-  
+
 }
 
 
 
-StatusCode UserActionSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+StatusCode UserActionSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
   if ( IUserActionSvc::interfaceID().versionMatch(riid) ) {
     *ppvInterface = dynamic_cast<IUserActionSvc*>(this);
@@ -339,6 +341,10 @@ StatusCode UserActionSvc::queryInterface(const InterfaceID& riid, void** ppvInte
   return StatusCode::SUCCESS;
 }
 
+
+//=============================================================================
+// New design for the user action service
+//=============================================================================
 
 
 // Framework includes
@@ -355,18 +361,28 @@ namespace G4UA
 
   //---------------------------------------------------------------------------
   // Constructor
+  // I was using private tool handle arrays, but the OutputLevels weren't
+  // getting set correctly (in mig1), so I will just make them all public.
   //---------------------------------------------------------------------------
   UserActionSvc::UserActionSvc(const std::string& name,
                                ISvcLocator* pSvcLocator)
     : AthService(name, pSvcLocator),
-      m_beginRunActionTools(this),
-      m_endRunActionTools(this),
-      m_beginEventActionTools(this),
-      m_endEventActionTools(this),
-      m_stackingActionTools(this),
-      m_preTrackingActionTools(this),
-      m_postTrackingActionTools(this),
-      m_steppingActionTools(this)
+      m_beginRunActionTools(),
+      m_endRunActionTools(),
+      m_beginEventActionTools(),
+      m_endEventActionTools(),
+      m_stackingActionTools(),
+      m_preTrackingActionTools(),
+      m_postTrackingActionTools(),
+      m_steppingActionTools()
+      //m_beginRunActionTools(this),
+      //m_endRunActionTools(this),
+      //m_beginEventActionTools(this),
+      //m_endEventActionTools(this),
+      //m_stackingActionTools(this),
+      //m_preTrackingActionTools(this),
+      //m_postTrackingActionTools(this),
+      //m_steppingActionTools(this)
   {
     declareProperty("BeginRunActionTools", m_beginRunActionTools);
     declareProperty("EndRunActionTools", m_endRunActionTools);
@@ -383,7 +399,40 @@ namespace G4UA
   //---------------------------------------------------------------------------
   StatusCode UserActionSvc::initialize()
   {
-    ATH_MSG_INFO("initialize");
+    ATH_MSG_INFO("Initializing. user action tools of each type, in order of execution:");
+
+    ATH_MSG_INFO("  begin-run:     " << m_beginRunActionTools.size());
+    for(auto action : m_beginRunActionTools)
+      ATH_MSG_INFO("      -> " << action.name());
+
+    ATH_MSG_INFO("  end-run:       " << m_endRunActionTools.size());
+    for(auto action : m_endRunActionTools)
+      ATH_MSG_INFO("      -> " << action.name());
+
+    ATH_MSG_INFO("  begin-event:   " << m_beginEventActionTools.size());
+    for(auto action : m_beginEventActionTools)
+      ATH_MSG_INFO("      -> " << action.name());
+
+    ATH_MSG_INFO("  end-event:     " << m_endEventActionTools.size());
+    for(auto action : m_endEventActionTools)
+      ATH_MSG_INFO("      -> " << action.name());
+
+    ATH_MSG_INFO("  stacking:      " << m_stackingActionTools.size());
+    for(auto action : m_stackingActionTools)
+      ATH_MSG_INFO("      -> " << action.name());
+
+    ATH_MSG_INFO("  pre-tracking:  " << m_preTrackingActionTools.size());
+    for(auto action : m_preTrackingActionTools)
+      ATH_MSG_INFO("      -> " << action.name());
+
+    ATH_MSG_INFO("  post-tracking: " << m_postTrackingActionTools.size());
+    for(auto action : m_postTrackingActionTools)
+      ATH_MSG_INFO("      -> " << action.name());
+
+    ATH_MSG_INFO("  stepping:      " << m_steppingActionTools.size());
+    for(auto action : m_steppingActionTools)
+      ATH_MSG_INFO("      -> " << action.name());
+
     ATH_CHECK( m_beginRunActionTools.retrieve() );
     ATH_CHECK( m_endRunActionTools.retrieve() );
     ATH_CHECK( m_beginEventActionTools.retrieve() );
@@ -392,7 +441,8 @@ namespace G4UA
     ATH_CHECK( m_preTrackingActionTools.retrieve() );
     ATH_CHECK( m_postTrackingActionTools.retrieve() );
     ATH_CHECK( m_steppingActionTools.retrieve() );
-    return StatusCode::SUCCESS;
+
+   return StatusCode::SUCCESS;
   }
 
   //---------------------------------------------------------------------------
@@ -403,9 +453,32 @@ namespace G4UA
   //---------------------------------------------------------------------------
   StatusCode UserActionSvc::initializeActions()
   {
-    // Should I lock this?
+    // This method is called concurrently in AthenaMT during initialization.
+    // We conservatively just lock the whole thing to protect MsgStream and
+    // downstream code.
+    static std::mutex userActionMutex;
+    std::lock_guard<std::mutex> userActionLock(userActionMutex);
 
     ATH_MSG_DEBUG("initializeActions");
+
+    // sanity check: this is to make sure there are no other instances of this
+    // svc that have been already initialized, or that nobody else in some other
+    // code has already been registering actions to the run manager, which would
+    // be a major error in the configuration checking the run action is probably
+    // enough fo multiple instances of this service, since all roles are usually
+    // set at the same time. but other code may as well have registered just one
+    // role, so it is safer to do all checks here.
+
+    if( G4RunManager::GetRunManager()->GetUserRunAction() ||
+        G4RunManager::GetRunManager()->GetUserEventAction() ||
+        G4RunManager::GetRunManager()->GetUserStackingAction() ||
+        G4RunManager::GetRunManager()->GetUserTrackingAction() ||
+        G4RunManager::GetRunManager()->GetUserSteppingAction() )
+    {
+      ATH_MSG_FATAL("UserActionSvc has found that actions were already " <<
+                    "registered to the G4RunManager. Check your code/configuration");
+      return StatusCode::FAILURE;
+    }
 
     // Initialize the ATLAS run action.
     if(m_runActions.get()) {
@@ -419,6 +492,7 @@ namespace G4UA
     // Assign end-run plugins
     for(auto endRunTool : m_endRunActionTools)
       runAction->addEndRunAction( endRunTool->getEndRunAction() );
+
     G4RunManager::GetRunManager()->SetUserAction( runAction.get() );
     m_runActions.set( std::move(runAction) );
 

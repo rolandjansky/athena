@@ -42,37 +42,37 @@ class UserActionSvc: virtual public IUserActionSvc, public AthService, public G4
   UserActionSvc( const std::string& name, ISvcLocator* svc );//!< Service constructor
   virtual ~UserActionSvc();
 
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
   static const InterfaceID& interfaceID() { return IUserActionSvc::interfaceID(); }
 
-  virtual StatusCode initialize();          //!< Service init
-  virtual StatusCode finalize();            //!< Service finalize
+  virtual StatusCode initialize() override final;          //!< Service init
+  virtual StatusCode finalize() override final;            //!< Service finalize
 
-  virtual void PreUserTrackingAction(const G4Track*); //!< hook for the g4 run manager
-  virtual void PostUserTrackingAction(const G4Track*); //!< hook for the g4 run manager
-  virtual void BeginOfEventAction(const G4Event* ); //!< hook for the g4 run manager
-  virtual void EndOfEventAction(const G4Event* ); //!< hook for the g4 run manager
-  virtual void BeginOfRunAction(const G4Run* ); //!< hook for the g4 run manager
-  virtual void EndOfRunAction(const G4Run* ); //!< hook for the g4 run manager
-  virtual void UserSteppingAction(const G4Step*); //!< hook for g4 the run manager
+  virtual void PreUserTrackingAction(const G4Track*) override final; //!< hook for the g4 run manager
+  virtual void PostUserTrackingAction(const G4Track*) override final; //!< hook for the g4 run manager
+  virtual void BeginOfEventAction(const G4Event* ) override final; //!< hook for the g4 run manager
+  virtual void EndOfEventAction(const G4Event* ) override final; //!< hook for the g4 run manager
+  virtual void BeginOfRunAction(const G4Run* ) override final; //!< hook for the g4 run manager
+  virtual void EndOfRunAction(const G4Run* ) override final; //!< hook for the g4 run manager
+  virtual void UserSteppingAction(const G4Step*) override final; //!< hook for g4 the run manager
 
-  virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track* aTrack); //!< hook for g4 the run manager
-  virtual void PrepareNewEvent();
-  virtual void NewStage();
+  virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track* aTrack) override final; //!< hook for g4 the run manager
+  virtual void PrepareNewEvent() override final;
+  virtual void NewStage() override final;
 
   // some hooks to manage legacy actions from FADS
-  void SetLegacyRA(G4UserRunAction* anAction);
-  void SetLegacyEA(G4UserEventAction* anAction);
-  void SetLegacySA(G4UserSteppingAction* anAction);
-  void SetLegacyTA(G4UserTrackingAction* anAction);
-  void SetLegacyStaA(G4UserStackingAction* anAction);
+  void SetLegacyRA(G4UserRunAction* anAction) override final;
+  void SetLegacyEA(G4UserEventAction* anAction) override final;
+  void SetLegacySA(G4UserSteppingAction* anAction) override final;
+  void SetLegacyTA(G4UserTrackingAction* anAction) override final;
+  void SetLegacyStaA(G4UserStackingAction* anAction) override final;
   
 
 
   // needeed to replicate functionality provided by the old FADS singletons
   virtual void SetTrajectory(G4VTrajectory * aTraj) override {fpTrackingManager->SetStoreTrajectory(true);  fpTrackingManager->SetTrajectory(aTraj);};
   virtual G4TrackingManager* TrackingManager() const override {return fpTrackingManager;}; 
-  virtual G4StackManager* StackManager() const {return stackManager;};
+  virtual G4StackManager* StackManager() const override final {return stackManager;};
   virtual void ResetTrajectory() override {fpTrackingManager->SetStoreTrajectory(false);};
   
   // now the new actions
@@ -152,11 +152,11 @@ class UserActionSvc: virtual public IUserActionSvc, public AthService, public G4
 #include "GaudiKernel/ToolHandle.h"
 
 // Local includes
-#include "G4AtlasTools/G4AtlasRunAction.h"
-#include "G4AtlasTools/G4AtlasEventAction.h"
-#include "G4AtlasTools/G4AtlasStackingAction.h"
-#include "G4AtlasTools/G4AtlasTrackingAction.h"
-#include "G4AtlasTools/G4AtlasSteppingAction.h"
+#include "G4AtlasRunAction.h"
+#include "G4AtlasEventAction.h"
+#include "G4AtlasStackingAction.h"
+#include "G4AtlasTrackingAction.h"
+#include "G4AtlasSteppingAction.h"
 #include "G4AtlasInterfaces/IBeginRunActionTool.h"
 #include "G4AtlasInterfaces/IEndRunActionTool.h"
 #include "G4AtlasInterfaces/IBeginEventActionTool.h"
@@ -220,7 +220,7 @@ namespace G4UA
 
       /// @}
 
-      /// @name ATLAS plugin actions
+      /// @name ATLAS Geant4 user actions
       /// @{
 
       /// Thread-local run action
