@@ -117,15 +117,22 @@ def getForwardFieldSvc(name="ForwardField", **kwargs):
 
 def getATLAS_FieldMgrList():
     fieldMgrList = []
-    fieldMgrList += ['ATLASFieldManager']
+    from G4AtlasApps.SimFlags import simFlags
+    if not simFlags.TightMuonStepping.statusOn or\
+       not simFlags.TightMuonStepping():
+        fieldMgrList += ['ATLASFieldManager']
+    else:
+        fieldMgrList += ['TightMuonsATLASFieldManager']
+
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.bpipe_on():
         fieldMgrList += ['BeamPipeFieldManager']
     if DetFlags.ID_on():
         fieldMgrList += ['InDetFieldManager']
+    if DetFlags.Calo_on() and simFlags.MuonFieldOnlyInCalo.statusOn and simFlags.MuonFieldOnlyInCalo():
+        fieldMgrList += ['MuonsOnlyInCaloFieldManager']
     if DetFlags.Muon_on():
         fieldMgrList += ['MuonFieldManager']
-    from G4AtlasApps.SimFlags import simFlags
     if simFlags.ForwardDetectors.statusOn:
         if DetFlags.geometry.FwdRegion_on():
             fieldMgrList += ['Q1FwdFieldManager',
