@@ -102,9 +102,8 @@ excludeTracePattern.append("*/TrigL2MissingET/TrigL2MissingETMonitoring.py")
 
 include ( "RecExCond/RecExCommon_flags.py" )
 
-if (rec.doRecoTiming() and
-    ( rec.OutputFileNameForRecoStep() == 'RAWtoESD' or
-      rec.OutputFileNameForRecoStep() == 'ESDtoAOD' )):
+if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoAOD')):
+
     from RecAlgs.RecAlgsConf import TimingAlg
     topSequence+=TimingAlg("RecoTimerBegin")
     topSequence.RecoTimerBegin.TimingObjOutputName=rec.OutputFileNameForRecoStep()+"_timings"
@@ -470,6 +469,17 @@ pdr.flag_domain('admin')
 # one print every 100 event
 topSequence+=EventCounter(Frequency=100)
 
+
+#Temporary: Schedule conversion algorithm for EventInfo object:
+# Note that we need to check whether the HLT already added this algorithm to the
+# algorithm sequence!
+#FIXME: Subsequent algorithms may alter the event info object (setting Error bits)
+if( ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
+        ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
+    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+    topSequence+=xAODMaker__EventInfoCnvAlg()
+    pass
+
 # bytestream reading need to shedule some algorithm
 
 if globalflags.InputFormat.is_bytestream():
@@ -600,16 +610,7 @@ if rec.doTruth():
 if rec.readESD():
    doMuonboyEDM=False
 
-#Temporary: Schedule conversion algorithm for EventInfo object:
-# Note that we need to check whether the HLT already added this algorithm to the
-# algorithm sequence!
-#FIXME: Subsequent algorithms may alter the event info object (setting Error bits)
-if( ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
-        ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
-    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-    topSequence+=xAODMaker__EventInfoCnvAlg()
-    pass
-
+#EventInfoCnv xAOD conversion was here - moved up to run before BS reading algos
 
 if recAlgs.doAtlfast():
     protectedInclude ("AtlfastAlgs/Atlfast_RecExCommon_Fragment.py")
@@ -641,9 +642,7 @@ if rec.doTrigger:
 AODFix_postTrigger()
 
 if globalflags.DataSource()=='geant4':
-    if (rec.doRecoTiming() and
-        ( rec.OutputFileNameForRecoStep() == 'RAWtoESD' or
-         rec.OutputFileNameForRecoStep() == 'ESDtoAOD' )):
+    if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoAOD')):
         topSequence+=TimingAlg("RecoTimerAfterTrigger")
         topSequence.RecoTimerAfterTrigger.TimingObjOutputName=rec.OutputFileNameForRecoStep()+"_timings"
         try:
@@ -818,9 +817,7 @@ if len(rec.UserExecs())>0:
         exec(uExec)
     del allExecs
 
-if (rec.doRecoTiming() and
-    ( rec.OutputFileNameForRecoStep() == 'RAWtoESD' or
-      rec.OutputFileNameForRecoStep() == 'ESDtoAOD' )):
+if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoAOD')):
     topSequence+=TimingAlg("RecoTimerBeforeOutput")
     topSequence.RecoTimerBeforeOutput.TimingObjOutputName=rec.OutputFileNameForRecoStep()+"_timings"
     try:
