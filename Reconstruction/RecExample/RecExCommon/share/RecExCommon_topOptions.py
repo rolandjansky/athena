@@ -469,6 +469,17 @@ pdr.flag_domain('admin')
 # one print every 100 event
 topSequence+=EventCounter(Frequency=100)
 
+
+#Temporary: Schedule conversion algorithm for EventInfo object:
+# Note that we need to check whether the HLT already added this algorithm to the
+# algorithm sequence!
+#FIXME: Subsequent algorithms may alter the event info object (setting Error bits)
+if( ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
+        ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
+    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+    topSequence+=xAODMaker__EventInfoCnvAlg()
+    pass
+
 # bytestream reading need to shedule some algorithm
 
 if globalflags.InputFormat.is_bytestream():
@@ -599,16 +610,7 @@ if rec.doTruth():
 if rec.readESD():
    doMuonboyEDM=False
 
-#Temporary: Schedule conversion algorithm for EventInfo object:
-# Note that we need to check whether the HLT already added this algorithm to the
-# algorithm sequence!
-#FIXME: Subsequent algorithms may alter the event info object (setting Error bits)
-if( ( not objKeyStore.isInInput( "xAOD::EventInfo") ) and \
-        ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
-    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-    topSequence+=xAODMaker__EventInfoCnvAlg()
-    pass
-
+#EventInfoCnv xAOD conversion was here - moved up to run before BS reading algos
 
 if recAlgs.doAtlfast():
     protectedInclude ("AtlfastAlgs/Atlfast_RecExCommon_Fragment.py")
