@@ -12,6 +12,7 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/EgammaContainer.h"
 #include "xAODEgamma/ElectronAuxContainer.h"
 #include "xAODEgamma/PhotonAuxContainer.h"
 #include "egammaRecEvent/egammaRecContainer.h"
@@ -395,7 +396,7 @@ StatusCode topoEgammaBuilder::execute()
     return StatusCode::FAILURE;
   }
   
-  for (unsigned int i(0); i < topoclusters->size(); i++) {
+  for (size_t i(0); i < topoclusters->size(); i++) {
     const ElementLink< xAOD::CaloClusterContainer > clusterLink( *topoclusters, i );
     const std::vector< ElementLink<xAOD::CaloClusterContainer> > ClusterLink {clusterLink};    
     egammaRec *egRec = new egammaRec();
@@ -528,18 +529,25 @@ StatusCode topoEgammaBuilder::execute()
   ATH_MSG_DEBUG("Build  "<< photonSuperRecs->size() << " photon Super Clusters"); 
 
 
+  //-----------------------------------------------------------------
   //Build xAOD::Electron objects
+  //Look at the constituents , for ambiguity resolution, for now based on the seed only
+  //We could add secondaries cluster in this logic.
+  //Also probably we could factor some common code.
+
   for (const auto& electronRec : *electronSuperRecs) {
+
     unsigned int author = xAOD::EgammaParameters::AuthorElectron;
     xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::electron;
+
     for (const auto& photonRec : *photonSuperRecs) {
-    //See if the same seed (0 element in the constituents) seed also a photon
-      if(caloClusterLinks(*(electronRec->caloCluster())).at(0).index() ==
-	 caloClusterLinks(*(photonRec->caloCluster())).at(0).index()){
-	//If yes run ambiguity
+
+      //See if the same seed (0 element in the constituents) seed also a photon
+      if(caloClusterLinks(*(electronRec->caloCluster())).at(0)==
+	 caloClusterLinks(*(photonRec->caloCluster())).at(0)){
 	ATH_MSG_DEBUG("Running AmbiguityTool for electron");
 	
-	author = m_ambiguityTool->ambiguityResolve(photonRec->caloCluster(),
+	author = m_ambiguityTool->ambiguityResolve(electronRec->caloCluster(),
 						   photonRec->vertex(),
 						   electronRec->trackParticle(),
 						   type);
@@ -548,42 +556,49 @@ StatusCode topoEgammaBuilder::execute()
 	break;
       }
     }
+
     //Fill each electron
     if (author == xAOD::EgammaParameters::AuthorElectron || 
         author == xAOD::EgammaParameters::AuthorAmbiguous){
       ATH_MSG_DEBUG("getElectron");
-      if ( !getElectron(electronRec, electronContainer, author,type) )
+      if ( !getElectron(electronRec, electronContainer, author,type) ){
 	return StatusCode::FAILURE;
+      }
     }
   }
-  ////////////////////////////////
+
+  //-----------------------------------------------------------------
   //Build xAOD::Photon objects.
   for (const auto& photonRec : *photonSuperRecs) {
     unsigned int author = xAOD::EgammaParameters::AuthorPhoton;
     xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::photon;
+
     //See if the same seed (0 element in the constituents) seed also an electron
-    for (const auto& electronRec : *photonSuperRecs) {
-      if(caloClusterLinks(*(photonRec->caloCluster())).at(0).index() ==
-	 caloClusterLinks(*(electronRec->caloCluster())).at(0).index()){
-	//If yes run ambiguity	
+    for (const auto& electronRec : *electronSuperRecs) {
+
+      if(caloClusterLinks(*(photonRec->caloCluster())).at(0) ==
+	 caloClusterLinks(*(electronRec->caloCluster())).at(0)){
 	ATH_MSG_DEBUG("Running AmbiguityTool for photon");
   
-	author = m_ambiguityTool->ambiguityResolve(photonRec->caloCluster(),
+	author = m_ambiguityTool->ambiguityResolve(electronRec->caloCluster(),
 						   photonRec->vertex(),
 						   electronRec->trackParticle(),
 						   type);
 	break;
       }
     }
+
     //Fill each photon
     if (author == xAOD::EgammaParameters::AuthorPhoton || 
         author == xAOD::EgammaParameters::AuthorAmbiguous){
       ATH_MSG_DEBUG("getPhoton");
-      if ( !getPhoton(photonRec, photonContainer, author,type) )
+      if ( !getPhoton(photonRec, photonContainer, author,type) ){
 	return StatusCode::FAILURE;
+      }
     }
   }
-  /////////////////////////////////////
+  
+  //-----------------------------------------------------------------
   // Call tools
   for (const auto& tool : m_egammaTools){
     CHECK( CallTool(tool, electronContainer, photonContainer) );
@@ -597,10 +612,65 @@ StatusCode topoEgammaBuilder::execute()
     CHECK( CallTool(tool, 0, photonContainer) );
   }
 
+  //-----------------------------------------------------------------
+  //Set the ambiguity link
+  ///Needs the same logic as the ambiguity after building the objects (make sure they are all valid)
+  const static SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > ELink ("ambigutityLink");
+  ElementLink<xAOD::EgammaContainer> dummylink;
+  for (size_t photonIndex=0; photonIndex < photonContainer->size() ; ++photonIndex) {    
+    
+    xAOD::Photon* photon = photonContainer->at(photonIndex); 
+    ELink(*photon)=dummylink;
+    
+    if(photon->author()!= xAOD::EgammaParameters::AuthorAmbiguous){
+      continue;
+    }      
+
+    for (size_t electronIndex=0; electronIndex < electronContainer->size() ; ++electronIndex) {
+      
+      xAOD::Electron* electron = electronContainer->at(electronIndex); 
+      if(electron->author()!= xAOD::EgammaParameters::AuthorAmbiguous){
+	continue;
+      }
+      
+      if(caloClusterLinks(*(electron->caloCluster())).at(0) ==
+	 caloClusterLinks(*(photon->caloCluster())).at(0)){
+	ElementLink<xAOD::EgammaContainer> link (*electronContainer,electronIndex);
+	ELink(*photon)=link;
+	break;
+      }
+    }
+  }
+
+  for (size_t electronIndex=0; electronIndex < electronContainer->size() ; ++electronIndex) {    
+
+    xAOD::Electron* electron = electronContainer->at(electronIndex); 
+    ELink(*electron)=dummylink;
+    if(electron->author()!= xAOD::EgammaParameters::AuthorAmbiguous){
+      continue;
+    }      
+    for (size_t photonIndex=0; photonIndex < photonContainer->size() ; ++photonIndex) {
+      
+      xAOD::Photon* photon = photonContainer->at(photonIndex); 
+      if(photon->author()!= xAOD::EgammaParameters::AuthorAmbiguous){
+	continue;
+      }
+      
+      if(caloClusterLinks(*(electron->caloCluster())).at(0) ==
+	 caloClusterLinks(*(photon->caloCluster())).at(0)){
+	ElementLink<xAOD::EgammaContainer> link (*photonContainer,photonIndex);
+	ELink(*electron)=link;
+	break;
+      }
+    }
+  }
+  //-----------------------------------------------------------------
+
   ATH_MSG_DEBUG("Build  "<< electronContainer->size() << " electrons "); 
   ATH_MSG_DEBUG("Build  "<< photonContainer->size() << " photons"); 
 
-  
+
+
   ATH_MSG_DEBUG("execute completed successfully");
 
   return StatusCode::SUCCESS;
@@ -663,13 +733,13 @@ bool topoEgammaBuilder::getElectron(const egammaRec* egRec,
   acc(*electron) = type;
 
   std::vector< ElementLink< xAOD::CaloClusterContainer > > clusterLinks;
-  for (unsigned int i = 0 ; i < egRec->getNumberOfClusters(); ++i){
+  for (size_t i = 0 ; i < egRec->getNumberOfClusters(); ++i){
     clusterLinks.push_back( egRec->caloClusterElementLink(i) );
   }
   electron->setCaloClusterLinks( clusterLinks );
   
   std::vector< ElementLink< xAOD::TrackParticleContainer > > trackLinks;
-  for (unsigned int i = 0 ; i < egRec->getNumberOfTrackParticles(); ++i){
+  for (size_t i = 0 ; i < egRec->getNumberOfTrackParticles(); ++i){
     trackLinks.push_back( egRec->trackParticleElementLink(i) );
   }
   electron->setTrackParticleLinks( trackLinks );
@@ -726,14 +796,14 @@ bool topoEgammaBuilder::getPhoton(const egammaRec* egRec,
 
   // Transfer the links to the clusters
   std::vector< ElementLink< xAOD::CaloClusterContainer > > clusterLinks;
-  for (unsigned int i = 0 ; i < egRec->getNumberOfClusters(); ++i){
+  for (size_t i = 0 ; i < egRec->getNumberOfClusters(); ++i){
     clusterLinks.push_back( egRec->caloClusterElementLink(i) );
   }
   photon->setCaloClusterLinks( clusterLinks );
 
   // Transfer the links to the vertices  
   std::vector< ElementLink< xAOD::VertexContainer > > vertexLinks;
-  for (unsigned int i = 0 ; i < egRec->getNumberOfVertices(); ++i){
+  for (size_t i = 0 ; i < egRec->getNumberOfVertices(); ++i){
     vertexLinks.push_back( egRec->vertexElementLink(i) );
   }
   photon->setVertexLinks( vertexLinks );
