@@ -10,38 +10,23 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.EvtMax = 3
 athenaCommonFlags.SkipEvents=10
 
-athenaCommonFlags.PoolHitsInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc10/mc10_7TeV.105200.T1_McAtNlo_Jimmy.simul.HITS.e598_s933_tid168076_00/HITS.168076._008421.pool.root.1"]
+athenaCommonFlags.PoolHitsInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._001041.pool.root.1"]
 athenaCommonFlags.PoolRDOOutput="PileUpDigiTest.root"
 
 #--------------------------------------------------------------
 # Digitiziation and Pileup configuration
 #--------------------------------------------------------------
 from Digitization.DigitizationFlags import digitizationFlags
-digitizationFlags.IOVDbGlobalTag='OFLCOND-SDR-BS7T-04-03'
+digitizationFlags.IOVDbGlobalTag='OFLCOND-RUN12-SDR-25'
 #inputs
 digitizationFlags.overrideMetadata=['ALL'] #True
 digitizationFlags.doHighPtMinBias=True
 digitizationFlags.numberOfHighPtMinBias=0.0
 digitizationFlags.doLowPtMinBias=True
 digitizationFlags.numberOfLowPtMinBias=2.3
-digitizationFlags.LowPtMinBiasInputCols=["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc10/mc10_7TeV.105001.pythia_minbias.merge.HITS.e577_s932_s952_tid170554_00/HITS.170554._000034.pool.root.1",
-             "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc10/mc10_7TeV.105001.pythia_minbias.merge.HITS.e577_s932_s952_tid170554_00/HITS.170554._000043.pool.root.1"]
+digitizationFlags.LowPtMinBiasInputCols=["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000241.pool.root.1",
+"root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._000242.pool.root.1"]
 
-digitizationFlags.doCavern=True
-digitizationFlags.numberOfCavern=2
-digitizationFlags.cavernInputCols=["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc10/mc10_7TeV.005008.CavernInput.merge.HITS.e4_e607_s951_s952_tid170551_00/HITS.170551._000011.pool.root.1",
-            "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc10/mc10_7TeV.005008.CavernInput.merge.HITS.e4_e607_s951_s952_tid170551_00/HITS.170551._000111.pool.root.1"]
-
-digitizationFlags.doBeamGas=True
-digitizationFlags.numberOfBeamGas=0.0003
-digitizationFlags.beamGasInputCols = ["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc10/mc10_7TeV.108863.Hijing_beamgas.merge.HITS.e4_s950_s952_tid170553_00/HITS.170552._000087.pool.root.1",
-                                               "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc10/mc10_7TeV.108863.Hijing_beamgas.merge.HITS.e4_s950_s952_tid170553_00/HITS.170552._000091.pool.root.1"]
-
-digitizationFlags.doBeamHalo = True
-digitizationFlags.numberOfBeamHalo = 0.05
-digitizationFlags.beamHaloInputCols = ["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc10/mc10_7TeV.108852.BeamHaloInputs.merge.HITS.e4_e567_s949_s952_tid170552_00/HITS.170552._000001.pool.root.1",
-                                                "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc10/mc10_7TeV.108852.BeamHaloInputs.merge.HITS.e4_e567_s949_s952_tid170552_00/HITS.170552._000020.pool.root.1"]
- 
 #time structure
 #for now use old flags...
 digitizationFlags.bunchSpacing=25 # This now sets the bunch slot length.
@@ -58,7 +43,7 @@ jobproperties.Beam.bunchSpacing = 75 # Set this to the spacing between filled bu
 # Set some of the global flags. Like eg the DD version:
 #--------------------------------------------------------------
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion = "ATLAS-GEO-16-00-00"
+globalflags.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
 
 #FIXME should come from AthenaCommon
 from AthenaCommon.Resilience import treatException,protectedInclude

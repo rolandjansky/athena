@@ -69,7 +69,7 @@ def getStandardForwardPileUpTools():
     if DetFlags.digitize.Lucid_on():
         PileUpToolsList += [ "LUCID_PileUpTool" ]
     if DetFlags.digitize.ZDC_on():
-        PileUpToolsList += [ "ZDC_DigitizationTool" ]
+        PileUpToolsList += [ "ZDC_PileUpTool" ]
     if DetFlags.digitize.ALFA_on():
         PileUpToolsList += [ "ALFA_PileUpTool" ]
     if hasattr(DetFlags.digitize, 'AFP_on') and DetFlags.digitize.AFP_on():
@@ -77,19 +77,6 @@ def getStandardForwardPileUpTools():
     return PileUpToolsList
 
 def getStandardInDetPileUpTools():
-    from AthenaCommon.DetFlags import DetFlags
-    PileUpToolsList = []
-    if DetFlags.digitize.BCM_on():
-        PileUpToolsList += [ "BCM_DigitizationTool" ]
-    if DetFlags.digitize.pixel_on():
-        PileUpToolsList += [ "PixelDigitizationTool" ]
-    if DetFlags.digitize.SCT_on():
-        PileUpToolsList += [ "SCT_DigitizationTool" ]
-    if DetFlags.digitize.TRT_on():
-        PileUpToolsList += [ "TRTDigitizationTool" ]
-    return PileUpToolsList
-
-def getFastInDetPileUpTools():
     from AthenaCommon.DetFlags import DetFlags
     from Digitization.DigitizationFlags import digitizationFlags
     PileUpToolsList = []
@@ -110,6 +97,19 @@ def getFastInDetPileUpTools():
             PileUpToolsList += [ "TRTFastDigitizationTool" ]
         else:
             PileUpToolsList += [ "TRTDigitizationTool" ]
+    return PileUpToolsList
+
+def getFastInDetPileUpTools():
+    from AthenaCommon.DetFlags import DetFlags
+    PileUpToolsList = []
+    if DetFlags.digitize.BCM_on():
+        PileUpToolsList += [ "BCM_DigitizationTool" ]
+    if DetFlags.digitize.pixel_on():
+        PileUpToolsList += [ "PixelFastDigitizationTool" ]
+    if DetFlags.digitize.SCT_on():
+        PileUpToolsList += [ "SCT_FastDigitizationTool" ]
+    if DetFlags.digitize.TRT_on():
+        PileUpToolsList += [ "TRTFastDigitizationTool" ]
     return PileUpToolsList
 
 def getSplitInDetPileUpTools():

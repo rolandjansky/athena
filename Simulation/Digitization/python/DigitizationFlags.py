@@ -173,6 +173,14 @@ class doFwdNoise(JobProperty):
     StoredValue=True
 
 #
+class doRadiationDamage(JobProperty):
+    """ Include radiation damage simulation where possible?
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+#
 class overrideMetadata(JobProperty):
     """ If digi config differs from that stored in sim metadata use digi values.
     """
@@ -358,7 +366,7 @@ class finalBunchCrossing(JobProperty):
     """
     statusOn=True
     allowedTypes=['int']
-    StoredValue=32
+    StoredValue=6 #32
 
 #
 class HighPtMinBiasInputCols(JobProperty):
@@ -771,7 +779,7 @@ jobproperties.add_Container(Digitization)
 
 
 # We want always the following flags in the container
-list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,\
+list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,doRadiationDamage,\
                     rndmSvc,rndmSeedList,rndmSeedOffset1,rndmSeedOffset2,readSeedsFromFile,\
                     rndmSeedInputFile,physicsList,overrideMetadata,IOVDbGlobalTag,SimG4VersionUsed,\
                     numberOfCollisions,\
