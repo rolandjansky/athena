@@ -87,9 +87,13 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   ## if jetFlags.useCells():
   ##   rtools += [jtm.missingcells] commented out : incompatible with trigger : ATR-9696
   if jetFlags.useTracks:
-    rtools += [jtm.tracksel]
-    rtools += [jtm.tvassoc]
-    rtools += [jtm.trackselloose_trackjets]
+    rtools += [jtm.tracksel,
+               jtm.tvassoc,
+               jtm.trackselloose_trackjets,
+               jtm.JetConstitSeq_LCOrigin,
+               jtm.JetConstitSeq_EMOrigin,
+               ]
+    
   rtools += jtm.jetrecs
   from JetRec.JetRecConf import JetToolRunner
   jtm += JetToolRunner("jetrun",

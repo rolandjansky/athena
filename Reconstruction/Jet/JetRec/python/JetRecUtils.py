@@ -8,23 +8,59 @@ def retrieveAODList():
 
     if rec.doESD():
         return jetFlags.jetAODList()
+    # then we are merging or doing a AOD ?
+    # We can not simply copy what we have from input since some
+    # jobs starts from empty files. See ATEAM-191.
+    # We hard code the list here while waiting for a more robust solution
+    l = [
+        # event shape objects
+        'xAOD::EventShape#Kt4EMPFlowEventShape',                    'xAOD::EventShapeAuxInfo#Kt4EMPFlowEventShapeAux.',
+        'xAOD::EventShape#Kt4EMTopoEventShape',                     'xAOD::EventShapeAuxInfo#Kt4EMTopoEventShapeAux.',
+        'xAOD::EventShape#Kt4LCTopoEventShape',                     'xAOD::EventShapeAuxInfo#Kt4LCTopoEventShapeAux.',
+        'xAOD::EventShape#NeutralParticleFlowIsoCentralEventShape', 'xAOD::EventShapeAuxInfo#NeutralParticleFlowIsoCentralEventShapeAux.',
+        'xAOD::EventShape#NeutralParticleFlowIsoForwardEventShape', 'xAOD::EventShapeAuxInfo#NeutralParticleFlowIsoForwardEventShapeAux.',
+        'xAOD::EventShape#ParticleFlowIsoCentralEventShape',        'xAOD::EventShapeAuxInfo#ParticleFlowIsoCentralEventShapeAux.',
+        'xAOD::EventShape#ParticleFlowIsoForwardEventShape',        'xAOD::EventShapeAuxInfo#ParticleFlowIsoForwardEventShapeAux.',
+        'xAOD::EventShape#TopoClusterIsoCentralEventShape',         'xAOD::EventShapeAuxInfo#TopoClusterIsoCentralEventShapeAux.',
+        'xAOD::EventShape#TopoClusterIsoForwardEventShape',         'xAOD::EventShapeAuxInfo#TopoClusterIsoForwardEventShapeAux.',
 
-    # else : just copy what's in input.
-    from RecExConfig.ObjKeyStore import objKeyStore
+        'xAOD::JetContainer#AntiKt10LCTopoJets',                    'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.',
+        'xAOD::JetContainer#AntiKt2PV0TrackJets',                   'xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.', 
+        'xAOD::JetContainer#AntiKt3PV0TrackJets',                   'xAOD::JetAuxContainer#AntiKt3PV0TrackJetsAux.', 
+        'xAOD::JetContainer#AntiKt4EMPFlowJets',                    'xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.',
+        'xAOD::JetContainer#AntiKt4EMTopoJets',                     'xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.',
+        'xAOD::JetContainer#AntiKt4LCTopoJets',                     'xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.',
+        'xAOD::JetContainer#AntiKt4PV0TrackJets',                   'xAOD::JetAuxContainer#AntiKt4PV0TrackJetsAux.', 
+        'xAOD::JetContainer#CamKt12LCTopoJets',                     'xAOD::JetAuxContainer#CamKt12LCTopoJetsAux.',
 
-    inputcontent = objKeyStore['inputFile'].list()
-    typeToSave = [ 'xAOD::JetContainer', 'xAOD::JetAuxContainer', 'xAOD::JetTrigAuxContainer' , 'xAOD::EventShape', 'xAOD::EventShapeAuxInfo' ]
+        'xAOD::CaloClusterContainer#EMOriginTopoClusters',          'xAOD::ShallowAuxContainer#EMOriginTopoClustersAux.',
+        'xAOD::CaloClusterContainer#LCOriginTopoClusters' ,         'xAOD::ShallowAuxContainer#LCOriginTopoClustersAux.',
+        ]
 
-    def saveThisObject(o):
-        # we must not write out any HLT jet containers - writing of those is controlled from trigger software, not offline jet software
-        if  "HLT_" in o:
-            return False
-        # return True if o is of a desired type    
-        return any( o.startswith( typ ) for typ in typeToSave )
+    if rec.doTruth():
+        l += [
+            'xAOD::JetContainer#AntiKt10TruthJets',                 'xAOD::JetAuxContainer#AntiKt10TruthJetsAux.',
+            'xAOD::JetContainer#AntiKt10TruthWZJets',               'xAOD::JetAuxContainer#AntiKt10TruthWZJetsAux.',
+            'xAOD::JetContainer#AntiKt4TruthJets',                  'xAOD::JetAuxContainer#AntiKt4TruthJetsAux.',
+            'xAOD::JetContainer#AntiKt4TruthWZJets',                'xAOD::JetAuxContainer#AntiKt4TruthWZJetsAux.',
+            'xAOD::JetContainer#CamKt12TruthJets',                  'xAOD::JetAuxContainer#CamKt12TruthJetsAux.',
+            'xAOD::JetContainer#CamKt12TruthWZJets',                'xAOD::JetAuxContainer#CamKt12TruthWZJetsAux.',
+            ]
 
-    esdjets = [ o for o in inputcontent if saveThisObject(o) ]
+    return l 
+    ## inputcontent = objKeyStore['inputFile'].list()
+    ## typeToSave = [ 'xAOD::JetContainer', 'xAOD::JetAuxContainer', 'xAOD::JetTrigAuxContainer' , 'xAOD::EventShape', 'xAOD::EventShapeAuxInfo' ]
 
-    return esdjets
+    ## def saveThisObject(o):
+    ##     # we must not write out any HLT jet containers - writing of those is controlled from trigger software, not offline jet software
+    ##     if  "HLT_" in o:
+    ##         return False
+    ##     # return True if o is of a desired type    
+    ##     return any( o.startswith( typ ) for typ in typeToSave )
+
+    ## esdjets = [ o for o in inputcontent if saveThisObject(o) ]
+
+    ## return esdjets
 
 def buildJetAlgName(finder, mainParam):
     return finder + str(int(mainParam*10))

@@ -21,6 +21,8 @@ PseudoJetGetter::PseudoJetGetter(const std::string& name)
   declareProperty("Label", m_label);
   declareProperty("SkipNegativeEnergy", m_skipNegativeEnergy =false);
   declareProperty("GhostScale", m_ghostscale =0.0);
+  declareProperty("TreatNegativeEnergyAsGhost", m_negEnergyAsGhosts =false);
+
 }
 
 //**********************************************************************
@@ -135,6 +137,7 @@ void PseudoJetGetter::print() const {
   ATH_MSG_INFO("   Input container: " << m_incoll);
   ATH_MSG_INFO("  Output container: " << m_outcoll);
   ATH_MSG_INFO("   Skip negative E: " << sskip);
+  ATH_MSG_INFO(" Treat negative E as ghost: " << m_negEnergyAsGhosts);
 }
 
 //**********************************************************************

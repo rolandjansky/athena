@@ -23,6 +23,8 @@ if not "UseTriggerStore " in locals():
 # get levels defined VERBOSE=1 etc.
 from GaudiKernel.Constants import *
 
+from eflowRec.eflowRecFlags import jobproperties
+
 from JetRec.JetRecStandardToolManager import jtm
 from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
 from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
@@ -63,11 +65,13 @@ from JetMomentTools.JetMomentToolsConf import JetECPSFractionTool
 from JetMomentTools.JetMomentToolsConf import JetVertexFractionTool
 from JetMomentTools.JetMomentToolsConf import JetVertexTaggerTool
 from JetMomentTools.JetMomentToolsConf import JetTrackMomentsTool
+from JetMomentTools.JetMomentToolsConf import JetTrackSumMomentsTool
 from JetMomentTools.JetMomentToolsConf import JetClusterMomentsTool
 from JetMomentTools.JetMomentToolsConf import JetVoronoiMomentsTool
 from JetMomentTools.JetMomentToolsConf import JetIsolationTool
 from JetMomentTools.JetMomentToolsConf import JetLArHVTool
 from JetMomentTools.JetMomentToolsConf import JetOriginCorrectionTool
+from JetMomentTools.JetMomentToolsConf import JetConstitFourMomTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KtDeltaRTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import NSubjettinessTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KTSplittingScaleTool
@@ -95,6 +99,10 @@ if jtm.haveParticleJetTools:
   from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
   from ParticleJetTools.ParticleJetToolsConf import ParticleJetDeltaRLabelTool
 
+
+ghostScaleFactor = 1e-40
+
+
 #--------------------------------------------------------------
 # Track selection.
 #--------------------------------------------------------------
@@ -105,13 +113,7 @@ if jtm.haveParticleJetTools:
 #jtm += InDet__InDetDetailedTrackSelectionTool(
 jtm += InDet__InDetTrackSelectionTool(
   "trk_trackselloose",
-  minPt                = 400.0,
-  maxAbsEta            = 2.5,
-  minNSiHits           = 7,
-  maxNPixelSharedHits  = 1,
-  maxOneSharedModule   = True,
-  maxNSiHoles          = 2,
-  maxNPixelHoles       = 1,
+  CutLevel                = "Loose"
 )
 
 jtm += JetTrackSelectionTool(
@@ -185,7 +187,7 @@ if jetFlags.useTruth:
                                  MCTruthClassifier=truthClassifier)
     jtm += CopyTruthJetParticles("truthpartcopywz", OutputName="JetInputTruthParticlesNoWZ",
                                  MCTruthClassifier=truthClassifier,
-                                 IncludeWZLeptons=False, #IncludeTauLeptons=False,
+                                 IncludePromptLeptons=False,
                                  IncludeMuons=True,IncludeNeutrinos=True)
 
 
@@ -213,12 +215,44 @@ jtm += JetConstituentsRetriever(
   UseJetConstituents = True,
   PseudojetRetriever = jtm.jpjretriever,
   GhostLabels = labs,
-  GhostScale = 1.e-20
+  GhostScale = ghostScaleFactor
 )
 
 #--------------------------------------------------------------
 # Pseudojet builders.
 #--------------------------------------------------------------
+
+# Prepare a sequence of input constituent modifiers
+from JetRecTools.JetRecToolsConfig import ctm
+jtm += ctm.buildConstitModifSequence( "JetConstitSeq_LCOrigin",
+    OutputContainer='LCOriginTopoClusters',
+    InputContainer= 'CaloCalTopoClusters',
+    modList = [  'lc_origin' ] )
+
+jtm += ctm.buildConstitModifSequence( "JetConstitSeq_EMOrigin",
+    OutputContainer='EMOriginTopoClusters',
+    InputContainer= 'CaloCalTopoClusters',                                      
+    modList = [  'em_origin' ] )
+
+
+
+jtm += PseudoJetGetter(
+  "lcoriginget",
+  InputContainer = jtm.JetConstitSeq_LCOrigin.OutputContainer,
+  Label = "LCTopo",
+  OutputContainer = jtm.JetConstitSeq_LCOrigin.OutputContainer+"PseudoJet",
+  SkipNegativeEnergy = True,
+  GhostScale = 0.0
+)
+
+jtm += PseudoJetGetter(
+  "emoriginget",
+  InputContainer = jtm.JetConstitSeq_EMOrigin.OutputContainer,
+  Label = "LCTopo",
+  OutputContainer = jtm.JetConstitSeq_EMOrigin.OutputContainer+"PseudoJet",
+  SkipNegativeEnergy = True,
+  GhostScale = 0.0
+)
 
 # Clusters.
 jtm += PseudoJetGetter(
@@ -259,7 +293,7 @@ jtm += TrackPseudoJetGetter(
   OutputContainer = "PseudoJetGhostTracks",
   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
   SkipNegativeEnergy = True,
-  GhostScale = 1e-20
+  GhostScale = ghostScaleFactor
 )
 
 # Muon segments
@@ -278,6 +312,15 @@ useVertices = True
 if False == jetFlags.useVertices:
   useVertices = False
 
+if True == jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
+  useChargedWeights = True
+else:
+  useChargedWeights = False
+
+useTrackVertexTool = False
+if True == jetFlags.useTrackVertexTool:
+  useTrackVertexTool = True
+
 # EM-scale pflow.
 jtm += PFlowPseudoJetGetter(
   "empflowget",
@@ -287,7 +330,9 @@ jtm += PFlowPseudoJetGetter(
   InputIsEM = True,
   CalibratePFO = False,
   SkipNegativeEnergy = True,
-  UseVertices = useVertices
+  UseChargedWeights = useChargedWeights,
+  UseVertices = useVertices,
+  UseTrackToVertexTool = useTrackVertexTool
 )
 
 # Calibrated EM-scale pflow.
@@ -299,7 +344,9 @@ jtm += PFlowPseudoJetGetter(
   InputIsEM = True,
   CalibratePFO = True,
   SkipNegativeEnergy = True,
-  UseVertices = useVertices
+  UseChargedWeights = useChargedWeights,
+  UseVertices = useVertices,
+  UseTrackToVertexTool = useTrackVertexTool
 )
 
 # LC-scale pflow.
@@ -311,7 +358,9 @@ jtm += PFlowPseudoJetGetter(
   InputIsEM = False,
   CalibratePFO = False,
   SkipNegativeEnergy = True,
-  UseVertices = useVertices
+  UseChargedWeights = useChargedWeights,
+  UseVertices = useVertices,
+  UseTrackToVertexTool = useTrackVertexTool
 )
 
 # AntiKt2 track jets.
@@ -321,7 +370,7 @@ jtm += PseudoJetGetter(
   Label = "GhostAntiKt2TrackJet",   # this is the name you'll use to retrieve associated ghosts
   OutputContainer = "PseudoJetGhostAntiKt2TrackJet",
   SkipNegativeEnergy = True,
-  GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
+  GhostScale = ghostScaleFactor,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
 )
 
 # AntiKt3 track jets.
@@ -331,7 +380,7 @@ jtm += PseudoJetGetter(
   Label = "GhostAntiKt3TrackJet",   # this is the name you'll use to retrieve associated ghosts
   OutputContainer = "PseudoJetGhostAntiKt3TrackJet",
   SkipNegativeEnergy = True,
-  GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
+  GhostScale = ghostScaleFactor,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
 )
 
 # AntiKt4 track jets.
@@ -341,7 +390,7 @@ jtm += PseudoJetGetter(
   Label = "GhostAntiKt4TrackJet",   # this is the name you'll use to retrieve associated ghosts
   OutputContainer = "PseudoJetGhostAntiKt4TrackJet",
   SkipNegativeEnergy = True,
-  GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
+  GhostScale = ghostScaleFactor,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
 )
 
 # Truth.
@@ -369,7 +418,7 @@ if jetFlags.useTruth and jtm.haveParticleJetTools:
     Label = "GhostTruth",
     InputContainer = jtm.truthpartcopy.OutputName,
     OutputContainer = "PseudoJetGhostTruth",
-    GhostScale = 1.e-20,
+    GhostScale = ghostScaleFactor,
     SkipNegativeEnergy = True,
   )
 
@@ -381,7 +430,7 @@ if jetFlags.useTruth and jtm.haveParticleJetTools:
       Label = "Ghost" + ptype,
       OutputContainer = "PseudoJetGhost" + ptype,
       SkipNegativeEnergy = True,
-      GhostScale = 1e-20
+      GhostScale = ghostScaleFactor,
     )
 
   # ParticleJetTools tools may be omitted in analysi releases.
@@ -575,6 +624,16 @@ jtm += JetTrackMomentsTool(
   TrackSelector = jtm.trackselloose
 )
 
+# Jet track vector sum info
+jtm += JetTrackSumMomentsTool(
+  "trksummoms",
+  VertexContainer = jtm.vertexContainer,
+  AssociatedTracks = "GhostTrack",
+  TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
+  RequireTrackPV = True,
+  TrackSelector = jtm.trackselloose
+)
+
 # Jet cluster info.
 jtm += JetClusterMomentsTool(
   "clsmoms",
@@ -613,7 +672,6 @@ jtm += JetLArHVTool("larhvcorr")
 # Bad LAr fractions.
 jtm += JetECPSFractionTool(
   "ecpsfrac",
-  ECPSFractionThreshold = 0.80
 )
 
 # Jet origin correction.
@@ -622,6 +680,18 @@ jtm += JetOriginCorrectionTool(
   VertexContainer = jtm.vertexContainer,
   OriginCorrectedName = "JetOriginConstitScaleMomentum"
 )
+
+# Just set the PV without applying origin correction
+jtm += JetOriginCorrectionTool(
+  "jetorigin_setpv",
+  VertexContainer = jtm.vertexContainer,
+  OriginCorrectedName = "",
+  OnlyAssignPV = True,
+)
+
+jtm += JetConstitFourMomTool(
+  "constfourmom"
+  )
 
 #--------------------------------------------------------------
 # Substructure moment builders.

@@ -104,6 +104,14 @@ if doLCPFlowJets and findJets:
 
 # Add neutral pflow builder.
 # LC-scale neutral pflow.
+
+from eflowRec.eflowRecFlags import jobproperties
+
+if True == jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
+  useChargedWeights = True
+else:
+  useChargedWeights = False
+
 from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
 jtm += PFlowPseudoJetGetter(
   "lcnpflowget",
@@ -112,6 +120,7 @@ jtm += PFlowPseudoJetGetter(
   RetrievePFOTool = jtm.pflowretriever,
   InputIsEM = False,
   CalibratePFO = False,
+  UseChargedWeights = useChargedWeights,
   SkipNegativeEnergy = True,
   UseNeutral = True,
   UseCharged = False

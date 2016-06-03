@@ -30,15 +30,15 @@ namespace FastJetSeeds {
 
 // dictionaries
 FastJetInterface::algomap_t  
-FastJetInterfaceTool::knownAlgorithms = FastJetInterface::algomap_t();
+FastJetInterfaceTool::s_knownAlgorithms = FastJetInterface::algomap_t();
 FastJetInterface::strategymap_t 
-FastJetInterfaceTool::knownStrategies = FastJetInterface::strategymap_t();
+FastJetInterfaceTool::s_knownStrategies = FastJetInterface::strategymap_t();
 FastJetInterface::schememap_t   
-FastJetInterfaceTool::knownRecombinationSchemes = FastJetInterface::schememap_t();   
+FastJetInterfaceTool::s_knownRecombinationSchemes = FastJetInterface::schememap_t();   
 FastJetInterface::splitMergeScaleMap_t
-FastJetInterfaceTool::knownSplitMergeScales = FastJetInterface::splitMergeScaleMap_t();
+FastJetInterfaceTool::s_knownSplitMergeScales = FastJetInterface::splitMergeScaleMap_t();
 FastJetInterface::areamap_t
-FastJetInterfaceTool::knownAreas =FastJetInterface::areamap_t();
+FastJetInterfaceTool::s_knownAreas =FastJetInterface::areamap_t();
 
 // process control 
 std::string FastJetInterfaceTool::m_invalidKeyReference = "INVALID_KEY";
@@ -51,100 +51,100 @@ unsigned int FastJetInterfaceTool::m_failedExecCtrMax = 10;
 // jet algorithm dictionary
 const algomap_t& FastJetInterfaceTool::getKnownAlgorithms()
 {
-  if ( knownAlgorithms.empty() )
+  if ( s_knownAlgorithms.empty() )
     {
       // kt-style algorithms
-      knownAlgorithms["default"]   = fastjet::antikt_algorithm;
-      knownAlgorithms["kt"]        = fastjet::kt_algorithm;
-      knownAlgorithms["anti-kt"]   = fastjet::antikt_algorithm; 
-      knownAlgorithms["cambridge"] = fastjet::cambridge_algorithm;
-      knownAlgorithms["genkt"]     = fastjet::genkt_algorithm;
-      knownAlgorithms["passive cambridge"] = 
+      s_knownAlgorithms["default"]   = fastjet::antikt_algorithm;
+      s_knownAlgorithms["kt"]        = fastjet::kt_algorithm;
+      s_knownAlgorithms["anti-kt"]   = fastjet::antikt_algorithm; 
+      s_knownAlgorithms["cambridge"] = fastjet::cambridge_algorithm;
+      s_knownAlgorithms["genkt"]     = fastjet::genkt_algorithm;
+      s_knownAlgorithms["passive cambridge"] = 
 	fastjet::cambridge_for_passive_algorithm;
-      knownAlgorithms["passive genkt"] = fastjet::genkt_for_passive_algorithm;
+      s_knownAlgorithms["passive genkt"] = fastjet::genkt_for_passive_algorithm;
       // add also ATLAS kt-style
-      knownAlgorithms["Kt"]        = fastjet::kt_algorithm;
-      knownAlgorithms["AntiKt"]    = fastjet::antikt_algorithm; 
-      knownAlgorithms["CamKt"]     = fastjet::cambridge_algorithm;
+      s_knownAlgorithms["Kt"]        = fastjet::kt_algorithm;
+      s_knownAlgorithms["AntiKt"]    = fastjet::antikt_algorithm; 
+      s_knownAlgorithms["CamKt"]     = fastjet::cambridge_algorithm;
       
       // Plugin algorithms
-      knownAlgorithms["CMSCone"]   = fastjet::plugin_algorithm;
-      knownAlgorithms["SISCone"]   = fastjet::plugin_algorithm;
+      s_knownAlgorithms["CMSCone"]   = fastjet::plugin_algorithm;
+      s_knownAlgorithms["SISCone"]   = fastjet::plugin_algorithm;
     }
-  return knownAlgorithms;
+  return s_knownAlgorithms;
 }
 
 // jet cluster strategies dictionary
 const strategymap_t& FastJetInterfaceTool::getKnownStrategies()
 {
-  if ( knownStrategies.empty() )
+  if ( s_knownStrategies.empty() )
     {
-      knownStrategies["default"]         = fastjet::Best;
-      knownStrategies["Best"]            = fastjet::Best;
-      knownStrategies["N2MinHeapTiled"]  = fastjet::N2MinHeapTiled;
-      knownStrategies["N2Tiled"]         = fastjet::N2Tiled;
-      knownStrategies["N2PoorTiled"]     = fastjet::N2PoorTiled;
-      knownStrategies["N2Plain"]         = fastjet::N2Plain;
-      knownStrategies["N3Dumb"]          = fastjet::N3Dumb;
-      knownStrategies["NlnN"]            = fastjet::NlnN;
-      knownStrategies["NlnN3pi"]         = fastjet::NlnN3pi;
-      knownStrategies["NlnN4pi"]         = fastjet::NlnN4pi;
-      knownStrategies["NlnNCam4pi"]      = fastjet::NlnNCam4pi;
-      knownStrategies["NlnNCam2pi2R"]    = fastjet::NlnNCam2pi2R;
-      knownStrategies["NlnNCam"]         = fastjet::NlnNCam;
-      knownStrategies["plugin_strategy"] = fastjet::plugin_strategy;
+      s_knownStrategies["default"]         = fastjet::Best;
+      s_knownStrategies["Best"]            = fastjet::Best;
+      s_knownStrategies["N2MinHeapTiled"]  = fastjet::N2MinHeapTiled;
+      s_knownStrategies["N2Tiled"]         = fastjet::N2Tiled;
+      s_knownStrategies["N2PoorTiled"]     = fastjet::N2PoorTiled;
+      s_knownStrategies["N2Plain"]         = fastjet::N2Plain;
+      s_knownStrategies["N3Dumb"]          = fastjet::N3Dumb;
+      s_knownStrategies["NlnN"]            = fastjet::NlnN;
+      s_knownStrategies["NlnN3pi"]         = fastjet::NlnN3pi;
+      s_knownStrategies["NlnN4pi"]         = fastjet::NlnN4pi;
+      s_knownStrategies["NlnNCam4pi"]      = fastjet::NlnNCam4pi;
+      s_knownStrategies["NlnNCam2pi2R"]    = fastjet::NlnNCam2pi2R;
+      s_knownStrategies["NlnNCam"]         = fastjet::NlnNCam;
+      s_knownStrategies["plugin_strategy"] = fastjet::plugin_strategy;
     }
-  return knownStrategies;
+  return s_knownStrategies;
 }
 
 // recombination schemes dictionary
 const schememap_t& FastJetInterfaceTool::getKnownRecombinationSchemes()
 {
-  if ( knownRecombinationSchemes.empty() )
+  if ( s_knownRecombinationSchemes.empty() )
     {
-      knownRecombinationSchemes["default"] = fastjet::E_scheme;
-      knownRecombinationSchemes["E"]       = fastjet::E_scheme;
-      knownRecombinationSchemes["pt"]      = fastjet::pt_scheme;
-      knownRecombinationSchemes["pt2"]     = fastjet::pt2_scheme;
-      knownRecombinationSchemes["Et"]      = fastjet::Et_scheme;
-      knownRecombinationSchemes["Et2"]     = fastjet::Et2_scheme;
-      knownRecombinationSchemes["BIpt"]    = fastjet::BIpt_scheme;
-      knownRecombinationSchemes["BIpt2"]   = fastjet::BIpt2_scheme;
+      s_knownRecombinationSchemes["default"] = fastjet::E_scheme;
+      s_knownRecombinationSchemes["E"]       = fastjet::E_scheme;
+      s_knownRecombinationSchemes["pt"]      = fastjet::pt_scheme;
+      s_knownRecombinationSchemes["pt2"]     = fastjet::pt2_scheme;
+      s_knownRecombinationSchemes["Et"]      = fastjet::Et_scheme;
+      s_knownRecombinationSchemes["Et2"]     = fastjet::Et2_scheme;
+      s_knownRecombinationSchemes["BIpt"]    = fastjet::BIpt_scheme;
+      s_knownRecombinationSchemes["BIpt2"]   = fastjet::BIpt2_scheme;
     }
-  return knownRecombinationSchemes;
+  return s_knownRecombinationSchemes;
 }
 
 // SIS Cone split merge scale dictionary
 const splitMergeScaleMap_t& FastJetInterfaceTool::getKnownSplitMergeScales()
 {
-  if ( knownSplitMergeScales.empty() )
+  if ( s_knownSplitMergeScales.empty() )
   {
 #ifdef ASGTOOL_ATHENA
-    knownSplitMergeScales["default"] = fastjet::SISConePlugin::SM_pttilde;
-    knownSplitMergeScales["pttilde"] = fastjet::SISConePlugin::SM_pttilde;
-    knownSplitMergeScales["PtTilde"] = fastjet::SISConePlugin::SM_pttilde;
-    knownSplitMergeScales["Pt"]      = fastjet::SISConePlugin::SM_pt;
-    knownSplitMergeScales["Et"]      = fastjet::SISConePlugin::SM_Et;
-    knownSplitMergeScales["mt"]      = fastjet::SISConePlugin::SM_mt;
+    s_knownSplitMergeScales["default"] = fastjet::SISConePlugin::SM_pttilde;
+    s_knownSplitMergeScales["pttilde"] = fastjet::SISConePlugin::SM_pttilde;
+    s_knownSplitMergeScales["PtTilde"] = fastjet::SISConePlugin::SM_pttilde;
+    s_knownSplitMergeScales["Pt"]      = fastjet::SISConePlugin::SM_pt;
+    s_knownSplitMergeScales["Et"]      = fastjet::SISConePlugin::SM_Et;
+    s_knownSplitMergeScales["mt"]      = fastjet::SISConePlugin::SM_mt;
 #endif
   }
-  return knownSplitMergeScales;
+  return s_knownSplitMergeScales;
 }
 
 // jet area dictionary
 const areamap_t& FastJetInterfaceTool::getKnownAreas()
 {
-  if ( knownAreas.empty() )
+  if ( s_knownAreas.empty() )
     {
-      knownAreas["default"]                 = fastjet::voronoi_area;
-      knownAreas["ActiveArea"]              = fastjet::active_area;
-      knownAreas["ActiveAreaExplicitGhost"] = 
+      s_knownAreas["default"]                 = fastjet::voronoi_area;
+      s_knownAreas["ActiveArea"]              = fastjet::active_area;
+      s_knownAreas["ActiveAreaExplicitGhost"] = 
 	fastjet::active_area_explicit_ghosts;
-      knownAreas["PassiveArea"]             = fastjet::passive_area;
-      knownAreas["1GhostPassiveArea"]       = fastjet::one_ghost_passive_area;
-      knownAreas["VoronoiArea"]             = fastjet::voronoi_area;
+      s_knownAreas["PassiveArea"]             = fastjet::passive_area;
+      s_knownAreas["1GhostPassiveArea"]       = fastjet::one_ghost_passive_area;
+      s_knownAreas["VoronoiArea"]             = fastjet::voronoi_area;
     }
-  return knownAreas;
+  return s_knownAreas;
 }
 
 
@@ -230,8 +230,8 @@ FastJetInterfaceTool::FastJetInterfaceTool(const std::string& n)
   declareProperty("UserRNDSeed", m_userRNDSeed = 0, "Added to the base RND seed for active areas. USE WITH CARE !");
 
   // default processor
-  f_processor = &FastJetInterfaceTool::f_processWithoutArea;
-  f_extractor = &FastJetInterfaceTool::f_extractInclusive;
+  m_processor = &FastJetInterfaceTool::f_processWithoutArea;
+  m_extractor = &FastJetInterfaceTool::f_extractInclusive;
   // other presets (will be set/overwritten in initialize)
   m_jetAlgorithm        = fastjet::antikt_algorithm;
   m_strategy            = fastjet::Best;
@@ -343,7 +343,7 @@ StatusCode FastJetInterfaceTool::initialize()
   // without area calculation
   if ( !m_doJetArea )
     {
-      f_processor = &FastJetInterfaceTool::f_processWithoutArea;
+      m_processor = &FastJetInterfaceTool::f_processWithoutArea;
     }
   // with area calculation
   else
@@ -357,13 +357,13 @@ StatusCode FastJetInterfaceTool::initialize()
 			  << "\042 is not known" << endreq;
 	  return StatusCode::FAILURE;
 	}
-      f_processor = &FastJetInterfaceTool::f_processWithArea;
+      m_processor = &FastJetInterfaceTool::f_processWithArea;
     }
 
   // configure inclusive/exclusive jet extractor
   if ( m_inclusive )
     {
-      f_extractor = &FastJetInterfaceTool::f_extractInclusive;
+      m_extractor = &FastJetInterfaceTool::f_extractInclusive;
     } // inclusive jet finder
   else
     {
@@ -375,13 +375,13 @@ StatusCode FastJetInterfaceTool::initialize()
       //                             m_exclusiveNjets < 0 -> error
       if ( m_exclusiveDcut > 0. )
 	{
-	  f_extractor = &FastJetInterfaceTool::f_extractExclDcut;
+	  m_extractor = &FastJetInterfaceTool::f_extractExclDcut;
 	}
       else
 	{
 	  if ( m_exclusiveNjets >= 0 ) 
 	    {
-	      f_extractor = &FastJetInterfaceTool::f_extractExclNjets;
+	      m_extractor = &FastJetInterfaceTool::f_extractExclNjets;
 	    } 
 	  else
 	    {
@@ -454,7 +454,7 @@ StatusCode FastJetInterfaceTool::execute(const fjetlist_t& inJets,
       m_clusterSequence = (fastjet::ClusterSequence*)0;
     }
   
-  if ( ((this->*f_processor)(inJets,outJets)).isFailure() )
+  if ( ((this->*m_processor)(inJets,outJets)).isFailure() )
     {
       ++m_failedExecCtr;
       if ( m_failedExecCtr < m_failedExecCtrMax )
@@ -562,7 +562,7 @@ StatusCode FastJetInterfaceTool::f_processWithoutArea(const fjetlist_t& inJets,
   m_clusterSequence = new fastjet::ClusterSequence(inJets,*m_jetDefinition);
   ATH_MSG_DEBUG( "  processed without area " );
   return m_clusterSequence != 0 
-    ? (this->*f_extractor)(outJets) : StatusCode::FAILURE;
+    ? (this->*m_extractor)(outJets) : StatusCode::FAILURE;
 }
 
 StatusCode FastJetInterfaceTool::f_processWithArea(const fjetlist_t& inJets,
@@ -574,7 +574,7 @@ StatusCode FastJetInterfaceTool::f_processWithArea(const fjetlist_t& inJets,
     new fastjet::ClusterSequenceArea(inJets,*m_jetDefinition,*m_areaDefinition);
 
   return m_clusterSequence != 0 
-    ? (this->*f_extractor)(outJets) : StatusCode::FAILURE; 
+    ? (this->*m_extractor)(outJets) : StatusCode::FAILURE; 
 }
 
 StatusCode FastJetInterfaceTool::f_extractInclusive(fjetlist_t& outJets)
