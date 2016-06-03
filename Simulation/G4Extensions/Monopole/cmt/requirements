@@ -8,7 +8,6 @@ use GaudiInterface      GaudiInterface-*        External
 private
 use AthenaBaseComps     AthenaBaseComps-*       Control
 use AtlasCLHEP          AtlasCLHEP-*            External
-use FadsField           FadsField-*             Simulation/G4Sim/FADS
 use Geant4              Geant4-*                External
 use G4AtlasInterfaces   G4AtlasInterfaces-*     Simulation/G4Atlas
 end_private
