@@ -125,7 +125,7 @@ namespace Trk
       
       
 
-    Vertex getSingleVtxPosition(const Amg::VectorX & myPosition,int numVertex) {
+    Amg::Vector3D getSingleVtxPosition(const Amg::VectorX & myPosition,int numVertex) {
       int numbRow=numRow(numVertex);
       double xv=myPosition[Trk::jet_xv];
       double yv=myPosition[Trk::jet_yv];
@@ -139,14 +139,14 @@ namespace Trk
 	  dist=dist/fabs(dist)*1000.;
 	}
       }
-      return Vertex(Amg::Vector3D(xv+dist*cos(phi)*sin(theta),
-			          yv+dist*sin(phi)*sin(theta),
-			          zv+dist*cos(theta)));
+      return Amg::Vector3D(xv+dist*cos(phi)*sin(theta),
+			   yv+dist*sin(phi)*sin(theta),
+			   zv+dist*cos(theta));
     }
 
-    Vertex getSingleVtxPositionWithSignFlip(const Amg::VectorX & myPosition,
-					    int numVertex,
-					    bool signfliptreatment) {
+    Amg::Vector3D getSingleVtxPositionWithSignFlip(const Amg::VectorX & myPosition,
+					           int numVertex,
+					           bool signfliptreatment) {
 
       int numbRow=numRow(numVertex);
       double xv=myPosition[Trk::jet_xv];
@@ -168,9 +168,9 @@ namespace Trk
 	  }
 	}
       }
-      return Vertex(Amg::Vector3D(xv+dist*cos(phi)*sin(theta),
-			          yv+dist*sin(phi)*sin(theta),
-			          zv+dist*cos(theta)));
+      return Amg::Vector3D(xv+dist*cos(phi)*sin(theta),
+			   yv+dist*sin(phi)*sin(theta),
+			   zv+dist*cos(theta));
     }
 
   }//end anonymous namespace
@@ -456,7 +456,7 @@ namespace Trk
     const std::vector<VxTrackAtVertex*> & primaryVectorTracks=myPrimary->getTracksAtVertex();
     
     Amg::Vector3D primary3Pos = myPosition.segment(0,3);
-    Vertex primaryVertexPos(primary3Pos);
+    Amg::Vector3D primaryVertexPos(primary3Pos);
 
     const std::vector<VxTrackAtVertex*>::const_iterator primaryVectorTracksBegin=primaryVectorTracks.begin();
     const std::vector<VxTrackAtVertex*>::const_iterator primaryVectorTracksEnd=primaryVectorTracks.end();
@@ -490,7 +490,7 @@ namespace Trk
     for (std::vector<VxVertexOnJetAxis*>::const_iterator VtxIter=VtxBegin;VtxIter!=VtxEnd;++VtxIter) {
 
       int numVertex=(*VtxIter)->getNumVertex();
-      Vertex secondaryVertexPos(getSingleVtxPositionWithSignFlip(myPosition,numVertex,signfliptreatment));      
+      Amg::Vector3D secondaryVertexPos(getSingleVtxPositionWithSignFlip(myPosition,numVertex,signfliptreatment));      
 
 //      std::cout << " Considering linearization at n. vertex " << numVertex << " pos " << secondaryVertexPos << std::endl;
       
@@ -506,7 +506,7 @@ namespace Trk
 
 	if (linTrack!=0) {
 	  //	  std::cout << "distance not primary is: " << (linTrack->linearizationPoint()-secondaryVertexPos.position()).mag() << std::endl;
-	  if ((linTrack->linearizationPoint()-secondaryVertexPos.position()).mag()>maxdistance) {
+	  if ((linTrack->linearizationPoint()-secondaryVertexPos).mag()>maxdistance) {
 	    //	    std::cout << " redoing linearization" << std::endl;
 	    m_linearizedFactory->linearize(**TrackVectorIter,secondaryVertexPos);
 	  }
