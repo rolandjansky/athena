@@ -1,6 +1,6 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
-#include "PixelDigitization/PixelDigitization.h"
+#include "src/PixelDigitization.h"
 #include "src/PixelDigitizationTool.h"
 #include "src/SurfaceChargesTool.h"
 #include "src/PixelNoisyCellGenerator.h"
@@ -23,7 +23,6 @@
 #include "src/Ibl3DBichselChargeTool.h"
 #include "src/SubChargesTool.h"
 #include "src/ChargeCollProbSvc.h"
-#include "src/CalibSvc.h"
 #include "src/BichselSimTool.h"
 
 DECLARE_ALGORITHM_FACTORY(PixelDigitization)
@@ -50,7 +49,6 @@ DECLARE_TOOL_FACTORY(Ibl3DBichselChargeTool)
 //DECLARE_TOOL_FACTORY(SubChargesTool)
 DECLARE_SERVICE_FACTORY(ChargeCollProbSvc)
 DECLARE_SERVICE_FACTORY(TimeSvc)
-DECLARE_SERVICE_FACTORY(CalibSvc)
 
 DECLARE_FACTORY_ENTRIES(PixelDigitization) {
   DECLARE_ALGORITHM(PixelDigitization)
@@ -76,6 +74,5 @@ DECLARE_FACTORY_ENTRIES(PixelDigitization) {
  // DECLARE_TOOL(SubChargesTool)
   DECLARE_SERVICE(ChargeCollProbSvc)
   DECLARE_SERVICE(TimeSvc)
-  DECLARE_SERVICE(CalibSvc)
 }
 

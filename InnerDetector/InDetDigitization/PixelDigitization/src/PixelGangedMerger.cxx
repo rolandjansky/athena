@@ -38,21 +38,11 @@ PixelGangedMerger::~PixelGangedMerger()
 // Initialize
 //----------------------------------------------------------------------
 StatusCode PixelGangedMerger::initialize() {
-  StatusCode sc = AthAlgTool::initialize(); 
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "PixelGangedMerger::initialize() failed");
-    return sc ;
-  }
-  ATH_MSG_DEBUG ( "PixelGangedMerger::initialize()");
-  //  
-  // get PixelID
-  //
-  if ( detStore()->retrieve(m_pixelID,"PixelID").isFailure() ) {
-    // if this fails, it's probably a bug -> FATAL!
-    ATH_MSG_FATAL ( "Could not get Pixel ID helper" );
-    return StatusCode::FAILURE;
-  }
-  return sc ;
+
+  CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
+  ATH_MSG_DEBUG("PixelGangedMerger::initialize()");
+
+  return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------

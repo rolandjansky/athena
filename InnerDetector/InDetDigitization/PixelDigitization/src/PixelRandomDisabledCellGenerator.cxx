@@ -47,34 +47,22 @@ PixelRandomDisabledCellGenerator::~PixelRandomDisabledCellGenerator()
 // Initialize
 //----------------------------------------------------------------------
 StatusCode PixelRandomDisabledCellGenerator::initialize() {
-  StatusCode sc = AthAlgTool::initialize(); 
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "PixelRandomDisabledCellGenerator::initialize() failed");
-    return sc ;
-  }
-  ATH_MSG_DEBUG ( "PixelRandomDisabledCellGenerator::initialize()");
-  if (m_rndmSvc.retrieve().isFailure()) {
-	ATH_MSG_ERROR("Can't get RndmSvc");
-	return StatusCode::FAILURE;
-  }
-  else {
-	ATH_MSG_DEBUG("Retrieved RndmSvc");
-  }
- 
-  ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
+
+  CHECK(m_rndmSvc.retrieve());
   m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (m_rndmEngine==0) {
-	ATH_MSG_ERROR ( "Could not find RndmEngine : " << m_rndmEngineName );
-	return StatusCode::FAILURE;
-  } else { 
-	ATH_MSG_DEBUG ( " Found RndmEngine : " << m_rndmEngineName ); 
+  if (!m_rndmEngine) {
+    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
+    return StatusCode::FAILURE;
+  } 
+  else { 
+    ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);  
   }
 
   m_myfunc = SiHelper::disabled;
-
   ATH_MSG_INFO ( "\tCreating disabled cell generator with "<<m_disableProbability<<" probability");
 
-  return sc ;
+  ATH_MSG_DEBUG("PixelRandomDisabledCellGenerator::initialize()");
+  return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------
