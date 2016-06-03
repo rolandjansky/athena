@@ -5,6 +5,10 @@
 ##################################################
 ### CompareJetTestFileExec
 ###
+###  *** BEING DEPRECATED *** 
+###   the code in this file has been recopied in JetTestCheck.py in the __main__ part of it.
+###
+###  *** BEING DEPRECATED *** 
 ### An executable to compare the jet content of 2 xAOD files.
 ###
 ### Usage :
