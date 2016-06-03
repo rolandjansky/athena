@@ -5,11 +5,18 @@
 // C/C++
 #include <cassert>
 #include <iostream>
+#include <sstream>
 
 // Local
 #include "TrigMonitoringEvent/TrigMonTimer.h"
+#include "TrigMonMSG.h"
 
 using namespace std;
+
+namespace MSGService
+{
+  static TrigMonMSG msg("TrigMonTimer");
+}
 
 namespace TimerBits
 {
@@ -38,11 +45,17 @@ TrigMonTimer::TrigMonTimer(long int tv_sec,
     const uint32_t usec = static_cast<uint32_t>(tv_usec);
     
     // Yes, these are redundant checks.
-    if(sec  >= TimerBits::moduloSec) 
-      cerr << "TrigMonTimer ctor error! sec="  <<  sec << ", " << tv_sec  << endl;
-    if(usec >= 1000000)
-      cerr << "TrigMonTimer ctor error! usec=" << usec << ", " << tv_usec << endl;
-    
+    if(sec  >= TimerBits::moduloSec) {
+      std::stringstream ss;
+      ss << "TrigMonTimer ctor error! sec="  <<  sec << ", " << tv_sec;
+      MSGService::msg.Log(ss.str(), MSG::ERROR);
+    }
+    if(usec >= 1000000) {
+      std::stringstream ss;
+      ss << "TrigMonTimer ctor error! usec=" << usec << ", " << tv_usec;
+      MSGService::msg.Log(ss.str(), MSG::ERROR);
+    }
+
     m_encoded |= (sec << TimerBits::shiftSec);
     m_encoded |= usec;
   }

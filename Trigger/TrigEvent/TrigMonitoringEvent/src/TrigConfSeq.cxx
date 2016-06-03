@@ -8,8 +8,14 @@
 
 // Local
 #include "TrigMonitoringEvent/TrigConfSeq.h"
+#include "TrigMonMSG.h"
 
 using namespace std;
+
+namespace MSGService
+{
+  static TrigMonMSG msg("TrigConfSeq");
+}
 
 //--------------------------------------------------------------------------------------  
 TrigConfSeq::TrigConfSeq()
@@ -45,13 +51,15 @@ void TrigConfSeq::clearStrings()
 const TrigConfAlg& TrigConfSeq::getAlg(unsigned int pos) const
 {
   if(pos >= m_alg.size()) {
-    cerr << "TrigConfSeq::getAlg(" << pos << ") error! Index is greater than alg size=" 
-	 << m_alg.size() << " for " << m_output_te_name << endl;
+    std::stringstream ss;
+    ss << "TrigConfSeq::getAlg(" << pos << ") error! Index is greater than alg size=" << m_alg.size() << " for " << m_output_te_name;
+    MSGService::msg.Log(ss.str(), MSG::ERROR);
     return m_alg.front();
   }
   if(m_alg[pos].getPosition() != pos) {
-    cerr << "TrigConfSeq::getAlg(" << pos << ") error! Index mismatch: " 
-	 << m_alg[pos].getPosition() << "!=" << pos << endl;
+    std::stringstream ss;
+    ss << "TrigConfSeq::getAlg(" << pos << ") error! Index mismatch: " << m_alg[pos].getPosition() << "!=" << pos;
+    MSGService::msg.Log(ss.str(), MSG::ERROR);
   }
 
   return m_alg[pos];

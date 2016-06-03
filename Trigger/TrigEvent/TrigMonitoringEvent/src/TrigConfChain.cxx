@@ -9,8 +9,14 @@
 // Local
 #include "TrigMonitoringEvent/TrigMonSeq.h"
 #include "TrigMonitoringEvent/TrigConfChain.h"
+#include "TrigMonMSG.h"
 
 using namespace std;
+
+namespace MSGService
+{
+  static TrigMonMSG msg("TrigConfChain");
+}
 
 //--------------------------------------------------------------------------------------      
 uint16_t Trig::getEncodedId(int level,
@@ -19,12 +25,12 @@ uint16_t Trig::getEncodedId(int level,
   // 16 bit word for encoded chain level and counter
   uint16_t word = 0x0;
   
-  if(level < 1 || level > 3) {
-    cerr << "Trig::getEncoded error! Bad level: " << level << endl;
+  if(level < 1 || level > 2) {
+    MSGService::msg.Log("Trig::getEncoded error! Bad level",MSG::ERROR);
     return word;
   }
   if(counter < 0 || counter >= 16384) {
-    cerr << "Trig::getEncoded error! Bad counter: " << counter << endl;
+    MSGService::msg.Log("Trig::getEncoded error! Bad counter",MSG::ERROR);
     return word;
   }
 
@@ -38,9 +44,7 @@ uint16_t Trig::getEncodedId(int level,
 uint16_t Trig::getEncodedId(const std::string &level, int counter)
 {
   if(level == "L1")  return Trig::getEncodedId(1, counter);
-  if(level == "L2")  return Trig::getEncodedId(2, counter);
   if(level == "HLT") return Trig::getEncodedId(2, counter);
-  if(level == "EF")  return Trig::getEncodedId(3, counter);
 
   return 0;
 }
@@ -84,7 +88,7 @@ TrigConfChain::TrigConfChain(const string &chain_name,
     m_chain_counter = static_cast<unsigned int>(chain_counter);
   }
   else {
-    cerr << "TrigConfChain ctor error! Bad chain counter: " << chain_counter<< endl;
+    MSGService::msg.Log("TrigConfChain ctor error! Bad chain counter",MSG::ERROR);
   }
 
   if(0 <= lower_chain_counter && lower_chain_counter < 16384) {
@@ -93,11 +97,11 @@ TrigConfChain::TrigConfChain(const string &chain_name,
 
   // Set trigger level as integer
   if     (level == "L1")  m_level = 1;
-  else if(level == "L2")  m_level = 2;
   else if(level == "HLT") m_level = 2;
-  else if(level == "EF")  m_level = 3;
   else {
-    cerr << "TrigConfChain ctor error! " << chain_name << ": bad level " << level << endl;
+    std::stringstream ss;
+    ss << "TrigConfChain ctor error! " << chain_name << ": bad level " << level ;
+    MSGService::msg.Log(ss.str(),MSG::ERROR);
   }
 }
 
@@ -121,7 +125,7 @@ TrigConfChain::TrigConfChain(const string &chain_name,
     m_chain_counter = static_cast<unsigned int>(chain_counter);
   }
   else {
-    cerr << "TrigConfChain ctor error! Bad chain counter: " << chain_counter<< endl;
+    MSGService::msg.Log("TrigConfChain ctor error! Bad chain counter", MSG::ERROR);
   }
 }
 
@@ -157,7 +161,7 @@ uint16_t TrigConfChain::getEncodedId() const
   //
   // Return level id
   //
-  if(m_level < 1 || m_level > 3) {
+  if(m_level < 1 || m_level > 2) {
     return 0;
   }
 
@@ -170,7 +174,7 @@ uint16_t TrigConfChain::getLowerEncodedId() const
   //
   // Get lower chain encoded id
   //
-  if(m_level == 2 || m_level == 3) {
+  if(m_level == 2) {
     return Trig::getEncodedId(m_level-1, getLowerCounter());
   }
   
@@ -184,11 +188,7 @@ const std::string TrigConfChain::getLevel() const
   // Get trigger level as integer
   //
   if     (m_level == 1) return "L1";
-  else if(m_level == 2) {
-    if(m_chain_name.substr(0, 2) == "L2") return "L2";
-    else if(m_chain_name.substr(0, 3) == "HLT") return "HLT";
-  }
-  else if(m_level == 3) return "EF";
+  else if(m_level == 2) return "HLT";
 
   return "L0";
 }
@@ -200,7 +200,7 @@ float TrigConfChain::getSignaturePrescale(const std::string &name) const
   // Find stream prescale
   //
   if(m_stream_prescale.size() != m_stream_name.size()) {
-    cerr << "TrigConfChain::getSignaturePrescale - logic error!" << endl;
+    MSGService::msg.Log("TrigConfChain::getSignaturePrescale - logic error!",MSG::ERROR);
     return 0.0;
   }
 

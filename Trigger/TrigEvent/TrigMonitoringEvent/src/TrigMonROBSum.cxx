@@ -8,6 +8,7 @@
 
 // Local
 #include "TrigMonitoringEvent/TrigMonROBSum.h"
+#include "TrigMonMSG.h"
 
 namespace SumBits
 {
@@ -17,6 +18,11 @@ namespace SumBits
 
   uint32_t shiftNrob =  4;
   uint32_t shiftSize = 12;
+}
+
+namespace MSGService
+{
+  static TrigMonMSG msg("TrigMonROBSum");
 }
 
 //--------------------------------------------------------------------------------------  
@@ -42,8 +48,7 @@ bool TrigMonROBSum::setHistory(uint32_t hist)
     m_word |= hist;
     return true;
   }
-
-  std::cerr << "TrigMonROBSum::setHistory error! Bad int: " << hist << std::endl;
+  MSGService::msg.Log("TrigMonROBSum::setHistory error! Bad int", MSG::ERROR);
   return false;
 }
 
@@ -58,8 +63,7 @@ bool TrigMonROBSum::setNROB(uint32_t nrob)
     m_word |= (nrob << SumBits::shiftNrob);
     return true;
   }
-
-  std::cerr << "TrigMonROBSum::setNROB error! Bad int: " << nrob << std::endl;
+  MSGService::msg.Log("TrigMonROBSum::setNROB error! Bad int", MSG::ERROR);
   return false;
 }
 
@@ -74,8 +78,7 @@ bool TrigMonROBSum::setSize(uint32_t size)
     m_word |= (size << SumBits::shiftSize);
     return true;
   }
-  
-  std::cerr << "TrigMonROBSum::setSize error! Bad int: " << size << std::endl;
+  MSGService::msg.Log("TrigMonROBSum::setSize error! Bad int", MSG::ERROR);
   return false;
 }
 

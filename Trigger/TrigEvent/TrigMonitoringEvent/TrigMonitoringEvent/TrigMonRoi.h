@@ -67,6 +67,7 @@ class TrigMonRoi
   const std::vector<uint32_t>&  getWord()   const { return m_word; }
   const std::vector<uint16_t>&  getVarKey() const { return m_var_key; }
   const std::vector<float>&     getVarVal() const { return m_var_val; }
+  float                         getVarVal(  const uint32_t key ) const;
   const std::vector<TrigMonVar> getVar()    const;
 
   void print(std::ostream &os = std::cout);

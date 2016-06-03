@@ -7,12 +7,18 @@
 
 // Local
 #include "TrigMonitoringEvent/TrigConfVar.h"
+#include "TrigMonMSG.h"
 
 using namespace std;
 
 namespace TrigVar {
   static std::vector<TrigConfVar> gVarVec;
   static unsigned int gCounter = 60000;
+}
+
+namespace MSGService
+{
+  static TrigMonMSG msg("TrigConfVar");
 }
 
 //--------------------------------------------------------------------------------------      
@@ -60,7 +66,7 @@ uint16_t Trig::ReserveVarId(const std::string &name)
   }
   
   if(TrigVar::gCounter+1 >= 65535) {
-    cerr << "ReserveVarId - error! Overflow of 16 bits key." << endl;
+    MSGService::msg.Log("ReserveVarId - error! Overflow of 16 bits key.", MSG::ERROR);
     return 0;
   }
   
@@ -87,8 +93,9 @@ uint16_t Trig::ReserveVarId(const std::string &name, uint16_t id)
       // Check if already stored id matches
       //
       if(TrigVar::gVarVec[i].getId() != id) {
-	cerr << "ReserveVarId - error! Existing var with " << name << " and id=" 
-	     << TrigVar::gVarVec[i].getId() << ": new id=" << id << endl;
+        std::stringstream ss;
+        ss << "ReserveVarId - error! Existing var with " << name << " and id=" << TrigVar::gVarVec[i].getId() << ": new id=" << id;
+        MSGService::msg.Log(ss.str(), MSG::ERROR);
       }
 
       return TrigVar::gVarVec[i].getId();
@@ -100,11 +107,12 @@ uint16_t Trig::ReserveVarId(const std::string &name, uint16_t id)
       matched_id = true;
 
       if(TrigVar::gVarVec[i].getName() != name) {
-	cerr << "ReserveVarId - error! Existing var with " << name << " and id=" 
-	     << TrigVar::gVarVec[i].getId() << ": new name=" << name << endl;
+        std::stringstream ss;
+        ss << "ReserveVarId - error! Existing var with " << name << " and id=" << TrigVar::gVarVec[i].getId() << ": new name=" << name;
+        MSGService::msg.Log(ss.str(), MSG::ERROR);
       }
       else {
-	return id;
+        return id;
       }
     }
   }
@@ -114,7 +122,7 @@ uint16_t Trig::ReserveVarId(const std::string &name, uint16_t id)
   //
   if(matched_id) {
     if(TrigVar::gCounter+1 >= 65535) {
-      cerr << "ReserveVarId - error! Overflow of 16 bits key." << endl;
+      MSGService::msg.Log("ReserveVarId - error! Overflow of 16 bits key.", MSG::ERROR);
       return 0;
     }
     

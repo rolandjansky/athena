@@ -8,8 +8,14 @@
 
 // Local
 #include "TrigMonitoringEvent/TrigConfAlg.h"
+#include "TrigMonMSG.h"
 
 using namespace std;
+
+namespace MSGService
+{
+  static TrigMonMSG msg("TrigConfAlg");
+}
 
 //--------------------------------------------------------------------------------------  
 TrigConfAlg::TrigConfAlg() 
@@ -37,10 +43,10 @@ TrigConfAlg::TrigConfAlg(const uint32_t index,
    m_type(type)
 {
   if(position >= 128) {
-    cerr << "TrigConfAlg ctor error! Position is too large: " << position << endl;
+    MSGService::msg.Log("TrigConfAlg ctor error! Position is too large",MSG::ERROR);
   }
   if(index >= 65535) {
-    cerr << "TrigConfAlg ctor error! Index is too large: " << index << endl;
+    MSGService::msg.Log("TrigConfAlg ctor error! Index is too large",MSG::ERROR);
   }
 }
 

@@ -7,11 +7,17 @@
 
 // Local
 #include "TrigMonitoringEvent/TrigMonL1Item.h"
+#include "TrigMonMSG.h"
 
 namespace L1Bits
 {
   const uint32_t maskCtpId = 0x0fff;  // mask ctpid bits
   const uint32_t maskDecis = 0x7000;  // mask decision bits
+}
+
+namespace MSGService
+{
+  static TrigMonMSG msg("TrigMonL1Item");
 }
 
 using namespace std;
@@ -39,7 +45,7 @@ void TrigMonL1Item::setCtpId(unsigned int ctpid)
     m_encoded |= ctpid;
   }
   else {
-    cerr << "TrigMonL1Item::setCtpId error! Bad ctp id: " << ctpid << endl;
+    MSGService::msg.Log("TrigMonL1Item::setCtpId error! Bad ctp id", MSG::ERROR);
   }
 }
 

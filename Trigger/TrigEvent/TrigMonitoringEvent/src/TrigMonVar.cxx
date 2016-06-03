@@ -6,8 +6,13 @@
 
 // Local
 #include "TrigMonitoringEvent/TrigMonVar.h"
+#include "TrigMonMSG.h"
 
 using namespace std;
+namespace MSGService
+{
+  static TrigMonMSG msg("TrigMonVar");
+}
 
 //--------------------------------------------------------------------------------------      
 TrigMonVar::TrigMonVar()
@@ -22,7 +27,7 @@ TrigMonVar::TrigMonVar(const unsigned int key, const float data)
    m_data(data)
 {
   if(key >= 65535) {
-    cerr << "TrigMonVar ctor - error! Overflow of 16 bits key." << endl;
+    MSGService::msg.Log("TrigMonVar ctor - error! Overflow of 16 bits key.", MSG::ERROR);
   }
 }
 
