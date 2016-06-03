@@ -508,6 +508,7 @@ void TBranchAlias::findAux()
   TBranch* br_orig = m_targ_tree->GetBranch (m_aux_branchname.c_str());
   if (!br_orig) return;
   TBranch* br = m_trans_tree->GetBranch (m_aux_branchname.c_str());
+  // cppcheck-suppress incorrectLogicOperator
   if (!br || dynamic_cast<TBranchAlias*>(br) != 0)
     br = br_orig;
 
@@ -615,6 +616,7 @@ void TBranchAlias::setStore (bool clear, long long entry)
       SG::IAuxStore* store = holder->getStore();
       if (store) store->clearDecorations();
 
+      // cppcheck-suppress incorrectLogicOperator
       if (store && dynamic_cast<AuxStoreARA*> (store) == nullptr && entry >= 0 &&
           m_aux_branch == m_aux_branch_orig)
       {

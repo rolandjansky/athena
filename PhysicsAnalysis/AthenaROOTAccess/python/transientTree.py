@@ -480,7 +480,15 @@ def _handle_elem (elem, file, trans_tree, pers_type, pers_tree, branch_names,
                 pers_type = pers_type2
                 trans_type = trans_type2
                 trans_branch_name_suffix = '_auxcnv'
+
     elif pers_type != trans_type and pers_type.startswith ('DataVector<xAOD::'):
+       trans_branch_name_suffix = '_auxcnv'
+
+    elif (pers_type != trans_type and
+          pers_type.startswith ('xAOD::') and
+          pers_type.find('_v') >= 0 and
+          pers_type.find('Aux') < 0):
+       # Schema evolution of standalone interface object.
        trans_branch_name_suffix = '_auxcnv'
        
 

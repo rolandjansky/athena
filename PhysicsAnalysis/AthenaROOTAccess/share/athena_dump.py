@@ -29,7 +29,7 @@ theApp.AuditServices=False
 topSequence = AlgSequence()
 
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = 'ATLAS-GEO-02-01-00'
+jobproperties.Global.DetDescrVersion = 'ATLAS-R1-2012-03-01-00'
 import AtlasGeoModel.GeoModelInit
 import AtlasGeoModel.SetGeometryVersion
 svcMgr.GeoModelSvc.IgnoreTagDifference = True

@@ -599,7 +599,7 @@ DataHeader_p5* ProxyMap::findDH5 (Long64_t entry)
 
   DataHeaderForm_p5* form =
     *reinterpret_cast<DataHeaderForm_p5**> (form_br->GetAddress());
-  dh->setDhForm (*form);
+  dh->setDhForm (form);
 
   return dh;
 }
