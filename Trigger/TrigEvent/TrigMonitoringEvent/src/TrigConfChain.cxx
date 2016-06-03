@@ -25,7 +25,7 @@ uint16_t Trig::getEncodedId(int level,
   // 16 bit word for encoded chain level and counter
   uint16_t word = 0x0;
   
-  if(level < 1 || level > 3) {
+  if(level < 1 || level > 2) {
     MSGService::msg.Log("Trig::getEncoded error! Bad level",MSG::ERROR);
     return word;
   }
@@ -44,9 +44,7 @@ uint16_t Trig::getEncodedId(int level,
 uint16_t Trig::getEncodedId(const std::string &level, int counter)
 {
   if(level == "L1")  return Trig::getEncodedId(1, counter);
-  if(level == "L2")  return Trig::getEncodedId(2, counter);
   if(level == "HLT") return Trig::getEncodedId(2, counter);
-  if(level == "EF")  return Trig::getEncodedId(3, counter);
 
   return 0;
 }
@@ -99,9 +97,7 @@ TrigConfChain::TrigConfChain(const string &chain_name,
 
   // Set trigger level as integer
   if     (level == "L1")  m_level = 1;
-  else if(level == "L2")  m_level = 2;
   else if(level == "HLT") m_level = 2;
-  else if(level == "EF")  m_level = 3;
   else {
     std::stringstream ss;
     ss << "TrigConfChain ctor error! " << chain_name << ": bad level " << level ;
@@ -165,7 +161,7 @@ uint16_t TrigConfChain::getEncodedId() const
   //
   // Return level id
   //
-  if(m_level < 1 || m_level > 3) {
+  if(m_level < 1 || m_level > 2) {
     return 0;
   }
 
@@ -178,7 +174,7 @@ uint16_t TrigConfChain::getLowerEncodedId() const
   //
   // Get lower chain encoded id
   //
-  if(m_level == 2 || m_level == 3) {
+  if(m_level == 2) {
     return Trig::getEncodedId(m_level-1, getLowerCounter());
   }
   
@@ -192,11 +188,7 @@ const std::string TrigConfChain::getLevel() const
   // Get trigger level as integer
   //
   if     (m_level == 1) return "L1";
-  else if(m_level == 2) {
-    if(m_chain_name.substr(0, 2) == "L2") return "L2";
-    else if(m_chain_name.substr(0, 3) == "HLT") return "HLT";
-  }
-  else if(m_level == 3) return "EF";
+  else if(m_level == 2) return "HLT";
 
   return "L0";
 }
