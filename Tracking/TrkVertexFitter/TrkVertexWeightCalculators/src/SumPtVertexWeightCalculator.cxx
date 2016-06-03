@@ -3,7 +3,6 @@
 */
 
  #include "TrkVertexWeightCalculators/SumPtVertexWeightCalculator.h"
- #include "VxVertex/VxCandidate.h"
  #include "VxVertex/VxTrackAtVertex.h"
  #include "TrkParameters/TrackParameters.h"
 
@@ -46,44 +45,6 @@ namespace Trk{
   //destructor
   SumPtVertexWeightCalculator::~SumPtVertexWeightCalculator(){}
    
-  double  SumPtVertexWeightCalculator::estimateSignalCompatibility(const VxCandidate& vertex)
-  { 
-    const std::vector<Trk::VxTrackAtVertex*>* tracks = vertex.vxTrackAtVertex();
-    if (tracks == 0)
-    {
-      msg(MSG::WARNING) << "No tracks found at vertex (0 pointer) " << endreq;
-      return 0;
-    }
-
-    std::vector<Trk::VxTrackAtVertex*>::const_iterator begintracks=tracks->begin();
-    std::vector<Trk::VxTrackAtVertex*>::const_iterator endtracks=tracks->end();
-    
-    double total_pt=0;
-    
-    for(std::vector<Trk::VxTrackAtVertex*>::const_iterator i = begintracks; i!=endtracks; i++) {
-      
-      const Trk::TrackParameters* perigee(0);
-      if ((*i)->perigeeAtVertex()!=0) 
-      {
-        perigee=(*i)->perigeeAtVertex();
-      } 
-      else 
-      {
-        perigee=(*i)->initialPerigee();
-      }     
-      
-      if (m_doSumPt2Selection)
-      {
-        total_pt+=std::pow(1./perigee->parameters()[Trk::qOverP]*sin(perigee->parameters()[Trk::theta])/1000.,2);
-      }
-      else
-      {
-        total_pt+= std::fabs(1./perigee->parameters()[Trk::qOverP])*sin(perigee->parameters()[Trk::theta])/1000.;
-      }
-    }
-    return  total_pt;     
-  }
-  
   double  SumPtVertexWeightCalculator::estimateSignalCompatibility(const xAOD::Vertex& vertex)
   { 
     double total_pt=0;

@@ -19,13 +19,20 @@
   * @class Trk::TrueVertexDistanceWeightCalculator 
   *
   * @author Giacinto Piacquadio, August 2010
+  *
+  * ---------------------------------------------------
+  * Changes:
+  *
+  * David Shope <david.richard.shope@cern.ch> (2016-06-01)
+  *
+  *   EDM Migration to xAOD - remove method using VxCandidate
+  *
   */
  
 class McEventCollection;
  
  namespace Trk
  {
-   class VxCandidate;
   
   class TrueVertexDistanceWeightCalculator : public AthAlgTool, virtual public IVertexWeightCalculator
   {
@@ -46,13 +53,7 @@ class McEventCollection;
      virtual ~TrueVertexDistanceWeightCalculator();
      
     /**
-     * WeightCalculator 
-     */
-    
-    virtual double estimateSignalCompatibility(const VxCandidate& vertex);
-
-    /**
-     * WeightCalculator, xAOD implementation
+     * WeightCalculator
      */
     
     virtual double estimateSignalCompatibility(const xAOD::Vertex& vertex);

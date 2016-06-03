@@ -3,7 +3,6 @@
 */
 
 #include "TrkVertexWeightCalculators/NNVertexWeightCalculator.h"
-#include "VxVertex/VxCandidate.h"
 #include "VxVertex/VxTrackAtVertex.h"
 #include "TrkParameters/TrackParameters.h"
 
@@ -131,31 +130,6 @@ namespace Trk{
   //destructor
   NNVertexWeightCalculator::~NNVertexWeightCalculator(){}
   
-  double  NNVertexWeightCalculator::estimateSignalCompatibility(const VxCandidate& vertex)
-  { 
-    const std::vector<Trk::VxTrackAtVertex*>* tracks = vertex.vxTrackAtVertex();
-    std::vector<Trk::VxTrackAtVertex*>::const_iterator begintracks=tracks->begin();
-    std::vector<Trk::VxTrackAtVertex*>::const_iterator endtracks=tracks->end();
-    
-    std::vector<const Trk::TrackParameters*> tpList;
-     
-    for(std::vector<Trk::VxTrackAtVertex*>::const_iterator i = begintracks; i!=endtracks; i++) {
-      const Trk::TrackParameters* perigee(0);
-      if ((*i)->perigeeAtVertex()!=0) 
-        {
-          perigee=(*i)->perigeeAtVertex();
-        } 
-      else 
-        {
-          perigee=(*i)->initialPerigee();
-        }     
-      tpList.push_back(perigee);      
-    }
-
-    return mEstimateSignalCompatibility(tpList);
-                  
-  }///End!!!
-
 double  NNVertexWeightCalculator::estimateSignalCompatibility(const xAOD::Vertex& vertex)
 {
   std::vector<const Trk::TrackParameters*> tpList;
