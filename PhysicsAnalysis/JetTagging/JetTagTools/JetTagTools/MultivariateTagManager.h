@@ -15,6 +15,9 @@
     @authors Dan Guest, Marie Lanfermann
 
 ********************************************************/
+// #include "xAODBTagging/BTagging.h"
+// #include "GaudiKernel/ToolHandle.h"
+// #include "AthenaBaseComps/AthAlgTool.h"
 #include "JetTagTools/ITagTool.h"
 #include "JetTagTools/IMultivariateJetTagger.h"
 
@@ -59,6 +62,8 @@ namespace Analysis {
     void fill_jetfitter(var_map& inputs, xAOD::BTagging* BTag);
     void fill_mvb(var_map& inputs, xAOD::Jet& jet, xAOD::BTagging* BTag);
     void fill_mv2cl100(var_map& inputs, xAOD::BTagging* BTag);
+    void fill_trkSum(var_map& inputs, xAOD::BTagging* BTag);
+    void fill_softmuon(var_map& inputs, xAOD::BTagging* BTag);
 
     //constants
     float m_sv1_efrc;
@@ -73,6 +78,7 @@ namespace Analysis {
     std::string m_sv0_infosource;
     std::string m_sv1_infosource;
     std::string m_jftNN_infosource;
+    std::string m_softmuon_infosource;
 
     ToolHandleArray< IMultivariateJetTagger > m_MultivariateTaggerHandleArray;
 

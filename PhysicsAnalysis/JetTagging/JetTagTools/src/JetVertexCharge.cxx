@@ -19,6 +19,7 @@
 
 #include <cmath>
 #include <algorithm>
+#include <memory>
 
 #include "CLHEP/Vector/LorentzVector.h"
 
@@ -27,6 +28,7 @@
 #include "JetTagTools/JetTagUtils.h"
 #include "JetTagCalibration/CalibrationBroker.h"
 #include "MuonSelectorTools/IMuonSelectionTool.h" 
+#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
 #include "TMVA/Reader.h"
 #include "TMVA/Types.h"
 #include "TList.h"
@@ -50,6 +52,7 @@ namespace Analysis {
     AthAlgTool(t,n,p),
     m_calibrationTool("BTagCalibrationBroker"),
     m_muonSelectorTool("JVC_MuonSelectorTool"),
+    m_muonCorrectionTool( "JVC_MuonCorrectionTool" ),
     m_runModus("analysis")
   { 
 
@@ -58,6 +61,7 @@ namespace Analysis {
 
     declareProperty("calibrationTool", 		m_calibrationTool);
     declareProperty("muonSelectorTool", 	m_muonSelectorTool);
+    declareProperty("muonCorrectionTool", 	m_muonCorrectionTool);
     declareProperty("taggerNameBase",		m_taggerNameBase = "JetVertexCharge");
 
     declareProperty("useForcedCalibration",  	m_doForcedCalib = false);
@@ -104,6 +108,7 @@ namespace Analysis {
       ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_calibrationTool);
     }
 
+
     //Retrieve the Muon Selectot tool
     sc = m_muonSelectorTool.retrieve();
     if ( sc.isFailure() ) {
@@ -112,6 +117,18 @@ namespace Analysis {
     } else {
       ATH_MSG_INFO("#BTAG# Retrieved tool " << m_muonSelectorTool);  
     }
+
+    //Muon Calibration and Smearing
+    sc = m_muonCorrectionTool.retrieve();
+    if ( sc.isFailure() ) {
+      ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_muonCorrectionTool);
+      return sc;
+    } else {
+      ATH_MSG_INFO("#BTAG# Retrieved tool " << m_muonCorrectionTool);  
+    }
+
+    ATH_CHECK( m_muonCorrectionTool->initialize() );
+
 
    //MVA xml files
     m_calibrationTool->registerHistogram(m_taggerNameBase, m_taggerNameBase+"Calib_cat_JC_SVC_noMu");
@@ -395,7 +412,6 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
       if( (tvx.tracks.size() % 2) == 1 ) m_tv_ntrk -= 1;  //To use only an even N tracks for the TVC 
 
 
-
      //    pT-ordering the tracks 
      std::sort( tvx.tracks.begin(), tvx.tracks.end(), ptOrdering);
 
@@ -429,10 +445,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
    //          computing the muon variables 
    //==============================================================
  
-
-
-   //float mu_dR = 0.;
-   const  xAOD::Muon * myMuon=NULL;  
+   std::unique_ptr< xAOD::Muon> myMuon;
 
    std::vector<ElementLink< xAOD::MuonContainer > > muonsInJet;       
    muonsInJet = BTag->auxdata< std::vector<ElementLink< xAOD::MuonContainer > > >(m_muonAssociationName); 
@@ -441,49 +454,57 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
      ATH_MSG_DEBUG("#BTAG#  Could not find muons associated with name " << m_muonAssociationName);
    } 
    else {
-     ATH_MSG_DEBUG("#BTAG#  There are "<< muonsInJet.size() <<" associated with the jet");
+     ATH_MSG_INFO("#BTAG#  There are "<< muonsInJet.size() <<" associated with the jet");
 
-     double ptmax = 0.;
-     for( unsigned int mu=0; mu< muonsInJet.size(); mu++)  {
-        const xAOD::Muon *m = *(muonsInJet.at(mu));
+     for( const auto& muLink : muonsInJet) {
+         const xAOD::Muon* mu = *muLink;
 
-         xAOD::Muon::Quality quality = m_muonSelectorTool->getQuality(*m);
+         xAOD::Muon* corrMuHelper = 0;
+         if( m_muonCorrectionTool->correctedCopy( *mu, corrMuHelper) != CP::CorrectionCode::Ok ) {
+            ATH_MSG_WARNING("Cannot apply calibration nor smearing for muons." ); 
+            continue;
+         }
+
+         // Make sure that we don't lose it:
+         std::unique_ptr< xAOD::Muon > p_corrMu( corrMuHelper );
+   
+         // Make all the muon quality cuts...
+         xAOD::Muon::Quality quality = m_muonSelectorTool->getQuality(*p_corrMu);
+         //if( quality == xAOD::Muon::Tight ) ATH_MSG_INFO("Muon quality is 'Tight'");
+         //else if( quality == xAOD::Muon::Medium  ) ATH_MSG_INFO("Muon quality is 'Medium'");
+         //else ATH_MSG_INFO("Muon quality is "<<quality);
 
          //just added this cut         
          if( quality > m_muonQualityCut ) continue; 
 
-        //cuts on muons:
-        if( m->muonType() != xAOD::Muon::MuonType::Combined) continue; 
-        if( m->pt() < 5.0 ) continue;
-        if( m->eta() > 2.7 ) continue;
+         //cuts on muons:
+         if( p_corrMu->muonType() != xAOD::Muon::MuonType::Combined) continue; 
+         if( p_corrMu->pt() < 5.0 ) continue;
+         if( p_corrMu->eta() > 2.7 ) continue;
+ 
+         TLorentzVector muon = p_corrMu->p4();      
+         TLorentzVector jet = jetToTag.p4();      
+         if( muon.DeltaR( jet ) > 0.3 ) continue;
 
-        TLorentzVector muon = m->p4();      
-        TLorentzVector jet = jetToTag.p4();      
-        if( muon.DeltaR( jet ) > 0.3 ) continue;
+         float chi2=-1; 
+         int  dof=-1;
+         float chi2_match = 999.;
+         if( p_corrMu->parameter( chi2, xAOD::Muon::ParamDef::msInnerMatchChi2 ) 
+	          && p_corrMu->parameter(dof, xAOD::Muon::ParamDef::msInnerMatchDOF ) )
+         if (dof != 0) chi2_match = chi2/dof; 
+         if( chi2_match > 5. ) continue;
 
-        float chi2=-1; 
-        int  dof=-1;
-        float chi2_match = 999.;
-        if( m->parameter( chi2, xAOD::Muon::ParamDef::msInnerMatchChi2 ) 
-	          && m->parameter(dof, xAOD::Muon::ParamDef::msInnerMatchDOF ) )
-          if (dof != 0) chi2_match = chi2/dof; 
-        if( chi2_match > 5. ) continue;
-
-
-
-        float iso = -1;
-        m->isolation( iso,  xAOD::Iso::IsolationType::ptvarcone40); 
-//        if( iso/m->pt() < 0.05 ) continue;  
-
-        if( m->pt() > ptmax ) { //Select the hardest one
-	    myMuon = m;
-            ptmax = m->pt();
-        }
+         //Select the hardest one 
+         if( myMuon.get() && ( myMuon->pt() > p_corrMu->pt() ) ) { 
+            continue;
+         }
+         
+         myMuon = std::move( p_corrMu);
      }
    }
 
 
-   if( myMuon ) {
+   if( myMuon.get() ) {
         
      float iso_save = -1;
      if( myMuon->isolation( iso_save,  xAOD::Iso::IsolationType::ptvarcone40 )) m_mu_iso = iso_save;
@@ -514,7 +535,6 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
 
      const xAOD::TrackParticle *trackMuon = myMuon->primaryTrackParticle();
      if( trackMuon) m_mu_charge = trackMuon->charge(); 
-
    }  else {
       ATH_MSG_DEBUG("#BTAG# No muon passed the selection. ");
    }     //closes if I have myMuon

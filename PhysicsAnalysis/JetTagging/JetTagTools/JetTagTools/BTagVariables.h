@@ -39,6 +39,7 @@ namespace btagvar {
   static const char* SV1_LXY   = "sv1_Lxy";
   static const char* SV1_L3D   = "sv1_L3d";
   static const char* SV1_SIG3D = "sv1_sig3d";
+  static const char* SV1_DISTMATLAY = "sv1_distmatlay";
   static const char* SV1_PU    = "sv1_pu";
   static const char* SV1_PB    = "sv1_pb";
   static const char* SV1_PC    = "sv1_pc";
@@ -51,8 +52,10 @@ namespace btagvar {
   static const char* JF_NTRKV  = "jf_ntrkAtVx";
   static const char* JF_EFRC   = "jf_efc";
   static const char* JF_MASS   = "jf_m";
+  static const char* JF_MASS_UNCOR   = "jf_m_uncor";
   static const char* JF_N2TV   = "jf_n2t";
-  static const char* JF_DR     = "jf_dRFlightDir";
+  static const char* JF_DR     = "jf_dR";
+  static const char* JF_DR_FLIGHT= "jf_dRFlightDir";
   static const char* JF_DPHI   = "jf_dphi";
   static const char* JF_DETA   = "jf_deta";
   static const char* JF_SIG3D  = "jf_sig3d";
@@ -76,6 +79,21 @@ namespace btagvar {
   static const char* JF_RAPIDITY_MAX      = "MaxTrkRapidity_jf_path";//"jf_trky_max";
   static const char* JF_RAPIDITY_MIN      = "MinTrkRapidity_jf_path";//"jf_trky_min";
   static const char* JF_RAPIDITY_AVG      = "AvgTrkRapidity_jf_path";//"jf_trky_avg";
+
+  static const char* TRKSUM_NTRK   = "trkSum_ntrk";
+  static const char* TRKSUM_SPT    = "trkSum_sPt";
+  static const char* TRKSUM_VPT    = "trkSum_vPt";
+  static const char* TRKSUM_ABSETA = "trkSum_vAbsEta";
+
+  static const char* SM_MU_PT     = "sm_mu_pt";
+  static const char* SM_DR        = "sm_dR";
+  static const char* SM_QOVERP    = "sm_qOverPratio";
+  static const char* SM_MOMBALSIG = "sm_mombalsignif";
+  static const char* SM_SCATNEIGH = "sm_scatneighsignif";
+  static const char* SM_PTREL     = "sm_pTrel";
+  static const char* SM_MU_D0     = "sm_mu_d0";
+  static const char* SM_MU_Z0     = "sm_mu_z0";
+  static const char* SM_ID_QOVERP = "sm_ID_qOverP";
 
 
 }

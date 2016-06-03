@@ -123,6 +123,7 @@ namespace Analysis {
 
   void DL1Tag::build_nn(const std::string& jetauthor, std::istream& nn_config_istream) {
     if (m_NeuralNetworks.count(jetauthor)) {
+      delete m_NeuralNetworks[jetauthor];
       m_map_variables.erase(jetauthor);
       m_map_defaults.erase(jetauthor);
       m_NeuralNetworks.erase(jetauthor);
@@ -133,9 +134,7 @@ namespace Analysis {
       ATH_MSG_WARNING( "#BTAG# b-tagger without b-tagging option 'bottom' - please check the NN output naming convention.");
     }
 
-    std::auto_ptr<lwt::LightweightNeuralNetwork> new_net(new lwt::LightweightNeuralNetwork(nn_config.inputs, nn_config.layers, nn_config.outputs));
-    m_NeuralNetworks.insert(std::make_pair(jetauthor, new_net.get()));
-    new_net.release();
+    m_NeuralNetworks.insert(std::make_pair(jetauthor, new lwt::LightweightNeuralNetwork(nn_config.inputs, nn_config.layers, nn_config.outputs)));
     m_map_variables.insert(std::make_pair(jetauthor, nn_config.inputs));
     m_map_defaults.insert(std::make_pair(jetauthor, nn_config.defaults));
   }

@@ -57,6 +57,7 @@ namespace Analysis {
     declareProperty("inputIP2DSourceName", m_ip2d_infosource = "IP2D");
     declareProperty("inputIP3DSourceName", m_ip3d_infosource = "IP3D");
     declareProperty("inputJFSourceName", m_jftNN_infosource = "JetFitter");
+    declareProperty("inputSoftMuonSourceName", m_softmuon_infosource = "SMT");
   }
 
   StatusCode MultivariateTagManager::initialize()
@@ -91,6 +92,7 @@ namespace Analysis {
   // MultivariateTagManager functions
 
   StatusCode MultivariateTagManager::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+
     std::string jetauthor = JetTagUtils::getJetAuthor(jetToTag); // determine the jet's channel
     ATH_MSG_DEBUG("#BTAG# Jet author: " << jetauthor );
 
@@ -113,15 +115,20 @@ namespace Analysis {
     fill_sv0(inputs, BTag);          // fill sv0 variables
     fill_sv1(inputs, BTag);          // fill sv1 variables
     fill_mvb(inputs, jetToTag, BTag);// fill MVb variables
-    fill_mv2cl100(inputs, BTag);// fill MV2cl100 variables
+    fill_mv2cl100(inputs, BTag); // fill MV2cl100 variables
+    fill_trkSum(inputs,BTag);
+    fill_softmuon(inputs,BTag);
 
     ATH_MSG_DEBUG(" #BTAG# Retrieving of inputs successfull" );
 
     /* ----------------------------------------------------------------------------------- */
     /*       Call all the tag tools specified in m_MultivariateTaggerHandleArray           */
     /* ----------------------------------------------------------------------------------- */
+
     for (auto& itr: m_MultivariateTaggerHandleArray) {
+
       itr->assignProbability(BTag, inputs, jetauthor);
+
     }
 
     ATH_MSG_DEBUG(" #BTAG# Retrieving of output successfull" );
@@ -129,6 +136,66 @@ namespace Analysis {
   }
 
   // fill functions
+  void MultivariateTagManager::fill_softmuon(var_map& inputs, xAOD::BTagging* BTag){
+    float sm_mu_pt           = NAN;
+    float sm_dR              = NAN;
+    float sm_qOverPratio     = NAN;
+    float sm_mombalsignif    = NAN;
+    float sm_scatneighsignif = NAN;
+    float sm_pTrel           = NAN;
+    float sm_mu_d0           = NAN;
+    float sm_mu_z0           = NAN;
+    float sm_ID_qOverP       = NAN;
+
+    BTag->variable<float>(m_softmuon_infosource, "mu_pt"           , sm_mu_pt          );
+    if(sm_mu_pt>0){
+        BTag->variable<float>(m_softmuon_infosource, "dR"              , sm_dR             );
+        BTag->variable<float>(m_softmuon_infosource, "qOverPratio"     , sm_qOverPratio    );
+        BTag->variable<float>(m_softmuon_infosource, "mombalsignif"    , sm_mombalsignif   );
+        BTag->variable<float>(m_softmuon_infosource, "scatneighsignif" , sm_scatneighsignif);
+        BTag->variable<float>(m_softmuon_infosource, "pTrel"           , sm_pTrel          );
+        BTag->variable<float>(m_softmuon_infosource, "mu_d0"           , sm_mu_d0          );
+        BTag->variable<float>(m_softmuon_infosource, "mu_z0"           , sm_mu_z0          );
+        BTag->variable<float>(m_softmuon_infosource, "ID_qOverP"       , sm_ID_qOverP      );
+    }else{
+      sm_mu_pt= NAN;
+    }
+
+    inputs[btagvar::SM_MU_PT]     = sm_mu_pt;
+    inputs[btagvar::SM_DR]        = sm_dR;
+    inputs[btagvar::SM_QOVERP]    = sm_qOverPratio;
+    inputs[btagvar::SM_MOMBALSIG] = sm_mombalsignif;
+    inputs[btagvar::SM_SCATNEIGH] = sm_scatneighsignif;
+    inputs[btagvar::SM_PTREL]     = sm_pTrel;
+    inputs[btagvar::SM_MU_D0]     = sm_mu_d0;
+    inputs[btagvar::SM_MU_Z0]     = sm_mu_z0;
+    inputs[btagvar::SM_ID_QOVERP] = sm_ID_qOverP;
+
+
+  }
+  void MultivariateTagManager::fill_trkSum(var_map& inputs, xAOD::BTagging* BTag){
+    float trkSum_ntrk = NAN;
+    float trkSum_sPt = NAN;
+    float trkSum_vPt = NAN;
+    float trkSum_vAbsEta =NAN;
+
+
+    trkSum_ntrk   = BTag->isAvailable<unsigned>("trkSum_ntrk") ? BTag->auxdata<unsigned>("trkSum_ntrk") : NAN;
+    trkSum_sPt    = BTag->isAvailable<float   >("trkSum_SPt" ) ? BTag->auxdata<float   >("trkSum_SPt" ) : NAN;
+
+    if (!std::isnan(trkSum_ntrk)){
+      trkSum_vPt    = BTag->isAvailable<float>("trkSum_VPt" ) ?      BTag->auxdata<float>("trkSum_VPt" )  : NAN;
+      trkSum_vAbsEta= BTag->isAvailable<float>("trkSum_VEta") ? fabs(BTag->auxdata<float>("trkSum_VEta")) : NAN;
+    }
+
+    inputs[btagvar::TRKSUM_NTRK]   = trkSum_ntrk;
+    inputs[btagvar::TRKSUM_SPT]    = trkSum_sPt;
+    inputs[btagvar::TRKSUM_VPT]    = trkSum_vPt;
+    inputs[btagvar::TRKSUM_ABSETA] = trkSum_vAbsEta;
+
+
+  }
+
   void MultivariateTagManager::fill_jetfitter(var_map& inputs, xAOD::BTagging* BTag) {
     // default values
     int jf_nvtx      = INT_MISSING;
@@ -138,8 +205,10 @@ namespace Analysis {
     float jf_dphi    = NAN;
     float jf_deta    = NAN;
     float jf_dR      = NAN;
+    float jf_dR_flight = NAN;
     float jf_efrc    = NAN;
     float jf_mass    = NAN;
+    float jf_mass_uncor = NAN;
     float jf_sig3d   = NAN;
 
     // check if we have vertices
@@ -183,6 +252,9 @@ namespace Analysis {
       // NOTE: no need to check for NAN here, it should do the right thing
       // http://en.cppreference.com/w/cpp/numeric/math/hypot#Error_handling
       jf_dR = std::hypot(jf_dphi,jf_deta);
+      //new jf variables
+      BTag->variable<float>(m_jftNN_infosource, "massUncorr" , jf_mass_uncor);
+      BTag->variable<float>(m_jftNN_infosource, "dRFlightDir", jf_dR_flight);
     }
     // add variables to input map
     inputs[btagvar::JF_NVTX]   = nan_if_placeholder(jf_nvtx);
@@ -190,9 +262,11 @@ namespace Analysis {
     inputs[btagvar::JF_NTRKV]  = nan_if_placeholder(jf_ntrkAtVx);
     inputs[btagvar::JF_EFRC]   = jf_efrc;
     inputs[btagvar::JF_MASS]   = jf_mass;
+    inputs[btagvar::JF_MASS_UNCOR]   = jf_mass_uncor;
     inputs[btagvar::JF_N2TV]   = nan_if_placeholder(jf_n2tv);
     inputs[btagvar::JF_SIG3D]  = jf_sig3d;
     inputs[btagvar::JF_DR]     = jf_dR;
+    inputs[btagvar::JF_DR_FLIGHT]= jf_dR_flight;
     inputs[btagvar::JF_DPHI]   = jf_dphi;
     inputs[btagvar::JF_DETA]   = jf_deta;
 
@@ -349,6 +423,7 @@ namespace Analysis {
     float sv1_L3d    = NAN;
     float sv1_sig3d  = NAN;
     float sv1_dR     = NAN;
+    float sv1_distmatlay = NAN;
 
     // get vertex information
     bool sv1_ok(false);
@@ -382,6 +457,7 @@ namespace Analysis {
 	BTag->variable<int>(m_sv1_infosource,   "NGTinSvx", sv1_ntrkv);
 	BTag->variable<float>(m_sv1_infosource, "normdist", sv1_sig3d);
       }
+      BTag->variable<float>(m_sv1_infosource, "dstToMatLay" , sv1_distmatlay);
       BTag->variable<float>(m_sv1_infosource, "deltaR", sv1_dR);
       BTag->variable<float>(m_sv1_infosource, "Lxy",    sv1_Lxy);
       BTag->variable<float>(m_sv1_infosource, "L3d",    sv1_L3d);
@@ -407,6 +483,7 @@ namespace Analysis {
     inputs[btagvar::SV1_L3D]   = sv1_L3d;
     inputs[btagvar::SV1_SIG3D] = sv1_sig3d;
     inputs[btagvar::SV1_DR]    = sv1_dR;
+    inputs[btagvar::SV1_DISTMATLAY]    = sv1_distmatlay;
 
     m_sv1_ntkv = nan_if_placeholder(sv1_ntrkv);
     m_sv1_efrc = sv1_efrc;
@@ -415,7 +492,7 @@ namespace Analysis {
   void MultivariateTagManager::fill_mvb(var_map& inputs,xAOD::Jet& jet, xAOD::BTagging* BTag) {
     // Generating MVb variables (as in MV2Tag.cxx)
     std::vector< ElementLink< xAOD::TrackParticleContainer > > IP3DTracks;
-    bool trksOK=IP3DTracks.size();
+    bool trksOK= BTag->variable<std::vector<ElementLink<xAOD::TrackParticleContainer> > > (m_ip3d_infosource, "TrackParticleLinks", IP3DTracks );
 
     // TODO: improve this part?
     std::vector<float> vectD0, vectD0Signi, vectZ0, vectZ0Signi;
@@ -440,6 +517,7 @@ namespace Analysis {
     float trk3_z0sig = NAN;
     float sv_scaled_efc = NAN;
     float jf_scaled_efc = NAN;
+
     if (trksOK) {
       ATH_MSG_VERBOSE("#BTAG# MV2: calculating MVb inputs.");
 
@@ -460,18 +538,20 @@ namespace Analysis {
 	const float z0sig = vectZ0Signi.at(trkIndex);
 	trkIndex++;
 
-	if (std::fabs(d0sig) > 1.8)
+	if (std::fabs(d0sig) > 1.8){
 	  if(n_trk_d0cut==INT_MISSING) n_trk_d0cut = 0;
 	  n_trk_d0cut++;
+  }
 
-	// track width components
-	if (sum_pt==NAN and sum_pt_dr==NAN) {
+  // track width components
+	if (std::isnan(sum_pt) && std::isnan(sum_pt_dr)) {
 	  sum_pt = 0., sum_pt_dr = 0.;
 	}
-	sum_pt += trk.Pt();
+
+
+  sum_pt += trk.Pt();
 	const float dRtoJet = trk.DeltaR(jet.p4());
 	sum_pt_dr += dRtoJet * trk.Pt();
-
 	// for 3rd higest d0/z0 significance
 	trk_d0_z0.push_back(std::make_pair(d0sig, z0sig));
       } //end of trk loop
