@@ -141,7 +141,7 @@ HLT::ErrorCode TrigEFJetHypoNoise::hltExecute(const HLT::TriggerElement* outputT
   }
 
   
-  char flag = 0;
+  unsigned int flag = 0;
   if ( outCells ) {
 	if ( msgDebug ) msg() << MSG::DEBUG << "Got cell container, will process it" << endreq;
 	std::unique_ptr<LArNoisyROSummary> noisyRO = m_noisyROTool->process(outCells);
@@ -157,6 +157,14 @@ HLT::ErrorCode TrigEFJetHypoNoise::hltExecute(const HLT::TriggerElement* outputT
         if ( noisyRO->SatTightFlaggedPartitions() ) {
 	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : SatTightFlaggedPartitions" << endreq;
 	      flag |= 0x2;
+        }
+        if ( noisyRO->MNBLooseFlaggedPartitions() ) {
+	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : MNBLooseFlaggedPartions" << endreq;
+	      flag |= 0x10;
+        }
+        if ( noisyRO->MNBTightFlaggedPartitions() ) {
+	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : MNBTightFlaggedPartions" << endreq;
+	      flag |= 0x20;
         }
   } // end of if outCells
 
