@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloAsymRingsBuilder.cxx 695505 2015-09-17 16:59:37Z wsfreund $
+// $Id: CaloAsymRingsBuilder.cxx 732388 2016-03-25 03:38:54Z ssnyder $
 // =================================================================================
 #include "CaloAsymRingsBuilder.h"
 //#include "CaloRingsBuilder.h"
@@ -46,42 +46,10 @@ CaloAsymRingsBuilder::CaloAsymRingsBuilder(const std::string& type,
   // declare interface
   declareInterface<ICaloRingsBuilder>(this); 
   
-  declareProperty("RingSetContainerName", 
-      m_rsContName = "RingSets",
-      "Name of the RingSets Container");
-
-  declareProperty("CaloRingsContainerName", 
-      m_crContName = "CaloRings",
-      "Name of the CaloRings Container");
-
-  declareProperty("CellsContainerName", m_cellsContName = "AllCalo",
-      "Key to obtain the cell's container");
-
-  // RingSet configuration properties:
-  declareProperty("EtaWidth", m_etaWidth,
-      "Each RingSet ring eta width");
-  declareProperty("PhiWidth", m_phiWidth,
-      "Each RingSet ring phi width");
-  declareProperty("MaxCellDEtaDist", m_maxCellDEtaDist,
-      "Maximum cell distance in eta to seed");
-  declareProperty("MaxCellDPhiDist", m_maxCellDPhiDist,
-      "Maximum cell distance in phi to seed");
-  declareProperty("NRings", m_nRings,
-      "Each RingSet number of rings");
-  declareProperty("Layers", m_layers,
-      "Concatenated list of layers which will be used " 
-      "to build the RingSets");
-  declareProperty("RingSetNLayers", m_nLayers,
-      "Each RingSet number of layers from the Layers "
-      "configurable property to use.");
   declareProperty("DoEtaAxesDivision", m_doEtaAxesDivision = false,
       "Eta Axes can be divide in two.");
   declareProperty("DoPhiAxesDivision", m_doPhiAxesDivision = false,
       "Phi Axes can be divide in two.");
-  // Whether to use layer centers or cluster center:
-  declareProperty("useShowerShapeBarycenter", m_useShowShapeBarycenter = false, 
-      "Switch to use shower barycenter for each layer, "
-      "instead of the cluster center.");
 }
 
 // =====================================================================================
@@ -123,7 +91,7 @@ StatusCode CaloAsymRingsBuilder::initialize()
           m_nRings[rsConfIdx],
           rsLayers,
           m_etaWidth[rsConfIdx], m_phiWidth[rsConfIdx],
-          m_maxCellDEtaDist, m_maxCellDPhiDist,
+          m_cellMaxDEtaDist, m_cellMaxDPhiDist,
           xAOD::RingSetConf::whichLayer(rsLayers),
           xAOD::RingSetConf::whichSection(rsLayers),
           m_doEtaAxesDivision, m_doPhiAxesDivision
@@ -170,9 +138,9 @@ StatusCode CaloAsymRingsBuilder::buildRingSet(
     // cells.select() method needs int as param
     // FIXME This could have its speed improved by selecting only the truly
     // needed window:
-    // If the nRings * eta/phi width is lower than maxCellDEtaDist, then use it
+    // If the nRings * eta/phi width is lower than cellMaxDEtaDist, then use it
     // instead
-    cells.select(seed.eta(), seed.phi(), m_maxCellDEtaDist, m_maxCellDPhiDist, layer ); 
+    cells.select(seed.eta(), seed.phi(), m_cellMaxDEtaDist, m_cellMaxDPhiDist, layer ); 
     for ( const CaloCell *cell : cells ) {
       unsigned int ringNumber(0);
 
@@ -184,9 +152,11 @@ StatusCode CaloAsymRingsBuilder::buildRingSet(
 
       // TODO Add phi asimetry...
       // calculate the normalised difference in phi
-      const float deltaPhi = fabs(
-          m_phiHelper.diff(cell->phi(), seed.phi())
-          ) / rawConf.phiWidth;
+      float deltaPhi = m_phiHelper.diff(cell->phi(), seed.phi());
+
+      bool phiPositive = ( deltaPhi > 0)?true:false;
+      deltaPhi = fabs(deltaPhi)/rawConf.phiWidth;
+
       // The biggest difference indicates the ring number (we are using
       // squared-shape rings)
       const float deltaGreater = std::max(deltaEta, deltaPhi);
@@ -195,9 +165,30 @@ StatusCode CaloAsymRingsBuilder::buildRingSet(
       ringNumber = static_cast<unsigned int>(std::floor(deltaGreater + .5));
 
       // Correct position in which we shall fill the ring:
-      if ( m_doEtaAxesDivision && ringNumber ){
-        ringNumber = (etaPositive)?(ringNumber * 2):
-                                   ((ringNumber * 2) - 1);
+      if ( m_doEtaAxesDivision && m_doPhiAxesDivision && ringNumber ){
+        if (phiPositive){
+          if (etaPositive){
+            ringNumber = (ringNumber * 4) - 3;
+          }
+          else{
+            ringNumber = (ringNumber * 4) - 2;
+          }
+        }
+        else if (etaPositive){
+          ringNumber = (ringNumber * 4) - 1; 
+        }
+        else{
+          ringNumber = (ringNumber * 4);
+        }
+      } else if ((m_doEtaAxesDivision || m_doPhiAxesDivision) && ringNumber){
+        if (m_doEtaAxesDivision){
+          ringNumber = (etaPositive)?(ringNumber * 2):
+                                    ((ringNumber * 2) - 1);
+        }
+        else {
+          ringNumber = (phiPositive)?(ringNumber * 2):
+                                    ((ringNumber * 2) - 1);
+        }
       }
 
       if ( ringNumber < nRings ){

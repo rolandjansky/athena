@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ICaloRingerInputReader.h 667886 2015-05-18 17:26:59Z wsfreund $
+// $Id: ICaloRingerInputReader.h 707325 2015-11-12 02:47:45Z wsfreund $
 #ifndef CALORINGERTOOLS_ICALORINGERINPUTREADER
 #define CALORINGERTOOLS_ICALORINGERINPUTREADER
 
@@ -12,7 +12,7 @@
 
    @author Werner S. Freund <wsfreund@cern.ch>
 
-   $Revision: 667886 $
+   $Revision: 707325 $
    $$$
 */
 
@@ -36,7 +36,7 @@ class ICaloRingerInputReader : virtual public IAlgTool
 
    //typedef std::map< 
    //        const xAOD::IParticle*, 
-   //        const std::unique_ptr< xAOD::CaloRingsELVec > >
+   //        const std::unique_ptr< xAOD::CaloRingsLinks > >
    //    decoMap_t;
 
   /** @brief Virtual destructor*/

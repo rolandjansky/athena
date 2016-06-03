@@ -39,7 +39,7 @@ def getCaloRingerElectronSelectorsBuilder():
     from CaloRingerTools.CaloRingerSelectorsBuilders import CaloRingerElectronSelectorsBuilder
     return CaloRingerElectronSelectorsBuilder().getAllSelectorHandles()
   else:
-    return PublicToolHandleArray()
+    return PublicToolHandleArray([])
 
 def getCaloRingerPhotonSelectorsBuilder():
   "Return the Photon Selectors"
@@ -47,7 +47,7 @@ def getCaloRingerPhotonSelectorsBuilder():
   #  from CaloRingerTools.CaloRingerSelectorsBuilders import CaloRingerPhotonSelectorsBuilder
   #  return CaloRingerPhotonSelectorBuilder().getAllSelectorHandles()
   #else:
-  return PublicToolHandleArray()
+  return PublicToolHandleArray([])
 
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder import checkBuildElectronCaloRings
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder import checkDoElectronIdentification

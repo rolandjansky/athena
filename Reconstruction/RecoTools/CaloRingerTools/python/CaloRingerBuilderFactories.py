@@ -14,8 +14,8 @@ def configureEgammaCaloRings(crBuilder):
   crBuilder.PhiWidth = [0.098174770424681, 0.098174770424681, 0.024543692606170, 
       0.024543692606170, 0.098174770424681, 0.098174770424681, 0.098174770424681]
   crBuilder.NRings = [8, 64, 8, 8, 4, 4, 4]
-  crBuilder.MaxCellDEtaDist = .2
-  crBuilder.MaxCellDPhiDist = .2
+  crBuilder.CellMaxDEtaDist = .2
+  crBuilder.CellMaxDPhiDist = .2
   try:
     import cppyy
   except ImportError:
@@ -48,10 +48,9 @@ def configureElectronCaloRings(crBuilder):
 def configureElectronCaloAsymRings(crBuilder):
   configureEgammaCaloRings(crBuilder)
   crBuilder.DoEtaAxesDivision = True 
-  crBuilder.DoPhiAxesDivision = False
+  crBuilder.DoPhiAxesDivision = True
   # FIXME This should be encapsulated somewhere else...
-  if (crBuilder.DoEtaAxesDivision == True):
-    crBuilder.NRings = [2*rings-1 for rings in crBuilder.NRings]
+  crBuilder.NRings = resizeNRingsAsymRings(crBuilder, crBuilder.DoEtaAxesDivision, crBuilder.DoPhiAxesDivision)
   crBuilder.CaloRingsContainerName = CaloRingerKeys.outputElectronCaloAsymRingsKey()
   crBuilder.RingSetContainerName = CaloRingerKeys.outputElectronAsymRingSetsKey()
 
@@ -63,11 +62,16 @@ def configurePhotonCaloRings(crBuilder):
 def configurePhotonCaloAsymRings(crBuilder):
   configureEgammaCaloRings(crBuilder)
   crBuilder.DoEtaAxesDivision = True  
-  crBuilder.DoPhiAxesDivision = False
-  if (crBuilder.DoEtaAxesDivision == True):
-    crBuilder.NRings = [2*rings-1 for rings in crBuilder.NRings]
+  crBuilder.DoPhiAxesDivision = True 
+  crBuilder.NRings = resizeNRingsAsymRings(crBuilder, crBuilder.DoEtaAxesDivision, crBuilder.DoPhiAxesDivision)
   crBuilder.CaloRingsContainerName = CaloRingerKeys.outputPhotonCaloAsymRingsKey()
   crBuilder.RingSetContainerName = CaloRingerKeys.outputPhotonAsymRingSetsKey()
+
+def resizeNRingsAsymRings(crBuilder,doEtaAxesDivision, doPhiAxesDivision):
+  if ((doEtaAxesDivision == True) and (doPhiAxesDivision == True)):
+    return [(rings-1)*4+1 for rings in crBuilder.NRings]
+  else:
+    return [(rings-1)*2+1 for rings in crBuilder.NRings]
 
 ElectronCaloRingsBuilder = ToolFactory(CaloRingerToolsConf.Ringer__CaloRingsBuilder,
   name = "ElectronCaloRingsBuilder",

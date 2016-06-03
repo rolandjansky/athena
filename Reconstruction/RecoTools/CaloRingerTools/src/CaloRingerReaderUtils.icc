@@ -2,11 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingerReaderUtils.icc 670609 2015-05-28 14:45:21Z wsfreund $
+// $Id: CaloRingerReaderUtils.icc 732386 2016-03-25 03:21:48Z ssnyder $
 #ifndef CALORINGERTOOLS_CALORINGERREADERUTILS_ICC
 #define CALORINGERTOOLS_CALORINGERREADERUTILS_ICC
-
-#include "CaloRingerReaderUtils.h"
 
 #include <vector>
 #include <exception>
@@ -34,9 +32,9 @@ void BuildCaloRingsFctor<particle_t>::displayLoopingMessage() const {
     std::string str = ((m_particle_has_cluster)?" (with cluster access) ":
                                                 " (without cluster access) ");
     m_msg << MSG::DEBUG << " ---------- Reading " 
-        << m_particle_name << str
+        << m_particle_name << str << " candidate"
         << ++this->m_part_counter << "/" << this->m_part_size
-        << " candidate ----------- " << endreq;
+        << " ----------- " << endreq;
   }
 }
 
@@ -53,12 +51,12 @@ void BuildCaloRingsFctor<particle_t>::operator() ( particle_t *part ) const
     part->caloClusterLinks();
 
   // Make CaloRings ElementLink Holder:
-  xAOD::CaloRingsELVec clRingsELVec;
+  xAOD::CaloRingsLinks clRingsLinks;
 
   if ( m_particle_has_cluster ) {
     // We'll assume to have one CaloRings for each cluster, reserve memory for
     // it:
-    clRingsELVec.reserve( clustersLinks.size() );
+    clRingsLinks.reserve( clustersLinks.size() );
 
     unsigned int cl_counter = 0;
 
@@ -76,7 +74,7 @@ void BuildCaloRingsFctor<particle_t>::operator() ( particle_t *part ) const
       }
 
       // Push it back:
-      clRingsELVec.push_back( ringsEL );
+      clRingsLinks.push_back( ringsEL );
 
     }
 
@@ -90,11 +88,11 @@ void BuildCaloRingsFctor<particle_t>::operator() ( particle_t *part ) const
     }
 
     // Push it back:
-    clRingsELVec.push_back( ringsEL );
+    clRingsLinks.push_back( ringsEL );
   }
 
   // Decorate particle with CaloRings:
-  xAOD::getCaloRingsDecorator()->operator()( *part ) = clRingsELVec;
+  xAOD::getCaloRingsDecorator()->operator()( *part ) = clRingsLinks;
 
 }
 

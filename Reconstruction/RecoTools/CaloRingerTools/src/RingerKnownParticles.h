@@ -2,15 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerKnownParticles.h 670609 2015-05-28 14:45:21Z wsfreund $
+// $Id: RingerKnownParticles.h 732386 2016-03-25 03:21:48Z ssnyder $
 #ifndef CALORINGERTOOLS_RINGERKNOWNPARTICLES_H
 #define CALORINGERTOOLS_RINGERKNOWNPARTICLES_H
 
+#if 0
 #ifndef INCLUDE_HEADER_ONLY
 #define INCLUDE_HEADER_ONLY
 #endif
 #include "CaloRingerReaderUtils.h"
 #undef INCLUDE_HEADER_ONLY
+#endif
 
 // Add the particles
 #include "xAODEgamma/Electron.h"

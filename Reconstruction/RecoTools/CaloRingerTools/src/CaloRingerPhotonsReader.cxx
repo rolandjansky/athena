@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingerPhotonsReader.cxx 667886 2015-05-18 17:26:59Z wsfreund $
+// $Id: CaloRingerPhotonsReader.cxx 752569 2016-06-03 16:03:26Z ssnyder $
 // =============================================================================
 #include "CaloRingerPhotonsReader.h"
 
@@ -15,7 +15,9 @@ CaloRingerPhotonsReader::CaloRingerPhotonsReader(const std::string& type,
                                  const std::string& name,
                                  const ::IInterface* parent)
   : CaloRingerInputReader(type, name, parent),
-  m_clRingsBuilderPhotonFctor(0)
+    m_container(nullptr),
+    m_clRingsBuilderPhotonFctor(0)
+    //m_selectorAvailable(false)
 {
 
   // declare interface
