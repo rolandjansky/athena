@@ -45,11 +45,13 @@ namespace dqutils {
     
     std::vector<std::string> coll_dir_label;
     //coll_dir_label.push_back("ConvertedMBoySegments");
-    coll_dir_label.push_back("MooreSegments");
+    //coll_dir_label.push_back("MooreSegments");
+    coll_dir_label.push_back("MuonSegments");
 
     std::vector<std::string> coll_hist_label;
     //coll_hist_label.push_back("MuBoy");
-    coll_hist_label.push_back("Moore");
+    //coll_hist_label.push_back("Moore");
+    coll_hist_label.push_back("Muon");
 
     f->cd("/");
     TIter next_run ( f->GetListOfKeys() );
@@ -60,8 +62,8 @@ namespace dqutils {
       if (!run_dir.Contains("run") )  { continue;}
 
       std::string run_dir2 = run_dir.Data();
-      int run_number = atoi( (run_dir2.substr(4, run_dir2.size()-4 )).c_str() );
-      run_number=run_number;
+      //int run_number = atoi( (run_dir2.substr(4, run_dir2.size()-4 )).c_str() );
+      //run_number=run_number;
 
       for(std::size_t iec = 0; iec < endc_label.size(); iec++){
         for(std::size_t icoll = 0; icoll < coll_dir_label.size(); icoll++){

@@ -80,6 +80,7 @@ public:
   virtual bool drawReference(TCanvas* canv,TH1* hRef,TH1 *h,std::string &drawopt,std::string &display,std::string& AlgoName);
   // virtual bool drawGraph(TCanvas* canv,TGraph* g,std::string &drawopt,std::string &display);
   virtual void ratioplot(TCanvas* myC_main ,TH1* h,TH1* href,std::string str);
+  virtual void ratioplot2D(TCanvas* canvas, TH2* h2, TH2* h2Ref, std::string display);
   virtual void attachFits(TH1* hist,std::string &drawopt,std::string &display);
 
   virtual void setupCanvas(std::string &drawopt,std::string &display);

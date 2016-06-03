@@ -67,11 +67,12 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	std::string dir_sum_raw    = pathRawMon   + "Summary/"  ;
 	std::string dir_dqmf_raw   = pathRawMon   + "Dqmf/"     ;
 	
-  	std::string dir_sideA_track = pathTrackMon + "RPCBA/"    ;
-  	std::string dir_sideC_track = pathTrackMon + "RPCBC/"    ;
-  	std::string dir_glob_track  = pathTrackMon + "GLOBAL/"   ;
-	std::string dir_sum_track   = pathTrackMon + "Summary/"  ;
-	std::string dir_dqmf_track  = pathTrackMon + "Dqmf/"     ;
+  	std::string dir_sideA_track    = pathTrackMon + "RPCBA/"             ;
+  	std::string dir_sideC_track    = pathTrackMon + "RPCBC/"             ;
+  	std::string dir_glob_track     = pathTrackMon + "GLOBAL/"            ;
+	std::string dir_sum_track      = pathTrackMon + "Summary/"           ;
+	std::string dir_dqmf_track     = pathTrackMon + "Dqmf/"              ;
+	std::string dir_trigger_track  = pathTrackMon + "TriggerEfficiency/" ;
 	
 	double n_hit_f, n_tr_p, panel_eff, panel_err_eff;
 	double nEta, nPhi, nEtaPhi, gapEff=0.0, gapErrEff=0.0;
@@ -83,7 +84,289 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	double noiseTot,  noiseTotErr  ;
 	double noiseErrNorm ;
 	
+	// trigger efficiency
+	std::string METracks_name   = dir_trigger_track   + "hMEtracks"            ; 
+	std::string MuctpiThr0_name = dir_trigger_track   + "hRPCMuctpiThr0"       ; 
+	std::string MuctpiThr1_name = dir_trigger_track   + "hRPCMuctpiThr1"       ; 
+	std::string MuctpiThr2_name = dir_trigger_track   + "hRPCMuctpiThr2"       ; 
+	std::string MuctpiThr3_name = dir_trigger_track   + "hRPCMuctpiThr3"       ; 
+	std::string MuctpiThr4_name = dir_trigger_track   + "hRPCMuctpiThr4"       ; 
+	std::string MuctpiThr5_name = dir_trigger_track   + "hRPCMuctpiThr5"       ; 
+	std::string PadThr0_name = dir_trigger_track   + "hRPCPadThr0"       ; 
+	std::string PadThr1_name = dir_trigger_track   + "hRPCPadThr1"       ; 
+	std::string PadThr2_name = dir_trigger_track   + "hRPCPadThr2"       ; 
+	std::string PadThr3_name = dir_trigger_track   + "hRPCPadThr3"       ; 
+	std::string PadThr4_name = dir_trigger_track   + "hRPCPadThr4"       ; 
+	std::string PadThr5_name = dir_trigger_track   + "hRPCPadThr5"       ; 
+	std::string PhiEtaCoinThr0_name = dir_trigger_track   + "hRPCPhiEtaCoinThr0"       ; 
+	std::string PhiEtaCoinThr1_name = dir_trigger_track   + "hRPCPhiEtaCoinThr1"       ; 
+	std::string PhiEtaCoinThr2_name = dir_trigger_track   + "hRPCPhiEtaCoinThr2"       ; 
+	std::string PhiEtaCoinThr3_name = dir_trigger_track   + "hRPCPhiEtaCoinThr3"       ; 
+	std::string PhiEtaCoinThr4_name = dir_trigger_track   + "hRPCPhiEtaCoinThr4"       ; 
+	std::string PhiEtaCoinThr5_name = dir_trigger_track   + "hRPCPhiEtaCoinThr5"       ; 
 	
+	std::string MuctpiThr_eff0_name = dir_trigger_track   + "hRPCMuctpiThr_eff0"       ; 
+	std::string MuctpiThr_eff1_name = dir_trigger_track   + "hRPCMuctpiThr_eff1"       ; 
+	std::string MuctpiThr_eff2_name = dir_trigger_track   + "hRPCMuctpiThr_eff2"       ; 
+	std::string MuctpiThr_eff3_name = dir_trigger_track   + "hRPCMuctpiThr_eff3"       ; 
+	std::string MuctpiThr_eff4_name = dir_trigger_track   + "hRPCMuctpiThr_eff4"       ; 
+	std::string MuctpiThr_eff5_name = dir_trigger_track   + "hRPCMuctpiThr_eff5"       ; 
+	std::string PadThr_eff0_name = dir_trigger_track   + "hRPCPadThr_eff0"       ; 
+	std::string PadThr_eff1_name = dir_trigger_track   + "hRPCPadThr_eff1"       ; 
+	std::string PadThr_eff2_name = dir_trigger_track   + "hRPCPadThr_eff2"       ; 
+	std::string PadThr_eff3_name = dir_trigger_track   + "hRPCPadThr_eff3"       ; 
+	std::string PadThr_eff4_name = dir_trigger_track   + "hRPCPadThr_eff4"       ; 
+	std::string PadThr_eff5_name = dir_trigger_track   + "hRPCPadThr_eff5"       ; 
+	std::string PhiEtaCoinThr_eff0_name = dir_trigger_track   + "hRPCPhiEtaCoinThr_eff0"       ; 
+	std::string PhiEtaCoinThr_eff1_name = dir_trigger_track   + "hRPCPhiEtaCoinThr_eff1"       ; 
+	std::string PhiEtaCoinThr_eff2_name = dir_trigger_track   + "hRPCPhiEtaCoinThr_eff2"       ; 
+	std::string PhiEtaCoinThr_eff3_name = dir_trigger_track   + "hRPCPhiEtaCoinThr_eff3"       ; 
+	std::string PhiEtaCoinThr_eff4_name = dir_trigger_track   + "hRPCPhiEtaCoinThr_eff4"       ; 
+	std::string PhiEtaCoinThr_eff5_name = dir_trigger_track   + "hRPCPhiEtaCoinThr_eff5"       ; 
+ 
+ 	
+	if ( RPCCheckHistogram(f,METracks_name.c_str()) && RPCCheckHistogram(f,MuctpiThr0_name.c_str()) && RPCCheckHistogram(f,MuctpiThr_eff0_name.c_str())) {
+	
+ 	 
+	  TH1I* hist_METracks   = (TH1I*)(f->Get( METracks_name.c_str()));
+	  TH1I* hist_MuctpiThr0 = (TH1I*)(f->Get( MuctpiThr0_name.c_str()));
+	  TH1I* hist_MuctpiThr1 = (TH1I*)(f->Get( MuctpiThr1_name.c_str()));
+	  TH1I* hist_MuctpiThr2 = (TH1I*)(f->Get( MuctpiThr2_name.c_str()));
+	  TH1I* hist_MuctpiThr3 = (TH1I*)(f->Get( MuctpiThr3_name.c_str()));
+	  TH1I* hist_MuctpiThr4 = (TH1I*)(f->Get( MuctpiThr4_name.c_str()));
+	  TH1I* hist_MuctpiThr5 = (TH1I*)(f->Get( MuctpiThr5_name.c_str()));
+	  TH1I* hist_PadThr0 = (TH1I*)(f->Get( PadThr0_name.c_str()));
+	  TH1I* hist_PadThr1 = (TH1I*)(f->Get( PadThr1_name.c_str()));
+	  TH1I* hist_PadThr2 = (TH1I*)(f->Get( PadThr2_name.c_str()));
+	  TH1I* hist_PadThr3 = (TH1I*)(f->Get( PadThr3_name.c_str()));
+	  TH1I* hist_PadThr4 = (TH1I*)(f->Get( PadThr4_name.c_str()));
+	  TH1I* hist_PadThr5 = (TH1I*)(f->Get( PadThr5_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr0 = (TH1I*)(f->Get( PhiEtaCoinThr0_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr1 = (TH1I*)(f->Get( PhiEtaCoinThr1_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr2 = (TH1I*)(f->Get( PhiEtaCoinThr2_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr3 = (TH1I*)(f->Get( PhiEtaCoinThr3_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr4 = (TH1I*)(f->Get( PhiEtaCoinThr4_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr5 = (TH1I*)(f->Get( PhiEtaCoinThr5_name.c_str()));
+	  TH1I* hist_MuctpiThr_eff0 = (TH1I*)(f->Get( MuctpiThr_eff0_name.c_str()));
+	  TH1I* hist_MuctpiThr_eff1 = (TH1I*)(f->Get( MuctpiThr_eff1_name.c_str()));
+	  TH1I* hist_MuctpiThr_eff2 = (TH1I*)(f->Get( MuctpiThr_eff2_name.c_str()));
+	  TH1I* hist_MuctpiThr_eff3 = (TH1I*)(f->Get( MuctpiThr_eff3_name.c_str()));
+	  TH1I* hist_MuctpiThr_eff4 = (TH1I*)(f->Get( MuctpiThr_eff4_name.c_str()));
+	  TH1I* hist_MuctpiThr_eff5 = (TH1I*)(f->Get( MuctpiThr_eff5_name.c_str()));
+	  TH1I* hist_PadThr_eff0 = (TH1I*)(f->Get( PadThr_eff0_name.c_str()));
+	  TH1I* hist_PadThr_eff1 = (TH1I*)(f->Get( PadThr_eff1_name.c_str()));
+	  TH1I* hist_PadThr_eff2 = (TH1I*)(f->Get( PadThr_eff2_name.c_str()));
+	  TH1I* hist_PadThr_eff3 = (TH1I*)(f->Get( PadThr_eff3_name.c_str()));
+	  TH1I* hist_PadThr_eff4 = (TH1I*)(f->Get( PadThr_eff4_name.c_str()));
+	  TH1I* hist_PadThr_eff5 = (TH1I*)(f->Get( PadThr_eff5_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr_eff0 = (TH1I*)(f->Get( PhiEtaCoinThr_eff0_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr_eff1 = (TH1I*)(f->Get( PhiEtaCoinThr_eff1_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr_eff2 = (TH1I*)(f->Get( PhiEtaCoinThr_eff2_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr_eff3 = (TH1I*)(f->Get( PhiEtaCoinThr_eff3_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr_eff4 = (TH1I*)(f->Get( PhiEtaCoinThr_eff4_name.c_str()));
+	  TH1I* hist_PhiEtaCoinThr_eff5 = (TH1I*)(f->Get( PhiEtaCoinThr_eff5_name.c_str()));
+	
+	  int nb = hist_METracks->GetNbinsX() ;
+	  double  Ly_eff, Ly_effErr ;
+	  for ( int ib=0; ib!=nb; ib++ ) {
+	     float n_Ly_hitOn = hist_MuctpiThr0->GetBinContent(ib+1) ;  
+	     float n_Ly_TrPrj = hist_METracks  ->GetBinContent(ib+1) ;
+	     
+	     
+	     if ( n_Ly_TrPrj >0 ) {
+	       //MuctpiThr0
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  		   sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		   sqrt( n_Ly_TrPrj ) ;
+	       hist_MuctpiThr_eff0->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_MuctpiThr_eff0->SetBinError  (ib+1, Ly_effErr) ;
+	    
+	       //MuctpiThr1
+	       n_Ly_hitOn = hist_MuctpiThr1->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_MuctpiThr_eff1->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_MuctpiThr_eff1->SetBinError  (ib+1, Ly_effErr) ;
+	       //MuctpiThr2
+	       n_Ly_hitOn = hist_MuctpiThr2->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_MuctpiThr_eff2->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_MuctpiThr_eff2->SetBinError  (ib+1, Ly_effErr) ;
+	       //MuctpiThr3
+	       n_Ly_hitOn = hist_MuctpiThr3->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_MuctpiThr_eff3->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_MuctpiThr_eff3->SetBinError  (ib+1, Ly_effErr) ;
+	       //MuctpiThr4
+	       n_Ly_hitOn = hist_MuctpiThr4->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_MuctpiThr_eff4->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_MuctpiThr_eff4->SetBinError  (ib+1, Ly_effErr) ;
+	       //MuctpiThr5
+	       n_Ly_hitOn = hist_MuctpiThr5->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_MuctpiThr_eff5->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_MuctpiThr_eff5->SetBinError  (ib+1, Ly_effErr) ;
+	       //PadThr0
+	       n_Ly_hitOn = hist_PadThr0->GetBinContent(ib+1) ;
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  		   sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		   sqrt( n_Ly_TrPrj ) ;
+	       hist_PadThr_eff0->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PadThr_eff0->SetBinError  (ib+1, Ly_effErr) ;
+	       //PadThr1
+	       n_Ly_hitOn = hist_PadThr1->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PadThr_eff1->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PadThr_eff1->SetBinError  (ib+1, Ly_effErr) ;
+	       //PadThr2
+	       n_Ly_hitOn = hist_PadThr2->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PadThr_eff2->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PadThr_eff2->SetBinError  (ib+1, Ly_effErr) ;
+	       //PadThr3
+	       n_Ly_hitOn = hist_PadThr3->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PadThr_eff3->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PadThr_eff3->SetBinError  (ib+1, Ly_effErr) ;
+	       //PadThr4
+	       n_Ly_hitOn = hist_PadThr4->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PadThr_eff4->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PadThr_eff4->SetBinError  (ib+1, Ly_effErr) ;
+	       //PadThr5
+	       n_Ly_hitOn = hist_PadThr5->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PadThr_eff5->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PadThr_eff5->SetBinError  (ib+1, Ly_effErr) ;
+	       //PhiEtaCoinThr0
+	       n_Ly_hitOn = hist_PhiEtaCoinThr0->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  		   sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		   sqrt( n_Ly_TrPrj ) ;
+	       hist_PhiEtaCoinThr_eff0->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PhiEtaCoinThr_eff0->SetBinError  (ib+1, Ly_effErr) ;
+	       //PhiEtaCoinThr1
+	       n_Ly_hitOn = hist_PhiEtaCoinThr1->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PhiEtaCoinThr_eff1->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PhiEtaCoinThr_eff1->SetBinError  (ib+1, Ly_effErr) ;
+	       //PhiEtaCoinThr2
+	       n_Ly_hitOn = hist_PhiEtaCoinThr2->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PhiEtaCoinThr_eff2->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PhiEtaCoinThr_eff2->SetBinError  (ib+1, Ly_effErr) ;
+	       //PhiEtaCoinThr3
+	       n_Ly_hitOn = hist_PhiEtaCoinThr3->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PhiEtaCoinThr_eff3->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PhiEtaCoinThr_eff3->SetBinError  (ib+1, Ly_effErr) ;
+	       //PhiEtaCoinThr4
+	       n_Ly_hitOn = hist_PhiEtaCoinThr4->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PhiEtaCoinThr_eff4->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PhiEtaCoinThr_eff4->SetBinError  (ib+1, Ly_effErr) ;
+	       //PhiEtaCoinThr5
+	       n_Ly_hitOn = hist_PhiEtaCoinThr5->GetBinContent(ib+1) ;  
+	       Ly_eff    = float(n_Ly_hitOn)/float(n_Ly_TrPrj);
+	       
+	       Ly_effErr = sqrt( fabs( n_Ly_hitOn) / n_Ly_TrPrj ) *
+	  	 	    sqrt( 1. - fabs( n_Ly_hitOn) / n_Ly_TrPrj ) /
+	  		    sqrt( n_Ly_TrPrj ) ;
+	       hist_PhiEtaCoinThr_eff5->SetBinContent(ib+1, Ly_eff)    ;
+	       hist_PhiEtaCoinThr_eff5->SetBinError  (ib+1, Ly_effErr) ;
+	     }
+	     
+	     
+	            
+	  }
+	
+	  // write out histogram
+	  TDirectory* dir = f->GetDirectory( dir_trigger_track.c_str() ) ;  
+	  if ( dir != 0 ) {
+	    dir->cd() ;
+	    hist_MuctpiThr_eff0->Write("",TObject::kOverwrite);
+	    hist_MuctpiThr_eff1->Write("",TObject::kOverwrite);
+	    hist_MuctpiThr_eff2->Write("",TObject::kOverwrite);
+	    hist_MuctpiThr_eff3->Write("",TObject::kOverwrite);
+	    hist_MuctpiThr_eff4->Write("",TObject::kOverwrite);
+	    hist_MuctpiThr_eff5->Write("",TObject::kOverwrite);
+	    hist_PadThr_eff0->Write("",TObject::kOverwrite);
+	    hist_PadThr_eff1->Write("",TObject::kOverwrite);
+	    hist_PadThr_eff2->Write("",TObject::kOverwrite);
+	    hist_PadThr_eff3->Write("",TObject::kOverwrite);
+	    hist_PadThr_eff4->Write("",TObject::kOverwrite);
+	    hist_PadThr_eff5->Write("",TObject::kOverwrite);
+	    hist_PhiEtaCoinThr_eff0->Write("",TObject::kOverwrite);
+	    hist_PhiEtaCoinThr_eff1->Write("",TObject::kOverwrite);
+	    hist_PhiEtaCoinThr_eff2->Write("",TObject::kOverwrite);
+	    hist_PhiEtaCoinThr_eff3->Write("",TObject::kOverwrite);
+	    hist_PhiEtaCoinThr_eff4->Write("",TObject::kOverwrite);
+	    hist_PhiEtaCoinThr_eff5->Write("",TObject::kOverwrite);
+	  }
+	}
+
 	
 	// layer efficiency
 	std::string LyHit_name, LyPrj_name, LyEff_name ;
@@ -316,12 +599,15 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	if ( h_AverageTime_A	       ) h_AverageTime_A  	  ->Reset() ;
 	 
 	// summary plots
+	int countpanelindb = 0 ;
+	int countpaneleff0 = 0 ;
+	int countpaneltrack0 = 0 ;
 	for (int i_sec=0; i_sec!=15+1; i_sec++) {
 	  char sector_char[100]   ;
 	  std::string sector_name ;
           sprintf(sector_char,"_Sector%.2d",i_sec+1) ;  // sector number with 2 digits
           sector_name = sector_char ;
-	  //std::cout << " sector_name   "<< sector_name<<std::endl;
+	  std::cout << " RPC sector_name processing  "<< sector_name<<std::endl;
 	  
 	  std::string TrackProj_name		  	= dir_sum_track + "SummaryTrackProj"  		  	+ sector_name ;
 	  std::string HitOnTrack_name		  	= dir_sum_track + "SummaryHitOnTrack" 		  	+ sector_name ;
@@ -404,7 +690,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	  TH1F* h_Time_square         	  = NULL;
 	  TH1F* h_Occupancy           	  = NULL;
 	  TH1F* h_Occupancy_s          	  = NULL;
-	  TH1I* h_PanelId		  = NULL;
+	  TH1F* h_PanelId		  = NULL;
 	  
 	  TH1F* h_EffSecDist	          = NULL;
 	  TH1F* h_GapEffSecDist	          = NULL;
@@ -452,7 +738,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	  if ( RPCCheckHistogram( f, Time_square_name.c_str() 		) ){ h_Time_square  	      = (TH1F*) ( f->Get( Time_square_name.c_str()	      ) );}
 	  if ( RPCCheckHistogram( f, Occupancy_name.c_str()  		) ){ h_Occupancy   	      = (TH1F*) ( f->Get( Occupancy_name.c_str()	      ) );}
 	  if ( RPCCheckHistogram( f, Occupancy_s_name.c_str()  		) ){ h_Occupancy_s   	      = (TH1F*) ( f->Get( Occupancy_s_name.c_str()	      ) );}
-	  if ( RPCCheckHistogram( f, PanelId_name.c_str()               ) ){ h_PanelId                = (TH1I*) ( f->Get( PanelId_name.c_str()                ) );}
+	  if ( RPCCheckHistogram( f, PanelId_name.c_str()               ) ){ h_PanelId                = (TH1F*) ( f->Get( PanelId_name.c_str()                ) );}
 	  
 	  if ( RPCCheckHistogram( f, EffSecDist_name.c_str()	     	) ){ h_EffSecDist	      = (TH1F*) ( f->Get( EffSecDist_name.c_str()	      ) );}   
 	  if ( RPCCheckHistogram( f, GapEffSecDist_name.c_str()       	) ){ h_GapEffSecDist	      = (TH1F*) ( f->Get( GapEffSecDist_name.c_str()	      ) );}  
@@ -491,8 +777,8 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	      n_hit_f = h_HitOnTrack -> GetBinContent(ib+1) ;
 	      n_tr_p  = h_TrackProj  -> GetBinContent(ib+1) ;
 	      
-	     if ( n_tr_p>50 ) {    
-	      if ( n_hit_f!=0) { panel_eff = n_hit_f/n_tr_p ; }
+	     //if ( n_tr_p>50 ) {    
+	      if ( n_tr_p!=0) { panel_eff = n_hit_f/n_tr_p ; }
 	      else { panel_eff=0. ; }
 	      if ( n_tr_p!=0 ) {
 	        panel_err_eff = sqrt( fabs(n_hit_f)/n_tr_p ) *
@@ -505,7 +791,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	      if ( h_EffSecDist ) h_EffSecDist->Fill(panel_eff) ;
 	      if ( ib>( h_TrackProj->GetNbinsX()/2 ) ) { if ( h_AverageEff_A ) h_AverageEff_A->Fill(panel_eff) ; } 
 	      else                                     { if ( h_AverageEff_C ) h_AverageEff_C->Fill(panel_eff) ; }
-	    }
+	    //}
 	  }
 	    // write out histogram
 	    TDirectory* dir = f->GetDirectory( dir_sum_track.c_str() ) ;
@@ -534,7 +820,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	      nEtaPhi = h_HitOnTrackCross->GetBinContent( ib+1	      ) ;
 	      n_tr_p  = h_TrackProj      ->GetBinContent( ib+1        ) ;
 	      
-	      if ( n_tr_p>50 ) { 
+	      if ( n_tr_p>0 ) { 
 	        gapEff    = (nEta+nPhi-nEtaPhi) / n_tr_p  ; 
                 //std::cout << " gapEff " << gapEff <<"  nEta  "<<nEta<<"  nPhi  "<<nPhi<< "  nEtaPhi  "<<nEtaPhi <<"  n_tr_p  "<<n_tr_p <<std::endl;
 	
@@ -543,10 +829,10 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 		            sqrt( n_tr_p ) ;
                 //std::cout <<"sqrt( fabs( nEta+nPhi-nEtaPhi -0.5)/n_tr_p )"<<sqrt( fabs( nEta+nPhi-nEtaPhi -0.5)/n_tr_p )<<"sqrt( 1. - fabs( nEta+nPhi-nEtaPhi -0.5)/n_tr_p )"<<sqrt( 1. - fabs( nEta+nPhi-nEtaPhi -0.5)/n_tr_p )<< " gapErrEff " << gapErrEff <<std::endl;
               }
-	      //else  { 
-	      //  gapEff    = 0.; 
-	      //  gapErrEff = 0.;
-              //}
+	      else  { 
+	        gapEff    = 0.; 
+	        gapErrEff = 0.;
+              }
 	      h_GapEff -> SetBinContent(ib+1, gapEff    );
 	      h_GapEff -> SetBinError  (ib+1, gapErrEff );
 	      if ( h_GapEffSecDist ) h_GapEffSecDist->Fill(gapEff);
@@ -817,7 +1103,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
            float errcl_sizeeta     = -1; 	  float errcl_sizephi	  =-1;  	 char m_errcl_sizeeta	  [10];      char m_errcl_sizephi     [10];	    
   		
 	 
-	   int   PannelCode   = 0;
+	   int   PanelCode   = 0;
 	   int   Binposition   = 0;
 	   int   TableVersion = 1;     //Version of Cool Table Formatting according with Andrea Di Simone Table
 	   int   n_tr_peta    = 0;     //Number of eta tracks reconstructed on a gas volume
@@ -831,8 +1117,8 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	   int nbin = 0;
 	   if ( h_Eff ) nbin = h_Eff ->GetNbinsX() ;
 	   for(int ibin=1 ; ibin!=nbin+1 ; ibin++){
-	    if ( h_PanelId )PannelCode = (int)h_PanelId-> GetBinContent(ibin) ;
-	    if(PannelCode ==0)continue;
+	    if ( h_PanelId )PanelCode = (int)h_PanelId-> GetBinContent(ibin) ;
+	    if(PanelCode ==0)continue;
   	     if(ibin%2==0){ 
 	     
 	      if (h_TrackProj) n_tr_pphi  =(int)h_TrackProj   -> GetBinContent(ibin) ;
@@ -877,7 +1163,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	      if ( h_CS 	)errcl_sizeeta       = h_CS		 ->GetBinError  (ibin) ;      sprintf(m_errcl_sizeeta	 ,    "%f ", errcl_sizeeta     ) ;   m_errcl_sizeeta	[5]   =0;	     
 	     
 	    
-              //std::cout<<"PannelCode  "<<PannelCode<<" etaprimo "<<"\n";
+              //std::cout<<"PanelCode  "<<PanelCode<<" etaprimo "<<"\n";
  
 	      char recEta   [4000]; //eff_eta, res_cs1, res_cs2, res_csother, time, mean and rms
 	      char detEta   [4000]; //noise, noise_corr, cs, mean and rms
@@ -891,15 +1177,17 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	      sprintf(recPhi2, "%s %s %s %s %s ", m_erreffphi, m_errresphi_cs1, m_errresphi_cs2, m_errresphi_csother, m_errtimephi) ;  
 	      sprintf(detPhi1, "%s %s %s %s %s %s ", m_noisephi, m_errnoisephi, m_noisephi_cor, m_errnoisephi_cor, m_cl_sizephi, m_errcl_sizephi) ;  
 	      sprintf(detPhi2, "0 ") ;  
- 	      std::string cool_tag="Reco";
- 	      coolrpc.insert_withTag(run_number,PannelCode,recEta,detEta,recPhi1,recPhi2,detPhi1,detPhi2, cool_tag);			    
+ 	      std::string cool_tag="Reco";		        
+              coolrpc.setSince(0U,0U);		
+              coolrpc.setUntil(4294967295U,0U);	
+ 	      coolrpc.insert_withTag(run_number*0+429496729U,PanelCode,recEta,detEta,recPhi1,recPhi2,detPhi1,detPhi2, cool_tag);			    
 	     }
 	    }
 	   
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 	   
-            int   TableVersionCondDB  = 1 ;         //RPC conditionDB table versioning
+            int   TableVersionCondDB  = 2 ;         //RPC conditionDB table versioning
 	    float effeleeta           = -9999;	       char m_effeleeta 	 [10];  	   
             float erreffeleeta        = -1;	       char m_erreffeleeta	 [10];  	   
             float effelephi	      = -9999;	       char m_effelephi 	 [10];
@@ -942,11 +1230,11 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 		sprintf(coolName, "Sector%.2d_%s_dblPhi%d", i_sec+1, (*iter).c_str(), i_dblPhi+1 );
 		std::string stripId_name       = dir_cool_raw + coolName + "_PanelId" ;
 	        std::string stripProfile_name  = dir_cool_raw + coolName + "_Profile" ;
-		
-		TH1I* h_stripId      = NULL;
+		//std::cout <<stripProfile_name << std::endl;
+		TH1F* h_stripId      = NULL;
 	        TH1F* h_stripProfile = NULL;
 	        
-		if ( RPCCheckHistogram(f, stripId_name.c_str()      ) ) { h_stripId      = (TH1I*) ( f->Get(stripId_name.c_str())      );} 
+		if ( RPCCheckHistogram(f, stripId_name.c_str()      ) ) { h_stripId      = (TH1F*) ( f->Get(stripId_name.c_str())      );} 
 		if ( RPCCheckHistogram(f, stripProfile_name.c_str() ) ) { h_stripProfile = (TH1F*) ( f->Get(stripProfile_name.c_str()) );} 
 		
 		if ( h_stripId && h_stripProfile ) {
@@ -965,30 +1253,32 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 		    if (StripOccupancy>0   && StripOccupancy<0.9) SingleStripsValue=5;
 		    if (StripOccupancy>0.9) SingleStripsValue=9;
 		    		    
-		    sprintf(SingleStripsStatus, "%d", SingleStripsValue );
+		    if(h_stripId-> GetBinCenter(Nstrips) > 0){ 
+		     sprintf(SingleStripsStatus, "%d 000.0 0.000|", SingleStripsValue );
+		    }else{ 
+		     sprintf(SingleStripsStatus, "|000.0 0.000 %d", SingleStripsValue );
+		    }
 		    PanelStripsStatus = PanelStripsStatus + SingleStripsStatus;
 		    
 		    
 
-		    if((int)h_stripId -> GetBinContent(Nstrips)==(int)h_stripId  -> GetBinContent(Nstrips+1))StripsOnPanel++;
-		    if((int)h_stripId -> GetBinContent(Nstrips)!=(int)h_stripId  -> GetBinContent(Nstrips+1)){
-		      
-		    if((int)h_stripId-> GetBinCenter(Nstrips) <0){
-		    
-		    
-		   // std::cout << " PanelStripsStatus " << PanelStripsStatus <<std::endl;
-		    
-		    std::reverse(PanelStripsStatus.begin(), PanelStripsStatus.end());
-		
-		    }
+		    if((int)h_stripId -> GetBinContent(Nstrips)==(int)h_stripId  -> GetBinContent(Nstrips+1))StripsOnPanel++;                      
+		    //std::cout <<Nstrips<<" "<< h_stripId-> GetBinCenter(Nstrips)<< " "<< SingleStripsStatus <<" PanelStripsStatus " << PanelStripsStatus <<" PanelStripsId " << PanelStripId <<std::endl;
 
+		    if((int)h_stripId -> GetBinContent(Nstrips)!=(int)h_stripId  -> GetBinContent(Nstrips+1)){
+		    //std::cout <<StripsOnPanel<<" StripsOnPanel "<< std::endl;
+  
+		    if(h_stripId-> GetBinCenter(Nstrips) < 0){		    		    
+		     //std::cout << " PanelStripsStatus " << PanelStripsStatus <<std::endl;		    
+		     std::reverse(PanelStripsStatus.begin(), PanelStripsStatus.end());		
+		    }
+                       
 		      for(int ibin=1 ; ibin!=nbin+1 ; ibin++){
-                        if ( h_PanelId )PannelCode = (int)h_PanelId-> GetBinContent(ibin) ;
-	                if(PannelCode !=PanelStripId)continue;
-			
+                        if ( h_PanelId )PanelCode = (int)h_PanelId-> GetBinContent(ibin) ;
+	                if(PanelCode !=PanelStripId)continue;
 			  if(ibin%2!=0){
 			    if (h_TrackProj) {n_tr_peta  =(int)h_TrackProj   -> GetBinContent(ibin) ;}
-			      if(n_tr_peta >50){
+			      //if(n_tr_peta >0){
 	 
 			    	if ( h_GapEff	  )gapeff	       = h_GapEff	   ->GetBinContent(ibin) ;
 			    	if ( h_GapEff	  )errgapeff	       = h_GapEff	   ->GetBinError  (ibin) ;
@@ -1024,7 +1314,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 			    	  effeleeta     =0.000;
  			    	  erreffeleeta  =0.000;
 			    	}
-        		    //    std::cout << " effeleeta " << effeleeta <<"  erreffeleeta  "<<erreffeleeta<<"  erreffeta  "<<erreffeta << "  effeta  "<<effeta <<"  errgapeff  "<<errgapeff << "  gapeff  "<<gapeff <<" rateCS1eta  "<<  rateCS1eta << " rateCS2eta " << rateCS2eta <<std::endl;
+        		        //std::cout << " effeleeta " << effeleeta <<"  erreffeleeta  "<<erreffeleeta<<"  erreffeta  "<<erreffeta << "  effeta  "<<effeta <<"  errgapeff  "<<errgapeff << "  gapeff  "<<gapeff <<" rateCS1eta  "<<  rateCS1eta << " rateCS2eta " << rateCS2eta <<std::endl;
 	
 			    	sprintf(m_effeta	   ,	"%f ", effeta		 ) ;   m_effeta 	  [5]	=0;
 			    	sprintf(m_erreffeta	   ,	"%f ", erreffeta	 ) ;   m_erreffeta	  [5]	=0;
@@ -1047,16 +1337,22 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 			    	sprintf(m_rateCSmore2eta   ,	"%f ", rateCSmore2eta	 ) ;   m_rateCSmore2eta   [5]	=0;
 	
 			        char PanelRes   [255]; //eff_eta, res_cs1, res_cs2, res_csother, time, mean and rms
-			        char StripStatus   [255]; //strips status 0 to 9 for dead noisy strips
+			        char StripStatus   [4096]; //strips status 0 to 9 for dead noisy strips
 				
  			        sprintf(PanelRes,  "%d %d %d %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", TableVersionCondDB,  n_tr_peta, StripsOnPanel,  m_effeta, m_erreffeta,  m_effeleeta, m_erreffeleeta, m_reseta_cs1, m_errreseta_cs1, m_reseta_cs2, m_errreseta_cs2, m_reseta_csother, m_errreseta_csother, m_noiseeta, m_errnoiseeta, m_noiseeta_cor, m_errnoiseeta_cor, m_cl_sizeeta, m_errcl_sizeeta, m_rateCS1eta, m_rateCS2eta, m_rateCSmore2eta) ;
  			        sprintf(StripStatus, "%s", PanelStripsStatus.c_str()) ;
-				std::string cool_tagCondDB="RecoCondDB";
- 			        coolrpc.insertCondDB_withTag(run_number,PannelCode,PanelRes, StripStatus,cool_tagCondDB);	
-			      }
+				std::string cool_tagCondDB="RecoCondDB";		        
+                                coolrpc.setSince(0U,0U);		
+                                coolrpc.setUntil(4294967295U,0U);	
+ 			        coolrpc.insertCondDB_withTag(run_number*0+429496729U,PanelCode,PanelRes, StripStatus,cool_tagCondDB);
+			        //std::cout <<"Eta " << PanelCode << " --- " << PanelRes<< " --- " << StripStatus << std::endl;	
+			        countpanelindb++;
+			        if(effeta==0.0)countpaneleff0++;
+			        if(n_tr_peta==0)countpaneltrack0++;
+			      //}
 			    }else{
 			     if (h_TrackProj) n_tr_pphi  =(int)h_TrackProj   -> GetBinContent(ibin) ;
- 			     if(n_tr_pphi >50 ){
+ 			     //if(n_tr_pphi >0){
  
 			     if ( h_PanelId )Binposition = (int)h_PanelId-> GetBinCenter(ibin) ;
 			     if(Binposition>0){
@@ -1095,7 +1391,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 			       effelephi     = 0.000;
 			       erreffelephi  = 0.000;
  			     }			    
-        		    // std::cout << " effelephi " << effelephi <<"  erreffelephi  "<<erreffelephi<<"  erreffphi  "<<erreffphi << "  effphi  "<<effphi <<"  errgapeff  "<<errgapeff << "  gapeff  "<<gapeff << "  rateCS1phi  "<<rateCS1phi<< " rateCS2phi   "<<rateCS2phi<<std::endl;
+        		     //std::cout << " effelephi " << effelephi <<"  erreffelephi  "<<erreffelephi<<"  erreffphi  "<<erreffphi << "  effphi  "<<effphi <<"  errgapeff  "<<errgapeff << "  gapeff  "<<gapeff << "  rateCS1phi  "<<rateCS1phi<< " rateCS2phi   "<<rateCS2phi<<std::endl;
 			     
 			     
 			     sprintf(m_effphi		,    "%f ", effphi	      ) ;   m_effphi	       [5]   =0;
@@ -1119,24 +1415,34 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 			     sprintf(m_rateCSmore2phi	,    "%f ", rateCSmore2phi    ) ;   m_rateCSmore2phi   [5]   =0;
 			    		
 			     char PanelRes   [255]; //eff_eta, res_cs1, res_cs2, res_csother, time, mean and rms
-			     char StripStatus   [255]; //strips status 0 to 9 for dead noisy strips
+			     char StripStatus   [4096]; //strips status 0 to 9 for dead noisy strips
  			     sprintf(PanelRes,  "%d %d %d %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", TableVersionCondDB,  n_tr_pphi, StripsOnPanel,  m_effphi, m_erreffphi,  m_effelephi, m_erreffelephi, m_resphi_cs1, m_errresphi_cs1, m_resphi_cs2, m_errresphi_cs2, m_resphi_csother, m_errresphi_csother, m_noisephi, m_errnoisephi, m_noisephi_cor, m_errnoisephi_cor, m_cl_sizephi, m_errcl_sizephi, m_rateCS1phi, m_rateCS2phi, m_rateCSmore2phi) ;
  			     sprintf(StripStatus, "%s", PanelStripsStatus.c_str()) ;
- 			     std::string cool_tag="RecoCondDB";
- 			     coolrpc.insertCondDB_withTag(run_number,PannelCode,PanelRes, StripStatus,cool_tag);	
-			    }
+ 			     std::string cool_tag="RecoCondDB";		        
+                             coolrpc.setSince(0U,0U);		
+                             coolrpc.setUntil(4294967295U,0U);	
+ 			     coolrpc.insertCondDB_withTag(run_number*0+429496729U,PanelCode,PanelRes, StripStatus,cool_tag);
+			     //std::cout <<"Phi " << PanelCode << " --- " << PanelRes<< " --- " << StripStatus << std::endl;	
+			    //}	
+			    countpanelindb++;
+			    if(effphi==0.0)countpaneleff0++;
+			    if(n_tr_pphi==0)countpaneltrack0++;
 			  }		
 	    	          StripsOnPanel=1;
 	      	          PanelStripsStatus.clear();
- 		        }			
+ 		        }
+			//if(StripsOnPanel>1) std::cout<<stripProfile_name<< " bin " << Nstrips << " Not found PanelStripId " << PanelStripId<< std::endl;		
+	    	        StripsOnPanel=1;
+	      	        PanelStripsStatus.clear();			
 		      }
                     }		  
 		  }				
 	        } // end loop on DoubletPhi	
 	      } // end loop on layers
-	    }// end Cool Folder	    
+	    }// end Cool Folder	  
+	    std::cout <<"Count RC panels in DB " << countpanelindb << " Count RPCpanels in DB with zero efficiency "<< countpaneleff0 <<" Count RPCpanels in DB with zero track "<<countpaneltrack0 <<std::endl;	    
   	  } // end for sectors
-	
+	  std::cout <<"Count RC panels in DB " << countpanelindb << " Count RPCpanels in DB with zero efficiency "<< countpaneleff0 <<" Count RPCpanels in DB with zero track "<<countpaneltrack0 <<std::endl;
 	// write distribution plots all ATLAS
 	TDirectory* dirA = f->GetDirectory( dir_sideA_track.c_str() ) ;
 	if ( dirA != 0 ) {

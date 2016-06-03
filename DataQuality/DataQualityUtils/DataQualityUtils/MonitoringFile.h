@@ -178,24 +178,14 @@ namespace dqutils {
     // and efficiency error (err) according to errtype = 0(binomial), =1(UPX) or Sumw2
     static void GetCscEffAndErr(float& num, float& num_err, float& den, float& den_err, float& eff, float& err, int errtype);
 
-    // For MuonTrkPhysMonitoring
-    static void MuonTrkPhys(std::string inFileName, bool isIncremental = false);
-    static void MuonTrkPhys_Zmass(std::string inFileName);
-    static void MuonTrkPhys_Tracking(std::string inFileName);
-    static void MuonTrkPhys_DetectorSpecific(std::string inFileName);
-    static void MuonTrkPhys_BField(std::string inFileName);
-    static void MuonTrkPhys_Alignment(std::string inFileName);
-    static Double_t MuonTrkPhys_BWgaus(Double_t *x, Double_t *par);
-    static Double_t MuonTrkPhys_fitFunctionS(Double_t *x, Double_t *par);
-
     // For MuonTrackMonitoring
     static void MuonTrackPostProcess(std::string inFileName, bool isIncremental = false);
     static void MuonTrack_Main(std::string inFileName, TString dirname);
 
     //For Muon MDT
-    static void  MDTPostProcess(std::string inFilename, bool isIncremental = false, int txtFileOutputType = 0, bool useOfflineTubeID = false, bool makePDF = false, bool doAllPDF = true);
+    static void  MDTPostProcess(std::string inFilename, int txtFileOutputType = 0);
     static void  MDTChamReAlign(std::string inFilename, std::string title="MDT");
-    static void  MDTChamEff(std::string inFilename, bool isIncremental = false, std::string title="MDT", int txtFileOutputType = 0, bool useOfflineTubeID = false, bool makePDF = false, bool doAllPDF = true);
+    static void  MDTChamEff(std::string inFilename,  std::string title="MDT", int txtFileOutputType = 0 );
     static void  MDTChamOcc(std::string inFilename, std::string title="MDT");
     static void  MDTTDCSum(std::string inFilename, std::string title="MDT");
     static void  MDTLowStat(std::string inFilename, std::string title="MDT");

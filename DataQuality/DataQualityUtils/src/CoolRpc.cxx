@@ -142,7 +142,7 @@ void
    //std::cout << "Preparing RecordSpecification" << std::endl;
      cool::RecordSpecification spec;
      spec.extend("PanelRes",  cool::StorageType::String255);
-     spec.extend("StripStatus",cool::StorageType::String255);
+     spec.extend("StripStatus",cool::StorageType::String4k);
      coolFolder=this->coolFolderInstance("/OFFLINE/FINAL");
      if (!(spec==coolFolder->payloadSpecification())) {
        std::cout << "ERROR Source and destination folder specifications differ." << std::endl;
@@ -180,7 +180,7 @@ void
      coral::AttributeList payload = cool::Record( spec ).attributeList();
  
      payload["PanelRes"].data<cool::String255>() = PanelRes;
-     payload["StripStatus"].data<cool::String255>() = StripStatus;
+     payload["StripStatus"].data<cool::String4k>() = StripStatus;
  
      return payload;
  }
@@ -197,7 +197,7 @@ void
      }
      catch (cool::Exception& e) {
  	 std::cout << "Unknown exception caught!" << e.what() << std::endl;
- 	 std::cout << " dentro create payload" << std::endl;
+ 	 std::cout << " Inside create payload" << std::endl;
      }
  }
 
@@ -252,7 +252,7 @@ void
     //   std::cout << "stored! With Tag =" << cool_tag <<std::endl;
      }
      catch (cool::Exception& e) {
-       std::cout << " dentro create insert" << std::endl;
+       std::cout << " Inside create insert" << std::endl;
  	 std::cout << "Unknown exception caught!" << e.what() << std::endl;
      }
  }
@@ -265,13 +265,13 @@ void
   
        cool::RecordSpecification spec = this->createSpecDataCondDB();
        coral::AttributeList payload = this->createPayloadDataCondDB(PanelRes, StripStatus, spec);
-       cool::ValidityKey since_u = (run << 32);
+       cool::ValidityKey since_u = (run << 32)*0;
        cool::ValidityKey  until_u = (run+1) << 32;
        coolFolder->storeObject(since_u, until_u, cool::Record(coolFolder->payloadSpecification(), payload), channelId, cool_tag);
     //   std::cout << "stored! With Tag =" << cool_tag <<std::endl;
      }
      catch (cool::Exception& e) {
-       std::cout << " dentro create insert" << std::endl;
+       std::cout << " Inside create insert" << std::endl;
  	 std::cout << "Unknown exception caught!" << e.what() << std::endl;
      }
  }
@@ -290,7 +290,7 @@ void
        std::cout << "stored! without Tag" << std::endl;
      }
      catch (cool::Exception& e) {
-       std::cout << " dentro create insert" << std::endl;
+       std::cout << " Inside create insert" << std::endl;
  	 std::cout << "Unknown exception caught!" << e.what() << std::endl;
      }
  }

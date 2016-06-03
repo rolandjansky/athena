@@ -69,32 +69,46 @@ namespace dqutils {
     int times = 1;
     while (times--) {  // just once
       run_dir = dir0->GetName();
+
       TString rno_dir = run_dir + "/SCT/GENERAL/RatioNoise/";
-      
       TDirectory *dir = infile->GetDirectory(rno_dir);
       if(!dir){
 	std::cerr << "--> SCTPostProcess: directory " << rno_dir << " not found " <<std::endl;
 	return;
       }
-      
       TString noSideHitHist = rno_dir + "h_NZ1_vs_modnum";
       TString oneSideHitHist = rno_dir + "h_N11_vs_modnum";
-      
       TH1F *h_nosidehit = (TH1F*)infile->Get(noSideHitHist);
-      TH1F *h_onesidehit = (TH1F*)infile->Get(oneSideHitHist);
-      
+      TH1F *h_onesidehit = (TH1F*)infile->Get(oneSideHitHist);      
       if(!h_nosidehit || !h_onesidehit){
 	std::cerr << "--> SCTPostProcess: no such histogram " <<std::endl;
 	return;
       }
-      
-      
+
+      TString maxerrortitles[15]={"SCTMaskedLinkmaxVsLbs","SCTROBFragmentmaxVsLbs","SCTABCDerrsmaxVsLbs","SCTRawerrsmaxVsLbs","SCTTimeOutmaxVsLbs","SCTLVL1IDerrsmaxVsLbs","SCTBCIDerrsmaxVsLbs","SCTPreamblemaxVsLbs","SCTFormattererrsmaxVsLbs","SCTRODClockerrsmaxVsLbs","SCTTruncatedRODmaxVsLbs","SCTBSParseerrsmaxVsLbs","SCTMissingLinkmaxVsLbs","SCTmaxNumberOfErrors","SCTmaxModulesWithErrors"};
+      TString conf_dir = run_dir + "/SCT/GENERAL/Conf/";      
+      TString err_dir = run_dir + "/SCT/GENERAL/errors/tmp/";      
+      TDirectory *confdir = infile->GetDirectory(conf_dir);
+      if(!confdir){
+	std::cerr << "--> SCTPostProcess: directory " << conf_dir << " not found " <<std::endl;
+	return;
+      }
+
+      TString maxErrHist[15];
+      TH1F *maxErrHist_new[15];
+      TString maxerrortitles_2d[15];
+      for(int i=0;i<15;i++){
+	maxErrHist[i] = conf_dir + maxerrortitles[i];
+	maxErrHist_new[i] = (TH1F*)infile->Get(maxErrHist[i]);
+	maxerrortitles_2d[i] = err_dir + maxerrortitles[i] + "_2d";
+      }
+
       TH1F *hist_all = new TH1F("h_NO","Noise Occupancy for Barrel and Endcaps",500,0.,100.);
       TH1F *hist_bar = new TH1F("h_NOb","Noise Occupancy for Barrel",500,0.,100.);
       TH1F *hist_end = new TH1F("h_NOEC","Noise Occupancy for Endcaps",500,0.,100.);
       TH1F *hist_endc = new TH1F("hist_endcapC","endcap C",500,0.,100.);
       TH1F *hist_enda = new TH1F("hist_endcapA","endcap A",500,0.,100.);
-      
+
       TH1F *hist_bar_layer[4];
       for(int i=0;i<4;i++){
 	hist_bar_layer[i] = new TH1F(Form("h_NOb_layer%d",i),Form("Noise Occupancy Barrel Layer %d",i),500,0.,100.);
@@ -116,7 +130,8 @@ namespace dqutils {
       int nModuleEndCap2[9] = {92, 224, 356, 488, 620, 752, 844, 936, 988};
       int nModuleBarrel1[4] = {0, 384, 864, 1440};
       int nModuleBarrel2[4] = {384, 864, 1440, 2112};
-      
+
+
       for(int i=0;i<4088;i++){
 	int nosidehit = h_nosidehit->GetBinContent(i+1);
 	int onesidehit = h_onesidehit->GetBinContent(i+1);
@@ -177,7 +192,7 @@ namespace dqutils {
       hist_all->SetBinContent(hist_all->GetNbinsX(),hist_all->GetBinContent(hist_all->GetNbinsX() ) + hist_all->GetBinContent(hist_all->GetNbinsX() +1));
       hist_bar->SetBinContent(hist_bar->GetNbinsX(),hist_bar->GetBinContent(hist_bar->GetNbinsX() ) + hist_bar->GetBinContent(hist_bar->GetNbinsX() +1));
       hist_end->SetBinContent(hist_end->GetNbinsX(),hist_end->GetBinContent(hist_end->GetNbinsX() ) + hist_end->GetBinContent(hist_end->GetNbinsX() +1));
-      
+
       dir->cd();
       hist_all->Write("", TObject::kOverwrite);
       hist_bar->Write("", TObject::kOverwrite);
@@ -195,9 +210,31 @@ namespace dqutils {
       hist_middle->Write("", TObject::kOverwrite);
       hist_outer->Write("", TObject::kOverwrite);
       hist_smiddle->Write("", TObject::kOverwrite);
+
+      TH2I *h2_maxErrHist[15];
+      confdir->cd();
+      TDirectory *errdir = infile->GetDirectory(err_dir);
+      if(errdir){
+	for(int i=0;i<15;i++){
+	  h2_maxErrHist[i] = (TH2I*)infile->Get(maxerrortitles_2d[i]);
+	  if(h2_maxErrHist[i]&&maxErrHist_new[i]){
+	    for(int m=0;m<h2_maxErrHist[i]->GetXaxis()->GetNbins();m++){
+	      for(int n=0;n<8176;n++){
+		int maxModErrs = h2_maxErrHist[i]->GetBinContent(m+1,8176-n);
+		if(maxModErrs!=0){
+		  maxErrHist_new[i]->SetBinContent(m+1,8176-n);
+		  break;
+		}
+	      }
+	    }
+	    maxErrHist_new[i]->Write("", TObject::kOverwrite);            
+	  }
+	}
+      }
+
       infile->Write();
       
     }//while
   }
-
+  
 }//namespace
