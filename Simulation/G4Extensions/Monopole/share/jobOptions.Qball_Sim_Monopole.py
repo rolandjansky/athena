@@ -51,14 +51,10 @@ SimFlags.EquationOfMotion = "MonopoleEquationOfMotion"
 def load_monopole_lib():
     from G4AtlasApps import AtlasG4Eng
     AtlasG4Eng.G4Eng.load_Lib("Monopole")
-    #AtlasG4Eng.G4Eng.gbl.G4Commands().tracking.verbose(1)
 SimFlags.initFunctions.add_function("preInitPhysics", load_monopole_lib)
+#SimFlags.G4Commands += ['/tracking/verbose 1']
 
-def setup_stepper_classicalrk4():
-    from G4AtlasApps import AtlasG4Eng
-    AtlasG4Eng.G4Eng._ctrl.fldMenu.UseStepper('ClassicalRK4')
-    AtlasG4Eng.G4Eng._ctrl.fldMenu.UseStepper('IDET::IDET','ClassicalRK4')
-SimFlags.InitFunctions.add_function("postInit", setup_stepper_classicalrk4)
+SimFlags.G4Stepper = 'ClassicalRK4'
 
 def setup_hipkiller():
     from G4AtlasApps import PyG4Atlas,AtlasG4Eng
