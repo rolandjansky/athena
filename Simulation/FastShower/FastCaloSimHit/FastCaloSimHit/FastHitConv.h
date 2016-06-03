@@ -2,36 +2,29 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// author : Matthew Beckingham 
-// date of creation : July 2, 2008
+///////////////////////////////////////////////////////////////////
+// FastHitConv.h, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
 
-
-#ifndef FASTHITCONV_H
-#define FASTHITCONV_H
+#ifndef FASTCALOSIMHIT_FASTHITCONV_H
+#define FASTCALOSIMHIT_FASTHITCONV_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
-
-#include "SimHelpers/AthenaHitsCollectionHelper.h"
-#include "StoreGate/StoreGateSvc.h"
-
-#include "TileSimEvent/TileHitVector.h"
 
 #include "LArElecCalib/ILArfSampl.h"
+#include "LArSimEvent/LArHitContainer.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/WriteHandle.h"
+#include "TileSimEvent/TileHitVector.h"
 
-class IMessageSvc;
-class StoreGateSvc;
+#include "GaudiKernel/ServiceHandle.h"
 
 class LArHitFloat;
 class LArHitFloatContainer;
-
 class LArHit;
 class LArHitContainer;
-
 class PileUpMergeSvc;
-
 class TileInfo;
-
 class LArEM_ID;
 class LArFCAL_ID;
 class LArHEC_ID;
@@ -42,68 +35,48 @@ class FastHitConv: public AthAlgorithm {
 public:
 
   // usual ATHENA constructor of an algorithm
-    FastHitConv(const std::string & name, ISvcLocator * pSvcLocator);
+  FastHitConv(const std::string & name, ISvcLocator * pSvcLocator);
 
-    // Destructor
-    virtual ~FastHitConv(){}
+  // Destructor
+  virtual ~FastHitConv(){}
 
-    StatusCode initialize();
-    StatusCode execute();
+  StatusCode initialize() override final;
+  StatusCode execute() override final;
 
 
 private:
 
-    StatusCode initEvent();
-    StatusCode finaliseEvent();
+  StatusCode initEvent();
+  StatusCode finaliseEvent();
 
-    StatusCode hitConstruction();
+  StatusCode hitConstruction();
 
-    // For reading in of Fast Hits
-    LArHitContainer* fastHitCont;
-    TileHitVector* fastTileHits;
+  // For reading in of Fast Hits
+  LArHitContainer* fastHitCont;
+  TileHitVector* fastTileHits;
+  //for writing out of Hit, naming as G4 for default
+  SG::WriteHandle<LArHitContainer> m_embHitContainer;
+  SG::WriteHandle<LArHitContainer> m_emecHitContainer;
+  SG::WriteHandle<LArHitContainer> m_fcalHitContainer;
+  SG::WriteHandle<LArHitContainer> m_hecHitContainer;
+  SG::WriteHandle<TileHitVector>   m_tileHitVector;
 
-    // For writing out of "G4" hits
-    LArHitContainer* embHitCont;
-    LArHitContainer* emecHitCont;
-    LArHitContainer* fcalHitCont;
-    LArHitContainer* hecHitCont;
+  std::string m_caloCellsOutputName;
 
-    TileHitVector* m_tileHits;
+  ServiceHandle<StoreGateSvc> m_storeGateFastCalo;
+  PileUpMergeSvc* m_pMergeSvc;
 
+  // Data description objects
 
-    std::string m_caloCellsOutputName;
-    
-    std::string m_embHitContName;
-    std::string m_emecHitContName;
-    std::string m_fcalHitContName;
-    std::string m_hecHitContName;
-    std::string m_tileHitContName;
-    
+  const DataHandle<ILArfSampl>    m_dd_fSampl; // DataHandle for LAr sampling fraction
+  const TileInfo* m_tileInfo;                  // Pointer to TileInfo class
 
-    AthenaHitsCollectionHelper helper;
+  const LArEM_ID*     m_larEmID;
+  const LArFCAL_ID*   m_larFcalID;
+  const LArHEC_ID*    m_larHecID;
+  const TileID*       m_tileID;
 
-    IMessageSvc* m_msgSvc;
-
-    //StoreGateSvc* m_storeGate;
-    //StoreGateSvc* m_detStore;
-
-    ServiceHandle<StoreGateSvc> m_storeGateFastCalo;
-
-    PileUpMergeSvc* m_pMergeSvc;
-
-    // Data description objects
-
-    const DataHandle<ILArfSampl>    m_dd_fSampl; // DataHandle for LAr sampling fraction
-    const TileInfo* m_tileInfo;                  // Pointer to TileInfo class
-
-    const LArEM_ID*     m_larEmID;
-    const LArFCAL_ID*   m_larFcalID;
-    const LArHEC_ID*    m_larHecID;
-    const TileID*       m_tileID;
-
-    bool m_pileup;                // pile up or not?
+  bool m_pileup;                // pile up or not?
 
 };
-#endif    //FASTHITCONV_H
-
-
+#endif    //FASTCALOSIMHIT_FASTHITCONV_H
