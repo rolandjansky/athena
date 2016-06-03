@@ -27,8 +27,8 @@ gStyle.SetOptStat("em")
 parser = argparse.ArgumentParser()
 parser.add_argument('-r','--run',type=int,dest='runNumber',default='267599',help="Run number",action='store')
 parser.add_argument('-s','--stream',dest='stream',default='express',help="Stream without prefix: express, CosmicCalo, Egamma...",action='store')
-parser.add_argument('-t','--tag',dest='tag',default='data15_13TeV',help="DAQ tag: data12_8TeV, data12_calocomm...",action='store')
-parser.add_argument('-a','--amiTag',dest='amiTag',default='f',help="First letter of AMI tag: x->express / f->bulk",action='store')
+parser.add_argument('-t','--tag',dest='tag',default='data16_13TeV',help="DAQ tag: data12_8TeV, data12_calocomm...",action='store')
+parser.add_argument('-a','--amiTag',dest='amiTag',default='x',help="First letter of AMI tag: x->express / f->bulk",action='store')
 
 parser.print_help()
 
@@ -39,11 +39,11 @@ stream = args.stream
 tag = args.tag
 amiTag = args.amiTag
 
-listOfFiles = pathExtract.returnEosTagPath(run,stream,amiTag,tag)
+listOfFiles = pathExtract.returnEosLArNoisePath(run,stream,amiTag,tag)
 
-tree = TChain("POOLCollectionTree")
+tree = TChain("CollectionTree")
 
-file = {}
+print listOfFiles
 for fileNames in listOfFiles:
   print "Adding %s"%(fileNames)
   tree.AddFile("root://eosatlas/%s"%(fileNames))

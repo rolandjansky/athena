@@ -17,7 +17,7 @@
 #  -o OBJECT, --object=OBJECT TopoCluster/Jet
 #  -m MIN, --min=MIN     Min number of object in a LB
 #  -n, --noplot          Do not plot LB map
-# Author : Benjamin Trocme (LPSC Grenoble) / Winter 2015
+# Author : Benjamin Trocme (LPSC Grenoble) / Winter 2015-Spring 2016
 
 
 import os, sys  
@@ -57,14 +57,16 @@ parser.add_argument('-r','--run',type=int,dest='runNumber',default='267599',help
 parser.add_argument('-ll','--lowerlb',type=int,dest='lowerLB',default='0',help="Lower lb",action='store')
 parser.add_argument('-ul','--upperlb',type=int,dest='upperLB',default='999999',help="Upper lb",action='store')
 parser.add_argument('-s','--stream',dest='stream',default='express',help="Stream without prefix: express, CosmicCalo, Egamma...",action='store')
-parser.add_argument('-t','--tag',dest='tag',default='data15_13TeV',help="DAQ tag: data12_8TeV, data12_calocomm...",action='store')
+parser.add_argument('-t','--tag',dest='tag',default='data16_13TeV',help="DAQ tag: data12_8TeV, data12_calocomm...",action='store')
 parser.add_argument('-a','--amiTag',dest='amiTag',default='x',help="First letter of AMI tag: x->express / f->bulk",action='store')
 parser.add_argument('-e','--eta',type=float,dest='etaSpot',default='0',help='Eta of hot spot',action='store')
 parser.add_argument('-p','--phi',type=float,dest='phiSpot',default='0.',help='Phi of hot spot (or MET bump)',action='store')
-parser.add_argument('-d','--delta',type=float,dest='deltaSpot',default='0.',help='Distance to look around hot spot (or MET bump)',action='store')
+parser.add_argument('-d','--delta',type=float,dest='deltaSpot',default='0.1',help='Distance to look around hot spot (or MET bump)',action='store')
 parser.add_argument('-o','--object',dest='objectType',default='TopoCluster',help='TopoCluster,JetsHI',action='store')
+#parser.add_argument('-c','--cut',type=int,dest='upperLB',default='999999',help="Upper lb",action='store')
 parser.add_argument('-m','--min',type=int,dest='minInLB',default='5',help='Min number of object in a LB',action='store')
 parser.add_argument('-n','--noplot',dest='noplot',help='Do not plot LB map',action='store_true')
+
 
 args = parser.parse_args()
 
@@ -84,41 +86,41 @@ minInLB = args.minInLB
 
 # Histo path definition base on object type
 if (objectType == "TopoCluster"):
-  histoPath  = {"Et5GeV":"run_%d/CaloMonitoring/ClusterMon/CaloCalTopoClustersNoTrigSel/2d_Rates/m_clus_etaphi_Et_thresh1"%(run),
-                "Et10GeV":"run_%d/CaloMonitoring/ClusterMon/CaloCalTopoClustersNoTrigSel/2d_Rates/m_clus_etaphi_Et_thresh2"%(run),
-                "Et15GeV":"run_%d/CaloMonitoring/ClusterMon/CaloCalTopoClustersNoTrigSel/2d_Rates/m_clus_etaphi_Et_thresh3"%(run),
-                "Et20GeV":"run_%d/CaloMonitoring/ClusterMon/CaloCalTopoClustersNoTrigSel/2d_Rates/m_clus_etaphi_Et_thresh4"%(run)}
-  histoLegend = {"Et5GeV":"Et > 5GeV",
-                 "Et10GeV":"Et > 10GeV",
-                 "Et15GeV":"Et > 15GeV",
-                 "Et20GeV":"Et > 20GeV"}
-  histoColor = {"Et5GeV":kBlack,
-                "Et10GeV":kRed,
-                "Et15GeV":kBlue,
-                "Et20GeV":kGreen}
-  histoKeys = ["Et5GeV",
-               "Et10GeV",
-               "Et15GeV",
-               "Et20GeV"]
+  histoPath  = {"Et10GeV":"run_%d/CaloMonitoring/ClusterMon/CaloCalTopoClustersNoTrigSel/2d_Rates/m_clus_etaphi_Et_thresh1"%(run),
+                "Et25GeV":"run_%d/CaloMonitoring/ClusterMon/CaloCalTopoClustersNoTrigSel/2d_Rates/m_clus_etaphi_Et_thresh2"%(run),
+                "Et50GeV":"run_%d/CaloMonitoring/ClusterMon/CaloCalTopoClustersNoTrigSel/2d_Rates/m_clus_etaphi_Et_thresh3"%(run)}
+  histoLegend = {"Et10GeV":"Et > 10GeV",
+                 "Et25GeV":"Et > 25GeV",
+                 "Et50GeV":"Et > 50GeV"}
+  histoColor = {"Et10GeV":kBlack,
+                "Et25GeV":kRed,
+                "Et50GeV":kBlue}
+  histoKeys = ["Et10GeV",
+               "Et25GeV",
+               "Et50GeV"]
   b_2dHisto = True # Draw with "COLZ"
 
-if (objectType == "JetsHI"):
-  histoPath  = {"noCut":"run_%d/Jets/AntiKt4HIJets/OccupancyEtaPhi"%(run),
-                "cut1":"run_%d/Jets/AntiKt4HIJets/OccupancyEtaPhisel_60000_inf_pt_inf_100000"%(run),
-                "cut2":"run_%d/Jets/AntiKt4HIJets/OccupancyEtaPhisel_100000_inf_pt_inf_250000"%(run),
-                "cut3":"run_%d/Jets/AntiKt4HIJets/OccupancyEtaPhisel_250000_inf_pt_inf_800000"%(run)}
+if (objectType == "EMTopoJets"):
+  histoPath  = {"noCut":"run_%d/Jets/AntiKt4EMTopoJets/OccupancyEtaPhi"%(run),
+                "cut1":"run_%d/Jets/AntiKt4EMTopoJets/OccupancyEtaPhisel_20000_inf_pt_inf_500000"%(run),
+                "cut2":"run_%d/Jets/AntiKt4EMTopoJets/OccupancyEtaPhisel_500000_inf_pt_inf_1000000"%(run),
+                "cut3":"run_%d/Jets/AntiKt4EMTopoJets/OccupancyEtaPhisel_1000000_inf_pt_inf_2000000"%(run),
+                "cut4":"run_%d/Jets/AntiKt4EMTopoJets/OccupancyEtaPhisel_2000000_inf_pt_inf_8000000"%(run)}
   histoLegend = {"noCut":"No cut",
-                 "cut1":"60GeV-100GeV",
-                 "cut2":"100GeV-250GeV",
-                 "cut3":"250GeV-800GeV"}
+                 "cut1":"20GeV-500GeV",
+                 "cut2":"500GeV-1TeV",
+                 "cut3":"1TeV-2TeV",
+                 "cut4":"2TeV-8TeV"}
   histoColor = {"noCut":kBlack,
                 "cut1":kRed,
                 "cut2":kBlue,
-                "cut3":kGreen}
+                "cut3":kGreen,
+                "cut4":kPink}
   histoKeys = ["noCut",
                "cut1",
                "cut2",
-               "cut3"]
+               "cut3",
+               "cut4"]
   b_2dHisto = True # Draw with "COLZ"
 
 # Look for the final merged HIST file
@@ -165,17 +167,19 @@ for ix in range(nSteps):
 lbFilePathList = pathExtract.returnEosHistPathLB(args.runNumber,lowerLumiBlock,upperLumiBlock,args.stream,args.amiTag,args.tag)
 nbHitInHot = []
 
-nLB=2000
+nLB=2500
 nbHitInHot = {}
 for iHisto in histoKeys:
   nbHitInHot[iHisto] = [0] * nLB
-lowerLB = 2000
+lowerLB = 2500
 upperLB = 0
 lbCanvas = []
 histoLBNoisy = []
 fLB = {}
 
+print "I have found the merged HIST file %s"%(runFilePath)
 print "I have found %d unmerged HIST files"%(len(lbFilePathList))
+print "The first one is root://eosatlas.cern.ch/%s"%(lbFilePathList[0])
 sys.stdout.write("Start scanning the LBs:")
 
 # Loop on all unmerged files
@@ -215,7 +219,6 @@ for iHisto in histoKeys:
   print "======= ",histoLegend[iHisto]
   for iBin in regionBins:
     totalInRegion[iHisto] = totalInRegion[iHisto] + histo[iHisto].GetBinContent(iBin)
-  print "In the whole run, there are %d entries"%(totalInRegion[iHisto])
   for i in range(nLB):
     totalInRegionRecomp[iHisto] = totalInRegionRecomp[iHisto] + nbHitInHot[iHisto][i]
     if (nbHitInHot[iHisto][i]>=minInLB):
@@ -223,14 +226,19 @@ for iHisto in histoKeys:
     if (nbHitInHot[iHisto][i]>maxNbInHot):
       maxNbInHot = nbHitInHot[iHisto][i]
 
+  print "In the whole run, there are %d entries"%(totalInRegion[iHisto])
   if (totalInRegionRecomp[iHisto] != totalInRegion[iHisto]):
     print "To be compared with %d entries cumulated from unmerged files"%(totalInRegionRecomp[iHisto])
-    print "This is normal only if you restricted the LB range..."
+    if (totalInRegionRecomp[iHisto] < totalInRegion[iHisto]):
+      print "This is normal only if you restricted the LB range..."
+    if (totalInRegionRecomp[iHisto] > totalInRegion[iHisto]):
+      print "This can be also caused by multiple processing, try to filter with -a option"
+      print "File path of the first file:",lbFilePathList[0]
 
 ## Plot evolution vs LB
 leg = TLegend(0.5,0.75,0.95,0.92)
 
-if (upperLB>lowerLB): # check that at least one noisy LB was found
+if (upperLB>=lowerLB): # check that at least one noisy LB was found
   c0 = TCanvas()
   h0Evol = {}
   first = True
@@ -243,6 +251,7 @@ if (upperLB>lowerLB): # check that at least one noisy LB was found
       h0Evol[iHisto].Fill(i,nbHitInHot[iHisto][i])  
     if first:
       h0Evol[iHisto].Draw()
+      h0Evol[iHisto].SetMinimum(minInLB-1)
       h0Evol[iHisto].SetMaximum(maxNbInHot*1.25)
       first = False
     else:
