@@ -41,13 +41,12 @@
 // Base class
 #include "SiDigitization/ISiChargedDiodesProcessorTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "PixelGeoModel/IBLParameterSvc.h"
 
 namespace CLHEP {
   class HepRandomEngine;
 }
 class TimeSvc;
-class CalibSvc;
+class IPixelCalibSvc;
 
 class IAtRndmGenSvc;
 class PixelCellDiscriminator : public AthAlgTool, virtual public ISiChargedDiodesProcessorTool {
@@ -80,12 +79,10 @@ private:
   PixelCellDiscriminator();
   
   ServiceHandle<TimeSvc> m_TimeSvc;
-  ServiceHandle<CalibSvc> m_CalibSvc;
+  ServiceHandle<IPixelCalibSvc> m_pixelCalibSvc;
   ServiceHandle<IAtRndmGenSvc> m_rndmSvc;
   std::string m_rndmEngineName;
   CLHEP::HepRandomEngine* m_rndmEngine;
-  ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
-  bool m_IBLabsent;
   bool m_doITk;
   int m_timingTune;
 };

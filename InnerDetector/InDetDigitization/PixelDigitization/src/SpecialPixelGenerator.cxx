@@ -43,7 +43,6 @@ SpecialPixelGenerator::SpecialPixelGenerator(const std::string& type, const std:
   m_specialPixelMapSvc("SpecialPixelMapSvc",name),
   m_rndmSvc("AtDSFMTGenSvc",name),
   m_rndmEngineName("PixelDigitization"), 
-  m_CalibSvc("CalibSvc",name),
   m_rndmEngine(0)
 {
   declareInterface< SpecialPixelGenerator >( this );
@@ -57,7 +56,6 @@ SpecialPixelGenerator::SpecialPixelGenerator(const std::string& type, const std:
   declareProperty("PixelConditionsSummarySvc",m_pixelConditionsSummarySvc);
   declareProperty("RndmSvc",         m_rndmSvc,          "Random Number Service used in SCT & Pixel digitization" );
   declareProperty("RndmEngine",      m_rndmEngineName,   "Random engine name");
-  declareProperty("CalibSvc",m_CalibSvc,"Calib Svc");
 }
 
 // Destructor:
@@ -68,69 +66,33 @@ SpecialPixelGenerator::~SpecialPixelGenerator()
 // Initialize
 //----------------------------------------------------------------------
 StatusCode SpecialPixelGenerator::initialize() {
-  StatusCode sc = AthAlgTool::initialize(); 
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "SpecialPixelGenerator::initialize() failed" );
-    return sc ;
-  }
   ATH_MSG_DEBUG ( "SpecialPixelGenerator::initialize()" );
-  //  
-  // get PixelID
-  //
-  if ( detStore()->retrieve(m_pixelID,"PixelID").isFailure() ) {
-    // if this fails, it's probably a bug -> FATAL!
-    ATH_MSG_FATAL ( "Could not get Pixel ID helper" );
-    return StatusCode::FAILURE;
-  }
+
+  CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
+  ATH_MSG_DEBUG("Pixel ID helper retrieved");
+
   m_npixTot = m_pixelID->pixel_hash_max();
   m_nmodTot = m_pixelID->wafer_hash_max();
 
-  if (m_CalibSvc.retrieve().isFailure()) {
-	ATH_MSG_ERROR("Can't get CalibSvc");
-	return StatusCode::FAILURE;
-  }
-  //
-  // get SpecialPixelMapSvc
-  //
-  if (m_CalibSvc->usePixMapCDB()) {
-    if ( ! m_specialPixelMapSvc.retrieve().isSuccess() ) {
-      ATH_MSG_FATAL ( "Unable to retrieve SpecialPixelMapSvc" );
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_DEBUG ( "Retrieved SpecialPixelMapSvc" );
-  } 
-
-  //
-  // get PixelConditionsSummarySvc
-  //
   if (m_usePixCondSum) {
-    if ( m_pixelConditionsSummarySvc.retrieve().isFailure() ) {
-      ATH_MSG_FATAL ( "Unable to retrieve PixelConditionsSummarySvc" );
-      return StatusCode::FAILURE;
-    }
+    CHECK(m_specialPixelMapSvc.retrieve());
+    ATH_MSG_DEBUG ( "Retrieved SpecialPixelMapSvc" );
+
+    CHECK(m_pixelConditionsSummarySvc.retrieve());
     ATH_MSG_DEBUG ( "Retrieved PixelConditionsSummarySvc" );
   }
 
-  //
-  // get the Rndmsvc
-  //
-  if ( m_rndmSvc.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ( " Can't get RndmSvc " );
-    return StatusCode::FAILURE;
-  } else { ATH_MSG_DEBUG ( "Retrieved RndmSvc" );
- 
-  }
-  //
-  // get the PixelDigitizationTool random stream
-  //
-  ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
+  CHECK(m_rndmSvc.retrieve());
   m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (m_rndmEngine==0) {
-    ATH_MSG_ERROR ( "Could not find RndmEngine : " << m_rndmEngineName );
+  if (!m_rndmEngine) {
+    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
     return StatusCode::FAILURE;
-  } else { ATH_MSG_DEBUG ( " Found RndmEngine : " << m_rndmEngineName ); 
+  } 
+  else { 
+    ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);  
   }
-  return sc ;
+
+  return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------
@@ -148,15 +110,15 @@ StatusCode SpecialPixelGenerator::finalize() {
 
 void SpecialPixelGenerator::updatePixelMap(){
   // update pixel map
-  if (m_CalibSvc->usePixMapCDB()) {
+  if (m_usePixCondSum) {
     ATH_MSG_DEBUG ( "retrieving special pixel map from cond db" );
     
     m_detectorMap =  m_specialPixelMapSvc->getPixelMap(0);
     if (m_detectorMap == 0) {
       ATH_MSG_ERROR ( "BUG TRAP - special pixelmap ptr == 0!!!" );
     }
-
-  } else {
+  } 
+  else {
     if (m_doUpdate) {
       ATH_MSG_VERBOSE ( "generating a random special pixel map" );
       generatePixelMap();
@@ -306,13 +268,17 @@ void SpecialPixelGenerator::process(SiChargedDiodeCollection &collection) const 
   
   unsigned int   pixelID;  // numeric pixel id used in SpecialPixelMap
   //
-  ATH_MSG_VERBOSE ( "Processing diodes for module " 
-	<< m_pixelID->show_to_string(pixid) );
+  ATH_MSG_VERBOSE ( "Processing diodes for module "<< m_pixelID->show_to_string(pixid) );
   // retrieve the special pixel map for this module, 
   // either from condition DB or from the internally generated one
-  getID(pixid, pixelID);
+
+  //the encoding of the number of chips should follow this guidelines
+  //http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/InnerDetector/InDetConditions/PixelConditionsServices/src/PixelConditionsSummarySvc.cxx#0208
+  unsigned int mchips = 10*m_detectorMap->module(moduleHash)->chipsPerModule() + m_detectorMap->module(moduleHash)->chipType();
+
+  getID(pixid, pixelID, mchips);
   const ModuleSpecialPixelMap *modmap=0;
-  if (m_CalibSvc->usePixMapCDB()) modmap = m_detectorMap->module(moduleHash);
+  if (m_usePixCondSum) { modmap = m_detectorMap->module(moduleHash); }
   else modmap=m_detectorMapGen.module(moduleHash);
   if ( !modmap ) return; // no special pixels for this module: nothing to do!
   // process hits
@@ -322,7 +288,7 @@ void SpecialPixelGenerator::process(SiChargedDiodeCollection &collection) const 
     pixid = collection.getId((*i_chargedDiode).first);
     diode = &((*i_chargedDiode).second);
     // find diode with id pixid in special pixel map
-    getID( pixid, pixelID );
+    getID( pixid, pixelID, mchips );
     unsigned int status = modmap->pixelStatus(pixelID);
     bool pixuseful = modmap->pixelUseful(pixelID);
     // DO NOT mask out pixels that are not useful (3rd argument of Sihelper method call = false
@@ -359,7 +325,7 @@ void SpecialPixelGenerator::process(SiChargedDiodeCollection &collection) const 
   ATH_MSG_VERBOSE ( "Processing done!" );
 }
 
-void SpecialPixelGenerator::getID( const Identifier & id, unsigned int & pixID ) const {
+void SpecialPixelGenerator::getID( const Identifier & id, unsigned int & pixID, unsigned int mchips ) const {
   // get pixel id from a pixel identifier
   // pixID is as follows:
   //   |rrrr|rrrc|cccc|ffff|
@@ -371,11 +337,11 @@ void SpecialPixelGenerator::getID( const Identifier & id, unsigned int & pixID )
   unsigned int phipix    = m_pixelID->phi_index(id );  // pixel phi
   unsigned int etapix    = m_pixelID->eta_index(id );  // pixel eta
   //
-  pixID = ModuleSpecialPixelMap::encodePixelID( endcap, phimod, etapix, phipix );
+  pixID = ModuleSpecialPixelMap::encodePixelID( endcap, phimod, etapix, phipix, mchips );
 }
 
 const DetectorSpecialPixelMap* SpecialPixelGenerator::getDetectorMap() const{
-  if(m_CalibSvc->usePixMapCDB()) return m_detectorMap;
+  if (m_usePixCondSum) { return m_detectorMap; }
   else return  &m_detectorMapGen; 
 }
 

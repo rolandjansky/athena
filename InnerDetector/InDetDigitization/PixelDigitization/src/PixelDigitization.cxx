@@ -9,7 +9,7 @@
 // (c) ATLAS Detector software
 ////////////////////////////////////////////////////////////////////////////
 
-#include "PixelDigitization/PixelDigitization.h"
+#include "PixelDigitization.h"
 #include "PixelDigitizationTool.h"
 
 

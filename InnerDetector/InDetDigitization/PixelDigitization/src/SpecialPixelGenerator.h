@@ -59,9 +59,6 @@
 #include "SiDigitization/ISiChargedDiodesProcessorTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "PixelConditionsData/SpecialPixelMap.h"
-#include "CalibSvc.h"
-
 class Identifier;
 class PixelID;
 
@@ -124,7 +121,7 @@ private:
 
   SpecialPixelGenerator();
   int fillSpecialPixels( double prob, unsigned int status, bool merge ) const;
-  void getID( const Identifier & id, unsigned int & pixID ) const;
+  void getID( const Identifier & id, unsigned int & pixID, unsigned int mchips ) const;
   inline unsigned int setPixelStatus( unsigned int modID, unsigned int pixID, unsigned int status );
   inline unsigned int mergePixelStatus( unsigned int modID, unsigned int pixID, unsigned int status );
   inline unsigned int getPixelStatus( unsigned int modID, unsigned int pixID ) const;
@@ -151,7 +148,6 @@ private:
   ServiceHandle<ISpecialPixelMapSvc> m_specialPixelMapSvc;
   ServiceHandle<IAtRndmGenSvc>  m_rndmSvc;       /** Random number service */ 
   std::string               m_rndmEngineName;/** name of random engine, actual pointer in PixelDigitizationToolBaseAlg */ 
-  ServiceHandle<CalibSvc> m_CalibSvc;
   CLHEP::HepRandomEngine* m_rndmEngine;
 
 };
@@ -170,7 +166,7 @@ unsigned int SpecialPixelGenerator::mergePixelStatus( unsigned int modID, unsign
 
 unsigned int SpecialPixelGenerator::getPixelStatus( unsigned int modID, unsigned int pixID ) const {
   const ModuleSpecialPixelMap *modmap=0;
-  if(m_CalibSvc->usePixMapCDB()) modmap = m_detectorMap->module(modID);
+  if (m_usePixCondSum) { modmap = m_detectorMap->module(modID); }
   else modmap=m_detectorMapGen.module(modID);
   if ( modmap ) return modmap->pixelStatus(pixID);
   else return 0;
@@ -178,7 +174,7 @@ unsigned int SpecialPixelGenerator::getPixelStatus( unsigned int modID, unsigned
 
 bool SpecialPixelGenerator::pixelUseful( unsigned int modID, unsigned int pixID ) const {
   const ModuleSpecialPixelMap *modmap=0;
-  if(m_CalibSvc->usePixMapCDB()) modmap = m_detectorMap->module(modID);
+  if (m_usePixCondSum) { modmap = m_detectorMap->module(modID); }
   else modmap=m_detectorMapGen.module(modID);
   if ( modmap ) return modmap->pixelUseful(pixID);
   else return true;

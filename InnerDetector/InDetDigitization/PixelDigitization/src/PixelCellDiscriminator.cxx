@@ -12,7 +12,8 @@
 #include "PixelCellDiscriminator.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "SiDigitization/SiHelper.h"
-#include "CalibSvc.h"
+#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelConditionsServices/IPixelCalibSvc.h"
 #include "TimeSvc.h"
 // random number service
 #include "CLHEP/Random/RandomEngine.h"
@@ -30,19 +31,16 @@ const InterfaceID& PixelCellDiscriminator::interfaceID( ){ return IID_IPixelCell
 PixelCellDiscriminator::PixelCellDiscriminator(const std::string& type, const std::string& name,const IInterface* parent):
   AthAlgTool(type,name,parent),
   m_TimeSvc("TimeSvc",name),
-  m_CalibSvc("CalibSvc",name),
+  m_pixelCalibSvc("PixelCalibSvc", name),
   m_rndmSvc("AtDSFMTGenSvc",name),
   m_rndmEngineName("PixelDigitization"),
   m_rndmEngine(0),
-  m_IBLParameterSvc("IBLParameterSvc",name),
-  m_IBLabsent(true),
   m_doITk(false),
   m_timingTune(2015)
 {  
 	declareInterface< PixelCellDiscriminator >( this );
 	declareProperty("RndmSvc",m_rndmSvc,"Random Number Service used in Pixel digitization");
 	declareProperty("RndmEngine",m_rndmEngineName,"Random engine name");
-	declareProperty("CalibSvc",m_CalibSvc);
 	declareProperty("TimeSvc",m_TimeSvc);
   declareProperty("doITk",m_doITk,"Phase-II upgrade ITk flag");
 	declareProperty("TimingTune",m_timingTune,"Version of the timing tune");	
@@ -56,40 +54,23 @@ PixelCellDiscriminator::~PixelCellDiscriminator()
 // Initialize
 //----------------------------------------------------------------------
 StatusCode PixelCellDiscriminator::initialize() {
-  StatusCode sc = AthAlgTool::initialize(); 
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "PixelCellDiscriminator::initialize() failed");
-    return sc ;
-  }
-  if (m_TimeSvc.retrieve().isFailure()) {
-	ATH_MSG_ERROR("Can't get TimeSvc");
-	return StatusCode::FAILURE;
-  }
-  if (m_CalibSvc.retrieve().isFailure()) {
-	ATH_MSG_ERROR("Can't get CalibSvc");
-	return StatusCode::FAILURE;
-  }
-  if (m_rndmSvc.retrieve().isFailure()) {
-	ATH_MSG_ERROR("Can't get RndmSvc");
-	return StatusCode::FAILURE;
-  }
-  else {
-	ATH_MSG_DEBUG("Retrieved RndmSvc");
-  }
+
+  CHECK(m_TimeSvc.retrieve());
+
+  CHECK(m_pixelCalibSvc.retrieve());
+
+  CHECK(m_rndmSvc.retrieve());
   m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (m_rndmEngine==0) {
-	ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
-	return StatusCode::FAILURE;
-  }
-  if (m_IBLParameterSvc.retrieve().isFailure()) {
-	 ATH_MSG_WARNING("Could not retrieve IBLParameterSvc");
-  }
-  else {
-	 m_IBLParameterSvc->setBoolParameters(m_IBLabsent,"IBLAbsent");
+  if (!m_rndmEngine) {
+    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
+    return StatusCode::FAILURE;
+  } 
+  else { 
+    ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);  
   }
 
   ATH_MSG_DEBUG ( "PixelCellDiscriminator::initialize()");
-  return sc ;
+  return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------
@@ -108,19 +89,18 @@ StatusCode PixelCellDiscriminator::finalize() {
 // process the collection of charged diodes
 void PixelCellDiscriminator::process(SiChargedDiodeCollection &collection) const
 {   
- 
-   bool ComputeTW = true;
-   //if (getReadoutTech(collection.element()) == RD53) ComputeTW = false;
-   //if (getReadoutTech(collection.element()) == FEI4) ComputeTW = false;
-   //   ... instead for ITk:
-   if (m_doITk) ComputeTW = false;
-   //   ... and for IBL:
-   const PixelID* pixelId = static_cast<const PixelID *>((collection.element())->getIdHelper());
-   if ((!m_IBLabsent && pixelId->is_blayer(collection.element()->identify())) || 
-                      pixelId->barrel_ec(collection.element()->identify())==4 ||
-		      pixelId->barrel_ec(collection.element()->identify())==-4) ComputeTW = false;
-  // discriminator is applied to all cells, even unconnected ones to be
-  /// able to use the unconnected cells as well
+  bool ComputeTW = true;
+  //if (getReadoutTech(collection.element()) == RD53) ComputeTW = false;
+  //if (getReadoutTech(collection.element()) == FEI4) ComputeTW = false;
+  //   ... instead for ITk:
+  if (m_doITk) ComputeTW = false;
+
+  const PixelModuleDesign *p_design = dynamic_cast<const PixelModuleDesign*>(&(collection.element()->design()));
+  if (p_design->getReadoutTechnology()==PixelModuleDesign::FEI4) {
+    ComputeTW = false;
+  }
+
+  const PixelID* pixelId = static_cast<const PixelID *>((collection.element())->getIdHelper());
 
   for(SiChargedDiodeIterator i_chargedDiode=collection.begin() ;
       i_chargedDiode!=collection.end() ; ++i_chargedDiode) {
@@ -136,15 +116,15 @@ void PixelCellDiscriminator::process(SiChargedDiodeCollection &collection) const
     //    noise    : actually a noise level that logically should be added to
     //               the charge <- TODO!
     //
-    double th0  = m_CalibSvc->getCalThreshold(diodeID);
-    double ith0 = m_CalibSvc->getCalIntimeThreshold(diodeID);
+    double th0  = m_pixelCalibSvc->getThreshold(diodeID);
+    double ith0 = m_pixelCalibSvc->getTimeWalk(diodeID);
     // Flers: here I rely on CalibSvc providing correct values for th0, ith0
     // if that's not true, need to figure out if we are in dbm and set
     // th0, ith0, e.g.
     //                      if (dbm) { th0=1200.; ith0=1500.; }
     double threshold = th0 +
-      m_CalibSvc->getCalThresholdSigma(diodeID)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine) +
-      m_CalibSvc->getCalNoise(diodeID)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+      m_pixelCalibSvc->getThresholdSigma(diodeID)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine) +
+      m_pixelCalibSvc->getNoise(diodeID)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
      
     double intimethreshold  =  (ith0/th0)*threshold;
     // double overdrive        =  intimethreshold - threshold ;

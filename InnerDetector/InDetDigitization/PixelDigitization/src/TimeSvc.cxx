@@ -49,7 +49,6 @@ inline StatusCode TimeSvc::queryInterface(const InterfaceID& riid, void** ppvIf)
     return StatusCode::SUCCESS;
   }
   return AthService::queryInterface( riid, ppvIf );
-
 }
 
 
@@ -57,26 +56,19 @@ inline StatusCode TimeSvc::queryInterface(const InterfaceID& riid, void** ppvIf)
 // Initialize
 //----------------------------------------------------------------------
 StatusCode TimeSvc::initialize() {
-  StatusCode sc = AthService::initialize(); 
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "TimeSvc::initialize() failed");
-    return sc ;
-  }
-  if (m_rndmSvc.retrieve().isFailure()) {
-	ATH_MSG_ERROR("Can't get RndmSvc");
-	return StatusCode::FAILURE;
-  }
-  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (m_rndmEngine==0) {
-	ATH_MSG_ERROR ( "Could not find RndmEngine : " << m_rndmEngineName );
-	return StatusCode::FAILURE;
-  } else { 
-	ATH_MSG_DEBUG ( " Found RndmEngine : " << m_rndmEngineName ); 
-  }
 
+  CHECK(m_rndmSvc.retrieve());
+  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
+  if (!m_rndmEngine) {
+    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
+    return StatusCode::FAILURE;
+  } 
+  else { 
+    ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);  
+  }
 
   ATH_MSG_DEBUG ( "TimeSvc::initialize()");
-  return sc ;
+  return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------
