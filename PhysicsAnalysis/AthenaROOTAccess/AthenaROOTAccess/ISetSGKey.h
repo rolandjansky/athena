@@ -17,7 +17,7 @@
 #define ATHENAROOTACCESS_ISetSGKey_H
 
 
-#include "SGTools/IStringPool.h"
+#include "AthenaKernel/IStringPool.h"
 
 
 namespace AthenaROOTAccess {

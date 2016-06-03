@@ -19,7 +19,7 @@
 
 #include "AthenaROOTAccess/IAuxBranches.h"
 #include "GaudiKernel/ClassID.h"
-#include "SGTools/IStringPool.h"
+#include "AthenaKernel/IStringPool.h"
 #include "TBranch.h"
 #include "TMethodCall.h"
 #include "GaudiKernel/MsgStream.h"

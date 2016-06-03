@@ -32,8 +32,8 @@ void VertexAuxContainer_v1_fixup::fixupAfterAux (void* data,
     typedef std::vector< ElementLink< xAOD::NeutralParticleContainer > >
       NeutralLink_t;
     SG::auxid_t auxid = reg.getAuxID<NeutralLink_t> ("neutralParticleLinks");
-    void* data = const_cast<void*> (aux->getIOData (auxid));
-    std::vector<NeutralLink_t>* vec = reinterpret_cast<std::vector<NeutralLink_t>*> (data);
+    void* data1 = const_cast<void*> (aux->getIOData (auxid));
+    std::vector<NeutralLink_t>* vec = reinterpret_cast<std::vector<NeutralLink_t>*> (data1);
     if (vec->size() != sz) vec->resize(sz);
   }
 

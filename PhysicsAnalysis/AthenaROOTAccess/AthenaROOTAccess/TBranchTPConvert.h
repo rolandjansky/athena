@@ -19,7 +19,7 @@
 #include "AthenaROOTAccess/ISetSGKey.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
-#include "SGTools/IStringPool.h"
+#include "AthenaKernel/IStringPool.h"
 #include "TBranchObject.h"
 #include <map>
 #include <string>
