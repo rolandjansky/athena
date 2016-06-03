@@ -17,6 +17,9 @@ egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
 def doSuperclusters():
   return egammaRecFlags.doSuperclusters()
 
+def doBremFinding():
+  return egammaRecFlags.doBremFinding()
+
 from egammaTools.egammaToolsFactories import \
     EMBremCollectionBuilder, EMTrackMatchBuilder,\
     EMVertexBuilder, EMConversionBuilder, EGammaAmbiguityTool,\
@@ -25,13 +28,14 @@ from egammaTools.egammaToolsFactories import \
 
 if doSuperclusters() : 
   from egammaTools.egammaToolsFactories import \
-      egammaSuperClusterBuilder, egammaClusterOverlapMarker
+      egammaTopoClusterCopier, electronSuperClusterBuilder, photonSuperClusterBuilder,\
+      egammaTopoClusterMap
 
 def doConversions() :
   return DetFlags.detdescr.ID_on() and egammaRecFlags.doConversions()
 
 def getTopoSeededCollectionName():
-  if egammaRecFlags.doTopoCaloSeeded() :
+  if egammaRecFlags.doTopoCaloSeeded():
     from CaloRec import CaloRecFlags
     from CaloRec.CaloRecTopoEM35Flags import jobproperties
     jobproperties.CaloRecTopoEM35Flags.EtSeedCut =0.8 * GeV # The cut on the Fixed size is 1.5 GeV later on 
@@ -67,8 +71,13 @@ class egammaGetter ( Configured ) :
                                      # Keys
                                      ElectronOutputName = egammaKeys.outputElectronKey(),
                                      PhotonOutputName = egammaKeys.outputPhotonKey(),
-                                     TopoSeededClusterContainerName = getTopoSeededCollectionName(),
                                      
+                                     #Super Cluster Tools
+                                     TopoClusterCopier = egammaTopoClusterCopier,
+                                     electronSuperClusterBuilder = electronSuperClusterBuilder,
+                                     photonSuperClusterBuilder = photonSuperClusterBuilder,
+                                     InputTopoClusterContainerName = egammaRecFlags.egammaTopoClusterCollection(),
+                                           
                                      # Builder tools
                                      BremCollectionBuilderTool = EMBremCollectionBuilder,
                                      TrackMatchBuilderTool = EMTrackMatchBuilder,
@@ -85,11 +94,7 @@ class egammaGetter ( Configured ) :
                                      # Brem Collection building and track matching depending if ID is on/off
                                      doBremCollection= DetFlags.detdescr.ID_on(), 
                                      doTrackMatching = DetFlags.detdescr.ID_on(),
-                                     clusterEnergyCut = 10*MeV,
                                      doConversions = doConversions(), # conversions building/matching depending if ID is on/off
-                                     doTopoSeededPhotons = egammaRecFlags.doTopoCaloSeeded(),
-                                     SuperClusterBuilder = egammaSuperClusterBuilder,
-                                     OverlapMarker = egammaClusterOverlapMarker
                                      )
         else : 
           egammaBuilder = AlgFactory(egammaRecConf.egammaBuilder, name = 'egamma',

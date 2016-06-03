@@ -87,16 +87,6 @@ class egammaBuilder : public AthAlgorithm
 
 
  private:
-//   
-//   /** @brief perform the electron tool sequence; takes Electron ownership */
-//   StatusCode callElectronTools(xAOD::Electron*, const xAOD::CaloCluster*, 
-// 			       xAOD::CaloClusterContainer *, ElectronContainer *,
-// 			       bool& addedElectron);
-// 
-//   /** @brief perform the photon tool sequence; takes Photon ownership */
-//   StatusCode callPhotonTools(xAOD::Photon*, const xAOD::CaloCluster*, 
-// 			     CaloClusterContainer *, PhotonContainer *,
-// 			     bool& addedPhoton);
 
 
   /** @brief Vector of tools for dressing electrons and photons **/

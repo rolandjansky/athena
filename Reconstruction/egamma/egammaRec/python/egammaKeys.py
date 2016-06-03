@@ -20,17 +20,18 @@ class egammaKeysDict:
     TopoSeededCluster  =      [ 'xAOD::CaloClusterContainer', 'egammaTopoSeededClusters', '-CellLink' ],
     Electron =      [ 'xAOD::ElectronContainer', 'Electrons', '' ],
     EgammaRec =     [ 'egammaRecContainer', 'egammaRecCollection', '' ],
-    FwdElectron =   [ 'xAOD::ElectronContainer', 'ForwardElectrons', '' ],
-    FwdCluster  =   [ 'xAOD::CaloClusterContainer', 'ForwardElectronClusters', '' ],
+    FwdElectron =   [ 'xAOD::ElectronContainer', 'ForwardElectrons', '-CellLink' ],
+    FwdCluster  =   [ 'xAOD::CaloClusterContainer', 'ForwardElectronClusters','-SisterCluster' ],
     Photon   =      [ 'xAOD::PhotonContainer', 'Photons', '' ],
-    TrackParticle = [ 'xAOD::TrackParticleContainer', 'GSFTrackParticles', '-caloExtension.-cellAssociation'],
+    TrackParticle = [ 'xAOD::TrackParticleContainer', 'GSFTrackParticles', '-caloExtension.-cellAssociation.-bremPoints'],
     Track         = [ 'TrackCollection', 'GSFTracks', ''],
     Truth         = [ 'xAOD::TruthParticleContainer', 'egammaTruthParticles', '-caloExtension']
     )  
   inputs['TrackParticle'][1] = InDetKeys.xAODTrackParticleContainer()
   outputs['CellLink'] = ['CaloClusterCellLinkContainer', outputs['Cluster'][1] + '_links', '']
   outputs['TopoSeededCellLink'] = ['CaloClusterCellLinkContainer', outputs['TopoSeededCluster'][1] + '_links', '']
-  # NB: Cell links for topo-seeded clusters will written in ESD but not in AOD
+  outputs['FwdClusterCellLink'] = ['CaloClusterCellLinkContainer', outputs['FwdCluster'][1] + '_links', '']
+  # NB: Cell links for topo-seeded and fwd clusters will written in ESD but not in AOD
   # (see egammaOutputItemList_jobOptions.py)
 
 # Create methods to return the types and keys in inputs and outputs

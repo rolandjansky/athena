@@ -37,6 +37,10 @@ class egamma;
 class IegammaBaseTool;
 class StoreGateSvc;
 class IEMFourMomBuilder;
+class IAsgSelectionTool;
+class IAsgForwardElectronIsEMSelector;
+class ILumiBlockMuTool;
+
 
 class egammaForwardBuilder : public AthAlgorithm
 {
@@ -59,8 +63,6 @@ class egammaForwardBuilder : public AthAlgorithm
   void RetrieveObjectQualityTool();
   /** @brief retrieve 4-mom builder */
   StatusCode RetrieveEMFourMomBuilder();
-  /** @brief ID function */
-  long isEMForward(const xAOD::CaloCluster* );
   /** @brief execute object quality tool */
   StatusCode ExecObjectQualityTool(xAOD::Egamma *eg); 
 
@@ -73,7 +75,7 @@ class egammaForwardBuilder : public AthAlgorithm
 
   /** @brief Tool to perform the 4-mom computation*/
   ToolHandle<IEMFourMomBuilder> m_fourMomBuilder;
-  
+
   /** @brief input topo cluster type */
   std::string m_topoClusterName;
 
@@ -87,24 +89,16 @@ class egammaForwardBuilder : public AthAlgorithm
   double m_ETcut;
   /** @brief eta cut */
   double m_etacut;
-  double m_etafcalcut;
-
-  //bitwise map
-  std::map<std::string,int> m_discrt;
-
-  /** @brief cuts on the discrimiannts */
-  std::vector<double> m_firstENGdensCuts;
-  std::vector<double> m_fracMaxCuts;
-  std::vector<double> m_longitudinalCuts;
-  std::vector<double> m_secondLambdaCuts;
-  std::vector<double> m_lateralCuts;
-  std::vector<double> m_secondRCuts;
-  std::vector<double> m_centerLambdaCuts;
 
   // to measure speed of the algorithm
   IChronoStatSvc* m_timingProfile;
-
-
+  
+ protected:
+  /** Handle to the selectors */
+  ToolHandleArray<IAsgForwardElectronIsEMSelector> m_forwardelectronIsEMselectors;
+  std::vector<std::string> m_forwardelectronIsEMselectorResultNames;
+  
+  
 };
 #endif
 

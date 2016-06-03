@@ -34,7 +34,7 @@ def addAuxContainer(outputList, cType, cKey, auxOption=''):
 # List for of keys to be written to AOD. 
 # All egammaKeys.outputs but EgammaRec and TopoSeededCellLink
 AOD_outputs = [i for i,j in egammaKeysDict.outputs.items() \
-  if i not in ('EgammaRec', 'TopoSeededCellLink')]
+  if i not in ('EgammaRec', 'TopoSeededCellLink','FwdClusterCellLink')]
 
 # Define egammaAODList in the proper format (<type>#<key><option>),
 # including aux containers
@@ -58,11 +58,14 @@ for _ in AOD_outputs:
 # List for ESD: same as AOD but for tracks and links from topo-seeded clusters to cells 
 egammaESDList = list(egammaAODList)
 egammaESDList.append( getItem(egammaKeys.outputTrackType(), egammaKeys.outputTrackKey()) )
-
 egammaESDList.append( getItem(egammaKeys.outputTopoSeededCellLinkType(), egammaKeys.outputTopoSeededCellLinkKey()) )
+egammaESDList.append( getItem(egammaKeys.outputFwdClusterCellLinkType(), egammaKeys.outputFwdClusterCellLinkKey()) )
 
-# Remove auxOption from TopoSeededCluster
+# Remove auxOption from TopoSeeded and Forward Clusters ==> keep cellLink 
 for index, item in enumerate(egammaESDList):
   if egammaKeys.outputTopoSeededClusterKey() + 'Aux' in item:
     egammaESDList[index] = getAuxItem( egammaKeys.outputTopoSeededClusterType(), egammaKeys.outputTopoSeededClusterKey() )
+  
+  if egammaKeys.outputFwdClusterKey() + 'Aux' in item:
+    egammaESDList[index] = getAuxItem( egammaKeys.outputFwdClusterType(), egammaKeys.outputFwdClusterKey() )
 

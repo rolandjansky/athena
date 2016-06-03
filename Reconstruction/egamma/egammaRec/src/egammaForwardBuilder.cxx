@@ -19,6 +19,8 @@
 #include "xAODEgamma/ElectronAuxContainer.h"
 #include "xAODEgamma/Electron.h"
  
+#include "ElectronPhotonSelectorTools/IAsgForwardElectronIsEMSelector.h"
+
 #include <algorithm> 
 #include <math.h>
 
@@ -56,46 +58,18 @@ egammaForwardBuilder::egammaForwardBuilder(const std::string& name, ISvcLocator*
 		  m_etacut=2.5,
 		  "Value of the eta cut");
 
-  // Value of the eta cut in forward calorimeter
-  declareProperty("EtaFCalCut",
-		  m_etafcalcut=3.2,
-		  "Value of the eta cut in forward calorimeter");
-
+ 
   // Name of the output EM cluster container
   declareProperty("ClusterContainerName",
 		  m_outClusterContainerName="",
 		  "Name of the output EM cluster container");
 
-  // 
-  declareProperty("FirstENGdensCuts",m_firstENGdensCuts);
+  // Selector definition
+  declareProperty("forwardelectronIsEMselectors", m_forwardelectronIsEMselectors,
+    "The selectors that we need to apply to the FwdElectron object");
+  declareProperty("forwardelectronIsEMselectorResultNames", m_forwardelectronIsEMselectorResultNames,
+    "The selector result names");
 
-  //
-  declareProperty("FracMaxCuts",m_fracMaxCuts);
-
-  // Value of cuts on longitudinal shower
-  declareProperty("LongMomentCuts",
-		  m_longitudinalCuts,
-		  "Value of cuts on longitudinal shower");
-
-  // Cut value for second lambda moment
-  declareProperty("SecondLambdaCuts",
-		  m_secondLambdaCuts,
-		  "Cut value for second lambda moment");
-
-  // Cut value for lateral moment
-  declareProperty("LatMomentCuts",
-		  m_lateralCuts,
-		  "Cut value for lateral moment");
-
-  // Cut value for secondR moment
-  declareProperty("SecondRCuts",
-		  m_secondRCuts,
-		  "Cut values for secondR moment");
-
-  // Cut value for Centre lambda moment
-  declareProperty("CenterLambdaCuts",
-		  m_centerLambdaCuts,
-		  "Cut for Centre lambda moment");
   // Name of the object quality tool
   declareProperty("ObjectQualityToolName", 
 		  m_ObjectQualityToolName="",
@@ -126,15 +100,6 @@ StatusCode egammaForwardBuilder::initialize()
 
   ATH_MSG_DEBUG(" Initializing egammaForwardBuilder ");
   
-  //for bitwise... 
-  m_discrt["FIRST_ENG_DENS"] =  1;
-  m_discrt["ENG_FRAC_MAX"]   =  2;
-  m_discrt["LONGITUDINAL"]   =  4;
-  m_discrt["SECOND_LAMBDA"]  =  8;
-  m_discrt["LATERAL"]        = 16;
-  m_discrt["SECOND_R"]       = 32;
-  m_discrt["CENTER_LAMBDA"]  = 64;
-  
   // retrieve object quality tool 
   RetrieveObjectQualityTool();
 
@@ -148,6 +113,17 @@ StatusCode egammaForwardBuilder::initialize()
   if ((sc = RetrieveEMFourMomBuilder()).isFailure()) {
     return sc;
   }
+
+
+  for (const auto& selector : m_forwardelectronIsEMselectors) {
+    CHECK(selector.retrieve());
+  }
+  
+  if (m_forwardelectronIsEMselectors.size() != m_forwardelectronIsEMselectorResultNames.size()) {
+    ATH_MSG_ERROR("The number of selectors does not match the number of given fwd-electron selector names");
+    return StatusCode::FAILURE;
+  }
+  
 
   ATH_MSG_DEBUG("Initialization completed successfully");
   return StatusCode::SUCCESS;
@@ -280,127 +256,31 @@ StatusCode egammaForwardBuilder::execute()
     // do object quality 
     CHECK( ExecObjectQualityTool(el) );
     
-    const long frwdElectronTight = 126;
-    const long frwdElectronLoose = 104;
-
-    //Egamma ID
-    long IsEM = isEMForward( newcluster );
-    ATH_MSG_VERBOSE(" the IsEM calculated "<<IsEM);
-
-    const bool isLoose = (frwdElectronLoose & IsEM) == 0;
-    const bool isTight = (frwdElectronTight & IsEM) == 0;
-    el->setPassSelection(isLoose, "Loose");
-    el->setPassSelection(isTight, "Tight");
-
+  
+    // FwdSelectors:
+    size_t size = m_forwardelectronIsEMselectors.size();
+    
+    for (size_t i = 0; i<size;++i) {
+      const Root::TAccept& accept = m_forwardelectronIsEMselectors[i]->accept(el);
+      //save the bool result
+      el->setPassSelection(static_cast<bool>(accept), m_forwardelectronIsEMselectorResultNames[i]);
+      //save the isem
+      el->setSelectionisEM(m_forwardelectronIsEMselectors[i]->IsemValue(), "isEM"+m_forwardelectronIsEMselectorResultNames[i]);
+      
+    }
   }
-
   
-//   //lock the ElectronForward collection
-//   sc = evtStore()->setConst(xaodFrwd);
-//   if ( sc.isFailure() ) {
-//     ATH_MSG_WARNING("cannot set electron_container to const ");
-//   }
-  
-  //outClusterContainer->print();
   ATH_MSG_VERBOSE("egammaForward execute completed successfully");
   
   return StatusCode::SUCCESS;
 }  
   
-// ================================================
-long egammaForwardBuilder::isEMForward(const xAOD::CaloCluster* cluster)
-{
-  //
-  // apply cuts and fills isem variable
-  //
-
-  double firstENGdens=-999.;
-  double lateral=-999.;
-  double secondR=-999.;
-  double centerLambda=-999.;
-  double fracMax=-999.;
-  double longitudinal=-999.;
-  double secondLambda=-999.;
-
-  // loop on moments
-  
-  if( !cluster->retrieveMoment( xAOD::CaloCluster::FIRST_ENG_DENS,firstENGdens) )
-    firstENGdens = -999;
- 
-  if( !cluster->retrieveMoment( xAOD::CaloCluster::ENG_FRAC_MAX, fracMax) )
-    fracMax = -999;
-  
-  if( !cluster->retrieveMoment( xAOD::CaloCluster::LONGITUDINAL, longitudinal) )
-    longitudinal = -999;
-  
-  if( !cluster->retrieveMoment( xAOD::CaloCluster::SECOND_LAMBDA,secondLambda) )
-    secondLambda = -999;
-  
-  if( !cluster->retrieveMoment( xAOD::CaloCluster::LATERAL, lateral) )
-    lateral =-999;
-  
-  if( !cluster->retrieveMoment( xAOD::CaloCluster::SECOND_R, secondR) )
-    secondR =-999;
-  
-  if( !cluster->retrieveMoment( xAOD::CaloCluster::CENTER_LAMBDA, centerLambda) )
-    centerLambda = -999;
-
-  
-  long _EM_Pass = 0;
-  long m_Frwd_ID;
-
-  //cuts in the EMEC and FCal can be differents
-  int index;
-  if(fabs(cluster->eta())<m_etafcalcut)
-    index = 0;
-  else
-    index = 1;
-
-  if(!(firstENGdens > m_firstENGdensCuts[index]))
-    _EM_Pass |= m_discrt["FIRST_ENG_DENS"];
-  m_Frwd_ID=_EM_Pass;
-
-    
-  if(!(fracMax > m_fracMaxCuts[index]))
-    _EM_Pass |= m_discrt["ENG_FRAC_MAX"];
-  m_Frwd_ID=_EM_Pass;
-
-
-  if(!(longitudinal < m_longitudinalCuts[index]))
-    _EM_Pass |= m_discrt["LONGITUDINAL"];
-  m_Frwd_ID=_EM_Pass;
-
-
-  if(!(secondLambda < m_secondLambdaCuts[index]))
-    _EM_Pass |= m_discrt["SECOND_LAMBDA"];
-  m_Frwd_ID=_EM_Pass;
-
-
-  if(!(lateral < m_lateralCuts[index]))
-    _EM_Pass |= m_discrt["LATERAL"];
-  m_Frwd_ID=_EM_Pass;
-
-
-  if(!(secondR < m_secondRCuts[index]))
-    _EM_Pass |= m_discrt["SECOND_R"];
-  m_Frwd_ID=_EM_Pass;
-  
-  //if((centerLambda < m_centerLambdaCuts[index]))
-  if(!(centerLambda < m_centerLambdaCuts[index]))
-    _EM_Pass |= m_discrt["CENTER_LAMBDA"];
-  m_Frwd_ID=_EM_Pass;
-
-  
-  return m_Frwd_ID;
-}
-
 // ===========================================================
 StatusCode egammaForwardBuilder::ExecObjectQualityTool(xAOD::Egamma *eg)
 {
   //
   // execution of the object quality tools
   //
-
   // protection in case tool is not available
   // return success as algorithm may be able to run without it 
   // in degraded mode

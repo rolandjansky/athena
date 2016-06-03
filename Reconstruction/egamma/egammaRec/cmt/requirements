@@ -16,14 +16,15 @@ use StoreGate                  StoreGate-*              Control
 use PathResolver               PathResolver-*           Tools
 use CaloUtils                  CaloUtils-*              Calorimeter
 use CaloGeoHelpers             CaloGeoHelpers-*         Calorimeter
-
+use CxxUtils                   CxxUtils-*              Control
+use egammaRecEvent             egammaRecEvent-*  Reconstruction/egamma
 use egammaUtils                egammaUtils-*            Reconstruction/egamma
 use egammaInterfaces           egammaInterfaces-*       Reconstruction/egamma
 
 # EDM package(s):
 use xAODTracking               xAODTracking-*     Event/xAOD
 
-use egammaRecEvent             egammaRecEvent-*  Reconstruction/egamma
+
 use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-* PhysicsAnalysis/ElectronPhotonID
 
 apply_tag ROOTMathLibs
