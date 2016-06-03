@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 747661 2016-05-17 12:07:19Z guirriec $
+# $Id: CMakeLists.txt 752138 2016-06-03 13:19:42Z guirriec $
 ################################################################################
 # Package: JetTagTools
 ################################################################################
@@ -33,6 +33,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/AnalysisCommon/ParticleJetTools
    PhysicsAnalysis/JetTagging/JetTagCalibration
    PhysicsAnalysis/MuonID/MuonSelectorTools
+   PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections
    Reconstruction/Jet/JetEDM
    Reconstruction/Particle
    Reconstruction/RecoTools/ITrackToVertex
@@ -86,7 +87,7 @@ atlas_add_library( JetTagToolsLib
    xAODTracking GaudiKernel JetTagInfo JetSubStructureUtils TrkParameters
    JetRecLib JetSubStructureMomentToolsLib egammaMVACalibLib MVAUtils
    TrackVertexAssociationToolLib ParticleJetToolsLib JetTagCalibrationLib
-   MuonSelectorToolsLib TrkNeuralNetworkUtilsLib
+   MuonSelectorToolsLib MuonMomentumCorrectionsLib TrkNeuralNetworkUtilsLib
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${FASTJET_LIBRARIES} AthenaKernel
    Navigation xAODMuon JetEDM Particle ITrackToVertex TrkEventPrimitives
    TrkLinks TrkTrack TrkTrackSummary VxJetVertex VxSecVertex VxVertex

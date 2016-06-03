@@ -64,6 +64,7 @@ use TrackVertexAssociationTool TrackVertexAssociationTool-* InnerDetector/InDetR
 #use JetTagEvent          JetTagEvent-*           PhysicsAnalysis/JetTagging
 use JetTagCalibration    JetTagCalibration-*     PhysicsAnalysis/JetTagging
 use MuonSelectorTools	MuonSelectorTools-*	PhysicsAnalysis/MuonID
+use MuonMomentumCorrections	MuonMomentumCorrections-*	PhysicsAnalysis/MuonID/MuonIDAnalysis
 
 use TrkEventPrimitives   TrkEventPrimitives-*    Tracking/TrkEvent
 use TrkVertexFitterInterfaces  TrkVertexFitterInterfaces-*     Tracking/TrkVertexFitter
@@ -131,3 +132,4 @@ private
 
 #Remove warning
 #macro_append cppflags " -w"
+

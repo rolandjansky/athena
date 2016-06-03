@@ -32,6 +32,7 @@ namespace TMVA { class Reader; }
 namespace Analysis { class CalibrationBroker; }
 
 namespace CP { class IMuonSelectionTool; }
+namespace CP { class IMuonCalibrationAndSmearingTool; }
 
 class TList;
 
@@ -67,6 +68,7 @@ namespace Analysis {
 
    ToolHandle<CalibrationBroker> m_calibrationTool;
    ToolHandle<CP::IMuonSelectionTool> m_muonSelectorTool;
+   ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCorrectionTool;
    const xAOD::Vertex *m_primVtx; 
 
 

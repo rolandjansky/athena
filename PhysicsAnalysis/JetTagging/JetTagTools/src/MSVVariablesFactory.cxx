@@ -8,7 +8,7 @@
 ///
 /// DESCRIPTION:
 ///
-/// This class is a "variable factory". It generates all 
+/// This class is a "variable factory". It generates all
 /// the variables per vertex to MSV.
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,12 +45,12 @@ namespace Analysis {
   MSVVariablesFactory::MSVVariablesFactory(const std::string& name,
 						       const std::string& n, const IInterface* p):
     AthAlgTool(name, n,p)
-//    m_secVxFinderName("InDetVKalVxInJetTool"), 
+//    m_secVxFinderName("InDetVKalVxInJetTool"),
 
   {
 //    declareProperty("secVxFinderName",m_secVxFinderName);
     declareInterface<IMSVVariablesFactory>(this);
-  }  
+  }
 
 /////////////////////////////////////////////////////////////////////////////////////
 /// Destructor - check up memory allocation
@@ -90,18 +90,18 @@ StatusCode MSVVariablesFactory::finalize() {
     }
     std::vector<xAOD::Vertex*>::const_iterator verticesBegin = myVertexInfoVKal->vertices().begin();
     std::vector<xAOD::Vertex*>::const_iterator verticesEnd   = myVertexInfoVKal->vertices().end();
-    
+
     jetenergy = myVertexInfoVKal->energyTrkInJet();
     n2t = myVertexInfoVKal->n2trackvertices();
     BTag->setVariable<int>(basename, "N2Tpair", n2t);
-    BTag->setVariable<float>(basename, "energyTrkInJet", jetenergy);  
+    BTag->setVariable<float>(basename, "energyTrkInJet", jetenergy);
 
-    std::vector<const xAOD::Vertex*> vecVertices;  
+    std::vector<const xAOD::Vertex*> vecVertices;
     for (std::vector<xAOD::Vertex*>::const_iterator verticesIter=verticesBegin; verticesIter!=verticesEnd;++verticesIter) {
-        
+
       xAOD::Vertex* Vertex = *verticesIter;
       VertexContainer->push_back(Vertex);
-      //additional info per vertex 
+      //additional info per vertex
       vecVertices.push_back(*verticesIter);
       double sumpx = 0.0;
       double sumpy = 0.0;
@@ -126,7 +126,7 @@ StatusCode MSVVariablesFactory::finalize() {
             sume +=sqrt(perigee->momentum().mag()*perigee->momentum().mag() + 139.5702*139.5702 );
           }else{
              ATH_MSG_WARNING("#BTAG# perigee for VxTrackAtVertex not found");
-          }   
+          }
         }
       }
       CLHEP::HepLorentzVector vtxp4(sumpx,sumpy,sumpz,sume);
@@ -136,13 +136,13 @@ StatusCode MSVVariablesFactory::finalize() {
       xAOD::SecVtxHelper::setVtxNtrk(Vertex, npsec);
       xAOD::SecVtxHelper::setVtxpt(Vertex, vtxp4.perp());
       xAOD::SecVtxHelper::setVtxeta(Vertex, vtxp4.eta());
-      xAOD::SecVtxHelper::setVtxphi(Vertex, vtxp4.phi()); 
+      xAOD::SecVtxHelper::setVtxphi(Vertex, vtxp4.phi());
 
       ATH_MSG_DEBUG("#BTAG# mass per vertex = "<<vtxp4.m());
       double localdistnrm=0;
       std::vector<const xAOD::Vertex*> vecVtxHolder;
       vecVtxHolder.push_back(*verticesIter);
-      
+
          ATH_MSG_DEBUG("Factory PVX x = " << priVtx->x() << " y = " << priVtx->y() << " z = " << priVtx->z());
       if (priVtx) {
         localdistnrm=get3DSignificance(priVtx, vecVtxHolder, Amg::Vector3D(myJet.p4().Px(),myJet.p4().Py(),myJet.p4().Pz()));
@@ -151,7 +151,7 @@ StatusCode MSVVariablesFactory::finalize() {
         localdistnrm=0.;
       }
       xAOD::SecVtxHelper::setVtxnormDist(Vertex, localdistnrm);
-      //track links, 
+      //track links,
       Vertex->setTrackParticleLinks(myTrackLinks);
 
       ElementLink< xAOD::VertexContainer> linkBTagVertex;
@@ -161,7 +161,7 @@ StatusCode MSVVariablesFactory::finalize() {
 
     BTag->setVariable<std::vector<ElementLink<xAOD::VertexContainer> > >(basename, "vertices", MSVVertexLinks);
     BTag->setDynVxELName(basename, "vertices");
-    
+
     if (priVtx) {
       distnrm=get3DSignificance(priVtx, vecVertices, Amg::Vector3D(myJet.p4().Px(),myJet.p4().Py(),myJet.p4().Pz()));
     } else {
@@ -174,16 +174,16 @@ StatusCode MSVVariablesFactory::finalize() {
 
     //...
     return StatusCode::SUCCESS;
-   
-  
+
+
   }
-  
+
   double MSVVariablesFactory::get3DSignificance(const xAOD::Vertex* priVertex,
                                        std::vector<const xAOD::Vertex*>& secVertex,
                                         const Amg::Vector3D jetDirection) const {
     if(!secVertex.size()) return 0;
     std::vector<Amg::Vector3D> positions;
-    std::vector<AmgSymMatrix(3)> weightMatrices;    
+    std::vector<AmgSymMatrix(3)> weightMatrices;
     std::vector<const xAOD::Vertex*>::const_iterator secEnd = secVertex.end();
     for (std::vector<const xAOD::Vertex*>::const_iterator secIter = secVertex.begin(); secIter != secEnd; ++secIter){
       positions.push_back((*secIter)->position());
@@ -192,7 +192,7 @@ StatusCode MSVVariablesFactory::finalize() {
     Amg::Vector3D weightTimesPosition(0.,0.,0.);
     AmgSymMatrix(3) sumWeights;
     sumWeights.setZero();
-    
+
     int count=0;
     for (std::vector<const xAOD::Vertex*>::const_iterator secIter = secVertex.begin(); secIter != secEnd; ++secIter) {
       weightTimesPosition+=(weightMatrices[count])*positions[count];
@@ -204,7 +204,7 @@ StatusCode MSVVariablesFactory::finalize() {
     meanCovariance.setZero();
     sumWeights.computeInverseWithCheck(meanCovariance, invertible);
     if (! invertible) {
-      ATH_MSG_ERROR("#BTAG# Could not invert sum of sec vtx matrices");
+      ATH_MSG_WARNING("#BTAG# Could not invert sum of sec vtx matrices");
       return 0.;
     }
     Amg::Vector3D meanPosition=meanCovariance*weightTimesPosition;

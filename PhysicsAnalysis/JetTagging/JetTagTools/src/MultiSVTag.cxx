@@ -54,7 +54,7 @@ namespace Analysis
   MultiSVTag::MultiSVTag(const std::string& t, const std::string& n, const IInterface* p)
     : AthAlgTool(t,n,p),
     m_calibrationTool("BTagCalibrationBroker"),
-    m_runModus("analysis") 
+    m_runModus("analysis")
    // m_secVxFinderName("InDetVKalVxInJetTool")
   {
     declareInterface<ITagTool>(this);
@@ -78,7 +78,7 @@ namespace Analysis
 
   StatusCode MultiSVTag::initialize() {
     // define tagger name:
-    
+
     //m_taggerNameBase = instanceName2;
     //std::string tmp = "MultiSV1" ;
     m_disableAlgo=false;
@@ -103,7 +103,7 @@ namespace Analysis
     m_tmvaReaders.clear();
     m_tmvaMethod.clear();
     m_egammaBDTs.clear();
-    return StatusCode::SUCCESS;                       
+    return StatusCode::SUCCESS;
   }
 
   StatusCode MultiSVTag::finalize(){
@@ -120,9 +120,9 @@ namespace Analysis
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MultiSVTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag){    
+  StatusCode MultiSVTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag){
 
-    /** author to know which jet algorithm: */ 
+    /** author to know which jet algorithm: */
     std::string author = JetTagUtils::getJetAuthor(jetToTag);
     if (m_doForcedCalib) author = m_ForcedCalibName;
     ATH_MSG_DEBUG("#BTAG# MSV Using jet type " << author << " for calibrations.");
@@ -138,12 +138,12 @@ namespace Analysis
     ATH_MSG_DEBUG("#BTAG# Jet author for MultiSVTag: " << author << ", alias: " << alias );
     /* check if calibration (neural net structure or weights) has to be updated: */
     std::pair<TObject*, bool> calib=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib");
-     
+
     bool calibHasChanged = calib.second;
     std::ostringstream iss;
     std::map<std::string, TMVA::MethodBase*>::iterator itmap;
     if(calibHasChanged) {
-      
+
       ATH_MSG_DEBUG("#BTAG# " << m_taggerNameBase << " calib updated -> try to retrieve");
       if(!calib.first) {
         ATH_MSG_WARNING("#BTAG# TObject can't be retrieved -> no calibration for "<< m_taggerNameBase );
@@ -205,7 +205,7 @@ namespace Analysis
 	if ( calibNvars!=nConfgVar or badVariableFound ) {
 	  ATH_MSG_WARNING("#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << calibNvars << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
 	  m_disableAlgo=true;
-	  return StatusCode::SUCCESS;	
+	  return StatusCode::SUCCESS;
 	}
 
 	//tmvaReader->BookMVA("BDT", xmlFileName);
@@ -236,7 +236,7 @@ namespace Analysis
 	// TTree *tree = (TTree*) f->Get(treeName.data());
 	std::pair<TObject*, bool> calibTree=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_treeName);
 	TTree *tree = (TTree*) calibTree.first;
-	
+
 	if (tree) {
 	  bdt = new MVAUtils:: BDT(tree);
 	  delete tree;//<- Crash at finalization if w/o this
@@ -246,7 +246,7 @@ namespace Analysis
 	  m_disableAlgo=true;
 	  return StatusCode::SUCCESS;
 	}
-	
+
 	// TObjArray* toa= (TObjArray*) f->Get(varStrName.data());
 	std::pair<TObject*, bool> calibVariables=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_varStrName);
 	TObjArray* toa= (TObjArray*) calibVariables.first;
@@ -270,6 +270,7 @@ namespace Analysis
 	if ( calibNvars!=nConfgVar or badVariableFound ) {
 	  ATH_MSG_WARNING( "#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << calibNvars << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
 	  m_disableAlgo=true;
+    delete bdt;
 	  return StatusCode::SUCCESS;
 	}
 
@@ -283,8 +284,8 @@ namespace Analysis
 	m_egammaBDTs.insert( std::make_pair( alias, bdt ) );
 
       }
-    }//calib has changed       
-    
+    }//calib has changed
+
     //if(!m_calibrationTool->updatedTagger(m_taggerNameBase, alias, m_taggerNameBase+"Calib", name())) {
     //  if(iss.str().size()>0){
       //  m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase,alias, m_taggerNameBase+"Calib", false, name());
@@ -299,7 +300,7 @@ namespace Analysis
 
     TLorentzVector jp4; jp4.SetPtEtaPhiM(jetToTag.pt(), jetToTag.eta(), jetToTag.phi(), jetToTag.m());
    // CLHEP::HepLorentzVector jp4(jetToTag.jetP4().px(), jetToTag.jetP4().px(), jetToTag.jetP4().px(), jetToTag.e());
-    
+
     int msv_n = 0;
     int all_trks = 0;
     int nvtx2trk = 0;
@@ -307,7 +308,7 @@ namespace Analysis
     int singletrk = 0;
     float totalmass = 0.;
     float distnorm = 0.;
-    
+
     bool status = true;
 
     status &= BTag->variable<float>(m_secVxFinderName, "normdist", distnorm);
@@ -334,7 +335,7 @@ namespace Analysis
         float mass = xAOD::SecVtxHelper::VertexMass(**vtxIter);
         float efrc = xAOD::SecVtxHelper::EnergyFraction(**vtxIter);
         int   ntrk = xAOD::SecVtxHelper::VtxNtrk(**vtxIter);
-        float pt   = xAOD::SecVtxHelper::Vtxpt(**vtxIter); 
+        float pt   = xAOD::SecVtxHelper::Vtxpt(**vtxIter);
         float eta  = xAOD::SecVtxHelper::Vtxeta(**vtxIter);
         float phi  = xAOD::SecVtxHelper::Vtxphi(**vtxIter);
         float dls  = xAOD::SecVtxHelper::VtxnormDist(**vtxIter);
@@ -349,10 +350,10 @@ namespace Analysis
         }else{ nvtx2trk++;
         }
         all_trks += svTrackLinks.size();
-        
+
         ATH_MSG_DEBUG("#BTAG# MSV_vtx mass: " <<mass<<", efrc: "<<efrc<<", ntrk: "<<ntrk );
         ATH_MSG_DEBUG("#BTAG# MSV_vtx pt: " <<pt<<", eta: "<<eta<<", phi: "<<phi );
-        ATH_MSG_DEBUG("#BTAG# MSV_vtx DRj: " <<jp4.DeltaR(svp4)); 
+        ATH_MSG_DEBUG("#BTAG# MSV_vtx DRj: " <<jp4.DeltaR(svp4));
         v_vtxmass[nsv] = mass;
         v_vtxefrc[nsv] = efrc;
         v_vtxntrk[nsv] = ntrk;
@@ -365,13 +366,13 @@ namespace Analysis
         v_vtxy[nsv]    = y;
         v_vtxz[nsv]    = z;
         nsv++;
-                                       
+
       }//loop in vertices
       m_normDist = distnorm;
       m_nvtx = nsv;
       m_totalntrk = all_trks;
       m_summass = totalmass;
-      
+
       int diffntrkSV1 = -999;
       int SV1ntrk  = 0;
       std::vector< ElementLink< xAOD::VertexContainer > > SV1Vertice;
@@ -380,8 +381,8 @@ namespace Analysis
          status &= BTag->taggerInfo(SV1ntrk, xAOD::BTagInfo::SV1_NGTinSvx);
          diffntrkSV1 = all_trks - SV1ntrk;
       }else{ diffntrkSV1 = all_trks;
-      }    
-      
+      }
+
       int diffntrkSV0 = -999;
       int SV0ntrk  = 0;
       std::vector< ElementLink< xAOD::VertexContainer > > SV0Vertice;
@@ -390,7 +391,7 @@ namespace Analysis
          status &= BTag->taggerInfo(SV0ntrk, xAOD::BTagInfo::SV0_NGTinSvx);
          diffntrkSV0 = all_trks - SV0ntrk;
       }else{ diffntrkSV0 = all_trks;
-      }    
+      }
 
       if (!status) {
         ATH_MSG_WARNING("Error retrieving input values; results will be incorrect!");
@@ -400,21 +401,21 @@ namespace Analysis
       m_diffntrkSV1 = diffntrkSV1;
       float tmpefrc = 0.;
       for(int i=0; i<nsv; i++) {
-        if(v_vtxntrk[i]!=1){ 
+        if(v_vtxntrk[i]!=1){
           if(v_vtxefrc[i] > tmpefrc ) tmpefrc = v_vtxefrc[i];
-        } 
+        }
       }
       m_maxefrc = tmpefrc;
       m_mmax_mass  = -9.;
-      
+
       m_mmax_efrc  = -9.;
-    
+
       m_mmax_DRjet = -9;
       m_mmax_dist  = -9.;
-      m_mmx2_mass  = -9.;      
-     
+      m_mmx2_mass  = -9.;
+
       m_mmx2_efrc  = -9.;
-   
+
       m_mmx2_DRjet = -9.;
       m_mmx2_dist  = -9.;
       int ivm1 = -1; int ivm2 = -1;
@@ -427,7 +428,7 @@ namespace Analysis
             vm1 = v_vtxmass[i];
             ivm1 = i;
           }
-        }  
+        }
       }
       for(int i=0; i<nsv; i++) {
         if( v_vtxntrk[i]!=1) {
@@ -445,7 +446,7 @@ namespace Analysis
         sv1p3.SetZ(v_vtxz[ivm1] - m_priVtx->z());
         m_mmax_mass  = v_vtxmass[ivm1];
         m_mmax_efrc  = v_vtxefrc[ivm1];
-  
+
         m_mmax_DRjet = v_vtxDRj[ivm1];
         m_mmax_dist  = v_vtxdls[ivm1];
       }
@@ -464,17 +465,17 @@ namespace Analysis
       // distances: max mass vertex to PV, and mx2 to max vertex:
       m_mx12_2d12 = -9.;
       m_mx12_DR   = -9.;
-      m_mx12_Angle= -9.; 
+      m_mx12_Angle= -9.;
       if(m_priVtx) {
         if(ivm1>=0&&ivm2>=0) {
-                                      
+
           m_mx12_2d12 = TMath::Sqrt(  (v_vtxx[ivm2] - v_vtxx[ivm1]) * (v_vtxx[ivm2] - v_vtxx[ivm1])
-                                   +  (v_vtxy[ivm2] - v_vtxy[ivm1]) * (v_vtxy[ivm2] - v_vtxy[ivm1]) );       
+                                   +  (v_vtxy[ivm2] - v_vtxy[ivm1]) * (v_vtxy[ivm2] - v_vtxy[ivm1]) );
           m_mx12_DR    = sv1p3.DeltaR(sv2p3);
-         
+
           m_mx12_Angle = sv1p3.Angle(sv2p3);
-          
-        }  
+
+        }
       }else {
         ATH_MSG_WARNING("#BTAG# Tagging requested, but no primary vertex supplied.");
       }
@@ -492,12 +493,12 @@ namespace Analysis
                                ", mmax_DRjet= "    << m_mmax_DRjet  <<
                                ", mmax_dist= "     << m_mmax_dist   <<
                                ", mmx2_mass= "     << m_mmx2_mass   <<
-                               ", mmx2_efrc= "     << m_mmx2_efrc   << 
+                               ", mmx2_efrc= "     << m_mmx2_efrc   <<
                                ", mmx2_DRjet= "    << m_mmx2_DRjet  <<
                                ", mmx2_dist= "     << m_mmx2_dist   <<
-                               ", mx12_2d12= "     << m_mx12_2d12   << 
+                               ", mx12_2d12= "     << m_mx12_2d12   <<
                                ", mx12_DR= "       << m_mx12_DR     <<
-                               ", mx12_Angle="     << m_mx12_Angle 
+                               ", mx12_Angle="     << m_mx12_Angle
                    );
     }
     //...
@@ -548,7 +549,7 @@ namespace Analysis
   void MultiSVTag::finalizeHistos() {
     /// implementation for Analysis::ITagTool::finalizeHistos
   }
-  
+
   void MultiSVTag::SetVariableRefs(const std::vector<std::string> inputVars, TMVA::Reader* tmvaReader, unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers) {
 
     if (!m_useEgammaMethodMultiSV) {
