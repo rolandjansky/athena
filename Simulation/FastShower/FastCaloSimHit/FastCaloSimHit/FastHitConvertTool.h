@@ -56,7 +56,7 @@ public:
   /** standard Athena-Algorithm method */
   virtual StatusCode initialize() override final;
   /** standard Athena-Algorithm method */
-  virtual StatusCode process(CaloCellContainer *theCellContainer);
+  virtual StatusCode process(CaloCellContainer *theCellContainer) override;
 
 private:
   StatusCode initEvent();
