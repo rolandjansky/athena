@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODRingSetConfWriter.cxx 695515 2015-09-17 17:03:34Z wsfreund $
+// $Id: xAODRingSetConfWriter.cxx 713521 2015-12-09 08:53:41Z wsfreund $
 
 // STL include(s)
 #include <algorithm>
@@ -60,7 +60,7 @@ StatusCode xAODRingSetConfWriter::initialize() {
         "set via the RingSetConfMetaNames "
         "python configurable.");
 
-    ATH_MSG_ERROR("The retrieven RingSet names are: " << m_rsMetaNames );
+    ATH_MSG_ERROR("The retrieven m_RingSet names are: " << m_rsMetaNames );
     ATH_MSG_ERROR("The retrieven m_crBuilderTools names are: " 
         << [this]()
         {
@@ -86,7 +86,7 @@ StatusCode xAODRingSetConfWriter::initialize() {
     }
     ATH_MSG_DEBUG( "CaloRingsBuilderTools = " << toolNames );
   }
-  ATH_MSG_VERBOSE( "MetaDataStore = " << m_metaStore );
+  ATH_MSG_VERBOSE( m_metaStore );
   ATH_MSG_VERBOSE( "InputMetaDataStore = " << m_inputMetaStore );
 
   // Retrieve the necessary service(s):
@@ -94,7 +94,7 @@ StatusCode xAODRingSetConfWriter::initialize() {
   CHECK( m_inputMetaStore.retrieve() );
 
   // Now work to set xAOD RingSet/CaloRings configuration metadata available on
-  // the xAOD file:
+  // the output meta store:
   CHECK( copyInputMetaStore() );
   CHECK( retrieveCaloRingsBuilders() );
   CHECK( allocateContainers() );
@@ -109,7 +109,7 @@ StatusCode xAODRingSetConfWriter::initialize() {
 // =================================================================================
 StatusCode xAODRingSetConfWriter::copyInputMetaStore()
 {
-  ATH_MSG_DEBUG("Checking if need to copy RingSetConf "
+  ATH_MSG_DEBUG("Checking if it is needed to copy RingSetConf "
       "MetaData on input file.");
 
   CHECK( searchAndCopyCLID< xAOD::RingSetConfAuxContainer >( 

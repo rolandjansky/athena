@@ -4,7 +4,7 @@
 # File:  CaloRingerAlgs/python/CaloRingerFlags.py
 #=======================================================================
 __author__  = 'W. S. Freund'
-__version__="$Revision: 695515 $"
+__version__="$Revision: 713521 $"
 __doc__="CaloRinger flags."
 
 
@@ -44,6 +44,15 @@ class CaloRingerFlagsJobProperty(JobProperty):
         return False
 jobproperties.CaloRingerFlags.add_JobProperty(CaloRingerFlagsJobProperty)
 
+from AthenaCommon.Logging import logging
+class OutputLevel(CaloRingerFlagsJobProperty):
+    """ switch for all CaloRinger algorithms and tools
+    """
+    statusOn        = True
+    allowedTypes    = ['int']
+    StoredValue     = logging.INFO
+jobproperties.CaloRingerFlags.add_JobProperty(OutputLevel)
+
 #=======================================================================
 class buildElectronCaloRings(CaloRingerFlagsJobProperty):
     """ switch for building the CaloRings for electron candidates
@@ -67,7 +76,7 @@ jobproperties.CaloRingerFlags.add_JobProperty(doElectronIdentification)
 class buildPhotonCaloRings(CaloRingerFlagsJobProperty):
     """ switch for building the CaloRings for electron candidates
     """
-    statusOn       = True
+    statusOn       = True 
     allowedTypes   = ['bool']
     StoredValue    = True
 jobproperties.CaloRingerFlags.add_JobProperty(buildPhotonCaloRings)

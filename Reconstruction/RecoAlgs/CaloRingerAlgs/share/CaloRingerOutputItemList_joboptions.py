@@ -19,13 +19,22 @@ from RecExConfig.RecFlags import rec
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder \
     import CaloRingerAlgorithmBuilder
 
+from CaloRingerAlgs.CaloRingerMetaDataBuilder \
+    import CaloRingerMetaDataBuilder
+
 from CaloRingerAlgs.CaloRingerKeys import outputCaloRingsType, \
                                           CaloRingerKeysDict, \
                                           outputRingSetConfType, \
-                                          outputRingSetConfAuxType
+                                          outputRingSetConfAuxType, \
+                                          outputRingSetType, \
+                                          outputRingSetAuxType, \
+                                          outputCaloRingsType, \
+                                          outputCaloRingsAuxType
 
 # Get instance to the builder:
 CRBuilder = CaloRingerAlgorithmBuilder()
+# Get instance to the metadata builder:
+CRMetaBuilder = CaloRingerMetaDataBuilder()
 
 # AOD list, also added to the ESD
 CaloRingerAODList = []
@@ -39,13 +48,20 @@ def addOutputToList(streamList, localCType, localCKey, auxOption):
     streamList.append( '%s#%s%s' % (auxType, auxKey, auxOption) )
 
 def addRingerInputMetaToList(streamList, containerType):
+  # NOTE: Keys defined at: http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Reconstruction/RecExample/RecExConfig/python/InputFilePeeker.py
+  __addRingerInputToList(streamList, containerType, 'metadata_itemsDic') # beware the absence of the 't'
+
+def addRingerInputEventToList(streamList, containerType):
+  __addRingerInputToList(streamList, containerType, 'eventdata_itemsDic')  # beware the absence of the 't'
+
+def __addRingerInputToList(streamList, containerType, storeTypeStr):
   from RecExConfig.InputFilePeeker import inputFileSummary
-  metaItemDict=inputFileSummary.get('metadata_itemsDic') # beware the absence of the 't'
+  metaItemDict = inputFileSummary.get( storeTypeStr )
   try:
     keys = metaItemDict.get( containerType )
     if keys:
       for key in keys:
-        mlog.debug('Appending container in inputMetaData %s#%s to outputMetaData', \
+        mlog.debug('Appending container %s#%s in input file to output file', \
             containerType, \
             key)
         streamList.append( '%s#%s' % (containerType, key) )
@@ -63,18 +79,34 @@ if rec.doWriteAOD() or rec.doWriteESD():
             addOutputToList(CaloRingerAODList, cType, cKey, auxOption)
             mlog.debug("Added container with type/key %s/%s to StoreGateSvc", cType, cKey)
             break
-        else: 
-          for dictKey, value in CaloRingerKeysDict.outputsMetaData.items():
-            if value[0] == cType:
-              auxOption = CaloRingerKeysDict.outputsMetaData[dictKey][2]
-              addOutputToList(CaloRingerAODMetaDataList, cType, cKey, auxOption)
-              mlog.debug("Added container with type/key %s/%s to MetaDataStore", cType, cKey)
-              break
-          else:
-            raise ValueError("Could not find type/key %s/%s in dictionaries" % (cType, cKey) )
+  elif rec.readESD() or rec.readAOD(): # In this case, we assume that the
+                                       # joboption was added to add input file ringer containers 
+                                       # to the output file.
+    # add the event store information:
+    addRingerInputEventToList( CaloRingerAODList, outputCaloRingsType() )
+    addRingerInputEventToList( CaloRingerAODList, outputCaloRingsAuxType() )
+    addRingerInputEventToList( CaloRingerAODList, outputRingSetType() )
+    addRingerInputEventToList( CaloRingerAODList, outputRingSetAuxType() )
+ 
+  if CRMetaBuilder.usable() and jobproperties.CaloRingerFlags.buildCaloRingsOn():
+    for cType, cKeys in CRMetaBuilder.output().items():
+      for cKey in cKeys:
+        for dictKey, value in CaloRingerKeysDict.outputsMetaData.items():
+          if value[0] == cType:
+            auxOption = CaloRingerKeysDict.outputsMetaData[dictKey][2]
+            addOutputToList(CaloRingerAODMetaDataList, cType, cKey, auxOption)
+            mlog.debug("Added container with type/key %s/%s to MetaDataStore", cType, cKey)
+            break
+        else:
+          raise ValueError("Could not find type/key %s/%s in dictionaries" % (cType, cKey) )
+    # add the meta data information:
     addRingerInputMetaToList( CaloRingerAODMetaDataList, outputRingSetConfType() )
     addRingerInputMetaToList( CaloRingerAODMetaDataList, outputRingSetConfAuxType() )
-          
+  elif rec.readESD() or rec.readAOD():
+    # add the meta data information:
+    addRingerInputMetaToList( CaloRingerAODMetaDataList, outputRingSetConfType() )
+    addRingerInputMetaToList( CaloRingerAODMetaDataList, outputRingSetConfAuxType() )
+
 
 # List for ESD: same as AOD
 CaloRingerESDList = list(CaloRingerAODList)
@@ -95,10 +127,11 @@ from AthenaCommon.Resilience import treatException
 def moveAlgToEnd(stream):
   from AthenaCommon.AlgSequence import AlgSequence, dumpSequence
   topSequence = AlgSequence()
+  #dumpSequence( topSequence )
   if stream in topSequence:
     delattr(topSequence, stream.getName())
-  else:
-    raise LookupError(stream.getName())
+  #else:
+  #  raise LookupError(stream.getName())
   topSequence += stream
   #mlog.info("Printing topSequece after changing stream to "
   #  "last position: ")
@@ -122,7 +155,12 @@ if rec.doWriteESD and \
   # that the objects are saved in its latest form:
   try:
     moveAlgToEnd(StreamESD)
-  except LookupError as e:
+    # On ESD, we also need to move this alg to run afterwards StreamESD creation
+    from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import MakeInputDataHeader
+    makeInputDataHeaderESD = MakeInputDataHeader("MakeInputDataHeaderESD",
+                                                 StreamName = "StreamESD")
+    moveAlgToEnd(makeInputDataHeaderESD)
+  except LookupError, e:
     treatException(("Could not find stream '%s' at topSequence."   \
       " CaloRings wont probably be at OutputFile, if existent.") % \
       str(e))

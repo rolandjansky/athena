@@ -89,7 +89,7 @@ class CaloRingerLocker( PyAthena.Alg ):
     "Loop over the event containers and lock each one"
     # Retrieve the keys of the containers to be locked
     # Only do it the first time if cacheKeys is true
-    self.msg.info('Entering execute.')
+    self.msg.debug('Entering execute.')
 
     sc = StatusCode.Success
 

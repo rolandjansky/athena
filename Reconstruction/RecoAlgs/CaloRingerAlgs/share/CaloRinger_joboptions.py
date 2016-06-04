@@ -11,10 +11,14 @@ from CaloRingerAlgs.CaloRingerFlags import jobproperties
 if not jobproperties.CaloRingerFlags.Enabled:
   mlog.info('Enabling CaloRingerFlags!')
   jobproperties.CaloRingerFlags.Enabled = True
- 
 
+
+# Add main algorithm builder
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder \
     import CaloRingerAlgorithmBuilder
-
 CRAlgBuilder = CaloRingerAlgorithmBuilder()
+# Add metadata builder/reader
+from CaloRingerAlgs.CaloRingerMetaDataBuilder \
+    import CaloRingerMetaDataBuilder
+MetaDataBuilder = CaloRingerMetaDataBuilder()
 

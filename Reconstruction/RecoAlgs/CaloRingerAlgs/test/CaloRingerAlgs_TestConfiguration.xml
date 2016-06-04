@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+  <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+    <rttContactPerson>Nicolas Bulla</rttContactPerson>
+    <mailto>nbullacr@cern.ch, wsfreund@cern.ch</mailto>
+   
+    <jobList>
+      <chain>
+        <chainName>MyChainJob</chainName>
+        <sequential> 
+        <chainElement>
+      <athena userJobId="caloringeralgs">
+        <doc>Test of output CaloRinger</doc>
+        <options>CaloRingerAlgs/CaloRinger_ATN</options> 
+        <group>RTT:Athena</group>
+        <queue>medium</queue>
+        <dataset_info>
+          <dc2 />
+
+          <datasetName>/afs/cern.ch/atlas/project/rig/referencefiles/QTests-Run2/RDO-run2.Nov27.2014-500events.pool.root</datasetName>
+            </dataset_info>
+          
+            <test position="1">
+              <modulename>RttLibraryTools</modulename>
+              <testname>FileGrepper</testname>
+              <outputFile>myRingSetFile.txt</outputFile>
+              <arg>
+                <argname>inputFile</argname>
+                <argvalue>caloringeralgs_log</argvalue>
+              </arg>
+              <arg>
+                <argname>searchList</argname>
+                <argvalue>Ringset</argvalue>
+              </arg>
+              <keepFilePattern>myRingSetFile.txt</keepFilePattern>
+            </test>
+
+            <test position="2">
+              <modulename>RttLibraryTools</modulename>
+              <testname>FileComparatorRunner</testname>
+              <outputFile>myRingComparatorFile.txt</outputFile>
+              <arg>
+                <argname>testFile</argname>
+                <argvalue>myRingSetFile.txt</argvalue>
+              </arg>
+              <arg>
+                <argname>refFile</argname>
+                <argvalue>RingerTests_Builders.txt</argvalue>
+              </arg>
+              <keepFilePattern>myRingComparatorFile.txt</keepFilePattern>
+              <noalarm/>
+            </test>
+
+            <test position="3">
+              <modulename>RttLibraryTools</modulename>
+              <testname>FileGrepper</testname>
+              <outputFile>myNeuralNetOutput.txt</outputFile>
+              <arg>
+                <argname>inputFile</argname>
+                <argvalue>caloringeralgs_log</argvalue>
+              </arg>
+              <arg>
+                <argname>searchList</argname>
+                <argvalue>Output space</argvalue>
+              </arg>
+              <keepFilePattern>myNeuralNetOutput.txt</keepFilePattern>
+            </test>
+
+            <test position="4">
+              <modulename>RttLibraryTools</modulename>
+              <testname>FileComparatorRunner</testname>
+              <outputFile>myNetComparatorFile.txt</outputFile>
+              <arg>
+                <argname>testFile</argname>
+                <argvalue>myNeuralNetOutput.txt</argvalue>
+              </arg>
+              <arg>
+                <argname>refFile</argname>
+                <argvalue>NeuralNetTests_Ref.txt</argvalue>
+              </arg>
+              <keepFilePattern>myNetComparatorFile.txt</keepFilePattern>
+              <noalarm/>
+            </test>
+
+            <test position="5">
+              <modulename>RttLibraryTools</modulename>
+              <testname>FileGrepper</testname>
+              <outputFile>RingComparator_OK.txt</outputFile>
+              <arg>
+                <argname>inputFile</argname>
+                <argvalue>myRingComparatorFile.txt</argvalue>
+              </arg>
+              <arg>
+                <argname>vetoList</argname>
+                <argvalue>DEBUG Ringset</argvalue>
+              </arg>
+              <keepFilePattern>RingComparator_OK.txt</keepFilePattern>
+            </test>
+
+            <test position="6">
+              <modulename>RttLibraryTools</modulename>
+              <testname>FileGrepper</testname>
+              <outputFile>NetComparator_OK.txt</outputFile>
+              <arg>
+                <argname>inputFile</argname>
+                <argvalue>myNetComparatorFile.txt</argvalue>
+              </arg>
+              <arg>
+                <argname>vetoList</argname>
+                <argvalue>Output space</argvalue>
+              </arg>
+              <keepFilePattern>NetComparator_OK.txt</keepFilePattern>
+            </test>
+
+              <auxFilePattern>myRingComparatorFile.txt</auxFilePattern>
+              <auxFilePattern>myNetComparatorFile.txt</auxFilePattern>
+              <auxFilePattern>RingerTests_Builders.txt</auxFilePattern>
+              <auxFilePattern>NeuralNetTests_Ref.txt</auxFilePattern>
+            </athena>
+        </chainElement>
+      </sequential>
+      </chain>
+    </jobList>
+
+    <jobGroups>
+      <jobGroup name="CaloRinger" parent="RTT:Athena">
+        <keepFilePattern>*.txt</keepFilePattern>
+        <keepFilePattern>*.log</keepFilePattern>
+        <keepFilePattern>*.root</keepFilePattern>
+        <auxFilePattern>RingerTests_Builders.txt</auxFilePattern>
+        <auxFilePattern>NeuralNetTests_Ref.txt</auxFilePattern>
+        <auxFilePattern>myRingComparatorFile.txt</auxFilePattern>
+      </jobGroup>
+    </jobGroups>
+  </rtt>
+</unifiedTestConfiguration>                      

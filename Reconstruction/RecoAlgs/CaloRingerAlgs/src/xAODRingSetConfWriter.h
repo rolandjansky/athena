@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODRingSetConfWriter.h 670605 2015-05-28 14:41:31Z wsfreund $
+// $Id: xAODRingSetConfWriter.h 713521 2015-12-09 08:53:41Z wsfreund $
 
 #ifndef CALORINGERTOOLS_XAODCALORINGSSCONFWRITER_H
 #define CALORINGERTOOLS_XAODCALORINGSSCONFWRITER_H
@@ -41,8 +41,8 @@ class ICaloRingsBuilder;
 *
 * @author Werner Freund <wsfreund@cern.ch>
 *
-* $Revision: 670605 $
-* $Date: 2015-05-28 16:41:31 +0200 (Thu, 28 May 2015) $
+* $Revision: 713521 $
+* $Date: 2015-12-09 09:53:41 +0100 (Wed, 09 Dec 2015) $
 */
 
 class xAODRingSetConfWriter : public ::AthAlgorithm 
@@ -62,9 +62,6 @@ class xAODRingSetConfWriter : public ::AthAlgorithm
     StatusCode finalize();
 
   private:
-    /// StoreGate key for the event object
-    std::string m_eventName;
-
     /// Private properties (python configurables):
     /// @{
     /// Connection to the (output)metadata store

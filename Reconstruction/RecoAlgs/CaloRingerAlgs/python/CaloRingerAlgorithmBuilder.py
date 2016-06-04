@@ -4,7 +4,7 @@ import traceback
 import CaloRingerAlgsConf
 # We use egammaRec.Factories as a helper to instantiate CaloRingerAlgorithm
 # handle
-from GaudiKernel.GaudiHandles import PublicToolHandleArray, GaudiHandle, GaudiHandleArray
+from GaudiKernel.GaudiHandles import PublicToolHandle, PublicToolHandleArray, GaudiHandle, GaudiHandleArray
 from egammaRec.Factories import AlgFactory, FcnWrapper
 from AthenaCommon.Resilience import treatException
 from AthenaCommon.Logging import logging
@@ -21,9 +21,7 @@ from CaloRingerTools.CaloRingerToolsConf import Ringer__CaloRingsBuilder, \
     Ringer__CaloRingerElectronsReader, \
     Ringer__CaloRingerPhotonsReader
 
-from AthenaCommon.Logging import logging
-
-mlog = logging.getLogger( 'CaloRinger_joboptions.py' )
+mlog = logging.getLogger( 'CaloRingerAlgorithmBuilder.py' )
 mlog.info("Entering")
 
 
@@ -49,21 +47,12 @@ def inputAvailable(inputType, inputKey):
   flag = False
   from RecExConfig.ObjKeyStore import objKeyStore
   if objKeyStore.isInInput(inputType, inputKey):
-    mlog.verbose(("objKeyStore does have in input the ContainerType %s with "
+    mlog.verbose(("objKeyStore does have ContainerType input %s with "
       "key %s."), inputType, inputKey)
     flag = True
   else:
-    # Check if it is on metadata:
-    # FIXME How can I do that using objKeyStore??
-    from RecExConfig.InputFilePeeker import inputFileSummary
-    metaItemList=inputFileSummary.get('metadata_itemsList')
-    if ( '%s#%s' % (inputType, inputKey) ) in metaItemList:
-      flag = True
-      mlog.verbose(("metaItemList does have in input the ContainerType %s with "
-        "key %s."), inputType, inputKey)
-    else:
-      mlog.verbose(("objKeyStore does NOT have in input the ContainerType %s with "
-        "key %s."), inputType, inputKey)
+    mlog.verbose(("objKeyStore does NOT ContainerType input %s with "
+      "key %s."), inputType, inputKey)
   return flag
 
 
@@ -101,8 +90,7 @@ def checkDoElectronIdentification():
   asked to run electron identification."""
   if CaloRingerFlags.doElectronIdentification():
     if not CaloRingerFlags.buildElectronCaloRings():
-      if not inputAvailable(outputRingSetConfType(), outputElectronRingSetsConfKey())    or \
-         not ( inputAvailable(outputCaloRingsType(), outputElectronCaloRingsKey())       or \
+      if not ( inputAvailable(outputCaloRingsType(), outputElectronCaloRingsKey())       or \
                inputAvailable(outputCaloRingsType(), outputElectronCaloAsymRingsKey()) ) or \
          not ( inputAvailable(outputRingSetType(),   outputElectronRingSetsKey())        or \
                inputAvailable(outputRingSetType(),   outputElectronAsymRingSetsKey()) ):
@@ -161,8 +149,7 @@ def checkDoPhotonIdentification():
   asked to run electron identification."""
   if CaloRingerFlags.doPhotonIdentification():
     if not CaloRingerFlags.buildPhotonCaloRings():
-      if not inputAvailable(outputRingSetConfType(), outputPhotonRingSetsConfKey())    or \
-         not ( inputAvailable(outputCaloRingsType(), outputPhotonCaloRingsKey())       or \
+      if not ( inputAvailable(outputCaloRingsType(), outputPhotonCaloRingsKey())       or \
                inputAvailable(outputCaloRingsType(), outputPhotonCaloAsymRingsKey()) ) or \
          not ( inputAvailable(outputRingSetType(),   outputPhotonRingSetsKey())        or \
                inputAvailable(outputRingSetType(),   outputPhotonAsymRingSetsKey()) ):
@@ -264,35 +251,44 @@ def getCaloRingerOutputs(inputReaders,addCaloRingsContainers=True,
       outputList.append(crBuilder.RingSetContainerName)
   return outputList
 
-def getCaloRingerConfOutputs():
-  """   Returns a list with the RingSetConfWriter container names.  """
-
+def transformGaudiTo(inputList, typeList):
+  """Transform GaudiHandle into a list of configurable tools of the desired type.
+     if input is not a Gaudi type return input.
+  """
   outputList = []
-  if CaloRingerFlags.buildElectronCaloRings():
-    outputList.append(outputElectronRingSetsConfKey())
-  if CaloRingerFlags.buildPhotonCaloRings():
-    outputList.append(outputPhotonRingSetsConfKey())
+  if isinstance(inputList,(GaudiHandle,GaudiHandleArray)):
+    if not isinstance(inputList,list):
+      inputList = [inputList]
+    for input_ in inputList:
+      inputType = input_.getType()
+      for desiredType in typeList:
+        if inputType == desiredType:
+          cls = getattr(CfgMgr, inputType.replace(':','_'))
+          try:
+            conf = cls.configurables[ input_.getName() ]
+          except KeyError:
+            conf = cls.allConfigurables[ input_.getName() ]
+          outputList.append(conf)
+          break
+      else:
+        treatException("Unknown input type is %s and does not match searched type list %r.", inputType, typeList)
   return outputList
 
-def transformGaudiToReaders(inputReaders):
-  "Transform GaudiHandle into a list of configurable tools"
-  inputReaderTools = []
-  if isinstance(inputReaders,(GaudiHandle,GaudiHandleArray)):
-    if not isinstance(inputReaders,list):
-      inputReaders = [inputReaders]
-    for reader in inputReaders:
-      readerType = reader.getType()
-      if readerType == 'Ringer::CaloRingerElectronsReader':
-        inputReaderTools.append(CfgMgr.Ringer__CaloRingerElectronsReader(reader.getName()))
-      elif readerType == 'Ringer::CaloRingerPhotonsReader':
-        inputReaderTools.append(CfgMgr.Ringer__CaloRingerPhotonsReader(reader.getName()))
-      else:
-        mlog.error("Unknown inputReader type %s.", readerType)
-        raise RuntimeError("GaudiHandle is not of inputReader type.")
-  else:
-    inputReaderTools = inputReaders
-  return inputReaderTools
 
+def transformGaudiToReaders(inputList):
+  "Transform GaudiHandle into a list of configurable input readers"
+  return transformGaudiTo(inputList, ['Ringer::CaloRingerElectronsReader', 
+                                      'Ringer::CaloRingerPhotonsReader'])
+
+def transformGaudiToBuilders(inputList):
+  "Transform GaudiHandle into a list of configurable builders"
+  return transformGaudiTo(inputList, ['Ringer::CaloRingsBuilder', 
+                                      'Ringer::CaloAsymRingsBuilder'])
+
+def transformGaudiToSelectors(inputList):
+  "Transform GaudiHandle into a list of configurable builders"
+  return transformGaudiTo(inputList, ['Ringer::AsgElectronRingerSelector', 
+                                      ])
 
 def getCaloRingerBuilders(inputReaders):
   """   Returns a list with the __CaloRingerElectronsReader container names.  """
@@ -313,16 +309,16 @@ def getSelectors(inputReaders):
   inputReaderTools = transformGaudiToReaders(inputReaders)
 
   selectors = PublicToolHandleArray()
-  for reader in inputReadersTools:
+  for reader in inputReaderTools:
     try:
       selectors += [selector for selector in reader.ElectronSelectors \
           if selector.getType() == "Ringer::AsgElectronRingerSelector"]
-    except Exception:
+    except AttributeError:
       pass
     try:
       selectors += [selector for selector in reader.PhotonSelectors \
-          if selector.getType() == "Ringe::AsgPhotonRingerSelector"]
-    except Exception:
+          if selector.getType() == "Ringer::AsgPhotonRingerSelector"]
+    except AttributeError:
       pass
   return selectors
 
@@ -374,43 +370,41 @@ class CaloRingerAlgorithmBuilder ( Configured ):
   _confWriter = None
   _output = {}
   _eventOutputs = {}
-  _outputMetaData = {}
 
   def getCaloRingerAlgHandle(self):
     "Return the CaloRinger main algorithm handle."
     return self._caloRingerAlg
 
-  def getMetaDataWriterHandle(self):
-    "Return the CaloRinger MetaData configuration writer algorithm handle."
-    return self._confWriter
-
-  def getConfigWriterHandle(self):
-    "Return the CaloRinger MetaData configuration writer algorithm handle."
-    return self._confWriter
-
-  def getLastWriterHandle(self):
-    "Return last CaloRinger algorithm to write into StoreGate Services."
-    return self._confWriter
-
   def getInputReadersHandles(self):
-    "Return our holden CaloRings builder handles"
-    return self._caloRingerAlg.inputReaderTools
+    "Return our holden CaloRinger builder handles"
+    return self._caloRingerAlg.inputReaderTools if self._caloRingerAlg \
+                                                else PublicToolHandleArray([])
 
-  def getCaloRingsBuilderHandles(self):
-    "Return our holden CaloRings builder handles"
-    return getCaloRingerBuilders(self._caloRingerAlg.inputReaderTools)
+  def getCaloRingerBuilderHandles(self):
+    "Return our holden CaloRinger builder handles"
+    return getCaloRingerBuilders(self._caloRingerAlg.inputReaderTools) if self._caloRingerAlg \
+                                                                       else PublicToolHandleArray([])
 
   def getRingerSelectorHandles(self):
-    "Return our holden CaloRings builder handles"
-    return getSelectors(self._caloRingerAlg.inputReaderTools)
+    "Return our holden CaloRinger builder handles"
+    return getSelectors(self._caloRingerAlg.inputReaderTools) if self._caloRingerAlg \
+                                                              else PublicToolHandleArray([]) 
+
+  def getInputReaders(self):
+    "Return our holden CaloRinger builder handles"
+    return transformGaudiToReaders(self.getInputReadersHandles())
+
+  def getCaloRingerBuilders(self):
+    "Return our holden CaloRinger builder handles"
+    return transformGaudiToBuilders(self.getCaloRingerBuilderHandles())
+
+  def getRingerSelectors(self):
+    "Return our holden CaloRinger builder handles"
+    return transformGaudiToSelectors(self.getRingerSelectorHandles())
 
   def eventOutputs(self):
     "Return the event store gate outputs from this builder"
     return self._eventOutputs
-
-  def metaDataOutputs(self):
-    "Return the metadata outputs from this builder"
-    return self._outputMetaData
 
   def __init__( self, disable=False,
       ignoreExistingDataObject=CaloRingerFlags.ignoreRingerExistingDataObject(), 
@@ -419,7 +413,7 @@ class CaloRingerAlgorithmBuilder ( Configured ):
     Configured.__init__(self,disable,ignoreExistingDataObject,ignoreConfigError)
 
   def configure(self):
-    "This routine will be called when object is initialized"
+    "This method will be called when object is initialized"
 
     mlog = logging.getLogger( 'CaloRingerAlgorithmBuilder::configure:%s:' \
         % self.__class__.__name__.replace( ".", '_' )  )
@@ -434,26 +428,14 @@ class CaloRingerAlgorithmBuilder ( Configured ):
       self._caloRingerAlg = MainCaloRingerAlgorithm()
 
       if CaloRingerFlags.buildCaloRingsOn():
-        postponeEgammaLock(self._caloRingerAlg)
+        # Egamma locker not being used anymore.
+        #postponeEgammaLock(self._caloRingerAlg)
         pass
 
       # Check if CaloRingerAlgorithm has readers:
       if not self._caloRingerAlg.inputReaderTools:
         raise RuntimeError(("Cannot instantiate CaloRingerAlgorithm " 
           "without readers."))
-
-      # Instantiate the MetaDataWriter:
-      try:
-        MetaDataWriter = AlgFactory(CaloRingerAlgsConf.Ringer__xAODRingSetConfWriter, 
-            name = "xAODRingSetConfWriter",
-            CaloRingsBuilderTools = self.getCaloRingsBuilderHandles(),
-            RingSetConfContainerNames = getCaloRingerConfOutputs())
-        self._confWriter = MetaDataWriter()
-      except Exception:
-        removeFromTopSequence(self._confWriter)
-        mlog.error(("Could not get handle to xAODRingSetConfWriter."
-            " Reason:\n %s"),traceback.format_exc())
-        raise RuntimeError("Couldn't set xAODRingSetConfWriter")
 
       if CaloRingerFlags.buildCaloRingsOn():
         self._eventOutputs = { outputCaloRingsType() : \
@@ -462,14 +444,22 @@ class CaloRingerAlgorithmBuilder ( Configured ):
     getCaloRingerOutputs(self._caloRingerAlg.inputReaderTools,addCaloRingsContainers=False) \
                              }
         self._output.update(self._eventOutputs)
-        self._outputMetaData = {outputRingSetConfType() : getCaloRingerConfOutputs() }
-        self._output.update(self._outputMetaData)
 
       # Check for existing output:
       self.checkExistingOutput()
 
-      if self._existingOutput and not self.ignoreExistingDataObject():
-        raise RuntimeError(("Already existing output and not set flag to"
+      if not self.ignoreExistingDataObject()                                                     \
+         and ( (  CaloRingerFlags.buildElectronCaloRings()                                   and \
+            ( inputAvailable(outputCaloRingsType(), outputElectronCaloRingsKey())            or  \
+                   inputAvailable(outputCaloRingsType(), outputElectronCaloAsymRingsKey()) ) or  \
+            ( inputAvailable(outputRingSetType(),   outputElectronRingSetsKey())             or  \
+                   inputAvailable(outputRingSetType(), outputElectronAsymRingSetsKey()) ) )      \
+         or  ( CaloRingerFlags.buildPhotonCaloRings()                                        and \
+            ( inputAvailable(outputCaloRingsType(), outputPhotonCaloRingsKey())              or  \
+                   inputAvailable(outputCaloRingsType(), outputPhotonCaloAsymRingsKey()) )   or  \
+            ( inputAvailable(outputRingSetType(),   outputPhotonRingSetsKey())               or  \
+                   inputAvailable(outputRingSetType(), outputPhotonAsymRingSetsKey()) ) ) ):
+        raise RuntimeError(("Already existing input will be overwriten and not set Ringer flag "
             "ignoreExistingDataObject."))
 
     except Exception:
@@ -478,7 +468,6 @@ class CaloRingerAlgorithmBuilder ( Configured ):
       self._disabled = True
       treatException(("Could not get handle to CaloRingerAlgorithm."
           " Reason:\n%s") % traceback.format_exc())
-      
       return False
 
     return True

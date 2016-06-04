@@ -13,3 +13,5 @@ else:
         '. Make sure that this is the desired behavior!'))
 include('CaloRingerAlgs/CaloRingerLock_joboptions.py')
 
+# Change the output level for the Ringer algorithm/tools
+include('CaloRingerAlgs/CaloRinger_OutputLevel.py')

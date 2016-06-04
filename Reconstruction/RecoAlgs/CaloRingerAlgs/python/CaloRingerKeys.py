@@ -39,14 +39,14 @@ class CaloRingerKeysDict:
 
   # Define new outputs here:
   _output_values = [
-      [outputRingSetType(), 'ElectronRingSets'     , ''],
-      [outputRingSetType(), 'ElectronAsymRingSets' , ''],
-      [outputCaloRingsType(), 'ElectronCaloRings'    , ''],
+      [outputRingSetType(),   'ElectronRingSets',      ''],
+      [outputRingSetType(),   'ElectronAsymRingSets',  ''],
+      [outputCaloRingsType(), 'ElectronCaloRings',     ''],
       [outputCaloRingsType(), 'ElectronCaloAsymRings', ''],
-      [outputRingSetType(), 'PhotonRingSets'       , ''],
-      [outputRingSetType(), 'PhotonAsymRingSets'   , ''],
-      [outputCaloRingsType(), 'PhotonCaloRings'      , ''],
-      [outputCaloRingsType(), 'PhotonCaloAsymRings'  , ''],
+      [outputRingSetType(),   'PhotonRingSets',        ''],
+      [outputRingSetType(),   'PhotonAsymRingSets',    ''],
+      [outputCaloRingsType(), 'PhotonCaloRings',       ''],
+      [outputCaloRingsType(), 'PhotonCaloAsymRings',   ''],
       ]
 
   # This will keep dict key equal to Container key:
