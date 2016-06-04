@@ -107,6 +107,7 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
       xn = x0 - f(x0,c0,c1,c2,c3)/fp(x0,c33,c22,c1);
       x0 = xn;
     }
+    if (fabs(xn)<ZERO_LIMIT) xn = ZERO_LIMIT;//To avoid divergence
     
     x1 = xn;
     y1 = y0;    
