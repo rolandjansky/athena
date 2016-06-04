@@ -1,3 +1,10 @@
+2016-06-03  Werner Freund <wsfreund@cern.ch>
+
+	*  Removal of CaloRingerLocker which should be replaced by a cpp equivalent
+	as done in egamma.
+	*  Updated DetDescrVersion to ignore Tag(Not)Support(ed)
+	*  Tagged as CaloRingerAlgs-00-00-16.
+
 2016-02-07  Nicolas Bulla <nbullacr@cern.ch>
 
 	*  Updated RTT reference files to match nightlies.
