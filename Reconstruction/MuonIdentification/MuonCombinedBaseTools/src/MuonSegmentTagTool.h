@@ -70,6 +70,7 @@ namespace MuonCombined {
     unsigned int m_nmdtHitsML;
     bool m_triggerHitCut; // apply Trigger hit cut if trigger hits are expected
     bool m_makeMuons; // switch off the making of muons (temporarily)
+    bool m_ignoreSiAssocated; //!< If true, ignore InDetCandidates which are SiAssociated
 
     // helpers, managers, tools
     ToolHandle<Muon::MuonEDMPrinterTool>            m_printer;

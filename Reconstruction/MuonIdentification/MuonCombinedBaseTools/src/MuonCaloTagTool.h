@@ -92,6 +92,7 @@ namespace MuonCombined {
     bool m_debugMode;                   //!< Switch for extra printout
     bool m_doOldExtrapolation;          //!< In doubt ? >
     //bool m_doDressing;                  //!< This is to speed up tests where high fake rate is expected. Should be true by default
+    bool m_ignoreSiAssocated;           //!< If true, ignore InDetCandidates which are SiAssociated
     
     // --- Isolation cuts ---
     double m_ptIsoPtRatioCut;           //!< Pt isolation for a .45 cone, normalized to track pt
@@ -102,7 +103,7 @@ namespace MuonCombined {
     double m_eIsoPtRatioTransitionCut;  //!< Energy isolation  for a .45 cone in Barrel-EndCap transition region, normalized to track pt
     double m_eIsoPtRatioEndCapCut;      //!< Energy isolation for a .45 cone in Endcap, normalized to track pt
     double m_CaloLRlikelihoodCut;       //!< CaloLR likelihood cut
-    double m_coreDR;                    //!< deltaR of the core
+    //double m_coreDR;                    //!< deltaR of the core
     double m_trackIsoCone;              //!< Cone size for track isolation
     double m_energyIsoCone;             //!< Cone size for energy isolation
     
