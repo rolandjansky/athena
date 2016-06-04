@@ -884,7 +884,8 @@ namespace MuonCombined {
       }
       */
       //Now we just add the original extrapolated track itself
-      if(outputData.msOnlyExtrapolatedTrackParticleContainer){
+      //but not for SA muons, for consistency they will still have extrapolatedTrackParticle
+      if(outputData.msOnlyExtrapolatedTrackParticleContainer && muon.muonType()!=xAOD::Muon::MuonStandAlone){
 	ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
 											 *outputData.msOnlyExtrapolatedTrackParticleContainer,
 											 outputData.msOnlyExtrapolatedTrackCollection );
@@ -893,6 +894,18 @@ namespace MuonCombined {
 	  ATH_MSG_DEBUG("Adding MS-only extrapolated track: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
 	  //link.toPersistent();
 	  muon.setTrackParticleLink(xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle, link );
+	}
+      }
+      else if(muon.muonType()==xAOD::Muon::MuonStandAlone){
+	// create element link from the track, const_cast for now until we sort out the constness of the MuonCandidates
+	ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
+											 *outputData.extrapolatedTrackParticleContainer,
+											 outputData.extrapolatedTrackCollection );
+	
+	if( link.isValid() ) {
+	  ATH_MSG_DEBUG("Adding standalone fit: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
+	  //link.toPersistent();
+	  muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
 	}
       }
     }
