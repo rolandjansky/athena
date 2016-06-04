@@ -17,6 +17,9 @@ doCaloRinger = True
 doDumpStoreGate = False
 ManualDetDescrVersion = 'ATLAS-R2-2015-01-01-00' # Set to False or empty if you want it to be automatically set.
 ConditionsTag = "OFLCOND-RUN12-SDR-14"
+from AtlasGeoModel.SetGeometryVersion import GeoModelSvc
+GeoModelSvc.IgnoreTagSupport = True
+GeoModelSvc.AtlasVersion = ManualDetDescrVersion
 ###########################  REC FLAGS  #################################
 from RecExConfig.RecFlags import rec
 rec.OutputLevel.set_Value_and_Lock(INFO)

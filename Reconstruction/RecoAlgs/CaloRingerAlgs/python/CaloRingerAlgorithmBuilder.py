@@ -428,7 +428,8 @@ class CaloRingerAlgorithmBuilder ( Configured ):
       self._caloRingerAlg = MainCaloRingerAlgorithm()
 
       if CaloRingerFlags.buildCaloRingsOn():
-        postponeEgammaLock(self._caloRingerAlg)
+        # Egamma locker not being used anymore.
+        #postponeEgammaLock(self._caloRingerAlg)
         pass
 
       # Check if CaloRingerAlgorithm has readers:
