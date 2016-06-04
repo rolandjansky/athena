@@ -48,6 +48,7 @@ namespace met {
     declareProperty( "METAssociators", m_metassociators              );
     declareProperty( "METSuffix",      m_metsuffix = "AntiKt4LCTopo" );
     declareProperty( "TCSignalState",  m_signalstate = 1             );
+    declareProperty( "AllowOverwrite", m_overwrite = false           );
   }
 
   // Destructor
@@ -89,41 +90,64 @@ namespace met {
   StatusCode METAssociationTool::execute() const
   {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
-
-    if( evtStore()->contains<xAOD::MissingETAssociationMap>(m_mapname) ) {
-      ATH_MSG_WARNING("Association map \"" << m_mapname << "\" is already present, exiting.");
+    bool mapExists = evtStore()->contains<xAOD::MissingETAssociationMap>(m_mapname);
+    bool coreExists = evtStore()->contains<xAOD::MissingETContainer>(m_corename);
+    if(!m_overwrite && mapExists) {
+      ATH_MSG_WARNING("Association map \"" << m_mapname << "\" is already present and AllowOverwrite=False, exiting.");
+      return StatusCode::SUCCESS;
+    }
+    if(!m_overwrite && coreExists) {
+      ATH_MSG_WARNING("MET_Core container \"" << m_corename << "\" is already present and AllowOverwrite=False, exiting.");
+      return StatusCode::SUCCESS;
+    }
+    if(mapExists!=coreExists) {
+      ATH_MSG_WARNING("Overwriting only " << (mapExists?"map":"core container") << " may result in meaningless results.");
       return StatusCode::SUCCESS;
     }
 
-    // Create a MissingETAssociationMap with its aux store
-    xAOD::MissingETAssociationMap* metMap = new xAOD::MissingETAssociationMap();
-    if( evtStore()->record(metMap, m_mapname).isFailure() ) {
-      ATH_MSG_WARNING("Unable to record MissingETAssociationMap: " << m_mapname);
-      return StatusCode::SUCCESS;
-    }
+    //Create map and core containers
     xAOD::MissingETAuxAssociationMap* metAuxMap = new xAOD::MissingETAuxAssociationMap();
-    if( evtStore()->record(metAuxMap, m_mapname+"Aux.").isFailure() ) {
+    xAOD::MissingETAssociationMap* metMap = new xAOD::MissingETAssociationMap();
+    metMap->setStore(metAuxMap);
+    MissingETAuxContainer* metAuxCont = new MissingETAuxContainer();
+    MissingETContainer* metCont = new MissingETContainer();
+    metCont->setStore(metAuxCont);
+
+    //Record or overwrite association map
+    if(!mapExists && evtStore()->record(metAuxMap, m_mapname+"Aux.").isFailure() ) {
       ATH_MSG_WARNING("Unable to record MissingETAuxAssociationMap: " << m_mapname+"Aux.");
       return StatusCode::SUCCESS;
     }
-    metMap->setStore(metAuxMap);
-
-    // Record the Core MET container
-    if( evtStore()->contains<MissingETContainer>(m_corename) ) {
-      ATH_MSG_WARNING("MET_Core container \"" << m_corename << "\" is already present, exiting.");
+    if(mapExists && evtStore()->overwrite(metAuxMap, m_mapname+"Aux.",true,false).isFailure() ) {
+      ATH_MSG_WARNING("Unable to overwrite MissingETAuxAssociationMap: " << m_mapname+"Aux.");
       return StatusCode::SUCCESS;
     }
-    MissingETContainer* metCont = new MissingETContainer();
-    if( evtStore()->record(metCont, m_corename).isFailure() ) {
+    if(!mapExists && evtStore()->record(metMap, m_mapname).isFailure() ) {
+      ATH_MSG_WARNING("Unable to record MissingETAssociationMap: " << m_mapname);
+      return StatusCode::SUCCESS;
+    }
+    if(mapExists && evtStore()->overwrite(metMap, m_mapname,true,false).isFailure() ) {
+      ATH_MSG_WARNING("Unable to overwrite MissingETAssociationMap: " << m_mapname);
+      return StatusCode::SUCCESS;
+    }
+
+    //Record or overwrite core container
+    if(!coreExists && evtStore()->record(metCont, m_corename).isFailure() ) {
       ATH_MSG_WARNING("Unable to record MissingETContainer: " << m_corename);
       return StatusCode::SUCCESS;
     }
-    MissingETAuxContainer* metAuxCont = new MissingETAuxContainer();
-    if( evtStore()->record(metAuxCont, m_corename+"Aux.").isFailure() ) {
+    if(coreExists && evtStore()->overwrite(metCont, m_corename,true,false).isFailure() ) {
+      ATH_MSG_WARNING("Unable to overwrite MissingETContainer: " << m_corename);
+      return StatusCode::SUCCESS;
+    }
+    if(!coreExists && evtStore()->record(metAuxCont, m_corename+"Aux.").isFailure() ) {
       ATH_MSG_WARNING("Unable to record MissingETAuxContainer: " << m_corename+"Aux.");
       return StatusCode::SUCCESS;
     }
-    metCont->setStore(metAuxCont);
+    if(coreExists && evtStore()->overwrite(metAuxCont, m_corename+"Aux.",true,false).isFailure() ) {
+      ATH_MSG_WARNING("Unable to overwrite MissingETAuxContainer: " << m_corename+"Aux.");
+      return StatusCode::SUCCESS;
+    }
 
     if( buildMET(metCont, metMap).isFailure() ) {
       ATH_MSG_WARNING("Failed in MissingET reconstruction");

@@ -102,6 +102,7 @@ namespace met{
     std::string m_corename;
 
     int m_signalstate;
+    bool m_overwrite;
 
     ToolHandleArray<IMETAssocToolBase> m_metassociators;
 

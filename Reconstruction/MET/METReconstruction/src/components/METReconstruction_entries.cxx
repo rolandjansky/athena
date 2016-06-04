@@ -29,6 +29,7 @@
 // Algs
 #include "METRecoAlg.h"
 #include "METReaderAlg.h"
+#include "METReconstruction/METBadTrackEventFilter.h"
 
 using namespace met;
 
@@ -58,6 +59,7 @@ DECLARE_TOOL_FACTORY(METRegionsTool)
 //
 DECLARE_ALGORITHM_FACTORY(METRecoAlg)
 DECLARE_ALGORITHM_FACTORY(METReaderAlg)
+DECLARE_ALGORITHM_FACTORY(METBadTrackEventFilter)
 
 DECLARE_FACTORY_ENTRIES(METReconstruction) {
   DECLARE_TOOL(METRecoTool)
@@ -86,4 +88,5 @@ DECLARE_FACTORY_ENTRIES(METReconstruction) {
     //
   DECLARE_ALGORITHM(METRecoAlg)
   DECLARE_ALGORITHM(METReaderAlg)
+  DECLARE_ALGORITHM(METBadTrackEventFilter)
 }
