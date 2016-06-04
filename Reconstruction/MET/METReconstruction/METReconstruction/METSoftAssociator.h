@@ -67,7 +67,8 @@ namespace met{
 				   const xAOD::CaloClusterContainer*) const {return StatusCode::FAILURE;} // should not be called
 
     private:
- 
+    bool m_decorateSoftTermConst;
+
     /// Default constructor: 
     METSoftAssociator();
 

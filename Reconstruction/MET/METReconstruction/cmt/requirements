@@ -28,21 +28,20 @@ use PFlowUtils		PFlowUtils-*		Reconstruction/PFlow
 
 use InDetTrackSelectionTool    InDetTrackSelectionTool-*    InnerDetector/InDetRecTools
 use TrackVertexAssociationTool TrackVertexAssociationTool-* InnerDetector/InDetRecTools
-use CaloInterface              CaloInterface-*              Calorimeter
 
 ## ROOT for timing
 use AtlasROOT		AtlasROOT-*		External
+use AthenaBaseComps     AthenaBaseComps-*       Control
 
 private
-## Algorithm def
-use AthenaBaseComps     AthenaBaseComps-*       Control
 
 ## EDM
 use AthContainers AthContainers-* Control
 use xAODTau		xAODTau-*		Event/xAOD
 #use xAODEventInfo       xAODEventInfo-*         Event/xAOD
-use CaloEvent           CaloEvent-*             Calorimeter
 use TruthUtils 		TruthUtils-* 		Generators
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Calorimeter/CaloInterface"
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Calorimeter/CaloEvent"
 
 ##
 

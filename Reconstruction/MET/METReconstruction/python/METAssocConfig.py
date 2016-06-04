@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-
-
 from AthenaCommon import CfgMgr
 
 #################################################################################
@@ -53,7 +51,7 @@ class AssocConfig:
         self.objType = objType
         self.inputKey = inputKey
 
-def getAssociator(config,suffix,doPFlow):
+def getAssociator(config,suffix,doPFlow,trkseltool=None,pfotool=None):
     tool = None
 
     from AthenaCommon.AppMgr import ToolSvc
@@ -79,8 +77,9 @@ def getAssociator(config,suffix,doPFlow):
         ToolSvc == tool
         tool.RecoJetKey = config.inputKey
     if doPFlow:
-        pfotool = CfgMgr.CP__RetrievePFOTool('MET_PFOTool_'+suffix)
-        ToolSvc += pfotool
+        if not pfotool:
+            pfotool = CfgMgr.CP__RetrievePFOTool('MET_PFOTool_'+suffix)
+            ToolSvc += pfotool
         tool.PFOTool = pfotool
         tool.PFlow=True
     # set input/output key names
@@ -92,10 +91,11 @@ def getAssociator(config,suffix,doPFlow):
     else:
         tool.InputCollection = config.inputKey
 
-    trkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_METAssoc",
-                                                     CutLevel="TightPrimary",
-                                                     maxZ0SinTheta=3,
-                                                     maxD0overSigmaD0=2)
+    if not trkseltool:
+        trkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_METAssoc",
+                                                         CutLevel="TightPrimary",
+                                                         maxZ0SinTheta=3,
+                                                         maxD0overSigmaD0=2)
     ToolSvc += trkseltool
     tool.TrackSelectorTool = trkseltool
     ToolSvc += tool
@@ -120,13 +120,14 @@ class METAssocConfig:
                 print prefix, 'Config '+self.suffix+' already contains a associator of type '+config.objType
                 raise LookupError
             else:
-                associator = getAssociator(config,self.suffix,self.doPFlow)
+                associator = getAssociator(config,self.suffix,self.doPFlow,self.trkseltool)
                 self.associators[config.objType] = associator
                 self.assoclist.append(associator)
                 print prefix, '  Added '+config.objType+' tool named '+associator.name()
     #
     def __init__(self,suffix,buildconfigs=[],
-                 doPFlow=False,doTruth=False):
+                 doPFlow=False,doTruth=False,
+                 trksel=None):
         if doTruth:
             print prefix, 'Creating MET TruthAssoc config \''+suffix+'\''
         else:
@@ -134,14 +135,16 @@ class METAssocConfig:
         self.suffix = suffix
         self.doPFlow = doPFlow
         self.doTruth = doTruth
+        self.trkseltool = trksel
         self.associators = {}
         self.assoclist = [] # need an ordered list
         #
         self.setupAssociators(buildconfigs)
 
 # Set up a top-level tool with mostly defaults
-def getMETAssocTool(topconfig):
+def getMETAssocTool(topconfig,allowOverwrite=False):
     assocTool = None
+    from METReconstruction.METRecoFlags import metFlags
     if topconfig.doTruth:
         assocTool = CfgMgr.met__METAssociationTool('MET_TruthAssociationTool_'+topconfig.suffix,
                                                    METAssociators = topconfig.assoclist,
@@ -152,11 +155,11 @@ def getMETAssocTool(topconfig):
         assocTool = CfgMgr.met__METAssociationTool('MET_AssociationTool_'+topconfig.suffix,
                                                    METAssociators = topconfig.assoclist,
                                                    METSuffix = topconfig.suffix,
-                                                   TCSignalState=tcstate)
+                                                   TCSignalState=tcstate,AllowOverwrite=allowOverwrite)
     return assocTool
 
 # Allow user to configure reco tools directly or get more default configurations
-def getMETAssocAlg(algName='METAssociation',configs={},tools=[]):
+def getMETAssocAlg(algName='METAssociation',configs={},tools=[],allowOverwrite=False):
 
     assocTools = []
     assocTools += tools
@@ -168,7 +171,7 @@ def getMETAssocAlg(algName='METAssociation',configs={},tools=[]):
         print configs
     for key,conf in configs.iteritems():
         print prefix, 'Generate METAssocTool for MET_'+key
-        assoctool = getMETAssocTool(conf)
+        assoctool = getMETAssocTool(conf,allowOverwrite)
         assocTools.append(assoctool)
         metFlags.METAssocTools()[key] = assoctool
 

@@ -71,7 +71,7 @@ namespace met {
 
     ToolHandle<CP::IRetrievePFOTool> m_pfotool;
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
-    std::vector<const xAOD::TrackParticle*> m_goodtracks;
+    mutable std::vector<const xAOD::TrackParticle*> m_goodtracks;
 
     // reconstruction process to be defined in the individual tools
     // pure virtual -- we have no default
@@ -79,7 +79,7 @@ namespace met {
     StatusCode retrieveConstituents(const xAOD::CaloClusterContainer*& tcCont,const xAOD::Vertex*& pv,const xAOD::TrackParticleContainer*& trkCont,const xAOD::PFOContainer*& pfoCont) const;
 
     void filterTracks(const xAOD::TrackParticleContainer* tracks,
-		      const xAOD::Vertex* pv);
+		      const xAOD::Vertex* pv) const;
     bool acceptTrack (const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const;
     bool acceptChargedPFO(const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const;
     bool isGoodEoverP(const xAOD::TrackParticle* trk,const xAOD::CaloClusterContainer*& tcCont) const;

@@ -127,7 +127,7 @@ namespace met {
 
       trkCont=0;
       ATH_CHECK( evtStore()->retrieve(trkCont, m_trkcoll) );
-      // filterTracks(trkCont,pv);
+      filterTracks(trkCont,pv);
 
       if(m_pflow) {
 	pfoCont = 0;
@@ -202,9 +202,9 @@ namespace met {
   }
 
   void METAssociator::filterTracks(const xAOD::TrackParticleContainer* tracks,
-				   const xAOD::Vertex* pv) {
+				   const xAOD::Vertex* pv) const {
+    m_goodtracks.clear();
     for(const auto& trk : *tracks) {
-      m_goodtracks.clear();
       if(acceptTrack(trk,pv)) m_goodtracks.push_back(trk);
     }
   }

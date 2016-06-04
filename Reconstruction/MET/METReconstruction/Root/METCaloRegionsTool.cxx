@@ -16,9 +16,9 @@
 #include "METReconstruction/METCaloRegionsTool.h"
 
 // MET EDM
-#if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
-#else
+#ifndef XAOD_ANALYSIS
 #include "CaloEvent/CaloCellContainer.h"
+#include "CaloInterface/ICaloNoiseTool.h"
 #endif
 
 namespace met {
@@ -52,13 +52,15 @@ namespace met {
   // Constructors
   ////////////////
   METCaloRegionsTool::METCaloRegionsTool(const std::string& name) : 
-    AsgTool(name),
-    m_caloNoiseTool("CaloNoiseToolDefault")
+    AsgTool(name)
   {
     declareProperty( "InputCollection", m_input_data_key            );
     declareProperty( "UseCells"       , m_calo_useCells      = true );
     declareProperty( "DoTriggerMET"   , m_calo_doTriggerMet  = true );
-    declareProperty( "CaloNoiseTool"  , m_caloNoiseTool             );
+
+    #ifndef XAOD_ANALYSIS
+    declareProperty( "CaloNoiseTool"  , m_caloNoiseTool = ToolHandle<ICaloNoiseTool>("CaloNoiseToolDefault") );
+    #endif
   }
 
   // Destructor
@@ -73,8 +75,7 @@ namespace met {
     ATH_MSG_INFO ("Initializing " << name() << "...");
 
     StatusCode sc = StatusCode::SUCCESS;
-    #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
-    #else
+    #ifndef XAOD_ANALYSIS
     sc = m_caloNoiseTool.retrieve();
     if(sc.isFailure()) {
       ATH_MSG_WARNING("Unable to find tool for CaloNoiseTool");
@@ -145,8 +146,7 @@ namespace met {
     if(m_calo_useCells) {
       // Retrieve the cell container
       const CaloCellContainer* caloCellCont = 0;
-      #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
-      #else
+      #ifndef XAOD_ANALYSIS
       sc = evtStore()->retrieve(caloCellCont, m_input_data_key);
       if( sc.isFailure() ) {
         ATH_MSG_WARNING("Unable to retrieve input cell cluster container");
@@ -262,7 +262,6 @@ namespace met {
       metTerm->add(et_cell*cos(phi_cell),
                    et_cell*sin(phi_cell),
                    et_cell);
-
       // Trigger MET
       if(m_calo_doTriggerMet) {
         double noise_cell = m_caloNoiseTool->totalNoiseRMS((*iCell));

@@ -30,13 +30,11 @@
 // METRecoInterface includes
 #include "METRecoInterface/IMETToolBase.h"
 
-// CaloNoiseTool
-#include "CaloInterface/ICaloNoiseTool.h"
-
 // Forward declarations
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 
+class ICaloNoiseTool;
 class CaloCellContainer;
 
 namespace met{
@@ -117,7 +115,9 @@ namespace met{
     METCaloRegionsTool();
 
     // Tool handle for CaloNoiseTool
+#ifndef XAOD_ANALYSIS
     ToolHandle<ICaloNoiseTool> m_caloNoiseTool;
+#endif
   }; 
 
 }

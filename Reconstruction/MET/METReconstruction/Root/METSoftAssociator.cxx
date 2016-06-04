@@ -20,12 +20,15 @@ namespace met {
 
   using namespace xAOD;
 
+  static const SG::AuxElement::Decorator<std::vector<ElementLink<IParticleContainer> > > dec_softConst("softConstituents");
+
   // Constructors
   ////////////////
   METSoftAssociator::METSoftAssociator(const std::string& name) : 
     AsgTool(name),
     METAssociator(name)
   {
+    declareProperty("DecorateSoftConst", m_decorateSoftTermConst=false);
   }
 
   // Destructor
@@ -84,6 +87,14 @@ namespace met {
 
     if (m_pflow) {
       const IParticleContainer* uniquePFOs = metMap->getUniqueSignals(pfoCont,MissingETBase::UsageHandler::Policy::ParticleFlow);
+
+      if(m_decorateSoftTermConst) {
+	dec_softConst(*metCoreTrk) = std::vector<ElementLink<IParticleContainer> >();
+	dec_softConst(*metCoreTrk).reserve(uniquePFOs->size());
+	dec_softConst(*metCoreCl) = std::vector<ElementLink<IParticleContainer> >();
+	dec_softConst(*metCoreCl).reserve(uniquePFOs->size());
+      }
+
       for(const auto& sig : *uniquePFOs) {
 	const PFO *pfo = static_cast<const PFO*>(sig);
 	if (pfo->charge()!=0) {
@@ -101,21 +112,28 @@ namespace met {
       MissingET* metCoreEMCl = new MissingET(0.,0.,0.,"SoftClusEMCore",MissingETBase::Source::softEvent() | MissingETBase::Source::clusterEM());
       metCont->push_back(metCoreEMCl);
       const IParticleContainer* uniqueClusters = metMap->getUniqueSignals(tcCont);
+      if(m_decorateSoftTermConst) {
+	dec_softConst(*metCoreCl) = std::vector<ElementLink<IParticleContainer> >();
+	dec_softConst(*metCoreCl).reserve(uniqueClusters->size());
+      }      
       for(const auto& cl : *uniqueClusters) {
 	if (cl->e()>0) {
 	  // clusters at LC scale
-	  {
-	    CaloClusterChangeSignalState statehelperLC(static_cast<const CaloCluster*>(cl),xAOD::CaloCluster::CALIBRATED);
-	    *metCoreCl += cl;
+	  CaloClusterChangeSignalState statehelperLC(static_cast<const CaloCluster*>(cl),xAOD::CaloCluster::CALIBRATED);
+	  *metCoreCl += cl;
+	  if(m_decorateSoftTermConst) {
+	    dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(cl->container()),cl->index()));
 	  }
 	  // clusters at EM scale
-	  {
-	    CaloClusterChangeSignalState statehelperEM(static_cast<const CaloCluster*>(cl),xAOD::CaloCluster::UNCALIBRATED);
-	    *metCoreEMCl += cl;
-	  }
+	  CaloClusterChangeSignalState statehelperEM(static_cast<const CaloCluster*>(cl),xAOD::CaloCluster::UNCALIBRATED);
+	  *metCoreEMCl += cl;
 	}
       }
       const IParticleContainer* uniqueTracks = metMap->getUniqueSignals(trkCont);
+      if(m_decorateSoftTermConst) {
+	dec_softConst(*metCoreTrk) = std::vector<ElementLink<IParticleContainer> >();
+	dec_softConst(*metCoreTrk).reserve(uniqueTracks->size());
+      }
       if(pv) {
 	for(const auto& trk : *uniqueTracks) {
 	  ATH_MSG_VERBOSE("Test core track with pt " << trk->pt());
@@ -123,6 +141,9 @@ namespace met {
 	    //if(acceptTrack(static_cast<const TrackParticle*>(trk),pv)) {
 	    ATH_MSG_VERBOSE("Add core track with pt " << trk->pt());
 	    *metCoreTrk += trk;
+	    if(m_decorateSoftTermConst) {
+	      dec_softConst(*metCoreTrk).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(trk->container()),trk->index()));
+	    }
 	  }
 	}
       }

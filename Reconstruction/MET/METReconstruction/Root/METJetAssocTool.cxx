@@ -116,7 +116,7 @@ namespace met {
 	selectedTracks.reserve(jettracks.size());
 	for(const auto& trk : jettracks) {
 	  const TrackParticle* pTrk = static_cast<const TrackParticle*>(trk);
-	  if( acceptTrack(pTrk,pv) ) {
+	  if( acceptTrack(pTrk,pv) && isGoodEoverP(pTrk,tcCont)) {
 	    selectedTracks.push_back(trk);
 	    ATH_MSG_VERBOSE("Accept track " << trk << " px, py = " << trk->p4().Px() << ", " << trk->p4().Py());
 	  }
