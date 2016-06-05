@@ -34,6 +34,7 @@ Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
   doSmoothBinInterpolation(false),
   useHighETLHBinning(false),
   useOneExtraHighETLHBin(false),
+  HighETBinThreshold(125),
   doPileupTransform(false),
   DiscMaxForPileupTransform(2.0),
   PileupMaxForPileupTransform(50),
@@ -156,11 +157,11 @@ int Root::TElectronLikelihoodTool::initialize()
   if ( m_cutPositionTrackMatchPhiRes < 0 ) sc = 0;
   
   // Wstot
-  m_cutPositionWstotAtHighET = m_accept.addCut( "WstotAtHighET", "Above 125 GeV, Wstot < Cut" );
+  m_cutPositionWstotAtHighET = m_accept.addCut( "WstotAtHighET", "Above HighETBinThreshold, Wstot < Cut" );
   if ( m_cutPositionWstotAtHighET < 0 ) sc = 0;
 
   // EoverP
-  m_cutPositionEoverPAtHighET = m_accept.addCut( "EoverPAtHighET", "Above 125 GeV, EoverP < Cut" );
+  m_cutPositionEoverPAtHighET = m_accept.addCut( "EoverPAtHighET", "Above HighETBinThreshold, EoverP < Cut" );
   if ( m_cutPositionEoverPAtHighET < 0 ) sc = 0;
 
   // --------------------------------------------------------------------------
@@ -230,6 +231,7 @@ int Root::TElectronLikelihoodTool::initialize()
                 << "\n - (bool)doSmoothBinInterpolation (yes/no)      : " << (doSmoothBinInterpolation ? "yes" : "no")
                 << "\n - (bool)useHighETLHBinning (yes/no)            : " << (useHighETLHBinning ? "yes" : "no")
                 << "\n - (bool)useOneExtraHighETLHBin(yes/no)         : " << (useOneExtraHighETLHBin ? "yes" : "no")
+                << "\n - (double)HighETBinThreshold                   : " << HighETBinThreshold
                 << "\n - (bool)doPileupTransform (yes/no)             : " << (doPileupTransform ? "yes" : "no")
                 << "\n - (bool)CutLikelihood (yes/no)                 : " << (CutLikelihood.size() ? "yes" : "no")
                 << "\n - (bool)CutLikelihoodPileupCorrection (yes/no) : " << (CutLikelihoodPileupCorrection.size() ? "yes" : "no")
@@ -486,8 +488,8 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
     }
   }
 
-  // Only do this above 125 GeV
-  if(vars_struct.eT > 125000.){
+  // Only do this above HighETBinThreshold [in GeV]
+  if(vars_struct.eT > HighETBinThreshold*1000){
     // wstot cut
     if (CutWstotAtHighET.size()){
       if ( fabs(vars_struct.wstot) > CutWstotAtHighET[etabin]){
@@ -637,12 +639,12 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> var
     if ((etabin == 9) && (varstr.find("el_f3") != std::string::npos)){
       continue;
     }
-    // Don't use f3 for high et (>100 GeV)
-    if (doRemoveF3AtHighEt && (et > 100*GeV) && (varstr.find("el_f3") != std::string::npos)){
+    // Don't use f3 for high et (>80 GeV)
+    if (doRemoveF3AtHighEt && (et > 80*GeV) && (varstr.find("el_f3") != std::string::npos)){
         continue;
     }
-    // Don't use TRTPID for high et (>100 GeV)
-    if (doRemoveTRTPIDAtHighEt && (et > 100*GeV) && (varstr.find("el_TRT_PID") != std::string::npos)){
+    // Don't use TRTPID for high et (>80 GeV)
+    if (doRemoveTRTPIDAtHighEt && (et > 80*GeV) && (varstr.find("el_TRT_PID") != std::string::npos)){
         continue;
     }
     for (unsigned int s_or_b=0; s_or_b<2;s_or_b++) {
@@ -850,7 +852,7 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtDiscBin(double eT) co
   }
   else if(useOneExtraHighETLHBin){
     const unsigned int nEtBins = fnDiscEtBinsOneExtra;
-    const double eTBins[nEtBins] = {10*GeV,15*GeV,20*GeV,25*GeV,30*GeV,35*GeV,40*GeV,45*GeV,125*GeV,6000*GeV};
+    const double eTBins[nEtBins] = {10*GeV,15*GeV,20*GeV,25*GeV,30*GeV,35*GeV,40*GeV,45*GeV,HighETBinThreshold*GeV,6000*GeV};
 
     for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
       if(eT < eTBins[eTBin])

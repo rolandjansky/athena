@@ -36,7 +36,6 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(std::string myname) :
 {
 
   m_rootTool = new Root::TElectronIsEMSelector(myname.c_str());
-  m_rootTool->msg().setLevel(this->msg().level());
 
   declareProperty("WorkingPoint",m_WorkingPoint="","The Working Point");
   declareProperty("ConfigFile",m_configFile="",
@@ -227,8 +226,11 @@ StatusCode AsgElectronIsEMSelector::initialize()
     
     //Override the mask via the config only if it is not set 
     if(m_rootTool->isEMMask==egammaPID::EgPidUndefined){ 
-      unsigned int mask(env.GetValue("isEMMask",static_cast<int>(egammaPID::EgPidUndefined)));
-      m_rootTool->isEMMask=mask;
+
+      int default_mask = static_cast<int>(egammaPID::EgPidUndefined); 
+      int mask(env.GetValue("isEMMask",default_mask));
+      m_rootTool->isEMMask=static_cast<unsigned int> (mask);
+
     }
     //
     ATH_MSG_DEBUG("Read in the TEnv config ");
@@ -287,6 +289,9 @@ StatusCode AsgElectronIsEMSelector::initialize()
   }
 
   ATH_MSG_INFO("operating point : " << this->getOperatingPointName() << " with mask: "<< m_rootTool->isEMMask  );
+
+  // Get the message level and set the underlying ROOT tool message level accordingly
+  m_rootTool->msg().setLevel(this->msg().level());
 
   // We need to initialize the underlying ROOT TSelectorTool
   if ( 0 == m_rootTool->initialize() )
@@ -362,25 +367,25 @@ const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Photon* ph) co
 //=============================================================================
 /// Get the name of the current operating point
 //=============================================================================
-std::string AsgElectronIsEMSelector::getOperatingPointName() const
-{
+std::string AsgElectronIsEMSelector::getOperatingPointName() const{
 
-  return m_WorkingPoint;
-
-  //if (m_rootTool->isEMMask == egammaPID::ElectronLoosePP){ return "Loose"; }
-  //else if (m_rootTool->isEMMask == egammaPID::ElectronMediumPP ){ return "Medium"; }
-  //else if (m_rootTool->isEMMask == egammaPID::ElectronTightPP){ return "Tight"; }
-  //else if (m_rootTool->isEMMask == egammaPID::ElectronLoose1){return "Loose1";}
-  //else if (m_rootTool->isEMMask == egammaPID::ElectronMedium1){return "Medium1";}
-  //else if (m_rootTool->isEMMask == egammaPID::ElectronTight1){return "Tight1";}
-  //else if (m_rootTool->isEMMask == egammaPID::ElectronLooseHLT){return "LooseHLT";}
-  //else if (m_rootTool->isEMMask == egammaPID::ElectronMediumHLT){return "MediumHLT";}
-  //else if (m_rootTool->isEMMask == egammaPID::ElectronTightHLT){return "TightHLT";}
-  //else if (m_rootTool->isEMMask == 0){ return "0 No cuts applied"; }
-  //else{
-  //  ATH_MSG_INFO( "Didn't recognize the given operating point with mask: " << m_rootTool->isEMMask );
-  //  return "";
-  //}
+  if(!m_WorkingPoint.empty()){
+    return m_WorkingPoint;
+  }
+  else if (m_rootTool->isEMMask == egammaPID::ElectronLoosePP){ return "Loose"; }
+  else if (m_rootTool->isEMMask == egammaPID::ElectronMediumPP ){ return "Medium"; }
+  else if (m_rootTool->isEMMask == egammaPID::ElectronTightPP){ return "Tight"; }
+  else if (m_rootTool->isEMMask == egammaPID::ElectronLoose1){return "Loose1";}
+  else if (m_rootTool->isEMMask == egammaPID::ElectronMedium1){return "Medium1";}
+  else if (m_rootTool->isEMMask == egammaPID::ElectronTight1){return "Tight1";}
+  else if (m_rootTool->isEMMask == egammaPID::ElectronLooseHLT){return "LooseHLT";}
+  else if (m_rootTool->isEMMask == egammaPID::ElectronMediumHLT){return "MediumHLT";}
+  else if (m_rootTool->isEMMask == egammaPID::ElectronTightHLT){return "TightHLT";}
+  else if (m_rootTool->isEMMask == 0){ return "0 No cuts applied"; }
+  else{
+    ATH_MSG_INFO( "Didn't recognize the given operating point with mask: " << m_rootTool->isEMMask );
+    return "";
+  }
 }
 
 ///==========================================================================================//

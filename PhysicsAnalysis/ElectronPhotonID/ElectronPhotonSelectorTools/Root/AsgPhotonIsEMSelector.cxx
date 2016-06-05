@@ -34,7 +34,6 @@ AsgPhotonIsEMSelector::AsgPhotonIsEMSelector(std::string myname) :
 {
 
   m_rootTool = new Root::TPhotonIsEMSelector(myname.c_str());
-  m_rootTool->msg().setLevel(this->msg().level());
 
   declareProperty("WorkingPoint",m_WorkingPoint="","The Working Point");  
   declareProperty("ConfigFile",m_configFile="","The config file to use (if not setting cuts one by one)");
@@ -296,7 +295,9 @@ StatusCode AsgPhotonIsEMSelector::initialize()
   }
   
   ATH_MSG_INFO("operating point : " << this->getOperatingPointName());
-  
+  // Get the message level and set the underlying ROOT tool message level accordingly
+  m_rootTool->msg().setLevel(this->msg().level());
+
   // We need to initialize the underlying ROOT TSelectorTool
   if ( 0 == m_rootTool->initialize() )
     {

@@ -32,7 +32,6 @@ AsgForwardElectronIsEMSelector::AsgForwardElectronIsEMSelector(std::string mynam
   m_rootForwardTool(0)
 {
   m_rootForwardTool = new Root::TForwardElectronIsEMSelector(myname.c_str());
-  m_rootForwardTool->msg().setLevel(this->msg().level());
 
   declareProperty("WorkingPoint",m_WorkingPoint="","The Working Point");
   declareProperty("ConfigFile",m_configFile="",
@@ -129,6 +128,8 @@ StatusCode AsgForwardElectronIsEMSelector::initialize()
 
   ATH_MSG_INFO("operating point : " << this->getOperatingPointName() << " with mask: "<< m_rootForwardTool->isEMMask  );
 
+  // Get the message level and set the underlying ROOT tool message level accordingly
+  m_rootForwardTool->msg().setLevel(this->msg().level());
   // We need to initialize the underlying ROOT TSelectorTool
   if ( 0 == m_rootForwardTool->initialize() )
     {

@@ -37,11 +37,11 @@ namespace xAOD {
     /// @name Ambiguity types
     enum AmbiguityType {
       electron = 0,
-      ambiguousTrackQoverPBetterThanVertexQoverP=1,
+      ambiguousTrackEoverPBetterThanVertexEoverP=1,
       ambiguousTrackLowPt=2,
-      ambiguousTrackLowQoverP=3,
+      ambiguousTrackLowEoverP=3,
       ambiguousTrackNoPixel =4,
-      ambiguousVertexQoverPBetterThanTrackQoverP=5,
+      ambiguousVertexEoverPBetterThanTrackEoverP=5,
       photon=6,
       unknown=7
     };

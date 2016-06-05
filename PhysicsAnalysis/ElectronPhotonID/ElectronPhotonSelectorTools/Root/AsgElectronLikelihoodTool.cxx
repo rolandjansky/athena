@@ -80,10 +80,6 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("CutDeltaEta",m_rootTool->CutDeltaEta,"Cut on deltaEta");
   // cut on deltaPhiRes
   declareProperty("CutDeltaPhiRes",m_rootTool->CutDeltaPhiRes,"Cut on deltaPhiRes");
-  // cut on Wstot above 125 GeV
-  declareProperty("CutWstotAtHighET",m_rootTool->CutWstotAtHighET,"Cut on Wstot above 100 GeV");
-  // cut on EoverP above 125 GeV
-  declareProperty("CutEoverPAtHighET",m_rootTool->CutEoverPAtHighET,"Cut on EoverP above 100 GeV");
   // cut on precision hits
   declareProperty("CutSi",m_rootTool->CutSi,"Cut on precision hits");
   // turn off f3 at high Et
@@ -96,6 +92,12 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("useHighETLHBinning",m_rootTool->useHighETLHBinning,"Use binning for high ET LH");
   // use one extra bin for high ET LH
   declareProperty("useOneExtraHighETLHBin",m_rootTool->useOneExtraHighETLHBin,"Use one extra bin for high ET LH");
+  // cut on Wstot above HighETBinThreshold
+  declareProperty("CutWstotAtHighET",m_rootTool->CutWstotAtHighET,"Cut on Wstot above HighETBinThreshold");
+  // cut on EoverP above HighETBinThreshold 
+  declareProperty("CutEoverPAtHighET",m_rootTool->CutEoverPAtHighET,"Cut on EoverP above HighETBinThreshold");
+  // ET threshold for using high ET cuts and bin
+  declareProperty("HighETBinThreshold",m_rootTool->HighETBinThreshold,"ET threshold for using high ET cuts and bin");
   // do pileup-dependent transform on discriminant value
   declareProperty("doPileupTransform",m_rootTool->doPileupTransform,"Do pileup-dependent transform on discriminant value");
   // reference disc for very hard cut; used by pileup transform
@@ -200,10 +202,6 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     m_rootTool->CutDeltaEta = AsgConfigHelper::HelperDouble("CutDeltaEta", env);
     // cut on deltaPhiRes
     m_rootTool->CutDeltaPhiRes = AsgConfigHelper::HelperDouble("CutDeltaPhiRes", env);
-    // cut on Wstot above 125 GeV 
-    m_rootTool->CutWstotAtHighET = AsgConfigHelper::HelperDouble("CutWstotAtHighET", env);
-    // cut on EoverP above 125 GeV 
-    m_rootTool->CutEoverPAtHighET = AsgConfigHelper::HelperDouble("CutEoverPAtHighET", env);
     // turn off f3 at high Et
     m_rootTool->doRemoveF3AtHighEt = env.GetValue("doRemoveF3AtHighEt", false);
     // turn off TRTPID at high Et
@@ -214,6 +212,11 @@ StatusCode AsgElectronLikelihoodTool::initialize()
 
     m_rootTool->useHighETLHBinning = env.GetValue("useHighETLHBinning", false);
     m_rootTool->useOneExtraHighETLHBin = env.GetValue("useOneExtraHighETLHBin", false);
+    // cut on Wstot above HighETBinThreshold
+    m_rootTool->CutWstotAtHighET = AsgConfigHelper::HelperDouble("CutWstotAtHighET", env);
+    // cut on EoverP above HighETBinThreshold
+    m_rootTool->CutEoverPAtHighET = AsgConfigHelper::HelperDouble("CutEoverPAtHighET", env);
+    m_rootTool->HighETBinThreshold = env.GetValue("HighETBinThreshold", 125);
 
     m_rootTool->doPileupTransform = env.GetValue("doPileupTransform", false);
     m_rootTool->DiscHardCutForPileupTransform = AsgConfigHelper::HelperDouble("DiscHardCutForPileupTransform",env);

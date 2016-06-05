@@ -266,17 +266,13 @@ namespace Root {
     std::vector<double> CutA0;
     /** @brief do cut on delta eta bit*/
     std::vector<double> CutDeltaEta;
-    // /** @brief do cut on delta phi (not res) bit*/
+    // /** @brief do cut on delta phi bit*/
     std::vector<double> CutDeltaPhiRes;
-    // /** @brief do cut on wstot above 125 GeV bit*/
-    std::vector<double> CutWstotAtHighET;
-    // /** @brief do cut on EoverP above 125 GeV bit*/
-    std::vector<double> CutEoverPAtHighET;
     /** @brief do cut on conversion bit*/
     bool doCutConversion;
-    /** @brief do remove f3 variable from likelihood at high Et (>100 GeV)*/
+    /** @brief do remove f3 variable from likelihood at high Et (>80 GeV)*/
     bool doRemoveF3AtHighEt;
-    /** @brief do remove TRTPID variable from likelihood at high Et (>100 GeV)*/
+    /** @brief do remove TRTPID variable from likelihood at high Et (>80 GeV)*/
     bool doRemoveTRTPIDAtHighEt;
     /** @brief do smooth interpolation between bins */
     bool doSmoothBinInterpolation;
@@ -284,6 +280,12 @@ namespace Root {
     bool useHighETLHBinning;
     /** @brief use one extra bin for high ET LH*/
     bool useOneExtraHighETLHBin;
+    /** @brief ET threshold for using high ET cuts and bin */
+    double HighETBinThreshold;
+    // /** @brief do cut on wstot above HighETBinThreshold bit*/
+    std::vector<double> CutWstotAtHighET;
+    // /** @brief do cut on EoverP above HighETBinThreshold bit*/
+    std::vector<double> CutEoverPAtHighET;
     /** @brief do pileup-dependent transform on discriminant value*/
     bool doPileupTransform;
     /** @brief cut on likelihood output*/
@@ -390,7 +392,7 @@ namespace Root {
     static const unsigned int  fnDiscEtBins     = 33; // number of discs stored for nominal LH (useHighETLHBinning), excluding 4GeV bin
     static const unsigned int  fnEtBinsHistOrig = 7;  // number of hists stored for original LH, including 4GeV bin (for backwards compatibility)
     static const unsigned int  fnDiscEtBinsOrig = 9;  // number of discs stored for original LH, excluding 4GeV bin (for backwards compatibility)
-    static const unsigned int  fnDiscEtBinsOneExtra = 10;  // number of discs stored for original LH plus one for 100 GeV (useOneExtraHighETLHBin), excluding 4GeV bin
+    static const unsigned int  fnDiscEtBinsOneExtra = 10;  // number of discs stored for original LH plus one for HighETBinThreshold (useOneExtraHighETLHBin), excluding 4GeV bin
     static const unsigned int  fnEtaBins        = 10;
     static const unsigned int  fnVariables      = 14;
     TElectronLikelihoodTool::SafeTH1*      fPDFbins     [2][IP_BINS][fnEtBinsHist][fnEtaBins][fnVariables]; // [sig(0)/bkg(1)][ip][et][eta][variable]
