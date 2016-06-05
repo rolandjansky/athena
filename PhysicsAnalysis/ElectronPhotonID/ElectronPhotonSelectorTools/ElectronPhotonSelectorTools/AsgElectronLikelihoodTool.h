@@ -12,7 +12,6 @@
 #include "AsgTools/AsgTool.h"
 #include "ElectronPhotonSelectorTools/TElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
-
 #include "xAODEgamma/ElectronFwd.h"
 
 class AsgElectronLikelihoodTool : public asg::AsgTool, 
@@ -129,6 +128,9 @@ private:
 
   // Private member variables
 private:
+  /** Working Point */
+  std::string m_WorkingPoint;
+
   // The input config file.
   std::string m_configFile;
 
@@ -158,12 +160,6 @@ private:
   bool m_caloOnly;
 
 
-
-  // /// Say if we should re-calculate the likelihood every time (otherwise tried to be taken from UserData)
-  // bool m_forceCalcLH;
-
-  /// The cut value to be used
-  unsigned int m_operatingPoint;
 
 }; // End: class definition
 

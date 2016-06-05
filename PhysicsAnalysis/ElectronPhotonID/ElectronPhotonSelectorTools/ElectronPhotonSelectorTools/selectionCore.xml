@@ -1,0 +1,7 @@
+<lcgdict>
+  <enum pattern="egammaPID::*"/>
+  <variable pattern="egammaPID::*"/>
+  <class name="egammaPID::ROOT6_NamespaceAutoloadHook" /> 
+  <enum name="LikeEnum::Menu" />
+  <class name="LikeEnum::ROOT6_NamespaceAutoloadHook" /> 
+</lcgdict>

@@ -20,12 +20,11 @@
 
 // Include the interfaces
 #include "PATCore/IAsgSelectionTool.h"
-
-// Include the return object and the underlying ROOT tool
-#include "PATCore/TAccept.h"
-#include "PATCore/TResult.h"
-
 // Forward declarations
+namespace Root{
+  class TAccept;
+  class TResult;
+}
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODEgamma/EgammaFwd.h"
 

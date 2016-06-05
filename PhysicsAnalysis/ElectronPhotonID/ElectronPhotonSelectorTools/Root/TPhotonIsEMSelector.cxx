@@ -558,6 +558,9 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
   //
   // second sampling cuts  
   //
+  if ((e277_photonsNonConverted.size()==0 ) ) {
+    ATH_MSG_WARNING("e277 needs to  be set ");
+  }
   if (e277_photonsNonConverted.size()>0 && e277 >= e277_photonsNonConverted[0] ) {
     if (ibinEta==-1) {
       //std::cout << " pb with eta range = " << eta2 << std::endl;
@@ -784,8 +787,11 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
   //
   // second sampling cuts  
   //
+  if ( (e277_photonsConverted.size()==0) ) {
+    ATH_MSG_WARNING("e277 needs to  be set ");
+  }
   if (e277_photonsConverted.size()>0 && e277 >= e277_photonsConverted[0] ) {
-
+    
     if (ibinEta==-1) {
       iflag |= ( 0x1 << egammaPID::ClusterEtaRange_Photon);
       return iflag;

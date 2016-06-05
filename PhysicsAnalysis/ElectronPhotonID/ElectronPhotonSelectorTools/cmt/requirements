@@ -17,20 +17,20 @@ use AsgTools                    AsgTools-*              Control/AthToolSupport
 use xAODTracking                xAODTracking-*          Event/xAOD
 
 private
+use CxxUtils                    CxxUtils-*              Control
+use xAODCore			xAODCore-*		Event/xAOD
 use  GaudiInterface             GaudiInterface-*        External
 use  xAODCaloEvent              xAODCaloEvent-*         Event/xAOD
 use  PathResolver               PathResolver-*          Tools
 use  FourMomUtils               FourMomUtils-*          Event 
+use CxxUtils                    CxxUtils-*              Control
 
 # in AtlasEvent, even if in PhysicsAnalysis directory   
 end_private
 
-
 ## macros   
 apply_tag       ROOTBasicLibs
 apply_tag       ROOTMathLibs
-
-#macro_append ROOT_linkopts " -lPyROOT"
 
 ## declare the directories CMT should know about
 branches ElectronPhotonSelectorTools python src Root share data
@@ -49,4 +49,5 @@ apply_pattern declare_calib files="../data/*.root ../data/*.conf"
 
 ## For reflex dictionary generation
 use AtlasReflex   AtlasReflex-*   External -no_auto_imports
-apply_pattern lcgdict dict=ElectronPhotonSelectorTools selectionfile=selection.xml headerfiles="..\/ElectronPhotonSelectorTools/ElectronPhotonSelectorToolsDict.h"
+apply_pattern lcgdict dict=ElectronPhotonSelectorTools selectionfile=selectionCore.xml headerfiles="..\/ElectronPhotonSelectorTools/ElectronPhotonSelectorToolsCoreDict.h"
+apply_pattern lcgdict dict=ElectronPhotonSelectorToolsPython selectionfile=selectionPython.xml headerfiles="..\/ElectronPhotonSelectorTools/ElectronPhotonSelectorToolsPythonDict.h"

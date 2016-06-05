@@ -17,6 +17,7 @@
 
 #include "ElectronPhotonSelectorTools/AsgElectronIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "EGSelectorConfigurationMapping.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODTracking/TrackParticle.h"
@@ -35,8 +36,8 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(std::string myname) :
 {
 
   m_rootTool = new Root::TElectronIsEMSelector(myname.c_str());
-  m_rootTool->msg().setLevel(this->msg().level());
 
+  declareProperty("WorkingPoint",m_WorkingPoint="","The Working Point");
   declareProperty("ConfigFile",m_configFile="",
 		  "The config file to use (if not setting cuts one by one)");
   
@@ -205,8 +206,11 @@ StatusCode AsgElectronIsEMSelector::initialize()
   // The standard status code
   StatusCode sc = StatusCode::SUCCESS ;
 
-  if(!m_configFile.empty()) {
-    
+  if(!m_WorkingPoint.empty()){
+    m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::m_ElectronCutPointToConfFile);
+  }
+
+  if(!m_configFile.empty()) {    
     //find the file and read it in
     std::string filename = PathResolverFindCalibFile( m_configFile);
     if(filename=="")
@@ -215,15 +219,18 @@ StatusCode AsgElectronIsEMSelector::initialize()
 	sc = StatusCode::FAILURE;
 	return sc;      
       } 
-    
+    ATH_MSG_DEBUG("Configfile to use  " << m_configFile );
     TEnv env(filename.c_str());
     
     ///------- Read in the TEnv config ------///
     
     //Override the mask via the config only if it is not set 
     if(m_rootTool->isEMMask==egammaPID::EgPidUndefined){ 
-      unsigned int mask(env.GetValue("isEMMask",static_cast<int>(egammaPID::EgPidUndefined)));
-      m_rootTool->isEMMask=mask;
+
+      int default_mask = static_cast<int>(egammaPID::EgPidUndefined); 
+      int mask(env.GetValue("isEMMask",default_mask));
+      m_rootTool->isEMMask=static_cast<unsigned int> (mask);
+
     }
     //
     ATH_MSG_DEBUG("Read in the TEnv config ");
@@ -282,6 +289,9 @@ StatusCode AsgElectronIsEMSelector::initialize()
   }
 
   ATH_MSG_INFO("operating point : " << this->getOperatingPointName() << " with mask: "<< m_rootTool->isEMMask  );
+
+  // Get the message level and set the underlying ROOT tool message level accordingly
+  m_rootTool->msg().setLevel(this->msg().level());
 
   // We need to initialize the underlying ROOT TSelectorTool
   if ( 0 == m_rootTool->initialize() )
@@ -357,10 +367,12 @@ const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Photon* ph) co
 //=============================================================================
 /// Get the name of the current operating point
 //=============================================================================
-std::string AsgElectronIsEMSelector::getOperatingPointName() const
-{
+std::string AsgElectronIsEMSelector::getOperatingPointName() const{
 
-  if (m_rootTool->isEMMask == egammaPID::ElectronLoosePP){ return "Loose"; }
+  if(!m_WorkingPoint.empty()){
+    return m_WorkingPoint;
+  }
+  else if (m_rootTool->isEMMask == egammaPID::ElectronLoosePP){ return "Loose"; }
   else if (m_rootTool->isEMMask == egammaPID::ElectronMediumPP ){ return "Medium"; }
   else if (m_rootTool->isEMMask == egammaPID::ElectronTightPP){ return "Tight"; }
   else if (m_rootTool->isEMMask == egammaPID::ElectronLoose1){return "Loose1";}
@@ -541,6 +553,9 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
   // number of B-layer hits
   uint8_t nBL = 0;
   uint8_t nBLOutliers = 0;
+  // number of next to inner most B-layer hits
+  uint8_t nNextToInnerMostLayer = 0;
+  uint8_t nNextToInnerMostLayerOutliers = 0;
   // number of Pixel hits
   uint8_t nPi = 0;
   uint8_t nPiOutliers = 0;
@@ -555,14 +570,17 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
   uint8_t nTRTOutliers = 0;
   uint8_t nTRTXenonHits = 0;
   uint8_t expectHitInBLayer = true;
+  uint8_t expectHitNextInBLayer = true;
   float   TRT_PID = 0.0; 
 
   bool allFound = true;
 
   allFound = allFound && t->summaryValue(nBL, xAOD::numberOfBLayerHits);
+  allFound = allFound && t->summaryValue(nNextToInnerMostLayer, xAOD::numberOfNextToInnermostPixelLayerHits);
   allFound = allFound && t->summaryValue(nPi, xAOD::numberOfPixelHits);
   allFound = allFound && t->summaryValue(nSCT, xAOD::numberOfSCTHits);
   allFound = allFound && t->summaryValue(nBLOutliers, xAOD::numberOfBLayerOutliers);
+  allFound = allFound && t->summaryValue(nNextToInnerMostLayerOutliers, xAOD::numberOfNextToInnermostPixelLayerOutliers);
   allFound = allFound && t->summaryValue(nPiOutliers, xAOD::numberOfPixelOutliers);
   allFound = allFound && t->summaryValue(nPiDeadSensors, xAOD::numberOfPixelDeadSensors);
   allFound = allFound && t->summaryValue(nSCTOutliers, xAOD::numberOfSCTOutliers); 
@@ -574,6 +592,8 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
   allFound = allFound && t->summaryValue(nTRTXenonHits, xAOD::numberOfTRTXenonHits);
   allFound = allFound && t->summaryValue(TRT_PID, xAOD::eProbabilityHT);
   allFound = allFound && t->summaryValue(expectHitInBLayer, xAOD::expectBLayerHit);
+  allFound = allFound && t->summaryValue(expectHitNextInBLayer, xAOD::expectNextToInnermostPixelLayerHit);
+  
 
   const float trackd0 = fabsf(t->d0());
   
@@ -597,6 +617,8 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
 			      et,
 			      nBL,
 			      nBLOutliers,
+			      nNextToInnerMostLayer,
+			      nNextToInnerMostLayerOutliers,
 			      nPi,
 			      nPiOutliers,
 			      nPiDeadSensors,
@@ -614,6 +636,7 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
 			      deltaphi,
 			      ep,
 			      expectHitInBLayer,
+			      expectHitNextInBLayer,
 			      iflag);
 }
 //  LocalWords:  const el
