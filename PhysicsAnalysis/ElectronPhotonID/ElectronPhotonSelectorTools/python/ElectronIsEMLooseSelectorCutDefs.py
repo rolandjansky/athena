@@ -25,6 +25,7 @@ def ElectronIsEMLooseSelectorConfigDC14(theTool) :
     theTool = GetTool(theTool)
     
     theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150329/ElectronIsEMLooseSelectorCutDefs.conf"
+    theTool.CutNexttoInnerMostBL = True
 
 
 def ElectronIsEMLooseSelectorConfig2011(theTool) :

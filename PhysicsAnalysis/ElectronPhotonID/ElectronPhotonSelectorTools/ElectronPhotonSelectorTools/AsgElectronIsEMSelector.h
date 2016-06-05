@@ -128,6 +128,8 @@ private:
   bool m_caloOnly; 
   float m_trigEtTh;
 
+ /// Flag for b-layer protection
+  bool m_cutNextToInnerMost;
   
 }; // End: class definition
 
