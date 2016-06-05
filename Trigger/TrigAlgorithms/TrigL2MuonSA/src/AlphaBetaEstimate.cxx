@@ -4,20 +4,30 @@
 
 #include "TrigL2MuonSA/AlphaBetaEstimate.h"
 
-#include "GaudiKernel/MsgStream.h"
-
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include "xAODTrigMuon/TrigMuonDefs.h"
 
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-TrigL2MuonSA::AlphaBetaEstimate::AlphaBetaEstimate(MsgStream* msg,
-						   const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc): 
-  m_msg(msg),
-  m_ptEndcapLUT(ptEndcapLUTSvc->ptEndcapLUT())
+static const InterfaceID IID_AlphaBetaEstimate("IID_AlphaBetaEstimate", 1, 0);
+
+const InterfaceID& TrigL2MuonSA::AlphaBetaEstimate::interfaceID() { return IID_AlphaBetaEstimate; }
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+TrigL2MuonSA::AlphaBetaEstimate::AlphaBetaEstimate(const std::string& type,
+						   const std::string& name,
+						   const IInterface*  parent):
+  AthAlgTool(type, name, parent), 
+  m_ptEndcapLUT(0)
 {
+  declareInterface<TrigL2MuonSA::AlphaBetaEstimate>(this);
 }
 
 // --------------------------------------------------------------------------------
@@ -25,6 +35,34 @@ TrigL2MuonSA::AlphaBetaEstimate::AlphaBetaEstimate(MsgStream* msg,
 
 TrigL2MuonSA::AlphaBetaEstimate::~AlphaBetaEstimate() 
 {
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::AlphaBetaEstimate::initialize()
+{
+  ATH_MSG_DEBUG("Initializing AlphaBetaEstimate - package version " << PACKAGE_VERSION) ;
+   
+  StatusCode sc;
+  sc = AthAlgTool::initialize();
+  if (!sc.isSuccess()) {
+    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
+    return sc;
+  }
+
+  // 
+  return StatusCode::SUCCESS; 
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+void TrigL2MuonSA::AlphaBetaEstimate::setMCFlag(BooleanProperty use_mcLUT,
+                                                const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc)
+{
+  m_use_mcLUT = use_mcLUT;
+  m_ptEndcapLUT = ptEndcapLUTSvc->ptEndcapLUT();
 }
 
 // --------------------------------------------------------------------------------
@@ -185,7 +223,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     double slope = (OuterR-MiddleR)/(OuterZ-MiddleZ);
     double inter = MiddleR - slope*MiddleZ;    
     
-    trackPattern.endcapAlpha = m_ptEndcapLUT->alpha(MiddleZ,MiddleR,OuterZ,OuterR);
+    trackPattern.endcapAlpha = (*m_ptEndcapLUT)->alpha(MiddleZ,MiddleR,OuterZ,OuterR);
     trackPattern.slope       = slope; 
     trackPattern.intercept   = inter;    
     if (InnerR) {
@@ -202,7 +240,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
 	double Ze = MiddleZ+(fabsf(MiddleZ)/MiddleZ)*1000.;
 	double Re = MiddleSlope*(Ze) + MiddleIntercept;
 
-	trackPattern.endcapAlpha = m_ptEndcapLUT->alpha(MiddleZ,MiddleR,Ze,Re);
+	trackPattern.endcapAlpha = (*m_ptEndcapLUT)->alpha(MiddleZ,MiddleR,Ze,Re);
 	trackPattern.slope       = MiddleSlope;
 	trackPattern.intercept   = MiddleIntercept;
       }      
@@ -233,9 +271,9 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
   }
   if (distance>500) trackPattern.endcapRadius3P=0;//Reconstruction may fail
 
-  msg() << MSG::DEBUG << "... alpha/beta/endcapRadius/charge/s_address="
-	<< trackPattern.endcapAlpha << "/" << trackPattern.endcapBeta << "/" << trackPattern.endcapRadius3P << "/" 
-	<< trackPattern.charge << "/" << trackPattern.s_address << endreq;
+  ATH_MSG_DEBUG("... alpha/beta/endcapRadius/charge/s_address="
+		<< trackPattern.endcapAlpha << "/" << trackPattern.endcapBeta << "/" << trackPattern.endcapRadius3P << "/" 
+		<< trackPattern.charge << "/" << trackPattern.s_address);
   // 
   return StatusCode::SUCCESS; 
 }
@@ -331,6 +369,17 @@ double TrigL2MuonSA::AlphaBetaEstimate::calcDistance(double x1,double y1,double 
   double b = y1+x1*(x1-x0)/(y1-y0);//intercept of sessen
   double d=fabs(b)/sqrt(a*a+1);
   return d;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::AlphaBetaEstimate::finalize()
+{
+  ATH_MSG_DEBUG("Finalizing AlphaBetaEstimate - package version " << PACKAGE_VERSION);
+   
+  StatusCode sc = AthAlgTool::finalize(); 
+  return sc;
 }
 
 // --------------------------------------------------------------------------------

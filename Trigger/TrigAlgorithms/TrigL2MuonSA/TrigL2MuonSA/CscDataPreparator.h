@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/IMessageSvc.h"
 
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
@@ -74,18 +73,11 @@ namespace TrigL2MuonSA {
 
   private:
     
-    MsgStream* m_msg;
-    inline MsgStream& msg() const { return *m_msg; }
-
     double calc_residual(double aw,
 			 double bw,
 			 double x,
 			 double y);
 
-  public:
-    
-    inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
-    
   private:
 
     // Reference to StoreGateSvc;

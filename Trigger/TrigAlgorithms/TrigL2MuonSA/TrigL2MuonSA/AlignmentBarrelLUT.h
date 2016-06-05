@@ -5,31 +5,37 @@
 #ifndef TRIGL2MUONSA_ALIGNMENTBARRELLUT_H
 #define TRIGL2MUONSA_ALIGNMENTBARRELLUT_H
 
+#include "AthenaBaseComps/AthAlgTool.h"
+
 #include "TMath.h"
 
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include <string>
 
 namespace TrigL2MuonSA {
   
-  class AlignmentBarrelLUT {
+class AlignmentBarrelLUT: public AthAlgTool
+{
 
   public:
-    AlignmentBarrelLUT(MsgStream* msg);
-    ~AlignmentBarrelLUT();
+    static const InterfaceID& interfaceID();
+
+    AlignmentBarrelLUT(const std::string& type, 
+                       const std::string& name,
+                       const IInterface*  parent);
+    ~AlignmentBarrelLUT(void);
+
+    virtual StatusCode initialize();
+    virtual StatusCode finalize  ();
 
     StatusCode readLUT(std::string lut_fileName);
 
     double GetDeltaZ(int& saddress, double& etaMap, double& phiMap, double& MFphi, float& sp1R ) const;
 
     std::pair<int, int> GetBinNumber(int saddress, int innerR, double etaMap, double phiMap) const;
-
-    MsgStream*  m_msg;
-    inline MsgStream& msg() const { return *m_msg; }
 
   private:
     double dZ[4][2][15][30][2]; // [s_address][innerR][eta][phi][etaQ]

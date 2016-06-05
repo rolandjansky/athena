@@ -5,8 +5,9 @@
 #ifndef  TRIGL2MUONSA_ALPHABETAESTIMATE_H
 #define  TRIGL2MUONSA_ALPHABETAESTIMATE_H
 
+#include "AthenaBaseComps/AthAlgTool.h"
+
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IMessageSvc.h"
 
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
@@ -18,14 +19,23 @@
 
 namespace TrigL2MuonSA {
   
-  class AlphaBetaEstimate
-  {
-  public:
+class AlphaBetaEstimate: public AthAlgTool
+{
+ public:
     
-    AlphaBetaEstimate(MsgStream* msg,
-		      const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc);
+  static const InterfaceID& interfaceID();
+
+  AlphaBetaEstimate(const std::string& type, 
+		    const std::string& name,
+		    const IInterface*  parent);
     
-    ~AlphaBetaEstimate();
+  ~AlphaBetaEstimate();
+
+  virtual StatusCode initialize();
+  virtual StatusCode finalize  ();
+    
+  void setMCFlag(BooleanProperty use_mcLUT,
+		 const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc);
     
   public:
     
@@ -43,22 +53,9 @@ namespace TrigL2MuonSA {
     double     computeRadius3Points(double InnerZ, double InnerR, double EEZ, double EER,double MiddleZ, double MiddleR );
     double     calcDistance(double x1,double y1,double x2,double y2,double x3,double y3) ; 
     
-    /** @brief Pointer to MsgStream.*/
-    MsgStream* m_msg;
-    
-    /**
-     * @brief Accessor method for the MsgStream.
-     * @return handle to the MsgStream.
-     */
-    inline MsgStream& msg() const { return *m_msg; }
-    
-    /**
-     * @brief Accessor method for the message level variable.
-     * @return value of the message level for this algorithm.
-     */
-    inline MSG::Level msgLvl() const { return (m_msg != 0) ? m_msg->level() : MSG::NIL; }
-    
-    const TrigL2MuonSA::PtEndcapLUT*    m_ptEndcapLUT;
+    BooleanProperty  m_use_mcLUT;
+
+    const ToolHandle<PtEndcapLUT>*    m_ptEndcapLUT;
   };
   
 } // namespace TrigL2MuonSA

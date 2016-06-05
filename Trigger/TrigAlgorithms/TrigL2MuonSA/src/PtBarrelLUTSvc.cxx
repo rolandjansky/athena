@@ -7,12 +7,13 @@
 #include "TrigL2MuonSA/PtBarrelLUTSvc.h"
 #include "PathResolver/PathResolver.h"
 
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
 using namespace std;
 
 TrigL2MuonSA::PtBarrelLUTSvc::PtBarrelLUTSvc(const std::string& name,ISvcLocator* sl) :
   AthService(name,sl),
-  m_msg(0),
-  m_ptBarrelLUT(0)
+  m_ptBarrelLUT("TrigL2MuonSA::PtBarrelLUT")
 {
   declareProperty( "LUTfile", m_lut_fileName="pt_barrel.lut" );
   declareProperty( "SP_LUTfile", m_lutSP_fileName="pt_barrelSP.lut" );
@@ -23,13 +24,11 @@ TrigL2MuonSA::PtBarrelLUTSvc::PtBarrelLUTSvc(const std::string& name,ISvcLocator
 
 StatusCode TrigL2MuonSA::PtBarrelLUTSvc::queryInterface(const InterfaceID& riid, void** ppvIF) 
 { 
-  MsgStream log(messageService(), name());
   if (TrigL2MuonSA::PtBarrelLUTSvc::interfaceID().versionMatch(riid)) {
     *ppvIF = (PtBarrelLUTSvc*)this;
     return StatusCode::SUCCESS;
   } else {
-    log << MSG::DEBUG << name() << " cannot find the interface!"
-      	<< " Query the interface of the base class." << endreq;
+    ATH_MSG_DEBUG(name() << " cannot find the interface! Query the interface of the base class.");
     return AthService::queryInterface(riid, ppvIF);
   }
 } 
@@ -39,8 +38,7 @@ StatusCode TrigL2MuonSA::PtBarrelLUTSvc::queryInterface(const InterfaceID& riid,
 
 StatusCode TrigL2MuonSA::PtBarrelLUTSvc::initialize()
 {
-  m_msg = new MsgStream( msgSvc(), name() );
-  msg() << MSG::DEBUG << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endreq;
+  ATH_MSG_DEBUG("Initializing " << name() << " - package version " << PACKAGE_VERSION);
   
   StatusCode sc;
   
@@ -49,33 +47,34 @@ StatusCode TrigL2MuonSA::PtBarrelLUTSvc::initialize()
   
   // implement the search of LUT trought the pathresolver Tool.
   std::string lut_fileName = PathResolver::find_file (m_lut_fileName, "DATAPATH");
-  msg() << MSG::INFO << lut_fileName << endreq;
+  ATH_MSG_INFO(lut_fileName);
   
   if (lut_fileName.empty()) {
-    msg() << MSG::ERROR << "Cannot find barrel LUT file " << lut_fileName << endreq;
+    ATH_MSG_ERROR("Cannot find barrel LUT file " << lut_fileName);
     return StatusCode::FAILURE;
   }
   
   // implement the search of SP LUT trought the pathresolver Tool.
   std::string lutSP_fileName = PathResolver::find_file (m_lutSP_fileName, "DATAPATH");
-  msg() << MSG::INFO << lutSP_fileName << endreq;
+  ATH_MSG_INFO(lutSP_fileName);
   
   if (lutSP_fileName.empty()) {
-    msg() << MSG::ERROR << "Cannot find barrel SP LUT file " << lutSP_fileName << endreq;
+    ATH_MSG_ERROR("Cannot find barrel SP LUT file " << lutSP_fileName);
     return StatusCode::FAILURE;
   }
   
-  m_ptBarrelLUT = new PtBarrelLUT(m_msg);
-  if( !m_ptBarrelLUT ) {
-    msg() << MSG::ERROR << "Barrel LUT are not loaded!"  << endreq;
-    return StatusCode::FAILURE;
+  sc = m_ptBarrelLUT.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Could not retrieve " << m_ptBarrelLUT);
+    return sc;
   }
+  ATH_MSG_DEBUG("Retrieved service " << m_ptBarrelLUT);
 
   // read LUT
   sc = m_ptBarrelLUT->readLUT(lut_fileName, lutSP_fileName);
   if ( sc.isFailure() ) {
-    msg() << MSG::ERROR << "Failed to read barrel LUT" << lut_fileName
-	  << " and/or " << lutSP_fileName << endreq;
+    ATH_MSG_ERROR("Failed to read barrel LUT" << lut_fileName
+		  << " and/or " << lutSP_fileName);
     return sc;
   }
   
@@ -87,15 +86,8 @@ StatusCode TrigL2MuonSA::PtBarrelLUTSvc::initialize()
 
 StatusCode TrigL2MuonSA::PtBarrelLUTSvc::finalize() 
 {
-  if (m_ptBarrelLUT) delete m_ptBarrelLUT;
-  if (m_msg) delete m_msg;
   return StatusCode::SUCCESS;
 } 
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
-
-const TrigL2MuonSA::PtBarrelLUT* TrigL2MuonSA::PtBarrelLUTSvc::ptBarrelLUT() const
-{
-    return m_ptBarrelLUT;
-} 

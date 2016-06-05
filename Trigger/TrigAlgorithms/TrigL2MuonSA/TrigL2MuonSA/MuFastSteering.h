@@ -6,7 +6,6 @@
 #define  TRIGL2MUONSA_MUFASTSTEERING_H
 
 #include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"

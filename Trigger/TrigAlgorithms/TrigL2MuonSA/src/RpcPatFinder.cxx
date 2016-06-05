@@ -8,14 +8,26 @@
 #include <bitset>
 #include <iostream>
 
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
 // Original author: Massimo Corradi
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-TrigL2MuonSA::RpcPatFinder::RpcPatFinder(MsgStream* msg) 
-  : m_msg(msg)
+static const InterfaceID IID_RpcPatFinder("IID_RpcPatFinder", 1, 0);
+
+const InterfaceID& TrigL2MuonSA::RpcPatFinder::interfaceID() { return IID_RpcPatFinder; }
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+TrigL2MuonSA::RpcPatFinder::RpcPatFinder(const std::string& type,
+					 const std::string& name,
+					 const IInterface*  parent):
+  AthAlgTool(type, name, parent)  
 {  
+  declareInterface<TrigL2MuonSA::RpcPatFinder>(this);
 }
 
 // --------------------------------------------------------------------------------
@@ -23,6 +35,24 @@ TrigL2MuonSA::RpcPatFinder::RpcPatFinder(MsgStream* msg)
 
 TrigL2MuonSA::RpcPatFinder::~RpcPatFinder()
 {
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::RpcPatFinder::initialize()
+{
+  ATH_MSG_DEBUG("Initializing RpcPatFinder - package version " << PACKAGE_VERSION) ;
+   
+  StatusCode sc;
+  sc = AthAlgTool::initialize();
+  if (!sc.isSuccess()) {
+    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
+    return sc;
+  }
+
+  // 
+  return StatusCode::SUCCESS; 
 }
 
 // --------------------------------------------------------------------------------
@@ -43,13 +73,13 @@ void TrigL2MuonSA::RpcPatFinder::clear() {
 // --------------------------------------------------------------------------------
 
 void TrigL2MuonSA::RpcPatFinder::addHit(std::string stationName,
-			  bool  measuresPhi,
-			  unsigned  int gasGap,
-			  unsigned  int doubletR,
-			  double gPosX,
-			  double gPosY,
-			  double gPosZ ){
- 
+					bool  measuresPhi,
+					unsigned  int gasGap,
+					unsigned  int doubletR,
+					double gPosX,
+					double gPosY,
+					double gPosZ ){
+  
   int ilay=0;
   // BO 
   if (stationName.substr(0,2)=="BO") ilay=4;
@@ -130,9 +160,8 @@ int  TrigL2MuonSA::RpcPatFinder::patfinder_forEta(bool iphi,
 
       index[0] = std::distance(rpc_x->at(l_start).begin(), i_start);//mod!
   
-      msg() << MSG::DEBUG << "patfinder: l_start = "<< l_start
-	    << " x= " << current_x
-	    << " pat= "    << (std::bitset<8>) pat  << endreq; 
+      ATH_MSG_DEBUG("patfinder: l_start = "<< l_start << " x= " << current_x
+		    << " pat= "    << (std::bitset<8>) pat); 
 
       // ----- add compatible hits in other layers ----//
       // loop on test layers:
@@ -168,10 +197,8 @@ int  TrigL2MuonSA::RpcPatFinder::patfinder_forEta(bool iphi,
 	  }
 	}// if (n_layer)
 	
-	msg() << MSG::DEBUG << "patfinder:  l_test = "<< l_test 
-	      << " n_layer= "<< n_layer 
-	      << " x= " << current_x 
-	      << " pat= " << (std::bitset<8>)pat << endreq;
+	ATH_MSG_DEBUG("patfinder:  l_test = "<< l_test << " n_layer= "<< n_layer 
+		      << " x= " << current_x << " pat= " << (std::bitset<8>)pat);
       }//for l_test
 
       // if longest pattern found, update result
@@ -195,11 +222,8 @@ int  TrigL2MuonSA::RpcPatFinder::patfinder_forEta(bool iphi,
 
   if (n_max>=2) {
     abcal(result_pat, result_index, result_aw, result_bw);
-    msg() << MSG::DEBUG 
-	  << "patfinder: BEST pat= " << (std::bitset<8>)result_pat
-	  <<"  dMM= "<<result_dist[1] 
-	  <<"  dMO= "<<result_dist[2]   
-	  <<endreq;
+    ATH_MSG_DEBUG("patfinder: BEST pat= " << (std::bitset<8>)result_pat
+		  <<"  dMM= "<<result_dist[1] <<"  dMO= "<<result_dist[2]);
   
   }//if(n_max>2)
   
@@ -247,9 +271,8 @@ int  TrigL2MuonSA::RpcPatFinder::patfinder(bool iphi,
 
       double current_x =*i_start; // set current_x to the starting hit
       int l_current = l_start;
-      msg() << MSG::DEBUG << "patfinder: l_start = "<< l_start
-	    << " x= " << current_x
-	    << " pat= "    << (std::bitset<8>) pat  << endreq; 
+      ATH_MSG_DEBUG("patfinder: l_start = "<< l_start << " x= " << current_x
+		    << " pat= "    << (std::bitset<8>) pat); 
 
       // ----- add compatible hits in other layers ----//
       // loop on test layers:
@@ -283,10 +306,8 @@ int  TrigL2MuonSA::RpcPatFinder::patfinder(bool iphi,
 	    dMM=delta_layer;
 	  }
 	}
-	msg() << MSG::DEBUG << "patfinder:  l_test = "<< l_test 
-	      << " n_layer= "<< n_layer 
-	      << " x= " << current_x 
-	      << " pat= " << (std::bitset<8>)pat << endreq;
+	ATH_MSG_DEBUG("patfinder:  l_test = "<< l_test << " n_layer= "<< n_layer 
+		      << " x= " << current_x << " pat= " << (std::bitset<8>)pat);
       }
       // if longest pattern found, update result
       if (n_hits>n_max) { 
@@ -309,11 +330,9 @@ int  TrigL2MuonSA::RpcPatFinder::patfinder(bool iphi,
     }
   }
   if (n_max>2) {
-    msg() << MSG::DEBUG << "patfinder: BEST pat= " << (std::bitset<8>)result_pat
-	  <<"  dMM= "<<result_dMM 
-	  <<"  dMO= "<<result_dMO 
-	  <<"  x0= "<<result_x 
-	  <<"  x1= "<<result_x1 << endreq;
+    ATH_MSG_DEBUG("patfinder: BEST pat= " << (std::bitset<8>)result_pat
+		  <<"  dMM= "<<result_dMM <<"  dMO= "<<result_dMO 
+		  <<"  x0= "<<result_x <<"  x1= "<<result_x1);
   }
   return n_max;
   
@@ -550,3 +569,17 @@ void TrigL2MuonSA::RpcPatFinder::abcal(unsigned int result_pat, size_t index[], 
     }//else    
   }//for
 }//abcal()
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::RpcPatFinder::finalize()
+{
+  ATH_MSG_DEBUG("Finalizing RpcPatFinder - package version " << PACKAGE_VERSION);
+   
+  StatusCode sc = AthAlgTool::finalize(); 
+  return sc;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------

@@ -5,10 +5,10 @@
 #ifndef  TRIGL2MUONSA_RPAPATFINDER_H
 #define  TRIGL2MUONSA_RPAPATFINDER_H
 
-#include "GaudiKernel/MsgStream.h"
-
 #include <string> 
 #include <list> 
+
+#include "AthenaBaseComps/AthAlgTool.h"
 
 // Original author: Massimo Corradi
 
@@ -17,14 +17,21 @@ namespace TrigL2MuonSA {
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-class RpcPatFinder{
+class RpcPatFinder: public AthAlgTool
+{
 
  public:
-  RpcPatFinder(MsgStream* msg);
+  static const InterfaceID& interfaceID();
+
+  RpcPatFinder(const std::string& type, 
+	       const std::string& name,
+                 const IInterface*  parent);
   ~RpcPatFinder(void);
 
+  virtual StatusCode initialize();
+  virtual StatusCode finalize  ();
+
  public:
-  inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
 
   void clear();
   void addHit(std::string stationName,
@@ -36,9 +43,6 @@ class RpcPatFinder{
   bool findPatternPhi(double &phi_middle, double &phi_outer, unsigned int &pattern);
   
  private:
-  inline MsgStream& msg() const { return *m_msg; }
-
-  MsgStream* m_msg;
   std::vector<std::list<double>> m_hits_in_layer_eta;  
   std::vector<std::list<double>> m_hits_in_layer_phi;  
   std::vector<std::vector<double>> m_hits_in_layer_Z;  

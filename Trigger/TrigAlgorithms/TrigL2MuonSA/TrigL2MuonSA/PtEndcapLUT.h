@@ -5,28 +5,34 @@
 #ifndef TRIGL2MUONSA_PTENDCAPLUT_H
 #define TRIGL2MUONSA_PTENDCAPLUT_H
 
+#include "AthenaBaseComps/AthAlgTool.h"
+
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include <map>
 #include <cstring>
 
 namespace TrigL2MuonSA {
 
-  class PtEndcapLUT
-  {
+class PtEndcapLUT: public AthAlgTool
+{
   public:
     enum DataType { INVALID, ALPHAPOL2, BETAPOL2, TGCALPHAPOL2, INVRADIUSPOL2 };
     
-    PtEndcapLUT(MsgStream* msg);
-    ~PtEndcapLUT();
+  public:
+    static const InterfaceID& interfaceID();
+
+    PtEndcapLUT(const std::string& type, 
+                const std::string& name,
+                const IInterface*  parent);
+    ~PtEndcapLUT(void);
+
+    virtual StatusCode initialize();
+    virtual StatusCode finalize  ();
 
     StatusCode readLUT(std::string lut_fileName);
-
-    MsgStream*  m_msg;
-    inline MsgStream& msg() const { return *m_msg; }
 
     double alpha(double z1, double r1, double z2, double r2) const;
     double radius(double z1, double r1, double s1, double z2, double r2, double s2, double deltar) const;
@@ -64,7 +70,7 @@ private:
     
     TableMap          m_tables;
 
-  };
+};
 
 }
 
