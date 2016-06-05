@@ -7,7 +7,6 @@
 #include "TrigL2MuonSA/RpcDataPreparator.h"
 
 #include "GaudiKernel/ToolFactory.h"
-#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -22,6 +21,8 @@
 
 #include "TrigL2MuonSA/RpcData.h"
 #include "TrigL2MuonSA/RecMuonRoIUtils.h"
+
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 using namespace Muon;
 using namespace MuonGM;
@@ -40,7 +41,6 @@ TrigL2MuonSA::RpcDataPreparator::RpcDataPreparator(const std::string& type,
                                                    const std::string& name,
                                                    const IInterface*  parent): 
    AthAlgTool(type,name,parent),
-   m_msg(0),
    m_storeGateSvc( "StoreGateSvc", name ),
    m_activeStore(0),
    m_regionSelector(0),
@@ -64,83 +64,82 @@ TrigL2MuonSA::RpcDataPreparator::~RpcDataPreparator()
 StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
 {
    // Get a message stream instance
-   m_msg = new MsgStream( msgSvc(), name() );
-   msg() << MSG::DEBUG << "Initializing RpcDataPreparator - package version " << PACKAGE_VERSION << endreq;
+  ATH_MSG_DEBUG("Initializing RpcDataPreparator - package version " << PACKAGE_VERSION);
    
    StatusCode sc;
    sc = AthAlgTool::initialize();
    if (!sc.isSuccess()) {
-      msg() << MSG::ERROR << "Could not initialize the AthAlgTool base class." << endreq;
+     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
       return sc;
    }
    
    // Locate the StoreGateSvc
    sc =  m_storeGateSvc.retrieve();
    if (!sc.isSuccess()) {
-      msg() << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
+     ATH_MSG_ERROR("Could not find StoreGateSvc");
       return sc;
    }
 
    // Locate RegionSelector
    sc = service("RegSelSvc", m_regionSelector);
    if(sc.isFailure()) {
-      msg() << MSG::ERROR << "Could not retrieve RegionSelector" << endreq;
+     ATH_MSG_ERROR("Could not retrieve RegionSelector");
       return sc;
    }
-   msg() << MSG::DEBUG << "Retrieved service RegionSelector" << endreq;
+   ATH_MSG_DEBUG("Retrieved service RegionSelector");
 
    StoreGateSvc* detStore;
    sc = serviceLocator()->service("DetectorStore", detStore);
    if (sc.isFailure()) {
-     msg() << MSG::ERROR << "Could not retrieve DetectorStore." << endreq;
+     ATH_MSG_ERROR("Could not retrieve DetectorStore.");
      return sc;
    }
-   msg() << MSG::DEBUG << "Retrieved DetectorStore." << endreq;
+   ATH_MSG_DEBUG("Retrieved DetectorStore.");
  
    sc = detStore->retrieve( m_muonMgr );
    if (sc.isFailure()) return sc;
-   msg() << MSG::DEBUG << "Retrieved GeoModel from DetectorStore." << endreq;
+   ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_rpcIdHelper = m_muonMgr->rpcIdHelper();
 
    sc = m_rpcPrepDataProvider.retrieve();
    if (sc.isSuccess()) {
-     msg() << MSG::DEBUG << "Retrieved " << m_rpcPrepDataProvider << endreq;
+     ATH_MSG_DEBUG("Retrieved " << m_rpcPrepDataProvider);
    } else {
-     msg() << MSG::FATAL << "Could not get " << m_rpcPrepDataProvider << endreq;
+     ATH_MSG_FATAL("Could not get " << m_rpcPrepDataProvider);
      return sc;
    }
 
    sc = m_idHelperTool.retrieve();
    if (sc.isSuccess()) {
-     msg() << MSG::DEBUG << "Retrieved " << m_idHelperTool << endreq;
+     ATH_MSG_DEBUG("Retrieved " << m_idHelperTool);
    } else {
-     msg() << MSG::FATAL<<"Could not get " << m_idHelperTool <<endreq; 
+     ATH_MSG_FATAL("Could not get " << m_idHelperTool); 
      return sc;
    }
 
    // Retrieve ActiveStore
    sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
    if (sc.isFailure() || m_activeStore == 0) {
-     msg() << MSG::ERROR << " Cannot get ActiveStoreSvc." << endreq;
+     ATH_MSG_ERROR(" Cannot get ActiveStoreSvc.");
      return sc ;
    }
-   msg() << MSG::DEBUG << "Retrieved ActiveStoreSvc." << endreq; 
+   ATH_MSG_DEBUG("Retrieved ActiveStoreSvc."); 
 
    // Retrieve the RPC cabling service
    ServiceHandle<IRPCcablingServerSvc> RpcCabGet ("RPCcablingServerSvc", name());
    sc = RpcCabGet.retrieve();
    if ( sc != StatusCode::SUCCESS ) {
-     msg() << MSG::ERROR << "Could not retrieve the RPCcablingServerSvc" << endreq;
+     ATH_MSG_ERROR("Could not retrieve the RPCcablingServerSvc");
      return sc;
    }
    sc = RpcCabGet->giveCabling(m_rpcCabling);
    if ( sc != StatusCode::SUCCESS ) {
-     msg() << MSG::ERROR << "Could not retrieve the RPC Cabling Server" << endreq;
+     ATH_MSG_ERROR("Could not retrieve the RPC Cabling Server");
      return sc;
    }
    m_rpcCablingSvc = m_rpcCabling->getRPCCabling();
    if ( !m_rpcCablingSvc ) {
-     msg() << MSG::ERROR << "Could not retrieve the RPC cabling svc" << endreq;
+     ATH_MSG_ERROR("Could not retrieve the RPC cabling svc");
      return StatusCode::FAILURE;
    } 
    
@@ -163,7 +162,7 @@ void TrigL2MuonSA::RpcDataPreparator::setRoIBasedDataAccess(bool use_RoIBasedDat
 StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*    p_roids,
 							unsigned int roiWord,
                                                         TrigL2MuonSA::RpcHits&      rpcHits,
-                                                        TrigL2MuonSA::RpcPatFinder* rpcPatFinder)
+                                                        ToolHandle<RpcPatFinder>*   rpcPatFinder)
 {
   // RPC data extraction referring TrigMuonEFStandaloneTrackTool and MuonHoughPatternFinderTool
   rpcHits.clear();
@@ -182,13 +181,13 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
   unsigned short int PADId;
   unsigned int padIdHash;
   if ( !m_rpcCablingSvc->give_PAD_address( side, sector, roiNumber, logic_sector, PADId, padIdHash) ) {
-    msg() << MSG::WARNING << "Roi Number: " << roiNumber << " not compatible with side, sector: " << side 
-	  <<  " " << sector << endreq;
+    ATH_MSG_WARNING("Roi Number: " << roiNumber << " not compatible with side, sector: "
+		    << side <<  " " << sector);
     //    return StatusCode::FAILURE;
   }
   else {
-    msg() << MSG::DEBUG << "Roi Number: " << roiNumber << " side, sector: " << side 
-	  <<  " " << sector << " corresp. to log_sector, padId: " << logic_sector << " " << PADId << endreq;
+    ATH_MSG_DEBUG("Roi Number: " << roiNumber << " side, sector: " << side <<  " " << sector
+		  << " corresp. to log_sector, padId: " << logic_sector << " " << PADId);
   }
 
    const IRoiDescriptor* iroi = (IRoiDescriptor*) p_roids;
@@ -199,29 +198,29 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
 
    if (m_use_RoIBasedDataAccess) {
 
-     msg() << MSG::DEBUG << "Use RoI based data access" << endreq;
+     ATH_MSG_DEBUG("Use RoI based data access");
      
      if (iroi) m_regionSelector->DetHashIDList(RPC, *iroi, rpcHashList);
      else m_regionSelector->DetHashIDList(RPC, rpcHashList);
-     msg() << MSG::DEBUG << "rpcHashList.size()=" << rpcHashList.size() << endreq;
+     ATH_MSG_DEBUG("rpcHashList.size()=" << rpcHashList.size());
      
      std::vector<uint32_t> rpcRobList;
      m_regionSelector->DetROBIDListUint(RPC, *iroi, rpcRobList);
      if ( m_rpcPrepDataProvider->decode(rpcRobList).isFailure() ) {
-       msg() << MSG::WARNING << "Problems when preparing RPC PrepData " << endreq;
+       ATH_MSG_WARNING("Problems when preparing RPC PrepData ");
      }
      
    } else {
      
-     msg() << MSG::DEBUG << "Use full data access" << endreq;
+     ATH_MSG_DEBUG("Use full data access");
      
      m_regionSelector->DetHashIDList(RPC, rpcHashList);
-     msg() << MSG::DEBUG << "rpcHashList.size()=" << rpcHashList.size() << endreq;
+     ATH_MSG_DEBUG("rpcHashList.size()=" << rpcHashList.size());
      
      std::vector<uint32_t> rpcRobList;
      m_regionSelector->DetROBIDListUint(RPC, rpcRobList);
      if ( m_rpcPrepDataProvider->decode(rpcRobList).isFailure() ) {
-       msg() << MSG::WARNING << "Problems when preparing RPC PrepData " << endreq;
+       ATH_MSG_WARNING("Problems when preparing RPC PrepData ");
      }
      
    }
@@ -235,13 +234,13 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
      if (m_activeStore) {
        StatusCode sc = (*m_activeStore)->retrieve(rpcPrds, rpcKey);
        if ( sc.isFailure() ) {
-         msg() << MSG::ERROR << " Cannot retrieve RPC PRD Container " << rpcKey << endreq;
+         ATH_MSG_ERROR(" Cannot retrieve RPC PRD Container " << rpcKey);
          return StatusCode::FAILURE;;
        } else {       
-         msg()<< MSG::DEBUG << " RPC PRD Container retrieved with key " << rpcKey << endreq;
+         ATH_MSG_DEBUG(" RPC PRD Container retrieved with key " << rpcKey);
        }
      } else {
-       msg() << MSG::ERROR << "Null pointer to ActiveStore" << endreq;
+       ATH_MSG_ERROR("Null pointer to ActiveStore");
        return StatusCode::FAILURE;;
      }
      // Get RPC collections
@@ -256,7 +255,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        }
 
        if( (*RPCcoll)->size() == 0)    {
-         msg() << MSG::DEBUG << "Empty RPC list" << endreq;
+         ATH_MSG_DEBUG("Empty RPC list");
          continue;
        }
 
@@ -265,7 +264,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        rpcCols.push_back(*RPCcoll);
 
        if (rpcCols.empty()) {
-         msg() << MSG::DEBUG << "No Rpc data collections selected" << endreq;
+         ATH_MSG_DEBUG("No Rpc data collections selected");
        }
      }
    }
@@ -310,13 +309,11 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        const double distToPhiReadout = detEl->distanceToPhiReadout(globalpos);
        const double distToEtaReadout = detEl->distanceToEtaReadout(globalpos);
 
-       msg() << MSG::DEBUG << "Selected Rpc Collection: "
-             << " station name:" << stationName
-             << " global positions x/y/z=" << hitx << "/" << hity << "/" << hitz
-             << " doubletR: " << doubletR << " doubletZ: " << doubletZ << " doubletPhi " << doubletPhi
-             << " gasGap " << gasGap << " layer " << layer << " time " << hittime
-	     << " distToEtaReadout " << distToEtaReadout << " distToPhiReadout " << distToPhiReadout
-             << endreq;
+       ATH_MSG_DEBUG("Selected Rpc Collection: station name:" << stationName
+		     << " global positions x/y/z=" << hitx << "/" << hity << "/" << hitz
+		     << " doubletR: " << doubletR << " doubletZ: " << doubletZ << " doubletPhi " << doubletPhi
+		     << " gasGap " << gasGap << " layer " << layer << " time " << hittime
+		     << " distToEtaReadout " << distToEtaReadout << " distToPhiReadout " << distToPhiReadout);
        
        TrigL2MuonSA::RpcHitData lutDigit;
        
@@ -351,10 +348,10 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        
        if (m_use_RoIBasedDataAccess) {
          if ( fabs(deta)<0.1 && fabs(dphi)<0.1) 
-           rpcPatFinder->addHit(stationName, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
+           (*rpcPatFinder)->addHit(stationName, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
        } else {
          if ( fabs(deta)<0.15 && fabs(dphi)<0.1) 
-           rpcPatFinder->addHit(stationName, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
+           (*rpcPatFinder)->addHit(stationName, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
        }
      }
    }
@@ -367,10 +364,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
 
 StatusCode TrigL2MuonSA::RpcDataPreparator::finalize()
 {
-   msg() << MSG::DEBUG << "Finalizing RpcDataPreparator - package version " << PACKAGE_VERSION << endreq;
-   
-   // delete message stream
-   if ( m_msg ) delete m_msg;
+  ATH_MSG_DEBUG("Finalizing RpcDataPreparator - package version " << PACKAGE_VERSION);
    
    StatusCode sc = AthAlgTool::finalize(); 
    return sc;

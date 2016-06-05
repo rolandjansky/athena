@@ -7,9 +7,24 @@
 #include <fstream>
 #include <sstream>
 
-TrigL2MuonSA::PtEndcapLUT::PtEndcapLUT(MsgStream* msg) :
-  m_msg(msg)
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+static const InterfaceID IID_PtEndcapLUT("IID_PtEndcapLUT", 1, 0);
+
+const InterfaceID& TrigL2MuonSA::PtEndcapLUT::interfaceID() { return IID_PtEndcapLUT; }
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+TrigL2MuonSA::PtEndcapLUT::PtEndcapLUT(const std::string& type,
+                                       const std::string& name,
+                                       const IInterface*  parent):
+  AthAlgTool(type, name, parent)
 {
+  declareInterface<TrigL2MuonSA::PtEndcapLUT>(this);
 }
 
 // --------------------------------------------------------------------------------
@@ -20,6 +35,24 @@ TrigL2MuonSA::PtEndcapLUT::~PtEndcapLUT()
   for (TableMap::iterator it = m_tables.begin(); it != m_tables.end(); it++) {
     delete it->second;
   }
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::PtEndcapLUT::initialize()
+{
+  ATH_MSG_DEBUG("Initializing PtEndcapLUT - package version " << PACKAGE_VERSION) ;
+   
+  StatusCode sc;
+  sc = AthAlgTool::initialize();
+  if (!sc.isSuccess()) {
+    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
+    return sc;
+  }
+
+  // 
+  return StatusCode::SUCCESS; 
 }
 
 // --------------------------------------------------------------------------------
@@ -53,7 +86,7 @@ StatusCode TrigL2MuonSA::PtEndcapLUT::readLUT(std::string lut_fileName)
 {   
   std::ifstream ifs(lut_fileName.c_str());
   if (!ifs.is_open()) {
-    msg() << MSG::ERROR << "Cannot open EndcapLUT file " << lut_fileName << endreq;
+    ATH_MSG_ERROR("Cannot open EndcapLUT file " << lut_fileName);
     return StatusCode::FAILURE;
   }
   
@@ -73,33 +106,32 @@ StatusCode TrigL2MuonSA::PtEndcapLUT::readLUT(std::string lut_fileName)
       char side, charge, ctype[15];
       
       if (sscanf(line.c_str(), "side=%c charge=%c %14s", &side, &charge, ctype) != 3) {
-	msg() << MSG::ERROR << "Invalid header line " << line_no << " in EndcapLUT file "
-	      << lut_fileName << endreq;
+	ATH_MSG_ERROR("Invalid header line " << line_no << " in EndcapLUT file " << lut_fileName);
 	return StatusCode::FAILURE;
       }
       
       DataType type = s2dt(ctype);
       if ((side != '-' && side != '+') || (charge != '-' && charge != '+') || type == INVALID) {
-	msg() << MSG::ERROR << "Invalid header line " << line_no << " in EndcapLUT file " << lut_fileName << endreq;
+	ATH_MSG_ERROR("Invalid header line " << line_no << " in EndcapLUT file " << lut_fileName);
 	return StatusCode::FAILURE;
       }
 
       KeyType key(side == '+' ? 1 : 0, charge == '+' ? 1 : 0, type);
       table = new TableType();
       m_tables.insert(TableMap::value_type(key, table));
-      msg() << MSG::DEBUG << "Created table for " << key.toString() << endreq;
+      ATH_MSG_DEBUG("Created table for " << key.toString());
       
     } else {
       
       if (table == NULL) {
-	msg() << MSG::ERROR << "Missing header line " << line_no << " in EndcapLUT file " << lut_fileName << endreq;
+	ATH_MSG_ERROR("Missing header line " << line_no << " in EndcapLUT file " << lut_fileName);
 	return StatusCode::FAILURE;
       }
       
       int iEta, iPhi;
       double xcept, slope;
       if (sscanf(line.c_str(), "%3d %3d %15lf %15lf", &iEta, &iPhi, &xcept, &slope) != 4) {
-	msg() << MSG::ERROR << "Invalid data line " << line_no << " in EndcapLUT file " << lut_fileName << endreq;
+	ATH_MSG_ERROR("Invalid data line " << line_no << " in EndcapLUT file " << lut_fileName);
 	return StatusCode::FAILURE;
       }
       table->m_xcepts[iEta-1][iPhi] = xcept;
@@ -170,29 +202,24 @@ double TrigL2MuonSA::PtEndcapLUT::radius(double z1, double r1, double s1, double
 
 double TrigL2MuonSA::PtEndcapLUT::lookup(int side, int charge, DataType type, int iEta, int iPhi, double value) const
 {
-  msg() << MSG::DEBUG << "lookup("
-        << "side="    << side
-        << ",charge=" << charge
-        << ",type="   << dt2s(type)
-        << ",iEta="   << iEta
-        << ",iPhi="    << iPhi
-        << ",value="  << value
-        << ")" << endreq;
+  ATH_MSG_DEBUG("lookup(side=" << side << ",charge=" << charge
+        << ",type="   << dt2s(type) << ",iEta="   << iEta
+        << ",iPhi="    << iPhi << ",value="  << value << ")");
     
   if (iEta == -1) iEta =  0;
   if (iEta == 30) iEta = 29;
   
   if (iEta < 0 || iEta >= ETAS || iPhi < 0 || iPhi >= PHISEE) {
-    msg() << MSG::WARNING << "lookup(" << side << ", " << charge << ", " << dt2s(type) 
-	  << ", " << iEta << ", " << iPhi << ") Invalid indices" << endreq;
+    ATH_MSG_WARNING("lookup(" << side << ", " << charge << ", " << dt2s(type) 
+		    << ", " << iEta << ", " << iPhi << ") Invalid indices");
     return 0.0;
   }
 
   TableMap::const_iterator it = m_tables.find(KeyType(side, charge, type));
 
   if (it == m_tables.end()) {
-    msg() << MSG::ERROR << "lookup(" << side << ", " << charge << ", " << dt2s(type)
-	  << ", " << iEta << ", " << iPhi << ") Invalid key" << endreq;
+    ATH_MSG_ERROR("lookup(" << side << ", " << charge << ", " << dt2s(type)
+		  << ", " << iEta << ", " << iPhi << ") Invalid key");
     return 0.0;
   }
 
@@ -216,7 +243,7 @@ double TrigL2MuonSA::PtEndcapLUT::lookup(int side, int charge, DataType type, in
 
       if( ptinv < 0 ) {
 
-	msg() << MSG::WARNING << "Pol2: ptinv < 0, ptinv=" << ptinv << endreq;
+	ATH_MSG_WARNING("Pol2: ptinv < 0, ptinv=" << ptinv);
 
       } else {
 
@@ -236,7 +263,7 @@ double TrigL2MuonSA::PtEndcapLUT::lookup(int side, int charge, DataType type, in
 
       if( ptinv < 0 ) {
 
-	msg() << MSG::WARNING << "Pol2: ptinv < 0, ptinv=" << ptinv << endreq;
+	ATH_MSG_WARNING("Pol2: ptinv < 0, ptinv=" << ptinv);
 
       } else {
 
@@ -249,8 +276,8 @@ double TrigL2MuonSA::PtEndcapLUT::lookup(int side, int charge, DataType type, in
     }
   }
 
-  msg() << MSG::DEBUG << "Pol2: value=" << value << endreq;
-  msg() << MSG::DEBUG << "Pol2: b=" << b << " c=" << c << " pt=" << pt << endreq;
+  ATH_MSG_DEBUG("Pol2: value=" << value);
+  ATH_MSG_DEBUG("Pol2: b=" << b << " c=" << c << " pt=" << pt);
   pt *= 1000; // convert to MeV
   
   return pt;
@@ -296,3 +323,17 @@ const char* TrigL2MuonSA::PtEndcapLUT::dt2s(TrigL2MuonSA::PtEndcapLUT::DataType 
     return ("invalid"); break;
   }
 }
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::PtEndcapLUT::finalize()
+{
+  ATH_MSG_DEBUG("Finalizing TgcRoadDefiner - package version " << PACKAGE_VERSION);
+   
+  StatusCode sc = AthAlgTool::finalize(); 
+  return sc;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------

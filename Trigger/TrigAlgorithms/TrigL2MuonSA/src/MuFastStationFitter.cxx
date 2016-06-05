@@ -6,7 +6,6 @@
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
 
 #include "GaudiKernel/ToolFactory.h"
-#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -17,6 +16,9 @@
 #include "TMath.h"
 
 #include "xAODTrigMuon/TrigMuonDefs.h"
+
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
 using namespace TrigL2MuonSA;
 
 // --------------------------------------------------------------------------------
@@ -33,8 +35,9 @@ TrigL2MuonSA::MuFastStationFitter::MuFastStationFitter(const std::string& type,
                                                        const std::string& name,
                                                        const IInterface*  parent): 
   AthAlgTool(type,name,parent),
-  m_msg(0),
-  m_backExtrapolator("TrigMuonBackExtrapolator")
+  m_backExtrapolator("TrigMuonBackExtrapolator"),
+  m_alphaBetaEstimate("TrigL2MuonSA::AlphaBetaEstimate"),
+  m_ptFromAlphaBeta("TrigL2MuonSA::PtFromAlphaBeta")
 {
    declareInterface<TrigL2MuonSA::MuFastStationFitter>(this);
 
@@ -71,21 +74,17 @@ TrigL2MuonSA::MuFastStationFitter::~MuFastStationFitter()
 
 StatusCode TrigL2MuonSA::MuFastStationFitter::initialize()
 {
-   // Get a message stream instance
-   m_msg = new MsgStream( msgSvc(), name() );
-   msg() << MSG::DEBUG << "Initializing MuFastStationFitter - package version " << PACKAGE_VERSION << endreq ;
-   
    StatusCode sc;
    sc = AthAlgTool::initialize();
    if (!sc.isSuccess()) {
-      msg() << MSG::ERROR << "Could not initialize the AthAlgTool base class." << endreq;
+     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
       return sc;
    }
    
   // BackExtrapolator services
    sc = m_backExtrapolator.retrieve();
    if ( !sc.isSuccess() ) {
-    msg() << MSG::ERROR << "Could not retrieve " << m_backExtrapolator << endreq;
+     ATH_MSG_ERROR("Could not retrieve " << m_backExtrapolator);
     return sc;
   } 
 
@@ -106,12 +105,29 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::setMCFlag(BooleanProperty use_mcLU
      sc = serviceLocator()->service("PtEndcapLUTSvc",    m_ptEndcapLUTSvc);
   }
   if (!sc.isSuccess()) {
-     msg() << MSG::ERROR << "Could not find PtEndcapLUTSvc" << endreq;
+    ATH_MSG_ERROR("Could not find PtEndcapLUTSvc");
      return sc;
   }
 
-  m_alphaBetaEstimate     = new TrigL2MuonSA::AlphaBetaEstimate(m_msg, m_ptEndcapLUTSvc);
-  m_ptFromAlphaBeta       = new TrigL2MuonSA::PtFromAlphaBeta(m_msg, m_ptEndcapLUTSvc);
+  // Calculation of alpha and beta
+  sc = m_alphaBetaEstimate.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Could not retrieve " << m_alphaBetaEstimate);
+    return sc;
+  }
+  ATH_MSG_DEBUG("Retrieved service " << m_alphaBetaEstimate);
+
+  m_alphaBetaEstimate->setMCFlag(m_use_mcLUT, m_ptEndcapLUTSvc);
+
+  // conversion: alpha, beta -> pT
+  sc = m_ptFromAlphaBeta.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Could not retrieve " << m_ptFromAlphaBeta);
+    return sc;
+  }
+  ATH_MSG_DEBUG("Retrieved service " << m_ptFromAlphaBeta);
+
+  m_ptFromAlphaBeta->setMCFlag(m_use_mcLUT, m_ptEndcapLUTSvc);
 
   return StatusCode::SUCCESS;
 }
@@ -201,13 +217,13 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const LVL1::RecMuo
     makeReferenceLine(*itTrack, muonRoad); 
     sc = m_alphaBetaEstimate->setAlphaBeta(p_roi, tgcFitResult, *itTrack, muonRoad);
     if (!sc.isSuccess()) {
-      msg() << MSG::WARNING << "Endcap alpha and beta estimation failed" << endreq;
+      ATH_MSG_WARNING("Endcap alpha and beta estimation failed");
       return sc;
     }
 
     sc = m_ptFromAlphaBeta->setPt(*itTrack,tgcFitResult);
     if (!sc.isSuccess()) {
-      msg() << MSG::WARNING << "Endcap pT estimation failed" << endreq;
+      ATH_MSG_WARNING("Endcap pT estimation failed");
       return sc;
     }
 
@@ -310,17 +326,17 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
        
      } // end loop for MDT hits
 
-     msg() << MSG::DEBUG << "... MDT hit used in fit #=" << pbFitResult.NPOI << endreq;
+     ATH_MSG_DEBUG("... MDT hit used in fit #=" << pbFitResult.NPOI);
      for(int i=0;i<pbFitResult.NPOI;i++) {
-       msg() << MSG::DEBUG << "i/XILIN[i]/YILIN[i]/RILIN[i]/WILIN[i] = "
-             << i << "/" << pbFitResult.XILIN[i] << "/" << pbFitResult.YILIN[i]
-             << "/" << pbFitResult.RILIN[i] << "/" << pbFitResult.WILIN[i] << endreq;
+       ATH_MSG_DEBUG("i/XILIN[i]/YILIN[i]/RILIN[i]/WILIN[i] = "
+		     << i << "/" << pbFitResult.XILIN[i] << "/" << pbFitResult.YILIN[i]
+		     << "/" << pbFitResult.RILIN[i] << "/" << pbFitResult.WILIN[i]);
      }
      
      if (count >= MIN_MDT_FOR_FIT) {
 
        FitFlag = Evlfit(1, pbFitResult);
-       msg() << MSG::DEBUG << "FitFlag = " << FitFlag << endreq;
+       ATH_MSG_DEBUG("FitFlag = " << FitFlag);
        
        float ac = Amid;
        float bc = (Ymid - Xor) -ac*(Xmid - Yor);
@@ -361,11 +377,11 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
        
      }
      
-     msg() << MSG::DEBUG << "... Superpoint chamber/s_address/count/R/Z/Alin/Blin/Phim/Xor/Yor/Chi2/PChi2="
-           << chamber << "/" << trackPattern.s_address << "/" << count << "/"
-           << superPoint->R << "/" << superPoint->Z << "/" << superPoint->Alin << "/"
-           << superPoint->Blin << "/" << superPoint->Phim << "/" << superPoint->Xor << "/"
-           << superPoint->Yor << "/" << superPoint->Chi2 << "/" << superPoint->PChi2 << endreq;
+     ATH_MSG_DEBUG("... Superpoint chamber/s_address/count/R/Z/Alin/Blin/Phim/Xor/Yor/Chi2/PChi2="
+		   << chamber << "/" << trackPattern.s_address << "/" << count << "/"
+		   << superPoint->R << "/" << superPoint->Z << "/" << superPoint->Alin << "/"
+		   << superPoint->Blin << "/" << superPoint->Phim << "/" << superPoint->Xor << "/"
+		   << superPoint->Yor << "/" << superPoint->Chi2 << "/" << superPoint->PChi2);
 
    } // end loop for stations
    
@@ -384,7 +400,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
   TrigL2MuonSA::PBFitResult pbFitResult;
  
   for (unsigned int chamber=0; chamber<MAX_STATION; chamber++) { // loop for station
-    msg() << MSG::DEBUG<<" superpoint fit station "<<chamber<<endreq;
+    ATH_MSG_DEBUG(" superpoint fit station "<<chamber);
 
     if(chamber== 1 || chamber == 2 || chamber ==7 || chamber == 9) continue; // only loop for endcap Inner/Middle/Outer/EE/barrel inn
 
@@ -453,15 +469,15 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
         }
       } // end loop for MDT hits
      
-     msg() << MSG::DEBUG << "... MDT hit used in fit #=" << pbFitResult.NPOI << endreq;
+     ATH_MSG_DEBUG("... MDT hit used in fit #=" << pbFitResult.NPOI);
       for(int i=0;i<pbFitResult.NPOI;i++) {
-        msg() << MSG::DEBUG << "i/XILIN[i]/YILIN[i]/RILIN[i]/WILIN[i] = "
-              << i << "/" << pbFitResult.XILIN[i] << "/" << pbFitResult.YILIN[i]
-              << "/" << pbFitResult.RILIN[i] << "/" << pbFitResult.WILIN[i] << endreq;
+        ATH_MSG_DEBUG("i/XILIN[i]/YILIN[i]/RILIN[i]/WILIN[i] = "
+		      << i << "/" << pbFitResult.XILIN[i] << "/" << pbFitResult.YILIN[i]
+		      << "/" << pbFitResult.RILIN[i] << "/" << pbFitResult.WILIN[i]);
       }
       if (count >= MIN_MDT_FOR_FIT) {
         FitFlag = Evlfit(1, pbFitResult);
-        msg() << MSG::DEBUG << "FitFlag = " << FitFlag << endreq;
+        ATH_MSG_DEBUG("FitFlag = " << FitFlag);
        
         float ac = Amid;
         float bc = (Ymid - Xor) -ac*(Xmid - Yor);
@@ -490,11 +506,11 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
            for(int i=0;i<pbFitResult.NPOI;i++) superPoint->Residual[i] =  pbFitResult.RESI[i];
 
        }
-       msg() << MSG::DEBUG << "...Special Superpoint chamber/s_address/count/R/Z/Alin/Blin/Phim/Xor/Yor/Chi2/PChi2="
-             << chamber << "/" << trackPattern.s_address << "/" << count << "/"
-             << superPoint->R << "/" << superPoint->Z << "/" << superPoint->Alin << "/"
-             << superPoint->Blin << "/" << superPoint->Phim << "/" << superPoint->Xor << "/"
-             << superPoint->Yor << "/" << superPoint->Chi2 << "/" << superPoint->PChi2 << endreq;
+      ATH_MSG_DEBUG("...Special Superpoint chamber/s_address/count/R/Z/Alin/Blin/Phim/Xor/Yor/Chi2/PChi2="
+		    << chamber << "/" << trackPattern.s_address << "/" << count << "/"
+		    << superPoint->R << "/" << superPoint->Z << "/" << superPoint->Alin << "/"
+		    << superPoint->Blin << "/" << superPoint->Phim << "/" << superPoint->Xor << "/"
+		    << superPoint->Yor << "/" << superPoint->Chi2 << "/" << superPoint->PChi2);
        continue;
     }
 
@@ -875,11 +891,11 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
           }
         } // end loop for MDT hits
 
-        msg() << MSG::DEBUG << "... MDT hit used in fit #=" << pbFitResult.NPOI << endreq;
+        ATH_MSG_DEBUG("... MDT hit used in fit #=" << pbFitResult.NPOI);
         for (int i=0;i<pbFitResult.NPOI;i++) {
-          msg() << MSG::DEBUG << "i/XILIN[i]/YILIN[i]/RILIN[i]/WILIN[i] = "
-                << i << "/" << pbFitResult.XILIN[i] << "/" << pbFitResult.YILIN[i]
-                << "/" << pbFitResult.RILIN[i] << "/" << pbFitResult.WILIN[i] << endreq;
+          ATH_MSG_DEBUG("i/XILIN[i]/YILIN[i]/RILIN[i]/WILIN[i] = "
+			<< i << "/" << pbFitResult.XILIN[i] << "/" << pbFitResult.YILIN[i]
+			<< "/" << pbFitResult.RILIN[i] << "/" << pbFitResult.WILIN[i]);
         }
 
         if (count >= MIN_MDT_FOR_FIT) {
@@ -1023,11 +1039,11 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
     }
     if (Chbest<m_endcapmid_mdt_chi2_limit){ 
 
-       msg() << MSG::DEBUG << "... Superpoint chamber/s_address/count/R/Z/Alin/Blin/Phim/Xor/Yor/Chi2/PChi2="
-             << i_station << "/" << s_address << "/" << count << "/"
-             << superPoint->R << "/" << superPoint->Z << "/" << superPoint->Alin << "/"
-             << superPoint->Blin << "/" << superPoint->Phim << "/" << superPoint->Xor << "/"
-             << superPoint->Yor << "/" << superPoint->Chi2 << "/" << superPoint->PChi2 << endreq;
+      ATH_MSG_DEBUG("... Superpoint chamber/s_address/count/R/Z/Alin/Blin/Phim/Xor/Yor/Chi2/PChi2="
+		    << i_station << "/" << s_address << "/" << count << "/"
+		    << superPoint->R << "/" << superPoint->Z << "/" << superPoint->Alin << "/"
+		    << superPoint->Blin << "/" << superPoint->Phim << "/" << superPoint->Xor << "/"
+		    << superPoint->Yor << "/" << superPoint->Chi2 << "/" << superPoint->PChi2);
 
        break;//jump out all cp
     }else{
@@ -1411,13 +1427,8 @@ void TrigL2MuonSA::MuFastStationFitter::findSubLayerCombination(std::vector<unsi
 
 StatusCode TrigL2MuonSA::MuFastStationFitter::finalize()
 {
-   msg() << MSG::DEBUG << "Finalizing MuFastStationFitter - package version " << PACKAGE_VERSION << endreq;
+  ATH_MSG_DEBUG("Finalizing MuFastStationFitter - package version " << PACKAGE_VERSION);
    
-   // delete message stream
-   if ( m_msg ) delete m_msg;
-   if ( m_alphaBetaEstimate ) delete m_alphaBetaEstimate;
-   if ( m_ptFromAlphaBeta ) delete m_ptFromAlphaBeta;
-
    StatusCode sc = AthAlgTool::finalize(); 
 
    return sc;

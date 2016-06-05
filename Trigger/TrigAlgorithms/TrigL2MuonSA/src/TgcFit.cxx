@@ -3,7 +3,6 @@
 */
 
 #include "TrigL2MuonSA/TgcFit.h"
-#include "GaudiKernel/MsgStream.h"
 #include "gsl/gsl_statistics.h"
 #include "gsl/gsl_fit.h"
 #include <float.h>
@@ -14,10 +13,80 @@
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+static const InterfaceID IID_TgcFit("IID_TgcFit", 1, 0);
+
+const InterfaceID& TrigL2MuonSA::TgcFit::interfaceID() { return IID_TgcFit; }
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+TrigL2MuonSA::TgcFit::TgcFit(const std::string& type,
+			     const std::string& name,
+                             const IInterface*  parent):
+  AthAlgTool(type, name, parent),
+  m_CHI2_TEST(10.0),
+  m_MIN_WIRE_POINTS(4),
+  m_MIN_STRIP_POINTS(3)
+{
+  declareInterface<TrigL2MuonSA::TgcFit>(this);
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+TrigL2MuonSA::TgcFit::~TgcFit(void)
+{
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::TgcFit::initialize()
+{
+  ATH_MSG_DEBUG("Initializing TgcFit - package version " << PACKAGE_VERSION) ;
+   
+  StatusCode sc;
+  sc = AthAlgTool::initialize();
+  if (!sc.isSuccess()) {
+    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
+    return sc;
+  }
+
+  // 
+  return StatusCode::SUCCESS; 
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+void TrigL2MuonSA::TgcFit::setFitParameters(double CHI2_TEST,
+					    unsigned MIN_WIRE_POINTS,
+					    unsigned MIN_STRIP_POINTS)
+{
+  m_CHI2_TEST        = CHI2_TEST;
+  m_MIN_WIRE_POINTS  = MIN_WIRE_POINTS;
+  m_MIN_STRIP_POINTS = MIN_STRIP_POINTS;
+
+  return;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
 void TrigL2MuonSA::TgcFit::printDebug(const std::string& str)
 {
-  msg() << MSG::DEBUG << str << endreq;
+  ATH_MSG_DEBUG(str);
+
+  return;
 }
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
 
 double TrigL2MuonSA::TgcFit::LinStats::eval(double fX) const
 {
@@ -25,6 +94,9 @@ double TrigL2MuonSA::TgcFit::LinStats::eval(double fX) const
    gsl_fit_linear_est(fX, fIntercept, fSlope, fCov00, fCov01, fCov11, &fY, &fYerr);
    return fY;
 }
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
 
 void TrigL2MuonSA::TgcFit::SimpleStatistics(TrigL2MuonSA::TgcFit::PointArray& points, TrigL2MuonSA::TgcFit::SimpleStats& stats)
 {
@@ -67,10 +139,9 @@ void TrigL2MuonSA::TgcFit::SimpleStatistics(TrigL2MuonSA::TgcFit::PointArray& po
 	 }
       }
       // Print results.
-      msg() << MSG::DEBUG <<  "SimpleStatistics:"
-	    << " n=" << stats.n << " Mean=" << stats.fMean
-	    << " Std=" << stats.fStd << " Chi2=" << stats.fChi2
-	    << endreq;
+      ATH_MSG_DEBUG( "SimpleStatistics:"
+		     << " n=" << stats.n << " Mean=" << stats.fMean
+		     << " Std=" << stats.fStd << " Chi2=" << stats.fChi2);
 
       if (iPtMax == -1 || fMaxChi2 < m_CHI2_TEST)
 	 break;
@@ -79,6 +150,9 @@ void TrigL2MuonSA::TgcFit::SimpleStatistics(TrigL2MuonSA::TgcFit::PointArray& po
    delete [] y;
    delete [] w;
 }
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
 
 void TrigL2MuonSA::TgcFit::linReg(TrigL2MuonSA::TgcFit::PointArray& points, TrigL2MuonSA::TgcFit::LinStats& stats)
 {
@@ -108,9 +182,8 @@ void TrigL2MuonSA::TgcFit::linReg(TrigL2MuonSA::TgcFit::PointArray& points, Trig
 		      &stats.fIntercept, &stats.fSlope,
 		      &stats.fCov00, &stats.fCov01, &stats.fCov11,
 		      &stats.fChi2);
-      msg() << MSG::DEBUG << "Y=" << stats.fIntercept << "+X*" << stats.fSlope
-	    << ", N=" << stats.n << ", Chi2=" << stats.fChi2
-	    << endreq;
+      ATH_MSG_DEBUG("Y=" << stats.fIntercept << "+X*" << stats.fSlope
+		    << ", N=" << stats.n << ", Chi2=" << stats.fChi2);
 
       double fMaxChi2 = 0.0;
       int iPtMax = -1;
@@ -140,26 +213,26 @@ void TrigL2MuonSA::TgcFit::linReg(TrigL2MuonSA::TgcFit::PointArray& points, Trig
    for (unsigned iPt = 0; iPt < points.size(); iPt++)
    {
       if (!points[iPt].bOutlier)
-      {
-	msg() << MSG::DEBUG << "Idx=" << points[iPt].nIdx
-	      << ", x=" << points[iPt].fX
-	      << ", y=" << points[iPt].fY
-	      << ", w=" << points[iPt].fW
-	      << ", Y=" << stats.eval(points[iPt].fX)
-	      << ", chi2=" << points[iPt].fChi2
-	      << endreq;
-      }
+	{
+	  ATH_MSG_DEBUG("Idx=" << points[iPt].nIdx
+			<< ", x=" << points[iPt].fX
+			<< ", y=" << points[iPt].fY
+			<< ", w=" << points[iPt].fW
+			<< ", Y=" << stats.eval(points[iPt].fX)
+			<< ", chi2=" << points[iPt].fChi2);
+	}
    }
 }
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
 
 TrigL2MuonSA::TgcFit::Status TrigL2MuonSA::TgcFit::runTgcMiddle(TrigL2MuonSA::TgcFit::PointArray& stripPoints,
 								TrigL2MuonSA::TgcFit::PointArray& wirePoints,
 								TrigL2MuonSA::TgcFitResult& tgcFitResult)
 {
-   {
-     msg() << MSG::DEBUG << "TrigL2MuonSA::TgcFit::runTgcMiddle stripPoints=" << stripPoints.size()
-	   << " wirePoints=" << wirePoints.size() << endreq;
-   }
+  ATH_MSG_DEBUG("TrigL2MuonSA::TgcFit::runTgcMiddle stripPoints=" << stripPoints.size()
+		<< " wirePoints=" << wirePoints.size());
     
    tgcFitResult.tgcMidRhoNin = wirePoints.size();
    tgcFitResult.tgcMidPhiNin = stripPoints.size();
@@ -254,14 +327,12 @@ TrigL2MuonSA::TgcFit::Status TrigL2MuonSA::TgcFit::runTgcMiddle(TrigL2MuonSA::Tg
    if( phi < -CLHEP::pi ) phi += CLHEP::pi*2;
    Amg::setPhi(p2, phi);
    {
-     msg() << MSG::DEBUG << "runTgcMiddle: Point1 eta=" << p1.eta()
-	   << ",phi=" << p1.phi() << ",perp=" << p1.perp() << ",z=" << p1.z()
-	   << endreq;
+     ATH_MSG_DEBUG("runTgcMiddle: Point1 eta=" << p1.eta()
+		   << ",phi=" << p1.phi() << ",perp=" << p1.perp() << ",z=" << p1.z());
    }
    {
-     msg() << MSG::DEBUG << "runTgcMiddle: Point2 eta=" << p2.eta()
-	   << ",phi=" << p2.phi() << ",perp=" << p2.perp() << ",z=" << p2.z()
-	   << endreq;
+     ATH_MSG_DEBUG("runTgcMiddle: Point2 eta=" << p2.eta()
+		   << ",phi=" << p2.phi() << ",perp=" << p2.perp() << ",z=" << p2.z());
    }
    tgcFitResult.tgcMid1[0] = p1.eta();
    tgcFitResult.tgcMid1[1] = p1.phi();
@@ -279,6 +350,9 @@ TrigL2MuonSA::TgcFit::Status TrigL2MuonSA::TgcFit::runTgcMiddle(TrigL2MuonSA::Tg
    return status;
 }
 
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
 TrigL2MuonSA::TgcFit::Status TrigL2MuonSA::TgcFit::runTgcInner(TrigL2MuonSA::TgcFit::PointArray& stripPoints,
 							       TrigL2MuonSA::TgcFit::PointArray& wirePoints,
 							       TrigL2MuonSA::TgcFitResult& tgcFitResult)
@@ -290,9 +364,8 @@ TrigL2MuonSA::TgcFit::Status TrigL2MuonSA::TgcFit::runTgcInner(TrigL2MuonSA::Tgc
    tgcFitResult.tgcInnRhoNin = wirePoints.size();
    tgcFitResult.tgcInnPhiNin = stripPoints.size();
 
-   msg() << MSG::DEBUG << "runTgcInner: stripPoints.size()=" << stripPoints.size()
-	 << ", wirePoints.size()=" << wirePoints.size()
-	 << endreq;
+   ATH_MSG_DEBUG("runTgcInner: stripPoints.size()=" << stripPoints.size()
+		 << ", wirePoints.size()=" << wirePoints.size());
 
    if (stripPoints.size() > 1 && wirePoints.size() > 1)
    {
@@ -309,9 +382,8 @@ TrigL2MuonSA::TgcFit::Status TrigL2MuonSA::TgcFit::runTgcInner(TrigL2MuonSA::Tgc
       if( phi < -CLHEP::pi ) phi += CLHEP::pi*2;
       Amg::setPhi(p, phi);
 
-      msg() << MSG::DEBUG << "runTgcInner: Point eta=" << p.eta()
-	    << ",phi=" << p.phi() << ",perp=" << p.perp() << ",z=" << p.z()
-	    << endreq;
+      ATH_MSG_DEBUG("runTgcInner: Point eta=" << p.eta()
+		    << ",phi=" << p.phi() << ",perp=" << p.perp() << ",z=" << p.z());
 
       tgcFitResult.tgcInn[0] = p.eta();
       tgcFitResult.tgcInn[1] = p.phi();
@@ -324,3 +396,17 @@ TrigL2MuonSA::TgcFit::Status TrigL2MuonSA::TgcFit::runTgcInner(TrigL2MuonSA::Tgc
    }
    return status;
 }
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::TgcFit::finalize()
+{
+  ATH_MSG_DEBUG("Finalizing TgcFit - package version " << PACKAGE_VERSION);
+   
+  StatusCode sc = AthAlgTool::finalize(); 
+  return sc;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------

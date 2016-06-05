@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IMessageSvc.h"
 
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
@@ -83,10 +82,10 @@ namespace TrigL2MuonSA {
     void setMdtDataCollection(bool use_mdtcsm);
     void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
 
+  public:
+    float etaMinChamber[10],etaMaxChamber[10],phiMinChamber[10],phiMaxChamber[10];
+
   private:
-    
-    MsgStream* m_msg;
-    inline MsgStream& msg() const { return *m_msg; }
     
     StatusCode getMdtHits(const LVL1::RecMuonRoI* p_roi,
 			  const TrigRoiDescriptor* p_roids, 
@@ -116,10 +115,6 @@ namespace TrigL2MuonSA {
 					  TrigL2MuonSA::MdtHits& mdtHits,
 					  const TrigL2MuonSA::MuonRoad& muonRoad);
 
-      public:
-    
-    inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
-    
   private:
 
     // Reference to StoreGateSvc;
@@ -149,7 +144,7 @@ namespace TrigL2MuonSA {
     TrigL2MuonSA::RecMuonRoIUtils m_recMuonRoIUtils;
    
     //
-    TrigL2MuonSA::MdtRegionDefiner*  m_mdtRegionDefiner;
+    ToolHandle<MdtRegionDefiner>  m_mdtRegionDefiner;
 
     // handles to data access
     ToolHandle<Muon::IMuonRdoToPrepDataTool> m_mdtPrepDataProvider;

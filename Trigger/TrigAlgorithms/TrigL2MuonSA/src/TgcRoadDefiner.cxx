@@ -11,19 +11,31 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/PhiHelper.h"
 
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-TrigL2MuonSA::TgcRoadDefiner::TgcRoadDefiner(MsgStream* msg)
-   : m_msg(), 
+static const InterfaceID IID_TgcRoadDefiner("IID_TgcRoadDefiner", 1, 0);
+
+const InterfaceID& TrigL2MuonSA::TgcRoadDefiner::interfaceID() { return IID_TgcRoadDefiner; }
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+TrigL2MuonSA::TgcRoadDefiner::TgcRoadDefiner(const std::string& type,
+					     const std::string& name,
+					     const IInterface*  parent):
+     AthAlgTool(type, name, parent), 
      m_backExtrapolatorTool(0),
      m_ptEndcapLUT(0),
-     m_tgcFit(msg,10), // chi2 value 10 given by hand for now
+     m_tgcFit("TrigL2MuonSA::TgcFit"),
      m_rWidth_TGC_Failed(0),
      m_regionSelector(0),
      m_mdtIdHelper(0)
 {
-  if ( msg ) m_msg = msg; 
+  declareInterface<TrigL2MuonSA::TgcRoadDefiner>(this);
 }
 
 // --------------------------------------------------------------------------------
@@ -31,6 +43,31 @@ TrigL2MuonSA::TgcRoadDefiner::TgcRoadDefiner(MsgStream* msg)
 
 TrigL2MuonSA::TgcRoadDefiner::~TgcRoadDefiner(void)
 {
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::TgcRoadDefiner::initialize()
+{
+  ATH_MSG_DEBUG("Initializing TgcRoadDefiner - package version " << PACKAGE_VERSION) ;
+   
+  StatusCode sc;
+  sc = AthAlgTool::initialize();
+  if (!sc.isSuccess()) {
+    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
+    return sc;
+  }
+
+  sc =m_tgcFit.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Could not retrieve " << m_tgcFit);
+    return sc;
+  }
+  ATH_MSG_DEBUG("Retrieved service " << m_tgcFit);
+
+  // 
+  return StatusCode::SUCCESS; 
 }
 
 // --------------------------------------------------------------------------------
@@ -105,37 +142,37 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
  
     // Split digits to Strip/Wire points.
     if( ! prepareTgcPoints(tgcHits) ) {
-      msg() << MSG::ERROR << "Preparation of Tgc points failed" << endreq;
+      ATH_MSG_ERROR("Preparation of Tgc points failed");
       return false;
     }
     
 
     // Fit lines to TGC middle station
     isMiddleFailure = false;
-    TgcFit::Status status = m_tgcFit.runTgcMiddle(m_tgcStripMidPoints, m_tgcWireMidPoints, tgcFitResult);
+    TgcFit::Status status = m_tgcFit->runTgcMiddle(m_tgcStripMidPoints, m_tgcWireMidPoints, tgcFitResult);
     if (status == TgcFit::FIT_NONE) {
-      msg() << MSG::WARNING << "Fit to TGC middle station points failed" << endreq;
+      ATH_MSG_WARNING("Fit to TGC middle station points failed");
       isMiddleFailure = true;
     }
     else if (status == TgcFit::FIT_POINT) {
-      msg() << MSG::DEBUG << "Fit to TGC middle station returns only a point";
+      ATH_MSG_DEBUG("Fit to TGC middle station returns only a point");
     }
     
     // Fit lines to TGC inner station
-    status = m_tgcFit.runTgcInner(m_tgcStripInnPoints, m_tgcWireInnPoints, tgcFitResult);
+    status = m_tgcFit->runTgcInner(m_tgcStripInnPoints, m_tgcWireInnPoints, tgcFitResult);
     if (status == TgcFit::FIT_NONE) {
-      msg() << MSG::DEBUG << "Fit to TGC inner station points failed" << endreq;
+      ATH_MSG_DEBUG("Fit to TGC inner station points failed");
     } 
     else if (status == TgcFit::FIT_POINT) {
-      msg() << MSG::DEBUG << "Fit to TGC inner station returns only a point";
+      ATH_MSG_DEBUG("Fit to TGC inner station returns only a point");
     }
     
-    msg() << MSG::DEBUG << "tgcFitResult.tgcInn[0/1/2/3]=" << tgcFitResult.tgcInn[0] << "/" << tgcFitResult.tgcInn[1]
-          << "/" << tgcFitResult.tgcInn[2] << "/" << tgcFitResult.tgcInn[3] << endreq;
-    msg() << MSG::DEBUG << "tgcFitResult.tgcMid1[0/1/2/3]=" << tgcFitResult.tgcMid1[0] << "/" << tgcFitResult.tgcMid1[1]
-          << "/" << tgcFitResult.tgcMid1[2] << "/" << tgcFitResult.tgcMid1[3] << endreq;
-    msg() << MSG::DEBUG << "tgcFitResult.tgcMid2[0/1/2/3]=" << tgcFitResult.tgcMid2[0] << "/" << tgcFitResult.tgcMid2[1]
-          << "/" << tgcFitResult.tgcMid2[2] << "/" << tgcFitResult.tgcMid2[3] << endreq;
+    ATH_MSG_DEBUG("tgcFitResult.tgcInn[0/1/2/3]=" << tgcFitResult.tgcInn[0] << "/" << tgcFitResult.tgcInn[1]
+		  << "/" << tgcFitResult.tgcInn[2] << "/" << tgcFitResult.tgcInn[3]);
+    ATH_MSG_DEBUG("tgcFitResult.tgcMid1[0/1/2/3]=" << tgcFitResult.tgcMid1[0] << "/" << tgcFitResult.tgcMid1[1]
+		  << "/" << tgcFitResult.tgcMid1[2] << "/" << tgcFitResult.tgcMid1[3]);
+    ATH_MSG_DEBUG("tgcFitResult.tgcMid2[0/1/2/3]=" << tgcFitResult.tgcMid2[0] << "/" << tgcFitResult.tgcMid2[1]
+		  << "/" << tgcFitResult.tgcMid2[2] << "/" << tgcFitResult.tgcMid2[3]);
   }
    
   if (tgcHits.size()>0 && !isMiddleFailure){
@@ -145,7 +182,7 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
     // PT calculation by using TGC fit result
     const double PHI_RANGE = 12./(CLHEP::pi/8.);
     side = (tgcFitResult.tgcMid2[3]<=0) ? 0 : 1;
-    double alpha = m_ptEndcapLUT->alpha(tgcFitResult.tgcMid1[3], tgcFitResult.tgcMid1[2],
+    double alpha = (*m_ptEndcapLUT)->alpha(tgcFitResult.tgcMid1[3], tgcFitResult.tgcMid1[2],
                                         tgcFitResult.tgcMid2[3], tgcFitResult.tgcMid2[2]);
     
     int Octant = (int)(tgcFitResult.tgcMid1[1] / (CLHEP::pi/4.));
@@ -157,7 +194,7 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
     
     int charge = (tgcFitResult.intercept * tgcFitResult.tgcMid2[3]) < 0.0 ? 0: 1;
     
-    tgcFitResult.tgcPT = m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::TGCALPHAPOL2, etaBin, phiBin, alpha) / 1000.;
+    tgcFitResult.tgcPT = (*m_ptEndcapLUT)->lookup(side, charge, PtEndcapLUT::TGCALPHAPOL2, etaBin, phiBin, alpha) / 1000.;
     if (charge==0) tgcFitResult.tgcPT = -1.*tgcFitResult.tgcPT;
     
     // Determine phi direction
@@ -252,7 +289,7 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
           extrInnerEta = etaMiddle;
         }
       } else {
-        msg() << MSG::ERROR << "Null pointer to ITrigMuonBackExtrapolator" << endreq;
+        ATH_MSG_ERROR("Null pointer to ITrigMuonBackExtrapolator");
         return StatusCode::FAILURE;
       }
 
@@ -357,8 +394,9 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
   for(int i_hash=0; i_hash<(int)mdtHashList.size(); i_hash++){
     Identifier id;
     int convert = m_mdtIdHelper->get_id(mdtHashList[i_hash], id, &context);
-    if(convert!=0)
-      msg() << MSG::ERROR << "problem converting hash list to id" << endreq;
+
+    if(convert!=0) ATH_MSG_ERROR("problem converting hash list to id");
+
     muonRoad.stationList.push_back(id);
     std::string name = m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id));
     if ( name.substr(0, 1) == 'B' ) continue;
@@ -404,13 +442,11 @@ bool TrigL2MuonSA::TgcRoadDefiner::prepareTgcPoints(const TrigL2MuonSA::TgcHits&
 {
    const double PHI_BOUNDARY = 0.2;
 
-   msg() << MSG::DEBUG << 
-     ", m_tgcStripMidPoints.size()=" << m_tgcStripMidPoints.size() <<
-     ", m_tgcStripInnPoints.size()=" << m_tgcStripInnPoints.size() <<
-     ", m_tgcWireMidPoints.size()=" << m_tgcWireMidPoints.size() <<
-     ", m_tgcWireInnPoints.size()=" << m_tgcWireInnPoints.size() <<
-     endreq;
-
+   ATH_MSG_DEBUG(", m_tgcStripMidPoints.size()=" << m_tgcStripMidPoints.size() <<
+		 ", m_tgcStripInnPoints.size()=" << m_tgcStripInnPoints.size() <<
+		 ", m_tgcWireMidPoints.size()=" << m_tgcWireMidPoints.size() <<
+		 ", m_tgcWireInnPoints.size()=" << m_tgcWireInnPoints.size());
+   
    m_tgcStripMidPoints.clear();
    m_tgcStripInnPoints.clear();
    m_tgcWireMidPoints.clear();
@@ -444,6 +480,17 @@ bool TrigL2MuonSA::TgcRoadDefiner::prepareTgcPoints(const TrigL2MuonSA::TgcHits&
    }
 
    return true;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::TgcRoadDefiner::finalize()
+{
+  ATH_MSG_DEBUG("Finalizing TgcRoadDefiner - package version " << PACKAGE_VERSION);
+   
+  StatusCode sc = AthAlgTool::finalize(); 
+  return sc;
 }
 
 // --------------------------------------------------------------------------------

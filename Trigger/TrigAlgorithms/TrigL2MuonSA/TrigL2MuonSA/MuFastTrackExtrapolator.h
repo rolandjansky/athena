@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrigL2MuonSA/TrackData.h"
@@ -45,21 +44,6 @@ namespace TrigL2MuonSA {
     int whichECRegion(const double eta, const double phi);
 
   private:
-    /** @brief Pointer to MsgStream.*/
-    MsgStream* m_msg;
-    
-    /**
-     * @brief Accessor method for the MsgStream.
-     * @return handle to the MsgStream.
-     */
-    inline MsgStream& msg() const { return *m_msg; }
-
-    /**
-     * @brief Accessor method for the message level variable.
-     * @return value of the message level for this algorithm.
-     */
-    inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
-    
     // Reference to StoreGateSvc
     ServiceHandle<StoreGateSvc>    m_storeGateSvc;
 

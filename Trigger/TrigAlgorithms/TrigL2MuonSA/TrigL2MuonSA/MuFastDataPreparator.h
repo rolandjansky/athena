@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
@@ -78,21 +77,6 @@ class MuFastDataPreparator: public AthAlgTool
 			 TrigL2MuonSA::MdtHits&      mdtHits_overlap,
 			 TrigL2MuonSA::CscHits&      cscHits);
   
-  /** @brief Pointer to MsgStream.*/
-  MsgStream* m_msg;
-  
-  /**
-   * @brief Accessor method for the MsgStream.
-   * @return handle to the MsgStream.
-   */
-  inline MsgStream& msg() const { return *m_msg; }
-  
-  /**
-   * @brief Accessor method for the message level variable.
-   * @return value of the message level for this algorithm.
-   */
-  inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
-  
   BooleanProperty  m_use_mcLUT;
 
   void setOptions(const TrigL2MuonSA::MuFastDataPreparatorOptions& options); 
@@ -134,9 +118,9 @@ class MuFastDataPreparator: public AthAlgTool
   ToolHandle<MdtDataPreparator>  m_mdtDataPreparator;
   ToolHandle<CscDataPreparator>  m_cscDataPreparator;
   
-  TrigL2MuonSA::RpcRoadDefiner*  m_rpcRoadDefiner;
-  TrigL2MuonSA::TgcRoadDefiner*  m_tgcRoadDefiner;
-  TrigL2MuonSA::RpcPatFinder*    m_rpcPatFinder;
+  ToolHandle<RpcRoadDefiner>     m_rpcRoadDefiner;
+  ToolHandle<TgcRoadDefiner>     m_tgcRoadDefiner;
+  ToolHandle<RpcPatFinder>       m_rpcPatFinder;
   
   ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool;
 

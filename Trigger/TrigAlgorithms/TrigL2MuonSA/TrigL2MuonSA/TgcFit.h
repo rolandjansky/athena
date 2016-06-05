@@ -5,8 +5,9 @@
 #ifndef  TRIGL2MUONSA_TGCFIT_H
 #define  TRIGL2MUONSA_TGCFIT_H
 
+#include "AthenaBaseComps/AthAlgTool.h"
+
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 
@@ -17,7 +18,7 @@ namespace TrigL2MuonSA {
 /*
  *  Statistical routines and fit information (TGC points, statistics, etc.).
  */
-class TgcFit
+class TgcFit: public AthAlgTool
 {
  public:
   enum Status
@@ -147,23 +148,30 @@ class TgcFit
     double eval(double fX) const;
   };
   
+ public:
+  static const InterfaceID& interfaceID();
+
   /*
    *  Default constuctor.
-   * @param msg              The output message stream.
-   * @param pMuonRoI         The original ROI.
-   * @param CHI2_TEST        Test for outliers: w * (value - mean)^2 > CHI2_TEST.
-   * @param MIN_WIRE_POINTS  Minimum number of wire points for linear fit.
-   * @param MIN_STRIP_POINTS Minimum number of strip points for linear fit.
    */
-  TgcFit(MsgStream* msg,
-	 double CHI2_TEST = 10.0,
-	 unsigned MIN_WIRE_POINTS = 4,
-	 unsigned MIN_STRIP_POINTS = 3);
-  
+  TgcFit(const std::string& type, 
+	 const std::string& name,
+	 const IInterface*  parent);
+
   /*
    *  Default destructor.
    */
-  virtual ~TgcFit();
+
+  ~TgcFit(void);
+  
+  virtual StatusCode initialize();
+  virtual StatusCode finalize  ();
+
+  void setFitParameters(double CHI2_TEST,
+			unsigned MIN_WIRE_POINTS,
+			unsigned MIN_STRIP_POINTS);
+
+
   /*
    *  Get the fit data for strip (phi) fit;
    */
@@ -191,8 +199,6 @@ class TgcFit
   Status runTgcInner(PointArray& stripPoints, PointArray& wirePoints, TgcFitResult& fitResult);
   
  protected:
-  MsgStream* m_msg;                   /**< Ouput message stream. */
-  inline MsgStream& msg() const { return *m_msg; }
   PointArray m_superPoints;           /**< List of wire (eta) super-points. */
   double m_CHI2_TEST;                 /** Test for outliers: w * (value - mean)^2 > CHI2_TEST. */
   unsigned m_MIN_WIRE_POINTS;         /**< Minimum number of wire points for linear fit. */
@@ -202,18 +208,5 @@ class TgcFit
 };
  
 }
-
-inline TrigL2MuonSA::TgcFit::TgcFit(MsgStream* msg,
-				  double CHI2_TEST,
-				  unsigned MIN_WIRE_POINTS,
-				  unsigned MIN_STRIP_POINTS) :
-   m_msg(msg),
-   m_CHI2_TEST(CHI2_TEST),
-   m_MIN_WIRE_POINTS(MIN_WIRE_POINTS),
-   m_MIN_STRIP_POINTS(MIN_STRIP_POINTS)
-{}
-
-inline TrigL2MuonSA::TgcFit::~TgcFit()
-{}
 
 #endif
