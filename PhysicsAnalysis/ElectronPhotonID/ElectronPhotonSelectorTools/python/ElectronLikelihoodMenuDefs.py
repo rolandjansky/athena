@@ -226,8 +226,10 @@ def ElectronLikelihoodVeryLooseOfflineConfig2015(theTool) :
     '''
     
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20151012/ElectronLikelihoodVeryLooseOfflineConfig2015.conf"
-    
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodVeryLooseOfflineConfig2016_Smooth.conf"
+    theTool.CutNexttoInnerMostBL = True
+    theTool.ThresholdForRemovingF3 = 80
+
     
 def ElectronLikelihoodLooseOfflineConfig2015(theTool) :
     '''
@@ -237,7 +239,9 @@ def ElectronLikelihoodLooseOfflineConfig2015(theTool) :
     '''
     
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20151012/ElectronLikelihoodLooseOfflineConfig2015.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_Smooth.conf"
+    theTool.CutNexttoInnerMostBL = True
+    theTool.ThresholdForRemovingF3 = 80
 
     
 def ElectronLikelihoodMediumOfflineConfig2015(theTool) :
@@ -248,7 +252,9 @@ def ElectronLikelihoodMediumOfflineConfig2015(theTool) :
     '''
     
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20151012/ElectronLikelihoodMediumOfflineConfig2015.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodMediumOfflineConfig2016_Smooth.conf"
+    theTool.CutNexttoInnerMostBL = True
+    theTool.ThresholdForRemovingF3 = 80
 
     
 def ElectronLikelihoodTightOfflineConfig2015(theTool) :
@@ -259,6 +265,6 @@ def ElectronLikelihoodTightOfflineConfig2015(theTool) :
     '''
     
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20151012/ElectronLikelihoodTightOfflineConfig2015.conf"
-
-    
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth.conf"
+    theTool.CutNexttoInnerMostBL = True
+    theTool.ThresholdForRemovingF3 = 80

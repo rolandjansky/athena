@@ -157,7 +157,8 @@ private:
   /// Flag for calo only LH
   bool m_caloOnly;
 
-
+  /// Flag for b-layer protection
+  bool m_cutNextToInnerMost;
 
   // /// Say if we should re-calculate the likelihood every time (otherwise tried to be taken from UserData)
   // bool m_forceCalcLH;

@@ -12,4 +12,7 @@
   <function pattern="AsgConfigHelper::Helper*"/> 
   <class name="IEGammaAmbiguityTool" />
   <class name="EGammaAmbiguityTool" /> 
+  <class name="IEGSelectorConfiguration" />
+  <class name="EGSelectorConfiguration" /> 
+
 </lcgdict>

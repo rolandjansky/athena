@@ -70,6 +70,9 @@
    nBlayer 		: el_nBLHits
    nBlayerOutliers 	: el_nBLayerOutliers
    expectBlayer 	: el_expectHitInBLayer
+   nNextToInnerMostLayer 		: next to the inner most 
+   nNextToInnerMostLayerOutliers 	: next to the inner most 
+   expectNextToInnerMostLayer 	: next to the inner most 
    convBit 		: el_isEM & (0x1 << egammaPID::ConversionMatch_Electron)
    ip 		: Count number of vertices in vxp_n with >= 2 tracks in vxp_trk_n
 
@@ -98,13 +101,11 @@
 #include "PATCore/TSelectorToolBase.h"
 #include "AsgTools/AsgMessaging.h"
 
-
-//#define IP_BINS 2
-//#define IP_BINS 1
+#include <string>                       // for string
+#include <vector>                       // for vector
 
 namespace{
-
-const unsigned int  IP_BINS=1;
+  const unsigned int  IP_BINS=1;
 }
 
 namespace LikeEnum {
@@ -129,10 +130,15 @@ namespace LikeEnum {
     int nBlayer;
     int nBlayerOutliers;
     bool expectBlayer;
+    int nNextToInnerMostLayer;
+    int nNextToInnerMostLayerOutliers;
+    bool expectNextToInnerMostLayer;
     int convBit;
     double d0;
     double deltaEta;
     double deltaphires;
+    double wstot;
+    double EoverP;
     double ip;         
   };
 
@@ -208,7 +214,9 @@ namespace Root {
                                  double eta, double eT,
                                  int nSi,int nSiDeadSensors, int nPix, int nPixDeadSensors,
                                  int nBlayer, int nBlayerOutliers, bool expectBlayer,
-                                 int convBit, double d0, double deltaEta, double deltaphires, double ip ) const;
+				 int nNextToInnerMostLayer, int nNextToInnerMostLayerOutliers, bool expectNextToInnerMostLayer,
+                                 int convBit, double d0, double deltaEta, double deltaphires, 
+                                 double wstot, double EoverP, double ip ) const;
     const Root::TResult& calculate(LikeEnum::LHCalcVars_t& vars_struct) const ;
     const Root::TResult& calculate( double eta, double eT,double f3, double rHad, double rHad1,
                                     double Reta, double w2, double f1, /*double wstot,*/ double eratio,
@@ -249,6 +257,7 @@ namespace Root {
         doRemoveTRTPIDAtHighEt = false;
         doPileupTransform = false;
         useHighETLHBinning = false;
+        useOneExtraHighETLHBin = false;
         CutLikelihood.assign(Disc_VeryTight,Disc_VeryTight+sizeof(Disc_VeryTight)/sizeof(double));
         CutLikelihoodPileupCorrection.assign(Disc_VeryTight_b,Disc_VeryTight_b+sizeof(Disc_VeryTight_b)/sizeof(double));
         CutLikelihood4GeV.clear();
@@ -264,6 +273,7 @@ namespace Root {
         doRemoveTRTPIDAtHighEt = false;
         doPileupTransform = false;
         useHighETLHBinning = false;
+        useOneExtraHighETLHBin = false;
         CutLikelihood.assign(Disc_Tight,Disc_Tight+sizeof(Disc_Tight)/sizeof(double));
         CutLikelihoodPileupCorrection.assign(Disc_Tight_b,Disc_Tight_b+sizeof(Disc_Tight_b)/sizeof(double));
         CutLikelihood4GeV.clear();
@@ -280,6 +290,7 @@ namespace Root {
         doRemoveTRTPIDAtHighEt = false;
         doPileupTransform = false;
         useHighETLHBinning = false;
+        useOneExtraHighETLHBin = false;
         CutLikelihood.assign(Disc_Medium,Disc_Medium+sizeof(Disc_Medium)/sizeof(double));
         CutLikelihoodPileupCorrection.assign(Disc_Medium_b,Disc_Medium_b+sizeof(Disc_Medium_b)/sizeof(double));
         CutLikelihood4GeV.clear();
@@ -296,6 +307,7 @@ namespace Root {
         doRemoveTRTPIDAtHighEt = false;
         doPileupTransform = false;
         useHighETLHBinning = false;
+        useOneExtraHighETLHBin = false;
         CutLikelihood.assign(Disc_Loose,Disc_Loose+sizeof(Disc_Loose)/sizeof(double));
         CutLikelihoodPileupCorrection.clear();
         CutLikelihood4GeV.clear();
@@ -311,6 +323,7 @@ namespace Root {
         doRemoveTRTPIDAtHighEt = false;
         doPileupTransform = false;
         useHighETLHBinning = false;
+        useOneExtraHighETLHBin = false;
         CutLikelihood.assign(Disc_LooseRelaxed,Disc_LooseRelaxed+sizeof(Disc_LooseRelaxed)/sizeof(double));
         CutLikelihoodPileupCorrection.clear();
         CutLikelihood4GeV.clear();
@@ -326,6 +339,7 @@ namespace Root {
         doRemoveTRTPIDAtHighEt = false;
         doPileupTransform = false;
         useHighETLHBinning = false;
+        useOneExtraHighETLHBin = false;
         CutLikelihood.assign(Disc_VeryLoose,Disc_VeryLoose+sizeof(Disc_VeryLoose)/sizeof(double));
         CutLikelihoodPileupCorrection.clear();
         CutLikelihood4GeV.clear();
@@ -394,18 +408,26 @@ namespace Root {
     std::vector<double> CutA0;
     /** @brief do cut on delta eta bit*/
     std::vector<double> CutDeltaEta;
-    // /** @brief do cut on delta phi (not res) bit*/
+    // /** @brief do cut on delta phi bit*/
     std::vector<double> CutDeltaPhiRes;
     /** @brief do cut on conversion bit*/
     bool doCutConversion;
-    /** @brief do remove f3 variable from likelihood at high Et (>100 GeV)*/
+    /** @brief do remove f3 variable from likelihood at high Et (>80 GeV)*/
     bool doRemoveF3AtHighEt;
-    /** @brief do remove TRTPID variable from likelihood at high Et (>100 GeV)*/
+    /** @brief do remove TRTPID variable from likelihood at high Et (>80 GeV)*/
     bool doRemoveTRTPIDAtHighEt;
     /** @brief do smooth interpolation between bins */
     bool doSmoothBinInterpolation;
     /** @brief use binning for high ET LH*/
     bool useHighETLHBinning;
+    /** @brief use one extra bin for high ET LH*/
+    bool useOneExtraHighETLHBin;
+    /** @brief ET threshold for using high ET cuts and bin */
+    double HighETBinThreshold;
+    // /** @brief do cut on wstot above HighETBinThreshold bit*/
+    std::vector<double> CutWstotAtHighET;
+    // /** @brief do cut on EoverP above HighETBinThreshold bit*/
+    std::vector<double> CutEoverPAtHighET;
     /** @brief do pileup-dependent transform on discriminant value*/
     bool doPileupTransform;
     /** @brief cut on likelihood output*/
@@ -438,6 +460,8 @@ namespace Root {
     LikeEnum::Menu OperatingPoint;
     /** Name of the pdf file*/
     std::string PdfFileName;
+    /// Flag for f3 threshold value
+    double thresholdForRemovingF3;
 
 
     // Private methods
@@ -500,6 +524,12 @@ namespace Root {
     // /// The position of the deltaphi cut bit in the TAccept return object
     int m_cutPositionTrackMatchPhiRes;
 
+    // /// The position of the high ET wstot cut bit in the TAccept return object
+    int m_cutPositionWstotAtHighET;
+
+    // /// The position of the high ET EoverP cut bit in the TAccept return object
+    int m_cutPositionEoverPAtHighET;
+
     /// The position of the likelihood value bit in the TResult return object
     int m_resultPosition_LH;
 
@@ -508,6 +538,7 @@ namespace Root {
     static const unsigned int  fnDiscEtBins     = 33; // number of discs stored for nominal LH (useHighETLHBinning), excluding 4GeV bin
     static const unsigned int  fnEtBinsHistOrig = 7;  // number of hists stored for original LH, including 4GeV bin (for backwards compatibility)
     static const unsigned int  fnDiscEtBinsOrig = 9;  // number of discs stored for original LH, excluding 4GeV bin (for backwards compatibility)
+    static const unsigned int  fnDiscEtBinsOneExtra = 10;  // number of discs stored for original LH plus one for HighETBinThreshold (useOneExtraHighETLHBin), excluding 4GeV bin
     static const unsigned int  fnEtaBins        = 10;
     static const unsigned int  fnVariables      = 14;
     TElectronLikelihoodTool::SafeTH1*      fPDFbins     [2][IP_BINS][fnEtBinsHist][fnEtaBins][fnVariables]; // [sig(0)/bkg(1)][ip][et][eta][variable]
