@@ -11,13 +11,13 @@
 
 namespace EgammaSelectors {
   //----------------------------------------------------------
-  //This is the internal part , We need to  map enums to latest reccomendations
-  const std::map<std::string,std::string> m_LHPointToConfFile ={
-    {"VeryLooseLHElectron","ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodVeryLooseOfflineConfig2015.conf"},
-    {"LooseLHElectron","ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseOfflineConfig2015.conf"},
-    {"LooseBLLHElectron","ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseOfflineConfig2015_CutBL.conf"},
-    {"MediumLHElectron","ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodMediumOfflineConfig2015.conf"},
-    {"TightLHElectron","ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodTightOfflineConfig2015.conf"}
+  //This is the internal part , We need to  map string to latest reccomendations
+  const std::map<std::string,std::string> m_LHPointToConfFile={
+    {"VeryLooseLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodVeryLooseOfflineConfig2016_Smooth.conf"},
+    {"LooseLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_Smooth.conf"},
+    {"LooseBLLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_CutBL_Smooth.conf"},
+    {"MediumLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodMediumOfflineConfig2016_Smooth.conf"},
+    {"TightLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth.conf"}
   };
   const std::map<std::string,std::string> m_PhotonCutPointToConfFile={
     {"LoosePhoton","ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMLooseSelectorCutDefs.conf"},
@@ -36,13 +36,9 @@ namespace EgammaSelectors {
   };
   //----------------------------------------------------------
   //Map enums to masks , needed for photons
-  const std::map<std::string,unsigned int> m_LHPointToMask ={};
-  const std::map<std::string,unsigned int> m_ForwardElectronCutPointToMask ={};
-  const std::map<std::string,unsigned int> m_ElectronCutPointToMask ={};
-  const std::map<std::string,unsigned int> m_PhotonCutPointToMask ={
-    {"LoosePhoton",egammaPID::PhotonLoose},
-    {"MediumPhoton",egammaPID::PhotonMedium},
-    {"TightPhoton",egammaPID::PhotonTight},
+  const std::map<std::string,unsigned int> m_PhotonCutPointToMask={{"LoosePhoton",egammaPID::PhotonLoose},
+								   {"MediumPhoton",egammaPID::PhotonMedium},
+								   {"TightPhoton",egammaPID::PhotonTight},
   };
 }
 ////////////////////////////////////////////

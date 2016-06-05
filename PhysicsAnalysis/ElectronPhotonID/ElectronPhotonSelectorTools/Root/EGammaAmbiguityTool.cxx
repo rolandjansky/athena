@@ -87,7 +87,8 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::CaloCluster* clus
   // Energy from 3x5 cluster, stored in altE after EMClusterTool
   // Result should stay the same before after calibration corrections
   double cluster_e = (cluster->clusterSize() != xAOD::CaloCluster::SW_35ele && 
-		      cluster->clusterSize() != xAOD::CaloCluster::SW_35gam) ?  cluster->altE() : cluster->e();
+		      cluster->clusterSize() != xAOD::CaloCluster::SW_35gam &&
+		      cluster->clusterSize() != xAOD::CaloCluster::SuperCluster) ?  cluster->altE() : cluster->e();
 
   
   //Number of hits from the track
@@ -160,7 +161,7 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::CaloCluster* clus
 
   if( track_ep > m_maxEoverPCut) {
     ATH_MSG_DEBUG("Returning Ambiguous due to E over P");
-    type=xAOD::AmbiguityTool::ambiguousTrackLowQoverP;
+    type=xAOD::AmbiguityTool::ambiguousTrackLowEoverP;
     return xAOD::EgammaParameters::AuthorAmbiguous;
   }
 
@@ -200,8 +201,8 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::CaloCluster* clus
   double vertex_p=xAOD::EgammaHelpers::momentumAtVertex(*vx).mag() ;
 
   type = (fabs(track_p - cluster_e) < fabs(vertex_p- cluster_e)) ? 
-    xAOD::AmbiguityTool::ambiguousTrackQoverPBetterThanVertexQoverP : 
-    xAOD::AmbiguityTool::ambiguousVertexQoverPBetterThanTrackQoverP ;
+    xAOD::AmbiguityTool::ambiguousTrackEoverPBetterThanVertexEoverP : 
+    xAOD::AmbiguityTool::ambiguousVertexEoverPBetterThanTrackEoverP ;
   //end of types
   
   ATH_MSG_DEBUG("Returning Ambiguous");
