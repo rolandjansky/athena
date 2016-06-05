@@ -175,7 +175,6 @@ class egammaStripsShape : public AthAlgTool, virtual public IegammaStripsShape {
   bool m_ExecOtherVariables;
   // Calo variables
   const CaloDetDescrManager* m_calo_dd;
-  const LArEM_ID* m_emid;
 
   int m_sizearrayeta;
   double m_deta;
@@ -221,11 +220,8 @@ class egammaStripsShape : public AthAlgTool, virtual public IegammaStripsShape {
   double m_wstot;      
   /** @brief total energy*/
   double m_etot;      
-
   /** @brief eta position in 3 strips*/
   double m_etas3; 
-  /** @brief */
-  double m_posc1; 
   /** @brief difference between track and shower position in +/- 1 cells */
   double m_deltaEtaTrackShower; 
   /** @brief difference between track and shower position in +/- 7 cells*/
