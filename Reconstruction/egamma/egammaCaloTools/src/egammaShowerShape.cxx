@@ -32,7 +32,11 @@ egammaShowerShape::egammaShowerShape(const std::string& type,
     m_egammaPreSamplerShape("egammaPreSamplerShape/egammapresamplershape"),
     m_egammaStripsShape("egammaStripsShape/egammastripsshape"),
     m_egammaMiddleShape("egammaMiddleShape/egammamiddleshape"),
-    m_egammaBackShape("egammaBackShape/egammabackshape")
+    m_egammaBackShape("egammaBackShape/egammabackshape"),
+    m_enecell(0), 
+    m_etacell(0),
+    m_gracell(0),
+    m_ncell(0)
 { 
   // declare Interface
   declareInterface<IegammaShowerShape>(this);
@@ -305,23 +309,10 @@ void egammaShowerShape::FillShower(){
   m_fside                = m_egammaStripsShape->fside();
   m_success              = m_egammaStripsShape->success();
 
-  // initialize the arrays  
-  //std::fill (m_enecell,     m_enecell+STRIP_ARRAY_SIZE,     0);
-  //std::fill (m_etacell,     m_etacell+STRIP_ARRAY_SIZE,     0);
-  //std::fill (m_gracell,     m_gracell+STRIP_ARRAY_SIZE,     0);
-  //std::fill (m_ncell,       m_ncell+STRIP_ARRAY_SIZE,       0);
   m_etacell = m_egammaStripsShape->etacell_arr();
   m_enecell = m_egammaStripsShape->enecell_arr();
   m_gracell = m_egammaStripsShape->gracell_arr();
   m_ncell   = m_egammaStripsShape->ncell_arr();
-  /*for (int i = 0; i<40;i++) {
-    std::cout << " i = " << i 
-	      << " " << m_etacell[i] 
-	      << " " << m_enecell[i] 
-	      << " " << m_gracell[i] 
-	      << " " << m_ncell[i] 
-	      << std::endl;
-	      }*/
 
   // middle
   m_e233   = m_egammaMiddleShape->e233();

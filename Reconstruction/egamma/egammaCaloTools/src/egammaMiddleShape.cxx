@@ -30,9 +30,21 @@ egammaMiddleShape::egammaMiddleShape(const std::string& type,
     m_cluster(0),
     m_cellContainer(0),
     m_egammaEnergyPositionAllSamples("egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"),
-    m_egammaqweta2c("egammaqweta2c/egammaqweta2c")
+    m_egammaqweta2c("egammaqweta2c/egammaqweta2c"),
+    m_eallsamples(0),
+    m_width(0),
+    m_poscs2(0),
+    m_eta(0),
+    m_phi(),
+    m_deta(0),
+    m_dphi(0), 
+    m_etacell(0),
+    m_calo_dd(0), 
+    m_sam(CaloSampling::EMB2),
+    m_subcalo(CaloCell_ID::LAREM), 
+    m_barrel(0),
+    m_sampling_or_module(0)
 { 
-
   // declare Interface
   declareInterface<IegammaMiddleShape>(this);
 

@@ -57,7 +57,21 @@ egammaStripsShape::egammaStripsShape(const std::string& type,
     m_cluster(0), 
     m_cellContainer(0),
     m_egammaqweta1c("egammaqweta1c/egammaqweta1c"),
-    m_egammaEnergyPositionAllSamples("egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples")
+    m_egammaEnergyPositionAllSamples("egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"),
+    m_calo_dd(0),
+    m_sizearrayeta(0),
+    m_deta(0), 
+    m_dphi(0), 
+    m_eallsamples(0),
+    m_e1(0),
+    m_sam(CaloSampling::EMB1), 
+    m_samgran(CaloSampling::EMB2), 
+    m_offset(CaloSampling::PreSamplerB),
+    m_subcalo(CaloCell_ID::LAREM), 
+    m_barrel(0),
+    m_sampling_or_module(0),
+    m_etaseed(0),
+    m_phiseed(0)
 { 
 
   // declare Interface
@@ -895,7 +909,6 @@ void egammaStripsShape::setEmin(int ncsec1)
   // energy deposit in the strip with the minimal value
   // between the first and the second maximum
   //
-  
   m_emins1 = 0.; 
   // Divide by a number smaller than the eta-width of any cell.
   double escalemin = m_emaxs1 / 0.001;
