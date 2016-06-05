@@ -2,12 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MMDIGIT_P1_H
-#define MMDIGIT_P1_H
+#ifndef MMDIGIT_P2_H
+#define MMDIGIT_P2_H
 
 //-----------------------------------------------------------------------------
 //
-// file:   MM_Digit_p1.h
+// file:   MM_Digit_p2.h
 //
 //-----------------------------------------------------------------------------
 #include "AthenaPoolUtilities/TPObjRef.h"
@@ -18,10 +18,10 @@ namespace Muon
   /** 
  Persistent representation of Muon::MmDigit
   */
-    class MM_Digit_p1
+    class MM_Digit_p2
     {
     public:
-      MM_Digit_p1() : m_muonId(0), m_stripForTrigger(0), m_stripTimeForTrigger(0.0) {}
+      MM_Digit_p2() : m_muonId(0) {}
                 
         /// @name Data from Muon::MmDigit
         //@{
@@ -36,8 +36,12 @@ namespace Muon
       std::vector<float> m_chipResponseCharge;
       std::vector<int> m_chipResponsePosition;
        
-      int m_stripForTrigger;
-      float m_stripTimeForTrigger;
+      std::vector<float> m_stripTimeForTrigger;
+      std::vector<int> m_stripPositionForTrigger;
+      std::vector<float> m_stripChargeForTrigger;
+
+      std::vector<int> m_MMFE_VMM_idForTrigger;
+      std::vector<int> m_VMM_idForTrigger;
     };
 }
 
