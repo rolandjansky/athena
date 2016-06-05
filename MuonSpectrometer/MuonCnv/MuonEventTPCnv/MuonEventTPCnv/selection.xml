@@ -93,6 +93,9 @@
     <class name="Muon::MM_Digit_p1" />
     <class name="std::vector<Muon::MM_Digit_p1>" />
     <class name="Muon::MM_DigitContainer_p1" id="444DEE03-9A1D-44BA-8880-968C78EA51D1"/>
+    <class name="Muon::MM_Digit_p2" />
+    <class name="std::vector<Muon::MM_Digit_p2>" />
+    <class name="Muon::MM_DigitContainer_p2" id="8B8EA39D-B023-4BF4-821D-C4DB70F6532E"/>
     <class name="Muon::STGC_Digit_p1" />
     <class name="std::vector<Muon::STGC_Digit_p1>" />
     <class name="Muon::STGC_DigitContainer_p1" id="F3581998-EC4F-4F34-A153-9F3415C4087A"/>
