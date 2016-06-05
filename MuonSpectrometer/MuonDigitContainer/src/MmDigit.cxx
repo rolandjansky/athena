@@ -23,22 +23,63 @@ namespace {
 // Default constructor.
 
 MmDigit::MmDigit()
-  : MuonDigit(), m_stripResponseTime(0), m_stripResponseCharge(0), m_stripResponsePosition(0), m_chipResponseTime(0), m_chipResponseCharge(0), m_chipResponsePosition(0), m_stripForTrigger(0), m_stripTimeForTrigger(0){ }
+  : MuonDigit(),
+    m_stripResponseTime(0),
+    m_stripResponseCharge(0),
+    m_stripResponsePosition(0),
+    m_chipResponseTime(0),
+    m_chipResponseCharge(0),
+    m_chipResponsePosition(0),
+    m_stripTimeForTrigger(0),
+    m_stripPositionForTrigger(0),
+    m_stripChargeForTrigger(0),
+    m_MMFE_VMM_idForTrigger(0),
+    m_VMM_idForTrigger(0) { }
  
 //**********************************************************************/
 // Full constructor from Identifier.
 MmDigit::MmDigit(const Identifier& id)
-  : MuonDigit(id),  m_stripResponseTime(0), m_stripResponseCharge(0), m_stripResponsePosition(0), m_chipResponseTime(0), m_chipResponseCharge(0), m_chipResponsePosition(0), m_stripForTrigger(0), m_stripTimeForTrigger(0){ }
+  : MuonDigit(id),
+    m_stripResponseTime(0),
+    m_stripResponseCharge(0),
+    m_stripResponsePosition(0),
+    m_chipResponseTime(0),
+    m_chipResponseCharge(0),
+    m_chipResponsePosition(0),
+    m_stripTimeForTrigger(0),
+    m_stripPositionForTrigger(0),
+    m_stripChargeForTrigger(0),
+    m_MMFE_VMM_idForTrigger(0),
+    m_VMM_idForTrigger(0) { }
 
 //**********************************************************************/
   
 // Full constructor, with trigger Info
 
-MmDigit::MmDigit(const Identifier& id, std::vector<float> stripResponseTime, std::vector<int> stripResponsePosition, std::vector<float> stripResponseCharge, 
-std::vector<float> chipResponseTime, std::vector<int> chipResponsePosition, std::vector<float> chipResponseCharge, int stripForTrigger, float stripTimeForTrigger)
-  : MuonDigit(id), m_stripResponseTime(stripResponseTime), m_stripResponseCharge(stripResponseCharge), m_stripResponsePosition(stripResponsePosition), 
-  m_chipResponseTime(chipResponseTime), m_chipResponseCharge(chipResponseCharge), m_chipResponsePosition(chipResponsePosition), 
-  m_stripForTrigger(stripForTrigger), m_stripTimeForTrigger(stripTimeForTrigger) { }
+MmDigit::MmDigit(const Identifier& id,
+                 const std::vector<float>& stripResponseTime,
+                 const std::vector<int>& stripResponsePosition,
+                 const std::vector<float>& stripResponseCharge,
+                 const std::vector<float>& chipResponseTime,
+                 const std::vector<int>& chipResponsePosition,
+                 const std::vector<float>& chipResponseCharge,
+                 const std::vector<float>& stripTimeForTrigger,
+                 const std::vector<int>& stripPositionForTrigger,
+                 const std::vector<float>& stripChargeForTrigger,
+                 const std::vector<int>& MMFE_VMM_idForTrigger,
+                 const std::vector<int>& VMM_idForTrigger)  :
+    MuonDigit(id),
+    m_stripResponseTime(stripResponseTime),
+    m_stripResponseCharge(stripResponseCharge),
+    m_stripResponsePosition(stripResponsePosition),
+    m_chipResponseTime(chipResponseTime),
+    m_chipResponseCharge(chipResponseCharge),
+    m_chipResponsePosition(chipResponsePosition),
+    m_stripTimeForTrigger(stripTimeForTrigger),
+    m_stripPositionForTrigger(stripPositionForTrigger),
+    m_stripChargeForTrigger(stripChargeForTrigger),
+    m_MMFE_VMM_idForTrigger(MMFE_VMM_idForTrigger),
+    m_VMM_idForTrigger(VMM_idForTrigger) { }
 //**********************************************************************/
  
 // Validity check.
