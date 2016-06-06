@@ -26,6 +26,13 @@
  * The former is used in egamma, while in JetFitter the latter is used.
  *
  * @author N. Giacinto Piacquadio (for the Freiburg Group)
+ *
+ * -----------------------------------------
+ * Changes:
+ *
+ * David Shope <david.richard.shope@cern.ch> (2016-04-26)
+ *
+ *   EDM Migration to xAOD - remove method using VxCandidate
  */
 
 namespace Trk
@@ -52,8 +59,6 @@ namespace Trk
    /**
     * method that makes the parameters of a V0 or photon before decay to two tracks
     */
-    NeutralPerigee* createNeutralTrackFromVertex(const Trk::VxCandidate& ) const;
-
     NeutralPerigee* createNeutralTrackFromVertex(const xAOD::Vertex& ) const;
 
   private:

@@ -9,7 +9,6 @@
 #include "TrkVertexFitterUtils/FullLinearizedTrackFactory.h"
 
 #include "VxVertex/LinearizedTrack.h"
-#include "VxVertex/Vertex.h"
 #include "VxVertex/VxTrackAtVertex.h"
 
 #include "TrkExInterfaces/IExtrapolator.h"
@@ -60,7 +59,7 @@ namespace Trk
     return StatusCode::SUCCESS;
   }
 
-  void FullLinearizedTrackFactory::linearize(VxTrackAtVertex & theTrack,const Vertex & linPoint) const 
+  void FullLinearizedTrackFactory::linearize(VxTrackAtVertex & theTrack,const Amg::Vector3D & linPoint) const 
   {
     if (theTrack.initialPerigee())
       theTrack.setLinTrack(linearizedTrack(theTrack.initialPerigee(),linPoint));
@@ -69,10 +68,10 @@ namespace Trk
   } 
 
   LinearizedTrack * FullLinearizedTrackFactory::linearizedTrack(const TrackParameters *  trackPars,
-                                                                 const Vertex& linPoint) const {
+                                                                 const Amg::Vector3D& linPoint) const {
     if (!trackPars) return NULL;
     //perigee surface        
-    Amg::Vector3D lp =linPoint.position();
+    Amg::Vector3D lp =linPoint;
     const PerigeeSurface perigeeSurface(lp);
     
 //Remove matherial changes. Trying to understand where the perigee currently is and
@@ -238,10 +237,10 @@ namespace Trk
   }
 
   LinearizedTrack * FullLinearizedTrackFactory::linearizedTrack(const NeutralParameters *  neutralPars,
-                                                                const Vertex& linPoint) const
+                                                                const Amg::Vector3D& linPoint) const
   { 
     if (!neutralPars) return NULL;
-    Amg::Vector3D lp =linPoint.position();
+    Amg::Vector3D lp =linPoint;
     PerigeeSurface perigeeSurface(lp);
  
     //no material effects for neutral particles
