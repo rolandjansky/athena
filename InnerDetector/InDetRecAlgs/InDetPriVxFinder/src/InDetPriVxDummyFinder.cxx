@@ -8,10 +8,7 @@
  ***************************************************************************/
 #include "InDetPriVxFinder/InDetPriVxDummyFinder.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
-// #include "VxVertex/RecVertex.h"
 #include "VxVertex/VxTrackAtVertex.h"
-#include "VxVertex/VxCandidate.h"
-#include "VxVertex/VxContainer.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/VertexContainer.h"
@@ -51,10 +48,10 @@ namespace InDet
     theVxContainer->setStore( aux );
 
     xAOD::Vertex* dummyVertex = new xAOD::Vertex();
+    theVxContainer->push_back ( dummyVertex ); // have to add vertex to container here first so it can use its aux store - David S.
     dummyVertex->setPosition(m_iBeamCondSvc->beamVtx().position());
     dummyVertex->setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
     dummyVertex->setVertexType(xAOD::VxType::NoVtx);
-    theVxContainer->push_back ( dummyVertex );
 
     //---- Recording section: write the results to StoreGate ---//
     if ( evtStore()->record ( theVxContainer, m_vxCandidatesOutputName,false ).isFailure() )
