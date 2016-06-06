@@ -165,6 +165,14 @@ class doAlwaysUnpackDSResult(JobProperty):
 
 _flags.append(doAlwaysUnpackDSResult)
 
+class writeL1TopoValData(JobProperty):
+    """ if False disable writing out of the xAOD L1Topo validation object """
+    statusOn=True
+    allowedType=['bool']
+    StoredValue=True
+
+_flags.append(writeL1TopoValData)
+
 class EDMDecodingVersion(JobProperty):
     """ if 1, Run1 decoding version is set; if 2, Run2 """
     statusOn=True
@@ -252,6 +260,14 @@ class doCalo(JobProperty):
     StoredValue=True
 
 _flags.append(doCalo)
+
+class doCaloOffsetCorrection(JobProperty):
+    """ enable Calo pileup offset BCID correction """
+    statusOn=True
+    allowedType=['bool']
+    StoredValue=True
+
+_flags.append(doCaloOffsetCorrection)
 
 class doBcm(JobProperty):
     """ if False, disable BCM algorithms at LVL2 & EF """

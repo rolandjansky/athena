@@ -145,9 +145,12 @@ class HLTSimulationGetter(Configured):
         ServiceMgr += RegSelSvcDefault()
 
         # Configure the Data Preparation for Calo
-        # This is a hack - configurables and toolhandles can be changed for next release
-        if TriggerFlags.doCalo():  
-            include('TrigT2CaloCommon/TrigDataAccessConfigured.py')
+        if TriggerFlags.doCalo():
+            try:
+                from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
+                ServiceMgr.ToolSvc += TrigDataAccess()
+            except ImportError:
+                include('TrigT2CaloCommon/TrigDataAccessConfigured.py')
         
         if TriggerFlags.doFTK():
             # FTK algorithm inclusions
@@ -188,6 +191,14 @@ class HLTSimulationGetter(Configured):
             TrigSteer_HLT.doL1TopoSimulation = True # always needs to run if the HLT is simulated
             if hasattr(TrigSteer_HLT.LvlTopoConverter, 'MuonInputProvider'):
                 print "TrigSteer_HLT.LvlTopoConverter has attribute MuonInputProvider"
+
+                try: # this is temporary until TrigT1Muctpi-00-06-29 is in the release
+                    from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
+                    from AthenaCommon.AppMgr import ToolSvc
+                    ToolSvc += L1MuctpiTool()
+                    TrigSteer_HLT.LvlTopoConverter.MuonInputProvider.MuctpiSimTool = L1MuctpiTool()
+                except ImportError:
+                    pass
 
                 from AthenaCommon.GlobalFlags  import globalflags
                 if globalflags.DataSource()!='data':
