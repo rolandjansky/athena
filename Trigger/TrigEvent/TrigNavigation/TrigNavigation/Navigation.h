@@ -140,6 +140,10 @@ namespace HLT {
 			MemoryManagement, std::string& key,
 			const std::string& label="" );
 
+
+
+    template<class T>
+    bool associateExternalCollection(const std::string& label);
     /**
      * @brief find all TriggerElements which have this object attached given feature
      * @warning This search is costly since all TEs needs to be searched for. It can be significantly improved if

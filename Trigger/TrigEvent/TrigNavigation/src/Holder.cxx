@@ -96,20 +96,28 @@ MsgStream& HLTNavDetails::operator<< ( MsgStream& m, const HLTNavDetails::IHolde
   return m;
 }
 
-std::string HLTNavDetails::formatSGkey(const std::string& prefix, const std::string& containername, const std::string& label){
-  std::string cleaned = containername;
+
+// only construct the regex once
+namespace HLTNavDetails {  
   boost::regex rx1("_v[0-9]+$");
-  cleaned = boost::regex_replace(cleaned,rx1,std::string(""));
-  boost::regex rx2("::");
-  cleaned = boost::regex_replace(cleaned,rx2,std::string("__"));
-  std::string ret = prefix+"_"+cleaned;
+}
+std::string HLTNavDetails::formatSGkey(const std::string& prefix, const std::string& containername, const std::string& label){
+  // Remove version
+  std::string ret = boost::regex_replace(containername,rx1,std::string(""));
+  
+  // Replace :: with __
+  size_t pos = ret.find("::");
+  if (pos!=std::string::npos) ret.replace(pos,2,"__");
+
+  // Add prefix and label
+  ret = prefix + "_" + ret;
   if (label == "Aux.")
-    return ret + label;
+    ret += label;
   else if (!label.empty())
-    return ret + "_" + label;
+    ret += ("_" + label);
+
   return ret;
 }
-
 
 bool HLTNavDetails::IHolder::deserializePayload(const std::vector<uint32_t>& dataBlob, int version){
   const std::string sgkey = key();

@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #include <sys/time.h>
 #include <iostream>
 #include <iterator>
@@ -27,6 +28,8 @@
 
 #include "TestTypes.h"
 #include "TestUtils.h"
+
+StoreGateSvc* pStore(0);
 
 double interval( struct timeval& begin, struct timeval& end) {
   return (end.tv_sec - begin.tv_sec)*1000. + (end.tv_usec - begin.tv_usec)*1e-3;
@@ -776,6 +779,22 @@ StatusCode const_attach_test(HLT::Navigation* hns) {
 }
 
 
+StatusCode external_collection_test(HLT::Navigation* hns) {
+  BEGIN_TEST("external_collection test");
+  TestBContainer* dav = new TestBContainer;
+  dav->push_back(new TestB(1));
+  dav->push_back(new TestB(2));
+  
+  if ( pStore->record(dav, "HLT_external").isFailure() )
+    REPORT_AND_STOP("Failed to record in SG");
+
+  hns->associateExternalCollection<TestBContainer>("external");
+  // do it twice to see if it gives warnings
+  hns->associateExternalCollection<TestBContainer>("external");
+  END_TEST;
+}
+
+
 //****************************************************************************************
 int main () {
   using std::cerr;
@@ -799,7 +818,7 @@ int main () {
   msglog = &log;
 
 
-  StoreGateSvc* pStore(0);
+
 
 
   if( pSvcLoc->service("StoreGateSvc", pStore, true).isSuccess() ) {
@@ -852,7 +871,11 @@ int main () {
     ABORT("ConstDV attaching test failed");
   }
   //  log << MSG::DEBUG << pStore->dump() << endreq;
-  
+  if ( external_collection_test(hns).isFailure() ) {
+    ABORT("ttest with externaly provided collection failed");
+  }
+
+
 
   HLT::Navigation* newhns(0);
   if ( toolSvc->retrieveTool("HLT::Navigation/Navigation2", algTool).isSuccess() ) {

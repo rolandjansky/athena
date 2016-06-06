@@ -190,6 +190,11 @@ HLT::FeatureContainerInit<T, C>::FeatureContainerInit() {
 					       Navigation::MemoryManagement, std::string&, const std::string&  );
   temp_attachFeature = &HLT::Navigation::attachFeature<T>;
 
+  __attribute__((__unused__))
+  bool (HLT::Navigation::*temp_associateExternalCollection)( const std::string& );
+  temp_associateExternalCollection = &HLT::Navigation::associateExternalCollection<T>;
+
+
 
   __attribute__((__unused__))
     typename acquire_attachFeatureConstDV<T, boost::is_same<T,C>::value && ConstDVCompatible<T>::value>::type temp_attachFeatureConstDV;
