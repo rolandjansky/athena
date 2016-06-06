@@ -69,7 +69,7 @@ StatusCode ValgrindAuditor::initialize()
   m_msg.setMsgSvc(msgSvc());
   // We inherit the OutputLevel from ValgrindSvc
   m_msg.setLevel((dynamic_cast<const IntegerProperty&>(valSvcProp->getProperty("OutputLevel"))).value());
-    
+ 
   m_msg << MSG::VERBOSE
         << "Initializing " << name() << "..." 
         << endreq;

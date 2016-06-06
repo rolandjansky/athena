@@ -74,6 +74,8 @@ ValgrindSvc::~ValgrindSvc()
 ////////////////////////////
 StatusCode ValgrindSvc::initialize()
 {
+  ATH_CHECK(AthService::initialize());
+
   ATH_MSG_DEBUG
     ("Initializing " << name() << " package version " << PACKAGE_VERSION);
   
@@ -105,10 +107,7 @@ StatusCode ValgrindSvc::initialize()
 
   // Register incidents
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
-  if ( !incSvc.retrieve().isSuccess() ) {
-    ATH_MSG_ERROR ("Unable to get the IncidentSvc");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(incSvc.retrieve());
   incSvc->addListener( this, IncidentType::BeginEvent );
   incSvc->addListener( this, IncidentType::EndEvent   );
 
