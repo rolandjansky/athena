@@ -13,6 +13,7 @@ apply_pattern declare_scripts files="../share/*.sh \
 ../share/part_lhl2ef_fix.py \
 ../share/setMagFieldCurrents.py \
 ../share/part_get_runnumber.py \
+../share/trigp1test_athenaHLT.py \
 ../Testing/*.sh \
 ../Testing/splitlog.py"
 
