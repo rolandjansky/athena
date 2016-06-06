@@ -7,7 +7,6 @@
 *********************************************************************/
 
 #include "TrkVertexSeedFinderTools/DummySeedFinder.h"
-#include "VxVertex/Vertex.h"
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -38,33 +37,33 @@ namespace Trk
   }
 
 
-  Vertex DummySeedFinder::findSeed(const std::vector<const Trk::Track*> & /* VectorTrk */,const RecVertex * /* constraint */) {
+  Amg::Vector3D DummySeedFinder::findSeed(const std::vector<const Trk::Track*> & /* VectorTrk */,const xAOD::Vertex * /* constraint */) {
     
-    return Vertex(Amg::Vector3D(0.,0.,0.));
+    return Amg::Vector3D(0.,0.,0.);
     
   }
   
-  Vertex DummySeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & /* perigeeList */,const RecVertex * /* constraint */)
+  Amg::Vector3D DummySeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & /* perigeeList */,const xAOD::Vertex * /* constraint */)
    {
     
-    return Vertex(Amg::Vector3D(0.,0.,0.));
+    return Amg::Vector3D(0.,0.,0.);
     
   }
 
-  std::vector<Vertex> DummySeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const RecVertex * /* constraint */)
+  std::vector<Amg::Vector3D> DummySeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */)
   {
 
-    std::vector<Vertex> retvec;
-    retvec.push_back( Vertex(Amg::Vector3D(0.,0.,0.)) );
+    std::vector<Amg::Vector3D> retvec;
+    retvec.push_back( Amg::Vector3D(0.,0.,0.) );
 
     return retvec;
   }
 
-  std::vector<Vertex> DummySeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* vectorTrk */,const RecVertex * /* constraint */)
+  std::vector<Amg::Vector3D> DummySeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */)
   {
 
-    std::vector<Vertex> retvec;
-    retvec.push_back( Vertex(Amg::Vector3D(0.,0.,0.)) );
+    std::vector<Amg::Vector3D> retvec;
+    retvec.push_back( Amg::Vector3D(0.,0.,0.) );
 
     return retvec;
   }

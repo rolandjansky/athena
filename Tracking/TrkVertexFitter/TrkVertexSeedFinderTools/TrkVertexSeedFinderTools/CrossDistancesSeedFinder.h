@@ -11,7 +11,6 @@
 
 namespace Trk
 {
-  class Vertex;
   class Track;
   class IMode3dFinder;
   class ITrkDistanceFinder;
@@ -28,6 +27,15 @@ namespace Trk
   // A very similar point finder was implemented for the first time by Waltenberger 
   // in CMS. I suggest his PhD thesis (2005) as a reference for the different concepts 
   // of point finders.
+  //
+  // ---------------------------------------
+  // Changes:
+  //
+  // David Shope <david.richard.shope@cern.ch> (2016-04-19)
+  //
+  // EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex, 
+  //                         from Trk::RecVertex   to xAOD::Vertex,
+  //                         from Trk::Vertex      to Amg::Vector3D
 
 
   class CrossDistancesSeedFinder : public AthAlgTool, virtual public IVertexSeedFinder
@@ -43,16 +51,16 @@ namespace Trk
     virtual ~CrossDistancesSeedFinder();
 
     // Interface for Tracks with starting seed/linearization point
-    virtual Vertex findSeed(const std::vector<const Trk::Track*> & vectorTrk,const RecVertex * constraint=0);
+    virtual Amg::Vector3D findSeed(const std::vector<const Trk::Track*> & vectorTrk,const xAOD::Vertex * constraint=0);
     
     /** Interface for MeasuredPerigee with starting point */
-    virtual Vertex findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,const RecVertex * constraint=0);
+    virtual Amg::Vector3D findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,const xAOD::Vertex * constraint=0);
         
     // Interface for finding vector of seeds from tracks
-    virtual std::vector<Vertex> findMultiSeeds(const std::vector<const Trk::Track*>& vectorTrk,const RecVertex * constraint=0);
+    virtual std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::Track*>& vectorTrk,const xAOD::Vertex * constraint=0);
 
     // Interface for finding vector of seeds from track parameters
-    virtual std::vector<Vertex> findMultiSeeds(const std::vector<const Trk::TrackParameters*>& perigeeList,const RecVertex * constraint=0);
+    virtual std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::TrackParameters*>& perigeeList,const xAOD::Vertex * constraint=0);
 
   private:
 

@@ -23,6 +23,15 @@ namespace Trk
   // @ATLAS software
   //
   // This class implements a dummy seed finder
+  //
+  // -----------------------------------------
+  // Changes:
+  //
+  // David Shope <david.richard.shope@cern.ch> (2016-04-19)
+  //
+  // EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex, 
+  //                         from Trk::RecVertex   to xAOD::Vertex,
+  //                         from Trk::Vertex      to Amg::Vector3D
 
   class MCTrueSeedFinder : public AthAlgTool, virtual public IVertexSeedFinder
   {
@@ -37,16 +46,16 @@ namespace Trk
     virtual ~MCTrueSeedFinder();
 
     // Interface for Tracks with starting seed/linearization point
-    virtual Vertex findSeed(const std::vector<const Trk::Track*> & vectorTrk,const RecVertex * constraint=0);
+    virtual Amg::Vector3D findSeed(const std::vector<const Trk::Track*> & vectorTrk,const xAOD::Vertex * constraint=0);
     
     /** Interface for MeasuredPerigee with starting point */
-    virtual Vertex findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,const RecVertex * constraint=0);
+    virtual Amg::Vector3D findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,const xAOD::Vertex * constraint=0);
 
     // Interface for finding vector of seeds from tracks
-    virtual std::vector<Vertex> findMultiSeeds(const std::vector<const Trk::Track*>& vectorTrk,const RecVertex * constraint=0);
+    virtual std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::Track*>& vectorTrk,const xAOD::Vertex * constraint=0);
 
     // Interface for finding vector of seeds from track parameters
-    virtual std::vector<Vertex> findMultiSeeds(const std::vector<const Trk::TrackParameters*>& perigeeList,const RecVertex * constraint=0);
+    virtual std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::TrackParameters*>& perigeeList,const xAOD::Vertex * constraint=0);
 
   private:
    
@@ -68,7 +77,7 @@ namespace Trk
 	       const McEventCollection* coll = 0 ) const;
 
     /// Store collection of interactions' position sorted by "intensity" (sumpt2)
-    std::vector<Vertex> m_interactions;
+    std::vector<Amg::Vector3D> m_interactions;
 
     StatusCode retrieveInteractionsInfo();
 
