@@ -52,7 +52,7 @@ T2MissingET::T2MissingET(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("BadRegionsPhiMax", m_badRegions[1], "list of sup(bad phi interval)");
   declareProperty("BadRegionsEtaMin", m_badRegions[2], "list of inf(bad eta interval)");
   declareProperty("BadRegionsEtaMax", m_badRegions[3], "list of sup(bad eta interval)");
-  declareProperty("DecodeDetMask", m_decodeDetMask = true, "switch on/off DetMask decoding");
+  declareProperty("DecodeDetMask", m_decodeDetMask = false, "switch on/off DetMask decoding");
   declareProperty("GlobMaxMEtSumEtRatio", m_GlobMaxMEtSumEtRatio = 0.9, "max reasonable |MET/SumET|");
 
   declareMonitoredVariable("L2_METx",     m_lvl2_mex);
@@ -256,17 +256,16 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
     m_L1Calo=true;
 
     if(m_decodeDetMask) { 
-      uint64_t mask0 = pEvent->detectorMask0();
-      uint64_t mask1 = pEvent->detectorMask1();
+      uint64_t mask64 = pEvent->detectorMask();
       if(msgLvl() <= MSG::DEBUG){
         char buff[512];
-        snprintf(buff,512,"REGTEST: DetMask_1 = 0x%08lu, DetMask_0 = 0x%08lu",mask1,mask0);
+        snprintf(buff,512,"REGTEST: DetMask = 0x%08lu",mask64);
         msg() << MSG::DEBUG << buff << endreq;
       }
 
-      if (!(mask0==0 && mask1==0)) {  // 0 means present
+      if (!(mask64==0)) {  // 0 means present
 
-        eformat::helper::DetectorMask dm(mask1, mask0);
+	eformat::helper::DetectorMask dm(mask64);
         m_LArEMbarrelAside  = dm.is_set(eformat::LAR_EM_BARREL_A_SIDE);
         m_LArEMbarrelCside  = dm.is_set(eformat::LAR_EM_BARREL_C_SIDE);
         m_LArEMendCapAside  = dm.is_set(eformat::LAR_EM_ENDCAP_A_SIDE);
