@@ -426,7 +426,7 @@ if opts.writexml!="":
                 combrules = {
                     'sum' : ['tavcnt','tapcnt','tbpcnt','tavover','tapover','tbpover'],
                     'avg' : ['rate','taprate','tbprate','nevt'],
-                    'quad': ['rateerr','nevterr']
+                    'quad': ['rateerr','taprateerr','tbprateerr','nevterr']
                     }
                 for (rule,list) in combrules.items():
                     for attr in list:
@@ -451,20 +451,19 @@ if opts.writexml!="":
                 # skip groups, streams, unused CTPs, "recording" info, time , ...
                 # first set all PS to -1000 as a not valid flag
                 avgch.SetPrescale(-1000)
-                print "L1 ", config.L1Prescales
-                print "HLT ", config.HLTPrescales
                 if not TrigCostTRP.NonChainTRP(chname) and not opts.nopsrangebreak:
 
                     try:
                         if avgch.GetLevel() == 'L1':
                             avgch.SetPrescale(config.L1Prescales[psrange.l1key][chname].ps)
-                            print chname,config.L1Prescales[psrange.l1key][chname].ps
+                            print "Set PS: ",chname," PS=",config.L1Prescales[psrange.l1key][chname].ps
                         elif avgch.GetLevel() == 'HLT':
                             avgch.SetPrescale(config.HLTPrescales[psrange.hltkey][chname].ps)
+                            print "Set PS: ",chname," PS=",config.HLTPrescales[psrange.hltkey][chname].ps
                             avgch.SetPassthrough(0) #config.HLTPrescales[psrange.hltkey][chname].pt)
                             avgch.SetRerun(config.HLTPrescales[psrange.hltkey][chname].rerun)
                     except:
-                        print "Warning: Unable to set prescales for ",chname, " ",  avgch.GetLevel(), " " ,psrange.l1key
+                        print "Warning: Unable to set prescales for ",chname, " LVL:",  avgch.GetLevel(), " L1PSK:" ,psrange.l1key
                         
                 # add lower chain info
                 # skip groups, streams, unused CTPs, "recording" info, time , ...
@@ -484,7 +483,16 @@ if opts.writexml!="":
             outname = string.replace(outname,".xml",
                                      "_"+str(opts.run)+"_"+str(lbbeg)+"_"+str(lbend)+".xml")
             print "Writing: ",outname
-            TrigCostXML.WriteXmlFile(outname,avgrates,lbset)
+            TrigCostXML.WriteXmlFile(outname,avgrates,lbset) # Don't remove PS
+            print "Writing equivilant cost folder: ",
+            TrigCostXML.WriteCsvFile(str(opts.run), str(lbbeg)+"-"+str(lbend), avgrates, lbset, outname) # Don't remove PS
+
+            outname = outname.replace(".xml","_nops.xml")
+            print "Writing: ",outname
+            TrigCostXML.WriteXmlFile(outname,avgrates,lbset,True) # Remove PS
+            print "Writing equivilant cost folder: ",
+            TrigCostXML.WriteCsvFile(str(opts.run), str(lbbeg)+"-"+str(lbend), avgrates, lbset, outname, True) # Remove PS
+
 
             # if averaging all psset into one file we are done in one pass
             if opts.nopsrangebreak:
