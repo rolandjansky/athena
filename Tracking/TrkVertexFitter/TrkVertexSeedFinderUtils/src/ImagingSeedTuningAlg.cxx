@@ -223,16 +223,19 @@ StatusCode ImagingSeedTuningAlg::execute()
   std::vector<const Trk::TrackParameters*> perigeeList;
   analyzeTracks(trackVector, perigeeList);
 
-  std::vector<Trk::Vertex> truth;
+  std::vector<Amg::Vector3D> truth;
   CHECK( findTruth(trackVector, truth) );
   h_nTruthVertices->Fill((float) truth.size());
   b_nTruth = truth.size();
-  for (auto & v : truth) h_zTruthVertices->Fill(v.position()[2]);
+  for (auto & v : truth) h_zTruthVertices->Fill(v[2]);
 
-  Trk::RecVertex theConstraint;
+  xAOD::Vertex theConstraint;
+  theConstraint.makePrivateStore();
   if (m_useBeamConstraint)
   {
-    theConstraint=m_iBeamCondSvc->beamVtx();
+    theConstraint.setPosition(m_iBeamCondSvc->beamVtx().position());
+    theConstraint.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+    theConstraint.setFitQuality(m_iBeamCondSvc->beamVtx().fitQuality().chiSquared(), m_iBeamCondSvc->beamVtx().fitQuality().doubleNumberDoF());
   }
 
   bool done = true;
@@ -240,7 +243,7 @@ StatusCode ImagingSeedTuningAlg::execute()
   CHECK( initializeConditions(conditions) );
   do
   {
-    std::vector<Trk::Vertex> seeds;
+    std::vector<Amg::Vector3D> seeds;
     if (m_useBeamConstraint)
     {
       seeds = m_seedFinder->findMultiSeeds(perigeeList, &theConstraint);
@@ -352,8 +355,8 @@ StatusCode ImagingSeedTuningAlg::setupConditions(std::string& conditions)
 }
 
 void ImagingSeedTuningAlg::analyzeSeeds(std::string conditions,
-					const std::vector<Trk::Vertex>& seeds, 
-					const std::vector<Trk::Vertex>& truth)
+					const std::vector<Amg::Vector3D>& seeds, 
+					const std::vector<Amg::Vector3D>& truth)
 {
   // simple analysis - count seeds that have a true vertex close to them
   m_allTruth[conditions] += truth.size();
@@ -362,7 +365,7 @@ void ImagingSeedTuningAlg::analyzeSeeds(std::string conditions,
   int goodSeeds = 0;
   for (auto& seed : seeds) {
     for (auto& tru : truth) {
-      if (std::abs(seed.position()[2] - tru.position()[2]) <= m_truthWindow) {
+      if (std::abs(seed[2] - tru[2]) <= m_truthWindow) {
 	goodSeeds++;
 	break;
       }
@@ -374,7 +377,7 @@ void ImagingSeedTuningAlg::analyzeSeeds(std::string conditions,
   int goodTruth = 0;
   for (auto& tru : truth) {
     for (auto& seed : seeds) {
-      if (std::abs(seed.position()[2] - tru.position()[2]) <= m_truthWindow){
+      if (std::abs(seed[2] - tru[2]) <= m_truthWindow){
 	goodTruth++;
 	break;
       }
@@ -391,32 +394,32 @@ void ImagingSeedTuningAlg::analyzeSeeds(std::string conditions,
   b_nSplit[m_iCondition] = 0;
   b_nMerge[m_iCondition] = 0;
   for (auto & tru : truth) {
-    nearestSeed[tru.position()[2]] = std::numeric_limits<float>::infinity();
+    nearestSeed[tru[2]] = std::numeric_limits<float>::infinity();
     for (auto & seed : seeds) {
-      if (std::abs(seed.position()[2] - tru.position()[2]) < 
-	  std::min(m_truthWindow, std::abs(nearestSeed[tru.position()[2]] - tru.position()[2])))
+      if (std::abs(seed[2] - tru[2]) < 
+	  std::min(m_truthWindow, std::abs(nearestSeed[tru[2]] - tru[2])))
       {
-	nearestSeed[tru.position()[2]] = seed.position()[2];
+	nearestSeed[tru[2]] = seed[2];
       }
     }
     // if a true vertex is not close to any seed, it is "lost"
-    if (nearestSeed[tru.position()[2]] == std::numeric_limits<float>::infinity())
+    if (nearestSeed[tru[2]] == std::numeric_limits<float>::infinity())
     {
       b_nLost[m_iCondition]++;
       m_nLost[conditions]++;
     }
   }
   for (auto & seed : seeds) {
-    nearestTruth[seed.position()[2]] = std::numeric_limits<float>::infinity();
+    nearestTruth[seed[2]] = std::numeric_limits<float>::infinity();
     for (auto & tru : truth) {
-      if (std::abs(tru.position()[2] - seed.position()[2]) < 
-	  std::min(m_truthWindow, std::abs(nearestTruth[seed.position()[2]] - seed.position()[2])))
+      if (std::abs(tru[2] - seed[2]) < 
+	  std::min(m_truthWindow, std::abs(nearestTruth[seed[2]] - seed[2])))
       {
-	nearestTruth[seed.position()[2]] = tru.position()[2];
+	nearestTruth[seed[2]] = tru[2];
       }
     }
     // if a seed is not close to any true vertex, it is a "fake"
-    if (nearestTruth[seed.position()[2]] == std::numeric_limits<float>::infinity())
+    if (nearestTruth[seed[2]] == std::numeric_limits<float>::infinity())
     {
       b_nFake[m_iCondition]++;
       m_nFake[conditions]++;
@@ -425,11 +428,11 @@ void ImagingSeedTuningAlg::analyzeSeeds(std::string conditions,
   // if a true vertex is closest to > 1 seed, that true vertex has been "split"
   for (auto & tru : truth)
   {
-    if (nearestSeed[tru.position()[2]] == std::numeric_limits<float>::infinity()) continue;
+    if (nearestSeed[tru[2]] == std::numeric_limits<float>::infinity()) continue;
     int nClosest = 0; // number of seeds that this true vertex is closest to
     for (auto & seed : seeds)
     {
-      if (nearestTruth[seed.position()[2]] == tru.position()[2]) nClosest++;
+      if (nearestTruth[seed[2]] == tru[2]) nClosest++;
     }
     if (nClosest > 1) 
     {
@@ -440,11 +443,11 @@ void ImagingSeedTuningAlg::analyzeSeeds(std::string conditions,
   // if a seed is closest to > 1 true vertex, those true vertices have been "merged"
   for (auto & seed : seeds)
   {
-    if (nearestTruth[seed.position()[2]] == std::numeric_limits<float>::infinity()) continue;
+    if (nearestTruth[seed[2]] == std::numeric_limits<float>::infinity()) continue;
     int nClosest = 0; // number of truth vertices that this seed is closest to
     for (auto & tru : truth)
     {
-      if (nearestSeed[tru.position()[2]] == seed.position()[2]) nClosest++;
+      if (nearestSeed[tru[2]] == seed[2]) nClosest++;
     }
     if (nClosest > 1) 
     {
@@ -501,7 +504,7 @@ void ImagingSeedTuningAlg::selectTracks(const xAOD::TrackParticleContainer* trac
 /////////////////////////////////////////////////////////////////// 
 // Const methods: 
 ///////////////////////////////////////////////////////////////////
-StatusCode ImagingSeedTuningAlg::findTruth(const std::vector<Trk::ITrackLink*>& trackVector, std::vector<Trk::Vertex>& truth) const
+StatusCode ImagingSeedTuningAlg::findTruth(const std::vector<Trk::ITrackLink*>& trackVector, std::vector<Amg::Vector3D>& truth) const
 {
     xAOD::TrackParticle::ConstAccessor<ElementLink<xAOD::TruthParticleContainer> > truthParticleAssoc("truthParticleLink");
 
@@ -510,7 +513,7 @@ StatusCode ImagingSeedTuningAlg::findTruth(const std::vector<Trk::ITrackLink*>& 
     for (const xAOD::TruthEventBase* evt : *signalEvents)
     {
       const xAOD::TruthVertex* vLink = *(evt->truthVertexLink(0));
-      Trk::Vertex vTruth(Amg::Vector3D(vLink->x(),vLink->y(),vLink->z()));
+      Amg::Vector3D vTruth(Amg::Vector3D(vLink->x(),vLink->y(),vLink->z()));
       int nGoodTracks = 0;
       for (auto trk : trackVector)
       {
@@ -542,7 +545,7 @@ StatusCode ImagingSeedTuningAlg::findTruth(const std::vector<Trk::ITrackLink*>& 
     for (const xAOD::TruthEventBase* evt : *pileupEvents)
     {
       const xAOD::TruthVertex* vLink = *(evt->truthVertexLink(0));
-      Trk::Vertex vTruth(Amg::Vector3D(vLink->x(),vLink->y(),vLink->z()));
+      Amg::Vector3D vTruth(Amg::Vector3D(vLink->x(),vLink->y(),vLink->z()));
       int nGoodTracks = 0;
       for (auto trk : trackVector)
       {
@@ -572,7 +575,7 @@ StatusCode ImagingSeedTuningAlg::findTruth(const std::vector<Trk::ITrackLink*>& 
     return StatusCode::SUCCESS;
 }
 
-double ImagingSeedTuningAlg::distanceAndError(const Trk::TrackParameters* params, const Trk::Vertex * vertex, double & error) const
+double ImagingSeedTuningAlg::distanceAndError(const Trk::TrackParameters* params, const Amg::Vector3D * vertex, double & error) const
 {
     //find distance safely
     bool isOK=false;

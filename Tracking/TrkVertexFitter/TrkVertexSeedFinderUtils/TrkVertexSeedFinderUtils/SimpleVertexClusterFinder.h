@@ -20,10 +20,14 @@ namespace Trk
    @author Matt Rudolph <matthew.scott.rudolph@cern.ch
    @author Lars ...
 
-   */
+   ------------------------------------
+   Changes:
 
-  //Forward declarations.
-  class Vertex;
+   David Shope <david.richard.shope@cern.ch> (2016-04-19)
+
+   EDM Migration to xAOD - from Trk::Vertex to Amg::Vector3D
+
+   */
 
   class SimpleVertexClusterFinder : public AthAlgTool, IVertexClusterFinder
   {
@@ -37,7 +41,7 @@ namespace Trk
     //destructor
     virtual ~SimpleVertexClusterFinder();
 
-    virtual std::vector<Trk::Vertex> findVertexClusters( const VertexImage & image );
+    virtual std::vector<Amg::Vector3D> findVertexClusters( const VertexImage & image );
 
   private:
 

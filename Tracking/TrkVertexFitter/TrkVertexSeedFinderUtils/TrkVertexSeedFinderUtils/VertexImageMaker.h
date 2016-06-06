@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkVertexSeedFinderUtils/IVertexImageMaker.h"
 #include "TrkVertexSeedFinderUtils/VertexImage.h"
+#include "xAODTracking/Vertex.h"
 
 //External library for fourier transforms
 #include "fftw3.h"
@@ -22,6 +23,13 @@ namespace Trk
 
    @author Matt Rudolph <matthew.scott.rudolph@cern.ch
 
+   ------------------------------------
+   Changes:
+
+   David Shope <david.richard.shope@cern.ch> (2016-04-19)
+
+   EDM Migration to xAOD - from Trk::RecVertex to xAOD::Vertex
+
    */
 
 
@@ -34,7 +42,7 @@ namespace Trk
 
     virtual ~VertexImageMaker() {}
 
-    virtual VertexImage makeVertexImage( const std::vector<const Trk::TrackParameters*>& parametersList,const RecVertex * constraint );
+    virtual VertexImage makeVertexImage( const std::vector<const Trk::TrackParameters*>& parametersList,const xAOD::Vertex * constraint );
 
   private:
     //------------
