@@ -126,6 +126,7 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string& type,const string& name, const 
   m_TrackSum(nullptr),
   m_badChips(nullptr),
   m_fieldServiceHandle("AtlasFieldSvc",name),
+  m_bunchCrossingTool("Trig::BunchCrossingTool/BunchCrossingTool"),
   m_DetectorMode(1), //Barrel = 1, endcap =2, both =3
   m_RunningMode(2),
   m_minPixelHits(-1),    
@@ -221,6 +222,7 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string& type,const string& name, const 
   declareProperty("useIDGlobal", m_useIDGlobal);
   declareProperty("ConfigConditions", m_configConditions);
   declareProperty("MagFieldSvc"        , m_fieldServiceHandle);
+  declareProperty("BunchCrossingTool"        , m_bunchCrossingTool);
 
   m_countEvent=0;
 
@@ -328,6 +330,9 @@ StatusCode SCTHitEffMonTool::initialize(){
   CHECK (m_rotcreator.retrieve());
   INFO ("Retrieved tool " << m_rotcreator);
   CHECK(m_fieldServiceHandle.retrieve());
+  CHECK (m_bunchCrossingTool.retrieve());
+  INFO ("Retrieved BunchCrossing tool " << m_bunchCrossingTool);
+
 
   detStore()->retrieve( m_pSCTHelper, "SCT_ID");
   detStore()->retrieve( m_pManager, "SCT");
@@ -354,13 +359,13 @@ StatusCode SCTHitEffMonTool::initialize(){
 StatusCode SCTHitEffMonTool::bookHistograms()
 {
   //  if (not isNewRun) return StatusCode::SUCCESS;                                                                   // hidetoshi 14.01.22
-  if (not newRun) return StatusCode::SUCCESS;                                                                         // hidetoshi 14.01.22
+  if (not newRunFlag()) return StatusCode::SUCCESS;                                                                         // hidetoshi 14.01.22
   if (m_isCosmic) WARNING("Running on cosmics: releasing d0 cut and forcing use of TRT timing");
   if (not m_fieldServiceHandle->solenoidOn()){
     WARNING("Running with solenoid off: releasing pT cut");
     m_minPt = -1.;
   }
-  if(newRun){
+  if(newRunFlag()){
     m_badChips = m_configConditions->badChips();
     INFO ("Found " << m_badChips->size() << " bad chips");
     for (std::map<Identifier, unsigned int>::const_iterator chip(m_badChips->begin()) ; chip != m_badChips->end(); ++ chip)
@@ -407,7 +412,7 @@ StatusCode SCTHitEffMonTool::bookHistograms()
       CHECK (bookEffHisto(m_nTrkGoodHisto, histGroupE[GENERAL], "nTrk good", "num Tracks good", 400, -0.5, 399.5));
     }
     if (m_superDetailed) {
-      CHECK (bookEffHisto(m_LumiBlock, histGroupE[GENERAL], "LumiBlocks", "Luminosity blocks", 1000, 1, 1001));
+      CHECK (bookEffHisto(m_LumiBlock, histGroupE[GENERAL], "LumiBlocks", "Luminosity blocks", 3000, 1, 3001));
       CHECK (bookEffHisto(m_effHashLumiB, histGroupE[GENERAL], "effHashCodeLumiBlock", "Modules efficiencies vs. lumi. block", 
             n_mod[GENERAL_INDEX] * 2, -0.5, n_mod[GENERAL_INDEX] * 2 - 0.5, 1500, 1, 1501));
       m_badModMap = new TGraphErrors();
@@ -455,7 +460,7 @@ StatusCode SCTHitEffMonTool::bookHistograms()
 
           CHECK (bookEffHisto(m_effLumiBlock[detIndex][j], histGroupL[isub], 
                 effLumiName[isub] + i + "_" + j, "Efficiency vs LumiBlock of" + layerName[isub] + i + " / side " + j + " in " + subDetName[isub], 
-                50,1,1001));//23.01.2015
+                150,1,3001));//23.01.2015
           m_effLumiBlock[detIndex][j]->GetXaxis()->SetTitle("Luminosity Block");
           m_effLumiBlock[detIndex][j]->GetYaxis()->SetTitle("Efficiency");
         }
@@ -499,7 +504,7 @@ StatusCode SCTHitEffMonTool::bookHistograms()
       m_Eff_summaryHistoFirstBCID[isub]    ->GetYaxis()->SetTitle("Efficiency");
       m_Eff_summaryHisto_old[isub]->GetYaxis()->SetTitle("Efficiency");
 
-      CHECK (bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub],"effLumiBlock", "Efficiency vs Luminosity block in " + subDetName[isub],50,1,1001));//20.01.2015
+      CHECK (bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub],"effLumiBlock", "Efficiency vs Luminosity block in " + subDetName[isub],150,1,3001));//20.01.2015
       m_Eff_LumiBlockHisto[isub]->GetXaxis()->SetTitle("Luminosity block");
       m_Eff_LumiBlockHisto[isub]->GetYaxis()->SetTitle("Efficiency");
 
@@ -591,13 +596,13 @@ StatusCode SCTHitEffMonTool::bookHistograms()
 StatusCode SCTHitEffMonTool::bookHistogramsRecurrent()                                                                         // hidetoshi 14.01.22
 {
   //  if (not isNewRun) return StatusCode::SUCCESS;                                                                   // hidetoshi 14.01.22
-  //  if (not newRun) return StatusCode::SUCCESS;                                                                         // hidetoshi 14.01.22
+  //  if (not newRunFlag()) return StatusCode::SUCCESS;                                                                         // hidetoshi 14.01.22
   if (m_isCosmic) WARNING("Running on cosmics: releasing d0 cut and forcing use of TRT timing");
   if (not m_fieldServiceHandle->solenoidOn()){
     WARNING("Running with solenoid off: releasing pT cut");
     m_minPt = -1.;
   }
-  if(newRun){
+  if(newRunFlag()){
     m_badChips = m_configConditions->badChips();
     INFO ("Found " << m_badChips->size() << " bad chips");
     for (std::map<Identifier, unsigned int>::const_iterator chip(m_badChips->begin()) ; chip != m_badChips->end(); ++ chip)
@@ -644,7 +649,7 @@ StatusCode SCTHitEffMonTool::bookHistogramsRecurrent()                          
       CHECK (bookEffHisto(m_nTrkGoodHisto, histGroupE[GENERAL], "nTrk good", "num Tracks good", 400, -0.5, 399.5));
     }
     if (m_superDetailed) {
-      CHECK (bookEffHisto(m_LumiBlock, histGroupE[GENERAL], "LumiBlocks", "Luminosity blocks", 1000, 1, 1001));
+      CHECK (bookEffHisto(m_LumiBlock, histGroupE[GENERAL], "LumiBlocks", "Luminosity blocks", 3000, 1, 3001));
       CHECK (bookEffHisto(m_effHashLumiB, histGroupE[GENERAL], "effHashCodeLumiBlock", "Modules efficiencies vs. lumi. block", 
             n_mod[GENERAL_INDEX] * 2, -0.5, n_mod[GENERAL_INDEX] * 2 - 0.5, 1500, 1, 1501));
       m_badModMap = new TGraphErrors();
@@ -695,7 +700,7 @@ StatusCode SCTHitEffMonTool::bookHistogramsRecurrent()                          
 
           CHECK (bookEffHisto(m_effLumiBlock[detIndex][j], histGroupL[isub], 
                 effLumiName[isub] + i + "_" + j, "Efficiency vs LumiBlock" + layerName[isub] + i + " / side " + j + " in " + subDetName[isub], 
-                50,1,1001));//23.01.2015
+                150,1,3001));//23.01.2015
           m_effLumiBlock[detIndex][j]->GetXaxis()->SetTitle("Luminosity Block");
           m_effLumiBlock[detIndex][j]->GetYaxis()->SetTitle("Efficiency");
 
@@ -736,7 +741,7 @@ StatusCode SCTHitEffMonTool::bookHistogramsRecurrent()                          
       m_Eff_summaryHisto[isub]    ->GetYaxis()->SetTitle("Efficiency");
       m_Eff_summaryHistoFirstBCID[isub]    ->GetYaxis()->SetTitle("Efficiency");
       m_Eff_summaryHisto_old[isub]->GetYaxis()->SetTitle("Efficiency");
-      CHECK (bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub],"effLumiBlock", "Efficiency vs Luminosity block in " + subDetName[isub],50,1,1001));//20.01.2015
+      CHECK (bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub],"effLumiBlock", "Efficiency vs Luminosity block in " + subDetName[isub],150,1,3001));//20.01.2015
       m_Eff_LumiBlockHisto[isub]->GetXaxis()->SetTitle("Luminosity block");
       m_Eff_LumiBlockHisto[isub]->GetYaxis()->SetTitle("Efficiency");
 
@@ -854,6 +859,8 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
   if (not pEvent) return ERROR ("Could not find event pointer"), StatusCode::FAILURE;
   eventID = pEvent->event_ID();
   unsigned BCID = eventID->bunch_crossing_id();
+  int BCIDpos = m_bunchCrossingTool->distanceFromFront(BCID);
+  bool InTrain = m_bunchCrossingTool->isInTrain(BCID);
 
   typedef SCT_RDORawData SCTRawDataType;
 
@@ -1268,7 +1275,7 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
       m_Eff_summaryHisto[isub]    ->Fill(dedicated_layerPlusHalfSide, m_eff); // adjustment for dedicated_title()
       m_Eff_hashCodeHisto->Fill(Double_t(sideHash), m_eff);//15.12.2014
       m_Eff_LumiBlockHisto[isub]->Fill(eventID->lumi_block(), m_eff);//20.01.2015
-      if(BCID == 1) m_Eff_summaryHistoFirstBCID[isub]    ->Fill(dedicated_layerPlusHalfSide, m_eff); // adjustment for dedicated_title()
+      if(BCIDpos == 0 && InTrain) m_Eff_summaryHistoFirstBCID[isub]    ->Fill(dedicated_layerPlusHalfSide, m_eff); // adjustment for dedicated_title()
 
       if (m_detailed) {
         m_SelectionHisto[isub]->Fill(9.); // Past bad chip
@@ -1309,7 +1316,7 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
         if (fabs(trackHitResidual)<65) m_layerResidualHistos[isub][layerSideIndex]->Fill(m_sctId->eta_module(surfaceID), m_sctId->phi_module(surfaceID), trackHitResidual);
       }
       m_Eff_Total->Fill(Double_t(isub), m_eff);
-      if (BCID == 1) m_Eff_TotalBCID->Fill(Double_t(isub), m_eff);
+      if (BCIDpos == 0 && InTrain) m_Eff_TotalBCID->Fill(Double_t(isub), m_eff);
       useDetector[isub] = true;
       const int ieta(m_sctId->eta_module(surfaceID));
       const int iphi(m_sctId->phi_module(surfaceID));
@@ -1364,7 +1371,7 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
     m_nTrkParsHisto->Fill(nTrkPars); 
     m_nTrkGoodHisto->Fill(nTrkGood); 
   }
-  if (m_detailed) m_LumiBlock->Fill(eventID->lumi_block()); 
+  if (m_superDetailed) m_LumiBlock->Fill(eventID->lumi_block()); 
   m_countEvent++; 
   if(m_chronotime) m_chrono->chronoStop("SCTHitEff");
   return StatusCode::SUCCESS;
@@ -1583,8 +1590,9 @@ Double_t SCTHitEffMonTool::getResidual(const Identifier& surfaceID,const Trk::Tr
         const Trk::PrepRawData * rioo(dynamic_cast<const Trk::PrepRawData*>(*rioIterator));   
         const Trk::RIO_OnTrack * rio(m_rotcreator->correct(*rioo, *trkParam));
         if (!m_residualPullCalculator.empty()) {
-          if(m_residualPullCalculator->residualPull(rio, trkParam,Trk::ResidualPull::Unbiased)==0)continue;
+	  //          if(m_residualPullCalculator->residualPull(rio, trkParam,Trk::ResidualPull::Unbiased)==0)continue;
           const Trk::ResidualPull * residualPull(m_residualPullCalculator->residualPull(rio, trkParam,Trk::ResidualPull::Unbiased));
+	  if(residualPull==0)continue;
           if (fabs(residualPull->residual()[Trk::loc1]) < fabs(trackHitResidual)) trackHitResidual = residualPull->residual()[Trk::loc1];
           delete residualPull;
         }

@@ -50,6 +50,7 @@ use GaudiInterface              GaudiInterface-*        External
 
 use AthenaMonitoring            AthenaMonitoring-*      Control
 use TrigDecisionTool            TrigDecisionTool-*      Trigger/TrigAnalysis
+use TrigAnalysisInterfaces      TrigAnalysisInterfaces-* Trigger/TrigAnalysis
 
 use MagFieldInterfaces  MagFieldInterfaces-*    MagneticField
 

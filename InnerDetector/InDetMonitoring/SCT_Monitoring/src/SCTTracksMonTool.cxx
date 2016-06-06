@@ -150,7 +150,7 @@ StatusCode SCTTracksMonTool::bookHistogramsRecurrent()                          
 {
   ATH_MSG_DEBUG("SCTTracksMonTool::bookHistograms");
   m_path = (m_useIDGlobal) ? ("/InDetGlobal/") : ("");
-  if (newRun) m_numberOfEvents = 0;                                                                              // hidetoshi 14.01.21 
+  if (newRunFlag()) m_numberOfEvents = 0;                                                                              // hidetoshi 14.01.21 
   CHECK(detStore()->retrieve(m_pSCTHelper,"SCT_ID"));
   if(m_doUnbiasedCalc)
     CHECK(m_updator.retrieve());
@@ -174,7 +174,7 @@ StatusCode SCTTracksMonTool::bookHistograms()                                   
 {
   ATH_MSG_DEBUG("SCTTracksMonTool::bookHistograms");
   m_path = (m_useIDGlobal) ? ("/InDetGlobal/") : ("");
-  if (newRun) m_numberOfEvents = 0;                                                                            // hidetoshi 14.11.27 
+  if (newRunFlag()) m_numberOfEvents = 0;                                                                            // hidetoshi 14.11.27 
   CHECK(detStore()->retrieve(m_pSCTHelper,"SCT_ID"));
   if(m_doUnbiasedCalc)
     CHECK(m_updator.retrieve());
@@ -196,7 +196,7 @@ StatusCode SCTTracksMonTool::bookHistograms()                                   
 /// This is the real workhorse, called for each event. It retrieves the data each time 
 //====================================================================================================
 StatusCode SCTTracksMonTool::fillHistograms(){
-  if(newRun){
+  if(newRunFlag()){
     for(int m=0;m<N_DISKSx2;m++){
       m_psctresiduals_summaryHistoVectorECm[m]->GetXaxis()->SetTitle("Residuals [mm]");
       m_psctresiduals_summaryHistoVectorECp[m]->GetXaxis()->SetTitle("Residuals [mm]");
@@ -494,7 +494,7 @@ StatusCode SCTTracksMonTool::fillHistograms(){
 //                             SCTTracksMonTool :: procHistograms
 //====================================================================================================
 StatusCode  SCTTracksMonTool::procHistograms(){                                                                            //  hidetoshi 14.01.21
-  if(endOfRun){                                                                                                               //  hidetoshi 14.01.21
+  if(endOfRunFlag()){                                                                                                               //  hidetoshi 14.01.21
     ATH_MSG_DEBUG("SCTTracksMonTool::procHistograms");
     ATH_MSG_DEBUG("Total Rec Event Number: " << m_numberOfEvents);
     ATH_MSG_DEBUG("Calling checkHists(true); true := end of run");
@@ -553,6 +553,8 @@ StatusCode  SCTTracksMonTool::checkHists(bool /*fromFinalize*/){
   } //27.11.2014
   // Now checking RMS and Means of Pulls 1D Histos
   TF1 pullgaus("pullgaus","gaus");
+  pullgaus.SetParameter(1, 0.); 
+  pullgaus.SetParameter(2, 1.); 
   if(not m_psctpulls_summaryHistoVector.empty()){ 
     VecH1_t::const_iterator endit(m_psctpulls_summaryHistoVector.end());
     for (VecH1_t::const_iterator it(m_psctpulls_summaryHistoVector.begin()); it != endit; ++it){
@@ -607,7 +609,7 @@ double SCTTracksMonTool::calculatePull(const double residual, const double trkEr
 StatusCode SCTTracksMonTool::bookGeneralHistos(){                                         // hidetoshi 14.01.22
 
   //    if(isNewRun){                                                            // hidetoshi 14.01.22
-  if(newRun){                                                                    // hidetoshi 14.11.27
+  if(newRunFlag()){                                                                    // hidetoshi 14.11.27
       
     using boost::lexical_cast;
     string stem(m_path+"/SCT/GENERAL/tracks/");
@@ -714,7 +716,7 @@ StatusCode SCTTracksMonTool::bookGeneralHistos(){                               
 //StatusCode SCTTracksMonTool::bookTrackHistos(const bool isNewRun, const SCT_Monitoring::Bec becVal){ // hidetoshi 14.01.22     
 StatusCode SCTTracksMonTool::bookTrackHistos(const SCT_Monitoring::Bec becVal){                        // hidetoshi 14.01.22     
   //  if(not isNewRun) return StatusCode::SUCCESS;                                                     // hidetoshi 14.01.22     
-  if(not newRun) return StatusCode::SUCCESS;                                                           // hidetoshi 14.11.27     
+  if(not newRunFlag()) return StatusCode::SUCCESS;                                                           // hidetoshi 14.11.27     
   using boost::lexical_cast;
   const string pathDelimiter("/");
   const string streamDelimiter("_");
