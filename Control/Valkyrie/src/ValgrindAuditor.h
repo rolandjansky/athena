@@ -16,6 +16,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GAUDI_VERSION.h"
 
 // Forward declaration
 class INamedInterface;
@@ -86,6 +87,10 @@ public:
 
 
 private:
+#if GAUDI_MAJOR_VERSION <= 26
+  int msgLevel() const { return outputLevel(); }
+#endif
+
   /// Handle to ValgrindSvc
   ServiceHandle<IValgrindSvc> m_valSvc;
 
