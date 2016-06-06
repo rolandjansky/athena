@@ -11,20 +11,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 
 log = logging.getLogger( "T0TriggerGetter.py" )
 
-try:
-    from TriggerMenu import useNewTriggerMenu
-    useNewTM = useNewTriggerMenu()
-    log.info("Using new TriggerMenu: %r" % useNewTM)
-except:
-    useNewTM = False
-    log.info("Using old TriggerMenuPython since TriggerMenu.useNewTriggerMenu can't be imported")
-
-if useNewTM:
-    from TriggerMenu.menu.GenerateMenu import GenerateMenu
-else:
-    from TriggerMenuPython.GenerateMenu import GenerateMenu
-
-
+from TriggerMenu.menu.GenerateMenu import GenerateMenu
 from RecExConfig.Configured import Configured 
 
 def withLVL1():
@@ -58,7 +45,9 @@ class T0TriggerGetter(Configured):
         from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
-	
+	# tell TDT to use TrigConfigSvc (Since 00-03-40, defaults to not use it)
+        ToolSvc.TrigDecisionTool.TrigConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
+
         from TrigEDMConfig.TriggerEDM import EDMLibraries
         ToolSvc.TrigDecisionTool.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
 

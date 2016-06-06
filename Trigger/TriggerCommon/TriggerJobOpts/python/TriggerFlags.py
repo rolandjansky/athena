@@ -17,22 +17,8 @@ log.setLevel(logging.DEBUG)
 #stack = traceback.extract_stack()
 #log.info( "Imported TriggerFlags from %s, line %i" % (stack[-2][0], stack[-2][1]) )
 
-try:
-    from TriggerMenu import useNewTriggerMenu
-    useNewTM = useNewTriggerMenu()
-    log.info("Using new TriggerMenu: %r" % useNewTM)
-except:
-    useNewTM = False
-    log.info("Using old TriggerMenuPython since TriggerMenu.useNewTriggerMenu can't be imported")
-
-
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-
-if useNewTM:
-    from TriggerMenu.menu.CommonSliceHelper import AllowedList
-else:
-    from TriggerMenuPython.CommonSliceHelper import AllowedList
-
+from TriggerMenu.menu.CommonSliceHelper import AllowedList
 from TrigConfigSvc.TrigConfigSvcUtils import getKeysFromNameRelease, getMenuNameFromDB
 
 
@@ -179,6 +165,14 @@ class doAlwaysUnpackDSResult(JobProperty):
 
 _flags.append(doAlwaysUnpackDSResult)
 
+class writeL1TopoValData(JobProperty):
+    """ if False disable writing out of the xAOD L1Topo validation object """
+    statusOn=True
+    allowedType=['bool']
+    StoredValue=True
+
+_flags.append(writeL1TopoValData)
+
 class EDMDecodingVersion(JobProperty):
     """ if 1, Run1 decoding version is set; if 2, Run2 """
     statusOn=True
@@ -266,6 +260,14 @@ class doCalo(JobProperty):
     StoredValue=True
 
 _flags.append(doCalo)
+
+class doCaloOffsetCorrection(JobProperty):
+    """ enable Calo pileup offset BCID correction """
+    statusOn=True
+    allowedType=['bool']
+    StoredValue=True
+
+_flags.append(doCaloOffsetCorrection)
 
 class doBcm(JobProperty):
     """ if False, disable BCM algorithms at LVL2 & EF """
@@ -1054,9 +1056,11 @@ class triggerMenuSetup(JobProperty):
         'DC14', 'DC14_no_prescale', 'DC14_tight_mc_prescale', 'DC14_loose_mc_prescale', # for DC14
         'Physics_HI_v3', 'Physics_HI_v3_no_prescale', # for 2015 lead-lead menu 
         'MC_HI_v3', 'MC_HI_v3_tight_mc_prescale',
+
+        'MC_pp_v6','Physics_pp_v6','MC_pp_v6_no_prescale', 'MC_pp_v6_tight_mc_prescale', 'MC_pp_v6_tightperf_mc_prescale', 'MC_pp_v6_loose_mc_prescale','Physics_pp_v6_tight_physics_prescale',
         ]
 
-    _default_menu='MC_pp_v5_tight_mc_prescale'
+    _default_menu='MC_pp_v6_tight_mc_prescale'
     _default_cosmic_menu='Physics_pp_v5_cosmics_prescale'
     _default_InitialBeam_menu='MC_InitialBeam_v3_no_prescale'
     
@@ -1256,49 +1260,7 @@ from TriggerJobOpts.TriggerOnlineFlags      import OnlineFlags
 
 ## add slices generation flags
 
-if useNewTM:
-
-    try:
-        from TriggerMenu.menu.SliceFlags import *
-    except ImportError:
-        import TriggerMenu.egamma.EgammaSliceFlags
-        import TriggerMenu.jet.JetSliceFlags
-        import TriggerMenu.bjet.BjetSliceFlags
-        import TriggerMenu.muon.MuonSliceFlags
-        import TriggerMenu.met.METSliceFlags
-        import TriggerMenu.tau.TauSliceFlags
-        import TriggerMenu.bphysics.BphysicsSliceFlags
-        import TriggerMenu.minbias.MinBiasSliceFlags
-        import TriggerMenu.combined.CombinedSliceFlags
-        import TriggerMenu.calibcosmicmon.CosmicSliceFlags
-        import TriggerMenu.calibcosmicmon.CalibSliceFlags
-        import TriggerMenu.calibcosmicmon.StreamingSliceFlags
-        import TriggerMenu.calibcosmicmon.MonitorSliceFlags
-        import TriggerMenu.calibcosmicmon.EnhancedBiasSliceFlags
-
-else:
-    from TriggerMenuPython.Lvl1Flags            import Lvl1Flags
-    from TriggerMenuPython.EgammaSliceFlags     import EgammaSliceFlags
-    from TriggerMenuPython.TauSliceFlags        import TauSliceFlags
-    from TriggerMenuPython.JetSliceFlags        import JetSliceFlags
-    from TriggerMenuPython.MuonSliceFlags       import MuonSliceFlags
-    from TriggerMenuPython.METSliceFlags        import METSliceFlags
-    from TriggerMenuPython.BphysicsSliceFlags   import BphysicsSliceFlags
-    from TriggerMenuPython.BjetSliceFlags       import BjetSliceFlags
-    from TriggerMenuPython.CombinedSliceFlags   import CombinedSliceFlags
-    from TriggerMenuPython.MinBiasSliceFlags    import MinBiasSliceFlags
-    from TriggerMenuPython.CosmicSliceFlags     import CosmicSliceFlags
-    from TriggerMenuPython.HeavyIonSliceFlags   import HeavyIonSliceFlags
-    from TriggerMenuPython.CalibSliceFlags      import CalibSliceFlags
-    from TriggerMenuPython.L1CaloSliceFlags     import L1CaloSliceFlags
-    from TriggerMenuPython.BeamSpotSliceFlags   import BeamSpotSliceFlags
-    from TriggerMenuPython.GenericSliceFlags    import GenericSliceFlags
-    from TriggerMenuPython.MonitorSliceFlags    import MonitorSliceFlags
-    from TriggerMenuPython.StreamingSliceFlags  import StreamingSliceFlags
-
-
-
-
+from TriggerMenu.menu.SliceFlags import *
 from TriggerJobOpts.Tier0TriggerFlags       import Tier0TriggerFlags
 from TrigTier0.NtupleProdFlags              import NtupleProductionFlags
 

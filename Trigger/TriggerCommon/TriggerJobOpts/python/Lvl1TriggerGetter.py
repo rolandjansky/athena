@@ -59,8 +59,6 @@ class Lvl1SimulationGetter (Configured):
         topSequence = AlgSequence()
 
 
-        print "JOERG in Lvl1SimulationGetter : ", TriggerFlags.fakeLVL1() , TriggerFlags.doLVL1()
-        
         if (not TriggerFlags.fakeLVL1()) and TriggerFlags.doLVL1():
 
             if TriggerFlags.doCalo():
@@ -138,7 +136,6 @@ class Lvl1SimulationGetter (Configured):
                 topSequence += alg
 
             if TriggerFlags.doLucid():
-                print "JOERG setting up LUCID"
                 from TrigT1Lucid.TrigT1LucidConf import LVL1__TrigT1Lucid
                 alg = LVL1__TrigT1Lucid()
 
@@ -153,13 +150,30 @@ class Lvl1SimulationGetter (Configured):
                 else:
                     log.warning("%s input (%s) missing, not adding to the topSequence" % (alg.getName(), sgKey))
                     TriggerFlags.doLucid.set_Value(False)
-                print "JOERG ",topSequence
                     
 
             if TriggerFlags.doL1Topo():
+                log.info("Enabling L1Topo simulation")
                 from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
                 topSequence += L1TopoSimulation()
-                #topSequence.L1TopoSimulation.OutputLevel = DEBUG
+
+                try: # this is temporary until TrigT1Muctpi-00-06-29 is in the release
+                    from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
+                    from AthenaCommon.AppMgr import ToolSvc
+                    ToolSvc += L1MuctpiTool()
+                    topSequence.L1TopoSimulation.MuonInputProvider.MuctpiSimTool = L1MuctpiTool()
+                except ImportError:
+                    pass
+
+                # enable the reduced (coarse) granularity topo simulation
+                # currently only for MC
+                from AthenaCommon.GlobalFlags  import globalflags
+                if globalflags.DataSource()!='data':
+                    log.info("Muon eta/phi encoding with reduced granularity for MC (L1 Simulation)")
+                    topSequence.L1TopoSimulation.MuonInputProvider.MuonEncoding = 1
+                else:
+                    log.info("Muon eta/phi encoding with full granularity for data (L1 Simulation) - should be faced out")
+                    topSequence.L1TopoSimulation.MuonInputProvider.MuonEncoding = 0
 
 
             log.info("adding ctp simulation to the topSequence")

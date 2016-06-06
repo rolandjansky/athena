@@ -145,15 +145,17 @@ class HLTSimulationGetter(Configured):
         ServiceMgr += RegSelSvcDefault()
 
         # Configure the Data Preparation for Calo
-        # This is a hack - configurables and toolhandles can be changed for next release
-        if TriggerFlags.doCalo():  
-            include('TrigT2CaloCommon/TrigDataAccessConfigured.py')
+        if TriggerFlags.doCalo():
+            try:
+                from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
+                ServiceMgr.ToolSvc += TrigDataAccess()
+            except ImportError:
+                include('TrigT2CaloCommon/TrigDataAccessConfigured.py')
         
         if TriggerFlags.doFTK():
             # FTK algorithm inclusions
-            from FTK_DataProviderSvc.FTK_DataProviderSvc_Config import TrigFTK_DataProviderSvc
-            theFTK_DataProviderSvc = TrigFTK_DataProviderSvc("TrigFTK_DataProviderSvc")
-            ServiceMgr += theFTK_DataProviderSvc
+            # TrigFTK_DataProviderSvc moved to TrigFTK_RecExample
+            pass
             
         if TriggerFlags.doHLT():
             log.info("configuring HLT Steering")
@@ -187,6 +189,24 @@ class HLTSimulationGetter(Configured):
                 
             # TrigSteer_HLT.doL1TopoSimulation = TriggerFlags.doL1Topo() # this later needs to be extented to also run when we take data with L1Topo
             TrigSteer_HLT.doL1TopoSimulation = True # always needs to run if the HLT is simulated
+            if hasattr(TrigSteer_HLT.LvlTopoConverter, 'MuonInputProvider'):
+                print "TrigSteer_HLT.LvlTopoConverter has attribute MuonInputProvider"
+
+                try: # this is temporary until TrigT1Muctpi-00-06-29 is in the release
+                    from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
+                    from AthenaCommon.AppMgr import ToolSvc
+                    ToolSvc += L1MuctpiTool()
+                    TrigSteer_HLT.LvlTopoConverter.MuonInputProvider.MuctpiSimTool = L1MuctpiTool()
+                except ImportError:
+                    pass
+
+                from AthenaCommon.GlobalFlags  import globalflags
+                if globalflags.DataSource()!='data':
+                    log.info("Muon eta/phi encoding with reduced granularity for MC (L1Topo emulation for HLT seeding)")
+                    TrigSteer_HLT.LvlTopoConverter.MuonInputProvider.MuonEncoding = 1 # reduced granularity muon input
+                else:
+                    log.info("Muon eta/phi encoding with full granularity for data (L1Topo emulation for HLT seeding) - should be faced out")
+                    TrigSteer_HLT.LvlTopoConverter.MuonInputProvider.MuonEncoding = 0 # full granularity muon input - should be faced out
 
             from TrigEDMConfig.TriggerEDM import  getHLTPreregistrationList, getEDMLibraries
             TrigSteer_HLT.Navigation.ClassesToPreregister = getHLTPreregistrationList()

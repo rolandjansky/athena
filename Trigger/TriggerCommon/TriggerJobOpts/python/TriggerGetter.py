@@ -1,44 +1,27 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.GlobalFlags import jobproperties
-#from AthenaCommon.GlobalFlags import GlobalFlags
 from AthenaCommon.AthenaCommonFlags import jobproperties
-from RecExConfig.RecFlags  import jobproperties
+from AthenaCommon.GlobalFlags import globalflags
+from AthenaCommon.AppMgr import ServiceMgr,ToolSvc
+from AthenaCommon.Logging import logging
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TF = TriggerFlags
+from RecExConfig.RecFlags  import jobproperties
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
-from AthenaCommon.GlobalFlags  import globalflags
-from AthenaCommon.Logging import logging
-log = logging.getLogger( "TriggerGetter.py" )
-
-
-from AthenaCommon.AppMgr import ServiceMgr,ToolSvc
-
-
-try:
-    from TriggerMenu import useNewTriggerMenu
-    useNewTM = useNewTriggerMenu()
-    log.info("Using new TriggerMenu: %r" % useNewTM)
-except:
-    useNewTM = False
-    log.info("Using old TriggerMenuPython since TriggerMenu.useNewTriggerMenu can't be imported")
-
-if useNewTM:
-    from TriggerMenu.menu.GenerateMenu import GenerateMenu
-else:
-    from TriggerMenuPython.GenerateMenu import GenerateMenu
-
 from RecExConfig.Configured import Configured 
+
+from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
+from TriggerMenu.menu.GenerateMenu import GenerateMenu
+
+log = logging.getLogger( "TriggerGetter.py" )
 
 # this is to limit messags when running with -s
 from AthenaCommon.Include import excludeTracePattern
 excludeTracePattern.append("*/TriggerPythonConfig.py")
 excludeTracePattern.append("*/TrigMonitorBase/TrigGenericMonitoringToolConfig.py")
-excludeTracePattern.append ("*/TriggerMenuPython/*")
+excludeTracePattern.append ("*/TriggerMenu/*")
 excludeTracePattern.append("*/TrigSteering/TrigSteeringConfig.py")
-
 
 
 class TriggerGetter(Configured):
@@ -48,7 +31,7 @@ class TriggerGetter(Configured):
 
     def __init__(self):
         # tell the Configured machinery that we do not care about the objects already there
-        if not TriggerFlags.doFEX() and TriggerFlags.doHypo():
+        if not TF.doFEX() and TF.doHypo():
             Configured.__init__(self, ignoreExistingDataObject=True)
         else:
             Configured.__init__(self, ignoreExistingDataObject=False)
@@ -62,12 +45,12 @@ class TriggerGetter(Configured):
         self._done=True
 
         # start with print some information what this will do
-        log.info("Basic configuration flags RecAlgsFlag.doTrigger: %d   RecFlags.doTrigger: %d TriggerFlags.doTriggerConfigOnly %d" % (recAlgs.doTrigger(), rec.doTrigger(), TriggerFlags.doTriggerConfigOnly()) )
-        log.info("TriggerFlags: doL1Topo: %s, doLVL1: %s, doLVL2: %s, doEF: %s, doHLT: %s" % (TriggerFlags.doL1Topo(), TriggerFlags.doLVL1(), TriggerFlags.doLVL2(), TriggerFlags.doEF(), TriggerFlags.doHLT() ) )
+        log.info("Basic configuration flags RecAlgsFlag.doTrigger: %d   RecFlags.doTrigger: %d TriggerFlags.doTriggerConfigOnly %d" % (recAlgs.doTrigger(), rec.doTrigger(), TF.doTriggerConfigOnly()) )
+        log.info("TriggerFlags: doL1Topo: %s, doLVL1: %s, doLVL2: %s, doEF: %s, doHLT: %s" % (TF.doL1Topo(), TF.doLVL1(), TF.doLVL2(), TF.doEF(), TF.doHLT() ) )
 
         willGenerateMenu = recAlgs.doTrigger() and (TF.doLVL1() or TF.doLVL2() or TF.doEF() or TF.doHLT()) and not TF.doTriggerConfigOnly()
         willRunTriggerConfigGetter = recAlgs.doTrigger() or rec.doTrigger() or TF.doTriggerConfigOnly()
-        willRunLVL1SimulationGetter = recAlgs.doTrigger() and not TriggerFlags.doTriggerConfigOnly()
+        willRunLVL1SimulationGetter = recAlgs.doTrigger() and not TF.doTriggerConfigOnly()
         willRunHLTSimulationGetter = willRunLVL1SimulationGetter and (TF.doLVL2() or TF.doEF() or TF.doHLT())
 
         log.info("Will run: %s%s%s%s" % ("GenerateMenu " if willGenerateMenu else "",
@@ -84,11 +67,11 @@ class TriggerGetter(Configured):
         if recAlgs.doTrigger():
 
             # setup the trigger from the DB
-            if TriggerFlags.readConfigFromTriggerDb():
+            if TF.readConfigFromTriggerDb():
                 return self.configureTriggerFromDB()
 
         
-            if ((TriggerFlags.doLVL1()==True or TriggerFlags.doLVL2()==True or TriggerFlags.doEF()==True or TriggerFlags.doHLT()==True) and TriggerFlags.doTriggerConfigOnly()==False):
+            if ((TF.doLVL1()==True or TF.doLVL2()==True or TF.doEF()==True or TF.doHLT()==True) and TF.doTriggerConfigOnly()==False):
                 log.info("generating menu")
                 # trigger menu files generation
                 g = GenerateMenu()
@@ -100,7 +83,7 @@ class TriggerGetter(Configured):
                 
 
 
-        if recAlgs.doTrigger() or rec.doTrigger() or TriggerFlags.doTriggerConfigOnly():
+        if recAlgs.doTrigger() or rec.doTrigger() or TF.doTriggerConfigOnly():
             # setup configuration services
             from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
             cfg =  TriggerConfigGetter()
@@ -113,6 +96,8 @@ class TriggerGetter(Configured):
         from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
+        # tell tdt to use TrigConfigSvc (Since TrigDecisionTool-00-03-40, defaults to not use it) 
+        ToolSvc.TrigDecisionTool.TrigConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
 
         from TrigEDMConfig.TriggerEDM import EDMLibraries
         ToolSvc.TrigDecisionTool.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
@@ -120,7 +105,7 @@ class TriggerGetter(Configured):
 
             
         # actuall trigger simulation running
-        if recAlgs.doTrigger() and not TriggerFlags.doTriggerConfigOnly():
+        if recAlgs.doTrigger() and not TF.doTriggerConfigOnly():
             # setup Lvl1
             # initialize LVL1ConfigSvc
             log.info("configuring lvl1")
@@ -128,7 +113,7 @@ class TriggerGetter(Configured):
             lvl1 = Lvl1SimulationGetter()
             
 
-            if jobproperties.Global.InputFormat()  != 'bytestream' and (TriggerFlags.doLVL2==True or TriggerFlags.doEF==True or TriggerFlags.doHLT==True):
+            if jobproperties.Global.InputFormat()  != 'bytestream' and (TF.doLVL2==True or TF.doEF==True or TF.doHLT==True):
                 # Transient BS construction and intialization
                 from ByteStreamCnvSvc import WriteByteStream
                 StreamBS = WriteByteStream.getStream("Transient","StreamBS")
@@ -156,10 +141,10 @@ class TriggerGetter(Configured):
 
             # setup HLT
             # initialize HLT config svc
-            log.info("TriggerFlags: doLVL2 %r" % TriggerFlags.doLVL2())
-            log.info("TriggerFlags: doEF   %r" % TriggerFlags.doEF())
-            log.info("TriggerFlags: doHLT  %r" % TriggerFlags.doHLT())
-            if TriggerFlags.doLVL2()==True or TriggerFlags.doEF()==True or TriggerFlags.doHLT()==True:
+            log.info("TriggerFlags: doLVL2 %r" % TF.doLVL2())
+            log.info("TriggerFlags: doEF   %r" % TF.doEF())
+            log.info("TriggerFlags: doHLT  %r" % TF.doHLT())
+            if TF.doLVL2()==True or TF.doEF()==True or TF.doHLT()==True:
                 log.info("configuring hlt")
                 from TriggerJobOpts.HLTTriggerGetter import HLTSimulationGetter
                 hlt = HLTSimulationGetter(g)
@@ -175,7 +160,7 @@ class TriggerGetter(Configured):
         hltouput = Lvl1ResultBuilderGetter()
 
         # prepare result making of HLT
-        if TriggerFlags.doLVL2()==True or TriggerFlags.doEF()==True or TriggerFlags.doHLT() or (recAlgs.doTrigger() and TriggerFlags.readBS()):
+        if TF.doLVL2()==True or TF.doEF()==True or TF.doHLT() or (recAlgs.doTrigger() and TF.readBS()):
             from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
             hltouput = HLTTriggerResultGetter()
       
@@ -191,33 +176,33 @@ class TriggerGetter(Configured):
         hltConfOffline.setupSource = 'db'
         hltConfOffline.OutputLevel = 1
         # Set the connection to the DB
-        if TriggerFlags.triggerDbConnection.statusOn :
-            hltConfOffline.dbType = TriggerFlags.triggerDbConnection()['dbType']
-            hltConfOffline.dbHost = TriggerFlags.triggerDbConnection()['dbServer']
-            hltConfOffline.dbUser = TriggerFlags.triggerDbConnection()['dbUser']
-            hltConfOffline.dbName = TriggerFlags.triggerDbConnection()['dbName']
-            hltConfOffline.dbPasswd = TriggerFlags.triggerDbConnection()['dbPasswd']
+        if TF.triggerDbConnection.statusOn :
+            hltConfOffline.dbType = TF.triggerDbConnection()['dbType']
+            hltConfOffline.dbHost = TF.triggerDbConnection()['dbServer']
+            hltConfOffline.dbUser = TF.triggerDbConnection()['dbUser']
+            hltConfOffline.dbName = TF.triggerDbConnection()['dbName']
+            hltConfOffline.dbPasswd = TF.triggerDbConnection()['dbPasswd']
         else:
             # try to get connection parameters from authentication files
             if not hltConfOffline.setDbConnectionFromAuthFile() :
                 log.error('failed to set HLTConfOffline service')
                 return False
             
-        if TriggerFlags.triggerDbKeys.statusOn :
-            hltConfOffline.SMKey = TriggerFlags.triggerDbKeys()[0]
-            hltConfOffline.LVL1PrescaleKey = TriggerFlags.triggerDbKeys()[1]
-            hltConfOffline.HLTPrescaleKey = TriggerFlags.triggerDbKeys()[2]
+        if TF.triggerDbKeys.statusOn :
+            hltConfOffline.SMKey = TF.triggerDbKeys()[0]
+            hltConfOffline.LVL1PrescaleKey = TF.triggerDbKeys()[1]
+            hltConfOffline.HLTPrescaleKey = TF.triggerDbKeys()[2]
         else:
             log.error( 'missing DB keys, set the TriggerFlags.triggerDBKeys flag')
             return False
       
-        if TriggerFlags.doLVL2() and TriggerFlags.doEF() :
+        if TF.doLVL2() and TF.doEF() :
             hltConfOffline.Level = 'BOTH'
-        elif TriggerFlags.doLVL2() :
+        elif TF.doLVL2() :
             hltConfOffline.Level = 'L2'
-        elif TriggerFlags.doEF() :
+        elif TF.doEF() :
             hltConfOffline.Level = 'EF'
-        elif TriggerFlags.doHLT() :
+        elif TF.doHLT() :
             hltConfOffline.Level = 'HLT'
         else:
             hltConfOffline.Level = None

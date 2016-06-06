@@ -16,6 +16,8 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 from RecExConfig.RecAlgsFlags import recAlgs
 from RecExConfig.RecFlags import rec
 
+from TrigRoiConversion.TrigRoiConversionConf import RoiWriter
+
 
 def  EDMDecodingVersion():
 
@@ -118,6 +120,12 @@ class xAODConversionGetter(Configured):
         xaodconverter.HLTResultKey="HLTResult_EF"
         topSequence += xaodconverter
 
+        # define list of HLT xAOD containers to be written to the output root file
+        # (previously this was defined in HLTTriggerResultGetter def configure)
+        from TrigEDMConfig.TriggerEDM import getTriggerEDMList
+        self.xaodlist = {}
+        self.xaodlist.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(), 2 ))
+
         return True
     
         
@@ -201,6 +209,14 @@ class ByteStreamUnpackGetter(Configured):
         TrigSerializeConvHelper = TrigSerializeConvHelper(doTP = True)
         ToolSvc += TrigSerializeConvHelper
 
+        #
+        # Configure L1Topo validation data algorithm
+        #
+        if hasHLT and TriggerFlags.doMergedHLTResult() and TriggerFlags.writeL1TopoValData() :
+            from L1TopoValDataCnv.L1TopoValDataCnvConf import xAODMaker__L1TopoValDataCnvAlg
+            L1TopoValDataCvnAlg = xAODMaker__L1TopoValDataCnvAlg()
+            topSequence += L1TopoValDataCvnAlg
+
         return True
 
 
@@ -248,7 +264,7 @@ class TrigDecisionGetter(Configured):
                 
         else:
             log.info("Will not write TrigDecision object to storegate")
-
+    
         return True
     
     
@@ -256,7 +272,6 @@ class HLTTriggerResultGetter(Configured):
 
     log = logging.getLogger("HLTTriggerResultGetter.py")
 
-    
     def _AddOPIToESD(self):
 
         log = logging.getLogger("HLTTriggerResultGetter.py")        
@@ -297,10 +312,11 @@ class HLTTriggerResultGetter(Configured):
         if TriggerFlags.readBS():
             bs = ByteStreamUnpackGetter()
 
-        if not recAlgs.doTrigger():
-            #only convert when running on old data
-            if TriggerFlags.EDMDecodingVersion()==1:
-                xaodcnvrt = xAODConversionGetter()
+        xAODContainers = {}
+#        if not recAlgs.doTrigger():      #only convert when running on old data
+        if TriggerFlags.EDMDecodingVersion()==1:
+            xaodcnvrt = xAODConversionGetter()
+            xAODContainers = xaodcnvrt.xaodlist
 
         if recAlgs.doTrigger() or TriggerFlags.doTriggerConfigOnly():
             tdt = TrigDecisionGetter()
@@ -330,6 +346,20 @@ class HLTTriggerResultGetter(Configured):
             objKeyStore.addManyTypesStreamESD(getTrigIDTruthList(TriggerFlags.ESDEDMSet()))
             objKeyStore.addManyTypesStreamAOD(getTrigIDTruthList(TriggerFlags.AODEDMSet()))
 
+        if (rec.doESD() or rec.doAOD()) and TriggerFlags.writeL1TopoValData():
+            objKeyStore.addManyTypesStreamESD(['xAOD::TrigCompositeContainer#HLT_xAOD__TrigCompositeContainer_L1TopoValData',
+                                               'xAOD::TrigCompositeAuxContainer#HLT_xAOD__TrigCompositeContainer_L1TopoValDataAux.'])
+            objKeyStore.addManyTypesStreamAOD(['xAOD::TrigCompositeContainer#HLT_xAOD__TrigCompositeContainer_L1TopoValData',
+                                               'xAOD::TrigCompositeAuxContainer#HLT_xAOD__TrigCompositeContainer_L1TopoValDataAux.'])
+            log.debug("HLT_xAOD__TrigCompositeContainer_L1TopoValData(Aux.) for L1Topo validation added to the data.")
+
+        if rec.doAOD() or rec.doWriteAOD():
+            # schedule the RoiDescriptorStore conversion
+            # log.warning( "HLTTriggerResultGetter - setting up RoiWriter" )
+            topSequence += RoiWriter()
+            # write out the RoiDescriptorStores
+            from TrigEDMConfig.TriggerEDM import TriggerRoiList
+            objKeyStore.addManyTypesStreamAOD( TriggerRoiList )
 
         #Are we adding operational info objects in ESD?
         added=self._AddOPIToESD()
@@ -342,7 +372,13 @@ class HLTTriggerResultGetter(Configured):
         _TriggerESDList = {}
 
         from TrigEDMConfig.TriggerEDM import getTriggerEDMList 
-        _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  TriggerFlags.EDMDecodingVersion()) ) 
+        # we have to store xAOD containers in the root file, NOT AOD,
+        # if the xAOD container list is not empty
+        if(xAODContainers):
+            _TriggerESDList.update( xAODContainers )
+        else:
+            _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  TriggerFlags.EDMDecodingVersion()) ) 
+        
         log.info("ESD content set according to the ESDEDMSet flag: %s and EDM version %d" % (TriggerFlags.ESDEDMSet() ,TriggerFlags.EDMDecodingVersion()) )
 
         # AOD objects choice
