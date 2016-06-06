@@ -362,8 +362,13 @@ void Trk::BremFind::BremFinder(const Trk::ForwardTrajectory& forwardTrajectory, 
     double sigma1overPsquared(m_smoothedBremFit->Get1overPerror(0));
     
     
-    if (m_brem_layers[brem_counter] && m_brem_surfaces[brem_counter]) {
-      estimatedBremOnTrack = new EstimatedBremOnTrack(m_brem_layers[brem_counter]->thickness(),retainedEnFraction,0.0,sigma1overPsquared,*m_brem_surfaces[brem_counter], bothway);
+    if (m_brem_layers[brem_counter] && m_brem_surfaces[brem_counter] && m_brem_TrackParameters[brem_counter]) {
+      estimatedBremOnTrack = new EstimatedBremOnTrack(m_brem_layers[brem_counter]->thickness(),
+						      retainedEnFraction,0.0,
+						      sigma1overPsquared,
+						      //*m_brem_surfaces[brem_counter], 
+						      *m_brem_TrackParameters[brem_counter]->associatedSurface().clone(),
+						      bothway);
       
     }
 
