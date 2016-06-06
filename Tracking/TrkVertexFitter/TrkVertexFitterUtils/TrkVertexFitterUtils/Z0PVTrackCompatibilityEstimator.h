@@ -9,11 +9,12 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkParameters/TrackParameters.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/VertexContainer.h"
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 #include "TrkVertexFitterInterfaces/IPVTrackCompatibilityEstimator.h"
 
 
-class VxContainer;
 
 namespace Trk{
 
@@ -29,6 +30,13 @@ namespace Trk{
  * primary vertex.
  *
  * ruwiedel@physik.uni-bonn.de
+ * 
+ * -------------------------------------------------------------------
+ * Changes:
+ *
+ * David Shope <david.richard.shope@cern.ch> (2016-04-19)
+ *
+ *  EDM Migration to xAOD - Replace Trk::VxContainer with xAOD::VertexContainer
  *
  */
 
@@ -44,15 +52,12 @@ namespace Trk{
     
     static const InterfaceID& interfaceID();
     virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf ) ;
-    
-    bool isCompatible(const Trk::Track* track,
-		      const VxContainer* pvContainer, unsigned int pvIndex = 0) const;
-    
-    bool isCompatible(const Trk::TrackParticleBase* track,
-		      const VxContainer* pvContainer, unsigned int pvIndex = 0) const;
-    
+
+    bool isCompatible(const xAOD::TrackParticle* track,
+                      const xAOD::VertexContainer* pvContainer, unsigned int pvIndex = 0) const;
+
     bool isCompatible(const TrackParameters* track,
-		      const VxContainer* pvContainer, unsigned int pvIndex = 0) const;
+		      const xAOD::VertexContainer* pvContainer, unsigned int pvIndex = 0) const;
     
   private:
     ToolHandle< Trk::ITrackToVertexIPEstimator > m_ipEstimator;

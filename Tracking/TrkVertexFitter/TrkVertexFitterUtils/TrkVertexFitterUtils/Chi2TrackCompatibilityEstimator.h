@@ -8,6 +8,8 @@
 #include "TrkVertexFitterInterfaces/IVertexTrackCompatibilityEstimator.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "xAODTracking/Vertex.h"
+
 /**
  *  @class Trk::Chi2TrackCompatibilityEstimator
  * 
@@ -15,6 +17,12 @@
  *  the distance to the vertex (the error of the vertex is not considered in 
  *  constructing the chi squared, because this is an apriori probability which enters the fit)
  *  @author N. Giacinto Piacquadio (for the Freiburg Group)
+ *
+ *  -----------------------------------------------------------------------------------
+ *  Changes:
+ *
+ *  David Shope <david.richard.shope@cern.ch> (2016-03-18)
+ *  EDM Migration to xAOD - move Trk::Vertex to Amg::Vector3D
  */
 
 
@@ -41,13 +49,12 @@ namespace Trk
    /**
     * Estimate method changing the state of VxTrackAtVertex
     */
-     void estimate(VxTrackAtVertex &,const Vertex & vertex);
-    
+     void estimate(VxTrackAtVertex &,const Amg::Vector3D & vertex);
+ 
     /**
     * Compatibility method returning the compatibility value
     */  
-     float compatibility(VxTrackAtVertex & vtxTrack,const Vertex & vertex);
-    
+     float compatibility(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex);
     
   private:  
   
@@ -56,7 +63,7 @@ namespace Trk
     /**
     * Compatibility method returning the compatibility value
     */  
-     template<class T> float _compatibility(T & plane,const Vertex & vertex);
+     template<class T> float _compatibility(T & plane,const Amg::Vector3D & vertex);
 
   };
 }

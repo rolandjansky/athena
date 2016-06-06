@@ -21,12 +21,20 @@
  * Based on R. Fruhwirth et al. Comp. Phys. Comm 96(1996) 189 
  *
  *@author Kirill Prokofiev, November 2005
+ * 
+ * ----------------------------------------------------------
+ * Changes:
+ *
+ * David Shope <david.richard.shope@cern.ch> (2016-04-19)
+ * 
+ * EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex, 
+ *                         from Trk::RecVertex   to xAOD::Vertex,
+ *                         from Trk::Vertex      to Amg::Vector3D
  */
 
 
 namespace Trk
 {
- class RecVertex;
  class VxTrackAtVertex;
  
  class KalmanVertexTrackUpdator : public AthAlgTool, virtual public IVertexTrackUpdator
@@ -49,7 +57,7 @@ namespace Trk
 /**
  * Update method  
  */ 
-   void  update(VxTrackAtVertex& trk, const RecVertex& vtx) const;
+   void  update(VxTrackAtVertex& trk, const xAOD::Vertex& vtx) const;
     
   private:
   
