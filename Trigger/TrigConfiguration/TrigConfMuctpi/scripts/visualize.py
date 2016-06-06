@@ -180,7 +180,15 @@ def drawTopoGeometry(geometry, is2016):
     
 
 
-def drawTopoGeometryEtaPhi(geometry, eta, is2016):
+ETACODE=0
+PHICODE=1
+IETA=2
+IPHI=3
+
+def drawTopoGeometryEtaPhi(geometry, colorBy, is2016):
+
+    if colorBy<ETACODE or colorBy>IPHI:
+        return
 
     global box, c, h, leg
 
@@ -201,7 +209,10 @@ def drawTopoGeometryEtaPhi(geometry, eta, is2016):
 
     circle = TArc()
 
-    leg = TLegend(0.8,0.1,0.9,0.35)
+    if colorBy==IPHI:
+        leg = TLegend(0.9,0.1,0.98,0.9)
+    else:
+        leg = TLegend(0.8,0.1,0.9,0.35)
     #leg.SetEntrySeparation(0.05)
     #leg.SetNColumns(2)
 
@@ -214,11 +225,17 @@ def drawTopoGeometryEtaPhi(geometry, eta, is2016):
         fillStyle = 3004
         for cellIdx,TopoCell in enumerate(MIOCT.Decode.TopoCells):
 
-            if eta:
+            if colorBy==ETACODE:
                 code = int(TopoCell["etacode"],16)
-            else:
+            elif colorBy==PHICODE:
                 code = int(TopoCell["phicode"],16)
-            color = colorMap2[code % len(colorMap)]
+            elif colorBy==IETA:
+                code = abs(int(TopoCell["ieta"]))
+            elif colorBy==IPHI:
+                code = int(TopoCell["iphi"])
+            else:
+                raise RuntimeError("Don't know how to color the eta-phi map (%r)" % colorBy)
+            color = colorMap2[code % len(colorMap2)]
             fillStyle = fillStyleMap2[code % 4]
             box.SetLineColor(color)
             box.SetFillColor(color)
@@ -236,6 +253,8 @@ def drawTopoGeometryEtaPhi(geometry, eta, is2016):
             c_x = float(TopoCell["ieta"])
             c_y = float(TopoCell["iphi"])
 
+            #if code>63:
+            #    continue
             #print "cell %i : eta [%f - %f], phi [%f - %f]" % (cellIdx, c1_x, c2_x, c1_y, c2_y)
 
             box.SetFillStyle(fillStyle)
@@ -248,15 +267,29 @@ def drawTopoGeometryEtaPhi(geometry, eta, is2016):
 
             if not code in codeInLegend:
                 codeInLegend += [code]
-                if eta:
+                if colorBy==ETACODE:
                     leg.AddEntry(b,"etacode %i" % code,"lf")
-                else:
+                elif colorBy==PHICODE:
                     leg.AddEntry(b,"phicode %i" % code,"f")
+                elif colorBy==IETA:
+                    leg.AddEntry(b,"|ieta| %i" % code,"f")
+                elif colorBy==IPHI:
+                    leg.AddEntry(b,"iphi %i" % code,"f")
 
     leg.Draw()
 
     c.Update()
-    c.SaveAs("TopoLayout%s%s.pdf" % ("2016" if is2016 else "2015", "Eta" if eta else "Phi"))
+    if colorBy==ETACODE:
+        ext = "EtaCode"
+    elif colorBy==PHICODE:
+        ext = "PhiCode"
+    elif colorBy==IETA:
+        ext = "Eta"
+    elif colorBy==IPHI:
+        ext = "Phi"
+
+
+    c.SaveAs("TopoLayout%s%s.pdf" % ("2016" if is2016 else "2015", ext))
     
 
 
@@ -403,17 +436,21 @@ def main():
     global gROOT, gStyle, TH2F, TCanvas, TBox, TLegend, TArc, TLatex
 
     drawROIGeometry(geometry, is2016 = is2016)
-
+    
     drawTopoGeometry(geometry, is2016 = is2016)
-
-    drawTopoGeometryEtaPhi(geometry, eta=True, is2016 = is2016)
-
-    drawTopoGeometryEtaPhi(geometry, eta=False, is2016 = is2016)
-
+    
+    drawTopoGeometryEtaPhi(geometry, colorBy=ETACODE, is2016 = is2016)
+    
+    drawTopoGeometryEtaPhi(geometry, colorBy=PHICODE, is2016 = is2016)
+    
+    drawTopoGeometryEtaPhi(geometry, colorBy=IPHI, is2016 = is2016)
+    
+    drawTopoGeometryEtaPhi(geometry, colorBy=IETA, is2016 = is2016)
+    
     drawCodeValues(geometry, is2016 = is2016)
-
+    
     drawIValues(geometry, is2016 = is2016)
-
+    
     drawRoiDeltaR(geometry, is2016 = is2016)
 
 
