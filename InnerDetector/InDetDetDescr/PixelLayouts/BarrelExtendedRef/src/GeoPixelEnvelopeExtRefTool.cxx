@@ -123,7 +123,7 @@ GeoVPhysVol* GeoPixelEnvelopeExtRefTool::buildEnvelope(const PixelGeoBuilderBasi
   matBuilder.Build();
 
   // Pixel general envelope XML reader
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML", basics);
   bool barrelPresent   = genDBHelper.isBarrelPresent();
   bool endcapAPresent  = genDBHelper.isEndcapPresentA();
   bool endcapCPresent  = genDBHelper.isEndcapPresentC();
@@ -134,7 +134,7 @@ GeoVPhysVol* GeoPixelEnvelopeExtRefTool::buildEnvelope(const PixelGeoBuilderBasi
     std::vector<InDetDD::TubeZone*> svcRegion_brl;
     std::vector<InDetDD::TubeZone*> svcRegion_ec;
     if(m_barrelTool){
-      m_barrelTool->preBuild();
+      m_barrelTool->preBuild(basics);
       svcRegion_brl = m_barrelTool->getSvcRegions();
     }
     if(m_endcapTool){

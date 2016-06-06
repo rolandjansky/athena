@@ -41,7 +41,7 @@ void GeoPixelStaveSupportExtRef::preBuild() {
   // build parallelepipedic stave support (data read from stave xml file)
   
   // Access XML file
-  PixelExtRefStaveXMLHelper staveDBHelper(m_layer);
+  PixelExtRefStaveXMLHelper staveDBHelper(m_layer, getBasics());
 
   double thickness = staveDBHelper.getStaveSupportThick();
   double width     = staveDBHelper.getStaveSupportWidth();

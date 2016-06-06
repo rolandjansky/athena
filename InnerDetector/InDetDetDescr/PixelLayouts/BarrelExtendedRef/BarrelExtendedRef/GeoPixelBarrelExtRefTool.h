@@ -17,7 +17,7 @@
 #include "InDetTrackingGeometryXML/XMLReaderSvc.h"
 
 namespace InDet{
-  class XMLReaderSvc;
+  class IXMLReaderSvc;
 }
 namespace InDet{
   class GeoComponent;
@@ -31,7 +31,7 @@ class GeoPixelBarrelExtRefTool : virtual public IGeoPixelBarrelTool, public AthA
  public:
   //  GeoPixelBarrelExtRefTool(const GeoPixelServices * pixServices);
   GeoPixelBarrelExtRefTool(const std::string&,const std::string&,const IInterface*);
-  void preBuild();
+  void preBuild(const PixelGeoBuilderBasics* basics);
   virtual InDet::GeoComponent* getGeoCompVol() const {return 0; }
 
   virtual StatusCode initialize();

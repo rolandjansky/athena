@@ -98,7 +98,7 @@ void GeoPixelLadderExtRef::preBuild( ) {
       std::cout << "Pixel module builder tool retrieved: " << m_pixelModuleSvc << std::endl;
   
   // Access stave description xml file				
-  PixelExtRefStaveXMLHelper staveDBHelper(m_layer);
+  PixelExtRefStaveXMLHelper staveDBHelper(m_layer, getBasics());
 
   printf("************** BUILD LADDER for layer  %d\n", m_layer);
 
@@ -332,7 +332,7 @@ double GeoPixelLadderExtRef::calcThickness() {
   // to avoid duplication of code
   //
 
-  PixelExtRefStaveXMLHelper staveDBHelper(m_layer);
+  PixelExtRefStaveXMLHelper staveDBHelper(m_layer,getBasics());
 
   double clearance = staveDBHelper.getClearance();
   double staggerDist = staveDBHelper.getStaggerDist();
@@ -367,7 +367,7 @@ double GeoPixelLadderExtRef::calcWidth() {
   //
   // The width is the maximum among the component widths
   //
-  PixelExtRefStaveXMLHelper staveDBHelper(m_layer);
+  PixelExtRefStaveXMLHelper staveDBHelper(m_layer,getBasics());
   
   double clearance = staveDBHelper.getClearance();
 

@@ -63,12 +63,12 @@ StatusCode GeoPixelBarrelExtRefTool::initialize()
   }
 
   if (m_xmlReader.retrieve().isSuccess()){
-    ATH_MSG_DEBUG("ITkXMLReader successfully retrieved " << m_xmlReader );
+    ATH_MSG_INFO("ITkXMLReader successfully retrieved " << m_xmlReader );
   } else {
     ATH_MSG_WARNING("ITkXMLReader: Couldn't retrieve " << m_xmlReader );
     return StatusCode::FAILURE;
   }
-  
+
   return StatusCode::SUCCESS;
 }
 
@@ -106,13 +106,13 @@ StatusCode GeoPixelBarrelExtRefTool::registerCallback( StoreGateSvc*)
 
 // }
 
-void GeoPixelBarrelExtRefTool::preBuild()
+void GeoPixelBarrelExtRefTool::preBuild(const PixelGeoBuilderBasics* basics)
 {
   // prebuild function is used to set service region (called by GeoPixelEnvelope)
   m_barrelRegion.clear();
   m_barrelSvcRegions.clear();
 
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
 
   double rmin = genDBHelper.getBarrelRMin();
   double rmax = genDBHelper.getBarrelRMax();
@@ -147,7 +147,7 @@ GeoVPhysVol* GeoPixelBarrelExtRefTool::buildBarrel(const PixelGeoBuilderBasics* 
   m_msg = basics->msgStream();
 
   // Pixel general envelope XML reader
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML", basics);
   double rmin = genDBHelper.getBarrelRMin();
   double rmax = genDBHelper.getBarrelRMax();
   double halflen = genDBHelper.getBarrelHalfLength();
@@ -188,6 +188,7 @@ GeoVPhysVol* GeoPixelBarrelExtRefTool::buildBarrel(const PixelGeoBuilderBasics* 
   }
 
   // Layer number
+
   int numLayers = m_xmlReader->nbOfPixelBarrelLayers();
   std::cout<<"ExtBarrel - GeoPixelBarrelExtRefTool - # layers "<<numLayers<<std::endl;
 
