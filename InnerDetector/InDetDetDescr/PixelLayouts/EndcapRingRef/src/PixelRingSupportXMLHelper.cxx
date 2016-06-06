@@ -5,9 +5,11 @@
 
 #include "EndcapRingRef/PixelRingSupportXMLHelper.h"
 #include "PathResolver/PathResolver.h"
+#include "PixelLayoutUtils/DBXMLUtils.h"
 
-PixelRingSupportXMLHelper::PixelRingSupportXMLHelper():
+PixelRingSupportXMLHelper::PixelRingSupportXMLHelper(const PixelGeoBuilderBasics* basics):
   GeoXMLUtils(),
+  PixelGeoBuilder(basics),
   m_bXMLfileExist(false)
 {
 
@@ -15,9 +17,23 @@ PixelRingSupportXMLHelper::PixelRingSupportXMLHelper():
   if(const char* env_p = std::getenv("PIXEL_PIXELDISCSUPPORT_GEO_XML")) fileName = std::string(env_p);
   //  std::cout<<"XML disc support : "<<fileName<<std::endl;
 
-  std::string file = PathResolver::find_file (fileName, "DATAPATH");
-  InitializeXML();
-  bool bParsed = ParseFile(file);
+  bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
+  bool bParsed=false;
+  if(readXMLfromDB)
+    {
+      basics->msgStream()<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      DBXMLUtils dbUtils(getBasics());
+      std::string XMLtext = dbUtils.readXMLFromDB(fileName);
+      InitializeXML();
+      bParsed = ParseBuffer(XMLtext,std::string(""));
+    }
+  else
+    {
+      basics->msgStream()<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      std::string file = PathResolver::find_file (fileName, "DATAPATH");
+      InitializeXML();
+      bParsed = ParseFile(file);
+    } 
 
   if(!bParsed){
     //    std::cout<<"XML file "<<fileName<<" not found"<<std::endl;
@@ -33,7 +49,7 @@ PixelRingSupportXMLHelper::~PixelRingSupportXMLHelper()
   TerminateXML();
 }
 
-int PixelRingSupportXMLHelper::getNbSupport(int layer)
+int PixelRingSupportXMLHelper::getNbSupport(int layer) 
 {
   if(!m_bXMLfileExist) return 0;
 
@@ -74,5 +90,37 @@ std::string PixelRingSupportXMLHelper::getRingSupportMaterial(int iSupport) cons
   return v[index];
 }
 
+// -------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 
+int PixelRingSupportXMLHelper::getNbLayerSupport(int layer)
+{
+  if(!m_bXMLfileExist) return 0;
+
+  int layerIndex = getChildValue_Index("PixelLayerSupport", "Layer", layer);
+  std::string ringGeoName = getString("PixelLayerSupport", layerIndex, "LayerSupportGeo");
+  m_ringGeoIndex = (ringGeoName!="None")? getChildValue_Index("PixelLayerSupportGeo", "name", -1, ringGeoName) : -1;
+
+  if(m_ringGeoIndex<0) return 0;
+  return 1;
+}
+
+std::vector<double> PixelRingSupportXMLHelper::getLayerSupportRadius(int /*iSupport*/) const
+{
+  std::vector<double> v = getVectorDouble("PixelLayerSupportGeo",m_ringGeoIndex,"r");
+  return v;
+}
+
+std::vector<double> PixelRingSupportXMLHelper::getLayerSupportZ(int /*iSupport*/) const
+{
+  std::vector<double> v = getVectorDouble("PixelLayerSupportGeo",m_ringGeoIndex,"z");
+  return v;
+}
+
+std::string PixelRingSupportXMLHelper::getLayerSupportMaterial(int iSupport) const
+{
+  std::vector<std::string> v = getVectorString("PixelLayerSupportGeo",m_ringGeoIndex,"material");
+  int index = (v.size()==1)? 0 : iSupport;
+  return v[index];
+}
 

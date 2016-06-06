@@ -173,12 +173,26 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
 
   }
 
+  // Open link to the xml file that describes the layer services
+  PixelRingSupportXMLHelper ringHelper(basics);
+  int nbSvcSupport = ringHelper.getNbLayerSupport(m_layer);
+  for(int iSvc=0; iSvc<nbSvcSupport; iSvc++){
+    std::vector<double> r = ringHelper.getLayerSupportRadius(iSvc);
+    std::vector<double> z = ringHelper.getLayerSupportZ(iSvc);
+    rLayerMin = std::min(rLayerMin,r[0]);
+    rLayerMax = std::max(rLayerMax,r[1]);
+    zLayerMin = std::min(zLayerMin,z[0]);
+    zLayerMax = std::max(zLayerMax,z[1]);
+  }
+
   // Further layer parameters...
   m_layerPosition = (zLayerMin+zLayerMax)*.5;
   m_layerZMin = zLayerMin-0.001;
   m_layerZMax = zLayerMax+0.001;
   m_layerRMin = rLayerMin-0.001;
   m_layerRMax = rLayerMax+0.001;
+
+    std::cout<<"LAYER svc : "<< m_layerRMin<<" "<<m_layerRMax<<" / "<<m_layerZMin<<" "<<m_layerZMax<<std::endl;
 
 }
 
@@ -230,6 +244,8 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
   // Build layer envelope
   const GeoMaterial* air = basics->matMgr()->getMaterial("std::Air");
   
+  std::cout<<"LAYER minmax: "<<m_layerRMin<<" "<<m_layerRMax<<" / "<<m_layerZMin<<" "<<m_layerZMax<<std::endl;
+
   double halflength = (m_layerZMax-m_layerZMin)*.5;
   const GeoTube* ecTube = new GeoTube(m_layerRMin,m_layerRMax,halflength);
   GeoLogVol* _ecLog = new GeoLogVol("layer",ecTube,air);
@@ -238,7 +254,7 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
   double zMiddle = (m_layerZMin+m_layerZMax)*.5;
 
   // Read ring supports (defined in xml file)
-  PixelRingSupportXMLHelper ringHelper;
+  PixelRingSupportXMLHelper ringHelper(basics);
   int nbSvcSupport = ringHelper.getNbSupport(m_layer);
 
   // Place the ring in the layer envelpoe
@@ -267,9 +283,14 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 	  double rmaxSvc = ringHelper.getRingSupportRMax(iSvc);
 	  double thick = ringHelper.getRingSupportThickness(iSvc);
 	  std::string matName = ringHelper.getRingSupportMaterial(iSvc);
-	  
-	  const GeoMaterial* supMat = basics->matMgr()->getMaterial(matName);
+
 	  const GeoTube* supTube = new GeoTube(rminSvc,rmaxSvc,thick*.5);
+	  double matVolume = supTube->volume();
+
+	  //std::cout << "Ring support?: matName = " << matName << " matVolume = " << matVolume << " rminSvc = " << rminSvc << " rmaxSvc = " << rmaxSvc << " thick = " << thick << std::endl;
+
+	  const GeoMaterial* supMat = basics->matMgr()->getMaterialForVolume(matName,matVolume);
+	  std::cout << "Density = " << supMat->getDensity() << " Mass = " << ( matVolume * supMat->getDensity() ) << std::endl;
 	  GeoLogVol* _supLog = new GeoLogVol("supLog",supTube,supMat);
 	  GeoPhysVol* supPhys = new GeoPhysVol(_supLog);
 	  
@@ -278,6 +299,29 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 	  ecPhys->add(supPhys);
 	}
       }
+    }
+
+  // Place the layer services
+  nbSvcSupport = ringHelper.getNbLayerSupport(m_layer);
+  for(int iSvc=0; iSvc<nbSvcSupport; iSvc++)
+    {
+      std::vector<double> r = ringHelper.getLayerSupportRadius(iSvc);
+      std::vector<double> z = ringHelper.getLayerSupportZ(iSvc);
+      std::string matName = ringHelper.getLayerSupportMaterial(iSvc);
+
+      const GeoTube* supTube = new GeoTube(r[0],r[1],(z[1]-z[0])*.5);
+      //double matVolume = supTube->volume();
+
+      //std::cout << "Ring layer support?: matName = " << matName << " matVolume = " << matVolume << " r[0] = " << r[0] << " r[1] = " << r[1] << " z[0] = " << z[0] << " z[1] = " << z[1] << std::endl;
+
+      const GeoMaterial* supMat = basics->matMgr()->getMaterial(matName);
+      GeoLogVol* _supLog = new GeoLogVol("supLog",supTube,supMat);
+      GeoPhysVol* supPhys = new GeoPhysVol(_supLog);
+      
+      GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., 0.));
+      ecPhys->add(xform);
+      ecPhys->add(supPhys);
+
     }
 
   std::cout<<"Layer minmax global : "<<m_layerZMin<<" "<<m_layerZMax<<" / "<<m_layerZMin<<" "<<m_layerZMax<<std::endl;

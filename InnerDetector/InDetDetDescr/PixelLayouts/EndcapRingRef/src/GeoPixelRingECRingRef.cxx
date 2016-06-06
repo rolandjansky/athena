@@ -69,7 +69,7 @@ void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics )
     std::cout << "Could not retrieve pixel module builder tool " <<  m_pixelModuleSvc << ",  some services will not be built." << std::endl;
 
   // Open link to the xml file that describes the rings
-  PixelRingSupportXMLHelper ringHelper;
+  PixelRingSupportXMLHelper ringHelper(basics);
 
   // Get ringmodule from PixelModuelSvc
   GeoDetModulePixel* ringModule = m_pixelModuleSvc->getModule(basics,2,m_layer,m_moduleType);
@@ -86,14 +86,14 @@ void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics )
 //   double zModuleShift = thickChip-halflength;
 //   if(m_front_back==1) zModuleShift*=-1;
 
-  // Correct rmin rmax values depending on support services
-  int nbSvcSupport = ringHelper.getNbSupport(m_layer);
-  for(int iSvc=0; iSvc<nbSvcSupport; iSvc++){
-    double rminSvc = ringHelper.getRingSupportRMin(iSvc);
-    double rmaxSvc = ringHelper.getRingSupportRMax(iSvc);
-    rmin = std::min(rmin,rminSvc);
-    rmax = std::max(rmax,rmaxSvc);
-    }
+//   // Correct rmin rmax values depending on support services
+//   int nbSvcSupport = ringHelper.getNbSupport(m_layer);
+//   for(int iSvc=0; iSvc<nbSvcSupport; iSvc++){
+//     double rminSvc = ringHelper.getRingSupportRMin(iSvc);
+//     double rmaxSvc = ringHelper.getRingSupportRMax(iSvc);
+//     rmin = std::min(rmin,rminSvc);
+//     rmax = std::max(rmax,rmaxSvc);
+//     }
 
   m_ringRMin = rmin-0.001;
   m_ringRMax = rmax+0.001;
@@ -131,7 +131,7 @@ GeoVPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics, i
   if(!m_bPrebuild)preBuild(basics); 
 
   // Open link to the xml file that describes the rings
-  PixelRingSupportXMLHelper ringHelper;
+  PixelRingSupportXMLHelper ringHelper(basics);
 
   // Get ringmodule from PixelModuelSvc
   GeoDetModulePixel* ringModule = m_pixelModuleSvc->getModule(basics,2,m_layer,m_moduleType);

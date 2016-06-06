@@ -107,7 +107,7 @@ void GeoPixelEndcapECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics)
   m_endcapSvcRegions.clear();
 
   // Pixel general envelope XML reader
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML", basics);
 
   std::cout<<"ENDCAP RING - GeoPixelEndcapRingTool"<<std::endl;
 
@@ -179,7 +179,7 @@ GeoVPhysVol* GeoPixelEndcapECRingRefTool::buildEndcap(const PixelGeoBuilderBasic
   m_msg = basics->msgStream();
 
   // Pixel general envelope XML reader
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
   m_endcapSide = side;
   double halflength = (m_endcapZMax-m_endcapZMin)*.5;
   double zMiddle =  (m_endcapZMax+m_endcapZMin)*.5;
