@@ -30,7 +30,7 @@ class BSFilter : public AthAlgorithm
     int magic;
     filterinfo(): trig(0),nvtx(0), dt(0.0),magic(99999) {}
   };
-  std::map< int, std::map < int, filterinfo > > filtermap;
+  std::map< int, std::map < uint64_t, filterinfo > > filtermap;
 
   FILE *efile;
   std::string m_EventIdFile;
