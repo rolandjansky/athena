@@ -23,15 +23,21 @@
   * @class Trk::VertexMergingTool 
   *
   * @author Maria Ilaria Besana, June 2014
+  *
+  * --------------------------------------
+  * Changes:
+  *
+  * David Shope <david.richard.shope@cern.ch> (2016-04-26)
+  *
+  *   EDM Migration to xAOD - remove method using VxCandidate
+  *
   */
  
- class VxContainer;
  class IBeamCondSvc;
  
  namespace Trk
  {
   class IVertexFitter; 
-  class VxCandidate;
 
   class VertexMergingTool : public AthAlgTool, virtual public IVertexMergingTool
   {
@@ -52,7 +58,6 @@
     /**
      *Merging  
      */
-    virtual VxContainer* mergeVxContainer(const VxContainer& MyVxCont);
     virtual std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> mergeVertexContainer(const xAOD::VertexContainer& MyVxCont);
 
         
@@ -62,7 +67,6 @@
     ToolHandle< Trk::IVertexFitter > m_iVertexFitter;
     bool m_useBeamConstraint;
 
-    bool checkCompatibility( const Trk::VxCandidate * vx1, const Trk::VxCandidate * vx2 );
     bool checkCompatibility( const xAOD::Vertex * vx1, const xAOD::Vertex * vx2 );
      
   }; //end of class description

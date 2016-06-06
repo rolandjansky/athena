@@ -21,9 +21,15 @@
   * @class Trk::VertexCollectionSortingTool 
   *
   * @author Johanna Bronner, April 2009
+  *
+  * --------------------------------------
+  * Changes:
+  *
+  * David Shope <david.richard.shope@cern.ch> (2016-04-26)
+  *
+  *   EDM Migration to xAOD - remove method using VxCandidate
   */
  
- class VxContainer;
  namespace Trk
  {
    class IVertexWeightCalculator;
@@ -47,12 +53,7 @@
      
     virtual ~VertexCollectionSortingTool();
     
-    /**
-     *Sort  
-     */
-    virtual VxContainer* sortVxContainer(const VxContainer& MyVxCont);
-
-    /** Sort xAOD container */
+    /** Sort **/
     virtual std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> sortVertexContainer(const xAOD::VertexContainer& MyVxCont);
              
   private:
