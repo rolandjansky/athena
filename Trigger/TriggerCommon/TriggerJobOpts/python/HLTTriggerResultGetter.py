@@ -209,6 +209,14 @@ class ByteStreamUnpackGetter(Configured):
         TrigSerializeConvHelper = TrigSerializeConvHelper(doTP = True)
         ToolSvc += TrigSerializeConvHelper
 
+        #
+        # Configure L1Topo validation data algorithm
+        #
+        if hasHLT and TriggerFlags.doMergedHLTResult() and TriggerFlags.writeL1TopoValData() :
+            from L1TopoValDataCnv.L1TopoValDataCnvConf import xAODMaker__L1TopoValDataCnvAlg
+            L1TopoValDataCvnAlg = xAODMaker__L1TopoValDataCnvAlg()
+            topSequence += L1TopoValDataCvnAlg
+
         return True
 
 
@@ -338,6 +346,12 @@ class HLTTriggerResultGetter(Configured):
             objKeyStore.addManyTypesStreamESD(getTrigIDTruthList(TriggerFlags.ESDEDMSet()))
             objKeyStore.addManyTypesStreamAOD(getTrigIDTruthList(TriggerFlags.AODEDMSet()))
 
+        if (rec.doESD() or rec.doAOD()) and TriggerFlags.writeL1TopoValData():
+            objKeyStore.addManyTypesStreamESD(['xAOD::TrigCompositeContainer#HLT_xAOD__TrigCompositeContainer_L1TopoValData',
+                                               'xAOD::TrigCompositeAuxContainer#HLT_xAOD__TrigCompositeContainer_L1TopoValDataAux.'])
+            objKeyStore.addManyTypesStreamAOD(['xAOD::TrigCompositeContainer#HLT_xAOD__TrigCompositeContainer_L1TopoValData',
+                                               'xAOD::TrigCompositeAuxContainer#HLT_xAOD__TrigCompositeContainer_L1TopoValDataAux.'])
+            log.debug("HLT_xAOD__TrigCompositeContainer_L1TopoValData(Aux.) for L1Topo validation added to the data.")
 
         if rec.doAOD() or rec.doWriteAOD():
             # schedule the RoiDescriptorStore conversion
