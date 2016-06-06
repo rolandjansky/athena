@@ -8,13 +8,18 @@
 //  author: Tim Martin <Tim.Martin@cern.ch>
 // -------------------------------------------------------------
 
+// STL include(s):
+#include <bitset>
+
 // Local include(s):
 #include "../TrigCostRootAnalysis/RatesChainItem.h"
 #include "../TrigCostRootAnalysis/CounterBaseRates.h"
 #include "../TrigCostRootAnalysis/Config.h"
+#include "../TrigCostRootAnalysis/TrigXMLService.h"
 
 // ROOT includes
 #include <TError.h>
+#include <TMath.h>
 
 namespace TrigCostRootAnalysis {
 
@@ -23,21 +28,29 @@ namespace TrigCostRootAnalysis {
   /**
    * Construct new RatesChainItem with a given prescale.
    */
-  RatesChainItem::RatesChainItem(std::string _name, Int_t _level, Double_t _PS) :
+  RatesChainItem::RatesChainItem(std::string _name, Int_t _level, Double_t _PS, Double_t _PSExpress) :
     m_name(_name),
     m_level(_level),
     m_PS(_PS), // Integer prescale
     m_PSWeight(1./m_PS), // Reciprocal of the prescale - this is the basic weight quantity for this ChainItem
+    m_PSReduced(1.), 
+    m_PSReducedWeight(1.),
+    m_PSExpress(_PSExpress),
+    m_PSExpressWeight(1./_PSExpress),
     m_extraEfficiency(1.),
     m_R( ++s_chainCount ),
     m_ID( s_chainCount ),
     m_bunchGroupType(kBG_UNSET),
+    m_lumiExtrapolationFactor(0.),
     m_passRaw(kFALSE),
     m_passPS(kFALSE),
     m_inEvent(kFALSE),
     m_doDirectPS(kFALSE),
     m_matchRandomToOnline(kFALSE),
-    m_iAmRandom(kFALSE)
+    m_advancedLumiScaling(kFALSE),
+    m_iAmRandom(kFALSE),
+    m_triggerLogic(nullptr),
+    m_proxy(nullptr)
   {
     if (Config::config().debug()) {
       Info("RatesChainItem::RatesChainItem","New ChainItem:%s, Level:%i PS:%f", m_name.c_str(), m_level, m_PS);
@@ -45,13 +58,7 @@ namespace TrigCostRootAnalysis {
 
     m_doEBWeighting = Config::config().getInt(kDoEBWeighting); // Cache for speed
     m_doDirectPS = Config::config().getInt(kDirectlyApplyPrescales); // Cache for speed
-
-    // If L1: then classify my bunchgroup
-    if (m_level == 1) {
-      classifyBunchGroup();
-    }
-    // Classify if I am random, or seed from random
-    classifyRandom();
+    m_advancedLumiScaling = Config::config().getInt(kDoAdvancedLumiScaling);
 
     if (m_PS <= 0.) m_PSWeight = 0.;
     m_forcePassRaw = (Bool_t) Config::config().getInt(kRatesForcePass);
@@ -63,16 +70,23 @@ namespace TrigCostRootAnalysis {
    */
   void RatesChainItem::classifyBunchGroup() {
 
-    if (getName().find("_BPTX") != std::string::npos || getName().find("_BGRP") != std::string::npos) { // Ignore the beam pickup triggers
+    RatesChainItem* _toCheck = this;
+    if (m_level > 1 && m_lower.size() == 1) _toCheck = *(m_lower.begin());
+
+    if (_toCheck->getName().find("_BPTX") != std::string::npos || _toCheck->getName().find("_BGRP") != std::string::npos) { // Ignore the beam pickup & specialist triggers
       m_bunchGroupType = kBG_NONE;
-    } else if (getName().find("_FIRSTEMPTY") != std::string::npos) {
+    } else if (_toCheck->getName().find("_FIRSTEMPTY") != std::string::npos) {
       m_bunchGroupType = kBG_FIRSTEMPTY;
-    } else if (getName().find("_EMPTY") != std::string::npos) {
+    } else if (_toCheck->getName().find("_EMPTY") != std::string::npos) {
       m_bunchGroupType = kBG_EMPTY;
-    } else if (getName().find("_UNPAIRED_ISO") != std::string::npos) {
+    } else if (_toCheck->getName().find("_UNPAIRED_ISO") != std::string::npos) {
       m_bunchGroupType = kBG_UNPAIRED_ISO;
-    } else if (getName().find("_UNPAIRED_NONISO") != std::string::npos) {
+    } else if (_toCheck->getName().find("_UNPAIRED_NONISO") != std::string::npos) {
       m_bunchGroupType = kBG_UNPAIRED_NONISO;
+    } else if (_toCheck->getName().find("_ABORTGAPNOTCALIB") != std::string::npos) {
+      m_bunchGroupType = kBG_ABORTGAPNOTCALIB;
+    } else if (_toCheck->getName().find("_CALREQ") != std::string::npos) {
+      m_bunchGroupType = kBG_CALREQ;
     } else {
       m_bunchGroupType = kBG_FILLED;
     }
@@ -85,24 +99,96 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * Look at myself and classify if I am a random seeded L1
+   * Look at myself and classify if I am a random seeded L1 or HLT
+   * If RANDOM and L1, then the rate is independent of lumi. This item gets a lumi extrap. factor of 1
+   * If RANDOM and HLT, then the L1 rate is fixed, and the only lumi extrapolation comes from the increase in <mu>
+   * If NOT RANDOM, then simple linear extrapolation holds.
    */
-  void RatesChainItem::classifyRandom() {
+  void RatesChainItem::classifyLumiAndRandom() {
 
-    if ( getName().find("_RD0") != std::string::npos ||
-         getName().find("_RD1") != std::string::npos ||
-         getName().find("_RD2") != std::string::npos ||
-         getName().find("_RD3") != std::string::npos ||
-         getName().find("_L1RD0") != std::string::npos ||
-         getName().find("_L1RD1") != std::string::npos ||
-         getName().find("_L1RD2") != std::string::npos ||
-         getName().find("_L1RD3") != std::string::npos ) {
+    classifyBunchGroup();
+
+    RatesChainItem* _toCheck = this;
+    if (m_level > 1 && m_lower.size() == 1) _toCheck = *(m_lower.begin());
+
+    if ( _toCheck->getName().find("_RD0") != std::string::npos ||
+         _toCheck->getName().find("_RD1") != std::string::npos ||
+         _toCheck->getName().find("_RD2") != std::string::npos ||
+         _toCheck->getName().find("_RD3") != std::string::npos ||
+         _toCheck->getName().find("_L1RD0") != std::string::npos ||
+         _toCheck->getName().find("_L1RD1") != std::string::npos ||
+         _toCheck->getName().find("_L1RD2") != std::string::npos ||
+         _toCheck->getName().find("_L1RD3") != std::string::npos ) {
       m_iAmRandom = kTRUE;
-      if (Config::config().debug()) Info("RatesChainItem::classifyRandom","Item %s classified as random", getName().c_str());
+      if (Config::config().debug()) Info("RatesChainItem::classifyLumiAndRandom","Item %s classified as random", getName().c_str());
     } else {
       m_iAmRandom = kFALSE;
     }
 
+    if (m_advancedLumiScaling == kFALSE) { // Just do linear extrapolation
+
+      m_lumiExtrapolationFactor = Config::config().getFloat(kLumiExtrapWeight); // Linear
+      
+    } else { // m_advancedLumiScaling == kTRUE. Chains can have different extrapolation  
+
+      if (checkPatternNoLumiWeight(getName())) { // SPECIAL CASE #1
+
+        m_lumiExtrapolationFactor = Config::config().getFloat(kDeadtimeScalingFinal);
+        Config::config().addVecEntry(kListOfNoLumiWeightChains, getName());
+
+      } else if (checkPatternNoMuLumiWeight(getName())) { // SPECIAL CASE #2
+
+        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalBunchComponent);
+        m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
+        Config::config().addVecEntry(kListOfNoMuLumiWeightChains, getName());
+
+      } else if (checkPatternNoBunchLumiWeight(getName())) { // SPECIAL CASE #3
+
+        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalMuComponent);
+        m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
+        Config::config().addVecEntry(kListOfNoBunchLumiWeightChains, getName());
+
+      } else if (m_iAmRandom == kTRUE && m_level == 1) {
+
+        // No extrapolation... except for the deadtime fraction. Still want this.
+        // Same as special case #1
+        m_lumiExtrapolationFactor = Config::config().getFloat(kDeadtimeScalingFinal);
+
+      } else if (m_iAmRandom == kTRUE && m_level > 1) {
+
+        // Only <mu> based extrapolation. Putting in the deadtime fraction too
+        // Same as special case #3
+        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalMuComponent);
+        m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
+
+      } else if (m_bunchGroupType == kBG_EMPTY || m_bunchGroupType == kBG_FIRSTEMPTY) {
+
+        // For empty BG, we scale with the *inverse* number of bunches, i.e. more bunches is less empty hence less empty rate
+        // Fist empty is a bit of a fudge - assumes that NBunch is proportional to NTrain
+        m_lumiExtrapolationFactor = Config::config().getFloat(kEmptyBunchgroupExtrapolaion); // No extra deadtime factor here (not physics item).
+
+      } else if (m_bunchGroupType == kBG_UNPAIRED_ISO || m_bunchGroupType == kBG_UNPAIRED_NONISO || 
+                 m_bunchGroupType == kBG_ABORTGAPNOTCALIB || m_bunchGroupType == kBG_CALREQ) {
+
+        // We have no idea how the UNPAIRED items will change in the prediction - for now, zero extrapolation
+        // Abort gap and calreq are always the same so again, no extrap here
+        m_lumiExtrapolationFactor = 1.; // No extra deadtime factor here (not physics item).
+
+      } else {
+
+        // The vast majority of chains will get this. This already includes the deadtime weight
+        m_lumiExtrapolationFactor = Config::config().getFloat(kLumiExtrapWeight);
+
+      }
+    }
+  }
+
+  /**
+   * @return What this item needs to be scaled by to extrapolate its lumi to the target
+   * @see RatesChainItem::classifyRandom
+   */
+  Double_t RatesChainItem::getLumiExtrapolationFactor() {
+    return m_lumiExtrapolationFactor;
   }
 
   /**
@@ -110,7 +196,7 @@ namespace TrigCostRootAnalysis {
    * @param _extraEfficiency Additional scaling factor which will scale the rate when the item fires
    */
   void RatesChainItem::setExtraEfficiency(Double_t _extraEfficiency) {
-    m_extraEfficiency = _extraEfficiency;
+    m_extraEfficiency *= _extraEfficiency;
   }
 
   /**
@@ -118,7 +204,7 @@ namespace TrigCostRootAnalysis {
    * @param _reductionFactor Scale rate down by this factor
    */
   void RatesChainItem::setRateReductionFactor(Double_t _reductionFactor) {
-    m_extraEfficiency = 1. / _reductionFactor;
+    m_extraEfficiency *= 1. / _reductionFactor;
   }
 
 
@@ -237,6 +323,24 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
+   * Sets a new prescale value
+   */
+  void RatesChainItem::setPS(Double_t _PS) {
+    m_PS = _PS;
+    m_PSWeight = 1./m_PS;
+    if (m_PS <= 0.) m_PSWeight = 0.;
+  }
+
+  /**
+   * Sets a reduced PS value. This is the component of the prescale which is not coherent with other chains in the CPS group
+   */
+  void RatesChainItem::setPSReduced(Double_t _PSReduced) {
+    m_PSReduced = _PSReduced;
+    m_PSReducedWeight = 1./m_PSReduced;
+    if (m_PSReduced <= 0.) m_PSReducedWeight = 0.;
+  }
+
+  /**
    * @return The chain item's name
    */
   const std::string& RatesChainItem::getName() {
@@ -268,8 +372,76 @@ namespace TrigCostRootAnalysis {
         m_inEvent = kFALSE;
       }
     }
-
   }
+
+  /**
+   * @param _eventTOBs A TOBAccumulator of all TOBs in this event or pseudo-event (simulated high pileup TOB overlay).
+   * Note - this function call requires a TriggerLogic pointer to be set, this logic will be used against the set of TOBs
+   */
+  void RatesChainItem::beginEvent(TOBAccumulator* _eventTOBs) {
+    m_inEvent = kTRUE;
+    static Bool_t _largeJetWindow = Config::config().getInt(kUpgradeJetLargeWindow);
+
+    // Loop over logic
+    m_passRaw = kTRUE; // Assume we passed, see if we didn't
+    for (const TriggerCondition& _condition : getTriggerLogic()->conditions()) {
+
+      if (_condition.m_type == kMissingEnergyString) {
+        if (_eventTOBs->METOverflow() == kFALSE && _eventTOBs->MET() <= _condition.m_thresh) {
+          m_passRaw = kFALSE;
+          break;
+        } 
+      } else if (_condition.m_type == kEnergyString) {
+        if (_eventTOBs->HTOverflow() == kFALSE && _eventTOBs->HT() <= _condition.m_thresh) {
+          m_passRaw = kFALSE;
+          break; 
+        }
+      } else {  // For EM/JET/TAU/MU
+
+        UInt_t _tobsPassingCondition = 0;
+        for (const auto& _tob : _eventTOBs->TOBs() ) {
+          if (_tob.m_type != _condition.m_type) continue; // Incorrect type (EM/TAU/MU etc.)
+          Float_t _et = _tob.m_et;
+          if (_tob.m_type == kJetString && _largeJetWindow == kTRUE) _et = _tob.m_etLarge;
+          // Energy too low ?
+          if (_tob.m_type == kMuonString) {
+            if (_et < _condition.m_thresh) continue; // Muons are at set thresholds so should be <
+          } else {
+            if (_et <= _condition.m_thresh) continue; // From testing on jets, really does seem to be <=
+          }
+          if (TMath::Abs(_tob.m_eta) * 10 < _condition.m_min) continue; // eta too low
+          if (TMath::Abs(_tob.m_eta) * 10 > _condition.m_max) continue; // eta too high
+          if (_condition.m_iso != 0) { // Check isolation bits (if conditions require isolation)
+            std::bitset<5> _tobIso = _tob.m_iso;
+            std::bitset<5> _conditionIso = _condition.m_iso;
+            Bool_t _pass = kTRUE;
+            for (UInt_t _b = 0; _b < 5; ++_b) {
+              if (_conditionIso.test(_b) == kTRUE && _tobIso.test(_b) == kFALSE) _pass = kFALSE;
+            }
+            if (_pass == kFALSE) continue; // A required isolation bit was not found
+          }
+          ++_tobsPassingCondition; // All requirements met
+          if (_tobsPassingCondition == _condition.m_multi) break; // Do we have enough TOBs passing this condition? Bail out if so, don't need more
+        }
+        if (_tobsPassingCondition < _condition.m_multi) {
+          m_passRaw = kFALSE; // A condition was not satisfied :( all must be satisfied. We cannot accept this event.
+          break;
+        }
+
+      }
+    }
+
+    //Info("RatesChainItem::beginEvent","%s applying logic to %i TOBs (passed - %i) MET is %f HT is %f", getName().c_str(), _eventTOBs->TOBs().size(), (Int_t)m_passRaw, _eventTOBs->MET(), _eventTOBs->HT());
+
+    // For random seeded triggers where the HLT was re-run, we need to check that we only run over unbiased events in the sample
+    if (m_matchRandomToOnline == kTRUE && m_iAmRandom == kTRUE) {
+      if ( Config::config().getInt(kCurrentEventWasRandomOnline) == kFALSE ) {
+        m_passRaw = kFALSE;
+        m_inEvent = kFALSE;
+      }
+    }
+  }
+
 
   /**
    * Reset all flags to zero
@@ -325,16 +497,38 @@ namespace TrigCostRootAnalysis {
   /**
    * @return 1/Prescale weighting factor for this event. This is scaled by an optional user supplied extra efficiency factor which can modulate the rate
    */
-  Double_t RatesChainItem::getPSWeight() {
+  Double_t RatesChainItem::getPSWeight(Bool_t _includeExpress) {
+    if (m_proxy != nullptr) return m_proxy->getLastWeight();
+    if (_includeExpress == kTRUE) return m_PSWeight * m_PSExpressWeight * m_extraEfficiency;
     return m_PSWeight * m_extraEfficiency;
+  }
+
+  /**
+   * The reduced prescacle is the chain prescale divided by the lowest prescale of any chain within
+   * the same coherent prescale group.
+   * @return 1/PrescaleReduced weighting factor for this event. This is scaled by an optional user supplied extra efficiency factor which can modulate the rate
+   */
+  Double_t RatesChainItem::getPSReducedWeight(Bool_t _includeExpress) {
+    if (_includeExpress == kTRUE) return m_PSReducedWeight * m_PSExpressWeight * m_extraEfficiency;
+    return m_PSReducedWeight * m_extraEfficiency;
   }
 
   /**
    * @return Zero if this chain did not pass raw, else returns 1/Prescale
    */
-  Double_t RatesChainItem::getPassRawOverPS() {
+  Double_t RatesChainItem::getPassRawOverPS(Bool_t _includeExpress) {
     if (getPassRaw() == kFALSE) return 0.;
-    return getPSWeight();
+    return getPSWeight(_includeExpress);
+  }
+
+  /**
+   * The reduced prescacle is the chain prescale divided by the lowest prescale of any chain within
+   * the same coherent prescale group.
+   * @return Zero if this chain did not pass raw, else returns 1/PrescaleReduced
+   */
+  Double_t RatesChainItem::getPassRawOverPSReduced(Bool_t _includeExpress) {
+    if (getPassRaw() == kFALSE) return 0.;
+    return getPSReducedWeight(_includeExpress);
   }
 
   /**
@@ -344,4 +538,22 @@ namespace TrigCostRootAnalysis {
     return (getPassRaw() && getPassPS());
   }
 
+  /**
+   * @param _tl Use a TriggerLogic to generate the pass/fail for this chain
+   * Note this is required to use void beginEvent(TOBAccumulator* _eventTOBs, CounterBaseRatesSet_t& _counterSet)
+   * RatesChainItem object does not own the trigger logic.
+   */
+  void RatesChainItem::setTriggerLogic(TriggerLogic* _tl) {
+    m_triggerLogic = _tl;
+  }
+
+  /**
+   * @return Pointer to any registered TriggerLogic item
+   */
+  TriggerLogic* RatesChainItem::getTriggerLogic() {
+    return m_triggerLogic;
+  }
+
 } // namespace TrigCostRootAnalysis
+
+

@@ -53,7 +53,7 @@ namespace TrigCostRootAnalysis {
         Int_t _chainID = m_costData->getSequenceChannelCounter(_s);
         const std::string _chainName = TrigConfInterface::getHLTNameFromChainID( _chainID, m_costData->getSequenceLevel(_s) );
         // Are we running over this chain?
-        if ( checkPatternNameMonitor( _chainName ) == kFALSE ) continue;
+        if ( checkPatternNameMonitor( _chainName, m_invertFilter, m_costData->getSeqIsRerun(_s) ) == kFALSE ) continue;
 
         // Get the name of the sequence
         Int_t _seqIndex = m_costData->getSequenceIndex(_s);

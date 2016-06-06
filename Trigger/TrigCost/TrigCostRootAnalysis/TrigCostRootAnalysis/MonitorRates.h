@@ -48,24 +48,25 @@ namespace TrigCostRootAnalysis {
     void populateCounterMap(CounterMap_t* _counterMap);
     void populateChainItemMaps();
     void saveRateGraphs();
-    void saveRuleBookXML();
-    void saveXMLElement(std::ofstream& _fout, XMLExport& _xml, CounterBaseRates* _counter);
+
 
     void createGlobalCounters(CounterMap_t* _counterMap);
     void createL1Counters(CounterMap_t* _counterMap);
     void createHLTCounters(CounterMap_t* _counterMap);
     void createOverlapCounters(CounterMap_t* _counterMap);
-
-    Bool_t checkPatternUnique( const std::string& _patternName );
-    Bool_t checkPatternOverlap( const std::string& _patternName );
+    void createCPSGroupCounters(CounterMap_t* _counterMap);
+    void createGroupCounters(CounterMap_t* _counterMap);
 
     CounterRatesUnion* m_globalRateHLTCounter;
     CounterRatesUnion* m_globalRateL1Counter;
+    CounterRatesUnion* m_globalRatePhysicsMainCounter;
 
     ChainItemMap_t m_chainItemsL1;
     ChainItemMap_t m_chainItemsHLT;
+    CPSGroupMap_t  m_cpsGroups;
 
     Bool_t m_doingOverlaps; //!< Flag for if one or more overlaps is being calculated
+    Bool_t m_doCPS; //!< Flag to switch on special handling for chains which are in CPS groups
 
     
   }; //class MonitorRates

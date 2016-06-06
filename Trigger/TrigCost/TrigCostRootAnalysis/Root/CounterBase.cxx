@@ -289,4 +289,14 @@ namespace TrigCostRootAnalysis {
     return m_intDecorations[_key];
   }
 
+  /**
+   * @return true if a decoration of any type is stored for the given key
+   */
+  Bool_t CounterBase::hasDecoration( ConfKey_t _key ) {
+    if ( m_decorations.count( _key ) > 0 ) return kTRUE;
+    if ( m_intDecorations.count( _key ) > 0 ) return kTRUE;
+    if ( m_strDecorations.count( _key ) > 0 ) return kTRUE;
+    return kFALSE;
+  }
+
 } // namespace TrigCostRootAnalysis

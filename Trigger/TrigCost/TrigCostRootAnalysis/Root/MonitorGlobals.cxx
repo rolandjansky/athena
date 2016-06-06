@@ -59,8 +59,10 @@ namespace TrigCostRootAnalysis {
       _counter->processEventCounter( 0, 0, _weight );
 
       // Also process the All LB counter, we give this the ID -1
-      getCounter( _counterMap, Config::config().getStr(kAllString), -1 )->processEventCounter( 0, 0, _weight );
-
+      // Don't want to do this if we're iterating over a single-LB collection
+      if (m_counterMapType[_counterMap] != kDoLumiBlockSummary) {
+        getCounter( _counterMap, Config::config().getStr(kAllString), -1 )->processEventCounter( 0, 0, _weight );
+      }
 
       endEvent(_weight);
 
@@ -69,7 +71,7 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * Do we use this monitor for this particular mode? Try and keep things managable in terms of output created!
+   * Do we use this monitor for this particular mode? Try and keep things manageable in terms of output created!
    * Note these are currently hard-coded. We may want to make them configurable
    * @return If this monitor should be active for a given mode.
    */
@@ -88,7 +90,7 @@ namespace TrigCostRootAnalysis {
    */
   void MonitorGlobals::saveOutput() {
 
-    // Now we're done, we want to additioanlly decorate these counters with their effective LB length, given how many
+    // Now we're done, we want to additionally decorate these counters with their effective LB length, given how many
     // events we saw vs. how many were were expecting to see
     // Loop over all my counter collections
     // TODO make a finalise loop and put me in it
@@ -121,8 +123,7 @@ namespace TrigCostRootAnalysis {
 
     std::vector<TableColumnFormatter> _toSave;
 
-    // Question. What other flags, if set, mean we're definitly looking at a prediction rather than a run?
-    const Bool_t _isAPrediction =  (Bool_t) Config::config().getInt(kDoEBWeighting);
+    const Bool_t _isAPrediction =  (Bool_t) Config::config().getInt(kIsCPUPrediction);
 
     if ( _isAPrediction == kTRUE ) {
       _toSave.push_back( TableColumnFormatter("Effective LB Length (s)",
@@ -139,9 +140,21 @@ namespace TrigCostRootAnalysis {
     }
 
     if ( _isAPrediction == kTRUE ) {
-      _toSave.push_back( TableColumnFormatter("Predicted HLT Cores Required",
+      _toSave.push_back( TableColumnFormatter("Predicted HLT Cores From Algs",
         "Approximated by Total HLT Algorithm Time / Effective Lumi Block Length",
         &tableFnGlobalGetHLTNodePrediction, 2) );
+
+      _toSave.push_back( TableColumnFormatter("Predicted Cores (Algs) Err",
+        "sqrt(sumW2 AlgTime) / Effective Lumi Block Length",
+        &tableFnGlobalGetHLTNodePredictionErr, 2) );
+
+      _toSave.push_back( TableColumnFormatter("Predicted HLT Cores From Steering",
+        "Approximated by Total HLT Algorithm Time / Effective Lumi Block Length",
+        &tableFnGlobalGetHLTNodePredictionSteering, 2) );
+
+      _toSave.push_back( TableColumnFormatter("Predicted Cores (Steer) Err",
+        "sqrt(sumW2 AlgTime) / Effective Lumi Block Length",
+        &tableFnGlobalGetHLTNodePredictionErrSteering, 2) );
     } else {
       _toSave.push_back( TableColumnFormatter("Farm Usage from Steering (%)",
         "Approximated by Total HLT Steering Time / (Lumi Block Length * N HLT PUs)",
@@ -200,6 +213,14 @@ namespace TrigCostRootAnalysis {
       "Average per algorithm call of the sum over all algorithms walltimes.",
       kVarAlgTime, kSavePerCall, kVarAlgCalls, kSavePerCall, 2) );
 
+    _toSave.push_back( TableColumnFormatter("Time Use In Rerun [%]",
+      "Percentage of this total CPU usage which comes from resurrection.",
+      kVarRerunTime, kSavePerEvent, kVarAlgTime, kSavePerEvent, 2, kFormatOptionToPercentage) );
+
+    _toSave.push_back( TableColumnFormatter("Time Use In Accepted Events [%]",
+      "Percentage of this total CPU usage which comes from resurrection.",
+      kVarPassTime, kSavePerEvent, kVarAlgTime, kSavePerEvent, 2, kFormatOptionToPercentage) );
+
     _toSave.push_back( TableColumnFormatter("ROS Walltime Time/Event [ms]",
       "Average per event of the sum over all algorithms ROS request times.",
       kVarROSTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
@@ -208,9 +229,30 @@ namespace TrigCostRootAnalysis {
       "Average per event number of calls made to the Readout System by executed algorithms.",
       kVarROSCalls, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
 
-    _toSave.push_back( TableColumnFormatter("RoIs/Events",
+    _toSave.push_back( TableColumnFormatter("RoIs/Event",
       "Average per event number of Regions of Interest supplied from the lower trigger level.",
       kVarROI, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
+
+    _toSave.push_back( TableColumnFormatter("CostMon Time/Event [ms]",
+      "Average time per event to execute cost monitoring.",
+      kVarTrigCostTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
+
+    // _toSave.push_back( TableColumnFormatter("Texec Time/Event [ms]",
+    //   "Average time per event for the Texec timer.",
+    //   kVarTexecTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
+
+    _toSave.push_back( TableColumnFormatter("Chain Exec Time/Event [ms]",
+      "Average per event to process all chains.",
+      kVarChainExecTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
+
+    // _toSave.push_back( TableColumnFormatter("Result Builder Time/Event [ms]",
+    //   "Average per event number to run the Result Builder.",
+    //   kVarResultBuildingTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
+
+    // _toSave.push_back( TableColumnFormatter("Monitoring Time/Event [ms]",
+    //   "Average per event to run all monitoring tools. Excluding CostMon/",
+    //   kVarMonitoringTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
+
 
     // TODO - add INPUT rate using L1 info (?)
     // Fin LB start time and LB length

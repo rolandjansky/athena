@@ -26,15 +26,19 @@ namespace TrigCostRootAnalysis {
   /**
    * Construct singleton, 
    */
-  EnergyExtrapolation::EnergyExtrapolation() {
+  EnergyExtrapolation::EnergyExtrapolation()
+    : m_13To5 (kFALSE)
+  {
     // We currently only have one possible mode so...
 
-    if (Config::config().getInt(kExtrapolate8To13) == kTRUE) {
+    if (Config::config().getInt(kExtrapolate8To13) == kTRUE || Config::config().getInt(kExtrapolate13To5) == kTRUE ) {
       load8To13();
       loadMenuV5();
       m_enabled = kTRUE;
+      if (Config::config().getInt(kExtrapolate13To5)) m_13To5 = kTRUE;
     } else {
       m_enabled = kFALSE;
+      m_13To5 = kFALSE;
     }
 
   }
@@ -157,6 +161,11 @@ namespace TrigCostRootAnalysis {
 
     Float_t _eventMass = _jettyE + _missingE + _muonE;
     Float_t _extrapolationWeight = eval(_eventMass);
+    if (m_13To5) {
+      // This is simply wrong, but no time to approx anything better
+      _extrapolationWeight *= 1.07; // 5->8 (minbias)
+      _extrapolationWeight = 1./_extrapolationWeight; // Invert
+    }
     if (Config::config().debug()) {
       Info("EnergyExtrapolation::getEventWeight","Event has J:%.0f, M:%.0f, X:%.0f.\tTotal:%.0f -> Extrap. Weight:%.4f",
         _jettyE, _muonE, _missingE, _eventMass, _extrapolationWeight);

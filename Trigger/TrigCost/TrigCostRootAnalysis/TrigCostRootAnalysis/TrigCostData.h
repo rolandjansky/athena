@@ -124,6 +124,9 @@ namespace TrigCostRootAnalysis {
     UInt_t  getSeqROBRetrievals(UInt_t _n) const;
     Float_t getSeqROBRetrievalSize(UInt_t _n) const;
     UInt_t  getSeqROBOthers(UInt_t _n) const;
+    //
+    Bool_t  getSeqIsRerun(UInt_t _n) const;
+
     
     //
     // SEQUENCE ---> ALGORITHM VARIABLES
@@ -153,7 +156,6 @@ namespace TrigCostRootAnalysis {
     UInt_t  getSeqAlgROBRetrievals(UInt_t _n, UInt_t _a) const;
     Float_t getSeqAlgROBRetrievalSize(UInt_t _n, UInt_t _a) const;
     UInt_t  getSeqAlgROBOthers(UInt_t _n, UInt_t _a) const;
-
 
     //
     // LEVEL 1 VARIABLES
@@ -214,13 +216,23 @@ namespace TrigCostRootAnalysis {
     Float_t getRoIArea(UInt_t _n) const;
     Float_t getRoIEta(UInt_t _n) const;
     Float_t getRoIPhi(UInt_t _n) const;
+    Float_t getRoIEt(UInt_t _n) const;
     Int_t   getRoINL1Thresh(UInt_t _n) const;
     Bool_t  getIsRoIEmTau(UInt_t _n) const;
+    Bool_t  getIsRoITau(UInt_t _n) const;
     Bool_t  getIsRoIEnergy(UInt_t _n) const;
     Bool_t  getIsRoIJet(UInt_t _n) const;
     Bool_t  getIsRoIJetEt(UInt_t _n) const;
     Bool_t  getIsRoIMuon(UInt_t _n) const;
     Bool_t  getIsRoINone(UInt_t _n) const;
+    Float_t getRoIEtLarge(UInt_t _n) const;
+    Int_t   getRoIMuonCharge(UInt_t _n) const;
+    Int_t   getRoIEmTauIsoBits(UInt_t _n) const;
+    Float_t getRoIVectorEX(UInt_t _n) const;
+    Float_t getRoIVectorEY(UInt_t _n) const;
+    Bool_t  getRoIOverflowEX(UInt_t _n) const;
+    Bool_t  getRoIOverflowEY(UInt_t _n) const;
+    Bool_t  getRoIOverflowET(UInt_t _n) const;
     const std::string& getRoITypeString(Int_t _n) const;
     
     //
@@ -298,6 +310,8 @@ namespace TrigCostRootAnalysis {
     mutable std::map< Int_t, UInt_t > m_chainAlgCallMap; //!< Algorithm calls per chain
     mutable std::map< Int_t, UInt_t > m_chainAlgCacheMap; //!< Algorithm caches per chain
     mutable std::map< Int_t, Float_t > m_chainAlgTimeMap; //!< Algorithm time per chain
+
+    mutable std::map< Int_t, Bool_t > m_chainRerunStatus; //!< Rerun bit for a chain ID
 
     mutable std::map< Int_t, std::set< std::pair<Int_t,Int_t> > > m_chainAlgMap; //!< Chain ID to set of algorithm locations in current event
     mutable std::map< Int_t, std::set< std::pair<Int_t,Int_t> > > m_seqAlgMap; //!< Sequence ID to set of algorithm locations in current event

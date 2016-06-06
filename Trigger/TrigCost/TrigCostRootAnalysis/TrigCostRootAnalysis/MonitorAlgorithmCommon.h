@@ -42,6 +42,7 @@ namespace TrigCostRootAnalysis {
         const std::string& _algClassName,
         const std::string& _seqName,
         const std::string& _chainName,
+        const std::string& _chainGroup,
         Int_t _algNameID,
         Int_t _seqD3PDIndex,
         Int_t _algD3PDIndex);
@@ -49,6 +50,7 @@ namespace TrigCostRootAnalysis {
       std::string m_algClassName; //!< Buffered algorithm class name
       std::string m_seqName; //!< Buffered algorithm sequence name
       std::string m_chainName; //!< Buffered algorithm chain name
+      std::string m_chainGroup; //!< Buffered algorithm chain first group, or "" if no group
       Int_t m_algNameID; //!< Buffered hash of algorithm name
       Int_t m_seqD3PDIndex; //!< Buffered D3PD index of alg's sequence
       Int_t m_algD3PDIndex; //!< Buffered D3PD index of alg within sequence

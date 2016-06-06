@@ -1,0 +1,138 @@
+<?xml version="1.0" ?>
+<!-- Please note this was first stable 13 TeV HeavyIon data, it contains a mu scan and MBTS voltage was too low. Lumi value data is estimated -->
+<trigger>
+  <lumivalues>
+    <lumivalues_data>3.24e+24</lumivalues_data>
+    <lumivalues_pred>2e+27</lumivalues_pred>
+    <deadtime>0.00</deadtime>
+    <peak_mu_av>0.01819</peak_mu_av>
+  </lumivalues>
+  <bunchgroups>
+    <bunchgroup id="0" name="BCRVeto">3543</bunchgroup>
+    <bunchgroup id="1" name="Paired">5</bunchgroup>
+    <bunchgroup id="2" name="CalReq">70</bunchgroup>
+    <bunchgroup id="3" name="Empty">3308</bunchgroup>
+    <bunchgroup id="4" name="IsolatedUnpaired">10</bunchgroup>
+    <bunchgroup id="5" name="NonIsolatedUnpaired">0</bunchgroup>
+    <bunchgroup id="6" name="EmptyBeforeAfterPaired">50</bunchgroup>
+    <bunchgroup id="7" name="InTrain">0</bunchgroup>
+    <bunchgroup id="8" name="AbortGapNotCalReq">29</bunchgroup>
+    <bunchgroup id="9" name="AfterGlow">126</bunchgroup>
+    <bunchgroup id="10" name="ALFA">4</bunchgroup>
+    <bunchgroup id="11" name="EmptyBeforePaired">18</bunchgroup>
+    <bunchgroup id="12" name="AllWithoutCalreq">3473</bunchgroup>
+    <bunchgroup id="13" name="BG13">0</bunchgroup>
+    <bunchgroup id="14" name="BG14">0</bunchgroup>
+    <bunchgroup id="15" name="BG15">0</bunchgroup>
+  </bunchgroups>
+  <lb_list>
+    <lb id="156">3511</lb>
+    <lb id="157">4382</lb>
+    <lb id="158">4089</lb>
+    <lb id="159">4219</lb>
+    <lb id="160">2787</lb>
+    <lb id="161" flag="bad">16</lb>
+    <lb id="162" flag="bad">294</lb>
+    <lb id="163">1822</lb>
+    <lb id="164">3850</lb>
+    <lb id="165">2705</lb>
+    <lb id="166" flag="bad">642</lb>
+    <lb id="167" flag="bad">749</lb>
+    <lb id="168">4079</lb>
+    <lb id="169">4004</lb>
+    <lb id="170">1628</lb>
+    <lb id="171" flag="bad">634</lb>
+    <lb id="172">2227</lb>
+    <lb id="173">3749</lb>
+    <lb id="174">2727</lb>
+    <lb id="175" flag="bad">978</lb>
+    <lb id="176" flag="bad">410</lb>
+    <lb id="177">3928</lb>
+    <lb id="178">3833</lb>
+    <lb id="179">3789</lb>
+    <lb id="180">3765</lb>
+    <lb id="181">3819</lb>
+    <lb id="182">3791</lb>
+    <lb id="183">3679</lb>
+    <lb id="184">3708</lb>
+    <lb id="185">3602</lb>
+    <lb id="186">3618</lb>
+    <lb id="187">3659</lb>
+    <lb id="188">3597</lb>
+    <lb id="189">3644</lb>
+    <lb id="190">3529</lb>
+    <lb id="191">3611</lb>
+    <lb id="192">3642</lb>
+    <lb id="193">3566</lb>
+    <lb id="194">3507</lb>
+    <lb id="195">3530</lb>
+    <lb id="196">1465</lb>
+    <lb id="197">3456</lb>
+    <lb id="198">3430</lb>
+    <lb id="199">3550</lb>
+    <lb id="200" flag="bad">783</lb>
+    <lb id="201">3455</lb>
+    <lb id="202">3434</lb>
+    <lb id="203">1756</lb>
+    <lb id="204">3460</lb>
+    <lb id="205">3323</lb>
+    <lb id="206">3282</lb>
+    <lb id="207">3324</lb>
+    <lb id="208">3212</lb>
+    <lb id="209">3229</lb>
+    <lb id="210">3270</lb>
+    <lb id="211">3205</lb>
+    <lb id="212">3361</lb>
+    <lb id="213">3212</lb>
+    <lb id="214">3157</lb>
+    <lb id="215">3131</lb>
+    <lb id="216">3219</lb>
+    <lb id="217">3056</lb>
+    <lb id="218">3104</lb>
+    <lb id="219">3086</lb>
+    <lb id="220">3205</lb>
+    <lb id="221">3072</lb>
+    <lb id="222">3075</lb>
+    <lb id="223">2931</lb>
+    <lb id="224">3046</lb>
+    <lb id="225">3148</lb>
+    <lb id="226">3057</lb>
+    <lb id="227">3103</lb>
+    <lb id="228">3103</lb>
+    <lb id="229">3037</lb>
+    <lb id="230">2992</lb>
+    <lb id="231">3055</lb>
+    <lb id="232">2989</lb>
+    <lb id="233">2906</lb>
+    <lb id="234">2870</lb>
+    <lb id="235">2872</lb>
+    <lb id="236">2864</lb>
+    <lb id="237">2883</lb>
+    <lb id="238">2823</lb>
+    <lb id="239">2853</lb>
+    <lb id="240">2796</lb>
+    <lb id="241">2300</lb>
+  </lb_list>
+  <filters>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1ZDC_A_C</filter_name>
+      <lv1_filter>L1_ZDC_A_C</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1ZDC_AND</filter_name>
+      <lv1_filter>L1_ZDC_AND</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1MBTS_1_1</filter_name>
+      <lv1_filter>L1_MBTS_1_1</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1ZDC_XOR</filter_name>
+      <lv1_filter>L1_ZDC_XOR</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1ZDC_XOR_TE5_VTE200</filter_name>
+      <lv1_filter>L1_ZDC_XOR_TE5_VTE200</lv1_filter>
+    </filter>
+  </filters>
+</trigger>

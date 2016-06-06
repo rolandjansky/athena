@@ -35,6 +35,7 @@
 #include "../TrigCostRootAnalysis/MonitorEventProfile.h"
 #include "../TrigCostRootAnalysis/MonitorRates.h"
 #include "../TrigCostRootAnalysis/MonitorRatesUpgrade.h"
+#include "../TrigCostRootAnalysis/MonitorSliceCPU.h"
 #include "../TrigCostRootAnalysis/TrigCostData.h"
 #include "../TrigCostRootAnalysis/Config.h"
 #include "../TrigCostRootAnalysis/EnergyExtrapolation.h"
@@ -57,6 +58,8 @@ namespace TrigCostRootAnalysis {
     m_nThread = Config::config().getInt(kNThread);
     m_threadFnPtr = &newEventThreaded;
     m_ratesOnly = Config::config().getIsSet(kRatesOnly);
+    m_isCPUPrediction = (Bool_t) Config::config().getInt(kIsCPUPrediction);
+    m_pass = 0;
   }
 
   /**
@@ -160,6 +163,9 @@ namespace TrigCostRootAnalysis {
         case kDoRatesUpgradeMonitor:
           _costMonitor = new MonitorRatesUpgrade( m_costData );
           break;
+        case kDoSliceCPUMonitor:
+          _costMonitor = new MonitorSliceCPU( m_costData );
+          break;
         default:
           Error("ProcessEvent::setMonitoringMode", "Unknown or unimplemented Monitor Type with enum:%i", _type );
           return;
@@ -193,8 +199,10 @@ namespace TrigCostRootAnalysis {
     //Check for weights from energy extrapolation
     _weight *= EnergyExtrapolation::energyExtrapolation().getEventWeight( m_costData );
 
-    //Check for enhanced bias weights
-    _weight *= TrigXMLService::trigXMLService().getEventWeight( m_costData->getEventNumber(), m_costData->getLumi() );
+    //Check for enhanced bias weights.
+    if (Config::config().getInt(kDoEBWeighting) == kTRUE) {
+      _weight *= TrigXMLService::trigXMLService().getEventWeight( m_costData->getEventNumber(), m_costData->getLumi(), getPass() );
+    }
 
     // For each active monitoring type, process event
     if ( isZero(_weight) == kTRUE) return false;
@@ -205,6 +213,7 @@ namespace TrigCostRootAnalysis {
     for (monitorIt_t _it = m_monitorCollections.begin(); _it != m_monitorCollections.end(); ++_it) {
       _takeEvent += _it->second->getNCollectionsToProcess();
       // Note we cannot break this loop early, all monitors need to get this call to prepare their list of collections to process
+      // and perform bookkeeping
     }
     m_takeEventTimer.stop();
     if (_takeEvent == 0) return kFALSE;
@@ -223,6 +232,23 @@ namespace TrigCostRootAnalysis {
       m_cacheROSTimer.stop();
     }
 
+
+    // Special - CPU prediction mode
+    // We demand a chain which was not the costmonitor chain (or any other "misbehaving" streamers etc.) to pass physics physics chain (NOT rerun).
+    // Otherwise rerun on the costmon chain will mess up the prediction
+    if (m_isCPUPrediction) {
+      UInt_t _chainPasses = 0;
+      for (UInt_t _c = 0; _c < m_costData->getNChains(); ++_c) {
+        const std::string _chainName = TrigConfInterface::getHLTNameFromChainID( m_costData->getChainID(_c), m_costData->getChainLevel(_c) );
+        if (Config::config().getVecMatches(kPatternsMonitor, _chainName) == kTRUE) continue;
+        _chainPasses += (Int_t) m_costData->getIsChainPassed(_c);
+        if (_chainPasses > 0) break;
+      }
+      static const std::string _ign = "IgnoreRerun";
+      if (_chainPasses == 0) Config::config().set(kIgnoreRerun, 1, _ign, kUnlocked);  //Then ignore RERUN chains in this event.
+      else                   Config::config().set(kIgnoreRerun, 0, _ign, kUnlocked);  
+    }
+    
     if (m_nThread == 1 || m_ratesOnly == kTRUE) {
       
       // Non threaded
@@ -278,6 +304,22 @@ namespace TrigCostRootAnalysis {
     }
     return kTRUE;
 
+  }
+
+  /**
+    * Sets which pass through the input file(s) we're on down to all the monitors
+    * @param _pass Number of this pass
+    **/
+  void ProcessEvent::setPass(UInt_t _pass) {
+    for (const auto& _monitor : m_monitorCollections) _monitor.second->setPass(_pass);
+    m_pass = _pass;
+  }
+
+  /**
+    *  @return Which number pass through the input file(s)
+    **/
+  UInt_t ProcessEvent::getPass() {
+    return m_pass;
   }
 
   /**

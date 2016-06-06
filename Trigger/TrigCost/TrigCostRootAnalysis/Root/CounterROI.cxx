@@ -38,10 +38,11 @@ namespace TrigCostRootAnalysis {
     m_dataStore.setBinLabels(kVarType, kSavePerCall, _roiTypes);
 
     m_dataStore.newVariable(kVarEventsActive).setSavePerEvent();
-    m_dataStore.newVariable(kVarEta).setSavePerCall("ROI #eta Distribution;#eta;Calls");
-    m_dataStore.newVariable(kVarPhi).setSavePerCall("ROI #phi Distribution;#phi;Calls");
-    m_dataStore.newVariable(kVarArea).setSavePerCall("Area (#eta#times#phi) Of ROIs;Area;Calls");
-    m_dataStore.newVariable(kVarL1Thresh).setSavePerCall("Number Of ROI L1 Thresholds;L1 Thresholds;Calls");
+    m_dataStore.newVariable(kVarEta).setSavePerCall("ROI #eta Distribution;#eta;ROIs");
+    m_dataStore.newVariable(kVarPhi).setSavePerCall("ROI #phi Distribution;#phi;ROIs");
+    m_dataStore.newVariable(kVarEt).setSavePerCall("ROI Energy Distribution;E_{T} (e,#tau,j,#mu) or H_{T} (energy RoI) [GeV];ROIs");
+    m_dataStore.newVariable(kVarArea).setSavePerCall("Area (#eta#times#phi) Of ROIs;Area;ROIs");
+    m_dataStore.newVariable(kVarL1Thresh).setSavePerCall("Number Of ROI L1 Thresholds;L1 Thresholds;ROIs");
     m_dataStore.newVariable(kVarCalls).setSavePerEvent("Number Of ROIs Per Event;N ROIs;Events");
 
   }
@@ -81,7 +82,9 @@ namespace TrigCostRootAnalysis {
       m_dataStore.store(kVarArea, m_costData->getRoIArea(_e), _weight );
     }
     m_dataStore.store(kVarL1Thresh, m_costData->getRoINL1Thresh(_e), _weight );
+    //m_dataStore.store(kVarEt, m_costData->getRoIEt(_e), _weight ); // disable for now until propagated everywhere
     m_dataStore.store(kVarCalls, 1., _weight );
+
 
     if ( Config::config().debug() ) debug(_e);
   }
@@ -109,17 +112,30 @@ namespace TrigCostRootAnalysis {
    */
   void CounterROI::debug(UInt_t _e) {
 
-    Info("CounterROI::debug", "ROI %u: ID:%i Eta:%.2f Phi:%.2f Area:%.2f NL1T:%i isNone:%i isMu:%i isEmTau:%i isJet:%i isJetEt:%i isE:%i",
+    Info("CounterROI::debug", "ROI %u %s: ID:%i Eta:%.2f Phi:%.2f Area:%.2f NL1T:%i ET:%f ETLarge:%.2f muC:%i iso:%i EX:%.2f EY:%.2f isNone:%i isMu:%i isEmTau:%i isTau:%i isJet:%i isJetEt:%i isE:%i",
       _e,
+      m_costData->getRoITypeString(_e).c_str(),
       m_costData->getRoIID(_e),
       m_costData->getRoIEta(_e),
       m_costData->getRoIPhi(_e),
       m_costData->getRoIArea(_e),
       m_costData->getRoINL1Thresh(_e),
+
+      m_costData->getRoIEt(_e),
+      m_costData->getRoIEtLarge(_e),
+      m_costData->getRoIMuonCharge(_e),
+      m_costData->getRoIEmTauIsoBits(_e),
+      m_costData->getRoIVectorEX(_e),
+      m_costData->getRoIVectorEY(_e),
+      //m_costData->getRoIOverflowEX(_e),
+      //m_costData->getRoIOverflowEY(_e),
+      //m_costData->getRoIOverflowET(_e),
+
       m_costData->getIsRoINone(_e),
       m_costData->getIsRoIMuon(_e),
       m_costData->getIsRoIEmTau(_e),
-      m_costData->getIsRoIJet(_e),
+      m_costData->getIsRoITau(_e),
+      m_costData->getIsRoIJet(_e), 
       m_costData->getIsRoIJetEt(_e),
       m_costData->getIsRoIEnergy(_e) );
   }
