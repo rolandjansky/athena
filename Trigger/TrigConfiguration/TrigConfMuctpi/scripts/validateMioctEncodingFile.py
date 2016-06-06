@@ -2,29 +2,52 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import sys,os
+import sys, time, os, re, argparse
+from TrigConfMuctpi.XMLReader import MioctGeometryXMLReader
 
-def main():
 
-    if len(sys.argv)<=1:
-        print "Usage:\n%s TestGeomety.xml" % sys.argv[0]
-        return 1
+def readXML(filename):
+    return MioctGeometryXMLReader(filename)
 
-    xmlfile = sys.argv[1]
+def validate(geometry):
+    stats = {'miocts' : 0, 'sectors' : 0, 'rois' : 0, 'decodes' : 0, 'topocells' : 0}
 
-    checkResult = os.system("get_files -xmls -symlink MUCTPIGeometry.dtd")
-    if checkResult != 0:
-        print "ERROR Could not find MUCTPIGeometry.dtd in $DATAPATH"
-        return 1
+    stats['miocts'] = len(geometry.getMIOCTs())
+
+    for mioct in geometry.getMIOCTs():
+        stats['sectors'] += len(mioct.Sectors)
+        for sector in mioct.Sectors:
+            stats['rois'] += len(sector.ROIs)
+            #print "M %2s  S %-4s  #R %3i" % (mioct['id'], sector['name'], len(sector.ROIs) )
+
+        stats['decodes'] += len(mioct.Decodes)
+        for decode in mioct.Decodes:
+            stats['topocells'] += len(decode.TopoCells)
+    print "#MIOCTs    : %i" % stats['miocts']
+    print "#Sectors   : %i" % stats['sectors']
+    print "#ROIs      : %i" % stats['rois']
+    print "#Decodes   : %i" % stats['decodes']
+    print "#TopoCells : %i" % stats['topocells']
+
+
+
     
-    checkResult = os.system("xmllint --noout --dtdvalid MUCTPIGeometry.dtd %s" % xmlfile)
-    if checkResult == 0:
-        print "XML file %s is conform with MUCTPIGeometry.dtd" % xmlfile
-    else:
-        print "ERROR the XML does not follow the document type definition MUCTPIGeometry.dtd"
-        return 1
 
-    return 0
+def main(args):
+
+    print "Using input %s" % args.infile
+    geometry = readXML( args.infile )
+
+    validate(geometry)
 
 if __name__=="__main__":
-    sys.exit(main())
+
+    parser = argparse.ArgumentParser( description=__doc__, 
+                                      formatter_class = argparse.RawTextHelpFormatter)
+
+    parser.add_argument('-i', dest='infile', default="TrigConfMuctpi/TestMioctGeometry2016.xml", type=str,
+                        help='name of input combined muon geometry filei [TrigConfMuctpi/TestMioctGeometry2016.xml]')
+
+    opts = parser.parse_args()
+
+    sys.exit( main(opts) )
