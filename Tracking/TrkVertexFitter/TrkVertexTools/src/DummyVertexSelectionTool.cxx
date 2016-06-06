@@ -4,8 +4,6 @@
 
 #include "TrkVertexTools/DummyVertexSelectionTool.h"
 #include "TrkEventPrimitives/ParamDefs.h"
-#include "VxVertex/VxCandidate.h"
-#include "VxVertex/VxContainer.h"
 #include "CLHEP/Random/RandFlat.h"
 #include <vector> 
 
@@ -52,16 +50,16 @@ namespace Trk{
      return StatusCode::SUCCESS;
    }
 
-  unsigned int DummyVertexSelectionTool::findVertexInContainer(const VxContainer * vxContainer ) const
+  unsigned int DummyVertexSelectionTool::findVertexInContainer(const xAOD::VertexContainer * vertexContainer ) const
   {
-   if(vxContainer->size()>2)
+   if(vertexContainer->size()>2)
    {
    
 //only do anything if >1 real vertex is actually present   
      if( CLHEP::RandFlat::shoot(m_randomEngine)>0.9)
      {
 //and only in 10% of cases   let us randomize the vertex choice
-     unsigned int ivtx = (unsigned int)( CLHEP::RandFlat::shoot(m_randomEngine) *  vxContainer->size());
+     unsigned int ivtx = (unsigned int)( CLHEP::RandFlat::shoot(m_randomEngine) *  vertexContainer->size());
 
       ATH_MSG_VERBOSE("Vertex Selection changed to " << ivtx << "!");
       return ivtx;
@@ -69,7 +67,7 @@ namespace Trk{
      }//end of random selection
      ATH_MSG_VERBOSE("Vertex Selection unchanged!");
      
-   }//end of VxContainer size check
+   }//end of VertexContainer size check
   
 //nothing happened, return the default primary vertex position  
    return 0;
