@@ -16,8 +16,8 @@
 #include <boost/function_types/function_arity.hpp>
 #include <boost/typeof/std/utility.hpp>
 #include <boost/type_traits/remove_pointer.hpp>
-#include "DataModel/ElementLink.h"
-#include "DataModel/DataLink.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/DataLink.h"
 
 #include "TrigNavigation/NavigationTraits.h"
 #include "TrigStorageDefinitions/EDM_TypeInfoMethods.h"

@@ -29,8 +29,6 @@ StoreGateSvc* pStore(0);
 
 
 
-
-
 template<class HTYPE> 
 StatusCode reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typename HTYPE::base_type*& base_holder ) {
   BEGIN_TEST("Registration");
@@ -41,7 +39,7 @@ StatusCode reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typ
   if ( ! base_holder ) REPORT_AND_STOP ("Holder can't create base holder" );
   
 
-  iholder->prepare(msglog, pStore,0);
+  iholder->prepare(msglog, pStore,0, false);
   if ( iholder->syncWithSG() == false ) REPORT_AND_STOP( "can not sync wiht holder" );
   
   END_TEST;
@@ -66,7 +64,7 @@ StatusCode creation() {
   REPORT_AND_CONTINUE( "Creation of the holders Object <-> Container" );
   Holder<TestA>* oc(0); 
   if ( reg(new HolderImp<TestA, TestAContainer >(), "creation1", 1, 0, oc).isFailure() ) REPORT_AND_STOP("reg creation1") ;
-  
+
 
   //////////////////////////////////////////////////////////////////
   REPORT_AND_CONTINUE( "Creation of the holders Container <-> Container with details" );
@@ -79,6 +77,12 @@ StatusCode creation() {
   Holder<TestA>* oc_dec(0); 
   if ( reg(new HolderImp<TestA, TestAContainer >(), "creation3", 3, deco, oc_dec).isFailure() ) REPORT_AND_STOP("reg creation3") ;
 
+  Holder<TestBContainerView >* cc_view(0);  
+  if (  reg( new HolderImp<TestBContainerView, TestBContainerView >() , "creation4", 0, 0, cc_view).isFailure() ) REPORT_AND_STOP( "reg creation4" );
+  
+  //  REPORT_AND_CONTINUE( "Creation of the holders ViewObject <-> ViewContainer" );
+  //  Holder<TestB >* cc_view_obj(0);
+  //  if (  reg( new HolderImp<TestB, TestBContainerView >() , "creation0", 0, 0, cc_view_obj).isFailure() ) REPORT_AND_STOP( "reg creation5" );
   END_TEST;
 }
 
@@ -214,6 +218,27 @@ StatusCode serialization() {
   
   END_TEST;
 }
+
+
+//*****************************************************************************
+StatusCode externalCollection() {
+  BEGIN_TEST("externalCollection");
+
+  TestBContainer* dav = new TestBContainer;
+  dav->push_back(new TestB(1));
+  dav->push_back(new TestB(2));
+  
+  if ( pStore->record(dav, "HLT_external").isFailure() )
+    REPORT_AND_STOP("Failed to record in SG");
+  
+  Holder<TestBContainer> *base = new HolderImp<TestBContainer, TestBContainer >();
+  Holder<TestBContainer> *h =   dynamic_cast<Holder<TestBContainer>*>(base->clone("external", 77));
+  h->prepare(msglog, pStore,0, false);  
+
+  END_TEST;
+}
+
+
 //*****************************************************************************
 int main() {
 
@@ -265,6 +290,9 @@ int main() {
   if ( getUniqueKeyBeforeReg().isFailure() ) 
     ABORT("UniqueKey failed");
 
+
+  if ( externalCollection().isFailure() ) 
+    ABORT("Sync to an exteranl collection failed");
   REPORT_AND_CONTINUE( "END all went fine" );
   return 0;
 }

@@ -40,6 +40,7 @@ NavigationCore::NavigationCore()
     m_storeGate(0),
     m_objectsKeyPrefix("HLT"),
     m_objectsIndexOffset(0),
+    m_holderfactory(0),
     m_referenceAllClasses(true) {
 
   m_log = new MsgStream(Athena::getMessageSvc(), "NavigationCore");
@@ -165,6 +166,8 @@ bool NavigationCore::serialize( std::vector<uint32_t>& output, std::vector<unsig
     return false;
   }
 
+  MLOG(DEBUG) << "total size of serialized navigation: " << output.size() << endreq;
+
   return true;
 }
 
@@ -183,6 +186,8 @@ bool NavigationCore::serialize_DSonly( std::vector<uint32_t>& output, std::vecto
     MLOG(WARNING) << "full serialization failed" << endreq;
     return false;
   }
+  
+  MLOG(DEBUG) << "total size of serialized navigation (DS only): " << output.size() << endreq;
 
   return true;
 }
@@ -196,6 +201,9 @@ bool NavigationCore::serialize_DSonly( std::vector<uint32_t>& output, std::vecto
 
 bool NavigationCore::deserialize( const std::vector<uint32_t>& input ) {
   std::vector<uint32_t>::const_iterator inputIt = input.begin();
+
+  MLOG(DEBUG) << "deserialize: deserializing input of size:  " << input.size() << endreq;
+
 
   if (input.size()==0) {
     MLOG(WARNING) << "Cannot work on empty payload" << endreq;
@@ -222,7 +230,7 @@ bool NavigationCore::deserialize( const std::vector<uint32_t>& input ) {
     return false;
   }
 
-  bool tesDeserializationStatus = deserializeTEs(inputIt,input.end());
+  bool tesDeserializationStatus = deserializeTEs(inputIt,input.size());
   MLOG(DEBUG) << "deserialize: TEs structure unpacked, status: " << tesDeserializationStatus  << endreq;
 
 
@@ -241,7 +249,7 @@ bool NavigationCore::deserialize( const std::vector<uint32_t>& input ) {
     }
  
     if(!m_holderstorage.registerHolder(holder)){
-      MLOG(ERROR) << "deserialize: holder registration for holder with clid: " << holder->typeClid() << " and label: " << holder->label() << " failed." << endreq;
+      MLOG(WARNING) << "deserialize: holder registration for holder with clid: " << holder->typeClid() << " and label: " << holder->label() << " failed." << endreq;
     }
   }
   return true;
@@ -462,6 +470,28 @@ void NavigationCore::setObjKeyPrefix(const std::string& k) {
   m_objectsKeyPrefix = k;
 }
 
+
+bool NavigationCore::getFeatureAccessors( const TriggerElement* te, class_id_type clid,
+					  const index_or_label_type& index_or_label,
+					  bool only_single_feature,
+					  TriggerElement::FeatureVec& features,
+					  bool with_cache_recording,
+					  bool travel_backward_recursively,
+					  const TriggerElement*& source,
+					  std::string& sourcelabel) const {
+  
+  NavigationCore* non_const_this = const_cast<NavigationCore*>(this);
+  
+
+  //if query was via subindex we don't cache the query (no support yet)
+  //note that the instantiation of this object has side effects (with calls to the caching singleton etc...)
+  HLT::RoICacheHistory::QuestionScope qscope( with_cache_recording && (index_or_label.which() == 1)?
+					      HLT::RoICacheHistory::QuestionScope(te, clid, boost::get<std::string>(index_or_label), non_const_this, only_single_feature) :
+					      HLT::RoICacheHistory::QuestionScope() );
+  
+  return TrigNavStructure::getFeatureAccessors(te,clid,index_or_label,only_single_feature,features,with_cache_recording,travel_backward_recursively,source,sourcelabel);
+} 
+
 bool NavigationCore::getFeatureAccessorsSingleTE( const TriggerElement* te, CLID clid,
 						  const index_or_label_type& index_or_label,
 						  bool only_single_feature,
@@ -474,27 +504,20 @@ bool NavigationCore::getFeatureAccessorsSingleTE( const TriggerElement* te, CLID
   
   //if query was via subindex we don't cache the query (no support yet)
   if(index_or_label.which() == 0) return status;
-
-  const std::string label = boost::get<std::string>(index_or_label);
-  NavigationCore* non_const_this = const_cast<NavigationCore*>(this);
-
-  HLT::RoICacheHistory::QuestionScope qscope( with_cache_recording ?
-		 HLT::RoICacheHistory::QuestionScope(te, clid, label, non_const_this, only_single_feature) :
-		 HLT::RoICacheHistory::QuestionScope() );
-
+  
   if ( with_cache_recording ) {
     for(auto& fea : features){
       HLT::RoICacheHistory::instance().addAnswer(te, fea);
     }
   }
-
+  
   return status;
 }
 
 bool NavigationCore::serializeWithHolderSection(const std::vector<uint32_t>& holderdata, const std::vector<unsigned int>& holderblobsizes, std::vector<uint32_t>& output,
 						std::vector<unsigned int>& cuts ,std::vector<std::pair<CLID, std::string> >& clid_name) const {
   cuts.clear();
-  clid_name.clear();
+  // clid_name.clear(); Don't reset this vector here since the vector is not remade. Otherwise datascouting stops working.
 
   unsigned int version=4;
   MLOG(DEBUG) << "NavigationCore::serialize: serializing with version " << version << endreq;

@@ -5,32 +5,14 @@
 #pragma once
 
 #include "AthContainers/AuxElement.h"
+#include "AthContainers/ViewVector.h"
 #include "xAODCore/AuxContainerBase.h"
+
 
 #define TRIGSTORAGEDEF_MERGEPACKS
 #include "TrigNavigation/TypeRegistration.h"
 
-HLT_BEGIN_TYPE_REGISTRATION
-  HLT_REGISTER_TYPE(class TestA, class TestA, class DataVector<TestA>, class TestAuxA)
-  HLT_REGISTER_TYPE(class TestB, class TestBContainer, class TestBContainer, class TestAuxB)
-  HLT_REGISTER_TYPE(class TestC, class TestC, class DataVector<TestC>)
-  HLT_REGISTER_TYPE(class TestD, class TestDContainer, class TestDContainer)
-HLT_END_TYPE_REGISTRATION(TrigNavigationUnitTest)
 
-#define LTYPEMAPCLASS(name)\
-  struct class_##name{\
-    typedef TypeInfo_##name map;\
-    static const std::string package_name;\
-  };
-
-LTYPEMAPCLASS(TrigNavigationUnitTest)
-
-struct TypeInfo_EDM {
-  typedef  HLT::TypeInformation::newlist
-  ::add<class_TrigNavigationUnitTest>  ::go
-  ::done map;
-};
-REGISTER_PACKAGE_WITH_NAVI(TrigNavigationUnitTest)
 
 class TestA : public SG::AuxElement {
 public:
@@ -63,7 +45,7 @@ public:
   int value() const { return b; }
   int b;
 };
-
+//CLASS_DEF(TestB,257270547,1)
 
 class TestBContainer : public DataVector<TestB> {
 public:
@@ -73,7 +55,14 @@ public:
 
 CLASS_DEF(TestBContainer, 96422, 1)
 
+class TestBContainerView : public ViewVector<TestBContainer> {
+ public:
+  TestBContainerView() 
+    : ViewVector<TestBContainer>(SG::VIEW_ELEMENTS){}
+};
 
+//VIEWVECTOR_CLASS_DEF(TestBContainerView, 96423)
+CLASS_DEF(TestBContainerView, 96423, 1)
 
 class TestAuxB : public xAOD::AuxContainerBase {
 public:
@@ -116,3 +105,25 @@ public:
 
 CLASS_DEF(TestDContainer, 96477, 1)
 
+HLT_BEGIN_TYPE_REGISTRATION
+  HLT_REGISTER_TYPE(class TestA, class TestA, class DataVector<TestA>, class TestAuxA)
+  HLT_REGISTER_TYPE(class TestB, class TestBContainer, class TestBContainer, class TestAuxB)
+  HLT_REGISTER_TYPE(class TestB, TestBContainerView, TestBContainerView)
+  HLT_REGISTER_TYPE(class TestC, class TestC, class DataVector<TestC>)
+  HLT_REGISTER_TYPE(class TestD, class TestDContainer, class TestDContainer)
+HLT_END_TYPE_REGISTRATION(TrigNavigationUnitTest)
+
+#define LTYPEMAPCLASS(name)\
+  struct class_##name{\
+    typedef TypeInfo_##name map;\
+    static const std::string package_name;\
+  };
+
+LTYPEMAPCLASS(TrigNavigationUnitTest)
+
+struct TypeInfo_EDM {
+  typedef  HLT::TypeInformation::newlist
+  ::add<class_TrigNavigationUnitTest>  ::go
+  ::done map;
+};
+REGISTER_PACKAGE_WITH_NAVI(TrigNavigationUnitTest)

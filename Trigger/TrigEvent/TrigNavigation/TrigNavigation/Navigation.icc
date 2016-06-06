@@ -60,6 +60,21 @@ bool HLT::Navigation::attachFeature( TriggerElement* te, const T* feature,
   return true;
 }
 
+template<class T>
+__attribute__((__used__))
+bool HLT::Navigation::associateExternalCollection(const std::string& label) {
+  CLID clid = ClassID_traits<T>::ID();
+  
+  MLOG(DEBUG) << "associateExternalCollection: of clid: " << clid << "(" << ClassID_traits<T>::typeName() << ")"
+	      << " label: \"" << label << "\"" <<  endreq;
+  HLTNavDetails::Holder<T>* holder = getHolder<T>(label, nextSubTypeIndex(clid,label));    
+  if ( ! holder ) { 
+    MLOG(WARNING) << "associateExternalCollection: Holder missing for CLID: " << clid << endreq;
+    return false;
+  }
+  return true;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 template<class T>

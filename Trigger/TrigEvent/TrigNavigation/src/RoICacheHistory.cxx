@@ -83,6 +83,7 @@ HLT::RoICacheHistory::FeatureCall::FeatureCall(const TriggerElement* work, const
 //-----------------------------------------------------------------------------
 HLT::RoICacheHistory::FeatureCall::FeatureCall() 
   :m_init(0),
+   m_work(0),
    m_clid(0),
    m_issingle(false),
    m_isget(false) {
