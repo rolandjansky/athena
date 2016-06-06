@@ -13,31 +13,35 @@
               since new EDM automatically deals with it... (thanks to Kirill/Andi's new LinkToTrack/
               LinkToTrackParticle)
 
+              David Shope <david.richard.shope@cern.ch> (2016-04-19)
+              Vertex objects stored in this class are now xAOD::Vertex (from Trk::VxCandidate)
+
  ***************************************************************************/
 
-#include "VxVertex/VxCandidate.h"
 #include "VxMultiVertex/TrackToVtxLink.h"
 
 namespace Trk {
-  
-  TrackToVtxLink::TrackToVtxLink() : m_vertexes(0) {}
+
+  // TODO: think about if handed vertices with no private store yet
+
+  TrackToVtxLink::TrackToVtxLink() : m_vertices(0) {}
                              
-  //constructor with pointers to vertexes
-  TrackToVtxLink::TrackToVtxLink(std::vector<VxCandidate*>* ptrToVertexes) {
-    m_vertexes=ptrToVertexes;
+  //constructor with pointers to vertices
+  TrackToVtxLink::TrackToVtxLink(std::vector<xAOD::Vertex*>* ptrToVertices) {
+    m_vertices=ptrToVertices;
   }
 
   TrackToVtxLink::~TrackToVtxLink() 
   {   
-    if (m_vertexes!=0) {
-      delete m_vertexes; 
-      m_vertexes=0;
+    if (m_vertices!=0) {
+      delete m_vertices; 
+      m_vertices=0;
     }
   }
   
 
   TrackToVtxLink::TrackToVtxLink(const TrackToVtxLink& rhs) :
-    m_vertexes(rhs.m_vertexes ? new std::vector<VxCandidate*>(*rhs.m_vertexes) : 0) { }
+    m_vertices(rhs.m_vertices ? new std::vector<xAOD::Vertex*>(*rhs.m_vertices) : 0) { }
   
 
   //assignement operator changed
@@ -45,8 +49,8 @@ namespace Trk {
   {
     if (this!=&rhs)
       {
-        delete m_vertexes;
-	m_vertexes = m_vertexes ? new std::vector<VxCandidate*>(*rhs.m_vertexes) : 0;
+        delete m_vertices;
+	m_vertices = m_vertices ? new std::vector<xAOD::Vertex*>(*rhs.m_vertices) : 0;
       }
     return *this;
   }
