@@ -1573,18 +1573,24 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::multiStatePropagate ( cons
 
 unsigned int Trk::GsfExtrapolator::propagatorType ( const Trk::TrackingVolume& trackingVolume ) const
 {
-
-  if (m_propagatorStickyConfiguration) return m_propagatorConfigurationLevel;
+  if (m_propagatorStickyConfiguration) {
+    if (m_propagators.size()>m_propagatorConfigurationLevel) return m_propagatorConfigurationLevel;
+    ATH_MSG_WARNING( "Misconfigured propagator type, set to "<<m_propagatorConfigurationLevel<<"->0" );
+    return 0;
+  }
 
   // Determine what sort of magnetic field is present
   unsigned int magneticFieldMode = m_fieldProperties.magneticFieldMode();
 
   // Chose between runge-kutta and step propagators depending on field magnetic field and material properties
   // ST : the following check may fail as the dEdX is often dummy for dense volumes - switch to rho or zOverAtimesRho ?
-  unsigned int propagatorMode    = ( magneticFieldMode > 1 && fabs( trackingVolume.dEdX ) ) < 10e-2 ? 2 : 3;
+  unsigned int propagatorMode    = ( magneticFieldMode > 1 && fabs( trackingVolume.dEdX ) < 10e-2 ) ? 2 : 3;
 
-  return (propagatorMode > m_propagatorConfigurationLevel) ? m_propagatorConfigurationLevel : propagatorMode;
+  unsigned int returnType =  (propagatorMode > m_propagatorConfigurationLevel) ? m_propagatorConfigurationLevel : propagatorMode;
 
+  if ( m_propagators.size()> returnType ) return returnType;
+  ATH_MSG_WARNING( "Misconfigured propagator type, set to "<< returnType <<"->0" );
+  return 0;     
 }
 
 /* =========================================================================================================================================
