@@ -8,6 +8,7 @@ atlas_subdir( SiClusterOnTrackTool )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
+                          Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/GeoPrimitives
                           GaudiKernel
                           InnerDetector/InDetDetDescr/SCT_ModuleDistortions
@@ -15,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkTools/TrkToolInterfaces
+                          Tracking/TrkTools/TrkAmbiguityProcessor
                           PRIVATE
                           Control/StoreGate
                           Event/EventPrimitives
@@ -34,7 +36,7 @@ atlas_add_component( SiClusterOnTrackTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel InDetPrepRawData InDetRIO_OnTrack TrkParameters TrkToolInterfaces StoreGateLib SGtests EventPrimitives InDetIdentifier InDetReadoutGeometry SiClusterizationToolLib TrkSurfaces )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaPoolUtilities GeoPrimitives GaudiKernel InDetPrepRawData InDetRIO_OnTrack TrkParameters TrkToolInterfaces TrkAmbiguityProcessorLib StoreGateLib SGtests EventPrimitives InDetIdentifier InDetReadoutGeometry SiClusterizationToolLib TrkSurfaces )
 
 # Install files from the package:
 atlas_install_headers( SiClusterOnTrackTool )

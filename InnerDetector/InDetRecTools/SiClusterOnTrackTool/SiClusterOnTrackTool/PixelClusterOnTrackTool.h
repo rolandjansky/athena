@@ -26,10 +26,12 @@
 #include "TrkParameters/TrackParameters.h"
 //#include "InDetIdentifier/PixelID.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "TrkAmbiguityProcessor/dRMap.h"
 
 //#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 //#include "PixelConditionsTools/IModuleDistortionsTool.h"
 
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 class PixelID;
 class IPixelOfflineCalibSvc;
 class IModuleDistortionsTool;
@@ -86,6 +88,8 @@ public:
  
   void correctBow(const Identifier&, Amg::Vector2D& locpos, const double tanphi, const double taneta) const;
 
+  double splineIBLPullX(float x, int layer) const;
+
   /** @brief produces a PixelClusterOnTrack (object factory!).
 
       Depending on job options it changes the pixel cluster position
@@ -109,8 +113,8 @@ public:
   virtual const InDet::PixelClusterOnTrack* correct
     (const Trk::PrepRawData&, const Trk::TrackParameters&, 
      const InDet::PixelClusterStrategy) const;
-     
 
+     
   ///////////////////////////////////////////////////////////////////
   // Private methods:
   ///////////////////////////////////////////////////////////////////
@@ -132,7 +136,7 @@ public:
   ToolHandle<IModuleDistortionsTool>            m_pixDistoTool    ;
   ToolHandle<Trk::IRIO_OnTrackErrorScalingTool> m_errorScalingTool;
   ServiceHandle<IPixelOfflineCalibSvc>          m_calibSvc        ;
-
+  StoreGateSvc*                                 m_detStore        ;
   /* ME: Test histos have nothing to do with production code, use a flag
     IHistogram1D* m_h_Resx;
     IHistogram1D* m_h_Resy;
@@ -170,6 +174,7 @@ public:
   
   /** Enable NN based calibration (do only if NN calibration is applied) **/
   mutable bool                      m_applyNNcorrection;
+  mutable bool                      m_applydRcorrection;
   bool				    m_NNIBLcorrection;
   bool				    m_IBLAbsent;
   
@@ -180,12 +185,15 @@ public:
   ServiceHandle<IBLParameterSvc>                        m_IBLParameterSvc;
   mutable const InDet::PixelGangedClusterAmbiguities*   m_splitClusterMap;      //!< the actual split map         
   std::string                                           m_splitClusterMapName;  //!< split cluster ambiguity map
+  mutable const InDet::DRMap*                           m_dRMap;      //!< the actual dR map         
+  std::string                                           m_dRMapName;  //!< dR map
   bool                                                  m_doNotRecalibrateNN;
   bool                                                  m_noNNandBroadErrors;
 	
 	/** Enable different treatment of  cluster errors based on NN information (do only if TIDE ambi is run) **/
   bool                      m_usingTIDE_Ambi;
-
+  
+  std::vector< std::vector<float> > m_fX, m_fY, m_fB, m_fC, m_fD;
 };
 
 } // end of namespace InDet
