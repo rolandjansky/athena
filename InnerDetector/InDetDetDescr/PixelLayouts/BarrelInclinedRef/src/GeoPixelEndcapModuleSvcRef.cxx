@@ -38,7 +38,7 @@ void GeoPixelEndcapModuleSvcRef::preBuild()
 
   msg(MSG::INFO) <<"Foam description "<<m_layer<<endreq;
 
-  PixelInclRefStaveXMLHelper staveDBHelper(m_layer);
+  PixelInclRefStaveXMLHelper staveDBHelper(m_layer, getBasics());
   //  int geoIndex = staveDBHelper.getStaveGeoIndexEC();
   //  msg(MSG::INFO) <<"Foam description "<<m_layer<<" "<<geoIndex<<endreq;
   

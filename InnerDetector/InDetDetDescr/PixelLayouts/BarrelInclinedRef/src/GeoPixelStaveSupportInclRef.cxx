@@ -50,7 +50,7 @@ GeoVPhysVol* GeoPixelStaveSupportInclRef::Build() {
 void GeoPixelStaveSupportInclRef::preBuild() {
 
   // Access XML file
-  PixelInclRefStaveXMLHelper staveDBHelper(m_layer);
+  PixelInclRefStaveXMLHelper staveDBHelper(m_layer, getBasics());
 
   msg(MSG::INFO) <<"Build detailed stave support description :  layout "<<m_layer<<endreq;
 

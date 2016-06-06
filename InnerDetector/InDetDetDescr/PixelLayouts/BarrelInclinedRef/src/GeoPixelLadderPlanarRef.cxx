@@ -98,7 +98,7 @@ void GeoPixelLadderPlanarRef::preBuild( ) {
       msg(MSG::INFO) << "Pixel module builder tool retrieved: " << m_pixelModuleSvc << endreq;
   
   // Access stave description xml file				
-  PixelInclRefStaveXMLHelper staveDBHelper(m_layer);
+  PixelInclRefStaveXMLHelper staveDBHelper(m_layer, getBasics());
 
   printf("************** BUILD LADDER for layer  %d\n", m_layer);
 
@@ -335,7 +335,7 @@ double GeoPixelLadderPlanarRef::calcThickness() {
   // to avoid duplication of code
   //
 
-  PixelInclRefStaveXMLHelper staveDBHelper(m_layer);
+  PixelInclRefStaveXMLHelper staveDBHelper(m_layer, getBasics());
 
   double clearance = staveDBHelper.getClearance();
   double staggerDist = staveDBHelper.getStaggerDist();
@@ -370,7 +370,7 @@ double GeoPixelLadderPlanarRef::calcWidth() {
   //
   // The width is the maximum among the component widths
   //
-  PixelInclRefStaveXMLHelper staveDBHelper(m_layer);
+  PixelInclRefStaveXMLHelper staveDBHelper(m_layer, getBasics());
   
   double clearance = staveDBHelper.getClearance();
 

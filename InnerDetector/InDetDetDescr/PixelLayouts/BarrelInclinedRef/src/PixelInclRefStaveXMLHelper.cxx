@@ -5,19 +5,36 @@
 
 #include "BarrelInclinedRef/PixelInclRefStaveXMLHelper.h"
 #include "PathResolver/PathResolver.h"
+#include "PixelLayoutUtils/DBXMLUtils.h"
 
-PixelInclRefStaveXMLHelper::PixelInclRefStaveXMLHelper(int layer):
+PixelInclRefStaveXMLHelper::PixelInclRefStaveXMLHelper(int layer, const PixelGeoBuilderBasics* basics):
   GeoXMLUtils(),
+  PixelGeoBuilder(basics),
   m_layer(layer)
 {
 
-  std::string fileName="GenericInclRefStave.xml";
+  std::string fileName="GenericExtRefStave.xml";
   if(const char* env_p = std::getenv("PIXEL_STAVESUPPORT_GEO_XML")) fileName = std::string(env_p);
 
-  std::string file = PathResolver::find_file (fileName, "DATAPATH");
-  InitializeXML();
-  bool bParsed = ParseFile(file);
+  bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
+  bool bParsed=false;
+  if(readXMLfromDB)
+    {
+      basics->msgStream()<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      DBXMLUtils dbUtils(getBasics());
+      std::string XMLtext = dbUtils.readXMLFromDB(fileName);
+      InitializeXML();
+      bParsed = ParseBuffer(XMLtext,std::string(""));
+    }
+  else
+    {
+      basics->msgStream()<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      std::string file = PathResolver::find_file (fileName, "DATAPATH");
+      InitializeXML();
+      bParsed = ParseFile(file);
+    }
 
+  // No XML file was parsed    
   if(!bParsed){
     std::cout<<"XML file "<<fileName<<" not found"<<std::endl;
     return;

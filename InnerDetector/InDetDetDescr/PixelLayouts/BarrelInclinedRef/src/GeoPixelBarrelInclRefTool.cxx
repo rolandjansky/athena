@@ -75,7 +75,6 @@ StatusCode GeoPixelBarrelInclRefTool::initialize()
     return StatusCode::FAILURE;
   }
   
-  preBuild();
   return StatusCode::SUCCESS;
 }
 
@@ -113,16 +112,16 @@ StatusCode GeoPixelBarrelInclRefTool::registerCallback( StoreGateSvc*)
 
 // }
 
-void GeoPixelBarrelInclRefTool::preBuild()
+void GeoPixelBarrelInclRefTool::preBuild(const PixelGeoBuilderBasics* basics)
 {
 
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
 
   double rmin = genDBHelper.getBarrelRMin();
   double rmax = genDBHelper.getBarrelRMax();
   double halflen = genDBHelper.getBarrelHalfLength();
 
-  msg(MSG::INFO) << "GeoPixelBarrelAlpineTool: rmin " << rmin << " rmax " << rmax << " halflen " << halflen << endreq;
+  msg(MSG::INFO) << "GeoPixelBarrelInclinedTool: rmin " << rmin << " rmax " << rmax << " halflen " << halflen << endreq;
   m_barrelRegion.push_back("B");
   m_barrelSvcRegions.push_back(new InDetDD::TubeZone("B",-halflen, halflen, rmin, rmax));
 
@@ -137,7 +136,7 @@ GeoVPhysVol* GeoPixelBarrelInclRefTool::buildBarrel(const PixelGeoBuilderBasics*
   m_matMgr = basics->matMgr();
   m_msg = basics->msgStream();
 
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML", basics);
 
   double rmin = genDBHelper.getBarrelRMin();
   double rmax = genDBHelper.getBarrelRMax();

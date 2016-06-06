@@ -14,7 +14,7 @@
     <BarrelModuleDZ> 41.5 </BarrelModuleDZ>
     <ModuleTilt> 0. </ModuleTilt>
     <EnvelopeLength> 2498. </EnvelopeLength>
-    <StaveSupportMaterialGeo>pix::StaveSupportL0</StaveSupportMaterialGeo>
+    <StaveSupportMaterialGeo>pix::Default_IExtBrl4_Stave_Support_L0_Fixed_Weight</StaveSupportMaterialGeo>
     <ServiceRouting>outer</ServiceRouting>
     <LadderThickness> .25 </LadderThickness>
     <LadderWidth> 13.8 </LadderWidth>
@@ -27,7 +27,7 @@
     <BarrelModuleDZ> 41.5 </BarrelModuleDZ>
     <ModuleTilt> 0. </ModuleTilt>
     <EnvelopeLength> 2498. </EnvelopeLength>
-    <StaveSupportMaterialGeo>pix::StaveSupportL1</StaveSupportMaterialGeo>
+    <StaveSupportMaterialGeo>pix::Default_IExtBrl4_Stave_Support_L1_Fixed_Weight</StaveSupportMaterialGeo>
     <ServiceRouting>inner</ServiceRouting>
     <LadderThickness> .25 </LadderThickness>
     <LadderWidth> 27.4 </LadderWidth>
@@ -41,7 +41,7 @@
     <BarrelModuleDZ> 41.3 </BarrelModuleDZ>
     <ModuleTilt> 0. </ModuleTilt>
     <EnvelopeLength> 1460. </EnvelopeLength>
-    <StaveSupportMaterialGeo>pix::StaveSupportOuter</StaveSupportMaterialGeo>
+    <StaveSupportMaterialGeo>pix::Default_IExtBrl4_Stave_Support_L2_Fixed_Weight</StaveSupportMaterialGeo>
     <ServiceOffsetX> 1.1 </ServiceOffsetX>
     <ServiceOffsetY> 0. </ServiceOffsetY>
     <LadderThickness> 1. </LadderThickness>
@@ -53,7 +53,7 @@
     <BarrelModuleDZ> 41.3 </BarrelModuleDZ>
     <ModuleTilt> 0. </ModuleTilt>
     <EnvelopeLength> 1460. </EnvelopeLength>
-    <StaveSupportMaterialGeo>pix::StaveSupportOuter</StaveSupportMaterialGeo> 
+    <StaveSupportMaterialGeo>pix::Default_IExtBrl4_Stave_Support_L3_Fixed_Weight</StaveSupportMaterialGeo>
     <ServiceOffsetX> 1.1 </ServiceOffsetX>
     <ServiceOffsetY> 0. </ServiceOffsetY>
     <LadderThickness> 1. </LadderThickness>
@@ -65,7 +65,7 @@
     <BarrelModuleDZ> 41.3 </BarrelModuleDZ>
     <ModuleTilt> 0. </ModuleTilt>
     <EnvelopeLength> 1460. </EnvelopeLength>
-    <StaveSupportMaterialGeo>pix::StaveSupportOuter</StaveSupportMaterialGeo> 
+    <StaveSupportMaterialGeo>pix::Default_IExtBrl4_Stave_Support_L4_Fixed_Weight</StaveSupportMaterialGeo>
     <ServiceOffsetX> 1.1 </ServiceOffsetX>
     <ServiceOffsetY> 0. </ServiceOffsetY>
     <LadderThickness> 1. </LadderThickness>

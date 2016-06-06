@@ -32,7 +32,7 @@ class GeoPixelBarrelInclRefTool : virtual public IGeoPixelBarrelTool, public Ath
  public:
   //  GeoPixelBarrelInclRefTool(const GeoPixelServices * pixServices);
   GeoPixelBarrelInclRefTool(const std::string&,const std::string&,const IInterface*);
-  void preBuild();
+  void preBuild(const PixelGeoBuilderBasics* basics);
   virtual InDet::GeoComponent* getGeoCompVol() const {return 0; }
 
   virtual StatusCode initialize();

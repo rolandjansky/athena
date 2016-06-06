@@ -9,12 +9,13 @@
     <ModuleCenterShift> 0. </ModuleCenterShift>
   </PixelStaveGeo>
 
+
   <PixelStaveGeo>
     <Layer>0</Layer>
     <BarrelModuleDZ> 41.5 </BarrelModuleDZ>
     <ModuleTilt> 0. </ModuleTilt>
     <EnvelopeLength> 2498. </EnvelopeLength>
-    <StaveSupportMaterialGeo>pix::StaveSupportL0</StaveSupportMaterialGeo>
+    <StaveSupportMaterialGeo>pix::Default_InclBrl4_Stave_Support_L0_Fixed_Weight</StaveSupportMaterialGeo>
     <ServiceRouting>outer</ServiceRouting>
     <LadderThickness> .25 </LadderThickness>
     <LadderWidth> 13.8 </LadderWidth>
@@ -27,7 +28,7 @@
     <BarrelModuleDZ> 41.5 </BarrelModuleDZ>
     <ModuleTilt> 0. </ModuleTilt>
     <EnvelopeLength> 2498. </EnvelopeLength>
-    <StaveSupportMaterialGeo>pix::StaveSupportL1</StaveSupportMaterialGeo>
+    <StaveSupportMaterialGeo>pix::Default_InclBrl4_Stave_Support_L1_Fixed_Weight</StaveSupportMaterialGeo>
     <ServiceRouting>inner</ServiceRouting>
     <LadderThickness> .25 </LadderThickness>
     <LadderWidth> 27.4 </LadderWidth>
@@ -40,8 +41,8 @@
     <Layer>2</Layer>
     <BarrelModuleDZ> 41.3 </BarrelModuleDZ>
     <ModuleTilt> 0. </ModuleTilt>
-    <EnvelopeLength> 1465. </EnvelopeLength>
-    <StaveSupportMaterialGeo>pix::StaveSupportOuter</StaveSupportMaterialGeo>
+    <EnvelopeLength> 1559.95 </EnvelopeLength>
+    <StaveSupportMaterialGeo>pix::Default_InclBrl4_Stave_Support_L2_Fixed_Weight</StaveSupportMaterialGeo>
     <ServiceRouting>outer</ServiceRouting>
     <LadderThickness> .25 </LadderThickness>
     <LadderWidth> 13.8 </LadderWidth>
@@ -53,8 +54,8 @@
     <Layer>3</Layer>
     <BarrelModuleDZ> 41.3 </BarrelModuleDZ>
     <ModuleTilt> 0. </ModuleTilt>
-    <EnvelopeLength> 1465. </EnvelopeLength>
-    <StaveSupportMaterialGeo>pix::StaveSupportOuter</StaveSupportMaterialGeo> 
+    <EnvelopeLength> 1559.95 </EnvelopeLength>
+    <StaveSupportMaterialGeo>pix::Default_InclBrl4_Stave_Support_L3_Fixed_Weight</StaveSupportMaterialGeo> 
     <ServiceRouting>outer</ServiceRouting>
     <LadderThickness> .25 </LadderThickness>
     <LadderWidth> 13.8 </LadderWidth>
@@ -66,8 +67,8 @@
     <Layer>4</Layer>
     <BarrelModuleDZ> 41.3 </BarrelModuleDZ>
     <ModuleTilt> 0. </ModuleTilt>
-    <EnvelopeLength> 1465. </EnvelopeLength>
-    <StaveSupportMaterialGeo>pix::StaveSupportOuter</StaveSupportMaterialGeo> 
+    <EnvelopeLength> 1559.95 </EnvelopeLength>
+    <StaveSupportMaterialGeo>pix::Default_InclBrl4_Stave_Support_L4_Fixed_Weight</StaveSupportMaterialGeo> 
     <ServiceRouting>outer</ServiceRouting>
     <LadderThickness> .25 </LadderThickness>
     <LadderWidth> 13.8 </LadderWidth>
