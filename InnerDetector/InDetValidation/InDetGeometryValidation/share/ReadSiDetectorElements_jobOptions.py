@@ -21,7 +21,7 @@ globalflags.DataSource='geant4'
 #globalflags.DataSource='data'
 
 # Select the geometry version. 
-globalflags.DetDescrVersion='ATLAS-GEO-08-00-00'
+globalflags.DetDescrVersion='ATLAS-R1-2012-03-01-00'
 
 # For misalignments
 from IOVDbSvc.CondDB import conddb
