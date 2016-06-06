@@ -11,6 +11,8 @@
 
 #include "GaudiKernel/IAlgTool.h"
 
+#include "TrkParameters/TrackParameters.h"
+
   /**
    * @class Trk::IVertexTrackCompatibilityEstimator
    *
@@ -29,6 +31,12 @@
    * @author Giacinto.Piacquadio@physik.uni-freiburg.de
    * @author Kirill.Prokofiev@cern.ch 
    *
+   * -------------------------------------------------------------
+   * Changes:
+   *
+   * David Shope <david.richard.shope@cern.ch> (2016-03-18)
+   * EDM Migration to xAOD - move Trk::Vertex to Amg::Vector3D
+   *
    */
 
 namespace Trk
@@ -38,7 +46,6 @@ namespace Trk
 
 
   class VxTrackAtVertex;
-  class Vertex;
 
   class IVertexTrackCompatibilityEstimator : virtual public IAlgTool 
   {
@@ -57,12 +64,13 @@ namespace Trk
      /**
       * An estimate method, updating the Trk::VxTrackAtVertex internally
       */
-       virtual void estimate(VxTrackAtVertex &,const Vertex & vertex)=0;
+       virtual void estimate(VxTrackAtVertex &,const Amg::Vector3D & vertex)=0;
        
      /**
       * An estimate method, returning the compatibility value directly
       */    
-       virtual float compatibility(VxTrackAtVertex &,const Vertex & vertex)=0;
+       virtual float compatibility(VxTrackAtVertex &,const Amg::Vector3D & vertex)=0;
+
   };
 }
 

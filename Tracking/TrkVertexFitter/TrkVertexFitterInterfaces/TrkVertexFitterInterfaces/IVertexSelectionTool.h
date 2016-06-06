@@ -11,7 +11,8 @@
 
 #include "GaudiKernel/IAlgTool.h"
 
-class VxContainer;
+// xAOD Includes
+#include "xAODTracking/VertexContainer.h"
 
 namespace Trk
 {
@@ -24,6 +25,13 @@ namespace Trk
 
    For more detailed information, take a look at the header file of the actual
    implementation files.
+
+   ---------------------------------------------------
+   Changes:
+
+   David Shope <david.richard.shope@cern.ch> (2016-06-01)
+
+     EDM Migration to xAOD - remove method using VxCandidate
 
   */
 
@@ -38,8 +46,8 @@ namespace Trk
        static const InterfaceID& interfaceID() { return IID_IVertexSelectionTool; };
 
 
-       /** Selection method returning the position of selected the PV in  the container */
-       virtual unsigned int findVertexInContainer(const VxContainer * ) const = 0;
+       /** Selection method returning the position of selected the PV in the container */
+       virtual unsigned int findVertexInContainer(const xAOD::VertexContainer * ) const = 0;
 
 
   };//end of class definitions

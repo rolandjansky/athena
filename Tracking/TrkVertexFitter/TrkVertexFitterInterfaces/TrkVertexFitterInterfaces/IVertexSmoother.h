@@ -10,6 +10,7 @@
 #define TRKVERTEXFITTERINTERFACE_IVERTEXSMOOTHER_H
 
 #include "GaudiKernel/IAlgTool.h"
+#include "xAODTracking/Vertex.h"
 
 /**
  * @class Trk::IVertexSmoother
@@ -21,12 +22,18 @@
  * using IVertexTrackUpdator to update one track at the time.
  * 
  * @author Kirill.Prokofiev@cern.ch, Giacinto.Piacquadio@physik.uni-freiburg.de
+ *
+ * --------------------------------------------------------------
+ * Changes:
+ *
+ * David Shope <david.richard.shope@cern.ch> (2016-04-19)
+ *
+ * EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex 
+ *
  */
 
 namespace Trk
 {
-
-  class VxCandidate;
 
   static const InterfaceID IID_IVertexSmoother("IVertexSmoother", 1, 0);
 
@@ -47,7 +54,7 @@ namespace Trk
        /**
         * Actual smooth method
         */
-       virtual void smooth(const VxCandidate & vtx) const = 0;
+       virtual void smooth(xAOD::Vertex & vtx) const = 0;
 
   };
 }//end of namespace definition
