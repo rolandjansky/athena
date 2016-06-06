@@ -368,10 +368,8 @@
         <TEST name="TriggerDBAccessTest" type="script" suite="TrigP1HLTmenus">
             <options_atn>trigtest.pl --cleardir --test TriggerDBAccessTest --run TriggerDBAccessTest --conf TrigP1Test.conf</options_atn>
             <timelimit>5</timelimit>
-            <nightly_exclude>.*</nightly_exclude>
-            <!--<mailto>joerg.stelzer@cern.ch</mailto>--> 
             <platform>opt</platform> 
-            
+            <nightly_exclude>.*</nightly_exclude>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -401,8 +399,8 @@
         <TEST name="TrfTestPPV6" type="script" suite="TrigP1HLTmenus">
             <options_atn>trigtest.pl --cleardir  --test TrfTestPPV6 --rundir TrfTestPPV6 --conf TrigP1Test.conf</options_atn>
             <timelimit>25</timelimit>
-            <nightly_exclude>.*</nightly_exclude>
             <platform>opt</platform>
+            <nightly_exclude>.*</nightly_exclude>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -412,8 +410,8 @@
         <TEST name="HLT_physicsV6_prescaleChange" type="script" suite="TrigP1HLTmenus">
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_prescaleChange --rundir HLT_physicsV6_prescaleChange --conf TrigP1Test.conf</options_atn>
             <timelimit>25</timelimit>
-            <nightly_exclude>.*</nightly_exclude>
             <platform>opt</platform>
+            <nightly_exclude>.*</nightly_exclude>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -626,6 +624,18 @@
                 <jobTransformCmd>
                     export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc47-opt/lib/libunwind.so ; 
                     athenaHLT.py --stdcmalloc --leak-check-execute  -o HLT_physicsV6  -n 100 -f /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/atn-test/data15_13TeV.00266904.physics_EnhancedBias.merge.RAW._lb0452._SFO-1._0001.1 -c 'testPhysicsV6=True;HLTOutputLevel=WARNING;doValidation=True' TrigP1Test/runHLT_standaloneRTT_leakCheck.py
+                </jobTransformCmd>
+                <group>AtlasHLTChainTest</group>
+                <queue>long</queue>
+            </jobTransform>
+
+            <jobTransform userJobId="athenaHLT_LatestRun_MCV6">
+                <doc>
+                    athenaHLT on latest available run
+                </doc>
+                <jobTransformJobName>athenaHLT_LatestRun_MCV6</jobTransformJobName>
+                <jobTransformCmd>
+                    trigp1test_athenaHLT.py --nfiles=1 --dir='/eos/atlas/atlastier0/rucio/data16_13TeV/physics_Main/' --modifiers="testMCV6=True;fpeAuditor=True"
                 </jobTransformCmd>
                 <group>AtlasHLTChainTest</group>
                 <queue>long</queue>
