@@ -26,6 +26,7 @@ use TileSimEvent         TileSimEvent-*          TileCalorimeter
 use MuonSimEvent         MuonSimEvent-*          MuonSpectrometer
 use CxxUtils             CxxUtils-*              Control
 use StoreGate            StoreGate-*             Control
+use AtlasGoogleTest      AtlasGoogleTest-*       External
 
 public
 library ISF_Algorithms *.cxx components/*.cxx

@@ -23,6 +23,8 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( GTest )
+#find_package( GMock )
 
 # Component(s) in the package:
 atlas_add_component( ISF_Algorithms
@@ -39,7 +41,8 @@ atlas_add_library( ISF_AlgorithmsLib
 
 atlas_add_test( CollectionMerger_test
                 SOURCES test/CollectionMerger_test.cxx
-                LINK_LIBRARIES TestTools ISF_AlgorithmsLib
+                INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} #${GMOCK_INCLUDE_DIRS}
+                LINK_LIBRARIES TestTools ISF_AlgorithmsLib ${GTEST_LIBRARIES} #${GMOCK_LIBRARIES}
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 # Install files from the package:

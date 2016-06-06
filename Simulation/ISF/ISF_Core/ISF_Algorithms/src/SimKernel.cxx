@@ -38,23 +38,6 @@
 ////////////////
 ISF::SimKernel::SimKernel( const std::string& name, ISvcLocator* pSvcLocator ) :
   ::AthAlgorithm( name, pSvcLocator ),
-  m_validationOutput(false),
-  m_thistSvc("THistSvc",name),
-  m_validationStream("ISFSimKernel"),
-  m_t_simParticles(0),
-  m_val_x(0.0),
-  m_val_y(0.0),
-  m_val_z(0.0),
-  m_val_p(0.0),
-  m_val_px(0.0),
-  m_val_py(0.0),
-  m_val_pz(0.0),
-  m_val_meta(0.0),
-  m_val_peta(0.0),
-  m_val_pdg(0),
-  m_val_simID(0),
-  m_val_geoID(0),
-  m_val_sc(0),
   m_particleBroker("ISF_ParticleBroker", name),
   m_truthRecordSvc("ISF_TruthRecordSvc", name),
   m_simHitSvc("ISF_SimHitSvc", name),
@@ -65,8 +48,6 @@ ISF::SimKernel::SimKernel( const std::string& name, ISvcLocator* pSvcLocator ) :
   m_simSvcNames(ISF::fMaxNumAtlasSimIDs),
   m_numSimSvcs(ISF::fFirstAtlasSimID), // ==1 since UndefinedSimID is always there
   m_numISFEvents(0),
-  m_screenOutputPrefix("isf >> "),
-  m_screenEmptyPrefix(""),
   m_doCPUMon(true),
   //m_benchPDGCode(0), TODO: implement this if feasible
   //m_benchGeoID(0), TODO: implement this if feasible
@@ -74,17 +55,6 @@ ISF::SimKernel::SimKernel( const std::string& name, ISvcLocator* pSvcLocator ) :
   m_numParticles(0),
   m_maxParticleVectorSize(10240)
 {
-    // validation output section
-    declareProperty( "ValidationOutput",
-                     m_validationOutput = false,
-                     "If turned on, write out a ROOT tree.");
-    declareProperty("ValidationStreamName",
-                     m_validationStream = "ISFSimKernel",
-                     "Name of the output stream" );
-    declareProperty("THistService",
-                     m_thistSvc,
-                     "The THistSvc" );
-
     // the general services and tools needed
     declareProperty("ParticleBroker"             , m_particleBroker                  );
     declareProperty("TruthRecordService"         , m_truthRecordSvc                  );
@@ -103,8 +73,6 @@ ISF::SimKernel::SimKernel( const std::string& name, ISvcLocator* pSvcLocator ) :
     declareProperty("EventFilterTools"           , m_eventFilters                      );
     // tuning parameters
     declareProperty("MaximumParticleVectorSize"  , m_maxParticleVectorSize             );
-    // refine the screen output for debugging
-    declareProperty("ScreenOutputPrefix"      , m_screenOutputPrefix  );
 }
 
 // Destructor
@@ -117,63 +85,21 @@ ISF::SimKernel::~SimKernel()
 StatusCode ISF::SimKernel::initialize()
 {
 
-  // Screen output, part 1
-  for (size_t prl = 0; prl < m_screenOutputPrefix.size(); ++prl) m_screenEmptyPrefix += " ";
-  ATH_MSG_VERBOSE ( m_screenOutputPrefix << "--------------------------------------------------------");
-  ATH_MSG_INFO( m_screenOutputPrefix << "Initializing the ISF KERNEL " );
+  ATH_MSG_VERBOSE ( "--------------------------------------------------------" );
+  ATH_MSG_INFO( "Initializing the ISF KERNEL " );
 
   // setup memory monitoring Tool
   if ( m_doMemMon) {
     // memory monitoring tool given -> do memory monitoring
     if ( m_memMon.retrieve().isFailure() ){
-        ATH_MSG_FATAL( m_screenOutputPrefix <<  "Could not retrieve MemoryMonitoring Service. Abort.");
+        ATH_MSG_FATAL( "Could not retrieve MemoryMonitoring Service. Abort.");
         return StatusCode::FAILURE;
     } else
-        ATH_MSG_INFO( m_screenEmptyPrefix <<  "- MemoryMonitoring  : " << m_memMon.typeAndName() );
+        ATH_MSG_INFO( "- MemoryMonitoring  : " << m_memMon.typeAndName() );
     // record current memory usage
     m_memMon->recordCurrent("at beginning of SimKernel initialize()");
   }
 
-  // setup for validation mode
-  if ( m_validationOutput) {
-
-    // retrieve the histogram service
-    if ( m_thistSvc.retrieve().isSuccess() ) {
-      // Create the prefix of histogram names for the THistSvc
-      std::string prefix = "/" + m_validationStream + "/";
-      std::string treeName="ISF Simulated Particles";
-      m_t_simParticles = new TTree( "particles", treeName.c_str() );
-      m_t_simParticles->Branch("x"         , &m_val_x    , "x/F"         );
-      m_t_simParticles->Branch("y"         , &m_val_y    , "y/F"         );
-      m_t_simParticles->Branch("z"         , &m_val_z    , "z/F"         );
-      m_t_simParticles->Branch("p"         , &m_val_p    , "p/F"         );
-      m_t_simParticles->Branch("pdg"       , &m_val_pdg  , "pdg/I"       );
-      m_t_simParticles->Branch("statuscode", &m_val_sc   , "statuscode/S");
-      m_t_simParticles->Branch("px"        , &m_val_px   , "px/F"        );
-      m_t_simParticles->Branch("py"        , &m_val_py   , "py/F"        );
-      m_t_simParticles->Branch("pz"        , &m_val_pz   , "pz/F"        );
-      m_t_simParticles->Branch("meta"      , &m_val_meta , "meta/F"     );
-      m_t_simParticles->Branch("peta"      , &m_val_peta , "peta/F"     );
-      m_t_simParticles->Branch("simID"     , &m_val_simID, "simID/I"   );
-      //m_t_simParticles->Branch("geoID"     , &m_val_geoID, "geoID/I"   );
-
-      // register the Tree to the THistSvc and return it's StatusCode
-      ATH_CHECK(m_thistSvc->regTree( prefix+treeName, m_t_simParticles) );
-      ATH_MSG_INFO( m_screenOutputPrefix <<"Validation mode creating ISF Simulated Particles tree");
-
-    }
-
-    // error when trying to retrieve the THistSvc
-    else {
-      // -> turn off validation output
-      ATH_MSG_ERROR( m_screenOutputPrefix << "Validation mode turned on but unable to retrieve THistService. Will not write out ROOT histograms/Trees.");
-      m_validationOutput = false;
-    }
-
-  } // end if (m_validationOutput)
-  else {
-    //ATH_MSG_ERROR( m_screenOutputPrefix <<"m_validationOutput didn't work");
-  }
   // setup CPU Benchmarks
   if (m_doCPUMon) {
     //if (!m_benchPDGCode)
@@ -186,24 +112,24 @@ StatusCode ISF::SimKernel::initialize()
 
   // retrieve the stack service
   if ( m_particleBroker.retrieve().isFailure() ){
-      ATH_MSG_FATAL( m_screenOutputPrefix <<  "Could not retrieve ParticleBroker Service. Abort.");
+      ATH_MSG_FATAL( "Could not retrieve ParticleBroker Service. Abort.");
       return StatusCode::FAILURE;
   } else
-      ATH_MSG_INFO( m_screenEmptyPrefix <<  "- ParticleBroker   : " << m_particleBroker.typeAndName() );
+      ATH_MSG_INFO( "- ParticleBroker   : " << m_particleBroker.typeAndName() );
 
   // the truth service
   if ( m_truthRecordSvc.retrieve().isFailure() ){
-      ATH_MSG_FATAL( m_screenOutputPrefix <<  "Could not retrieve ParticleStack Service. Abort.");
+      ATH_MSG_FATAL( "Could not retrieve ParticleStack Service. Abort.");
       return StatusCode::FAILURE;
   } else
-      ATH_MSG_INFO( m_screenEmptyPrefix <<  "- TruthRecordSvc   : " << m_truthRecordSvc.typeAndName() );
+      ATH_MSG_INFO( "- TruthRecordSvc   : " << m_truthRecordSvc.typeAndName() );
 
   // and the simhit service
   if ( m_simHitSvc.retrieve().isFailure() ){
-      ATH_MSG_FATAL( m_screenOutputPrefix <<  "Could not retrieve SimHit Service. Abort.");
+      ATH_MSG_FATAL( "Could not retrieve SimHit Service. Abort.");
       return StatusCode::FAILURE;
   } else
-      ATH_MSG_INFO( m_screenEmptyPrefix <<  "- SimHitSvc   : " << m_simHitSvc.typeAndName() );
+      ATH_MSG_INFO( "- SimHitSvc   : " << m_simHitSvc.typeAndName() );
 
   // initialize all SimulationServices
   //
@@ -214,35 +140,35 @@ StatusCode ISF::SimKernel::initialize()
 
   // initialize all the EventFilterTools
   if( m_eventFilters.retrieve().isFailure() ) {
-      ATH_MSG_FATAL( m_screenOutputPrefix <<  "Failed to retrieve Event Filters. Abort.");
+      ATH_MSG_FATAL( "Failed to retrieve Event Filters. Abort.");
       return StatusCode::FAILURE;
   } else {
-    ATH_MSG_INFO( m_screenOutputPrefix << "The following Event Filters are defined:");
-    ATH_MSG_INFO( m_screenOutputPrefix << m_eventFilters);
+    ATH_MSG_INFO( "The following Event Filters are defined:");
+    ATH_MSG_INFO( m_eventFilters );
   }
 
   // free unused space
   m_simSvcs.resize( m_numSimSvcs);
   m_simSvcNames.resize( m_numSimSvcs);
   // some screen output
-  ATH_MSG_INFO ( m_screenOutputPrefix << "The following SimulationSvc are registered to ISF:");
+  ATH_MSG_INFO ( "The following SimulationSvc are registered to ISF:");
   for (SimSvcID id=ISF::fFirstAtlasSimID; id<m_numSimSvcs; id++)
-    ATH_MSG_INFO ( m_screenOutputPrefix << " ID: " << id << "\t  Name: '" << m_simSvcNames[id]
+    ATH_MSG_INFO ( "ID: " << id << "\t  Name: '" << m_simSvcNames[id]
                    << "'");
 
   // setup the simulation selectors
   //
   for ( short geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions ; ++geoID) {
     if ( m_particleBroker->registerSimSelector( m_simSelectors[geoID], (AtlasDetDescr::AtlasRegion)geoID).isFailure()) {
-      ATH_MSG_ERROR( m_screenOutputPrefix << "Unable to register SimulationSelectors for GeoID="
+      ATH_MSG_ERROR( "Unable to register SimulationSelectors for GeoID="
                      << AtlasDetDescr::AtlasRegionHelper::getName(geoID));
       return StatusCode::FAILURE;
     }
   }
   // screen output
-  ATH_MSG_INFO( m_screenOutputPrefix << "The following routing chains are defined:");
+  ATH_MSG_INFO( "The following routing chains are defined:");
   for ( short geoID = 0; geoID<AtlasDetDescr::fNumAtlasRegions ; ++geoID) {
-    ATH_MSG_INFO( m_screenOutputPrefix << AtlasDetDescr::AtlasRegionHelper::getName(geoID)
+    ATH_MSG_INFO( AtlasDetDescr::AtlasRegionHelper::getName(geoID)
                   << " (GeoID=" << geoID << "): \t" << m_simSelectors[geoID]);
   }
 
@@ -256,7 +182,7 @@ StatusCode ISF::SimKernel::initialize()
 
 StatusCode ISF::SimKernel::finalize()
 {
-  ATH_MSG_INFO ( m_screenOutputPrefix << "Finalizing ...");
+  ATH_MSG_INFO ( "Finalizing ..." );
 
   // record current memory usage
   if (m_doMemMon) m_memMon->recordCurrent("at beginning of ISF SimKernel finalize()");
@@ -340,7 +266,7 @@ StatusCode ISF::SimKernel::initSimSvcs( SimSelectorToolArray &simSelectorTools)
 {
   // (1.) retrieve all SimulationSelector tools in the array
   if ( simSelectorTools.retrieve().isFailure() ) {
-      ATH_MSG_FATAL( m_screenOutputPrefix <<  "Could not retrieve SimulatorSelector Tool Array. Abort.");
+      ATH_MSG_FATAL( "Could not retrieve SimulatorSelector Tool Array. Abort." );
       return StatusCode::FAILURE;
   }
 
@@ -353,14 +279,14 @@ StatusCode ISF::SimKernel::initSimSvcs( SimSelectorToolArray &simSelectorTools)
     ServiceHandle<ISimulationSvc> *curSimulator = (*fSimSelectorIter)->simulator();
 
     if ( (*curSimulator).retrieve().isFailure() ){
-        ATH_MSG_FATAL( m_screenOutputPrefix << "Could not retrieve SimulatorSelector Tool. Abort.");
+        ATH_MSG_FATAL( "Could not retrieve SimulatorSelector Tool. Abort." );
         return StatusCode::FAILURE;
     } else
-        ATH_MSG_INFO( m_screenEmptyPrefix <<  "- SimulationSelector   : " << fSimSelectorIter->typeAndName() );
+        ATH_MSG_INFO( "- SimulationSelector   : " << fSimSelectorIter->typeAndName() );
 
     // hand over particle broker to simulator
     if ( (*curSimulator)->setParticleBroker( &*m_particleBroker).isFailure() ){
-      ATH_MSG_FATAL( m_screenOutputPrefix << "Unable to register ParticleService to SimulationService "
+      ATH_MSG_FATAL( "Unable to register ParticleService to SimulationService "
                                           << *curSimulator );
       return StatusCode::FAILURE;
     }
@@ -374,7 +300,7 @@ StatusCode ISF::SimKernel::initSimSvcs( SimSelectorToolArray &simSelectorTools)
       // register current simulator to the simulatorArray
       m_simSvcs[m_numSimSvcs]     = (&**curSimulator);
       m_simSvcNames[m_numSimSvcs] = (*curSimulator)->simSvcDescriptor();
-      ATH_MSG_DEBUG( m_screenOutputPrefix << "Assigned SimSvcID=" << m_numSimSvcs
+      ATH_MSG_DEBUG( "Assigned SimSvcID=" << m_numSimSvcs
                     << " to simulator '" << m_simSvcNames[m_numSimSvcs]
                     << "'");
       // increment the total number of simulators registered (=used as IDs)
@@ -391,7 +317,7 @@ StatusCode ISF::SimKernel::initSimSvcs( SimSelectorToolArray &simSelectorTools)
 StatusCode ISF::SimKernel::execute()
 {
 
-  ATH_MSG_DEBUG ( m_screenOutputPrefix << "Executing ...");
+  ATH_MSG_DEBUG ("Executing ...");
 
   // dump and record current memory stats
   if ( m_doMemMon && (m_numISFEvents==0) ) {
@@ -402,11 +328,11 @@ StatusCode ISF::SimKernel::execute()
   // -----------------------------------------------------------------------------------------------
   // Step 1: Initialize the particle stack and the TruthManager, ABORT if failure
   if ( (m_particleBroker->initializeEvent()).isFailure() ){
-      ATH_MSG_FATAL( m_screenOutputPrefix <<  "Failed to initialize Particle Broker. Abort.");
+      ATH_MSG_FATAL( "Failed to initialize Particle Broker. Abort." );
       return StatusCode::FAILURE;
   }
   if ( (m_truthRecordSvc->initializeTruthCollection()).isFailure() ){
-      ATH_MSG_FATAL( m_screenOutputPrefix <<  "Failed to initialize TruthService. Abort.");
+      ATH_MSG_FATAL( "Failed to initialize TruthService. Abort." );
       return StatusCode::FAILURE;
   }
   // -----------------------------------------------------------------------------------------------
@@ -416,10 +342,10 @@ StatusCode ISF::SimKernel::execute()
   // Step 2: Initialize the Event
   {
     if (m_simHitSvc->initializeEvent().isFailure() ){
-      ATH_MSG_ERROR( m_screenOutputPrefix << "Event initialize failed for "<< m_simHitSvc );
+      ATH_MSG_ERROR( "Event initialize failed for "<< m_simHitSvc );
       return StatusCode::FAILURE;
     } else
-      ATH_MSG_DEBUG( m_screenOutputPrefix << "Event initialize done for "<< m_simHitSvc );
+      ATH_MSG_DEBUG( "Event initialize done for "<< m_simHitSvc );
 
     std::vector<ISimulationSvc*>::iterator fSimSvcIter     = m_simSvcs.begin();
     std::vector<ISimulationSvc*>::iterator fSimSvcIterEnd  = m_simSvcs.end();
@@ -429,10 +355,10 @@ StatusCode ISF::SimKernel::execute()
       //  -> setupEvent
       if ( curSimSvc){
         if( curSimSvc->setupEvent().isFailure() ) {
-          ATH_MSG_WARNING( m_screenOutputPrefix <<  "Event setup failed for "
+          ATH_MSG_WARNING( "Event setup failed for "
                            << curSimSvc->simSvcDescriptor() );
         } else {
-          ATH_MSG_DEBUG  ( m_screenOutputPrefix <<  "Event setup done for "
+          ATH_MSG_DEBUG  ( "Event setup done for "
                            << curSimSvc->simSvcDescriptor() );
         }
       }
@@ -444,7 +370,7 @@ StatusCode ISF::SimKernel::execute()
 
   // -----------------------------------------------------------------------------------------------
   // Step 3: ISimulation KERNEL : loop over particle stack, until empty
-  ATH_MSG_DEBUG( m_screenOutputPrefix << "Starting simulation loop, initial particle stack size: " << m_particleBroker->numParticles());
+  ATH_MSG_DEBUG( "Starting simulation loop, initial particle stack size: " << m_particleBroker->numParticles());
   while ( true ) {
     // get next vector of particles for simulation
     const ISF::ConstISFParticleVector &particles = m_particleBroker->popVector(m_maxParticleVectorSize);
@@ -460,8 +386,8 @@ StatusCode ISF::SimKernel::execute()
     ISF::SimSvcID simID = firstP->nextSimID();
     //AtlasDetDescr::AtlasRegion geoID = firstP->nextGeoID();
 
-    ATH_MSG_DEBUG  ( m_screenOutputPrefix <<  "Took " << numParticles << " particles from queue (remaining: " << m_particleBroker->numParticles() << ")" );
-    ATH_MSG_VERBOSE( m_screenOutputPrefix <<  " -> All particles will be sent to '" << m_simSvcNames[simID] << "' simulator (SimSvcID=" << simID << ")"  );
+    ATH_MSG_DEBUG  ( "Took " << numParticles << " particles from queue (remaining: " << m_particleBroker->numParticles() << ")" );
+    ATH_MSG_VERBOSE( " -> All particles will be sent to '" << m_simSvcNames[simID] << "' simulator (SimSvcID=" << simID << ")"  );
 
     // block defines scope for Benchmarks
     //  -> benchmarks will be stared/stopped automatically via the CustomBenchmarkGuard
@@ -476,35 +402,11 @@ StatusCode ISF::SimKernel::execute()
       // ===> simulate particle
       simSC = m_simSvcs[simID]->simulateVector( particles);
       if ( simSC.isFailure())
-        ATH_MSG_WARNING( m_screenOutputPrefix << "Simulation of particles failed in Simulator: " << m_simSvcNames[simID]);
+        ATH_MSG_WARNING( "Simulation of particles failed in Simulator: " << m_simSvcNames[simID]);
     }
 
-    // validation output
-    if (m_validationOutput) {
-      // loop over all particles in the 'particles' vector
-      ISF::ConstISFParticleVector::const_iterator partIt    = particles.begin();
-      ISF::ConstISFParticleVector::const_iterator partItEnd = particles.end();
-      for ( ; partIt != partItEnd; partIt++) {
-        const ISFParticle *curPart = (*partIt);
-        m_val_x     = curPart->position().x();
-        m_val_y     = curPart->position().y();
-        m_val_z     = curPart->position().z();
-        m_val_p     = curPart->momentum().mag2();
-        m_val_px    = curPart->momentum().x();
-        m_val_py    = curPart->momentum().y();
-        m_val_pz    = curPart->momentum().z();
-        m_val_meta  = curPart->momentum().eta();
-        m_val_peta  = curPart->position().eta();
-        m_val_pdg   = curPart->pdgCode();
-        m_val_sc    = simSC;
-        m_val_simID = simID;
-        //m_val_geoID = geoID;
-
-        m_t_simParticles->Fill();
-      }
-    }
   }
-  ATH_MSG_VERBOSE( m_screenOutputPrefix << "Ending simulation loop, no more particles in the stack");
+  ATH_MSG_VERBOSE( "Ending simulation loop, no more particles in the stack" );
   // -----------------------------------------------------------------------------------------------
 
 
@@ -512,7 +414,7 @@ StatusCode ISF::SimKernel::execute()
   // Step 4: Finalize the Event
   //  -> stack service
   if ( m_particleBroker->finalizeEvent().isFailure()) {
-    ATH_MSG_WARNING( m_screenOutputPrefix <<  "ParticleBroker returned with an error in event finalization.");
+    ATH_MSG_WARNING( "ParticleBroker returned with an error in event finalization." );
   }
   //  -> simulator services
   {
@@ -524,10 +426,10 @@ StatusCode ISF::SimKernel::execute()
       //  -> releaseEvent()
       if ( curSimSvc){
         if( curSimSvc->releaseEvent().isFailure() ) {
-          ATH_MSG_WARNING( m_screenOutputPrefix <<  "Event setup failed for "
+          ATH_MSG_WARNING( "Event setup failed for "
                            << curSimSvc->simSvcDescriptor() );
         } else {
-          ATH_MSG_DEBUG  ( m_screenOutputPrefix <<  "Event setup done for "
+          ATH_MSG_DEBUG  ( "Event setup done for "
                            << curSimSvc->simSvcDescriptor() );
         }
       }
@@ -535,14 +437,14 @@ StatusCode ISF::SimKernel::execute()
   }
 
   if ( m_truthRecordSvc->releaseEvent().isFailure() ){
-      ATH_MSG_FATAL( m_screenOutputPrefix <<  "Event finalize failed for TruthService. Abort.");
+      ATH_MSG_FATAL( "Event finalize failed for TruthService. Abort." );
       return StatusCode::FAILURE;
   }
   if ( m_simHitSvc->releaseEvent().isFailure() ){
-      ATH_MSG_ERROR( m_screenOutputPrefix << "Event finalize failed for "<< m_simHitSvc );
+      ATH_MSG_ERROR( "Event finalize failed for "<< m_simHitSvc );
       return StatusCode::FAILURE;
   } else
-      ATH_MSG_DEBUG( m_screenOutputPrefix << "Event finalize done for "<< m_simHitSvc );
+      ATH_MSG_DEBUG( "Event finalize done for "<< m_simHitSvc );
   // -----------------------------------------------------------------------------------------------
 
   // Step 5: Check Any Filters
