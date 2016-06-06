@@ -635,7 +635,7 @@
                 </doc>
                 <jobTransformJobName>athenaHLT_LatestRun_MCV6</jobTransformJobName>
                 <jobTransformCmd>
-                    trigp1test_athenaHLT.py --jobnum=1 --trigStream=Main --nfiles=10 --latestrun --castordir=/eos/atlas/atlastier0/rucio/data16_13TeV --modifiers="testMCV6=True;fpeAuditor=True"
+                    trigp1test_athenaHLT.py --nfiles=1 --dir='/eos/atlas/atlastier0/rucio/data16_13TeV/physics_Main/' --modifiers="testMCV6=True;fpeAuditor=True"
                 </jobTransformCmd>
                 <group>AtlasHLTChainTest</group>
                 <queue>long</queue>
