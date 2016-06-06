@@ -218,6 +218,27 @@ StatusCode serialization() {
   
   END_TEST;
 }
+
+
+//*****************************************************************************
+StatusCode externalCollection() {
+  BEGIN_TEST("externalCollection");
+
+  TestBContainer* dav = new TestBContainer;
+  dav->push_back(new TestB(1));
+  dav->push_back(new TestB(2));
+  
+  if ( pStore->record(dav, "HLT_external").isFailure() )
+    REPORT_AND_STOP("Failed to record in SG");
+  
+  Holder<TestBContainer> *base = new HolderImp<TestBContainer, TestBContainer >();
+  Holder<TestBContainer> *h =   dynamic_cast<Holder<TestBContainer>*>(base->clone("external", 77));
+  h->prepare(msglog, pStore,0, false);  
+
+  END_TEST;
+}
+
+
 //*****************************************************************************
 int main() {
 
@@ -269,6 +290,9 @@ int main() {
   if ( getUniqueKeyBeforeReg().isFailure() ) 
     ABORT("UniqueKey failed");
 
+
+  if ( externalCollection().isFailure() ) 
+    ABORT("Sync to an exteranl collection failed");
   REPORT_AND_CONTINUE( "END all went fine" );
   return 0;
 }
