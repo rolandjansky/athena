@@ -2,12 +2,23 @@
 ## Enable the looper killer, with options for overlay
 #  Don't kill the event, but flag it as bad
 try:
-    # Post UserAction Migration (ATLASSIM-1752)
-    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-    from AthenaCommon.CfgGetter import getPublicToolClone
-    # create a special instance of the LooperKiller, with specific configuration
-    lkAction = getPublicToolClone("LooperKillerEventOverlay", "LooperKiller", PrintSteps=10, MaxSteps=1000000, VerboseLevel=1, AbortEvent=0, SetError=1)
-    UAStore.addAction(lkAction,['Step'])
+    if (hasattr(simFlags, 'UseV2UserActions') and simFlags.UseV2UserActions()):
+        # this configures the MT LooperKiller
+        from G4UserActions import G4UserActionsConfig
+        try:
+            G4UserActionsConfig.addLooperKillerTool() #FIXME should be LooperKillerEventOverlay
+        except AttributeError:
+            atlasG4log.warning("Could not add the MT-version of the LooperKiller")
+    else:
+        # this configures the non-MT looperKiller
+        try:
+            from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+        except ImportError:
+            from G4AtlasServices.UserActionStore import UAStore
+        from AthenaCommon.CfgGetter import getPublicToolClone
+        # create a special instance of the LooperKiller, with specific configuration
+        lkAction = getPublicToolClone("LooperKillerEventOverlay", "LooperKiller", PrintSteps=10, MaxSteps=1000000, VerboseLevel=1, AbortEvent=0, SetError=1)
+        UAStore.addAction(lkAction,['Step'])
 except:
     # Pre UserAction Migration
     def use_looperkiller():

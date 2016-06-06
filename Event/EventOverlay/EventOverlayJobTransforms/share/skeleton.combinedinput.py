@@ -228,10 +228,20 @@ if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
             AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(lkAction)
         simFlags.InitFunctions.add_function("postInit", use_looperkiller)
     except:
-        # Post UserAction Migration (ATLASSIM-1752)
-        from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-        from AthenaCommon.CfgGetter import getPublicTool
-        lkAction= getPublicTool("LooperKiller")
-        UAStore.addAction(lkAction,['Step'])
+        if (hasattr(simFlags, 'UseV2UserActions') and simFlags.UseV2UserActions()):
+            # this configures the MT LooperKiller
+            from G4UserActions import G4UserActionsConfig
+            try:
+                G4UserActionsConfig.addLooperKillerTool()
+            except AttributeError:
+                atlasG4log.warning("Could not add the MT-version of the LooperKiller")
+        else:
+            # this configures the non-MT looperKiller
+            try:
+                from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+            except ImportError:
+                from G4AtlasServices.UserActionStore import UAStore
+            # add default configurable
+            UAStore.addAction('LooperKiller',['Step'])
 else:
     atlasG4log.warning("The looper killer will NOT be run in this job.")
