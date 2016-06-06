@@ -42,6 +42,7 @@ namespace TrigCostRootAnalysis {
 
   DBKey TrigConfInterface::m_key(0, 0, 0);
   std::set<DBKey> TrigConfInterface::m_seenKeys;
+  std::map<UInt_t, DBKey> TrigConfInterface::m_lumiToKeyMap;
 
   /**
    * Link tool to trigger meta data. Call once per chain.
@@ -127,14 +128,50 @@ namespace TrigCostRootAnalysis {
   /**
    * Check if we have seen this configuration before - and if we need to dump it
    */
-  void TrigConfInterface::newEvent() {
-    bool _seen = (m_seenKeys.count( getCurrentDBKey() ) == 1);
+  void TrigConfInterface::newEvent(UInt_t _lb) {
+    Bool_t _seen = (m_seenKeys.count( getCurrentDBKey() ) == 1);
+    if (m_lumiToKeyMap.count(_lb) == 0) m_lumiToKeyMap[ _lb ] = getCurrentDBKey();
     if (_seen) return;
     m_seenKeys.insert( getCurrentDBKey() );
     if ( Config::config().getInt(kOutputMenus) == kTRUE) {
       Info("TrigConfInterface::newEvent", "Exporting trigger configuration JSON file for %s", getCurrentDBKey().name().c_str() );
       TrigConfInterface::dump();
     }
+  }
+
+  /**
+   * Look at which LB each keyset was being used in 
+   */
+  void TrigConfInterface::populateLBPerKeysetStrings() {
+    for (const auto _keyset : m_seenKeys) {
+      // Set of my LB
+      std::set<UInt_t> _myLB;
+      for (const auto _it : m_lumiToKeyMap) {
+        if (_it.second == _keyset) {
+          _myLB.insert(_it.first);
+        } 
+      }
+      // Now have a set of all LB, need to make a nice string
+      std::stringstream _ss;
+      _ss << _keyset.name() << ":";
+      Int_t _previous = -1;
+      Bool_t _chainInProgress = kFALSE;
+      for (const auto _lumiBlock : _myLB) {
+        if (_lumiBlock == (UInt_t)(_previous + 1)) { // Chain
+          _chainInProgress = kTRUE;
+        } else if (_chainInProgress == kTRUE) { // Chain has just ended
+          _chainInProgress = kFALSE;
+          _ss << "-" << _previous << ", " << _lumiBlock;
+        } else {
+          if (_previous != -1) _ss << ", ";
+          _ss << _lumiBlock;
+        }
+        _previous = _lumiBlock;
+      }
+      if (_chainInProgress == kTRUE) _ss << "-" << _previous;
+      Config::config().addVecEntry(kLBPerKeyset, _ss.str());
+    }
+    return;
   }
 
   /**

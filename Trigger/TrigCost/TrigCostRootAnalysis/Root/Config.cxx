@@ -164,7 +164,7 @@ namespace TrigCostRootAnalysis {
     std::string _prescaleXML1 = "";//"cool_208354_366_366.xml"; // This is an old XML for test purposes
     std::string _prescaleXML2 = "";
     std::string _ROSXML = "rob-ros-robin-2015.xml";
-    std::string _version = "TrigCostRootAnalysis-00-09-13";
+    std::string _version = "TrigCostRootAnalysis-00-09-16";
     std::string _upgradeScenario = "";
     std::string _jira = "";
     Int_t _lbBegin = INT_MIN;
@@ -1049,14 +1049,6 @@ namespace TrigCostRootAnalysis {
       _patternsNoLumiWeight.push_back("HLT_l1calocalib");
       _patternsNoLumiWeight.push_back("HLT_sct_noise");
       _patternsNoLumiWeight.push_back("HLT_noalg_L1RD");
-
-      //_patternsNoMuLumiWeight.push_back("HLT_lumipeb_L1ALFA");
-      //_patternsNoMuLumiWeight.push_back("HLT_cscmon");
-      //_patternsNoMuLumiWeight.push_back("HLT_costmonitor");
-      //_patternsNoMuLumiWeight.push_back("HLT_larcalib");
-      //_patternsNoMuLumiWeight.push_back("HLT_xe0noL1_l2fsperf");
-      //_patternsNoMuLumiWeight.push_back("muoncalib");
-      //_patternsNoMuLumiWeight.push_back("hmtperf");
     }
 
     // String patterns to match when doing monitoring
@@ -1315,6 +1307,8 @@ namespace TrigCostRootAnalysis {
     set(kErrorIgnore, (Int_t) gErrorIgnoreLevel, "ErrorIgnoreLevel"); //Cache this internal ROOT variable
     set(kDirectlyApplyPrescales, 1, "DirectlyApplyPrescales");
     set(kNBunchGroups, 16, "NumberOfBunchGroups");
+    set(kMaxBunches, 2808, "MaxmimumNumberOfBunches");
+    set(kMaxBCIDs, 3474, "MaxmimumNumberOfBCIDs"); // Excluding the abort gap and reset
     set(kLinkOutputDirName, "costMon", "OutputDirLinkName");
     setFloat(kUnbiasedWeightThreshold, 2.5e5, "UnbiasedWeightThreshold"); // RUn1 ONLY: Events with w>this will be considered to be RD0 streamers (unbiased)
     if ( _binMin != FLT_MIN && _binMax != FLT_MIN ) {
@@ -1427,6 +1421,11 @@ namespace TrigCostRootAnalysis {
     set(kVarUnbiasedRun, "UnbiasedRun");
     set(kVarEventsRun, "EventsRun");
     set(kVarEventsSlow, "EventsSlow");
+    set(kVarTrigCostTime, "CostMonTime");
+    set(kVarTexecTime, "TexecTime");
+    set(kVarChainExecTime, "ChainExecTime");
+    set(kVarResultBuildingTime, "ResultBuildingTime");
+    set(kVarMonitoringTime, "MonitoringTime");
     set(kVarTotalPrescale, "TotalPrescale");
     set(kVarL1PassEvents, "L1PassEvents");
     set(kVarHLTEvents, "HLTEvents");
@@ -1464,6 +1463,8 @@ namespace TrigCostRootAnalysis {
     set(kListOfNoBunchLumiWeightChains, std::vector<std::string>(), "NoBunchLumiWeightChains", kUnlocked ); // Populated during execution
     set(kListOfNoMuLumiWeightChains, std::vector<std::string>(), "NoMuLumiWeightChains", kUnlocked ); // Populated during execution
     set(kListOfNoLumiWeightChains, std::vector<std::string>(), "NoLumiWeightChains", kUnlocked ); // Populated during execution
+
+    set(kLBPerKeyset, std::vector<std::string>(), "LumiBlocksPerKeyset", kUnlocked ); // Populated during execution
 
     // End of option parsing
 

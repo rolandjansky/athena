@@ -71,6 +71,16 @@ namespace TrigCostRootAnalysis {
 
     m_dataStore.newVariable(kVarROI).setSavePerEvent("Number of Regions of Interest Per Event;RoIs;Events");
 
+    m_dataStore.newVariable(kVarTrigCostTime).setSavePerEvent("Time Taken by CostMonitoring Tool Itself Per Event;Time [ms];Events");
+
+    m_dataStore.newVariable(kVarTexecTime).setSavePerEvent("Time Taken by TExec Timer Per Event;Time [ms];Events");
+
+    m_dataStore.newVariable(kVarChainExecTime).setSavePerEvent("Time Taken by Chain Execution Per Event;Time [ms];Events");
+
+    m_dataStore.newVariable(kVarResultBuildingTime).setSavePerEvent("Time Taken by Result Builder Per Event;Time [ms];Events");
+
+    m_dataStore.newVariable(kVarMonitoringTime).setSavePerEvent("Time Taken by Monitoring Tools Per Event;Time [ms];Events");
+
   }
 
   /**
@@ -189,11 +199,18 @@ namespace TrigCostRootAnalysis {
     else Config::config().set(kCurrentEventIsSlow, 0, kUnlocked);
     m_dataStore.store(kVarSteeringTime, m_steeringTime, _weight);
 
-    m_dataStore.store(kVarROI, m_costData->getNRoIs());
+    m_dataStore.store(kVarROI, m_costData->getNRoIs(), _weight);
 
     // Did we encounter a new processing unit? Count unique PUs
     if (m_processingUnits.count( m_costData->getAppId() ) == 0) m_dataStore.store(kVarHLTPUs, 1.);
     m_processingUnits[ m_costData->getAppId() ] += 1;
+
+    // Misc event timers
+    m_dataStore.store(kVarTrigCostTime, m_costData->getTimerTrigCost(), 1.); // Note unweighted as this correlates 100% with selected events to monitor 
+    m_dataStore.store(kVarTexecTime, m_costData->getTimerEndSteer(), _weight);
+    m_dataStore.store(kVarChainExecTime, m_costData->getTimerChainProcessed(), _weight);
+    m_dataStore.store(kVarResultBuildingTime, m_costData->getTimerResultBuilder(), _weight);
+    m_dataStore.store(kVarMonitoringTime, m_costData->getTimerMonitoring(), _weight);
 
     if (Config::config().debug()) debug(0);
 

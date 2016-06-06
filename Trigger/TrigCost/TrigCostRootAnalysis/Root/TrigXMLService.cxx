@@ -195,18 +195,26 @@ namespace TrigCostRootAnalysis {
       Float_t _onlineMu = Config::config().getFloat(kOnlinePeakMuAverage);
       Float_t _lumiMuScaling = _targetMu / _onlineMu;
       Float_t _lumiBunchScaling = _lumiScaling / _lumiMuScaling;
+      Int_t _maxBunches = Config::config().getInt(kMaxBunches);
+      Int_t _maxBCIDs = Config::config().getInt(kMaxBCIDs);
       Int_t _targetBunches = (Int_t) std::round(m_bunchGroupXML[1].second * _lumiBunchScaling);
       Info("TrigXMLService::getLumiExtrapWeight", "Using targetMu setting %.2f. <mu> scaling factor: %.2f->%.2f = %.2f. Bunch scaling factor: %i->%i = %.2f. Total lumi scaling factor = %.2f",
         _targetMu, _onlineMu, _targetMu, _lumiMuScaling, m_bunchGroupXML[1].second, _targetBunches, _lumiBunchScaling, _lumiScaling);
       Info("TrigXMLService::getLumiExtrapWeight", "The targetMu setting allows for the rates prediction to properly extrapolate random seeded chains. Otherwise their rates are overestimated.");
-      if (_targetBunches > 2830 || _targetBunches < 1) {
-        Warning("TrigXMLService::getLumiExtrapWeight", "To get to L=%.2e with a --targetMu of %.2f requires %i bunches. A full ring is 2808!",
-          _predictionLumi, _targetMu, _targetBunches);
+      if (_targetBunches > _maxBunches + 15 /*allow wiggle room*/ || _targetBunches < 1) {
+        Warning("TrigXMLService::getLumiExtrapWeight", "To get to L=%.2e with a --targetMu of %.2f requires %i bunches. A full ring is %i!",
+          _predictionLumi, _targetMu, _targetBunches, _maxBunches);
       }
+      // Some extra calculations for EMPTY bunchgroup scaling
+      Int_t _currentEmptyBunches = std::max(0, _maxBCIDs - m_bunchGroupXML[1].second); // Filled
+      Int_t _targetEmptyBunches = std::max(0, _maxBCIDs - _targetBunches);
+      Float_t _emptyExtrap = 0.;
+      if (_currentEmptyBunches > 0) _emptyExtrap = _targetEmptyBunches / (Float_t)_currentEmptyBunches;
       // Write info
       Config::config().set(kDoAdvancedLumiScaling, 1, "DoAdvancedLumiScaling");
       Config::config().setFloat(kPredictionLumiFinalMuComponent, _lumiMuScaling, "PredictionLumiFinalMuComponent");
       Config::config().setFloat(kPredictionLumiFinalBunchComponent, _lumiBunchScaling, "PredictionLumiFinalBunchComponent");
+      Config::config().setFloat(kEmptyBunchgroupExtrapolaion, _emptyExtrap, "EmptyBunchgroupExtrapolation");
       Config::config().set(kTargetPairedBunches, _targetBunches, "TargetPairedBunches");
     }
 

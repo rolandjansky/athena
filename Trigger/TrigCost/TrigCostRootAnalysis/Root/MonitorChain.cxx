@@ -68,6 +68,7 @@ namespace TrigCostRootAnalysis {
         if ( checkPatternNameMonitor( _chainName, m_invertFilter, m_costData->getIsChainResurrected(_c) ) == kFALSE ) continue;
 
         CounterBase* _counter = getCounter( _counterMap, _chainName, _chainID );
+        if (_counter->getCalls() == 0) _counter->decorate(kDecGroupName, TrigConfInterface::getHLTGroupNameFromChainID(_chainID, 0)); // i'm new
         _counter->processEventCounter( _c, 0, _weight );
       }
 
@@ -105,6 +106,10 @@ namespace TrigCostRootAnalysis {
     std::vector<TableColumnFormatter> _toSaveTable;
     const std::string _slowText = "Calls > " + intToString( Config::config().getInt(kSlowThreshold) ) + " ms";
 
+    _toSaveTable.push_back( TableColumnFormatter("Group",
+      "Bandwidth group this chain is associated to.",
+      kDecGroupName, kSavePerCall, 0, kFormatOptionUseStringDecoration) );
+
     _toSaveTable.push_back( TableColumnFormatter("Raw Active Events",
       "Raw (unweighted) statistics on the number of events in which this chain was executed.",
       kVarEventsActive, kSavePerEvent, 0, kFormatOptionUseEntries) );
@@ -127,7 +132,7 @@ namespace TrigCostRootAnalysis {
 
     _toSaveTable.push_back( TableColumnFormatter(getLevelStr() + std::string(" Pass Fraction [%]"),
       "What percentage of events pass events are kept",
-      kVarEventsPassed, kSavePerEvent, kVarEventsActive, kSavePerEvent, 4, kFormatOptionToPercentage) );
+      kVarEventsPassed, kSavePerEvent, kVarEventsActive, kSavePerEvent, 6, kFormatOptionToPercentage) );
 
     _toSaveTable.push_back( TableColumnFormatter(_slowText,
       "Number of algorithm executions which were particularly slow",
@@ -139,11 +144,11 @@ namespace TrigCostRootAnalysis {
 
     _toSaveTable.push_back( TableColumnFormatter("Total Chain Time [%]",
       "Total chain time as a percentage of the total time of all chains in this run range.",
-      &tableFnChainGetTotalFracTime, 2 ) );
+      &tableFnChainGetTotalFracTime, 3 ) );
 
     _toSaveTable.push_back( TableColumnFormatter("Time Use In Rerun [%]",
       "Percentage of this chains CPU usage which comes from resurrection.",
-      kVarRerunTime, kSavePerEvent, kVarTime, kSavePerEvent, 2, kFormatOptionToPercentage) );
+      kVarRerunTime, kSavePerEvent, kVarTime, kSavePerEvent, 3, kFormatOptionToPercentage) );
 
     _toSaveTable.push_back( TableColumnFormatter("Run Agls/Event",
       "Total number of algorithms executed by this chain.",
