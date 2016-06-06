@@ -81,7 +81,7 @@ SCTLorentzMonTool::~SCTLorentzMonTool(){
 StatusCode SCTLorentzMonTool::bookHistogramsRecurrent( )                                                                                                // hidetoshi 14.01.21
 {
   m_path= "";
-  if(newRun) m_numberOfEvents=0;                                                                                                                        // hidetoshi 14.01.21
+  if(newRunFlag()) m_numberOfEvents=0;                                                                                                                        // hidetoshi 14.01.21
   ATH_MSG_DEBUG( "initialize being called" );
   detStore()->retrieve(m_pSCTHelper,"SCT_ID");
   ATH_CHECK(detStore()->retrieve(m_sctmgr,"SCT"));
@@ -268,7 +268,7 @@ StatusCode SCTLorentzMonTool::fillHistograms(){
 //                             SCTLorentzMonTool :: procHistograms
 //====================================================================================================
 StatusCode  SCTLorentzMonTool::procHistograms(){                                                                                                                 // hidetoshi 14.01.21
-  if(endOfRun){
+  if(endOfRunFlag()){
     ATH_MSG_DEBUG("finalHists()");
     ATH_MSG_DEBUG( "Total Rec Event Number: " << m_numberOfEvents);
     ATH_MSG_DEBUG( "Calling checkHists(true); true := end of run" );

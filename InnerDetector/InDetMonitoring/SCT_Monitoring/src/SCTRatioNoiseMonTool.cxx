@@ -254,7 +254,7 @@ StatusCode SCTRatioNoiseMonTool::bookHistogramsRecurrent()                      
 {
   m_path= "";
   //  if(isNewRun) m_numberOfEvents=0;                                                           // hidetoshi 14.01.21
-  if(newRun) m_numberOfEvents=0;                                                                 // hidetoshi 14.01.21
+  if(newRunFlag()) m_numberOfEvents=0;                                                                 // hidetoshi 14.01.21
   m_dataObjectName = "SCT_RDOs";
   ATH_MSG_DEBUG( "initialize being called" );
   ATH_CHECK( detStore()->retrieve(m_pSCTHelper,"SCT_ID"));
@@ -600,9 +600,9 @@ StatusCode SCTRatioNoiseMonTool::fillHistograms(){
 //StatusCode  SCTRatioNoiseMonTool::procHistograms(bool /*isEndOfEventsBlock*/, bool /*isEndOfLumiBlock*/, bool isEndOfRun){  // hidetoshi 14.01.21
 StatusCode  SCTRatioNoiseMonTool::procHistograms(){                                                                           // hidetoshi 14.01.21
   //  if(isEndOfRun){                                                                                                         // hidetoshi 14.01.21
-  //  if(endOfRun){                                                                                                           // hidetoshi 14.01.21
+  //  if(endOfRunFlag()){                                                                                                           // hidetoshi 14.01.21
     //Reset needed histograms for online
-    if(m_environment==AthenaMonManager::online || endOfRun){
+    if(m_environment==AthenaMonManager::online || endOfRunFlag()){
       m_NO->Reset();
       m_NOSide->Reset();
       m_NOb->Reset();
@@ -784,7 +784,7 @@ StatusCode  SCTRatioNoiseMonTool::checkHists(bool /*fromFinalize*/){
 //                              SCTRatioNoiseMonTool :: bookRatioNoiseHistos
 //====================================================================================================
 StatusCode SCTRatioNoiseMonTool::bookRatioNoiseHistos(){       // hidetoshi 14.01.22
-  if(newRun){                                          // hidetoshi 14.01.22
+  if(newRunFlag()){                                          // hidetoshi 14.01.22
 
     string stem=m_path+"/SCT/GENERAL/RatioNoise/";
     MonGroup RatioNoise(this,m_path+"SCT/GENERAL/RatioNoise",run,ATTRIB_UNMANAGED); // hidetoshi 14.01.22

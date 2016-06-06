@@ -359,13 +359,13 @@ StatusCode SCTHitEffMonTool::initialize(){
 StatusCode SCTHitEffMonTool::bookHistograms()
 {
   //  if (not isNewRun) return StatusCode::SUCCESS;                                                                   // hidetoshi 14.01.22
-  if (not newRun) return StatusCode::SUCCESS;                                                                         // hidetoshi 14.01.22
+  if (not newRunFlag()) return StatusCode::SUCCESS;                                                                         // hidetoshi 14.01.22
   if (m_isCosmic) WARNING("Running on cosmics: releasing d0 cut and forcing use of TRT timing");
   if (not m_fieldServiceHandle->solenoidOn()){
     WARNING("Running with solenoid off: releasing pT cut");
     m_minPt = -1.;
   }
-  if(newRun){
+  if(newRunFlag()){
     m_badChips = m_configConditions->badChips();
     INFO ("Found " << m_badChips->size() << " bad chips");
     for (std::map<Identifier, unsigned int>::const_iterator chip(m_badChips->begin()) ; chip != m_badChips->end(); ++ chip)
@@ -596,13 +596,13 @@ StatusCode SCTHitEffMonTool::bookHistograms()
 StatusCode SCTHitEffMonTool::bookHistogramsRecurrent()                                                                         // hidetoshi 14.01.22
 {
   //  if (not isNewRun) return StatusCode::SUCCESS;                                                                   // hidetoshi 14.01.22
-  //  if (not newRun) return StatusCode::SUCCESS;                                                                         // hidetoshi 14.01.22
+  //  if (not newRunFlag()) return StatusCode::SUCCESS;                                                                         // hidetoshi 14.01.22
   if (m_isCosmic) WARNING("Running on cosmics: releasing d0 cut and forcing use of TRT timing");
   if (not m_fieldServiceHandle->solenoidOn()){
     WARNING("Running with solenoid off: releasing pT cut");
     m_minPt = -1.;
   }
-  if(newRun){
+  if(newRunFlag()){
     m_badChips = m_configConditions->badChips();
     INFO ("Found " << m_badChips->size() << " bad chips");
     for (std::map<Identifier, unsigned int>::const_iterator chip(m_badChips->begin()) ; chip != m_badChips->end(); ++ chip)
