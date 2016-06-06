@@ -24,18 +24,41 @@ TRandom3 myrand;
 
 class lbninfo{
 public:
+  lbninfo(): currentevent(0),nevt(0),magic(0),noalgps(-1),j40ps(-1),written_j40(0),written_no_j40(0) {}
+
   std::map<int,int> wantedmap;//map of nevent wanted by each stream
   std::map<int, std::vector<int> > streammap;//map of actual events to be written to each stream
-  lbninfo(): currentevent(0),nevt(0),magic(0) {}
   int currentevent, nevt;//keeps track of the number of events we've seen on this lbn, and the number there should be in total
   int magic;//to make sure we're real...
+  int noalgps;//the HLT prescale of noalg trigger
+  int j40ps;//the HLT prescale of j40 trigger
+  std::vector<int> trigmap;//whether the j40 trigger fired for each of the nevt events
+  std::vector<int> trigevt;//event number for each of the nevt events, as taken from the trigfile, for cross-checking
+  int written_j40, written_no_j40;
 
   //makes the map of the event sequence to be written for each stream, based on the number of events wanted by each stream
   void makestreammap(){
     for (std::map<int,int>::const_iterator s=wantedmap.begin(); s!=wantedmap.end(); ++s){
       int stream=s->first, wanted=s->second;
       for (int e=0; e<wanted; ++e){
-        streammap[myrand.Integer(nevt)].push_back(stream);
+	int chosen_evt = myrand.Integer(nevt);//chose a random event in the lbn
+	if (noalgps>0){
+	  //check if the chosen event is a j40
+	  while (trigmap[chosen_evt]==1){
+	    //skip it, with probability j40ps/noalgps
+	    assert(noalgps>=j40ps);
+	    double psratio = (double)j40ps/(double)noalgps;
+	    if (myrand.Uniform(1.0)>psratio){
+	      //skip it, choose another random event
+	      chosen_evt = myrand.Integer(nevt);
+	    }
+	    else {
+	      //we'll keep it
+	      break;
+	    }
+	  }
+	}//using trigmap
+        streammap[chosen_evt].push_back(stream);
       }
     }
   }
@@ -69,6 +92,7 @@ ByteStreamMultipleOutputStreamCopyTool::ByteStreamMultipleOutputStreamCopyTool(
 
   declareProperty("lbn_map_file",m_lbn_map_file="lbn_anal_map.txt");
   declareProperty("skipevents",m_skipevents=0);
+  declareProperty("trigfile",m_trigfile="");
   declareProperty("NoutputSvc",m_NoutputSvc=50);
   for (int i=0; i<m_NoutputSvc; ++i){
     char buf[100];
@@ -163,7 +187,6 @@ void ByteStreamMultipleOutputStreamCopyTool::initlbnmap(){
   //read the runlbn map
   std::string file = m_lbn_map_file;
   ATH_MSG_INFO( "Going to open "<<file );
-
   FILE *fp = fopen(file.c_str(),"r");
   if (!fp) {
     ATH_MSG_ERROR( "Could not open "<<file<<"!" );
@@ -179,7 +202,7 @@ void ByteStreamMultipleOutputStreamCopyTool::initlbnmap(){
       ATH_MSG_DEBUG(run<<" "<<lbn<<" has "<<nevt<<" events and we want "<<nwanted<<" of them for stream "<<stream);
       runlbnmap[run][lbn].magic=9999;
       runlbnmap[run][lbn].nevt=nevt;
-      runlbnmap[run][lbn].wantedmap[stream]=nwanted;
+      for (int w=0; w<m_NoutputSvc; ++w){runlbnmap[run][lbn].wantedmap[w]=nwanted;}
     }
     else{
       ATH_MSG_ERROR("Line in "<<file<<" not understood!");
@@ -189,35 +212,80 @@ void ByteStreamMultipleOutputStreamCopyTool::initlbnmap(){
   fclose(fp);
   delete [] line;
 
-  //go through the runlbn map and figure out which events to put to which stream(s)
+  if (m_trigfile!=""){
+    //read the trigger info file
+    std::string file = m_trigfile;
+    ATH_MSG_INFO( "Going to open "<<file );
+    FILE *fp = fopen(file.c_str(),"r");
+    if (!fp) {
+      ATH_MSG_ERROR( "Could not open "<<file<<"!" );
+      throw;
+    }
+    char *line=new char[500];
+    int run,evt,time,lbn,noalg,j40,psnoalg,psj40;
+    int evtinfile=0;
+    while (fgets(line,480,fp)) {
+      if (line[0]=='-') continue;
+      int s=sscanf(&line[0],"run_nbr=%d, evt_nbr=%d, time_stamp=%d, lbk_nbr=%d, noalg=%d, j40=%d, noalgps=%d, j40ps=%d",&run,&evt,&time,&lbn,&noalg,&j40,&psnoalg,&psj40);
+      if (s>0) {
+	ATH_MSG_INFO(evtinfile<<": "<<run<<" "<<lbn<<" "<<evt<<": passed noalg j40 "<<noalg<<" "<<j40<<", prescale noalg j40 "<<psnoalg<<" "<<psj40);
+	
+	if (runlbnmap[run][lbn].noalgps!=-1){
+	  assert(runlbnmap[run][lbn].noalgps == psnoalg);//it should be the same for every event in the lbn
+	}
+	else runlbnmap[run][lbn].noalgps=psnoalg;
+	
+	if (runlbnmap[run][lbn].j40ps!=-1){
+	  assert(runlbnmap[run][lbn].j40ps == psj40);//it should be the same for every event in the lbn
+	}
+	else runlbnmap[run][lbn].j40ps=psj40;
+
+	runlbnmap[run][lbn].trigmap.push_back(j40);//whether j40 fired for this event index in the file
+	runlbnmap[run][lbn].trigevt.push_back(evt);//event number for this event index in the file, for cross-checking
+	++evtinfile;
+      }
+      else{
+	ATH_MSG_ERROR("Line in "<<file<<" not understood!");
+	ATH_MSG_ERROR(line);
+      }
+    }
+    fclose(fp);
+    delete [] line;
+  }
+
   myrand.SetSeed();
   ATH_MSG_INFO("Seed is "<<myrand.GetSeed());
-  for (auto r : runlbnmap ){
-    for (auto l : r.second ){
-      l.second.makestreammap();
-      ATH_MSG_DEBUG(r.first<<" "<<l.first<<" wants: "<<l.second.streameventstring());
+  
+  //go through the runlbn map and figure out which events to put to which stream(s)
+  for (auto r = runlbnmap.begin(); r!=runlbnmap.end(); r++ ){
+    for (auto l = r->second.begin(); l!=r->second.end(); l++ ){
+      l->second.makestreammap();
+      ATH_MSG_INFO(r->first<<" "<<l->first<<" wants: "<<l->second.streameventstring());
     }
   }
+  
 }
 
 //__________________________________________________________________________
 StatusCode ByteStreamMultipleOutputStreamCopyTool::finalize() {
 
-  for (auto r : runlbnmap ){
-    for (auto l : r.second ){
-
-      if (l.second.magic!=9999){
-        ATH_MSG_WARNING("Run "<<r.first<<" saw events but wasn't in the map");
+  for (auto r = runlbnmap.begin(); r!=runlbnmap.end(); r++ ){
+    for (auto l = r->second.begin(); l!=r->second.end(); l++ ){
+      
+      if (l->second.magic!=9999){
+        ATH_MSG_WARNING("Run "<<r->first<<" saw events but wasn't in the map");
         continue;
       }
 
-      if (l.second.currentevent!=0){
+      ATH_MSG_INFO(r->first<<" "<<l->first<<" wrote out "<<l->second.written_j40<<" j40 and "<<l->second.written_no_j40<<" non-j40 events");
+
+      if (l->second.currentevent!=0){
         //check that we got all the events we were promised
-        if (l.second.currentevent!=l.second.nevt){
-          ATH_MSG_WARNING(r.first<<" "<<l.first<<" saw "<<l.second.currentevent<<" and we expected "<<l.second.nevt<<" events!");
+        if (l->second.currentevent!=l->second.nevt){
+          ATH_MSG_WARNING(r->first<<" "<<l->first<<" saw "<<l->second.currentevent<<" and we expected "<<l->second.nevt<<" events!");
         }
         else {
-          ATH_MSG_INFO(r.first<<" "<<l.first<<" saw all "<<l.second.nevt<<" events expected.");
+          ATH_MSG_INFO(r->first<<" "<<l->first<<" saw all "<<l->second.nevt<<" events expected.");
         }
       }
     }
@@ -244,7 +312,6 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::connectOutput(const std::stri
 //__________________________________________________________________________
 StatusCode ByteStreamMultipleOutputStreamCopyTool::commitOutput() {
   ATH_MSG_DEBUG( "In commitOutput" );
-
   const RawEvent* re_c = m_inputSvc->currentEvent() ;
   if(!re_c){
     ATH_MSG_ERROR( " failed to get the current event from ByteStreamInputSvc  " );
@@ -253,8 +320,10 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::commitOutput() {
 
   int run = re_c->run_no();
   ATH_MSG_DEBUG("run is "<<run);
-  //int event = re_c->event_no();
-  //log<<MSG::DEBUG<<"event is "<<event<<endreq;
+  uint64_t eventNumber;
+  if (re_c->version() < 0x03010000) {    eventNumber=re_c->lvl1_id();  } 
+  else {    eventNumber=re_c->global_id();  }
+  ATH_MSG_DEBUG("event is "<<eventNumber);
   int lbn = re_c->lumi_block();
   ATH_MSG_DEBUG("lbn is "<<lbn);
   int bcid = re_c->bc_id();
@@ -273,16 +342,31 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::commitOutput() {
   }
 
   if (m_uselbnmap>0){
+
     //See if we want this event in any stream...
     lbninfo &l = runlbnmap[run][lbn];
     if (l.magic!=9999){
       ATH_MSG_WARNING( "Event in lbn "<<lbn<<" not in map... skipping." );
       return StatusCode::SUCCESS ;
     }
-    if (l.currentevent>=l.nevt) {ATH_MSG_WARNING("Only expecting "<<l.nevt<<" events in "<<run<<" "<<lbn);}
-    std::vector<int> &streams= l.streammap[l.currentevent];//so at this point the first event is at index 0, last at nevt-1
-    ATH_MSG_DEBUG(lbn<<" "<<l.currentevent<<" goes to "<<streams.size()<<" streams");
-    l.currentevent++;
+
+    if (l.noalgps>0){
+      //using trigmap info... check the event numbers line up
+      if (l.trigevt[l.currentevent] != (int)eventNumber){
+	ATH_MSG_ERROR("Trigmap was for event "<<l.trigevt[l.currentevent]<<" but we are on event "<<eventNumber);
+      }
+      else{
+	ATH_MSG_INFO("Trigmap matches for event "<<l.trigevt[l.currentevent]<<" and we are on event "<<eventNumber);
+      }
+    }
+
+    if ((l.currentevent>=l.nevt || ((unsigned int)l.currentevent)>l.trigmap.size()) && l.noalgps>0) {
+      ATH_MSG_WARNING("Only expecting "<<l.nevt<<" events in "<<run<<" "<<lbn<<" with trigmap size "<<l.trigmap.size());
+    }
+
+    std::vector<int> streams= l.streammap[l.currentevent];//so at this point the first event is at index 0, last at nevt-1
+    if (l.noalgps<0){ATH_MSG_INFO(lbn<<" "<<l.currentevent<<" goes to "<<streams.size()<<" streams");}
+    else{ATH_MSG_INFO(lbn<<" "<<l.currentevent<<" goes to "<<streams.size()<<" streams and j40 is "<<l.trigmap[l.currentevent]);}
 
     RawEvent* re =  const_cast<RawEvent*>(re_c);
     for (unsigned int s=0; s<streams.size(); ++s){
@@ -292,9 +376,12 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::commitOutput() {
           ATH_MSG_ERROR( " failed to write event to ByteStreamOutputSvc"<<streams[s]);
           return StatusCode::FAILURE ;
         }
-        ATH_MSG_DEBUG( " wrote event to ByteStreamOutputSvc"<<streams[s] );
+        if (l.noalgps>0){ if (l.trigmap[l.currentevent]) l.written_j40++; else l.written_no_j40++; }
+        ATH_MSG_INFO( " wrote event to ByteStreamOutputSvc"<<streams[s] );
       }
     }
+    l.currentevent++;
+
   }//m_usebnlmap
   else{
     RawEvent* re =  const_cast<RawEvent*>(re_c);

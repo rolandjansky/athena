@@ -102,6 +102,7 @@ private:
   // Whether to use lbn map or not
   int m_uselbnmap;
   std::string m_lbn_map_file;
+  std::string m_trigfile;
   void initlbnmap();
 
   // Handle for BS input Svc

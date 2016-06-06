@@ -4,8 +4,8 @@
 Flag class for Pileup Overlay building
 
 usage:
-from OverlayCommonAlgs.OverlayFlags import OverlayFlags
-overlayflags.EventIDTextFile= runArgs.inputTXT_EVENTIDFile[0]
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
+overlayFlags.EventIDTextFile= runArgs.inputTXT_EVENTIDFile[0]
 
 """
 
@@ -32,6 +32,19 @@ class doBkg(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue = False
+
+class evtStore(JobProperty):
+    """MC EvtStore name for overlay"""
+    statusOn=True
+    allowedTypes=['str']
+    StoredValue = 'BkgEvent_0_SG'
+
+class dataStore(JobProperty):
+    """Data EvtStore name for overlay"""
+    statusOn=True
+    allowedTypes=['str']
+    StoredValue = 'StoreGateSvc/OriginalEvent_SG'
+
  
 ## Definition and registration of the simulation flag container
 
