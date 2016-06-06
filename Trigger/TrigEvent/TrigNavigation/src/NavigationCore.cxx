@@ -517,7 +517,7 @@ bool NavigationCore::getFeatureAccessorsSingleTE( const TriggerElement* te, CLID
 bool NavigationCore::serializeWithHolderSection(const std::vector<uint32_t>& holderdata, const std::vector<unsigned int>& holderblobsizes, std::vector<uint32_t>& output,
 						std::vector<unsigned int>& cuts ,std::vector<std::pair<CLID, std::string> >& clid_name) const {
   cuts.clear();
-  clid_name.clear();
+  // clid_name.clear(); Don't reset this vector here since the vector is not remade. Otherwise datascouting stops working.
 
   unsigned int version=4;
   MLOG(DEBUG) << "NavigationCore::serialize: serializing with version " << version << endreq;
