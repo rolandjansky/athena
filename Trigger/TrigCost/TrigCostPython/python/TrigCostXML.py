@@ -10,6 +10,10 @@ import string
 import math
 import traceback
 import sys
+import logging
+import os
+from shutil import copyfile
+log = logging.getLogger('TrigCostXML')
 #print '\tLoaded standard packages'
 
 from TrigCostAnalysis import *              ;
@@ -141,7 +145,7 @@ def ReadXmlFile(filename):
 
                 ch = CostChain()
 
-                ch.SetName(GetData(sig.childNodes, "sig_name"))
+                ch.SetName(TRPNameStrip(GetData(sig.childNodes, "sig_name")))
                 ch.SetLevel(lvl_name)
                 ch.SetPrescale(string.atof(GetPrescaleData(sig.childNodes)))
                 ch.SetPassthrough(string.atof(GetData(sig.childNodes, 'passthrough')))
@@ -152,7 +156,7 @@ def ReadXmlFile(filename):
 
                 # not always there
                 try:
-                    ch.SetLowerChain(GetData(sig.childNodes, "lower_chain_name"))
+                    ch.SetLowerChain(TRPNameStrip(GetData(sig.childNodes, "lower_chain_name")))
                 except:
                     pass
 
@@ -170,7 +174,7 @@ def ReadXmlFile(filename):
                 gtype=GetData(sig.childNodes, 'type')
                 if gtype == 'Group' or gtype == 'Stream' :
                     ch = CostChain()
-                    name=GetData(sig.childNodes, "sig_name")
+                    name=TRPNameStrip(GetData(sig.childNodes, "sig_name"))
 
                     # strip stream type from trp streams
                     if string.count(name,"str"):
@@ -203,7 +207,7 @@ def ReadXmlFile(filename):
 # Function for export rates to xml file
 # rates should be a CostResult
 #
-def WriteXmlFile(filename,rates,lbset=None):
+def WriteXmlFile(filename,rates,lbset=None,ratesnops=False):
 
     #open file / write header
     xout = open(filename, 'w')
@@ -217,11 +221,13 @@ def WriteXmlFile(filename,rates,lbset=None):
 
         for chname in rates.GetChainNames(lvl):
             ch = rates.GetChain(chname)
+            chlower = rates.GetChain( ch.GetAttrWithDefault("lowerchain","") ) 
             # skip groups -- they go in later
             if (string.count(chname,"grp") \
-                or string.count(chname,"str") \
+                or string.count(chname,"_str_") \
                 or string.count(chname,"RATE:") \
                 or string.count(chname,"BW:") \
+                or string.count(chname,"L1_TriggerItem") \
                 or string.count(chname,"CPS:")):
                 continue
 
@@ -232,12 +238,33 @@ def WriteXmlFile(filename,rates,lbset=None):
                            +'</evts_passed>\n')
             xout.write('      <evts_passed_weighted>'    +str(0)\
                            +'</evts_passed_weighted>\n')
-            xout.write('      <rate>'                    +str(ch.GetRate())\
-                           +'</rate>\n')
-            xout.write('      <rate_err>'                +str(ch.GetAttrWithDefault("rateerr",0))\
-                           +'</rate_err>\n')
-            xout.write('      <chain_prescale>'                +str(ch.GetAttrWithDefault("prescale",0))\
-                           +'</chain_prescale>\n')
+            if "dbg" in filename:
+                xout.write('      <TBP>'          +str(ch.GetAttrWithDefault("tbprate",0))+'</TBP>\n')
+                xout.write('      <TBP_err>'      +str(ch.GetAttrWithDefault("tbprateerr",0))+'</TBP_err>\n')
+                xout.write('      <TAP>'          +str(ch.GetAttrWithDefault("taprate",0))+'</TAP>\n')
+                xout.write('      <TAP_err>'      +str(ch.GetAttrWithDefault("taprateerr",0))+'</TAP_err>\n')
+                xout.write('      <TAV>'          +str(ch.GetAttrWithDefault("rate",0))+'</TAV>\n')
+                xout.write('      <TAV_err>'      +str(ch.GetAttrWithDefault("rateerr",0))+'</TAV_err>\n')
+            if ratesnops == True and lvl == 'L1': # Unprescaled rate L1
+                xout.write('      <rate>'          +str(ch.GetAttrWithDefault("tbprate",0))+'</rate>\n')
+                xout.write('      <rate_err>'      +str(ch.GetAttrWithDefault("tbprateerr",0))+'</rate_err>\n')
+                xout.write('      <chain_prescale>'+str(1)+'</chain_prescale>\n')
+            elif ratesnops == True and lvl == 'HLT': # Unprescaled rate HLT
+                PS = 1.0
+                if chlower is not None:
+                    PS = chlower.GetAttrWithDefault("prescale",1.0)
+                else:
+                    log.warning("Could not find lower chain '" + ch.GetAttrWithDefault("lowerchain","") + "' for " + chname)
+                PS *= ch.GetAttrWithDefault("prescale",1.0)
+ 
+                xout.write('      <rate>'          +str(PS * ch.GetRate())+'</rate>\n')
+                xout.write('      <rate_err>'      +str(PS * ch.GetAttrWithDefault("rateerr",0))+'</rate_err>\n')
+                xout.write('      <chain_prescale>'+str(1)+'</chain_prescale>\n')
+            else: 
+                xout.write('      <rate>'          +str(ch.GetRate())+'</rate>\n')
+                xout.write('      <rate_err>'      +str(ch.GetAttrWithDefault("rateerr",0))+'</rate_err>\n')
+                xout.write('      <chain_prescale>'+str(ch.GetAttrWithDefault("prescale",0))+'</chain_prescale>\n')
+
             xout.write('      <passthrough>'             +str(ch.GetAttrWithDefault("passthrough",0))\
                            +'</passthrough>\n')
             xout.write('      <lower_chain_name>'        +str(ch.GetAttrWithDefault("lowerchain",""))\
@@ -333,6 +360,127 @@ def WriteXmlFile(filename,rates,lbset=None):
     xout.write('</trigger>\n')
 
     xout.close()
+
+# This function writes out the L1 and HLT rates from TRP in a minimal way to allow the TrigCost website to interpret them
+# hence we can then compare predictions to online
+def WriteCsvFile(runnumber, lbrange, rates, lbset=None, xmlname=None, ratesnops=False):
+
+    #open file / write header
+
+    psMethod = "onlinePS"
+    if ratesnops:
+      psMethod = "noPS"
+    outfolder = "costMonitoring_OnlineTRPRates-" + psMethod + "-LB" + lbrange + "_" + runnumber
+    if not os.path.exists(outfolder+"/csv/"):
+      os.makedirs(outfolder+"/csv/")
+    if not os.path.exists(outfolder+"/xml/"):
+      os.makedirs(outfolder+"/xml/")
+    out_L1 = open(outfolder + "/csv/" + "Table_Rate_ChainL1_HLT_All.csv", 'w')
+    out_HLT = open(outfolder +"/csv/" + "Table_Rate_ChainHLT_HLT_All.csv", 'w')
+    # Needs to conform to trigcost naming structure
+    out_meta = open(outfolder +"/metadata.json", 'w')
+
+    if xmlname:
+      copyfile(xmlname, outfolder + "/xml/TrigRate_OnlineTRPRates-" + psMethod + "-LB" + lbrange + "_HLT_All.xml")
+
+    liveTime = "-"
+    avLumi = 0
+    if lbset and lbset.GetTotalTime() > 0:
+        liveTime = str(lbset.GetTotalTime())
+        avLumi = (lbset.GetDeliveredLumi() / lbset.GetTotalTime()) * 10**30
+
+    for lvl in ['L1','HLT']:
+        out = out_L1
+        if lvl == 'HLT':
+            out = out_HLT
+        out.write('Name,Time,Group,Rate [Hz],Rate Err [Hz],Prescale\n')
+
+        for chname in rates.GetChainNames(lvl):
+            ch = rates.GetChain(chname)
+            chlower = rates.GetChain( ch.GetAttrWithDefault("lowerchain","") ) 
+            # skip groups -- they go in later
+            if (string.count(chname,"grp") \
+                or string.count(chname,"_str_") \
+                or string.count(chname,"RATE:") \
+                or string.count(chname,"BW:") \
+                or string.count(chname,"L1_TriggerItem") \
+                or string.count(chname,"HLT_Providers") \
+                or string.count(chname,"HLT_recording") \
+                or string.count(chname,"HLT_TriggerDB") \
+                or string.count(chname,"HLT_total") \
+                or string.count(chname,"CPS:")):
+                continue
+         
+            if ratesnops and lvl == 'L1': # Unprescaled rate L1
+                out.write(chname + ',' + liveTime + ',-,' + format(ch.GetAttrWithDefault("tbprate",0), '.6f') + ',' + format(ch.GetAttrWithDefault("tbprateerr",0), '.6f') + ',L1:1.00\n' )
+            elif not ratesnops and lvl == 'L1': # Prescaled rate L1
+                out.write(chname + ',' + liveTime + ',-,' + format(ch.GetAttrWithDefault("rate",0), '.6f') + ',' + format(ch.GetAttrWithDefault("rateerr",0), '.6f') + ',L1:' + format(ch.GetPrescale(), '.2f') + '\n' )
+            elif ratesnops and lvl == 'HLT': # Unprescaled rate HLT
+                PS = 1.0
+                if chlower is not None:
+                    PS = chlower.GetAttrWithDefault("prescale",1.0)
+                else:
+                    log.warning("Could not find lower chain '" + ch.GetAttrWithDefault("lowerchain","") + "' for " + chname)
+                ####
+                if ( ch.GetAttrWithDefault("prescale",1.0) < 0 and ch.GetRate() > 0):
+                    log.warning("Chain " + chname + " has negative prescale '" + str(ch.GetAttrWithDefault("prescale",1.0)) + "' but +ve rate " + str(ch.GetRate()) )
+                else:
+                    PS *= ch.GetAttrWithDefault("prescale",1.0)
+                out.write(chname + ',' + liveTime + ',-,' + format(PS * ch.GetRate(), '.6f') + ',' + format(PS * ch.GetAttrWithDefault("rateerr",0), '.6f') + ',L1:1.00 HLT:1.00\n' )
+            elif not ratesnops and lvl == 'HLT': # Prescaled rate HLT
+                L1PS = '-'
+                if chlower is not None:
+                    L1PS = format(chlower.GetAttrWithDefault("prescale",1.0), '.2f')
+                out.write(chname + ',' + liveTime + ',-,' + format(ch.GetRate(), '.6f') + ',' + format(ch.GetAttrWithDefault("rateerr",0), '.6f') + ',L1:' + L1PS + ' HLT:' + format(ch.GetAttrWithDefault("prescale",-1.0), '.2f') + '\n' )
+
+    psText = "with online prescales"
+    if ratesnops:
+      psText = "with prescales removed"
+    out_meta.write('{' + '\n' )
+    out_meta.write('  "text": "metadata",' + '\n' )
+    out_meta.write('  "children": [' + '\n' )
+    out_meta.write('    {"PredictionLumi": "' + str(avLumi) + '"},' + '\n' )
+    out_meta.write('    {"Details": "Averaged rates ' + psText + ' from online monitoring"}' + '\n' )
+    out_meta.write('  ]' + '\n' )
+    out_meta.write('}' + '\n' )
+
+    out_L1.close()
+    out_HLT.close()
+    out_meta.close()
+
+    if ratesnops:
+        return
+
+    # Group is only for PRESCALED
+    out_Group = open(outfolder +"/csv/" + "Table_Rate_Group_HLT_All.csv", 'w')
+    out_Group.write('Name,Time,Group,Rate [Hz],Rate Err [Hz],Prescale\n')
+
+    for chname in rates.GetChainNames(lvl):
+        ch = rates.GetChain(chname)
+
+        outputname = chname
+        if (string.count(chname,"HLT_str_Main_physics")):
+          outputname = "RATE_GLOBAL_PHYSICS"
+        elif (string.count(chname,"HLT_str_express_express")):
+          outputname = "RATE_EXPRESS"
+        elif (string.count(chname,"_str_")):
+          outputname = chname.replace("HLT_str_", "STREAM_")
+        elif (string.count(chname,"_grp_")):
+          outputname = chname.replace("HLT_grp_", "RATE_")
+        elif (chname == "HLT_recording"):
+          outputname = "RATE_GLOBAL_HLT"
+        elif (string.count(chname,"HLT_recording")):
+          outputname = outputname # passthru
+        elif (string.count(chname,"HLT_total")):
+          outputname = outputname # passthru
+        elif (string.count(chname,"CPS")):
+          outputname = outputname # passthru
+        else:
+          continue
+
+        out_Group.write(outputname + ',' + liveTime + ',-,' + format(ch.GetRate(), '.6f') + ',' + format(ch.GetAttrWithDefault("rateerr",0), '.6f') + ',Multiple\n' )
+
+    out_Group.close()  
 
 #-----------------------------------------------------
 # Read the dataset xml format and return a list of DatasetDescr objects
