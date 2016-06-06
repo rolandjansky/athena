@@ -9,6 +9,13 @@
     authors : Andreas Wildauer (CERN PH-ATC), Fredrik Akesson (CERN PH-ATC)
     email   : andreas.wildauer@cern.ch, fredrik.akesson@cern.ch
     changes :
+              2016-04-26   David Shope <david.richard.shope@cern.ch>
+              EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex
+
+                findVertex in m_VertexFinderTool will now always return an xAOD::VertexContainer,
+                even when using a TrackCollection or a TrackParticleBaseCollection
+                as input.
+
  ***************************************************************************/
 
 #ifndef INDETPRIVXFINDER_INDETPRIVXFINDER_H
