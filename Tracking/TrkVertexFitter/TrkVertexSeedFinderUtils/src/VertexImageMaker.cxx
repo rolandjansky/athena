@@ -3,7 +3,6 @@
 */
 
 #include "TrkVertexSeedFinderUtils/VertexImageMaker.h"
-#include "VxVertex/RecVertex.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
 
@@ -89,7 +88,7 @@ namespace Trk
     return StatusCode::SUCCESS;
   }// End ImagingSeedFinder finalize
 
-  VertexImage VertexImageMaker::makeVertexImage( const std::vector<const Trk::TrackParameters*>& parametersList,const RecVertex * constraint ) {
+  VertexImage VertexImageMaker::makeVertexImage( const std::vector<const Trk::TrackParameters*>& parametersList,const xAOD::Vertex * constraint ) {
 
     //Calculate ranges
     if( constraint ) {

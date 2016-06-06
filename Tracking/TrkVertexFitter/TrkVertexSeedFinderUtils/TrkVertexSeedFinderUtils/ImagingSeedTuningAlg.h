@@ -30,6 +30,9 @@
 #include "xAODTracking/VertexContainerFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 
+//Amg
+#include "GeoPrimitives/GeoPrimitives.h"
+
 #include "TH1F.h"
 #include "TTree.h"
 
@@ -43,7 +46,6 @@ namespace InDet
 namespace Trk
 {
   class Track;
-  class Vertex;
   class ITrackLink;
   class IVertexSeedFinder;
   class IImpactPoint3dEstimator;
@@ -78,10 +80,10 @@ class ImagingSeedTuningAlg
   // Const methods: 
   ///////////////////////////////////////////////////////////////////
   // compute track distance of approach to vertex
-  double distanceAndError(const Trk::TrackParameters* params, const Trk::Vertex * vertex, double & err) const;
+  double distanceAndError(const Trk::TrackParameters* params, const Amg::Vector3D * vertex, double & err) const;
 
   // routine to identify visible truth vertices
-  StatusCode findTruth(const std::vector<Trk::ITrackLink*> & trackVector, std::vector<Trk::Vertex>& truth) const;
+  StatusCode findTruth(const std::vector<Trk::ITrackLink*> & trackVector, std::vector<Amg::Vector3D>& truth) const;
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
@@ -90,7 +92,7 @@ class ImagingSeedTuningAlg
 
   void analyzeTracks(const std::vector<Trk::ITrackLink*> & trackVector, std::vector<const Trk::TrackParameters*>& perigeeList);
 
-  void analyzeSeeds(std::string conditions, const std::vector<Trk::Vertex>& seeds, const std::vector<Trk::Vertex>& truth);
+  void analyzeSeeds(std::string conditions, const std::vector<Amg::Vector3D>& seeds, const std::vector<Amg::Vector3D>& truth);
 
   StatusCode initializeConditions(std::string& conditions);
 

@@ -6,7 +6,6 @@
           LocalMax1DClusterFinder.cxx - Description in header file
 *********************************************************************/
 #include "TrkVertexSeedFinderUtils/LocalMax1DClusterFinder.h"
-#include "VxVertex/Vertex.h"
 #include "TrkVertexSeedFinderUtils/VertexImage.h"
 #include <algorithm>
 
@@ -57,7 +56,7 @@ namespace Trk
 
   // --------------------------------------------------------------------------------
   // Find vertex clusters of input image
-  std::vector<Trk::Vertex> LocalMax1DClusterFinder::findVertexClusters( const VertexImage & image ){
+  std::vector<Amg::Vector3D> LocalMax1DClusterFinder::findVertexClusters( const VertexImage & image ){
 
     std::vector<float> zproj;
 
@@ -120,7 +119,7 @@ namespace Trk
     } //if we had at least 2 maxima to consider for merging
 
     // Fill return vector
-    std::vector<Vertex> vertices;    
+    std::vector<Amg::Vector3D> vertices;    
 
 
     //Set them to relative center of histogram in x,y
@@ -128,7 +127,7 @@ namespace Trk
     float y = image.getRelPosY( ((float) image.getNBinsY())/2. );
     for(auto & m : vmax) {
       if (!m_refineZ || zproj[m.first] <= 0) {
-          vertices.push_back( Vertex(Amg::Vector3D( x, y, image.getRelPosZ(m.first) ) ) );
+          vertices.push_back( Amg::Vector3D( x, y, image.getRelPosZ(m.first) ) );
       } else {
 	  float z;
 	  float z2 = image.getRelPosZ(m.first);
@@ -180,7 +179,7 @@ namespace Trk
 	      z = image.getRelPosZ(m.first);
 	    }
 	  }
-	  vertices.push_back( Vertex(Amg::Vector3D( x, y, z ) ) );
+	  vertices.push_back( Amg::Vector3D( x, y, z ) );
       }
     }
 
