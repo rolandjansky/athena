@@ -193,7 +193,9 @@ StatusCode InDet::PixelClusterOnTrackTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  m_incidentSvc->addListener( this, IncidentType::BeginEvent);
+  if (m_applydRcorrection){
+    m_incidentSvc->addListener( this, IncidentType::BeginEvent);
+  }
   // register to the incident service: EndEvent needed for memory cleanup
   m_incidentSvc->addListener( this, "EndEvent");
 
