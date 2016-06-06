@@ -463,6 +463,9 @@ def SetOldChainL1(tree, ch, bname, count):
 def SetOldChainHLT(tree, ch, bname, count, sfx_in, sfx_ps, sfx_out):
 #	  ch.SetPrescale(getattr(tree,bname+'_prescale'))
 
+    if ch is None:
+      return
+
     # Reverse-engineer counts -- will be approximate
     ch.SetTBPCnt (getattr(tree,bname+'_'+sfx_in )*samplingrate+ch.GetTBPCnt())
     ch.SetTAPCnt (getattr(tree,bname+'_'+sfx_ps )*samplingrate+ch.GetTAPCnt())
