@@ -203,7 +203,7 @@ StatusCode BSFilter::execute()
       ATH_MSG_INFO("Filter Passed");
       setFilterPassed(true);
       pass++;
-      if (efile) fprintf(efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%d, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,(uint32_t)event,bc_time_sec,lbn); //should be "%ld" for evt_nbr, but need fix for https://its.cern.ch/jira/browse/ATEAM-286 first!
+      if (efile) fprintf(efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%ld, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,event,bc_time_sec,lbn); //"%ld" for evt_nbr since it's 64 bit, but need fix for https://its.cern.ch/jira/browse/ATEAM-286 first!
     }
     else    {
       ATH_MSG_INFO("Filter Failed");
@@ -242,7 +242,7 @@ StatusCode BSFilter::execute()
       ATH_MSG_INFO("Filter Passed");
       setFilterPassed(true);
       pass++;
-      if (efile) fprintf(efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%d, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,(uint32_t)event,bc_time_sec,lbn);
+      if (efile) fprintf(efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%ld, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,event,bc_time_sec,lbn); //"%ld" for evt_n    br since it's 64 bit, but need fix for https://its.cern.ch/jira/browse/ATEAM-286 first!
     }
     else    {
       ATH_MSG_INFO("Filter Failed");
