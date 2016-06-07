@@ -10,15 +10,13 @@
 
 namespace MuonCalib {
 
-  MuonCalibSegment::MuonCalibSegment(double chi2, const Amg::Vector3D& pos, const Amg::Vector3D& dir,
-				     const Amg::Transform3D& locToGlo, unsigned int qualityFlag ) 
-    :  m_chi2(chi2), m_dy0(0), m_dtheta(0), m_localPosition(pos),m_localDirection(dir),m_localToGlobal(locToGlo),  m_fittedT0(-99999.), m_qualityFlag(qualityFlag), m_author(-1)
-  {
+  MuonCalibSegment::MuonCalibSegment(double chi2, const Amg::Vector3D &pos, const Amg::Vector3D &dir,
+				     const Amg::Transform3D &locToGlo, unsigned int qualityFlag ) 
+    :  m_chi2(chi2), m_dy0(0), m_dtheta(0), m_localPosition(pos),m_localDirection(dir),
+       m_localToGlobal(locToGlo), m_fittedT0(-99999.), m_qualityFlag(qualityFlag), m_author(-1)
+  {}
 
-  }
-
-  MuonCalibSegment::~MuonCalibSegment()
-  {
+  MuonCalibSegment::~MuonCalibSegment() {
     // MuonCalibSegments owns MdtCalibHitBases
     std::for_each( mdtHOTBegin(), mdtHOTEnd(), DeleteObject() );
     std::for_each( mdtCloseHitsBegin(), mdtCloseHitsEnd(), DeleteObject() );
@@ -36,8 +34,7 @@ namespace MuonCalib {
     std::for_each( tgcCloseHitsBegin(), tgcCloseHitsEnd(), DeleteObject() );
   }
 
-  MuonCalibSegment::MuonCalibSegment(const MuonCalibSegment& seg)
-  {
+  MuonCalibSegment::MuonCalibSegment(const MuonCalibSegment &seg) {
     m_chi2           = seg.chi2();
     m_dy0            = seg.error_dy0();
     m_dtheta         = seg.error_dtheta();
@@ -99,10 +96,9 @@ namespace MuonCalib {
     for( ; tgc_it!=tgc_it_end;++tgc_it){
       addCloseHit( new TgcCalibHitBase(**tgc_it));
     }
-  }
+  }  //end MuonCalibSegment::MuonCalibSegment
 
-  MuonCalibSegment& MuonCalibSegment::operator=( const MuonCalibSegment& seg)
-  {
+  MuonCalibSegment& MuonCalibSegment::operator=( const MuonCalibSegment &seg) {
     if (this!=&seg) {
       m_chi2           = seg.chi2();
       m_dy0            = seg.error_dy0();
@@ -179,25 +175,21 @@ namespace MuonCalib {
       }
     }
     return *this;
-  }
+  }  //end MuonCalibSegment::operator=
   
-  unsigned int MuonCalibSegment::hitsPerML(int ML)const
-  {
+  unsigned int MuonCalibSegment::hitsPerML(int ML)const {
     int counter = 0;
     std::vector<MdtCalibHitBase*>::const_iterator hit_it = mdtHOTBegin();
-    for (; hit_it !=mdtHOTEnd(); ++hit_it)
-      {
-	if(((*hit_it)->identify()).mdtMultilayer() == ML ) ++counter;
-      }
+    for (; hit_it !=mdtHOTEnd(); ++hit_it) {
+      if(((*hit_it)->identify()).mdtMultilayer() == ML ) ++counter;
+    }
     return counter;
   }
 
-  std::ostream& MuonCalibSegment::dump( std::ostream& stream) const
-  {
+  std::ostream& MuonCalibSegment::dump( std::ostream& stream) const {
     stream << "MuonCalibSegment with chi2 " << chi2() << std::endl;
     stream << " -- local position " << position() << " direction " << direction() << std::endl;
     stream << " -- HitsOnTrack " << hitsOnTrack() << std::endl;
-
   
     // Dump MdtCalibHit
     MdtHitCit mdt_it = mdtHOTBegin();
@@ -244,40 +236,27 @@ namespace MuonCalib {
     }
 
     return stream;
-  }
+  }  //end MuonCalibSegment::dump
 
-
-void MuonCalibSegment :: refineMdtSelection(const std::vector<unsigned int> &new_selection)
-	{
-	if(new_selection.size() != m_mdtHitsOnTrack.size())
-		{
-		std::cerr<<" MuonCalibSegment :: refineMdtSelection: Wrong size of vector!"<<std::endl;
-		return;
-		}
+  void MuonCalibSegment::refineMdtSelection(const std::vector<unsigned int> &new_selection) {
+    if(new_selection.size() != m_mdtHitsOnTrack.size()) {
+      std::cerr<<" MuonCalibSegment::refineMdtSelection: Wrong size of vector!"<<std::endl;
+      return;
+    }
 //copy old hit vector
-	MdtHitVec old_hit_vec(m_mdtHitsOnTrack);
-	m_mdtHitsOnTrack.clear();
-	for(unsigned int i=0; i<old_hit_vec.size(); i++)
-		{
-		if(!new_selection[i])
-			{
-			m_mdtHitsOnTrack.push_back(old_hit_vec[i]);
-			}
-		else
-			{
-			m_mdtCloseHits.push_back(old_hit_vec[i]);
-			}
-		}
-	}
+    MdtHitVec old_hit_vec(m_mdtHitsOnTrack);
+    m_mdtHitsOnTrack.clear();
+    for(unsigned int i=0; i<old_hit_vec.size(); i++) {
+      if(!new_selection[i]) {
+	m_mdtHitsOnTrack.push_back(old_hit_vec[i]);
+      } else {
+	m_mdtCloseHits.push_back(old_hit_vec[i]);
+      }
+    }
+  }  //end MuonCalibSegment::refineMdtSelection
 
+}  //namespace MuonCalib
 
-
-}//end namespace MuonCalib
-
-
-
-
-std::ostream& operator << (std::ostream& stream, const MuonCalib::MuonCalibSegment& seg)
-{
+std::ostream& operator << (std::ostream &stream, const MuonCalib::MuonCalibSegment &seg) {
   return seg.dump(stream);
 }

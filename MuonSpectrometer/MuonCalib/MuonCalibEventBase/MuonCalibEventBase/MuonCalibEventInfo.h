@@ -44,38 +44,37 @@ MoMu : Modular muon reconstruction is applied. A pattern may contain multiple se
     MuonCalibEventInfo& operator=(const MuonCalibEventInfo& eventInfo ); // !< assignment operator
     ~MuonCalibEventInfo(); //!< destructor
     
-    std::ostream& dump( std::ostream& stream ) const ;
+    std::ostream& dump( std::ostream &stream ) const;
     
-    unsigned int runNumber()   const { return m_runNumber ; } //!< retrieving runnumber of MuonCalibEvent
-    unsigned int eventNumber() const { return m_eventNumber ; } //!< retrieving eventnumber of MuonCalibevent
-    unsigned int timeStamp()   const { return m_timeStamp ; } //!< retrieving timestamp of MuonCalibEvent
-    unsigned int lumiBlock()   const { return m_lumiBlock ; } //!< retrieving lumiblock of MuonCalibEvent
-    unsigned int bcId()        const { return m_bcId ; } //!< retrieving bcid of MuonCalibEvent
-    std::string  tag()         const { return m_tag ; } //!< retrieving reconstruction tag of MuonCalibEvent
+    unsigned int runNumber()   const { return m_runNumber; }   //!< retrieving runnumber of MuonCalibEvent
+    unsigned int eventNumber() const { return m_eventNumber; } //!< retrieving eventnumber of MuonCalibevent
+    unsigned int timeStamp()   const { return m_timeStamp; }   //!< retrieving timestamp of MuonCalibEvent
+    unsigned int lumiBlock()   const { return m_lumiBlock; }   //!< retrieving lumiblock of MuonCalibEvent
+    unsigned int bcId()        const { return m_bcId; }        //!< retrieving bcid of MuonCalibEvent
+    std::string  tag()         const { return m_tag; }         //!< retrieving reconstruction tag of MuonCalibEvent
     const std::vector<bool> & triggerBits() const {return m_trigger_bits;}
 
-    void setRunNumber( const unsigned int run_number ) { m_runNumber = run_number ; } //!< sets runnumber
-    void setEventNumber( const unsigned int event_number ) { m_eventNumber = event_number ; } //!< sets eventnumber
-    void setTimeStamp( const unsigned int time_stamp ) { m_timeStamp = time_stamp ; } //!< sets timestamp
-    void setLumiBlock( const unsigned int lumi_block ) { m_lumiBlock = lumi_block ; } //!< sets lumiblock
-    void setBcId( const unsigned int bc_id ) { m_bcId = bc_id ; } //!< sets bcid
-    void setTag( const std::string tag ) { m_tag = tag ; } //!< sets reconstruction tag
+    void setRunNumber( const unsigned int run_number ) { m_runNumber = run_number; } //!< sets runnumber
+    void setEventNumber( const unsigned int event_number ) { m_eventNumber = event_number; } //!< sets eventnumber
+    void setTimeStamp( const unsigned int time_stamp ) { m_timeStamp = time_stamp; } //!< sets timestamp
+    void setLumiBlock( const unsigned int lumi_block ) { m_lumiBlock = lumi_block; } //!< sets lumiblock
+    void setBcId( const unsigned int bc_id ) { m_bcId = bc_id; } //!< sets bcid
+    void setTag( const std::string tag ) { m_tag = tag; } //!< sets reconstruction tag
     inline void setNumberOfTriggerBits(unsigned int n) { m_trigger_bits.resize(n); }
     inline void setTriggerBit(unsigned int n, bool bit) {m_trigger_bits[n]=bit;}
 
     private:
-    unsigned int m_runNumber; //!< runnumber member
+    unsigned int m_runNumber;   //!< runnumber member
     unsigned int m_eventNumber; //!< eventnumber member
-    unsigned int m_timeStamp; //!< timestamp member
-    unsigned int m_lumiBlock; //!< lumiBlock member
-    unsigned int m_bcId; //!< bcId member
-    std::string  m_tag; //!< reconstruction tag member
+    unsigned int m_timeStamp;   //!< timestamp member
+    unsigned int m_lumiBlock;   //!< lumiBlock member
+    unsigned int m_bcId;        //!< bcId member
+    std::string  m_tag;         //!< reconstruction tag member
     std::vector<bool> m_trigger_bits; //!< Trigger bits
   };
 
-
 } //namespace MuonCalib
 
-std::ostream& operator<<( std::ostream& stream, const MuonCalib::MuonCalibEventInfo& info );
+std::ostream& operator<<( std::ostream &stream, const MuonCalib::MuonCalibEventInfo &info );
 
 #endif //MuonCalibEventInfo_h

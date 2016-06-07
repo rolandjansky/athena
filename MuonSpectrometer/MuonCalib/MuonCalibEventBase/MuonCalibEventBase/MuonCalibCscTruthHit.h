@@ -27,29 +27,29 @@ namespace MuonCalib {
     public:
     MuonCalibCscTruthHit();  //!< default constructor
     MuonCalibCscTruthHit( MuonFixedId id, int barCode, double time ); //!< constructor initializing all attributes of the truth hit
-    MuonCalibCscTruthHit( const MuonCalibCscTruthHit& truth ); //!< copyconstructor
-    ~MuonCalibCscTruthHit() {} ; //!< destructor
+    MuonCalibCscTruthHit( const MuonCalibCscTruthHit &truth );        //!< copy constructor
+    ~MuonCalibCscTruthHit() {}; //!< destructor
 
-    MuonCalibCscTruthHit& operator=( const MuonCalibCscTruthHit& rhs ); //!< assignment operator
+    MuonCalibCscTruthHit& operator=( const MuonCalibCscTruthHit &rhs ); //!< assignment operator
     
-    std::ostream& dump( std::ostream& stream ) const;   //!< dump to be used for operator<<() to dump the MuonCalibCscTruthHit
+    std::ostream& dump( std::ostream &stream ) const;        //!< dump to be used for operator<<() to dump the MuonCalibCscTruthHit
 
-    MuonFixedId identify() const {return m_ID ; } ;            //!< retrieve the MuonFixedId
-    int barCode() const { return m_barCode ; } ;               //!< retrieve the barcode
-    double time() const { return m_time ; } ;                  //!< retrieve the time
+    MuonFixedId identify() const { return m_ID; };           //!< retrieve the MuonFixedId
+    int barCode() const { return m_barCode; };               //!< retrieve the barcode
+    double time() const { return m_time; };                  //!< retrieve the time
     
-    void setIdentifier( MuonFixedId id ) { m_ID = id ; } ;     //!< sets the MuonFixedId
-    void setBarCode( int barCode ) { m_barCode = barCode ; } ; //!< sets the barcode
-    void setTime ( double time ) { m_time = time ; } ;         //!< sets the time
+    void setIdentifier( MuonFixedId id ) { m_ID = id; };     //!< sets the MuonFixedId
+    void setBarCode( int barCode ) { m_barCode = barCode; }; //!< sets the barcode
+    void setTime ( double time ) { m_time = time; };         //!< sets the time
 
     private:
-    MuonFixedId m_ID;  //!< identifier of the truth hit, (is a MuonFixedId, not an Identifier) 
+    MuonFixedId m_ID;  //!< identifier of the truth hit, (a MuonFixedId, not an Identifier) 
     int     m_barCode; //!< barcode
     double  m_time;    //!< time
-  } ;
+  };
 
 }// namespace MuonCalib
 
-std::ostream& operator << ( std::ostream& stream, const MuonCalib::MuonCalibCscTruthHit& truth );
+std::ostream& operator << ( std::ostream &stream, const MuonCalib::MuonCalibCscTruthHit &truth );
 
 #endif //MuonCalibCscTruth_h

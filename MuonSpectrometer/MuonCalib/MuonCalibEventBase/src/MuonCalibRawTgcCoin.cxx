@@ -8,8 +8,7 @@
 
 namespace MuonCalib {
 
-
-  MuonCalibRawTgcCoin::MuonCalibRawTgcCoin( const MuonCalibRawTgcCoin& coin ) {
+  MuonCalibRawTgcCoin::MuonCalibRawTgcCoin( const MuonCalibRawTgcCoin &coin ) {
     m_id = coin.identify() ;   
     m_gPosIn = coin.gPosIn();
     m_gPosOut = coin.gPosOut();
@@ -33,7 +32,7 @@ namespace MuonCalib {
     m_bcTag= coin.m_bcTag;
   }
   
-  MuonCalibRawTgcCoin& MuonCalibRawTgcCoin::operator=( const MuonCalibRawTgcCoin& rhs ){
+  MuonCalibRawTgcCoin& MuonCalibRawTgcCoin::operator=( const MuonCalibRawTgcCoin &rhs ) {
     if(this!=&rhs) {    
       m_id = rhs.identify() ;
       m_gPosIn = rhs.gPosIn();
@@ -60,35 +59,33 @@ namespace MuonCalib {
     return (*this) ;
   }
   
- std::ostream& MuonCalibRawTgcCoin::dump( std::ostream& stream ) const 
- {
-   stream << "MuonCalibRawTgcCoin with" <<  std::endl;
-   stream << "   identifier " << identify() << std::endl;
-   stream << " gPosIn = " <<gPosIn() << std::endl;
-   stream << " gPosOut = " <<gPosOut() << std::endl;
-   stream << " type = " <<type() << std::endl;
-   stream << " eta = " <<eta() << std::endl;
-   stream << " phi = " <<phi() << std::endl;
-   stream << " sector = " <<sector() << std::endl;
-   stream << " isForward = " <<isForward() << std::endl;
-   stream << " isStrip = " <<isStrip() << std::endl;
-   stream << " trackletId = " <<trackletId() << std::endl;
-   stream << " trackletIdStrip = " <<trackletIdStrip() << std::endl;
-   stream << " widthIn = " <<widthIn() << std::endl;
-   stream << " widthOut = " <<widthOut() << std::endl;
-   stream << " widthR = " <<widthR() << std::endl;
-   stream << " widthPhi = " <<widthPhi() << std::endl;
-   stream << " delta = " <<delta() << std::endl;
-   stream << " roi = " <<roi() << std::endl;
-   stream << " pt = " <<pt() << std::endl;
-   stream << " sub = " <<sub() << std::endl;
-   stream << " isPositiveDeltaR = " <<isPositiveDeltaR() << std::endl;
-   return stream;
- }
-}
-std::ostream& operator << (std::ostream& stream, const MuonCalib::MuonCalibRawTgcCoin& coin) 
-  {
-    return coin.dump(stream);
+  std::ostream& MuonCalibRawTgcCoin::dump( std::ostream &stream ) const {
+    stream << "MuonCalibRawTgcCoin with" <<  std::endl;
+    stream << "   identifier " << identify() << std::endl;
+    stream << " gPosIn = " <<gPosIn() << std::endl;
+    stream << " gPosOut = " <<gPosOut() << std::endl;
+    stream << " type = " <<type() << std::endl;
+    stream << " eta = " <<eta() << std::endl;
+    stream << " phi = " <<phi() << std::endl;
+    stream << " sector = " <<sector() << std::endl;
+    stream << " isForward = " <<isForward() << std::endl;
+    stream << " isStrip = " <<isStrip() << std::endl;
+    stream << " trackletId = " <<trackletId() << std::endl;
+    stream << " trackletIdStrip = " <<trackletIdStrip() << std::endl;
+    stream << " widthIn = " <<widthIn() << std::endl;
+    stream << " widthOut = " <<widthOut() << std::endl;
+    stream << " widthR = " <<widthR() << std::endl;
+    stream << " widthPhi = " <<widthPhi() << std::endl;
+    stream << " delta = " <<delta() << std::endl;
+    stream << " roi = " <<roi() << std::endl;
+    stream << " pt = " <<pt() << std::endl;
+    stream << " sub = " <<sub() << std::endl;
+    stream << " isPositiveDeltaR = " <<isPositiveDeltaR() << std::endl;
+    return stream;
   }
 
-//} //namespace MuonCalib
+}  //namespace MuonCalib
+
+std::ostream& operator << (std::ostream &stream, const MuonCalib::MuonCalibRawTgcCoin &coin) {
+  return coin.dump(stream);
+}

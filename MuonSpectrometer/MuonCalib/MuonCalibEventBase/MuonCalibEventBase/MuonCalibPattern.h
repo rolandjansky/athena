@@ -22,14 +22,20 @@ namespace MuonCalib {
   class MuonCalibSegment;
 
 /**
-@class MuonCalibPattern
-Class to store the information belonging to a global pattern in the muon system.
-It contains all information needed to calibrate the different technologies in the 
-muon system.
+   @class MuonCalibPattern
 
-The pattern recognition provides the MuonCalibPattern, optionally one can provide the number of hits associated to the pattern. MuonCalibSegment s that are identified to belong to the same trajectory are assigned to the MuonCalibPattern. Furthermore, the MuonCalibPattern contains a goodness of fit and an estimate of the track parameters.
+   Class to store the information belonging to a global pattern in the
+   muon system.  It contains all information needed to calibrate the
+   different technologies in the muon system.
 
-@author Niels.Van.Eldik@cern.ch, Zdenko.Van.Kesteren@cern.ch
+   The pattern recognition provides the MuonCalibPattern, optionally
+   one can provide the number of hits associated to the
+   pattern. MuonCalibSegment s that are identified to belong to the
+   same trajectory are assigned to the MuonCalibPattern. Furthermore,
+   the MuonCalibPattern contains a goodness of fit and an estimate of
+   the track parameters.
+
+   @author Niels.Van.Eldik@cern.ch, Zdenko.Van.Kesteren@cern.ch
 */
 
   class MuonCalibPattern {
@@ -46,8 +52,8 @@ The pattern recognition provides the MuonCalibPattern, optionally one can provid
     MuonCalibPattern(double chi2, double z0, double r0,
 		      double invP, double phi, double theta, 
 		     unsigned int nmdt, unsigned int nrpc, unsigned int ntgc, unsigned int ncsc); //!< constructor initializing the pattern with trackparameters, chi2 and number of hits in the different technologies.
-    MuonCalibPattern(const MuonCalibPattern& pat);//!< Copy constructor. Not sure wether we need it...
-    MuonCalibPattern& operator=(const MuonCalibPattern& pat ); //!< assignment operator. Not sure wether we need it...
+    MuonCalibPattern(const MuonCalibPattern &pat);//!< Copy constructor. Not sure wether we need it...
+    MuonCalibPattern& operator=(const MuonCalibPattern &pat ); //!< assignment operator. Not sure whether we need it...
     ~MuonCalibPattern(); //!< destructor
 
     //accessors
@@ -75,8 +81,8 @@ The pattern recognition provides the MuonCalibPattern, optionally one can provid
     unsigned int ntgcHits() const;    //!< retrieve number of TGC hits. Counting convention: 1000*eta hits + phi hits.
     unsigned int ncscHits() const;    //!< retrieve number of CSC hits. Counting convention: 1000*eta hits + phi hits.
 
-    /* methodes for adding segments */
-    void addMuonSegment(MuonCalibSegment* seg); //!< Adds the MuonCalibSegment to the set MuonCalibSegments of the MuonCalibPattern.
+    /* methods for adding segments */
+    void addMuonSegment(MuonCalibSegment *seg); //!< Adds the MuonCalibSegment to the set MuonCalibSegments of the MuonCalibPattern.
 
     std::ostream& dump( std::ostream& os) const;
 
@@ -101,7 +107,7 @@ The pattern recognition provides the MuonCalibPattern, optionally one can provid
   inline MuonCalibPattern::MuonSegIt MuonCalibPattern::muonSegBegin() { return m_muonSegments.begin(); }
   inline MuonCalibPattern::MuonSegIt MuonCalibPattern::muonSegEnd()   { return m_muonSegments.end(); }  
   inline MuonCalibPattern::MuonSegCit MuonCalibPattern::muonSegBegin() const { return m_muonSegments.begin(); }
-  inline MuonCalibPattern::MuonSegCit MuonCalibPattern::muonSegEnd() const  { return m_muonSegments.end(); }  
+  inline MuonCalibPattern::MuonSegCit MuonCalibPattern::muonSegEnd() const { return m_muonSegments.end(); }  
 
   // track parameters
   inline double MuonCalibPattern::chi2() const { return m_chi2; }
@@ -117,10 +123,12 @@ The pattern recognition provides the MuonCalibPattern, optionally one can provid
   inline unsigned int MuonCalibPattern::ncscHits()const { return m_ncsc; }
 
   // methodes for adding segments
-  inline void MuonCalibPattern::addMuonSegment(MuonCalibSegment* seg) 
-  { m_muonSegments.push_back( seg); }
+  inline void MuonCalibPattern::addMuonSegment(MuonCalibSegment* seg) { 
+    m_muonSegments.push_back( seg); 
+  }
 
-}
-std::ostream& operator << (std::ostream& stream, const MuonCalib::MuonCalibPattern& pat);
+}  //namespace MuonCalib
+
+std::ostream& operator << (std::ostream &stream, const MuonCalib::MuonCalibPattern &pat);
 
 #endif
