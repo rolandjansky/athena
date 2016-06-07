@@ -147,7 +147,7 @@ dqm_algorithms::RPC_OccupancyHoleFinder::execute(	const std::string & name,
 	   if(ibinx >=6)continue; 
 	  }
 	 }
-	 else if ( Title.find("Pivot0_BA")!= std::string::npos  ||  Title.find("Pivot1_BA")!= std::string::npos ||  Title.find("LowPt_BA")!= std::string::npos ||  Title.find("HighPt_BA")!= std::string::npos ){ 
+	 else if ( Title.find("Pivot0_BA")!= std::string::npos  ||  Title.find("Pivot1_BA")!= std::string::npos ||  Title.find("LowPt_BA")!= std::string::npos  ){ 
 	  if(ibiny==1||ibiny==2||ibiny==5||ibiny==6||ibiny==9||ibiny==10){ 
 	   if(ibinx == 1)chamber_name  = "BML1DZ1";if(ibinx == 2)chamber_name  = "BML1DZ2";if(ibinx == 3)chamber_name  = "BML2DZ1";if(ibinx == 4)chamber_name  = "BML2DZ2";if(ibinx == 5)chamber_name  = "BML3DZ1";if(ibinx == 6)chamber_name  = "BML3DZ2"; 
 	   if(ibinx == 7)chamber_name  = "BML4DZ1";if(ibinx == 8)chamber_name  = "BML5DZ1";if(ibinx == 9)chamber_name  = "BML6DZ1";if(ibinx ==10)chamber_name  = "BML6DZ2";if(ibinx ==11)chamber_name  = "BML7DZ1";
@@ -172,6 +172,32 @@ dqm_algorithms::RPC_OccupancyHoleFinder::execute(	const std::string & name,
 	   if(ibinx == 1)chamber_name  = "BMF1DZ1";if(ibinx == 2)chamber_name  = "BMF1DZ2";if(ibinx == 3)chamber_name  = "BMF2DZ1";if(ibinx == 4)chamber_name  = "BMF2DZ2";if(ibinx == 5)chamber_name  = "BMF3DZ1";if(ibinx == 6)chamber_name  = "BMF3DZ2";
 	   if(ibinx == 7)chamber_name  = "BOF2DZ1";if(ibinx == 8)chamber_name  = "BOF2DZ2";if(ibinx == 9)chamber_name  = "BOF3DZ1";if(ibinx ==10)chamber_name  = "BOF3DZ2";if(ibinx ==11)chamber_name  = "BOF4DZ1";if(ibinx ==12)chamber_name  = "BOG3DZ1";if(ibinx ==13)chamber_name = "BOG4DZ1";
 	   if(ibinx >=14)continue; 
+	  }	   
+	 }
+	 else if ( Title.find("HighPt_BA")!= std::string::npos ){ 
+	  if(ibiny==1||ibiny==2||ibiny==5||ibiny==6||ibiny==9||ibiny==10){ 
+	   if(ibinx == 1)chamber_name  = "BML1DZ1";if(ibinx == 2)chamber_name  = "BML1DZ2";if(ibinx == 3)chamber_name  = "BML2DZ1";if(ibinx == 4)chamber_name  = "BML2DZ2";if(ibinx == 5)chamber_name  = "BML3DZ1";if(ibinx == 6)chamber_name  = "BML3DZ2"; 
+	   if(ibinx == 7)chamber_name  = "BML4DZ1";if(ibinx == 8)chamber_name  = "BML5DZ1";if(ibinx == 9)chamber_name  = "BML6DZ1";if(ibinx ==10)chamber_name  = "BML6DZ2";if(ibinx ==11)chamber_name  = "BML7DZ1";
+	   if(ibinx >=12)continue; 
+	  }
+	  else if(ibiny==13||ibiny==14||ibiny==17||ibiny==18||ibiny==21||ibiny==22||ibiny==29||ibiny==30){ 
+	   if(ibinx == 1)chamber_name  = "BML1DZ1";if(ibinx == 2)chamber_name  = "BML2DZ1";if(ibinx == 3)chamber_name  = "BML2DZ2";if(ibinx == 4)chamber_name  = "BML3DZ1";if(ibinx == 5)chamber_name  = "BML3DZ2";if(ibinx == 6)chamber_name  = "BML4DZ1"; 
+	   if(ibinx == 7)chamber_name  = "BML5DZ1";if(ibinx == 8)chamber_name  = "BML6DZ1";if(ibinx == 9)chamber_name  = "BML6DZ2";if(ibinx == 10)chamber_name  = "BML7DZ1";
+	   if(ibinx >=11)continue; 
+	  }
+	  else if(ibiny==25||ibiny==26){ 
+	   if(ibinx == 1)chamber_name  = "BMEDZ1";if(ibinx == 2)chamber_name  = "BML1DZ1";if(ibinx == 3)chamber_name  = "BML1DZ2";if(ibinx == 4)chamber_name  = "BML2DZ1";if(ibinx == 5)chamber_name  = "BML2DZ2";if(ibinx == 6)chamber_name  = "BML3DZ1"; 
+	   if(ibinx == 7)chamber_name  = "BML3DZ2";if(ibinx == 8)chamber_name  = "BML4DZ1";if(ibinx == 9)chamber_name  = "BML5DZ1";if(ibinx == 10)chamber_name  = "BML5DZ2";if(ibinx == 11)chamber_name  = "BML6DZ1";
+	   if(ibinx >=12)continue; 
+	  } 
+	  else if(ibiny==3||ibiny==4||ibiny==7||ibiny==8||ibiny==11||ibiny==12||ibiny==15||ibiny==16||ibiny==19||ibiny==20||ibiny==31||ibiny==32){ 
+	   if(ibinx == 1)chamber_name  = "BMS1DZ1";if(ibinx == 2)chamber_name  = "BMS1DZ2";if(ibinx == 3)chamber_name  = "BMS2DZ1";if(ibinx == 4)chamber_name  = "BMS2DZ2";if(ibinx == 5)chamber_name  = "BMH2DZ1";if(ibinx == 6)chamber_name  = "BMS3DZ1"; 
+	   if(ibinx == 7)chamber_name  = "BMS3DZ2";if(ibinx == 8)chamber_name  = "BMS4DZ1";if(ibinx == 9)chamber_name  = "BMS4DZ2";if(ibinx ==10)chamber_name  = "BMH4DZ1";if(ibinx == 11)chamber_name  = "BMS5DZ1";if(ibinx == 12)chamber_name  = "BMS6DZ1";if(ibinx == 13)chamber_name  = "BMS6DZ2";
+	   if(ibinx >=14)continue; 
+	  }
+	  else { 
+	   if(ibinx == 1)chamber_name  = "BMF1DZ1";if(ibinx == 2)chamber_name  = "BMF1DZ2";if(ibinx == 3)chamber_name  = "BMF2DZ1";if(ibinx == 4)chamber_name  = "BMF2DZ2";if(ibinx == 5)chamber_name  = "BMF3DZ1";if(ibinx == 6)chamber_name  = "BMF3DZ2";
+	   if(ibinx >=7)continue; 
 	  }	   
 	 }
 	 else if ( Title.find("HighPt0_BC")!= std::string::npos  ||  Title.find("HighPt1_BC")!= std::string::npos ){ 
@@ -222,7 +248,7 @@ dqm_algorithms::RPC_OccupancyHoleFinder::execute(	const std::string & name,
 	   if(ibinx >=6)continue; 
 	  }
 	 }
-	 else if ( Title.find("Pivot0_BC")!= std::string::npos  ||  Title.find("Pivot1_BC")!= std::string::npos ||  Title.find("LowPt_BC")!= std::string::npos ||  Title.find("HighPt_BC")!= std::string::npos ){ 
+	 else if ( Title.find("Pivot0_BC")!= std::string::npos  ||  Title.find("Pivot1_BC")!= std::string::npos ||  Title.find("LowPt_BC")!= std::string::npos  ){ 
 	  if(ibiny==5||ibiny==6||ibiny==9||ibiny==10){ 
 	   if(ibinx == 1)chamber_name  = "BML1DZ1";if(ibinx == 2)chamber_name  = "BML1DZ2";if(ibinx == 3)chamber_name  = "BML2DZ1";if(ibinx == 4)chamber_name  = "BML2DZ2";if(ibinx == 5)chamber_name  = "BML3DZ1";if(ibinx == 6)chamber_name  = "BML3DZ2"; 
 	   if(ibinx == 7)chamber_name  = "BML4DZ1";if(ibinx == 8)chamber_name  = "BML5DZ1";if(ibinx == 9)chamber_name  = "BML6DZ1";if(ibinx ==10)chamber_name  = "BML6DZ2";if(ibinx ==11)chamber_name  = "BML7DZ1";
@@ -247,6 +273,32 @@ dqm_algorithms::RPC_OccupancyHoleFinder::execute(	const std::string & name,
 	   if(ibinx == 1)chamber_name  = "BMF1DZ1";if(ibinx == 2)chamber_name  = "BMF1DZ2";if(ibinx == 3)chamber_name  = "BMF2DZ1";if(ibinx == 4)chamber_name  = "BMF2DZ2";if(ibinx == 5)chamber_name  = "BMF3DZ1";if(ibinx == 6)chamber_name  = "BMF3DZ2";
 	   if(ibinx == 7)chamber_name  = "BOF2DZ1";if(ibinx == 8)chamber_name  = "BOF2DZ2";if(ibinx == 9)chamber_name  = "BOF3DZ1";if(ibinx ==10)chamber_name  = "BOF3DZ2";if(ibinx ==11)chamber_name  = "BOF4DZ1";if(ibinx ==12)chamber_name  = "BOG3DZ1";if(ibinx ==13)chamber_name = "BOG4DZ1";
 	   if(ibinx >=14)continue; 
+	  }	   
+	 }
+	 else if ( Title.find("HighPt_BC")!= std::string::npos ){ 
+	  if(ibiny==5||ibiny==6||ibiny==9||ibiny==10){ 
+	   if(ibinx == 1)chamber_name  = "BML1DZ1";if(ibinx == 2)chamber_name  = "BML1DZ2";if(ibinx == 3)chamber_name  = "BML2DZ1";if(ibinx == 4)chamber_name  = "BML2DZ2";if(ibinx == 5)chamber_name  = "BML3DZ1";if(ibinx == 6)chamber_name  = "BML3DZ2"; 
+	   if(ibinx == 7)chamber_name  = "BML4DZ1";if(ibinx == 8)chamber_name  = "BML5DZ1";if(ibinx == 9)chamber_name  = "BML6DZ1";if(ibinx ==10)chamber_name  = "BML6DZ2";if(ibinx ==11)chamber_name  = "BML7DZ1";
+	   if(ibinx >=12)continue; 
+	  }
+	  else if(ibiny==1||ibiny==2||ibiny==13||ibiny==14||ibiny==17||ibiny==18||ibiny==21||ibiny==22||ibiny==29||ibiny==30){ 
+	   if(ibinx == 1)chamber_name  = "BML1DZ1";if(ibinx == 2)chamber_name  = "BML2DZ1";if(ibinx == 3)chamber_name  = "BML2DZ2";if(ibinx == 4)chamber_name  = "BML3DZ1";if(ibinx == 5)chamber_name  = "BML3DZ2";if(ibinx == 6)chamber_name  = "BML4DZ1"; 
+	   if(ibinx == 7)chamber_name  = "BML5DZ1";if(ibinx == 8)chamber_name  = "BML6DZ1";if(ibinx == 9)chamber_name  = "BML6DZ2";if(ibinx == 10)chamber_name  = "BML7DZ1";
+	   if(ibinx >=11)continue; 
+	  }
+	  else if(ibiny==25||ibiny==26){ 
+	   if(ibinx == 1)chamber_name  = "BMEDZ1";if(ibinx == 2)chamber_name  = "BML1DZ1";if(ibinx == 3)chamber_name  = "BML1DZ2";if(ibinx == 4)chamber_name  = "BML2DZ1";if(ibinx == 5)chamber_name  = "BML2DZ2";if(ibinx == 6)chamber_name  = "BML3DZ1"; 
+	   if(ibinx == 7)chamber_name  = "BML3DZ2";if(ibinx == 8)chamber_name  = "BML4DZ1";if(ibinx == 9)chamber_name  = "BML5DZ1";if(ibinx == 10)chamber_name  = "BML5DZ2";if(ibinx == 11)chamber_name  = "BML6DZ1";
+	   if(ibinx >=12)continue; 
+	  } 
+	  else if(ibiny==3||ibiny==4||ibiny==7||ibiny==8||ibiny==11||ibiny==12||ibiny==15||ibiny==16||ibiny==19||ibiny==20||ibiny==31||ibiny==32){ 
+	   if(ibinx == 1)chamber_name  = "BMS1DZ1";if(ibinx == 2)chamber_name  = "BMS1DZ2";if(ibinx == 3)chamber_name  = "BMS2DZ1";if(ibinx == 4)chamber_name  = "BMS2DZ2";if(ibinx == 5)chamber_name  = "BMH2DZ1";if(ibinx == 6)chamber_name  = "BMS3DZ1"; 
+	   if(ibinx == 7)chamber_name  = "BMS3DZ2";if(ibinx == 8)chamber_name  = "BMS4DZ1";if(ibinx == 9)chamber_name  = "BMS4DZ2";if(ibinx ==10)chamber_name  = "BMH4DZ1";if(ibinx == 11)chamber_name  = "BMS5DZ1";if(ibinx == 12)chamber_name  = "BMS6DZ1";if(ibinx == 13)chamber_name  = "BMS6DZ2";
+	   if(ibinx >=14)continue; 
+	  }
+	  else { 
+	   if(ibinx == 1)chamber_name  = "BMF1DZ1";if(ibinx == 2)chamber_name  = "BMF1DZ2";if(ibinx == 3)chamber_name  = "BMF2DZ1";if(ibinx == 4)chamber_name  = "BMF2DZ2";if(ibinx == 5)chamber_name  = "BMF3DZ1";if(ibinx == 6)chamber_name  = "BMF3DZ2";
+	   if(ibinx >=7)continue; 
 	  }	   
 	 }
 	  
