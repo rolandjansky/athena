@@ -6,11 +6,11 @@
 #define IOVSVC_IOVADDRESS_H
 
 #ifndef GAUDIKERNEL_IOPAQUEADDRESS_H
- #include "GaudiKernel/IOpaqueAddress.h"
+#include "GaudiKernel/IOpaqueAddress.h"
 #endif
 
 #ifndef GAUDIKERNEL_CLASSID_H
- #include "GaudiKernel/ClassID.h"
+#include "GaudiKernel/ClassID.h"
 #endif
 
 class IOVAddress: public IOpaqueAddress {
@@ -31,14 +31,14 @@ protected:
   
   IOVRange m_range;
 
-  public:
+public:
  
   // Dummy constructor
   IOVAddress() 
     : m_refCount(0), 
-    m_svcType(0),
-    m_clID(0),
-    m_pRegistry(0)
+      m_svcType(0),
+      m_clID(0),
+      m_pRegistry(0)
   {
     m_ipar[0]=m_ipar[1]==0xFFFFFFFF;
   }
@@ -60,23 +60,23 @@ protected:
 
   /// Standard Constructor
   IOVAddress(long svc,
-	       const CLID& clid,
-	       const std::string& p1, 
-	       const std::string& p2,
-	       unsigned long ip1,
-	       unsigned long ip2,
-	       IOVRange range)  
-      : m_refCount(0),
-	m_svcType(svc),
-	m_clID(clid),
-	m_pRegistry(0),
-	m_range(range)
-    {
-      m_par[0]  = p1;
-      m_par[1]  = p2;
-      m_ipar[0] = ip1;
-      m_ipar[1] = ip2;
-    }
+             const CLID& clid,
+             const std::string& p1, 
+             const std::string& p2,
+             unsigned long ip1,
+             unsigned long ip2,
+             IOVRange range)  
+    : m_refCount(0),
+      m_svcType(svc),
+      m_clID(clid),
+      m_pRegistry(0),
+      m_range(range)
+  {
+    m_par[0]  = p1;
+    m_par[1]  = p2;
+    m_ipar[0] = ip1;
+    m_ipar[1] = ip2;
+  }
 
   /// Standard Destructor
   virtual ~IOVAddress()   {

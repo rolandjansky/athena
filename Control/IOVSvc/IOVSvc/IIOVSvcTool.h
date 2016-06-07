@@ -16,6 +16,7 @@
 
 class IOVRange;
 class IOVTime;
+class IOpaqueAddress;
 
 namespace SG {
   class TransientAddress;
@@ -23,7 +24,7 @@ namespace SG {
 }
 
 class IIOVSvcTool : virtual public IAlgTool {
- public:
+public:
 
   /// Retrieve interface ID
   static const InterfaceID& interfaceID() { 
@@ -39,47 +40,54 @@ class IIOVSvcTool : virtual public IAlgTool {
 
   // register callback functions
   virtual StatusCode regFcn(SG::DataProxy *dp, const CallBackID c, 
-			    const IOVSvcCallBackFcn& fcn, bool trigger) = 0;
+                            const IOVSvcCallBackFcn& fcn, bool trigger) = 0;
 
   virtual StatusCode regFcn(const CallBackID c1,
-			    const CallBackID c2, 
-			    const IOVSvcCallBackFcn& fcn2, 
-			    bool trigger) = 0;
+                            const CallBackID c2, 
+                            const IOVSvcCallBackFcn& fcn2, 
+                            bool trigger) = 0;
   
   virtual StatusCode regFcn(const IAlgTool* ia,
-			    const CallBackID c2, const IOVSvcCallBackFcn& fcn2,
-			    bool trigger) = 0;
+                            const CallBackID c2, const IOVSvcCallBackFcn& fcn2,
+                            bool trigger) = 0;
   
   // Update Range from dB
   virtual StatusCode setRange(const CLID& clid, const std::string& key, 
-			      IOVRange&) = 0;
+                              IOVRange&) = 0;
 
   virtual StatusCode getRange(const CLID& clid, const std::string& key, 
-			      IOVRange& iov) const = 0;
+                              IOVRange& iov) const = 0;
 
   // Subscribe method for DataProxy. key StoreGate key
   virtual StatusCode regProxy( const SG::DataProxy *proxy, 
-			       const std::string& key ) = 0;
+                               const std::string& key ) = 0;
+
+  virtual StatusCode deregProxy( const SG::DataProxy *proxy ) = 0;
+  virtual StatusCode deregProxy( const CLID& clid, const std::string& key ) = 0;
+
+
   // Replace a registered proxy with a new version
   virtual StatusCode replaceProxy( const SG::DataProxy *pOld,
-				   const SG::DataProxy *pNew ) = 0;
+                                   const SG::DataProxy *pNew ) = 0;
 
   // Another way to subscribe
   virtual StatusCode regProxy( const CLID& clid, const std::string& key ) = 0;
 
   // Get IOVRange from db for current event
   virtual StatusCode getRangeFromDB(const CLID& clid, const std::string& key, 
-				    IOVRange& range, std::string &tag) const = 0;
+                                    IOVRange& range, std::string &tag,
+                                    IOpaqueAddress*& ioa) const = 0;
 
   // Get IOVRange from db for a particular event
   virtual StatusCode getRangeFromDB(const CLID& clid, const std::string& key, 
-				    const IOVTime& time,
-				    IOVRange& range, std::string &tag) const = 0;
+                                    const IOVTime& time,
+                                    IOVRange& range, std::string &tag,
+                                    IOpaqueAddress*& ioa) const = 0;
 
   // Set a particular IOVRange in db (and memory)
   virtual StatusCode setRangeInDB(const CLID& clid, const std::string& key, 
-				  const IOVRange& range, 
-				  const std::string &tag) = 0;
+                                  const IOVRange& range, 
+                                  const std::string &tag) = 0;
   
   // supply a list of TADs whose proxies will be preloaded
   virtual StatusCode preLoadTAD( const SG::TransientAddress * ) = 0;
@@ -90,7 +98,7 @@ class IIOVSvcTool : virtual public IAlgTool {
   // return list of tools (or functions) that have been triggered by key
   // will return FAILURE if no tools found, or no key found
   virtual StatusCode getTriggeredTools(const std::string& key,
-				       std::set<std::string>& tools) = 0;
+                                       std::set<std::string>& tools) = 0;
 
   virtual StatusCode reinitialize() = 0;
 
@@ -100,6 +108,9 @@ class IIOVSvcTool : virtual public IAlgTool {
   virtual bool holdsAlgTool( const IAlgTool* ia ) const = 0;
 
   virtual void resetAllProxies() = 0;
+
+  virtual void ignoreProxy(const SG::DataProxy* proxy)  = 0;
+  virtual void ignoreProxy( const CLID& clid, const std::string& key)  = 0;
 
 };
 

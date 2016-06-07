@@ -38,6 +38,7 @@
 #include <set>
 #include <map>
 #include <list>
+#include <utility>
 
 
 class StoreGateSvc;
@@ -58,24 +59,24 @@ namespace SG {
 class SortTADptr {
 public:
   bool operator() ( const SG::TransientAddress*, 
-		    const SG::TransientAddress* ) const;
+                    const SG::TransientAddress* ) const;
 };
 
 class SortDPptr {
 public:
   bool operator() ( const SG::DataProxy*, 
-		    const SG::DataProxy* ) const;
+                    const SG::DataProxy* ) const;
 };
 
 
 class IOVSvcTool: virtual public IIOVSvcTool,
-		  virtual public IIncidentListener,
-		  virtual public AthAlgTool {
+                  virtual public IIncidentListener,
+                  virtual public AthAlgTool {
 
 public:
 
   IOVSvcTool(const std::string& type, const std::string& name,
-	     const IInterface* parent);
+             const IInterface* parent);
 
 
   virtual StatusCode initialize();
@@ -95,46 +96,51 @@ public:
 
   // register callback functions
   StatusCode regFcn(SG::DataProxy *dp, const CallBackID c, 
-		    const IOVSvcCallBackFcn& fcn, bool trigger = false);
+                    const IOVSvcCallBackFcn& fcn, bool trigger = false);
 
   StatusCode regFcn(const CallBackID c1,
-		    const CallBackID c2, const IOVSvcCallBackFcn& fcn2, 
-		    bool trigger = false);
+                    const CallBackID c2, const IOVSvcCallBackFcn& fcn2, 
+                    bool trigger = false);
 
   StatusCode regFcn(const IAlgTool* ia,
-		    const CallBackID c2, const IOVSvcCallBackFcn& fcn2,
-		    bool trigger = false);
+                    const CallBackID c2, const IOVSvcCallBackFcn& fcn2,
+                    bool trigger = false);
 
   // Update Range from dB
   virtual StatusCode setRange(const CLID& clid, const std::string& key, 
-			      IOVRange&);
+                              IOVRange&);
 
   virtual StatusCode getRange(const CLID& clid, const std::string& key, 
-			      IOVRange& iov) const;
+                              IOVRange& iov) const;
 
   // Subscribe method for DataProxy. key StoreGate key
   virtual StatusCode regProxy( const SG::DataProxy *proxy, 
-			       const std::string& key );
+                               const std::string& key );
   // Another way to subscribe
   virtual StatusCode regProxy( const CLID& clid, const std::string& key );
 
+  virtual StatusCode deregProxy( const SG::DataProxy *proxy );
+  virtual StatusCode deregProxy( const CLID& clid, const std::string& key );
+
   // replace method for DataProxy, to be used when an update is necessary
   virtual StatusCode replaceProxy( const SG::DataProxy *pOld,
-				   const SG::DataProxy *pNew);
+                                   const SG::DataProxy *pNew);
 
   // Get IOVRange from db for current event
   virtual StatusCode getRangeFromDB(const CLID& clid, const std::string& key, 
-				    IOVRange& range, std::string &tag) const;
+                                    IOVRange& range, std::string &tag,
+                                    IOpaqueAddress*& ioa) const;
 
   // Get IOVRange from db for a particular event
   virtual StatusCode getRangeFromDB(const CLID& clid, const std::string& key, 
-				    const IOVTime& time,
-				    IOVRange& range, std::string &tag) const;
+                                    const IOVTime& time,
+                                    IOVRange& range, std::string &tag,
+                                    IOpaqueAddress*& ioa) const;
 
   // Set a particular IOVRange in db (and memory)
   virtual StatusCode setRangeInDB(const CLID& clid, const std::string& key, 
-				  const IOVRange& range, 
-				  const std::string &tag);
+                                  const IOVRange& range, 
+                                  const std::string &tag);
   
   // supply a list of TADs whose proxies will be preloaded
   virtual StatusCode preLoadTAD( const SG::TransientAddress * );
@@ -145,7 +151,7 @@ public:
   // return list of tools (or functions) that have been triggered by key
   // will return FAILURE if no tools found, or no key found
   virtual StatusCode getTriggeredTools(const std::string& key,
-				       std::set<std::string>& tools);
+                                       std::set<std::string>& tools);
 
   bool holdsProxy( const SG::DataProxy* proxy ) const;
   bool holdsProxy( const CLID& clid, const std::string& key ) const;
@@ -153,6 +159,13 @@ public:
   bool holdsAlgTool( const IAlgTool* ia ) const;
 
   virtual void resetAllProxies();
+
+  void ignoreProxy( const CLID& clid, const std::string& key ) {
+    m_ignoredProxyNames.insert( std::make_pair(clid,key) );
+  }
+  void ignoreProxy(const SG::DataProxy* proxy) {
+    m_ignoredProxies.insert(proxy);
+  }
 
 protected:
 
@@ -168,6 +181,7 @@ private:
   std::string fullProxyName( const SG::TransientAddress* ) const;
   std::string fullProxyName( const SG::DataProxy* ) const;
   std::string fullProxyName( const CLID&, const std::string& ) const;
+  void setRange_impl (const SG::DataProxy* proxy, IOVRange& iovr);
 
   std::string m_storeName;
 
@@ -196,6 +210,9 @@ private:
   std::set< const SG::DataProxy*, SortDPptr > m_proxies;
   std::multimap< const SG::DataProxy*, BFCN* > m_proxyMap;
   std::multimap< BFCN*, const SG::DataProxy* > m_bfcnMap;
+
+  std::set<const SG::DataProxy*> m_ignoredProxies;
+  std::set< std::pair<CLID, std::string> > m_ignoredProxyNames;
 
   std::map<BFCN*, CallBackID> m_fcnMap;
   std::map<CallBackID, BFCN*> m_cbidMap;
@@ -227,9 +244,9 @@ private:
   std::string m_checkTrigger;
 
   void scanStartSet(startSet &pSet, const std::string &type,
-		    std::set<const SG::DataProxy*, SortDPptr> &proxiesToReset);
+                    std::set<const SG::DataProxy*, SortDPptr> &proxiesToReset);
   void scanStopSet(stopSet &pSet, const std::string &type,
-		   std::set<const SG::DataProxy*, SortDPptr> &proxiesToReset);
+                   std::set<const SG::DataProxy*, SortDPptr> &proxiesToReset);
 
   void PrintStartSet();
   void PrintStopSet();

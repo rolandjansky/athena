@@ -18,11 +18,11 @@
  *****************************************************************************/
 
 #ifndef IOVSVC_CBNODE_H
- #include "IOVSvc/CBNode.h"
+#include "IOVSvc/CBNode.h"
 #endif
 
 #ifndef ATHENAKERNEL_IOVSVCDEFS_H
- #include "AthenaKernel/IOVSvcDefs.h"
+#include "AthenaKernel/IOVSvcDefs.h"
 #endif
 
 #include <set>
@@ -44,7 +44,7 @@ public:
   CBNode* addNode(const std::string& name, CBNode* parent);
   CBNode* addNode(const SG::DataProxy* proxy, const std::string& name);
   CBNode* addNode(BFCN* fcn, const CallBackID& cb, 
-		  const SG::DataProxy* parent_proxy);
+                  const SG::DataProxy* parent_proxy);
   CBNode* addNode(BFCN* fcn, const CallBackID& cb, BFCN* parent_fcn);
 
   CBNode* replaceProxy(const SG::DataProxy* pOld, const SG::DataProxy* pNew);
@@ -56,8 +56,12 @@ public:
   CBNode* findNode(const std::string& name, CBNode* start) const;
 
   CBNode* findNode(const SG::DataProxy* proxy) const;
+  CBNode* findNode(const SG::DataProxy* proxy, CBNode* start) const;
+
   CBNode* findNode(BFCN* fcn) const;
   CBNode* findNode(BFCN* fcn, CBNode* start) const;
+
+  bool delNode(const SG::DataProxy* prx);
 
   void printTree() const;
   void printTree( CBNode* start ) const;
@@ -67,8 +71,8 @@ public:
 
   void listNodes() const;
   void listNodes( const int& level, 
-		  nodeSet::const_iterator& start, 
-		  nodeSet::const_iterator& end ) const;
+                  nodeSet::const_iterator& start, 
+                  nodeSet::const_iterator& end ) const;
 
   void cascadeTrigger(const bool b, CBNode* start) const;
   void cascadeTrigger(const bool b, BFCN* fcn) const;

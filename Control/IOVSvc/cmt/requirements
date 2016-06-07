@@ -9,6 +9,7 @@ use SGTools        SGTools-*           Control
 use AthenaKernel   AthenaKernel-*      Control
 use AthenaBaseComps AthenaBaseComps-*  Control
 use AtlasBoost     AtlasBoost-*        External
+use StoreGate      StoreGate-*      Control
 use GaudiInterface GaudiInterface-*     External
 
 apply_pattern declare_joboptions files="IOVSvc.txt IOVSvc.py"
@@ -17,9 +18,7 @@ apply_pattern dual_use_library files="*.cxx"
 
 
 private
-use StoreGate      StoreGate-*      Control
 use EventInfo      EventInfo-*      Event
 use TestTools      TestTools-*        AtlasTest 
 apply_pattern UnitTest_run unit_test=IOVSvcTool extrapatterns="^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG"
 end_private
-

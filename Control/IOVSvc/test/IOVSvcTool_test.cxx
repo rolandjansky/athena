@@ -55,9 +55,9 @@ int main() {
   //initGaudi(pSvc); 
   IToolSvc* pTS(0);
   assert((pSvc->service("ToolSvc", pTS, true)).isSuccess());
-  IIOVSvcTool* pTool(0);
-  assert((pTS->retrieve("IOVSvcTool", IIOVSvcTool::interfaceID(), (IAlgTool*&)pTool, 0, true)).isSuccess());
-  IOVSvcTool_test(pTool);
+  IAlgTool* pTool(0);
+  assert((pTS->retrieve("IOVSvcTool", IIOVSvcTool::interfaceID(), pTool, 0, true)).isSuccess());
+  IOVSvcTool_test(dynamic_cast<IIOVSvcTool*>(pTool));
   std::cout << "*** IOVSvcTool_test OK ***" << std::endl;
   return 0; 
 }
