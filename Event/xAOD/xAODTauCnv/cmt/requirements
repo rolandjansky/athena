@@ -24,7 +24,7 @@ private
 use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  AthenaKernel               AthenaKernel-*                  Control
 use  GaudiInterface             GaudiInterface-*                External
-use  PanTauEvent                PanTauEvent-*                   Reconstruction/PanTau
+#use  PanTauEvent                PanTauEvent-*                   Reconstruction/PanTau
 end_private
 
 

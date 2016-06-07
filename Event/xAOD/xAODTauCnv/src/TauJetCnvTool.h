@@ -25,8 +25,8 @@
 #include "tauEvent/TauCommonDetails.h"
 #include "tauEvent/TauJetParameters.h"
 
-//panTau EDM includes
-#include "PanTauEvent/PanTauDetails.h"
+// //panTau EDM includes
+// #include "PanTauEvent/PanTauDetails.h"
 
 //xAOD tau EDM includes
 #include "xAODTau/TauJetContainer.h"
@@ -38,7 +38,8 @@
 
 namespace xAODMaker {
   class TauJetCnvTool
-    : public ::AthAlgTool
+    : public ::AthAlgTool,
+      public virtual ITauJetCnvTool
   { 
     
     /////////////////////////////////////////////////////////////////// 
