@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# $Id: atlas_ctest.sh.in 725483 2016-02-22 12:38:45Z krasznaa $
+# $Id: atlas_ctest.sh.in 749821 2016-05-26 09:52:35Z krasznaa $
 #
 # This is a custom wrapper around the ctest command, to enable us to
 # capure the full build log of the individual packages.
@@ -56,5 +56,12 @@ echo "# CMake ---> $*" >> ${LOG_DIR}/${LOG_FILE}
 # to the specified log file. Note that the exit status of the actual command
 # is not in $? in the end. As that's populated by the exit status of the tee
 # command...
-@CMAKE_CTEST_COMMAND@ ${CMD_LINE_ARGS} 2>&1 | tee -a ${LOG_DIR}/${LOG_FILE}; \
-    test ${PIPESTATUS[0]} -eq 0
+@CMAKE_CTEST_COMMAND@ ${CMD_LINE_ARGS} 2>&1 | tee -a ${LOG_DIR}/${LOG_FILE}
+
+# Check if the command succeeded:
+returnCode=${PIPESTATUS[0]}
+if [ ${returnCode} != 0 ]; then
+    echo "error: Failed to execute $* (return code: ${returnCode})" \
+        >> ${LOG_DIR}/${LOG_FILE}
+    exit ${returnCode}
+fi

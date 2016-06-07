@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: AtlasInternals.cmake 744659 2016-05-03 20:18:40Z krasznaa $
+# $Id: AtlasInternals.cmake 751680 2016-06-02 08:25:55Z krasznaa $
 #
 # Functions used internally by functions declared in AtlasFunctions.
 # Which are for general use inside the package descriptions.
@@ -836,7 +836,8 @@ macro( atlas_external_module )
             NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_SYSTEM_PATH
             ${ARG_EXTRA_OPTIONS} )
          # Deal with the search result:
-         if( ${nameUpper}_${component}_LIBRARY )
+         if( ${nameUpper}_${component}_LIBRARY AND
+               EXISTS "${${nameUpper}_${component}_LIBRARY}" )
             set( ${nameUpper}_${component}_FOUND TRUE )
             list( APPEND ${nameUpper}_FOUND_COMPONENTS ${component} )
             list( APPEND ${nameUpper}_LIBRARIES

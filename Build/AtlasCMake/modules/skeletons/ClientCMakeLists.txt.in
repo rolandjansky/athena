@@ -1,4 +1,4 @@
-# $Id: ClientCMakeLists.txt.in 748556 2016-05-20 07:50:41Z krasznaa $
+# $Id: ClientCMakeLists.txt.in 751112 2016-05-31 12:00:21Z krasznaa $
 #
 # This is a template for a CMakeLists.txt file that can be used in a client
 # project (work area) to set up building ATLAS packages against the configured
@@ -28,7 +28,7 @@ endif()
 find_package( AtlasCMake QUIET )
 
 # Find the project that we depend on:
-find_package( @CMAKE_PROJECT_NAME@ @CMAKE_PROJECT_VERSION@ )
+find_package( @CMAKE_PROJECT_NAME@ )
 
 # Set up CTest:
 atlas_ctest_setup()
