@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 /***************************************************************************
  for any measurement type (cluster, drift circle or material)
    stores the quantities needed during track fitting
@@ -15,7 +16,7 @@
 
 #include <vector>
 #include "EventPrimitives/EventPrimitives.h"
-#include "GeoPrimitives/GeoPrimitives.h"
+// #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkiPatFitterUtils/ExtrapolationType.h"
 #include "TrkiPatFitterUtils/MeasurementType.h"
@@ -27,6 +28,7 @@ class MsgStream;
 
 namespace Trk
 {
+    class AlignmentEffectsOnTrack;
     class MaterialEffectsBase;
     class MeasurementBase;
     class Surface;
@@ -53,6 +55,10 @@ public:
 		    const Amg::Vector3D&		direction,
 		    double				qOverP,
 		    const Surface*			surface = 0);	// for merged material effects
+    
+    FitMeasurement (const AlignmentEffectsOnTrack*	alignmentEffects,
+		    const Amg::Vector3D&		direction,
+		    const Amg::Vector3D&		position);	// (mis-)alignment effects
 
     FitMeasurement (const TrackSurfaceIntersection&	intersection,
 		    double				shift);		// aggregationBreak placeholder
@@ -88,6 +94,15 @@ public:
     // forbidden assignment operator
 
     bool				afterCalo (void) const;
+    double				alignmentAngle (void) const;
+    void				alignmentAngle (double value);
+    const AlignmentEffectsOnTrack*	alignmentEffects (void) const;
+    double				alignmentOffset (void) const;
+    void				alignmentOffset (double value);
+    unsigned	       			alignmentParameter (void) const;
+    void		       		alignmentParameter (unsigned value);
+    unsigned	       			alignmentParameter2 (void) const;
+    void		       		alignmentParameter2 (unsigned value);
     double				derivative (int param) const;
     void				derivative (int param, double value) const;
     void				derivative (double* pointer);
@@ -97,6 +112,8 @@ public:
     double				d0 (void) const;
     double				energyLoss (void) const;
     double				energyLossSigma (void) const;
+    unsigned	       			firstParameter (void) const;
+    void		       		firstParameter (unsigned value);
     void				flipDriftDirection (void);
     int					hitIndex (void) const;
     HitOnTrack*				hitOnTrack (void) const;
@@ -104,6 +121,7 @@ public:
     const TrackSurfaceIntersection&	intersection (ExtrapolationType type) const;
     void				intersection (ExtrapolationType type,
 						      const TrackSurfaceIntersection*);
+    bool				isAlignment (void) const;
     bool				isCluster (void) const;
     bool				isDrift (void) const;
     bool				isEnergyDeposit (void) const;
@@ -181,11 +199,15 @@ private:
     FitMeasurement &operator= (const FitMeasurement&);
     
     bool				m_afterCalo;
+    const AlignmentEffectsOnTrack*	m_alignmentEffects;
+    unsigned				m_alignmentParameter;
+    unsigned				m_alignmentParameter2;
     double				m_betaSquared;
     double*				m_derivative;
     double*				m_derivative2;
     double				m_d0;
     double				m_energyLoss;
+    unsigned				m_firstParameter;
     bool				m_flippedDriftDistance;
     int					m_hitIndex;
     HitOnTrack*				m_hitOnTrack;
@@ -231,6 +253,42 @@ FitMeasurement::afterCalo (void) const
 { return m_afterCalo; }
 
 inline double
+FitMeasurement::alignmentAngle (void) const
+{ return m_scatterPhi; }
+
+inline void
+FitMeasurement::alignmentAngle (double value)
+{ m_scatterPhi = value; }
+
+inline const AlignmentEffectsOnTrack*
+FitMeasurement::alignmentEffects (void) const
+{ return m_alignmentEffects; }
+
+inline double
+FitMeasurement::alignmentOffset (void) const
+{ return m_scatterTheta; }
+
+inline void
+FitMeasurement::alignmentOffset (double value)
+{ m_scatterTheta = value; }
+
+inline unsigned
+FitMeasurement::alignmentParameter (void) const
+{ return m_alignmentParameter; }
+
+inline void
+FitMeasurement::alignmentParameter (unsigned value)
+{ m_alignmentParameter = value; }
+
+inline unsigned
+FitMeasurement::alignmentParameter2 (void) const
+{ return m_alignmentParameter2; }
+
+inline void
+FitMeasurement::alignmentParameter2 (unsigned value)
+{ m_alignmentParameter2 = value; }
+
+inline double
 FitMeasurement::derivative (int param) const
 { return *(m_derivative+param); }
 
@@ -266,6 +324,14 @@ inline double
 FitMeasurement::energyLossSigma (void) const
 { return m_sigma; }
 
+inline unsigned
+FitMeasurement::firstParameter (void) const
+{ return m_firstParameter; }
+
+inline void
+FitMeasurement::firstParameter (unsigned value)
+{ m_firstParameter	= value; }
+
 inline void
 FitMeasurement::flipDriftDirection (void)
 {
@@ -291,6 +357,10 @@ FitMeasurement::hasIntersection (ExtrapolationType type) const
 inline const TrackSurfaceIntersection&
 FitMeasurement::intersection (ExtrapolationType type) const
 { return *m_intersection[type]; }
+
+inline bool
+FitMeasurement::isAlignment (void) const
+{ return (m_type == alignment); }
 
 inline bool
 FitMeasurement::isCluster (void) const
@@ -494,6 +564,20 @@ FitMeasurement::setSigmaMinus (void)
 inline void
 FitMeasurement::setSigmaPlus (void)
 { m_weight = 1./m_sigmaPlus; }
+
+inline double
+FitMeasurement::sigma (void) const
+{
+    if (! m_weight) return 0;
+    return 1./m_weight;
+}
+
+inline double
+FitMeasurement::sigma2 (void) const
+{
+    if (! m_weight2) return 0;
+    return 1./m_weight2;
+}
 
 inline double
 FitMeasurement::signedDriftDistance (void) const

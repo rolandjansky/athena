@@ -41,6 +41,10 @@ namespace Trk
 	    return log << " endcapInert      ";    
 	case energyDeposit:
 	    return log << " energyDeposit    ";
+	case alignment:
+	    return log << " alignment        ";
+	case discontinuity:
+	    return log << " discontinuity    ";
 	case bremPoint:
 	    return log << " bremPoint        ";
 	case hole:

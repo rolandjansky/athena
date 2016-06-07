@@ -31,6 +31,8 @@ namespace Trk
 	barrelInert,
 	endcapInert,
 	energyDeposit,
+	alignment,
+	discontinuity,
 	bremPoint,
 	hole,
 	materialDelimiter

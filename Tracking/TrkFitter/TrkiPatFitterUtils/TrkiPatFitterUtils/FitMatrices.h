@@ -76,6 +76,10 @@ namespace Trk
      // chiSquared contribution from perigee measurement
      double			perigeeChiSquared (void);
 
+     // debugging aids (n.b. using std::cout)
+     void			printDerivativeMatrix (void);
+     void			printWeightMatrix (void);
+
      // initialize matrices - set appropriate dimensions for a given set of measurements 
      int	       		setDimensions (std::list<FitMeasurement*>&	measurements,
 					       FitParameters*			parameters);
@@ -95,25 +99,27 @@ namespace Trk
      bool			solveEquationsAlMat (void);	// using alignment matrix pkg
      bool			solveEquationsCLHEP (void);	// using CLHEP
     
-     int		       	m_columns;
-     Amg::MatrixX*		m_covariance;
-     Amg::MatrixX*	   	m_finalCovariance;
-     std::vector<int>       	m_firstRowForParameter;
-     double			m_largePhiWeight;
-     bool			m_matrixFromCLHEP;
-     int		       	m_numberDoF;
-     int		       	m_numberDriftCircles;
-     int		       	m_numberPerigee;
-     FitParameters*		m_parameters;
-     const Amg::VectorX*   	m_perigee;
-     Amg::MatrixX	    	m_perigeeDifference;
-     const Amg::MatrixX*	m_perigeeWeight;
-     std::vector<double>*	m_residuals;
-     int		       	m_rows;
-     bool       	       	m_usePerigee;
-     AlSpaMat*			m_weight;
+     int		       		m_columns;
+     Amg::MatrixX*			m_covariance;
+     Amg::MatrixX*		   	m_finalCovariance;
+     std::vector<int>       		m_firstRowForParameter;
+     double				m_largePhiWeight;
+     bool				m_matrixFromCLHEP;
+     std::list<FitMeasurement*>*	m_measurements;
+     
+     int			       	m_numberDoF;
+     int		       		m_numberDriftCircles;
+     int		      	 	m_numberPerigee;
+     FitParameters*			m_parameters;
+     const Amg::VectorX*   		m_perigee;
+     Amg::MatrixX	    		m_perigeeDifference;
+     const Amg::MatrixX*		m_perigeeWeight;
+     std::vector<double>*		m_residuals;
+     int				m_rows;
+     bool       			m_usePerigee;
+     AlSpaMat*				m_weight;
      // CLHEP::HepSymMatrix*		m_weightCLHEP;
-     AlVec*	       		m_weightedDifference;
+     AlVec*	       			m_weightedDifference;
      // CLHEP::HepVector*	       	m_weightedDifferenceCLHEP;
      
 };   

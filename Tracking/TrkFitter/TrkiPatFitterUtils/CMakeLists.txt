@@ -12,9 +12,9 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
                           GaudiKernel
-                          Tracking/TrkAlignment/TrkAlgebraUtils
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
+			  Tracking/TrkAlignment/TrkAlgebraUtils
                           PRIVATE
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkDetDescr/TrkSurfaces
@@ -44,6 +44,5 @@ atlas_add_library( TrkiPatFitterUtils
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps DataModel GeoPrimitives EventPrimitives GaudiKernel TrkAlgebraUtils TrkEventPrimitives TrkParameters
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps DataModel GeoPrimitives EventPrimitives GaudiKernel TrkEventPrimitives TrkParameters TrkAlgebraUtils
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} TrkGeometry TrkSurfaces TrkMaterialOnTrack TrkMeasurementBase TrkTrack TrkExInterfaces TrkExUtils )
-

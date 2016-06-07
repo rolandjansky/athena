@@ -30,6 +30,7 @@
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkTrack/AlignmentEffectsOnTrack.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkiPatFitterUtils/FitMatrices.h"
@@ -115,12 +116,13 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
     unsigned size = measurements.size() + 1;
     if (leadingTSOS) size += leadingTSOS->size();
     trackStateOnSurfaces->reserve(size);
-    const FitMeasurement*	fitMeasurement	= measurements.front();
-    const FitQualityOnSurface*	fitQoS		= 0;
-    const MaterialEffectsBase*	materialEffects	= 0;
-    const MeasurementBase*	measurementBase	= 0;
-    const Surface*		surface		= 0;
-    const TrackParameters*	trackParameters	= 0;
+    const AlignmentEffectsOnTrack*	alignmentEffects	= 0;
+    const FitMeasurement*		fitMeasurement		= measurements.front();
+    const FitQualityOnSurface*		fitQoS			= 0;
+    const MaterialEffectsBase*		materialEffects		= 0;
+    const MeasurementBase*		measurementBase		= 0;
+    const Surface*			surface			= 0;
+    const TrackParameters*		trackParameters		= 0;
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> defaultPattern;
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern = defaultPattern;
 
@@ -133,7 +135,8 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 							    perigee,
 							    fitQoS,
 							    materialEffects,
-							    typePattern));
+							    typePattern,
+							    alignmentEffects));
     ++tsos;
 
     // append leading TSOS to perigee
@@ -159,7 +162,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 	if ((**m).isMaterialDelimiter()) continue;
 	
 	// push back previous TSOS when fresh surface reached
-	if ((**m).surface() != surface)
+	if ((**m).surface() != surface || alignmentEffects || (**m).alignmentEffects())
 	{
 	    if (surface)
 	    {
@@ -193,7 +196,8 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 									    trackParameters,
 									    fitQoS,
 									    materialEffects,
-									    typePattern));
+									    typePattern,
+									    alignmentEffects));
 		    ++tsos;
 		}
 	    }
@@ -203,6 +207,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 	    fitQoS		= 0;
 	    materialEffects	= 0;
 	    typePattern		= defaultPattern;
+	    alignmentEffects	= 0;
 	}
 	else
 	{
@@ -235,12 +240,14 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 									trackParameters,
 									fitQoS,
 									materialEffects,
-									typePattern));
+									typePattern,
+									alignmentEffects));
 		++tsos;
-		fitMeasurement	= *m;
-		fitQoS		= 0;
-		materialEffects	= 0;
-		typePattern	= defaultPattern;
+		fitMeasurement		= *m;
+		fitQoS			= 0;
+		materialEffects		= 0;
+		typePattern		= defaultPattern;
+		alignmentEffects	= 0;
 	    }
 	    
 	    measurementBase	= (**m).measurementBase()->clone();
@@ -327,6 +334,21 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 	    typePattern.set(TrackStateOnSurface::Perigee);
 	}
 	
+	// or alignment effects
+	else if ((**m).alignmentEffects())
+	{
+	    const AlignmentEffectsOnTrack&	AEOT	= *(**m).alignmentEffects();
+	    unsigned align				= (**m).alignmentParameter() - 1;
+	    alignmentEffects				=
+		new Trk::AlignmentEffectsOnTrack(parameters.alignmentOffset(align),
+						 AEOT.sigmaDeltaTranslation(),
+						 parameters.alignmentAngle(align),
+						 AEOT.sigmaDeltaAngle(),
+						 AEOT.vectorOfAffectedTSOS(),
+						 (**m).surface());
+	    typePattern.set(TrackStateOnSurface::Alignment);
+	}
+	
 	// passive types: hole for now
 	else if ((**m).isPassive())
 	{
@@ -350,7 +372,8 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 							    trackParameters,
 							    fitQoS,
 							    materialEffects,
-							    typePattern));
+							    typePattern,
+							    alignmentEffects));
     ++tsos;
 
     // construct track
@@ -443,9 +466,10 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 	    if (m_verbose)
 		*m_log << MSG::VERBOSE << " convergence problem: accept after max iter " << endreq;
 	}
-	else if (! m_cutStep) 
+	else if (! m_cutStep)
 	{
 	    //  solve equations and update parameters
+	    if (m_verbose && ! m_iteration) m_fitMatrices->printDerivativeMatrix();
 	    if (! m_fitMatrices->solveEquations())
 	    {
 		fitCode			= 11;	// fails matrix inversion
@@ -467,6 +491,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		m_driftSumLast		= 0.;
 		m_numberParameters	= parameters->numberParameters();
 	    }
+	    if (m_verbose && ! m_iteration) m_fitMatrices->printWeightMatrix();
 	}
 	++m_iteration;
 	
@@ -512,8 +537,9 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 	}
 	else if (! fitCode)
 	{
-	    //  extrapolate to each measurement. If OK calculate residual
-	    if (! measurementProcessor.calculateFittedTrajectory(m_iteration))
+	    //  extrapolate to each measurement and calculate derivatives
+	    if (! measurementProcessor.calculateFittedTrajectory(m_iteration)
+		|| ! measurementProcessor.calculateDerivatives())
 	    {
 		fitCode = 5; //  fail as trapped
 		delete bestParameters;
@@ -523,6 +549,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 						       m_fitProbability,
 						       fitCode,
 						       m_iteration,
+						       parameters->numberAlignments(),
 						       m_fitMatrices->numberDoF(),
 						       parameters->numberScatterers(),
 						       m_worstMeasurement);
@@ -534,6 +561,8 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		}
 		return *m_fitQuality;
 	    }
+
+	    //  have extrapolation and derivatives, calculate residual
 	    measurementProcessor.calculateResiduals();
 	    
 	    // check for remaining error conditions. If OK then compute chisquared.
@@ -585,6 +614,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 			if (m_verbose) parameters->printVerbose(*m_log);
 			if (measurementProcessor.calculateFittedTrajectory(m_iteration))
 			{
+			    // note: derivatives should not be recalculated for cutstep
 			    measurementProcessor.calculateResiduals();
 			    calculateChiSq(measurements);
 			    if (m_verbose) *m_log << "   after cutStep: "
@@ -616,21 +646,14 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		    }
 		    if (measurementProcessor.calculateFittedTrajectory(m_iteration))
 		    {
+		        measurementProcessor.calculateDerivatives();
 			measurementProcessor.calculateResiduals();
 			calculateChiSq(measurements);
 			m_convergence = true;
 		    }
 		}
 
-		//  finish the basic iteration loop with a calculation of the
-		//  derivatives for each measurement
 		if (forceIteration) m_convergence = false;
-		if (! m_convergence
-		    && ! m_cutStep
-		    && ! measurementProcessor.calculateDerivatives())
-		{
-		    fitCode = 5; //  fail as trapped
-		}
 	    }
 	}	// if (std::abs(ptInv0) > ptInvCut)
 	if (m_verbose) *m_log << endreq;
@@ -713,6 +736,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 					   m_fitProbability,
 					   fitCode,
 					   m_iteration,
+					   parameters->numberAlignments(),
 					   m_numberDoF,
 					   parameters->numberScatterers(),
 					   m_worstMeasurement);
@@ -742,7 +766,7 @@ void
 FitProcedure::calculateChiSq(std::list<FitMeasurement*>& measurements)
 {
     // convergence criterion
-    const double dChisqConv = 0.03;
+    const double dChisqConv = 0.025;
     
     // compute total chisquared and sum of hit differences
     // flag hit with highest chisquared contribution (on entry if RoadFit)
