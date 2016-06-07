@@ -8,12 +8,11 @@
 
 namespace MuonCalib {
 
-  MuonCalibRawRpcTriggerHit::MuonCalibRawRpcTriggerHit( const MuonCalibRawRpcTriggerHit& hit ) :
+  MuonCalibRawRpcTriggerHit::MuonCalibRawRpcTriggerHit( const MuonCalibRawRpcTriggerHit &hit ) :
     m_sector(hit.sector()),m_padId(hit.padId()),m_status(hit.status()),m_errorCode(hit.errorCode()),
     m_cmaId(hit.cmaId()),m_fel1Id(hit.fel1Id()),m_febcId(hit.febcId()),m_crc(hit.crc()),m_bcId(hit.bcId()),m_time(hit.time()),
     m_ijk(hit.ijk()),m_channel(hit.channel()),m_overlap(hit.overlap()),m_threshold(hit.threshold())
-  {
-  }
+  {}
   MuonCalibRawRpcTriggerHit::MuonCalibRawRpcTriggerHit( int sector,
 							int padId,
 							int status,
@@ -31,12 +30,9 @@ namespace MuonCalib {
     m_sector(sector),m_padId(padId),m_status(status),m_errorCode(errorCode),
     m_cmaId(cmaId),m_fel1Id(fel1Id),m_febcId(febcId),m_crc(crc),m_bcId(bcId),m_time(time),
     m_ijk(ijk),m_channel(channel),m_overlap(overlap),m_threshold(threshold)
-  {
-    
-  }
+  {}
   
-  std::ostream& MuonCalibRawRpcTriggerHit::dump( std::ostream& stream ) const 
-  {
+  std::ostream& MuonCalibRawRpcTriggerHit::dump( std::ostream &stream ) const {
     stream << "MuonCalibRawRpcTriggerHit with" <<  std::endl;
     stream << "   sector " << sector() << std::endl;
     stream << "   padId " << padId() << std::endl;
@@ -55,7 +51,8 @@ namespace MuonCalib {
     
     return stream;
   }
-}//namespace MuonCalib
+
+}  //namespace MuonCalib
 
 std::ostream& operator << (std::ostream& stream, const MuonCalib::MuonCalibRawRpcTriggerHit& hit) 
 {

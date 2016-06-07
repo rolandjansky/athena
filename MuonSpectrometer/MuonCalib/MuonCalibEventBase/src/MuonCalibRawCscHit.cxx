@@ -8,7 +8,7 @@
 
 namespace MuonCalib {
 
-  MuonCalibRawCscHit::MuonCalibRawCscHit( const MuonCalibRawCscHit& hit ) {
+  MuonCalibRawCscHit::MuonCalibRawCscHit( const MuonCalibRawCscHit &hit ) {
     m_id = hit.identify() ;
     m_Gpos = hit.globalPosition() ;
     m_occupancy = hit.occupancy() ;
@@ -17,7 +17,7 @@ namespace MuonCalib {
     m_charge = hit.charge() ;
   }
   
-  MuonCalibRawCscHit& MuonCalibRawCscHit::operator=( const MuonCalibRawCscHit& rhs ){
+  MuonCalibRawCscHit& MuonCalibRawCscHit::operator=( const MuonCalibRawCscHit &rhs ){
     if(this!=&rhs) {    
       m_id = rhs.identify() ;
       m_Gpos = rhs.globalPosition() ;
@@ -29,8 +29,7 @@ namespace MuonCalib {
     return (*this) ;
   }
   
- std::ostream& MuonCalibRawCscHit::dump( std::ostream& stream ) const 
- {
+ std::ostream& MuonCalibRawCscHit::dump( std::ostream &stream ) const {
    stream << "MuonCalibRawCscHit with" <<  std::endl;
    stream << "   identifier " << identify() << std::endl;
    stream << "   global position " << globalPosition() << std::endl;
@@ -40,10 +39,9 @@ namespace MuonCalib {
    stream << "   charge " << charge() << std::endl;
    return stream;
  }
-}
-std::ostream& operator << (std::ostream& stream, const MuonCalib::MuonCalibRawCscHit& hit) 
-  {
-    return hit.dump(stream);
-  }
 
-//} //namespace MuonCalib
+}  //namespace MuonCalib 
+
+std::ostream& operator << (std::ostream &stream, const MuonCalib::MuonCalibRawCscHit &hit) {
+  return hit.dump(stream);
+}

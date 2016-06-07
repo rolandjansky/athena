@@ -8,8 +8,7 @@
 
 namespace MuonCalib {
 
-
-  MuonCalibRawTgcHit::MuonCalibRawTgcHit( const MuonCalibRawTgcHit& hit ) {
+  MuonCalibRawTgcHit::MuonCalibRawTgcHit( const MuonCalibRawTgcHit &hit ) {
     m_id = hit.identify() ;
     m_Gpos = hit.globalPosition() ;
     m_occupancy = hit.occupancy() ;
@@ -26,7 +25,7 @@ namespace MuonCalib {
     m_length = hit.length() ;
   }
   
-  MuonCalibRawTgcHit& MuonCalibRawTgcHit::operator=( const MuonCalibRawTgcHit& rhs ){
+  MuonCalibRawTgcHit& MuonCalibRawTgcHit::operator=( const MuonCalibRawTgcHit &rhs ) {
     if(this!=&rhs) {    
       m_id = rhs.identify() ;
       m_Gpos = rhs.globalPosition() ;
@@ -46,29 +45,29 @@ namespace MuonCalib {
     return (*this) ;
   }
   
- std::ostream& MuonCalibRawTgcHit::dump( std::ostream& stream ) const 
- {
-   stream << "MuonCalibRawTgcHit with" <<  std::endl;
-   stream << "   identifier " << identify() << std::endl;
-   stream << "   global position " << globalPosition() << std::endl;
-   stream << "   occupancy " << occupancy() << std::endl;
-   stream << "   station "<< station() << std::endl;
-   stream << "   eta "<< eta() << std::endl;
-   stream << "   phi "<< phi() << std::endl;
-   stream << "   gasGap "<< gasGap() << std::endl;
-   stream << "   isStrip "<< isStrip() << std::endl;
-   stream << "   channel "<< channel() << std::endl;
-   stream << "   bcTag "<< bcTag() << std::endl;
-   stream << "   width "<< width() << std::endl;
-   stream << "   shortWidth "<< shortWidth() << std::endl;
-   stream << "   longWidth "<< longWidth() << std::endl;
-   stream << "   length " << length() << std::endl;
-   return stream;
- }
-}
-std::ostream& operator << (std::ostream& stream, const MuonCalib::MuonCalibRawTgcHit& hit) 
-  {
-    return hit.dump(stream);
+  std::ostream& MuonCalibRawTgcHit::dump( std::ostream& stream ) const {
+    stream << "MuonCalibRawTgcHit with" <<  std::endl;
+    stream << "   identifier " << identify() << std::endl;
+    stream << "   global position " << globalPosition() << std::endl;
+    stream << "   occupancy " << occupancy() << std::endl;
+    stream << "   station "<< station() << std::endl;
+    stream << "   eta "<< eta() << std::endl;
+    stream << "   phi "<< phi() << std::endl;
+    stream << "   gasGap "<< gasGap() << std::endl;
+    stream << "   isStrip "<< isStrip() << std::endl;
+    stream << "   channel "<< channel() << std::endl;
+    stream << "   bcTag "<< bcTag() << std::endl;
+    stream << "   width "<< width() << std::endl;
+    stream << "   shortWidth "<< shortWidth() << std::endl;
+    stream << "   longWidth "<< longWidth() << std::endl;
+    stream << "   length " << length() << std::endl;
+    return stream;
   }
+
+}  //namespace MuonCalib
+
+std::ostream& operator << (std::ostream &stream, const MuonCalib::MuonCalibRawTgcHit &hit ) {
+  return hit.dump(stream);
+}
 
 //} //namespace MuonCalib

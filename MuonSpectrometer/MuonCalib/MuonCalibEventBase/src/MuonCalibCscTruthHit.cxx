@@ -8,18 +8,17 @@ namespace MuonCalib{
   
   MuonCalibCscTruthHit::MuonCalibCscTruthHit()
     : m_ID(0), m_barCode( 0 ), m_time( 0. )
-  {  }
+  {}
 
   MuonCalibCscTruthHit::MuonCalibCscTruthHit( MuonFixedId id, int  barCode, double time )
     : m_ID(id), m_barCode( barCode ), m_time( time )
-  {  }
+  {}
      
-  MuonCalibCscTruthHit::MuonCalibCscTruthHit( const MuonCalibCscTruthHit& truth )
+  MuonCalibCscTruthHit::MuonCalibCscTruthHit( const MuonCalibCscTruthHit &truth )
     : m_ID(truth.identify()),  m_barCode( truth.barCode() ), m_time( truth.time() ) 
-  {  }
+  {}
   
-  
-  MuonCalibCscTruthHit& MuonCalibCscTruthHit::operator=( const MuonCalibCscTruthHit& rhs ){
+  MuonCalibCscTruthHit& MuonCalibCscTruthHit::operator=( const MuonCalibCscTruthHit &rhs ){
      if(this!=&rhs) {
        m_ID = rhs.identify();
        m_barCode = rhs.barCode() ;
@@ -28,7 +27,7 @@ namespace MuonCalib{
      return (*this) ;
   }
 
-  std::ostream& MuonCalibCscTruthHit::dump( std::ostream& stream ) const{
+  std::ostream& MuonCalibCscTruthHit::dump( std::ostream &stream ) const{
     stream << "MuonCalibCscTruthHit: " << std::endl;
     stream << "                 ID = " << identify() << std::endl;
     stream << "            barCode = " << barCode() << std::endl;
@@ -36,9 +35,8 @@ namespace MuonCalib{
     return stream;
   }
 
-}// end namespace MuonCalib
+}  // namespace MuonCalib
 
-
-std::ostream& operator << (std::ostream& stream, const MuonCalib::MuonCalibCscTruthHit& truth){
+std::ostream& operator << (std::ostream &stream, const MuonCalib::MuonCalibCscTruthHit &truth){
   return truth.dump( stream ) ;
 }
