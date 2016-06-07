@@ -7,9 +7,8 @@
 #include <iostream>
 
 namespace MuonCalib {
-
   
-  MuonCalibTruth::MuonCalibTruth(const MuonCalibTruth& truth ) {
+  MuonCalibTruth::MuonCalibTruth(const MuonCalibTruth &truth ) {
     m_position = truth.position();
     m_momentum = truth.momentum();
     m_kinEnergy = truth.kinEnergy();
@@ -17,7 +16,7 @@ namespace MuonCalib {
     m_barCode = truth.barCode();
   }
   
-  MuonCalibTruth& MuonCalibTruth::operator=( const MuonCalibTruth& rhs ){
+  MuonCalibTruth& MuonCalibTruth::operator=( const MuonCalibTruth &rhs ) {
     if(this!=&rhs) {
       m_position = rhs.position();
       m_momentum = rhs.momentum();
@@ -28,8 +27,7 @@ namespace MuonCalib {
     return (*this) ;
   }
   
- std::ostream& MuonCalibTruth::dump( std::ostream& stream ) const 
- {
+ std::ostream& MuonCalibTruth::dump( std::ostream &stream ) const {
    stream << "MuonCalibTruth with" <<  std::endl;
    stream << "   position " << position() << std::endl;
    stream << "   momentum " << momentum() << std::endl;
@@ -39,9 +37,7 @@ namespace MuonCalib {
  }
 
 } //namespace MuonCalib
-
   
-std::ostream& operator << (std::ostream& stream, const MuonCalib::MuonCalibTruth& truth)
-{
+std::ostream& operator << (std::ostream &stream, const MuonCalib::MuonCalibTruth &truth) {
   return truth.dump(stream);
 }

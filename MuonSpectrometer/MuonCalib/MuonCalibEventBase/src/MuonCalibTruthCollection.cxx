@@ -121,4 +121,4 @@ namespace MuonCalib {
     return (*this) ;
   }
   
-}
+}  //namespace MuonCalib

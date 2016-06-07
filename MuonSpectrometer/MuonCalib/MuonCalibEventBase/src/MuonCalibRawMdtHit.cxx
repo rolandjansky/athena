@@ -8,7 +8,7 @@
 
 namespace MuonCalib {
 
-  MuonCalibRawMdtHit::MuonCalibRawMdtHit( const MuonCalibRawMdtHit& hit ){
+  MuonCalibRawMdtHit::MuonCalibRawMdtHit( const MuonCalibRawMdtHit &hit ) {
     m_id = hit.identify();
     m_Lpos = hit.localPosition();
     m_Gpos = hit.globalPosition();
@@ -20,7 +20,7 @@ namespace MuonCalib {
     m_dr = hit.driftRadiusError();
   }
 
-  MuonCalibRawMdtHit& MuonCalibRawMdtHit::operator=( const MuonCalibRawMdtHit& rhs ){
+  MuonCalibRawMdtHit& MuonCalibRawMdtHit::operator=( const MuonCalibRawMdtHit &rhs ) {
     if(this!=&rhs) {    
       m_id = rhs.identify();
       m_Lpos = rhs.localPosition();
@@ -34,11 +34,8 @@ namespace MuonCalib {
     }
     return (*this) ;
   }
-  
 
-
-  std::ostream& MuonCalibRawMdtHit::dump( std::ostream& stream ) const 
-  {
+  std::ostream& MuonCalibRawMdtHit::dump( std::ostream &stream ) const {
     stream << "MuonCalibRawMdtHit with" <<  std::endl;
     stream << "   identifier " << identify() << std::endl;
     stream << "   local position " << localPosition() << std::endl;
@@ -51,10 +48,9 @@ namespace MuonCalib {
     stream << "   driftRadiusError " << driftRadiusError() << std::endl;
     return stream;
   }
-}
-std::ostream& operator << (std::ostream& stream, const MuonCalib::MuonCalibRawMdtHit& hit) 
-{
+
+}  //namespace MuonCalib
+
+std::ostream& operator << (std::ostream &stream, const MuonCalib::MuonCalibRawMdtHit &hit)  {
   return hit.dump(stream);
 }
-
-//} //namespace MuonCalib
