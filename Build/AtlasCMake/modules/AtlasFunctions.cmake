@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: AtlasFunctions.cmake 746543 2016-05-12 11:31:22Z krasznaa $
+# $Id: AtlasFunctions.cmake 753396 2016-06-07 15:36:05Z krasznaa $
 #
 # This is the main file that needs to be included in order to get access to the
 # ATLAS CMake functions.
@@ -79,6 +79,10 @@ function( atlas_project name version )
    # Do not set any rpath values on any of the files:
    set( CMAKE_SKIP_RPATH ON )
    set( CMAKE_SKIP_RPATH ON PARENT_SCOPE )
+   set( CMAKE_SKIP_BUILD_RPATH ON )
+   set( CMAKE_SKIP_BUILD_RPATH ON PARENT_SCOPE )
+   set( CMAKE_SKIP_INSTALL_RPATH ON )
+   set( CMAKE_SKIP_INSTALL_RPATH ON PARENT_SCOPE )
 
    # Do not consider the includes associated with imported targets as system
    # includes. System includes on imported targets are explicitly marked as
@@ -317,6 +321,13 @@ function( atlas_project name version )
          list( GET _bases 0 _base_project )
          list( GET _bases 1 _base_version )
          list( REMOVE_AT _bases 0 1 )
+         # Make sure that the project version is a regular version number:
+         if( NOT _base_version MATCHES "^[0-9]+[0-9.]*" )
+            # Let's not specify a version in this case...
+            message( STATUS "Using base project \"${_base_project}\" without "
+               "its \"${_base_version}\" version name/number" )
+            set( _base_version )
+         endif()
          # Find the base release:
          find_package( ${_base_project} ${_base_version} QUIET )
          # Remember what projects, and what exact versions we found:
@@ -372,6 +383,13 @@ function( atlas_project name version )
          list( GET _bases ${_projNameIdx} _base_project )
          list( GET _bases ${_projVersIdx} _base_version )
          list( REMOVE_AT _bases ${_projNameIdx} ${_projVersIdx} )
+         # Make sure that the project version is a regular version number:
+         if( NOT _base_version MATCHES "^[0-9]+[0-9.]*" )
+            # Let's not specify a version in this case...
+            message( STATUS "Using base project \"${_base_project}\" without "
+               "its \"${_base_version}\" version name/number" )
+            set( _base_version )
+         endif()
          # Find the base release:
          find_package( ${_base_project} ${_base_version}
             COMPONENTS ${_include_mode} QUIET )
@@ -664,6 +682,19 @@ function( atlas_project name version )
    if( "$ENV{NICOS_PROJECT_RELNAME_COPY}" STREQUAL "" )
       set( ENV{NICOS_PROJECT_RELNAME_COPY} "private" )
    endif()
+   if( "$ENV{NICOS_VAL_MODE}" STREQUAL "" )
+      set( ENV{NICOS_VAL_MODE} "None" )
+   endif()
+   if( "$ENV{NICOS_ATLAS_ALT_RELEASE}" STREQUAL "" )
+      set( ENV{NICOS_ATLAS_ALT_RELEASE} "None" )
+   endif()
+   if( "$ENV{NICOS_JOBID}" STREQUAL "" )
+      set( ENV{NICOS_JOBID} "0000" )
+   endif()
+   if( "$ENV{gcc_version}" STREQUAL "" )
+      set( ENV{gcc_version}
+         "${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}" )
+   endif()
 
    # And now generate/install the ReleaseData file:
    find_file( _releaseData ReleaseData.in
@@ -675,24 +706,32 @@ function( atlas_project name version )
    install( FILES ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/ReleaseData
       DESTINATION . )
 
+   # Check if Doxygen is available. With a minimum version.
+   find_package( Doxygen 1.8.9.1 )
+
    # Create a Doxyfile for the project:
+   # We should be setting up CMAKE_INPUT_TAGFILES here...
    set( CMAKE_OUTPUT_TAGFILE
-      ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/${CMAKE_PROJECT_NAME}.tag )
+      ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/doc/${CMAKE_PROJECT_NAME}.tag )
+   install( FILES
+      ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/doc/${CMAKE_PROJECT_NAME}.tag
+      DESTINATION doc OPTIONAL )
    find_file( _doxyfile Doxyfile.in
       PATH_SUFFIXES skeletons PATHS ${CMAKE_MODULE_PATH} )
    configure_file( ${_doxyfile} ${CMAKE_BINARY_DIR}/Doxyfile @ONLY )
    mark_as_advanced( _doxyfile )
 
-   # Check if Doxygen is available. With a minimum version.
-   find_package( Doxygen 1.8.9.1 )
-
-   # If yes, set up a target with it:
+   # If Doxygen is available, set up a target with it:
    if( DOXYGEN_FOUND )
       message( STATUS "Creating the \"doc\" target" )
       add_custom_target( doc
-         COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile
+         COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh
+         ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile
          WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
          COMMENT "Generating the Doxygen documentation" )
+      # Also set up an installation rule for the files created by this rule:
+      install( DIRECTORY ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/doc
+         DESTINATION . USE_SOURCE_PERMISSIONS OPTIONAL )
    endif()
 
    # Set up all project-wide operations, which come after all the packages
@@ -1331,6 +1370,10 @@ function( atlas_add_test testName )
       # Allow wildcards in the source names:
       file( GLOB _sources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
          ${ARG_SOURCES} )
+      if( NOT _sources )
+         message( WARNING "No sources available for test ${testName}" )
+         return()
+      endif()
 
       # Put the files into source groups. So they would show up in a ~reasonable
       # way in an IDE like Xcode:

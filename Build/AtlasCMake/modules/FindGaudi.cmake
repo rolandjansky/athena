@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindGaudi.cmake 734809 2016-04-08 10:37:12Z krasznaa $
+# $Id: FindGaudi.cmake 753396 2016-06-07 15:36:05Z krasznaa $
 #
 # CMake script attempting to find a Gaudi installation that we can build
 # the offline code against. Without making any use of the CMake code
@@ -25,8 +25,8 @@ endif()
 if( NOT GAUDI_ROOT )
    if( NOT "$ENV{GAUDI_ROOT}" STREQUAL "" )
       set( GAUDI_ROOT $ENV{GAUDI_ROOT} )
-   else()
-      message( SEND_ERROR "GAUDI_ROOT not set" )
+   elseif( NOT Gaudi_FIND_QUIETLY )
+      message( WARNING "GAUDI_ROOT not set" )
       return()
    endif()
 endif()
@@ -127,11 +127,15 @@ set_target_properties( genconf PROPERTIES
 # Set up the RPM dependency for Gaudi:
 if( GAUDI_VERSION )
    set( version ${GAUDI_VERSION} )
-elseif( ENV{GAUDI_VERSION} )
+elseif( NOT "$ENV{GAUDI_VERSION}" STREQUAL "" )
    set( version $ENV{GAUDI_VERSION} )
+elseif( PROJECT_VERSION )
+   # This should kick in when building a release with NICOS:
+   set( version ${PROJECT_VERSION} )
 else()
-   set( version "21.0.0" )
+   set( version "${CMAKE_PROJECT_VERSION}" )
 endif()
 set_property( GLOBAL APPEND PROPERTY ATLAS_EXTERNAL_RPMS
    "GAUDI_${version}_${ATLAS_PLATFORM}" )
+message( "Added dependency: GAUDI_${version}_${ATLAS_PLATFORM}" )
 unset( version )

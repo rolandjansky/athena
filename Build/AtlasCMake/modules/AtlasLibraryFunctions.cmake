@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: AtlasLibraryFunctions.cmake 744366 2016-05-03 07:50:36Z krasznaa $
+# $Id: AtlasLibraryFunctions.cmake 749913 2016-05-26 15:04:41Z krasznaa $
 #
 # This file collects the ATLAS CMake helper functions that set up the build and
 # installation of all the different kinds of libraries that we create in offline
@@ -384,7 +384,7 @@ function( atlas_add_component libName )
       "LINK_LIBRARIES" ${ARGN} )
 
    # We need Gaudi for this:
-   find_package( Gaudi REQUIRED )
+   find_package( Gaudi QUIET )
 
    # Get this package's name:
    atlas_get_package_name( pkgName )
@@ -393,16 +393,25 @@ function( atlas_add_component libName )
    atlas_get_package_dir( pkgDir )
 
    # Build a library using the athena_add_library function:
-   atlas_add_library( ${libName} ${ARG_UNPARSED_ARGUMENTS}
-      NO_PUBLIC_HEADERS MODULE
-      LINK_LIBRARIES ${ARG_LINK_LIBRARIES} GaudiPluginService )
+   if( GAUDI_FOUND )
+      atlas_add_library( ${libName} ${ARG_UNPARSED_ARGUMENTS}
+         NO_PUBLIC_HEADERS MODULE
+         LINK_LIBRARIES ${ARG_LINK_LIBRARIES} GaudiPluginService )
+   else()
+      # If Gaudi is not available, then just build the library,
+      # and don't do anything else.
+      atlas_add_library( ${libName} ${ARG_UNPARSED_ARGUMENTS}
+         NO_PUBLIC_HEADERS MODULE
+         LINK_LIBRARIES ${ARG_LINK_LIBRARIES} )
+      return()
+   endif()
 
    # If we are in "release mode" and the library doesn't need to be
    # recompiled, then let's not bother with the rest.
    if( ATLAS_RELEASE_MODE AND NOT ATLAS_PACKAGE_RECOMPILE )
       return()
    endif()
-
+   
    # Generate a .components file from the library:
    atlas_generate_componentslist( ${libName} )
 
@@ -870,6 +879,12 @@ endfunction( atlas_generate_componentslist )
 # Usage: atlas_generate_cliddb( MyLibrary )
 #
 function( atlas_generate_cliddb libName )
+
+   # Don't do anything here in standalone build mode:
+   find_package( Gaudi QUIET )
+   if( NOT GAUDI_FOUND )
+      return()
+   endif()
 
    # Get this package's name:
    atlas_get_package_name( pkgName )

@@ -1,4 +1,4 @@
-# $Id: ProjectConfig.cmake.in 739623 2016-04-12 10:56:29Z krasznaa $
+# $Id: ProjectConfig.cmake.in 751112 2016-05-31 12:00:21Z krasznaa $
 #
 # Configuration file for a RootCore CMake release installation.
 # It defines the following variables:
@@ -79,13 +79,21 @@ while( _baseProjects@CMAKE_PROJECT_NAME@ )
    list( GET _baseProjects@CMAKE_PROJECT_NAME@ 1
       _base_version@CMAKE_PROJECT_NAME@ )
    list( REMOVE_AT _baseProjects@CMAKE_PROJECT_NAME@ 0 1 )
+   # Make sure that the project version is a regular version number:
+   if( NOT _base_version@CMAKE_PROJECT_NAME@ MATCHES "^[0-9]+[0-9.]*" )
+      # Let's not specify a version in this case...
+      message( STATUS "Using base project "
+         "\"${_base_project@CMAKE_PROJECT_NAME@}\" without "
+         "its \"${_base_version@CMAKE_PROJECT_NAME@}\" version name/number" )
+      set( _base_version@CMAKE_PROJECT_NAME@ )
+   endif()
    # Find the base release:
    if( @CMAKE_PROJECT_NAME@_FIND_QUIETLY )
       find_package( ${_base_project@CMAKE_PROJECT_NAME@}
-         ${_base_version@CMAKE_PROJECT_NAME@} EXACT QUIET )
+         ${_base_version@CMAKE_PROJECT_NAME@} QUIET )
    else()
       find_package( ${_base_project@CMAKE_PROJECT_NAME@}
-         ${_base_version@CMAKE_PROJECT_NAME@} EXACT )
+         ${_base_version@CMAKE_PROJECT_NAME@} )
    endif()
 endwhile()
 unset( _baseProjects@CMAKE_PROJECT_NAME@ )
@@ -231,11 +239,10 @@ if( @CMAKE_PROJECT_NAME@_FIND_COMPONENTS )
                list( REMOVE_AT _baseProjects@CMAKE_PROJECT_NAME@ 0 1 )
                if( @CMAKE_PROJECT_NAME@_FIND_QUIETLY )
                   find_package( ${_base_project@CMAKE_PROJECT_NAME@}
-                     ${_base_version@CMAKE_PROJECT_NAME@} EXACT QUIET
+                     QUIET
                      COMPONENTS RECOMPILE_DRYRUN )
                else()
                   find_package( ${_base_project@CMAKE_PROJECT_NAME@}
-                     ${_base_version@CMAKE_PROJECT_NAME@} EXACT
                      COMPONENTS RECOMPILE_DRYRUN )
                endif()
             endwhile()
@@ -459,17 +466,13 @@ if( @CMAKE_PROJECT_NAME@_FIND_COMPONENTS )
       # Find the base release:
       if( ${@CMAKE_PROJECT_NAME@_FIND_COMPONENTS} STREQUAL "INCLUDE" )
          find_package( ${_base_project@CMAKE_PROJECT_NAME@}
-            ${_base_version@CMAKE_PROJECT_NAME@}
-            COMPONENTS INCLUDE
-            EXACT QUIET )
+            COMPONENTS INCLUDE QUIET )
       elseif( ${@CMAKE_PROJECT_NAME@_FIND_COMPONENTS} STREQUAL "RECOMPILE" OR
             ${@CMAKE_PROJECT_NAME@_FIND_COMPONENTS} STREQUAL "RECOMPILE_SETUP" )
          # By this time all the dry running has been done. So let's just
          # set up the packages for recompilation already.
          find_package( ${_base_project@CMAKE_PROJECT_NAME@}
-            ${_base_version@CMAKE_PROJECT_NAME@}
-            COMPONENTS RECOMPILE_SETUP
-            EXACT QUIET )
+            COMPONENTS RECOMPILE_SETUP QUIET )
       endif()
    endwhile()
    unset( _baseProjects@CMAKE_PROJECT_NAME@ )
