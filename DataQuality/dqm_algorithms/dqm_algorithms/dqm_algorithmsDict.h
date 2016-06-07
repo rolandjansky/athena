@@ -25,6 +25,7 @@
 #include "dqm_algorithms/BinContentDump.h"
 #include "dqm_algorithms/OccupancyHoleFinder.h"
 #include "dqm_algorithms/MDT_OccupancyHoleFinder.h"
+#include "dqm_algorithms/RPC_OccupancyHoleFinder.h"
 #include "dqm_algorithms/BinDump.h"
 #include "dqm_algorithms/BinPrint.h"
 #include "dqm_algorithms/BinThresh.h"

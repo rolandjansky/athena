@@ -78,7 +78,7 @@ dqm_algorithms::KurtosisTest::execute(	const std::string &  name,
   Double_t kurtosis_e = histogram->GetKurtosis( axis + 10 );
 
   dqm_core::Result* result = new dqm_core::Result();
-  ERS_DEBUG(1,"Kurtosis = "<<kurtosis<<" +- "<<kurtosis_e)
+  ERS_DEBUG(1,"Kurtosis = "<<kurtosis<<" +- "<<kurtosis_e);
   result->tags_["Kurtosis"] = kurtosis;
   result->tags_["ApproxStandardError"]=kurtosis_e;
   

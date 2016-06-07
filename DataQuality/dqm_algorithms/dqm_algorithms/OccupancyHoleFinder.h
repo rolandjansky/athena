@@ -30,7 +30,9 @@ namespace dqm_algorithms
 	  std::string getChamberName(const TH2* histo, int biny);
 	  //Called when calling derived instance 'MDT_OccupancyHoleFinder.h'
 	  std::string getMDTChamberName(const TH2* histo, int biny);
-	  private:
+	  std::string getMDTChamberNameByCrate(int biny, std::string crate);
+
+        private:
 	  std::string m_name;
 	};
 }

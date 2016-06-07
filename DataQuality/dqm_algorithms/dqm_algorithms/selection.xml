@@ -20,6 +20,7 @@
   <class name="dqm_algorithms::BinContentDump"/>
   <class name="dqm_algorithms::OccupancyHoleFinder"/>
   <class name="dqm_algorithms::MDT_OccupancyHoleFinder"/>
+  <class name="dqm_algorithms::RPC_OccupancyHoleFinder"/>
   <class name="dqm_algorithms::BinDump"/>
   <class name="dqm_algorithms::BinPrint"/>
   <class name="dqm_algorithms::BinThresh"/>

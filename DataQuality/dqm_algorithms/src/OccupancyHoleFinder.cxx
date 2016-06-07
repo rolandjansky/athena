@@ -270,8 +270,11 @@ dqm_algorithms::OccupancyHoleFinder::getMedian(const TH2* histo)
 
 std::string
 dqm_algorithms::OccupancyHoleFinder::getChamberName(const TH2* histo, int biny){
-
-  if(m_name == "MDT") return getMDTChamberName(histo, biny);
+  char char16 = histo->GetName()[16];
+  std::string crate = histo->GetName();
+  crate = crate.substr(14,4);	
+  if(m_name == "MDT" && char16 != '0' ) return getMDTChamberName(histo, biny);
+  if(m_name == "MDT" && char16 == '0' ) return getMDTChamberNameByCrate(biny, crate);
   if(std::string(histo->GetYaxis()->GetBinLabel(biny)).size()) return histo->GetYaxis()->GetBinLabel(biny);
   std::stringstream ss;
   ss << biny;
@@ -290,6 +293,7 @@ dqm_algorithms::OccupancyHoleFinder::getMDTChamberName(const TH2* histo, int bin
   }
 
   std::string hname = histo->GetName();
+  
   char side = hname[15];
   if(name == "BO0" && count == 2){
     //hack around aesthetic choice
@@ -417,4 +421,268 @@ dqm_algorithms::OccupancyHoleFinder::getMDTChamberName(const TH2* histo, int bin
   name+=side;
   name+=phiStat_str;
   return name;
+}
+std::string
+dqm_algorithms::OccupancyHoleFinder::getMDTChamberNameByCrate(int biny, std::string crate){
+
+  int phiStat = -99;
+  int etaStat = -99;
+  std::string chamber_str = "xxx";
+
+  if(crate.substr(0,1) == 'B' && crate.substr(2,2) == "01"){
+	if( (biny-61) > 0){ // BOS
+		chamber_str = "BOS";
+		etaStat = (biny+1 - 61)/2;
+		phiStat =  2*(biny - 2*etaStat - 61) +4;
+	} else if( (biny-49) > 0){ //BOL
+		chamber_str = "BOL";
+		etaStat = (biny+1 - 49)/2;
+		phiStat =  2*(biny - 49 - 2*etaStat)+ 3;
+	} else if( (biny-37) > 0){ //BMS
+		chamber_str = "BMS";
+		etaStat = (biny+1 - 37)/2;
+		phiStat =  2*(biny - 2*etaStat - 37) + 4;
+	} else if ( (biny-25) > 0){ //BML
+		chamber_str = "BML";
+		etaStat = (biny+1 - 25)/2;
+		phiStat =  2*(biny - 25 - 2*etaStat) +3;
+	} else if ( (biny-24) > 0){ //BME
+		chamber_str = "BME";
+		etaStat = 1;
+		phiStat = 13;
+	} else if ( (biny-12) > 0){ //BIS
+		chamber_str = "BIS";
+		etaStat = (biny+1 - 12)/2;
+		phiStat =  2*(biny - 2*etaStat - 12) + 4;
+	} else if ( (biny) > 0){ //BIL
+		chamber_str = "BIL";
+		etaStat = (biny+1)/2;
+		phiStat =  2*(biny - 2*etaStat) + 3;
+    } 
+  }else if (crate.substr(0,1) == "B" && crate.substr(2,2) == "02"){
+	if( (biny-60) > 0){ // BOS
+		chamber_str = "BOS";
+		etaStat = (biny+1 - 60)/2;
+		phiStat =  2*(biny - 2*etaStat - 60) + 8;
+	} else if ( (biny-48) > 0){ //BOL
+		chamber_str = "BOL";
+		etaStat = (biny+1 - 48)/2;
+		phiStat =  2*(biny - 2*etaStat - 48) + 7;
+	} else if ( (biny-36) > 0){ //BMS
+		chamber_str = "BMS";
+		etaStat = (biny+1 - 36)/2;
+		phiStat =  2*(biny - 2*etaStat - 36) + 8;
+	} else if ( (biny-24) > 0){ //BML
+		chamber_str = "BML";
+		etaStat = (biny+1 - 24)/2;
+		phiStat =  2*(biny - 2*etaStat - 24) + 7;
+	} else if ( (biny-12) > 0){ //BIS
+		chamber_str = "BIS";
+		etaStat = (biny+1 - 12)/2;
+		phiStat =  2*(biny - 2*etaStat - 12) + 8;
+	} else if ( (biny) > 0){ //BIL
+		chamber_str = "BIL";
+		etaStat = (biny+1)/2;
+		phiStat =  2*(biny - 2*etaStat) + 7;
+    }
+  } else if(crate.substr(0,1) == "B" && crate.substr(2,2) == "03"){
+	int cOffset = 0;
+	if (crate.substr(1,1) == "C"){ cOffset = 1;}
+	if( (biny-71 + cOffset) > 0) { // BOS
+		chamber_str = "BOS";
+		etaStat = (biny - 71 + cOffset);
+		phiStat =  10;
+	} else if ( (biny-59 + cOffset) > 0){ //BOL
+		chamber_str = "BOL";
+		etaStat = (biny+1 - 59 + cOffset)/2;
+		phiStat =  2*(biny - 2*etaStat - 59 + cOffset) + 11;
+	} else if ( (biny - 54 ) > 0){
+		chamber_str = "BOG";
+		etaStat = 2*(biny - 54) - 2 + 2*cOffset;
+		phiStat = 12;
+	} else if ( (biny-50) > 0){
+		chamber_str = "BOF";
+		etaStat = 2*(biny - 50) - 1;
+		phiStat = 12;
+	} else if( (biny-44) > 0){ // BMS
+		chamber_str = "BMS";
+		etaStat = biny - 44;
+		phiStat =  10;
+	} else if ( (biny-32) > 0){ //BML
+		chamber_str = "BML";
+		etaStat = (biny+1 - 32)/2;
+		phiStat =  2*(biny - 2*etaStat - 32) + 11;
+	} else if ( (biny - 29) > 0){ //BMF
+		chamber_str = "BMF";
+		etaStat = biny - 29;
+		phiStat = 12;
+	} else if ( (biny-17) > 0){ //BIS
+		chamber_str = "BIS";
+		etaStat = (biny+1 - 17)/2;
+		phiStat =  2*(biny - 2*etaStat - 17) + 12;
+	} else if ( (biny-11) > 0){ //BIR
+		chamber_str = "BIR";
+		etaStat = biny-11;
+		phiStat =  11;
+	} else if ( (biny-6) > 0){ //BIM
+		chamber_str = "BIM";
+		etaStat = biny-6;
+		phiStat =  11;
+	} else if ( (biny) > 0){ //BIL
+		chamber_str = "BIL";
+		etaStat = biny;
+		phiStat =  9;
+    }
+  } else if(crate.substr(0,1) == "B" && crate.substr(2,2) == "04"){
+	int cOffset = 0;
+	if (crate.substr(1,1) == "C"){ cOffset = 1;}
+	if( (biny-71 + cOffset) > 0) { // BOS
+		chamber_str = "BOS";
+		etaStat = (biny - 71 + cOffset);
+		phiStat =  16;
+	} else if ( (biny-58 + cOffset) > 0){ //BOL
+		chamber_str = "BOL";
+		etaStat = (biny+1 - 58 + cOffset)/2;
+		phiStat =  2*(biny - 2*etaStat - 58 + cOffset) + 15;
+	} else if ( (biny - 53 ) > 0){
+		chamber_str = "BOG";
+		etaStat = 2*(biny - 53) - 2 + 2*cOffset;
+		phiStat = 14;
+	} else if ( (biny-49) > 0){
+		chamber_str = "BOF";
+		etaStat = 2*(biny - 49) - 1;
+		phiStat = 14;
+	} else if( (biny-43) > 0){ // BMS
+		chamber_str = "BMS";
+		etaStat = biny - 43;
+		phiStat =  16;
+	} else if ( (biny - 42) > 0){
+		chamber_str = "BML";
+		etaStat = 6;
+		phiStat = 15;
+	} else if ( (biny-32) > 0){ //BML
+		chamber_str = "BML";
+		etaStat = (biny+1 - 32)/2;
+		phiStat =  2*(biny - 2*etaStat - 32) + 15;
+	} else if ( (biny - 29) > 0){ //BMF
+		chamber_str = "BMF";
+		etaStat = biny - 29;
+		phiStat = 14;
+	} else if ( (biny-17) > 0){ //BIS
+		chamber_str = "BIS";
+		etaStat = (biny+1 - 17)/2;
+		phiStat =  2*(biny - 2*etaStat - 17) + 16;
+	} else if ( (biny-11) > 0){ //BIR
+		chamber_str = "BIR";
+		etaStat = biny-11;
+		phiStat =  15;
+	} else if ( (biny-6) > 0){ //BIM
+		chamber_str = "BIM";
+		etaStat = biny-6;
+		phiStat =  15;
+	} else if ( (biny) > 0){ //BIL
+		chamber_str = "BIL";
+		etaStat = biny;
+		phiStat =  13;
+    }
+  } else if(crate.substr(0,1) == "E" && (crate.substr(2,2) == "01" || crate.substr(2,2) == "03") ){
+	int cOffset = 0;
+	if (crate.substr(2,2) == "03"){ cOffset = 8;}
+	if( (biny-61) > 0) { //EOS
+		chamber_str = "EOS";
+		etaStat = (biny+1 - 61)/2;
+		phiStat =  2*(biny - 2*etaStat - 61) + 4 + cOffset;
+	} else if ( (biny-49) > 0){ //EOL
+		chamber_str = "EOL";
+		etaStat = (biny+1 - 49)/2;
+		phiStat =  2*(biny - 2*etaStat - 49) + 3 + cOffset;
+	} else if ( (biny - 39 ) > 0){ //EMS
+		chamber_str = "EMS";
+		etaStat = (biny+1 - 39)/2;
+		phiStat =  2*(biny - 2*etaStat - 39) + 4 + cOffset;
+	} else if ( (biny-29) > 0){ //EML
+		chamber_str = "EML";
+		etaStat = (biny+1 - 29)/2;
+		phiStat =  2*(biny - 2*etaStat - 29) + 3 + cOffset;
+	} else if( (biny-25) > 0){ // EIS
+		chamber_str = "EIS";
+		etaStat = (biny+1 - 25)/2;
+		phiStat =  2*(biny - 2*etaStat - 25) + 4 + cOffset;
+	} else if ( (biny - 16) > 0){ //EIL
+		chamber_str = "EIL";
+		etaStat = (biny+1 - 16)/2;
+		phiStat =  2*(biny - 2*etaStat - 16) + 3 + cOffset;
+	} else if ( (biny-12) > 0){ //EES
+		chamber_str = "EES";
+		etaStat = (biny+1 - 12)/2;
+		phiStat =  2*(biny - 2*etaStat - 12) + 4 + cOffset;
+	} else if ( (biny - 8) > 0){ //EEL
+		chamber_str = "EEL";
+		etaStat = (biny+1 - 8)/2;
+		phiStat =  2*(biny - 2*etaStat - 8 ) + 3 + cOffset;
+	} else if ( (biny-4) > 0){ //BIS
+		chamber_str = "BIS";
+		etaStat = (biny+1 - 4)/2 + 6;
+		phiStat =  2*(biny - 2*(etaStat-6) - 4) + 4 + cOffset;
+	} else if ( (biny) > 0){ //BEE
+		chamber_str = "BEE";
+		etaStat = (biny+1)/2;
+		phiStat =  2*(biny - 2*etaStat) + 4 + cOffset;
+    }
+  } else if(crate.substr(0,1) == "E" && (crate.substr(2,2) == "02" || crate.substr(2,2) == "04") ){
+	int cOffset = 0; int phiOffset = 0;
+	if (crate.substr(2,2) == "04"){
+	        cOffset = 1; phiOffset = 8;
+	}
+	if( (biny-59 - cOffset) > 0) { //EOS
+		chamber_str = "EOS";
+		etaStat = (biny+1 - 59 - cOffset)/2;
+		phiStat =  2*(biny - 2*etaStat - 59 - cOffset) + 8 + phiOffset;
+	} else if ( (biny-47 - cOffset) > 0){ //EOL
+		chamber_str = "EOL";
+		etaStat = (biny+1 - 47 - cOffset)/2;
+		phiStat =  2*(biny - 2*etaStat - 47 - cOffset) + 7 + phiOffset;
+	} else if ( (biny - 37 - cOffset ) > 0){ //EMS
+		chamber_str = "EMS";
+		etaStat = (biny+1 - 37 - cOffset)/2;
+		phiStat =  2*(biny - 2*etaStat - 37 - cOffset) + 8 + phiOffset;
+	} else if ( (biny-27 - cOffset) > 0){ //EML
+		chamber_str = "EML";
+		etaStat = (biny+1 - 27 - cOffset)/2;
+		phiStat =  2*(biny - 2*etaStat - 27 - cOffset) + 7 + phiOffset;
+	} else if( (biny-23 - cOffset) > 0){ // EIS
+		chamber_str = "EIS";
+		etaStat = (biny+1 - 23 - cOffset)/2;
+		phiStat =  2*(biny - 2*etaStat - 23 - cOffset) + 8 + phiOffset;
+	} else if ( (biny - 15 - cOffset) > 0){ //EIL
+		chamber_str = "EIL";
+		etaStat = (biny+1 - 15 - cOffset)/2;
+		phiStat =  2*(biny - 2*etaStat - 15 - cOffset) + 7 + phiOffset;
+	} else if ( (biny-11 - cOffset) > 0){ //EES
+		chamber_str = "EES";
+		etaStat = (biny+1 - 11 - cOffset)/2;
+		phiStat =  2*(biny - 2*etaStat - 11 - cOffset) + 8 + phiOffset;
+	} else if ( (biny - 8) > 0){ //EEL
+		chamber_str = "EEL";
+		etaStat = (biny+1 - 8)/2;
+		phiStat =  2*(biny - 2*etaStat - 8 ) + 7 + phiOffset;
+		if(cOffset == 0 && etaStat == 2){phiStat = 7;}
+	} else if ( (biny-4) > 0){ //BIS
+		chamber_str = "BIS";
+		etaStat = (biny+1 - 4)/2 + 6;
+		phiStat =  2*(biny - 2*(etaStat-6) - 4) + 8 + phiOffset;
+	} else if ( (biny) > 0){ //BEE
+		chamber_str = "BEE";
+		etaStat = (biny+1)/2;
+		phiStat =  2*(biny - 2*etaStat) + 8 + phiOffset;
+	}
+  }
+  std::string phiStat_str = TString::Format("%i", phiStat).Data();
+  if(phiStat_str.size() == 1) phiStat_str = std::string("0")+phiStat_str;
+  std::string etaStat_c = TString::Format("%i", etaStat).Data();
+  std::string chamber_name = chamber_str + etaStat_c + crate.substr(1,1) + phiStat_str;
+  if(chamber_str == "BOG" && etaStat == 0){
+	chamber_name = chamber_str + etaStat_c + "B" + phiStat_str;
+  }
+  return chamber_name;
 }
