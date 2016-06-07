@@ -31,7 +31,7 @@
 
         <TEST name="RECOSHIFT_RAWtoESD" type="script" suite="athenamp">
             <package_atn>AtlasTest/AthenaMPTest</package_atn>
-            <options_atn>TRF_ECHO=1 Reco_tf.py '--inputBSFile' '/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_10Events/data10_7TeV.00167607.physics_JetTauEtmiss.merge.RAW._lb0087._SFO-4._0001.1_10events' '--maxEvents' '4' '--outputESDFile' 'myESD.pool.root' '--athenaopts=--nprocs=2' '--geometryVersion=ATLAS-R2-2015-03-01-00' '--preExec' 'rec.doTrigger=False' </options_atn>
+            <options_atn>TRF_ECHO=1 Reco_tf.py '--inputBSFile' '/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_10Events/data10_7TeV.00167607.physics_JetTauEtmiss.merge.RAW._lb0087._SFO-4._0001.1_10events' '--maxEvents' '4' '--outputESDFile' 'myESD.pool.root' '--athenaopts=--nprocs=2' '--geometryVersion=ATLAS-R1-2010-02-00-00' '--preExec' 'rec.doTrigger=False' </options_atn>
             <timelimit>90</timelimit>
             <author> Vakho Tsulaia </author>
             <mailto> tsulaia@cern.ch  </mailto>
