@@ -18,6 +18,7 @@
 // forward declarations in namespaces
 namespace ISF_FCS_Parametrization {
   class FCS_StepInfoCollection;
+  class FCS_StepInfo;
 }
 namespace HepMC {
   class GenParticle;
@@ -32,6 +33,8 @@ class StoreGateSvc;
 class LArIdentifierConverter;
 class TileGeoG4SDCalc;
 class CaloDetDescrManager;
+class Hep3Vector;
+
   /**
    *
    *   @short Class for collecting G4 hit information
@@ -113,8 +116,22 @@ class FastCaloSimParamAction: public FADS::UserAction {
   void ParseProperties();
 
   ISF_FCS_Parametrization::FCS_StepInfoCollection* m_eventSteps;    //!< collection of StepInfo
-  std::map<std::string,int> m_detectormap;
-  std::set<std::string> m_unuseddetector;
+  std::map< Identifier , std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >* > m_hit_map;
+  void update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_cell, double l_energy, double l_time, bool l_valid, int l_detector);
+
+  // Merging properties
+  DoubleProperty            m_maxRadius;          //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
+  DoubleProperty            m_maxRadiusLAr;            //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
+  DoubleProperty            m_maxRadiusHEC;            //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
+  DoubleProperty            m_maxRadiusFCAL;            //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
+  DoubleProperty            m_maxRadiusTile;            //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
+
+  DoubleProperty            m_maxTime;
+  DoubleProperty            m_maxTimeLAr;
+  DoubleProperty            m_maxTimeHEC;
+  DoubleProperty            m_maxTimeFCAL;
+  DoubleProperty            m_maxTimeTile;
+
   int m_ndetectors;
   bool m_shift_lar_subhit;
   bool m_shorten_lar_step;
