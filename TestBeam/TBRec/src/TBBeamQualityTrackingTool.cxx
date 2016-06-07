@@ -30,7 +30,8 @@
 TBBeamQualityTrackingTool::TBBeamQualityTrackingTool(const std::string& name,
 						       const std::string& type,
 						       const IInterface* parent)
-  : TBBeamQualityTool(name,type,parent) 
+  : TBBeamQualityTool(name,type,parent),
+    m_StoreGate(nullptr)
 {  
 
   // defaults are 0, which means no cut.

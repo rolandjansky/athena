@@ -23,6 +23,8 @@ TBPatternUnitStreamerTool::TBPatternUnitStreamerTool(const std::string& name,
 						     const IInterface* parent)
   : TBEventStreamerTool(name,type,parent)
     , m_patternUnitKey("TBTrigPat")
+    , m_acceptPattern()
+    , m_rejectPattern()
 {
   declareInterface<TBEventStreamerTool>(this);
   declareProperty("PatternUnitName",m_patternUnitKey);

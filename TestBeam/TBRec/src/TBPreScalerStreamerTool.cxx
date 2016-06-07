@@ -22,6 +22,7 @@ TBPreScalerStreamerTool::TBPreScalerStreamerTool(const std::string& type,
 						 const IInterface* parent)
   : TBEventStreamerTool(type,name,parent)
     , m_acceptFraction(1.)
+    , m_randomizer(nullptr)
 {
   declareInterface<TBEventStreamerTool>(this); 
   declareProperty("AcceptEventFraction",m_acceptFraction);
