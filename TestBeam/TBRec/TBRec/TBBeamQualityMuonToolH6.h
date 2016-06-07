@@ -43,11 +43,11 @@ class TBBeamQualityMuonToolH6 : public TBBeamQualityTool
   // TRIGGERING
   std::vector<unsigned int> m_triggflag;
   
-  bool mu1;
-  bool mu2;
-  bool mu3;
-  bool mu4;
-  bool successflag;
+  bool m_mu1;
+  bool m_mu2;
+  bool m_mu3;
+  bool m_mu4;
+  bool m_successflag;
 };
 #endif
 

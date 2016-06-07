@@ -42,7 +42,9 @@ TBEMECXTalkToyModel::TBEMECXTalkToyModel(
 			     const std::string& name, 
 			     const IInterface* parent)
   :AthAlgTool(type, name, parent),
-   m_caloSelection(false)
+   m_caloSelection(false),
+   m_calo_dd_man(nullptr),
+   m_calo_id(nullptr)
 {
   declareInterface<ICaloCellMakerTool>(this);
   declareProperty("CaloNums",m_caloNums);
