@@ -27,11 +27,18 @@ class SLHC_Setup_XMLReader :
                              createXML = True,
                              doPix=True,
                              doSCT=True,
+                             isGMX=False,
                              )
 
 class SLHC_Setup :
     # constructor requires the SLHC_Flags
     def __init__(self):
+
+        from InDetTrackingGeometryXML.XMLReaderJobProperties import XMLReaderFlags
+        bReadXMLfromDB = XMLReaderFlags.readXMLfromDB()
+
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        from AthenaCommon.AppMgr import ToolSvc as toolSvc
 
         # Only use local text file and dictionary if SLHC_Version set
         if (SLHC_Flags.SLHC_Version() and not (SLHC_Flags.SLHC_Version() == 'None')) : 
@@ -55,7 +62,6 @@ class SLHC_Setup :
             database_full_path_name = database_file_path+'/'+database_file
 
             # Pass text file name to GeometryDBSvc
-            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             if not hasattr(svcMgr,'InDetGeometryDBSvc'):
                 from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
                 svcMgr+=GeometryDBSvc("InDetGeometryDBSvc")
@@ -78,6 +84,7 @@ class SLHC_Setup :
             "SILICONMODULES":"ITK_PixelModules",
             "SILICONREADOUT":"PixelModuleReadout",
             "STAVESUPPORT":"InclBrl4_StaveSupport",
+            "PIXELDISCSUPPORT":"InclBrl4_DiskSupport",
             "MATERIAL":"InclBrl_Material",
             "PIXELROUTINGSERVICE":"InclBrl4_PixelRoutingService",
             }
@@ -88,9 +95,6 @@ class SLHC_Setup :
                 envName=subDet.upper()+"_"+key+"_GEO_XML"
                 os.environ[envName]=fileName
                 print "ENV ",envName," ",fileName
-
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from AthenaCommon.AppMgr import ToolSvc as toolSvc
 
         print "******************************************************************************************"
         print "PixelGeoModel - import module and design tools"
@@ -133,10 +137,12 @@ class SLHC_Setup :
         toolSvc+=geoBarrelTool
 
         print "******************************************************************************************"
+        print "PixelGeoModel - import GeoPixelLayerECRingRefTool"
         from EndcapRingRef.EndcapRingRefConf import GeoPixelLayerECRingRefTool
         geoECLayerTool=GeoPixelLayerECRingRefTool(name="GeoPixelLayerECRingRefTool")
         toolSvc+=geoECLayerTool
         
+        print "PixelGeoModel - import GeoPixelEndcapECRingRefTool"
         from EndcapRingRef.EndcapRingRefConf import GeoPixelEndcapECRingRefTool
         geoEndcapTool=GeoPixelEndcapECRingRefTool(name="GeoPixelEndcapECRingRefTool")
         geoEndcapTool.GeoPixelEndcapLayerTool = geoECLayerTool
@@ -158,9 +164,10 @@ class SLHC_Setup :
         pixelTool.Alignable = False
         pixelTool.FastBuildGeoModel = True
         pixelTool.ConfigGeoAlgTool = True
+        pixelTool.ReadXMLFromDB = bReadXMLfromDB
         pixelTool.ConfigGeoBase = "GeoPixelEnvelopeInclRefTool"
         
-        
+
     def search_file(self,filename, search_path):
         """Given a search path, find file
            -- will return the first occurrence

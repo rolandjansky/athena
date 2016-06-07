@@ -362,19 +362,19 @@
 
   <subregion name="SCTBarrel_layer0_phi">
     <range field="layer_disk" value="0"/>
-    <range field="phi_module" minvalue="0" maxvalue="27" wraparound="true"/>
+    <range field="phi_module" minvalue="0" maxvalue="27" wraparound="TRUE"/>
   </subregion>
   <subregion name="SCTBarrel_layer1_phi">
     <range field="layer_disk" value="1"/>
-    <range field="phi_module" minvalue="0" maxvalue="39" wraparound="true"/>
+    <range field="phi_module" minvalue="0" maxvalue="39" wraparound="TRUE"/>
   </subregion>
   <subregion name="SCTBarrel_layer2_phi">
     <range field="layer_disk" value="2"/>
-    <range field="phi_module" minvalue="0" maxvalue="51" wraparound="true"/>
+    <range field="phi_module" minvalue="0" maxvalue="51" wraparound="TRUE"/>
   </subregion>
   <subregion name="SCTBarrel_layer3_phi">
     <range field="layer_disk" value="3"/>
-    <range field="phi_module" minvalue="0" maxvalue="71" wraparound="true"/>
+    <range field="phi_module" minvalue="0" maxvalue="71" wraparound="TRUE"/>
   </subregion>
 
   <subregion name="side">

@@ -101,7 +101,7 @@ theApp.EvtMax =-1 # 50000 #5000 #00 #0
 #ServiceMgr.EventSelector.SkipEvents = 2
 
 splitGeo = DetDescrVersion.split('-')
-MaterialMagicTag = splitGeo[0] + '-' + splitGeo[1] + '-' + splitGeo[2]
+MaterialMagicTag = splitGeo[0] + '-' + splitGeo[1] + '-' + splitGeo[2] + '-' + splitGeo[3]
 
 ############ Configure the output #####################################
 

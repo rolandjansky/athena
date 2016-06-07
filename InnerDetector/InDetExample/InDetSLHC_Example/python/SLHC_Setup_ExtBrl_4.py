@@ -26,11 +26,15 @@ class SLHC_Setup_XMLReader :
                              createXML = True,
                              doPix=True,
                              doSCT=True,
+                             isGMX=False,
                              )
 
 class SLHC_Setup :
     # constructor requires the SLHC_Flags
     def __init__(self):
+
+        from InDetTrackingGeometryXML.XMLReaderJobProperties import XMLReaderFlags
+        bReadXMLfromDB = XMLReaderFlags.readXMLfromDB()
 
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         from AthenaCommon.AppMgr import ToolSvc as toolSvc
@@ -82,6 +86,7 @@ class SLHC_Setup :
             "SILICONMODULES":"ITK_PixelModules",
             "SILICONREADOUT":"PixelModuleReadout",
             "STAVESUPPORT":"BrlExt4_StaveSupport",
+            "PIXELDISCSUPPORT":"BrlExt4_DiskSupport",
             "MATERIAL":"BrlExt_Material",
             "PIXELROUTINGSERVICE":"BrlExt4_PixelRoutingService",
             }
@@ -123,10 +128,12 @@ class SLHC_Setup :
         toolSvc+=geoBarrelTool
 
         print "******************************************************************************************"
+        print "PixelGeoModel - import GeoPixelLayerECRingRefTool"
         from EndcapRingRef.EndcapRingRefConf import GeoPixelLayerECRingRefTool
         geoECLayerTool=GeoPixelLayerECRingRefTool(name="GeoPixelLayerECRingRefTool")
         toolSvc+=geoECLayerTool
         
+        print "PixelGeoModel - import GeoPixelEndcapECRingRefTool"
         from EndcapRingRef.EndcapRingRefConf import GeoPixelEndcapECRingRefTool
         geoEndcapTool=GeoPixelEndcapECRingRefTool(name="GeoPixelEndcapECRingRefTool")
         geoEndcapTool.GeoPixelEndcapLayerTool = geoECLayerTool
@@ -148,9 +155,10 @@ class SLHC_Setup :
         pixelTool.Alignable = False
         pixelTool.FastBuildGeoModel = True
         pixelTool.ConfigGeoAlgTool = True
+        pixelTool.ReadXMLFromDB = bReadXMLfromDB
         pixelTool.ConfigGeoBase = "GeoPixelEnvelopeExtRefTool"
-        
-        
+
+
     def search_file(self,filename, search_path):
         """Given a search path, find file
            -- will return the first occurrence

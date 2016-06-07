@@ -57,7 +57,7 @@ TrkDetFlags.MaterialDatabaseLocal        = True
 if TrkDetFlags.MaterialDatabaseLocal() is True :
     # prepare the magic tag
     splitGeo = DetDescrVersion.split('-')
-    MaterialMagicTag = splitGeo[0] + '-' + splitGeo[1] + '-' + splitGeo[2]
+    MaterialMagicTag = splitGeo[0] + '-' + splitGeo[1] + '-' + splitGeo[2] + '-' + splitGeo[3]
     # now say where the file is
     TrkDetFlags.MaterialStoreGateKey        = '/GLOBAL/TrackingGeo/BinnedLayerMaterial'
     TrkDetFlags.MaterialDatabaseLocalPath    = '' # '/tmp/wlukas/'

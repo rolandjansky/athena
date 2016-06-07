@@ -115,10 +115,12 @@ class SLHC_Setup :
         
         print "******************************************************************************************"
         
+        print "PixelGeoModel - import GeoPixelLayerECRingTool"
         from PixelLayoutECRing.PixelLayoutECRingConf import GeoPixelLayerECRingTool
         geoECLayerTool=GeoPixelLayerECRingTool(name="GeoPixelLayerECRingTool")
         toolSvc+=geoECLayerTool
         
+        print "PixelGeoModel - import GeoPixelEndcapECRingTool"
         from PixelLayoutECRing.PixelLayoutECRingConf import GeoPixelEndcapECRingTool
         geoEndcapTool=GeoPixelEndcapECRingTool(name="GeoPixelEndcapECRingTool")
         geoEndcapTool.GeoPixelEndcapLayerTool = geoECLayerTool

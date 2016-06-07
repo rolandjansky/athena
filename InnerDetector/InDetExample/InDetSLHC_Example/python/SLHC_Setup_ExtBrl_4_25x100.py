@@ -5,7 +5,7 @@
 """
 
 __author__ =   "A. Salzburger"
-__version__=   "$Revision: 1.13 $"
+__version__=   "$Revision: 753307 $"
 __doc__    =   "SLHC_PathSetting"
 __all__    = [ "SLHC_PathSetting" ]
 
@@ -19,23 +19,19 @@ class SLHC_Setup_XMLReader :
 
         # XMLReader setup
         from SLHC_Setup_XML import SLHC_Setup_XMLReader
-        SLHC_Setup_XMLReader(PixelLayout = "ExtBrl32Ref",
-                             PixelEndcapLayout = "ECRing32Ref",
+        SLHC_Setup_XMLReader(PixelLayout = "ExtBrl4Ref25x100",
+                             PixelEndcapLayout = "ECRing4Ref25x100",
                              SCTLayout = "FourLayersNoStub_23-25-dev0",
-                             dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_SLHC_ExtBrl_32.xml",
+                             dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_SLHC_ExtBrl_4.xml",
                              createXML = True,
                              doPix=True,
                              doSCT=True,
                              isGMX=False,
                              )
 
-
 class SLHC_Setup :
     # constructor requires the SLHC_Flags
     def __init__(self):
-
-        from InDetTrackingGeometryXML.XMLReaderJobProperties import XMLReaderFlags
-        bReadXMLfromDB = XMLReaderFlags.readXMLfromDB()
 
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         from AthenaCommon.AppMgr import ToolSvc as toolSvc
@@ -74,21 +70,22 @@ class SLHC_Setup :
         else:
             print 'SLHC_Setup: Geometry coming fully from database'
 
-##         from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
-##         GeoModelSvc.SCT_VersionOverride="SCT-SLHC-05"
-            
+
+#        from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+#        GeoModelSvc.SCT_VersionOverride="SCT-SLHC-05"
+
         # GeoModelConfiguration 
 
         xmlFileDict={}
         xmlFileDict["Pixel"]={
-            "PIXELGENERAL":"BrlExt32_PixelGeneral",
+            "PIXELGENERAL":"BrlExt4_PixelGeneral",
             "PIXELSIMPLESERVICE":"BrlExt_PixelSimpleService",
             "SILICONMODULES":"ITK_PixelModules",
             "SILICONREADOUT":"PixelModuleReadout",
-            "STAVESUPPORT":"BrlExt32_StaveSupport",
-            "PIXELDISCSUPPORT":"BrlExt32_DiskSupport",
+            "STAVESUPPORT":"BrlExt4_StaveSupport",
+            "PIXELDISCSUPPORT":"BrlExt4_DiskSupport",
             "MATERIAL":"BrlExt_Material",
-            "PIXELROUTINGSERVICE":"BrlExt32_PixelRoutingService",
+            "PIXELROUTINGSERVICE":"BrlExt4_PixelRoutingService",
             }
 
         for subDet in ["Pixel"]:
@@ -155,7 +152,6 @@ class SLHC_Setup :
         pixelTool.Alignable = False
         pixelTool.FastBuildGeoModel = True
         pixelTool.ConfigGeoAlgTool = True
-        pixelTool.ReadXMLFromDB = bReadXMLfromDB
         pixelTool.ConfigGeoBase = "GeoPixelEnvelopeExtRefTool"
 
 

@@ -33,6 +33,9 @@ class SLHC_Setup :
     # constructor requires the SLHC_Flags
     def __init__(self):
 
+        from InDetTrackingGeometryXML.XMLReaderJobProperties import XMLReaderFlags
+        bReadXMLfromDB = XMLReaderFlags.readXMLfromDB()
+
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         from AthenaCommon.AppMgr import ToolSvc as toolSvc
 
@@ -91,7 +94,7 @@ class SLHC_Setup :
             "SILICONREADOUT":"PixelModuleReadout",
             "PIXELDISCSUPPORT":"LoI_PixelDiscSupport_VF",
             "STAVESUPPORT":"LoI_PixelStaveSupport",
-            "MATERIAL":"LoI_Material",
+            "MATERIAL":"LoI_PixelMaterial",
             }
         
         for subDet in ["Pixel"]:
@@ -126,10 +129,9 @@ class SLHC_Setup :
         geoBarrelTool.PixelServicesTool = serviceTool
         toolSvc+=geoBarrelTool
         
-        
         print "******************************************************************************************"
         
-        print "PixelGeoModel - import GeoPixelBarrelLoITool"
+        print "PixelGeoModel - import GeoPixelEndcapLoITool"
         from PixelLayoutLoI.PixelLayoutLoIConf import GeoPixelEndcapLoITool
         geoEndcapTool=GeoPixelEndcapLoITool(name="GeoPixelEndcapLoITool")
         geoEndcapTool.PixelServicesTool = serviceTool
@@ -151,9 +153,10 @@ class SLHC_Setup :
         pixelTool.Alignable = False
         pixelTool.FastBuildGeoModel = True
         pixelTool.ConfigGeoAlgTool = True
+        pixelTool.ReadXMLFromDB = bReadXMLfromDB
         pixelTool.ConfigGeoBase = "GeoPixelEnvelopeLoITool"
-        
-        
+
+
     def search_file(self,filename, search_path):
         """Given a search path, find file
            -- will return the first occurrence
