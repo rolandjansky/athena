@@ -631,8 +631,8 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         stat = getFeatures(inputTE, vectorClusterContainerTopo,m_topoClusterContName);
     
         if ( stat!= HLT::OK ) {
-        msg() << MSG::ERROR << " REGTEST: No CaloClusterContainers retrieved for the trigger element" << endreq;
-        //return HLT::OK; // If you did not get it, it is not a problem, continue!
+            ATH_MSG_ERROR(" REGTEST: No CaloTopoClusterContainers retrieved for the trigger element");
+            //return HLT::OK; // If you did not get it, it is not a problem, continue!
         }  
              
         //debug message
@@ -642,9 +642,9 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         }
         // Get the last ClusterContainer
         if ( !vectorClusterContainerTopo.empty() ) {
-        const xAOD::CaloClusterContainer* clusContainerTopo = vectorClusterContainerTopo.back();
-        if (clusContainerTopo->size() > 0) topoClusTrue = true;
-        std::cout << "REGTEST: Number of topo containers : " << clusContainerTopo->size() << std::endl;
+            const xAOD::CaloClusterContainer* clusContainerTopo = vectorClusterContainerTopo.back();
+            if (clusContainerTopo->size() > 0) topoClusTrue = true;
+            ATH_MSG_DEBUG("REGTEST: Number of topo containers : " << clusContainerTopo->size());
         } // vector of Cluster Container empty?!
     }
 
