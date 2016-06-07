@@ -14,13 +14,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           GaudiKernel
-                          Reconstruction/PanTau/PanTauEvent )
+				 )
 
 # Component(s) in the package:
 atlas_add_component( xAODTauCnv
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES DataModel xAODTau tauEvent AthenaBaseComps AthenaKernel GaudiKernel PanTauEvent )
+                     LINK_LIBRARIES DataModel xAODTau tauEvent AthenaBaseComps AthenaKernel GaudiKernel )
 
 # Install files from the package:
 atlas_install_headers( xAODTauCnv )
