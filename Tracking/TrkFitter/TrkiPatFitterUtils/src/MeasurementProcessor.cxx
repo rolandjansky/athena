@@ -450,7 +450,7 @@ MeasurementProcessor::calculateResiduals(void)
 	    {
 		// propagate to residual using derivatives
 		unsigned param  =  (**m).alignmentParameter() - 1;
-		unsigned deriv 	=  m_parameters->numberParameters() - 2*m_parameters->numberAlignments() + 2*param;
+		int deriv 	=  m_parameters->numberParameters() - 2*m_parameters->numberAlignments() + 2*param;
 		residual	-= m_parameters->alignmentAngle(param)  * (**m).derivative(deriv) +
 				   m_parameters->alignmentOffset(param) * (**m).derivative(deriv+1);
 		if (deriv != m_parameters->firstAlignmentParameter())
