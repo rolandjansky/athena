@@ -60,30 +60,30 @@ StatusCode CBNTAA_TBTrack::CBNT_execute() {
 
   // Fill run header
   m_nRun = theEventInfo->getRunNum();
-  float m_beamMom = theEventInfo->getBeamMomentum();
-  float m_xCryo   = -9999;
-  float m_yTable  = -9999;
+  float beamMom = theEventInfo->getBeamMomentum();
+  float xCryo   = -9999;
+  float yTable  = -9999;
   if(m_readFileforXcryo) {
-    if (!this->getXcryoYtable(m_xCryo, m_yTable, m_beamMom)) {
+    if (!this->getXcryoYtable(xCryo, yTable, beamMom)) {
       ATH_MSG_ERROR ( "xCryo and yTable are not found" );
       return StatusCode::FAILURE;
     }
   } else {
-     m_xCryo = theEventInfo->getCryoX();
-     m_yTable = theEventInfo->getTableY();
+     xCryo = theEventInfo->getCryoX();
+     yTable = theEventInfo->getTableY();
   }
-  ATH_MSG_VERBOSE ( "m_xCryo   = " << m_xCryo   );
-  ATH_MSG_VERBOSE ( "m_yTable  = " << m_yTable  );
+  ATH_MSG_VERBOSE ( "xCryo   = " << xCryo   );
+  ATH_MSG_VERBOSE ( "yTable  = " << yTable  );
   ATH_MSG_VERBOSE ( "m_nRun    = " << m_nRun    );
-  ATH_MSG_VERBOSE ( "m_beamMom = " << m_beamMom );
+  ATH_MSG_VERBOSE ( "beamMom = " << beamMom );
 
   // Get beam coordinates (by A. Mineanko)
   TBTrack *track = nullptr;
   ATH_CHECK( evtStore()->retrieve(track,"Track") );
 
-  float m_zCalo = 30000.; // z-coordinate of the calorimeter surface at which beam coordinates calculated
-  m_beam_coor_x = track->getUslope()*m_zCalo + track->getUintercept() + m_xCryo;
-  m_beam_coor_y = track->getVslope()*m_zCalo + track->getVintercept();
+  float zCalo = 30000.; // z-coordinate of the calorimeter surface at which beam coordinates calculated
+  m_beam_coor_x = track->getUslope()*zCalo + track->getUintercept() + xCryo;
+  m_beam_coor_y = track->getVslope()*zCalo + track->getVintercept();
   m_beam_chi2_x = track->getChi2_u();
   m_beam_chi2_y = track->getChi2_v();
   m_beam_intercept_x = track->getUintercept();
@@ -92,9 +92,9 @@ StatusCode CBNTAA_TBTrack::CBNT_execute() {
   m_beam_slope_y = track->getVslope();
   ATH_MSG_VERBOSE ( "m_beam_coor_x = "           << m_beam_coor_x          );
   ATH_MSG_VERBOSE ( "track->getUslope() = "      << track->getUslope()     );
-  ATH_MSG_VERBOSE ( "m_zCalo =  "                << m_zCalo                );
+  ATH_MSG_VERBOSE ( "zCalo =  "                  << zCalo                  );
   ATH_MSG_VERBOSE ( "track->getUintercept() =  " << track->getUintercept() );
-  ATH_MSG_VERBOSE ( "m_xCryo = "                 << m_xCryo                );
+  ATH_MSG_VERBOSE ( "xCryo = "                   << xCryo                  );
   ATH_MSG_VERBOSE ( "m_beam_coor_y = "           << m_beam_coor_y          );
   ATH_MSG_VERBOSE ( "track->getVslope() = "      << track->getVslope()     );
   ATH_MSG_VERBOSE ( "m_beam_intercept_x = "      << m_beam_intercept_x     );
@@ -128,15 +128,15 @@ std::string CBNTAA_TBTrack::add_name(const char* base, const std::string extensi
 StatusCode CBNTAA_TBTrack::getXcryoYtable(float &x, float &y, float &e) {
 
   // not good to put here (just a workaround) - joh
-  std::string m_txtFileWithXY = "xcryo_ytable.txt";
+  std::string txtFileWithXY = "xcryo_ytable.txt";
 
   ATH_MSG_DEBUG ( "in getXcryoYtable(float x, float y)" );
   std::ifstream xyFile;
   std::string line;
-  std::string filename = PathResolver::find_file(m_txtFileWithXY, "DATAPATH");
+  std::string filename = PathResolver::find_file(txtFileWithXY, "DATAPATH");
   xyFile.open(filename.c_str());
   if (!xyFile.is_open()) {
-    ATH_MSG_ERROR ( "File " << m_txtFileWithXY << " fail to open in $DATAPATH");
+    ATH_MSG_ERROR ( "File " << txtFileWithXY << " fail to open in $DATAPATH");
     return StatusCode::FAILURE;
   }
   while ( getline(xyFile, line, '\n') ) {

@@ -202,7 +202,7 @@ StatusCode TBLArRawChannelBuilder::execute() {
 	disc = A[2]*A[2] - 3*A[1]*A[3];
 	if ( ! ( CubicFailed = ( disc < 0 || A[3] == 0 ) ) ) 
 	  {
-	    dtmax = (-A[2]-sqrt(disc))/3/A[3];
+	    dtmax = (-A[2]-sqrt(disc))/(3*A[3]);
 	    if ( ! ( CubicFailed = ( dtmax < 0 || dtmax > 3 ) ) ) 
 	      {
 		time = (float(it0) + dtmax) * 25.0 * nanosecond; // nsec

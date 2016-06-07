@@ -24,7 +24,8 @@ TBCellContainerFillerTool::TBCellContainerFillerTool(
 			     const std::string& name, 
 			     const IInterface* parent)
   :AthAlgTool(type, name, parent) ,
-   m_theCaloDDM(0), m_theCaloCCIDM(0), m_onlineHelper(0)
+   m_theCaloDDM(0), m_theCaloCCIDM(0), m_onlineHelper(0),
+   m_hashMax(0)
 { 
   declareInterface<ICaloCellMakerTool>(this); 
 }

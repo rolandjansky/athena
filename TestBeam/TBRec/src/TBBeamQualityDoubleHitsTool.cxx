@@ -31,7 +31,10 @@
 TBBeamQualityDoubleHitsTool::TBBeamQualityDoubleHitsTool(const std::string& name,
 							 const std::string& type,
 							 const IInterface* parent)
-  : TBBeamQualityTool(name,type,parent)
+  : TBBeamQualityTool(name,type,parent),
+    m_StoreGate(nullptr),
+    m_Scint1ADC(0),
+    m_Scint2ADC(0)
 {
 
   // enter cut parameters

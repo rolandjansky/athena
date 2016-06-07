@@ -39,10 +39,12 @@
 //#include "ITrackToCalo/IExtrapolTrackToCaloTool.h"
 //#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
 #include "TBRec/ImpactInCaloCollection.h"
+#include "AthenaKernel/Units.h"
 
 
 using HepGeom::Point3D;
 using HepGeom::Vector3D;
+using Athena::Units::GeV;
 
 
 // Constructor with parameters:
@@ -477,7 +479,7 @@ void TBTrackToCaloAlg::CompareImpactWithCluster()
 
     for ( ; f_clu!=l_clu; f_clu++){ 
       const CaloCluster* cluster = (*f_clu);
-      double hecluster = cluster->energy()/1000.;
+      double hecluster = cluster->energy()/GeV;
       double heta = cluster->eta();
       double hphi = cluster->phi();
 

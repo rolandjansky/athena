@@ -33,7 +33,14 @@
 TBBeamQualityEMFractionTool::TBBeamQualityEMFractionTool(const std::string& name,
 							 const std::string& type,
 							 const IInterface* parent)
-  : TBBeamQualityTool(name,type,parent) 
+  : TBBeamQualityTool(name,type,parent),
+    m_StoreGate(nullptr),
+    m_detStore(nullptr),
+    m_caloMgr(nullptr),
+    m_emecID_help(nullptr),
+    m_hecID_help(nullptr),
+    m_fcalID_help(nullptr),
+    m_em_frac(0)
 {  
   declareInterface<TBBeamQualityTool>(this);
   declareProperty("EM_fraccut",m_em_fraccut=0.2);

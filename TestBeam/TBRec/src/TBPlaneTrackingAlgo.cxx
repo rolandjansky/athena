@@ -290,13 +290,14 @@ bool TBPlaneTrackingAlgo::fitHits(const std::vector<double> & v_u,
     m_suw += v_u[i]*v_w[i] / (v_eu[i]*v_eu[i]);
   }
  
-  double denum = (m_s*m_sww-m_sw*m_sw);
-  if(denum == 0){
+  const double denom = (m_s*m_sww-m_sw*m_sw);
+  if(denom == 0){
     return false;
   }
 
-  a1 = (m_su*m_sww - m_sw*m_suw)/ denum;
-  a2 = (m_s*m_suw - m_su*m_sw)/ denum;
+  const double inv_denom = 1. / denom;
+  a1 = (m_su*m_sww - m_sw*m_suw) * inv_denom;
+  a2 = (m_s*m_suw - m_su*m_sw) * inv_denom;
   return true;
 }
 /////////////////////////////////////////////////////////////////////////////

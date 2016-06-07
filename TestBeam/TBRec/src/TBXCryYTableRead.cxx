@@ -9,17 +9,10 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ListItem.h"
-
 #include "PathResolver/PathResolver.h"
-
 #include "StoreGate/StoreGate.h" 
-
-#define private public
 #include "TBEvent/TBEventInfo.h"
-#undef private
-
 #include "TBRec/TBXCryYTableRead.h"
-
 #include <fstream>
 
 TBXCryYTableRead::TBXCryYTableRead(const std::string& name, 
@@ -95,10 +88,17 @@ StatusCode TBXCryYTableRead::execute()
 //                                theEventInfo->getBeamParticle(), m_xCryo, theEventInfo->getCryoAngle(),
 //                                m_yTable);
   ATH_MSG_DEBUG ( "Filling TBEvent info with cryoX,tableY: "<<m_xCryo<<","<<m_yTable);
-  (const_cast<TBEventInfo*>(theEventInfo))->m_cryoX = m_xCryo;
-  (const_cast<TBEventInfo*>(theEventInfo))->m_tableY = m_yTable;
-  // in case if energy was different, change also this one
-  (const_cast<TBEventInfo*>(theEventInfo))->m_beam_moment = m_beamMom;
+  // FIXME: const violation!
+  *const_cast<TBEventInfo*>(theEventInfo) =
+    TBEventInfo (theEventInfo->getEventNum(),
+                 theEventInfo->getEventClock(),
+                 theEventInfo->getEventType(),
+                 theEventInfo->getRunNum(),
+                 m_beamMom,
+                 theEventInfo->getBeamParticle(),
+                 m_xCryo,
+                 theEventInfo->getCryoAngle(),
+                 m_yTable);
   
   //sc = m_eventStore->record(m_eventinfo,"TBEventInfo");
   //if ( sc.isFailure( ) ) {

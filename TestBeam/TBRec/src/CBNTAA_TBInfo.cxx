@@ -29,6 +29,7 @@
 
 #include <cmath>
 
+
 CBNTAA_TBInfo::CBNTAA_TBInfo(const std::string& name, ISvcLocator* pSvcLocator) :
 CBNT_TBRecBase(name, pSvcLocator) 
 {
@@ -230,7 +231,7 @@ float CBNTAA_TBInfo::GetEnergy(float currB3, float currB4)
 { 
   float  Bdltot = GetBdl3(currB3) + GetBdl4(currB4);
   
-  float energy = 0.3*Bdltot/41. * 1000;
+  float energy = (0.3/41.)*Bdltot * 1000;
   
   return energy;
 }
@@ -274,14 +275,15 @@ float CBNTAA_TBInfo::GetErrColl(float coll3_down, float coll3_up, float coll9_do
   float coll3_opening = (fabs(coll3_down) + fabs(coll3_up))/2.0;
   float coll9_opening = (fabs(coll9_down) + fabs(coll9_up))/2.0;
 
-  float errcoll = sqrt(coll3_opening*coll3_opening + coll9_opening*coll9_opening)/27;
+  float errcoll = sqrt(coll3_opening*coll3_opening + coll9_opening*coll9_opening)*(1./27);
 
   return errcoll;
 }
 
 float CBNTAA_TBInfo::GetErrAbsE(float energy)
 { 
-  float err_abs = sqrt((25/energy)*(25/energy) + 0.5*0.5);
+  float fac = 25./energy;
+  float err_abs = sqrt(fac*fac + 0.5*0.5);
 
   return err_abs;
 }
@@ -296,7 +298,9 @@ float CBNTAA_TBInfo::GetErrCurr(float currB3, float currB4)
  
   float errBdl3 = (GetBdl3(currB3 + 0.1) - GetBdl3(currB3 - 0.1))/2;
   float errBdl4 = (GetBdl4(currB4 + 0.1) - GetBdl4(currB4 - 0.1))/2;
-  float errBdl = sqrt((errBdl3/Bdl3)*(errBdl3/Bdl3) + (errBdl4/Bdl4)*(errBdl4/Bdl4))*Bdl_tot;
+  const float fac3 = errBdl3/Bdl3;
+  const float fac4 = errBdl4/Bdl4;
+  float errBdl = sqrt(fac3*fac3 + fac4*fac4)*Bdl_tot;
  
   float resField = sqrt(0.0010*0.0010 + 0.0010*0.0010);
 
@@ -314,8 +318,8 @@ float CBNTAA_TBInfo::SyncLoss(float energy, float currB3, float currB4)
   float Bdl_B3 = GetBdl3(currB3);
   float Bdl_B4 = GetBdl4(currB4);
 
-  float B2dl_B3 = (Bdl_B3/3 * Bdl_B3/3)/Lmag;
-  float B2dl_B4 = (Bdl_B4/3 * Bdl_B4/3)/Lmag;
+  float B2dl_B3 = (Bdl_B3 * Bdl_B3)*(1./(Lmag*9));
+  float B2dl_B4 = (Bdl_B4 * Bdl_B4)*(1./(Lmag*9));
   float B2dl_tot = B2dl_B3 + B2dl_B4;
   
   float B5suB34 = 0.19;
@@ -400,10 +404,10 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
   float bend_equip[9];
   float coll_equip[24];
   
-  int m_nc_quad = 22;
-  int m_nc_bend = 9;
-  int m_nc_trim = 10;
-  int m_nc_coll = 24;
+  int nc_quad = 22;
+  int nc_bend = 9;
+  int nc_trim = 10;
+  int nc_coll = 24;
 
   const char* folder;
   if (m_dumpBeamLine == true)
@@ -442,20 +446,22 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
       float quad_equip[22];
       float trim_equip[10];
       
-      m_quad_file->reserve(m_nc_quad);
-      m_quad_equip->reserve(m_nc_quad);
-      for (int i=0; i<m_nc_quad; i++)
+      m_quad_file->reserve(nc_quad);
+      m_quad_equip->reserve(nc_quad);
+      for (int i=0; i<nc_quad; i++)
 	{
 	  quad_file[i] = -1;
 	  quad_equip[i] = -1;
           unsigned int val1;
           unsigned int val2;
-	  
+
+#if 0	  
 	  if (run < 1000454)
 	    {
 	      folder = "/TILE/DCS/SYSTEM1/BEAM";
 	    }
 	  else
+#endif
 	    {
 	      folder = "/TILE/DCS/SYSTEM1/BEAM";
 	    }
@@ -474,9 +480,9 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
 	}
 	
 
-      m_bend_file->reserve(m_nc_bend);
-      m_bend_equip->reserve(m_nc_bend);
-      for (int i=0; i<m_nc_bend; i++)
+      m_bend_file->reserve(nc_bend);
+      m_bend_equip->reserve(nc_bend);
+      for (int i=0; i<nc_bend; i++)
 	{
 	  bend_file[i] = -1;
 	  bend_equip[i] = -1;
@@ -520,9 +526,9 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
 	    
 	}
       
-      m_trim_file->reserve(m_nc_trim);
-      m_trim_equip->reserve(m_nc_trim);
-      for (int i=0; i<m_nc_trim; i++)
+      m_trim_file->reserve(nc_trim);
+      m_trim_equip->reserve(nc_trim);
+      for (int i=0; i<nc_trim; i++)
 	{
 	  trim_file[i] = -1;
 	  trim_equip[i] = -1;
@@ -552,9 +558,9 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
 	}
       
       
-      m_coll_file->reserve(m_nc_coll);
-      m_coll_equip->reserve(m_nc_coll);
-      for (int i=0; i<m_nc_coll; i++)
+      m_coll_file->reserve(nc_coll);
+      m_coll_equip->reserve(nc_coll);
+      for (int i=0; i<nc_coll; i++)
 	{
 	  coll_file[i] = -1;
 	  coll_equip[i] = -1;
@@ -585,19 +591,19 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
 	}
       
       
-      for (int i=0; i<m_nc_quad; i++)
+      for (int i=0; i<nc_quad; i++)
 	{
 	  log << MSG::DEBUG << "Q" << i+1 << " from file   " << (*m_quad_file)[i] << endreq;
 	}
-      for (int i=0; i<m_nc_bend; i++)
+      for (int i=0; i<nc_bend; i++)
 	{
 	  log << MSG::DEBUG << "B" << i+1 << " from file   " << (*m_bend_file)[i] << endreq;
 	}
-      for (int i=0; i<m_nc_trim; i++)
+      for (int i=0; i<nc_trim; i++)
 	{
 	  log << MSG::DEBUG << "Trim" << i+1 << " from file   " << (*m_trim_file)[i] << endreq;
 	}
-      for (int i=0; i<m_nc_coll; i++)
+      for (int i=0; i<nc_coll; i++)
 	{
 	  int j = i/2;
 	  if (i == 2*j)
@@ -608,19 +614,19 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
 	}
       
       
-      for (int i=0; i<m_nc_quad; i++)
+      for (int i=0; i<nc_quad; i++)
 	{
 	  log << MSG::DEBUG << "Q" << i+1 << " from equipement   " << (*m_quad_equip)[i] << endreq;
 	}
-      for (int i=0; i<m_nc_bend; i++)
+      for (int i=0; i<nc_bend; i++)
 	{
 	  log << MSG::DEBUG << "B" << i+1 << " from equipement   " << (*m_bend_equip)[i] << endreq;
 	}
-      for (int i=0; i<m_nc_trim; i++)
+      for (int i=0; i<nc_trim; i++)
 	{
 	  log << MSG::DEBUG << "Trim" << i+1 << " from equipement   " << (*m_trim_equip)[i] << endreq;
 	}
-      for (int i=0; i<m_nc_coll; i++)
+      for (int i=0; i<nc_coll; i++)
 	{
 	  int j = i/2;
 	  if (i == 2*j)
@@ -639,7 +645,7 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
 //      std::vector<std::string> names_bend_equip[9], rows_bend_equip[9];
 //      std::vector<std::string> names_coll_equip[9], rows_coll_equip[9];
       
-      for (int i=0; i<m_nc_bend; i++)
+      for (int i=0; i<nc_bend; i++)
 	{
 	  bend_equip[i] = -1;
 	  unsigned int val2;
@@ -659,7 +665,7 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
 	}
       
       
-      for (int i=0; i<m_nc_coll; i++)
+      for (int i=0; i<nc_coll; i++)
 	{
 	  coll_equip[i] = -1;
 	  unsigned int val2;
@@ -711,7 +717,7 @@ void CBNTAA_TBInfo::calculateAll(int runNumber,int eventNumber) {
       
       //C12 opening calculations... C12 is the onlycollimator which is responsible for VLE runs
       float coll12_opening = (fabs(coll_equip[11]) + fabs(coll_equip[23]))/2.0;
-      m_errCollimators = sqrt(coll12_opening*coll12_opening)/27;
+      m_errCollimators = sqrt(coll12_opening*coll12_opening)*(1./27);
       
       //calculation of errors of magnet currents..
       m_errCurrents = GetErrCurr(bend_equip[6], bend_equip[7]);

@@ -5,8 +5,6 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
-
 #include "GaudiKernel/Property.h"
 
 #include "EventInfo/EventInfo.h"
@@ -20,6 +18,7 @@
 #include "TBEvent/TBEventInfo.h"
 
 #include "PathResolver/PathResolver.h"
+#include "AthenaKernel/Units.h"
 
 #include <algorithm>
 #include <cmath>
@@ -27,7 +26,7 @@
 #include <iostream>
 #include <fstream>
 
-using CLHEP::ns;
+using Athena::Units::ns;
 
 TBPhaseRec::TBPhaseRec(const std::string& name,
 				 ISvcLocator* pSvcLocator) :

@@ -19,12 +19,13 @@
 #include "LArElecCalib/ILArGlobalTimeOffset.h"
 #include "LArElecCalib/ILArFEBTimeOffset.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
 
 #include <math.h>
 
 using CLHEP::MeV;
 using CLHEP::megahertz;
-using CLHEP::picosecond;
+using Athena::Units::picosecond;
 
 TBECLArRawChannelBuilder::TBECLArRawChannelBuilder (const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),

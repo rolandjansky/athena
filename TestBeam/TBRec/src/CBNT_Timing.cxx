@@ -19,11 +19,12 @@
 #include "TBEvent/TBScintillatorCont.h"
 #include "TBEvent/TBBPCCont.h"
 #include "TBEvent/TBPhase.h"
+#include "AthenaKernel/Units.h"
 #include <vector>
 
 
-using CLHEP::GeV;
-using CLHEP::ns;
+using Athena::Units::GeV;
+using Athena::Units::ns;
 
 
 CBNT_Timing::CBNT_Timing(const std::string & name, ISvcLocator * pSvcLocator)
@@ -34,9 +35,6 @@ CBNT_Timing::CBNT_Timing(const std::string & name, ISvcLocator * pSvcLocator)
    , m_first_event(true)
    , m_caloCellName("AllCalo")
 {
-  NOTIME = -999;
-  NOENERGY = -999;
-
   m_sampling_names.resize(0);
 
   declareProperty("TBPhase",m_tbphase="TBPhase");
@@ -272,7 +270,7 @@ StatusCode CBNT_Timing::CBNT_execute()
 
         double energy = (*cell)->e();
         double time = (*cell)->time();
-        if (fabs(time/ns - float(int(time/ns/25.)*25.)) > 0.001 && energy > m_energy_cut) {
+        if (fabs(time/ns - float(int(time/(25*ns))*25.)) > 0.001 && energy > m_energy_cut) {
 	  
 	  m_time_cell->push_back(time/ns);
 	  m_energy_cell->push_back(energy/GeV);	  
