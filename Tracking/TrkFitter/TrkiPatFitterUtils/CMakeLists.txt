@@ -18,9 +18,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkRIO_OnTrack
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonCompetingRIOsOnTrack
-                          DetectorDescription/Identifier
                           Tracking/TrkEvent/TrkMaterialOnTrack
                           Tracking/TrkEvent/TrkMeasurementBase
                           Tracking/TrkEvent/TrkTrack
@@ -48,5 +45,4 @@ atlas_add_library( TrkiPatFitterUtils
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps DataModel GeoPrimitives EventPrimitives GaudiKernel TrkEventPrimitives TrkParameters TrkAlgebraUtils
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} TrkGeometry TrkSurfaces TrkRIO_OnTrack MuonCompetingRIOsOnTrack Identifier TrkMaterialOnTrack TrkMeasurementBase TrkTrack TrkExInterfaces TrkExUtils )
-
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} TrkGeometry TrkSurfaces TrkMaterialOnTrack TrkMeasurementBase TrkTrack TrkExInterfaces TrkExUtils )
