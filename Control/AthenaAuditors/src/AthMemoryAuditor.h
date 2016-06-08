@@ -43,6 +43,8 @@ public:
   virtual ~AthMemoryAuditor();
   
   virtual StatusCode initialize();
+
+  virtual StatusCode finalize();
   
   virtual void beforeInitialize(INamedInterface* alg);
   virtual void beforeReinitialize(INamedInterface* alg);
@@ -60,6 +62,8 @@ public:
   virtual void afterFinalize(INamedInterface* alg);
 
   bool m_reported;
+  
+  static bool m_usetcmalloc;
   
 private: 
 
