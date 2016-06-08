@@ -68,7 +68,7 @@ public:
 
 #ifdef LW_STRICT_ROOT_BEHAVIOUR
   void forcePretendSumWMode() { m_pretendSumWMode = true; }
-  void pretendSumWMode() const { return m_pretendSumWMode; }
+  bool pretendSumWMode() const { return m_pretendSumWMode; }
 #endif
 
 private:
