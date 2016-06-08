@@ -1,14 +1,9 @@
 #
-# common JO for almos all slices
+# common JO for almost all slices
 #
 #  flags for command-line input
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
-### usually ATN tests runs with following RDO input:
-#PoolRDOInput=["/afs/cern.ch/atlas/offline/ReleaseData/v3/testfile/valid1.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s488_d151_tid039414_RDO.039414._00001_extract_10evt.pool.root"]
-#set add your own here: 
-#from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
-#acf.FilesInput=["/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/validation-data/mc10_7TeV.105001.pythia_minbias.digit.RDO.e574_s932_s946_d369/RDO.197112._000001.pool.root.1"]
 
 if not acf.EvtMax.is_locked():
     acf.EvtMax=10
@@ -17,7 +12,7 @@ if not ('OutputLevel' in dir()):
 #scan for RTT files (only if dsName and fileRange set)
 include("TriggerTest/TrigScanFiles.py")
 
-if ('enableCostMonitoring' in dir()):
+if ('enableCostMonitoring' in dir() and bool(enableCostMonitoring) == True):
     enableCostMonitoring = True
 else: 
     enableCostMonitoring = False
@@ -48,7 +43,7 @@ include("RecExCond/RecExCommon_flags.py")
 #-----------------------------------------------------------
 
 # set up trigger monitoring                                                                                                                                                        
-if not ('RunningRTT' in dir()):
+if not ('RunningRTT' in dir() and bool(RunningRTT) == True):
     TriggerFlags.enableMonitoring = [ 'Validation', 'Time' , 'Log' ]
 else:
     TriggerFlags.enableMonitoring = [ 'Validation', 'Time'  ]
@@ -58,6 +53,8 @@ TriggerFlags.readHLTconfigFromXML=False
 TriggerFlags.readLVL1configFromXML=False
 if  ('menu' in dir()):
     TriggerFlags.triggerMenuSetup=menu 
+else: 
+    print 'No MENU was set - this is required when using this JO! -  WARNING  falling back to TriggerFlags standard menu'
 
 TriggerFlags.doHLT=True
 #TriggerFlags.doL1Topo=True 
@@ -94,6 +91,11 @@ def minbiasOnly():
     TriggerFlags.Slices_all_setOff()
     TriggerFlags.MinBiasSlice.setAll() 
 
+def mubphysics():
+    TriggerFlags.Slices_all_setOff()
+    TriggerFlags.MuonSlice.setAll()
+    TriggerFlags.BphysicsSlice.setAll()
+
 def minbiasEnhanced():
     TriggerFlags.Slices_all_setOff()
     TriggerFlags.MinBiasSlice.setAll()
@@ -102,12 +104,6 @@ def minbiasEnhanced():
         if not L1item in TriggerFlags.Lvl1.items():
             TriggerFlags.Lvl1.items = TriggerFlags.Lvl1.items() + [L1item]
     mbHLTItems = [
-                  # MBTS at L2
-                  #['mb_mbts_L1MBTS_2', 'L1_MBTS_2', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
-                  #['mb_mbts_L1MBTS_2_UNPAIRED_ISO', 'L1_MBTS_2_UNPAIRED_ISO', [], ['MinBias'],["BW:Unpaired_Minbias", "RATE:MinBias"], 1],
-                  #['mb_mbts_L1MBTS_4_4',  'L1_MBTS_4_4', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1], 	
-                  # Other spTrk
-                  #['mb_sptrk_noisesup', 'L1_RD0_FILLED', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
                   ['mb_sptrk_L1MBTS_1',  'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
                   ['mb_sptrk_L1MBTS_2',  'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
                   ['mb_sptrk_noisesup_L1MBTS_1',  'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
@@ -122,8 +118,6 @@ def minbiasEnhanced():
         if not HLTitem in TriggerFlags.MinBiasSlice.signatures():
             TriggerFlags.MinBiasSlice.signatures = TriggerFlags.MinBiasSlice.signatures() + [HLTitem]
 
-
-# Override list of signatures in e/gamma slice
 try:
     from TriggerMenu import useNewTriggerMenu
     useNewTM = useNewTriggerMenu()
@@ -150,30 +144,24 @@ if  ('sliceName' in dir()):
         GenerateMenu.overwriteSignaturesWith(bjetOnly)
     elif sliceName == 'bphysics':
         GenerateMenu.overwriteSignaturesWith(bphysicsOnly)    
-    #    elif sliceName == 'bphysicskstar':
-    #        GenerateMenu.overwriteSignaturesWith(bphysicskstarOnly)
     elif sliceName == 'met':
         GenerateMenu.overwriteSignaturesWith(metOnly)
     elif sliceName == 'tau':
         GenerateMenu.overwriteSignaturesWith(tauOnly)
     elif sliceName == 'minbias':
         GenerateMenu.overwriteSignaturesWith(minbiasOnly)
+    elif sliceName == 'mubphysics':
+        GenerateMenu.overwriteSignaturesWith(mubphysics)
     elif sliceName == 'minbiasEnhanced':
         GenerateMenu.overwriteSignaturesWith(minbiasEnhanced)
     else:
         log.info("WARNING no sliceName given! pleace check this testconfiguration")
-
 
 # pre set up trigger monitoring
 if 'enableCostMonitoring' in dir() and bool(enableCostMonitoring) == True:
     import TriggerRelease.Modifiers
     getattr(TriggerRelease.Modifiers,'enableCostMonitoring')().preSetup()
     getattr(TriggerRelease.Modifiers,'enableCostForCAF')().preSetup()
-#
-
-#------------ This is a temporary fix ---------------
-#DetFlags.simulateLVL1.Calo_setOn()
-#-------------end of temporary fix-------------------
 
 #-----------------------------------------------------------
 include("RecExCommon/RecExCommon_topOptions.py")
