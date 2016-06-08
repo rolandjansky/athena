@@ -60,9 +60,9 @@ static size_t stacktraceDepth(25);
 
 static bool collectStacktraces(true);
 
-using namespace boost::intrusive;
+//using namespace boost::intrusive;
 
-class myBlocks_tc : public bs_set_base_hook<optimize_size<false> >
+class myBlocks_tc : public boost::intrusive::bs_set_base_hook<boost::intrusive::optimize_size<false> >
   {
  public:
   uintptr_t          allocated;
@@ -72,7 +72,7 @@ class myBlocks_tc : public bs_set_base_hook<optimize_size<false> >
   std::vector<void*> allocatedFrom;
   
  public:
-  bs_set_member_hook<> member_hook_;
+  boost::intrusive::bs_set_member_hook<> member_hook_;
   
   myBlocks_tc()
     : allocated(0)
@@ -106,7 +106,7 @@ class myBlocks_tc : public bs_set_base_hook<optimize_size<false> >
 
 myBlocks_tc *bg_tc;
 
-typedef splay_set< myBlocks_tc, base_hook<bs_set_base_hook<> > > allocSet_tc;
+typedef boost::intrusive::splay_set< myBlocks_tc, boost::intrusive::base_hook<boost::intrusive::bs_set_base_hook<> > > allocSet_tc;
 
 static allocSet_tc::iterator allocset_last;
 static allocSet_tc allocset_tc;
