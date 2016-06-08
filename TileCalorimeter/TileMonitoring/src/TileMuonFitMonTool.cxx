@@ -35,7 +35,7 @@ TileMuonFitMonTool::TileMuonFitMonTool(const std::string & type, const std::stri
   , m_isFirstEv(true)
   , m_trigok(false)
   , m_tileMuonFitTrig(0U)
-
+  , m_tileMuonFitTimePartLVL1{}
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);

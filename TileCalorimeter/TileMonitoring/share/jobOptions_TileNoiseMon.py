@@ -56,7 +56,7 @@ if doTileDigiNoiseMon:
                                            , OutputLevel        = WARNING
                                            , TileDigitsContainer = "TileDigitsCnt"
                                            , histoPathBase = "/Tile/DigiNoise"
-                                           , FillEmptyFromDB = True
+                                           , FillEmptyFromDB = False
                                            , SummaryUpdateFrequency = TileNoiseUpdateFrequency );
 
     topSequence.TileNoiseMon.AthenaMonTools += [ toolSvc.TileDigiNoiseMon ];

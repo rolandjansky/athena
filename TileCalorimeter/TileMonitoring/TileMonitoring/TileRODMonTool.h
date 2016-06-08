@@ -91,6 +91,7 @@ class TileRODMonTool: public TileFatherMonTool {
     int m_nEventsProcessed[9]; // number of processed events per trigger
     int32_t m_old_lumiblock;
     bool m_details;
+    int m_nLumiblocks;
 };
 
 #endif

@@ -54,6 +54,17 @@ TileDigitsMonTool::TileDigitsMonTool(const std::string & type, const std::string
   , m_cispar(0)
   , m_nEvents(0)
   , m_nSamples(0)
+  , m_sumPed1{}
+  , m_sumPed2{}
+  , m_sumRms1{}
+  , m_sumRms2{}
+  , m_meanAmp{}
+  , m_meanAmp_ij{}
+  , m_nEvents_i{}
+  , m_nEvents_ij{}
+  , m_cov_ratio{}
+  , m_stuck_probs{}
+  , m_allHistsFilled(false)
   //, hp(-1)
   //, hb(-1)
 /*---------------------------------------------------------*/

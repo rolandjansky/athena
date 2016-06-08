@@ -121,7 +121,10 @@ if doTileCells:
         toolSvc += CfgMgr.TileClusterMonTool(name                    = 'TileClusterMon'
                                              , OutputLevel           = INFO
                                              , clustersContainerName = "TileTopoCluster"
-                                             , histoPathBase         = "/Tile/Cluster")
+                                             , FillTimingHistograms = True
+                                             , doOnline           = athenaCommonFlags.isOnline()
+                                             , histoPathBase         = "/Tile/Cluster" )
+
 
         ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileClusterMon ]
 

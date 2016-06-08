@@ -157,6 +157,7 @@ class TileMBTSMonTool: public TileFatherMonTool {
     bool m_fillHistogramsPerMBTS;
 
     int32_t m_old_lumiblock;
+    int m_nLumiblocks;
 };
 
 #endif

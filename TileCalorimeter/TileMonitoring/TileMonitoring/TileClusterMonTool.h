@@ -16,6 +16,8 @@
 
 #include "TileMonitoring/TileFatherMonTool.h"
 
+#include <array>
+
 /** @class TileClusterMonTool
  *  @brief Class for TileCluster based monitoring
  */
@@ -71,6 +73,16 @@ class TileClusterMonTool: public TileFatherMonTool {
     std::vector<TH1F*> m_TileClusterSumPy;
 
     //  TH2D* m_test;
+
+    std::array<TProfile*, 5> m_partitionTimeLB;
+    std::array<TProfile*, 5> m_paritionTimeOnlineLB;
+
+    bool m_doOnline;
+    int32_t m_oldLumiblock;
+
+    bool m_fillTimingHistograms;
+    float m_cellEnergyThresholdForTiming;
+    int m_nLumiblocks;
 };
 
 #endif

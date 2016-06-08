@@ -40,21 +40,7 @@
 #include <iostream>
 #include <map>
 
-#include "CLHEP/Units/SystemOfUnits.h"
 
-using CLHEP::GeV;
-using CLHEP::ns;
-
-
-// Make a TileCell namespace so this doesn't cause problems else where.
-namespace TC{
-template<class T>
-std::string to_string(T in){
-  std::ostringstream strm;
-  strm << in;
-  return strm.str();
-}
-}
 
 /*---------------------------------------------------------*/
 TileCellNoiseMonTool::TileCellNoiseMonTool(const std::string & type,  const std::string & name, const IInterface* parent)
@@ -64,6 +50,13 @@ TileCellNoiseMonTool::TileCellNoiseMonTool(const std::string & type,  const std:
     //, m_delta_lumiblock(0U)
     //, m_oldLumiblock(-1)
   , m_isFirstEvent(true)
+  , m_mapSigma1{}
+  , m_mapSigma2{}
+  , m_mapR{}
+  , m_mapChi2{}
+  , m_mapChi2prb{}
+  , m_mapRmsOsig{}
+  , m_mapRms{}
   , m_hPartition1(0)
   , m_hPartition2(0)
   , m_h2Partition0(0)

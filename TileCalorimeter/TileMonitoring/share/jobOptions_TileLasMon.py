@@ -152,7 +152,7 @@ if not athenaCommonFlags.isOnline():
 # init DetDescr
 from AthenaCommon.GlobalFlags import jobproperties
 if not 'DetDescrVersion' in dir():
-    DetDescrVersion = 'ATLAS-R2-2015-02-00-00'
+    DetDescrVersion = 'ATLAS-R2-2015-04-00-00'
 jobproperties.Global.DetDescrVersion = DetDescrVersion 
 log.info( "DetDescrVersion = %s" % (jobproperties.Global.DetDescrVersion() ))
 
@@ -238,8 +238,11 @@ toolSvc += CfgMgr.TileRawChannelTimeMonTool ( name              = "TileLasRawCha
                                               , histoPathBase   = "/Tile/RawChannelTime"
                                               , runType         = TileRunType
                                               , doOnline        = athenaCommonFlags.isOnline()
+                                              , TimeCorrectionLBA  = -15.18
+                                              , TimeCorrectionLBC  = -15.37
+                                              , TimeCorrectionEBA  = 47.65
+                                              , TimeCorrectionEBC  = 47.42
                                               , TileRawChannelContainer = "TileRawChannelFit")
-
 
 topSequence.TileLasMon.AthenaMonTools += [ toolSvc.TileLasRawChannelTimeMon ]
 print toolSvc.TileLasRawChannelTimeMon

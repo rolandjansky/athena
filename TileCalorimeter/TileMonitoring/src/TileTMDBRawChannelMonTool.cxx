@@ -39,6 +39,10 @@
 /*---------------------------------------------------------*/
 TileTMDBRawChannelMonTool::TileTMDBRawChannelMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TileFatherMonTool(type, name, parent)
+  , m_partition_amplitude{}
+  , m_partition_time{}
+  , m_amplitude_map{}
+  , m_time_map{}
   , m_nEventsProcessed(0)
   , m_histogramsNotBooked(true)
   , m_isNotDSP(false)
