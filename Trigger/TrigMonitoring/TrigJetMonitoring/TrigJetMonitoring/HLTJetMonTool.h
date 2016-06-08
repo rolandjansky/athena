@@ -39,9 +39,9 @@
 
 // forward declarations
 class TrigMatchTool;
-class TrigT2JetContainer;
-class Jet;
-class JetCollection;
+//class TrigT2JetContainer;
+//class Jet;
+//class JetCollection;
 
 class TH1;
 
@@ -68,8 +68,8 @@ class HLTJetMonTool : public IHLTMonTool {
   typedef std::map<std::string, double> JetEtaLowThrestype;
   typedef std::map<std::string, double>::const_iterator JetEtaLowThresIter;
 
-  typedef std::map<std::string, int> JetNtype;
-  typedef std::map<std::string, int>::const_iterator JetNIter;
+  typedef std::map<std::string, unsigned int> JetNtype;
+  typedef std::map<std::string, unsigned int>::const_iterator JetNIter;
 
   public:
 
@@ -137,16 +137,19 @@ class HLTJetMonTool : public IHLTMonTool {
 
     // jet selection, matching
     //bool m_doL1TrigEff, m_doHLTTrigEff, m_doOFJets, m_doEvtSel, m_debuglevel;
-    bool m_doLumiWeight, m_doL1TrigEff, m_doHLTTrigEff, m_doOFJets, m_debuglevel;
+    bool /*m_doLumiWeight,*/ m_doL1TrigEff, m_doHLTTrigEff, m_doOFJets, m_debuglevel;
     
     bool m_doselOFJets, m_doselOFBasicHists, m_reqMinPtCut, m_reqEtaCut, m_reqMaxNJetCut;
     bool m_reqP4State, /*m_reqEMFracCut, m_reqN90Cut, m_reqTimeCut,*/ m_reqBadQCut;
+
+    bool m_isPP, m_isHI, m_isCosmic, m_isPPb; // collsion mode flags
 
     float m_deltaRCut, m_emfracCut;
     //std::vector<float> m_ofemfracCut;
 
     float m_MinPtCut, m_EtaCut /*m_jetTimens, m_badQFrac*/ ;
     int m_MaxNJet /*, m_n90Cut*/ ;
+   
 
     std::vector<TLorentzVector> v_HLTjet;
     std::vector<TLorentzVector> v_L1jet;
@@ -155,10 +158,10 @@ class HLTJetMonTool : public IHLTMonTool {
     std::vector<int> v_L1index;
     std::vector<int> v_OFindex;
 
-    int n_index;
+    int n_index = 0;
 
-    double lumi_weight;
-    int m_lumiBlock;
+    double lumi_weight = 0;
+    int m_lumiBlock = -1;
     std::vector<int> v_lbn;
 
     std::string m_p4State;
@@ -166,12 +169,11 @@ class HLTJetMonTool : public IHLTMonTool {
     /// Handle to the TDT
     //ToolHandle< Trig::TrigDecisionTool > m_tdt;
 
-    ToolHandle<TrigMatchTool> m_trigMatchTool;
     //const Trig::ChainGroup *m_trjetL1Items, *m_trjetL2Chain, *m_trjetEFChain;
 
     // Container Names
     //const LVL1_ROI *m_L1RoiC;
-    const xAOD::JetRoIContainer* m_L1JetRoIC;
+    const xAOD::JetRoIContainer* m_L1JetRoIC = nullptr;
 
     //const xAOD::JetContainer* m_EFJetC;
     std::vector<const xAOD::JetContainer*> m_HLTJetC;
@@ -207,7 +209,7 @@ class HLTJetMonTool : public IHLTMonTool {
     void clearVectors();
     
     // offline jet cuts
-    bool selectJet(const Jet *jet);
+    //bool selectJet(const Jet *jet);
 
     //typedef enum {LooseBad, MediumBad, TightBad} JetCategorytype;
     bool isBadJet(const std::string& Category, double, double, double, double, double, double, double, double, double, double);
