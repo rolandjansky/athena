@@ -166,7 +166,8 @@ void BkgStreamsStepCache::resetEvtsPerXingScaleFactor(float sf) {
 }
 
 long BkgStreamsStepCache::collXingPoisson(){ 
-  if (!m_collXingPoisson) return collXing(); return m_collXingPoisson->fire(m_collXing * m_collXingSF); 
+  if (!m_collXingPoisson) return collXing();
+  return m_collXingPoisson->fire(m_collXing * m_collXingSF); 
 }
 
 void BkgStreamsStepCache::newEvent() {
