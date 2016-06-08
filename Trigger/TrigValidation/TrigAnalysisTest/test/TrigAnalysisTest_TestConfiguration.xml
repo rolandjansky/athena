@@ -36,7 +36,7 @@
         
         <TEST name="AthenaTrigRDOtoBS" type="script" suite="tat_BS"> 
             <options_atn>trigtest.pl --test AthenaTrigRDOtoBS --run AthenaTrigRDOtoBS --conf TrigAnalysisTest.conf</options_atn> 
-            <timelimit>30</timelimit> 
+            <timelimit>70</timelimit> 
             <author>TrigAnalysis validation</author> 
             <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
