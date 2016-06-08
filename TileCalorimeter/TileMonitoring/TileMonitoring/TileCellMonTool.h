@@ -137,6 +137,7 @@ class TileCellMonTool: public TileFatherMonTool {
     bool m_fillTimeAndEnergyDiffHistograms;
     bool m_fillDigitizerTimeLBHistograms;
     bool m_fillDigitizerEnergyLBHistograms;
+    int m_nLumiblocks;
 };
 
 #endif

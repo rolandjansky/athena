@@ -57,6 +57,7 @@ TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & n
   , m_TileMaskCellonFlyLumi{}
   , m_TileMaskChannonFlyLumi{}
   , m_TileMaskChannfromDBLumi{}
+  , m_nLumiblocks(3000)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -74,7 +75,8 @@ TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & n
   declareProperty("FillCellTimeAndEnergyDifferenceHistograms", m_fillTimeAndEnergyDiffHistograms = true);
   declareProperty("FillDigitizerTimeVsLBHistograms", m_fillDigitizerTimeLBHistograms = true);
   declareProperty("FillDigitizerEnergyVsLBHistograms", m_fillDigitizerEnergyLBHistograms = true);
-  
+  declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
+
   m_path = "/Tile/Cell";
 
   m_PartNames[PartEBA] = "EBA";
@@ -237,7 +239,7 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
 
   } else {
     m_TilenCellsLB[ part ].push_back( bookProfile(m_TrigNames[trig]+"/"+m_PartNames[part],"tilenCellsLB" + m_PartNames[part] + m_TrigNames[trig],
-                                                  "Trigger "+m_TrigNames[trig]+": TileCal Cell number per LumiBlock", 1500, -0.5, 1499.5) );
+                                                  "Trigger "+m_TrigNames[trig]+": TileCal Cell number per LumiBlock", m_nLumiblocks, -0.5, m_nLumiblocks - 0.5) );
     m_TilenCellsLB[ part ][ element ]->GetXaxis()->SetTitle("LumiBlock");
   }
 
@@ -1558,7 +1560,7 @@ void TileCellMonTool::FirstEvInit() {
 
       m_TileMaskChannonFlyLumi[p] = bookProfile("", "tileMaskChannOnFlyLumi_" + m_PartNames[p]
                                                 , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Number of masked channels on the fly"
-                                                , 1500, -0.5, 1499.5);
+                                                , m_nLumiblocks, -0.5, m_nLumiblocks - 0.5);
       m_TileMaskChannonFlyLumi[p]->SetYTitle("Number of masked channels");
       m_TileMaskChannonFlyLumi[p]->SetXTitle("LumiBlock");
       
@@ -1566,7 +1568,7 @@ void TileCellMonTool::FirstEvInit() {
       ////////////////////////// Book Histograms with the cell status as a function of lumi block
       m_TileMaskCellonFlyLumi[p] = bookProfile("", "tileMaskCellOnFlyLumi_" + m_PartNames[p]
                                                , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Number of masked cells on the fly"
-                                               , 1500, -0.5, 1499.5);
+                                               , m_nLumiblocks, -0.5, m_nLumiblocks - 0.5);
       m_TileMaskCellonFlyLumi[p]->SetYTitle("Number of masked cells");
       m_TileMaskCellonFlyLumi[p]->SetXTitle("LumiBlock");
       
@@ -1574,7 +1576,7 @@ void TileCellMonTool::FirstEvInit() {
 
     m_TileMaskChannfromDBLumi[p] = bookProfile("", "tileMaskChannfromDBLumi_" + m_PartNames[p]
                                                , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Number of masked channels in DB"
-                                               , 1500, -0.5, 1499.5);
+                                               , m_nLumiblocks, -0.5, m_nLumiblocks - 0.5);
     m_TileMaskChannfromDBLumi[p]->SetYTitle("Number of masked channels");
     m_TileMaskChannfromDBLumi[p]->SetXTitle("LumiBlock");
 

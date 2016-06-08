@@ -14,9 +14,17 @@
 
 #include "TileMonitoring/TileClusterMonTool.h"
 
+
+ 
+#include "TileIdentifier/TileHWID.h"
+#include "TileConditions/TileCablingService.h"
+
+#include "CaloEvent/CaloCell.h"
+
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -30,12 +38,23 @@
 TileClusterMonTool::TileClusterMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TileFatherMonTool(type, name, parent)
   , m_TileClusterTrig(0)
+  , m_partitionTimeLB{0}
+  , m_paritionTimeOnlineLB{0}
+  , m_doOnline(false)
+  , m_oldLumiblock(-1)
+  , m_fillTimingHistograms(false)
+  , m_cellEnergyThresholdForTiming(1500.)
+  , m_nLumiblocks(3000)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
 
-  declareProperty("energyThreshold",m_Threshold = 500.); //Threshold in MeV
-  declareProperty("clustersContainerName",m_clustersContName="TileTopoCluster"); //SG Cluster Container
+  declareProperty("energyThreshold", m_Threshold = 500.); //Threshold in MeV
+  declareProperty("clustersContainerName", m_clustersContName = "TileTopoCluster"); //SG Cluster Container
+  declareProperty("doOnline"               , m_doOnline = false); //online mode
+  declareProperty("FillTimingHistograms", m_fillTimingHistograms = false); 
+  declareProperty("CellEnergyThresholdForTiming", m_cellEnergyThresholdForTiming = 1500.); //Threshold in MeV
+  declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
 
   m_path = "/Tile/Cluster"; //ROOT File directory.
   //Avoid the trailing slash or you will get a double slash in the histogram path: SHIFT//Tile/...
@@ -147,6 +166,33 @@ StatusCode TileClusterMonTool::bookHistograms()
     ATH_MSG_WARNING(  "Error booking Cluster histograms for Trigger " << m_TrigNames[AnyTrig] );
   }
     */
+
+  if (m_fillTimingHistograms) {
+
+    std::string run("");
+    if (m_manager) run = "Run " + std::to_string(m_manager->runNumber());
+
+    for(int partition = 0; partition < 5; ++partition) {
+      
+      m_partitionTimeLB[partition] =  bookProfile("", "tileTimeLB_" + m_PartNames[partition],
+                                               run + " Partition " + m_PartNames[partition] + ": Tile Time vs LumiBlock",
+                                               m_nLumiblocks, -0.5, m_nLumiblocks - 0.5);
+    
+      m_partitionTimeLB[partition]->GetXaxis()->SetTitle("Lumi Block");
+      m_partitionTimeLB[partition]->GetYaxis()->SetTitle("t [ns]");
+
+      if (m_doOnline) {
+        m_paritionTimeOnlineLB[partition] =  bookProfile("", "tileTimeOnlineLB_" + m_PartNames[partition],
+                                               run + " Partition " + m_PartNames[partition] + ": Tile Time vs LumiBlock",
+                                               100, -99.5, 0.5);
+        
+        m_paritionTimeOnlineLB[partition]->GetXaxis()->SetTitle("Last Lumi Block");
+        m_paritionTimeOnlineLB[partition]->GetYaxis()->SetTitle("t [ns]");
+        
+      }
+    }
+
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -376,6 +422,68 @@ StatusCode TileClusterMonTool::fillHistograms() {
       m_TileClusterTimeDiff[vecIndx(i)]->Fill(t_diff, 1.);
       m_TileClusterEneDiff[vecIndx(i)]->Fill(e_diff, 1.);
       m_TileClusterEtaPhiDiff[vecIndx(i)]->Fill(fabs(eta_corr) - fabs(eta_most), fabs(phi_corr - phi_most), 1.);
+    }
+  }
+
+
+  if (m_fillTimingHistograms) {
+
+    if (m_doOnline) {
+      if(m_oldLumiblock == -1) {
+        m_oldLumiblock = lumi;
+      }
+      
+      int32_t deltaLumiblock = lumi - m_oldLumiblock;
+      
+      if(deltaLumiblock > 0) {//move bins
+        for (TProfile* partitionTimeLB  : m_paritionTimeOnlineLB) {
+          ShiftTprofile(partitionTimeLB, deltaLumiblock);
+        }
+        m_oldLumiblock = lumi;
+      }
+    }
+
+    const xAOD::EventInfo* eventInfo(nullptr);
+    CHECK(evtStore()->retrieve(eventInfo));
+    if (eventInfo->errorState(xAOD::EventInfo::Tile) == xAOD::EventInfo::Error) return StatusCode::SUCCESS;
+    
+    std::set<Identifier> usedCells;
+    
+    for (const xAOD::CaloCluster* calo_cluster : *cluster_container) {
+      if (calo_cluster->getCellLinks()) {
+        for (const CaloCell* cell : *calo_cluster) {
+
+          Identifier id = cell->ID();
+          
+          if (m_is_collision 
+              || cell->badcell() 
+              || cell->energy() < m_cellEnergyThresholdForTiming
+              || usedCells.find(id) != usedCells.end() ) continue;
+          
+          usedCells.insert(id);
+          
+          int sample = m_tileID->sample(id);
+          bool single_PMT_scin = (sample == TileID::SAMP_E);
+          bool single_PMT_C10 = (m_tileID->section(id) == TileID::GAPDET
+                                 && sample == TileID::SAMP_C
+                                 && (!m_cabling->C10_connected(m_tileID->module(id))) );
+          
+          // distinguish cells with one or two PMTs
+          bool single_PMT = single_PMT_C10 || single_PMT_scin;
+          
+          int partition = getPartition(cell);
+          
+          if (!single_PMT && !(sample == TileID::SAMP_D && m_tileID->tower(id) == 0)) {
+            m_partitionTimeLB[partition]->Fill(lumi, cell->time());
+            m_partitionTimeLB[NumPart]->Fill(lumi, cell->time());
+
+            if (m_doOnline) {
+              m_paritionTimeOnlineLB[partition]->Fill(0., cell->time());
+              m_paritionTimeOnlineLB[NumPart]->Fill(0., cell->time());
+            }
+          }
+        }
+      }
     }
   }
 
