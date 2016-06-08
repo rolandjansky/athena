@@ -415,7 +415,7 @@
                 </doc>
                 <displayName>Physics_HI_v3</displayName>
                 <commandLineFlags>
-                    enableCostMonitoring=True;RunningRTT=True;menu='Physics_HI_v3';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(500);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;from AthenaCommon.GlobalFlags import jobproperties;jobproperties.Global.DetDescrVersion='ATLAS-R1-2010-02-00-00';dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc10_7TeV.119113.Hijing_PbPb_2p75TeV_MinBias_Flow_JJV2.digit.RDO.e844_s1345_s1300_d592_tid526760_00';fileRange=[1,2000]
+                    enableCostMonitoring=True;RunningRTT=True;menu='Physics_HI_v3';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(500);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_5TeV.420000.Hijing_PbPb_5p02TeV_MinBias_Flow_JJFV6.recon.RDO.e3754_s2633_r7161';fileRange=[1,10]
                 </commandLineFlags>
                 <options>testCommonSliceAthenaTrigRDO.py</options>
                 <package>Trigger/TrigValidation/TriggerTest</package>
@@ -821,8 +821,31 @@
                     </arg>
                     <noalarm />
                 </test>
+                <test position="5">
+                    <modulename>CheckForL1AllZero_TriggerTest</modulename>
+                    <testname>CheckForL1AllZero_TriggerTest</testname>
+                    <arg>
+                        <argname>command</argname>
+                        <argvalue>if [[ `sed 's|.*\(.* \)|\1|' L1AV.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then echo L1 counts   ERROR  : all entires are ZERO please consult L1AV.txt ; fi </argvalue>
+                    </arg>
+                </test>
+                <test position="6">
+                    <modulename>CheckForHLTChainAllZero_TriggerTest</modulename>
+                    <testname>CheckForHLTChainAllZero_TriggerTest</testname>
+                    <arg>
+                        <argname>command</argname>
+                        <argvalue>if [[ `sed 's|.*\(.* \)|\1|' HLTChain.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then echo HLTChain counts   ERROR  : all entires are ZERO please consult HLTChain.txt ; fi </argvalue>
+                    </arg>
+                </test>
+                <test position="7">
+                    <modulename>CheckForHLTTEAllZero_TriggerTest</modulename>
+                    <testname>CheckForHLTTEAllZero_TriggerTest</testname>
+                    <arg>
+                        <argname>command</argname>
+                        <argvalue>if [[ `sed 's|.*\(.* \)|\1|' HLTTE.txt | sed 's/^[ \t]*//' |  sed '/^0/'d | wc -l` == 0 ]]; then echo HLTTE counts   ERROR  : all entires are ZERO please consult HLTTE.txt ; fi </argvalue>
+                    </arg>
+                </test>
             </jobGroup>
-            
         </jobGroups>
     </rtt>
 </unifiedTestConfiguration>
