@@ -95,6 +95,8 @@ apply_pattern declare_python_modules files="TrigMuonEFConfig.py TrigMuonEFCosmic
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # to build in dbg mode this package while using an opt build uncomment the following 
-#private
+private
+use EventPrimitives		 EventPrimitives-*		Event
+
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"

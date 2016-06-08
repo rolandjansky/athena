@@ -25,7 +25,8 @@ TrigMuonEFTrackIsolationTool::TrigMuonEFTrackIsolationTool(const std::string& ty
   m_deltaz_cut(0.0),
   m_removeSelf(true),
   m_useAnnulus(false),
-  m_annulusSize(-1.0) {
+  m_annulusSize(-1.0),
+  m_useVarIso(false) {
   
   declareInterface<IMuonEFTrackIsolationTool>(this);
 
@@ -33,6 +34,7 @@ TrigMuonEFTrackIsolationTool::TrigMuonEFTrackIsolationTool(const std::string& ty
   declareProperty("removeSelf", m_removeSelf);
   declareProperty("useAnnulus", m_useAnnulus);
   declareProperty("annulusSize", m_annulusSize);
+  declareProperty("useVarIso", m_useVarIso);
 }
 
 /**
@@ -45,8 +47,10 @@ TrigMuonEFTrackIsolationTool::TrigMuonEFTrackIsolationTool(const std::string& ty
  * @param dzvals - Vector where dz vals of good tracks will be stored
  * @param drvals - Vector where dr vals of good tracks will be stored
  */
-StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const xAOD::Muon* efmuon, const xAOD::TrackParticleContainer* idtrks, const vector<double> conesizes, vector<double>& results, vector<double>* dzvals, vector<double>* drvals) {
+StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const xAOD::Muon* efmuon, const xAOD::TrackParticleContainer* idtrks, vector<double> conesizes, vector<double>& results, vector<double>* dzvals, vector<double>* drvals) {
 
+  // create vector for cone sizes
+  
   // clear results vector
   results.clear();
 
@@ -153,6 +157,15 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const xAOD::Muon* ef
       }
     }//use Annulus
 
+    // Define new conesizes that depend on useVarIso flag
+    double ptvarcone20 = std::min(0.2,10000/selfpt); 
+    double ptvarcone30 = std::min(0.3,10000/selfpt); 
+    if (m_useVarIso){
+      conesizes.clear();
+      conesizes.push_back(ptvarcone20);
+      conesizes.push_back(ptvarcone30);
+    }
+
     // add trk pT to relevant results vector
     for(unsigned int conepos=0; conepos<conesizes.size(); ++conepos) {
       if(dr < conesizes.at(conepos) ) {
@@ -195,7 +208,9 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const xAOD::Muon* ef
  * @param dzvals - Vector where dz vals of good tracks will be stored
  * @param drvals - Vector where dr vals of good tracks will be stored
  */
-StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const TrigMuonEFInfoTrack* efmuon, const Rec::TrackParticleContainer* idtrks, const vector<double> conesizes, vector<double>& results, vector<double>* dzvals, vector<double>* drvals) {
+StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const TrigMuonEFInfoTrack* efmuon, const Rec::TrackParticleContainer* idtrks,  vector<double> conesizes, vector<double>& results, vector<double>* dzvals, vector<double>* drvals) {
+
+  // create vector for cone sizes
 
   // clear results vector
   results.clear();
@@ -316,6 +331,15 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const TrigMuonEFInfo
       }
     }//use Annulus
 
+    // Define new conesizes that depend on useVarIso flag
+    double ptvarcone20 = std::min(0.2,10/selfpt); 
+    double ptvarcone30 = std::min(0.3,10/selfpt); 
+    if (m_useVarIso){
+      conesizes.clear();
+      conesizes.push_back(ptvarcone20);
+      conesizes.push_back(ptvarcone30);
+    }
+
     // add trk pT to relevant results vector
     for(unsigned int conepos=0; conepos<conesizes.size(); ++conepos) {
       if(dr < conesizes.at(conepos) ) {
@@ -366,7 +390,9 @@ StatusCode TrigMuonEFTrackIsolationTool::initialize() {
 	  << "useAnnulus                     " << m_useAnnulus << endreq;
     msg() << MSG::DEBUG
 	  << "annulusSize                    " << m_annulusSize << endreq;
-    
+    msg() << MSG::DEBUG
+	  << "useVarIso                    " << m_useVarIso << endreq;
+
   }//debug
 
   // check the annulus size is valid

@@ -359,6 +359,16 @@ class TrigMuonEFTrackIsolationValidationMonitoring(TrigGenericMonitoringToolConf
         self.Histograms += [ defineHistogram('EF_trks_idtrkdr', type='TH1F', title="dr to ID trks; dr to ID trks",
                                              xbins=60, xmin=0.0, xmax=3.0) ]
         
+class TrigMuonEFCaloIsolationValidationMonitoring(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigMuonEFCaloIsolationValidationMonitoring"):
+        super(TrigMuonEFCaloIsolationValidationMonitoring, self).__init__(name)
+        self.defineTarget("Validation")
+        self.Histograms += [ defineHistogram('EF_etiso_cone2', type='TH1F', title="Calo Isolation cone 0.2; MuonEF Calo Isolation cone 0.2 [GeV]",
+                                             xbins=40, xmin=-10, xmax=30) ]
+        self.Histograms += [ defineHistogram('EF_etiso_cone2_core', type='TH1F', title="Calo Isolation cone 0.2 core; MuonEF Calo Isolation cone 0.2 [GeV] core",
+                                             xbins=40, xmin=-10, xmax=30) ]
+        self.Histograms += [ defineHistogram('EF_etiso_cone2_nocorr', type='TH1F', title="Calo Isolation cone 0.2 nocorr; MuonEF Calo Isolation cone 0.2 [GeV] nocorr",
+                                             xbins=40, xmin=-10, xmax=30) ]
 
 
 class TrigMuonEFStandaloneToolMonitoring(TrigGenericMonitoringToolConfig):
@@ -367,31 +377,61 @@ class TrigMuonEFStandaloneToolMonitoring(TrigGenericMonitoringToolConfig):
         self.defineTarget( ["Online", "Validation"] )
  
         # segment finding
-        self.Histograms += [ defineHistogram('EF_segs_wasCached', type='TH1F',
-                                             title="Did segments come from cache?;0=no 1=yes",
-                                             xbins=2, xmin=-0.5, xmax=1.5) ]
         self.Histograms += [ defineHistogram('l2_cosmic_phi', type='TH1F', title="L2 CosmicMuon phi (TMEF seg); Muon EF SF Phi",
                                              xbins=100, xmin=-5, xmax=5) ]
         self.Histograms += [ defineHistogram('l2_cosmic_eta', type='TH1F', title="L2 CosmicMuon eta (TMEF seg); Muon EF SF Eta",
                                              xbins=100, xmin=-5, xmax=5)]
-        self.Histograms += [ defineHistogram('EF_segs_nsegcomb', type='TH1F', title="Number of segment combinations (TMEF seg); Muon EF SF segments",
-                                             xbins=50, xmin=0, xmax=50)]
         self.Histograms += [ defineHistogram('EF_segs_nsegs', type='TH1F', title="Number of segments (TMEF seg); Muon EF SF segments",
                                              xbins=100, xmin=0, xmax=100)]
-        self.Histograms += [ defineHistogram('EF_segs_nstations', type='TH1F', title="Number of stations (TMEF seg); Muon EF SF segments",
-                                             xbins=10, xmin=0, xmax=10)]
         self.Histograms += [ defineHistogram('EF_segs_phi', type='TH1F', title="EF Segment Phi (TMEF seg); Muon EF SF Phi",
                                              xbins=100, xmin=-5, xmax=5)]                              
         self.Histograms += [ defineHistogram('EF_segs_eta', type='TH1F', title="EF Segment Eta (TMEF seg); Muon EF SF Eta",
                                              xbins=100, xmin=-5, xmax=5)]
         self.Histograms += [ defineHistogram('EF_segs_eta, EF_segs_phi', type='TH2F', title="EF Segment Eta vs Phi (TMEF seg); Muon EF SF Eta ; Muon EF SF Phi",
                                              xbins=60, xmin=-3., xmax=3., ybins=48, ymin=-3.142, ymax=3.142) ]
-        self.Histograms += [ defineHistogram('EF_segs_chi2pndof', type='TH1F', title="EF Segment Chi2 / ndof (TMEF seg); Muon EF SF Chi2 / ndof",
-                                             xbins=100, xmin=0.0, xmax=20.0) ]
         self.Histograms += [ defineHistogram('ef_phi, l2_cosmic_phi', type='TH2F', title="EF phi L2 vs EF (TMEF seg); Muon EF SF Phi",
                                              xbins=48, xmin=-3.142, xmax=3.142, ybins=48, ymin=-3.142, ymax=3.142) ]
         self.Histograms += [ defineHistogram('ef_eta, l2_cosmic_eta', type='TH2F', title="EF eta L2 vs EF (TMEF seg); Muon EF SF Eta",
                                              xbins=60, xmin=-3, xmax=3, ybins=60, ymin=-3, ymax=3.) ]
+        
+        # TMEF MS track
+        self.Histograms += [ defineHistogram('EF_mstrks_n', type='TH1F', title="Number of tracks (TMEF MS track); Muon EF TB Number of Tracks",
+                                             xbins=50, xmin=0, xmax=50) ]
+        self.Histograms += [ defineHistogram('EF_mstrks_pt', type='TH1F', title="pt (TMEF MS track); Muon EF TB Track pt [GeV]",
+                                             xbins=100, xmin=0, xmax=200) ]
+        self.Histograms += [ defineHistogram('EF_mstrks_phi', type='TH1F', title="phi (TMEF MS track); Muon EF TB Track Phi",
+                                             xbins=100, xmin=-5, xmax=5) ]
+        self.Histograms += [ defineHistogram('EF_mstrks_eta', type='TH1F', title="eta (TMEF MS track); Muon EF TB Track Eta",
+                                             xbins=100, xmin=-5.5, xmax=5.5) ]
+        self.Histograms += [ defineHistogram('EF_mstrks_eta, EF_mstrks_phi', type='TH2F', title="EF_mstrks_eta_vs_EF_mstrks_phi (TMEF MS track); Muon EF TB Eta-Phi",
+                                             xbins=60, xmin=-3, xmax=3, ybins=48, ymin=-3.142, ymax=3.142) ]
+
+        
+        # TMEF SA track
+        self.Histograms += [ defineHistogram('EF_satrks_n', type='TH1F', title="Number of tracks (TMEF SA track); Muon EF SA Number of Tracks",
+                                             xbins=50, xmin=0, xmax=50) ]
+        self.Histograms += [ defineHistogram('EF_satrks_pt', type='TH1F', title="pt (TMEF SA track); Muon EF SA Track pt [GeV]",
+                                             xbins=100, xmin=0, xmax=200) ]
+        self.Histograms += [ defineHistogram('EF_satrks_phi', type='TH1F', title="phi (TMEF SA track); Muon EF SA Track Phi",
+                                             xbins=100, xmin=-5, xmax=5) ]
+        self.Histograms += [ defineHistogram('EF_satrks_eta', type='TH1F', title="eta (TMEF SA track); Muon EF SA Track Eta",
+                                             xbins=100, xmin=-5.5, xmax=5.5) ]
+
+class TrigMuonEFStandaloneToolValidationMonitoring(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigMuonEFStandaloneToolValidationMonitoring"):
+        super(TrigMuonEFStandaloneToolValidationMonitoring, self).__init__(name)
+        self.defineTarget( ["Validation"] )
+ 
+        # segment finding
+        self.Histograms += [ defineHistogram('EF_segs_wasCached', type='TH1F',
+                                             title="Did segments come from cache?;0=no 1=yes",
+                                             xbins=2, xmin=-0.5, xmax=1.5) ]
+        self.Histograms += [ defineHistogram('EF_segs_nsegcomb', type='TH1F', title="Number of segment combinations (TMEF seg); Muon EF SF segments",
+                                             xbins=50, xmin=0, xmax=50)]
+        self.Histograms += [ defineHistogram('EF_segs_nstations', type='TH1F', title="Number of stations (TMEF seg); Muon EF SF segments",
+                                             xbins=10, xmin=0, xmax=10)]
+        self.Histograms += [ defineHistogram('EF_segs_chi2pndof', type='TH1F', title="EF Segment Chi2 / ndof (TMEF seg); Muon EF SF Chi2 / ndof",
+                                             xbins=100, xmin=0.0, xmax=20.0) ]
         self.Histograms += [ defineHistogram('EF_segs_nMdt', type='TH1F', title="Number mdt hits per segment (TMEF seg); Muon EF SF Mdt Hits ",
                                              xbins=50, xmin=0, xmax=50) ]
         self.Histograms += [ defineHistogram('EF_segs_nCsc', type='TH1F', title="Number csc hits per segment (TMEF seg); Muon EF SF Csc hits",
@@ -408,25 +448,13 @@ class TrigMuonEFStandaloneToolMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins=100, xmin=0, xmax=2000) ]
         self.Histograms += [ defineHistogram('EF_segs_mdt_z', type='TH1F', title="Mdt tube z (TMEF seg); Muon EF SF Tube z [mm]",
                                              xbins=100, xmin=-25000, xmax=25000) ]
-        self.Histograms += [ defineHistogram('EF_segs_mdt_perp', type='TH1F', title="Mdt tube perp (TMEF seg); Muon EF SF Tube Radial Position [mm]",
-                                           xbins=100, xmin=0, xmax=20000) ]
-        self.Histograms += [ defineHistogram('EF_segs_mdt_eta', type='TH1F', title="Mdt tube eta (TMEF seg); Muon EF SF Tube Eta",
-                                             xbins=100, xmin=-5, xmax=5) ]
         
         # TMEF MS track
         self.Histograms += [ defineHistogram('EF_mstrks_wasCached', type='TH1F',
                                              title="Did MS tracks come from cache?;0=no 1=yes",
                                              xbins=2, xmin=-0.5, xmax=1.5) ]
-        self.Histograms += [ defineHistogram('EF_mstrks_n', type='TH1F', title="Number of tracks (TMEF MS track); Muon EF TB Number of Tracks",
-                                             xbins=50, xmin=0, xmax=50) ]
         self.Histograms += [ defineHistogram('EF_mstrks_chi2', type='TH1F', title="chi2 (TMEF MS track); Muon EF TB Track chi2",
                                              xbins=100, xmin=0, xmax=30) ]
-        self.Histograms += [ defineHistogram('EF_mstrks_pt', type='TH1F', title="pt (TMEF MS track); Muon EF TB Track pt [GeV]",
-                                             xbins=100, xmin=0, xmax=200) ]
-        self.Histograms += [ defineHistogram('EF_mstrks_phi', type='TH1F', title="phi (TMEF MS track); Muon EF TB Track Phi",
-                                             xbins=100, xmin=-5, xmax=5) ]
-        self.Histograms += [ defineHistogram('EF_mstrks_eta', type='TH1F', title="eta (TMEF MS track); Muon EF TB Track Eta",
-                                             xbins=100, xmin=-5.5, xmax=5.5) ]
         self.Histograms += [ defineHistogram('EF_mstrks_d0', type='TH1F', title="d0 (TMEF MS track); Muon EF TB Track d0",
                                              xbins=100, xmin=-0.01, xmax=0.01) ]
         self.Histograms += [ defineHistogram('EF_mstrks_z0', type='TH1F', title="z0 (TMEF MS track); Muon EF TB Track z0 [mm]",
@@ -447,24 +475,14 @@ class TrigMuonEFStandaloneToolMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins=50, xmin=0, xmax=50) ]
         self.Histograms += [ defineHistogram('EF_mstrks_nHit', type='TH1F', title="Number of Hit on track (TMEF MS track); Muon EF TB Total hits",
                                              xbins=50, xmin=0, xmax=100) ]
-        self.Histograms += [ defineHistogram('EF_mstrks_eta, EF_mstrks_phi', type='TH2F', title="EF_mstrks_eta_vs_EF_mstrks_phi (TMEF MS track); Muon EF TB Eta-Phi",
-                                             xbins=60, xmin=-3, xmax=3, ybins=48, ymin=-3.142, ymax=3.142) ]
 
         
         # TMEF SA track
         self.Histograms += [ defineHistogram('EF_satrks_wasCached', type='TH1F',
                                              title="Did SA tracks come from cache?;0=no 1=yes",
                                              xbins=2, xmin=-0.5, xmax=1.5) ]
-        self.Histograms += [ defineHistogram('EF_satrks_n', type='TH1F', title="Number of tracks (TMEF SA track); Muon EF SA Number of Tracks",
-                                             xbins=50, xmin=0, xmax=50) ]
         self.Histograms += [ defineHistogram('EF_satrks_chi2', type='TH1F', title="chi2 (TMEF SA track); Muon EF SA Track chi2",
                                              xbins=100, xmin=0, xmax=30) ]
-        self.Histograms += [ defineHistogram('EF_satrks_pt', type='TH1F', title="pt (TMEF SA track); Muon EF SA Track pt [GeV]",
-                                             xbins=100, xmin=0, xmax=200) ]
-        self.Histograms += [ defineHistogram('EF_satrks_phi', type='TH1F', title="phi (TMEF SA track); Muon EF SA Track Phi",
-                                             xbins=100, xmin=-5, xmax=5) ]
-        self.Histograms += [ defineHistogram('EF_satrks_eta', type='TH1F', title="eta (TMEF SA track); Muon EF SA Track Eta",
-                                             xbins=100, xmin=-5.5, xmax=5.5) ]
         self.Histograms += [ defineHistogram('EF_satrks_d0', type='TH1F', title="d0 (TMEF SA track); Muon EF SA Track d0",
                                              xbins=100, xmin=-1000, xmax=1000) ]
         self.Histograms += [ defineHistogram('EF_satrks_z0', type='TH1F', title="z0 (TMEF SA track); Muon EF SA Track z0 [mm]",
@@ -495,20 +513,24 @@ class TrigMuonEFCombinerToolMonitoring(TrigGenericMonitoringToolConfig):
         # TMEF combined track
         self.Histograms += [ defineHistogram('EF_cbtrks_n', type='TH1F', title="Number of tracks (TMEF CB track); MuonEF CB Number of Tracks",
                                              xbins=50, xmin=0, xmax=50) ]
-        self.Histograms += [ defineHistogram('EF_cbtrks_chi2', type='TH1F', title="chi2 (TMEF CB track); MuonEF CB Track chi2",
-                                             xbins=100, xmin=0, xmax=30) ]
-        self.Histograms += [ defineHistogram('EF_cbtrks_match_chi2', type='TH1F', title="chi2 (TMEF CB track); MuonEF CB Track matching chi2",
-                                             xbins=100, xmin=0, xmax=50) ]
         self.Histograms += [ defineHistogram('EF_cbtrks_pt', type='TH1F', title="pt (TMEF CB track); MuonEF CB Track pt [GeV]",
                                              xbins=100, xmin=0, xmax=200) ]
         self.Histograms += [ defineHistogram('EF_cbtrks_phi', type='TH1F', title="phi (TMEF CB track); MuonEF CB Track Phi",
                                              xbins=100, xmin=-5, xmax=5) ]
         self.Histograms += [ defineHistogram('EF_cbtrks_eta', type='TH1F', title="eta (TMEF CB track); MuonEF CB Track Eta",
                                              xbins=100, xmin=-5.5, xmax=5.5) ]
-        self.Histograms += [ defineHistogram('EF_cbtrks_d0', type='TH1F', title="d0 (TMEF CB track); MuonEF CB Track d0",
-                                             xbins=100, xmin=-10, xmax=10) ]
-        self.Histograms += [ defineHistogram('EF_cbtrks_z0', type='TH1F', title="z0 (TMEF CB track); MuonEF CB Track z0 [mm]",
-                                             xbins=100, xmin=-250, xmax=250) ]
+
+
+class TrigMuonEFCombinerToolValidationMonitoring(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigMuonEFCombinerToolValidationMonitoring"):
+        super(TrigMuonEFCombinerToolValidationMonitoring, self).__init__(name)
+        self.defineTarget( ["Validation"] )
+
+        # TMEF combined track
+        self.Histograms += [ defineHistogram('EF_cbtrks_chi2', type='TH1F', title="chi2 (TMEF CB track); MuonEF CB Track chi2",
+                                             xbins=100, xmin=0, xmax=30) ]
+        self.Histograms += [ defineHistogram('EF_cbtrks_match_chi2', type='TH1F', title="chi2 (TMEF CB track); MuonEF CB Track matching chi2",
+                                             xbins=100, xmin=0, xmax=50) ]
         self.Histograms += [ defineHistogram('EF_cbtrks_nMdt', type='TH1F', title="Number of Mdt (TMEF CB track); MuonEF CB Mdt hits",
                                              xbins=50, xmin=0, xmax=50) ]
         self.Histograms += [ defineHistogram('EF_cbtrks_nRpcEta', type='TH1F', title="Number of Rpc eta (TMEF CB track); MuonEF CB Rpc Eta hits",
@@ -531,6 +553,10 @@ class TrigMuonEFCombinerToolMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins=20, xmin=0, xmax=20) ]
         self.Histograms += [ defineHistogram('EF_cbtrks_nIdTrtHit', type='TH1F', title="Number of IdTrtHit on track (TMEF CB track); MuonEF CB Trt hits",
                                              xbins=50, xmin=0, xmax=50) ]
+        self.Histograms += [ defineHistogram('EF_cbtrks_d0', type='TH1F', title="d0 (TMEF CB track); MuonEF CB Track d0",
+                                             xbins=100, xmin=-10, xmax=10) ]
+        self.Histograms += [ defineHistogram('EF_cbtrks_z0', type='TH1F', title="z0 (TMEF CB track); MuonEF CB Track z0 [mm]",
+                                             xbins=100, xmin=-250, xmax=250) ]
 
 
 

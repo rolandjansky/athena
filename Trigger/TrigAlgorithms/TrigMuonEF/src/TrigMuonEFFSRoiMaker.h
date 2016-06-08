@@ -45,9 +45,19 @@ class TrigMuonEFFSRoiMaker : public HLT::AllTEAlgo {
   HLT::ErrorCode hltFinalize();
 
  protected:
+  //Construct RoI in cone back-to-back with muon track direction.
+  bool m_doInvertRoI;
+  bool m_useFS;
+  bool m_createCrackRoI;
+  bool m_createFSroi;
+  bool m_createRoIfromL1;
   
   /// minimum pT cut on extrapolated tracks - above this create ROIs.
   double m_ptcut;
+
+  //Radius of roi in eta and phi
+  double m_roiSizeEta;
+  double m_roiSizePhi;
 
   /// Name of output xAOD::MuonContainer
   std::string m_efContName;
@@ -59,6 +69,9 @@ class TrigMuonEFFSRoiMaker : public HLT::AllTEAlgo {
   unsigned int m_nTrkIn;
   /// monitor number of output ROIs
   unsigned int m_nRoIOut;
+
+  /// Label to store RoI with
+  std::string m_roiLabel;
 
 };//class TrigMuonEFFSRoiMaker
 

@@ -28,8 +28,8 @@ class ICaloTopoClusterIsolationTool;
  * @brief Algorithm to fill etcone or topoetcone calorimeter isolation for EF muons
  *
  * This class calculates calorimeter isolation for EF muons. It uses
- * the last created calorimeter cell containter or topo cluster container 
- * from TrigCaloRec as input to the CaloIsolationTool to calculate the isolation.
+ * the last created calorimeter topo cluster container from TrigCaloRec as input
+ * to the CaloIsolationTool to calculate the isolation.
  *
  * @author Martin Spangenberg (Martin.Spangenberg@cern.ch)
  */
@@ -53,8 +53,7 @@ private:
 
     /// Fill et-cone isolation values for xAOD muons
     void fillCaloIsolation(const xAOD::MuonContainer *muons,
-                           const xAOD::CaloClusterContainer *clustercont = 0,
-                           const CaloCellContainer *cellcont = 0);
+                           const xAOD::CaloClusterContainer *clustercont);
 
 
     /// Require that EF muons are combined
@@ -63,19 +62,15 @@ private:
     /// Select if pileup correction should be applied
     bool m_applyPileupCorrection;
 
-    /// Use topo clusters for isolation, if false it uses cells
-    bool m_useTopoClusters;
-
     /// flag to see if debug is enabled
     bool m_debug;
 
-    /// Tools to calculate the isolation
-    ToolHandle<xAOD::ICaloCellIsolationTool> m_caloCellIsolationTool;
+    /// Tool to calculate the isolation
     ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_caloTopoClusterIsolationTool;
 
     /// Monitoring Histograms
     StringProperty m_histo_path_base;     // set the histo path for Monitoring
-    std::vector<double > m_etiso_cone1;
+    //std::vector<double > m_etiso_cone1;
     std::vector<double > m_etiso_cone2;
     std::vector<double > m_etiso_cone3;
     std::vector<double > m_etiso_cone4;

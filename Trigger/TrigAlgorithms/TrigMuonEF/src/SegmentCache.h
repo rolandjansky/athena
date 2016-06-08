@@ -31,13 +31,13 @@ class SegmentCache  {
   void AddSegments(const Trk::SegmentCollection* trk);
   void SetNROI(int n);
   void SetSpectrometerTrackCollection( const TrackCollection* msTracks );
-  void SetExtrapolatedTrackCollection( const TrackCollection* saTracks );
+  void SetExtrapolatedTrackCollection( TrackCollection* saTracks );
   const MuonSegmentCombinationCollection* SegColl() const {return m_segcoll;}
   const MuonPatternCombinationCollection* PattColl() const {return m_pattcoll;}
   const Trk::SegmentCollection* Segments() const {return m_segments;}
   int NROI() const {return m_nroi;}
   const TrackCollection* SpectrometerTrackColl() { return m_msTracks;}
-  const TrackCollection* ExtrapolatedTrackColl() { return m_saTracks;}
+  TrackCollection* ExtrapolatedTrackColl() { return m_saTracks;}
 
  private:
   
@@ -45,7 +45,7 @@ class SegmentCache  {
   const MuonPatternCombinationCollection* m_pattcoll;
   const Trk::SegmentCollection* m_segments;   
   const TrackCollection* m_msTracks;
-  const TrackCollection* m_saTracks;
+  TrackCollection* m_saTracks;
   int m_nroi;
 };
 

@@ -121,6 +121,10 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
     m_patternCombiColl(0),
     m_segments(0),
     m_spectrometerTracks(0),
+    m_segmentCombiCollInternal(0),
+    m_patternCombiCollInternal(0),
+    m_segmentsInternal(0),
+    m_spectrometerTracksInternal(0),
     m_extrapolatedTracks(0),
     m_spectrometerTrackParticles(0),
     m_spectrometerTrackParticlesAux(0),
@@ -154,7 +158,7 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
   declareProperty("TgcPrepDataProvider", m_tgcPrepDataProvider);
   declareProperty("CscClusterProvider",  m_cscClusterProvider);
 
-  declareProperty("doCache",             m_doCache=false);
+  declareProperty("doCache",             m_doCache=true);
 
   declareProperty("useMdtData",          m_useMdtData );
   declareProperty("useRpcData",          m_useRpcData );
@@ -204,7 +208,6 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
   m_fileWithHashIds_mdt.open("HashID_mdt.txt");
   m_fileWithHashIds_csc.open("HashID_csc.txt");
 #endif
-
   //m_SFCache\TrigMap.clear();
   ATH_MSG_DEBUG("clearing SFCacheSCmap (initialize)");
   m_SFCacheSCMap.clear();
@@ -577,7 +580,7 @@ HLT::ErrorCode TrigMuonEFStandaloneTrackTool::getExtrapolatedTracks(const IRoiDe
 
   ATH_MSG_DEBUG("In getExtrapolatedTracks with cache");
   HLT::ErrorCode hltStatus = getSpectrometerTracks( muonRoI, cache, monVars, timers );
-  //if fail to get trks from L2 hits, retry with all hits
+  //  if fail to get trks from L2 hits, retry with all hits
   if(m_useL2Hits && (hltStatus==HLT::MISSING_FEATURE || !m_spectrometerTracks || m_spectrometerTracks->empty()) ){
     m_useL2Hits=false;
     hltStatus = getSpectrometerTracks( muonRoI, cache, monVars, timers );
@@ -699,13 +702,15 @@ HLT::ErrorCode TrigMuonEFStandaloneTrackTool::findSegments(const IRoiDescriptor*
   if(m_useL2Hits){
     if((*p_ActiveStore)->retrieve(l2cont, l2muonKey).isFailure()) {
       msg() << MSG::DEBUG << " Cannot retrieve L2 Muon Container " << l2muonKey <<" stop processing here"<< endreq;
-      return HLT::OK;
     } else msg()<< MSG::DEBUG << " L2 Muon Container retrieved with key " << l2muonKey << endreq;
   }
   // reset cached pointers
   m_segmentCombiColl=0;
   m_patternCombiColl=0;
   m_segments= 0;
+  m_segmentCombiCollInternal=0;
+  m_patternCombiCollInternal=0;
+  m_segmentsInternal= 0;
   m_spectrometerTracks = 0;
   m_extrapolatedTracks = 0;
 
@@ -1017,7 +1022,7 @@ if (m_useMdtData>0) {
   // select non-empty PRD collections for segment finding
   
   // Get RPC container
-  if (m_useRpcData>0 && !rpc_hash_ids.empty()) {
+  if (m_useRpcData && !rpc_hash_ids.empty()) {
     const RpcPrepDataContainer* rpcPrds = 0;
     std::string rpcKey = "RPC_Measurements";
     if((*p_ActiveStore)->retrieve(rpcPrds, rpcKey).isFailure()) {
@@ -1073,7 +1078,7 @@ if (m_useMdtData>0) {
   }
   
   // Get MDT container
-  if (m_useMdtData>0 && !mdt_hash_ids.empty()) {
+  if (m_useMdtData && !mdt_hash_ids.empty()) {
     
     const MdtPrepDataContainer* mdtPrds = 0;
     std::string mdtKey = "MDT_DriftCircles";
@@ -1084,11 +1089,9 @@ if (m_useMdtData>0) {
     
     // Get MDT collections
     MdtPrepDataContainer::const_iterator MDTcoll;
-    Muon::MdtPrepDataCollection *mdtcollection=0; 
     for(std::vector<IdentifierHash>::const_iterator idit = mdt_hash_ids.begin();
 	idit != mdt_hash_ids.end(); ++idit) {
       MDTcoll = mdtPrds->indexFind(*idit);
-      mdtcollection=new Muon::MdtPrepDataCollection();
       if( MDTcoll == mdtPrds->end() ) {
 	if (msgLvl(MSG::VERBOSE)) {
 	  Identifier idColl;
@@ -1113,42 +1116,44 @@ if (m_useMdtData>0) {
       }
 
       if(m_useL2Hits && l2cont){
-	Muon::MdtPrepDataCollection::const_iterator cit_begin = (*MDTcoll)->begin();
-	Muon::MdtPrepDataCollection::const_iterator cit_end = (*MDTcoll)->end();
-	Muon::MdtPrepDataCollection::const_iterator cit = cit_begin;   
-	const Muon::MdtPrepData* mdt = new Muon::MdtPrepData();
-	for( ; cit!=cit_end;++cit ) // first
-	  {
+	Muon::MdtPrepDataCollection *mdtcollection=new Muon::MdtPrepDataCollection();
+	addElement( m_mdtcollCache, mdtcollection );
 
-	    mdt = *cit;
-	    int TubeLayers = mdt->detectorElement()->getNLayers();
-	    int TubeLayer = m_mdtIdHelper->tubeLayer(mdt->identify());
-	    if(TubeLayer > TubeLayers) TubeLayer -= TubeLayers;
-	    const Amg::Vector3D mdtpos = mdt->detectorElement()->center(TubeLayer,m_mdtIdHelper->tube(mdt->identify()));
-	    for(uint l2=0; l2<l2cont->size(); l2++){
-	      l2muon = l2cont->at(l2);
-	      if(l2muon->nMdtHits()==0){
-		mdtcollection->push_back(new Muon::MdtPrepData(*mdt));
-	      }
-	      for(uint hitnum=0; hitnum<l2muon->nMdtHits(); hitnum++){
-		if(fabs(mdtpos.eta())<1.0 ? (fabs(l2muon->mdtHitR(hitnum)-mdtpos.perp())<0.1 && fabs(l2muon->mdtHitZ(hitnum)-mdtpos.z())<0.001): (fabs(l2muon->mdtHitR(hitnum)-fabs(mdtpos.perp()))<200 && fabs(l2muon->mdtHitZ(hitnum)-mdtpos.z())<0.001)){
-		  if(l2muon->mdtHitOfflineId(hitnum)!=0) continue;
+      	Muon::MdtPrepDataCollection::const_iterator cit_begin = (*MDTcoll)->begin();
+      	Muon::MdtPrepDataCollection::const_iterator cit_end = (*MDTcoll)->end();
+      	Muon::MdtPrepDataCollection::const_iterator cit = cit_begin;   
+      	for( ; cit!=cit_end;++cit ) // first
+      	  {
 
-		  mdtcollection->push_back(new Muon::MdtPrepData(*mdt));
+      	    const Muon::MdtPrepData* mdt = *cit;
+      	    int TubeLayers = mdt->detectorElement()->getNLayers();
+      	    int TubeLayer = m_mdtIdHelper->tubeLayer(mdt->identify());
+      	    if(TubeLayer > TubeLayers) TubeLayer -= TubeLayers;
+      	    const Amg::Vector3D mdtpos = mdt->detectorElement()->center(TubeLayer,m_mdtIdHelper->tube(mdt->identify()));
+      	    for(uint l2=0; l2<l2cont->size(); l2++){
+      	      l2muon = l2cont->at(l2);
+      	      if(l2muon->nMdtHits()==0){
+      		mdtcollection->push_back(new Muon::MdtPrepData(*mdt));
+      	      }
+      	      for(uint hitnum=0; hitnum<l2muon->nMdtHits(); hitnum++){
+      		if(fabs(mdtpos.eta())<1.0 ? (fabs(l2muon->mdtHitR(hitnum)-mdtpos.perp())<0.1 && fabs(l2muon->mdtHitZ(hitnum)-mdtpos.z())<0.001): (fabs(l2muon->mdtHitR(hitnum)-fabs(mdtpos.perp()))<200 && fabs(l2muon->mdtHitZ(hitnum)-mdtpos.z())<0.001)){
+      		  if(l2muon->mdtHitOfflineId(hitnum)!=0) continue;
+
+      		  mdtcollection->push_back(new Muon::MdtPrepData(*mdt));
 		  
-		}
-	      }
+      		}
+      	      }
 	  
 	      
-	    }
-	  }
+      	    }
+      	  }
 
-	mdtcollection->setIdentifier((*MDTcoll)->identify());
-	nMdtHits+=mdtcollection->size(); // count hits for TrigMuonEFInfo
-	mdtCols2.push_back(mdtcollection);      
+      	mdtcollection->setIdentifier((*MDTcoll)->identify());
+      	nMdtHits+=mdtcollection->size(); // count hits for TrigMuonEFInfo
+      	mdtCols2.push_back(mdtcollection);      
       }
       else{
-	nMdtHits+=(*MDTcoll)->size(); // count hits for TrigMuonEFInfo
+	nMdtHits+=(*MDTcoll)->size(); 
       }
 
       
@@ -1169,7 +1174,7 @@ if (m_useMdtData>0) {
   }
   
   // Get TGC container
-  if (m_useTgcData>0 && !tgc_hash_ids.empty()) {
+  if (m_useTgcData && !tgc_hash_ids.empty()) {
     
     const TgcPrepDataContainer* tgcPrds = 0;
     std::string tgcKey = "TGC_Measurements";
@@ -1302,7 +1307,7 @@ if (m_useMdtData>0) {
   
   
   // Get CSC container
-  if (m_useCscData>0 && !csc_hash_ids.empty()) {
+  if (m_useCscData && !csc_hash_ids.empty()) {
     
     const CscPrepDataContainer* cscPrds = 0;
     std::string cscKey = "CSC_Clusters";
@@ -1445,9 +1450,10 @@ if (m_useMdtData>0) {
     if (segFinderTime) segFinderTime->start();
 
     cache = itSCmap->second;      
-    if(cache->SegColl() ) m_segmentCombiColl= makeViewContainerClone( cache->SegColl() );
-    if(cache->PattColl()) m_patternCombiColl= makeViewContainerClone( cache->PattColl() );
-    if(cache->Segments()) m_segments        = makeViewContainerClone( cache->Segments() );
+    if(cache->SegColl() ) m_segmentCombiCollInternal = cache->SegColl();
+    if(cache->PattColl()) m_patternCombiCollInternal = cache->PattColl();
+    if(cache->Segments()) m_segmentsInternal = cache->Segments();
+    
 
     if (segFinderTime) segFinderTime->stop();    
     ++m_cachedSegmentCalls;
@@ -1478,11 +1484,11 @@ if (m_useMdtData>0) {
     Muon::IMooSegmentCombinationFinder::Output* output = 0;
     if(m_useL2Hits){
       if(mdtCols2.size()>0){
-	output = m_segmentsFinderTool->findSegments(mdtCols2, cscCols, tgcCols, rpcCols);
-	if(!output || (output->segmentCombinations)->size()==0){ 
-	  ATH_MSG_DEBUG("didn't find mstrk with l2 hits, use all mdt hits in roi");
-	  output = m_segmentsFinderTool->findSegments(mdtCols, cscCols, tgcCols, rpcCols);
-	}
+    	output = m_segmentsFinderTool->findSegments(mdtCols2, cscCols, tgcCols, rpcCols);
+    	if(!output || (output->segmentCombinations)->size()==0){ 
+    	  ATH_MSG_DEBUG("didn't find mstrk with l2 hits, use all mdt hits in roi");
+    	  output = m_segmentsFinderTool->findSegments(mdtCols, cscCols, tgcCols, rpcCols);
+    	}
       }
       else output = m_segmentsFinderTool->findSegments(mdtCols, cscCols, tgcCols, rpcCols);
     }
@@ -1502,19 +1508,19 @@ if (m_useMdtData>0) {
     
     /// SegmentCache object takes pointers to be given to m_segmentCombiColl, m_patternCombiColl and segments
     ATH_MSG_DEBUG("SegmentCache object taking pointers");
-    m_segmentCombiColl=output->segmentCombinations;
-    m_patternCombiColl=output->patternCombinations;
-    m_segments=output->segmentCollection ;
+    m_segmentCombiCollInternal=output->segmentCombinations;
+    m_patternCombiCollInternal=output->patternCombinations;
+    m_segmentsInternal=output->segmentCollection ;
     
     delete output; // right now offline tool will not delete it
-    
+    for(auto mdtcoll : mdtCols2) if(mdtcoll) delete mdtcoll;
     
     if (m_doCache) {
       ATH_MSG_DEBUG("Setting up caching");
       cache = new SegmentCache();
-      cache->AddSegmentCollection(m_segmentCombiColl);
-      cache->AddPatternCollection(m_patternCombiColl);
-      cache->AddSegments(m_segments);	 
+      cache->AddSegmentCollection(m_segmentCombiCollInternal);
+      cache->AddPatternCollection(m_patternCombiCollInternal);
+      cache->AddSegments(m_segmentsInternal);	 
       cache->SetNROI(m_roi_num_seg);//Setting roi number to SC obj for caching info 
       m_SFCacheSCMap[m_hashlist] = cache;
       ATH_MSG_DEBUG("added segments to cache (roi_num="<<m_roi_num_seg<<"). hashlist size: "<<m_hashlist.size()<<". cache size: "<<m_SFCacheSCMap.size());
@@ -1524,18 +1530,19 @@ if (m_useMdtData>0) {
       monVars.wasCached = 0;
     }
     
-    ATH_MSG_DEBUG("m_segmentCombiColl = "<< m_segmentCombiColl);
-    if(m_segmentCombiColl){
-      ATH_MSG_DEBUG("m_segmentCombiColl->size() = "<< m_segmentCombiColl->size());
+    ATH_MSG_DEBUG("m_segmentCombiColl = "<< m_segmentCombiCollInternal);
+    if(m_segmentCombiCollInternal){
+      ATH_MSG_DEBUG("m_segmentCombiColl->size() = "<< m_segmentCombiCollInternal->size());
       // Dump segments
       if (msgLvl(MSG::DEBUG)) {
-	msg() << MSG::DEBUG << "REGTEST MuonEF Found " << m_segmentCombiColl->size() << " combined segment collection" << endreq;
-	for(unsigned int nSeg=0; nSeg!=m_segmentCombiColl->size(); nSeg++) {
-	  msg() << MSG::DEBUG << "Combined segment collection " << nSeg << " contains "
-		<< ((*(m_segmentCombiColl))[nSeg])->numberOfStations() << " stations" << endreq;
-	  for(unsigned int nStat=0; nStat!=((*(m_segmentCombiColl))[nSeg])->numberOfStations(); nStat++) {
-	    msg() << MSG::DEBUG << "  - segment collection " << nStat << " contains "
-		  << ((*(m_segmentCombiColl))[nSeg])->stationSegments(nStat)->size() << " segments" << endreq;
+	msg() << MSG::DEBUG << "REGTEST MuonEF Found " << m_segmentCombiCollInternal->size() << " combined segment collection" << endreq;
+	for(unsigned int nSeg=0; nSeg!=m_segmentCombiCollInternal->size(); nSeg++) {
+	  if((*(m_segmentCombiCollInternal))[nSeg]){  msg() << MSG::DEBUG << "Combined segment collection " << nSeg << " contains "
+			   << ((*(m_segmentCombiCollInternal))[nSeg])->numberOfStations() << " stations" << endreq;
+	    for(unsigned int nStat=0; nStat!=((*(m_segmentCombiCollInternal))[nSeg])->numberOfStations(); nStat++) {
+	      if(((*(m_segmentCombiCollInternal))[nSeg])->stationSegments(nStat)) msg() << MSG::DEBUG << "  - segment collection " << nStat << " contains "
+	    		      << ((*(m_segmentCombiCollInternal))[nSeg])->stationSegments(nStat)->size() << " segments" << endreq;
+	    }
 	  }
 	}
       }
@@ -1549,21 +1556,28 @@ if (m_useMdtData>0) {
 
   ATH_MSG_DEBUG("Starting dataOutputTime");
   if (dataOutputTime) dataOutputTime->start();
+  if(m_segmentCombiCollInternal) m_segmentCombiColl = new MuonSegmentCombinationCollection(m_segmentCombiCollInternal->begin(), m_segmentCombiCollInternal->end());
+  if(m_patternCombiCollInternal) m_patternCombiColl = new MuonPatternCombinationCollection(m_patternCombiCollInternal->begin(), m_patternCombiCollInternal->end());
+  if(m_segmentsInternal) m_segments = new Trk::SegmentCollection(m_segmentsInternal->begin(), m_segmentsInternal->end());
+ 
 
   // for deletion at end of event
   ATH_MSG_DEBUG("Doing addElement for m_patternCombiColl");
   addElement( m_patternCombisCache, m_patternCombiColl );
+  addElement( m_patternCombisCache, m_patternCombiCollInternal );
   ATH_MSG_DEBUG("Doing addElement for m_segmentCombiColl");
   addElement( m_segmentCombisCache, m_segmentCombiColl );
+  addElement( m_segmentCombisCache, m_segmentCombiCollInternal );
   ATH_MSG_DEBUG("Doing addElement for m_segments");
   addElement( m_segmentsCache, m_segments );
+  addElement( m_segmentsCache, m_segmentsInternal );
 
   int nSeg = 0;
   if(m_segmentCombiColl) nSeg = segmentMonitoring(m_segmentCombiColl, monVars);
   if(m_segments){
     std::vector<const Muon::MuonSegment*> m_muonSegCollection;
     for(Trk::SegmentCollection::const_iterator itSeg = m_segments->begin(); itSeg!= m_segments->end(); ++itSeg){
-      m_muonSegCollection.push_back(dynamic_cast<Muon::MuonSegment*>(*itSeg));
+      if(*itSeg) m_muonSegCollection.push_back(dynamic_cast<Muon::MuonSegment*>(*itSeg));
     }
     nSeg = segmentMonitoring(m_muonSegCollection, monVars);
   }
@@ -1595,6 +1609,7 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
   ATH_MSG_DEBUG("resetting cached pointers");
   // reset cached pointers
   m_spectrometerTracks = 0;
+  m_spectrometerTracksInternal = 0;
   m_extrapolatedTracks = 0;
 
   HLT::ErrorCode hltStatus = HLT::OK;
@@ -1610,7 +1625,7 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
   if( m_doCache && cache && cache->SpectrometerTrackColl()) {
     ATH_MSG_DEBUG("retrieving tracks from cache");
     // retrieve tracks from cache
-    m_spectrometerTracks = makeViewContainerClone( cache->SpectrometerTrackColl() );
+    m_spectrometerTracksInternal=cache->SpectrometerTrackColl();
     ++m_cachedSpectrometerCalls;
     monVars.wasCached = 1;
   } // no cached track found
@@ -1627,8 +1642,10 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
       ATH_MSG_VERBOSE("Converting MuonSegmentCombinationCollection into std::vector<const Muon::MuonSegment*>");
       MuonSegmentCombinationCollection::const_iterator itSegComb = segments->begin(), itSegComb_end = segments->end();
       for ( ; itSegComb != itSegComb_end; ++itSegComb ) {
+	if(!(*itSegComb)) continue;
         const MuonSegmentCombination* segComb = *itSegComb;
-        unsigned int nStations = segComb->numberOfStations();
+        unsigned int nStations=0;
+	if(segComb) nStations = segComb->numberOfStations();
         for ( unsigned int iStation = 0; iStation < nStations; ++iStation ) {
           const std::vector<const MuonSegment*>* segs = segComb->stationSegments(iStation);
           if ( segs ) muonSegCollection.insert(muonSegCollection.end(), segs->begin(), segs->end());
@@ -1638,18 +1655,18 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
 
     if ( muonSegCollection.size() ) {
       ATH_MSG_DEBUG("Doing Muon track finding with muon segment collection of size " << muonSegCollection.size());
-      m_spectrometerTracks = m_trackBuilderTool->find(muonSegCollection);
-      if ( not m_spectrometerTracks ) {
+      m_spectrometerTracksInternal = m_trackBuilderTool->find(muonSegCollection);
+      if ( not m_spectrometerTracksInternal ) {
         ATH_MSG_VERBOSE("No tracks found. Making empty tracks collection.");
-        m_spectrometerTracks = new TrackCollection;
+        m_spectrometerTracksInternal = new TrackCollection;
       }
     } else {
       ATH_MSG_VERBOSE("No segments found. Making empty tracks collection.");
-      m_spectrometerTracks = new TrackCollection;
+      m_spectrometerTracksInternal = new TrackCollection;
     }
 
     if ( m_doCache && cache ) {
-      cache->SetSpectrometerTrackCollection( m_spectrometerTracks );
+      cache->SetSpectrometerTrackCollection( m_spectrometerTracksInternal );
     }
     monVars.wasCached = 0;
     
@@ -1657,9 +1674,10 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
 
   if(trackFinderTime) trackFinderTime->stop();
   if(dataOutputTime) dataOutputTime->start();
-  
+   m_spectrometerTracks = new TrackCollection(m_spectrometerTracksInternal->begin(), m_spectrometerTracksInternal->end());
   // store for deletion at the end of event
   addElement( m_spectrometerTracksCache, m_spectrometerTracks );
+  addElement( m_spectrometerTracksCache, m_spectrometerTracksInternal );
     
   // Dump tracks
   if (msgLvl(MSG::DEBUG)) {
@@ -1825,9 +1843,9 @@ TrigMuonEFStandaloneTrackTool::extrapolate(const xAOD::TrackParticleContainer* s
   bool needToCacheExtrapTrks=false;
   if( m_doCache && cache && cache->ExtrapolatedTrackColl()) {
     // caching will not work currently
-    ATH_MSG_ERROR("Caching not currently working with new EDM?");
+    //    ATH_MSG_ERROR("Caching not currently working with new EDM?");
     // retrieve tracks from cache
-    //m_extrapolatedTracks = makeViewContainerClone( cache->ExtrapolatedTrackColl() );
+    m_extrapolatedTracks = cache->ExtrapolatedTrackColl();
     //    ATH_MSG_DEBUG("Caching active, n(trks) = " << m_extrapolatedTracks->size());
     ++m_cachedExtrapolatedCalls;
     monVars.wasCached = 1;
@@ -2305,6 +2323,8 @@ void TrigMuonEFStandaloneTrackTool::handle(const Incident &inc)
     clearCacheVector( m_patternCombisCache );
     clearCacheVector( m_segmentCombisCache );
     clearCacheVector( m_segmentsCache );
+    clearCacheVector(m_mdtcollCache);
+
   }
 }
 
@@ -2433,6 +2453,83 @@ TrigMuonEFStandaloneTrackTool::trackParticleAuxContainerToAttach()
   return coll;
 }
 
+
+//________________________________________________________________________
+std::vector<std::vector<IdentifierHash> > TrigMuonEFStandaloneTrackTool::getHashList(const IRoiDescriptor* muonRoI){
+
+  std::vector<std::vector<IdentifierHash> > CurrentHashlist;
+  CurrentHashlist.clear();
+
+
+
+  std::vector<IdentifierHash>  rpc_hash_ids;
+  std::vector<IdentifierHash>  rpc_hash_ids_cache;
+
+  if (m_useRpcData) {
+    if ( muonRoI ) m_regionSelector->DetHashIDList(RPC, *muonRoI, rpc_hash_ids);
+    else           m_regionSelector->DetHashIDList(RPC, rpc_hash_ids);
+  }
+  
+  
+  std::vector<IdentifierHash>  tgc_hash_ids;
+  std::vector<IdentifierHash>  tgc_hash_ids_cache;
+  if (m_useTgcData){ 
+    if ( muonRoI ) m_regionSelector->DetHashIDList(TGC, *muonRoI, tgc_hash_ids);
+    else           m_regionSelector->DetHashIDList(TGC, tgc_hash_ids);
+  }
+
+  
+  std::vector<IdentifierHash> temp_mdt_hash_ids;
+  std::vector<IdentifierHash> mdt_hash_ids;
+  std::vector<IdentifierHash> mdt_hash_ids_cache;
+  if (m_useMdtData>0) {
+    if ( muonRoI ) {
+      m_regionSelector->DetHashIDList(MDT, *muonRoI, temp_mdt_hash_ids);   
+    }
+    else {
+      m_regionSelector->DetHashIDList(MDT, temp_mdt_hash_ids);
+    }
+  
+    if (m_useMdtData >1) {
+      for (std::vector<IdentifierHash>::const_iterator it=temp_mdt_hash_ids.begin();
+	   it!= temp_mdt_hash_ids.end(); ++it) {
+	bool select = false;
+	if (m_useMdtData == 2) {
+	  if ( (*it) < 638 || (*it) >1151 ) //barrel only: BIL to BOG + BIM
+	    select = true;
+	} else if (m_useMdtData == 3) {
+	  if ( (*it) > 637 && (*it) <1152) //all endcap chambers
+	    select = true;
+	}
+	if (select) {
+	  mdt_hash_ids.push_back((*it));
+	}
+      }
+    } else {
+      mdt_hash_ids = temp_mdt_hash_ids;
+    }
+  }
+  
+  std::vector<IdentifierHash> csc_hash_ids;
+  std::vector<IdentifierHash> csc_hash_ids_cache;
+  if (m_useCscData) {
+    if ( muonRoI ) m_regionSelector->DetHashIDList(CSC, *muonRoI, csc_hash_ids);
+    else           m_regionSelector->DetHashIDList(CSC, csc_hash_ids);
+  }
+  
+  
+  
+  
+
+  CurrentHashlist.push_back(rpc_hash_ids);
+  CurrentHashlist.push_back(tgc_hash_ids);
+  CurrentHashlist.push_back(mdt_hash_ids);
+  CurrentHashlist.push_back(csc_hash_ids);
+
+  return CurrentHashlist;
+
+}
+
 //________________________________________________________________________
 int TrigMuonEFStandaloneTrackTool::segmentMonitoring(const MuonSegmentCombinationCollection* segmentCombiColl, TrigMuonEFSegmentMonVars& monVars){
   
@@ -2444,10 +2541,12 @@ int TrigMuonEFStandaloneTrackTool::segmentMonitoring(const MuonSegmentCombinatio
   monVars.numberOfSegComb.push_back(segmentCombiColl->size());
   for (MuonSegmentCombinationCollection::const_iterator sc = segmentCombiColl->begin();
        sc != segmentCombiColl->end(); ++sc){
-    monVars.numberOfStations.push_back((*sc)->numberOfStations());
-    for(unsigned int nStat=0; nStat < (*sc)->numberOfStations(); nStat++) {
-      const std::vector<const MuonSegment*>* statSegments = (*sc)->stationSegments(nStat);
-      nSeg += segmentMonitoring(*statSegments, monVars);
+    if(*sc){
+      monVars.numberOfStations.push_back((*sc)->numberOfStations());
+      for(unsigned int nStat=0; nStat < (*sc)->numberOfStations(); nStat++) {
+	const std::vector<const MuonSegment*>* statSegments = (*sc)->stationSegments(nStat);
+	nSeg += segmentMonitoring(*statSegments, monVars);
+      }
     }
   }
   

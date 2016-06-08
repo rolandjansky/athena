@@ -121,6 +121,8 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
 					       TrigMuonEFMonVars& monvars,
 					       std::vector<TrigTimer*>& timers);
   
+  /** get list of hashIDs used in roi (used for internal caching in TrigMuSuperEF) **/
+  virtual std::vector<std::vector<IdentifierHash> > getHashList(const IRoiDescriptor* muonRoI);
 
   /** return last created MuonSegmentCombinationCollection. Caller is responsible for deletion of object.
       Call this function if you want to attach the object to the TriggerElement */
@@ -334,11 +336,15 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   std::vector<std::vector<IdentifierHash> > m_hashlist;
 
   // features written to TriggerElement
-  TrigMuonEFInfoContainer*                m_myMuonEFInfoCont;
+  //  TrigMuonEFInfoContainer*                m_myMuonEFInfoCont;
   const MuonSegmentCombinationCollection* m_segmentCombiColl;
   const MuonPatternCombinationCollection* m_patternCombiColl;
   const Trk::SegmentCollection*           m_segments;
   const TrackCollection*                  m_spectrometerTracks;
+  const MuonSegmentCombinationCollection* m_segmentCombiCollInternal;
+  const MuonPatternCombinationCollection* m_patternCombiCollInternal;
+  const Trk::SegmentCollection*           m_segmentsInternal;
+  const TrackCollection*                  m_spectrometerTracksInternal;
   TrackCollection*                        m_extrapolatedTracks;
   xAOD::TrackParticleContainer*           m_spectrometerTrackParticles;
   xAOD::TrackParticleAuxContainer*        m_spectrometerTrackParticlesAux;
@@ -359,6 +365,8 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   std::vector<const MuonPatternCombinationCollection*> m_patternCombisCache;
   std::vector<const MuonSegmentCombinationCollection*> m_segmentCombisCache;
   std::vector<const Trk::SegmentCollection*> m_segmentsCache;
+  std::vector<Muon::MdtPrepDataCollection*> m_mdtcollCache;
+
 
   /// tool to create muon candidates
   ToolHandle<MuonCombined::IMuonCandidateTool> m_muonCandidateTool;

@@ -22,22 +22,16 @@ TrigMuonEFCaloIsolation::TrigMuonEFCaloIsolation(const std::string &name, ISvcLo
     FexAlgo(name, pSvcLocator),
     m_requireCombined(false),
     m_debug(false),
-    m_caloCellIsolationTool("xAOD__CaloIsolationTool"),
     m_caloTopoClusterIsolationTool("xAOD__CaloIsolationTool"),
-    m_etiso_cone1(),
     m_etiso_cone2(),
     m_etiso_cone3(),
     m_etiso_cone4() {
     declareProperty("RequireCombinedMuon",          m_requireCombined);
-    declareProperty("CaloCellIsolationTool",        m_caloCellIsolationTool);
     declareProperty("CaloTopoClusterIsolationTool", m_caloTopoClusterIsolationTool);
     declareProperty("HistoPathBase",                m_histo_path_base = "/EXPERT/");
     declareProperty("applyPileupCorrection",        m_applyPileupCorrection = false);
-    declareProperty("useTopoClusters",              m_useTopoClusters = false);
-    
 
     ///////// Monitoring Variables
-    declareMonitoredStdContainer("EF_etiso_cone1",      m_etiso_cone1, IMonitoredAlgo::AutoClear);
     declareMonitoredStdContainer("EF_etiso_cone2",      m_etiso_cone2, IMonitoredAlgo::AutoClear);
     declareMonitoredStdContainer("EF_etiso_cone3",      m_etiso_cone3, IMonitoredAlgo::AutoClear);
     declareMonitoredStdContainer("EF_etiso_cone4",      m_etiso_cone4, IMonitoredAlgo::AutoClear);
@@ -48,7 +42,6 @@ TrigMuonEFCaloIsolation::TrigMuonEFCaloIsolation(const std::string &name, ISvcLo
  * Destructor.
  */
 TrigMuonEFCaloIsolation::~TrigMuonEFCaloIsolation() {
-
 }
 
 // ------------------------------------------------------------------------------------------------------
@@ -64,15 +57,6 @@ HLT::ErrorCode TrigMuonEFCaloIsolation::hltInitialize() {
     ATH_MSG_DEBUG("Properties set as follows: ");
     ATH_MSG_DEBUG("RequireCombinedMuon:       " << m_requireCombined);
 
-
-
-    if (m_caloCellIsolationTool.retrieve().isSuccess()) {
-        ATH_MSG_DEBUG("Retrieved " << m_caloCellIsolationTool);
-    } else {
-        ATH_MSG_FATAL("Could not retrieve " << m_caloCellIsolationTool);
-        return HLT::BAD_JOB_SETUP;
-    }
-
     if (m_caloTopoClusterIsolationTool.retrieve().isSuccess()) {
         ATH_MSG_DEBUG("Retrieved " << m_caloTopoClusterIsolationTool);
     } else {
@@ -80,24 +64,16 @@ HLT::ErrorCode TrigMuonEFCaloIsolation::hltInitialize() {
         return HLT::BAD_JOB_SETUP;
     }
 
-
     ATH_MSG_DEBUG("End of init TrigMuonEFCaloIsolation");
 
     return HLT::OK;
 }
 
-
-
 // ------------------------------------------------------------------------------------------------------
 /**
  * Fill the et-cone calorimeter isolation values for a container of xAOD muons.
  */
-void TrigMuonEFCaloIsolation::fillCaloIsolation(const xAOD::MuonContainer *muons, const xAOD::CaloClusterContainer *clustercont, const CaloCellContainer *cellcont) {
-
-    if (m_caloCellIsolationTool.empty()) {
-        ATH_MSG_WARNING("No calorimeter cell isolation tool available." );
-        return;
-    }
+void TrigMuonEFCaloIsolation::fillCaloIsolation(const xAOD::MuonContainer *muons, const xAOD::CaloClusterContainer *clustercont) {
 
     if (m_caloTopoClusterIsolationTool.empty()) {
         ATH_MSG_WARNING("No calorimeter topo cluster isolation tool available." );
@@ -140,27 +116,21 @@ void TrigMuonEFCaloIsolation::fillCaloIsolation(const xAOD::MuonContainer *muons
         xAOD::CaloIsolation  caloIsolation;
         xAOD::CaloCorrection corrlist;
         if (m_applyPileupCorrection)
-            corrlist.calobitset.set(static_cast<unsigned int>(xAOD::Iso::IsolationCaloCorrection::pileupCorrection));
+            corrlist.calobitset.set(static_cast<unsigned int>(xAOD::Iso::pileupCorrection));
 
-        if (clustercont) {
-            corrlist.calobitset.set(static_cast<unsigned int>(xAOD::Iso::IsolationCaloCorrection::coreCone));
-            if ( !m_caloTopoClusterIsolationTool->caloTopoClusterIsolation( caloIsolation, *tp, etCones, corrlist, clustercont ) ) {
-                ATH_MSG_WARNING("Calculation of topocluster based calorimeter isolation failed");
-                continue;
-            }
-        } else {
-            corrlist.calobitset.set(static_cast<unsigned int>(xAOD::Iso::IsolationCaloCorrection::coreMuon));
-            if ( !m_caloCellIsolationTool->caloCellIsolation( caloIsolation, *tp, etCones, corrlist, cellcont ) ) {
-                ATH_MSG_WARNING("Calculation of cell based calorimeter isolation failed");
-                continue;
-            }
+        corrlist.calobitset.set(static_cast<unsigned int>(xAOD::Iso::IsolationCaloCorrection::coreCone));
+        if ( !m_caloTopoClusterIsolationTool->caloTopoClusterIsolation( caloIsolation, *tp, etCones, corrlist, clustercont ) ) {
+            ATH_MSG_WARNING("Calculation of topocluster based calorimeter isolation failed");
+            continue;
         }
+        // if ( !m_caloTopoClusterIsolationTool->decorateParticle_topoClusterIso(*tp, etCones, corrlist, clustercont) ) {
+        //         ATH_MSG_WARNING("Calculation of topocluster based calorimeter isolation failed");
+        //         continue;
+        // }
 
         for ( unsigned int i = 0; i < etCones.size(); ++i ) {
             ((xAOD::Muon *)muon)->setIsolation(caloIsolation.etcones[i], etCones[i]);
         }
-
-        ATH_MSG_INFO("Cell isolation value: " << caloIsolation.etcones[2]);
 
         //Monitor the values
         m_etiso_cone2.push_back( caloIsolation.etcones[2] * 1e-3 );
@@ -174,7 +144,9 @@ void TrigMuonEFCaloIsolation::fillCaloIsolation(const xAOD::MuonContainer *muons
             ATH_MSG_DEBUG("\tCone Et 0.4 sum = " << m_etiso_cone4.back() << " GeV");
         }
 
+
     }
+
 }
 
 // ------------------------------------------------------------------------------------------------------
@@ -183,7 +155,7 @@ void TrigMuonEFCaloIsolation::fillCaloIsolation(const xAOD::MuonContainer *muons
  */
 HLT::ErrorCode TrigMuonEFCaloIsolation::hltExecute(const HLT::TriggerElement *inputTE, HLT::TriggerElement *TEout) {
 
-    ATH_MSG_DEBUG(": Executing TrigMuonEFCaloIsolation::execHLTAlgorithm()");
+    ATH_MSG_INFO(": Executing TrigMuonEFCaloIsolation::execHLTAlgorithm()");
 
     /// extract EF muons
     const xAOD::MuonContainer *muonContainer(0);
@@ -198,63 +170,32 @@ HLT::ErrorCode TrigMuonEFCaloIsolation::hltExecute(const HLT::TriggerElement *in
         ATH_MSG_DEBUG("MuonContainer extracted with size = " << muonContainer->size());
     }
 
-
-    //Access the last created trigger cell/cluster container
-    std::vector<const CaloCellContainer * > vectorOfCellContainers;
+    //Access the last created trigger cluster container
     std::vector<const xAOD::CaloClusterContainer * > vectorOfClusterContainers;
 
-    if (m_useTopoClusters) {
-        if ( getFeatures(TEout, vectorOfClusterContainers, "") != HLT::OK) {
-            ATH_MSG_ERROR("Failed to get TrigClusters at: getFeatures()");
-            return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::NAV_ERROR);
-        }
-
-        ATH_MSG_DEBUG("Got vector with " << vectorOfClusterContainers.size() << " ClusterContainers");
-
-        //Get the name of the cell container so that the offline tool can be told which container to use
-        const xAOD::CaloClusterContainer *theClusterCont = 0;
-        if ( vectorOfClusterContainers.size() > 0 ) {
-            theClusterCont = vectorOfClusterContainers.back();
-        } else {
-            ATH_MSG_ERROR("Failed to get TrigClusters: vector size is 0");
-            return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::NAV_ERROR);
-        }
-
-        //For each of the muons fill the calorimeter isolation values using the offline tool
-        fillCaloIsolation(muonContainer, theClusterCont, 0);
-
-
-
-    } else {
-        if ( getFeatures(TEout, vectorOfCellContainers, "") != HLT::OK) {
-            ATH_MSG_ERROR("Failed to get TrigCells");
-            return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::NAV_ERROR);
-        }
-
-        ATH_MSG_DEBUG("Got vector with " << vectorOfCellContainers.size() << " CellContainers");
-
-        //Get the name of the cell container so that the offline tool can be told which container to use
-        const CaloCellContainer *theCellCont = 0;
-        if ( vectorOfCellContainers.size() > 0 ) {
-            theCellCont = vectorOfCellContainers.back();
-        } else {
-            ATH_MSG_ERROR("Failed to get TrigCells");
-            return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::NAV_ERROR);
-        }
-
-        //For each of the muons fill the calorimeter isolation values using the offline tool
-        fillCaloIsolation(muonContainer, 0, theCellCont);
-
+    if ( getFeatures(inputTE, vectorOfClusterContainers, "") != HLT::OK) { // Was TEout???
+        ATH_MSG_ERROR("Failed to get TrigClusters at: getFeatures()");
+        return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::NAV_ERROR);
     }
 
+    ATH_MSG_DEBUG("Got vector with " << vectorOfClusterContainers.size() << " ClusterContainers");
 
+    const xAOD::CaloClusterContainer *theClusterCont = 0;
+    if ( vectorOfClusterContainers.size() > 0 ) {
+        theClusterCont = vectorOfClusterContainers.back();
+    } else {
+        ATH_MSG_ERROR("Failed to get TrigClusters: vector size is 0");
+        return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::NAV_ERROR);
+    }
+
+    //For each of the muons fill the calorimeter isolation values using the offline tool
+    fillCaloIsolation(muonContainer, theClusterCont);
 
     //validate sequence
     TEout->setActiveState(true);
 
     return HLT::OK;
-}//hltExecute
-
+}
 
 // ------------------------------------------------------------------------------------------------------
 /**
