@@ -286,12 +286,11 @@ class TestLayerxAOD(unittest.TestCase):
             inputs.eta = el.caloCluster().eta()
 
             tool.scale_inputs(inputs)
-            self.assertAlmostEqual(inputs.E0raw, el.auxdataConst("double")("correctedcl_Es0"))
-            self.assertAlmostEqual(inputs.E1raw, el.auxdataConst("double")("correctedcl_Es1"))
-            self.assertAlmostEqual(inputs.E2raw, el.auxdataConst("double")("correctedcl_Es2"))
-            self.assertAlmostEqual(inputs.E3raw, el.auxdataConst("double")("correctedcl_Es3"))
-
-            self.assertTrue(el.auxdataConst("string")("layer_correction") == tune)
+            self.assertAlmostEqual(inputs.E0raw, el.caloCluster().auxdataConst("double")("correctedcl_Es0"))
+            self.assertAlmostEqual(inputs.E1raw, el.caloCluster().auxdataConst("double")("correctedcl_Es1"))
+            self.assertAlmostEqual(inputs.E2raw, el.caloCluster().auxdataConst("double")("correctedcl_Es2"))
+            self.assertAlmostEqual(inputs.E3raw, el.caloCluster().auxdataConst("double")("correctedcl_Es3"))
+            self.assertTrue(el.caloCluster().auxdataConst("string")("layer_correction") == tune)
             i += 1
 
         self.assertGreater(i, 10, msg="too few electrons")
