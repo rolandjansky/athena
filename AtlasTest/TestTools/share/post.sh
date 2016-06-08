@@ -145,6 +145,9 @@ PP="$PP"'|^ConditionStore +INFO Stop ConditionStore'
 # Differences between Gaudi versions.
 PP="$PP"'|DEBUG input handles:|DEBUG output handles:|DEBUG Data Deps for|DEBUG Property update for OutputLevel :|-ExtraInputs |-ExtraOutputs |-Cardinality |-IsClonable |-NeededResources |-Timeline '
 
+# StoreGate INFO messages changed to VERBOSE
+PP="$PP"'|^StoreGateSvc +(INFO|VERBOSE) (Stop|stop|Start)'
+
 
 if [ "$extrapatterns" != "" ]; then
  PP="$PP""|$extrapatterns"
