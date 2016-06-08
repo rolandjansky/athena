@@ -817,29 +817,36 @@ CP::CorrectionCode egammaLayerRecalibTool::scale_inputs(StdCalibrationInputs & i
 
 CP::CorrectionCode egammaLayerRecalibTool::applyCorrection(xAOD::Egamma& particle, const xAOD::EventInfo& event_info) const
 {
-  const xAOD::CaloCluster* eCluster = particle.caloCluster();
-  if (!eCluster) {
+  const xAOD::CaloCluster* cluster = particle.caloCluster();
+  if (!cluster) {
     ATH_MSG_ERROR("egamma particle without CaloCluster");
     return CP::CorrectionCode::Error;
   }
 
   StdCalibrationInputs inputs{
     event_info.runNumber(),
-      eCluster->eta(),
-      eCluster->phi(),
-      eCluster->energyBE(0),
-      eCluster->energyBE(1),
-      eCluster->energyBE(2),
-      eCluster->energyBE(3),};
+      cluster->eta(),
+      cluster->phi(),
+      cluster->energyBE(0),
+      cluster->energyBE(1),
+      cluster->energyBE(2),
+      cluster->energyBE(3),};
 
   const CP::CorrectionCode status = scale_inputs(inputs);
+
+  static SG::AuxElement::Decorator<double> deco_E0("correctedcl_Es0");
+  static SG::AuxElement::Decorator<double> deco_E1("correctedcl_Es1");
+  static SG::AuxElement::Decorator<double> deco_E2("correctedcl_Es2");
+  static SG::AuxElement::Decorator<double> deco_E3("correctedcl_Es3");
+  static SG::AuxElement::Decorator<std::string> deco_layer_correction("layer_correction");
+
   if (status == CP::CorrectionCode::Ok) {
-    ATH_MSG_DEBUG("decorating particle with corrected layer energies");
-    particle.auxdecor<double>("correctedcl_Es0") = inputs.E0raw;
-    particle.auxdecor<double>("correctedcl_Es1") = inputs.E1raw;
-    particle.auxdecor<double>("correctedcl_Es2") = inputs.E2raw;
-    particle.auxdecor<double>("correctedcl_Es3") = inputs.E3raw;
-    particle.auxdecor<std::string>("layer_correction") = m_tune;
+    ATH_MSG_DEBUG("decorating cluster with corrected layer energies");
+    deco_E0(*cluster) = inputs.E0raw;
+    deco_E1(*cluster) = inputs.E1raw;
+    deco_E2(*cluster) = inputs.E2raw;
+    deco_E3(*cluster) = inputs.E3raw;
+    deco_layer_correction(*cluster) = m_tune;
     return status;
   }
   else {
@@ -848,11 +855,11 @@ CP::CorrectionCode egammaLayerRecalibTool::applyCorrection(xAOD::Egamma& particl
     // all the particle in the container are decorated
     // it is not possible to distinguish between decorated / non-decorated
     // since all are decorated
-    particle.auxdecor<double>("correctedcl_Es0") = eCluster->energyBE(0);
-    particle.auxdecor<double>("correctedcl_Es1") = eCluster->energyBE(1);
-    particle.auxdecor<double>("correctedcl_Es2") = eCluster->energyBE(2);
-    particle.auxdecor<double>("correctedcl_Es3") = eCluster->energyBE(3);
-    particle.auxdecor<std::string>("layer_correction") = m_tune;
+    deco_E0(*cluster) = cluster->energyBE(0);
+    deco_E1(*cluster) = cluster->energyBE(1);
+    deco_E2(*cluster) = cluster->energyBE(2);
+    deco_E3(*cluster) = cluster->energyBE(3);
+    deco_layer_correction(*cluster) = m_tune;
     return status;
   }
 }

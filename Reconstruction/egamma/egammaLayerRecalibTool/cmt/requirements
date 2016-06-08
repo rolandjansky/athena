@@ -22,7 +22,6 @@ apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Tree TreeP
 
 private
 use PathResolver        PathResolver-*          Tools
-use AtlasReflex         AtlasReflex-*           External
 end_private
 # end of it
 ############################################################
