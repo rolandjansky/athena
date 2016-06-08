@@ -25,3 +25,18 @@ atlas_add_poolcnv_library( tauEventAthenaPoolPoolCnv
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 
+# Set up (a) test(s) for the converter(s):
+if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities )
+   set( AthenaPoolUtilitiesTest_DIR
+      ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities/cmake )
+endif()
+find_package( AthenaPoolUtilitiesTest )
+
+if( ATHENAPOOLUTILITIESTEST_FOUND )
+  run_tpcnv_test( tauEventTPCnv_15.0.0    AOD-15.0.0-full )
+  run_tpcnv_test( tauEventTPCnv_15.6.9    AOD-15.6.9-full )
+  run_tpcnv_test( tauEventTPCnv_17.2.9.1  AOD-17.2.9.1-full )
+  run_tpcnv_test( tauEventTPCnv_18.0.0    AOD-18.0.0-full )
+else()
+   message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
+endif()   
