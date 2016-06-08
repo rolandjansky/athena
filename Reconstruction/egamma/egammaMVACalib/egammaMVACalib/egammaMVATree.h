@@ -383,7 +383,15 @@ namespace egammaMVATreeHelpers
     }
     inline float ph_pt1conv() const { return m_pt1conv; }
     inline float ph_pt2conv() const { return m_pt2conv; }
-    inline float ph_ptconv() const { return m_vertex ? xAOD::EgammaHelpers::momentumAtVertex(*m_vertex).perp() : 0.; }
+    inline float ph_ptconv() const { 
+      // TODO: evaluate if move to this new definition, by now keep the previous one
+      // to be consistent with the training
+      // return m_vertex ? xAOD::EgammaHelpers::momentumAtVertex(*m_vertex).perp() : 0.; 
+      TLorentzVector sum;
+      if (m_tp0) sum += m_tp0->p4();
+      if (m_tp1) sum += m_tp1->p4();
+      return sum.Perp();
+    }
   private:
     float getPtAtFirstMeasurement(const xAOD::TrackParticle* tp) const
     {

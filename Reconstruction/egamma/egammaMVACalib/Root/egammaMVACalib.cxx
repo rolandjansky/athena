@@ -830,7 +830,7 @@ void egammaMVACalib::InitTree(TTree* tree, bool doNotify)
 
 
   // Loop over the formula map and instantiate the formulae
-  ATH_MSG_INFO("Instantiating formulae");
+  ATH_MSG_DEBUG("Instantiating formulae");
   std::map< TString, egammaMVACalib::VarFormula >::iterator formulaIt;
   for (formulaIt = m_formulae.begin(); formulaIt != m_formulae.end(); ++formulaIt)
   {
@@ -847,13 +847,13 @@ void egammaMVACalib::InitTree(TTree* tree, bool doNotify)
   }
 
   // Instantiate the formulae for the shifts
-  ATH_MSG_INFO("Instantiating formulae for the shifts");
+  ATH_MSG_DEBUG("Instantiating formulae for the shifts");
   std::map< egammaMVACalib::ReaderID, egammaMVACalib::AdditionalInfoMap>::iterator it;
   for (it = m_additional_infos.begin(); it != m_additional_infos.end(); ++it)
     defineShiftFormula(it->first);
 
   // Instantiate the formula for cluster energy
-  ATH_MSG_INFO("Instantiating formulae for cluster energy");
+  ATH_MSG_DEBUG("Instantiating formulae for cluster energy");
   defineClusterEnergyFormula();
 
   if (tree and doNotify) {
@@ -865,7 +865,7 @@ void egammaMVACalib::InitTree(TTree* tree, bool doNotify)
 
     m_input_tree->SetNotify(&m_notify_dispatcher);
   }
-  ATH_MSG_INFO("Init tree done");
+  ATH_MSG_DEBUG("Init tree done");
 }
 
 TTreeFormula* egammaMVACalib::defineFormula(const TString & varName, const TString & expression, TTree *tree)

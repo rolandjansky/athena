@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
 			  Reconstruction/MVAUtils
+                          Reconstruction/egamma/egammaRecEvent
                           Control/CxxUtils
                           Tools/PathResolver )
 
@@ -26,18 +27,18 @@ atlas_add_library( egammaMVACalibLib
                    PUBLIC_HEADERS egammaMVACalib
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AsgTools xAODCaloEvent xAODEgamma xAODTracking GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils PathResolver MVAUtils )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} egammaRecEvent CxxUtils PathResolver MVAUtils )
 
 atlas_add_component( egammaMVACalib
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma xAODTracking GaudiKernel CxxUtils PathResolver egammaMVACalibLib MVAUtils )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma xAODTracking egammaRecEvent GaudiKernel CxxUtils PathResolver egammaMVACalibLib MVAUtils )
 
 atlas_add_dictionary( egammaMVACalibDict
                       egammaMVACalib/egammaMVACalibDict.h
                       egammaMVACalib/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma xAODTracking GaudiKernel CxxUtils PathResolver egammaMVACalibLib MVAUtils )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma xAODTracking egammaRecEvent GaudiKernel CxxUtils PathResolver egammaMVACalibLib MVAUtils )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

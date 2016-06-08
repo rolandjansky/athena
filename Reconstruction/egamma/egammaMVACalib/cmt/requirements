@@ -22,6 +22,7 @@ use xAODTracking     xAODTracking-*    Event/xAOD
 apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Tree TreePlayer TMVA XMLIO)"
 
 private
+use egammaRecEvent	       egammaRecEvent-*        Reconstruction/egamma
 use CxxUtils            CxxUtils-*              Control
 use PathResolver        PathResolver-*          Tools
 use AtlasReflex         AtlasReflex-*           External
