@@ -186,7 +186,8 @@ void BkgStreamsConcentricCache::resetEvtsPerXingScaleFactor(float sf) {
 }
 
 long BkgStreamsConcentricCache::collXingPoisson(){ 
-  if (!m_collXingPoisson) return collXing(); return m_collXingPoisson->fire(m_collXing * m_collXingSF); 
+  if (!m_collXingPoisson) return collXing();
+  return m_collXingPoisson->fire(m_collXing * m_collXingSF); 
 }
 
 void BkgStreamsConcentricCache::newEvent() { 
