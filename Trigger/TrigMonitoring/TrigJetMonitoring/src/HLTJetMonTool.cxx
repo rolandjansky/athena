@@ -1371,6 +1371,14 @@ StatusCode HLTJetMonTool::fill() {
 
   StatusCode sc = StatusCode::SUCCESS;
 
+  // Check HLTResult
+
+  //  if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()){
+  //  ATH_MSG_WARNING("HLTResult truncated, skip event");
+  //  return sc;
+  // }
+
+
   // retrieve containers
   sc = retrieveContainers();
   if (sc.isFailure()) {
@@ -1660,7 +1668,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 	      hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	    }
 
-            if(m_debuglevel) ATH_MSG_DEBUG( lvl << " et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac <<"\thecfrac");
+            if(m_debuglevel) ATH_MSG_INFO( lvl << " et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac <<" \thecfrac "<<hecfrac<<" is PP "<<m_isPP);
 
 
 	    v_thisjet.SetPtEtaPhiE(thisjet->pt()/CLHEP::GeV,eta,phi,e);
@@ -1758,6 +1766,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 	 if(hlt_thr_pass) {
 	   double eta     = j->eta();
 	   double phi     = j->phi();
+	   
 	   double  emfrac  =1;
 	   double  hecfrac =1;
 	   if (m_isPP || m_isCosmic){
