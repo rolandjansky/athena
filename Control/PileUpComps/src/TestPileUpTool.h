@@ -18,20 +18,20 @@
 #include "PileUpTools/PileUpToolBase.h"
 class TestPileUpTool : public PileUpToolBase {
 public:
-  TestPileUpTool(const std::string& type, 
-		 const std::string& name,
-		 const IInterface* parent);
+  TestPileUpTool(const std::string& type,
+                 const std::string& name,
+                 const IInterface* parent);
   ///called before the bunchXing loop
   virtual StatusCode prepareEvent(unsigned int nInputEvents);
-  ///called at the end of the subevts loop. Not (necessarily) able to access 
+  ///called at the end of the subevts loop. Not (necessarily) able to access
   ///SubEvents
   virtual StatusCode mergeEvent();
   ///called for each active bunch-crossing to process current SubEvents
   /// bunchXing is in ns
   virtual StatusCode
-    processBunchXing(int bunchXing,
-		     PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-		     PileUpEventInfo::SubEvent::const_iterator eSubEvents); 
+  processBunchXing(int bunchXing,
+                   SubEventIterator bSubEvents,
+                   SubEventIterator eSubEvents);
   /// return false if not interested in  certain xing times (in ns)
   /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
   //  virtual bool toProcess(int bunchXing) const;

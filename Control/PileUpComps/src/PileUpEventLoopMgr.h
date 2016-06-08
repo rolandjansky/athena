@@ -10,29 +10,37 @@
     $Id: PileUpEventLoopMgr.h,v 1.9 2008-04-23 22:48:29 calaf Exp $
 */
 
+// Base class headers
+#include "AthenaKernel/IEventSeek.h"
+#include "GaudiKernel/MinimalEventLoopMgr.h"
+
+// Athena headers
+#include "AthenaKernel/MsgStreamMember.h"
+#include "EventInfo/EventID.h"  /* for EventID::number_type */
+#include "PileUpTools/PileUpStream.h"
+
+// Gaudi headers
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #ifndef _CPP_STRING
 #include <string>
 #endif
 
-// Framework include files
-#include "GaudiKernel/IEvtSelector.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/MinimalEventLoopMgr.h"
-#include "AthenaKernel/IEventSeek.h"
-#include "AthenaKernel/MsgStreamMember.h"
-#include "EventInfo/EventID.h"  /* number_type */
-#include "PileUpTools/PileUpStream.h"
-
 // Forward declarations
 class IBeamIntensity;
 class IBeamLuminosity;
+class IBkgStreamsCache;
+namespace xAODMaker
+{
+  class IEventInfoCnvTool;
+}
+class IEvtSelector;
 class IIncidentSvc;
 class ITimeKeeper;
 class PileUpMergeSvc;
 class StoreGateSvc;
-class IBkgStreamsCache;
 
 /** @class PileUpEventLoopMgr
     @brief The ATLAS event loop for pile-up applications.
@@ -41,7 +49,6 @@ class IBkgStreamsCache;
 class PileUpEventLoopMgr : virtual public IEventSeek,
                            public MinimalEventLoopMgr   {
 public:
-  typedef IEvtSelector::Context EvtIterator;
 
   /// Standard Constructor
   PileUpEventLoopMgr(const std::string& nam, ISvcLocator* svcLoc);
@@ -93,18 +100,16 @@ private:
   }
 
   /// Incident Service
-  IIncidentSvc* p_incidentSvc;
+  ServiceHandle<IIncidentSvc> m_incidentSvc;
 
   /// PileUp Merge Service
-  PileUpMergeSvc* p_mergeSvc;
+  ServiceHandle<PileUpMergeSvc> m_mergeSvc;
 
   /// Input Streams
   PileUpStream m_origStream;
 
-
-
   /// output store
-  StoreGateSvc* p_SGOver;              // overlaid (output) event store
+  ServiceHandle<StoreGateSvc> m_evtStore;              // overlaid (output) event store
 
   //unsigned int m_nInputs;
   //unsigned int m_nStores;
@@ -147,6 +152,8 @@ private:
   ServiceHandle<IBeamIntensity> m_beamInt;
   /// property: beam intensity service handle for luminosity profile in iovtime
   ServiceHandle<IBeamLuminosity> m_beamLumi;
+  /// property: Handle to the EventInfo -> xAOD::EventInfo converter tool
+  ToolHandle< xAODMaker::IEventInfoCnvTool > m_xAODCnvTool;
   //@}
 
   /// current run number
