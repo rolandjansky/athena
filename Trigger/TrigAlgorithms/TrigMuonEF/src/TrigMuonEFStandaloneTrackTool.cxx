@@ -1022,7 +1022,7 @@ if (m_useMdtData>0) {
   // select non-empty PRD collections for segment finding
   
   // Get RPC container
-  if (m_useRpcData>0 && !rpc_hash_ids.empty()) {
+  if (m_useRpcData && !rpc_hash_ids.empty()) {
     const RpcPrepDataContainer* rpcPrds = 0;
     std::string rpcKey = "RPC_Measurements";
     if((*p_ActiveStore)->retrieve(rpcPrds, rpcKey).isFailure()) {
@@ -1078,7 +1078,7 @@ if (m_useMdtData>0) {
   }
   
   // Get MDT container
-  if (m_useMdtData>0 && !mdt_hash_ids.empty()) {
+  if (m_useMdtData && !mdt_hash_ids.empty()) {
     
     const MdtPrepDataContainer* mdtPrds = 0;
     std::string mdtKey = "MDT_DriftCircles";
@@ -1174,7 +1174,7 @@ if (m_useMdtData>0) {
   }
   
   // Get TGC container
-  if (m_useTgcData>0 && !tgc_hash_ids.empty()) {
+  if (m_useTgcData && !tgc_hash_ids.empty()) {
     
     const TgcPrepDataContainer* tgcPrds = 0;
     std::string tgcKey = "TGC_Measurements";
@@ -1307,7 +1307,7 @@ if (m_useMdtData>0) {
   
   
   // Get CSC container
-  if (m_useCscData>0 && !csc_hash_ids.empty()) {
+  if (m_useCscData && !csc_hash_ids.empty()) {
     
     const CscPrepDataContainer* cscPrds = 0;
     std::string cscKey = "CSC_Clusters";
