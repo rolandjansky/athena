@@ -54,6 +54,17 @@ TileDigitsMonTool::TileDigitsMonTool(const std::string & type, const std::string
   , m_cispar(0)
   , m_nEvents(0)
   , m_nSamples(0)
+  , m_sumPed1{}
+  , m_sumPed2{}
+  , m_sumRms1{}
+  , m_sumRms2{}
+  , m_meanAmp{}
+  , m_meanAmp_ij{}
+  , m_nEvents_i{}
+  , m_nEvents_ij{}
+  , m_cov_ratio{}
+  , m_stuck_probs{}
+  , m_allHistsFilled(false)
   //, hp(-1)
   //, hb(-1)
 /*---------------------------------------------------------*/
@@ -98,6 +109,8 @@ StatusCode TileDigitsMonTool::initialize()
   memset(m_sumRms2, 0, sizeof(m_sumRms2));
   memset(m_meanAmp, 0, sizeof(m_meanAmp));
   memset(m_meanAmp_ij, 0, sizeof(m_meanAmp_ij));
+  memset(m_nEvents_i, 0, sizeof(m_nEvents_i));
+  memset(m_nEvents_ij, 0, sizeof(m_nEvents_ij));
   memset(m_stuck_probs, 0, sizeof(m_stuck_probs));
 
   //For test stuck_bits_maker
@@ -275,7 +288,7 @@ void TileDigitsMonTool::bookHists(int ros, int drawer)
         sStr << moduleName << " DMU0 " << ch << gain[3 + gn] << " BCID errors";
         histTitle = sStr.str();
 
-        m_hist1[ros][drawer][ch][adc].push_back(book1S(subDir, histName, histTitle, 3, -0.5, 2.5));
+        m_hist_DMUerr[ros][drawer][ch][adc].push_back(book1I(subDir, histName, histTitle, 3, -0.5, 2.5));
 
         if (adc) continue; // don't book CRC for high gain
 
@@ -287,7 +300,7 @@ void TileDigitsMonTool::bookHists(int ros, int drawer)
         sStr << moduleName << " DMU0 " << ch << " CRC errors";
         histTitle = sStr.str();
 
-        m_hist1[ros][drawer][ch][0].push_back(book1S(subDir, histName, histTitle, 5, -0.5, 4.5));
+        m_hist_DMUerr[ros][drawer][ch][0].push_back(book1I(subDir, histName, histTitle, 5, -0.5, 4.5));
       }
     }
   }
@@ -386,7 +399,7 @@ StatusCode TileDigitsMonTool::fillHists()
     double mean_tmp[48][2][16];
     memset(mean_tmp, 0, sizeof(mean_tmp));
     
-    double charge = (m_cispar[6] * m_cispar[7] * 2. * 4.096) / 1023.;
+    double charge = m_cispar[6] * m_cispar[7] * (2. * 4.096 / 1023.);
     
     for (const TileDigits* tileDigits : *digitsCollection) {
 
@@ -447,11 +460,16 @@ StatusCode TileDigitsMonTool::fillHists()
       //For cor&cov
     for (int sample = 0; sample < m_nSamples; ++sample) {
       for (int gain = 0; gain < 2; ++gain) {
-        for (int ch_i = 0; ch_i < 48; ++ch_i) {
-          m_meanAmp[ros][drawer][gain][ch_i] += mean_tmp[ch_i][gain][sample];
-          for (int ch_j = 0; ch_j < 48; ++ch_j)
-            m_meanAmp_ij[ros][drawer][gain][ch_i][ch_j] += mean_tmp[ch_i][gain][sample] * mean_tmp[ch_j][gain][sample];
-        }
+        for (int ch_i = 0; ch_i < 48; ++ch_i)
+	  if (!m_corrup[ros][drawer][gain][ch_i / 3]) {
+	    m_nEvents_i[ros][drawer][gain][ch_i]++;
+	    m_meanAmp[ros][drawer][gain][ch_i] += mean_tmp[ch_i][gain][sample];
+	    for (int ch_j = 0; ch_j < 48; ++ch_j)
+	      if (!m_corrup[ros][drawer][gain][ch_j / 3]) {
+		m_nEvents_ij[ros][drawer][gain][ch_i][ch_j]++;
+		m_meanAmp_ij[ros][drawer][gain][ch_i][ch_j] += mean_tmp[ch_i][gain][sample] * mean_tmp[ch_j][gain][sample];
+	      }
+	  }
       }
     }
     
@@ -462,15 +480,15 @@ StatusCode TileDigitsMonTool::fillHists()
       uint32_t bcid_ch = (headerVec[ch] & 0xFFF);
       m_hist1[ros][drawer][ch][0][3]->Fill(bcid_ch, 1.0);
       if ((bcid_ch == bcid) || (bcid_ch == bcid - 1)) 	// Conservative condition to be consistent with both run before Feb07 and
-        m_hist1[ros][drawer][ch][0][4]->Fill(1.0, 1.0);  	// runs after Feb07. Introducing a RunNum variable it could be more strict.
+        m_hist_DMUerr[ros][drawer][ch][0][0]->Fill(1.0, 1.0);  	// runs after Feb07. Introducing a RunNum variable it could be more strict.
       else if ((bcid == 0) && ((bcid_ch == 3563) || (bcid_ch == 3564)))	// if bcid==0 then bcid_ch should be 3563 (0xDEB)
-        m_hist1[ros][drawer][ch][0][4]->Fill(1.0, 1.0);			// but sometimes 3564 (0xDEC) is observed.
+        m_hist_DMUerr[ros][drawer][ch][0][0]->Fill(1.0, 1.0);			// but sometimes 3564 (0xDEC) is observed.
       //        if (bcid_ch == bcid) 				// Now allow only exact bcid: ROD BCID = DMU BCID+1
-      //          m_hist1[ros][drawer][ch][0][4]->Fill(1.0,1.0);  	// 	Apr 2013
+      //          m_hist_DMUerr[ros][drawer][ch][0][0]->Fill(1.0,1.0);  	// 	Apr 2013
       //        else if (bcid_ch == 0)
-      //          m_hist1[ros][drawer][ch][0][4]->Fill(0.0,1.0);
+      //          m_hist_DMUerr[ros][drawer][ch][0][0]->Fill(0.0,1.0);
       //        else 
-      //          m_hist1[ros][drawer][ch][0][4]->Fill(2.0,1.0);
+      //          m_hist_DMUerr[ros][drawer][ch][0][0]->Fill(2.0,1.0);
     }
     
     //DMUheaderCheck(&headerVec,headsize,ros,drawer,0); 
@@ -489,15 +507,15 @@ StatusCode TileDigitsMonTool::fillHists()
       uint32_t bcid_ch = (headerVec[ch] & 0xFFF);
       m_hist1[ros][drawer][ch][1][3]->Fill(bcid_ch, 1.0);
       if ((bcid_ch == bcid) || (bcid_ch == bcid - 1))  		// BCID from TileDMU should match BCID from ROD header or
-        m_hist1[ros][drawer][ch][1][4]->Fill(1.0, 1.0);        		// bcid-1 for runs after Feb07.
+        m_hist_DMUerr[ros][drawer][ch][1][0]->Fill(1.0, 1.0);        		// bcid-1 for runs after Feb07.
       else if ((bcid == 0) && ((bcid_ch == 3563) || (bcid_ch == 3564)))	// if bcid==0 then bcid_ch should be 3563 (0xDEB)
-        m_hist1[ros][drawer][ch][1][4]->Fill(1.0, 1.0);			// but sometimes 3564 (0xDEC) is observed.
+        m_hist_DMUerr[ros][drawer][ch][1][0]->Fill(1.0, 1.0);			// but sometimes 3564 (0xDEC) is observed.
       //        if (bcid_ch == bcid) 				// Now allow only exact bcid
-      //          m_hist1[ros][drawer][ch][0][4]->Fill(1.0,1.0);  	// 	Apr 2013
+      //          m_hist_DMUerr[ros][drawer][ch][0][0]->Fill(1.0,1.0);  	// 	Apr 2013
       //	  else if (bcid_ch == 0)
-      //	    m_hist1[ros][drawer][ch][1][4]->Fill(0.0,1.0);
+      //	    m_hist_DMUerr[ros][drawer][ch][1][0]->Fill(0.0,1.0);
       //	  else
-      //	    m_hist1[ros][drawer][ch][1][4]->Fill(2.0,1.0);
+      //	    m_hist_DMUerr[ros][drawer][ch][1][0]->Fill(2.0,1.0);
     }
     
     //DMUheaderCheck(&headerVec,headsize,ros,drawer,1);
@@ -702,13 +720,13 @@ StatusCode TileDigitsMonTool::finalHists()
             int dmu = ch + 1;
 
             // BCID and CRC errors
-            for (int id = 4; id < 6; ++id) {
-              int bin0 = lround(m_hist1[ros][drawer][ch][adc][id]->GetBinContent(0));
-              int bin1 = lround(m_hist1[ros][drawer][ch][adc][id]->GetBinContent(1));
-              int bin2 = lround(m_hist1[ros][drawer][ch][adc][id]->GetBinContent(2));
-              int bin3 = lround(m_hist1[ros][drawer][ch][adc][id]->GetBinContent(3));
-              int bin4 = lround(m_hist1[ros][drawer][ch][adc][id]->GetBinContent(4));
-              int bin5 = lround(m_hist1[ros][drawer][ch][adc][id]->GetBinContent(5));
+            for (int id = 0; id < 2; ++id) {
+              int bin0 = lround(m_hist_DMUerr[ros][drawer][ch][adc][id]->GetBinContent(0));
+              int bin1 = lround(m_hist_DMUerr[ros][drawer][ch][adc][id]->GetBinContent(1));
+              int bin2 = lround(m_hist_DMUerr[ros][drawer][ch][adc][id]->GetBinContent(2));
+              int bin3 = lround(m_hist_DMUerr[ros][drawer][ch][adc][id]->GetBinContent(3));
+              int bin4 = lround(m_hist_DMUerr[ros][drawer][ch][adc][id]->GetBinContent(4));
+              int bin5 = lround(m_hist_DMUerr[ros][drawer][ch][adc][id]->GetBinContent(5));
               double weight = -1.0;
 
               if (bin0 + bin3 + bin4 + bin5 > 0) {
@@ -730,7 +748,7 @@ StatusCode TileDigitsMonTool::finalHists()
                   if (weight > 0.8) weight = 0.8; // to see clearly even one event with zeros
                 }
               }
-              m_final_hist1[ros][drawer][adc][id]->SetBinContent(dmu, weight);
+              m_final_hist1[ros][drawer][adc][id + 4]->SetBinContent(dmu, weight);
 
               if (adc) break; // no CRC histogram in high gain
             }
@@ -752,9 +770,11 @@ StatusCode TileDigitsMonTool::finalHists()
             if (m_nEvents * m_nSamples > 0) {
 
               for (int ch_i = 0; ch_i < 48; ++ch_i) {
-                m_meanAmp[ros][drawer][adc][ch_i] /= m_nEvents * m_nSamples;
+		if (m_nEvents_i[ros][drawer][adc][ch_i] > 0)
+		  m_meanAmp[ros][drawer][adc][ch_i] /= m_nEvents_i[ros][drawer][adc][ch_i];
                 for (int ch_j = 0; ch_j < 48; ++ch_j)
-                  m_meanAmp_ij[ros][drawer][adc][ch_i][ch_j] /= m_nEvents * m_nSamples;
+		  if (m_nEvents_ij[ros][drawer][adc][ch_i][ch_j] > 0)
+		    m_meanAmp_ij[ros][drawer][adc][ch_i][ch_j] /= m_nEvents_ij[ros][drawer][adc][ch_i][ch_j];
               }
 
               double covar[48][48];
@@ -1334,7 +1354,7 @@ int TileDigitsMonTool::stuckBits_Amp(TH1S * hist, int /*adc*/) {
   int NSB = 0;
   for (b = 0; b < 10; b++)
     // if (bc[b] > 2 && abs(bs[b]) * 2 > bc[b])
-    if (((bc[b] > 2) && (abs(bs[b]) == bc[b])) || ((abs(bs[b]) > 7) && (abs(bs[b]) * 3 > bc[b]))) {
+    if (((bc[b] > 2) && (std::abs(bs[b]) == bc[b])) || ((std::abs(bs[b]) > 7) && (std::abs(bs[b]) * 3 > bc[b]))) {
       NSB++;
     }
 
@@ -1387,12 +1407,11 @@ int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, int /*adc*/, TH2C *outhist, i
       if (cc > 0) bas[b]++;
     }
     prob = 1.;
+    cont = sqrt((double) (c + cm));
     if ((c == 0 || cm == 0) && (c > 0 || cm > 0)) {
-      cont = sqrt((double) (c + cm));
       prob = erf((cont - sqrt(cont)) / sqrt(2 * cont));
     }
     /* bin content is lower than usual */
-    cont = sqrt((double) (c + cm));
     if (c > 0 && c < 0.25 * (cp + cm - std::sqrt((double) cp) - std::sqrt((double) cm))) {
       prob = 1. - (double) c / (0.25 * (cp + cm - std::sqrt((double) cp) - std::sqrt((double) cm)));
       c = 0;
@@ -1535,11 +1554,11 @@ void TileDigitsMonTool::CRCcheck(uint32_t crc32, uint32_t crcMask, int headsize,
   if (m_beamInfo->calibMode() == 1) { //!bigain: dummy information
     for (int ch = 0; ch < headsize; ++ch) {
       if (crc32 == 0)
-        m_hist1[ros][drawer][ch][0][5]->Fill(0.0, 1.0);
+        m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(0.0, 1.0);
       else if (crc0 == crc1)
-        m_hist1[ros][drawer][ch][0][5]->Fill(1.0, 1.0);
+        m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(1.0, 1.0);
       else
-        m_hist1[ros][drawer][ch][0][5]->Fill(2.0, 1.0);
+        m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(2.0, 1.0);
 
     }
   } else { //! monogain: meaningful information.
@@ -1550,11 +1569,11 @@ void TileDigitsMonTool::CRCcheck(uint32_t crc32, uint32_t crcMask, int headsize,
            //! Fill 4 is FE and ROD crc is 0
     if (crc32 == 0) {  //std::cout << "Global crc is zero\n";
       for (int ch = 0; ch < headsize; ++ch) {
-        m_hist1[ros][drawer][ch][0][5]->Fill(0.0, 1.0);
+        m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(0.0, 1.0);
       }
     } else if (crcMask == 0xFFFFFFFF) {
       for (int ch = 0; ch < headsize; ++ch) {
-        m_hist1[ros][drawer][ch][0][5]->Fill(1.0, 1.0);
+        m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(1.0, 1.0);
       }
     } else {
       uint32_t fe_crc = crcMask & 0xFFFF;
@@ -1579,16 +1598,16 @@ void TileDigitsMonTool::CRCcheck(uint32_t crc32, uint32_t crcMask, int headsize,
 
         switch (flag) {
           case 0: //TileDMU is fine
-            m_hist1[ros][drawer][ch][0][5]->Fill(1.0, 1.0);
+            m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(1.0, 1.0);
             break;
           case 1: //fe error only
-            m_hist1[ros][drawer][ch][0][5]->Fill(2.0, 1.0);
+            m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(2.0, 1.0);
             break;
           case 2: // rod errors
-            m_hist1[ros][drawer][ch][0][5]->Fill(3.0, 1.0);
+            m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(3.0, 1.0);
             break;
           default: // fe+rod errors
-            m_hist1[ros][drawer][ch][0][5]->Fill(4.0, 1.0);
+            m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(4.0, 1.0);
         } // end switch case
 
       } // end loop on chips
@@ -1740,9 +1759,10 @@ void TileDigitsMonTool::statTestHistos(int ros, int drawer, int gain)
   }
 
   int entr = refbld.size();
+  const double inv_entr = (entr > 0 ? 1. / static_cast<double>(entr) : 1);
   for (int i = 0; i < entr; i++) {
     TH1S *h = refbld.at(i);
-    ref->Add(h, 1. / entr);
+    ref->Add(h, inv_entr);
   }
 
   //      refbld.push_back(ref);
@@ -1758,9 +1778,10 @@ void TileDigitsMonTool::statTestHistos(int ros, int drawer, int gain)
   }
 
   int ent = newrefbld.size();
+  const double inv_ent = (ent > 0 ? 1. / static_cast<double>(ent) : 1);
   for (int i = 0; i < ent; i++) {
     obj = (TH1S*) newrefbld.at(i);
-    ref1->Add(obj, 1. / ent);
+    ref1->Add(obj, inv_ent);
   }
 
   //  newrefbld->Add(ref1);      

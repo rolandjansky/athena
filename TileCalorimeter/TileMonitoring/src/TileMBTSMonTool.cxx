@@ -45,9 +45,9 @@ const int TileMBTSMonTool::m_isInner[32] =
 //=====================================================================
 TileMBTSMonTool::TileMBTSMonTool(	const std::string & type, const std::string & name,const IInterface* parent) 
 	: TileFatherMonTool(type, name, parent)
-  , m_h_sumPed(0)
-  , m_h_sumHFNoise(0)
-  , m_h_sumLFNoise(0)
+  //, m_h_sumPed(0)
+  //, m_h_sumHFNoise(0)
+  //, m_h_sumLFNoise(0)
   , m_h_occupancy(0)
   , m_h_sumEnergy(0)
   , m_h_sumEnergy_wTBP(0)
@@ -91,6 +91,7 @@ TileMBTSMonTool::TileMBTSMonTool(	const std::string & type, const std::string & 
   , m_ctpID(32, 0)
   , m_counterExist(32, false)
   , m_old_lumiblock(-1)
+  , m_nLumiblocks(3000)
 {
   declareInterface<IMonitorToolBase>(this);
   declareProperty("LVL1ConfigSvc", m_lvl1ConfigSvc, "LVL1 Config Service");
@@ -102,6 +103,7 @@ TileMBTSMonTool::TileMBTSMonTool(	const std::string & type, const std::string & 
   declareProperty("doOnline", m_isOnline = false); // Switch for online running
   declareProperty("UseTrigger", m_useTrigger = true); // Switch for using trigger information
   declareProperty("FillHistogramsPerMBTS", m_fillHistogramsPerMBTS = true); // Switch for using per MBTS histograms
+  declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
 
   m_path = "/Tile/MBTS";
   m_numEvents = 0;
@@ -469,7 +471,8 @@ StatusCode TileMBTSMonTool::bookHistograms() {
   m_h_timeDiff = book1F("Cell", "TimeDiff_A-C", "Time Difference between MBTS on A and C side", 151, -75, 75);
   m_h_timeDiff->GetXaxis()->SetTitle("Time difference, A-side - C-side [ns]");
 
-  m_h_timeDiffLumi = book2F("Cell", "TimeDiff_A-C_LB", "Time Difference between MBTS on A and C side vs LumiBlock", 1500, -0.5, 1499.5, 151, -75, 75);
+  m_h_timeDiffLumi = book2F("Cell", "TimeDiff_A-C_LB", "Time Difference between MBTS on A and C side vs LumiBlock", 
+                            m_nLumiblocks, -0.5, m_nLumiblocks - 0.5, 151, -75, 75);
   m_h_timeDiffLumi->GetXaxis()->SetTitle("Luminosity Block");
   m_h_timeDiffLumi->GetYaxis()->SetTitle("Time difference, A-side - C-side [ns]");
 
@@ -1030,11 +1033,11 @@ StatusCode TileMBTSMonTool::fillHistograms() {
 //=====================================================================
 StatusCode TileMBTSMonTool::procHistograms() {
 
-  if (endOfRun && m_isOnline) {
+  if (endOfRunFlag() && m_isOnline) {
     return StatusCode::SUCCESS;
   }
 
-  if (endOfRun) {
+  if (endOfRunFlag()) {
     ATH_MSG_INFO( "in procHistograms()" );
   }
 

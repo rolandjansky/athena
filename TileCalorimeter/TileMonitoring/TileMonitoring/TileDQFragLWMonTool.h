@@ -92,6 +92,8 @@ class TileDQFragLWMonTool: public TileFatherMonTool {
     /* njunior@cern.ch */
 
     TH2I_LW* m_global[2];
+    TH2I_LW* m_mismatchedL1TriggerType[2];
+
     TH2I_LW* m_badChannelJump2D[4];
     TH2I_LW* m_badChannelNeg2D[4];
 
@@ -112,6 +114,7 @@ class TileDQFragLWMonTool: public TileFatherMonTool {
     static const int NCORRUPTED = 13;
     static const int NDMU = 16;
 
+    int m_nLumiblocks;
 
     /*---------------------------------------------------------*/
 

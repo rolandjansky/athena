@@ -606,7 +606,7 @@ StatusCode TileRawChannelMonTool::fillHists()
               if ((m_runType == CisRun) || (m_runType == CisRamp)) {
                 if (k == 0) {	//Lukas
                   double charge = 0.;
-                  if (m_cispar[6] < 1024) charge = (m_cispar[6] * m_cispar[7] * 2. * 4.096) / 1023.;
+                  if (m_cispar[6] < 1024) charge = m_cispar[6] * m_cispar[7] * (2. * 4.096 / 1023.);
                   double timeInj = m_cispar[5] * 0.104;
 
                   if (m_book2D) {

@@ -47,6 +47,41 @@ if 'Partition' not in dir():
     Partition="ATLAS"
 ByteStreamEmonInputSvc.Partition = Partition
 
+from ipc import IPCPartition
+from ispy import ISObject
+ipc_partition = IPCPartition(Partition);
+
+if not ipc_partition.isValid():
+    tilemon_log.error( 'Partition: ' + ipc_partition.name() + ' is not valid' )
+    sys.exit(1)
+
+### ATLAS partition: Read Global Run Parameters to configure the jobs
+if ByteStreamEmonInputSvc.Partition == 'ATLAS':
+    try:
+        run_params = ISObject(ipc_partition, 'RunParams.SOR_RunParams', 'RunParams')
+    except:
+        tilemon_log.warning( "Could not find Run Parameters in IS - Set default beam type to 'cosmics'")
+        beamType = 'cosmics'
+    else:
+        run_params.checkout()
+        beam_type = run_params.beam_type
+        beam_energy = run_params.beam_energy
+        RunNumber = run_params.run_number
+        project = run_params.T0_project_tag
+        tilemon_log.info( "RUN CONFIGURATION: beam type: %i, beam energy: %i, run number: %i, project tag: %s" % (beam_type, beam_energy, RunNumber, project) )
+        
+        # define beam type based on project tag name
+        if project[7:] == "cos" or project[5:] == "test":
+            beamType = 'cosmics'
+        elif project[7:] == '1beam':
+            beamType = 'singlebeam'
+        else:
+            beamType = 'collisions'
+            
+    tilemon_log.info( 'Set up beam type: ' + beamType )
+    TileNoiseFilter = 1
+
+
 # #########################################
 # The source of events, SFI for full events
 # #########################################

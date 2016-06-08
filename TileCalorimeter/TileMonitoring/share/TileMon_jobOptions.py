@@ -181,6 +181,8 @@ if  tileRawMon:
                                                , OutputLevel         = INFO
                                                , TileDigitsContainer = "TileDigitsCnt"
                                                , histoPathBase       = "/Tile/DigiNoise" 
+                                               , TriggerChain        = "HLT_noalg_cosmiccalo_L1RD1_EMPTY"
+                                               , TrigDecisionTool    = getattr(ToolSvc, DQMonFlags.nameTrigDecTool()) if DQMonFlags.useTrigger() else ""
                                                , TriggerTypes        = [ 0x82 ]);
 
         if globalflags.InputFormat() == 'pool':
