@@ -49,7 +49,7 @@ StatusCode InputCollectionMetadataCopy::initialize() {
    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
    sc = incSvc.retrieve();
    if (!sc.isSuccess()) {
-       ATH_MSG_ERROR (log << MSG::ERROR << "Unable to get the IncidentSvc");
+       ATH_MSG_ERROR ("Unable to get the IncidentSvc");
       return(sc);
    }
    incSvc->addListener(this, "BeginTagFile", 60); // pri has to be < 100 to be after MetaDataSvc.
