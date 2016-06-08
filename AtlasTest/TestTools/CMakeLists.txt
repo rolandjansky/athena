@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 744649 2016-05-03 19:33:39Z krasznaa $
 ################################################################################
 # Package: TestTools
 ################################################################################
@@ -6,25 +7,28 @@
 atlas_subdir( TestTools )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaCommon
-                          TestPolicy
-                          PRIVATE
-                          GaudiKernel )
+atlas_depends_on_subdirs(
+   PUBLIC
+   Control/AthenaCommon
+   TestPolicy
+   PRIVATE
+   GaudiKernel )
 
-# External dependencies:
-find_package( PythonLibs )
-
-# Component(s) in the package:
-atlas_add_library( TestTools
-                   src/*.cxx
-                   PUBLIC_HEADERS TestTools
-                   INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${PYTHON_LIBRARIES}
-                   PRIVATE_LINK_LIBRARIES GaudiKernel )
+# In standalone mode we just use the headers from the package. While in
+# offline mode we build a proper library.
+if( XAOD_STANDALONE )
+   atlas_add_library( TestTools
+      TestTools/*.h
+      INTERFACE
+      PUBLIC_HEADERS TestTools )
+else()
+   atlas_add_library( TestTools
+      TestTools/*.h src/*.cxx
+      PUBLIC_HEADERS TestTools
+      PRIVATE_LINK_LIBRARIES GaudiKernel )
+endif()
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( share/runUnitTests.sh share/post.sh )
-
