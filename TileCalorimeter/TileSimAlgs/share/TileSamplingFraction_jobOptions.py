@@ -29,6 +29,11 @@ try:
     if physicsList == 'FTFP_BERT' or (physicsList == 'QGSP_BERT' and G4V > 9.05999) :
         EmScaleA = 33.9
 
+    #default value for G4 10.0 since June-2016 
+    # see https://indico.cern.ch/event/489520/contributions/2193913/attachments/1285565/1914309/sampling_fractions.pdf
+    if G4V >= 10.0 :
+        EmScaleA = 33.7
+
     # old value
     if physicsList == 'QGSP_EMV' or physicsList == 'QGSP_BERT_EMV' or physicsList == '' :
         EmScaleA = 35.9
