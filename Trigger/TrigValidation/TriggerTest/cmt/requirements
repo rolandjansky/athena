@@ -31,6 +31,9 @@ apply_pattern declare_runtime extras="../test/TriggerTest_TestConfiguration.xml 
                                       ../python/CheckLog_TriggerTest.py \
                                       ../python/LogTail_TriggerTest.py \
                                       ../python/CheckForTrigCostD3PD_TriggerTest.py \
+                                      ../python/CheckForHLTChainAllZero_TriggerTest.py \
+                                      ../python/CheckForHLTTEAllZero_TriggerTest.py \
+                                      ../python/CheckForL1AllZero_TriggerTest.py \
                                       ../python/CreateIgprofReport_TriggerTest.py \
                                       ../python/TruncateLog_TriggerTest.py \
                                       ../python/ValGrindPostScript_TriggerTest.py \
