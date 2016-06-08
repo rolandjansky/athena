@@ -23,6 +23,10 @@ else
  RESET=""
 fi
 
+if [ "$ATLAS_CTEST_PACKAGE" = "" ]; then
+  ATLAS_CTEST_PACKAGE="__NOPACKAGE__"
+fi
+
 # consider these name pairs identical in the diff
 read -d '' II <<EOF
 s/^StoreGateSvc_Impl VERBOSE/StoreGateSvc      VERBOSE/
@@ -30,6 +34,8 @@ s/^StoreGateSvc_Impl   DEBUG/StoreGateSvc        DEBUG/
 s/StoreGateSvc_Impl/StoreGateSvc/
 s/SGImplSvc/StoreGateSvc/
 s/SG::DataProxyHolder::sgkey_t/sgkey_t/
+s!\\\\(ERROR\\\\|INFO\\\\|WARNING\\\\|FATAL\\\\) [^ ]*/!\\\\1 ../!
+s/.[[][?]1034h//
 EOF
 
 # ignore diff annotations
@@ -69,11 +75,11 @@ PP="$PP"'|ClassIDSvc .* finalize: wrote .*'
 # ignore rcs version comments
 PP="$PP"'|Id: .+ Exp \$'
 # ignore plugin count
-PP="$PP"'|PluginMgr            INFO loaded plugin info for'
+PP="$PP"'|PluginMgr +INFO loaded plugin info for'
 # ignore HistorySvc registered count
-PP="$PP"'|HistorySvc           INFO Registered'
+PP="$PP"'|HistorySvc +INFO Registered'
 # ignore clid registry entries count
-PP="$PP"'|ClassIDSvc           INFO  getRegistryEntries: read'
+PP="$PP"'|ClassIDSvc +INFO  getRegistryEntries: read'
 # ignore existsDir path WARNINGS
 PP="$PP"'|DirSearchPath::existsDir: WARNING not a directory'
 # ignore warnings about duplicate services/converters.
@@ -126,6 +132,22 @@ PP="$PP"'|^Py:Athena +INFO using release'
 PP="$PP"'|servers found for host'
 PP="$PP"'|^(Sun|Mon|Tue|Wed|Thu|Fri|Sat) '
 
+# Outputs dependent on whether or not a file catalog already exists.
+PP="$PP"'|XMLFileCatalog|File is not in Catalog|Failed to open container to check POOL collection|Open     DbSession|Access   DbDomain|Access   DbDatabase|^RootDatabase.open|Deaccess DbDatabase'
+
+PP="$PP"'|^Py:ConfigurableDb'
+PP="$PP"'|^DBReplicaSvc +INFO'
+PP="$PP"'|INFO ... COOL  exception caught: The database does not exist|Create a new conditions database'
+PP="$PP"'|^SetGeometryVersion.py obtained'
+PP="$PP"'|^ConditionStore +INFO Start ConditionStore'
+PP="$PP"'|^ConditionStore +INFO Stop ConditionStore'
+
+# Differences between Gaudi versions.
+PP="$PP"'|DEBUG input handles:|DEBUG output handles:|DEBUG Data Deps for|DEBUG Property update for OutputLevel :|-ExtraInputs |-ExtraOutputs |-Cardinality |-IsClonable |-NeededResources |-Timeline '
+
+# StoreGate INFO messages changed to VERBOSE
+PP="$PP"'|^StoreGateSvc +(INFO|VERBOSE) (Stop|stop|Start)'
+
 
 if [ "$extrapatterns" != "" ]; then
  PP="$PP""|$extrapatterns"
@@ -157,6 +179,8 @@ else
            diffStatus=$?
            if [ $diffStatus != 0 ] ; then
                echo "$RED post.sh> ERROR: $joblog and $reflog differ $RESET"
+               # Return with failure in this case:
+               exit 1
            else
                if [ "$verbose" != "" ]; then
                  echo "$GREEN post.sh> OK: $joblog and $reflog identical $RESET"

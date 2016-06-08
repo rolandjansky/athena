@@ -43,4 +43,3 @@ macro_append DOXYGEN_INPUT " ../doc"
 macro_append DOXYGEN_INPUT " ../share" 
 macro_append DOXYGEN_FILE_PATTERNS    " *.sh"
 macro_append DOXYGEN_FILE_PATTERNS    " *.txt"
-
