@@ -43,7 +43,7 @@ if  ('menu' in dir()):
     TriggerFlags.triggerMenuSetup = menu
 else: 
     #std
-    TriggerFlags.triggerMenuSetup = 'MC_pp_v5' 
+    TriggerFlags.triggerMenuSetup = 'MC_pp_v6' 
 
 TriggerFlags.doHLT=True
 TriggerFlags.AODEDMSet="AODFULL"
@@ -80,9 +80,37 @@ def minbiasOnly():
     TriggerFlags.Slices_all_setOff()
     TriggerFlags.MinBiasSlice.setAll()
 
+def mubphysics():
+    TriggerFlags.Slices_all_setOff()
+    TriggerFlags.MuonSlice.setAll()
+    TriggerFlags.BphysicsSlice.setAll()
+
 def combinedOnly():
     TriggerFlags.Slices_all_setOff()
     TriggerFlags.CombinedSlice.setAll()
+
+def minbiasEnhanced():
+    TriggerFlags.Slices_all_setOff()
+    TriggerFlags.MinBiasSlice.setAll()
+    mbL1Items = ['L1_BCM_Wide', 'L1_LUCID', 'L1_MBTS_2', 'L1_MBTS_1_1', 'L1_TE20', 'L1_TE30', 'L1_TE40', 'L1_RD0_FILLED', 'L1_MBTS_2_UNPAIRED_ISO', 'L1_MBTS_4_4',]
+    for L1item in mbL1Items:        
+        if not L1item in TriggerFlags.Lvl1.items():
+            TriggerFlags.Lvl1.items = TriggerFlags.Lvl1.items() + [L1item]
+    mbHLTItems = [
+                  ['mb_sptrk_L1MBTS_1',  'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ['mb_sptrk_L1MBTS_2',  'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ['mb_sptrk_noisesup_L1MBTS_1',  'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ['mb_sptrk_noisesup_L1MBTS_2',  'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ['mb_sp2000_trk70_hmt_L1MBTS_1',  'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],                  
+                  ['mb_sp2000_trk70_hmt_L1MBTS_2',  'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ['mb_sp2000_pusup600_trk70_hmt_L1MBTS_1', 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ['mb_sptrk_costr_L1MBTS_1', 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ]
+    TriggerFlags.MinBiasSlice.signatures = mbHLTItems
+    for HLTitem in mbHLTItems:        
+        if not HLTitem in TriggerFlags.MinBiasSlice.signatures():
+            TriggerFlags.MinBiasSlice.signatures = TriggerFlags.MinBiasSlice.signatures() + [HLTitem]
+
 
 # Override list of signatures in e/gamma slice
 try:
@@ -121,6 +149,10 @@ if  ('sliceName' in dir()):
         GenerateMenu.overwriteSignaturesWith(minbiasOnly)    
     elif sliceName == 'combined':
         GenerateMenu.overwriteSignaturesWith(combinedOnly)
+    elif sliceName == 'mubphysics':
+        GenerateMenu.overwriteSignaturesWith(mubphysics)
+    elif sliceName == 'minbiasEnhanced':
+        GenerateMenu.overwriteSignaturesWith(minbiasEnhanced)    
 else:
     GenerateMenu.overwriteSignaturesWith(egammaOnly)
 
