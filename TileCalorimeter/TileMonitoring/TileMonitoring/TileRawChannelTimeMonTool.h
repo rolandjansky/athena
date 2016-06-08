@@ -23,6 +23,7 @@ class ITileBadChanTool;
 class TileDQstatus;
 
 #include <vector>
+#include <array>
 
 /** @class TileRawChannelTimeMonTool
  *  @brief Class for TileCal monitoring at channel level
@@ -55,7 +56,7 @@ class TileRawChannelTimeMonTool: public TileFatherMonTool {
     ToolHandle<TileBeamInfoProvider> m_beamInfo;
     ToolHandle<ITileBadChanTool> m_tileBadChanTool;
 
-    const TileDQstatus* m_DQstatus;
+    const TileDQstatus* m_dqStatus;
 
     enum RunType {
       Unknown = 0, PhysRun = 1, // expect monogain
@@ -68,8 +69,8 @@ class TileRawChannelTimeMonTool: public TileFatherMonTool {
     };
 
     bool m_doOnline;
-    int32_t m_old_lumiblock;
-    int32_t m_delta_lumiblock;
+    int32_t m_oldLumiblock;
+    int32_t m_deltaLumiblock;
 
     bool m_bigain;
     int m_nEvents;
@@ -78,13 +79,22 @@ class TileRawChannelTimeMonTool: public TileFatherMonTool {
 
     //Pointers to Histograms
 
-    TProfile2D * profile2d_hist[5];
-    TProfile * profile_hist[5][64][8];
+    TProfile2D* m_profile2dHist[5];
+    TProfile* m_profileHist[5][64][8];
+    TH2F* m_partitionTimeLB[5];
+    std::vector<TProfile*> m_partitionTimeDifferenceLB;
 
     float m_lowGainThreshold;
     float m_hiGainThreshold;
     float m_thresholds[2];
 
+    float m_timeCorrectionLBA;
+    float m_timeCorrectionLBC;
+    float m_timeCorrectionEBA;
+    float m_timeCorrectionEBC;
+    std::array<float, 5> m_partitionTimeCorrection;
+    std::vector<std::pair<int, int> > m_timeDifferenceBetweenROS;
+    int m_nLumiblocks;
 };
 
 #endif

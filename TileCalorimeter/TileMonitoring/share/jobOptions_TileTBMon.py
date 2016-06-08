@@ -4,12 +4,24 @@
 # """This topOptions is intended to test the monitoring code"""
 #=================================================================
 
-MonitorOutput='Tile'
-
-from AthenaCommon.Logging import logging
-log = logging.getLogger( 'jobOptions_TileLasMon.py' )
-
 from os import system, popen
+from AthenaCommon.Logging import logging
+log = logging.getLogger( 'jobOptions_TileTBMon.py' )
+
+
+MonitorOutput = 'Tile'
+TileDCS = False
+
+if not 'TestOnline' in dir():
+    TestOnline = False
+
+if TestOnline:
+    doOnline = True;
+    storeHisto = True;
+
+
+if not 'TileMonoRun' in dir():
+    TileMonoRun = False
 
 def FindFile(path, runinput):
 
@@ -73,14 +85,12 @@ DetFlags.digitize.all_setOff()
 
 DetFlags.detdescr.ID_setOff()
 DetFlags.detdescr.Muon_setOff()
-DetFlags.detdescr.LAr_setOn()
+DetFlags.detdescr.LAr_setOff()
 DetFlags.detdescr.Tile_setOn()
 DetFlags.readRDOBS.Tile_setOn()
 
-if CheckDCS:
-    DetFlags.dcs.Tile_setOn()
-else:
-    DetFlags.dcs.Tile_setOff()
+# Switch off DCS
+DetFlags.dcs.Tile_setOff()
 
 DetFlags.Print()
 
@@ -101,7 +111,7 @@ if athenaCommonFlags.isOnline() or doOnline or doStateless:
 # ByteSream Input 
 #-----------------
 
-if not athenaCommonFlags.isOnline():
+if not athenaCommonFlags.isOnline() or TestOnline:
 
     include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
     include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
@@ -152,7 +162,7 @@ if not athenaCommonFlags.isOnline():
 # init DetDescr
 from AthenaCommon.GlobalFlags import jobproperties
 if not 'DetDescrVersion' in dir():
-    DetDescrVersion = 'ATLAS-R2-2015-04-00-00'
+    DetDescrVersion = 'ATLAS-R2-2015-02-00-00'
 jobproperties.Global.DetDescrVersion = DetDescrVersion 
 log.info( "DetDescrVersion = %s" % (jobproperties.Global.DetDescrVersion() ))
 
@@ -169,6 +179,10 @@ if TileUseCOOL:
     log.info( 'Tile COOL tag: ' + tileCOOLtag )
     conddb.setGlobalTag(tileCOOLtag)
 
+    db = '/afs/cern.ch/user/t/tiledemo/public/efmon/condb/tileSqlite.db'
+    from TileConditions.TileCoolMgr import tileCoolMgr
+    tileCoolMgr.setGlobalDbConn(db)
+
 
 # setting option to build frag->ROB mapping at the begin of run
 ByteStreamCnvSvc = Service( "ByteStreamCnvSvc" )
@@ -176,110 +190,109 @@ ByteStreamCnvSvc.ROD2ROBmap = [ "-1" ]
 
 topSequence += CfgMgr.xAODMaker__EventInfoCnvAlg()
 
-if not athenaCommonFlags.isOnline():
-    from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
-    lumiTool = LuminosityToolDefault()
-    lumiTool.OutputLevel = DEBUG
-    toolSvc += lumiTool
-
-if not athenaCommonFlags.isOnline() and False:
-    from LumiBlockComps.TrigLivefractionToolDefault import TrigLivefractionToolDefault
-    liveTool = TrigLivefractionToolDefault()
-    liveTool.OutputLevel = DEBUG
-    toolSvc += liveTool
-
-TileRunType = 2 # laser run
-doTileFit = True
-TileCorrectTime = True    
+TileCorrectTime = False    
 doTileOptATLAS = False
+
+if TileMonoRun:
+    doTileOpt2 = False
+    doTileFit = True
 
 
 # load conditions data
 include( "TileRec/TileDefaults_jobOptions.py" )
 include( "TileConditions/TileConditions_jobOptions.py" )
-from TileConditions.TileCondToolConf import getTileCondToolTiming
-tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','GAPLAS')
+
 
 # set reconstruction flags and reconstruct data
 from TileRecUtils.TileRecFlags import jobproperties
 jobproperties.TileRecFlags.calibrateEnergy.set_Value_and_Lock(False) #don't need pC in raw channels, keep ADC counts
-jobproperties.TileRecFlags.noiseFilter.set_Value_and_Lock(1) #Enable noise filter tool
-jobproperties.TileRecFlags.BestPhaseFromCOOL.set_Value_and_Lock(True) #Use best phase from COOL
-jobproperties.TileRecFlags.doTileOverflowFit.set_Value_and_Lock(False)
+jobproperties.TileRecFlags.noiseFilter.set_Value_and_Lock(0) #Enable noise filter tool
+jobproperties.TileRecFlags.BestPhaseFromCOOL.set_Value_and_Lock(False) #Use best phase from COOL
+jobproperties.TileRecFlags.doTileOverflowFit.set_Value_and_Lock(True)
 include( "TileRec/TileRec_jobOptions.py" )
 
 
-if not 'LaserUpdateFrequency' in dir():
-    LaserUpdateFrequency = 0
-
-if not 'LaserResetAfterUpdate' in dir():
-    LaserResetAfterUpdate = False
-
-if not 'LaserDoSummaryVsPMT' in dir():
-    LaserDoSummaryVsPMT = False
-
+if doTileCells:
+    # enable interpolation for dead cells
+    doCaloNeighborsCorr = False
+    include('TileRec/TileCellMaker_jobOptions.py')
+    ToolSvc.TileCellBuilder.UseDemoCabling = 2015
+    ToolSvc.TileCellBuilder.maskBadChannels = False
 
 #----------------
 # TileMonitoring
 #----------------
-topSequence += CfgMgr.AthenaMonManager( "TileLasMon"
-                                       , ManualRunLBSetup    = True
-                                       , ManualDataTypeSetup = True
-                                       , Environment         = "online"
-                                       , FileKey             = MonitorOutput
-                                       , Run                 = RunNumber
-                                       , LumiBlock           = 1)
+if doMonitoring:
 
 
-#-------------------------------
-#   Tile raw channel time monitoring
-#-------------------------------
-toolSvc += CfgMgr.TileRawChannelTimeMonTool ( name              = "TileLasRawChannelTimeMon"
-                                              , histoPathBase   = "/Tile/RawChannelTime"
-                                              , runType         = TileRunType
-                                              , doOnline        = athenaCommonFlags.isOnline()
-                                              , TimeCorrectionLBA  = -15.18
-                                              , TimeCorrectionLBC  = -15.37
-                                              , TimeCorrectionEBA  = 47.65
-                                              , TimeCorrectionEBC  = 47.42
-                                              , TileRawChannelContainer = "TileRawChannelFit")
 
-topSequence.TileLasMon.AthenaMonTools += [ toolSvc.TileLasRawChannelTimeMon ]
-print toolSvc.TileLasRawChannelTimeMon
 
-#-------------------------------
-#   Tile DQFrag monitoring
-#-------------------------------
-toolSvc += CfgMgr.TileDQFragMonTool( name               = 'TileLasDQFragMon'
-                                     , OutputLevel        = 3
-                                     , TileRawChannelContainerDSP    = "TileRawChannelCnt"
-                                     , TileRawChannelContainerOffl   = "TileRawChannelFit"
-                                     , TileDigitsContainer           = "TileDigitsCnt"
-                                     , NegAmpHG           = -200.
-                                     , NegAmpLG           = -15.
-                                     , SkipMasked         = True
-                                     , SkipGapCells       = True
-                                     , doOnline           = athenaCommonFlags.isOnline()
-                                     , doPlots            = False
-                                     , CheckDCS           = TileUseDCS
-                                     , histoPathBase      = "/Tile/DMUErrors");
+    topSequence += CfgMgr.AthenaMonManager( "TileTBMonManager"
+                                            , ManualRunLBSetup    = True
+                                            , ManualDataTypeSetup = True
+                                            , Environment         = "online"
+                                            , FileKey             = MonitorOutput
+                                            , Run                 = RunNumber
+                                            , LumiBlock           = 1)
 
-topSequence.TileLasMon.AthenaMonTools += [ toolSvc.TileLasDQFragMon ];
-print toolSvc.TileLasDQFragMon
-print topSequence.TileLasMon
+
+    #-------------------------------
+    #   Tile raw channel time monitoring
+    #-------------------------------
+    toolSvc += CfgMgr.TileTBMonTool ( name                  = 'TileTBMonTool'
+                                      , histoPathBase       = '/Tile/TestBeam'
+                                      # , doOnline            = athenaCommonFlags.isOnline()
+                                      , CellsContainerName  = '' # used to check if the current event is collision
+                                      , MBTSCellContainerID = '' # used to check if the current event is collision
+                                      , CellContainer       = 'AllCalo')
+
+
+    topSequence.TileTBMonManager.AthenaMonTools += [ toolSvc.TileTBMonTool ]
+    print toolSvc.TileTBMonTool
+    
+
+    toolSvc += CfgMgr.TileTBBeamMonTool ( name                  = 'TileTBBeamMonTool'
+                                          , histoPathBase       = '/Tile/TestBeam/BeamElements'
+                                          # , doOnline            = athenaCommonFlags.isOnline()
+                                          , CellsContainerName  = '' # used to check if the current event is collision
+                                          , MBTSCellContainerID = '' # used to check if the current event is collision
+                                          , CutEnergyMin = 40
+                                          , CutEnergyMax = 70 
+                                          );
+
+
+
+    topSequence.TileTBMonManager.AthenaMonTools += [ toolSvc.TileTBBeamMonTool ]
+    
+    print toolSvc.TileTBBeamMonTool
+    
+
+    if TileMonoRun:
+        toolSvc += CfgMgr.TileRawChannelMonTool ( name            ="TileRawChannelMon"
+                                                  , histoPathBase   = "/Tile/RawChannel"
+                                                  , book2D          = False
+                                                  , PlotDSP         = False
+                                                  , runType         = 9
+                                                  , SummaryUpdateFrequency = 100
+                                                  , TileRawChannelContainer = 'TileRawChannelFit')
+
+        topSequence.TileTBMonManager.AthenaMonTools += [ toolSvc.TileRawChannelMon ]
+        
+        print toolSvc.TileRawChannelMon
+
+    print topSequence.TileTBMonManager
 
 
 import os
 # -- use root histos --
 # THistService for native root in Athena
 if not  athenaCommonFlags.isOnline() or storeHisto or athenaCommonFlags.isOnlineStateless():
-    #theApp.HistogramPersistency = "ROOT"
-    if not hasattr(svcMgr,"THistSvc"):
+    if not hasattr(svcMgr, 'THistSvc'):
         from GaudiSvc.GaudiSvcConf import THistSvc
-        svcMgr += THistSvc("THistSvc")
+        svcMgr += THistSvc('THistSvc')
     if os.path.exists(RootHistOutputFileName):
         os.remove(RootHistOutputFileName)
-    svcMgr.THistSvc.Output = [MonitorOutput+" DATAFILE='"+RootHistOutputFileName+"' OPT='RECREATE'"]
+    svcMgr.THistSvc.Output = [MonitorOutput + " DATAFILE='" + RootHistOutputFileName + "' OPT='RECREATE'"]
 else:
     from TrigServices.TrigServicesConf import TrigMonTHistSvc
     trigmonTHistSvc = TrigMonTHistSvc("THistSvc")

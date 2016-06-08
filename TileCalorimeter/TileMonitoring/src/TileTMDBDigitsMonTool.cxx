@@ -39,6 +39,13 @@
 /*---------------------------------------------------------*/
 TileTMDBDigitsMonTool::TileTMDBDigitsMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TileFatherMonTool(type, name, parent)
+  , m_sumPed1{}
+  , m_sumPed2{}
+  , m_nPedEvents{}
+  , m_pedestal_map{}
+  , m_amplitude_map{}
+  , m_lfn_map{}
+  , m_hfn_map{}
   , m_nEventsProcessed(0)
   , m_histogramsNotBooked(true)
 

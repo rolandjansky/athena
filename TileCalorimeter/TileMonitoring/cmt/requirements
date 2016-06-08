@@ -16,6 +16,7 @@ private
 use ByteStreamCnvSvcBase  ByteStreamCnvSvcBase-*  Event
 
 use AtlasCLHEP           AtlasCLHEP-*          External
+use AthenaKernel         AthenaKernel-*        Control
 use xAODEventInfo        xAODEventInfo-*       Event/xAOD
 use xAODTrigger          xAODTrigger-*         Event/xAOD
 
@@ -34,23 +35,30 @@ use TileConditions       TileConditions-*      TileCalorimeter
 use TileEvent            TileEvent-*           TileCalorimeter
 use TileRecUtils         TileRecUtils-*        TileCalorimeter
 
+use LWHists              LWHists-*             Tools
+
 # added by Tomas Davidek to accommodate TileJetMonTool
 use JetUtils             JetUtils-*            Reconstruction/Jet
-
+use JetMomentTools 	 JetMomentTools-*      Reconstruction/Jet
 end_private
+public
+use JetInterface 	 JetInterface-*	       Reconstruction/Jet
+# use JetSelectorTools	 JetSelectorTools-*    PhysicsAnalysis/JetMissingEtID
+use AsgTools		 AsgTools-* 	       Control/AthToolSupport
+end_public
 
-# Specify the required ROOT components for cmake (transparent to CMT)
-apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Graf Gpad Hist Spectrum)"
 
 apply_pattern declare_joboptions files="*.py"
 
 library TileMonitoring *.cxx components/*.cxx
 apply_pattern component_library
-macro_append TileMonitoring_shlibflags " -L$(ROOT_home)/lib -lSpectrum"
+#apply_pattern installed_library
+
 
 private
 
 apply_tag ROOTGraphicsLibs
+macro_append TileMonitoring_shlibflags " -L$(ROOT_home)/lib -lSpectrum"
 
 # to compile debug version in opt release
 # should be commented out normally

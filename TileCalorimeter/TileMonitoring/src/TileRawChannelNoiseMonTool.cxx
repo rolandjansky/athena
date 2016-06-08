@@ -48,11 +48,6 @@
 #include <map>
 #include <algorithm>
 
-#include "CLHEP/Units/SystemOfUnits.h"
-
-using CLHEP::GeV;
-using CLHEP::ns;
-
 
 /*---------------------------------------------------------*/
 TileRawChannelNoiseMonTool::TileRawChannelNoiseMonTool(const std::string & type, const std::string & name, const IInterface* parent)
@@ -61,6 +56,13 @@ TileRawChannelNoiseMonTool::TileRawChannelNoiseMonTool(const std::string & type,
   , m_tileBadChanTool("TileBadChanTool")
   , m_tileToolEmscale("TileCondToolEmscale")
   , m_DQstatus(0)
+  , m_map_sigma{}
+  , m_map_sigma2{}
+  , m_map_R{}
+  , m_map_chi2{}
+  , m_map_chi2prb{}
+  , m_map_rmsOsig{}
+  , m_map_rms{}
   , m_gain(1)
   , m_nEventsProcessed(0)
 /*---------------------------------------------------------*/

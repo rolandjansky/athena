@@ -48,9 +48,9 @@ class TileMBTSMonTool: public TileFatherMonTool {
     // Digit level histograms
     TH1F* m_h_pedestal[32];
     TH1F* m_h_hfNoise[32];
-    TH2F* m_h_sumPed;
-    TH2F* m_h_sumHFNoise;
-    TH2F* m_h_sumLFNoise;
+    //TH2F* m_h_sumPed;
+    //TH2F* m_h_sumHFNoise;
+    //TH2F* m_h_sumLFNoise;
     TProfile* m_h_pulseAvgTrig[32];
     TProfile* m_h_pulseAvgNoTrig[32];
 
@@ -154,8 +154,10 @@ class TileMBTSMonTool: public TileFatherMonTool {
     std::vector<bool> m_counterExist;
 
     bool m_useTrigger;
+    bool m_fillHistogramsPerMBTS;
 
     int32_t m_old_lumiblock;
+    int m_nLumiblocks;
 };
 
 #endif

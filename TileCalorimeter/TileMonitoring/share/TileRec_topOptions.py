@@ -149,7 +149,7 @@ if not athenaCommonFlags.isOnline():
 # init DetDescr
 from AthenaCommon.GlobalFlags import jobproperties
 if not 'DetDescrVersion' in dir():
-    DetDescrVersion = 'ATLAS-R2-2015-02-00-00'
+    DetDescrVersion = 'ATLAS-R2-2015-04-00-00'
 jobproperties.Global.DetDescrVersion = DetDescrVersion 
 log.info('DetDescrVersion = %s' % (jobproperties.Global.DetDescrVersion()))
 

@@ -11,19 +11,22 @@
 //
 //
 // ********************************************************************
-#ifndef TILEDIGITSMONTOOL_H
-#define TILEDIGITSMONTOOL_H
+#ifndef TILEMONITORING_TILEDIGITSMONTOOL_H
+#define TILEMONITORING_TILEDIGITSMONTOOL_H
 
 #include "TileMonitoring/TilePaterMonTool.h"
+#include "TileMonitoring/ITileStuckBitsProbsTool.h"
 
 class TileBeamInfoProvider;
 class TileCondToolNoiseSample;
+
 
 /** @class TileDigitsMonTool
  *  @brief Class for TileCal monitoring at digits level
  */
 
-class TileDigitsMonTool: public TilePaterMonTool {
+class TileDigitsMonTool: public TilePaterMonTool 
+                       , virtual public ITileStuckBitsProbsTool {
 
   public:
 
@@ -42,7 +45,8 @@ class TileDigitsMonTool: public TilePaterMonTool {
     void bookHists(int ros, int drawer);
     void drawHists(int ros, int drawer, std::string moduleName);
 
-    const signed char * stuckBitProb (int ros=0, int module=0, int channel=0, int gain=0);
+    const uint8_t* stuckBitProb (int ros, int module, int channel, int gain) const;
+    void saveStuckBitsProbabilities(TTree* tree);
 
   private:
 
@@ -53,7 +57,7 @@ class TileDigitsMonTool: public TilePaterMonTool {
     /** A crude method to check  Read-Out ADC channel stuckbits.
      */
     int stuckBits_Amp(TH1S *hist, int adc);
-    int stuckBits_Amp2(TH1S *hist, int adc, TH2C *outhist = NULL, int ch = 0, signed char *stuck_probs = NULL);
+    int stuckBits_Amp2(TH1S *hist, int adc, TH2C *outhist = NULL, int ch = 0, uint8_t *stuck_probs = NULL);
     /** Method to check global CRC and DMU CRC.
      */
     void CRCcheck(uint32_t crc32, uint32_t crcMask, int headsize, int ros, int drawer);
@@ -80,8 +84,7 @@ class TileDigitsMonTool: public TilePaterMonTool {
         return false; // no error
       else
         return true; //error
-    }
-    ;
+    };
 
     /// Function to check that the DMU header parity is correct
     /// Parity of the DMU header should be odd
@@ -125,8 +128,10 @@ class TileDigitsMonTool: public TilePaterMonTool {
     double m_sumRms2[5][64][48][2];
     double m_meanAmp[5][64][2][48];
     double m_meanAmp_ij[5][64][2][48][48];
+    int m_nEvents_i[5][64][2][48];
+    int m_nEvents_ij[5][64][2][48][48];
     double m_cov_ratio[5][64][2]; //covariance ratio printed in covariance plots
-    signed char m_stuck_probs[5][64][48][2][10];
+    uint8_t m_stuck_probs[5][64][48][2][10];
     bool m_allHistsFilled;
 
     //vector to hold data corruption information
@@ -136,6 +141,7 @@ class TileDigitsMonTool: public TilePaterMonTool {
     //Pointers to Histograms
     std::vector<TH1S *> m_hist0[5][64]; // ros,drawer
     std::vector<TH1S *> m_hist1[5][64][48][2]; // ros,drawer,channel,gain
+    std::vector<TH1I *> m_hist_DMUerr[5][64][48][2]; // ros,drawer,channel,gain for DMU BCID/CRC errors
     std::vector<TH2F *> m_hist2[5][64][2];
     std::vector<TProfile *> m_histP[5][64][48][2];
     std::vector<TH1F *> m_final_hist1[5][64][2]; // ros, drawer, gain

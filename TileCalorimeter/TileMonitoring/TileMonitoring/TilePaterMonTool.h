@@ -41,6 +41,9 @@ class TileTBID;
 class TileHWID;
 class TileCablingService;
 
+class TH2I_LW;
+class TProfile_LW;
+
 /** @class TilePaterMonTool
  *  @brief Base class for tilecal calibration monitoring tools
  */ 
@@ -63,95 +66,103 @@ protected:
 /// Implicit version of book1D 
   TH1D* book1D(std::string nam, std::string tit, 
                int nx, double xmin, double xmax) 
-    { return book1D(m_path,nam,tit,nx,xmin,xmax); }
+  { 
+    return book1D(m_path, nam, tit, nx, xmin, xmax); 
+  }
 
 /// Implicit version of book2D 
   TH2D* book2D(std::string nam, std::string tit, 
                int nx, double xmin, double xmax, 
                int ny, double ymin, double ymax)
  {
-    return book2D(m_path,nam,tit,nx,xmin,xmax,ny,ymin,ymax);
+    return book2D(m_path, nam, tit, nx, xmin, xmax, ny, ymin, ymax);
  }
 
   TH1D* book1D(std::string dir, std::string nam, std::string tit, 
                int nx, double xmin, double xmax,
-	             Interval_t interval=run, MgmtAttr_t attribute = ATTRIB_MANAGED,
-	             std::string trigChain="", std::string mergeAlgo="");
+               Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+               std::string trigChain = "", std::string mergeAlgo = "");
 
   TH1F* book1F(std::string dir, std::string nam, std::string tit, 
                int nx, double xmin, double xmax,
-	             Interval_t interval=run, MgmtAttr_t attribute = ATTRIB_MANAGED,
-	             std::string trigChain="", std::string mergeAlgo="");
+               Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+               std::string trigChain = "", std::string mergeAlgo = "");
 
   TH1I* book1I(std::string dir, std::string nam, std::string tit, 
                int nx, double xmin, double xmax,
-	             Interval_t interval=run, MgmtAttr_t attribute = ATTRIB_MANAGED,
-	             std::string trigChain="", std::string mergeAlgo="");
+               Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+               std::string trigChain = "", std::string mergeAlgo = "");
 
   TH1S* book1S(std::string dir, std::string nam, std::string tit, 
                int nx, double xmin, double xmax,
-	             Interval_t interval=run, MgmtAttr_t attribute = ATTRIB_MANAGED,
-	             std::string trigChain="", std::string mergeAlgo="");
+               Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+               std::string trigChain = "", std::string mergeAlgo = "");
 
   TH1C* book1C(std::string dir, std::string nam, std::string tit, 
                int nx, double xmin, double xmax,
-	             Interval_t interval=run, MgmtAttr_t attribute = ATTRIB_MANAGED,
-	             std::string trigChain="", std::string mergeAlgo="");
+               Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+               std::string trigChain = "", std::string mergeAlgo = "");
 
   TH2D* book2D(std::string dir, std::string nam, std::string tit, 
                int nx, double xmin, double xmax, 
                int ny, double ymin, double ymax,
-	             Interval_t interval=run, MgmtAttr_t attribute = ATTRIB_MANAGED,
-	             std::string trigChain="", std::string mergeAlgo="");
+               Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+               std::string trigChain = "", std::string mergeAlgo = "");
 
   TH2F* book2F(std::string dir, std::string nam, std::string tit, 
                int nx, double xmin, double xmax, 
                int ny, double ymin, double ymax,
-	             Interval_t interval=run, MgmtAttr_t attribute = ATTRIB_MANAGED,
-	             std::string trigChain="", std::string mergeAlgo="");
+               Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+               std::string trigChain = "", std::string mergeAlgo = "");
 
   TH2F* book2F(std::string dir, std::string nam, std::string tit, 
                int nx, double xmin, double xmax, 
-               int ny, const double *ybins, 
-	             Interval_t interval=run, MgmtAttr_t attribute = ATTRIB_MANAGED,
-	             std::string trigChain="", std::string mergeAlgo="");
+               int ny, const double* ybins, 
+               Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+               std::string trigChain = "", std::string mergeAlgo = "");
 
-  TH2I* book2I(std::string dir, std::string nam, std::string tit, 
-               int nx, double xmin, double xmax, 
+  TH2I* book2I(std::string dir, std::string nam, std::string tit,
+               int nx, double xmin, double xmax,
                int ny, double ymin, double ymax,
-	             Interval_t interval=run, MgmtAttr_t attribute = ATTRIB_MANAGED,
-	             std::string trigChain="", std::string mergeAlgo="");
+               Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+               std::string trigChain = "", std::string mergeAlgo = "");
+
+
 
   TH2S* book2S(std::string dir, std::string nam, std::string tit, 
                int nx, double xmin, double xmax, 
                int ny, double ymin, double ymax,
-	             Interval_t interval=run, MgmtAttr_t attribute = ATTRIB_MANAGED,
-	             std::string trigChain="", std::string mergeAlgo="");
+               Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+               std::string trigChain = "", std::string mergeAlgo = "");
 
   TH2C* book2C(std::string dir, std::string nam, std::string tit, 
                int nx, double xmin, double xmax, 
                int ny, double ymin, double ymax,
-	             Interval_t interval=run, MgmtAttr_t attribute = ATTRIB_MANAGED,
-	             std::string trigChain="", std::string mergeAlgo="");
+               Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+               std::string trigChain = "", std::string mergeAlgo = "");
 
 
   TProfile* bookProfile(std::string dir, std::string nam, std::string tit, 
                         int nx, double xmin, double xmax, 
-			                  Interval_t interval=run, MgmtAttr_t attribute = ATTRIB_MANAGED,
-			                  std::string trigChain="", std::string mergeAlgo="");
+                        Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+                        std::string trigChain = "", std::string mergeAlgo = "");
 
   TProfile* bookProfile(std::string dir, std::string nam, std::string tit, 
                         int nx, double xmin, double xmax, 
                         double ymin, double ymax,
-			                  Interval_t interval=run, MgmtAttr_t attribute = ATTRIB_MANAGED,
-			                  std::string trigChain="", std::string mergeAlgo="");
+                        Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+                        std::string trigChain = "", std::string mergeAlgo = "");
 
+  TProfile* bookProfile(std::string dir, std::string nam, std::string tit, 
+                        int nx, const float* xbins, 
+                        Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+                        std::string trigChain = "", std::string mergeAlgo = "");
   TProfile2D* bookProfile2D(std::string dir, std::string nam, std::string tit, 
                             int nx, double xmin, double xmax,
                             int ny, double ymin, double ymax,
                             double zmin, double zmax,
-			                      Interval_t interval=run, MgmtAttr_t attribute = ATTRIB_MANAGED,
-			                      std::string trigChain="", std::string mergeAlgo="");
+                            Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+                            std::string trigChain = "", std::string mergeAlgo = "");
 
  // TTree* bookTree  (std::string dir, std::string nam, std::string tit);
 
@@ -166,16 +177,35 @@ protected:
 
   TMultiGraph* bookMultiGraph (std::string dir, std::string nam, std::string tit);
 
+
+  TH2I_LW* book2ILW(std::string dir, std::string nam, std::string tit, 
+                    int nx, double xmin, double xmax, 
+                    int ny, double ymin, double ymax,
+                    Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+                    std::string trigChain = "", std::string mergeAlgo = "");
+
+    
+  TProfile_LW* bookProfileLW(std::string dir, std::string nam, std::string tit,
+                             int nx, double xmin, double xmax,
+                             double ymin, double ymax,
+                             Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+                             std::string trigChain = "", std::string mergeAlgo = "");
+
+
   StatusCode removeTObj(TObject* obj);
 
   using ManagedMonitorToolBase::regHist;
   using ManagedMonitorToolBase::regGraph;
 
   template <typename T>
-  void regHist(const std::string subDir, T* hist, Interval_t interval=run, MgmtAttr_t attribute = ATTRIB_MANAGED, std::string trigChain="", std::string mergeAlgo="" );
+  void regHist(const std::string subDir, T* hist, 
+               Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED, 
+               std::string trigChain = "", std::string mergeAlgo = "" );
 
   template <typename T>
-  void regGraph(const std::string subDir, T* graph, Interval_t interval=run, MgmtAttr_t attribute = ATTRIB_MANAGED, std::string trigChain="", std::string mergeAlgo="" );
+  void regGraph(const std::string subDir, T* graph, 
+                Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED, 
+                std::string trigChain = "", std::string mergeAlgo = "" );
   
 
   const TileID* m_tileID;

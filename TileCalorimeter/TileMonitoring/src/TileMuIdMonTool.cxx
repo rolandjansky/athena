@@ -302,7 +302,7 @@ StatusCode TileMuIdMonTool::fillHistograms() {
 StatusCode TileMuIdMonTool::procHistograms() {
 /*---------------------------------------------------------*/
 
-  if (endOfLumiBlock || endOfRun) {
+  if (endOfLumiBlockFlag() || endOfRunFlag()) {
     ATH_MSG_INFO( "in procHistograms()" );
   }
 

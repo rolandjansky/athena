@@ -42,6 +42,7 @@ TileRODMonTool::TileRODMonTool(const std::string & type, const std::string & nam
   , m_tileBadChanTool("TileBadChanTool")
   , m_robSvc("ROBDataProviderSvc", name)
   , m_old_lumiblock(-1)
+  , m_nLumiblocks(3000)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -59,6 +60,7 @@ TileRODMonTool::TileRODMonTool(const std::string & type, const std::string & nam
   declareProperty("DspComparisonOF", m_useOFRef = true);
   declareProperty("doOnline", m_isOnline = false); // Switch for online running
   declareProperty("Details", m_details = false); // Switch for online running
+  declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
 
   m_path = "/Tile/ROD"; //ROOT File directory
 
@@ -512,7 +514,7 @@ StatusCode TileRODMonTool::bookHistTrig( int trig )
                                                    ,"tileRodFragmentSizeLB_" + m_TrigNames[trig]
                                                    , "Run " + runNumStr + " Trigger " + m_TrigNames[trig] +
                                                    ": Tile ROD fragment size (word) per LumiBlock"
-                                                   , 1500, -0.5, 1499.5) );
+                                                   , m_nLumiblocks, -0.5, m_nLumiblocks - 0.5) );
     
     m_tileRodFragmentSizeLB[element]->GetXaxis()->SetTitle("LumiBlocks");
   }
@@ -850,11 +852,11 @@ StatusCode TileRODMonTool::fillHistograms()
 StatusCode TileRODMonTool::procHistograms()
 /*---------------------------------------------------------*/
 {
-  if (!endOfRun || (m_isOnline && endOfRun)) {
+  if (!endOfRunFlag() || (m_isOnline && endOfRunFlag())) {
     return StatusCode::SUCCESS;
   }
 
-  if (endOfRun) {
+  if (endOfRunFlag()) {
     ATH_MSG_INFO( "in procHistograms()" );
   }
 

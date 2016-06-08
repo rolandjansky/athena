@@ -41,6 +41,9 @@
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 // added by TD
 #include "TileIdentifier/TileFragHash.h"
+#include "xAODEventInfo/EventInfo.h"
+
+#include "JetMomentTools/JetVertexTaggerTool.h"
 //#include "CaloIdentifier/Tile_Base_ID.h"
 //#include "TH2F.h"
 //#include "TH1F.h"
@@ -49,12 +52,20 @@
 #include <iostream>
 #include <string>
 
-
+using xAOD::EventInfo;
 
 /*---------------------------------------------------------*/
+#ifdef JVT
 TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TileFatherMonTool(type, name, parent)
   , m_tileBadChanTool("TileBadChanTool")
+  , m_jvt("JVT")
+  , m_cleaningTool("MyCleaningTool")
+#else
+TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & name, const IInterface* parent)
+  : TileFatherMonTool(type, name, parent)
+  , m_tileBadChanTool("TileBadChanTool")
+#endif
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -64,16 +75,28 @@ TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & nam
   declareProperty("jetCollectionName", m_jetCollectionName = "AntiKt4EMTopoJets");
   declareProperty("energyChanMin", m_energyChanMin = 2000);
   declareProperty("energyChanMax", m_energyChanMax = 4000);
+  //  declareProperty("averageMinEvt", m_averageMinEvt = 10);
   declareProperty("do_1dim_histos", m_do_1dim_histos = false);
   declareProperty("do_2dim_histos", m_do_2dim_histos = false);
   declareProperty("do_enediff_histos", m_do_enediff_histos = false);
   declareProperty("enediff_threshold", m_enediff_threshold = 2000);
+  declareProperty("do_energy_profiles", m_do_energy_profiles = true);
+  declareProperty("do_event_cleaning",m_do_event_cleaning = true);
+  declareProperty("do_jet_cleaning",m_do_jet_cleaning = true);
+#ifdef JVT
+  declareProperty("useJVTTool",m_jvt);
+  declareProperty("useJetCleaning",m_cleaningTool);
+#endif
+  declareProperty("jet_tracking_eta_limit",m_jet_tracking_eta_limit = 2.4);
+  declareProperty("jet_JVT_threshold",m_jet_jvt_threshold = 0.64);
   m_path = "/Tile/Jet";
 
   m_partname[0] = "LBA";
   m_partname[1] = "LBC";
   m_partname[2] = "EBA";
   m_partname[3] = "EBC";
+
+  m_first_event = true;
 
 }
 
@@ -95,7 +118,28 @@ StatusCode TileJetMonTool::initialize() {
   CHECK(m_tileBadChanTool.retrieve());
   ATH_MSG_DEBUG("TileJetMonTool: Retrieved tile bad channel tool");
 
- return TileFatherMonTool::initialize();
+
+  if (m_do_jet_cleaning) {
+    ATH_MSG_DEBUG("TileJetMonTool: initializing JVT updater");
+
+#ifdef JVT
+    CHECK(m_jvt.retrieve());
+
+    ATH_MSG_DEBUG("TileJetMonTool: initialized JVT updater");
+    
+    ATH_MSG_DEBUG("TileJetMonTool: initializing JetCleaningTool");
+    /* This is RootCore approach
+       m_cleaningTool = new JetCleaningTool("MyCleaningTool");
+       CHECK(m_cleaningTool->setProperty("CutLevel", "LooseBad")); // also "TightBad"
+       CHECK(m_cleaningTool->setProperty("DoUgly", false));
+       CHECK(m_cleaningTool->initialize());
+    */
+    CHECK(m_cleaningTool.retrieve());
+
+    ATH_MSG_DEBUG("TileJetMonTool: initialized JetCleaningTool");
+#endif
+  }
+  return TileFatherMonTool::initialize();
 }
 
 
@@ -103,7 +147,7 @@ StatusCode TileJetMonTool::initialize() {
 StatusCode TileJetMonTool::bookHistograms() {
 /*---------------------------------------------------------*/
 
-  return bookTimeHistograms();
+  return StatusCode::SUCCESS;
 }
 
 
@@ -111,29 +155,45 @@ StatusCode TileJetMonTool::bookHistograms() {
 StatusCode TileJetMonTool::fillHistograms() {
 /*---------------------------------------------------------*/
 
-
   //  const JetCollection* jetcol;
+  if (! isGoodEvent()) {
+    ATH_MSG_DEBUG("TileJetMonTool::fillHistograms(), event skipped ");
+    return StatusCode::SUCCESS;
+  } else {
+    ATH_MSG_DEBUG("TileJetMonTool::fillHistograms(), event accepted ");
+  }
+
   const xAOD::JetContainer* jetContainer = evtStore()->tryConstRetrieve<xAOD::JetContainer>(m_jetCollectionName);
-  //CHECK(evtStore()->retrieve(jetContainer, m_jetCollectionName));
+  //  CHECK(evtStore()->retrieve(jetContainer, m_jetCollectionName));
   if (!jetContainer) return StatusCode::SUCCESS;
 
   fillEvtInfo();
+  if (m_first_event) {
+    m_first_event = false;
+    if (bookTimeHistograms() != StatusCode::SUCCESS) {
+      ATH_MSG_ERROR("Something wrong when booking histograms.");
+    }
+  }	
   uint32_t LumiBlock = getLumiBlock();
 
-  ATH_MSG_VERBOSE("TileJetMonTool::fillHistograms(), lumiblock ");
+  ATH_MSG_VERBOSE("TileJetMonTool::fillHistograms(), lumiblock " << LumiBlock);
 
-
-  used_cells.clear();
+  m_usedCells.clear();
 
   int ijet = 0;
   for (const xAOD::Jet* jet : *jetContainer) {
     if ((jet->pt() > m_jetPtMin) && (fabs(jet->eta()) < m_jetEtaMax)) {
       if (isGoodJet(*jet)) {
-	ATH_MSG_DEBUG("TileJetMonTool::fillHistograms, jet " << ijet 
-		      << ", eta " << jet->eta()
-		      << ", phi " << jet->phi() 
-		      << ", constituents " << jet->numConstituents());
+        ATH_MSG_DEBUG("TileJetMonTool::fillHistograms, jet " << ijet
+			                << ", eta " << jet->eta()
+			                << ", phi " << jet->phi()
+			                << ", constituents " << jet->numConstituents());
         CHECK(fillTimeHistograms(*jet, LumiBlock));
+      } else {
+        ATH_MSG_DEBUG("TileJetMonTool::fillHistogram, BAD jet " << ijet
+                      << ", eta " << jet->eta()
+                      << ", phi " << jet->phi()
+                      << ", constituents " << jet->numConstituents());
       }
     }
     ijet++;
@@ -155,25 +215,25 @@ StatusCode TileJetMonTool::procHistograms() {
   }
 
   float sum_cell_hg = 0;
-  for(int p = 0; p < NPART; ++p) {
+  for (int p = 0; p < NPART; ++p) {
     for (const TH1* cellTimeHistogram : m_TilePartCellTimeHG[p]) {
       if (cellTimeHistogram->GetEntries() != 0) {
-	sum_cell_hg += cellTimeHistogram->GetEntries();
+        sum_cell_hg += cellTimeHistogram->GetEntries();
       }
     }
   }
   float sum_cell_lg = 0;
-  for(int p = 0; p < NPART; ++p) {
+  for (int p = 0; p < NPART; ++p) {
     for (const TH1* cellTimeHistogram : m_TilePartCellTimeLG[p]) {
       if (cellTimeHistogram->GetEntries() != 0) {
-	sum_cell_lg += cellTimeHistogram->GetEntries();
+        sum_cell_lg += cellTimeHistogram->GetEntries();
       }
     }
   }
-  ATH_MSG_INFO( "Total number of entries in histograms: channels " 
-		<< sum_channel << ", cells HG " << sum_cell_hg
-		<< ", cells LG " << sum_cell_lg);
-
+  ATH_MSG_INFO( "Total number of entries in histograms: channels "  << sum_channel
+                << ", cells HG " << sum_cell_hg
+                << ", cells LG " << sum_cell_lg);
+	  
   return StatusCode::SUCCESS;
 }
 
@@ -182,8 +242,29 @@ StatusCode TileJetMonTool::bookTimeHistograms() {
 /*---------------------------------------------------------*/
 
   ATH_MSG_INFO( "in TileJetMonTool::bookTimeHistograms()" );
-  
-  
+
+  // Input for axis labels as in TileCellMonTool.cxx
+  std::vector<std::string> cellchLabel[NPART];
+  std::vector<std::string> moduleLabel[NPART];
+  for (int part = 0; part < NPART; ++part) {
+    for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
+      if (drawer % 2 == 1) {
+        moduleLabel[part].push_back(" ");
+      } else {
+        moduleLabel[part].push_back(TileCalibUtils::getDrawerString(part + 1, drawer));
+      }
+    }
+
+    for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
+      std::string cell_name = getCellName(part + 1, channel);
+      if (cell_name.empty()) cell_name += "ch";
+      else cell_name += "_ch";
+      cellchLabel[part].push_back(cell_name + std::to_string(channel));
+    }
+
+  }
+
+
   // book histograms for all channels, even if some of them remain empty 
   // in the end
   std::string runNumStr = getRunNumStr();
@@ -192,23 +273,38 @@ StatusCode TileJetMonTool::bookTimeHistograms() {
   char chnum[3]; // must be of length 3, since the last char is supposed to be '\0'
   char indexnum[3]; // must be of length 3, since the last char is supposed to be '\0'
   // energy upper limits of the cell-time histograms
-  cell_ene_hg_up.push_back(500);
-  cell_ene_hg_up.push_back(1000);
-  cell_ene_hg_up.push_back(2000);
-  cell_ene_hg_up.push_back(4000);
-  cell_ene_hg_up.push_back(6000);
-  cell_ene_hg_up.push_back(8000);
-  cell_ene_hg_up.push_back(10000);
-  cell_ene_hg_up.push_back(13000);
-  cell_ene_hg_up.push_back(16000);
-  cell_ene_hg_up.push_back(20000);
+  m_cell_ene_hg_up.push_back(500);
+  m_cell_ene_hg_up.push_back(1000);
+  m_cell_ene_hg_up.push_back(2000);
+  m_cell_ene_hg_up.push_back(4000);
+  m_cell_ene_hg_up.push_back(6000);
+  m_cell_ene_hg_up.push_back(8000);
+  m_cell_ene_hg_up.push_back(10000);
+  m_cell_ene_hg_up.push_back(13000);
+  m_cell_ene_hg_up.push_back(16000);
+  m_cell_ene_hg_up.push_back(20000);
 
-  cell_ene_lg_up.push_back(25000);
-  cell_ene_lg_up.push_back(30000);
-  cell_ene_lg_up.push_back(40000);
-  cell_ene_lg_up.push_back(50000);
-  cell_ene_lg_up.push_back(65000);
-  cell_ene_lg_up.push_back(80000);
+  m_cell_ene_lg_up.push_back(25000);
+  m_cell_ene_lg_up.push_back(30000);
+  m_cell_ene_lg_up.push_back(40000);
+  m_cell_ene_lg_up.push_back(50000);
+  m_cell_ene_lg_up.push_back(65000);
+  m_cell_ene_lg_up.push_back(80000);
+
+  /*
+  float *ene_hg = (float*)malloc((m_cell_ene_hg_up.size()+2)*sizeof(float));
+  ene_hg[0] = -1000;
+  for (unsigned int i = 0; i <= m_cell_ene_hg_up.size(); ++i) {
+    ene_hg[i+1] = m_cell_ene_hg_up[i];
+  }
+  ene_hg[m_cell_ene_hg_up.size()+1] = 2*m_cell_ene_hg_up[m_cell_ene_hg_up.size()-1];
+  float *ene_lg = (float*)malloc((m_cell_ene_lg_up.size()+2)*sizeof(float));
+  ene_lg[0] = 0;
+  for (unsigned int i = 0; i <= m_cell_ene_lg_up.size(); ++i) {
+    ene_lg[i+1] = m_cell_ene_lg_up[i];
+  }
+  ene_lg[m_cell_ene_lg_up.size()+1] = 2*m_cell_ene_lg_up[m_cell_ene_lg_up.size()-1];
+  */
   //  TH2F *hist;
   for (int p = 0; p < NPART; ++p) {
     // first, create the total timing histograms for each partition
@@ -224,43 +320,59 @@ StatusCode TileJetMonTool::bookTimeHistograms() {
     // now cell-time. Don't need cells without scintillators in EBA/EBA,
     // since these are single pmt cells
     Float_t xmin, xmax;
-    for(unsigned int i=0; i <= cell_ene_hg_up.size(); ++i) {
-      sprintf(indexnum, "%02d", i);
-      m_TilePartCellTimeHG[p].push_back
-	( book1F( "CellTime/" + m_partname[p],
-		  "Cell_time_" + m_partname[p] + "_hg_slice_" + indexnum, 
-		  "Cell_time_" + m_partname[p] + "_hg_slice_" + indexnum,
-		  600, -30.0, 30.0));
-      xmin = (i==0) ? -1000 : cell_ene_hg_up[i-1];
-      xmax = (i < cell_ene_hg_up.size()) ? cell_ene_hg_up[i] : 2*cell_ene_hg_up[cell_ene_hg_up.size()-1];
-      m_TilePartCellEneHG[p].push_back
-	( book1F( "CellTime/" + m_partname[p],
-		  "Cell_ene_" + m_partname[p] + "_hg_slice_" + indexnum, 
-		  "Cell_ene_" + m_partname[p] + "_hg_slice_" + indexnum,
-		  100,xmin,xmax));
+    for (unsigned int i = 0; i <= m_cell_ene_hg_up.size(); ++i) {
+      sprintf(indexnum, "%02u", i);
+      m_TilePartCellTimeHG[p].push_back( book1F("CellTime/" + m_partname[p]
+                                        , "Cell_time_" + m_partname[p] + "_hg_slice_" + indexnum
+                                        , "Cell_time_" + m_partname[p] + "_hg_slice_" + indexnum, 600, -30.0, 30.0));
+
+      if (! m_do_energy_profiles) {
+	//	xmin = ene_hg[i]; xmax = ene_hg[i+1];
+	xmin = (i == 0) ? -1000 : m_cell_ene_hg_up[i - 1];
+	xmax = (i < m_cell_ene_hg_up.size()) ? m_cell_ene_hg_up[i] : 2 * m_cell_ene_hg_up[m_cell_ene_hg_up.size() - 1];
+
+	m_TilePartCellEneHG[p].push_back( book1F("CellTime/" + m_partname[p]
+						 , "Cell_ene_" + m_partname[p] + "_hg_slice_" + indexnum
+						 , "Cell_ene_" + m_partname[p] + "_hg_slice_" + indexnum, 100, xmin, xmax));
+      }
     }
-    for(unsigned int i=0; i <= cell_ene_lg_up.size(); ++i) {
-      sprintf(indexnum, "%02d", i);
-      m_TilePartCellTimeLG[p].push_back
-	( book1F( "CellTime/" + m_partname[p],
-		  "Cell_time_" + m_partname[p] + "_lg_slice_" + indexnum, 
-		  "Cell_time_" + m_partname[p] + "_lg_slice_" + indexnum,
-		  600, -30.0, 30.0));
-      xmin = (i==0) ? 0 : cell_ene_lg_up[i-1];
-      xmax = (i < cell_ene_lg_up.size()) ? cell_ene_lg_up[i] : 2*cell_ene_lg_up[cell_ene_lg_up.size()-1];
-      m_TilePartCellEneLG[p].push_back
-	( book1F( "CellTime/" + m_partname[p],
-		  "Cell_ene_" + m_partname[p] + "_lg_slice_" + indexnum, 
-		  "Cell_ene_" + m_partname[p] + "_lg_slice_" + indexnum,
-		  100,xmin,xmax));
+
+    for (unsigned int i = 0; i <= m_cell_ene_lg_up.size(); ++i) {
+      sprintf(indexnum, "%02u", i);
+      m_TilePartCellTimeLG[p].push_back( book1F("CellTime/" + m_partname[p]
+                                                , "Cell_time_" + m_partname[p] + "_lg_slice_" + indexnum
+                                                , "Cell_time_" + m_partname[p] + "_lg_slice_" + indexnum, 600
+                                                , -30.0, 30.0));
+
+      if (! m_do_energy_profiles) {
+	//	xmin = ene_lg[i]; xmax = ene_lg[i+1];
+	xmin = (i == 0) ? 0 : m_cell_ene_lg_up[i - 1];
+	xmax = (i < m_cell_ene_lg_up.size()) ? m_cell_ene_lg_up[i] : 2 * m_cell_ene_lg_up[m_cell_ene_lg_up.size() - 1];
+	m_TilePartCellEneLG[p].push_back( book1F("CellTime/" + m_partname[p]
+						 , "Cell_ene_" + m_partname[p] + "_lg_slice_" + indexnum
+						 , "Cell_ene_" + m_partname[p] + "_lg_slice_" + indexnum, 100, xmin, xmax));
+      }
     }
     
+    if (m_do_energy_profiles) {
+      m_TilePartCellEneHGProf.push_back( bookProfile("CellTime/" + m_partname[p],
+						     "Cell_ene_" + m_partname[p] + "_hg_prof",
+						     "Cell_ene_" + m_partname[p] + "_hg_prof",
+						     m_cell_ene_hg_up.size()+1,
+						     -0.5,m_cell_ene_hg_up.size()+0.5));
+      m_TilePartCellEneLGProf.push_back( bookProfile("CellTime/" + m_partname[p],
+						     "Cell_ene_" + m_partname[p] + "_lg_prof",
+						     "Cell_ene_" + m_partname[p] + "_lg_prof",
+						     m_cell_ene_lg_up.size()+1,
+						     -0.5,m_cell_ene_lg_up.size()+0.5));
+    }      
+
     for (unsigned int m = 0; m < TileCalibUtils::MAX_DRAWER; ++m) {
       moduleName = TileCalibUtils::getDrawerString(p + 1, m);
       
       for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
 	
-        sprintf(chnum, "%02d", channel);
+        sprintf(chnum, "%02u", channel);
 	if (m_do_2dim_histos) {
 	  htitle = "Time in " + moduleName + "_ch_" + chnum + " vs lumiblock";
 	  /* TH2F histograms are too much in memory. Trying to book only 10 LB
@@ -298,9 +410,21 @@ StatusCode TileJetMonTool::bookTimeHistograms() {
 						 100,-1,1));
 	}
       }
-    }
+    } // end-of-loop over modules
+    // average time DQ "temperature" plots, per partition
+    m_TilePartTimeDQ.push_back( bookProfile2D( "DQ/",
+					       "tileJetChanTime"+m_partname[p], 
+					       "Run " + runNumStr + " Partition " +
+					       m_partname[p] + ": Average time with jets",
+					       64, 0.5, 64.5, 48, -0.5, 47.5,
+					       -80,80));
+    SetBinLabel(m_TilePartTimeDQ[p]->GetXaxis(), moduleLabel[p]);
+    SetBinLabel(m_TilePartTimeDQ[p]->GetYaxis(), cellchLabel[p]);
+    m_TilePartTimeDQ[p]->SetZTitle("Average Channel Time (ns)");
+    m_TilePartTimeDQ[p]->SetOption("COLZ");    
   } // end-of-loop over partitions
-  
+  // delete ene_hg;
+  //  delete ene_lg;
   ATH_MSG_INFO( "All histograms booked " );
 
   return StatusCode::SUCCESS;
@@ -311,13 +435,20 @@ StatusCode TileJetMonTool::bookTimeHistograms() {
 void TileJetMonTool::clearTimeHistograms() {
 /*---------------------------------------------------------*/
   m_TilePartTime.clear();
+  m_TilePartTimeDQ.clear();
   m_TileEBTime_NoScint.clear();
+  if (m_do_energy_profiles) {
+    m_TilePartCellEneHGProf.clear();
+    m_TilePartCellEneLGProf.clear();
+  }
 
   for (int p = 0; p < NPART; ++p) {
     m_TilePartCellTimeHG[p].clear();
     m_TilePartCellTimeLG[p].clear();
-    m_TilePartCellEneHG[p].clear();
-    m_TilePartCellEneLG[p].clear();
+    if (! m_do_energy_profiles) {
+      m_TilePartCellEneHG[p].clear();
+      m_TilePartCellEneLG[p].clear();
+    }
     if (m_do_2dim_histos) {
       m_TileChanTime[p].clear();
     }
@@ -360,149 +491,202 @@ StatusCode TileJetMonTool::fillTimeHistograms(const xAOD::Jet& jet, uint32_t Lum
     }
   }
   */
-  jet::JetCellAccessor::const_iterator cellIt =  jet::JetCellAccessor::begin(&jet);
-  jet::JetCellAccessor::const_iterator cellItE = jet::JetCellAccessor::end(&jet);
-     
-  for( ;cellIt != cellItE; cellIt++) {
+  /*
+  int n_cells_1(0);
+  int n_cells_2(0);
 
-    const CaloCell* cell = (*cellIt);
-
-    if (cell->caloDDE()->getSubCalo() == CaloCell_ID::TILE) { // a Tile Cell
-
-      const TileCell *tilecell = (TileCell*) cell;
-      Identifier id = tilecell->ID();
-      if (used_cells.find(id) == used_cells.end()) {
-	used_cells.insert(id);
-      } else {
-	continue;
-      }
-      //      int section= m_tileID->section(id);
-      int module = m_tileID->module(id); // ranges 0..63
-      int sample = m_tileID->sample(id); // ranges 0..3 (A, BC, D, E)
-      int part1 = 0;
-      int part2 = 0;
-      int chan1 = -1;
-      int chan2 = -1;
-      uint32_t bad1 = 0;
-      uint32_t bad2 = 0;
-      int gain1 = tilecell->gain1();
-      int gain2 = tilecell->gain2();
-      unsigned int qbit1 = tilecell->qbit1();
-      unsigned int qbit2 = tilecell->qbit2();
-      
-      const CaloDetDescrElement * caloDDE = tilecell->caloDDE();
-      IdentifierHash hash1 = caloDDE->onl1();
-      if (hash1 != TileHWID::NOT_VALID_HASH) {
-        HWIdentifier adc_id = m_tileHWID->adc_id(hash1, gain1);
-        part1 = m_tileHWID->ros(adc_id);
-        chan1 = m_tileHWID->channel(adc_id);
-        bad1 = m_tileBadChanTool->encodeStatus(m_tileBadChanTool->getAdcStatus(adc_id));
-      }
-      
-      // How is it here with partition? D0 spans two partitions....
-      // It should be ok to treat it in this way:
-      IdentifierHash hash2 = caloDDE->onl2();
-      if (hash2 != TileHWID::NOT_VALID_HASH) {
-        HWIdentifier adc_id = m_tileHWID->adc_id(hash2, gain2);
-        part2 = m_tileHWID->ros(adc_id);
-        chan2 = m_tileHWID->channel(adc_id);
-        bad2 = m_tileBadChanTool->encodeStatus(m_tileBadChanTool->getAdcStatus(adc_id));
-      }
-            
-      //        ATH_MSG_INFO( "This is Tile cell " << icell
-      //                      << ": pmts " << pmt1 << "," << pmt2
-      //                      << ", ene "  << ene1 << "," << ene2 );
-      
-      Bool_t is_good1 = isGoodChannel(part1, module, chan1, bad1, qbit1, id);
-      Bool_t is_good2 = isGoodChannel(part2, module, chan2, bad2, qbit2, id);
-      float ene1 = is_good1 ? tilecell->ene1() : -1;
-      float ene2 = is_good2 ? tilecell->ene2() : -1;
-
-      /*
-        Now really fill the histograms time vs lumiblock and 1dim time
-      */
-      char sLumiBlock[10];
-      sprintf(sLumiBlock, "%d", LumiBlock);
-
-      // first channel
-      if (is_good1 && (ene1 > m_energyChanMin) && (ene1 < m_energyChanMax)) {
-	if (m_do_1dim_histos) {
-	  m_TileChanTime1D[part1 - 1][TileCalibUtils::MAX_CHAN * module + chan1]->Fill(tilecell->time1(), 1);
-	}
-	if (m_do_2dim_histos) {
-	  m_TileChanTime[part1 - 1][TileCalibUtils::MAX_CHAN * module + chan1]->Fill(sLumiBlock, tilecell->time1(), 1);
-	}
-	// general histograms, only require non-affected channels
-	if (bad1 < 2) {
-	  m_TilePartTime[part1 - 1]->Fill(tilecell->time1());
-	  ATH_MSG_DEBUG( "Filling in time1 for " << TileCalibUtils::getDrawerString(part1, module)
-			 << ", ch " << chan1
-			 << ", ene " << ene1
-			 << ", LB " << sLumiBlock 
-			 << ", time: " << tilecell->time1());
-	  if ((part1 >= 3) && (sample < TileID::SAMP_E)) {
-	    m_TileEBTime_NoScint[part1 - 3]->Fill(tilecell->time1());
-	  }
-	}
-      }
-      // second channel
-      if (is_good2 && (ene2 > m_energyChanMin) && (ene2 < m_energyChanMax)) {
-	if (m_do_1dim_histos) {
-	  m_TileChanTime1D[part2 - 1][TileCalibUtils::MAX_CHAN * module + chan2]->Fill(tilecell->time2(), 1);
-	}
-	if (m_do_2dim_histos) {
-	  m_TileChanTime[part2 - 1][TileCalibUtils::MAX_CHAN * module + chan2]->Fill(sLumiBlock, tilecell->time2(), 1);
-	}
-	// general histograms, only require non-affected channels
-	if (bad2 < 2) {
-	  ATH_MSG_DEBUG( "Filling in time2 for " << TileCalibUtils::getDrawerString(part2, module)
-			 << ", ch " << chan2
-			 << ", ene " << ene2
-			 << ", LB " << sLumiBlock 
-			 << ", time: " << tilecell->time2()
-			 <<" (qbit2 " << qbit2 << ", ch1 " << chan1 << ", ene1 " << ene1 << ", bad1 " << bad1 << ", qbit1 " << qbit1 << ")" );
-	  m_TilePartTime[part2 - 1]->Fill(tilecell->time2());
-	  if ((part2 >= 3) && (sample < TileID::SAMP_E)) {
-	    m_TileEBTime_NoScint[part2 - 3]->Fill(tilecell->time2());
-	  }
-	}
-      }
-      /* 
-	 Now filling the cell-based histograms
-      */
-      if ((is_good1) && (is_good2)) {
-	if (m_do_enediff_histos && (gain1 == gain2) && 
-	    (ene1+ene2 > m_enediff_threshold))  { 
-	  // EneDiff histograms, HG-HG and LG-LG combinations only
-	  int evenchan = (chan1%2 == 0) ? chan1 : chan2;
-	  if (gain1 == 0) {
-	    m_TileEneDiff_LG[part1-1][(TileCalibUtils::MAX_CHAN * module + evenchan)/2]->Fill((ene1-ene2)/(ene1+ene2));
-	  } else {
-	    m_TileEneDiff_HG[part1-1][(TileCalibUtils::MAX_CHAN * module + evenchan)/2]->Fill((ene1-ene2)/(ene1+ene2));
-	  }
-	}
-	if ((bad1 < 2) && (bad2 < 2) && (gain1 == gain2)) {
-	  // cell-time histograms, only overall, require not affected channels
-	  if ((part1 <= 2) || (sample != TileID::SAMP_E)) {
-	    int index = find_index(gain1,ene1+ene2);
-	    ATH_MSG_DEBUG( "Filling in cell-time for " << TileCalibUtils::getDrawerString(part2, module)
-			   << ", ch1 " << chan1  
-			   << ", ch2 " << chan2  
-			   << ", ene " << ene1+ene2
-			   << ", index " << index
-			   << ", time: " << tilecell->time());
-	    if (gain1 == 1) {
-	      m_TilePartCellTimeHG[part1-1][index]->Fill(tilecell->time());
-	      m_TilePartCellEneHG[part1-1][index]->Fill(ene1+ene2);
-	    } else {
-	      m_TilePartCellTimeLG[part1-1][index]->Fill(tilecell->time());
-	      m_TilePartCellEneLG[part1-1][index]->Fill(ene1+ene2);
-	    }
-	  }
-	}
+  for (const xAOD::JetConstituent* jet_constituent : jet.getConstituents()) {
+    if( jet_constituent->type() == xAOD::Type::CaloCluster ){
+      const xAOD::CaloCluster* calo_cluster = static_cast<const xAOD::CaloCluster*>(jet_constituent->rawConstituent());
+      if (calo_cluster->getCellLinks()) {
+        for (const CaloCell* cell : *calo_cluster) {
+          ++n_cells_1;
+        }
       }
     }
   }
+
+
+  */
+
+
+  //  jet::JetCellAccessor::const_iterator cellIt =  jet::JetCellAccessor::begin(&jet);
+  //  jet::JetCellAccessor::const_iterator cellItE = jet::JetCellAccessor::end(&jet);
+     
+  int c_index = -1;
+  //  for( ;cellIt != cellItE; cellIt++) {
+
+  for (const xAOD::JetConstituent* jet_constituent : jet.getConstituents()) {
+    if( jet_constituent->type() == xAOD::Type::CaloCluster ){
+      const xAOD::CaloCluster* calo_cluster = static_cast<const xAOD::CaloCluster*>(jet_constituent->rawConstituent());
+      if (calo_cluster->getCellLinks()) {
+        for (const CaloCell* cell : *calo_cluster) {
+          c_index++;
+          if (cell->caloDDE()->getSubCalo() == CaloCell_ID::TILE) { // a Tile Cell
+            ATH_MSG_DEBUG("Cell " << c_index << " IS TILECAL !!");
+            const TileCell *tilecell = (TileCell*) cell;
+            Identifier id = tilecell->ID();
+            if (m_usedCells.find(id) == m_usedCells.end()) {
+              m_usedCells.insert(id);
+            } else {
+              continue;
+            }
+            //      int section= m_tileID->section(id);
+            int module = m_tileID->module(id); // ranges 0..63
+            int sample = m_tileID->sample(id); // ranges 0..3 (A, BC, D, E)
+            int part1 = 0;
+            int part2 = 0;
+            int chan1 = -1;
+            int chan2 = -1;
+            uint32_t bad1 = 0;
+            uint32_t bad2 = 0;
+            int gain1 = tilecell->gain1();
+            int gain2 = tilecell->gain2();
+            unsigned int qbit1 = tilecell->qbit1();
+            unsigned int qbit2 = tilecell->qbit2();
+            
+            const CaloDetDescrElement * caloDDE = tilecell->caloDDE();
+            IdentifierHash hash1 = caloDDE->onl1();
+            if (hash1 != TileHWID::NOT_VALID_HASH) {
+              HWIdentifier adc_id = m_tileHWID->adc_id(hash1, gain1);
+              part1 = m_tileHWID->ros(adc_id);
+              chan1 = m_tileHWID->channel(adc_id);
+              bad1 = m_tileBadChanTool->encodeStatus(m_tileBadChanTool->getAdcStatus(adc_id));
+            }
+            
+            // How is it here with partition? D0 spans two partitions....
+            // It should be ok to treat it in this way:
+            IdentifierHash hash2 = caloDDE->onl2();
+            if (hash2 != TileHWID::NOT_VALID_HASH) {
+              HWIdentifier adc_id = m_tileHWID->adc_id(hash2, gain2);
+              part2 = m_tileHWID->ros(adc_id);
+              chan2 = m_tileHWID->channel(adc_id);
+              bad2 = m_tileBadChanTool->encodeStatus(m_tileBadChanTool->getAdcStatus(adc_id));
+            }
+            
+            //        ATH_MSG_INFO( "This is Tile cell " << icell
+            //                      << ": pmts " << pmt1 << "," << pmt2
+            //                      << ", ene "  << ene1 << "," << ene2 );
+            
+            Bool_t is_good1 = isGoodChannel(part1, module, chan1, bad1, qbit1, id);
+            Bool_t is_good2 = isGoodChannel(part2, module, chan2, bad2, qbit2, id);
+            float ene1 = is_good1 ? tilecell->ene1() : -1;
+            float ene2 = is_good2 ? tilecell->ene2() : -1;
+            
+            ATH_MSG_DEBUG(".... " << TileCalibUtils::getDrawerString(part1, module)
+                          << ", ch1 " << chan1
+                          << ", ch2 " << chan2
+                          << ", qbit " << qbit1 << "/" << qbit2
+                          << ", is_bad " << bad1 << "/" << bad2
+                          << ", isGood " << is_good1
+                          << "/" << is_good2
+                          << ", ene " << ene1+ene2);
+            /*
+              Now really fill the histograms time vs lumiblock and 1dim time
+            */
+            char sLumiBlock[10];
+            sprintf(sLumiBlock, "%d", LumiBlock);
+            
+            // first channel
+            if (is_good1 && (ene1 > m_energyChanMin) && (ene1 < m_energyChanMax)) {
+              if (m_do_1dim_histos) {
+                m_TileChanTime1D[part1 - 1][TileCalibUtils::MAX_CHAN * module + chan1]->Fill(tilecell->time1(), 1);
+              }
+              if (m_do_2dim_histos) {
+                m_TileChanTime[part1 - 1][TileCalibUtils::MAX_CHAN * module + chan1]->Fill(sLumiBlock,
+                    tilecell->time1(), 1);
+              }
+              // info for DQ histograms
+              m_TilePartTimeDQ[part1 - 1]->Fill(module + 1, chan1, tilecell->time1());
+              // general histograms, only require non-affected channels
+              if (bad1 < 2) {
+                m_TilePartTime[part1 - 1]->Fill(tilecell->time1());
+                ATH_MSG_DEBUG( "Filling in time1 for " << TileCalibUtils::getDrawerString(part1, module)
+                               << ", ch " << chan1
+                               << ", ene " << ene1
+                               << ", LB " << sLumiBlock 
+                               << ", time: " << tilecell->time1());
+                if ((part1 >= 3) && (sample < TileID::SAMP_E)) {
+                  m_TileEBTime_NoScint[part1 - 3]->Fill(tilecell->time1());
+                }
+              }
+            }
+            // second channel
+            if (is_good2 && (ene2 > m_energyChanMin) && (ene2 < m_energyChanMax)) {
+              if (m_do_1dim_histos) {
+                m_TileChanTime1D[part2 - 1][TileCalibUtils::MAX_CHAN * module + chan2]->Fill(tilecell->time2(), 1);
+              }
+              if (m_do_2dim_histos) {
+                m_TileChanTime[part2 - 1][TileCalibUtils::MAX_CHAN * module + chan2]->Fill(sLumiBlock, tilecell->time2(), 1);
+              }
+              // info for DQ histograms
+              m_TilePartTimeDQ[part2 - 1]->Fill(module + 1, chan2, tilecell->time2());
+              // general histograms, only require non-affected channels
+              if (bad2 < 2) {
+                ATH_MSG_DEBUG( "Filling in time2 for " << TileCalibUtils::getDrawerString(part2, module)
+                               << ", ch " << chan2
+                               << ", ene " << ene2
+                               << ", LB " << sLumiBlock 
+                               << ", time: " << tilecell->time2()
+                               <<" (qbit2 " << qbit2 << ", ch1 " << chan1 << ", ene1 " << ene1 << ", bad1 " << bad1 << ", qbit1 " << qbit1 << ")" );
+                m_TilePartTime[part2 - 1]->Fill(tilecell->time2());
+                if ((part2 >= 3) && (sample < TileID::SAMP_E)) {
+                  m_TileEBTime_NoScint[part2 - 3]->Fill(tilecell->time2());
+                }
+              }
+            }
+            /* 
+               Now filling the cell-based histograms
+            */
+            if ((is_good1) && (is_good2)) {
+              if (m_do_enediff_histos && (gain1 == gain2) && 
+                  (ene1+ene2 > m_enediff_threshold))  { 
+                // EneDiff histograms, HG-HG and LG-LG combinations only
+                int evenchan = (chan1%2 == 0) ? chan1 : chan2;
+                if (gain1 == 0) {
+                  m_TileEneDiff_LG[part1-1][(TileCalibUtils::MAX_CHAN * module + evenchan)/2]->Fill((ene1-ene2)/(ene1+ene2));
+                } else {
+                  m_TileEneDiff_HG[part1-1][(TileCalibUtils::MAX_CHAN * module + evenchan)/2]->Fill((ene1-ene2)/(ene1+ene2));
+                }
+              }
+              if ((bad1 < 2) && (bad2 < 2) && (gain1 == gain2)) {
+                // cell-time histograms, only overall, require not affected channels
+                if ((part1 <= 2) || (sample != TileID::SAMP_E)) {
+                  int index = find_index(gain1,ene1+ene2);
+                  ATH_MSG_DEBUG( "Filling in cell-time for " << TileCalibUtils::getDrawerString(part2, module)
+                                 << ", ch1 " << chan1  
+                                 << ", ch2 " << chan2  
+                                 << ", ene " << ene1+ene2
+                                 << ", index " << index
+                                 << ", time: " << tilecell->time());
+                  if (gain1 == 1) {
+                    m_TilePartCellTimeHG[part1-1][index]->Fill(tilecell->time());
+		    if (m_do_energy_profiles) {
+		      m_TilePartCellEneHGProf[part1-1]->Fill((float)index,ene1+ene2);
+		    } else {
+		      m_TilePartCellEneHG[part1-1][index]->Fill(ene1+ene2);
+		    }
+                  } else {
+                    m_TilePartCellTimeLG[part1-1][index]->Fill(tilecell->time());
+		    if (m_do_energy_profiles) {
+		      m_TilePartCellEneLGProf[part1-1]->Fill((float)index,ene1+ene2);
+		    } else {
+		      m_TilePartCellEneLG[part1-1][index]->Fill(ene1+ene2);
+		    }
+                  }
+                }
+              }
+            }
+          } else {
+            ATH_MSG_DEBUG("Cell " << c_index << " is NOT Tilecal");
+          }
+        }
+      }
+    }
+  }
+
+        //  if (n_cells_1 != n_cells_2) ATH_MSG_WARNING("AUUU: " << n_cells_1 << "/" << n_cells_2);
+
   return StatusCode::SUCCESS;
 }
 
@@ -540,7 +724,49 @@ bool TileJetMonTool::isGoodChannel(int part, int mod, int chan, uint32_t bad, un
   return ((( chan != 4) && (chan != 12)) || m_cabling->TileGap_connected(id));
 }
 
+bool TileJetMonTool::isGoodEvent() {
+  /* check for errors in LAr and Tile, see https://twiki.cern.ch/twiki/bin/viewauth/Atlas/DataPreparationCheckListForPhysicsAnalysis
+   */
+  if (! m_do_event_cleaning) return true;
+
+  ATH_MSG_DEBUG("TileJetMonTool::isGoodEvent()....");
+  const EventInfo* eventInfo(NULL);
+  CHECK(evtStore()->retrieve(eventInfo));
+  if (eventInfo->errorState(EventInfo::LAr) == EventInfo::Error) return(false);
+  if (eventInfo->errorState(EventInfo::Tile) == EventInfo::Error) return(false);
+
+  /* see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/HowToCleanJets2015#Event_Cleaning and 
+     https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetVertexTaggerTool
+  */
+
+#ifdef JVT
+  if (! m_do_jet_cleaning) return true;
+#endif
+
+  const xAOD::JetContainer* jetContainer = evtStore()->tryConstRetrieve<xAOD::JetContainer>("AntiKt4EMTopoJets");
+  if (!jetContainer) return true;
+
+  int ijet=0;
+  for (const xAOD::Jet* jet : *jetContainer) {
+    ATH_MSG_DEBUG("Jet " << ijet << ", pT " << jet->pt()/1000.0 << " GeV, eta " 
+		  << jet->eta());
+#ifdef JVT
+    if (jet->pt() > 50000) {
+      if (m_cleaningTool->keep(*jet) == 0) return false;
+    } else if ((jet->pt() > 20000) && (fabs(jet->eta()) < m_jet_tracking_eta_limit)) {
+      float jvt = m_jvt->updateJvt(*jet);
+      ATH_MSG_DEBUG("... jvt = " << jvt);
+      if ((jvt > m_jet_jvt_threshold) && (m_cleaningTool->keep(*jet) == 0)) return false;
+    }
+#endif
+    ATH_MSG_DEBUG("... done with jet " << ijet);
+    ijet++;
+  }
+  return true;
+}
+
 bool TileJetMonTool::isGoodJet(const xAOD::Jet& jet) {
+  /* Run-1 stuff
   double hecf = jet.getAttribute<float>(xAOD::JetAttribute::HECFrac);
 
   //double tileGap3f = tileGap3F(&jet);
@@ -560,6 +786,25 @@ bool TileJetMonTool::isGoodJet(const xAOD::Jet& jet) {
 
   bool isBadJet = isBad(MediumBad, quality, NegE, emf, hecf, time, fmax, em_eta, chf, HecQ);
   return (!isBadJet);
+  */
+#ifdef JVT
+  if (! m_do_jet_cleaning) return true;
+  double pt = jet.pt();
+  if (pt > 50000) {
+    return(m_cleaningTool->keep(jet));
+  } else if (pt > 20000) {
+    if (fabs(jet.eta()) < m_jet_tracking_eta_limit) {
+      float jvt = m_jvt->updateJvt(jet);
+      return(m_cleaningTool->keep(jet) && (jvt > m_jet_jvt_threshold));
+    } else {
+      return(true);
+    }
+  } else {
+    return(true);
+  }
+#else
+  return(true);
+#endif
 }
 
 /*
@@ -607,18 +852,18 @@ bool TileJetMonTool::isBad(BadJetCategory criteria, double quality, double NegE,
 
 unsigned int TileJetMonTool::find_index(const int gain, const float energy) {
   if (gain == 1) {
-    for(unsigned int i=0; i < cell_ene_hg_up.size(); ++i) {
-      if (energy < cell_ene_hg_up[i]) {
-	return i;
+    for (unsigned int i = 0; i < m_cell_ene_hg_up.size(); ++i) {
+      if (energy < m_cell_ene_hg_up[i]) {
+        return i;
       }
     }
-    return(cell_ene_hg_up.size());
+    return (m_cell_ene_hg_up.size());
   } else {
-    for(unsigned int i=0; i < cell_ene_lg_up.size(); ++i) {
-      if (energy < cell_ene_lg_up[i]) {
-	return i;
+    for (unsigned int i = 0; i < m_cell_ene_lg_up.size(); ++i) {
+      if (energy < m_cell_ene_lg_up[i]) {
+        return i;
       }
     }
-    return(cell_ene_lg_up.size());
+    return (m_cell_ene_lg_up.size());
   }
 }

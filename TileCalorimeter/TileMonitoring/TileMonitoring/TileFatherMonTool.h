@@ -11,8 +11,8 @@
 //
 // July 2006	
 // ********************************************************************
-#ifndef TILEFATHERMONTOOL_H
-#define TILEFATHERMONTOOL_H
+#ifndef TILEMONITORING_TILEFATHERMONTOOL_H
+#define TILEMONITORING_TILEFATHERMONTOOL_H
 
 #include "TileMonitoring/TilePaterMonTool.h"
 
@@ -45,10 +45,12 @@ class TileFatherMonTool: public TilePaterMonTool
   void get_eventTrigs(uint32_t lvl1info);
 
   //method to set an histogram axis bin labels according to a vector of strings
-  void SetBinLabel(TAxis*, const std::vector<std::string>&); 
+  template<class T>
+  void SetBinLabel(T* axis, const std::vector<std::string>& labels); 
 
   //method to set an histogram axis bin labels according to an array of strings
-  void SetBinLabel(TAxis*, std::string *, int);
+  template<class T>
+  void SetBinLabel(T* axis, const std::string* labels, int nLabels);
 
   // Method to move bins of TProfile histogra,
   // Used for online to display only latest 100 LB
@@ -160,8 +162,9 @@ protected:
 private:
   void checkIsCollision(); //moved to private. Should not be called from the derived classes.
   std::string m_MBTSCellContainerID;
-  std::string m_cellsContainerName;
-
+  std::string m_cellsContainerID;
+  std::vector<unsigned int> m_fillHistogramsForL1Triggers;
+  std::vector<bool> m_allowedL1TriggerBits;
 };
 
-#endif
+#endif // TILEMONITORING_TILEFATHERMONTOOL_H

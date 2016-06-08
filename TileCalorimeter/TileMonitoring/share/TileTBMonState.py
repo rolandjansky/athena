@@ -1,5 +1,5 @@
 from AthenaCommon.Logging import logging
-tilemon_log = logging.getLogger('TileMonState.py')
+tilemon_log = logging.getLogger('TileTBMonState.py')
 
 #########################################
 #
@@ -47,7 +47,7 @@ ByteStreamEmonInputSvc = svcMgr.ByteStreamInputSvc
 # ############################################################
 
 if 'Partition' not in dir():
-    Partition="ATLAS"
+    Partition = 'TileTB'
 ByteStreamEmonInputSvc.Partition = Partition
 
 
@@ -55,60 +55,53 @@ from ipc import IPCPartition
 from ispy import ISObject
 ipc_partition = IPCPartition(Partition);
 
+
 if not ipc_partition.isValid():
     tilemon_log.error( 'Partition: ' + ipc_partition.name() + ' is not valid' )
     sys.exit(1)
 
-### ATLAS partition: Read Global Run Parameters to configure the jobs
-if ByteStreamEmonInputSvc.Partition == 'ATLAS':
-    try:
-        run_params = ISObject(ipc_partition, 'RunParams.SOR_RunParams', 'RunParams')
-    except:
-        tilemon_log.warning( "Could not find Run Parameters in IS - Set default beam type to 'cosmics'")
-        beamType = 'cosmics'
-    else:
-        run_params.checkout()
-        beam_type = run_params.beam_type
-        beam_energy = run_params.beam_energy
-        RunNumber = run_params.run_number
-        project = run_params.T0_project_tag
-        tilemon_log.info( "RUN CONFIGURATION: beam type: %i, beam energy: %i, run number: %i, project tag: %s" %(beam_type, beam_energy, RunNumber, project) )
-        
-        # define beam type based on project tag name
-        if project[7:] == "cos" or project[5:] == "test":
-            beamType = 'cosmics'
-        elif project[7:] == '1beam':
-            beamType = 'singlebeam'
-            StreamType = 'express'
-            KeyCount = 20
-        else:
-            beamType = 'collisions'
-            
-    tilemon_log.info( 'Set up beam type: ' + beamType )
-    TileNoiseFilter = 1
-
+try:
+    run_params = ISObject(ipc_partition, 'RunParams.SOR_RunParams', 'RunParams')
+except:
+    tilemon_log.warning( "Could not find Run Parameters in IS - Set default beam type to 'cosmics'")
+    beamType = 'cosmics'
 else:
-    TileNoiseFilter = 0
+    run_params.checkout()
+    beam_type = run_params.beam_type
+    beam_energy = run_params.beam_energy
+    RunNumber = run_params.run_number
+    project = run_params.T0_project_tag
+    run_type = run_params.run_type
+    tilemon_log.info( "RUN CONFIGURATION: run type: %s, beam type: %i, beam energy: %i, run number: %i, project tag: %s" %(run_type, beam_type, beam_energy, RunNumber, project) )
+    if 'CIS mono' in run_type:
+        TileMonoRun = True
+
 
 # #########################################
 # The source of events, SFI for full events
 # #########################################
 #ByteStreamEmonInputSvc.Key = "ReadoutApplication"
 if 'Key' not in dir():
-    Key="dcm"
+    Key = 'ReadoutApplication'
+
 ByteStreamEmonInputSvc.Key = Key
+
+
+if 'KeyCount' not in dir():
+    KeyCount = 50
+
+ByteStreamEmonInputSvc.KeyCount = KeyCount
 
 # ############################################################
 # A list of of key values, e.g. a list of SFIs to contact.
 # If not defined, all event providers of this type (e.g. all SFIs)
 # ############################################################
-#ByteStreamEmonInputSvc.KeyValue = ["TileREB-ROS" ]
-#if 'KeyValue' not in dir():
-#    KeyValue=[""]
-#ByteStreamEmonInputSvc.KeyValue = KeyValue
+if 'KeyValue' not in dir():
+    KeyValue = ['TileREB-ROS', 'TileEBA-ROS']
 
-if 'KeyValue' in dir():
-    ByteStreamEmonInputSvc.KeyValue = KeyValue
+ByteStreamEmonInputSvc.KeyValue = KeyValue
+
+ByteStreamEmonInputSvc.Dispersion = True
 
 # ##############################
 # one of 'Ignore', 'Or', 'And'
@@ -134,17 +127,20 @@ if 'LVL1Logic' in dir():
 
 if 'LVL1Names' in dir():
     ByteStreamEmonInputSvc.LVL1Names = LVL1Names
-elif Partition == 'ATLAS':
-    # make sure that we do not read calibration events in physics run
-    if 'StreamType' not in dir():
-        StreamType = "physics"
-    if 'StreamLogic' not in dir():
-        StreamLogic = "Or"
+
+
+if 'TriggerType' in dir():
+    ByteStreamEmonInputSvc.TriggerType = TriggerType
+
+# make sure that we do not read calibration events in physics run
+
 
 # ###########################################
 # Selection by stream tag:
 # One of 'Or', 'And', 'Ignore' (default)
 # ###########################################
+
+StreamLogic = 'Ignore'
 
 if 'StreamLogic' in dir():
     ByteStreamEmonInputSvc.StreamLogic = StreamLogic
@@ -154,6 +150,7 @@ if 'StreamLogic' in dir():
 # One of 'physics' or 'calibration' or 'express'
 # ############################################
 
+StreamType =''
 if 'StreamType' in dir():
     ByteStreamEmonInputSvc.StreamType = StreamType
 
@@ -164,23 +161,6 @@ if 'StreamType' in dir():
 if 'StreamNames' in dir():
     ByteStreamEmonInputSvc.StreamNames = StreamNames
 
-if 'KeyCount' in dir():
-    ByteStreamEmonInputSvc.KeyCount = KeyCount
-elif 'TriggerType' in dir():
-    ByteStreamEmonInputSvc.KeyCount = 1000
-    import os
-    os.environ['TDAQ_IPC_TIMEOUT'] = '240000'
-else:
-    ByteStreamEmonInputSvc.KeyCount = 50
-    
-if 'TriggerType' in dir():
-    ByteStreamEmonInputSvc.TriggerType = TriggerType
-
-
-if 'Dispersion' in dir():
-    ByteStreamEmonInputSvc.Dispersion = Dispersion
-else:
-    ByteStreamEmonInputSvc.Dispersion = True
 
 # #################################################
 # Shall athena exit if the partition is shutdown ?
@@ -188,19 +168,22 @@ else:
 # #################################################
 #ByteStreamEmonInputSvc.ExitOnPartitionShutdown = False
 
+if 'UpdatePeriod' not in dir():
+    UpdatePeriod = 60
+
 if 'ISServer' not in dir():
     ISServer="Histogramming"
 ByteStreamEmonInputSvc.ISServer = ISServer
 
 if 'PublishName' not in dir():
-    PublishName="TilePT-stateless"
+    PublishName="TilePT-stateless-tb"
 ByteStreamEmonInputSvc.PublishName = PublishName
 
-if 'Frequency' in dir():
-    ByteStreamEmonInputSvc.Frequency = 301 #histograms update in number of events
-else:
-    if 'UpdatePeriod' not in dir():
-        UpdatePeriod=60 #histograms update time in seconds
+if 'Frequency' not in dir():
+    Frequency = 100 #histograms update in number of events
+ByteStreamEmonInputSvc.Frequency = Frequency
+
+if 'UpdatePeriod' in dir():
     try:
         ByteStreamEmonInputSvc.UpdatePeriod = UpdatePeriod
     except Exception:
@@ -216,12 +199,14 @@ except Exception:
 if 'PublishInclude' in dir():
     ByteStreamEmonInputSvc.Include = PublishInclude
 
+
+ByteStreamCnvSvc = Service( 'ByteStreamCnvSvc' )
+theApp.ExtSvc += [ 'ByteStreamCnvSvc']
+
 print ByteStreamEmonInputSvc
 
-ByteStreamCnvSvc = Service( "ByteStreamCnvSvc" )
-theApp.ExtSvc += [ "ByteStreamCnvSvc"]
+include('TileMonitoring/jobOptions_TileTBMon.py')
 
-include("TileMonitoring/TileRec_topOptions.py")
 
 # -----------------------------------------------------
 # An example algorithm in Python

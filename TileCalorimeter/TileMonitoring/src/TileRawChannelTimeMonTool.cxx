@@ -32,17 +32,26 @@
 
 /*---------------------------------------------------------*/
 TileRawChannelTimeMonTool::TileRawChannelTimeMonTool(const std::string & type, const std::string & name, const IInterface* parent)
- : TileFatherMonTool(type, name, parent)
- , m_beamInfo("TileBeamInfoProvider")
- , m_tileBadChanTool("TileBadChanTool")
- , m_DQstatus(0)
- , m_doOnline(false)
- , m_old_lumiblock(-1)
- , m_delta_lumiblock(0)
- , m_nEvents(0)
- , m_bookProfHistOnce(5, false)
-
-
+  : TileFatherMonTool(type, name, parent)
+  , m_beamInfo("TileBeamInfoProvider")
+  , m_tileBadChanTool("TileBadChanTool")
+  , m_dqStatus(0)
+  , m_doOnline(false)
+  , m_oldLumiblock(-1)
+  , m_deltaLumiblock(0)
+  , m_nEvents(0)
+  , m_bookProfHistOnce(5, false)
+  , m_profile2dHist{}
+  , m_profileHist{}
+  , m_partitionTimeLB{}
+  , m_thresholds{10.0, 40.0}
+  , m_timeCorrectionLBA(-15.18)
+  , m_timeCorrectionLBC(-15.37)
+  , m_timeCorrectionEBA(47.65)
+  , m_timeCorrectionEBC(47.42)
+  , m_partitionTimeCorrection{0}
+  , m_timeDifferenceBetweenROS{{1, 2}, {1, 3}, {1, 4}, {2, 3}, {2, 4}, {3, 4}}
+  , m_nLumiblocks(3000)
 	 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -55,6 +64,11 @@ TileRawChannelTimeMonTool::TileRawChannelTimeMonTool(const std::string & type, c
   declareProperty("doOnline"               , m_doOnline = false); //online mode
   declareProperty("TileRawChannelContainer", m_contName = "TileRawChannelOpt2"); //SG RC Container
   declareProperty("TileBadChanTool"        , m_tileBadChanTool);
+  declareProperty("TimeCorrectionLBA", m_timeCorrectionLBA);
+  declareProperty("TimeCorrectionLBC", m_timeCorrectionLBC);
+  declareProperty("TimeCorrectionEBA", m_timeCorrectionEBA);
+  declareProperty("TimeCorrectionEBC", m_timeCorrectionEBC);
+  declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
 
   m_path = "/Tile/RawChannelTime"; 
 }
@@ -79,6 +93,12 @@ StatusCode TileRawChannelTimeMonTool::initialize()
   m_thresholds[0] = m_lowGainThreshold;
   m_thresholds[1] = m_hiGainThreshold;
 
+  m_partitionTimeCorrection = {0, 
+                               m_timeCorrectionLBA, 
+                               m_timeCorrectionLBC, 
+                               m_timeCorrectionEBA, 
+                               m_timeCorrectionEBC};
+
   CHECK(TileFatherMonTool::initialize());
 
   return StatusCode::SUCCESS;
@@ -93,9 +113,37 @@ StatusCode TileRawChannelTimeMonTool::bookHists()
     msg(MSG::DEBUG) << "Using base path " << m_path << endmsg;
   }
 
+  std::string partitionName[5] = { "AUX", "LBA", "LBC", "EBA", "EBC" };
+
+  std::string run("Run ");
+  if (m_manager) run += std::to_string(m_manager->runNumber());
+  else run += "unknown";
+
   for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
+
+      m_partitionTimeLB[ros] =  book2F("Summary", "TileAverageTimeLB_" + partitionName[ros], 
+                                       run + " Partition " + partitionName[ros] + ": Average time vs LumiBlock;LumiBlocks;t [ns]", 
+                                       m_nLumiblocks, -0.5, m_nLumiblocks - 0.5, 151, -75, 75);
+
     for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
       bookHists(ros, drawer);
+    }
+  }
+
+  for (const std::pair<int, int> roses : m_timeDifferenceBetweenROS) {
+    int ros1 = roses.first;
+    int ros2 = roses.second;
+    
+    if (m_doOnline) {
+      m_partitionTimeDifferenceLB.push_back( bookProfile("Summary", "TileAverageTimeDifferenceLB_" + partitionName[ros1] + "-" + partitionName[ros2],
+                                                         run + ": Average time between " + partitionName[ros1] + " and " +  partitionName[ros2] + 
+                                                         " vs LumiBlock;Last LumiBlocks;t [ns]",
+                                                         100, -99.5, 0.5) );
+    } else {
+      m_partitionTimeDifferenceLB.push_back( bookProfile("Summary", "TileAverageTimeDifferenceLB_" + partitionName[ros1] + "-" + partitionName[ros2],
+                                                         run + ": Average time between " + partitionName[ros1] + " and " +  partitionName[ros2] + 
+                                                         " vs LumiBlock;LumiBlocks;t [ns]",
+                                                         m_nLumiblocks, -0.5, m_nLumiblocks - 0.5) );
     }
   }
 
@@ -108,6 +156,11 @@ void TileRawChannelTimeMonTool::bookHists(int ros, int drawer) {
 
   std::string partitionName[5] = { "AUX", "LBA", "LBC", "EBA", "EBC" };
 
+  std::string run("Run ");
+  if (m_manager) run += std::to_string(m_manager->runNumber());
+  else run += "unknown";
+
+
   std::string moduleName = TileCalibUtils::getDrawerString(ros, drawer);
   std::string subDir = moduleName;
   std::string histName, histTitle;
@@ -117,14 +170,14 @@ void TileRawChannelTimeMonTool::bookHists(int ros, int drawer) {
   for(int dig = 0; dig < 8; ++dig){
 
     histName = moduleName +  "_digitizer_" + std::to_string(dig + 1);
-    histTitle = moduleName + " Time vs LumiBlock, Digi" + std::to_string(dig + 1);
+    histTitle = run + ", " + moduleName + ", Digi" + std::to_string(dig + 1) + ": Time vs LumiBlock";
 
     if(m_doOnline){
-      profile_hist[ros][drawer][dig]=bookProfile(subDir, histName, histTitle, 100, -99.5, 0.5);
-      profile_hist[ros][drawer][dig]->GetXaxis()->SetTitle("Last LumiBlocks");
+      m_profileHist[ros][drawer][dig]=bookProfile(subDir, histName, histTitle, 100, -99.5, 0.5);
+      m_profileHist[ros][drawer][dig]->GetXaxis()->SetTitle("Last LumiBlocks");
     }else{
-      profile_hist[ros][drawer][dig]=bookProfile(subDir, histName, histTitle, 1500, -0.5, 1499.5);
-      profile_hist[ros][drawer][dig]->GetXaxis()->SetTitle("LumiBlock");
+      m_profileHist[ros][drawer][dig]=bookProfile(subDir, histName, histTitle, m_nLumiblocks, -0.5, m_nLumiblocks - 0.5);
+      m_profileHist[ros][drawer][dig]->GetXaxis()->SetTitle("LumiBlock");
     }
   }
 
@@ -133,12 +186,11 @@ void TileRawChannelTimeMonTool::bookHists(int ros, int drawer) {
     histName = partitionName[ros];
     histName += "_avgTime";
 
-    histTitle = partitionName[ros];
-    histTitle += " Average Time ";
+    histTitle = run + " Partition " + partitionName[ros] + ": Average Time [ns]";
 
     subDir = "Summary";
 
-    profile2d_hist[ros] = bookProfile2D(subDir, histName, histTitle, 64, 0.5, 64.5, 48, -0.5, 47.5, -50, 50);
+    m_profile2dHist[ros] = bookProfile2D(subDir, histName, histTitle, 64, 0.5, 64.5, 48, -0.5, 47.5, -50, 50);
 
     std::string module_name;
     std::string cell_name;
@@ -146,13 +198,13 @@ void TileRawChannelTimeMonTool::bookHists(int ros, int drawer) {
 
     for (unsigned int drw = 0; drw < TileCalibUtils::MAX_DRAWER; drw += 2) {
       module_name = TileCalibUtils::getDrawerString(ros, drw);
-      profile2d_hist[ros]->GetXaxis()->SetBinLabel(drw + 1, module_name.c_str());
+      m_profile2dHist[ros]->GetXaxis()->SetBinLabel(drw + 1, module_name.c_str());
     }
 
     for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
       cell_name = getCellName(ros, channel);
       channel_name = cell_name + (cell_name.empty() ? "ch" : "_ch") + std::to_string(channel);
-      profile2d_hist[ros]->GetYaxis()->SetBinLabel(channel + 1, channel_name.c_str());
+      m_profile2dHist[ros]->GetYaxis()->SetBinLabel(channel + 1, channel_name.c_str());
     }
 
     m_bookProfHistOnce[ros] = true;
@@ -179,8 +231,8 @@ StatusCode TileRawChannelTimeMonTool::fillHists()
   if (m_nEvents % 1000 == 0) ATH_MSG_INFO(m_nEvents<<" events processed so far");
   ++m_nEvents;
 
-  m_DQstatus = m_beamInfo->getDQstatus();
-
+  m_dqStatus = m_beamInfo->getDQstatus();
+  int32_t current_lumiblock = getLumiBlock();
 
   const TileRawChannelContainer* RawChannelCnt;
   CHECK(evtStore()->retrieve(RawChannelCnt, m_contName));
@@ -218,7 +270,7 @@ StatusCode TileRawChannelTimeMonTool::fillHists()
 
           int adc = m_tileHWID->adc(adc_id);
 
-          bool good  = m_DQstatus->isAdcDQgood(ros, drawer, chan, adc) && m_beamInfo->isChanDCSgood(ros, drawer, chan);
+          bool good  = m_dqStatus->isAdcDQgood(ros, drawer, chan, adc) && m_beamInfo->isChanDCSgood(ros, drawer, chan);
 
           if (good) {
             TileBchStatus status = m_tileBadChanTool->getAdcStatus(drawerIdx, chan, adc);
@@ -245,33 +297,14 @@ StatusCode TileRawChannelTimeMonTool::fillHists()
           
             timeCorr = time - avgTimePerPart[ros];      
 
-            profile2d_hist[ros]->Fill(drawer + 1, chan, timeCorr);
-
-            int32_t current_lumiblock = getLumiBlock();
-            if(m_old_lumiblock == -1) {
-              m_old_lumiblock = current_lumiblock;
-            }
+            m_profile2dHist[ros]->Fill(drawer + 1, chan, timeCorr);
 
             if(m_doOnline) {
-              m_delta_lumiblock = current_lumiblock - m_old_lumiblock;
 
-              if(m_delta_lumiblock > 0) {//move bins
-
-                for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
-                  for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
-                    for (unsigned int digi = 0; digi < 8; ++digi) {
-                      ShiftTprofile(profile_hist[ros][drawer][digi], m_delta_lumiblock);
-                    }
-                  }
-                }
-
-                m_old_lumiblock = current_lumiblock;
-              }
-
-              profile_hist[ros][drawer][ch2digi[chan]]->Fill(0., timeCorr);
+              m_profileHist[ros][drawer][ch2digi[chan]]->Fill(0., timeCorr);
 
             } else {// End of Online
-              profile_hist[ros][drawer][ch2digi[chan]]->Fill(current_lumiblock, timeCorr);
+              m_profileHist[ros][drawer][ch2digi[chan]]->Fill(current_lumiblock, timeCorr);
             }
           }      //k==1 
         } // loop over channels
@@ -279,15 +312,69 @@ StatusCode TileRawChannelTimeMonTool::fillHists()
     }
 
     if (k == 0) {
+
+      float partitionTime[5] = {0};
+
       for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
         if (nCh[ros] != 0) {
           avgTimePerPart[ros] = sumTimeCh[ros] / nCh[ros];
         } else {
           avgTimePerPart[ros] = 0;
         }
+
+        partitionTime[ros] = avgTimePerPart[ros] - m_partitionTimeCorrection[ros];
+        m_partitionTimeLB[ros]->Fill(current_lumiblock, partitionTime[ros]);
+
         sumTimeCh[ros] = 0;
         nCh[ros] = 0;
       } //for
+
+
+      if(m_doOnline) {
+        
+        if(m_oldLumiblock == -1) {
+          m_oldLumiblock = current_lumiblock;
+        }
+        
+        m_deltaLumiblock = current_lumiblock - m_oldLumiblock;
+        
+        if(m_deltaLumiblock > 0) {//move bins
+        
+          for (TProfile* timeDifferenceLB : m_partitionTimeDifferenceLB) {
+            ShiftTprofile(timeDifferenceLB, m_deltaLumiblock);          
+          }
+
+          for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
+            for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
+              for (unsigned int digi = 0; digi < 8; ++digi) {
+                ShiftTprofile(m_profileHist[ros][drawer][digi], m_deltaLumiblock);
+              }
+            }
+          }
+
+          m_oldLumiblock = current_lumiblock;
+        }
+
+        int rosesPairIndex(0);
+        for (const std::pair<int, int> roses : m_timeDifferenceBetweenROS) {
+          int ros1 = roses.first;
+          int ros2 = roses.second;
+          
+          m_partitionTimeDifferenceLB[rosesPairIndex]->Fill(0., partitionTime[ros1] - partitionTime[ros2]);
+          ++rosesPairIndex;
+        }
+      
+      } else {
+        int rosesPairIndex(0);
+        for (const std::pair<int, int> roses : m_timeDifferenceBetweenROS) {
+          int ros1 = roses.first;
+          int ros2 = roses.second;
+          
+          m_partitionTimeDifferenceLB[rosesPairIndex]->Fill(current_lumiblock, partitionTime[ros1] - partitionTime[ros2]);
+          ++rosesPairIndex;
+        }
+      }
+
     } //if k==0
   } // loop over k 
   return StatusCode::SUCCESS;
