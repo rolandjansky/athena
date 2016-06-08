@@ -100,7 +100,7 @@ namespace RootSpy {
   }
 
   struct logitem {
-    explicit logitem(bool indirect):hash(0),ntrace(0),traceoffset(indirect?1:0){}
+    explicit logitem(bool indirect):hash(0),ntrace(0),trace(),traceoffset(indirect?1:0){}
     unsigned hash;
     static const unsigned ntracemax=8;
     unsigned ntrace;
