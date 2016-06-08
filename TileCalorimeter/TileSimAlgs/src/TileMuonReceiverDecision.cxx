@@ -108,6 +108,8 @@ StatusCode TileMuonReceiverDecision::execute() {
   TileRawChannelContainer::const_iterator collItr  = MuonReceiverRawChannelContainer->begin();
   TileRawChannelContainer::const_iterator lastColl = MuonReceiverRawChannelContainer->end();
 
+  // Vectors for managemnt for TMDB 2015 configuration with inclusion in trigger in 1.1<eta<1.3
+  //
   std::vector<bool>  tile2SL(4,false);
   std::vector<float> ene(2,0.0);
   std::vector<float> time(2,0.0);
@@ -118,15 +120,28 @@ StatusCode TileMuonReceiverDecision::execute() {
   thresholds.push_back(m_threshold_d6_hi);
   thresholds.push_back(m_threshold_d6_lo);
 
-  // Create the container to store the decision from the algorthm
+  // Create the container to store the decision from the algorithm
   //  
   TileMuonReceiverContainer * decisionContainer = new TileMuonReceiverContainer();  
 
-  TileMuonReceiverObj * TileMuRcvObj = new TileMuonReceiverObj(0,thresholds); // special object with thresholds
+  TileMuonReceiverObj * TileMuRcvObj = new TileMuonReceiverObj(0,thresholds); // Special object with thresholds
   decisionContainer->push_back(TileMuRcvObj);
 
-  // conversion from TMDB channel number (0-3) to channel number in a drawer
-  int Dchan[4]={17,16,37,38};
+  // Conversion from TMDB channel number the index to channel number in a drawer
+  //
+#define nEBchan 6
+#define nLBchan 9
+#define maxCell 5
+  // EB: D5(L,R),D6(L,R),D4(L,R)
+  int EBchan[nEBchan]={17,16,37,38,3,2};
+  // LB: D0,D1(L,R),D2(L,R),D3(L,R),BC8(L,R)
+  int LBchan[nLBchan]={0,13,14,25,24,41,44,39,40};
+  // Auxiliary array for cell index
+  int EBIdCell[nEBchan]={0,0,1,1,2,2};
+  int LBIdCell[nLBchan]={0,1,1,2,2,3,3,4,4};
+  // Used for validation only not including in container at the moment   
+  float energy_HLX[maxCell]={0.,0.,0.,0.,0.};
+  float time_HLX[maxCell]={0.,0.,0.,0.,0.};
 
   for ( ; collItr != lastColl; ++collItr ) {
 
@@ -135,55 +150,99 @@ StatusCode TileMuonReceiverDecision::execute() {
 
     if (chanItr==lastChan) continue;
     int frag_id   = (*collItr)->identify();
-    int ros       = frag_id>>8;
-    int drawer    = (frag_id&0xFF);
-    //HWIdentifier drawer_id = m_tileHWID->drawer_id(frag_id);
     int drawerIdx = TileCalibUtils::getDrawerIdxFromFragId(frag_id);
+    int ros       = frag_id>>8;
+    bool eb_ros   = ((ros == TileHWID::EXTBAR_POS) || (ros == TileHWID::EXTBAR_NEG));
+    int upperLim  = (eb_ros) ? nEBchan : nLBchan;
+
+    if (msgLvl(MSG::VERBOSE)) {
+      int drawer = (frag_id&0xFF);
+      memset(energy_HLX,0,sizeof(energy_HLX));
+      memset(time_HLX,0,sizeof(time_HLX));
+      msg(MSG::VERBOSE) << "(E.0.0) Frag_id: 0x"<< MSG::hex << frag_id << MSG::dec <<" ros: "<< ros <<" drawer: "<< drawer << endreq;
+    }
 
     float energy_d6   = 0.0;
     float energy_d5d6 = 0.0;
     float time_d6     = 0.0;
     float time_d5d6   = 0.0;
-    int jch6=0;
-    int jch=0;
-
-    ATH_MSG_VERBOSE("(E.00) The size of the tile2SL container was set to "<< tile2SL.size() <<" frag_id: "<< frag_id <<" ros: "<< ros <<" drawer: "<< drawer );
+  
+    int ich   = 0;
+    int jch6  = 0;
+    int jch56 = 0;
 
     for ( ; chanItr != lastChan; ++chanItr ) {
-      // 
+       
+      ++ich;
       // For TMDB channel numbers are being set differently (17,16,37,38)->(D5L,D5r,D6L,D6R)->(0,1,2,3)
-      //
-
       HWIdentifier adc_id = (*chanItr)->adc_HWID() ;
-      int TMDB_channel    = m_tileHWID->channel(adc_id) ;
-
-      float ADC2MeV_factor = m_tileToolEmscale->channelCalib(drawerIdx, Dchan[TMDB_channel], TileID::LOWGAIN, 1.
+      // TMDB channel is used in COOL and goes from 0..n with n=5 for EB and n=8 in LB
+      int TMDBchan = m_tileHWID->channel(adc_id) ;
+      if ( TMDBchan >= upperLim ) {
+        msg(MSG::WARNING) << "(E.1."<< ich <<") hwid: "<< m_tileHWID->to_string(adc_id,-1) <<" ch: "<< TMDBchan <<" --> Tile ch: UNKNOWN" << endreq ;
+        continue;
+      }
+      // TILE channel is the Tile HW channel
+      int TILEchan = (eb_ros) ? EBchan[TMDBchan] : LBchan[TMDBchan];
+      
+      float ADC2MeV_factor = m_tileToolEmscale->channelCalib(drawerIdx, TILEchan, TileID::LOWGAIN, 1.
                                                                       , TileRawChannelUnit::PicoCoulombs
                                                                       , TileRawChannelUnit::MegaElectronVolts) 
                            / m_tileInfo->MuRcvCalib(adc_id);
 
       float energy = (*chanItr)->amplitude()*ADC2MeV_factor;
+      float time   = (*chanItr)->time();
 
-      if (msgLvl(MSG::VERBOSE)) {
-        msg(MSG::VERBOSE) << "(E.0"<< jch+1 <<") hwid: "<< m_tileHWID->to_string(adc_id,-1) <<"  ch: "<< TMDB_channel <<" --> Tile HW channel: "<< Dchan[TMDB_channel] << endreq ;
-        msg(MSG::VERBOSE) << "        E[ADC]: "<<(*chanItr)->amplitude()<<" E[MeV]: "<<energy<<" t[ns]: "<<(*chanItr)->time()<<" QF: "<<(*chanItr)->quality() << endreq;
+      if (msgLvl(MSG::DEBUG)) {
+        msg(MSG::DEBUG) << "(E.1."<< ich <<") hwid: "<< m_tileHWID->to_string(adc_id,-1) <<" ch: "<< TMDBchan <<" --> Tile ch: "<< TILEchan << endreq ;
+        msg(MSG::DEBUG) << "        E[ADC]: "<<(*chanItr)->amplitude()<<" E[MeV]: "<<energy<<" t[ns]: "<<time<<" QF: "<<(*chanItr)->quality() << endreq;
       }
 
-      energy_d5d6 += energy;
-      time_d5d6   += (*chanItr)->time();
-      ++jch;
+      if ( eb_ros ) {
+        if ( TMDBchan<4 ) {
+          energy_d5d6 += energy;
+          time_d5d6   += time;
+          ++jch56;
 
-      if ( TMDB_channel==2 || TMDB_channel==3 ) { /* choose d6 cell */
-        energy_d6 += energy;
-        time_d6   += (*chanItr)->time();
-        ++jch6;
+          if ( TMDBchan==2 || TMDBchan==3 ) { /* choose d6 cell */
+            energy_d6 += energy;
+            time_d6   += time;
+            ++jch6;
+          }
+        }
+        if (msgLvl(MSG::VERBOSE)) {
+          energy_HLX[EBIdCell[TMDBchan]] += energy;
+          time_HLX[EBIdCell[TMDBchan]]   += time;
+        }
+      } else {
+        if (msgLvl(MSG::VERBOSE)) {
+          energy_HLX[LBIdCell[TMDBchan]] += energy;
+          time_HLX[LBIdCell[TMDBchan]]   += time;
+        }
       }
     }
-    if (jch>1) {
-        time_d5d6 /= jch;
-        if (jch6>1) time_d6 /= jch6;
+
+    if (msgLvl(MSG::VERBOSE)) {
+      msg(MSG::VERBOSE) << "(X.0.0)   Summary of the exteded results for HL-LHC: " << endreq;
+      if ( eb_ros ) {
+        msg(MSG::VERBOSE) << "(X.1.0)     Energy  D-5 "<<energy_HLX[0]<<" D-6 "<<energy_HLX[1]<<" D-4 "<<energy_HLX[2]<< endreq;
+        msg(MSG::VERBOSE) << "(X.2.0)     Time    D-5 "<<time_HLX[0]/2.<<" D-6 "<<time_HLX[1]/2.<<" D-4 "<<time_HLX[2]/2.<< endreq;
+      } else {
+        msg(MSG::VERBOSE) << "(X.1.0)     Energy  D-0 "<<energy_HLX[0]<<" D-1 "<<energy_HLX[1]<<" D-2 "<<energy_HLX[2]<<" D-3 "<<energy_HLX[3]<<" BC-8 "<<energy_HLX[4]<< endreq;
+        msg(MSG::VERBOSE) << "(X.2.0)     Time    D-0 "<<time_HLX[0]<<" D-1 "<<time_HLX[1]/2.<<" D-2 "<<time_HLX[2]/2.<<" D-3 "<<time_HLX[3]/2.<<" BC-8 "<<time_HLX[4]/2.<< endreq;
+      }
     }
     
+    if (jch56 == 0) { // neigher D5 nor D6 found - nothing to do
+      ATH_MSG_VERBOSE( "== NO trigger for this drawer " );
+      continue; 
+    }
+    
+    if (jch56>1) {
+      time_d5d6 /= jch56;
+      if (jch6>1) time_d6 /= jch6;
+    }
+
     // A. Above threshold (hi and lo) d5+d6 
     //
     bool pass_d5d6_hi = (energy_d5d6>m_threshold_d5d6_hi);
@@ -202,26 +261,24 @@ StatusCode TileMuonReceiverDecision::execute() {
     tile2SL[1] = (!pass_d5d6_hi && pass_d5d6_lo);
     tile2SL[2] = pass_d6_hi;
     tile2SL[3] = (!pass_d6_hi && pass_d6_lo);
-    
+
     if (msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "(E.05)   Summary: e(d5+d6)= " << energy_d5d6 << " e(d6)= " << energy_d6 << endreq;
-      msg(MSG::VERBOSE) << "(E.06)   Thresholds: " << m_threshold_d5d6_lo << " " << m_threshold_d5d6_hi << " " << m_threshold_d6_lo << " " << m_threshold_d6_hi << endreq;
-      msg(MSG::VERBOSE) << "(E.07)   Checking which tresholds have been passed: d56 high " << pass_d5d6_hi << " d56 low " << pass_d5d6_lo << " d6 high " << pass_d6_hi << " d6 low " << pass_d6_lo << endreq;
-      msg(MSG::VERBOSE) << "(E.08)   Output to SL: " << tile2SL[0] << tile2SL[1] << tile2SL[2] << tile2SL[3] << endreq;
+      msg(MSG::VERBOSE) << "(E.2.0)   Summary: e(d5+d6)= " << energy_d5d6 << " e(d6)= " << energy_d6 << endreq;
+      msg(MSG::VERBOSE) << "(E.3.0)   Thresholds: " << m_threshold_d5d6_lo << " " << m_threshold_d5d6_hi << " " << m_threshold_d6_lo << " " << m_threshold_d6_hi << endreq;
+      msg(MSG::VERBOSE) << "(E.4.0)   Checking which tresholds have been passed: d56 high " << pass_d5d6_hi << " d56 low " << pass_d5d6_lo << " d6 high " << pass_d6_hi << " d6 low " << pass_d6_lo << endreq;
+      msg(MSG::VERBOSE) << "(E.5.0)   Output to SL: " << tile2SL[0] << tile2SL[1] << tile2SL[2] << tile2SL[3] << endreq;
     }
     
     if (tile2SL[0] || tile2SL[1] || tile2SL[2] || tile2SL[3]) {
-
-      int id_mod = frag_id; 
 
       ene[0]  = energy_d5d6;
       ene[1]  = energy_d6;
       time[0] = time_d5d6;
       time[1] = time_d6;
 
-      TileMuonReceiverObj * TileMuRcvObj = new TileMuonReceiverObj(id_mod,ene,time,tile2SL);
+      TileMuonReceiverObj * TileMuRcvObj = new TileMuonReceiverObj(frag_id,ene,time,tile2SL);
       decisionContainer->push_back(TileMuRcvObj);
-
+      
     } else {
       ATH_MSG_VERBOSE( "== NULL trigger not include in container " );
     }
@@ -238,8 +295,6 @@ StatusCode TileMuonReceiverDecision::execute() {
 }
 
 StatusCode TileMuonReceiverDecision::finalize() {
-  ATH_MSG_DEBUG( "Finalizing TileMuonReceiverDecision");
-  
   ATH_MSG_INFO( "TileMuonReceiverDecision finalized successfully");
   return StatusCode::SUCCESS;
 }

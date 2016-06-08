@@ -72,21 +72,24 @@ if doTileDigitsFromPulse:
 
 if doTileDigitToRawChannel:
     
-    from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-    RUN1=(geoFlags.Run() == "RUN1" or (geoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
+    #from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
+    #RUN1=(geoFlags.Run() == "RUN1" or (geoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
+    OF2asDefault=True
 
-    # Reconstruction method: COF(MF) for RUN2, OF2-NI for RUN1, OF2-I for cosmics  
+    # Reconstruction method: COF or OF2-NI for collisions, OF2-I for cosmics  
     from TileRecUtils.TileRecFlags import jobproperties
-    if not (jobproperties.TileRecFlags.doTileFlat        \
-            or jobproperties.TileRecFlags.doTileFit      \
-            or jobproperties.TileRecFlags.doTileFitCool  \
-            or jobproperties.TileRecFlags.doTileOpt      \
-            or jobproperties.TileRecFlags.doTileOF1      \
-            or jobproperties.TileRecFlags.doTileOpt2     \
-            or jobproperties.TileRecFlags.doTileOptATLAS \
+    if not (jobproperties.TileRecFlags.doTileFlat                \
+            or jobproperties.TileRecFlags.doTileFit              \
+            or jobproperties.TileRecFlags.doTileFitCool          \
+            or jobproperties.TileRecFlags.doTileOpt              \
+            or jobproperties.TileRecFlags.doTileOF1              \
+            or jobproperties.TileRecFlags.doTileOpt2             \
+            or (hasattr(jobproperties.TileRecFlags, 'doTileQIE') \
+                and jobproperties.TileRecFlags.doTileQIE)        \
+            or jobproperties.TileRecFlags.doTileOptATLAS         \
             or jobproperties.TileRecFlags.doTileMF):
         if jobproperties.Beam.beamType == 'collisions':
-            if RUN1: 
+            if OF2asDefault: 
                 jobproperties.TileRecFlags.doTileOptATLAS = True
             else:
                 jobproperties.TileRecFlags.doTileMF = True
@@ -126,7 +129,7 @@ if doTileDigitToRawChannel:
     jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelCnt"
     # make sure that only one output container has default name "TileRawChannelCnt"
     if jobproperties.Beam.beamType == 'collisions': 
-        if RUN1: 
+        if OF2asDefault:
             if jobproperties.TileRecFlags.doTileOptATLAS():
                 ToolSvc.TileRawChannelBuilderOptATLAS.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
                 if jobproperties.TileRecFlags.doTileMF():
