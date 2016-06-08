@@ -33,12 +33,12 @@
 #include <TMVA/Reader.h>
 #include <TMVA/MethodBDT.h>
 
+#include "egammaMVACalib/egammaMVALayerDepth.h"
 #include "egammaMVACalib/egammaMVACalib.h"
-#include "egammaMVACalib/BDT.h"
+#include "MVAUtils/BDT.h"
 #include "PathResolver/PathResolver.h"
-#include <memory>
 
-using namespace egammaMVACalibNmsp;
+using namespace MVAUtils;
 
 #define CHECK_SETUPBDT(EXP) { \
   if (!EXP) { \
@@ -72,7 +72,6 @@ egammaMVACalib::egammaMVACalib(int particle,
   : asg::AsgMessaging("egammaMVACalib"),
     m_useNewBDTs(useNewBDTs),
     fMethodName(method),
-    m_debug(debug),
     m_etaVar(etaBinVar),
     m_energyVar(energyBinVar),
     m_particleTypeVar(particleTypeVar),
@@ -107,13 +106,14 @@ egammaMVACalib::egammaMVACalib(int particle,
     m_el_rawcl_Es1(0),
     m_el_rawcl_Es2(0),
     m_el_rawcl_Es3(0),
+    m_el_cl_E_TileGap3(0),
     m_el_cl_eta(0),
     m_el_cl_E(0),
     m_el_cl_etaCalo(0),
     m_el_cl_phiCalo(0),
+    m_el_cl_phi(0),
     m_el_rawcl_calibHitsShowerDepth(0)
 {
-  if (m_debug) {
     ATH_MSG_DEBUG("creating egammaMVACalib in debug mode with options:"
           << "\n  particle     : " << particle
           << "\n  new BDTs     : " << useNewBDTs
@@ -125,7 +125,8 @@ egammaMVACalib::egammaMVACalib(int particle,
           << "\n  particle type: " << m_particleType
           << "\n  file pattern : " << filePattern
           << "\n  ignore spect : " << ignoreSpectators);
-  }
+
+  if (debug) { ATH_MSG_WARNING("debug flag is deprecated and has no effect"); }
 
   setPeakCorrection(MEAN10TOTRUE);
   useClusterIf0(true);
@@ -148,12 +149,12 @@ egammaMVACalib::egammaMVACalib(int particle,
   if (filePattern.Length() == 0)
     filePattern = "MVACalib_(.*?)_(.*?)_<calibType>_<method>.weights.xml";
   m_fileNamePattern = new TPRegexp(filePattern.ReplaceAll("<calibType>", getCalibTypeString()).ReplaceAll("<method>", fMethodName));
-  if (m_debug) ATH_MSG_DEBUG("regex pattern: " << m_fileNamePattern->GetPattern());
+  ATH_MSG_DEBUG("regex pattern: " << m_fileNamePattern->GetPattern());
 
   // Use default formula for etaBin if not given
   if (m_etaVar.Length() == 0) {
     m_etaVar = (m_egammaType == egPHOTON) ? "ph_cl_eta" : "el_cl_eta";
-    if (m_debug) ATH_MSG_DEBUG("etavar not specified: set to default " << m_etaVar);
+    ATH_MSG_DEBUG("etavar not specified: set to default " << m_etaVar);
   }
 
   // Use default formula for energyBin if not given
@@ -161,7 +162,7 @@ egammaMVACalib::egammaMVACalib(int particle,
     m_energyVar = (m_egammaType == egPHOTON) ?
       "(ph_rawcl_Es1 + ph_rawcl_Es2 + ph_rawcl_Es3)/cosh(ph_cl_eta)" :
       "(el_rawcl_Es1 + el_rawcl_Es2 + el_rawcl_Es3)/cosh(el_cl_eta)";
-    if (m_debug) ATH_MSG_DEBUG("energy var not specified: set to default " << m_energyVar);
+    ATH_MSG_DEBUG("energy var not specified: set to default " << m_energyVar);
   }
 
   // Define a formula for particleType if needed
@@ -197,7 +198,7 @@ egammaMVACalib::egammaMVACalib(int particle,
 
   printReadersInfo();
   ATH_MSG_INFO("Number of variables:" << m_formulae.size());
-  if (m_debug) {
+  if (msgLvl(MSG::DEBUG)) {
     for (std::map<TString, egammaMVACalib::VarFormula>::const_iterator it = m_formulae.begin(); it != m_formulae.end(); ++it)
       ATH_MSG_DEBUG("formula: " << it->second.expression);
   }
@@ -205,7 +206,6 @@ egammaMVACalib::egammaMVACalib(int particle,
   setupFormulasForReaderID();
   // Define the formula to retrieve the initial energy (used in getMVAResponseTree)
   defineInitialEnergyFormula();
-  //if (m_debug) printFormulae();
 }
 
 
@@ -213,43 +213,43 @@ egammaMVACalib::egammaMVACalib(int particle,
 /** Destructor **/
 egammaMVACalib::~egammaMVACalib()
 {
-  if (m_debug) ATH_MSG_DEBUG("deleting formulae");
+  ATH_MSG_DEBUG("deleting formulae");
   // Delete the formulae
   std::map< TString, egammaMVACalib::VarFormula >::iterator it;
   for (it = m_formulae.begin(); it != m_formulae.end(); ++it)
     delete it->second.formula;
 
-  if (m_debug) ATH_MSG_DEBUG("deleting the readers");
+  ATH_MSG_DEBUG("deleting the readers");
   // Delete the readers
   std::map< egammaMVACalib::ReaderID, TMVA::Reader* >::iterator itR;
   for (itR = m_readers.begin(); itR != m_readers.end(); ++itR)
     delete itR->second;
 
-  if (m_debug) ATH_MSG_DEBUG("deleting the BDTs");
+  ATH_MSG_DEBUG("deleting the BDTs");
   // Delete the readers
   std::map< egammaMVACalib::ReaderID, BDT* >::iterator itB;
   for (itB = m_BDTs.begin(); itB != m_BDTs.end(); ++itB) {
     delete itB->second;
   }
 
-  if (m_debug) ATH_MSG_DEBUG("deleting filenamepattern at " << m_fileNamePattern);
+  ATH_MSG_DEBUG("deleting filenamepattern at " << m_fileNamePattern);
   delete m_fileNamePattern;
-  if (m_debug) ATH_MSG_DEBUG("deleting m_hPoly at " << m_hPoly);
+  ATH_MSG_DEBUG("deleting m_hPoly at " << m_hPoly);
   delete m_hPoly;
 
   // Delete shift formulae
-  if (m_debug) ATH_MSG_DEBUG("deleting m_shiftMap");
+  ATH_MSG_DEBUG("deleting m_shiftMap");
   ShiftMap::iterator itS;
   for (itS = m_shiftMap.begin(); itS != m_shiftMap.end(); ++itS)
     delete itS->second;
 
-  if (m_debug) ATH_MSG_DEBUG("deleting clusterFormula");
+  ATH_MSG_DEBUG("deleting clusterFormula");
   delete m_clusterFormula;
 
-  if (m_debug) ATH_MSG_DEBUG("deleting internal tree");
+  ATH_MSG_DEBUG("deleting internal tree");
   delete m_tree;
 
-  if (m_debug) ATH_MSG_DEBUG("finishing");
+  ATH_MSG_DEBUG("finishing");
 }
 
 void egammaMVACalib::setPeakCorrection(TString shift_type)
@@ -348,7 +348,7 @@ egammaMVACalib::getUserInfo(const TString & xmlfilename)
  **/
 void egammaMVACalib::getReaders(const TString & folder)
 {
-  if (m_debug) ATH_MSG_DEBUG("<getReaders> in folder: " << folder);
+  ATH_MSG_DEBUG("<getReaders> in folder: " << folder);
   m_hPoly = new TH2Poly();
   std::vector< TMVA::Reader* > readers;
 
@@ -362,8 +362,8 @@ void egammaMVACalib::getReaders(const TString & folder)
     ATH_MSG_FATAL("egammaMVACalib::getReaders Directory doesn't exist" << folder.Data());
     throw std::runtime_error("Directory doesn't exist");
   }
-  if (m_debug) ATH_MSG_DEBUG("found " << list_of_files->GetEntries() << " files");
-  if (m_debug) ATH_MSG_DEBUG("searching all xml files with pattern " << m_fileNamePattern->GetPattern());
+  ATH_MSG_DEBUG("found " << list_of_files->GetEntries() << " files");
+  ATH_MSG_DEBUG("searching all xml files with pattern " << m_fileNamePattern->GetPattern());
 
   TSystemFile *file;
   TIter next(list_of_files);
@@ -396,7 +396,7 @@ void egammaMVACalib::getReaders(const TString & folder)
 
 void egammaMVACalib::getBDTs(const std::string & folder)
 {
-  if (m_debug) ATH_MSG_DEBUG("<getBDTs> in folder: " << folder);
+  ATH_MSG_DEBUG("<getBDTs> in folder: " << folder);
   if (m_egammaType == egPHOTON)
   {
     setupBDT(PathResolverFindCalibFile(folder + "/MVACalib_unconvertedPhoton.weights.root"));
@@ -412,7 +412,7 @@ void egammaMVACalib::setupBDT(const TString& fileName)
 {
   egammaMVACalib::ReaderID key;
   if (!parseFileName(fileName, key.particleType)) return;
-  if (m_debug) ATH_MSG_DEBUG("Setup BDT for particle " << key.particleType);
+  ATH_MSG_DEBUG("Setup BDT for particle " << key.particleType);
 
   TString filePath = PathResolverFindCalibFile(fileName.Data());
   std::unique_ptr<TFile> f(TFile::Open(filePath));
@@ -485,7 +485,9 @@ void egammaMVACalib::setupBDT(const TString& fileName)
     std::vector<float*> pointers;
 
     // Loop over variables, which are separated by comma
-    std::unique_ptr<TObjArray> tokens(getString(variables->At(i)).Tokenize(","));
+    char separator_var = ';';
+    if (getString(variables->At(i)).Index(";") < 1) separator_var = ','; // old versions
+    std::unique_ptr<TObjArray> tokens(getString(variables->At(i)).Tokenize(separator_var));
     TIter nextVar(tokens.get());
     while ((str2 = (TObjString*) nextVar()))
     {
@@ -578,7 +580,7 @@ bool egammaMVACalib::parseFileName(const TString & fileName, egammaMVACalib::Par
   if (!match.get() or match->GetEntries() != 2) {
     return false;
   }
-  if (m_debug) ATH_MSG_DEBUG("Checking: " << fileName.Data());
+  ATH_MSG_DEBUG("Checking: " << fileName.Data());
   // Define the ParticleType, convert the string to the enum
   TString pType = getString(match->At(1));
   particleType = getParticleType(pType);
@@ -620,7 +622,7 @@ int egammaMVACalib::getBin(float etaMin, float etaMax, float energyMin, float en
   {
     bin = m_hPoly->AddBin(etaMin - 1e-10, energyMin - 1e-10, etaMax, energyMax);
     m_hPoly->SetBinContent(bin, bin); // just for drawing, no use
-    if (m_debug) ATH_MSG_DEBUG("New bin ("
+    ATH_MSG_DEBUG("New bin ("
 			       << bin << "):"
 			       << " etaMin = "
 			       << etaMin << " / etaMax = "
@@ -659,7 +661,7 @@ void egammaMVACalib::setupReader(TMVA::Reader *reader, const TString & xml_filen
     TString varDefinition(varName);
     if (varName != expression)
       varDefinition += " := " + expression;
-    //if (m_debug) ATH_MSG_DEBUG("Adding " << infoType << " " << varDefinition);
+    //ATH_MSG_DEBUG("Adding " << infoType << " " << varDefinition);
 
     if (infoType == "variable")
       reader->AddVariable(varDefinition, &(m_formulae[varName].variable));
@@ -723,14 +725,13 @@ void egammaMVACalib::predefineFormula(const TString & name, const TString & expr
   {
     VarFormula v = { 0, expression, infoType, valueType, 0, 0 };
     m_formulae[name] = v;
-    if (m_debug) ATH_MSG_DEBUG("Formula " << name << " := " << expression);
+    ATH_MSG_DEBUG("Formula " << name << " := " << expression);
   }
   // variable defined, compare the expressions
   else if (it->second.expression != expression)
   {
     ATH_MSG_FATAL("predefineFormula, Expressions for do not match. Old: New:" <<name.Data() << it->second.expression.Data() << expression.Data());
     throw std::runtime_error("Expressions do not match");
-    assert(false);
   }
   else if (infoType == "variable" && it->second.infoType != "variable")
   {
@@ -759,23 +760,18 @@ int egammaMVACalib::getBin() const
 {
   const float eta = TMath::Abs(m_eta ? *m_eta : 0.);
   const float energy = (m_energy ? (*m_energy)/1e3 : 0.);
-  if (m_debug) {
-    ATH_MSG_DEBUG("(getBin) eta = " << eta
-          << " energy = " << energy << " bin = "
-          << m_hPoly->FindBin(eta, energy));
-  }
+  ATH_MSG_DEBUG("(getBin) eta = " << eta << " energy = " << energy << " bin = " << m_hPoly->FindBin(eta, energy));
   return m_hPoly->FindBin(eta, energy);
 }
 
 
-
-
 TTree* egammaMVACalib::createInternalTree(egammaType egamma_type, TTree *tree)
 {
-  if (m_debug) ATH_MSG_DEBUG("Creating internal tree");
+  ATH_MSG_DEBUG("Creating internal tree");
   TTree* new_tree = new TTree();
   new_tree->SetDirectory(0);
   new_tree->SetCacheSize(0);
+
   new_tree->Branch(fMethodName.Data(), &m_mvaOutput, Form("%s/F", fMethodName.Data()));
   if (tree) {
     m_useInternalTree = false;
@@ -805,10 +801,12 @@ TTree* egammaMVACalib::createInternalTree(egammaType egamma_type, TTree *tree)
     new_tree->Branch("el_rawcl_Es1", &m_el_rawcl_Es1);
     new_tree->Branch("el_rawcl_Es2", &m_el_rawcl_Es2);
     new_tree->Branch("el_rawcl_Es3", &m_el_rawcl_Es3);
+    new_tree->Branch("el_cl_E_TileGap3", &m_el_cl_E_TileGap3);
     new_tree->Branch("el_cl_eta", &m_el_cl_eta);
     new_tree->Branch("el_cl_E", &m_el_cl_E);
     new_tree->Branch("el_cl_etaCalo", &m_el_cl_etaCalo);
     new_tree->Branch("el_cl_phiCalo", &m_el_cl_phiCalo);
+    new_tree->Branch("el_cl_phi", &m_el_cl_phi);
     new_tree->Branch("el_rawcl_calibHitsShowerDepth", &m_el_rawcl_calibHitsShowerDepth);
   }
   else assert(false);
@@ -818,7 +816,7 @@ TTree* egammaMVACalib::createInternalTree(egammaType egamma_type, TTree *tree)
 
 void egammaMVACalib::InitTree(TTree* tree, bool doNotify)
 {
-  if (m_debug) ATH_MSG_DEBUG("InitTree");
+  ATH_MSG_DEBUG("InitTree");
   if (!m_tree) m_tree = createInternalTree(m_egammaType, tree);
   if (tree)
   {
@@ -828,11 +826,11 @@ void egammaMVACalib::InitTree(TTree* tree, bool doNotify)
   }
 
   // tree changed (eg new file or first time InitTree is called)
-  if (m_debug) ATH_MSG_DEBUG("tree changed / new tree");
+  ATH_MSG_DEBUG("tree changed / new tree");
 
 
   // Loop over the formula map and instantiate the formulae
-  ATH_MSG_INFO("InitTree" <<"Instantiating formulae");
+  ATH_MSG_DEBUG("Instantiating formulae");
   std::map< TString, egammaMVACalib::VarFormula >::iterator formulaIt;
   for (formulaIt = m_formulae.begin(); formulaIt != m_formulae.end(); ++formulaIt)
   {
@@ -849,11 +847,13 @@ void egammaMVACalib::InitTree(TTree* tree, bool doNotify)
   }
 
   // Instantiate the formulae for the shifts
+  ATH_MSG_DEBUG("Instantiating formulae for the shifts");
   std::map< egammaMVACalib::ReaderID, egammaMVACalib::AdditionalInfoMap>::iterator it;
   for (it = m_additional_infos.begin(); it != m_additional_infos.end(); ++it)
     defineShiftFormula(it->first);
 
   // Instantiate the formula for cluster energy
+  ATH_MSG_DEBUG("Instantiating formulae for cluster energy");
   defineClusterEnergyFormula();
 
   if (tree and doNotify) {
@@ -865,6 +865,7 @@ void egammaMVACalib::InitTree(TTree* tree, bool doNotify)
 
     m_input_tree->SetNotify(&m_notify_dispatcher);
   }
+  ATH_MSG_DEBUG("Init tree done");
 }
 
 TTreeFormula* egammaMVACalib::defineFormula(const TString & varName, const TString & expression, TTree *tree)
@@ -876,7 +877,7 @@ TTreeFormula* egammaMVACalib::defineFormula(const TString & varName, const TStri
     ATH_MSG_FATAL("defineFormula Invalid formula: (probably branch not present) " << varName.Data() << expression.Data());
     throw std::runtime_error("Invalid formula");
   }
-  if (m_debug) ATH_MSG_DEBUG("Formula: " << formula->GetName() << " := " << formula->GetTitle());
+  ATH_MSG_DEBUG("Formula: " << formula->GetName() << " := " << formula->GetTitle());
 
   return formula;
 }
@@ -885,7 +886,7 @@ TTreeFormula* egammaMVACalib::defineFormula(const TString & varName, const TStri
 /** Set the variables for the reader, copying the results from the formulae **/
 void egammaMVACalib::LoadVariables(int index)
 {
-  if (m_debug) ATH_MSG_DEBUG("LoadVariables(" << index << ")");
+  ATH_MSG_DEBUG("LoadVariables(" << index << ")");
   std::map< TString, egammaMVACalib::VarFormula >::iterator formulaIt;
   for (formulaIt = m_formulae.begin(); formulaIt != m_formulae.end(); ++formulaIt)
   {
@@ -894,12 +895,12 @@ void egammaMVACalib::LoadVariables(int index)
     if (!varFormula->external) {
       assert(varFormula->formula);
       varFormula->formula->GetNdata(); // Avoids getting wrong values...
-      if (m_debug) ATH_MSG_DEBUG("evaluating formula " << varFormula->expression
+      ATH_MSG_DEBUG("evaluating formula " << varFormula->expression
                          << " TTreeFormula::Title=" << varFormula->formula->GetTitle()
                          << " for index " << index);
       varFormula->variable = varFormula->formula->EvalInstance(index);
     }
-    if (m_debug) ATH_MSG_DEBUG("Value of " << formulaIt->first << " : " << varFormula->variable);
+    ATH_MSG_DEBUG("Value of " << formulaIt->first << " : " << varFormula->variable);
   }
 }
 
@@ -1005,11 +1006,11 @@ TTree* egammaMVACalib::getMVAResponseTree(TTree *tree, int Nentries, TString bra
 
   // Loop over the entries of the input tree
   if (Nentries == -1) Nentries = tree->GetEntries() - first_event;
-  ATH_MSG_INFO("getMVAResponseTree" << "*** Entries to process: " << Nentries);
+  ATH_MSG_INFO("Entries to process: " << Nentries);
   for (int ientry=first_event; ientry < Nentries + first_event; ++ientry)
   {
-    if (m_debug) ATH_MSG_DEBUG("Processing entry " << ientry);
-    if (ientry%update == 0) ATH_MSG_INFO ("getMVAResponseTree" << "Processing entry " << ientry);
+    ATH_MSG_DEBUG("Processing entry " << ientry);
+    if (ientry%update == 0) ATH_MSG_INFO ("Processing entry " << ientry);
     if (useVector) mvaVector.clear();
     if (tree->GetEntry(ientry) < 0) return mvaTree;
 
@@ -1025,7 +1026,7 @@ TTree* egammaMVACalib::getMVAResponseTree(TTree *tree, int Nentries, TString bra
     }
     if (useVector) mvaTree->Fill();
   }
-  ATH_MSG_INFO("getMVAResponseTree" << "Processing done: " << Nentries << " written");
+  ATH_MSG_INFO("Processing done: " << Nentries << " written");
   return mvaTree;
 }
 
@@ -1041,7 +1042,7 @@ float egammaMVACalib::getMVAOutput(int index /* = 0 */)
   }
   // Find the corresponding reader
   TMVA::Reader *reader = getReader(getReaderID());
-  if (m_debug)
+  if (msgLvl(MSG::DEBUG))
   {
     std::stringstream ss;
     ss << "index = " << index << " / particle = " << getParticleType();
@@ -1124,6 +1125,10 @@ float egammaMVACalib::getMVAEnergyElectron(float el_rawcl_Es0,
     el_rawcl_Es1,
     el_rawcl_Es2,
     el_rawcl_Es3);
+  ATH_MSG_DEBUG("computing getMVAEnergy electron with Es0|Es1|Es2|Es2|cl_eta|cl_E|cl_etaCalo|cl_phiCalo|showerdepth = " <<
+		m_el_rawcl_Es0 << "|" << m_el_rawcl_Es1 << "|" << m_el_rawcl_Es2 << "|" << m_el_rawcl_Es3 << "|" <<
+		m_el_cl_eta << "|" << m_el_cl_E << "|" << m_el_cl_etaCalo << "|" << m_el_cl_phiCalo << "|" <<
+		m_el_rawcl_calibHitsShowerDepth);
   return getMVAEnergy();
 }
 
@@ -1133,14 +1138,14 @@ float egammaMVACalib::getMVAEnergy(int index /* = 0 */,
                                    ShiftType shift_type /* =NSHIFTCORRECTIONS */)
 {
   m_mvaOutput = getMVAOutput(index);
-  if (m_debug) ATH_MSG_DEBUG("MVA = " << m_mvaOutput);
+  ATH_MSG_DEBUG("MVA output = " << m_mvaOutput);
   if (m_mvaOutput == 0.)
   {
     if (m_clusterEif0 && m_clusterFormula)
     {
       m_clusterFormula->GetNdata(); // FIXME: seems this is needed to prevent 0s...
       float clusterE = m_clusterFormula->EvalInstance(index);
-      if (m_debug) ATH_MSG_DEBUG("Returning cluster E: " << clusterE);
+      ATH_MSG_DEBUG("Returning cluster E: " << clusterE);
       return clusterE;
     }
     return 0.;
@@ -1151,11 +1156,14 @@ float egammaMVACalib::getMVAEnergy(int index /* = 0 */,
   else if (m_initialEnergy)
     energy = (*m_initialEnergy) * m_mvaOutput;
 
+  ATH_MSG_DEBUG("energy after MVA = " << energy);
+
   ShiftType shift_to_use = m_shiftType;
   if (shift_type != NSHIFTCORRECTIONS) shift_to_use = shift_type;
 
   egammaMVACalib::ReaderID key = getReaderID();
   float shift = getShift(energy / cosh(*m_eta), key, shift_to_use);
+  ATH_MSG_DEBUG("shift = " << shift);
   if (shift > 0.5)
     return energy / shift;
   ATH_MSG_WARNING("getMVAEnergy " << "Shift not applied (too small or negative value?)");
@@ -1289,7 +1297,7 @@ TString* egammaMVACalib::getVariables(TMVA::Reader *reader)
   TString *str = new TString();
   std::vector<TMVA::VariableInfo>::const_iterator it;
   for (it = reader->DataInfo().GetVariableInfos().begin(); it != reader->DataInfo().GetVariableInfos().end(); ++it)
-    str->Append(TString(str->Length() ? "," : "") + it->GetLabel());
+    str->Append(TString(str->Length() ? ";" : "") + it->GetLabel());
 
   return str;
 }
@@ -1312,7 +1320,7 @@ egammaMVACalib::ParticleType egammaMVACalib::getParticleType(const TString & s)
 void egammaMVACalib::printReadersInfo() const
 {
 
-  ATH_MSG_INFO("printReadersInfo "  << getNreaders() << " readers created");
+  ATH_MSG_INFO(getNreaders() << " readers created");
   TAxis* fAxisEta = m_hPoly->GetXaxis(); // TODO: ???
   TAxis* fAxisEnergy = (m_binMultiplicity > 1 ? m_hPoly->GetYaxis() : 0);
 
@@ -1391,7 +1399,7 @@ void egammaMVACalib::activateBranches()
   TBranch *branch;
   TIter next(getListOfBranches());
   while ((branch = (TBranch*) next())) {
-    ATH_MSG_INFO("activateBranches" << "activating " <<branch->GetName());
+    ATH_MSG_INFO("activating " << branch->GetName());
     m_input_tree->SetBranchStatus(branch->GetName(), true);
   }
 }
@@ -1467,7 +1475,7 @@ float egammaMVACalib::getShift(float Et, ReaderID key, ShiftType shift_type) con
   it = m_shiftMap.find(std::make_pair(key, shift_to_use));
   if (it == m_shiftMap.end() || !it->second) return 1;
   float shift = it->second->Eval(Et / 1e3);
-  if (m_debug) ATH_MSG_DEBUG("Shift (Et = " << Et/1e3 << "): " << shift);
+  ATH_MSG_DEBUG("Shift (Et = " << Et/1e3 << "): " << shift);
   return shift;
 }
 
@@ -1501,7 +1509,7 @@ void egammaMVACalib::defineShiftFormula(ReaderID key)
     TString expr = m_additional_infos[key][shift_name];
     expr.ReplaceAll("BDTG*(ph_rawcl_Es1 + ph_rawcl_Es2 + ph_rawcl_Es3)/cosh(ph_cl_eta)/1e3", "x");
     expr.ReplaceAll("BDTG*(el_rawcl_Es1 + el_rawcl_Es2 + el_rawcl_Es3)/cosh(el_cl_eta)/1e3", "x");
-    //  if (m_debug) ATH_MSG_DEBUG("Defining shift for bin " << key.bin << ": " << expr);
+    //  ATH_MSG_DEBUG("Defining shift for bin " << key.bin << ": " << expr);
     TString name = Form("shift_%d_%d_%s", key.particleType, key.bin, shift_name.Data());
     //  TTreeFormula* formula = defineFormula(name, expr, m_tree);
     m_shiftMap[std::make_pair(key, shift)] = new TF1(name, expr);
@@ -1510,9 +1518,7 @@ void egammaMVACalib::defineShiftFormula(ReaderID key)
 
 void egammaMVACalib::defineClusterEnergyFormula()
 {
-  if (m_debug) {
-    ATH_MSG_DEBUG("setting cluster energy formula");
-  }
+  ATH_MSG_DEBUG("setting cluster energy formula");
   TString expr = (m_egammaType == egPHOTON) ? "ph_cl_E" : "el_cl_E";
   m_clusterFormula = defineFormula("clusterE", expr, m_tree);
 }
@@ -1647,135 +1653,13 @@ void egammaMVACalib::addReaderInfoToArrays(TMVA::Reader *reader,
 }
 
 
-// helper function to compute shower depth
-// copied and pasted from:
-// https://svnweb.cern.ch/trac/atlasoff/browser/Calorimeter/CaloClusterCorrection/trunk/src/CaloSwCalibHitsShowerDepth.cxx
-// https://svnweb.cern.ch/trac/atlasoff/browser/Calorimeter/CaloClusterCorrection/trunk/python/CaloSwCalibHitsCalibration_v9leakdata.py#L2639
-
-std::vector<double> egammaMVACalib::get_radius(double eta)
-{
-  eta = fabs(eta);
-  std::vector<double> radius(4);
-  if (eta / 0.025 < 57)
-  {
-    static const float
-      X0IN = 1.6,          // 1.7 X0 before strips
-      X0S1 = 6.0,          //  6  X0 till end of strips
-      //            BEND1 = 152.1000,    // first 3 bends radii (cm)
-      //            BEND2 = 155.9659,
-      //            BEND3 = 159.7202,
-      ETASTEP = 0.8,       // where lead changes
-      //            DENSHI = 2.137,      // cm/X0 high density
-      //            DENSLO = 2.695,      // cm/X0  low density
-      X0THI = 23.74,       // total depth high density part (not indep?)
-      X0TLO = 19.177;     // total depth  low density part (not indep?)
-
-    float X0T;
-    //  float DENS, X0T, RLO, RHI;
-    float R12, R23, R0, R1, R2, R3;
-
-    if (eta < ETASTEP) {
-      //            DENS = DENSHI;
-      X0T = X0THI;
-      //            RLO = BEND2;            // break strips betw bends 2 and 3
-      //            RHI = BEND3;
-    }
-    else {
-      //            DENS = DENSLO;
-      X0T = X0TLO;
-      //            RLO = BEND1;            // break strips betw bends 1 and 2
-      //            RHI = BEND2;
-    }
-
-    R0 = (X0IN) * cosh(eta);
-
-    //..   actual radius where S1 should end
-
-    R12 = X0S1;
-
-    //..   total depth of calo at given eta
-
-    float RADLTOT = X0T*cosh(eta);
-
-
-    if (eta < 0.5) {
-      R23 = 22 * cosh(eta);
-    } else {
-      R23 = 25;
-    }
-
-    R1 = R0  + (R12 - R0)/2;
-    R2 = R12 + (R23 - R12)/2;
-    R3 = R23 + (RADLTOT - R23)/2;
-
-    radius[0] = R0;
-    radius[1] = R1;
-    radius[2] = R2;
-    radius[3] = R3;
-  }
-  else
-  {
-    double x0=0., x1=0., x2=0., x3=0.;
-
-    float abs_ETA = TMath::Abs(eta);
-
-    // TODO: find a better solution from cell 60, 61 (first two)
-    if (abs_ETA>1.500 && abs_ETA<=1.525) {x0=0.; x1=8.85762; x2=19.5168; x3=30.0369;}       // COPIED FROM 62 !!!
-    else if (abs_ETA>1.525 && abs_ETA<=1.550) {x0=0.; x1=8.85762; x2=19.5168; x3=30.0369;}  // COPIED FROM 62 !!!
-    else if (abs_ETA>1.550 && abs_ETA<=1.575) {x0=0.; x1=8.85762; x2=19.5168; x3=30.0369;}
-    else if (abs_ETA>1.575 && abs_ETA<=1.600) {x0=0.; x1=7.24613; x2=17.9683; x3=28.5757;}
-    else if (abs_ETA>1.600 && abs_ETA<=1.625) {x0=0.; x1=7.11249; x2=17.9466; x3=28.6607;}
-    else if (abs_ETA>1.625 && abs_ETA<=1.650) {x0=0.; x1=7.03737; x2=17.7263; x3=28.4004;}
-    else if (abs_ETA>1.650 && abs_ETA<=1.675) {x0=0.; x1=7.44517; x2=18.1864; x3=28.9547;}
-    else if (abs_ETA>1.675 && abs_ETA<=1.700) {x0=0.; x1=7.74611; x2=18.5419; x3=29.3555;}
-    else if (abs_ETA>1.700 && abs_ETA<=1.725) {x0=0.; x1=8.06184; x2=18.8982; x3=29.8214;}
-    else if (abs_ETA>1.725 && abs_ETA<=1.750) {x0=0.; x1=6.90503; x2=17.8396; x3=28.7947;}
-    else if (abs_ETA>1.750 && abs_ETA<=1.775) {x0=0.; x1=6.53893; x2=17.5996; x3=28.7122;}
-    else if (abs_ETA>1.775 && abs_ETA<=1.800) {x0=0.; x1=6.42897; x2=17.1062; x3=28.3578;}
-    else if (abs_ETA>1.800 && abs_ETA<=1.825) {x0=0.; x1=6.41139; x2=17.1382; x3=28.4191;}
-    else if (abs_ETA>1.825 && abs_ETA<=1.850) {x0=0.; x1=5.72471; x2=16.4543; x3=27.8796;}
-    else if (abs_ETA>1.850 && abs_ETA<=1.875) {x0=0.; x1=5.19018; x2=16.1606; x3=27.7097;}
-    else if (abs_ETA>1.875 && abs_ETA<=1.900) {x0=0.; x1=5.04008; x2=16.1174; x3=27.7649;}
-    else if (abs_ETA>1.900 && abs_ETA<=1.925) {x0=0.; x1=5.01225; x2=16.184;  x3=27.9175;}
-    else if (abs_ETA>1.925 && abs_ETA<=1.950) {x0=0.; x1=4.95996; x2=16.2482; x3=28.1358;}
-    else if (abs_ETA>1.950 && abs_ETA<=1.975) {x0=0.; x1=4.98242; x2=16.3591; x3=28.3336;}
-    else if (abs_ETA>1.975 && abs_ETA<=2.000) {x0=0.; x1=5.04856; x2=16.4194; x3=28.5289;}
-    else if (abs_ETA>2.000 && abs_ETA<=2.025) {x0=0.; x1=5.32584; x2=16.8194; x3=29.0619;}
-    else if (abs_ETA>2.025 && abs_ETA<=2.050) {x0=0.; x1=5.2971;  x2=16.8203; x3=29.1545;}
-    else if (abs_ETA>2.050 && abs_ETA<=2.075) {x0=0.; x1=5.41049; x2=17.0891; x3=29.5856;}
-    else if (abs_ETA>2.075 && abs_ETA<=2.100) {x0=0.; x1=5.48954; x2=17.2965; x3=29.9571;}
-    else if (abs_ETA>2.100 && abs_ETA<=2.125) {x0=0.; x1=5.50876; x2=16.8573; x3=29.6199;}
-    else if (abs_ETA>2.125 && abs_ETA<=2.150) {x0=0.; x1=5.45123; x2=16.885;  x3=29.8321;}
-    else if (abs_ETA>2.150 && abs_ETA<=2.175) {x0=0.; x1=5.54906; x2=17.1228; x3=30.2044;}
-    else if (abs_ETA>2.175 && abs_ETA<=2.200) {x0=0.; x1=5.53662; x2=17.1833; x3=30.4852;}
-    else if (abs_ETA>2.200 && abs_ETA<=2.225) {x0=0.; x1=5.46801; x2=17.1857; x3=30.5842;}
-    else if (abs_ETA>2.225 && abs_ETA<=2.250) {x0=0.; x1=5.45581; x2=16.6621; x3=30.2958;}
-    else if (abs_ETA>2.250 && abs_ETA<=2.275) {x0=0.; x1=5.46682; x2=16.7899; x3=30.5222;}
-    else if (abs_ETA>2.275 && abs_ETA<=2.300) {x0=0.; x1=5.52693; x2=16.9916; x3=30.9557;}
-    else if (abs_ETA>2.300 && abs_ETA<=2.325) {x0=0.; x1=5.53211; x2=17.0801; x3=31.1637;}
-    else if (abs_ETA>2.325 && abs_ETA<=2.350) {x0=0.; x1=4.79919; x2=16.4387; x3=31.5318;}
-    else if (abs_ETA>2.350 && abs_ETA<=2.375) {x0=0.; x1=4.80101; x2=16.5808; x3=31.8533;}
-    else if (abs_ETA>2.375 && abs_ETA<=2.400) {x0=0.; x1=4.77726; x2=15.9355; x3=31.4454;}
-    else if (abs_ETA>2.400 && abs_ETA<=2.425) {x0=0.; x1=4.76845; x2=16.0665; x3=31.8002;}
-    else if (abs_ETA>2.425 && abs_ETA<=2.450) {x0=0.; x1=4.5959;  x2=15.9977; x3=32.1175;}
-    else if (abs_ETA>2.450 && abs_ETA<=2.475) {x0=0.; x1=4.68513; x2=16.2385; x3=32.5042;}
-    else if (abs_ETA>2.475 && abs_ETA<=2.500) {x0=0.; x1=4.7232;  x2=16.4144; x3=33.028;}
-
-    radius[0] = x0;
-    radius[1] = x1;
-    radius[2] = x2;
-    radius[3] = x3;
-  }
-  return radius;
-}
-
 double egammaMVACalib::get_shower_depth(double eta,
                                         double raw_cl_0,
                                         double raw_cl_1,
                                         double raw_cl_2,
                                         double raw_cl_3)
 {
-  std::vector<double> radius = get_radius(eta);
+  const std::array<float, 4> radius(get_MVAradius(eta));
 
   const double denominator = raw_cl_0 + raw_cl_1 + raw_cl_2 + raw_cl_3;
   if (denominator == 0) return 0.;

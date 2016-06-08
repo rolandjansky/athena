@@ -6,11 +6,12 @@
 
 #include "egammaMVACalib/egammaMVACalib.h"
 #include "egammaMVACalib/IegammaMVATool.h"
-#include "egammaMVACalib/Node.h"
-#include "egammaMVACalib/BDT.h"
+#include "egammaMVACalib/egammaMVATool.h"
+//#include "egammaMVACalib/egammaMVATree.h"
 #include <vector>
 
-namespace egammaMVACalibDict 
+/*
+namespace egammaMVACalibDict
 {
   struct tmp
   {
@@ -18,6 +19,6 @@ namespace egammaMVACalibDict
   };
 
 } // namespace egammaMVACalibDict
-
+*/
 
 #endif // EGAMMAMVACALIB_EGAMMAMVACALIBDICT_H

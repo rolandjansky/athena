@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef egammaMVACalibNew_H
 #define egammaMVACalibNew_H
 
@@ -28,7 +27,7 @@ class TAxis;
 class TF1;
 
 namespace TMVA { class Reader; } // forward decl
-namespace egammaMVACalibNmsp { class BDT; } // forward decl
+namespace MVAUtils { class BDT; } // forward decl
 
 // WARNING: all info to build the key should be defined as a variable or spectator in at least one of the readers
 
@@ -186,9 +185,6 @@ class egammaMVACalib : public asg::AsgMessaging
     /** Print the values of the previous evaluation for debugging **/
     void printValueInput();
 
-    /** Set or unset debug mode **/
-    void setDebug(bool debug) { m_debug = debug; }
-
     /** Return a tree with the MVA response for each event
      * If the input tree uses vector branches, the MVA response is stored as a vector,
      * except if flatten is false
@@ -241,9 +237,9 @@ class egammaMVACalib : public asg::AsgMessaging
     egammaMVACalib::ReaderID getReaderID();
 
     /** Return the BDT that corresponds to the given key (or null pointer) **/
-    egammaMVACalibNmsp::BDT* getBDT(egammaMVACalib::ReaderID key)
+    MVAUtils::BDT* getBDT(egammaMVACalib::ReaderID key)
     {
-	std::map< egammaMVACalib::ReaderID, egammaMVACalibNmsp::BDT* >::const_iterator it = m_BDTs.find(key);
+	std::map< egammaMVACalib::ReaderID, MVAUtils::BDT* >::const_iterator it = m_BDTs.find(key);
 	if (it == m_BDTs.end()) return 0;
 	return it->second;
     }
@@ -286,7 +282,7 @@ class egammaMVACalib : public asg::AsgMessaging
      **/
     void getReaders(const TString & folder);
 
-    /** Instantiate and setup one egammaMVACalibNmsp::BDT for each bin **/
+    /** Instantiate and setup one MVAUtils::BDT for each bin **/
     void getBDTs(const std::string& folder);
 
     struct XmlVariableInfo {
@@ -409,7 +405,6 @@ class egammaMVACalib : public asg::AsgMessaging
     bool m_useNewBDTs; //! use egamma::BDT or TMVA::Reader
     TString fMethodName; //! BDTG
     egammaMVACalib::CalibrationType m_calibrationType; //! correct Eaccordion, Ecluster...
-    bool m_debug; //! Debug mode, lots of printouts
     // Variables that define the key and the initial energy (for getMVAEnergy)
     TString m_etaVar, m_energyVar, m_particleTypeVar;
     bool m_ignoreSpectators;
@@ -453,7 +448,7 @@ class egammaMVACalib : public asg::AsgMessaging
     std::map< egammaMVACalib::ReaderID, TMVA::Reader* > m_readers;
 
     // New BDT readers
-    std::map< egammaMVACalib::ReaderID, egammaMVACalibNmsp::BDT* > m_BDTs;
+    std::map< egammaMVACalib::ReaderID, MVAUtils::BDT* > m_BDTs;
 
     // Variables and formulae for the reader
     std::map< TString, egammaMVACalib::VarFormula > m_formulae;
@@ -484,10 +479,12 @@ class egammaMVACalib : public asg::AsgMessaging
     float m_el_rawcl_Es1;
     float m_el_rawcl_Es2;
     float m_el_rawcl_Es3;
+    float m_el_cl_E_TileGap3;
     float m_el_cl_eta;
     float m_el_cl_E;
     float m_el_cl_etaCalo;
     float m_el_cl_phiCalo;
+    float m_el_cl_phi;
     float m_el_rawcl_calibHitsShowerDepth;
 
 
