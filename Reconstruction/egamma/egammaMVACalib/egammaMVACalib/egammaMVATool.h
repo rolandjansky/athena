@@ -28,7 +28,7 @@ public:
   /** Constructor */
   egammaMVATool( const std::string& name );
   /** Generic destructor */
-  ~egammaMVATool() {};
+  ~egammaMVATool();
 
   /** @brief initialize method*/
   StatusCode initialize();
@@ -43,11 +43,15 @@ public:
   */
 
   StatusCode execute(xAOD::CaloCluster* cluster,const xAOD::Egamma* eg);
+  StatusCode execute(xAOD::CaloCluster* cluster,const egammaRec* egRec,
+		     xAOD::EgammaParameters::EgammaType egType);
   StatusCode hltexecute(xAOD::CaloCluster* cluster, const std::string& egType);
 
   float getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Egamma*);
   float getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Electron*);
   float getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Photon*);
+  float getEnergy(const xAOD::CaloCluster* cluster, const egammaRec*,
+		  xAOD::EgammaParameters::EgammaType egType);
   float getEnergy(const xAOD::CaloCluster* cluster, const std::string&);
 
 private:
@@ -60,10 +64,10 @@ private:
 
 private:
 
-  egammaMVACalib *m_mvaElectron; /// MVA tool for electron
-  egammaMVACalib *m_mvaPhoton; /// MVA tool for photon
-  egammaMVATreeElectron* m_MVATreeElectron;  //!
-  egammaMVATreePhoton* m_MVATreePhoton;    //!
+  std::unique_ptr<egammaMVACalib> m_mvaElectron; /// MVA tool for electron
+  std::unique_ptr<egammaMVACalib> m_mvaPhoton; /// MVA tool for photon
+  std::unique_ptr<egammaMVATreeElectron> m_MVATreeElectron;  //!
+  std::unique_ptr<egammaMVATreePhoton> m_MVATreePhoton;    //!
 
   // here will go variables and stuff
   std::string m_folder; /// string with folder for weight files
