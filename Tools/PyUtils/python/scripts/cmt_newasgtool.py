@@ -9,7 +9,7 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 734631 $"
+__version__ = "$Revision: 753292 $"
 __author__ = "Will Buttinger"
 __doc__ = "streamline and ease the creation of new AsgTool"
 
@@ -280,7 +280,7 @@ def main(args):
         if uu[1].startswith("AtlasROOT"): hasAtlasROOT=True;
     if not hasLibraryLine:
       with open("cmt/requirements", "a") as myfile:
-         myfile.write("library %s *.cxx components/*.cxx\n" % (full_pkg_name))
+         myfile.write("library %s *.cxx ../Root/*.cxx components/*.cxx\n" % (full_pkg_name))
          myfile.write("apply_pattern component_library\n")
     
     if not foundBaseComps or len(libraryLines)>0:

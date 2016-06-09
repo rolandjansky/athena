@@ -4,11 +4,12 @@
 from __future__ import print_function
 
 __author__ = "Will Buttinger"
-__doc__ = """Extract dataset parameters from AMI, and write them to a text file.\nExamples:\n\n\ngetAMIDatasetParameters.py --inDS="mc15_13TeV.361103%DAOD_TRUTH%" --fields=dataset_number,ldn,nfiles,events,crossSection,genFiltEff,generator_name"""
+__doc__ = """Extract dataset parameters from AMI, and write them to a text file.\nExamples:\n\n\ngetMetadata.py --inDS="mc15_13TeV.361103%DAOD_TRUTH%" --fields=dataset_number,ldn,nfiles,events,crossSection,genFiltEff,generator_name"""
 
 
 
 import logging
+
 
 
 #pinched from pandatools!
@@ -102,11 +103,16 @@ def main():
     #need to collect the ami dataset parameter defaults
     paramExplains = [] #for the help message only
 
+    paramUnits = dict()
+
     paramDefaults = {}
+
     res = client.execute('ListPhysicsParameterDefs',format='dom_object')
     for r in res.get_rows() : #r is OrderedDict
         explainString = "%s: %s" % (r[u'PARAMNAME'],r[u'DESCRIPTION']);
-        if r[u'UNITS']!=u'NULL': explainString += " (units: %s)" % r[u'UNITS']
+        if r[u'UNITS']!=u'NULL': 
+            explainString += " (units: %s)" % r[u'UNITS']
+            paramUnits[r[u'PARAMNAME']] = r[u'UNITS']
         if r[u'HASDEFAULT']==u'N' : paramDefaults[str(r[u'PARAMNAME'])] = None
         else: 
             explainString += " (default value = %s)" % r[u'DEFAULTVALUE']
@@ -114,6 +120,9 @@ def main():
             elif r[u'PARAMTYPE']==u'string': paramDefaults[str(r[u'PARAMNAME'])] = str(r[u'DEFAULTVALUE'])
         paramExplains += [explainString]
 
+    paramDefaults["crossSection_pb"] = None
+    paramUnits["crossSection_pb"] = "pb"
+    paramExplains += ["crossSection_pb: Same as crossSection except in pb units (units: pb)"]
 
     cern_time = timezone('UCT')
     current_time = datetime.datetime.fromtimestamp(time.time(),cern_time).strftime('%Y-%m-%d %H:%M:%S')
@@ -125,13 +134,22 @@ def main():
     parser.add_argument('--fields',nargs='+',help="List of parameters to extract. Available parameters are: \n\n  %s\n\nYou can also include any from:\n  %s\nYou can also do keyword_xxx to add a bool branch for keywords" % ("\n  ".join(paramExplains),", ".join(fieldDefaults.keys()+extraFieldDefaults.keys())),default=["dataset_number","crossSection","kFactor","genFiltEff"])
     parser.add_argument('--timestamp',default=current_time,help="The timestamp to query parameters at, specified in Universal Central Time (UCT). If left blank, will take the current time")
     parser.add_argument('--physicsGroups',nargs='+',default=["PMG,MCGN"],help="Physics group from which to retrieve parameters, listed in order of priority (highest first). Default value is 'PMG,MCGN' (i.e. try to use PMG values, fallback on MCGN values if unavailable). Allowed groups are:\n   PMG (this is the PMG's group name), BPHY, COSM, DAPR, EGAM, EXOT, FTAG, HIGG, HION, IDET, IDTR, JETM, LARG, MCGN (this is the AMI default group name), MDET, MUON, PHYS, REPR, SIMU, STDM, SUSY, TAUP, TCAL, TDAQ, THLT, TOPQ, TRIG, UPGR, VALI")
+
+    parser.add_argument('--oldTimestamp',default="",help="If specified, will instead display a diff between the old and new timestamp, showing explanation of any changed parameters")
+
     parser.add_argument('--explainFields',nargs='+',default=[],help="The fields you would like explained .. will appear as comment lines after each row in the output")
-    parser.add_argument('--explainInfo',nargs='+',default=[],help="Properties of the parameter you want to show in the explanation. Can list from: explanation, insert_time, end_time, physicsGroup, createdby")
+    parser.add_argument('--explainInfo',nargs='+',default=[],help="Properties of the parameter you want to show in the explanation. Can list from: explanation, insert_time, physicsGroup, createdby")
     parser.add_argument('--outFile',default=sys.stdout,type=argparse.FileType('w'),help="Where to print the output to. Leave blank to print to stdout")
-    parser.add_argument('--delim',default="\t",help="The delimiter character. Defaults to tab")
+    parser.add_argument('--delim',default="",help="The delimiter character. Defaults to spaces leading to nice formatting table")
     parser.add_argument('-v',action='store_true',help="Verbose output for debugging")
 
     args = parser.parse_args()
+
+    if args.v: logging.getLogger().setLevel(logging.DEBUG)
+    else: logging.getLogger().setLevel(logging.INFO)
+    logging.debug(args.inDS)
+    logging.debug(args.fields)
+    logging.debug(args.timestamp)
 
     if args.timestamp=="the dawn of time": 
         logging.error("Unfortunately we don't know any parameters from this time period... but we're working on it!")
@@ -166,11 +184,9 @@ def main():
     args.inDS = sum((y.split(',') for y in args.inDS),[])
     args.inDS = [x.strip() for x in args.inDS] #strips whitespace
 
-    if args.v: logging.getLogger().setLevel(logging.DEBUG)
-    else: logging.getLogger().setLevel(logging.INFO)
-    logging.debug(args.inDS)
-    logging.debug(args.fields)
-    logging.debug(args.timestamp)
+
+
+  
     
     #1. check field values are allowed, we obtain default field values at same time..
     #2. For each entry in inDS, if contains wildcard we obtain list of DS, otherwise check DS exists. During this time we obtain the datasetid and numEvents properties, incase we need them
@@ -202,17 +218,30 @@ def main():
             return -1;
         
 
+    if args.oldTimestamp!="":
+        logging.info("oldTimestamp option specified. Running in diff mode...")
+        args.explainFields = args.fields
+        args.explainInfo = ["explanation","insert_time","physicsGroup","createdby"]
+
     #2.
     #replace all '*' with '%' and strip "/"
     args.inDS = [ds.replace("*","%") for ds in args.inDS]
     args.inDS = [ds.rstrip("/") for ds in args.inDS]
   
+    if len(args.inDS)==0 or (len(args.inDS)==1 and args.inDS[0]==""):
+        logging.error("No datasets provided. Please specify datasets with the --inDS or --inDsTxt options")
+        return -1;
 
     logging.info("Fetching list of datasets from AMI (this may take a few minutes)...")
 
 
     #obtain list of datasets 
     res = AtlasAPI.list_datasets(client,patterns=args.inDS,fields=dsFields+['ldn'],ami_status="VALID") #changed status from %, to only catch valid now: wb 08/2015
+
+    logging.info("...Found %d datasets matching your selection" % len(res))
+
+    if len(res)==0:
+        return 0;
     
     #NOTE: Should we allow retrieval of the extra information: keyword, genfiltereff, approx crossection, .. these all come from GetDatasetInfo ami command
 
@@ -256,6 +285,8 @@ def main():
         if '%' not in ds and ds not in dataset_values.keys():
             logging.warning("Unknown dataset: %s" % ds)
 
+    datasetsToQuery = ",".join(dataset_values.keys())
+
     #if using inDsTxt, retain any comment or blank lines in structure of output
     complete_values = OrderedDict()
     if args.inDsTxt != "":
@@ -283,12 +314,40 @@ def main():
         txt.close()
         dataset_values = complete_values
 
-    logging.info("Obtaining %s for selected datasets at timestamp=%s..." % (args.fields,args.timestamp))
+    logging.info("Obtaining %s for selected datasets at timestamp=%s... (please be patient)" % (args.fields,args.timestamp))
+
+    #do as one query, to be efficient
+    if(args.timestamp==current_time):
+        res = client.execute(['GetPhysicsParamsForDataset',"--logicalDatasetName=%s"% datasetsToQuery,"--timestamp='%s'"%args.timestamp], format='dom_object')
+    else:
+        res = client.execute(['GetPhysicsParamsForDataset',"--logicalDatasetName=%s"% datasetsToQuery,"--timestamp='%s'"%args.timestamp,"--history=true"], format='dom_object')
+
+    #organize results by dataset
+    parameterQueryResults = dict()
+    for r in res.get_rows():
+        if r[u'logicalDatasetName'] not in parameterQueryResults.keys():
+            parameterQueryResults[r[u'logicalDatasetName']] = []
+        parameterQueryResults[r[u'logicalDatasetName']] += [r] #puts row in the list for this dataset
+
+
+    if args.oldTimestamp!="" :
+        logging.info("Obtaining %s for selected datasets at timestamp=%s... (please be patient)" % (args.fields,args.oldTimestamp))
+        res2 = client.execute(['GetPhysicsParamsForDataset',"--logicalDatasetName=%s"% datasetsToQuery,"--timestamp='%s'"%args.oldTimestamp,"--history=true"], format='dom_object')
+        old_parameterQueryResults = dict()
+        for r in res2.get_rows():
+            if r[u'logicalDatasetName'] not in old_parameterQueryResults.keys():
+                old_parameterQueryResults[r[u'logicalDatasetName']] = []
+            old_parameterQueryResults[r[u'logicalDatasetName']] += [r] #puts row in the list for this dataset
 
     headerString = ""
     doneHeader=False
     commentCache = ""
     commentCount = 0
+
+    #result is a list of lists (each list is 1 row)
+    outputTable = []
+    tableHeaders = []
+
     for ds in dataset_values.keys():
         if ds.startswith('comment'):
             if commentCount > 0 : commentCache += "\n"
@@ -296,14 +355,16 @@ def main():
             commentCount=commentCount+1
             continue
         #obtain list of parameters for this dataset
-        if(args.timestamp==current_time):
-            res = client.execute(['GetPhysicsParamsForDataset',"--logicalDatasetName=%s"% ds,"--timestamp='%s'"%args.timestamp], format='dom_object')
-        else:
-             res = client.execute(['GetPhysicsParamsForDataset',"--logicalDatasetName=%s"% ds,"--timestamp='%s'"%args.timestamp,"--history=true"], format='dom_object')
+        #if(args.timestamp==current_time):
+        #    res = client.execute(['GetPhysicsParamsForDataset',"--logicalDatasetName=%s"% ds,"--timestamp='%s'"%args.timestamp], format='dom_object')
+        #else:
+        #     res = client.execute(['GetPhysicsParamsForDataset',"--logicalDatasetName=%s"% ds,"--timestamp='%s'"%args.timestamp,"--history=true"], format='dom_object')
+        res = parameterQueryResults.get(ds,[])
+        if args.oldTimestamp!="": res2 = old_parameterQueryResults.get(ds,[])
 
         #first we have to determine how many subprocesses this ds has 
         dsSubprocesses = [0] #always have the 0 subprocess 
-        for r in res.get_rows():
+        for r in res:
             sp = int(r[u'subprocessID'])
             if sp not in dsSubprocesses: dsSubprocesses += [sp]
 
@@ -311,6 +372,7 @@ def main():
         #rank by physicsGroup
         for sp in dsSubprocesses:
             paramVals = dict()
+            paramVals2 = dict()
             groupsWithVals = dict() #held for helpful output
             #need to keep explanations for requested fields
             explainInfo = dict()
@@ -319,27 +381,42 @@ def main():
             for param in paramFields:
                 groupsWithVals[param] = []
                 bestGroupIndex = len(args.physicsGroups)
-                paramVals[param] = fieldDefaults[param]
-                for r in res.get_rows():
+                import copy
+                paramVals[param] = copy.copy(fieldDefaults[param])
+                for r in res:
                     if int(r[u'subprocessID']) != sp: continue
-                    if str(r[u'paramName']) != param: continue
+                    if str(r[u'paramName']) != param and not (param=="crossSection_pb" and str(r[u'paramName'])=="crossSection"): continue
                     if str(r[u'physicsGroup']) not in args.physicsGroups: 
                         groupsWithVals[param] += [(str(r[u'physicsGroup']),str(r[u'paramValue']))]
                         continue
                     if args.physicsGroups.index(str(r[u'physicsGroup'])) > bestGroupIndex : continue
                     if args.physicsGroups.index(str(r[u'physicsGroup'])) == bestGroupIndex : logging.warning("Duplicate parameter %s for group %s in dataset %s (subprocess %d). Please report this!" % (param,str(r[u'physicsGroup']),ds,sp))
                     paramVals[param] = str(r[u'paramValue'])
+                    if param=="crossSection_pb": paramVals[param] = str(float(paramVals[param])*1000.0)
                     bestGroupIndex=args.physicsGroups.index(str(r[u'physicsGroup']))
                     #keep the explanation info 
                     for e in args.explainInfo: 
-                        #print(r.keys())
                         if unicode(e) not in r:
                             logging.error("Unrecognised explainInfo field: %s" % e)
                             return -1
                         explainInfo[param][e]=str(r[unicode(e)])
+                if args.oldTimestamp!="":
+                    bestGroupIndex = len(args.physicsGroups)
+                    paramVals2[param] = copy.copy(fieldDefaults[param])
+                    for r in res2:
+                        if int(r[u'subprocessID']) != sp: continue
+                        if str(r[u'paramName']) != param  and not (param=="crossSection_pb" and str(r[u'paramName'])=="crossSection"): continue
+                        if str(r[u'physicsGroup']) not in args.physicsGroups: continue
+                        if args.physicsGroups.index(str(r[u'physicsGroup'])) > bestGroupIndex : continue
+                        if args.physicsGroups.index(str(r[u'physicsGroup'])) == bestGroupIndex : logging.warning("Duplicate parameter %s for group %s in dataset %s (subprocess %d). Please report this!" % (param,str(r[u'physicsGroup']),ds,sp))
+                        paramVals2[param] = str(r[u'paramValue'])
+                        if param=="crossSection_pb": paramVals2[param] = str(float(paramVals2[param])*1000.0)
+                        bestGroupIndex=args.physicsGroups.index(str(r[u'physicsGroup']))
             #at this stage, parameters reside in paramVals dict or dataset_values[ds] dict
             #print them in the requested order .. if any is "None" then stop, because it doesn't have a default value and didn't find a value for it either 
             rowString = ""
+            rowList = []
+            firstPrint=False
             for param in args.fields:
                 val = None
                 if param == "ldn": val = ds
@@ -353,25 +430,56 @@ def main():
                         logging.warning(groupsWithVals[param])
                     val = "#UNKNOWN#"
                     #return -1
-                if rowString != "": rowString += args.delim
+                #if isfloat(str(val)): val = "%.6g" % float(val)
+                if args.oldTimestamp!="":
+                    #diff val to old val
+                    val2 = None
+                    if param == "ldn": val2 = ds
+                    elif param == "subprocessID": val2 = sp
+                    elif param in dataset_values[ds].keys(): val2 = dataset_values[ds][param]
+                    else: val2 = paramVals2.get(param,None)
+                    if val2 == None: val2 = "#UNKNOWN#"
+                    #if isfloat(str(val2)): val2 = "%.6g" % float(val)
+                    if(str(val)!=str(val2)):
+                        if not firstPrint: print("%s:" % ds)
+                        firstPrint=True
+                        print("  %s : %s  --->  %s" % (param,str(val2),str(val)))
+                        print("        insert_time  : %s" % explainInfo[param]['insert_time'])
+                        print("        explanation  : %s" % explainInfo[param]['explanation'])
+                        print("        createdby    : %s" % explainInfo[param]['createdby'])
+                        print("        physicsGroup : %s" % explainInfo[param]['physicsGroup'])
+                    continue
+                                                                  
+                rowList += [str(val)]
+                if rowString != "" and args.delim!="": rowString += args.delim
                 rowString += str(val)
                 #inspect the type of str(val) to build up the header
                 if not doneHeader:
                     headerString += param
-                    if type(fieldDefaults[param])==bool: headerString += "/O:"
-                    elif type(fieldDefaults[param])==int: headerString += "/I:"
-                    elif type(fieldDefaults[param])==float: headerString += "/D:"
-                    elif isfloat(str(val)): headerString += "/D:"
-                    #elif isint(str(val)): headerString += "/I:" TO BE SAFE WE MAKE ALL NUMERIC FIELDS FLOATS, EXCEPT if the default value is type int
-                    else: headerString += "/C:"
-                
+                    if args.outFile != sys.stdout:
+                        if type(fieldDefaults[param])==bool: headerString += "/O:"
+                        elif type(fieldDefaults[param])==int: headerString += "/I:"
+                        elif type(fieldDefaults[param])==float: headerString += "/D:"
+                        elif isfloat(str(val)): headerString += "/D:"
+                        #elif isint(str(val)): headerString += "/I:" TO BE SAFE WE MAKE ALL NUMERIC FIELDS FLOATS, EXCEPT if the default value is type int
+                        else: headerString += "/C:"
+                    else:
+                        v = param
+                        if param in paramUnits: 
+                            headerString += " [%s]" % paramUnits[param]
+                            v += " [%s]" % paramUnits[param]
+                        tableHeaders += [v]
+                        headerString += "  "
+            if args.oldTimestamp!="": continue #print nothing more for diff mode
             if not doneHeader:
                 doneHeader=True
-                if args.outFile != sys.stdout: print(headerString[:-1],file=args.outFile)
+                if args.outFile!=sys.stdout: print(headerString[:-1],file=args.outFile)
             if commentCount > 0:
-                print(commentCache,file=args.outFile)
+                if args.outFile!=sys.stdout and args.delim!="": print(commentCache,file=args.outFile)
+                outputTable += [["COMMENT",commentCache]]
                 commentCache = ''; commentCount = 0
-            print(rowString,file=args.outFile)
+            if args.outFile != sys.stdout and args.delim!="": print(rowString,file=args.outFile)
+            outputTable += [rowList]
             #also print the required explanations
             for (field,expl) in explainInfo.items():
                 outString = "#%s: { " % field
@@ -384,11 +492,42 @@ def main():
                 outString += " }"
                 print(outString,file=args.outFile)
 
+    if args.oldTimestamp!="":
+        args.outFile.close()
+        return 0
+
+    #print the table in nicely formatted state
+    if args.outFile == sys.stdout or args.delim=="":
+        #determine column widths
+        columnWidths = [0]*len(args.fields)
+        for i in range(0,len(tableHeaders)):
+            columnWidths[i] = len(tableHeaders[i])
+        for r in outputTable:
+            if len(r)>0 and r[0]=="COMMENT": continue
+            for i in range(0,len(r)): 
+                if len(r[i])>columnWidths[i]: columnWidths[i]=len(r[i])
+        lineout = ""
+        for i in range(0,len(tableHeaders)):
+            lineout += tableHeaders[i].ljust(columnWidths[i]) + "  "
+        print(lineout)
+        for r in outputTable:
+            lineout = ""
+            if len(r)>0 and r[0]=="COMMENT": lineout = r[1]
+            else:
+                for i in range(0,len(r)):
+                    lineout += r[i].ljust(columnWidths[i]) + "  "
+            print(lineout,file=args.outFile)
+
     #print the footer, which is the command to reproduce this output
     import os
     if args.outFile != sys.stdout:
-        print("#lsetup  \"asetup %s,%s\" pyAMI" % (os.environ.get('AtlasProject','UNKNOWN!'),os.environ.get('AtlasVersion','UNKNOWN!')))
-        print("#getAMIDatasetParameters.py --timestamp=\"%s\" --physicsGroups=\"%s\" --fields=\"%s\" --inDS=\"%s\"" % (args.timestamp,",".join(args.physicsGroups),",".join(args.fields),",".join(dataset_values.keys())),file=args.outFile )
+        #remove comment from dataset_values
+        datasetss = [x for x in dataset_values.keys() if not x.startswith("comment")]
+        
+        print("",file=args.outFile)
+        print("#lsetup  \"asetup %s,%s\" pyAMI" % (os.environ.get('AtlasProject','UNKNOWN!'),os.environ.get('AtlasVersion','UNKNOWN!')),file=args.outFile)
+        print("#getMetadata.py --timestamp=\"%s\" --physicsGroups=\"%s\" --fields=\"%s\" --inDS=\"%s\"" % (args.timestamp,",".join(args.physicsGroups),",".join(args.fields),",".join(datasetss)),file=args.outFile )
+        logging.info("Results written to: %s" % args.outFile.name)
 
     args.outFile.close()
 
