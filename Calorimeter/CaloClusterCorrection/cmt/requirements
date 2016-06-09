@@ -22,13 +22,13 @@ use CaloCondBlobObjs    CaloCondBlobObjs-*      Calorimeter
 use AthenaPoolUtilities AthenaPoolUtilities-*   Database/AthenaPOOL
 use CaloIdentifier      CaloIdentifier-*        Calorimeter
 use LArIdentifier       LArIdentifier-*         LArCalorimeter
-use LArTools            LArTools-*              LArCalorimeter
+use LArCabling          LArCabling-*            LArCalorimeter
 
 private
 use CaloGeoHelpers	CaloGeoHelpers-*	Calorimeter
 use AtlasCLHEP		AtlasCLHEP-*		External
 use AtlasROOT    	AtlasROOT-*        	External
-use DataModel           DataModel-*             Control
+use AthContainers       AthContainers-*         Control
 use EventKernel         EventKernel-*           Event
 use PathResolver        PathResolver-*	        Tools
 use GeoModelInterfaces  GeoModelInterfaces-*    DetectorDescription/GeoModel

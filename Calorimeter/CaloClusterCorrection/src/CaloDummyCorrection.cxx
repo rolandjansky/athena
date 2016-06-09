@@ -11,7 +11,7 @@
  */
 
 
-#include "CaloClusterCorrection/CaloDummyCorrection.h"
+#include "CaloDummyCorrection.h"
 #include "AthenaKernel/errorcheck.h"
 
 
@@ -44,7 +44,8 @@ StatusCode CaloDummyCorrection::initialize()
 
 // derived class implement the real correction.
 // (Does nothing here.)
-void CaloDummyCorrection::makeCorrection(CaloCluster*)
+void CaloDummyCorrection::makeCorrection(const EventContext& /*ctx*/,
+                                         CaloCluster*) const
 {
 }
 

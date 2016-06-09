@@ -19,7 +19,7 @@
 //-----------------------
 // This Class's Header --
 //-----------------------
-#include "CaloClusterCorrection/CaloClusterLocalCalibCone.h"
+#include "CaloClusterLocalCalibCone.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"

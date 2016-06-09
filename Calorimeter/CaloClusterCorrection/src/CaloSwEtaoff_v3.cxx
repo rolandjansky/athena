@@ -13,7 +13,7 @@
  */
 
 
-#include "CaloClusterCorrection/CaloSwEtaoff_v3.h"
+#include "CaloSwEtaoff_v3.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include <cmath>
 #include <cassert>
@@ -41,6 +41,7 @@ CaloSwEtaoff_v3::CaloSwEtaoff_v3 (const std::string& type,
 
 /**
  * @brief Virtual function for the correction-specific code.
+ * @param ctx     The event context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  * @param elt     The detector description element corresponding
@@ -58,7 +59,8 @@ CaloSwEtaoff_v3::CaloSwEtaoff_v3 (const std::string& type,
  *                @c CaloSampling::CaloSample; i.e., it has both
  *                the calorimeter region and sampling encoded.
  */
-void CaloSwEtaoff_v3::makeTheCorrection (CaloCluster* cluster,
+void CaloSwEtaoff_v3::makeTheCorrection (const EventContext& /*ctx*/,
+                                         CaloCluster* cluster,
                                          const CaloDetDescrElement* elt,
                                          float eta,
                                          float adj_eta,

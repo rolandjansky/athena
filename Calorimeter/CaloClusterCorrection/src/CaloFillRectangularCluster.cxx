@@ -18,6 +18,7 @@
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloUtils/CaloCellList.h"
@@ -68,7 +69,6 @@ void etaphi_range (double eta,
                    double& deta,
                    double& dphi)
 {
-  static CaloPhiRange range;
   deta = 0;
   dphi = 0;
 
@@ -110,19 +110,19 @@ void etaphi_range (double eta,
   elt_l = dd_man->get_element_raw
     (sampling,
      eta  - elt->deta() - eps,
-     range.fix (phi - elt->dphi() - eps));
+     CaloPhiRange::fix (phi - elt->dphi() - eps));
   double dphi_l = 0; // Phi difference on the low-eta () side.
   if (elt_l)
-    dphi_l = std::abs (range.fix (phi - elt_l->phi_raw())) + eps;
+    dphi_l = std::abs (CaloPhiRange::fix (phi - elt_l->phi_raw())) + eps;
 
   // Now look in the positive eta direction.
   elt_r = dd_man->get_element_raw
     (sampling,
      eta + elt->deta() + eps,
-     range.fix (phi - elt->dphi() - eps));
+     CaloPhiRange::fix (phi - elt->dphi() - eps));
   double dphi_r = 0; // Phi difference on the positive (down) side.
   if (elt_r)
-    dphi_r = std::abs (range.fix (phi - elt_r->phi_raw())) + eps;
+    dphi_r = std::abs (CaloPhiRange::fix (phi - elt_r->phi_raw())) + eps;
 
   // Total dphi is twice the maximum.
   dphi = 2 * std::max (dphi_l, dphi_r);
@@ -151,7 +151,7 @@ public:
    * @param parent The parent correction class.
    * @param cluster The cluster being operated on.
    */
-  SamplingHelper (CaloClusterCorrection& parent,
+  SamplingHelper (const CaloClusterCorrection& parent,
                   CaloCluster* cluster);
 
 
@@ -276,7 +276,7 @@ protected:
   CaloLayerCalculator m_calc;
 
   /// The correction object using us.
-  CaloClusterCorrection& m_parent;
+  const CaloClusterCorrection& m_parent;
 
   /// The cluster we're updating.
   CaloCluster* m_cluster;
@@ -294,7 +294,7 @@ protected:
  * @param parent The parent correction class.
  * @param cluster The cluster being operated on.
  */
-SamplingHelper::SamplingHelper (CaloClusterCorrection& parent,
+SamplingHelper::SamplingHelper (const CaloClusterCorrection& parent,
                                 CaloCluster* cluster)
   : m_parent (parent),
     m_cluster (cluster),
@@ -487,7 +487,7 @@ public:
    * @param list The cell list.
    * @param cell_container The container from which the cells came.
    */
-  SamplingHelper_CaloCellList (CaloClusterCorrection& parent,
+  SamplingHelper_CaloCellList (const CaloClusterCorrection& parent,
                                CaloCluster* cluster,
                                const CaloCellList& list,
                                const CaloCellContainer* cell_container);
@@ -539,7 +539,7 @@ private:
  * @param cell_container The container from which the cells came.
  */
 SamplingHelper_CaloCellList::SamplingHelper_CaloCellList
-   (CaloClusterCorrection& parent,
+   (const CaloClusterCorrection& parent,
     CaloCluster* cluster,
     const CaloCellList& list,
     const CaloCellContainer* /*cell_container*/)
@@ -613,7 +613,7 @@ public:
    * @param parent The parent correction class.
    * @param cluster The cluster being operated on.
    */
-  SamplingHelper_Cluster (CaloClusterCorrection& parent,
+  SamplingHelper_Cluster (const CaloClusterCorrection& parent,
                           CaloCluster* cluster);
 
   /**
@@ -652,7 +652,7 @@ public:
  * @param parent The parent correction class.
  * @param cluster The cluster being operated on.
  */
-SamplingHelper_Cluster::SamplingHelper_Cluster (CaloClusterCorrection& parent,
+SamplingHelper_Cluster::SamplingHelper_Cluster (const CaloClusterCorrection& parent,
                                                 CaloCluster* cluster)
   : SamplingHelper (parent, cluster)
 {
@@ -748,6 +748,8 @@ StatusCode CaloFillRectangularCluster::initialize()
 {
   // The method from the base class.
   CHECK( CaloClusterCorrection::initialize() );
+  if (!m_cellsName.key().empty())
+    CHECK( m_cellsName.initialize() );
 
   const IGeoModelSvc *geoModel=0;
   StatusCode sc = service("GeoModelSvc", geoModel);
@@ -826,18 +828,20 @@ CaloFillRectangularCluster::geoInit(IOVSVC_CALLBACK_ARGS)
 
 /*
  * @brief Actually make the correction for one region (barrel or endcap).
+ * @param ctx     The event context.
  * @param helper Sampling calculation helper object.
  * @param eta The @f$\eta$@f seed of the cluster.
  * @param phi The @f$\phi$@f seed of the cluster.
  * @param samplings List of samplings for this region.
  */
 void
-CaloFillRectangularCluster::makeCorrection1(CaloClusterCorr::SamplingHelper&
+CaloFillRectangularCluster::makeCorrection1(const EventContext& ctx,
+                                            CaloClusterCorr::SamplingHelper&
                                              helper,
                                             double eta,
                                             double phi,
                                             const CaloSampling::CaloSample 
-                                             samplings[4])
+                                             samplings[4]) const
 {
   // Do sampling 2.
   helper.calculate_and_set (eta, phi, m_deta2, m_dphi2, eta, phi,
@@ -914,12 +918,14 @@ CaloFillRectangularCluster::makeCorrection1(CaloClusterCorr::SamplingHelper&
     const CaloCellContainer* cc = helper.cluster()->getCellLinks()->getCellContainer();
 
     //Leave the option to use a different cell container
-    if (!m_cellsName.empty()) {
-      if ( ! evtStore()->retrieve (cc, m_cellsName).isSuccess()) {
+    if (!m_cellsName.key().empty()) {
+      SG::ReadHandle<CaloCellContainer> cchand (m_cellsName, ctx);
+      if (!cchand.isValid()) {
         REPORT_ERROR(StatusCode::FAILURE)
-          << "Can't retrieve cell container " << m_cellsName;
+          << "Can't retrieve cell container " << m_cellsName.key();
         return;
       }
+      cc = cchand.cptr();
     }
     
     if(!cc) //cover the case when the cluster does not give a cell container and the name is empty
@@ -967,11 +973,13 @@ CaloFillRectangularCluster::makeCorrection1(CaloClusterCorr::SamplingHelper&
 
 /*
  * @brief Execute the correction, given a helper object.
+ * @param ctx     The event context.
  * @param helper Sampling calculation helper object.
  */
 void
-CaloFillRectangularCluster::makeCorrection2 (CaloClusterCorr::SamplingHelper&
-                                             helper)
+CaloFillRectangularCluster::makeCorrection2 (const EventContext& ctx,
+                                             CaloClusterCorr::SamplingHelper&
+                                             helper) const
 {
 
   // Don't do anything if we don't have any cells.
@@ -1060,12 +1068,12 @@ CaloFillRectangularCluster::makeCorrection2 (CaloClusterCorr::SamplingHelper&
 
   // Barrel
   if (aeta < 1.6) {
-    makeCorrection1 (helper, eta, phi, samplings_b);
+    makeCorrection1 (ctx, helper, eta, phi, samplings_b);
   }
 
   // Endcap
   if (aeta > 1.3) {
-    makeCorrection1 (helper, eta, phi, samplings_e);
+    makeCorrection1 (ctx, helper, eta, phi, samplings_e);
   }
 
   // Set the total cluster energy to the sum over all samplings.
@@ -1087,9 +1095,11 @@ CaloFillRectangularCluster::makeCorrection2 (CaloClusterCorr::SamplingHelper&
 
 /**
  * @brief CaloClusterCorrection virtual method
+ * @param ctx     The event context.
  * @param cluster The cluster on which to operate.
  */
-void CaloFillRectangularCluster::makeCorrection(CaloCluster* cluster)
+void CaloFillRectangularCluster::makeCorrection(const EventContext& ctx,
+                                                CaloCluster* cluster) const
 {
 
   ATH_MSG_DEBUG( "Executing CaloFillRectangularCluster" << endreq) ;
@@ -1103,21 +1113,21 @@ void CaloFillRectangularCluster::makeCorrection(CaloCluster* cluster)
     cluster->getCellLinks()->clear();
  
     //Leave the option to use a different cell container 
-    if (!m_cellsName.empty()) {
-      if ( ! evtStore()->retrieve (cell_container, m_cellsName).isSuccess()) {
-	REPORT_ERROR(StatusCode::FAILURE)
-	  << "Can't retrieve cell container " << m_cellsName;
-	return;
+    if (!m_cellsName.key().empty()) {
+      SG::ReadHandle<CaloCellContainer> cchand (m_cellsName, ctx);
+      if (!cchand.isValid()) {
+        REPORT_ERROR(StatusCode::FAILURE)
+          << "Can't retrieve cell container " << m_cellsName.key();
+        return;
       }
- 
+      cell_container = cchand.cptr();
     }
 
 
     // Define the center for building the list of candidate cells.
     double eta = cluster->eta0();
     double phi = cluster->phi0();
-    static CaloPhiRange range;
-    phi = range.fix (phi);
+    phi = CaloPhiRange::fix (phi);
 
     // Build the candidate cell list.
     // This 5 is a safe margin for cell_list calculation
@@ -1130,12 +1140,12 @@ void CaloFillRectangularCluster::makeCorrection(CaloCluster* cluster)
                                                          cluster,
                                                          cell_list,
                                                          cell_container);
-    makeCorrection2 (helper);
+    makeCorrection2 (ctx, helper);
   }
   else {
     // We're recalculating a cluster using the existing cells.
     CaloClusterCorr::SamplingHelper_Cluster helper (*this, cluster);
-    makeCorrection2 (helper);
+    makeCorrection2 (ctx, helper);
   }
 }
 
@@ -1154,18 +1164,17 @@ void CaloFillRectangularCluster::makeCorrection(CaloCluster* cluster)
 void CaloFillRectangularCluster::get_seed (const CaloCluster* cluster,
                                            const CaloCell* max_et_cell,
                                            double& eta,
-                                           double& phi)
+                                           double& phi) const
 {
   ///!!! NEW way of the endcap-shift treatment (same for barrel and endcap)
   // a.b.c 2004 : for barrel, correct for the alignment before 
   //               comparing the Tower direction and the cell's
   // ( for Atlas the difference is null, but it's not true for TB )
-  static CaloPhiRange range;
   const CaloDetDescrElement* elt = max_et_cell->caloDDE();
   double phi_shift = elt->phi()-elt->phi_raw();
   double eta_shift = elt->eta()-elt->eta_raw();
   eta = cluster->eta0()+eta_shift;
-  phi = range.fix(cluster->phi0()+phi_shift);
+  phi = CaloPhiRange::fix(cluster->phi0()+phi_shift);
 
   // Special case to handle a pathology seen at the edge of the calorimeter
   // with clusters with an eta size of 3.  The cluster size used for the SW
@@ -1205,7 +1214,7 @@ void CaloFillRectangularCluster::get_seed (const CaloCluster* cluster,
   // stay in the calo frame and do not cook for cluster on edge
   // (inputs are now 3x5 so there should not be problems anymore)
   eta = cluster->eta0();
-  phi = range.fix(cluster->phi0());
+  phi = CaloPhiRange::fix(cluster->phi0());
 
 }
 

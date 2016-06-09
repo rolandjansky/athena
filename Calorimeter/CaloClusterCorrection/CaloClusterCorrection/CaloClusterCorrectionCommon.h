@@ -16,6 +16,7 @@
 
 
 #include "CaloClusterCorrection/CaloClusterCorrection.h"
+#include "GaudiKernel/EventContext.h"
 #include <vector>
 class CaloDetDescrManager;
 class CaloDetDescrElement;
@@ -53,25 +54,28 @@ public:
   /**
    * @brief Destructor.
    */
-  ~CaloClusterCorrectionCommon ();
+  virtual ~CaloClusterCorrectionCommon () override;
 
 
   /**
    * @brief Initialization.
    */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
 
   /**
    * @brief Perform the correction.  Called by the tool
+   * @param ctx     The event context.
    * @param cluster The cluster to correct.
    *                It is updated in place.
    */
-  virtual void makeCorrection(xAOD::CaloCluster* cluster);
+  virtual void makeCorrection(const EventContext& ctx,
+                              xAOD::CaloCluster* cluster) const override;
 
 
   /**
    * @brief Virtual function for the correction-specific code.
+   * @param ctx     The event context.
    * @param cluster The cluster to correct.
    *                It is updated in place.
    * @param elt     The detector description element corresponding
@@ -91,7 +95,8 @@ public:
    *                the calorimeter region and sampling encoded.
    *                Otherwise, this is Unknown.
    */
-  virtual void makeTheCorrection (xAOD::CaloCluster* cluster,
+  virtual void makeTheCorrection (const EventContext& ctx,
+                                  xAOD::CaloCluster* cluster,
                                   const CaloDetDescrElement* elt,
                                   float eta,
                                   float adj_eta,
@@ -180,7 +185,7 @@ public:
                const xAOD::CaloCluster* cluster,
                float eta,
                float phi,
-               std::vector<CaloDetDescrElement*>& dummy_elts);
+               const std::vector<std::unique_ptr<const CaloDetDescrElement> >& dummy_elts);
 
 
 private:
@@ -195,7 +200,7 @@ private:
 
   // Hold dummy DD elements we've created to work around DD innermost
   // layer 1 strip problem.
-  std::vector<CaloDetDescrElement*> m_dummy_elts;
+  std::vector<std::unique_ptr<const CaloDetDescrElement> > m_dummy_elts;
 };
 
 

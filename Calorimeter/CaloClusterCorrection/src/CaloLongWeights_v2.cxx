@@ -13,7 +13,7 @@ CREATED:  Jan 25, 2006
 PURPOSE:  correction for the energy lost in the dead material
 
 ********************************************************************/
-#include "CaloClusterCorrection/CaloLongWeights_v2.h"
+#include "CaloLongWeights_v2.h"
 #include "CaloClusterCorrection/interpolate.h"
 
 
@@ -33,13 +33,14 @@ CaloLongWeights_v2::CaloLongWeights_v2(const std::string& type,
   declareConstant("EtaEndCap",       m_endcap_frontier);
 }
  
-void CaloLongWeights_v2::makeTheCorrection(CaloCluster* cluster,
-					  const CaloDetDescrElement* /*elt*/,
-					  float eta,
-					  float /*adj_eta*/,
-					  float /*phi*/,
-					  float /*phi*/,
-					  CaloSampling::CaloSample /*samp*/) const
+void CaloLongWeights_v2::makeTheCorrection(const EventContext& /*ctx*/,
+                                           CaloCluster* cluster,
+                                           const CaloDetDescrElement* /*elt*/,
+                                           float eta,
+                                           float /*adj_eta*/,
+                                           float /*phi*/,
+                                           float /*phi*/,
+                                           CaloSampling::CaloSample /*samp*/) const
 { 
   float the_eta = std::abs (eta);
   if (the_eta >= m_etamax) return;
