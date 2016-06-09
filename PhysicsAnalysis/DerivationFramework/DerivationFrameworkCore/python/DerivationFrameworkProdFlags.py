@@ -15,8 +15,21 @@ listAllKnownDPD=[]
 # Defined by ASG for tests/examples
 ####################################
 
+class WriteDAOD_PASSTHRStream(JobProperty):
+    """ Produce the DPD for DAOD_PASSTHR - pass through """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDAOD_PASSTHR"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkExamples/PassThroughExample.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PASSTHRStream)
+listAODtoDPD.append(WriteDAOD_PASSTHRStream.StreamName)
+
 class WriteDAOD_TEST1Stream(JobProperty):
-    """ Produce the DPD for DAOD_TEST1 - derivation framework test """
+    """ Produce the DPD for DAOD_TEST1 - skimming example """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -29,7 +42,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST1Stream
 listAODtoDPD.append(WriteDAOD_TEST1Stream.StreamName)
 
 class WriteDAOD_TEST2Stream(JobProperty):
-    """ Produce the DPD for DAOD_TEST2 - derivation framework test """
+    """ Produce the DPD for DAOD_TEST2 - skimming example using ExpressionEvaluation """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -42,7 +55,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST2Stream
 listAODtoDPD.append(WriteDAOD_TEST2Stream.StreamName)
 
 class WriteDAOD_TEST3Stream(JobProperty):
-    """ Produce the DPD for DAOD_TEST3 - derivation framework test """
+    """ Produce the DPD for DAOD_TEST3 - skimming example using augmentations """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -55,7 +68,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST3Stream
 listAODtoDPD.append(WriteDAOD_TEST3Stream.StreamName)
 
 class WriteDAOD_TEST4Stream(JobProperty):
-    """ Produce the DPD for DAOD_TEST4 - derivation framework test """
+    """ Produce the DPD for DAOD_TEST4 - slimming example """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -68,7 +81,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST4Stream
 listAODtoDPD.append(WriteDAOD_TEST4Stream.StreamName)
 
 class WriteDAOD_TEST5Stream(JobProperty):
-    """ Produce the DPD for DAOD_TEST5 - derivation framework test """
+    """ Produce the DPD for DAOD_TEST5 - CP tools example """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -81,7 +94,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST5Stream
 listAODtoDPD.append(WriteDAOD_TEST5Stream.StreamName)
 
 class WriteDAOD_TEST6Stream(JobProperty):
-    """ Produce the DPD for DAOD_TEST6 - derivation framework test """
+    """ Produce the DPD for DAOD_TEST6 - private sequencer example """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -94,7 +107,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST6Stream
 listAODtoDPD.append(WriteDAOD_TEST6Stream.StreamName)
 
 class WriteDAOD_TEST7Stream(JobProperty):
-    """ Produce the DPD for DAOD_TEST7 - derivation framework test """
+    """ Produce the DPD for DAOD_TEST7 - augmentation example """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -107,7 +120,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST7Stream
 listAODtoDPD.append(WriteDAOD_TEST7Stream.StreamName)
 
 class WriteDAOD_TEST8Stream(JobProperty):
-    """ Produce the DPD for DAOD_TEST8 - derivation framework test """
+    """ Produce the DPD for DAOD_TEST8 - thinning example """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -120,7 +133,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST8Stream
 listAODtoDPD.append(WriteDAOD_TEST8Stream.StreamName)
 
 class WriteDAOD_TEST9Stream(JobProperty):
-    """ Produce the DPD for DAOD_TEST9 - derivation framework test """
+    """ Produce the DPD for DAOD_TEST9 - example of adding reconstruction tools """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -133,7 +146,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TEST9Stream
 listAODtoDPD.append(WriteDAOD_TEST9Stream.StreamName)
 
 class WriteDAOD_TEST10Stream(JobProperty):
-    """ Produce the DPD for DAOD_TEST10 - derivation framework test """
+    """ Produce the DPD for DAOD_TEST10 - example of trigger content management """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -876,6 +889,32 @@ class WriteDAOD_SUSY12Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY12Stream)
 listAODtoDPD.append(WriteDAOD_SUSY12Stream.StreamName)
 
+class WriteDAOD_SUSY13Stream(JobProperty):
+    """SUSY13 derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_SUSY13'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkSUSY/SUSY13.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY13Stream)
+listAODtoDPD.append(WriteDAOD_SUSY13Stream.StreamName)
+
+class WriteDAOD_SUSY14Stream(JobProperty):
+    """SUSY14 derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_SUSY14'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkSUSY/SUSY14.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY14Stream)
+listAODtoDPD.append(WriteDAOD_SUSY14Stream.StreamName)
+
 
 #################################
 # Defined by the Exotics group
@@ -1473,6 +1512,19 @@ class WriteDAOD_FTAG4Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_FTAG4Stream)
 listAODtoDPD.append(WriteDAOD_FTAG4Stream.StreamName)
 
+class WriteDAOD_FTAG5Stream (JobProperty):
+     """FTAG5 derivation"""
+     statusOn = True
+     allowedTypes = ['bool']
+     StoredValue = False
+     StreamName = 'StreamDAOD_FTAG5'
+     FileName = ''
+     isVirtual = False
+     DPDMakerScript = "DerivationFrameworkFlavourTag/FTAG5.py"
+     pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_FTAG5Stream)
+listAODtoDPD.append(WriteDAOD_FTAG5Stream.StreamName)
+
 ######################################
 # Defined by the B-physics group
 ######################################
@@ -1922,6 +1974,24 @@ class WriteDAOD_HION9Stream (JobProperty):
      pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HION9Stream)
 listAODtoDPD.append(WriteDAOD_HION9Stream.StreamName)
+
+################################
+# Defined by the trigger group
+################################
+
+class WriteDAOD_TRIG1Stream (JobProperty):
+     """TRIG1 derivation"""
+     statusOn = True
+     allowedTypes = ['bool']
+     StoredValue = False
+     StreamName = 'StreamDAOD_TRIG1'
+     FileName = ''
+     isVirtual = False
+     DPDMakerScript = "DerivationFrameworkTrigger/TRIG1.py"
+     pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TRIG1Stream)
+listAODtoDPD.append(WriteDAOD_TRIG1Stream.StreamName)
+
 
 from RecExConfig.RecoFunctions import AddValidItemToList
 AddValidItemToList(listAODtoDPD,listAllKnownDPD)

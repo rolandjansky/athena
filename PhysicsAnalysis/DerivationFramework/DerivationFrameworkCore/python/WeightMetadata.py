@@ -100,30 +100,30 @@ def addWeightsHist(stream, seq, svcMgr, CfgMgr, ToolSvc, derivName, fileName, pd
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 #addWeights(DerivationFrameworkJob, {'CT10nlo':52, 'MSTW2008nlo68cl': 40, 'NNPDF23_lo_as_0130_qed': 100, 'NNPDF30_nlo_as_0118': 100}, "")
 listPDF = {}
-listPDF["CT14nlo"] = 56
-listPDF["CT14nlo_NF4"] = 0
-listPDF["NNPDF30_nlo_as_0118"] = 100
-listPDF["NNPDF30_nlo_as_0118_nf_4"] = 100
+#listPDF["CT14nlo"] = 56
+#listPDF["CT14nlo_NF4"] = 0
+#listPDF["NNPDF30_nlo_as_0118"] = 100
+#listPDF["NNPDF30_nlo_as_0118_nf_4"] = 100
 listPDF["MMHT2014nlo68cl"] = 50
-listPDF["MMHT2014nlo68cl_nf4"] = 50
-listPDF["PDF4LHC15_nlo_100"] = 100
+#listPDF["MMHT2014nlo68cl_nf4"] = 50
+#listPDF["PDF4LHC15_nlo_100"] = 100
 listPDF["PDF4LHC15_nlo_30"] = 30
-listPDF["PDF4LHC15_nlo_mc"] = 100
-listPDF["PDF4LHC15_nlo_asvar"] = 1
-listPDF["NNPDF23_lo_as_0119_qed"] = 100
-listPDF["NNPDF23_nlo_as_0118_qed"] = 100
-listPDF["NNPDF30_nnlo_as_0118"] = 100
-listPDF["NNPDF30_lo_as_0130"] = 100
+#listPDF["PDF4LHC15_nlo_mc"] = 100
+#listPDF["PDF4LHC15_nlo_asvar"] = 1
+#listPDF["NNPDF23_lo_as_0119_qed"] = 100
+#listPDF["NNPDF23_nlo_as_0118_qed"] = 100
+#listPDF["NNPDF30_nnlo_as_0118"] = 100
+listPDF["NNPDF30_nlo_as_0118"] = 100
 listPDF["CT10"] = 52
-listPDF["cteq66"] = 44
-listPDF["MSTW2008nlo68cl"] = 40
-listPDF["cteq6l1"] = 0
-listPDF["abm12lhc_5_nnlo"] = 28
-listPDF["HERAPDF20_NLO_EIG"] = 28
-listPDF["HERAPDF20_NLO_VAR"] = 13
-listPDF["ATLAS-epWZ12-EIG"] = 30
-listPDF["ATLAS-epWZ12-VAR"] = 11
-listPDF["abm12lhc_4_nnlo"] = 28
+#listPDF["cteq66"] = 44
+#listPDF["MSTW2008nlo68cl"] = 40
+#listPDF["cteq6l1"] = 0
+#listPDF["abm12lhc_5_nnlo"] = 28
+#listPDF["HERAPDF20_NLO_EIG"] = 28
+#listPDF["HERAPDF20_NLO_VAR"] = 13
+#listPDF["ATLAS-epWZ12-EIG"] = 30
+#listPDF["ATLAS-epWZ12-VAR"] = 11
+#listPDF["abm12lhc_4_nnlo"] = 28
 
 # skip this in data
 from AthenaCommon.GlobalFlags import globalflags
