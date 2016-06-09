@@ -1,11 +1,10 @@
 #
 # $Id$
 #
-# File: share/xAODTestRead2_jo.py
+# File: share/xAODTestRead_jo.py
 # Author: snyder@bnl.gov
 # Date: May 2014
-# Purpose: Test reading xAOD objects.
-#          Read output of xAODTestRead_jo.py.
+# Purpose: Test reading xAOD objects data.
 #
 
 ## basic job configuration (for generator)
@@ -22,17 +21,6 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.AppMgr import theApp
 
 #--------------------------------------------------------------
-# Load POOL support
-#--------------------------------------------------------------
-import AthenaPoolCnvSvc.WriteAthenaPool
-import AthenaPoolCnvSvc.ReadAthenaPool
-
-#--------------------------------------------------------------
-# Define input
-#--------------------------------------------------------------
-svcMgr.EventSelector.InputCollections        = [ "xaoddata2.root" ]
-
-#--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
 theApp.EvtMax = 20
@@ -41,19 +29,21 @@ theApp.EvtMax = 20
 # Application:
 #--------------------------------------------------------------
 
+from TrigNavigation.TrigNavigationConf import HLT__Navigation
 from DataModelTestDataRead.DataModelTestDataReadConf import \
-     DMTest__xAODTestReadCVec, \
-     DMTest__xAODTestRead
-topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec")
-topSequence += DMTest__xAODTestRead ("xAODTestRead")
-topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec_copy",
-                                         CVecKey = "copy_cvec")
-topSequence += DMTest__xAODTestRead ("xAODTestRead_copy",
-                                     ReadPrefix = "copy_")
-topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec_scopy",
-                                         CVecKey = "scopy_cvec")
-topSequence += DMTest__xAODTestRead ("xAODTestRead_scopy",
-                                     ReadPrefix = "scopy_")
+     DMTest__HLTResultReader, \
+     DMTest__xAODTestReadCVec
+
+
+topSequence += DMTest__HLTResultReader \
+               ("HLTResultReader",
+                Nav = HLT__Navigation (ClassesToPayload = [],
+                                       ClassesToPreregister = []))
+
+
+topSequence += DMTest__xAODTestReadCVec ('xAODTestReadCVec',
+                                         CVecKey = 'HLT_DMTest__CVec_cvec')
+
 
 # Note: can't autoload these.
 import ROOT
@@ -63,6 +53,13 @@ cppyy.loadDictionary("libDataModelTestDataReadDict")
 ROOT.DMTest.B
 ROOT.DMTest.setConverterLibrary ('libDataModelTestDataReadCnvPoolCnv.so')
 
+from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
+athenaCommonFlags.BSRDOInput = ['test.bs']
+from ByteStreamCnvSvc import ReadByteStream
+svcMgr.EventSelector.Input = ['test.bs']
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
+    'HLT::HLTResult/HLTResult_HLT',
+    ]
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
@@ -79,7 +76,3 @@ ChronoStatSvc.StatPrintOutTable   = FALSE
 
 #svcMgr.ExceptionSvc.Catch = "None"
 
-# Explicitly specify the output file catalog
-# to avoid races when running tests in parallel.
-PoolSvc = Service( "PoolSvc" )
-PoolSvc.WriteCatalog = "file:xAODTestRead2_catalog.xml"

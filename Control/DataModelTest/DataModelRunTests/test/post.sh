@@ -172,6 +172,10 @@ PP="$PP"'|Environment initialised for data access|building of dictionaries now o
 PP="$PP"'|^...1034h$'
 PP="$PP"'|^GUID: Class|^WARNING: Cannot import TrigEDMConfig.TriggerEDM.getARATypesRenaming'
 PP="$PP"'|^GUID: Class|^AthenaRootStr.* INFO|^Warning in .* found in .* is already in'
+PP="$PP"'|no dictionary for class|INFO eformat version|INFO event storage'
+
+# StoreGate INFO messages changed to VERBOSE
+PP="$PP"'|^(StoreGateSvc|DetectorStore|MetaDataStore|InputMetaDataStore|TagMetaDataStore) +(INFO|VERBOSE) (Stop|stop|Start)'
 
 test=$1
 if [ -z "$testStatus" ]; then
@@ -180,21 +184,23 @@ else
     # check exit status
     joblog=${test}.log
     if [ "$testStatus" = 0 ]; then
-	reflog=../test/${test}.ref
+	reflog=../share/${test}.ref
 	if [ -r $reflog ]; then
             jobdiff=${joblog}-todiff
             refdiff=`basename ${reflog}`-todiff
-            egrep -v "$PP" < $joblog > $jobdiff
-            egrep -v "$PP" < $reflog > $refdiff
+            sed 's/.[[][?]1034h//' < $joblog | egrep -v "$PP" > $jobdiff
+            sed 's/.[[][?]1034h//' < $reflog | egrep -v "$PP" > $refdiff
             diff -a -u $jobdiff $refdiff
 	    diffStatus=$?
 	    if [ $diffStatus != 0 ] ; then
 		echo "post.sh> ERROR: $joblog and $reflog differ"
+                exit $diffStatus
 	    fi
 	else
 	    tail $joblog
 	    echo "post.sh> WARNING: reference output $reflog not available "
 	    echo  " post.sh> Please check ${PWD}/$joblog"
+            exit 1
 	fi
     else
 	tail $joblog

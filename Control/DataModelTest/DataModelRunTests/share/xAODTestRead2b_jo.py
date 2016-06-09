@@ -41,8 +41,14 @@ theApp.EvtMax = 20
 # Application:
 #--------------------------------------------------------------
 
-from DataModelTestDataRead.DataModelTestDataReadConf import DMTest__xAODTestRead
+from DataModelTestDataRead.DataModelTestDataReadConf import \
+     DMTest__xAODTestReadCVec, \
+     DMTest__xAODTestRead
+
+topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec")
 topSequence += DMTest__xAODTestRead ("xAODTestRead")
+topSequence += DMTest__xAODTestReadCVec ("xAODTestReadCVec_scopy",
+                                         CVecKey = 'scopy_cvec')
 topSequence += DMTest__xAODTestRead ("xAODTestRead_scopy",
                                      ReadPrefix = 'scopy_')
 
@@ -70,3 +76,7 @@ ChronoStatSvc.StatPrintOutTable   = FALSE
 
 #svcMgr.ExceptionSvc.Catch = "None"
 
+# Explicitly specify the output file catalog
+# to avoid races when running tests in parallel.
+PoolSvc = Service( "PoolSvc" )
+PoolSvc.WriteCatalog = "file:xAODTestRead2b_catalog.xml"
