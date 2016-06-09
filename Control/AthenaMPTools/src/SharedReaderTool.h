@@ -9,9 +9,17 @@
 
 #include "AthenaInterprocess/SharedQueue.h"
 #include "yampl/Exceptions.h"
-#include "yampl/utils/SharedMemory.h"
-
 #include "boost/shared_ptr.hpp"
+
+#if defined(__GNUC__) && __GNUC__>=6 && !defined(__clang__)
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wterminate"
+# include "yampl/utils/SharedMemory.h"
+# pragma GCC diagnostic pop
+#else
+# include "yampl/utils/SharedMemory.h"
+#endif
+
 
 class IEventShare;
 
