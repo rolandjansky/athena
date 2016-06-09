@@ -18,13 +18,16 @@
 #ifndef TRIGSIGNATUREMONI_H
 #define TRIGSIGNATUREMONI_H
 
-#include "TrigMonitorBase/TrigMonitorToolBase.h"
-#include <vector>
-#include <string>
-#include <map>
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
+#include "TrigMonitorBase/TrigMonitorToolBase.h"
 #include "TrigMonitorBase/TrigLBNHist.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
+
+#include <set>
+#include <string>
+#include <map>
 
 namespace HLT {
    class TrigSteer;
@@ -63,10 +66,8 @@ class TrigSignatureMoni: public TrigMonitorToolBase {
 
  private:
 
-  bool getDebugStreams(std::vector<std::string> &errorStreamNames);
+  ServiceHandle<TrigConf::ITrigConfigSvc > m_trigConfigSvc;
 
-  ServiceHandle<TrigConf::ITrigConfigSvc > m_trigConfigSvc; //!< handle for the Trigger configuration service
- 
   std::string m_histoPathexpert;
   const HLT::TrigSteer* m_parentAlg; // should give us pointer to TrigSteer topAlgorithm!!!
 
