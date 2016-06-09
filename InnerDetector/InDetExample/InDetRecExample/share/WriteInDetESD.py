@@ -42,6 +42,9 @@ if InDetFlags.doCosmics():
    if InDetFlags.doNewTracking():
       InDetESDList+=["TrackCollection#"+InDetKeys.UnslimmedTracks()]
 
+if InDetFlags.doStoreTrackSeeds():
+   InDetESDList+=["TrackCollection#"+InDetKeys.SiSPSeedSegments()]
+
 if InDetKeys.AliasToTracks() == 'none':
    InDetESDList+=["TrackCollection#"+InDetKeys.Tracks()]
 else:
@@ -125,6 +128,10 @@ if InDetFlags.doxAOD():
    excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation"
   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTrackParticleContainer()+'Aux.' + excludedAuxData]
+
+  if InDetFlags.doStoreTrackSeeds():
+   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle"]
+   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle"+'Aux.' + excludedAuxData]
 
   if not InDetFlags.doSLHC():
      InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODForwardTrackParticleContainer()]
