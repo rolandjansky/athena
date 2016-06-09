@@ -275,7 +275,7 @@ def load_typeregistry_dso(iname=None):
         iname = _p.path(_dflt_typereg_fname)
         if not iname.exists():
             import os
-            projects = os.environ['CMTPATH'].split(os.pathsep)[:2]
+            projects = os.environ.get('CMTPATH','').split(os.pathsep)[:2]
             for project_root in projects:
                 n = _p.path(project_root)/"InstallArea"/"share"/iname
                 if n.exists():

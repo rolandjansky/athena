@@ -115,10 +115,12 @@ def main(args):
     
     #first we must check that requirements file has the AthenaBaseComps use statement in it
     foundBaseComps=False
+    hasLibraryLine=False
     lastUse=0 
     lineCount=0
     for line in open('cmt/requirements'):
         lineCount +=1 
+        if line.startswith("library") or line.startswith("apply_pattern dual_use_library"): hasLibraryLine=True
         if not line.startswith("use "): continue
         lastUse=lineCount
         uu = line.split(" ")
@@ -139,7 +141,11 @@ def main(args):
             if line.startswith("private"): inPrivate=True
             elif line.startswith("end_private"): inPrivate=False
             print line,
-    
+        #append library line if necessary
+    if not hasLibraryLine:
+      with open("cmt/requirements", "a") as myfile:
+         myfile.write("library %s *.cxx components/*.cxx\n" % (full_pkg_name))
+         myfile.write("apply_pattern component_library\n")
     
     #following code borrowed from gen_klass
     hdr = getattr(Templates, 'alg_hdr_template')
@@ -168,6 +174,7 @@ def main(args):
     if os.path.isfile(fname+'.h'):
        print ":::  ERROR %s.h already exists" % fname
        return -1
+    print ":::  INFO Creating %s.h" % fname
     o_hdr = open(fname+'.h', 'w')
     o_hdr.writelines(hdr%d)
     o_hdr.flush()
@@ -176,6 +183,7 @@ def main(args):
     if os.path.isfile(fname+'.cxx'):
        print ":::  ERROR %s.cxx already exists" % fname
        return -1
+    print ":::  INFO Creating %s.cxx" % fname
     o_cxx = open(fname+'.cxx', 'w')
     o_cxx.writelines(cxx%d)
     o_cxx.flush()
@@ -250,7 +258,8 @@ DECLARE_FACTORY_ENTRIES( %(pkg)s )
 #include "../%(namespace_klass)s.h"
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( %(namespace)s, %(klass)s )
 """%d
-               print """
+               else:
+                  print """
 #include "../%(namespace_klass)s.h"
 DECLARE_ALGORITHM_FACTORY( %(klass)s )
 """%d

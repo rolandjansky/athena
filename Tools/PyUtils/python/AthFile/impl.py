@@ -7,7 +7,7 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 694951 $"
+__version__ = "$Revision: 723532 $"
 __author__  = "Sebastien Binet"
 __doc__ = "implementation of AthFile-server behind a set of proxies to isolate environments"
 
@@ -406,7 +406,7 @@ class AthFileServer(object):
         # speed-up by tampering LD_LIBRARY_PATH to not load reflex-dicts
         import re, os
         restrictedProjects = ['AtlasCore']
-        if(os.environ.get("AtlasProject",None)=="AthAnalysisBase" or os.environ.get("AtlasProject",None)=="AthSimulationBase"): restrictedProjects=[] #special cases
+        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulationBase" in os.environ.get("CMTEXTRATAGS",""): restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             with H.ShutUp(filters=[
                 re.compile(
@@ -1038,7 +1038,7 @@ class FilePeeker(object):
         import PyUtils.Helpers as H
         restrictedProjects = ['AtlasCore']
         import os
-        if(os.environ.get("AtlasProject",None)=="AthAnalysisBase" or os.environ.get("AtlasProject",None)=="AthSimulationBase"): restrictedProjects=[] #special cases
+        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulationBase" in os.environ.get("CMTEXTRATAGS",""): restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             root = self.pyroot
             import re
@@ -1079,7 +1079,7 @@ class FilePeeker(object):
         import PyUtils.Helpers as H
         restrictedProjects = ['AtlasCore']
         import os
-        if(os.environ.get("AtlasProject",None)=="AthAnalysisBase" or os.environ.get("AtlasProject",None)=="AthSimulationBase"): restrictedProjects=[] #special cases
+        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulationBase" in os.environ.get("CMTEXTRATAGS",""): restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             root = self.pyroot
             do_close = True
@@ -1146,7 +1146,7 @@ class FilePeeker(object):
         import PyUtils.Helpers as H
         restrictedProjects = ['AtlasCore']
         import os
-        if(os.environ.get("AtlasProject",None)=="AthAnalysisBase" or os.environ.get("AtlasProject",None)=="AthSimulationBase"): restrictedProjects=[] #special cases
+        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulationBase" in os.environ.get("CMTEXTRATAGS",""): restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             root = self.pyroot
             do_close = True
@@ -1169,7 +1169,7 @@ class FilePeeker(object):
      
     def _process_call(self, fname, evtmax, projects=['AtlasCore']):
         import os
-        if(os.environ.get("AtlasProject",None)=="AthAnalysisBase" or os.environ.get("AtlasProject",None)=="AthSimulationBase"): projects=[] #special cases
+        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulationBase" in os.environ.get("CMTEXTRATAGS",""): projects=[] #special cases
         msg = self.msg()
         import PyUtils.Helpers as H
         f = _create_file_infos()
@@ -1222,7 +1222,7 @@ class FilePeeker(object):
                         if os.path.exists(out_pkl_fname):
                             os.remove(out_pkl_fname)
                         print "\n  ---------   running Athena peeker"
-                        print  os.environ['CMTPATH']
+                        print  os.environ.get('CMTPATH','')
 
                         import AthenaCommon.ChapPy as api
                         app = api.AthenaApp(cmdlineargs=["--nprocs=0"])

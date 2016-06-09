@@ -5,6 +5,8 @@
 # @author Sebastien Binet
 
 import os, sys
+import subprocess
+from string import rstrip
 from PyCmt.Logging import logging
 from PyCmt.Cmt import CmtPkg, CmtStrings
 
@@ -43,18 +45,62 @@ def listCmtDirs( path ):
     cmtDirs = []
     
     # fill list of CMT directories
-    import os
-    import os.path as osp
     for root, dirs, files in os.walk(path):
         for d in dirs[:]:
             if _is_in_ignore_dir_list(d):
                 dirs.remove(d)
         for d in dirs:
             if d == CmtStrings.CMTDIR:
-                full_name = osp.join(root, d)
+                full_name = os.path.join(root, d)
                 msg.debug("\t==> found %s" % full_name)
                 cmtDirs.append(full_name)
     return cmtDirs
+
+def listCMakeDirs( path ):
+    """Return the list of paths pointing at 'CMake' directories, accessible
+    from the `path` path.
+    """
+
+    msg = logging.getLogger( "WorkAreaMgr" )    
+    cmakeDirs = []
+    
+    # fill list of CMake directories
+    for root, dirs, files in os.walk(path):
+        if _is_in_ignore_dir_list(root): continue
+        if 'version.cmake' in files:
+            msg.debug("\t==> found %s" % root)
+            cmakeDirs.append(root)
+    return cmakeDirs
+
+
+def get_latest_pkg_tag(fullPkgName):
+    """Return the most recent SVN tag of the package.
+
+    Return: Tag or None on error
+    """
+
+    msg = logging.getLogger( "WorkAreaMgr" )
+    svnroot = os.environ.get("SVNROOT")
+    if svnroot==None:
+        msg.error("SVNROOT is not set.")
+        return None
+
+    _cmd = "svn ls %s" % os.path.join(svnroot, fullPkgName, "tags")
+    if fullPkgName.startswith('Gaudi'):
+        _cmd = "svn ls %s" % os.path.join(svnroot, 'tags', fullPkgName)
+    msg.debug('running [%s]...', _cmd)        
+    p = subprocess.Popen(_cmd, shell = True,
+                         stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+    tags = p.communicate()[0].splitlines()
+    if len(tags)==0 or p.returncode!=0: return None
+
+    pkg_name = os.path.basename(fullPkgName)
+
+    # enforce atlas convention of tags (pkgname-xx-yy-zz-aa)
+    tags = [t for t in tags if t.startswith(pkg_name)]
+    latest_tag = rstrip(tags[-1],"/\n ")
+    return latest_tag
+
 
 def scan( scanDir = os.curdir, suppressList = ["WorkArea"] ):
     """Search for CMT packages in the given directory and walk down the
@@ -251,7 +297,9 @@ def _translate_runtimepkg_name(n):
         'hlt': 'AtlasHLT',
         'manacore': 'ManaCore',
         'detcommon': 'DetCommon',
-        'AthAnalysisBase': 'AthAnalysisBase'
+        'AthAnalysisBase': 'AthAnalysisBase',
+        'AthAnalysisSUSY': 'AthAnalysisSUSY',
+        'AthSimulationBase': 'AthSimulationBase'
         }
     if n in db:
         return db[n]

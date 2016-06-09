@@ -2,14 +2,14 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: checkxAOD.py 690683 2015-08-21 17:13:54Z schaffer $
+# $Id: checkxAOD.py 717311 2016-01-12 10:51:45Z schaffer $
 #
 # This is a modified version of PyUtils/bin/checkFile.py. It has been taught
 # how to sum up the sizes of all the branches belonging to a single xAOD
 # object/container.
 #
 
-__version__ = "$Revision: 690683 $"
+__version__ = "$Revision: 717311 $"
 __author__  = "Sebastien Binet <binet@cern.ch>, " \
     "Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>, " \
     "RD Schaffer R.D.Schaffer@cern.ch"
@@ -35,94 +35,23 @@ if __name__ == "__main__":
     ( options, args ) = parser.parse_args()
 
     # Set up categorization matching strings:
-    categoryStrings = []
-    categoryStrings += [["^DataHeader",                          "MetaData"]]
-    categoryStrings += [["(.*)_mems$",                           "MetaData"]]
-    categoryStrings += [["(.*)_timings$",                        "MetaData"]]
-    categoryStrings += [["^Token$",                              "MetaData"]]
-    categoryStrings += [["^RawInfoSummaryForTag$",               "MetaData"]]
-    categoryStrings += [["^HLT",                                 "Trig"]]
-    categoryStrings += [["^LVL1",                                "Trig"]]
-    categoryStrings += [["^xTrig",                               "Trig"]]
-    categoryStrings += [["^Trig",                                "Trig"]]
-    categoryStrings += [["^CTP_Decision",                        "Trig"]]
-    categoryStrings += [["^TrigInDetTrackTruthMap",              "Trig"]]
-    categoryStrings += [["^TrigNavigation",                      "Trig"]]
-    categoryStrings += [[".*TriggerTowers",                      "Trig"]]
-    categoryStrings += [["TileTTL1MBTS",                         "Trig"]]
-    categoryStrings += [["^TileL2Cnt",                           "Trig"]]
-    categoryStrings += [["RoIBResult",                           "Trig"]]
-    categoryStrings += [["^MET",                                 "MET"]]
-    categoryStrings += [["JEMEtSums",                            "MET"]]
-    categoryStrings += [["^ByteStreamEventInfo",                 "EvtId"]]
-    categoryStrings += [["^EventInfo",                           "EvtId"]]
-    categoryStrings += [["^McEventInfo",                         "EvtId"]]
-    categoryStrings += [["^LumiBlockN",                          "EvtId"]]
-    categoryStrings += [["^EventWeight",                         "EvtId"]]
-    categoryStrings += [["^RunNumber",                           "EvtId"]]
-    categoryStrings += [["^ConditionsRun",                       "EvtId"]]
-    categoryStrings += [["^EventTime",                           "EvtId"]]
-    categoryStrings += [["^BunchId",                             "EvtId"]]
-    categoryStrings += [["^EventNumber",                         "EvtId"]]
-    categoryStrings += [["^Tau",                                 "tau"]]
-    categoryStrings += [["^CombinedStauTrackParticles",          "tau"]]
-    categoryStrings += [["^ExtrapolatedStauTrackParticles",      "tau"]]
-    categoryStrings += [["^METMAP",                              "MET"]]
-    categoryStrings += [["(.*)EventShape$",                      "PFO"]]
-    categoryStrings += [["^AntiKt4EMPFlowJets",                  "PFO"]]
-    categoryStrings += [["^JetETMissChargedParticleFlowObjects", "PFO"]]
-    categoryStrings += [["^JetETMissNeutralParticleFlowObjects", "PFO"]]
-    categoryStrings += [["^GSF",                                 "egamma"]]
-    categoryStrings += [["^ForwardElectron",                     "egamma"]]
-    categoryStrings += [["^egamma",                              "egamma"]]
-    categoryStrings += [["^Electron",                            "egamma"]]
-    categoryStrings += [["^Photon",                              "egamma"]]
-    categoryStrings += [["^Muon",                                "Muon"]]
-    categoryStrings += [["^TileMuObj",                           "Muon"]]
-    categoryStrings += [["^MS",                                  "Muon"]]
-    categoryStrings += [["^SlowMuons",                           "Muon"]]
-    categoryStrings += [["^Staus",                               "Muon"]]
-    categoryStrings += [["(.*)MuonTrackParticles$",              "Muon"]]
-    categoryStrings += [["MUCTPI_RDO",                           "Muon"]]
-    categoryStrings += [["^RPC",                                 "Muon"]]
-    categoryStrings += [["^TGC",                                 "Muon"]]
-    categoryStrings += [["^MDT",                                 "Muon"]]
-    categoryStrings += [["^CSC",                                 "Muon"]]
-    categoryStrings += [[".*MuonMeasurements$",                  "Muon"]]
-    categoryStrings += [["^ExtrapolatedMuonTracks",              "Muon"]]
-    categoryStrings += [["^CombinedMuonTracks",                  "Muon"]]
-    categoryStrings += [["^BTag",                                "BTag"]]
-    categoryStrings += [["^InDet",                               "InDet"]]
-    categoryStrings += [["^PrimaryVertices",                     "InDet"]]
-    categoryStrings += [["^ComTime_TRT",                         "InDet"]]
-    categoryStrings += [["^Pixel",                               "InDet"]]
-    categoryStrings += [["^TRT",                                 "InDet"]]
-    categoryStrings += [["^SCT",                                 "InDet"]]
-    categoryStrings += [["^BCM",                                 "InDet"]]
-    categoryStrings += [["^CTP",                                 "InDet"]]
-    categoryStrings += [["^Tracks",                              "InDet"]]
-    categoryStrings += [["^ResolvedForwardTracks",               "InDet"]]
-    categoryStrings += [["^SplitClusterAmbiguityMap",            "InDet"]]
-    categoryStrings += [["^CamKt",                               "Jet"]]
-    categoryStrings += [["^AntiKt",                              "Jet"]]
-    categoryStrings += [["^Jet",                                 "Jet"]]
-    categoryStrings += [["CaloCalTopoCluster",                   "CaloTopo"]]
-    categoryStrings += [["^LAr",                                 "Calo"]]
-    categoryStrings += [["^AODCellContainer",                    "Calo"]]
-    categoryStrings += [["^MBTSContainer",                       "Calo"]]
-    categoryStrings += [["^CaloCompactCellContainer",            "Calo"]]
-    categoryStrings += [["^E4prContainer",                       "Calo"]]
-    categoryStrings += [["^TileCellVec",                         "Calo"]]
-    categoryStrings += [["^TileDigits",                          "Calo"]]
-    categoryStrings += [["^Truth",                               "Truth"]]
-    categoryStrings += [["Truth$",                               "Truth"]]
-    categoryStrings += [["TruthMap$",                            "Truth"]]
-    categoryStrings += [["TruthCollection$",                     "Truth"]]
-    categoryStrings += [["^PRD_MultiTruth",                      "Truth"]]
-    categoryStrings += [["TracksTruth$",                         "Truth"]]
-    categoryStrings += [[".*TrackTruth$",                        "Truth"]]
-    categoryStrings += [["TrackTruthCollection",                 "Truth"]]
-    
+    # Set up categorization matching strings:
+    categoryStrings = {
+        "MetaData" : ["^DataHeader", "(.*)_mems$", "(.*)_timings$", "^Token$", "^RawInfoSummaryForTag$"],
+        "Trig"     : ["^HLT", "^LVL1", "^xTrig", "^Trig", "^CTP_Decision", "^TrigInDetTrackTruthMap", "^TrigNavigation", ".*TriggerTowers", "TileTTL1MBTS", "^TileL2Cnt", "RoIBResult"],
+        "MET"      : ["^MET", "^METMAP", "JEMEtSums"],
+        "EvtId"    : ["^ByteStreamEventInfo", "^EventInfo", "^McEventInfo", "^LumiBlockN", "^EventWeight", "^RunNumber", "^ConditionsRun", "^EventTime", "^BunchId", "^EventNumber"],
+        "tau"      : ["^Tau", "^CombinedStauTrackParticles", "^ExtrapolatedStauTrackParticles"],
+        "PFO"      : ["(.*)EventShape$", "^AntiKt4EMPFlowJets", "^JetETMissChargedParticleFlowObjects", "^JetETMissNeutralParticleFlowObjects"],
+        "egamma"   : ["^GSF", "^ForwardElectron", "^egamma", "^Electron", "^Photon"],
+        "Muon"     : ["^Muon", "^TileMuObj", "^MS", "^SlowMuons", "^Staus", "(.*)MuonTrackParticles$", "MUCTPI_RDO", "^RPC", "^TGC", "^MDT", "^CSC", ".*MuonMeasurements$", "^ExtrapolatedMuonTracks", "^CombinedMuonTracks"],
+        "BTag"     : ["^BTag"],
+        "InDet"    : ["^InDet", "^PrimaryVertices", "^ComTime_TRT", "^Pixel", "^TRT", "^SCT", "^BCM", "^CTP", "^Tracks", "^ResolvedForwardTracks", "^SplitClusterAmbiguityMap"],
+        "Jet"      : ["^CamKt", "^AntiKt", "^Jet"],
+        "CaloTopo" : ["CaloCalTopoCluster"],
+        "Calo"     : ["^LAr", "^AODCellContainer", "^MBTSContainer", "^CaloCompactCellContainer", "^E4prContainer", "^TileCellVec", "^TileDigits"],
+        "Truth"    : ["^Truth", "Truth$", "TruthMap$", "TruthCollection$", "^PRD_MultiTruth", "TracksTruth$", ".*TrackTruth$", "TrackTruthCollection"]
+        }
     
     fileNames = []
 
@@ -264,25 +193,26 @@ if __name__ == "__main__":
 
             # Find category:
             found = False
-            catName = '***Unknown***'
-            for pair in categoryStrings:
-                # print d.name, d_name, pair, type(d.name), type(d_name), type(pair[0])
-                m = None
-                try:
-                    m = re.match(pair[0], d_name)
-                except TypeError:
+            catName = '*Unknown*'
+            for categ in categoryStrings:
+                for pattern in categoryStrings[ categ ]:
+                    # print d.name, d_name, pair, type(d.name), type(d_name), type(pair[0])
+                    m = None
+                    try:
+                        m = re.match(pattern, d_name)
+                    except TypeError:
+                        pass
+                    if m:
+                        found = True
+                        catName = categ
+                        break
+                        # print d.name, categ
+                        pass
                     pass
-                if m:
-                    found = True
-                    catName = pair[1] 
-                    break
-                    # print d.name, pair[1]
+                if not found:
+                    # print "Did not find category for:", d.name, d_name, br
                     pass
                 pass
-            if not found:
-                print "Did not find category for:", d.name, d_name, br
-                pass
-            
             # Add on category to name/type
             nameType += ' [' + catName + ']'
 
@@ -320,6 +250,7 @@ if __name__ == "__main__":
                  0.0,
                  poolFile.dataHeader.nEntries,
                  "Total" ) )
+        print( "" )
 
         # Now print out the categorized information
         # Order the records by size:

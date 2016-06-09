@@ -199,12 +199,19 @@ def restricted_ldenviron(projects=None, msg=None):
     a context helper to limit ROOT automatic loading of dictionaries
     to a given set of cmt-projects (LCGCMT, AtlasCore, ...)
     """
+
     if projects is None:
         # nothing to do.
         # execute user stuff
         yield
         # end of story
         return
+
+    # Bypass the rest of the function in case CMake is used and not CMT
+    import os
+    if os.environ.get( 'CMTPATH', '' ) == '':
+       yield
+       return
 
     if isinstance(projects, str):
         projects = [p.strip() for p in projects.split() if p.strip() != '']

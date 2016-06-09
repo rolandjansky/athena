@@ -5,7 +5,7 @@
 # @author Alexandre Vaniachine <vaniachine@anl.gov>
 # @date May 2015
 
-__version__= "$Revision: 694951 $"
+__version__= "$Revision: 734431 $"
 __author__ = "Alexandre Vaniachine <vaniachine@anl.gov>"
 __doc__ = "peek into APR files to read in-file metadata"
 
@@ -92,6 +92,8 @@ class FilePeekerTool():
 
         esic = cppyy.gbl.EventStreamInfoPTCnv_p3()
         esi = getattr (meta, esiName)
+        if esiName.startswith(esiTypeName):
+            esiName = esiName[len(esiTypeName)+1:]
 
         peeked_data = {}
 

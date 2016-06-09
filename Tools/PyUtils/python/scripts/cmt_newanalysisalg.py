@@ -9,7 +9,7 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 655341 $"
+__version__ = "$Revision: 734631 $"
 __author__ = "Will Buttinger"
 __doc__ = "streamline and ease the creation of new AthAnalysisAlgorithm"
 
@@ -51,6 +51,13 @@ class %(klass)s: public ::AthAnalysisAlgorithm {
 // %(pkg)s includes
 #include "%(namespace_klass)s.h"
 
+//#include "xAODEventInfo/EventInfo.h"
+
+//uncomment the line below to use the HistSvc for outputting trees and histograms
+//#include "GaudiKernel/ITHistSvc.h"
+//#include "TTree.h"
+//#include "TH1D.h"
+
 %(namespace_begin)s
 
 %(klass)s::%(klass)s( const std::string& name, ISvcLocator* pSvcLocator ) : AthAnalysisAlgorithm( name, pSvcLocator ){
@@ -65,31 +72,92 @@ class %(klass)s: public ::AthAnalysisAlgorithm {
 
 StatusCode %(klass)s::initialize() {
   ATH_MSG_INFO ("Initializing " << name() << "...");
+  //
+  //This is called once, before the start of the event loop
+  //Retrieves of tools you have configured in the joboptions go here
+  //
+
+  //HERE IS AN EXAMPLE
+  //We will create a histogram and a ttree and register them to the histsvc
+  //Remember to uncomment the configuration of the histsvc stream in the joboptions
+  //
+  //ServiceHandle<ITHistSvc> histSvc("THistSvc",name());
+  //TH1D* myHist = new TH1D("myHist","myHist",10,0,10);
+  //CHECK( histSvc->regHist("/MYSTREAM/myHist", myHist) ); //registers histogram to output stream (like SetDirectory in EventLoop)
+  //TTree* myTree = new TTree("myTree","myTree");
+  //CHECK( histSvc->regTree("/MYSTREAM/SubDirectory/myTree", myTree) ); //registers tree to output stream (like SetDirectory in EventLoop) inside a sub-directory
+
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode %(klass)s::finalize() {
   ATH_MSG_INFO ("Finalizing " << name() << "...");
+  //
+  //Things that happen once at the end of the event loop go here
+  //
+
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode %(klass)s::execute() {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
+  setFilterPassed(false); //optional: start with algorithm not passed
 
+
+
+  //
+  //Your main analysis code goes here
+  //If you will use this algorithm to perform event skimming, you
+  //should ensure the setFilterPassed method is called
+  //If never called, the algorithm is assumed to have 'passed' by default
+  //
+
+
+  //HERE IS AN EXAMPLE
+  //const xAOD::EventInfo* evtInfo = 0;
+  //CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
+  //ATH_MSG_INFO("eventNumber=" << evtInfo->eventNumber() );
+
+
+  setFilterPassed(true); //if got here, assume that means algorithm passed
   return StatusCode::SUCCESS;
 }
 
-StatusCode %(klass)s::beginInputFile() {  
-  //example of metadata retrieval:
+StatusCode %(klass)s::beginInputFile() { 
+  //
+  //This method is called at the start of each input file, even if
+  //the input file contains no events. Accumulate metadata information here
+  //
+
+  //example of retrieval of CutBookkeepers: (remember you will need to include the necessary header files and use statements in requirements file)
+  // const xAOD::CutBookkeeperContainer* bks = 0;
+  // CHECK( inputMetaStore()->retrieve(bks, "CutBookkeepers") );
+
+  //example of IOVMetaData retrieval (see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/AthAnalysisBase#How_to_access_file_metadata_in_C)
   //float beamEnergy(0); CHECK( retrieveMetadata("/TagInfo","beam_energy",beamEnergy) );
   //std::vector<float> bunchPattern; CHECK( retrieveMetadata("/Digitiation/Parameters","BeamIntensityPattern",bunchPattern) );
+
+
 
   return StatusCode::SUCCESS;
 }
 
 %(namespace_end)s
+"""
+    testxml_template = """\
+   <TEST name="%(namespace_klass)s" type="athena" suite="ASGTests">
+      <options_atn>%(pkg)s/%(namespace_klass)sJobOptions.py</options_atn>
+      <timelimit>5</timelimit>
+      <author> PLEASE ENTER A NAME </author>
+      <mailto> PLEASEENTER@cern.ch </mailto>
+      <expectations>
+         <errorMessage> Athena exited abnormally </errorMessage>
+         <errorMessage>FAILURE (ERROR)</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
 """
 
 
@@ -100,6 +168,18 @@ StatusCode %(klass)s::beginInputFile() {
 @acmdlib.argument(
     'algname',
     help="name of the new alg"
+    )
+@acmdlib.argument(
+    '--newJobo',
+    action='store_true',
+    default=False,
+    help='Create a skeleton joboption for execution of the new algorithm'
+    )
+@acmdlib.argument(
+    '--atnTest',
+    action='store_true',
+    default=False,
+    help='Register the skeleton joboption as an ATN test'
     )
 def main(args):
     """create a new AthAnalysisAlgorithm inside the current package. Call from within the package directory
@@ -117,6 +197,12 @@ def main(args):
     if not os.path.isdir(cwd+"/cmt"):
         print "ERROR you must call new-analysisalg from within the package you want to add the algorithm to"
         return -1
+   
+    if args.atnTest and not full_alg_name.startswith("Test::"):
+       print "::: INFO  Requested --atnTest option, so adding 'Test::' namespace to the alg"
+       args.algname = "Test::%s"%args.algname
+       full_alg_name = args.algname
+   
     full_pkg_name = os.path.basename(cwd)
     print textwrap.dedent("""\
     ::: create alg [%(full_alg_name)s] in pkg [%(full_pkg_name)s]""" %locals())
@@ -124,14 +210,23 @@ def main(args):
     
     #first we must check that requirements file has the AthenaBaseComps use statement in it
     foundBaseComps=False
+    hasxAODEventInfo=False
+    hasAtlasROOT=False
+    hasAsgTools=False
     lastUse=0 
     lineCount=0
+    hasLibraryLine=False
     for line in open('cmt/requirements'):
         lineCount +=1 
+        if line.startswith("library") or line.startswith("apply_pattern dual_use_library"): hasLibraryLine=True
         if not line.startswith("use "): continue
         lastUse=lineCount
         uu = line.split(" ")
         if uu[1].startswith("AthAnalysisBaseComps"): foundBaseComps=True
+        if uu[1].startswith("xAODEventInfo"): hasxAODEventInfo=True
+        if uu[1].startswith("AsgTools"): hasAsgTools=True
+        if uu[1].startswith("AtlasROOT"): hasAtlasROOT=True;
+        
         
     if not foundBaseComps:
         print ":::  INFO Adding AthAnalysisBaseComps to requirements file"
@@ -143,12 +238,29 @@ def main(args):
             lineCount+=1
             if lineCount==lastUse+1:
                 if not inPrivate: print "private"
+                print ""
                 print "use AthAnalysisBaseComps AthAnalysisBaseComps-* Control"
+                print ""
+                if not hasAtlasROOT:
+                  print "#uncomment the next line to use ROOT libraries in your package"
+                  print "#use AtlasROOT AtlasROOT-* External"
+                  print ""
+                if not hasxAODEventInfo:
+                  print "#use xAODEventInfo xAODEventInfo-* Event/xAOD"
+                  print ""
+                if not hasAsgTools:
+                  print "use AsgTools AsgTools-* Control/AthToolSupport"
+                  print ""
                 if not inPrivate: print "end_private"
             if line.startswith("private"): inPrivate=True
             elif line.startswith("end_private"): inPrivate=False
             print line,
-    
+    #append library line if necessary
+    if not hasLibraryLine:
+      with open("cmt/requirements", "a") as myfile:
+         myfile.write("library %s *.cxx components/*.cxx\n" % (full_pkg_name))
+         myfile.write("apply_pattern component_library\n")
+
     
     #following code borrowed from gen_klass
     hdr = getattr(Templates, 'alg_hdr_template')
@@ -177,6 +289,7 @@ def main(args):
     if os.path.isfile(fname+'.h'):
        print ":::  ERROR %s.h already exists" % fname
        return -1
+    print ":::  INFO Creating %s.h" % fname
     o_hdr = open(fname+'.h', 'w')
     o_hdr.writelines(hdr%d)
     o_hdr.flush()
@@ -185,6 +298,7 @@ def main(args):
     if os.path.isfile(fname+'.cxx'):
        print ":::  ERROR %s.cxx already exists" % fname
        return -1
+    print ":::  INFO Creating %s.cxx" % fname
     o_cxx = open(fname+'.cxx', 'w')
     o_cxx.writelines(cxx%d)
     o_cxx.flush()
@@ -259,12 +373,64 @@ DECLARE_FACTORY_ENTRIES( %(pkg)s )
 #include "../%(namespace_klass)s.h"
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( %(namespace)s, %(klass)s )
 """%d
-               print """
+               else:
+                  print """
 #include "../%(namespace_klass)s.h"
 DECLARE_ALGORITHM_FACTORY( %(klass)s )
 """%d
             print line,
-          
+   
+   
+    if args.atnTest or args.newJobo:
+      #make the joboptions file too
+      full_jobo_name = namespace_klass + "JobOptions"
+      full_alg_name = namespace_klass
+   
+      print textwrap.dedent("""\
+      ::: create jobo [%(full_jobo_name)s] for alg [%(full_alg_name)s]""" %locals())
+   
+      #following code borrowed from gen_klass
+      from cmt_newjobo import Templates as joboTemplates
+      jobo = getattr(joboTemplates, 'jobo_template')
+   
+      e = dict( klass=full_alg_name,
+               inFile=os.environ['ASG_TEST_FILE_MC'],
+               )
+      fname = 'share/%s.py' % full_jobo_name
+      #first check doesn't exist 
+      if os.path.isfile(fname):
+         print ":::  WARNING %s already exists .. will not overwrite" % fname
+      else:
+         o_hdr = open(fname, 'w')
+         o_hdr.writelines(jobo%e)
+         o_hdr.flush()
+         o_hdr.close()
+
+    if args.atnTest:
+      testxml = getattr(Templates, 'testxml_template')
+      #add the test joboptions to the atn test
+      #check we have a test directory with appropriate xml file in it
+      if not os.path.isdir("test"):
+         os.mkdir("test")
+      if not os.path.isfile("test/%s.xml"%full_pkg_name):
+         print ":::  INFO Creating test/%s.xml"%full_pkg_name
+         loadFile = open("test/%s.xml"%full_pkg_name,'w')
+         loadFile.writelines("<?xml version=\"1.0\"?>\n<atn>\n")
+         loadFile.writelines(testxml%d)
+         loadFile.writelines("</atn>\n")
+         loadFile.flush()
+         loadFile.close()
+      else:
+         print ":::  INFO Adding %s to test/%s.xml"%(namespace_klass + "JobOptions.py",full_pkg_name)
+         nextAdd=False
+         for line in fileinput.input("test/%s.xml"%full_pkg_name, inplace=1):
+            if nextAdd:
+               print(testxml%d)
+               nextAdd=False
+            if "<atn>" in line: nextAdd=True
+            print line,
+
+   
     #to finish up, call cmt config so that the new algorithm will be captured and genconf run on it
     cwd = os.getcwd()
     try:
