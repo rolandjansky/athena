@@ -21,6 +21,7 @@ private
 use  GaudiInterface             GaudiInterface-*                External
 use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 use  PathResolver               PathResolver-*                  Tools
+use CxxUtils    		CxxUtils-*              Control
 
 #new
 use  AthenaBaseComps            AthenaBaseComps-*               Control

@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/AnalysisCommon/PATInterfaces
                           PRIVATE
                           Control/AthenaBaseComps
+                          Control/CxxUtils
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODCore
                           Event/xAOD/xAODEventInfo
@@ -45,7 +46,7 @@ atlas_add_dictionary( ElectronEfficiencyCorrectionDict
                       ElectronEfficiencyCorrection/ElectronEfficiencyCorrectionDict.h
                       ElectronEfficiencyCorrection/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AsgTools xAODEgamma PATCoreLib PATInterfaces AthenaBaseComps xAODCaloEvent xAODCore xAODEventInfo xAODTracking GaudiKernel PathResolver ElectronEfficiencyCorrectionLib )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AsgTools xAODEgamma PATCoreLib PATInterfaces AthenaBaseComps CxxUtils xAODCaloEvent xAODCore xAODEventInfo xAODTracking GaudiKernel PathResolver ElectronEfficiencyCorrectionLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

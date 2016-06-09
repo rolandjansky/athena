@@ -33,7 +33,6 @@
 #include "PATInterfaces/CorrectionCode.h"
 #include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
 #include "ElectronEfficiencyCorrection/IAsgElectronEfficiencyCorrectionTool.h"
-
 #include "xAODEgamma/ElectronFwd.h"
 
 class AsgElectronEfficiencyCorrectionTool
@@ -96,29 +95,11 @@ public:
 
   CP::SystematicCode registerSystematics();
 
-  const Root::TResult& calculate( const xAOD::IParticle* part) const  { 
-    int currentSimplifiedUncorrSystRegion=0;
-    int currentUncorrSystRegion=0;
-    return calculate(part,currentSimplifiedUncorrSystRegion,currentUncorrSystRegion ); 
-  } ;
-  const Root::TResult& calculate( const xAOD::Electron* egam) const  { 
-    int currentSimplifiedUncorrSystRegion=0;
-    int currentUncorrSystRegion=0;
-    return calculate(egam,currentSimplifiedUncorrSystRegion,currentUncorrSystRegion ); 
-  } ;
-
-
   // Private member variables
 private:
 
   /// The main calculate method: the actual correction factors are determined here
-  const Root::TResult& calculate( const xAOD::IParticle* part, int &currentSimplifiedUncorrSystRegion, int& currentUncorrSystRegion ) const  ;
-  const Root::TResult& calculate( const xAOD::Electron* egam, int &currentSimplifiedUncorrSystRegion, int& currentUncorrSystRegion ) const  ;
-
-
-  const Root::TResult& calculate( const xAOD::Electron& egam, int &currentSimplifiedUncorrSystRegion, int& currentUncorrSystRegion ) const { 
-    return calculate(&egam,currentSimplifiedUncorrSystRegion,currentUncorrSystRegion ); 
-  }
+  const Root::TResult& calculate( const xAOD::Electron& egam, int &currentSimplifiedUncorrSystRegion, int& currentUncorrSystRegion ) const ;
 
   // struct for toys
   struct SystConf{
@@ -170,8 +151,8 @@ private:
   // number if systematics uncertainty    
   int m_nCorrSyst;
   int m_nUncorrSyst ;
-  TH2F * m_UncorrBins;
-
+  std::map<float, std::vector<float> > m_pteta_bins;
+  
   // simplified uncorrelation regions
   TH2F * m_UncorrRegions;
   int m_nSimpleUncorrSyst;

@@ -99,7 +99,7 @@ namespace Root {
       int getFirstCorrSysPosition();
       int getLastCorrSysPosition();
       int getGlobalBinNumberPosition();
-      int getNbins(std::vector<float> &eta1, std::vector<float> &pt1);
+      int getNbins(std::map<float, std::vector<float> >&); 
       int getNSyst() {return m_nSysMax;};
 
       void printResultMap();
@@ -113,13 +113,6 @@ namespace Root {
 
       /** Get the name of the class instance */
       inline const char* getName() const { return m_name; }
-
-      inline void setDebug ( const bool val ){
-	if(val){
-	  ATH_MSG_ERROR("DO NOT USE old m_debug flags, inherit from AsgMessaging");
-	}
-      }
-
 
       // Private methods
     private:

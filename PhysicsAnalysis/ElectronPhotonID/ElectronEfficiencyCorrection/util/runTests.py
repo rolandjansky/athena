@@ -44,23 +44,24 @@ if os.path.isfile('filelist.txt'):
 
 else:
     RCDir =  os.environ["PWD"]
-    print RCDir+'/../data/*.root'
-    fileList = glob.glob(RCDir+'/../data/*')
+    print RCDir+'/triggtest/*.root'
+    fileList = glob.glob(RCDir+'/triggtest/*')
 
 fileList.sort()
 print fileList
 runnos = [ '300805' ]
-runnos2015 = [ '300805' ]
+#runnos2015 = [ '300805' ]
 
 #runnos.append('12345')
 runnosTrig2011 = ['177987','185354', '186874','188903']
 runnosTrig2012 = ['200805']
-runnosTrig2015 = ['300805']
+runnos2015 = ['267904','300805']
 
 types = ['AtlFast2','FullSim']
 #types = ['FullSim']
 etas = ['0','0.1','1.37','1.52' ,'2.5']
-pts = [ '7001','10001','15001','20001','80001','150001']
+pts = [ '8000','10000','13000','18000','250001']
+#7,9,12,17,24
 #ipts = ['20001', '30001','40001','50001', '50000000']
 #types = ['FullSim']
 #etas = ['0.1']
@@ -80,13 +81,15 @@ counter = 0
 for file in fileList:
     counter=counter+1
     print file+' ('+str(counter)+'/'+str(len(fileList))+')'
-    if 'offline' in file:
-        runnoList = runnos
-    elif '2011' in file:
+#    if 'offline' in file:
+#        runnoList = runnos
+    if '2011' in file:
         runnoList = runnosTrig2011
     elif '2012' in file:
         runnoList = runnosTrig2012
     elif '2015' in file:
+        runnoList = runnos2015
+    elif '2016' in file:
         runnoList = runnos2015
     if len(sys.argv) > 1:
         for arg in sys.argv:

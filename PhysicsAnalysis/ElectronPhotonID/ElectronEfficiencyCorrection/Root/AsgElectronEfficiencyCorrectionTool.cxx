@@ -44,6 +44,8 @@ AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool( std::s
   m_rootTool(0),
   m_appliedSystematics(0),
   m_sysSubstring(""),
+//  m_pteta_bins(0),
+  m_UncorrRegions(0),
   m_nSimpleUncorrSyst(0)
 {
 
@@ -65,8 +67,6 @@ AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool( std::s
   declareProperty("MCToySeed", m_seed_toys = 0,"Seed for ToyMC replica, affecting MCTOYS and COMBMCTOYS correlation models only." );
   declareProperty("MCToyScale", m_scale_toys = 1,"Scales Toy systematics up by this factor, affecting MCTOYS and COMBMCTOYS correlation models only." );
 
-  // Forward the message level
-  m_rootTool->msg().setLevel(this->msg().level());
 }
 
 // =============================================================================
@@ -85,6 +85,10 @@ AsgElectronEfficiencyCorrectionTool::~AsgElectronEfficiencyCorrectionTool()
 // =============================================================================
 StatusCode AsgElectronEfficiencyCorrectionTool::initialize()
 {
+
+ // Forward the message level
+ m_rootTool->msg().setLevel(this->msg().level());
+ //   }
   // Do some consistency checks
   bool allOK(true);
   if ( m_corrFileNameList.empty() )
@@ -199,10 +203,7 @@ StatusCode AsgElectronEfficiencyCorrectionTool::initialize()
   m_nCorrSyst = m_rootTool->getNSyst() ;
 
   if (m_correlation_model_name == "FULL" ) {
-    std::vector<float> m_uncorrpt1;
-    std::vector<float> m_uncorreta1;
-    m_nUncorrSyst =  m_rootTool->getNbins(m_uncorreta1,m_uncorrpt1);
-    m_UncorrBins = new TH2F("UncorrBins","UncorrBins",m_uncorrpt1.size()-1, &m_uncorrpt1[0],m_uncorreta1.size()-1, &m_uncorreta1[0]);
+    m_nUncorrSyst =  m_rootTool->getNbins(m_pteta_bins);
   }
 
   // Add the recommended systematics to the registry
@@ -238,13 +239,8 @@ StatusCode AsgElectronEfficiencyCorrectionTool::finalize()
 // =============================================================================
 // The main accept method: the actual cuts are applied here : USE OLD TOOL
 // =============================================================================
-const Root::TResult& AsgElectronEfficiencyCorrectionTool::calculate( const xAOD::Electron* egam, int &currentSimplifiedUncorrSystRegion, int& currentUncorrSystRegion ) const
+const Root::TResult& AsgElectronEfficiencyCorrectionTool::calculate( const xAOD::Electron& egam, int &currentSimplifiedUncorrSystRegion, int& currentUncorrSystRegion ) const
 {
-  if ( !egam )
-    {
-      ATH_MSG_ERROR ( "Did NOT get a valid egamma pointer!" );
-      return m_resultDummy;
-    }
   
 
   // Here, you have to make the translation from the ATLAS EDM object to the variables of simple type
@@ -255,14 +251,24 @@ const Root::TResult& AsgElectronEfficiencyCorrectionTool::calculate( const xAOD:
     ATH_MSG_ERROR ( "Could not retrieve EventInfo object!" );
     return m_resultDummy;
   }
-  const unsigned int runnumber = eventInfo->runNumber();
+ // const unsigned int MCrunnumber = eventInfo->runNumber();
+// m_eventInfo->auxdata<unsigned int>("RandomRunNumber");
+  
+  static SG::AuxElement::Decorator<unsigned int> randomrunnumber("RandomRunNumber") ;
+unsigned int runnumber = 999999;
 
+  if(randomrunnumber.isAvailable(*(eventInfo)))
+	runnumber = randomrunnumber(*(eventInfo));
+  else { runnumber =  eventInfo->runNumber();//999999;
+    ATH_MSG_WARNING ( "Pileup tool not run before using ElectronEfficiencyTool! SFs do not reflect PU distribution in data" );
+}
+//if ()
+  //(or see the RandomRunNumber unsigned int decoration after apply) 
   // Get the needed values from the egamma object
   double cluster_eta(-9999.9);
   double et(0.0);
-
-  et = egam->pt();
-  const xAOD::CaloCluster* cluster = egam->caloCluster();
+  et = egam.pt();
+  const xAOD::CaloCluster* cluster = egam.caloCluster();
   if ( cluster ) {
     cluster_eta = cluster->etaBE(2); 
   }
@@ -278,9 +284,35 @@ const Root::TResult& AsgElectronEfficiencyCorrectionTool::calculate( const xAOD:
     currentSimplifiedUncorrSystRegion=reg;
   }
   if (m_correlation_model_name == "FULL" ) {
-    int ptbin=m_UncorrBins->GetXaxis()->FindBin(et)-1;
-    int etabin=m_UncorrBins->GetXaxis()->FindBin(cluster_eta)-1;
-    int reg = ((etabin)*m_UncorrBins->GetNbinsX()+ptbin);
+    int etabin=-1;
+    int reg=0;
+    bool found=false;
+
+    std::map<float,std::vector<float>>::const_iterator itr_ptBEGIN = m_pteta_bins.begin();
+    std::map<float,std::vector<float>>::const_iterator itr_ptEND = m_pteta_bins.end();
+
+    for (  ; itr_ptBEGIN!=itr_ptEND;  itr_ptBEGIN++ ) {
+      
+      std::map<float,std::vector<float>>::const_iterator itr_ptBEGINplusOne =  itr_ptBEGIN;  
+      itr_ptBEGINplusOne++;
+      
+      if ( (et > itr_ptBEGIN->first && itr_ptBEGINplusOne==itr_ptEND ) || (et > itr_ptBEGIN->first && et<itr_ptBEGINplusOne->first )) {//find the pt bin
+	etabin++;
+	for (unsigned int etab=0;etab<((itr_ptBEGIN->second).size()-1) ; etab++){//find the eta bin
+	  if ( (cluster_eta) > (itr_ptBEGIN->second).at(etab) &&   (cluster_eta) < (itr_ptBEGIN->second).at(etab+1)) {
+	    found=true;
+	    break;
+	  }
+	}
+      }
+      if (found) {
+	break;
+      }
+      reg=reg+(itr_ptBEGIN->second).size();
+    }
+    
+    reg = reg+etabin;
+    //std::cout << reg<< std::endl;
     currentUncorrSystRegion =reg;
   }
 
@@ -293,20 +325,6 @@ const Root::TResult& AsgElectronEfficiencyCorrectionTool::calculate( const xAOD:
   
 }
 
-const Root::TResult& AsgElectronEfficiencyCorrectionTool::calculate( const xAOD::IParticle *part, int &currentSimplifiedUncorrSystRegion, int& currentUncorrSystRegion ) const
-{
-  const xAOD::Electron* egam = dynamic_cast<const xAOD::Electron*>(part);
-  if ( egam )
-    {
-      return calculate(egam, currentSimplifiedUncorrSystRegion, currentUncorrSystRegion);
-    }
-  else
-    {
-      ATH_MSG_ERROR ( " Could not cast to const egamma pointer!" );
-      return m_resultDummy;
-    }
-}
-
 // =============================================================================
 // TRANSFER RESULT OF UNDERLYING TOOL TO xAOD TOOL
 // =============================================================================
@@ -315,7 +333,7 @@ CP::CorrectionCode AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor
 
   int currentUncorrSystRegion=0;
   int currentSimplifiedUncorrSystRegion=0;
-  const Root::TResult m_result = calculate(&inputObject,currentSimplifiedUncorrSystRegion,currentUncorrSystRegion  );
+  const Root::TResult m_result = calculate(inputObject,currentSimplifiedUncorrSystRegion,currentUncorrSystRegion  );
   if(appliedSystematics().empty() ) {
     efficiencyScaleFactor = m_result.getScaleFactor();
     return CP::CorrectionCode::Ok;
