@@ -26,6 +26,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
 #include <math.h>
 
 using namespace std;
@@ -199,7 +200,7 @@ void TRootCompare::processKey(TDirectory& dir, TKey& key)
             hdiff = (TH1*)h.Clone();
             // Too many problems with difference of 2D histograms
             if (hdiff->GetDimension()==1 &&
-                hdiff->GetNbinsX()==h.GetNbinsX()) {
+                hdiff->GetNbinsX()==href.GetNbinsX()) {
               // Difference
               pad->cd(2);
               hdiff->SetName(TString(href.GetName())+" (diff)");
@@ -211,8 +212,8 @@ void TRootCompare::processKey(TDirectory& dir, TKey& key)
               if (st) st->SetLineColor(kBlack);
             }
             if(hdiff->GetDimension()==2 && 
-               hdiff->GetNbinsX()==h.GetNbinsX() && 
-               hdiff->GetNbinsY()==h.GetNbinsY()) {
+               hdiff->GetNbinsX()==href.GetNbinsX() && 
+               hdiff->GetNbinsY()==href.GetNbinsY()) {
               pad->cd(2);
               hdiff->SetName(TString(href.GetName())+" (diff)");
               hdiff->SetTitle(TString(href.GetTitle())+" (diff)");
@@ -267,12 +268,12 @@ void TRootCompare::processKey(TDirectory& dir, TKey& key)
           if (_file) {
             text.SetTextColor(kBlue);
             string s(_file->GetName());
-            text.DrawTextNDC(0.5,0.93,s.substr(s.size()-maxchars).c_str());
+            text.DrawTextNDC(0.5,0.93,s.substr(max(0,int(s.size()-maxchars))).c_str());
           }
           if (_refFile) {
             text.SetTextColor(kRed);
             string s(_refFile->GetName());
-            text.DrawTextNDC(0.5,0.96,s.substr(s.size()-maxchars).c_str());
+            text.DrawTextNDC(0.5,0.96,s.substr(max(0,int(s.size()-maxchars))).c_str());
           }
                                  
           if (_psFile!="") printCanvas(_psFile);
@@ -375,6 +376,14 @@ Bool_t TRootCompare::compareHist(TH1& h, TH1& href)
   
   if (_alg==TRootCompare::BIN) {
     if (verbose()) cout << "BIN: ";
+
+    if (h.GetNbinsX()!=href.GetNbinsX() || 
+        h.GetNbinsY()!=href.GetNbinsY() || 
+        h.GetNbinsZ()!=href.GetNbinsZ()) {
+      cout << h.GetName() << " has different number of bins: (" 
+           << h.GetNbinsX() << "," << h.GetNbinsY() << "," << h.GetNbinsZ() << ") vs ("
+           << href.GetNbinsX() << "," << href.GetNbinsY() << "," << href.GetNbinsZ() << ")" << endl;
+    }
 
     // This will work for histograms of all dimensions
     for (Int_t z=1; z<=h.GetNbinsZ() && result; z++) {
