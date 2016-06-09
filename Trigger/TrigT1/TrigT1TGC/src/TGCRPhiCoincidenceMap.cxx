@@ -21,9 +21,7 @@
 namespace LVL1TGCTrigger {
 
  extern bool        g_DEBUGLEVEL;
- extern bool        g_FULL_CW;
 
-  
 bool TGCRPhiCoincidenceMap::test(int octantId, int moduleId, int subsector, 
 				 int type, int pt, 
 				 int dr, int dphi) const
@@ -113,13 +111,13 @@ bool TGCRPhiCoincidenceMap::checkVersion()
   file.close();
 
   // use full CW (i.e. different maps for each octant and side)
-  m_fullCW =  (m_verName == "setK") && g_FULL_CW;
+  m_fullCW = (m_verName == "v0016" || m_verName == "v0017");
 
   ///////////  
   log << MSG::INFO 
       << " TGC Big Wheel CW version of " << m_verName << " is selected " << endreq;
   for(int i=0; i<N_PT_THRESH; i++) {
-    log << MSG::INFO 
+    log << MSG::VERBOSE 
 	<< "TGC Pt_Thr: " << std::setw(2) << i+1
 	<< "  pt(used)="  << std::setw(3) << maxpt[i] 
       	<< endreq;
@@ -227,7 +225,7 @@ bool TGCRPhiCoincidenceMap::readMap()
 	if(mod!=ModuleNumber[iModule] || ptLevel>N_PT_THRESH || type<0 ) {
 	  log << MSG::WARNING 
 	      << " illegal parameter in database header : "
-	      << header
+	      << header.str()
 	      << " in file " << fn 
 	      << endreq;
 	  break;
