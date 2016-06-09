@@ -51,8 +51,8 @@
     }								\
   } while( false )
 
-#define printUsage(ARG) MSG_ERROR( "Usage:  [--file/-f /path/to/input/file] [--runno/-r run number] [--eta/e eta] [--pt/-p pt in Mev]" \
-				   << "[--type/-t FullSim/AtlFast2] [--useDefaults/-d] [--compact/-c]" << ARG ); 
+#define printUsage(ARG) MSG_ERROR( "Usage:  [--file/-f /path/to/input/file] [--runno/-r run number] [--corr/c correlationModel] " \
+				   << "[--type/-t FullSim/AtlFast2] [--useDefaults/-d]" << ARG ); 
 
 
 xAOD::CaloCluster* create_cluster(float eta, float phi,float e);
@@ -62,16 +62,16 @@ int main( int argc, char* argv[] ) {
   // The application's name:
   const char* APP_NAME = argv[ 0 ];
   //Set the message level
-  MSG::Level mylevel=MSG::INFO;
-  MSG::Level mylevelToy=MSG::INFO;//MSG::FATAL;
+  MSG::Level mylevel=MSG::DEBUG;
+//  MSG::Level mylevelToy=MSG::DEBUG;//MSG::FATAL;
 
   MSGHELPERS::getMsgStream().msg().setLevel(mylevel); 
   MSGHELPERS::getMsgStream().msg().setName(APP_NAME); 
-//  MSGHELPERS::getMsgStream().msg().setName(TElectronEffi);
 
   bool useCompactDisplay = true;
   
   std::string fileName="";
+std::string corrmodel="";
   int runno=-1;
   float eta=-999;
   float pt = -1;
@@ -83,7 +83,7 @@ int main( int argc, char* argv[] ) {
   p.addOption("eta","e");
   p.addOption("pt","p");
   p.addOption("type","t");
-  p.addOption("compact","c",false);
+  p.addOption("corr","c");
   p.Init(argc,argv);
 
   TString tmp = p.getArg("f");
@@ -105,33 +105,26 @@ int main( int argc, char* argv[] ) {
       printUsage(argv[0]);
       return 0;
     }
-  tmp = p.getArg("e");
-  if (tmp != "")
-    eta = atof(tmp.Data());
-  else
-    {
-      MSG_INFO("No eta value given");
+  corrmodel = p.getArg("c");
+  if (!(corrmodel=="COMBMCTOYS"
+	||corrmodel=="MCTOYS"
+	||corrmodel=="FULL"
+	||corrmodel=="SIMPLIFIED"
+	||corrmodel=="TOTAL"
+	||corrmodel=="SYST"
+      ) )   {
+      MSG_INFO("No valid correlation model given (COMBMCTOYS/MCTOYS/FULL/SIMPLIFIED/TOTAL/SYST)");
       printUsage(argv[0]);
       return 0;
     }
-  tmp = p.getArg("p");
-  if (tmp != "")
-    pt = atof(tmp.Data());
-  else
-    {
-      MSG_INFO("No pt value given");
-      printUsage(argv[0]);
-      return 0;
-    }
-  type = p.getArg("t");
+
+type = p.getArg("t");
   if (!(type=="FullSim"||type=="AtlFast2"))
     {
       MSG_INFO("No valid type given (FullSim or AtlFast2)");
       printUsage(argv[0]);
       return 0;
     }
-  bool test = p.getBool("c");
-  useCompactDisplay = test;
    
   PATCore::ParticleDataType::DataType SimType;
   if (type=="FullSim")
@@ -143,7 +136,58 @@ int main( int argc, char* argv[] ) {
     return 0;
   }
 
-  //    useCompactDisplay = true;
+  //  Electron Distributions ////////////////////////////////////////
+std::vector<float> middleBins;
+middleBins.push_back(-2.47);
+middleBins.push_back(-2.37);
+middleBins.push_back(-2.01);
+middleBins.push_back(-1.81);
+middleBins.push_back(-1.52);
+middleBins.push_back(-1.37);
+ middleBins.push_back(-1.15);
+ middleBins.push_back(-0.8);
+middleBins.push_back(-0.6);
+middleBins.push_back(-0.1);
+middleBins.push_back(0.0);
+middleBins.push_back(0.1);
+middleBins.push_back(0.6);
+middleBins.push_back(0.8);
+middleBins.push_back(1.15);
+middleBins.push_back(1.37);
+middleBins.push_back(1.52);
+middleBins.push_back(1.81);
+middleBins.push_back(2.01);
+middleBins.push_back(2.37);
+middleBins.push_back(2.47);
+
+ std::vector<float> etBins;
+  etBins.push_back(10);
+  etBins.push_back(15);
+  etBins.push_back(20);
+  etBins.push_back(25);
+  etBins.push_back(30);
+  etBins.push_back(35);
+  etBins.push_back(40);
+  etBins.push_back(45);
+ etBins.push_back(50);
+ etBins.push_back(60);
+ etBins.push_back(80);
+ etBins.push_back(100);
+ 
+ TH2F * elecs = new TH2F("elecs","elecs", etBins.size(),&(etBins.at(0)) ,middleBins.size(),&(middleBins.at(0))   );
+ //  Electron Distributions ////////////////////////////////////////
+
+ /// uncertainty histograms ///////////////////////
+ TH2D * sigma_2D = (TH2D *)elecs->Clone("sigma_2D"); sigma_2D->Reset();
+ TH1D * sigma_1D_pt = (TH1D *)elecs->ProjectionX("sigma_1D_pt",1,1); sigma_1D_pt->Reset();
+ TH1D * sigma_1D_eta = (TH1D *)elecs->ProjectionY("sigma_1D_eta",1,1); sigma_1D_eta->Reset();
+ TH1D * sigma_1D_tot= new TH1D("Total uncertainty","Total uncertainty",1,0,1);
+ /// uncertainty histograms ///////////////////////
+ 
+ // maps of uncertainties?
+ std::map<std::string,TH1D*> syst_uncertainties_1D_pt;
+ std::map<std::string,TH1D*> syst_uncertainties_1D_eta;
+ std::map<std::string,TH1D*> syst_uncertainties_1D_tot;
 
   // Initialise the application:
   CHECK( xAOD::Init( APP_NAME ) );
@@ -155,10 +199,6 @@ int main( int argc, char* argv[] ) {
   ei->makePrivateStore();
   ei->setRunNumber(runno);
   ei->setEventNumber(363636);
-
-  static SG::AuxElement::Decorator<unsigned int> randomrunnumber("RandomRunNumber") ;
-  randomrunnumber(*ei)= runno;
-
   xAOD::TStore store;
   store.record(ei, "EventInfo");
 
@@ -167,13 +207,8 @@ int main( int argc, char* argv[] ) {
   }
   //Likelihood
   AsgElectronEfficiencyCorrectionTool myEgCorrections ("myEgCorrections");
-  AsgElectronEfficiencyCorrectionTool myEgCorrectionsToys ("myEgCorrectionsToys");
- 
-//myEgCorrections.SetCalibPath("ElectronEfficiencyCorrection/2012/offline/");
-
- 
+  
  myEgCorrections.msg().setLevel(MSG::DEBUG);
- myEgCorrectionsToys.msg().setLevel(MSG::INFO);
 
   if (!useCompactDisplay){
     MSG_INFO("Adding File: "<<fileName);
@@ -225,147 +260,125 @@ int main( int argc, char* argv[] ) {
   store.record( m_electrons, "MyElectrons" );
   store.record( m_electronsAux, "MyElectronsAux." );
 
-
+//std::string corrmodel = "TOTAL";
   CHECK( myEgCorrections.setProperty("CorrectionFileNameList",inputFiles) );
   CHECK( myEgCorrections.setProperty("ForceDataType",(int)SimType) );
-  CHECK( myEgCorrections.setProperty("CorrelationModel", "FULL" ));
+  CHECK( myEgCorrections.setProperty("CorrelationModel", corrmodel.c_str() ));
   myEgCorrections.msg().setLevel(mylevel);
-
-  CHECK( myEgCorrectionsToys.setProperty("CorrectionFileNameList",inputFiles) );
-  CHECK( myEgCorrectionsToys.setProperty("ForceDataType",(int)SimType) );
- // CHECK( myEgCorrectionsToys.setProperty("CorrelationModel", "COMBMCTOYS" ));
-  myEgCorrectionsToys.msg().setLevel(mylevelToy);
-
   
   if (!useCompactDisplay){
     MSG_INFO("Initializing EECTools");
   }
   CHECK( myEgCorrections.initialize() );
-  CHECK( myEgCorrectionsToys.initialize() );
   
   if(!useCompactDisplay) {
     MSG_INFO(el->pt());
   }
 
   double SF = 0; 
-  double SFToys = 0; 
-  std::vector<double> uncToys;
   std::vector<double> unc;
 
   // Get a list of systematics
   CP::SystematicSet recSysts = myEgCorrections.recommendedSystematics();
-  CP::SystematicSet recSystsToys = myEgCorrectionsToys.recommendedSystematics();
    
   // Convert into a simple list
   std::vector<CP::SystematicSet> sysList = CP::make_systematics_vector(recSysts);
   
-  //std::vector<CP::SystematicSet> sysListToys;
-  CP::MakeSystematicsVector sysListToys;
-  sysListToys.addGroup("toys");
-  sysListToys.setToys(  myEgCorrectionsToys.getNumberOfToys( )   );
+  // //std::vector<CP::SystematicSet> sysListToys;
+  // CP::MakeSystematicsVector sysListToys;
+  // sysListToys.addGroup("toys");
+  // sysListToys.setToys(  myEgCorrectionsToys.getNumberOfToys( )   );
    
-  sysListToys.calc(recSystsToys);
-  std::vector<CP::SystematicSet> sysListToys2=sysListToys.result("toys");
+  // sysListToys.calc(recSystsToys);
+  // std::vector<CP::SystematicSet> sysListToys2=sysListToys.result("toys");
   
-  if(myEgCorrections.getEfficiencyScaleFactor(*el,SF) != CP::CorrectionCode::Ok){
-    MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactor");
-    return EXIT_FAILURE;
-  }
-  if(myEgCorrectionsToys.getEfficiencyScaleFactor(*el,SFToys) != CP::CorrectionCode::Ok){
-    MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactorToys");
-    return EXIT_FAILURE;
-  }
+
+  el->setEta(eta);
+  el->setPhi(0.0);
+  el->setM(0);
+  el->setPt(e / cosh(eta));
+
+  /// loop over electrons
+  for (int binx=1;binx<elecs->GetXaxis()->GetNbins()+1;binx++) {
+    for (int biny=1;biny<elecs->GetYaxis()->GetNbins()+1;biny++) {
+
+      el->setEta(  elecs->GetYaxis()->GetBinLowEdge(biny)+0.01 );
+      el->setPt( elecs->GetXaxis()->GetBinLowEdge(binx)+0.01 );
+
+      if(myEgCorrections.getEfficiencyScaleFactor(*el,SF) != CP::CorrectionCode::Ok){
+	MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactor");
+	return EXIT_FAILURE;
+      }
+     
+      /// check elec eta/pt
+      MSG_ERROR(APP_NAME<<" " <<elecs->GetYaxis()->GetBinLowEdge(biny)+0.01 << "  get eta/pt:  " <<el->pt() );
  
-  std::cout << "SF  "<< SF << std::endl;
+sigma_1D_pt->Fill( el->pt()  , SF );
+sigma_1D_eta->Fill( el->eta()  ,SF );
+sigma_1D_tot->Fill( 0.5  , SF );
 
-  // Loop over systematics
-  for(const auto& sys : sysList){
-    double systematic = 0; 
-    
-    if(!useCompactDisplay)  {
-  //    MSG_INFO(APP_NAME<<" " << " Processing syst: " << sys.name().c_str());
-    }
-    
-    // Configure the tool for this systematic
-    CHECK( myEgCorrections.applySystematicVariation(sys) );
+      ////////////////////////////////////// SYSTEMATICS LOOPING
 
-    // if(!useCompactDisplay)     {   
-   //    MSG_ERROR(APP_NAME<<" " << "Applied syst (FULL):  " <<myEgCorrections.appliedSystematics().name().c_str());
-   //  }
+      // Loop over systematics
+      for(const auto& sys : sysList){
+	double systematic = 0; 
     
+	if(!useCompactDisplay)  {
+	  MSG_INFO(APP_NAME<<" " << " Processing syst: " << sys.name().c_str());
+	}
+    
+	// Configure the tool for this systematic
+	CHECK( myEgCorrections.applySystematicVariation(sys) );
+
+	// if(!useCompactDisplay)     {   
+	MSG_ERROR(APP_NAME<<" " << "Applied syst (FULL):  " <<myEgCorrections.appliedSystematics().name().c_str());
+	//  }
+  
     if(myEgCorrections.getEfficiencyScaleFactor(*el,systematic) != CP::CorrectionCode::Ok){
       MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactor");
       return EXIT_FAILURE;
     }
-    std::cout << myEgCorrections.appliedSystematics().name().c_str()<<"   "<<SF-systematic << std::endl;  
-    unc.push_back(systematic);
-  }
-  // Loop over systematics
+std::cout << myEgCorrections.appliedSystematics().name().c_str()<<"   "<<systematic << std::endl;  
+
+ if (!syst_uncertainties_1D_pt[myEgCorrections.appliedSystematics().name()])  {syst_uncertainties_1D_pt[myEgCorrections.appliedSystematics().name()] = (TH1D*)sigma_1D_pt ->Clone(Form("%s_1D_pt" ,myEgCorrections.appliedSystematics().name().c_str()) );syst_uncertainties_1D_pt[myEgCorrections.appliedSystematics().name()] ->Reset();}
+	else syst_uncertainties_1D_pt[myEgCorrections.appliedSystematics().name()]->Fill( el->pt()  , systematic );
+
+ if (!syst_uncertainties_1D_eta[myEgCorrections.appliedSystematics().name()])  {syst_uncertainties_1D_eta[myEgCorrections.appliedSystematics().name()] = (TH1D*)sigma_1D_eta ->Clone(Form("%s_1D_eta" ,myEgCorrections.appliedSystematics().name().c_str()) );
+   syst_uncertainties_1D_eta[myEgCorrections.appliedSystematics().name()] ->Reset();
+ } 	else syst_uncertainties_1D_eta[myEgCorrections.appliedSystematics().name()]->Fill( el->eta()  , systematic );
+
+ if (!syst_uncertainties_1D_tot[myEgCorrections.appliedSystematics().name()])  {syst_uncertainties_1D_tot[myEgCorrections.appliedSystematics().name()] = (TH1D*)sigma_1D_tot ->Clone(Form("%s_1D_tot" ,myEgCorrections.appliedSystematics().name().c_str()) );
+   syst_uncertainties_1D_tot[myEgCorrections.appliedSystematics().name()]->Reset();
+ }
+ else syst_uncertainties_1D_tot[myEgCorrections.appliedSystematics().name()]->Fill( 0.5 , systematic );
  
-  /// DO TOY LOOP
-  for(const auto& sysToys : sysListToys2){
-    double systematicToys = 0; 
-    
-    if(!useCompactDisplay)  {
-      // MSG_WARNING(APP_NAME<<" " << " Processing syst: " << sysToys.name().c_str());
-    }
+}}  
+}
+  // Loop over systematics
+  	 
+      TFile * file = new TFile(Form("SysChecks_%s.root", corrmodel.c_str()),"RECREATE");
+      file->cd();
+sigma_1D_pt->Write();
+sigma_1D_eta->Write();
+sigma_1D_tot->Write();
 
-    // Configure the tool for this systematic
-    CHECK( myEgCorrectionsToys.applySystematicVariation(sysToys) );
+      //// xxxxxxxx calculate uncertainty
+ std::map<std::string,TH1D*>::const_iterator itr  = syst_uncertainties_1D_tot.begin();
+ std::map<std::string,TH1D*>::const_iterator itrE  = syst_uncertainties_1D_tot.end();
+ std::map<std::string,TH1D*>::const_iterator itrEta  = syst_uncertainties_1D_eta.begin();
+ std::map<std::string,TH1D*>::const_iterator itrPt  = syst_uncertainties_1D_pt.begin();
 
-    if(!useCompactDisplay)     {   
-      // MSG_WARNING(APP_NAME<<" " << "Applied syst:  "<< toyIndex << "  "<< toy_scale);   
-  //       MSG_WARNING(APP_NAME<<" " << "Applied syst:  " <<myEgCorrectionsToys.appliedSystematics().name().c_str());
-    }
-    
-    if(myEgCorrectionsToys.getEfficiencyScaleFactor(*el,systematicToys) != CP::CorrectionCode::Ok){
-      //    MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactor");
-      return EXIT_FAILURE;
-    }
-    
-    if(!useCompactDisplay) {
-      //    MSG_INFO(APP_NAME<<"itoys values " << systematicToys);
-    }
-    uncToys.push_back(systematicToys);
+  for ( ; itr!=itrE; itr++ ) {
+    itr->second->Write();
+    itrEta->second->Write();
+    itrPt->second->Write();
+  // for (int binx=1;binx<elecs->GetXaxis()->GetNbins()+1;binx++) {
+  //   for (int biny=1;biny<elecs->GetYaxis()->GetNbins()+1;biny++) {
+  //   }}
+
+    itrEta++;
+    itrPt++;
   }
-  
-//std::cout << "allresults " << SF << "  "; 
-//for (int iu=0;iu<unc.size();iu++){
-
-//std::cout << (SF-unc.at(iu)) << "  ";
-//std::cout << unc.at(iu) << "  ";
-
-//	 }
-//std::cout << std::endl;
-  /*if (unc.size()==5) {
-    std::cout <<" "  <<  SF 
-	      <<" $\\pm$  " << unc.at(0) 
-	      <<" $\\pm$  " << unc.at(1) <<" $\\pm$  " <<  unc.at(2) 
-	      <<" $\\pm$  " <<  unc.at(3) <<" $\\pm$  " <<  unc.at(4) <<std::endl;
-  }
-
-  if (unc.size()==3 ) {
-    std::cout <<" "  <<  unc.at(0)
-	      << " $\\pm$  " << unc.at(0)-unc.at(1)  
-	      <<" $\\pm$  " << unc.at(2)-unc.at(0) << std::endl;
-  }*/
-  //  if (useCompactDisplay)
-  //      std::cout<<sf2.getScaleFactor()<< " $\\pm$ "<<sf2.getTotalUncertainty()<<" / $\\Delta$="<<sf2.getTotalUncertainty()-sqrt(val)<<std::endl;
-  //
-  //// calculate total uncertainty from uncorr and corr
-  // double val = uncorr*uncorr;
-
-  // for (Int_t i=test2->getFirstCorrSysPosition(); i<=(test2->getLastCorrSysPosition()); i++)
-  // {
-  //   if (!useCompactDisplay)
-  //     std::cout<<"corr "<<i<<": "<<sf2.getResult(i)<<std::endl;
-  //   val+= sf2.getResult(i)*sf2.getResult(i);
-  // }
-  // for (Int_t i=test2->getFirstToyMCPosition(); i<=(test2->getLastToyMCPosition()); i++)
-  // {
-  //   if (!useCompactDisplay)
-  //     std::cout<<"toy "<<i<<": "<<sf2.getResult(i)<<std::endl;
-  // }
 
 
   CHECK( myEgCorrections.finalize() );
