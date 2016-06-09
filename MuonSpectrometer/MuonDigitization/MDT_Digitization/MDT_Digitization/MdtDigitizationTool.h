@@ -178,7 +178,8 @@ class MdtDigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
   bool   m_useTof;
   bool   m_useAttenuation;
   bool   m_useProp;
-
+  bool   m_patchToSaveTruthTime;
+    
   //WIRE SAG
   bool   m_useWireSagGeom;
   bool   m_useWireSagRT;
