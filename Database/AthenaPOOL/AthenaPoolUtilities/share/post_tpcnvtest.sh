@@ -217,6 +217,7 @@ PP="$PP"'|^SetGeometryVersion.py obtained'
 PP="$PP"'|WARNING Unable to register callback|WARNING Unable to locate catalog'
 PP="$PP"'|^ImplicitCollection Info|^GeoModelSvc +WARNING.*does not match|^RootCollection Info|^RootCollectionSchemaEditor (Info|Warning)'
 PP="$PP"'|^Warning in material CabCoolEcD3'
+PP="$PP"'|has no streamer or dictionary'
 
 test=$1
 if [ -z "$testStatus" ]; then
