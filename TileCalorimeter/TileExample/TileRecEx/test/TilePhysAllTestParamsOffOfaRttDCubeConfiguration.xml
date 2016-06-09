@@ -33,13 +33,13 @@
   [3] cmtconfig: *
   [4] project: *
   [5] jobId: *
-  [6] reference root file: /afs/cern.ch/atlas/project/RTT/Results/reference/offline/TileCalorimeter/TileExample/TileRecEx/TilePhysAllTestParamsOffOfaRttHistograms_20150228.root
+  [6] reference root file: /afs/cern.ch/atlas/project/RTT/Results/reference/offline/TileCalorimeter/TileExample/TileRecEx/TilePhysAllTestParamsOffOfaRttHistograms_20160418.root
   [7] p-values limits FAIL = 0.750000 WARN = 0.950000
   ###################################################
 -->
-  <reference file="/afs/cern.ch/atlas/project/RTT/DCubeReference/offline/TileCalorimeter/TileExample/TileRecEx/TilePhysAllTestParamsOffOfaRttHistograms_20150228.root"/>
+  <reference file="/afs/cern.ch/atlas/project/RTT/DCubeReference/offline/TileCalorimeter/TileExample/TileRecEx/TilePhysAllTestParamsOffOfaRttHistograms_20160418.root"/>
   <ref_desc>
-   Reference histograms have been produced using release rel_6,devval (28.02.2015).
+   Reference histograms have been produced using release dev,rel_1 (18.04.2016).
   </ref_desc>
   <test_desc>
    RTT test of Optimal Filtering Algorithms (Fit, Opt2, OptATLAS) for Physics runs under the folowing conditions: not correct time; calculate ofc on the fly; not use phase from COOL; not calibrate on energy.

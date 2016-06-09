@@ -63,8 +63,8 @@ if ReadPool:
         TileRunType = 1
 
     # if FileName is set all other parameters below are not needed
-    if not 'FileName' in dir():
-        FileName='DigitizationOutput.pool.root'
+    #if not 'FileName' in dir():
+    #    FileName='DigitizationOutput.pool.root'
 
     # these parameters are tuned to read ESD or AOD for real data from CASTOR
     if not 'RunStream' in dir():
@@ -77,9 +77,9 @@ if ReadPool:
         if RunNumber < 171194:
             InputDirectory = ( "/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/0%(run)s/%(project)s.00%(run)s.%(stream)s.%(suff)s" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber, 'suff': DirectorySuffix })
         elif RunNumber < 254945:
-            InputDirectory = ( "/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
+            InputDirectory = ( "/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.%(suff)s" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber, 'suff': DirectorySuffix })
         else:
-            InputDirectory = ( "/eos/atlas/atlastier0/rucio/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
+            InputDirectory = ( "/eos/atlas/atlastier0/rucio/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.%(suff)s" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber, 'suff': DirectorySuffix })
 
 
         RunFromLocal=False
@@ -128,8 +128,10 @@ else:
         TileRunType = 1
         if not 'RunStream' in dir():
            RunStream = "physics_L1Calo"
+           log.warning('RunStream is not set up and will be used: %(stream)s' % {'stream': RunStream})
         if not 'DataProject' in dir():
            DataProject = "data15_cos"
+           log.warning('DataProject is not set up and will be used: %(project)s' % {'project': DataProject})
         if not 'InputDirectory' in dir():
            if RunNumber < 10:
                 InputDirectory = "."
@@ -159,11 +161,19 @@ else:
            elif RunNumber < 142407:
                 InputDirectory = ("/castor/cern.ch/grid/atlas/DAQ/2009/00%(run)s/%(stream)s" % { 'run': RunNumber, 'stream': RunStream })
            elif RunNumber < 171194:
-                InputDirectory = ("/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/0%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
+                InputDirectory = ("/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/0%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" 
+                                  % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
            elif RunNumber < 254945:
-                InputDirectory = ( "/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
+                InputDirectory = ( "/castor/cern.ch/grid/atlas/tzero/prod1/perm/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" 
+                                   % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
            else:
-                InputDirectory = ( "/eos/atlas/atlastier0/rucio/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.merge.RAW" % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber })
+               if not 'DirectorySuffix' in dir():
+                   DirectorySuffix = 'merge.RAW'
+                   log.warning('DirectorySuffix is not set up and will be used: %(suff)s' % {'suff': DirectorySuffix})
+
+               InputDirectory = ( "/eos/atlas/atlastier0/rucio/%(project)s/%(stream)s/00%(run)s/%(project)s.00%(run)s.%(stream)s.%(suff)s" 
+                                  % { 'project': DataProject, 'stream': RunStream, 'run': RunNumber, 'suff': DirectorySuffix })
+
 
     if not 'InputDirectory' in dir():
         if RunNumber < 10:
@@ -186,8 +196,11 @@ else:
                 Year = 2013            
             elif RunNumber < 248584:
                 Year = 2014
-            else:
+            elif RunNumber < 287952:
                 Year = 2015
+            else:
+                Year = 2016
+
 
             if 'RunStream' in dir():
                 if RunStream == 'l1calo' or RunStream == 'L1Calo':
@@ -229,8 +242,8 @@ if not 'RunFromLocal' in dir():
 
 def FindFile(path, runinput, filter):
 
-    run = str(runinput).zfill(7)
-    if len(filter)<1: filter='.'
+    run = str(runinput).zfill(7) if int(runinput) > 0 else str(runinput)
+    if len(filter) < 1: filter = '.'
 
     files = []
     fullname = []
@@ -253,14 +266,22 @@ def FindFile(path, runinput, filter):
         log.warn('Seems there are no such directory: ' + path)
 
     for file_name in (files):
-        if (path.startswith('/eos/')):
-            fullname.append('root://eosatlas/' + path + '/' + file_name)
-        elif ReadPool and not RunFromLocal:
-            fullname.append('rfio:' + path + '/' + file_name) # maybe castor: ?
-        elif (path.startswith('/castor/')):
-            fullname.append('root://castoratlas/' + path + '/' + file_name)
+        try:
+            good=(not file_name in open('/afs/cern.ch/user/t/tilebeam/ARR/bad_data_files').read())
+            if good: good=(not file_name in open('/afs/cern.ch/user/t/tiledaq/public/bad_data_files').read())
+        except:
+            good=True
+        if good:
+            if (path.startswith('/eos/')):
+                fullname.append('root://eosatlas/' + path + '/' + file_name)
+            elif ReadPool and not RunFromLocal:
+                fullname.append('rfio:' + path + '/' + file_name) # maybe castor: ?
+            elif (path.startswith('/castor/')):
+                fullname.append('root://castoratlas/' + path + '/' + file_name)
+            else:
+                fullname.append(path + '/' + file_name)
         else:
-            fullname.append(path + '/' + file_name)
+            print "Excluding known bad data file",file_name
 
     return [fullname, run]
 
@@ -565,6 +586,16 @@ if not 'doTileDigiNoiseMon' in dir():
 if not 'doTileRawChannelNoiseMon' in dir():
     doTileRawChannelNoiseMon = doTileCellNoiseMon or TilePedRun
 
+# check if we want to create TMDB monitoring plots
+if not 'doTileTMDBRawChannel' in dir():
+    doTileTMDBRawChannel = useTMDB
+
+if not 'doTileTMDBDigitsMon' in dir():
+    doTileTMDBDigitsMon = useTMDB
+
+if not 'doTileTMDBRawChannelMon' in dir():
+    doTileTMDBRawChannelMon = useTMDB and doTileTMDBRawChannel
+
 # check if we need to create TileCells
 if not 'doCaloCell' in dir():
     if (doD3PD or doCaloNtuple or doCreatePool or doEventDisplay or doAtlantis or (doTileMon and (TilePhysRun or doTileCellNoiseMon))):
@@ -634,6 +665,7 @@ rec.doLArg = False
 # in order to set up right database instance  in condb
 projectName = FileNameVec[0].split('/').pop().split('.')[0]
 rec.projectName = projectName
+rec.RunNumber = int(RunNumber)
 
 if not 'RUN2' in dir(): 
     RUN2 = False
@@ -664,15 +696,18 @@ if ReadPool:
     svcMgr.EventSelector.InputCollections = FileNameVec
     # Set Geometry version
     if not 'DetDescrVersion' in dir():
-        DetDescrVersion = 'ATLAS-GEO-20-00-02'
+        if RUN2:
+            DetDescrVersion = 'ATLAS-R2-2015-04-00-00'
+        else:
+            DetDescrVersion = 'ATLAS-R1-2012-02-00-00'
 else:
     # - ByteStream input 
     svcMgr.EventSelector.Input = FileNameVec
     # Set Global tag for IOVDbSvc
     if not 'CondDbTag' in dir():
         if RUN2:
-            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-2015-07'
-            else:                        CondDbTag = 'CONDBR2-ES1PA-2015-07'
+            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-2016-05'
+            else:                        CondDbTag = 'CONDBR2-ES1PA-2015-11'
         else:
             if 'UPD4' in dir() and UPD4 and RunNumber > 141066: CondDbTag = 'COMCOND-BLKPA-RUN1-06'
             else:                                               CondDbTag = 'COMCOND-ES1PA-006-05'
@@ -682,9 +717,9 @@ else:
     # Set Geometry version
     if not 'DetDescrVersion' in dir():
         if RUN2:
-            DetDescrVersion = 'ATLAS-R2-2015-02-00-00'
+            DetDescrVersion = 'ATLAS-R2-2015-04-00-00'
         else:
-            DetDescrVersion = 'ATLAS-GEO-20-00-02'
+            DetDescrVersion = 'ATLAS-R1-2012-02-00-00'
 jobproperties.Global.DetDescrVersion = DetDescrVersion 
 log.info( "DetDescrVersion = %s" % (jobproperties.Global.DetDescrVersion()) )
 
@@ -722,6 +757,13 @@ jobproperties.TileRecFlags.readDigits = ReadDigits
 jobproperties.TileRecFlags.noiseFilter = TileNoiseFilter
 jobproperties.TileRecFlags.TileRunType = TileRunType
 jobproperties.TileRecFlags.calibrateEnergy = False;  # don't need pC in raw channels, keep ADC counts
+if 'BunchSpacing' in dir():
+    halfBS = BunchSpacing/2.
+    if halfBS > 25.1 or halfBS < 0.1:
+        log.info("Bad bunch spacing %s, keeping default limits for parabolic correction" % BunchSpacing)
+    else:
+        jobproperties.TileRecFlags.TimeMinForAmpCorrection = -halfBS
+        jobproperties.TileRecFlags.TimeMaxForAmpCorrection = halfBS
 
 jobproperties.TileRecFlags.doTileOverflowFit = doTileOverflowFit
 
@@ -755,16 +797,22 @@ print tileInfoConfigurator
 #============================================================
 #=== configure TileCondToolOfcCool
 #============================================================
+OfcFromCoolOF1 = OfcFromCOOL and (conddb.GetInstance() == 'CONDBR2') # there are OFCs for OF1 only in CONDBR2
 if not ReadPool or OfcFromCOOL or doTileMF:
     if TileLasPulse:
         tileCondToolOfcCool = getTileCondToolOfcCool('COOL', 'LAS')
+        if doTileOF1 and OfcFromCoolOF1: tileCondToolOfcCoolOF1 = getTileCondToolOfcCool('COOL', 'LAS', 'OF1', 'TileCondToolOfcCoolOF1')
+
     elif TileCisPulse:
-        tileCondToolOfcCool = getTileCondToolOfcCool('COOL', 'CISPULSE100')
+        tileCondToolOfcCool = getTileCondToolOfcCool('COOL', 'CIS')
+        if doTileOF1 and OfcFromCoolOF1: tileCondToolOfcCoolOF1 = getTileCondToolOfcCool('COOL', 'CIS','OF1', 'TileCondToolOfcCoolOF1')
     else:
         tileCondToolOfcCool = getTileCondToolOfcCool('COOL', 'PHY')
+        if doTileOF1 and OfcFromCoolOF1: tileCondToolOfcCoolOF1 = getTileCondToolOfcCool('COOL', 'PHY', 'OF1', 'TileCondToolOfcCoolOF1')
 
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += tileCondToolOfcCool
+    if doTileOF1 and OfcFromCoolOF1: ToolSvc += tileCondToolOfcCoolOF1
 
 #============================================================
 #=== configure TileCondToolOfc
@@ -840,9 +888,8 @@ if doTileFitCool:
 
 if doTileOpt2:
     if OfcFromCOOL:
-        ToolSvc.TileRawChannelBuilderOpt2Filter.TileCondToolOfcCool = tileCondToolOfcCool
+        ToolSvc.TileRawChannelBuilderOpt2Filter.TileCondToolOfc = tileCondToolOfcCool
 
-    ToolSvc.TileRawChannelBuilderOpt2Filter.OfcfromCool = OfcFromCOOL; # OFC from COOL or calculated on the fly
     if TileMonoRun or TileRampRun:
         ToolSvc.TileRawChannelBuilderOpt2Filter.MaxIterations = 3 # 3 iterations to match DSP reco
         if TileCompareMode or TileEmulateDSP:
@@ -855,13 +902,12 @@ if doTileOptATLAS:
         ToolSvc.TileRawChannelBuilderOptATLAS.TileRawChannelContainer = "TileRawChannelFixed"
 
     if OfcFromCOOL:
-        ToolSvc.TileRawChannelBuilderOptATLAS.TileCondToolOfcCool = tileCondToolOfcCool
+        ToolSvc.TileRawChannelBuilderOptATLAS.TileCondToolOfc = tileCondToolOfcCool
 
     if PhaseFromCOOL:
         ToolSvc.TileRawChannelBuilderOptATLAS.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming
         ToolSvc.TileRawChannelBuilderOptATLAS.correctTime = False; # do not need to correct time with best phase
 
-    ToolSvc.TileRawChannelBuilderOptATLAS.OfcfromCool = OfcFromCOOL;   # OFC from COOL or calculated on the fly
     ToolSvc.TileRawChannelBuilderOptATLAS.BestPhase   = PhaseFromCOOL; # Phase from COOL or assume phase=0
     if TileCompareMode or TileEmulateDSP:
         ToolSvc.TileRawChannelBuilderOptATLAS.EmulateDSP = True # use dsp emulation
@@ -870,25 +916,30 @@ if doTileOptATLAS:
     
 if doTileMF:
     if OfcFromCOOL:
-        ToolSvc.TileRawChannelBuilderMF.TileCondToolOfcCool = tileCondToolOfcCool
+        ToolSvc.TileRawChannelBuilderMF.TileCondToolOfc = tileCondToolOfcCool
 
     if PhaseFromCOOL:
         ToolSvc.TileRawChannelBuilderMF.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming
         ToolSvc.TileRawChannelBuilderMF.correctTime = False; # do not need to correct time with best phase
 
-    ToolSvc.TileRawChannelBuilderMF.OfcfromCool = OfcFromCOOL;   # OFC from COOL or calculated on the fly
     ToolSvc.TileRawChannelBuilderMF.BestPhase   = PhaseFromCOOL; # Phase from COOL or assume phase=0
 
     print ToolSvc.TileRawChannelBuilderMF 
 
 if doTileOF1:
     ToolSvc.TileRawChannelBuilderOF1.PedestalMode = TileOF1Ped  
-    ToolSvc.TileRawChannelBuilderOF1.OfcfromCool = False; # not sure if OF1 weights are available in COOL
+    
+    if OfcFromCoolOF1:
+        ToolSvc.TileRawChannelBuilderOF1.TileCondToolOfc = tileCondToolOfcCoolOF1
 
     if PhaseFromCOOL:
         ToolSvc.TileRawChannelBuilderOF1.TileCondToolTiming = tileInfoConfigurator.TileCondToolTiming
         ToolSvc.TileRawChannelBuilderOF1.correctTime = False # do not need to correct time with best phase
-        
+
+    ToolSvc.TileRawChannelBuilderOF1.BestPhase   = PhaseFromCOOL # Phase from COOL or assume phase=0
+    if TileCompareMode or TileEmulateDSP:
+        ToolSvc.TileRawChannelBuilderOF1.EmulateDSP = True # use dsp emulation
+
     print ToolSvc.TileRawChannelBuilderOF1    
 
 if (doEventDisplay or doCreatePool):
@@ -949,6 +1000,32 @@ if doTileMuonFitter:
         theTileCosmicMuonGetter.TileMuonFitter().CaloCellContainer = "AllCaloNewReco"
 
 
+if doTileTMDBRawChannel:
+    # Set up TileCondToolPulseShape to be used in
+    # TileCondToolOfc
+    from TileConditions.TileCondToolConf import getTileCondToolMuRcvPulseShape
+    ToolSvc += getTileCondToolMuRcvPulseShape('FILE', 'TileCondToolMuRcvPulseShape')
+    
+    # Set up TileCondToolOfc to be used in TileRawChannelBuilderMF
+    ToolSvc += CfgMgr.TileCondToolOfc(name = 'TileCondToolMuRcvOfc'
+                                      , OptFilterDeltaCorrelation = True
+                                      , TileCondToolPulseShape = ToolSvc.TileCondToolMuRcvPulseShape)
+    
+    
+    # Set up TileRawChannelBuilderOpt2 to be used
+    ToolSvc += CfgMgr.TileRawChannelBuilderOpt2Filter(name = 'TileMuRcvRawChannelBuilderOpt2'
+                                                      , TileRawChannelContainer = 'TileMuRcvRawChannelOpt2'
+                                                      , PedestalMode = 1
+                                                      , Minus1Iteration = TRUE
+                                                      , calibrateEnergy = False
+                                                      , correctTime = False
+                                                      , TileCondToolOfc = ToolSvc.TileCondToolMuRcvOfc)
+    
+    
+    topSequence += CfgMgr.TileRawChannelMaker(name = 'TileMuRcvRChMaker'
+                                              , TileDigitsContainer = 'MuRcvDigitsCnt'
+                                              , TileRawChannelBuilder = [ ToolSvc.TileMuRcvRawChannelBuilderOpt2 ])
+
 if (doTileNtuple or doD3PD):
 
     theApp.HistogramPersistency = "ROOT"
@@ -980,6 +1057,7 @@ if doD3PD:
     def TileD3PD (file,
                  level = 4,
                  tuplename = 'caloD3PD',
+                 allCells = True,
                  seq = topSequence,
                  D3PDSvc = 'D3PD::RootD3PDSvc',
                  streamNameRoot = None,
@@ -1005,19 +1083,28 @@ if doD3PD:
 
             else:
                 if TileBiGainRun:
-                    alg += TileDetailsD3PDObject (**_args(1, 'TileDetails', kw, sgkey = 'AllCaloHG', prefix = 'tile_', \
-                                                              Kinematics_WriteEtaPhi = True, TileDetails_SavePositionInfo = TileD3PDSavePosition))
-                    alg += CaloInfoD3PDObject (**_args(0, 'CaloInfo', kw, sgkey = 'AllCaloHG', prefix = 'calo_'))
+                    if allCells:
+                        alg += TileDetailsD3PDObject (**_args(1, 'TileDetails', kw, sgkey = 'AllCaloHG', prefix = 'tile_', \
+                                                                  Kinematics_WriteEtaPhi = True, TileDetails_SavePositionInfo = TileD3PDSavePosition))
+                        alg += CaloInfoD3PDObject (**_args(0, 'CaloInfo', kw, sgkey = 'AllCaloHG', prefix = 'calo_'))
+
+                    alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'mbts_', sgkey = 'MBTSContainerHG'))
+                    alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'mbtsLG_', sgkey = 'MBTSContainerLG'))
+
+                    if RUN2:
+                        alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'e4pr_', sgkey = 'E4prContainerHG', MBTS_SaveEtaPhiInfo = False))
+                        alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'e4prLG_', sgkey = 'E4prContainerLG', MBTS_SaveEtaPhiInfo = False))
                 else:
-                    alg += TileDetailsD3PDObject (**_args(1, 'TileDetails', kw, sgkey = 'AllCalo', prefix = 'tile_', \
+                    if allCells:
+                        alg += TileDetailsD3PDObject (**_args(1, 'TileDetails', kw, sgkey = 'AllCalo', prefix = 'tile_', \
                                                               Kinematics_WriteEtaPhi = True, TileDetails_SavePositionInfo = TileD3PDSavePosition))
-                    alg += CaloInfoD3PDObject (**_args(0, 'CaloInfo', kw, sgkey = 'AllCalo', prefix = 'calo_'))
+                        alg += CaloInfoD3PDObject (**_args(0, 'CaloInfo', kw, sgkey = 'AllCalo', prefix = 'calo_'))
 
                     alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'mbts_', sgkey = 'MBTSContainer'))
 
                     if RUN2:
                         alg += MBTSD3PDObject (**_args(1, 'MBTS', kw, prefix = 'e4pr_', sgkey = 'E4prContainer', MBTS_SaveEtaPhiInfo = False))
-                
+
         if doCaloTopoCluster:
             from CaloD3PDMaker.xAODClusterD3PDObject import xAODClusterD3PDObject
 
@@ -1049,8 +1136,8 @@ if doD3PD:
         return alg
 
     tupleName= '%(dir)s/tile_%(RunNum).f_%(Version)s.aan.root' %{'dir': OutputDirectory, 'RunNum': RunNumber, 'Version': Version }
-    TheAlg = TileD3PD(file = tupleName , seq=topSequence)
-
+    allC = not ('MBTSonly' in dir() and MBTSonly)
+    TheAlg = TileD3PD(file = tupleName , seq = topSequence, allCells = allC)
 
 if doTileNtuple:
     # create TileCal standalone ntuple
@@ -1385,8 +1472,43 @@ if doTileMon:
 
     ########### end doTileCellNoiseMon ##########
 
+    if doTileTMDBDigitsMon:
+        ToolSvc += CfgMgr.TileTMDBDigitsMonTool(name                  = 'TileTMDBDigitsMon'
+                                                , OutputLevel         = INFO
+                                                , TileDigitsContainer = "MuRcvDigitsCnt"
+                                                , histoPathBase       = "/Tile/TMDBDigits")
+        
+        TileMon.AthenaMonTools += [ ToolSvc.TileTMDBDigitsMon ]
+        print ToolSvc.TileTMDBDigitsMon
 
-    if doTileMonDigi or doTileMonRch or doTileMonCell or doTileMonDQ or doTileDigiNoiseMon or doTileCellNoiseMon or doTileRawChannelNoiseMon:
+
+    if doTileTMDBRawChannelMon:
+        ToolSvc += CfgMgr.TileTMDBRawChannelMonTool(name            = 'TileTMDBRawChannelDspMon'
+                                                    , OutputLevel   = INFO
+                                                    , NotDSP           = False
+                                                    , TileRawChannelContainer = "MuRcvRawChCnt"
+                                                    , histoPathBase = "/Tile/TMDBRawChannel/Dsp")
+
+
+        TileMon.AthenaMonTools += [ToolSvc.TileTMDBRawChannelDspMon ]
+        print ToolSvc.TileTMDBRawChannelDspMon
+        
+        ToolSvc += CfgMgr.TileTMDBRawChannelMonTool(name                      = 'TileTMDBRawChannelMon'
+                                                    , OutputLevel             = INFO
+                                                    , TileRawChannelContainer = "TileMuRcvRawChannelOpt2"
+                                                    , NotDSP                   = True
+                                                    , AmplitudeThresholdForTime = 10.0
+                                                    , histoPathBase           = "/Tile/TMDBRawChannel")
+        
+        
+        TileMon.AthenaMonTools += [ToolSvc.TileTMDBRawChannelMon ]
+        print ToolSvc.TileTMDBRawChannelMon
+
+
+    if doTileMonDigi or doTileMonRch or doTileMonCell or doTileMonDQ                \
+            or doTileDigiNoiseMon or doTileCellNoiseMon or doTileRawChannelNoiseMon \
+            or doTileTMDBDigitsMon or doTileTMDBRawChannelMon:
+
         topSequence += TileMon;
 
 
@@ -1437,13 +1559,19 @@ if doTileCalib:
 
         # declare CIS tool(s) and set jobOptions if necessary
         TileCisTool = TileCisDefaultCalibTool()
+
+        if hasattr(ToolSvc, 'TileDigitsMon'):
+            TileCisTool.StuckBitsProbsTool = ToolSvc.TileDigitsMon
+
+        TileCisTool.removePed = True
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += TileCisTool
         TileCalibAlg.TileCalibTools += [ TileCisTool ]
 
         topSequence += TileCalibAlg
     elif TileL1CaloRun:
-        include( "TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py" )
+        if RUN2: include("TrigT1CaloByteStream/ReadLVL1CaloBSRun2_jobOptions.py")
+        else: include( "TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py" )
 
         # Trigger calibration using top calib alg
         from TileCalibAlgs.TileCalibAlgsConf import TileTopCalibAlg
@@ -1473,6 +1601,9 @@ if doTileCalib:
         TileLaserTool = TileLaserDefaultCalibTool()
         TileLaserTool.rawChannelContainer    = "TileRawChannelOpt2"
         TileLaserTool.laserObjContainer      = "TileLaserObj"
+
+        if hasattr(ToolSvc, 'TileDigitsMon'):
+            TileLaserTool.StuckBitsProbsTool = ToolSvc.TileDigitsMon
 
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += TileLaserTool
