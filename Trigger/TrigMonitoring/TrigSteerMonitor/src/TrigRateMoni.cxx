@@ -24,7 +24,6 @@
 
 #include "TrigInterfaces/AlgoConfig.h"
 
-#include "TrigSteering/ResultBuilder.h"
 #include "TrigSteering/SteeringChain.h"
 #include "TrigSteering/StreamTag.h"
 #include "TrigSteering/TrigSteer.h"
@@ -34,9 +33,6 @@
 
 
  
-static bool getDebugStreams(  IJobOptionsSvc* jobOptionsSvc, MsgStream* log, unsigned int logLvl, 
-			      bool isL2, std::vector<std::string> &errStreamNames );
-
 TrigRateMoni::TrigRateMoni(const std::string & type, const std::string & name,
 			   const IInterface* parent) 
   : TrigMonitorToolBase(type, name, parent),
@@ -196,7 +192,6 @@ std::string grp_bin_name(const std::string& grp ) {
 
 StatusCode TrigRateMoni::bookHists() {
 
-
   // find about all possible chains
   std::vector<const HLT::SteeringChain*> configuredChains = m_parentAlg->getConfiguredChains();
   
@@ -222,34 +217,11 @@ StatusCode TrigRateMoni::bookHists() {
       streams.insert("str_" + stream.getStream() + "_" + stream.getType());
     }
   }
-  // get streams defined in ResultBuilder options
-  std::vector<std::string> errStreamNames;
 
-  // First set up the job service
-  IJobOptionsSvc* jobOptionsSvc;
-  StatusCode sc;
-  sc = service("JobOptionsSvc", jobOptionsSvc);
-
-  bool isL2 = m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2 ? true : false;
-  if(sc.isFailure()) {
-    ATH_MSG_WARNING("Could not find JobOptionsSvc");
-  } else {
-    
-    if (getDebugStreams(jobOptionsSvc, &msg(), msg().level(), isL2, errStreamNames ) ) {
-
-      std::vector<std::string>::const_iterator esnit;
-      for(esnit = errStreamNames.begin(); esnit != errStreamNames.end(); esnit++) {
-	streams.insert("str_" + (*esnit));
-      }
-
-      // the "hardwired" hlterror stream:
-      // streams.insert("str_hlterror_debug");
-      
-      // now a catch-all
-      // streams.insert("str_other");
-    }
-    // release JobOptionsSvc
-    jobOptionsSvc->release();
+  // get debug stream names
+  for (const auto& s : m_parentAlg->getErrorStreamTags()) {
+    streams.insert("str_" + s.name()+"_"+s.type());
+    ATH_MSG_INFO("adding error stream name: " << s.name()+"_"+s.type());
   }
 
   // initialize m_genericStreamSets and m_specialStreamSets
@@ -275,6 +247,7 @@ StatusCode TrigRateMoni::bookHists() {
     //+ m_intervals  // and one to mark the source
     + 1; //for absolute time
 
+  bool isL2 = m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2 ? true : false;
   if(isL2) nbins++; // for total_physics
 
     // second pass to find mapping between chains and bins
@@ -703,159 +676,5 @@ void TrigRateMoni::fillChainAndGroupBins() {
   }
 }
 
-static void extractErrorStreamNames( const std::string &errStreamString, std::vector<std::string> &errStreamNames );
-
-static bool getDebugStreams(IJobOptionsSvc* jobOptionsSvc,   MsgStream* log, unsigned int logLvl, 
-			    bool isL2, std::vector<std::string> &errStreamNames )
-{
-  /* 
-     If this function fails for any reason, any debug streams which have been defined
-     in the ResultBuilder's job options will not be added to the histograms. That's
-     the only consequence. So I remove most warnings.
-  */
-
-  errStreamNames.clear();
-
-  IService* svc = dynamic_cast<IService*>(jobOptionsSvc);
-  if(svc != 0 ) {
-    if(logLvl <= MSG::INFO) (*log) << MSG::INFO << " TrigRateMoni " 
-				       << " is connected to JobOptionsSvc Service = "
-				       << svc->name() << endreq;
-  }
-  
-  //  if(logLvl <= MSG::DEBUG) (*log) << MSG::DEBUG << " About to ask for properties of the ResultBuilder" 
-  //			      << endreq;
-  
-  const std::vector<const Property*> *rb_properties;
-  
-  try {
-    if(isL2)
-      rb_properties = jobOptionsSvc->getProperties("TrigSteer_L2.ResultBuilder");
-    else
-      rb_properties = jobOptionsSvc->getProperties("TrigSteer_EF.ResultBuilder");
-      if (rb_properties==0)
-        rb_properties = jobOptionsSvc->getProperties("TrigSteer_HLT.ResultBuilder");
-    
-    //if(logLvl <= MSG::DEBUG) (*log) << MSG::DEBUG << " Back from request for properties of the ResultBuilder" 
-    //				<< endreq;
-  }
-  catch(...) {
-    if(logLvl <= MSG::WARNING) (*log) << MSG::WARNING << 
-      "Attempt to retrieve ResultBuilder properties provoked an exception." << endreq;
-    return false;
-  }
-  std::vector<const Property*>::const_iterator rb_it;
-  
-  if(rb_properties == 0) {
-    if(logLvl <= MSG::DEBUG) (*log) << MSG::DEBUG << 
-      "Unable to get the job properties of the ResultBuilder" << endreq;
-    return false;
-  }
-  
-  for(rb_it = rb_properties->begin(); rb_it != rb_properties->end(); rb_it++) {
-    
-    
-    if( (*rb_it)->name() == "DefaultStreamTagForErrors") {
-      
-      const StringProperty *sprop = dynamic_cast<const StringProperty*>( (*rb_it) );
-      
-      if(sprop == 0) {
-	//const StringArrayProperty *saprop = dynamic_cast<const StringArrayProperty*>( (*rb_it) );
- 	if(logLvl <= MSG::DEBUG) (*log) << MSG::DEBUG << 
-	  "dynamic_cast of DefaultStreamTagForErrors property to StringProperty failed" << endreq;	
-	continue;
-      }		
-      
-      if(logLvl <= MSG::DEBUG) (*log) << MSG::DEBUG << "value of DefaultStreamTagForErrors property: " 
-				     << sprop->value() << endreq;
-      
-      errStreamNames.push_back( sprop->value() + "_debug");
-      
-    } else if( (*rb_it)->name() == "ErrorStreamTags") {
-      const StringProperty *sprop = dynamic_cast<const StringProperty*>( (*rb_it) );
-      // on lxplus tests and RTT, the cast works but online it is a StringArrayProperty
-      if(sprop != 0) {
-	
-	
-	if(logLvl <= MSG::DEBUG) (*log) << MSG::DEBUG << "value of ErrorStreamTags property: " 
-				       << sprop->value() << endreq;
-	extractErrorStreamNames( sprop->value(), errStreamNames );
-	
-      } else {
- 	if(logLvl <= MSG::DEBUG) (*log) << MSG::DEBUG << 
-	  "dynamic_cast of ErrorStreamTags property to StringProperty failed" << endreq;	
-	
-	const StringArrayProperty *saprop = dynamic_cast<const StringArrayProperty*>( (*rb_it) );
-
-	if ( saprop != 0 ) {
-	  const std::vector<std::string>& theProps = saprop->value( );
-	  for ( std::vector<std::string>::const_iterator ip = theProps.begin();
-		  ip != theProps.end();  ip++ )  {
-
-	    if(logLvl <= MSG::DEBUG) 
-	      (*log) << MSG::DEBUG << "array property value: " << *ip << endreq;
-
-	    extractErrorStreamNames( *ip, errStreamNames );
-	  }
-        } else {
-	  if(logLvl <= MSG::INFO) (*log) << MSG::DEBUG << 
-	    "dynamic_cast of ErrorStreamTags property to StringArrayProperty failed" << endreq;	
-	}
-      }
-    }    
-  }
-  
-  if(logLvl <= MSG::INFO) {
-    for(std::vector<std::string>::const_iterator it_name = errStreamNames.begin(); 
-	it_name != errStreamNames.end(); it_name++) {
-      (*log) << MSG::INFO << "adding error stream name: " << *it_name << endreq;
-    }
-  }
-  return true;
-}
-
-static void extractErrorStreamNames( const std::string &errStreamString, std::vector<std::string> &errStreamNames )
-{
-  /*
-    Parse the string returned by getProperties.  I don't understand
-    why but getProperties returns a string containing all error
-    streams rather than a vector of streams.
-  */
-
-  std::stringstream ss;
-  
-  // assuming errStreamString looks something like:
-  //['ABORT_CHAIN ALGO_ERROR GAUDI_EXCEPTION: hltexceptions physics', 'ABORT_CHAIN ALGO_ERROR GAUDI_EXCEPTION: hltex2 physics']
-  
-  ss.str(errStreamString);
-  char c;
-
-  /* there are no brackets when the tag comes from a StringArrayProperty
-  if( (c = ss.get()) != '[') {
-    //std::cout << "MMMM I'm lost already" << std::endl;
-    return;
-  }
-  */
-  while( (c = ss.get()) && ss.good() ) {
-    
-    if( c == '\'') {
-      const int bufSize = 100;
-      char charBuf[bufSize];
-
-      ss.getline(charBuf, bufSize, ':');
-      
-      ss.getline(charBuf, bufSize, '\'');
-
-      char *pBuf = charBuf;
-      for(int i = 0; i<bufSize-1 && charBuf[i] == ' '; i++) pBuf++;
-
-      for(int i = 0; i<bufSize - (pBuf-charBuf) && pBuf[i] != '\0'; i++) { // change space to underscore
-	pBuf[i] = (pBuf[i] == ' ')? '_' : pBuf[i];
-      }
-
-      errStreamNames.push_back(pBuf);
-    }
-  }
-}
 
   

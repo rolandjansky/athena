@@ -188,7 +188,7 @@ class TrigMemMonitor(TrigMemMoni):
             theApp.AuditAlgorithms = True
         
     def target(self):
-        return [ "Online", "Validation", "Cosmic" ]
+        return [ "OnlineDetail" ]
 
 class TrigROBMoniConfig(TrigROBMoni):
     """ ROB request monitor for online use """
@@ -217,7 +217,6 @@ TrigSteerMonitorToolList = [  TrigChainMoniConfigValidation(),
                               TrigSignatureMoniConfigOnline(),
                               TrigTEMoniConfigOnline(),
                               TrigOpMonitor(),
-			      TrigMemMonitor(),
                               TrigROBMoniConfig(),
                               TrigCorMonitor() ]
 

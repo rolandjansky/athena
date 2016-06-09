@@ -21,8 +21,8 @@
 #ifndef TRIGCHAINMONI_H
 #define TRIGCHAINMONI_H
 
-#include <vector>
 #include <string>
+#include <map>
 #include "TrigMonitorBase/TrigMonitorToolBase.h"
 #include "TrigMonitorBase/TrigLBNHist.h"
 
@@ -31,7 +31,6 @@ namespace HLT {
 }
 
 class TH1I;
-class StoreGateSvc;
 
 class TrigChainMoni: public TrigMonitorToolBase {
 
