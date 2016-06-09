@@ -212,7 +212,14 @@ if InDetFlags.loadRotCreator():
                                                       Mode             = 'indet')
         ToolSvc += InDetRotCreatorDBM
 
+
+
     ToolSvc += InDetRotCreator
+
+    if InDetFlags.doStoreTrackSeeds():
+        from SeedToTrackConversionTool.SeedToTrackConversionToolConf import InDet__SeedToTrackConversionTool
+        InDet_SeedToTrackConversion = InDet__SeedToTrackConversionTool( name = "InDet_SeedToTrackConversion")
+        ToolSvc += InDet_SeedToTrackConversion
     
     InDetRotCreatorDigital = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorDigital',
                                               ToolPixelCluster = PixelClusterOnTrackToolDigital,

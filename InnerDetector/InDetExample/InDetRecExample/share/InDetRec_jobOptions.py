@@ -694,7 +694,8 @@ else:
                                                                  InDetKeys.ExtendedTracksPixelPrdAssociation(),
                                                                  InDetKeys.ExtendedTracksMapPixelPrdAssociation(),
                                                                  TrackCollectionKeys,
-                                                                 TrackCollectionTruthKeys)
+                                                                 TrackCollectionTruthKeys,
+                                                                 False)
 
     # ------------------------------------------------------------
     #

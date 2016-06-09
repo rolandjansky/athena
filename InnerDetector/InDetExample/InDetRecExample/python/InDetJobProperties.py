@@ -549,7 +549,7 @@ class doSlimming(InDetFlagsJobProperty):
     """ turn track slimming on/off """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = True
+    StoredValue  = False 
 
 class doVertexFinding(InDetFlagsJobProperty):        
     """ Turn on the primary vertex reconstruction """
@@ -1112,6 +1112,12 @@ class doSCTModuleVeto(InDetFlagsJobProperty):
 
 class doParticleConversion(InDetFlagsJobProperty): 
   """In case anyone still wants to do Rec->xAOD TrackParticle Conversion""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = False
+
+class doStoreTrackSeeds(InDetFlagsJobProperty): 
+  """Turn on to save the Track Seeds in a xAOD track collecting for development studies""" 
   statusOn     = True 
   allowedTypes = ['bool']
   StoredValue  = False
@@ -2704,7 +2710,8 @@ _list_InDetJobProperties = [Enabled,
                             doSCTModuleVeto,
                             doDBMstandalone,
                             doDBM,
-                            doParticleConversion
+                            doParticleConversion,
+                            doStoreTrackSeeds 
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)
