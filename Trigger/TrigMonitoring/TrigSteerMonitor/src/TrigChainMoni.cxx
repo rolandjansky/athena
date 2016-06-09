@@ -5,7 +5,6 @@
 #include "TrigSteerMonitor/TrigChainMoni.h"
 #include "TrigSteering/TrigSteer.h"
 #include "TrigSteering/SteeringChain.h"
-#include "TrigSteering/ResultBuilder.h"
 #include "TrigInterfaces/AlgoConfig.h"
 #include "TrigMonitorBase/TrigLockedHist.h"
 #include <EventInfo/EventID.h>
