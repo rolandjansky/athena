@@ -95,5 +95,6 @@ def Mdt_OverlayDigitizationTool(name="Mdt_OverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     kwargs.setdefault("EvtStore", overlayFlags.evtStore())
     kwargs.setdefault("GetT0FromBD", True) #FIXME should depend on readBS and isRealData variables somehow
+    kwargs.setdefault("OffsetTDC",-17) #the diff between the MC OffsetTDC (800) and the MC t0 from the DB (817)
     return MdtDigitizationTool(name,**kwargs)
 
