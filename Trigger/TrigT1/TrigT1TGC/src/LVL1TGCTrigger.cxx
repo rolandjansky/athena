@@ -67,7 +67,6 @@ namespace LVL1TGCTrigger {
   bool g_SHPT_ORED;
   bool g_USE_INNER;
   bool g_INNER_VETO;
-  bool g_FULL_CW;
   bool g_TILE_MU;
 
 ///////////////////////////////////////////////////////////////////////////
@@ -95,7 +94,7 @@ namespace LVL1TGCTrigger {
     declareProperty("MaskFileName",        m_MaskFileName="");
     declareProperty("MaskFileName12",      m_MaskFileName12="");
     declareProperty("LVL1ConfigSvc",       m_configSvc, "LVL1 Config Service");
-    declareProperty("VersionCW",           m_VerCW="00_06_0016"); // TILE_EIFI_BW
+    declareProperty("VersionCW",           m_VerCW="00_07_0019"); // TILE_EIFI_BW
     declareProperty("STRICTWD",            m_STRICTWD            =false);
     declareProperty("STRICTWT",            m_STRICTWT            =false);
     declareProperty("STRICTSD",            m_STRICTSD            =false);
@@ -134,7 +133,7 @@ namespace LVL1TGCTrigger {
   StatusCode LVL1TGCTrigger::initialize()
   {
     // init message stram
-    m_log.setLevel(outputLevel());  // inidividual outputlevel not known before initialize
+    m_log.setLevel(msgLevel());  // inidividual output level not known before initialize
     m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug
 
     g_DEBUGLEVEL          =  m_debuglevel;
@@ -149,7 +148,6 @@ namespace LVL1TGCTrigger {
     g_SHPT_ORED           = m_SHPTORED.value();
     g_USE_INNER           = m_USEINNER.value();
     g_INNER_VETO          = m_INNERVETO.value() && g_USE_INNER;
-    g_FULL_CW             = m_FULLCW.value();
     g_TILE_MU             = m_TILEMU.value() && g_USE_INNER;
  
     if (g_USE_INNER) {
@@ -1392,17 +1390,16 @@ StatusCode LVL1TGCTrigger::getCabling()
   // determine version of CW 
   // !! NOTE : CW version is determined by jobOption of VersionCW
   // !!        independent from TrigConfigSvc
-  // default set is 0x0006016
+  // default set is 0x0007019
   //   00_00_0000 -> TILE_EIFI_BW
   //   see https://twiki.cern.ch/twiki/bin/view/Atlas/TgcSectorLogicLUT
 
   // Since m_VerCW is set as default value above,
   // Here don't overwrite by any version if proper version number is provided.
-  const std::string v00060016 = "00_06_0016";  // default
   std::string ver=m_VerCW.value();
   if((ver.size() != 10)) { 
-    // default CW is v00060016
-    ver= v00060016;
+    // default CW is v00070019
+    ver= "00_07_0019";
     m_VerCW = ver;
   }
 

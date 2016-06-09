@@ -23,7 +23,6 @@ namespace LVL1TGCTrigger {
  extern bool        g_DEBUGLEVEL;
  extern bool        g_USE_INNER;
  extern bool        g_TILE_MU;
- extern bool        g_FULL_CW;
 
 TGCConnectionInPP* TGCDatabaseManager::getConnectionInPP(TGCPatchPanel* patchPanel) const 
 {
@@ -146,26 +145,26 @@ TGCDatabaseManager::TGCDatabaseManager(const std::string& ver, bool )
     ver_TILE = "v" + vers[0];
   }
 
-  if (g_FULL_CW) {
+  // RPhi Coincidence Map
+  if(ver_BW == "v0016" || ver_BW == "v0017") {
     for (int side=0; side<NumberOfSide; side +=1) {
-      if (g_USE_INNER) {
-         mapInner[side] = new TGCInnerCoincidenceMap(ver_EIFI, side);
-      }
       for (int oct=0; oct<NumberOfOctant; oct++) {
          mapRphi[side][oct] = new TGCRPhiCoincidenceMap(ver_BW, side, oct);
       }
     }
   } else {
-    TGCInnerCoincidenceMap* mapI = 0;
     TGCRPhiCoincidenceMap*  map  = new TGCRPhiCoincidenceMap(ver_BW);
     for (int side=0; side<NumberOfSide; side +=1) {
-      if (g_USE_INNER) {
-	if (mapI==0) mapI = new TGCInnerCoincidenceMap(ver_EIFI);
-	mapInner[side] = mapI;
-      }
       for (int oct=0; oct<NumberOfOctant; oct++) {
-	mapRphi[side][oct] = map;
+        mapRphi[side][oct] = map;
       }
+    }
+  }
+
+  // Inner Coincidence Map
+  for (int side=0; side<NumberOfSide; side +=1) {
+    if (g_USE_INNER) {
+       mapInner[side] = new TGCInnerCoincidenceMap(ver_EIFI, side);
     }
   }
 
@@ -199,17 +198,17 @@ TGCDatabaseManager::~TGCDatabaseManager()
     PPToSL[j]=0;
   }
 
-  if (g_FULL_CW) {
+  if(mapRphi[0][0]->isFullCW()) {
      for (int side=0; side<NumberOfSide; side +=1) {
-        if(g_USE_INNER)
-           delete mapInner[side];
         for (int oct=0; oct<NumberOfOctant; oct++)
            delete mapRphi[side][oct];
      }
   } else {
-     if(g_USE_INNER)
-        delete mapInner[0];
      delete mapRphi[0][0]; // only delete the first, since all entries point to the same map
+  }
+
+  for(int side=0; side<NumberOfSide; side +=1) {
+    if(g_USE_INNER) delete mapInner[side];
   }
   if (g_TILE_MU) {
     delete mapTileMu;

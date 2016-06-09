@@ -20,9 +20,7 @@
 
 namespace LVL1TGCTrigger {
 
- extern bool        g_DEBUGLEVEL;
  extern bool        g_USE_INNER;
- extern bool        g_FULL_CW;
 
 TGCInnerCoincidenceMap::TGCInnerCoincidenceMap()
   :m_verName("NA"),
@@ -83,9 +81,8 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap()
   }
   MsgStream log(msgSvc, "TGCInnerCoincidenceMap::TGCInnerCoincidenceMap");
 
-  // use full CW (i.e. different maps for each octant and side)
-  // TBI: if the full map EIFI-CW is available.
-  m_fullCW = g_FULL_CW && (m_verName == "xx");  // to be implemented
+  // use full CW (i.e. different maps for each side)
+  m_fullCW = (m_verName == "v07");
 
   // read Inner Coincidence Map 
   if (this->readMap()) {
@@ -246,7 +243,7 @@ bool TGCInnerCoincidenceMap::readMap()
   return true;
 }
 
-
+// Debug purpose only
 void TGCInnerCoincidenceMap::dumpMap() const
 {
   // select right database according to a set of thresholds
@@ -256,22 +253,10 @@ void TGCInnerCoincidenceMap::dumpMap() const
 
   for (size_t sec=0; sec< N_EndcapSector; sec++){
     for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
-      file << "# " << sec << " " << ssc << " "
-	   << flagPT[0][ssc][sec] << " "
-	   << flagPT[1][ssc][sec] << " "
-	   << flagPT[2][ssc][sec] << " "
-	   << flagPT[3][ssc][sec] << " "
-	   << flagPT[4][ssc][sec] << " "
-	   << flagPT[5][ssc][sec] << " "
-	   << flagROI[0][ssc][sec] << " "
-	   << flagROI[1][ssc][sec] << " "
-	   << flagROI[2][ssc][sec] << " "
-	   << flagROI[3][ssc][sec] << " "
-	   << flagROI[4][ssc][sec] << " "
-	   << flagROI[5][ssc][sec] << " "
-	   << flagROI[6][ssc][sec] << " "
-	   << flagROI[7][ssc][sec] << " "
-	   << std::endl;
+      file << "# " << sec << " " << ssc << " ";
+      for(int i=0; i<6; i++) file << flagPT[i][ssc][sec] << " ";
+      for(int i=0; i<8; i++) file << flagROI[i][ssc][sec] << " ";
+      file << std::endl;
       file << map[0][ssc][sec].getTriggerWord() << " "
 	   << map[1][ssc][sec].getTriggerWord() << " "
 	   << map[2][ssc][sec].getTriggerWord() << " "

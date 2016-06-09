@@ -20,7 +20,6 @@
 
 namespace LVL1TGCTrigger {
 
- extern bool        g_DEBUGLEVEL;
  extern bool        g_TILE_MU;
 
 TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const std::string& version)

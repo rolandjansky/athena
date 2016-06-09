@@ -146,7 +146,7 @@ class LVL1TGCTrigger : public AthAlgorithm
   BooleanProperty   m_OUTCOINCIDENCE; //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
   BooleanProperty   m_SINGLEBEAM; // for the single beam run
   BooleanProperty   m_MUHALO; // flag for including MUHALO (i.e. 2-st coin ) in pt=1
-  BooleanProperty   m_SHPTORED; // flag for E1/E2 chamber ORED in STRIP HPT
+  BooleanProperty   m_SHPTORED; // flag for E1/E2 chamber ORED in Strip HPT
   BooleanProperty   m_USEINNER; // flag for using Inner Station for SL
   BooleanProperty   m_INNERVETO; // flag for using VETO by Inner Station for SL
   BooleanProperty   m_FULLCW;   // flag for using differne CW for each octant
