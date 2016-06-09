@@ -42,6 +42,9 @@ if InDetFlags.doCosmics():
    if InDetFlags.doNewTracking():
       InDetESDList+=["TrackCollection#"+InDetKeys.UnslimmedTracks()]
 
+if InDetFlags.doStoreTrackSeeds():
+   InDetESDList+=["TrackCollection#"+InDetKeys.SiSPSeedSegments()]
+
 if InDetKeys.AliasToTracks() == 'none':
    InDetESDList+=["TrackCollection#"+InDetKeys.Tracks()]
 else:
@@ -62,6 +65,11 @@ if InDetFlags.doTrackSegmentsTRT():
    if InDetFlags.doTruth():
       InDetESDList += ["TrackTruthCollection#"+InDetKeys.TRTTracks()+'TruthCollection']
       InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.TRTTracks()+'DetailedTruth']
+if InDetFlags.doPseudoTracking():
+   InDetESDList+=["TrackCollection#"+InDetKeys.PseudoTracks()]
+   if InDetFlags.doTruth():
+      InDetESDList += ["TrackTruthCollection#"+InDetKeys.PseudoTracks()+'TruthCollection']
+      InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.PseudoTracks()+'DetailedTruth']
 
 if InDetFlags.doDBMstandalone() or InDetFlags.doDBM(): 
    InDetESDList+=["TrackCollection#"+InDetKeys.DBMTracks()] 
@@ -83,6 +91,12 @@ if InDetFlags.doBeamGas():
    InDetESDList+=["TrackCollection#"+InDetBeamGasTRTExtension.ForwardTrackCollection()] #ExtendedHaloTracks
 if InDetFlags.doBeamHalo():
    InDetESDList+=["TrackCollection#"+InDetRecHaloTRTExtension.ForwardTrackCollection()] #ExtendedBeamGasTracks 
+
+if InDetFlags.doTrackSegmentsPixelPrdAssociation():
+  InDetESDList+=["TrackCollection#"+InDetKeys.PixelPrdAssociationTracks()]
+  if InDetFlags.doTruth():
+      InDetESDList += ["TrackTruthCollection#"+InDetKeys.PixelPrdAssociationTracks()+'TruthCollection']
+      InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.PixelPrdAssociationTracks()+'DetailedTruth']   
    
 # Add TRT Segments (only if standalone is off).
 # -----------------
@@ -114,6 +128,10 @@ if InDetFlags.doxAOD():
    excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation"
   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTrackParticleContainer()+'Aux.' + excludedAuxData]
+
+  if InDetFlags.doStoreTrackSeeds():
+   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle"]
+   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle"+'Aux.' + excludedAuxData]
 
   if not InDetFlags.doSLHC():
      InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODForwardTrackParticleContainer()]
@@ -147,6 +165,9 @@ if InDetFlags.doxAOD():
   if InDetFlags.doTrackSegmentsTRT():
     InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTRTTrackParticleContainer()]
     InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTRTTrackParticleContainer()+'Aux.' + excludedAuxData]
+  if InDetFlags.doPseudoTracking():
+    InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPseudoTrackParticleContainer()]
+    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPseudoTrackParticleContainer()+'Aux.' + excludedAuxData]
 # next is only for InDetRecExample stand alone! RecExCommon uses InDetESDList directly
 # added to InDetRec_all.py after include WriteInDetESD!
 #StreamESD.ItemList += InDetESDList

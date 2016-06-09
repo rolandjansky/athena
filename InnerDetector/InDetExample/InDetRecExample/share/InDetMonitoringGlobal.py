@@ -1,3 +1,6 @@
+if (not 'doIdGlobalErrorMon' in dir()):
+  doIdGlobalErrorMon = False
+
 ####################################################
 #                                                  #
 # InDetGlobalManager top algorithm                 #
@@ -36,6 +39,20 @@ if InDetFlags.doMonitoringGlobal():
   ToolSvc += InDetGlobalSynchMonTool
   if (InDetFlags.doPrintConfigurables()):
       print InDetGlobalSynchMonTool
+
+  #######################################################
+  #                                                     #
+  # Error monitoring, only online                       #
+  #                                                     #
+  #######################################################
+  if doIdGlobalErrorMon:
+      from InDetGlobalMonitoring.InDetGlobalMonitoringConf import InDetGlobalErrorMonTool
+      InDetGlobalErrorMonTool=InDetGlobalErrorMonTool( name = "InDetGlobalErrorMonTool" )
+  
+      ToolSvc += InDetGlobalErrorMonTool
+      if (InDetFlags.doPrintConfigurables()):
+          print InDetGlobalErrorMonTool
+
   
   ##################################################
   #                                                #
@@ -45,20 +62,29 @@ if InDetFlags.doMonitoringGlobal():
       
   from InDetGlobalMonitoring.InDetGlobalMonitoringConf import InDetGlobalTrackMonTool
   InDetGlobalTrackMonTool=InDetGlobalTrackMonTool( name          = "InDetGlobalTrackMonTool",
-                                                  histoPathBase = "/GLOBAL",
-                                                  DoIBL         = InDetFlags.doIBL(),
-                                                  trackMax      = 1000)
+                                                   histoPathBase = "/GLOBAL",
+                                                   DoIBL         = InDetFlags.doIBL(),
+                                                   trackMax      = 75)
 
   TrackCollection = InDetKeys.UnslimmedTracks()
-  InDetGlobalTrackMonTool.LoosePrimary_SelTool.UseTrkTrackTools = True
-  InDetGlobalTrackMonTool.LoosePrimary_SelTool.CutLevel = "LoosePrimary"
-  InDetGlobalTrackMonTool.Tight_SelTool.UseTrkTrackTools = True
-  InDetGlobalTrackMonTool.Tight_SelTool.CutLevel = "TightPrimary"
+
+  InDetTrackSelectionToolGlobalMon_LoosePrimary = InDet__InDetTrackSelectionTool(name = "InDetTrackSelectionToolGlobalMon_LoosePrimary",
+                                                                                 UseTrkTrackTools = True,
+                                                                                 CutLevel = "LoosePrimary",
+                                                                                 TrackSummaryTool    = InDetTrackSummaryTool,
+                                                                                 Extrapolator        = InDetExtrapolator)
+
+  InDetTrackSelectionToolGlobalMon_TightPrimary = InDet__InDetTrackSelectionTool(name = "InDetTrackSelectionToolGlobalMon_TightPrimary",
+                                                                                 UseTrkTrackTools = True,
+                                                                                 CutLevel = "TightPrimary",
+                                                                                 TrackSummaryTool    = InDetTrackSummaryTool,
+                                                                                 Extrapolator        = InDetExtrapolator)
+
+  ToolSvc += InDetTrackSelectionToolGlobalMon_LoosePrimary
+  ToolSvc += InDetTrackSelectionToolGlobalMon_TightPrimary
   
-  InDetGlobalTrackMonTool.LoosePrimary_SelTool.TrackSummaryTool = InDetTrackSummaryTool
-  InDetGlobalTrackMonTool.LoosePrimary_SelTool.Extrapolator        = InDetExtrapolator
-  InDetGlobalTrackMonTool.Tight_SelTool.TrackSummaryTool = InDetTrackSummaryTool
-  InDetGlobalTrackMonTool.Tight_SelTool.Extrapolator        = InDetExtrapolator
+  InDetGlobalTrackMonTool.LoosePrimary_SelTool = InDetTrackSelectionToolGlobalMon_LoosePrimary
+  InDetGlobalTrackMonTool.Tight_SelTool = InDetTrackSelectionToolGlobalMon_TightPrimary
 
   if DQMonFlags.monManDataType == 'heavyioncollisions' or InDetFlags.doHeavyIon() == True:
     InDetGlobalTrackMonTool.trackMax      = 10000
@@ -133,6 +159,9 @@ if InDetFlags.doMonitoringGlobal():
                                          InDetGlobalBCMTool]
   if DetFlags.haveRIO.pixel_on():
       InDetGlobalManager.AthenaMonTools += [ InDetGlobalPixelTool ]
+
+  if doIdGlobalErrorMon:
+      InDetGlobalManager.AthenaMonTools += [ InDetGlobalErrorMonTool ]
 
   if jobproperties.Beam.beamType() != 'cosmics':
       InDetGlobalManager.AthenaMonTools += [ InDetGlobalBeamSpotMonTool ]

@@ -59,6 +59,19 @@ ToolSvc += InDetSCTErrMonTool
 if (InDetFlags.doPrintConfigurables()):
   print InDetSCTErrMonTool
                
+
+
+if not hasattr(ServiceMgr,"TrigConfigSvc"):
+  from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc
+  trigconfigsvc= SetupTrigConfigSvc()
+  trigconfigsvc.SetStates('ds')
+  trigconfigsvc.InitialiseSvc()
+  pass
+
+from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+SCT_BunchCrossingTool = BunchCrossingTool()
+
+
 from SCT_Monitoring.SCT_MonitoringConf import SCTHitEffMonTool
 InDetSCTHitEffMonTool = SCTHitEffMonTool(name = "InDetSCTHitEffMonTool",
                                          DetectorMode            = 3,
@@ -70,7 +83,8 @@ InDetSCTHitEffMonTool = SCTHitEffMonTool(name = "InDetSCTHitEffMonTool",
                                          ChronoTime              = False,
                                          HoleSearch              = InDetHoleSearchTool,
                                          IsSim                   = globalflags.DataSource != "data",
-                                         ROTCreator              = SCT_ClusterOnTrackTool)
+                                         ROTCreator              = SCT_ClusterOnTrackTool,
+                                         BunchCrossingTool       = SCT_BunchCrossingTool)
 
 InDetSCTHitEffMonTool.TrackName = InDetKeys.SCTTracks() if  InDetFlags.doTrackSegmentsSCT() else InDetKeys.UnslimmedTracks()
 

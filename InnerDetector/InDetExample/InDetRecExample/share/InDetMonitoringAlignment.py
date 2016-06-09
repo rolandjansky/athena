@@ -9,6 +9,10 @@ InDetAlignMonDoTruth = False
 ## To use RefittedTracks collection requires also that InDetFlags.doRefit=True
 InDetAlignMonReadESD = False
 
+##Set to True if you want to use TriggerAware Alignment Monitoring
+doTriggerAwareMonitoring = False
+
+
 # Setup vertexing sequence without beam constraint.
 # NOTE: Include the following BEFORE adding InDetAlignMonManager to topSequence.
 # include('InDetAlignmentMonitoring/InDetAlignmentMonitoring_vertexing.py')
@@ -69,11 +73,13 @@ if not jobproperties.Beam.beamType()=='cosmics':
     m_alignMonTrackSelectionTool.append(InDetAlignMon__TrackSelectionTool(name                     = "InDetAlignMonTrackSelectionTool_LoosePrimary",
                                                                           #PassAllTracks           = True, ## Uncomment this line to bypass track slection
                                                                           IDTrackSelectionTool     = m_alignMonTrackSelectorTool[0],
+                                                                          PrimVtxContainerName     = InDetKeys.xAODVertexContainer(),
                                                                           UseIDTrackSelectionTool  = True))
     
     m_alignMonTrackSelectionTool.append(InDetAlignMon__TrackSelectionTool(name                     = "InDetAlignMonTrackSelectionTool_LoosePrimary_NoTRT",
                                                                           #PassAllTracks           = True, ## Uncomment this line to bypass track slection
                                                                           IDTrackSelectionTool     = m_alignMonTrackSelectorTool[1],
+                                                                          PrimVtxContainerName     = InDetKeys.xAODVertexContainer(),
                                                                           UseIDTrackSelectionTool  = True))
 
     
@@ -227,7 +233,7 @@ if (InDetFlags.doPrintConfigurables()):
 from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonGenericTracks
 InDetAlignMonGenericTracks_noTrig = IDAlignMonGenericTracks (name                = "InDetAlignMonGenericTracks_noTrig",
                                                              trackSelection      = m_alignMonTrackSelectionTool[1],
-                                                             VxPrimContainerName = InDetKeys.PrimaryVertices())   
+                                                             VxPrimContainerName = InDetKeys.xAODVertexContainer())   
 
 if jobproperties.Beam.beamType()=='cosmics' or jobproperties.Beam.beamType()=='singlebeam':
     InDetAlignMonGenericTracks_noTrig.tracksName   = InDetKeys.Tracks()
@@ -344,8 +350,8 @@ if jobproperties.Beam.beamType()=='cosmics':
 #if DQMonFlags.useTrigger():
 #    if not hasattr(ToolSvc, DQMonFlags.nameTrigDecTool()):
 #        print "InDetAlignmentMonitoring_InDetRec_jobOptions.py: trigger decision tool not found, including it now"
-if not hasattr(ToolSvc, 'monTrigDecTool'):
-    print "InDetAlignmentMonitoring_InDetRec_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring"  
+if not hasattr(ToolSvc, 'monTrigDecTool') or not doTriggerAwareMonitoring:
+    print "InDetAlignmentMonitoring_InDetRec_jobOptions.py: trigger decision tool not found or monitoring disabled: don't run trigger-aware monitoring"  
 elif jobproperties.Beam.beamType()=='cosmics' or jobproperties.Beam.beamType()=='singlebeam':
     print "InDetAlignmentMonitoring_InDetRec_jobOptions.py: cosmics or singlebeam beamType: don't run trigger-aware monitoring"
 else:
@@ -370,7 +376,7 @@ else:
     InDetAlignMonGenericTracks = IDAlignMonGenericTracks (name                = "InDetAlignMonGenericTracks",
                                                           trackSelection      = m_alignMonTrackSelectionTool[1],
                                                           tracksName          = InDetKeys.ExtendedTracks(),
-                                                          VxPrimContainerName = InDetKeys.PrimaryVertices())
+                                                          VxPrimContainerName =  InDetKeys.xAODVertexContainer())
 
     InDetAlignMonBeamSpot = InDetAlignMonBeamSpot (name                          = "InDetAlignMonBeamSpot",
                                                    vxContainerName               = InDetKeys.PrimaryVertices(),
@@ -389,17 +395,25 @@ else:
     InDetAlignMonGenericTracks.TrigDecisionTool   = monTrigDecTool
     InDetAlignMonBeamSpot.TrigDecisionTool        = monTrigDecTool
 
-    InDetAlignMonSivsTRT.TriggerChain             = "J_minpt"
-    InDetAlignMonResiduals.TriggerChain           = "J_minpt"
-    InDetAlignMonEfficiencies.TriggerChain        = "J_minpt"
-    InDetAlignMonGenericTracks.TriggerChain       = "J_minpt"
-    InDetAlignMonBeamSpot.TriggerChain            = "J_minpt"
 
-    InDetAlignMonSivsTRT.triggerChainName         = "Jet_MinBias_Trigger"
-    InDetAlignMonResiduals.triggerChainName       = "Jet_MinBias_Trigger"
-    InDetAlignMonEfficiencies.triggerChainName    = "Jet_MinBias_Trigger"
-    InDetAlignMonGenericTracks.triggerChainName   = "Jet_MinBias_Trigger"
-    InDetAlignMonBeamSpot.histFolder              = "IDAlignMon/BeamSpot/Jet_MinBias_Trigger"
+    if rec.doHeavyIon():
+        InDetAlignMonSivsTRT.TriggerChain             = "HLT_j30_ion_L1TE50"
+        InDetAlignMonResiduals.TriggerChain           = "HLT_j30_ion_L1TE50"
+        InDetAlignMonEfficiencies.TriggerChain        = "HLT_j30_ion_L1TE50"
+        InDetAlignMonGenericTracks.TriggerChain       = "HLT_j30_ion_L1TE50"
+        InDetAlignMonBeamSpot.TriggerChain            = "HLT_j30_ion_L1TE50"
+    else:
+        InDetAlignMonSivsTRT.TriggerChain             = "HLT_mu24_imedium"
+        InDetAlignMonResiduals.TriggerChain           = "HLT_mu24_imedium"
+        InDetAlignMonEfficiencies.TriggerChain        = "HLT_mu24_imedium"
+        InDetAlignMonGenericTracks.TriggerChain       = "HLT_mu24_imedium"
+        InDetAlignMonBeamSpot.TriggerChain            = "HLT_mu24_imedium"
+
+    InDetAlignMonSivsTRT.triggerChainName         = "TriggerAwareMon"
+    InDetAlignMonResiduals.triggerChainName       = "TriggerAwareMon"
+    InDetAlignMonEfficiencies.triggerChainName    = "TriggerAwareMon"
+    InDetAlignMonGenericTracks.triggerChainName   = "TriggerAwareMon"
+    InDetAlignMonBeamSpot.histFolder              = "IDAlignMon/BeamSpot/TriggerAwareMon"
 
     ToolSvc += InDetAlignMonResiduals
     if (InDetFlags.doPrintConfigurables()):
@@ -456,7 +470,7 @@ if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBun
 
 if InDetAlignMonDoTruth:
     InDetAlignMonManager.AthenaMonTools     += [ InDetAlignMonTruthComparison ]
-if not hasattr(ToolSvc, 'monTrigDecTool'):
+if not hasattr(ToolSvc, 'monTrigDecTool') or not doTriggerAwareMonitoring:
     print "InDetAlignmentMonitoring_InDetRec_jobOptions.py: trigger decision tool not found: don't run trigger-aware monitoring" 
 elif jobproperties.Beam.beamType()=='cosmics' or jobproperties.Beam.beamType()=='singlebeam':
     print "singlebeam or cosmics: don't run trigger-aware monitoring"

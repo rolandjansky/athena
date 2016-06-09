@@ -1,6 +1,8 @@
 # block include of file, this is used by many packages
 include.block ("InDetRecExample/InDetRecConditionsAccess.py")
 
+isData = (globalflags.DataSource == 'data')
+
 if not ('conddb' in dir()):
   IOVDbSvc = Service("IOVDbSvc")
   from IOVDbSvc.CondDB import conddb
@@ -95,7 +97,9 @@ if DetFlags.haveRIO.pixel_on():
         if InDetFlags.doPrintConfigurables():
             print InDetPixelDCSSvc
 
-        InDetPixelConditionsSummarySvc.UseDCS         = True
+        # temporarily workaround incomplete conditions data for MC
+        #  by only enabling the usage of dcs in the pixel conditions summary service for data
+        InDetPixelConditionsSummarySvc.UseDCS         = isData
         InDetPixelConditionsSummarySvc.IsActiveStates = [ 'READY' ]
         InDetPixelConditionsSummarySvc.IsActiveStatus = [ 'OK', 'WARNING' ]
         # Force Lorentz angle calculation to use DCS for data
@@ -154,10 +158,10 @@ if DetFlags.haveRIO.pixel_on():
 # --- Load SCT Conditions Services
 #
 if DetFlags.haveRIO.SCT_on():
-    SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
-    #if its CONDBR2, use new folders...
-    if (conddb.dbdata == "CONDBR2"):
-        SCTConfigurationFolderPath='/SCT/DAQ/Config/'
+    SCTConfigurationFolderPath='/SCT/DAQ/Config/'
+    #if its COMP200, use old folders...
+    if (conddb.dbdata == "COMP200"):
+        SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
     #...but now check if we want to override that decision with explicit flag (if there is one)
     try:
         if InDetFlags.ForceCoraCool():
@@ -345,22 +349,9 @@ if DetFlags.haveRIO.TRT_on():
     # --- reenambe new TRT errors      
     if not conddb.folderRequested('/TRT/Calib/errors2d'):
         conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors2d","/TRT/Calib/errors2d")
-            #FIXME: overrides
-        if (globalflags.DataSource() == 'data'): 
-                conddb.addOverride("/TRT/Calib/errors2d"      ,"TrtCalibErrors2d-data_25ns-2Dfit-00-00")
-                conddb.addOverride("/TRT/Onl/Calib/errors2d"  ,"TrtOnlCalibErrors2d-data_25ns-2Dfit-00-00")
-        else:
-                conddb.addOverride("/TRT/Calib/errors2d"      ,"TrtCalibErrors2d-IOVdep-2Dfit-00-00")
-          
 
     if not conddb.folderRequested('/TRT/Calib/slopes'):
         conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/slopes","/TRT/Calib/slopes")
-            #FIXME: overrides
-        if (globalflags.DataSource() == 'data'): 
-                conddb.addOverride("/TRT/Calib/slopes"      ,"TrtCalibSlopes-data_25ns-2Dfit-00-00")
-                conddb.addOverride("/TRT/Onl/Calib/slopes"  ,"TrtOnlCalibSlopes-data_25ns-2Dfit-00-00")
-        else:
-                conddb.addOverride("/TRT/Calib/slopes"      ,"TrtCalibSlopes-IOVdep-2Dfit-00-00")
         
     if not conddb.folderRequested('/TRT/Calib/ToTCalib'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib")
@@ -406,22 +397,12 @@ if DetFlags.haveRIO.TRT_on():
 		# Added for run2. Clean the unsed ones!!!
     if not conddb.folderRequested( "/TRT/Calib/PID_vector" ):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector", "/TRT/Calib/PID_vector")
-	## FIXME!! Clean overrides!!
-        if globalflags.DataSource() == 'data':
-                conddb.addOverride("/TRT/Calib/PID_vector"	,"TRTCalibPID_vector_Data_OnSetMC_CorrData_noZR_00-01")	
-                conddb.addOverride("/TRT/Onl/Calib/PID_vector"	,"TRTOnlCalibPID_vector-ES1-UPD1-00-00-01")
-        else:
-                conddb.addOverride("/TRT/Calib/PID_vector","TRTCalibPID_vector_MC_OnSetMC_CorrMC_noZR_00-01")
 
     if not conddb.folderRequested( "/TRT/Calib/ToT/ToTVectors"):
-       conddb.addFolder( "TRT_OFL", "/TRT/Calib/ToT/ToTVectors") 
-       #FIXME: 
-       conddb.addOverride("/TRT/Calib/ToT/ToTVectors"	,	"TRTCalibToTToTVectors-000-01")
+       conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/ToT/ToTVectors", "/TRT/Calib/ToT/ToTVectors")
 
     if not conddb.folderRequested( "/TRT/Calib/ToT/ToTValue"):
-       conddb.addFolder( "TRT_OFL", "/TRT/Calib/ToT/ToTValue") 
-       #FIXME: 
-       conddb.addOverride("/TRT/Calib/ToT/ToTValue"	,	"TRTCalibToTToTValue-000-01")
+       conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/ToT/ToTValue", "/TRT/Calib/ToT/ToTValue")
 
 
     #
