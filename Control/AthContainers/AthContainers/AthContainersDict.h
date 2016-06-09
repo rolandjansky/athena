@@ -20,6 +20,7 @@
 #include "AthContainers/OwnershipPolicy.h"
 #include "AthContainers/PackedParameters.h"
 #include "AthContainers/PackedContainer.h"
+#include "AthContainers/debug.h"
 #include "AthLinks/DataLink.h"
 
 

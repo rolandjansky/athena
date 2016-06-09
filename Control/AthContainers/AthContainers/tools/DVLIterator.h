@@ -108,7 +108,7 @@ public:
   {}
 
 
-  /// Dereference.  Operaotr-> doesn't make sense here.
+  /// Dereference.  Operator-> doesn't make sense here.
   reference operator*() const { return dereference(); }
   reference operator[] (difference_type n) const
   { const_iterator tmp = *this + n; return *tmp; }

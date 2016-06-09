@@ -333,7 +333,7 @@ ExcUnknownAuxItem::ExcUnknownAuxItem (const std::string& name,
 
 
 /**
- * @brief Throw a SG::ExcNonowningContainer exception.
+ * @brief Throw a SG::ExcUnknownAuxItem exception.
  * @param name Name of the aux data item.
  * @param clsname Class name of the aux data item, or an empty string.
  * @param typ Type of the item, if provided.
@@ -343,6 +343,98 @@ void throwExcUnknownAuxItem (const std::string& name,
                              const std::type_info* typ /*= 0*/)
 {
   throw ExcUnknownAuxItem (name, clsname, typ);
+}
+
+
+//*************************************************************************
+
+
+/// Helper: format exception error string.
+std::string excDVToELV_format (const std::string& detail)
+{
+  std::ostringstream os;
+  os << "SG::ExcDVToELV: "
+     << "Can't convert DataVector to vector of ElementLinks: "
+     << detail;
+  return os.str();
+}
+
+
+/**
+ * @brief Constructor.
+ * @param detail More information about the error.
+ */
+ExcDVToELV::ExcDVToELV (const std::string& detail)
+  : std::runtime_error (excDVToELV_format (detail))
+{
+}
+
+
+//*************************************************************************
+
+
+/**
+ * @brief Constructor.
+ */
+ExcViewVectorNotView::ExcViewVectorNotView()
+  : std::runtime_error ("ViewVector not in view mode.")
+{
+}
+
+
+/**
+ * @brief Throw a SG::ExcViewVectorNotView exception.
+ */
+void throwExcViewVectorNotView()
+{
+  throw ExcViewVectorNotView();
+}
+
+
+//*************************************************************************
+
+
+/**
+ * @brief Constructor.
+ */
+ExcMissingViewVectorCLID::ExcMissingViewVectorCLID (const std::type_info& ti)
+  : std::runtime_error ("ViewVector " + AthContainers_detail::typeinfoName(ti) +
+                        "was used in a context that requires a CLID, "
+                        "but no CLID was available.  Make sure a "
+                        "VIEWVECTOR_CLASS_DEF declaration exists for the class "
+                        "in a library that has been loaded.")
+{
+}
+
+
+/**
+ * @brief Throw a SG::ExcViewVectorCLID exception.
+ */
+void throwExcMissingViewVectorCLID (const std::type_info& ti)
+{
+  throw ExcMissingViewVectorCLID (ti);
+}
+
+
+//*************************************************************************
+
+
+/**
+ * @brief Constructor.
+ */
+ExcMissingBaseInfo::ExcMissingBaseInfo (const std::type_info& ti)
+  : std::runtime_error ("Missing BaseInfo for " +
+                        AthContainers_detail::typeinfoName(ti))
+{
+}
+
+
+/**
+ * @brief Throw a SG::ExcMissingBaseInfo exception.
+ */
+void throwExcMissingBaseInfo (const std::type_info& ti)
+{
+  throw ExcMissingBaseInfo (ti);
 }
 
 

@@ -17,9 +17,11 @@
 #ifndef ATHCONTAINERS_TOOLS_DVLDATABUCKET_H
 #define ATHCONTAINERS_TOOLS_DVLDATABUCKET_H
 
+#include "AthContainers/ViewVector.h"
 #include "SGTools/DataBucket.h"
 #include "AthContainers/tools/DVLInfo.h"
 #include <memory>
+
 
 
 namespace SG {
@@ -39,6 +41,11 @@ namespace SG {
  * This @c DataBucket allows such conversions to happen by making
  * a copy of the container (as a view container) and converting the contained
  * pointers.  The new instance remains owned by the @c DataBucket.
+ *
+ * We may also try to create a bucket for a @c ViewVector<DV> object
+ * given a pointer to its @c DV base class.  In such a case, we detect
+ * that we actually have a @c ViewVector and adjust appropriately the
+ * CLID and type_info that we return.
  */
 template <class T>
 class DVLDataBucket
@@ -77,7 +84,7 @@ public:
   /**
    * @brief Destructor.
    */
-  ~DVLDataBucket();
+  virtual ~DVLDataBucket() override;
 
 
   /**
@@ -89,7 +96,7 @@ public:
    * @param isConst True if the object being converted is regarded as const.
    */
   virtual void* cast (CLID clid, IRegisterTransient* irt = 0,
-                      bool isConst = true) const;
+                      bool isConst = true) const override;
     
 
   /**
@@ -102,20 +109,48 @@ public:
    */
   virtual void* cast (const std::type_info& tinfo,
                       IRegisterTransient* irt = 0,
-                      bool isConst = true) const;
+                      bool isConst = true) const override;
 
 
   /**
    * @brief Return a new @c DataBucket whose payload has been cloned from the
    *        original one.
    */
-  virtual DVLDataBucket* clone() const;
+  virtual DVLDataBucket* clone() const override;
+
+
+  /**
+   * @brief The CLID for the class of object we're holding.
+   *
+   * May be different from that of the base @c DataVector in the case
+   * of a @c ViewVector.
+   */
+  virtual const CLID& clID() const override;
+
+  
+  /**
+   * @brief The std::type_info for the class of object we're holding.
+   *
+   * May be different from that of the base @c DataVector in the case
+   * of a @c ViewVector.
+   */
+  virtual const std::type_info& tinfo() const override;
 
 
 private:
   typedef std::pair<DataModel_detail::DVLInfoBase*, void*> ent_t;
   typedef std::vector<ent_t> vec_t;
   mutable vec_t m_copies;
+
+  /// The std::type_info for the class of object we're holding.
+  /// May be different from that of the base @c DataVector in the case
+  /// of a @c ViewVector.
+  const std::type_info* m_ti;
+
+  /// The CLID for the class of object we're holding.
+  /// May be different from that of the base @c DataVector in the case
+  /// of a @c ViewVector.
+  CLID m_clid;
 
   // Avoid coverity warning.
   DVLDataBucket& operator= (const DVLDataBucket&);

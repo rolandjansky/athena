@@ -16,6 +16,7 @@
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainers/exceptions.h"
 #include "AthContainers/tools/foreach.h"
+#include "SGTools/TestStore.h"
 #include "TestTools/expect_exception.h"
 #ifndef ATHCONTAINERS_NO_THREADS
 #include "boost/thread/shared_mutex.hpp"
@@ -437,6 +438,18 @@ void test_setoption()
 }
 
 
+void test_storelink()
+{
+  std::cout << "test_storelink\n";
+
+  AuxVectorData_test b1;
+  assert (!b1.hasStore());
+
+  b1.setStore (DataLink<SG::IConstAuxStore> ("foo"));
+  assert (b1.getConstStoreLink().dataID() == "foo");
+}
+
+
 void test_threading()
 {
   std::cout << "test_threading\n";
@@ -456,11 +469,13 @@ double test_code (SG::auxid_t auxid, AuxVectorData_test& b)
 double test_code (SG::auxid_t auxid, const AuxVectorData_test& b)
 {
   return b.getData<double> (auxid, 0) + b.getData<double> (auxid, 1);
-}  
+}
 
 
 int main()
 {
+  SGTest::initTestStore();
+
   // Make reallocations more frequent (the better to exercise them).
   AuxVectorData_test::s_minCacheLen = 1;
   test_get_data();
@@ -469,6 +484,7 @@ int main()
   test_decoration();
   test_move();
   test_setoption();
+  test_storelink();
   test_threading();
   return 0;
 }

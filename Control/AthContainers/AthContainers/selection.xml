@@ -29,7 +29,7 @@
   <class name="SG::AuxStoreInternal" id="77039D3D-4E24-46C1-B5D1-9AD5F17D3B09">
     <field name="m_vecs" transient="true"/>
     <field name="m_isDecoration" transient="true"/>
-    <!-- <field name="m_auxids" transient="true"/> -->
+    <field name="m_auxids" transient="true"/> 
     <field name="m_tick" transient="true"/>
     <field name="m_locked" transient="true"/>
     <field name="m_mutex" transient="true"/>
@@ -47,6 +47,7 @@
   <function proto_pattern="*operator!=*hashtable_const_iterator<unsigned *"/>
   <function proto_pattern="*operator==*hashtable_iterator<unsigned *"/>
   <function proto_pattern="*operator==*hashtable_const_iterator<unsigned *"/>
+  <class name="CxxUtils_Internal::prime_rehash_policy"/>
 
   <class name="SG::AuxElement::TypelessConstAccessor"/>
 
@@ -167,5 +168,11 @@
   <class name="SG::PackedContainer<std::vector<std::vector<unsigned int> > >"/>
   <class name="SG::PackedContainer<std::vector<std::vector<float> > >"/>
   <class name="SG::PackedContainer<std::vector<std::vector<double> > >"/>
+
+  <function name="SGdebug::aux_var_name"/>
+  <function name="SGdebug::print_aux_var_name"/>
+  <function name="SGdebug::aux_var_as_string"/>
+  <function name="SGdebug::print_aux_vars"/>
+  <function name="SGdebug::dump_aux_vars"/>
 
 </lcgdict>

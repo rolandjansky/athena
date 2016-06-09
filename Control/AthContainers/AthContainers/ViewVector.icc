@@ -1,0 +1,246 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file AthContainers/ViewVector.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jan, 2016
+ * @brief Identify view containers to be made persistent.
+ */
+
+
+/**
+ * @brief Default constructor.
+ * @param ownPolicy The ownership mode for the container.
+ *                  Must be @c SG::VIEW_ELEMENTS.
+ *                  (Argument present only for interface compatibility.)
+ */
+template <class DV>
+inline
+ViewVector<DV>::ViewVector(SG::OwnershipPolicy ownPolicy /*= SG::VIEW_ELEMENTS*/)
+  : DV (SG::VIEW_ELEMENTS)
+{
+  if (ownPolicy != SG::VIEW_ELEMENTS) SG::throwExcViewVectorNotView();
+  registerBaseInit();
+}
+
+
+/**
+ * @brief Sized constructor.
+ * @param n The size of the container.
+ * @param ownPolicy The ownership mode for the container.
+ *                  Must be @c SG::VIEW_ELEMENTS.
+ *                  (Argument present only for interface compatibility.)
+ *
+ * Note that unlike the standard vector constructor, you can't specify
+ * an initial value here.  The container will be initialized with 0's.
+ */
+template <class DV>
+inline
+ViewVector<DV>::ViewVector(size_type n,
+                           SG::OwnershipPolicy ownPolicy /*= SG::VIEW_ELEMENTS*/)
+  : DV (n, SG::VIEW_ELEMENTS)
+{
+  if (ownPolicy != SG::VIEW_ELEMENTS) SG::throwExcViewVectorNotView();
+  registerBaseInit();
+}
+
+
+/**
+ * @brief Constructor from iterators.
+ * @param first The start of the range to put in the new container.
+ * @param last The end of the range to put in the new container.
+ */
+template <class DV>
+template <class InputIterator>
+inline
+ViewVector<DV>::ViewVector(InputIterator first, InputIterator last)
+  : DV (first, last, SG::VIEW_ELEMENTS)
+{
+  registerBaseInit();
+}
+
+
+/**
+ * @brief Move constructor.
+ * @param rhs The container from which to move.
+ *
+ * Any auxiliary data will be moved along with the container contents.
+ */
+template <class DV>
+inline
+ViewVector<DV>::ViewVector (ViewVector&& rhs)
+{
+  // Redundant, but just to check for problems.
+  if (rhs.ownPolicy() != SG::VIEW_ELEMENTS) SG::throwExcViewVectorNotView();
+  DV::operator= (std::move (rhs));
+  registerBaseInit();
+}
+
+
+/**
+ * @brief Constructor from base vector..
+ * @param rhs The container from which to copy.
+ */
+template <class DV>
+inline
+ViewVector<DV>::ViewVector (const DV& rhs)
+  : DV(rhs)
+{
+  registerBaseInit();
+}
+
+
+/**
+ * @brief Move constructor from base vector.
+ * @param rhs The container from which to copy.  Must be a view container.
+ *
+ * Any auxiliary data will be moved along with the container contents.
+ */
+template <class DV>
+inline
+ViewVector<DV>::ViewVector (DV&& rhs)
+  : DV(std::move(rhs))
+{
+  if (this->ownPolicy() != SG::VIEW_ELEMENTS) SG::throwExcViewVectorNotView();
+  registerBaseInit();
+}
+
+
+/**
+ * @brief Constructor from an initializer list.
+ * @param l An initializer list.
+ */
+template <class DV>
+inline
+ViewVector<DV>::ViewVector(std::initializer_list<value_type> l)
+  : DV (l, SG::VIEW_ELEMENTS)
+{
+  registerBaseInit();
+}
+
+
+/**
+ * @brief Assignment operator.
+ * @param rhs The DataVector from which to assign.
+ * @return This object.
+ *
+ * This is a `shallow' copy; after the completion of this, the DataVector
+ * will not own its elements.  Any elements it owned prior to this call
+ * will be released.
+ *
+ * Note: this method may only be called using the most derived
+ * @c DataVector in the hierarchy.
+ */
+template <class DV>
+inline
+ViewVector<DV>& ViewVector<DV>::operator= (const DV& rhs)
+{
+  if (this != &rhs) {
+    DV::operator= (rhs);
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Move assignment.
+ * @param rhs The container from which to move.
+ *
+ * Any auxiliary data will be moved along with the container contents.
+ */
+template <class DV>
+inline
+ViewVector<DV>& ViewVector<DV>::operator= (ViewVector&& rhs)
+{
+  if (this != &rhs) {
+    // Redundant but good to check anyway.
+    if (this->ownPolicy() != SG::VIEW_ELEMENTS) SG::throwExcViewVectorNotView();
+    DV::operator= (std::move (rhs));
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Move assignment from base vector.
+ * @param rhs The container from which to move.
+ *            Must be a view vector.
+ *
+ * Any auxiliary data will be moved along with the container contents.
+ */
+template <class DV>
+inline
+ViewVector<DV>& ViewVector<DV>::operator= (DV&& rhs)
+{
+  if (this != &rhs) {
+    if (rhs.ownPolicy() != SG::VIEW_ELEMENTS) SG::throwExcViewVectorNotView();
+    DV::operator= (std::move (rhs));
+  }
+  return *this;
+}
+
+
+/**
+ * @brief Assignment operator, from an initializer list.
+ * @param l An initializer list.
+ * @return This object.
+ *
+ * This is equivalent to @c assign.
+ */
+template <class DV>
+inline
+ViewVector<DV>& ViewVector<DV>::operator= (std::initializer_list<value_type> l)
+{
+  DV::operator= (l);
+  return *this;
+}
+
+
+/**
+ * @fn void clear
+ * @brief Erase all the elements in the collection.
+ * @param ownPolicy The new ownership policy of the container.
+ *                  Must be SG::VIEW_ELEMENTS.
+ *                  (Argument present only for interface compatibility.)
+ */
+template <class DV>
+inline
+void ViewVector<DV>::clear (SG::OwnershipPolicy ownPolicy)
+{
+  if (ownPolicy != SG::VIEW_ELEMENTS) SG::throwExcViewVectorNotView();
+  DV::clear (SG::VIEW_ELEMENTS);
+}
+
+
+/**
+ * @fn void clear
+ * @brief Erase all the elements in the collection.
+ * @param ownPolicy The new ownership policy of the container.
+ *                  Must be SG::VIEW_ELEMENTS.
+ *                  (Argument present only for interface compatibility.)
+ * @param trackIndices The index tracking policy.
+ */
+template <class DV>
+inline
+void ViewVector<DV>::clear (SG::OwnershipPolicy ownPolicy,
+                            SG::IndexTrackingPolicy trackIndices)
+{
+  if (ownPolicy != SG::VIEW_ELEMENTS) SG::throwExcViewVectorNotView();
+  DV::clear (SG::VIEW_ELEMENTS, trackIndices);
+}
+
+
+/**
+ * @brief Helper to ensure that the inheritance information for this class
+ *               gets initialized.
+ */
+template <class DV>
+void ViewVector<DV>::registerBaseInit()
+{
+#ifndef XAOD_STANDALONE
+  static const SG::RegisterBaseInit<ViewVector> rbi;
+#endif
+}

@@ -332,7 +332,7 @@ void test_copyForOutput()
 
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
   SG::auxid_t auxid = r.getAuxID<EL> ("EL");
-  SG::auxid_t auxid_v = r.getAuxID<std::vector<EL> > ("ELv");
+  SG::auxid_t auxid_v = r.getAuxID<std::vector<EL> > ("ELV");
 
   r.copyForOutput (auxid, &el2, 0, &el1, 0);
   assert (el2.key() == 123);

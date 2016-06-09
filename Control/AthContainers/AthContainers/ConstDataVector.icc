@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ConstDataVector.icc 626924 2014-11-07 15:00:54Z krasznaa $
+// $Id: ConstDataVector.icc 717853 2016-01-14 21:41:19Z ssnyder $
 /**
  * @file AthContainers/ConstDataVector.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -139,6 +139,24 @@ ConstDataVector<DV>::ConstDataVector
 
 
 /**
+ * @brief Constructor from a vector of ElementLinks.
+ * @param v The vector from which to initialize.
+ *
+ * This will make a view container.
+ */
+template <class DV>
+template <class CONTAINER>
+ConstDataVector<DV>::ConstDataVector
+  (const std::vector<ElementLink<CONTAINER> >& v)
+  : DV (SG::VIEW_ELEMENTS)
+{
+  this->reserve (v.size());
+  for (const ElementLink<CONTAINER>& el : v)
+    this->push_back (*el);
+}
+
+
+/**
  * @brief Assignment operator.
  * @param rhs The DataVector from which to assign.
  * @return This object.
@@ -237,6 +255,23 @@ void ConstDataVector<DV>::assign(std::initializer_list<value_type> l)
   this->assign (l.begin(), l.end());
 }
 #endif
+
+
+/**
+ * @brief Assign from a vector of ElementLinks.
+ * @param v The vector from which to initialize.
+ *
+ * This will change the container to a view container.
+ */
+template <class DV>
+template <class CONTAINER>
+void ConstDataVector<DV>::assign (const std::vector<ElementLink<CONTAINER> >& v)
+{
+  this->clear(SG::VIEW_ELEMENTS);
+  this->reserve (v.size());
+  for (const ElementLink<CONTAINER>& el : v)
+    this->push_back (*el);
+}
 
 
 //=== Element access.
@@ -839,6 +874,27 @@ inline
 void ConstDataVector<DV>::clear (SG::OwnershipPolicy ownPolicy)
 {
   DV::clear (ownPolicy, SG::NEVER_TRACK_INDICES);
+}
+
+
+/**
+ * @fn void clear
+ * @brief Erase all the elements in the collection, and reset
+ *        the ownership mode.
+ * @param ownPolicy The new ownership policy of the container.
+ * @param trackIndices The index tracking policy.
+ *
+ * If the container owns its elements, then the removed elements
+ * will be deleted.  Any duplicates will be removed in this process,
+ * but don't rely on this.
+ */
+template <class DV>
+inline
+void ConstDataVector<DV>::clear (SG::OwnershipPolicy ownPolicy,
+                                 SG::IndexTrackingPolicy trackIndices)
+{
+  DV::clear (ownPolicy, trackIndices);
+  if (DV::trackIndices()) std::abort();
 }
 
 

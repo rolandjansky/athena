@@ -70,13 +70,29 @@ void copyAuxStoreThinned (const SG::IConstAuxStore& orig,
     if (dyn_auxids.count(auxid) > 0 && sel_auxids.count(auxid) == 0)
       continue;
 
-    // Create the target variable:
-    void* dst = copy.getData (auxid, nremaining, nremaining);
-
     // Access the source variable:
     const void* src = orig.getData (auxid);
 
     if (!src) continue;
+
+    // FIXME: Do this via proper interfaces.
+    if (const IAuxStoreIO* iio = dynamic_cast<const IAuxStoreIO*> (&orig))
+    {
+      const std::type_info* typ = iio->getIOType (auxid);
+      if (strstr (typ->name(), "PackedContainer") != nullptr) {
+        const PackedParameters& parms =
+          reinterpret_cast<const PackedContainer<int>* > (iio->getIOData (auxid))->parms();
+        copy.setOption (auxid, AuxDataOption ("nbits", parms.nbits()));
+        copy.setOption (auxid, AuxDataOption ("float", parms.isFloat()));
+        copy.setOption (auxid, AuxDataOption ("signed", parms.isSigned()));
+        copy.setOption (auxid, AuxDataOption ("rounding", parms.rounding()));
+        copy.setOption (auxid, AuxDataOption ("nmantissa", parms.nmantissa()));
+        copy.setOption (auxid, AuxDataOption ("scale", parms.scale()));
+      }
+    }
+
+    // Create the target variable:
+    void* dst = copy.getData (auxid, nremaining, nremaining);
 
     // Copy over all elements, with thinning.
     for (std::size_t isrc = 0, idst = 0; isrc < size; ++isrc) {

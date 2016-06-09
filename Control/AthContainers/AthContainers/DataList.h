@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataList.h 616510 2014-09-12 15:31:07Z ssnyder $
+// $Id: DataList.h 721712 2016-02-03 20:57:28Z ssnyder $
 
 /**
  * @file AthContainers/DataList.h
@@ -247,6 +247,7 @@
 #include "SGTools/DataBucketTraitFwd.h"
 #include "SGTools/ClassName.h"
 
+#include "AthContainers/DataVector.h"
 #include "AthContainers/OwnershipPolicy.h"
 #include "AthContainers/exceptions.h"
 #include "AthContainers/tools/DVLNoBase.h"
