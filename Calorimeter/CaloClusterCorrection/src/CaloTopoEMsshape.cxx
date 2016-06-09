@@ -17,7 +17,7 @@ Updated:  March 12, 2005   (MB)
           corrections for the TopoCluster 
 ********************************************************************/
 
-#include "CaloClusterCorrection/CaloTopoEMsshape.h"
+#include "CaloTopoEMsshape.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "GaudiKernel/MsgStream.h"
 #include <math.h> 
@@ -58,7 +58,8 @@ CaloTopoEMsshape::~CaloTopoEMsshape()
 }*/
 
 // make correction to one cluster 
-void CaloTopoEMsshape::makeTheCorrection(xAOD::CaloCluster* cluster,
+void CaloTopoEMsshape::makeTheCorrection(const EventContext& /*ctx*/,
+                                         xAOD::CaloCluster* cluster,
 					 const CaloDetDescrElement* elt,
 					 float eta,
 					 float adj_eta,

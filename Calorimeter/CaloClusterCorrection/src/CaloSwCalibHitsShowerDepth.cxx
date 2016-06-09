@@ -68,7 +68,7 @@ double CaloSwCalibHitsShowerDepth::depth (float aeta,
   else
     return 0;
 
-  static CaloSampling::CaloSample samps[2][4] = {
+  static const CaloSampling::CaloSample samps[2][4] = {
     { CaloSampling::PreSamplerB,
       CaloSampling::EMB1,
       CaloSampling::EMB2,

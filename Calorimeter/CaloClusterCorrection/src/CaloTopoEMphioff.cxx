@@ -17,7 +17,7 @@ Updated:  March 12, 2005   (MB)
           corrections for the TopoCluster 
 ********************************************************************/
 
-#include "CaloClusterCorrection/CaloTopoEMphioff.h"
+#include "CaloTopoEMphioff.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -59,7 +59,8 @@ CaloTopoEMphioff::~CaloTopoEMphioff()
 }*/
 
 // make correction to one cluster 
-void CaloTopoEMphioff::makeTheCorrection(xAOD::CaloCluster* cluster,
+void CaloTopoEMphioff::makeTheCorrection(const EventContext& /*ctx*/,
+                                         xAOD::CaloCluster* cluster,
 					 const CaloDetDescrElement* elt,
 					 float /*eta*/,
 					 float adj_eta,
@@ -109,8 +110,7 @@ void CaloTopoEMphioff::makeTheCorrection(xAOD::CaloCluster* cluster,
   ATH_MSG_DEBUG( " ... Phi off " << qphioff << " " << adj_eta << " " << eclus << " " << iEtaBin << endreq);
 
   // Apply the correction
-  static CaloPhiRange range;
-  phi = range.fix(phi + qphioff);
+  phi = CaloPhiRange::fix(phi + qphioff);
   cluster->setPhi(samp,phi);
 
   ATH_MSG_DEBUG( " ... phi-off END" << endreq);

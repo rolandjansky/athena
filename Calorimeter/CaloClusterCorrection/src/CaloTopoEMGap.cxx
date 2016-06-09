@@ -10,10 +10,11 @@
  *           (based on CaloSwGap_v2)
  */
 
-#include "CaloClusterCorrection/CaloTopoEMGap.h"
+#include "CaloTopoEMGap.h"
 #include "CaloClusterCorrection/interpolate.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "StoreGate/ReadHandle.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include <iostream>
 #include <math.h>
@@ -42,10 +43,13 @@ const double dphi = twopi / 64. ;
  * @param parent The parent algorithm of the tool.
  */
 CaloTopoEMGap::CaloTopoEMGap (const std::string& type,
-                            const std::string& name,
-                            const IInterface* parent)
-  : CaloClusterCorrectionCommon(type, name, parent)
+                              const std::string& name,
+                              const IInterface* parent)
+  : CaloClusterCorrectionCommon(type, name, parent),
+    m_cells ("AllCalo")
 {
+  declareProperty ("Cells", m_cells);
+
   declareConstant ("etamin_crack", m_etamin_crack);
   declareConstant ("etamax_crack", m_etamax_crack);
   declareConstant ("degree",       m_degree);
@@ -55,7 +59,19 @@ CaloTopoEMGap::CaloTopoEMGap (const std::string& type,
 
 
 /**
+ * @brief Standard Gaudi initialize method.
+ */
+StatusCode CaloTopoEMGap::initialize()
+{
+  ATH_CHECK( CaloClusterCorrectionCommon::initialize() );
+  ATH_CHECK( m_cells.initialize() );
+  return StatusCode::SUCCESS;
+}
+
+
+/**
  * @brief Virtual function for the correction-specific code.
+ * @param ctx     The event context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  * @param elt     The detector description element corresponding
@@ -73,13 +89,14 @@ CaloTopoEMGap::CaloTopoEMGap (const std::string& type,
  *                @c CaloSampling::CaloSample; i.e., it has both
  *                the calorimeter region and sampling encoded.
  */
-void CaloTopoEMGap::makeTheCorrection (CaloCluster* cluster,
-                                      const CaloDetDescrElement*/*elt*/,
-                                      float eta,
-                                      float adj_eta,
-                                      float phi,
-                                      float /*adj_phi*/,
-                                      CaloSampling::CaloSample /*samp*/) const
+void CaloTopoEMGap::makeTheCorrection (const EventContext& ctx,
+                                       CaloCluster* cluster,
+                                       const CaloDetDescrElement*/*elt*/,
+                                       float eta,
+                                       float adj_eta,
+                                       float phi,
+                                       float /*adj_phi*/,
+                                       CaloSampling::CaloSample /*samp*/) const
 {
   // ??? In principle, we should use adj_eta for the interpolation
   //     and range checks.  However, the v2 corrections were derived
@@ -93,13 +110,11 @@ void CaloTopoEMGap::makeTheCorrection (CaloCluster* cluster,
   if (the_aeta < m_etamin_crack || the_aeta > m_etamax_crack) 
     return; // no correction required
 
-  // retrieve Tile Cell container
-  const CaloCellContainer* cc;
-  StatusCode sc = evtStore()->retrieve(cc, "AllCalo");
+  SG::ReadHandle<CaloCellContainer> cc (m_cells, ctx);
 
   // Add up the tile scintillator energy in the region around the cluster.
   double eh_scint = 0;
-  if(StatusCode::SUCCESS==sc)
+  if(cc.isValid())
   {
     CaloCellContainer::const_iterator f_cell =
       cc->beginConstCalo(CaloCell_ID::TILE);

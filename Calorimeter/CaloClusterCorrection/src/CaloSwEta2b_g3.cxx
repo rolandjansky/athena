@@ -34,7 +34,7 @@ Updated:  June, 2004    (sss)
           Use ToolWithConstants to get correction constants.
 ********************************************************************/
 
-#include "CaloClusterCorrection/CaloSwEta2b_g3.h"
+#include "CaloSwEta2b_g3.h"
 #include "CaloClusterCorrection/interpolate.h"
 #include <cmath>
 
@@ -43,7 +43,7 @@ using CaloClusterCorr::interpolate;
 
 // granularity of middle EM barrel layer
 
-  const float CaloSwEta2b_g3::middle_layer_granularity = 0.025;
+  const float CaloSwEta2b_g3::s_middle_layer_granularity = 0.025;
 
 
 CaloSwEta2b_g3::CaloSwEta2b_g3(const std::string& type,
@@ -67,7 +67,8 @@ CaloSwEta2b_g3::~CaloSwEta2b_g3()
 { }
 
 
-void CaloSwEta2b_g3::makeCorrection(CaloCluster* cluster)
+void CaloSwEta2b_g3::makeCorrection(const EventContext& /*ctx*/,
+                                    CaloCluster* cluster) const
 {
   assert (m_residuals.size(1)-1 == m_residual_bins.size());
 
@@ -81,7 +82,7 @@ void CaloSwEta2b_g3::makeCorrection(CaloCluster* cluster)
   float aeta = fabs(eta);
 
   //   u2 is the distance to the inner edge of the cell (granularity 0.025)
-  float u2 = fmod(aeta,middle_layer_granularity) ;
+  float u2 = fmod(aeta,s_middle_layer_granularity) ;
 
   //   First order (average) S-shape correction
   float deta = m_correction_coef * interpolate (m_correction,

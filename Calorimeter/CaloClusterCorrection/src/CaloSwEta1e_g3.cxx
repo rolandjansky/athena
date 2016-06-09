@@ -28,7 +28,7 @@ Updated:  May 5, 2004    (Sven Menke)
 Updated:  June, 2004    (sss)
           Use ToolWithConstants to get correction constants.
 ********************************************************************/
-#include "CaloClusterCorrection/CaloSwEta1e_g3.h"
+#include "CaloSwEta1e_g3.h"
 #include "CaloClusterCorrection/interpolate.h"
 #include <cmath>
 
@@ -37,7 +37,7 @@ using CaloClusterCorr::interpolate;
 
 // granularity of middle EM barrel layer
 
-  const float CaloSwEta1e_g3::middle_layer_granularity = 0.025;
+  const float CaloSwEta1e_g3::s_middle_layer_granularity = 0.025;
 
 // -------------------------------------------------------------
 // Constructor 
@@ -61,7 +61,8 @@ CaloSwEta1e_g3::~CaloSwEta1e_g3()
 { }
 
 // make correction to one cluster 
-void CaloSwEta1e_g3::makeCorrection(CaloCluster* cluster)
+void CaloSwEta1e_g3::makeCorrection(const EventContext& /*ctx*/,
+                                    CaloCluster* cluster) const
 {
   // Only for endcap
   if (!cluster->inEndcap())
@@ -76,17 +77,17 @@ void CaloSwEta1e_g3::makeCorrection(CaloCluster* cluster)
   float ufrac;
   if (aeta > 2.0)
   {
-    ufrac = middle_layer_granularity/4.;
+    ufrac = s_middle_layer_granularity/4.;
     corrndx = 0;
   }
   else if (aeta > 1.8) 
   {
-    ufrac = middle_layer_granularity*(1./6);
+    ufrac = s_middle_layer_granularity*(1./6);
     corrndx = 1;
   }
   else if (aeta > 1.5) 
   {
-    ufrac = middle_layer_granularity/8.;
+    ufrac = s_middle_layer_granularity/8.;
     corrndx = 2;
   }
   else

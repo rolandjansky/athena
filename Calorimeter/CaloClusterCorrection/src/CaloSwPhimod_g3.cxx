@@ -29,7 +29,7 @@ Updated:  May 5, 2004    (Sven Menke)
 Updated:  June, 2004    (sss)
           Use ToolWithConstants to get correction constants.
 ********************************************************************/
-#include "CaloClusterCorrection/CaloSwPhimod_g3.h"
+#include "CaloSwPhimod_g3.h"
 #include <cmath>
 
 
@@ -53,7 +53,8 @@ CaloSwPhimod_g3::~CaloSwPhimod_g3()
 { }
 
 // make correction to one cluster 
-void CaloSwPhimod_g3::makeCorrection(CaloCluster* cluster)
+void CaloSwPhimod_g3::makeCorrection(const EventContext& /*ctx*/,
+                                     CaloCluster* cluster) const
 {
 
   float eta2 = cluster->etaBE(2); // use second sampling
@@ -85,7 +86,7 @@ void CaloSwPhimod_g3::makeCorrection(CaloCluster* cluster)
   
 }
 
-std::vector<float> CaloSwPhimod_g3::qphmop (float aeta)
+std::vector<float> CaloSwPhimod_g3::qphmop (float aeta) const
 {
   std::vector<float> coef (m_correction.size(1)-1);
 

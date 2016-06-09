@@ -38,7 +38,7 @@ Updated:  May 5, 2004    (Sven Menke)
 
 ********************************************************************/
 // include header files
-#include "CaloClusterCorrection/CaloClusterUpdate.h"
+#include "CaloClusterUpdate.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "CaloGeoHelpers/proxim.h" 
@@ -56,11 +56,9 @@ CaloClusterUpdate::CaloClusterUpdate(const std::string& type,
 CaloClusterUpdate::~CaloClusterUpdate()
 { }
 
-void CaloClusterUpdate::makeCorrection(CaloCluster* cluster)
+void CaloClusterUpdate::makeCorrection(const EventContext& /*ctx*/,
+                                       CaloCluster* cluster) const
 {
-
-  static CaloPhiRange range;
-
   float energy=0; 
   float eta=0; 
   float phi2=0; 
@@ -148,7 +146,7 @@ void CaloClusterUpdate::makeCorrection(CaloCluster* cluster)
 
   if (phi2 != -999. && wphi != 0) {
     phi2 = phi2/wphi ; 
-    phi2 = range.fix (phi2);
+    phi2 = CaloPhiRange::fix (phi2);
   }
   else {
       if (cluster->inBarrel() && ! cluster->inEndcap()) phi2 = cluster->phiSample(CaloSampling::EMB2);      

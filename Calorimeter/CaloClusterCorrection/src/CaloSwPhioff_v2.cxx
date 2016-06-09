@@ -40,7 +40,7 @@
  */
 
 
-#include "CaloClusterCorrection/CaloSwPhioff_v2.h"
+#include "CaloSwPhioff_v2.h"
 #include "CaloClusterCorrection/interpolate.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
@@ -74,6 +74,7 @@ CaloSwPhioff_v2::CaloSwPhioff_v2 (const std::string& type,
 
 /**
  * @brief Virtual function for the correction-specific code.
+ * @param ctx     The event context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  * @param elt     The detector description element corresponding
@@ -91,7 +92,8 @@ CaloSwPhioff_v2::CaloSwPhioff_v2 (const std::string& type,
  *                @c CaloSampling::CaloSample; i.e., it has both
  *                the calorimeter region and sampling encoded.
  */
-void CaloSwPhioff_v2::makeTheCorrection (CaloCluster* cluster,
+void CaloSwPhioff_v2::makeTheCorrection (const EventContext& /*ctx*/,
+                                         CaloCluster* cluster,
                                          const CaloDetDescrElement* elt,
                                          float /*eta*/,
                                          float adj_eta,
@@ -111,8 +113,7 @@ void CaloSwPhioff_v2::makeTheCorrection (CaloCluster* cluster,
     offs = -offs;
 
   // Apply the correction.
-  static CaloPhiRange range; // I shouldn't have to allocate an object for this
-  cluster->setPhi (samp, range.fix (phi + offs));
+  cluster->setPhi (samp, CaloPhiRange::fix (phi + offs));
 }
 
 

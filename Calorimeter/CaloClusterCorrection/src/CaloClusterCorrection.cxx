@@ -40,6 +40,7 @@ Updated:  February, 2006 (DLelas)
 #include "CaloClusterCorrection/CaloClusterCorrection.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 using xAOD::CaloCluster;
 
@@ -113,7 +114,7 @@ CaloClusterCorrection::setProperty (const Property& p)
 
 StatusCode CaloClusterCorrection::execute(CaloCluster *cluster)
 {
-  this->makeCorrection(cluster);
+  this->makeCorrection(Gaudi::Hive::currentContext(), cluster);
 
 #if 0
   ATH_MSG_DEBUG( " ...... e, et " << cluster->e() << " " << cluster->et() << endreq);
@@ -135,7 +136,7 @@ void CaloClusterCorrection::setsample(CaloCluster* cluster,
 				      CaloCluster::CaloSample sampling,
 				      float em, float etam, float phim, 
 				      float emax, float etamax, float phimax, 
-				      float etas, float phis)
+				      float etas, float phis) const
 {
   cluster->setEnergy(sampling, em);
   cluster->setEta(sampling, etam);

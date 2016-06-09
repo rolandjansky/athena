@@ -9,7 +9,7 @@ Created  : Feb 2007
 
 ***********************************************************************/
 
-#include "CaloClusterCorrection/H1WeightToolCSC12Generic.h"
+#include "H1WeightToolCSC12Generic.h"
 #include "CaloEvent/CaloCell.h"
 //#include "CaloEvent/CaloSampling.h"
 

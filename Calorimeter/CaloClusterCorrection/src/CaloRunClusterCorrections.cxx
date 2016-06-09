@@ -13,7 +13,7 @@
  */
 
 
-#include "CaloClusterCorrection/CaloRunClusterCorrections.h"
+#include "CaloRunClusterCorrections.h"
 #include "CaloClusterCorrection/CaloClusterCorrectionCommon.h"
 #include "CaloRec/ToolWithConstantsMixin.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"

@@ -1019,6 +1019,11 @@ class CaloSwCorrectionsSetup (CaloClusterCorrSetup):
                         [time,                     801],
                         [listBadChannel,           820]],
 
+        'pi0_v2_noc' : [[layers,                   100],
+                        [update,                   300],
+                        [time,                     801],
+                        [listBadChannel,           820]],
+
 
         # Define the list of correction tools to run when
         # hierarchical tagging is used.

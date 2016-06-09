@@ -17,7 +17,7 @@ Updated:  March 12, 2005   (MB)
           corrections for the TopoCluster 
 ********************************************************************/
 
-#include "CaloClusterCorrection/CaloTopoEMphimod.h"
+#include "CaloTopoEMphimod.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -68,7 +68,8 @@ CaloTopoEMphimod::~CaloTopoEMphimod()
 }*/
 
 // make correction to one cluster 
-void CaloTopoEMphimod::makeTheCorrection(xAOD::CaloCluster* cluster,
+void CaloTopoEMphimod::makeTheCorrection(const EventContext& /*ctx*/,
+                                         xAOD::CaloCluster* cluster,
 					 const CaloDetDescrElement* elt,
 					 float /*eta*/,
 					 float adj_eta,

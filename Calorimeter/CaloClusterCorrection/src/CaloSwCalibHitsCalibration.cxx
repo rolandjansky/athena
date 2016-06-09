@@ -23,7 +23,7 @@ Updated:  January 17, 2008 (LC)
 
 ********************************************************************/
 
-#include "CaloClusterCorrection/CaloSwCalibHitsCalibration.h"
+#include "CaloSwCalibHitsCalibration.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 
@@ -60,6 +60,7 @@ CaloSwCalibHitsCalibration::CaloSwCalibHitsCalibration
 
 /**
   * @brief Virtual function for the correction-specific code.
+  * @param ctx     The event context.
   * @param cluster The cluster to correct.
   *                It is updated in place.
   * @param elt     The detector description element corresponding
@@ -80,7 +81,8 @@ CaloSwCalibHitsCalibration::CaloSwCalibHitsCalibration
 
 
 void CaloSwCalibHitsCalibration::makeTheCorrection
-   (CaloCluster* cluster,
+(const EventContext& /*ctx*/,
+    CaloCluster* cluster,
     const CaloDetDescrElement* /*elt*/,
     float eta,
     float adj_eta,
@@ -158,7 +160,7 @@ void CaloSwCalibHitsCalibration::makeTheCorrection
    ATH_MSG_DEBUG( "Second order:  " << sec[0] << "  " << sec[1]
           << "  "  << sec[2] << " " << sec[3] << endreq);
 
-   static CaloSampling::CaloSample samps[2][4] = {
+   static const CaloSampling::CaloSample samps[2][4] = {
      { CaloSampling::PreSamplerB,
        CaloSampling::EMB1,
        CaloSampling::EMB2,
@@ -262,7 +264,8 @@ double shower_lbary = m_showerDepth.depth (the_aeta, cluster, msg() );
      if (the_aeta < m_eta_start_crack) {
        double WpsOff      = froffset[1] + froffset[2]     * raw_energy + 
                             froffset[3] * raw_energy * raw_energy;
-       double WpsSlo      = frslope[1]  * pow(log(raw_energy),frslope[2]) +
+       double WpsSlo      = frslope[1]  * pow(log(raw_energy),
+                                              static_cast<double>(frslope[2])) +
                             frslope[3] *sqrt( raw_energy );
        e_front_reco=WpsOff + WpsSlo*(eps_base );
 

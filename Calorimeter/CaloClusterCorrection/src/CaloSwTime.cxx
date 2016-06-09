@@ -14,7 +14,7 @@ PURPOSE:  Refined time estimate from SW EM clusters
 
 ********************************************************************/
 
-#include "CaloClusterCorrection/CaloSwTime.h"
+#include "CaloSwTime.h"
 #include "CaloEvent/CaloCell.h"
 //#include "CaloGeoHelpers/CaloSampling.h"
 //#include "GaudiKernel/MsgStream.h"
@@ -35,7 +35,8 @@ CaloSwTime::CaloSwTime
 CaloSwTime::~CaloSwTime() {}
 
 
-void CaloSwTime::makeCorrection(CaloCluster* cluster)
+void CaloSwTime::makeCorrection(const EventContext& /*ctx*/,
+                                CaloCluster* cluster) const
 {
 
 

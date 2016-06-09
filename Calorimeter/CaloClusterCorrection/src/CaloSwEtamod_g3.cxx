@@ -31,7 +31,7 @@ Updated:  June, 2004    (sss)
 
 ********************************************************************/
 // include header files 
-#include "CaloClusterCorrection/CaloSwEtamod_g3.h"
+#include "CaloSwEtamod_g3.h"
 
 // -------------------------------------------------------------
 // Constructor 
@@ -53,7 +53,8 @@ CaloSwEtamod_g3::~CaloSwEtamod_g3()
 { }
 
 // make correction to one cluster 
-void CaloSwEtamod_g3::makeCorrection(CaloCluster* cluster)
+void CaloSwEtamod_g3::makeCorrection(const EventContext& /*ctx*/,
+                                     CaloCluster* cluster) const
 {
   float aeta = fabs (cluster->etaBE(2));
   if (aeta > 2.5) return;
