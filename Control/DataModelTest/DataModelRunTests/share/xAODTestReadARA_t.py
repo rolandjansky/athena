@@ -5,6 +5,15 @@ import AthenaROOTAccess.transientTree
 
 cppyy.loadDictionary("libDataModelTestDataCommonDict")
 cppyy.loadDictionary("libDataModelTestDataReadDict")
+ROOT.DMTest.B
+ROOT.DMTest.setPluginLibrary ('_PERS_DMTest::HAuxContainer_v1',
+                              'libDataModelTestDataReadCnvPoolCnv.so')
+ROOT.DMTest.setPluginLibrary ('_PERS_DMTest::HVec_v1',
+                              'libDataModelTestDataReadCnvPoolCnv.so')
+ROOT.DMTest.setPluginLibrary ('_PERS_DMTest__HAuxContainer_v1',
+                              'libDataModelTestDataReadCnvPoolCnv.so')
+ROOT.DMTest.setPluginLibrary ('_PERS_DMTest__HVec_v1',
+                              'libDataModelTestDataReadCnvPoolCnv.so')
 
 f = ROOT.TFile.Open ('xaoddata.root')
 assert f.IsOpen()

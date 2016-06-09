@@ -37,7 +37,10 @@ theApp.EvtMax = 20
 # Set up the algorithm.
 #--------------------------------------------------------------
 
-from DataModelTestDataWrite.DataModelTestDataWriteConf import DMTest__xAODTestWrite
+from DataModelTestDataWrite.DataModelTestDataWriteConf import \
+     DMTest__xAODTestWriteCVec, \
+     DMTest__xAODTestWrite
+topSequence += DMTest__xAODTestWriteCVec ("xAODTestWriteCVec")
 topSequence += DMTest__xAODTestWrite ("xAODTestWrite")
 
 #--------------------------------------------------------------
@@ -111,3 +114,8 @@ ChronoStatSvc = Service( "ChronoStatSvc" )
 ChronoStatSvc.ChronoPrintOutTable = FALSE
 ChronoStatSvc.PrintUserTime       = FALSE
 ChronoStatSvc.StatPrintOutTable   = FALSE
+
+# Explicitly specify the output file catalog
+# to avoid races when running tests in parallel.
+PoolSvc = Service( "PoolSvc" )
+PoolSvc.WriteCatalog = "file:xAODTestWrite_catalog.xml"

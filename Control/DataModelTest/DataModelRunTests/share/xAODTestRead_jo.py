@@ -37,7 +37,7 @@ svcMgr.EventSelector.InputCollections        = [ "xaoddata.root" ]
 # ItemList:
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
 fullItemList+=["DMTest::CVec#cvec"]
-fullItemList+=["DMTest::CAuxContainer#cvecAux."]
+fullItemList+=["xAOD::AuxContainerBase!#cvecAux."]
 fullItemList+=["DMTest::CVecWithData#cvecWD"]
 fullItemList+=["DMTest::CView#cview"]
 fullItemList+=["DMTest::CAuxContainer#cvecWDAux."]
@@ -102,11 +102,15 @@ theApp.EvtMax = 20
 #--------------------------------------------------------------
 
 from DataModelTestDataRead.DataModelTestDataReadConf import \
+     DMTest__xAODTestReadCVec, \
      DMTest__xAODTestRead, \
      DMTest__xAODTestDecor, \
      DMTest__xAODTestClearDecor, \
      DMTest__xAODTestShallowCopy
 
+
+topSequence += DMTest__xAODTestReadCVec ('xAODTestReadCVec',
+                                         WriteKey = 'copy_cvec')
 
 topSequence += DMTest__xAODTestRead ('xAODTestRead',
                                      WritePrefix = 'copy_')
@@ -175,3 +179,7 @@ ChronoStatSvc.StatPrintOutTable   = FALSE
 
 #svcMgr.ExceptionSvc.Catch = "None"
 
+# Explicitly specify the output file catalog
+# to avoid races when running tests in parallel.
+PoolSvc = Service( "PoolSvc" )
+PoolSvc.WriteCatalog = "file:xAODTestRead_catalog.xml"

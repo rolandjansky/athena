@@ -13,25 +13,24 @@ def CHECK(sc):
 
 
 
-
-#ROOT.xAOD.TEvent
-#CHECK(ROOT.xAOD.Init())
-
-
 reg=ROOT.SG.AuxTypeRegistry.instance()
+
+def xAODInit():
+    ROOT.xAOD.TEvent
+    CHECK(ROOT.xAOD.Init())
+
+    # Monkey-patch...
+    ROOT.xAOD.TEvent.record_impl = ROOT.xAOD.TEvent.record
+    def record (event, obj, key, basketSize=32000, splitLevel = 1):
+        return event.record_impl (obj, obj.__class__.__name__, key,
+                                  basketSize, splitLevel)
+    ROOT.xAOD.TEvent.record = record
+    return
 
 
 
 cvec_cls=ROOT.DataVector(ROOT.DMTest.C_v1)
 cel_cls=ROOT.ElementLink(cvec_cls)
-
-
-# # Monkey-patch...
-# ROOT.xAOD.TEvent.record_impl = ROOT.xAOD.TEvent.record
-# def record (event, obj, key, basketSize=32000, splitLevel = 1):
-#     return event.record_impl (obj, obj.__class__.__name__, key,
-#                               basketSize, splitLevel)
-# ROOT.xAOD.TEvent.record = record
 
 
 
@@ -277,7 +276,7 @@ class Analysis:
     def __init__ (self, ifname, ofname = None):
         self.algs = []
         self.f = ROOT.TFile (ifname)
-        self.event = ROOT.xAOD.TEvent (ROOT.xAOD.TEvent.kClassAccess)
+        self.event = ROOT.xAOD.TEvent (ROOT.xAOD.TEvent.kAthenaAccess)
         CHECK (self.event.readFrom (self.f, True, 'CollectionTree'))
         self.tree = ROOT.xAOD.MakeTransientTreeFromEvent(self.event, 'CollectionTree')
         self.fout = None
@@ -296,6 +295,7 @@ class Analysis:
             nent = min (n, nent)
         for i in range(nent):
             self.tree.GetEntry(i)
+            print ('---> Event', i)
             for a in self.algs:
                 a.execute (self.tree, self.event)
             if self.fout != None:
