@@ -46,13 +46,15 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 #  svcMgr.THistSvc.Output += ["DFMETADATA DATAFILE='df.metadata.root' OPT='RECREATE'"]
 
 from RecExConfig.InputFilePeeker import inputFileSummary
-if (inputFileSummary['evt_type'][0] == 'IS_SIMULATION') and (inputFileSummary['stream_names'][0] != 'StreamEVGEN'):
-	svcMgr.IOVDbSvc.Folders += ['/Simulation/Parameters']
+if inputFileSummary is not None:
+	if (inputFileSummary['evt_type'][0] == 'IS_SIMULATION') and (inputFileSummary['stream_names'][0] != 'StreamEVGEN'):
+		svcMgr.IOVDbSvc.Folders += ['/Simulation/Parameters']
 	
 # Set up the metadata tool:
-ToolSvc += CfgMgr.xAODMaker__FileMetaDataCreatorTool( "FileMetaDataCreatorTool",
-						      OutputLevel = 2 )
-svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataCreatorTool ]
+if not globalflags.InputFormat=="bytestream":
+	ToolSvc += CfgMgr.xAODMaker__FileMetaDataCreatorTool( "FileMetaDataCreatorTool",
+							      OutputLevel = 2 )
+	svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataCreatorTool ]
 
 # Set up stream auditor
 if not hasattr(svcMgr, 'DecisionSvc'):
