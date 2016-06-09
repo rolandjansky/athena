@@ -109,6 +109,8 @@ public:
    * @param key The key as which it should be stored.
    * @param allowMods If false, the object will be recorded as const.
    * @param returnExisting If true, return proxy if this key already exists.
+   *                       If the object has been recorded under a different
+   *                       key, then make an alias.
    *
    * Full-blown record.  @c obj should usually be something
    * deriving from @c SG::DataBucket.
