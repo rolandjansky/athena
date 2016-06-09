@@ -138,6 +138,8 @@ MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::stri
   //Cosmics
   declareProperty("UseOffSet1",          m_useOffSet1          =  true);
   declareProperty("UseOffSet2",          m_useOffSet2          =  true);
+  declareProperty("PatchToSaveTruthTime", m_patchToSaveTruthTime  = false);
+  
 }
 
 
@@ -186,8 +188,8 @@ StatusCode MdtDigitizationTool::initialize() {
     ATH_MSG_INFO ( "UseCosmicsOffSet1      " << m_useOffSet1          );
     ATH_MSG_INFO ( "UseCosmicsOffSet2      " << m_useOffSet2          );
   }
-
-
+  ATH_MSG_INFO ( "PatchToSaveTruthTime     " << m_patchToSaveTruthTime  );
+  
   // initialize transient detector store and MuonGeoModel OR MuonDetDescrManager  
   if(detStore()->contains<MuonGM::MuonDetectorManager>( "Muon" )){
     if (detStore()->retrieve(m_MuonGeoMgr).isFailure()) {
@@ -566,8 +568,8 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit){
   	 
   const int id = hit.MDTid();
   double driftRadius = hit.driftRadius();
-  ATH_MSG_DEBUG ( "Hit bunch time  " << globalHitTime - hit.globalTime() << " tot " << globalHitTime << " tof " << hit.globalTime() << " driftRadius " << driftRadius );
-
+  //ATH_MSG_DEBUG ( "Hit bunch time  " << globalHitTime - hit.globalTime() << " tot " << globalHitTime << " tof " << hit.globalTime() << " driftRadius " << driftRadius );
+  //ATH_MSG_INFO ( "Hit bunch time  " << globalHitTime - hit.globalTime() << " tot " << globalHitTime << " tof " << hit.globalTime() << " driftRadius " << driftRadius );
   std::string stationName = muonHelper->GetStationName(id);
   int stationEta = muonHelper->GetZSector(id);
   int stationPhi  = muonHelper->GetPhiSector(id);
@@ -1012,7 +1014,7 @@ bool MdtDigitizationTool::createDigits(){
 	    // extract calibration constants for single tube
 	    const MuonCalib::MdtTubeCalibContainer::SingleTubeCalib* singleTubeData = data.tubeCalib->getCalib( ml, layer, tube );
 	    if ( singleTubeData ){
-	      t0 = singleTubeData->t0;
+	      t0 = singleTubeData->t0 + m_offsetTDC;
 	    }
 	  }
 	}
@@ -1020,27 +1022,52 @@ bool MdtDigitizationTool::createDigits(){
       
       int tdc = digitizeTime(driftTime + t0 + timeOffsetTotal);
       int adc = digitizeTime(it->adc);
-      ATH_MSG_DEBUG( " >> Digit Id = " << m_idHelper->show_to_string(idDigit) << " driftTime " << driftTime
-		     << " driftRadius " << driftRadius << " TDC " << tdc << " ADC " << adc << " mask bit " << insideMask );
+      ATH_MSG_DEBUG( " >> Digit Id = " << m_idHelper->show_to_string(idDigit) << " driftTime " << driftTime <<
+                     " t0:" << t0 << " timeOffsetTotal:" << timeOffsetTotal << " driftRadius " << driftRadius <<
+                     " TDC " << tdc << " ADC " << adc << " mask bit " << insideMask );
 
       MdtDigit*  newDigit = new MdtDigit(idDigit, tdc, adc, insideMask);
       digitCollection->push_back(newDigit);
       
       float localZPos = (float) hit.localPosition().z();
-      ATH_MSG_VERBOSE( " createDigits() phit-" << &phit << " hit-" << hit.print() << "    localZPos = " << localZPos ); 
-    
+      
+      const Amg::Vector3D& tempLocPos = (*(it->simhit))->localPosition();
+      Amg::Vector3D p = geo->localToGlobalCoords(tempLocPos,idDigit);
+
+      //double orig_localZPos =localZPos;      
+      if (m_patchToSaveTruthTime) {
+          // use the fractional digits of localZPos to store global Time
+          localZPos = round(localZPos);
+          
+          if (fabs(hit.globalTime())<500.0){
+              if (localZPos>0){
+                  localZPos += (double)(hit.globalTime()+500.0)*0.001;
+              } else {
+                  localZPos -= (double)(hit.globalTime()+500.0)*0.001;
+              }
+          }
+      }
+      
+      ATH_MSG_DEBUG( " SDO: " << driftRadius << " " << localZPos
+      //              << " orig ZPos" << orig_localZPos
+                    << " globalTime " << hit.globalTime());    
+      
       //Create the Deposit for MuonSimData
       MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId()), MuonMCData((float)driftRadius,localZPos));
-
+      
       //Record the SDO collection in StoreGate
       std::vector<MuonSimData::Deposit> deposits;
       deposits.push_back(deposit);
+
+
+      
+      
       MuonSimData tempSDO(deposits,0);
-      const Amg::Vector3D& tempLocPos = (*(it->simhit))->localPosition();
-      Amg::Vector3D p = geo->localToGlobalCoords(tempLocPos,idDigit);
       tempSDO.setPosition(p); 
       m_sdoContainer->insert ( std::make_pair ( idDigit, tempSDO ) );
-	
+
+
+      
     } else {
       ATH_MSG_DEBUG( "  >> OUTSIDE TIME WINDOWS << "<< " Digit Id = " << m_idHelper->show_to_string(idDigit) << " driftTime " << driftTime << " --> hit ignored");
     }
