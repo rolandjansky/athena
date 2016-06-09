@@ -69,6 +69,8 @@ class AthenaMPToolBase : public AthAlgTool
   int reopenFds();
   int handleSavedPfc(const boost::filesystem::path& dest_path);
 
+  void waitForSignal();
+
   int         m_nprocs;           // Number of workers spawned by the master process
   std::string m_subprocTopDir;    // Top run directory for subprocesses
   std::string m_subprocDirPrefix; // For ex. "worker__"

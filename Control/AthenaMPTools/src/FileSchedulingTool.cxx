@@ -9,6 +9,7 @@
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IFileMgr.h"
+#include "GaudiKernel/IIncidentSvc.h"
 
 #include <sys/stat.h>
 #include <sstream>
@@ -24,12 +25,16 @@ FileSchedulingTool::FileSchedulingTool(const std::string& type
   : AthenaMPToolBase(type,name,parent)
   , m_nevts(-1)
   , m_rankId(-1)
+  , m_debug(false)
   , m_sharedRankQueue(0)
   , m_sharedFinQueue(0)
   , m_isPileup(false)
 {
   declareInterface<IAthenaMPTool>(this);
+
   declareProperty("IsPileup",m_isPileup);
+  declareProperty("Debug", m_debug);
+
   m_subprocDirPrefix = "worker_";
 }
 
@@ -39,13 +44,13 @@ FileSchedulingTool::~FileSchedulingTool()
 
 StatusCode FileSchedulingTool::initialize()
 {
-  msg(MSG::DEBUG) << "In initialize" << endreq;
+  ATH_MSG_DEBUG("In initialize");
   if(m_isPileup) {
     m_evtProcessor = ServiceHandle<IEventProcessor>("PileUpEventLoopMgr",name());
-    msg(MSG::INFO) << "The job running in pileup mode" << endreq;
+    ATH_MSG_INFO("The job running in pileup mode");
   }
   else {
-    msg(MSG::INFO) << "The job running in non-pileup mode" << endreq;
+    ATH_MSG_INFO("The job running in non-pileup mode");
   }
   
   return AthenaMPToolBase::initialize();
@@ -60,20 +65,20 @@ StatusCode FileSchedulingTool::finalize()
 
 int FileSchedulingTool::makePool(int maxevt, int nprocs, const std::string& topdir)
 {
-  msg(MSG::DEBUG) << "In makePool " << getpid() << endreq;
+  ATH_MSG_DEBUG("In makePool " << getpid());
 
   if(nprocs==0 || nprocs<-1) {
-    msg(MSG::ERROR) << "Invalid value for the nprocs parameter: " << nprocs << endreq;
+    ATH_MSG_ERROR("Invalid value for the nprocs parameter: " << nprocs);
     return -1;
   }
 
   if(maxevt < -1) {
-    msg(MSG::ERROR) << "Invalid number of events requested: " << maxevt << endreq;
+    ATH_MSG_ERROR("Invalid number of events requested: " << maxevt);
     return -1;
   }
 
   if(topdir.empty()) {
-    msg(MSG::ERROR) << "Empty name for the top directory!" << endreq;
+    ATH_MSG_ERROR("Empty name for the top directory!");
     return -1;
   }
 
@@ -83,45 +88,45 @@ int FileSchedulingTool::makePool(int maxevt, int nprocs, const std::string& topd
 
   // Create rank queue and fill it
   std::ostringstream rankQueueName;
-  rankQueueName << "FileSchedulingTool_RankQueue_" << getpid();
+  rankQueueName << "FileSchedulingTool_RankQueue_" << getpid() << "_" << m_randStr;
   m_sharedRankQueue = new AthenaInterprocess::SharedQueue(rankQueueName.str(),m_nprocs,sizeof(int));
   for(int i=0; i<m_nprocs; ++i)
     if(!m_sharedRankQueue->send_basic<int>(i)) {
-      msg(MSG::ERROR) << "Unable to send int to the ranks queue!" << endreq;
+      ATH_MSG_ERROR("Unable to send int to the ranks queue!");
       return -1;
     }
 
   // Create finalization scheduling queue
   std::ostringstream finQueueName;
-  finQueueName << "FileSchedulingTool_FinQueue_" << getpid();
+  finQueueName << "FileSchedulingTool_FinQueue_" << getpid() << "_" << m_randStr;
   m_sharedFinQueue = new AthenaInterprocess::SharedQueue(finQueueName.str(),m_nprocs,sizeof(int));
   for(int i=0; i<m_nprocs; ++i)
     if(!m_sharedFinQueue->send_basic<int>(i*10)) {  // TO DO: this '3' could be made configurable
-      msg(MSG::ERROR) << "Unable to send int to the finalization queue!" << endreq;
+      ATH_MSG_ERROR("Unable to send int to the finalization queue!");
       return -1;
     }
 
   // Create the process group and map_async bootstrap
   m_processGroup = new AthenaInterprocess::ProcessGroup(m_nprocs);
-  msg(MSG::INFO) << "Created Pool of " << m_nprocs << " worker processes" << endreq;
+  ATH_MSG_INFO("Created Pool of " << m_nprocs << " worker processes");
   if(mapAsyncFlag(AthenaMPToolBase::FUNC_BOOTSTRAP))
     return -1;
-  msg(MSG::INFO) << "Workers bootstraped" << endreq;
+  ATH_MSG_INFO("Workers bootstraped");
 
   return m_nprocs;
 }
 
 StatusCode FileSchedulingTool::exec()
 {
-  msg(MSG::DEBUG) << "In exec " << getpid() << endreq;
+  ATH_MSG_DEBUG("In exec " << getpid());
 
   if(mapAsyncFlag(AthenaMPToolBase::FUNC_EXEC))
     return StatusCode::FAILURE;
-  msg(MSG::INFO) << "Workers started processing events" << endreq;
+  ATH_MSG_INFO("Workers started processing events");
 
   // Map exit flag on children
   if(m_processGroup->map_async(0,0)){
-    msg(MSG::ERROR) << "Unable to set exit to the workers" << endreq;
+    ATH_MSG_ERROR("Unable to set exit to the workers");
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -141,6 +146,8 @@ void FileSchedulingTool::subProcessLogs(std::vector<std::string>& filenames)
 
 std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap_func()
 {
+  if(m_debug) waitForSignal();
+
   std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
   outwork->data = malloc(sizeof(int));
   *(int*)(outwork->data) = 1; // Error code: for now use 0 success, 1 failure
@@ -151,10 +158,18 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
   // reported in the master proces
   // ...
 
+  // ________________________ Get IncidentSvc and fire PostFork ________________________
+  IIncidentSvc* p_incidentSvc(0);
+  if(!serviceLocator()->service("IncidentSvc", p_incidentSvc).isSuccess()) {
+    msg(MSG::ERROR) << "Unable to retrieve IncidentSvc" << endreq;
+    return outwork;
+  }
+  p_incidentSvc->fireIncident(Incident(name(),"PostFork"));
+
   // ________________________ Get RankID ________________________
   //
   if(!m_sharedRankQueue->receive_basic<int>(m_rankId)) {
-    msg(MSG::ERROR) << "Unable to get rank ID!" << endreq;
+    ATH_MSG_ERROR("Unable to get rank ID!");
     return outwork;
   }
   std::ostringstream workindex;
@@ -166,15 +181,17 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
   // TODO: this "worker_" can be made configurable too
 
   if(mkdir(worker_rundir.string().c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)==-1) {
-    msg(MSG::ERROR) << "Unable to make worker run directory: " << worker_rundir.string() << ". " << strerror(errno) << endreq;
+    ATH_MSG_ERROR("Unable to make worker run directory: " << worker_rundir.string() << ". " << strerror(errno));
     return outwork;
   }
 
   // ________________________ Redirect logs ________________________
-  if(redirectLog(worker_rundir.string()))
-    return outwork;
-
-  msg(MSG::INFO) << "Logs redirected in the AthenaMP event worker PID=" << getpid() << endreq;
+  if(!m_debug) {
+    if(redirectLog(worker_rundir.string()))
+      return outwork;
+    
+    ATH_MSG_INFO("Logs redirected in the AthenaMP event worker PID=" << getpid());
+  }
 
   // ________________________ Update event selector property ________________________
   IProperty* propertyServer(0);
@@ -182,7 +199,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
   // -- Try BS first
   if(serviceLocator()->existsService("ByteStreamInputSvc")) {
     if(serviceLocator()->service("ByteStreamInputSvc",propertyServer).isFailure()) {
-      msg(MSG::ERROR) << "Unable to retrieve ByteStreamInputSvc" << endreq;
+      ATH_MSG_ERROR("Unable to retrieve ByteStreamInputSvc");
       return outwork;
     }
     propertyName = "FullFileName";
@@ -191,7 +208,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
     // -- Fail over to the POOL event selector
     propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
     if(!propertyServer) {
-      msg(MSG::ERROR) << "Unable to dyn-cast the event selector to IProperty" << endreq;
+      ATH_MSG_ERROR("Unable to dyn-cast the event selector to IProperty");
       return outwork;
     }
     propertyName = "InputCollections";
@@ -201,7 +218,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
   StringArrayProperty inputFileList(propertyName, vect);
   StatusCode sc = propertyServer->getProperty(&inputFileList);
   if(sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to get " << propertyName << " property from the property server" << endreq;
+    ATH_MSG_ERROR("Unable to get " << propertyName << " property from the property server");
     return outwork;
   }
   for(std::size_t i=0, imax=inputFileList.value().size(); i!=imax; ++i)
@@ -209,7 +226,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
       vect.push_back(inputFileList.value()[i]);
   StringArrayProperty newInputFileList(propertyName, vect);
   if(propertyServer->setProperty(newInputFileList).isFailure()) {
-    msg(MSG::ERROR) << "Unable to update " << propertyName << " property on the property server" << endreq;
+    ATH_MSG_ERROR("Unable to update " << propertyName << " property on the property server");
     return outwork;
   }
 
@@ -217,7 +234,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
   if(updateIoReg(worker_rundir.string()))
     return outwork;
 
-  msg(MSG::INFO) << "Io registry updated in the AthenaMP event worker PID=" << getpid() << endreq;
+  ATH_MSG_INFO("Io registry updated in the AthenaMP event worker PID=" << getpid());
 
   // ________________________ SimParams & DigiParams ____________________________
   boost::filesystem::path abs_worker_rundir = boost::filesystem::absolute(worker_rundir);
@@ -234,27 +251,27 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
   if(reopenFds())
     return outwork;
 
-  msg(MSG::INFO) << "File descriptors re-opened in the AthenaMP event worker PID=" << getpid() << endreq;
+  ATH_MSG_INFO("File descriptors re-opened in the AthenaMP event worker PID=" << getpid());
 
   // ________________________ I/O reinit ________________________
   if(!m_ioMgr->io_reinitialize().isSuccess()) {
-    msg(MSG::ERROR) << "Failed to reinitialize I/O" << endreq;
+    ATH_MSG_ERROR("Failed to reinitialize I/O");
     return outwork;
   } else {
-    msg(MSG::DEBUG) << "Successfully reinitialized I/O" << endreq;
+    ATH_MSG_DEBUG("Successfully reinitialized I/O");
   }
 
   // ________________________ Event selector restart ________________________
   IService* evtSelSvc = dynamic_cast<IService*>(m_evtSelector);
   if(!evtSelSvc) {
-    msg(MSG::ERROR) << "Failed to dyncast event selector to IService" << endreq;
+    ATH_MSG_ERROR("Failed to dyncast event selector to IService");
     return outwork;
   }
   if(!evtSelSvc->start().isSuccess()) {
-    msg(MSG::ERROR) << "Failed to restart the event selector" << endreq;
+    ATH_MSG_ERROR("Failed to restart the event selector");
     return outwork;
   } else {
-    msg(MSG::DEBUG) << "Successfully restarted the event selector" << endreq;
+    ATH_MSG_DEBUG("Successfully restarted the event selector");
   }
 
   // ________________________ Restart background event selectors in pileup jobs ________________________
@@ -266,9 +283,9 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
       IEvtSelector* evtsel = dynamic_cast<IEvtSelector*>(*itSvc);
       if(evtsel && (evtsel != m_evtSelector)) {
 	if((*itSvc)->start().isSuccess())
-	  msg(MSG::DEBUG) << "Restarted event selector " << (*itSvc)->name() << endreq;
+	  ATH_MSG_DEBUG("Restarted event selector " << (*itSvc)->name());
 	else {
-	  msg(MSG::ERROR) << "Failed to restart event selector " << (*itSvc)->name() << endreq;
+	  ATH_MSG_ERROR("Failed to restart event selector " << (*itSvc)->name());
 	  return outwork;
 	}
       }
@@ -277,7 +294,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
 
   // ________________________ Worker dir: chdir ________________________
   if(chdir(worker_rundir.string().c_str())==-1) {
-    msg(MSG::ERROR) << "Failed to chdir to " << worker_rundir.string() << endreq;
+    ATH_MSG_ERROR("Failed to chdir to " << worker_rundir.string());
     return outwork;
   }
 
@@ -288,18 +305,18 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
 
 std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::exec_func()
 {
-  msg(MSG::INFO) << "Exec function in the AthenaMP worker PID=" << getpid() << endreq;
+  ATH_MSG_INFO("Exec function in the AthenaMP worker PID=" << getpid());
 
   bool all_ok(true);
   if(m_evtProcessor->executeRun(m_nevts).isFailure()) {
-    msg(MSG::ERROR) << "Could not finalize the Run" << endreq;
+    ATH_MSG_ERROR("Could not finalize the Run");
     all_ok=false;
   }
 
   // Schedule finalization
   int waittime(-1);
   if(!m_sharedFinQueue->receive_basic<int>(waittime)) {
-    msg(MSG::ERROR) << "Unable to value from the finalization queue" << endreq;
+    ATH_MSG_ERROR("Unable to value from the finalization queue");
     all_ok = false;
   }
   else {
@@ -307,12 +324,12 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::exec_func
   }
 
   if(m_appMgr->stop().isFailure()) {
-    msg(MSG::ERROR) << "Unable to stop AppMgr" << endreq; 
+    ATH_MSG_ERROR("Unable to stop AppMgr"); 
     all_ok=false;
   }
   else { 
     if(m_appMgr->finalize().isFailure()) {
-      msg(MSG::ERROR) << "Unable to finalize AppMgr" << endreq;
+      ATH_MSG_ERROR("Unable to finalize AppMgr");
       all_ok=false;
     }
   }
