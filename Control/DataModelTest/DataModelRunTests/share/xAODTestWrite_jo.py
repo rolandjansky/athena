@@ -37,7 +37,10 @@ theApp.EvtMax = 20
 # Set up the algorithm.
 #--------------------------------------------------------------
 
-from DataModelTestDataWrite.DataModelTestDataWriteConf import DMTest__xAODTestWrite
+from DataModelTestDataWrite.DataModelTestDataWriteConf import \
+     DMTest__xAODTestWriteCVec, \
+     DMTest__xAODTestWrite
+topSequence += DMTest__xAODTestWriteCVec ("xAODTestWriteCVec")
 topSequence += DMTest__xAODTestWrite ("xAODTestWrite")
 
 #--------------------------------------------------------------
@@ -54,25 +57,38 @@ theApp.CreateSvc += ['xAODMaker::EventFormatSvc']
 
 # ItemList:
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
-fullItemList+=["DMTest::CVec_v1#cvec"]
-fullItemList+=["DMTest::CAuxContainer_v1#cvecAux."]
-fullItemList+=["DMTest::GVec_v1#gvec"]
-fullItemList+=["DMTest::GAuxContainer_v1#gvecAux."]
-fullItemList+=["DMTest::CVec_v1#ctrig"]
-fullItemList+=["DMTest::CTrigAuxContainer_v1#ctrigAux."]
-fullItemList+=["DMTest::C_v1#cinfo"]
-fullItemList+=["DMTest::CInfoAuxContainer_v1#cinfoAux."]
+fullItemList+=["DMTest::CVec#cvec"]
+fullItemList+=["DMTest::CAuxContainer#cvecAux."]
+fullItemList+=["DMTest::CVecWithData#cvecWD"]
+fullItemList+=["DMTest::CView#cview"]
+fullItemList+=["DMTest::CAuxContainer#cvecWDAux."]
+fullItemList+=["DMTest::GVec#gvec"]
+fullItemList+=["DMTest::GAuxContainer#gvecAux."]
+fullItemList+=["DMTest::CVec#ctrig"]
+fullItemList+=["DMTest::CTrigAuxContainer#ctrigAux."]
+fullItemList+=["DMTest::C#cinfo"]
+fullItemList+=["DMTest::CInfoAuxContainer#cinfoAux."]
+fullItemList+=["DMTest::HVec#hvec"]
+fullItemList+=["DMTest::HAuxContainer#hvecAux."]
+fullItemList+=["DMTest::HView#hview"]
 
 from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatSvc
 fmtsvc = xAODMaker__EventFormatSvc (FormatNames = 
                                     ['DataVector<DMTest::C_v1>',
+                                     'DMTest::CVecWithData_v1',
                                      'DMTest::CAuxContainer_v1',
                                      'DMTest::CTrigAuxContainer_v1',
+                                     'ViewVector<DataVector<DMTest::C_v1,DataModel_detail::NoBase> >',
                                      'DMTest::C_v1',
                                      'DMTest::CInfoAuxContainer_v1',
                                      'DataVector<DMTest::G_v1>',
                                      'DMTest::GAuxContainer_v1',
-                                     'DMTest::G_v1'])
+                                     'DMTest::G_v1',
+                                     'DMTest::H_v1',
+                                     'DataVector<DMTest::H_v1>',
+                                     'ViewVector<DataVector<DMTest::H_v1,DataModel_detail::NoBase> >',
+                                     'DMTest::HAuxContainer_v1',
+                                     ])
 ServiceMgr += fmtsvc
 
 # Stream's output file
@@ -98,3 +114,8 @@ ChronoStatSvc = Service( "ChronoStatSvc" )
 ChronoStatSvc.ChronoPrintOutTable = FALSE
 ChronoStatSvc.PrintUserTime       = FALSE
 ChronoStatSvc.StatPrintOutTable   = FALSE
+
+# Explicitly specify the output file catalog
+# to avoid races when running tests in parallel.
+PoolSvc = Service( "PoolSvc" )
+PoolSvc.WriteCatalog = "file:xAODTestWrite_catalog.xml"

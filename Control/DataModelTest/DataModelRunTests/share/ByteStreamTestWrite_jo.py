@@ -1,10 +1,10 @@
 #
 # $Id$
 #
-# File: share/AuxDataTestWrite_jo.py
+# File: DataModelRunTests/share/ByteStreamTestWrite_jo.py
 # Author: snyder@bnl.gov
-# Date: May 2014
-# Purpose: Test writing objects with aux data.
+# Date: Mar 2016
+# Purpose: Test writing objects to bytestream.
 #
 
 ## basic job configuration (for generator)
@@ -20,12 +20,6 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 ## get a handle to the ApplicationManager
 from AthenaCommon.AppMgr import theApp
 
-#--------------------------------------------------------------
-# Load POOL support
-#--------------------------------------------------------------
-import AthenaPoolCnvSvc.WriteAthenaPool
-
-
 
 #--------------------------------------------------------------
 # Event related parameters
@@ -37,12 +31,23 @@ theApp.EvtMax = 20
 # Set up the algorithm.
 #--------------------------------------------------------------
 
-from DataModelTestDataWrite.DataModelTestDataWriteConf import DMTest__AuxDataTestWrite
-topSequence += DMTest__AuxDataTestWrite ("AuxDataTestWrite")
+bswrite = ['DMTest::CVec#cvec']
+
+from TrigNavigation.TrigNavigationConf import HLT__Navigation
+from DataModelTestDataWrite.DataModelTestDataWriteConf import \
+     DMTest__xAODTestWriteCVec, \
+     DMTest__HLTResultWriter
+topSequence += DMTest__xAODTestWriteCVec ("xAODTestWriteCVec",
+                                          CVecKey = 'HLT_DMTest__CVec_cvec')
+topSequence += DMTest__HLTResultWriter \
+               ("HLTResultWriter",
+                Nav = HLT__Navigation (ClassesToPayload = bswrite,
+                                       ClassesToPreregister = bswrite))
 
 #--------------------------------------------------------------
 # Output options
 #--------------------------------------------------------------
+# Note: can't autoload these.
 import ROOT
 import cppyy
 cppyy.loadDictionary("libDataModelTestDataCommonDict")
@@ -51,16 +56,26 @@ ROOT.DMTest.B
 ROOT.DMTest.setConverterLibrary ('libDataModelTestDataWriteCnvPoolCnv.so')
 
 # ItemList:
-include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
-fullItemList+=["DMTest::BAuxVec#bauxvec"]
-fullItemList+=["DMTest::BAuxStandalone#b"]
+fullItemList = []
+fullItemList+=["HLT::HLTResult#HLTResult_HLT"]
 
 # Stream's output file
-from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream( "Stream1" )
-Stream1.OutputFile =   "auxdata.root"
+import os
+try:
+    os.remove('test.bs')
+except OSError:
+    pass
+import os
+try:
+    os.remove('test.bs.writing')
+except OSError:
+    pass
+from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
+athenaCommonFlags.BSRDOOutput = 'test.bs'
+from ByteStreamCnvSvc import WriteByteStream
+StreamBSFileOutput = WriteByteStream.getStream("EventStorage","StreamBSFileOutput")
 # List of DO's to write out
-Stream1.ItemList   += fullItemList
+StreamBSFileOutput.ItemList   += fullItemList
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
@@ -74,8 +89,3 @@ ChronoStatSvc = Service( "ChronoStatSvc" )
 ChronoStatSvc.ChronoPrintOutTable = FALSE
 ChronoStatSvc.PrintUserTime       = FALSE
 ChronoStatSvc.StatPrintOutTable   = FALSE
-
-# Explicitly specify the output file catalog
-# to avoid races when running tests in parallel.
-PoolSvc = Service( "PoolSvc" )
-PoolSvc.WriteCatalog = "file:AuxDataTestWrite_catalog.xml"

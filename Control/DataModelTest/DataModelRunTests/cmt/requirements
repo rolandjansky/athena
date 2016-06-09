@@ -23,111 +23,126 @@ apply_pattern athenarun_test \
    name="DataModelTestWrite" \
    options="DataModelRunTests/DataModelTestWrite_jo.py" \
    pre_script="../test/pre_check.sh" \
-   post_script="../test/post_check.sh DataModelTestWrite"
+   post_script="../test/post.sh DataModelTestWrite"
 
 apply_pattern athenarun_test \
    name="DataModelTestRead" \
    options="DataModelRunTests/DataModelTestRead_jo.py" \
    pre_script="../test/pre_check.sh" \
-   post_script="../test/post_check.sh DataModelTestRead"
+   post_script="../test/post.sh DataModelTestRead"
 macro_append DataModelTestRead_test_dependencies " DataModelTestWrite_test "
 
 apply_pattern athenarun_test \
    name="DataModelTestRead2" \
    options="DataModelRunTests/DataModelTestRead2_jo.py" \
    pre_script="../test/pre_check.sh" \
-   post_script="../test/post_check.sh DataModelTestRead2"
+   post_script="../test/post.sh DataModelTestRead2"
 macro_append DataModelTestRead2_test_dependencies " DataModelTestRead_test "
 
 apply_pattern athenarun_test \
    name="AuxDataTestWrite" \
    options="DataModelRunTests/AuxDataTestWrite_jo.py" \
    pre_script="../test/pre_check.sh" \
-   post_script="../test/post_check.sh AuxDataTestWrite"
+   post_script="../test/post.sh AuxDataTestWrite"
 macro_append AuxDataTestWrite_test_dependencies " DataModelTestRead2_test "
 
 apply_pattern athenarun_test \
    name="AuxDataTestRead" \
    options="DataModelRunTests/AuxDataTestRead_jo.py" \
    pre_script="../test/pre_check.sh" \
-   post_script="../test/post_check.sh AuxDataTestRead"
+   post_script="../test/post.sh AuxDataTestRead"
 macro_append AuxDataTestRead_test_dependencies " AuxDataTestWrite_test "
 
 apply_pattern athenarun_test \
    name="AuxDataTestRead2" \
    options="DataModelRunTests/AuxDataTestRead2_jo.py" \
    pre_script="../test/pre_check.sh" \
-   post_script="../test/post_check.sh AuxDataTestRead2"
+   post_script="../test/post.sh AuxDataTestRead2"
 macro_append AuxDataTestRead2_test_dependencies " AuxDataTestRead_test "
 
 apply_pattern athenarun_test \
    name="AuxDataTestRead2b" \
    options="DataModelRunTests/AuxDataTestRead2b_jo.py" \
    pre_script="../test/pre_check.sh" \
-   post_script="../test/post_check.sh AuxDataTestRead2b"
+   post_script="../test/post.sh AuxDataTestRead2b"
 macro_append AuxDataTestRead2b_test_dependencies " AuxDataTestRead2_test "
 
 apply_pattern athenarun_test \
    name="AuxDataTestTypelessRead" \
    options="DataModelRunTests/AuxDataTestTypelessRead_jo.py" \
    pre_script="../test/pre_check.sh" \
-   post_script="../test/post_check.sh AuxDataTestTypelessRead"
+   post_script="../test/post.sh AuxDataTestTypelessRead"
 macro_append AuxDataTestTypelessRead_test_dependencies " AuxDataTestRead2b_test "
 
 apply_pattern athenarun_test \
    name="AuxDataTestRead3" \
    options="DataModelRunTests/AuxDataTestRead3_jo.py" \
    pre_script="../test/pre_check.sh" \
-   post_script="../test/post_check.sh AuxDataTestRead3"
+   post_script="../test/post.sh AuxDataTestRead3"
 macro_append AuxDataTestRead3_test_dependencies " AuxDataTestTypelessRead_test "
 
 apply_pattern athenarun_test \
    name="xAODTestWrite" \
    options="DataModelRunTests/xAODTestWrite_jo.py" \
    pre_script="../test/pre_check.sh" \
-   post_script="../test/post_check.sh xAODTestWrite"
+   post_script="../test/post.sh xAODTestWrite"
 macro_append xAODTestWrite_test_dependencies " AuxDataTestRead3_test "
 
 apply_pattern athenarun_test \
    name="xAODTestRead" \
    options="DataModelRunTests/xAODTestRead_jo.py" \
    pre_script="../test/pre_check.sh" \
-   post_script="../test/post_check.sh xAODTestRead"
+   post_script="../test/post.sh xAODTestRead"
 macro_append xAODTestRead_test_dependencies " xAODTestWrite_test "
 
 apply_pattern athenarun_test \
    name="xAODTestRead2" \
    options="DataModelRunTests/xAODTestRead2_jo.py" \
    pre_script="../test/pre_check.sh" \
-   post_script="../test/post_check.sh xAODTestRead2"
+   post_script="../test/post.sh xAODTestRead2"
 macro_append xAODTestRead2_test_dependencies " xAODTestRead_test "
 
 apply_pattern athenarun_test \
    name="xAODTestRead2b" \
    options="DataModelRunTests/xAODTestRead2b_jo.py" \
    pre_script="../test/pre_check.sh" \
-   post_script="../test/post_check.sh xAODTestRead2b"
+   post_script="../test/post.sh xAODTestRead2b"
 macro_append xAODTestRead2b_test_dependencies " xAODTestRead2_test "
 
 apply_pattern athenarun_test \
    name="xAODTestTypelessRead" \
    options="DataModelRunTests/xAODTestTypelessRead_jo.py" \
    pre_script="../test/pre_check.sh" \
-   post_script="../test/post_check.sh xAODTestTypelessRead"
+   post_script="../test/post.sh xAODTestTypelessRead"
 macro_append xAODTestTypelessRead_test_dependencies " xAODTestRead2b_test "
 
 apply_pattern athenarun_test \
    name="xAODTestRead3" \
    options="DataModelRunTests/xAODTestRead3_jo.py" \
    pre_script="../test/pre_check.sh" \
-   post_script="../test/post_check.sh xAODTestRead3"
+   post_script="../test/post.sh xAODTestRead3"
 macro_append xAODTestRead3_test_dependencies " xAODTestTypelessRead_test "
 
 document athenarun_launcher xAODTestReadARA_t -group=check \
     athenarun_exe="python" \
     athenarun_pre="'source ../cmt/setup.sh'" \
     athenarun_opt="../share/xAODTestReadARA_t.py" \
-    athenarun_out="' >& xAODTestReadARA_t.log'" \
-    athenarun_post="'../test/post_check.sh xAODTestReadARA_t '"
+    athenarun_out="' >& xAODTestReadARA.log'" \
+    athenarun_post="'../test/post.sh xAODTestReadARA '"
 macro_append xAODTestReadARA_t_dependencies " xAODTestRead3_test "
 
+# Disabled by default for now: they require HLTResultByteStream,
+# which is in AtlasTrigger, not AtlasEvent.
+#apply_pattern athenarun_test \
+#   name="ByteStreamTestWrite" \
+#   options="DataModelRunTests/ByteStreamTestWrite_jo.py" \
+#   pre_script="../test/pre_check.sh" \
+#   post_script="../test/post.sh ByteStreamTestWrite"
+#macro_append ByteStreamTestWrite_test_dependencies " xAODTestRead3_test "
+#
+#apply_pattern athenarun_test \
+#   name="ByteStreamTestRead" \
+#   options="DataModelRunTests/ByteStreamTestRead_jo.py" \
+#   pre_script="../test/pre_check.sh" \
+#   post_script="../test/post.sh ByteStreamTestRead"
+#macro_append ByteStreamTestRead_test_dependencies " ByteStreamTestWrite_test "
