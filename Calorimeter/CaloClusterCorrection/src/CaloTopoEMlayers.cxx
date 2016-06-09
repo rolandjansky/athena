@@ -36,7 +36,7 @@ Updated:  March, 2005    (MB)
 *********************************************************************/
 
 // include header files
-#include "CaloClusterCorrection/CaloTopoEMlayers.h"
+#include "CaloTopoEMlayers.h"
 #include "CaloEvent/CaloCluster.h"
 
 
@@ -81,7 +81,7 @@ StatusCode CaloTopoEMlayers::initialize()
 void CaloTopoEMlayers::get_seed (const xAOD::CaloCluster* cluster,
                                  const CaloCell* /*max_et_cell*/,
                                  double& eta,
-                                 double& phi)
+                                 double& phi) const
 {
   eta = cluster->eta();
   phi = cluster->phi();

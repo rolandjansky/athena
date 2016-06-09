@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloClusterCorrection/CaloClusterLogPos.h"
+#include "CaloClusterLogPos.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -74,8 +74,6 @@ CaloClusterLogPos::geoInit(IOVSVC_CALLBACK_ARGS)
    
 StatusCode  CaloClusterLogPos::execute(xAOD::CaloCluster* theCluster) {
   
-  static CaloPhiRange range;
-
   if ( msgSvc()->outputLevel(name()) <= MSG::DEBUG ) {
 
     msg(MSG::DEBUG) << " old cluster eta = " << theCluster->eta() 
@@ -128,12 +126,12 @@ StatusCode  CaloClusterLogPos::execute(xAOD::CaloCluster* theCluster) {
 	  // need to be normalized to the range [-pi,+pi] in the end
 	  
 	  if ( weightAll > 0 
-	       && phiAll/weightAll < range.phi_min() + 90*deg
-	       && thisCell->phi() > range.phi_max() - 90*deg)
+	       && phiAll/weightAll < CaloPhiRange::phi_min() + 90*deg
+	       && thisCell->phi() > CaloPhiRange::phi_max() - 90*deg)
 	    phiAll    += (thisCell->phi()-360*deg)*lw;
 	  else if ( weightAll > 0 
-		    && phiAll/weightAll > range.phi_max() - 90*deg
-		    && thisCell->phi() < range.phi_min() + 90*deg)
+		    && phiAll/weightAll > CaloPhiRange::phi_max() - 90*deg
+		    && thisCell->phi() < CaloPhiRange::phi_min() + 90*deg)
 	    phiAll    += (thisCell->phi()+360*deg)*lw;
 	  else
 	    phiAll    += thisCell->phi()*lw;
@@ -143,13 +141,13 @@ StatusCode  CaloClusterLogPos::execute(xAOD::CaloCluster* theCluster) {
 	  etaSample[theSample]    += thisCell->eta()*lw;
 	  if ( weightSample[theSample] > 0 
 	       && phiSample[theSample]/weightSample[theSample] 
-	       < range.phi_min() + 90*deg
-	       && thisCell->phi() > range.phi_max() - 90*deg)
+	       < CaloPhiRange::phi_min() + 90*deg
+	       && thisCell->phi() > CaloPhiRange::phi_max() - 90*deg)
 	    phiSample[theSample]    += (thisCell->phi()-360*deg)*lw;
 	  else if ( weightSample[theSample] > 0 
 		    && phiSample[theSample]/weightSample[theSample] 
-		    > range.phi_max() - 90*deg
-		    && thisCell->phi() < range.phi_min() + 90*deg)
+		    > CaloPhiRange::phi_max() - 90*deg
+		    && thisCell->phi() < CaloPhiRange::phi_min() + 90*deg)
 	    phiSample[theSample]    += (thisCell->phi()+360*deg)*lw;
 	  else
 	    phiSample[theSample]    += thisCell->phi()*lw;
@@ -162,7 +160,7 @@ StatusCode  CaloClusterLogPos::execute(xAOD::CaloCluster* theCluster) {
     if ( weightAll > 0 ) {
       const double inv_weightAll = 1. / weightAll;
       theCluster->setEta(etaAll * inv_weightAll);
-      theCluster->setPhi(range.fix(phiAll * inv_weightAll));
+      theCluster->setPhi(CaloPhiRange::fix(phiAll * inv_weightAll));
     }
     
     // std::vector<double> theEtas(CaloCell_ID::Unknown,0);
@@ -180,7 +178,7 @@ StatusCode  CaloClusterLogPos::execute(xAOD::CaloCluster* theCluster) {
 	float phiSample=theCluster->phiSample(s);
 	etaSample /= weightSample[i];
 	phiSample /= weightSample[i];
-	phiSample = range.fix(phiSample);
+	phiSample = CaloPhiRange::fix(phiSample);
 	theCluster->setEta(s,etaSample);
 	theCluster->setPhi(s,phiSample);
       }

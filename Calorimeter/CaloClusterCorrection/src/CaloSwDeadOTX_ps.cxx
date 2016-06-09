@@ -18,7 +18,7 @@ PURPOSE:  Apply specif calibration for the energy lost in front
 
 ********************************************************************/
 
-#include "CaloClusterCorrection/CaloSwDeadOTX_ps.h"
+#include "CaloSwDeadOTX_ps.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 using xAOD::CaloCluster;
@@ -66,7 +66,8 @@ StatusCode CaloSwDeadOTX_ps::initialize()
 }
 
 void CaloSwDeadOTX_ps::makeTheCorrection
-   (CaloCluster* cluster,
+   (const EventContext& /*ctx*/,
+    CaloCluster* cluster,
     const CaloDetDescrElement* /*elt*/,
     float eta,
     float adj_eta,
@@ -107,7 +108,7 @@ void CaloSwDeadOTX_ps::makeTheCorrection
 // check if the cluster is in an affected region
 // -------------------------------------------------------------
 
-   static CaloSampling::CaloSample samps[2][4] = {
+   static const CaloSampling::CaloSample samps[2][4] = {
       { CaloSampling::PreSamplerB,
         CaloSampling::EMB1,
         CaloSampling::EMB2,

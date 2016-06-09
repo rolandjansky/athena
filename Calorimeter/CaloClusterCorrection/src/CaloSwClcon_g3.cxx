@@ -34,7 +34,7 @@ Updated:  June, 2004    (sss)
 ********************************************************************/
 
 
-#include "CaloClusterCorrection/CaloSwClcon_g3.h"
+#include "CaloSwClcon_g3.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cmath>
@@ -61,7 +61,8 @@ CaloSwClcon_g3::~CaloSwClcon_g3()
 { }
 
 // apply correction to one cluster.
-void CaloSwClcon_g3::makeCorrection(CaloCluster* cluster)
+void CaloSwClcon_g3::makeCorrection(const EventContext& /*ctx*/,
+                                    CaloCluster* cluster) const
 {
   float eta = cluster->eta();
   float aeta = fabs(eta);

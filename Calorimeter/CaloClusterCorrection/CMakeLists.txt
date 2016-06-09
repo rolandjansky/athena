@@ -21,13 +21,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODCaloEvent
                           GaudiKernel
                           LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArTools
+                          LArCalorimeter/LArCabling
                           PRIVATE
                           AtlasTest/TestTools
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloGeoHelpers
                           Calorimeter/CaloUtils
-                          Control/DataModel
+                          Control/AthContainers
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/Identifier
                           Event/EventKernel

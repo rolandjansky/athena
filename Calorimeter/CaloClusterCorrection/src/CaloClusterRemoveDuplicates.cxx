@@ -3,14 +3,14 @@
 */
 
 // include header files
-#include "CaloClusterCorrection/CaloClusterRemoveDuplicates.h"
+#include "CaloClusterRemoveDuplicates.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "GaudiKernel/MsgStream.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 /********************************************************************
 

@@ -3,11 +3,11 @@
 */
 
 // include header files
-#include "CaloClusterCorrection/CaloClusterRemoveBad.h"
+#include "CaloClusterRemoveBad.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "GaudiKernel/MsgStream.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 /********************************************************************
 

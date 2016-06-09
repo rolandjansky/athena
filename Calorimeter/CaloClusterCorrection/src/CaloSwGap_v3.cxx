@@ -11,12 +11,13 @@
  * - then, eta from the cluster is used to compute the TG3 energy and apply the correction
  */
 
-#include "CaloClusterCorrection/CaloSwGap_v3.h"
+#include "CaloSwGap_v3.h"
 #include "CaloClusterCorrection/interpolate.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
+#include "StoreGate/ReadHandle.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include <iostream>
 #include <math.h>
@@ -47,8 +48,7 @@ const double dphi = twopi / 64. ;
 CaloSwGap_v3::CaloSwGap_v3 (const std::string& type,
                             const std::string& name,
                             const IInterface* parent)
-  : CaloClusterCorrectionCommon(type, name, parent),
-    m_sg ("StoreGateSvc", name)
+  : CaloClusterCorrectionCommon(type, name, parent)
 {
   declareConstant ("etamin_crack", m_etamin_crack);
   declareConstant ("etamax_crack", m_etamax_crack);
@@ -59,12 +59,23 @@ CaloSwGap_v3::CaloSwGap_v3 (const std::string& type,
   declareConstant ("use_raw_eta_boundaries",  m_use_raw_eta_boundaries);
 
   declareProperty ("cells_name",   m_cells_name = "AllCalo");
-  declareProperty ("event_store",  m_sg);
+}
+
+
+/**
+ * @brief Standard Gaudi initialize method.
+ */
+StatusCode CaloSwGap_v3::initialize()
+{
+  ATH_CHECK( CaloClusterCorrectionCommon::initialize() );
+  ATH_CHECK( m_cells_name.initialize() );
+  return StatusCode::SUCCESS;
 }
 
 
 /**
  * @brief Virtual function for the correction-specific code.
+ * @param ctx     The event context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  * @param elt     The detector description element corresponding
@@ -82,7 +93,8 @@ CaloSwGap_v3::CaloSwGap_v3 (const std::string& type,
  *                @c CaloSampling::CaloSample; i.e., it has both
  *                the calorimeter region and sampling encoded.
  */
-void CaloSwGap_v3::makeTheCorrection (CaloCluster* cluster,
+void CaloSwGap_v3::makeTheCorrection (const EventContext& ctx,
+                                      CaloCluster* cluster,
                                       const CaloDetDescrElement*/*elt*/,
                                       float eta,
                                       float adj_eta,
@@ -114,13 +126,11 @@ void CaloSwGap_v3::makeTheCorrection (CaloCluster* cluster,
   float eta_clus = cluster->eta();
   float phi_clus = cluster->phi();
 
-  // retrieve Tile Cell container
-  const CaloCellContainer* cc;
-  StatusCode sc = m_sg->retrieve(cc, m_cells_name);
+  SG::ReadHandle<CaloCellContainer> cc (m_cells_name, ctx);
 
   // Add up the tile scintillator energy in the region around the cluster.
   double eh_scint = 0;
-  if(StatusCode::SUCCESS==sc)
+  if(cc.isValid())
   {
     CaloCellContainer::const_iterator f_cell =
       cc->beginConstCalo(CaloCell_ID::TILE);

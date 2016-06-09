@@ -22,7 +22,7 @@ Updated:  May 5, 2004    (Sven Menke)
 
 
 ********************************************************************/
-#include "CaloClusterCorrection/CaloSwApplyWgts_g3.h"
+#include "CaloSwApplyWgts_g3.h"
 
 
 // correction constants Leonardo Carminati
@@ -51,7 +51,7 @@ Bin# |  Eta < 1.35  | 1.35<eta<1.6 | eta > 1.6
 */
 
 using xAOD::CaloCluster;
-const float CaloSwApplyWgts_g3::m_table_eta[numEtaBins+1] 
+const float CaloSwApplyWgts_g3::m_table_eta[s_numEtaBins+1] 
 = {0.000000, 0.025000, 0.050000, 0.075000, 0.100000, 0.125000, 
    0.150000, 0.175000, 0.200000, 0.225000, 0.250000, 0.275000, 
    0.300000, 0.325000, 0.350000, 0.375000, 0.400000, 0.425000, 
@@ -69,7 +69,7 @@ const float CaloSwApplyWgts_g3::m_table_eta[numEtaBins+1]
    2.100000, 2.125000, 2.150000, 2.175000, 2.200000, 2.225000, 
    2.250000, 2.275000, 2.300000, 2.325000, 2.350000, 2.375000, 
    2.400000, 2.425000, 2.450000, 2.475000, 2.500000};
-const float CaloSwApplyWgts_g3::m_table_p[4][numEtaBins] = {
+const float CaloSwApplyWgts_g3::m_table_p[4][s_numEtaBins] = {
   {
     2.159336, 2.159365, 2.159426, 2.159524, 2.185450, 1.784150, 
     1.468300, 1.577280, 2.357230, 2.143870, 2.429050, 2.128170, 
@@ -165,7 +165,8 @@ CaloSwApplyWgts_g3::~CaloSwApplyWgts_g3()
 { }
 
 // make correction to one cluster 
-void CaloSwApplyWgts_g3::makeCorrection(CaloCluster* cluster)
+void CaloSwApplyWgts_g3::makeCorrection(const EventContext& /*ctx*/,
+                                        CaloCluster* cluster) const
 {
 
   
@@ -192,12 +193,12 @@ void CaloSwApplyWgts_g3::makeCorrection(CaloCluster* cluster)
 
 }
 
-float CaloSwApplyWgts_g3::GetWgt(int layer, float aeta)
+float CaloSwApplyWgts_g3::GetWgt(int layer, float aeta) const
 {
-  if (aeta < m_table_eta[0] || aeta > m_table_eta[numEtaBins])
+  if (aeta < m_table_eta[0] || aeta > m_table_eta[s_numEtaBins])
     return m_table_p[layer%4][0];
-  else
-    for (int i = 0; i < numEtaBins; ++i) 
+  else {
+    for (int i = 0; i < s_numEtaBins; ++i) 
       {
 	//    Check Eta range and do interpolation
 	
@@ -220,33 +221,9 @@ float CaloSwApplyWgts_g3::GetWgt(int layer, float aeta)
 	    }
 	  }
       }
+  }
   
-    return m_table_p[0][0] ;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  return m_table_p[0][0] ;
 }
 
     

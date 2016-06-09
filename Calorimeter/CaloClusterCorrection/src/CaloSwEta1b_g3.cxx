@@ -32,14 +32,14 @@ Updated:  May 5, 2004    (Sven Menke)
 Updated:  June, 2004    (sss)
           Use ToolWithConstants to get correction constants.
 ********************************************************************/
-#include "CaloClusterCorrection/CaloSwEta1b_g3.h"
+#include "CaloSwEta1b_g3.h"
 #include "CaloClusterCorrection/interpolate.h"
 #include <cmath>
 
 using xAOD::CaloCluster;
 using CaloClusterCorr::interpolate;
 
-const float CaloSwEta1b_g3::strip_granularity = 0.003125;    // 0.025/8
+const float CaloSwEta1b_g3::s_strip_granularity = 0.003125;    // 0.025/8
 
 // -------------------------------------------------------------
 // Constructor 
@@ -65,7 +65,8 @@ CaloSwEta1b_g3::~CaloSwEta1b_g3()
 { }
 
 // make correction to one cluster.
-void CaloSwEta1b_g3::makeCorrection(CaloCluster* lar_cluster)
+void CaloSwEta1b_g3::makeCorrection(const EventContext& /*ctx*/,
+                                    CaloCluster* lar_cluster) const
 {
   assert (m_correction.size(1)-1 == m_correction_bins.size());
 
@@ -76,7 +77,7 @@ void CaloSwEta1b_g3::makeCorrection(CaloCluster* lar_cluster)
   float eta = lar_cluster->etaSample(CaloSampling::EMB1);
   if (eta == -999.) return;
   float aeta = fabs(eta);
-  float u1 = fmod(aeta,strip_granularity);
+  float u1 = fmod(aeta,s_strip_granularity);
 
   //   we evaluate the s-shape in each eta range
 

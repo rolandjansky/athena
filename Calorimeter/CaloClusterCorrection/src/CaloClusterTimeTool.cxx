@@ -14,6 +14,7 @@ PURPOSE:  correct time for EM clusters
 
 ********************************************************************/
 
+#include "CaloClusterTimeTool.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/HWIdentifier.h"
 
@@ -24,7 +25,6 @@ PURPOSE:  correct time for EM clusters
 
 #include "CaloCondBlobObjs/CaloCondUtils.h"
 
-#include "CaloClusterCorrection/CaloClusterTimeTool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
 
@@ -32,7 +32,9 @@ using xAOD::CaloCluster;
 
 
 CaloClusterTimeTool::CaloClusterTimeTool (const std::string& type,const std::string& name,const IInterface* parent)
-:  AthAlgTool( type, name, parent )
+   :  AthAlgTool( type, name, parent ),
+      m_LArOnlineIDHelper(nullptr),
+      m_calo_id(nullptr)
 {
   declareInterface<ICaloClusterTimeTool>(this);
   

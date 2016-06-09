@@ -22,7 +22,7 @@ PURPOSE:  - Compute simple cell weights for Sliding Window
 *********************************************************************/
 
 // include header files
-#include "CaloClusterCorrection/CaloComputeSWcellWeights.h"
+#include "CaloComputeSWcellWeights.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloClusterContainer.h"
 //#include "CaloDetDescr/CaloDetDescrElement.h"

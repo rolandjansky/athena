@@ -28,7 +28,7 @@ Updated:  June, 2004    (sss)
           Use ToolWithConstants to get correction constants.
 ********************************************************************/
 
-#include "CaloClusterCorrection/CaloSwEta2e_g3.h"
+#include "CaloSwEta2e_g3.h"
 #include "CaloClusterCorrection/interpolate.h"
 #include <cmath>
 
@@ -37,7 +37,7 @@ using CaloClusterCorr::interpolate;
 
 // granularity of middle EM barrel layer
 
-  const float CaloSwEta2e_g3::middle_layer_granularity = 0.025;
+  const float CaloSwEta2e_g3::s_middle_layer_granularity = 0.025;
 
 // ----------
 // Constructor 
@@ -60,7 +60,8 @@ CaloSwEta2e_g3::~CaloSwEta2e_g3()
 { }
 
 // make correction to one cluster 
-void CaloSwEta2e_g3::makeCorrection(CaloCluster* cluster)
+void CaloSwEta2e_g3::makeCorrection(const EventContext& /*ctx*/,
+                                    CaloCluster* cluster) const
 {
   // Only for endcap
   if (!cluster->inEndcap())
@@ -72,10 +73,10 @@ void CaloSwEta2e_g3::makeCorrection(CaloCluster* cluster)
   float aeta = fabs(eta);
 
   // peak around center of cell (+=0.0125)
-  float u2 = fmod(eta-etamax,middle_layer_granularity/2.);
-  u2 += middle_layer_granularity/2.;
+  float u2 = fmod(eta-etamax,s_middle_layer_granularity/2.);
+  u2 += s_middle_layer_granularity/2.;
   // be careful with negative eta values, position correction is not symmetric.
-  if (eta < 0.) u2 = middle_layer_granularity-u2;
+  if (eta < 0.) u2 = s_middle_layer_granularity-u2;
 
   //   First order (average) S-shape correction
   float etc2 = aeta - interpolate (m_correction, u2, m_correction_degree);

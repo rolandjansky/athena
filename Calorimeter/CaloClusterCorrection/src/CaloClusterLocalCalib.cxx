@@ -102,8 +102,8 @@ StatusCode  CaloClusterLocalCalib::execute(CaloCluster* theCluster) {
         
         double oldEnergy = theCluster->e();           
         
-        const CaloDetDescrManager*   m_calo_dd_man  = CaloDetDescrManager::instance(); 
-        const CaloCell_ID*               m_calo_id  = m_calo_dd_man->getCaloCell_ID();   
+        const CaloDetDescrManager*   calo_dd_man  = CaloDetDescrManager::instance(); 
+        const CaloCell_ID*               calo_id  = calo_dd_man->getCaloCell_ID();   
               
 //         Make new Cluster and CellColl
         CaloCellContainer* myCellColl = new CaloCellContainer(SG::OWN_ELEMENTS);  
@@ -116,7 +116,7 @@ StatusCode  CaloClusterLocalCalib::execute(CaloCluster* theCluster) {
           const  CaloCell* pCell = *cellIter;  
           double CellEnergy = pCell->e();    
           //Identifier myId = pCell->ID();    
-          //IdentifierHash myHashId = m_calo_id->calo_cell_hash(myId); 
+          //IdentifierHash myHashId = calo_id->calo_cell_hash(myId); 
           if( CellEnergy < 0. )   CellEnergy = -1 * pCell->e();    
           CellReplica = new CaloCell( pCell->caloDDE(), pCell->ID(), CellEnergy, pCell->time(), pCell->quality(),  pCell->provenance(), pCell->gain() );
           myCellColl->push_back(CellReplica);          
@@ -155,7 +155,7 @@ StatusCode  CaloClusterLocalCalib::execute(CaloCluster* theCluster) {
            const CaloCell* pCell = *mycellIter;
            double cellWeight = mycellIter.weight();  
            Identifier myId = pCell->ID();    
-           IdentifierHash myHashId = m_calo_id->calo_cell_hash(myId);
+           IdentifierHash myHashId = calo_id->calo_cell_hash(myId);
            weightMap[myHashId] = cellWeight;           
          }
 
@@ -165,7 +165,7 @@ StatusCode  CaloClusterLocalCalib::execute(CaloCluster* theCluster) {
          cellIter    = theCluster->cell_begin();
          for(;cellIter!=theCluster->cell_end();cellIter++) {
            const CaloCell* pCell = *cellIter;
-           IdentifierHash myHashId = m_calo_id->calo_cell_hash(pCell->ID()); 
+           IdentifierHash myHashId = calo_id->calo_cell_hash(pCell->ID()); 
            double weight = weightMap[myHashId];
            theCluster->reweightCell(cellIter,weight);  
          }           
