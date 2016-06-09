@@ -141,6 +141,7 @@ TrigSteer::TrigSteer(const std::string& name, ISvcLocator* pSvcLocator)
    declareProperty("doL1TopoSimulation",m_doL1TopoSimulation=true,"Turns on L1Topo Sim");
    declareProperty("TopoOutputLevel", m_topoOutputLevel, "OutputLevel for L1Topo algorithms" );
    declareProperty("EventInfoAccessTool", m_EventInfoTool,"Tool to update the EventInfo at the end of the execution");
+   declareProperty("AuditChains", m_auditChains=false, "Call auditor hooks for chain execution");
 }
 
 
@@ -845,7 +846,7 @@ void TrigSteer::runChains(bool secondPass) {
         if ( ! (*iterChain)->runInSecondPass()) continue;
       }
 
- 
+      if (m_auditChains) auditorSvc()->before(IAuditor::Execute,(*iterChain)->getChainName());
       // In case we crash, CoreDumpSvc will print this info
       m_coreDumpSvc->setCoreDumpInfo("Current trigger chain",(*iterChain)->getChainName());
 
@@ -897,7 +898,8 @@ void TrigSteer::runChains(bool secondPass) {
           issueEventBuildingRequest(step);
         }
       }
-      
+      if (m_auditChains) auditorSvc()->after(IAuditor::Execute,(*iterChain)->getChainName());
+
       chainsStillActive = (*iterChain)->isActive() || chainsStillActive;
     }   
   }
@@ -1302,6 +1304,11 @@ const std::vector<const HLT::SteeringChain*> TrigSteer::getConfiguredChains() co
    sort(sortedChains.begin(), sortedChains.end(), compareByName);
 
    return sortedChains;
+}
+
+
+std::vector<TriggerInfo::StreamTag> TrigSteer::getErrorStreamTags() const {
+  return m_resultBuilder->getErrorStreamTags();
 }
 
 

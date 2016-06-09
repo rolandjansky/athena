@@ -81,7 +81,7 @@ namespace HLT {
     void setConfig(AlgoConfig* config) { m_config = config; } //!< set global config object pointer
     virtual ErrorCode setConfiguredChains(const std::vector<HLT::SteeringChain*>& configuredChains); //!< Setup a search map of all configured chains
     virtual ErrorCode setConfigurationKeys(uint32_t supermaster, uint32_t prescales);
-
+    virtual std::vector<TriggerInfo::StreamTag> getErrorStreamTags() const;
 
     static const InterfaceID& interfaceID() { return  IID_ResultBuilder; } //!< Gaudi interface
 
@@ -104,7 +104,7 @@ namespace HLT {
 
     std::vector<TriggerInfo::StreamTag> m_uniqueStreams; //!< unique list of streams in this event
 
-    StatusCode decodeErrorStreamaTagsProperty(); //!< method to evaluate the mapping of errors to StreamTags
+    StatusCode decodeErrorStreamTagsProperty(); //!< method to evaluate the mapping of errors to StreamTags
 
     unsigned int m_infoSize;
 
