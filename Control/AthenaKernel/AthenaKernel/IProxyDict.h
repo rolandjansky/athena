@@ -10,6 +10,7 @@
 // INCLUDES
 #include "AthenaKernel/sgkey_t.h"
 #include "AthenaKernel/IStringPool.h"
+#include "AthenaKernel/DataObjectSharedPtr.h"
 #include "GaudiKernel/INamedInterface.h"
 #include "GaudiKernel/ClassID.h"
 #include <string>
@@ -46,17 +47,6 @@ class IProxyDict : virtual public INamedInterface,
 public:
   DeclareInterfaceID (IProxyDict, 2, 0);
   virtual ~IProxyDict() override {}
-
-  /// get default proxy with given id. Returns 0 to flag failure
-  // TEMPORARY: This method is going away.
-  virtual SG::DataProxy* proxy(const CLID& id) const
-  { return proxy (id, ""); }
-
-  /// get proxy for a given data object address in memory,
-  /// but performs a deep search among all possible 'symlinked' containers
-  // TEMPORARY: This method is going away.
-  virtual SG::DataProxy* deep_proxy(const void* const pTransient) const
-  { return proxy (pTransient); }
 
   /**
    * @brief Get proxy given a hashed key+clid.
@@ -118,17 +108,23 @@ public:
    * @param obj The data object to store.
    * @param key The key as which it should be stored.
    * @param allowMods If false, the object will be recorded as const.
+   * @param returnExisting If true, return proxy if this key already exists.
+   *                       If the object has been recorded under a different
+   *                       key, then make an alias.
    *
    * Full-blown record.  @c obj should usually be something
    * deriving from @c SG::DataBucket.
    *
    * Returns the proxy for the recorded object; nullptr on failure.
+   * If the requested CLID/key combination already exists in the store,
+   * the behavior is controlled by @c returnExisting.  If true, then
+   * the existing proxy is returned; otherwise, nullptr is returned.
+   * In either case, @c obj is destroyed.
    */
-  /// TEMPORARY: This method is being added.  It eventually should be pure.
-  virtual SG::DataProxy* recordObject (std::unique_ptr<DataObject> /*obj*/,
-                                       const std::string& /*key*/,
-                                       bool /*allowMods*/)
-  { return nullptr; }
+  virtual SG::DataProxy* recordObject (SG::DataObjectSharedPtr<DataObject> obj,
+                                       const std::string& key,
+                                       bool allowMods,
+                                       bool returnExisting) = 0;
 
 
   /**
@@ -136,9 +132,7 @@ public:
    * @param id The CLID of the object.
    * @param key The key of the object.
    */
-  /// TEMPORARY: This method is being added.  It eventually should be pure.
-  virtual StatusCode updatedObject (CLID /*id*/, const std::string& /*key*/)
-  { return StatusCode::SUCCESS; }
+  virtual StatusCode updatedObject (CLID id, const std::string& key) = 0;
 
 
   /**

@@ -37,13 +37,14 @@ use TestTools TestTools-* AtlasTest
 macro extrapatterns "^=========+|^ApplicationMgr +SUCCESS|^HistogramPersis.*INFO.*CnvServices|^StatusCodeSvc +INFO initialize|^ *Welcome to ApplicationMgr|^ *running on|^Wall clock time"
 
 apply_pattern UnitTest_run unit_test=getMessageSvc extrapatterns="'$(extrapatterns)'"
-apply_pattern UnitTest_run unit_test=MsgStreamMember extrapatterns="'$(extrapatterns)'"
+apply_pattern UnitTest_run unit_test=MsgStreamMember extrapatterns="$(extrapatterns) |ref count"
 apply_pattern UnitTest_run unit_test=AthenaPackageInfo
 apply_pattern UnitTest_run unit_test=DirSearchPath
 apply_pattern UnitTest_run unit_test=Chrono
 apply_pattern UnitTest_run unit_test=errorcheck extrapatterns="'$(extrapatterns)'"
 apply_pattern UnitTest_run unit_test=type_tools
 apply_pattern UnitTest_run unit_test=Units
+apply_pattern UnitTest_run unit_test=DataObjectSharedPtr
 
 macro_append DOXYGEN_INPUT " ../doc ../test ../AthenaKernel/tools " 
 macro_append DOXYGEN_FILE_PATTERNS    " *.icc"

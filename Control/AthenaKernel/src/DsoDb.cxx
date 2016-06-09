@@ -339,13 +339,13 @@ DsoDb::build_repository()
          ++ipath) {
       const fs::path& dsomap = *ipath;
 
-      if (!fs::exists(dsomap)) continue;
-
       bool is_components = false;
       if (dsomap.extension() == Components)
         is_components = true;
       else if (dsomap.extension() != RootMap)
         continue;
+
+      if (!fs::exists(dsomap)) continue;
 
       //std::cerr << "=== [" << dso << "] ===\n";
 #if BOOST_FILESYSTEM_VERSION == 3 

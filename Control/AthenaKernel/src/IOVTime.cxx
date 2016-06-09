@@ -15,13 +15,9 @@
  *
  *****************************************************************************/
 
-#ifndef ATHENAKERNEL_IOVTIME_H
- #include "AthenaKernel/IOVTime.h"
-#endif
-#ifndef GAUDIKERNEL_MSGSTREAM_H
- #include "GaudiKernel/MsgStream.h"
-#endif
-
+#include "AthenaKernel/IOVTime.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/EventIDBase.h"
 #include <limits>
 
 const uint32_t IOVTime::MINRUN = 
@@ -69,6 +65,33 @@ IOVTime::IOVTime(const uint32_t& run, const uint32_t& event,
   m_status(IOVTime::BOTH), m_timestamp(time)
 {
   m_time =  ( (uint64_t) run << 32) + event;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+IOVTime::IOVTime(const EventIDBase& eid) 
+{
+  m_time = 0;
+  m_timestamp = eid.time_stamp()*1000000000LL + eid.time_stamp_ns_offset();
+
+  if (eid.isRunEvent()) {
+    m_time = ( (uint64_t) eid.run_number() << 32) + eid.event_number();
+    if (eid.isTimeStamp()) {
+      m_status = IOVTime::BOTH;
+    } else {
+      m_status = IOVTime::RUN_EVT;
+    }
+  } else if (eid.isLumiEvent()) {
+    m_time = ( (uint64_t) eid.lumi_block() << 32) + eid.event_number();
+    if (eid.isTimeStamp()) {
+      m_status = IOVTime::BOTH;
+    } else {
+      m_status = IOVTime::RUN_EVT;
+    }
+  } else {
+    m_status = IOVTime::TIMESTAMP;
+  }
+
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */

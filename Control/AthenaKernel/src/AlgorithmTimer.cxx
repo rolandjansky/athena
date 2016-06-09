@@ -111,6 +111,7 @@ AlgorithmTimer::AlgorithmTimer(unsigned int milliseconds,
 			       callbackFct_t callback,
 			       AlgorithmTimerConfig conf) :
   m_timeout (0),
+  m_timerid(),
   m_onAlarm(callback),
   m_gdb_details (0)
 {  

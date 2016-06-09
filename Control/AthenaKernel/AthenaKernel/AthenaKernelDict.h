@@ -21,6 +21,7 @@
 
 #include "AthenaKernel/DsoDb.h"
 #include "AthenaKernel/AthDsoUtils.h"
+#include "AthenaKernel/tools/AthenaPackageInfo.h"
 
 #include "GaudiKernel/MsgStream.h"
 

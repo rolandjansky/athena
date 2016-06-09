@@ -50,16 +50,6 @@ public:
    * @brief Read the data
    */
   virtual StatusCode readData() const = 0;
-
-  /**
-   * @brief Owns the data
-   */
-  virtual bool ownsData() const = 0;
-
-  /**
-   * @brief Release the data
-   */
-  virtual StatusCode releaseData() const = 0;
 };
 
 
