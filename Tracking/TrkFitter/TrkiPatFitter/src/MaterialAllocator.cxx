@@ -1511,6 +1511,9 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 
     // secondly: insert remaining material between measurement layers
     m = measurements.begin();
+    int im = 0;
+    bool debug = false; 
+    if(debug) std::cout << " measurements.size() " << measurements.size() << " surfaces.size() " <<  surfaces.size() <<  " indetMaterial->size() " << indetMaterial->size() << std::endl;
     std::vector<const Surface*>::const_iterator r = surfaces.begin();
     for (s = indetMaterial->begin(); s != indetMaterialEnd; ++s)
     {
@@ -1523,19 +1526,43 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 	    ++r;
 	    continue;
 	}
-		
+
 	double distance = startDirection.dot((**s).trackParameters()->position() - startPosition);
+
+        if(debug) {
+          std::cout << "	startPosition " << startPosition.perp() << " z " << startPosition.z() << std::endl;
+          std::cout << "	(**m).intersection(FittedTrajectory).position() measurement position r " << (**m).intersection(FittedTrajectory).position().perp() << " z " << (**m).intersection(FittedTrajectory).position().z()  << std::endl;
+          std::cout << "	(**s).trackParameters()->position() material surface position r " << (**s).trackParameters()->position().perp() << " z " << (**s).trackParameters()->position().z() << std::endl;
+          std::cout << " distance material surface " <<  distance << std::endl;
+        }
+ 
+        bool endIndet = false; 	
 	while (distance > startDirection.dot((**m).intersection(FittedTrajectory).position() - startPosition))
 	{
 	    if (*m == endIndetMeasurement)
 	    {
-		if (*m != measurements.back()) ++m;
+		if (*m != measurements.back()) {
+                  ++m;
+                  ++im;
+                  std::cout << " measurements.back() im " << im << std::endl;
+                }
+                if(debug) std::cout << " break im " << im << std::endl;
+                endIndet = true;
 		break;
 	    }
-	    ++m;
+	    if (*m != measurements.back()) {
+	      ++m;
+              ++im;
+              if(debug) std::cout << " loop im " << im << "	(**m).intersection(FittedTrajectory).position() measurement position r " << (**m).intersection(FittedTrajectory).position().perp() << " z " << (**m).intersection(FittedTrajectory).position().z()  << std::endl;
+            } else {
+              break;
+            } 
 	}
-	
-	
+        if(debug) {
+          std::cout << " im " << im << " distance measurement " <<  startDirection.dot((**m).intersection(FittedTrajectory).position() - startPosition)  << std::endl;
+          std::cout << " (**m).intersection(FittedTrajectory).position() measurement position r " << (**m).intersection(FittedTrajectory).position().perp() << " z " << (**m).intersection(FittedTrajectory).position().z()  << std::endl; 	
+	}
+
 	m = measurements.insert(m,new FitMeasurement((**s).materialEffectsOnTrack(),
 						     ParticleMasses().mass[particleHypothesis],
 						     (**s).trackParameters()->position()));
@@ -1545,6 +1572,21 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 	    0.);
 	(**m).intersection(FittedTrajectory,intersection);
 	(**m).qOverP((**s).trackParameters()->parameters()[Trk::qOverP]);
+        if(debug) std::cout << " successfull insertion " << std::endl;
+        if(endIndet) --m; 
+    }
+
+    if(debug) { 
+      m = measurements.begin();
+      im = 0;
+      for (; m != measurements.end(); ++m)
+      {
+	if (! leadingDelimiter && (**m).isOutlier())		continue;
+	
+	Amg::Vector3D position		= (**m).intersection(FittedTrajectory).position();
+        ++im;
+        std::cout << " im " << im << " position R " << position.perp() << " z " << position.z() << std::endl;  
+      }
     }
 
     // memory management
