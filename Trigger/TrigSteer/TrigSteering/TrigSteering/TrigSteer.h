@@ -41,7 +41,7 @@
 #include "AthenaMonitoring/IMonitorToolBase.h"
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc_RTT.h"
 #include "GaudiKernel/SmartIF.h"
-
+#include "EventInfo/TriggerInfo.h"
 #include "AthenaKernel/Timeout.h"
 
 class StatusCode;
@@ -156,6 +156,7 @@ namespace HLT {
 
       const std::vector<const HLT::SteeringChain*> getActiveChains() const;     //<! get all active chains (used in monitoring)
       const std::vector<const HLT::SteeringChain*> getConfiguredChains() const; //<! get all configured chains (used in monitoring)
+      std::vector<TriggerInfo::StreamTag> getErrorStreamTags() const;           //<! get all configured debug streams (name,type)
 
       int stepForEB() const { return m_stepForEB;}; //!< get the step counting at EB for the merged system
 
@@ -229,7 +230,7 @@ namespace HLT {
       bool m_enableRerun;                 //!< directive to enable rerun on prescaled chains
       int  m_stepForEB;                   //!< step of the EB in the merged L2EF system
       int  m_strategyEB;                  //!< directive to decide the EB strategy in the merged L2EF system
-
+      bool m_auditChains;                 //!< call auditor hooks for chain execution
       // -----------------
       // Services & tools
       /** TrigConfiguration Service, which reads in the configured chains & sequences */
