@@ -8,42 +8,49 @@
 
 namespace LVL1CTP {
 
-  MsgLogger::MsgLogger( const std::string& source )
-    : m_source( source ) {
+   MsgLogger::MsgLogger( const std::string& source )
+      : m_source( source ) {
 
-    m_msgWriter = MsgWriter::instance();
+      m_msgWriter = MsgWriter::instance();
 
-  }
+   }
 
-  MsgLogger::~MsgLogger() {
+   MsgLogger::~MsgLogger() {
 
-  }
+   }
 
-  /**
-   * This is the function that actually writes to the output, using MsgWriter.
-   * You can even give multi-line strings to it, it will nicely give each line
-   * the appropriate header.
-   */
-  void MsgLogger::send( MSG::Level type, const std::string& message ) const {
+   bool
+   MsgLogger::msgLvl (const MSG::Level lvl) const
+   {
+      return m_msgWriter->msgLvl(lvl);
+   }
 
-    std::string::size_type previous_pos = 0, current_pos = 0;
 
-    // Slice the recieved message into lines:
-    for( ; ; ) {
+   /**
+    * This is the function that actually writes to the output, using MsgWriter.
+    * You can even give multi-line strings to it, it will nicely give each line
+    * the appropriate header.
+    */
+   void MsgLogger::send( MSG::Level type, const std::string& message ) const {
 
-      current_pos = message.find( '\n', previous_pos );
-      std::string line = message.substr( previous_pos, current_pos - previous_pos );
+      std::string::size_type previous_pos = 0, current_pos = 0;
 
-      std::string message_to_send = m_source + " : " + line;
-      m_msgWriter->write( type, message_to_send );
+      // Slice the recieved message into lines:
+      for( ; ; ) {
 
-      if( current_pos == message.npos ) break;
-      previous_pos = current_pos + 1;
+         current_pos = message.find( '\n', previous_pos );
+         std::string line = message.substr( previous_pos, current_pos - previous_pos );
 
-    }
+         std::string message_to_send = m_source + " : " + line;
+         m_msgWriter->write( type, message_to_send );
 
-    return;
+         if( current_pos == message.npos ) break;
+         previous_pos = current_pos + 1;
 
-  }
+      }
+
+      return;
+
+   }
 
 } // namespace LVL1CTP

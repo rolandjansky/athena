@@ -41,6 +41,7 @@
 // tdaq-common includes for CTP format definition
 //#include "CTPfragment/CTPdataformat.h"
 
+using namespace std;
 
 LVL1CTP::ResultBuilder::ResultBuilder( unsigned int ctpVersionNumber, 
                                        const TrigConf::CTPConfig* ctpConfig,
@@ -58,38 +59,42 @@ LVL1CTP::ResultBuilder::ResultBuilder( unsigned int ctpVersionNumber,
    m_parseLine(0)
 {
 		
-      m_logger.send( MSG::VERBOSE, "Created" );
-    
-      m_ctpDataFormat = new CTPdataformatVersion(m_ctpVersionNumber);
+   if( m_logger.msgLvl(MSG::VERBOSE) ) {
+      std::ostringstream message;
+      message << "Created with CTP version " << m_ctpVersionNumber;
+      m_logger.send( MSG::VERBOSE, message.str() );
+   }
+
+   m_ctpDataFormat = new CTPdataformatVersion(m_ctpVersionNumber);
 		
 
-      // build TIP word
-      m_tip.resize(0);
-      for (unsigned int i = 0; i < m_ctpDataFormat->getTIPwords(); ++i ) {
-         m_tip.push_back( this->constructTIPWord( i ) );           // TIP + 1 extra word with rndm trigger, bcid etc.
-      }
-      m_logger.send( MSG::VERBOSE, "TIP build" );
+   // build TIP word
+   m_tip.resize(m_ctpDataFormat->getTIPwords());
+   for (unsigned int i = 0; i < m_ctpDataFormat->getTIPwords(); ++i ) {
+      m_tip[i] = constructTIPWord( i );           // TIP + 1 extra word with rndm trigger, bcid etc.
+   }
+   m_logger.send( MSG::VERBOSE, "TIP build" );
 		
-      // build trigger result before prescale
-      m_tbp.resize(0);
-      for (unsigned int i = 0; i < m_ctpDataFormat->getTBPwords(); ++i ) {
-         m_tbp.push_back( this->constructResultWord( i, TBP ) );   // TBP
-      }
-      m_logger.send( MSG::VERBOSE, "TBP build" );
+   // build trigger result before prescale
+   m_tbp.resize(m_ctpDataFormat->getTBPwords());
+   for (unsigned int i = 0; i < m_ctpDataFormat->getTBPwords(); ++i ) {
+      m_tbp[i] = this->constructResultWord( i, TBP );   // TBP
+   }
+   m_logger.send( MSG::VERBOSE, "TBP build" );
 		
-      // build trigger result after prescale
-      m_tap.resize(0);
-      for (unsigned int i = 0; i < m_ctpDataFormat->getTAPwords(); ++i ) {
-         m_tap.push_back( this->constructResultWord( i, TAP ) );   // TAP
-      }
-      m_logger.send( MSG::VERBOSE, "TAP build" );
+   // build trigger result after prescale
+   m_tap.resize(m_ctpDataFormat->getTAPwords());
+   for (unsigned int i = 0; i < m_ctpDataFormat->getTAPwords(); ++i ) {
+      m_tap[i] = this->constructResultWord( i, TAP );   // TAP
+   }
+   m_logger.send( MSG::VERBOSE, "TAP build" );
     
-      // build trigger result after veto
-      m_tav.resize(0);
-      for (unsigned int i = 0; i < m_ctpDataFormat->getTAVwords(); ++i ) {
-         m_tav.push_back( this->constructResultWord( i, TAV ) );   // TAV
-      }
-      m_logger.send( MSG::VERBOSE, "TAV build" );
+   // build trigger result after veto
+   m_tav.resize(m_ctpDataFormat->getTAVwords());
+   for (unsigned int i = 0; i < m_ctpDataFormat->getTAVwords(); ++i ) {
+      m_tav[i] = this->constructResultWord( i, TAV );   // TAV
+   }
+   m_logger.send( MSG::VERBOSE, "TAV build" );
 		
 }
 	
@@ -237,33 +242,33 @@ LVL1CTP::ResultBuilder::constructRoIResult() const {
    //
    // Debug output for ANT
    // 
-		
-   {
-      std::vector<std::string> passedItems = firedItems(m_tbp);
-      std::ostringstream message;
-      for (size_t i(0); i < passedItems.size(); ++i) {
-         message << " " << passedItems[i];
+   if( m_logger.msgLvl(MSG::DEBUG) ) {
+      {
+         std::vector<std::string> passedItems = firedItems(m_tbp);
+         std::ostringstream message;
+         for (size_t i(0); i < passedItems.size(); ++i) {
+            message << " " << passedItems[i];
+         }
+         m_logger.send( MSG::DEBUG, "REGTEST - Items fired before prescale: " + message.str() );
       }
-      m_logger.send( MSG::DEBUG, "REGTEST - Items fired before prescale: " + message.str() );
-   }
-   {
-      std::vector<std::string> passedItems = firedItems(m_tap);
-      std::ostringstream message;
-      for (size_t i(0); i < passedItems.size(); ++i) {
-         message << " " << passedItems[i];
+      {
+         std::vector<std::string> passedItems = firedItems(m_tap);
+         std::ostringstream message;
+         for (size_t i(0); i < passedItems.size(); ++i) {
+            message << " " << passedItems[i];
+         }
+         m_logger.send( MSG::DEBUG, "REGTEST - Items fired after prescale: " + message.str() );
       }
-      m_logger.send( MSG::DEBUG, "REGTEST - Items fired after prescale: " + message.str() );
-   }
 		
-   {
-      std::vector<std::string> passedItems = firedItems(m_tav);
-      std::ostringstream message;
-      for (size_t i(0); i < passedItems.size(); ++i) {
-         message << " " << passedItems[i];
+      {
+         std::vector<std::string> passedItems = firedItems(m_tav);
+         std::ostringstream message;
+         for (size_t i(0); i < passedItems.size(); ++i) {
+            message << " " << passedItems[i];
+         }
+         m_logger.send( MSG::DEBUG, "REGTEST - Items fired after veto: " + message.str() );
       }
-      m_logger.send( MSG::DEBUG, "REGTEST - Items fired after veto: " + message.str() );
-   }
-		
+   }	
    return result;
 }
 
@@ -529,11 +534,12 @@ uint32_t
 LVL1CTP::ResultBuilder::extendedLevel1ID() const {
    //if MC extendedLVL1ID will be 0, otherwise will !=0
    uint32_t id = EventInfo::instance().extendedL1ID()?EventInfo::instance().extendedL1ID():EventInfo::instance().eventNumber();
-   
-   std::ostringstream message;
-   message << "Created extendedLevel1ID: " << id;
-   m_logger.send( MSG::DEBUG, "REGTEST - " + message.str() );
-   
+
+   if( m_logger.msgLvl(MSG::DEBUG) ) {
+      std::ostringstream message;
+      message << "Created extendedLevel1ID: " << id;
+      m_logger.send( MSG::DEBUG, "REGTEST - " + message.str() );
+   }
    return id;
 }
 	
@@ -564,11 +570,12 @@ LVL1CTP::ResultBuilder::constructTIPWord( unsigned int wrd_num ) const {
          }
 				
       }
-			
-      std::ostringstream message;
-      message << "TIP word #" << std::dec << wrd_num << " is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << result;
-      m_logger.send( MSG::DEBUG, "REGTEST - " + message.str() );
-			
+
+      if( m_logger.msgLvl(MSG::DEBUG) ) {
+         std::ostringstream message;
+         message << "TIP word #" << std::dec << wrd_num << " is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << result;
+         m_logger.send( MSG::DEBUG, "REGTEST - " + message.str() );
+      }
       return result;
 			
    } else if( wrd_num == m_ctpDataFormat->getAuxTIPwordPos()-1 ) { // This is a special word. (And I don't calculate it at the moment...)
@@ -579,20 +586,19 @@ LVL1CTP::ResultBuilder::constructTIPWord( unsigned int wrd_num ) const {
            ++iter) {
          result |= CTPUtil::alignBits( iter->second->evaluate(), iter->second->pit() - 32*wrd_num, iter->second->pit() - 32*wrd_num);
       }
-			
-      std::ostringstream message;
-      message << "TIP word #" << std::dec << wrd_num << " is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << result;
-      m_logger.send( MSG::DEBUG, "REGTEST - " + message.str() );
-			
+		
+      if( m_logger.msgLvl(MSG::DEBUG) ) {
+         std::ostringstream message;
+         message << "TIP word #" << std::dec << wrd_num << " is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << result;
+         m_logger.send( MSG::DEBUG, "REGTEST - " + message.str() );
+      }			
       return result;
 			
    } else {
-			
       std::ostringstream message;
       message << "ResultBuilder::constructTIPWord() called with wrd_num = " << wrd_num;
       m_logger.send( MSG::FATAL, message.str() );
       assert( 0 );
-			
    }
 		
    return 0;
@@ -605,84 +611,9 @@ LVL1CTP::ResultBuilder::constructTIPWord( unsigned int wrd_num ) const {
  */
 uint32_t
 LVL1CTP::ResultBuilder::constructResultWord(unsigned int wrd_num, WrdType type ) const {
-		
-   if( wrd_num < m_ctpDataFormat->getTBPwords() ) {
-			
-      uint32_t result = 0;
-			
-      for( TrigConf::ItemContainer::const_iterator item = m_ctpConfig->menu().itemVector().begin();
-           item != m_ctpConfig->menu().itemVector().end(); ++item ) {
+   
 
-         if( ( m_itemMap->getItem( *item )->itemPos() >= 32 * wrd_num ) &&
-             ( m_itemMap->getItem( *item )->itemPos() < 32 * ( wrd_num + 1 ) ) ) {
-					
-            // item is disabled if prescale is -1
-            bool decision = false;
-            //if (m_itemMap->getItem( *item )->prescale() != -1) {
-            decision = CTPTriggerItemNode::evaluate( ( *item )->topNode(), m_decisionMap, m_internalTrigger );
-            //  }
-            //take the above hack out
-            //else {
-            //std::ostringstream message;
-            //message << " item #" << std::dec << (*item)->ctpId() << " is disabled: " << m_itemMap->getItem( *item )->prescale();
-            //m_logger.send( MSG::VERBOSE, message.str() );
-            //}
-            std::string sDecision = decision ? "ACTIVE" : "INACTIVE";
-					
-            if( type == TBP ) {
-						
-               result |= CTPUtil::alignBits( ( decision ? 1 : 0 ),
-                                             m_itemMap->getItem( *item )->itemPos() - 32 * wrd_num,
-                                             m_itemMap->getItem( *item )->itemPos() - 32 * wrd_num );
-						
-            } else if( type == TAP ) {
-						
-               //const bool pass_prescale = m_itemMap->getItem( *item )->prescaleCounter() == m_itemMap->getItem( *item )->prescale();
-               //for float prescales
-               int32_t cut = TrigConf::PrescaleSet::getCutFromPrescale( m_itemMap->getItem( *item )->prescale() );
-               const bool pass_prescale = m_itemMap->getItem( *item )->prescaleCounter() >= cut;
-	       //	       std::cout <<"ResultBuilder FPP TAP: PScounter="<<m_itemMap->getItem( *item )->prescaleCounter() <<" PScut="<<cut <<std::endl;
-            
-               result |= CTPUtil::alignBits( ( decision & pass_prescale ? 1 : 0 ),
-                                             m_itemMap->getItem( *item )->itemPos() - 32 * wrd_num,
-                                             m_itemMap->getItem( *item )->itemPos() - 32 * wrd_num );
-						
-               if (decision == true && pass_prescale == false) sDecision = "INACTIVE(PRESCALED)";
-						
-            } else if( type == TAV ) {
-						
-               //for float prescales
-               int32_t cut = TrigConf::PrescaleSet::getCutFromPrescale( m_itemMap->getItem( *item )->prescale() );
-               const bool pass_prescale = m_itemMap->getItem( *item )->prescaleCounter() >= cut;
-            
-               const bool pass_veto = true; // xxx apply dead time
-						
-               result |= CTPUtil::alignBits( ( decision & pass_prescale & pass_veto ? 1 : 0 ),
-                                             m_itemMap->getItem( *item )->itemPos() - 32 * wrd_num,
-                                             m_itemMap->getItem( *item )->itemPos() - 32 * wrd_num );
-						
-               if (decision == true && pass_prescale == true && pass_veto == false) sDecision = "INACTIVE(VETOED)";
-						
-            }
-					
-            std::ostringstream message;
-            message << "  --> Trigger item " << std::setw( 12 ) << ( *item )->name() << " is " << sDecision;
-            m_logger.send( MSG::VERBOSE, message.str() );
-					
-         }
-				
-      }
-			
-      std::ostringstream message;
-      if( type == TBP ) message << "TBP";
-      else if( type == TAP ) message << "TAP";
-      else if( type == TAV ) message << "TAV";
-      message << " word #" << std::dec << wrd_num << " is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << result;
-      m_logger.send( MSG::DEBUG, "REGTEST - " + message.str() );
-			
-      return result;
-			
-   } else {
+   if( wrd_num >= m_ctpDataFormat->getTBPwords() ) {
 			
       std::ostringstream message;
       message << "ResultBuilder::constructResultWord() called with wrd_num = " << wrd_num;
@@ -690,8 +621,73 @@ LVL1CTP::ResultBuilder::constructResultWord(unsigned int wrd_num, WrdType type )
       assert( 0 );
 			
    }
-		
-   return 0;
+
+
+   uint32_t result = 0;
+			
+   for( auto item : m_ctpConfig->menu().itemVector() ) {
+
+      if( ( m_itemMap->getItem( item )->itemPos() >= 32 * wrd_num ) &&
+          ( m_itemMap->getItem( item )->itemPos() < 32 * ( wrd_num + 1 ) ) ) {
+					
+            bool decision =  CTPTriggerItemNode::evaluate( item->topNode(), m_decisionMap, m_internalTrigger );
+
+            std::string sDecision = decision ? "ACTIVE" : "INACTIVE";
+					
+            if( type == TBP ) {
+						
+               result |= CTPUtil::alignBits( ( decision ? 1 : 0 ),
+                                             m_itemMap->getItem( item )->itemPos() - 32 * wrd_num,
+                                             m_itemMap->getItem( item )->itemPos() - 32 * wrd_num );
+						
+            } else if( type == TAP ) {
+						
+               //const bool pass_prescale = m_itemMap->getItem( *item )->prescaleCounter() == m_itemMap->getItem( *item )->prescale();
+               //for float prescales
+               int32_t cut = TrigConf::PrescaleSet::getCutFromPrescale( m_itemMap->getItem( item )->prescale() );
+               const bool pass_prescale = (m_itemMap->getItem( item )->prescaleCounter() >= cut) && cut > 0; // no pass if PS set to "-1"
+            
+               result |= CTPUtil::alignBits( ( decision & pass_prescale ? 1 : 0 ),
+                                             m_itemMap->getItem( item )->itemPos() - 32 * wrd_num,
+                                             m_itemMap->getItem( item )->itemPos() - 32 * wrd_num );
+						
+               if (decision == true && pass_prescale == false) sDecision = "INACTIVE(PRESCALED)";
+						
+            } else if( type == TAV ) {
+						
+               //for float prescales
+               int32_t cut = TrigConf::PrescaleSet::getCutFromPrescale( m_itemMap->getItem( item )->prescale() );
+               const bool pass_prescale = (m_itemMap->getItem( item )->prescaleCounter() >= cut)  && cut > 0; // no pass if PS set to "-1"
+            
+               const bool pass_veto = true; // xxx apply dead time
+						
+               result |= CTPUtil::alignBits( ( decision & pass_prescale & pass_veto ? 1 : 0 ),
+                                             m_itemMap->getItem( item )->itemPos() - 32 * wrd_num,
+                                             m_itemMap->getItem( item )->itemPos() - 32 * wrd_num );
+						
+               if (decision == true && pass_prescale == true && pass_veto == false) sDecision = "INACTIVE(VETOED)";
+						
+            }
+            
+            if( m_logger.msgLvl(MSG::VERBOSE) ) {
+               std::ostringstream message;
+               message << "  --> Trigger item " << std::setw( 12 ) << item->name() << " is " << sDecision;
+               m_logger.send( MSG::VERBOSE, message.str() );
+            }
+					
+         }
+				
+   }
+			
+   if( m_logger.msgLvl(MSG::DEBUG) ) {
+      std::ostringstream message;
+      if( type == TBP ) message << "TBP";
+      else if( type == TAP ) message << "TAP";
+      else if( type == TAV ) message << "TAV";
+      message << " word #" << std::dec << wrd_num << " is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << result;
+      m_logger.send( MSG::DEBUG, "REGTEST - " + message.str() );
+   }
+   return result;
 		
 }
 
@@ -714,16 +710,19 @@ LVL1CTP::ResultBuilder::constructTriggerType(const std::vector<uint32_t>& trigge
    }
 		
    // print output
-   for (unsigned int i(0); i < 8; ++i) {
-      std::ostringstream message;
-      message << "TriggerType bit" << i << " is: " << ( (tt & (0x1 << i)) ? "ACTIVE" : "INACTIVE" );
-      m_logger.send( MSG::VERBOSE, message.str() );
+   if( m_logger.msgLvl(MSG::VERBOSE) ) {
+      for (unsigned int i(0); i < 8; ++i) {
+         std::ostringstream message;
+         message << "TriggerType bit" << i << " is: " << ( (tt & (0x1 << i)) ? "ACTIVE" : "INACTIVE" );
+         m_logger.send( MSG::VERBOSE, message.str() );
+      }
    }
-		
-   std::ostringstream message;
-   message << "TriggerType word is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << tt;
-   m_logger.send( MSG::DEBUG, "REGTEST - " + message.str() );
-    
+  
+   if( m_logger.msgLvl(MSG::DEBUG) ) {
+      std::ostringstream message;
+      message << "TriggerType word is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << tt;
+      m_logger.send( MSG::DEBUG, "REGTEST - " + message.str() );
+   }    
    return tt;
 }
 
