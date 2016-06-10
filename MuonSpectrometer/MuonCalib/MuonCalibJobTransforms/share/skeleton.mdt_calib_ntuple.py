@@ -29,7 +29,8 @@ moore      = runArgs.moore
 mboy       = runArgs.mboy
 standalone = runArgs.standalone
 doCSC      = runArgs.doCSC
-cosmicRun = runArgs.cosmicRun
+rawTgc     = runArgs.rawTgc
+cosmicRun  = runArgs.cosmicRun
 doSegmentT0Fit = runArgs.doSegmentT0Fit or cosmicRun
 lumiBlockNumberFromCool = runArgs.lumiBlockNumberFromCool
 runNumberFromCool = runArgs.runNumberFromCool
@@ -135,6 +136,7 @@ muonRecFlags.doCalibNtuple = True
 muonRecFlags.calibNtupleOutput=NtupleFile ##### SET VIA COMMAND LINE IN THE TRF
 muonRecFlags.calibNtupleSegments = True
 muonRecFlags.calibNtupleTracks = True
+muonRecFlags.calibNtupleRawTGC = rawTgc ##### SET VIA COMMAND LINE IN THE TRF
 
 # Switch off the T0 fit (on by default for data)
 #muonRecFlags.doSegmentT0Fit = False
@@ -162,16 +164,16 @@ include("MuonRecExample/MuonRDO_to_PRD_jobOptions.py")
 #overwriting the tag
 if dbT0Tag!='DEFAULT':
   if dbT0Sql!='DEFAULT':
-    conddb.blockFolder("/MDT/T0")
-    conddb.addFolder(dbT0Sql,"/MDT/T0 <tag>"+dbT0Tag+"</tag>",True)
+    conddb.blockFolder("/MDT/T0BLOB")
+    conddb.addFolder(dbT0Sql,"/MDT/T0BLOB <tag>"+dbT0Tag+"</tag>",True)
   else:
-    conddb.addOverride("/MDT/T0",dbT0Tag)
+    conddb.addOverride("/MDT/T0BLOB",dbT0Tag)
 if dbRTTag!='DEFAULT':
   if dbRTSql!='DEFAULT':
-    conddb.blockFolder("/MDT/RT")
-    conddb.addFolder(dbRTSql,"/MDT/RT <tag>"+dbRTTag+"</tag>",True)
+    conddb.blockFolder("/MDT/RTBLOB")
+    conddb.addFolder(dbRTSql,"/MDT/RTBLOB <tag>"+dbRTTag+"</tag>",True)
   else:
-    conddb.addOverride("/MDT/RT",dbRTTag)
+    conddb.addOverride("/MDT/RTBLOB",dbRTTag)
 
 include ("MuonCalibStreamCnvSvc/MuonCalibStream_jobOptions.py")
 theApp.EvtMax = EvtMax                ##### SET VIA COMMAND LINE IN THE TRF
