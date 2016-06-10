@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 # Run a Sim job and test output metadata
-# $Id: test_FullChain_tf.py 625768 2014-11-03 14:24:34Z graemes $
+# $Id: test_FullChain_tf.py 747041 2016-05-13 14:29:48Z lerrenst $
 #
 
 import json
@@ -43,8 +43,9 @@ class SimTTBar_tftest(unittest.TestCase):
             self.assertEqual(isinstance(md, dict), True)
             dataDict = pyJobReportToFileDict(md)
             self.assertEqual(dataDict["AOD"]['subFiles'][0]['nentries'], 2) 
-            self.assertEqual(dataDict["AOD"]['subFiles'][0]['geometry'], 'ATLAS-GEO-20-00-01')
-            self.assertEqual(dataDict["AOD"]['subFiles'][0]['conditions_tag'], 'OFLCOND-MC12-SIM-00')
+            # Outdated. argValues ar not a part of jobReport anymore
+            #self.assertEqual(dataDict["AOD"]['subFiles'][0]['geometry'], 'ATLAS-GEO-20-00-01')
+            #self.assertEqual(dataDict["AOD"]['subFiles'][0]['conditions_tag'], 'OFLCOND-MC12-SIM-00')
 
 if __name__ == '__main__':
     unittest.main()
