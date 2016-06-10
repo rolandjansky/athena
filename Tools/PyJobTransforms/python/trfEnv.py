@@ -3,7 +3,7 @@
 ## @Package PyJobTransforms.trfEnv
 #  @brief Support for environemnt variable manipulation in the transforms
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfEnv.py 623865 2014-10-24 12:39:44Z graemes $
+#  @version $Id: trfEnv.py 726697 2016-02-28 16:52:54Z uworlika $
 
 import os
 import os.path as path
@@ -39,12 +39,6 @@ class environmentUpdate(object):
                 self._addIMFSettings()
             return
 
-        # OK, try and detect the release
-        if trfUtils.releaseIsOlderThan(17, 7):
-            msg.info('No IMF by default for this release')
-            return
-        
-        msg.info('Enabling IMF by default for release')
         self._addIMFSettings()
 
 

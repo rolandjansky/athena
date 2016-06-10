@@ -40,9 +40,6 @@ class RAWMergetest(unittest.TestCase):
             md = json.load(jr)
             self.assertEqual(isinstance(md, dict), True)
             self.assertEqual(md['files']['output'][0]['subFiles'][0]['nentries'], 21)
-            self.assertEqual(md['files']['output'][0]['subFiles'][0]['beam_type'], ['collisions'])
-            self.assertEqual(md['files']['output'][0]['subFiles'][0]['conditions_tag'], 'COMCOND-BLKPA-006-05')
-            self.assertEqual(md['files']['output'][0]['subFiles'][0]['geometry'], 'ATLAS-GEO-20-00-01')            
             self.assertEqual(md['files']['output'][0]['subFiles'][0]['name'], 'merged.DRAW_ZEE._0001.data')            
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@
 ## @brief Transform graph utilities
 #  @details Graph which represents transform executors (nodes) connected vis data types (edges)
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfGraph.py 649424 2015-02-24 22:06:20Z graemes $
+#  @version $Id: trfGraph.py 743343 2016-04-27 15:47:21Z graemes $
 #  @note  There are a few well established python graph implementations, but none seem to be in the ATLAS
 #  release (NetworkX, igraph). Our needs are so basic that we might well be able to just take a few well
 #  known routines and have them in this module. See, e.g., http://www.python.org/doc/essays/graphs.html
@@ -226,12 +226,10 @@ class executorGraph(object):
     #  @param @c outputDataTypes Data to produce
     #  @param @c inputDataTypes Data available as inputs
     def findExecutionPath(self):        
-        # Switch off all nodes
+        # Switch off all nodes, except if we have a single node which is not data driven...
         self._execution = {}
         for nodeName, node in self._nodeDict.iteritems():
-            if node.inputDataTypes == set() and node.inputDataTypes == set():
-                # Any nodes which have no data dependencies cannot be data driven, so we assume
-                # that they always execute
+            if len(self._nodeDict) == 1 and node.inputDataTypes == set() and node.inputDataTypes == set():
                 self._execution[nodeName] = {'enabled' : True, 'input' : set(), 'output' : set()}
             else:
                 self._execution[nodeName] = {'enabled' : False, 'input' : set(), 'output' : set()}

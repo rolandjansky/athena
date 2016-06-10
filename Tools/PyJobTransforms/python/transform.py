@@ -5,7 +5,7 @@
 # @brief Main package for new style ATLAS job transforms
 # @details Core class for ATLAS job transforms
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: transform.py 696484 2015-09-23 17:20:28Z graemes $
+# @version $Id: transform.py 743343 2016-04-27 15:47:21Z graemes $
 # 
 
 __version__ = '$Revision'
@@ -105,15 +105,15 @@ class transform(object):
     @property
     def exitCode(self):
         if self._exitCode == None:
-            msg.warning('Transform exit code getter: _exitCode is unset, returning "TRF_UNKOWN"')
-            return trfExit.nameToCode('TRF_UNKOWN')
+            msg.warning('Transform exit code getter: _exitCode is unset, returning "TRF_UNKNOWN"')
+            return trfExit.nameToCode('TRF_UNKNOWN')
         else:
             return self._exitCode
         
     @property
     def exitMsg(self):
         if self._exitMsg == None:
-            msg.warning('Transform exit code getter: _exitMsg is unset, returning empty string')
+            msg.warning('Transform exit message getter: _exitMsg is unset, returning empty string')
             return ''
         else:
             return self._exitMsg
@@ -201,16 +201,7 @@ class transform(object):
                         continue
                     updateDict[k] = v
                 extraParameters.update(updateDict)
-            # Pickled arguments?
-            if 'argdict' in self._argdict:
-                try:
-                    import cPickle as pickle
-                    msg.debug('Given pickled arguments in {0}'.format(self._argdict['argdict']))
-                    argfile = open(self._argdict['argdict'], 'r')
-                    extraParameters.update(pickle.load(argfile))
-                    argfile.close()
-                except Exception, e:
-                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'), 'Error when unpickling file {0}'.format(self._argdict['argdict']))
+
             # JSON arguments?
             if 'argJSON' in self._argdict:
                 try:
@@ -303,16 +294,17 @@ class transform(object):
                 self.parser.dumpArgs()
                 sys.exit(0)
                 
+            # Graph stuff!
+            msg.info('Resolving execution graph')
+            self._setupGraph()
+            
             if 'showSteps' in self._argdict:
                 for exe in self._executors:
                     print "Executor Step: {0} (alias {1})".format(exe.name, exe.substep)
+                    if msg.level <= logging.DEBUG:
+                        print " {0} -> {1}".format(exe.inData, exe.outData)
                 sys.exit(0)
                         
-            # Graph stuff!
-            msg.info('Starting to resolve execution graph')
-            self._setupGraph()
-            msg.info('Execution graph resolved')
-            
             if 'showGraph' in self._argdict:
                 print self._executorGraph
                 sys.exit(0)
