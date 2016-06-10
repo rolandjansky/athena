@@ -487,14 +487,16 @@ void TileROD_Encoder::fillROD5D(std::vector<uint32_t>& /* v */) {
 void TileROD_Encoder::fillRODTileMuRcvDigi(std::vector<uint32_t>&  v) {
 
   ATH_MSG_DEBUG( "TMDB encoding sub-fragment 0x40: loop over " << m_vTileDigi.size() << " objects" );
- 
+
   // sub-fragment marker
   // 
   v.push_back(0xff1234ff);
 
   // sub-fragment size
   // set the size for the sub-fragment (3 [header] + 8 [# 32bit word/digit/pmt/module] x N [# digit/pmt/module])
-  v.push_back(59);
+  uint32_t size = m_vTileDigi.size()  * 7; // assume 7 samples
+  size = (size+3)>>2; // convert numner of bytes into number of 32bit words
+  v.push_back(3+size);
   uint savepos=v.size()-1;
 
   // type & version: the version is a 16-bit number and is set by fixing the 3th hexadecimal digit (8-12 in bits) to 5 and leaving all other free
@@ -503,20 +505,21 @@ void TileROD_Encoder::fillRODTileMuRcvDigi(std::vector<uint32_t>&  v) {
   uint32_t type_version = (0x40 << 16) + verfrag; 	
   v.push_back(type_version);
 
-  v.resize(v.size()+56); // prepare place for extra 56 words
+  v.resize(v.size()+size); // prepare place for extra words
 
   // counters and temporary words
   //
   int  word8bit_cnt = 0;// number of 8bit words collected 1..4
   int  wc           = 0;// number of blocks of 7 32-bit words saved in ROD fragment 1..8
   int  chc          = 0;// number of digits inside the tile digits collection
+  int  nwc = (m_vTileDigi.size() + 3)>>2; // convert number of channels into number of 4-byte blocks
   uint nsamp = 7;
   uint32_t word[7];
   memset(word, 0, sizeof(word));
 
   for (const TileDigits* digi : m_vTileDigi) {
 
-    if (wc==8) {
+    if (wc==nwc) {
       ATH_MSG_WARNING( "Too many channels per fragment for TMDB frag 0x40 - ignoring all the rest" );
       break;
     }
@@ -552,11 +555,12 @@ void TileROD_Encoder::fillRODTileMuRcvDigi(std::vector<uint32_t>&  v) {
       int channel = m_tileHWID->channel(hwid);
       const char * strchannel[5] = {" d5L "," d5R "," d6L "," d6R ", " xxx "};
       int j=std::min(channel,4);
+      if (ros<3) j=4;
       for ( uint i=0; i<nsamp; ++i ) {
         msg(MSG::DEBUG) << ros << "/" << drawer << "/" << channel << strchannel[j]
                         <<"\tSample "<<7-i<<" bits |" << std::setfill('0') << std::setw(2) 
                         << shift << "-" << std::setw(2) << shift+7 << std::setfill('0') 
-                        << "| of 32-bit word "<<3 + 8*i + wc<<" "<<digits[i]
+                        << "| of 32-bit word "<<3 + nwc*i + wc<<" "<<digits[i]
                         <<" "<<MSG::hex<<word[i]<<MSG::dec << endreq;
       }
     }
@@ -575,7 +579,7 @@ void TileROD_Encoder::fillRODTileMuRcvDigi(std::vector<uint32_t>&  v) {
     //
     if ( word8bit_cnt == 4 ) {
       for ( uint i=0; i<nsamp; ++i ) {
-        v.at( 3 + 8*i + wc ) = word[i];
+        v.at( 3 + nwc*i + wc ) = word[i];
       }
       ++wc;
       word8bit_cnt=0;
@@ -584,17 +588,17 @@ void TileROD_Encoder::fillRODTileMuRcvDigi(std::vector<uint32_t>&  v) {
     ++chc;
   }
 
-  if ( word8bit_cnt != 0  && wc<8 ) { // some extra channels 
+  if ( word8bit_cnt != 0  && wc<nwc ) { // some extra channels 
     ATH_MSG_WARNING( "Unexpected number of channels for TMDB frag 0x40" << wc*4 + word8bit_cnt );
     for ( uint i=0; i<nsamp; ++i ) {
-      v.at( 3 + 8*i + wc ) = word[i];
+      v.at( 3 + nwc*i + wc ) = word[i];
     }
     ++wc;
     word8bit_cnt=0;
     memset(word, 0 ,sizeof(word));
   }
 
-  v.at(savepos)=3+8*7;
+  v.at(savepos)=3+size;  // not actually needed - size was already set correctly
 
   ATH_MSG_DEBUG( "Check version and counters: "<<MSG::hex<< verfrag <<MSG::dec<<" "<< chc <<" "<< wc << " save in position: " << savepos );
 
@@ -702,6 +706,7 @@ void TileROD_Encoder::fillRODTileMuRcvRawChannel(std::vector<uint32_t>&  v) {
         int channel = rc->channel();
         const char * strchannel[5] = {" d5L "," d5R "," d6L "," d6R ", " xxx "};
         int j=std::min(channel,4);
+        if (ros<3) j=4;
         msg(MSG::DEBUG) << ros << "/" << drawer << "/" << channel << strchannel[j] 
                         <<"\tAmp " << f_amp << " " << i_amp << " " 
                         <<" ch cnt " << chc << " word cnt " << wc 

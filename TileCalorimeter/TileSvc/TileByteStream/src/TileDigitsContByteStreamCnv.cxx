@@ -23,7 +23,7 @@
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h" 
 
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreClearedIncident.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
@@ -47,7 +47,7 @@ TileDigitsContByteStreamCnv::TileDigitsContByteStreamCnv(ISvcLocator* svcloc)
   , m_tool("TileDigitsContByteStreamTool")
   , m_byteStreamEventAccess("ByteStreamCnvSvc", m_name)
   , m_byteStreamCnvSvc(0)
-  , m_storeGate("StoreGateSvc", m_name)
+  , m_activeStore("ActiveStoreSvc", m_name)
   , m_robSvc("ROBDataProviderSvc", m_name)
   , m_decoder("TileROD_Decoder")
   , m_hid2re(0)
@@ -91,7 +91,7 @@ StatusCode TileDigitsContByteStreamCnv::initialize() {
     incSvc->addListener(this, "StoreCleared");
   }
   
-  CHECK( m_storeGate.retrieve() );
+  CHECK( m_activeStore.retrieve() );
   
   return StatusCode::SUCCESS;
 }
@@ -151,7 +151,7 @@ StatusCode TileDigitsContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObj
     ATH_MSG_DEBUG( "Creating digits container " << *(pRE_Addr->par()) );
 
     if (isTMDB) {
-      CHECK( m_storeGate->record( m_containers[icnt], "MuRcvDigitsCnt" ) );
+      CHECK( m_activeStore->activeStore()->record( m_containers[icnt], "MuRcvDigitsCnt" ) );
     } else {
       pObj = SG::asStorable( m_containers[icnt] ) ;
     }
@@ -213,7 +213,7 @@ void TileDigitsContByteStreamCnv::handle(const Incident& incident) {
 
   if (incident.type() == "StoreCleared") {
     if (const StoreClearedIncident* inc = dynamic_cast<const StoreClearedIncident*> (&incident)) {
-      if (inc->store() == &*m_storeGate) {
+      if (inc->store() == m_activeStore->activeStore()) {
         for (TileDigitsContainer* digitsContainer : m_containers){
           for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
             const_cast<TileDigitsCollection*>(digitsCollection)->clear();

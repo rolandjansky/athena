@@ -24,7 +24,7 @@ void Double2Int_calib( double calib, unsigned int &scale, unsigned int &offset, 
   // Get Scale
   scale = 0;
   double max = fabs(calib);
-  if (max!=0) scale = (unsigned int) truncf(log((pow(2.,NumberBits)-1.)/max)/log(2.));
+  if (max!=0) scale = (unsigned int) truncf(log((pow(2.,NumberBits)-1.)/max)*(1./log(2.)));
   
   // Convert to integer 
   offset = (unsigned int) roundf(calib*pow(2.,(int)scale));
@@ -56,7 +56,7 @@ void Double2Int_ofc( int w_off_size, vector<double> w_off, vector<int> &w_dsp, i
   
   // Get Scale at Maximum
   scale = 0;
-  if (max!=0) scale = (int) truncf(log((pow(2.,NumberBits)-1.)/max)/log(2.));
+  if (max!=0) scale = (int) truncf(log((pow(2.,NumberBits)-1.)/max)*(1./log(2.)));
   
   // Convert to Integer the weights and the sum
   for (int i=0; i<w_off_size; i++)  w_dsp.push_back( (int) roundf(w_off[i]*pow(2.,scale)) );
@@ -95,7 +95,7 @@ bool ConvertOFC( vector<vector<vector<vector<double> > > > w_off, vector<vector<
   float dsp_step = 1. ;
   float dsp_min_phase = -100.;
   float dsp_max_phase = -dsp_min_phase;
-  int   dsp_phases    = (int) roundf( (dsp_max_phase - dsp_min_phase)/dsp_step +1. );
+  int   dsp_phases    = (int) roundf( (dsp_max_phase - dsp_min_phase)*(1./dsp_step) +1. );
   
   if (1)
     {
@@ -107,10 +107,10 @@ bool ConvertOFC( vector<vector<vector<vector<double> > > > w_off, vector<vector<
     }
 
   // Number of phases and step of the offline Opt. filte constants
-  float off_step = 0.1;
+  const float off_step = 0.1;
   float off_min_phase = -100.;
   float off_max_phase = -off_min_phase;
-  int   off_phases    = (int) roundf( (off_max_phase - off_min_phase)/off_step + 1. );
+  int   off_phases    = (int) roundf( (off_max_phase - off_min_phase)*(1./off_step) + 1. );
   if (verbose)
     {
       cout<<"----- OFFLINE -----"<<endl;
@@ -200,10 +200,11 @@ bool ConvertOFC( vector<vector<vector<vector<double> > > > w_off, vector<vector<
   float current_phase;
 
   // bln
+  const float inv_off_step = 1. / off_step;
   for (int i=0; i<dsp_phases; i++){
     
     current_phase = dsp_min_phase + i*dsp_step;
-    index = (int) roundf((current_phase - off_min_phase)/off_step);
+    index = (int) roundf((current_phase - off_min_phase)*inv_off_step);
     if (verbose) cout<<"["<<index<<"]: Phase "<<current_phase<<" ns"<<endl;
     for (int is=0; is<nsamples; is++)
       {

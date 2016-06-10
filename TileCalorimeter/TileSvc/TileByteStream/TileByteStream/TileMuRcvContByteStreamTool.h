@@ -62,7 +62,7 @@ class TileMuRcvContByteStreamTool: public AthAlgTool {
 
   TileHid2RESrcID m_hid2re; 
 
-  bool m_verbose;
+  //bool m_verbose;
 
   FullEventAssembler<TileHid2RESrcID> m_fea;
 };
