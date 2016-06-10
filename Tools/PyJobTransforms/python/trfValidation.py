@@ -6,7 +6,7 @@
 # @details Contains validation classes controlling how the transforms
 # will validate jobs they run.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfValidation.py 740535 2016-04-15 11:21:07Z graemes $
+# @version $Id: trfValidation.py 749614 2016-05-25 10:46:26Z lerrenst $
 # @note Old validation dictionary shows usefully different options:
 # <tt>self.validationOptions = {'testIfEmpty' : True, 'testIfNoEvents' : False, 'testIfExists' : True,
 #                          'testIfCorrupt' : True, 'testCountEvents' : True, 'extraValidation' : False,
@@ -258,8 +258,8 @@ class athenaLogFileReport(logFileReport):
             self._errorDetails[level] = []
             # Format:
             # List of dicts {'message': errMsg, 'firstLine': lineNo, 'count': N}
-        self._dbbytes = None
-        self._dbtime = None
+        self._dbbytes = 0
+        self._dbtime  = 0.0
 
 
     def scanLogFile(self, resetReport=False):
@@ -309,6 +309,10 @@ class athenaLogFileReport(logFileReport):
                     if 'terminate called after throwing an instance of \'std::bad_alloc\'' in line:
                         msg.warning('Detected bad_alloc!')
                         self.badAllocExceptionParser(myGen, line, lineCounter)
+                        continue
+                    # Parser for ROOT reporting a stale file handle (see ATLASG-448)
+                    if 'SysError in <TFile::ReadBuffer>: error reading from file' in line:
+                        self.rootSysErrorParser(myGen, line, lineCounter)
                         continue
                     msg.debug('Non-standard line in %s: %s' % (log, line))
                     self._levelCounter['UNKNOWN'] += 1
@@ -367,15 +371,15 @@ class athenaLogFileReport(logFileReport):
                     else:
                         # Overcounted
                         pass
-                if self._dbbytes is None and 'Total payload read from COOL' in fields['message']:
+                if 'Total payload read from COOL' in fields['message']:
                     msg.debug("Found COOL payload information at line {0}".format(line))
                     a = re.match(r'(\D+)(?P<bytes>\d+)(\D+)(?P<time>\d+[.]?\d*)(\D+)', fields['message'])
-                    self._dbbytes = int(a.group('bytes'))
-                    self._dbtime = float(a.group('time'))
+                    self._dbbytes += int(a.group('bytes'))
+                    self._dbtime  += float(a.group('time'))
 
-    ## Return data volume and time spent to retrieve information from the database
+    ## Return data volume and time spend to retrieve information from the database
     def dbMonitor(self):
-        return {'bytes' : self._dbbytes, 'time' : self._dbtime}
+        return {'bytes' : self._dbbytes, 'time' : self._dbtime} if self._dbbytes > 0 or self._dbtime > 0 else None
 
     ## Return the worst error found in the logfile (first error of the most serious type)
     def worstError(self):
@@ -413,23 +417,32 @@ class athenaLogFileReport(logFileReport):
     # There is a slight problem here in that the end of core dump trigger line will not get parsed
     # TODO: fix this (OTOH core dump is usually the very last thing and fatal!)
     def coreDumpSvcParser(self, lineGenerator, firstline, firstLineCount):
-        coreDumpReport = ''
+        _eventCounter = _currentAlgorithm = _functionLine = _currentFunction = None
+        coreDumpReport = 'Core dump from CoreDumpSvc'
         for line, linecounter in lineGenerator:
             m = self._regExp.match(line)
             if m == None:
+                if 'Caught signal 11(Segmentation fault)' in line:
+                    coreDumpReport = 'Segmentation fault'
                 if 'Event counter' in line:
-                    coreDumpReport += line + '; '
+                    _eventCounter = line
                 if 'Current algorithm' in line:
-                    coreDumpReport += line
+                    _currentAlgorithm = line
+                if '<signal handler called>' in line:
+                    _functionLine = linecounter+1
+                if _functionLine and linecounter is _functionLine:
+                    _currentFunction = line
             else:
                 # Can this be done - we want to push the line back into the generator to be
                 # reparsed in the normal way (might need to make the generator a class with the
                 # __exec__ method supported (to get the line), so that we can then add a
                 # pushback onto an internal FIFO stack
-#                 lineGenerator.pushback(line)
+                # lineGenerator.pushback(line)
                 break
-        if coreDumpReport == '':
-            coreDumpReport = 'Event counter and current algorithm unknown.'
+        _eventCounter = 'Event counter: unknown' if not _eventCounter else _eventCounter
+        _currentAlgorithm = 'Current algorithm: unknown' if not _currentAlgorithm else _currentAlgorithm
+        _currentFunction = 'Current Function: unknown' if not _currentFunction else 'Current Function: '+_currentFunction.split(' in ')[1].split()[0]
+        coreDumpReport = '{0}: {1}; {2}; {3}'.format(coreDumpReport, _eventCounter, _currentAlgorithm, _currentFunction)
 
         # Core dumps are always fatal...
         msg.debug('Identified core dump - adding to error detail report')
@@ -510,6 +523,12 @@ class athenaLogFileReport(logFileReport):
         msg.debug('Identified bad_alloc - adding to error detail report')
         self._levelCounter['CATASTROPHE'] += 1
         self._errorDetails['CATASTROPHE'].append({'message': badAllocExceptionReport, 'firstLine': firstLineCount, 'count': 1})
+
+
+    def rootSysErrorParser(self, lineGenerator, firstline, firstLineCount):
+        msg.debug('Identified ROOT reading problem - adding to error detail report')
+        self._levelCounter['FATAL'] += 1
+        self._errorDetails['FATAL'].append({'message': firstline, 'firstLine': firstLineCount, 'count': 1})
 
 
     def __str__(self):

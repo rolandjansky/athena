@@ -4,7 +4,7 @@
 #
 # @brief Utilities for handling AthenaMP jobs
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfMPTools.py 731249 2016-03-19 22:05:45Z graemes $
+# @version $Id: trfMPTools.py 750283 2016-05-27 12:30:08Z graemes $
 # 
 
 __version__ = '$Revision'
@@ -73,14 +73,14 @@ def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictiona
     for filesElement in mpOutputs.getroot().getiterator(tag='Files'):
         msg.debug('Examining element {0} with attributes {1}'.format(filesElement, filesElement.attrib))
         originalArg = None 
-        originalName = filesElement.attrib['OriginalName']
+        startName = filesElement.attrib['OriginalName']
         for dataType, fileArg in dataDictionary.iteritems():
-            if fileArg.value[0] == originalName:
+            if fileArg.value[0] == startName:
                 originalArg = fileArg
                 outputHasBeenHandled[dataType] = True
                 break
         if originalArg is None:
-            msg.warning('Found AthenaMP output with name {0}, but no matching transform argument'.format(originalName))
+            msg.warning('Found AthenaMP output with name {0}, but no matching transform argument'.format(startName))
             continue
         
         msg.debug('Found matching argument {0}'.format(originalArg))
@@ -102,14 +102,14 @@ def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictiona
             if fileArg.io is "input":
                 continue
             msg.info("Searching MP worker directories for {0}".format(dataType))
-            originalName = fileArg.value[0]
+            startName = fileArg.value[0]
             fileNameList = []
             for entry in MPdirWalk:
                 if "evt_count" in entry[0]:
                     continue
                 # N.B. AthenaMP may have made the output name unique for us, so 
                 # we need to treat the original name as a prefix
-                possibleOutputs = [ fname for fname in entry[2] if fname.startswith(originalName) ]
+                possibleOutputs = [ fname for fname in entry[2] if fname.startswith(startName) ]
                 if len(possibleOutputs) == 0:
                     continue
                 elif len(possibleOutputs) == 1:
@@ -124,39 +124,32 @@ def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictiona
 
 
 def athenaMPoutputsLinkAndUpdate(newFullFilenames, fileArg):
-    originalName = fileArg.value[0]
-    # Do we need to append worker dir suffixes?
+    # Any files we link are numbered from 1, because we always set
+    # the filename given to athena has _000 as a suffix so that the
+    # mother process' file can be used without linking
+    fileIndex = 1
     linkedNameList = []
-    uniqueSimpleNames = set([path.basename(fname) for fname in newFullFilenames])
-    # Check here if MP created it's own unique names - otherwise we need to add suffixes
-    # so that each output file is unique
-    if len(uniqueSimpleNames) != len(newFullFilenames):
-        indexesUsed = []
-        for fname in newFullFilenames:
-            simpleName = path.basename(fname)
-            workerIndexMatch = re.search(r'/worker_(\d+)/', fname)
-            if workerIndexMatch:
-                fileIndex = int(workerIndexMatch.group(1)) + 1
-            else:
-                fileIndex = 0
-            if fileIndex in indexesUsed:
-                fileIndex = max(indexesUsed)+1
-            indexesUsed.append(fileIndex)
-            simpleName += "_{0:03d}".format(int(fileIndex))
-            linkedNameList.append(simpleName)
-    else:
-        linkedNameList = [path.basename(fname) for fname in newFullFilenames]
+    newFilenameValue = []
+    for fname in newFullFilenames:
+        if path.dirname(fname) == "":
+            linkedNameList.append(None)
+            newFilenameValue.append(fname)
+        else:
+            linkName = "{0}{1:03d}".format(path.basename(fname).rstrip('0'), fileIndex)
+            linkedNameList.append(linkName)
+            newFilenameValue.append(linkName)
+            fileIndex += 1
 
     for linkname, fname in zip(linkedNameList, newFullFilenames):
-        try:
-            if path.lexists(linkname):
-                os.unlink(linkname)
-            os.symlink(fname, linkname)
-        except OSError, e:  
-            raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_OUTPUT_FILE_ERROR"), "Failed to link {0} to {1}: {2}".format(fname, linkname, e))
+        if linkname:
+            try:
+                if path.lexists(linkname):
+                    os.unlink(linkname)
+                os.symlink(fname, linkname)
+            except OSError, e:  
+                raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_OUTPUT_FILE_ERROR"), "Failed to link {0} to {1}: {2}".format(fname, linkname, e))
 
     fileArg.multipleOK = True
-    fileArg.value = linkedNameList
-    fileArg.originalName = originalName
+    fileArg.value = newFilenameValue
     msg.debug('MP output argument updated to {0}'.format(fileArg))
     

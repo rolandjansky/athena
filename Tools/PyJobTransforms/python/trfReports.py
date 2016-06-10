@@ -6,10 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 743924 2016-04-29 13:18:30Z graemes $
+#  @version $Id: trfReports.py 747041 2016-05-13 14:29:48Z lerrenst $
 #
 
-__version__ = '$Revision: 743924 $'
+__version__ = '$Revision: 747041 $'
 
 import cPickle as pickle
 import json
@@ -105,10 +105,12 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '2.0.0'
+    _reportVersion = '2.0.2'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
+    _dbDataTotal = 0
+    _dbTimeTotal = 0.0
 
     ## @brief Constructor
     #  @param parentTrf Mandatory link to the transform this job report represents
@@ -163,9 +165,12 @@ class trfJobReport(trfReport):
                 myDict['executor'].append(trfExecutorReport(exe).python(fast = fast))
                 # Executor resources are gathered here to unify where this information is held
                 # and allow T0/PanDA to just store this JSON fragment on its own
-                myDict['resource']['executor'][exe.name] = exeResourceReport(exe)
-                if exe.myMerger:
-                    myDict['resource']['executor'][exe.myMerger.name] = exeResourceReport(exe.myMerger)
+                myDict['resource']['executor'][exe.name] = exeResourceReport(exe, self)
+                for mergeStep in exe.myMerger:
+                    myDict['resource']['executor'][mergeStep.name] = exeResourceReport(mergeStep, self)
+            if self._dbDataTotal > 0 or self._dbTimeTotal > 0:
+                myDict['resource']['dbDataTotal'] = self._dbDataTotal
+                myDict['resource']['dbTimeTotal'] = self._dbTimeTotal
         # Resource consumption
         reportTime = os.times()
  
@@ -561,7 +566,7 @@ def pyJobReportToFileDict(jobReport, io = 'all'):
     return dataDict
 
 
-def exeResourceReport(exe):
+def exeResourceReport(exe, report):
     exeResource = {'cpuTime': exe.cpuTime, 
                    'wallTime': exe.wallTime,}
     if exe.memStats:
@@ -573,4 +578,6 @@ def exeResourceReport(exe):
     if exe.dbMonitor:
         exeResource['dbData'] = exe.dbMonitor['bytes']
         exeResource['dbTime'] = exe.dbMonitor['time']
+        report._dbDataTotal += exeResource['dbData']
+        report._dbTimeTotal += exeResource['dbTime']
     return exeResource

@@ -40,7 +40,6 @@ class TAGMergetest(unittest.TestCase):
             md = json.load(jr)
             self.assertEqual(isinstance(md, dict), True)
             self.assertEqual(md['files']['output'][0]['subFiles'][0]['nentries'], 78232)
-            self.assertEqual(md['files']['output'][0]['subFiles'][0]['beam_type'], [])
 
 if __name__ == '__main__':
     unittest.main()
