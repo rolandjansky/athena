@@ -78,7 +78,7 @@ class CTPSimulationOnData(DefaultCTPSimulation):
 
         self.setDefaultRandomService()
         self.IsData = True 
-        self.PrescaleMode = 0
+        self.PrescaleMode = 2
         self.DoBPTX=True
         self.DoNIM=True
         self.DoRNDM=True
