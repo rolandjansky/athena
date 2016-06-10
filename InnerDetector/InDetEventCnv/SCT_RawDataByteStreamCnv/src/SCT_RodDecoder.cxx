@@ -229,7 +229,7 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
       }
       if ((((*rob_status) >> 29) & 0x1) ||(((*rob_status) >> 31) & 0x1)) {
         ATH_MSG_DEBUG("ROB status word for robid "<<std::hex<<robid<<std::dec<<" indicates resource was masked off.");
-        addRODError(robid,SCT_ByteStreamErrors::MaskedLink);
+        addRODError(robid,SCT_ByteStreamErrors::MaskedROD);
         m_maskedRODNumber++;
         return sc;
       }
