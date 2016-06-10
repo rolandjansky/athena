@@ -586,6 +586,8 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
       v.setFraghipCRCWordsHigh(*(m_digitsMetaData[5]));
     }
     if (m_verbose) v.printExtra();
+  } else if ( m_digitsMetaData[0]->size() == 0 ) {
+    v.setFragBCID(0xDEAD);
   }
 }
 
