@@ -70,6 +70,7 @@ namespace InDet {
     m_splitProdClusters(0),   
     m_largeClusters(0),
     m_overflowIBLToT(0),
+    m_minToT({0,0,0,0,0,0,0}),
     m_pixofflinecalibSvc("PixelOfflineCalibSvc", name)
     //m_detStore("DetectorStore", name),
     //m_idHelper(0)
@@ -84,6 +85,7 @@ namespace InDet {
       declareProperty("ClusterSplitter",             m_clusterSplitter);
       declareProperty("DoIBLSplitting",		     m_doIBLSplitting);
       declareProperty("SplitClusterAmbiguityMap",    m_splitClusterMapName);
+      declareProperty("ToTMinCut",                   m_minToT, "Minimum ToT cut [IBL, b-layer, L1, L2, Endcap, DBM, ITk extra");
     }
   
 //---------------------------------------------------------------------------
@@ -142,7 +144,11 @@ namespace InDet {
             ATH_MSG_ERROR("Could not retrieve " << m_pixofflinecalibSvc);
             return StatusCode::FAILURE;
         }
-	 
+
+	if (m_minToT.size() != 7){
+            ATH_MSG_ERROR("Number of entries for ToT Cut is:" << m_minToT.size() << " . 7 Values are needed, so fix jO.");
+            return StatusCode::FAILURE;
+	}	 
 	return PixelClusteringToolBase::initialize();
     }
 
@@ -229,6 +235,15 @@ namespace InDet {
     // if a pixel is not skip it in clusterization
             if ( m_usePixelMap && !(m_summarySvc->isGood(idHash,rdoID)) ) continue;
             int tot = (*nextRDO)->getToT();
+
+            int layerIndex = pixelID.layer_disk(rdoID);
+            if (layerIndex>=4)     { layerIndex=6; }                 // ITk 5th layer
+            if (abs(pixelID.barrel_ec(rdoID))==2) { layerIndex=4; }  // disks
+            if (abs(pixelID.barrel_ec(rdoID))==4) { layerIndex=5; }  // DBM
+
+            // cut on minimum ToT
+            if (tot<m_minToT.at(layerIndex)) { continue; } // skip hits with ToT less than ToT cut
+
             int lvl1= (*nextRDO)->getLVL1A();
     // check if this is a ganged pixel    
             Identifier gangedID;
