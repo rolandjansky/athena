@@ -115,8 +115,8 @@ StatusCode TgcDigitizationTool::initialize()
     std::string configVal = (*atlasCommonRec)[0]->getString("CONFIG");
     if(configVal=="RUN1") runperiod = 1;
     else if(configVal=="RUN2") runperiod = 2;
-    else if(configVal=="RUN3") runperiod = 2; // currently runperiod 2 means no masking => ok for upgrade
-    else if(configVal=="RUN4") runperiod = 2; // currently runperiod 2 means no masking => ok for upgrade
+    else if(configVal=="RUN3") runperiod = 3; // currently runperiod 3 means no masking => ok for upgrade
+    else if(configVal=="RUN4") runperiod = 3; // currently runperiod 3 means no masking => ok for upgrade
     else {
       ATH_MSG_FATAL("Unexpected value for geometry config read from the database: " << configVal);  
       return StatusCode::FAILURE;
