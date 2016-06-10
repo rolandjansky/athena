@@ -1,0 +1,9 @@
+42  3  9 1 # A03 M1 f2  E1 L1  HV OFF (since Run-1)
+41  1  4 3 # A03 M1 f0  F  L3  broken chamber since Run-1
+44  4 27 1 # A08 M2 f0  E2 L1  HV OFF (since Run-1)
+46  5 34 2 # A09 M3 f3  E1 L2  HV OFF (since Run-1)
+42  3 46 2 # A12 M1 f3  E2 L2  HV OFF (since Run-1)
+43 -1  5 1 # C03 M2 f2  F  L1  HV OFF (since Run-1)
+45 -1  5 1 # C03 M3 f2  F  L1  HV OFF (since Run-1)
+42 -4 21 2 # C06 M1 f2  E2 L2  HV OFF (since Run-1)
+42 -2 40 1 # C11 M1 f1  E4 L1  HV OFF (since 2015)
