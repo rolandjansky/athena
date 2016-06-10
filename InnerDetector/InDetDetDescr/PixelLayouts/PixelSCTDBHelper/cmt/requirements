@@ -1,6 +1,5 @@
 package PixelSCTDBHelper
 
-
 private
 
 use GeoModelKernel       GeoModelKernel-*       DetectorDescription/GeoModel

@@ -18,7 +18,7 @@
 #include <vector>
 
 
-GeoPixelMaterialDBHelper::GeoPixelMaterialDBHelper( PixelGeoBuilderBasics* basics):
+GeoPixelMaterialDBHelper::GeoPixelMaterialDBHelper(const PixelGeoBuilderBasics* basics):
   PixelGeoBuilder(basics)
 {
 

@@ -18,7 +18,7 @@
 
   class GeoPixelMaterialDBHelper :  public PixelGeoBuilder {
   public:
-    GeoPixelMaterialDBHelper( PixelGeoBuilderBasics* basics);
+    GeoPixelMaterialDBHelper( const PixelGeoBuilderBasics* basics);
     ~GeoPixelMaterialDBHelper();
     
     std::string getMaterialName(const std::string & volumeName, int layerdisk=0, int typenum=0) const;
