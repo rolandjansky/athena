@@ -46,7 +46,7 @@ class GeoPixelBarrelAlpineTool : virtual public IGeoPixelBarrelTool, public AthA
   virtual StatusCode registerCallback( StoreGateSvc* detStore );
   
   virtual GeoVPhysVol* buildBarrel(const PixelGeoBuilderBasics*);
-  void preBuild();
+  void preBuild(const PixelGeoBuilderBasics* basics);
  
   std::vector<InDetDD::TubeZone*> getSvcRegions() const { return m_barrelSvcRegions; }
 

@@ -118,14 +118,14 @@ GeoVPhysVol* GeoPixelBarrelAlpineTool::Build( ) {
 
 }
 
-void GeoPixelBarrelAlpineTool::preBuild()
+void GeoPixelBarrelAlpineTool::preBuild(const PixelGeoBuilderBasics* basics)
 {
 
   m_barrelRegion.clear();
   m_barrelSvcRegions.clear();
   m_bBuildStaticSvc = false;
 
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
 
   std::cout<<"ALPINE - GeoPixelBarrelAlpineTool"<<std::endl;
 
@@ -161,7 +161,7 @@ GeoVPhysVol* GeoPixelBarrelAlpineTool::buildBarrel(const PixelGeoBuilderBasics* 
   m_msg = basics->msgStream();
   m_bGeoComp = basics->isGeoComponent();
 
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
 
   std::cout<<"ALPINE - GeoPixelBarrelAlpineTool"<<std::endl;
 

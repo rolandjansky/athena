@@ -129,7 +129,7 @@ GeoVPhysVol* GeoPixelEnvelopeAlpineTool::buildEnvelope(const PixelGeoBuilderBasi
 
   m_matMgr = basics->matMgr();
   m_msg = basics->msgStream();
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
 
   std::cout<<"GeoEnvelopeAlpine : GeoVPhysVol* GeoPixelEnvelopeAlpineTool::Build( )"<<std::endl;
 
@@ -164,7 +164,7 @@ GeoVPhysVol* GeoPixelEnvelopeAlpineTool::buildEnvelope(const PixelGeoBuilderBasi
   std::vector<InDetDD::TubeZone*> svcRegion_brl;
   std::vector<InDetDD::TubeZone*> svcRegion_ec;
   if(m_barrelTool){
-    m_barrelTool->preBuild();
+    m_barrelTool->preBuild(basics);
     svcRegion_brl = m_barrelTool->getSvcRegions();
   }
   if((endcapAPresent||endcapCPresent)&&m_endcapTool){
@@ -297,7 +297,7 @@ InDet::GeoEnvelopeAlpine* GeoPixelEnvelopeAlpineTool::buildEnvelopeGeoComp(const
 
   m_matMgr = basics->matMgr();
   m_msg = basics->msgStream();
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
 
   std::cout<<"GeoEnvelopeAlpine : GeoVPhysVol* GeoPixelEnvelopeAlpineTool::Build( )"<<std::endl;
 
