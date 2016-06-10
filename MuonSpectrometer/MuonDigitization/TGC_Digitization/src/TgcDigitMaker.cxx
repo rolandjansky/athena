@@ -808,7 +808,8 @@ void TgcDigitMaker::readFileOfDeadChamber() {
   // Find path to the TGC_Digitization_deadChamber.dat file
   std::string fileName;
   if(m_runperiod == 1) fileName = "TGC_Digitization_deadChamber.dat";
-  else if(m_runperiod == 2) fileName = "TGC_Digitization_NOdeadChamber.dat";
+  else if(m_runperiod == 2) fileName = "TGC_Digitization_2016deadChamber.dat";
+  else if(m_runperiod == 3) fileName = "TGC_Digitization_NOdeadChamber.dat";
   else {
     msg(MSG::ERROR) << "Run Period " << m_runperiod << " is unexpected in TgcDigitMaker - using NOdeadChamber configuration." << endreq;
     fileName = "TGC_Digitization_NOdeadChamber.dat";
