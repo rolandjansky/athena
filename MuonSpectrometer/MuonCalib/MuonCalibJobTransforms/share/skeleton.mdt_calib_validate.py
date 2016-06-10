@@ -82,7 +82,7 @@ elif (CalibSite == "MI"):
 elif (CalibSite == "MI_NEW"):
 # Michigan        
   MdtValidationAlg.ConnectionString = "oracle://umors.grid.umich.edu/muoncal.grid.umich.edu/ATLAS_MUONCALIB_READER"
-  MdtValidationAlg.WorkingSchema = "ATLAS_MUONCALIB_UM_META"
+  MdtValidationAlg.WorkingSchema = "ATLAS_MUONCALIB_UMICH"
   MdtValidationAlg.WriterConnectionString = "oracle://umors.grid.umich.edu/muoncal.grid.umich.edu/ATLAS_MUONCALIB_WRITER"
 elif (CalibSite == "RM"):
 # ROMA

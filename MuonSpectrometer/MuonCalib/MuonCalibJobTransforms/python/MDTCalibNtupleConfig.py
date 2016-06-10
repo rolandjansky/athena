@@ -112,6 +112,13 @@ class DoCSCArg(trfarg.BoolArg):
     def isFullArgument(self):
         return True
 
+class RawTgcArg(trfarg.BoolArg):
+    """put rawTgc and rawTgcCoin branches in calib ntuple"""
+    def __init__(self, help='put rawTgc and rawTgcCoin branches in calib ntuple', name='rawTgc'):
+        trfarg.BoolArg.__init__(self, help, name)
+    def isFullArgument(self):
+        return True
+
 class LumiBlockNumberFromCool(trfarg.BoolArg):
    """get lumi block number from coditions database according to time-stamp """
    def __init__(self, help='get lumi block number from coditions database according to time-stamp', name='lumiBlockNumberFromCool'):
