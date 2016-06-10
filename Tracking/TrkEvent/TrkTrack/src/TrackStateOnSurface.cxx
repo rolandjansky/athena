@@ -98,7 +98,7 @@ TrackStateOnSurface::TrackStateOnSurface(
     m_materialEffectsOnTrack(rhs.m_materialEffectsOnTrack
         ? rhs.m_materialEffectsOnTrack->clone() : 0),
     m_alignmentEffectsOnTrack(rhs.m_alignmentEffectsOnTrack
-        ? rhs.m_alignmentEffectsOnTrack : 0),
+        ? new AlignmentEffectsOnTrack(*rhs.m_alignmentEffectsOnTrack) : 0),
     m_typeFlags(rhs.m_typeFlags)
 {
 }
@@ -128,9 +128,39 @@ TrackStateOnSurface& TrackStateOnSurface::operator=(const TrackStateOnSurface& r
         m_materialEffectsOnTrack = rhs.m_materialEffectsOnTrack
             ? rhs.m_materialEffectsOnTrack->clone() : 0;
         m_alignmentEffectsOnTrack = rhs.m_alignmentEffectsOnTrack
-            ? rhs.m_alignmentEffectsOnTrack : 0;
+            ? new AlignmentEffectsOnTrack(*rhs.m_alignmentEffectsOnTrack) : 0;
         m_typeFlags = rhs.m_typeFlags;
         assert(isSane());
+    }
+    return *this;
+}
+
+Trk::TrackStateOnSurface&
+Trk::TrackStateOnSurface::operator=(Trk::TrackStateOnSurface&& rhs)
+{
+    if (this!=&rhs){
+      delete m_fitQualityOnSurface;
+      m_fitQualityOnSurface = rhs.m_fitQualityOnSurface;
+      rhs.m_fitQualityOnSurface = nullptr;
+
+      delete m_trackParameters;
+      m_trackParameters = rhs.m_trackParameters;
+      rhs.m_trackParameters = nullptr;
+
+      delete m_measurementOnTrack;
+      m_measurementOnTrack = rhs.m_measurementOnTrack;
+      rhs.m_measurementOnTrack = nullptr;
+
+      delete m_alignmentEffectsOnTrack;
+      m_alignmentEffectsOnTrack = rhs.m_alignmentEffectsOnTrack;
+      rhs.m_alignmentEffectsOnTrack = nullptr;
+
+      delete m_materialEffectsOnTrack;
+      m_materialEffectsOnTrack = rhs.m_materialEffectsOnTrack;
+      rhs.m_materialEffectsOnTrack = nullptr;
+
+      m_typeFlags = std::move (rhs.m_typeFlags);
+      assert(isSane());
     }
     return *this;
 }

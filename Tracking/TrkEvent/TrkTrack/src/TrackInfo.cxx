@@ -47,6 +47,17 @@ Trk::TrackInfo::TrackInfo( const TrackFitter fitter, const ParticleHypothesis pa
  m_patternRecognition.reset(); 
 }//end of main constructor definitions
 
+
+Trk::TrackInfo::TrackInfo( const TrackFitter fitter,
+                           const ParticleHypothesis partHyp,
+                           const std::bitset<NumberOfTrackProperties>& properties,
+                           const std::bitset<NumberOfTrackRecoInfo>& patternRecognition)
+  : TrackInfo (fitter, partHyp)
+{
+  m_properties = properties;
+  m_patternRecognition = patternRecognition;
+}
+
 Trk::TrackInfo::TrackInfo (const TrackInfo& rhs)
     :
     m_fitter(rhs.m_fitter),
@@ -167,6 +178,8 @@ std::string Trk::TrackInfo::dumpInfo() const
      authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::SiSpacePointsSeedMaker_LowMomentum)  	       ? "SiSpacePointsSeedMaker_LowMomentum; ": "");
      authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::SiSpacePointsSeedMaker_BeamGas)	               ? "SiSpacePointsSeedMaker_BeamGas; ": "");
      authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::SiSpacePointsSeedMaker_VeryLowMomentum)  	       ? "SiSpacePointsSeedMaker_VeryLowMomentum; ": "");
+     authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::SiSpacePointsSeedMaker_SLHCConversionTracks)                 ? "SiSpacePointsSeedMaker_SLHCConversionTracks; ": "");
+     authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::SiSpacePointsSeedMaker_LargeD0)  	       ? "SiSpacePointsSeedMaker_LargeD0; ": "");
      authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::MuidMuonRecoveryTool)  	       ? "MuidMuonRecoveryTool; ": "");
      authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::MuidStandaloneRefit)  	       ? "MuidStandaloneRefit; ": "");
      authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::TrackInCaloROI)  	               ? "TrackInCaloROI; ": "");
@@ -177,7 +190,7 @@ std::string Trk::TrackInfo::dumpInfo() const
      authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::FTK)  	       ? "FTK; ": "");
      authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::FastTrackFinderSeed)  	       ? "FastTrackFinderSeed; ": "");
      authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::SiSPSeededFinderSimple)  	               ? "SiSPSeededFinderSimple; ": "");
-     
+
      
      
 //     authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::NumberOfTrackRecoInfo)   ? "NumberOfTrackRecoInfo; ": "");

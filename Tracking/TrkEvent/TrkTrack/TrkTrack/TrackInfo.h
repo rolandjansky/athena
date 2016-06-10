@@ -13,6 +13,8 @@
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
 class MsgStream;
+class TrackCnv_p4;
+class TrackParticleBaseCnv_p1;
 
 namespace Trk
 {
@@ -97,96 +99,95 @@ public:
     };
 
     enum TrackPatternRecoInfo
-    {
-    
-/** Tracks from SiSPSeedFinder*/             
+    {    
+/**  Tracks from SiSPSeedFinder */             
      SiSPSeededFinder             = 0,
      
-/** Tracks from SiCTBTracking */                 
+/**  Tracks from SiCTBTracking */                 
      SiCTBTracking                = 1,
      
-/** Tracks with InDetAmbiguitySolver used*/            
+/**  Tracks with InDetAmbiguitySolver used */            
      InDetAmbiguitySolver         = 2,
      
-/** Tracks with InDetExtensionProcessor used*/       
+/**  Tracks with InDetExtensionProcessor used */       
      InDetExtensionProcessor      = 3,
      
-/** Tracks from TRT Seeded Track finder*/       
+/**  Tracks from TRT Seeded Track finder */       
      TRTSeededTrackFinder         = 4,
      
-/** Tracks from MuonBoy*/     
+/**  Tracks from MuonBoy */     
      Muonboy                      = 5,
  
-/** Tracks from MuGirl not refitted with iPat*/
+/**  Tracks from MuGirl not refitted with iPat */
      MuGirlUnrefitted             = 6,
      
-/**Tracks produced by STACO*/
+/**  Tracks produced by STACO */
      STACO                        = 7,
         
-/** Tracks produced by StacoLowpt*/
+/**  Tracks produced by StacoLowpt */
      StacoLowPt                   = 8, 
      
-/** Tracks produced by MuTag*/	
+/**  Tracks produced by MuTag */	
      MuTag                        = 9,
 
-/**tracks produced by Moore */
+/**  Tracks produced by Moore */
      MooreToTrackTool             = 10,  
          
-/**TrigInDetTracks produced by TrigIDSCAN, running at trigger LVL2*/
+/**  TrigInDetTracks produced by TrigIDSCAN, running at trigger LVL2*/
      TrigIDSCAN                   = 11, 
 
-/**TrigInDetTracks produced by TrigSiTrack, running at trigger LVL2*/
+/**  TrigInDetTracks produced by TrigSiTrack, running at trigger LVL2*/
      TrigSiTrack                  = 12, 
 
-/**TrigInDetTracks produced by TrigTRTxK, running at trigger LVL2*/
+/**  TrigInDetTracks produced by TrigTRTxK, running at trigger LVL2*/
      TrigTRTxK                    = 13,
 
-/**TrigInDetTracks produced by TrigTRTLUT, running at trigger LVL2*/
+/**  TrigInDetTracks produced by TrigTRTLUT, running at trigger LVL2*/
      TrigTRTLUT                   = 14,
      
-/** Track from FATRAS*/
+/**  Track from FATRAS*/
      Fatras                       = 15,
      
-/** Added because of compilation problems*/     
+/**  Added because of compilation problems*/     
      iPatLegacyCnv                = 16,
      
-/** Added because of compilation problems*/     
+/**  Added because of compilation problems*/     
      xKalmanLegacyCnv             = 17,
      
-/** Added because of compilation problems*/     
+/**  Added because of compilation problems*/     
      SimpleAmbiguityProcessorTool = 18,
   
-/** Added because of compilation problems*/    
+/**  Added because of compilation problems*/    
      InDetAmbiTrackSelectionTool  = 19,
           
 /**  TRT Standalone */	  
      TRTStandalone                = 20,
     
-/**   MuidStandalone */     
+/**  MuidStandalone */     
      MuidStandAlone               = 21,
      
-/** TRTSeededSingleSpTrackFinder */
+/**  TRTSeededSingleSpTrackFinder */
      TRTSeededSingleSpTrackFinder = 22,
      
-/**Back compatibility with old type of ESD */
+/**  Back compatibility with old type of ESD */
      MooreLegacyCnv               = 23,
      
-/**Back compatibility with older ESD versions */     
+/**  Back compatibility with older ESD versions */     
      MuidComb                     = 24,
      
-/**   Moore (MoMu) */ 
+/**  Moore (MoMu) */ 
      Moore                        = 25,    
      
-/**   MuidCombined */     
+/**  MuidCombined */     
      MuidCombined	          = 26,
          
-/**   MuidVertexAssociator */     
+/**  MuidVertexAssociator */     
      MuidVertexAssociator         = 27,
          
-/**   MuGirl */     
+/**  MuGirl */     
      MuGirl                       = 28,
           
-/**   iPatRec */     
+/**  iPatRec */     
      iPatRec                      = 29,
      
 /**  MuGirlLowBeta */     
@@ -208,19 +209,14 @@ the track and determine this for yourself (especially as not all Track builders 
 the track and determine this for yourself (especially as not all Track builders are currently filling this flag). EJWM.
 */
      MuonNotHittingTileVolume    = 33,
-     
-     
+          
 /**
  * Entries allowing to distinguish different seed makers
  */     
      SiSpacePointsSeedMaker_Cosmic          = 34,
- 
      SiSpacePointsSeedMaker_HeavyIon        = 35,
-
      SiSpacePointsSeedMaker_LowMomentum     = 36,
-
      SiSpacePointsSeedMaker_BeamGas         = 37,
-         
      SiSpacePointsSeedMaker_VeryLowMomentum = 38,
      
 /** Muons found by the ID seeded muon recovery */
@@ -235,31 +231,31 @@ the track and determine this for yourself (especially as not all Track builders 
 /**
  * Entries allowing to distinguish different seed makers
  */     
-     SiSpacePointsSeedMaker_ForwardTracks        = 42,
-
+     SiSpacePointsSeedMaker_ForwardTracks       = 42,
 
 /**  L2Star strategies */
-
-     strategyA                                   = 43,
-
-     strategyB                                   = 44,
-
+     strategyA                                  = 43,
+     strategyB                                  = 44,
      strategyC                                  = 45,
 
-/**   for tracks from FTK */
 
+/**   for tracks from FTK */
      FTK                                        = 46,
 
-/**  for tracks seeded by the FastTrackFinder  */
-
+/**  for tracks seeded by the FastTrackFinder */
      FastTrackFinderSeed                        = 47,
 
-/**    for tracks processed by the trigger version of the SiSPSeededFinder  */
-
+/**    for tracks processed by the trigger version of the SiSPSeededFinder */
      SiSPSeededFinderSimple                     = 48,
 
-/**maximum number of enums*/   
-     NumberOfTrackRecoInfo       = 49
+/**  Large d0 for displaced vertex searches */
+     SiSpacePointsSeedMaker_LargeD0             = 49,
+
+/** SLHCConversion Track flag */
+     SiSpacePointsSeedMaker_SLHCConversionTracks = 50,
+
+/**  Maximum number of enums */   
+     NumberOfTrackRecoInfo                      = 51
     };
     
     TrackInfo (); //!<needed by POOL. DO NOT USE YOURSELF! 
@@ -268,6 +264,11 @@ the track and determine this for yourself (especially as not all Track builders 
  * Constructor     
  */	           
     TrackInfo( const TrackFitter fitter, const ParticleHypothesis partHyp);
+
+    TrackInfo( const TrackFitter fitter,
+               const ParticleHypothesis partHyp,
+               const std::bitset<NumberOfTrackProperties>& properties,
+               const std::bitset<NumberOfTrackRecoInfo>& patternRecognition);
 
     TrackInfo( const TrackInfo& ); //!< copy constructor
 
@@ -340,8 +341,13 @@ the track and determine this for yourself (especially as not all Track builders 
  * Returns the particle hypothesis used for Track fitting     
  */							     
    ParticleHypothesis particleHypothesis() const;
+
+   const  std::bitset<NumberOfTrackProperties>&   properties() const;
+   const  std::bitset<NumberOfTrackRecoInfo>&     patternRecognition() const;
  
   private:
+   friend class ::TrackCnv_p4;
+   friend class ::TrackParticleBaseCnv_p1;
 
 /** 									     	 
  * This is an enum, which stores the identity of where the track was created 	 
@@ -439,7 +445,17 @@ the track and determine this for yourself (especially as not all Track builders 
    return m_patternRecognition.to_string <char, std::char_traits<char>, std::allocator<char> >();
   } 
     
-  
+
+  inline
+  const  std::bitset<TrackInfo::NumberOfTrackProperties>&   TrackInfo::properties() const
+  {
+    return m_properties;
+  }
+  inline
+  const  std::bitset<TrackInfo::NumberOfTrackRecoInfo>&     TrackInfo::patternRecognition() const
+  {
+    return m_patternRecognition;
+  }
 
 }//end of namespace Trk
 

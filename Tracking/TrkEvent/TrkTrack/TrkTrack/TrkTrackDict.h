@@ -26,10 +26,10 @@ namespace Trk {
 	      DataVector<const TrackStateOnSurface>       m_trackStateVector;
 	      DataVector<Identifier>                      m_identifierVector;
 	      ElementLink<DataVector<Trk::Track> >        m_Elink;   
-        std::bitset< 11 >                             dummy1;
-        TrackCollection tc;
-        ElementLink<TrackCollection> e1;
-        std::vector<ElementLink<TrackCollection> > e2; //!< really for xAOD, but exposes dependency on TrkTrack to put it there...
+        std::bitset< 11 >                             m_dummy1;
+        TrackCollection m_tc;
+        ElementLink<TrackCollection> m_e1;
+        std::vector<ElementLink<TrackCollection> > m_e2; //!< really for xAOD, but exposes dependency on TrkTrack to put it there...
     };
 }
 #endif

@@ -19,6 +19,7 @@
   <class name="Trk::TrackStateOnSurface" />
   <class name="DataVector<const Trk::TrackStateOnSurface>" />
   <class name="std::vector<const Trk::TrackStateOnSurface*>" />  
+  <class name="Trk::AlignmentEffectsOnTrack"/>
 
   <!-- RefittedTrackPair --> 
   <class name="DataVector< Trk::RefittedTrackPair >" id="0168FDD0-A582-40C5-9A47-A39452C09778" />

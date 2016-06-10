@@ -19,6 +19,7 @@ email                : edward.moyse@cern.ch
 class MsgStream;
 
 class TrackCollectionCnv;
+class TrackStateOnSurfaceCnv_p3;
 
 namespace Trk
 {
@@ -65,6 +66,8 @@ namespace Trk
     class TrackStateOnSurface
     {
         friend class ::TrackCollectionCnv;
+        friend class ::TrackStateOnSurfaceCnv_p3;
+
         public:
         
             /**
@@ -210,6 +213,7 @@ namespace Trk
             virtual ~TrackStateOnSurface();
     
             Trk::TrackStateOnSurface& operator=(const Trk::TrackStateOnSurface& rhs);
+            Trk::TrackStateOnSurface& operator=(Trk::TrackStateOnSurface&& rhs);
 
             /** returns 0 if there is no FQOS object assigned*/
             const FitQualityOnSurface* fitQualityOnSurface() const;
