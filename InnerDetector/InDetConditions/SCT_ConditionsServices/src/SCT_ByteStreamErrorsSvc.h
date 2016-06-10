@@ -125,6 +125,7 @@ private:
   std::set<IdentifierHash>* m_truncatedRod;
   std::set<IdentifierHash>* m_robFragErrors;
   std::set<IdentifierHash>* m_missingLinkHeaderErrors;
+  std::set<IdentifierHash>* m_maskedRods;
 
   std::set<IdentifierHash>* m_rxRedundancy;
 
@@ -142,6 +143,7 @@ private:
   int m_numTruncatedRod;
   int m_numRobFragErrors;
   int m_numMissingLinkHeaderErrors;
+  int m_numMaskedRods;
 
   bool m_isRODSimulatedData;
 
@@ -155,6 +157,7 @@ private:
 
   bool m_disableRODs;
   double m_rodFailureFraction;
+  unsigned int m_randomSeed; // The seed of random numbers for ROD disabling
 
   std::map<boost::uint32_t, bool> m_rodDecodeStatuses;
 };

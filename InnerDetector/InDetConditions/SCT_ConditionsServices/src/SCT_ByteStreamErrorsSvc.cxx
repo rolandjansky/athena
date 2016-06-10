@@ -50,6 +50,7 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   m_truncatedRod(0),
   m_robFragErrors(0),
   m_missingLinkHeaderErrors(0),
+  m_maskedRods(0),
   m_rxRedundancy(0),
   //
   m_numTimeOutErrors(0),
@@ -66,6 +67,7 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   m_numTruncatedRod(0),
   m_numRobFragErrors(0),
   m_numMissingLinkHeaderErrors(0),
+  m_numMaskedRods(0),
   m_isRODSimulatedData(false),
   m_numRODsHVon(0),
   m_numRODsTotal(0),
@@ -81,6 +83,7 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   declareProperty("UseRXRedundancyInfo",m_useRXredundancy=true);
   declareProperty("disableRODs",m_disableRODs=false);
   declareProperty("RODFailureFraction",m_rodFailureFraction=0.1);
+  declareProperty("RandomNumberSeed",m_randomSeed=1); // The seed of random numbers for ROD disabling
 }
 
 /** Initialize */
@@ -104,6 +107,7 @@ SCT_ByteStreamErrorsSvc::initialize(){
   m_truncatedRod = new std::set<IdentifierHash>;
   m_robFragErrors = new std::set<IdentifierHash>;
   m_missingLinkHeaderErrors = new std::set<IdentifierHash>;
+  m_maskedRods = new std::set<IdentifierHash>;
 
   m_rxRedundancy = new std::set<IdentifierHash>;
 
@@ -178,6 +182,7 @@ SCT_ByteStreamErrorsSvc::finalize(){
   delete m_truncatedRod;
   delete m_robFragErrors;
   delete m_missingLinkHeaderErrors;
+  delete m_maskedRods;
   delete m_rxRedundancy;
 
   return sc;
@@ -224,6 +229,7 @@ SCT_ByteStreamErrorsSvc::handle(const Incident& inc) {
     
   } else if (inc.type() == "BeginEvent") {
     this->resetSets();
+    this->resetCounts();
     m_filled = false;
     m_numRODsHVon=0;
     m_numRODsTotal=0;
@@ -243,7 +249,7 @@ SCT_ByteStreamErrorsSvc::disableRODs() {
   m_cabling->getAllRods(listOfRODs);
 
  /* initialize random seed: */
-  srand ( time(NULL) );
+  srand ( m_randomSeed );
 
   /* generate secret number: */
 
@@ -256,7 +262,7 @@ SCT_ByteStreamErrorsSvc::disableRODs() {
       std::vector<IdentifierHash>::iterator hashIt = listOfHashes.begin();
       std::vector<IdentifierHash>::iterator hashEnd = listOfHashes.end();
       for (; hashIt != hashEnd; ++hashIt) {
-        addError(*hashIt,SCT_ByteStreamErrors::MaskedLink);
+        addError(*hashIt,SCT_ByteStreamErrors::MaskedROD);
       }
     }
   }
@@ -375,6 +381,11 @@ SCT_ByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
 		      m_missingLinkHeaderErrors->end(),
 		      elementIdHash) == m_missingLinkHeaderErrors->end());
   if (!result) return result;
+
+  result = (std::find(m_maskedRods->begin(),
+		      m_maskedRods->end(),
+		      elementIdHash) == m_maskedRods->end());
+  if (!result) return result;
   
   return result;
 }
@@ -411,6 +422,7 @@ SCT_ByteStreamErrorsSvc::resetSets() {
   m_rodClockErrors->clear();
   m_truncatedRod->clear();
   m_robFragErrors->clear();
+  m_maskedRods->clear();
   m_missingLinkHeaderErrors->clear();
   return;
 }
@@ -464,6 +476,8 @@ SCT_ByteStreamErrorsSvc::getErrorSet(int errType) {
     return m_robFragErrors;
   case SCT_ByteStreamErrors::MissingLinkHeaderError:
     return m_missingLinkHeaderErrors;
+  case SCT_ByteStreamErrors::MaskedROD:
+    return m_maskedRods;
   }
   return 0;
 }
@@ -609,6 +623,9 @@ SCT_ByteStreamErrorsSvc::addError(IdentifierHash& id, int errorType) {
   case SCT_ByteStreamErrors::MissingLinkHeaderError:
     m_missingLinkHeaderErrors->insert(id);
     break;
+  case SCT_ByteStreamErrors::MaskedROD:
+    m_maskedRods->insert(id);
+    break;
   }    
 }
 
@@ -673,6 +690,9 @@ SCT_ByteStreamErrorsSvc::addErrorCount(int errorType) {
   case SCT_ByteStreamErrors::MissingLinkHeaderError:
     m_numMissingLinkHeaderErrors++;
     break;
+  case SCT_ByteStreamErrors::MaskedROD:
+    m_numMaskedRods++;
+    break;
   }    
 }
 
@@ -711,6 +731,7 @@ SCT_ByteStreamErrorsSvc::resetCounts() {
   m_numTruncatedRod=0;
   m_numRobFragErrors=0;
   m_numMissingLinkHeaderErrors=0;
+  m_numMaskedRods=0;
 }
 
 int 
@@ -744,6 +765,8 @@ SCT_ByteStreamErrorsSvc::getNumberOfErrors(int errorType) {
       return m_numRobFragErrors;
     case SCT_ByteStreamErrors::MissingLinkHeaderError:
       return m_numMissingLinkHeaderErrors;
+    case SCT_ByteStreamErrors::MaskedROD:
+      return m_numMaskedRods;
     }
   return 0;
 }

@@ -9,7 +9,7 @@
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
-#include <iostream>
+//#include <iostream>
 #include <cmath>
 
 // Helper functions to indicate whether a barrel module is modified.
@@ -45,8 +45,15 @@ bool sortById(SCT_Chip* a, SCT_Chip* b) {
 // Constructor
 SCT_ReadoutTool::SCT_ReadoutTool(const std::string &type, const std::string &name, const IInterface *parent) :
   AthAlgTool(type,name,parent),
-  m_sctId(0),
-  m_cablingSvc("SCT_CablingSvc",name)
+  m_sctId(nullptr),
+  m_cablingSvc("SCT_CablingSvc",name),
+  m_chips{},
+  m_chipMap{},
+  m_linkActive{},
+  m_chipInReadout{},
+  m_type{SCT_Parameters::BARREL},
+  m_chipsOnLink0{},
+  m_chipsOnLink1{}
 {
   declareInterface<ISCT_ReadoutTool>(this);
 }
@@ -164,7 +171,7 @@ StatusCode SCT_ReadoutTool::determineReadout(const Identifier& moduleId, std::ve
 
   // Make sure there are 12 chips
   if (chips.size() != 12) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Readout must contain exactly 12 chips" << endreq;
+    ATH_MSG_DEBUG ( "Readout must contain exactly 12 chips" );
     return StatusCode::SUCCESS;
   }
 
@@ -217,7 +224,7 @@ void SCT_ReadoutTool::checkLink(int link) {
     for (; linkItr != linkEnd; ++linkItr) setChipOut(*m_chips.at(*linkItr));
 
     // We do not have ERROR/FAILURE if the readout is not sane as it possibly only affects one of the SCT modules
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Readout for link " << link << " not sane" << endreq;    
+    ATH_MSG_WARNING( "Readout for link " << link << " not sane" );    
   }
 }
 
