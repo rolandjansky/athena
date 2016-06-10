@@ -98,7 +98,7 @@ TrackStateOnSurface::TrackStateOnSurface(
     m_materialEffectsOnTrack(rhs.m_materialEffectsOnTrack
         ? rhs.m_materialEffectsOnTrack->clone() : 0),
     m_alignmentEffectsOnTrack(rhs.m_alignmentEffectsOnTrack
-        ? rhs.m_alignmentEffectsOnTrack : 0),
+        ? new AlignmentEffectsOnTrack(*rhs.m_alignmentEffectsOnTrack) : 0),
     m_typeFlags(rhs.m_typeFlags)
 {
 }
@@ -128,7 +128,7 @@ TrackStateOnSurface& TrackStateOnSurface::operator=(const TrackStateOnSurface& r
         m_materialEffectsOnTrack = rhs.m_materialEffectsOnTrack
             ? rhs.m_materialEffectsOnTrack->clone() : 0;
         m_alignmentEffectsOnTrack = rhs.m_alignmentEffectsOnTrack
-            ? rhs.m_alignmentEffectsOnTrack : 0;
+            ? new AlignmentEffectsOnTrack(*rhs.m_alignmentEffectsOnTrack) : 0;
         m_typeFlags = rhs.m_typeFlags;
         assert(isSane());
     }
