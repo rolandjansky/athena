@@ -12,27 +12,20 @@
 #ifndef INDETRAWDATABYTESTREAM_SCT_RODDECODER_H 
 #define INDETRAWDATABYTESTREAM_SCT_RODDECODER_H
 //STL
-//#include <vector> in interface already
 #include <map>
 #include <string>
 #include <stdint.h> //puts definitions in global namespace, should use Boost/cstdint.hpp
                     //but what the heck.
 
-#include "eformat/SourceIdentifier.h"
-#include "eformat/Version.h"
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
-//#include "InDetRawData/SCT_RDO_Container.h" Already in interface
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 
-
-
 class ISCT_CablingSvc;
-class SCT_ID;
 class ISCT_ByteStreamErrorsSvc;
+class SCT_ID;
 
 namespace InDetDD{
   class SCT_DetectorManager; 
@@ -120,6 +113,7 @@ public:
   unsigned int m_RODClockErrorNumber;
   unsigned int m_truncatedRODNumber;
   unsigned int m_numMissingLinkHeader;
+  unsigned int m_numUnknownOfflineId;
   
   InDetBSErrContainer* m_bsErrCont;
   std::string m_bsErrContainerName;

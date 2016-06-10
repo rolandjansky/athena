@@ -24,18 +24,15 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 /** other */
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "InDetRawData/InDetTimeCollection.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 /** STL */
 #include <string>
 
 /** forward declarations */
-
 class ISCTRawDataProviderTool;
 class ISCT_CablingSvc;
-class IRobDataProviderSvc;
 class SCT_ID;
-class ISCT_CablingSvc;
 
 class SCTRawDataProvider : public AthAlgorithm
 {
