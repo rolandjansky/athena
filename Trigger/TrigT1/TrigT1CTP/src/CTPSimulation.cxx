@@ -337,7 +337,16 @@ LVL1CTP::CTPSimulation::start() {
 StatusCode
 LVL1CTP::CTPSimulation::bookHists() {
 
-   string histstream ( m_histbase );
+
+  string histstream ( m_histbase );
+  
+  //Check that we didn't already do this, and just return if yes ...
+  if (m_histSvc->exists(histstream + "CTPSimulation/L1TopoDecisionCable0")){
+    ATH_MSG_INFO(histstream+" histograms already exist, returning ...");
+    return StatusCode::SUCCESS;
+  }
+  
+
    size_t runNrPos = histstream.find("RUNNR");
    if( runNrPos != string::npos ) {
 
@@ -880,7 +889,7 @@ StatusCode
 LVL1CTP::CTPSimulation::execute() {
    
    ATH_MSG_DEBUG("Executing CTPSimulation algorithm");
-  
+ 
    unsigned int ctpVersion = ( m_ctpVersion != 0 ? m_ctpVersion : m_configSvc->ctpConfig()->ctpVersion() );
 
 	
