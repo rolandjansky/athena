@@ -45,7 +45,8 @@ TrigJetSplitter::TrigJetSplitter(const std::string & name, ISvcLocator* pSvcLoca
   declareProperty ("ZHalfWidth",   m_zHalfWidth   = 20.0);// in mm?
   declareProperty ("JetMinEt",     m_minJetEt     = 30.0); // in GeV (increase from 15 GeV to be same as vertex threshold)
   declareProperty ("JetMaxEta",    m_maxJetEta    = 2.5+m_etaHalfWidth);  // tracker acceptance + jet half-width
-  declareProperty ("JetLogRatio",  m_minLogRatio    = 1.2);  // minimum log ratio for a displaced jet
+  declareProperty ("JetLogRatio",  m_logRatio    = 1.2);  // minimum/maximum log ratio for being selected
+  declareProperty("Reversed",      m_reversedCut = false, "reversed cut for collimated photons");
 }
 
 
@@ -67,7 +68,8 @@ HLT::ErrorCode TrigJetSplitter::hltInitialize() {
     msg() << MSG::DEBUG << " ZHalfWidth   = " << m_zHalfWidth   << endreq; 
     msg() << MSG::DEBUG << " MinJetEt     = " << m_minJetEt     << endreq; 
     msg() << MSG::DEBUG << " MaxJetEta    = " << m_maxJetEta    << endreq; 
-    msg() << MSG::DEBUG << " MinLogRatio    = " << m_minLogRatio    << endreq; 
+    msg() << MSG::DEBUG << " LogRatio  = " << m_logRatio    << endreq; 
+    msg() << MSG::DEBUG << " ReversedCut  = " << m_reversedCut    << endreq; 
 }
 
   return HLT::OK;
@@ -98,7 +100,7 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
   }
   
   // -----------------------
-  // Retreive jets
+  // Retrieve jets
   // -----------------------
 
   std::vector<HLT::TriggerElement*>& jetTE = inputTEs.at(0);
@@ -185,10 +187,18 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
 	msg() << MSG::DEBUG << "Jet "<< i << " outside the |eta| < 2.5 requirement; Eta = " << jetEta << "; skipping this jet." << endreq;
       continue;
     }
-    if ( jetRatio < m_minLogRatio) {
-      if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_minLogRatio << " threshold for the log-ratio cut; logRatio = " << jetRatio << "; skipping this jet." << endreq;
-      continue;
+    if(!m_reversedCut) {
+      if ( jetRatio < m_logRatio) {
+	if (msgLvl() <= MSG::DEBUG)
+	  msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_logRatio << " threshold for the log-ratio cut; logRatio = " << jetRatio << "; skipping this jet." << endreq;
+	continue;
+      }
+    } else {
+      if ( jetRatio > m_logRatio) {
+	if (msgLvl() <= MSG::DEBUG)
+	  msg() << MSG::DEBUG << "Jet "<< i << " above the " << m_logRatio << " threshold for the log-ratio cut; logRatio = " << jetRatio << "; skipping this jet." << endreq;
+	continue;
+      } 
     }
     int countCaloCell=0;
     /* --> this is now done in TrigBHremoval.cxx
