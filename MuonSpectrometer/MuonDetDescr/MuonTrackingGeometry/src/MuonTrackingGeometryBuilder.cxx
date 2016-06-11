@@ -2185,7 +2185,7 @@ void Muon::MuonTrackingGeometryBuilder::getHParts() const
     barrelZ1F0.push_back( std::pair<int,float>(1,6750.) );
     barrelZ1F0.push_back( std::pair<int,float>(1,8400.) );
   }
-  if (m_activeAdjustLevel>0) barrelZ1F0.push_back( std::pair<int,float>(0,8750.) );  // adapted for cryoring (from 8900)
+  if (m_activeAdjustLevel>0) barrelZ1F0.push_back( std::pair<int,float>(0,8770.) );  // adapted for cryoring (from 8900)
   if (m_inertAdjustLevel>0) barrelZ1F0.push_back( std::pair<int,float>(1,9850.) );   // adapted for cryoring (from 9600)
   barrelZ1F0.push_back( std::pair<int,float>(0,m_outerBarrelRadius) );
 
