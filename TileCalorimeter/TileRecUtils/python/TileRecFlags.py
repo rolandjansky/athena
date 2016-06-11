@@ -142,7 +142,7 @@ class correctTimeNI(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 #
 class correctAmplitude(JobProperty):

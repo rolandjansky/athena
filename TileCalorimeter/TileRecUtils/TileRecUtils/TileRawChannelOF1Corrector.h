@@ -21,9 +21,11 @@ class TileRawChannel;
 class TileRawChannelContainer;
 class TileRawChannelCollection;
 class TileHWID;
+class TileID;
 class TileCondToolNoiseSample;
 class ITileCondToolOfc;
 class TileCondToolTiming;
+class TileCondToolEmscale;
 
 /**
  @class TileRawChannelOF1Corrector
@@ -56,10 +58,18 @@ class TileRawChannelOF1Corrector: public AthAlgTool, virtual public ITileRawChan
   private:
 
     const TileHWID* m_tileHWID; //!< Pointer to TileHWID
+    const TileID* m_tileID;     //!< Pointer to TileID
 
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample; //!< tool which provided noise values
     ToolHandle<ITileCondToolOfc> m_tileCondToolOfc;    
     ToolHandle<TileCondToolTiming> m_tileToolTiming;
+    ToolHandle<TileCondToolEmscale> m_tileToolEms;
+
+    std::string m_digitsContainerName;
+    bool m_zeroAmplitudeWithoutDigits;
+    float m_negativeAmplitudeThreshold;
+    float m_positiveAmplitudeThreshold;
+
 };
 
 #endif // TILERECUTILS_TILERAWCHANNELOF1CORRECTOR_H

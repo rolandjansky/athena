@@ -389,7 +389,7 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderOF1.MaxIterations = 1; # just one iteration
                 theTileRawChannelBuilderOF1.Minus1Iteration = False; # assume that max sample is at t=0
                 theTileRawChannelBuilderOF1.AmplitudeCorrection = jobproperties.TileRecFlags.correctAmplitude()
-                theTileRawChannelBuilderOF1.TimeCorrection = jobproperties.TileRecFlags.correctTimeNI()
+                theTileRawChannelBuilderOF1.TimeCorrection = False
                 theTileRawChannelBuilderOF1.OfcfromCool = jobproperties.TileRecFlags.OfcFromCOOL()            
                 theTileRawChannelBuilderOF1.AmpMinForAmpCorrection = jobproperties.TileRecFlags.AmpMinForAmpCorrection()
                 if jobproperties.TileRecFlags.TimeMaxForAmpCorrection() > jobproperties.TileRecFlags.TimeMinForAmpCorrection():
