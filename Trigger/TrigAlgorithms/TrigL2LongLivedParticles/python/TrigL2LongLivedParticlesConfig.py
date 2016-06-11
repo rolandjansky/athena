@@ -12,6 +12,9 @@ from AthenaCommon.AppMgr import ServiceMgr
 def getJetSplitterInstance( ):
     return JetSplitter( name="JetSplitter" )
 
+def getJetSplitterInstance_LowLogRatio( ):
+    return JetSplitter_LowLogRatio( name="JetSplitter_LowLogRatio" )
+
 
 class JetSplitter (TrigJetSplitter):
     __slots__ = []
@@ -24,6 +27,21 @@ class JetSplitter (TrigJetSplitter):
         self.EtaHalfWidth = 0.4
         self.PhiHalfWidth = 0.4
         self.JetLogRatio     = 1.2
+
+
+class JetSplitter_LowLogRatio (TrigJetSplitter):
+    __slots__ = []
+    
+    def __init__(self, name):
+        super( JetSplitter_LowLogRatio, self ).__init__( name )
+        
+        self.JetInputKey  = "TrigJetRec"
+        self.JetOutputKey = "SplitJet_LowLogRatio"
+        self.EtaHalfWidth = 0.4
+        self.PhiHalfWidth = 0.4
+        self.JetLogRatio  = -1.7
+        self.Reversed     = True
+
 
 def getBHremovalInstance( ):
     return BHremoval ( name="BHremoval" )
