@@ -581,7 +581,7 @@ void TileRawChannelBuilder::endLog() {
 
 double TileRawChannelBuilder::correctAmp(double phase, bool of2) {
 
- double corr=1.0;
+ double corr = 1.0;
  if (of2) {
    // estimation from Belen for rel 14.0.0
    /*double a,b,c;
@@ -618,22 +618,18 @@ double TileRawChannelBuilder::correctAmp(double phase, bool of2) {
 // Time correction for shifted pulses by Tigran
 double TileRawChannelBuilder::correctTime(double phase, bool of2) {
 
-  double corrected = 0.0;
+  double correction = 0.0;
   
   if (of2) {
     if(phase < 0)  {
-      corrected = (-0.00695743 + (0.0020673 - (0.0002976 + 0.00000361305 * phase) * phase) * phase) * phase;
+      correction = (-0.00695743 + (0.0020673 - (0.0002976 + 0.00000361305 * phase) * phase) * phase) * phase;
     } else {
-      corrected = (0.0130013 + (0.00128769 + (-0.000550218 + 0.00000755344 * phase) * phase) * phase) * phase;
-    }
-  } else {
-    if ( phase < 0) {
-      corrected = 0.07529 + (0.0144 + (0.006307 + (0.0003631 + 0.00000375547 * phase) * phase) * phase) * phase;
-    } else {
-      corrected = 0.00750759 + (-0.00731296 + (0.00570012 + (-0.000295357 + 0.00000578402 * phase) * phase) * phase) * phase;
+      correction = (0.0130013 + (0.00128769 + (-0.000550218 + 0.00000755344 * phase) * phase) * phase) * phase;
     }
   }
-  return corrected;
+  // OF1 does not need correction
+
+  return correction;
 }
 
 
