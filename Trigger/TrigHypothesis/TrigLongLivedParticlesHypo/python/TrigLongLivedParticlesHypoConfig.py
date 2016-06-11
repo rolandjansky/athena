@@ -194,6 +194,17 @@ class CaloRatioHypo (TrigCaloRatioHypo):
         self.EtCut       = threshold
         self.LogRatioCut = logratio
 
+
+class ReversedCaloRatioHypo (TrigCaloRatioHypo):
+    __slots__ = []
+    def __init__(self, name, threshold, logratio):
+        super( ReversedCaloRatioHypo, self ).__init__( name )
+
+        self.EtCut       = threshold
+        self.LogRatioCut = logratio
+        self.Reversed    = True
+
+
         from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoMonitoring import TrigCaloRatioHypoValidationMonitoring, TrigCaloRatioHypoOnlineMonitoring, TrigCaloRatioHypoCosmicMonitoring
         validation = TrigCaloRatioHypoValidationMonitoring()
         online = TrigCaloRatioHypoOnlineMonitoring()

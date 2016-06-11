@@ -44,6 +44,8 @@ class TrigCaloRatioHypo : public HLT::HypoAlgo {
   double m_deltaR;
   /** @brief cut on jet eta. */
   double m_etaCut;
+  /** @brief flag for the reversed cut. */
+  bool m_reversedCut;
 
   //Events accepted, rejected and with some error
   int m_accepted;
