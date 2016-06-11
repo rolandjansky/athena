@@ -4,7 +4,7 @@
 
 #include "GaudiKernel/IToolSvc.h"
 
-#include "TrigL2LongLivedParticles/TrigJetSplitter.h"
+#include "TrigL2LongLivedParticles/TrigBHremoval.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigSteeringEvent/PhiHelper.h"
@@ -35,7 +35,7 @@ struct DescendingEt:std::binary_function<const xAOD::Jet*, const xAOD::Jet*, boo
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-TrigJetSplitter::TrigJetSplitter(const std::string & name, ISvcLocator* pSvcLocator) :
+TrigBHremoval::TrigBHremoval(const std::string & name, ISvcLocator* pSvcLocator) :
   HLT::AllTEAlgo(name, pSvcLocator)
 {
   declareProperty ("JetInputKey",  m_jetInputKey  = "TrigJetRec");
@@ -45,18 +45,17 @@ TrigJetSplitter::TrigJetSplitter(const std::string & name, ISvcLocator* pSvcLoca
   declareProperty ("ZHalfWidth",   m_zHalfWidth   = 20.0);// in mm?
   declareProperty ("JetMinEt",     m_minJetEt     = 30.0); // in GeV (increase from 15 GeV to be same as vertex threshold)
   declareProperty ("JetMaxEta",    m_maxJetEta    = 2.5+m_etaHalfWidth);  // tracker acceptance + jet half-width
-  declareProperty ("JetLogRatio",  m_logRatio    = 1.2);  // minimum/maximum log ratio for being selected
-  declareProperty("Reversed",      m_reversedCut = false, "reversed cut for collimated photons");
+  declareProperty ("JetLogRatio",  m_minLogRatio    = 1.2);  // minimum log ratio for a displaced jet
 }
 
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-HLT::ErrorCode TrigJetSplitter::hltInitialize() {
+HLT::ErrorCode TrigBHremoval::hltInitialize() {
 
   if (msgLvl() <= MSG::INFO) 
-    msg() << MSG::INFO << "Initializing TrigJetSplitter, version " << PACKAGE_VERSION << endreq;
+    msg() << MSG::INFO << "Initializing TrigBHremoval, version " << PACKAGE_VERSION << endreq;
 
   //* declareProperty overview *//
   if (msgLvl() <= MSG::DEBUG) {
@@ -68,8 +67,7 @@ HLT::ErrorCode TrigJetSplitter::hltInitialize() {
     msg() << MSG::DEBUG << " ZHalfWidth   = " << m_zHalfWidth   << endreq; 
     msg() << MSG::DEBUG << " MinJetEt     = " << m_minJetEt     << endreq; 
     msg() << MSG::DEBUG << " MaxJetEta    = " << m_maxJetEta    << endreq; 
-    msg() << MSG::DEBUG << " LogRatio  = " << m_logRatio    << endreq; 
-    msg() << MSG::DEBUG << " ReversedCut  = " << m_reversedCut    << endreq; 
+    msg() << MSG::DEBUG << " MinLogRatio    = " << m_minLogRatio    << endreq; 
 }
 
   return HLT::OK;
@@ -79,31 +77,25 @@ HLT::ErrorCode TrigJetSplitter::hltInitialize() {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-TrigJetSplitter::~TrigJetSplitter(){}
+TrigBHremoval::~TrigBHremoval(){}
 
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTEs, unsigned int output) {
+HLT::ErrorCode TrigBHremoval::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTEs, unsigned int output) {
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Running TrigJetSplitter::hltExecute" << endreq;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Running TrigBHremoval::hltExecute" << endreq;
 
   beforeExecMonitors().ignore();
 
   if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " inputTEs.size() " << inputTEs.size() << endreq;
-  
-  if (inputTEs.size() != 1) {
-    msg() << MSG::WARNING << "Wrong number of input TEs" << endreq;
-    afterExecMonitors().ignore();
-    return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
-  }
-  
+
   // -----------------------
-  // Retrieve jets
+  // Retreive jets
   // -----------------------
 
-  std::vector<HLT::TriggerElement*>& jetTE = inputTEs.at(0);
+  std::vector<HLT::TriggerElement*>& jetTE = inputTEs.at(1);
 
   if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " jetTE.size() " << jetTE.size() << endreq;
 
@@ -128,12 +120,12 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
 
 
   // -----------------------------------
-  // Retrieve calo cells  --> this is now done in TrigBHremoval.cxx
+  // Retrieve calo cells 
   // -----------------------------------
-  /*
+  std::vector<HLT::TriggerElement*>& cellsTE = inputTEs.at(0);
   std::vector<const CaloCellContainer*> vectorOfCellContainers;
 
-  if(getFeatures(jetTE.front(), vectorOfCellContainers, "") != HLT::OK) {
+  if(getFeatures(cellsTE.front(), vectorOfCellContainers, "") != HLT::OK) {
     msg() << MSG::WARNING << "Failed to get TrigCells" << endreq;   
     return HLT::OK;
   }
@@ -147,12 +139,12 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
   }
 
   // get last container to be put in vector (should also be the only one)
-   const CaloCellContainer* theCellCont = vectorOfCellContainers.back();
+  const CaloCellContainer* theCellCont = vectorOfCellContainers.back();
 
   if(msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << " Retrieved a Cell Container of Size= " << theCellCont->size() << endreq;
   }
-  */
+ 
   if (msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << "Found " << jets->size() << " jets, creating corresponding RoIs" << endreq; 
 
@@ -187,21 +179,18 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
 	msg() << MSG::DEBUG << "Jet "<< i << " outside the |eta| < 2.5 requirement; Eta = " << jetEta << "; skipping this jet." << endreq;
       continue;
     }
-    if(!m_reversedCut) {
-      if ( jetRatio < m_logRatio) {
-	if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_logRatio << " threshold for the log-ratio cut; logRatio = " << jetRatio << "; skipping this jet." << endreq;
-	continue;
-      }
-    } else {
-      if ( jetRatio > m_logRatio) {
-	if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Jet "<< i << " above the " << m_logRatio << " threshold for the log-ratio cut; logRatio = " << jetRatio << "; skipping this jet." << endreq;
-	continue;
-      } 
+    if ( jetRatio < m_minLogRatio) {
+      if (msgLvl() <= MSG::DEBUG)
+	msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_minLogRatio << " threshold for the log-ratio cut; logRatio = " << jetRatio << "; skipping this jet." << endreq;
+      continue;
     }
+
     int countCaloCell=0;
-    /* --> this is now done in TrigBHremoval.cxx
+//    float min_dPhi=99;
+    //calculate number of cells in line of fire
+    double countCell_layer[4] = {0,0,0,0};
+//    int layer = -1;
+
     //calculate number of cells in line of fire
     for(CaloCellContainer::const_iterator celliter = theCellCont->begin(); celliter != theCellCont->end(); ++celliter){
     //LoF cell selection:
@@ -209,7 +198,6 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
     //-provenance
     //-energy
       if((*celliter)->caloDDE()->is_tile() && (*celliter)->energy() > 240.0){
-    	
         //-dPhi
         //-dR
         float d_phi = HLT::wrapPhi((*celliter)->phi() - jetPhi);
@@ -225,19 +213,27 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
             float z = (*celliter)->z();
             float c = 299.792458;//mm per ns
             float r = sqrt(x*x + y*y);
-            if((fabs(t - (z-sqrt(z*z + r*r))/c) < 5.0) || (fabs(t - (-z-sqrt(z*z + r*r))/c) < 5.0)){
-	      msg() << MSG::DEBUG << " cell E = " << (*celliter)->energy() << " cell phi = " << (*celliter)->phi() << " cell eta = " << (*celliter)->eta() << " cell r = " << r << endreq;
-	          countCaloCell++;
-            }
+	    if((fabs(t - (z-sqrt(z*z + r*r))/c) < 5.0) || (fabs(t - (-z-sqrt(z*z + r*r))/c) < 5.0)){
+	      msg() << MSG::DEBUG << " cell is tile; cell E = " << (*celliter)->energy() << " cell phi = " << (*celliter)->phi() << " cell eta = " << (*celliter)->eta() << " cell r = " << r << endreq;
+	      
+            if(r<2200){ countCell_layer[0]++;}// layer=0;}
+            else if(r>=2200 && r<2600){ countCell_layer[1]++;}// layer=1;}
+            else if(r>=2600 && r<3100){ countCell_layer[2]++;}//  layer=2;}
+            else if(r>=3100){ countCell_layer[3]++;}//  layer=3;}
+
+	    }
           }
-        }
+	}
       }
     }
 
+    for(int i=0; i<4; i++) 
+      if(countCaloCell<countCell_layer[i]) countCaloCell=countCell_layer[i];
+
+
     if (msgLvl() <= MSG::DEBUG)
       msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi <<"; logRatio " << jetRatio << "; LoF Cells " << countCaloCell << endreq;
-    
-    */
+
     // Create an output TE seeded by an empty vector
     HLT::TriggerElement* outputTE = config()->getNavigation()->addNode( initialTE, output );
     outputTE->setActiveState(true);
@@ -297,7 +293,7 @@ HLT::ErrorCode TrigJetSplitter::hltExecute(std::vector<std::vector<HLT::TriggerE
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-HLT::ErrorCode TrigJetSplitter::hltFinalize() {
+HLT::ErrorCode TrigBHremoval::hltFinalize() {
 
   if ( msgLvl() <= MSG::INFO )
     msg() << MSG::INFO << "in finalize()" << endreq;

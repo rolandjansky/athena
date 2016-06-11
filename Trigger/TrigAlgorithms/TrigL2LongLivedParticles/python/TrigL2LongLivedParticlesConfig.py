@@ -3,6 +3,7 @@
 from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConf import MuonCluster
 from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConf import TrigMuonJetFex
 from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConf import TrigJetSplitter
+from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConf import TrigBHremoval
 
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AppMgr import ServiceMgr
@@ -10,6 +11,9 @@ from AthenaCommon.AppMgr import ServiceMgr
 
 def getJetSplitterInstance( ):
     return JetSplitter( name="JetSplitter" )
+
+def getJetSplitterInstance_LowLogRatio( ):
+    return JetSplitter_LowLogRatio( name="JetSplitter_LowLogRatio" )
 
 
 class JetSplitter (TrigJetSplitter):
@@ -24,6 +28,36 @@ class JetSplitter (TrigJetSplitter):
         self.PhiHalfWidth = 0.4
         self.JetLogRatio     = 1.2
 
+
+class JetSplitter_LowLogRatio (TrigJetSplitter):
+    __slots__ = []
+    
+    def __init__(self, name):
+        super( JetSplitter_LowLogRatio, self ).__init__( name )
+        
+        self.JetInputKey  = "TrigJetRec"
+        self.JetOutputKey = "SplitJet_LowLogRatio"
+        self.EtaHalfWidth = 0.4
+        self.PhiHalfWidth = 0.4
+        self.JetLogRatio  = -1.7
+        self.Reversed     = True
+
+
+def getBHremovalInstance( ):
+    return BHremoval ( name="BHremoval" )
+
+
+class BHremoval (TrigBHremoval):
+    __slots__ = []
+    
+    def __init__(self, name="BHremoval"):
+        super( BHremoval, self ).__init__( name )
+        
+        self.JetInputKey  = "TrigJetRec"
+        self.JetOutputKey = "SplitJet"
+        self.EtaHalfWidth = 0.4
+        self.PhiHalfWidth = 0.4
+        self.JetLogRatio  = 1.2
 
 class MuonClusterConfig(MuonCluster): 
    __slots__ = []

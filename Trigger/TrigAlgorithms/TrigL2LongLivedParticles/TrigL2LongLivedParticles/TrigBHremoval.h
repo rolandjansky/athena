@@ -2,19 +2,19 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef  TRIGJETSPLITTER_H
-#define  TRIGJETSPLITTER_H
+#ifndef  TRIGBHREMOVAL_H
+#define  TRIGBHREMOVAL_H
 
 #include <iostream>
 
 #include "TrigInterfaces/AllTEAlgo.h"
 
 
-class TrigJetSplitter : public HLT::AllTEAlgo {
+class TrigBHremoval : public HLT::AllTEAlgo {
 
  public:
-  TrigJetSplitter(const std::string & name, ISvcLocator* pSvcLocator);
-  ~TrigJetSplitter();
+  TrigBHremoval(const std::string & name, ISvcLocator* pSvcLocator);
+  ~TrigBHremoval();
   
   HLT::ErrorCode hltInitialize();
   HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >&,unsigned int);
@@ -31,9 +31,7 @@ class TrigJetSplitter : public HLT::AllTEAlgo {
 
   double m_minJetEt;
   double m_maxJetEta;
-  double m_logRatio;
-
-  bool m_reversedCut;
+  double m_minLogRatio;
   
 };
  
