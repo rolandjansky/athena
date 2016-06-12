@@ -2,429 +2,185 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifdef ROOTCORE
-#include <RootCore/Packages.h>
-#endif
+// $Id$
 
-#if !defined (ROOTCORE) || (defined (ROOTCORE_PACKAGE_xAODEventInfo) && defined (ROOTCORE_PACKAGE_AsgTools))
+// Framework include(s):
+#include "PathResolver/PathResolver.h"
 
+// Local include(s):
 #include "GoodRunsLists/GoodRunsListSelectionTool.h"
-#include "GoodRunsLists/TGRLCollection.h"
 #include "GoodRunsLists/TGoodRunsListReader.h"
 #include "GoodRunsLists/TMsgLogger.h"
-#include "GoodRunsLists/StrUtil.h"
-
-#ifdef ROOTCORE
-#include <TSystem.h>
-#else
-#include "PathResolver/PathResolver.h"
-#endif
-
-#ifndef ROOTCORE
-#include "DetectorStatus/IDetStatusSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "StoreGate/StoreGate.h"
-#endif
-
-#include "TFormula.h"
-#include "TSystem.h"
-
-#include <sys/stat.h>
-
-namespace
-{
-  std::string locate_file (const std::string& file)
-  {
-#ifdef ROOTCORE
-    TString myfile = file;
-    gSystem->ExpandPathName (myfile);
-    return myfile.Data();
-#else
-    return PathResolverFindXMLFile (file);
-#endif
-  }
-}
 
 GoodRunsListSelectionTool::GoodRunsListSelectionTool( const std::string& name ) 
-  : asg::AsgTool( name )
-  , m_reader(0)
-  , m_boolop(0)
-  , m_passthrough(true)
-#ifndef ROOTCORE
-  , m_usecool(false)
-#endif
-  , m_verbose(false)
-  , m_rejectanybrl(false)
-#ifndef ROOTCORE
-  , m_detstatussvc(0)
-#endif
-{
-  declareProperty( "GoodRunsListVec", m_goodrunslistVec );
-  declareProperty( "BlackRunsListVec", m_blackrunslistVec );
-  declareProperty( "BoolOperation", m_boolop );
-  declareProperty( "PassThrough", m_passthrough = true);
-#ifndef ROOTCORE
-  declareProperty( "DQFlagsFromCOOL", m_usecool = false);
-#endif
-  declareProperty( "VerboseDetStatus", m_verbose = false);
-#ifndef ROOTCORE
-  declareProperty( "DQFlagsQueryVec", m_dqflagsqueryVec, "vector of dqflags query strings");
-#endif
-  declareProperty( "RunRangeExpressionCOOL", m_runrangeexpr = "1" );
-  declareProperty( "RejectBlackRunsInEventSelector", m_rejectanybrl = false );
+   : asg::AsgTool( name ) {
 
-  m_grlcollection = new Root::TGRLCollection();
-  m_brlcollection = new Root::TGRLCollection();
-  m_reader = new Root::TGoodRunsListReader();
+   declareProperty( "GoodRunsListVec", m_goodrunslistVec );
+   declareProperty( "BlackRunsListVec", m_blackrunslistVec );
+
+   declareProperty( "BoolOperation", m_boolop = 0 );
+   declareProperty( "PassThrough", m_passthrough = true );
+   declareProperty( "RejectBlackRunsInEventSelector", m_rejectanybrl = false );
+}
+
+StatusCode GoodRunsListSelectionTool::initialize() {
+
+   // Tell the user what's happening:
+   ATH_MSG_DEBUG( "Initialising tool" );
+
+   // Set the output level of the underlying code:
+   const Root::TMsgLevel level =
+         static_cast< Root::TMsgLevel >( msg().level() );
+   Root::TMsgLogger::SetMinLevel( level );
+
+   // Reset the pass-through mode setting:
+   if( m_goodrunslistVec.size() || m_blackrunslistVec.size() ) {
+      m_passthrough = false;
+   }
+
+   // Warn about pass-through mode:
+   if( m_passthrough ) {
+      ATH_MSG_WARNING( "Set to pass-through mode." );
+   }
+
+   // Read in the XML files:
+   ATH_CHECK( readXMLs( m_grlcollection, m_goodrunslistVec ) );
+   ATH_CHECK( readXMLs( m_brlcollection, m_blackrunslistVec ) );
+
+   // Return gracefully:
+   return StatusCode::SUCCESS;
+}
+
+bool GoodRunsListSelectionTool::
+passRunLB( const std::vector< std::string >& grlnameVec,
+           const std::vector< std::string >& brlnameVec ) const {
+
+   // Retrieve the xAOD::EventInfo object:
+   const xAOD::EventInfo* ei = 0;
+   if( ! evtStore()->retrieve( ei, "EventInfo" ).isSuccess() ) {
+      ATH_MSG_WARNING( "Couldn't access xAOD::EventInfo object. Using "
+                       "pass-through mode..." );
+      return true;
+   }
+
+   // MC events should not be filtered by this tool:
+   if( ei->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
+      ATH_MSG_VERBOSE( "MC event is accepted by the tool" );
+      return true;
+   }
+
+   // Use this object:
+   return passRunLB( *ei, grlnameVec, brlnameVec );
+}
+
+bool GoodRunsListSelectionTool::
+passRunLB( const xAOD::EventInfo& event,
+           const std::vector< std::string >& grlnameVec,
+           const std::vector< std::string >& brlnameVec ) const {
+
+   return passRunLB( event.runNumber(), event.lumiBlock(),
+                     grlnameVec, brlnameVec );
 }
 
 
-GoodRunsListSelectionTool::~GoodRunsListSelectionTool()
-{
-  if (m_grlcollection!=0) delete m_grlcollection;
-  if (m_brlcollection!=0) delete m_brlcollection;
-  if (m_reader!=0) delete m_reader;
+bool GoodRunsListSelectionTool::
+passRunLB( int runNumber, int lumiBlockNr,
+           const std::vector< std::string >& grlnameVec,
+           const std::vector< std::string >& brlnameVec ) const {
 
-  // delete all the formula pntrs in the map
-  while ( ! m_dqformula.empty() ) {
-    std::map< std::string,TFormula* >::iterator itr= m_dqformula.begin();
-    TFormula* form = (*itr).second;
-    m_dqformula.erase(itr);
-    delete form;
-  }
+   ATH_MSG_VERBOSE( "passRunLB()" );
+
+   // pass through
+   if( m_passthrough ) {
+      ATH_MSG_VERBOSE( "passRunLB() :: Pass through mode." );
+      return true;
+   }
+
+   // decision based on merged blackrunslist
+   if( m_rejectanybrl &&
+       m_brlcollection.HasRunLumiBlock( runNumber, lumiBlockNr ) ) {
+      ATH_MSG_VERBOSE( "passRunLB() :: Event rejected by (_any_ of) merged "
+                       "black runs list." );
+      return false;
+   }
+
+   // decision based on specific blackrunlists
+   if( ( ! m_rejectanybrl ) && brlnameVec.size() ) {
+      for( const std::string& brlname : brlnameVec ) {
+         auto brl_itr = m_brlcollection.find( brlname );
+         if( brl_itr == m_brlcollection.end() ) {
+            continue;
+         }
+         if( brl_itr->HasRunLumiBlock( runNumber, lumiBlockNr ) ) {
+            ATH_MSG_VERBOSE( "passRunLB() :: Event rejected by specific ("
+                             << brlname << ") black runs list." );
+            return false;
+         }
+      }
+   }
+
+   // decision based on specific goodrunlists
+   for( const std::string& grlname : grlnameVec ) {
+      auto grl_itr = m_grlcollection.find( grlname );
+      if( grl_itr == m_grlcollection.end() ) {
+         continue;
+      }
+      if( grl_itr->HasRunLumiBlock( runNumber, lumiBlockNr ) ) {
+         ATH_MSG_VERBOSE( "passRunLB() :: Event accepted by specific ("
+                          << grlname << ") good runs list." );
+         return true;
+      }
+   }
+
+   // If we got this far, the decision needs to be made based on the combined
+   // GRL:
+   return m_grlcollection.HasRunLumiBlock( runNumber, lumiBlockNr );
 }
-
 
 StatusCode
-GoodRunsListSelectionTool::initialize()
-{
-  ATH_MSG_DEBUG ("initialize() ");
+GoodRunsListSelectionTool::readXMLs( Root::TGRLCollection& grl,
+                                     const std::vector< std::string >& files ) {
 
-  // Root::TMsgLogger::SetMinLevel(static_cast<Root::TMsgLevel>(outputLevel()));
+   // If there are no files specified, then let's just clean the GRL object,
+   // and return:
+   if( files.empty() ) {
+      grl.clear();
+      return StatusCode::SUCCESS;
+   }
 
-  /// reset pass-through mode
-  if (!m_goodrunslistVec.empty() || !m_blackrunslistVec.empty()
-#ifndef ROOTCORE
-      || m_usecool
-#endif
-      )
-    m_passthrough=false;
+   // The reader object used:
+   Root::TGoodRunsListReader reader;
 
-  /// warn about pass-thru mode
-  if (m_passthrough) ATH_MSG_WARNING ("Set to pass-through mode.");
+   // Set up the files:
+   for( const std::string& fname : files ) {
 
-  /// checking existence of goodrunslists / blacklists
-  std::vector<std::string>::iterator itr;
-  for (itr=m_goodrunslistVec.begin(); itr!=m_goodrunslistVec.end()
-#ifndef ROOTCORE
-	 && !m_usecool
-#endif
-	 ; ++itr)  {
-    std::string fname;
-    if ( itr->find("/")==0 || itr->find("$")==0 || itr->find(".")==0 || itr->find(":")!=string::npos )  {
-      fname = gSystem->ExpandPathName( itr->c_str() );
-    }
-    else {
-      fname = locate_file (*itr);
-    }
-    if ( !fileExists(fname.c_str()) ) {
-      ATH_MSG_ERROR ("Cannot open file : " << fname);
+      // Find the file:
+      std::string fileName = PathResolverFindXMLFile( fname );
+      if( fileName == "" ) {
+	//try with CalibArea
+	fileName = PathResolverFindCalibFile( fname );
+	if(fileName=="") {
+         ATH_MSG_FATAL( "Couldn't find file: " << fname );
+         return StatusCode::FAILURE;
+	}
+      }
+      ATH_MSG_DEBUG( "Reading file: " << fileName << " (" << fname << ")" );
+
+      // Add it to the reader:
+      reader.AddXMLFile( fileName );
+   }
+
+   // (Try to) Interpret all the XML files:
+   if( ! reader.Interpret() ) {
+      ATH_MSG_ERROR( "There was an error parsing the GRL XML file(s)" );
       return StatusCode::FAILURE;
-    }
-  }
-  for (itr=m_blackrunslistVec.begin(); itr!=m_blackrunslistVec.end()
-#ifndef ROOTCORE
-	 && !m_usecool
-#endif
-	 ; ++itr)  {
-    std::string fname;
-    if ( itr->find("/")==0 || itr->find("$")==0 || itr->find(".")==0 || itr->find(":")!=string::npos )  {
-      fname = gSystem->ExpandPathName( itr->c_str() );
-    }
-    else {
-      fname = locate_file (*itr);
-    }
-    if ( !fileExists(fname.c_str()) ) {
-      ATH_MSG_ERROR ("Cannot open file : " << fname);
-      return StatusCode::FAILURE;
-    }
-  }
-  /// start reading xml files
-  if ( !m_goodrunslistVec.empty() ) {
-    m_reader->Reset();
-    for (itr=m_goodrunslistVec.begin(); itr!=m_goodrunslistVec.end()
-#ifndef ROOTCORE
-	   && !m_usecool
-#endif
-	   ; ++itr) { 
-      std::string fname;
-      if ( itr->find("/")==0 || itr->find("$")==0 || itr->find(".")==0 || itr->find(":")!=string::npos )  {
-        fname = gSystem->ExpandPathName( itr->c_str() );
-      }
-      else {
-        fname = locate_file (*itr);
-      }
-      m_reader->AddXMLFile(fname);
-    }
-    m_reader->Interpret();
-    /// this merge accounts for same identical metadata, version, name, etc.
-    *m_grlcollection = m_reader->GetMergedGRLCollection(static_cast<Root::BoolOperation>(m_boolop));
-  }
-  if ( !m_blackrunslistVec.empty() ) {
-    m_reader->Reset();
-    for (itr=m_blackrunslistVec.begin(); itr!=m_blackrunslistVec.end()
-#ifndef ROOTCORE
-	   && !m_usecool
-#endif
-	   ; ++itr) {
-      std::string fname;
-      if ( itr->find("/")==0 || itr->find("$")==0 || itr->find(".")==0 || itr->find(":")!=string::npos )  {
-        fname = gSystem->ExpandPathName( itr->c_str() );
-      }
-      else {
-        fname = locate_file (*itr);
-      }
-      m_reader->AddXMLFile(fname);
-    }
-    m_reader->Interpret();
-    /// this merge accounts for same identical metadata, version, name, etc.
-    *m_brlcollection = m_reader->GetMergedGRLCollection(static_cast<Root::BoolOperation>(m_boolop));
-  }
+   }
 
-#ifndef ROOTCORE
-  if (m_dqflagsqueryVec.empty()) { m_usecool = false; }
-  /// get DetStatusSvc interface
-  if (!m_dqflagsqueryVec.empty() && m_usecool) {
-    if (service("DetStatusSvc",m_detstatussvc).isFailure()) {
-      ATH_MSG_ERROR ("Cannot get DetStatusSvc.");
-      return StatusCode::FAILURE;
-    }
-  }
+   // Merge the GRLs into one:
+   const Root::BoolOperation op =
+         static_cast< Root::BoolOperation >( m_boolop );
+   grl = reader.GetMergedGRLCollection( op );
 
-  /// parse dqflags queries for cool
-  for (itr=m_dqflagsqueryVec.begin(); itr!=m_dqflagsqueryVec.end() && m_usecool; ++itr) {
-    ATH_MSG_DEBUG ("Parsing dqflags query : " << *itr);
-    std::vector<std::string> dqvec = GRLStrUtil::split(*itr);
-    if (dqvec.size()==3) { // assume that dqvec[2] == "LBSUMM"
-      m_dqformula[dqvec[0]] = new TFormula(dqvec[0].c_str(),dqvec[1].c_str());
-    } else { 
-      ATH_MSG_ERROR ("Error parsing dq query : " << *itr);  
-      return StatusCode::FAILURE;
-    }
-  }
-#endif
-
-  /// parse any run-range expression
-  int formOk = m_inrunrange.setFormula(m_runrangeexpr.c_str()) ;
-  if ( 0!=formOk ) {
-    ATH_MSG_ERROR ("Cannot parse run range expression : " << m_runrangeexpr << " . Return Failure.");
-    return StatusCode::FAILURE;
-  }
-
-  return StatusCode::SUCCESS;
+   // Return gracefully:
+   return StatusCode::SUCCESS;
 }
-
-
-#ifndef ROOTCORE
-bool 
-GoodRunsListSelectionTool::passEvent(const EventInfo* pEvent) 
-{
-  ATH_MSG_DEBUG ("passEvent() ");
-
-  int m_eventNumber = pEvent->event_ID()->event_number();
-  int m_runNumber   = pEvent->event_ID()->run_number();
-  int m_lumiBlockNr = pEvent->event_ID()->lumi_block();
-  int m_timeStamp   = pEvent->event_ID()->time_stamp();
-
-  ATH_MSG_DEBUG ("passEvent() :: run number = " << m_runNumber <<
-                 " ; event number = " << m_eventNumber <<
-                 " ; lumiblock number = " << m_lumiBlockNr <<
-                 " ; timestamp = " << m_timeStamp
-                );
-
-  /// now make query decision ...
-  bool pass(false);
-  if (m_passthrough) {
-    ATH_MSG_DEBUG ("passEvent() :: Pass through mode.");
-    pass = true;
-  }
-  /// decide from XML files
-  else if (!m_usecool) {
-    pass = this->passRunLB(m_runNumber,m_lumiBlockNr);
-  }
-  /// Cool based decision
-  else {
-    /// check if run is in runrange, only done for Cool decision
-    if (m_inrunrange.getNPars()==1) {
-      double dummy(0);
-      double drunNr = static_cast<double>(m_runNumber);
-      pass = static_cast<bool>(m_inrunrange.EvalPar(&dummy,&drunNr));
-      if (!pass) {
-        ATH_MSG_DEBUG ("passEvent() :: Event rejected based on provided run range.");
-        return false;
-      }
-    }
-    /// loop over all status words, print those which are bad
-    if (m_verbose) {
-      ATH_MSG_WARNING ("Now printing list of DQ flags:");
-      DetStatusMap::const_iterator begin,end;
-      m_detstatussvc->getIter(begin,end);
-      for (DetStatusMap::const_iterator itr=begin;itr!=end;++itr) {
-        ATH_MSG_WARNING ("Status of " << itr->first << " is fullcode : " << itr->second.fullCode());
-      }
-    }
-    /// decide based on COOL
-    double color(0.);
-    TFormula* form(0);
-    std::map< std::string,TFormula* >::iterator itr= m_dqformula.begin();
-    for (; itr!=m_dqformula.end() && pass; ++itr) {
-      form = itr->second;
-      const DetStatus* ptr = m_detstatussvc->findStatus( (itr->first).c_str() );
-      if (ptr!=0) {
-        ATH_MSG_DEBUG (itr->first << " status in LBSUMM found to be : " << ptr->colour()) ;
-        color = static_cast<double>( ptr->code() ) ;
-        pass = pass && static_cast<bool>( form->EvalPar( &color ) );
-      } else {
-        ATH_MSG_ERROR ( "Could not find status for flag : " << itr->first << ". Do not pass LB." );
-        pass = false;
-      }
-    }
-    if (pass) ATH_MSG_DEBUG ("passEvent() :: Event accepted based on info in LBSUMM.");
-    else      ATH_MSG_DEBUG ("passEvent() :: Event rejected based on info in LBSUMM.");
-  }
-
-  return pass;
-}
-#endif
-
-
-
-bool GoodRunsListSelectionTool ::
-passRunLB( const xAOD::EventInfo& event,
-	   const std::vector<std::string>& grlnameVec,
-	   const std::vector<std::string>& brlnameVec)
-{
-  return passRunLB (event.runNumber(), event.lumiBlock(), grlnameVec, brlnameVec);
-}
-
-
-bool
-GoodRunsListSelectionTool::passRunLB( int runNumber, int lumiBlockNr,
-                                     const std::vector<std::string>& grlnameVec,
-                                     const std::vector<std::string>& brlnameVec )
-{
-  ATH_MSG_DEBUG ("passRunLB() ");
-
-  /// pass through
-  if (m_passthrough) {
-    ATH_MSG_DEBUG ("passRunLB() :: Pass through mode.");
-    return true;
-  } 
-
-  /// decision based on merged blackrunslist 
-  if ( m_rejectanybrl ) {
-    if ( m_brlcollection->HasRunLumiBlock(runNumber,lumiBlockNr) ) {
-      ATH_MSG_DEBUG ("passRunLB() :: Event rejected by (_any_ of) merged black runs list.");
-      return false;
-    }
-  /// decision based on specific blackrunlists
-  } else if (!brlnameVec.empty()) {
-    bool reject(false);
-    std::vector<Root::TGoodRunsList>::const_iterator m_brlitr;
-    for (unsigned int i=0; i<brlnameVec.size() && !reject; ++i) {
-      m_brlitr = m_brlcollection->find(brlnameVec[i]);
-      if (m_brlitr!=m_brlcollection->end())
-        reject = m_brlitr->HasRunLumiBlock(runNumber,lumiBlockNr);
-    }    
-    if (reject) {
-      ATH_MSG_DEBUG ("passRunLB() :: Event rejected by specific black runs list.");
-      return false;
-    }
-  }
-
-  /// decision based on specific goodrunlists
-  if (!grlnameVec.empty()) {
-    bool pass(false);
-    std::vector<Root::TGoodRunsList>::const_iterator m_grlitr;
-    for (unsigned int i=0; i<grlnameVec.size() && !pass; ++i) {
-      m_grlitr = m_grlcollection->find(grlnameVec[i]);
-      if (m_grlitr!=m_grlcollection->end())
-        pass = m_grlitr->HasRunLumiBlock(runNumber,lumiBlockNr);
-    } 
-    if (pass) {
-      ATH_MSG_DEBUG ("passRunLB() :: Event accepted by specific good runs list.");
-      return true;
-    }    
-  /// decision based on merged goodrunslist 
-  } else if (m_grlcollection->HasRunLumiBlock(runNumber,lumiBlockNr)) {
-    ATH_MSG_DEBUG ("passRunLB() :: Event accepted by (_any_ of) merged good runs list.");
-    return true;
-  } 
-
-  ATH_MSG_DEBUG ("passRunLB() :: Event rejected, not in (any) good runs list.");
-  return false;
-}
-
-
-bool
-GoodRunsListSelectionTool::fileExists(const char* fileName)
-{
-  struct stat info;
-  int ret = -1;
- 
-  //get the file attributes
-  ret = stat(fileName, &info);
-
-  if(ret == 0) {
-    /// stat() is able to get the file attributes, so the file obviously exists
-    /// if filesize==0 assume the copying failed.
-    //if (info.st_size == 0) return false;
-    //else 
-    return true;
-  } else {
-    /// stat() is not able to get the file attributes, so the file obviously does not exist.
-    return false;
-  }
-}
-
-
-bool 
-GoodRunsListSelectionTool::registerGRLSelector(const std::string& name, const std::vector<std::string>& grlnameVec, const std::vector<std::string>& brlnameVec)
-{
-  if (m_registry.find(name)!=m_registry.end()) {
-    ATH_MSG_WARNING ("registerGRLSelector() :: GRL selector with name <" << name << "> already registered. Return false.");
-    return false;
-  }
-
-  /// check if brl names are really known
-  if (!brlnameVec.empty()) {
-    std::vector<Root::TGoodRunsList>::const_iterator brlitr;
-    for (unsigned int i=0; i<brlnameVec.size(); ++i) {
-      brlitr = m_brlcollection->find(brlnameVec[i]);
-      if (brlitr==m_brlcollection->end()) {
-        ATH_MSG_ERROR ("registerGRLSelector() :: requested BRL object with name <" << brlnameVec[i] << "> not found. Have you provided an object name from the BRL xml-file(s)?");
-        return false;
-      }
-    }
-  }
-
-  /// check if grl names are really known
-  if (!grlnameVec.empty()) {
-    std::vector<Root::TGoodRunsList>::const_iterator grlitr;
-    for (unsigned int i=0; i<grlnameVec.size(); ++i) {
-      grlitr = m_grlcollection->find(grlnameVec[i]);
-      if (grlitr==m_grlcollection->end()) {
-        ATH_MSG_ERROR ("registerGRLSelector() :: requested GRL object with name <" << grlnameVec[i] << "> not found. Have you provided an object name from the GRL xml-file(s)?");
-        return false;
-      }
-    }
-  }
-
-  ATH_MSG_DEBUG ("registerGRLSelector() :: GRL selector with name <" << name << "> registered.");
-  m_registry[name] = vvPair(grlnameVec,brlnameVec);
-  return true;
-}
-
-#endif

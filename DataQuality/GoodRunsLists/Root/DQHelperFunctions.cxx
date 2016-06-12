@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <iostream>
 
 #include "GoodRunsLists/DQHelperFunctions.h"
 #include "GoodRunsLists/TGoodRunsListReader.h"
