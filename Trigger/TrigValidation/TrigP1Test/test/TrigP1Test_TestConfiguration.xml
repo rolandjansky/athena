@@ -433,7 +433,7 @@
                 
         <TEST name="CheckKeysV6" type="script" suite="TrigP1HLTmenus">
             <options_atn>trigtest.pl --cleardir  --test CheckKeysV6 --rundir CheckKeysV6 --conf TrigP1Test.conf</options_atn>
-            <timelimit>50</timelimit>     
+            <timelimit>59</timelimit>     
             <mailto>joerg.stelzer@cern.ch</mailto> 
             <platform>opt</platform>
             <expectations>
