@@ -443,6 +443,14 @@ L2MbSpFex.PixelModuleThreshold = 1000000 # Disable dynamic masking.
 L2MbSpFex.SCTModuleThreshold = 1000000 # Disable dynamic masking.
 fexes["L2MbSpFex"] = L2MbSpFex
 
+L2MbSpFex_BLayer =  MbSpFex("L2MbSpFex_BLayer")
+L2MbSpFex_BLayer.PixelSP_ContainerName = "PixelTrigSpacePoints"
+L2MbSpFex_BLayer.SCT_SP_ContainerName = "SCT_TrigSpacePoints"
+L2MbSpFex_BLayer.PixelModuleThreshold = 1000000 # Disable dynamic masking.
+L2MbSpFex_BLayer.SCTModuleThreshold = 1000000 # Disable dynamic masking.
+L2MbSpFex_BLayer.OnlyCountBLayer = True # Pixel counter only uses inner BLayer
+fexes["L2MbSpFex_BLayer"] = L2MbSpFex_BLayer
+
 L2MbSpFex_SCTNoiseSup =  MbSpFex("L2MbSpFex_SCTNoiseSup")
 L2MbSpFex_SCTNoiseSup.PixelSP_ContainerName = "PixelTrigSpacePoints"
 L2MbSpFex_SCTNoiseSup.SCT_SP_ContainerName = "SCT_TrigSpacePoints"
@@ -611,8 +619,6 @@ L2MbSpHypo_ncb.AcceptAll = False
 L2MbSpHypo_ncb.TriggerTypeAND = False # SCT only
 L2MbSpHypo_ncb.SctSpEndcaps_cut = 50 # max(SCT_EC_A, SCT_EC_C)
 L2MbSpHypo_ncb.TotalPixelClus = -1. # Disable
-L2MbSpHypo_ncb.TotalPixelClus = -1. # Disable
-L2MbSpHypo_ncb.TotalPixelClus = -1. # Disable
 L2MbSpHypo_ncb.PixelClusRatioA = -1. # Disable
 L2MbSpHypo_ncb.PixelClusRatioB = -1. # Disable
 L2MbSpHypo_ncb.PixelClusEndcapC = -1. # Disable
@@ -630,6 +636,30 @@ L2MbSpHypo_ncb.SctSpEndcapC_max = -1. # Disable
 L2MbSpHypo_ncb.SctSpBarrel_max = -1. # Disable
 L2MbSpHypo_ncb.SctSpEndcapA_max = -1. # Disable
 hypos["L2MbSpHypo_ncb"] = L2MbSpHypo_ncb
+
+# Setup for 2016 PIX blayer counting
+L2MbSpHypo_blayer = MbSpHypo("L2MbSpHypo_blayer")
+L2MbSpHypo_blayer.AcceptAll = False
+L2MbSpHypo_blayer.TriggerTypeAND = False # PIX only
+L2MbSpHypo_blayer.SctSpEndcaps_cut = -1 # Disable
+L2MbSpHypo_blayer.TotalPixelClus = 50 # Minimum number of hits in the BLayer (layer restriction in FEX) 
+L2MbSpHypo_blayer.PixelClusRatioA = -1. # Disable
+L2MbSpHypo_blayer.PixelClusRatioB = -1. # Disable
+L2MbSpHypo_blayer.PixelClusEndcapC = -1. # Disable
+L2MbSpHypo_blayer.PixelClusBarrel = -1. # Disable
+L2MbSpHypo_blayer.PixelClusEndcapA = -1. # Disable
+L2MbSpHypo_blayer.PixelClusEndcapC_max = -1. # Disable
+L2MbSpHypo_blayer.PixelClusBarrel_max = -1. # Disable
+L2MbSpHypo_blayer.PixelClusEndcapA_max = -1. # Disable
+L2MbSpHypo_blayer.PixelClusEndcaps_cut = -1. # Disable
+L2MbSpHypo_blayer.TotalSctSp = -1. # Disable
+L2MbSpHypo_blayer.SctSpEndcapC = -1. # Disable
+L2MbSpHypo_blayer.SctSpBarrel = -1. # Disable
+L2MbSpHypo_blayer.SctSpEndcapA = -1. # Disable
+L2MbSpHypo_blayer.SctSpEndcapC_max = -1. # Disable
+L2MbSpHypo_blayer.SctSpBarrel_max = -1. # Disable
+L2MbSpHypo_blayer.SctSpEndcapA_max = -1. # Disable
+hypos["L2MbSpHypo_blayer"] = L2MbSpHypo_blayer
 
 # ... setup for halo event trigger
 L2MbSpHypoBg = MbSpHypo("L2MbSpHypoBg")
