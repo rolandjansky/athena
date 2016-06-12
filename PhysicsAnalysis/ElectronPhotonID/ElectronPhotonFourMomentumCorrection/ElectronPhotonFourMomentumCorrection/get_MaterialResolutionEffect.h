@@ -6,7 +6,7 @@
 #define get_MaterialResolutionEffect_H
 #include <stdlib.h>
 #include <math.h>
-
+#include <memory>
 #include "TH1.h"
 #include "TFile.h"
 #include "TArrayD.h"
@@ -42,7 +42,7 @@ class get_MaterialResolutionEffect {
   // histograms to store resolution parameters
   TH1D* hSystPeak[4][8][3];
   TH1D* hSystResol[4][8][3];
-  TFile* file0;
+  std::unique_ptr <TFile> file0;
   const TArrayD* etaBins;
   const TArrayD* etBins;
 

@@ -6,7 +6,7 @@
 #ifndef EGAMMAFACTORY_H
 #define EGAMMAFACTORY_H
 
-#ifdef XAOD_STANDALONE 
+#ifdef XAOD_STANDALONE
 /**
  * This class if for testing only.
  * It has been designed only to test ElectronPhotonFourMomentumCorrection
@@ -41,6 +41,7 @@ public:
   EgammaFactory();
   ~EgammaFactory();
   void clear();
+  void create_structure();
   xAOD::CaloCluster* create_cluster(float eta, float phi, float e0, float e1, float e2, float e3, float e);
   xAOD::Photon* create_converted_photon(float eta, float phi, float e);
   xAOD::Photon* create_unconverted_photon(float eta, float phi, float e);

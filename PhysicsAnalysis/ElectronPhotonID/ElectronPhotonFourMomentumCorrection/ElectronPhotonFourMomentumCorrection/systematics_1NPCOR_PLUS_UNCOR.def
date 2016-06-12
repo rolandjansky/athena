@@ -1,0 +1,5 @@
+SYSMACRO(EG_SCALE_LARTEMPERATURE_EXTRA2015PRE, 0, decorrelation_bins_BE,        egEnergyCorr::Scale::LArTemperature2015PreUp,  egEnergyCorr::Scale::LArTemperature2015PreDown)
+SYSMACRO(EG_SCALE_LARTEMPERATURE_EXTRA2016PRE, 0, decorrelation_bins_BE,        egEnergyCorr::Scale::LArTemperature2016PreUp,  egEnergyCorr::Scale::LArTemperature2016PreDown)
+SYSMACRO(EG_SCALE_E4SCINTILLATOR,              0, always,                       egEnergyCorr::Scale::E4ScintillatorUp,         egEnergyCorr::Scale::E4ScintillatorDown)
+SYSMACRO(EG_SCALE_LARCALIB_EXTRA2015PRE,       0, decorrelation_bins_BE,        egEnergyCorr::Scale::LArCalibExtra2015PreUp,   egEnergyCorr::Scale::LArCalibExtra2015PreDown)
+SYSMACRO(EG_SCALE_ALLCORR,                     1, std::vector<double>(),        egEnergyCorr::Scale::AllCorrelatedUp,   egEnergyCorr::Scale::AllCorrelatedDown)

@@ -47,7 +47,7 @@ public:
   virtual void setRandomSeed(unsigned seed) = 0;
 
   virtual double resolution( double energy, double cl_eta, double cl_etaCalo,
-                             PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron) const = 0;
+                             PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron, bool withCT=false) const = 0;
   virtual double getResolution(const xAOD::Egamma& particle, bool withCT=true) const = 0;
 };
 

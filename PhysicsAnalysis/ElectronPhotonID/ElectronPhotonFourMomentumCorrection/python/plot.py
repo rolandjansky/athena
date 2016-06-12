@@ -124,11 +124,12 @@ def eval_sys_eta_phi(tool, etas, phis, pt, simulation, particle='unconverted'):
     return result
 
 
-def eval_eta_slice(tool, etas, pts, ptype):
+def eval_eta_slice(tool, etas, pts, ptype, only_material=False):
     sys_set = ROOT.CP.SystematicSet()
     tool.applySystematicVariation(sys_set)
     nominal = eval_sys_eta_pt(tool, etas, pts, particle=ptype)
     all_syst = tool.recommendedSystematics()
+
     results = {}
     for sys in all_syst:
         sys_name = sys.name()
@@ -136,6 +137,9 @@ def eval_eta_slice(tool, etas, pts, ptype):
             continue
         if '1down' in sys_name:
             continue
+        if only_material:
+            if 'MAT' not in sys_name:
+                continue
         logging.info("plotting sys %s", sys_name)
         sys_set = ROOT.CP.SystematicSet()
         sys_set.insert(sys)
@@ -152,7 +156,7 @@ def eval_eta_slice(tool, etas, pts, ptype):
 
 def plot_all_syst_eta_slice(etabins, netas=3, esmodel='es2012c',
                             decorrelation='FULL_v1', ptype='unconverted',
-                            basedir='plot'):
+                            basedir='plot', only_material=False):
 
     tool = ROOT.CP.EgammaCalibrationAndSmearingTool("tool")
     tool.setProperty("ESModel", esmodel)
@@ -163,12 +167,12 @@ def plot_all_syst_eta_slice(etabins, netas=3, esmodel='es2012c',
     pts = np.logspace(np.log10(5E3), 7, 100)
 
     # compute the inclusive one, just to sort
-    results = eval_eta_slice(tool, np.linspace(-2.5, 2.5, 20), pts, ptype)
+    results = eval_eta_slice(tool, np.linspace(-2.5, 2.5, 20), pts, ptype, only_material)
     sorted_sys_name = sorted(list(results), key=lambda k: -np.max(np.abs(results[k])))
 
     for etamin, etamax in etabins:
         etas = np.linspace(etamin, etamax, netas)
-        results = eval_eta_slice(tool, etas, pts, ptype)
+        results = eval_eta_slice(tool, etas, pts, ptype, only_material)
 
         for ip, p in enumerate(partition(sorted_sys_name, 4)):
             f, ax = plt.subplots()
@@ -179,7 +183,10 @@ def plot_all_syst_eta_slice(etabins, netas=3, esmodel='es2012c',
             ax.set_xlabel('$p_T$ [GeV]')
             ax.set_ylabel('ratio to nominal [%]')
             ax.set_title(ptype + ' $\eta\in[%.2f, %.2f]$' % (etamin, etamax))
-            vmax = np.max(np.abs(ax.get_ylim()))
+            if only_material:
+                vmax = 1.
+            else:
+                vmax = np.max(np.abs(ax.get_ylim()))
             ax.axis('tight')
             ax.set_ylim(-vmax, vmax)
             plt.legend(loc=0)
@@ -702,17 +709,76 @@ def plot_resolution_eta_pt(basedir, tool, pts, etas, ptype, title):
         fig.savefig(os.path.join(basedir, 'resolution_%s.%s' % (ptype, extension)))
 
 
+def plot_resolution_error(basedir):
+    for esmodel in 'es2012c', 'es2015PRE', 'es2015PRE_res_improved':
+        for particle in ('electron', 'converted', 'unconverted'):
+            for eta_min, eta_max in (0, 0.4), (0.4, 0.6), (0.6, 1.37), (1.52, 1.8), (1.8, 2.37):
+                plot_resolution_error_bin(eta_min, eta_max, particle, esmodel, basedir)
+
+
+def plot_resolution_error_bin(eta_min, eta_max, particle, esmodel, basedir):
+    tool = ROOT.AtlasRoot.egammaEnergyCorrectionTool()
+    tool.setESModel(getattr(ROOT.egEnergyCorr, esmodel))
+    tool.initialize()
+    variations_name = {"Zsmearing": ROOT.egEnergyCorr.Resolution.ZSmearingUp,
+                       "samplling": ROOT.egEnergyCorr.Resolution.SamplingTermUp,
+                       "material ID": ROOT.egEnergyCorr.Resolution.MaterialIDUp,
+                       "material calo": ROOT.egEnergyCorr.Resolution.MaterialCaloUp,
+                       "material gap": ROOT.egEnergyCorr.Resolution.MaterialGapUp,
+                       "material cryo": ROOT.egEnergyCorr.Resolution.MaterialCryoUp,
+                       "pileup": ROOT.egEnergyCorr.Resolution.PileUpUp}
+
+    errors = {}
+    ptype = {"electron": ROOT.PATCore.ParticleType.Electron,
+             "unconverted": ROOT.PATCore.ParticleType.UnconvertedPhoton,
+             "converted": ROOT.PATCore.ParticleType.ConvertedPhoton
+             }[particle]
+    pt_range = np.linspace(10E3, 800E3, 100)
+    for variation_name, variation_id in variations_name.iteritems():
+        eta_range = np.linspace(eta_min, eta_max, 5)
+        errors_var_pt_eta = np.zeros((len(pt_range), len(eta_range)))
+        for ipt, pt in enumerate(pt_range):
+            for ieta, eta in enumerate(eta_range):
+                energy = pt * np.cosh(eta)
+                errors_var_pt_eta[ipt, ieta] = tool.getResolutionError(energy, eta, eta, ptype, variation_id)
+        errors[variation_name] = errors_var_pt_eta.mean(axis=1)
+
+    sorted_keys = sorted(variations_name.keys(), key=lambda x: errors[x].mean())
+    total = np.sqrt(np.sum(e**2 for e in errors.values()))
+
+    fig, ax = plt.subplots()
+    ax.fill_between(pt_range / 1E3, total, 0, label='total', color='0.8')
+    ax.plot(pt_range / 1E3, total, label='total', color='k')
+    for k in errors:
+        ax.plot(pt_range / 1E3, np.abs(errors[k]), label=k)
+    ax.set_title("%s $\eta\in$ [%.2f-%.2f] - %s" % (particle, eta_min, eta_max, esmodel))
+    ax.set_ylabel('relative resolution error')
+    ax.set_xlabel('$p_T$ [GeV]')
+    ax.set_ylim(0, 1.5)
+
+    ax.legend(loc=0)
+    ax.grid()
+    filename = os.path.join(basedir, 'error_relresolution_%s_%s_eta%.2f-%.2f' % (esmodel, particle, eta_min, eta_max))
+    for ext in 'png', 'pdf':
+        fig.savefig(filename + "." + ext)
+    plt.close(fig)
+
+
 def main():
     from optparse import OptionParser
     parser = OptionParser()
     parser.add_option('--action', type='choice', action='store',
-                      choices=['uA2MeV', 'zee', 'scale', 'cterm', 'all', 'gain', 'uniformity',
-                               'sys_fixed_pt', 'sys_eta_slices', 'all_sys', 'resolution', 'fast'], default='all')
+                      choices=['uA2MeV', 'zee', 'material', 'scale', 'cterm', 'all', 'gain', 'uniformity',
+                               'sys_fixed_pt', 'sys_eta_slices', 'all_sys', 'resolution', 'fast', 'resolution-err'], default='all')
     (options, args) = parser.parse_args()
 
     basedir = 'plots'
     if not os.path.exists(basedir):
         os.makedirs(basedir)
+
+    if options.action == 'resolution-err':
+        logging.info("plotting resolution error")
+        plot_resolution_error(basedir='plots')
 
     if options.action == 'zee' or options.action == 'all':
         logging.info("plotting scale systematics")
@@ -753,7 +819,7 @@ def main():
         check_fast(basedir, "es2015PRE")
         plot_all_scales(esmodels=("es2015PRE", ("es2015PRE", ("useAFII",), (True,), (bool,))),
                         labels=("2015PRE", "2015PRE FAST"),
-                        basedir=basedir, etas=np.arange(-2.5, 2.5, 0.01))                 
+                        basedir=basedir, etas=np.arange(-2.5, 2.5, 0.01))
     if options.action == 'all' or options.action == 'cterm':
         logging.info("plotting smearings")
         plot_all_cterms(esmodels=("es2012c", "es2012XX", "es2015PRE"), labels=("2012", "new", "new + temp"), basedir=basedir, etas=np.arange(-2.5, 2.5, 0.01))
@@ -785,6 +851,14 @@ def main():
         for ptype in 'electron', 'unconverted', 'converted':
             plot_all_syst_eta_slice(etabins, netas=3, esmodel='es2012c',
                                     decorrelation='FULL_ETACORRELATED_v1', ptype=ptype, basedir=basedir)
+
+    if options.action == 'material' or options.action == 'all':
+        if not os.path.exists('material'):
+            os.makedirs('material')
+        etabins = ((0., 0.6), (0.6, 1.45), (1.52, 1.7), (1.7, 1.9), (1.9, 2.5))
+        for ptype in 'electron', 'unconverted', 'converted':
+            plot_all_syst_eta_slice(etabins, netas=3, esmodel='es2012c',
+                                    decorrelation='FULL_ETACORRELATED_v1', ptype=ptype, basedir="material", only_material=True)
 
     if options.action == 'all_sys' or options.action == 'all':
         for ptype in 'electron', 'unconverted', 'converted':

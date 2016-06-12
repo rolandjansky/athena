@@ -14,6 +14,6 @@
    <enum pattern="egEnergyCorr::Scale::*"/>
 
    <class name="eg_resolution" />
-
    <class name="EgammaFactory" />
+   <class name="LArTemperatureCorrectionTool" />
 </lcgdict>

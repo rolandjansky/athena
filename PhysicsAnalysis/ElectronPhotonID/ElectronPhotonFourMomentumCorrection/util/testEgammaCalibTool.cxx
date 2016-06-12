@@ -22,9 +22,10 @@
 
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
-#include "xAODEgamma/ElectronContainer.h" 
+#include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/Egamma.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCore/ShallowCopy.h"
 
@@ -32,6 +33,9 @@
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicCode.h"
 
+// for smart slimming
+#include "xAODCore/tools/IOStats.h"
+#include "xAODCore/tools/ReadStats.h"
 
 #include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
 
@@ -47,21 +51,23 @@ do {                                                  \
  } while( false )
 
 
+const double MIN_PT = 20E3;
+
 int main( int argc, char* argv[] ) {
 
    // The application's name:
-   const char* APP_NAME = argv[ 0 ];
+   const char* APP_NAME = argv[0];
 
    // Check if we received a file name:
-   if( argc < 2 ) {
+   if (argc < 2) {
      Error( APP_NAME, "No file name received!" );
-     Error( APP_NAME, "  Usage: %s [xAOD file name]", APP_NAME );
-      return 1;
+     Error( APP_NAME, "  Usage: %s (xAOD file name)", APP_NAME );
+     return 1;
    }
-   
+
    // Initialise the application:
    CHECK( xAOD::Init( APP_NAME ) );
-   
+
    // Open the input file:
    const TString fileName = argv[ 1 ];
    Info( APP_NAME, "Opening file: %s", fileName.Data() );
@@ -73,7 +79,7 @@ int main( int argc, char* argv[] ) {
    CHECK( event.readFrom( ifile.get() ) );
    Info( APP_NAME, "Number of events in the file: %i",
          static_cast< int >( event.getEntries() ) );
-   
+
    // Decide how many events to run over:
    Long64_t entries = event.getEntries();
    if( argc > 2 ) {
@@ -84,101 +90,120 @@ int main( int argc, char* argv[] ) {
    }
 
    // Create the tool
-   CP::EgammaCalibrationAndSmearingTool *m_EgammaCalibrationAndSmearingTool = new CP::EgammaCalibrationAndSmearingTool("EgammaCalibrationAndSmearingTool");
-   m_EgammaCalibrationAndSmearingTool->setProperty("ESModel", "es2012c");
-   m_EgammaCalibrationAndSmearingTool->setProperty("ResolutionType", "SigmaEff90");
-   m_EgammaCalibrationAndSmearingTool->initialize();
+   std::unique_ptr<CP::IEgammaCalibrationAndSmearingTool> tool(new CP::EgammaCalibrationAndSmearingTool("EgammaCalibrationAndSmearingTool"));
+   asg::setProperty(tool.get(), "ESModel", "es2015PRE");
+   tool->initialize();
 
-   //A second tool can be instantiated for specific studies
-   CP::EgammaCalibrationAndSmearingTool *m_EgammaCalibrationAndSmearingTool_2 = new CP::EgammaCalibrationAndSmearingTool("EgammaCalibrationAndSmearingTool_2");
-   m_EgammaCalibrationAndSmearingTool_2->setProperty("ESModel", "es2012c");
-   m_EgammaCalibrationAndSmearingTool_2->setProperty("ResolutionType", "SigmaEff90");
-   m_EgammaCalibrationAndSmearingTool_2->setProperty("forceLayerCorrection", true);
-   m_EgammaCalibrationAndSmearingTool_2->setProperty("useLayerCorrection", false);
-   m_EgammaCalibrationAndSmearingTool_2->initialize();
-   
+
    //===========SYSTEMATICS
    const CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
    const CP::SystematicSet& recommendedSystematics = registry.recommendedSystematics();
    std::vector<CP::SystematicSet> sysList;
-   
-   std::cout << "SIZE of the systematics set:" << recommendedSystematics.size() << std::endl;
-   
-   for(CP::SystematicSet::const_iterator sysItr = recommendedSystematics.begin();
-       sysItr != recommendedSystematics.end(); ++sysItr)
-     {
-       sysList.push_back(CP::SystematicSet());
-       sysList.back().insert(*sysItr);
-     }
-   
-   std::vector<CP::SystematicSet>::const_iterator sysListItr;
-   
-   // Loop over the events:
-   for( Long64_t entry = 0; entry < entries; ++entry ) {
-     
-     // Tell the object which entry to look at:
-     event.getEntry( entry );
-     
-     std::cout << "=================NEXT EVENT==========================" << std::endl;
-     
-     const xAOD::EventInfo* event_info = 0;  
-     CHECK( event.retrieve( event_info, "EventInfo" ) ); 
-      
-     const xAOD::ElectronContainer* electrons;  
-     CHECK( event.retrieve(electrons, "ElectronCollection") );
-     
-     //Clone  
-     std::pair< xAOD::ElectronContainer*, xAOD::ShallowAuxContainer* > electrons_shallowCopy = xAOD::shallowCopyContainer( *electrons ); 
-     
-     //Iterate over the shallow copy 
-     xAOD::ElectronContainer* elsCorr = electrons_shallowCopy.first; 
-     xAOD::ElectronContainer::iterator el_it      = elsCorr->begin(); 
-     xAOD::ElectronContainer::iterator el_it_last = elsCorr->end(); 
-     unsigned int i = 0; 
-     for (; el_it != el_it_last; ++el_it, ++i) { 
-       xAOD::Electron* el = *el_it; 
-       std::cout << "Electron " << i << std::endl; 
-       std::cout << "xAOD/raw pt = " << el->pt() << std::endl; 
-       
-       //set seed for smearing 
-       m_EgammaCalibrationAndSmearingTool->setRandomSeed(event_info->eventNumber()+100*i);
-       
-       if(!m_EgammaCalibrationAndSmearingTool->applyCorrection(*el)){ 
-	 Error(APP_NAME, "Cannot calibrate electron");
-       } 
-       std::cout << "Calibrated pt = " << el->pt() << std::endl; 
-       
-       //systematics 
-       std::cout << "=============SYSTEMATICS CHECK NOW" << std::endl; 
-       for (sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr) 
-	 { 
-	   // Tell the calibration tool which variation to apply 
-	   if (m_EgammaCalibrationAndSmearingTool->applySystematicVariation(*sysListItr) != CP::SystematicCode::Ok) 
-	     { 
-	       Error(APP_NAME, "Cannot configure calibration tool for systematics"); 
-	     } 
-	   //For now remove by hand the photon ones 
-	   TString syst_name = TString(sysListItr->name()); 
-	   if(!syst_name.BeginsWith("EL") && !syst_name.BeginsWith("EG")) continue; 
-	   
-	   if(!m_EgammaCalibrationAndSmearingTool->applyCorrection(*el)){  
-	     Error(APP_NAME, "Cannot calibrate electron");
-	   } 
-	   std::cout << "Calibrated pt with systematic " << syst_name << " = " << el->pt() << std::endl; 
-	 } 
-       std::cout << "=============END SYSTEMATICS " << std::endl; 
 
+   std::cout << "SIZE of the systematics set:" << recommendedSystematics.size() << std::endl;
+
+   for (auto sys : recommendedSystematics) { sysList.push_back(CP::SystematicSet({sys})); }
+
+   // Loop over the events:
+   for (Long64_t entry = 0; entry < entries; ++entry) {
+
+     // Tell the object which entry to look at:
+     event.getEntry(entry);
+
+     std::cout << "=================NEXT EVENT==========================" << std::endl;
+
+     const xAOD::EventInfo* event_info = 0;
+     CHECK( event.retrieve( event_info, "EventInfo" ) );
+
+
+     const xAOD::PhotonContainer* photons;
+     CHECK( event.retrieve(photons, "Photons") );
+
+     //Clone
+     std::pair<xAOD::PhotonContainer*, xAOD::ShallowAuxContainer* > photons_shallowCopy = xAOD::shallowCopyContainer(*photons);
+
+     //Iterate over the shallow copy
+     for (xAOD::Photon* ph : *photons_shallowCopy.first) {
+       if (ph->pt() < MIN_PT) { continue; }
+       std::cout << std::string(80, '-') << std::endl;
+       std::cout << "eta|phi|pt|xAOD e = " << ph->eta() << "|" << ph->phi() << "|" << ph->pt() << "|" << ph->e() << std::endl;
+       if (not ph->caloCluster()) {
+	 std::cout << "ERROR: particle has no calocluster" << std::endl;
+	 continue;
+       }
+       std::cout << "raw E = " << ph->caloCluster()->energyBE(1) + ph->caloCluster()->energyBE(2) + ph->caloCluster()->energyBE(3) << std::endl;
+       if (!(xAOD::EgammaHelpers::isElectron(ph) or xAOD::EgammaHelpers::isPhoton(ph))) {
+	 std::cout << "particle is not electron of photon" << std::endl;
+	 continue;
+       }
+
+       CHECK(tool->applyCorrection(*ph));
+       std::cout << "Calibrated e = " << ph->e() << std::endl;
+
+       //systematics
+       std::cout << "\n=============SYSTEMATICS CHECK NOW";
+       for (auto sys : sysList)	 {
+	 // Tell the calibration tool which variation to apply
+	 if (tool->applySystematicVariation(sys) != CP::SystematicCode::Ok) {
+	   Error(APP_NAME, "Cannot configure calibration tool for systematics");
+	 }
+	 
+	 CHECK(tool->applyCorrection(*ph));
+	 std::cout << "\nCalibrated pt with systematic " << sys.name() << " = " << ph->pt();
+       }
+       std::cout << "\n=============END SYSTEMATICS " << std::endl;
      }
-     
+
+
+
+     const xAOD::ElectronContainer* electrons;
+     CHECK( event.retrieve(electrons, "Electrons") );
+
+     //Clone
+     std::pair< xAOD::ElectronContainer*, xAOD::ShallowAuxContainer* > electrons_shallowCopy = xAOD::shallowCopyContainer( *electrons );
+
+     //Iterate over the shallow copy
+     for (xAOD::Electron* el : *electrons_shallowCopy.first) {
+       if (el->pt() < MIN_PT) { continue; }
+       std::cout << std::string(80, '-') << std::endl;
+       std::cout << "eta|phi|pt|xAOD e = " << el->eta() << "|" << el->phi() << "|" << el->pt() << "|" << el->e() << std::endl;
+       if (not el->caloCluster()) {
+	 std::cout << "ERROR: particle has no calocluster" << std::endl;
+	 continue;
+       }
+       std::cout << "raw E = " << el->caloCluster()->energyBE(1) + el->caloCluster()->energyBE(2) + el->caloCluster()->energyBE(3) << std::endl;
+       if (!(xAOD::EgammaHelpers::isElectron(el) or xAOD::EgammaHelpers::isPhoton(el))) {
+	 std::cout << "particle is not electron of photon" << std::endl;
+	 continue;
+       }
+
+       CHECK (tool->applyCorrection(*el));
+       std::cout << "Calibrated e = " << el->e() << std::endl;
+
+       //systematics
+       std::cout << "\n=============SYSTEMATICS CHECK NOW";
+       for (auto sys : sysList)	 {
+	 // Tell the calibration tool which variation to apply
+	 if (tool->applySystematicVariation(sys) != CP::SystematicCode::Ok) {
+	   Error(APP_NAME, "Cannot configure calibration tool for systematics");
+	 }
+	 
+	 CHECK(tool->applyCorrection(*el));
+	 std::cout << "\nCalibrated pt with systematic " << sys.name() << " = " << el->pt();
+       }
+       std::cout << "\n=============END SYSTEMATICS " << std::endl;
+     }
+
      Info( APP_NAME,
             "===>>>  done processing event #%i, "
             "run #%i %i events processed so far  <<<===",
             static_cast< int >( event_info->eventNumber() ),
             static_cast< int >( event_info->runNumber() ),
             static_cast< int >( entry + 1 ) );
-     
+
    }
 
-   // Return gracefully:
+   xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
+
    return 0;
 }
