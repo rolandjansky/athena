@@ -2,6 +2,9 @@
 
   <!-- GoodRunsListSelectionTool -->
   <class name="GoodRunsListSelectionTool" />
+  <class name="ToolHandle<IGoodRunsListSelectionTool>" />
+  <class name="IGoodRunsListSelectionTool" />
+  
 
   <exclusion>
     <class name="DataLink<SG::IConstAuxStore>" />

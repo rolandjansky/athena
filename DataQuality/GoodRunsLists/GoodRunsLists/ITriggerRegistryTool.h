@@ -16,8 +16,8 @@ class ITriggerRegistryTool : virtual public IAlgTool {
 public:
 
    static const InterfaceID& interfaceID() {
-     static const InterfaceID _ITriggerRegistryToolID( "ITriggerRegistryTool", 1, 0 );
-     return _ITriggerRegistryToolID;
+     static const InterfaceID ITriggerRegistryToolID( "ITriggerRegistryTool", 1, 0 );
+     return ITriggerRegistryToolID;
    }
 
    /// register grl/brl combination 
