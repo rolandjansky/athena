@@ -39,6 +39,7 @@ TrigCountSpacePoints::TrigCountSpacePoints(const std::string& name, ISvcLocator*
     m_log(msgSvc(), name),
     m_doPixelSp(true), 
     m_doSctSp(true),
+    m_doOnlyBLayer(false),
     m_pixHelper(0),
     m_sctHelper(0),
     m_pixelClusEndcapC(0),
@@ -53,6 +54,7 @@ TrigCountSpacePoints::TrigCountSpacePoints(const std::string& name, ISvcLocator*
   declareProperty("RegionSelectorTool",                       m_regionSelector);
   declareProperty( "ReadPixelSp",                             m_doPixelSp = true ); 
   declareProperty( "ReadSctSp",                               m_doSctSp = true );
+  declareProperty( "OnlyCountBLayer",                         m_doOnlyBLayer = false );
 
   // note, these are dummy values, they are set in TriggerMenuPython/python/MinBiasDef.py
   declareProperty( "MaxNModIdentifier",                       m_maxnid = 100 );
@@ -448,6 +450,9 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	
 	// identify a module/wafer
 	Identifier pixid = (*pixSpCollIt)->identify(); 
+
+  // If B-layer only mode, then enforce layer 0
+  if (m_doOnlyBLayer == true && m_pixHelper->layer_disk(pixid) != 0) continue;
 	
 	int bec = m_pixHelper->barrel_ec(pixid);
 	
