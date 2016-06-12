@@ -92,9 +92,11 @@ Root::TMsgLogger::~TMsgLogger()
 
 Root::TMsgLogger& Root::TMsgLogger::operator= ( const TMsgLogger& parent ) 
 {
-   m_objSource   = parent.m_objSource;
-   m_strSource   = parent.m_strSource;
-   m_activeLevel = parent.m_activeLevel;
+   if (this != &parent) {
+     m_objSource   = parent.m_objSource;
+     m_strSource   = parent.m_strSource;
+     m_activeLevel = parent.m_activeLevel;
+   }
 
    return *this;
 }
