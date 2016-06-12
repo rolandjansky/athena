@@ -222,7 +222,10 @@ void SiSpacePointMakerTool::fillSCT_SpacePointCollection(const InDet::SCT_Cluste
       break;
     } 
 
-    if(m_SCTgapParameter!=0.) {double dm = offset(element1,element2); min-=dm; max+=dm; }
+    if(m_SCTgapParameter!=0.) {
+      double dm = offset(element1,element2); if(dm <0.) xPhi1 = -xPhi1;
+      min-=fabs(dm); max+=fabs(dm); 
+    }
    
     for (; clusters2Next != clusters2Finish; ++clusters2Next){
       Amg::Vector2D locpos = (*clusters2Next)->localPosition();
@@ -304,7 +307,10 @@ void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::
       msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()) <<endreq;
       break;
     } 
-    if(m_SCTgapParameter!=0.) {double dm = offset(element1,element2); min-=dm; max+=dm; }
+    if(m_SCTgapParameter!=0.) {
+      double dm = offset(element1,element2); if(dm <0.) xPhi1 = -xPhi1;
+      min-=fabs(dm); max+=fabs(dm); 
+    }
    
     for (; clusters2Next != clusters2Finish; ++clusters2Next){
       Amg::Vector2D locpos = (*clusters2Next)->localPosition();
@@ -365,8 +371,11 @@ void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::
 	msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()) <<endreq;
 	break;
       }
- 
-      if(m_SCTgapParameter!=0.) {double dm = offset(element1,element2); min2-=dm; max2+=dm; }
+
+      if(m_SCTgapParameter!=0.) {
+	double dm = offset(element1,element2); if(dm <0.) xPhi1 = -xPhi1;
+	min2-=fabs(dm); max2+=fabs(dm); 
+      }
 
       for (; clusters2Next != clusters2Finish; ++clusters2Next)
 	{
@@ -396,18 +405,23 @@ void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::
   {
     const Amg::Transform3D& T1  =  element1->transform();
     const Amg::Transform3D& T2  =  element2->transform();
+    Amg::Vector3D           C   =  element1->center()   ;
+    Amg::Vector3D           C2  =  element2->center()   ;
 
+    double dx  = C[0]-C2[0];
+    double dy  = C[1]-C2[1];
+    dx         = sqrt(dx*dx+dy*dy);
+    double r   = sqrt(C[0]*C[0]+C[1]*C[1])                                                    ;
     double x12 = T1(0,0)*T2(0,0)+T1(1,0)*T2(1,0)+T1(2,0)*T2(2,0)                              ;
-    double r   = sqrt(T1(0,3)*T1(0,3)+T1(1,3)*T1(1,3))                                        ;
     double s   = (T1(0,3)-T2(0,3))*T1(0,2)+(T1(1,3)-T2(1,3))*T1(1,2)+(T1(2,3)-T2(2,3))*T1(2,2);
 
     double dm  = (m_SCTgapParameter*r)*fabs(s*x12);
-    double d   = dm/sqrt((1.-x12)*(1.+x12));
-    
+    double d; element1->design().shape() == InDetDD::Annulus ? d =dm*(1./.04) : d = dm/sqrt((1.-x12)*(1.+x12));
+
     if(fabs(T1(2,2)) > .7) d*=(r/fabs(T1(2,3))); // endcap d = d*R/Z
 
     m_stripLengthGapTolerance = d; 
-    return dm;
+    return (dm+dx)*(T1(0,0)*T2(0,0)+T1(1,0)*T2(1,0));
   }
 
 }
