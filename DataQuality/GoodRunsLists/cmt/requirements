@@ -63,5 +63,8 @@ use     AtlasReflex     AtlasReflex-*   External -no_auto_imports
 apply_pattern lcgdict dict=GoodRunsLists selectionfile=selection.xml headerfiles="../GoodRunsLists/GoodRunsListsDict.h"
 end_private
 
-application getLumi ../Utils/getLumi.cxx
-macro_append getLumi_dependencies " GoodRunsListsLib"
+
+# Set up the unit test(s):
+use TestTools TestTools-* AtlasTest
+
+apply_pattern UnitTest_run unit_test=GRLSelectionTool
