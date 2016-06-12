@@ -25,6 +25,7 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/Egamma.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCore/ShallowCopy.h"
 
@@ -50,16 +51,18 @@ do {                                                  \
  } while( false )
 
 
+const double MIN_PT = 20E3;
+
 int main( int argc, char* argv[] ) {
 
    // The application's name:
-   const char* APP_NAME = argv[ 0 ];
+   const char* APP_NAME = argv[0];
 
    // Check if we received a file name:
-   if( argc < 2 ) {
+   if (argc < 2) {
      Error( APP_NAME, "No file name received!" );
-     Error( APP_NAME, "  Usage: %s [xAOD file name]", APP_NAME );
-      return 1;
+     Error( APP_NAME, "  Usage: %s (xAOD file name)", APP_NAME );
+     return 1;
    }
 
    // Initialise the application:
@@ -87,9 +90,9 @@ int main( int argc, char* argv[] ) {
    }
 
    // Create the tool
-   CP::EgammaCalibrationAndSmearingTool *m_EgammaCalibrationAndSmearingTool = new CP::EgammaCalibrationAndSmearingTool("EgammaCalibrationAndSmearingTool");
-   m_EgammaCalibrationAndSmearingTool->setProperty("ESModel", "es2015PRE");
-   m_EgammaCalibrationAndSmearingTool->initialize();
+   std::unique_ptr<CP::IEgammaCalibrationAndSmearingTool> tool(new CP::EgammaCalibrationAndSmearingTool("EgammaCalibrationAndSmearingTool"));
+   asg::setProperty(tool.get(), "ESModel", "es2015PRE");
+   tool->initialize();
 
 
    //===========SYSTEMATICS
@@ -105,12 +108,53 @@ int main( int argc, char* argv[] ) {
    for (Long64_t entry = 0; entry < entries; ++entry) {
 
      // Tell the object which entry to look at:
-     event.getEntry( entry );
+     event.getEntry(entry);
 
      std::cout << "=================NEXT EVENT==========================" << std::endl;
 
      const xAOD::EventInfo* event_info = 0;
      CHECK( event.retrieve( event_info, "EventInfo" ) );
+
+
+     const xAOD::PhotonContainer* photons;
+     CHECK( event.retrieve(photons, "Photons") );
+
+     //Clone
+     std::pair<xAOD::PhotonContainer*, xAOD::ShallowAuxContainer* > photons_shallowCopy = xAOD::shallowCopyContainer(*photons);
+
+     //Iterate over the shallow copy
+     for (xAOD::Photon* ph : *photons_shallowCopy.first) {
+       if (ph->pt() < MIN_PT) { continue; }
+       std::cout << std::string(80, '-') << std::endl;
+       std::cout << "eta|phi|pt|xAOD e = " << ph->eta() << "|" << ph->phi() << "|" << ph->pt() << "|" << ph->e() << std::endl;
+       if (not ph->caloCluster()) {
+	 std::cout << "ERROR: particle has no calocluster" << std::endl;
+	 continue;
+       }
+       std::cout << "raw E = " << ph->caloCluster()->energyBE(1) + ph->caloCluster()->energyBE(2) + ph->caloCluster()->energyBE(3) << std::endl;
+       if (!(xAOD::EgammaHelpers::isElectron(ph) or xAOD::EgammaHelpers::isPhoton(ph))) {
+	 std::cout << "particle is not electron of photon" << std::endl;
+	 continue;
+       }
+
+       CHECK(tool->applyCorrection(*ph));
+       std::cout << "Calibrated e = " << ph->e() << std::endl;
+
+       //systematics
+       std::cout << "\n=============SYSTEMATICS CHECK NOW";
+       for (auto sys : sysList)	 {
+	 // Tell the calibration tool which variation to apply
+	 if (tool->applySystematicVariation(sys) != CP::SystematicCode::Ok) {
+	   Error(APP_NAME, "Cannot configure calibration tool for systematics");
+	 }
+	 
+	 CHECK(tool->applyCorrection(*ph));
+	 std::cout << "\nCalibrated pt with systematic " << sys.name() << " = " << ph->pt();
+       }
+       std::cout << "\n=============END SYSTEMATICS " << std::endl;
+     }
+
+
 
      const xAOD::ElectronContainer* electrons;
      CHECK( event.retrieve(electrons, "Electrons") );
@@ -120,26 +164,34 @@ int main( int argc, char* argv[] ) {
 
      //Iterate over the shallow copy
      for (xAOD::Electron* el : *electrons_shallowCopy.first) {
-
+       if (el->pt() < MIN_PT) { continue; }
        std::cout << std::string(80, '-') << std::endl;
-       std::cout << "xAOD/raw pt = " << el->pt() << std::endl;
+       std::cout << "eta|phi|pt|xAOD e = " << el->eta() << "|" << el->phi() << "|" << el->pt() << "|" << el->e() << std::endl;
+       if (not el->caloCluster()) {
+	 std::cout << "ERROR: particle has no calocluster" << std::endl;
+	 continue;
+       }
+       std::cout << "raw E = " << el->caloCluster()->energyBE(1) + el->caloCluster()->energyBE(2) + el->caloCluster()->energyBE(3) << std::endl;
+       if (!(xAOD::EgammaHelpers::isElectron(el) or xAOD::EgammaHelpers::isPhoton(el))) {
+	 std::cout << "particle is not electron of photon" << std::endl;
+	 continue;
+       }
 
-       CHECK (m_EgammaCalibrationAndSmearingTool->applyCorrection(*el));
-       std::cout << "Calibrated pt = " << el->pt() << std::endl;
+       CHECK (tool->applyCorrection(*el));
+       std::cout << "Calibrated e = " << el->e() << std::endl;
 
        //systematics
        std::cout << "\n=============SYSTEMATICS CHECK NOW";
        for (auto sys : sysList)	 {
-	        // Tell the calibration tool which variation to apply
-	         if (m_EgammaCalibrationAndSmearingTool->applySystematicVariation(sys) != CP::SystematicCode::Ok) {
-	             Error(APP_NAME, "Cannot configure calibration tool for systematics");
-	          }
-
-	        CHECK(m_EgammaCalibrationAndSmearingTool->applyCorrection(*el));
-	        std::cout << "\nCalibrated pt with systematic " << sys.name() << " = " << el->pt();
-	     }
+	 // Tell the calibration tool which variation to apply
+	 if (tool->applySystematicVariation(sys) != CP::SystematicCode::Ok) {
+	   Error(APP_NAME, "Cannot configure calibration tool for systematics");
+	 }
+	 
+	 CHECK(tool->applyCorrection(*el));
+	 std::cout << "\nCalibrated pt with systematic " << sys.name() << " = " << el->pt();
+       }
        std::cout << "\n=============END SYSTEMATICS " << std::endl;
-
      }
 
      Info( APP_NAME,

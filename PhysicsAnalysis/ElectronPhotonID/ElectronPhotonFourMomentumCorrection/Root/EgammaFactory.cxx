@@ -195,10 +195,14 @@ xAOD::Photon* EgammaFactory::create_converted_photon(float eta, float phi, float
 {
   assert(m_histo_rconv);
   assert(m_histo_zconv);
-  const double rconv = m_histo_rconv->GetBinContent(m_histo_rconv->FindBin(e / cosh(eta), std::abs(eta)));
-  const double zconv = m_histo_zconv->GetBinContent(m_histo_zconv->FindBin(e / cosh(eta), std::abs(eta)));
-  assert(rconv > 0);
-  return create_photon(eta, phi, e, rconv, zconv);
+  const int bin = m_histo_rconv->FindBin(e / cosh(eta), std::abs(eta));
+  if (m_histo_rconv->IsBinOverflow(bin)) { return create_photon(eta, phi, e, 0, 0); }
+  else {
+    const double rconv = m_histo_rconv->GetBinContent(bin);
+    const double zconv = m_histo_zconv->GetBinContent(m_histo_zconv->FindBin(e / cosh(eta), std::abs(eta)));
+    assert(rconv > 0);
+    return create_photon(eta, phi, e, rconv, zconv);
+  }
 }
 
 

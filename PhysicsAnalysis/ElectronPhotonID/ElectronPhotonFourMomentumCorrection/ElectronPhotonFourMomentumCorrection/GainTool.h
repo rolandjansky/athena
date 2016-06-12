@@ -6,7 +6,7 @@
 #define ELECTRONPHOTONFOURMOMENTUMCORRECTION_GAINTOOL_H
 
 #include <string>
-
+#include <memory>
 #include <PATCore/PATCoreEnums.h>
 
 class TFile;
@@ -17,7 +17,6 @@ namespace egGain {
   class GainTool {
     
   public:
-    GainTool();
     GainTool(std::string filenameTO, std::string filenameVar);
     void Init(std::string filenameTO, std::string filenameVar);
     virtual ~GainTool();
@@ -27,13 +26,17 @@ namespace egGain {
 
   private:
     
-    TFile* m_TOFile;
-    TFile* m_varFile; 
-    TF1* m_funcTO[28]; 
-    TF1* m_funcG[3][28];
-    TF1* m_conv_funcG[3][28]; 
-    TF1* m_unconv_funcG[4][28]; 
-    TF1* m_funcG_com[3][28]; 
+    static const int m_NUM_ETA_BINS=28;
+    static const int m_NUM_ENERGY_BINS=3;
+    static const int m_NUM_UNCONV_ENERGY_BINS=4;
+
+    std::unique_ptr <TFile> m_TOFile;
+    std::unique_ptr <TFile> m_varFile;    
+
+    TF1* m_funcTO[m_NUM_ETA_BINS]; 
+    TF1* m_funcG[m_NUM_ENERGY_BINS][m_NUM_ETA_BINS];
+    TF1* m_conv_funcG[m_NUM_ENERGY_BINS][m_NUM_ETA_BINS]; 
+    TF1* m_unconv_funcG[m_NUM_UNCONV_ENERGY_BINS][m_NUM_ETA_BINS]; 
     
   };
   

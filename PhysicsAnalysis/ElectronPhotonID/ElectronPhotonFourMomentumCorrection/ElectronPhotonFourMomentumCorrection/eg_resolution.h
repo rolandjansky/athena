@@ -11,7 +11,7 @@
 #include "AsgTools/AsgMessaging.h"
 
 #include "xAODEgamma/Egamma.h"
-
+#include <memory>
 #include "TAxis.h"
 #include "Riostream.h"
 #include "TH1.h"
@@ -52,10 +52,10 @@ class eg_resolution : public asg::AsgMessaging{
   TH1* m_hSampling[4][3];
   TH1* m_hNoise[4][3];
   TH1* m_hConst[4][3];
-  TFile* m_file0;
-  TFile* m_file1;
-  TFile* m_file2;
-  TFile* m_file3;
+  std::unique_ptr <TFile>  m_file0;
+  std::unique_ptr <TFile>  m_file1;
+  std::unique_ptr <TFile>  m_file2;
+  std::unique_ptr <TFile>  m_file3;
   const TArrayD* m_etaBins;
 
 };

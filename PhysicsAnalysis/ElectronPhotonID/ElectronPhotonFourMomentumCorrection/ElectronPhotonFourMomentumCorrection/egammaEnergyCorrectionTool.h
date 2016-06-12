@@ -126,8 +126,14 @@ namespace egEnergyCorr {
       LArCalibExtra2015PreUp, LArCalibExtra2015PreDown,
       LArTemperature2015PreUp, LArTemperature2015PreDown,
 
+      // extra systematics for 2015->2016 extrapolation
+      LArTemperature2016PreUp, LArTemperature2016PreDown,
+
       // ... G4 systematics on E1/E2
       G4Up, G4Down,
+
+      // scale for E4 TileGap3
+      E4ScintillatorUp, E4ScintillatorDown,
 
       // ... Layer scale variations : data driven, uncorrelated vs eta
       PSUp, PSDown, S12Up, S12Down,
@@ -151,9 +157,8 @@ namespace egEnergyCorr {
       ConvEfficiencyUp, ConvEfficiencyDown, ConvFakeRateUp, ConvFakeRateDown, ConvRadiusUp, ConvRadiusDown,
 
 
-      // All (Only for error plotting - not correct when running over a sample!)
       AllUp, AllDown,
-      AllCorrelated2015PREUp, AllCorrelated2015PREDown,
+      AllCorrelatedUp, AllCorrelatedDown,
 
       // to help with loops
       LastScaleVariation
@@ -187,6 +192,8 @@ namespace egEnergyCorr {
     es2015PRE_res_improved,
     es2015cPRE,             // as 2015PRE but with new MVA calibration for crack for rel 20.7
     es2015cPRE_res_improved,
+    es2015c_summer,         // data-driven for mc15c (to be used in summer 2016)
+    es2016PRE,              // as es2015c_summer + temperature extrapolation
 
     UNDEFINED
 
@@ -245,6 +252,7 @@ namespace AtlasRoot {
     void useStatErrorScaling(bool flag) { m_use_stat_error_scaling = flag; }
 
     void use_temp_correction201215(bool flag) { m_use_temp_correction201215 = flag; }
+    void use_temp_correction201516(bool flag) { m_use_temp_correction201516 = flag; }
     void use_uA2MeV_2015_first2weeks_correction(bool flag) { m_use_uA2MeV_2015_first2weeks_correction = flag; }
 
     double applyMCCalibration( double eta, double ET, PATCore::ParticleType::Type ptype ) const;
@@ -356,6 +364,9 @@ namespace AtlasRoot {
 
     double getAlphaZee(long int runnumber, double eta, egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
 
+    double getE4Uncertainty(double eta) const;
+    double getE4NonLinearity(double cl_eta, double meanE, PATCore::ParticleType::Type) const;
+
     double getLayerUncertainty( int iLayer, double cl_eta,
 				egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF=1. ) const;
 
@@ -448,6 +459,13 @@ namespace AtlasRoot {
     TAxis*        m_psConvertedEtaBins;
     TList*        m_psConvertedGraphs;
 
+    TAxis*        m_E4ElectronEtaBins = nullptr;
+    TList*        m_E4ElectronGraphs = nullptr;
+    TAxis*        m_E4UnconvertedEtaBins = nullptr;
+    TList*        m_E4UnconvertedGraphs = nullptr;
+    TAxis*        m_E4ConvertedEtaBins = nullptr;
+    TList*        m_E4ConvertedGraphs = nullptr;
+
     TAxis*        m_s12ElectronEtaBins;
     TList*        m_s12ElectronGraphs;
     TAxis*        m_s12UnconvertedEtaBins;
@@ -510,6 +528,7 @@ namespace AtlasRoot {
     bool m_use_stat_error_scaling;  // default = false
 
     bool m_use_temp_correction201215;  // default = true (used only for es2015PRE)
+    bool m_use_temp_correction201516;
     bool m_use_uA2MeV_2015_first2weeks_correction; // default = true (used only for es2105PRE)
   };
 

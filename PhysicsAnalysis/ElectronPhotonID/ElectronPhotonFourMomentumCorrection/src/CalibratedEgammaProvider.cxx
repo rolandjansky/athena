@@ -15,10 +15,10 @@
 
 namespace CP {
 
-CalibratedEgammaProvider::CalibratedEgammaProvider( const std::string& name, ISvcLocator* svcLoc ) 
+CalibratedEgammaProvider::CalibratedEgammaProvider( const std::string& name, ISvcLocator* svcLoc )
   : AthAlgorithm( name, svcLoc ),
     m_tool("")
-{  
+{
   declareProperty( "InputEventInfo", m_inputEventInfo = "", "Specify an EventInfo, if blank, will try to retrieve without key" );
   declareProperty( "Input", m_inputKey = "Electrons", "Electron or photon input collection to calibrate" );
   declareProperty( "Output", m_outputKey = "CalibratedElectrons", "Name of output collection. If same as input key, will try to modify in-situ" );
@@ -28,13 +28,13 @@ CalibratedEgammaProvider::CalibratedEgammaProvider( const std::string& name, ISv
 StatusCode CalibratedEgammaProvider::initialize() {
   ATH_MSG_INFO( "Initialising..." );
 
-  if(m_tool.empty()) { //set up a default tool with the es2012c calibration 
+  if(m_tool.empty()) { //set up a default tool with the es2012c calibration
       m_tool.setTypeAndName("CP::EgammaCalibrationAndSmearingTool/AutoConfiguredEgammaCalibTool");
       ServiceHandle<IJobOptionsSvc> josvc("JobOptionsSvc",name());
-      std::string fullToolName = "ToolSvc.AutoConfiguredEgammaCalibTool"; 
+      std::string fullToolName = "ToolSvc.AutoConfiguredEgammaCalibTool";
       StringProperty pESModel("esModel","es2012c");
       CHECK( josvc->addPropertyToCatalogue(fullToolName,pESModel) );
-  } 
+  }
 
    ATH_CHECK(m_tool.retrieve());
 
@@ -63,19 +63,19 @@ StatusCode CalibratedEgammaProvider::execute() {
          if(!setOriginalObjectLink( *a, *out.first )) {
             ATH_MSG_ERROR("Failed to add original object links to shallow copy of " << m_inputKey);
             return StatusCode::FAILURE;
-         }  
-      } else if( (b = dynamic_cast<const xAOD::PhotonContainer*>(egamma)) ) { 
+         }
+      } else if( (b = dynamic_cast<const xAOD::PhotonContainer*>(egamma)) ) {
          out = xAOD::shallowCopyContainer( *b );
          if(!setOriginalObjectLink( *b, *out.first )) {
             ATH_MSG_ERROR("Failed to add original object links to shallow copy of " << m_inputKey);
             return StatusCode::FAILURE;
-         }  
+         }
       }
-      else { ATH_MSG_ERROR("Egamma container " << m_inputKey << " is not photons or electrons!!??"); return StatusCode::FAILURE; } 
-      
+      else { ATH_MSG_ERROR("Egamma container " << m_inputKey << " is not photons or electrons!!??"); return StatusCode::FAILURE; }
+
    }
 
-   for(auto iParticle : *(out.first)) { 
+   for(auto iParticle : *(out.first)) {
          if(msg().level()==MSG::VERBOSE) std::cout << name() << " Old pt=" << iParticle->pt();
          if(m_tool->applyCorrection(*iParticle).code()==CorrectionCode::Error) return StatusCode::FAILURE;
          if(msg().level()==MSG::VERBOSE) std::cout << " New pt=" << iParticle->pt() << std::endl;

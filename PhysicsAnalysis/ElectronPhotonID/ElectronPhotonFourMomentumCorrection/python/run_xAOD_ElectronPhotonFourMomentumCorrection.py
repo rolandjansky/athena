@@ -1,10 +1,10 @@
-#!/usr/bin/env python
+#!/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 import ROOT
+import math
 from functools import partial
 from itertools import islice
-import os
 
 import logging
 logging.basicConfig(level=logging.INFO, format="%(filename)s\t%(levelname)s    %(message)s")
@@ -37,22 +37,23 @@ def xAOD_particle_generator(tree, collection_getter, event_numbers=None,
 
     for ievent in xrange(tree.GetEntries()):
         tree.GetEntry(ievent)
+        ei = tree.EventInfo
+        event_number = ei.eventNumber()
         if event_numbers:
-            ei = tree.EventInfo
-            if not ei.eventNumber() in event_numbers:
+            if not event_number in event_numbers:
                 continue
+        logging.debug("=== event number %d ievent = %d", event_number, ievent)
 
         collection = collection_getter(tree)
 
         for i in xrange(collection.size()):
             p = collection.at(i)
-            if min_pt is not None and p.pT() < min_pt:
+            if min_pt is not None and p.pt() < min_pt:
                 continue
             if min_abseta is not None and abs(p.eta()) < min_abseta:
                 continue
             if max_abseta is not None and abs(p.eta()) > max_abseta:
                 continue
-            p = type(p)(p)
             yield p
 
 
@@ -63,7 +64,8 @@ xAOD_electron_generator = partial(xAOD_particle_generator, collection_getter=get
 def main(filename, **args):
     logging.debug("initializing xAOD")
     if (not ROOT.xAOD.Init().isSuccess()):
-        print "Failed xAOD.Init()"
+        raise IOErrror("Failed xAOD.Init()")
+
 
     tree = None
     if ".txt" in filename:
@@ -79,73 +81,72 @@ def main(filename, **args):
         if not f:
             logging.error("problem opening file %s", filename)
         tree = ROOT.xAOD.MakeTransientTree(f, args['tree_name'])
+    if not tree:
+        logging.warning("cannot find tree in the file")
+        f.Print()
+        return
 
-    logging.debug("input has %d entries" % tree.GetEntries())
+    logging.info("input has %d entries" % tree.GetEntries())
 
     logging.debug("initializing tool")
     tool = ROOT.CP.EgammaCalibrationAndSmearingTool("tool")
-    tool.setProperty("ESModel", args["ESModel"])
+    tool.setProperty("ESModel", args["esmodel"]).ignore()
+    if args["no_smearing"]:
+        tool.setProperty("int")("doSmearing", 0).ignore()
     if args['debug']:
         tool.msg().setLevel(0)
-    if args['no_smearing']:
-        tool.setProperty("int")("doSmearing", 0)
 
     tool.initialize()
 
 
     logging.debug("creating output tree")
     fout = ROOT.TFile("output.root", "recreate")
-    tree_out = ROOT.TNtuple(args["tree_name"], args["tree_name"], "eta:phi:true_e:pdgId:e:xAOD_e:raw_e:raw_ps")
+    tree_out = ROOT.TNtuple(args["tree_name"], args["tree_name"], "eventNumber:eta:phi:true_e:pdgId:e:xAOD_e:raw_e:raw_ps")
 
     logging.debug("looping on electron container")
-    generator = xAOD_electron_generator(tree, min_pt=args['min_pt'],
-                                        min_abseta=args['min_abseta'], max_abseta=args['max_abseta'],
-                                        event_numbers=args['event_number'])
+    generator = xAOD_photon_generator(tree, min_pt=args['min_pt'],
+                                      min_abseta=args['min_abseta'], max_abseta=args['max_abseta'],
+                                      event_numbers=args['event_number'])
 
+    _ = ROOT.xAOD.TruthParticle_v1    # this is needed to run the next line, don't know why, dictionary stuff...
     get_truth_particle = ROOT.xAOD.TruthHelpers.getTruthParticle
 
-    for electron in islice(generator, None, args['nparticles']):
-        event_info = tree.EventInfo
-        if args['as_data']:
-            event_info = ROOT.EgammaFactory().create_eventinfo(False, 100000, 1)
-
-        logging.debug(" === new electron simul|eta|phi|e|rawe0|rawe1|TileGap3 = %s|%.2f|%.2f|%.2f|%.2f|%.2f|%.2f ===",
-                      event_info.eventType(ROOT.xAOD.EventInfo.IS_SIMULATION),
-                      electron.eta(), electron.phi(), electron.e(),
-                      electron.caloCluster().energyBE(0),
-                      electron.caloCluster().energyBE(1),
-                      electron.caloCluster().eSample(17)
-                      )
-        xAOD_energy = electron.e()
-        cluster = electron.caloCluster()
-        true_el = get_truth_particle(electron)
-        true_e = true_el.e() if true_el else 0
-        pdgId = true_el.pdgId() if true_el else 0
-
-        tool.applyCorrection(electron, event_info)
-        tree_out.Fill(electron.eta(),
-                      electron.phi(),
-                      true_e,
-                      pdgId,
-                      electron.e(),
-                      xAOD_energy,
-                      cluster.energyBE(0) + cluster.energyBE(1) + cluster.energyBE(2) + cluster.energyBE(3),
-                      cluster.energyBE(0))
+    for particle in islice(generator, None, args['nparticles']):
+        ei = tree.EventInfo
+        logging.debug(" === new photon eventNumber|eta|phi|e| = |%d|%.2f|%.2f|%.2f|", ei.eventNumber(), particle.eta(), particle.phi(), particle.e())
+        if not particle.caloCluster():
+            logging.warning("particle has no calo cluster")
+            continue
+        logging.debug("                |rawe0|raweAcc|TileGap3| = |%.2f|%.2f|%.2f|",
+                      particle.caloCluster().energyBE(0),
+                      particle.caloCluster().energyBE(1) + particle.caloCluster().energyBE(2) + particle.caloCluster().energyBE(3),
+                      particle.caloCluster().eSample(17))
+        xAOD_energy = particle.e()
+        cluster = particle.caloCluster()
+        raw_e = cluster.energyBE(1) + cluster.energyBE(2) + cluster.energyBE(3)
+        raw_ps = cluster.energyBE(0)
+        true_particle = get_truth_particle(particle)
+        true_e = true_particle.e() if true_particle else 0
+        pdgId = true_particle.pdgId() if true_particle else 0
+        calibrated_energy = tool.getEnergy(particle)
+        tree_out.Fill(ei.eventNumber(), cluster.eta(), cluster.phi(),
+                      true_e, pdgId, calibrated_energy, xAOD_energy, raw_e, raw_ps)
+        if math.isnan(calibrated_energy) or math.isnan(calibrated_energy) or calibrated_energy < 1:
+            print "==>", particle.author(), particle.eta(), particle.phi(), xAOD_energy, calibrated_energy
 
     logging.info("%d events written", tree_out.GetEntries())
 
     tree_out.Write()
     fout.Close()
 
-    ROOT.xAOD.ClearTransientTrees()
-
 if __name__ == '__main__':
     ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C")
     import argparse
 
-    parser = argparse.ArgumentParser(description='Run on xAOD and dump corrected energy for electron and photons',
+    parser = argparse.ArgumentParser(description='Run on xAOD and dump calibrated energy for electron and photons',
+                                     formatter_class=argparse.RawTextHelpFormatter,
                                      epilog='example: ./run_xAOD_ElectronPhotonFourMomentumCorrection.py root://eosatlas.cern.ch//eos/atlas/user/t/turra/DAOD_EGAM1.04186716._000048.pool.root.1')
-    parser.add_argument('filename', nargs='?', type=str, help='path to xAOD', default=os.environ['ASG_TEST_FILE_MC'])
+    parser.add_argument('filename', type=str, help='path to xAOD')
     parser.add_argument('--nparticles', type=int, help='number of particles')
     parser.add_argument('--tree-name', type=str, default='CollectionTree')
     parser.add_argument('--min-pt', type=float, help='minimum pT')
@@ -153,13 +154,12 @@ if __name__ == '__main__':
     parser.add_argument('--max-abseta', type=float, help='maximum |eta|')
     parser.add_argument('--event-number', type=int)
     parser.add_argument('--debug', action='store_true', default=False)
-    parser.add_argument('--mva-folder', type=str, help='folder to be used default=egammaMVACalib/offline/v3_E4crack_bis')
-    parser.add_argument('--ESModel', type=str, default='es2015PRE')
     parser.add_argument('--no-layer-correction', action='store_true', default=False)
-    parser.add_argument('--no-smearing', action='store_true', default=False)
-    parser.add_argument('--as-data', action='store_true', default=False, help='force the data to be used as real data')
+    parser.add_argument('--no-smearing', action='store_true')
+    parser.add_argument('--esmodel', default="es2015c_summer")
 
     args = parser.parse_args()
     if args.debug:
         logging.getLogger().setLevel(logging.DEBUG)
     main(**vars(args))
+    ROOT.xAOD.ClearTransientTrees()

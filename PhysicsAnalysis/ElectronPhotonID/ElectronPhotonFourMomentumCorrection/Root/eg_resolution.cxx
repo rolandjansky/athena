@@ -9,6 +9,7 @@
 #include "xAODEgamma/Egamma.h"
 #include "ElectronPhotonFourMomentumCorrection/eg_resolution.h"
 #include "PathResolver/PathResolver.h"
+#include "CxxUtils/make_unique.h"
 
 template<typename T>
 T* get_object(TFile& file, const std::string& name){
@@ -19,24 +20,24 @@ T* get_object(TFile& file, const std::string& name){
 
 eg_resolution::eg_resolution(const std::string& configuration)
   : asg::AsgMessaging("eg_resolution"),
-    m_file0(0),
-    m_file1(0),
-    m_file2(0),
-    m_file3(0)
+    m_file0(),
+    m_file1(),
+    m_file2(),
+    m_file3()
 {
   ATH_MSG_INFO("Initialize eg_resolution");
   
   if (configuration == "run1") {
-    m_file0 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_electron_run1.root").c_str() );
-    m_file1 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_recoUnconv_run1.root").c_str() );
-    m_file2 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_recoConv_run1.root").c_str() );
-    m_file3 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_trueUnconv_run1.root").c_str() );
+    m_file0 = CxxUtils::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_electron_run1.root").c_str() );
+    m_file1 = CxxUtils::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_recoUnconv_run1.root").c_str() );
+    m_file2 = CxxUtils::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_recoConv_run1.root").c_str() );
+    m_file3 = CxxUtils::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_trueUnconv_run1.root").c_str() );
   }
   else if (configuration == "run2_pre") {
-    m_file0 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_electron_run2_pre.root").c_str());
-    m_file1 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_recoUnconv_run2_pre.root").c_str());
-    m_file2 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_recoConv_run2_pre.root").c_str());
-    m_file3 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_trueUnconv_run2_pre.root").c_str());
+    m_file0 = CxxUtils::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_electron_run2_pre.root").c_str());
+    m_file1 = CxxUtils::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_recoUnconv_run2_pre.root").c_str());
+    m_file2 = CxxUtils::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_recoConv_run2_pre.root").c_str());
+    m_file3 = CxxUtils::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_trueUnconv_run2_pre.root").c_str());
   }
 
   if (!m_file0 or !m_file1 or !m_file2 or !m_file3) {
@@ -89,10 +90,6 @@ eg_resolution::eg_resolution(const std::string& configuration)
 
 //=========================================================================
 eg_resolution::~eg_resolution(){
-  m_file0->Close();
-  m_file1->Close();
-  m_file2->Close();
-  m_file3->Close();
 }
 
 //============================================================================
