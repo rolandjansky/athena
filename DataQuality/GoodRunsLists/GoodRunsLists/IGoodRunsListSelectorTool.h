@@ -20,8 +20,8 @@ class IGoodRunsListSelectorTool : virtual public IAlgTool {
 public:
 
    static const InterfaceID& interfaceID() {
-     static const InterfaceID _IGoodRunsListSelectorToolID( "IGoodRunsListSelectorTool", 1, 0 );
-     return _IGoodRunsListSelectorToolID;
+     static const InterfaceID IGoodRunsListSelectorToolID( "IGoodRunsListSelectorTool", 1, 0 );
+     return IGoodRunsListSelectorToolID;
    }
 
    /// DQ Test of run,LBs combination.
