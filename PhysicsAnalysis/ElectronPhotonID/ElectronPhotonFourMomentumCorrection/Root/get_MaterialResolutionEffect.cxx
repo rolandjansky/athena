@@ -5,6 +5,7 @@
 #include "ElectronPhotonFourMomentumCorrection/get_MaterialResolutionEffect.h"
 
 #include "PathResolver/PathResolver.h"
+#include "CxxUtils/make_unique.h"
 
 #include <stdlib.h>
 #include "TAxis.h"
@@ -13,7 +14,7 @@
 get_MaterialResolutionEffect::get_MaterialResolutionEffect()
 {
   //std::cout << " Initialize get_MaterialResolutionEffect " << std::endl;
-  file0 = TFile::Open( PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/histos-systematics-material.root").c_str() );
+  file0 = CxxUtils::make_unique<TFile> ( PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/histos-systematics-material.root").c_str() );
 
   for (Int_t isys=0;isys<4;isys++) {
     for (Int_t ieta=0;ieta<8;ieta++) {
@@ -51,20 +52,16 @@ get_MaterialResolutionEffect::get_MaterialResolutionEffect()
 
          hSystResol[isys][ieta][iconv]=(TH1D*) file0->Get(name);
          //cout << " get histos " << isys << " " << ieta << " " << iconv << " " << hSystResol[isys][ieta][iconv] << endl;
-
-      }
-      
+      }      
     }
   }
 
   TAxis* aa=hSystResol[0][0][1]->GetXaxis();
   etBins = aa->GetXbins();
-
 }
 
 //=========================================================================
-get_MaterialResolutionEffect::~get_MaterialResolutionEffect()
-{
+get_MaterialResolutionEffect::~get_MaterialResolutionEffect(){
   file0->Close();
 }
 

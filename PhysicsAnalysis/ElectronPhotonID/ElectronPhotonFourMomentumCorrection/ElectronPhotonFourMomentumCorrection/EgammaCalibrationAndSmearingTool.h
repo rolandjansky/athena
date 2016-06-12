@@ -79,25 +79,27 @@ public:
   static const int AUTO = 2;  // this is used as a third state for boolean propertis (true/false/automatic)
   typedef unsigned int RandomNumber;
   typedef std::function<int(const EgammaCalibrationAndSmearingTool&, const xAOD::Egamma&, const xAOD::EventInfo&)> IdFunction;
-	typedef std::function<bool(const xAOD::Egamma&)> EgammaPredicate;
-
+  typedef std::function<bool(const xAOD::Egamma&)> EgammaPredicate;
+  
   EgammaCalibrationAndSmearingTool(const std::string& name);
   ~EgammaCalibrationAndSmearingTool();
 
   StatusCode initialize() override;
 
-	virtual StatusCode beginInputFile() override;
-	virtual StatusCode beginEvent() override;
-	virtual StatusCode endInputFile() override;
+  virtual StatusCode beginInputFile() override;
+  virtual StatusCode beginEvent() override;
+  virtual StatusCode endInputFile() override;
 
   // Apply the correction on a modifyable egamma object
   virtual CP::CorrectionCode applyCorrection(xAOD::Egamma&) override;
-	virtual CP::CorrectionCode applyCorrection(xAOD::Egamma & input, const xAOD::EventInfo& event_info);
+  virtual CP::CorrectionCode applyCorrection(xAOD::Egamma & input, const xAOD::EventInfo& event_info);
 
   // Create a corrected copy from a constant egamma object
   //  virtual CP::CorrectionCode correctedCopy(const xAOD::Egamma&, xAOD::Egamma*&);
   virtual CP::CorrectionCode correctedCopy(const xAOD::Electron&, xAOD::Electron*&) override;
   virtual CP::CorrectionCode correctedCopy(const xAOD::Photon&, xAOD::Photon*&) override;
+  double getEnergy(const xAOD::Photon&);     // for python usage
+  double getEnergy(const xAOD::Electron&);   // for python usage
 
   //systematics
   //Which systematics have an effect on the tool's behaviour?
@@ -116,7 +118,7 @@ public:
                              PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron, bool withCT=false) const override;
 private:
 
-	bool m_metadata_retrieved = false;
+  bool m_metadata_retrieved = false;
   std::string m_ESModel;
   std::string m_decorrelation_model_name;
   egEnergyCorr::ESModel m_TESModel;
@@ -141,14 +143,14 @@ private:
   bool m_use_full_statistical_error;
   int m_use_temp_correction201215;
   int m_use_uA2MeV_2015_first2weeks_correction;
-	bool m_use_mapping_correction;
+  bool m_use_mapping_correction;
 
   void setupSystematics();
 
-	StatusCode get_simflavour_from_metadata(PATCore::ParticleDataType::DataType& result) const;
+  StatusCode get_simflavour_from_metadata(PATCore::ParticleDataType::DataType& result) const;
 
 
-	const EgammaPredicate AbsEtaCaloPredicateFactory(double eta_min, double eta_max) const
+  const EgammaPredicate AbsEtaCaloPredicateFactory(double eta_min, double eta_max) const
 	{
 		return [eta_min, eta_max](const xAOD::Egamma& p) {
 			const double aeta = std::abs(xAOD::get_eta_calo(*p.caloCluster()));
@@ -182,22 +184,22 @@ private:
 		}
 		return result;
 	}
-
-	PATCore::ParticleType::Type xAOD2ptype(const xAOD::Egamma& particle) const;
+  
+  PATCore::ParticleType::Type xAOD2ptype(const xAOD::Egamma& particle) const;
 public:
   virtual double getEnergy(xAOD::Egamma*, const xAOD::EventInfo*);
   virtual double getElectronMomentum(const xAOD::Electron*, const xAOD::EventInfo*);
   double getResolution(const xAOD::Egamma& particle, bool withCT=true) const override;
-	double intermodule_correction(double Ecl, double phi, double eta) const;
-	double correction_phi_unif(double eta, double phi) const;
+  double intermodule_correction(double Ecl, double phi, double eta) const;
+  double correction_phi_unif(double eta, double phi) const;
 
 
 private:
   // use raw pointer to use forward declaration, TODO: better solution?
   mutable egammaMVATool* m_mva_tool = nullptr; //!
-	egGain::GainTool* m_gain_tool = nullptr; //!
-	egammaLayerRecalibTool* m_layer_recalibration_tool = nullptr; //!
-	std::string m_layer_recalibration_tune; //!
+  egGain::GainTool* m_gain_tool = nullptr; //!
+  egammaLayerRecalibTool* m_layer_recalibration_tool = nullptr; //!
+  std::string m_layer_recalibration_tune; //!
 
   // A pointer to the underlying ROOT tool
   std::unique_ptr<AtlasRoot::egammaEnergyCorrectionTool> m_rootTool;
