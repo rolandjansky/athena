@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 754313 2016-06-12 10:28:19Z will $
 ################################################################################
 # Package: GoodRunsLists
 ################################################################################
@@ -6,60 +7,75 @@
 atlas_subdir( GoodRunsLists )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthToolSupport/AsgTools
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Event/xAOD/xAODEventInfo
-                          GaudiKernel
-                          PRIVATE
-                          Control/StoreGate
-                          DetectorDescription/DetDescrCond/DetectorStatus
-                          Event/EventInfo
-                          Tools/PathResolver )
+if( XAOD_STANDALONE )
+   atlas_depends_on_subdirs(
+      PUBLIC
+      Control/AthToolSupport/AsgTools
+      Event/xAOD/xAODEventInfo
+      PRIVATE
+      Tools/PathResolver )
+else()
+   atlas_depends_on_subdirs(
+      PUBLIC
+      Control/AthToolSupport/AsgTools
+      Control/AthenaBaseComps
+      Control/AthenaKernel
+      Event/xAOD/xAODEventInfo
+      GaudiKernel
+      PRIVATE
+      Control/StoreGate
+      DetectorDescription/DetDescrCond/DetectorStatus
+      Event/EventInfo
+      Tools/PathResolver
+      AtlasTest/TestTools )
+endif()
 
 # External dependencies:
-find_package( ROOT COMPONENTS XMLIO XMLParser Cint Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
-find_package( xml )
-
-# tag ROOTBasicLibs was not recognized in automatic conversion in cmt2cmake
-
-# tag ROOTCintexLibs was not recognized in automatic conversion in cmt2cmake
+find_package( ROOT COMPONENTS Core Tree TreePlayer XMLIO XMLParser )
+find_package( LibXml2 )
 
 # Component(s) in the package:
 atlas_add_root_dictionary( GoodRunsListsLib
-                           GoodRunsListsLibDictSource
-                           ROOT_HEADERS GoodRunsLists/TLumiBlockRange.h GoodRunsLists/RegularFormula.h GoodRunsLists/TGoodRunsListReader.h GoodRunsLists/TGoodRunsListWriter.h GoodRunsLists/DQHelperFunctions.h Root/LinkDef.h
-                           EXTERNAL_PACKAGES xml ROOT )
+   GoodRunsListsLibDictSource
+   ROOT_HEADERS GoodRunsLists/TLumiBlockRange.h GoodRunsLists/RegularFormula.h
+   GoodRunsLists/TGoodRunsListReader.h GoodRunsLists/TGoodRunsListWriter.h
+   GoodRunsLists/DQHelperFunctions.h Root/LinkDef.h
+   EXTERNAL_PACKAGES LibXml2 ROOT )
 
 atlas_add_library( GoodRunsListsLib
-                   Root/*.cxx
-                   ${GoodRunsListsLibDictSource}
-                   PUBLIC_HEADERS GoodRunsLists
-                   INCLUDE_DIRS ${XML_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AsgTools AthenaBaseComps AthenaKernel xAODEventInfo GaudiKernel ${XML_LIBRARIES} StoreGateLib SGtests DetectorStatusLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} EventInfo PathResolver )
+   GoodRunsLists/*.h Root/*.cxx ${GoodRunsListsLibDictSource}
+   PUBLIC_HEADERS GoodRunsLists
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   PRIVATE_INCLUDE_DIRS ${LIBXML2_INCLUDE_DIR}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo
+   PRIVATE_LINK_LIBRARIES ${LIBXML2_LIBRARIES} PathResolver )
 
-atlas_add_component( GoodRunsLists
-                     src/*.cxx
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${XML_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${XML_LIBRARIES} ${ROOT_LIBRARIES} AsgTools AthenaBaseComps AthenaKernel xAODEventInfo GaudiKernel StoreGateLib SGtests DetectorStatusLib EventInfo PathResolver GoodRunsListsLib )
+if( NOT XAOD_STANDALONE )
+   atlas_add_component( GoodRunsLists
+      src/*.cxx src/components/*.cxx
+      LINK_LIBRARIES AthenaBaseComps AthenaKernel xAODEventInfo GaudiKernel
+      StoreGateLib DetectorStatusLib EventInfo PathResolver GoodRunsListsLib )
+endif()
 
 atlas_add_dictionary( GoodRunsListsDict
-                      GoodRunsLists/GoodRunsListsDict.h
-                      GoodRunsLists/selection.xml
-                      INCLUDE_DIRS ${XML_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${XML_LIBRARIES} ${ROOT_LIBRARIES} AsgTools AthenaBaseComps AthenaKernel xAODEventInfo GaudiKernel StoreGateLib SGtests DetectorStatusLib EventInfo PathResolver GoodRunsListsLib )
+   GoodRunsLists/GoodRunsListsDict.h
+   GoodRunsLists/selection.xml
+   LINK_LIBRARIES GoodRunsListsLib )
 
-atlas_add_executable( getLumi
-                      Utils/getLumi.cxx
-                      INCLUDE_DIRS ${XML_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${XML_LIBRARIES} ${ROOT_LIBRARIES} AsgTools AthenaBaseComps AthenaKernel xAODEventInfo GaudiKernel StoreGateLib SGtests DetectorStatusLib EventInfo PathResolver GoodRunsListsLib )
+# Helper variable for setting up the test(s):
+set( testLibs )
+if( NOT XAOD_STANDALONE )
+   set( testLibs TestTools )
+endif()
+
+# Test(s) in the package:
+atlas_add_test( GRLSelectionTool_test
+   SOURCES test/GRLSelectionTool_test.cxx
+   LINK_LIBRARIES GoodRunsListsLib ${testLibs} )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_runtime( test/*.xml )
-atlas_install_scripts( scripts/define* scripts/create* scripts/merge* scripts/verify* scripts/overlap* scripts/diff* )
-
+atlas_install_scripts( scripts/define* scripts/create* scripts/merge*
+   scripts/verify* scripts/overlap* scripts/diff* )
+atlas_install_xmls(
+   test/data12_8TeV.periodAllYear_DetStatus-v54-pro13-04_DQDefects-00-00-33_PHYS_StandardGRL_All_Good.xml )

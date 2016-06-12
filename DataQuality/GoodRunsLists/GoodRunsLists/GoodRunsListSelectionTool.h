@@ -2,105 +2,93 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// $Id$
+// Dear emacs, this is -*- c++ -*-
 #ifndef GoodRunsLists_GoodRunsListSelectionTool_H
 #define GoodRunsLists_GoodRunsListSelectionTool_H
 
-/** @file GoodRunsListSelectionTool.h
- *  @brief This file contains the class definition for the GoodRunsListSelectionTool class.
- *  @author Max Baak <mbaak@cern.ch>
- **/
-
-#include "GoodRunsLists/IGoodRunsListSelectionTool.h"
-#include "GoodRunsLists/RegularFormula.h"
-#include <AsgTools/AsgTool.h>
-
+// System include(s):
 #include <vector>
 #include <string>
-#include <map>
 
-//typedef std::pair< std::vector<std::string>, std::vector<std::string> > vvPair; 
+// Framework include(s):
+#include "AsgTools/AsgTool.h"
 
-/** @class GoodRunsListSelectionTool
- *  @brief This file contains the class definition for the GoodRunsListSelectionTool class.
- **/
+// Local include(s):
+#include "GoodRunsLists/IGoodRunsListSelectionTool.h"
+#include "GoodRunsLists/TGRLCollection.h"
 
-class TFormula;
+/// Tool implementing the GRL selection
+///
+/// This tool needs to be used to select good lumiblocks for a physics
+/// or performance analysis.
+///
+/// $Revision$
+/// $Date$
+///
+class GoodRunsListSelectionTool : virtual public IGoodRunsListSelectionTool,
+      public asg::AsgTool {
 
-#ifndef ROOTCORE
-class EventInfo;
-#endif
+   // Declare the proper constructor(s) for Athena:
+   ASG_TOOL_CLASS( GoodRunsListSelectionTool, IGoodRunsListSelectionTool )
 
-namespace Root {
-  class TGRLCollection;
-  class TGoodRunsListReader;
-}
+public:
+   GoodRunsListSelectionTool( const std::string& name =
+         "GoodRunsListsSelectionTool" );
 
-class IDetStatusSvc;
+   /// Initialize AlgTool
+   virtual StatusCode initialize();
 
-class GoodRunsListSelectionTool : virtual public IGoodRunsListSelectionTool, virtual public asg::AsgTool
-{
-ASG_TOOL_CLASS( GoodRunsListSelectionTool, IGoodRunsListSelectionTool )
+   /// @name Interface inherited from IGoodRunsListSelectionTool
+   /// @{
 
- public:   
-GoodRunsListSelectionTool (const std::string& name);
-  virtual ~GoodRunsListSelectionTool();
+   /// Check if the current event passes the selection
+   virtual bool passRunLB( const std::vector< std::string >& grlnameVec =
+                              std::vector< std::string >(),
+                           const std::vector< std::string >& brlnameVec =
+                              std::vector< std::string >() ) const;
 
-  /// Initialize AlgTool
-  StatusCode initialize();
-  /// called for each event by EventSelector to decide if the event should be passed
-#ifndef ROOTCORE
-  bool passEvent(const EventInfo* pEvent) ;
-#endif
+   /// Check if the event specified passes the selection
+   virtual bool passRunLB( const xAOD::EventInfo& event,
+                           const std::vector< std::string >& grlnameVec =
+                              std::vector< std::string >(),
+                           const std::vector< std::string >& brlnameVec =
+                              std::vector< std::string >() ) const;
 
-  virtual bool passRunLB( const xAOD::EventInfo& event,
-                           const std::vector<std::string>& grlnameVec=std::vector<std::string>(),
-                           const std::vector<std::string>& brlnameVec=std::vector<std::string>()) ;
-  /// called for each event by GoodRunsListSelectorAlg to decide if the event should be passed
-  bool passRunLB( int runNumber, int lumiBlockNr,
-                  const std::vector<std::string>& grlnameVec=std::vector<std::string>(),
-                  const std::vector<std::string>& brlnameVec=std::vector<std::string>() ) ;
-  /// register grl/brl combination 
-  bool registerGRLSelector(const std::string& name, const std::vector<std::string>& grlnameVec, const std::vector<std::string>& brlnameVec);
-  /// get GRL selector registry
-  const std::map< std::string, vvPair >& getGRLSelectorRegistry() { return m_registry; }
+   /// Check if the event specified passes the selection
+   virtual bool passRunLB( int runNumber, int lumiBlockNr,
+                           const std::vector< std::string >& grlnameVec =
+                              std::vector< std::string >(),
+                           const std::vector< std::string >& brlnameVec =
+                              std::vector< std::string >() ) const;
 
-  /// get grl/brl collection
-  const Root::TGRLCollection* getGRLCollection() const { return m_grlcollection; } 
-  const Root::TGRLCollection* getBRLCollection() const { return m_brlcollection; }
+   /// Get the good runs list used by the tool
+   virtual const Root::TGRLCollection& getGRLCollection() const {
+      return m_grlcollection;
+   }
 
- protected:
+   /// Get the bad runs list used by the tool
+   virtual const Root::TGRLCollection& getBRLCollection() const {
+      return m_brlcollection;
+   }
 
-  bool fileExists(const char* fileName);
+   /// @}
 
-  std::vector<std::string> m_goodrunslistVec;
-  std::vector<std::string> m_blackrunslistVec;
-#ifndef ROOTCORE
-  std::vector<std::string> m_dqflagsqueryVec;
-#endif
+protected:
+   /// Helper function reading in the specified files into a GRL object
+   StatusCode readXMLs( Root::TGRLCollection& grl,
+                        const std::vector< std::string >& files );
 
-  Root::TGRLCollection* m_grlcollection;
-  Root::TGRLCollection* m_brlcollection;
+   std::vector< std::string > m_goodrunslistVec;
+   std::vector< std::string > m_blackrunslistVec;
 
-  Root::TGoodRunsListReader* m_reader;
+   Root::TGRLCollection m_grlcollection;
+   Root::TGRLCollection m_brlcollection;
 
-  std::map< std::string,TFormula* > m_dqformula;
+   int  m_boolop;
+   bool m_passthrough;
+   bool m_rejectanybrl;
 
-  int  m_boolop;
-  bool m_passthrough;
-#ifndef ROOTCORE
-  bool m_usecool;
-#endif
-  bool m_verbose;
-  bool m_rejectanybrl;
-#ifndef ROOTCORE
-  const IDetStatusSvc* m_detstatussvc;
-#endif
+}; // class GoodRunsListSelectionTool
 
-  std::map< std::string, vvPair > m_registry;
-
-  std::string  m_runrangeexpr;
-  Root::RegularFormula m_inrunrange;
-};
-
-#endif
-
+#endif // GoodRunsLists_GoodRunsListSelectionTool_H
