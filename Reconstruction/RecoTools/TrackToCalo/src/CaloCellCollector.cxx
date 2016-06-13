@@ -208,9 +208,17 @@ Rec::CaloCellCollector::collectCells( const Trk::CaloExtension& extension,
                       << " " << cell->eta() << "/" << cell->phi() << std::endl;
     }
 
+    if(etot==0){
+      if(m_doDebug) std::cout<<"no energy depositions, so no cluster"<<std::endl;
+      return 0;
+    }
+    float clusVecEta,clusVecPhi;
+    clusVecEta=clusVec.eta();
+    clusVecPhi=clusVec.phi();
+
     if (m_doDebug){
       std::cout << "associated cells " << cells.size() << std::endl;
-      std::cout <<"cluster eta: " << clusVec.eta() << ", phi: " << clusVec.phi() << std::endl;
+      std::cout <<"cluster eta: " << clusVecEta << ", phi: " << clusVecPhi << std::endl;
     }
 
     
@@ -243,8 +251,8 @@ Rec::CaloCellCollector::collectCells( const Trk::CaloExtension& extension,
         }
     }
 
-    cluster->setEta(clusVec.eta());
-    cluster->setPhi(clusVec.phi());
+    cluster->setEta(clusVecEta);
+    cluster->setPhi(clusVecPhi);
     
     return cluster;
 }

@@ -32,7 +32,9 @@ namespace Rec {
     m_emF1Cut(0.15),
     m_emipEM(0.42), // 0.42
     m_emipTile(0.86), // 0.86
-    m_emipHEC(0.65)  // 0.65
+    m_emipHEC(0.65),  // 0.65
+    m_indetTrackParticles(nullptr),
+    m_muonTrackParticles(nullptr)
   {
     declareInterface<IMuonCaloEnergyTool>(this);
     declareProperty("ParticleCaloExtensionTool",      m_caloExtensionTool );
