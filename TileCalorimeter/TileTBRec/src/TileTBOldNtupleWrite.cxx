@@ -159,10 +159,10 @@ StatusCode TileTBOldNtupleWrite::execute()
         int gainMode = (m_bigain) ? gain : 0; // 0 - low gain, 1 - high gain
         int drawerInd = (ros%2 == 0) ? drawer : drawer+3; // positive drawers shifted by 3
 
-        Efit  [gainMode][drawerInd][pmt] = energy;
-        Tfit  [gainMode][drawerInd][pmt] = (*it)->time();
-        Pedfit[gainMode][drawerInd][pmt] = (*it)->pedestal();
-        Chi2  [gainMode][drawerInd][pmt] = (*it)->quality();
+        m_efit  [gainMode][drawerInd][pmt] = energy;
+        m_tfit  [gainMode][drawerInd][pmt] = (*it)->time();
+        m_pedfit[gainMode][drawerInd][pmt] = (*it)->pedestal();
+        m_chi2  [gainMode][drawerInd][pmt] = (*it)->quality();
         
       } // end of loop over channels
     } // end of loop over collections
@@ -217,8 +217,8 @@ StatusCode TileTBOldNtupleWrite::execute()
         int gainMode = (m_bigain) ? gain : 0; // 0 - low gain, 1 - high gain
         int drawerInd = (ros%2 == 0) ? drawer : drawer+3; // positive drawers shifted by 3
 
-        Ene [gainMode][drawerInd][pmt] = energy;
-        Time[gainMode][drawerInd][pmt] = (*it)->time();
+        m_ene [gainMode][drawerInd][pmt] = energy;
+        m_time[gainMode][drawerInd][pmt] = (*it)->time();
         
       } // end of loop over channels
     } // end of loop over collections
@@ -247,127 +247,127 @@ Float_t * TileTBOldNtupleWrite::BranchWriteNtuple(const std::string name)
 
   if (m_bigain) {
     // first low-gain fit variables
-    if        (name == "Efitn0lo")   { return &Efit[0][0][0];   
-    } else if (name == "Efitn1lo")   { return &Efit[0][1][0];   
-    } else if (name == "Efitn2lo")   { return &Efit[0][2][0];   
-    } else if (name == "Efitp0lo")   { return &Efit[0][3][0];   
-    } else if (name == "Efitp1lo")   { return &Efit[0][4][0];   
-    } else if (name == "Efitp2lo")   { return &Efit[0][5][0];   
-    } else if (name == "Tfitn0lo")   { return &Tfit[0][0][0];   
-    } else if (name == "Tfitn1lo")   { return &Tfit[0][1][0];   
-    } else if (name == "Tfitn2lo")   { return &Tfit[0][2][0];   
-    } else if (name == "Tfitp0lo")   { return &Tfit[0][3][0];   
-    } else if (name == "Tfitp1lo")   { return &Tfit[0][4][0];   
-    } else if (name == "Tfitp2lo")   { return &Tfit[0][5][0];   
-    } else if (name == "Pedfitn0lo") { return &Pedfit[0][0][0]; 
-    } else if (name == "Pedfitn1lo") { return &Pedfit[0][1][0]; 
-    } else if (name == "Pedfitn2lo") { return &Pedfit[0][2][0]; 
-    } else if (name == "Pedfitp0lo") { return &Pedfit[0][3][0]; 
-    } else if (name == "Pedfitp1lo") { return &Pedfit[0][4][0]; 
-    } else if (name == "Pedfitp2lo") { return &Pedfit[0][5][0]; 
-    } else if (name == "Chi2n0lo")   { return &Chi2[0][0][0];   
-    } else if (name == "Chi2n1lo")   { return &Chi2[0][1][0];   
-    } else if (name == "Chi2n2lo")   { return &Chi2[0][2][0];   
-    } else if (name == "Chi2p0lo")   { return &Chi2[0][3][0];   
-    } else if (name == "Chi2p1lo")   { return &Chi2[0][4][0];   
-    } else if (name == "Chi2p2lo")   { return &Chi2[0][5][0];
+    if        (name == "Efitn0lo")   { return &m_efit[0][0][0];   
+    } else if (name == "Efitn1lo")   { return &m_efit[0][1][0];   
+    } else if (name == "Efitn2lo")   { return &m_efit[0][2][0];   
+    } else if (name == "Efitp0lo")   { return &m_efit[0][3][0];   
+    } else if (name == "Efitp1lo")   { return &m_efit[0][4][0];   
+    } else if (name == "Efitp2lo")   { return &m_efit[0][5][0];   
+    } else if (name == "Tfitn0lo")   { return &m_tfit[0][0][0];   
+    } else if (name == "Tfitn1lo")   { return &m_tfit[0][1][0];   
+    } else if (name == "Tfitn2lo")   { return &m_tfit[0][2][0];   
+    } else if (name == "Tfitp0lo")   { return &m_tfit[0][3][0];   
+    } else if (name == "Tfitp1lo")   { return &m_tfit[0][4][0];   
+    } else if (name == "Tfitp2lo")   { return &m_tfit[0][5][0];   
+    } else if (name == "Pedfitn0lo") { return &m_pedfit[0][0][0]; 
+    } else if (name == "Pedfitn1lo") { return &m_pedfit[0][1][0]; 
+    } else if (name == "Pedfitn2lo") { return &m_pedfit[0][2][0]; 
+    } else if (name == "Pedfitp0lo") { return &m_pedfit[0][3][0]; 
+    } else if (name == "Pedfitp1lo") { return &m_pedfit[0][4][0]; 
+    } else if (name == "Pedfitp2lo") { return &m_pedfit[0][5][0]; 
+    } else if (name == "Chi2n0lo")   { return &m_chi2[0][0][0];   
+    } else if (name == "Chi2n1lo")   { return &m_chi2[0][1][0];   
+    } else if (name == "Chi2n2lo")   { return &m_chi2[0][2][0];   
+    } else if (name == "Chi2p0lo")   { return &m_chi2[0][3][0];   
+    } else if (name == "Chi2p1lo")   { return &m_chi2[0][4][0];   
+    } else if (name == "Chi2p2lo")   { return &m_chi2[0][5][0];
 
     // now high-gain fit variables
-    } else if (name == "Efitn0hi")   { return &Efit[1][0][0];   
-    } else if (name == "Efitn1hi")   { return &Efit[1][1][0];   
-    } else if (name == "Efitn2hi")   { return &Efit[1][2][0];   
-    } else if (name == "Efitp0hi")   { return &Efit[1][3][0];   
-    } else if (name == "Efitp1hi")   { return &Efit[1][4][0];   
-    } else if (name == "Efitp2hi")   { return &Efit[1][5][0];   
-    } else if (name == "Tfitn0hi")   { return &Tfit[1][0][0];   
-    } else if (name == "Tfitn1hi")   { return &Tfit[1][1][0];   
-    } else if (name == "Tfitn2hi")   { return &Tfit[1][2][0];   
-    } else if (name == "Tfitp0hi")   { return &Tfit[1][3][0];   
-    } else if (name == "Tfitp1hi")   { return &Tfit[1][4][0];   
-    } else if (name == "Tfitp2hi")   { return &Tfit[1][5][0];   
-    } else if (name == "Pedfitn0hi") { return &Pedfit[1][0][0]; 
-    } else if (name == "Pedfitn1hi") { return &Pedfit[1][1][0]; 
-    } else if (name == "Pedfitn2hi") { return &Pedfit[1][2][0]; 
-    } else if (name == "Pedfitp0hi") { return &Pedfit[1][3][0]; 
-    } else if (name == "Pedfitp1hi") { return &Pedfit[1][4][0]; 
-    } else if (name == "Pedfitp2hi") { return &Pedfit[1][5][0]; 
-    } else if (name == "Chi2n0hi")   { return &Chi2[1][0][0];   
-    } else if (name == "Chi2n1hi")   { return &Chi2[1][1][0];   
-    } else if (name == "Chi2n2hi")   { return &Chi2[1][2][0];   
-    } else if (name == "Chi2p0hi")   { return &Chi2[1][3][0];   
-    } else if (name == "Chi2p1hi")   { return &Chi2[1][4][0];   
-    } else if (name == "Chi2p2hi")   { return &Chi2[1][5][0];   
+    } else if (name == "Efitn0hi")   { return &m_efit[1][0][0];   
+    } else if (name == "Efitn1hi")   { return &m_efit[1][1][0];   
+    } else if (name == "Efitn2hi")   { return &m_efit[1][2][0];   
+    } else if (name == "Efitp0hi")   { return &m_efit[1][3][0];   
+    } else if (name == "Efitp1hi")   { return &m_efit[1][4][0];   
+    } else if (name == "Efitp2hi")   { return &m_efit[1][5][0];   
+    } else if (name == "Tfitn0hi")   { return &m_tfit[1][0][0];   
+    } else if (name == "Tfitn1hi")   { return &m_tfit[1][1][0];   
+    } else if (name == "Tfitn2hi")   { return &m_tfit[1][2][0];   
+    } else if (name == "Tfitp0hi")   { return &m_tfit[1][3][0];   
+    } else if (name == "Tfitp1hi")   { return &m_tfit[1][4][0];   
+    } else if (name == "Tfitp2hi")   { return &m_tfit[1][5][0];   
+    } else if (name == "Pedfitn0hi") { return &m_pedfit[1][0][0]; 
+    } else if (name == "Pedfitn1hi") { return &m_pedfit[1][1][0]; 
+    } else if (name == "Pedfitn2hi") { return &m_pedfit[1][2][0]; 
+    } else if (name == "Pedfitp0hi") { return &m_pedfit[1][3][0]; 
+    } else if (name == "Pedfitp1hi") { return &m_pedfit[1][4][0]; 
+    } else if (name == "Pedfitp2hi") { return &m_pedfit[1][5][0]; 
+    } else if (name == "Chi2n0hi")   { return &m_chi2[1][0][0];   
+    } else if (name == "Chi2n1hi")   { return &m_chi2[1][1][0];   
+    } else if (name == "Chi2n2hi")   { return &m_chi2[1][2][0];   
+    } else if (name == "Chi2p0hi")   { return &m_chi2[1][3][0];   
+    } else if (name == "Chi2p1hi")   { return &m_chi2[1][4][0];   
+    } else if (name == "Chi2p2hi")   { return &m_chi2[1][5][0];   
 
     // now low-gain flat filter variables
-    } else if (m_rawChannelContainerFlat != "" && name == "Enen0lo")    { return &Ene[0][0][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Enen1lo")    { return &Ene[0][1][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Enen2lo")    { return &Ene[0][2][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Enep0lo")    { return &Ene[0][3][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Enep1lo")    { return &Ene[0][4][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Enep2lo")    { return &Ene[0][5][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Timen0lo")   { return &Time[0][0][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Timen1lo")   { return &Time[0][1][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Timen2lo")   { return &Time[0][2][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Timep0lo")   { return &Time[0][3][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Timep1lo")   { return &Time[0][4][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Timep2lo")   { return &Time[0][5][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Enen0lo")    { return &m_ene[0][0][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Enen1lo")    { return &m_ene[0][1][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Enen2lo")    { return &m_ene[0][2][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Enep0lo")    { return &m_ene[0][3][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Enep1lo")    { return &m_ene[0][4][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Enep2lo")    { return &m_ene[0][5][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Timen0lo")   { return &m_time[0][0][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Timen1lo")   { return &m_time[0][1][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Timen2lo")   { return &m_time[0][2][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Timep0lo")   { return &m_time[0][3][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Timep1lo")   { return &m_time[0][4][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Timep2lo")   { return &m_time[0][5][0];   
 
     // now high-gain flat filter variables
-    } else if (m_rawChannelContainerFlat != "" && name == "Enen0hi")    { return &Ene[1][0][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Enen1hi")    { return &Ene[1][1][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Enen2hi")    { return &Ene[1][2][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Enep0hi")    { return &Ene[1][3][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Enep1hi")    { return &Ene[1][4][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Enep2hi")    { return &Ene[0][5][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Timen0hi")   { return &Time[1][0][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Timen1hi")   { return &Time[1][1][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Timen2hi")   { return &Time[1][2][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Timep0hi")   { return &Time[1][3][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Timep1hi")   { return &Time[1][4][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Timep2hi")   { return &Time[1][5][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Enen0hi")    { return &m_ene[1][0][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Enen1hi")    { return &m_ene[1][1][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Enen2hi")    { return &m_ene[1][2][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Enep0hi")    { return &m_ene[1][3][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Enep1hi")    { return &m_ene[1][4][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Enep2hi")    { return &m_ene[0][5][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Timen0hi")   { return &m_time[1][0][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Timen1hi")   { return &m_time[1][1][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Timen2hi")   { return &m_time[1][2][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Timep0hi")   { return &m_time[1][3][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Timep1hi")   { return &m_time[1][4][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Timep2hi")   { return &m_time[1][5][0];   
 
     } else {
       return(NULL);
     }
   } else { // monogain
 
-    if        (name == "Efitn0")   { return &Efit[0][0][0];   
-    } else if (name == "Efitn1")   { return &Efit[0][1][0];   
-    } else if (name == "Efitn2")   { return &Efit[0][2][0];   
-    } else if (name == "Efitp0")   { return &Efit[0][3][0];   
-    } else if (name == "Efitp1")   { return &Efit[0][4][0];   
-    } else if (name == "Efitp2")   { return &Efit[0][5][0];   
-    } else if (name == "Tfitn0")   { return &Tfit[0][0][0];   
-    } else if (name == "Tfitn1")   { return &Tfit[0][1][0];   
-    } else if (name == "Tfitn2")   { return &Tfit[0][2][0];   
-    } else if (name == "Tfitp0")   { return &Tfit[0][3][0];   
-    } else if (name == "Tfitp1")   { return &Tfit[0][4][0];   
-    } else if (name == "Tfitp2")   { return &Tfit[0][5][0];   
-    } else if (name == "Pedfitn0") { return &Pedfit[0][0][0]; 
-    } else if (name == "Pedfitn1") { return &Pedfit[0][1][0]; 
-    } else if (name == "Pedfitn2") { return &Pedfit[0][2][0]; 
-    } else if (name == "Pedfitp0") { return &Pedfit[0][3][0]; 
-    } else if (name == "Pedfitp1") { return &Pedfit[0][4][0]; 
-    } else if (name == "Pedfitp2") { return &Pedfit[0][5][0]; 
-    } else if (name == "Chi2n0")   { return &Chi2[0][0][0];   
-    } else if (name == "Chi2n1")   { return &Chi2[0][1][0];   
-    } else if (name == "Chi2n2")   { return &Chi2[0][2][0];   
-    } else if (name == "Chi2p0")   { return &Chi2[0][3][0];   
-    } else if (name == "Chi2p1")   { return &Chi2[0][4][0];   
-    } else if (name == "Chi2p2")   { return &Chi2[0][5][0];   
+    if        (name == "Efitn0")   { return &m_efit[0][0][0];   
+    } else if (name == "Efitn1")   { return &m_efit[0][1][0];   
+    } else if (name == "Efitn2")   { return &m_efit[0][2][0];   
+    } else if (name == "Efitp0")   { return &m_efit[0][3][0];   
+    } else if (name == "Efitp1")   { return &m_efit[0][4][0];   
+    } else if (name == "Efitp2")   { return &m_efit[0][5][0];   
+    } else if (name == "Tfitn0")   { return &m_tfit[0][0][0];   
+    } else if (name == "Tfitn1")   { return &m_tfit[0][1][0];   
+    } else if (name == "Tfitn2")   { return &m_tfit[0][2][0];   
+    } else if (name == "Tfitp0")   { return &m_tfit[0][3][0];   
+    } else if (name == "Tfitp1")   { return &m_tfit[0][4][0];   
+    } else if (name == "Tfitp2")   { return &m_tfit[0][5][0];   
+    } else if (name == "Pedfitn0") { return &m_pedfit[0][0][0]; 
+    } else if (name == "Pedfitn1") { return &m_pedfit[0][1][0]; 
+    } else if (name == "Pedfitn2") { return &m_pedfit[0][2][0]; 
+    } else if (name == "Pedfitp0") { return &m_pedfit[0][3][0]; 
+    } else if (name == "Pedfitp1") { return &m_pedfit[0][4][0]; 
+    } else if (name == "Pedfitp2") { return &m_pedfit[0][5][0]; 
+    } else if (name == "Chi2n0")   { return &m_chi2[0][0][0];   
+    } else if (name == "Chi2n1")   { return &m_chi2[0][1][0];   
+    } else if (name == "Chi2n2")   { return &m_chi2[0][2][0];   
+    } else if (name == "Chi2p0")   { return &m_chi2[0][3][0];   
+    } else if (name == "Chi2p1")   { return &m_chi2[0][4][0];   
+    } else if (name == "Chi2p2")   { return &m_chi2[0][5][0];   
 
-    } else if (m_rawChannelContainerFlat != "" && name == "Enen0")    { return &Ene[0][0][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Enen1")    { return &Ene[0][1][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Enen2")    { return &Ene[0][2][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Enep0")    { return &Ene[0][3][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Enep1")    { return &Ene[0][4][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Enep2")    { return &Ene[0][5][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Timen0")   { return &Time[0][0][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Timen1")   { return &Time[0][1][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Timen2")   { return &Time[0][2][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Timep0")   { return &Time[0][3][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Timep1")   { return &Time[0][4][0];   
-    } else if (m_rawChannelContainerFlat != "" && name == "Timep2")   { return &Time[0][5][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Enen0")    { return &m_ene[0][0][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Enen1")    { return &m_ene[0][1][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Enen2")    { return &m_ene[0][2][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Enep0")    { return &m_ene[0][3][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Enep1")    { return &m_ene[0][4][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Enep2")    { return &m_ene[0][5][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Timen0")   { return &m_time[0][0][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Timen1")   { return &m_time[0][1][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Timen2")   { return &m_time[0][2][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Timep0")   { return &m_time[0][3][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Timep1")   { return &m_time[0][4][0];   
+    } else if (m_rawChannelContainerFlat != "" && name == "Timep2")   { return &m_time[0][5][0];   
 
     } else {
       return(NULL);

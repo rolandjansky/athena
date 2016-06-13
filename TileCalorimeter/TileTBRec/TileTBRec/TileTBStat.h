@@ -98,10 +98,10 @@ class TileTBStat: public AthAlgorithm {
     TileBeamElemContByteStreamCnv* m_beamCnv;
 
     int m_evtNr;
-    StatDouble LaserBoxTemp;
-    StatDouble LaserDiodeTemp;
-    StatDouble LaserBoxHum;
-    StatDouble GasFlow;
+    StatDouble m_laserBoxTemp;
+    StatDouble m_laserDiodeTemp;
+    StatDouble m_laserBoxHum;
+    StatDouble m_gasFlow;
     StatInt m_cisMode;
     StatInt m_cisSamples;
     StatInt m_cisPipeline;

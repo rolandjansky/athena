@@ -48,6 +48,7 @@
 #include "TileTBRec/TileTBAANtuple.h"
 
 #include <fstream>
+#include <sstream>
 
 #define WRONG_SAMPLE(frag,chan,size)                                    \
 msg(MSG::ERROR) << "Wrong no. of samples (" << size                     \
@@ -219,12 +220,14 @@ TileTBAANtuple::TileTBAANtuple(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
   declareProperty("TileDigitsContainer", m_digitsContainer = "TileDigitsCnt");
   declareProperty("TileBeamElemContainer", m_beamElemContainer = "TileBeamElemCnt");
-  declareProperty("TileRawChannelContainerFlat", m_flatRawChannelContainer = "TileRawChannelFlat");
-//  declareProperty("TileLaserObject", m_laserObject = "TileLaserObj");
-  declareProperty("TileLaserObject", m_laserObject = "");
-  declareProperty("TileRawChannelContainerFit", m_fitRawChannelContainer = ""); // don't create
-  declareProperty("TileRawChannelContainerFitCool", m_fitcRawChannelContainer = ""); // don't create
-  declareProperty("TileRawChannelContainerOpt", m_optRawChannelContainer = ""); // by default
+  // declareProperty("TileRawChannelContainerFlat", m_flatRawChannelContainer = "TileRawChannelFlat");
+  declareProperty("TileRawChannelContainerFlat", m_flatRawChannelContainer = ""); // don't create by default
+  // declareProperty("TileLaserObject", m_laserObject = "TileLaserObj");
+  declareProperty("TileLaserObject", m_laserObject = ""); // don't create by default
+  declareProperty("TileRawChannelContainerFit", m_fitRawChannelContainer = ""); // don't create by default
+  declareProperty("TileRawChannelContainerFitCool", m_fitcRawChannelContainer = ""); // don't create by default
+  //declareProperty("TileRawChannelContainerOpt", m_optRawChannelContainer = ""); // don't create by default
+  declareProperty("TileRawChannelContainerOpt", m_optRawChannelContainer = "TileRawChannelOpt2");
   declareProperty("TileRawChannelContainerDsp", m_dspRawChannelContainer = ""); //
   declareProperty("CalibrateEnergy", m_calibrateEnergy = true);
   declareProperty("UseDspUnits", m_useDspUnits = false);
@@ -234,6 +237,8 @@ TileTBAANtuple::TileTBAANtuple(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("CompleteNtuple", m_completeNtuple = true);
   declareProperty("CommitNtuple", m_commitNtuple = true);
   declareProperty("BSInput", m_bsInput = true);
+
+  declareProperty("TBperiod", m_TBperiod = 2015); // tuned for 2015 testbeam by default
 
   declareProperty("NTupleLoc", m_ntupleLoc = "/NTUPLES/FILE%d/TileRec");
   declareProperty("NTupleID", m_ntupleID = "h1000");
@@ -353,7 +358,45 @@ StatusCode TileTBAANtuple::ntuple_initialize() {
   CHECK( m_beamInfo->setProperty("TileBeamElemContainer", m_beamElemContainer) );
   CHECK( m_beamInfo->setProperty("TileDigitsContainer", m_digitsContainer) );
 
+  if (m_TBperiod >= 2015)  {
+      m_unpackAdder = false;
 
+      m_nSamples = 7;
+      m_nDrawers = 2;
+      m_drawerList.resize(2);    m_drawerType.resize(2);
+      m_drawerList[0] = "0x200"; m_drawerType[0] = 2; // barrel neg
+      m_drawerList[1] = "0x401"; m_drawerType[1] = 4; // barrel neg
+
+//      m_beamFragList.resize(5);
+//      m_beamFragList[0] = "0x01";
+//      m_beamFragList[1] = "0x02";
+//      m_beamFragList[2] = "0x03";
+//      m_beamFragList[3] = "0x13";
+//      m_beamFragList[4] = "0x1F";
+
+//      For BC1
+//      -------
+//      m_xCha1 = -0.0462586 + (-0.175666)*(m_btdc1[1] - m_btdc1[0]);
+//      m_yCha1 = -0.051923 + (-0.176809)*(m_btdc1[2] - m_btdc1[3]);
+//      
+//      For BC2
+//      -------
+//      m_xCha2 = 0.25202 + (-0.18053)*(m_btdc1[5] - m_btdc1[4]);
+//      m_yCha2 = 0.0431688 + (-0.181128)*(m_btdc1[6] - m_btdc1[7]);
+
+      m_beamBC1X1 = -0.0462586;
+      m_beamBC1X2 = -0.175666;
+      m_beamBC1Y1 = -0.051923 ;
+      m_beamBC1Y2 = -0.176809;
+      m_beamBC1Z  = 13000. + 2760 /* 2600. */;
+
+      m_beamBC2X1 = 0.25202;
+      m_beamBC2X2 = -0.18053;
+      m_beamBC2Y1 = 0.0431688;
+      m_beamBC2Y2 = -0.181128;
+      m_beamBC2Z  = 2760 /* 2600. */;
+  }
+  
   if (m_unpackAdder) {
     // get TileRawChannelBuilderFlatFilter for adder energy calculation
     CHECK( m_adderFilterAlgTool.retrieve() );
@@ -392,6 +435,7 @@ StatusCode TileTBAANtuple::ntuple_initialize() {
     }
   }
 
+  ATH_MSG_INFO( "TestBeam period " << m_TBperiod );
   ATH_MSG_INFO( "calibMode " << m_calibMode );
   ATH_MSG_INFO( "calibrateEnergy " << m_calibrateEnergy );
   ATH_MSG_INFO( "offlineUnits " << m_finalUnit );
@@ -559,15 +603,20 @@ StatusCode TileTBAANtuple::execute() {
   }
 
 
-  if ( m_completeNtuple ) {
+  if ( m_completeNtuple && m_TBperiod < 2015) {
     // store energy per sampling from all calorimeters
     empty &= (storeCells().isFailure());
   }
 
   if (m_beamCnv) {
-    m_evTime = m_beamCnv->eventFragment()->bc_time_seconds();
-    m_evt = m_beamCnv->eventFragment()->global_id();
-    // m_runNo = m_beamCnv->eventFragment()->run_no();  // run_no is 0 here
+    try {
+      m_evTime = m_beamCnv->eventFragment()->bc_time_seconds();
+      m_evt = m_beamCnv->eventFragment()->global_id();
+      // m_runNo = m_beamCnv->eventFragment()->run_no();  // run_no is 0 here
+    } catch (...) {
+      m_evTime = 0;
+      m_evt = m_evtNr;
+    }
     if ( m_beamCnv->validBeamFrag() )
       m_run = m_beamCnv->robFragment()->rod_run_no();   // take it from beam ROD header
     else
@@ -769,7 +818,20 @@ StatusCode TileTBAANtuple::storeBeamElements() {
 
           case BEAM_ADC_FRAG:
 
-            if ( m_unpackAdder ) {
+            if ( m_TBperiod >= 2015 ) {
+              switch(cha) {
+                  // BEAM
+                case 0: m_s1cou = amplitude; break;
+                case 1: m_s2cou = amplitude; break;
+                case 2: m_s3cou = amplitude; break;
+                case 3: m_cher1 = amplitude; break;
+                case 4: m_cher2 = amplitude; break;
+                case 5: m_muTag = amplitude; break;
+                case 6: m_muHalo= amplitude; break;
+                case 7: m_muVeto= amplitude; break;
+                default: WRONG_CHANNEL(frag, cha);
+              }
+            } else if ( m_unpackAdder ) {
               switch(cha) {
                   // BEAM
                 case 0: m_s1cou = amplitude; break;
@@ -1055,7 +1117,32 @@ StatusCode TileTBAANtuple::storeBeamElements() {
   }
 
   // calculate beam coords in Beam Chambers
-  if ( m_unpackAdder ) { // this is 2003 data
+  if ( m_TBperiod >= 2015 ) {
+
+//      For BC1
+//      -------
+//      m_xCha1 = -0.0462586 + (-0.175666)*(m_btdc1[1] - m_btdc1[0]);
+//      m_yCha1 = -0.051923 + (-0.176809)*(m_btdc1[2] - m_btdc1[3]);
+//      
+//      For BC2
+//      -------
+//      m_xCha2 = 0.25202 + (-0.18053)*(m_btdc1[5] - m_btdc1[4]);
+//      m_yCha2 = 0.0431688 + (-0.181128)*(m_btdc1[6] - m_btdc1[7]);
+
+      m_xCha1 = m_beamBC1X1 + m_beamBC1X2*(m_btdc1[1] - m_btdc1[0]);
+      m_yCha1 = m_beamBC1Y1 + m_beamBC1Y2*(m_btdc1[2] - m_btdc1[3]);
+      m_xCha2 = m_beamBC2X1 + m_beamBC2X2*(m_btdc1[5] - m_btdc1[4]);
+      m_yCha2 = m_beamBC2Y1 + m_beamBC2Y2*(m_btdc1[6] - m_btdc1[7]);
+
+      m_xImp  = m_xCha2 + (m_xCha2 - m_xCha1)*m_beamBC2Z/(m_beamBC1Z - m_beamBC2Z);
+      m_yImp  = m_yCha2 + (m_yCha2 - m_yCha1)*m_beamBC2Z/(m_beamBC1Z - m_beamBC2Z);
+
+      ATH_MSG_DEBUG( "BC1x  : ( "<< m_btdc1[0] <<" - "<< m_btdc1[1] <<" )\t" <<m_xCha1 );
+      ATH_MSG_DEBUG( "BC1y  : ( "<< m_btdc1[2] <<" - "<< m_btdc1[3] <<" )\t" <<m_yCha1 );
+      ATH_MSG_DEBUG( "BC2x  : ( "<< m_btdc1[4] <<" - "<< m_btdc1[5] <<" )\t" <<m_xCha2 );
+      ATH_MSG_DEBUG( "BC2y  : ( "<< m_btdc1[6] <<" - "<< m_btdc1[7] <<" )\t" <<m_yCha2 );
+
+  } else if ( m_unpackAdder ) { // this is 2003 data
 
     if ( m_beamIdList[BEAM_TDC_FRAG] ) {
       m_xCha1 = m_beamBC1X1 + m_beamBC1X2*(m_btdc1[6] - m_btdc1[7]); // last two channels of TDC !!!
@@ -1222,7 +1309,8 @@ StatusCode TileTBAANtuple::storeRawChannels(std::string containerId
 
     if (type < 0) {
       if ( (*itColl)->begin() != (*itColl)->end() )
-        ATH_MSG_WARNING( "frag id 0x"<<MSG::hex<<fragId<<MSG::dec <<" was not found among valid frag IDs when storing TRC!" );
+          //ATH_MSG_WARNING( "frag id 0x"<<MSG::hex<<fragId<<MSG::dec <<" was not found among valid frag IDs when storing TRC!" );
+        ATH_MSG_DEBUG( "frag id 0x"<<MSG::hex<<fragId<<MSG::dec <<" was not found among valid frag IDs when storing TRC!" );
     } else {
       fragType = m_drawerType[type];
       ATH_MSG_DEBUG( "TRC (" << containerId
@@ -1258,7 +1346,7 @@ StatusCode TileTBAANtuple::storeRawChannels(std::string containerId
         }
 
         // cabling for testbeam (convert to pmt#-1)
-        if (fragType > 0) channel = digiChannel2PMT(fragType, channel);
+        if ((m_TBperiod < 2015 || fragType<3) && fragType > 0) channel = digiChannel2PMT(fragType, channel);
 
         //	if  ( int((eneVec->at(index))->size()) < (channel+1) ) (eneVec->at(index))->resize(channel+1); //ugly
         (eneVec->at(index))[channel] = energy;
@@ -1356,7 +1444,8 @@ StatusCode TileTBAANtuple::storeDigits() {
 
     if (type < 0) {
       if ( (*itColl)->begin() != (*itColl)->end() )
-        ATH_MSG_WARNING( "frag id 0x" << MSG::hex << fragId << MSG::dec <<" was not found among valid frag IDs when storing TRC!" );
+          //ATH_MSG_WARNING( "frag id 0x" << MSG::hex << fragId << MSG::dec <<" was not found among valid frag IDs when storing TRC!" );
+        ATH_MSG_DEBUG( "frag id 0x" << MSG::hex << fragId << MSG::dec <<" was not found among valid frag IDs when storing TRC!" );
 
     } else {
       fragType = m_drawerType[type];
@@ -1468,7 +1557,7 @@ StatusCode TileTBAANtuple::storeDigits() {
             // determine channel
             channel = m_tileHWID->channel(hwid);
             // cabling for testbeam (convert to pmt#-1)
-            if (fragType > 0) channel = digiChannel2PMT(fragType, channel);
+            if ((m_TBperiod < 2015 || fragType<3) && fragType > 0) channel = digiChannel2PMT(fragType, channel);
 
             /*	    if  ( int((m_gainVec.at(type))->size()) < (channel+1) ) {
              (m_gainVec.at(type))->resize(channel+1); //ugly
@@ -1551,7 +1640,7 @@ StatusCode TileTBAANtuple::storeDigits() {
           // determine channel
           channel = m_tileHWID->channel(hwid);
           // cabling for testbeam
-          if (fragType > 0) channel = digiChannel2PMT(fragType, channel);
+          if ((m_TBperiod < 2015 || fragType<3) && fragType > 0) channel = digiChannel2PMT(fragType, channel);
 
           // gain
           /*if ( int((m_gainVec.at(type))->size()) < (channel+1) ) {
@@ -1616,12 +1705,12 @@ StatusCode TileTBAANtuple::ntuple_clear() {
     CISPAR_clearBranch();
   }
 
-  if ((m_unpackAdder && m_beamIdList[BEAM_ADC_FRAG])
+  if (((m_TBperiod >= 2015 || m_unpackAdder) && m_beamIdList[BEAM_ADC_FRAG])
       || (!m_unpackAdder && m_beamIdList[COMMON_ADC1_FRAG])) {
     BEAM_clearBranch();
   }
 
-  if (m_completeNtuple) {
+  if (m_completeNtuple && m_TBperiod < 2015) {
     ENETOTAL_clearBranch();
   }
 
@@ -1637,7 +1726,6 @@ StatusCode TileTBAANtuple::ntuple_clear() {
 
 StatusCode TileTBAANtuple::initNTuple(void) {
   MsgStream log(msgSvc(), name());
-  StatusCode sc;
 
   m_evtVec.clear();
   m_bcidVec.clear();
@@ -1705,13 +1793,15 @@ StatusCode TileTBAANtuple::initNTuple(void) {
 
   TRIGGER_addBranch();
   MUON_addBranch();
-  ECAL_addBranch();
-  LASER_addBranch();
-  ADDER_addBranch();
+  if (m_TBperiod < 2015) {
+    ECAL_addBranch();
+    LASER_addBranch();
+    ADDER_addBranch();
+    ENETOTAL_addBranch();
+    COINCBOARD_addBranch();
+  }
   CISPAR_addBranch();
   BEAM_addBranch();
-  ENETOTAL_addBranch();
-  COINCBOARD_addBranch();
   DIGI_addBranch(); //working now
 
 
@@ -2034,8 +2124,12 @@ void TileTBAANtuple::MUON_addBranch(void)
 
       m_muBack = new float[14];
       m_muCalib = new float[2];
-      m_ntuplePtr->Branch("MuBack",m_muBack,"m_muBack[14]");
-      m_ntuplePtr->Branch("MuCalib",m_muCalib,"m_muCalib[2]");
+      if (m_TBperiod < 2015) {
+        m_ntuplePtr->Branch("MuBack",m_muBack,"m_muBack[14]");
+        m_ntuplePtr->Branch("MuCalib",m_muCalib,"m_muCalib[2]");
+      } else {
+        m_ntuplePtr->Branch("MuBack",m_muBack,"MuBack[8]/F");
+      }
     }
 
 
@@ -2295,7 +2389,7 @@ void TileTBAANtuple::CISPAR_addBranch(void) {
 
   if (m_beamIdList[DIGI_PAR_FRAG & 0x1F]) {
 
-    m_ntuplePtr->Branch("Cispar", m_cispar, "m_cispar[16]/I");
+    m_ntuplePtr->Branch("cispar", m_cispar, "cispar[16]/I");
   }
 }
 
@@ -2307,10 +2401,7 @@ void TileTBAANtuple::CISPAR_addBranch(void) {
 */
 void TileTBAANtuple::CISPAR_clearBranch(void)
 {
-
-  //  m_cispar->clear();
-  //m_cispar->resize(16);
-
+  memset(m_cispar,-1,sizeof(m_cispar));
 }
 
 
@@ -2322,20 +2413,27 @@ void TileTBAANtuple::CISPAR_clearBranch(void)
 */
 void TileTBAANtuple::BEAM_addBranch(void) {
 
-  if ((m_unpackAdder && m_beamIdList[BEAM_ADC_FRAG])
+    if (((m_TBperiod >= 2015 || m_unpackAdder) && m_beamIdList[BEAM_ADC_FRAG])
       || (!m_unpackAdder && m_beamIdList[COMMON_ADC1_FRAG])) {
 
     m_ntuplePtr->Branch("S1cou", &m_s1cou, "S1cou/S");
     m_ntuplePtr->Branch("S2cou", &m_s2cou, "S2cou/S");
     m_ntuplePtr->Branch("S3cou", &m_s3cou, "S3cou/S");
-    m_ntuplePtr->Branch("MuTag", &m_muTag, "MuTag/S");
     m_ntuplePtr->Branch("Cher1", &m_cher1, "Cher1/S");
     m_ntuplePtr->Branch("Cher2", &m_cher2, "Cher2/S");
-    m_ntuplePtr->Branch("MuHalo", &m_muHalo, "MuHalo/S");
-    m_ntuplePtr->Branch("MuVeto", &m_muVeto, "MuVeto/S");
+    if (m_TBperiod < 2015) {
+      m_ntuplePtr->Branch("MuTag", &m_muTag, "MuTag/S");
+      m_ntuplePtr->Branch("MuHalo", &m_muHalo, "MuHalo/S");
+      m_ntuplePtr->Branch("MuVeto", &m_muVeto, "MuVeto/S");
+    }
   }
 
-  if (!m_unpackAdder) {
+  if (m_TBperiod >= 2015) {
+    if (m_beamIdList[COMMON_TDC1_FRAG]) {
+      m_btdc1 = new int[16];
+      m_ntuplePtr->Branch("btdc1", m_btdc1, "m_btdc1[8]/I");
+    }
+  } else if (!m_unpackAdder) {
     if (m_beamIdList[COMMON_ADC2_FRAG]) {
       m_ntuplePtr->Branch("S2extra", &m_s2extra, "S2extra/S");
       m_ntuplePtr->Branch("S2cou", &m_s3extra, "S3extra/S");
@@ -2379,7 +2477,8 @@ void TileTBAANtuple::BEAM_addBranch(void) {
     }
   }
 
-  if ((m_unpackAdder && m_beamIdList[BEAM_TDC_FRAG])
+  if ((m_TBperiod >= 2015 && m_beamIdList[COMMON_TDC1_FRAG])
+      || (m_unpackAdder && m_beamIdList[BEAM_TDC_FRAG])
       || (!m_unpackAdder && m_beamIdList[COMMON_TDC2_FRAG])) {
 
     m_ntuplePtr->Branch("Xcha1", &m_xCha1, "Xcha1/F");
@@ -2606,7 +2705,10 @@ void TileTBAANtuple::DIGI_addBranch(void)
   m_ROD_DMUDataparityErrVec.reserve(MAX_DRAWERS);
   m_ROD_DMUMaskVec.reserve(MAX_DRAWERS);
 
-
+  std::ostringstream oss;
+  oss << m_nSamples;
+  std::string nSampStr=oss.str();
+  
   unsigned int listSize = std::min (m_nDrawers, static_cast<unsigned int>(m_drawerMap.size()) );
 
   if (listSize > 0) {
@@ -2703,10 +2805,10 @@ void TileTBAANtuple::DIGI_addBranch(void)
       int *gain = new int[N_CHANS];
 
       int **sample = (int**) malloc(N_CHANS * sizeof(int *));
-      sample[0] = (int*) malloc(N_CHANS * 9 * sizeof(int));
-      memset(sample[0], 0, sizeof(int) * 9 * N_CHANS);
+      sample[0] = (int*) malloc(N_CHANS * m_nSamples * sizeof(int));
+      memset(sample[0], -1, sizeof(int) * m_nSamples * N_CHANS);
       for (int j = 1; j < N_CHANS; j++) {
-        sample[j] = sample[0] + j * 9;
+        sample[j] = sample[0] + j * m_nSamples;
       }
 
       int *fe_crc = new int[N_DMUS];
@@ -2796,29 +2898,34 @@ void TileTBAANtuple::DIGI_addBranch(void)
        // create ntuple layout
        ATH_MSG_DEBUG( "Adding Leaf to Event '" << ("Evt" + suffixArr[i]) << "' @" << evt );
 
-       m_ntuplePtr->Branch(("Evt"+suffixArr[i]).c_str(),evt,("Evt"+suffixArr[i]+"/I").c_str()); // uint
-       m_ntuplePtr->Branch(("rodBCID"+suffixArr[i]).c_str(),rodBCID,("rodBCID"+suffixArr[i]+"/S").c_str());//uint
-       m_ntuplePtr->Branch(("Size"+suffixArr[i]).c_str(),size,("Size"+suffixArr[i]+"/S").c_str()); // uint
-       m_ntuplePtr->Branch(("BCID"+suffixArr[i]).c_str(),m_bcidVec.back(),("bcid"+suffixArr[i]+"[16]/i").c_str()); // int
-       m_ntuplePtr->Branch(("DMUheader"+suffixArr[i]).c_str(),m_DMUheaderVec.back(),("DMUheader"+suffixArr[i]+"[16]/i").c_str()); // uint32
-       m_ntuplePtr->Branch(("DMUformatErr"+suffixArr[i]).c_str(),m_DMUformatErrVec.back(),("DMUformatErr"+suffixArr[i]+"[16]/S").c_str()); // short
-       m_ntuplePtr->Branch(("DMUparityErr"+suffixArr[i]).c_str(),m_DMUparityErrVec.back(),("DMUparityErr"+suffixArr[i]+"[16]/S").c_str()); // short
-       m_ntuplePtr->Branch(("DMUmemoryErr"+suffixArr[i]).c_str(),m_DMUmemoryErrVec.back(),("DMUmemoryErr"+suffixArr[i]+"[16]/S").c_str()); // short
-       m_ntuplePtr->Branch(("DMUSstrobeErr"+suffixArr[i]).c_str(),m_DMUSstrobeErrVec.back(),("DMUSstrobeErr"+suffixArr[i]+"[16]/S").c_str()); // short
-       m_ntuplePtr->Branch(("DMUDstrobeErr"+suffixArr[i]).c_str(),m_DMUDstrobeErrVec.back(),("DMUDstrobeErr"+suffixArr[i]+"[16]/S").c_str()); // short
-       m_ntuplePtr->Branch(("DMUMask"+suffixArr[i]).c_str(),m_dmuMaskVec.back(),("dmumask"+suffixArr[i]+"[2]/I").c_str()); // uint
-       m_ntuplePtr->Branch(("SlinkCRC"+suffixArr[i]).c_str(),m_slinkCRCVec.back(),("crc"+suffixArr[i]+"[2]/I").c_str()); // uint
-       m_ntuplePtr->Branch(("Gain"+suffixArr[i]).c_str(),m_gainVec.back(),("gain"+suffixArr[i]+"[48]/I").c_str()); // uint
+      if (m_bsInput) {
+         m_ntuplePtr->Branch(("Evt"+suffixArr[i]).c_str(),evt,("Evt"+suffixArr[i]+"/I").c_str()); // int
+         m_ntuplePtr->Branch(("rodBCID"+suffixArr[i]).c_str(),rodBCID,("rodBCID"+suffixArr[i]+"/S").c_str());//int
+         m_ntuplePtr->Branch(("Size"+suffixArr[i]).c_str(),size,("Size"+suffixArr[i]+"/S").c_str()); // short
+         m_ntuplePtr->Branch(("BCID"+suffixArr[i]).c_str(),m_bcidVec.back(),("bcid"+suffixArr[i]+"[16]/I").c_str()); // int
+         m_ntuplePtr->Branch(("DMUheader"+suffixArr[i]).c_str(),m_DMUheaderVec.back(),("DMUheader"+suffixArr[i]+"[16]/i").c_str()); // uint32
+         m_ntuplePtr->Branch(("DMUformatErr"+suffixArr[i]).c_str(),m_DMUformatErrVec.back(),("DMUformatErr"+suffixArr[i]+"[16]/S").c_str()); // short
+         m_ntuplePtr->Branch(("DMUparityErr"+suffixArr[i]).c_str(),m_DMUparityErrVec.back(),("DMUparityErr"+suffixArr[i]+"[16]/S").c_str()); // short
+         m_ntuplePtr->Branch(("DMUmemoryErr"+suffixArr[i]).c_str(),m_DMUmemoryErrVec.back(),("DMUmemoryErr"+suffixArr[i]+"[16]/S").c_str()); // short
+         m_ntuplePtr->Branch(("DMUSstrobeErr"+suffixArr[i]).c_str(),m_DMUSstrobeErrVec.back(),("DMUSstrobeErr"+suffixArr[i]+"[16]/S").c_str()); // short
+         m_ntuplePtr->Branch(("DMUDstrobeErr"+suffixArr[i]).c_str(),m_DMUDstrobeErrVec.back(),("DMUDstrobeErr"+suffixArr[i]+"[16]/S").c_str()); // short
+         m_ntuplePtr->Branch(("DMUMask"+suffixArr[i]).c_str(),m_dmuMaskVec.back(),("dmumask"+suffixArr[i]+"[2]/I").c_str()); // int
+         m_ntuplePtr->Branch(("SlinkCRC"+suffixArr[i]).c_str(),m_slinkCRCVec.back(),("crc"+suffixArr[i]+"[2]/I").c_str()); // int
+      }
+      
+      m_ntuplePtr->Branch(("Gain"+suffixArr[i]).c_str(),m_gainVec.back(),("gain"+suffixArr[i]+"[48]/I").c_str()); // int
 
        if (m_nSamples > 0) {
           m_ntuplePtr->Branch(("Sample" + suffixArr[i]).c_str(), *sample,
-              ("sample" + suffixArr[i] + "[48][9]/I").c_str()); // size m_nsample and type uint
+              ("sample" + suffixArr[i] + "[48]["+nSampStr+"]/I").c_str()); // size m_nsample and type int
           //m_ntuplePtr->Branch(("Sample"+suffixArr[i]).c_str(),&(m_sampleVec.back())); // size m_nsample and type double (but int in reality)
         }
 
-        m_ntuplePtr->Branch(("feCRC" + suffixArr[i]).c_str(), m_feCRCVec.back(), ("fe_crc" + suffixArr[i] + "[16]/I").c_str()); // uint
-        m_ntuplePtr->Branch(("rodCRC" + suffixArr[i]).c_str(), m_rodCRCVec.back(), ("rod_crc" + suffixArr[i] + "[16]/I").c_str()); // uint
-
+        if (m_bsInput) {
+          m_ntuplePtr->Branch(("feCRC" + suffixArr[i]).c_str(), m_feCRCVec.back(), ("fe_crc" + suffixArr[i] + "[16]/I").c_str()); // int
+          m_ntuplePtr->Branch(("rodCRC" + suffixArr[i]).c_str(), m_rodCRCVec.back(), ("rod_crc" + suffixArr[i] + "[16]/I").c_str()); // int
+        }
+        
         if (m_flatRawChannelContainer.size() > 0) {
 
           m_ntuplePtr->Branch(("Ene" + suffixArr[i]).c_str(), m_eneVec.back(), ("ene" + suffixArr[i] + "[48]/F").c_str()); // float
@@ -2884,155 +2991,98 @@ void TileTBAANtuple::DIGI_addBranch(void)
 /**
 //////////////////////////////////////////////////////////////////////////////
 ///Clear Tree DIGI variables
-///No longer needed with arrays
 //////////////////////////////////////////////////////////////////////////////
 */
 void TileTBAANtuple::DIGI_clearBranch(void)
 {
+  clear_int(m_evtVec,1);
+  clear_short(m_rodBCIDVec,1);
+  clear_short(m_sizeVec,1);
 
+  clear_int(m_bcidVec,N_DMUS);
+  clear_uint32(m_DMUheaderVec,N_DMUS);
+  clear_short(m_DMUformatErrVec,N_DMUS);
+  clear_short(m_DMUparityErrVec,N_DMUS);
+  clear_short(m_DMUmemoryErrVec,N_DMUS);
+  clear_short(m_DMUDstrobeErrVec,N_DMUS);
+  clear_short(m_DMUSstrobeErrVec,N_DMUS);
 
-  /*  std::vector<std::vector<int>*>::iterator itl,itlend;
-  std::vector<std::vector<int>*>::iterator iti,itiend;
-  std::vector<std::vector<float>*>::iterator itf,itfend;
-  std::vector< std::vector< std::vector<int> >* >::iterator itd,itdend;
-  std::vector<std::vector<int> >::iterator iti2,iti2end;
-  */
-  std::vector< TMatrixT<double>* >::iterator itm,itmend;
+  clear_short(m_ROD_GlobalCRCVec,1);
+  clear_short(m_ROD_DMUBCIDVec,N_DMUS);
+  clear_short(m_ROD_DMUmemoryErrVec,N_DMUS);
+  clear_short(m_ROD_DMUSstrobeErrVec,N_DMUS);
+  clear_short(m_ROD_DMUDstrobeErrVec,N_DMUS);
+  clear_short(m_ROD_DMUHeadformatErrVec,N_DMUS);
+  clear_short(m_ROD_DMUHeadparityErrVec,N_DMUS);
+  clear_short(m_ROD_DMUDataformatErrVec,N_DMUS);
+  clear_short(m_ROD_DMUDataparityErrVec,N_DMUS);
+  clear_short(m_ROD_DMUMaskVec,2);
 
-  /*   iti= m_bcidVec.begin();
-  itiend = m_bcidVec.end();
+  clear_int(m_dmuMaskVec,2);
+  clear_int(m_slinkCRCVec,2);
+  clear_int(m_gainVec,N_CHANS);
+  clear_intint(m_sampleVec,N_CHANS);
+  clear_int(m_feCRCVec,N_DMUS);
+  clear_int(m_rodCRCVec,N_DMUS);
 
-  for (; iti != itiend; ++iti) {
-    (*iti)->clear();
+  clear_float(m_eneVec);
+  clear_float(m_timeVec);
+  clear_float(m_pedFlatVec);
+  clear_float(m_chi2FlatVec);
+  clear_float(m_efitVec);
+  clear_float(m_tfitVec);
+  clear_float(m_pedfitVec);
+  clear_float(m_chi2Vec);
+  clear_float(m_efitcVec);
+  clear_float(m_tfitcVec);
+  clear_float(m_pedfitcVec);
+  clear_float(m_chi2cVec);
+  clear_float(m_eOptVec);
+  clear_float(m_tOptVec);
+  clear_float(m_pedOptVec);
+  clear_float(m_chi2OptVec);
+  clear_float(m_eDspVec);
+  clear_float(m_tDspVec);
+  clear_float(m_chi2DspVec);
+}
+
+void TileTBAANtuple::clear_short(std::vector<short*> & vec, int nchan)
+{
+  for (std::vector<short*>::iterator it=vec.begin(); it!=vec.end(); ++it) {
+    short * ptr = *it;
+    memset(ptr,-1,sizeof(short)*nchan);
   }
+}
 
-  itl = m_dmuMaskVec.begin();
-  itlend = m_dmuMaskVec.end();
-  for (; itl != itlend; ++itl) {
-    (*itl)->clear();
+void TileTBAANtuple::clear_int(std::vector<int*> & vec, int nchan)
+{
+  for (std::vector<int*>::iterator it=vec.begin(); it!=vec.end(); ++it) {
+    int * ptr = *it;
+    memset(ptr,-1,sizeof(int)*nchan);
   }
+}
 
-  itl = m_slinkCRCVec.begin();
-  itlend = m_slinkCRCVec.end();
-  for (; itl != itlend; ++itl) {
-    (*itl)->clear();
+void TileTBAANtuple::clear_uint32(std::vector<uint32_t*> & vec, int nchan)
+{
+  for (std::vector<uint32_t*>::iterator it=vec.begin(); it!=vec.end(); ++it) {
+    uint32_t * ptr = *it;
+    memset(ptr,0,sizeof(uint32_t)*nchan);
   }
+}
 
-  itl = m_gainVec.begin();
-  itlend = m_gainVec.end();
-  for (; itl != itlend; ++itl) {
-    (*itl)->clear();
+void TileTBAANtuple::clear_float(std::vector<float*> & vec, int nchan)
+{
+  for (std::vector<float*>::iterator it=vec.begin(); it!=vec.end(); ++it) {
+    float * ptr = *it;
+    memset(ptr,0,sizeof(float)*nchan);
   }
+}
 
-  itl = m_feCRCVec.begin();
-  itlend = m_feCRCVec.end();
-  for (; itl != itlend; ++itl) {
-    (*itl)->clear();
+void TileTBAANtuple::clear_intint(std::vector<int**> & vec, int nchan)
+{
+  for (std::vector<int**>::iterator it=vec.begin(); it!=vec.end(); ++it) {
+    int **ptr = *it;
+    memset(ptr[0], -1, sizeof(int) * m_nSamples * nchan);
   }
-
-  itl = m_rodCRCVec.begin();
-  itlend = m_rodCRCVec.end();
-  for (; itl != itlend; ++itl) {
-    (*itl)->clear();
-  }
-
-  itf = m_eneVec.begin();
-  itfend = m_eneVec.end();
-  for (; itf != itfend; ++itf) {
-    (*itf)->clear();
-  }
-
-  itf = m_timeVec.begin();
-  itfend = m_timeVec.end();
-  for (; itf != itfend; ++itf) {
-    (*itf)->clear();
-  }
-
-  itf = m_efitVec.begin();
-  itfend = m_efitVec.end();
-  for (; itf != itfend; ++itf) {
-    (*itf)->clear();
-  }
-
-  itf = m_tfitVec.begin();
-  itfend = m_tfitVec.end();
-  for (; itf != itfend; ++itf) {
-    (*itf)->clear();
-  }
-
-  itf = m_pedfitVec.begin();
-  itfend = m_pedfitVec.end();
-  for (; itf != itfend; ++itf) {
-    (*itf)->clear();
-  }
-
-  itf = m_chi2Vec.begin();
-  itfend = m_chi2Vec.end();
-  for (; itf != itfend; ++itf) {
-    (*itf)->clear();
-  }
-
-  itf = m_eOptVec.begin();
-  itfend = m_eOptVec.end();
-  for (; itf != itfend; ++itf) {
-    (*itf)->clear();
-  }
-
-  itf = m_tOptVec.begin();
-  itfend = m_tOptVec.end();
-  for (; itf != itfend; ++itf) {
-    (*itf)->clear();
-  }
-
-  itf = m_pedOptVec.begin();
-  itfend = m_pedOptVec.end();
-  for (; itf != itfend; ++itf) {
-    (*itf)->clear();
-  }
-
-  itf = m_chi2OptVec.begin();
-  itfend = m_chi2OptVec.end();
-  for (; itf != itfend; ++itf) {
-    (*itf)->clear();
-  }
-
-  itf = m_eDspVec.begin();
-  itfend = m_eDspVec.end();
-  for (; itf != itfend; ++itf) {
-    (*itf)->clear();
-  }
-
-  itf = m_tDspVec.begin();
-  itfend = m_tDspVec.end();
-  for (; itf != itfend; ++itf) {
-    (*itf)->clear();
-  }
-
-  itf = m_chi2DspVec.begin();
-  itfend = m_chi2DspVec.end();
-  for (; itf != itfend; ++itf) {
-    (*itf)->clear();
-  }
-
-  itd = m_sampleVec.begin();
-  itdend = m_sampleVec.end();
-  for (; itd != itdend; ++itd) {
-    iti2 = (*itd)->begin();
-    iti2end = (*itd)->end();
-    for (; iti2 != iti2end; ++iti2) {
-      (*iti2).clear();
-    }
-    (*itd)->clear();
-    (*itd)->resize(48);
-  }
-
-  itm = m_sampleVec.begin();
-  itmend = m_sampleVec.end();
-  for (; itm != itmend; ++itm) {
-
-    (*itm)->Clear();
-    (*itm)->ResizeTo(N_CHANS, m_nSamples);
-  }
-  */
 }
 

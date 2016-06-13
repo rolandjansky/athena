@@ -66,12 +66,12 @@ private:
 
   Float_t * BranchWriteNtuple(const std::string name);
 
-  Float_t    Ene[2][6][48];
-  Float_t   Time[2][6][48];
-  Float_t   Efit[2][6][48];
-  Float_t   Tfit[2][6][48];
-  Float_t Pedfit[2][6][48];
-  Float_t   Chi2[2][6][48];
+  Float_t    m_ene[2][6][48];
+  Float_t   m_time[2][6][48];
+  Float_t   m_efit[2][6][48];
+  Float_t   m_tfit[2][6][48];
+  Float_t m_pedfit[2][6][48];
+  Float_t   m_chi2[2][6][48];
 };
 
 #endif

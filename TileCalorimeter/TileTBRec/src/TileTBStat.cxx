@@ -414,10 +414,10 @@ StatusCode TileTBStat::execute() {
   } else {
     m_lasFiltNum.addValue(pTileLasObj->getFiltNumber());
     m_lasAmp.addValue((int)pTileLasObj->getDiodeCurrOrd());
-    LaserBoxTemp.addValue(pTileLasObj->getDiodeBoxTemp());
-    LaserDiodeTemp.addValue(pTileLasObj->getPumpDiodeTemp());
-    LaserBoxHum.addValue(pTileLasObj->getHumidity());
-    GasFlow.addValue(pTileLasObj->getGasFlux());
+    m_laserBoxTemp.addValue(pTileLasObj->getDiodeBoxTemp());
+    m_laserDiodeTemp.addValue(pTileLasObj->getPumpDiodeTemp());
+    m_laserBoxHum.addValue(pTileLasObj->getHumidity());
+    m_gasFlow.addValue(pTileLasObj->getGasFlux());
     m_lasStatus = (pTileLasObj->getAlarm() << 0x9) + (pTileLasObj->getInterlock() << 0x8) + (pTileLasObj->getShutter() << 0x6)
     + ((int)pTileLasObj->getHVpmts() << 0x4) + ((int)pTileLasObj->getLVdiodes() << 0x3) + (pTileLasObj->getAlphaPos());
     int lasAlpha = (int)pTileLasObj->getAlphaPos() & 0x7;
@@ -528,11 +528,11 @@ StatusCode TileTBStat::finalize() {
   std::cout << "LasFrag begin" << std::endl;
   m_lasFiltNum.print("FilterWheel");
   m_lasAmp.print("ReqAmp");
-  std::cout << "Counter " << LaserDiodeTemp.Counter << std::endl;
-  LaserDiodeTemp.print("LaserDiodeTemp");
-  LaserBoxTemp.print  ("LaserBoxTemp  ");
-  LaserBoxHum.print   ("LaserBoxHum   ");
-  GasFlow.print       ("GasFlow       ");
+  std::cout << "Counter " << m_laserDiodeTemp.Counter << std::endl;
+  m_laserDiodeTemp.print("LaserDiodeTemp");
+  m_laserBoxTemp.print  ("LaserBoxTemp  ");
+  m_laserBoxHum.print   ("LaserBoxHum   ");
+  m_gasFlow.print       ("GasFlow       ");
   m_check0 = ~m_checkOn;
   m_check1 = ~m_checkOff;
   m_check2 = ~(m_check0 ^ m_check1);

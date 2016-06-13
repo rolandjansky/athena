@@ -130,11 +130,23 @@ TileTBDump::TileTBDump(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("dumpStatus", m_dumpStatus = true);
   declareProperty("dumpOnce", m_dumpOnce = false);
   declareProperty("dumpUnknown", m_dumpUnknown = false);
+  declareProperty("showUnknown", m_showUnknown = true);
 
   declareProperty("TileCondToolTiming", m_tileToolTiming);
   declareProperty("TileCondToolOfcCool", m_tileCondToolOfcCool, "TileCondToolOfcCool");
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
-  
+ 
+  declareProperty("bc_time_seconds",     m_bc_time_seconds      = -1);
+  declareProperty("bc_time_nanoseconds", m_bc_time_nanoseconds  = -1);
+  declareProperty("global_id",           m_global_id            = -1);
+  declareProperty("run_type",            m_run_type             = -1);
+  declareProperty("run_no",              m_run_no               = -1);
+  declareProperty("lumi_block",          m_lumi_block           = -1);
+  declareProperty("lvl1_id",             m_lvl1_id              = -1);
+  declareProperty("bc_id",               m_bc_id                = -1);
+  declareProperty("lvl1_trigger_type",   m_lvl1_trigger_type    = -1);
+  declareProperty("nlvl1_trigger_info",  m_nlvl1_trigger_info   = -1);
+
   m_v3Format = true;
   m_frag5found = false;
   m_sizeOverhead = 3;
@@ -148,7 +160,7 @@ TileTBDump::~TileTBDump() {
 // Alg standard interface function
 StatusCode TileTBDump::initialize() {
   
-  memset(StatFrag5, 0, sizeof(StatFrag5));
+  memset(m_statFrag5, 0, sizeof(m_statFrag5));
    
   CHECK( m_RobSvc.retrieve() );
 
@@ -190,7 +202,7 @@ StatusCode TileTBDump::finalize() {
     std::cout << std::endl << "StatFrag5[40..129]";
     for (int i = 40; i < 130; i++) {
       if (i % 10 == 0) std::cout << std::endl << "  [" << std::setw(3) << i << "] : ";
-      std::cout << std::setw(9) << StatFrag5[i];
+      std::cout << std::setw(9) << m_statFrag5[i];
     }
     std::cout << std::endl; 
   }
@@ -223,6 +235,17 @@ StatusCode TileTBDump::execute() {
   // take full event
   const eformat::FullEventFragment<const uint32_t*> * event = m_RobSvc->getEvent();
   
+  if (m_bc_time_seconds     >=0 && m_bc_time_seconds     != (int32_t)event->bc_time_seconds()) return StatusCode::SUCCESS;
+  if (m_bc_time_nanoseconds >=0 && m_bc_time_nanoseconds != (int32_t)event->bc_time_nanoseconds()) return StatusCode::SUCCESS;
+  if (m_global_id           >=0 && m_global_id           != (int32_t)event->global_id()) return StatusCode::SUCCESS;
+  if (m_run_type            >=0 && m_run_type            != (int32_t)event->run_type()) return StatusCode::SUCCESS;
+  if (m_run_no              >=0 && m_run_no              != (int32_t)event->run_no()) return StatusCode::SUCCESS;
+  if (m_lumi_block          >=0 && m_lumi_block          != (int32_t)event->lumi_block()) return StatusCode::SUCCESS;
+  if (m_lvl1_id             >=0 && m_lvl1_id             != (int32_t)event->lvl1_id()) return StatusCode::SUCCESS;
+  if (m_bc_id               >=0 && m_bc_id               != (int32_t)event->bc_id()) return StatusCode::SUCCESS;
+  if (m_lvl1_trigger_type   >=0 && m_lvl1_trigger_type   != (int32_t)event->lvl1_trigger_type()) return StatusCode::SUCCESS;
+  if (m_nlvl1_trigger_info  >=0 && m_nlvl1_trigger_info  != (int32_t)event->nlvl1_trigger_info()) return StatusCode::SUCCESS;
+
   std::cout << "============================" << std::endl;
   std::cout << "Event time (sec): " << (uint32_t)event->bc_time_seconds() << std::endl;
   std::cout << "Event time (ns):  " << (uint32_t)event->bc_time_nanoseconds() << std::endl;
@@ -253,13 +276,6 @@ StatusCode TileTBDump::execute() {
     event->child(fprob, irob);
     const eformat::ROBFragment<const uint32_t*> robf(fprob);
 
-    std::cout << "  ROB frag ID " << std::hex << "0x" << robf.source_id() << std::dec
-              << " size " << robf.fragment_size_word() << std::endl;
-
-    // Here we should unpack the fragment.
-    std::cout << "    ROD frag ID " << std::hex << "0x" << robf.rod_source_id() << std::dec
-              << " size " << robf.rod_fragment_size_word() << std::endl;
-
     //
     // get info on ROD
     //
@@ -272,6 +288,17 @@ StatusCode TileTBDump::execute() {
 
     bool known = m_dumpUnknown || subdet_id == 0x70  // COMMON BEAM ROD in CTB2004
                  || (subdet_id >= 0x50 && subdet_id < 0x60); // TileCal IDs
+
+    if (!(known || m_showUnknown)) {
+      continue;
+    }
+
+    std::cout << "  ROB frag ID " << std::hex << "0x" << robf.source_id() << std::dec
+              << " size " << robf.fragment_size_word() << std::endl;
+
+    // Here we should unpack the fragment.
+    std::cout << "    ROD frag ID " << std::hex << "0x" << robf.rod_source_id() << std::dec
+              << " size " << robf.rod_fragment_size_word() << std::endl;
 
     if (!known) {
       std::cout << std::endl;
@@ -433,7 +460,7 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
   int s, c, f, nfrag, ngain, nchan, nsamp, size, ch, extra = 0, pmt, fragType, nhits = 0;
   int id, type, rflag, unit, pulse, nsmpl, algor, niter;
   unsigned int* data;
-  unsigned short time, flag, prev, edge, chan, bad, res1/*,last,res2*/;
+  unsigned short time, flag, prev, edge, chan, bad/*, res1,last,res2*/;
   char fr[2] = { 'F', 'R' };
   char gb[2] = { 'G', 'B' };
   std::string unitName[4] = { "ADC count", "pCb", "Cs pCb", "MeV" };
@@ -484,24 +511,34 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
       unsigned char * adc;
       unsigned short * result;
       int tmdb_ch1 = std::min(5U,((robsourceid)>>16)&0xF);
-      int tmdb_ch2 = (((robsourceid))&0xF)<<3;
-      const char * dr56rl[4] = { "D5-L","D5-R","D6-L","D6-R" };
+      bool EB = (tmdb_ch1>2);
+      int nmod = (EB)?8:4; // we have 8 modules per fragment in ext.barrel, 4 modules in barrel
+      int tmdb_ch2 = (((robsourceid))&0xF)*nmod;
+      const char * dr56EB[10] = { "D5-L","D5-R","D6-L","D6-R","D4-L","D4-R","XX-X","XX-X","XX-X","XX-X" };
+      const char * dr56LB[10] = { "D0-x","D1-L","D1-R","D2-L","D2-R","D3-L","D3-R","B8-L","B8-R","XX-X" };
+      const char ** dr56rl = (EB) ? dr56EB : dr56LB;
       const char * ch11[6] = { "AUX","LBA","LBC","EBA","EBC","UNK" };
       const char * ch12[6] = { "aux","lba","lbc","eba","ebc","unk" };
-      const char * dr56hl[4] = {" D6L "," D6H "," D56L"," D56H"};
+      const char * dr56hlEB[4] = {" D6L "," D6H "," D56L"," D56H"};
+      const char * dr56hlLB[4] = {" DxL "," DxH "," DxxL"," DxxH"};
+      const char ** dr56hl = (EB) ? dr56hlEB : dr56hlLB;
       const char * tit[4] = {"TMDB digits","TMDB energy","TMDB decision","Unknown"};
 
       std::cout << std::hex << std::endl << tit[type&3] <<" fragment 0x" << type << " vers 0x"<< id << ", "
                 << std::dec << size << " words found"<< std::endl << std::endl;
 
+      int nchmod = 4;
       int nsamp = 7;
       int nch = 32;
-      int ntd = 3;
+      int ntd = (EB) ? 3 : 1;
+      int ntdl = (EB) ? 9 : 5;
       int count = 1;
       switch (type) {
 
         case 0x40: 
-            nsamp=4*size/nch;
+            //nsamp=4*size/nch; // here we assume that number of channels is fixed - doesn't work for simulated data
+            nch=4*size/nsamp; // instead of assuming fixed number of channels assume fixed number of samples
+            nchmod = nch/nmod;
             std::cout << "ch      cell   ";
             for (int ind=nsamp; ind>0; --ind) {
               std::cout << "    S"<<ind;
@@ -509,37 +546,62 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
             std::cout << std::endl;
             adc = reinterpret_cast<unsigned char *>(data);
             for (int pword=0;pword<nch;++pword) {
+              int pword1=pword%nchmod;
+              if (!EB && nchmod==8) {
+                if (count&1) {
+                  if (pword1==0) pword1=9;
+                  else pword1 -= 1;
+                } else {
+                  if (pword1>6) pword1=9;
+                }
+              } else {
+                if (pword1>9) pword1=9;
+              }
               std::cout << std::setw(2) << pword << " | " << ch11[tmdb_ch1] <<std::setfill('0')<<std::setw(2) <<tmdb_ch2+count
-                        << "-" <<std::setfill(' ')<<std::setw(4)<<dr56rl[pword%4];
+                        << "-" <<std::setfill(' ')<<std::setw(4)<<dr56rl[pword1];
               for (int ind=nsamp-1; ind>-1; --ind) {
-                std::cout << " | " << std::setw(3) << (  static_cast<unsigned>(adc[pword+32*ind]) );
+                std::cout << " | " << std::setw(3) << (  static_cast<unsigned>(adc[pword+nch*ind]) );
               }
               std::cout << std::endl;
-              if (pword%4==3) count+=1;
+              if ((pword+1)%nchmod==0) count+=1;
             }
             break;
 
         case 0x41: 
+            nch = size; // one word per channel
+            nchmod = nch/nmod;
             std::cout << "ch      cell      energy" << std::endl; 
             for (int pword=0;pword<size;++pword) {
+              int pword1=pword%nchmod;
+              if (!EB && nchmod==8) {
+                if (count&1) {
+                  if (pword1==0) pword1=9;
+                  else pword1 -= 1;
+                } else {
+                  if (pword1>6) pword1=9;
+                }
+              } else {
+                if (pword1>9) pword1=9;
+              }
               std::cout << std::setw(2) << pword<< " | " << ch11[tmdb_ch1] <<std::setfill('0')<<std::setw(2) <<tmdb_ch2+count
-                        << "-" <<std::setfill(' ')<<std::setw(4)<<dr56rl[pword%4]
+                        << "-" <<std::setfill(' ')<<std::setw(4)<<dr56rl[pword1]
                         << " | "<< std::setw(6) << static_cast<int>(data[pword])
                         <<  std::endl;
-              if (pword%4==3) count+=1;
+              if ((pword+1)%nchmod==0) count+=1;
             }
             break;
 
         case 0x42:
+            nchmod = nch/nmod;
             std::cout << "nn   name   " << dr56hl[3] << dr56hl[2]
                       << dr56hl[1] << dr56hl[0] << std::endl; 
             result = reinterpret_cast<unsigned short *>(data);
             if (size!=2) ntd=size*2;
             for (int pword=0;pword<ntd;++pword) {
-              count=pword*3;
+              count=(EB)?pword*3:pword*4+1;
               unsigned short r=result[pword];
               for(int pqword=0;pqword<4;++pqword){
-                  std::cout << std::setw(2) << pqword+pword*4 << " | " << ((count>0&&count<9)?ch11[tmdb_ch1]:ch12[tmdb_ch1])
+                  std::cout << std::setw(2) << pqword+pword*4 << " | " << ((count>0&&count<ntdl)?ch11[tmdb_ch1]:ch12[tmdb_ch1])
                           << std::setfill('0') << std::setw(2) << tmdb_ch2+count
                           << std::setfill(' ') << std::setw(5)<<((r>>3)&1) << std::setw(5)<<((r>>2)&1)
                           << std::setw(5)<<((r>>1)&1) << std::setw(5)<<(r&1) << std::endl;
@@ -562,7 +624,7 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
           prev = 0xFF;
           for (c = 0; c < size; ++c) {
             time = data[c] & 0x1FFF;
-            res1 = (data[c] >> 13) & 0x1;
+            unsigned short res1 = (data[c] >> 13) & 0x1;
             chan = (data[c] >> 16) & 0x07FF;
             if (prev != chan) {
               std::cout << "\n ch" << std::setw(3) << chan << ":"; 
@@ -592,7 +654,7 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
             edge = flag & 0x01;
             chan = (flag >> 1) & 0x0F;
             bad = (flag >> 5) & 0x01;
-            res1 = (flag >> 6) & 0x01;
+            //res1 = (flag >> 6) & 0x01;
             //last = (flag >> 7) & 0x01;
             //res2 = (flag >> 8) & 0x0F;
             if (prev != chan) {
@@ -826,7 +888,7 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
               time_t Alpha_Last_Run = *p;
               p++;
     
-              time_t PedAlpha_Last_Run;
+              time_t PedAlpha_Last_Run(0);
     
               int diode1_PedAlpha = 0, diode1_PedAlphaRMS = 0
                   , diode2_PedAlpha = 0, diode2_PedAlphaRMS = 0
@@ -1747,7 +1809,7 @@ void TileTBDump::find_frag(const uint32_t* data, unsigned int size, unsigned int
                            , int /* verbosity */, T_RodDataFrag** frag, int* nfrag) {
   unsigned int offset = 0;
   *nfrag = 0;
-  bool m_v3Format = (*(data) == 0xff1234ff); // additional frag marker since Sep 2005
+  m_v3Format = (*(data) == 0xff1234ff); // additional frag marker since Sep 2005
   m_v3Format |= (*(data) == 0x00123400); // another possible frag marker (can appear in buggy ROD frags)
   if (m_v3Format) {
     m_sizeOverhead = 3;
