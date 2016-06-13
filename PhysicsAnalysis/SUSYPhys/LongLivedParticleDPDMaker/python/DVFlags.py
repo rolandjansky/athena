@@ -94,7 +94,22 @@ class DV_METFilterFlags(JobProperty):
     StoredValue=True
     cutMetMin=130.0*Units.GeV
     deltaPhiCut=0.1
-    triggers=["HLT_xe100","HLT_xe100_tc_lcw","HLT_xe100_tc_lcw_wEFMu","HLT_xe100_wEFMu"]
+    triggers=["HLT_xe90_L1XE50","HLT_xe100_L1XE50","HLT_xe120_L1XE50",
+		          "HLT_xe90_L1XE55","HLT_xe100_L1XE55","HLT_xe120_L1XE55",
+		          "HLT_xe90_L1XE60","HLT_xe100_L1XE60","HLT_xe120_L1XE60",
+		          "HLT_xe90_tc_lcw_L1XE50","HLT_xe100_tc_lcw_L1XE50","HLT_xe120_tc_lcw_L1XE50",
+		          "HLT_xe90_tc_lcw_L1XE55","HLT_xe100_tc_lcw_L1XE55","HLT_xe120_tc_lcw_L1XE55",
+		          "HLT_xe90_tc_lcw_L1XE60","HLT_xe100_tc_lcw_L1XE60","HLT_xe120_tc_lcw_L1XE60",
+		          "HLT_xe90_mht_L1XE50","HLT_xe100_mht_L1XE50","HLT_xe120_mht_L1XE50",
+		          "HLT_xe90_mht_L1XE55","HLT_xe100_mht_L1XE55","HLT_xe120_mht_L1XE55",
+		          "HLT_xe90_mht_L1XE60","HLT_xe100_mht_L1XE60","HLT_xe120_mht_L1XE60",
+		          "HLT_xe90_topoclPS_L1XE50","HLT_xe100_topoclPS_L1XE50","HLT_xe120_topoclPS_L1XE50",
+		          "HLT_xe90_topoclPS_L1XE55","HLT_xe100_topoclPS_L1XE55","HLT_xe120_topoclPS_L1XE55",
+		          "HLT_xe90_topoclPS_L1XE60","HLT_xe100_topoclPS_L1XE60","HLT_xe120_topoclPS_L1XE60",
+		          "HLT_xe90_topoclPUC_L1XE50","HLT_xe100_topoclPUC_L1XE50","HLT_xe120_topoclPUC_L1XE50",
+		          "HLT_xe90_topoclPUC_L1XE55","HLT_xe100_topoclPUC_L1XE55","HLT_xe120_topoclPUC_L1XE55",
+	      	    "HLT_xe90_topoclPUC_L1XE60","HLT_xe100_topoclPUC_L1XE60","HLT_xe120_topoclPUC_L1XE60"
+		         ]
     pass
 primRPVLLDESDM.add_JobProperty(DV_METFilterFlags)
 
@@ -128,7 +143,22 @@ class DV_MeffFilterFlags(JobProperty):
     cutJetPtMin=40.0*Units.GeV
     cutJetEtaMax=2.5
     cutMETMin=100.0*Units.GeV
-    triggers=["HLT_j100_xe80"]
+    triggers=["HLT_xe90_L1XE50","HLT_xe100_L1XE50","HLT_xe120_L1XE50",
+		          "HLT_xe90_L1XE55","HLT_xe100_L1XE55","HLT_xe120_L1XE55",
+		          "HLT_xe90_L1XE60","HLT_xe100_L1XE60","HLT_xe120_L1XE60",
+		          "HLT_xe90_tc_lcw_L1XE50","HLT_xe100_tc_lcw_L1XE50","HLT_xe120_tc_lcw_L1XE50",
+		          "HLT_xe90_tc_lcw_L1XE55","HLT_xe100_tc_lcw_L1XE55","HLT_xe120_tc_lcw_L1XE55",
+		          "HLT_xe90_tc_lcw_L1XE60","HLT_xe100_tc_lcw_L1XE60","HLT_xe120_tc_lcw_L1XE60",
+		          "HLT_xe90_mht_L1XE50","HLT_xe100_mht_L1XE50","HLT_xe120_mht_L1XE50",
+		          "HLT_xe90_mht_L1XE55","HLT_xe100_mht_L1XE55","HLT_xe120_mht_L1XE55",
+		          "HLT_xe90_mht_L1XE60","HLT_xe100_mht_L1XE60","HLT_xe120_mht_L1XE60",
+		          "HLT_xe90_topoclPS_L1XE50","HLT_xe100_topoclPS_L1XE50","HLT_xe120_topoclPS_L1XE50",
+		          "HLT_xe90_topoclPS_L1XE55","HLT_xe100_topoclPS_L1XE55","HLT_xe120_topoclPS_L1XE55",
+		          "HLT_xe90_topoclPS_L1XE60","HLT_xe100_topoclPS_L1XE60","HLT_xe120_topoclPS_L1XE60",
+		          "HLT_xe90_topoclPUC_L1XE50","HLT_xe100_topoclPUC_L1XE50","HLT_xe120_topoclPUC_L1XE50",
+		          "HLT_xe90_topoclPUC_L1XE55","HLT_xe100_topoclPUC_L1XE55","HLT_xe120_topoclPUC_L1XE55",
+	      	    "HLT_xe90_topoclPUC_L1XE60","HLT_xe100_topoclPUC_L1XE60","HLT_xe120_topoclPUC_L1XE60"
+		         ]
     pass
 primRPVLLDESDM.add_JobProperty(DV_MeffFilterFlags)
 

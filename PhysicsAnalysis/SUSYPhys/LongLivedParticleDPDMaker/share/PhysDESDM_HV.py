@@ -13,44 +13,50 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 
 
 ###########################################################################################
-# HV Trigger Filter
+# HV Muvtx Filter
 ###########################################################################################
 
-HVSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name                    = "HVSkimmingTool",
-                                                             TriggerListOR          = primRPVLLDESDM.HV_triggerFilterFlags.TriggerNames )
-ToolSvc += HVSkimmingTool
-
-#topSequence += kernel( "RPVLL_HV_TriggerFilterKernel",
-#                       SkimmingTools = [HVSkimmingTool],
-#                       )
-#RPVLLfilterNames.extend(["RPVLL_HV_TriggerFilterKernel"])
+HVMuvtxTriggerTool = DerivationFramework__TriggerSkimmingTool(   name                    = "HVMuvtxTriggerTool",
+                                                             TriggerListOR          = primRPVLLDESDM.HV_MuvtxTriggerFlags.TriggerNames )
+ToolSvc += HVMuvtxTriggerTool
 
 ###########################################################################################
-# HV Prescaled Trigger Filter
+# HV Prescaled Muvtx Trigger Filter
 ###########################################################################################
 
-HVPrescaledTriggerTool = DerivationFramework__TriggerSkimmingTool(   name                    = "HVPrescaledTriggerTool",
-                                                                      TriggerListOR          = primRPVLLDESDM.HV_prescaledTriggerFilterFlags.TriggerNames )
-ToolSvc += HVPrescaledTriggerTool
+HVMuvtxPrescaledTriggerTool = DerivationFramework__TriggerSkimmingTool(   name                    = "HVMuvtxPrescaledTriggerTool",
+                                                                      TriggerListOR          = primRPVLLDESDM.HV_prescaledMuvtxTriggerFlags.TriggerNames )
+ToolSvc += HVMuvtxPrescaledTriggerTool
 
-HVPrescaleTool = DerivationFramework__PrescaleTool(name = "HVPrescaleTool",
-                                                   Prescale = primRPVLLDESDM.HV_prescaledTriggerFilterFlags.Prescale
+HVMuvtxPrescaleTool = DerivationFramework__PrescaleTool(name = "HVPrescaleMuvtxTool",
+                                                   Prescale = primRPVLLDESDM.HV_prescaledMuvtxTriggerFlags.Prescale
                                                    )
-ToolSvc += HVPrescaleTool
+ToolSvc += HVMuvtxPrescaleTool
 
-HVPrescaledSkimmingTool = DerivationFramework__FilterCombinationAND( name = "HVPrescaledSkimmingTool",
-                                                                     FilterList = [HVPrescaledTriggerTool,
-                                                                                   HVPrescaleTool,
+HVPrescaledMuvtxSkimmingTool = DerivationFramework__FilterCombinationAND( name = "HVMuvtxSkimmingTool",
+                                                                     FilterList = [HVMuvtxPrescaledTriggerTool,
+                                                                                   HVMuvtxPrescaleTool,
                                                                                    ],
                                                                      )
-ToolSvc += HVPrescaledSkimmingTool
+ToolSvc += HVPrescaledMuvtxSkimmingTool
+
+ 
+HV_MuvtxFinalFilter = DerivationFramework__FilterCombinationOR( name = "HV_MuvtxFinalFilter", FilterList=[HVMuvtxTriggerTool,HVPrescaledMuvtxSkimmingTool] )
+ #                                                       OutputLevel=DEBUG
+
+ToolSvc += HV_MuvtxFinalFilter
+
+topSequence += kernel( "RPVLL_HV_MuvtxFilterKernel",
+                       SkimmingTools = [HV_MuvtxFinalFilter]
+                       )
+RPVLLfilterNames.extend(["RPVLL_HV_MuvtxFilterKernel"])
 
 ###########################################################################################
 # HV jet/MET Filter
 ###########################################################################################
 
 HVJetMETTrigTool = DerivationFramework__TriggerSkimmingTool(   name                    = "HVJetMETTrigTool",
-                                                             TriggerListOR          = primRPVLLDESDM.HV_jetMETFilterFlags.TriggerNames )
+                                                             TriggerListOR          = primRPVLLDESDM.HV_JetMETFilterFlags.TriggerNames )
 ToolSvc += HVJetMETTrigTool
 
 from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__HVJetMETFilterTool
@@ -58,7 +64,7 @@ from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFr
 HVJetMETFilterTool = DerivationFramework__HVJetMETFilterTool(name = "HVJetMETFilterTool",
                                                              METContainerKey = "MET_Reference_AntiKt4EMTopo",
                                                              METTerm         = "FinalClus",
-                                                             METCut          = primRPVLLDESDM.HV_jetMETFilterFlags.cutMetMin)
+                                                             METCut          = primRPVLLDESDM.HV_JetMETFilterFlags.cutMetMin)
 
 #HVJetMETFilterTool = skimtool( name = "HVJetMETFilterTool",
 #                               expression = 'MET_Reference_AntiKt4EMTopo["FinalClus"].met > 50.0*GeV')
@@ -71,23 +77,23 @@ HV_JetMETFinalFilter = DerivationFramework__FilterCombinationAND( name = "HV_Jet
                                                                )
 ToolSvc += HV_JetMETFinalFilter
 
+topSequence += kernel( "RPVLL_HV_JetMETFilterKernel",
+                       SkimmingTools = [HV_JetMETFinalFilter]
+                       )
+RPVLLfilterNames.extend(["RPVLL_HV_JetMETFilterKernel"])
+
 ###########################################################################################
-# HV Filter combination
+# HV CalRatio Filter
 ###########################################################################################
 
-#HV_FinalFilter =  DerivationFramework__FilterCombinationOR( name = "HV_FinalFilter",
-#                                                          FilterList=[HVSkimmingTool,HV_JetMETFinalFilter],
-#                                                          OutputLevel=DEBUG
-#                                                          )
- 
-HV_FinalFilter = DerivationFramework__FilterCombinationOR( name = "HV_FinalFilter", FilterList=[HVSkimmingTool,HVPrescaledSkimmingTool,HV_JetMETFinalFilter] )
- #                                                       OutputLevel=DEBUG
-                                 
-ToolSvc+=HV_FinalFilter
-                          
-topSequence += kernel( "RPVLL_HVTriggerFilterKernel",
-                       SkimmingTools = [HV_FinalFilter],
+HVCalRatioTriggerTool = DerivationFramework__TriggerSkimmingTool(   name                    = "HVCalRatioTriggerTool",
+                                                             TriggerListOR          = primRPVLLDESDM.HV_CalRatioTriggerFlags.TriggerNames )
+ToolSvc += HVCalRatioTriggerTool
+
+topSequence += kernel( "RPVLL_HV_CalRatioFilterKernel",
+                       SkimmingTools = [HVCalRatioTriggerTool],
                        )
-RPVLLfilterNames.extend(["RPVLL_HVTriggerFilterKernel"])
+RPVLLfilterNames.extend(["RPVLL_HV_CalRatioFilterKernel"])
+
 
 
