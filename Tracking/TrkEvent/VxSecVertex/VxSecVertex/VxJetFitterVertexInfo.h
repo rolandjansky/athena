@@ -35,6 +35,7 @@ namespace Trk {
   class TwoTrackVerticesInJet;
   class SelectedTracksInJet;
   class VxCandidate;  
+  class VxJetCandidate;
 
   class VxJetFitterVertexInfo : public VxSecVertexInfo {
 
@@ -44,7 +45,7 @@ namespace Trk {
     VxJetFitterVertexInfo();
 
     /* constructor with everything */
-    VxJetFitterVertexInfo(const std::vector<Trk::VxCandidate*> & vertices,
+    VxJetFitterVertexInfo(const std::vector<Trk::VxJetCandidate*> & vertices,
                           const Trk::TwoTrackVerticesInJet * twoTrackVertices,
                           const Trk::SelectedTracksInJet* selectedTracksInJet);
     
@@ -67,13 +68,13 @@ namespace Trk {
     const Trk::SelectedTracksInJet* getSelectedTracksInJet() const;
 
     /* get the list of Vertices */
-    const std::vector<Trk::VxCandidate*> & verticesJF() const;
+    const std::vector<Trk::VxJetCandidate*> & verticesJF() const;
     
   private:
 
     const Trk::TwoTrackVerticesInJet* m_twoTrackVerticesInJet;
     const Trk::SelectedTracksInJet* m_selectedTracksInJet;
-    std::vector<Trk::VxCandidate*> m_verticesJF;
+    std::vector<Trk::VxJetCandidate*> m_verticesJF;
     
   };
 
@@ -90,7 +91,7 @@ namespace Trk {
     return m_selectedTracksInJet;
   }
 
-  const std::vector<Trk::VxCandidate*> & VxJetFitterVertexInfo::verticesJF() const {
+  const std::vector<Trk::VxJetCandidate*> & VxJetFitterVertexInfo::verticesJF() const {
     return m_verticesJF;
   }
 
