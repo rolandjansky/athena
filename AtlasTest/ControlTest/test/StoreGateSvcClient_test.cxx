@@ -348,6 +348,8 @@ int main() {
   testRetrieveAux(*pStore);
   testBoundReset(*pStore);
 
+  testRecordObject(*pStore);
+
   test_lock (*pStore);
 
   pStore->finalize().ignore();
