@@ -246,7 +246,7 @@ bool DerivationFramework::DiLepFilters::IsGood(const xAOD::Muon& mu) const
   if(!mu.parameter(dof, xAOD::Muon::msInnerMatchDOF)) return false;
   if(dof == 0) dof = 1;
 
-  return (chi2 / static_cast<float>(dof)) < 50.;
+  return (chi2 / static_cast<float>(dof)) < 5.;
 }
 
 bool DerivationFramework::DiLepFilters::PassCuts(const xAOD::Electron& el, double pt_cut, bool loose) const
