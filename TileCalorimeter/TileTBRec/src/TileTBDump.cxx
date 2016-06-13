@@ -130,11 +130,23 @@ TileTBDump::TileTBDump(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("dumpStatus", m_dumpStatus = true);
   declareProperty("dumpOnce", m_dumpOnce = false);
   declareProperty("dumpUnknown", m_dumpUnknown = false);
+  declareProperty("showUnknown", m_showUnknown = true);
 
   declareProperty("TileCondToolTiming", m_tileToolTiming);
   declareProperty("TileCondToolOfcCool", m_tileCondToolOfcCool, "TileCondToolOfcCool");
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
-  
+ 
+  declareProperty("bc_time_seconds",     m_bc_time_seconds      = -1);
+  declareProperty("bc_time_nanoseconds", m_bc_time_nanoseconds  = -1);
+  declareProperty("global_id",           m_global_id            = -1);
+  declareProperty("run_type",            m_run_type             = -1);
+  declareProperty("run_no",              m_run_no               = -1);
+  declareProperty("lumi_block",          m_lumi_block           = -1);
+  declareProperty("lvl1_id",             m_lvl1_id              = -1);
+  declareProperty("bc_id",               m_bc_id                = -1);
+  declareProperty("lvl1_trigger_type",   m_lvl1_trigger_type    = -1);
+  declareProperty("nlvl1_trigger_info",  m_nlvl1_trigger_info   = -1);
+
   m_v3Format = true;
   m_frag5found = false;
   m_sizeOverhead = 3;
@@ -223,6 +235,17 @@ StatusCode TileTBDump::execute() {
   // take full event
   const eformat::FullEventFragment<const uint32_t*> * event = m_RobSvc->getEvent();
   
+  if (m_bc_time_seconds     >=0 && m_bc_time_seconds     != (int32_t)event->bc_time_seconds()) return StatusCode::SUCCESS;
+  if (m_bc_time_nanoseconds >=0 && m_bc_time_nanoseconds != (int32_t)event->bc_time_nanoseconds()) return StatusCode::SUCCESS;
+  if (m_global_id           >=0 && m_global_id           != (int32_t)event->global_id()) return StatusCode::SUCCESS;
+  if (m_run_type            >=0 && m_run_type            != (int32_t)event->run_type()) return StatusCode::SUCCESS;
+  if (m_run_no              >=0 && m_run_no              != (int32_t)event->run_no()) return StatusCode::SUCCESS;
+  if (m_lumi_block          >=0 && m_lumi_block          != (int32_t)event->lumi_block()) return StatusCode::SUCCESS;
+  if (m_lvl1_id             >=0 && m_lvl1_id             != (int32_t)event->lvl1_id()) return StatusCode::SUCCESS;
+  if (m_bc_id               >=0 && m_bc_id               != (int32_t)event->bc_id()) return StatusCode::SUCCESS;
+  if (m_lvl1_trigger_type   >=0 && m_lvl1_trigger_type   != (int32_t)event->lvl1_trigger_type()) return StatusCode::SUCCESS;
+  if (m_nlvl1_trigger_info  >=0 && m_nlvl1_trigger_info  != (int32_t)event->nlvl1_trigger_info()) return StatusCode::SUCCESS;
+
   std::cout << "============================" << std::endl;
   std::cout << "Event time (sec): " << (uint32_t)event->bc_time_seconds() << std::endl;
   std::cout << "Event time (ns):  " << (uint32_t)event->bc_time_nanoseconds() << std::endl;
@@ -253,13 +276,6 @@ StatusCode TileTBDump::execute() {
     event->child(fprob, irob);
     const eformat::ROBFragment<const uint32_t*> robf(fprob);
 
-    std::cout << "  ROB frag ID " << std::hex << "0x" << robf.source_id() << std::dec
-              << " size " << robf.fragment_size_word() << std::endl;
-
-    // Here we should unpack the fragment.
-    std::cout << "    ROD frag ID " << std::hex << "0x" << robf.rod_source_id() << std::dec
-              << " size " << robf.rod_fragment_size_word() << std::endl;
-
     //
     // get info on ROD
     //
@@ -272,6 +288,17 @@ StatusCode TileTBDump::execute() {
 
     bool known = m_dumpUnknown || subdet_id == 0x70  // COMMON BEAM ROD in CTB2004
                  || (subdet_id >= 0x50 && subdet_id < 0x60); // TileCal IDs
+
+    if (!(known || m_showUnknown)) {
+      continue;
+    }
+
+    std::cout << "  ROB frag ID " << std::hex << "0x" << robf.source_id() << std::dec
+              << " size " << robf.fragment_size_word() << std::endl;
+
+    // Here we should unpack the fragment.
+    std::cout << "    ROD frag ID " << std::hex << "0x" << robf.rod_source_id() << std::dec
+              << " size " << robf.rod_fragment_size_word() << std::endl;
 
     if (!known) {
       std::cout << std::endl;
@@ -433,7 +460,7 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
   int s, c, f, nfrag, ngain, nchan, nsamp, size, ch, extra = 0, pmt, fragType, nhits = 0;
   int id, type, rflag, unit, pulse, nsmpl, algor, niter;
   unsigned int* data;
-  unsigned short time, flag, prev, edge, chan, bad, res1/*,last,res2*/;
+  unsigned short time, flag, prev, edge, chan, bad/*, res1,last,res2*/;
   char fr[2] = { 'F', 'R' };
   char gb[2] = { 'G', 'B' };
   std::string unitName[4] = { "ADC count", "pCb", "Cs pCb", "MeV" };
@@ -597,7 +624,7 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
           prev = 0xFF;
           for (c = 0; c < size; ++c) {
             time = data[c] & 0x1FFF;
-            res1 = (data[c] >> 13) & 0x1;
+            unsigned short res1 = (data[c] >> 13) & 0x1;
             chan = (data[c] >> 16) & 0x07FF;
             if (prev != chan) {
               std::cout << "\n ch" << std::setw(3) << chan << ":"; 
@@ -627,7 +654,7 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
             edge = flag & 0x01;
             chan = (flag >> 1) & 0x0F;
             bad = (flag >> 5) & 0x01;
-            res1 = (flag >> 6) & 0x01;
+            //res1 = (flag >> 6) & 0x01;
             //last = (flag >> 7) & 0x01;
             //res2 = (flag >> 8) & 0x0F;
             if (prev != chan) {

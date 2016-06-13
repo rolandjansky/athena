@@ -91,11 +91,23 @@ class TileTBDump: public AthAlgorithm {
     bool m_dumpStatus;
     bool m_dumpOnce;
     bool m_dumpUnknown;
+    bool m_showUnknown;
     bool m_v3Format;
     bool m_frag5found;
     unsigned int m_sizeOverhead;
     int m_unit;
 
+    int m_bc_time_seconds;
+    int m_bc_time_nanoseconds;
+    int m_global_id;
+    int m_run_type;
+    int m_run_no;
+    int m_lumi_block;
+    int m_lvl1_id;
+    int m_bc_id;
+    int m_lvl1_trigger_type;
+    int m_nlvl1_trigger_info;
+ 
     /* the ROD data sub-fragment */
     typedef struct T_RodDataFrag {
         unsigned int size;
