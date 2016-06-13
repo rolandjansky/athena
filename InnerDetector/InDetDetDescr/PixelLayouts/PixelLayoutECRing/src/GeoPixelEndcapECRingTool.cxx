@@ -109,7 +109,7 @@ void GeoPixelEndcapECRingTool::preBuild(const PixelGeoBuilderBasics* basics)
 {
 
   // XML file reader access
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
 
   std::cout<<"ECRing - GeoPixelEndcapECringTool"<<std::endl;
 
@@ -185,7 +185,7 @@ GeoVPhysVol* GeoPixelEndcapECRingTool::buildEndcap(const PixelGeoBuilderBasics* 
   m_matMgr = basics->matMgr();
   m_msg = basics->msgStream();
 
-  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML");
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
 
   std::cout<<"ENDCAP : "<<m_endcapRMin<<" "<<m_endcapRMax<<" "<<m_endcapZMin<<" "<<m_endcapZMax<<std::endl;
 
