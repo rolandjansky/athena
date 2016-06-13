@@ -16,6 +16,7 @@
 
 ********************************************/
 
+#include "VxJetVertex/VxJetCandidate.h"
 #include "VxSecVertex/VxJetFitterVertexInfo.h"
 #include "VxJetVertex/TwoTrackVerticesInJet.h"
 #include "VxJetVertex/SelectedTracksInJet.h"
@@ -28,7 +29,7 @@ namespace Trk {
           m_twoTrackVerticesInJet(0),
           m_selectedTracksInJet(0) {}
 
-  VxJetFitterVertexInfo::VxJetFitterVertexInfo(const std::vector<Trk::VxCandidate*> & vertices,
+  VxJetFitterVertexInfo::VxJetFitterVertexInfo(const std::vector<Trk::VxJetCandidate*> & vertices,
                                                const Trk::TwoTrackVerticesInJet * twoTrackVertices,
                                                const Trk::SelectedTracksInJet* selectedTracksInJet) :
           VxSecVertexInfo(),
@@ -43,14 +44,14 @@ namespace Trk {
     m_twoTrackVerticesInJet(rhs.m_twoTrackVerticesInJet?new Trk::TwoTrackVerticesInJet(*rhs.m_twoTrackVerticesInJet):0),    
     m_selectedTracksInJet(rhs.m_selectedTracksInJet?new Trk::SelectedTracksInJet(*rhs.m_selectedTracksInJet):0)
   {
-    std::vector<Trk::VxCandidate*>::const_iterator verticesBegin=rhs.m_verticesJF.begin();
-    std::vector<Trk::VxCandidate*>::const_iterator verticesEnd=rhs.m_verticesJF.end();
+    std::vector<Trk::VxJetCandidate*>::const_iterator verticesBegin=rhs.m_verticesJF.begin();
+    std::vector<Trk::VxJetCandidate*>::const_iterator verticesEnd=rhs.m_verticesJF.end();
     
-    for (std::vector<Trk::VxCandidate*>::const_iterator verticesIter=verticesBegin;
+    for (std::vector<Trk::VxJetCandidate*>::const_iterator verticesIter=verticesBegin;
 	 verticesIter!=verticesEnd;++verticesIter) {
-      Trk::VxCandidate* myCandidate=*verticesIter;
+      Trk::VxJetCandidate* myCandidate=*verticesIter;
       if (myCandidate!=0) {
-	m_verticesJF.push_back(new Trk::VxCandidate(*myCandidate));
+	m_verticesJF.push_back(new Trk::VxJetCandidate(*myCandidate));
       } else {
 	std::cout << " Warning in VxSecVertexInfo: tried in copy constructor to copy over a zero pointer Vertex " << std::endl;
       }
@@ -66,14 +67,14 @@ namespace Trk {
       delete m_twoTrackVerticesInJet;
       delete m_selectedTracksInJet;
       this->operator=(rhs);
-      std::vector<Trk::VxCandidate*>::const_iterator verticesBegin=rhs.m_verticesJF.begin();
-      std::vector<Trk::VxCandidate*>::const_iterator verticesEnd=rhs.m_verticesJF.end();
+      std::vector<Trk::VxJetCandidate*>::const_iterator verticesBegin=rhs.m_verticesJF.begin();
+      std::vector<Trk::VxJetCandidate*>::const_iterator verticesEnd=rhs.m_verticesJF.end();
       
-      for (std::vector<Trk::VxCandidate*>::const_iterator verticesIter=verticesBegin;
+      for (std::vector<Trk::VxJetCandidate*>::const_iterator verticesIter=verticesBegin;
 	   verticesIter!=verticesEnd;++verticesIter) {
-	Trk::VxCandidate* myCandidate=*verticesIter;
+	Trk::VxJetCandidate* myCandidate=*verticesIter;
 	if (myCandidate!=0) {
-	  m_verticesJF.push_back(new Trk::VxCandidate(*myCandidate));
+	  m_verticesJF.push_back(new Trk::VxJetCandidate(*myCandidate));
 	} else {
 	  std::cout << " Warning in VxSecVertexInfo: tried in copy constructor to copy over a zero pointer Vertex " << std::endl;
 	}
@@ -89,11 +90,11 @@ namespace Trk {
     if(m_SVOwnership){  // Delete vertices only if ownership is set explicitly
       delete m_twoTrackVerticesInJet;
       delete m_selectedTracksInJet;
-      std::vector<Trk::VxCandidate*>::const_iterator verticesBegin=m_verticesJF.begin();
-      std::vector<Trk::VxCandidate*>::const_iterator verticesEnd=m_verticesJF.end();
-      for (std::vector<Trk::VxCandidate*>::const_iterator verticesIter=verticesBegin;
+      std::vector<Trk::VxJetCandidate*>::const_iterator verticesBegin=m_verticesJF.begin();
+      std::vector<Trk::VxJetCandidate*>::const_iterator verticesEnd=m_verticesJF.end();
+      for (std::vector<Trk::VxJetCandidate*>::const_iterator verticesIter=verticesBegin;
 	   verticesIter!=verticesEnd;++verticesIter) {
-        Trk::VxCandidate* myCandidate=*verticesIter;
+        Trk::VxJetCandidate* myCandidate=*verticesIter;
         if (myCandidate!=0) {
 	  delete myCandidate;
         } else {
