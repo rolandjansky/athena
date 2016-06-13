@@ -66,7 +66,7 @@ TrigL2PhotonHypo::TrigL2PhotonHypo(const std::string & name, ISvcLocator* pSvcLo
   declareMonitoredCollection("PhEratio",*dvec_cast(&m_PhotonContainer), &xAOD::TrigPhoton::eratio);
   declareMonitoredCollection("PhHadEt", *dvec_cast(&m_PhotonContainer), &xAOD::TrigPhoton::etHad);
   declareMonitoredCollection("PhF1",    *dvec_cast(&m_PhotonContainer), &xAOD::TrigPhoton::f1);
-  declareMonitoredVariable("CutCounter",PassedCuts);
+  declareMonitoredVariable("CutCounter",m_PassedCuts);
   m_PhotonContainer=nullptr;
 }
 
@@ -155,7 +155,7 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   float Eratio       = -99.0;
   float f1           = -99.0;
   float HadET        = -99.0;
-  PassedCuts   = -1;
+  m_PassedCuts   = -1;
 
   // Accept-All mode
   // Allows algorithm to run
@@ -223,7 +223,7 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   } 
   
   // Increment event counter 
-  PassedCuts++; //// the ROI at least contais the TrigPhoton
+  m_PassedCuts++; //// the ROI at least contais the TrigPhoton
 
 /*
   if ( !photon->isValid() ) {
@@ -233,7 +233,7 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
     return HLT::OK;
   } 
 */
-  PassedCuts++; //// the TrigPhoton is valid
+  m_PassedCuts++; //// the TrigPhoton is valid
 
   
   // Determine which eta bin to apply the cuts 
@@ -271,7 +271,7 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
 	  << " cut is dEta <= " << m_detacluster << endreq; 
   } 
   if ( fabs(dEta) > m_detacluster ) return HLT::OK;
-  PassedCuts++;
+  m_PassedCuts++;
 
   // DeltaPhi(clus-ROI)
   if ( msgLvl() <= MSG::DEBUG ) {
@@ -279,7 +279,7 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
 	<< " cut is dPhi <= "  << m_dphicluster  << endreq;
   }
   if( fabs(dPhi) > m_dphicluster ) return HLT::OK;
-  PassedCuts++;
+  m_PassedCuts++;
 
   // eta range
   if ( etaBin==-1 ) {  
@@ -289,7 +289,7 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
     if ( msgLvl() <= MSG::DEBUG )
       msg() << MSG::DEBUG << "eta bin used for cuts " << etaBin << endreq;
   }
-  PassedCuts++; // passed eta cut
+  m_PassedCuts++; // passed eta cut
 
   // Reta (was previously called Rcore)
   if ( msgLvl() <= MSG::DEBUG ){
@@ -297,7 +297,7 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
 	  << " cut in etaBin " << etaBin << " is Reta >= "  << m_carcorethr[etaBin] << endreq;
   }
   if ( Reta < m_carcorethr[etaBin] )  return HLT::OK;
-  PassedCuts++;
+  m_PassedCuts++;
 
   // Eratio
   if ( msgLvl() <= MSG::DEBUG ){
@@ -311,7 +311,7 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   } else {
     if ( Eratio < m_caeratiothr[etaBin] ) return HLT::OK;
   }
-  PassedCuts++;
+  m_PassedCuts++;
   if(inCrack)  Eratio  = -1; //Set default value in crack for monitoring.
 
   // ET_em
@@ -320,7 +320,7 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
 	  << " cut in etaBin " << etaBin << " is ET_em >= " << m_eTthr[etaBin] << endreq;
   }
   if ( EmET < m_eTthr[etaBin]) return HLT::OK;
-  PassedCuts++;
+  m_PassedCuts++;
 
   
   // ET_had
@@ -345,7 +345,7 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
 	  << " cut in etaBin " << etaBin << " is ET_had <=" << hadET_cut << endreq;
   }
   if ( HadEmRatio > hadET_cut ) return HLT::OK;
-  PassedCuts++;
+  m_PassedCuts++;
 
    
   // F1
@@ -357,7 +357,7 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   if ( msgLvl() <= MSG::DEBUG ){
     msg() << MSG::DEBUG << "F1 cut is NOT being applied" << endreq;
   }
-  PassedCuts++;
+  m_PassedCuts++;
 
   pass = true;
 

@@ -36,10 +36,13 @@
 #include "VxVertex/RecVertex.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
+#include "PATCore/TAccept.h"            // for TAccept
+#include "PATCore/TResult.h"            // for TResult
 
 #include "TrigSteeringEvent/TrigPassBits.h"
-
 #include "TrigSteeringEvent/TrigPassFlags.h"
+
+using std::string;
 
 namespace {
     template <class DEST,class SRC>
@@ -141,10 +144,10 @@ TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name,
   
   //Isolation
   declareProperty("ApplyIsolation", m_applyIsolation=false);
-  declareProperty("EtConeSizes",    m_EtConeSizes = 6);
+  declareProperty("EtConeSizes",    m_EtConeSizes = 3);
   declareProperty("RelEtConeCut",   m_RelEtConeCut);
   declareProperty("EtConeCut",      m_EtConeCut);  
-  declareProperty("PtConeSizes",    m_PtConeSizes = 3);
+  declareProperty("PtConeSizes",    m_PtConeSizes = 6);
   declareProperty("RelPtConeCut",   m_RelPtConeCut);
   declareProperty("PtConeCut",      m_PtConeCut);
   declareProperty("useClusETforCaloIso",      m_useClusETforCaloIso = true);
@@ -167,8 +170,14 @@ TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name,
   prepareMonitoringVars();
   //Initialize pointers 
   m_totalTimer = nullptr;
-  m_timerPIDTool = nullptr; 
-
+  m_timerPIDTool = nullptr;
+  m_EgammaContainer = nullptr;
+  
+  //isEM monitoring 
+  m_NcandIsEM.assign(32,0);//32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton
+  m_NcandIsEMAfterCut.assign(32,0);//32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton
+  m_IsEMRequiredBits.assign(32,0);
+  m_IsEMRequiredBitsAfterCut.assign(32,0);
 }
 
 void TrigEFElectronHypo::prepareMonitoringVars() {
@@ -301,6 +310,9 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
     m_mapPtCone.insert(std::pair<int, string>(0, "ptcone20")); 
     m_mapPtCone.insert(std::pair<int, string>(1, "ptcone30")); 
     m_mapPtCone.insert(std::pair<int, string>(2, "ptcone40")); 
+    m_mapPtCone.insert(std::pair<int, string>(3, "ptvarcone20")); 
+    m_mapPtCone.insert(std::pair<int, string>(4, "ptvarcone30")); 
+    m_mapPtCone.insert(std::pair<int, string>(5, "ptvarcone40")); 
     //
     m_mapRelEtCone.insert(std::pair<int, string>(0, "etcone20/ele_pt")); 
     m_mapRelEtCone.insert(std::pair<int, string>(1, "etcone30/ele_pt")); 
@@ -309,6 +321,9 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
     m_mapRelPtCone.insert(std::pair<int, string>(0, "ptcone20/ele_pt")); 
     m_mapRelPtCone.insert(std::pair<int, string>(1, "ptcone30/ele_pt")); 
     m_mapRelPtCone.insert(std::pair<int, string>(2, "ptcone40/ele_pt")); 
+    m_mapRelPtCone.insert(std::pair<int, string>(3, "ptvarcone20/ele_pt")); 
+    m_mapRelPtCone.insert(std::pair<int, string>(4, "ptvarcone30/ele_pt")); 
+    m_mapRelPtCone.insert(std::pair<int, string>(5, "ptvarcone40/ele_pt")); 
 
   }//end of if(m_applyIsolation){
 
@@ -358,7 +373,11 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 
   m_EgammaContainer = 0;
   m_NofPassedCuts=-1;
+  m_NofPassedCutsIsEM=-1;
+  m_NofPassedCutsIsEMTrig=-1;
   m_a0.clear();
+  m_lhval.clear();
+  m_avgmu.clear();
   // Time total TrigEFElectronHypo execution time.
   // -------------------------------------
   if (timerSvc()) m_totalTimer->start();    
@@ -420,14 +439,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 
   // generate TrigPassBits mask to flag which egamma objects pass hypo cuts
   TrigPassBits* passBits = HLT::makeTrigPassBits(m_EgammaContainer);
-  
-   // adding TrigPassFlags for isEM bits - JTC Oct 2011
-  const unsigned int flagSize = 32;
-  //std::cout << "TPF " << name() << " (in ::hltExecute()): size of m_EgammaContainer" << m_EgammaContainer->size() << std::endl;
-
-  // temporarily disable the TrigPassFlags until xAOD format is sorted out
-  TrigPassFlags* isEMFlags = 0; // HLT::makeTrigPassFlags(m_EgammaContainer, flagSize);
-
+  //std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits(m_EgammaContainer);
   //counters for each cut
   int Ncand[10];
   for(int i=0;i<10;i++) Ncand[i]=0;
@@ -542,9 +554,6 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
             m_NcandIsEM[i]+= ((isEMTrig & (0x1<<i)) != 0); 
         }
 
-        if(isEMFlags)
-           HLT::setFlag(isEMFlags, egIt, m_EgammaContainer, HLT::AsFlag(isEMTrig, flagSize) ); 
-
         //Apply cut from LH selector 
         if(m_useAthElectronLHIDSelector){
             ATH_MSG_DEBUG(m_athElectronLHIDSelectorTool << " AthenaLHSelectorTool configured, hypo continues with TAccept ");
@@ -642,6 +651,12 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 	PtCone.push_back(val_float);
         egIt->isolationValue(val_float,xAOD::Iso::ptcone40);
 	PtCone.push_back(val_float);
+        egIt->isolationValue(val_float,xAOD::Iso::ptvarcone20);
+	PtCone.push_back(val_float);
+        egIt->isolationValue(val_float,xAOD::Iso::ptvarcone30);
+	PtCone.push_back(val_float);
+        egIt->isolationValue(val_float,xAOD::Iso::ptvarcone40);
+	PtCone.push_back(val_float);
 	
 	//printout
 	if(msgLvl() <= MSG::DEBUG) {
@@ -701,14 +716,9 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 	float trkIso_ele_pt=-9999.;
 	float ele_clus_pt=-9999.;
 	float ele_trk_pt=-9999.;
-	if(!clus) {
-	  
-	  if(msgLvl() <= MSG::INFO) msg() << MSG::INFO << "CaloCluster dees NOT Exist, do NOT use Electron ET as Denominator in Relative Isolation"  << endreq;	
-	} else{
-	  
-	  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "CaloCluster Exists, may use cluster ET as denominator in relative Isolation varariables"  << endreq;
-	  ele_clus_pt=clus->et();
-	}
+        
+        // Cluster must exist set the et from cluster
+        ele_clus_pt=clus->et();
 
 	//--Check that TrackParticle exists, if so use track ET as Denonimator in Relative Isolation
 	if(!(egIt->trackParticle())) {
@@ -813,7 +823,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     accepted=true;
     //xAOD need to fix!!!! 
     HLT::markPassing(passBits, egIt, m_EgammaContainer); // set bit for this egamma in TrigPassBits mask
-    
+    //xBits->markPassing(egIt,m_EgammaContainer,true);
   }//end of loop over egamma container
   
   //Count No of Events passing individual cuts
@@ -831,13 +841,8 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   if ( attachBits(outputTE, passBits) != HLT::OK ) {
     msg() << MSG::ERROR << "Could not store TrigPassBits! " << endreq;
   }
-   // store TrigPassFlags result
-  if(isEMFlags) {
-     if ( attachFlags(outputTE, isEMFlags, "isEM") != HLT::OK ) {
-        msg() << MSG::ERROR << "Could not store isEM flags! " << endreq;
-     }
-  }
-
+  /*if(attachFeature(outputTE, xBits.release()) != HLT::OK)
+      ATH_MSG_ERROR("Could not store TrigPassBits! ");*/
 
   // Time total TrigEFElectronHypo execution time.
   // -------------------------------------

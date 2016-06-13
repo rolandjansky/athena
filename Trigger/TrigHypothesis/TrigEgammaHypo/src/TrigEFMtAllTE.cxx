@@ -105,7 +105,7 @@ HLT::ErrorCode TrigEFMtAllTE::hltExecute(std::vector<HLT::TEVec>& inputs, unsign
     return HLT::MISSING_FEATURE;
   }
   const TrigPassBits* bits(0);
-  HLT::ErrorCode status = getFeature(tes2.front(), bits, "passbits");
+  HLT::ErrorCode status = getFeature(tes2.front(), bits);
   if (status != HLT::OK) {
     msg() << MSG::WARNING << " Failed to get TrigPassBits " << endreq;
     return HLT::MISSING_FEATURE;
@@ -116,23 +116,24 @@ HLT::ErrorCode TrigEFMtAllTE::hltExecute(std::vector<HLT::TEVec>& inputs, unsign
 
   for (const xAOD::Electron* aEle : theElectrons) {
 
-    if(!HLT::isPassing( bits, aEle, outEle )) {
-      if (msgLvl() <= MSG::DEBUG) {
+    //if(!bits->isPassing( aEle, outEle )) {
+      if(!HLT::isPassing( bits, aEle, outEle )) {
+        if (msgLvl() <= MSG::DEBUG) {
 	msg() << MSG::DEBUG << "Electron found not passing Hypo object" << endreq;
       }
       continue;
     }
 
-    float m_elephi = aEle->p4().Phi();
-    float m_elept = aEle->p4().Pt();
+    float elephi = aEle->p4().Phi();
+    float elept = aEle->p4().Pt();
 
-    double delta_phi = fabs(m_elephi - metphi);
+    double delta_phi = fabs(elephi - metphi);
     if (delta_phi>M_PI) delta_phi = 2*M_PI - delta_phi;
 
-    float mt = sqrt(2*m_elept*met*(1-cos(delta_phi)));
+    float mt = sqrt(2*elept*met*(1-cos(delta_phi)));
 
     if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Electron pt " << m_elept << " MeV, MT: " << mt << " MeV, MET: " << met << " MeV" << endreq;
+      msg() << MSG::DEBUG << "Electron pt " << elept << " MeV, MT: " << mt << " MeV, MET: " << met << " MeV" << endreq;
       msg() << MSG::DEBUG << "Electron pt cut " << m_MinElectronEt*CLHEP::GeV << " MeV, MT cut: " << m_MinMtCut*CLHEP::GeV << " MeV" << endreq;
     }
 
@@ -141,7 +142,7 @@ HLT::ErrorCode TrigEFMtAllTE::hltExecute(std::vector<HLT::TEVec>& inputs, unsign
     }
 
     if(electron_counter < m_MaxNbElectrons) {
-      if(m_elept > m_MinElectronEt*CLHEP::GeV && mt > m_MinMtCut*CLHEP::GeV) {
+      if(elept > m_MinElectronEt*CLHEP::GeV && mt > m_MinMtCut*CLHEP::GeV) {
 	pass = true;
 	if(electron_counter == 0) {
 	  m_mt_electron1_pass = mt;

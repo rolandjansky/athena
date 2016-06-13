@@ -39,6 +39,8 @@
 
 #include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+#include "egammaInterfaces/IEMShowerBuilder.h"
+#include "egammaInterfaces/IEMFourMomBuilder.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 class StoreGateSvc;
 class TriggerElement;
@@ -81,7 +83,8 @@ class TrigEFCaloHypo : public HLT::HypoAlgo {
   std::string m_LHSelectorToolName;
   ToolHandle<IAsgElectronIsEMSelector> m_SelectorTool;
   ToolHandle<IAsgElectronLikelihoodTool> m_LHSelectorTool;
-  
+  ToolHandle<IEMFourMomBuilder> m_fourMomBuilder;
+  ToolHandle<IEMShowerBuilder> m_showerBuilder;
   /** Luminosity Tool */
   ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool;
   

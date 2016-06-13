@@ -77,27 +77,21 @@ HLT::ErrorCode TrigL2PhotonFex::hltExecute(const HLT::TriggerElement* inputTE,
   else {
     m_trigPhotonContainer->clear();
   }
-
+  
   // get RoI descriptor
   const TrigRoiDescriptor* roiDescriptor = 0;
-  status = getFeature(inputTE, roiDescriptor);
+  if (getFeature(inputTE, roiDescriptor) != HLT::OK) roiDescriptor = 0;
 
-  if ( status != HLT::OK ) {
-    if ( msgLvl() <= MSG::WARNING) {
-      msg() <<  MSG::WARNING << "No RoI for this Trigger Element! " << endreq;
-    }
+  if ( !roiDescriptor ) {
+    ATH_MSG_WARNING("No RoI for this Trigger Element! ");
     return HLT::NAV_ERROR;
   }
   
-  if ( msgLvl() <= MSG::DEBUG ){
-    msg() << MSG::DEBUG
-	  << "Using inputTE("<< inputTE <<")->getId(): " << inputTE->getId()
-	  << "; RoI ID = "   << roiDescriptor->roiId()
-	  << ": Eta = "      << roiDescriptor->eta()
-	  << ", Phi = "      << roiDescriptor->phi()
-	  << endreq;
-  }
-  
+  ATH_MSG_DEBUG("Using inputTE("<< inputTE <<")->getId(): " << inputTE->getId()
+          << "; RoI ID = "   << roiDescriptor->roiId()
+          << ": Eta = "      << roiDescriptor->eta()
+          << ", Phi = "      << roiDescriptor->phi());
+
   // fill local variables for RoI reference position
   double etaRef = roiDescriptor->eta();
   double phiRef = roiDescriptor->phi();

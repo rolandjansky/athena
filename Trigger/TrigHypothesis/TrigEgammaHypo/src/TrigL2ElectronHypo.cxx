@@ -23,6 +23,7 @@
 //#include "TrigInDetToolInterfaces/ITrigInDetTrackExtrapolator.h"
 #include "TrigEgammaHypo/TrigL2ElectronHypo.h"
 #include "TrigSteeringEvent/TrigPassBits.h"
+//#include "xAODTrigger/TrigPassBits.h"
 
 class ISvcLocator;
 
@@ -61,6 +62,7 @@ TrigL2ElectronHypo::TrigL2ElectronHypo(const std::string & name, ISvcLocator* pS
   declareMonitoredCollection("CaloTrackEoverP",*dvec_cast(&m_egamma_container),&xAOD::TrigElectron::etOverPt);
   declareMonitoredCollection("CaloEta",*dvec_cast(&m_egamma_container),&xAOD::TrigElectron::caloEta);
   declareMonitoredCollection("CaloPhi",*dvec_cast(&m_egamma_container),&xAOD::TrigElectron::caloPhi);
+  m_egamma_container = nullptr;
 }
 
 
@@ -70,32 +72,28 @@ TrigL2ElectronHypo::~TrigL2ElectronHypo()
 
 HLT::ErrorCode TrigL2ElectronHypo::hltInitialize()
 {
-  if ( msgLvl() <= MSG::DEBUG ) {
-    msg() << MSG::DEBUG << "Initialization:" << endreq;
-  }
+    ATH_MSG_DEBUG("Initialization:" );
 
-  if ( msgLvl() <= MSG::DEBUG ) {
-    msg() << MSG::DEBUG << "Initialization completed successfully:" << endreq;
-    msg() << MSG::DEBUG << "AcceptAll            = " 
-	<< (m_acceptAll==true ? "True" : "False") << endreq; 
-    msg() << MSG::DEBUG << "EtaBins              = " << m_etabin               << endreq;
-    msg() << MSG::DEBUG << "TrackPt              = " << m_trackPtthr           << endreq; 
-    msg() << MSG::DEBUG << "CaloTrackdETA        = " << m_calotrackdeta        << endreq;
-    msg() << MSG::DEBUG << "CaloTrackdPHI        = " << m_calotrackdphi        << endreq;
-    msg() << MSG::DEBUG << "CaloTrackdEoverPLow  = " << m_calotrackdeoverp_low << endreq;
-    msg() << MSG::DEBUG << "CaloTrackdEoverPHigh = " << m_calotrackdeoverp_high<< endreq;
-    msg() << MSG::DEBUG << "TrackAlgoId          = " << m_trackalgoID          << endreq; 
-    msg() << MSG::DEBUG << "TRTRatio             = " << m_trtratio             << endreq;
+    ATH_MSG_DEBUG("Initialization completed successfully:" );
+    ATH_MSG_DEBUG("AcceptAll            = " 
+	<< (m_acceptAll==true ? "True" : "False") ); 
+    ATH_MSG_DEBUG("EtaBins              = " << m_etabin               );
+    ATH_MSG_DEBUG("TrackPt              = " << m_trackPtthr           ); 
+    ATH_MSG_DEBUG("CaloTrackdETA        = " << m_calotrackdeta        );
+    ATH_MSG_DEBUG("CaloTrackdPHI        = " << m_calotrackdphi        );
+    ATH_MSG_DEBUG("CaloTrackdEoverPLow  = " << m_calotrackdeoverp_low );
+    ATH_MSG_DEBUG("CaloTrackdEoverPHigh = " << m_calotrackdeoverp_high);
+    ATH_MSG_DEBUG("TrackAlgoId          = " << m_trackalgoID          ); 
+    ATH_MSG_DEBUG("TRTRatio             = " << m_trtratio             );
 
-    msg() << MSG::DEBUG << "EtaBinsTRT            = " << m_etabinTRT            << endreq;
-    msg() << MSG::DEBUG << "TrackPtTRT            = " << m_trackPtthrTRT        << endreq;
-    msg() << MSG::DEBUG << "CaloTrackdETATRT      = " << m_calotrackdetaTRT     << endreq;
-    msg() << MSG::DEBUG << "CaloTrackdPHITRT      = " << m_calotrackdphiTRT     << endreq;
-    msg() << MSG::DEBUG << "CaloTrackdEoverPLowTRT  = " << m_calotrackdeoverp_lowTRT << endreq;
-    msg() << MSG::DEBUG << "CaloTrackdEoverPHighTRT = " << m_calotrackdeoverp_highTRT<< endreq;
-    msg() << MSG::DEBUG << "TRTRatioTRT           = " << m_trtratioTRT          << endreq;
+    ATH_MSG_DEBUG("EtaBinsTRT            = " << m_etabinTRT            );
+    ATH_MSG_DEBUG("TrackPtTRT            = " << m_trackPtthrTRT        );
+    ATH_MSG_DEBUG("CaloTrackdETATRT      = " << m_calotrackdetaTRT     );
+    ATH_MSG_DEBUG("CaloTrackdPHITRT      = " << m_calotrackdphiTRT     );
+    ATH_MSG_DEBUG("CaloTrackdEoverPLowTRT  = " << m_calotrackdeoverp_lowTRT );
+    ATH_MSG_DEBUG("CaloTrackdEoverPHighTRT = " << m_calotrackdeoverp_highTRT);
+    ATH_MSG_DEBUG("TRTRatioTRT           = " << m_trtratioTRT          );
 
-  }
   
   return HLT::OK;
 }
@@ -103,8 +101,7 @@ HLT::ErrorCode TrigL2ElectronHypo::hltInitialize()
 
 HLT::ErrorCode TrigL2ElectronHypo::hltFinalize()
 {
-  if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endreq;
+    ATH_MSG_INFO("in finalize()" );
 
   return HLT::OK;
 }
@@ -132,22 +129,14 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   if (getFeature(outputTE, roiDescriptor) != HLT::OK) roiDescriptor = 0;
 
   if ( !roiDescriptor ) {
-    if ( msgLvl() <= MSG::WARNING) {
-      msg() <<  MSG::WARNING << "No RoI for this Trigger Element! " << endreq;
-    }    
+      ATH_MSG_WARNING("No RoI for this Trigger Element! " );
     
     return HLT::NAV_ERROR;
   }
 
-  if ( msgLvl() <= MSG::DEBUG ){
-    msg() << MSG::DEBUG 
-	  << "Using outputTE("<< outputTE <<")->getId(): " << outputTE->getId()
-	  << "; RoI = "   << *roiDescriptor
-      //	  << "; RoI Id = "   << roiDescriptor->roiId()
-      //	  << ": Eta = "      << roiDescriptor->eta() << "+-" << roiDescriptor->etaHalfWidth()
-      //	  << ", Phi = "      << roiDescriptor->phi() << "+-" << roiDescriptor->phiHalfWidth()
-	  << endreq;
-  }
+  ATH_MSG_DEBUG("Using outputTE("<< outputTE <<")->getId(): " << outputTE->getId() 
+          << "; RoI = "   << *roiDescriptor);
+          
 
   // get TrigElectrons from the steering
   const xAOD::TrigElectronContainer* trigElecColl = 0;
@@ -155,25 +144,23 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 
   if ( stat != HLT::OK || trigElecColl == 0) {
     if ( msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Failed to get TrigElectron collection" << endreq;
+      ATH_MSG_DEBUG("Failed to get TrigElectron collection" );
     }
     return HLT::OK;
   }
 
   hasInput=true;
-  if ( msgLvl() <= MSG::DEBUG ) {
-    msg() << MSG::DEBUG << "Got collection with " << trigElecColl->size() 
-	<< " TrigElectrons" << endreq;
-  }
+  ATH_MSG_DEBUG("Got collection with " << trigElecColl->size() 
+          << " TrigElectrons" );
 
   // generate TrigPassBits mask to flag which TrigElectrons pass hypo cuts
   TrigPassBits* passBits = HLT::makeTrigPassBits(trigElecColl);
+  //std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits(trigElecColl);
 
   // if no electrons were found, just leave TrigElectronColl. empty and leave
   if ( trigElecColl->size() == 0 ) {
-    if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "No electrons to analyse, leaving!" << endreq;
-    return HLT::OK;
+      ATH_MSG_DEBUG("No electrons to analyse, leaving!" );
+      return HLT::OK;
   }
   hasContainer=true;
  // initialize counter after all error conditions checked
@@ -198,8 +185,7 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     if ( trkIter->patternRecoInfo()[xAOD::TrackPatternRecoInfo::strategyA] ) algoId=5;
     if ( trkIter->patternRecoInfo()[xAOD::TrackPatternRecoInfo::strategyB] ) algoId=6;
     if ( trkIter->patternRecoInfo()[xAOD::TrackPatternRecoInfo::strategyC] ) algoId=7;
-    if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "Trackalgo: "<< algoId << endreq;
+    ATH_MSG_DEBUG("Trackalgo: "<< algoId );
     // do not try track/cluster match if produced by wrong algo (0=all algos)
     if (m_trackalgoID == 0 || (unsigned int)algoId == m_trackalgoID || m_acceptAll  || 
 	(m_trackalgoID == 5 &&  (unsigned int)algoId <= 2 )) {
@@ -225,30 +211,19 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     float temp_trackPtthr = m_trackPtthr;
     std::vector<float> temp_trtratio;
 
-    if(algoId != 3 ){ //SiTrack or IDScan tracks cuts
-      temp_etabin                = m_etabin;
-      temp_calotrackdeta         = m_calotrackdeta;
-      temp_calotrackdphi         = m_calotrackdphi;
-      temp_calotrackdeoverp_low  = m_calotrackdeoverp_low;
-      temp_calotrackdeoverp_high = m_calotrackdeoverp_high;
-      temp_trackPtthr            = m_trackPtthr;
-      temp_trtratio              = m_trtratio;
-    }
-    if(algoId == 3 ){ //TRTSegFinder tracks cuts
-      temp_etabin                = m_etabinTRT;
-      temp_calotrackdeta         = m_calotrackdetaTRT;
-      temp_calotrackdphi         = m_calotrackdphiTRT;
-      temp_calotrackdeoverp_low  = m_calotrackdeoverp_lowTRT;
-      temp_calotrackdeoverp_high = m_calotrackdeoverp_highTRT;
-      temp_trackPtthr            = m_trackPtthrTRT;
-      temp_trtratio              = m_trtratioTRT;
-    }
+    temp_etabin                = m_etabin;
+    temp_calotrackdeta         = m_calotrackdeta;
+    temp_calotrackdphi         = m_calotrackdphi;
+    temp_calotrackdeoverp_low  = m_calotrackdeoverp_low;
+    temp_calotrackdeoverp_high = m_calotrackdeoverp_high;
+    temp_trackPtthr            = m_trackPtthr;
+    temp_trtratio              = m_trtratio;
 
     //ignore if cuts/binning not configured
     int etaBin = 0;
     if(temp_etabin.size()<2 || temp_calotrackdeta.size()<1 || temp_calotrackdphi.size()<1
        || temp_calotrackdeoverp_low.size()<1 || temp_calotrackdeoverp_high.size()<1 || temp_trtratio.size()<1) {
-      if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Track type "<< algoId<<" does not have corresponding cut configuration" << endreq;
+        ATH_MSG_DEBUG("Track type "<< algoId<<" does not have corresponding cut configuration" );
       continue;//eta bins and cuts not defined for this track type, ignore track
     }
     
@@ -256,7 +231,7 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     if(temp_calotrackdeta.size()!= (temp_etabin.size()-1)|| temp_calotrackdphi.size()!= (temp_etabin.size()-1)
        || temp_calotrackdeoverp_low.size()!= (temp_etabin.size()-1)|| temp_calotrackdeoverp_high.size()!= (temp_etabin.size()-1)
        || temp_trtratio.size()!= (temp_etabin.size()-1)){
-      if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Track type has inconsistent cut configuration" << endreq;
+      if ( msgLvl() <= MSG::DEBUG ) ATH_MSG_DEBUG("Track type has inconsistent cut configuration" );
       continue;
     } 
       
@@ -269,42 +244,13 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 
     //##
     
-    if ( msgLvl() <= MSG::DEBUG ) {
-#ifdef DONTDO
-	msg() << MSG::DEBUG
-	      << "TrigElec[i]->isValid()=" << (*elecIter)->isValid()
-	      << endreq;
 
-	msg() << MSG::DEBUG << (**elecIter) << endreq;	
-	/* IMPORTANT: pt() is the 4-momentum base class method; returns cluster ET */
-// 	msg() << MSG::DEBUG
-// 	      << ">eta0= " << (*elecIter)->eta()
-// 	      << " phi0= " << (*elecIter)->phi()
-// 	      << " calo: Et= "  << (*elecIter)->pt()
-// 	      << " track: Pt= "  << (*elecIter)->Pt()
-// 	      << " eta at calo= " << (*elecIter)->trkEtaAtCalo()
-// 	      << " phi at calo= " << (*elecIter)->trkPhiAtCalo()
-// 	      << " match: Deta= "  << (*elecIter)->trkClusDeta()
-// 	      << " Dphi= "  << (*elecIter)->trkClusDphi()
-// 	      << " NTRHits = " << NTRHits
-// 	      << " NStrawHits = " << NStrawHits
-// 	      << " NTRTRatio = " <<TRTHitRatio
-// 	      << endreq;
-	
-	msg() << MSG::DEBUG
-	      << ">Tracking algo " << (*elecIter)->trackAlgo()
-	      << endreq;
-#endif
-	
-	msg() << MSG::DEBUG << "absEta    = " << absEta << " ==> etaBin = " << etaBin << endreq;
-	msg() << MSG::DEBUG << "pT (Calo) = " << pTcalo << endreq;
-	msg() << MSG::DEBUG << "dEtaCalo  = " << dEtaCalo << ", cut = " << temp_calotrackdeta[etaBin] << endreq;
-	msg() << MSG::DEBUG << "dPhiCalo  = " << dPhiCalo << ", cut = " << temp_calotrackdphi[etaBin] << endreq;
-	msg() << MSG::DEBUG << "eTOverPt  = " << eTOverPt << ", cuts = [" 
-	      <<  temp_calotrackdeoverp_low[etaBin] << ", " << temp_calotrackdeoverp_high[etaBin] << "]" << endreq;
-	
-	
-      }
+    ATH_MSG_DEBUG("absEta    = " << absEta << " ==> etaBin = " << etaBin );
+    ATH_MSG_DEBUG("pT (Calo) = " << pTcalo );
+    ATH_MSG_DEBUG("dEtaCalo  = " << dEtaCalo << ", cut = " << temp_calotrackdeta[etaBin] );
+    ATH_MSG_DEBUG("dPhiCalo  = " << dPhiCalo << ", cut = " << temp_calotrackdphi[etaBin] );
+    ATH_MSG_DEBUG("eTOverPt  = " << eTOverPt << ", cuts = [" 
+            <<  temp_calotrackdeoverp_low[etaBin] << ", " << temp_calotrackdeoverp_high[etaBin] << "]" );
       
       // apply cuts 
 
@@ -323,11 +269,10 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 
 		  // TrigElectron passed all cuts: set flags
 		  pass = true;  
-		  HLT::markPassing(passBits, (*elecIter), trigElecColl);
+                  HLT::markPassing(passBits, (*elecIter), trigElecColl);
+                  //xBits->markPassing((*elecIter),trigElecColl,true);
 
-		  if ( msgLvl() <= MSG::DEBUG ) {
-		    msg() << MSG::DEBUG << "Event accepted !" << endreq;	      
-		  }
+                  ATH_MSG_DEBUG("Event accepted !" );	      
 
 		}
 	      }
@@ -337,13 +282,19 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
       }
     }
   } // end of loop over electrons
-    
-  
+   
+  //Check the bits
+  /*for(const auto &el:*trigElecColl)
+      ATH_MSG_DEBUG("Electron " << el->eta() << " " << el->phi() 
+              //<< " passBit " << HLT::isPassing(passBits,el,trigElecColl) 
+              << " xBit " << xBits->isPassing(el,trigElecColl));*/
   m_cutCounter=hasInput+hasContainer+pTcaloCut+dEtaCaloCut+dPhiCaloCut+eTOverPtCut_lo+eTOverPtCut_hi+TRTRatioCut;
 
   // store TrigPassBits result
+  /*if(attachFeature(outputTE, xBits.release()) != HLT::OK)
+      ATH_MSG_ERROR("Could not store TrigPassBits! ");*/
   if ( attachBits(outputTE, passBits) != HLT::OK ) {
-    msg() << MSG::ERROR << "Could not store TrigPassBits! " << endreq;
+    ATH_MSG_ERROR("Could not store TrigPassBits!");
   }
 
   return HLT::OK;

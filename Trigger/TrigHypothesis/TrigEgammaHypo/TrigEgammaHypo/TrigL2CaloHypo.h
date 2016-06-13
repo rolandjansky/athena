@@ -75,21 +75,21 @@ class TrigL2CaloHypo: public HLT::HypoAlgo {
     bool m_acceptAll;
   
     // cut variables
-    float dPhi; //!<  selection variable dphi between phi of L2 cluster and L1 RoI
-    float dEta; //!<  selection variable dphi between eta of L2  cluster and L1 RoI
-    float eT_T2Calo; //!<  selection variable for L2 calo selection: ET (EM)
-    float hadET_T2Calo; //!<  selection variable for L2 calo selection: ET (Had)
-    float rCore; //!<  selection variable for L2 calo selection: RCore
-    float energyRatio; //!<  selection variable for L2 calo selection: Eratio
-    float Weta2; //!<  selection variable for L2 calo selection: Weta2
-    float Wstot; //!<  selection variable for L2 calo selection: Wstot
-    float F3; //!<  selection variable for L2 calo selection: F3
-    int   etaBin; //!< selection cuts are eta-dependent
-    int PassedCuts; //!< counter for candidates passing each cut
-    float F1;// cut on fraction of energy deposited in 1st sampling
+    float m_dPhi; //!<  selection variable dphi between phi of L2 cluster and L1 RoI
+    float m_dEta; //!<  selection variable dphi between eta of L2  cluster and L1 RoI
+    float m_eT_T2Calo; //!<  selection variable for L2 calo selection: ET (EM)
+    float m_hadET_T2Calo; //!<  selection variable for L2 calo selection: ET (Had)
+    float m_rCore; //!<  selection variable for L2 calo selection: RCore
+    float m_energyRatio; //!<  selection variable for L2 calo selection: Eratio
+    float m_Weta2; //!<  selection variable for L2 calo selection: Weta2
+    float m_Wstot; //!<  selection variable for L2 calo selection: Wstot
+    float m_F3; //!<  selection variable for L2 calo selection: F3
+    int   m_etaBin; //!< selection cuts are eta-dependent
+    int m_PassedCuts; //!< counter for candidates passing each cut
+    float m_F1;// cut on fraction of energy deposited in 1st sampling
     int GetCounterValue(int nCand[7]); //<!< Method to use preexisting variable nCand for determining PassCut
-    float monEta; // Monitor cluster eta
-    float monPhi; // Monitor cluster phi!!
+    float m_monEta; // Monitor cluster eta
+    float m_monPhi; // Monitor cluster phi!!
 };
 
 #endif

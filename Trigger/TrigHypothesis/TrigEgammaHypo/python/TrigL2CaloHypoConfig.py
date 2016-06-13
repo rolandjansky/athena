@@ -78,12 +78,12 @@ class L2CaloHypo_NoCut (TrigL2CaloHypoBase):
 class L2CaloHypo_EtCut (TrigL2CaloHypoBase):
     __slots__ = []
     def __init__(self, name, threshold):
-        super( L2CaloHypo_EtCutTrk, self ).__init__( name )
+        super( L2CaloHypo_EtCut, self ).__init__( name )
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
 
-	#L2 Threshold
-        self.ETthr          = [float(threshold)*GeV]*9
+	#L2 Threshold moved to 3 GeV within HLT threshold 
+        self.ETthr          = [(float(threshold) -  3)*GeV]*9
         # No other cuts applied
         self.dETACLUSTERthr = 9999.
         self.dPHICLUSTERthr = 9999.
@@ -100,8 +100,8 @@ class L2CaloHypo_e_ID (TrigL2CaloHypoBase):
     def __init__(self, name, threshold, IDinfo):
         super( L2CaloHypo_e_ID, self ).__init__( name ) 
         self.AcceptAll = False
-        # self.emEt = float(threshold)*GeV # Change to single cut
-        self.ETthr          = [(float(threshold) - 5)*GeV]*9
+        # 3 GeV within HLT threshold 
+        self.ETthr          = [(float(threshold) - 3)*GeV]*9
         # e24 cuts        
         self.CAERATIOthr    = [-999., -999., -999., -999., -999., -999., -999., -999., -999.]
         self.HADETthr       = [0.013, 0.013, 0.013, 0.013, 0.013, 0.023, 0.018, 0.017, 0.017]

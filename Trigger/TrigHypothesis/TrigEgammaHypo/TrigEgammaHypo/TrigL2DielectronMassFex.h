@@ -35,16 +35,12 @@
 #include "TrigInterfaces/ComboAlgo.h"
 
 // trigger EDM
-//#include "TrigInDetEvent/TrigInDetTrack.h"
-//#include "TrigInDetEvent/TrigInDetTrackCollection.h"
-//#include "TrigInDetEvent/TrigInDetTrackHelper.h"
+#include "xAODTrigger/TrigComposite.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
-//#include "TrigParticle/TrigElectron.h"
-//#include "TrigParticle/TrigElectronContainer.h"
 #include "xAODTrigEgamma/TrigElectron.h"
 #include "xAODTrigEgamma/TrigElectronContainer.h"
-//#include "TrigCaloEvent/TrigEMCluster.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 
 /* class StoreGateSvc; */
@@ -104,6 +100,7 @@ private:
 
   // container to hold the calculated inariant mass
   std::vector<float> m_massCont;
+  xAOD::TrigCompositeContainer *m_cont;
 
   // cuts (not used in use cluster mode)
   bool  m_electronValid; //!< true if electrons have different RoI positions 
