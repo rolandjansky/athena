@@ -187,7 +187,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
     
     for(auto Tracklet : *pixelTrackletContainer){
       passIsolatedTracklet = true;
-      for(int i=0;i<goodJets.size();i++){
+      for(unsigned int i=0;i<goodJets.size();i++){
 	double deltaPhi = (fabs(Tracklet->phi() - goodJets.at(i)->phi()) > M_PI) ? 2.0*M_PI-fabs(Tracklet->phi()-goodJets.at(i)->phi()) : fabs(Tracklet->phi()-goodJets.at(i)->phi());
 	double deltaEta = fabs(Tracklet->eta() - goodJets.at(i)->eta());
 	double deltaR = sqrt(deltaPhi*deltaPhi + deltaEta*deltaEta);
@@ -215,7 +215,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 
 	passIsolatedStdTrack = true;
 
-	for(int i=0;i<goodJets.size();i++){
+	for(unsigned int i=0;i<goodJets.size();i++){
 	  double deltaPhi = (fabs(StdTrack->phi() - goodJets.at(i)->phi()) > M_PI) ? 2.0*M_PI-fabs(StdTrack->phi()-goodJets.at(i)->phi()) : fabs(StdTrack->phi()-goodJets.at(i)->phi());
 	  double deltaEta = fabs(StdTrack->eta() - goodJets.at(i)->eta());
 	  double deltaR = sqrt(deltaPhi*deltaPhi + deltaEta*deltaEta);
