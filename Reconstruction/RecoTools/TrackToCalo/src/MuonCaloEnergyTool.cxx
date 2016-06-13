@@ -32,7 +32,9 @@ namespace Rec {
     m_emF1Cut(0.15),
     m_emipEM(0.42), // 0.42
     m_emipTile(0.86), // 0.86
-    m_emipHEC(0.65)  // 0.65
+    m_emipHEC(0.65),  // 0.65
+    m_indetTrackParticles(nullptr),
+    m_muonTrackParticles(nullptr)
   {
     declareInterface<IMuonCaloEnergyTool>(this);
     declareProperty("ParticleCaloExtensionTool",      m_caloExtensionTool );
@@ -188,11 +190,6 @@ namespace Rec {
     std::vector< std::pair<const CaloCell*,Rec::ParticleCellIntersection*> > cellIntersections = association->cellIntersections();
 
     const Trk::CaloExtension& caloExtension = association->caloExtension();
-
-    if(!(&caloExtension)) {
-      ATH_MSG_WARNING( " No caloExtension found ");
-      return;
-    }
 
     if(!caloExtension.caloEntryLayerIntersection()) {
       ATH_MSG_WARNING( " No caloEntryLayerIntersection found ");
@@ -446,7 +443,7 @@ namespace Rec {
      double E_measured = 0.;
      double E_measured_expected = E_em_expected + E_tile_expected + E_HEC_expected;
 //     if(E_em*cos(theta)>m_emEtCut&&E_em1>0.15*E_em) {
-     if(E_em*cos(theta)>m_emEtCut) {
+     if(E_em*sin(theta)>m_emEtCut) {
 // large e.m. deposit starting in first e.m. layer
        E_FSR = E_em;
 // do not use measured e.m. energy for muons and use expected (tile and HEC are fine)
@@ -506,7 +503,7 @@ namespace Rec {
   double MuonCaloEnergyTool::etaCorr(double eta) const{
 // measured energy* = measured energy + etaCorr(eta) * expected
 
-      int eta_index = int(fabs(eta) * 60./3.);
+      int eta_index = int(fabs(eta) * (60./3.));
       if(eta_index>59) return 0;
 
       double corr[60] = {

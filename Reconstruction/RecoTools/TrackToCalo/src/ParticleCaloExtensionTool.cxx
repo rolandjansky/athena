@@ -23,6 +23,7 @@ namespace Trk
 {
   ParticleCaloExtensionTool::ParticleCaloExtensionTool(const std::string& t, const std::string& n, const IInterface*  p )
     : AthAlgTool(t,n,p),
+      m_detID(nullptr),
       m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
       m_particleType(muon)
   {

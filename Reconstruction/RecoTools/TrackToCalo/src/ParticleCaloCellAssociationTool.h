@@ -70,7 +70,7 @@ namespace Rec {
     double      m_coneSize;
     mutable Trk::CaloCellSelectorLayerdR m_defaultSelector;
 
-    mutable PathLengthUtils pathLenUtil;
+    mutable PathLengthUtils m_pathLenUtil;
 
   };
 

@@ -552,7 +552,7 @@ double PathLengthUtils::getPathLengthInTile(const CaloCell& cell, const Amg::Vec
     //TileCellDim *cell_dim = m_tileDDM->get_cell_dim(cell->caloDDE()->identify());
 
     double CellXimp[2], CellYimp[2], CellZimp[2];
-    double X(0), Y(0), Z(0), R(0), Phi(0);
+    double X(0), Y(0), Z(0), Phi(0);
     double DeltaPhi;
     
     // COMPUTE PATH
@@ -613,7 +613,7 @@ double PathLengthUtils::getPathLengthInTile(const CaloCell& cell, const Amg::Vec
             if(CellRmin != CellRmax){
             Phi = acos(X/sqrt(X*X+Y*Y));
             if(Y <= 0) Phi = -Phi;
-            R = CellRmin;
+            //R = CellRmin;
             
             if(Z>=CellZmin && Z<=CellZmax && Phi>=CellPhimin && Phi<=CellPhimax){
                 CellXimp[Np]=X;
@@ -647,7 +647,7 @@ double PathLengthUtils::getPathLengthInTile(const CaloCell& cell, const Amg::Vec
 
             Phi=std::acos(X/sqrt(X*X+Y*Y));
             if (Y <= 0) Phi=-Phi;
-            R=CellRmax;
+            //R=CellRmax;
             
             if(Z>=CellZmin && Z<=CellZmax && Phi>=CellPhimin && Phi<=CellPhimax){
                 CellXimp[Np]=X; CellYimp[Np]=Y; CellZimp[Np]=Z;
@@ -661,7 +661,7 @@ double PathLengthUtils::getPathLengthInTile(const CaloCell& cell, const Amg::Vec
                 Z = CellZmin;
                 X = Layer1X+Sxz*(Z-Layer1Z);
                 Y = Layer1Y+Syz*(Z-Layer1Z);
-                R = sqrt(X*X+Y*Y);
+                const double R = sqrt(X*X+Y*Y);
                 Phi = std::acos(X/R);
                 if(Y <= 0) Phi=-Phi;
                 if(R>=CellRmin && R<=CellRmax && Phi>=CellPhimin && Phi<=CellPhimax){
@@ -674,7 +674,7 @@ double PathLengthUtils::getPathLengthInTile(const CaloCell& cell, const Amg::Vec
                 Z = CellZmax;
                 X = Layer1X+Sxz*(Z-Layer1Z);
                 Y = Layer1Y+Syz*(Z-Layer1Z);
-                R = sqrt(X*X+Y*Y);
+                const double R = sqrt(X*X+Y*Y);
                 Phi = std::acos(X/R);
                 if(Y <= 0) Phi=-Phi;
                 if(R>=CellRmin && R<=CellRmax && Phi>=CellPhimin && Phi<=CellPhimax){
@@ -690,7 +690,7 @@ double PathLengthUtils::getPathLengthInTile(const CaloCell& cell, const Amg::Vec
                 X = (Layer1X-Sxy*Layer1Y)/(1-Sxy*tan(CellPhimin));
                 Y = X*std::tan(CellPhimin);
                 Z = Layer1Z+(1/Sxz)*(X-Layer1X);
-                R = sqrt(X*X+Y*Y);
+                const double R = sqrt(X*X+Y*Y);
                 Phi = std::acos(X/R);
                 if(Y <= 0) Phi=-Phi;
                 DeltaPhi=fabs(Phi-CellPhimin);
@@ -705,7 +705,7 @@ double PathLengthUtils::getPathLengthInTile(const CaloCell& cell, const Amg::Vec
                 X = (Layer1X-Sxy*Layer1Y)/(1-Sxy*tan(CellPhimax));
                 Y = X*std::tan(CellPhimax);
                 Z = Layer1Z+(1/Sxz)*(X-Layer1X);
-                R = sqrt(X*X+Y*Y);
+                const double R = sqrt(X*X+Y*Y);
                 Phi=acos(X/R);
                 if(Y <= 0) Phi=-Phi;
                 DeltaPhi=fabs(Phi-CellPhimax);
