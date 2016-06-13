@@ -13,7 +13,7 @@ from AthenaCommon.AppMgr import ToolSvc
 from egammaRec.Factories import Factory, ToolFactory
 
 from egammaTools.egammaToolsFactories import egammaMVATool
-TrigEgammaMVACalibTool =  egammaMVATool.copy(name="TrigEgammaMVACalibTool",folder="egammaMVACalib/online/v3")
+TrigEgammaMVACalibTool =  egammaMVATool.copy(name="TrigEgammaMVACalibTool",folder="egammaMVACalib/online/v3",use_layer_corrected = False)
 
 def configureTrigEFCaloCalibFexMonitoring(tool):
     

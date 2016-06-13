@@ -25,8 +25,6 @@
 
 #include "TrigEgammaHypo/TrigEFDielectronMassFex.h"
 
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
-
 #include "TLorentzVector.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include <math.h>
@@ -54,18 +52,13 @@ TrigEFDielectronMassFex::~TrigEFDielectronMassFex()
 HLT::ErrorCode TrigEFDielectronMassFex::hltInitialize()
 {
   
-  if (msgLvl() <= MSG::VERBOSE) {
-    msg() << MSG::DEBUG << "Initialization:" << endreq;
-  }
-
+    ATH_MSG_INFO("Initialization:");
   
-  if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Initialization completed successfully:" << endreq;
-    msg() << MSG::DEBUG << "AcceptAll            = " 
-	  << (m_acceptAll==true ? "True" : "False") << endreq; 
-    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endreq;
-    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endreq;
-  }
+    ATH_MSG_DEBUG("Initialization completed successfully:");
+    ATH_MSG_DEBUG("AcceptAll            = " 
+	  << (m_acceptAll==true ? "True" : "False"));
+    ATH_MSG_DEBUG("LowerMassCut         = " << m_lowerMassCut);
+    ATH_MSG_DEBUG("UpperMassCut         = " << m_upperMassCut);
   
   return HLT::OK;
 }
@@ -73,8 +66,8 @@ HLT::ErrorCode TrigEFDielectronMassFex::hltInitialize()
 
 HLT::ErrorCode TrigEFDielectronMassFex::hltFinalize()
 {
-  if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endreq;
+  
+    ATH_MSG_INFO("in finalize()");
 
   return HLT::OK;
 }
@@ -86,26 +79,21 @@ HLT::ErrorCode TrigEFDielectronMassFex::acceptInputs(HLT::TEConstVec& inputTE, b
   m_monMassAccepted = -1.;
   m_monCut=0;
   // sanity checks
-  if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "Running TrigEFDielectronMassFex::acceptInputs" << endreq;
+  ATH_MSG_DEBUG("Running TrigEFDielectronMassFex::acceptInputs");
 
   if ( inputTE.size() != 2 ) {
-    msg() << MSG::ERROR << "Got diferent than 2 number of input TEs: " << 
-      inputTE.size() << " job badly configured" << endreq;
+    ATH_MSG_ERROR("Got diferent than 2 number of input TEs: " << 
+      inputTE.size() << " job badly configured");
     return HLT::BAD_JOB_SETUP;
   }
 
   // Accept-All mode: temporary patch; should be done with force-accept 
   if (m_acceptAll) {
-    if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" 
-	    << endreq;
-    pass = true;
-    return HLT::OK;
+      ATH_MSG_DEBUG("AcceptAll property is set: taking all events");
+      pass = true;
+      return HLT::OK;
   } else {
-    if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" 
-	    << endreq;
+      ATH_MSG_DEBUG("AcceptAll property not set: applying selection");
   }
 
   // this are 2 TEs which we eventually will combine
@@ -113,7 +101,7 @@ HLT::ErrorCode TrigEFDielectronMassFex::acceptInputs(HLT::TEConstVec& inputTE, b
   const HLT::TriggerElement* te2 = inputTE[1];
 
   // for debugging purpose look into RoIDescriptors
-  if ( msgLvl() <= MSG::DEBUG ){
+  /*if ( msgLvl() <= MSG::DEBUG ){
     const TrigRoiDescriptor* roiDescriptor1 = 0;
     const TrigRoiDescriptor* roiDescriptor2 = 0;
     if ( getFeature(te1, roiDescriptor1) != HLT::OK || getFeature(te2, roiDescriptor2) != HLT::OK ) {
@@ -124,7 +112,7 @@ HLT::ErrorCode TrigEFDielectronMassFex::acceptInputs(HLT::TEConstVec& inputTE, b
       if ( msgLvl() <= MSG::DEBUG )
 	msg() << MSG::DEBUG  << "Trying to combine 2 RoIs: " << *roiDescriptor1 << " & " << *roiDescriptor2 << endreq;
     }
-  }
+  }*/
   
   // retrieve TrigElectronContainers from this TE
   const xAOD::ElectronContainer* electronCont(0);
@@ -133,9 +121,7 @@ HLT::ErrorCode TrigEFDielectronMassFex::acceptInputs(HLT::TEConstVec& inputTE, b
     if ( getFeature(te1, electronCont) != HLT::OK || electronCont == 0 ||
 	 getFeature(te2, electronCont) != HLT::OK || electronCont == 0) {
       // Not an error condition as it could happen for e+etcut chain
-      if ( msgLvl() <= MSG::DEBUG) {
-	msg() << MSG::DEBUG << "Failed to get egammaContainer" << endreq;
-      }
+	ATH_MSG_DEBUG("Failed to get egammaContainer");
       return HLT::MISSING_FEATURE;
     }
   }
@@ -143,19 +129,14 @@ HLT::ErrorCode TrigEFDielectronMassFex::acceptInputs(HLT::TEConstVec& inputTE, b
     if ( getFeature(te1, electronCont) != HLT::OK || electronCont == 0 ||
 	 getFeature(te2, clusterCont) != HLT::OK || clusterCont == 0) {
       // Not an error condition as it could happen for e+etcut chain
-      if ( msgLvl() <= MSG::DEBUG) {
-	msg() << MSG::DEBUG 
-	      << "Failed to get egammaContainer/clusterContainer" << endreq;
-      }
+        ATH_MSG_DEBUG("Failed to get egammaContainer/clusterContainer");
       return HLT::MISSING_FEATURE;
     }
   }
 
   pass=true;
 
-  if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "pass = " << pass << endreq;
-  }
+  ATH_MSG_DEBUG("pass = " << pass);
   return HLT::OK;    
 }  
 
@@ -166,27 +147,29 @@ HLT::ErrorCode TrigEFDielectronMassFex::hltExecute(HLT::TEConstVec& inputTE,
   m_monCut=0;
   m_massElectronElectron.clear();
   m_massElectronCluster.clear();
+  m_cont=new xAOD::TrigCompositeContainer();
+  xAOD::TrigCompositeAuxContainer contaux;
+  m_cont->setStore(&contaux);
 
-  unsigned int i;
   if (m_useElectronElectron) {
-    TrigOperationalInfo* masses_ee = new TrigOperationalInfo();
     processElectronElectron(inputTE, m_massElectronElectron);
-    for (i=0; i<m_massElectronElectron.size(); ++i) {
-      std::ostringstream os;
-      os << "mass_ee" << i;
-      masses_ee->set(os.str(), m_massElectronElectron[i]);
+    for (const auto &mass:m_massElectronElectron) {
+        xAOD::TrigComposite *comp=new xAOD::TrigComposite();;
+        m_cont->push_back(comp);
+        comp->setName("EFDielectron");
+        comp->setDetail("Mee",mass);
     }
-    attachFeature(outputTE, masses_ee, "MassesElectronElectron");
+    attachFeature(outputTE, m_cont, "MassesElectronElectron");
   }
   if (m_useElectronCluster) {
-    TrigOperationalInfo* masses_ec = new TrigOperationalInfo();
     processElectronCluster(inputTE, m_massElectronCluster);
-    for (i=0; i<m_massElectronCluster.size(); ++i) {
-      std::ostringstream os;
-      os << "mass_ec" << i;
-      masses_ec->set(os.str(), m_massElectronCluster[i]);
+    for (const auto &mass:m_massElectronCluster){
+        xAOD::TrigComposite *comp=new xAOD::TrigComposite();;
+        m_cont->push_back(comp);
+        comp->setName("EFDielectron");
+        comp->setDetail("Mee",mass);
     }
-    attachFeature(outputTE, masses_ec, "MassesElectronCluster");
+    attachFeature(outputTE, m_cont, "MassesElectronCluster");
   }
 
   return HLT::OK;
@@ -216,19 +199,15 @@ void TrigEFDielectronMassFex::processElectronElectron(HLT::TEConstVec& inputTE,
       //
       // debug dump (both electrons have tracks now)
 
-      if(msgLvl() <= MSG::DEBUG) {
-	msg() << MSG::DEBUG << "New combination:" << endreq; 
-	msg() << MSG::DEBUG << "1st egammaElectron " 
+	ATH_MSG_DEBUG("New combination:");
+	ATH_MSG_DEBUG("1st egammaElectron " 
 	      << "  pt="    << p1->pt()  
 	      << "; eta="   << p1->eta() 
-	      << "; phi="   << p1->phi() 
-	      << endreq;
-	msg() << MSG::DEBUG << "2nd egammaElectron " 
+	      << "; phi="   << p1->phi());
+	ATH_MSG_DEBUG("2nd egammaElectron " 
 	      << "  pt="    << p2->pt()  
 	      << "; eta="   << p2->eta()                 
-	      << "; phi="   << p2->phi()
-	      << endreq;
-      }
+	      << "; phi="   << p2->phi());
 
       // evaluate mass
       
@@ -259,11 +238,9 @@ void TrigEFDielectronMassFex::processElectronElectron(HLT::TEConstVec& inputTE,
 	m_monCut = 2;
 	if (masses.size() == 0) m_monMassAccepted = mass;
 	masses.push_back(mass);
-	if(msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << "Combination passed mass cut: " 
-		<< m_lowerMassCut << " < " << mass << " < " 
-		<< m_upperMassCut << endreq;
-	}
+        ATH_MSG_DEBUG("Combination passed mass cut: " 
+                << m_lowerMassCut << " < " << mass << " < " 
+                << m_upperMassCut);
       }   
     } // electrons2 container loop end
   } // electrons1 container loop end
@@ -278,11 +255,7 @@ void TrigEFDielectronMassFex::processElectronCluster(HLT::TEConstVec& inputTE,
   if (getFeature(te1, cont1) != HLT::OK || getFeature(te2, cont2) != HLT::OK ||
       cont1 == 0 || cont2 == 0) {
     // Not an error condition as it could happen for e+etcut chain
-    if ( msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG 
-	    << "Failed to get egammaContainer & CaloClusterContainer" 
-	    << endreq;
-    }
+      ATH_MSG_DEBUG( "Failed to get egammaContainer & CaloClusterContainer"); 
     return;
   }
 
@@ -295,19 +268,15 @@ void TrigEFDielectronMassFex::processElectronCluster(HLT::TEConstVec& inputTE,
       // debug dump (both electrons have tracks now)
 
       //Need to fix for xAOD!!!!!!!!!!!!
-      if(msgLvl() <= MSG::DEBUG) {
-	msg() << MSG::DEBUG << "New combination:" << endreq; 
-	msg() << MSG::DEBUG << "1st egammaElectron " 
+	ATH_MSG_DEBUG("New combination:");
+	ATH_MSG_DEBUG("1st egammaElectron " 
 	      << "  pt="    << p1->pt()  
 	      << "; eta="   << p1->eta() 
-	      << "; phi="   << p1->phi() 
-	      << endreq;
-	msg() << MSG::DEBUG << "2nd CaloCluster:"
+	      << "; phi="   << p1->phi()); 
+	ATH_MSG_DEBUG("2nd CaloCluster:"
 	      << "  pt="    << p2->pt()  
 	      << "; eta="   << p2->eta()                 
-	      << "; phi="   << p2->phi()
-	      << endreq;
-      }
+	      << "; phi="   << p2->phi());
 
       // evaluate mass
       
@@ -317,22 +286,18 @@ void TrigEFDielectronMassFex::processElectronCluster(HLT::TEConstVec& inputTE,
 
       // apply cut on mass
       if(mass<m_lowerMassCut || mass>m_upperMassCut) {
-	if(msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << "Combination failed mass cut: " 
+	  ATH_MSG_DEBUG("Combination failed mass cut: " 
 		<< mass << " not in [" << m_lowerMassCut << "," 
-		<< m_upperMassCut << "]" << endreq;
-	}
+		<< m_upperMassCut << "]");
 	continue;
       } else {
 	// good combination found
 	m_monCut = 2;
 	if (masses.size() == 0) m_monMassAccepted = mass;
 	masses.push_back(mass);
-	if (msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << "Combination passed mass cut: " 
-		<< m_lowerMassCut << " < " << mass << " < " 
-		<< m_upperMassCut << endreq;
-	}
+        ATH_MSG_DEBUG("Combination passed mass cut: " 
+            << m_lowerMassCut << " < " << mass << " < " 
+            << m_upperMassCut);
       }  
     } // electrons2 container loop end
   } // electrons1 container loop end

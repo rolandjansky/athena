@@ -270,6 +270,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
   // Create pass bits for clusters
   TrigPassBits* passBits = HLT::makeTrigPassBits(clusContainer);
+  //std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits(clusContainer);
   double mu = 0.;
   double avg_mu = 0.;
   bool useLumiTool=false;
@@ -381,6 +382,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
           continue;
       }
       accepted=true;
+      //xBits->markPassing(clus,clusContainer,true);
       HLT::markPassing(passBits, clus, clusContainer); // set bit for this egamma in TrigPassBits mask
    
   }
@@ -394,6 +396,8 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
   // Time total TrigEFCaloHypo execution time.
   // -------------------------------------
   // store TrigPassBits result
+  /*if(attachFeature(outputTE, xBits.release()) != HLT::OK)
+      ATH_MSG_ERROR("Could not store TrigPassBits! ");*/
   if ( attachBits(outputTE, passBits) != HLT::OK ) 
       ATH_MSG_ERROR("Could not store TrigPassBits! ");
 

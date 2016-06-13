@@ -23,8 +23,8 @@
  **************************************************************************/ 
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigSteeringEvent/TrigPassBits.h"
+//#include "xAODTrigger/TrigPassBits.h"
 
 #include "TrigEgammaHypo/TrigL2DielectronMassFex.h"
 #include "CxxUtils/sincos.h"
@@ -53,6 +53,7 @@ TrigL2DielectronMassFex::TrigL2DielectronMassFex(const std::string & name, ISvcL
   // monitoring
   declareMonitoredVariable("massOfAccepted", m_monMassAccepted);
   declareMonitoredVariable("cut", m_monCut);
+  m_cont=nullptr;
 }
 
 TrigL2DielectronMassFex::~TrigL2DielectronMassFex()
@@ -144,8 +145,10 @@ HLT::ErrorCode TrigL2DielectronMassFex::acceptInputs(HLT::TEConstVec& inputTE, b
     return HLT::MISSING_FEATURE;
   }
 
+  //const xAOD::TrigPassBits* bits(0);
   const TrigPassBits* bits(0);
   HLT::ErrorCode status = getFeature(te1, bits, "passbits");
+  //HLT::ErrorCode status = getFeature(te1, bits);
   if (status != HLT::OK) {
     ATH_MSG_WARNING(" Failed to get TrigPassBits ");
     return HLT::MISSING_FEATURE;
@@ -163,6 +166,7 @@ HLT::ErrorCode TrigL2DielectronMassFex::acceptInputs(HLT::TEConstVec& inputTE, b
     //==================================================
     for ( electron1 = electronContainer1->begin(); electron1 != electronContainer1->end(); ++electron1 ) {
         if(!HLT::isPassing( bits, (*electron1), electronContainer1 )) {
+        //if(!bits->isPassing((*electron1),electronContainer1)){
             ATH_MSG_DEBUG("Electron found not passing Hypo object");
             continue;
         }
@@ -213,6 +217,7 @@ HLT::ErrorCode TrigL2DielectronMassFex::acceptInputs(HLT::TEConstVec& inputTE, b
           m_monCut = 2;
           //Ensure the tag electron passes hypo
           if(!HLT::isPassing( bits, (*electron1), electronContainer1 )) {
+          //if(!bits->isPassing((*electron1),electronContainer1)){
               ATH_MSG_DEBUG("Electron found not passing Hypo object");
               continue;
           }

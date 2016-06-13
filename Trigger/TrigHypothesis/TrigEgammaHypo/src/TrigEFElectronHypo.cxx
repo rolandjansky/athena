@@ -172,8 +172,12 @@ TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name,
   m_totalTimer = nullptr;
   m_timerPIDTool = nullptr;
   m_EgammaContainer = nullptr;
-
-
+  
+  //isEM monitoring 
+  m_NcandIsEM.assign(32,0);//32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton
+  m_NcandIsEMAfterCut.assign(32,0);//32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton
+  m_IsEMRequiredBits.assign(32,0);
+  m_IsEMRequiredBitsAfterCut.assign(32,0);
 }
 
 void TrigEFElectronHypo::prepareMonitoringVars() {
@@ -435,7 +439,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 
   // generate TrigPassBits mask to flag which egamma objects pass hypo cuts
   TrigPassBits* passBits = HLT::makeTrigPassBits(m_EgammaContainer);
-
+  //std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits(m_EgammaContainer);
   //counters for each cut
   int Ncand[10];
   for(int i=0;i<10;i++) Ncand[i]=0;
@@ -819,7 +823,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     accepted=true;
     //xAOD need to fix!!!! 
     HLT::markPassing(passBits, egIt, m_EgammaContainer); // set bit for this egamma in TrigPassBits mask
-    
+    //xBits->markPassing(egIt,m_EgammaContainer,true);
   }//end of loop over egamma container
   
   //Count No of Events passing individual cuts
@@ -837,6 +841,8 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   if ( attachBits(outputTE, passBits) != HLT::OK ) {
     msg() << MSG::ERROR << "Could not store TrigPassBits! " << endreq;
   }
+  /*if(attachFeature(outputTE, xBits.release()) != HLT::OK)
+      ATH_MSG_ERROR("Could not store TrigPassBits! ");*/
 
   // Time total TrigEFElectronHypo execution time.
   // -------------------------------------

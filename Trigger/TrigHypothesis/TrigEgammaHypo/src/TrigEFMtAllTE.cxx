@@ -105,7 +105,7 @@ HLT::ErrorCode TrigEFMtAllTE::hltExecute(std::vector<HLT::TEVec>& inputs, unsign
     return HLT::MISSING_FEATURE;
   }
   const TrigPassBits* bits(0);
-  HLT::ErrorCode status = getFeature(tes2.front(), bits, "passbits");
+  HLT::ErrorCode status = getFeature(tes2.front(), bits);
   if (status != HLT::OK) {
     msg() << MSG::WARNING << " Failed to get TrigPassBits " << endreq;
     return HLT::MISSING_FEATURE;
@@ -116,8 +116,9 @@ HLT::ErrorCode TrigEFMtAllTE::hltExecute(std::vector<HLT::TEVec>& inputs, unsign
 
   for (const xAOD::Electron* aEle : theElectrons) {
 
-    if(!HLT::isPassing( bits, aEle, outEle )) {
-      if (msgLvl() <= MSG::DEBUG) {
+    //if(!bits->isPassing( aEle, outEle )) {
+      if(!HLT::isPassing( bits, aEle, outEle )) {
+        if (msgLvl() <= MSG::DEBUG) {
 	msg() << MSG::DEBUG << "Electron found not passing Hypo object" << endreq;
       }
       continue;
