@@ -1,0 +1,4 @@
+#!/bin/bash
+# Make tar-file in home directory for ServMat run
+tar czf GmxForServMat.tgz Materials.gmx BarrelDefines.gmx CommonDefines.gmx EndcapDefines.gmx SensorDefines.gmx
+mv GmxForServMat.tgz ~

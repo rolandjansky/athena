@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE geomodel SYSTEM "geomodel.dtd" []>
+
+<geomodel name="Sandbox: playing around" version="666.0"
+  xmlns="http://www.nikhef.nl/%7Er29/gmx">
+
+<defines>
+  <var name="PI" value="acos(-1.0)"/>
+
+  <var name="StripOuterRadius"              value="1130."/>
+  <var name="StripInnerRadius"              value="361.751"/>
+  <var name="StripHalfLength"               value="3326."/>
+
+  <var    name="SensorThickness" value="0.320"/>
+  <var    name="B_SensorWidth"    value="97.634"/> <!-- Along strips direction -->
+  <var    name="B_SensorLength"   value="97.851"/> <!-- Across-strips direction. Historically it was square and the distinction
+                                                    didn't matter. -->
+
+
+</defines>
+
+<materials>
+
+    <element name="Aluminium"   shortname="Al" Z="13" A="26.981539"/>
+    <element name="Nitrogen"    shortname="N"  Z="7"  A="14.00674"/>
+
+    <material name="AlMetal" density="2.700">
+      <elementref fraction="1.00000" ref="Aluminium"/>
+    </material>
+    <material name="N2" density="0.8073e-3">
+      <elementref fraction="1.00000" ref="Nitrogen"/>
+    </material>
+
+</materials>
+
+<positionindex>
+  <addindex name="barrel_endcap"/>
+  <addindex name="layer_wheel"/>
+  <addindex name="phi_module"/>
+  <addindex name="eta_module"/>
+  <addindex name="side"/>
+</positionindex>
+
+<readoutgeometry>
+
+  <param name="thickness"      value="0.320"/>
+  <param name="carrierType"    value="electrons"/>
+  <param name="readoutSide"    value="+"/>
+  <param name="fieldDirection" value="z"/>
+  <param name="stripDirection" value="x"/>
+
+  <sensorclass name="SiStripBox">
+    <param name="nStrips" value="1280"/>
+    <!-- Ref: New thin-guard design from Nobu -->
+    <param name="pitch"   value="0.0755"/>
+    <!-- Start and end positions are Sensitive Size (= 96.734 mm) divided by 2 or 4 -->
+    <sensortype name="RG_ISB_SS">
+      <param name="nRows"       value="4"/>
+      <param name="stripLength" value="24.1835"/>
+    </sensortype>
+    <sensortype name="RG_ISB_MS">
+      <param name="nRows"       value="2"/>
+      <param name="stripLength" value="48.367"/>
+    </sensortype>
+  </sensorclass>
+
+</readoutgeometry>
+
+
+<shapes>
+  <tube name="ShStripEnvelope" rmin="StripInnerRadius" rmax="StripOuterRadius" zhalflength="StripHalfLength"/>
+  <tube name="ShDisc" rmin="StripInnerRadius + 1." rmax="500." zhalflength="100."/>
+  <box name="ShBarrelSensor" xhalflength="B_SensorLength / 2" yhalflength="B_SensorWidth / 2" zhalflength="SensorThickness / 2"/>
+</shapes>
+
+<logvol name="Disc" shape="ShDisc" material="AlMetal"/>
+<logvol name="BRLSensorSS" shape="ShBarrelSensor" material="AlMetal" sensitive="RG_ISB_SS"/>
+
+<addbranch>
+
+  <logvol name="SCT" shape="ShStripEnvelope" material="N2">
+
+  <logvolref ref="Disc"/>
+
+  <transform>
+    <transformation  name="RotateSecondDisc">
+      <rotation xcos="1.0" angle="PI/2."/>
+    </transformation>
+    <logvolref ref="Disc"/>
+  </transform>
+
+  <transform>
+    <transformation  name="PlaceASensor">
+      <translation x="600."/>
+    </transformation>
+    <logvolref ref="BRLSensorSS"/>
+  </transform>
+
+  </logvol>
+
+</addbranch>
+
+</geomodel>
