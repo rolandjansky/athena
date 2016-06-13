@@ -9,8 +9,6 @@
 
 // $Id: ProxyProviderSvc_test.cxx,v 1.7 2008-07-10 00:29:24 calaf Exp $
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "AthenaKernel/IProxyProviderSvc.h"
 
 #include <cassert>
@@ -32,6 +30,7 @@
 #include "SGTools/ClassID_traits.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/StoreID.h"
+#include "CxxUtils/make_unique.h"
 
 #include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -119,10 +118,10 @@ void testRecordBeforeRead(StoreGateSvc& rSG, IProxyProviderSvc& rPPS) {
 void testReadPrivate(StoreGateSvc& rSG) {
   cout << "*** ProxyProviderSvc_test readPrivate BEGINS ***" <<endl;
   
-  std::auto_ptr<Foo> apFoo;
+  std::unique_ptr<Foo> apFoo;
   SGASSERTERROR((rSG.readPrivateCopy<Foo>("NotThere")).get() != 0);
   
-  apFoo=rSG.readPrivateCopy<Foo>("diskFoo");
+  apFoo=rSG.readUniquePrivateCopy<Foo>("diskFoo");
   assert(0 != &*apFoo);
   assert(floatEQ(0, static_cast<float>(apFoo->a()))); //check that our Foo is the def constr one
 
@@ -130,13 +129,13 @@ void testReadPrivate(StoreGateSvc& rSG) {
   //record must fail because we already have a provider
   //not yet SGASSERTERROR(rSG.record(new Foo(6.28), "privFoo").isSuccess());
   assert(rSG.record(new Foo(6.28), "privFoo").isSuccess());
-  assert(rSG.overwrite(std::auto_ptr<Foo>(new Foo(6.28)), "privFoo").isSuccess());
+  assert(rSG.overwrite(CxxUtils::make_unique<Foo>(6.28), "privFoo").isSuccess());
   
-  apFoo=rSG.readPrivateCopy<Foo>("privFoo");
+  apFoo=rSG.readUniquePrivateCopy<Foo>("privFoo");
   assert(0 != &*apFoo);
   assert(floatNEQ(6.28f, static_cast<float>(apFoo->a()))); //check that our Foo is a different one
   apFoo->setA(3.14);
-  std::auto_ptr<Foo> bpFoo(rSG.readPrivateCopy<Foo>("privFoo"));
+  std::unique_ptr<Foo> bpFoo(rSG.readUniquePrivateCopy<Foo>("privFoo"));
   assert(0 != &*bpFoo);
   assert(&*bpFoo != &*apFoo); //two independent instances
   assert(floatNEQ(6.28f, static_cast<float>(bpFoo->a()))); 
@@ -149,16 +148,17 @@ void testReadPrivate(StoreGateSvc& rSG) {
   assert(plainFoo != &*bpFoo); //yet another instance
   //  cout << "---------ap " << &*apFoo << " bp " << &*bpFoo  <<endl;
   //cout << " pFoo33 " << pFoo33 << endl;
-  
-  assert(rSG.record(apFoo, "silly33").isSuccess());
+
+  const Foo* pFoo33Orig = apFoo.get();
+  assert(rSG.record(std::move(apFoo), "silly33").isSuccess());
   const Foo *pFoo33(rSG.retrieve<Foo>("silly33"));
   assert(0 != pFoo33);
   assert(floatEQ(3.14f, static_cast<float>(pFoo33->a())));
-  assert(pFoo33 != &*apFoo); //not one of the private copies
+  assert(pFoo33 == pFoo33Orig); //the private copy we recorded.
   assert(pFoo33 != &*bpFoo); //not one of the private copies
   SGASSERTERROR((rSG.readPrivateCopy<Foo>("silly33")).get() != 0);
   assert(rSG.retrieve<Foo>("silly33"));
-  std::auto_ptr<Foo> aptrFoo33(rSG.retrievePrivateCopy<Foo>("silly33"));
+  std::unique_ptr<Foo> aptrFoo33(rSG.retrieveUniquePrivateCopy<Foo>("silly33"));
   assert(aptrFoo33.get() == pFoo33);
   assert(floatEQ(3.14f, static_cast<float>(aptrFoo33->a())));
   SGASSERTERROR((pFoo33 = rSG.retrieve<Foo>("silly33")) != 0);

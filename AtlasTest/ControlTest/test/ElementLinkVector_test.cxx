@@ -3,9 +3,10 @@
 */
 
 #include "TestTools/SGassert.h"
-#include "DataModel/ElementLinkVector.h"
-#include "DataModel/DataVector.h"
+#include "AthLinks/ElementLinkVector.h"
+#include "AthContainers/DataVector.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "SGTools/CLASS_DEF.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 
@@ -19,11 +20,11 @@
 #include <string>
 #include <stdexcept>
 
+#include "TestTools/initGaudi.h"
+using namespace Athena_test;
 using namespace std;
 
 typedef DataVector<int> IntVector;
-
-#include "SGTools/CLASS_DEF.h"
 CLASS_DEF( IntVector , 7368883 , 1 )
 
 namespace Athena_test 
@@ -124,8 +125,6 @@ namespace Athena_test
   }
 } //end namespace
 
-#include "TestTools/initGaudi.h"
-using namespace Athena_test;
 
 int main() {
   ISvcLocator* pSvcLoc;

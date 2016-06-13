@@ -1,104 +1,109 @@
-Sat Apr 19 21:06:34 CEST 2014
-WARNING: TCMALLOCDIR not defined, will use libc malloc
+Sat Mar 12 19:53:48 CET 2016
+Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [?-?] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:Athena            INFO using release [AtlasOffline-21.0.0] [x86_64-slc6-gcc49-dbg] [21.X.Y-VAL/rel_6] -- built on [2016-03-11 22:40]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
-Py:Athena            INFO including file "AthenaCommon/Execution.py"
-Py:Athena            INFO including file "/home/sss/atlas/dvtest/../share/test_interactive_athena.py"
-Py:ConfigurableDb    INFO Read module info for 175 configurables from 2 genConfDb files
-Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+Py:Athena            INFO executing ROOT6Setup
+[?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "ControlTest/test_interactive_athena.py"
+Py:ConfigurableDb    INFO Read module info for 5022 configurables from 10 genConfDb files
+Py:ConfigurableDb WARNING Found 1 duplicates among the 10 genConfDb files :
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -TrigHLTJetHypo: TrigJetHypo.TrigJetHypoConf - ['TrigHLTJetHypo.TrigHLTJetHypoConf']
+Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v999r999)
-                                          running on karma on Sat Apr 19 21:06:35 2014
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r4)
+                                          running on lxplus031.cern.ch on Sat Mar 12 19:53:59 2016
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 1959 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 1959 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-19
+ClassIDSvc           INFO  getRegistryEntries: read 2109 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-02
 AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
 AthAlgSeq            INFO Member list: PyAthena::Alg/pyalg
 PyComponentMgr       INFO Initializing PyComponentMgr...
 pyalg                INFO Initializing pyalg...
 Py:pyalg             INFO initialize...
 Py:pyalg             INFO initialize... [ok]
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-00-00-00
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-00
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-06-31
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-07
 HistogramPersis...WARNING Histograms saving not required.
-ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-00-00-00
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-06-31
 ApplicationMgr       INFO Application Manager Initialized successfully
 StoreGateSvc         INFO Start StoreGateSvc
 ApplicationMgr       INFO Application Manager Started successfully
-AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 0 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
 Py:pyalg             INFO execute...
 Py:pyalg             INFO --> evt: 0/1
 Py:pyalg             INFO execute... [ok]
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 1 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #0 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 1 events processed so far  <<<===
 Py:pyalg             INFO execute...
 Py:pyalg             INFO --> evt: 1/2
 Py:pyalg             INFO execute... [ok]
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #0 2 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #0 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #1 2 events processed so far  <<<===
 Py:pyalg             INFO execute...
 Py:pyalg             INFO --> evt: 2/3
 Py:pyalg             INFO execute... [ok]
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 3 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #1 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #1 3 events processed so far  <<<===
 Py:pyalg             INFO execute...
 Py:pyalg             INFO --> evt: 3/4
 Py:pyalg             INFO execute... [ok]
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 4 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #1 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #1 4 events processed so far  <<<===
 Py:pyalg             INFO execute...
 Py:pyalg             INFO --> evt: 4/5
 Py:pyalg             INFO execute... [ok]
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #0 5 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #0 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #1 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #1 5 events processed so far  <<<===
 Py:pyalg             INFO execute...
 Py:pyalg             INFO --> evt: 5/6
 Py:pyalg             INFO execute... [ok]
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #0 6 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #0 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #1 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #1 6 events processed so far  <<<===
 Py:pyalg             INFO execute...
 Py:pyalg             INFO --> evt: 6/7
 Py:pyalg             INFO execute... [ok]
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #0 7 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #0 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #1 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #1 7 events processed so far  <<<===
 Py:pyalg             INFO execute...
 Py:pyalg             INFO --> evt: 7/8
 Py:pyalg             INFO execute... [ok]
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #0 8 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #0 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #1 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #1 8 events processed so far  <<<===
 Py:pyalg             INFO execute...
 Py:pyalg             INFO --> evt: 8/9
 Py:pyalg             INFO execute... [ok]
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #0 9 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #0 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #1 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #1 9 events processed so far  <<<===
 Py:pyalg             INFO execute...
 Py:pyalg             INFO --> evt: 9/10
 Py:pyalg             INFO execute... [ok]
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #0 10 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #0 10 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #1 10 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #1 10 events processed so far  <<<===
 Py:pyalg             INFO execute...
 Py:pyalg             INFO --> evt: 10/11
 Py:pyalg             INFO execute... [ok]
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #0 11 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #1 11 events processed so far  <<<===
 test lock
-ClassIDSvc           INFO  getRegistryEntries: read 2755 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 3076 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1065 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 10 CLIDRegistry entries for module ALL
 StoreGateSvc      WARNING record_impl: Could not find suitable SG::BaseInfoBase for CLID [8009] (lockable) !	No auto-symlink established !
 done test lock
 StoreGateSvc         INFO Stop StoreGateSvc
@@ -112,15 +117,14 @@ AthAlgSeq            INFO Finalizing AthAlgSeq...
 AthOutSeq            INFO Finalizing AthOutSeq...
 AthRegSeq            INFO Finalizing AthRegSeq...
 AthMasterSeq         INFO Finalizing AthMasterSeq...
-StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-00-00-00
+StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-03-06-31
 PyComponentMgr       INFO Finalizing PyComponentMgr...
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-AthenaSealSvc::...   INFO Time User   : Tot=    0 [us]                                             #=  1
-ChronoStatSvc        INFO Time User   : Tot=  205 [ms]                                             #=  1
+ChronoStatSvc        INFO Time User   : Tot=  3.5  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

@@ -1,7 +1,7 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/StoreGateSvcClient_test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work7/InstallArea/jobOptions/ControlTest/StoreGateTestCommon.txt
+JobOptionsSvc        INFO # =======> /home/sss/atlas/rootaccess/build/joboptions/ControlTest/StoreGateTestCommon.txt
 JobOptionsSvc        INFO # (5,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore"]
 JobOptionsSvc        INFO # (6,1): AuditorSvc.Auditors += ["AlgContextAuditor"]
 JobOptionsSvc        INFO # (7,1): StoreGateSvc.OutputLevel = 1
@@ -11,123 +11,117 @@ JobOptionsSvc        INFO # (10,1): MessageSvc.useColors = 1
 JobOptionsSvc        INFO Job options successfully read in from ../share/StoreGateSvcClient_test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r3)
-                                          running on lxplus0036.cern.ch on Tue Sep 22 15:54:28 2015
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Sun Jun 12 22:22:13 2016
 ====================================================================================================================================[m
 ApplicationMgr       INFO Application Manager Configured successfully[m
-DetectorStore        INFO Initializing DetectorStore - package version StoreGate-03-03-07[m
-DetectorStore_Impl   INFO Initializing DetectorStore_Impl - package version StoreGate-03-03-07[m
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-18[m
-ClassIDSvc           INFO  getRegistryEntries: read 250 CLIDRegistry entries for module ALL[m
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-00[m
-HistoryStore         INFO Initializing HistoryStore - package version StoreGate-03-03-07[m
-HistoryStore_Impl    INFO Initializing HistoryStore_Impl - package version StoreGate-03-03-07[m
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-00-00[m
+ClassIDSvc           INFO  getRegistryEntries: read 1007 CLIDRegistry entries for module ALL[m
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-00[m
 [93;1mEventLoopMgr      WARNING Unable to locate service "EventSelector" [m
 [93;1mEventLoopMgr      WARNING No events will be processed from external input.[m
 [93;1mHistogramPersis...WARNING Histograms saving not required.[m
 ApplicationMgr       INFO Application Manager Initialized successfully[m
 ApplicationMgr Ready
+StoreGateSvc        DEBUG Property update for OutputLevel : new value = 1[m
 StoreGateSvc        DEBUG Service base class initialized successfully[m
-StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-03-03-07[m
-StoreGateSvc_Impl    INFO Initializing StoreGateSvc_Impl - package version StoreGate-03-03-07[m
-StoreGateSvc_Impl   DEBUG Service base class initialized successfully[m
-StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
-StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc[m
+StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
+StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc[m
 *** StoreGateSvcClient_test record BEGINS ***
-StoreGateSvc_Impl   DEBUG Recorded object @0x14fc440 with key pFoo1 of type Foo(CLID 8101)
- in DataObject @0x1529d20
+StoreGateSvc        DEBUG Recorded object @0x17e79b0 with key pFoo1 of type Foo(CLID 8101)
+ in DataObject @0x153baa0
  object modifiable when retrieved[m
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING  setupProxy:: error setting up proxy for key pFoo1 and clid 8101
- Pre-existing valid DataProxy @0x152a030 found in Store for key pFoo1 with clid 8101[m
-ClassIDSvc           INFO  getRegistryEntries: read 720 CLIDRegistry entries for module ALL[m
-[93;1mStoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x111c650
- recorded with key pFoo1 of type Foo (CLID 8101) in DataObject @0x152a1d0[m
+[93;1mStoreGateSvc      WARNING  setupProxy:: error setting up proxy for key pFoo1 and clid 8101
+ Pre-existing valid DataProxy @0x17f2cc0 found in Store for key pFoo1 with clid 8101[m
+ClassIDSvc           INFO  getRegistryEntries: read 343 CLIDRegistry entries for module ALL[m
+[93;1mStoreGateSvc      WARNING record_impl: Problem setting up the proxy for object @0x151eca0
+ recorded with key pFoo1 of type Foo (CLID 8101) in DataObject @0x15329b0[m
 <<---Error Message Ends-------
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING record_impl: failed for key=pFoo2, type Foo (CLID 8101)
- object @0x14fc440 already in store with key=pFoo1. Will not record a duplicate! [m
+[93;1mStoreGateSvc      WARNING record_impl: failed for key=pFoo2, type Foo (CLID 8101)
+ object @0x17e79b0 already in store with key=pFoo1. Will not record a duplicate! [m
 <<---Error Message Ends-------
-StoreGateSvc_Impl   DEBUG Recorded object @0x14ec3f0 with key pFoo2 of type Foo(CLID 8101)
- in DataObject @0x14d0d00
+StoreGateSvc        DEBUG Recorded object @0x151eb00 with key pFoo2 of type Foo(CLID 8101)
+ in DataObject @0x17ed010
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x14ecaa0 with key cpFoo of type Foo(CLID 8101)
- in DataObject @0x14d4910
+StoreGateSvc        DEBUG Recorded object @0x187db00 with key cpFoo of type Foo(CLID 8101)
+ in DataObject @0x17f2430
  object not modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x14ecfb0 with key silly of type Foo(CLID 8101)
- in DataObject @0x14e0100
+StoreGateSvc        DEBUG Recorded object @0x18035c0 with key silly of type Foo(CLID 8101)
+ in DataObject @0x187ec30
  object modifiable when retrieved[m
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING  setupProxy:: error setting up proxy for key silly and clid 8101
- Pre-existing valid DataProxy @0x14da5e0 found in Store for key silly with clid 8101[m
-[93;1mStoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x14ef960
- recorded with key silly of type Foo (CLID 8101) in DataObject @0x14cb3f0[m
+[93;1mStoreGateSvc      WARNING  setupProxy:: error setting up proxy for key silly and clid 8101
+ Pre-existing valid DataProxy @0x1880a70 found in Store for key silly with clid 8101[m
+[93;1mStoreGateSvc      WARNING record_impl: Problem setting up the proxy for object @0x188bcd0
+ recorded with key silly of type Foo (CLID 8101) in DataObject @0x185b850[m
 <<---Error Message Ends-------
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING  setupProxy:: error setting up proxy for key silly and clid 8101
- Pre-existing valid DataProxy @0x14da5e0 found in Store for key silly with clid 8101[m
-[93;1mStoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x14efc30
- recorded with key silly of type Foo (CLID 8101) in DataObject @0x143c340[m
+[93;1mStoreGateSvc      WARNING  setupProxy:: error setting up proxy for key silly and clid 8101
+ Pre-existing valid DataProxy @0x1880a70 found in Store for key silly with clid 8101[m
+[93;1mStoreGateSvc      WARNING record_impl: Problem setting up the proxy for object @0x17ff540
+ recorded with key silly of type Foo (CLID 8101) in DataObject @0x1876d50[m
 <<---Error Message Ends-------
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING  setupProxy:: error setting up proxy for key silly and clid 8101
- Pre-existing valid DataProxy @0x14da5e0 found in Store for key silly with clid 8101[m
-[93;1mStoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x14f0020
- recorded with key silly of type Foo (CLID 8101) in DataObject @0x143c2f0[m
+[93;1mStoreGateSvc      WARNING  setupProxy:: error setting up proxy for key silly and clid 8101
+ Pre-existing valid DataProxy @0x1880a70 found in Store for key silly with clid 8101[m
+[93;1mStoreGateSvc      WARNING record_impl: Problem setting up the proxy for object @0x17ff1a0
+ recorded with key silly of type Foo (CLID 8101) in DataObject @0x188bc20[m
 <<---Error Message Ends-------
-StoreGateSvc_Impl   DEBUG Recorded object @0x14f08c0 with key UnLocked of type Foo(CLID 8101)
- in DataObject @0x1528060
+StoreGateSvc        DEBUG Recorded object @0x1538d70 with key UnLocked of type Foo(CLID 8101)
+ in DataObject @0x1876c60
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x150a610 with key Locked of type Foo(CLID 8101)
- in DataObject @0x14e0950
+StoreGateSvc        DEBUG Recorded object @0x18700d0 with key Locked of type Foo(CLID 8101)
+ in DataObject @0x1870020
  object not modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x150aa30 with key LockedReset of type Foo(CLID 8101)
- in DataObject @0x14d66c0
+StoreGateSvc        DEBUG Recorded object @0x17e7ab0 with key LockedReset of type Foo(CLID 8101)
+ in DataObject @0x18050e0
  object not modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x111c920 with key UnLockedReset of type Foo(CLID 8101)
- in DataObject @0x14da720
+StoreGateSvc        DEBUG Recorded object @0x17ebbc0 with key UnLockedReset of type Foo(CLID 8101)
+ in DataObject @0x17f0980
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x150d0d0 with key LockedDelete of type Foo(CLID 8101)
- in DataObject @0x14e26d0
+StoreGateSvc        DEBUG Recorded object @0x17eac20 with key LockedDelete of type Foo(CLID 8101)
+ in DataObject @0x17eab90
  object not modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x150d600 with key UnLockedDelete of type Foo(CLID 8101)
- in DataObject @0x152a290
+StoreGateSvc        DEBUG Recorded object @0x1533a60 with key UnLockedDelete of type Foo(CLID 8101)
+ in DataObject @0x17eadb0
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x150f7f0 with key Const of type Foo(CLID 8101)
- in DataObject @0x152a4c0
+StoreGateSvc        DEBUG Recorded object @0x17ed6d0 with key Const of type Foo(CLID 8101)
+ in DataObject @0x17ed6f0
  object not modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x1510330 with key Const2 of type Foo(CLID 8101)
- in DataObject @0x152a7b0
+StoreGateSvc        DEBUG Recorded object @0x1535ed0 with key Const2 of type Foo(CLID 8101)
+ in DataObject @0x1535e20
  object not modifiable when retrieved[m
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING  setupProxy:: error setting up proxy for key Const and clid 8101
- Pre-existing valid DataProxy @0x152a510 found in Store for key Const with clid 8101[m
-[93;1mStoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x1510870
- recorded with key Const of type Foo (CLID 8101) in DataObject @0x152abe0[m
+[93;1mStoreGateSvc      WARNING  setupProxy:: error setting up proxy for key Const and clid 8101
+ Pre-existing valid DataProxy @0x17f44e0 found in Store for key Const with clid 8101[m
+[93;1mStoreGateSvc      WARNING record_impl: Problem setting up the proxy for object @0x17eb2b0
+ recorded with key Const of type Foo (CLID 8101) in DataObject @0x1536060[m
 <<---Error Message Ends-------
-StoreGateSvc_Impl   DEBUG Recorded object @0x111ce30 with key ow of type Foo(CLID 8101)
- in DataObject @0x152aab0
+StoreGateSvc        DEBUG Recorded object @0x15413b0 with key ow of type Foo(CLID 8101)
+ in DataObject @0x17eb1e0
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG overwrite: Recorded object @0x1513e60 with key ow of type Foo(CLID 8101)
- in DataObject @0x152adb0
+StoreGateSvc        DEBUG overwrite: Recorded object @0x17eff70 with key ow of type Foo(CLID 8101)
+ in DataObject @0x17efec0
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG overwrite: Recorded object @0x15135f0 with key ow of type Foo(CLID 8101)
- in DataObject @0x152aab0
+StoreGateSvc        DEBUG overwrite: Recorded object @0x15413b0 with key ow of type Foo(CLID 8101)
+ in DataObject @0x17eb1e0
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x111d450 with key ow2 of type Foo(CLID 8101)
- in DataObject @0x152adb0
+StoreGateSvc        DEBUG Recorded object @0x17eff70 with key ow2 of type Foo(CLID 8101)
+ in DataObject @0x17efec0
  object not modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG overwrite: Recorded object @0x1514280 with key ow2 of type Foo(CLID 8101)
- in DataObject @0x152af20
+StoreGateSvc        DEBUG overwrite: Recorded object @0x15343a0 with key ow2 of type Foo(CLID 8101)
+ in DataObject @0x15343c0
  object not modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG overwrite: Recorded object @0x1514130 with key ow2 of type Foo(CLID 8101)
- in DataObject @0x152adb0
+StoreGateSvc        DEBUG overwrite: Recorded object @0x1534310 with key ow2 of type Foo(CLID 8101)
+ in DataObject @0x17efec0
  object not modifiable when retrieved[m
 *** StoreGateSvcClient_test records OK ***
 
@@ -139,555 +133,583 @@ StoreGateSvc_Impl   DEBUG overwrite: Recorded object @0x1514130 with key ow2 of 
 *** StoreGateSvcClient_test retrieve BEGINS ***
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING retrieve(default): No valid proxy for default object 
+[93;1mStoreGateSvc      WARNING retrieve(default): No valid proxy for default object 
  of type Foo(CLID 8101)[m
 <<---Error Message Ends-------
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING retrieve(default): No valid proxy for default object 
+[93;1mStoreGateSvc      WARNING retrieve(default): No valid proxy for default object 
  of type NotThere(CLID 8103)[m
 <<---Error Message Ends-------
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING retrieve(default): No valid proxy for default object  of type Foo(CLID 8101)
+[93;1mStoreGateSvc      WARNING retrieve(default): No valid proxy for default object  of type Foo(CLID 8101)
  Try to use a const DataHandle [m
 <<---Error Message Ends-------
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING retrieve(default): No valid proxy for default object 
+[93;1mStoreGateSvc      WARNING retrieve(default): No valid proxy for default object 
  of type Foo(CLID 8101)[m
 <<---Error Message Ends-------
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object UnLocked  of type Foo(CLID 8101)[m
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object UnLocked  of type Foo(CLID 8101)[m
+StoreGateSvc        DEBUG Retrieved const handle to object UnLocked  of type Foo(CLID 8101)[m
+StoreGateSvc        DEBUG Retrieved const handle to object UnLocked  of type Foo(CLID 8101)[m
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING retrieve(const): No valid proxy for object UnLockedxxx  of type Foo(CLID 8101)[m
+[93;1mStoreGateSvc      WARNING retrieve(const): No valid proxy for object UnLockedxxx  of type Foo(CLID 8101)[m
 <<---Error Message Ends-------
-StoreGateSvc_Impl   DEBUG retrieve(range): no object found  of type NotThere(CLID 8103)[m
-StoreGateSvc_Impl   DEBUG retrieve(range): Can't set DataHandle for object range  of type NotThere(CLID 8103)[m
+StoreGateSvc        DEBUG retrieve(range): no object found  of type NotThere(CLID 8103)[m
+StoreGateSvc        DEBUG retrieve(range): Can't set DataHandle for object range  of type NotThere(CLID 8103)[m
 *** StoreGateSvcClient_test retrieve OK ***
 
 
 *** StoreGateSvcClient_test tryRetrieve BEGINS ***
 we should see no WARNING message for failed retrieves
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object UnLocked  of type Foo(CLID 8101)[m
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object UnLocked  of type Foo(CLID 8101)[m
+StoreGateSvc        DEBUG Retrieved const handle to object UnLocked  of type Foo(CLID 8101)[m
+StoreGateSvc        DEBUG Retrieved const handle to object UnLocked  of type Foo(CLID 8101)[m
 *** StoreGateSvcClient_test tryRetrieve OK ***
 
 
 *** StoreGateSvcClient_test symlinks BEGINS ***
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING retrieve(default): No valid proxy for default object 
+[93;1mStoreGateSvc      WARNING retrieve(default): No valid proxy for default object 
  of type Foo(CLID 8101)[m
 <<---Error Message Ends-------
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING addSymLink: no target DataProxy found. Sorry, can't link to a non-existing data object[m
+[93;1mStoreGateSvc      WARNING addSymLink: no target DataProxy found. Sorry, can't link to a non-existing data object[m
 <<---Error Message Ends-------
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING addSymLink: no target DataProxy found. Sorry, can't link to a non-existing data object[m
+[93;1mStoreGateSvc      WARNING addSymLink: no target DataProxy found. Sorry, can't link to a non-existing data object[m
 <<---Error Message Ends-------
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object UnLocked  of type Base(CLID 8100)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object UnLocked  of type Base(CLID 8100)[m
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING addSymLink: no target DataProxy found. Sorry, can't link to a non-existing data object[m
+[93;1mStoreGateSvc      WARNING addSymLink: no target DataProxy found. Sorry, can't link to a non-existing data object[m
 <<---Error Message Ends-------
-StoreGateSvc_Impl   DEBUG retrieve(default): Retrieved const handle to default object 
+StoreGateSvc        DEBUG retrieve(default): Retrieved const handle to default object 
  of type Base(CLID 8100)[m
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object UnLocked  of type Base(CLID 8100)[m
+StoreGateSvc        DEBUG Retrieved const handle to object UnLocked  of type Base(CLID 8100)[m
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING retrieve(const): No valid proxy for object modSully  of type Base(CLID 8100)[m
+[93;1mStoreGateSvc      WARNING retrieve(const): No valid proxy for object modSully  of type Base(CLID 8100)[m
 <<---Error Message Ends-------
 *** StoreGateSvcClient_test symlinks OK ***
 
 
 *** StoreGateSvcClient_test readPrivateCopy BEGINS ***
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object silly  of type Foo(CLID 8101)[m
-[93;1mStoreGateSvc_Impl WARNING SGImplSvc::typeless_readPrivateCopy: did not find object of type Foo with key silly[m
+StoreGateSvc        DEBUG Retrieved const handle to object silly  of type Foo(CLID 8101)[m
+[93;1mStoreGateSvc      WARNING SGImplSvc::typeless_readPrivateCopy: did not find object of type Foo with key silly[m
 [93;1mSG::fromStorable  WARNING null input pointer [m
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object silly  of type Foo(CLID 8101)[m
+StoreGateSvc        DEBUG Retrieved const handle to object silly  of type Foo(CLID 8101)[m
 *** StoreGateSvcClient_test readPrivateCopy OK ***
 *** StoreGateSvcClient_test retrievePrivateCopy BEGINS ***
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object silly  of type Foo(CLID 8101)[m
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object silly  of type Foo(CLID 8101)[m
+StoreGateSvc        DEBUG Retrieved const handle to object silly  of type Foo(CLID 8101)[m
+StoreGateSvc        DEBUG Retrieved const handle to object silly  of type Foo(CLID 8101)[m
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING retrieve(const): No valid proxy for object silly  of type Foo(CLID 8101)[m
+[93;1mStoreGateSvc      WARNING retrieve(const): No valid proxy for object silly  of type Foo(CLID 8101)[m
 <<---Error Message Ends-------
 *** StoreGateSvcClient_test retrievePrivateCopy OK ***
 *** StoreGateSvcClient_test remove BEGINS ***
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING retrieve(default): No valid proxy for default object  of type Foo(CLID 8101)
+[93;1mStoreGateSvc      WARNING retrieve(default): No valid proxy for default object  of type Foo(CLID 8101)
  Try to use a const DataHandle [m
 <<---Error Message Ends-------
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING retrieve(non-const): No valid proxy for object   of type Foo(CLID 8101) 
+[93;1mStoreGateSvc      WARNING retrieve(non-const): No valid proxy for object   of type Foo(CLID 8101) 
  Try to use a const DataHandle[m
 <<---Error Message Ends-------
-StoreGateSvc_Impl   DEBUG Recorded object @0x14ecfb0 with key pFooKey of type Foo(CLID 8101)
- in DataObject @0x14e0100
+StoreGateSvc        DEBUG Recorded object @0x1534450 with key pFooKey of type Foo(CLID 8101)
+ in DataObject @0x187ec30
  object modifiable when retrieved[m
  Now we expect to see an error for invalid proxy >>> 
-[93;1mStoreGateSvc_Impl WARNING retrieve(non-const): No valid proxy for object pFooKey  of type Foo(CLID 8101) 
+[93;1mStoreGateSvc      WARNING retrieve(non-const): No valid proxy for object pFooKey  of type Foo(CLID 8101) 
  Try to use a const DataHandle[m
  end of error >>>>>>>>>>>>> 
-StoreGateSvc_Impl   DEBUG Recorded object @0x14ecfb0 with key pFooKey of type Foo(CLID 8101)
- in DataObject @0x14e0100
+StoreGateSvc        DEBUG Recorded object @0x17eff70 with key pFooKey of type Foo(CLID 8101)
+ in DataObject @0x187ec30
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x14ecfb0 with key pFooKey of type Foo(CLID 8101)
- in DataObject @0x14e0100
+StoreGateSvc        DEBUG Recorded object @0x17eff70 with key pFooKey of type Foo(CLID 8101)
+ in DataObject @0x187ec30
  object modifiable when retrieved[m
 *** StoreGateSvcClient_test removes OK ***
 
 
 
 *** StoreGateSvcClient_test testCreate BEGINS ***
-StoreGateSvc_Impl   DEBUG Recorded object @0x14ecfb0 with key pCreateFooDefault of type Foo(CLID 8101)
- in DataObject @0x14e0100
+StoreGateSvc        DEBUG Recorded object @0x17eff70 with key pCreateFooDefault of type Foo(CLID 8101)
+ in DataObject @0x187ec30
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x1516760 with key pCreateFoo1 of type Foo(CLID 8101)
- in DataObject @0x152b300
+StoreGateSvc        DEBUG Recorded object @0x18037a0 with key pCreateFoo1 of type Foo(CLID 8101)
+ in DataObject @0x17ff8f0
  object modifiable when retrieved[m
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING  setupProxy:: error setting up proxy for key pCreateFoo1 and clid 8101
- Pre-existing valid DataProxy @0x152b680 found in Store for key pCreateFoo1 with clid 8101[m
-[93;1mStoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x1516b80
- recorded with key pCreateFoo1 of type Foo (CLID 8101) in DataObject @0x152b820[m
-[97;101;1mStoreGateSvc        ERROR create: problem recording created object @0x1516b80 using key pCreateFoo1[m
+[93;1mStoreGateSvc      WARNING  setupProxy:: error setting up proxy for key pCreateFoo1 and clid 8101
+ Pre-existing valid DataProxy @0x17f33d0 found in Store for key pCreateFoo1 with clid 8101[m
+[93;1mStoreGateSvc      WARNING record_impl: Problem setting up the proxy for object @0x1539070
+ recorded with key pCreateFoo1 of type Foo (CLID 8101) in DataObject @0x1538fc0[m
+[97;101;1mStoreGateSvc        ERROR create: problem recording created object @0x1539070 using key pCreateFoo1[m
 <<---Error Message Ends-------
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object pCreateFoo1  of type Foo(CLID 8101)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object pCreateFoo1  of type Foo(CLID 8101)[m
 *** StoreGateSvcClient_test testCreate OK ***
 
 
 *** StoreGateSvcClient_test bind BEGINS ***
-StoreGateSvc_Impl   DEBUG Recorded object @0x1516f70 with key fooKey of type Foo(CLID 8101)
- in DataObject @0x152b6f0
+StoreGateSvc        DEBUG Recorded object @0x1802ba0 with key fooKey of type Foo(CLID 8101)
+ in DataObject @0x15390c0
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG  Bound handle 0x7fff5879b050 to proxy 0x152b870[m
+StoreGateSvc        DEBUG  Bound handle 0x7ffe8debf8a0 to proxy 0x1802bf0[m
 *** StoreGateSvcClient_test bind OK ***
 
 
 Testing dump: 
  -------->>
 <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
-SGImplSvc(StoreGateSvc_Impl)::dump():
+SGImplSvc(StoreGateSvc)::dump():
 Found 1 proxy for ClassID 8100 (Base): 
- flags: (  valid, UNLOCKED,  reset) --- data:  0x1528060 --- key: UnLocked
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x1876c60 --- key: UnLocked
 Found 17 proxies for ClassID 8101 (Foo): 
- flags: (  valid,   locked,  reset) --- data:  0x152a4c0 --- key: Const
- flags: (  valid,   locked,  reset) --- data:  0x152a7b0 --- key: Const2
- flags: (  valid,   locked,  reset) --- data:  0x14e0950 --- key: Locked
- flags: (  valid,   locked, DELETE) --- data:  0x14e26d0 --- key: LockedDelete
- flags: (  valid,   locked,  reset) --- data:  0x14d66c0 --- key: LockedReset
- flags: (  valid, UNLOCKED,  reset) --- data:  0x1528060 --- key: UnLocked
- flags: (  valid, UNLOCKED, DELETE) --- data:  0x152a290 --- key: UnLockedDelete
- flags: (  valid, UNLOCKED,  reset) --- data:  0x14da720 --- key: UnLockedReset
- flags: (  valid,   locked,  reset) --- data:  0x14d4910 --- key: cpFoo
- flags: (  valid, UNLOCKED,  reset) --- data:  0x152b6f0 --- key: fooKey
- flags: (  valid, UNLOCKED, DELETE) --- data:  0x152aab0 --- key: ow
- flags: (  valid,   locked, DELETE) --- data:  0x152adb0 --- key: ow2
- flags: (  valid, UNLOCKED,  reset) --- data:  0x152b300 --- key: pCreateFoo1
- flags: (  valid, UNLOCKED,  reset) --- data:  0x14e0100 --- key: pCreateFooDefault
- flags: (  valid, UNLOCKED,  reset) --- data:  0x1529d20 --- key: pFoo1
- flags: (  valid, UNLOCKED,  reset) --- data:  0x14d0d00 --- key: pFoo2
+ flags: (  valid,   locked,  reset) --- data:  0x17ed6f0 --- key: Const
+ flags: (  valid,   locked,  reset) --- data:  0x1535e20 --- key: Const2
+ flags: (  valid,   locked,  reset) --- data:  0x1870020 --- key: Locked
+ flags: (  valid,   locked, DELETE) --- data:  0x17eab90 --- key: LockedDelete
+ flags: (  valid,   locked,  reset) --- data:  0x18050e0 --- key: LockedReset
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x1876c60 --- key: UnLocked
+ flags: (  valid, UNLOCKED, DELETE) --- data:  0x17eadb0 --- key: UnLockedDelete
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x17f0980 --- key: UnLockedReset
+ flags: (  valid,   locked,  reset) --- data:  0x17f2430 --- key: cpFoo
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x15390c0 --- key: fooKey
+ flags: (  valid, UNLOCKED, DELETE) --- data:  0x17eb1e0 --- key: ow
+ flags: (  valid,   locked, DELETE) --- data:  0x17efec0 --- key: ow2
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x17ff8f0 --- key: pCreateFoo1
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x187ec30 --- key: pCreateFooDefault
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x153baa0 --- key: pFoo1
+ flags: (  valid, UNLOCKED,  reset) --- data:  0x17ed010 --- key: pFoo2
  flags: (INVALID, UNLOCKED,  reset) --- data:          0 --- key: silly
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 <<--------
-StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=1[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x14d72d0, recorded with key=UnLocked, CLID=8101, containing data object @0x1528060  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152a510, recorded with key=Const, CLID=8101, containing data object @0x152a4c0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x15296a0, recorded with key=Const2, CLID=8101, containing data object @0x152a7b0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x14d4240, recorded with key=Locked, CLID=8101, containing data object @0x14e0950  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x14e2720, recorded with key=LockedDelete, CLID=8101, containing data object @0x14e26d0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x14e21e0, recorded with key=LockedReset, CLID=8101, containing data object @0x14d66c0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x14d72d0, recorded with key=UnLocked, CLID=8101, containing data object @0x1528060  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152a2e0, recorded with key=UnLockedDelete, CLID=8101, containing data object @0x152a290  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x14da770, recorded with key=UnLockedReset, CLID=8101, containing data object @0x14da720  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x14de540, recorded with key=cpFoo, CLID=8101, containing data object @0x14d4910  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152b870, recorded with key=fooKey, CLID=8101, containing data object @0x152b6f0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1528e50, recorded with key=ow, CLID=8101, containing data object @0x152aab0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1528de0, recorded with key=ow2, CLID=8101, containing data object @0x152adb0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152b680, recorded with key=pCreateFoo1, CLID=8101, containing data object @0x152b300  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152ae00, recorded with key=pCreateFooDefault, CLID=8101, containing data object @0x14e0100  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152a030, recorded with key=pFoo1, CLID=8101, containing data object @0x1529d20  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x14dc3b0, recorded with key=pFoo2, CLID=8101, containing data object @0x14d0d00  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x14da5e0, recorded with key=silly, CLID=8101, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x1527a20 with key d1 of type D1(CLID 8112)
- in DataObject @0x14d0d00
+StoreGateSvc        DEBUG Clearing store with forceRemove=1[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x185c310, recorded with key=UnLocked, CLID=8101, containing data object @0x1876c60  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17f44e0, recorded with key=Const, CLID=8101, containing data object @0x17ed6f0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x15349e0, recorded with key=Const2, CLID=8101, containing data object @0x1535e20  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1805040, recorded with key=Locked, CLID=8101, containing data object @0x1870020  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x15338c0, recorded with key=LockedDelete, CLID=8101, containing data object @0x17eab90  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17f08b0, recorded with key=LockedReset, CLID=8101, containing data object @0x18050e0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x185c310, recorded with key=UnLocked, CLID=8101, containing data object @0x1876c60  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1533ab0, recorded with key=UnLockedDelete, CLID=8101, containing data object @0x17eadb0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17ebcd0, recorded with key=UnLockedReset, CLID=8101, containing data object @0x17f0980  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1872090, recorded with key=cpFoo, CLID=8101, containing data object @0x17f2430  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1802bf0, recorded with key=fooKey, CLID=8101, containing data object @0x15390c0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17efe40, recorded with key=ow, CLID=8101, containing data object @0x17eb1e0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x15341f0, recorded with key=ow2, CLID=8101, containing data object @0x17efec0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17f33d0, recorded with key=pCreateFoo1, CLID=8101, containing data object @0x17ff8f0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17f3490, recorded with key=pCreateFooDefault, CLID=8101, containing data object @0x187ec30  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17f2cc0, recorded with key=pFoo1, CLID=8101, containing data object @0x153baa0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1541200, recorded with key=pFoo2, CLID=8101, containing data object @0x17ed010  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1880a70, recorded with key=silly, CLID=8101, containing data object @0  ... -> DONE[m
+StoreGateSvc        DEBUG Recorded object @0x187c960 with key d1 of type D1(CLID 8112)
+ in DataObject @0x185b800
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object d1  of type B1(CLID 8111)[m
-0x1528440
-0x1526de0StoreGateSvc
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object d1Alias  of type D1(CLID 8112)[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object d1AnotherAlias  of type D1(CLID 8112)[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x147e240 with key d2 of type D1(CLID 8112)
- in DataObject @0x1529d20
+StoreGateSvc        DEBUG Retrieved non-const handle to object d1  of type B1(CLID 8111)[m
+0x1804980
+0x1804770StoreGateSvc
+StoreGateSvc        DEBUG Retrieved non-const handle to object d1Alias  of type D1(CLID 8112)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object d1AnotherAlias  of type D1(CLID 8112)[m
+StoreGateSvc        DEBUG Recorded object @0x1534470 with key d2 of type D1(CLID 8112)
+ in DataObject @0x17eb320
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object d2  of type D1(CLID 8112)[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object d1Alias  of type D1(CLID 8112)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object d2  of type D1(CLID 8112)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object d1Alias  of type D1(CLID 8112)[m
 Found key = d1Alias for object D1 in StoreGate 
 Found key = d2 for object D1 in StoreGate 
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object dd  of type D1(CLID 8112)[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object dd  of type B1(CLID 8111)[m
-StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=0[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152a030, recorded with key=d2, CLID=8112, containing data object @0x1529d20  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152ae00, recorded with key=dd, CLID=8112, containing data object @0x14e0100  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152a030, recorded with key=d2, CLID=8112, containing data object @0x1529d20  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152a030, recorded with key=d2, CLID=8112, containing data object @0x1529d20  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x14dc3b0, recorded with key=dd, CLID=8112, containing data object @0x14d0d00  ... -> DONE[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object dd  of type D1(CLID 8112)[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object dd  of type B1(CLID 8111)[m
-StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=1[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object dd  of type D1(CLID 8112)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object dd  of type B1(CLID 8111)[m
+StoreGateSvc        DEBUG Clearing store with forceRemove=0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f2cc0, recorded with key=d2, CLID=8112, containing data object @0x17eb320  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f3490, recorded with key=dd, CLID=8112, containing data object @0x1534330  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f2cc0, recorded with key=d2, CLID=8112, containing data object @0x17eb320  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f2cc0, recorded with key=d2, CLID=8112, containing data object @0x17eb320  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1541200, recorded with key=dd, CLID=8112, containing data object @0x17ed010  ... -> DONE[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object dd  of type D1(CLID 8112)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object dd  of type B1(CLID 8111)[m
+StoreGateSvc        DEBUG Clearing store with forceRemove=1[m
 
 *** StoreGateSvcClient_test transientSwap BEGINS ***
-StoreGateSvc_Impl   DEBUG Recorded object @0x150cf10 with key pSwapFoo1 of type Foo(CLID 8101)
- in DataObject @0x1529d20
+StoreGateSvc        DEBUG Recorded object @0x1827ea0 with key pSwapFoo1 of type Foo(CLID 8101)
+ in DataObject @0x18096f0
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x1519040 with key pSwapFoo2 of type Foo(CLID 8101)
- in DataObject @0x14d0d00
+StoreGateSvc        DEBUG Recorded object @0x153c7b0 with key pSwapFoo2 of type Foo(CLID 8101)
+ in DataObject @0x17ff8f0
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object pSwapFoo1  of type Foo(CLID 8101)[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object pSwapFoo2  of type Foo(CLID 8101)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object pSwapFoo1  of type Foo(CLID 8101)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object pSwapFoo2  of type Foo(CLID 8101)[m
 *** StoreGateSvcClient_test transientSwap OK ***
 
 
 
 *** StoreGateSvcClient_test VersionedKey BEGINS ***
-StoreGateSvc_Impl   DEBUG Recorded object @0x111ce30 with key aVersObj of type Foo(CLID 8101)
- in DataObject @0x14e0100
+StoreGateSvc        DEBUG Recorded object @0x1530580 with key aVersObj of type Foo(CLID 8101)
+ in DataObject @0x17ff760
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object aVersObj  of type Foo(CLID 8101)[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x1510220 with key ;77;aVersObj of type Foo(CLID 8101)
- in DataObject @0x152b300
+StoreGateSvc        DEBUG Retrieved non-const handle to object aVersObj  of type Foo(CLID 8101)[m
+StoreGateSvc        DEBUG Recorded object @0x1534820 with key ;77;aVersObj of type Foo(CLID 8101)
+ in DataObject @0x1533d60
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object ;77;aVersObj  of type Foo(CLID 8101)[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object aVersObj  of type Foo(CLID 8101)[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object ;00;aVersObj  of type Foo(CLID 8101)[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x150ae20 with key ;88;aVersObj of type Foo(CLID 8101)
- in DataObject @0x152adb0
+StoreGateSvc        DEBUG Retrieved non-const handle to object ;77;aVersObj  of type Foo(CLID 8101)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object aVersObj  of type Foo(CLID 8101)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object ;00;aVersObj  of type Foo(CLID 8101)[m
+StoreGateSvc        DEBUG Recorded object @0x17f3cb0 with key ;88;aVersObj of type Foo(CLID 8101)
+ in DataObject @0x17f0010
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object ;88;aVersObj  of type Foo(CLID 8101)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object ;88;aVersObj  of type Foo(CLID 8101)[m
 Now we expect to see an error message:
 ----Error Message Starts--->>
-[93;1mStoreGateSvc_Impl WARNING  setupProxy:: error setting up proxy for key ;88;aVersObj and clid 8101
- Pre-existing valid DataProxy @0x1528de0 found in Store for key ;88;aVersObj with clid 8101[m
-[93;1mStoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x14ece90
- recorded with key ;88;aVersObj of type Foo (CLID 8101) in DataObject @0x152aab0[m
+[93;1mStoreGateSvc      WARNING  setupProxy:: error setting up proxy for key ;88;aVersObj and clid 8101
+ Pre-existing valid DataProxy @0x17efe40 found in Store for key ;88;aVersObj with clid 8101[m
+[93;1mStoreGateSvc      WARNING record_impl: Problem setting up the proxy for object @0x17f0060
+ recorded with key ;88;aVersObj of type Foo (CLID 8101) in DataObject @0x1872090[m
 <<---Error Message Ends-------
-StoreGateSvc_Impl   DEBUG Recorded object @0x14ef260 with key ;66;aVersObj of type Foo(CLID 8101)
- in DataObject @0x152b6f0
+StoreGateSvc        DEBUG Recorded object @0x17eb370 with key ;66;aVersObj of type Foo(CLID 8101)
+ in DataObject @0x188bc20
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object aVersObj  of type Foo(CLID 8101)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object aVersObj  of type Foo(CLID 8101)[m
 *** StoreGateSvcClient_test VersionedKey OK ***
 
 
-StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=1[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152a030, recorded with key=aVersObj, CLID=8101, containing data object @0x14e0100  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1528e50, recorded with key=;66;aVersObj, CLID=8101, containing data object @0x152b6f0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152b680, recorded with key=;77;aVersObj, CLID=8101, containing data object @0x152b300  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1528de0, recorded with key=;88;aVersObj, CLID=8101, containing data object @0x152adb0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1528e50, recorded with key=;66;aVersObj, CLID=8101, containing data object @0x152b6f0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152ae00, recorded with key=pSwapFoo1, CLID=8101, containing data object @0x14d0d00  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x14dc3b0, recorded with key=pSwapFoo2, CLID=8101, containing data object @0x1529d20  ... -> DONE[m
+StoreGateSvc        DEBUG Clearing store with forceRemove=1[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17f2cc0, recorded with key=aVersObj, CLID=8101, containing data object @0x17ff760  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1534410, recorded with key=;66;aVersObj, CLID=8101, containing data object @0x188bc20  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x15341f0, recorded with key=;77;aVersObj, CLID=8101, containing data object @0x1533d60  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17efe40, recorded with key=;88;aVersObj, CLID=8101, containing data object @0x17f0010  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1534410, recorded with key=;66;aVersObj, CLID=8101, containing data object @0x188bc20  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17f3490, recorded with key=pSwapFoo1, CLID=8101, containing data object @0x17ff8f0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1541200, recorded with key=pSwapFoo2, CLID=8101, containing data object @0x18096f0  ... -> DONE[m
 *** test_DVL_conversions
-StoreGateSvc_Impl   DEBUG Recorded object @0x152ba70 with key contd of type CV(CLID 82734625)
- in DataObject @0x14dc3b0
+StoreGateSvc        DEBUG Recorded object @0x18097f0 with key contd of type CV(CLID 82734625)
+ in DataObject @0x1541200
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object contd  of type DataVector<C>(CLID 82734623)[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object contd  of type DataVector<B>(CLID 82734621)[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object contd  of type DataVector<A>(CLID 82734619)[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object contd  of type DataVector<A>(CLID 82734619)[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x149dba0 with key contd of type CL(CLID 82734626)
- in DataObject @0x1528e50
+StoreGateSvc        DEBUG Retrieved non-const handle to object contd  of type DataVector<C>(CLID 82734623)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object contd  of type DataVector<B>(CLID 82734621)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object contd  of type DataVector<A>(CLID 82734619)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object contd  of type DataVector<A>(CLID 82734619)[m
+StoreGateSvc        DEBUG Recorded object @0x1802410 with key contd of type CL(CLID 82734626)
+ in DataObject @0x17efe40
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object contd  of type DataList<C>(CLID 82734624)[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object contd  of type DataList<B>(CLID 82734622)[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object contd  of type DataList<A>(CLID 82734620)[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object contd  of type DataList<A>(CLID 82734620)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object contd  of type DataList<C>(CLID 82734624)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object contd  of type DataList<B>(CLID 82734622)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object contd  of type DataList<A>(CLID 82734620)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object contd  of type DataList<A>(CLID 82734620)[m
 *** test_const_DVL
-StoreGateSvc_Impl   DEBUG Recorded object @0x152c350 with key dvl of type CV(CLID 82734625)
- in DataObject @0x152b680
+StoreGateSvc        DEBUG Recorded object @0x17eacc0 with key dvl of type CV(CLID 82734625)
+ in DataObject @0x17f2cc0
  object not modifiable when retrieved[m
-[93;1mStoreGateSvc_Impl WARNING retrieve(non-const): No valid proxy for object dvl  of type CV(CLID 82734625) 
+[93;1mStoreGateSvc      WARNING retrieve(non-const): No valid proxy for object dvl  of type CV(CLID 82734625) 
  Try to use a const DataHandle[m
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object dvl  of type CV(CLID 82734625)[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x152cc30 with key dvl2 of type CV(CLID 82734625)
- in DataObject @0x152b510
+StoreGateSvc        DEBUG Retrieved const handle to object dvl  of type CV(CLID 82734625)[m
+StoreGateSvc        DEBUG Recorded object @0x185c250 with key dvl2 of type CV(CLID 82734625)
+ in DataObject @0x185c360
  object not modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object dvl2  of type CV(CLID 82734625)[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x152adb0 with key dvl of type CL(CLID 82734626)
- in DataObject @0x14de540
+StoreGateSvc        DEBUG Retrieved const handle to object dvl2  of type CV(CLID 82734625)[m
+StoreGateSvc        DEBUG Recorded object @0x15310b0 with key dvl of type CL(CLID 82734626)
+ in DataObject @0x17f4400
  object not modifiable when retrieved[m
-[93;1mStoreGateSvc_Impl WARNING retrieve(non-const): No valid proxy for object dvl  of type CL(CLID 82734626) 
+[93;1mStoreGateSvc      WARNING retrieve(non-const): No valid proxy for object dvl  of type CL(CLID 82734626) 
  Try to use a const DataHandle[m
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object dvl  of type CL(CLID 82734626)[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x152b300 with key dvl2 of type CL(CLID 82734626)
- in DataObject @0x14da720
+StoreGateSvc        DEBUG Retrieved const handle to object dvl  of type CL(CLID 82734626)[m
+StoreGateSvc        DEBUG Recorded object @0x17e7ab0 with key dvl2 of type CL(CLID 82734626)
+ in DataObject @0x153ccc0
  object not modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object dvl2  of type CL(CLID 82734626)[m
+StoreGateSvc        DEBUG Retrieved const handle to object dvl2  of type CL(CLID 82734626)[m
 *** test_copy_conversions
-StoreGateSvc_Impl   DEBUG Recorded object @0x14d6480 with key x of type Athena_test::X(CLID 82734627)
- in DataObject @0x152d1c0
+StoreGateSvc        DEBUG Recorded object @0x17f2ea0 with key x of type Athena_test::X(CLID 82734627)
+ in DataObject @0x153be00
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object x  of type Athena_test::Y(CLID 82734628)[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object x  of type Athena_test::Y(CLID 82734628)[m
 [93;1mSG::DataProxy_castWARNING Request for a non-const object via copying conversion; requested CLID = 82734628, proxy primary ID is 82734627[m
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object x  of type Athena_test::Y(CLID 82734628)[m
-[93;1mStoreGateSvc_Impl WARNING retrieve(const): No valid proxy for object x  of type Athena_test::A(CLID 82734609)[m
+StoreGateSvc        DEBUG Retrieved const handle to object x  of type Athena_test::Y(CLID 82734628)[m
+[93;1mStoreGateSvc      WARNING retrieve(const): No valid proxy for object x  of type Athena_test::A(CLID 82734609)[m
 
 *** StoreGateSvcClient_test Keys BEGINS ***
-StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=0[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152ae00, recorded with key=contd, CLID=82734625, containing data object @0x14dc3b0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1528de0, recorded with key=contd, CLID=82734626, containing data object @0x1528e50  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152ae00, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152a030, recorded with key=dvl, CLID=82734625, containing data object @0x152b680  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152a860, recorded with key=dvl2, CLID=82734625, containing data object @0x152b510  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1528de0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15296a0, recorded with key=dvl, CLID=82734626, containing data object @0x14de540  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x14e2710, recorded with key=dvl2, CLID=82734626, containing data object @0x14da720  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152ae00, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152a030, recorded with key=dvl, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152a860, recorded with key=dvl2, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1528de0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15296a0, recorded with key=dvl, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x14e2710, recorded with key=dvl2, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152ae00, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152a030, recorded with key=dvl, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152a860, recorded with key=dvl2, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1528de0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15296a0, recorded with key=dvl, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x14e2710, recorded with key=dvl2, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152d070, recorded with key=x, CLID=82734627, containing data object @0x152d1c0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152d070, recorded with key=x, CLID=82734627, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x1516b80 with key LockReset of type Foo(CLID 8101)
- in DataObject @0x152d1c0
+StoreGateSvc        DEBUG Clearing store with forceRemove=0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f3490, recorded with key=contd, CLID=82734625, containing data object @0x1541200  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15341f0, recorded with key=contd, CLID=82734626, containing data object @0x17efe40  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f3490, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15338c0, recorded with key=dvl, CLID=82734625, containing data object @0x17f2cc0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17ebcb0, recorded with key=dvl2, CLID=82734625, containing data object @0x185c360  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15341f0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1802970, recorded with key=dvl, CLID=82734626, containing data object @0x17f4400  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ce30, recorded with key=dvl2, CLID=82734626, containing data object @0x153ccc0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f3490, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15338c0, recorded with key=dvl, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17ebcb0, recorded with key=dvl2, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15341f0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1802970, recorded with key=dvl, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ce30, recorded with key=dvl2, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f3490, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15338c0, recorded with key=dvl, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17ebcb0, recorded with key=dvl2, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15341f0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1802970, recorded with key=dvl, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ce30, recorded with key=dvl2, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f3000, recorded with key=x, CLID=82734627, containing data object @0x153be00  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f3000, recorded with key=x, CLID=82734627, containing data object @0  ... -> DONE[m
+StoreGateSvc        DEBUG Recorded object @0x185e1c0 with key LockReset of type Foo(CLID 8101)
+ in DataObject @0x153be00
  object not modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x1514130 with key UnLockReset of type Foo(CLID 8101)
- in DataObject @0x152c590
+StoreGateSvc        DEBUG Recorded object @0x1809cb0 with key UnLockReset of type Foo(CLID 8101)
+ in DataObject @0x17f07c0
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x151d520 with key LockDelete of type Foo(CLID 8101)
- in DataObject @0x152a680
+StoreGateSvc        DEBUG Recorded object @0x17f30f0 with key LockDelete of type Foo(CLID 8101)
+ in DataObject @0x1535540
  object not modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x14fc860 with key UnLockDelete of type Foo(CLID 8101)
- in DataObject @0x152d560
+StoreGateSvc        DEBUG Recorded object @0x17f3130 with key UnLockDelete of type Foo(CLID 8101)
+ in DataObject @0x17eff10
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=0[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152b510, recorded with key=LockDelete, CLID=8101, containing data object @0x152a680  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x14da720, recorded with key=LockReset, CLID=8101, containing data object @0x152d1c0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152b680, recorded with key=UnLockDelete, CLID=8101, containing data object @0x152d560  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x14de540, recorded with key=UnLockReset, CLID=8101, containing data object @0x152c590  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152b680, recorded with key=UnLockDelete, CLID=8101, containing data object @0x152d560  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152ae00, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1528de0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152ae00, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152a030, recorded with key=dvl, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152a860, recorded with key=dvl2, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1528de0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15296a0, recorded with key=dvl, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x14e2710, recorded with key=dvl2, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152ae00, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152a030, recorded with key=dvl, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152a860, recorded with key=dvl2, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1528de0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15296a0, recorded with key=dvl, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x14e2710, recorded with key=dvl2, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152ae00, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152a030, recorded with key=dvl, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152a860, recorded with key=dvl2, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1528de0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15296a0, recorded with key=dvl, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x14e2710, recorded with key=dvl2, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152d070, recorded with key=x, CLID=82734627, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152d070, recorded with key=x, CLID=82734627, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=1[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x14da720, recorded with key=LockReset, CLID=8101, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x14de540, recorded with key=UnLockReset, CLID=8101, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152ae00, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1528de0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152ae00, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152a030, recorded with key=dvl, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152a860, recorded with key=dvl2, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1528de0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x15296a0, recorded with key=dvl, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x14e2710, recorded with key=dvl2, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152ae00, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152a030, recorded with key=dvl, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152a860, recorded with key=dvl2, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1528de0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x15296a0, recorded with key=dvl, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x14e2710, recorded with key=dvl2, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152ae00, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152a030, recorded with key=dvl, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152a860, recorded with key=dvl2, CLID=82734625, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1528de0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x15296a0, recorded with key=dvl, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x14e2710, recorded with key=dvl2, CLID=82734626, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152d070, recorded with key=x, CLID=82734627, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152d070, recorded with key=x, CLID=82734627, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x1514670 with key LockReset of type Foo(CLID 8101)
- in DataObject @0x1528060
+StoreGateSvc        DEBUG Clearing store with forceRemove=0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x185c360, recorded with key=LockDelete, CLID=8101, containing data object @0x1535540  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ccc0, recorded with key=LockReset, CLID=8101, containing data object @0x153be00  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f2cc0, recorded with key=UnLockDelete, CLID=8101, containing data object @0x17eff10  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f4400, recorded with key=UnLockReset, CLID=8101, containing data object @0x17f07c0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f2cc0, recorded with key=UnLockDelete, CLID=8101, containing data object @0x17eff10  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f3490, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15341f0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f3490, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15338c0, recorded with key=dvl, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17ebcb0, recorded with key=dvl2, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15341f0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1802970, recorded with key=dvl, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ce30, recorded with key=dvl2, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f3490, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15338c0, recorded with key=dvl, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17ebcb0, recorded with key=dvl2, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15341f0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1802970, recorded with key=dvl, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ce30, recorded with key=dvl2, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f3490, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15338c0, recorded with key=dvl, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17ebcb0, recorded with key=dvl2, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15341f0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1802970, recorded with key=dvl, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ce30, recorded with key=dvl2, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f3000, recorded with key=x, CLID=82734627, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f3000, recorded with key=x, CLID=82734627, containing data object @0  ... -> DONE[m
+StoreGateSvc        DEBUG Clearing store with forceRemove=1[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ccc0, recorded with key=LockReset, CLID=8101, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17f4400, recorded with key=UnLockReset, CLID=8101, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17f3490, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x15341f0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17f3490, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x15338c0, recorded with key=dvl, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17ebcb0, recorded with key=dvl2, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x15341f0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1802970, recorded with key=dvl, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ce30, recorded with key=dvl2, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17f3490, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x15338c0, recorded with key=dvl, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17ebcb0, recorded with key=dvl2, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x15341f0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1802970, recorded with key=dvl, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ce30, recorded with key=dvl2, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17f3490, recorded with key=contd, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x15338c0, recorded with key=dvl, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17ebcb0, recorded with key=dvl2, CLID=82734625, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x15341f0, recorded with key=contd, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1802970, recorded with key=dvl, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ce30, recorded with key=dvl2, CLID=82734626, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17f3000, recorded with key=x, CLID=82734627, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17f3000, recorded with key=x, CLID=82734627, containing data object @0  ... -> DONE[m
+StoreGateSvc        DEBUG Recorded object @0x153be70 with key LockReset of type Foo(CLID 8101)
+ in DataObject @0x17f52b0
  object not modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x151d250 with key UnLockReset of type Foo(CLID 8101)
- in DataObject @0x14e0100
+StoreGateSvc        DEBUG Recorded object @0x184d530 with key UnLockReset of type Foo(CLID 8101)
+ in DataObject @0x153cbc0
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x1510060 with key LockDelete of type Foo(CLID 8101)
- in DataObject @0x152d7b0
+StoreGateSvc        DEBUG Recorded object @0x1802c50 with key LockDelete of type Foo(CLID 8101)
+ in DataObject @0x17ff760
  object not modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x151f710 with key UnLockDelete of type Foo(CLID 8101)
- in DataObject @0x152d560
+StoreGateSvc        DEBUG Recorded object @0x17ebd80 with key UnLockDelete of type Foo(CLID 8101)
+ in DataObject @0x184d4e0
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=0[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1528de0, recorded with key=LockDelete, CLID=8101, containing data object @0x152d7b0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152d070, recorded with key=LockReset, CLID=8101, containing data object @0x1528060  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152a860, recorded with key=UnLockDelete, CLID=8101, containing data object @0x152d560  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15296a0, recorded with key=UnLockReset, CLID=8101, containing data object @0x14e0100  ... -> DONE[m
-StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=1[m
+StoreGateSvc        DEBUG Clearing store with forceRemove=0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1802970, recorded with key=LockDelete, CLID=8101, containing data object @0x17ff760  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f3000, recorded with key=LockReset, CLID=8101, containing data object @0x17f52b0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15341f0, recorded with key=UnLockDelete, CLID=8101, containing data object @0x184d4e0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ce30, recorded with key=UnLockReset, CLID=8101, containing data object @0x153cbc0  ... -> DONE[m
+StoreGateSvc        DEBUG Clearing store with forceRemove=1[m
 
 *** StoreGateSvcClient_test Keys ENDS ***
 
 *** StoreGateSvcClient_test retrieveAux BEGINS ***
-StoreGateSvc_Impl   DEBUG Recorded object @0x152bec0 with key BVec of type TestVector<BX>(CLID 82735621)
- in DataObject @0x14e0100
+StoreGateSvc        DEBUG Recorded object @0x153ceb0 with key BVec of type TestVector<BX>(CLID 82735621)
+ in DataObject @0x17f0850
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x14da7c0 with key BVecAux. of type TestAuxStore(CLID 125030194)
- in DataObject @0x152d560
+StoreGateSvc        DEBUG Recorded object @0x17ff1a0 with key BVecAux. of type TestAuxStore(CLID 125030194)
+ in DataObject @0x184d4e0
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x152a2c0 with key CVec of type TestVector<BX>(CLID 82735621)
- in DataObject @0x1528060
+StoreGateSvc        DEBUG Recorded object @0x17f2fd0 with key CVec of type TestVector<BX>(CLID 82735621)
+ in DataObject @0x1870090
  object not modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x152cb60 with key CVecAux. of type TestAuxStore(CLID 125030194)
- in DataObject @0x152d7b0
+StoreGateSvc        DEBUG Recorded object @0x1538d70 with key CVecAux. of type TestAuxStore(CLID 125030194)
+ in DataObject @0x1802aa0
  object not modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x1482470 with key ErrorVec of type TestVector<BX>(CLID 82735621)
- in DataObject @0x152c590
+StoreGateSvc        DEBUG Recorded object @0x1804ff0 with key ErrorVec of type TestVector<BX>(CLID 82735621)
+ in DataObject @0x1535e50
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x152c5e0 with key BBVec of type TestVector<BBX>(CLID 125040193)
- in DataObject @0x14e2830
+StoreGateSvc        DEBUG Recorded object @0x184d4b0 with key BBVec of type TestVector<BBX>(CLID 125040193)
+ in DataObject @0x1802b90
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x152bf60 with key BBVecAux. of type TestAuxStore(CLID 125030194)
- in DataObject @0x152d1c0
+StoreGateSvc        DEBUG Recorded object @0x182bb60 with key BBVecAux. of type TestAuxStore(CLID 125030194)
+ in DataObject @0x1538fc0
  object modifiable when retrieved[m
-StoreGateSvc_Impl VERBOSE called associateAux_impl non const for key BVec[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object BVec  of type TestVector<BX>(CLID 82735621)[m
-StoreGateSvc_Impl VERBOSE called associateAux_impl non const for key BVec[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object BVec  of type TestVector<BX>(CLID 82735621)[m
-StoreGateSvc_Impl VERBOSE called associateAux_impl const for key CVec[m
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object CVec  of type TestVector<BX>(CLID 82735621)[m
-StoreGateSvc_Impl VERBOSE called associateAux_impl const for key ErrorVec[m
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object ErrorVec  of type TestVector<BX>(CLID 82735621)[m
+StoreGateSvc      VERBOSE called associateAux_impl non const for key BVec[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object BVec  of type TestVector<BX>(CLID 82735621)[m
+StoreGateSvc      VERBOSE called associateAux_impl non const for key BVec[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object BVec  of type TestVector<BX>(CLID 82735621)[m
+StoreGateSvc      VERBOSE called associateAux_impl const for key CVec[m
+StoreGateSvc        DEBUG Retrieved const handle to object CVec  of type TestVector<BX>(CLID 82735621)[m
+StoreGateSvc      VERBOSE called associateAux_impl const for key ErrorVec[m
+StoreGateSvc        DEBUG Retrieved const handle to object ErrorVec  of type TestVector<BX>(CLID 82735621)[m
 Now we expect to see an error message:
 ----Error Message Starts--->>
-StoreGateSvc_Impl VERBOSE called associateAux_impl const for key ErrorVec[m
-StoreGateSvc_Impl   DEBUG Retrieved const handle to object ErrorVec  of type TestVector<BX>(CLID 82735621)[m
-StoreGateSvc_Impl VERBOSE called associateAux_impl const for key ErrorVec[m
-[93;1mStoreGateSvc_Impl WARNING associateAux const: Could not associate AuxStore of type SG::IConstAuxStore
+StoreGateSvc      VERBOSE called associateAux_impl const for key ErrorVec[m
+StoreGateSvc        DEBUG Retrieved const handle to object ErrorVec  of type TestVector<BX>(CLID 82735621)[m
+StoreGateSvc      VERBOSE called associateAux_impl const for key ErrorVec[m
+[93;1mStoreGateSvc      WARNING associateAux const: Could not associate AuxStore of type SG::IConstAuxStore
  to object of type TestVector<BX>(CLID 82735621) with key ErrorVec[m
-[93;1mStoreGateSvc_Impl WARNING [m
+[93;1mStoreGateSvc      WARNING [m
 <<---Error Message Ends-------
-StoreGateSvc_Impl   DEBUG Recorded object @0x1520250 with key BStand of type BX(CLID 82835621)
- in DataObject @0x152a200
+StoreGateSvc        DEBUG Recorded object @0x153cc50 with key BStand of type BX(CLID 82835621)
+ in DataObject @0x1533a50
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x152a4c0 with key BStandAux. of type TestAuxStore(CLID 125030194)
- in DataObject @0x14dc3b0
+StoreGateSvc        DEBUG Recorded object @0x1539080 with key BStandAux. of type TestAuxStore(CLID 125030194)
+ in DataObject @0x17f07c0
  object modifiable when retrieved[m
-StoreGateSvc_Impl VERBOSE called associateAux_impl non const for key BStand[m
-StoreGateSvc_Impl   DEBUG Retrieved non-const handle to object BStand  of type BX(CLID 82835621)[m
+StoreGateSvc      VERBOSE called associateAux_impl non const for key BStand[m
+StoreGateSvc        DEBUG Retrieved non-const handle to object BStand  of type BX(CLID 82835621)[m
 *** StoreGateSvcClient_test retrieveAux OK ***
 
 
 
 *** StoreGateSvcClient_test testBoundReset BEGINS ***
-StoreGateSvc_Impl VERBOSE committing dataObj "82735621#ErrorVec"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "82735621#BVec"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#UnLockReset"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "82734627#x"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "82734626#contd"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#;88;aVersObj"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#;77;aVersObj"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "125030194#BVecAux."[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#LockDelete"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#ow2"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#UnLockedDelete"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#pFoo2"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "125030194#CVecAux."[m
-StoreGateSvc_Impl VERBOSE committing dataObj "82734626#dvl"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#pSwapFoo1"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "82735621#CVec"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#LockedReset"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "82835621#BStand"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#LockReset"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#silly"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "82734625#contd"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#UnLocked"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#ow"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#UnLockedReset"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "125030194#BBVecAux."[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#Locked"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#cpFoo"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8112#d1"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#pFoo1"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "82734626#dvl2"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#Const"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "125030194#BStandAux."[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#pCreateFooDefault"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#Const2"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#LockedDelete"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#pFooKey"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "125040193#BBVec"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#aVersObj"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#pCreateFoo1"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#UnLockDelete"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "82734625#dvl"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#;66;aVersObj"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#fooKey"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "82734625#dvl2"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8112#d2"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "8101#pSwapFoo2"[m
-StoreGateSvc_Impl VERBOSE committing dataObj "244260744#testBoundReset"[m
-StoreGateSvc_Impl   DEBUG overwrite: Recorded object @0x14d9030 with key testBoundReset of type int(CLID 244260744)
- in DataObject @0x14d8c60
+StoreGateSvc        DEBUG overwrite: Recorded object @0x153bd20 with key testBoundReset of type int(CLID 244260744)
+ in DataObject @0x153cdb0
  object modifiable when retrieved[m
-StoreGateSvc_Impl VERBOSE committing dataObj "244260744#testBoundReset"[m
 
 *** StoreGateSvcClient_test testBoundReset OK ***
 
 
+
+*** StoreGateSvcClient_test testRecordObject BEGINS ***
+>>> test duplicate record1
+[93;1mStoreGateSvc      WARNING  setupProxy:: error setting up proxy for key obj101 and clid 8101
+ Pre-existing valid DataProxy @0x17f2cc0 found in Store for key obj101 with clid 8101[m
+[93;1mStoreGateSvc      WARNING record_impl: Problem setting up the proxy for object @0x153bd00
+ recorded with key obj101 of type Foo (CLID 8101) in DataObject @0x1534f70[m
+<<< test duplicate record1
+>>> test duplicate record2
+[93;1mStoreGateSvc      WARNING record_impl: failed for key=obj999, type Foo (CLID 8101)
+ object @0x1802a10 already in store with key=obj101. Will not record a duplicate! [m
+<<< test duplicate record2
+StoreGateSvc        DEBUG Clearing store with forceRemove=0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f2cc0, recorded with key=obj101, CLID=8101, containing data object @0x1535540  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17efe40, recorded with key=obj102, CLID=8101, containing data object @0x1534dc0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ce30, recorded with key=BVec, CLID=82735621, containing data object @0x17f0850  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f3000, recorded with key=CVec, CLID=82735621, containing data object @0x1870090  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17ebcb0, recorded with key=ErrorVec, CLID=82735621, containing data object @0x1535e50  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f4400, recorded with key=BStand, CLID=82835621, containing data object @0x1533a50  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f3490, recorded with key=BBVecAux., CLID=125030194, containing data object @0x1538fc0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ccc0, recorded with key=BStandAux., CLID=125030194, containing data object @0x17f07c0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15341f0, recorded with key=BVecAux., CLID=125030194, containing data object @0x184d4e0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1802970, recorded with key=CVecAux., CLID=125030194, containing data object @0x1802aa0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15338c0, recorded with key=BBVec, CLID=125040193, containing data object @0x1802b90  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x185c360, recorded with key=testBoundReset, CLID=244260744, containing data object @0x153cdb0  ... -> DONE[m
+
+*** StoreGateSvcClient_test testRecordObject OK ***
 *** test_lock
-StoreGateSvc_Impl   DEBUG Recorded object @0x1516b80 with key lockable1 of type Lockable(CLID 82734636)
- in DataObject @0x152c410
+StoreGateSvc        DEBUG Recorded object @0x1809cb0 with key lockable1 of type Lockable(CLID 82734636)
+ in DataObject @0x1535540
  object modifiable when retrieved[m
-StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=0[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x14e25a0, recorded with key=lockable1, CLID=82734636, containing data object @0x152c410  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15296a0, recorded with key=BVec, CLID=82735621, containing data object @0x14e0100  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1528de0, recorded with key=CVec, CLID=82735621, containing data object @0x1528060  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x14de540, recorded with key=ErrorVec, CLID=82735621, containing data object @0x152c590  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152d720, recorded with key=BStand, CLID=82835621, containing data object @0x152a200  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1528e50, recorded with key=BBVecAux., CLID=125030194, containing data object @0x152d1c0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152d270, recorded with key=BStandAux., CLID=125030194, containing data object @0x14dc3b0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152d070, recorded with key=BVecAux., CLID=125030194, containing data object @0x152d560  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152ae00, recorded with key=CVecAux., CLID=125030194, containing data object @0x152d7b0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x14da720, recorded with key=BBVec, CLID=125040193, containing data object @0x14e2830  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x152a930, recorded with key=testBoundReset, CLID=244260744, containing data object @0x14d8c60  ... -> DONE[m
-StoreGateSvc_Impl   DEBUG Recorded object @0x1114760 with key lockable1 of type Lockable(CLID 82734636)
- in DataObject @0x14d8c60
+StoreGateSvc        DEBUG Clearing store with forceRemove=0[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f2cc0, recorded with key=obj101, CLID=8101, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17efe40, recorded with key=obj102, CLID=8101, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x185c360, recorded with key=lockable1, CLID=82734636, containing data object @0x1535540  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ce30, recorded with key=BVec, CLID=82735621, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f3000, recorded with key=CVec, CLID=82735621, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17ebcb0, recorded with key=ErrorVec, CLID=82735621, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f4400, recorded with key=BStand, CLID=82835621, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x17f3490, recorded with key=BBVecAux., CLID=125030194, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ccc0, recorded with key=BStandAux., CLID=125030194, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15341f0, recorded with key=BVecAux., CLID=125030194, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x1802970, recorded with key=CVecAux., CLID=125030194, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() requesting release of DataProxy @0x15338c0, recorded with key=BBVec, CLID=125040193, containing data object @0  ... -> DONE[m
+StoreGateSvc        DEBUG Recorded object @0x153bd70 with key lockable1 of type Lockable(CLID 82734636)
+ in DataObject @0x1535540
  object modifiable when retrieved[m
-StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-03-03-07[m
-StoreGateSvc_Impl    INFO Finalizing StoreGateSvc_Impl - package version StoreGate-03-03-07[m
-StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=1[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x14e25a0, recorded with key=lockable1, CLID=82734636, containing data object @0x14d8c60  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x15296a0, recorded with key=BVec, CLID=82735621, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1528de0, recorded with key=CVec, CLID=82735621, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x14de540, recorded with key=ErrorVec, CLID=82735621, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152d720, recorded with key=BStand, CLID=82835621, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1528e50, recorded with key=BBVecAux., CLID=125030194, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152d270, recorded with key=BStandAux., CLID=125030194, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152d070, recorded with key=BVecAux., CLID=125030194, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x152ae00, recorded with key=CVecAux., CLID=125030194, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x14da720, recorded with key=BBVec, CLID=125040193, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE Finalizing StoreGateSvc - package version StoreGate-00-00-00[m
+StoreGateSvc        DEBUG Clearing store with forceRemove=1[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17f2cc0, recorded with key=obj101, CLID=8101, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17efe40, recorded with key=obj102, CLID=8101, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x185c360, recorded with key=lockable1, CLID=82734636, containing data object @0x1535540  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ce30, recorded with key=BVec, CLID=82735621, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17f3000, recorded with key=CVec, CLID=82735621, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17ebcb0, recorded with key=ErrorVec, CLID=82735621, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17f4400, recorded with key=BStand, CLID=82835621, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x17f3490, recorded with key=BBVecAux., CLID=125030194, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ccc0, recorded with key=BStandAux., CLID=125030194, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x15341f0, recorded with key=BVecAux., CLID=125030194, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x1802970, recorded with key=CVecAux., CLID=125030194, containing data object @0  ... -> DONE[m
+StoreGateSvc      VERBOSE DataStore::clearStore() forcing release of DataProxy @0x15338c0, recorded with key=BBVec, CLID=125040193, containing data object @0  ... -> DONE[m
+*** StoreGateSvcClient_test record BEGINS ***
+Now we expect to see an error message:
+----Error Message Starts--->>
+[93;1mDetectorStore     WARNING  setupProxy:: error setting up proxy for key pFoo1 and clid 8101
+ Pre-existing valid DataProxy @0x15338c0 found in Store for key pFoo1 with clid 8101[m
+[93;1mDetectorStore     WARNING record_impl: Problem setting up the proxy for object @0x1870020
+ recorded with key pFoo1 of type Foo (CLID 8101) in DataObject @0x17ff940[m
+<<---Error Message Ends-------
+Now we expect to see an error message:
+----Error Message Starts--->>
+[93;1mDetectorStore     WARNING record_impl: failed for key=pFoo2, type Foo (CLID 8101)
+ object @0x187db00 already in store with key=pFoo1. Will not record a duplicate! [m
+<<---Error Message Ends-------
+Now we expect to see an error message:
+----Error Message Starts--->>
+[93;1mDetectorStore     WARNING  setupProxy:: error setting up proxy for key silly and clid 8101
+ Pre-existing valid DataProxy @0x153ccc0 found in Store for key silly with clid 8101[m
+[93;1mDetectorStore     WARNING record_impl: Problem setting up the proxy for object @0x18029f0
+ recorded with key silly of type Foo (CLID 8101) in DataObject @0x17eb1e0[m
+<<---Error Message Ends-------
+Now we expect to see an error message:
+----Error Message Starts--->>
+[93;1mDetectorStore     WARNING  setupProxy:: error setting up proxy for key silly and clid 8101
+ Pre-existing valid DataProxy @0x153ccc0 found in Store for key silly with clid 8101[m
+[93;1mDetectorStore     WARNING record_impl: Problem setting up the proxy for object @0x185e1c0
+ recorded with key silly of type Foo (CLID 8101) in DataObject @0x15390c0[m
+<<---Error Message Ends-------
+Now we expect to see an error message:
+----Error Message Starts--->>
+[93;1mDetectorStore     WARNING  setupProxy:: error setting up proxy for key silly and clid 8101
+ Pre-existing valid DataProxy @0x153ccc0 found in Store for key silly with clid 8101[m
+[93;1mDetectorStore     WARNING record_impl: Problem setting up the proxy for object @0x17eadd0
+ recorded with key silly of type Foo (CLID 8101) in DataObject @0x17efec0[m
+<<---Error Message Ends-------
+Now we expect to see an error message:
+----Error Message Starts--->>
+[93;1mDetectorStore     WARNING  setupProxy:: error setting up proxy for key Const and clid 8101
+ Pre-existing valid DataProxy @0x17efe40 found in Store for key Const with clid 8101[m
+[93;1mDetectorStore     WARNING record_impl: Problem setting up the proxy for object @0x1538ee0
+ recorded with key Const of type Foo (CLID 8101) in DataObject @0x1870120[m
+<<---Error Message Ends-------
+IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"[m
+IOVSvcTool           INFO [92;1mIOVRanges will be checked at every [96;1mEvent[m
+ClassIDSvc           INFO  getRegistryEntries: read 246 CLIDRegistry entries for module ALL[m
+*** StoreGateSvcClient_test records OK ***
+
+
 *** StoreGateSvcClient_test OK ***

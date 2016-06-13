@@ -5,11 +5,11 @@
 #undef NDEBUG
 #include "TestTools/SGassert.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "AthLinks/tools/MapIndexingPolicy.h"
 #include "AthLinks/tools/SetIndexingPolicy.h"
-#include "DataModel/DataLink.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/DataLink.h"
+#include "AthLinks/ElementLink.h"
 #include "AthLinks/DeclareIndexingPolicy.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "AthenaKernel/DefaultKey.h"
@@ -28,6 +28,10 @@
 #include <stdexcept>
 
 #include <sstream>
+
+#include "TestTools/initGaudi.h"
+using namespace Athena_test;
+
 using std::ostringstream;
 using std::istringstream;
 
@@ -308,8 +312,6 @@ namespace Athena_test
   }
 } //end namespace
 
-#include "TestTools/initGaudi.h"
-using namespace Athena_test;
 
 int main() {
   ISvcLocator* pSvcLoc;
