@@ -78,6 +78,8 @@ bool allhists = true;
 std::string base     = "HLT";
 
 
+std::string algorithm = "HLT_Histogram_Not_Empty&GatherData";
+
 /// glabal timer - how long have I taken so far?
 //  struct timeval global_timer;
 
@@ -679,7 +681,7 @@ public:
 	    if ( first_hists ) {
 	      (*outp) << space << "\t"   << "hist .* {\n";
 	      (*outp) << space << "\t\t" << "regex       \t= 1\n";
-	      (*outp) << space << "\t\t" << "algorithm   \t= HLT_Histogram_Not_Empty&GatherData\n";
+	      (*outp) << space << "\t\t" << "algorithm   \t= " << algorithm << "\n";
 	      (*outp) << space << "\t\t" << "description \t= " << description << "\n";
 	      (*outp) << space << "\t\t" << "output      \t= " << path << "\n";
 	      (*outp) << space << "\t\t" << "display     \t= StatBox\n";
@@ -691,7 +693,7 @@ public:
 	  }
 	  else { 
 	    (*outp) << space << "\t"   << "hist " << n[i]->name() << " {\n";
-	    (*outp) << space << "\t\t" << "algorithm   \t= HLT_Histogram_Not_Empty&GatherData\n";
+	    (*outp) << space << "\t\t" << "algorithm   \t= " << algorithm << "\n";
 	    (*outp) << space << "\t\t" << "description \t= " << description << "\n";
 	    (*outp) << space << "\t\t" << "output      \t= " << path << "\n";
 	    (*outp) << space << "\t\t" << "display     \t= StatBox\n";
@@ -1023,18 +1025,20 @@ int cost( std::vector<std::string>& files, node& n, const std::string& directory
 
 int usage(std::ostream& s, int , char** argv, int status=-1) { 
   s << "Usage: " << argv[0] << " [OPTIONS] input1.root ... inputN.root\n\n";
-  s << "    -o           FILENAME\tname of output (filename required)\n";
-  s << "    -b,   --base DIR     \tuse directory DIR as the base for the han config\n";
-  s << "    -d,   --dir  DIR     \tonly directories below DIR where DIR is a structure such as HLT/TRIDT etc\n";
-  s << "    -x,          DIR     \texclude directory DIR\n";
-  s << "    -r           SRC DST \tremap directory SRC to directory DST\n"; 
-  s << "    -ds,  --desc DESCRIP \tuse DESCRIP as the description\n"; 
-  s << "    -t,   --tag  VALUE   \tadd the VALUE to the list of command per histogram\n";
-  s << "    -wc,  --wildcard     \tprint use hist * rather than a separate entry for each histogram\n";
-  s << "    -dr,  --deleteref    \tdelete unselected histograms\n";
-  s << "    -rh,  --relocate     \trelocate selected histograms\n";
-  s << "    -v,   --verbose      \tprint verbose output\n";
-  s << "    -h,   --help         \tdisplay this help\n";
+  s << "    -o             FILENAME  \tname of output (filename required)\n";
+  s << "    -b,   --base   DIR       \tuse directory DIR as the base for the han config\n";
+  s << "    -d,   --dir    DIR       \tonly directories below DIR where DIR is a structure such as HLT/TRIDT etc\n";
+  s << "    -x,            DIR       \texclude directory DIR\n";
+  s << "    -r             SRC DST   \tremap directory SRC to directory DST\n"; 
+  s << "    -ds,  --desc   DESCRIP   \tuse DESCRIP as the description\n"; 
+  s << "    -t,   --tag    VALUE     \tadd the VALUE to the list of command per histogram\n";
+  s << "    -a,   --algorithm VALUE \tuse VALUE as the execution algorithm for each histogram\n";
+  s << "    -wc,  --wildcard         \tprint use hist * rather than a separate entry for each histogram\n";
+  s << "    -dr,  --deleteref        \tdelete unselected histograms\n";
+  s << "    -rh,  --relocate         \trelocate selected histograms\n";
+  s << "    -ref, --reference TAG FILE \tadd FILE as a reference file with tag TAG\n";
+  s << "    -v,   --verbose          \tprint verbose output\n";
+  s << "    -h,   --help             \tdisplay this help\n";
   s << std::endl;
   return status;
 }
@@ -1142,6 +1146,11 @@ int main(int argc, char** argv) {
     else if ( std::string(argv[i])=="-b" || std::string(argv[i])=="--base" ) {
       ++i;
       if ( i<argc-offset ) base = argv[i] ;
+      else  return usage( std::cerr, argc, argv );
+    } 
+    else if ( std::string(argv[i])=="-a" || std::string(argv[i])=="--algorithm" ) {
+      ++i;
+      if ( i<argc-offset ) algorithm = argv[i] ;
       else  return usage( std::cerr, argc, argv );
     } 
     //    else if ( std::string(argv[i])=="-o" ) { 
