@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 750131 2016-05-26 21:19:06Z ssnyder $
+# $Id: CMakeLists.txt 754379 2016-06-13 03:05:17Z ssnyder $
 ################################################################################
 # Package: ControlTest
 ################################################################################
@@ -89,9 +89,16 @@ atlas_add_test( ClearStore_test
    EXTRA_PATTERNS "^JobOptionsSvc +INFO|Service base class initialized successfully|DEBUG Property update for OutputLevel"
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
+atlas_add_test( StoreID
+   SOURCES test/StoreID.cxx
+   LINK_LIBRARIES TestTools StoreGateLib
+   EXTRA_PATTERNS "^JobOptionsSvc +INFO|Service base class initialized successfully|DEBUG Property update for OutputLevel"
+   ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
+
 atlas_add_test( FortranAlgorithm
    SCRIPT test/FortranAlgorithm.sh
-   EXTRA_PATTERNS "^Py:ConfigurableDb +(WARNING|INFO|ERROR)|Py:Athena +INFO including file |Warning in .TEnvRec::ChangeValue.: duplicate entry|calling initialize_|ToolSvc.finalize.. +INFO| [A-Z]+ 2[0-9][0-9][0-9]$$|^Py:Athena +INFO|[Rr]oo[Ff]it|NIKHEF|DeprecationWarning: object.__new__|^  newobj =|^\*+$$|drop-and-reload|^ *$$|we will keep the configuration around|ApplicationMgr +INFO|Start StoreGateSvc" )
+   EXTRA_PATTERNS "^Py:ConfigurableDb +(WARNING|INFO|ERROR)|Py:Athena +INFO including file |Warning in .TEnvRec::ChangeValue.: duplicate entry|calling initialize_|ToolSvc.finalize.. +INFO| [A-Z]+ 2[0-9][0-9][0-9]$$|^Py:Athena +INFO|[Rr]oo[Ff]it|NIKHEF|DeprecationWarning: object.__new__|^  newobj =|^\*+$$|drop-and-reload|^ *$$|we will keep the configuration around|ApplicationMgr +INFO|Start StoreGateSvc" 
+   PROPERTIES TIMEOUT 300 )
 
 if( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" OR
       "${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo" )
