@@ -430,7 +430,21 @@ LuminosityTool::recalculatePerBCIDLumi()
   // Clear the calibrated luminosity data
   m_LBInstLumi.assign(TOTAL_LHC_BCIDS, 0.);
 
-  // Update muToLumi 
+  // Set some default values
+  m_MuToLumi = 0.;
+
+  // Make some sanity checks that we have everyting we need
+  if (m_lumiFolderName.empty()) {
+    ATH_MSG_INFO( "LumiFolderName is empty in recalculatePerBCIDLumi()!");
+    return;
+  }
+
+  if (m_LBAvInstLumi <= 0.) {
+    ATH_MSG_INFO( "LBAvInstLumi is zero or negative in recalculatePerBCIDLumi():" << m_LBAvInstLumi);
+    return;
+  }
+
+  // Update muToLumi (check value later)
   if (!m_onlineLumiCalibrationTool.empty()) {
     // This is the only correct way to do this!
     // The division below gives average mu (over all bunches) to total lumi
@@ -440,36 +454,39 @@ LuminosityTool::recalculatePerBCIDLumi()
     if (m_MuToLumi < 0.) {
       ATH_MSG_INFO(" Found muToLumi = " << m_MuToLumi << " for channel " << m_calibChannel << ". Try backup channel..." );
       m_MuToLumi = m_onlineLumiCalibrationTool->getMuToLumi(m_calibBackupChannel);
-      ATH_MSG_INFO(" Found muToLumi = " << m_MuToLumi << " for channel " << m_calibBackupChannel);
-
-      if (m_MuToLumi < 0.) {
-	ATH_MSG_WARNING(" Found invalid muToLumi = " << m_MuToLumi << " for backup channel " << m_calibBackupChannel << "!");
-	m_MuToLumi = 0.;
-      }
-
+      ATH_MSG_INFO(" Found muToLumi = " << m_MuToLumi << " for backup channel " << m_calibBackupChannel);
     }
-
-    //} else if (m_LBAvEvtsPerBX > 0.) {
-    //m_MuToLumi = m_LBAvInstLumi / m_LBAvEvtsPerBX;
   } else {
-    m_MuToLumi = 0.;
-  } 
-  ATH_MSG_DEBUG(" Found muToLumi = " << m_MuToLumi << " for channel " << m_calibChannel );
-
-  // Make some sanity checks that we have everyting we need
-  if (m_lumiFolderName.empty()) {
-    ATH_MSG_INFO( "LumiFolderName is empty in recalculatePerBCIDLumi()!");
-    return;
+    ATH_MSG_WARNING(" No onlineCalibrationTool found, can't set muToLumi!");
   }
+
+  // Check validity
+  bool isValid = true;
   int perBcidValid = (m_Valid/10) % 10;
   if ((m_Valid & 0x03) || (perBcidValid > 0)) {  // Skip if either per-BCID or LBAv is invalid
-    ATH_MSG_WARNING( " Invalid per-BCID luminosity found: " << m_Valid << "!" );
-    return;
+    isValid = false;
+    if (m_skipInvalid) {
+      ATH_MSG_WARNING( " Invalid per-BCID luminosity found: " << m_Valid << "!" );
+      return;
+    } else {
+      ATH_MSG_WARNING( " Invalid per-BCID luminosity found: " << m_Valid << " continuing because skipInvalid == FALSE" );
+    }
   }
-  if (m_LBAvInstLumi <= 0.) {
-    ATH_MSG_INFO( "LBAvInstLumi is zero or negative in recalculatePerBCIDLumi():" << m_LBAvInstLumi);
-    return;
+
+
+  // Now check muToLumi and report depending upon whether lumi is valid or not
+  if (m_MuToLumi < 0.) {
+    if (isValid) {
+      ATH_MSG_ERROR(" Found invalid muToLumi = " << m_MuToLumi << " for backup channel " << m_calibBackupChannel << "!");
+    } else {
+      ATH_MSG_WARNING(" Found invalid muToLumi = " << m_MuToLumi << " for backup channel " << m_calibBackupChannel << "!");
+    }
+
+    // Don't keep negative values
+    m_MuToLumi = 0.;
   }
+
+  ATH_MSG_DEBUG(" Found muToLumi = " << m_MuToLumi << " for channel " << m_calibChannel );
 
 
   // Check here if we want to do this the Run1 way (hard) or the Run2 way (easy)
