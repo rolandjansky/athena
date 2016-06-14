@@ -18,6 +18,7 @@
 EfficiencyTool::
 EfficiencyTool( const std::string& myname )
 : TrigEgammaAnalysisBaseTool(myname) {
+    m_detailedHists=false;
 }
 
 //**********************************************************************
@@ -233,8 +234,7 @@ void EfficiencyTool::fillInefficiency(const std::string dir,const xAOD::Electron
     else ATH_MSG_DEBUG("REGTEST::Inefficiency No track");
 }
 
-void EfficiencyTool::inefficiency(const std::string basePath,
-        const unsigned int runNumber, const unsigned int eventNumber, const float etthr, 
+void EfficiencyTool::inefficiency(const std::string basePath,const float etthr, 
         std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
     ATH_MSG_DEBUG("INEFF::Start Inefficiency Analysis ======================= " << basePath);
     cd(basePath);
@@ -458,26 +458,18 @@ void EfficiencyTool::fillEfficiency(const std::string dir,bool isPassed,const fl
 StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo info,
         std::vector<std::pair< const xAOD::Egamma*,const HLT::TriggerElement*>> pairObjs){
     if(m_tp) return StatusCode::SUCCESS;
-    if(isPrescaled(info.trigName)){
+    
+    // Removing Prescale check, in reprocessing L1AfterPrescale always false
+    //
+    /*if(isPrescaled(info.trigName)){
         ATH_MSG_DEBUG(info.trigName << " prescaled, skipping");
         return StatusCode::SUCCESS; 
-    }
+    }*/
+
     const std::string dir = basePath+"/"+info.trigName;
     const float etthr = info.trigThrHLT;
     const std::string pidword = info.trigPidDecorator;
     
-    unsigned int runNumber=0;
-    unsigned int eventNumber=0;
-    // This will retrieve eventInfo for each trigger
-    // Retrieve once and access via a private member
-    /*const xAOD::EventInfo *eventInfo;
-    if ( (m_storeGate->retrieve(eventInfo, "EventInfo")).isFailure() ){
-        ATH_MSG_WARNING("Failed to retrieve eventInfo ");
-    }
-    else {
-        runNumber=eventInfo->runNumber();
-        eventNumber=eventInfo->eventNumber();
-    }*/
     ATH_MSG_DEBUG("Efficiency for " << info.trigName << " " <<pidword);
     for(const auto pairObj : pairObjs){
         // Final cuts done here
@@ -498,7 +490,7 @@ StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo
             if(!info.trigL1){
                 if(pairObj.first->type()==xAOD::Type::Electron){
                     if(!pairObj.first->auxdecor<bool>(info.trigPidDecorator)) continue;
-                    inefficiency(dir+"/Efficiency/HLT",runNumber,eventNumber,etthr,pairObj);
+                    inefficiency(dir+"/Efficiency/HLT",etthr,pairObj);
                 }
             }
         } // Features

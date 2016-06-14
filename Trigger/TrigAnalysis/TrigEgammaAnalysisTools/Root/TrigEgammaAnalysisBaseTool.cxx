@@ -478,12 +478,15 @@ bool TrigEgammaAnalysisBaseTool::isPrescaled(const std::string trigger){
         rerun=bit&TrigDefs::EF_resurrected; //Rerun, only check for HLT
     }
 
+
+    ATH_MSG_DEBUG("Checking prescale for " << trigger << " " << l1item);
     const unsigned int l1bit=tdt()->isPassedBits(l1item);
     bool l1_afterpre=l1bit&TrigDefs::L1_isPassedAfterPrescale;
     bool l1_beforepre=l1bit&TrigDefs::L1_isPassedBeforePrescale;
     l1prescale=l1_beforepre && !l1_afterpre;
-
     prescale=efprescale || l1prescale;
+    ATH_MSG_DEBUG("L1 prescale " << l1item << " " << l1prescale << " before " << l1_beforepre << " after " << l1_afterpre);
+    ATH_MSG_DEBUG("EF prescale " << trigger << " " << efprescale << " Prescale " << prescale);
     if(rerun) return false; // Rerun use the event
     if(prescale) return true; // Prescaled, reject event
     return false; // Not prescaled, use event
