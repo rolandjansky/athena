@@ -14,7 +14,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigTools/TrigMuonRoITools
 			  Trigger/TrigEvent/TrigCaloEvent
 			  Event/xAOD/xAODTrigL1Calo
-                          PRIVATE
+			  Event/xAOD/xAODTrigMuon
+			  Trigger/TrigAlgorithms/TrigL2MuonSA
+                          Private
                           Control/AthenaKernel
                           DetectorDescription/IRegionSelector
                           Event/ByteStreamCnvSvcBase
@@ -27,7 +29,7 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
-find_package( tdaq-common COMPONENTS CTPfragment )
+find_package( tdaq-common COMPONENTS CTPfragment MuCalDecode circ_proc)
 
 # Component(s) in the package:
 atlas_add_component( TrigGenericAlgs

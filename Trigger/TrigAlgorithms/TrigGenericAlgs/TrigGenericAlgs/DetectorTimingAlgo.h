@@ -15,11 +15,13 @@
 //#include "TrigInterfaces/Algo.h"
 #include "TrigInterfaces/AllTEAlgo.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include <string>
 #include <vector>
 #include <map>
 #include <stdint.h>
+#include "TrigT1Interfaces/RecMuonRoiSvc.h"
 #include "TrigMuonRoITools/ITrigMuonRoITool.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
@@ -33,8 +35,8 @@
 /* #include "TrigL2MuonSA/MuFastTrackExtrapolator.h" */
 /* #include "TrigL2MuonSA/RecMuonRoIUtils.h" */
 /* #include "TrigL2MuonSA/MuCalStreamerTool.h" */
-
-//#include "xAODTrigMuon/L2StandAloneMuonContainer.h" 
+#include "TrigL2MuonSA/RpcDataPreparator.h"
+#include "xAODTrigMuon/L2StandAloneMuonContainer.h" 
 
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 
@@ -46,6 +48,9 @@ class Property;
 
 class DetectorTimingAlgo : public HLT::AllTEAlgo {
 public:
+
+  unsigned int getBitMaskValue( const unsigned int uintValue, const unsigned int mask );
+  
   DetectorTimingAlgo(const std::string& name, ISvcLocator* pSvcLocator);
 
   HLT::ErrorCode hltInitialize();
@@ -57,16 +62,21 @@ public:
   void updateHandler(Property& p);
   // TrigL2MuonSA::RecMuonRoIUtils  m_recMuonRoIUtils;
   //  ToolHandle<TrigL2MuonSA::MuFastDataPreparator>     m_dataPreparator;
+  ToolHandle<TrigL2MuonSA::RpcDataPreparator>m_rpcDataPreparator;
+  ToolHandle<ITrigMuonRoITool> m_trigMuonRoITool;
+
+  //ToolHandle<RpcDataPreparator>  m_rpcDataPreparator;
+  
   // ToolHandle<ITrigMuonBackExtrapolator> m_backExtrapolatorTool;
 private:
   const xAOD::CaloClusterContainer *m_caloCluster;
   const TrigRoiDescriptor* m_roiDescriptor;
   std::vector<const TrigRoiDescriptor*> m_roiDescriptorVector;
 
-  //  const xAOD::L2StandAloneMuonContainer *m_muonColl;
+  const xAOD::L2StandAloneMuonContainer *m_muonColl;
     
    /* ToolHandle<ITrigMuonRoITool> m_trigMuonRoITool; */
-   /* ServiceHandle<LVL1::RecMuonRoiSvc> m_recRPCRoiSvc; */
+  ServiceHandle<LVL1::RecMuonRoiSvc> m_recRPCRoiSvc; 
    /* ServiceHandle<LVL1::RecMuonRoiSvc> m_recTGCRoiSvc; */
   ServiceHandle<TrigConf::ITrigConfigSvc > m_configSvc;
 
@@ -78,7 +88,35 @@ private:
   float m_clustertime_10_sigma;
   std::vector<float> m_clustertime_25;
   std::vector<float> m_clustertime_50;
-  std::vector<float> m_rpctime_15;
+
+  std::vector<float> m_muonroi_intime_pt;
+  std::vector<float> m_muonroi_intime_eta;
+  std::vector<float> m_muonroi_intime_phi;
+  std::vector<float> m_muonroi_outtime_eta;
+  std::vector<float> m_muonroi_outtime_phi;
+
+  std::vector<float> m_rpctime_matched_intimeroi;
+  std::vector<float> m_rpctime_matched_outtimeroi;
+
+  std::vector<float> m_rpctime_matched_intimeroi_averaged;
+  std::vector<float> m_rpctime_matched_outtimeroi_averaged;
+
+  std::vector<float> m_rpctime_matched_intimeroi_averaged_NOL1BC;
+  std::vector<float> m_rpctime_matched_outtimeroi_averaged_NOL1BC;
+
+  
+  std::vector<float> m_rpceta_matched_intimeroi;
+  std::vector<float> m_rpcphi_matched_intimeroi;
+  std::vector<float> m_rpceta_matched_outtimeroi;
+  std::vector<float> m_rpcphi_matched_outtimeroi;
+
+  std::vector<float> m_rpctime_all;
+  std::vector<float> m_rpctime_eta;
+  std::vector<float> m_rpctime_phi;
+
+  std::vector<float> m_rpctime_005;
+  std::vector<float> m_rpctime_intimemuonl1;
+  std::vector<float> m_rpctime_othermuonl1;
   
   float m_ootfrac_bc;
   float m_ootfrac_bc_10;
@@ -133,10 +171,19 @@ private:
   float x0, x1, x2, x3, x4;
   float eta, xv;
   int readout, TTAlg_accept;
-
+  int  ObjAlg_accept_symmetric;
   float TT_median_noFCAL, TT_median_RoI;
   float TT_mean_noFCAL, TT_mean_RoI;
   float TT_sigma_noFCAL, TT_sigma_RoI;
+
+
+  float combinedObjects_mean;
+  float combinedObjects_sigma;
+  std::vector<float> combinedObjects_timings;
+
+  float mu_mean;
+  float mu_sigma;
+  std::vector<float> mu_timings;
 };
 
 #endif
