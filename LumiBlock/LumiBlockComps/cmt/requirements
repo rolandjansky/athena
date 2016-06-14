@@ -50,6 +50,6 @@ end_private
 
 use_if tag=AthAnalysisBase pkg=xAODRootAccess ver=xAODRootAccess-* root=Control
 application getLumi ../util/getLumi.cxx
-macro_append getLumi_dependencies " GoodRunsLists LumiBlockCompsLib "
+macro_append getLumi_dependencies " LumiBlockCompsLib "
 
 
