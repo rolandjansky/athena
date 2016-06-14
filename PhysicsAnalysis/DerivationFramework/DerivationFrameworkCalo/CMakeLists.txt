@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
                           Calorimeter/CaloGeoHelpers
                           Calorimeter/CaloUtils
+                          Event/xAOD/xAODTau
                           Event/FourMomUtils
                           GaudiKernel
                           LArCalorimeter/LArTools
@@ -33,14 +34,13 @@ atlas_add_library( DerivationFrameworkCaloLib
                    src/*.cxx
                    PUBLIC_HEADERS DerivationFrameworkCalo
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES CaloIdentifier AthenaBaseComps xAODBase xAODCaloEvent xAODEgamma xAODJet xAODMuon CaloClusterCorrectionLib CaloUtilsLib LArToolsLib ExpressionEvaluationLib
+                   LINK_LIBRARIES CaloIdentifier AthenaBaseComps xAODBase xAODCaloEvent xAODEgamma xAODJet xAODMuon xAODTau CaloClusterCorrectionLib CaloUtilsLib LArToolsLib ExpressionEvaluationLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CaloGeoHelpers FourMomUtils GaudiKernel )
 
 atlas_add_component( DerivationFrameworkCalo
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaBaseComps xAODBase xAODCaloEvent xAODEgamma xAODJet xAODMuon CaloClusterCorrectionLib CaloEvent CaloGeoHelpers CaloUtilsLib FourMomUtils GaudiKernel LArToolsLib ExpressionEvaluationLib DerivationFrameworkCaloLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaBaseComps xAODBase xAODCaloEvent xAODEgamma xAODJet xAODMuon xAODTau CaloClusterCorrectionLib CaloEvent CaloGeoHelpers CaloUtilsLib FourMomUtils GaudiKernel LArToolsLib ExpressionEvaluationLib DerivationFrameworkCaloLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-
