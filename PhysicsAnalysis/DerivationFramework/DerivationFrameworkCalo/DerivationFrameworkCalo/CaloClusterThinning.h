@@ -35,7 +35,7 @@ namespace DerivationFramework {
     private:
       ServiceHandle<IThinningSvc> m_thinningSvc;
       mutable unsigned int m_ntot, m_ntotTopo, m_npass, m_npassTopo; //, m_ntotFrwd, m_npassFrwd;
-      mutable bool m_is_muons, m_is_egamma, m_run_calo, m_run_topo;
+      mutable bool m_is_muons, m_is_egamma, m_is_tau, m_run_calo, m_run_topo;
       std::string m_sgKey;
       std::string m_CaloClSGKey;
       std::string m_TopoClSGKey;
