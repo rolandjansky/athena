@@ -143,7 +143,7 @@ def LuminosityToolOfflineRun2(name="LuminosityTool"):
     folder = "/TRIGGER/LUMI/LBLB"
     if not conddb.folderRequested( folder ):
         conddb.addFolder('TRIGGER', folder)
-        mlog.info("LuminosityToolOfflineRun1 requested %s", folder)
+        mlog.info("LuminosityToolOfflineRun2 requested %s", folder)
 
     lumiTool.LBLBFolderName = folder
 

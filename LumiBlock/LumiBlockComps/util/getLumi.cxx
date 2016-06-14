@@ -16,7 +16,8 @@
 #include <iostream>
 
 #ifndef XAOD_ANALYSIS
-int main(int argc, char* argv[]) {
+//int main(int argc, char* argv[]) {
+int main( int, char** ) {
    std::cout << " This application is currently only available in the analysis releases \n \
       Please setup an AthAnalysisBase release to use this application." << std::endl;
    return 0;
