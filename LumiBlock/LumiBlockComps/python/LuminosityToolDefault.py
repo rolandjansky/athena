@@ -143,7 +143,7 @@ def LuminosityToolOfflineRun2(name="LuminosityTool"):
     folder = "/TRIGGER/LUMI/LBLB"
     if not conddb.folderRequested( folder ):
         conddb.addFolder('TRIGGER', folder)
-        mlog.info("LuminosityToolOfflineRun1 requested %s", folder)
+        mlog.info("LuminosityToolOfflineRun2 requested %s", folder)
 
     lumiTool.LBLBFolderName = folder
 
@@ -159,6 +159,9 @@ class LuminosityToolOnline(LuminosityTool):
         super (LuminosityToolOnline, self).__init__(name)
 
         mlog = logging.getLogger(name)
+
+        # Keep values for invalid data
+        self.SkipInvalid = False
         
         from IOVDbSvc.CondDB import conddb
         if conddb.dbdata == "COMP200": # Run1
