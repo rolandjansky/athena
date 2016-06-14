@@ -17,8 +17,6 @@ if not "PhysicsLArFormat" in dir():
 
 if (not "setLVL1XML" in dir()):
     setLVL1XML=None 
-if (not "setPrescale" in dir()):
-    setPrescale=""
 if (not "myBSRDOOutput" in dir()):
     acf.BSRDOOutput='AppName='+setMenu+', OutputDirectory=./, Run=105200'
 else:
@@ -54,8 +52,6 @@ rec.doWriteBS=True # enable BS writing
 #Set trigger menu
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.triggerMenuSetup = setMenu
-TriggerFlags.L1PrescaleSet = setPrescale
-TriggerFlags.HLTPrescaleSet = "None"
 if setLVL1XML:
     TriggerFlags.readLVL1configFromXML=True
     TriggerFlags.inputLVL1configFile=setLVL1XML
