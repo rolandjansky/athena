@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
+
 /**
    @class LuminosityTool
    @brief Tool to provide access to luminosity information from COOL
@@ -136,7 +138,17 @@ class LuminosityTool: public AthAlgTool, virtual public ILuminosityTool {
 
   // Channel to use to get muToLumi from calibration tool
   unsigned int m_calibChannel;
+
+  // Backup channel in case calibChannel doesn't exist in online calibration folder
+  unsigned int m_calibBackupChannel;
+
+  // Flag to control whether invalid data is skipped (True - default) returning a zero luminosity,
+  // or whether the available luminosity values are returned anyways (False).
+  bool m_skipInvalid;
+
 };
 
+
+#endif
 
 #endif
