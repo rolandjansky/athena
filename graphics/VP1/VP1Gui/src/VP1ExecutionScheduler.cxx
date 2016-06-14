@@ -792,9 +792,13 @@ QString VP1ExecutionScheduler::saveSnaphsotToFile(IVP1System* s, bool batch)
 		    dir.mkpath(".");
 		}
 
-		QString folder = currentsaveimagepath + folderName + QDir::separator();
+		QString folder;
+		if (folderName.startsWith("/"))
+			folder = folderName + QDir::separator();
+		else
+			folder = currentsaveimagepath + folderName + QDir::separator();
 
-		VP1Msg::messageDebug("folder set.");
+		VP1Msg::messageDebug("folder set: " + folder);
 
 
 		// EVENT INFO AND TIMESTAMP
