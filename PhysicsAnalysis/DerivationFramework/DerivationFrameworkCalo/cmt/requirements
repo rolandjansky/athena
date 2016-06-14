@@ -19,6 +19,7 @@ use GaudiInterface              GaudiInterface-*        External
 use ExpressionEvaluation        ExpressionEvaluation-*  PhysicsAnalysis/CommonTools
 use CaloUtils                   CaloUtils-*             Calorimeter
 use CaloEvent                   CaloEvent-*             Calorimeter
+use xAODTau                     xAODTau-*               Event/xAOD
 use CaloClusterCorrection       CaloClusterCorrection-*	Calorimeter
 use CaloGeoHelpers		CaloGeoHelpers-*	Calorimeter
 use LArTools                    LArTools-*              LArCalorimeter

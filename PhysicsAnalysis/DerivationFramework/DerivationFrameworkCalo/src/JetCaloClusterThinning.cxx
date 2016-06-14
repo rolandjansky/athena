@@ -28,13 +28,16 @@ DerivationFramework::JetCaloClusterThinning::JetCaloClusterThinning(const std::s
                                                                     const IInterface* p ) :
 AthAlgTool(t,n,p),
 m_thinningSvc("ThinningSvc",n),
+m_ntot (0),
 m_ntotTopo(0),
+m_npass(0),
 m_npassTopo(0),
 m_sgKey(""),
 m_TopoClSGKey("CaloCalTopoCluster"),
 m_selectionString(""),
 m_coneSize(-1.0),
-m_and(false)
+m_and(false),
+m_parser(0)
 {
     declareInterface<DerivationFramework::IThinningTool>(this);
     declareProperty("ThinningService", m_thinningSvc);
