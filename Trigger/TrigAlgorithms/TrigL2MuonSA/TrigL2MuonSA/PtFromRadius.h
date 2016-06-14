@@ -5,8 +5,9 @@
 #ifndef  TRIGL2MUONSA_PTFROMRADIUS_H
 #define  TRIGL2MUONSA_PTFROMRADIUS_H
 
+#include "AthenaBaseComps/AthAlgTool.h"
+
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IMessageSvc.h"
 
 #include "TrigL2MuonSA/TrackData.h"
 #include "TrigL2MuonSA/PtBarrelLUTSvc.h"
@@ -14,15 +15,23 @@
 
 namespace TrigL2MuonSA {
 
-class PtFromRadius
+class PtFromRadius: public AthAlgTool
 {
  public:
   
-  PtFromRadius(MsgStream* msg,
-	       BooleanProperty  m_use_mcLUT,
-	       const TrigL2MuonSA::PtBarrelLUTSvc* ptBarrelLUTSvc);
+  static const InterfaceID& interfaceID();
+
+  PtFromRadius(const std::string& type, 
+	       const std::string& name,
+	       const IInterface*  parent);
   
   ~PtFromRadius();
+  
+  virtual StatusCode initialize();
+  virtual StatusCode finalize  ();
+
+  void setMCFlag(BooleanProperty  m_use_mcLUT,
+		 const TrigL2MuonSA::PtBarrelLUTSvc* ptBarrelLUTSvc);
   
  public:
   
@@ -30,18 +39,9 @@ class PtFromRadius
   StatusCode setPt(TrigL2MuonSA::TrackPattern& trackPattern);
   
  private:
-  /** @brief Pointer to MsgStream.*/
-  MsgStream* m_msg;
-  
-  /**
-   * @brief Accessor method for the MsgStream.
-   * @return handle to the MsgStream.
-   */
-  inline MsgStream& msg() const { return *m_msg; }
-
   BooleanProperty  m_use_mcLUT;
   
-  const TrigL2MuonSA::PtBarrelLUT*    m_ptBarrelLUT;
+  const ToolHandle<PtBarrelLUT>*    m_ptBarrelLUT;
 };
  
 } // namespace PtFromRadius

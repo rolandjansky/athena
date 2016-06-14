@@ -8,7 +8,7 @@
 #include "TrigL2MuonSA/MdtData.h"
 #include "TrigL2MuonSA/SuperPointData.h"
 
-#define NCHAMBER 8
+#define NCHAMBER 11
 
 namespace TrigL2MuonSA {
 
@@ -30,20 +30,21 @@ class TrackPattern
    phiMap(0),
    etaBin(0),
    phiBin(0),
-   phiBin24(0),
-   smallLarge(-1),
+   phiBinEE(0),
    barrelRadius(0),
    barrelSagitta(0),
    endcapAlpha(0),
    endcapBeta(0),
    endcapRadius(0),
    endcapRadius3P(0),
+   cscGamma(0),
    slope(0),
    intercept(0),
    deltaR(0),
    ptEndcapAlpha(0),
    ptEndcapBeta(0),
    ptEndcapRadius(0),
+   ptCSC(0),
    isRpcFailure(false),
    isTgcFailure(false)
      {};
@@ -74,8 +75,7 @@ class TrackPattern
 
     int    etaBin;
     int    phiBin;  
-    int    phiBin24; 
-    int    smallLarge;
+    int    phiBinEE; 
 
     double barrelRadius;
     double barrelSagitta;
@@ -84,6 +84,7 @@ class TrackPattern
     double endcapBeta;
     double endcapRadius;
     double endcapRadius3P;
+    double cscGamma;
 
     double slope;
     double intercept;
@@ -92,6 +93,7 @@ class TrackPattern
     double ptEndcapAlpha;
     double ptEndcapBeta;
     double ptEndcapRadius;
+    double ptCSC;
     
     bool   isRpcFailure;
     bool   isTgcFailure;

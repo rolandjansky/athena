@@ -4,20 +4,30 @@
 
 #include "TrigL2MuonSA/AlphaBetaEstimate.h"
 
-#include "GaudiKernel/MsgStream.h"
-
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include "xAODTrigMuon/TrigMuonDefs.h"
 
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-TrigL2MuonSA::AlphaBetaEstimate::AlphaBetaEstimate(MsgStream* msg,
-						   const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc): 
-  m_msg(msg),
-  m_ptEndcapLUT(ptEndcapLUTSvc->ptEndcapLUT())
+static const InterfaceID IID_AlphaBetaEstimate("IID_AlphaBetaEstimate", 1, 0);
+
+const InterfaceID& TrigL2MuonSA::AlphaBetaEstimate::interfaceID() { return IID_AlphaBetaEstimate; }
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+TrigL2MuonSA::AlphaBetaEstimate::AlphaBetaEstimate(const std::string& type,
+						   const std::string& name,
+						   const IInterface*  parent):
+  AthAlgTool(type, name, parent), 
+  m_ptEndcapLUT(0)
 {
+  declareInterface<TrigL2MuonSA::AlphaBetaEstimate>(this);
 }
 
 // --------------------------------------------------------------------------------
@@ -30,12 +40,40 @@ TrigL2MuonSA::AlphaBetaEstimate::~AlphaBetaEstimate()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
+StatusCode TrigL2MuonSA::AlphaBetaEstimate::initialize()
+{
+  ATH_MSG_DEBUG("Initializing AlphaBetaEstimate - package version " << PACKAGE_VERSION) ;
+   
+  StatusCode sc;
+  sc = AthAlgTool::initialize();
+  if (!sc.isSuccess()) {
+    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
+    return sc;
+  }
+
+  // 
+  return StatusCode::SUCCESS; 
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+void TrigL2MuonSA::AlphaBetaEstimate::setMCFlag(BooleanProperty use_mcLUT,
+                                                const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc)
+{
+  m_use_mcLUT = use_mcLUT;
+  m_ptEndcapLUT = ptEndcapLUTSvc->ptEndcapLUT();
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
 StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*   p_roi,
 							 TrigL2MuonSA::TgcFitResult& tgcFitResult,
 							 TrigL2MuonSA::TrackPattern& trackPattern,
-                                                         const TrigL2MuonSA::MuonRoad& muonRoad)
+                                                         const TrigL2MuonSA::MuonRoad& /*muonRoad*/)
 {
-  const int MAX_STATION = 5;
+  const int MAX_STATION = 6;
   const double PHI_RANGE = 12./(CLHEP::pi/8.);
   
   // computing ALPHA, BETA and RADIUS
@@ -52,6 +90,9 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
   float OuterZ          = 0;
   float EBIR          = 0;//endcap barrel inner
   float EBIZ          = 0;//endcap barrel inner
+  //  float CSCSlope      = 0;//csc currrently not used for gamma-pt
+  float CSCR          = 0;//csc
+  float CSCZ          = 0;//csc 
 
   // set etaMap and phi
   double phi  = 0.;
@@ -67,6 +108,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     if ( i_station == 2 ) chamber = xAOD::L2MuonParameters::Chamber::EndcapOuter;
     if ( i_station == 3 ) chamber = xAOD::L2MuonParameters::Chamber::EndcapExtra;
     if ( i_station == 4 ) chamber = xAOD::L2MuonParameters::Chamber::BarrelInner;
+    if ( i_station == 5 ) chamber = xAOD::L2MuonParameters::Chamber::CSC;
     superPoint = &(trackPattern.superPoints[chamber]);
 
     if ( superPoint->Npoint > 2 && superPoint->R > 0.) {
@@ -88,6 +130,10 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
       } if ( chamber==0 ) {//barrel inner
         EBIR = superPoint->R;
         EBIZ = superPoint->Z;
+      } if ( chamber==7 ) {//csc
+	//CSCSlope = superPoint->Alin; //currently not used
+	CSCR = superPoint->R;
+	CSCZ = superPoint->Z;
       }
       phim = superPoint->Phim;
     }
@@ -130,19 +176,10 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
       double theta = atan(InnerR/fabsf(InnerZ));
       etaInner = -log(tan(theta/2.))*InnerZ/fabsf(InnerZ);
     }
-
-    if (InnerZ!=0.) {
-      if (tgcFitResult.tgcInn[3]!=0.) phi = tgcFitResult.tgcInn[1];
-
-      trackPattern.etaMap = etaInner;      
-      // correction by KN, implemented by MI
-      if (MiddleZ!=0. && fabs(etaInner-etaMiddle)>0.03 &&
-	  fabs(p_roi->eta()) > 1.9 && fabs(p_roi->eta()) < 2.1) {
-	trackPattern.etaMap = etaMiddle;  
-      }
-    } else if (MiddleZ!=0.) {
-      trackPattern.etaMap = etaMiddle;  
-    }
+    
+    if (MiddleZ!=0.) trackPattern.etaMap = etaMiddle;  
+    else if (InnerZ!=0.) trackPattern.etaMap = etaInner;      
+    if (tgcFitResult.tgcInn[3]!=0.) phi = tgcFitResult.tgcInn[1];
 
     if ( phim > CLHEP::pi+0.1 ) phim = phim - 2*CLHEP::pi;
     if ( phim >= 0 ) trackPattern.phiMap = (phi>=0.)? phi - phim : phim - fabs(phi);
@@ -159,22 +196,9 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     
     trackPattern.phiBin = static_cast<int>(PhiInOctant * PHI_RANGE);
     trackPattern.etaBin = static_cast<int>((fabs(tgcFitResult.tgcMid1[0])-1.)/0.05);
-    
-    if ( muonRoad.LargeSmall==1 ){//Small
-      int OctantSmall = Octant;
-      double PhiInOctantSmall = PhiInOctant;
-      if(tgcFitResult.tgcMid1[1]<0) PhiInOctantSmall = fabs(tgcFitResult.tgcMid1[1] - (OctantSmall-1)*(CLHEP::pi/4.));
-      trackPattern.phiBin24 = PhiInOctantSmall * PHI_RANGE;
-      trackPattern.smallLarge = 1;
-    } 
-    else {//Large
-      double tgcPhi = tgcFitResult.tgcMid1[1] + CLHEP::pi/8;
-      int OctantLarge = (int)(tgcPhi / (CLHEP::pi/4.));
-      double PhiInOctantLarge = fabs(tgcPhi - OctantLarge * (CLHEP::pi/4));
-      if (tgcPhi<0) PhiInOctantLarge = fabs(tgcPhi - (OctantLarge-1)*(CLHEP::pi/4.));
-      trackPattern.phiBin24 = PhiInOctantLarge * PHI_RANGE;
-      trackPattern.smallLarge = 0;
-    }
+
+    double phiEE = (tgcFitResult.tgcMid1[1]>0) ? tgcFitResult.tgcMid1[1] : tgcFitResult.tgcMid1[1] + 2*CLHEP::pi;
+    trackPattern.phiBinEE = static_cast<int> (phiEE*96/CLHEP::pi);
 
   } else {
     // TGC data readout problem -> use RoI (eta, phi) and assume straight track
@@ -197,29 +221,17 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     
     trackPattern.phiBin = static_cast<int>(PhiInOctant * PHI_RANGE);
     trackPattern.etaBin = static_cast<int>((fabs(p_roi->eta())-1.)/0.05);
+
+    double phiEE = (p_roi->phi()>0) ? p_roi->phi() : p_roi->phi() + 2*CLHEP::pi;
+    trackPattern.phiBinEE = static_cast<int> (phiEE*96/CLHEP::pi);
     
-    if ( muonRoad.LargeSmall==1){//Small
-      int OctantSmall = Octant;
-      double PhiInOctantSmall = PhiInOctant;
-      if(tgcFitResult.tgcMid1[1]<0) PhiInOctantSmall = fabs(tgcFitResult.tgcMid1[1] - (OctantSmall-1)*(CLHEP::pi/4.));
-      trackPattern.phiBin24 = PhiInOctantSmall * PHI_RANGE;
-      trackPattern.smallLarge = 1;
-    }
-    else {//Large
-      double tgcPhi = tgcFitResult.tgcMid1[1] + CLHEP::pi/8;
-      int OctantLarge = (int)(tgcPhi / (CLHEP::pi/4.));
-      double PhiInOctantLarge = fabs(tgcPhi - OctantLarge * (CLHEP::pi/4));
-      if (tgcPhi<0) PhiInOctantLarge = fabs(tgcPhi - (OctantLarge-1)*(CLHEP::pi/4.));
-      trackPattern.phiBin24 = PhiInOctantLarge * PHI_RANGE;
-      trackPattern.smallLarge = 0;
-    }
   }
 
   if (MiddleZ && OuterZ) {
     double slope = (OuterR-MiddleR)/(OuterZ-MiddleZ);
     double inter = MiddleR - slope*MiddleZ;    
     
-    trackPattern.endcapAlpha = m_ptEndcapLUT->alpha(MiddleZ,MiddleR,OuterZ,OuterR);
+    trackPattern.endcapAlpha = (*m_ptEndcapLUT)->alpha(MiddleZ,MiddleR,OuterZ,OuterR);
     trackPattern.slope       = slope; 
     trackPattern.intercept   = inter;    
     if (InnerR) {
@@ -229,6 +241,8 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
       trackPattern.endcapRadius = computeRadius(InnerSlope, InnerR,  InnerZ,
 		                              slope,      MiddleR, MiddleZ,
 					      sign);
+    } if (CSCR) {
+      trackPattern.cscGamma = fabsf( atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - atan(slope) );
     }
   } else {    
     if( trackPattern.pt >= 8. || !tgcFitResult.isSuccess) {
@@ -236,7 +250,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
 	double Ze = MiddleZ+(fabsf(MiddleZ)/MiddleZ)*1000.;
 	double Re = MiddleSlope*(Ze) + MiddleIntercept;
 
-	trackPattern.endcapAlpha = m_ptEndcapLUT->alpha(MiddleZ,MiddleR,Ze,Re);
+	trackPattern.endcapAlpha = (*m_ptEndcapLUT)->alpha(MiddleZ,MiddleR,Ze,Re);
 	trackPattern.slope       = MiddleSlope;
 	trackPattern.intercept   = MiddleIntercept;
       }      
@@ -252,17 +266,24 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     }
   }
 
-  if ( (InnerZ && EEZ) && MiddleZ ){
-    trackPattern.endcapRadius3P = computeRadius3Points(InnerZ, InnerR, EEZ, EER, MiddleZ, MiddleR);
+  double distance=9999;//distance between track and IP
+  if (fabs(EEZ)>10000 && fabs(EEZ)<10600){//Small
+      if ( (EBIZ && EEZ) && MiddleZ ){
+        trackPattern.endcapRadius3P = computeRadius3Points(EBIZ, EBIR, EEZ, EER, MiddleZ, MiddleR);
+        distance = calcDistance(EBIZ, EBIR, EEZ, EER, MiddleZ, MiddleR);
+      }
+    }
+  if (fabs(EEZ)>10600 && fabs(EEZ)<12000){//Large
+    if ( (InnerZ && EEZ) && MiddleZ ){
+      trackPattern.endcapRadius3P = computeRadius3Points(InnerZ, InnerR, EEZ, EER, MiddleZ, MiddleR);
+      distance = calcDistance(InnerZ, InnerR, EEZ, EER, MiddleZ, MiddleR);
+    }
   }
-  
-  if ( (EBIZ && EEZ) && MiddleZ ){
-    trackPattern.endcapRadius3P = computeRadius3Points(EBIZ, EBIR, EEZ, EER, MiddleZ, MiddleR);
-  }
+  if (distance>500) trackPattern.endcapRadius3P=0;//Reconstruction may fail
 
-  msg() << MSG::DEBUG << "... alpha/beta/endcapRadius/charge/s_address="
-	<< trackPattern.endcapAlpha << "/" << trackPattern.endcapBeta << "/" << trackPattern.endcapRadius3P << "/" 
-	<< trackPattern.charge << "/" << trackPattern.s_address << endreq;
+  ATH_MSG_DEBUG("... alpha/beta/endcapRadius/cscGamma/charge/s_address="
+		 << trackPattern.endcapAlpha << "/" << trackPattern.endcapBeta << "/" << trackPattern.endcapRadius3P << "/" 
+		 << trackPattern.cscGamma << "/" << trackPattern.charge << "/" << trackPattern.s_address );
   // 
   return StatusCode::SUCCESS; 
 }
@@ -343,6 +364,32 @@ double TrigL2MuonSA::AlphaBetaEstimate::computeRadius3Points(double InnerZ, doub
     
   radius_EE = sqrt(x0*x0 + y0*y0);
   return radius_EE;
+}
+
+double TrigL2MuonSA::AlphaBetaEstimate::calcDistance(double x1,double y1,double x2,double y2,double x3,double y3)    {
+  double xm1=(x1+x2)/2;
+  double xm2=(x2+x3)/2;
+  double ym1=(y1+y2)/2;
+  double ym2=(y2+y3)/2;
+  double a1=(x1-x2)/(y2-y1);
+  double a2=(x2-x3)/(y3-y2);
+  double x0=(a2*xm2-a1*xm1-ym2+ym1)/(a2-a1);//center of circle
+  double y0=a1*(x0-xm1)+ym1;//center of circle
+  double a = (x0-x1)/(y1-y0);//slope of sessen
+  double b = y1+x1*(x1-x0)/(y1-y0);//intercept of sessen
+  double d=fabs(b)/sqrt(a*a+1);
+  return d;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::AlphaBetaEstimate::finalize()
+{
+  ATH_MSG_DEBUG("Finalizing AlphaBetaEstimate - package version " << PACKAGE_VERSION);
+   
+  StatusCode sc = AthAlgTool::finalize(); 
+  return sc;
 }
 
 // --------------------------------------------------------------------------------

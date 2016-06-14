@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "MdtCalibSvc/MdtCalibrationSvc.h"
@@ -68,22 +67,6 @@ class MuFastPatternFinder: public AthAlgTool
       void setGeometry(bool use_new_geometry);
 
    private:
-
-      /** @brief Pointer to MsgStream.*/
-      MsgStream* m_msg;
-
-      /**
-       * @brief Accessor method for the MsgStream.
-       * @return handle to the MsgStream.
-       */
-      inline MsgStream& msg() const { return *m_msg; }
-
-      /**
-       * @brief Accessor method for the message level variable.
-       * @return value of the message level for this algorithm.
-       */
-      inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
-
       // MDT calibration service
       MdtCalibrationSvc*     m_mdtCalibrationSvc;
 

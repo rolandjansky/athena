@@ -5,8 +5,9 @@
 #ifndef  TRIGL2MUONSA_SAGITTARADIUSESTIMATE_H
 #define  TRIGL2MUONSA_SAGITTARADIUSESTIMATE_H
 
+#include "AthenaBaseComps/AthAlgTool.h"
+
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IMessageSvc.h"
 
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
@@ -18,15 +19,23 @@
 
 namespace TrigL2MuonSA {
 
-class SagittaRadiusEstimate
+  class SagittaRadiusEstimate: public AthAlgTool
 {
  public:
   
-  SagittaRadiusEstimate(MsgStream* msg,
-			BooleanProperty use_mcLUT,
-			const TrigL2MuonSA::AlignmentBarrelLUTSvc* alignmentBarrelLUTSvc);
+  static const InterfaceID& interfaceID();
+
+  SagittaRadiusEstimate(const std::string& type, 
+			const std::string& name,
+			const IInterface*  parent);
   
   ~SagittaRadiusEstimate();
+  
+  virtual StatusCode initialize();
+  virtual StatusCode finalize  ();
+
+  void setMCFlag(BooleanProperty use_mcLUT,
+		 const AlignmentBarrelLUTSvc* alignmentBarrelLUTSvc);
   
  public:
   
@@ -36,25 +45,10 @@ class SagittaRadiusEstimate
   
  private:
   
-  /** @brief Pointer to MsgStream.*/
-  MsgStream* m_msg;
-  
-  /**
-   * @brief Accessor method for the MsgStream.
-   * @return handle to the MsgStream.
-   */
-  inline MsgStream& msg() const { return *m_msg; }
-  
-  /**
-   * @brief Accessor method for the message level variable.
-   * @return value of the message level for this algorithm.
-   */
-  inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
-  
   BooleanProperty  m_use_mcLUT;
 
-  const TrigL2MuonSA::AlignmentBarrelLUT*    m_alignmentBarrelLUT;
-  const TrigL2MuonSA::AlignmentBarrelLUTSvc* m_alignmentBarrelLUTSvc;
+  const ToolHandle<AlignmentBarrelLUT>*    m_alignmentBarrelLUT;
+  const AlignmentBarrelLUTSvc*             m_alignmentBarrelLUTSvc;
 
   float f(float x, float c0, float c1, float c2, float c3) const;
   float fp(float x, float c33, float c22, float c1) const;

@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IMessageSvc.h"
 
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
@@ -59,37 +58,21 @@ namespace TrigL2MuonSA {
     StatusCode setMCFlag(BooleanProperty  use_mcLUT);
 
   private:
-    
-    /** @brief Pointer to MsgStream.*/
-    MsgStream* m_msg;
-    
-    /**
-     * @brief Accessor method for the MsgStream.
-     * @return handle to the MsgStream.
-     */
-    inline MsgStream& msg() const { return *m_msg; }
-
-    /**
-     * @brief Accessor method for the message level variable.
-     * @return value of the message level for this algorithm.
-     */
-    inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
-    
     // Reference to StoreGateSvc;
     ServiceHandle<StoreGateSvc>    m_storeGateSvc;
     
     BooleanProperty  m_use_mcLUT;
 
-    const TrigL2MuonSA::PtEndcapLUTSvc*    m_ptEndcapLUTSvc;
-    const TrigL2MuonSA::PtBarrelLUTSvc*    m_ptBarrelLUTSvc;
+    const PtEndcapLUTSvc*                  m_ptEndcapLUTSvc;
+    const PtBarrelLUTSvc*                  m_ptBarrelLUTSvc;
     
-    const TrigL2MuonSA::AlignmentBarrelLUTSvc* m_alignmentBarrelLUTSvc;
+    const AlignmentBarrelLUTSvc*           m_alignmentBarrelLUTSvc;
     
-    TrigL2MuonSA::SagittaRadiusEstimate*   m_sagittaRadiusEstimate;
-    TrigL2MuonSA::AlphaBetaEstimate*       m_alphaBetaEstimate;
+    ToolHandle<SagittaRadiusEstimate>      m_sagittaRadiusEstimate;
+    ToolHandle<AlphaBetaEstimate>          m_alphaBetaEstimate;
     
-    TrigL2MuonSA::PtFromRadius*            m_ptFromRadius;
-    TrigL2MuonSA::PtFromAlphaBeta*         m_ptFromAlphaBeta;
+    ToolHandle<PtFromRadius>               m_ptFromRadius;
+    ToolHandle<PtFromAlphaBeta>            m_ptFromAlphaBeta;
   };
 
 } // namespace TrigL2MuonSA

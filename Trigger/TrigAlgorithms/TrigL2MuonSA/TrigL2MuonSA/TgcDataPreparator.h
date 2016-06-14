@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
@@ -67,8 +66,6 @@ class TgcDataPreparator: public AthAlgTool
       StatusCode prepareData(const LVL1::RecMuonRoI*  p_roi,
 			     TrigL2MuonSA::TgcHits&   tgcHits);
 
-      inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
-      inline void setMsgLvl(const MSG::Level& level) { if(m_msg != 0) m_msg->setLevel(level); }
       void setOptions(const TrigL2MuonSA::TgcDataPreparatorOptions& options) { m_options = options; };
 
       void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
@@ -77,9 +74,6 @@ class TgcDataPreparator: public AthAlgTool
       std::vector<IdentifierHash> getHashList() { return m_tgcHashList; }
 
    private:
-
-      MsgStream* m_msg;
-      inline MsgStream& msg() const { return *m_msg; }
 
       // internal methods
       StatusCode getTgcRdo(unsigned int robId, float eta, float phi, const TgcRdo*& p_rdo);

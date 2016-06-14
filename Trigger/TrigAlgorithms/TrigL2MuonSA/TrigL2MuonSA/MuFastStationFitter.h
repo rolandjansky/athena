@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
@@ -63,21 +62,6 @@ class MuFastStationFitter: public AthAlgTool
 
    private:
 
-      /** @brief Pointer to MsgStream.*/
-      MsgStream* m_msg;
-
-      /**
-       * @brief Accessor method for the MsgStream.
-       * @return handle to the MsgStream.
-       */
-      inline MsgStream& msg() const { return *m_msg; }
-
-      /**
-       * @brief Accessor method for the message level variable.
-       * @return value of the message level for this algorithm.
-       */
-      inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
-
       BooleanProperty m_use_mcLUT;
 		
       DoubleProperty m_endcapinn_mdt_chi2_limit;    
@@ -110,10 +94,9 @@ class MuFastStationFitter: public AthAlgTool
                      float *, float *, float DAB[2][2], float *, float *);
       int   Evlfit (int, TrigL2MuonSA::PBFitResult& fitres);
 
-      StringProperty    m_lut_fileName;
-      PtEndcapLUT*      m_ptEndcapLUT;
-      TrigL2MuonSA::AlphaBetaEstimate*       m_alphaBetaEstimate;
-      TrigL2MuonSA::PtFromAlphaBeta*         m_ptFromAlphaBeta;
+      StringProperty                         m_lut_fileName;
+      ToolHandle<AlphaBetaEstimate>          m_alphaBetaEstimate;
+      ToolHandle<PtFromAlphaBeta>            m_ptFromAlphaBeta;
       const TrigL2MuonSA::PtEndcapLUTSvc*    m_ptEndcapLUTSvc;
 
       void findLayerCombination(std::vector<unsigned int> &a, int n, int r,std::vector<std::vector<unsigned int> > &c, int &nr);

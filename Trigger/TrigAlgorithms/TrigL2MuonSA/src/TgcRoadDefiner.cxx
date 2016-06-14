@@ -11,19 +11,31 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/PhiHelper.h"
 
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-TrigL2MuonSA::TgcRoadDefiner::TgcRoadDefiner(MsgStream* msg)
-   : m_msg(), 
+static const InterfaceID IID_TgcRoadDefiner("IID_TgcRoadDefiner", 1, 0);
+
+const InterfaceID& TrigL2MuonSA::TgcRoadDefiner::interfaceID() { return IID_TgcRoadDefiner; }
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+TrigL2MuonSA::TgcRoadDefiner::TgcRoadDefiner(const std::string& type,
+					     const std::string& name,
+					     const IInterface*  parent):
+     AthAlgTool(type, name, parent), 
      m_backExtrapolatorTool(0),
      m_ptEndcapLUT(0),
-     m_tgcFit(msg,10), // chi2 value 10 given by hand for now
+     m_tgcFit("TrigL2MuonSA::TgcFit"),
      m_rWidth_TGC_Failed(0),
      m_regionSelector(0),
      m_mdtIdHelper(0)
 {
-  if ( msg ) m_msg = msg; 
+  declareInterface<TrigL2MuonSA::TgcRoadDefiner>(this);
 }
 
 // --------------------------------------------------------------------------------
@@ -31,6 +43,31 @@ TrigL2MuonSA::TgcRoadDefiner::TgcRoadDefiner(MsgStream* msg)
 
 TrigL2MuonSA::TgcRoadDefiner::~TgcRoadDefiner(void)
 {
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::TgcRoadDefiner::initialize()
+{
+  ATH_MSG_DEBUG("Initializing TgcRoadDefiner - package version " << PACKAGE_VERSION) ;
+   
+  StatusCode sc;
+  sc = AthAlgTool::initialize();
+  if (!sc.isSuccess()) {
+    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
+    return sc;
+  }
+
+  sc =m_tgcFit.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Could not retrieve " << m_tgcFit);
+    return sc;
+  }
+  ATH_MSG_DEBUG("Retrieved service " << m_tgcFit);
+
+  // 
+  return StatusCode::SUCCESS; 
 }
 
 // --------------------------------------------------------------------------------
@@ -76,13 +113,12 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
                                               TrigL2MuonSA::MuonRoad&      muonRoad,
                                               TrigL2MuonSA::TgcFitResult&  tgcFitResult)
 {
-  const int N_STATION = 8;
+  const int N_STATION = 10;
 
   bool isMiddleFailure = true;
 
   // Define road by using TGC fit result
   const double R_WIDTH_DEFAULT       = 100;
-  const double R_WIDTH_MIDDLE_NO_HIT = 150;
   const double R_WIDTH_INNER_NO_HIT  = 200;
   
   const double ZERO_LIMIT = 1e-5;
@@ -99,49 +135,54 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
   int endcap_extra = xAOD::L2MuonParameters::Chamber::EndcapExtra;
   int barrel_inner = xAOD::L2MuonParameters::Chamber::BarrelInner;
   int csc = xAOD::L2MuonParameters::Chamber::CSC;
+  int bee = xAOD::L2MuonParameters::Chamber::BEE;
  
   if (tgcHits.size()>0) {
     // TGC data is properly read
  
     // Split digits to Strip/Wire points.
     if( ! prepareTgcPoints(tgcHits) ) {
-      msg() << MSG::ERROR << "Preparation of Tgc points failed" << endreq;
+      ATH_MSG_ERROR("Preparation of Tgc points failed");
       return false;
     }
     
-    tgcFitResult.isSuccess = true;
 
     // Fit lines to TGC middle station
     isMiddleFailure = false;
-    TgcFit::Status status = m_tgcFit.runTgcMiddle(m_tgcStripMidPoints, m_tgcWireMidPoints, tgcFitResult);
+    TgcFit::Status status = m_tgcFit->runTgcMiddle(m_tgcStripMidPoints, m_tgcWireMidPoints, tgcFitResult);
     if (status == TgcFit::FIT_NONE) {
-      msg() << MSG::WARNING << "Fit to TGC middle station points failed" << endreq;
+      ATH_MSG_WARNING("Fit to TGC middle station points failed");
       isMiddleFailure = true;
     }
     else if (status == TgcFit::FIT_POINT) {
-      msg() << MSG::DEBUG << "Fit to TGC middle station returns only a point";
+      ATH_MSG_DEBUG("Fit to TGC middle station returns only a point");
     }
     
     // Fit lines to TGC inner station
-    status = m_tgcFit.runTgcInner(m_tgcStripInnPoints, m_tgcWireInnPoints, tgcFitResult);
+    status = m_tgcFit->runTgcInner(m_tgcStripInnPoints, m_tgcWireInnPoints, tgcFitResult);
     if (status == TgcFit::FIT_NONE) {
-      msg() << MSG::DEBUG << "Fit to TGC inner station points failed" << endreq;
+      ATH_MSG_DEBUG("Fit to TGC inner station points failed");
     } 
     else if (status == TgcFit::FIT_POINT) {
-      msg() << MSG::DEBUG << "Fit to TGC inner station returns only a point";
+      ATH_MSG_DEBUG("Fit to TGC inner station returns only a point");
     }
     
-    msg() << MSG::DEBUG << "tgcFitResult.tgcInn[0/1/2/3]=" << tgcFitResult.tgcInn[0] << "/" << tgcFitResult.tgcInn[1]
-          << "/" << tgcFitResult.tgcInn[2] << "/" << tgcFitResult.tgcInn[3] << endreq;
-    msg() << MSG::DEBUG << "tgcFitResult.tgcMid1[0/1/2/3]=" << tgcFitResult.tgcMid1[0] << "/" << tgcFitResult.tgcMid1[1]
-          << "/" << tgcFitResult.tgcMid1[2] << "/" << tgcFitResult.tgcMid1[3] << endreq;
-    msg() << MSG::DEBUG << "tgcFitResult.tgcMid2[0/1/2/3]=" << tgcFitResult.tgcMid2[0] << "/" << tgcFitResult.tgcMid2[1]
-          << "/" << tgcFitResult.tgcMid2[2] << "/" << tgcFitResult.tgcMid2[3] << endreq;
+    ATH_MSG_DEBUG("tgcFitResult.tgcInn[0/1/2/3]=" << tgcFitResult.tgcInn[0] << "/" << tgcFitResult.tgcInn[1]
+		  << "/" << tgcFitResult.tgcInn[2] << "/" << tgcFitResult.tgcInn[3]);
+    ATH_MSG_DEBUG("tgcFitResult.tgcMid1[0/1/2/3]=" << tgcFitResult.tgcMid1[0] << "/" << tgcFitResult.tgcMid1[1]
+		  << "/" << tgcFitResult.tgcMid1[2] << "/" << tgcFitResult.tgcMid1[3]);
+    ATH_MSG_DEBUG("tgcFitResult.tgcMid2[0/1/2/3]=" << tgcFitResult.tgcMid2[0] << "/" << tgcFitResult.tgcMid2[1]
+		  << "/" << tgcFitResult.tgcMid2[2] << "/" << tgcFitResult.tgcMid2[3]);
+  }
+   
+  if (tgcHits.size()>0 && !isMiddleFailure){
+
+    tgcFitResult.isSuccess = true;
     
     // PT calculation by using TGC fit result
     const double PHI_RANGE = 12./(CLHEP::pi/8.);
     side = (tgcFitResult.tgcMid2[3]<=0) ? 0 : 1;
-    double alpha = m_ptEndcapLUT->alpha(tgcFitResult.tgcMid1[3], tgcFitResult.tgcMid1[2],
+    double alpha = (*m_ptEndcapLUT)->alpha(tgcFitResult.tgcMid1[3], tgcFitResult.tgcMid1[2],
                                         tgcFitResult.tgcMid2[3], tgcFitResult.tgcMid2[2]);
     
     int Octant = (int)(tgcFitResult.tgcMid1[1] / (CLHEP::pi/4.));
@@ -153,7 +194,7 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
     
     int charge = (tgcFitResult.intercept * tgcFitResult.tgcMid2[3]) < 0.0 ? 0: 1;
     
-    tgcFitResult.tgcPT = m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::ALPHAPOL2, 2, etaBin, phiBin, alpha) / 1000.;
+    tgcFitResult.tgcPT = (*m_ptEndcapLUT)->lookup(side, charge, PtEndcapLUT::TGCALPHAPOL2, etaBin, phiBin, alpha) / 1000.;
     if (charge==0) tgcFitResult.tgcPT = -1.*tgcFitResult.tgcPT;
     
     // Determine phi direction
@@ -196,36 +237,20 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
     float Y2 = tgcFitResult.tgcMid2[3] * sin(tgcFitResult.tgcMid2[1]);
     if (X1>ZERO_LIMIT && X2>ZERO_LIMIT) tgcFitResult.phiDir = (Y1/X1 + Y2/X2)/2.;
 
-    
-    if( ! isMiddleFailure ) {
-      muonRoad.aw[endcap_middle][0]     = tgcFitResult.slope;
-      muonRoad.bw[endcap_middle][0]     = tgcFitResult.intercept;
-      muonRoad.aw[endcap_outer][0]     = tgcFitResult.slope;
-      muonRoad.bw[endcap_outer][0]     = tgcFitResult.intercept;
-      muonRoad.aw[endcap_extra][0]     = tgcFitResult.slope;
-      muonRoad.bw[endcap_extra][0]     = tgcFitResult.intercept;
-      for (int i_layer=0; i_layer<8; i_layer++) {
-        muonRoad.rWidth[endcap_middle][i_layer] = R_WIDTH_DEFAULT;
-        muonRoad.rWidth[endcap_outer][i_layer] = R_WIDTH_DEFAULT;
-        muonRoad.rWidth[endcap_extra][i_layer] = R_WIDTH_DEFAULT;
-      }
-    } else {
-      roiEta = p_roi->eta();
-      theta  = atan(exp(-fabs(roiEta)))*2.;
-      aw     = (fabs(roiEta) > ZERO_LIMIT)? tan(theta)*(fabs(roiEta)/roiEta): 0.;
-      muonRoad.aw[endcap_middle][0]     = aw;
-      muonRoad.bw[endcap_middle][0]     = 0;
-      muonRoad.aw[endcap_outer][0]     = aw;
-      muonRoad.bw[endcap_outer][0]     = 0;
-      muonRoad.aw[endcap_extra][0]     = aw;
-      muonRoad.bw[endcap_extra][0]     = 0;
-      for (int i_layer=0; i_layer<8; i_layer++) {
-        muonRoad.rWidth[endcap_middle][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
-        muonRoad.rWidth[endcap_outer][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
-        muonRoad.rWidth[endcap_extra][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
-      }
+    muonRoad.aw[endcap_middle][0]     = tgcFitResult.slope;
+    muonRoad.bw[endcap_middle][0]     = tgcFitResult.intercept;
+    muonRoad.aw[endcap_outer][0]     = tgcFitResult.slope;
+    muonRoad.bw[endcap_outer][0]     = tgcFitResult.intercept;
+    muonRoad.aw[endcap_extra][0]     = tgcFitResult.slope;
+    muonRoad.bw[endcap_extra][0]     = tgcFitResult.intercept;
+    muonRoad.aw[bee][0]     = tgcFitResult.slope;
+    muonRoad.bw[bee][0]     = tgcFitResult.intercept;
+    for (int i_layer=0; i_layer<8; i_layer++) {
+      muonRoad.rWidth[endcap_middle][i_layer] = R_WIDTH_DEFAULT;
+      muonRoad.rWidth[endcap_outer][i_layer] = R_WIDTH_DEFAULT;
+      muonRoad.rWidth[endcap_extra][i_layer] = R_WIDTH_DEFAULT;
+      muonRoad.rWidth[bee][i_layer] = R_WIDTH_DEFAULT;
     }
-    
     
     if( fabs(tgcFitResult.tgcInn[3]) > ZERO_LIMIT ) {
       muonRoad.aw[endcap_inner][0]  = tgcFitResult.tgcInn[2]/tgcFitResult.tgcInn[3];
@@ -264,7 +289,7 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
           extrInnerEta = etaMiddle;
         }
       } else {
-        msg() << MSG::ERROR << "Null pointer to ITrigMuonBackExtrapolator" << endreq;
+        ATH_MSG_ERROR("Null pointer to ITrigMuonBackExtrapolator");
         return StatusCode::FAILURE;
       }
 
@@ -309,6 +334,8 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
     muonRoad.bw[endcap_extra][0]     = 0;
     muonRoad.aw[barrel_inner][0]     = aw;
     muonRoad.bw[barrel_inner][0]     = 0;
+    muonRoad.aw[bee][0]     = aw;
+    muonRoad.bw[bee][0]     = 0;
     muonRoad.aw[csc][0]     = aw;
     muonRoad.bw[csc][0]     = 0;
     for (int i_layer=0; i_layer<8; i_layer++) {
@@ -317,6 +344,7 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
       muonRoad.rWidth[endcap_outer][i_layer] = m_rWidth_TGC_Failed;
       muonRoad.rWidth[endcap_extra][i_layer] = m_rWidth_TGC_Failed;
       muonRoad.rWidth[barrel_inner][i_layer] = m_rWidth_TGC_Failed;
+      muonRoad.rWidth[bee][i_layer] = m_rWidth_TGC_Failed;
       muonRoad.rWidth[csc][i_layer] = m_rWidth_TGC_Failed;
     }
   }
@@ -359,27 +387,29 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
   if(phiMin < CLHEP::pi*-1) phiMin += CLHEP::pi*2.;
   TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, p_roi->phi(), phiMin, phiMax ); 
   const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
-  m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
+  if (iroi) m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
+  else m_regionSelector->DetHashIDList(MDT, mdtHashList);
   if(roi) delete roi;
   
   for(int i_hash=0; i_hash<(int)mdtHashList.size(); i_hash++){
     Identifier id;
     int convert = m_mdtIdHelper->get_id(mdtHashList[i_hash], id, &context);
-    if(convert!=0)
-      msg() << MSG::ERROR << "problem converting hash list to id" << endreq;
+
+    if(convert!=0) ATH_MSG_ERROR("problem converting hash list to id");
+
     muonRoad.stationList.push_back(id);
     std::string name = m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id));
     if ( name.substr(0, 1) == 'B' ) continue;
     if ( name.substr(1, 1) != 'M' ) continue;
     int stationPhi = m_mdtIdHelper->stationPhi(id);
     float floatPhi = (stationPhi-1)*CLHEP::pi/4;
-    if (name[2]=='S') floatPhi = floatPhi + CLHEP::pi/8;
+    if (name[2]=='S' || name[2]=='E') floatPhi = floatPhi + CLHEP::pi/8;
     tempDeltaPhi = fabs(floatPhi-muonRoad.phiMiddle);
     if (phiMiddle<0) tempDeltaPhi = fabs(floatPhi-muonRoad.phiMiddle-2*CLHEP::pi);
     if(tempDeltaPhi > CLHEP::pi) tempDeltaPhi = fabs(tempDeltaPhi - 2*CLHEP::pi);
     
     int LargeSmall = 0;
-    if(name[2]=='S') LargeSmall = 1;
+    if(name[2]=='S' || name[2]=='E') LargeSmall = 1;
     int sector = (stationPhi-1)*2 + LargeSmall;
     if(sector_trigger == 99)
       sector_trigger = sector;
@@ -412,13 +442,11 @@ bool TrigL2MuonSA::TgcRoadDefiner::prepareTgcPoints(const TrigL2MuonSA::TgcHits&
 {
    const double PHI_BOUNDARY = 0.2;
 
-   msg() << MSG::DEBUG << 
-     ", m_tgcStripMidPoints.size()=" << m_tgcStripMidPoints.size() <<
-     ", m_tgcStripInnPoints.size()=" << m_tgcStripInnPoints.size() <<
-     ", m_tgcWireMidPoints.size()=" << m_tgcWireMidPoints.size() <<
-     ", m_tgcWireInnPoints.size()=" << m_tgcWireInnPoints.size() <<
-     endreq;
-
+   ATH_MSG_DEBUG(", m_tgcStripMidPoints.size()=" << m_tgcStripMidPoints.size() <<
+		 ", m_tgcStripInnPoints.size()=" << m_tgcStripInnPoints.size() <<
+		 ", m_tgcWireMidPoints.size()=" << m_tgcWireMidPoints.size() <<
+		 ", m_tgcWireInnPoints.size()=" << m_tgcWireInnPoints.size());
+   
    m_tgcStripMidPoints.clear();
    m_tgcStripInnPoints.clear();
    m_tgcWireMidPoints.clear();
@@ -452,6 +480,17 @@ bool TrigL2MuonSA::TgcRoadDefiner::prepareTgcPoints(const TrigL2MuonSA::TgcHits&
    }
 
    return true;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::TgcRoadDefiner::finalize()
+{
+  ATH_MSG_DEBUG("Finalizing TgcRoadDefiner - package version " << PACKAGE_VERSION);
+   
+  StatusCode sc = AthAlgTool::finalize(); 
+  return sc;
 }
 
 // --------------------------------------------------------------------------------

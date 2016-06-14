@@ -7,7 +7,8 @@
 
 #include <string>
 
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -32,39 +33,39 @@ namespace TrigL2MuonSA {
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-class RpcRoadDefiner
+class RpcRoadDefiner: public AthAlgTool
 {
  public:
-  RpcRoadDefiner(MsgStream* msg);
+  static const InterfaceID& interfaceID();
+
+  RpcRoadDefiner(const std::string& type,
+                 const std::string& name,
+                 const IInterface*  parent);
   ~RpcRoadDefiner(void);
+
+  virtual StatusCode initialize();
+  virtual StatusCode finalize  ();
   
  public:
-  inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
-
   StatusCode defineRoad(const LVL1::RecMuonRoI*      p_roi,
 			TrigL2MuonSA::MuonRoad&      muonRoad,
 			TrigL2MuonSA::RpcHits&       rpcHits,
-			TrigL2MuonSA::RpcPatFinder*  rpcPatFinder,
+			ToolHandle<RpcPatFinder>*    rpcPatFinder,
 			TrigL2MuonSA::RpcFitResult&  rpcFitResult,
 			double                       roiEtaMinLow,
 			double                       roiEtaMaxLow,
 			double                       roiEtaMinHigh,
 			double                       roiEtaMaxHigh);
 
-  void setMsgStream(MsgStream* msg) { m_msg = msg; };
   void setMdtGeometry(IRegSelSvc* regionSelector, const MdtIdHelper* mdtIdHelper);
   void setRoadWidthForFailure(double rWidth_RPC_Failed);
   void setRpcGeometry(bool use_rpc);
 
- private:
-  inline MsgStream& msg() const { return *m_msg; }
-  
  protected:
   float f(float x, float c0, float c1, float c2, float c3) const;
   float fp(float x, float c33, float c22, float c1) const;
 
  private:
-  MsgStream* m_msg;
   const BarrelRoadData*  m_roadData;
 
   double m_rWidth_RPC_Failed;

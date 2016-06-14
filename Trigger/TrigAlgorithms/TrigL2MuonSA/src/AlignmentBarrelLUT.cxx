@@ -5,9 +5,24 @@
 #include "TrigL2MuonSA/AlignmentBarrelLUT.h"
 #include<fstream>
 
-TrigL2MuonSA::AlignmentBarrelLUT::AlignmentBarrelLUT(MsgStream* msg) :
-  m_msg(msg)
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+static const InterfaceID IID_AlignmentBarrelLUT("IID_AlignmentBarrelLUT", 1, 0);
+
+const InterfaceID& TrigL2MuonSA::AlignmentBarrelLUT::interfaceID() { return IID_AlignmentBarrelLUT; }
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+TrigL2MuonSA::AlignmentBarrelLUT::AlignmentBarrelLUT(const std::string& type,
+						     const std::string& name,
+						     const IInterface*  parent):
+  AthAlgTool(type, name, parent)
 {
+  declareInterface<TrigL2MuonSA::AlignmentBarrelLUT>(this);
 }
 
 // --------------------------------------------------------------------------------
@@ -15,6 +30,24 @@ TrigL2MuonSA::AlignmentBarrelLUT::AlignmentBarrelLUT(MsgStream* msg) :
 
 TrigL2MuonSA::AlignmentBarrelLUT::~AlignmentBarrelLUT()
 {
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::AlignmentBarrelLUT::initialize()
+{
+  ATH_MSG_DEBUG("Initializing AlignmentBarrelLUT - package version " << PACKAGE_VERSION) ;
+   
+  StatusCode sc;
+  sc = AthAlgTool::initialize();
+  if (!sc.isSuccess()) {
+    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
+    return sc;
+  }
+
+  // 
+  return StatusCode::SUCCESS; 
 }
 
 // --------------------------------------------------------------------------------
@@ -52,7 +85,7 @@ StatusCode TrigL2MuonSA::AlignmentBarrelLUT::readLUT(std::string lut_fileName)
   
   file.open(lut_fileName.c_str());
   if (!file) {
-    msg() << MSG::INFO << "Failed to open barrel alignment LUT file" << endreq;
+    ATH_MSG_INFO("Failed to open barrel alignment LUT file");
     return StatusCode::FAILURE;
   }
 
@@ -130,7 +163,7 @@ double TrigL2MuonSA::AlignmentBarrelLUT::GetDeltaZ(int&    saddress,
 	    + dZ[saddress][innerR][iEta_bin][iPhi_bin][1]*sign_etap) / 2.;
 
   } else {
-    msg() << MSG::INFO << "Barrel alignment is implemented only for Large-SP" << endreq;
+    ATH_MSG_INFO("Barrel alignment is implemented only for Large-SP");
     return 0;
   }
 
@@ -156,3 +189,16 @@ std::pair<int, int> TrigL2MuonSA::AlignmentBarrelLUT::GetBinNumber(int saddress,
   return std::make_pair(etaBin,phiBin);
 }
 
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::AlignmentBarrelLUT::finalize()
+{
+  ATH_MSG_DEBUG("Finalizing AlignmentBarrelLUT - package version " << PACKAGE_VERSION);
+   
+  StatusCode sc = AthAlgTool::finalize(); 
+  return sc;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------

@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
@@ -73,18 +72,9 @@ class RpcDataPreparator: public AthAlgTool
       StatusCode prepareData(const TrigRoiDescriptor*    p_roids,
 			     unsigned int roiWord,
 			     TrigL2MuonSA::RpcHits&      rpcHits,
-			     TrigL2MuonSA::RpcPatFinder* rpcPatFinder);
-
-      inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
-      inline void setMsgLvl(const MSG::Level& level) { if(m_msg != 0) m_msg->setLevel(level); }
-      // void setOptions(const TrigL2MuonSA::RpcDataPreparatorOptions& options) { m_options = options; };
+			     ToolHandle<RpcPatFinder>*   rpcPatFinder);
 
       void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
-      
- private:
-      
-      MsgStream* m_msg;
-      inline MsgStream& msg() const { return *m_msg; }
       
  private:
 		       

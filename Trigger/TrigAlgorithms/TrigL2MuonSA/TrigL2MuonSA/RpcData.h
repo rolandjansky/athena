@@ -17,11 +17,17 @@ namespace TrigL2MuonSA {
       x(0),
       y(0),
       z(0),
+      time(0),
+      distToEtaReadout(0),
+      distToPhiReadout(0),
       gasGap(0),
       doubletR(0),
       doubletPhi(0),
       doubletZ(0),
       layer(0),
+      eta(0),
+      phi(0),
+      l(0),
       measuresPhi(false),
       stationName("")
 	{};
@@ -31,11 +37,17 @@ namespace TrigL2MuonSA {
       double x;
       double y;
       double z;
+      double time;
+      double distToEtaReadout;
+      double distToPhiReadout;
       int gasGap;
       int doubletR;
       int doubletPhi;
       int doubletZ;
       int layer;
+      double eta;
+      double phi;
+      double l;      
       bool measuresPhi;
       std::string stationName;
   };

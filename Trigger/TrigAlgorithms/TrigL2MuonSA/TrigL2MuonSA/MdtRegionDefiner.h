@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "MdtCalibSvc/MdtCalibrationSvc.h"
 
@@ -35,20 +35,25 @@ namespace TrigL2MuonSA {
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-  class MdtRegionDefiner
+  class MdtRegionDefiner: public AthAlgTool
   {
   public:
-    MdtRegionDefiner(MsgStream* msg);
+    static const InterfaceID& interfaceID();
+
+    MdtRegionDefiner(const std::string& type, 
+		     const std::string& name,
+		     const IInterface*  parent);
+
     ~MdtRegionDefiner(void);
     
+    virtual StatusCode initialize();
+    virtual StatusCode finalize  ();
 
     // function using the new cabling/geometry
     void setMdtGeometry(const MdtIdHelper* mdtIdHelper, const MuonGM::MuonDetectorManager* muonMgr);
     void setRpcGeometry(bool use_rpc);
     
   public:
-    inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
-    
     StatusCode getMdtRegions(const LVL1::RecMuonRoI* p_roi,
 			     const TrigL2MuonSA::RpcFitResult& rpcFitResult,
 			     TrigL2MuonSA::MuonRoad& muonRoad,
@@ -60,7 +65,6 @@ namespace TrigL2MuonSA {
 			     TrigL2MuonSA::MdtRegion& mdtRegion);
     
   private:
-    inline MsgStream& msg() const { return *m_msg; }
     StatusCode prepareTgcPoints(const TrigL2MuonSA::TgcHits& tgcHits);
     void find_barrel_road_dim(float max_road, float aw, float bw,
 			      float rMmin,float rMax,float *zMin,float *zMax);
@@ -84,8 +88,6 @@ namespace TrigL2MuonSA {
 			  TrigL2MuonSA::MuonRoad&           muonRoad);
 
   private:
-    MsgStream* m_msg;
-
     const MdtIdHelper* m_mdtIdHelper;
     const MuonGM::MuonDetectorManager* m_muonMgr;
     const MuonGM::MdtReadoutElement* m_mdtReadout;

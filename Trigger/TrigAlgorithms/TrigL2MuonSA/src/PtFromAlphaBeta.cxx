@@ -4,19 +4,28 @@
 
 #include "TrigL2MuonSA/PtFromAlphaBeta.h"
 
-#include "GaudiKernel/MsgStream.h"
-
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
 
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-TrigL2MuonSA::PtFromAlphaBeta::PtFromAlphaBeta(MsgStream* msg,
-					       const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc): 
-   m_msg(msg),
-   m_ptEndcapLUT(ptEndcapLUTSvc->ptEndcapLUT())
+static const InterfaceID IID_PtFromAlphaBeta("IID_PtFromAlphaBeta", 1, 0);
+
+const InterfaceID& TrigL2MuonSA::PtFromAlphaBeta::interfaceID() { return IID_PtFromAlphaBeta; }
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+TrigL2MuonSA::PtFromAlphaBeta::PtFromAlphaBeta(const std::string& type,
+					       const std::string& name,
+					       const IInterface*  parent):
+  AthAlgTool(type, name, parent), 
+  m_ptEndcapLUT(0)
 {
+  declareInterface<TrigL2MuonSA::PtFromAlphaBeta>(this);
 }
 
 // --------------------------------------------------------------------------------
@@ -24,6 +33,36 @@ TrigL2MuonSA::PtFromAlphaBeta::PtFromAlphaBeta(MsgStream* msg,
 
 TrigL2MuonSA::PtFromAlphaBeta::~PtFromAlphaBeta() 
 {
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::PtFromAlphaBeta::initialize()
+{
+  ATH_MSG_DEBUG("Initializing PtFromAlphaBeta - package version " << PACKAGE_VERSION) ;
+   
+  StatusCode sc;
+  sc = AthAlgTool::initialize();
+  if (!sc.isSuccess()) {
+    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
+    return sc;
+  }
+
+  // 
+  return StatusCode::SUCCESS; 
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+void TrigL2MuonSA::PtFromAlphaBeta::setMCFlag(BooleanProperty use_mcLUT,
+					      const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc)
+{
+  m_use_mcLUT = use_mcLUT;
+  m_ptEndcapLUT = ptEndcapLUTSvc->ptEndcapLUT();
+
+  return;
 }
 
 // --------------------------------------------------------------------------------
@@ -48,8 +87,8 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trac
   int  side   = (trackPattern.etaMap <= 0.0) ? 0 : 1;
   int  charge = (trackPattern.intercept * trackPattern.etaMap) < 0.0 ? 0 : 1;
 
-  float mdtPt = m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::ALPHAPOL2, 2,  trackPattern.etaBin,
-				      trackPattern.phiBin, trackPattern.endcapAlpha) / 1000;//sector=2 All
+  float mdtPt = (*m_ptEndcapLUT)->lookup(side, charge, PtEndcapLUT::ALPHAPOL2, trackPattern.etaBin,
+				      trackPattern.phiBin, trackPattern.endcapAlpha) / 1000;
 
   if (charge == 0)  mdtPt = -mdtPt;
   trackPattern.ptEndcapAlpha = mdtPt;//pt calculated by alpha
@@ -59,8 +98,8 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trac
   
   // use MDT beta if condition allows
   if (fabs(mdtPt) > ALPHA_TO_BETA_PT && fabs(trackPattern.endcapBeta)>ZERO_LIMIT) {
-    float betaPt = m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::BETAPOL2, 2, trackPattern.etaBin,
-					 trackPattern.phiBin, trackPattern.endcapBeta) / 1000;//sector=2 All
+    float betaPt = (*m_ptEndcapLUT)->lookup(side, charge, PtEndcapLUT::BETAPOL2, trackPattern.etaBin,
+					 trackPattern.phiBin, trackPattern.endcapBeta) / 1000;
 
     if (charge == 0)  betaPt = -betaPt;
     trackPattern.ptEndcapBeta = betaPt;//pt calculated by beta
@@ -73,27 +112,50 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trac
     }
   }
   if (trackPattern.endcapRadius3P>0) {//calculate pt from radius
-    msg() << MSG::DEBUG << "calculate pt from invR" << endreq;
+    ATH_MSG_DEBUG("calculate pt from Radius");
     float invR = 1. / trackPattern.endcapRadius3P;
 
-    if (trackPattern.smallLarge==1)//Small 
-      trackPattern.ptEndcapRadius =  m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::INVRADIUSPOL2, 0, trackPattern.etaBin, 
-							   trackPattern.phiBin24, invR) / 1000;
-    if (trackPattern.smallLarge==0)//Large 
-      trackPattern.ptEndcapRadius =  m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::INVRADIUSPOL2, 1, trackPattern.etaBin, 
-							   trackPattern.phiBin24, invR) / 1000;
+    if (trackPattern.etaBin<8){
+      trackPattern.ptEndcapRadius =  (*m_ptEndcapLUT)->lookup(side, charge, PtEndcapLUT::INVRADIUSPOL2, 
+                                          trackPattern.etaBin, trackPattern.phiBinEE, invR) / 1000;
+    }
   }
+  if ( fabs(trackPattern.cscGamma)>ZERO_LIMIT ){
 
+    float cscPt = (*m_ptEndcapLUT)->lookup(side, charge, PtEndcapLUT::CSCPOL2, trackPattern.etaBin,
+					trackPattern.phiBin, trackPattern.cscGamma) / 1000;
+    if (charge == 0)  cscPt = -cscPt;
+    trackPattern.ptCSC = cscPt;
+  }
   if(mdtPt!=0.0) {
     trackPattern.pt     = fabs(mdtPt);
     trackPattern.charge = mdtPt / fabs(mdtPt);
   }
-  
-  msg() << MSG::DEBUG << "pT determined from alpha and beta: endcapAlpha/endcapBeta/endcapRadius3P/pT/charge/s_address="
-	<< trackPattern.endcapAlpha << "/" << trackPattern.endcapBeta << "/" << trackPattern.endcapRadius3P << "/" << trackPattern.pt
-	<< "/" << trackPattern.charge << "/" << trackPattern.s_address << endreq;
-  msg() << MSG::DEBUG << "ptEndcapAlpha/ptEndcapBeta/ptEndcapRadius="
-	<< trackPattern.ptEndcapAlpha << "/" << trackPattern.ptEndcapBeta << "/" << trackPattern.ptEndcapRadius << endreq;
 
+  if (trackPattern.ptEndcapRadius>0 && trackPattern.ptEndcapRadius<500)
+      trackPattern.pt = trackPattern.ptEndcapRadius;//use pt calculated from endcap radius
+  
+  ATH_MSG_DEBUG("pT determined from alpha and beta: endcapAlpha/endcapBeta/endcapRadius3P/cscGamma/pT/charge/s_address="
+		<< trackPattern.endcapAlpha << "/" << trackPattern.endcapBeta << "/" << trackPattern.endcapRadius3P << "/" << trackPattern.cscGamma << "/" 
+		<< trackPattern.pt
+		<< "/" << trackPattern.charge << "/" << trackPattern.s_address);
+  ATH_MSG_DEBUG("ptEndcapAlpha/ptEndcapBeta/tgcPt/ptEndcapRadius/ptCSC="
+		<< trackPattern.ptEndcapAlpha << "/" << trackPattern.ptEndcapBeta << "/" 
+		<< tgcPt << "/" << trackPattern.ptEndcapRadius << "/" << trackPattern.ptCSC);
+		
   return StatusCode::SUCCESS; 
 }
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::PtFromAlphaBeta::finalize()
+{
+  ATH_MSG_DEBUG("Finalizing PtFromAlphaBeta - package version " << PACKAGE_VERSION);
+   
+  StatusCode sc = AthAlgTool::finalize(); 
+  return sc;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------

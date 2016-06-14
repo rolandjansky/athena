@@ -14,6 +14,7 @@ theStationFitter     = TrigL2MuonSA__MuFastStationFitter()
 theTrackFitter       = TrigL2MuonSA__MuFastTrackFitter()
 theTrackExtrapolator = TrigL2MuonSA__MuFastTrackExtrapolator()
 
+
 from AthenaCommon.AppMgr import ToolSvc
 
 ToolSvc += theDataPreparator
@@ -22,9 +23,19 @@ ToolSvc += theStationFitter
 ToolSvc += theTrackFitter
 ToolSvc += theTrackExtrapolator
 
+
 ToolSvc += MuonBackExtrapolatorForAlignedDet()
 ToolSvc += MuonBackExtrapolatorForMisalignedDet()
 ToolSvc += MuonBackExtrapolatorForData()
+
+class CscRegDict(TrigL2MuonSA__CscRegDict):
+    def __init__(self,name = 'CscRegDict'):
+        super(CscRegDict ,self).__init__(name)
+        self.MCFlag = True
+
+ToolSvc += TrigL2MuonSA__CscSegmentMaker()
+ToolSvc += CscRegDict()
+
 
 class PtBarrelLUTSvc(TrigL2MuonSA__PtBarrelLUTSvc):
     def __init__(self,name = 'PtBarrelLUTSvc'):
@@ -51,6 +62,8 @@ class AlignmentBarrelLUTSvc(TrigL2MuonSA__AlignmentBarrelLUTSvc):
     def __init__(self,name = 'AlignmentBarrelLUTSvc'):
         super(AlignmentBarrelLUTSvc ,self).__init__(name)
         self.LUTfile = "dZ_barrel.lut"
+
+
 
 # declare the needed services
 ServiceMgr += PtEndcapLUTSvc()
@@ -80,6 +93,8 @@ class TrigL2MuonSAConfig(MuFastSteering):
         self.R_WIDTH_RPC_FAILED = 400
 
         self.DoCalibrationStream = False
+
+        self.USE_ROIBASEDACCESS_CSC = True
 
         if ( args[0]== '900GeV' ):
             self.WinPt = 4.0

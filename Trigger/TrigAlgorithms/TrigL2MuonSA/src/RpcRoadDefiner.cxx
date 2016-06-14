@@ -8,15 +8,25 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/PhiHelper.h"
 
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
+// --------------------------------------------------------------------------------                 // --------------------------------------------------------------------------------                  
+static const InterfaceID IID_RpcRoadDefiner("IID_RpcRoadDefiner", 1, 0);
+
+const InterfaceID& TrigL2MuonSA::RpcRoadDefiner::interfaceID() { return IID_RpcRoadDefiner; }
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-TrigL2MuonSA::RpcRoadDefiner::RpcRoadDefiner(MsgStream* msg)
-  : m_msg(), m_roadData(0),
-    m_rWidth_RPC_Failed(0), m_use_rpc(true),
-    m_regionSelector(0), m_mdtIdHelper(0)
+TrigL2MuonSA::RpcRoadDefiner::RpcRoadDefiner(const std::string& type,
+                                             const std::string& name,
+                                             const IInterface*  parent):
+  AthAlgTool(type, name, parent),
+  m_roadData(0),
+  m_rWidth_RPC_Failed(0), m_use_rpc(true),
+  m_regionSelector(0), m_mdtIdHelper(0)
 {
-  if ( msg ) m_msg = msg; 
+  declareInterface<TrigL2MuonSA::RpcRoadDefiner>(this);
 }
 
 // --------------------------------------------------------------------------------
@@ -24,7 +34,25 @@ TrigL2MuonSA::RpcRoadDefiner::RpcRoadDefiner(MsgStream* msg)
 
 TrigL2MuonSA::RpcRoadDefiner::~RpcRoadDefiner(void)
 {
-  if (m_roadData) delete m_roadData;
+}
+
+
+// --------------------------------------------------------------------------------                  
+// --------------------------------------------------------------------------------                  
+
+StatusCode TrigL2MuonSA::RpcRoadDefiner::initialize()
+{
+  ATH_MSG_DEBUG("Initializing RpcRoadDefiner - package version " << PACKAGE_VERSION) ;
+
+  StatusCode sc;
+  sc = AthAlgTool::initialize();
+  if (!sc.isSuccess()) {
+    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
+    return sc;
+  }
+
+  //                                                                                                 
+  return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------
@@ -60,7 +88,7 @@ void TrigL2MuonSA::RpcRoadDefiner::setMdtGeometry(IRegSelSvc* regionSelector, co
 StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi,
 						    TrigL2MuonSA::MuonRoad&      muonRoad,
 						    TrigL2MuonSA::RpcHits&       /*rpcHits*/,
-						    TrigL2MuonSA::RpcPatFinder*  rpcPatFinder,
+						    ToolHandle<RpcPatFinder>*    rpcPatFinder,
 						    TrigL2MuonSA::RpcFitResult&  rpcFitResult,
                                                     double                       roiEtaMinLow,
                                                     double                       roiEtaMaxLow,
@@ -72,19 +100,25 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   
   const double ZERO_LIMIT = 1e-5;
   
-  const int N_LAYER = 3; // 0: inner, 1: middle, 2: outer
+  const int N_LAYER = 4; // 0: inner, 1: middle, 2: outer 4: BME
   const int N_SECTOR = 2; // 0: normal, 1:overlap
 
   if (m_use_rpc) {
-
-    double ZoverR_middle;
-    double ZoverR_outer;
-    unsigned int ZoverR_pattern;
-    
-    if ( rpcPatFinder->findPatternEta(ZoverR_middle, ZoverR_outer, ZoverR_pattern) ) {
+    double aw[3];
+    double bw[3];
+    unsigned int rpc_pattern;
+    if ( (*rpcPatFinder)->findPatternEta(aw, bw, rpc_pattern) ) {
       rpcFitResult.isSuccess = true;
-      rpcFitResult.ZoverR_middle = ZoverR_middle;
-      rpcFitResult.ZoverR_outer = ZoverR_outer;
+      rpcFitResult.offset_inner = bw[0];
+      rpcFitResult.offset_middle = bw[1];
+      rpcFitResult.offset_outer = bw[2];
+      rpcFitResult.slope_inner = 1.0/aw[0];
+      rpcFitResult.slope_middle = 1.0/aw[1];
+      rpcFitResult.slope_outer = 1.0/aw[2];
+
+      for(int i=0;i<3;i++){
+	if(fabs(1.0/aw[i]) <= ZERO_LIMIT) rpcFitResult.isSuccess = false;
+      }
     } else {
       rpcFitResult.isSuccess = false;
     }
@@ -92,8 +126,10 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     double phi_middle;
     double phi_outer;
     unsigned int phi_pattern;
-    if ( rpcPatFinder->findPatternPhi(phi_middle, phi_outer, phi_pattern)) {
+    if ( (*rpcPatFinder)->findPatternPhi(phi_middle, phi_outer, phi_pattern)) {
       rpcFitResult.phi = phi_middle;
+      rpcFitResult.phi_middle = phi_middle;
+      rpcFitResult.phi_outer = phi_outer;
     } else {
       rpcFitResult.phi = p_roi->phi();
     }
@@ -116,10 +152,13 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     special = 1;
   muonRoad.Special = special;
   
-  for (int i_station=0; i_station<3; i_station++) {
+  for (int i_station=0; i_station<4; i_station++) {
     for (int i_layer=0; i_layer<8; i_layer++) {
-      muonRoad.rWidth[i_station][i_layer] = m_rWidth_RPC_Failed;
-      if (i_station==2) muonRoad.rWidth[i_station][i_layer] = 400;//for outer
+      if (i_station==0)      muonRoad.rWidth[i_station][i_layer] = 400;//for inner
+      else if (i_station==1) muonRoad.rWidth[i_station][i_layer] = 200;//for middle
+      else if (i_station==2) muonRoad.rWidth[i_station][i_layer] = 400;//for outer
+      else if (i_station==3) muonRoad.rWidth[9][i_layer] = m_rWidth_RPC_Failed;//BME
+      else muonRoad.rWidth[i_station][i_layer] = m_rWidth_RPC_Failed;
     }
   }
   
@@ -137,9 +176,14 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   double phiMax = muonRoad.phiMiddle+.01;
   if(phiMax > CLHEP::pi) phiMax -= CLHEP::pi*2.;
   if(phiMin < CLHEP::pi*-1) phiMin += CLHEP::pi*2.;
+
   TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, p_roi->phi(), phiMin, phiMax ); 
+
   const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
-  m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
+
+  if (iroi) m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
+  else m_regionSelector->DetHashIDList(MDT, mdtHashList);
+
   if(roi) delete roi;
   
   for(int i_hash=0; i_hash < (int)mdtHashList.size(); i_hash++){
@@ -147,15 +191,17 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     Identifier id;
     int convert = m_mdtIdHelper->get_id(mdtHashList[i_hash], id, &context);
     //	int convert = m_mdtIdHelper->get_id(mdtHashList[i_hash], id);
-    if(convert!=0)
-      msg() << MSG::ERROR << "problem converting hash list to id" << endreq;
+
+    if(convert!=0) ATH_MSG_ERROR("problem converting hash list to id");
     
     muonRoad.stationList.push_back(id);
     int stationPhi = m_mdtIdHelper->stationPhi(id);
     std::string name = m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id));
     
+    if ( name[1]=='M' && name[2]=='E' ) continue;//exclude BME
+    
     int LargeSmall = 0;
-    if(name[2]=='S' || name[2]=='F' || name[2]=='G') LargeSmall = 1;
+    if(name[2]=='S' || name[2]=='F' || name[2]=='G' ) LargeSmall = 1;
     int sector = (stationPhi-1)*2 + LargeSmall;
     if(sector_trigger == 99)
       sector_trigger = sector;
@@ -173,23 +219,17 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   muonRoad.MDT_sector_overlap = sector_overlap;
   
   if (rpcFitResult.isSuccess) {
-
-    double awMiddle = (fabs(rpcFitResult.ZoverR_middle)>ZERO_LIMIT)? 1./rpcFitResult.ZoverR_middle: 0.;
-    double awOuter  = (fabs(rpcFitResult.ZoverR_outer)>ZERO_LIMIT)? 1./rpcFitResult.ZoverR_outer: 0.;
-    
     for (int i_sector=0; i_sector<N_SECTOR; i_sector++) {
-      muonRoad.aw[0][i_sector] = awMiddle;
-      muonRoad.bw[0][i_sector] = 0;
+      muonRoad.aw[0][i_sector] = rpcFitResult.slope_inner;
+      muonRoad.bw[0][i_sector] = rpcFitResult.offset_inner;
+      muonRoad.aw[1][i_sector] =  rpcFitResult.slope_middle;
+      muonRoad.bw[1][i_sector] = rpcFitResult.offset_middle;
+      muonRoad.aw[2][i_sector] =  rpcFitResult.slope_outer;
+      muonRoad.bw[2][i_sector] = rpcFitResult.offset_outer;
+      muonRoad.aw[9][i_sector] = rpcFitResult.slope_middle;//BME
+      muonRoad.bw[9][i_sector] = rpcFitResult.offset_middle;
     }
-    for (int i_sector=0; i_sector<N_SECTOR; i_sector++) {
-      muonRoad.aw[1][i_sector] = awMiddle;
-      muonRoad.bw[1][i_sector] = 0;
-    }
-    for (int i_sector=0; i_sector<N_SECTOR; i_sector++) {
-      muonRoad.aw[2][i_sector] = awOuter;
-      muonRoad.bw[2][i_sector] = 0;
-    }
-    
+   
   } else {
     double roiEtaLow = (roiEtaMinLow + roiEtaMaxLow) * 0.5;
     double roiEtaHigh = (roiEtaMinHigh + roiEtaMaxHigh) * 0.5;
@@ -203,6 +243,7 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
 	muonRoad.aw[i_station][i_sector] = awLow;
 	muonRoad.bw[i_station][i_sector] = 0;
 	if (i_station==2) muonRoad.aw[i_station][i_sector] = awHigh;
+        if (i_station==3) muonRoad.aw[9][i_sector] = awLow;//BME
       }
     }
   }
@@ -210,5 +251,18 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   return StatusCode::SUCCESS;
 }
 
+// --------------------------------------------------------------------------------                  
+// --------------------------------------------------------------------------------                  
 
+StatusCode TrigL2MuonSA::RpcRoadDefiner::finalize()
+{
+  ATH_MSG_DEBUG("Finalizing RpcRoadDefiner - package version " << PACKAGE_VERSION);
 
+  if (m_roadData) delete m_roadData;
+
+  StatusCode sc = AthAlgTool::finalize();
+  return sc;
+}
+
+// --------------------------------------------------------------------------------                  
+// --------------------------------------------------------------------------------                  

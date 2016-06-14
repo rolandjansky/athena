@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IMessageSvc.h"
 
 #include "TrigL2MuonSA/MdtData.h"
 #include "TrigL2MuonSA/RpcData.h"
@@ -73,11 +72,6 @@ namespace TrigL2MuonSA {
     
     virtual StatusCode initialize();
     virtual StatusCode finalize  ();
-
-    MsgStream* m_msg;
-    inline MsgStream& msg() const { return *m_msg; }    
-    inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
-
 
     std::string instanceName() const {return m_algInstanceName;}
     void setInstanceName(std::string name) { m_algInstanceName = name; }

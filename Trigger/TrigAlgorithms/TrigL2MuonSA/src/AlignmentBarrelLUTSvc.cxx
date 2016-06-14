@@ -7,12 +7,13 @@
 #include "TrigL2MuonSA/AlignmentBarrelLUTSvc.h"
 #include "PathResolver/PathResolver.h"
 
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
 using namespace std;
 
 TrigL2MuonSA::AlignmentBarrelLUTSvc::AlignmentBarrelLUTSvc(const std::string& name,ISvcLocator* sl) :
   AthService(name,sl),
-  m_msg(0),
-  m_alignmentBarrelLUT(0)
+  m_alignmentBarrelLUT("TrigL2MuonSA::AlignmentBarrelLUT")
 {
   declareProperty( "LUTfile", m_lut_fileName="dZ_barrel.lut" );
 }
@@ -22,13 +23,11 @@ TrigL2MuonSA::AlignmentBarrelLUTSvc::AlignmentBarrelLUTSvc(const std::string& na
 
 StatusCode TrigL2MuonSA::AlignmentBarrelLUTSvc::queryInterface(const InterfaceID& riid, void** ppvIF) 
 { 
-  MsgStream log(messageService(), name());
   if (TrigL2MuonSA::AlignmentBarrelLUTSvc::interfaceID().versionMatch(riid)) {
     *ppvIF = (AlignmentBarrelLUTSvc*)this;
     return StatusCode::SUCCESS;
   } else {
-    log << MSG::DEBUG << name() << " cannot find the interface!"
-      	<< " Query the interface of the base class." << endreq;
+    ATH_MSG_DEBUG(name() << " cannot find the interface! Query the interface of the base class.");
     return AthService::queryInterface(riid, ppvIF);
   }
 } 
@@ -38,8 +37,7 @@ StatusCode TrigL2MuonSA::AlignmentBarrelLUTSvc::queryInterface(const InterfaceID
 
 StatusCode TrigL2MuonSA::AlignmentBarrelLUTSvc::initialize()
 {
-  m_msg = new MsgStream( msgSvc(), name() );
-  msg() << MSG::DEBUG << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endreq;
+  ATH_MSG_DEBUG("Initializing " << name() << " - package version " << PACKAGE_VERSION);
   
   StatusCode sc;
   
@@ -48,23 +46,24 @@ StatusCode TrigL2MuonSA::AlignmentBarrelLUTSvc::initialize()
   
   // implement the search of LUT trought the pathresolver Tool.
   std::string lut_fileName = PathResolver::find_file (m_lut_fileName, "DATAPATH");
-  msg() << MSG::INFO << lut_fileName << endreq;
+  ATH_MSG_INFO(lut_fileName);
   
   if (lut_fileName.empty()) {
-    msg() << MSG::ERROR << "Cannot find EndcapLUT file " << lut_fileName << endreq;
+    ATH_MSG_ERROR("Cannot find EndcapLUT file " << lut_fileName);
     return StatusCode::FAILURE;
   }
   
-  m_alignmentBarrelLUT = new AlignmentBarrelLUT(m_msg);
-  if( !m_alignmentBarrelLUT ) {
-    msg() << MSG::ERROR << "Barrel alignment LUT are not loaded!"  << endreq;
-    return StatusCode::FAILURE;
+  sc = m_alignmentBarrelLUT.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Could not retrieve " << m_alignmentBarrelLUT);
+    return sc;
   }
+  ATH_MSG_DEBUG("Retrieved service " << m_alignmentBarrelLUT);
 
   // read LUT
   sc = m_alignmentBarrelLUT->readLUT(lut_fileName);
   if ( sc.isFailure() ) {
-    msg() << MSG::ERROR << "Failed to read barrel alignment LUT" << lut_fileName << endreq;
+    ATH_MSG_ERROR("Failed to read barrel alignment LUT" << lut_fileName);
     return sc;
   }
   
@@ -76,15 +75,8 @@ StatusCode TrigL2MuonSA::AlignmentBarrelLUTSvc::initialize()
 
 StatusCode TrigL2MuonSA::AlignmentBarrelLUTSvc::finalize() 
 {
-  if (m_alignmentBarrelLUT) delete m_alignmentBarrelLUT;
-  if (m_msg) delete m_msg;
   return StatusCode::SUCCESS;
 } 
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
-
-const TrigL2MuonSA::AlignmentBarrelLUT* TrigL2MuonSA::AlignmentBarrelLUTSvc::alignmentBarrelLUT() const
-{
-    return m_alignmentBarrelLUT;
-} 
