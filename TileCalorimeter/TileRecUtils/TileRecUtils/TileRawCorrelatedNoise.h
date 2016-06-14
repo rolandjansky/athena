@@ -38,23 +38,23 @@ class TileRawCorrelatedNoise: public AthAlgorithm {
   private:
 
     // name of TDS container with input TileDigits
-    std::string m_TileDigitsInputContainer;
+    std::string m_tileDigitsInputContainer;
 
     // name of TDS container with output TileDigits
-    std::string m_TileDigitsOutputContainer;
+    std::string m_tileDigitsOutputContainer;
 
     // RMS threshold
     float m_nRMS_threshold;
 
     // file names
-    std::string m_AlphaMatrixFilePrefix;
-    std::string m_Sample3RMSFilePrefix;
-    std::string m_MeanFilePrefix;
+    std::string m_alphaMatrixFilePrefix;
+    std::string m_sample3RMSFilePrefix;
+    std::string m_meanFilePrefix;
 
     // matrices
-    float AlphaMatrix[4][64][48][48];
-    float MeanSamples[4][64][48][7];
-    float Sample3RMS[4][64][48];
+    float m_alphaMatrix[4][64][48][48];
+    float m_meanSamples[4][64][48][7];
+    float m_sample3RMS[4][64][48];
 
     bool m_useMeanFiles;
     bool m_pmtOrder;

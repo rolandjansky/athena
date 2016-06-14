@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TILERECALGS_TILEFILTERTESTER_H
-#define TILERECALGS_TILEFILTERTESTER_H
+#ifndef TILERECUTILS_TILEFILTERTESTER_H
+#define TILERECUTILS_TILEFILTERTESTER_H
 //**************************************************************************************************
 // Filename: TileFilterTester.h
 // Author:   F. Merritt
@@ -16,9 +16,9 @@
 // of the event loop.
 // *************************************************************************************************
 
-class TileInfo;
+//class TileInfo;
+//class StoreGateSvc;
 class TileFilterManager;
-class StoreGateSvc;
 
 #include <vector>
 /** Auxiliary class for TileRawChannelMakerManyAmps. 
@@ -28,24 +28,24 @@ class TileFilterTester
  public:
 
   // Constructor
-  TileFilterTester(TileFilterManager * tFilterManager, int Fmode, int Ftest, bool lDebug = false);
+  TileFilterTester(TileFilterManager * filterManager, int filterMode, int filterTest, bool debug = false);
   //Destructor
   ~TileFilterTester();
   // Event Generator
-  void GenEvents(int N);
+  void genEvents(int nEvent);
 
  private:
-  bool debug;
-  int Fmode;
-  int Ftest;
-  int Cmode;
-  int Ncross;
-  int Npileup;
-  int Namp;
-  std::vector<int> Nconfig;
-  std::vector<int> iAmpVec;
-  std::vector<double> AmpVec;
+  bool m_debug;
+  int m_filterMode;
+  int m_filterTest;
+  int m_cMode;
+  int m_nCross;
+  int m_nPileup;
+  int m_nAmp;
+  std::vector<int> m_nConfig;
+  std::vector<int> m_iAmpVec;
+  std::vector<double> m_ampVec;
 
-  TileFilterManager * m_tileFilterManager;
+  TileFilterManager* m_tileFilterManager;
 };
-#endif // TILERECALGS_TILEFILTERTESTER_H
+#endif // TILERECUTILS_TILEFILTERTESTER_H

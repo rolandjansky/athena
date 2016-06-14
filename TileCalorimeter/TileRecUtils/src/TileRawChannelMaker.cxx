@@ -203,7 +203,7 @@ void TileRawChannelMaker::fitOverflowedChannels() {
           //than in the OF (0-255). So we rescale by a factor of 400.          
           rwCh->insert(fittedRwCh->amplitude(), 
                        fittedRwCh->time(), 
-                       fittedRwCh->quality()/400.);
+                       fittedRwCh->quality()*(1./400.));
           // 20000 - Indicates overflow, 3000 - indicates fitted
           // 30000 - Indicates overflow + underflow, 3000 - indicates fitted.
           float pedestal = (rwCh->pedestal() < 29500.) ? (fittedRwCh->pedestal() + 23000.)
