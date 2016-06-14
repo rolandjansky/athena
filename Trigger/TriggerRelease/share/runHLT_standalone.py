@@ -13,7 +13,7 @@
 #   set by "setLVL1XML" 
 #
 # HLT configuration uses Python configuration
-#   set by "setMenu" and "setPrescale"
+#   set by "setMenu" (can also include prescales)
 #   if used for MC, one needs to set "setupForMC" to True
 #   Individual slices can be run by doing "test<sliceName>=True"
 #   Individual signatures can be removed/added putting them in
@@ -38,31 +38,31 @@
 #
 # Predefined setups
 #   certain menu configurations can be run just by doing
-#     testPhysicsV5=True or
-#     testMCV5=True or
-#     testPhysicsV5MC=True
+#     testPhysicsV6=True or
+#     testMCV6=True or
+#     testPhysicsV6MC=True
 #   Note that for the addition of "MC" option. This is used for getting the MC setup.
 #
 # Usage:
 #  
 #   run with athenaHLT:
-#      athenaHLT -f input.data -c testPhysicsV5=True -l DEBUG -n 25 TriggerRelease/runHLT_standalone.py
+#      athenaHLT -f input.data -c testPhysicsV6=True -l DEBUG -n 25 TriggerRelease/runHLT_standalone.py
 #      or with multiple files
-#      athenaHLT -f "['input1.data','input2.data']" -c testPhysicsV5=True -n 25 TriggerRelease/runHLT_standalone.py
+#      athenaHLT -f "['input1.data','input2.data']" -c testPhysicsV6=True -n 25 TriggerRelease/runHLT_standalone.py
 #      or, for writing BS output:
-#      athenaHLT -f input.data -c testPhysicsV5=True -n 25 -o outBS TriggerRelease/runHLT_standalone.py
+#      athenaHLT -f input.data -c testPhysicsV6=True -n 25 -o outBS TriggerRelease/runHLT_standalone.py
 #      or, with online THistSvc
-#      athenaHLT -M -l DEBUG -c testPhysicsV5=True -n 25 TriggerRelease/runHLT_standalone.py
+#      athenaHLT -M -l DEBUG -c testPhysicsV6=True -n 25 TriggerRelease/runHLT_standalone.py
 #
 #   run with athena:
-#      BS input: athena.py -c "testPhysicsV5=True;BSRDOInput=['raw.data']" TriggerRelease/runHLT_standalone.py
-#      RDO input: athena.py -c "testPhysicsV5=True;PoolRDOInput=['file.pool.root']" TriggerRelease/runHLT_standalone.py
+#      BS input: athena.py -c "testPhysicsV6=True;BSRDOInput=['raw.data']" TriggerRelease/runHLT_standalone.py
+#      RDO input: athena.py -c "testPhysicsV6=True;PoolRDOInput=['file.pool.root']" TriggerRelease/runHLT_standalone.py
 #
 # Select slice(s) to test:
 #   set one or more of the following flags to True in the jo:
 #      testEgamma, testMuon, testTau, testJet, testBjet, testMET, testBphysics
 #    e.g.:
-#      athenaHLT -f input.data -l DEBUG -n 25 -c "testTau=True;testPhysicsV5=True" TriggerRelease/runHLT_standalone.py
+#      athenaHLT -f input.data -l DEBUG -n 25 -c "testTau=True;testPhysicsV6=True" TriggerRelease/runHLT_standalone.py
 #
 #===========================================================================================
 from AthenaCommon.Logging import logging
@@ -116,7 +116,7 @@ menuMap={
          }
 
 # Useful in job options beyond our control to always run the latest menu via 'testCurrentMenu=True'
-menuMap['CurrentMenu'] = menuMap['PhysicsV5']
+menuMap['CurrentMenu'] = menuMap['PhysicsV6']
 
 newMenuSetup=0
 for name in menuMap:
@@ -135,13 +135,16 @@ for name in menuMap:
             if not 'setupForMC' in dir():
                 setupForMC=(key=='MC')
                 print 'Setting setupForMC = ',setupForMC
-            
+
+if not 'setupForMC' in dir():
+    setupForMC=False
+
 if newMenuSetup>1:
     log.fatal('More than one menu requested')
     import sys
     sys.exit(1)
 if newMenuSetup==0 and not ('setMenu' in dir()):
-    log.fatal('No trigger menu specified, use e.g. testPhysicsV3=True')
+    log.fatal('No trigger menu specified, use e.g. testPhysicsV6=True')
     import sys
     sys.exit(1)
 
@@ -149,8 +152,7 @@ if newMenuSetup==0 and not ('setMenu' in dir()):
 
 defaultOptions={ 
     'setMenu'          : setMenu,
-    'setupForMC'       : False,    
-    'setPrescale'      : '',
+    'setupForMC'       : setupForMC,
     'setLVL1XML'       : 'TriggerMenuXML',
     'setL1TopoXML'     : 'TriggerMenuXML',
     'setHLTXML'        : None,
@@ -308,20 +310,22 @@ TriggerFlags.writeBS=True
 TriggerFlags.abortOnConfigurationError=True
 
 TriggerFlags.triggerMenuSetup=setMenu
-TriggerFlags.L1PrescaleSet  = setPrescale
-TriggerFlags.HLTPrescaleSet = setPrescale
-    
+
+def stripPrescales(menu):
+    import re
+    m = re.match('(.*v\d).*', menu)
+    return m.groups()[0] if m else menu
 
 # L1 Topo
-if setL1TopoXML=='TriggerMenuXML':
-    setL1TopoXML='TriggerMenuXML/L1Topoconfig_'+setMenu+'.xml' #pick right L1 menu
+if setL1TopoXML=='TriggerMenuXML':    
+    setL1TopoXML='TriggerMenuXML/L1Topoconfig_'+stripPrescales(setMenu)+'.xml'
 TriggerFlags.inputL1TopoConfigFile   = setL1TopoXML
 TriggerFlags.readL1TopoConfigFromXML = True
 TriggerFlags.outputL1TopoConfigFile  = None
 
 # LVL1 config
 if setLVL1XML=='TriggerMenuXML':
-    setLVL1XML='TriggerMenuXML/LVL1config_'+setMenu+'.xml' #pick right L1 menu
+    setLVL1XML='TriggerMenuXML/LVL1config_'+stripPrescales(setMenu)+'.xml'
 TriggerFlags.inputLVL1configFile=setLVL1XML
 TriggerFlags.readLVL1configFromXML=True
 TriggerFlags.outputLVL1configFile=None
