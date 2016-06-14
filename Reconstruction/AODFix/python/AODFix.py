@@ -28,7 +28,6 @@ from AODFix_base import AODFix_base
 from AODFix_r191 import AODFix_r191
 from AODFix_r201 import AODFix_r201
 from AODFix_r207 import AODFix_r207
-from AODFix_r21 import AODFix_r21
 
 _aodFixInstance = AODFix_base()
 
@@ -94,11 +93,19 @@ def AODFix_Init():
     # RDO doesn't have MetaData
     prevAODFix='none'
     prevRelease = ''
+    isMC = False
+
+    # is it better to do this or to look at GlobalFlags?
+    from RecExConfig.InputFilePeeker import inputFileSummary
+    try:
+        isMC = (inputFileSummary['evt_type'][0] == "IS_SIMULATION")
+    except Exception:
+        logAODFix.warning("Could not tell if the input file is data or MC; setting to data")
+        isMC = False
+
     if rec.readRDO():
         prevRelease = 'bs'
     else:
-
-        from RecExConfig.InputFilePeeker import inputFileSummary
 
         try:
             AtlasReleaseVersionString=inputFileSummary['metadata']['/TagInfo']['AtlasRelease']
@@ -123,7 +130,11 @@ def AODFix_Init():
             prevAODFix='none'
 
     logAODFix.info("Summary of MetaData for AODFix:")
-    logAODFix.info(" Inputfile produced with Athena version <%s>." % prevRelease)
+    if isMC:
+        logAODFix.info(" Input file is MC")
+    else:
+        logAODFix.info(" Input file is DATA")
+    logAODFix.info(" Input file produced with Athena version <%s>." % prevRelease)
     logAODFix.info(" AODFix version <%s> was previously applied." % prevAODFix)
 
     ##################
@@ -165,19 +176,15 @@ def AODFix_Init():
         if (curReleaseSplit[0] == '19' and curReleaseSplit[1] == '1' and 
               (metadataOnly or rec.doApplyAODFix.is_locked() or 
                (prevReleaseSplit[0] == '19' and prevReleaseSplit[1] == '1'))):
-            _aodFixInstance = AODFix_r191(prevAODFix, metadataOnly, rec.doApplyAODFix.is_locked())
+            _aodFixInstance = AODFix_r191(prevAODFix, isMC, metadataOnly, rec.doApplyAODFix.is_locked())
         elif (curReleaseSplit[0] == '20' and curReleaseSplit[1] == '1' and 
               (metadataOnly or rec.doApplyAODFix.is_locked() or 
                (prevReleaseSplit[0] == '20' and prevReleaseSplit[1] == '1'))):
-            _aodFixInstance = AODFix_r201(prevAODFix, metadataOnly, rec.doApplyAODFix.is_locked())
+            _aodFixInstance = AODFix_r201(prevAODFix, isMC, metadataOnly, rec.doApplyAODFix.is_locked())
         elif (curReleaseSplit[0] == '20' and curReleaseSplit[1] == '7' and 
               (metadataOnly or rec.doApplyAODFix.is_locked() or 
                (prevReleaseSplit[0] == '20' and prevReleaseSplit[1] == '7'))):
-            _aodFixInstance = AODFix_r207(prevAODFix, metadataOnly, rec.doApplyAODFix.is_locked())
-        elif (curReleaseSplit[0] == '21' and curReleaseSplit[1] == '0' and 
-              (metadataOnly or rec.doApplyAODFix.is_locked() or 
-               (prevReleaseSplit[0] == '21' and prevReleaseSplit[1] == '0'))):
-            _aodFixInstance = AODFix_r21(prevAODFix, metadataOnly, rec.doApplyAODFix.is_locked())
+            _aodFixInstance = AODFix_r207(prevAODFix, isMC, metadataOnly, rec.doApplyAODFix.is_locked())
         else:
             logAODFix.info("No AODFix scheduled for this release.")
 
