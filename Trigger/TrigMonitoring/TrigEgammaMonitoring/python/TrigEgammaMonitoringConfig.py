@@ -35,20 +35,14 @@ def TrigEgammaMonitoringTool():
     HLTEgammaResTool = ResolutionTool(name="HLTEgammaResTool",PlotTool=HLTEgammaPlotTool,OutputLevel=debugLevel)
     HLTEgammaDistTool = DistTool(name="HLTEgammaDistTool",PlotTool=HLTEgammaPlotTool,OutputLevel=debugLevel)
 
-    tagItems = ['HLT_e26_lhtight_nod0',
+    tagItems = ['HLT_e24_lhtight_nod0_ivarloose',
         'HLT_e26_lhtight_nod0_ivarloose']
 
-    JpsitagItems = ['HLT_e5_tight_e4_etcut',
-                    'HLT_e9_tight_e4_etcut',
-                    'HLT_e14_tight_e4_etcut',
-                    'HLT_e9_etcut_e5_tight',
-                    'HLT_e14_etcut_e5_tight',
-                    # Primary cut-based electron triggers
-                    'HLT_e5_tight_e4_etcut_Jpsiee',
-                    'HLT_e9_tight_e4_etcut_Jpsiee',
-                    'HLT_e14_tight_e4_etcut_Jpsiee',
-                    'HLT_e9_etcut_e5_tight_Jpsiee',
-                    'HLT_e14_etcut_e5_tight_Jpsiee']
+    JpsitagItems = ['HLT_e5_lhtight_nod0_e4_etcut',
+                    'HLT_e9_lhtight_nod0_e4_etcut',
+                    'HLT_e14_lhtight_nod0_e4_etcut',
+                    'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee',
+                    'HLT_e9_lhtight_nod0_e4_etcut_Jpsiee']
 
     # For MaM, most important is the list of triggers to monitor
     # Currently these are found in TRigEgammProbelist
