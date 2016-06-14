@@ -45,8 +45,8 @@ TileRawChannelOF1Corrector::TileRawChannelOF1Corrector(const std::string& type,
 
   declareProperty("TileDigitsContainer", m_digitsContainerName = "TileDigitsCnt");
   declareProperty("ZeroAmplitudeWithoutDigits", m_zeroAmplitudeWithoutDigits = true);
-  declareProperty("NegativeAmplitudeThresholdToZero", m_negativeAmplitudeThreshold = -8);
-  declareProperty("PositiveAmplitudeThresholdToZero", m_positiveAmplitudeThreshold = 8);
+  declareProperty("NegativeAmplitudeThresholdToZero", m_negativeAmplitudeThreshold = -10);
+  declareProperty("PositiveAmplitudeThresholdToZero", m_positiveAmplitudeThreshold = 10);
 
 }
 
