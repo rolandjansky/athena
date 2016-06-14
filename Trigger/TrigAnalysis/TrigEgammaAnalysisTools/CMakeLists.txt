@@ -29,6 +29,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigMonitoring/TrigHLTMonitoring
+                          PhysicsAnalysis/AnalysisCommon/PATCore
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaMonitoring
@@ -46,10 +47,13 @@ atlas_add_component( TrigEgammaAnalysisTools
                      Root/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma xAODEventInfo xAODJet xAODPrimitives xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODTrigger xAODTruth LumiBlockCompsLib ElectronPhotonSelectorToolsLib RecoToolInterfaces egammaMVACalibLib TrigDecisionToolLib TrigEgammaMatchingToolLib TrigConfHLTData TrigSteeringEvent TrigHLTMonitoringLib AthenaBaseComps AthenaMonitoringLib StoreGateLib SGtests GaudiKernel )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma xAODEventInfo xAODJet xAODPrimitives xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODTrigger xAODTruth LumiBlockCompsLib ElectronPhotonSelectorToolsLib RecoToolInterfaces egammaMVACalibLib TrigDecisionToolLib TrigEgammaMatchingToolLib TrigConfHLTData TrigSteeringEvent TrigHLTMonitoringLib AthenaBaseComps AthenaMonitoringLib StoreGateLib SGtests GaudiKernel PATCore )
 
 # Install files from the package:
 atlas_install_headers( TrigEgammaAnalysisTools )
 atlas_install_python_modules( python/TrigEgamma*.py )
 atlas_install_joboptions( share/test*.py )
+atlas_install_generic( share/trigEgammaDQ.py share/get_trigEgammaDQ.sh 
+                        DESTINATION share
+                        EXECUTABLE )
 

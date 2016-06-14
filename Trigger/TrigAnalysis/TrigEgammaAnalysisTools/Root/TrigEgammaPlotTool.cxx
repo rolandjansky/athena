@@ -786,6 +786,29 @@ void TrigEgammaPlotTool::bookPhotonResolutionHistos(const std::string directory)
     addHistogram(new TH1F("res_uncnv_etInEta3", "HLT E_{T} resolution in #eta = [1.8,2.45]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1));
 
 }
+void TrigEgammaPlotTool::bookPhotonIsoResolutionHistos(const std::string directory){
+    cd(directory);
+    addHistogram(new TH1F("res_topoetcone20", "resolution topoetcone20; ptcone20 (on-off)/off; Count", 200, -0.1, 0.1));
+    addHistogram(new TH1F("res_topoetcone20_rel", "resolution topoetcone20/pt; ptcone20/pt (on-off)/off; Count", 100, -0.1, 0.1));
+    addHistogram(new TH2F("res_topoetcone20_relVsEta", "HLT topoetcone20/pt resolution as function of #eta; #eta; (on-off)/off; Count",
+                50, -2.47, 2.47,
+                100, -0.1, 0.1));
+    addHistogram(new TH2F("res_topoetcone20_relVsEt", "HLT topoetcone20/pt resolution as function of E_{T}; E_{T} [GeV]; (on-off)/off; Count",
+                50, 0., 100.,
+                100, -0.1, 0.1));
+    addHistogram(new TH2F("res_topoetcone20VsMu", "HLT topoetcone20 resolution as function of avg #mu; #mu; (on-off)/off; Count",
+                50, 0, 100,
+                100, -0.1, 0.1));
+    addHistogram(new TH2F("res_topoetcone20_relVsMu", "HLT topoetcone20/pt resolution as function of avg #mu; #mu; (on-off)/off; Count",
+                50, 0, 100,
+                100, -0.1, 0.1));
+    addHistogram(new TH2F("res_topoetcone20_onVsOff", "online topoetcone20 vs offline topoetcone20; offline [MeV]; online [MeV]; Count",
+                100, 0.0, 10000.0,
+                100, 0.0, 10000.0));
+    addHistogram(new TH2F("res_topoetcone20_rel_onVsOff", "online topoetcone20/pt vs offline topoetcone20/pt; offline; online; Count",
+                100, 0.0, 0.2,
+                100, 0.0, 0.2));
+}
 
 void TrigEgammaPlotTool::bookExpertResolutionHistos(const std::string directory){
     cd(directory);    
@@ -978,6 +1001,8 @@ void TrigEgammaPlotTool::bookEgammaDistributionHistos(const std::string director
     addHistogram(new TH1F("Rhad", "Rhad; Rhad ; Count", 35, -0.3, 0.3));
     addHistogram(new TH1F("Rhad1", "Rhad1; Rhad1 ; Count", 30, -0.3, 0.3));
     addHistogram(new TH1F("eratio","eratio; eratio; Count",20, 0, 2));
+    addHistogram(new TH1F("topoetcone20", "topoetcone20; topoetcone20; Count", 50, 0.0, 5.0));
+    addHistogram(new TH1F("topoetcone20_rel", "topoetcone20/pt; topoetcone20/pt; Count", 50, 0.0, 1.0));
 }
 
 void TrigEgammaPlotTool::bookElectronDistributionHistos(const std::string directory){
@@ -1001,8 +1026,6 @@ void TrigEgammaPlotTool::bookElectronDistributionHistos(const std::string direct
     addHistogram(new TH1F("ptcone20_rel", "ptcone20/pt; ptcone20/pt; Count", 50, 0.0, 1.0));
     addHistogram(new TH1F("ptvarcone20", "ptcone20; ptcone20; Count", 50, 0.0, 5.0));
     addHistogram(new TH1F("ptvarcone20_rel", "ptcone20/pt; ptcone20/pt; Count", 50, 0.0, 1.0));
-    addHistogram(new TH1F("topoetcone20", "topoetcone20; topoetcone20; Count", 50, 0.0, 5.0));
-    addHistogram(new TH1F("topoetcone20_rel", "topoetcone20/pt; topoetcone20/pt; Count", 50, 0.0, 1.0));
     
     if(m_detailedHists){
         addHistogram(new TH2F("deta1_vs_clusterEta", "HLT deta1 as function of cluster #eta; #eta; deta1; Count",
@@ -1274,8 +1297,11 @@ void TrigEgammaPlotTool::bookExpertHistos(TrigInfo trigInfo){
         if(boost::contains(trigInfo.trigName,"iloose") || boost::contains(trigInfo.trigName,"ivarloose"))
             bookElectronIsoResolutionHistos(dirname);
     }
-    if(trigInfo.trigType=="photon")
+    if(trigInfo.trigType=="photon"){
         bookPhotonResolutionHistos(dirname);
+        if(boost::contains(trigInfo.trigName,"iloose"))
+            bookPhotonIsoResolutionHistos(dirname);
+    }
     
     bookExpertResolutionHistos(dirname);
 

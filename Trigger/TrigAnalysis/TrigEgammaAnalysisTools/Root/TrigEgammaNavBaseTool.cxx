@@ -123,7 +123,8 @@ bool TrigEgammaNavBaseTool::EventWiseSelection( ){
         ATH_MSG_WARNING("Failed to retrieve offline Photons ");
         return false; 
     }
-    
+
+
     for(const auto& eg : *m_offElectrons ){
         ATH_MSG_DEBUG("ApplyElectronPid...");
         if(ApplyElectronPid(eg,"Loose")) hist1(m_anatype+"_electrons")->AddBinContent(1);

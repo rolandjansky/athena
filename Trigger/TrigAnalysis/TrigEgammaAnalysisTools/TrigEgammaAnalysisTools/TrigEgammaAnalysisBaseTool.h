@@ -8,6 +8,7 @@
 
 #include "TrigEgammaAnalysisTools/ITrigEgammaAnalysisBaseTool.h"
 #include "AsgTools/AsgTool.h"
+#include "PATCore/TAccept.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
 #include "TrigEgammaAnalysisTools/ITrigEgammaPlotTool.h"
@@ -48,7 +49,7 @@ public:
   StatusCode finalize();
   template<class T> const T* getFeature(const HLT::TriggerElement* te,const std::string key="");
   template<class T> bool ancestorPassed(const HLT::TriggerElement* te,const std::string key="");
-  //template <class T1, class T2> const T1* closestObject(const float eta, const float phi, const T2 cont);
+  template <class T1, class T2> const T1* closestObject(const std::pair<const xAOD::Egamma *, const HLT::TriggerElement *>, float &, bool usePassbits=true,const std::string key="");
   void setParent(IHLTMonTool *parent){ m_parent = parent;};
   void setPlotTool(ToolHandle<ITrigEgammaPlotTool> tool){m_plot=tool;}
   void setDetail(bool detail){m_detailedHists=detail;}
@@ -83,7 +84,11 @@ private:
   std::map<std::string,TrigInfo> m_trigInfo;
   /*! Include more detailed histograms */
   bool m_detailedHists;
-  
+  /*! TAccept to store TrigDecision */
+  Root::TAccept m_accept;
+  /*! Helper strings for trigger level analysis */
+  static const std::vector<std::string> m_trigLevel;
+  static const std::map<std::string,std::string> m_trigLvlMap;
   // Properties
   
   ToolHandle<Trig::TrigDecisionTool> m_trigdec;
@@ -101,6 +106,7 @@ protected:
 
   /*! Check if electron fulfils isolation criteria */
   bool isIsolated(const xAOD::Electron*, const std::string);
+  bool isPrescaled(const std::string); 
 
   std::string getProbePid(const std::string);// {return m_offProbeTightness;}
   /*! book common histograms for analysis */
@@ -148,6 +154,11 @@ protected:
   // Retrieve Properties
   bool getDetail(){return m_detailedHists;}
   bool getTP(){return m_tp;}
+
+  // TAccept
+  Root::TAccept getAccept(){return m_accept;}
+  void setAccept(Root::TAccept accept){m_accept=accept;}
+  void setAccept(const HLT::TriggerElement *,const TrigInfo);
   //Class Members
   // Athena services
   StoreGateSvc * m_storeGate;
@@ -220,12 +231,6 @@ protected:
 
       // GETTER for Isolation monitoring
 #define GETTER(_name_) float getIsolation_##_name_(const xAOD::Electron* eg);
-      GETTER(etcone20)
-      GETTER(etcone30)
-      GETTER(etcone40)    
-      GETTER(topoetcone20)
-      GETTER(topoetcone30)
-      GETTER(topoetcone40)    
       GETTER(ptcone20)
       GETTER(ptcone30)
       GETTER(ptcone40)    
@@ -233,7 +238,14 @@ protected:
       GETTER(ptvarcone30)
       GETTER(ptvarcone40)    
 #undef GETTER    
-
+#define GETTER(_name_) float getIsolation_##_name_(const xAOD::Egamma* eg);
+      GETTER(etcone20)
+      GETTER(etcone30)
+      GETTER(etcone40)    
+      GETTER(topoetcone20)
+      GETTER(topoetcone30)
+      GETTER(topoetcone40)   
+#undef GETTER    
       // GETTERs for CaloCluster monitoring   
 #define GETTER(_name_) float getCluster_##_name_(const xAOD::Egamma* eg);
       GETTER(et)
@@ -313,19 +325,32 @@ TrigEgammaAnalysisBaseTool::ancestorPassed(const HLT::TriggerElement* te,const s
     return ( (m_trigdec->ancestor<T>(te)).te()->getActiveState());
 }
 
-//Cannot deduce
-/*template <class T1, class T2>
+template <class T1, class T2>
 const T1*
-TrigEgammaAnalysisBaseTool::closestObject(const float eta, const float phi, const T2 cont){
+TrigEgammaAnalysisBaseTool::closestObject(const std::pair<const xAOD::Egamma *,const HLT::TriggerElement *> pairObj, float &dRmax,bool usePassbits,const std::string key){
+    float eta = pairObj.first->eta();
+    float phi = pairObj.first->phi();
+    // Reset to resonable start value
+    if(dRmax < 0.15) dRmax = 0.15;
+    const auto *cont=getFeature<T2>(pairObj.second,key);
+    if(cont==NULL) return NULL;
+    const TrigPassBits *bits = NULL;
+    if(usePassbits){ 
+        bits=getFeature<TrigPassBits>(pairObj.second);
+        if(bits==NULL) return NULL;
+    }
     const T1 *cl = NULL;
-    const float dRmax = 0.15;
+    float dr=0.; 
     for(const auto& obj : *cont){
-        float dr=dR(eta,phi,obj->eta(),obj->phi());
+        if( usePassbits && !HLT::isPassing(bits,obj,cont) ) continue; 
+        if(obj==NULL) continue;
+        dr=dR(eta,phi,obj->eta(),obj->phi());
         if ( dr<dRmax){
             dRmax=dr;
             cl = obj;
         } // dR
     }
     return cl;
-}*/
+}
+
 #endif
