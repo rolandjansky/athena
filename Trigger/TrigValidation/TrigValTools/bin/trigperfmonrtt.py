@@ -301,8 +301,8 @@ class PerfMonRttTest(RttTest):
          can.SetGridx(1)
          can.SetGridy(1)
 
-         # Fit starting at 10% of total event range
-         fitstart = 0.10
+         # Fit starting at 15% of total event range
+         fitstart = 0.15
          fitmin = hv.GetXaxis().GetXmin() + fitstart*(hv.GetXaxis().GetXmax() - hv.GetXaxis().GetXmin())
          hv.Fit("pol1","QF","",fitmin,hv.GetXaxis().GetXmax())
          hr.Fit("pol1","QF","",fitmin,hv.GetXaxis().GetXmax())
@@ -313,7 +313,7 @@ class PerfMonRttTest(RttTest):
 
             # If the leak is very small, do not trust fit         
             if (abs(self.leak)-fit.GetParError(1)) < 0:
-               bins = hv.GetNbinsX()
+               bins = hv.GetNbinsX()-1
                self.leak = (hv.GetBinContent(bins) - hv.GetBinContent(int(fitstart*bins)))/((1-fitstart)*bins)            
             
          hv.UseCurrentStyle()
@@ -324,22 +324,24 @@ class PerfMonRttTest(RttTest):
          hr.SetLineColor(kRed)
 
          # Set min/max for y-axis
-         hv.SetMinimum(0.9*min(hr.GetMinimum(),hv.GetMinimum()))
-         hv.SetMaximum(1.1*max(hr.GetMaximum(),hv.GetMaximum()))
+         #the below always gives zero
+         #hv.SetMinimum(0.9*min(hr.GetMinimum(),hv.GetMinimum()))
+         hv.SetMinimum(0.7*min(hv.GetFunction("pol1").GetParameter(0),hr.GetFunction("pol1").GetMinimum()))
+         hv.SetMaximum(1.3*max(hr.GetMaximum(),hv.GetMaximum()))
          
          hv.SetName("Virtual memory")
          hr.SetName("Real memory")
          hv.GetYaxis().SetTitle("Memory usage [MB]")
          hr.GetYaxis().SetTitle(hv.GetYaxis().GetTitle())
 
-         hv.Draw()
+         hv.Draw("HIST")
          can.Update()         
          st1 = gPad.GetPrimitive("stats")
          st1.SetName("stats1")
          st1.SetLineColor(kBlue)
          x1 = st1.GetX1NDC()-0.01
                   
-         hr.Draw("sames")
+         hr.Draw("HISTsames")
          can.Update()
          # Move stat box
          st2 = gPad.GetPrimitive("stats")
@@ -348,6 +350,13 @@ class PerfMonRttTest(RttTest):
          st2.SetX1NDC(x1-w)
          st2.SetX2NDC(x1)
          st2.SetLineColor(kRed)
+         
+         hv.GetFunction("pol1").Draw("sames")
+         hr.GetFunction("pol1").Draw("sames")
+         
+         st1.Draw("same")
+         st2.Draw("same")
+
 
          can.Modified()
          
@@ -409,8 +418,10 @@ class PerfMonRttResults:
 
                   dDay = 0
                   if len(t.stateHistory)>0:
-                     lastTime = t.stateHistory[-1][1]                     
-                     dDay = (time.time()-time.mktime(time.strptime(lastTime,"%y/%m/%d %H:%M")))/(24*3600)
+                     lastTime = t.stateHistory[-1][1]
+                     if not isinstance(lastTime,int):  # format changed at some point
+                        lastTime = time.mktime(time.strptime(lastTime,"%y/%m/%d %H:%M"))
+                     dDay = (time.time()-lastTime)/(24*3600)
 
                   if dDay>8:
                      log.debug("Skipping test (%s,%s,%s) for %s in rel_%d because it is %d days old" %
@@ -742,8 +753,10 @@ class PerfMonRtt2Html(Rtt2Html):
 
                cssStatus = "success" if v[i].jobExitCode=="0" else "failure"
                if len(v[i].stateHistory)>0:
-                  lastTime = v[i].stateHistory[-1][1]                     
-                  dDay = (time.time()-time.mktime(time.strptime(lastTime,"%y/%m/%d %H:%M")))/(24*3600)
+                  lastTime = v[i].stateHistory[-1][1]
+                  if not isinstance(lastTime,int):  # format changed at some point
+                     lastTime = time.mktime(time.strptime(lastTime,"%y/%m/%d %H:%M"))
+                  dDay = (time.time()-lastTime)/(24*3600)
                   # For today's tests figure out which results are still from last week
                   # We define any results older than 4 days as old (somewhat arbitrary but works)
                   if i==iToday and dDay>4:                     

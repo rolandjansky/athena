@@ -251,7 +251,7 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
             gDirectory->GetObject(*hname,tchain);
             if(tchain==0)
             {
-                cout << "checkcounts test warning : no " << *hname 
+                cout << "checkcounts test info : no " << *hname 
                 << " in expert-monitoring.root" << endl;      
                 continue;
             }   
@@ -340,7 +340,7 @@ void  TrigTest_CheckCounts(Int_t toler, const std::string& reffile, std::string 
             gDirectory->GetObject(*honame,otchain);
             if(otchain==0)
             {
-                cout << "checkcounts test warning : no " << *honame << " in " 
+                cout << "checkcounts test info : no " << *honame << " in " 
                 << reffile << endl;      
                 continue;
             }

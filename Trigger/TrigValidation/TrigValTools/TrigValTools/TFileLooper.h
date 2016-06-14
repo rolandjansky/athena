@@ -10,7 +10,7 @@
  * @brief  TFileLooper class
  * @author Frank Winklmeier
  *
- * $Id: TFileLooper.h,v 1.1 2008-07-28 11:02:00 fwinkl Exp $
+ * $Id: TFileLooper.h 702373 2015-10-22 13:55:56Z fwinkl $
  */
 
 #include <fstream>

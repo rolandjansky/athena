@@ -10,7 +10,7 @@
  * @brief  TRootCompare class
  * @author Frank Winklmeier
  *
- * $Id: TRootCompare.h,v 1.1 2008-07-28 11:02:01 fwinkl Exp $
+ * $Id: TRootCompare.h 702373 2015-10-22 13:55:56Z fwinkl $
  */
 
 #include "TFileLooper.h"
