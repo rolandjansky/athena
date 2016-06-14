@@ -1,6 +1,6 @@
 package InDetTrackingGeometryXML
 
-author Andreas Salzburger <Andreas.Salzburger@cern.ch>
+author Andreas Salzburger <Andreas.Salzburger@cern.ch> 
 manager Andreas Salzburger <Andreas.Salzburger@cern.ch>
 
 use AtlasPolicy                 AtlasPolicy-*

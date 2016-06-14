@@ -158,6 +158,7 @@ void InDet::XMLUtils::releaseStrings()
   }
 }
 
+
 void InDet::XMLUtils::parseFile(std::string filename, std::string tag, std::string section)
 {
   // Process XML description file

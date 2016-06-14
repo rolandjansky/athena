@@ -1,3 +1,37 @@
+2016-14-06 Noemi Calace <noemi.calace@cern.ch>
+	* Fixing typo
+	* Tag as InDetTrackingGeometryXML-00-00-41
+
+2016-07-06 Noemi Calace <noemi.calace@cern.ch>
+	* Add dictionary fragment for gmx based strip
+	* Tag as InDetTrackingGeometryXML-00-00-40
+
+2016-01-06 Sabine Elles
+	* Add XML-CLOB read from geometry DB
+	* Tag as InDetTrackingGeometryXML-00-00-39
+
+2016-04-28 Sabine Elles
+	* Add CMakeLists.txt
+	* Tag as InDetTrackingGeometryXML-00-00-38
+
+2016-04-21 Simon Viel
+        * Remove copied ModuleGeo XML blocks from ITK_PixelModules.xml
+        * Move ITK_PixelModulesGeo.xml from PixelLayoutUtils/data into InDetTrackingGeometryXML/share
+        * tagged as InDetTrackingGeometryXML-00-00-37
+
+2016-04-15 Simon Viel
+        * Temporary fix for 25 x 100 micron pixels ("hybridMat" segfault):
+            copy ModuleGeo XML blocks into ITK_PixelModules.xml
+        * tagged as InDetTrackingGeometryXML-00-00-36
+
+2016-04-12 Simon Viel
+        * InclBrl4 layout with 25 x 100 micron pixels available
+        * tagged as InDetTrackingGeometryXML-00-00-35
+
+2016-04-08 Simon Viel
+        * ExtBrl4 layout with 25 x 100 micron pixels available
+        * tagged as InDetTrackingGeometryXML-00-00-34
+
 2016-03-21 Noemi Calace <noemi.calace@cern.ch>
 	* Adding BinnedLayerMaterial to layers
 	* Adding custom material flag

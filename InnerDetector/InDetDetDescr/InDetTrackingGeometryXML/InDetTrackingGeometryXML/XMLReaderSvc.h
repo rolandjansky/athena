@@ -65,6 +65,7 @@ namespace InDet {
 
     // Layer building helpers
     inline bool doSCT() const { return m_doSCT; }
+    inline bool isGMX() const { return m_isGMX; }
     inline bool doPixels() const { return m_doPix; }
     inline unsigned int nbOfPixelBarrelLayers() const { return m_tmp_pixBarrelLayer.size(); }
     inline unsigned int nbOfPixelEndcapLayers() const { return m_tmp_pixEndcapLayer.size(); }
@@ -100,6 +101,7 @@ namespace InDet {
     void writePixEndcapDict(std::ofstream& file);
     void writeSctBarrelDict(std::ofstream& file);
     void writeSctEndcapDict(std::ofstream& file);
+    void writeSctGMXDict(std::ofstream& file);
     void writeTrtDict(std::ofstream& file);
     // Init stage to be done after initialization!
     void retrieveTools();
@@ -127,8 +129,7 @@ namespace InDet {
     std::vector< BarrelLayerTmp *> m_tmp_sctBarrelLayer; 
     std::vector< EndcapLayerTmp *> m_tmp_sctEndcapLayer; 
 
-    bool m_doPix, m_doSCT, m_createDict;
-
+    bool m_doPix, m_doSCT, m_isGMX, m_createDict, m_readXMLfromDB;
   };
 }
 

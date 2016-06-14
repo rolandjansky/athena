@@ -390,10 +390,12 @@ void InDet::LayerProviderXML::openDumpFileRZ(std::string filename)
     m_dumpfileRZ << "      latex.SetTextColor(kBlue);" << std::endl;
     m_dumpfileRZ << "      latex.DrawText(2650,1050,\"SCT endcap\");" << std::endl;
   }
+  dumpEtaLinesRZ(3200.,1100.);
+  dumpTubesRZ(0); // Set zMax argument to 0 if dumpEtaLinesRZ is called to avoid double definition of zMax
   m_dumpfileRZ << "      latex.SetTextColor(kMagenta+2);" << std::endl;
   m_dumpfileRZ << "      latex.DrawText(500,300,\"Pixel barrel\");" << std::endl;
   m_dumpfileRZ << "      latex.SetTextColor(kMagenta);" << std::endl;
-  m_dumpfileRZ << "      latex.DrawText(2650,300,\"Pixel endcap\");" << std::endl;
+  m_dumpfileRZ << "      latex.DrawText(2650,50,\"Pixel endcap\");" << std::endl;
   m_dumpfileRZ << "    }" << std::endl;
   m_dumpfileRZ << std::endl;
   if(m_startLayer>0) {
@@ -480,15 +482,20 @@ void InDet::LayerProviderXML::dumpRZ(std::string title) const
     const Amg::Vector3D *v1=sf->localToGlobal(loc1);
     const Amg::Vector3D *v2=sf->localToGlobal(loc2);
 
-    double x1 = v1->x();
-    double y1 = v1->y();
-    double z1 = v1->z();
-    double x2 = v2->x();
-    double y2 = v2->y();
-    double z2 = v2->z();
+    double z1   = v1->z();
+    double phi1 = v1->phi();
 
-    double r1 = sqrt(x1*x1+y1*y1);
-    double r2 = sqrt(x2*x2+y2*y2);    
+    if(phi1>0.397)  continue; // if surface past  45/2 degrees don't draw
+    if(phi1<-0.397) continue; // if surface past -45/2 degrees don't draw
+    if(z1<0) continue; // If negative side, don't draw
+
+    double x1   = v1->x();
+    double y1   = v1->y();
+    double x2   = v2->x();
+    double y2   = v2->y();
+    double z2   = v2->z();
+    double r1   = sqrt(x1*x1+y1*y1);
+    double r2   = sqrt(x2*x2+y2*y2);    
 
     // Setup color
     std::string kcolor = "kRed"; // Default
@@ -501,12 +508,10 @@ void InDet::LayerProviderXML::dumpRZ(std::string title) const
     }
 
     // Root TLine
-    if(z1>0) {
-      *dumpfile << "    l = new TLine(" 
-		<< z1 << "," << r1 << "," << z2 << "," << r2 
-		<< "); l->SetLineColor(" << kcolor.c_str() << "+2); l->SetLineWidth(4); l->Draw(\"same\"); // surface " 
-		<< i << std::endl;
-    }
+    *dumpfile << "    l = new TLine(" 
+	      << z1 << "," << r1 << "," << z2 << "," << r2 
+	      << "); l->SetLineColor(" << kcolor.c_str() << "+2); l->SetLineWidth(4); l->Draw(\"same\"); // surface " 
+	      << i << std::endl;
   }
 
   ATH_MSG_INFO("=== " << title << " contains " << ntodo << " surfaces (" << surface << " m2 of silicon)");
@@ -516,3 +521,43 @@ void InDet::LayerProviderXML::dumpRZ(std::string title) const
   m_SiSurface += surface;
 }
 
+void InDet::LayerProviderXML::dumpEtaLinesRZ(double zMax, double rMax) const
+{
+  std::ofstream *dumpfile = (std::ofstream *) &m_dumpfileRZ;
+
+  *dumpfile << "      TLine line1;" << std::endl;
+  *dumpfile << "      double zMax = " << zMax << ";" << std::endl;
+  *dumpfile << "      double rMax = " << rMax << ";" << std::endl;
+  *dumpfile << "      // draw eta lines - Zvertex =0" << std::endl;
+  *dumpfile << "      line1.SetLineStyle(2);" << std::endl;
+  *dumpfile << "      line1.SetLineColor(kGray);" << std::endl;
+  *dumpfile << "      for (int ieta=2;ieta<48;ieta+=2){" << std::endl;
+  *dumpfile << "        double eta = ieta/10.;" << std::endl;
+  *dumpfile << "        double angle = 2*atan(exp(-eta));" << std::endl;
+  *dumpfile << "        double r = zMax*tan(angle);" << std::endl;
+  *dumpfile << "        double z = zMax;" << std::endl;
+  *dumpfile << "        if(r>rMax) {" << std::endl;
+  *dumpfile << "          r = rMax;" << std::endl;
+  *dumpfile << "          z = rMax/tan(angle);" << std::endl;
+  *dumpfile << "        }" << std::endl;
+  *dumpfile << "        if(ieta%10==0) line1.SetLineWidth(2);" << std::endl;
+  *dumpfile << "        else line1.SetLineWidth(1);" << std::endl;
+  *dumpfile << "        line1.DrawLine(0.,0.,z,r);" << std::endl;
+  *dumpfile << "      }" << std::endl;
+}
+
+void InDet::LayerProviderXML::dumpTubesRZ(double zMax) const
+{
+  std::ofstream *dumpfile = (std::ofstream *) &m_dumpfileRZ;
+
+  *dumpfile << "      TBox box1;" << std::endl;
+  if(zMax>0) *dumpfile << "      double zMax = " << zMax << ";" << std::endl;
+  *dumpfile << "      box1.SetFillColor(kRed);" << std::endl;
+  *dumpfile << "      // draw beampipe" << std::endl;
+  *dumpfile << "      box1.DrawBox(0,32.1,zMax,37.4);" << std::endl;
+  *dumpfile << "      // draw IST" << std::endl;
+  *dumpfile << "      if(zMax>3200.0) zMax = 3000.0;" << std::endl;
+  *dumpfile << "      box1.DrawBox(0,133.0,zMax,139.0);" << std::endl;
+  *dumpfile << "      // draw PST" << std::endl;
+  *dumpfile << "      box1.DrawBox(0,341.0,zMax,361.75);" << std::endl;
+}

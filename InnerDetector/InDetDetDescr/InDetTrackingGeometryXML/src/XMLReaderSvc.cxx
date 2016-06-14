@@ -26,7 +26,9 @@ InDet::XMLReaderSvc::XMLReaderSvc(const std::string& name,ISvcLocator* svc) :
   m_xml_sctEndcapLayers("SCTEndcapLayers.xml"),
   m_doPix(true),
   m_doSCT(true),
-  m_createDict(true)
+  m_isGMX(false),
+  m_createDict(true),
+  m_readXMLfromDB(false)
 {
   declareProperty("dictionaryFileName",    m_dictionaryFileName);
   declareProperty("XML_Materials",         m_xml_materials);
@@ -40,8 +42,9 @@ InDet::XMLReaderSvc::XMLReaderSvc(const std::string& name,ISvcLocator* svc) :
   declareProperty("XML_SCTEndcapLayers",   m_xml_sctEndcapLayers);
   declareProperty("doPix",                 m_doPix);
   declareProperty("doSCT",                 m_doSCT);
+  declareProperty("isGMX",                 m_isGMX);
   declareProperty("createXMLDictionary",   m_createDict);
-
+  declareProperty("readXMLfromDB",         m_readXMLfromDB);
 }
 
 InDet::XMLReaderSvc::~XMLReaderSvc()
@@ -63,8 +66,7 @@ StatusCode InDet::XMLReaderSvc::queryInterface(const InterfaceID& riid, void** p
 
 StatusCode InDet::XMLReaderSvc::initialize()
 {
-  ATH_MSG_INFO("InDet::XMLReaderSvc::initialize()");
-
+  ATH_MSG_INFO("InDet::XMLReaderSvc::initialize()  - flag read from DB "<<m_readXMLfromDB);
   if(!InitializeXML()) {
     ATH_MSG_ERROR("Could not initialize XML helper.");
     return StatusCode::FAILURE;
@@ -75,8 +77,7 @@ StatusCode InDet::XMLReaderSvc::initialize()
   ATH_MSG_INFO("Reading Material templates");
   parseFile(m_xml_materials.c_str(),"Materials","Component"); 
   parseFile(m_xml_materials.c_str(),"Materials","Material");
-
-
+  
   if(m_doPix) {
     // WARNING: read front-end chips BEFORE modules
     ATH_MSG_INFO("Reading pixel FrontEndChip templates");
@@ -91,7 +92,7 @@ StatusCode InDet::XMLReaderSvc::initialize()
     parseFile(m_xml_pixEndcapLayers.c_str(),"PixelEndcapLayers","PixelEndcapRing");
     parseFile(m_xml_pixEndcapLayers.c_str(),"PixelEndcapLayers","PixelEndcapDisc");
   }
-  if(m_doSCT) {
+  if(m_doSCT and not m_isGMX) {
     // WARNING: read front-end chips BEFORE modules
     ATH_MSG_INFO("Reading SCT FrontEndChip templates");
     parseFile(m_xml_sctmodules.c_str(),"SCTModules","FrontEndChip");
@@ -120,6 +121,8 @@ StatusCode InDet::XMLReaderSvc::initialize()
   
   return StatusCode::SUCCESS;
 }
+
+
 
 StatusCode InDet::XMLReaderSvc::finalize()
 {
@@ -705,11 +708,11 @@ void InDet::XMLReaderSvc::computeModuleSize(InDet::ModuleTmp *module)
   module->widthmin  = module->widthMinChips*chip->width+chip->edgew; 
   module->widthmax  = module->widthMaxChips*chip->width+chip->edgew; 
 
-  if(chip->name=="RD53") {
+  if(chip->name.find("RD53") != std::string::npos) {
     module->length = module->lengthChips*chip->length+(module->lengthChips-1)*2.*chip->edgel;
     module->widthmax = module->widthMaxChips*chip->width+(module->widthMaxChips-1)*2.*chip->edgew;
     module->widthmin = module->widthmax;
-    }
+  }
   else {
     if(module->chip_type=="SingleChip"){
       module->widthmin += chip->edgen;
@@ -890,8 +893,12 @@ void InDet::XMLReaderSvc::writeDictionary(std::string filename)
   openDictFile(file,filename);
   writePixBarrelDict(file);
   writePixEndcapDict(file);
-  writeSctBarrelDict(file);
-  writeSctEndcapDict(file);
+  if (m_isGMX)
+    writeSctGMXDict(file);
+  else {
+    writeSctBarrelDict(file);
+    writeSctEndcapDict(file);
+  }
   writeTrtDict(file);
   closeDictFile(file);
 }
@@ -1319,6 +1326,230 @@ void InDet::XMLReaderSvc::writeTrtDict(std::ofstream& file)
   file << std::endl;
 }
 
+void InDet::XMLReaderSvc::writeSctGMXDict(std::ofstream& file) {
+  
+  file << "  <subregion name=\"SCT_barrel\"> " << std::endl;
+  file << "    <range field=\"part\" value=\"SCT\" /> " << std::endl;
+  file << "    <range field=\"barrel_endcap\" value=\"barrel\" /> " << std::endl;
+  file << "  </subregion> " << std::endl;
+  file << "  " << std::endl;
+  file << "  <subregion name=\"SCTBarrel_layer0_phi\"> " << std::endl;
+  file << "    <range field=\"layer_disk\" value=\"0\"/> " << std::endl;
+  file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\"27\" wraparound=\"TRUE\"/> " << std::endl;
+  file << "  </subregion> " << std::endl;
+  file << "  <subregion name=\"SCTBarrel_layer1_phi\"> " << std::endl;
+  file << "    <range field=\"layer_disk\" value=\"1\"/> " << std::endl;
+  file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\"39\" wraparound=\"TRUE\"/> " << std::endl;
+  file << "  </subregion> " << std::endl;
+  file << "  <subregion name=\"SCTBarrel_layer2_phi\"> " << std::endl;
+  file << "    <range field=\"layer_disk\" value=\"2\"/> " << std::endl;
+  file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\"51\" wraparound=\"TRUE\"/> " << std::endl;
+  file << "  </subregion> " << std::endl;
+  file << "  <subregion name=\"SCTBarrel_layer3_phi\"> " << std::endl;
+  file << "    <range field=\"layer_disk\" value=\"3\"/> " << std::endl;
+  file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\"71\" wraparound=\"TRUE\"/> " << std::endl;
+  file << "  </subregion> " << std::endl;
+  file << "  " << std::endl;
+  file << "  <subregion name=\"side\"> " << std::endl;
+  file << "    <range field=\"side\" minvalue=\"0\" maxvalue=\"1\" /> " << std::endl;
+  file << "  </subregion> " << std::endl;
+  file << "  " << std::endl;
+  file << "  <subregion name=\"SCT_NegativeStave_eta_side\"> " << std::endl;
+  file << "    <range field=\"eta_module\" minvalue=\"-14\" maxvalue=\"-1\" next_value=\"1\"/> " << std::endl; 
+  file << "    <reference subregion=\"side\"/> " << std::endl;
+  file << "  </subregion> " << std::endl;
+  file << "  <subregion name=\"SCT_PositiveStave_eta_side\"> " << std::endl;
+  file << "    <range field=\"eta_module\" minvalue=\"1\" maxvalue=\"14\" prev_value=\"-1\"/> " << std::endl; 
+  file << "    <reference subregion=\"side\"/> " << std::endl;
+  file << "  </subregion> " << std::endl;
+  file << "  " << std::endl;
+  file << "  <subregion name=\"SCTBarrel_strip\"> " << std::endl;
+  file << "    <range field=\"strip\" minvalue=\"0\" maxvalue=\"1279\" /> " << std::endl;
+  file << "  </subregion> " << std::endl;
+  file << "  " << std::endl;
+  file << "  <subregion name=\"ShortStrip_row_strip\"> " << std::endl; 
+  file << "    <range field=\"row\"   minvalue=\"0\" maxvalue=\"3\"/> " << std::endl;
+  file << "    <reference subregion=\"SCTBarrel_strip\"/> " << std::endl;
+  file << "  </subregion> " << std::endl;
+  file << "  <subregion name=\"MediumStrip_row_strip\"> " << std::endl;
+  file << "    <range field=\"row\"   minvalue=\"0\" maxvalue=\"1\"/> " << std::endl; 
+  file << "    <reference subregion=\"SCTBarrel_strip\"/> " << std::endl;
+  file << "  </subregion> " << std::endl;
+  file << "  " << std::endl;
+  file << "  <region group=\"sct\" name=\"SCT_NegativeBarrel0\"> " << std::endl;  
+  file << "    <reference subregion=\"SCT_barrel\"/> " << std::endl;
+  file << "    <reference subregion=\"SCTBarrel_layer0_phi\"/> " << std::endl;
+  file << "    <reference subregion=\"SCT_NegativeStave_eta_side\"/> " << std::endl;
+  file << "    <reference subregion=\"ShortStrip_row_strip\"/> " << std::endl;
+  file << "  </region> " << std::endl;
+  file << "  <region group=\"sct\" name=\"SCT_NegativeBarrel1\"> " << std::endl;  
+  file << "    <reference subregion=\"SCT_barrel\"/> " << std::endl;
+  file << "    <reference subregion=\"SCTBarrel_layer1_phi\"/> " << std::endl;
+  file << "    <reference subregion=\"SCT_NegativeStave_eta_side\"/> " << std::endl;
+  file << "    <reference subregion=\"ShortStrip_row_strip\"/> " << std::endl;
+  file << "  </region> " << std::endl;
+  file << "  <region group=\"sct\" name=\"SCT_NegativeBarrel2\"> " << std::endl;  
+  file << "    <reference subregion=\"SCT_barrel\"/> " << std::endl;
+  file << "    <reference subregion=\"SCTBarrel_layer2_phi\"/> " << std::endl;
+  file << "    <reference subregion=\"SCT_NegativeStave_eta_side\"/> " << std::endl;
+  file << "    <reference subregion=\"ShortStrip_row_strip\"/> " << std::endl;
+  file << "  </region> " << std::endl;
+  file << "  <region group=\"sct\" name=\"SCT_NegativeBarrel3\"> " << std::endl;  
+  file << "    <reference subregion=\"SCT_barrel\"/> " << std::endl;
+  file << "    <reference subregion=\"SCTBarrel_layer3_phi\"/> " << std::endl;
+  file << "    <reference subregion=\"SCT_NegativeStave_eta_side\"/> " << std::endl;
+  file << "    <reference subregion=\"MediumStrip_row_strip\"/> " << std::endl;
+  file << "  </region> " << std::endl;
+  file << "  " << std::endl;
+  file << "  <region group=\"sct\" name=\"SCT_PositiveBarrel0\"> " << std::endl;  
+  file << "    <reference subregion=\"SCT_barrel\"/> " << std::endl;
+  file << "    <reference subregion=\"SCTBarrel_layer0_phi\"/> " << std::endl;
+  file << "    <reference subregion=\"SCT_PositiveStave_eta_side\"/> " << std::endl;
+  file << "    <reference subregion=\"ShortStrip_row_strip\"/> " << std::endl;
+  file << "  </region> " << std::endl;
+  file << "  <region group=\"sct\" name=\"SCT_PositiveBarrel1\"> " << std::endl;  
+  file << "    <reference subregion=\"SCT_barrel\"/> " << std::endl;
+  file << "    <reference subregion=\"SCTBarrel_layer1_phi\"/> " << std::endl;
+  file << "    <reference subregion=\"SCT_PositiveStave_eta_side\"/> " << std::endl;
+  file << "    <reference subregion=\"ShortStrip_row_strip\"/> " << std::endl;
+  file << "  </region> " << std::endl;
+  file << "  <region group=\"sct\" name=\"SCT_PositiveBarrel2\"> " << std::endl;  
+  file << "    <reference subregion=\"SCT_barrel\"/> " << std::endl;
+  file << "    <reference subregion=\"SCTBarrel_layer2_phi\"/> " << std::endl;
+  file << "    <reference subregion=\"SCT_PositiveStave_eta_side\"/> " << std::endl;
+  file << "    <reference subregion=\"ShortStrip_row_strip\"/> " << std::endl;
+  file << "  </region> " << std::endl;
+  file << "  <region group=\"sct\" name=\"SCT_PositiveBarrel3\"> " << std::endl;  
+  file << "    <reference subregion=\"SCT_barrel\"/> " << std::endl;
+  file << "    <reference subregion=\"SCTBarrel_layer3_phi\"/> " << std::endl;
+  file << "    <reference subregion=\"SCT_PositiveStave_eta_side\"/> " << std::endl;
+  file << "    <reference subregion=\"MediumStrip_row_strip\"/> " << std::endl;
+  file << "  </region> " << std::endl;
+  file << "  " << std::endl;
+  file << "  <!--  SCT Endcaps  --> " << std::endl;
+  file << "  " << std::endl;
+  file << "  <!--                                                                                 " << std::endl;
+  file << "    Petal structure: each petal has 6 rings of sensors with variable numbers of rows:  " << std::endl;
+  file << "  ___________________________                                                          " << std::endl;
+  file << "  \\            | 2          /                                                          " << std::endl;
+  file << "   \\ __________|___________/      -> last three rings have 64 sensors                  " << std::endl;
+  file << "    \\          | 2        /                                                            " << std::endl;
+  file << "     \\ ________|_________/                                                             " << std::endl;
+  file << "      \\        | 2      /                                                              " << std::endl;
+  file << "       \\ ______|_______/                                                               " << std::endl;
+  file << "        \\      2      /                                                                " << std::endl;
+  file << "         \\___________/     -> first three rings have 32 sensors                        " << std::endl;
+  file << "          \\    4    /                                                                  " << std::endl;
+  file << "           \\_______/                                                                   " << std::endl;
+  file << "            \\  8  /                                                                    " << std::endl;
+  file << "             \\___/                                                                     " << std::endl;
+  file << "  " << std::endl;
+  file << "  --> " << std::endl;
+  file << "  " << std::endl;
+  file << "  <subregion name=\"SCTEndcap_layer\"> " << std::endl;
+  file << "    <range field=\"part\" value=\"SCT\"/> " << std::endl;
+  file << "    <range field=\"barrel_endcap\" values=\"negative_endcap positive_endcap\"/> " << std::endl;
+  file << "    <range field=\"layer\" minvalue=\"0\" maxvalue=\"5\"/> " << std::endl;
+  file << "  </subregion> " << std::endl;
+  file << "  " << std::endl;
+  file << "  <subregion name=\"SCTEndcap_innerRing\"> " << std::endl;
+  file << "    <reference subregion=\"SCTEndcap_layer\"/> " << std::endl;
+  file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\"31\" wraparound=\"TRUE\"/> " << std::endl;	
+  file << "  </subregion> " << std::endl;
+  file << "  <subregion name=\"SCTEndcap_outerRing\"> " << std::endl;
+  file << "    <reference subregion=\"SCTEndcap_layer\"/> " << std::endl;
+  file << "    <range field=\"phi_module\" minvalue=\"0\" maxvalue=\"63\" wraparound=\"TRUE\"/> " << std::endl;	
+  file << "  </subregion> " << std::endl;
+  file << "  " << std::endl;
+  file << "  <subregion name=\"SCTEndcap_ring0\"> " << std::endl;
+  file << "    <reference subregion=\"SCTEndcap_innerRing\"/> " << std::endl;
+  file << "    <range field=\"eta_module\" value=\"0\"/> " << std::endl;	
+  file << "    <reference subregion=\"side\"/> " << std::endl;
+  file << "  </subregion> " << std::endl;
+  file << "  <subregion name=\"SCTEndcap_ring1\"> " << std::endl;
+  file << "    <reference subregion=\"SCTEndcap_innerRing\"/> " << std::endl;
+  file << "    <range field=\"eta_module\" value=\"1\"/> " << std::endl;	
+  file << "    <reference subregion=\"side\"/> " << std::endl;
+  file << "  </subregion> " << std::endl;
+  file << "  <subregion name=\"SCTEndcap_ring2\"> " << std::endl;
+  file << "    <reference subregion=\"SCTEndcap_innerRing\"/> " << std::endl;
+  file << "    <range field=\"eta_module\" value=\"2\"/> " << std::endl;	
+  file << "    <reference subregion=\"side\"/> " << std::endl;
+  file << "  </subregion> " << std::endl;
+  file << "  <subregion name=\"SCTEndcap_ring3\"> " << std::endl;
+  file << "    <reference subregion=\"SCTEndcap_outerRing\"/> " << std::endl;
+  file << "    <range field=\"eta_module\" value=\"3\"/> " << std::endl;	
+  file << "    <reference subregion=\"side\"/> " << std::endl;
+  file << "  </subregion> " << std::endl;
+  file << "  <subregion name=\"SCTEndcap_ring4\"> " << std::endl;
+  file << "    <reference subregion=\"SCTEndcap_outerRing\"/> " << std::endl;
+  file << "    <range field=\"eta_module\" value=\"4\"/> " << std::endl;	
+  file << "    <reference subregion=\"side\"/> " << std::endl;
+  file << "  </subregion> " << std::endl;
+  file << "  <subregion name=\"SCTEndcap_ring5\"> " << std::endl;
+  file << "    <reference subregion=\"SCTEndcap_outerRing\"/> " << std::endl;
+  file << "    <range field=\"eta_module\" value=\"5\"/> " << std::endl;	
+  file << "    <reference subregion=\"side\"/> " << std::endl;
+  file << "  </subregion> " << std::endl;
+  file << "  " << std::endl;
+  file << "  <region group=\"sct\" name=\"SCTEndcap_ring0_hybrid0\"> " << std::endl; 
+  file << "    <reference subregion=\"SCTEndcap_ring0\"/> " << std::endl;
+  file << "    <range field=\"row\" minvalue=\"0\" maxvalue=\"1\"/> " << std::endl;
+  file << "    <range field=\"strip\" minvalue=\"0\" maxvalue=\"1023\"/> " << std::endl;
+  file << "  </region> " << std::endl;
+  file << "  <region group=\"sct\" name=\"SCTEndcap_ring0_hybrid1\"> " << std::endl; 
+  file << "    <reference subregion=\"SCTEndcap_ring0\"/> " << std::endl;
+  file << "    <range field=\"row\" minvalue=\"2\" maxvalue=\"3\"/> " << std::endl;
+  file << "    <range field=\"strip\" minvalue=\"0\" maxvalue=\"1151\"/> " << std::endl;
+  file << "  </region> " << std::endl;
+  file << "  <region group=\"sct\" name=\"SCTEndcap_ring0_hybrid2\"> " << std::endl; 
+  file << "    <reference subregion=\"SCTEndcap_ring0\"/> " << std::endl;
+  file << "    <range field=\"row\" minvalue=\"4\" maxvalue=\"5\"/> " << std::endl;
+  file << "    <range field=\"strip\" minvalue=\"0\" maxvalue=\"1151\"/> " << std::endl;
+  file << "  </region> " << std::endl;
+  file << "  <region group=\"sct\" name=\"SCTEndcap_ring0_hybrid3\"> " << std::endl; 
+  file << "    <reference subregion=\"SCTEndcap_ring0\"/> " << std::endl;
+  file << "    <range field=\"row\" minvalue=\"6\" maxvalue=\"7\"/> " << std::endl;
+  file << "    <range field=\"strip\" minvalue=\"0\" maxvalue=\"1279\"/> " << std::endl;
+  file << "  </region> " << std::endl;
+  file << "  " << std::endl;
+  file << "  <region group=\"sct\" name=\"SCTEndcap_ring1_hybrid0\"> " << std::endl; 
+  file << "    <reference subregion=\"SCTEndcap_ring1\"/> " << std::endl;
+  file << "    <range field=\"row\" minvalue=\"0\" maxvalue=\"1\"/> " << std::endl;
+  file << "    <range field=\"strip\" minvalue=\"0\" maxvalue=\"1407\"/> " << std::endl;
+  file << "  </region> " << std::endl;
+  file << "  <region group=\"sct\" name=\"SCTEndcap_ring1_hybrid1\"> " << std::endl; 
+  file << "    <reference subregion=\"SCTEndcap_ring1\"/> " << std::endl;
+  file << "    <range field=\"row\" minvalue=\"2\" maxvalue=\"3\"/> " << std::endl;
+  file << "    <range field=\"strip\" minvalue=\"0\" maxvalue=\"1407\"/> " << std::endl;
+  file << "  </region> " << std::endl;
+  file << "  " << std::endl;
+  file << "  <region group=\"sct\" name=\"SCTEndcap_ring2_hybrid0\"> " << std::endl; 
+  file << "    <reference subregion=\"SCTEndcap_ring2\"/> " << std::endl;
+  file << "    <range field=\"row\" minvalue=\"0\" maxvalue=\"1\"/> " << std::endl;
+  file << "    <range field=\"strip\" minvalue=\"0\" maxvalue=\"1535\"/> " << std::endl;
+  file << "  </region> " << std::endl;
+  file << "  " << std::endl;
+  file << "  <region group=\"sct\" name=\"SCTEndcap_ring3_hybrid0\"> " << std::endl; 
+  file << "    <reference subregion=\"SCTEndcap_ring3\"/> " << std::endl;
+  file << "    <range field=\"row\" minvalue=\"0\" maxvalue=\"1\"/> " << std::endl;
+  file << "    <range field=\"strip\" minvalue=\"0\" maxvalue=\"895\"/> " << std::endl;
+  file << "  </region> " << std::endl;
+  file << "  " << std::endl;
+  file << "  <region group=\"sct\" name=\"SCTEndcap_ring4_hybrid0\"> " << std::endl; 
+  file << "    <reference subregion=\"SCTEndcap_ring4\"/> " << std::endl;
+  file << "    <range field=\"row\" minvalue=\"0\" maxvalue=\"1\"/> " << std::endl;
+  file << "    <range field=\"strip\" minvalue=\"0\" maxvalue=\"1023\"/> " << std::endl;
+  file << "  </region> " << std::endl;
+  file << "  " << std::endl;
+  file << "  <region group=\"sct\" name=\"SCTEndcap_ring5_hybrid0\"> " << std::endl; 
+  file << "    <reference subregion=\"SCTEndcap_ring5\"/> " << std::endl;
+  file << "    <range field=\"row\" minvalue=\"0\" maxvalue=\"1\"/> " << std::endl;
+  file << "    <range field=\"strip\" minvalue=\"0\" maxvalue=\"1151\"/> " << std::endl;
+  file << "  </region> " << std::endl;
+  
+}
+
 double InDet::XMLReaderSvc::getHalfPlainLength(InDet::StaveTmp *staveTmp) const
 {
   if(staveTmp==0) return 0;
@@ -1464,3 +1695,4 @@ const Trk::LayerMaterialProperties* InDet::XMLReaderSvc::getHomogeneousMaterial(
   return material;     
 
 }
+

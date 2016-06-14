@@ -62,12 +62,14 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
 
         ###### Flags required to properly build the tracking volumes
         from InDetTrackingGeometryXML.XMLReaderJobProperties import XMLReaderFlags
+
         isRingLayout       = XMLReaderFlags.isRingLayout()
         splitBarrelLayers  = XMLReaderFlags.splitBarrelLayers()
         InnerLayers        = XMLReaderFlags.InnerLayerIndices()
         doPix              =  XMLReaderFlags.doPix()
         doSCT              = XMLReaderFlags.doSCT()
-
+        readXMLfromDB      = XMLReaderFlags.readXMLfromDB()
+        
         print "TrackingXML endcap layer  ",isRingLayout," ",splitBarrelLayers," ",InnerLayers
 
         # PIXEL building

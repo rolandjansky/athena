@@ -37,6 +37,10 @@ class doSCT(JobProperty):
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = True   
+class isGMX(JobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False   
 class splitBarrelLayers(JobProperty):
     statusOn     = True
     allowedTypes = ['bool']
@@ -53,7 +57,10 @@ class Initialized(JobProperty):
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
-
+class readXMLfromDB(JobProperty):
+    statusOn     = True;
+    allowedTypes = ['bool']
+    StoredValue  = False
 
 # add to jobproperties
 class XMLReaderFlags_JobProperties(JobPropertyContainer):
@@ -75,6 +82,7 @@ class XMLReaderFlags_JobProperties(JobPropertyContainer):
         self.SCTEndcapLayout = kwargs["SCTEndcapLayout"]
         self.doPix = kwargs["doPix"]
         self.doSCT = kwargs["doSCT"]
+        self.isGMX = kwargs["isGMX"]
 
         self.splitBarrelLayers = False
         self.isRingLayout = False
@@ -98,14 +106,17 @@ class XMLReaderFlags_JobProperties(JobPropertyContainer):
             self.InnerLayerIndices = [0,1]
 
         self.Initialized = True
+        self.readXMLfromDB = False
+        if kwargs.has_key("readXMLfromDB"): self.readXMLfromDB = kwargs["readXMLfromDB"]
 
     def dump(self):
         print "Pixel = ", self.PixelBarrelLayout()," ", self.PixelEndcapLayout()
         print "SCT   = ", self.SCTBarrelLayout()," ", self.SCTEndcapLayout()
-        print "ID    = ", self.doPix," ",self.doSCT
+        print "ID    =>  doPixel ", self.doPix,"  doSCT ",self.doSCT, "  isGMX ",self.isGMX
         print "splitBarrel  : ", self.splitBarrelLayers()
         print "isRingLayout : ", self.isRingLayout()
         print "InnerLayer   : ", self.InnerLayerIndices()
+        print "DB-CLOB      : ", self.readXMLfromDB()
         
 jobproperties.add_Container(XMLReaderFlags_JobProperties)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(IdDictFileName)
@@ -115,9 +126,11 @@ jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(SCTBarrelLayout)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(SCTEndcapLayout)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(doPix)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(doSCT)
+jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(isGMX)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(splitBarrelLayers)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(isRingLayout)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(InnerLayerIndices)
 jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(Initialized)
+jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(readXMLfromDB)
 
 XMLReaderFlags = jobproperties.XMLReaderFlags_JobProperties
