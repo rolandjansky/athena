@@ -17,6 +17,7 @@ class AODFix_base(object):
       doAODFix (bool): whether to do AODFix
       prevAODFix (string): previous AODFix applied
       newAODFix (string): new AODFix to apply
+      isMC (bool): is the input MC?
     '''
 
     @staticmethod
@@ -25,11 +26,12 @@ class AODFix_base(object):
         """
         return ""
 
-    def __init__(self, prevVersion = "", metadataOnly = False, force = False):
+    def __init__(self, prevVersion = "", isMC = False, metadataOnly = False, force = False):
         """ The default constructor. It implements the default behavior of setting
         up the latest AODFix to run. Only needs to be overriden if doing something
         more complicated.
         """
+        self.isMC = isMC
         self.prevAODFix = prevVersion
         self.newAODFix = self.latestAODFixVersion()
         logAODFix.debug( "latestAODFixVersion() = " +  self.latestAODFixVersion())
