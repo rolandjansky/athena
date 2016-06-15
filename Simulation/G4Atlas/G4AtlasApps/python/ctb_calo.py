@@ -18,7 +18,6 @@ class LAr(object):
     """ Implements the LAr CTB description.
     """
     def __init__(self):
-        AtlasG4Eng.G4Eng.load_Lib("LArG4HitManagement")
         self.ctb_lar=PyG4Atlas.DetFacility("GeoDetector","LArMgr:LArMgr")
         self.ctb_lar_position=AtlasG4Eng.G4Eng.gbl.CLHEP.Hep3Vector(-10.,0.,0.)
         self.ctb_lar.df.MoveTo(self.ctb_lar_position)
@@ -30,146 +29,8 @@ class LAr(object):
             0 --> Normal LAr sensitive detector
             1 --> LAr sensitive detector for calibration hits
         """
-        # sensitive detector with GeoModel:
-        if(mode==0):
-            # normal mode
-            self.ctb_lar.add_SenDetector('LArG4SD',\
-                                'LAr::EMB::STAC',\
-                                'LAr::EMB::STAC',\
-                                'LArMgr::LAr::EMB::STAC')
-            self.ctb_lar.add_SenDetector('LArG4SD',\
-                                'LAr::Barrel::Presampler::Module',\
-                                'LAr::Barrel::Presampler::Module',\
-                                'LArMgr::LAr::Barrel::Presampler::Module')
-        elif(mode==1):
-            # calibration mode
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'TBSTACMult',\
-                                       'TBSTACMult',\
-                                       'LArMgr::LAr::EMB::STAC')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                'TBBarrelPresamplerMult',\
-                                'TBBarrelPresamplerMult',\
-                                'LArMgr::LAr::Barrel::Presampler::Module')
-            # Calibration SDs
-            """ LAr::TBBarrelCryostat::Dead
-            """
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrelCryostat::Dead',\
-                                       'LAr::TBBarrelCryostat::Dead',\
-                                       'LArMgr::LAr::TBBarrel::Cryostat::*')
-            """ LAr::Barrel::Presampler::Inactive
-            """
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                           'LAr::TBBarrel::Presampler::Inactive',\
-                                           'LAr::TBBarrel::Presampler::Inactive',\
-                                           'LArMgr::LAr::Barrel::Presampler::Prep*')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                           'LAr::TBBarrel::Presampler::Inactive',\
-                                           'LAr::TBBarrel::Presampler::Inactive',\
-                                           'LArMgr::LAr::Barrel::Presampler::Anode*')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                           'LAr::TBBarrel::Presampler::Inactive',\
-                                           'LAr::TBBarrel::Presampler::Inactive',\
-                                           'LArMgr::LAr::Barrel::Presampler::Cathode*')
-            """ LAr::Barrel::Presampler::Dead
-            """
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Presampler::Dead',\
-                                       'LAr::TBBarrel::Presampler::Dead',\
-                                       'LArMgr::LAr::Barrel::Presampler')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Presampler::Dead',\
-                                       'LAr::TBBarrel::Presampler::Dead',\
-                                       'LArMgr::LAr::Barrel::Presampler::Sector')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Presampler::Dead',\
-                                       'LAr::TBBarrel::Presampler::Dead',\
-                                       'LArMgr::LAr::Barrel::Presampler::MotherBoard')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Presampler::Dead',\
-                                       'LAr::TBBarrel::Presampler::Dead',\
-                                       'LArMgr::LAr::Barrel::Presampler::ProtectionShell')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Presampler::Dead',\
-                                       'LAr::TBBarrel::Presampler::Dead',\
-                                       'LArMgr::LAr::Barrel::Presampler::MotherBoard')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Presampler::Dead',\
-                                       'LAr::TBBarrel::Presampler::Dead',\
-                                       'LArMgr::LAr::Barrel::Presampler::Connectics')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Presampler::Dead',\
-                                       'LAr::TBBarrel::Presampler::Dead',\
-                                       'LArMgr::LAr::Barrel::Presampler::Rail')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Presampler::Dead',\
-                                       'LAr::TBBarrel::Presampler::Dead',\
-                                       'LArMgr::LAr::Barrel::Presampler::ProtectionPlate')
-            """ LAr::Barrel::Inactive
-            """
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Inactive',\
-                                       'LAr::TBBarrel::Inactive',\
-                                       'LArMgr::LAr::EMB::*Abs::*')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Inactive',\
-                                       'LAr::TBBarrel::Inactive',\
-                                       'LArMgr::LAr::EMB::Electrode::*')
-            """ LAr::Barrel::Dead
-            """
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LArMgr::LAr::EMB::ECAM')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LArMgr::LAr::EMB::TELF')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LArMgr::LAr::EMB::TELFB')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LArMgr::LAr::EMB::MOAC')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LArMgr::LAr::EMB::CAAC')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LArMgr::LAr::EMB::SUMB')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LArMgr::LAr::EMB::GTENF')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LArMgr::LAr::EMB::GTENB')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LArMgr::LAr::EMB::FrontBack::Electrode')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LArMgr::LAr::EMB::FrontBack::G10')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LArMgr::LAr::EMB::FrontBack::Steel')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LArMgr::LAr::EMB::FrontBack::Absorber2')
-            self.ctb_lar.add_SenDetector('LArG4H8SD',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LAr::TBBarrel::Dead',\
-                                       'LArMgr::LAr::EMB::FrontBack::Absorber')
+        pass # sensitive detector with GeoModel
+
     def _initPR(self):
         """ Describes the physics regions
         """

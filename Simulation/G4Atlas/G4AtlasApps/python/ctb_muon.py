@@ -20,11 +20,6 @@ __doc__+="""\n ctb_muon      = Muon:Muon GeoModel detector
 ctb_muon=PyG4Atlas.DetFacility("GeoDetector","Muon:Muon")
 ctb_muon_position=AtlasG4Eng.G4Eng.gbl.CLHEP.Hep3Vector(-34900.0,0.,0.)
 ctb_muon.df.MoveTo(ctb_muon_position)
-# sensitive detector:
-ctb_muon.add_SenDetector('MuonG4SD','MDTSens','AMS','Muon::SensitiveGas')
-ctb_muon.add_SenDetector('MuonG4SD','RPCSens','RMS','Muon::gazGap')
-ctb_muon.add_SenDetector('MuonG4SD','TGCSens','TMS','Muon::muo::TGCGas')
-ctb_muon.add_SenDetector('MuonG4SD','CSCSens','CMS','Muon::CscArCO2')
 # physics-regions:
 ctb_muon_PhysReg=PyG4Atlas.PhysicsReg('DriftWall')
 ctb_muon_PhysReg.add_Volumes('Muon::MDTDriftWall')
@@ -50,7 +45,5 @@ muonsel.df.SetDy(4050.)
 muonsel.df.SetDz(2750.)
 muonsel_position=AtlasG4Eng.G4Eng.gbl.CLHEP.Hep3Vector(12250.,0.,0.)
 muonsel.df.MoveTo(muonsel_position)
-# sensitive detector:
-#muonsel.add_SenDetector('MCTruth','TrackRecorderSD','MuonEntryRecord','MSEL')
 
 #=======================================================================

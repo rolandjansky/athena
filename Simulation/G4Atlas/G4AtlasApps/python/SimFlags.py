@@ -183,13 +183,13 @@ class PhysicsList(JobProperty):
       details.
 
     - _Msc95
-      Uses Urban95 for e-/e+ multiple scattering. 
+      Uses Urban95 for e-/e+ multiple scattering.
 
     - _Conv95
-      Uses improved gamma conversion model. 
+      Uses improved gamma conversion model.
 
     - _Brem95
-      Uses relativistic Brem95 above threshold for e-/e+.  
+      Uses relativistic Brem95 above threshold for e-/e+.
 
     - _95
       Uses *all* 95 options, Msc95, Brem, and Conv.
@@ -200,6 +200,7 @@ class PhysicsList(JobProperty):
     statusOn = True
     allowedTypes = ["str"]
     allowedValues = ["FTFP_BERT",
+                     "FTFP_BERT_ATL",
                      "QGSP_BERT",
                      "QGSP_BERT_HP",
                      "QGSP_BIC",
@@ -228,6 +229,15 @@ class PhysicsList(JobProperty):
         JobProperty.__setattr__(self, name, n_value)
 
 
+class PhysicsOptions(JobProperty):
+    """
+    PhysicsOptionTools to be used in this job
+    """
+    statusOn = True
+    allowedTypes = ['list']
+    StoredValue = []
+
+
 class SimLayout(JobProperty):
     """
     Simulation layout tag to use: specifies the geometry to be used.
@@ -250,86 +260,21 @@ class SimLayout(JobProperty):
 
     Full ATLAS layouts
     ------------------
-    ATLAS-GEO-06-00-00     --> LUCID included, and muon envelope shifted accordingly
-    ATLAS-GEO-06-01-00     --> ATLAS-GEO-06-00-00 with misalignments and distorted material in the LAr
-    ATLAS-GEO-06-02-00     --> ATLAS-GEO-06-00-00 with 0.1 X0 of material in front of the LAr
-    ATLAS-GEO-06-03-00     --> ATLAS-GEO-06-00-00 with 0.2 X0 of material in front of the LAr
-    ATLAS-GEO-06-04-00     --> ?
-    ATLAS-GEO-06-22-00     --> ATLAS-GEO-06-00-00 with additional material in the inner detector
-    ATLAS-GEO-07-00-00     --> For cosmics, updated ID since ATLAS-GEO-03
-    ATLAS-GEONSF-07-00-00  --> Same as ATLAS-GEO-07-00-00 but with solenoid off
-    ATLAS-GEONTF-07-00-00  --> Same as ATLAS-GEO-07-00-00 but with toroid off
-    ATLAS-GEONF-07-00-00   --> Same as ATLAS-GEO-07-00-00 but with no field
-    ATLAS-GEO-08-00-00     --> Layout for MC09 (bug in tile and muon envelopes)
-    ATLAS-GEO-08-00-01     --> Layout for MC09 with fixed tile and muon envelopes
-    ATLAS-GEO-08-00-02     --> ATLAS-GEO-08-00-01 with fwd det identifiers and TGC T4F position fix
-    ATLAS-GEONSF-08-00-00  --> Same as ATLAS-GEO-08-00-00 but with solenoid off
-    ATLAS-GEONTF-08-00-00  --> Same as ATLAS-GEO-08-00-00 but with toroid off
-    ATLAS-GEONF-08-00-00   --> Same as ATLAS-GEO-08-00-00 but with no field
-    ATLAS-GEONF-08-00-02   --> Same as ATLAS-GEO-08-00-02 but with no field
-    ATLAS-GEOHF-08-00-02   --> Same as ATLAS-GEO-08-00-02, but with half toroid field
-    ATLAS-GEONSF-08-00-02  --> Same as ATLAS-GEO-08-00-02, but with no solenoid field
-    ATLAS-GEOHNSF-08-00-02 --> Same as ATLAS-GEO-08-00-02 but with half toroid field and no solenoid field
-    ATLAS-GEONTF-08-00-02  --> Same as ATLAS-GEO-08-00-02 but with toroid off
-    ATLAS-GEO-08-01-00     --> CSC-like material distortion
-    ATLAS-GEO-08-02-00     --> ID scaled by 10%
-    ATLAS-GEO-08-03-00     --> ID scaled by 20%
-    ATLAS-GEO-08-04-00     --> ID scaled by 10% cf. ATLAS-GEO-08-02-00, plus the CSC distortions in the LAr from ATLAS-GEO-06-01-00
-    ATLAS-GEO-08-05-00     --> ATLAS-GEO-08-00-02 with corrected dead material in the pixels at high eta
-    ATLAS-GEO-09-00-00     --> ATLAS-GEO-08-05-00 with correct associated tracking geometry
-    ATLAS-GEO-10-00-00     --> ATLAS-GEO-09-00-00 with updates to muon layout and LAr EMEC support geometry
-    ATLAS-GEO-10-00-01     --> ATLAS-GEO-10-00-00 with fix to wrong staggering of the tube layers in the muon BEE chambers
-    ATLAS-GEO-10-00-02     --> Based on ATLAS-GEO-10-00-01. Muon updates: Fix for staggering of BIS8 on top of R.03.13
-    ATLAS-GEONTF-10-00-01  --> Based on ATLAS-GEO-10-00-01. Magnetic field configuration with Toroids OFF.
-    ATLAS-GEO-10-01-00     --> ATLAS-GEO-10-00-00 with ~20% extra X0 in LAr
-    ATLAS-GEO-10-02-00     --> 5% increase of whole ID
-    ATLAS-GEO-10-03-00     --> 10% increase of whole ID
-    ATLAS-GEO-10-04-00     --> 20% increase of pixel services
-    ATLAS-GEO-10-05-00     --> 20% increase of SCT services
-    ATLAS-GEO-10-06-00     --> Extra 15% X0 at end of SCT/TRT endcaps.
-    ATLAS-GEO-10-07-00     --> Extra 15% X0 at ID endplate.
-    ATLAS-GEO-10-08-00     --> +10% whole ID, +20% Pixel services, +20% SCT services, +15% X0 at end of SCT/TRT endcap,
-                               +15% X0 at ID endplate. 0.1 X0 before the presampler in LAr.
-    ATLAS-GEO-10-09-00     --> Based on ATLAS-GEO-10-00-01. Testing bmagatlas_08_full45Sym20400.data.bz2 magnetic field map.
-    ATLAS-GEO-10-10-00     --> Based on ATLAS-GEO-10-00-01. Testing bmagatlas_08_fullAsym20400.data.bz2 magnetic field map.
-    ATLAS-GEO-10-11-00     --> Based on ATLAS-GEO-10-00-01. Testing bmagatlas_08_full45SymOld.data.bz2 magnetic field map.
-    ATLAS-GEO-10-12-00     --> Based on ATLAS-GEO-10-00-00. Geometry for extra material studies.
-                               Config H. Extra 15% X0 at ID endplate. 0.1 X0 before the presampler in LAr.
-    ATLAS-GEO-10-13-00     --> Based on ATLAS-GEO-10-00-00. Geometry for extra material studies.
-                               Config I (=B+C+D+E): +10% whole ID, +20% Pixel services, +20% SCT services, +15% X0 at end of SCT/TRT endcap.
-    ATLAS-GEO-11-00-00     --> Based on ATLAS-GEO-10-00-01. Overlap fixes in the LAr EMEC, corrected tile girder length in special EB
-                               modules, fixed description of special D4 cells. Muon: layout R.04.01. Forward detectors: Fix for ZDC identifiers.
-    ATLAS-GEO-11-00-01     --> Based on ATLAS-GEO-11-00-00, with downgrade of Muon version to R.03.13.
-    ATLAS-GEO-11-01-00     --> Based on ATLAS-GEO-11-00-00. Only instrumented part of tile modules considered for calculation of cell dimensions.
-    ATLAS-GEO-11-01-01     --> Based on ATLAS-GEO-11-01-00, with downgrade of Muon version to R.03.13.
-    ATLAS-GEO-11-02-00     --> Based on ATLAS-GEO-11-00-00. Testing bmagatlas_08_full45Sym20400.data.bz2 magnetic field map.
-    ATLAS-GEO-11-02-01     --> Based on ATLAS-GEO-11-02-00, with downgrade of Muon version to R.03.13.
-    ATLAS-GEO-11-03-00     --> Based on ATLAS-GEO-11-00-00. Testing bmagatlas_08_fullAsym20400.data.bz2 magnetic field map.
-    ATLAS-GEO-11-03-01     --> Based on ATLAS-GEO-11-03-00, with downgrade of Muon version to R.03.13.
-    ATLAS-GEO-11-04-00     --> Based on ATLAS-GEO-11-00-00. Testing bmagatlas_08_full45SymOld.data.bz2 magnetic field map.
-    ATLAS-GEO-11-04-01     --> Based on ATLAS-GEO-11-04-00, with downgrade of Muon version to R.03.13.
-    ATLAS-GEO-12-00-00     --> Based on ATLAS-GEO-11-01-01. InDet modifications: Update to Pixel Global frame and PST.
-                                                            Muon modifications: Fix bug in the staggering of the mdt tubes in BIS8 chambers. 29/07/2010
-    ATLAS-GEO-13-00-00     --> Based on ATLAS-GEO-12-00-00, added detailed description of the ID rail. 30/07/2010
-    ATLAS-GEO-13-00-01     --> Clone of ATLAS-GEO-14-00-01 with updated InDet component: Revert to old PP0 but keep new pixel frame and PST.
-    ATLAS-GEO-13-01-00     --> ATLAS-GEO-13-00-00 + the new symmetric magnetic field map (bmagatlas_08_full45Sym20400.data.bz2). 04/08/2010
-    ATLAS-GEO-14-00-00     --> Unsupported: for info only.
-                               Based on ATLAS-GEO-13-00-00: InDet updates: Add new PP0 to PP1 description in pixel, fixes to PST.
-    ATLAS-GEO-14-00-01     --> Based on ATLAS-GEO-14-00-00. Switching to Muon R.04.05 layout: fixes for RailAssembly and EMS1, EMS3 cutout position and dimension.
-    ATLAS-GEO-14-01-01     --> Based on ATLAS-GEO-14-00-01. bmagatlas_08_full45Sym20400.data.bz2 magnetic field map.
-    ATLAS-GEO-14-02-01     --> Based on ATLAS-GEO-14-00-01. bmagatlas_08_fullAsym20400.data.bz2 magnetic field map
-    ATLAS-GEO-16-00-00     --> Based on ATLAS-GEO-14-00-01. Updated InDet component: Bug fix in PP0 and split one of the Inner PP0 volumes into two volumes.
-    ATLAS-GEONSF-16-00-00  --> Based on ATLAS-GEO-16-00-00. Toroid ON, Solenoid OFF
-    ATLAS-GEO-16-01-00     --> Based on ATLAS-GEO-16-00-00. LAr Detailed absorber flag is ON
-    ATLAS-GEO-18-01-00     --> Based on ATLAS-GEO-18-00-00. Calorimeters: New calo neighbor table and updated FCAL2 electrode map.  Drop the Magnetic Field component.
-    ATLAS-GEO-18-01-03     --> Based of ATLAS-GEO-18-01-00. Muon version changed to R.05.03. AGDD patch.
+    ATLAS-R1-2010-02-00-00 --> 2010 ATLAS layout for MC14a
+    ATLAS-R1-2011-02-00-00 --> 2011 ATLAS layout for MC14a
+    ATLAS-R1-2012-02-00-00 --> 2012 ATLAS layout for MC14a
+    ATLAS-R2-2015-01-01-00 --> 2015 ATLAS layout for MC14a
+    ATLAS-R1-2012-03-00-00 --> 2012 ATLAS layout for MC15a
+    ATLAS-R2-2015-02-00-00 --> 2015 ATLAS layout for MC15a
+    ATLAS-R2-2015-02-01-00 --> 2015 ATLAS layout for MC15a
+    ATLAS-R2-2015-03-00-00 --> 2015 ATLAS layout for MC15a
+    ATLAS-R2-2015-03-01-00 --> 2015 ATLAS layout for MC15a
+    ATLAS-R2-2016-00-00-00 --> 2016 ATLAS test layout for MC16
 
 
     ATLAS upgrade layouts
     ---------------------
-    ATLAS-IBL-00-00-00     --> ATLAS with an insertable B-layer
-    ATLAS-IBL-01-00-00     --> ATLAS-GEO-10-00-01 geometry with IBL in pixel and IBL beampipe
-    ATLAS-SLHC-00-00-00    --> ATLAS layout for the LHC luminosity upgrade
+    ATLAS-P2-ITK-03-00-00  --> Phase 2 Upgrade ATLAS layout
 
 
     Combined Test Beam (2004) simulations
@@ -366,14 +311,6 @@ class SimLayout(JobProperty):
     allowedTypes = ['str']
     StoredValue = 'ATLAS-R2-2015-03-01-00'
     allowedValues = [
-                     'ATLAS-GEO-16-00-00', # Default for MC10
-                     'ATLAS-GEO-18-01-00', # Used in MC11a, MC11b, MC11c
-                     'ATLAS-GEO-18-01-01', # Used in MC11a, MC11b, MC11c
-                     'ATLAS-GEO-18-01-03', # Used in MC11a, MC11b, MC11c
-                     'ATLAS-GEO-20-00-01', # Default for MC12a, MC12b
-                     'ATLAS-GEO-21-02-02', # Used in MC11d, MC12c
-                     'ATLAS-IBL-03-00-00', # Used in MC12 Upgrade
-                     'ATLAS-SLHC-02-00-00', # Used in MC12 Upgrade
                      'ATLAS-R1-2010-02-00-00', # Used in MC14a
                      'ATLAS-R1-2011-02-00-00', # Used in MC14a
                      'ATLAS-R1-2012-02-00-00', # Used in MC14a
@@ -383,6 +320,8 @@ class SimLayout(JobProperty):
                      'ATLAS-R2-2015-02-01-00', # Used in MC15a
                      'ATLAS-R2-2015-03-00-00', # Used in MC15a
                      'ATLAS-R2-2015-03-01-00', # Used in MC15a
+                     'ATLAS-R2-2016-00-00-00', # Testing for MC16
+                     'ATLAS-P2-ITK-03-00-00',  # Phase 2 upgrade testing
                      'ctbh8_combined',
                      'ctbh8_photon',
                      'ctbh8_lar-material',
@@ -501,9 +440,6 @@ class RandomSeedList(JobProperty):
         if hasattr( jobproperties.SimFlags, 'VertexFromCondDB') and jobproperties.SimFlags.VertexFromCondDB():
             if not self.checkForExistingSeed('VERTEX'):
                 self.addSeed( "VERTEX", 2040160768, 443921183 )
-        if hasattr( jobproperties.SimFlags, 'EventFilter')  and jobproperties.SimFlags.EventFilter.statusOn and jobproperties.SimFlags.EventFilter.get_Value()['BeamEffectTransformation']:
-            if not self.checkForExistingSeed('BEAM'):
-                self.addSeed( "BEAM", 3499598793, 7345291 )
         if hasattr( jobproperties.SimFlags, 'LArParameterization') and jobproperties.SimFlags.LArParameterization()!=0:
             self.addSeed("FROZENSHOWERS", 56546123, 47694674 )
         if jobproperties.Beam.beamType.get_Value() == 'cosmics':
@@ -623,7 +559,7 @@ class RunDict(JobProperty):
         _sflog = logging.getLogger('SimFlags')
         if len(self.get_Value())==0:
             _sflog.warning ('No run dictionary - giving back run number -1')
-            return -1        
+            return -1
         else:
             total=0
             for a in self.get_Value(): total += int(self.get_Value()[a])
@@ -655,6 +591,14 @@ class EquationOfMotion(JobProperty):
     statusOn = False
     allowedTypes = ['str']
     StoredValue = 'Default'
+
+class G4Stepper(JobProperty):
+    """
+    The Stepper to be used in Geant4 by default.
+    """
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = 'AtlasRK4'
 
 class SimulationFlavour(JobProperty):
     """A short name to describe the configuration used during
@@ -702,6 +646,65 @@ class RecordFlux(JobProperty):
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
+
+class UseV2UserActions(JobProperty):
+    """
+    Migration version of the user actions. This should only be used by experts!
+    - V1 corresponds to JIRA ATLASSIM-1752
+    - V2 corresponds to JIRA ATLASSIM-2226
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = True
+
+class OptionalUserActionList(JobProperty):
+    """Configuration for Optional UserActions
+      The name of the action must be a name retrievable through the ConfigurableFactory"""
+
+    statusOn = True
+    allowedTypes = ['dict']
+    # not allowing stacking actions to be modified this way
+    StoredValue = {'BeginOfRun':[], 'BeginOfEvent':[], 'PreTracking':[], 'Step':['G4UA::LooperKillerTool'], 'PostTracking':[], 'EndOfRun':[], 'EndOfEvent':[]}
+    def addAction(self,actionTool,roles=[]):
+        #Add the action to the end of the list of actions for each role.
+        for role in roles:
+            try:
+                self.StoredValue[role]+=[actionTool]
+            except KeyError:
+                print "WARNING Attempt to assign to action",actionTool,"a role ",role,"which is not allowed"
+
+    def removeAction(self,actionTool,roles=['BeginOfRun','BeginOfEvent', 'PreTracking', 'Step', 'PostTracking', 'EndOfRun', 'EndOfEvent']):
+         #Remove the action from the lists of actions for each role (remove from all by default) - no error if it isn't in the list.
+        for role in roles:
+            try:
+                self.StoredValue[role].remove(actionTool)
+            except KeyError:
+                print "WARNING Attempt to remove action",actionTool," from role ",role,"which is not allowed"
+            except ValueError:
+                print "WARNING Attempt to remove unkown action",actionTool,"from role ",role
+
+class G4Commands(JobProperty):
+    """
+    Commands to send to the G4 user interface once initialization is complete
+    """
+    statusOn = True
+    allowedTypes = ['list']
+    StoredValue = []
+
+class UserActionConfig(JobProperty):
+    """Configuration for UserActions
+    The name of the action must be a name retrievable through the ConfigurableFactory """
+    statusOn = True
+    allowedTypes = ['dict']
+    StoredValue = {}
+    def addConfig(self,actionTool,prop,value):
+        if actionTool in self.StoredValue.keys():
+            # this overrides the previous configuration, if any
+            self.StoredValue[actionTool][prop]=value
+        else:
+            self.StoredValue[actionTool]={prop:value}
+
+
 
 ## Definition and registration of the simulation flag container
 class SimFlags(JobPropertyContainer):
