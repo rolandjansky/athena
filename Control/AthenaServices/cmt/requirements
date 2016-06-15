@@ -63,8 +63,9 @@ use TestTools       TestTools-*          AtlasTest
 
 apply_pattern UnitTest_run unit_test=AthenaOutputStream \
 extrapatterns="^AthenaRootStrea... +(INFO|DEBUG)|^AthenaSealSvc +DEBUG|^SGAudSvc +(INFO|DEBUG)|of type DataHistory|DEBUG Recorded object|object modifiable when retrieved|^ToolSvc +DEBUG Service base class initialized|^IncidentSvc *DEBUG Adding .* listener|^Py:Athena *INFO using release|DecisionSvc +DEBUG|: duplicate entry|^IoComponentMgr +(INFO|DEBUG)|DBReplicaSvc|^HistogramPersis.*DEBUG|^JobOptionsSvc +INFO|^//GP:=|^ItemListSvc +(INFO|DEBUG)|Info File PoolFileCatalog.xml does not exist|DataModelCompatSvc::initialize|^ProxyProviderSvc +DEBUG|^DataModelCompatSvc +DEBUG|^AthenaOutputStreamVERBOSE|^AthenaOutputStream +DEBUG"
-use ToyConversion   ToyConversion-*   Control/AthenaExamples
-macro_append AthenaOutputStream_testlinkopts " -L../$(CMTCONFIG) -lAthenaServices -L$(CMTINSTALLAREA)/lib/$(tag) $(ToyConversion_linkopts)"
+use_ifndef pplist="SIMULATIONBASE" pkg="Control/AthenaExamples/ToyConversion"
+macro_append AthenaOutputStream_testlinkopts " -L../$(CMTCONFIG) -lAthenaServices -L$(CMTINSTALLAREA)/lib/$(tag) $(ToyConversion_linkopts)" \
+                           AthSimulationBase " -L../$(CMTCONFIG) -lAthenaServices -L$(CMTINSTALLAREA)/lib/$(tag)"
 
 apply_pattern UnitTest_run unit_test=FPEControlSvc \
   extrapatterns="^JobOptionsSvc +INFO|^//GP:="

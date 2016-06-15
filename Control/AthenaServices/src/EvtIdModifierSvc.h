@@ -34,7 +34,7 @@ template <class TYPE> class SvcFactory;
 struct ItemModifier
 {
   EventID::number_type runnbr;
-  EventID::number_type evtnbr;
+  uint64_t             evtnbr;
   EventID::number_type timestamp;
   EventID::number_type lbknbr;
   EventID::number_type nevts;
@@ -89,7 +89,7 @@ class EvtIdModifierSvc
 
   /** @brief return the current evt-nbr (after modification)
    */
-  virtual number_type event_number() const;
+  virtual uint64_t event_number() const;
 
   /** @brief return the current time-stamp (after modification)
    */
@@ -154,7 +154,7 @@ class EvtIdModifierSvc
 
   /// (prop) list of n-plets 
   /// (run-nbr, evt-nbr, time-stamp, lbk-nbr, nbr-of-events-per-lbk, mod-bit)
-  std::vector<EventID::number_type> m_evtNpletsProp;
+  std::vector<uint64_t> m_evtNpletsProp;
 
   /// (prop) Name of the event store whose EventIDs will be modified.
   std::string m_evtStoreName;
