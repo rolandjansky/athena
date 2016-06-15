@@ -25,7 +25,11 @@ DecisionSvc::DecisionSvc(const std::string& name,
   AthService(name, pSvcLocator),
   m_calcStats(false),
   m_frozen(false),
+#ifdef SIMULATIONBASE
+  m_cutflowSvc("",name),
+#else
   m_cutflowSvc("CutFlowSvc/CutFlowSvc",name),
+#endif
   m_eventCount(0),
   m_badEvents(0)
 {
@@ -661,11 +665,14 @@ StatusCode DecisionSvc::start()
 
   //Retrieve CutFlowSvc if (and only if) needed
   if( m_SacceptAlgNames->size()>0 or m_SrequireAlgNames->size()>0 or m_SvetoAlgNames->size()>0 ){
-    StatusCode sc = m_cutflowSvc.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR("Cannot get ICutFlowSvc interface.");
-      return StatusCode::RECOVERABLE;
-    }
+    if (!m_cutflowSvc.empty())
+      {
+        if (m_cutflowSvc.retrieve().isFailure())
+          {
+            ATH_MSG_ERROR("Cannot get ICutFlowSvc interface.");
+            return StatusCode::RECOVERABLE;
+          }
+      }
   }
 
   //Now that everything is said and done, match filters with stream and logic in CutFlowSvc
@@ -734,7 +741,7 @@ void DecisionSvc::DeclareToCutFlowSvc()
       ATH_MSG_DEBUG("Declaring logic " << logicalKey << " for " << streamName);
       for (std::vector<std::string>::const_iterator filter  = (*vec)->begin();
                                                     filter != (*vec)->end(); ++filter) {
-        m_cutflowSvc->registerTopFilter( (*filter), logicalKey, 2, streamName );
+        if(!m_cutflowSvc.empty()) {m_cutflowSvc->registerTopFilter( (*filter), logicalKey, 2, streamName ); }
       }
     }
   }
