@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 /**
  * @file ISCT_CalibHistoSvc.cxx
  * Implementation file to interface class for histograms in the SCT_CalibAlgs package
@@ -10,9 +11,12 @@
 #include "SCT_CalibAlgs/ISCT_CalibHistoSvc.h"
 #include "TH1I.h"
 #include "TH1F.h"
+#include "TH2F.h"
+#include "TMath.h"
 #include <stdexcept> // out_of_range exception
 
 int ISCT_CalibHistoSvc::m_nLb=0;
+int ISCT_CalibHistoSvc::m_nLbMerge=0;
 
 ISCT_CalibHistoSvc::ISCT_CalibHistoSvc():m_numberOfEventsHisto(0),m_thistSvc(0),m_pSCTHelper(0){
   //std::cout<<"Instantiation of ISCT_CalibHistoSvc"<<std::endl;
@@ -59,6 +63,22 @@ ISCT_CalibHistoSvc::getBinForHistogramIndex(const int bin, const int histogramIn
 }
 
 void
+//ISCT_CalibHistoSvc::binHistograms(const int eventsPerWindow){
+ISCT_CalibHistoSvc::binHistograms(const int nLbMerged){
+
+  int nLb = numberOfLb();
+  int yAxisBins = TMath::Ceil(1.0*nLb/nLbMerged);
+  //  int totalEventNumber = m_numberOfEventsHisto->GetEntries();
+
+  //  int yAxisBins = TMath::Ceil(1.0*totalEventNumber/eventsPerWindow);
+  for (std::vector<TH2F *>::iterator it = m_phistoVector2D.begin() ; it != m_phistoVector2D.end(); ++it){
+    (*it)->SetBins(768, -0.5, 768+0.5 ,yAxisBins,0.5,nLbMerged*yAxisBins+0.5);
+  }
+  //   std::cout<<eventsPerWindow<<std::endl;
+
+}
+
+void
 ISCT_CalibHistoSvc::setNumberOfLb(const int nLb){
   m_nLb=nLb;
 }
@@ -66,5 +86,15 @@ ISCT_CalibHistoSvc::setNumberOfLb(const int nLb){
 int
 ISCT_CalibHistoSvc::numberOfLb(){
   return m_nLb;
+}
+
+void
+ISCT_CalibHistoSvc::setLbToMerge(const int nLbMerge){
+  m_nLbMerge=nLbMerge;
+}
+
+int
+ISCT_CalibHistoSvc::LbToMerge(){
+  return m_nLbMerge;
 }
 

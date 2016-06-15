@@ -35,7 +35,7 @@ def formIov(runNumber):
 #############################################################################################
 def GetRunList(dbstring, folder, tag, runNumber, k):
     db=openDatabase(dbstring)
-
+    print 'TAG   ',tag,'   TAG'
     folderlist=db.listAllNodes()
     print '    folderlist=db.listAllNodes()'
 
@@ -68,7 +68,7 @@ def GetRunList(dbstring, folder, tag, runNumber, k):
     print ls
 
     list=[]
-    for i in range(5): list.append( ls[len(ls)-i-1] )
+    for i in range(k): list.append( ls[len(ls)-i-1] )
         
     return list
 

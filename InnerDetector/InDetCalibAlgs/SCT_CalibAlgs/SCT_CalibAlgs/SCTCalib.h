@@ -160,8 +160,8 @@ const;
 
   // For ntuple sorting
   typedef std::multimap<int, int> EvtIndex; 
-  EvtIndex chain_index;
-  EvtIndex::const_iterator evt_iter;
+  EvtIndex m_chain_index;
+  EvtIndex::const_iterator m_evt_iter;
 
   // For HV trips
   std::vector< std::queue<int> > m_phvtripQueue;
@@ -175,10 +175,10 @@ const;
 
   Identifier m_moduleId;
   Identifier m_waferId;
-  int tq[100];
-  UnsignedIntegerProperty curr_time;
+  int m_tq[100];
+  UnsignedIntegerProperty m_curr_time;
   //bool newbin;
-  std::ofstream ofile, gofile;
+  std::ofstream m_ofile, m_gofile;
 
   UnsignedIntegerProperty m_phvtripFirstTime;
   UnsignedIntegerProperty m_phvtripPrevTime;
@@ -214,6 +214,7 @@ const;
   BooleanProperty m_histBefore2010; // True if HIST is from 2009 or earlier
 
   BooleanProperty m_doHitMaps;
+  IntegerProperty m_nLbsMerged;
   BooleanProperty m_readHitMaps;
   BooleanProperty m_doBSErrors;
   BooleanProperty m_doNoisyStrip;
@@ -327,7 +328,7 @@ const;
   IOVTime            m_iovStop;
 
   // Input
-  TFile*  inputHist;    // Monitoring histograms
+  TFile*  m_inputHist;    // Monitoring histograms
   bool    m_readHIST;   // True if HIST is used
 
   // Histograms
@@ -337,7 +338,7 @@ const;
   std::vector<TProfile2D *> m_pnoiseoccupancymapHistoVector;
   std::vector<TProfile2D *> m_pnoiseoccupancymapHistoVectorECp;
   std::vector<TProfile2D *> m_pnoiseoccupancymapHistoVectorECm;
-  std::vector<TProfile *>   h_phiVsNstripsSideHistoVector;
+  std::vector<TProfile *>   m_h_phiVsNstripsSideHistoVector;
   
   // SCT specific numbers
   enum { nbins       = 6*128, firstStrip     =  0, lastStrip     = nbins-1,
@@ -356,7 +357,7 @@ const;
          n_phiBinsECShort = 40, n_phiBinsECMiddle = 40, n_phiBinsECOuter = 52, n_elements=8176,
          n_BSErrorType = 15, firstBSErrorType = 0, lastBSErrorType = 14 };
          
-  int MAXHASH;
+  int m_MAXHASH;
   SCT_ID::const_id_iterator m_waferItrBegin;
   SCT_ID::const_id_iterator m_waferItrEnd;
   template<class S>
@@ -392,6 +393,8 @@ const;
                   const std::map< Identifier, std::set<Identifier> >& moduleListNew,
                   const std::map< Identifier, std::set<Identifier> >& moduleListRef,
                   const std::string& badStripsFile) const;
+  /* StatusCode  */
+  /* noisyStripsToSummaryXmlFake( const std::string& badStripsFile) const; */
   std::set<int> 
     getNoisyChips( const std::set<Identifier>& stripIdList ) const;
   //

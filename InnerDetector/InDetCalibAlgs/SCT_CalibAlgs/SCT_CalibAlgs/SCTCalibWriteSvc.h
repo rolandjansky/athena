@@ -127,8 +127,8 @@ class SCTCalibWriteSvc: public AthService {
     //        const std::string& BSErrorType,
     //        const std::string& Ratio ) const;
     
-  StatusCode createListLA(const Identifier& wafer_id,const SCT_ID* m_sctId,const int samplesize, const int module, const float lorentz, const float MCW ) const;
-  // StatusCode createListLA(const Identifier& wafer_id,const SCT_ID* m_sctId,const int samplesize, const int module, const float lorentz, const float err_lorentz, const float chisq, const float fitParam_a, const float err_a, const float fitParam_b, const float err_b, const float fitParam_sigma, const float err_sigma, const float MCW ) const;
+  //  StatusCode createListLA(const Identifier& wafer_id,const SCT_ID* m_sctId,const int samplesize, const int module, const float lorentz, const float MCW ) const;
+  StatusCode createListLA(const Identifier& wafer_id,const SCT_ID* m_sctId,const int samplesize, const int module, const float lorentz, const float err_lorentz, const float chisq, const float fitParam_a, const float err_a, const float fitParam_b, const float err_b, const float fitParam_sigma, const float err_sigma, const float MCW, const float err_MCW ) const;
 /*  StatusCode createListLA( const Identifier& wafer_id,
          const SCT_ID* m_sctId,
          const int samplesize,

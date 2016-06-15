@@ -17,8 +17,11 @@ from PyJobTransforms.trfExe import athenaExecutor
 from PyJobTransforms.trfArgs import addAthenaArguments
 from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTrace
 from PyJobTransforms.trfExitCodes import trfExit
+from PyJobTransforms.trfSignal import setTrfSignalHandlers, resetTrfSignalHandlers
 
 from IOVDbSvc.CondDB import conddb
+
+from ROOT import TFile, TH1I
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
 import PyJobTransforms.trfExceptions as trfExceptions
@@ -33,18 +36,24 @@ from PyJobTransformsCore.trfutil import *
 dsDict={'input': [] , 'output' : []}
 RunNumber=-1
 SvcClass=''
-
+Stream=''
+NumberOfEvents=0
 
 
 def getDsFileName(file,input=False):
     """Returns dataset and logical file name for files of type ds##file or ds#dsfile."""
     global RunNumber
     global SvcClass
-
+    global Stream
+    global NumberOfEvents
     if isinstance(file,dict):
-        name=file['pfn']
+#        name=file['pfn']
+        name=file['lfn']
         ds=file['dsn']
-        SvcClass=file['svcclass']
+#        SvcClass=file['svcclass']
+        SvcClass=file.get('svcclass','')
+        if 'events' in file:
+            NumberOfEvents+=file['events']
     else:
         if file.find('##')!=-1:
             ds=file.split('##')[0]
@@ -60,11 +69,17 @@ def getDsFileName(file,input=False):
                 ds=file
             name=file
 
+    if '/eos/atlas/' in name:
+        name='root://eosatlas/'+name
+
     dsDict['input'].append({'file' : name, 'dataset' : ds})
     if RunNumber == -1:
         nb = ds.count('.')
         if nb >= 4:
             RunNumber=int(ds.split('.')[1])
+            longStream=ds.split('.')[0]
+            #Stream is either cos or xxxeV energy
+            Stream=longStream.split('_')[1]
 
     return name
 
@@ -96,6 +111,13 @@ def checkFileList(filelist):
         filelist[i]=filename
     return filelist
 
+def updateLastRun(RunNumber):
+
+    if os.path.exists('/afs/cern.ch/user/s/sctcalib/scratch0/lastRun'):
+        f = open('/afs/cern.ch/user/s/sctcalib/scratch0/lastRun','w')
+        f.write(str(RunNumber)+' ')
+        f.close()
+        
 
 @stdTrfExceptionHandler
 @sigUsrStackTrace
@@ -108,6 +130,8 @@ def main():
     addOutputArgs(trf.parser, trf._argdict)
     trf.parseCmdLineArgs(sys.argv[1:])
 
+#    trf.checkNoisyStrips()
+
     trf.execute()
     trf.generateReport()
     
@@ -117,7 +141,7 @@ def main():
 def getTransform():
 
     exeSet = set()
-    exeSet.add(SCTCalibExecutor('/afs/cern.ch/user/a/agasconb/sct/testarea/20.1.0.Y-VAL/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py'))
+    exeSet.add(SCTCalibExecutor('/afs/cern.ch/work/a/agasconb/private/sct/testarea/AtlasProduction-20.7.4.1//InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py'))
 
     trf = transform(executor=exeSet) 
 
@@ -185,7 +209,7 @@ def addOutputArgs(parser,dict):
                             help = 'HitMap output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTHitMaps.root'],runarg=True))
         parser.add_argument('--outputLBFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
                             help = 'LB output file',group='Calibration',default=trfArgClasses.argNTUPFile([checkPrefix+'SCTLB.root'],runarg=True))
-    
+   
     if 'doNoisyStrip' in checkPart and checkSplit != 1:
 
         parser.add_argument('--outputHITMapFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True,io='output'),
@@ -261,14 +285,13 @@ class SCTCalibExecutor( athenaExecutor ):
     def __init__(self, skeleton):
         athenaExecutor.__init__(self,
                                 name = 'sctcalib',
-                                skeletonFile='/afs/cern.ch/user/a/agasconb/sct/testarea/20.1.0.Y-VAL/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py')
+                                skeletonFile='/afs/cern.ch/work/a/agasconb/private/sct/testarea/AtlasProduction-20.7.4.1/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/share/skeleton.sct_calib.py')
 
     def preExecute(self, input=set(), output=set()):
 
         """ Execute runInfo, set environment and check inputtype"""
         # Execute runInfo.py
         runArgs=self.conf._argdict
-
 
         checkFileList(runArgs['input'])
         namelist=[]
@@ -288,7 +311,7 @@ class SCTCalibExecutor( athenaExecutor ):
             if runArgs['doRunInfo']._value:
                 import SCT_CalibAlgs.runInfo as runInfo
 
-                print "RunNumber for the runInfo = " + str(RunNumber)
+                print "RunNumber for the runInfo = " + str(RunNumber) + " " + Stream
                 runInfo.main(RunNumber, projectName)
 
         if not 'splitNoisyStrip' in runArgs:
@@ -299,7 +322,7 @@ class SCTCalibExecutor( athenaExecutor ):
             
             
         # Set STAGE_SVCCLASS
-        if not SvcClass is '':
+        if not SvcClass is '' and not SvcClass is None:
             os.environ['STAGE_SVCCLASS']=SvcClass
 
         # Check input type
@@ -355,12 +378,44 @@ class SCTCalibExecutor( athenaExecutor ):
             runArgs['prefix']._value = prefix
 
 
+        # When ATLAS is NOT in standby the SCT is, the hitmap root files have 0 events,
+        # even though the calibration_SCTNoise streams has 10k+ events.
+        # If the noisy strips task is generated, the jobs will fail. A.N has implemented
+        # a condition a t0 level so they won't be defined. However,
+        # when runSelector uses AtlRunQuery to look for the runs that have 10k+ events
+        # in the calibration_SCTNoise stream, those runs that failed or were skipped
+        # will appear as waiting to be uploaded, making the rest keep on hold.
+
+        # We include a protection against those cases: if the summed number of events
+        # of hitmap files is <10k, we don't execute the noisy strips. Rather, we exit
+        # with 'success' status, so the job won't fail at t0, and update the value
+        # of the last run uploaded as if this run had been uploaded, to avoid the
+        # next run being indefinitely on hold
+        # print 'Number of events: ', NumberOfEvents
+        if 'doNoisyStrip' in part and runArgs['splitNoisyStrip']._value==2 and NumberOfEvents<10000:
+            self._isValidated = True
+            self._trf._exitCode = 0
+            self._trf._exitMsg = 'Noisy strips trying to read root files with 0 events. Gracefully exit and update lastRun counter to %s' %(RunNumber)
+
+            updateLastRun(RunNumber)
+            emptyDic = {}
+            self._trf._dataDictionary = emptyDic
+
+            resetTrfSignalHandlers()
+            self._trf.generateReport(fast=True)
+            sys.exit(0)
+
+#                raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), self._errMsg)
+
+
         if jobnb is not '':
             self.conf.addToArgdict('JobNumber', trfArgClasses.argString(jobnb))
 
         # get RunNumber from datasetName
         if not RunNumber == -1:
             self.conf.addToArgdict('RunNumber', trfArgClasses.argInt(RunNumber))
+        if not Stream == '':
+            self.conf.addToArgdict('Stream', trfArgClasses.argString(Stream))
 
         # Do other prerun actions
         super(SCTCalibExecutor, self).preExecute(input,output)
@@ -373,7 +428,6 @@ class SCTCalibExecutor( athenaExecutor ):
 
         runArgs=self.conf._argdict
         # Check the run for criteria in runSelector
-
         if runArgs['doRunSelector']._value:
             import SCT_CalibAlgs.runSelector as runSelector
             part=runArgs['part']._value
@@ -381,10 +435,23 @@ class SCTCalibExecutor( athenaExecutor ):
               skipQueue = 1
             else:
               skipQueue = 0
-            checkRun=runSelector.main(RunNumber,part,skipQueue)
+            checkRun=runSelector.main(RunNumber,part,skipQueue,Stream)
             if not checkRun:
-                self._errMsg = 'Did not pass run selection criteria'
-                raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), self._errMsg)
+
+                print "Run %s didn't pass run selection criteria. It will not be processed and no output will be generated. Finish execution and exit gracefully" %(RunNumber)
+                #No processing->no output
+                #Need an empry dictionary so the job won't fail in t0
+                #when trying to copy output files
+                emptyDic = {}
+                self._trf._dataDictionary = emptyDic
+
+                    
+                self._isValidated = True
+                self._trf._exitMsg = 'Did not pass run selection criteria. Finish execution and exit gracefully.'
+                self._trf._exitCode = 0
+                resetTrfSignalHandlers()
+                self._trf.generateReport(fast=True)
+                sys.exit(0)
 
 
         rootHitmapFiles = []
@@ -427,6 +494,7 @@ class SCTCalibExecutor( athenaExecutor ):
                     self._echologger.error("FAILED to merge root files")
         
 
+
         super(SCTCalibExecutor, self).execute()
 
         if self._rc is not 0:
@@ -443,35 +511,96 @@ class SCTCalibExecutor( athenaExecutor ):
 
         runArgs=self.conf._argdict
         prefix=runArgs['prefix']._value
-        # print 'PREFIX'
-        # print prefix
+
+
+        #After processing Hitmaps, change Metadata of SCTHitMaps and SCTLB files so
+        #they contain the number of events. This value can be used when processing
+        #noisy strips to avoid running over empty files
+        if 'doNoisyStrip' in runArgs['part']._value and runArgs['splitNoisyStrip']._value == 1:
+            outInstance0 = self.conf.dataDictionary[list(self._output)[0]]
+            outTFile0 = TFile(outInstance0._value[0])
+            print outTFile0.GetName()
+            outNentries0 = int(outTFile0.Get('GENERAL/events').GetEntries())
+            outInstance0._setMetadata(outInstance0._value,{'nentries': outNentries0})
+            
+            outInstance1 = self.conf.dataDictionary[list(self._output)[1]]
+            outTFile1 = TFile(outInstance1._value[0])
+            print outTFile1.GetName()
+            outNentries1 = int(outTFile1.Get('GENERAL/events').GetEntries())
+            outInstance1._setMetadata(outInstance1._value,{'nentries': outNentries1})
+
+
+        if 'doDeadStrip' in runArgs['part']._value:
+            pwd=os.getcwd()
+            deadFile=pwd+'/'+prefix+'.DeadStripsFile.xml'
+            deadSummary=pwd+'/'+prefix+'.DeadSummaryFile.xml'
+            
+            numLinesFile = 0
+            numLinesSummary = 0
+            if os.path.exists(deadFile):
+                numLinesFile = sum(1 for line in open(deadFile))
+            if os.path.exists(deadSummary):
+                numLinesSummary = sum(1 for line in open(deadSummary))
+                    
+
+            #if the files exist, but there were no dead strips there won't be COOL file, making the job fail                         
+             #remove the COOL file of the list of output files. Clunky, but temporal fix                                                   
+                
+            if ( numLinesFile == 2  and  numLinesSummary == 20 ):
+                dataDic =  self._trf.dataDictionary
+                listOfKeys = []
+
+                for key in dataDic:
+                    if key != 'COOL':
+                        listOfKeys.append(key)
+
+                redDict = {key:dataDic[key] for key in listOfKeys}
+                self._trf._dataDictionary = redDict
+
+
+        if 'doDeadChip' in runArgs['part']._value:
+            pwd=os.getcwd()
+            deadFile=pwd+'/'+prefix+'.DeadChipsFile.xml'
+            deadSummary=pwd+'/'+prefix+'.DeadSummaryFile.xml'
+
+            numLinesFile = 0
+            numLinesSummary = 0
+            if os.path.exists(deadFile):
+                numLinesFile = sum(1 for line in open(deadFile))
+            if os.path.exists(deadSummary):
+                numLinesSummary = sum(1 for line in open(deadSummary))
+
+
+            #if the files exist, but there were no dead strips there won't be COOL file, making the job fail              
+           #remove the COOL file of the list of output files. Clunky, but temporal fix                                                      
+            if ( numLinesFile == 2 and numLinesSummary == 20 ):
+                dataDic =  self._trf.dataDictionary
+                listOfKeys = []
+
+                for key in dataDic:
+                    if key != 'COOL':
+                        listOfKeys.append(key)
+
+                redDict = {key:dataDic[key] for key in listOfKeys}
+                self._trf._dataDictionary = redDict
+
+
+
         if 'JobNumber' in runArgs and runArgs['splitNoisyStrip']._value == 1:
             jobnb=runArgs['JobNumber']._value
-            # print 'JOBNUMBER'
-            # print jobnb
-            # print '1 '+prefix+'.SCTHitMaps.root   2 '+prefix+'.'+jobnb+'.'+'SCTHitMaps.root'
-#            print prefix + '.SCTHitMaps.root ' 
-#            print prefix + '.' + jobnb + '.SCTHitMaps.root'
-            # try:
-            # #    self._echologger.info(prefix + '.SCTHitMaps.root ' + prefix + "." + jobnb + "." + 'SCTHitMaps.root')
-            #     os.rename(prefix + '.SCTHitMaps.root',prefix + "." + jobnb + "." + 'SCTHitMaps.root')
-            #     os.rename(prefix + '.SCTLB.root'     ,prefix + "." + jobnb + "." + 'SCTLB.root')
-            # except:
-            #     self._echologger.warning("FAILED to rename ROOT files")
         else:
             jobnb=''
+          
+
+
         if prefix is not '':
             try:
                 if runArgs['splitNoisyStrip']._value !=1:
                     os.rename('mycool.db',prefix+'.mycool.db')                
-                #print self._runArgs.__dict__
                 if jobnb is not '':
                     prefixTmp = prefix + "."+ jobnb
                 else :
                     prefixTmp = prefix
-                #self.logger().info(prefixTmp)
-                #os.rename(self._logFileName,prefixTmp+'.log')
-                #self._logFileName=prefixTmp+'.log'
                 if runArgs['splitNoisyStrip']._value == 2:
                     os.rename('SCTHitMaps.root',prefix+'.SCTHitMaps.root')
                     os.rename('SCTLB.root',prefix+'.SCTLB.root')
@@ -485,19 +614,8 @@ class SCTCalibExecutor( athenaExecutor ):
     def validate(self):
         self._hasValidated = True
         deferredException = None
+
        
-        ## Our parent will check the RC for us
-        # try:
-#        super(SCTCalibExecutor, self).validate()
-        # except trfExceptions.TransformValidationException, e:
-        #     # In this case we hold this exception until the logfile has been scanned
-        #     msg.error('Validation of return code failed: {0!s}'.format(e))
-        #     deferredException = e
-               
-        # Logfile scan setup
-        # Always use ignorePatterns from the command line
-        # For patterns in files, pefer the command line first, then any special settings for
-        # this executor, then fallback to the standard default (atlas_error_mask.db)
         if 'ignorePatterns' in self.conf._argdict:
             igPat = self.conf.argdict['ignorePatterns'].value
         else:
@@ -513,28 +631,6 @@ class SCTCalibExecutor( athenaExecutor ):
         msg.info('Scanning logfile {0} for errors'.format(self._logFileName))
         self._logScan = trfValidation.athenaLogFileReport(logfile = self._logFileName, ignoreList = ignorePatterns)
         worstError = self._logScan.worstError()
-
-        #UOFO Unknown offlineId for OnlineId
-        # countUOFO = 0
-        # detailsErr = self._logScan._errorDetails['ERROR']
-        # for errors in detailsErr:
-        #     if 'ERROR Unknown offlineId for OnlineId' in errors['message']:
-        #         countUOFO = countUOFO + errors['count']
-
-
-        # limitUOFO = 100
-
-        # print countUOFO
-        # print '------------'
-        # print 'levelcounter'
-        # print self._logScan._levelCounter
-        # print 'errorDetails'
-        # print self._logScan._errorDetails
-        # print 'worsterror'
-        # print worstError
-        # print 'stdloglevels'
-        # print stdLogLevels
-        # print '------------'
 
         
 

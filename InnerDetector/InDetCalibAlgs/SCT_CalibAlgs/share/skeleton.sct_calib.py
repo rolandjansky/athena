@@ -352,6 +352,15 @@ filename=filelist[0].split('/')[n]
 projectName=str(filename.split('.')[0])
 rec.__dict__.get('projectName').set_Value(projectName)
 #--------------------------------------------------------------
+
+
+# Configuring folder for noisy strip comparison
+#-------------------------------------------------------------
+from IOVDbSvc.CondDB import conddb
+conddb.dbdata = 'CONDBR2'
+conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-004</tag>") 
+#conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-004</tag><forceRunNumber>259237</forceRunNumber>") 
+
 # GeoModel & MagneticFieldSvc
 #--------------------------------------------------------------
 from AtlasGeoModel import SetGeometryVersion
@@ -482,6 +491,7 @@ SCTCalib.ReadBS         = ReadBS
 if hasattr( runArgs, 'InputType' ) :
     if runArgs.InputType is 'RAW' :
         ServiceMgr.ByteStreamInputSvc.FullFileName = runArgs.inputNames
+        ServiceMgr.ByteStreamInputSvc.PartName = runArgs.part
     elif runArgs.InputType is 'NTUP_TRKVALID' :
         SCTCalib.InputTrkVal                       = runArgs.inputNames
     elif runArgs.InputType is 'HIST' :
@@ -602,4 +612,4 @@ theApp.EvtMax                      = EvtMax
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
 ServiceMgr.MessageSvc.OutputLevel = INFO
-ServiceMgr.MessageSvc.infoLimit   = 10000
+ServiceMgr.MessageSvc.infoLimit   = 2000000

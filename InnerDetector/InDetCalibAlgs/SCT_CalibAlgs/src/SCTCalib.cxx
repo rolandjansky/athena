@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 /**
 * @file SCTCalib.cxx
 *
@@ -31,7 +32,6 @@
 #include "XmlHeader.h"
 #include "XmlStreamer.h"
 
-using namespace SCT_CalibAlgs;
 //STL, boost
 #include <boost/lexical_cast.hpp>
 
@@ -60,6 +60,7 @@ using namespace SCT_CalibAlgs;
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 
+using namespace SCT_CalibAlgs;
 using namespace std;
 
 namespace{
@@ -178,9 +179,9 @@ SCTCalib::SCTCalib( const std::string& name, ISvcLocator* pSvcLocator ) :
   m_absolutetriplimit(0),
   m_relativetriplimit(0),
   m_numberOfEventsHist(0),
-  inputHist(0),
+  m_inputHist(0),
   /* m_readHist(false), */
-  MAXHASH(0){
+  m_MAXHASH(0){
   declareProperty( "RunNumber",                 m_runNumber );
   declareProperty( "RunStartTime",              m_runStartTime );
   declareProperty( "RunEndTime",                m_runEndTime );
@@ -195,6 +196,8 @@ SCTCalib::SCTCalib( const std::string& name, ISvcLocator* pSvcLocator ) :
   declareProperty( "ReadBS",                    m_readBS                     = false );
   declareProperty( "HistBefore2010",            m_histBefore2010             = false );
   declareProperty( "DoHitMaps",                 m_doHitMaps                  = true );
+  declareProperty( "LbsPerWindow",              m_nLbsMerged                  = 20 );
+  //  declareProperty( "EventsPerWindow",           m_eventsPerWindow            = 10000 );
   declareProperty( "ReadHitMaps",               m_readHitMaps                = false );
   declareProperty( "DoBSErrors",                m_doBSErrors                 = false );
   declareProperty( "DoNoisyStrip",              m_doNoisyStrip               = true );
@@ -314,7 +317,7 @@ StatusCode SCTCalib::initialize(){
   if ( service( "THistSvc", m_thistSvc ).isFailure() ) return msg( MSG::ERROR) << "Unable to retrieve pointer to THistSvc" << endreq, StatusCode::FAILURE;
   if ( detStore()->retrieve( m_pSCTHelper, "SCT_ID").isFailure()) return msg( MSG::ERROR) << "Unable to retrieve SCTHelper" << endreq, StatusCode::FAILURE;
   //
-  MAXHASH=m_pSCTHelper->wafer_hash_max();
+  m_MAXHASH=m_pSCTHelper->wafer_hash_max();
   m_waferItrBegin  = m_pSCTHelper->wafer_begin();
   m_waferItrEnd  = m_pSCTHelper->wafer_end();
   //
@@ -373,6 +376,7 @@ StatusCode SCTCalib::initialize(){
       m_LBRange = 0;
   }
 
+  ISCT_CalibHistoSvc::setLbToMerge(m_nLbsMerged);
  
 
   m_readHIST = m_doNoiseOccupancy || m_doRawOccupancy || m_doEfficiency || m_doBSErrorDB || m_doLorentzAngle;
@@ -404,18 +408,23 @@ StatusCode SCTCalib::initialize(){
       msg( MSG::ERROR ) << "The input histogram collection property is empty"<< endreq;
       return StatusCode::FAILURE;
     }
-    inputHist = TFile::Open( hist.c_str() );
-    ATH_MSG_INFO( "opening HIST file : " << hist.c_str() );
 
-    if(inputHist){  
+    //in case of DeadStrip or DeadChip, change open from EOS to 
+    //copy and open locally. Delete the file after processing
+    m_inputHist = TFile::Open( hist.c_str() );
+
+    ATH_MSG_INFO( "opening HIST file : " << hist.c_str() );
+    cout<< "opening HIST file : " << hist.c_str()<<endl;
+
+    if(m_inputHist){  
       //--- Check run number
       const std::string os=std::to_string((int)m_runNumber);
       ATH_MSG_INFO( "Getting HIST directory : " << (int)m_runNumber );
-      if ( not inputHist->GetDirectory( "/run_"+TString(os) ) ) return msg( MSG::ERROR ) << "RunNumber in HIST is inconsistent with jobO : " << os << endreq, StatusCode::FAILURE ;
+      if ( not m_inputHist->GetDirectory( "/run_"+TString(os) ) ) return msg( MSG::ERROR ) << "RunNumber in HIST is inconsistent with jobO : " << os << endreq, StatusCode::FAILURE ;
       ATH_MSG_INFO( "Getting Number of events: " << m_calibEvtInfoSvc->counter() );
       //--- Read number of events : Get an entry of "tier0ESD" in "/GLOBAL/DQTDataFlow/events_lb"
       std::string osHist= std::string( "/run_") + std::to_string((int)m_runNumber)+"/GLOBAL/DQTDataFlow/events_lb";
-      TH1I* hist_events = (TH1I *) inputHist->Get( osHist.c_str() );
+      TH1I* hist_events = (TH1I *) m_inputHist->Get( osHist.c_str() );
       m_numberOfEventsHist = hist_events->GetBinContent( 6 ); // Entry in "tier0ESD"
       //m_numberOfEventsHist = 13902;
     }else{
@@ -517,6 +526,9 @@ StatusCode SCTCalib::endRun(){
   //--- Number of events processed
   m_numberOfEvents = (m_readHIST || (!m_doHitMaps && m_readHitMaps)) ? m_numberOfEventsHist : m_calibEvtInfoSvc->counter();
   m_calibEvtInfoSvc->getTimeStamps(m_utcBegin,m_utcEnd); 
+  
+
+  //  if ( m_doNoisyLB ) m_calibLbSvc->binHistograms(m_nLbsMerged);
 
   //--- IOV range defined by RunNumber and LB
   unsigned int beginRun = (int) m_runNumber;
@@ -532,11 +544,11 @@ StatusCode SCTCalib::endRun(){
 
   //--- Upload hv
   if ( m_doHV ) {
-    gofile.open(m_badModulesFile.c_str(),std::ios::out);
-    if (not gofile and msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Problem opening "<<m_badModulesFile<< endreq;
+    m_gofile.open(m_badModulesFile.c_str(),std::ios::out);
+    if (not m_gofile and msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Problem opening "<<m_badModulesFile<< endreq;
     //
-    XmlHeader myXml(gofile);
-    XmlStreamer root("modules", gofile);  
+    XmlHeader myXml(m_gofile);
+    XmlStreamer root("modules", m_gofile);  
     SCT_ID::const_id_iterator waferItr  = m_waferItrBegin;
     const unsigned int onlyDummy(1);
     pair<int, int> timeInterval(0,0);
@@ -589,7 +601,7 @@ StatusCode SCTCalib::endRun(){
   if ( m_doLorentzAngle  and getLorentzAngle().isFailure() ) return msg( MSG::ERROR ) << "Failed to run getLorentzAngle()" << endreq, StatusCode::FAILURE;
 
   //--- Close HIST
-  if ( m_readHIST ) inputHist->Close();
+  if ( m_readHIST ) m_inputHist->Close();
   return StatusCode::SUCCESS;
 }
 
@@ -614,13 +626,13 @@ StatusCode SCTCalib::doHVPrintXML(const std::pair<int, int> & timeInterval, cons
   const IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
   const SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
   
-  XmlStreamer mod("module", gofile);
-  { XmlStreamer v("value","name","SN", gofile); gofile<<sn.str();}
-  { XmlStreamer v("value", "name", "BecLayerPhiEta", gofile); gofile<< formatPosition(waferId, m_pSCTHelper,".",false);}
-  { XmlStreamer v("value","name", "StartTime", gofile); gofile<<timeInterval.first;}
-  { XmlStreamer v("value","name","EndTime",gofile);gofile<< timeInterval.second;}
-  { XmlStreamer v("value","name", "StartLBN", gofile); gofile<<lbRange.first;}
-  { XmlStreamer v("value","name","EndLBN",gofile);gofile<< lbRange.second;}
+  XmlStreamer mod("module", m_gofile);
+  { XmlStreamer v("value","name","SN", m_gofile); m_gofile<<sn.str();}
+  { XmlStreamer v("value", "name", "BecLayerPhiEta", m_gofile); m_gofile<< formatPosition(waferId, m_pSCTHelper,".",false);}
+  { XmlStreamer v("value","name", "StartTime", m_gofile); m_gofile<<timeInterval.first;}
+  { XmlStreamer v("value","name","EndTime",m_gofile);m_gofile<< timeInterval.second;}
+  { XmlStreamer v("value","name", "StartLBN", m_gofile); m_gofile<<lbRange.first;}
+  { XmlStreamer v("value","name","EndLBN",m_gofile);m_gofile<< lbRange.second;}
   return StatusCode::SUCCESS;
 }
 
@@ -636,11 +648,16 @@ StatusCode SCTCalib::getNoisyStrip(){
   m_numOfEventsProcessed=m_calibHitmapSvc->size();
   //sroe: This looks like a bug, so I change the code here
 
-  if (m_numOfEventsProcessed < (int) m_noisyMinStat ) {
-    msg( MSG::ERROR ) << "in getNoisyStrip() : Number of events processed "    << m_numOfEventsProcessed //original was just m_numberOfEvents
-                      << " is less than the required minimum number of events " << (int) m_noisyMinStat  << endreq;
-    return StatusCode::FAILURE;
-  }
+  // if ( noisyStripsToSummaryXmlFake( m_badStripsSummaryFile ).isFailure() ) {
+  //   msg( MSG::ERROR ) << "Could not write XML file" << endreq;
+  //   return StatusCode::FAILURE;
+  // }
+
+  // if (m_numOfEventsProcessed < (int) m_noisyMinStat ) {
+  //   msg( MSG::ERROR ) << "in getNoisyStrip() : Number of events processed "    << m_numOfEventsProcessed //original was just m_numberOfEvents
+  //                     << " is less than the required minimum number of events " << (int) m_noisyMinStat  << endreq;
+  //   return StatusCode::FAILURE;
+  // }
 
   ATH_MSG_INFO( "----- in getNoisyStrip() ----- " );
 
@@ -681,29 +698,21 @@ StatusCode SCTCalib::getNoisyStrip(){
     if (numNoisyStripsInWafer!=0){
       if ( m_noisyWaferFinder && isNoisyWafer ) { //in noisy wafer
         ++numNoisyWafers;
-	ATH_MSG_INFO( "IN NOISY WAFER" );
         if (not m_noisyWaferWrite) break;
         if (m_noisyWaferAllStrips){//write out all strips
           if ( addStripsToList( waferId, stripIdLists[ALL], false, false ).isFailure() or  addStripsToList( waferId, stripIdLists[NEW], false, true ).isFailure() ){
 	    return msg( MSG::ERROR ) << "Could not add stripIds to the list" << endreq, StatusCode::FAILURE;
-	  } else {
-	    ATH_MSG_INFO( "WRITE OUT ALL STRIPS" );
 	  }
 	  break;
 	} else {
 	  //only noisy strips in noisy wafer
 	  if ( addStripsToList( waferId, stripIdLists[ALL], true, false ).isFailure() or addStripsToList( waferId, stripIdLists[NEW], true, true  ).isFailure() ) {
 	    return msg( MSG::ERROR ) << "Could not add stripIds to the list" << endreq, StatusCode::FAILURE;
-	  } else {
-	    ATH_MSG_INFO( "ONLY NOISY STRIPS IN NOISY WAFER" );
 	  }
 	}
       } else { // not in noisy wafer
-	ATH_MSG_INFO( "NOT IN NOISY WAFER" );
 	if ( addStripsToList( waferId, stripIdLists[ALL], true, false ).isFailure() or addStripsToList( waferId, stripIdLists[NEW], true, true  ).isFailure() ) {
 	  return msg( MSG::ERROR ) << "Could not add stripIds to the list" << endreq, StatusCode::FAILURE;
-	} else {
-	  ATH_MSG_INFO( "    ONLY NOISY STRIPS" );
 	}
       }
     }//endif numnoisystrips!=0
@@ -763,80 +772,83 @@ StatusCode SCTCalib::getDeadStrip(){
   // Bad strips (w/o bad modules and chips)
   std::set<Identifier> badStripsExclusive;
   m_ConfigurationConditionsSvc->badStrips(badStripsExclusive, true, true);
-  std::set<Identifier>::const_iterator stripItr(badStripsExclusive.begin());
+  //std::set<Identifier>::const_iterator stripItr(badStripsExclusive.begin());
   std::set<Identifier>::const_iterator stripEnd(badStripsExclusive.end());
   //To get #(Enabled Modules)
   int numEnabledModules_B[n_barrels]={n_phiBinsB0*n_etaInBarrel,n_phiBinsB1*n_etaInBarrel,n_phiBinsB2*n_etaInBarrel,n_phiBinsB3*n_etaInBarrel};
   int numEnabledModules_EC[n_disks][n_etaBinsEC]={ {0}, {0} };
   for(int i=0; i<n_disks; i++)
-    for(int j=0; j<n_etaBinsEC; j++)
-      if(!((i==0&&j==2)||(i==6&&j==2)||(i==7&&j==2)||(i==8&&j==1)||(i==8&&j==2)))
-        numEnabledModules_EC[i][j] = j==0 ? n_phiBinsECOuter*2 : n_phiBinsECMiddle*2;
-      for(; ModItr!=ModEnd; ++ModItr){
-        Identifier moduleId = *ModItr;
-        if(m_pSCTHelper->barrel_ec(moduleId)==BARREL) numEnabledModules_B[m_pSCTHelper->layer_disk(moduleId)]--;
-        else numEnabledModules_EC[m_pSCTHelper->layer_disk(moduleId)][m_pSCTHelper->eta_module(moduleId)]--;
-      }
+      for(int j=0; j<n_etaBinsEC; j++)
+	  if(!((i==0&&j==2)||(i==6&&j==2)||(i==7&&j==2)||(i==8&&j==1)||(i==8&&j==2)))
+	      numEnabledModules_EC[i][j] = j==0 ? n_phiBinsECOuter*2 : n_phiBinsECMiddle*2;
+  for(; ModItr!=ModEnd; ++ModItr){
+      Identifier moduleId = *ModItr;
+      if(m_pSCTHelper->barrel_ec(moduleId)==BARREL) numEnabledModules_B[m_pSCTHelper->layer_disk(moduleId)]--;
+      else numEnabledModules_EC[m_pSCTHelper->layer_disk(moduleId)][m_pSCTHelper->eta_module(moduleId)]--;
+  }
   //calculate meanOccupancy of layer etc...
   double meanOccupancy_Barrel[n_barrels]={0};
   double meanOccupancy_EC[n_disks][n_etaBinsEC]={ {0}, {0} };
   SCT_ID::const_id_iterator waferItr  = m_waferItrBegin;
   SCT_ID::const_id_iterator waferItrE = m_waferItrEnd;
   for( ; waferItr != waferItrE; ++waferItr ) {
-    Identifier     waferId   = *waferItr;
-    //    Identifier     moduleId  = m_pSCTHelper->module_id(waferId);
-    IdentifierHash waferHash = m_pSCTHelper->wafer_hash(waferId);
-    for(int j=0; j<n_stripPerChip*n_chipPerSide; j++){
-      double n_hits = m_calibHitmapSvc->getBinForHistogramIndex( j+1 , (int) waferHash);
-      if(n_hits/m_numberOfEvents<m_noisyThr4DeadFinding){
-        if(m_pSCTHelper->barrel_ec(waferId)==BARREL){
-          meanOccupancy_Barrel[m_pSCTHelper->layer_disk(waferId)]+=m_calibHitmapSvc->getBinForHistogramIndex( j+1 , (int) waferHash);
-        }else{
-          meanOccupancy_EC[m_pSCTHelper->layer_disk(waferId)][m_pSCTHelper->eta_module(waferId)]+=m_calibHitmapSvc->getBinForHistogramIndex( j+1 , (int) waferHash);
-        }
+      Identifier     waferId   = *waferItr;
+      //    Identifier     moduleId  = m_pSCTHelper->module_id(waferId);
+      IdentifierHash waferHash = m_pSCTHelper->wafer_hash(waferId);
+      for(int j=0; j<n_stripPerChip*n_chipPerSide; j++){
+	  double n_hits = m_calibHitmapSvc->getBinForHistogramIndex( j+1 , (int) waferHash);
+	  if(n_hits/m_numberOfEvents<m_noisyThr4DeadFinding){
+	      if(m_pSCTHelper->barrel_ec(waferId)==BARREL){
+		  meanOccupancy_Barrel[m_pSCTHelper->layer_disk(waferId)]+=m_calibHitmapSvc->getBinForHistogramIndex( j+1 , (int) waferHash);
+	      }else{
+		  meanOccupancy_EC[m_pSCTHelper->layer_disk(waferId)][m_pSCTHelper->eta_module(waferId)]+=m_calibHitmapSvc->getBinForHistogramIndex( j+1 , (int) waferHash);
+	      }
+	  }
       }
-    }
   }
+
   for(int i=0; i<n_barrels; i++){
-    meanOccupancy_Barrel[i]/=(double)(m_numberOfEvents*nbins*2*numEnabledModules_B[i]);
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Barrel : layer="<<i<<", meanOccupancy="<<meanOccupancy_Barrel[i]<<", #enabledModule="<<numEnabledModules_B[i]<<endreq;
+      meanOccupancy_Barrel[i]/=(double)(m_numberOfEvents*nbins*2*numEnabledModules_B[i]);
+      if(msgLvl(MSG::INFO)) msg(MSG::INFO)<<"Barrel : layer="<<i<<", meanOccupancy="<<meanOccupancy_Barrel[i]<<", #enabledModule="<<numEnabledModules_B[i]<<endreq;
   }
+
   for(int i=0; i<n_disks; i++){
-    for(int j=0; j<n_etaBinsEC; j++){
-      if(numEnabledModules_EC[i][j]!=0){
-        meanOccupancy_EC[i][j]/=(double)(m_numberOfEvents*nbins*2*numEnabledModules_EC[i][j]);
-        if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"EndCap : disk="<<i<<", eta="<<j<<", meanOccupancy="<<meanOccupancy_EC[i][j]<<", #enabledModule="<<numEnabledModules_EC[i][j]<<endreq;
+      for(int j=0; j<n_etaBinsEC; j++){
+	  if(numEnabledModules_EC[i][j]!=0){
+	      meanOccupancy_EC[i][j]/=(double)(m_numberOfEvents*nbins*2*numEnabledModules_EC[i][j]);
+	      if(msgLvl(MSG::INFO)) msg(MSG::INFO)<<"EndCap : disk="<<i<<", eta="<<j<<", meanOccupancy="<<meanOccupancy_EC[i][j]<<", #enabledModule="<<numEnabledModules_EC[i][j]<<endreq;
+	  }
       }
-    }
   }
   bool busyStream = meanOccupancy_Barrel[3]>m_busyThr4DeadFinding ? true : false;
   unsigned int minStat = busyStream ? (unsigned int)m_deadStripMinStatBusy : (unsigned int)m_deadStripMinStat;
   if(m_doDeadStrip && m_numberOfEvents<minStat){
-    if (msgLvl(MSG::WARNING))
-      msg(MSG::WARNING)<<"required minimum statistics is "<<minStat/1E3<<"k events for DeadStrip search with this stream"<<endreq;
-    m_doDeadStrip = false;
+      if (msgLvl(MSG::WARNING))
+	  msg(MSG::WARNING)<<"required minimum statistics is "<<minStat/1E3<<"k events for DeadStrip search with this stream"<<endreq;
+      m_doDeadStrip = false;
   }
   if(m_doDeadChip && m_numberOfEvents<m_deadChipMinStat){
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)<<"required minimum statistics is "<<(unsigned int)m_deadChipMinStat<<" events for DeadChip search"<<endreq;
-    m_doDeadChip = false;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)<<"required minimum statistics is "<<(unsigned int)m_deadChipMinStat<<" events for DeadChip search"<<endreq;
+      m_doDeadChip = false;
   }
   if(m_doDeadStrip==false && m_doDeadChip==false){
-    msg(MSG::ERROR) << "Number of events "  << m_numberOfEvents<< " is less than the required minimum number of events... exit getDeadStrip()" << endreq;
-    return StatusCode::FAILURE;
+      msg(MSG::ERROR) << "Number of events "  << m_numberOfEvents<< " is less than the required minimum number of events... exit getDeadStrip()" << endreq;
+      return StatusCode::FAILURE;
   }
   //create XML files
   if(m_doDeadStrip){
-    if(openXML4DB(m_outDeadStrips, "DeadStrip", m_tagID4DeadStrips.c_str(), m_iovStart, m_iovStop).isFailure()){
-      msg(MSG::ERROR)<<"Problem opening "<<m_deadStripsFile<<endreq;
-      return StatusCode::FAILURE;
-    }
+      if(openXML4DB(m_outDeadStrips, "DeadStrip", m_tagID4DeadStrips.c_str(), m_iovStart, m_iovStop).isFailure()){
+	  msg(MSG::ERROR)<<"Problem opening "<<m_deadStripsFile<<endreq;
+	  return StatusCode::FAILURE;
+      }
   }
   if(m_doDeadChip){
-    if(openXML4DB(m_outDeadChips, "DeadChip", m_tagID4DeadChips.c_str(), m_iovStart, m_iovStop).isFailure()){
-      msg(MSG::ERROR)<<"Problem opening "<<m_deadChipsFile<<endreq;
-      return StatusCode::FAILURE;
-    }
+      if(openXML4DB(m_outDeadChips, "DeadChip", m_tagID4DeadChips.c_str(), m_iovStart, m_iovStop).isFailure()){
+	  msg(MSG::ERROR)<<"Problem opening "<<m_deadChipsFile<<endreq;
+	  return StatusCode::FAILURE;
+      }
   }
+
   //Dead identification
   bool hasDeadStrip=false;
   bool hasDeadChip=false;
@@ -858,220 +870,328 @@ StatusCode SCTCalib::getDeadStrip(){
   const double deadStripDefinition = ROOT::Math::gaussian_cdf_c(m_deadStripSignificance);
   const double deadChipDefinition = ROOT::Math::gaussian_cdf_c(m_deadChipSignificance);
 
+
   //--- Loop over wafers
   waferItr = m_waferItrBegin;
   for( ; waferItr != m_waferItrEnd; ++waferItr ) {
-    Identifier     waferId   = *waferItr;
-    Identifier     moduleId  = m_pSCTHelper->module_id(waferId);
-    IdentifierHash waferHash = m_pSCTHelper->wafer_hash(waferId);
+      Identifier     waferId   = *waferItr;
+      Identifier     moduleId  = m_pSCTHelper->module_id(waferId);
+      IdentifierHash waferHash = m_pSCTHelper->wafer_hash(waferId);
 
-    bool disabledChip[n_chipPerModule]={false};
-    unsigned int disabledChipFlag=0;
-    double numHitsInStrip[n_stripPerChip*n_chipPerSide]={0};
-    double numHitsInChip[n_chipPerSide]={0};
-    double totalHitsInWafer=0;
-    int n_noisyStrip=0;
-    int n_noHitsStrip=0;
-    int n_disabledStrip=0;
-    int n_disabledInChip[n_chipPerSide]={0};
+      bool disabledChip[n_chipPerModule]={false};
+      unsigned int disabledChipFlag=0;
+      double numHitsInStrip[n_stripPerChip*n_chipPerSide]={0};
+      double numHitsInChip[n_chipPerSide]={0};
+      double totalHitsInWafer=0;
+      int n_noisyStrip=0;
+      int n_noHitsStrip=0;
+      int n_disabledStrip=0;
+      int n_disabledInChip[n_chipPerSide]={0};
 
-    //initialize
-    int side = m_pSCTHelper->side(waferId);
-    if(side==0){
-      isDead=false;
-      beforeIsDead=false;
-      beginDead=0;
-      endDead=0;
-      defectStrip.erase();
-      defectChip.erase();
-    }     
+      //initialize
+      int side = m_pSCTHelper->side(waferId);
+      if(side==0){
+	  isDead=false;
+	  beforeIsDead=false;
+	  beginDead=0;
+	  endDead=0;
+	  defectStrip.erase();
+	  defectChip.erase();
+      }     
   
-    //check if module/link is disabled or not
-    bool disabled=false;
-    if(badMods->find(moduleId)!=badMods->end()) disabled=true;
-    linkItr=badLinks->find(moduleId);
-    if(linkItr!=linkEnd){
-      std::pair<bool, bool> status = (*linkItr).second;
-      if((side==0 && status.first==true) || (side==1 && status.second==true)) disabled=true;
-    }
-
-    //check BS Error
-    bool hasBSError=false;
-    if(m_calibBsErrSvc->size((int)waferHash)>0) hasBSError=true;
-    if(disabled || hasBSError) goto WRITE_DB; //<-- who ever put this in should be shot; http://xkcd.com/292/
-
-    //retrieving info of chip status
-    chipItr=badChips->find(moduleId);
-    if(chipItr!=chipEnd) disabledChipFlag = (*chipItr).second;
-    for (unsigned int i(0); i<n_chipPerModule; i++)
-      disabledChip[i] = ((disabledChipFlag & (1<<i)) != 0);
-
-     //retrieving #hits in each strip
-    for(int j=0; j<n_stripPerChip*n_chipPerSide; j++){
-      const InDetDD::SiDetectorElement* pElement = m_pManager->getDetectorElement(waferHash);
-      bool swap=(pElement->swapPhiReadoutDirection()) ? true : false; 
-      int chipNum=0;
-      if(side==0) chipNum = swap ? 5-j/n_stripPerChip : j/n_stripPerChip;
-      else chipNum = swap ? 11-j/n_stripPerChip : 6+j/n_stripPerChip;
-      int stripNum = swap ? 767-j : j;
-      Identifier stripId = m_pSCTHelper->strip_id(waferId,j);
-      
-      numHitsInStrip[stripNum] = m_calibHitmapSvc->getBinForHistogramIndex( j+1 , (int) waferHash);
-      bool misMatch=false;
-      double n_hitsInDisable=numHitsInStrip[stripNum];
-      if(((disabledChipFlag & (1<<chipNum))!=0) || badStripsExclusive.find(stripId)!=stripEnd){
-    if(numHitsInStrip[stripNum]!=0) misMatch = true;
-    numHitsInStrip[stripNum] = -99;
+      //check if module/link is disabled or not
+      bool disabled=false;
+      if(badMods->find(moduleId)!=badMods->end()) disabled=true;
+      linkItr=badLinks->find(moduleId);
+      if(linkItr!=linkEnd){
+	  std::pair<bool, bool> status = (*linkItr).second;
+	  if((side==0 && status.first==true) || (side==1 && status.second==true)) disabled=true;
       }
-      if(misMatch){
-        if (msgLvl(MSG::WARNING)){
-          msg(MSG::WARNING)<<"hits in disabled Strip : "
-             <<"n_hits="<<n_hitsInDisable<<", "
-             <<"bec="<<m_pSCTHelper->barrel_ec(stripId)<<", "
-             <<"layer="<<m_pSCTHelper->layer_disk(stripId)<<", "
-             <<"phi="<<m_pSCTHelper->phi_module(stripId)<<", "
-             <<"eta="<<m_pSCTHelper->eta_module(stripId)<<", "
-             <<"side="<<m_pSCTHelper->side(stripId)<<", "
-             <<"strip="<<m_pSCTHelper->strip(stripId)<<endreq;
-        }
-      }
-      
-      if(numHitsInStrip[stripNum]==0){
-        n_noHitsStrip++;
-        msg(MSG::DEBUG)<<"nohit strip : barrel_ec="<<m_pSCTHelper->barrel_ec(stripId)
-         <<", layer="<<m_pSCTHelper->layer_disk(stripId)<<", phi="<<m_pSCTHelper->phi_module(stripId)
-         <<", eta="<<m_pSCTHelper->eta_module(stripId)<<", side="<<m_pSCTHelper->side(stripId)
-         <<", strip=offline"<<m_pSCTHelper->strip(stripId)<<endreq;
-      }else if(numHitsInStrip[stripNum]==-99){
-        n_disabledStrip++;
-        n_disabledInChip[stripNum/n_stripPerChip]++;
-        msg(MSG::DEBUG)<<"disabled strip : barrel_ec="<<m_pSCTHelper->barrel_ec(stripId)
-         <<", layer="<<m_pSCTHelper->layer_disk(stripId)<<", phi="<<m_pSCTHelper->phi_module(stripId)
-         <<", eta="<<m_pSCTHelper->eta_module(stripId)<<", side="<<m_pSCTHelper->side(stripId)
-         <<", strip=offline"<<m_pSCTHelper->strip(stripId)<<endreq;
-      }else if(numHitsInStrip[stripNum]/m_numberOfEvents>m_noisyThr4DeadFinding){ n_noisyStrip++; }
-      else{ totalHitsInWafer+=numHitsInStrip[stripNum]; }
-      
-    }//end strip loop
 
-    if(n_disabledStrip==768) goto WRITE_DB; //<-- who ever put this in should be shot; http://xkcd.com/292/
-    
-    isNoHitLink=false;
-    if(n_noHitsStrip+n_disabledStrip==768){
-      n_checkedChip+=n_chipPerSide;
-      isNoHitLink=true;
+      //check BS Error
+      bool hasBSError=false;
+      if(m_calibBsErrSvc->size((int)waferHash)>0) hasBSError=true;
+      if(disabled || hasBSError){ //goto WRITE_DB; //<-- who ever put this in should be shot; http://xkcd.com/292/
+	if(side==1){
+	  //write to DB & .xml.
+	  if(defectChip==" 0-5  6-11 "){
+	    n_deadModule++;
+	  }else if(defectChip==" 0-5 " || defectChip==" 6-11 "){
+	    n_deadLink++;
+	  }
+
+	  if(!(defectStrip.empty()) || !(defectChip.empty())){
+	    if (addToSummaryStr(summaryList, waferId, "DEAD", defectStrip.c_str(), defectChip.c_str()).isFailure()){
+		return msg( MSG::ERROR ) << "Could not add dead strips to the summary" << endreq, StatusCode::FAILURE;
+	      }
+	  }
+
+	  if(!(defectStrip.empty())){
+	    if(m_writeToCool){
+	      if (m_pCalibWriteSvc->createListStrip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadStripSignificance,defectStrip).isFailure())
+		return msg( MSG::ERROR ) << "Could not create list" << endreq, StatusCode::FAILURE;
+	    }
+
+	    if (addToXML4DB(m_outDeadStrips, waferId, "DEAD", m_deadStripSignificance, defectStrip.c_str()).isFailure())
+	      return msg( MSG::ERROR ) << "Could not add dead strips to the summary" << endreq, StatusCode::FAILURE;
+	    
+	    hasDeadStrip=true;
+	  }
+
+	  if(!(defectChip.empty())){
+	    if(m_writeToCool) {
+	      if ( m_pCalibWriteSvc->createListChip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadChipSignificance,defectChip).isFailure())
+		return msg( MSG::ERROR ) << "Could not create list" << endreq, StatusCode::FAILURE;
+	    }
+
+	    if (addToXML4DB(m_outDeadChips, waferId, "DEAD", m_deadChipSignificance, defectChip.c_str()).isFailure())
+	      return msg( MSG::ERROR ) << "Could not add dead chips to the summary" << endreq, StatusCode::FAILURE;
+	      
+	    hasDeadChip=true;
+
+	  }
+	}
+	continue;
+      }
+      //retrieving info of chip status
+      chipItr=badChips->find(moduleId);
+      if(chipItr!=chipEnd) disabledChipFlag = (*chipItr).second;
+      for (unsigned int i(0); i<n_chipPerModule; i++)
+	disabledChip[i] = ((disabledChipFlag & (1<<i)) != 0);
+
+      //retrieving #hits in each strip
+      for(int j=0; j<n_stripPerChip*n_chipPerSide; j++){
+	const InDetDD::SiDetectorElement* pElement = m_pManager->getDetectorElement(waferHash);
+	bool swap=(pElement->swapPhiReadoutDirection()) ? true : false; 
+	int chipNum=0;
+	if(side==0) chipNum = swap ? 5-j/n_stripPerChip : j/n_stripPerChip;
+	else chipNum = swap ? 11-j/n_stripPerChip : 6+j/n_stripPerChip;
+	int stripNum = swap ? 767-j : j;
+	Identifier stripId = m_pSCTHelper->strip_id(waferId,j);
       
-      double meanOccu=0;
-      if(m_pSCTHelper->barrel_ec(waferId)==BARREL) meanOccu=meanOccupancy_Barrel[m_pSCTHelper->layer_disk(waferId)];
-      else meanOccu=meanOccupancy_EC[m_pSCTHelper->layer_disk(waferId)][m_pSCTHelper->eta_module(waferId)];
-      double sum_binomial = ROOT::Math::binomial_cdf(0, meanOccu, m_numberOfEvents*n_stripPerChip*n_chipPerSide);
+	numHitsInStrip[stripNum] = m_calibHitmapSvc->getBinForHistogramIndex( j+1 , (int) waferHash);
+	bool misMatch=false;
+	double n_hitsInDisable=numHitsInStrip[stripNum];
+	if(((disabledChipFlag & (1<<chipNum))!=0) || badStripsExclusive.find(stripId)!=stripEnd){
+	  if(numHitsInStrip[stripNum]!=0) misMatch = true;
+	  numHitsInStrip[stripNum] = -99;
+	}
+	if(misMatch){
+	  if (msgLvl(MSG::WARNING)){
+	    msg(MSG::WARNING)<<"hits in disabled Strip : "
+			     <<"n_hits="<<n_hitsInDisable<<", "
+			     <<"bec="<<m_pSCTHelper->barrel_ec(stripId)<<", "
+			     <<"layer="<<m_pSCTHelper->layer_disk(stripId)<<", "
+			     <<"phi="<<m_pSCTHelper->phi_module(stripId)<<", "
+			     <<"eta="<<m_pSCTHelper->eta_module(stripId)<<", "
+			     <<"side="<<m_pSCTHelper->side(stripId)<<", "
+			     <<"strip="<<m_pSCTHelper->strip(stripId)<<endreq;
+	  }
+	}
       
-      if(sum_binomial<deadChipDefinition){
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"DEADLINK : "<<moduleId<<", side="<<side<<endreq;
-        n_deadChip+=n_chipPerSide;
-        //For DeadStrip
-        if(m_doDeadStrip){
+	if(numHitsInStrip[stripNum]==0){
+	  n_noHitsStrip++;
+	  msg(MSG::DEBUG)<<"nohit strip : barrel_ec="<<m_pSCTHelper->barrel_ec(stripId)
+			 <<", layer="<<m_pSCTHelper->layer_disk(stripId)<<", phi="<<m_pSCTHelper->phi_module(stripId)
+			 <<", eta="<<m_pSCTHelper->eta_module(stripId)<<", side="<<m_pSCTHelper->side(stripId)
+			 <<", strip=offline"<<m_pSCTHelper->strip(stripId)<<endreq;
+	} else if(numHitsInStrip[stripNum]==-99) {
+	  n_disabledStrip++;
+	  n_disabledInChip[stripNum/n_stripPerChip]++;
+	  msg(MSG::DEBUG)<<"disabled strip : barrel_ec="<<m_pSCTHelper->barrel_ec(stripId)
+			 <<", layer="<<m_pSCTHelper->layer_disk(stripId)<<", phi="<<m_pSCTHelper->phi_module(stripId)
+			 <<", eta="<<m_pSCTHelper->eta_module(stripId)<<", side="<<m_pSCTHelper->side(stripId)
+			 <<", strip=offline"<<m_pSCTHelper->strip(stripId)<<endreq;
+	} else if(numHitsInStrip[stripNum]/m_numberOfEvents>m_noisyThr4DeadFinding) { 
+	  n_noisyStrip++; 
+	} else {
+	  totalHitsInWafer+=numHitsInStrip[stripNum]; 
+	}
+      
+      }//end strip loop
+      
+      if(n_disabledStrip==768){
+	if(side==1){
+	  //write to DB & .xml.
+	  if(defectChip==" 0-5  6-11 "){
+	    n_deadModule++;
+	  }else if(defectChip==" 0-5 " || defectChip==" 6-11 "){
+	    n_deadLink++;
+	  }
+	  if(!(defectStrip.empty()) || !(defectChip.empty())){
+	    if (addToSummaryStr(summaryList, waferId, "DEAD", defectStrip.c_str(), defectChip.c_str()).isFailure())
+	      return msg( MSG::ERROR ) << "Could not add dead strips to the summary" << endreq, StatusCode::FAILURE;
+
+	  }
+
+	  if(!(defectStrip.empty())){
+	    if(m_writeToCool) {
+	      if (m_pCalibWriteSvc->createListStrip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadStripSignificance,defectStrip).isFailure())
+		return msg( MSG::ERROR ) << "Could not create strip list" << endreq, StatusCode::FAILURE;
+	    }
+	    
+	    if (addToXML4DB(m_outDeadStrips, waferId, "DEAD", m_deadStripSignificance, defectStrip.c_str()).isFailure())
+	      return msg( MSG::ERROR ) << "Could not add xml strip list" << endreq, StatusCode::FAILURE;
+	    
+	    hasDeadStrip=true;
+
+	  }
+	  if(!(defectChip.empty())){
+	    if(m_writeToCool) {
+	      if (m_pCalibWriteSvc->createListChip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadChipSignificance,defectChip).isFailure())
+		return msg( MSG::ERROR ) << "Could not create strip list" << endreq, StatusCode::FAILURE;
+	    }
+
+	    if (addToXML4DB(m_outDeadChips, waferId, "DEAD", m_deadChipSignificance, defectChip.c_str()).isFailure())
+	      return msg( MSG::ERROR ) << "Could not add xml chip list" << endreq, StatusCode::FAILURE;
+	      
+	    hasDeadChip=true;
+
+	  }
+	}
+	continue;
+
+      }
+
+      isNoHitLink=false;
+      if(n_noHitsStrip+n_disabledStrip==768){
+	  n_checkedChip+=n_chipPerSide;
+	  isNoHitLink=true;
+      
+	  double meanOccu=0;
+	  if(m_pSCTHelper->barrel_ec(waferId)==BARREL) meanOccu=meanOccupancy_Barrel[m_pSCTHelper->layer_disk(waferId)];
+	  else meanOccu=meanOccupancy_EC[m_pSCTHelper->layer_disk(waferId)][m_pSCTHelper->eta_module(waferId)];
+	  double sum_binomial = ROOT::Math::binomial_cdf(0, meanOccu, m_numberOfEvents*n_stripPerChip*n_chipPerSide);
+      
+	  if(sum_binomial<deadChipDefinition){
+	      if (msgLvl(MSG::INFO)) msg(MSG::INFO)<<"DEADLINK : "<<moduleId<<", side="<<side<<endreq;
+	      n_deadChip+=n_chipPerSide;
+
+	      //For DeadStrip
+	      if(m_doDeadStrip){
 		  if(side==0) beginDead=0, endDead=767;
 		  else beginDead=768, endDead=1535;
 		  defectStrip = m_pCalibWriteSvc->addDefect(defectStrip,beginDead,endDead);
-        }
-        //For DeadChip
-        if(m_doDeadChip){
+	      }
+
+	      //For DeadChip
+	      if(m_doDeadChip){
 		  if(side==0) beginDead=0, endDead=5;
 		  else beginDead=6, endDead=11;
 		  defectChip = m_pCalibWriteSvc->addDefect(defectChip,beginDead,endDead);
-        }
-        goto WRITE_DB; //<-- who ever put this in should be shot; http://xkcd.com/292/
-      }
-    }//end DeadLink
+	      }
 
-    if(n_noHitsStrip>0){
-      int n_deadStripInWafer=0;
-      int n_deadChipInWafer=0;
-  
-      double n_effectiveEvents=0;
-      if(busyStream) n_effectiveEvents = m_numberOfEvents*(n_stripPerChip*n_chipPerSide-n_disabledStrip-n_noisyStrip-n_noHitsStrip);
-      else n_effectiveEvents = m_numberOfEvents*(n_stripPerChip*n_chipPerSide-n_disabledStrip-n_noisyStrip);
-  
-  //First, check DeadChip
-  double meanOccupancy = totalHitsInWafer/n_effectiveEvents;
-  for(int j=0; j<n_stripPerChip*n_chipPerSide; j++)
-      if(numHitsInStrip[j]>0) numHitsInChip[j/n_stripPerChip] += numHitsInStrip[j];
-  
-  for(int j=0; j<n_chipPerSide; j++){
-      isDead=false;
-      int chipNum = side==0 ? j : j+6;
-      if(numHitsInChip[j]==0 && !disabledChip[chipNum]){
-        if(!isNoHitLink) n_checkedChip++;
-        double sum_binomial = ROOT::Math::binomial_cdf(0, meanOccupancy, m_numberOfEvents*(n_stripPerChip-n_disabledInChip[j]));
-        if(sum_binomial<deadChipDefinition){
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"DEADCHIP : "<<moduleId<<", side="<<side
-                 <<", chip(online)="<<(side==0 ? j : j+n_chipPerSide)<<endreq;
-            isDead=true;
-            n_deadChip++;
-            n_deadChipInWafer++;
-            endDead = side==0 ? j : j+n_chipPerSide;
-            if(!beforeIsDead) beginDead = side==0 ? j : j+n_chipPerSide;
-        }
-      }
+	      if(side==1){
+	      	//write to DB & .xml.
+	      	if(defectChip==" 0-5  6-11 "){
+	      	  n_deadModule++;
+	      	}else if(defectChip==" 0-5 " || defectChip==" 6-11 "){
+	      	  n_deadLink++;
+	      	}
 
-      if(m_doDeadChip){
-        if((beforeIsDead && !isDead) || (j==5 && isDead)) defectChip = m_pCalibWriteSvc->addDefect(defectChip,beginDead,endDead);
-      }
-      beforeIsDead = isDead;
-  }//end chip loop
+	      	if(!(defectStrip.empty()) || !(defectChip.empty())){
+		  if (addToSummaryStr(summaryList, waferId, "DEAD", defectStrip.c_str(), defectChip.c_str()).isFailure())
+		    return msg( MSG::ERROR ) << "Could not add dead strips to the summary" << endreq, StatusCode::FAILURE;
+		    
+
+	      	}
+	      	if(!(defectStrip.empty())){
+	      	  if(m_writeToCool) {
+		    if (m_pCalibWriteSvc->createListStrip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadStripSignificance,defectStrip).isFailure())
+		      return msg( MSG::ERROR ) << "Could not create strip list" << endreq, StatusCode::FAILURE;
+		  }
+
+	      	  if (addToXML4DB(m_outDeadStrips, waferId, "DEAD", m_deadStripSignificance, defectStrip.c_str()).isFailure())
+		    return msg( MSG::ERROR ) << "Could not add xml strip list" << endreq, StatusCode::FAILURE;
+		    
+	      	  hasDeadStrip=true;
+
+	      	}
+
+	      	if(!(defectChip.empty())){
+	      	  if(m_writeToCool) {
+		    if ( m_pCalibWriteSvc->createListChip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadChipSignificance,defectChip).isFailure())
+		      return msg( MSG::ERROR ) << "Could not create chip list" << endreq, StatusCode::FAILURE;
+		  }
+
+	      	  if (addToXML4DB(m_outDeadChips, waferId, "DEAD", m_deadChipSignificance, defectChip.c_str()).isFailure())
+		    return msg( MSG::ERROR ) << "Could not add xml chip list" << endreq, StatusCode::FAILURE;
+
+	      	  hasDeadChip=true;
+
+	      	}
+	      }
+	      continue;
+	  }
+      }//end DeadLink
+
+      if(n_noHitsStrip>0){
+	  int n_deadStripInWafer=0;
+	  int n_deadChipInWafer=0;
   
-  //Second, check DeadStrip
-  if(m_doDeadStrip){
-    double meanOccExceptDeadChip=totalHitsInWafer/(n_effectiveEvents-n_stripPerChip*n_deadChipInWafer);
-    double numHitsInStripOnlineOrder[n_stripPerChip*n_chipPerSide]={0};
-    for(int j=0; j<n_stripPerChip*n_chipPerSide; j++){
-      numHitsInStripOnlineOrder[j] = side==0 ? numHitsInStrip[j] : numHitsInStrip[n_stripPerChip*n_chipPerSide-j];
-      isDead=false;
-      if(numHitsInStripOnlineOrder[j]==0){
-        double sum_binomial = ROOT::Math::binomial_cdf(0, meanOccExceptDeadChip, m_numberOfEvents);
-        if(sum_binomial<deadStripDefinition){
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"DEADSTRIP : "<<moduleId<<", side="<<side<<", strip(offline)="<<j<<endreq;
-          isDead=true;
-          n_deadStrip++;
-          n_deadStripInWafer++;
-          endDead = side==0 ? j : j+n_stripPerChip*n_chipPerSide;
-          if(!beforeIsDead) beginDead = side==0 ? j : j+n_stripPerChip*n_chipPerSide;
-        }
+	  double n_effectiveEvents=0;
+	  if(busyStream) n_effectiveEvents = m_numberOfEvents*(n_stripPerChip*n_chipPerSide-n_disabledStrip-n_noisyStrip-n_noHitsStrip);
+	  else n_effectiveEvents = m_numberOfEvents*(n_stripPerChip*n_chipPerSide-n_disabledStrip-n_noisyStrip);
+  
+	  //First, check DeadChip
+	  double meanOccupancy = totalHitsInWafer/n_effectiveEvents;
+	  for(int j=0; j<n_stripPerChip*n_chipPerSide; j++)
+	      if(numHitsInStrip[j]>0) numHitsInChip[j/n_stripPerChip] += numHitsInStrip[j];
+      
+	  for(int j=0; j<n_chipPerSide; j++){
+	      isDead=false;
+	      int chipNum = side==0 ? j : j+6;
+	      if(numHitsInChip[j]==0 && !disabledChip[chipNum]){
+		  if(!isNoHitLink) n_checkedChip++;
+		  double sum_binomial = ROOT::Math::binomial_cdf(0, meanOccupancy, m_numberOfEvents*(n_stripPerChip-n_disabledInChip[j]));
+		  if(sum_binomial<deadChipDefinition){
+		      if (msgLvl(MSG::INFO)) msg(MSG::INFO)<<"DEADCHIP : "<<moduleId<<", side="<<side
+							     <<", chip(online)="<<(side==0 ? j : j+n_chipPerSide)<<endreq;
+		      isDead=true;
+		      n_deadChip++;
+		      n_deadChipInWafer++;
+		      endDead = side==0 ? j : j+n_chipPerSide;
+		      if(!beforeIsDead) beginDead = side==0 ? j : j+n_chipPerSide;
+		  }
+	      }
+
+	      if(m_doDeadChip){
+		  if((beforeIsDead && !isDead) || (j==5 && isDead)) defectChip = m_pCalibWriteSvc->addDefect(defectChip,beginDead,endDead);
+	      }
+	      beforeIsDead = isDead;
+	  }//end chip loop
+  
+	  //Second, check DeadStrip
+	  if(m_doDeadStrip){
+	    double meanOccExceptDeadChip=totalHitsInWafer/(n_effectiveEvents-n_stripPerChip*n_deadChipInWafer);
+	    double numHitsInStripOnlineOrder[n_stripPerChip*n_chipPerSide]={0};
+	    for(int j=0; j<n_stripPerChip*n_chipPerSide; j++){
+	      numHitsInStripOnlineOrder[j] = side==0 ? numHitsInStrip[j] : numHitsInStrip[n_stripPerChip*n_chipPerSide-j];
+	      isDead=false;
+	      if(numHitsInStripOnlineOrder[j]==0){
+		double sum_binomial = ROOT::Math::binomial_cdf(0, meanOccExceptDeadChip, m_numberOfEvents);
+		if(sum_binomial<deadStripDefinition){
+		  if (msgLvl(MSG::INFO)) msg(MSG::INFO)<<"DEADSTRIP : "<<moduleId<<", side="<<side<<", strip(offline)="<<j<<endreq;
+		  isDead=true;
+		  n_deadStrip++;
+		  n_deadStripInWafer++;
+		  endDead = side==0 ? j : j+n_stripPerChip*n_chipPerSide;
+		  if(!beforeIsDead) beginDead = side==0 ? j : j+n_stripPerChip*n_chipPerSide;
+		}
+	      }
+    
+	      if(m_doDeadStrip){
+		if((beforeIsDead && !isDead) || (j==5 && isDead)) defectStrip = m_pCalibWriteSvc->addDefect(defectStrip,beginDead,endDead);
+	      }
+	      beforeIsDead = isDead;
+	    }
+	  }
       }
     
-      if(m_doDeadStrip){
-        if((beforeIsDead && !isDead) || (j==5 && isDead)) defectStrip = m_pCalibWriteSvc->addDefect(defectStrip,beginDead,endDead);
-      }
-      beforeIsDead = isDead;
-    }
-  }
-}
-    
-    WRITE_DB :
-      if(side==1){
-        //write to DB & .xml.
-        if(defectChip==" 0-5  6-11 "){
-          n_deadModule++;
-        }else if(defectChip==" 0-5 " || defectChip==" 6-11 "){
-          n_deadLink++;
-        }
-        if(!(defectStrip.empty()) || !(defectChip.empty())){
-            addToSummaryStr(summaryList, waferId, "DEAD", defectStrip.c_str(), defectChip.c_str());
-        }
-        if(!(defectStrip.empty())){
-            if(m_writeToCool) m_pCalibWriteSvc->createListStrip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadStripSignificance,defectStrip);
-            addToXML4DB(m_outDeadStrips, waferId, "DEAD", m_deadStripSignificance, defectStrip.c_str());
-            hasDeadStrip=true;
-        }
-        if(!(defectChip.empty())){
-            if(m_writeToCool) m_pCalibWriteSvc->createListChip(moduleId,m_pSCTHelper,10000,"DEAD",m_deadChipSignificance,defectChip);
-            addToXML4DB(m_outDeadChips, waferId, "DEAD", m_deadChipSignificance, defectChip.c_str());
-            hasDeadChip=true;
-        }
-      }
+      //go to next wafer itr
   }//Wafer Loop end
 
+  
   //Close Files
   if(m_doDeadStrip){
       msg(MSG::INFO)<<"total #DeadStrip : "<<n_deadStrip<<endreq;
@@ -1090,28 +1210,30 @@ StatusCode SCTCalib::getDeadStrip(){
   
   //Making Summary File
   if(openXML4DeadSummary(m_outDeadSummary, "DEAD", n_deadModule, n_deadLink, n_deadChip, n_deadStrip).isFailure()){
-    msg(MSG::ERROR)<<"Problem opening "<<m_deadSummaryFile<<endreq;
-    return StatusCode::FAILURE;
+      msg(MSG::ERROR)<<"Problem opening "<<m_deadSummaryFile<<endreq;
+      return StatusCode::FAILURE;
   }
   if(wrapUpXML4Summary(m_outDeadSummary, "DEAD", summaryList).isFailure()){
-    msg(MSG::ERROR)<<"Problem closing "<<m_deadSummaryFile<<endreq;
-    return StatusCode::FAILURE;
+      msg(MSG::ERROR)<<"Problem closing "<<m_deadSummaryFile<<endreq;
+      return StatusCode::FAILURE;
   }
 
   if( m_writeToCool ) {
-    if(m_doDeadStrip && hasDeadStrip){
-      if ( m_pCalibWriteSvc->wrapUpDeadStrips().isFailure() ) {
-        msg( MSG::ERROR ) << "Could not get DeadStrips Info" << endreq;
-        return(StatusCode::FAILURE);
+      if(m_doDeadStrip && hasDeadStrip){
+	  if ( m_pCalibWriteSvc->wrapUpDeadStrips().isFailure() ) {
+	      msg( MSG::ERROR ) << "Could not get DeadStrips Info" << endreq;
+	      return StatusCode::FAILURE;
+	  }
       }
-    }
-    if(m_doDeadChip && hasDeadChip){
-      if ( m_pCalibWriteSvc->wrapUpDeadChips().isFailure() ) {
-        msg( MSG::ERROR ) << "Could not get DeadChips Info" << endreq;
-        return(StatusCode::FAILURE);
+      if(m_doDeadChip && hasDeadChip){
+	  if ( m_pCalibWriteSvc->wrapUpDeadChips().isFailure() ) {
+	      msg( MSG::ERROR ) << "Could not get DeadChips Info" << endreq;
+	      return StatusCode::FAILURE;
+	  }
       }
-    }
   }
+
+  msg(MSG::INFO)<<"END HERE"<<endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -1156,7 +1278,7 @@ StatusCode SCTCalib::getNoiseOccupancy()
       if ( m_noiseOccupancyTriggerAware ) streamHist << "trigger";
       streamHist << "ECm_" << iDisk << "_" << iSide;
       std::string histName = stem + streamHist.str();
-      TProfile2D* hist_tmp = (TProfile2D *) inputHist->Get( histName.c_str() );
+      TProfile2D* hist_tmp = (TProfile2D *) m_inputHist->Get( histName.c_str() );
       m_pnoiseoccupancymapHistoVectorECm.push_back( hist_tmp );
     }
   }
@@ -1169,7 +1291,7 @@ StatusCode SCTCalib::getNoiseOccupancy()
       if ( m_noiseOccupancyTriggerAware ) streamHist << "trigger";
       streamHist << "_" << iLayer << "_" << iSide;
       std::string histName = stem + streamHist.str();
-      TProfile2D* hist_tmp = (TProfile2D *) inputHist->Get( histName.c_str() );
+      TProfile2D* hist_tmp = (TProfile2D *) m_inputHist->Get( histName.c_str() );
       m_pnoiseoccupancymapHistoVector.push_back( hist_tmp );
     }
   }
@@ -1182,7 +1304,7 @@ StatusCode SCTCalib::getNoiseOccupancy()
       if ( m_noiseOccupancyTriggerAware ) streamHist << "trigger";
       streamHist << "ECp_" << iDisk << "_" << iSide;
       std::string histName = stem + streamHist.str();
-      TProfile2D* hist_tmp = (TProfile2D *) inputHist->Get( histName.c_str() );
+      TProfile2D* hist_tmp = (TProfile2D *) m_inputHist->Get( histName.c_str() );
       m_pnoiseoccupancymapHistoVectorECp.push_back( hist_tmp );
     }
   }
@@ -1190,14 +1312,14 @@ StatusCode SCTCalib::getNoiseOccupancy()
   //--- XML file
   const char* outputNoiseOccupancyFileName = m_noiseOccupancyFile.c_str();
   ofstream outFile( outputNoiseOccupancyFileName, std::ios::out );
-  if ( outFile == 0 ) {
+  if ( !outFile.good() ) {
     msg( MSG::ERROR ) << "Unable to open NoiseOccupancyFile : " << outputNoiseOccupancyFileName << endreq;
     return StatusCode::FAILURE;
   }
   
   //--- Header for XML outputs
   ostringstream osHeader;
-  osHeader << "<channels server=\"ATLAS_COOLPROD\" schema=\"ATLAS_COOLOFL_SCT\" dbname=\"CONDBR2\" folder=\"SCT/Derived/NoiseOccupancy\" "
+  osHeader << "<channels server=\"ATLAS_COOLPROD\" schema=\"ATLAS_COOLOFL_SCT\" dbname=\"MONP200\" folder=\"SCT/Derived/NoiseOccupancy\" "
            << "since=\""   << m_iovStart.re_time()   << "\" "
            << "until=\""   << m_iovStop.re_time()    << "\" "
            << "tag=\""     << m_tagID4NoiseOccupancy << "\" "
@@ -1309,11 +1431,11 @@ StatusCode SCTCalib::getNoiseOccupancy()
   } 
   
   if( openXML4MonSummary( m_outNOSummary, "NoiseOccupancy" ).isFailure() ) {
-    msg( MSG::ERROR )<< "Problem in opening " << m_outNOSummary << endreq;
+    msg( MSG::ERROR )<< "Problem in opening NoiseOccupancy file" << endreq;
     return StatusCode::FAILURE;
   }
   if( wrapUpXML4Summary( m_outNOSummary, "NoiseOccupancy", summaryList ).isFailure() ) {
-    msg( MSG::ERROR )<< "Problem in closing "<< m_outNOSummary << endreq;
+    msg( MSG::ERROR )<< "Problem in closing NoiseOccupancy file" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -1382,7 +1504,7 @@ StatusCode SCTCalib::getRawOccupancy()
             }
             ostringstream streamHist; streamHist << detector_part << "_" << iDisk << "_" << iSide;
             std::string hitsmapname = stemItr->first + streamHist.str();
-            TH2D* hist_tmp = (TH2D*) inputHist->Get( hitsmapname.c_str() );
+            TH2D* hist_tmp = (TH2D*) m_inputHist->Get( hitsmapname.c_str() );
             unsigned long long n_hits = (unsigned long long)hist_tmp->GetBinContent( iEta+1, iPhi+1 );
             float raw_occu = 0;
             if(m_numberOfEvents!=0){
@@ -1409,7 +1531,7 @@ StatusCode SCTCalib::getRawOccupancy()
           Identifier waferId = m_pSCTHelper->wafer_id( BARREL, iLayer, iPhi, iEta-6, iSide );
           ostringstream streamHist; streamHist << iLayer << "_" << iSide;
           std::string hitsmapname = "/run_" + runnum.str() + "/SCT/SCTB/hits/hitsmap_" + streamHist.str();
-          TH2D* hist_tmp = (TH2D*) inputHist->Get( hitsmapname.c_str() );
+          TH2D* hist_tmp = (TH2D*) m_inputHist->Get( hitsmapname.c_str() );
           unsigned long long n_hits = (unsigned long long) hist_tmp->GetBinContent( iEta+1, iPhi+1 );
           float raw_occu = 0;
           if(m_numberOfEvents!=0){
@@ -1450,11 +1572,11 @@ StatusCode SCTCalib::getRawOccupancy()
   }
 
   if( openXML4MonSummary( m_outROSummary, "RawOccupancy" ).isFailure() ) {
-    msg( MSG::ERROR ) << "Problem in opening " << m_outROSummary << endreq;
+    msg( MSG::ERROR ) << "Problem in opening RawOccupancy file" << endreq;
     return StatusCode::FAILURE;
   }
   if( wrapUpXML4Summary( m_outROSummary, "RawOccupancy", summaryList ).isFailure() ) {
-    msg( MSG::ERROR )<< "Problem in closing " << m_outROSummary << endreq;
+    msg( MSG::ERROR )<< "Problem in closing RawOccupancy file " << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -1513,7 +1635,7 @@ StatusCode SCTCalib::getEfficiency(){
 
   const char* outputEfficiencyFileName = m_efficiencyModuleFile.c_str();
   ofstream outFile( outputEfficiencyFileName, std::ios::out );
-  if ( outFile == 0 ) {
+  if ( !outFile.good() ) {
     msg( MSG::ERROR ) << "Unable to open EfficiencyFile : " << outputEfficiencyFileName << endreq;
     return StatusCode::FAILURE;
   }
@@ -1555,7 +1677,7 @@ StatusCode SCTCalib::getEfficiency(){
               streamProf << detector_part << "_" << iDisk << "_" << iSide;
             }
             std::string effmapname = stemItr->first + streamProf.str();
-            TProfile2D* prof_tmp = (TProfile2D*) inputHist->Get( effmapname.c_str() );
+            TProfile2D* prof_tmp = (TProfile2D*) m_inputHist->Get( effmapname.c_str() );
             int global_bin = prof_tmp->GetBin( iEta+1, iPhi+1 );
             float eff = (float)prof_tmp->GetBinContent( global_bin );
             unsigned long long eff_entry = (unsigned long long)prof_tmp->GetBinEntries( global_bin );
@@ -1585,7 +1707,7 @@ StatusCode SCTCalib::getEfficiency(){
           ostringstream streamProf;
           streamProf << iLayer << "_" << iSide;
           std::string effmapname = "/run_" + runnum.str() + "/SCT/SCTB/eff/eff_" + streamProf.str();
-          TProfile2D* prof_tmp = (TProfile2D*) inputHist->Get( effmapname.c_str() );
+          TProfile2D* prof_tmp = (TProfile2D*) m_inputHist->Get( effmapname.c_str() );
           int global_bin = prof_tmp->GetBin( iEta+1, iPhi+1 );
           float eff = (float)prof_tmp->GetBinContent( global_bin );
           unsigned long long eff_entry = (unsigned long long)prof_tmp->GetBinEntries( global_bin );
@@ -1636,12 +1758,12 @@ StatusCode SCTCalib::getEfficiency(){
   } 
 
   if( openXML4MonSummary( m_outEffSummary, "Efficiency" ).isFailure() ) {
-    msg( MSG::ERROR ) << "Problem in opening " << m_outEffSummary << endreq;
+    msg( MSG::ERROR ) << "Problem in opening Efficiency file" << endreq;
     return StatusCode::FAILURE;
   }
 
   if( wrapUpXML4Summary( m_outEffSummary, "Efficiency", summaryList ).isFailure() ) {
-    msg( MSG::ERROR ) << "Problem in closing " << m_outEffSummary <<endreq;
+    msg( MSG::ERROR ) << "Problem in closing Efficiency file " <<endreq;
     return StatusCode::FAILURE;
   }
 
@@ -1682,17 +1804,17 @@ StatusCode SCTCalib::getBSErrors(){
   unsigned long long nErrLink_ECC[ n_disks ][ n_etaBinsEC ] = { {0}, {0} };
 
   
-  unsigned long long nErrLink_Barrel_module[ n_barrels ][ 2 ][ n_etaBins ][ n_phiBinsB3 ] = { {0}, {0}, {0}, {0} };
-  unsigned long long nErrLink_ECA_module[ n_disks ][2][ n_etaBinsEC ][n_phiBinsECOuter] = { {0}, {0}, {0} , {0} };
-  unsigned long long nErrLink_ECC_module[ n_disks ][2][ n_etaBinsEC ][n_phiBinsECOuter] = { {0}, {0}, {0} , {0} };
+  unsigned long long nErrLink_Barrel_module[ n_barrels ][ 2 ][ n_etaBins ][ n_phiBinsB3 ] = {{{{0}}}};
+  unsigned long long nErrLink_ECA_module[ n_disks ][2][ n_etaBinsEC ][n_phiBinsECOuter] = {{{{0}}}};
+  unsigned long long nErrLink_ECC_module[ n_disks ][2][ n_etaBinsEC ][n_phiBinsECOuter] = {{{{0}}}};
   
   std::string nErrLink_Barrel_module_serial[ n_barrels ][ 2 ][ n_etaBins ][ n_phiBinsB3 ];
   std::string nErrLink_ECA_module_serial[ n_disks ][2][ n_etaBinsEC ][n_phiBinsECOuter];
   std::string nErrLink_ECC_module_serial[ n_disks ][2][ n_etaBinsEC ][n_phiBinsECOuter];
 
-  unsigned long long nErrs_Barrel_module[ n_barrels ][ 2 ][ n_etaBins ][ n_phiBinsB3 ][ 15 ] = { {0}, {0}, {0}, {0} };
-  unsigned long long nErrs_ECA_module[ n_disks ][2][ n_etaBinsEC ][n_phiBinsECOuter][ 15 ]   = { {0}, {0}, {0}, {0} };
-  unsigned long long nErrs_ECC_module[ n_disks ][2][ n_etaBinsEC ][n_phiBinsECOuter][ 15 ]   = { {0}, {0}, {0}, {0} };
+  unsigned long long nErrs_Barrel_module[ n_barrels ][ 2 ][ n_etaBins ][ n_phiBinsB3 ][ 15 ] = {{{{{0}}}}};
+  unsigned long long nErrs_ECA_module[ n_disks ][2][ n_etaBinsEC ][n_phiBinsECOuter][ 15 ]   = {{{{{0}}}}};
+  unsigned long long nErrs_ECC_module[ n_disks ][2][ n_etaBinsEC ][n_phiBinsECOuter][ 15 ]   = {{{{{0}}}}};
 
 
 
@@ -1766,9 +1888,9 @@ StatusCode SCTCalib::getBSErrors(){
 		    std::string profname = detectorStems[stemIndex] + folder +streamHist.str();
     		    std::string profnameShort = detectorStems[stemIndex] + streamHist.str();
 
-		    TProfile2D* prof_tmp = (TProfile2D*) inputHist->Get( profname.c_str() );
+		    TProfile2D* prof_tmp = (TProfile2D*) m_inputHist->Get( profname.c_str() );
 		    if(prof_tmp ==NULL){
-			prof_tmp = (TProfile2D*) inputHist->Get( profnameShort.c_str() );
+			prof_tmp = (TProfile2D*) m_inputHist->Get( profnameShort.c_str() );
 		    }
 		    if(prof_tmp ==NULL){
 			msg( MSG::ERROR ) << "Unable to get profile for BSErrorsDB : " << profname << endreq;
@@ -1846,9 +1968,9 @@ StatusCode SCTCalib::getBSErrors(){
 		  std::string profname = "/run_" + runnum.str() + "/SCT/SCTB/errors/" + folder + streamHist.str();
 		  std::string profnameShort = "/run_" + runnum.str() + "/SCT/SCTB/errors/" + streamHist.str();
 
-		  TProfile2D* prof_tmp = (TProfile2D*) inputHist->Get( profname.c_str() );
+		  TProfile2D* prof_tmp = (TProfile2D*) m_inputHist->Get( profname.c_str() );
 		  if(prof_tmp ==NULL){
-		      prof_tmp = (TProfile2D*) inputHist->Get( profnameShort.c_str() );
+		      prof_tmp = (TProfile2D*) m_inputHist->Get( profnameShort.c_str() );
 		  }
 		  if(prof_tmp ==NULL){
 		      msg( MSG::ERROR ) << "Unable to get profile for BSErrorsDB : " << profname << endreq;
@@ -1911,11 +2033,11 @@ StatusCode SCTCalib::getBSErrors(){
   } 
   
   if( openXML4MonSummary( m_outBSErrSummary, "BSErrors" ).isFailure() ) {
-    msg( MSG::ERROR ) << "Problem in opening " << m_outBSErrSummary << endreq;
+    msg( MSG::ERROR ) << "Problem in opening BSErrors file" << endreq;
     return StatusCode::FAILURE;
   }
   if( wrapUpXML4Summary( m_outBSErrSummary, "BSErrors", summaryList ).isFailure() ) {
-      msg( MSG::ERROR ) << "Problem in closing " << m_outBSErrSummary <<endreq;
+      msg( MSG::ERROR ) << "Problem in closing BSErrors file" <<endreq;
     return StatusCode::FAILURE;
   }
 
@@ -1986,11 +2108,11 @@ StatusCode SCTCalib::getBSErrors(){
   } 
   
   if( openXML4MonSummary( m_outBSErrModule, "BSErrorsModule" ).isFailure() ) {
-    msg( MSG::ERROR ) << "Problem in opening " << m_outBSErrModule << endreq;
+    msg( MSG::ERROR ) << "Problem in opening BSErrorsModule file" << endreq;
     return StatusCode::FAILURE;
   }
   if( wrapUpXML4Summary( m_outBSErrModule, "BSErrors", moduleList ).isFailure() ) {
-    msg( MSG::ERROR ) << "Problem in closing " << m_outBSErrModule <<endreq;
+    msg( MSG::ERROR ) << "Problem in closing BSErrors file" <<endreq;
     return StatusCode::FAILURE;
   }
   
@@ -2046,19 +2168,19 @@ StatusCode SCTCalib::getLorentzAngle(){
 
   //--- Barrel
   stem = "/run_" + runnum.str() + "/SCT/GENERAL/lorentz/";
-  h_phiVsNstripsSideHistoVector.clear();
+  m_h_phiVsNstripsSideHistoVector.clear();
   for ( int iLayer = 0; iLayer < n_barrels ; ++iLayer ) {
     for ( int iSide = 0; iSide < 2; ++iSide ) {
       for ( int iModule = 0; iModule < 2; ++iModule ) {  
         ostringstream streamHist; streamHist << "h_phiVsNstrips_" << module[iModule] << "_" << iLayer << "Side" << iSide;
         std::string  histName = stem + streamHist.str();
 	cout<<histName<<endl;
-        TProfile* hist_tmp = (TProfile *) inputHist->Get( histName.c_str() );
+        TProfile* hist_tmp = (TProfile *) m_inputHist->Get( histName.c_str() );
         if(hist_tmp ==NULL){
           msg( MSG::ERROR ) << "Unable to get histogram for LorentzAngle : " << histName << endreq;
           return StatusCode::FAILURE;
         }
-        h_phiVsNstripsSideHistoVector.push_back( hist_tmp );
+        m_h_phiVsNstripsSideHistoVector.push_back( hist_tmp );
       }
     }
   }
@@ -2066,7 +2188,7 @@ StatusCode SCTCalib::getLorentzAngle(){
   //--- XML file
   const char* outputLorentzAngleFileName = m_LorentzAngleFile.c_str();
   ofstream outFile( outputLorentzAngleFileName, std::ios::out );
-  if ( outFile == 0 ) {
+  if ( !outFile.good() ) {
     msg( MSG::ERROR ) << "Unable to open LorentzAngleFile : " << outputLorentzAngleFileName << endreq;
     return StatusCode::FAILURE;
   }
@@ -2092,7 +2214,7 @@ StatusCode SCTCalib::getLorentzAngle(){
           LAfit->SetParLimits(3, 0.1, 50.);
           LAfit->SetParNames("a","LA","b","sigma");
           LAfit->SetParameters(1.,-5.,1.13,2.);
-          fitResult = h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule ] -> Fit("LAfit", "E" , "" ,-9.,2.);
+          fitResult = m_h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule ] -> Fit("LAfit", "E" , "" ,-9.,2.);
           LAfit->GetParameters(par);
           err_par[0]=LAfit->GetParError(0);
           err_par[1]=LAfit->GetParError(1);
@@ -2109,8 +2231,8 @@ StatusCode SCTCalib::getLorentzAngle(){
           fitFile->cd();
           fitFile->mkdir(dir_name);            //Creating Directories
           fitFile->cd(dir_name);
-          h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> SetName(histo_name);
-          h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> Write();
+          m_h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> SetName(histo_name);
+          m_h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> Write();
           msg( MSG::INFO ) << "-------:Directory Name: " << dir_name << "--------" << endreq;
       }
                                                 
@@ -2121,25 +2243,25 @@ StatusCode SCTCalib::getLorentzAngle(){
           TF1 *parafit = new TF1("parafit", "[0]*(x-[1])*(x-[1])+[2]", -9., 2. );
           msg( MSG::INFO ) << "LorentzAngle 2nd para fit start : " << 4*iLayer + iSide +1 + iModule << " / 16" << endreq;
           parafit->SetParameters(par[0],par[1],LAfit->Eval(par[1],0,0,0));
-          h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule ] -> Fit("parafit", "R" , "" ,-9.,2.);
+          m_h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule ] -> Fit("parafit", "R" , "" ,-9.,2.);
           msg( MSG::INFO ) << "LorentzAngle 2nd pre fit start : " << 4*iLayer + iSide +1 + iModule << " / 16" << endreq;
           par[1]=parafit->GetParameter(1);
           LAfit->SetParameters(par[0],par[1],par[2],par[3]);
           LAfit->SetParLimits(1,par[1],par[1]);
-          h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> Fit("LAfit", "R" , "" ,-9.,2.);
+          m_h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> Fit("LAfit", "R" , "" ,-9.,2.);
           LAfit->GetParameters(par);
           LAfit->SetParLimits(1, -90., 90.);
           LAfit->SetParameters(par[0],par[1],par[2],par[3]);
           msg( MSG::INFO ) << "LorentzAngle 2nd main fit start : " << 4*iLayer + iSide +1 + iModule << " / 16" << endreq;
-          fitResult = h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> Fit("LAfit", "E" , "" ,-9.,2.);
+          fitResult = m_h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> Fit("LAfit", "E" , "" ,-9.,2.);
           LAfit->GetParameters(par);
           if ( m_LorentzAngleDebugMode  ) {
               
               ostringstream streamFileTmp; streamFileTmp << "h_phiVsNstrips_" << module[iModule] << "_" << iLayer << "Side" << iSide << "Second_Fit";
               std::string tmp_hn = streamFileTmp.str();
               const char* histo_name = tmp_hn.c_str();
-              h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> SetName(histo_name);
-              h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> Write();
+              m_h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> SetName(histo_name);
+              m_h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> Write();
 
           }
 
@@ -2150,19 +2272,19 @@ StatusCode SCTCalib::getLorentzAngle(){
           msg( MSG::INFO ) << "LorentzAngle 3rd pre fit start : " << 4*iLayer + iSide +1+ iModule << " / 16" << endreq;
           LAfit->SetParameters(par[0],par[1],par[2],2.);
           LAfit->SetParLimits(3,2.,2.);
-          h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> Fit("LAfit", "R" , "" ,-9.,2.);
+          m_h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> Fit("LAfit", "R" , "" ,-9.,2.);
           LAfit->GetParameters(par);
           LAfit->SetParLimits(3, 0., 50.);
           LAfit->SetParameters(par[0],par[1],par[2],par[3]);
           msg( MSG::INFO ) << "LorentzAngle 3rd main fit start : " << 4*iLayer + iSide +1 +iModule<< " / 16" << endreq;
-          fitResult = h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> Fit("LAfit", "E" , "" ,-9.,2.);
+          fitResult = m_h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> Fit("LAfit", "E" , "" ,-9.,2.);
           LAfit->GetParameters(par);
           if ( m_LorentzAngleDebugMode  ) {
               ostringstream streamFileTmp; streamFileTmp << "h_phiVsNstrips_" << module[iModule] << "_" << iLayer << "Side" << iSide << "Third_Fit";
               std::string tmp_hn = streamFileTmp.str();
               const char* histo_name = tmp_hn.c_str();
-              h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> SetName(histo_name);
-              h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> Write();
+              m_h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> SetName(histo_name);
+              m_h_phiVsNstripsSideHistoVector[ 4*iLayer + 2*iSide +iModule] -> Write();
           }
 
       }
@@ -2216,7 +2338,7 @@ StatusCode SCTCalib::getLorentzAngle(){
       for ( int iModule = 0; iModule < 2; ++iModule ) { 
         Identifier waferId = m_pSCTHelper->wafer_id( BARREL, iLayer, 0, 0, iSide );
         int ch = 0;
-        outFile << "<folderDefinition folder=\"SCT/Derived/LorentzAngle\" version=\"multi\">"         << linefeed
+        outFile << "<folderDefinition folder=\"SCT/Derived/LorentzAngleRun2_v2\" version=\"multi\">"         << linefeed
         << "  <folderDescription>" << linefeed
         << "     <timeStamp>run-lumi</timeStamp>" << linefeed
         << "     <addrHeader>" << linefeed
@@ -2249,15 +2371,15 @@ StatusCode SCTCalib::getLorentzAngle(){
 
       //--- DB output
       if ( m_writeToCool ) {
-          if ( m_pCalibWriteSvc->createListLA( waferId, m_pSCTHelper, 10000, moduleint[iModule], LA_BarrelSide[iLayer][iSide][iModule],MCW_BarrelSide[iLayer][iSide][iModule] ).isFailure() ) {
-          // if ( m_pCalibWriteSvc->createListLA( waferId, m_pSCTHelper, 10000, moduleint[iModule], LA_BarrelSide[iLayer][iSide][iModule], Err_LA_BarrelSide[iLayer][iSide][iModule],  Chisq_BarrelSide[iLayer][iSide][iModule], A_BarrelSide[iLayer][iSide][iModule], Err_A_BarrelSide[iLayer][iSide][iModule], B_BarrelSide[iLayer][iSide][iModule], Err_B_BarrelSide[iLayer][iSide][iModule], Sigma_BarrelSide[iLayer][iSide][iModule], Err_Sigma_BarrelSide[iLayer][iSide][iModule], MCW_BarrelSide[iLayer][iSide][iModule] ).isFailure() ) {
-             msg( MSG::ERROR ) << "Unable to run createListLA" << endreq;
-             return StatusCode::FAILURE;
-          } 
+	//	if ( m_pCalibWriteSvc->createListLA( waferId, m_pSCTHelper, 10000, moduleint[iModule], LA_BarrelSide[iLayer][iSide][iModule],MCW_BarrelSide[iLayer][iSide][iModule] ).isFailure() ) {
+	if ( m_pCalibWriteSvc->createListLA( waferId, m_pSCTHelper, 10000, moduleint[iModule], LA_BarrelSide[iLayer][iSide][iModule], Err_LA_BarrelSide[iLayer][iSide][iModule],  Chisq_BarrelSide[iLayer][iSide][iModule], A_BarrelSide[iLayer][iSide][iModule], Err_A_BarrelSide[iLayer][iSide][iModule], B_BarrelSide[iLayer][iSide][iModule], Err_B_BarrelSide[iLayer][iSide][iModule], Sigma_BarrelSide[iLayer][iSide][iModule], Err_Sigma_BarrelSide[iLayer][iSide][iModule], MCW_BarrelSide[iLayer][iSide][iModule], Err_MCW_BarrelSide[iLayer][iSide][iModule] ).isFailure() ) {
+	  msg( MSG::ERROR ) << "Unable to run createListLA" << endreq;
+	  return StatusCode::FAILURE;
+	} 
       }
-    
-    } 
-   }
+      
+      } 
+    }
   }
   
   //--- Tail of XML outputs
@@ -2274,8 +2396,8 @@ StatusCode SCTCalib::getLorentzAngle(){
          << xmlValue("layer", i) << linefeed
          << xmlValue("Side", iSide) << linefeed
          << xmlValue("Module", module[iModule]) << linefeed
-         << xmlValue("LorentzAngle", LA_BarrelSide[i][iSide][iModule]) << linefeed
-         << xmlValue("MinClusterWidth",  MCW_BarrelSide[i][iSide][iModule]) << linefeed
+         << xmlValue("lorentzAngle", LA_BarrelSide[i][iSide][iModule]) << linefeed
+         << xmlValue("minClusterWidth",  MCW_BarrelSide[i][iSide][iModule]) << linefeed
          << xmlValue("Fit",  FitFlag[i][iSide][iModule]) << linefeed
          <<"    </parts>" << linefeed;
       }
@@ -2292,7 +2414,7 @@ StatusCode SCTCalib::getLorentzAngle(){
     std::string filename=found->second.first;
     std::string xslName=found->second.second;
     file.open( filename.c_str(), std::ios::out );
-    if( file == 0 ) return StatusCode::FAILURE;
+    if( !file.good() ) return StatusCode::FAILURE;
     file << xmlHeader<< linefeed<< associateStylesheet(xslName) << linefeed<< "<run>"<< endl;
   }
   else {
@@ -2311,7 +2433,7 @@ StatusCode SCTCalib::getLorentzAngle(){
 
   
   if( wrapUpXML4Summary( m_outLASummary, "LorentzAngle", summaryList ).isFailure() ) {
-    msg( MSG::ERROR )<< "Problem in closing "<< m_outLASummary << endreq;
+    msg( MSG::ERROR )<< "Problem in closing LorentzAngle file" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -2334,12 +2456,12 @@ StatusCode SCTCalib::getLorentzAngle(){
 StatusCode SCTCalib::openXML4DB( std::ofstream& file, const char* type, const char* tag, IOVTime start, IOVTime end ) const {
   if( !strcmp( type, "DeadStrip" ) ) {
     file.open( m_deadStripsFile.c_str(), std::ios::out );
-    if( file == 0) return StatusCode::FAILURE;
-    file << "<channels server=\"ATLAS_COOLPROD\" schema=\"ATLAS_COOLOFL_SCT\" dbname=\"CONDBR2\" folder=\"SCT/Derived/DeadStrips\" ";
+    if( !file.good() ) return StatusCode::FAILURE;
+    file << "<channels server=\"ATLAS_COOLPROD\" schema=\"ATLAS_COOLOFL_SCT\" dbname=\"MONP200\" folder=\"SCT/Derived/DeadStrips\" ";
   } else if ( !strcmp( type, "DeadChip" ) ) {
     file.open( m_deadChipsFile.c_str(), std::ios::out );
-    if( file == 0 ) return StatusCode::FAILURE;
-    file << "<channels server=\"ATLAS_COOLPROD\" schema=\"ATLAS_COOLOFL_SCT\" dbname=\"CONDBR2\" folder=\"SCT/Derived/DeadChips\" ";
+    if( !file.good() ) return StatusCode::FAILURE;
+    file << "<channels server=\"ATLAS_COOLPROD\" schema=\"ATLAS_COOLOFL_SCT\" dbname=\"MONP200\" folder=\"SCT/Derived/DeadChips\" ";
   } else {
     msg( MSG::ERROR ) << "in openXML4DB : argument \"type\" needs to be (DeadStrip, DeadChip)." << endreq;
     return StatusCode::FAILURE;
@@ -2388,7 +2510,7 @@ StatusCode SCTCalib::addToXML4DB( std::ofstream& file, const Identifier& waferId
 StatusCode SCTCalib::openXML4DeadSummary( std::ofstream& file, const char* type, int n_Module, int n_Link, int n_Chip, int n_Strip ) const {
   if ( !strcmp( type, "DEAD" ) ) {
     file.open( m_deadSummaryFile.c_str(), std::ios::out );
-    if( file == 0 ) return StatusCode::FAILURE;
+    if( !file.good() ) return StatusCode::FAILURE;
     file << xmlHeader<< linefeed<< associateStylesheet("DeadInfo.xsl") << linefeed
      << "<run>"<< linefeed;
   } else {
@@ -2454,7 +2576,7 @@ StatusCode SCTCalib::openXML4MonSummary( std::ofstream& file, const char* type )
     std::string xslName=found->second.second;
     //
     file.open( filename.c_str(), std::ios::out );
-    if( file == 0 ) return StatusCode::FAILURE;
+    if( !file.good() ) return StatusCode::FAILURE;
     file << xmlHeader<< linefeed<< associateStylesheet(xslName) << linefeed<< "<run>"<< endl;
   } else {
     msg( MSG::ERROR ) << "in openXML4MonSummary : argument \"type\" needs to be ( NoiseOccupancy, RawOccupancy, Efficiency, BSErrors )." << endreq;
@@ -2503,22 +2625,39 @@ StatusCode SCTCalib::addToSummaryStr( std::ostringstream& list, const Identifier
   //--- Identifier/SN
   IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
   SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+  cout<<"sn.str()"<<endl;
+  cout<<sn.str()<<endl;
   //--- Preparing linkList
-  std::string linkList=chipList2LinkList(chipList);
+  //std::string linkList=chipList2LinkList(chipList); 
+  std::string linkList=chipList2LinkList(stripList);
+  cout<<linkList<<endl;
   //--- Push to summary stream
   XmlStreamer m("module", list);
   {XmlStreamer v("value", "name", "SN",list); list<<sn.str();}
   {XmlStreamer v("value", "name", "BecLayerPhiEta", list); list<<formatPosition(waferId, m_pSCTHelper,".",false);}
   {XmlStreamer v("value", "name", "LinkID", list); list<<linkList;}
-  {XmlStreamer v("value", "name", "ChipID", list); list<<chipList;}
+  //  {XmlStreamer v("value", "name", "ChipID", list); list<<chipList;}
+  {XmlStreamer v("value", "name", "ChipID", list); list<<stripList;}
+  cout<<"after xmlstreamer"<<endl;
   if ( !strcmp( type, "DEAD" ) ) {
+
+    cout<<"before if streamer"<<endl;
     XmlStreamer v("value", "name", "StripIDOnline", list);
+    cout<<"after if streamer"<<endl;
     list << stripList;
+    cout<<"list"<<endl;
+
   } else {
+
     msg( MSG::ERROR ) << "in addToSummaryStr : argument \"type\" needs to be \"DEAD\"." << endreq;
+    cout<<"return FAILURE"<<endl;
     return StatusCode::FAILURE;
+
   }
+
+  cout<<"return SUCCESS"<<endl;
   return StatusCode::SUCCESS;
+
 }
 
 std::string 
@@ -2567,7 +2706,7 @@ SCTCalib::getNumNoisyStrips( const Identifier& waferId ) const {
     if ( m_calibHitmapSvc->getBinForHistogramIndex( iStrip + 1 , (int) waferHash ) / m_numberOfEvents > noisyStripThr ) ++numNoisyStripsInTheWafer;
   } 
   //--- Define/counts noisy wafers using wafer occupancy and number of noisy strips
-  double averageOccupancy = m_calibHitmapSvc->size((int) waferHash)/nbins/m_numberOfEvents;
+  double averageOccupancy = m_calibHitmapSvc->size((int) waferHash)/(double)nbins/(double)m_numberOfEvents;
   const int subdetector(m_pSCTHelper->barrel_ec( waferId ) );
   isNoisyWafer = ( numNoisyStripsInTheWafer > m_noisyWaferFraction*nbins ) and
     ( ( subdetector == ENDCAP_C && averageOccupancy > m_noisyWaferThrECC) or 
@@ -2694,7 +2833,7 @@ SCTCalib::noisyStripsToXml( const std::map< Identifier, std::set<Identifier> >& 
   //--- Open
   const char* outputFileName = badStripsFile.c_str();
   ofstream outFile( outputFileName, std::ios::out );
-  if ( outFile == 0 ) {
+  if ( !outFile.good() ) {
     msg( MSG::ERROR ) << "Unable to open " << outputFileName << endreq;
     return( StatusCode::FAILURE );
   }
@@ -2743,7 +2882,7 @@ StatusCode SCTCalib::noisyStripsToSummaryXml( const std::map< Identifier, std::s
   //--- Open
   const char* outputFileName = badStripsFile.c_str();
   ofstream outFile( outputFileName, std::ios::out );
-  if ( outFile == 0 ) {
+  if ( !outFile.good() ) {
     msg( MSG::ERROR ) << "Unable to open " << outputFileName << endreq;
     return( StatusCode::FAILURE );
   }
@@ -2934,6 +3073,197 @@ StatusCode SCTCalib::noisyStripsToSummaryXml( const std::map< Identifier, std::s
 
   return StatusCode::SUCCESS;
 }
+
+// //////////////////
+// StatusCode SCTCalib::noisyStripsToSummaryXmlFake(const std::string& badStripsFile) const {
+//   //--- Open
+//   const char* outputFileName = badStripsFile.c_str();
+//   ofstream outFile( outputFileName, std::ios::out );
+//   if ( outFile == 0 ) {
+//     msg( MSG::ERROR ) << "Unable to open " << outputFileName << endreq;
+//     return( StatusCode::FAILURE );
+//   }
+
+//   // //--- Initialization
+//   // int numLinksAll( 0 ), numChipsAll( 0 );
+//   // int numModulesAll( 0 ), numModulesNew( 0 ), numModulesRef( 0 );
+//   // int numStripsAll( 0 ), numStripsNew( 0 ), numStripsRef( 0 );
+//   // int numModulesDiff( 0 );
+
+//   // std::string defectLinks, defectChips;
+//   // std::string defectStripsAll, defectStripsNew, defectStripsRef;
+//   // ostringstream osModuleList, osChipList;
+
+//   // //--- Create module list
+//   // SCT_ID::const_id_iterator waferItr  = m_pSCTHelper->wafer_begin();
+//   // SCT_ID::const_id_iterator waferItrE = m_pSCTHelper->wafer_end();
+//   // for( ; waferItr != waferItrE; ++waferItr ) {
+//   //   //--- Identifier
+//   //   Identifier       waferId   = *waferItr;
+//   //   Identifier       moduleId  = m_pSCTHelper->module_id( waferId );
+//   //   IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
+//   //   SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+
+//   //   //--- Initialization for a module
+//   //   if ( m_pSCTHelper->side( waferId ) == 0 ) {
+//   //     defectLinks.erase();
+//   //     defectChips.erase();
+//   //     defectStripsAll.erase();
+//   //     defectStripsNew.erase();
+//   //     defectStripsRef.erase();
+//   //   }
+
+//   //   //--- Noisy links
+//   //   bool isNoisyWafer = getNumNoisyStrips( waferId ).second; // true if this wafer is noisy
+//   //   if ( isNoisyWafer ) {
+//   //     int link = m_pSCTHelper->side( waferId );
+//   //     defectLinks = m_pCalibWriteSvc->addDefect( defectLinks, link, link );
+//   //     ++numLinksAll;
+//   //   }
+
+//   //   //--- Execute once in this module
+//   //   if ( m_pSCTHelper->side( waferId ) == 1 ) {
+//   //     //--- Noisy strips : All
+//   //     map< Identifier, std::set<Identifier> >::const_iterator moduleAllItr = moduleListAll.find( moduleId );
+//   //     if ( moduleAllItr != moduleListAll.end() ) {
+//   //       defectStripsAll = getStripList( (*moduleAllItr).second );
+//   //       ++numModulesAll;
+//   //       numStripsAll += (*moduleAllItr).second.size();
+//   //     }
+//   //     //--- Noisy strips : New
+//   //     map< Identifier, std::set<Identifier> >::const_iterator moduleNewItr = moduleListNew.find( moduleId );
+//   //     if ( moduleNewItr != moduleListNew.end() ) {
+//   //       defectStripsNew = getStripList( (*moduleNewItr).second );
+//   //       ++numModulesNew;
+//   //       numStripsNew += (*moduleNewItr).second.size();
+//   //     }
+//   //     //--- Noisy strips : Ref
+//   //     map< Identifier, std::set<Identifier> >::const_iterator moduleRefItr = moduleListRef.find( moduleId );
+//   //     if ( moduleRefItr != moduleListRef.end() ) {
+//   //       defectStripsRef = getStripList( moduleRefItr->second );
+//   //       ++numModulesRef;
+//   //       numStripsRef += moduleRefItr->second.size();
+//   //     }
+
+//   //     //--- Noisy chips : stripIdList -> chipIdList
+//   //     if ( moduleAllItr != moduleListAll.end() ) {
+//   //       std::set<int> chipIdList = getNoisyChips( moduleAllItr->second );
+//   //       if ( !chipIdList.empty() ) {
+//   //         std::set<int>::iterator chipItr  = chipIdList.begin();
+//   //         std::set<int>::iterator chipItrE = chipIdList.end();
+//   //         for ( ; chipItr != chipItrE; ++chipItr ) {
+//   //           int chipId = *chipItr;
+//   //           //--- To be written into module list
+//   //           defectChips = m_pCalibWriteSvc->addDefect( defectChips, chipId, chipId );
+//   //           //--- LBs where this chip was noisy
+//   //           std::pair< string, float > defectLB = getNoisyLB( moduleId, chipId );
+//   //           //--- Chip list written to XML
+//   //           osChipList << "    <chip>"                                                                                 << linefeed
+//   // 		       << "      <value name=\"SN\">"             << sn.str()                            << "</value>" << linefeed
+//   // 		       << "      <value name=\"BecLayerPhiEta\">" << m_pSCTHelper->barrel_ec( waferId )  << "."
+//   // 		       <<                                            m_pSCTHelper->layer_disk( waferId ) << "."
+//   // 		       <<                                            m_pSCTHelper->phi_module( waferId ) << "."
+//   // 		       <<                                            m_pSCTHelper->eta_module( waferId ) << "</value>" << linefeed
+//   // 		       << "      <value name=\"ChipID\">"         << chipId                              << "</value>" << linefeed
+//   // 		       << "      <value name=\"LB\">"             << normalizeList( defectLB.first )     << "</value>" << linefeed
+//   // 		       << "      <value name=\"LBFraction\">"     << defectLB.second                     << "</value>" << linefeed
+//   // 		       << "    </chip>"                                                                                << endl;
+//   //         }
+//   //       }
+//   //     }
+//   //     //--- Difference between All & Ref
+//   //     if ( defectStripsAll != defectStripsRef ) ++numModulesDiff;
+//   //     //--- Module list written to XML
+//   //     if ( !defectStripsAll.empty() || ( m_noisyUpdate && defectStripsAll != defectStripsRef ) ) {
+//   // 	  osModuleList << "    <module>"                                                                                << linefeed
+//   // 		       << "      <value name=\"SN\">"              << sn.str()                            << "</value>" << linefeed
+//   // 		       << "      <value name=\"BecLayerPhiEta\">"  << m_pSCTHelper->barrel_ec( waferId )  << "."
+//   // 		       <<                                             m_pSCTHelper->layer_disk( waferId ) << "."
+//   // 		       <<                                             m_pSCTHelper->phi_module( waferId ) << "."
+//   // 		       <<                                             m_pSCTHelper->eta_module( waferId ) << "</value>" << linefeed
+//   // 		       << "      <value name=\"LinkID\">"          << normalizeList( defectLinks )        << "</value>" << linefeed
+//   // 		       << "      <value name=\"ChipID\">"          << normalizeList( defectChips )        << "</value>" << linefeed
+//   // 		       << "      <value name=\"StripOfflineAll\">" << normalizeList( defectStripsAll )    << "</value>" << linefeed
+//   // 		       << "      <value name=\"StripOfflineNew\">" << normalizeList( defectStripsNew )    << "</value>" << linefeed
+//   // 		       << "      <value name=\"StripOfflineRef\">" << normalizeList( defectStripsRef )    << "</value>" << linefeed
+//   // 		       << "    </module>"                                                                               << endl;
+//   //     }
+//   //   }
+//   // }//--- end loop : waferItr
+
+//   // //--- Upload flag
+//   // string strUploadFlag = "U";
+
+//   // bool isRunsInCool( false );
+//   // bool isNoisyMinStat( false ), isNoisyModuleList( false ), isNoisyModuleDiff( false ), isNoisyStripDiff( false );
+//   // if ( m_noisyUploadTest ) {
+//   //   isRunsInCool = m_noisyModuleAverageInDB != -1. && m_noisyStripLastRunInDB != -999;
+//   //   if ( isRunsInCool ) {
+//   //     isNoisyMinStat    = m_numberOfEvents > m_noisyMinStat;
+//   //     isNoisyModuleList = numModulesAll < m_noisyModuleList;
+//   //     isNoisyModuleDiff = fabs( ( (float) numModulesAll - m_noisyModuleAverageInDB )/m_noisyModuleAverageInDB ) < m_noisyModuleDiff;
+//   //     isNoisyStripDiff  = fabs( numStripsAll - m_noisyStripLastRunInDB ) < m_noisyStripDiff;
+//   //     if ( !isNoisyMinStat || !isNoisyModuleList ) {
+//   //       strUploadFlag = "R";
+//   //     } else {
+//   //       if ( !isNoisyModuleDiff || !isNoisyStripDiff ) {
+//   //         strUploadFlag = "Y";
+//   //       } else {
+//   //         strUploadFlag = "G";
+//   //       }
+//   //     }
+//   //   }
+//   // }
+
+//   bool isRunsInCool( false );
+//   if ( m_noisyUploadTest ) 
+//     isRunsInCool = m_noisyModuleAverageInDB != -1. && m_noisyStripLastRunInDB != -999;
+ 
+//   //--- Upload test result to XML
+//   ostringstream osNoisyZeroEvents;
+//   osNoisyZeroEvents << "Noisy strips tried to run over empty hitmaps. Prevented and gracefully exited";
+//   string strUploadFlag = "R";
+//   ostringstream osFlagReason;
+//   osFlagReason << " ";
+//   // if ( !isNoisyMinStat    ) osFlagReason << "FAILED in " << osNoisyMinStat.str()    << "; ";
+//   // if ( !isNoisyModuleList ) osFlagReason << "FAILED in " << osNoisyModuleList.str() << "; ";
+//   // if ( !isNoisyModuleDiff ) osFlagReason << "FAILED in " << osNoisyModuleDiff.str() << "; ";
+//   // if ( !isNoisyStripDiff  ) osFlagReason << "FAILED in " << osNoisyStripDiff.str();
+
+//   string strFlagEnable = m_noisyUploadTest ? "ENABLED"   : "DISABLED";
+//   string strRunsInCool = isRunsInCool      ? "AVAILABLE" : "UNAVAILABLE";
+
+//   ostringstream osCheckList;
+//   osCheckList << osNoisyZeroEvents.str();
+
+//   //--- Write out the contents to XML file
+//   outFile << xmlHeader                                       << linefeed
+//     << associateStylesheet("BadStrips.xsl")                          << linefeed
+//     << "<run>"                                                                                  << linefeed
+//     << "  <value name=\"RunNumber\">"        << (int) m_runNumber                 << "</value>" << linefeed
+//     << "  <value name=\"StartTime\">"        << m_utcBegin                        << "</value>" << linefeed
+//     << "  <value name=\"EndTime\">"          << m_utcEnd                          << "</value>" << linefeed
+//     << "  <value name=\"Duration\">"         << m_calibEvtInfoSvc->duration()     << "</value>" << linefeed
+//     << "  <value name=\"LB\">"               << m_numOfLBsProcessed               << "</value>" << linefeed
+//     << "  <value name=\"Events\">"           << m_numberOfEvents                  << "</value>" << linefeed
+//     << "  <value name=\"Modules\">"          << 0                                 << "</value>" << linefeed
+//     << "  <value name=\"Links\">"            << 0                                 << "</value>" << linefeed
+//     << "  <value name=\"Chips\">"            << 0                                 << "</value>" << linefeed
+//     << "  <value name=\"StripsOfflineAll\">" << 0                                 << "</value>" << linefeed
+//     << "  <value name=\"StripsOfflineNew\">" << 0                                 << "</value>" << linefeed
+//     << "  <value name=\"ModulesRef\">"       << 0                                 << "</value>" << linefeed
+//     << "  <value name=\"StripsOfflineRef\">" << 0                                 << "</value>" << linefeed
+//     << "  <value name=\"ModulesDiff\">"      << 0                                 << "</value>" << linefeed
+//     << "  <value name=\"Flag\">"             << strUploadFlag                     << "</value>" << linefeed
+//     << "  <value name=\"FlagReason\">"       << osFlagReason.str()                << "</value>" << linefeed
+//     << "  <value name=\"FlagEnable\">"       << strFlagEnable                     << "</value>" << linefeed
+//     << "  <value name=\"ReadCool\">"         << strRunsInCool                     << "</value>" << linefeed
+//     << "  <value name=\"CheckList\">"        << osCheckList.str()                 << "</value>" << linefeed
+//     << "</run>"                                                                                 << endl;
+
+//   return StatusCode::SUCCESS;
+// }
+
 
 std::set<int> 
 SCTCalib::getNoisyChips( const std::set<Identifier>& stripIdList ) const {
