@@ -51,6 +51,7 @@ SCT_CalibHvSvc::SCT_CalibHvSvc(const std::string &name, ISvcLocator * svc):
   m_phvtripFirstTime(0),
   m_absolutetriplimit(0),
   m_relativetriplimit(0),
+  m_tq{0},
   m_evt(0),
   m_outputLowHits(false),m_lowHitCut(100)
 {
