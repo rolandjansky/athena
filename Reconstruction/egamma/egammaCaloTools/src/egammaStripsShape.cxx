@@ -102,6 +102,12 @@ egammaStripsShape::egammaStripsShape(const std::string& type,
 		  "Calculate some less important variables");  
 
   InitVariables();
+  // initialize the arrays  
+  std::fill (m_enecell,     m_enecell+STRIP_ARRAY_SIZE,     0);
+  std::fill (m_etacell,     m_etacell+STRIP_ARRAY_SIZE,     0);
+  std::fill (m_gracell,     m_gracell+STRIP_ARRAY_SIZE,     0);
+  std::fill (m_ncell,       m_ncell+STRIP_ARRAY_SIZE,       0);
+
 }
 
 // ====================================================================
