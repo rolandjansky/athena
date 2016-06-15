@@ -650,7 +650,7 @@ DecisionSvc::handle(const Incident& inc)
 StatusCode DecisionSvc::start()
 {
   ATH_MSG_DEBUG("in start");
-  this->interpretAlgMap();
+  CHECK( this->interpretAlgMap() );
   m_frozen = true;
 
   // initialize statistics vector

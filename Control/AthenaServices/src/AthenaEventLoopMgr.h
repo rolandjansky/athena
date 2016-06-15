@@ -31,6 +31,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #endif
 
+#include "GaudiKernel/IChronoStatSvc.h"
+
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/MinimalEventLoopMgr.h"
 #include "GaudiKernel/IIncidentListener.h"
@@ -221,7 +223,10 @@ private:
   bool m_useTools;
   StoreGateSvc* eventStore() const;
 
-  EventContext* m_eventContext;
+   EventContext* m_eventContext;
+   bool m_doChrono = false;
+   ServiceHandle<IChronoStatSvc> m_chronoStatSvc;
+
 };
 
 #endif // STOREGATE_ATHENAEVENTLOOPMGR_H

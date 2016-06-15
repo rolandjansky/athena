@@ -59,8 +59,10 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
     m_pITK(0), 
     m_currentRun(0), m_firstRun(true), m_tools(this), m_nevt(0), m_writeHists(false),
     m_msg( msgSvc(), nam ),
-    m_nev(0), m_proc(0), m_useTools(false),
-    m_eventContext(nullptr)
+    m_nev(0), m_proc(0), m_useTools(false), 
+    m_eventContext(nullptr),
+    m_chronoStatSvc( "ChronoStatSvc", nam )
+
 {
   declareProperty("EvtStore", m_eventStore, "The StoreGateSvc instance to interact with for event payload" );
   declareProperty("EvtSel", m_evtsel, 
@@ -83,6 +85,7 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
 		  "(DEFAULT). 2: RECOVERABLE and FAILURE skip to next events");
   declareProperty("EventPrintoutInterval", m_eventPrintoutInterval=1,
                   "Print event heartbeat printouts every m_eventPrintoutInterval events");
+  declareProperty("UseDetailChronoStat",m_doChrono=false);
   declareProperty("ClearStorePolicy",
 		  m_clearStorePolicy = "EndEvent",
 		  "Configure the policy wrt handling of when the "
@@ -721,6 +724,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   //                                         pEvent->event_ID()->bunch_crossing_id()) );
 
   m_eventContext->setEventID( *((EventIDBase*) pEvent->event_ID()) );
+  m_eventContext->setEvt (m_nev);
 
   m_eventContext->setProxy( eventStore()->hiveProxyDict() );
   Gaudi::Hive::setCurrentContext( m_eventContext );
@@ -910,8 +914,14 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
   // if evtmax is -1 it means infinite loop (till time limit that is)
   //  int nevt(0);
   bool noTimeLimit(false);
+
+
   while((maxevt == -1 || m_nevt < maxevt) && 
 	(noTimeLimit = (m_pITK == 0 || m_pITK->nextIter()) ) ) {
+
+   if(m_doChrono && total_nevt>0) m_chronoStatSvc->chronoStart("EventLoopMgr"); //start after first event
+   if(m_doChrono && total_nevt>0) m_chronoStatSvc->chronoStart("EventLoopMgr_preexec");
+
     // Check if there is a scheduled stop issued by some algorithm/sevice
     if ( m_scheduledStop ) {
       m_scheduledStop = false;
@@ -919,6 +929,8 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
 	    << "A stopRun was requested. Terminating event loop." << endreq;
       break;
     }
+
+   
 
     ++m_nevt; ++total_nevt; 
     //-----------------------------------------------------------------------
@@ -934,6 +946,8 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
 	return sc;
       }
     }
+
+
 
     //-----------------------------------------------------------------------
     // we need an EventInfo Object to fire the incidents. 
@@ -977,9 +991,12 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
 	continue;
       } 
     }
-
+    if(m_doChrono && total_nevt>1) m_chronoStatSvc->chronoStop("EventLoopMgr_preexec");
+    if(m_doChrono && total_nevt>1) m_chronoStatSvc->chronoStart("EventLoopMgr_execute");
     // Execute event for all required algorithms
     sc = executeEvent(0);
+    if(m_doChrono && total_nevt>1) m_chronoStatSvc->chronoStop("EventLoopMgr_execute");
+    if(m_doChrono && total_nevt>1) m_chronoStatSvc->chronoStart("EventLoopMgr_postexec");
     if( !sc.isSuccess() )
     {
       m_msg << MSG::ERROR 
@@ -998,7 +1015,11 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
 	break;
       }
     }
+    if(m_doChrono && total_nevt>1) m_chronoStatSvc->chronoStop("EventLoopMgr_postexec");
+    if(m_doChrono && total_nevt>1) m_chronoStatSvc->chronoStop("EventLoopMgr");
   } //event loop
+
+   
 
   return (noTimeLimit ? sc : StatusCode::FAILURE);
 

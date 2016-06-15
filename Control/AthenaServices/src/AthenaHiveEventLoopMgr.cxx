@@ -170,6 +170,14 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
     return StatusCode::FAILURE;
   }
 
+#ifdef REENTRANT_GAUDI
+  m_algExecMgr = serviceLocator()->service("AlgExecMgr");
+  if( !m_algExecMgr.isValid() ) {
+    fatal() << "Error retrieving AlgExecMgr" << endmsg;
+    return StatusCode::FAILURE;
+  }
+#endif
+
   sc = m_eventStore.retrieve();
   if( !sc.isSuccess() )  
   {
@@ -524,7 +532,7 @@ StatusCode AthenaHiveEventLoopMgr::writeHistograms(bool force) {
     IDataSelector* objects = agent.selectedObjects();
     // skip /stat entry!
     if ( objects->size() > 0 ) {
-      int writeInterval(m_writeInterval.value());
+      unsigned int writeInterval(m_writeInterval.value());
       IDataSelector::iterator i;
       for ( i = objects->begin(); i != objects->end(); i++ ) {
 	StatusCode iret(StatusCode::SUCCESS);
@@ -830,12 +838,12 @@ StatusCode AthenaHiveEventLoopMgr::nextEvent(int maxevt)
     return (tbb::tick_count::now()-start_time).seconds();
   };
 
-  while ( !loop_ended and (maxevt < 0 or finishedEvts < maxevt)){
+  while ( !loop_ended and ( (maxevt < 0) or (finishedEvts < maxevt) ) ){
     debug() << " -> createdEvts: " << createdEvts << endmsg;
     
-    if (createdEvts >= 0 && // The events are not finished with an unlimited number of events
-        (createdEvts < maxevt or maxevt<0) &&  // The events are not finished with a limited number of events
-        m_schedulerSvc->freeSlots()>0){ // There are still free slots in the scheduler
+    if ( (createdEvts >= 0) && // The events are not finished with an unlimited number of events
+	 ( (createdEvts < maxevt) or (maxevt<0) ) &&  // The events are not finished with a limited number of events
+	 (m_schedulerSvc->freeSlots()>0) ){ // There are still free slots in the scheduler
       
       debug() << "createdEvts: " << createdEvts << ", freeslots: " << m_schedulerSvc->freeSlots() << endmsg;
       
@@ -1159,6 +1167,10 @@ StatusCode  AthenaHiveEventLoopMgr::createEventContext(EventContext*& evtContext
 
   m_nevt = createdEvts;
   
+#ifdef REENTRANT_GAUDI
+  m_algExecMgr->reset(*evtContext);
+#endif
+
   StatusCode sc = m_whiteboard->selectStore(evtContext->slot());
   if (sc.isFailure()){
     warning() << "Slot " << evtContext->slot()
@@ -1211,8 +1223,15 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
       continue;
     }
 
+#ifdef REENTRANT_GAUDI
+    if (m_algExecMgr->eventStatus(*thisFinishedEvtContext) != EventStatus::Success) {
+      fatal() << "Failed event detected on " << thisFinishedEvtContext 
+              << " w/ fail mode: "
+              << m_algExecMgr->eventStatus(*thisFinishedEvtContext) << endmsg;
+#else
     if (thisFinishedEvtContext->evtFail()){
-      fatal() << "Failed event detected"<< endmsg;
+      fatal() << "Failed event detected on " << thisFinishedEvtContext << endmsg;
+#endif
       delete thisFinishedEvtContext;
       fail = true;
       continue;
