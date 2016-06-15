@@ -88,14 +88,14 @@ public:
   virtual void badStrips(std::set<Identifier>& strips);
   
   /// List of bad strip Identifiers for a given module
-  virtual void badStrips(Identifier moduleId, std::set<Identifier>& strips);
+  virtual void badStrips(const Identifier & moduleId, std::set<Identifier>& strips);
 
   /// String of bad strip numbers for a given module
-  virtual std::string badStripsAsString(Identifier moduleId);
+  virtual std::string badStripsAsString(const Identifier & moduleId);
 
   /// String of dead strip/chip numbers for a given module
-  virtual std::string deadStripsAsString(Identifier moduleId);
-  virtual std::string deadChipsAsString(Identifier moduleId);
+  virtual std::string deadStripsAsString(const Identifier & moduleId);
+  virtual std::string deadChipsAsString(const Identifier & moduleId);
 
   // ------------------------------------------------------------------------------------
   // local stuff 
@@ -176,8 +176,6 @@ private:
   void expandRange(const std::string& rangeStr, std::set<int>& rangeList);
   
   void expandList(const std::string& defectStr, std::set<int>& defectList);
-
-  int stringToInt(const std::string& s) const;
 
   StatusCode printCondObjects(const std::string & foldername) const;
 

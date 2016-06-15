@@ -14,7 +14,8 @@
 // C++
 #include <string> 
 #include <vector> 
-#include <bitset> 
+#include <bitset>
+//#include <array>
 
 // Gaudi
 #include "GaudiKernel/ServiceHandle.h"
@@ -91,7 +92,7 @@ private:
   const SCT_ID*                       m_sctId;               //!< ID helper for SCT
   ServiceHandle<ISCT_CablingSvc>      m_cablingSvc;          //!< Service handle for SCT Cabling
   std::vector<SCT_Chip*>              m_chips;               //!< Vector of actual SCT Chips for that module
-  std::vector<SCT_PortMap>            m_chipMap;             //!< Vector of port mapping fro the chips in an SCT module 
+  std::vector<SCT_PortMap>            m_chipMap;             //!< Vector of port mapping from the chips in an SCT module 
   bool                                m_linkActive[2];       //!< Links status for link 0 and 1
   std::bitset<SCT_Parameters::NChips> m_chipInReadout;       //!< Bitset indicating whether a chip is readout or not
   SCT_Parameters::ModuleType          m_type;                //!< The type of this module (Barrel, Modified Barrel (0 or 1), Endcap)
@@ -100,12 +101,12 @@ private:
 
   /** Find the ID of the input chip for chip*/ 
   inline SCT_Parameters::ChipType inputChip(const SCT_Chip& chip) const {
-    return m_chipMap.at(chip.id()).input(chip.inPort());
+    return m_chipMap[chip.id()].input(chip.inPort());
   }
 
   /** Find the ID of the output chip for chip*/
   inline SCT_Parameters::ChipType outputChip(const SCT_Chip& chip) const {
-    return m_chipMap.at(chip.id()).output(chip.outPort());
+    return m_chipMap[chip.id()].output(chip.outPort());
   }
 
   /** Set chip in readout and which link it is on*/
