@@ -135,9 +135,11 @@ StatusCode Muon::MdtDriftCircleOnTrackCreator::initialize()
     m_errorStrategy.setStrategy(MuonDriftCircleErrorStrategy::Moore);
   } else if ("Muonboy" == m_defaultStrategy){
     m_errorStrategy.setStrategy(MuonDriftCircleErrorStrategy::Muonboy);
+  } else if ("Muon" == m_defaultStrategy){
+    m_errorStrategy.setStrategy(MuonDriftCircleErrorStrategy::Muon);
   } else {
     // By default use one of the real strategies - don't default to unknown!
-    m_errorStrategy.setStrategy(MuonDriftCircleErrorStrategy::Moore);
+    m_errorStrategy.setStrategy(MuonDriftCircleErrorStrategy::Muon);
   }
   msg(MSG::INFO) << "Constructed default MuonDriftCircleErrorStrategy: ";
   if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::BroadError ) ) msg(MSG::INFO) << " Broad";
@@ -488,6 +490,9 @@ return CalibrationOutput(Amg::Vector2D(),localCov,0.,false);
     } else if ( myStrategy->strategy()==MuonDriftCircleErrorStrategy::Muonboy ){
       sigmaR   = mBoyParametrisedSigma(errRadius);
       ATH_MSG_DEBUG("R= "<<radius<<"\tMboy sigmaR="<<mBoyParametrisedSigma(errRadius)<<".\tMoore param sigmaR = "<<parametrisedSigma(errRadius));
+    } else if ( myStrategy->strategy()==MuonDriftCircleErrorStrategy::Muon ){
+      sigmaR   = parametrisedSigma(errRadius);
+      ATH_MSG_DEBUG("R= "<<radius<<"\tMuon sigmaR="<<sigmaR);
     }
   }else{
     // Use calib service errors.
@@ -502,6 +507,9 @@ return CalibrationOutput(Amg::Vector2D(),localCov,0.,false);
   } else if ( myStrategy->strategy()==MuonDriftCircleErrorStrategy::Muonboy ) {
     sigmaR2 = mboyErrorStrategy(myStrategy,sigmaR);
     ATH_MSG_DEBUG("After scaling etc:\t Mboy sigmaR2 = "<<sigmaR2<<". \t Moore sigmaR2 = "<<mooreErrorStrategy(myStrategy,sigmaR*sigmaR,DC.identify()));
+  } else if ( myStrategy->strategy()==MuonDriftCircleErrorStrategy::Muon ) {
+    sigmaR2 = muonErrorStrategy(myStrategy,sigmaR*sigmaR,DC.identify());
+    ATH_MSG_DEBUG("After scaling etc:\t Muon ErrorStrategy sigmaR2 = "<<sigmaR2);
   }
   //////////////////////////////////////////////////////////////
   // update or copy drift radius and error
@@ -614,6 +622,9 @@ const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateErr
       } else if ( myStrategy->strategy()==MuonDriftCircleErrorStrategy::Muonboy ){
         sigmaR   = mBoyParametrisedSigma(radius);
         ATH_MSG_DEBUG("Mboy drift errors:"<<sigmaR<<" for radius="<<radius);
+      } else if ( myStrategy->strategy()==MuonDriftCircleErrorStrategy::Muon ){
+        sigmaR   = parametrisedSigma(radius);
+        ATH_MSG_DEBUG("Muon drift errors:"<<sigmaR<<" for radius="<<radius);
       }
     }else{
       sigmaR = getErrorFromRt(DCT);
@@ -632,6 +643,9 @@ const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateErr
     sigmaR2 = mooreErrorStrategy(myStrategy,sigmaR*sigmaR,DCT.identify());
   } else if ( myStrategy->strategy()==MuonDriftCircleErrorStrategy::Muonboy ) {
     sigmaR2 = mboyErrorStrategy(myStrategy,sigmaR);
+  } else if ( myStrategy->strategy()==MuonDriftCircleErrorStrategy::Muon ) {
+    sigmaR2 = muonErrorStrategy(myStrategy,sigmaR*sigmaR,DCT.identify());
+    ATH_MSG_DEBUG("After scaling etc:\t Muon ErrorStrategy sigmaR2 = "<<sigmaR2);
   }
   Muon::MdtDriftCircleOnTrack* rot = DCT.clone();
  rot->m_localCovariance(0,0) = sigmaR2; 
@@ -1194,6 +1208,54 @@ double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyTight(const MuonDri
   return sigmaR2;
 }
 
+double Muon::MdtDriftCircleOnTrackCreator::muonErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, 
+                                                              double sigmaR2, const Identifier& id) const {
+
+//
+//   the new muonErrorStrategy is identical for Data and MC
+//   it assumes that for tracks the alignment uncertainties are added later 
+//   this is done by the AignmentErrorTool where AlignmentEffectsOnTrack are used.
+//   (for segment errors the mooreStrategy is coded)
+//
+//   it is inspired by the mooreErrorStrategyTight but doesnot need a constant term
+//
+
+  ATH_MSG_DEBUG("muonErrorStrategy sigmaR2="<<sigmaR2);                                  
+
+  // Muon error strategy.  Hard coding numbers for the time being - hope to make them configurable some day
+  if ( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::Segment ) ){
+    if ( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::FixedError ) && 
+        myStrategy->creationParameter( MuonDriftCircleErrorStrategy::ScaledError ) ){
+      if ( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::T0Refit ) ){
+        ATH_MSG_VERBOSE(" segment error, t0fit ");
+        return sigmaR2 + 0.005; // Collisions with T0 refit (input)
+      } else if ( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::BroadError ) ){
+        ATH_MSG_VERBOSE(" segment error, broad ");
+        return 4*sigmaR2 + 0.16; // Output segments - broad errors
+      } else {
+        ATH_MSG_VERBOSE(" segment error, precise ");
+        return sigmaR2 + 0.005; // Input segments , no T0 refit
+      }
+    } 
+  } else { // Track
+    if( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::StationError ) ){
+      ATH_MSG_VERBOSE(" track station error  ");
+      return 1.21*sigmaR2; // 1.1* mm
+    }else if( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::FixedError ) ){ 
+        ATH_MSG_VERBOSE(" track error Fixed ");
+        return 4*sigmaR2; // 2*    
+    } else if ( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::ScaledError ) ){ 
+      if( myStrategy->creationParameter( MuonDriftCircleErrorStrategy::BroadError ) ) {
+        ATH_MSG_VERBOSE(" track error Scaled/Broad ");
+        return 2.25*sigmaR2;
+      }else{
+        ATH_MSG_VERBOSE(" Track scaled error ");
+        return 1.21*sigmaR2;
+      }
+    }
+  } // End of segment or track
+  return sigmaR2;
+}
 
 double Muon::MdtDriftCircleOnTrackCreator::mboyErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR) const 
 { 
