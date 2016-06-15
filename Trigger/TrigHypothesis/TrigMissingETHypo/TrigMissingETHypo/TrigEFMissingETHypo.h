@@ -108,6 +108,7 @@ class TrigEFMissingETHypo : public HLT::HypoAlgo {
 
   bool m_doMuonCorrection; //!< switch on/off muon correction
   bool m_doEMScaleTC;        //!< switch on/off the use of EM scale information (in topo. clusters)
+  bool m_doOnlyCalcCentralMET; //!< calculate MET only with central contributions
 
   bool m_monitorMeasuredEnergies;  // Heavy Ion Monitoring
   
