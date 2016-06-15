@@ -47,6 +47,8 @@ TrigEFMissingETHypo::TrigEFMissingETHypo(const std::string& name, ISvcLocator* p
 
   declareProperty("doMuonCorrection", m_doMuonCorrection = false, "switch on/off muon correction" );
   declareProperty("doEMScaleTC", m_doEMScaleTC = false, "switch on/off the use of EM scale information (for topo. clusters only!)" );
+  declareProperty("doOnlyCalcCentralMET", m_doOnlyCalcCentralMET = false, "only use central MET" );
+
   declareProperty("doL1L2FEBTest", m_doL1L2FEBTest = false, "Use L2=L1 values to Trigger FEB if MET values disagree by more than L1L2FEBTolerance GeV (for FEB only!)" );
   declareProperty("L1L2FEBTolerance", m_L1L2FEBTolerance = 100*CLHEP::GeV, "L2=L1 vs FEB tolerance in GeV" );
 
@@ -323,6 +325,9 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
    unsigned int lowTCIndex  =  met->getNumberOfComponents()-5;
    unsigned int highTCIndex =  met->getNumberOfComponents()-1;
    
+   if(m_doOnlyCalcCentralMET)
+    highTCIndex = lowTCIndex + 2;
+    
    for(unsigned int i = lowTCIndex; i < highTCIndex; i++) {
    	   	
    	Ex += met->exComponent(i);
@@ -338,6 +343,27 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
     caloSET = centralSET = caloCentralSET = SET;
     MET = caloMET = centralMET = caloCentralMET = sqrt(Ex*Ex + Ey*Ey);
   	
+  }
+  
+  if ( m_doOnlyCalcCentralMET && !m_doEMScaleTC ) {
+
+   // clear Fex result
+   MET = SET = Ex = Ey = Ez = 0;
+     
+   for(unsigned int i = 0; i < 2; i++) { 	
+   	Ex += met->exComponent(i);
+   	Ey += met->eyComponent(i);
+   	Ez += met->ezComponent(i);   	
+   	SET += met->sumEtComponent(i);
+   } 
+   
+    centralEx = caloEx = caloCentralEx = Ex;
+    centralEy = caloEy = caloCentralEy = Ey;
+    centralEz = caloEz = caloCentralEz = Ez;
+   
+    caloSET = centralSET = caloCentralSET = SET;
+    MET = caloMET = centralMET = caloCentralMET = sqrt(Ex*Ex + Ey*Ey);  
+  
   }
   
   if ( m_doL1L2FEBTest ) {
@@ -637,6 +663,7 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
       msg() << MSG::DEBUG << " REGTEST: et = " << MET << " MeV" << endreq;
       msg() << MSG::DEBUG << " REGTEST: ex = " << Ex << " MeV" << endreq;
       msg() << MSG::DEBUG << " REGTEST: ey = " << Ey << " MeV" << endreq;
+      msg() << MSG::DEBUG << " REGTEST: ez = " << Ez << " MeV" << endreq;
       msg() << MSG::DEBUG << " REGTEST: SumEt = " << SET << " MeV" << endreq;
       msg() << MSG::DEBUG << " REGTEST: Sig = " << SIG << endreq;
     }
@@ -650,6 +677,7 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
       msg() << MSG::DEBUG << " REGTEST: et = " << MET << " MeV" << endreq;
       msg() << MSG::DEBUG << " REGTEST: ex = " << Ex << " MeV" << endreq;
       msg() << MSG::DEBUG << " REGTEST: ey = " << Ey << " MeV" << endreq;
+      msg() << MSG::DEBUG << " REGTEST: ez = " << Ez << " MeV" << endreq;
       msg() << MSG::DEBUG << " REGTEST: SumEt = " << SET << " MeV" << endreq;
       msg() << MSG::DEBUG << " REGTEST: Sig = " << SIG << endreq;
     }
