@@ -90,6 +90,9 @@ namespace MuonGM {
     /** calculate local channel position for a given channel number */
     bool  channelPosition( std::pair<int,int> pad, Amg::Vector2D& pos ) const;
 
+    /** calculate local channel corners for a given channel number */
+    bool  channelCorners( std::pair<int,int> pad, std::vector<Amg::Vector2D> &corners ) const;
+
     /** calculate local channel width */
     double  channelWidth( const Amg::Vector2D& pos, bool measPhi  ) const;
 

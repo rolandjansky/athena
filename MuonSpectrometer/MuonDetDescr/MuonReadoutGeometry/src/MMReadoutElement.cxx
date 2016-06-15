@@ -13,8 +13,6 @@
 //<version>	$Name: not supported by cvs2svn $
 
 #include "MuonReadoutGeometry/MMReadoutElement.h"
-#include "MuonReadoutGeometry/NSWenumeration.h"
-#include "MuonReadoutGeometry/NSWgeometry.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"

@@ -118,6 +118,9 @@ namespace MuonGM {
     const Amg::Vector3D& normal(int layHash) const;
     const Amg::Transform3D& transform(int surfHash) const;
 
+    /** returns all the surfaces contained in this detector element */
+    virtual const std::vector<const Trk::Surface*>& surfaces() const;
+
     /** returns the hash function to be used to look up the center and the normal of the tracking surface for a given identifier */
     virtual int  layerHash(const Identifier& id)   const = 0; 
 
@@ -137,6 +140,9 @@ namespace MuonGM {
 
     mutable SurfaceData* m_surfaceData;
     mutable SurfaceData* m_surfaceDataBackup;
+
+    /** these are all surfaces represented by this detector element : it's for visualization without casting */
+    mutable std::vector<const Trk::Surface*>  m_elementSurfaces;
   };
 
   inline const Trk::PlaneSurface&    MuonClusterReadoutElement::surface()   const { return surface(0); }
@@ -225,6 +231,14 @@ namespace MuonGM {
     }
     return *m_surfaceData->m_surfBounds[hash]; 
   }  
+
+  inline const std::vector<const Trk::Surface*>& MuonClusterReadoutElement::surfaces() const {
+      // create when first time requested and when possible
+      if (!m_elementSurfaces.size() && m_surfaceData)
+          m_elementSurfaces.insert(m_elementSurfaces.begin(), m_surfaceData->m_layerSurfaces.begin(), m_surfaceData->m_layerSurfaces.end());
+      // return the element surfaces      
+      return m_elementSurfaces;
+  }
 
 }
 #endif // MUONGEOMODEL_MUONCLUSTERREADOUTELEMENT_H

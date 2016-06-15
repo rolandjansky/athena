@@ -67,6 +67,9 @@ namespace MuonGM {
     /** pad position */
     bool padPosition( const Identifier& id, Amg::Vector2D& pos) const;
 
+    /** pad corners */
+    bool padCorners ( const Identifier& id, std::vector<Amg::Vector2D> &corners) const;
+
     /** number of layers in phi/eta projection */
     int numberOfLayers( bool ) const;
 
@@ -274,6 +277,18 @@ namespace MuonGM {
     int padPhi = manager()->stgcIdHelper()->padPhi(id);
 
     return design->channelPosition(std::pair<int,int>(padEta,padPhi),pos);
+
+  }
+
+  inline bool sTgcReadoutElement::padCorners( const Identifier& id, std::vector<Amg::Vector2D> &corners ) const {
+
+    const MuonPadDesign* design = getPadDesign(id);
+    if( !design ) return false;
+    
+    int padEta = manager()->stgcIdHelper()->padEta(id);
+    int padPhi = manager()->stgcIdHelper()->padPhi(id);
+
+    return design->channelCorners(std::pair<int,int>(padEta,padPhi),corners);
 
   }
 
