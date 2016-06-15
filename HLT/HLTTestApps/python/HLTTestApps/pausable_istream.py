@@ -63,6 +63,7 @@ class pausable_istream(eformat.istream):
 
     def rewind(self):
         """Rewind to the first event in the first file"""
+        self.i = 0
         self.f = 0
         self.dr = EventStorage.pickDataReader(self.filelist[self.f])
         
@@ -161,12 +162,46 @@ class dif_pausable_istream_tests(unittest.TestCase):
         self.assertEquals(self.stream.i, 0)
         self.assertEquals(self.stream.f, 0)
         
+    def testRewindInFirstFile(self):
+        self._testRewind(50) # files have 100 and 99 events respectively
+                
+    def testRewindInSecondFile(self):
+        self._testRewind(150) # files have 100 and 99 events respectively
+        
+    def testRewindAfterCycle(self):
+        self._testRewind(250) # files have 100 and 99 events respectively
+        
     def aux_testCycle(self):
         try:
             for e in self.stream:
                 pass
         except PauseIterationException:
             pass
+            
+    def _testRewind(self, n):
+        # advance n events
+        evs1 = self._extract_first_n_events(n)
+        
+        # now rewind and check we really are at the beginning
+        self.stream.rewind()
+        self.assertEquals(self.stream.i, 0)
+        self.assertEquals(self.stream.f, 0)
+        self.assertEquals(self.stream.dr.fileName(), self.stream.filelist[self.stream.f])
+        
+        #repeat and confirm we get the same events as before
+        evs2 = self._extract_first_n_events(n)
+        self.assertEquals(evs1, evs2)
+        
+    def _extract_first_n_events(self, n):
+        evs = []
+        while True:
+            try:
+                for e in self.stream:
+                    evs.append(e)
+                    if len(evs) == n:
+                        return evs
+            except PauseIterationException:
+                pass
         
 class fixed_pausable_istream_tests(unittest.TestCase):
     def setUp(self):
