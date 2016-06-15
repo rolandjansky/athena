@@ -56,17 +56,17 @@ std::pair<int,int> MuonPadDesign::channelNumber( const Amg::Vector2D& pos) const
     int padEta = 0;
     // padPhi
     // DT-2015-11-29 : currently easier: attribute 'phi pad fuzzy shift' to hit rather than to pad edge
-    double locPhi = 180*atan(pos.x()/(radialDistance + pos.y()))/M_PI;
+    double locPhi = 180*atan(etasign*pos.x()/(radialDistance + pos.y()))/M_PI;
     double maxlocPhi = 180*atan(0.5*sPadWidth/(radialDistance + (-0.5*Length+ysFrame)))/M_PI;
     // fuzziness for negative z takes negative of PadPhiShift
     double fuzziedX = pos.x() - (etasign*PadPhiShift /cos(locPhi*M_PI/180));
-    double fuzziedlocPhi = 180*atan(fuzziedX/(radialDistance + pos.y()))/M_PI;
+    double fuzziedlocPhi = 180*atan(etasign*fuzziedX/(radialDistance + pos.y()))/M_PI;
 
     //std::cout << "\tMuonPadDesign::channelPosition locPhi " << locPhi  << " maxlocPhi " << maxlocPhi << " fuzziedlocPhi " << fuzziedlocPhi << std::endl; 
 
     bool hit_on_frame = (y1>0 && y1<ysFrame);
     bool below_half_length = (y1<0);
-    bool outside_phi_range = (abs(locPhi)>maxlocPhi) or (abs(fuzziedlocPhi)>maxlocPhi);
+    bool outside_phi_range = (std::abs(locPhi)>maxlocPhi) or (std::abs(fuzziedlocPhi)>maxlocPhi);
     // here you might want to 'ATH_MSG_DEBUG' the three conditions above? not necessary...
 
     // todo : this fallback was there, but currently is not implemented
@@ -113,6 +113,16 @@ std::pair<int,int> MuonPadDesign::channelNumber( const Amg::Vector2D& pos) const
 
 //----------------------------------------------------------
 bool MuonPadDesign::channelPosition(std::pair<int,int> pad, Amg::Vector2D& pos) const {
+    std::vector<Amg::Vector2D> corners;
+    channelCorners(pad, corners);
+    double yCenter = 0.5*(corners.at(0)[1]+corners.at(2)[1]);
+    double xCenter = 0.5*(0.5*(corners.at(0)[0]+corners.at(1)[0]) + 0.5*(corners.at(2)[0]+corners.at(3)[0]));
+    pos[0] = -1.0*etasign*xCenter;
+    pos[1] = yCenter;
+    return true;    
+}
+//----------------------------------------------------------
+bool MuonPadDesign::channelCorners(std::pair<int,int> pad, std::vector<Amg::Vector2D> &corners) const {
     // DG-2015-11-30: todo check whether the offset subtraction is still needed
     int iEta = pad.first; // -1 + padEtaMin;
     int iPhi = pad.second; //  -1 + padPhiMin;
@@ -173,10 +183,14 @@ bool MuonPadDesign::channelPosition(std::pair<int,int> pad, Amg::Vector2D& pos) 
     //std::cout <<"\tMuonPadDesign::channelPosition xBotRight " << xBotRight << " xBotLeft " << xBotLeft << " xTopRight " << xTopRight << " xTopLeft " << xTopLeft <<std::endl;
 
     // compute pad center
-    double yCenter = 0.5*(yBot+yTop);
-    double xCenter = 0.5*(0.5*(xBotLeft+xBotRight) + 0.5*(xTopLeft+xTopRight));
-    pos[0] = xCenter;
-    pos[1] = yCenter;
+    //double yCenter = 0.5*(yBot+yTop);
+    //double xCenter = 0.5*(0.5*(xBotLeft+xBotRight) + 0.5*(xTopLeft+xTopRight));
+    //pos[0] = xCenter;
+    //pos[1] = yCenter;
+    corners.push_back(Amg::Vector2D(xBotLeft,yBot));
+    corners.push_back(Amg::Vector2D(xBotRight,yBot));
+    corners.push_back(Amg::Vector2D(xTopLeft,yTop));
+    corners.push_back(Amg::Vector2D(xTopRight,yTop));
     //std::cout << "MuonPadDesign::channelPosition padEta " << pad.first << " padPhi " << pad.second << " x " << xCenter << " y " << yCenter << std::endl;
     return true;
     // return false; // DG-2015-12-01 \todo run validation and determine when this function fails
