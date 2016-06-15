@@ -16,5 +16,3 @@ macro AtlasMKL_compilers_and_libraries_libdir "$(AtlasMKL_compilers_and_librarie
 macro AtlasMKL_export_paths "$(AtlasMKL_compilers_and_libraries_libdir)"
 
 set ATLASMKLLIBDIR_PRELOAD $(AtlasMKL_compilers_and_libraries_libdir)
-
-
