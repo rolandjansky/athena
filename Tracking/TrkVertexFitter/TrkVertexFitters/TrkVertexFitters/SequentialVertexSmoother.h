@@ -25,11 +25,17 @@
  * Modifications due to EDM changes +  additional
  * protection against empty pointers. August 2006
  * <Kirill.Prokofiev@cern.ch>
+ *
+ * ---------------------------------------------------
+ * Changes:
+ *
+ * David Shope <david.richard.shope@cern.ch> (2016-04-19)
+ *  EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex
+ *
  */
 
 namespace Trk
 {
- class VxCandidate;
  class IVertexTrackUpdator;
  
  class SequentialVertexSmoother : public AthAlgTool, virtual public IVertexSmoother
@@ -55,7 +61,7 @@ namespace Trk
   * belonging to the VxCandidate with the knowledge
   * of the vertex position
   */
-   virtual void smooth(const VxCandidate& vtx) const;
+   virtual void smooth(xAOD::Vertex& vtx) const;
   
   private:
 
