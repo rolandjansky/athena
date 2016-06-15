@@ -414,6 +414,15 @@ private:
     for(LArCellCollection::iterator ii=coll->begin();ii!=coll->end();++ii)
       (*ii)->setEnergyFast(0.0);
   }
+  /** reset collections (put all cell energies to 0 ) */
+  void reset_TileCol(TileCellCollection* m_col){
+     for(TileCellCollection::iterator tr=m_col->begin();tr!=m_col->end(); ++tr) { 
+	(*tr)->setEnergy_nonvirt(0.0F, 0.0F, 0, CaloGain::INVALIDGAIN);
+	(*tr)->setTime_nonvirt(-100.0F);
+	(*tr)->setQuality_nonvirt(static_cast<unsigned char>(255), 0, 0);
+	(*tr)->setQuality_nonvirt(static_cast<unsigned char>(255), 0, 1);
+     } // end of for all channels
+  }
   ZdcDigitsCollection m_zdcDigitCollection;
   ZdcRawChannelCollection m_zdcCol;
   /** caching eta/phi for RoI based ROB request fetching */
