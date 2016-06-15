@@ -61,8 +61,12 @@ ServiceMgr += TRTMCCalibDBSvc
 ToolSvc.InDetTRT_DriftFunctionTool.IsOverlay=True
 ToolSvc.InDetTRT_DriftFunctionTool.TRTCalDbTool2=TRTMCCalibDBSvc
 
-#to apply Lorentz Angle correction
-svcMgr.PixelSiliconConditionsSvc.ForceUseGeoModel=True
-svcMgr.PixelSiliconConditionsSvc.CheckGeoModel=True
-svcMgr.PixelSiliconConditionsSvc.UseDBForHV=False
-svcMgr.PixelLorentzAngleSvc.usePixelDefaults=True
+if "EOJT_noLorentz" in globals():
+    print "EOJT_noLorentz found in globals(), so not doing Lorentz corrections"
+    svcMgr.PixelSiliconConditionsSvc.ForceUseGeoModel=True
+    svcMgr.PixelSiliconConditionsSvc.CheckGeoModel=True
+    svcMgr.PixelSiliconConditionsSvc.UseDBForHV=False
+    svcMgr.PixelLorentzAngleSvc.usePixelDefaults=True
+else:
+    print "EOJT_noLorentz not found in globals(), so doing standard Lorentz corrections"
+

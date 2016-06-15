@@ -39,6 +39,15 @@ def addOverlayBSFilterArgs(parser):
     parser.add_argument('--outputBS_TRIGSKIMFile', '--outputBSTRIGFile',
                         type=argFactory(argBSFile, io='output', type='BS', subtype='BS_TRIGSKIM'),
                         help='Output skimmed BS file', group='Overlay Filter')
+    for n in range(1,50):
+        myn=str(n)
+        parser.add_argument('--outputBS_TRIGSKIM'+myn+'File', '--outputBSTRIG'+myn+'File',
+                        type=argFactory(argBSFile, io='output', type='BS', subtype='BS_TRIGSKIM'+myn),
+                        help='Output skimmed BS file '+myn, group='Overlay Filter')
+
+    parser.add_argument('--noutputs', type=argFactory(argInt), default='1',
+                        help='Number of output skim files', group='Overlay Filter')
+
     parser.add_argument('--HIfiltervtxdirectory',
                         type=argFactory(argString),
                         help='The directory containing the filter/vtx.data.txt files for the HITAR creation during HI MinBias skimming', group='Overlay Filter')
@@ -47,7 +56,7 @@ def addOverlayBSFilterArgs(parser):
                         help='file for EventIdModifierSvc config for the EVNTtoHITS step', group='Overlay Filter')
     parser.add_argument('--outputTAR_CONFIGFile',
                         type=argFactory(argFile, io = 'output', type='TAR', subtype='TAR_CONFIG'), 
-                        help='Out TAR file of filter/vtx.data.txt files for the skimmed events', group='overlay Filter')
+                        help='Out TAR file of filter/vtx.data.txt files for the skimmed events', group='Overlay Filter')
     parser.add_argument('--jobNumber',
                         type=argFactory(argInt),
                         help='Job number', group='Overlay Filter')

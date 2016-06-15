@@ -114,7 +114,7 @@ if DetFlags.overlay.LVL1_on():
        #-------------------------------------------------------
        if DetFlags.simulateLVL1.Calo_on():
           if DetFlags.simulateLVL1.LAr_on() and DetFlags.simulateLVL1.Tile_on():
-             protectedInclude( "TrigT1CaloSim/TrigT1CaloSimJobOptions_TTL1.py" )
+             protectedInclude( "TrigT1CaloSim/TrigT1CaloSimJobOptions_TTL1_NoCalib.py" ) #switched to NoCalib
              job.TriggerTowerMaker.DoOverlay = True
              job.TriggerTowerMaker.OverlayPedestal = 40.
           else:
