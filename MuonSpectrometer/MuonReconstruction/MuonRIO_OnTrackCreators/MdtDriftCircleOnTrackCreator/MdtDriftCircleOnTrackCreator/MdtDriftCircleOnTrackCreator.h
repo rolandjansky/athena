@@ -198,6 +198,7 @@ namespace Muon {
       double mooreErrorStrategyTight(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
       double mboyErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR) const;
       
+      double muonErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
       
       ToolHandle<Muon::MuonIdHelperTool>   m_idHelper;
       ServiceHandle<MdtCalibrationSvc>     m_mdtCalibSvc;
