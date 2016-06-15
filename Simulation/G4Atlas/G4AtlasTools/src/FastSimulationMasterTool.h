@@ -20,7 +20,7 @@ class FastSimulationMasterTool : public AthAlgTool , public virtual IFastSimulat
   virtual ~FastSimulationMasterTool() {}
 
   // Gaudi methods
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
   static const InterfaceID& interfaceID() { return IFastSimulationMasterTool::interfaceID(); }
 
   // Base class methods
