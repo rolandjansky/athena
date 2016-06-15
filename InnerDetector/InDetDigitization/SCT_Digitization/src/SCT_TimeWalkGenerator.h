@@ -15,11 +15,6 @@
 #ifndef SCT_DIGITIZATION_SCT_TIMEWALKGENERATOR_H
 #define SCT_DIGITIZATION_SCT_TIMEWALKGENERATOR_H
 
-// Gaudi
-//#include "GaudiKernel/ServiceHandle.h"
-
-//#include "InDetSimEvent/SiTotalCharge.h"
-
 //Inheritance
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_Digitization/ISCT_TimeWalkGenerator.h"

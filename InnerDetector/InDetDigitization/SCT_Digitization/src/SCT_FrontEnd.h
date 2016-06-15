@@ -35,9 +35,8 @@
 #include "SiDigitization/SiChargedDiodeCollection.h"
 
 class ISCT_Amp;
-class SCT_ID;
 class ISCT_ReadCalibChipDataSvc;
-//sclass ISCT_ConditionsSvc;
+class SCT_ID;
 
 namespace InDetDD {
   class SCT_DetectorManager;
@@ -46,7 +45,13 @@ namespace InDetDD {
 namespace CLHEP {
   class HepRandomEngine;
 }
-
+/**
+ * @brief simulation of the SCT front-end electronics
+ * working as a SiPreDigitsProcessor
+ * models response of ABCD chip amplifiers to 
+ * collected charges, also does cross-talk, offset
+ * variation and gain variation, in a correlated way
+**/
 class  SCT_FrontEnd : public AthAlgTool, virtual public ISCT_FrontEnd {
 
  public:
@@ -70,14 +75,17 @@ class  SCT_FrontEnd : public AthAlgTool, virtual public ISCT_FrontEnd {
    */
   virtual void process(SiChargedDiodeCollection &collection) const;
   void setRandomEngine(CLHEP::HepRandomEngine *rndmEngine) {  m_rndmEngine = rndmEngine; };
-  StatusCode doSignalChargeForHits(SiChargedDiodeCollection &collection, std::vector<SiChargedDiode*> &FirstDiode) const;
-  StatusCode doClustering(SiChargedDiodeCollection &collection, std::vector<SiChargedDiode*> &FirstDiode) const;
+  StatusCode doSignalChargeForHits(SiChargedDiodeCollection &collectione) const;
+  StatusCode doThresholdCheckForRealHits(SiChargedDiodeCollection &collectione) const;
+  StatusCode doThresholdCheckForCrosstalkHits(SiChargedDiodeCollection &collection) const;
+  StatusCode doClustering(SiChargedDiodeCollection &collection) const;
   StatusCode prepareGainAndOffset(SiChargedDiodeCollection &collection, const Identifier & moduleId) const;
   StatusCode prepareGainAndOffset(SiChargedDiodeCollection &collection, const int & side, const Identifier & moduleId) const;
-  StatusCode randomnoise(const Identifier & moduleId) const;
-  StatusCode randomnoise(const Identifier & moduleId, const int & side) const;
+  StatusCode randomNoise(SiChargedDiodeCollection &collection, const Identifier & moduleId) const;
+  StatusCode randomNoise(SiChargedDiodeCollection &collection, const Identifier & moduleId, const int & side) const;
+  StatusCode addNoiseDiode(SiChargedDiodeCollection &collection, const int & strip, const int & tbin) const;
   float meanValue(std::vector<float> & calibDataVect) const;
-  StatusCode initVectors(const int & strips, const short & comp_mode) const;
+  StatusCode initVectors(const int & strips) const;
 
  private:
 
@@ -102,6 +110,7 @@ class  SCT_FrontEnd : public AthAlgTool, virtual public ISCT_FrontEnd {
   float m_Threshold ;                       //!< Threshold
   float m_timeOfThreshold ;                 //!< Time for the threshold factor
   short m_data_compression_mode;            //!< To set the data compression mode
+  short m_data_readout_mode;                //!< To set the data read out mode
   bool m_noise_expanded_mode;               //!< To set the noise expanded mode
   bool m_useCalibData;                      //!< Flag to set the use of calibration data for noise, Gain,offset etc. 
   mutable int m_strip_max;                  //!< For SLHC studies
@@ -110,6 +119,7 @@ class  SCT_FrontEnd : public AthAlgTool, virtual public ISCT_FrontEnd {
   mutable std::vector<float> m_GainFactor;  //!< generate gain per channel  (added to the gain per chip from calib data)
   mutable std::vector<float> m_NoiseFactor; //!< Kondo: 31/08/07 noise per channel (actually noise per chip from calib data)
   mutable std::vector<double> m_Analogue[3];  //!< To hold the noise and amplifier response 
+  mutable std::vector<int> m_StripHitsOnWafer; //!< Info about which strips are above threshold 
 
   StatusCode                          m_sc;               //!< Help variable to take care of returned status codes
   const InDetDD::SCT_DetectorManager* m_SCTdetMgr;        //!< Handle to SCT detector manager

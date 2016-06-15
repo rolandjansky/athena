@@ -12,26 +12,25 @@
  * @author John Chapman - ATLAS Collaboration
  */
 
+//Base class header
+#include "PileUpTools/PileUpToolBase.h"
 
-// Gaudi
-#include "GaudiKernel/ToolHandle.h"
-
+// Athena headers
 #include "AthenaKernel/IAtRndmGenSvc.h"
-
-// EDM
+#include "CommissionEvent/ComTime.h"
+#include "HitManagement/TimedHitCollection.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/InDetRawDataCollection.h"
-
-#include "HitManagement/TimedHitCollection.h"
-#include "PileUpTools/PileUpToolBase.h"
 #include "InDetSimEvent/SiHitCollection.h"
-#include "CommissionEvent/ComTime.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
+
+// Gaudi headers
+#include "GaudiKernel/ToolHandle.h"
+
+// STL headers
 #include "boost/shared_ptr.hpp"
 #include <string>
-
-
-
-
 
 class InDetSimDataCollection;
 
@@ -65,41 +64,39 @@ namespace CLHEP
 static const InterfaceID IID_ISCT_DigitizationTool ("SCT_DigitizationTool",1,0);
 
 
-class SCT_DigitizationTool : 
+class SCT_DigitizationTool :
   virtual public IPileUpTool,
   public PileUpToolBase
 {
 public:
   static const InterfaceID& interfaceID();
-  SCT_DigitizationTool(const std::string& type, 
-		       const std::string& name,
-		       const IInterface* parent);
+  SCT_DigitizationTool(const std::string& type,
+                       const std::string& name,
+                       const IInterface* parent);
   /**
      @brief Called before processing physics events
   */
-  StatusCode prepareEvent( unsigned int );
-  StatusCode processBunchXing(
-       int bunchXing,
-       PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-       PileUpEventInfo::SubEvent::const_iterator eSubEvents 
-  ); 
-  StatusCode mergeEvent();
+  StatusCode prepareEvent( unsigned int ) override final;
+  virtual StatusCode processBunchXing(int bunchXing,
+                                      SubEventIterator bSubEvents,
+                                      SubEventIterator eSubEvents) override final;
+  virtual StatusCode mergeEvent() override final;
 
-  virtual StatusCode initialize();
-  StatusCode processAllSubEvents();
- 
+  virtual StatusCode initialize() override final;
+  virtual StatusCode processAllSubEvents() override final;
+
 protected:
 
-  bool       digitizeElement(SiChargedDiodeCollection* chargedDiodes); //! 
+  bool       digitizeElement(SiChargedDiodeCollection* chargedDiodes); //!
   void       applyProcessorTools(SiChargedDiodeCollection* chargedDiodes); //!
   void       addSDO(SiChargedDiodeCollection* collection);
- 
-  void storeTool(ISiChargedDiodesProcessorTool *p_processor) {m_diodeCollectionTools.push_back(p_processor);} 
+
+  void storeTool(ISiChargedDiodesProcessorTool *p_processor) {m_diodeCollectionTools.push_back(p_processor);}
   void store(const AtlasDetectorID *p_helper) {m_atlasID = p_helper;}  //FIXME should be removed
 //  void setManager(const InDetDD::SiDetectorManager *p_manager) {m_detMgr = p_manager;} //FIXME should be removed
 
 private:
-  
+
   /**
      @brief initialize the required services
   */
@@ -135,20 +132,20 @@ private:
   SCT_RDO_Collection* createRDO(SiChargedDiodeCollection* collection);
 
   StatusCode getNextEvent();
-  void       digitizeAllHits();     //!< digitize all hits 
-  void       digitizeNonHits();     //!< digitize SCT without hits 
+  void       digitizeAllHits();     //!< digitize all hits
+  void       digitizeNonHits();     //!< digitize SCT without hits
 
   //enum {totmods = 8, totsides = 2, totstrips=768};
 
 
-  float m_tfix;           //!< Use fixed timing for cosmics   
+  float m_tfix;           //!< Use fixed timing for cosmics
   float m_comTime;         //!< Use Commission time for timing
   //  float m_temperatureC ;  //!< Temperature
 
   bool m_enableHits;            //!< Flag to enable hits
-  bool m_onlyHitElements;       //!< 
+  bool m_onlyHitElements;       //!<
   bool m_cosmicsRun;            //!< Select a cosmic run
-  bool m_useComTime;            //!< Flag to set the use of cosmics time for timing  
+  bool m_useComTime;            //!< Flag to set the use of cosmics time for timing
   bool m_barrelonly;            //!< Only the barrel layers
   bool m_randomDisabledCells;   //!< Use Random disabled cells, default no
   //bool m_onlyElementsWithHits;  //!< Process only elements with hits
@@ -167,20 +164,20 @@ private:
   ComTime*        m_ComTime ; //!< Tool to retrieve commissioning timing info from SG
 
   const SCT_ID*                                      m_detID;                             //!< Handle to the ID helper
-  const InDetDD::SCT_DetectorManager*                m_detMgr;              
-              //!< Handle to Si detector manager                   
-  ToolHandle<ISCT_FrontEnd>                          m_sct_FrontEnd;                      //!< Handle the Front End Electronic tool 
+  const InDetDD::SCT_DetectorManager*                m_detMgr;
+              //!< Handle to Si detector manager
+  ToolHandle<ISCT_FrontEnd>                          m_sct_FrontEnd;                      //!< Handle the Front End Electronic tool
   ToolHandle<ISCT_SurfaceChargesGenerator>           m_sct_SurfaceChargesGenerator;       //!< Handle the surface chage generator tool
-  ToolHandle<ISCT_RandomDisabledCellGenerator>       m_sct_RandomDisabledCellGenerator;   //!< Handle the Ampilifier tool for the Front End 
+  ToolHandle<ISCT_RandomDisabledCellGenerator>       m_sct_RandomDisabledCellGenerator;   //!< Handle the Ampilifier tool for the Front End
 
   std::vector<SiHitCollection*> hitCollPtrs;
 
   SCT_RDO_Container        *                         m_rdocontainer ;                     //!< RDO container
   InDetSimDataCollection   *                         m_simDataCollMap;                    //!< SDO Map
 
-  std::string                                        m_inputObjectName;     //! name of the sub event  hit collections. 
+  std::string                                        m_inputObjectName;     //! name of the sub event  hit collections.
   std::string                                        m_outputRDOCollName;    //! name of the output RDOs.
-  std::string                                        m_outputSDOCollName;    //! name of the output SDOs. 
+  std::string                                        m_outputSDOCollName;    //! name of the output SDOs.
   ServiceHandle <IAtRndmGenSvc>                      m_rndmSvc;             //!< Random number service
   ServiceHandle <PileUpMergeSvc> m_mergeSvc; //!
 
@@ -191,7 +188,7 @@ private:
   SiChargedDiodeCollection                           *chargedDiodes;
   IntegerProperty                                    m_vetoThisBarcode;
 
-  
+
 };
 
 inline const InterfaceID& SCT_DigitizationTool::interfaceID()

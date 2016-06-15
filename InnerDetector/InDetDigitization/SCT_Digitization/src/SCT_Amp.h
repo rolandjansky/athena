@@ -36,11 +36,11 @@ class SCT_Amp : public AthAlgTool, virtual public ISCT_Amp {
    
   /** main purpose: CR-RC^3 response to a list of charges with times */
   float response(const list_t &Charges, const float timeOverThreshold) const;
-  void response(const list_t &Charges, const float timeOverThreshold, float resp[], short resp_size) const;
+  void response(const list_t &Charges, const float timeOverThreshold, std::vector<float> &resp) const;
 
   /** Neighbour strip cross talk response strip to a list of charges with times */
   float crosstalk(const list_t &Charges, const float timeOverThreshold) const;
-  void crosstalk(const list_t &Charges, const float timeOverThreshold, float resp[], short resp_size) const;
+  void crosstalk(const list_t &Charges, const float timeOverThreshold, std::vector<float> &resp) const;
 
   /** diagnostics */
   void AccumulateAverages(const list_t &Charges);

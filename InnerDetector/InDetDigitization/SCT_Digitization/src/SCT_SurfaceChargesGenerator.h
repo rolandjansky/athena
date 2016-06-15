@@ -39,20 +39,14 @@
 #include <iostream>
 
 // Charges and hits
-#include "InDetSimEvent/SiHit.h"
-#include "SiDigitization/SiSurfaceCharge.h"
-
+class SiHit;
 #include "Identifier/IdentifierHash.h"
 
 // -- do charge trapping histos
-#include "GaudiKernel/ITHistSvc.h"
-#include "TH1.h"
-#include "TH2.h" 
-#include "TProfile.h"
-#include "TMath.h"
-#include "TRandom.h"
-#include "TRandom3.h"
-#include "TVector.h"
+class ITHistSvc;
+class TH1F;
+class TH2F;
+class TProfile;
 
 namespace InDetDD{
   class SiDetectorElement;
@@ -62,10 +56,11 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-//class IdentifierHash;
 class ISiliconConditionsSvc;
 class ISiPropertiesSvc;
 class ISCT_RadDamageSummarySvc;
+
+template <class HIT> class TimedHitPtr;
 
 class SCT_SurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_SurfaceChargesGenerator {
  public:
@@ -135,28 +130,28 @@ private:
 
   // -- Histograms
   ITHistSvc *m_thistSvc; 
-  TProfile *h_efieldz;
-  TH1F *h_efield;
-  TH1F *h_spess;
-  TH1F *h_depD;
-  TH2F *h_drift_electrode;
-  TH1F *h_ztrap;
-  TH1F *h_drift_time;
-  TH1F *h_t_electrode;
-  TH1F *h_zhit;                               
-  TH1F *h_ztrap_tot;
-  TH1F *h_no_ztrap;
-  TH1F *h_trap_drift_t;
-  TH1F *h_notrap_drift_t;
-  TProfile *h_mob_Char;
-  TProfile *h_vel;
-  TProfile *h_drift1;
-  TProfile *h_gen;
-  TProfile *h_gen1;
-  TProfile *h_gen2;
-  TProfile *h_velocity_trap;
-  TProfile *h_mobility_trap;
-  TH1F *h_trap_pos;
+  TProfile *m_h_efieldz;
+  TH1F *m_h_efield;
+  TH1F *m_h_spess;
+  TH1F *m_h_depD;
+  TH2F *m_h_drift_electrode;
+  TH1F *m_h_ztrap;
+  TH1F *m_h_drift_time;
+  TH1F *m_h_t_electrode;
+  TH1F *m_h_zhit;                               
+  TH1F *m_h_ztrap_tot;
+  TH1F *m_h_no_ztrap;
+  TH1F *m_h_trap_drift_t;
+  TH1F *m_h_notrap_drift_t;
+  TProfile *m_h_mob_Char;
+  TProfile *m_h_vel;
+  TProfile *m_h_drift1;
+  TProfile *m_h_gen;
+  TProfile *m_h_gen1;
+  TProfile *m_h_gen2;
+  TProfile *m_h_velocity_trap;
+  TProfile *m_h_mobility_trap;
+  TH1F *m_h_trap_pos;
 
   mutable IdentifierHash m_hashId;
 

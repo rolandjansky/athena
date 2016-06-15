@@ -8,8 +8,9 @@
 
 // random number service includes
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
+
+#include "SiDigitization/SiChargedDiodeCollection.h"
 
 // constructor
 SCT_RandomDisabledCellGenerator::SCT_RandomDisabledCellGenerator(const std::string& type, const std::string& name,const IInterface* parent )

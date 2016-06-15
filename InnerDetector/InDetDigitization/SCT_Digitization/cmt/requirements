@@ -19,6 +19,7 @@ use GaudiInterface       GaudiInterface-*       External
 use AthenaKernel         AthenaKernel-*         Control
 use HitManagement        HitManagement-*        Simulation
 use PileUpTools          PileUpTools-*          Control
+use xAODEventInfo       xAODEventInfo-*    Event/xAOD
 use AthenaBaseComps               AthenaBaseComps-*               Control
 
 #
