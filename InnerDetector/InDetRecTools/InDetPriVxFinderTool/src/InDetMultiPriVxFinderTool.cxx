@@ -7,6 +7,13 @@
                              -------------------
     begin   : 01-11-2013
     authors : Matthew Rudolph, Lars Egholm Peterson
+    changes :
+              2016-04-26   David Shope <david.richard.shope@cern.ch>
+              EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex
+
+                findVertex will now always return an xAOD::VertexContainer,
+                even when using a TrackCollection or a TrackParticleBaseCollection
+                as input.
 
  ***************************************************************************/
 #include "InDetPriVxFinderTool/InDetMultiPriVxFinderTool.h"
@@ -18,7 +25,6 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkEventPrimitives/ParamDefs.h"
-#include "VxVertex/VxCandidate.h"
 #include <map>
 #include <vector>
 #include "TrkSurfaces/PlaneSurface.h"
@@ -32,7 +38,8 @@
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
 
-#include "VxVertex/VxContainer.h"
+//#include "VxVertex/VxContainer.h"
+#include "VxVertex/RecVertex.h"
 #include "VxVertex/VxTrackAtVertex.h"
 #include "DataModel/DataVector.h"
 #include "TrkEventPrimitives/ParamDefs.h"
@@ -149,14 +156,12 @@ StatusCode InDetMultiPriVxFinderTool::initialize()
 }
   
   
-  //Find vertex from TrackCollection
-VxContainer* InDetMultiPriVxFinderTool::findVertex(const TrackCollection* trackTES) 
+//Find vertex from TrackCollection
+std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetMultiPriVxFinderTool::findVertex(const TrackCollection* trackTES) 
 {
 
   if(msgLvl(MSG::DEBUG)) msg() << " Number of input tracks before track selection: " << trackTES->size() << endreq;
 
-
-  //keep track of the links that pass selection
   std::vector<Trk::ITrackLink*> selectedTracks;
 
   typedef DataVector<Trk::Track>::const_iterator TrackDataVecIter;
@@ -164,6 +169,13 @@ VxContainer* InDetMultiPriVxFinderTool::findVertex(const TrackCollection* trackT
   Root::TAccept selectionPassed;
   for (TrackDataVecIter itr  = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
     if (m_useBeamConstraint) {
+      // TODO: change trkFilter to allow for this replacement
+      /*
+      xAOD::Vertex beamposition;
+      beamposition.makePrivateStore();
+      beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
+      beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+      */
       Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
       selectionPassed=m_trkFilter->accept(**itr,&beamposition);
     }
@@ -185,13 +197,13 @@ VxContainer* InDetMultiPriVxFinderTool::findVertex(const TrackCollection* trackT
   if(msgLvl(MSG::DEBUG)) msg() << "Of " << trackTES->size() << " tracks "
       << selectedTracks.size() << " survived the preselection." << endreq;
 
-  VxContainer* returnContainer=findVertex(selectedTracks);
-  
-  return returnContainer;
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex( selectedTracks );
+
+  return returnContainers;
 
 }
 
-VxContainer* InDetMultiPriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection* trackTES) {
+std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetMultiPriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection* trackTES) {
  
   if(msgLvl(MSG::DEBUG)) msg() << " Number of input tracks before track selection: " << trackTES->size() << endreq;
 
@@ -202,6 +214,13 @@ VxContainer* InDetMultiPriVxFinderTool::findVertex(const Trk::TrackParticleBaseC
   Root::TAccept selectionPassed;
   for (TrackParticleDataVecIter itr  = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
     if (m_useBeamConstraint) {
+      // TODO: change trkFilter to allow for this replacement
+      /*
+      xAOD::Vertex beamposition;
+      beamposition.makePrivateStore();
+      beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
+      beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+      */
       Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
       selectionPassed=m_trkFilter->accept(*((*itr)->originalTrack()),&beamposition);
     }
@@ -224,22 +243,18 @@ VxContainer* InDetMultiPriVxFinderTool::findVertex(const Trk::TrackParticleBaseC
   if(msgLvl(MSG::DEBUG)) msg() << "Of " << trackTES->size() << " tracks "
       << selectedTracks.size() << " survived the preselection." << endreq;
 
-  VxContainer* returnContainer=findVertex(selectedTracks);
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex( selectedTracks );
 
-
-  return returnContainer;
+  return returnContainers;
   
 }
 
-  //xAOD version -- for now uses same track link method as others, then converts at the end
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetMultiPriVxFinderTool::findVertex(const xAOD::TrackParticleContainer* trackParticles)
 {
 
   ATH_MSG_DEBUG(" Number of input tracks before track selection: " << trackParticles->size());
 
   std::vector<Trk::ITrackLink*> selectedTracks;
-
-
 
   typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
 
@@ -275,23 +290,14 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetMultiPriVxFind
 
   ATH_MSG_DEBUG("Of " << trackParticles->size() << " tracks " << selectedTracks.size() << " survived the preselection.");
 
-  //Find vertex using track links, returns VxContainer
-  VxContainer* returnContainer=findVertex(selectedTracks);
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers=findVertex(selectedTracks);
 
-  //now convert VxContainer to XAOD Vertex
-  xAOD::VertexContainer *xAODContainer(0);
-  xAOD::VertexAuxContainer *xAODAuxContainer(0);
-  if (m_VertexEdmFactory->createXAODVertexContainer(*returnContainer, xAODContainer, xAODAuxContainer) != StatusCode::SUCCESS) {
-    ATH_MSG_WARNING("Cannot convert output vertex container to xAOD. Returning null pointer.");
-  }
-  delete returnContainer;
+  return returnContainers;
 
-  return std::make_pair(xAODContainer, xAODAuxContainer);
-  
 }
 
 
-VxContainer* InDetMultiPriVxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> & trackVector) const
+std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetMultiPriVxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> & trackVector) const
 {
   
   //copy the input vector.  will drop used tracks from here as they are added to vertices
@@ -299,7 +305,9 @@ VxContainer* InDetMultiPriVxFinderTool::findVertex(const std::vector<Trk::ITrack
   std::vector<Trk::ITrackLink*> seedTracks=trackVector;
   
   //actual container that will get the vertices and be returned
-  VxContainer* theVxContainer = new VxContainer;
+  xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer;
+  xAOD::VertexAuxContainer* theVertexAuxContainer = new xAOD::VertexAuxContainer;
+  theVertexContainer->setStore( theVertexAuxContainer );
   
   //prepare iterators for tracks
   std::vector<Trk::ITrackLink*>::iterator seedBegin = seedTracks.begin();
@@ -313,14 +321,17 @@ VxContainer* InDetMultiPriVxFinderTool::findVertex(const std::vector<Trk::ITrack
   }
 
   //used to store seed info
-  std::vector<Trk::Vertex> seedVertices;
+  std::vector<Amg::Vector3D> seedVertices;
 
   ATH_MSG_VERBOSE("Find multi seeds for fitting");
 
   //find the list of seeds    
-  Trk::RecVertex theconstraint;
+  xAOD::Vertex theconstraint;
+  theconstraint.makePrivateStore();
   if (m_useBeamConstraint) {
-    theconstraint=m_iBeamCondSvc->beamVtx();
+    theconstraint.setPosition(m_iBeamCondSvc->beamVtx().position());
+    theconstraint.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+    theconstraint.setFitQuality(m_iBeamCondSvc->beamVtx().fitQuality().chiSquared(), m_iBeamCondSvc->beamVtx().fitQuality().doubleNumberDoF());
     seedVertices=m_SeedFinder->findMultiSeeds(perigeeList,&theconstraint);
   } else {
     seedVertices = m_SeedFinder->findMultiSeeds(perigeeList);
@@ -329,7 +340,7 @@ VxContainer* InDetMultiPriVxFinderTool::findVertex(const std::vector<Trk::ITrack
   ATH_MSG_VERBOSE("Assign tracks to " << seedVertices.size() << " seeds");
 
 
-   //create track link collections for each seed to then be fit (not going straight to params to allow keeping track of links without searching later)
+  //create track link collections for each seed to then be fit (not going straight to params to allow keeping track of links without searching later)
   std::vector< std::vector<Trk::ITrackLink*> > tracksToFitCollection;
   tracksToFitCollection.resize(seedVertices.size());
 
@@ -355,7 +366,7 @@ VxContainer* InDetMultiPriVxFinderTool::findVertex(const std::vector<Trk::ITrack
       tracksToFitCollection[closestSeedIndex].push_back( *trkit );
       trkit = seedTracks.erase(trkit);
     } else {
-      trkit++; //skip it (will be left in seedTracks for later deletion
+      trkit++; //skip it (will be left in seedTracks for later deletion)
     }
 
   }
@@ -416,9 +427,9 @@ VxContainer* InDetMultiPriVxFinderTool::findVertex(const std::vector<Trk::ITrack
 	seedTracks.push_back( *linkit );
       }
 
-      //empty vertex track collection 
-      cit->clear();
-      continue;
+        //empty vertex track collection 
+        cit->clear();
+        continue;
     }
 
     //create the perigees the fitter actually wants
@@ -428,40 +439,52 @@ VxContainer* InDetMultiPriVxFinderTool::findVertex(const std::vector<Trk::ITrack
     }
 
 
-    Trk::VxCandidate * myVxCandidate = 0;
+    xAOD::Vertex * myxAODVertex = 0;
     if(m_useBeamConstraint) {
-      myVxCandidate = m_iVertexFitter->fit( perigeesToFit, theconstraint);
+      myxAODVertex = m_iVertexFitter->fit( perigeesToFit, theconstraint);
     } else {
-      myVxCandidate = m_iVertexFitter->fit( perigeesToFit );
+      myxAODVertex = m_iVertexFitter->fit( perigeesToFit );
     }
 
 
     double ndf = 0.;
     int ntracks = 0;
-    countTracksAndNdf(myVxCandidate,ndf,ntracks);
+    countTracksAndNdf(myxAODVertex,ndf,ntracks);
 
     bool goodVertex = 
-        myVxCandidate != 0 &&
+        myxAODVertex != 0 &&
         ((!m_useBeamConstraint && ndf>0 && ntracks>=2) ||
          (m_useBeamConstraint && ndf>3 && ntracks>=2));
 
     if (goodVertex) {
       //not going to reassign tracks now so will add the track links
-      std::vector<Trk::VxTrackAtVertex*>* myVxTracksAtVtx=myVxCandidate->vxTrackAtVertex();
+      std::vector<Trk::VxTrackAtVertex>* myVxTracksAtVtx = &( myxAODVertex->vxTrackAtVertex() );
       if(myVxTracksAtVtx) { //protection, but not sure when this would happen...
 	//not sure if there's any guarantee that all the tracks given to fitter were used, but can at least only search among those...
 	//if we find out that is guaranteed we can just directly set the links
 	//we will erase links from the small vector, and if there are any left add them back to seedTracks to be deleted at the end.
 
-	std::vector<Trk::VxTrackAtVertex*>::iterator tracksBegin=myVxTracksAtVtx->begin();
-	std::vector<Trk::VxTrackAtVertex*>::iterator tracksEnd=myVxTracksAtVtx->end();
+	std::vector<Trk::VxTrackAtVertex>::iterator tracksBegin=myVxTracksAtVtx->begin();
+	std::vector<Trk::VxTrackAtVertex>::iterator tracksEnd=myVxTracksAtVtx->end();
        
-        for (std::vector<Trk::VxTrackAtVertex*>::iterator tracksIter=tracksBegin; tracksIter!=tracksEnd;++tracksIter) {
+        for (std::vector<Trk::VxTrackAtVertex>::iterator tracksIter=tracksBegin; tracksIter!=tracksEnd;++tracksIter) {
 	  bool found=false;
 	  for(std::vector<Trk::ITrackLink*>::iterator linkit= cit->begin(); linkit!=cit->end(); linkit++) {
-	    if((*linkit)->parameters()==(*tracksIter)->initialPerigee()) {
+	    if((*linkit)->parameters()==(*tracksIter).initialPerigee()) {
 	      found=true;
-	      (*tracksIter)->setOrigTrack( *linkit );
+
+              //assigning the input track to the fitted vertex through VxTrackAtVertices vector
+	      (*tracksIter).setOrigTrack( *linkit );
+
+              // See if the trklink is to an xAOD::TrackParticle
+              Trk::LinkToXAODTrackParticle* linkToXAODTP = dynamic_cast<Trk::LinkToXAODTrackParticle*>( *linkit );
+
+              // If track is an xAOD::TrackParticle, set directly in xAOD::Vertex
+              if (linkToXAODTP)
+              {
+                myxAODVertex->addTrackAtVertex(*linkToXAODTP, (*tracksIter).weight());
+              } //TODO: else write in a warning? (if tracks were Trk::Tracks or Trk::TrackParticleBase)
+
 	      cit->erase( linkit );
 	      break; //done looking for that link
 	    }
@@ -474,20 +497,20 @@ VxContainer* InDetMultiPriVxFinderTool::findVertex(const std::vector<Trk::ITrack
 
 
       //its a good vertex and the links are all set, so add it to output
-      theVxContainer->push_back (myVxCandidate);
+      theVertexContainer->push_back (myxAODVertex);
 
 
     } else {
 
-      if (myVxCandidate) {
-	delete myVxCandidate;
-	myVxCandidate=0;
+      if (myxAODVertex) {
+	delete myxAODVertex;
+	myxAODVertex=0;
       }
     }
 
     //either bad vertex, so put all the track links back in collection scheduled for deletion
     // or some of the track links weren't used/ didn't get matched to VxTrackAtVertex collection
-    // either way the ITrackLink pointer not passed to some VxTrackAtVertex belonging to a VxCandidate
+    // either way the ITrackLink pointer not passed to some VxTrackAtVertex belonging to an xAOD::Vertex
     for(std::vector<Trk::ITrackLink*>::iterator linkit= cit->begin(); linkit!=cit->end(); linkit++) {
       seedTracks.push_back( *linkit );
     }
@@ -495,66 +518,69 @@ VxContainer* InDetMultiPriVxFinderTool::findVertex(const std::vector<Trk::ITrack
   } //end loop over vector of vector of tracks in which fit was performed
 
 
-  msg(MSG::DEBUG) << " Vtx size: "<<theVxContainer->size()<< endreq;;
-  for (size_t i = 0 ; i < theVxContainer->size(); i++) {
+  msg(MSG::DEBUG) << " Vtx size: "<<theVertexContainer->size()<< endreq;;
+  for (size_t i = 0 ; i < theVertexContainer->size(); i++) {
     if(msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << " Vtx: " << i << 
-	" x= " << (*theVxContainer)[i]->recVertex().position().x() << 
-	" y= " << (*theVxContainer)[i]->recVertex().position().y() << 
-	" z= " << (*theVxContainer)[i]->recVertex().position().z() << 
-	" ntracks= " << (*theVxContainer)[i]->vxTrackAtVertex()->size() << 
-	" chi2= " << (*theVxContainer)[i]->recVertex().fitQuality().chiSquared()
-		      << " ndf = " << (*theVxContainer)[i]->recVertex().fitQuality().doubleNumberDoF() 
+	" x= " << (*theVertexContainer)[i]->position().x() << 
+	" y= " << (*theVertexContainer)[i]->position().y() << 
+	" z= " << (*theVertexContainer)[i]->position().z() << 
+	" ntracks= " << (*theVertexContainer)[i]->vxTrackAtVertex().size() << 
+	" chi2= " << (*theVertexContainer)[i]->chiSquared()
+		      << " ndf = " << (*theVertexContainer)[i]->numberDoF() 
 		     << endreq;
-   } 
-   
+    }
   }
+
   //This bit was done in iterative finder -- not sure why but will copy it here too
-  if ( theVxContainer->size() >= 1) {
-    Trk::VxCandidate * primaryVtx = theVxContainer->front();
-    if (primaryVtx->vxTrackAtVertex()->size()>0) {
-      primaryVtx->setVertexType(Trk::PriVtx);
-      Trk::VxCandidate * dummyVxCandidate = new Trk::VxCandidate ( primaryVtx->recVertex(),
-								   std::vector<Trk::VxTrackAtVertex*>());
-      dummyVxCandidate->setVertexType(Trk::NoVtx);
-      theVxContainer->push_back ( dummyVxCandidate );
+  if ( theVertexContainer->size() >= 1) {
+    xAOD::Vertex * primaryVtx = theVertexContainer->front();
+    if (primaryVtx->vxTrackAtVertex().size()>0) {
+      primaryVtx->setVertexType((xAOD::VxType::VertexType)Trk::PriVtx);
+      xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
+      theVertexContainer->push_back( dummyxAODVertex ); // have to add vertex to container here first so it can use its aux store
+      dummyxAODVertex->setPosition( primaryVtx->position() );
+      dummyxAODVertex->setCovariancePosition( primaryVtx->covariancePosition() );
+      dummyxAODVertex->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
+      dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
     } else {
-      primaryVtx->setVertexType(Trk::NoVtx);
+      primaryVtx->setVertexType(xAOD::VxType::NoVtx);
     }
       
-  } else if ( theVxContainer->size() == 0 ) {  //---- if no vertex is there let dummy be at beam spot
-    
-    Trk::VxCandidate * dummyVxCandidate = new Trk::VxCandidate ( m_iBeamCondSvc->beamVtx(),
-								 std::vector<Trk::VxTrackAtVertex*>());
-    dummyVxCandidate->setVertexType(Trk::NoVtx);
-    theVxContainer->push_back ( dummyVxCandidate );
+  } else if ( theVertexContainer->size() == 0 ) {  //---- if no vertex is there let dummy be at beam spot
+    xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
+    theVertexContainer->push_back( dummyxAODVertex ); // have to add vertex to container here first so it can use its aux store
+    dummyxAODVertex->setPosition( m_iBeamCondSvc->beamVtx().position() );
+    dummyxAODVertex->setCovariancePosition( m_iBeamCondSvc->beamVtx().covariancePosition() );
+    dummyxAODVertex->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
+    dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
   }
   
-  // msg(MSG::DEBUG) << " Vtx size, with a dummy vertex: "<<theVxContainer->size()<< endreq;
+  // msg(MSG::DEBUG) << " Vtx size, with a dummy vertex: "<<theVertexContainer->size()<< endreq;
   // loop over the pile up to set it as pile up (EXCLUDE first and last vertex, do not do that in split mode)
-  for (size_t i = 0 ; i < theVxContainer->size()-1; i++) {
+  for (size_t i = 0 ; i < theVertexContainer->size()-1; i++) {
   	if (i>0) {
-      		(*theVxContainer)[i]->setVertexType(Trk::PileUp);
+      		(*theVertexContainer)[i]->setVertexType(xAOD::VxType::PileUp);
     	}
   }
   
-  // for (size_t i = 0 ; i < theVxContainer->size(); i++) {
+  // for (size_t i = 0 ; i < theVertexContainer->size(); i++) {
   //   if(msgLvl(MSG::DEBUG)) {
   //     msg(MSG::DEBUG) << " Vtx: " << i << 
-  //       " x= " << (*theVxContainer)[i]->recVertex().position().x() << 
-  //       " y= " << (*theVxContainer)[i]->recVertex().position().y() << 
-  //       " z= " << (*theVxContainer)[i]->recVertex().position().z() << 
-  //       " ntracks= " << (*theVxContainer)[i]->vxTrackAtVertex()->size() << 
-  //       " chi2= " << (*theVxContainer)[i]->recVertex().fitQuality().chiSquared()
-  //       	      << " ndf = " << (*theVxContainer)[i]->recVertex().fitQuality().doubleNumberDoF() << endreq;
+  //       " x= " << (*theVertexContainer)[i]->position().x() << 
+  //       " y= " << (*theVertexContainer)[i]->position().y() << 
+  //       " z= " << (*theVertexContainer)[i]->position().z() << 
+  //       " ntracks= " << (*theVertexContainer)[i]->vxTrackAtVertex().size() << 
+  //       " chi2= " << (*theVertexContainer)[i]->chiSquared()
+  //       	      << " ndf = " << (*theVertexContainer)[i]->numberDoF() << endreq;
 		      
-  //       if((*theVxContainer)[i]->vertexType()==Trk::NoVtx) msg(MSG::DEBUG) << " Vtx: " << i << "dummy"<< endreq;
+  //       if((*theVxContainer)[i]->vertexType()==(xAOD::VxType::NoVtx) msg(MSG::DEBUG) << " Vtx: " << i << "dummy"<< endreq;
   //       else  msg(MSG::DEBUG) << " not a dummy vertex "<< endreq;
   //   }
   // }
   
   //ok so in iterative finder, any ITrackLink in origTracks which is a copy of the vector<ITrackLink*> input that is NOT used ends up deleted.
-  //but as they are used, the ITrackLink* elements are just erased from the vector so I guess those aren't deleted. have used seedTrack vector for this abov
+  //but as they are used, the ITrackLink* elements are just erased from the vector so I guess those aren't deleted. have used seedTrack vector for this above
 
 
   for (std::vector<Trk::ITrackLink*>::iterator trkit=  seedTracks.begin();
@@ -566,8 +592,8 @@ VxContainer* InDetMultiPriVxFinderTool::findVertex(const std::vector<Trk::ITrack
     }
   }
 
-  //  msg(MSG::DEBUG) << "Returning VX Container " << MyTrackVxContainer << endreq;
-  return theVxContainer;
+  //  msg(MSG::DEBUG) << "Returning VertexContainer " << MyTrackVxContainer << endreq;
+  return std::make_pair(theVertexContainer, theVertexAuxContainer);
 
 }
 
@@ -590,23 +616,23 @@ void InDetMultiPriVxFinderTool::m_SGError(std::string errService)
 }
 
 
-void InDetMultiPriVxFinderTool::countTracksAndNdf(Trk::VxCandidate * myVxCandidate,
+void InDetMultiPriVxFinderTool::countTracksAndNdf(xAOD::Vertex * myxAODVertex,
                                                       double & ndf, int & ntracks) const
 {
-  if (myVxCandidate)
+  if (myxAODVertex)
   {
-    ndf = myVxCandidate->recVertex().fitQuality().doubleNumberDoF();
+    ndf = myxAODVertex->numberDoF();
     
-    std::vector<Trk::VxTrackAtVertex*>* myVxTracksAtVtx=myVxCandidate->vxTrackAtVertex();
+    std::vector<Trk::VxTrackAtVertex> myVxTracksAtVtx = myxAODVertex->vxTrackAtVertex();
     
-    std::vector<Trk::VxTrackAtVertex*>::iterator tracksBegin=myVxTracksAtVtx->begin();
-    std::vector<Trk::VxTrackAtVertex*>::iterator tracksEnd=myVxTracksAtVtx->end();
+    std::vector<Trk::VxTrackAtVertex>::iterator tracksBegin=myVxTracksAtVtx.begin();
+    std::vector<Trk::VxTrackAtVertex>::iterator tracksEnd=myVxTracksAtVtx.end();
     
-    for (std::vector<Trk::VxTrackAtVertex*>::iterator tracksIter=tracksBegin;
+    for (std::vector<Trk::VxTrackAtVertex>::iterator tracksIter=tracksBegin;
          tracksIter!=tracksEnd;++tracksIter)
     {
       
-      if ((*tracksIter)->weight()>0.01)
+      if ((*tracksIter).weight()>0.01)
       {
         ntracks+=1;
       }
@@ -617,7 +643,7 @@ void InDetMultiPriVxFinderTool::countTracksAndNdf(Trk::VxCandidate * myVxCandida
 
 
 
-double InDetMultiPriVxFinderTool::distanceAndError(const Trk::TrackParameters* params, const Trk::Vertex * vertex, double & error) const {
+double InDetMultiPriVxFinderTool::distanceAndError(const Trk::TrackParameters* params, const Amg::Vector3D * vertex, double & error) const {
 
   ATH_MSG_VERBOSE("run distanceAndError( " << params << " , " << vertex << ", &error), " << m_ImpactPoint3dEstimator);
 
