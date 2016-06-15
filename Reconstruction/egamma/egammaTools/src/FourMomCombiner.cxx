@@ -61,8 +61,8 @@ FourMomCombiner::FourMomCombiner(const std::string& type,
   m_combFlag(TRACK),
   m_combType(COVMAT),
   m_NumberofSiHits(4),
-  DEFAULT_QOVERP_ERROR(1), 
-  DEFAULT_MOMENTUM(0)
+  m_DEFAULT_QOVERP_ERROR(1), 
+  m_DEFAULT_MOMENTUM(0)
 {
   m_trkVector.setZero();
   m_trkMatrix.setZero();
@@ -406,7 +406,7 @@ bool FourMomCombiner::fillTrackVectorElements(xAOD::Egamma *eg, int index)
   if (qOverP != 0) {
     momentum = fabs(1./ qOverP);
   } else {
-    momentum = DEFAULT_MOMENTUM;
+    momentum = m_DEFAULT_MOMENTUM;
   }
   m_trkVector[4] = momentum;
 

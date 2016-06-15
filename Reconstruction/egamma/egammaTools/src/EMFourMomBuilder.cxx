@@ -79,8 +79,8 @@ EMFourMomBuilder::~EMFourMomBuilder(){
 StatusCode EMFourMomBuilder::initialize(){
 
   ATH_MSG_DEBUG(" Initializing EMFourMomBuilder");
-  eg_resol=CxxUtils::make_unique<eg_resolution>(m_ResolutionConfiguration); 
-  eg_resol->msg().setLevel(this->msg().level());
+  m_eg_resol=CxxUtils::make_unique<eg_resolution>(m_ResolutionConfiguration); 
+  m_eg_resol->msg().setLevel(this->msg().level());
   return StatusCode::SUCCESS;
 }
 
@@ -170,7 +170,7 @@ StatusCode EMFourMomBuilder::setFromTrkCluster(xAOD::Electron* el){
     AmgMatrix(5,5) m;
     m.setZero();
     m = J * (covmat * J.transpose());
-    const float sigmaE_over_E= eg_resol->getResolution(*el);
+    const float sigmaE_over_E= m_eg_resol->getResolution(*el);
     //Rearrange the elements of the d0, z0, phi, eta, Pt representation to make the (Et, eta, phi, M)     
     matrix(0,0) = (sigmaE_over_E* E * sigmaE_over_E *E)/(cosh(eta)*cosh(eta)) ;//This comes from the cluster Energy resolution 
     matrix(1,1) = m(3,3);
@@ -231,10 +231,10 @@ void EMFourMomBuilder::saveParameters(xAOD::Egamma *eg) {
     mass = el_mass;
   }
   //Fill in combined parameters + matrix.
-  Amg::VectorX m_combVector = m_FourMomCombiner->getCombinedVector();
-  eg->setPhi(m_combVector[2]);
-  eg->setEta(m_combVector[3]);
-  eg->setPt(m_combVector[4] / cosh(m_combVector[3]));
+  Amg::VectorX combVector = m_FourMomCombiner->getCombinedVector();
+  eg->setPhi(combVector[2]);
+  eg->setEta(combVector[3]);
+  eg->setPt(combVector[4] / cosh(combVector[3]));
   eg->setM(mass);
   //Set error matrices in egamma object.
   eg->setCovMatrix((m_FourMomCombiner->get4x4CombinedErrorMatrix()).cast<float>()); 
