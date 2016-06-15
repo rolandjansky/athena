@@ -90,6 +90,8 @@ def _addTopoInfo(theChainDef,chainDict, topoAlgs, doAtL2AndEF=True):
     if ('muvtx' in topoAlgs):
        # import pdb;pdb.set_trace()
         theChainDef = generateMuonClusterLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
+    elif ('revllp' in topoAlgs):
+        theChainDef = generateReversedCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
     elif ('llp' in topoAlgs):
         theChainDef = generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
     elif b_any(('invm' or 'deta' in x) for x in topoAlgs):
@@ -212,6 +214,45 @@ def generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, to
 
         theChainDef.addSequence([hypo_LoF], TE_LogRatioCut_Fcalo,TE_BeamHaloRemoval)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_BeamHaloRemoval])
+
+    return theChainDef
+
+
+##########################################################################################
+def generateReversedCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):
+    HLTChainName = "HLT_" + chainDict['chainName']   
+
+    # need to chang the inputTE for the first seq. If set to L1Topoo -> change to TAU30 (HA30 threshold)
+    currentInput = theChainDef.sequenceList[0]['input']
+    if "-" in currentInput:
+        theChainDef.sequenceList[0]['input'] = "HA30"
+    
+    # jet splitting
+    from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConfig import getJetSplitterInstance_LowLogRatio
+    theJetSplit=getJetSplitterInstance_LowLogRatio()
+
+    # tracking
+    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+    [trkcore, trkiso, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig", "2step").getSequence()
+
+    # reversed calo-ratio
+    from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import ReversedCaloRatioHypo
+    fex_llp_jet_hypo = ReversedCaloRatioHypo('TrigReversedCaloRatioHypo_j200', threshold=200*GeV, logratio=-1.7)
+
+    TE_SplitJets = HLTChainName+'_SplitJetTool'
+    TE_TrackMuonIsoB = HLTChainName+'_TrkMuIsoB'
+    TE_LogRatioCut = HLTChainName+'_LogRatioCut'
+
+    # split into several trigger elements
+    theChainDef.addSequence(theJetSplit, inputTEsEF, TE_SplitJets)
+
+    # adding tracking sequence
+    #theChainDef.addSequence(trkiso+trkprec,TE_SplitJets,TE_TrackMuonIsoB)
+    #theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_TrackMuonIsoB])
+
+    # adding reversed calo-ratio sequence
+    theChainDef.addSequence(fex_llp_jet_hypo,TE_SplitJets,TE_LogRatioCut)
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_LogRatioCut])
 
     return theChainDef
 
