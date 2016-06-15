@@ -9,7 +9,9 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "VxVertex/RecVertex.h"
+
+//xAOD includes
+#include "xAODTracking/Vertex.h"
 
 /**
  * @class Trk::AdaptiveMultiVertexFitter
@@ -47,6 +49,42 @@
  * (which implements the so called "annealing technique")
  * 5. AnnealingMaker
  *
+ * --------------------------------------------------------------------------
+ * Changes:
+ *
+ * David Shope <david.richard.shope@cern.ch> (2016-04-19)
+ *
+ * EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex, 
+ *                         from Trk::RecVertex   to xAOD::Vertex,
+ *                         from Trk::Vertex      to Amg::Vector3D
+ *
+ * Also, VxMultiVertex EDM has been migrated to the following:
+ *   
+ *   Trk::MvfFitInfo  
+ *     constraintVertex     now uses xAOD::Vertex
+ *     seedVertex           now uses Amg::Vector3D
+ *     linearizationVertex  now uses Amg::Vector3D
+ *
+ *   Trk::TrackToVtxLink
+ *     Vertex objects stored using this class are now xAOD::Vertex
+ *
+ * Instead of using the MVFVxCandidate class, xAOD::Vertex is employed by decorating it
+ * with the multi-vertex information:
+ *
+ *   bool                              isInitialized
+ *   MvfFitInfo*                       MvfFitInfo
+ *   std::Vector<VxTrackAtVertex*>     VTAV
+ *
+ *   This last decoration is needed in order to be able to use MVFVxTrackAtVertex objects
+ *   which have the additional information of xAOD::Vertices associated to the track
+ *   and (through polymorphism) to still be able to pass them to the KalmanVertexUpdator as
+ *   VxTracksAtVertex objects.
+ *
+ *   This is obviously not an ideal implementation and could be avoided if xAOD::Vertex
+ *   stored a std::vector<VxTrackAtVertex*> instead of a std::vector<VxTrackAtVertex>,
+ *   but I think it must remain this way until such a time as the xAOD::Vertex EDM
+ *   is changed.
+ *
  */
 
 
@@ -56,7 +94,6 @@ namespace Trk
   static const InterfaceID IID_AdaptiveMultiVertexFitter("AdaptiveMultiVertexFitter", 1, 0);
 
 
-  class VxCandidate;
   //  class MeasuredPerigee;
   class Track;
   class VxTrackAtVertex;
@@ -68,7 +105,6 @@ namespace Trk
   class IVertexAnnealingMaker;
 
   class TrackToVtxLink;
-  class VxCandidate;
 
   class AdaptiveMultiVertexFitter : public AthAlgTool
   {
@@ -103,7 +139,7 @@ namespace Trk
      *
      */
 
-    void fit(std::vector<VxCandidate*> & allvertexes);
+    void fit(std::vector<xAOD::Vertex*> & allvertexes);
 
     /**
      * Adds a new MVFVxCandidate to a previous multi-vertex fit and fits everything together.
@@ -130,7 +166,7 @@ namespace Trk
      *
      */
 
-    void addVtxTofit(VxCandidate*); 
+    void addVtxTofit(xAOD::Vertex*); 
     static const InterfaceID& interfaceID() {
       return IID_AdaptiveMultiVertexFitter;
     }
@@ -142,7 +178,7 @@ namespace Trk
      * is found.
      */
 
-    bool findAmongVertexes(const VxCandidate* vertex,const std::vector<VxCandidate*> previousvertexes);
+    bool findAmongVertexes(const xAOD::Vertex* vertex,const std::vector<xAOD::Vertex*> previousvertexes);
 
     /**
      * Internal function to collect the weights of the tracks partecipating to all the possible vertices (needed 
@@ -161,7 +197,7 @@ namespace Trk
      *
      */
 
-    void prepareCompatibility(VxCandidate* newvertex);
+    void prepareCompatibility(xAOD::Vertex* newvertex);
 
     /**
      * Max number of iterations.
