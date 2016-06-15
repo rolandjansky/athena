@@ -18,7 +18,8 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/PixelConditionsServices
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          InnerDetector/InDetDetDescr/PixelCabling )
+                          InnerDetector/InDetDetDescr/PixelCabling
+			  Event/xAOD/xAODEventInfo)
 
 # External dependencies:
 find_package( tdaq-common COMPONENTS eformat_write DataWriter )
