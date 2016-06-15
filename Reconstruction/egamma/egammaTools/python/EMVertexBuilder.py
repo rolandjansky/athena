@@ -27,7 +27,7 @@ class VertexFinderToolInstance(FcnWrapper):
                                                       SecVertices    = egammaKeys.outputConversionKey(),
                                                       Extrapolator   = egammaExtrapolator(),
                                                       TrackSummaryTool = egammaInDetTrackSummaryTool(),
-                                                      printConfig      = True)
+                                                      printConfig      = False)
 
     return theemvertexfindertool.toolInstance()
 

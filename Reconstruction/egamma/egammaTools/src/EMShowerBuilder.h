@@ -79,16 +79,11 @@ class EMShowerBuilder : public egammaBaseTool, virtual public IEMShowerBuilder
   /** @brief method shared by the various execute method to retrieve the cell and cluster containers */
   StatusCode retrieveContainers();
   /** @brief calculate shower shapes*/
-  void CalcShowerShape(xAOD::Egamma* eg);
-  void CalcHadronicLeakage(xAOD::Egamma* eg);
+  StatusCode CalcShowerShape(xAOD::Egamma* eg);
+  StatusCode CalcHadronicLeakage(xAOD::Egamma* eg);
   
   /** @brief fill shower detail from shower shape calculation*/
-  void FillEMShowerShape(xAOD::Egamma* eg);
-
-  /** @brief fill local variables with information from calorimeter isolation calculation with default/dummy values */
-  void FillEMShowerIsoVarDefault();
-  /** @brief retrieve information from calorimeter isolation calculation */
-  void FillEMShowerIso(xAOD::Egamma* eg);
+  StatusCode FillEMShowerShape(xAOD::Egamma* eg) const ;
 
   /** @brief Cell container*/
   std::string m_cellsName;     

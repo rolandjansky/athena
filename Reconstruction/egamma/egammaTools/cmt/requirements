@@ -17,7 +17,7 @@ use FourMom                    FourMom-*               Event
 use NavFourMom                 NavFourMom-*            Event
 use FourMomUtils               FourMomUtils-*          Event
 use EventPrimitives            EventPrimitives-*       Event
-
+use AthContainers              AthContainers-*         Control
 use LArRecConditions           LArRecConditions-*      LArCalorimeter 
 use LArTools                   LArTools-*              LArCalorimeter 
 
@@ -27,7 +27,6 @@ use InDetConversionFinderTools InDetConversionFinderTools-*  InnerDetector/InDet
 use InDetRecToolInterfaces     InDetRecToolInterfaces-*      InnerDetector/InDetRecTools
 use InDetBeamSpotService       InDetBeamSpotService-*        InnerDetector/InDetConditions
 
-use CaloGeoHelpers             CaloGeoHelpers-*        Calorimeter	
 use CaloEvent		       CaloEvent-*             Calorimeter
 use CaloUtils		       CaloUtils-*	       Calorimeter
 use CaloRec		       CaloRec-*	       Calorimeter
@@ -35,8 +34,6 @@ use CaloIdentifier	       CaloIdentifier-*        Calorimeter
 use CaloInterface	       CaloInterface-*         Calorimeter
 use CaloConditions	       CaloConditions-*        Calorimeter
 
-use TrkCaloExtension           TrkCaloExtension-*      Tracking/TrkEvent
-use RecoToolInterfaces         RecoToolInterfaces-*    Reconstruction/RecoTools
 use TrkMaterialOnTrack         TrkMaterialOnTrack-*    Tracking/TrkEvent
 
 use Particle                   Particle-*              Reconstruction

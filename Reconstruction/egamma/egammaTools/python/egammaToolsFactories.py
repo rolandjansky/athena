@@ -36,7 +36,7 @@ egammaSwTool = ToolFactory(egammaToolsConf.egammaSwTool,
 
 from egammaMVACalib import egammaMVACalibConf 
 egammaMVATool =  ToolFactory(egammaMVACalibConf.egammaMVATool,
-                              folder="egammaMVACalib/offline/v3")
+                              folder="egammaMVACalib/offline/v3_E4crack_bis")
 
 EMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
                             OutputClusterContainerName = egammaKeys.outputClusterKey(),
@@ -44,6 +44,7 @@ EMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
                             ElectronContainerName = egammaKeys.outputElectronKey(),
                             PhotonContainerName = egammaKeys.outputPhotonKey(),
                             ClusterCorrectionToolName = FullNameWrapper(egammaSwTool),
+                            doSuperCluster = jobproperties.egammaRecFlags.doSuperclusters(),
                             MVACalibTool= egammaMVATool
 )
 
@@ -63,6 +64,7 @@ EMBremCollectionBuilder = ToolFactory( egammaBremCollectionBuilder,
                                        ExtrapolationTool = EMExtrapolationTools,
                                        OutputTrackContainerName=egammaKeys.outputTrackKey(),
                                        ClusterContainerName=egammaKeys.inputClusterKey(),
+                                       UseBremFinder=jobproperties.egammaRecFlags.doBremFinding(),
                                        DoTruth=rec.doTruth()
 )
 
@@ -72,20 +74,38 @@ EMConversionBuilder = ToolFactory( egammaToolsConf.EMConversionBuilder,
                                    ConversionContainerName = egammaKeys.outputConversionKey(),
                                    ExtrapolationTool = EMExtrapolationTools)   
 
-
 from ElectronPhotonSelectorTools import ElectronPhotonSelectorToolsConf
 EGammaAmbiguityTool = ToolFactory( ElectronPhotonSelectorToolsConf.EGammaAmbiguityTool )
 
-
 EMFourMomBuilder = ToolFactory( egammaToolsConf.EMFourMomBuilder)
 
-#Extra tools for doing electron superclustering.
-egammaSuperClusterBuilder = ToolFactory( egammaToolsConf.egammaSuperClusterBuilder,
-                                         name = 'egammaSuperClusterBuilder',
-                                         InputClusterContainerName = 'EMTopoCluster430' )
+#Tools for doing superclustering.
 
-egammaClusterOverlapMarker = ToolFactory( egammaToolsConf.egammaClusterOverlapMarker,
-                                          name = 'egammaClusterOverlapMarker' )
+egammaTopoClusterCopier = ToolFactory( egammaToolsConf.egammaTopoClusterCopier,
+                                     name = 'egammaTopoClusterCopier' ,
+                                     InputTopoCollection=jobproperties.egammaRecFlags.inputTopoClusterCollection(),
+                                     OutputTopoCollection=jobproperties.egammaRecFlags.egammaTopoClusterCollection(),
+                                     IsHadronic = True
+                                     )
+
+
+electronSuperClusterBuilder = ToolFactory( egammaToolsConf.electronSuperClusterBuilder,
+                                           name = 'electronSuperClusterBuilder',
+                                           ExtrapolationTool=EMExtrapolationTools,
+                                           UseBremFinder=jobproperties.egammaRecFlags.doBremFinding(),
+                                           MVACalibTool= egammaMVATool
+                                         )
+
+
+photonSuperClusterBuilder = ToolFactory( egammaToolsConf.photonSuperClusterBuilder,
+                                         name = 'photonSuperClusterBuilder',
+                                         MVACalibTool= egammaMVATool
+                                         )
+
+egammaTopoClusterMap = ToolFactory( egammaToolsConf.egammaTopoClusterMap,
+                                    name = 'egammaTopoClusterMap' )
+
+#End of super clustering
 
 # Electron Selectors
 from EMPIDBuilderBase import EMPIDBuilderElectronBase
@@ -94,6 +114,17 @@ ElectronPIDBuilder = ToolFactory( EMPIDBuilderElectronBase, name = "ElectronPIDB
 # Photon Selectors
 from EMPIDBuilderBase import EMPIDBuilderPhotonBase
 PhotonPIDBuilder = ToolFactory( EMPIDBuilderPhotonBase, name = "PhotonPIDBuilder")
+
+# FarwardElectron Selectors
+from ElectronPhotonSelectorTools.ConfiguredAsgForwardElectronIsEMSelectors import ConfiguredAsgForwardElectronIsEMSelector
+
+import cppyy
+cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
+from ROOT import egammaPID
+
+LooseForwardElectronSelector = ToolFactory( ConfiguredAsgForwardElectronIsEMSelector, name="LooseForwardElectronSelector", quality = egammaPID.ForwardElectronIDLoose )
+MediumForwardElectronSelector = ToolFactory( ConfiguredAsgForwardElectronIsEMSelector, name="MediumForwardElectronSelector", quality = egammaPID.ForwardElectronIDMedium )
+TightForwardElectronSelector = ToolFactory( ConfiguredAsgForwardElectronIsEMSelector, name="TightForwardElectronSelector", quality = egammaPID.ForwardElectronIDTight )
 
 #-------------------------
 

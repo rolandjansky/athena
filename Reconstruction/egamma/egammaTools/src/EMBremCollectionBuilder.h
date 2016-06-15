@@ -9,7 +9,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "egammaInterfaces/IEMBremCollectionBuilder.h"
 #include "TrkTrack/TrackCollection.h"
-#include "CaloGeoHelpers/CaloPhiRange.h"
 
 class IegammaTrkRefitterTool;
 class IegammaCheckEnergyDepositTool;
@@ -58,22 +57,18 @@ class EMBremCollectionBuilder : public AthAlgTool,virtual public IEMBremCollecti
 	/** @brief Tool to create track particle */
 	ToolHandle< Trk::ITrackParticleCreatorTool > m_particleCreatorTool;
 	/** @brief Tool to slim tracks  */
-	ToolHandle<Trk::ITrackSlimmingTool>     m_slimTool;
+	ToolHandle<Trk::ITrackSlimmingTool>  m_slimTool;
 	/** @brief Tool for Track summary  */
-	ToolHandle<Trk::ITrackSummaryTool>     m_summaryTool;
+	ToolHandle<Trk::ITrackSummaryTool>   m_summaryTool;
 	/** @brief Tool for extrapolation */
 	ToolHandle<IEMExtrapolationTools> m_extrapolationTool;
-
 	/** @brier Option to do truth*/
 	bool                              m_doTruth;
 	/** @brief Names of input output collections */
 	std::string                       m_clusterContainerName;
 	std::string                       m_trackParticleContainerName;
-	std::string                       m_trackParticleTruthCollectionName;
 	std::string                       m_OutputTrkPartContainerName;	
 	std::string                       m_OutputTrackContainerName;	
-	std::string                       m_trackAssocName;
-
 	/** @Cut on minimum silicon hits*/
 	int                               m_MinNoSiHits;
 	/** @brief broad cut on deltaEta*/
@@ -86,14 +81,12 @@ class EMBremCollectionBuilder : public AthAlgTool,virtual public IEMBremCollecti
 	double                m_narrowDeltaPhiBrem;
 	double                m_narrowRescale;
 	double                m_narrowRescaleBrem;
-	/** @brief helper for */
-	CaloPhiRange          m_phiHelper;
+	bool                  m_useBremFinder;
+
 	//collections
 	const xAOD::TrackParticleContainer*  m_trackTES;
-//	const TrackParticleTruthCollection* m_trackTruthTES;
 	TrackCollection*                    m_finalTracks;
 	xAOD::TrackParticleContainer*        m_finalTrkPartContainer;
-//	std::list<std::pair<TrackParticleTruth, Rec::TrackParticle*> > m_tpTruthMap;
 	//counters
 	unsigned int m_AllClusters;
 	unsigned int m_AllTracks;
@@ -105,7 +98,6 @@ class EMBremCollectionBuilder : public AthAlgTool,virtual public IEMBremCollecti
 	unsigned int m_FailedFitTracks;
 	unsigned int m_FailedSiliconRequirFit;
 	unsigned int m_RefittedTracks;
-
 //------------------------------------------------------------------------
 
 };
