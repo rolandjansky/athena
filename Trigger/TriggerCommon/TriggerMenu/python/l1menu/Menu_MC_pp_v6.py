@@ -448,7 +448,7 @@ def defineMenu():
         'L1_MU4_J12', 'L1_MU6_J20', 'L1_MU6_J30.0ETA49_2J20.0ETA49', 'L1_MU6_J40', 'L1_MU6_J75',
 #ATR-13743        'L1_MU4_J30',
         #'L1_MU4_J50',
-        'L1_MU10_2J20','L1_MU10_3J20',
+        'L1_MU10_2J20','L1_MU10_3J20', 'L1_MU10_2J15_J20',
 
         # single jet
         "L1_J12","L1_J15","L1_J20","L1_J25", "L1_J30", "L1_J40", "L1_J50","L1_J75","L1_J85", "L1_J100", "L1_J120", "L1_J400",
@@ -1033,6 +1033,7 @@ def defineMenu():
         'L1_J40.0ETA25_XE50' : 177,
         'L1_MU10_2J20' : 278,
 	'L1_TAU40_2TAU20IM' : 254,
+        'L1_MU10_2J15_J20' : 255,
 # freeing some CTPIDs  
 #        'L1_MBTSA0' : 170,
 #        'L1_MBTSA1' : 171,

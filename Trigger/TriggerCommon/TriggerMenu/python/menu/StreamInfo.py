@@ -33,7 +33,9 @@ physicsStreams = ['Main',
                   'HardProbes',
                   'MinBiasOverlay',
                   'UPC',
-                  'Mistimed'
+                  'Mistimed',
+                  'ExoDelayed',
+                  'BphysDelayed',
                   ]
 
 calibStreams = [
