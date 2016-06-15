@@ -6,6 +6,7 @@
 #include <iomanip>
 
 #include "TrkSurfaces/PerigeeSurface.h" 
+#include "TrkSurfaces/AnnulusBounds.h" 
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
@@ -60,13 +61,13 @@ bool InDet::SiTrajectoryElement_xk::set
   m_halflenght   = 0.                      ;
   m_detelement->isSCT() ? m_ndf=1 : m_ndf=2;
 
-  if(m_tools->xi2max() < 8.5) {
+  if(m_tools->heavyion()) {
     if(m_ndf==2) {m_xi2max = 13.; m_xi2maxNoAdd = 13.;}
     else         {m_xi2max =  4.; m_xi2maxNoAdd =  8.;}
   }
 
   noiseInitiate()                          ;
-  (m_detelement->isSCT() && m_detelement->design().shape()==InDetDD::Trapezoid) ? 
+  (m_detelement->isSCT() && (m_detelement->design().shape()==InDetDD::Trapezoid || m_detelement->design().shape()==InDetDD::Annulus)   ) ? 
     m_stereo = true : m_stereo = false;
 
   if(m_detstatus && m_ndf == 1) m_halflenght = (*sb)->width().z()*.5;
@@ -86,6 +87,10 @@ bool InDet::SiTrajectoryElement_xk::set
   m_Tr[ 9] = T(0,3); m_Tr[10]=T(1,3); m_Tr[11]=T(2,3);
   m_Tr[12] = m_Tr[ 9]*m_Tr[ 6]+m_Tr[10]*m_Tr[ 7]+m_Tr[11]*m_Tr[ 8];
   m_A[0] = 1.; m_A[1] = 0.; m_A[2] = 0.;
+
+  m_useITKclusterSizeCuts= m_tools->useITKclusterSizeCuts(); // ITK (long barrel)
+  m_Nsigma_clSizeZcut= m_tools->Nsigma_clSizeZcut(); // ITK (long barrel) 
+
   return true;
 }
 
@@ -112,6 +117,9 @@ void InDet::SiTrajectoryElement_xk::setParameters()
   m_xi2maxNoAdd  = m_tools->xi2maxNoAdd()  ;  
   m_xi2maxlink   = m_tools->xi2maxlink ()  ;
   m_xi2multi     = m_tools->xi2multi   ()  ;
+
+  m_useITKclusterSizeCuts= m_tools->useITKclusterSizeCuts(); // ITK (long barrel)
+  m_Nsigma_clSizeZcut= m_tools->Nsigma_clSizeZcut(); // ITK (long barrel) 
 } 
 
 ///////////////////////////////////////////////////////////////////
@@ -752,6 +760,10 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithStereo
   double PV1 = Tp.cov()[1];
   double PV2 = Tp.cov()[2];
   double Xc  = m_xi2maxlink;
+  double Xl  = m_xi2maxlink;
+  double Xm  = m_xi2max    ;
+
+  const InDet::SiCluster* cl = 0;
 
   InDet::SiClusterCollection::const_iterator p =  m_sibegin;
 
@@ -772,16 +784,21 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithStereo
     double d   = v0*v2-v1*v1; if(d<=0.) continue; d=1./d;
     double x   = (r0*(r0*v2-r1*v1)+r1*(r1*v0-r0*v1))*d;
     if(x > Xc) continue;
-    
+
     r1  = fabs(r1+d*((PV1*v2-PV2*v1)*r0+(PV2*v0-PV1*v1)*r1));  
     x  -= (r1*r1)/MV2                                       ;
     r1 -= m_halflenght                                      ;
     
     if(r1 > 0. &&  (x+=((r1*r1)/PV2)) > Xc) continue;
-   
-    InDet::SiClusterLink_xk l(c,x);
-    for(int i=0; i!=nl; ++i) L[i].Comparison(l); if(nl<10) L[nl++]=l;
+
+    if(x < Xm) {
+      InDet::SiClusterLink_xk l(c,x);
+      for(int i=0; i!=nl; ++i) L[i].Comparison(l); if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      Xc = Xm+6.;
+    }
+    else if(!nl && x < Xl) {Xl = x; Xc = x+6.; cl = c;}
   }
+  if(cl && !nl) {L[nl++].Set(cl,Xl);}
   return nl;
 }
 
@@ -800,6 +817,9 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
   double PV1 = Tp.cov()[1];
   double PV2 = Tp.cov()[2];
   double Xc  = m_xi2maxlink;
+  double Xm  = m_xi2max    ;
+
+  const InDet::SiCluster* cl = 0;
 
   InDet::SiClusterCollection::const_iterator p =  m_sibegin;
 
@@ -811,19 +831,28 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
     double MV0 = c->width().phiR();
     double MV2 = c->width().z   ();
 
-    double v0  = .08333*(MV0*MV0)+PV0;
+    double r0  = M[0]-P0, r02 = r0*r0; 
+    double r1  = M[1]-P1, r12 = r1*r1;
+
+    double v0  = .08333*(MV0*MV0)+PV0; if(r02 >(Xc*v0)) continue;
+    double v2  = .08333*(MV2*MV2)+PV2; if(r12 >(Xc*v2)) continue;
     double v1  =                  PV1;
-    double v2  = .08333*(MV2*MV2)+PV2;
-    double r0  = M[0]-P0;
-    double r1  = M[1]-P1;
-    double d   = v0*v2-v1*v1; if(d<=0.) continue;
-    double x   = (r0*(r0*v2-r1*v1)+r1*(r1*v0-r0*v1))/d;
+    double d   = v0*v2-v1*v1;          if(   d<=0.    ) continue;
+    double x   = (r02*v2+r12*v0-(r0*r1)*(2.*v1))/d;
 
     if(x>Xc) continue;
 
-    InDet::SiClusterLink_xk l(c,x);
-    for(int i=0; i!=nl; ++i) L[i].Comparison(l); if(nl<10) L[nl++]=l;
+    //---------- ITK: check compatibility of cluster size with track direction
+    if(m_useITKclusterSizeCuts && !isGoodPixelCluster(c,1.0/(Tp.cotTheta()),Tp.eta())) continue;
+
+    if(x < Xm) {
+      InDet::SiClusterLink_xk l(c,x);
+      for(int i=0; i!=nl; ++i) L[i].Comparison(l); if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      Xc = Xm;
+    }
+    else if(!nl) {Xc = x; cl = c;}
   }
+  if(cl && !nl) {L[nl++].Set(cl,Xc);}
   return nl;
 } 
 
@@ -842,6 +871,9 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
   double PV1 = Tp.cov()[1];
   double PV2 = Tp.cov()[2];
   double Xc  = m_xi2maxlink;
+  double Xm  = m_xi2max    ;
+
+  const InDet::SiCluster* cl = 0;
 
   InDet::SiClusterCollection::const_iterator p =  m_sibegin;
 
@@ -853,28 +885,33 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
     double MV0 = c->width().phiR()   ;
     double v0  = .08333*(MV0*MV0)+PV0;   
     double r0  = M[0]-P0;
-    double d   = 1./v0  ;
-    double x   = r0*r0*d;
+    double d   = 1./v0;
+    double x   = (r0*r0)*d;
     
-    if(x>Xc) continue   ;
+    if(x>Xc) continue;
     
-    double dP1 = P1+PV1*d*r0-M[1];
+    double dP1 = (P1-M[1])+PV1*d*r0;
 
     if(fabs(dP1) > m_halflenght) {
 
       double r1; 
-      dP1 > m_halflenght ? r1 = m_halflenght-P1 : r1 = -m_halflenght-P1;
+      dP1 > m_halflenght ? r1 = m_halflenght-P1 : r1 = -(m_halflenght+P1);
       
       double v1 = PV1;
       double v2 = PV2;  
-      d         = v0*v2-v1*v1  ; if(d<=0.) continue; 
+      d = v0*v2-v1*v1  ; if(d<=0.) continue; 
       x = (r0*(r0*v2-r1*v1)+r1*(r1*v0-r0*v1))/d;
       if(x>Xc) continue;
     }
 
-    InDet::SiClusterLink_xk l(c,x);
-    for(int i=0; i!=nl; ++i) L[i].Comparison(l); if(nl<10) L[nl++]=l;
+    if(x < Xm) {
+      InDet::SiClusterLink_xk l(c,x);
+      for(int i=0; i!=nl; ++i) L[i].Comparison(l); if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      Xc = Xm;
+    }
+    else if(!nl) {Xc = x; cl = c;}
   }
+  if(cl && !nl) {L[nl++].Set(cl,Xc);}
   return nl;
 }
 
@@ -893,14 +930,17 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
   double PV1 = Tp.cov()[1];
   double PV2 = Tp.cov()[2];
   double Xc  = m_xi2maxlink;
+  double Xl  = m_xi2maxlink;
+  double Xm  = m_xi2max    ;
+
+  const InDet::SiCluster* cl = 0;
 
   InDet::SiClusterCollection::const_iterator p =  m_sibegin;
 
   for(; p!=m_siend; ++p) {
 
-    const InDet::SiCluster*      c = (*p);
+    const InDet::SiCluster*      c = (*p); 
     if(m_assoTool->isUsed(*c)) continue;
-
     const Amg::Vector2D&         M = c->localPosition();
     const Amg::MatrixX&          V = c->localCovariance();
 
@@ -912,19 +952,24 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
     double v2  = MV2+PV2;
     double r0  = M[0]-P0;
     double r1  = M[1]-P1;
-    double d   = v0*v2-v1*v1; if(d<=0.) continue; d=1./d; 
+    double d   = v0*v2-v1*v1; if(d<=0.) continue; d=1./d;
     double x   = (r0*(r0*v2-r1*v1)+r1*(r1*v0-r0*v1))*d;
     if(x > Xc) continue;
-    
+
     r1  = fabs(r1+d*((PV1*v2-PV2*v1)*r0+(PV2*v0-PV1*v1)*r1));  
     x  -= (r1*r1)/MV2                                       ;
     r1 -= m_halflenght                                      ;
     
     if(r1 > 0. &&  (x+=((r1*r1)/PV2)) > Xc) continue;
-   
-    InDet::SiClusterLink_xk l(c,x);
-    for(int i=0; i!=nl; ++i) L[i].Comparison(l); if(nl<10) L[nl++]=l;
+
+    if(x < Xm) {
+      InDet::SiClusterLink_xk l(c,x);
+      for(int i=0; i!=nl; ++i) L[i].Comparison(l); if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      Xc = Xm+6.;
+    }
+    else if(!nl && x < Xl) {Xl = x; Xc = x+6.; cl = c;}
   }
+  if(cl && !nl) {L[nl++].Set(cl,Xl);}
   return nl;
 }
 
@@ -943,32 +988,43 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
   double PV1 = Tp.cov()[1];
   double PV2 = Tp.cov()[2];
   double Xc  = m_xi2maxlink;
+  double Xm  = m_xi2max    ;
+
+  const InDet::SiCluster* cl = 0;
 
   InDet::SiClusterCollection::const_iterator p =  m_sibegin;
 
   for(; p!=m_siend; ++p) {
     
-    const InDet::SiCluster*  c  = (*p); 
+    const InDet::SiCluster*  c  = (*p);  
     if(m_assoTool->isUsed(*c)) continue;
-
-    const Amg::Vector2D& M = c->localPosition();
+    const Amg::Vector2D&     M = c->localPosition();
 
     double MV0 = c->width().phiR();
     double MV2 = c->width().z   ();
 
-    double v0  = .08333*(MV0*MV0)+PV0;
+    double r0  = M[0]-P0, r02 = r0*r0; 
+    double r1  = M[1]-P1, r12 = r1*r1;
+
+    double v0  = .08333*(MV0*MV0)+PV0; if(r02 >(Xc*v0)) continue;
+    double v2  = .08333*(MV2*MV2)+PV2; if(r12 >(Xc*v2)) continue;
     double v1  =                  PV1;
-    double v2  = .08333*(MV2*MV2)+PV2;
-    double r0  = M[0]-P0;
-    double r1  = M[1]-P1;
-    double d   = v0*v2-v1*v1; if(d<=0.) continue; 
-    double x   = (r0*(r0*v2-r1*v1)+r1*(r1*v0-r0*v1))/d; 
+    double d   = v0*v2-v1*v1;          if(   d<=0.    ) continue;
+    double x   = (r02*v2+r12*v0-(r0*r1)*(2.*v1))/d;
 
     if(x>Xc) continue;
 
-    InDet::SiClusterLink_xk l(c,x);
-    for(int i=0; i!=nl; ++i) L[i].Comparison(l); if(nl<10) L[nl++]=l;
+    //---------- ITK: check compatibility of cluster size with track direction
+    if(m_useITKclusterSizeCuts && !isGoodPixelCluster(c,1.0/(Tp.cotTheta()),Tp.eta())) continue;
+
+    if(x < Xm) {
+      InDet::SiClusterLink_xk l(c,x);
+      for(int i=0; i!=nl; ++i) L[i].Comparison(l); if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      Xc = Xm;
+    }
+    else if(!nl) {Xc = x; cl = c;}
   }
+  if(cl && !nl) {L[nl++].Set(cl,Xc);}
   return nl;
 } 
 
@@ -979,15 +1035,17 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
 int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
 (Trk::PatternTrackParameters& Tp,InDet::SiClusterLink_xk* L) 
 {
-
   int nl     = 0; if(m_detstatus<=0) return 0;
 
   double P0  = Tp.par()[0];
   double P1  = Tp.par()[1];
-  double PV0 = Tp.cov()[0]; if(PV0 < 0.) return nl;
+  double PV0 = Tp.cov()[0];
   double PV1 = Tp.cov()[1];
   double PV2 = Tp.cov()[2];
   double Xc  = m_xi2maxlink;
+  double Xm  = m_xi2max    ;
+
+  const InDet::SiCluster* cl = 0;
 
   InDet::SiClusterCollection::const_iterator p =  m_sibegin;
 
@@ -995,33 +1053,38 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
     
     const InDet::SiCluster*      c = (*p); 
     if(m_assoTool->isUsed(*c)) continue;
-    const Amg::Vector2D&    M = c->localPosition();
+    const Amg::Vector2D&         M = c->localPosition();
 
-    double MV0 = c->width().phiR();
+    double MV0 = c->width().phiR()   ;
+    double v0  = .08333*(MV0*MV0)+PV0;   
     double r0  = M[0]-P0;
-    double v0  = .08333*(MV0*MV0)+PV0;
-    double d   = 1./v0  ;
-    double x   = r0*r0*d;
+    double d   = 1./v0;
+    double x   = (r0*r0)*d;
     
-    if(x>Xc) continue   ;
+    if(x>Xc) continue;
     
-    double dP1 = P1+PV1*d*r0-M[1];
+    double dP1 = (P1-M[1])+PV1*d*r0;
 
     if(fabs(dP1) > m_halflenght) {
 
       double r1; 
-      dP1 > m_halflenght ? r1 = m_halflenght-P1 : r1 = -m_halflenght-P1;
+      dP1 > m_halflenght ? r1 = m_halflenght-P1 : r1 = -(m_halflenght+P1);
       
       double v1 = PV1;
       double v2 = PV2;  
-      d         = v0*v2-v1*v1; if(d<=0.) continue;
+      d = v0*v2-v1*v1  ; if(d<=0.) continue; 
       x = (r0*(r0*v2-r1*v1)+r1*(r1*v0-r0*v1))/d;
       if(x>Xc) continue;
     }
 
-    InDet::SiClusterLink_xk l(c,x);
-    for(int i=0; i!=nl; ++i) L[i].Comparison(l); if(nl<10) L[nl++]=l;
+    if(x < Xm) {
+      InDet::SiClusterLink_xk l(c,x);
+      for(int i=0; i!=nl; ++i) L[i].Comparison(l); if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      Xc = Xm;
+    }
+    else if(!nl) {Xc = x; cl = c;}
   }
+  if(cl && !nl) {L[nl++].Set(cl,Xc);}
   return nl;
 }
 
@@ -1645,19 +1708,12 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
 
     double A00 = A[0], A11=A[1], A22=A[2];
 
-    A[0] = 2.*A3+(A0+A5+A6); 
-    A[1] = 2.*B3+(B0+B5+B6); 
-    A[2] = 2.*C3+(C0+C5+C6);
-    
-    double D = (A[0]*A[0]+A[1]*A[1])+(A[2]*A[2]-9.);
-    D        = (1./3.)-((1./648.)*D)*(12.-D)       ;
-
-    R[0]+=(A2+A3+A4)*S3;
-    R[1]+=(B2+B3+B4)*S3;
-    R[2]+=(C2+C3+C4)*S3;
-    A[0]*=D            ;
-    A[1]*=D            ;
-    A[2]*=D            ;
+    R[0]+=(A2+A3+A4)*S3; A[0] = ((A0+2.*A3)+(A5+A6))*(1./3.);
+    R[1]+=(B2+B3+B4)*S3; A[1] = ((B0+2.*B3)+(B5+B6))*(1./3.);
+    R[2]+=(C2+C3+C4)*S3; A[2] = ((C0+2.*C3)+(C5+C6))*(1./3.);
+	
+    double D   = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
+    A[0]*=D; A[1]*=D; A[2]*=D;
 
     if(Jac) {
 
@@ -1797,4 +1853,58 @@ bool InDet::SiTrajectoryElement_xk::straightLineStepToPlane
     dR[0]+=(dA[0]*S); dR[1]+=(dA[1]*S); dR[2]+=(dA[2]*S);
   }
   return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//  ITK: New functions to take into account cluster size 
+//////////////////////////////////////////////////////////////////////////////
+
+bool InDet::SiTrajectoryElement_xk::isGoodPixelCluster(const InDet::SiCluster* clust, double tanTheta, double eta) {
+  bool pass=true;
+  const InDetDD::SiDetectorElement* de = clust->detectorElement();
+  if(de->isPixel() && de->isBarrel())
+    {
+      const PixelID* p_pixelId = static_cast<const PixelID*>(de->getIdHelper());     
+      const double sizeZ=clust->width().z(); 
+      const double sizePhi=clust->width().phiR();
+      const InDetDD::PixelModuleDesign* module(dynamic_cast<const InDetDD::PixelModuleDesign*>(&de->design()));
+      const double pitchZ= module->etaPitch(); 
+      const double pitchPhi= module->phiPitch(); 
+      const double thickness= de->thickness();
+      Identifier id_cl=clust->identify();
+      const int cl_col_min=p_pixelId->eta_index(id_cl); // first pixel in the cluster: lower left corner of the box around cluster
+      const int cl_row_min=p_pixelId->phi_index(id_cl); // first pixel in the cluster: lower left corner of the box around cluster
+      const int n_cols=module->columns(); 
+      const int n_rows=module->rows();
+      const int cl_size_z=(int)rint(sizeZ/pitchZ);
+      const int cl_size_phi=(int)rint(sizePhi/pitchPhi);      
+      bool isEdge= (cl_col_min==0) || (cl_col_min+cl_size_z-1>=n_cols-1) || (cl_row_min+cl_size_phi-1>=n_rows-1);
+      int delta=deltaSize(sizeZ,predictedClusterLength(thickness,tanTheta),pitchZ);
+      if(!isEdge) // cluster is away from chip boundaries
+	{
+	  int layer_num=p_pixelId->layer_disk(id_cl);
+	  double right_rms=parR_clSizeZcut[0][layer_num] + parR_clSizeZcut[1][layer_num]*fabs(eta);		  
+	  double left_rms= parL_clSizeZcut[layer_num];
+	  if(layer_num<2 && fabs(eta)>2.5) right_rms=(3-layer_num)*right_rms;
+	  if(delta<0 && fabs(1.0*delta) > m_Nsigma_clSizeZcut*left_rms) return false;
+	  if(delta>0 && fabs(1.0*delta) > m_Nsigma_clSizeZcut*right_rms) return false;
+	}
+      else // cluster is close to chip boundaries 
+	{
+	  if(delta>4) return false; // bottom cluster is too large for this seed (to be tuned)
+	}
+    }
+  return pass;
+}
+
+double InDet::SiTrajectoryElement_xk::predictedClusterLength(double thickness, double tanTheta) {
+  double length=0.0;
+  if(fabs(tanTheta)>0.0) length=thickness/fabs(tanTheta);
+  return length;
+}
+
+int InDet::SiTrajectoryElement_xk::deltaSize(double sizeZ, 
+					     double predictedSize, 
+					     double pixel_pitch) {
+  return (int)rint((sizeZ-predictedSize)/pixel_pitch);  
 }

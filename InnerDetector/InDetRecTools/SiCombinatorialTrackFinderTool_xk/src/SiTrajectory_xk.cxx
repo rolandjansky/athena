@@ -482,8 +482,8 @@ std::ostream& InDet::SiTrajectory_xk::dump( std::ostream& out ) const
 
 bool InDet::SiTrajectory_xk::initialize
 (bool PIX,bool SCT, 
- const InDet::SiClusterContainer*                    & PIXc      ,
- const InDet::SiClusterContainer*                    & SCTc      ,
+ const InDet::SiClusterContainer*                     PIXc      ,
+ const InDet::SiClusterContainer*                     SCTc      ,
  const Trk::TrackParameters                          & Tp        ,
  std::list<const InDet::SiCluster*>                  & lSiCluster, 
  std::list<const InDet::SiDetElementBoundaryLink_xk*>& DE        ,
@@ -503,7 +503,7 @@ bool InDet::SiTrajectory_xk::initialize
   rquality          = true;     
   m_ntos            =    0;
   int    ndfwrong   =    0;
-  double Xi2cut     = 2.*m_tools->xi2max(); if(m_tools->xi2max() < 8.5) Xi2cut = m_tools->xi2max();
+  double Xi2cut     = 2.*m_tools->xi2max(); 
 
   std::list<const InDet::SiCluster*>::iterator c;
   if(lSiCluster.size() < 2) return false;
@@ -653,8 +653,8 @@ bool InDet::SiTrajectory_xk::initialize
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::SiTrajectory_xk::trackParametersToClusters
-(const InDet::SiClusterContainer*                        & PIXc      ,
- const InDet::SiClusterContainer*                        & SCTc      ,
+(const InDet::SiClusterContainer*                         PIXc      ,
+ const InDet::SiClusterContainer*                         SCTc      ,
  const Trk::TrackParameters                              & Tp        ,
  std::list<const InDet::SiDetElementBoundaryLink_xk*>    & DE        ,
  std::multimap<const Trk::PrepRawData*,const Trk::Track*>& PT        ,
@@ -737,8 +737,8 @@ bool InDet::SiTrajectory_xk::trackParametersToClusters
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::SiTrajectory_xk::globalPositionsToClusters
- 	(const InDet::SiClusterContainer*                        & PIXc      ,
-	 const InDet::SiClusterContainer*                        & SCTc      ,  
+ 	(const InDet::SiClusterContainer*                         PIXc      ,
+	 const InDet::SiClusterContainer*                         SCTc      ,  
 	 const std::list<Amg::Vector3D>                          & Gp        ,
 	 std::list<const InDet::SiDetElementBoundaryLink_xk*>    & DE        ,
 	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>& PT        ,
@@ -937,6 +937,7 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
   int    ndcut          = 3                   ;
   int    F              = L                   ;
   double Xi2best        = 0.                  ;
+
   m_elements[m_elementsMap[F]].setNdist(0);
 
   for(; it!=itmax; ++it) {
@@ -1144,7 +1145,6 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
   int                     TE    [100]                              ;  
   const InDet::SiCluster* CL    [100]                              ;
 
-  int    nclmax         = 12; if(m_tools->xi2max() < 8.5) nclmax = 14; 
   int    maxholes       = m_tools->maxholes ()                     ;
   int    maxdholes      = m_tools->maxdholes()                     ;
   const int itm         = itmax-1                                  ;
@@ -1249,7 +1249,7 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
 	}
       }
       nclbest = m_nclusters+nbest;
-      if( (nclbest >= nclmax && !h) || (fl==lElement && ndbest == 0)) break;
+      if( (nclbest >= 14 && !h) || (fl==lElement && ndbest == 0)) break;
     }
 
     F = -1; bool cl = false; int nb = lElement-nclbest-1; double Xn;

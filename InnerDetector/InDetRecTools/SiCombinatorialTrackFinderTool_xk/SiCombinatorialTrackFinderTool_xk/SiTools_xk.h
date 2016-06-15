@@ -65,6 +65,10 @@ namespace InDet{
       const bool&                         multiTrack () const {return m_multitrack ;}
       const bool&                         bremNoise  () const {return m_bremnoise  ;}
       const bool&                         electron   () const {return m_electron   ;}
+      const bool&                         heavyion   () const {return m_heavyion   ;}
+
+      const bool& useITKclusterSizeCuts() const { return m_useITKclusterSizeCuts; } // ITK (long barrel)
+      const double& Nsigma_clSizeZcut() const { return m_Nsigma_clSizeZcut; } // ITK (long barrel)
 
       void setTools
 	(Trk::IPatternParametersPropagator* ,
@@ -84,7 +88,10 @@ namespace InDet{
       void setAssociation(const int&);
       void setMultiTracks(const int,double);
       void setBremNoise  (bool,bool);
+      void setHeavyIon   (bool);
 
+      void SetUseITKclusterSizeCuts(bool); // ITK stuff (long barrel)
+      void SetNsigma_clSizeZcut(double); // ITK stuff (long barrel)
 
     protected:
       
@@ -114,7 +121,10 @@ namespace InDet{
       bool                            m_multitrack ;  // Do multi tracks
       bool                            m_bremnoise  ;  // Do brem noise
       bool                            m_electron   ;  // Do electron mode
+      bool                            m_heavyion   ;  // Is it heavy ion event
 
+      bool m_useITKclusterSizeCuts; // ITK (long barrel): switch to turn on cluster size cuts 
+      double m_Nsigma_clSizeZcut; // ITK (long barrel): size of the cut on the cluster sizeZ
       ///////////////////////////////////////////////////////////////////
       // Methods
       ///////////////////////////////////////////////////////////////////
@@ -147,6 +157,9 @@ namespace InDet{
       m_bremnoise   = false;
       m_electron    = false;
       m_fieldService= 0    ;
+
+      m_useITKclusterSizeCuts=false;
+      m_Nsigma_clSizeZcut=5.0;
     }
 
   inline SiTools_xk::SiTools_xk(const SiTools_xk& T)
@@ -178,6 +191,11 @@ namespace InDet{
 	m_multitrack  = T.m_multitrack ; 
 	m_bremnoise   = T.m_bremnoise  ;
 	m_electron    = T.m_electron   ; 
+	m_heavyion    = T.m_heavyion   ;
+
+	m_useITKclusterSizeCuts=T.m_useITKclusterSizeCuts; // ITK stuff
+	m_Nsigma_clSizeZcut=T.m_Nsigma_clSizeZcut; // ITK stuff
+
       }
       return(*this);
     }
@@ -245,6 +263,20 @@ namespace InDet{
       m_electron  = E;
     }
 
+  inline void SiTools_xk::setHeavyIon(bool HI)
+  {
+    m_heavyion = HI;
+  }
+
+  // setting ITK parameters
+  inline void SiTools_xk::SetUseITKclusterSizeCuts(bool val)
+  {
+    m_useITKclusterSizeCuts=val;
+  }
+  inline void SiTools_xk::SetNsigma_clSizeZcut(double val)
+  {
+    m_Nsigma_clSizeZcut=val;
+  }
 
 } // end of name space
 

@@ -24,6 +24,13 @@
 #include "SiCombinatorialTrackFinderTool_xk/SiClusterLink_xk.h"
 #include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLink_xk.h"
 
+#include "InDetPrepRawData/PixelCluster.h" // needed for ITK long barrel  
+#include "InDetIdentifier/PixelID.h" // needed for ITK long barrel   
+#include "InDetReadoutGeometry/PixelModuleDesign.h" // needed for ITK long barrel
+
+class PixelID; // needed for ITK long barrel  
+class PixelModuleDesign; // needed for ITK long barrel  
+
 namespace InDet{
 
   class SiTrajectoryElement_xk
@@ -193,6 +200,14 @@ namespace InDet{
       int searchClustersWithoutStereoAssSCT(Trk::PatternTrackParameters&,SiClusterLink_xk*);
       int searchClustersWithStereoAss      (Trk::PatternTrackParameters&,SiClusterLink_xk*);
 
+
+      ////////////////////////////////////////////////////////////////////
+      // Sasha: Compare pixel cluster size with candidate's angle theta 
+      //////////////////////////////////////////////////////////////////// 
+      bool isGoodPixelCluster(const InDet::SiCluster* clust, double tanTheta, double eta);
+      double predictedClusterLength(double thickness, double tanTheta);
+      int deltaSize(double sizeZ, double predictedSize, double pixel_pitch);
+
       ///////////////////////////////////////////////////////////////////
       // Is difference between forward and backward propagation   
       ///////////////////////////////////////////////////////////////////
@@ -350,6 +365,15 @@ namespace InDet{
       Amg::MatrixX                                m_covariance  ;
 
       ///////////////////////////////////////////////////////////////////
+      // Switches and cuts for ITK extended barrel
+      ///////////////////////////////////////////////////////////////////
+      bool m_useITKclusterSizeCuts; // switch to turn on cluster size cuts 
+      double m_Nsigma_clSizeZcut; // size of the cut on the cluster sizeZ at cluster clean-up stage: |sizeZ-predicted|<m_Nsigma_clSizeZcut*sigma 
+      double parR_clSizeZcut[2][5]; // right RMS for sizeZ-predicted_sizeZ(Z=Zvx)
+      double parL_clSizeZcut[5]; // left RMS for sizeZ-predicted_sizeZ(Z=Zvx)
+
+
+      ///////////////////////////////////////////////////////////////////
       // Methods
       ///////////////////////////////////////////////////////////////////
       
@@ -415,6 +439,32 @@ namespace InDet{
       m_useassoTool = false;
 
       m_tsos[0]=m_tsos[1]=m_tsos[2]=0; 
+
+  ///////////////////////////////////////////////////////////////////
+  // Switches and cuts for ITK extended barrel: all turned OFF by default
+  ///////////////////////////////////////////////////////////////////
+
+      m_useITKclusterSizeCuts=false; // false by default
+      m_Nsigma_clSizeZcut=5.0; // size of the cut on the cluster sizeZ at cluster clean-up stage: |sizeZ-predicted|<m_Nsigma_clSizeZcut*sigma
+
+      parR_clSizeZcut[0][0]=1.25; 
+      parR_clSizeZcut[0][1]=1.25; 
+      parR_clSizeZcut[0][2]=1.25; 
+      parR_clSizeZcut[0][3]=1.25; 
+      parR_clSizeZcut[0][4]=1.25;
+      
+      parR_clSizeZcut[1][0]=0.021; 
+      parR_clSizeZcut[1][1]=0.006; 
+      parR_clSizeZcut[1][2]=0.0; 
+      parR_clSizeZcut[1][3]=0.0; 
+      parR_clSizeZcut[1][4]=0.0;
+
+      parL_clSizeZcut[0]=1.5; 
+      parL_clSizeZcut[1]=1.25; 
+      parL_clSizeZcut[2]=1.25;  
+      parL_clSizeZcut[3]=1.25; 
+      parL_clSizeZcut[4]=1.25;
+
    }
 
   inline SiTrajectoryElement_xk::SiTrajectoryElement_xk(const SiTrajectoryElement_xk& E)
