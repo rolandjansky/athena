@@ -15,7 +15,9 @@
 #include <iostream>
 #include <vector>
 #include "TestTools/initGaudi.h"
-//#include "ToyConversion/FooBar.h"
+#ifndef SIMULATIONBASE
+#include "ToyConversion/FooBar.h"
+#endif
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -42,7 +44,7 @@ int main() {
   if (!initGaudi("AthenaOutputStream_test.txt", pSvcLoc)) {
     cerr << "This test can not be run" << endl;
     return 0;
-  }  
+  }
   assert(pSvcLoc);
 
   //locate necessary stuff
@@ -64,28 +66,30 @@ int main() {
   assert( (algMan->createAlgorithm( "AthenaOutputStream", "AthenaOutputStream", pAlg)).isSuccess() );
 
   assert( (pAlg->sysInitialize()).isSuccess() );
-
+#ifndef SIMULATIONBASE
   assert( (pStore->record(new Foo(), "uno")).isSuccess());
   assert( (pStore->record(new Foo(), "due")).isSuccess());
   assert( (pStore->record(new Bar(), "uno")).isSuccess());
   assert( (pStore->record(new Bar(), "due")).isSuccess());
-  
+#endif
   AthenaOutputStream* pStream(dynamic_cast<AthenaOutputStream*>(pAlg));
   assert( pStream );
 
   //fill the vector of selected objects
   pStream->collectAllObjects();
 
-  //  cout << pStream->selectedObjects()->end() - 
+#ifndef SIMULATIONBASE
+  //  cout << pStream->selectedObjects()->end() -
   //    pStream->selectedObjects()->begin() <<endl;
   // verify that we got the right objects in the list
   //  this of course depends on AthenaOutputStream_test.txt
-  assert( 4 == (pStream->selectedObjects()->end() - 
-		pStream->selectedObjects()->begin()) );
-  
+  assert( 4 == (pStream->selectedObjects()->end() -
+                pStream->selectedObjects()->begin()) );
+#endif
+
   pStream->clearSelection();
-  assert( 0 == (pStream->selectedObjects()->end() - 
-		pStream->selectedObjects()->begin()) );
+  assert( 0 == (pStream->selectedObjects()->end() -
+                pStream->selectedObjects()->begin()) );
 
 
   //all done
