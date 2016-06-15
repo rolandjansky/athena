@@ -67,6 +67,7 @@ AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu',
                       '11invm24', '24invm60',
                       'tightChi2', 'Lxy0', 'Ftk']
 AllowedTopos_jet = ['muvtx',
+                    'revllp',
                     'llp',
 		    'noiso',
                     'deta2',
@@ -100,7 +101,7 @@ JetChainParts = {
     'multiplicity' : '',
     'etaRange'     : ['0eta490','0eta320','0eta240', '240eta490','280eta320', '320eta490'],
     'trigType'     : ['j'],
-    'extra'        : ['noL1','test1','test2','test3'],
+    'extra'        : ['noL1','test1','test2','test3','delayed'],
     'cleaning'     : ['cleanL','cleanT','cleanLLP',
                       'cleanLA','cleanTA','cleanLLPA', 'noCleaning'
                       ],
@@ -111,7 +112,7 @@ JetChainParts = {
     'scan'         : ['FS','PS'],
     'addInfo'      : ['perf'],    
     'TLA'          : ['0i1c200m400TLA', '0i1c400m600TLA', '0i1c600m800TLA',
-                      '0i1c800m1000TLA',
+                      '0i1c800m1000TLA', '0i1c500m2000TLA',
                       '1i2c100m300TLA','1i2c300m500TLA','1i2c500m700TLA',
                       '1i2c100m8000TLA','1i2c200m8000TLA','0i1c500m900TLA','1i2c500m900TLA','1i2c600m800TLA'],
     'topo'         : AllowedTopos_jet,
@@ -187,6 +188,7 @@ MuonChainParts = {
     'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','pt2','z10','llns','noComb'],
     'overlapRemoval' : ['wOvlpRm', 'noOvlpRm', 'noMuCombOvlpRm'],
     'topo'           : AllowedTopos_mu,
+    'specialStream'  : ['delayed']
     }
 # ---- MuonDictinary of default Values ----
 MuonChainParts_Default = {
@@ -210,6 +212,7 @@ MuonChainParts_Default = {
     'overlapRemoval' : ['wOvlpRm'],
     'addInfo'        : [],
     'topo'           : [],
+    'specialStream'  : '',
     }
 
 #==========================================================
@@ -469,7 +472,7 @@ MinBiasChainParts = {
     'multiplicity'   : '',    
     'trigType'       : ['mb'],
     'threshold'      : '',
-    'extra'          : ['noisesup', 'vetombts2in', 'vetombts1side2in', 'ion', 'ncb',], #non collision background
+    'extra'          : ['noisesup', 'vetombts2in', 'vetombts1side2in', 'ion', 'ncb', 'blayer'], #ncb = non collision background, blayer = only sum innermost pix layer
     'IDinfo'         : [],
     'ZDCinfo'        : ['lg', 'hg'],
     'trkInfo'        : ['hlttr', 'ftk', 'costr'],

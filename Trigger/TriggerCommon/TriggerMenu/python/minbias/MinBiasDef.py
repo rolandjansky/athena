@@ -141,6 +141,10 @@ class L2EFChain_MB(L2EFChainDef):
         if 'ncb' in  self.chainPart['extra']:
             doSpNcb=True
 
+        doBLayer=False
+        if 'blayer' in  self.chainPart['extra']:
+            doBLayer=True
+
         doSptrk=False
         if "sptrk" in self.chainPart['recoAlg']: #do EFID
             doSptrk=True
@@ -165,6 +169,10 @@ class L2EFChain_MB(L2EFChainDef):
             # spacepoint halo trigger is SCT only
             theL2Fex  = L2MbSpFex_noPix
             chainSuffix = "sp_ncb"
+        elif doBLayer:
+            # pix occupancy trigger only counts the innermost pix layer
+            theL2Fex = L2MbSpFex_BLayer
+            chainSuffix = "sp_blayer"
         else:
             theL2Fex  = L2MbSpFex
             if doSptrk:
@@ -180,6 +188,8 @@ class L2EFChain_MB(L2EFChainDef):
 
         if doSpNcb:
             theL2Hypo = L2MbSpHypo_ncb
+        elif doBLayer:
+            theL2Hypo = L2MbSpHypo_blayer
         else:
             theL2Hypo = L2MbSpHypo
 
