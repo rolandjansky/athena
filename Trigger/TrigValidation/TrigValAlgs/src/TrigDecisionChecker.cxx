@@ -38,6 +38,7 @@
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
+#include "xAODTrigger/TrigPassBits.h"
 
 // bjet includes
 #include "xAODTracking/VertexContainer.h"
@@ -141,6 +142,7 @@ TrigDecisionChecker::TrigDecisionChecker(const std::string &name, ISvcLocator *p
     declareProperty("MinBiasItems",      m_minBiasItems, "MinBias triggers to test");
     declareProperty("JetItems",       m_jetItems, "Jet triggers to test");
     declareProperty("MetItems",       m_metItems, "Met triggers to test");
+    declareProperty("CheckTrigPassBits",       m_checkBits=false, "TrigPassBits retrieval from TDT");
     
 }
 
@@ -459,6 +461,13 @@ StatusCode TrigDecisionChecker::execute()
             msg(MSG::ERROR) << "Could not finish checkElectronEDM test for chain " << electronItem << endreq;
             return sc;
         }
+        if(m_checkBits) {
+            sc = checkEDM<xAOD::ElectronContainer>(electronItem);
+            if ( sc.isFailure() ) {
+                msg(MSG::ERROR) << "Could not finish checkElectronEDM test for chain " << electronItem << endreq;
+                return sc;
+            }
+        }
     }
     
     for(auto photonItem : m_photonItems) {
@@ -679,6 +688,40 @@ StatusCode TrigDecisionChecker::execute()
     // reset first event flag
     if (m_first_event) m_first_event = false;
     
+    return StatusCode::SUCCESS;
+}
+
+template <class T>
+StatusCode TrigDecisionChecker::checkEDM(std::string trigItem){
+    ATH_MSG_INFO("Chain passed = " << m_trigDec->isPassed("HLT_"+trigItem));
+    const auto fc = m_trigDec->features("HLT_"+trigItem);
+    const auto vec = fc.get<T>();
+    for(const auto feat:vec){
+        const auto *cont=feat.cptr();
+        const auto *bits=(m_trigDec->ancestor<TrigPassBits>(feat.te())).cptr();
+        const auto *xbits=(m_trigDec->ancestor<xAOD::TrigPassBits>(feat.te())).cptr();
+        if(!cont){
+            ATH_MSG_INFO(ClassID_traits< T >::typeName() << " is null ");
+            continue;
+        }
+        if(!bits){
+            ATH_MSG_WARNING(ClassID_traits< T >::typeName() << " bits null ");
+            continue;
+        }
+        if(!xbits){
+            ATH_MSG_WARNING(ClassID_traits< T >::typeName() << " xbits null ");
+            continue;
+        }
+        //
+        const size_t bitlen = ( (cont->size() - 1)/32 ) + 1;
+        ATH_MSG_INFO("Retrieved container type " << ClassID_traits< T >::typeName() <<  " size " << cont->size() << " bits " << bits->size() << " Expect vector of bits " << bitlen);
+        ATH_MSG_INFO("Retrieved container type " << ClassID_traits< T >::typeName() <<  " size " << cont->size() << " bits " << bits->size());
+        ATH_MSG_INFO("Retrieved container type " << ClassID_traits< T >::typeName() <<  " size " << cont->size() << " xbits " << xbits->size());
+        for(const auto &ptr:*cont){
+            ATH_MSG_INFO("Selected " << HLT::isPassing(bits,ptr,cont));
+            ATH_MSG_INFO("Selected " << xbits->isPassing(ptr,cont));
+        }
+    }
     return StatusCode::SUCCESS;
 }
 
@@ -959,6 +1002,11 @@ StatusCode TrigDecisionChecker::checkBphysEDM(std::string trigItem){
     return StatusCode::SUCCESS;
 }//checkBphysEDM
 
+
+
+
+
+
 StatusCode TrigDecisionChecker::checkElectronEDM(std::string trigItem){
     msg(MSG::INFO) << "REGTEST ==========START of Electron EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
     
@@ -1026,6 +1074,9 @@ StatusCode TrigDecisionChecker::checkPhotonEDM(std::string trigItem){
     for(auto phfeat : vec_ph){
         ATH_MSG_INFO("REGTEST: Got photon container, size = " << phfeat.cptr()->size());
         const xAOD::PhotonContainer *phCont = phfeat.cptr();
+        const TrigPassBits *bits=(m_trigDec->ancestor<TrigPassBits>(phfeat.te())).cptr();
+        const xAOD::TrigPassBits *xbits=(m_trigDec->ancestor<xAOD::TrigPassBits>(phfeat.te())).cptr();
+        ATH_MSG_INFO("REGTEST: Got photon container, size = " << phfeat.cptr()->size() << " for bits " << bits->size() << " " << xbits->size());
         
         for(const auto& eg : *phCont){
             if (eg) {
