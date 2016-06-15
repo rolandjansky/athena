@@ -1,7 +1,11 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 # vim: tabstop=4:shiftwidth=4:expandtab
+# include the python fragment to set up the default bphysics vertex fitter
+from TrigBphysHypo.TrigBphysHypoConf       import TrigBphysHelperUtilsTool
 from TrigBphysHypo.TrigBphysHypoConf import TrigEFBMuMuXFex
+from TrigBphysHypo import TrigBphysVertexingConfig
+
 
 from AthenaCommon.AppMgr import ToolSvc
 
