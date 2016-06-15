@@ -75,30 +75,31 @@ if (hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE") or (has
 else:
     print "running with no trigger  "
 
-
-#only for overlay digi step:
 if DetFlags.writeRDOPool.pixel_on():
-    conddb.blockFolder("/PIXEL/PixReco")
-    conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/PixReco","PixReco-SIM-RUN12-000-01",force=True,forceMC=True)  
+    conddb.addFolder("PIXEL_OFL","/PIXEL/PixReco")
 
-conddb.blockFolder("/PIXEL/DCS/HV")
-conddb.addFolderWithTag("DCS_OFL","/PIXEL/DCS/HV","PixDCSHV-SIM-RUN1-000-00",force=True,forceMC=True)
-
-conddb.blockFolder("/Indet/PixelDist")
-conddb.addFolderWithTag("INDET_OFL","/Indet/PixelDist","InDetPixelDist-nominal",force=True,forceMC=True)
-conddb.blockFolder("/PIXEL/PixelClustering/PixelClusNNCalib")
-conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib","PixelClusNNCalib-SIM-RUN12-000-03",force=True,forceMC=True)
-
-conddb.blockFolder("/PIXEL/LorentzAngleScale")
-conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/LorentzAngleScale","PixLorentzAngleScale-SIM-RUN1-009-00",force=True,forceMC=True)
-conddb.blockFolder("/PIXEL/DCS/TEMPERATURE")
-conddb.addFolderWithTag("DCS_OFL","/PIXEL/DCS/TEMPERATURE","PixDCSTemp-SIM-RUN1-000-00",force=True,forceMC=True)
 conddb.blockFolder("/PIXEL/PixdEdx")
 conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/PixdEdx","PixdEdx-SIM-RUN1-000-02",force=True,forceMC=True)
-conddb.blockFolder("/SCT/DCS/HV")
-conddb.addFolderWithTag("DCS_OFL","/SCT/DCS/HV","SctDcsHv-01",force=True,forceMC=True)
-conddb.blockFolder("/SCT/DCS/MODTEMP")
-conddb.addFolderWithTag("DCS_OFL","/SCT/DCS/MODTEMP","SctDcsModtemp-Apr10-01",force=True,forceMC=True)
+mcIDoverlay=False
+if mcIDoverlay:
+    print "ACH777: Using MC overlay Lorentz DB settings"
+    conddb.blockFolder("/PIXEL/DCS/HV")
+    conddb.addFolderWithTag("DCS_OFL","/PIXEL/DCS/HV","PixDCSHV-SIM-RUN1-000-00",force=True,forceMC=True)
+    conddb.blockFolder("/PIXEL/DCS/TEMPERATURE")
+    conddb.addFolderWithTag("DCS_OFL","/PIXEL/DCS/TEMPERATURE","PixDCSTemp-SIM-RUN1-000-00",force=True,forceMC=True)
+    conddb.blockFolder("/SCT/DCS/HV")
+    conddb.addFolderWithTag("DCS_OFL","/SCT/DCS/HV","SctDcsHv-01",force=True,forceMC=True)
+    conddb.blockFolder("/SCT/DCS/MODTEMP")
+    conddb.addFolderWithTag("DCS_OFL","/SCT/DCS/MODTEMP","SctDcsModtemp-Apr10-01",force=True,forceMC=True)
+mcIDoverlay2=False
+if mcIDoverlay2:
+    print "ACH777: Using more MC overlay ID DB settings"
+    conddb.blockFolder("/Indet/PixelDist")
+    conddb.addFolderWithTag("INDET_OFL","/Indet/PixelDist","InDetPixelDist-nominal",force=True,forceMC=True)
+    conddb.blockFolder("/PIXEL/PixelClustering/PixelClusNNCalib")
+    conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib","PixelClusNNCalib-SIM-RUN12-000-03",force=True,forceMC=True)
+    conddb.blockFolder("/PIXEL/LorentzAngleScale")
+    conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/LorentzAngleScale","PixLorentzAngleScale-SIM-RUN1-009-00",force=True,forceMC=True)
 
 conddb.blockFolder("/MUONALIGN/MDT/BARREL")
 conddb.blockFolder("/MUONALIGN/MDT/ENDCAP/SIDEA")
