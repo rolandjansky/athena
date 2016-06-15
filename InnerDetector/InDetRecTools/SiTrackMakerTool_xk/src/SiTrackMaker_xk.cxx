@@ -77,6 +77,9 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
 //  m_inputHadClusterContainerName = "InDetHadCaloClusterROIs";
   m_beamconditions               = "BeamCondSvc"            ;
 
+  m_useITKclusterSizeCuts = false; // ITK (long barrel): switch to turn on cluster size cuts 
+  m_Nsigma_clSizeZcut = 5.0; // ITK (long barrel): size of the cut on the cluster sizeZ
+
   declareInterface<ISiTrackMaker>(this);
 
   declareProperty("RoadTool"                ,m_roadmaker   );
@@ -114,6 +117,9 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   declareProperty("usePixel"                , m_usePix);
   declareProperty("ITKGeometry"             , m_ITKGeomtry);
   declareProperty("SeedSegmentsWrite"       , m_seedsegmentsWrite);
+
+  declareProperty("ITKclusterSizeCuts"   ,m_useITKclusterSizeCuts); // ITK stuff (extended barrel)
+  declareProperty("ITKNsigmaClusterSizeZcut",m_Nsigma_clSizeZcut); // ITK stuff (extended barrel)
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -806,6 +812,8 @@ void  InDet::SiTrackMaker_xk::setTrackQualityCuts()
   if(m_multitracks  ) m_trackquality.setIntCut   ("doMultiTracksProd" ,1);
   else                m_trackquality.setIntCut   ("doMultiTracksProd" ,0);
 
+  if(m_useITKclusterSizeCuts) m_trackquality.setIntCut("useITKclusterSizeCuts" ,1);
+  else                        m_trackquality.setIntCut("useITKclusterSizeCuts" ,0);
   // Double cuts
   //
   m_trackquality.setDoubleCut("pTmin"              ,m_pTmin      );
@@ -814,6 +822,8 @@ void  InDet::SiTrackMaker_xk::setTrackQualityCuts()
   m_trackquality.setDoubleCut("MaxXi2forOutlier"   ,m_xi2maxNoAdd);
   m_trackquality.setDoubleCut("MaxXi2forSearch"    ,m_xi2maxlink );
   m_trackquality.setDoubleCut("MaxXi2MultiTracks"  ,m_xi2multitracks);
+
+  m_trackquality.setDoubleCut("ITKNsigmaClusterSizeZcut",m_Nsigma_clSizeZcut); // ITK stuff (extended barrel)
 }
 
 ///////////////////////////////////////////////////////////////////

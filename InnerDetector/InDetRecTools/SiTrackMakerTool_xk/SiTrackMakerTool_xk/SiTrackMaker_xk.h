@@ -160,6 +160,9 @@ namespace InDet{
       double m_p[9]                                  ;
       double m_xybeam[2]                             ;
 
+      bool m_useITKclusterSizeCuts; // ITK (long barrel): switch to turn on cluster size cuts 
+      double m_Nsigma_clSizeZcut; // ITK (long barrel): size of the cut on the cluster sizeZ
+
       ///////////////////////////////////////////////////////////////////
       // Methods 
       ///////////////////////////////////////////////////////////////////
