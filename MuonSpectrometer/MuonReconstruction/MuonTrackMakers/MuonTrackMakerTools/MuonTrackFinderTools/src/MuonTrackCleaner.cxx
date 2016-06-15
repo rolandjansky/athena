@@ -355,14 +355,15 @@ namespace Muon {
 
     Trk::Track* cleanedTrack = outlierRecovery(*hitTrack);
     // do not discard tracks that fail outlierRecovery, check that the track is ok
+    //note that this also performs a useful check on the quality of the cleaning in general
     if( !cleanedTrack || !m_chambersToBeRemoved.empty() || !m_largePullMeasurements.empty() ) {
       init(*hitTrack);
       if(!m_chambersToBeRemoved.empty() || !m_largePullMeasurements.empty()){
-        ATH_MSG_DEBUG("outlier recovery has definitely failed, rejecting track");
+        ATH_MSG_DEBUG("Outlier recovery failure unrecoverable, reject track");
         return 0;
       }
       else{
-        ATH_MSG_DEBUG("looks like track is ok despite failing outlier recovery");
+        ATH_MSG_DEBUG("Outlier recovery failed but initial track is recoverable");
         cleanedTrack = hitTrack;
       }
     }
@@ -744,7 +745,7 @@ namespace Muon {
       }
 
       if( m_largePullMeasurements.empty() ) {
-	ATH_MSG_DEBUG("   cleaning ended successfullu after cycle " << n );
+	ATH_MSG_DEBUG("   cleaning ended successfully after cycle " << n );
 	return newTrack;
       }
       currentTrack = newTrack;
@@ -1532,14 +1533,14 @@ namespace Muon {
 	else if( isDelta )                                ++chamberStatistics.ndeltas;
 	else if( pull < 10 )                              ++chamberStatistics.noutliers;
 
-	++m_noutliers;
+	if(!pseudo) ++m_noutliers; //don't count pseudos here
 	info.useInFit = 0;
 	continue;
       }
       
       // if we get here could as hit
       ++chamberStatistics.nhits;
-      ++m_nhits;
+      if(!pseudo) ++m_nhits; //pseudo's shouldn't count here
 
       if( flipSign ) ++m_numberOfFlippedMdts;
       
