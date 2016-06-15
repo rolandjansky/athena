@@ -117,8 +117,8 @@ class FourMomCombiner : public AthAlgTool, virtual public IFourMomCombiner {
 
   int m_NumberofSiHits;
 
-  double DEFAULT_QOVERP_ERROR;
-  double DEFAULT_MOMENTUM;
+  double m_DEFAULT_QOVERP_ERROR;
+  double m_DEFAULT_MOMENTUM;
 
   // Get the error on cluster energy, eta and phi.
   double getClusterEnergyError (const xAOD::Egamma*) const;

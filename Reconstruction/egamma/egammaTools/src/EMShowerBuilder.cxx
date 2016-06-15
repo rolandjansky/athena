@@ -42,6 +42,7 @@ EMShowerBuilder::EMShowerBuilder(const std::string& type,
     m_ShowerShapeTool("egammaShowerShape/egammashowershape"),
     m_cellcoll(0),
     m_clus(0),
+    m_caloSelection(false),
     m_timingProfile(0)
 {
   //

@@ -74,7 +74,7 @@ private:
 
   /** @brief Resolution configuration*/
   std::string m_ResolutionConfiguration; 
-  std::unique_ptr<eg_resolution> eg_resol;
+  std::unique_ptr<eg_resolution> m_eg_resol;
 };
 
 #endif

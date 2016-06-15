@@ -24,6 +24,8 @@
 
 #include "egammaInterfaces/IegammaSwTool.h"
 #include "egammaMVACalib/IegammaMVATool.h"
+#include "CxxUtils/make_unique.h"
+#include <memory>
 
 using CLHEP::GeV;
 namespace{
@@ -39,6 +41,10 @@ electronSuperClusterBuilder::electronSuperClusterBuilder(const std::string& type
 							 const std::string& name,
 							 const IInterface* parent) :
   AthAlgTool(type, name, parent),
+  m_nWindowClusters(0),
+  m_nExtraClusters(0),
+  m_nBremPointClusters(0),
+  m_nSameTrackClusters(0),
   m_extrapolationTool("EMExtrapolationTools"),
   m_clusterCorrectionTool("egammaSwTool/egammaswtool")
 {
@@ -497,15 +503,14 @@ StatusCode electronSuperClusterBuilder::GetBremExtrapolations(const egammaRec *e
       ATH_MSG_DEBUG("No material effects!!!");
     }	
     if (estimatedBremOnTrack && bremPts[ib]->trackParameters() != 0) {
-
       float extrapEta(-999.), extrapPhi(-999.);
       bpTrackParams = bremPts[ib]->trackParameters();
       ATH_MSG_DEBUG("Track eta, phi at surface: (" << bpTrackParams->eta() << ", " << bpTrackParams->parameters()[Trk::phi0] << ")");
-      const Trk::PerigeeSurface*  pSurface = new Trk::PerigeeSurface(bpTrackParams->position());
-      const Trk::TrackParameters* pTrkPar  = pSurface->createTrackParameters( bpTrackParams->position(), bpTrackParams->momentum().unit()*1.e9, +1, 0);
+      const Trk::PerigeeSurface pSurface (bpTrackParams->position());
+      std::unique_ptr<const Trk::TrackParameters> pTrkPar(pSurface.createTrackParameters( bpTrackParams->position(), bpTrackParams->momentum().unit()*1.e9, +1, 0));
       ATH_MSG_DEBUG("Perigee surface track eta, phi: (" << pTrkPar->eta() << ", " << pTrkPar->parameters()[Trk::phi0] << ")");
       //Do the straight-line extrapolation.	  
-      bool hitEM2 = m_extrapolationTool->getEtaPhiAtCalo(pTrkPar,&extrapEta,&extrapPhi);
+      bool hitEM2 = m_extrapolationTool->getEtaPhiAtCalo(pTrkPar.get(),&extrapEta,&extrapPhi);
       if (hitEM2) {
 	ATH_MSG_DEBUG("Extrap. eta, phi from brem surface: (" << extrapEta << ", " << extrapPhi << ")");
       } else {
