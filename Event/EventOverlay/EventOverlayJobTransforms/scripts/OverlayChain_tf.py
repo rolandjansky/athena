@@ -16,7 +16,7 @@ msg.info('logging set in %s' % sys.argv[0])
 
 from PyJobTransforms.transform import transform
 from PyJobTransforms.trfExe import athenaExecutor, DQMergeExecutor
-from PyJobTransforms.trfArgs import addAthenaArguments, addDetectorArguments
+from PyJobTransforms.trfArgs import addAthenaArguments, addDetectorArguments, addTriggerArguments
 from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTrace
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
@@ -50,6 +50,7 @@ def getTransform():
     addOverlayChainOverrideArguments(trf.parser)
     addAthenaArguments(trf.parser, maxEventsDefaultSubstep='all')
     addDetectorArguments(trf.parser)
+    addTriggerArguments(trf.parser, addTrigFilter=False)
     addCommonOverlayArguments(trf.parser)
     addUniqueOverlayBSFilterArguments(trf.parser)
     addSimulationArguments(trf.parser)

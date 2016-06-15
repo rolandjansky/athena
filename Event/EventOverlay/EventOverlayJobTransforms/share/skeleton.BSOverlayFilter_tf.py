@@ -47,14 +47,16 @@ print ByteStreamInputSvc
 # ---------------------------
 # Service to write out BS events
 BSFilterLog.info( '**** ByteStreamOutputSvc configuration' )
-
-from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamEventStorageOutputSvc
-if hasattr( runArgs, 'outputBS_SKIMFile'):
-    bsOutputSvc=ByteStreamEventStorageOutputSvc("BSESOutputSvc",OutputDirectory='./',SimpleFileName=runArgs.outputBS_SKIMFile)
-else:
-    bsOutputSvc=ByteStreamEventStorageOutputSvc("BSESOutputSvc",OutputDirectory='./',SimpleFileName=runArgs.outputBS_TRIGSKIMFile)
-svcMgr += bsOutputSvc
-print bsOutputSvc
+for n in range(0,runArgs.noutputs):
+    from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamEventStorageOutputSvc
+    if hasattr( runArgs, 'outputBS_SKIMFile'):
+        bsOutputSvc=ByteStreamEventStorageOutputSvc("BSESOutputSvc",OutputDirectory='./',SimpleFileName=runArgs.outputBS_SKIMFile)
+    else:
+        if n==0: myn=""
+        else: myn=str(n)
+        bsOutputSvc=ByteStreamEventStorageOutputSvc("BSESOutputSvc"+myn,OutputDirectory='./',SimpleFileName=getattr(runArgs,"outputBS_TRIGSKIM"+myn+"File"))
+    svcMgr += bsOutputSvc
+    print bsOutputSvc
 
 # ---------------------------
 BSFilterLog.info( '**** ByteStreamFilter configuration' )
@@ -104,8 +106,11 @@ if hasattr( runArgs, 'InputLbnMapFile'):
     bsCopyTool.lbn_map_file = runArgs.InputLbnMapFile
     if hasattr( runArgs, "inputFilterFile"): bsCopyTool.trigfile = runArgs.inputFilterFile
     else: bsCopyTool.trigfile = ""
-    bsCopyTool.NoutputSvc = 1
-    bsCopyTool.ByteStreamOutputSvc0=bsOutputSvc
+    bsCopyTool.NoutputSvc = runArgs.noutputs
+    for n in range(0,runArgs.noutputs):
+        if n==0: myn=""
+        else: myn=str(n)
+        setattr(bsCopyTool,"ByteStreamOutputSvc"+str(n),getattr(svcMgr,"BSESOutputSvc"+myn))
 else:
     from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamOutputStreamCopyTool
     bsCopyTool = ByteStreamOutputStreamCopyTool("OutputStreamBSCopyTool")
