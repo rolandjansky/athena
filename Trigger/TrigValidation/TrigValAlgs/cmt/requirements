@@ -26,6 +26,7 @@ use TrigParticle	 	TrigParticle-*	        Trigger/TrigEvent
 use TrigMuonEvent        	TrigMuonEvent-*         Trigger/TrigEvent
 use TrigCaloEvent        	TrigCaloEvent-*         Trigger/TrigEvent
 use TrigSteeringEvent           TrigSteeringEvent-*     Trigger/TrigEvent
+use xAODTrigger                 xAODTrigger-*           Event/xAOD
 
 #For Trig Slimming test
 use TrigNavigation      TrigNavigation-*    Trigger/TrigEvent

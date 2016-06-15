@@ -55,7 +55,7 @@ class TrigDecisionChecker : public AthAlgorithm
   StatusCode finalize();//!< std Gaudi finalize method
   
  private:
-
+  template <class T> StatusCode checkEDM(std::string trigItem);
   StatusCode checkTauEDM(std::string trigItem);
 
   StatusCode checkMuonEDM(std::string trigItem);
@@ -158,6 +158,9 @@ class TrigDecisionChecker : public AthAlgorithm
 
   // needed for mu value
   std::string m_eventInfoName;
+
+  // Check pass bits
+  bool m_checkBits;
 
 
   // Tool to dump info about xAOD muons
