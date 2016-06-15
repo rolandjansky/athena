@@ -173,7 +173,6 @@ private:
   double m_diffusion;
   double m_beta_e ;
   double m_beta_h ;
-  double m_theta;
   double m_driftMobility;
   double m_tanLA;
 
