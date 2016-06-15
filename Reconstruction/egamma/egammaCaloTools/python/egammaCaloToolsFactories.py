@@ -10,7 +10,6 @@ from egammaRec import egammaKeys
 #---------------------------------------
 
 egammaShowerShape = ToolFactory(egammaCaloToolsConf.egammaShowerShape,
-                                TypeAnalysis ="ClusterSeed",
                                 # Samplings to execute
                                 ExecAllVariables   = True,
                                 ExecPreSampler     = True,

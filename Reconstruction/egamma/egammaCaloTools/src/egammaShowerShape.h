@@ -203,12 +203,6 @@ class egammaShowerShape : public AthAlgTool, virtual public IegammaShowerShape {
   const xAOD::CaloCluster* m_cluster; 
   /** @brief Cell container*/
   const CaloCellContainer* m_cellContainer;
-  /** @brief name of the cell container*/
-  std::string      m_cellsName;
-  /** @bried Tool to calculate correction for the eta width modulation in strips */
-  ToolHandle<Iegammaqweta1c> m_egammaqweta1c;
-  /** @brief Tool to calculate correction for the eta width modulation in middle sampling */
-  ToolHandle<Iegammaqweta2c> m_egammaqweta2c;
   /** @brief Tool to estimate shower shapes in presampler */
   ToolHandle<IegammaPreSamplerShape> m_egammaPreSamplerShape;
   /** @brief Tool to estimate shower shapes in strips */
@@ -218,8 +212,6 @@ class egammaShowerShape : public AthAlgTool, virtual public IegammaShowerShape {
   /** @brief Tool to estimate shower shapes in back sampling */
   ToolHandle<IegammaBackShape> m_egammaBackShape;
 
-  // Type of "Analysis" 
-  std::string m_TypeAnalysis;
   /** @brief boolean to calculate all variables*/
   bool m_ExecAllVariables;
   /** @brief boolean to calculate variables for presempler*/

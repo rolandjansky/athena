@@ -21,64 +21,58 @@
 egammaEnergyPositionAllSamples::egammaEnergyPositionAllSamples(const std::string& type,
 							       const std::string& name,
 							       const IInterface* parent)
-  : AthAlgTool(type, name, parent)
+  : AthAlgTool(type, name, parent),
+    m_cluster(0),
+    m_eallsamples(0),
+    m_e0(0),
+    m_e1(0),
+    m_e2(0),
+    m_e3(0),
+    m_inbarrel(0)
 { 
   // declare Interface
   declareInterface<IegammaEnergyPositionAllSamples>(this);
 }
 
 // ====================================================================
-// DESTRUCTOR:
+// Destructor:
 egammaEnergyPositionAllSamples::~egammaEnergyPositionAllSamples()
 { 
 }
 
 // ========================================================================
 // INITIALIZE METHOD:
-StatusCode egammaEnergyPositionAllSamples::initialize()
-{
+StatusCode egammaEnergyPositionAllSamples::initialize(){
   ATH_MSG_DEBUG(" Initializing egammaEnergyPositionAllSamples");
-
   return StatusCode::SUCCESS;
 }
 
 // =====================================================================
 // FINALIZE METHOD:
-StatusCode egammaEnergyPositionAllSamples::finalize()
-{
+StatusCode egammaEnergyPositionAllSamples::finalize(){
   return StatusCode::SUCCESS;
 }
 
 // =====================================================================
-StatusCode egammaEnergyPositionAllSamples::execute(const xAOD::CaloCluster *cluster) 
-{
+StatusCode egammaEnergyPositionAllSamples::execute(const xAOD::CaloCluster *cluster) {
   //
   // default execute method
   //
-
   // protection against bad clusters
   if (!cluster) return StatusCode::SUCCESS;
-
-  // by default check position in 2nd sampling
-  StatusCode sc = execute(cluster,2);
-  if (sc) {};
-
-  return StatusCode::SUCCESS;
+  return execute(cluster,2);
 }
 
 // =====================================================================
 StatusCode egammaEnergyPositionAllSamples::execute(const xAOD::CaloCluster *cluster, 
-						   int is) 
-{
+						   const int is) {
   //
   // From the original (eta,phi) position, find the location
   // (sampling, barrel/end-cap, granularity)
   // Once this location is found it returns uncorrected energy in each sampling
   // as well as sum of these energies
   //
-
   ATH_MSG_DEBUG(" egammaEnergyPositionAllSamples: execute");
-
   // check if cluster is available
   if(!cluster) { 
     ATH_MSG_DEBUG(" egammaEnergyPositionAllSamples: Invalid pointer to cluster");
@@ -90,28 +84,21 @@ StatusCode egammaEnergyPositionAllSamples::execute(const xAOD::CaloCluster *clus
     ATH_MSG_DEBUG(" egammaEnergyPositionAllSamples: Cluster is neither in Barrel nor in Endcap, cannot calculate ShowerShape ");
     return StatusCode::SUCCESS;
   }
-  
   m_cluster = cluster;
-
   // check energy in each sampling
-  energy();
-
+  CHECK(energy());
   // check if cluster is in barrel or end-cap in the sampling
   m_inbarrel = isClusterinBarrel(is);
-
   return StatusCode::SUCCESS;
 }
 
 // =====================================================================
-void egammaEnergyPositionAllSamples::energy() 
+StatusCode egammaEnergyPositionAllSamples::energy() 
 {
   //
   // fill energy in each sampling
   //
-
-
-  if (!m_cluster) return;
-
+  if (!m_cluster)   return StatusCode::SUCCESS;
   m_e0 = m_cluster->eSample(CaloSampling::PreSamplerB) + 
     m_cluster->eSample(CaloSampling::PreSamplerE);
   m_e1 = m_cluster->eSample(CaloSampling::EMB1) + 
@@ -120,31 +107,14 @@ void egammaEnergyPositionAllSamples::energy()
     m_cluster->eSample(CaloSampling::EME2);
   m_e3 = m_cluster->eSample(CaloSampling::EMB3) + 
     m_cluster->eSample(CaloSampling::EME3);
-
   // sum of energy in all samplings
   m_eallsamples = m_e0+m_e1+m_e2+m_e3;
   //std::cout << " eall = " << m_eallsamples << std::endl;
-
-  return;
+  return StatusCode::SUCCESS;
 }
 
 // =====================================================================
-bool egammaEnergyPositionAllSamples::isClusterinBarrel()
-{
-  //
-  // from cluster position and energy define 
-  // if we are in barrel or end-cap
-  // In particular it uses energy deposit in 2nd sampling
-  // to check close to the crack region
-  //
-
-  // by default use the middle sampling energy deposit
-  return isClusterinBarrel(2);
-}
-
-// =====================================================================
-bool egammaEnergyPositionAllSamples::isClusterinBarrel(int is)
-{
+bool egammaEnergyPositionAllSamples::isClusterinBarrel(const int is /*=2*/){
   //
   // from cluster position and energy define 
   // if we are in barrel or end-cap
@@ -152,7 +122,6 @@ bool egammaEnergyPositionAllSamples::isClusterinBarrel(int is)
   // to check close to the crack region
   // is = sampling (0=presampler,1=strips,2=middle,3=back)
   //
-
   bool in_barrel=true;
   if (!m_cluster) return false;
 
@@ -167,7 +136,6 @@ bool egammaEnergyPositionAllSamples::isClusterinBarrel(int is)
   // be careful to test 0 precisely either 
   // 0 (no deposit) > noise (which is negative) !!!!
   else if ( m_cluster->inBarrel() && m_cluster->inEndcap() ) {
-
     if (
 	// case for PreSampler
 	((is==0 && (( m_cluster->eSample(CaloSampling::PreSamplerB) != 0. && 
@@ -201,7 +169,6 @@ bool egammaEnergyPositionAllSamples::isClusterinBarrel(int is)
       in_barrel = false;
     }
   }   
-
   return in_barrel;
 }
 

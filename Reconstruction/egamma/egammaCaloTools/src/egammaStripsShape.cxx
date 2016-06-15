@@ -26,9 +26,8 @@
 
 using CLHEP::GeV;
 
-inline double proxim(double b,double a){ return b+2.*M_PI*round((a-b)/(2.*M_PI)) ;}
-inline double dim(double a,  double b)
- { return a - std::min(a,b); } 
+double proxim(const double b, const double a){ return b+2.*M_PI*round((a-b)/(2.*M_PI)) ;}
+double dim(const double a,  const double b){ return a - std::min(a,b); } 
 
 class StripArrayHelper
 {
@@ -55,27 +54,38 @@ egammaStripsShape::egammaStripsShape(const std::string& type,
 				     const std::string& name,
 				     const IInterface* parent)
   : AthAlgTool(type, name, parent),
+    m_cluster(0), 
+    m_cellContainer(0),
     m_egammaqweta1c("egammaqweta1c/egammaqweta1c"),
     m_egammaEnergyPositionAllSamples("egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"),
-    m_TypeAnalysis("ClusterSeed")
+    m_calo_dd(0),
+    m_sizearrayeta(0),
+    m_deta(0), 
+    m_dphi(0), 
+    m_eallsamples(0),
+    m_e1(0),
+    m_sam(CaloSampling::EMB1), 
+    m_samgran(CaloSampling::EMB2), 
+    m_offset(CaloSampling::PreSamplerB),
+    m_subcalo(CaloCell_ID::LAREM), 
+    m_barrel(0),
+    m_sampling_or_module(0),
+    m_etaseed(0),
+    m_phiseed(0)
 { 
-
 
   // declare Interface
   declareInterface<IegammaStripsShape>(this);
 
-  // Type of seed to be considered
-  declareProperty("TypeAnalysis",m_TypeAnalysis="ClusterSeed",
-		  "Type of seed to be considered : ClusterSeed for calorimeter-based algorithm; TrackSeed for track-based algorithm");
+  declareProperty("egammaEnergyPositionAllSamplesTool",m_egammaEnergyPositionAllSamples);
 
-
+  declareProperty("egammaqweta1cTool",m_egammaqweta1c);
   //
   // calculate quantities base on information in the strips in a region
   // around the cluster. 
   // Use 2 strips in phi and cover a region of +-1.1875
   // times 0.025 in eta (corresponds to 19 strips in em barrel)
-  //
-  
+  //  
   //calculate quantities based on information in a region around the cluster. 
   declareProperty("Neta",m_neta=2.5,
 		  "Number of eta cell in each sampling in which to calculated shower shapes");
@@ -90,6 +100,14 @@ egammaStripsShape::egammaStripsShape(const std::string& type,
   // Calculate some less important variables
   declareProperty("ExecOtherVariables",m_ExecOtherVariables=true,
 		  "Calculate some less important variables");  
+
+  InitVariables();
+  // initialize the arrays  
+  std::fill (m_enecell,     m_enecell+STRIP_ARRAY_SIZE,     0);
+  std::fill (m_etacell,     m_etacell+STRIP_ARRAY_SIZE,     0);
+  std::fill (m_gracell,     m_gracell+STRIP_ARRAY_SIZE,     0);
+  std::fill (m_ncell,       m_ncell+STRIP_ARRAY_SIZE,       0);
+
 }
 
 // ====================================================================
@@ -897,7 +915,6 @@ void egammaStripsShape::setEmin(int ncsec1)
   // energy deposit in the strip with the minimal value
   // between the first and the second maximum
   //
-  
   m_emins1 = 0.; 
   // Divide by a number smaller than the eta-width of any cell.
   double escalemin = m_emaxs1 / 0.001;
