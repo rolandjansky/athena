@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: LCGConfig.cmake 751138 2016-05-31 13:50:48Z krasznaa $
+# $Id: LCGConfig.cmake 755442 2016-06-16 15:08:07Z krasznaa $
 #
 # File implementing the code that gets called when a project imports
 # LCG using something like:
@@ -99,7 +99,7 @@ function( lcg_os_id os isValid )
       elseif( _lcgLinuxId MATCHES "Ubuntu" )
          set( _linuxShort "ubuntu" )
       elseif( _lcgLinuxId MATCHES "CentOS" )
-         set( _linuxShort "cc" )
+         set( _linuxShort "centos" )
       else()
          message( WARNING "Linux flavour (${_lcgLinuxId}) not recognised" )
          set( _linuxShort "linux" )
@@ -334,57 +334,63 @@ function( lcg_setup_release lcgReleaseDir )
 
 endfunction( lcg_setup_release )
 
-# Get the platform ID:
-if( NOT "$ENV{LCG_PLATFORM}" STREQUAL "" )
-   set( LCG_PLATFORM $ENV{LCG_PLATFORM}
-      CACHE STRING "Platform name for the LCG release being used" )
-else()
-   lcg_platform_id( LCG_PLATFORM )
-   set( LCG_PLATFORM ${LCG_PLATFORM}
-      CACHE STRING "Platform name for the LCG release being used" )
+# Only set up a release, if the requested release number was
+# something other than 0.
+if( NOT LCG_VERSION EQUAL 0 )
+
+   # Get the platform ID:
+   if( NOT "$ENV{LCG_PLATFORM}" STREQUAL "" )
+      set( LCG_PLATFORM $ENV{LCG_PLATFORM}
+         CACHE STRING "Platform name for the LCG release being used" )
+   else()
+      lcg_platform_id( LCG_PLATFORM )
+      set( LCG_PLATFORM ${LCG_PLATFORM}
+         CACHE STRING "Platform name for the LCG release being used" )
+   endif()
+
+   # Tell the user what's happening:
+   if( NOT LCG_FIND_QUIETLY )
+      message( STATUS
+         "Setting up LCG release \"${LCG_VERSION}\" for platform: "
+         "${LCG_PLATFORM}" )
+   endif()
+
+   # Some sanity checks:
+   if( LCG_FIND_COMPONENTS )
+      message( WARNING "Components \"${LCG_FIND_COMPONENTS}\" requested, but "
+         "finding LCG components is not supported" )
+   endif()
+
+   # Construct the path to pick up the release from:
+   set( LCG_RELEASE_DIR ${LCG_RELEASE_BASE}/LCG_${LCG_VERSION}
+      CACHE PATH "Directory holding the LCG release" )
+
+   # Start out with the assumption that LCG is now found:
+   set( LCG_FOUND TRUE CACHE BOOL
+      "Flag showing whether LCG was found or not" )
+   mark_as_advanced( LCG_FOUND )
+
+   # Set up the release:
+   lcg_setup_release( ${LCG_RELEASE_DIR} )
+
+   # Extra setting(s) for some package(s):
+   file( GLOB BOOST_INCLUDEDIR "${BOOST_ROOT}/include/*" )
+   list( APPEND CMAKE_PREFIX_PATH ${PYTHON_ROOT} )
+   file( GLOB PYTHON_INCLUDE_DIR "${PYTHON_ROOT}/include/*" )
+   set( PYTHON_INCLUDE_DIR ${PYTHON_INCLUDE_DIR} CACHE PATH
+      "Python include directory" FORCE )
+   file( GLOB PYTHON_LIBRARY "${PYTHON_ROOT}/lib/libpython*.so" )
+   set( PYTHON_LIBRARY ${PYTHON_LIBRARY}
+      CACHE FILEPATH "Python library" FORCE )
+   list( APPEND CMAKE_PREFIX_PATH ${DOXYGEN_ROOT} )
+   set( GSL_ROOT_DIR ${GSL_ROOT} )
+   list( APPEND CMAKE_PREFIX_PATH ${QT_ROOT} )
+   list( APPEND CMAKE_PREFIX_PATH ${QT5_ROOT} )
+   list( APPEND CMAKE_PREFIX_PATH ${GRAPHVIZ_ROOT} )
+   list( APPEND CMAKE_PREFIX_PATH ${COIN3D_ROOT} )
+   list( APPEND CMAKE_PREFIX_PATH ${EXPAT_ROOT} )
+
 endif()
-
-# Tell the user what's happening:
-if( NOT LCG_FIND_QUIETLY )
-   message( STATUS
-      "Setting up LCG release \"${LCG_VERSION}\" for platform: "
-      "${LCG_PLATFORM}" )
-endif()
-
-# Some sanity checks:
-if( LCG_FIND_COMPONENTS )
-   message( WARNING "Components \"${LCG_FIND_COMPONENTS}\" requested, but "
-      "finding LCG components is not supported" )
-endif()
-
-# Construct the path to pick up the release from:
-set( LCG_RELEASE_DIR ${LCG_RELEASE_BASE}/LCG_${LCG_VERSION}
-   CACHE PATH "Directory holding the LCG release" )
-
-# Start out with the assumption that LCG is now found:
-set( LCG_FOUND TRUE CACHE BOOL
-   "Flag showing whether LCG was found or not" )
-mark_as_advanced( LCG_FOUND )
-
-# Set up the release:
-lcg_setup_release( ${LCG_RELEASE_DIR} )
-
-# Extra setting(s) for some package(s):
-file( GLOB BOOST_INCLUDEDIR "${BOOST_ROOT}/include/*" )
-list( APPEND CMAKE_PREFIX_PATH ${PYTHON_ROOT} )
-file( GLOB PYTHON_INCLUDE_DIR "${PYTHON_ROOT}/include/*" )
-set( PYTHON_INCLUDE_DIR ${PYTHON_INCLUDE_DIR} CACHE PATH
-   "Python include directory" FORCE )
-file( GLOB PYTHON_LIBRARY "${PYTHON_ROOT}/lib/libpython*.so" )
-set( PYTHON_LIBRARY ${PYTHON_LIBRARY}
-   CACHE FILEPATH "Python library" FORCE )
-list( APPEND CMAKE_PREFIX_PATH ${DOXYGEN_ROOT} )
-set( GSL_ROOT_DIR ${GSL_ROOT} )
-list( APPEND CMAKE_PREFIX_PATH ${QT_ROOT} )
-list( APPEND CMAKE_PREFIX_PATH ${QT5_ROOT} )
-list( APPEND CMAKE_PREFIX_PATH ${GRAPHVIZ_ROOT} )
-list( APPEND CMAKE_PREFIX_PATH ${COIN3D_ROOT} )
-list( APPEND CMAKE_PREFIX_PATH ${EXPAT_ROOT} )
 
 # Get the current directory:
 get_filename_component( _thisdir "${CMAKE_CURRENT_LIST_FILE}" PATH )

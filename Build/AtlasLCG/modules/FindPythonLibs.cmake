@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindPythonLibs.cmake 734923 2016-04-08 15:32:19Z krasznaa $
+# $Id: FindPythonLibs.cmake 752031 2016-06-03 09:12:47Z krasznaa $
 #
 # This file is here to intercept find_package(PythonLibs) calls, and
 # massage the paths produced by the system module, to make them relocatable.
@@ -14,9 +14,12 @@ include( LCGFunctions )
 set( _modulePathBackup ${CMAKE_MODULE_PATH} )
 set( CMAKE_MODULE_PATH )
 
-# Make the code ignore the system path(s):
-set( CMAKE_SYSTEM_IGNORE_PATH /usr/include /usr/bin /usr/lib /usr/lib32
-   /usr/lib64 )
+# Make the code ignore the system path(s). If we are to pick up Python
+# from the release.
+if( PYTHON_ROOT )
+   set( CMAKE_SYSTEM_IGNORE_PATH /usr/include /usr/bin /usr/lib /usr/lib32
+      /usr/lib64 )
+endif()
 
 # Call CMake's own FindPythonLibs.cmake. Note that the arguments created
 # for this script by CMake pass through to the official script. So we don't

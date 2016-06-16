@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindPythonInterp.cmake 719980 2016-01-27 08:38:07Z krasznaa $
+# $Id: FindPythonInterp.cmake 752031 2016-06-03 09:12:47Z krasznaa $
 #
 # This file is here to intercept find_package(PythonInterp) calls, and extend
 # the environment setup file of the project with the correct Python paths.
@@ -14,9 +14,12 @@ include( LCGFunctions )
 set( _modulePathBackup ${CMAKE_MODULE_PATH} )
 set( CMAKE_MODULE_PATH )
 
-# Make the code ignore the system path(s):
-set( CMAKE_SYSTEM_IGNORE_PATH /usr/include /usr/bin /usr/lib /usr/lib32
-   /usr/lib64 )
+# Make the code ignore the system path(s). If we are to pick up Python
+# from the release.
+if( PYTHON_ROOT )
+   set( CMAKE_SYSTEM_IGNORE_PATH /usr/include /usr/bin /usr/lib /usr/lib32
+      /usr/lib64 )
+endif()
 
 # Call CMake's own FindPythonInterp.cmake. Note that the arguments created
 # for this script by CMake pass through to the official script. So we don't
