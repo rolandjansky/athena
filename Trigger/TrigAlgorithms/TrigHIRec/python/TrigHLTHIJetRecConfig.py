@@ -280,7 +280,7 @@ class TrigHLTHIJetRecFromHICluster(TrigHLTJetRecFromCluster):
        #TrigHLTJetRecConf.
        TrigHLTJetRecFromCluster.__init__(self, name=name)
  
-       hicluster_name = "TrigHIClusterMaker_hijet_ionemFS"
+       hicluster_name = "TrigHIClusterMaker_hijet_ionlcwFS"
 
        doSubtraction = True
        doHIClusters = True
