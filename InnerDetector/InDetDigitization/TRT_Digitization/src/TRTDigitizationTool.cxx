@@ -440,6 +440,9 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
      //std::cout << "AJB " << m_cosmicEventPhase << std::endl;
   };
 
+  // Create  a vector of deposits 
+  std::vector<InDetSimData::Deposit> depositVector(100); 
+  
   // loop over all straws
   TimedHitCollection<TRTUncompressedHit>::const_iterator i, e;
   while (m_thpctrt->nextDetectorElement(i, e)) {
@@ -473,8 +476,8 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     simhitsIdentifiers.insert(idStraw);
 
     ///// START OF SDO CREATION
-    // Create and fill a vector of deposits
-    std::vector<InDetSimData::Deposit> depositVector;
+    // Fill a vector of deposits
+    depositVector.clear();
     depositVector.reserve(std::distance(i,e));
     for (TimedHitCollection<TRTUncompressedHit>::const_iterator hit_iter(i); hit_iter != e; ++hit_iter ) {
 
