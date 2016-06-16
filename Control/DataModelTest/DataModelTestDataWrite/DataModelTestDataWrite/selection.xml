@@ -27,4 +27,10 @@
   <class name="DMTest::G_v1" id="0EA73CDC-FBD0-4241-9041-14D276B604CC"/>
   <class name="DMTest::GVec_v1" id="C532D340-6D58-444F-9C34-54C7A3D645AD"/>
   <class name="DMTest::GAuxContainer_v1" id="E70544A9-9D77-475E-AAD8-C5F967A44B66"/>
+
+  <class name="DMTest::H_v1" id="04CFD853-8DC0-4BAB-8886-BF16C79AAF76"/>
+  <class name="DMTest::HVec_v1" id="EAD7484F-1F40-4344-A667-BB9C47536BE6"/>
+  <class name="DMTest::HAuxContainer_v1" id="AFB5909C-1DF3-44AC-ABB5-9818204C2736"/>
+  <class name="DMTest::HView_v1" id="740C4020-F0A3-40B3-88E1-B15A8055DB64"/>
+  <class name="DMTest::HView_v1::Pers_t" id="55E513AA-EDF9-4860-945A-5B4E8C05C27A"/>
 </lcgdict>

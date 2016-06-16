@@ -24,6 +24,10 @@
 #include "DataModelTestDataWrite/G.h"
 #include "DataModelTestDataWrite/GVec.h"
 #include "DataModelTestDataWrite/GAuxContainer.h"
+#include "DataModelTestDataWrite/H.h"
+#include "DataModelTestDataWrite/HVec.h"
+#include "DataModelTestDataWrite/HView.h"
+#include "DataModelTestDataWrite/HAuxContainer.h"
 
 
 struct GCCXML_DUMMY_INSTANTIATION_DATAMODELTESTDATAWRITE {

@@ -6,16 +6,16 @@
 
 // $Id$
 /**
- * @file DataModelTestDataWrite/versions/G_v1.h
- * @file G_v1.h
+ * @file DataModelTestDataWrite/versions/H_v1.h
+ * @file H_v1.h
  * @author scott snyder <snyder@bnl.gov>
- * @date Nov, 2014
- * @brief Test for xAOD auto schema evolution.
+ * @date Jan, 2016
+ * @brief Test for xAOD schema evolution.
  */
 
 
-#ifndef DATAMODELTESTDATAWRITE_G_V1_H
-#define DATAMODELTESTDATAWRITE_G_V1_H
+#ifndef DATAMODELTESTDATAWRITE_H_V1_H
+#define DATAMODELTESTDATAWRITE_H_V1_H
 
 
 #include "AthContainers/AuxElement.h"
@@ -25,7 +25,7 @@
 namespace DMTest {
 
 
-class G_v1
+class H_v1
   : public SG::AuxElement
 {
 public:
@@ -37,7 +37,7 @@ public:
 } // namespace DMTest
 
 
-SG_BASE (DMTest::G_v1, SG::AuxElement);
+SG_BASE (DMTest::H_v1, SG::AuxElement);
 
 
-#endif // not DATAMODELTESTDATAWRITE_G_V1_H
+#endif // not DATAMODELTESTDATAWRITE_H_V1_H
