@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: LCGConfig-version.cmake 740816 2016-04-17 08:12:15Z krasznaa $
+# $Id: LCGConfig-version.cmake 752088 2016-06-03 11:34:42Z krasznaa $
 #
 # This file is used to figure out whether the LCG version that the user
 # requested can be delivered or not.
@@ -27,20 +27,35 @@ endif()
 set( LCG_releases_base ${LCG_RELEASE_BASE}
    CACHE PATH "Directory holding LCG releases" FORCE )
 
+# Requesting version 0 means that we only want to use the package's
+# modules. But not set up an actual release from AFS/CVMFS.
+if( PACKAGE_FIND_VERSION EQUAL 0 )
+   message( STATUS "Using the LCG modules without setting up a release" )
+   set( PACKAGE_VERSION 0 )
+   set( PACKAGE_VERSION_NUMBER 0 )
+   set( PACKAGE_VERSION_COMPATIBLE TRUE )
+   set( PACKAGE_VERSION_EXACT FALSE )
 # If a directory with the requested version string exists, then we're
 # done already.
-if( EXISTS
+elseif( EXISTS
       ${LCG_RELEASE_BASE}/LCG_${PACKAGE_FIND_VERSION}${LCG_VERSION_POSTFIX} )
    set( PACKAGE_VERSION ${PACKAGE_FIND_VERSION}${LCG_VERSION_POSTFIX} )
    set( PACKAGE_VERSION_NUMBER ${PACKAGE_FIND_VERSION} )
    set( PACKAGE_VERSION_COMPATIBLE TRUE )
    set( PACKAGE_VERSION_EXACT TRUE )
+elseif( NOT PACKAGE_FIND_VERSION )
+   # If no version was requested:
+   message( STATUS "No LCG version requested. Not setting up release." )
+   set( PACKAGE_VERSION 0 )
+   set( PACKAGE_VERSION_NUMBER 0 )
+   set( PACKAGE_VERSION_COMPATIBLE TRUE )
+   set( PACKAGE_VERSION_EXACT FALSE )
 else()
    # If it doesn't exist, then pick up the latest release, and check if it's
    # newer than the one requested.
    message( WARNING "Can't find the requested LCG version. "
-      "Falling back to LCG_82." )
-   set( PACKAGE_VERSION "82" )
+      "Falling back to LCG_84." )
+   set( PACKAGE_VERSION "84" )
    set( PACKAGE_VERSION_NUMBER ${PACKAGE_VERSION} )
    if( "${PACKAGE_VERSION}" VERSION_LESS "${PACKAGE_FIND_VERSION}" )
       set( PACKAGE_VERSION_COMPATIBLE FALSE )
