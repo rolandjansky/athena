@@ -22,6 +22,7 @@
 TrigEgammaDistTool::
 TrigEgammaDistTool( const std::string& myname )
 : TrigEgammaAnalysisBaseTool(myname) {
+    m_detailedHists=false;
 }
 
 //**********************************************************************

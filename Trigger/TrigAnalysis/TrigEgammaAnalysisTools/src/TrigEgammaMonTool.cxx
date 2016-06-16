@@ -24,7 +24,6 @@ TrigEgammaMonTool( const std::string & type, const std::string & name, const IIn
     :IHLTMonTool(type, name, parent)
 {
     declareProperty( "Tools", m_asgToolNames);
-    //declareProperty( "Tools", m_asgtools);
 }
 
 TrigEgammaMonTool::~TrigEgammaMonTool(){}
@@ -83,7 +82,7 @@ StatusCode TrigEgammaMonTool::fill(){
 
 StatusCode TrigEgammaMonTool::proc(){
     // Finalize the efficiency for end of run  
-    if(!endOfRun){ return(StatusCode::SUCCESS); }
+    if(!endOfRunFlag()){ return(StatusCode::SUCCESS); }
     ATH_MSG_INFO ("Finalizing " << name() << "...");
     for ( ToolHandleArray<ITrigEgammaAnalysisBaseTool>::const_iterator itoo=m_asgtools.begin();
             itoo!=m_asgtools.end(); ++itoo ) {

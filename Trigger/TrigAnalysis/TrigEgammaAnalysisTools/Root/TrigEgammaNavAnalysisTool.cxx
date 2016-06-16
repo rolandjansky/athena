@@ -81,18 +81,20 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
 
     TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex();
 
+    // Check HLTResult
+    if(tdt()->ExperimentalAndExpertMethods()->isHLTTruncated()){
+        ATH_MSG_WARNING("HLTResult truncated, skip trigger analysis");
+        return StatusCode::SUCCESS; 
+    }
     int ilist=0;
     for(const auto trigger : m_trigList){
         ATH_MSG_DEBUG("Start Chain Analysis ============================= " << trigger 
                 << " " << getTrigInfo(trigger).trigName); 
 
-        if(isPrescaled(trigger)) continue; //Account for L1 and HLT prescale discard event
         // Trigger counts
         cd(m_dir+"/Expert/Event");
         if(tdt()->isPassed(trigger)) hist1(m_anatype+"_trigger_counts")->AddBinContent(ilist+1);
-        // Skip event if prescaled out 
-        // Prescale cut has ill effects
-        // if(tdt()->isPassedBits("HLT_"+trigger) & TrigDefs::EF_prescaled) continue;
+        
         std::string basePath = m_dir+"/"+trigger+"/Distributions/";
         const TrigInfo info = getTrigInfo(trigger);
         if ( TrigEgammaNavBaseTool::executeNavigation(info).isFailure() ){

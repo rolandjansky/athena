@@ -20,3 +20,4 @@ typedef struct _triginfo
 
 // Enums
 enum class TrigEgammaMonLevel {SHIFTER, EXPERT, DETAIL};
+
