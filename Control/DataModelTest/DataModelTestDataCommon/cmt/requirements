@@ -36,3 +36,12 @@ apply_pattern lcgdict dict=DataModelTestDataCommon selectionfile=selection.xml\
   headerfiles="../DataModelTestDataCommon/DataModelTestDataCommonDict.h" \
   extralibfiles=../src/dict/*.cxx
 
+
+private
+use TrigSerializeUtils  TrigSerializeUtils-*    Trigger/TrigDataAccess
+
+
+apply_pattern sercnv \
+ typesWithNamespace="DMTest::CVec DMTest::CAuxContainer" \
+ files=" -s=${DataModelTestDataCommon_root}/DataModelTestDataCommon \
+             CVec.h CAuxContainer.h "
