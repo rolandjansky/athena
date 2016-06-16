@@ -168,6 +168,9 @@ inline unsigned int TRTDigSettings::cosmicFlag() const {
 inline bool TRTDigSettings::isCTB() const {
   return m_isCTB;
 }
+inline bool TRTDigSettings::isOverlay() const {
+  return m_isOverlay;
+}
 inline bool TRTDigSettings::killEndCap() const {
   return m_killEndCap;
 }

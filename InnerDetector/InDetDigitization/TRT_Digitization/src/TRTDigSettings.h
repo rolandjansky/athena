@@ -206,6 +206,8 @@ class TRTDigSettings {
   unsigned int cosmicFlag() const;
   /** Query whether CTB (Combined Test Beam 2004) flag is set */
   bool isCTB() const;
+  /** Get flag used for overlay */
+  bool isOverlay() const;
 
   bool killEndCap() const;          /**< Is end cap killed */
   bool killBarrel() const;          /**< Is barrel killed */
@@ -341,6 +343,7 @@ class TRTDigSettings {
   bool m_doCrosstalk;          /**< Crosstalk noise */
 
   unsigned int m_cosmicFlag;   /**< Data is cosmics */
+  bool m_isOverlay;   /**< Doing overlay */
 
   double m_fastElectronicsNoisePulseDistance; /**< Fast electronics noise pulse distance (time) */
   double m_slowPeriodicNoisePulseDistance;    /**< Slow periodic noise pulse distance (time) */

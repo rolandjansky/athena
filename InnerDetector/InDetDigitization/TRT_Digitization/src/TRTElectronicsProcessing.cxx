@@ -496,6 +496,15 @@ unsigned TRTElectronicsProcessing::EncodeDigit() const {
     }
   }
 
+  if (m_settings->isOverlay()){//doing overlay
+    digit += (1<<31);//flag digit a "MC" one
+    static bool first = true;
+    if (first){
+      first=false;
+      msg(MSG::DEBUG) << "ACH666: Flagging digits as MC (for overlay)" << endreq;
+    }
+  }
+
   return digit;
 }
 

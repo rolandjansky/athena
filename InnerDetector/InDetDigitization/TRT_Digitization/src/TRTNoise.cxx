@@ -671,6 +671,10 @@ int TRTNoise::StrawGasType(Identifier TRT_Identifier) {
     if       ( stat==2 || stat==3 ) { strawGasType = 0; } // Xe
     else if  ( stat==5 )            { strawGasType = 1; } // Kr
     else if  ( stat==1 || stat==4 ) { strawGasType = 2; } // Ar
+    else if  ( stat==6 )            { strawGasType = 0; } // Xe (em Ar)
+    else if  ( stat==7 )            { strawGasType = 0; } // Xe (em Kr)
+    // stat==6 is emulate argon, 7 is emular krypton --  make it xenon here,
+    // and emulate argon later with reduced TR eff.
   }
   else if (m_UseGasMix==1) { strawGasType = 0; } // force whole detector to Xe
   else if (m_UseGasMix==2) { strawGasType = 1; } // force whole detector to Kr
