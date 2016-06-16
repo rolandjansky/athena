@@ -19,7 +19,7 @@
 #include "xAODMuon/MuonContainer.h"
 
 
-
+#include <algorithm>
 #include <math.h>
 //#include "GaudiKernel/MsgStream.h"
 //#include "GaudiKernel/IToolSvc.h"
@@ -447,7 +447,9 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
     
     // Boolean flags indicating what stages were already reached (for monitoring purposes)
     m_flag_stages.resize(43,false); // should set the size the first time, and reinitiallise on all others
-
+                                    // On second and subsequent pases, need to force to false.
+    std::fill(m_flag_stages.begin(), m_flag_stages.end(), false);
+    
     // Prepare the vertexing timer
     if ( timerSvc() ) {
         m_VtxFitTimer->start();

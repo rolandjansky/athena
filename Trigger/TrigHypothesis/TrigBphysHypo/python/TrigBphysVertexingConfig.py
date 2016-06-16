@@ -20,9 +20,24 @@ trigBphysFitter = Trk__TrkVKalVrtFitter("TrigBphysFitter",
                                         Extrapolator = "Trk::Extrapolator/InDetExtrapolator",
                                         )
 ToolSvc += trigBphysFitter
-ToolSvc += TrigBphysHelperUtilsTool(VertexFitterTool = ToolSvc.TrigBphysFitter) #,
-                                    #OutputLevel=2)
+ToolSvc += TrigBphysHelperUtilsTool(VertexFitterTool = ToolSvc.TrigBphysFitter,
+                                    #OutputLevel=2
+                                    )
+                                    
+# fitter and helper tool with legacy configuration
+trigBphysFitterLegacy = Trk__TrkVKalVrtFitter("TrigBphysFitterLegacy",
+                                              #OutputLevel  = 2,
+                                              )
+ToolSvc += trigBphysFitterLegacy
+trigBphysHelperUtilsToolLegacy = TrigBphysHelperUtilsTool("TrigBphysHelperUtilsToolLegacy",
+                                                          VertexFitterTool = ToolSvc.TrigBphysFitterLegacy,
+                                                          #OutputLevel  = 2,
+                                                          ) #,
+ToolSvc += trigBphysHelperUtilsToolLegacy
 
+#print ToolSvc.TrigBphysFitter
+#print ToolSvc.TrigBphysFitterLegacy
 #print ToolSvc.TrigBphysHelperUtilsTool
+#print ToolSvc.TrigBphysHelperUtilsToolLegacy
 
 

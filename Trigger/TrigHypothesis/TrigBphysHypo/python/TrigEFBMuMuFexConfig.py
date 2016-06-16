@@ -215,6 +215,15 @@ class EFBMuMuFex_DiMu (TrigEFBMuMuFex):
 
         self.AthenaMonTools = [ validation, online, time ]
 
+class EFBMuMuFex_DiMu_legacyVtx (EFBMuMuFex_DiMu):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuFex_DiMu_legacyVtx"):
+        EFBMuMuFex_DiMu.__init__( self, name )
+        
+        # set lecacy helper tool with 'broken' vertex fitter
+        self.TrigBphysHelperTool = ToolSvc.TrigBphysHelperUtilsToolLegacy
+        
+        
 class EFBMuMuFex_DiMu_oneTE (EFBMuMuFex_DiMu):
     __slots__ = []
     def __init__(self, name = "EFBMuMuFex_DiMu_oneTE"):

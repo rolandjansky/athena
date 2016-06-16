@@ -133,6 +133,8 @@ HLT::ComboAlgo(name, pSvcLocator)
 ,m_countPassedBcVtxChi2(0)
 ,m_countBcToStore(0)
 {
+    declareProperty("TrigBphysHelperTool", m_bphysHelperTool);
+    
     declareProperty("AcceptAll",    m_acceptAll=true); // Should we just accept all events
     // sign & mass cuts
     //   declareProperty("CutMuonTightness", m_cutMuon = 0.01);                               // default = 0.01

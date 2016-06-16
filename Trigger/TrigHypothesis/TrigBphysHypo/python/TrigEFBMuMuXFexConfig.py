@@ -111,7 +111,16 @@ class EFBMuMuXFex_1 (TrigEFBMuMuXFex):
 
         self.AthenaMonTools = [ validation, online, time ]
         
-
+        
+class EFBMuMuXFex_1_legacyVtx (EFBMuMuXFex_1):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuXFex_1_legacyVtx"):
+        EFBMuMuXFex_1.__init__(self, name )
+        
+        # set lecacy helper tool with 'broken' vertex fitter
+        self.TrigBphysHelperTool = ToolSvc.TrigBphysHelperUtilsToolLegacy
+        
+        
 class EFBMuMuXFex_allModes (EFBMuMuXFex_1):
     __slots__ = []
     def __init__(self, name = "EFBMuMuXFex_allModes"):

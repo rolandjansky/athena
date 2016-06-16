@@ -72,6 +72,7 @@ HLT::ComboAlgo(name, pSvcLocator)
 ,m_countPassedBsMass2R(0)
 ,m_countPassedVtxFit2R(0)
 {
+    declareProperty("TrigBphysHelperTool", m_bphysHelperTool);
     
     // Read cuts
     declareProperty("NumberOfInputs",m_expectNumberOfInputTE = 2); // expect two muons by default
