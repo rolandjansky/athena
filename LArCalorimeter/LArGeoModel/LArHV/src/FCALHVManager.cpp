@@ -138,58 +138,58 @@ void FCALHVManager::update() const {
       if (StatusCode::SUCCESS!=detStore->retrieve(atrlistcol,*it)) 
         return;
 
-	for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
+      for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
 
-          // 1. decode COOL Channel ID
-          unsigned int chanID = (*citr).first;
-          int cannode = chanID/1000;
-          int line = chanID%1000;
-          //std::cout << " cannode,line " << cannode << " " << line << std::endl;
+        // 1. decode COOL Channel ID
+        unsigned int chanID = (*citr).first;
+        int cannode = chanID/1000;
+        int line = chanID%1000;
+        //std::cout << " cannode,line " << cannode << " " << line << std::endl;
 
-          // 2. Construct the identifier
-          HWIdentifier id = hvId->HVLineId(1,1,cannode,line);
+        // 2. Construct the identifier
+        HWIdentifier id = hvId->HVLineId(1,1,cannode,line);
 
-          std::vector<HWIdentifier> electrodeIdVec = hvcablingTool->getLArElectrodeIDvec(id);
+        std::vector<HWIdentifier> electrodeIdVec = hvcablingTool->getLArElectrodeIDvec(id);
 
-          for(size_t i=0;i<electrodeIdVec.size();i++) {
+        for(size_t i=0;i<electrodeIdVec.size();i++) {
 
-            HWIdentifier& elecHWID = electrodeIdVec[i];
-            int detector = elecId->detector(elecHWID);
-            if (detector==5) {
+          HWIdentifier& elecHWID = electrodeIdVec[i];
+          int detector = elecId->detector(elecHWID);
+          if (detector==5) {
 
-              //std::cout << " FCAl channel found " << (*citr).first << std::endl; 
+            //std::cout << " FCAl channel found " << (*citr).first << std::endl; 
 
-              float voltage = -99999.;
-              if (!((*citr).second)["R_VMEAS"].isNull()) voltage = ((*citr).second)["R_VMEAS"].data<float>();
-              float current = 0.;
-              if (!((*citr).second)["R_IMEAS"].isNull()) current = ((*citr).second)["R_IMEAS"].data<float>();
-              unsigned int status = 0;
-              if (!((*citr).second)["R_STAT"].isNull()) status =  ((*citr).second)["R_STAT"].data<unsigned int>();
+            float voltage = -99999.;
+            if (!((*citr).second)["R_VMEAS"].isNull()) voltage = ((*citr).second)["R_VMEAS"].data<float>();
+            float current = 0.;
+            if (!((*citr).second)["R_IMEAS"].isNull()) current = ((*citr).second)["R_IMEAS"].data<float>();
+            unsigned int status = 0;
+            if (!((*citr).second)["R_STAT"].isNull()) status =  ((*citr).second)["R_STAT"].data<unsigned int>();
 	    
-	      unsigned int sideIndex=1-elecId->zside(elecHWID);      // 0 C side, 1 A side (unline HV numbering)
-	      unsigned int samplingIndex=elecId->hv_eta(elecHWID)-1;   // 0 to 2 for the FCAL modules 1-2-3
-	      unsigned int sectorIndex=elecId->module(elecHWID);       // 0-15 FCAL1, 0-7 FCAl2, 0-3 FCAL3
-	      unsigned int lineIndex=elecId->gap(elecHWID);            // 0-3
+            unsigned int sideIndex=1-elecId->zside(elecHWID);      // 0 C side, 1 A side (unline HV numbering)
+            unsigned int samplingIndex=elecId->hv_eta(elecHWID)-1;   // 0 to 2 for the FCAL modules 1-2-3
+            unsigned int sectorIndex=elecId->module(elecHWID);       // 0-15 FCAL1, 0-7 FCAl2, 0-3 FCAL3
+            unsigned int lineIndex=elecId->gap(elecHWID);            // 0-3
 
-              //std::cout << " channel found " << sideIndex << " " << samplingIndex << " " << sectorIndex << " " << lineIndex << " "<< voltage << std::endl;
+            //std::cout << " channel found " << sideIndex << " " << samplingIndex << " " << sectorIndex << " " << lineIndex << " "<< voltage << std::endl;
 
-// do we have to worry about phi sector numbering running backwards in phi for z<0 like in EM/HEC  ????
+            // do we have to worry about phi sector numbering running backwards in phi for z<0 like in EM/HEC  ????
 
-              unsigned int index             = 192*sideIndex+12*sectorIndex+4*samplingIndex+lineIndex;
+            unsigned int index             = 192*sideIndex+12*sectorIndex+4*samplingIndex+lineIndex;
 
-              if (index>384) {
-                std::cout << " invalid index for FCAL " << sideIndex << " " << samplingIndex << " " << sectorIndex << " " << lineIndex << std::endl;
-                continue;
-              }
+            if (index>384) {
+              std::cout << " invalid index for FCAL " << sideIndex << " " << samplingIndex << " " << sectorIndex << " " << lineIndex << std::endl;
+              continue;
+            }
 	    
 	    
-	      m_c->payloadArray[index].voltage=voltage;
-	      m_c->payloadArray[index].current=current;
-	      m_c->payloadArray[index].status=status;
-	      m_c->payloadArray[index].hvLineNo=chanID;
-            }   // if FCAL
-	  }  //   loop over electrodes
-	}   // loop over collection
+            m_c->payloadArray[index].voltage=voltage;
+            m_c->payloadArray[index].current=current;
+            m_c->payloadArray[index].status=status;
+            m_c->payloadArray[index].hvLineNo=chanID;
+          }   // if FCAL
+        }  //   loop over electrodes
+      }   // loop over collection
     }     // loop over folders
   }   // m_c->init
 }
