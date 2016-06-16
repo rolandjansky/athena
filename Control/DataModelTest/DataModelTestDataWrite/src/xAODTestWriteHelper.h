@@ -22,13 +22,14 @@
 #include "DataModelTestDataWrite/HVec.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthContainers/ViewVector.h"
+#include "AthContainers/ConstDataVector.h"
 
 
 namespace DMTest {
 
 
 StatusCode recordView1 (StoreGateSvc* svc,
-                        std::unique_ptr<ViewVector<DMTest::CVec> > view,
+                        std::unique_ptr<ConstDataVector<ViewVector<DMTest::CVec> > > view,
                         const std::string& key);
 
 
