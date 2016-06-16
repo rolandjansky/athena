@@ -26,4 +26,3 @@ apply_pattern poolcnv typesWithNamespace=$(recEventAthenaPool_poolCnvTypes) \
    files="-s=${RecEvent_root}/RecEvent RecoTimingObj.h "
 
 macro_append RecEventAthenaPoolPoolCnv_shlibflags " $(RecEventAthenaPool_dict_linkopts)"
-
