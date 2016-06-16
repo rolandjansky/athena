@@ -126,7 +126,7 @@ void TileCalibDrawerOfc::setPhases(unsigned int channel, unsigned int adc, const
 
   std::set<int32_t> phaseSet;
   for (const float phase : phases) {
-    phaseSet.insert((int32_t) round(phase * (1 / PHASE_PRECISION))); // Phases are stored as int(10*phase) in DB  
+    phaseSet.insert((int32_t) std::round(phase * (1 / PHASE_PRECISION))); // Phases are stored as int(10*phase) in DB  
   }
 
   if(int(phaseSet.size()) != std::abs(getNPhases())){
