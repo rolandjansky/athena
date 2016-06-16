@@ -14,7 +14,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigger
                           GaudiKernel
                           PRIVATE
-                          Control/AthLinks )
+                          Control/AthLinks
+                          Trigger/TrigDataAccess/TrigSerializeCnvSvc )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -36,3 +37,9 @@ atlas_add_dictionary( DataModelTestDataCommonDict
                       EXTRA_FILES src/dict/*.cxx
                       ELEMENT_LINKS DMTest::BAuxVec DMTest::CVec_v1 )
 
+
+atlas_add_sercnv_library ( DataModelTestDataCommonSerCnv
+  FILES DataModelTestDataCommon/CVec.h DataModelTestDataCommon/CAuxContainer.h
+  TYPES_WITH_NAMESPACE DMTest::CVec DMTest::CAuxContainer
+  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+  LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers SGTools xAODCore xAODTrigger GaudiKernel AthLinks TrigSerializeCnvSvcLib DataModelTestDataCommon )
