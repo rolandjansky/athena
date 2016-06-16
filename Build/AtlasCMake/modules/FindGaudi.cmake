@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindGaudi.cmake 753396 2016-06-07 15:36:05Z krasznaa $
+# $Id: FindGaudi.cmake 755055 2016-06-15 15:07:02Z krasznaa $
 #
 # CMake script attempting to find a Gaudi installation that we can build
 # the offline code against. Without making any use of the CMake code
@@ -137,5 +137,4 @@ else()
 endif()
 set_property( GLOBAL APPEND PROPERTY ATLAS_EXTERNAL_RPMS
    "GAUDI_${version}_${ATLAS_PLATFORM}" )
-message( "Added dependency: GAUDI_${version}_${ATLAS_PLATFORM}" )
 unset( version )

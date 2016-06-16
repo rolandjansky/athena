@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: AtlasInternals.cmake 751680 2016-06-02 08:25:55Z krasznaa $
+# $Id: AtlasInternals.cmake 755445 2016-06-16 15:09:56Z krasznaa $
 #
 # Functions used internally by functions declared in AtlasFunctions.
 # Which are for general use inside the package descriptions.
@@ -241,7 +241,7 @@ function( atlas_os_id os isValid )
       elseif( _linuxId MATCHES "Ubuntu" )
          set( _linuxShort "ubuntu" )
       elseif( _linuxId MATCHES "CentOS" )
-         set( _linuxShort "cc" )
+         set( _linuxShort "centos" )
       else()
          message( WARNING "Linux flavour not recognised" )
          set( _linuxShort "linux" )
