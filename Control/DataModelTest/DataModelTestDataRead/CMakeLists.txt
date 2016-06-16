@@ -20,7 +20,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Control/CxxUtils
                           Control/StoreGate
-                          Event/xAOD/xAODCore )
+                          Event/xAOD/xAODCore
+                          Trigger/TrigEvent/TrigSteeringEvent
+                          Trigger/TrigEvent/TrigNavigation )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -30,13 +32,13 @@ atlas_add_library( DataModelTestDataReadLib
                    src/*.cxx
                    PUBLIC_HEADERS DataModelTestDataRead
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthContainers AthLinks DataModelTestDataCommon SGTools GaudiKernel DataModelAthenaPoolLib StoreGateLib SGtests
+                   LINK_LIBRARIES AthContainers AthLinks DataModelTestDataCommon SGTools GaudiKernel DataModelAthenaPoolLib StoreGateLib SGtests TrigSteeringEvent TrigNavigationLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils xAODCore )
 
 atlas_add_component( DataModelTestDataRead
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks DataModelAthenaPoolLib DataModelTestDataCommon SGTools GaudiKernel AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests xAODCore DataModelTestDataReadLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks DataModelAthenaPoolLib DataModelTestDataCommon SGTools GaudiKernel AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests xAODCore TrigSteeringEvent DataModelTestDataReadLib )
 
 atlas_add_dictionary( DataModelTestDataReadDict
                       DataModelTestDataRead/DataModelTestDataReadDict.h

@@ -29,6 +29,8 @@ use AthenaKernel            AthenaKernel-*            Control
 use StoreGate               StoreGate-*               Control
 use AthenaBaseComps         AthenaBaseComps-*         Control
 use xAODCore                xAODCore-*                Event/xAOD
+use TrigSteeringEvent       TrigSteeringEvent-*       Trigger/TrigEvent
+use TrigNavigation          TrigNavigation-*          Trigger/TrigEvent
 end_private
 
 # DRQ: Change to a dual-use library because the lcgdict pattern doesn't work with component libraries
