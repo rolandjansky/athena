@@ -454,7 +454,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
      ATH_MSG_DEBUG("#BTAG#  Could not find muons associated with name " << m_muonAssociationName);
    } 
    else {
-     ATH_MSG_INFO("#BTAG#  There are "<< muonsInJet.size() <<" associated with the jet");
+     ATH_MSG_DEBUG("#BTAG#  There are "<< muonsInJet.size() <<" associated with the jet");
 
      for( const auto& muLink : muonsInJet) {
          const xAOD::Muon* mu = *muLink;
