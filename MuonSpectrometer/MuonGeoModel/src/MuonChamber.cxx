@@ -735,7 +735,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 
       // for cutouts:
       // MDT cutouts for BOS1,5, BMS7,14, (problem with BMS4,10),  EMS
-      bool mdtCutoutFlag = ((stname == "BOS" && std::abs(zi) == 6) ||
+      bool mdtCutoutFlag = ((stname == "BOS" && std::abs(zi) == 6) || stname == "BMG" ||
                             (stname == "BMS" && (std::abs(zi) == 1 && fi == 3)) ||
                             (stname == "EMS" && (std::abs(zi) == 1 || std::abs(zi) == 3)));
       if (((manager->IncludeCutoutsFlag() &&  mdtCutoutFlag) || 
