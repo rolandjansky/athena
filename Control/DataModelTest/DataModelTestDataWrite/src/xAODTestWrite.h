@@ -20,6 +20,7 @@
 #include "DataModelTestDataWrite/HVec.h"
 #include "DataModelTestDataCommon/CVec.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
 
@@ -64,7 +65,7 @@ private:
   StatusCode write_cvec_with_data();
 
   /// Test writing view container.
-  StatusCode write_cview (DMTest::CVec& coll);
+  StatusCode write_cview (const DMTest::CVec& coll);
 
   /// Test schema evolution involving view container.
   StatusCode write_htest();
@@ -72,6 +73,7 @@ private:
   /// Event counter.
   int m_count;
 
+  SG::ReadHandleKey<DMTest::CVec> m_cvecKey;
   SG::WriteHandleKey<DMTest::HVec> m_hvecKey;
 };
 

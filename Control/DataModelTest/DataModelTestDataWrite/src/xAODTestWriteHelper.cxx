@@ -19,7 +19,7 @@ namespace DMTest {
 
 
 StatusCode recordView1 (StoreGateSvc* svc,
-                        std::unique_ptr<ViewVector<DMTest::CVec> > view,
+                        std::unique_ptr<ConstDataVector<ViewVector<DMTest::CVec> > > view,
                         const std::string& key)
 {
   return svc->record (std::move(view), key, false);

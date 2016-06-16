@@ -10,13 +10,12 @@
 #include "../DMTestWrite.h"
 #include "../AuxDataTestWrite.h"
 #include "../xAODTestWrite.h"
+#include "../xAODTestWriteCVec.h"
+#include "../HLTResultWriter.h"
 
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, DMTestWrite)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, AuxDataTestWrite)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestWrite)
+DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestWriteCVec)
+DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, HLTResultWriter)
 
-DECLARE_FACTORY_ENTRIES(DataModelTestDataWrite) {
-  DECLARE_NAMESPACE_ALGORITHM(DMTest, DMTestWrite);
-  DECLARE_NAMESPACE_ALGORITHM(DMTest, AuxDataTestWrite);
-  DECLARE_NAMESPACE_ALGORITHM(DMTest, xAODTestWrite);
-}

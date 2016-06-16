@@ -16,6 +16,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODCore
                           GaudiKernel
                           PRIVATE
+                          #Event/xAOD/xAODEventInfo
+                          Event/EventInfo
+                          Trigger/TrigEvent/TrigSteeringEvent
+                          Trigger/TrigEvent/TrigNavigation
                           Control/AthContainersInterfaces
                           Control/AthenaBaseComps
                           Control/AthenaKernel
@@ -30,13 +34,13 @@ atlas_add_library( DataModelTestDataWriteLib
                    src/*.cxx
                    PUBLIC_HEADERS DataModelTestDataWrite
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthContainers AthLinks DataModelTestDataCommon SGTools xAODCore GaudiKernel DataModelAthenaPoolLib StoreGateLib SGtests
+                   LINK_LIBRARIES AthContainers AthLinks DataModelTestDataCommon SGTools xAODCore GaudiKernel DataModelAthenaPoolLib StoreGateLib SGtests TrigNavigationLib EventInfo TrigSteeringEvent
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils )
 
 atlas_add_component( DataModelTestDataWrite
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks DataModelAthenaPoolLib DataModelTestDataCommon SGTools xAODCore GaudiKernel AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests DataModelTestDataWriteLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks DataModelAthenaPoolLib DataModelTestDataCommon SGTools xAODCore GaudiKernel AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests TrigSteeringEvent DataModelTestDataWriteLib )
 
 atlas_add_dictionary( DataModelTestDataWriteDict
                       DataModelTestDataWrite/DataModelTestDataWriteDict.h
