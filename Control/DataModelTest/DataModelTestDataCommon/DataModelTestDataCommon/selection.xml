@@ -19,11 +19,13 @@
   <class name="std::vector<DMTest::B>" IAuxStore="true"/>
   <class name="DMTest::C_v1" id="CD37DA07-A986-4AB9-9221-EFC2FA9BB5A0"/>
   <class name="DMTest::CVec_v1" id="10DE610D-5634-4D42-80D4-80B0A8C16452"/>
+  <class name="DMTest::CVecWithData_v1" id="B35B5C5A-E691-4735-96E9-EA24BB1816C6"/>
+  <class name="DMTest::CView_v1" id="2577D84A-BC0F-4CD2-9539-9F0A4EFC64AA"/>
   <class name="DMTest::CAuxContainer_v1" id="2A4C8577-05E9-4246-96EC-97ED64FF9C5B"/>
   <class name="DMTest::CTrigAuxContainer_v1" id="5533CABA-9ACF-486F-BF54-873A6DB65FDB"/>
   <class name="DMTest::CInfoAuxContainer_v1" id="7C9CE4FE-2AD8-4DC5-B36E-19B22994951E"/>
 
-  <class name="std::vector<ElementLink<DMTest::CVec_v1> >"/>
+  <class name="DMTest::CView::Pers_t" id="CDB407A6-1B30-4214-BC29-47268D2F28F7"/>
   <class name="std::vector<ElementLink<DMTest::BAuxVec> >"/>
   <class name="SG::AuxElement::ConstAccessor<ElementLink<DMTest::CVec_v1> >"/>
 

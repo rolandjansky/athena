@@ -29,4 +29,8 @@ typedef CAuxContainer_v1 CAuxContainer;
 } // namespace DMTest
 
 
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF (DMTest::CAuxContainer, 9722, 1)
+
+
 #endif // not DATAMODELTESTDATACOMMON_CAUXCONTAINER_H
