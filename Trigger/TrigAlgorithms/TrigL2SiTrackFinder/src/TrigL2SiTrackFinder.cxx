@@ -339,9 +339,11 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltInitialize() {
 
 //-------------------------------------------------------------------------
 
-HLT::ErrorCode TrigL2SiTrackFinder::hltBeginRun()
+HLT::ErrorCode TrigL2SiTrackFinder::hltStart()
 {
-  msg() << MSG::DEBUG << "At BeginRun of " << name() << endreq;
+  // Reset warnings to make them reproducible on stop/start
+  m_roiForIDWarning = false;
+  m_roiWidthWarning = false;
   return HLT::OK;
 }
 

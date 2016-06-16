@@ -157,7 +157,7 @@ class TrigL2SiTrackFinder : public HLT::FexAlgo
   
   HLT::ErrorCode hltInitialize();
   HLT::ErrorCode hltFinalize();
-  HLT::ErrorCode hltBeginRun();
+  HLT::ErrorCode hltStart();
 
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
 			    HLT::TriggerElement* outputTE);
