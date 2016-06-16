@@ -25,13 +25,14 @@
 
 #include "TileCalibBlobObjs/TileCalibDrawerBase.h"
 #include "TileCalibBlobObjs/TileCalibType.h"
+#include "CoralBase/Blob.h"
 #include <stdint.h>
 #include <iostream>
 #include <vector>
-#include "CoralBase/Blob.h"
 #include <cstdlib>
 #include <algorithm>
 #include <cstring>
+#include <cmath>
 
 #define PHASE_PRECISION 0.1
 
@@ -199,7 +200,7 @@ inline int32_t TileCalibDrawerOfc::getNPhases() const {
 __attribute__((always_inline)) 
 inline unsigned int TileCalibDrawerOfc::getPhaseNumber(unsigned int channel, unsigned int adc, float& phase) const {
 
-  int db_phase = (int) round(phase * (1 / PHASE_PRECISION)); // Phases are stored as int(10*phase) in DB
+  int db_phase = (int) std::round(phase * (1 / PHASE_PRECISION)); // Phases are stored as int(10*phase) in DB
   int32_t* beg = getPhaseStartAddress(channel, adc, 0);
   int32_t* end = beg + std::abs(getNPhases());
   int32_t* pos = std::lower_bound(beg, end, db_phase);
