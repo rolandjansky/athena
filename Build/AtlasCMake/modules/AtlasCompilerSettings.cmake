@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: AtlasCompilerSettings.cmake 744652 2016-05-03 19:40:31Z krasznaa $
+# $Id: AtlasCompilerSettings.cmake 754486 2016-06-13 13:31:01Z smh $
 #
 # This file collects settings fine-tuning all the compiler and linker options
 # used in an ATLAS build in one place. It is included by default when using
@@ -29,16 +29,7 @@ set( CMAKE_CXX_STANDARD 14 CACHE STRING "C++ standard used for the build" )
 set( CMAKE_CXX_EXTENSIONS FALSE CACHE BOOL "(Dis)allow using GNU extensions" )
 
 # Set the definitions needed everywhere:
-add_definitions( -DHAVE_PRETTY_FUNCTION
-   -DHAVE_EXPLICIT -DHAVE_MUTABLE -DHAVE_SIGNED -DHAVE_TYPENAME
-   -DHAVE_NEW_STYLE_CASTS -DHAVE_DYNAMIC_CAST -DHAVE_TYPEID
-   -DHAVE_ANSI_TEMPLATE_INSTANTIATION -DHAVE_TEMPLATE_DEFAULT_ARGS
-   -DHAVE_BROKEN_TEMPLATE_RESCOPE -DHAVE_TEMPLATE_NULL_ARGS
-   -DHAVE_TEMPLATE_NULL_SPEC -DHAVE_TEMPLATE_PARTIAL_SPEC
-   -DHAVE_MEMBER_TEMPLATES -DHAVE_ANSI_OPERATOR_ARROW
-   -DHAVE_NAMESPACES -DHAVE_NAMESPACE_STD
-   -DHAVE_OSTREAM_CHAR_OVERLOAD -DHAVE_ITERATOR_TRAITS -DHAVE_ITERATOR
-   -DHAVE_REVERSE_ITERATOR_STYLE -DHAVE_CXX_STDC_HEADERS )
+add_definitions( -DHAVE_PRETTY_FUNCTION )
 
 # Function helping with setting up variable type checks
 function( _check_for_type typeName definition )
@@ -48,10 +39,6 @@ function( _check_for_type typeName definition )
    endif()
 endfunction( _check_for_type )
 
-# Check for various C++ types:
-_check_for_type( "long long" LONG_LONG )
-_check_for_type( "bool" BOOL )
-
 # Function helping with setting up header checks
 function( _check_for_include include definition )
    check_include_file_cxx( ${include} ${definition} )
@@ -59,9 +46,6 @@ function( _check_for_include include definition )
       add_definitions( -D${definition} )
    endif()
 endfunction( _check_for_include )
-
-# Check for various C++ includes:
-_check_for_include( "iostream" HAVE_NEW_IOSTREAMS )
 
 # Clean up:
 unset( _check_for_type )
