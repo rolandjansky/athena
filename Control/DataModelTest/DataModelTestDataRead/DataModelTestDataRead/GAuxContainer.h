@@ -29,4 +29,8 @@ typedef GAuxContainer_v1 GAuxContainer;
 } // namespace DMTest
 
 
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF (DMTest::GAuxContainer, 9742, 1)
+
+
 #endif // not DATAMODELTESTDATAREAD_GAUXCONTAINER_H

@@ -6,15 +6,15 @@
 
 // $Id$
 /**
- * @file DataModelTestDataRead/versions/GAuxContainer_v1.h
+ * @file DataModelTestDataRead/versions/HAuxContainer_v2.h
  * @author scott snyder <snyder@bnl.gov>
- * @date Nov, 2014
- * @brief Test for xAOD auto schema evolution.
+ * @date Jan, 2016
+ * @brief Test for xAOD schema evolution.
  */
 
 
-#ifndef DATAMODELTESTDATAREAD_GAUXCONTAINER_V1_H
-#define DATAMODELTESTDATAREAD_GAUXCONTAINER_V1_H
+#ifndef DATAMODELTESTDATAREAD_HAUXCONTAINER_V2_H
+#define DATAMODELTESTDATAREAD_HAUXCONTAINER_V2_H
 
 
 #include "xAODCore/AuxContainerBase.h"
@@ -26,22 +26,22 @@
 namespace DMTest {
 
 
-class GAuxContainer_v1
+class HAuxContainer_v2
   : public xAOD::AuxContainerBase
 {
 public:
-  GAuxContainer_v1();
+  HAuxContainer_v2();
 
 private:
-  SG::PackedContainer<int> anInt;
+  std::vector<float> aFloat;
 };
 
 
 } // namespace DMTest
 
 
-SG_BASE (DMTest::GAuxContainer_v1, xAOD::AuxContainerBase);
+SG_BASE (DMTest::HAuxContainer_v2, xAOD::AuxContainerBase);
 
 
-#endif // not DATAMODELTESTDATAREAD_GAUXCONTAINER_V1_H
+#endif // not DATAMODELTESTDATAREAD_HAUXCONTAINER_V2_H
 

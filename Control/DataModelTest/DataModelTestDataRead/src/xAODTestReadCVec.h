@@ -6,28 +6,31 @@
 
 // $Id$
 /**
- * @file src/xAODTestRead.h
+ * @file src/xAODTestReadCVec.h
  * @author scott snyder <snyder@bnl.gov>
- * @date May, 2014
- * @brief Algorithm to test reading xAOD data.
+ * @date Apr, 2016
+ * @brief Algorithm to test reading xAOD data (CVec)
  */
 
 
-#ifndef DATAMODELTESTDATAREAD_XAODTESTREAD_H
-#define DATAMODELTESTDATAREAD_XAODTESTREAD_H
+#ifndef DATAMODELTESTDATAREAD_XAODTESTREADCVEC_H
+#define DATAMODELTESTDATAREAD_XAODTESTREADCVEC_H
 
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "DataModelTestDataCommon/CVec.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 
 namespace DMTest {
 
 
 /**
- * @brief Algorithm to test reading xAOD data.
+ * @brief Algorithm to test reading xAOD data (CVec).
  */
-class xAODTestRead
-  : public AthAlgorithm
+class xAODTestReadCVec
+  : public AthReentrantAlgorithm
 {
 public:
   /**
@@ -35,45 +38,36 @@ public:
    * @param name The algorithm name.
    * @param svc The service locator.
    */
-  xAODTestRead (const std::string &name, ISvcLocator *pSvcLocator);
+  xAODTestReadCVec (const std::string &name, ISvcLocator *pSvcLocator);
   
 
   /**
    * @brief Algorithm initialization; called at the beginning of the job.
    */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
 
   /**
    * @brief Algorithm event processing.
    */
-  virtual StatusCode execute(); 
+  virtual StatusCode execute_r (const EventContext& ctx) const override;
 
 
   /**
    * @brief Algorithm finalization; called at the end of the job.
    */
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
 
 private:
-  /// Test reading container with additional data.
-  StatusCode read_cvec_with_data() const;
-
-  /// Test reading view container.
-  StatusCode read_cview() const;
-
-  /// Test schema evolution involving view container.
-  StatusCode read_htest() const;
-
   /// Parameter: Prefix for names read from SG.
   std::string m_readPrefix;
 
   /// Parameter: Prefix for names written to SG.  Null for no write.
   std::string m_writePrefix;
 
-  /// Event counter.
-  int m_count;
+  SG::ReadHandleKey<DMTest::CVec> m_cvecKey;
+  SG::WriteHandleKey<DMTest::CVec> m_writeKey;
 };
 
 

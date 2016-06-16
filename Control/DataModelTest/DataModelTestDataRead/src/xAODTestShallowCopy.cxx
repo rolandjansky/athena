@@ -13,10 +13,14 @@
 
 #include "xAODTestShallowCopy.h"
 #include "DataModelTestDataCommon/CVec.h"
+#include "DataModelTestDataCommon/CVecWithData.h"
 #include "DataModelTestDataCommon/C.h"
 #include "DataModelTestDataCommon/CAuxContainer.h"
 #include "DataModelTestDataCommon/CTrigAuxContainer.h"
 #include "DataModelTestDataCommon/CInfoAuxContainer.h"
+#include "DataModelTestDataRead/HVec.h"
+#include "DataModelTestDataRead/H.h"
+#include "DataModelTestDataRead/HAuxContainer.h"
 #include "xAODCore/ShallowCopy.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthenaKernel/errorcheck.h"
@@ -66,10 +70,21 @@ StatusCode xAODTestShallowCopy::execute()
     for (C* c : *ret.first)
       anInt10(*c) = m_count * 20000 + c->anInt() * 100;
 
-    CHECK (evtStore()->record (ret.first, m_writePrefix + "cvec"));
-    CHECK (evtStore()->record (ret.second, m_writePrefix + "cvecAux."));
-    CHECK (evtStore()->setConst (ret.first));
-    CHECK (evtStore()->setConst (ret.second));
+    CHECK (evtStore()->record (ret.first, m_writePrefix + "cvec", false));
+    CHECK (evtStore()->record (ret.second, m_writePrefix + "cvecAux.", false));
+  }
+
+  {
+    const CVecWithData* vec = 0;
+    CHECK( evtStore()->retrieve (vec, m_readPrefix + "cvecWD") );
+    auto ret = xAOD::shallowCopyContainer (*vec);
+    ret.first->meta1 = vec->meta1;
+
+    for (C* c : *ret.first)
+      anInt10(*c) = m_count * 20000 + c->anInt() * 100;
+
+    CHECK (evtStore()->record (ret.first, m_writePrefix + "cvecWD", false));
+    CHECK (evtStore()->record (ret.second, m_writePrefix + "cvecWDAux.", false));
   }
 
   {
@@ -79,10 +94,8 @@ StatusCode xAODTestShallowCopy::execute()
 
     anInt10(*ret.first) = m_count * 20000 + ret.first->anInt() * 200;
 
-    CHECK (evtStore()->record (ret.first, m_writePrefix + "cinfo"));
-    CHECK (evtStore()->record (ret.second, m_writePrefix + "cinfoAux."));
-    CHECK (evtStore()->setConst (ret.first));
-    CHECK (evtStore()->setConst (ret.second));
+    CHECK (evtStore()->record (ret.first, m_writePrefix + "cinfo", false));
+    CHECK (evtStore()->record (ret.second, m_writePrefix + "cinfoAux.", false));
   }
 
   {
@@ -93,10 +106,21 @@ StatusCode xAODTestShallowCopy::execute()
     for (C* c : *ret.first)
       anInt10(*c) = m_count * 20000 + c->anInt() * 300;
 
-    CHECK (evtStore()->record (ret.first, m_writePrefix + "ctrig"));
-    CHECK (evtStore()->record (ret.second, m_writePrefix + "ctrigAux."));
-    CHECK (evtStore()->setConst (ret.first));
-    CHECK (evtStore()->setConst (ret.second));
+    CHECK (evtStore()->record (ret.first, m_writePrefix + "ctrig", false));
+    CHECK (evtStore()->record (ret.second, m_writePrefix + "ctrigAux.", false));
+  }
+
+  {
+    static H::Accessor<float> aFloat20 ("aFloat20");
+    const HVec* vec = 0;
+    CHECK( evtStore()->retrieve (vec, m_readPrefix + "hvec") );
+    auto ret = xAOD::shallowCopyContainer (*vec);
+
+    for (H* h : *ret.first)
+      aFloat20(*h) = m_count * 20000 + h->aFloat();
+
+    CHECK (evtStore()->record (ret.first, m_writePrefix + "hvec", false));
+    CHECK (evtStore()->record (ret.second, m_writePrefix + "hvecAux.", false));
   }
 
   return StatusCode::SUCCESS;
