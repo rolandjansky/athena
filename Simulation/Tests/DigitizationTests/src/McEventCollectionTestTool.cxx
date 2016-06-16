@@ -15,7 +15,6 @@ McEventCollectionTestTool::McEventCollectionTestTool(const std::string& type,
                                                      const std::string& name,
                                                      const IInterface* parent)
   : DigiTestToolBase(type, name, parent),
-    m_numberOfEventsSelected(0),
     m_collection("TruthEvent"), //("GEN_EVENT"),
     m_nGenEvents(0),
     m_nEmptyGenEvents(0),
