@@ -40,7 +40,7 @@ use TestTools            TestTools-*             AtlasTest
 apply_pattern UnitTest_run unit_test=CollectionMerger extra_sources=../src/CollectionMerger.cxx
 
 
-# activate the following lines to compile this package with debug symbols
+# enable the following lines to compile this package with debug symbols
 #private
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
