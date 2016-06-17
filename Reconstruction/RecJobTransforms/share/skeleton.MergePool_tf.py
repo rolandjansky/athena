@@ -37,6 +37,8 @@ if len(DAOD_Output_Key) is 1:
         
 if hasattr(runArgs,"inputFile"): athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputFile )
 if hasattr(runArgs,"inputAODFile"):
+    from InDetRecExample.InDetKeys import InDetKeys;
+    InDetFlags.keepAdditionalHitsOnTrackParticle.set_Value_and_Lock(True)
     rec.readAOD.set_Value_and_Lock( True )
     rec.doWriteAOD.set_Value_and_Lock( True )
     athenaCommonFlags.PoolAODInput.set_Value_and_Lock( runArgs.inputAODFile )
