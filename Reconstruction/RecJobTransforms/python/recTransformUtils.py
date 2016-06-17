@@ -2,6 +2,8 @@
 
 ## @brief Module with standard reconstruction transform options and substeps
 
+import argparse
+
 import logging
 msg = logging.getLogger(__name__)
 
@@ -96,12 +98,17 @@ def addRecoSubsteps(executorSet):
                                    substep = 'r2b', inData = ['RDO'], outData = ['BS']))
     executorSet.add(athenaExecutor(name = 'RDOtoRDOTrigger', skeletonFile = 'RecJobTransforms/skeleton.RDOtoRDOtrigger.py',
                                    substep = 'r2t', inData = ['RDO'], outData = ['RDO_TRIG']))
+    # Note that the RAWtoALL substep is disabled by defaut (no inputs or outputs)
+    # It will be enabled explicitly via --steering if required
+    executorSet.add(athenaExecutor(name = 'RAWtoALL', skeletonFile = 'RecJobTransforms/skeleton.RAWtoALL_tf.py',
+                                   substep = 'r2a', inData = [],
+                                   outData = []))
     executorSet.add(athenaExecutor(name = 'RAWtoESD', skeletonFile = 'RecJobTransforms/skeleton.RAWtoESD_tf.py',
-                                   substep = 'r2e', inData = ['BS', 'RDO', 'DRAW_ZMUMU', 'DRAW_ZEE', 'DRAW_EMU', 'RDO_FTK'], 
+                                   substep = 'r2e', inData = ['BS', 'RDO', 'DRAW_ZMUMU', 'DRAW_ZEE', 'DRAW_EMU', 'DRAW_RPVLL', 'RDO_FTK'], 
                                    outData = ['ESD', 'HIST_ESD_INT', 'TXT_JIVEXMLTGZ'],))
     executorSet.add(athenaExecutor(name = 'ESDtoAOD', skeletonFile = 'RecJobTransforms/skeleton.ESDtoAOD_tf.py',
                                    substep = 'e2a', inData = ['ESD'], outData = ['AOD', 'HIST_AOD_INT']))
-    executorSet.add(DQMergeExecutor(name = 'DQHistogramMerge', inData = [('HIST_ESD_INT', 'HIST_AOD_INT')], outData = ['HIST']))
+    executorSet.add(DQMergeExecutor(name = 'DQHistogramMerge', inData = [('HIST_ESD_INT', 'HIST_AOD_INT'), 'HIST_R2A'], outData = ['HIST']))
     executorSet.add(athenaExecutor(name = 'ESDtoDPD', skeletonFile = 'PATJobTransforms/skeleton.ESDtoDPD_tf.py',
                                    substep = 'e2d', inData = ['ESD'], outData = []))
     executorSet.add(athenaExecutor(name = 'AODtoDPD', skeletonFile = 'PATJobTransforms/skeleton.AODtoDPD_tf.py',
@@ -124,9 +131,51 @@ def addRecoSubsteps(executorSet):
 
 ## @brief The standard suite of reconstruction specific arguments
 #  @param trf The transform to which these arguments should be added
-def addAllRecoArgs(trf):
+#  @param RAWtoALL Flag that will be passed to some of the automated argument type parsers
+def addAllRecoArgs(trf, RAWtoALL=False):
     addCommonRecTrfArgs(trf.parser)
     addStandardRecoFiles(trf.parser)
-    addPrimaryDPDArguments(trf.parser, transform = trf)
+    addPrimaryDPDArguments(trf.parser, transform = trf, RAWtoALL=RAWtoALL)
     addExtraDPDTypes(trf.parser, transform = trf)
     addReductionArguments(trf.parser, transform = trf)
+
+
+## @brief Detect if the RAWtoALL steering argument is set
+#  This is a very special case, requiring an unfortunately hacky solution... :-(
+def detectRAWtoALL(argv):
+    limitedParser = argparse.ArgumentParser(argument_default=argparse.SUPPRESS)
+    limitedParser.add_argument("--steering", nargs="+")
+    limitedParser.add_argument("--argJSON")
+    limitedParser.add_argument("--AMIConfig", "--AMI")
+    
+    args, unknown = limitedParser.parse_known_args(argv)
+    args=vars(args)
+    
+    # Note if we have steering and it does _not_ contain doRAWtoALL we
+    # return false, as CLI overrides JSON and AMI
+    if "steering" in args:
+        if "doRAWtoALL" in args["steering"]:
+            return True
+        else:
+            return False
+    
+    # JSON overrides AMI
+    if "argJSON" in args:
+        import json
+        from PyJobTransforms.trfUtils import convertToStr
+        argfile = open(args['argJSON'], 'r')
+        jsonParams = json.load(argfile)
+        jsonParams = convertToStr(jsonParams)
+        if "steering" in jsonParams:
+            if "doRAWtoALL" in jsonParams["steering"]:
+                return True
+            else:
+                return False
+        
+    if "AMIConfig" in args:
+        from PyJobTransforms.trfAMI import TagInfo
+        tag=dict(TagInfo(args['AMIConfig']).trfs[0])
+        if "steering" in tag and "doRAWtoALL" in tag["steering"]:
+            return True
+        
+    return False
