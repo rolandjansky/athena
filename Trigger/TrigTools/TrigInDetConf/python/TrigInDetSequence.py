@@ -212,7 +212,8 @@ class TrigInDetSequence(TrigInDetSequenceBase):
                 ]
       if sequenceFlavour=="2step" and self.__signature__=="bjet":
         algos += [("TrigVxPrimary",""),
-                  ("InDetTrigVertexxAODCnv","")]
+                  #("InDetTrigVertexxAODCnv","")
+                  ]
 
       fullseq.append(algos)
  
@@ -242,7 +243,8 @@ class TrigInDetSequence(TrigInDetSequenceBase):
                  ]
         if self.__signature__ != "bjet":
           algos += [("TrigVxPrimary",""),
-                    ("InDetTrigVertexxAODCnv","")]
+                    #("InDetTrigVertexxAODCnv","")
+                    ]
         fullseq.append(algos)
 
       
