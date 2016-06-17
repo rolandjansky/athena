@@ -35,10 +35,21 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
       from AthenaCommon.AppMgr import ToolSvc
       # configure tools used
 
+      from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRodDecoder
+      InDetTrigPixelRodDecoder = PixelRodDecoder(name = "InDetTrigPixelRodDecoder")
+      #InDetTrigPixelRodDecoder.OutputLevel=2
+      ToolSvc += InDetTrigPixelRodDecoder
+
+      from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProviderTool
+      InDetTrigPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetTrigPixelRawDataProviderTool",
+                                                                   Decoder = InDetTrigPixelRodDecoder)
+      ToolSvc += InDetTrigPixelRawDataProviderTool
+
       from InDetTrigRawDataProvider.InDetTrigRawDataProviderConf import InDet__TrigPixRawDataProvider
 
       InDetTrigPixRawDataProvider = \
           InDet__TrigPixRawDataProvider(name="TrigPixRawDataProvider_EF",
+                                        RawDataProviderTool = InDetTrigPixelRawDataProviderTool,
                                         RDOKey = EF_PixRDOKey)
       ToolSvc += InDetTrigPixRawDataProvider
 

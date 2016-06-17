@@ -107,7 +107,7 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
                ("TrigVxPrimary",""),
 #               ("InDetTrigParticleCreation",""),
 #               ("InDetTrigTrackParticleTruthMaker",""),
-               ("InDetTrigVertexxAODCnv","")
+               #("InDetTrigVertexxAODCnv","")
                ]
       if type=="minBias" or type=="minBias400":
         algos = [("PixelClustering",""),
@@ -120,7 +120,7 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
                  ("InDetTrigTrackingxAODCnv",""),
                  ("TrigVxPrimary",""),
 #                 ("InDetTrigParticleCreation",""),
-                 ("InDetTrigVertexxAODCnv","")
+                 #("InDetTrigVertexxAODCnv","")
                  ]
       elif type=="bjet":
         #from InDetTrigVxSecondary.InDetTrigVxSecondary_LoadTools import TrigVxSecondary_EF
@@ -139,7 +139,7 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
                  ("InDetTrigDetailedTrackTruthMaker",""),
                  ("TrigVxPrimary",""),
 #                 ("InDetTrigParticleCreation",""),
-                 ("InDetTrigVertexxAODCnv",""),
+                 #("InDetTrigVertexxAODCnv",""),
                  ("InDetTrigTrackParticleTruthMaker","")
                  ]
 
@@ -161,7 +161,7 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
       algos = [("TrigVxPrimary","")]
       if type=="bjet":
         algos = [("TrigVxPrimaryAllTE",""),
-                 ("InDetTrigVertexxAODCnv","")
+                 #("InDetTrigVertexxAODCnv","")
                  ]
 
     elif seqType=="InsideOutPost":
@@ -181,7 +181,7 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
             ("InDetTrigTrackingxAODCnv",""),
             ("InDetTrigDetailedTrackTruthMaker",""),]
       av = [("TrigVxPrimary",""),
-            ("InDetTrigVertexxAODCnv",""),
+            #("InDetTrigVertexxAODCnv",""),
             ]
       a2 = [
         #("InDetTrigParticleCreation",""),
@@ -209,7 +209,7 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
                ("InDetTrigTrackingxAODCnv",""),
                ("TrigVxPrimary",""),
                #("InDetTrigParticleCreation",""),
-               ("InDetTrigVertexxAODCnv","")
+               #("InDetTrigVertexxAODCnv","")
                ]
       
     elif seqType=="OutsideIn":
@@ -239,7 +239,7 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
                ("InDetTrigDetailedTrackTruthMaker", "InDetTrigDetailedTrackTruthMakerTRTOnly_%s_EFID"),
                ("TrigVxPrimary",                    "TrigVxPrimaryTRTOnly_%s_EFID"),
                #("InDetTrigParticleCreation",        "InDetTrigParticleCreationTRTOnly_%s_EFID"),
-               ("InDetTrigVertexxAODCnv",           "InDetTrigVertexxAODCnvTRTOnly_%s_EFID"),
+               #("InDetTrigVertexxAODCnv",           "InDetTrigVertexxAODCnvTRTOnly_%s_EFID"),
                ("InDetTrigTrackParticleTruthMaker", "InDetTrigTrackParticleTruthMakerTRTOnly_%s_EFID")
                ]
 
@@ -312,7 +312,7 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
                #("InDetTrigParticleCreation",        "InDetTrigParticleCreationIOTRT_%s_EFID"),
                ("InDetTrigTrackParticleTruthMaker", "InDetTrigTrackParticleTruthMakerIOTRT_%s_EFID"),
                ("TrigVxPrimary",""),
-               ("InDetTrigVertexxAODCnv",           "InDetTrigVertexxAODCnvIOTRT_%s_EFID"),
+               #("InDetTrigVertexxAODCnv",           "InDetTrigVertexxAODCnvIOTRT_%s_EFID"),
                ]
     elif seqType=="DataPrep":
       algos = [("PixelClustering", "PixelClustering_%s_IDTrig"),
@@ -339,11 +339,11 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
                ("TrigVxPrimary",""),
                #("InDetTrigParticleCreation",""),
                ("InDetTrigTrackParticleTruthMaker",""),
-               ("InDetTrigVertexxAODCnv","")
+               #("InDetTrigVertexxAODCnv","")
                ]
     elif seqType=="StandAloneVtxAllTE":
       algos = [("TrigVxPrimaryAllTESG", ""),
-               ("InDetTrigVertexxAODCnv", ""),
+               #("InDetTrigVertexxAODCnv", ""),
                ]
 
       
