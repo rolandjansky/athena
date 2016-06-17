@@ -142,6 +142,7 @@ HLT::ErrorCode TrigMuonEFRoiAggregator::hltExecute(std::vector< std::vector<HLT:
       TrigConf::HLTTriggerElement::getLabel( outputTE->getId(), label );
       ATH_MSG_WARNING( "Failed to attach output muons to output TE \"" << label << "\" ID=" << outputTE->getId() );
       delete outMuons;
+      if(outTP) delete outTP;
       return hltStatus;
     }
     ATH_MSG_DEBUG( "attached muon container with size: " << outMuons->size() );
@@ -165,7 +166,7 @@ HLT::ErrorCode TrigMuonEFRoiAggregator::hltExecute(std::vector< std::vector<HLT:
       ATH_MSG_DEBUG( "Attached track particle container with size: " << outTP->size() );
     } 
   }
-
+  if(outTP) delete outTP;
   // fill monitor variables "by hand" because this is an allTE algo
   afterExecMonitors().ignore();
   

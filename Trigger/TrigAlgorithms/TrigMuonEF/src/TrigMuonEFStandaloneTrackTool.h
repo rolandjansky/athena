@@ -336,7 +336,7 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   std::vector<std::vector<IdentifierHash> > m_hashlist;
 
   // features written to TriggerElement
-  TrigMuonEFInfoContainer*                m_myMuonEFInfoCont;
+  //  TrigMuonEFInfoContainer*                m_myMuonEFInfoCont;
   const MuonSegmentCombinationCollection* m_segmentCombiColl;
   const MuonPatternCombinationCollection* m_patternCombiColl;
   const Trk::SegmentCollection*           m_segments;
