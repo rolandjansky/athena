@@ -35,6 +35,7 @@ namespace InDet {
   {
     declareInterface<InDet::ITrigRawDataProviderTool>(this);
     declareProperty("RDOKey", m_RDO_Key = "PixelRDOs_EFID");
+    declareProperty("RawDataProviderTool", m_rawDataTool);
   }
 
   TrigPixRawDataProvider::~TrigPixRawDataProvider(){
