@@ -26,11 +26,12 @@ namespace DerivationFramework {
       const std::string& name,
       const IInterface* parent) : 
     AthAlgTool(type,name,parent),  
+    m_parser(0),
     m_selectionString(""),
     m_ntot(0),
     m_npass(0),
-    m_decorationPrefix(""),
     m_eventInfoKey(""),
+    m_decorationPrefix(""),
     m_pixelKey("")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
