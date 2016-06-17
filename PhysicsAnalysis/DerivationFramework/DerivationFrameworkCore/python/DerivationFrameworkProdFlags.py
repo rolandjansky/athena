@@ -1975,5 +1975,23 @@ class WriteDAOD_HION9Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HION9Stream)
 listAODtoDPD.append(WriteDAOD_HION9Stream.StreamName)
 
+################################
+# Defined by the trigger group
+################################
+
+class WriteDAOD_TRIG1Stream (JobProperty):
+     """TRIG1 derivation"""
+     statusOn = True
+     allowedTypes = ['bool']
+     StoredValue = False
+     StreamName = 'StreamDAOD_TRIG1'
+     FileName = ''
+     isVirtual = False
+     DPDMakerScript = "DerivationFrameworkTrigger/TRIG1.py"
+     pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TRIG1Stream)
+listAODtoDPD.append(WriteDAOD_TRIG1Stream.StreamName)
+
+
 from RecExConfig.RecoFunctions import AddValidItemToList
 AddValidItemToList(listAODtoDPD,listAllKnownDPD)
