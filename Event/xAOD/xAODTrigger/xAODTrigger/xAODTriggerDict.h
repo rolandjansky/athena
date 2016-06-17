@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTriggerDict.h 710006 2015-11-23 21:01:29Z sutt $
+// $Id: xAODTriggerDict.h 743093 2016-04-26 21:46:56Z watsona $
 #ifndef XAODTRIGGER_XAODTRIGGERDICT_H
 #define XAODTRIGGER_XAODTRIGGERDICT_H
 
@@ -46,8 +46,14 @@
 #include "xAODTrigger/versions/JetEtRoIAuxInfo_v1.h"
 #include "xAODTrigger/versions/JetEtRoI_v1.h"
 
+#include "xAODTrigger/versions/EnergySumRoIAuxInfo_v2.h"
+#include "xAODTrigger/versions/EnergySumRoI_v2.h"
+
 #include "xAODTrigger/versions/EnergySumRoIAuxInfo_v1.h"
 #include "xAODTrigger/versions/EnergySumRoI_v1.h"
+
+#include "xAODTrigger/versions/EnergySumRoIAuxInfo_v2.h"
+#include "xAODTrigger/versions/EnergySumRoI_v2.h"
 
 #include "xAODTrigger/versions/TrigDecision_v1.h"
 #include "xAODTrigger/versions/TrigDecisionAuxInfo_v1.h"
@@ -120,6 +126,9 @@ namespace{
 
     DataLink< xAOD::EnergySumRoI_v1 > esum_l1;
     std::vector< DataLink< xAOD::EnergySumRoI_v1 > > esum_l2;
+
+    DataLink< xAOD::EnergySumRoI_v2 > esum_v2_l1;
+    std::vector< DataLink< xAOD::EnergySumRoI_v2 > > esum_v2_l2;
 
     xAOD::TriggerMenuContainer_v1 c2;
 

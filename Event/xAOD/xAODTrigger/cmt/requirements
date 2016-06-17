@@ -1,5 +1,5 @@
 package xAODTrigger
-# $Id: requirements 683359 2015-07-16 09:24:36Z will $
+# $Id: requirements 744561 2016-05-03 16:08:19Z krasznaa $
 
 author Lukas Heinrich <Lukas.Heinrich@cern.ch>
 author Gordon Watts <gwatts@uw.edu>
@@ -29,3 +29,4 @@ apply_pattern lcgdict dict=xAODTrigger selectionfile=selection.xml \
                       extralibfiles=../Root/dict/*.cxx
 
 apply_pattern do_genCLIDDB library=xAODTrigger
+
