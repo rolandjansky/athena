@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTriggerMenuAuxContainerCnv.cxx 664264 2015-04-30 22:30:00Z ssnyder $
+// $Id: xAODTriggerMenuAuxContainerCnv.cxx 664263 2015-04-30 22:29:56Z ssnyder $
 
 // System include(s):
 #include <stdexcept>

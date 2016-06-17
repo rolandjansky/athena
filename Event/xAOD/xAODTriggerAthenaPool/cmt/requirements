@@ -17,6 +17,8 @@ use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 use xAODTrigger         xAODTrigger-*         Event/xAOD
 use AthenaKernel        AthenaKernel-*        Control
 use AthContainers       AthContainers-*       Control
+#use TrigNavTools        TrigNavTools-*        Trigger/TrigEvent
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Trigger/TrigEvent/TrigNavTools"
 
 # Declare the pool converter(s):
 apply_pattern poolcnv typesWithNamespace="xAOD::MuonRoIContainer \
@@ -38,9 +40,13 @@ apply_pattern poolcnv typesWithNamespace="xAOD::MuonRoIContainer \
                                           xAOD::TrigDecisionAuxInfo \
                                           xAOD::TrigNavigation \
                                           xAOD::TrigNavigationAuxInfo \
+                                          xAOD::RoiDescriptorStore \
+                                          xAOD::RoiDescriptorStoreAuxInfo \
                                           xAOD::BunchConfKey \
                                           xAOD::BunchConfContainer \
-                                          xAOD::BunchConfAuxContainer" \
+                                          xAOD::BunchConfAuxContainer \
+                                          xAOD::TrigPassBitsContainer \
+                                          xAOD::TrigPassBitsAuxContainer" \
                       files="-s=${xAODTrigger_root}/xAODTrigger \
                              MuonRoIContainer.h \
                              MuonRoIAuxContainer.h \
@@ -61,7 +67,12 @@ apply_pattern poolcnv typesWithNamespace="xAOD::MuonRoIContainer \
                              TrigDecisionAuxInfo.h \
                              TrigNavigation.h \
                              TrigNavigationAuxInfo.h \
+                             RoiDescriptorStore.h \
+                             RoiDescriptorStoreAuxInfo.h \
                              BunchConfKey.h \
                              BunchConfContainer.h \
-                             BunchConfAuxContainer.h" \
+                             BunchConfAuxContainer.h \
+                             TrigPassBitsContainer.h \
+                             TrigPassBitsAuxContainer.h" \
                       cnv_pfx="xAOD"
+
