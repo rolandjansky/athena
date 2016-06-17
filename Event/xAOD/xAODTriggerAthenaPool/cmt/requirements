@@ -75,3 +75,4 @@ apply_pattern poolcnv typesWithNamespace="xAOD::MuonRoIContainer \
                              TrigPassBitsContainer.h \
                              TrigPassBitsAuxContainer.h" \
                       cnv_pfx="xAOD"
+
