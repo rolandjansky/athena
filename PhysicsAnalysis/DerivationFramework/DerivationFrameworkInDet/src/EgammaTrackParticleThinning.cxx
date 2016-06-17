@@ -36,7 +36,8 @@ m_gsfSGKey("GSFTrackParticles"),
 m_selectionString(""),
 m_bestMatchOnly(true),
 m_coneSize(-1.0),
-m_and(false)
+m_and(false),
+m_parser(0)
 {
     declareInterface<DerivationFramework::IThinningTool>(this);
     declareProperty("ThinningService", m_thinningSvc);
@@ -69,7 +70,7 @@ StatusCode DerivationFramework::EgammaTrackParticleThinning::initialize()
     if (m_gsfSGKey=="") {
         ATH_MSG_FATAL("No GSF track collection provided for thinning.");
         return StatusCode::FAILURE;
-    } else { ATH_MSG_INFO("GSF track particles associated with objects in " << m_sgKey << " will be retained in this format with the rest being thinned away");}
+    } else { ATH_MSG_INFO("GSF track particles associated with objects in " << m_gsfSGKey << " will be retained in this format with the rest being thinned away");}
     
     // Set up the text-parsing machinery for selectiong the photon directly according to user cuts
     if (m_selectionString!="") {
@@ -211,6 +212,9 @@ void DerivationFramework::EgammaTrackParticleThinning::setPhotonMasks(std::vecto
     DerivationFramework::TracksInCone trIC;
     for (xAOD::EgammaContainer::const_iterator egIt=egammas->begin(); egIt!=egammas->end(); ++egIt) {
         const xAOD::Photon* photon = dynamic_cast<const xAOD::Photon*>(*egIt);
+	if(!photon){
+	  ATH_MSG_ERROR("Did not get a photon object in EgammaTrackParticleThinning::setPhotonMasks");
+	}
         if (m_coneSize>0.0) {
 		trIC.select(photon,m_coneSize,tps,mask); // check InDet tracks in a cone around the e-gammas
 	}	
@@ -246,6 +250,9 @@ void DerivationFramework::EgammaTrackParticleThinning::setPhotonMasks(std::vecto
     DerivationFramework::TracksInCone trIC; 
     for (std::vector<const xAOD::Egamma*>::iterator egIt=egammas.begin(); egIt!=egammas.end(); ++egIt) {
         const xAOD::Photon* photon = dynamic_cast<const xAOD::Photon*>(*egIt);
+	if(!photon){
+	  ATH_MSG_ERROR("Did not get a photon object in EgammaTrackParticleThinning::setPhotonMasks");
+	}
         if (m_coneSize>0.0){ trIC.select(photon,m_coneSize,tps,mask);} // check InDet tracks in a cone around the e-gammas
         std::vector< ElementLink< xAOD::VertexContainer > > vertexLinks= photon->vertexLinks();
         unsigned int nLinks = vertexLinks.size();
@@ -278,6 +285,9 @@ void DerivationFramework::EgammaTrackParticleThinning::setElectronMasks(std::vec
     DerivationFramework::TracksInCone trIC;
     for (xAOD::EgammaContainer::const_iterator egIt=egammas->begin(); egIt!=egammas->end(); ++egIt) {
         const xAOD::Electron* electron = dynamic_cast<const xAOD::Electron*>(*egIt);
+	if(!electron){
+	  ATH_MSG_ERROR("Did not get an electron object in EgammaTrackParticleThinning::setElectronMasks");
+	}
 	if (m_coneSize>0.0) trIC.select(electron,m_coneSize,tps,mask); // check InDet tracks in a cone around the e-gammas
         unsigned int nGSFLinks = 1;
         if (!bestMatchOnly) nGSFLinks = electron->nTrackParticles();
@@ -306,6 +316,9 @@ void DerivationFramework::EgammaTrackParticleThinning::setElectronMasks(std::vec
     for (std::vector<const xAOD::Egamma*>::iterator egIt=egammas.begin(); egIt!=egammas.end(); ++egIt) {
         unsigned int nGSFLinks = 1;
         const xAOD::Electron* electron = dynamic_cast<const xAOD::Electron*>(*egIt);
+	if(!electron){
+	  ATH_MSG_ERROR("Did not get an electron object in EgammaTrackParticleThinning::setElectronMasks");
+	}
 	if (m_coneSize>0.0) trIC.select(electron,m_coneSize,tps,mask); // check InDet tracks in a cone around the e-gammas
         if (!bestMatchOnly) nGSFLinks = electron->nTrackParticles();
         for (unsigned int i=0; i<nGSFLinks; ++i) {

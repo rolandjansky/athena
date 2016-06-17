@@ -42,7 +42,6 @@
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
-#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"  
 #include "xAODTracking/VertexContainer.h"   
 #include "TrkTrack/Track.h"
 
@@ -61,9 +60,8 @@ namespace DerivationFramework {
     m_updator("Trk::KalmanUpdator"),
     m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
-    m_trtcaldbSvc("TRT_CalDbSvc",n),
-    m_TRTdEdxTool("InDet::TRT_ToT_Tools/TRT_ToT_dEdx"),
-    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
+    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
+    m_trtcaldbSvc("TRT_CalDbSvc",n)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     // --- Steering and configuration flags
@@ -91,14 +89,12 @@ namespace DerivationFramework {
     declareProperty("PixelMsosName",          m_pixelMsosName = "PixelMSOSs");
     declareProperty("SctMsosName",            m_sctMsosName = "SCT_MSOSs");
     declareProperty("TrtMsosName",            m_trtMsosName = "TRT_MSOSs");    
-    declareProperty("PriVtxContainerName",    m_PriVtxContainerName = "PrimaryVertices");
 
     // -- Tools 
     declareProperty("Updator",                m_updator);    
     declareProperty("ResidualPullCalculator", m_residualPullCalculator);
     declareProperty("HoleSearch",             m_holeSearchTool);
     declareProperty("TRT_CalDbSvc",           m_trtcaldbSvc);
-    declareProperty("TRT_ToT_dEdx",           m_TRTdEdxTool);
     declareProperty("TrackExtrapolator",      m_extrapolator);
   }
 
@@ -151,13 +147,7 @@ namespace DerivationFramework {
       CHECK( m_holeSearchTool.retrieve() );
     }
 
-    if ( m_storeTRT && !m_TRTdEdxTool.empty() ) {
-      CHECK( m_TRTdEdxTool.retrieve() );
-    }
-
     CHECK(m_extrapolator.retrieve());
-
-    m_firstEventWarnings = true;
 
     ATH_MSG_DEBUG("Initialization finished.");
 
@@ -268,32 +258,7 @@ namespace DerivationFramework {
         msosTRT->setStore( aux );
       }
     }
-    
-    // -- Setup tools needed to Derive and store TRT dEdx
-    // Get Primary vertex container, if available
-    int numberOfPrimaryVertices = 1;
-    if ( evtStore()->contains<xAOD::VertexContainer>(m_PriVtxContainerName) ) {
-      const xAOD::VertexContainer* vxContainer =  0;
-      CHECK ( evtStore()->retrieve(vxContainer, m_PriVtxContainerName) );
-      if (vxContainer) {
-        numberOfPrimaryVertices = 0;
-        for (const xAOD::Vertex* vtx: *vxContainer) {
-          if ( (vtx->vertexType() == xAOD::VxType::PriVtx) ||
-              (vtx->vertexType() == xAOD::VxType::PileUp) ) {
-            numberOfPrimaryVertices++;
-          }
-        }
-      }
-    } else {
-      if (m_firstEventWarnings) {
-        ATH_MSG_WARNING("No Primary Vertex container: " << m_PriVtxContainerName << ". Assuming 1 vertex per event.");
-      }
-    }
-
-    // Set up the decorators
-    SG::AuxElement::Decorator< float > decoratorTRTdEdx("ToT_dEdx");
-    SG::AuxElement::Decorator< float > decoratorTRTusedHits("ToT_usedHits");    
-    
+   
     // -- Run over each track and decorate it
     for (const auto& track : *tracks) {
       //-- Start with things that do not need a Trk::Track object
@@ -311,13 +276,6 @@ namespace DerivationFramework {
       //  This is the vector in which we will store the element links to the MSOS's
       std::vector< ElementLink< xAOD::TrackStateValidationContainer > > msosLink;
       
-      //Calculate and decorate track particle with TRT dEdx value    
-      if (m_storeTRT) {
-//      decoratorTRTdEdx (*track)     = m_TRTdEdxTool->dEdx( trkTrack, !m_isSimulation, true, true, true, numberOfPrimaryVertices);
-        decoratorTRTdEdx (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, true, true);
-        decoratorTRTusedHits (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, true);
-      };
-
       // -- Add Track states to the current track, filtering on their type
       std::vector<const Trk::TrackStateOnSurface*> tsoss;
       for (const auto& trackState: *(trkTrack->trackStateOnSurfaces())){
@@ -624,7 +582,6 @@ namespace DerivationFramework {
       
       ATH_MSG_DEBUG("Finished dressing TrackParticle");
 
-      //m_firstEventWarnings = false; //-- currently not possible since we are in a const function
 
     } // end of loop over tracks              
     return StatusCode::SUCCESS;
