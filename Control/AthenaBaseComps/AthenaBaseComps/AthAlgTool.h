@@ -13,6 +13,7 @@
 
 // STL includes
 #include <string>
+#include <type_traits>
 
 // FrameWork includes
 #include "GaudiKernel/AlgTool.h"
@@ -23,10 +24,11 @@
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include "AthenaBaseComps/AthMessaging.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/UpdateHandle.h"
-#include "StoreGate/WriteHandle.h"
 #include "StoreGate/VarHandleProperty.h"
+#include "StoreGate/VarHandleKeyProperty.h"
+#include "StoreGate/VarHandleKey.h"
+#include "StoreGate/VarHandleKeyArray.h"
+#include "StoreGate/VarHandleKeyArrayProperty.h"
 #include "AthenaKernel/IUserDataSvc.h"
 
 class AthAlgTool : 
@@ -71,57 +73,136 @@ public:
    */
   ServiceHandle<IUserDataSvc>& userStore() const;
 
+private:
+  // to keep track of VarHandleKeyArrays for data dep registration
+  mutable std::vector<SG::VarHandleKeyArray*> m_vhka;
 
-#ifdef ATHENAHIVE
   /////////////////////////////////////////////////////////////////
   //
   //// For automatic registration of Handle data products
   //
 
 public:
-
-  using AlgTool::declareProperty;
-  template <class T>
+  /**
+   * @brief Declare a new Gaudi property.
+   * @param name Name of the property.
+   * @param property Object holding the property value.
+   * @param doc Documenation string for the property.
+   *
+   * This is the version for types that derive from @c SG::VarHandleKey.
+   * The property value object is put on the input and output lists as
+   * appropriate; then we forward to the base class.
+   */
   Property* declareProperty(const std::string& name,
-                            SG::ReadHandle<T>& hndl,
-                            const std::string& doc="none") const {
-
+                            SG::VarHandleKey& hndl,
+                            const std::string& doc,
+                            std::true_type,
+                            std::false_type) const
+  {
     AthAlgTool* aa = const_cast<AthAlgTool*>(this);
-    aa->declareInput(&hndl);
+    Gaudi::DataHandle::Mode mode = hndl.mode();
+    if (mode & Gaudi::DataHandle::Reader)
+      aa->declareInput(&hndl);
+    if (mode & Gaudi::DataHandle::Writer)
+      aa->declareOutput(&hndl);
+#ifdef ATHENAHIVE
     hndl.setOwner(aa);
-
-    return AlgTool::getPropertyMgr()->declareProperty(name,hndl,doc);
-  }
-
-  template <class T>
-  Property* declareProperty(const std::string& name,
-                            SG::WriteHandle<T>& hndl,
-                            const std::string& doc="none") const {
-
-    AthAlgTool* aa = const_cast<AthAlgTool*>(this);
-    aa->declareOutput(&hndl);
-    hndl.setOwner(aa);
-
-    return AlgTool::getPropertyMgr()->declareProperty(name,hndl,doc);
-  }
-
-  template <class T>
-  Property* declareProperty(const std::string& name,
-                            SG::UpdateHandle<T>& hndl,
-                            const std::string& doc="none") const {
-
-    AthAlgTool* aa = const_cast<AthAlgTool*>(this);
-    aa->declareInput(&hndl);
-    aa->declareOutput(&hndl);
-    hndl.setOwner(aa);
-
-    // std::cout << "---> declareProperty<UpdateHandle> " << hndl.name()
-    // 	         << " fullKey: " << hndl.fullKey() << std::endl;
-
-    return AlgTool::getPropertyMgr()->declareProperty(name,hndl,doc);
-  }
-
 #endif
+
+    return AlgTool::declareProperty(name,hndl,doc);
+  }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+  Property* declareProperty(const std::string& name,
+                            SG::VarHandleKeyArray& hndArr,
+                            const std::string& doc,
+                            std::false_type,
+                            std::true_type) const
+  {
+
+    AthAlgTool* aa = const_cast<AthAlgTool*>(this);
+
+    m_vhka.push_back(&hndArr);
+
+    Property* p =  AlgTool::declareProperty(name, hndArr, doc);
+    if (p != 0) {
+      p->declareUpdateHandler(&AthAlgTool::updateVHKA, aa);
+    } else {
+      ATH_MSG_ERROR("unable to call declareProperty on VarHandleKeyArray " 
+                    << name);
+    }
+
+    return p;
+
+  }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+  // since the contents of the VarHandleKeyArrays have not been read 
+  // in from the configurables by the time that declareProperty is
+  // executed, we must cache them and loop through them later to
+  // register the data dependencies
+
+  void updateVHKA(Property& /*p*/) {
+    // debug() << "updateVHKA for property " << p.name() << " " << p.toString() 
+    //         << "  size: " << m_vhka.size() << endmsg;
+    for (auto &a : m_vhka) {
+      Gaudi::DataHandle::Mode mode = a->mode();
+      std::vector<SG::VarHandleKey*> keys = a->keys();
+      for (auto k : keys) {
+        if (mode & Gaudi::DataHandle::Reader)
+          this->declareInput(k);
+        if (mode & Gaudi::DataHandle::Writer)
+          this->declareOutput(k);
+        k->setOwner(this);
+      }
+    }
+  }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+  /**
+   * @brief Declare a new Gaudi property.
+   * @param name Name of the property.
+   * @param property Object holding the property value.
+   * @param doc Documenation string for the property.
+   *
+   * This is the generic version, for types that do not derive
+   * from  @c SG::VarHandleKey.  It just forwards to the base class version
+   * of @c declareProperty.
+   */
+  template <class T>
+  Property* declareProperty(const std::string& name,
+                            T& property,
+                            const std::string& doc,
+                            std::false_type,
+                            std::false_type) const
+  {
+    return AlgTool::declareProperty(name, property, doc);
+  }
+
+
+  /**
+   * @brief Declare a new Gaudi property.
+   * @param name Name of the property.
+   * @param property Object holding the property value.
+   * @param doc Documenation string for the property.
+   *
+   * This dispatches to either the generic @c declareProperty or the one
+   * for VarHandle/Key, depending on whether or not @c property
+   * derives from @c SG::VarHandleKey or SG::VarHandleKeyArray.
+   */
+  template <class T>
+  Property* declareProperty(const std::string& name,
+                            T& property,
+                            const std::string& doc="none") const
+  {
+    return declareProperty (name, property, doc,
+                            std::is_base_of<SG::VarHandleKey, T>(),
+                            std::is_base_of<SG::VarHandleKeyArray,T>()
+                            );
+  }
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 

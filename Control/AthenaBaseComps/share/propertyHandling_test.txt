@@ -1,0 +1,16 @@
+alg.rkey = "FooSvc/aaa";
+alg.wkey = "BarSvc/bbb";
+alg.ukey = "ccc";
+alg.rhandle = "FooSvc/ddd";
+alg.whandle = "BarSvc/eee";
+alg.uhandle = "fff";
+
+tool.rkey = "FooSvc/taa";
+tool.wkey = "BarSvc/tbb";
+tool.ukey = "tcc";
+tool.rhandle = "FooSvc/tdd";
+tool.whandle = "BarSvc/tee";
+tool.uhandle = "tff";
+
+ralg.rkey = "FooSvc/aaa";
+ralg.whandle = "BarSvc/eee";
