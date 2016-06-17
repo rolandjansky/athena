@@ -27,13 +27,16 @@ def generateFastSimulationList():
         elif simFlags.LArParameterization() is None or simFlags.LArParameterization() == 0:
             print "getFastSimulationMasterTool INFO No Frozen Showers"
     if DetFlags.Muon_on():
-        if simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() != 'Read' and\
-           not (simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
+        if hasattr(simFlags, 'CavernBG') and simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() != 'Read' and\
+                not (hasattr(simFlags, 'RecordFlux') and simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
             FastSimulationList += ['NeutronFastSim']
     return FastSimulationList
 
 def getFastSimulationMasterTool(name="FastSimulationMasterTool", **kwargs):
     kwargs.setdefault("FastSimulations", generateFastSimulationList())
+    return CfgMgr.FastSimulationMasterTool(name, **kwargs)
+
+def getEmptyFastSimulationMasterTool(name="EmptyFastSimulationMasterTool", **kwargs):
     return CfgMgr.FastSimulationMasterTool(name, **kwargs)
 
 def generateFwdSensitiveDetectorList():
@@ -92,7 +95,11 @@ def generateCaloSensitiveDetectorList():
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.simulate.LAr_on():
         SensitiveDetectorList += [ 'LArEMBSensitiveDetector','LArEMECSensitiveDetector','LArFCALSensitiveDetector',\
-                                       'LArHECSensitiveDetector','LArMiniFCALSensitiveDetector']
+                                   'LArHECSensitiveDetector','LArMiniFCALSensitiveDetector']
+        if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
+            SensitiveDetectorList += [ 'HGTDSensorSD' ]
+        else:
+            SensitiveDetectorList += [ 'MinBiasScintillatorSD' ]
         from G4AtlasApps.SimFlags import simFlags
         if simFlags.CalibrationRun.get_Value() in ['LAr', 'LAr+Tile']:
             SensitiveDetectorList += [ 'LArDeadSensitiveDetector','LArInactiveSensitiveDetector','LArActiveSensitiveDetector' ]
@@ -101,8 +108,6 @@ def generateCaloSensitiveDetectorList():
 
     if DetFlags.simulate.Tile_on():
         from G4AtlasApps.SimFlags import simFlags
-        if DetFlags.simulate.LAr_on():
-            SensitiveDetectorList += [ 'MinBiasScintillatorSD' ]
         if simFlags.CalibrationRun.statusOn and (simFlags.CalibrationRun.get_Value() in ['Tile', 'LAr+Tile']):
             SensitiveDetectorList += [ 'TileGeoG4CalibSD' ] # mode 1 : With CaloCalibrationHits
         else:
@@ -133,16 +138,8 @@ def generateEnvelopeSensitiveDetectorList():
     SensitiveDetectorList=[]
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.BeamFlags import jobproperties
-    from AthenaCommon.DetFlags import DetFlags
     if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, "ReadTR") and not simFlags.ReadTR.statusOn:
         SensitiveDetectorList+=['CosmicRecord']
-    if DetFlags.Truth_on() and not simFlags.ISFRun:
-        if DetFlags.ID_on():
-            SensitiveDetectorList+=['CaloEntryLayer']
-        if DetFlags.Calo_on():
-            SensitiveDetectorList+=['MuonEntryLayer']
-        if DetFlags.geometry.Muon_on():
-            SensitiveDetectorList+=['MuonExitLayer']
     return SensitiveDetectorList
 
 def generateSensitiveDetectorList():
@@ -158,11 +155,18 @@ def generateSensitiveDetectorList():
 def generateTestBeamSensitiveDetectorList():
     SensitiveDetectorList=[]
     from G4AtlasApps.SimFlags import simFlags
-    if (hasattr(simFlags, "LArFarUpstreamMaterial") and
-        simFlags.LArFarUpstreamMaterial.statusOn and
-        simFlags.LArFarUpstreamMaterial.get_Value()):
-        SensitiveDetectorList += [ 'LArFarUpstreamMaterialExitLayer' ]
     from AthenaCommon.DetFlags import DetFlags
+    if "tb_Tile2000_2003" in simFlags.SimLayout():
+        if DetFlags.simulate.Tile_on():
+            from G4AtlasApps.SimFlags import simFlags
+            if simFlags.CalibrationRun.statusOn and (simFlags.CalibrationRun.get_Value() in ['Tile', 'LAr+Tile']):
+                SensitiveDetectorList += [ 'TileCTBGeoG4CalibSD' ] # mode 1 : With CaloCalibrationHits
+            else:
+                SensitiveDetectorList += [ 'TileCTBGeoG4SD' ]      # mode 0 : No CaloCalibrationHits
+                if DetFlags.simulate.Calo_on():
+                    SensitiveDetectorList += [ 'MuonWallSD' ]
+        return SensitiveDetectorList
+
     if DetFlags.simulate.pixel_on():
         SensitiveDetectorList += [ 'PixelSensor_CTB' ]
     if DetFlags.simulate.SCT_on():
@@ -196,5 +200,36 @@ def getSensitiveDetectorMasterTool(name="SensitiveDetectorMasterTool", **kwargs)
         kwargs.setdefault("SensitiveDetectors", generateTestBeamSensitiveDetectorList())
     return CfgMgr.SensitiveDetectorMasterTool(name, **kwargs)
 
+def getEmptySensitiveDetectorMasterTool(name="EmptySensitiveDetectorMasterTool", **kwargs):
+    return CfgMgr.SensitiveDetectorMasterTool(name, **kwargs)
+
 def getPhysicsListToolBase(name="PhysicsListToolBase", **kwargs):
+    PhysOptionList = ["G4StepLimitationTool"]
+    from G4AtlasApps.SimFlags import simFlags
+    PhysOptionList += simFlags.PhysicsOptions.get_Value()
+    PhysDecaysList = []
+    from AthenaCommon.DetFlags import DetFlags
+    if DetFlags.simulate.TRT_on():
+        PhysOptionList +=["TRTPhysicsTool"]
+    if DetFlags.simulate.Lucid_on() or DetFlags.simulate.AFP_on():
+        PhysOptionList +=["LucidPhysicsTool"]
+    kwargs.setdefault("PhysOption", PhysOptionList)
+    kwargs.setdefault("PhysicsDecay", PhysDecaysList)
+    from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault("PhysicsList", simFlags.PhysicsList.get_Value())
+    if 'PhysicsList' in kwargs:
+        if kwargs['PhysicsList'].endswith('_EMV') or kwargs['PhysicsList'].endswith('_EMX'):
+            raise RuntimeError( 'PhysicsList not allowed: '+kwargs['PhysicsList'] )
+    kwargs.setdefault("GeneralCut", 1.)
+    if hasattr(simFlags, 'NeutronTimeCut') and simFlags.NeutronTimeCut.statusOn:
+        kwargs.setdefault("NeutronTimeCut", simFlags.NeutronTimeCut.get_Value())
+    if hasattr(simFlags, 'NeutronEnergyCut') and simFlags.NeutronEnergyCut.statusOn:
+        kwargs.setdefault("NeutronEnergyCut", simFlags.NeutronEnergyCut.get_Value())
+    if hasattr(simFlags, 'ApplyEMCuts') and simFlags.ApplyEMCuts.statusOn:
+        kwargs.setdefault("ApplyEMCuts", simFlags.ApplyEMCuts.get_Value())
+    ## from AthenaCommon.SystemOfUnits import eV, TeV
+    ## kwargs.setdefault("EMMaxEnergy"     , 7*TeV)
+    ## kwargs.setdefault("EMMinEnergy"     , 100*eV)
+    ## kwargs.setdefault("EMDEDXBinning"   , 77)
+    ## kwargs.setdefault("EMLambdaBinning" , 77)
     return CfgMgr.PhysicsListToolBase(name, **kwargs)

@@ -15,26 +15,25 @@
 #include <string>
 #include <vector>
 
-class PolyconicalEnvelope final : public DetectorGeometryBase 
+class PolyconicalEnvelope final : public DetectorGeometryBase
 {
-public:
+ public:
   // Basic constructor and destructor
   PolyconicalEnvelope(const std::string& type, const std::string& name, const IInterface *parent);
   ~PolyconicalEnvelope() {}
 
-  /** Athena method. called at initialization time, being customized here */
-  StatusCode initialize() override;
-  
   /** virtual methods being implemented here */
-  
-  virtual void BuildGeometry();
-  
-private:
-  unsigned int m_surfaceNr=0;
+
+  virtual void BuildGeometry() override final;
+
+ private:
+  std::string m_materialName;
+  unsigned int m_surfaceNr;
   std::vector<double> m_innerRadii;
   std::vector<double> m_outerRadii;
   std::vector<double> m_ZSurfaces;
-  
+  double m_startphi;
+  double m_deltaphi;
 
 };
 

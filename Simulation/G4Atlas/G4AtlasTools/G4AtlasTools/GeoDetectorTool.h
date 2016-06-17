@@ -18,16 +18,16 @@
 #include <vector>
 
 /** @class GeoDetectorTool GeoDetectorTool.h "G4AtlasTools/GeoDetectorTool.h"
-*  
-*  Tool for building detectors out of a GeoModel description. Basically a 
+*
+*  Tool for building detectors out of a GeoModel description. Basically a
 *  carbon copy of GeoDetectorFacility in GeoDetectorPlugins which is supposed
 *  to replace.
-* 
+*
 *  @author Andrea Dell'Acqua
 *  @date   2015-03-10
 */
 
-class GeoDetectorTool final : public DetectorGeometryBase 
+class GeoDetectorTool final : public DetectorGeometryBase
 {
 public:
   // Basic constructor and destructor
@@ -35,23 +35,22 @@ public:
   ~GeoDetectorTool() {}
 
   /** Athena method. called at initialization time, being customized here */
-  StatusCode initialize() override;
-  
+  virtual StatusCode initialize() override final;
+
   /** virtual methods being implemented here */
-  
-  virtual void BuildGeometry();
-  
+
+  virtual void BuildGeometry() override final;
+
 private:
 
-  std::string GeoDetectorName;
-  std::string builderName;
-  bool blParamOn;
-  bool blGetTopTransform;
-  
+  std::string m_builderName;
+  bool m_blParamOn;
+  bool m_blGetTopTransform;
+  G4Transform3D m_topTransform;
+  std::string m_geoDetectorName;
   G4LogicalVolume* Convert();
-  G4Transform3D& GetTopTransform();
   bool IsTopTransform();
-  void SetInitialTransformation(G4Transform3D&);
+  void SetInitialTransformation();
 
 };
 

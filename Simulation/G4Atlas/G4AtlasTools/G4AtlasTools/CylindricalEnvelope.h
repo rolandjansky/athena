@@ -15,25 +15,27 @@
 #include <string>
 #include <vector>
 
-class CylindricalEnvelope final : public DetectorGeometryBase 
+class CylindricalEnvelope final : public DetectorGeometryBase
 {
-public:
+ public:
   // Basic constructor and destructor
   CylindricalEnvelope(const std::string& type, const std::string& name, const IInterface *parent);
+
   ~CylindricalEnvelope() {}
 
-  /** Athena method. called at initialization time, being customized here */
-  StatusCode initialize() override;
-  
   /** virtual methods being implemented here */
-  
+
   virtual void BuildGeometry();
-  
-private:
-  double m_innerRadius=0.;
-  double m_outerRadius=0.;
-  double m_dZ=0;
-  
+
+ private:
+  std::string m_materialName;
+  double m_innerRadius;
+  double m_outerRadius;
+  double m_dZ;
+  double m_startphi;
+  double m_deltaphi;
+
+
 
 };
 

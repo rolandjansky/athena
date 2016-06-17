@@ -73,6 +73,45 @@ namespace G4UA
 
   }; // class ActionToolBase
 
+
+  /// @class ActionToolBaseReport
+  /// @brief Specialized action tool base class for tools that must merge
+  /// results across all threads.
+  ///
+  /// Derived concrete tool classes _must_ define a nested Report class which
+  /// implements a merge method of the form:
+  ///   void merge(const Report& otherReport);
+  /// TODO: This is shoddy. Improve it with an abstract interface.
+  ///
+  template <class ActionType>
+  class ActionToolBaseReport : public ActionToolBase<ActionType>
+  {
+
+    public:
+
+      /// Standard constructor
+      ActionToolBaseReport(const std::string& type, const std::string& name,
+                           const IInterface* parent)
+        : ActionToolBase<ActionType>(type, name, parent)
+      {}
+
+    protected:
+
+      /// Loop over per-thread actions and merge the results.
+      /// For this code to compile, the Report implementation must have a
+      /// merge method.
+      void mergeReports(){
+        for(auto tidAction : this->actions()) {
+          auto& rep = tidAction.second->getReport();
+          m_report.merge(rep);
+        }
+      }
+
+      /// This type must be defined in the concrete tool subclass.
+      typename ActionType::Report m_report;
+
+  }; // class ActionToolBaseReport
+
 } // namespace G4UA
 
 #endif

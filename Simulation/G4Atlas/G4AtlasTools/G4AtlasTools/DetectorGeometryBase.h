@@ -8,17 +8,21 @@
 // Base classes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "G4AtlasInterfaces/IDetectorGeometryTool.h"
-#include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 
-// Members
-#include "GaudiKernel/ToolHandle.h" // For tool handle array
+// Athena headers
+#include "G4AtlasInterfaces/IG4GeometryNotifierSvc.h"
 #include "SubDetectorEnvelopes/IEnvelopeDefSvc.h"
+
+// Gaudi headers
+#include "GaudiKernel/ServiceHandle.h" // For service handle
+#include "GaudiKernel/ToolHandle.h" // For tool handle array
 
 // STL library
 #include <string>
 #include <vector>
 
-class DetectorGeometryBase : virtual public IDetectorGeometryTool, public AthAlgTool 
+/// @todo NEEDS DOCUMENTATION
+class DetectorGeometryBase : virtual public IDetectorGeometryTool, public AthAlgTool
 {
 public:
   // Basic constructor and destructor
@@ -27,47 +31,54 @@ public:
 
   /** Athena method. called at initialization time, being customized here */
   StatusCode initialize() override;
-  
-  
+
+
   /** purely virtual methods being implemented here */
-  virtual void Build();
-  
-  virtual void BuildGeometry();
-  
-  virtual void PositionInParent();
-  
-  virtual void BuildSubDetectors();
-  
-  virtual void SetEnvelope();
-  
-  virtual void ResetEnvelope();
-  
-  virtual void SetAsWorld();
-  
-  std::string GetDetectorName() const;
-  
-  void SetDetectorName(const std::string);
-  
-  void SetParent(IDetectorGeometryTool*);
-  
-  Envelope& GetEnvelope() override final; 
-  
+  virtual void Build() override;
+
+  virtual void BuildGeometry() override;
+
+  virtual void PositionInParent() override;
+
+  virtual void SetRotationAndOffset(); //override; TODO add to IDetectorGeometryTool?
+
+  virtual void BuildSubDetectors() override;
+
+  virtual void SetEnvelope() override;
+
+  virtual void ResetEnvelope() override;
+
+  virtual void SetAsWorld() override;
+
+  std::string GetDetectorName() const override;
+
+  void SetDetectorName(const std::string) override;
+
+  void SetParent(IDetectorGeometryTool*) override;
+
+  Envelope& GetEnvelope() override final;
+
   G4VPhysicalVolume* GetWorldVolume() override final;
-  
+
   /** Query interface method to make athena happy */
-  virtual StatusCode queryInterface(const InterfaceID&, void**);
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
 
 protected:
   ToolHandleArray<IDetectorGeometryTool> m_subDetTools;
-  
-  IDetectorGeometrySvc* m_detGeoSvc;
-  
-  IDetectorGeometryTool* theParent;
-  
-  Envelope envelope;
-  
+
+  ServiceHandle<IG4GeometryNotifierSvc> m_notifierSvc;
+
+  IDetectorGeometryTool *m_theParent;
+
+  Envelope m_envelope;
   std::string m_detectorName;
   bool m_isWorld;
+  double m_rotateX;
+  double m_rotateY;
+  double m_rotateZ;
+  double m_offsetX;
+  double m_offsetY;
+  double m_offsetZ;
 
 };
 
