@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackLink
                           Tracking/TrkEvent/VxVertex
+                          Event/xAOD/xAODTracking
                           PRIVATE
                           Control/DataModel )
 
@@ -33,4 +34,5 @@ atlas_add_dictionary( VxJetVertexDict
                       VxJetVertex/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} EventPrimitives GaudiKernel TrkEventPrimitives TrkParticleBase TrkTrack VxVertex DataModel VxJetVertex )
+
 

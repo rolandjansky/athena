@@ -13,9 +13,11 @@ use VxVertex            VxVertex-*           Tracking/TrkEvent
 use TrkTrackLink        TrkTrackLink-*       Tracking/TrkEvent
 use TrkParticleBase     TrkParticleBase-*    Tracking/TrkEvent
 use EventPrimitives	EventPrimitives-*    Event
+use xAODTracking        xAODTracking-*          Event/xAOD
 
 library VxJetVertex *.cxx
 apply_pattern installed_library
+
 
 private
 # persistency
