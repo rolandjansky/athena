@@ -26,7 +26,9 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/VarHandleProperty.h"
 #include "StoreGate/VarHandleKeyProperty.h"
+#include "StoreGate/VarHandleKeyArrayProperty.h"
 #include "StoreGate/VarHandleKey.h"
+#include "StoreGate/VarHandleKeyArray.h"
 #include "AthenaKernel/IUserDataSvc.h"
 
 // Forward declaration
@@ -100,12 +102,9 @@ class AthAlgorithm
    */
   ServiceHandle<IUserDataSvc>& userStore() const;
 
-
-#ifndef ATHENAHIVE
-protected:
-  virtual void declareInput(Gaudi::DataHandle* /*im*/) {}
-  virtual void declareOutput(Gaudi::DataHandle* /*im*/) {}
-#endif
+private:
+  // to keep track of VarHandleKeyArrays for data dep registration
+  mutable std::vector<SG::VarHandleKeyArray*> m_vhka;
 
   /////////////////////////////////////////////////////////////////
   //
@@ -126,7 +125,8 @@ public:
   Property* declareProperty(const std::string& name,
                             SG::VarHandleKey& hndl,
                             const std::string& doc,
-                            std::true_type) const
+                            std::true_type,
+                            std::false_type) const
   {
     AthAlgorithm* aa = const_cast<AthAlgorithm*>(this);
     Gaudi::DataHandle::Mode mode = hndl.mode();
@@ -134,12 +134,69 @@ public:
       aa->declareInput(&hndl);
     if (mode & Gaudi::DataHandle::Writer)
       aa->declareOutput(&hndl);
-#ifdef ATHENAHIVE
     hndl.setOwner(aa);
-#endif
 
     return Algorithm::declareProperty(name,hndl,doc);
   }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+  Property* declareProperty(const std::string& name,
+                            SG::VarHandleKeyArray& hndArr,
+                            const std::string& doc,
+                            std::false_type,
+                            std::true_type) const
+  {
+
+    // std::ostringstream ost;
+    // ost << Algorithm::name() << " VHKA declareProp: " << name 
+    //     << " size: " << hndArr.keys().size() 
+    //     << " mode: " << hndArr.mode() 
+    //     << "  vhka size: " << m_vhka.size()
+    //     << "\n";
+    // debug() << ost.str() << endmsg;
+
+    AthAlgorithm* aa = const_cast<AthAlgorithm*>(this);
+
+    m_vhka.push_back(&hndArr);
+
+    Property* p =  Algorithm::declareProperty(name, hndArr, doc);
+    if (p != 0) {
+      p->declareUpdateHandler(&AthAlgorithm::updateVHKA, aa);
+    } else {
+      ATH_MSG_ERROR("unable to call declareProperty on VarHandleKeyArray " 
+                    << name);
+    }
+
+    return p;
+
+  }
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+  // since the contents of the VarHandleKeyArrays have not been read 
+  // in from the configurables by the time that declareProperty is
+  // executed, we must cache them and loop through them later to
+  // register the data dependencies
+
+  void updateVHKA(Property& /*p*/) {
+    // debug() << "updateVHKA for property " << p.name() << " " << p.toString() 
+    //         << "  size: " << m_vhka.size() << endmsg;
+    for (auto &a : m_vhka) {
+      Gaudi::DataHandle::Mode mode = a->mode();
+      std::vector<SG::VarHandleKey*> keys = a->keys();
+      for (auto k : keys) {
+        if (mode & Gaudi::DataHandle::Reader)
+          this->declareInput(k);
+        if (mode & Gaudi::DataHandle::Writer)
+          this->declareOutput(k);
+        k->setOwner(this);
+      }
+    }
+  }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
   /**
@@ -156,7 +213,9 @@ public:
   Property* declareProperty(const std::string& name,
                             T& property,
                             const std::string& doc,
-                            std::false_type) const
+                            std::false_type,
+                            std::false_type
+                            ) const
   {
     return Algorithm::declareProperty(name, property, doc);
   }
@@ -170,15 +229,19 @@ public:
    *
    * This dispatches to either the generic @c declareProperty or the one
    * for VarHandle/Key, depending on whether or not @c property
-   * derives from @c SG::VarHandleKey.
+   * derives from @c SG::VarHandleKey or @c SG::VarHandleKeyArray.
    */
   template <class T>
   Property* declareProperty(const std::string& name,
                             T& property,
                             const std::string& doc="none") const
   {
+
     return declareProperty (name, property, doc,
-                            std::is_base_of<SG::VarHandleKey, T>());
+                            std::is_base_of<SG::VarHandleKey, T>(),
+                            std::is_base_of<SG::VarHandleKeyArray,T>()
+    );
+
   }
 
   
