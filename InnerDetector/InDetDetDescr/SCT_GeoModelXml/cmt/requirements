@@ -1,0 +1,29 @@
+package SCT_GeoModelXml
+author Nigel Hessey <nigel.hessey@cern.ch>
+
+use AtlasPolicy           AtlasPolicy-*
+use GaudiInterface        GaudiInterface-*       External
+use GeoModelUtilities     GeoModelUtilities-*    DetectorDescription/GeoModel
+use InDetGeoModelUtils    InDetGeoModelUtils-*   InnerDetector/InDetDetDescr
+use InDetReadoutGeometry  InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use GeoModelXml           GeoModelXml-*          DetectorDescription
+
+private
+use StoreGate             StoreGate-*            Control
+use SGTools	          SGTools-* 	         Control
+use CLIDSvc               CLIDSvc-*              Control
+use RDBAccessSvc          RDBAccessSvc-*         Database/AthenaPOOL
+use InDetCondServices     InDetCondServices-*    InnerDetector/InDetConditions
+use GeometryDBSvc         GeometryDBSvc-*        DetectorDescription
+use GeoModelKernel        GeoModelKernel-*       DetectorDescription/GeoModel
+use GeoModelInterfaces    GeoModelInterfaces-*   DetectorDescription/GeoModel
+use PathResolver   	  PathResolver-*    	 Tools
+
+use PathResolver          PathResolver-*         Tools
+public
+
+library SCT_GeoModelXml *.cxx -s=components *.cxx
+apply_pattern component_library
+
+
+
