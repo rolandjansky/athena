@@ -713,6 +713,7 @@ bool InDet::MinNSiHitsAboveEta::result() const
     ATH_MSG_WARNING( "Eta accessor not valid." );
     return false;
   }
+  //  ATH_MSG_INFO(" in MinNSiHitsAboveEta" );
   return std::fabs(m_etaAccessor->getValue()) <= m_etaCutoff
     || (m_pixAccessor->getValue() + m_pixDeadAccessor->getValue()
 	+ m_sctAccessor->getValue() + m_sctDeadAccessor->getValue() >= m_minSiHits);
@@ -879,13 +880,39 @@ bool InDet::EtaDependentSiliconHitsCut::result() const
     ATH_MSG_WARNING( "eta accessor not valid. Track will not pass." );
     return false;
   }
+  //  ATH_MSG_INFO("in eta dependent hit cut");
   static int cutVecSize = m_etaCutoffs.size();
+  //  ATH_MSG_INFO("cut vec size "<<cutVecSize);
+
+  float trketa = std::fabs(m_etaAccessor->getValue());
+  int trknHits =   m_sctAccessor->getValue() + m_pixAccessor->getValue() + m_sctDeadAccessor->getValue() + m_pixDeadAccessor->getValue();
+  //  ATH_MSG_INFO("eta of track "<<trketa<<" Si hits on track "<<trknHits);
+  //  ATH_MSG_INFO(" ");
+
+  // loop over eta cutoff vector
+
   for (int i_etabin = cutVecSize-1; i_etabin >= 0; --i_etabin) {
-    if (std::fabs(m_etaAccessor->getValue()) >= std::fabs(m_etaCutoffs.at(i_etabin))
-	&& (m_sctAccessor->getValue() + m_pixAccessor->getValue() + m_sctDeadAccessor->getValue() + m_pixDeadAccessor->getValue() < m_siHitCuts.at(i_etabin))) 
-      {return false;}
-    
+
+    //    ATH_MSG_INFO("etabin "<<i_etabin<<" eta cutoff "<<std::fabs(m_etaCutoffs.at(i_etabin))<<" Hit cut value "<<m_siHitCuts.at(i_etabin) );
+    //
+    float etaMax =5.0;
+    if(i_etabin<cutVecSize-1) etaMax = std::fabs(m_etaCutoffs.at(i_etabin+1));
+    //
+
+    if (  (trketa >= std::fabs(m_etaCutoffs.at(i_etabin)) && trketa < etaMax )) {
+
+      if ( trknHits < m_siHitCuts.at(i_etabin)) {  
+	//     ATH_MSG_INFO("returning false");
+           return false;
+      }
+      else {
+	//      ATH_MSG_INFO("returning true");
+	   return true;
+      }
+    }   
   }
+
+  //  ATH_MSG_INFO("returning true");
   return true;
 }
 
