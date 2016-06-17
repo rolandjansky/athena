@@ -51,7 +51,7 @@ $docout = "doc.txt";
 # SCRIPT_MISC is on the right, ATN_TIME_LIMIT on the left
 # This default mask can be modified via the 'extra_failure_codes' test directive
 # only "shout" if we see/have: ATHENA_BAD_EXIT => 8 decimal 8 in bit is 0b00001000 thus 
-$default_exitmask = 0b00001000;
+$default_exitmask = 0b00001001;
 
 # Exit mask of the last run test. Not nice but the easiest way to implement
 # this on top of all the other ugly things in this script.
