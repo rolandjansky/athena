@@ -128,7 +128,7 @@ from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc
 log.info("setting up TrigConfigSvc:")
 svc = SetupTrigConfigSvc()
 svc.hltXmlFile = 'pureSteering_menu.xml'
-svc.l1XmlFile  = 'l1.xml'
+svc.l1XmlFile  = 'l1menu.xml'
 
 try:
     svc.SetStates( 'xml' )
