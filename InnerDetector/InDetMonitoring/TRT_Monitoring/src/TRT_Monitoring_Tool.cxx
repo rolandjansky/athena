@@ -3687,6 +3687,9 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
   timestamp = thisEventsInfo->event_ID()->time_stamp();
    if(timestamp>maxtimestamp)maxtimestamp = timestamp;
 
+  int run_num; 
+  run_num = thisEventsInfo->event_ID()->run_number(); 
+  
   // get Online Luminosity 
   //double lbDur = m_lumiTool->lbDuration();      
   //double AveLum = m_lumiTool->lbAverageLuminosity();
@@ -3807,6 +3810,7 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
 
       if(fabs(track_eta)<2. && Ba_Ec==0.){
         if((layer_or_wheel==0)&&(phi_module<4||(phi_module>7&&phi_module<12)||(phi_module>15&&phi_module<20)||(phi_module>23&&phi_module<28))) InputBar = 1;//C1=true;
+        else if((run_num >= 296939) && (layer_or_wheel==0) && (phi_module>27)) InputBar = 1;
         else if(layer_or_wheel==0 /*&&C1==false*/)
           InputBar = 0;//A1= true;
         else if((layer_or_wheel==1)&&((phi_module>1&&phi_module<6)||(phi_module>9&&phi_module<14)||(phi_module>17&&phi_module<22)||(phi_module>25&&phi_module<30)))
