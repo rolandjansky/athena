@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTriggerDict.h 635056 2014-12-10 15:35:39Z watsona $
+// $Id: xAODTriggerDict.h 743093 2016-04-26 21:46:56Z watsona $
 #ifndef XAODTRIGGER_XAODTRIGGERDICT_H
 #define XAODTRIGGER_XAODTRIGGERDICT_H
 
@@ -46,8 +46,14 @@
 #include "xAODTrigger/versions/JetEtRoIAuxInfo_v1.h"
 #include "xAODTrigger/versions/JetEtRoI_v1.h"
 
+#include "xAODTrigger/versions/EnergySumRoIAuxInfo_v2.h"
+#include "xAODTrigger/versions/EnergySumRoI_v2.h"
+
 #include "xAODTrigger/versions/EnergySumRoIAuxInfo_v1.h"
 #include "xAODTrigger/versions/EnergySumRoI_v1.h"
+
+#include "xAODTrigger/versions/EnergySumRoIAuxInfo_v2.h"
+#include "xAODTrigger/versions/EnergySumRoI_v2.h"
 
 #include "xAODTrigger/versions/TrigDecision_v1.h"
 #include "xAODTrigger/versions/TrigDecisionAuxInfo_v1.h"
@@ -64,6 +70,13 @@
 #include "xAODTrigger/versions/BunchConfKey_v1.h"
 #include "xAODTrigger/versions/BunchConfContainer_v1.h"
 #include "xAODTrigger/versions/BunchConfAuxContainer_v1.h"
+
+#include "xAODTrigger/versions/TrigPassBits_v1.h"
+#include "xAODTrigger/versions/TrigPassBitsContainer_v1.h"
+#include "xAODTrigger/versions/TrigPassBitsAuxContainer_v1.h"
+
+#include "xAODTrigger/versions/RoiDescriptorStore_v1.h"
+#include "xAODTrigger/versions/RoiDescriptorStoreAuxInfo_v1.h"
 
 namespace{
   struct GCCXML_DUMMY_INSTANTIATION_XAODTRIGGER {
@@ -114,11 +127,21 @@ namespace{
     DataLink< xAOD::EnergySumRoI_v1 > esum_l1;
     std::vector< DataLink< xAOD::EnergySumRoI_v1 > > esum_l2;
 
+    DataLink< xAOD::EnergySumRoI_v2 > esum_v2_l1;
+    std::vector< DataLink< xAOD::EnergySumRoI_v2 > > esum_v2_l2;
+
     xAOD::TriggerMenuContainer_v1 c2;
 
     xAOD::TrigCompositeContainer_v1 comp_c1;
 
     xAOD::BunchConfContainer_v1 c5;
+
+    xAOD::TrigPassBitsContainer_v1 pb_c1;
+    DataLink< xAOD::TrigPassBitsContainer_v1 > pb_l1;
+    ElementLink< xAOD::TrigPassBitsContainer_v1 > pb_l2;
+    std::vector< DataLink< xAOD::TrigPassBitsContainer_v1 > > pb_l3;
+    std::vector< ElementLink< xAOD::TrigPassBitsContainer_v1 > > pb_l4;
+
   };
 }
 

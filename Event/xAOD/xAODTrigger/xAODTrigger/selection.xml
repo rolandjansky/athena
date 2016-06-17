@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 645967 2015-02-11 12:29:36Z krasznaa $ -->
+<!-- $Id: selection.xml 743093 2016-04-26 21:46:56Z watsona $ -->
 <lcgdict>
 
    <!-- The byte stream auxiliary container, v1: -->
@@ -25,12 +25,11 @@
    <class name="std::map<std::string,std::vector<float> >" />
    <class name="std::map<std::string,std::vector<std::vector<int> > >" />
    <class name="std::map<std::string,std::vector<std::vector<float> > >" />
-   
 
    <!-- Types used by Signature and Sequence info in TriggerMenuAuxContainer_v1 -->
    <class name="std::vector<std::vector<std::vector<std::string> > >" />
    <class name="std::vector<std::vector<std::vector<uint32_t> > >" />
-   <class  name="std::vector<std::vector<std::vector<std::vector<std::string> > > >" />
+   <class name="std::vector<std::vector<std::vector<std::vector<std::string> > > >" />
 
    <!-- RoI dictionaries: -->
    <class name="xAOD::MuonRoI_v1" />
@@ -73,6 +72,11 @@
    <class name="xAOD::EnergySumRoIAuxInfo_v1"
           id="7BD71A00-5EB8-11E3-95AF-02163E00A743" />
 
+   <class name="xAOD::EnergySumRoI_v2"
+          id="3F26401F-25D9-4CCA-B883-57EBCEE8D299" />
+   <class name="xAOD::EnergySumRoIAuxInfo_v2"
+          id="7A0DB6D7-05F6-4D3A-9E8B-0230350E3E25" />
+
    <!-- TriggerMenu dictionaries: -->
    <class name="xAOD::TriggerMenu_v1" />
    <class name="xAOD::TriggerMenuContainer_v1"
@@ -87,42 +91,57 @@
    <class name="std::vector<std::vector<uint16_t> >" />
    <class name="std::vector<std::vector<std::vector<uint16_t> > >" />
 
-  <!-- TrigDecision_v1 dictionaries: -->
-  <class name="xAOD::TrigDecision_v1"
-         id="092BCB2D-9630-4689-BE86-7B93466420DA" />
-  <class name="xAOD::TrigDecisionAuxInfo_v1"
-         id="F9618829-3B9C-41CB-8A87-D26B5D31CA79" />
+   <!-- TrigDecision_v1 dictionaries: -->
+   <class name="xAOD::TrigDecision_v1"
+          id="092BCB2D-9630-4689-BE86-7B93466420DA" />
+   <class name="xAOD::TrigDecisionAuxInfo_v1"
+          id="F9618829-3B9C-41CB-8A87-D26B5D31CA79" />
 
-  <!-- TrigNavigation_v1 dictionaries: -->
-  <class name="xAOD::TrigNavigation_v1"
-         id="C9131CE0-C4D5-47A2-B088-D49ECE2C3C69" />
-  <class name="xAOD::TrigNavigationAuxInfo_v1"
-         id="924049A6-25B4-4406-A70A-CCAC2E4233E1" />
+   <!-- TrigNavigation_v1 dictionaries: -->
+   <class name="xAOD::TrigNavigation_v1"
+          id="C9131CE0-C4D5-47A2-B088-D49ECE2C3C69" />
+   <class name="xAOD::TrigNavigationAuxInfo_v1"
+          id="924049A6-25B4-4406-A70A-CCAC2E4233E1" />
 
-  <!-- TrigComposite_v1 dictionaries: -->
-  <class name="xAOD::TrigComposite_v1" />
-  <class name="xAOD::TrigCompositeContainer_v1"
-         id="3CB1DCCD-2B78-4E15-AC09-D75B228A29AA" />
-  <class name="xAOD::TrigCompositeAuxContainer_v1"
-         id="171EB8B8-A777-47D9-94A9-33B2482E2AAF" />
+   <!-- TrigComposite_v1 dictionaries: -->
+   <class name="xAOD::TrigComposite_v1" />
+   <class name="xAOD::TrigCompositeContainer_v1"
+          id="3CB1DCCD-2B78-4E15-AC09-D75B228A29AA" />
+   <class name="xAOD::TrigCompositeAuxContainer_v1"
+          id="171EB8B8-A777-47D9-94A9-33B2482E2AAF" />
 
-  <!-- Extra types used by TrigComposite: -->
-  <class name="std::vector<std::vector<std::string> >" />
+   <!-- RoiDescriptorStore_v1 dictionaries: -->
+   <class name="xAOD::RoiDescriptorStore_v1"
+          id="882822c8-906a-11e5-87f4-02163e010d8c" />
+   <class name="xAOD::RoiDescriptorStoreAuxInfo_v1"
+          id="8aa7eae2-906a-11e5-a100-02163e010d8c" />
 
-  <!-- Bunch configuration dictionaries: -->
-  <class name="xAOD::BunchConf_v1" />
-  <class name="xAOD::BunchConfContainer_v1"
-         id="07B1BB98-24EE-4EA3-B0D5-ECB2B0A3CB65" />
-  <class name="xAOD::BunchConfAuxContainer_v1"
-         id="29CFA84E-5C7C-4AAD-8FB5-F5EB9AF93423" />
-  <class name="xAOD::BunchConfKey_v1"
-         id="B7FA1A14-95A4-4852-813E-CB2271906060" />
+   <!-- Extra types used by TrigComposite: -->
+   <class name="std::vector<std::vector<std::string> >" />
 
-  <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-  </exclusion>
+   <!-- Bunch configuration dictionaries: -->
+   <class name="xAOD::BunchConf_v1" />
+   <class name="xAOD::BunchConfContainer_v1"
+          id="07B1BB98-24EE-4EA3-B0D5-ECB2B0A3CB65" />
+   <class name="xAOD::BunchConfAuxContainer_v1"
+          id="29CFA84E-5C7C-4AAD-8FB5-F5EB9AF93423" />
+   <class name="xAOD::BunchConfKey_v1"
+          id="B7FA1A14-95A4-4852-813E-CB2271906060" />
+
+   <!-- TrigPassBits dictionaries: -->
+   <class name="xAOD::TrigPassBits_v1" >
+     <field name="m_container" transient="true" />
+   </class>
+   <read sourceClass="xAOD::TrigPassBits_v1" version="[1-]"
+         targetClass="xAOD::TrigPassBits_v1" source=""
+         target="m_container" >
+     <![CDATA[
+        m_container = 0;
+     ]]>
+   </read>
+   <class name="xAOD::TrigPassBitsContainer_v1"
+          id="7B5DF7FF-2043-414E-BEDC-2BB0AB518AF7" />
+   <class name="xAOD::TrigPassBitsAuxContainer_v1"
+          id="AD293D04-8D40-4704-B945-04283172D035" />
 
 </lcgdict>

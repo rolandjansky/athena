@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionAuxInfo_v1.cxx 581968 2014-02-06 16:08:52Z krasznaa $
+// $Id: TrigDecisionAuxInfo_v1.cxx 680159 2015-07-03 14:02:33Z krasznaa $
 
 // Local include(s):
 #include "xAODTrigger/versions/TrigDecisionAuxInfo_v1.h"
@@ -10,7 +10,9 @@
 namespace xAOD {
 
    TrigDecisionAuxInfo_v1::TrigDecisionAuxInfo_v1()
-      : AuxInfoBase() {
+      : AuxInfoBase(),
+        smk( 0 ), bgCode( 0 ), lvl2ErrorBits( 0 ), efErrorBits( 0 ),
+        lvl2Truncated( false ), efTruncated( false ) {
 
       AUX_VARIABLE( smk );
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ByteStreamAuxContainer_v1.cxx 645967 2015-02-11 12:29:36Z krasznaa $
+// $Id: ByteStreamAuxContainer_v1.cxx 658394 2015-04-01 12:48:35Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -73,8 +73,12 @@ namespace xAOD {
         m_auxids        = rhs.m_auxids;
         ++m_tick;
 
-        // But then, reset the internal pointers:
-        m_staticVecs.clear();
+        // The static variables should be left alone. Those should still
+        // point to the correct places in memory. But the dynamic variables
+        // need to be cleared out. Those will be re-created when/if needed.
+        for( auto* ptr : m_dynamicVecs ) {
+           delete ptr;
+        }
         m_dynamicVecs.clear();
 
         // Copy the container's name:
