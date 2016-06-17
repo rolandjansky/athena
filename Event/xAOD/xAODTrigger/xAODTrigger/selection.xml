@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 710006 2015-11-23 21:01:29Z sutt $ -->
+<!-- $Id: selection.xml 743093 2016-04-26 21:46:56Z watsona $ -->
 <lcgdict>
 
    <!-- The byte stream auxiliary container, v1: -->
@@ -71,6 +71,11 @@
           id="727CB19A-5EB8-11E3-81B0-02163E00A743" />
    <class name="xAOD::EnergySumRoIAuxInfo_v1"
           id="7BD71A00-5EB8-11E3-95AF-02163E00A743" />
+
+   <class name="xAOD::EnergySumRoI_v2"
+          id="3F26401F-25D9-4CCA-B883-57EBCEE8D299" />
+   <class name="xAOD::EnergySumRoIAuxInfo_v2"
+          id="7A0DB6D7-05F6-4D3A-9E8B-0230350E3E25" />
 
    <!-- TriggerMenu dictionaries: -->
    <class name="xAOD::TriggerMenu_v1" />

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EnergySumRoI_v1.cxx 615960 2014-09-10 14:03:39Z krasznaa $
+// $Id: EnergySumRoI_v1.cxx 711888 2015-12-01 13:36:40Z watsona $
 
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -85,17 +85,17 @@ namespace xAOD {
 
    bool EnergySumRoI_v1::overflowX() const {
 
-      return ( ( roiWord0() >> 16 ) & 0x1 );
+      return ( ( roiWord0() >> 15 ) & 0x1 );
    }
 
    bool EnergySumRoI_v1::overflowY() const {
 
-      return ( ( roiWord1() >> 16 ) & 0x1 );
+      return ( ( roiWord1() >> 15 ) & 0x1 );
    }
 
    bool EnergySumRoI_v1::overflowT() const {
 
-      return ( ( roiWord2() >> 16 ) & 0x1 );
+      return ( ( roiWord2() >> 15 ) & 0x1 );
    }
 
    //

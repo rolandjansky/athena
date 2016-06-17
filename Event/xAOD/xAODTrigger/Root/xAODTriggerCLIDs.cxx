@@ -10,6 +10,8 @@
 #include "xAODTrigger/EmTauRoIAuxContainer.h"
 #include "xAODTrigger/EnergySumRoI.h"
 #include "xAODTrigger/EnergySumRoIAuxInfo.h"
+#include "xAODTrigger/JetEtRoI.h"
+#include "xAODTrigger/JetEtRoIAuxInfo.h"
 #include "xAODTrigger/JetRoIContainer.h"
 #include "xAODTrigger/JetRoIAuxContainer.h"
 #include "xAODTrigger/MuonRoIContainer.h"
