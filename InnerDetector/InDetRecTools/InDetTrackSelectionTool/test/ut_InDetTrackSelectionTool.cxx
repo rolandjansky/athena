@@ -37,6 +37,7 @@ bool passLoosePrimary( const TrackParticle& trk, const xAOD::Vertex* vtx = nullp
 bool passTightPrimary( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 bool passLooseMuon( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 bool passLooseElectron( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
+bool passLooseTau( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 bool passMinBias( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 bool passHILoose( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 bool passHITight( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
@@ -63,17 +64,8 @@ int main( int argc, char* argv[] ) {
    // Initialise the application:
    ASG_CHECK_SA( APP_NAME, static_cast<StatusCode>(xAOD::Init( APP_NAME )) );
 
-   vector<string> cutLevels = {"NoCut", "Loose", "LoosePrimary", "TightPrimary", "LooseMuon", "LooseElectron", "MinBias", "HILoose", "HITight"};
    map<string, tool_ptr> selTools;
    map<string, bool (*)(const TrackParticle&, const xAOD::Vertex*)> cutFuncs;
-
-   for (const auto& cutLevel : cutLevels) {
-     string toolName = "TrackSel";
-     toolName += cutLevel;
-     // won't use std::make_unique in case of 
-     selTools[cutLevel] = tool_ptr(new InDetTrackSelectionTool(toolName, cutLevel) );
-     CHECK( selTools[cutLevel]->initialize() );
-   }
 
 #define FUNC_HELP( CUT ) do {cutFuncs[ #CUT ] = pass##CUT;} while (false)
    FUNC_HELP( NoCut );
@@ -82,10 +74,19 @@ int main( int argc, char* argv[] ) {
    FUNC_HELP( TightPrimary );
    FUNC_HELP( LooseMuon );
    FUNC_HELP( LooseElectron );
+   FUNC_HELP( LooseTau );
    FUNC_HELP( MinBias );
    FUNC_HELP( HILoose );
    FUNC_HELP( HITight );
 #undef FUNC_HELP
+
+   for (const auto& cutLevelPair : cutFuncs) {
+     const auto& cutLevel = cutLevelPair.first;
+     string toolName = "TrackSel";
+     toolName += cutLevel;
+     selTools[cutLevel] = tool_ptr(new InDetTrackSelectionTool(toolName, cutLevel) );
+     CHECK( selTools[cutLevel]->initialize() );
+   }
 
    // Open the input file:
    Info( APP_NAME, "Opening file: %s", filename.data() );
@@ -130,7 +131,8 @@ int main( int argc, char* argv[] ) {
      }
 
      for (const auto track : *tracks) {
-       for (const auto& cutLevel : cutLevels) {
+       for (const auto& cutLevelPair : cutFuncs) {
+	 const auto& cutLevel = cutLevelPair.first;
 	 if ( selTools[cutLevel]->accept( *track, primaryVertex )
 	      != cutFuncs[cutLevel]( *track, primaryVertex ) ) {
 	   Error( APP_NAME, "Track selection tool at %s cut level does not", cutLevel.data() );
@@ -153,11 +155,10 @@ int main( int argc, char* argv[] ) {
 
    } // end loop over events
 
-
-   for (const auto& cutLevel : cutLevels) {
-     CHECK( selTools[cutLevel]->finalize() );
+   // finalize all the tools
+   for (const auto& cutLevelPair : cutFuncs) {
+     CHECK( selTools[cutLevelPair.first]->finalize() );
    }
-
 
    // Return gracefully:
    return 0;
@@ -253,6 +254,23 @@ bool passLooseElectron( const TrackParticle& trk, const xAOD::Vertex* )
   if (nPixHits < 1) return false;
   uint8_t nSctHits = getSum(trk, xAOD::numberOfSCTHits) + getSum(trk, xAOD::numberOfSCTDeadSensors);
   if (nPixHits + nSctHits < 7) return false;
+
+  return true;
+}
+
+bool passLooseTau( const TrackParticle& trk, const xAOD::Vertex* vtx )
+{
+  if (trk.pt() < 1000.0) return false; // pT cut at 1 GeV
+
+  uint8_t nPixHits = getSum(trk, xAOD::numberOfPixelHits) + getSum(trk, xAOD::numberOfPixelDeadSensors);
+  if (nPixHits < 2) return false;
+  uint8_t nSctHits = getSum(trk, xAOD::numberOfSCTHits) + getSum(trk, xAOD::numberOfSCTDeadSensors);
+  if (nPixHits + nSctHits < 7) return false;
+
+  if (std::fabs(trk.d0()) > 1.0) return false;
+  if (vtx != nullptr) {
+    if (std::fabs(trk.z0() + trk.vz() - vtx->z()) > 1.5) return false;
+  }
 
   return true;
 }

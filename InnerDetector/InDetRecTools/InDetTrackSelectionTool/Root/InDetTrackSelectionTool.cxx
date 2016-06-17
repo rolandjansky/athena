@@ -590,7 +590,7 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
 		    << " ,Silicon hits >= " << m_vecMinNSiHitsAboveEta.at(cutSize-1) );
     auto siHitCut = make_unique<EtaDependentSiliconHitsCut>
       (this, m_vecEtaCutoffsForSiHitsCut, m_vecMinNSiHitsAboveEta);
-    m_trackCuts["SiHits+Deadsensors"].push_back(std::move(siHitCut));
+    m_trackCuts["SiHits"].push_back(std::move(siHitCut));
   }
 
 
@@ -743,6 +743,10 @@ const Root::TAccept& InDet::InDetTrackSelectionTool::accept( const xAOD::TrackPa
   UShort_t cutFamilyIndex = 0;
   for ( const auto& cutFamily : m_trackCuts ) {
     bool pass = true;
+    //    const std::string& cutFamilyName = cutFamily.first;
+    //const auto& cut1 = cutFamily.second;
+    //    ATH_MSG_INFO("cut/value "<<cutFamilyName<<": ");
+
     for ( const auto& cut : cutFamily.second ) {
       if (! cut->result() ) {
 	pass = false;
@@ -999,6 +1003,14 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
     if (overwrite || m_minNSiHits < 0) m_minNSiHits = 7;
     if (overwrite || m_minNPixelHits < 0) m_minNPixelHits = 1;
     break;
+  case CutLevel::LooseTau :
+    setCutLevelPrivate(CutLevel::NoCut, overwrite);
+    if (overwrite || m_minPt < 0.0) m_minPt = 1000.0;
+    if (overwrite || m_minNSiHits < 0) m_minNSiHits = 7;
+    if (overwrite || m_minNPixelHits < 0) m_minNPixelHits = 2;
+    if (overwrite || m_maxD0 >= LOCAL_MAX_DOUBLE) m_maxD0 = 1.0;
+    if (overwrite || m_maxZ0 >= LOCAL_MAX_DOUBLE) m_maxZ0 = 1.5;
+    break;
   case CutLevel::MinBias :
     setCutLevelPrivate(CutLevel::NoCut, overwrite);
     if (overwrite || m_useMinBiasInnermostLayersCut >= 0) m_useMinBiasInnermostLayersCut = 1; // if this is less than 0, it is turned off
@@ -1059,6 +1071,7 @@ InDet::InDetTrackSelectionTool::s_mapCutLevel =
     {"TightPrimary", InDet::CutLevel::TightPrimary},
     {"LooseMuon", InDet::CutLevel::LooseMuon},
     {"LooseElectron", InDet::CutLevel::LooseElectron},
+    {"LooseTau", InDet::CutLevel::LooseTau},
     {"MinBias", InDet::CutLevel::MinBias},
     {"HILoose", InDet::CutLevel::HILoose},
     {"HITight", InDet::CutLevel::HITight}
