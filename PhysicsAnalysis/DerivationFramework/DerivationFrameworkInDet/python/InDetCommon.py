@@ -8,8 +8,9 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
 # Check file contains PrimaryVertices container (protect against non-collision data)
+# If running from RAW the eventdata_items are none or emtpy
 from RecExConfig.InputFilePeeker import inputFileSummary
-if any('PrimaryVertices' in elements for elements in inputFileSummary['eventdata_items']):
+if not inputFileSummary['eventdata_items'] or any('PrimaryVertices' in elements for elements in inputFileSummary['eventdata_items']):
 
 #====================================================================
 # EXPRESSION OF Z0 AT THE PRIMARY VERTEX

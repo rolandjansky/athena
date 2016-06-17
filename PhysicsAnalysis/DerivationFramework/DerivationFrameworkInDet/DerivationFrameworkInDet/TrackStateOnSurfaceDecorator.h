@@ -82,8 +82,6 @@ namespace DerivationFramework {
       std::string m_sctMsosName;
       std::string m_trtMsosName;
 
-      std::string m_PriVtxContainerName;
-
       // --- Services and tools
       const AtlasDetectorID* m_idHelper;
       const PixelID*         m_pixId; 
@@ -96,12 +94,7 @@ namespace DerivationFramework {
       ToolHandle<Trk::IExtrapolator>            m_extrapolator;
       ServiceHandle<ITRT_CalDbSvc>              m_trtcaldbSvc;
 	  
-      /**tool to calculate dE/dx using TRT ToT*/
-      ToolHandle<ITRT_ToT_dEdx>    m_TRTdEdxTool;
-
       // --- Private other members
-      bool m_firstEventWarnings;
-	  
   }; 
 }
 

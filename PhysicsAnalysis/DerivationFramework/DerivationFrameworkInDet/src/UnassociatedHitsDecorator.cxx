@@ -75,9 +75,11 @@ namespace DerivationFramework {
       eventInfo->auxdecor< int >(m_sgName+"nTRTBarrelUA")    = prdAssoc->nTRTBarrelUA;
       eventInfo->auxdecor< int >(m_sgName+"nTRTEndCapAUA")   = prdAssoc->nTRTEndCapAUA;
       eventInfo->auxdecor< int >(m_sgName+"nTRTEndCapCUA")   = prdAssoc->nTRTEndCapCUA;
-      m_UnassociatedHitsGetterTool->releaseObject(prdAssoc);
+
       ATH_MSG_DEBUG("Decorating unassociated hits with nPixelBarrelUA = ");
       ATH_MSG_DEBUG(prdAssoc->nPixelBarrelUA);
+
+      m_UnassociatedHitsGetterTool->releaseObject(prdAssoc);
     }
     else
       ATH_MSG_WARNING("Could not retrieve Unassociated hits information");

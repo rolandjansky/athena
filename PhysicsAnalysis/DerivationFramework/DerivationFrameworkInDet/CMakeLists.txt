@@ -38,7 +38,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTruth
                           GaudiKernel
                           InnerDetector/InDetConditions/TRT_ConditionsServices
-                          InnerDetector/InDetRecTools/TRT_ToT_Tools
                           InnerDetector/InDetValidation/InDetPhysValMonitoring
                           LArCalorimeter/LArRecEvent
                           PhysicsAnalysis/CommonTools/ExpressionEvaluation
