@@ -14,6 +14,7 @@ from PowhegConfig_jj import *
 from PowhegConfig_jjj import *
 from PowhegConfig_ssWWjj import *
 from PowhegConfig_t_sch import *
+from PowhegConfig_t_tch_4f import *
 from PowhegConfig_tt import *
 from PowhegConfig_ttH import *
 from PowhegConfig_ttj import *

@@ -1,6 +1,8 @@
 package PowhegControl
 
-author Stephen Bieniek	<stephen.paul.bieniek@cern.ch>
+author Stephen Bieniek  <stephen.paul.bieniek@cern.ch>
+author Daniel Hayden    <daniel.hayden@cern.ch>
+author James Robinson   <james.robinson@cern.ch>
 
 branches share python
 

@@ -3,22 +3,22 @@
 #--------------------------------------------------------------
 # Powheg DMV setup starting from ATLAS defaults
 #--------------------------------------------------------------
-include('PowhegControl/PowhegControl_DMV_Common.py')
+include("PowhegControl/PowhegControl_DMV_Common.py")
 PowhegConfig.generate()
 
 #--------------------------------------------------------------
 # Pythia8 showering with the A14 NNPDF2.3 tune
 #--------------------------------------------------------------
-include('MC15JobOptions/Pythia8_A14_NNPDF23LO_EvtGen_Common.py')
-include('MC15JobOptions/Pythia8_Powheg.py')
+include("MC15JobOptions/Pythia8_A14_NNPDF23LO_EvtGen_Common.py")
+include("MC15JobOptions/Pythia8_Powheg.py")
 
 # id:all = name antiName spinType chargeType colType m0 mWidth mMin mMax tau0
-genSeq.Pythia8.Commands += [ '1000022:all = X Xbar 2 0 0 {0} 0.0 0.0 0.0 0.0'.format(PowhegConfig.DM_mass),
-                             '1000022:isVisible = false' ]
+genSeq.Pythia8.Commands += [ "1000022:all = X Xbar 2 0 0 {0} 0.0 0.0 0.0 0.0".format(PowhegConfig.DM_mass),
+                             "1000022:isVisible = false" ]
 
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
-evgenConfig.description = 'POWHEG+Pythia8 DMV production with A14 NNPDF2.3 tune'
-evgenConfig.keywords    = [ 'BSM', 'WIMP', 'invisible' ]
-evgenConfig.contact     = [ 'james.robinson@cern.ch', 'caterina.doglioni@cern.ch' ]
+evgenConfig.description = "POWHEG+Pythia8 DMV production with A14 NNPDF2.3 tune"
+evgenConfig.keywords    = [ "BSM", "WIMP", "invisible" ]
+evgenConfig.contact     = [ "james.robinson@cern.ch", "caterina.doglioni@cern.ch" ]

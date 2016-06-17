@@ -1,20 +1,21 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-## @PowhegControl FixedScaleDecorator
+# @PowhegControl FixedScaleDecorator
 #  Powheg runcard decorator for fixed scale
 #
 #  Authors: James Robinson  <james.robinson@cern.ch>
 
 #! /usr/bin/env python
 
-class FixedScaleDecorator(object) :
 
-  ## Define decorator name string
-  name = 'fixed scale'
+class FixedScaleDecorator(object):
 
-  def __init__( self, decorated ) :
-    ## Attach decorations to Powheg configurable
-    decorated.run_card_decorators.append( self )
-    self.decorated = decorated
+    # Define decorator name string
+    name = "fixed scale"
 
-    self.decorated.add_parameter( 'fixedscale', -1, desc='(-1:use Powheg default) use reference renormalisation and factorisation scales' )
+    # Attach decorations to Powheg configurable
+    def __init__(self, decorated):
+        decorated.run_card_decorators.append(self)
+        self.decorated = decorated
+
+        self.decorated.add_parameter("fixedscale", -1, desc="(-1:use Powheg default) use reference renormalisation and factorisation scales")
