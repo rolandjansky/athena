@@ -12,7 +12,12 @@
 #include "G4PhysListFactory.hh"
 
 UserActionBase::UserActionBase(const std::string& type, const std::string& name, const IInterface* parent)
-  : AthAlgTool(type,name,parent),m_regions()
+  : AthAlgTool(type,name,parent),
+    fpEventManager(nullptr),
+    stackManager(nullptr),
+    fpSteppingManager(nullptr),
+    fpTrackingManager(nullptr),
+    m_regions()
 {
 
   declareProperty("TargetRegions",m_regions);

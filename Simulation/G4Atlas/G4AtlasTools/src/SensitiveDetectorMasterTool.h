@@ -21,7 +21,7 @@ class SensitiveDetectorMasterTool : public AthAlgTool , public virtual ISensitiv
   virtual ~SensitiveDetectorMasterTool() {}
 
   // Gaudi methods
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
   static const InterfaceID& interfaceID() { return ISensitiveDetectorMasterTool::interfaceID(); }
 
   /// Retrieve the SD tools. SD creation is deferred until initializeSDs.

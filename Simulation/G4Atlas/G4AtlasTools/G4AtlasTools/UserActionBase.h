@@ -47,9 +47,9 @@ class UserActionBase : virtual public IUserAction , public AthAlgTool {
 
   virtual std::vector<std::string > GetRegions() override final {return m_regions;};
 
-  virtual StatusCode queryInterface(const InterfaceID&, void**);
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
 
-  virtual void setManagers(G4EventManager* em, G4TrackingManager* tm, G4StackManager* stam, G4SteppingManager* stem){
+  virtual void setManagers(G4EventManager* em, G4TrackingManager* tm, G4StackManager* stam, G4SteppingManager* stem) override final {
     fpEventManager=em;
     stackManager=stam;
     fpSteppingManager=stem;

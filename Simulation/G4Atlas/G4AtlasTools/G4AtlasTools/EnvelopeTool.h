@@ -27,7 +27,7 @@ public:
   
   /** virtual methods being implemented here */
   
-  virtual void BuildGeometry();
+  virtual void BuildGeometry() override;
   
 private:
   ServiceHandle<IEnvelopeDefSvc> m_envelopeDefSvc;

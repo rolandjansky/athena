@@ -36,7 +36,7 @@ class FastSimulationBase : virtual public IFastSimulation, public AthAlgTool {
   virtual StatusCode EndOfAthenaEvent() override { return StatusCode::SUCCESS; }
 
   /** Query interface method to make athena happy */
-  virtual StatusCode queryInterface(const InterfaceID&, void**);
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
 
  protected:
   /// Retrieve the current Fast Simulation Model. In hive, this means the
