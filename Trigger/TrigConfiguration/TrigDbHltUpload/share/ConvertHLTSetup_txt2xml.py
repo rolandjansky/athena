@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import getopt, sys, re, os.path
+import getopt, sys, re, os.path, operator
 import xml.dom.minidom
 from itertools import ifilterfalse
 
@@ -232,7 +232,7 @@ class Component:
         for n,p in props:
             s += 4*indent*' ' + '    <parameter name="%s" value="%s" op="set"/>\n' % (n,xmlize(p.value))
             
-        for c in self.subAlgs: s += str(c)
+        for c in sorted(self.subAlgs,key=operator.attrgetter('alias')): s += str(c)
         s += 4*indent*' '+'</component> <!-- %s -->\n' % al
         return s
 
