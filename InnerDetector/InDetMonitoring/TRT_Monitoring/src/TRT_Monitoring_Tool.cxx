@@ -30,6 +30,12 @@
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventID.h"
 
+//#include "TrkParameters/TrackParameters.h"
+//#include "TrkTrack/TrackStateOnSurface.h"
+#include "EventPrimitives/EventPrimitivesHelpers.h"
+//#include "VxVertex/VxContainer.h"
+
+
 #include "TProfile.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
@@ -120,10 +126,12 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
   WireToTrkPositionScale_B_Ar(),
   TronTDistScale_B(),
   ResidualScale_B(),
+  ResidualScale_B_20GeV(),
   TimeResidualScale_B(),
   DriftTimeonTrkDistScale_B_Ar(),
   TronTDistScale_B_Ar(),
   ResidualScale_B_Ar(),
+  ResidualScale_B_Ar_20GeV(),
   TimeResidualScale_B_Ar(),
   nTrkvPhiScale_B(),
   DriftTimeonTrkDistScale_E(),
@@ -136,9 +144,11 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
   WireToTrkPositionScale_E_Ar(),
   TronTDistScale_E(),
   ResidualScale_E(),
+  ResidualScale_E_20GeV(),
   TimeResidualScale_E(),
   DriftTimeonTrkDistScale_E_Ar(),
   ResidualScale_E_Ar(),
+  ResidualScale_E_Ar_20GeV(),
   TimeResidualScale_E_Ar(),
   nTrkvPhiScale_E(),
   //m_propagator(0),
@@ -343,7 +353,9 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
   m_hNumSwLLWoT_B = 0;
   m_hHitWMap_B = 0;
   m_hHitWonTMap_B = 0;
-  m_hResidual_B = 0;
+  m_Pull_Biased_Barrel= 0;
+  m_hResidual_B = 0; 
+  m_hResidual_B_20GeV = 0; 
   m_hTimeResidual_B = 0;
   m_hDriftTimeonTrkDist_B = 0;
   m_hTronTDist_B = 0;
@@ -362,11 +374,14 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
   m_hefficiencyBarrel_locR_Ar = 0;
   m_hHitWMap_B_Ar=0;
   m_hResidual_B_Ar=0;
+  m_hResidual_B_Ar_20GeV=0;
   m_hTimeResidual_B_Ar=0;
   m_hrtRelation_B_Ar = 0;
   m_hDriftTimeonTrkDist_B_Ar = 0;
   m_hTronTDist_B_Ar = 0;
 
+
+  m_Pull_Biased_EndCap= 0;
   for (int iside=0; iside<2; iside++) {
     nTrksperLB_E[iside]=0;
     nHitsperLB_E[iside]=0;
@@ -381,6 +396,7 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
     m_hHitWMap_E[iside] = 0;
     m_hHitWonTMap_E[iside] = 0;
     m_hResidual_E[iside] = 0;
+    m_hResidual_E_20GeV[iside] = 0;
     m_hTimeResidual_E[iside] = 0;
     m_hDriftTimeonTrkDist_E[iside] = 0;
     m_hTronTDist_E[iside] = 0;
@@ -399,6 +415,7 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
     m_hefficiencyEndCap_locR_Ar[iside] = 0;
     m_hHitWMap_E_Ar[iside] = 0;
     m_hResidual_E_Ar[iside] = 0;
+    m_hResidual_E_Ar_20GeV[iside] = 0;
     m_hTimeResidual_E_Ar[iside] = 0;
     m_hrtRelation_E_Ar[iside] = 0;
     m_hTronTDist_E_Ar[iside] = 0;
@@ -1110,7 +1127,9 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
           m_hDriftTimeonTrkDist_B_Ar = bookTH1F_LW(trackShiftTH1, "hDriftTimeonTrkDist_Ar", "Drift Time Distribution on Track for Argon Straws" + regionTag, 32, 0, 100., "Drift Time (ns)", "Norm. Entries", scode);
           m_hTronTDist_B_Ar     = bookTH1F_LW(trackShiftTH1, "hTronTDist_Ar", "Trailing Edge Distribution on Track for Argon Straws" + regionTag, 26, -0.5, 80.75, "Trailing Edge (ns)", "Norm. Entries", scode);
           m_hrtRelation_B_Ar    = bookTH2F_LW(trackShift, "hrtRelation_Ar", "R(t) Relation for Argon Straws" + regionTag, 30, -12.5, 81.25, 50, 0, 2.5, "Measured Leading Edge (ns)", "Track-to-Wire Distance (mm)", scode);
+	  m_Pull_Biased_Barrel  = bookTH1F_LW(trackShift, "hPull_Biased_Barrel", "Biased Track Pulls for Barrel Hits", 200, -2.5, 2.5, "Pulls", "Entries", scode);
 	  m_hResidual_B_Ar      = bookTH1F_LW(trackShiftTH1_lowStat, "hResidual_Ar", "Residuals for Argon Straws" + regionTag, 200, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
+	  m_hResidual_B_Ar_20GeV= bookTH1F_LW(trackShiftTH1, "hResidual_Ar_20GeV", "Residuals for Argon Straws" + regionTag+"(After 20GeV pT cut)", 200, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
 	  m_hAvgTroTDetPhi_B_Ar = bookTProfile_LW(trackShift, "hAvgTroTDetPhi_Ar", "Avg. Trailing Edge on Track vs #phi (2D) for Argon" + regionTag, m_nphi_bins, 0, 360, 0, 75., "#phi (deg)", "Trailing Edge (ns)", scode);
           m_hTimeResidual_B_Ar  = bookTH1F_LW(trackShiftTH1, "hTimeResidual_Ar", "Time Residuals for Argon Straws" + regionTag, 200, -20, 20, "Time Residual (ns)", "Norm. Entries", scode);
 	  m_hWireToTrkPosition_B_Ar = bookTH1F_LW(trackShiftTH1, "hWireToTrkPosition_Ar", "Track-to-Wire Distance for Argon" + regionTag, 100, -5., 5, "Track-to-Wire Distance (mm)", "Norm. Entries", scode); 
@@ -1118,6 +1137,7 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
         }
 	m_hHtoLRatioOnTrack_B_Xe = bookTH1F_LW(trackShiftTH1, "hHtoLRatioOnTrack_Xe", "HL/LL Ratio per Reconstructed Track for Xenon" + regionTag, 50, 0, 1, "HL/LL Ratio", "Norm. Entries", scode); //for xenon 
 	m_hResidual_B           = bookTH1F_LW(trackShiftTH1_lowStat, "hResidual", "Residuals for Xenon Straws" + regionTag, 200, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
+	m_hResidual_B_20GeV   = bookTH1F_LW(trackShiftTH1, "hResidual_20GeV", "Residuals for Xenon Straws" + regionTag+"(After 20GeV pT cut)", 200, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
         m_hTimeResidual_B       = bookTH1F_LW(trackShiftTH1, "hTimeResidual", "Time Residuals for Xenon Straws" + regionTag, 200, -20, 20, "Time Residual (ns)", "Norm. Entries", scode);
 	m_hWireToTrkPosition_B  = bookTH1F_LW(trackShiftTH1, "hWireToTrkPosition", "Track-to-Wire Distance for Xenon" + regionTag, 100, -5., 5, "Track-to-Wire Distance (mm)", "Norm. Entries", scode);
         m_hNumSwLLWoT_B         = bookTH1F_LW(trackShiftTH1, "hNumSwLLWoT", "Number of Straws with Hits on Track in Time Window" + regionTag, 150, 0, 150, "Number of LL Hits per Track", "Norm. Entries", scode);
@@ -1137,6 +1157,7 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
         m_hStrawEffDetPhi_B     = bookTProfile_LW(trackShift, "hStrawEffDetPhi", "Straw Efficiency on Track with " + distance + " mm Cut vs #phi(2D)" + regionTag, 32, 0, 32, 0, 1.2, "Stack", "Avg. Straw Efficiency", scode);
 
       } else if (ibe==1) {
+	m_Pull_Biased_EndCap    =  bookTH1F_LW(trackShift, "hPull_Biased_EndCap", "Biased Track Pulls for EndCap Hits", 200, -2.5, 2.5, "Pulls", "Entries", scode);
         for (int iside=0; iside<2; iside++) {
           const std::string regionTag    = " (" + be_id[ibe] + side_id[iside] + ")"; // hides variable in outer scope
           m_hEvtPhaseDetPhi_E[iside]     = bookTProfile_LW(trackShift, "hEvtPhaseDetPhi_"+side_id[iside], "Event Phase vs #phi (2D)" + regionTag, m_nphi_bins, 0, 360, -50, 100, "#phi (deg)", "Event Phase from Tracks per Event", scode);
@@ -1146,13 +1167,15 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
           m_hDriftTimeonTrkDist_E[iside] = bookTH1F_LW(trackShiftTH1, "hDriftTimeonTrkDist_"+side_id[iside], "Drift Time Distribution on Track for Xenon Straws" + regionTag, 32, 0, 100, "Drift Time (ns)", "Norm. Entries", scode);
           m_hNumTrksDetPhi_E[iside]      = bookTH1F_LW(trackShift, "hNumTrksDetPhi_"+side_id[iside], "Number of Reconstructed Tracks vs #phi (2D)" + regionTag, 60, 0, 360, "#phi (deg)", "Number of Tracks", scode);
 	  m_hResidual_E[iside]           = bookTH1F_LW(trackShiftTH1_lowStat, "hResidual_"+side_id[iside], "Residuals for Xenon Straws" + regionTag, 200, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
+	  m_hResidual_E_20GeV[iside]     = bookTH1F_LW(trackShiftTH1, "hResidual_"+side_id[iside]+"_20GeV", "Residuals for Xenon Straws" + regionTag+"(After 20GeV pT cut)", 200, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
           m_hTimeResidual_E[iside]       = bookTH1F_LW(trackShiftTH1, "hTimeResidual_"+side_id[iside], "Time Residuals for Xenon Straws" + regionTag, 200, -20, 20, "Time Residual (ns)", "Norm. Entries", scode);
 
           if (m_ArgonXenonSplitter) {
             m_hTronTDist_E_Ar[iside]     = bookTH1F_LW(trackShiftTH1, "hTronTDist_Ar_"+side_id[iside], "Trailing Edge Distribution on Track for Argon Straws" + regionTag, 26, -0.5, 80.75,  "Trailing Edge (ns)", "Norm. Entries", scode);
 	    m_hAvgTroTDetPhi_E_Ar[iside] = bookTProfile_LW(trackShift, "hAvgTroTDetPhi_Ar_"+side_id[iside], "Avg. Trailing Edge on Track vs #phi (2D) for Argon" + regionTag, m_nphi_bins, 0, 360, 0, 75., "#phi (deg)", "Trailing Edge (ns)", scode);            m_hrtRelation_E_Ar[iside]    = bookTH2F_LW(trackShift, "hrtRelation_Ar_" + side_id[iside], "R(t) Relation for Argon Straws" + regionTag, 30, -12.5, 81.25, 50, 0, 2.5, "Measured Leading Edge (ns)", "Track-to-Wire Distance (mm)", scode);
             m_hDriftTimeonTrkDist_E_Ar[iside] = bookTH1F_LW(trackShiftTH1, "hDriftTimeonTrkDist_Ar_"+side_id[iside], "Drift Time Distribution on Track for Argon Straws" + regionTag, 32, 0, 100, "Drift Time (ns)", "Norm. Entries", scode);
-	    m_hResidual_E_Ar[iside]      = bookTH1F_LW(trackShiftTH1_lowStat, "hResidual_Ar_" + side_id[iside], "Residuals for Argon Straws" + regionTag, 200, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
+	    m_hResidual_E_Ar[iside]       = bookTH1F_LW(trackShiftTH1_lowStat, "hResidual_Ar_" + side_id[iside], "Residuals for Argon Straws" + regionTag, 200, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
+	    m_hResidual_E_Ar_20GeV[iside] = bookTH1F_LW(trackShiftTH1, "hResidual_Ar_" + side_id[iside]+"_20GeV", "Residuals for Argon Straws" + regionTag+"(After 20GeV pT cut)", 200, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
             m_hTimeResidual_E_Ar[iside]  = bookTH1F_LW(trackShiftTH1, "hTimeResidual_Ar_" + side_id[iside], "Time Residuals for Argon Straws" + regionTag, 200, -20, 20, "Time Residual (ns)", "Norm. Entries", scode);
 	    m_hWireToTrkPosition_E_Ar[iside] = bookTH1F_LW(trackShiftTH1, "hWireToTrkPosition_Ar_"+side_id[iside], "Track-to-Wire Distance for Argon" + regionTag, 100, -5., 5, "Track-to-Wire Distance (mm)", "Norm. Entries", scode); 
 	    m_hHtoLRatioOnTrack_E_Ar[iside] = bookTH1F_LW(trackShiftTH1, "hHtoLRatioOnTrack_Ar_"+side_id[iside], "HL/LL Ratio per Reconstructed Track for Argon" + regionTag, 50, 0, 1.0, "HL/LL Ratio", "Norm. Entries", scode); //for argon
@@ -1482,9 +1505,13 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
             if (TronTDistScale_B > 0) {
               scale_LWHist(m_hTronTDist_B ,1./TronTDistScale_B);
             }
-            ResidualScale_B = m_hResidual_B->GetEntries()*0.05;
+            ResidualScale_B = m_hResidual_B->GetEntries()*0.025;
             if (ResidualScale_B > 0) {
               scale_LWHist(m_hResidual_B, 1./ResidualScale_B);
+            }
+            ResidualScale_B_20GeV = m_hResidual_B_20GeV->GetEntries()*0.025;
+            if (ResidualScale_B_20GeV > 0) {
+              scale_LWHist(m_hResidual_B_20GeV, 1./ResidualScale_B_20GeV);
             }
             TimeResidualScale_B = m_hTimeResidual_B->GetEntries()*0.2;
             if (TimeResidualScale_B > 0) {
@@ -1507,9 +1534,13 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
               if (TronTDistScale_B_Ar > 0) {
                 scale_LWHist(m_hTronTDist_B_Ar ,1./TronTDistScale_B_Ar);
               }
-              ResidualScale_B_Ar = m_hResidual_B_Ar->GetEntries()*0.05;
+              ResidualScale_B_Ar = m_hResidual_B_Ar->GetEntries()*0.025;
               if (ResidualScale_B_Ar > 0) {
                 scale_LWHist(m_hResidual_B_Ar, 1. / ResidualScale_B_Ar);
+              }
+              ResidualScale_B_Ar_20GeV = m_hResidual_B_Ar_20GeV->GetEntries()*0.025;
+              if (ResidualScale_B_Ar_20GeV > 0) {
+                scale_LWHist(m_hResidual_B_Ar_20GeV, 1. / ResidualScale_B_Ar_20GeV);
               }
               TimeResidualScale_B_Ar = m_hTimeResidual_B_Ar->GetEntries()*0.2;
               if (TimeResidualScale_B_Ar > 0) {
@@ -1546,9 +1577,13 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
               if (TronTDistScale_E[iside] > 0) {
                 scale_LWHist(m_hTronTDist_E[iside], 1./TronTDistScale_E[iside]);
               }
-              ResidualScale_E[iside] = m_hResidual_E[iside]->GetEntries()*0.05;
+              ResidualScale_E[iside] = m_hResidual_E[iside]->GetEntries()*0.025;
               if (ResidualScale_E[iside] > 0) {
                 scale_LWHist(m_hResidual_E[iside], 1./ResidualScale_E[iside]);
+              }
+              ResidualScale_E_20GeV[iside] = m_hResidual_E_20GeV[iside]->GetEntries()*0.025;
+              if (ResidualScale_E_20GeV[iside] > 0) {
+                scale_LWHist(m_hResidual_E_20GeV[iside], 1./ResidualScale_E_20GeV[iside]);
               }
               TimeResidualScale_E[iside] = m_hTimeResidual_E[iside]->GetEntries()*0.2;
               if (TimeResidualScale_E[iside] > 0) {
@@ -1575,9 +1610,14 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
                 if (TronTDistScale_E_Ar[iside] > 0) {
                   scale_LWHist(m_hTronTDist_E_Ar[iside], 1./TronTDistScale_E_Ar[iside]);
                 }
-                ResidualScale_E_Ar[iside] = m_hResidual_E_Ar[iside]->GetEntries()*0.05;
+	      //_20GeV
+                ResidualScale_E_Ar[iside] = m_hResidual_E_Ar[iside]->GetEntries()*0.025;
                 if (ResidualScale_E_Ar[iside] > 0) {
                   scale_LWHist(m_hResidual_E_Ar[iside], 1. / ResidualScale_E_Ar[iside]);
+                }
+                ResidualScale_E_Ar_20GeV[iside] = m_hResidual_E_Ar_20GeV[iside]->GetEntries()*0.025;
+                if (ResidualScale_E_Ar_20GeV[iside] > 0) {
+                  scale_LWHist(m_hResidual_E_Ar_20GeV[iside], 1. / ResidualScale_E_Ar_20GeV[iside]);
                 }
                 TimeResidualScale_E_Ar[iside] = m_hTimeResidual_E_Ar[iside]->GetEntries()*0.2;
                 if (TimeResidualScale_E_Ar[iside] > 0) {
@@ -2001,7 +2041,11 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
       //ToDo: rename them (They are clearly not member but have "m_" prefix)
       const int m_driftTimeBin  = p_lolum->driftTimeBin();
       const int m_trailingEdge  = p_lolum->trailingEdge();
-      const bool m_highlevel    = p_lolum->highLevel();
+      //      const bool m_highlevel    = p_lolum->highLevel();
+      const bool m_highlevel    =is_middleHTbit_high;//Hardcoded Middle Bit
+
+
+
       const bool m_firstBinHigh = p_lolum->firstBinHigh(); // if the first time bin is up then the hit is out of time window
       const bool m_lastBinHigh  = p_lolum->lastBinHigh(); // if the last bin is up then the hit is out of time window.
       const float m_timeOverThreshold = p_lolum->timeOverThreshold();
@@ -2412,12 +2456,14 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
       scale_LWHist(m_hWireToTrkPosition_B, WireToTrkPositionScale_B);
       scale_LWHist(m_hTronTDist_B, TronTDistScale_B);
       scale_LWHist(m_hResidual_B, ResidualScale_B);
+      scale_LWHist(m_hResidual_B_20GeV, ResidualScale_B_20GeV);
       scale_LWHist(m_hTimeResidual_B, TimeResidualScale_B);
       if (m_ArgonXenonSplitter) {
         scale_LWHist(m_hDriftTimeonTrkDist_B_Ar, DriftTimeonTrkDistScale_B_Ar);
 	scale_LWHist(m_hWireToTrkPosition_B_Ar, WireToTrkPositionScale_B_Ar);
         scale_LWHist(m_hTronTDist_B_Ar, TronTDistScale_B_Ar);
         scale_LWHist(m_hResidual_B_Ar, ResidualScale_B_Ar);
+        scale_LWHist(m_hResidual_B_Ar_20GeV, ResidualScale_B_Ar_20GeV);
         scale_LWHist(m_hTimeResidual_B_Ar, TimeResidualScale_B_Ar);
       }
       for (int iside=0; iside<2; iside++) {
@@ -2428,12 +2474,14 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
         scale_LWHist(m_hWireToTrkPosition_E[iside], WireToTrkPositionScale_E[iside]);
         scale_LWHist(m_hTronTDist_E[iside], TronTDistScale_E[iside]);
         scale_LWHist(m_hResidual_E[iside], ResidualScale_E[iside]);
+	scale_LWHist(m_hResidual_E_20GeV[iside], ResidualScale_E_20GeV[iside]);
         scale_LWHist(m_hTimeResidual_E[iside], TimeResidualScale_E[iside]);
         if (m_ArgonXenonSplitter) {
           scale_LWHist(m_hDriftTimeonTrkDist_E_Ar[iside], DriftTimeonTrkDistScale_E_Ar[iside]);
 	  scale_LWHist(m_hWireToTrkPosition_E_Ar[iside], WireToTrkPositionScale_E_Ar[iside]);
           scale_LWHist(m_hTronTDist_E_Ar[iside], TronTDistScale_E_Ar[iside]);
           scale_LWHist(m_hResidual_E_Ar[iside], ResidualScale_E_Ar[iside]);
+          scale_LWHist(m_hResidual_E_Ar_20GeV[iside], ResidualScale_E_Ar_20GeV[iside]);
           scale_LWHist(m_hTimeResidual_E_Ar[iside], TimeResidualScale_E_Ar[iside]);
         }
       }
@@ -2500,8 +2548,21 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
     int n_pixel_hits = summary->get(Trk::numberOfPixelHits);
     const int n_si_hits = n_pixel_hits + n_sct_hits;
 
+    bool is_pT_over_20GeV=false;
+    if (m_mPer->pT() > 20 * CLHEP::GeV)
+      {is_pT_over_20GeV=true;}
+    else
+      {is_pT_over_20GeV=false;}
+    const bool cnst_is_pT_over_20GeV=is_pT_over_20GeV;
+
+    ///hardcoded cut for pT 2.0 GeV for collision setup
+    float min_pt_new=m_min_pT;
+    if(m_isCosmics==false){
+      min_pt_new=2.0 * CLHEP::GeV;
+    }///
+
     const bool passed_track_preselection =
-      (m_mPer->pT() > m_min_pT)&&
+      (m_mPer->pT() > min_pt_new)&&
       (m_p > m_minP) &&
       (n_si_hits >= m_min_si_hits) &&
       (n_pixel_hits >= m_min_pixel_hits)&&
@@ -2741,7 +2802,8 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
 	  if (DoExpert && DoStraws&& is_middleHTbit_high) m_hHitHWonTMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe],1.0);// Middle HL bit on track: Straws
 	  if (DoExpert && DoChips && is_middleHTbit_high ) m_hHitHWonTMapC[ibe][iphi_module]->Fill(m_chip[ibe]-1);// Middle HL bit on track: Chips 
 
-	if (RawDriftCircle->highLevel()) {
+	  //	if (RawDriftCircle->highLevel()) {
+	  if (is_middleHTbit_high) {//hardcoded middle Bit 
 	  TRT_LoLumRawData lolum(surfaceID,RawDriftCircle->getWord());
 	  if (DoExpert && DoStraws) m_hHitHonTMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe],1.0);// Any HL hit on track: Straws
 	  if (DoExpert && DoChips) m_hHitHonTMapC[ibe][iphi_module]->Fill(m_chip[ibe]-1);// Any HL hit on track: Chips
@@ -2773,6 +2835,16 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
 	  }
 	}
 
+	float locR_err = 0.0;
+	const AmgSymMatrix(5)* b_err = aTrackParam->covariance();
+	if(b_err){
+	  locR_err = Amg::error(*b_err,Trk::locR);
+	}
+	else{
+	  ATH_MSG_ERROR("Track parameters have no covariance attached.");
+	}
+	float loc_err  = sqrt(Amg::error(trtCircle->localCovariance(),Trk::driftRadius)) ;
+
 	float locR = aTrackParam->parameters()[Trk::driftRadius];
 	float loc  = trtCircle->localParameters()[Trk::driftRadius];
 	if (isTubeHit) {
@@ -2782,24 +2854,37 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
 	}
 	// Calculate Residuals for hit
 	if (DoShift && DoStraws) {
+	   
+	  const double pull_b = (loc-locR)/sqrt((loc_err*loc_err*loc_err*loc_err)-(locR_err*locR_err*locR_err*locR_err) );	  
 	  const double thist0 = m_trtcaldbSvc->getT0(surfaceID);
 	  const double trkdrifttime = rtr->drifttime(fabs(locR));
 	  const double timeresidual = RawDriftCircle->rawDriftTime() - thist0 - trkdrifttime;
 	  if (ibe==0) {
+	    if(!isTubeHit){
+	      m_Pull_Biased_Barrel->Fill(pull_b);
+	    }
 	    if (isArgonStraw) {
 	      m_hResidual_B_Ar->Fill(loc-locR); // Fill residuals for Argon Straws
+	      if(cnst_is_pT_over_20GeV){m_hResidual_B_Ar_20GeV->Fill(loc-locR);  }
 	      m_hTimeResidual_B_Ar->Fill(timeresidual); // Fill time residuals for Argon Straws
 	    } else {
 	      m_hResidual_B->Fill(loc-locR); // Fill residuals 
 	      m_hTimeResidual_B->Fill(timeresidual); // Fill time residuals
+	      if(cnst_is_pT_over_20GeV){m_hResidual_B_20GeV->Fill(loc-locR);  }
 	    }
 	  } else if (ibe==1) {
+	    if(!isTubeHit){
+	      m_Pull_Biased_EndCap->Fill(pull_b);
+	      //fill pull biased
+	    }
 	    if (isArgonStraw) {
 	      m_hResidual_E_Ar[iside]->Fill(loc - locR); // Fill residuals
 	      m_hTimeResidual_E_Ar[iside]->Fill(timeresidual); // Fill time residuals for Argon Straws
+	      if(cnst_is_pT_over_20GeV){m_hResidual_E_Ar_20GeV[iside]->Fill(loc-locR);  }
 	    } else {
 	      m_hResidual_E[iside]->Fill(loc - locR); // Fill residuals
 	      m_hTimeResidual_E[iside]->Fill(timeresidual); // Fill time residuals for Argon Straws
+	      if(cnst_is_pT_over_20GeV){m_hResidual_E_20GeV[iside]->Fill(loc-locR);  }
 	    }
 	  }// ibe==1
 	}//DoShift && DoStraws
@@ -2896,7 +2981,8 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
 	  }
 	  //m_nTRTHitsW_permodule[iside][m_layer_or_wheel]++;
 	  m_nTRTHitsW_perwheel[iside][m_layer_or_wheel]++;
-	  if (RawDriftCircle->highLevel()) {
+  //if (RawDriftCircle->highLevel()) {
+	  if (is_middleHTbit_high) {
 	    m_nTRTHLHitsW[ibe][iside]++;
 	    if (isArgonStraw){
 	      m_nTRTHLHitsW_Ar[ibe][iside]++;
@@ -3171,9 +3257,13 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
           if (TronTDistScale_B > 0) {
             scale_LWHist(m_hTronTDist_B,1./TronTDistScale_B);
           }
-          ResidualScale_B = m_hResidual_B->GetEntries()*0.05;
+          ResidualScale_B = m_hResidual_B->GetEntries()*0.025;
           if (ResidualScale_B > 0) {
             scale_LWHist(m_hResidual_B,1./ResidualScale_B);
+          }
+          ResidualScale_B_20GeV = m_hResidual_B_20GeV->GetEntries()*0.025;
+          if (ResidualScale_B_20GeV > 0) {
+            scale_LWHist(m_hResidual_B_20GeV,1./ResidualScale_B_20GeV);
           }
           TimeResidualScale_B = m_hTimeResidual_B->GetEntries()*0.2;
           if (TimeResidualScale_B > 0) {
@@ -3192,9 +3282,13 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
             if (TronTDistScale_B_Ar > 0) {
               scale_LWHist(m_hTronTDist_B_Ar,1./TronTDistScale_B_Ar);
             }
-            ResidualScale_B_Ar = m_hResidual_B_Ar->GetEntries()*0.05;
+            ResidualScale_B_Ar = m_hResidual_B_Ar->GetEntries()*0.025;
             if (ResidualScale_B_Ar > 0) {
               scale_LWHist(m_hResidual_B_Ar, 1. / ResidualScale_B_Ar);
+            }
+            ResidualScale_B_Ar_20GeV = m_hResidual_B_Ar_20GeV->GetEntries()*0.025;
+            if (ResidualScale_B_Ar_20GeV > 0) {
+              scale_LWHist(m_hResidual_B_Ar_20GeV, 1. / ResidualScale_B_Ar_20GeV);
             }
             TimeResidualScale_B_Ar = m_hTimeResidual_B_Ar->GetEntries()*0.2;
             if (TimeResidualScale_B_Ar > 0) {
@@ -3227,9 +3321,13 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
             if (TronTDistScale_E[iside] > 0) {
               scale_LWHist(m_hTronTDist_E[iside],1./TronTDistScale_E[iside]);
             }
-            ResidualScale_E[iside] = m_hResidual_E[iside]->GetEntries()*0.05;
+            ResidualScale_E[iside] = m_hResidual_E[iside]->GetEntries()*0.025;
             if (ResidualScale_E[iside] > 0) {
               scale_LWHist(m_hResidual_E[iside],1./ResidualScale_E[iside]);
+            }
+            ResidualScale_E_20GeV[iside] = m_hResidual_E_20GeV[iside]->GetEntries()*0.025;
+            if (ResidualScale_E_20GeV[iside] > 0) {
+              scale_LWHist(m_hResidual_E_20GeV[iside],1./ResidualScale_E_20GeV[iside]);
             }
             TimeResidualScale_E[iside] = m_hTimeResidual_E[iside]->GetEntries()*0.2;
             if (TimeResidualScale_E[iside] > 0) {
@@ -3248,10 +3346,15 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
               if (TronTDistScale_E_Ar[iside] > 0) {
                 scale_LWHist(m_hTronTDist_E_Ar[iside],1./TronTDistScale_E_Ar[iside]);
               }
-              ResidualScale_E_Ar[iside] = m_hResidual_E_Ar[iside]->GetEntries()*0.05;
+              ResidualScale_E_Ar[iside] = m_hResidual_E_Ar[iside]->GetEntries()*0.025;
               if (ResidualScale_E_Ar[iside] > 0) {
                 scale_LWHist(m_hResidual_E_Ar[iside], 1. / ResidualScale_E_Ar[iside]);
               }
+              ResidualScale_E_Ar_20GeV[iside] = m_hResidual_E_Ar_20GeV[iside]->GetEntries()*0.025;
+              if (ResidualScale_E_Ar_20GeV[iside] > 0) {
+                scale_LWHist(m_hResidual_E_Ar_20GeV[iside], 1. / ResidualScale_E_Ar_20GeV[iside]);
+              }
+
               TimeResidualScale_E_Ar[iside] = m_hTimeResidual_E_Ar[iside]->GetEntries()*0.2;
               if (TimeResidualScale_E_Ar[iside] > 0) {
                 scale_LWHist(m_hTimeResidual_E_Ar[iside],1./TimeResidualScale_E_Ar[iside]);
@@ -3349,12 +3452,16 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Efficiency()
     if (perigee) {
       m_p =  (perigee->parameters()[Trk::qOverP]!=0.) ? fabs(1./(perigee->parameters()[Trk::qOverP])) : 1.0e+08;
     }
+    ///hardcoded cut for pT 2.0 GeV for collision setup
+    float min_pt_new=m_min_pT;
+    if(m_isCosmics==false){
+      min_pt_new=2.0 * CLHEP::GeV;
+    }///
     // preselect tracks
-
     const bool passed_track_preselection =
       (fabs(perigee->parameters()[Trk::d0]) < m_max_abs_d0)&&
       (fabs(perigee->parameters()[Trk::z0]) < m_max_abs_z0)&&
-      (perigee->pT() > m_min_pT)&&
+      (perigee->pT() > min_pt_new)&&
       (m_p > m_minP) &&
       (fabs(perigee->eta()) < m_max_abs_eta)&&
       (n_pixel_hits >= m_min_pixel_hits)&&
@@ -3580,6 +3687,9 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
   timestamp = thisEventsInfo->event_ID()->time_stamp();
    if(timestamp>maxtimestamp)maxtimestamp = timestamp;
 
+  int run_num; 
+  run_num = thisEventsInfo->event_ID()->run_number(); 
+  
   // get Online Luminosity 
   //double lbDur = m_lumiTool->lbDuration();      
   //double AveLum = m_lumiTool->lbAverageLuminosity();
@@ -3689,12 +3799,18 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
         ATH_MSG_WARNING("RawDriftCircle object returned null");
         continue;
       }
-      bool isHighLevel= RawDriftCircle->highLevel();
+      int middleHTbit       = RawDriftCircle->getWord() & 0x00020000;
+      //0x00020000 = 0000 0000 0000 0000 0000 0010 0000 0000 0000 0000
+      bool is_middleHTbit_high   = (middleHTbit !=0);
+
+      //bool isHighLevel= RawDriftCircle->highLevel();
+      bool isHighLevel= is_middleHTbit_high;//Hardcoded HT Middle Bit 
       bool shortStraw = false;
       int InputBar = 0;
 
       if(fabs(track_eta)<2. && Ba_Ec==0.){
         if((layer_or_wheel==0)&&(phi_module<4||(phi_module>7&&phi_module<12)||(phi_module>15&&phi_module<20)||(phi_module>23&&phi_module<28))) InputBar = 1;//C1=true;
+        else if((run_num >= 296939) && (layer_or_wheel==0) && (phi_module>27)) InputBar = 1;
         else if(layer_or_wheel==0 /*&&C1==false*/)
           InputBar = 0;//A1= true;
         else if((layer_or_wheel==1)&&((phi_module>1&&phi_module<6)||(phi_module>9&&phi_module<14)||(phi_module>17&&phi_module<22)||(phi_module>25&&phi_module<30)))

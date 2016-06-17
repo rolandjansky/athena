@@ -189,7 +189,9 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   TProfile_LW* m_hStrawEffDetPhi_B;//hStrawEffDetPhi 
   TH1F_LW* m_hHitWMap_B;
   TH1F_LW* m_hHitWonTMap_B;
+  TH1F_LW* m_Pull_Biased_Barrel;
   TH1F_LW* m_hResidual_B;//hHitToTrkDistance
+  TH1F_LW* m_hResidual_B_20GeV;//hHitToTrkDistance
   TH1F_LW* m_hTimeResidual_B;//hHitToTrkDistance
   TH1F_LW* m_hDriftTimeonTrkDist_B;//hDriftTimeonTrk
   TH1F_LW* m_hTronTDist_B;//hTronT
@@ -209,6 +211,7 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   TH1F_LW* m_hTronTDist_B_Ar;//hTronT
   TH1F_LW* m_hHitWMap_B_Ar;
   TH1F_LW* m_hResidual_B_Ar;
+  TH1F_LW* m_hResidual_B_Ar_20GeV;
   TH1F_LW* m_hTimeResidual_B_Ar;
   TH2F_LW* m_hrtRelation_B_Ar;//hrt
 
@@ -220,7 +223,9 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   TProfile_LW* m_hStrawEffDetPhi_E[2];//hStrawEffDetPhi 
   TH1F_LW* m_hHitWMap_E[2];
   TH1F_LW* m_hHitWonTMap_E[2];
+  TH1F_LW* m_Pull_Biased_EndCap;
   TH1F_LW* m_hResidual_E[2];//hHitToTrkDistance
+  TH1F_LW* m_hResidual_E_20GeV[2];//hHitToTrkDistance
   TH1F_LW* m_hTimeResidual_E[2];//hHitToTrkDistance
   TH1F_LW* m_hDriftTimeonTrkDist_E[2];//hDriftTimeonTrk
   TH1F_LW* m_hTronTDist_E[2];//hTronT
@@ -240,6 +245,7 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   TH1F_LW* m_hDriftTimeonTrkDist_E_Ar[2];//hDriftTimeonTrk
   TH1F_LW* m_hHitWMap_E_Ar[2];
   TH1F_LW* m_hResidual_E_Ar[2];
+  TH1F_LW* m_hResidual_E_Ar_20GeV[2];
   TH1F_LW* m_hTimeResidual_E_Ar[2];
   TH2F_LW* m_hrtRelation_E_Ar[2];//hrt
 
@@ -518,10 +524,12 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   float WireToTrkPositionScale_B_Ar;
   float TronTDistScale_B;
   float ResidualScale_B;
+  float ResidualScale_B_20GeV;
   float TimeResidualScale_B;
   float DriftTimeonTrkDistScale_B_Ar;
   float TronTDistScale_B_Ar;
   float ResidualScale_B_Ar;
+  float ResidualScale_B_Ar_20GeV;
   float TimeResidualScale_B_Ar;
   float nTrkvPhiScale_B;//obsolete
   int nTrksperLB_B;
@@ -538,10 +546,12 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   float WireToTrkPositionScale_E_Ar[2];
   float TronTDistScale_E[2];
   float ResidualScale_E[2];
+  float ResidualScale_E_20GeV[2];
   float TimeResidualScale_E[2];
   float DriftTimeonTrkDistScale_E_Ar[2];
   float TronTDistScale_E_Ar[2];
   float ResidualScale_E_Ar[2];
+  float ResidualScale_E_Ar_20GeV[2];
   float TimeResidualScale_E_Ar[2];
   float nTrkvPhiScale_E[2];//obsolete
   int nTrksperLB_E[2];
