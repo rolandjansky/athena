@@ -462,7 +462,7 @@
                        
          <TEST name="Trigreco_physicsV6_currentT0" type="script" suite="TrigP1HLTvarious"> 
             <options_atn>trigtest.pl --cleardir --test Trigreco_physicsV6_currentT0 --rundir Trigreco_physicsV6_currentT0 --conf TrigP1Test.conf</options_atn> 
-            <timelimit>35</timelimit> 
+            <timelimit>50</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -497,30 +497,27 @@
         <!--  A short chain of tests onSteering and Data access -->
       
 
-	<TEST name="pureNewSteering_ecodes" type="script" suite="TrigP1pureNewSteering">
-            <options_atn>trigtest.pl --test pureNewSteering_ecodes --run pureNewSteering_ecodes --conf TrigP1Test.conf</options_atn>
+	<TEST name="pureSteering_ecodes" type="script" suite="TrigP1pureSteering">
+            <options_atn>trigtest.pl --cleardir --test pureSteering_ecodes --rundir pureSteering_ecodes --conf TrigP1Test.conf</options_atn>
             <timelimit>10</timelimit>
-            <author>TAPM validation</author>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
         
-        <TEST name="pureNewSteering_prescaling" type="script" suite="TrigP1pureNewSteering">
-            <options_atn>trigtest.pl --test pureNewSteering_prescaling --run pureNewSteering_prescaling --conf TrigP1Test.conf</options_atn>
+        <TEST name="pureSteering_prescaling" type="script" suite="TrigP1pureSteering">
+            <options_atn>trigtest.pl --cleardir --test pureSteering_prescaling --rundir pureSteering_prescaling --conf TrigP1Test.conf</options_atn>
             <timelimit>10</timelimit>
-            <author>TAPM validation</author>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
         
-        <TEST name="pureNewSteering_merged" type="script" suite="TrigP1pureNewSteering">
-            <options_atn>trigtest.pl --test pureNewSteering_merged --run pureNewSteering_merged --conf TrigP1Test.conf</options_atn>
+        <TEST name="pureSteering" type="script" suite="TrigP1pureSteering">
+            <options_atn>trigtest.pl --cleardir --test pureSteering --rundir pureSteering --conf TrigP1Test.conf</options_atn>
             <timelimit>10</timelimit>
-            <author>TAPM validation</author>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
