@@ -12,8 +12,6 @@
 ***************************************************************************/
 #include "InDetConversionFinderTools/ConversionPostSelector.h"
 
-#include "xAODTracking/Vertex.h"
-
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
 
