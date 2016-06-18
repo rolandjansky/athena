@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "Particle/TrackParticle.h"
+#include "xAODTracking/Vertex.h"
 
 class MsgStream;
 
@@ -50,7 +51,7 @@ namespace InDet {
     /** Add new perigee to track. */
     const Trk::Track* addNewPerigeeToTrack(const Trk::Track* track, const Trk::Perigee* mp);
     /** Correct VxCandidate with respect to a user defined vertex.  */
-    Trk::VxCandidate* correctVxCandidate(Trk::VxCandidate*,Amg::Vector3D);
+    xAOD::Vertex* correctVxCandidate(xAOD::Vertex*,Amg::Vector3D);
     /** Get measured track parameters at first hit. Trk::TrackParticleBase interface. */
     const Trk::TrackParameters* getTrkParticleParameters(const Trk::TrackParticleBase*);
   private:

@@ -28,8 +28,6 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 
-class VxContainer;
-
 namespace Trk
 {
   class IVertexFitter;
@@ -48,7 +46,7 @@ namespace InDet{
      @class InDetConversionFinderTools
      
      InDet::InDetConversionFinderTools is a tool which reconstructs conversion
-     vertex candidates in the form of Trk::VxCandidate using Trk::Track or
+     vertex candidates in the form of xAOD::Vertex using Trk::Track (no longer available) or
      Trk::TrackParticleBase (default) as an input
   */
   
@@ -66,9 +64,9 @@ namespace InDet{
     bool                              m_isConversion          ;  //!< Conversions or V0s
     bool                              m_decorateVertices      ;  //!< Decorate vertices with values used for vertex selection
     
-    VxContainer* findVertex(const TrackCollection* trk_coll);    //!< Conversion candidate reconstruction for Trk::Tracks.
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const TrackCollection* trk_coll);    //!< Conversion candidate reconstruction for Trk::Tracks.
   
-    VxContainer* findVertex(const Trk::TrackParticleBaseCollection* trk_coll); 
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const Trk::TrackParticleBaseCollection* trk_coll);
   
     /** Conversion candidate reconstruction for Trk::TrackParticle (default)  */
     virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const xAOD::TrackParticleContainer* trk_coll); 

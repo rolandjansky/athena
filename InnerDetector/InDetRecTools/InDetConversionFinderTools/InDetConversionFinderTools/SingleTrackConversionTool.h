@@ -15,7 +15,6 @@ namespace Trk
 {
   class Track;
   class TrackParticleBase;
-  class VxCandidate;
   class ITrackSummaryTool;
   class IExtrapolator;
 }
@@ -40,7 +39,7 @@ namespace InDet {
     virtual StatusCode finalize();
     
     /** Build single track conversion candidate. Trk::Track interface.  */
-    Trk::VxCandidate* buildSingleTrackConversion(const Trk::Track* track);
+    xAOD::Vertex* buildSingleTrackConversion(const Trk::Track* track);
     /** Select single track conversion candidates.  Trk::Track interface. */
     bool selectSingleTrackConversion(const Trk::Track* track);
     /** Build single track conversion candidate. xAOD::TrackParticle interface.  */
