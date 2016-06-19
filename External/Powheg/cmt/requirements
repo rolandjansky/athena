@@ -10,7 +10,7 @@ macro Powheg_home  "${SITEROOT}/atlas/offline/external/powhegbox" \
         EXTSITE    "${SITEROOT}/powhegbox" \
         STANDALONE "${SITEROOT}/powhegbox"
 
-macro Powheg_native_version "ATLASOTF-00-03-06"
+macro Powheg_native_version "ATLASOTF-00-03-07"
 	
 macro Powheg_dir "${Powheg_home}/${Powheg_native_version}"
 	
