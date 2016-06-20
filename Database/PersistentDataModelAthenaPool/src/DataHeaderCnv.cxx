@@ -10,6 +10,7 @@
 
 #include "DataHeaderCnv.h"
 
+#include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModelTPCnv/DataHeaderCnv_p3.h"
 #include "PersistentDataModelTPCnv/DataHeaderCnv_p4.h"
@@ -28,6 +29,48 @@ DataHeaderCnv::DataHeaderCnv(ISvcLocator* svcloc) :
 }
 DataHeaderCnv::~DataHeaderCnv() {
    delete m_dhForm ; m_dhForm = 0;
+}
+
+//______________________________________________________________________________
+StatusCode DataHeaderCnv::updateRep(IOpaqueAddress* pAddress, DataObject* pObject) {
+   if (!m_dhForm) {
+      MsgStream log(messageService(), "DataHeaderCnv");
+      log << MSG::ERROR << "updateRep called without DataHeaderForm being set" << endreq;
+      return(StatusCode::FAILURE);
+   }
+   std::size_t clidBeg = pAddress->par()[0].find("[CLID=") + 6;
+   std::size_t clidSize = pAddress->par()[0].find("]", clidBeg) - clidBeg;
+   if (pAddress->par()[0].substr(clidBeg, clidSize) != "D82968A1-CF91-4320-B2DD-E0F739CBC7E6") {
+      MsgStream log(messageService(), "DataHeaderCnv");
+      log << MSG::ERROR << "updateRep called without DataHeader_p5" << endreq;
+      return(StatusCode::FAILURE);
+   }
+   DataHeader_p5* dataHeader = (DataHeader_p5*)pObject;
+   dataHeader->setDhForm(m_dhForm);
+   m_dhForm->start();
+   for (unsigned int i = 0; i < dataHeader->elements().size(); i++) {
+      m_dhForm->next();
+   }
+   std::size_t tagBeg = pAddress->par()[1].find("[KEY=") + 5;
+   std::size_t tagSize = pAddress->par()[1].find("]", tagBeg) - tagBeg;
+   m_TPconverter.insertDHRef(dataHeader, pAddress->par()[1].substr(tagBeg, tagSize), pAddress->par()[0]);
+   std::size_t tokenBeg = pAddress->par()[1].find("[FORM=[") + 6;
+   std::size_t tokenSize = pAddress->par()[1].find("]]", tokenBeg) + 1 - tokenBeg;
+   dataHeader->setDhFormToken(pAddress->par()[1].substr(tokenBeg, tokenSize));
+   return(StatusCode::SUCCESS);
+}
+
+//______________________________________________________________________________
+StatusCode DataHeaderCnv::updateRepRefs(IOpaqueAddress* pAddress, DataObject* pObject) {
+   std::size_t clidBeg = pAddress->par()[0].find("[CLID=") + 6;
+   std::size_t clidSize = pAddress->par()[0].find("]", clidBeg) - clidBeg;
+   if (pAddress->par()[0].substr(clidBeg, clidSize) != "3397D8A3-BBE6-463C-9F8E-4B3DFD8831FE") {
+      MsgStream log(messageService(), "DataHeaderCnv");
+      log << MSG::ERROR << "updateRep called without DataHeaderForm_p5" << endreq;
+      return(StatusCode::FAILURE);
+   }
+   m_dhForm = (DataHeaderForm_p5*)pObject;
+   return(StatusCode::SUCCESS);
 }
 
 //______________________________________________________________________________
@@ -68,7 +111,9 @@ StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& 
       return(StatusCode::FAILURE);
    }
    this->setPlacementWithType("DataHeader", tname);
-   const Token* dh_token = m_athenaPoolCnvSvc->registerForWrite(m_placement, persObj, m_classDesc);
+   Placement placement;
+   placement.fromString(m_placement->toString() + "[KEY=" + obj->getProcessTag() + "][FORM=" + dhf_token->toString() + "]");
+   const Token* dh_token = m_athenaPoolCnvSvc->registerForWrite(&placement, persObj, m_classDesc);
    if (dh_token == 0) {
       delete dhf_token; dhf_token = 0;
       MsgStream log(messageService(), "DataHeaderCnv");
