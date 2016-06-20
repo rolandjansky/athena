@@ -5,7 +5,7 @@
 """
 
 __author__ =   "A. Salzburger"
-__version__=   "$Revision: 753307 $"
+__version__=   "$Revision: 756242 $"
 __doc__    =   "SLHC_PathSetting"
 __all__    = [ "SLHC_PathSetting" ]
 
@@ -13,6 +13,8 @@ import os
 from os.path import exists, join
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
 
+from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
+auto_isGMX = (SLHC_Flags.doGMX()) or (GeometryFlags.StripGeoType() == "GMX") 
 
 class SLHC_Setup_XMLReader :
     # constructor requires the SLHC_Flags
@@ -27,12 +29,15 @@ class SLHC_Setup_XMLReader :
                              createXML = True,
                              doPix=True,
                              doSCT=True,
-                             isGMX=False,
+                             isGMX=auto_isGMX,
                              )
 
 class SLHC_Setup :
     # constructor requires the SLHC_Flags
     def __init__(self):
+
+        from InDetTrackingGeometryXML.XMLReaderJobProperties import XMLReaderFlags
+        bReadXMLfromDB = XMLReaderFlags.readXMLfromDB()
 
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         from AthenaCommon.AppMgr import ToolSvc as toolSvc
@@ -161,6 +166,7 @@ class SLHC_Setup :
         pixelTool.Alignable = False
         pixelTool.FastBuildGeoModel = True
         pixelTool.ConfigGeoAlgTool = True
+        pixelTool.ReadXMLFromDB = bReadXMLfromDB
         pixelTool.ConfigGeoBase = "GeoPixelEnvelopeInclRefTool"
         
 
