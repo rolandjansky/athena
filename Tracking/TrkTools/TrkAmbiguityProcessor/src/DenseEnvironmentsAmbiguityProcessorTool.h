@@ -121,7 +121,7 @@ namespace Trk {
       void dumpTracks(const TrackCollection& tracks);
 
       /** stores the minimal dist(trk,trk) for covariance correction*/
-      void storeTrkDistanceMapdR(const TrackCollection& tracks );
+      void storeTrkDistanceMapdR(const TrackCollection& tracks, TrackCollection &refit_tracks_out );
       
       /**  Find SiS Tracks that share hits in the track score map*/
       void overlapppingTracks();
@@ -207,8 +207,6 @@ namespace Trk {
          Recreated anew each time process() is called*/ 
       TrackCollection* m_finalTracks;
       
-      TrackCollection* m_refitTracks;
-
       /**NN split sprob cut for 2 particle clusters */      
       float m_sharedProbCut;
 

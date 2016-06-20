@@ -8,8 +8,9 @@ atlas_subdir( TrkAmbiguityProcessor )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
+                          Control/SGTools
                           DetectorDescription/AtlasDetDescr
-                          GaudiKernel
+                          GaudiKernel			  
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           Tracking/TrkDetDescr/TrkDetElementBase

@@ -52,7 +52,6 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   m_splitProbTool("InDet::NnPixelClusterSplitProbTool/NnPixelClusterSplitProbTool"),  
   m_assoTool("Trk::PRD_AssociationTool/DEAmbi_PRD_AssociationTool"),
   m_finalTracks(0),
-  m_refitTracks(0),
   m_Nevents(0),
   m_Ncandidates(4), m_NcandScoreZero(4), m_NcandDouble(4),
   m_NscoreOk(4),m_NscoreZeroBremRefit(4),m_NscoreZeroBremRefitFailed(4),
@@ -494,13 +493,12 @@ TrackCollection*  Trk::DenseEnvironmentsAmbiguityProcessorTool::process(const Tr
   
   if(m_applydRcorrection)
   {
+      TrackCollection refit_tracks;
       // create map of track dRs
-      storeTrkDistanceMapdR(*m_finalTracks);
-      if(m_refitTracks){
-          for(auto track : *m_refitTracks)
-          {
+      storeTrkDistanceMapdR(*m_finalTracks,refit_tracks);
+      for(const Trk::Track* track : refit_tracks)
+      {
               refitTrack(track);
-          }
       }
   }
 
@@ -532,8 +530,6 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::reset()
   //final copy - ownership is passed out of algorithm
   m_finalTracks = new TrackCollection;
   
-  m_refitTracks = new TrackCollection;
-
   if (m_monitorTracks)
     m_observerTool->reset();
 
@@ -1471,7 +1467,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::dumpTracks( const TrackCollec
 
 //==================================================================================================
 
-void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( const TrackCollection& tracks )
+void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( const TrackCollection& tracks, TrackCollection &refit_tracks_out )
 {
   ATH_MSG_VERBOSE ("Creating track Distance dR map");
   m_dRMap = new InDet::DRMap;
@@ -1568,7 +1564,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( const 
 	        }
          }
       }
-      if(refit) m_refitTracks->push_back(track);
+      if(refit) refit_tracks_out.push_back(track);
   }
   return;
 }
