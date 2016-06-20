@@ -6,34 +6,20 @@
 #undef DEBUG_SD
 #undef DEBUG_HITS
 
-#include "FadsSensitiveDetector/SensitiveDetectorEntryT.h"
+#include "LArG4TBECBeamChSensitiveDetector.h"
+#include "LArG4TBECBeamChCalculator.h"
+#include "LArG4TBECBeamChHit.h"
 
-#include "LArG4H6SD/LArG4TBECBeamChSensitiveDetector.h"
-#include "LArG4H6SD/LArG4TBECBeamChCalculator.h"
-#include "LArG4H6SD/LArG4TBECBeamChHit.h"
-
-#include "G4VHit.hh"
-#include "G4VSensitiveDetector.hh"
 #include "G4Step.hh"
-#include "G4TouchableHistory.hh"
 #include "G4ios.hh"
 
 #include <map>
 #include <vector>
 
-using namespace FADS;
-
-static SensitiveDetectorEntryT<LArG4TBECBeamChSensitiveDetector>
-        beam_chambers_SD("LArG4TBECBeamCh");
-
-LArG4TBECBeamChSensitiveDetector::m_Hit_t
-        LArG4TBECBeamChSensitiveDetector::m_Hits;
-
-LArG4TBECBeamChSensitiveDetector::LArG4TBECBeamChSensitiveDetector(
-        G4String a_name
-) : LArG4SD(a_name),
-    m_calculator(new LArG4TBECBeamChCalculator()),
-    m_detectorName(a_name)
+LArG4TBECBeamChSensitiveDetector::LArG4TBECBeamChSensitiveDetector(G4String a_name)
+  : G4VSensitiveDetector(a_name)
+  , m_calculator(new LArG4TBECBeamChCalculator())
+  , m_detectorName(a_name)
 {
   // Construct a unique name for the collection of hits maintained by
   // a sensitive detector.  Hit collection names can't have any

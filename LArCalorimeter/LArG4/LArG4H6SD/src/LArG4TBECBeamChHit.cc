@@ -4,7 +4,7 @@
 
 // LArG4TBECBeamChHit
 
-#include "LArG4H6SD/LArG4TBECBeamChHit.h"
+#include "LArG4TBECBeamChHit.h"
 
 #include "G4Allocator.hh"
 #include "G4ios.hh"

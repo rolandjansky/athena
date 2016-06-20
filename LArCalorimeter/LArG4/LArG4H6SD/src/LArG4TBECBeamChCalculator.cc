@@ -3,7 +3,7 @@
 */
 
 // LArG4TBECBeamChCalculator
-#include "LArG4H6SD/LArG4TBECBeamChCalculator.h"
+#include "LArG4TBECBeamChCalculator.h"
 
 #include "G4ThreeVector.hh"
 #include "G4StepPoint.hh"
