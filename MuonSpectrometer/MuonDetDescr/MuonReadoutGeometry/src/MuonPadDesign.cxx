@@ -117,7 +117,7 @@ bool MuonPadDesign::channelPosition(std::pair<int,int> pad, Amg::Vector2D& pos) 
     channelCorners(pad, corners);
     double yCenter = 0.5*(corners.at(0)[1]+corners.at(2)[1]);
     double xCenter = 0.5*(0.5*(corners.at(0)[0]+corners.at(1)[0]) + 0.5*(corners.at(2)[0]+corners.at(3)[0]));
-    pos[0] = -1.0*etasign*xCenter;
+    pos[0] = xCenter;
     pos[1] = yCenter;
     return true;    
 }
@@ -187,10 +187,10 @@ bool MuonPadDesign::channelCorners(std::pair<int,int> pad, std::vector<Amg::Vect
     //double xCenter = 0.5*(0.5*(xBotLeft+xBotRight) + 0.5*(xTopLeft+xTopRight));
     //pos[0] = xCenter;
     //pos[1] = yCenter;
-    corners.push_back(Amg::Vector2D(xBotLeft,yBot));
-    corners.push_back(Amg::Vector2D(xBotRight,yBot));
-    corners.push_back(Amg::Vector2D(xTopLeft,yTop));
-    corners.push_back(Amg::Vector2D(xTopRight,yTop));
+    corners.push_back(Amg::Vector2D(-1.0*etasign*xBotLeft,yBot));
+    corners.push_back(Amg::Vector2D(-1.0*etasign*xBotRight,yBot));
+    corners.push_back(Amg::Vector2D(-1.0*etasign*xTopLeft,yTop));
+    corners.push_back(Amg::Vector2D(-1.0*etasign*xTopRight,yTop));
     //std::cout << "MuonPadDesign::channelPosition padEta " << pad.first << " padPhi " << pad.second << " x " << xCenter << " y " << yCenter << std::endl;
     return true;
     // return false; // DG-2015-12-01 \todo run validation and determine when this function fails

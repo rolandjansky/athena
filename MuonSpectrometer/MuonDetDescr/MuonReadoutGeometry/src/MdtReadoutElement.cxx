@@ -209,6 +209,24 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
       if (nGrandchildren <= 0) return tlength;
       // child vol 0 is foam; 1 to (nGrandchildren-1) should be tubes
       int ii = (tubeLayer-1)*m_ntubesperlayer+tube;
+      if( (getStationName()).find("BMG") != std::string::npos ) {
+        // usually the tube number corresponds to the child number, however for
+        // BMG chambers full tubes are skipped during the building process
+        // therefore the matching needs to be done via the volume ID
+        int tubenbr = -1;
+        int layernbr = -1;
+        for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
+           tubenbr = cv->getIdOfChildVol(kk) % 100;
+           layernbr = ( cv->getIdOfChildVol(kk) - tubenbr ) / 100;
+           if( tubenbr == tube && layernbr == tubeLayer) {
+             ii = kk;
+             if (reLog().level() <= MSG::DEBUG)  
+	        reLog() << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubeLayer 
+                        << ") - output match : tube(" << tubenbr << "), layer(" << layernbr << ")" << endreq;
+             break;
+           }
+        }
+      }
       if (ii>=nGrandchildren) 
 	{
 	  reLog() << MSG::WARNING << " MdtReadoutElement " << getStationName() << " stEta " << getStationEta()
@@ -550,6 +568,24 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
         int nGrandchildren = cv->getNChildVols();
         // child vol 0 is foam; 1 to (nGrandchildren-1) should be tubes
         int ii = (tubelayer-1)*m_ntubesperlayer+tube;
+        if( (getStationName()).find("BMG") != std::string::npos ) {
+          // usually the tube number corresponds to the child number, however for
+          // BMG chambers full tubes are skipped during the building process
+          // therefore the matching needs to be done via the volume ID
+          int tubenbr = -1;
+          int layernbr = -1;
+          for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
+             tubenbr = cv->getIdOfChildVol(kk) % 100;
+             layernbr = ( cv->getIdOfChildVol(kk) - tubenbr ) / 100;
+             if( tubenbr == tube && layernbr == tubelayer) {
+               ii = kk;
+               if (reLog().level() <= MSG::DEBUG)  
+	          reLog() << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubelayer 
+                          << ") - output match : tube(" << tubenbr << "), layer(" << layernbr << ")" << endreq;
+               break;
+             }
+          }
+        }
         HepGeom::Transform3D tubeTrans = cv->getXToChildVol(ii);
         PVConstLink tv = cv->getChildVol(ii);
         double maxtol = 0.0000001;
