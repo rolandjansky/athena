@@ -11,7 +11,7 @@
    @class AthElectronEfficiencyCorrectionTool
    @brief Calculate the egamma scale factors in Athena
 
-   @author Rob Roy Fletcher, Karsten Koeneke
+   @author Kristin Lohwasser (Rob Roy Fletcher, Karsten Koeneke)
    @date   May 2014
 */
 
@@ -24,6 +24,7 @@
 
 // Include the return object and the underlying ROOT tool
 #include "PATCore/TResult.h"
+#include "AthContainers/AuxElement.h"
 
 //xAOD includes
 #include "AsgTools/AsgTool.h"
@@ -32,7 +33,6 @@
 #include "PATInterfaces/CorrectionCode.h"
 #include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
 #include "ElectronEfficiencyCorrection/IAsgElectronEfficiencyCorrectionTool.h"
-
 #include "xAODEgamma/ElectronFwd.h"
 
 class AsgElectronEfficiencyCorrectionTool
@@ -41,7 +41,7 @@ class AsgElectronEfficiencyCorrectionTool
 {
   ASG_TOOL_CLASS(AsgElectronEfficiencyCorrectionTool, IAsgElectronEfficiencyCorrectionTool)
 
-public:
+  public:
   /// Standard constructor
   AsgElectronEfficiencyCorrectionTool ( const std::string myname );
 
@@ -58,18 +58,23 @@ public:
 
   // Main methods from IUserDataCalcTool
 public:
-  /// The main calculate method: the actual correction factors are determined here
-  const Root::TResult& calculate( const xAOD::IParticle* part ) const;
-  const Root::TResult& calculate( const xAOD::Electron* egam ) const;
-  const Root::TResult& calculate( const xAOD::Electron& egam ) const{ 
-    return calculate(&egam); 
-  }
+
+  int getNumberOfToys( ){return m_number_of_toys;} ;
+
 
   CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::Electron& inputObject, double& efficiencyScaleFactor) const;
+  CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::Electron& inputObject) const;
 
-  CP::CorrectionCode applyEfficiencyScaleFactor(xAOD::Electron& inputObject) const;
-
-
+  /// print available/implemented correlation models
+  void printCorrelationModels() {
+    ATH_MSG_INFO(" Available Correlation Models for the ElectronEfficiencyCorrectionTool");
+    ATH_MSG_INFO("FULL");
+    ATH_MSG_INFO("SIMPLIFIED");
+    ATH_MSG_INFO("MCTOYS");
+    ATH_MSG_INFO("SYST");
+    ATH_MSG_INFO("COMBMCTOYS");
+    ATH_MSG_INFO("TOTAL");
+  } ;
 
   /// returns: whether this tool is affected by the given systematis
   virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const ;
@@ -90,14 +95,20 @@ public:
 
   CP::SystematicCode registerSystematics();
 
-  /// Method to get the plain TResult
-  virtual const Root::TResult& getTResult() const{
-    return m_rootTool->getTResult();
-  }
-
   // Private member variables
 private:
- 
+
+  /// The main calculate method: the actual correction factors are determined here
+  const Root::TResult& calculate( const xAOD::Electron& egam, const unsigned int runnumber, int &currentElectronSimplifiedUncorrSystRegion, int& currentElectronUncorrSystRegion ) const ;
+  CP::SystematicCode InitSystematics();
+
+  // struct for toys
+  struct SystConf{
+    float m_total;
+    unsigned m_toy_index;
+    float m_toy_scale;
+  };
+
   /// Pointer to the underlying ROOT based tool
   Root::TElectronEfficiencyCorrectionTool* m_rootTool;
 
@@ -107,14 +118,17 @@ private:
   /// Systematics filter map
   boost::unordered_map<CP::SystematicSet, CP::SystematicSet> m_systFilter;
 
+  ///Affected systematic, should be done only once
+  CP::SystematicSet m_affectedSys;
+
   /// Currently applied systematics
   CP::SystematicSet* m_appliedSystematics;
 
   // Properties
+  std::string m_correlation_model_name;
 
   /// The list of file names
   std::vector< std::string > m_corrFileNameList;
-
 
   /// The prefix string for the result
   std::string m_resultPrefix;
@@ -122,13 +136,42 @@ private:
   /// The string for the result
   std::string m_resultName;
 
+  // The prefix for the systematic name
+  std::string m_sysSubstring;
+
+  /// The Event info collection name
+  std::string m_eventInfoCollectionName;
+
+  //use RandomRun Number
+  bool m_useRandomRunNumber;
+  unsigned int m_defaultRandomRunNumber;
+
+  //The data type
+  PATCore::ParticleDataType::DataType m_dataType;
+
   /// Force the data type to a given value
   int m_dataTypeOverwrite;
 
+  // Number of toys:
+  int m_number_of_toys;
+
+  // seed for toys:
+  int m_seed_toys;
+    
+  // scale for toy uncertainty:
+  double m_scale_toys;
+
+  // number if systematics uncertainty    
+  int m_nCorrSyst;
+  int m_nUncorrSyst ;
+  std::map<float, std::vector<float> > m_pteta_bins;
+  
+  // simplified uncorrelation regions
+  TH2F * m_UncorrRegions;
+  int m_nSimpleUncorrSyst;
 
 }; // End: class definition
 
 
 
 #endif
-

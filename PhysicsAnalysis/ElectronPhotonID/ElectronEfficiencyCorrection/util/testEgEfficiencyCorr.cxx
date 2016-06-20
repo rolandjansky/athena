@@ -69,6 +69,8 @@ int main( int argc, char* argv[] ) {
    Info( APP_NAME, "Number of events in the file: %i",
          static_cast< int >( event.getEntries() ) );
 
+   std::cout << "=="<<std::endl;
+
 
    // Decide how many events to run over:
    Long64_t entries = event.getEntries();
@@ -84,6 +86,7 @@ int main( int argc, char* argv[] ) {
    std::vector<std::string> inputFiles{"ElectronEfficiencyCorrection/efficiencySF.offline.Loose.2012.8TeV.rel17p2.v07.root"} ;
    CHECK( myEgCorrections.setProperty("CorrectionFileNameList",inputFiles) );
    CHECK( myEgCorrections.setProperty("ForceDataType",1) );
+   CHECK( myEgCorrections.setProperty("CorrelationModel", "MCTOYS100" ));
 
    CHECK( myEgCorrections.initialize() );
 
@@ -91,7 +94,7 @@ int main( int argc, char* argv[] ) {
    CP::SystematicSet recSysts = myEgCorrections.recommendedSystematics();
    // Convert into a simple list
    std::vector<CP::SystematicSet> sysList = CP::make_systematics_vector(recSysts);
-
+  std::cout << "=="<<std::endl;
    // Loop over the events:
    entries = 1;
    for( Long64_t entry = 0; entry < entries; ++entry ) {
@@ -100,7 +103,9 @@ int main( int argc, char* argv[] ) {
      event.getEntry( entry );
      
      std::cout << "=================NEXT EVENT==========================" << std::endl;
-     
+     Info (APP_NAME,"Electron 6" );
+
+ 
      const xAOD::EventInfo* event_info = 0;  
      CHECK( event.retrieve( event_info, "EventInfo" ) ); 
       
