@@ -23,8 +23,11 @@
 #include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/TokenAddress.h"
+#include "PersistentDataModel/DataHeader.h"
 #include "PoolSvc/IPoolSvc.h"
 #include "StoreGate/StoreGate.h"
+
+#include "StorageSvc/DbReflex.h"
 
 #include <set>
 
@@ -294,15 +297,6 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSpec) {
 // This is called before DataObjects are being converted.
-   try {
-      if (!m_poolSvc->connect(pool::ITransaction::UPDATE).isSuccess()) {
-         ATH_MSG_ERROR("connectOutput FAILED to open an UPDATE transaction.");
-         return(StatusCode::FAILURE);
-      }
-   } catch (std::exception& e) {
-      ATH_MSG_ERROR("connectOutput - caught exception: " << e.what());
-      return(StatusCode::FAILURE);
-   }
    // Reset streaming parameters to CnvSvc properties.
    m_dhContainerPrefix = "POOLContainer";
    m_containerPrefix = m_containerPrefixProp.value();
@@ -334,6 +328,19 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
       ATH_MSG_ERROR("connectOutput FAILED extract file name and technology.");
       return(StatusCode::FAILURE);
    }
+
+   if (!m_outputStreamingTool.empty() && m_outputStreamingTool->isClient()) {
+      return(StatusCode::SUCCESS);
+   }
+   try {
+      if (!m_poolSvc->connect(pool::ITransaction::UPDATE).isSuccess()) {
+         ATH_MSG_ERROR("connectOutput FAILED to open an UPDATE transaction.");
+         return(StatusCode::FAILURE);
+      }
+   } catch (std::exception& e) {
+      ATH_MSG_ERROR("connectOutput - caught exception: " << e.what());
+      return(StatusCode::FAILURE);
+   }
    if (!processPoolAttributes(m_domainAttr, m_outputConnectionSpec, IPoolSvc::kOutputStream).isSuccess()) {
       ATH_MSG_DEBUG("connectOutput failed process POOL domain attributes.");
    }
@@ -345,6 +352,105 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionSpec*/, bool doCommit) {
 // This is called after all DataObjects are converted.
+   if (!m_outputStreamingTool.empty() && m_outputStreamingTool->isClient()) {
+      StatusCode sc = m_outputStreamingTool->lockObject("release");
+      while (sc.isRecoverable()) {
+         usleep(100);
+         sc = m_outputStreamingTool->lockObject("release");
+      }
+      return(StatusCode::SUCCESS);
+   }
+   if (!m_outputStreamingTool.empty() && m_outputStreamingTool->isServer()) {
+      // Clear object to get Placements for all objects in a Stream
+      char* placementStr = 0;
+      int num = -1;
+      StatusCode sc = m_outputStreamingTool->clearObject(&placementStr, num);
+      if (sc.isSuccess() && placementStr != 0 && strlen(placementStr) > 0 && num > 0) {
+         char* fileStr = strstr(placementStr, "[FILE=") + 6;
+         char* endPos = strpbrk(fileStr, "]"); *endPos = 0;
+         std::string fileName(fileStr); *endPos = ']';
+         if (!this->connectOutput(fileName).isSuccess()) {
+            ATH_MSG_ERROR("Failed to connectOutput for " << fileName);
+            delete placementStr; placementStr = 0;
+            return(StatusCode::FAILURE);
+         }
+         while (strncmp(placementStr, "release", 7) != 0) {
+            // Get object
+            void* buffer = 0;
+            size_t nbytes = 0;
+            sc = m_outputStreamingTool->getObject(&buffer, nbytes, num);
+            while (sc.isRecoverable()) {
+               usleep(100);
+               sc = m_outputStreamingTool->getObject(&buffer, nbytes, num);
+            }
+            if (!sc.isSuccess()) {
+               ATH_MSG_ERROR("Failed to get Data for " << placementStr);
+               delete placementStr; placementStr = 0;
+               return(StatusCode::FAILURE);
+            }
+            // Deserialize object
+            Guid classId(std::string(strstr(placementStr, "[PCLID=")).substr(7, 36));
+            const void* obj = m_serializeSvc->deserialize(buffer, nbytes, classId);
+            // Write object
+            Placement placement;
+            placement.fromString(placementStr);
+            delete placementStr; placementStr = 0;
+            const Token* token = this->registerForWrite(&placement, obj, pool::DbReflex::forGuid(classId));
+            if (token == 0) {
+               ATH_MSG_ERROR("Failed to write Data for: " << classId.toString());
+               return(StatusCode::FAILURE);
+            }
+
+            // For DataHeaderForm, Token needs to be inserted to DataHeader Object
+            if (classId == "3397D8A3-BBE6-463C-9F8E-4B3DFD8831FE") {
+               GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(), token->toString(), placement.auxString());
+               IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
+               if (!cnv->updateRepRefs(&address, (DataObject*)obj).isSuccess()) {
+                  ATH_MSG_ERROR("Failed updateRepRefs for obj = " << token->toString());
+                  return(StatusCode::FAILURE);
+               }
+            }
+
+            // Found DataHeader
+            if (classId == "D82968A1-CF91-4320-B2DD-E0F739CBC7E6") {
+               GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(), token->toString(), placement.auxString());
+               IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
+               if (!cnv->updateRep(&address, (DataObject*)obj).isSuccess()) {
+                  ATH_MSG_ERROR("Failed updateRep for obj = " << token->toString());
+                  return(StatusCode::FAILURE);
+               }
+            }
+
+            // Send Token back to Client
+            sc = m_outputStreamingTool->lockObject(token->toString().c_str(), num);
+            if (!sc.isSuccess()) {
+               ATH_MSG_ERROR("Failed to lock Data for " << token->toString());
+               delete token; token = 0;
+               return(StatusCode::FAILURE);
+            }
+            delete token; token = 0;
+            sc = m_outputStreamingTool->clearObject(&placementStr, num);
+            while (sc.isRecoverable()) {
+               usleep(100);
+               sc = m_outputStreamingTool->clearObject(&placementStr, num);
+            }
+            if (!sc.isSuccess()) {
+               ATH_MSG_ERROR("Failed to get Data for client: " << num);
+               delete placementStr; placementStr = 0;
+               return(StatusCode::FAILURE);
+            }
+         }
+         delete placementStr; placementStr = 0;
+      } else if (sc.isRecoverable() || num == -1) {
+         delete placementStr; placementStr = 0;
+         return(StatusCode::RECOVERABLE);
+      } else {
+         ATH_MSG_ERROR("Failed to get first Data for client: " << num);
+         delete placementStr; placementStr = 0;
+         return(StatusCode::FAILURE);
+      }
+   }
+
    if (m_useDetailChronoStat.value()) {
       m_chronoStatSvc->chronoStart("commitOutput");
    }
@@ -403,6 +509,9 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
 }
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::disconnectOutput() {
+   if (!m_outputStreamingTool.empty() && m_outputStreamingTool->isClient()) {
+      return(StatusCode::SUCCESS);
+   }
    // Setting default 'TREE_MAX_SIZE' for ROOT to 1024 GB to avoid file chains.
    std::vector<std::string> maxFileSize;
    maxFileSize.push_back("TREE_MAX_SIZE");
@@ -468,7 +577,54 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
    if (m_useDetailChronoStat.value() && m_doChronoStat) {
       m_chronoStatSvc->chronoStart("cRepR_" + m_className.back());
    }
-   const Token* token = m_poolSvc->registerForWrite(placement, obj, classDesc);
+   const Token* token = 0;
+   if (!m_outputStreamingTool.empty() && m_outputStreamingTool->isClient()) {
+      ATH_MSG_VERBOSE("Requesting write object for: " << placement->toString());
+      // Lock object
+      Guid classID = pool::DbReflex::guid(classDesc);
+      std::string placementStr = placement->toString() + "[PCLID=" + classID.toString() + "]";
+      StatusCode sc = m_outputStreamingTool->lockObject(placementStr.c_str());
+      while (sc.isRecoverable()) {
+         usleep(100);
+         sc = m_outputStreamingTool->lockObject(placementStr.c_str());
+      }
+      if (!sc.isSuccess()) {
+         ATH_MSG_ERROR("Failed to lock Data for " << placementStr);
+         return(0);
+      }
+      // Serialize object via ROOT
+      void* buffer = 0;
+      size_t nbytes = 0;
+      buffer = m_serializeSvc->serialize(obj, classID, nbytes);
+      // Share object
+      sc = m_outputStreamingTool->putObject(buffer, nbytes);
+      while (sc.isRecoverable()) {
+         usleep(100);
+         sc = m_outputStreamingTool->putObject(buffer, nbytes);
+      }
+      if (!sc.isSuccess()) {
+         ATH_MSG_ERROR("Failed to put Data for " << placementStr);
+         return(0);
+      }
+      // Get Token back from Server
+      char* tokenStr = 0;
+      int num = -1;
+      sc = m_outputStreamingTool->clearObject(&tokenStr, num);
+      while (sc.isRecoverable()) {
+         usleep(100);
+         sc = m_outputStreamingTool->clearObject(&tokenStr, num);
+      }
+      if (!sc.isSuccess()) {
+         ATH_MSG_ERROR("Failed to get Token");
+         delete tokenStr; tokenStr = 0;
+         return(0);
+      }
+      token = new Token();
+      const_cast<Token*>(token)->fromString(tokenStr);
+      delete tokenStr; tokenStr = 0;
+   } else {
+      token = m_poolSvc->registerForWrite(placement, obj, classDesc);
+   }
    if (m_useDetailChronoStat.value() && m_doChronoStat) {
       m_chronoStatSvc->chronoStop("cRepR_" + m_className.back());
    }
