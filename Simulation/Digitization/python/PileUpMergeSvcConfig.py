@@ -22,7 +22,7 @@ def getPileUpMergeSvc(name="PileUpMergeSvc", **kwargs):
             IntervalsList += [ CfgGetter.getPrivateTool("ZdcRange",       checkType=True) ]
         if DetFlags.pileup.ALFA_on():
             IntervalsList += [ CfgGetter.getPrivateTool("ALFARange",      checkType=True) ]
-        if hasattr(DetFlags.pileup, 'AFP_on') and DetFlags.pileup.AFP_on(): # temp protection
+        if DetFlags.pileup.AFP_on():
             IntervalsList += [ CfgGetter.getPrivateTool("AFPRange",      checkType=True) ]
         ## Inner Detector Digitization
         if DetFlags.pileup.BCM_on():
@@ -48,6 +48,8 @@ def getPileUpMergeSvc(name="PileUpMergeSvc", **kwargs):
             IntervalsList += [ CfgGetter.getPrivateTool("LArRangeEM",     checkType=True) ]
             IntervalsList += [ CfgGetter.getPrivateTool("LArRangeHEC",    checkType=True) ]
             IntervalsList += [ CfgGetter.getPrivateTool("LArRangeFCAL",   checkType=True) ]
+        if hasattr(DetFlags.pileup, 'HGTD_on') and DetFlags.pileup.HGTD_on():
+            IntervalsList += [ CfgGetter.getPrivateTool("HGTDRange",      checkType=True) ]
         if DetFlags.pileup.Tile_on():
             IntervalsList += [ CfgGetter.getPrivateTool("TileRange",      checkType=True) ]
         ## Muon System Digitization

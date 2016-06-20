@@ -209,6 +209,8 @@ def getStandardCaloPileUpTools():
     PileUpToolsList = []
     if DetFlags.digitize.LAr_on():
         PileUpToolsList += [ "LArPileUpTool" ]
+    if hasattr(DetFlags.digitize, 'HGTD_on') and DetFlags.digitize.HGTD_on():
+        PileUpToolsList += [ "HGTDPileUpTool" ]
     if DetFlags.digitize.Tile_on():
         PileUpToolsList += [ "TileHitVecToCntTool" ]
     return PileUpToolsList

@@ -186,7 +186,7 @@ def writeDigitizationMetadata():
 
     ## Digitized detector flags: add each enabled detector to the DigitizedDetectors list
     digiDets = []
-    for det in ['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth','LVL1']:
+    for det in ['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth','LVL1']:
         attrname = det+"_on"
         checkfn = getattr(DetFlags.digitize, attrname, None)
         if checkfn is None:
