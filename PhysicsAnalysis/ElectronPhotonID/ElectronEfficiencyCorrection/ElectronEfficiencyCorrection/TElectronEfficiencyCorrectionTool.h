@@ -222,10 +222,6 @@ namespace Root {
       /// The position of the efficiency scale factor uncorrelated systematic uncertainty in the result
       int m_position_globalBinNumber; 
 
-      /// Object arrays holding the sf histograms for full and fast sim
-      std::map<std::string, TObjArray*> *objsFull, *objsFast;
-      std::vector<TObjArray*> *sysObjsFull, *sysObjsFast;
-
       std::vector<std::string> m_keys;
 
       int m_runnumberIndex;

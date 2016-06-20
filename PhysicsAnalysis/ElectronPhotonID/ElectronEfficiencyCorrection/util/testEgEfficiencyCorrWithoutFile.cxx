@@ -59,6 +59,9 @@ xAOD::CaloCluster* create_cluster(float eta, float phi,float e);
 
 int main( int argc, char* argv[] ) {
 
+
+  //=========================================================
+  //Parse input
   // The application's name:
   const char* APP_NAME = argv[ 0 ];
   //Set the message level
@@ -142,12 +145,14 @@ int main( int argc, char* argv[] ) {
     MSG_INFO("Cannot parse SimType, use either Full or AtlFast2!");
     return 0;
   }
-
-  //    useCompactDisplay = true;
+  //=========================================================
 
   // Initialise the application:
   CHECK( xAOD::Init( APP_NAME ) );
-
+  
+  //==========================================================
+  //create dummy event
+ 
   // Create a TEvent object:
   //    //xAOD::TEvent event( xAOD::TEvent::kBranchAccess );
   xAOD::TEvent event( xAOD::TEvent::kClassAccess );
@@ -165,15 +170,6 @@ int main( int argc, char* argv[] ) {
   if (!useCompactDisplay){
     MSG_INFO("Creating new EECTool");
   }
-  //Likelihood
-  AsgElectronEfficiencyCorrectionTool myEgCorrections ("myEgCorrections");
-  AsgElectronEfficiencyCorrectionTool myEgCorrectionsToys ("myEgCorrectionsToys");
- 
-//myEgCorrections.SetCalibPath("ElectronEfficiencyCorrection/2012/offline/");
-
- 
- myEgCorrections.msg().setLevel(MSG::DEBUG);
- myEgCorrectionsToys.msg().setLevel(MSG::INFO);
 
   if (!useCompactDisplay){
     MSG_INFO("Adding File: "<<fileName);
@@ -224,82 +220,110 @@ int main( int argc, char* argv[] ) {
   el->setPt(e / cosh(eta));
   store.record( m_electrons, "MyElectrons" );
   store.record( m_electronsAux, "MyElectronsAux." );
+ //==========================================================
+ 
 
-
+  //==================================================================================
+  //Test the SIMPLIFIED
+  AsgElectronEfficiencyCorrectionTool myEgCorrections ("myEgCorrections"); 
+  myEgCorrections.msg().setLevel(mylevel);
   CHECK( myEgCorrections.setProperty("CorrectionFileNameList",inputFiles) );
   CHECK( myEgCorrections.setProperty("ForceDataType",(int)SimType) );
-  CHECK( myEgCorrections.setProperty("CorrelationModel", "FULL" ));
-  myEgCorrections.msg().setLevel(mylevel);
-
-  CHECK( myEgCorrectionsToys.setProperty("CorrectionFileNameList",inputFiles) );
-  CHECK( myEgCorrectionsToys.setProperty("ForceDataType",(int)SimType) );
- // CHECK( myEgCorrectionsToys.setProperty("CorrelationModel", "COMBMCTOYS" ));
-  myEgCorrectionsToys.msg().setLevel(mylevelToy);
-
+  CHECK( myEgCorrections.setProperty("CorrelationModel", "SIMPLIFIED" ));
   
   if (!useCompactDisplay){
     MSG_INFO("Initializing EECTools");
   }
-  CHECK( myEgCorrections.initialize() );
-  CHECK( myEgCorrectionsToys.initialize() );
-  
+  CHECK( myEgCorrections.initialize() );  
   if(!useCompactDisplay) {
     MSG_INFO(el->pt());
   }
 
   double SF = 0; 
-  double SFToys = 0; 
-  std::vector<double> uncToys;
   std::vector<double> unc;
-
   // Get a list of systematics
   CP::SystematicSet recSysts = myEgCorrections.recommendedSystematics();
-  CP::SystematicSet recSystsToys = myEgCorrectionsToys.recommendedSystematics();
-   
-  // Convert into a simple list
-  std::vector<CP::SystematicSet> sysList = CP::make_systematics_vector(recSysts);
   
+  if(myEgCorrections.getEfficiencyScaleFactor(*el,SF) != CP::CorrectionCode::Ok){
+    MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactor");
+  }
+  MSG_INFO("SF  "<< SF );
+
+  // Loop over systematics
+  double total2_up =0 ; 
+  double total2_down =0 ;
+  for(const auto& sys : recSysts){
+    double systematic = 0; 
+    
+    // Configure the tool for this systematic
+    CHECK( myEgCorrections.applySystematicVariation({sys}) );
+    
+    if(myEgCorrections.getEfficiencyScaleFactor(*el,systematic) == CP::CorrectionCode::Ok){
+      MSG_INFO( myEgCorrections.appliedSystematics().name().c_str()<< " Result " << systematic<< " Systematic value  "<<systematic-SF );  
+      unc.push_back(systematic);
+    
+      float param =sys.parameter() ;    
+      if(param>0) {
+	total2_up += (SF-systematic)*(SF-systematic) ;  
+      }
+      else{
+	total2_down+= (SF-systematic)*(SF-systematic) ;  
+      }
+    }else{
+      MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactor");
+    }
+  }
+  double total_up = sqrt(total2_up);
+  double total_down = -sqrt(total2_down); 
+
+  MSG_INFO( "total up " << total_up  <<" total down " << total_down );
+
+  //HERE THE WEIRD USAGES
+  double systematic = 0; 
+  //Thsese should fail
+  //const std::vector<std::string>invalid1={"EL_EFF_ID_CorrUncertaintyNP8__1up","EL_EFF_ID_CorrUncertaintyNP8__1down"};
+  //CHECK( myEgCorrections.applySystematicVariation(invalid1));
+  //std::cout << myEgCorrections.appliedSystematics().name().c_str()<< " Result " << systematic<< " Systematic value  "<<SF-systematic << std::endl;  
+
+  //const std::vector<std::string>invalid2={"EL_EFF_ID_CorrUncertaintyNP8__1up","EL_EFF_ID_CorrUncertaintyNP9__1down"};
+  //CHECK( myEgCorrections.applySystematicVariation(invalid2));
+  //if(myEgCorrections.getEfficiencyScaleFactor(*el,systematic) != CP::CorrectionCode::Ok){
+  // MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactor");
+  //}
+  //std::cout << myEgCorrections.appliedSystematics().name().c_str()<< " Result " << systematic<< " Systematic value  "<<SF-systematic << std::endl;  
+
+  //This is OK , but the debug in ASG will tell you is not supported , but not a wrong syst either just not applicable
+  const std::vector<std::string>invalid3={"EL_EFF_Reco_CorrUncertaintyNP8__1up"};
+  CHECK( myEgCorrections.applySystematicVariation(invalid3));
+  if(myEgCorrections.getEfficiencyScaleFactor(*el,systematic) != CP::CorrectionCode::Ok){
+    MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactor");
+  }
+  MSG_INFO( "HERE"<< myEgCorrections.appliedSystematics().name().c_str()<< " Result " << systematic<< " Systematic value  "<<SF-systematic );  
+
+  //==================================================================================
+  //Test the TOYS
+  //TOYS
+  AsgElectronEfficiencyCorrectionTool myEgCorrectionsToys ("myEgCorrectionsToys");
+  CHECK( myEgCorrectionsToys.setProperty("CorrectionFileNameList",inputFiles) );
+  CHECK( myEgCorrectionsToys.setProperty("ForceDataType",(int)SimType) );
+  // CHECK( myEgCorrectionsToys.setProperty("CorrelationModel", "COMBMCTOYS" ));
+  myEgCorrectionsToys.msg().setLevel(mylevelToy);
+  CHECK( myEgCorrectionsToys.initialize() );
+
+
+  double SFToys = 0; 
+  if(myEgCorrectionsToys.getEfficiencyScaleFactor(*el,SFToys) != CP::CorrectionCode::Ok){
+  // MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactorToys");
+  }
+  std::vector<double> uncToys;
+  CP::SystematicSet recSystsToys = myEgCorrectionsToys.recommendedSystematics();
   //std::vector<CP::SystematicSet> sysListToys;
   CP::MakeSystematicsVector sysListToys;
   sysListToys.addGroup("toys");
   sysListToys.setToys(  myEgCorrectionsToys.getNumberOfToys( )   );
-   
   sysListToys.calc(recSystsToys);
   std::vector<CP::SystematicSet> sysListToys2=sysListToys.result("toys");
-  
-  if(myEgCorrections.getEfficiencyScaleFactor(*el,SF) != CP::CorrectionCode::Ok){
-    MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactor");
-    return EXIT_FAILURE;
-  }
-  if(myEgCorrectionsToys.getEfficiencyScaleFactor(*el,SFToys) != CP::CorrectionCode::Ok){
-    MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactorToys");
-    return EXIT_FAILURE;
-  }
- 
-  std::cout << "SF  "<< SF << std::endl;
 
-  // Loop over systematics
-  for(const auto& sys : sysList){
-    double systematic = 0; 
-    
-    if(!useCompactDisplay)  {
-  //    MSG_INFO(APP_NAME<<" " << " Processing syst: " << sys.name().c_str());
-    }
-    
-    // Configure the tool for this systematic
-    CHECK( myEgCorrections.applySystematicVariation(sys) );
-
-    // if(!useCompactDisplay)     {   
-   //    MSG_ERROR(APP_NAME<<" " << "Applied syst (FULL):  " <<myEgCorrections.appliedSystematics().name().c_str());
-   //  }
-    
-    if(myEgCorrections.getEfficiencyScaleFactor(*el,systematic) != CP::CorrectionCode::Ok){
-      MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactor");
-      return EXIT_FAILURE;
-    }
-    std::cout << myEgCorrections.appliedSystematics().name().c_str()<<"   "<<SF-systematic << std::endl;  
-    unc.push_back(systematic);
-  }
   // Loop over systematics
  
   /// DO TOY LOOP
@@ -320,7 +344,6 @@ int main( int argc, char* argv[] ) {
     
     if(myEgCorrectionsToys.getEfficiencyScaleFactor(*el,systematicToys) != CP::CorrectionCode::Ok){
       //    MSG_ERROR( APP_NAME << "Problem in getEfficiencyScaleFactor");
-      return EXIT_FAILURE;
     }
     
     if(!useCompactDisplay) {
@@ -328,6 +351,9 @@ int main( int argc, char* argv[] ) {
     }
     uncToys.push_back(systematicToys);
   }
+
+  //==================================================================================
+
   
 //std::cout << "allresults " << SF << "  "; 
 //for (int iu=0;iu<unc.size();iu++){
@@ -366,10 +392,7 @@ int main( int argc, char* argv[] ) {
   //   if (!useCompactDisplay)
   //     std::cout<<"toy "<<i<<": "<<sf2.getResult(i)<<std::endl;
   // }
-
-
-  CHECK( myEgCorrections.finalize() );
-  // Return gracefully:
+ // Return gracefully:
   return 0;
 }
 

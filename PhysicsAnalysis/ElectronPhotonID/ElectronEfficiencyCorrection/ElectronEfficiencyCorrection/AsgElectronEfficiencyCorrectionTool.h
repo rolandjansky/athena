@@ -99,7 +99,8 @@ public:
 private:
 
   /// The main calculate method: the actual correction factors are determined here
-  const Root::TResult& calculate( const xAOD::Electron& egam, int &currentSimplifiedUncorrSystRegion, int& currentUncorrSystRegion ) const ;
+  const Root::TResult& calculate( const xAOD::Electron& egam, const unsigned int runnumber, int &currentElectronSimplifiedUncorrSystRegion, int& currentElectronUncorrSystRegion ) const ;
+  CP::SystematicCode InitSystematics();
 
   // struct for toys
   struct SystConf{
@@ -117,6 +118,9 @@ private:
   /// Systematics filter map
   boost::unordered_map<CP::SystematicSet, CP::SystematicSet> m_systFilter;
 
+  ///Affected systematic, should be done only once
+  CP::SystematicSet m_affectedSys;
+
   /// Currently applied systematics
   CP::SystematicSet* m_appliedSystematics;
 
@@ -126,7 +130,6 @@ private:
   /// The list of file names
   std::vector< std::string > m_corrFileNameList;
 
-
   /// The prefix string for the result
   std::string m_resultPrefix;
 
@@ -135,6 +138,16 @@ private:
 
   // The prefix for the systematic name
   std::string m_sysSubstring;
+
+  /// The Event info collection name
+  std::string m_eventInfoCollectionName;
+
+  //use RandomRun Number
+  bool m_useRandomRunNumber;
+  unsigned int m_defaultRandomRunNumber;
+
+  //The data type
+  PATCore::ParticleDataType::DataType m_dataType;
 
   /// Force the data type to a given value
   int m_dataTypeOverwrite;

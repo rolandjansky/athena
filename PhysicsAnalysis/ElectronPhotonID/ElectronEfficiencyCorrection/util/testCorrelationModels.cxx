@@ -62,7 +62,7 @@ int main( int argc, char* argv[] ) {
   // The application's name:
   const char* APP_NAME = argv[ 0 ];
   //Set the message level
-  MSG::Level mylevel=MSG::DEBUG;
+  MSG::Level mylevel=MSG::ERROR;
 //  MSG::Level mylevelToy=MSG::DEBUG;//MSG::FATAL;
 
   MSGHELPERS::getMsgStream().msg().setLevel(mylevel); 
@@ -161,20 +161,20 @@ middleBins.push_back(2.37);
 middleBins.push_back(2.47);
 
  std::vector<float> etBins;
-  etBins.push_back(10);
-  etBins.push_back(15);
-  etBins.push_back(20);
-  etBins.push_back(25);
-  etBins.push_back(30);
-  etBins.push_back(35);
-  etBins.push_back(40);
-  etBins.push_back(45);
- etBins.push_back(50);
- etBins.push_back(60);
- etBins.push_back(80);
- etBins.push_back(100);
+  etBins.push_back(10000);
+  etBins.push_back(15000);
+  etBins.push_back(20000);
+  etBins.push_back(25000);
+  etBins.push_back(30000);
+  etBins.push_back(35000);
+  etBins.push_back(40000);
+  etBins.push_back(45000);
+ etBins.push_back(50000);
+ etBins.push_back(60000);
+ etBins.push_back(80000);
+ etBins.push_back(100000);
  
- TH2F * elecs = new TH2F("elecs","elecs", etBins.size(),&(etBins.at(0)) ,middleBins.size(),&(middleBins.at(0))   );
+ TH2F * elecs = new TH2F("elecs","elecs", etBins.size()-1,&(etBins.at(0)) ,middleBins.size()-1,&(middleBins.at(0))   );
  //  Electron Distributions ////////////////////////////////////////
 
  /// uncertainty histograms ///////////////////////
@@ -199,7 +199,11 @@ middleBins.push_back(2.47);
   ei->makePrivateStore();
   ei->setRunNumber(runno);
   ei->setEventNumber(363636);
-  xAOD::TStore store;
+  
+  static SG::AuxElement::Decorator<unsigned int> randomrunnumber("RandomRunNumber") ;
+  randomrunnumber(*ei)= runno;
+
+xAOD::TStore store;
   store.record(ei, "EventInfo");
 
   if (!useCompactDisplay){
@@ -331,7 +335,7 @@ sigma_1D_tot->Fill( 0.5  , SF );
 	CHECK( myEgCorrections.applySystematicVariation(sys) );
 
 	// if(!useCompactDisplay)     {   
-	MSG_ERROR(APP_NAME<<" " << "Applied syst (FULL):  " <<myEgCorrections.appliedSystematics().name().c_str());
+//	MSG_ERROR(APP_NAME<<" " << "Applied syst (FULL):  " <<myEgCorrections.appliedSystematics().name().c_str());
 	//  }
   
     if(myEgCorrections.getEfficiencyScaleFactor(*el,systematic) != CP::CorrectionCode::Ok){
@@ -358,6 +362,8 @@ std::cout << myEgCorrections.appliedSystematics().name().c_str()<<"   "<<systema
   	 
       TFile * file = new TFile(Form("SysChecks_%s.root", corrmodel.c_str()),"RECREATE");
       file->cd();
+
+
 sigma_1D_pt->Write();
 sigma_1D_eta->Write();
 sigma_1D_tot->Write();
