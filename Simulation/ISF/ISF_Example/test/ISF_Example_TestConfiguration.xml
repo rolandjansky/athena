@@ -2,9 +2,21 @@
 <!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
 
 <unifiedTestConfiguration>
-  <atn>
+ <atn>
+    <TEST name="FullG4_ttbar_2evts" type="script" >
+      <options_atn>export TRF_ECHO=True; Sim_tf.py '--simulator' 'FullG4' '--conditionsTag' 'default:OFLCOND-RUN12-SDR-19' '--physicsList' 'FTFP_BERT' '--truthStrategy' 'MC15aPlus' '--postInclude' 'default:PyJobTransforms/UseFrontier.py' '--preInclude' 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' '--DataRunNumber' '222525' '--geometryVersion' 'default:ATLAS-R2-2015-03-01-00_VALIDATION' '--inputEVNTFile' '/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1' '--outputHITSFile' 'Hits.pool.root' '--maxEvents' '2'</options_atn>
+      <timelimit>30</timelimit>
+      <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
+      <mailto>atlas-simulation-testreports@cern.ch</mailto>
+      <expectations>
+        <errorMessage>FAILURE</errorMessage>
+        <successMessage>leaving with code 0</successMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+
     <TEST name="MultiSimTest_ttbar_2evts" type="script" >
-      <options_atn>export TRF_ECHO=True; Sim_tf.py --simulator 'MultiSimTest' --useISF True --randomSeed 0 --enableLooperKiller True --maxEvents 2 --skipEvents 0 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag OFLCOND-MC12-SIM-00 --inputEvgenFile /afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --outputHitsFile "Hits.pool.root"</options_atn>
+      <options_atn>export TRF_ECHO=True; Sim_tf.py --simulator 'MultiSimTest' '--conditionsTag' 'default:OFLCOND-RUN12-SDR-19' '--physicsList' 'FTFP_BERT' '--truthStrategy' 'MC15aPlus' '--postInclude' 'default:PyJobTransforms/UseFrontier.py' '--preInclude' 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' '--DataRunNumber' '222525' '--geometryVersion' 'default:ATLAS-R2-2015-03-01-00_VALIDATION' '--inputEVNTFile' '/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1' '--outputHITSFile' 'Hits.pool.root' '--maxEvents' '2'</options_atn>
       <timelimit>30</timelimit>
       <author> Elmar Ritsch (elmar.ritsch@cern.ch)</author>
       <mailto>atlas-simulation-testreports@cern.ch</mailto>
