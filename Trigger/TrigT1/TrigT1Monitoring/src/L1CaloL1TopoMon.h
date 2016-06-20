@@ -31,7 +31,7 @@ class TH2F_LW;
 class StatusCode;
 
 namespace TrigConf {
-  class ILVL1ConfigSvc;
+  class ITrigConfigSvc;
 }
 
 namespace LVL1 {
@@ -39,7 +39,7 @@ namespace LVL1 {
 // ============================================================================
 class ITrigT1CaloMonErrorTool;
 class TrigT1CaloLWHistogramTool;
-class FrontPanelCTP;
+//class FrontPanelCTP;
 // ============================================================================
   
  class L1CaloL1TopoMon : public ManagedMonitorToolBase
@@ -67,16 +67,17 @@ class FrontPanelCTP;
   
  private:
   
-   /// Trigger configuration service
-   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
+  const int MAXTOBS=30;
+  /// Trigger configuration service
+   ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
    /// Corrupt events tool
    ToolHandle<ITrigT1CaloMonErrorTool>     m_errorTool;
    /// Histogram utilities tool
    ToolHandle<TrigT1CaloLWHistogramTool>   m_histTool;
    /// Output from L1Topo
-   const DataHandle< LVL1::FrontPanelCTP > m_topoCTP;
-   std::string m_CMXJetTobLocation;
-   std::string m_topoCTPLoc;
+   //const DataHandle< LVL1::FrontPanelCTP > m_topoCTP;
+   StringProperty m_CMXJetTobLocation;
+   StringProperty m_topoCTPLoc;
 
    /// Root directory
    std::string m_PathInRootFile;   
@@ -103,11 +104,11 @@ class FrontPanelCTP;
    TH1F_LW* m_h_l1topo_1d_DAQMuonTobs_no0;
    TH1F_LW* m_h_l1topo_1d_DAQMuonTobs;
    TH1F_LW* m_h_l1topo_1d_DAQEnergyTobs;
-   TH1F*    m_h_l1topo_1d_DAQCTPSignal;
    TH1F_LW* m_h_l1topo_1d_DAQTriggerBits;
    TH1F_LW* m_h_l1topo_1d_DAQMismatchTriggerBits;
    TH1F_LW* m_h_l1topo_1d_DAQOverflowBits;
    TH1F_LW* m_h_l1topo_1d_ROITobs;
+   TH2F*    m_h_l1topo_2d_ItemsBC[4];
 };
 
 // ============================================================================
