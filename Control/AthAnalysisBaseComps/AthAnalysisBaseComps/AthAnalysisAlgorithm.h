@@ -55,6 +55,8 @@ class AthAnalysisAlgorithm : public ::AthHistogramAlgorithm, virtual public IInc
 
       /// Function initialising the tool in the correct way in Athena
       virtual StatusCode sysInitialize();
+      /// override to do firstEvent method
+      virtual StatusCode sysExecute() override;
 
       /// Helper function to access IOVMetaDataContainer information helped in the MetaDataStore
       template<typename T> StatusCode retrieveMetadata(const std::string& folder, const std::string& key, T& out) { 
@@ -86,6 +88,9 @@ class AthAnalysisAlgorithm : public ::AthHistogramAlgorithm, virtual public IInc
 
       /// Function called when a new input file is opened
       virtual StatusCode beginInputFile();
+      
+      /// Function called when first event is encountered
+      virtual StatusCode firstEvent();
 
       virtual TFile* currentFile(const char* evtSelName="EventSelector") final;
  
@@ -96,7 +101,11 @@ class AthAnalysisAlgorithm : public ::AthHistogramAlgorithm, virtual public IInc
       mutable ServiceHandle< StoreGateSvc > m_outputMetaStore;
 
       TFile* m_currentFile = 0; //used to cache the current file
-  
+
+
+      
+      bool m_doneFirstEvent=false;
+
 }; 
 
 
