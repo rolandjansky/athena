@@ -24,6 +24,16 @@ HltEventLoopMgr.Lvl1CTPROBcheck = TRUE
 HltEventLoopMgr.HltResultName = "HLTResult_HLT"
 
 #
+# handling of truncated HLT Results
+#
+# switch on saving of events with truncated HLT results to DEBUG stream (default FALSE)
+#HltEventLoopMgr.WriteTruncatedHLTtoDebug = FALSE 
+# name of DEBUG Stream (default "TruncatedHLTResult")
+#HltEventLoopMgr.HltTruncationDebugStreamName = "TruncatedHLTResult"
+# list of stream names which should not be send to the truncation DEBUG stream (default ["CostMonitoring"]) 
+#HltEventLoopMgr.ExcludeFromHltTruncationDebugStream = ["CostMonitoring"]
+
+#
 # properties for the HLT result size histogram
 # --> set upper edge of histogram to maximum allowed number of words in HLT
 #
