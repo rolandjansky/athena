@@ -145,6 +145,7 @@ else:
       DQMonFlags.doMuonCombinedMon=False
       DQMonFlags.doLucidMon=False
       DQMonFlags.doJetTagMon=False
+      DQMonFlags.doJetMon=False
       
    # switch off monitoring if reco is off during BS reading
    if rec.readRDO() and not 'DetFlags' in dir():
@@ -279,7 +280,7 @@ if DQMonFlags.doStreamAwareMon:
       LArMonFlags.doLArHVCorrectionMonTool=True
       LArMonFlags.doLArCoverage=True
       LArMonFlags.doLArRODMonTool=True          # savannah bug report #83390
-      if (rec.triggerStream()=='express'):
+      if (rec.triggerStream()=='express' or rec.triggerStream()=='Main'):
          doCaloCellVecMon=True
 
    elif (rec.triggerStream()=='CosmicCalo'):
@@ -401,7 +402,7 @@ if DQMonFlags.doStreamAwareMon:
       #LArMonFlags.doLArNoisyROMon=False
       #LArMonFlags.doLArRODMonTool=True          # savannah bug report #83390
 
-   elif (rec.triggerStream()=='L1Calo'):
+   elif (rec.triggerStream()=='L1Calo' or rec.triggerStream()=='L1Topo'):
       HLTMonFlags.doBjet=False
       HLTMonFlags.doMuon=False
       DQMonFlags.doPixelMon=False

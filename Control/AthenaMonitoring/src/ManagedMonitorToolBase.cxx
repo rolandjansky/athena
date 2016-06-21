@@ -867,7 +867,7 @@ fillHists()
    newLowStat = newLowStatInterval; 
 
    if( newEventsBlock || newLumiBlock || newRun ) {
-
+     ATH_MSG_DEBUG("Interval transition processing");
       // Process histograms from the previous lumiBlock/run
       if( m_nEvents != 1 ) {
 	     m_d->benchPreProcHistograms();
@@ -893,6 +893,22 @@ fillHists()
             sc1 = regManagedTrees(m_templateTrees[interval]);
             sc1 = regManagedLWHistograms(m_templateLWHistograms[interval]);     
           }
+      }
+      for (const auto& interval: std::vector<Interval_t>{ eventsBlock, lumiBlock, lowStat, run }) {
+	for (const auto& it: m_templateHistograms[interval]) {
+	  //ATH_MSG_WARNING("Oi, considering " << it.m_templateHist->GetName() << it.m_group.histo_mgmt());
+	  // is histogram too small in x axis for LB range?
+	  if (it.m_group.histo_mgmt() == ATTRIB_X_VS_LB) {
+	    //ATH_MSG_WARNING("We are rebinning for " << it.m_templateHist->GetName());
+	    while ( it.m_templateHist->GetXaxis()->GetXmax() <= AthenaMonManager::lumiBlockNumber() ) {
+	      it.m_templateHist->LabelsInflate("X");
+	    }
+	  }
+	}
+      }
+
+      if (auto streamname = dynamic_cast<OfflineStream*>(streamNameFunction())) {
+	streamname->updateRunLB();
       }
       
       sc3 = bookHistogramsRecurrent( );
@@ -996,7 +1012,7 @@ regManagedHistograms(std::vector< MgmtParams<TH1> >& templateHistograms)
       bool allIsOk = true;  
    
       for( std::vector< MgmtParams<TH1> >::iterator it = templateHistograms.begin(); it != templateHistograms.end(); ++it ) {
-          MonGroup group = (*it).m_group;
+          MonGroup& group = (*it).m_group;
 
           // Get a handle to the histogram
           TH1* theHist = (*it).m_templateHist;
@@ -1360,48 +1376,53 @@ regHist( TH1* h, const MonGroup& group )
 {
 //   ManagedMonitorToolBase_addHistStatistics(this,h);
 
-   if (!h)
-      return StatusCode::FAILURE;
-
-   // This part of the code deals with MANAGED type
-   if ( (group.histo_mgmt() & ATTRIB_UNMANAGED) == 0 ) {
-       /* 
-          Create an unmanaged group based on the original MonGroup instance passed
-          It is needed because managed histogram is presented as a number of unmanaged
-          histograms (one per each interval)
-        */
-       MonGroup group_unmanaged( this, group.system(), group.interval(), ATTRIB_UNMANAGED, group.chain(), group.merge());
-
-       if (m_supportedIntervalsForRebooking.count(group.interval())) {
-         m_templateHistograms[group.interval()].push_back( MgmtParams<TH1>(h, group_unmanaged) );
-       } else {
-	       ATH_MSG_ERROR("Attempt to book managed histogram " << h->GetName() << " with invalid interval type " << intervalEnumToString(group.interval()));
+  if (!h)
+    return StatusCode::FAILURE;
+  
+  // This part of the code deals with MANAGED type
+  if ( group.histo_mgmt() != ATTRIB_UNMANAGED ) {
+    /* 
+       Create an unmanaged group based on the original MonGroup instance passed
+       It is needed because managed histogram is presented as a number of unmanaged
+       histograms (one per each interval)
+       Update (PUEO) - I don't think it actually matters, and need to keep 
+       track of "proper" attribute for X_VS_LB
+    */
+    
+    if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge() == "") {
+      ATH_MSG_WARNING("HEY! You're attempting to register " << h->GetName() << " as a per-LB histogram, but you're not setting the merge algorithm! This is a SUPER-BAD idea! Use \"merge\", at least.");
+    }
+    
+    if (m_supportedIntervalsForRebooking.count(group.interval())) {
+      m_templateHistograms[group.interval()].push_back( MgmtParams<TH1>(h, group) );
+    } else {
+      ATH_MSG_ERROR("Attempt to book managed histogram " << h->GetName() << " with invalid interval type " << intervalEnumToString(group.interval()));
 	       return StatusCode::FAILURE;
-       }
-
-       std::string hName = h->GetName();
-       std::string streamName = streamNameFunction()->getStreamName( this, group_unmanaged, hName, false );
-	   StatusCode smd = registerMetadata(streamName, hName, group);
-       smd.setChecked();
-       return m_THistSvc->regHist( streamName, h );
-   }
-
-
-   // This part of the code deals with UNMANAGED type
-   std::string hName = h->GetName();
-
-   if( m_manager != 0 ) {
-      std::string genericName = NoOutputStream().getStreamName( this, group, hName );
-      m_manager->writeAndDelete( genericName );
-      m_manager->passOwnership( h, genericName );
-   }
-
-   std::string streamName = streamNameFunction()->getStreamName( this, group, hName, false );
-
-   StatusCode smd = registerMetadata(streamName, hName, group);
-   if (smd != StatusCode::SUCCESS) return StatusCode::FAILURE;
-
-   return m_THistSvc->regHist( streamName, h );
+    }
+    
+    std::string hName = h->GetName();
+    MonGroup group_unmanaged( this, group.system(), group.interval(), ATTRIB_UNMANAGED, group.chain(), group.merge());
+    std::string streamName = streamNameFunction()->getStreamName( this, group_unmanaged, hName, false );
+    StatusCode smd = registerMetadata(streamName, hName, group);
+    smd.setChecked();
+    return m_THistSvc->regHist( streamName, h );
+  }
+  
+  // This part of the code deals with UNMANAGED type
+  std::string hName = h->GetName();
+  
+  if( m_manager != 0 ) {
+    std::string genericName = NoOutputStream().getStreamName( this, group, hName );
+    m_manager->writeAndDelete( genericName );
+    m_manager->passOwnership( h, genericName );
+  }
+  
+  std::string streamName = streamNameFunction()->getStreamName( this, group, hName, false );
+  
+  StatusCode smd = registerMetadata(streamName, hName, group);
+  if (smd != StatusCode::SUCCESS) return StatusCode::FAILURE;
+  
+  return m_THistSvc->regHist( streamName, h );
 }
 
 StatusCode ManagedMonitorToolBase::regHist( LWHist* h,const std::string& system,
@@ -1421,7 +1442,7 @@ StatusCode ManagedMonitorToolBase::regHist( LWHist* h, const MonGroup& group )
 
    if (!m_bookHistogramsInitial) {
            ATH_MSG_DEBUG("Yura: very first time");
-	   if ( (group.histo_mgmt() & ATTRIB_UNMANAGED) == 0 ) {
+	   if ( group.histo_mgmt() != ATTRIB_UNMANAGED ) {
 
                ATH_MSG_DEBUG("Yura: we have managed histograms");
 	       if (m_supportedIntervalsForRebooking.count(group.interval())) {
@@ -1451,7 +1472,7 @@ StatusCode ManagedMonitorToolBase::regHist( LWHist* h, const MonGroup& group )
             std::set<LWHist*>::iterator it =  m_lwhists.find(prevLWHist);
             if (it!=m_lwhists.end())
             {
-                if ( (group.histo_mgmt() & ATTRIB_UNMANAGED) == 0 ) {
+                if ( group.histo_mgmt() != ATTRIB_UNMANAGED ) {
                     m_manager->writeAndResetLWHist( genericName, LWHistAthMonWrapper::streamName(prevLWHist) );
                 } else {
                     m_manager->writeAndDeleteLWHist( genericName, LWHistAthMonWrapper::streamName(prevLWHist) );
@@ -1559,7 +1580,7 @@ regGraph( TGraph* g, const MonGroup& group )
       return StatusCode::FAILURE;
 
    // This part of the code deals with MANAGED type
-   if ( (group.histo_mgmt() & ATTRIB_UNMANAGED) == 0 ) {
+   if ( group.histo_mgmt() != ATTRIB_UNMANAGED ) {
        // Create an unmanaged group based on the original MonGroup instance passed
        // This is needed because managed graph is presented as a number of unmanaged
        // graphs (one per each interval)
@@ -1614,7 +1635,7 @@ regTree( TTree* t, const MonGroup& group )
 {
 
    // This part of the code deals with MANAGED type
-   if ( (group.histo_mgmt() & ATTRIB_UNMANAGED) == 0 ) {
+   if ( group.histo_mgmt() != ATTRIB_UNMANAGED ) {
        // Create an unmanaged group based on the original MonGroup instance passed
        // This is needed because managed tree is presented as a number of unmanaged
        // trees (one per each interval)
@@ -2089,7 +2110,7 @@ getStreamName( const ManagedMonitorToolBase* tool, const MonGroup& group, const 
 
    if( useRunFolders ) {
       if (usePreviousInterval && (group.interval() == ManagedMonitorToolBase::run) )
-          streamName << "run_" << AthenaMonManager::runNumber() - 1 << "/";
+          streamName << "run_" << m_prev_run_number << "/";
       else
           streamName << "run_" << AthenaMonManager::runNumber() << "/";
    }
@@ -2097,14 +2118,14 @@ getStreamName( const ManagedMonitorToolBase* tool, const MonGroup& group, const 
    int currentLB = AthenaMonManager::lumiBlockNumber();
    if( useLBFolders ) {
       if (usePreviousInterval && (group.interval() == ManagedMonitorToolBase::lumiBlock) )
-          streamName << "lb_" << currentLB - 1 << "/";
+          streamName << "lb_" << m_prev_lumi_block << "/";
       else
           streamName << "lb_" << currentLB << "/";
    }
    else if( useLowStatInterval ) {
       int start, end;
       if (usePreviousInterval && (group.interval() == ManagedMonitorToolBase::lowStat) )
-          getLBrange(&start, &end, currentLB - 1, AthenaMonManager::getLBsLowStat());
+          getLBrange(&start, &end, m_prev_lumi_block, AthenaMonManager::getLBsLowStat());
       else
           getLBrange(&start, &end, currentLB, AthenaMonManager::getLBsLowStat());
       streamName << "lowStat_LB" << start << "-" << end << "/";
@@ -2157,6 +2178,13 @@ getDirectoryName( const ManagedMonitorToolBase* tool, const MonGroup& group, con
     // to obtain directory path
     rem.erase(rem.rfind("/"), rem.length()); 
     return rem;
+}
+
+void
+ManagedMonitorToolBase::OfflineStream::
+updateRunLB() {
+  m_prev_run_number = AthenaMonManager::runNumber();
+  m_prev_lumi_block = AthenaMonManager::lumiBlockNumber();
 }
 
 bool 

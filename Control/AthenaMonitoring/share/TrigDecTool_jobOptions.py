@@ -20,7 +20,7 @@ if DQMonFlags.useTrigger():
          from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
          cfg = TriggerConfigGetter()
 
-   if not hasattr(ToolSvc, DQMonFlags.nameTrigDecTool()):
+   if not hasattr(ToolSvc, DQMonFlags.nameTrigDecTool().split('/')[-1]):
       from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
       monTrigDecTool = Trig__TrigDecisionTool(name=DQMonFlags.nameTrigDecTool(),
                                               OutputLevel=ERROR,
@@ -30,6 +30,9 @@ if DQMonFlags.useTrigger():
                                                                   }
                                              )
       ToolSvc += monTrigDecTool
+   else:
+      monTrigDecTool = getattr(ToolSvc, DQMonFlags.nameTrigDecTool().split('/')[-1])
+   tdt_local_logger.info('Scheduled monitoring TDT %s', monTrigDecTool)
 
    tdt_local_logger.info('Scheduling the trigger translator')
    # Look up all monitoring menu lists, shove into trigger translator

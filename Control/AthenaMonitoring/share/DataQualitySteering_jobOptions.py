@@ -263,6 +263,7 @@ if DQMonFlags.doMonitoring():
             tool.FilterTools += [monAtlasReadyFilterTool]
          # give all the tools the trigger translator
          if DQMonFlags.useTrigger():
+            tool.TrigDecisionTool = monTrigDecTool
             tool.TriggerTranslatorTool = monTrigTransTool
 
          if DQMonFlags.monToolPostExec():

@@ -353,7 +353,7 @@ class nameTrigDecTool(JobProperty):
     """ name of trigger decision tool """
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'monTrigDecTool'
+    StoredValue  = 'TrigDecisionTool'
 list+=[nameTrigDecTool]
 
 class nameTrigTransTool(JobProperty):
