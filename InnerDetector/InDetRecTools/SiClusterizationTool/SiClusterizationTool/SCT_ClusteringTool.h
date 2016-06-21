@@ -69,6 +69,9 @@ namespace InDet {
     typedef std::vector<Identifier>           IdVec_t;
     std::string                               m_timeBinStr;
     int                                       m_timeBinBits[3];     
+    bool                                      m_innermostBarrelX1X;
+    bool                                      m_innertwoBarrelX1X;
+    bool                                      m_majority01X;
     bool                                      m_useRowInformation;
     
     ///Add strips to a cluster vector without checking for bad strips
@@ -107,6 +110,8 @@ namespace InDet {
     StatusCode decodeTimeBin(const char& timeBin, int& bit);    
     // Test the clusters time bin to see if matches pattern
     bool       testTimeBins(int timeBin) const;
+    bool       testTimeBins01X(int timeBin) const;
+    bool       testTimeBinsX1X(int timeBin) const;
 
   };//end of class  
 }//end of namespace

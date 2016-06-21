@@ -58,6 +58,9 @@ namespace InDet{
     m_conditionsSvc("SCT_ConditionsSummarySvc",name),
     m_clusterMaker("InDet::ClusterMakerTool"),
     m_timeBinStr(""),
+    m_innermostBarrelX1X(false),
+    m_innertwoBarrelX1X(false),
+    m_majority01X(false),
     m_useRowInformation(false)
   {
     declareInterface<ISCT_ClusteringTool>(this);
@@ -66,6 +69,9 @@ namespace InDet{
     declareProperty("checkBadChannels",m_checkBadChannels);
     declareProperty("conditionsService" , m_conditionsSvc);
     declareProperty("timeBins" , m_timeBinStr);
+    declareProperty("majority01X" , m_majority01X);
+    declareProperty("innermostBarrelX1X" , m_innermostBarrelX1X);
+    declareProperty("innertwoBarrelX1X" , m_innertwoBarrelX1X);
     declareProperty("useRowInformation", m_useRowInformation);
   }
   
@@ -114,6 +120,29 @@ namespace InDet{
     return pass;
   }
 
+  bool SCT_ClusteringTool::testTimeBins01X(int timeBin) const {
+    // Convert the given timebin to a bit set and test each bit
+    // if bit is -1 (i.e. X) it always passes, otherwise require exact match of 0/1
+    // N.B bitset has opposite order to the bit pattern we define
+
+    bool pass(true);
+    std::bitset<3> timePattern(static_cast<unsigned long>(timeBin));   
+    if (timePattern.test(2) != bool(0)) pass=false;
+    if (timePattern.test(1) != bool(1)) pass=false;
+    return pass;
+  } 
+  
+  bool SCT_ClusteringTool::testTimeBinsX1X(int timeBin) const {
+    // Convert the given timebin to a bit set and test each bit
+    // if bit is -1 (i.e. X) it always passes, otherwise require exact match of 0/1
+    // N.B bitset has opposite order to the bit pattern we define
+    
+    bool pass(true);
+    std::bitset<3> timePattern(static_cast<unsigned long>(timeBin));
+    if (timePattern.test(1) != bool(1)) pass=false;
+    return pass;
+  }  
+
   StatusCode  SCT_ClusteringTool::initialize(){
     msg(MSG::INFO) << "Initialize clustering tool" << endreq;
     static const StatusCode fail(StatusCode::FAILURE);
@@ -125,6 +154,29 @@ namespace InDet{
     }
     
     if (decodeTimeBins().isFailure()) return StatusCode::FAILURE;
+
+    /// only one of m_majority01X, m_innermostBarrelX1X and m_innertwoBarrelX1X
+    /// can be true - check if this is the case
+    /// If none of them is true, m_timeBinStr is used.
+    int countTrueSettings=0;
+    if (m_majority01X) countTrueSettings++;
+    if (m_innermostBarrelX1X) countTrueSettings++;
+    if (m_innertwoBarrelX1X) countTrueSettings++;
+    if (countTrueSettings !=1) {
+      if(!m_timeBinStr.empty()) {
+	ATH_MSG_INFO("Timing requirement: m_timeBinStr " << m_timeBinStr << " is used for clustering");
+      } else {
+	ATH_MSG_ERROR("One and only one of m_majority01X, m_innermostBarrelX1X and m_innertwoBarrelX1X should be set to True!");
+	return StatusCode::FAILURE;
+      }
+    } else {
+      ATH_MSG_INFO("Timing requirement: " <<
+		   (m_majority01X        ? "m_majority01X"        : "") <<
+		   (m_innermostBarrelX1X ? "m_innermostBarrelX1X" : "") <<
+		   (m_innertwoBarrelX1X  ? "m_innertwoBarrelX1X"  : "") <<
+		   " is true and used for clustering");
+    }
+
     return StatusCode::SUCCESS;
   }
 
@@ -279,6 +331,8 @@ namespace InDet{
     // Vector of clusters to make the cluster collection (most likely equal to collection size)
     std::vector<IdVec_t> idGroups;
     idGroups.reserve(collection.size());
+    int n01X=0;
+    int n11X=0;
 
     std::vector<uint16_t> tbinGroups;
     tbinGroups.reserve(collection.size());
@@ -291,19 +345,31 @@ namespace InDet{
       Identifier            firstStripId(pRawData->identify());
       unsigned int          nStrips(pRawData->getGroupSize());
       int                   thisStrip(idHelper.strip(firstStripId));
+      int                   BEC(idHelper.barrel_ec(firstStripId));
+      int                   layer(idHelper.layer_disk(firstStripId));
 
       // Flushes the vector every time a non-adjacent strip is found
       if (not adjacent(thisStrip, previousStrip) and not(currentVector.empty())){
-	      // Add this group to existing groups (and flush)
-        idGroups.push_back(currentVector);
+	if (m_majority01X) {
+	  if (n01X >= n11X){
+	    idGroups.push_back(currentVector);
+	  }
+	} else {
+	  // Add this group to existing groups (and flush)
+	  idGroups.push_back(currentVector);
+	}
         currentVector.clear();
-	      tbinGroups.push_back(hitsInThirdTimeBin);
-	      hitsInThirdTimeBin =0;
-	      stripCount = 0;
+	n01X=0;
+	n11X=0;
+	tbinGroups.push_back(hitsInThirdTimeBin);
+	hitsInThirdTimeBin =0;
+	stripCount = 0;
       }
 
       // Only use clusters with certain time bit patterns if m_timeBinStr set
       bool passTiming(true);
+      bool pass01X(true);
+      bool passX1X(true);
       const SCT3_RawData* pRawData3 = dynamic_cast<const SCT3_RawData*>(pRawData);
       //sroe: coverity 31562
       if (!pRawData3) {
@@ -314,9 +380,21 @@ namespace InDet{
       std::bitset<3> timePattern(static_cast<unsigned long>(timeBin));
       if (!m_timeBinStr.empty()) passTiming = testTimeBins(timeBin);
 
+      passX1X = testTimeBinsX1X(pRawData3->getTimeBin());
+      if(passX1X) pass01X = testTimeBins01X(pRawData3->getTimeBin());
+      if (pass01X) n01X++;
+      if (passX1X && (!pass01X)) n11X++;
+      if (m_innermostBarrelX1X) {
+	if ((BEC==0) && (layer==0) && passX1X) passTiming=true;
+	else passTiming = pass01X;
+      } else if (m_innertwoBarrelX1X) {
+	if ((BEC==0) && (layer==0 || layer==1) && passX1X) passTiming=true;
+	else passTiming = pass01X;
+      }
+
       // Now we are either (a) pushing more contiguous strips onto an existing vector
       //                or (b) pushing a new set of ids onto an empty vector
-      if (passTiming) {
+      if (passTiming || m_majority01X) {
 	if(m_useRowInformation){
 	  addStripsToClusterInclRows(firstStripId, nStrips, currentVector,idGroups, idHelper);                    // Note this takes the current vector only
 	  if (stripCount < 16) hitsInThirdTimeBin = hitsInThirdTimeBin | (timePattern.test(0) << stripCount);
@@ -341,9 +419,11 @@ namespace InDet{
     
     // Still need to add this last vector
     if (not currentVector.empty()) {
-      idGroups.push_back(currentVector);
-      tbinGroups.push_back(hitsInThirdTimeBin);
-      hitsInThirdTimeBin=0;
+      if ((!m_majority01X) || (n01X >= n11X)){
+	idGroups.push_back(currentVector);
+	tbinGroups.push_back(hitsInThirdTimeBin);
+	hitsInThirdTimeBin=0;
+      }
     }
 
     // Find detector element for these digits

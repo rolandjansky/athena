@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           Event/EventPrimitives
                           GaudiKernel
+                          InnerDetector/InDetRawEvent/InDetSimData
                           InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetDetDescr/InDetIdentifier
@@ -44,13 +45,13 @@ atlas_add_library( SiClusterizationToolLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier EventPrimitives GaudiKernel InDetIdentifier InDetReadoutGeometry InDetRawData InDetPrepRawData InDetRecToolInterfaces TrkParameters TrkNeuralNetworkUtilsLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier EventPrimitives GaudiKernel InDetSimData InDetIdentifier InDetReadoutGeometry InDetRawData InDetPrepRawData InDetRecToolInterfaces TrkParameters TrkNeuralNetworkUtilsLib
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaPoolUtilities AtlasDetDescr TrkSurfaces TrkEventPrimitives VxVertex )
 
 atlas_add_component( SiClusterizationTool
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier EventPrimitives GaudiKernel InDetIdentifier InDetReadoutGeometry InDetRawData InDetPrepRawData InDetRecToolInterfaces TrkParameters AthenaPoolUtilities AtlasDetDescr TrkSurfaces TrkEventPrimitives VxVertex TrkNeuralNetworkUtilsLib SiClusterizationToolLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier EventPrimitives GaudiKernel InDetSimData InDetIdentifier InDetReadoutGeometry InDetRawData InDetPrepRawData InDetRecToolInterfaces TrkParameters AthenaPoolUtilities AtlasDetDescr TrkSurfaces TrkEventPrimitives VxVertex TrkNeuralNetworkUtilsLib SiClusterizationToolLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

@@ -581,7 +581,7 @@ SCT_Cluster* ClusterMakerTool::sctCluster(
 	}
 
 	// rotation for endcap SCT
-	if(element->design().shape() == InDetDD::Trapezoid) {
+	if(element->design().shape() == InDetDD::Trapezoid || element->design().shape() == InDetDD::Annulus) {
           double sn      = element->sinStereoLocal(localPos); 
           double sn2     = sn*sn;
           double cs2     = 1.-sn2;
