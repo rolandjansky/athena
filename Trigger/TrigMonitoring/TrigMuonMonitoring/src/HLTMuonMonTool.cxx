@@ -144,7 +144,6 @@ StatusCode HLTMuonMonTool::init()
   //(*m_log).setLevel(MSG::DEBUG); // YY: not yet used
   // this->msg().setLevel(MSG::DEBUG);  // YY tried this, worked fine
   ATH_MSG_DEBUG("init being called");
-
   // some switches and flags
   m_requestESchains = true;
   
