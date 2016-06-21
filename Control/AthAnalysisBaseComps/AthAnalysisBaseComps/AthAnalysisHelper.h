@@ -167,11 +167,12 @@ public:
 	//use ToolSvc as parent
 	parent = Gaudi::svcLocator()->service( "ToolSvc" );
       }
-      IAlgTool* m_algtool = AlgTool::Factory::create(type,type,name,parent);
-      W* out = dynamic_cast<W*>(m_algtool);
-      if(!out && m_algtool) {
+      IAlgTool* algtool = AlgTool::Factory::create(type,type,name,parent);
+      algtool->addRef(); //important to increment the reference count so that Gaudi Garbage collection wont delete alg ahead of time 
+      W* out = dynamic_cast<W*>(algtool);
+      if(!out && algtool) {
          std::cout << "ERROR: Tool of type " << type << " does not implement the interface " << System::typeinfoName(typeid(W)) << std::endl;
-         delete m_algtool;
+         delete algtool;
          return 0; 
       }
       return out;
@@ -185,7 +186,9 @@ public:
    static IAlgorithm* createAlgorithm(const std::string& typeAndName) {
       std::string type = typeAndName; std::string name = typeAndName;
       if(type.find("/")!=std::string::npos) { type = type.substr(0,type.find("/")); name = name.substr(name.find("/")+1,name.length()); }
-      return Algorithm::Factory::create(type,name,Gaudi::svcLocator());
+      IAlgorithm* out = Algorithm::Factory::create(type,name,Gaudi::svcLocator());
+      out->addRef(); //important to increment the reference count so that Gaudi Garbage collection wont delete alg ahead of time 
+      return out;
    }
 
 

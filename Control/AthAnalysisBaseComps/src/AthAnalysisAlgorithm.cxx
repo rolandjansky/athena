@@ -54,6 +54,17 @@ StatusCode AthAnalysisAlgorithm::sysInitialize() {
       return StatusCode::SUCCESS;
 }
 
+StatusCode AthAnalysisAlgorithm::sysExecute() {
+  if(!m_doneFirstEvent) {
+    m_doneFirstEvent=true;
+    if( firstEvent().isFailure() ) {
+      ATH_MSG_FATAL("Failure in firstEvent method");
+      return StatusCode::FAILURE;
+    }
+  }
+  return AthHistogramAlgorithm::sysExecute();
+}
+
 void AthAnalysisAlgorithm::handle( const Incident& inc ) {
 
    // Tell the user what's happening:
@@ -82,6 +93,16 @@ StatusCode AthAnalysisAlgorithm::beginInputFile() {
 }
 
 
+/// Dummy implementation that can be overridden by the derived tool.
+///
+StatusCode AthAnalysisAlgorithm::firstEvent() {
+
+   // Return gracefully:
+   return StatusCode::SUCCESS;
+}
+
+
+
 TFile* AthAnalysisAlgorithm::currentFile(const char* evtSelName) {
    if(m_currentFile) return m_currentFile;
 
@@ -93,8 +114,8 @@ TFile* AthAnalysisAlgorithm::currentFile(const char* evtSelName) {
    }
 
    //get the list of input files - use this to determine which open file is the current input file
-   const StringArrayProperty& m_inputCollectionsName = dynamic_cast<const StringArrayProperty&>(evtSelector->getProperty("InputCollections"));
-   ATH_MSG_VERBOSE("nOpenFile=" << gROOT->GetListOfFiles()->GetSize() << ". nFilesInInputCollection=" << m_inputCollectionsName.value().size());
+   const StringArrayProperty& inputCollectionsName = dynamic_cast<const StringArrayProperty&>(evtSelector->getProperty("InputCollections"));
+   ATH_MSG_VERBOSE("nOpenFile=" << gROOT->GetListOfFiles()->GetSize() << ". nFilesInInputCollection=" << inputCollectionsName.value().size());
    if(msgLvl(MSG::VERBOSE)) {
       for(int i=0;i<gROOT->GetListOfFiles()->GetSize();i++) {
          ATH_MSG_VERBOSE("Open file: " << gROOT->GetListOfFiles()->At(i)->GetName());
@@ -114,7 +135,8 @@ TFile* AthAnalysisAlgorithm::currentFile(const char* evtSelName) {
          bool shortComparison(false);
          if(tokens->GetEntries()>1) {
             TString beforeSlash((dynamic_cast<TObjString*>(tokens->At(tokens->GetEntries()-2)))->GetString());
-            if(beforeSlash.Length()>0) sToCompare += beforeSlash; sToCompare += "/";
+            if(beforeSlash.Length()>0) sToCompare += beforeSlash;
+            sToCompare += "/";
          } else {
             shortComparison=true;
          }
@@ -122,11 +144,11 @@ TFile* AthAnalysisAlgorithm::currentFile(const char* evtSelName) {
          TString sToCompare_short(lastToken->GetString()); //short versions search
          delete tokens;
 //         ATH_MSG_VERBOSE("Look at " << sToCompare);
-         for(unsigned int j=0;j<m_inputCollectionsName.value().size();j++) {
-            TString t(m_inputCollectionsName.value()[j].c_str());
+         for(unsigned int j=0;j<inputCollectionsName.value().size();j++) {
+            TString t(inputCollectionsName.value()[j].c_str());
             //try perfect match first
             if(s.EqualTo(t)) {
-               ATH_MSG_VERBOSE("Current File is: " << m_inputCollectionsName.value()[j]);
+               ATH_MSG_VERBOSE("Current File is: " << inputCollectionsName.value()[j]);
                m_currentFile = g;
                return g;
             }
@@ -136,23 +158,24 @@ TFile* AthAnalysisAlgorithm::currentFile(const char* evtSelName) {
             bool shortComparison2(false);
             if(tokens->GetEntries()>1) {
                TString beforeSlash((dynamic_cast<TObjString*>(tokens->At(tokens->GetEntries()-2)))->GetString());
-               if(beforeSlash.Length()>0) tToCompare += beforeSlash; tToCompare += "/";
+               if(beforeSlash.Length()>0) tToCompare += beforeSlash;
+               tToCompare += "/";
             } else {
                shortComparison2=true;
             }
             tToCompare += lastToken->GetString();
             TString tToCompare_short(lastToken->GetString());
             delete tokens;
-            //ATH_MSG_VERBOSE("cf with : " << m_inputCollectionsName.value()[j]);
+            //ATH_MSG_VERBOSE("cf with : " << inputCollectionsName.value()[j]);
             if(shortComparison || shortComparison2) { //doing short version search, no directories to distinguish files!
                if(sToCompare_short.EqualTo(tToCompare_short)) {
-                  ATH_MSG_VERBOSE("Current File is: " << m_inputCollectionsName.value()[j]);
+                  ATH_MSG_VERBOSE("Current File is: " << inputCollectionsName.value()[j]);
                   m_currentFile = g;
                   return g;
                }
             } else
             if(sToCompare.EqualTo(tToCompare)) {
-               ATH_MSG_VERBOSE("Current File is: " << m_inputCollectionsName.value()[j]);
+               ATH_MSG_VERBOSE("Current File is: " << inputCollectionsName.value()[j]);
                m_currentFile=g;
                return g;
             }
