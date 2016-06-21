@@ -314,6 +314,9 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   m_failed_evt(0),
   m_invalid_lvl1_result(0),
   m_invalid_hlt_result(0),
+  m_truncated_hlt_result(0),
+  m_truncated_hlt_result_to_debug(0),
+  m_truncated_hlt_result_not_to_debug(0),
   m_lvl1id(0),
   m_run_no(0),
   m_bunch_crossing_id(0),
@@ -323,7 +326,8 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   m_l1_Status_Element(0),
   m_l1_Trigger_Type(0),
   m_l1_detev_type(0),
-  m_hist_l1_robs(0)
+  m_hist_l1_robs(0),
+  m_hist_Hlt_truncated_result(0)
 {
   // General properties for event loop managers
   declareProperty("predefinedLumiBlock",      m_predefinedLumiBlock=0);
@@ -352,6 +356,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   declareProperty("Lvl1CTPROBcheck",          m_lvl1CTPROBcheck=true);
   declareProperty("WriteTruncatedHLTtoDebug", m_writeHltTruncationToDebug=false);
   declareProperty("HltTruncationDebugStreamName",  m_HltTruncationDebugStreamName ="TruncatedHLTResult");
+  declareProperty("ExcludeFromHltTruncationDebugStream",  m_excludeFromHltTruncationDebugStream ={"CostMonitoring"});
 }
 
 //=========================================================================
@@ -533,6 +538,7 @@ StatusCode HltEventLoopMgr::initialize()
 
   logStream() << MSG::INFO << " ---> Write events with truncated HLT result to debug stream  = " << m_writeHltTruncationToDebug << endreq;
   logStream() << MSG::INFO << " ---> Debug stream name for events with truncated HLT result  = " << m_HltTruncationDebugStreamName << endreq;
+  logStream() << MSG::INFO << " ---> Stream names of events with a truncated HLT result which will not be send to the debug stream  = " << m_excludeFromHltTruncationDebugStream << endreq;
 
   //-------------------------------------------------------------------------
   // Setup the StoreGateSvc
@@ -666,10 +672,13 @@ StatusCode HltEventLoopMgr::initialize()
 //-------------------------------------------------------------------------
 // Reset counters
 //-------------------------------------------------------------------------
-  m_total_evt              = 0;
-  m_failed_evt             = 0;
-  m_invalid_lvl1_result    = 0;
-  m_invalid_hlt_result    = 0;
+  m_total_evt                         = 0;
+  m_failed_evt                        = 0;
+  m_invalid_lvl1_result               = 0;
+  m_invalid_hlt_result                = 0;
+  m_truncated_hlt_result              = 0;
+  m_truncated_hlt_result_to_debug     = 0;
+  m_truncated_hlt_result_not_to_debug = 0;
 
 //--------------------------------------------------------------------------
 // Setup the HLT Histogram Service when configured
@@ -730,10 +739,13 @@ StatusCode HltEventLoopMgr::finalize()
 {
   MsgStream log(msgSvc(), name());
   log << MSG::INFO << " ---> HltEventLoopMgr = " << name() << " finalize " << endreq;
-  log << MSG::INFO << " Total number of events processed :       " << m_total_evt << endreq;
-  log << MSG::INFO << "    Events with error in event processing " << m_failed_evt << endreq;
-  log << MSG::INFO << "    Events with invalid Lvl1 Result       " << m_invalid_lvl1_result << endreq;
-  log << MSG::INFO << "    Events with invalid Hlt Result       " << m_invalid_hlt_result << endreq;
+  log << MSG::INFO << " Total number of events processed :                                     " << m_total_evt << endreq;
+  log << MSG::INFO << "    Events with error in event processing                               " << m_failed_evt << endreq;
+  log << MSG::INFO << "    Events with invalid Lvl1 Result                                     " << m_invalid_lvl1_result << endreq;
+  log << MSG::INFO << "    Events with invalid Hlt Result                                      " << m_invalid_hlt_result << endreq;
+  log << MSG::INFO << "    Events with truncated Hlt Result payload                            " << m_truncated_hlt_result << endreq;   
+  log << MSG::INFO << "    Events with truncated Hlt Result payload (send to debug stream)     " << m_truncated_hlt_result_to_debug << endreq;   
+  log << MSG::INFO << "    Events with truncated Hlt Result payload (not send to debug stream) " << m_truncated_hlt_result_not_to_debug << endreq;   
 
 #ifdef ATLAS_GAUDI_V21
   // Need to release now. Automatic release in destructor is too late since services are already gone.
@@ -784,10 +796,13 @@ StatusCode HltEventLoopMgr::reinitialize()
 //-------------------------------------------------------------------------
 // Reset counters
 //-------------------------------------------------------------------------
-  m_total_evt              = 0;
-  m_failed_evt             = 0;
-  m_invalid_lvl1_result    = 0;
-  m_invalid_hlt_result     = 0;
+  m_total_evt                         = 0;
+  m_failed_evt                        = 0;
+  m_invalid_lvl1_result               = 0;
+  m_invalid_hlt_result                = 0;
+  m_truncated_hlt_result              = 0;
+  m_truncated_hlt_result_to_debug     = 0;
+  m_truncated_hlt_result_not_to_debug = 0;
 
   StatusCode sc = MinimalEventLoopMgr::reinitialize();
   if (sc.isFailure()) {
@@ -1849,11 +1864,52 @@ hltonl::PSCErrorCode HltEventLoopMgr::HltResultROBs(
         recordEDMSizeInfo(dobj->getNavigationResult().size(), serializationOk);
 
       // The HLT result got truncated, put the event on a special debug stream if requested 
-      if ((!serializationOk) && 
-	  (!m_HltTruncationDebugStreamName.value().empty()) &&
-	  (m_writeHltTruncationToDebug.value())) {
-	  hlt_result.stream_tag.clear();
-	  addDebugStreamTag(hlt_result, m_HltTruncationDebugStreamName);
+      if (!serializationOk) {
+	m_truncated_hlt_result++;
+	if (m_hist_Hlt_truncated_result) {
+	  scoped_lock_histogram lock;
+	  m_hist_Hlt_truncated_result->Fill(1.);
+	}
+ 	if ((!m_HltTruncationDebugStreamName.value().empty()) &&
+	    (m_writeHltTruncationToDebug.value())) {
+      	  // check if event should be not send to the debug stream (e.g. Cost Monitoring)
+	  bool sendToDebug(true);
+	  for (auto it_st : hlt_result.stream_tag) {
+	    auto p = std::find(m_excludeFromHltTruncationDebugStream.value().begin(), 
+			       m_excludeFromHltTruncationDebugStream.value().end(),
+			       (it_st).name);
+	    if (p != m_excludeFromHltTruncationDebugStream.value().end()) sendToDebug=false;
+	  }
+	  if (sendToDebug) {
+	    m_truncated_hlt_result_to_debug++;	 
+	    if (m_hist_Hlt_truncated_result) {
+	      scoped_lock_histogram lock;
+	      m_hist_Hlt_truncated_result->Fill(2.);
+	    }
+	    hlt_result.stream_tag.clear();
+	    addDebugStreamTag(hlt_result, m_HltTruncationDebugStreamName);
+	    logStream() << MSG::ERROR << ST_WHERE
+			<< "HLTResult was truncated. Event send to debug stream  = "
+			<< m_HltTruncationDebugStreamName << endreq;
+	  } else {
+	    m_truncated_hlt_result_not_to_debug++;	 
+	    if (m_hist_Hlt_truncated_result) {
+	      scoped_lock_histogram lock;
+	      m_hist_Hlt_truncated_result->Fill(3.);
+	    }
+	    logStream() << MSG::WARNING << ST_WHERE
+			<< "HLTResult was truncated. Event was NOT send to debug stream  = "
+			<< m_HltTruncationDebugStreamName
+			<< " because an exclusion stream tag name matched from = " << m_excludeFromHltTruncationDebugStream.value()  
+			<< endreq;
+	  }
+	} else {
+	  m_truncated_hlt_result_not_to_debug++;
+	  if (m_hist_Hlt_truncated_result) {
+	    scoped_lock_histogram lock;
+	    m_hist_Hlt_truncated_result->Fill(3.);
+	  }
+	}
       }
     }
   }
@@ -1975,6 +2031,18 @@ void HltEventLoopMgr::bookHistograms()
       }
     }
     regHistsTH1F.push_back(&m_hist_Hlt_result_status);
+  }
+
+  // *-- HLT result truncation
+  uint32_t n_bins_ResultTruncation = 3;
+  m_hist_Hlt_truncated_result =    new TH1F ("HltResultTruncation",
+      "HltResultTruncation;;entries", n_bins_ResultTruncation, 0.5, n_bins_ResultTruncation+0.5);
+
+  if (m_hist_Hlt_truncated_result) {
+    m_hist_Hlt_truncated_result->GetXaxis()->SetBinLabel( 1, std::string("Truncated HLT result").c_str() );
+    m_hist_Hlt_truncated_result->GetXaxis()->SetBinLabel( 2, std::string("Truncated HLT result (send to debug stream)").c_str() );
+    m_hist_Hlt_truncated_result->GetXaxis()->SetBinLabel( 3, std::string("Truncated HLT result (not send to debug stream)").c_str() );
+    regHistsTH1F.push_back(&m_hist_Hlt_truncated_result);
   }
 
   //     +-----------------------+

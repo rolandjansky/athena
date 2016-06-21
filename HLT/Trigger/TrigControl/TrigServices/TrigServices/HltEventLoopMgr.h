@@ -400,6 +400,9 @@ private:
   int                       m_failed_evt;
   int                       m_invalid_lvl1_result;
   int                       m_invalid_hlt_result;
+  int                       m_truncated_hlt_result;
+  int                       m_truncated_hlt_result_to_debug;
+  int                       m_truncated_hlt_result_not_to_debug;
 
   // for CTP Lvl1 Rob
   std::vector<uint32_t>     m_ctpRobIdVec ;
@@ -433,13 +436,17 @@ private:
   /// Check integrity of CTP ROB and put event to debug stream when it fails
   BooleanProperty           m_lvl1CTPROBcheck ;
 
+  /// Monitoring
+  TH1F*                     m_hist_l1_robs;
+
   /// Flag to write events with truncated HLT result to a special debug stream
   BooleanProperty           m_writeHltTruncationToDebug ;
   /// Debug stream name for events with a truncated HLT result 
   StringProperty            m_HltTruncationDebugStreamName; 
-
-  /// Monitoring
-  TH1F*                     m_hist_l1_robs;
+  /// Stream names for which events should be not send to the debug stream even when the HLT result is truncated
+  StringArrayProperty       m_excludeFromHltTruncationDebugStream; 
+  /// Monitoring histogram for truncated HLT results
+  TH1F*                     m_hist_Hlt_truncated_result;
 
   /// we need this maintain the data
   uint32_t                  m_status_words[3];
