@@ -18,7 +18,6 @@ from AthenaCommon.AppMgr import ToolSvc
 # only do trigger-aware monitoring if monTrigDecTool known by ToolSvc
 # NoTrig requirement part is intended to run on all streams
 MuonGenericTracksMon_NoTrig = MuonGenericTracksMon(name        = "MuonGenericTracksMon_NoTrig",
-	                                               EnableLumi  = DQMonFlags.enableLumiAccess(),
 	                                               MuonTriggerChainName = "NoTrig/",
 	                                               OutputLevel = WARNING,
 	                                               )
@@ -27,12 +26,11 @@ muTrackMonMan.AthenaMonTools.append(MuonGenericTracksMon_NoTrig)
 
 # L1_Trig part is intended to only select events passing L1_MU triggers
 MuonGenericTracksMon_L1Trig = MuonGenericTracksMon(name        = "MuonGenericTracksMon_L1Trig",
-	                                               EnableLumi  = DQMonFlags.enableLumiAccess(),
 	                                               MuonTriggerChainName = "",
 	                                               OutputLevel = WARNING,
 	                                               )
 
-if not hasattr(ToolSvc, 'monTrigDecTool'):
+if not DQMonFlags.useTrigger():
     print "MuonTrigTrackDQA_options.py: trigger decision tool not found: don't run trigger-aware monitoring"
 else:
 	MuonGenericTracksMon_L1Trig.TriggerChain = "L1_MU4, L1_MU6, L1_MU10, L1_MU11, L1_MU15, L1_MU20, L1_2MU4, L1_2MU6, L1_2MU10"
