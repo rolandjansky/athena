@@ -93,8 +93,8 @@ TileDigitsFromPulse::TileDigitsFromPulse(std::string name, ISvcLocator* pSvcLoca
   declareProperty("UseGaussNoise", m_gaussNoise = kFALSE);
   declareProperty("GaussNoiseAmpOne", m_GNAmpOne = 1/1.039);
   declareProperty("GaussNoiseSigmaOne", m_GNSigmaOne = 1.6);  
-  declareProperty("GaussNoiseAmpOne", m_GNAmpTwo = 0.039);
-  declareProperty("GaussNoiseSigmaOne", m_GNSigmaTwo = 3.6);    
+  declareProperty("GaussNoiseAmpTwo", m_GNAmpTwo = 0.039);
+  declareProperty("GaussNoiseSigmaTwo", m_GNSigmaTwo = 3.6);    
   declareProperty("UseInTimeAmpDist", m_useItADist = kFALSE);
   declareProperty("UseOutOfTimeAmpDist", m_useOotADist = kFALSE);
   declareProperty("InTimeAmpDistFileName", m_itADistFileName = "");
