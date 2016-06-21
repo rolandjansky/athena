@@ -3,7 +3,7 @@
 */
 
 // **********************************************************************
-// $Id: MonitoringFile.cxx 730604 2016-03-17 00:02:59Z ponyisi $
+// $Id: MonitoringFile.cxx 756119 2016-06-19 06:44:00Z ponyisi $
 // **********************************************************************
 
 #include "DataQualityUtils/MonitoringFile.h"
@@ -2134,10 +2134,7 @@ int MonitoringFile::mergeLB_processLBinterval(std::vector<TDirectory*>& v_dirsSt
       // write metadata tree
       dir_out->cd();
       mdTree->SetDirectory(dir_out);
-      // When fix for https://sft.its.cern.ch/jira/browse/ROOT-8055 is available
-      // we can use kOverwrite again
-      // until then we will have multiple cycles
-      mdTree->Write();
+      mdTree->Write(0, kOverwrite);
       delete mdTree;
 
    } 

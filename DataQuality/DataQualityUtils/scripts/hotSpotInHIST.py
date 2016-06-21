@@ -62,7 +62,7 @@ parser.add_argument('-a','--amiTag',dest='amiTag',default='x',help="First letter
 parser.add_argument('-e','--eta',type=float,dest='etaSpot',default='0',help='Eta of hot spot',action='store')
 parser.add_argument('-p','--phi',type=float,dest='phiSpot',default='0.',help='Phi of hot spot (or MET bump)',action='store')
 parser.add_argument('-d','--delta',type=float,dest='deltaSpot',default='0.1',help='Distance to look around hot spot (or MET bump)',action='store')
-parser.add_argument('-o','--object',dest='objectType',default='TopoCluster',help='TopoCluster,JetsHI',action='store')
+parser.add_argument('-o','--object',dest='objectType',default='TopoClusters',help='TopoClusters,EMTopoClusters,EMTopoJets',action='store')
 #parser.add_argument('-c','--cut',type=int,dest='upperLB',default='999999',help="Upper lb",action='store')
 parser.add_argument('-m','--min',type=int,dest='minInLB',default='5',help='Min number of object in a LB',action='store')
 parser.add_argument('-n','--noplot',dest='noplot',help='Do not plot LB map',action='store_true')
@@ -85,7 +85,7 @@ objectType = args.objectType
 minInLB = args.minInLB
 
 # Histo path definition base on object type
-if (objectType == "TopoCluster"):
+if (objectType == "TopoClusters"):
   histoPath  = {"Et10GeV":"run_%d/CaloMonitoring/ClusterMon/CaloCalTopoClustersNoTrigSel/2d_Rates/m_clus_etaphi_Et_thresh1"%(run),
                 "Et25GeV":"run_%d/CaloMonitoring/ClusterMon/CaloCalTopoClustersNoTrigSel/2d_Rates/m_clus_etaphi_Et_thresh2"%(run),
                 "Et50GeV":"run_%d/CaloMonitoring/ClusterMon/CaloCalTopoClustersNoTrigSel/2d_Rates/m_clus_etaphi_Et_thresh3"%(run)}
@@ -98,6 +98,21 @@ if (objectType == "TopoCluster"):
   histoKeys = ["Et10GeV",
                "Et25GeV",
                "Et50GeV"]
+  b_2dHisto = True # Draw with "COLZ"
+
+if (objectType == "EMTopoClusters"):
+  histoPath  = {"Et4GeV":"run_%d/CaloMonitoring/ClusterMon/LArClusterEMNoTrigSel/2d_Rates/m_clus_etaphi_Et_thresh1"%(run),
+                "Et10GeV":"run_%d/CaloMonitoring/ClusterMon/LArClusterEMNoTrigSel/2d_Rates/m_clus_etaphi_Et_thresh2"%(run),
+                "Et25GeV":"run_%d/CaloMonitoring/ClusterMon/LArClusterEMNoTrigSel/2d_Rates/m_clus_etaphi_Et_thresh3"%(run)}
+  histoLegend = {"Et4GeV":"Et > 4GeV",
+                 "Et10GeV":"Et > 10GeV",
+                 "Et25GeV":"Et > 25GeV"}
+  histoColor = {"Et4GeV":kBlack,
+                "Et10GeV":kRed,
+                "Et25GeV":kBlue}
+  histoKeys = ["Et4GeV",
+               "Et10GeV",
+               "Et25GeV"]
   b_2dHisto = True # Draw with "COLZ"
 
 if (objectType == "EMTopoJets"):
@@ -180,6 +195,7 @@ fLB = {}
 print "I have found the merged HIST file %s"%(runFilePath)
 print "I have found %d unmerged HIST files"%(len(lbFilePathList))
 print "The first one is root://eosatlas.cern.ch/%s"%(lbFilePathList[0])
+print "The last one is root://eosatlas.cern.ch/%s"%(lbFilePathList[len(lbFilePathList)-1])
 sys.stdout.write("Start scanning the LBs:")
 
 # Loop on all unmerged files
@@ -240,6 +256,7 @@ leg = TLegend(0.5,0.75,0.95,0.92)
 
 if (upperLB>=lowerLB): # check that at least one noisy LB was found
   c0 = TCanvas()
+  c0.SetLogy(1)
   h0Evol = {}
   first = True
   for iHisto in histoKeys:
