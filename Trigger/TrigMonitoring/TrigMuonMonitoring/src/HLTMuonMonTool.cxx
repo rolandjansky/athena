@@ -144,7 +144,6 @@ StatusCode HLTMuonMonTool::init()
   //(*m_log).setLevel(MSG::DEBUG); // YY: not yet used
   // this->msg().setLevel(MSG::DEBUG);  // YY tried this, worked fine
   ATH_MSG_DEBUG("init being called");
-
   // some switches and flags
   m_requestESchains = true;
   
@@ -739,7 +738,29 @@ StatusCode HLTMuonMonTool::fill()
   }
   hist("Common_Counter", m_histdir )->Fill((float)EVENT);
   if(m_HI_pp_mode)hist("HI_PP_Flag", m_histdir)->Fill(1);
-  
+
+  /*
+  auto chainGroup = getTDT()->getChainGroup("HLT_mu.*");
+  for(auto &trig : chainGroup->getListOfTriggers()) {
+    auto cg = getTDT()->getChainGroup(trig);
+    std::string thisTrig = trig;
+    std::cout<<"testchenyhlt chainlist "<<thisTrig.c_str()<<std::endl;
+  }*/
+  std::vector<std::string>::const_iterator it;
+  int itr;
+  for(it=m_chainsEFiso.begin(), itr=0; it != m_chainsEFiso.end() ; it++, itr++ ){
+    if(getTDT()->isPassed(*it))hist("Monitoring_Chain", m_histdir )->Fill((*it).c_str(),1);
+  }
+  for(it=m_chainsMSonly.begin(), itr=0; it != m_chainsMSonly.end() ; it++, itr++ ){
+    if(getTDT()->isPassed(*it))hist("Monitoring_Chain", m_histdir )->Fill((*it).c_str(),1);     
+  }
+  for(it=m_chainsEFFS.begin(), itr=0; it != m_chainsEFFS.end() ; it++, itr++ ){
+    if(getTDT()->isPassed(*it))hist("Monitoring_Chain", m_histdir )->Fill((*it).c_str(),1);
+  }
+  for(it=m_chainsGeneric.begin(), itr=0; it != m_chainsGeneric.end() ; it++, itr++ ){
+    if(getTDT()->isPassed(*it))hist("Monitoring_Chain", m_histdir )->Fill((*it).c_str(),1);
+  }
+
   // chain
   StatusCode scChain;
   try {

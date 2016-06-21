@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 monitoring_muonNonIso = ['HLT_mu50']
-monitoring_muonNonIso_HI = ['HLT_10','HLT_14']
+monitoring_muonNonIso_HI = ['HLT_mu10','HLT_mu14']
 monitoring_muonNonIso_pp = ['HLT_mu50']
 
 monitoring_muonIso = ['HLT_mu24_imedium','HLT_mu26_imedium']
@@ -12,9 +12,9 @@ monitoring_MSonly = ['HLT_mu60_0eta105_msonly']
 monitoring_MSonly_HI = ['HLT_mu15_msonly']
 monitoring_MSonly_pp = ['HLT_mu60_0eta105_msonly']
 
-monitoring_muonEFFS = ['HLT_mu18_mu8noL1']
+monitoring_muonEFFS = ['HLT_mu20_mu8noL1']
 monitoring_muonEFFS_HI = ['HLT_mu4_mu4noL1']
-monitoring_muonEFFS_pp = ['HLT_mu18_mu8noL1']
+monitoring_muonEFFS_pp = ['HLT_mu20_mu8noL1']
 
 monitoring_muon_Support = ['HLT_mu6_idperf','HLT_mu20_idperf']
 monitoring_muon_Support_HI = ['HLT_noalg_L1MU4','HLT_noalg_L1MU6']
