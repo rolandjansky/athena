@@ -1855,9 +1855,9 @@ namespace AtlasRoot {
              m_use_temp_correction201516)
     {
       // special case for es2016PRE (extrapolation from 2015)
-      const double sign = (var == egEnergyCorr::Scale::LArTemperature2016PreUp) ? 1 : -1;
-      // temp + pileup
-      value += qsum(0.02, 0.02) * sign; // Guillaume email 23/05/2016 + 26/5/2013
+        const double sign = (var == egEnergyCorr::Scale::LArTemperature2016PreUp) ? 1 : -1;
+        // temp + pileup
+        value += qsum(0.05E-2, 0.02E-2) * sign; // Guillaume email 23/05/2016 + 26/5/2016
     }
 
 
