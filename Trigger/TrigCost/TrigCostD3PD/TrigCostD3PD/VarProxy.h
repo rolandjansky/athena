@@ -74,9 +74,9 @@ namespace D3PDReader {
       const_result_type operator()() const;
 
    private:
-      VarHandle< std::vector< Type >* >* fHandle; ///< Pointer to the handle object
-      size_t fIndex; ///< Index inside the handle object's vector
-      Type fDummy; ///< Object returned by default
+      VarHandle< std::vector< Type >* >* m_handle; ///< Pointer to the handle object
+      size_t m_index; ///< Index inside the handle object's vector
+      Type m_dummy; ///< Object returned by default
 
    }; // class VarProxy
 

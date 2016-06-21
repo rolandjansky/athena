@@ -33,8 +33,8 @@ namespace D3PDReader {
 
       // Try to find the variable:
       std::map< ::TString, VarProxyBase* >::const_iterator itr =
-         fProxies.find( name );
-      if( itr != fProxies.end() ) {
+         m_proxies.find( name );
+      if( itr != m_proxies.end() ) {
          // If it's already known, let's see if it's the right type:
          VarProxy< T >* result =
             dynamic_cast< VarProxy< T >* >( itr->second );
@@ -42,9 +42,9 @@ namespace D3PDReader {
             // Create a dummy object. The code will crash soon
             // anyway...
             VarProxy< T >* dummy =
-               new VarProxy< T >( fParent->Variable< std::vector< T >* >( name ),
-                                  fIndex );
-            fProxies[ name ] = dummy;
+               new VarProxy< T >( m_parent->Variable< std::vector< T >* >( name ),
+                                  m_index );
+            m_proxies[ name ] = dummy;
             // Tell the user what happened:
             Error( "Variable",
                    "Variable with name '%s' requested with wrong type",
@@ -53,11 +53,11 @@ namespace D3PDReader {
          }
          // Check if the underlying vector is large enough:
          const VarHandle< std::vector< T >* >& vh = 
-            fParent->Variable< std::vector< T >* >( name );
+            m_parent->Variable< std::vector< T >* >( name );
          if( vh.IsAvailable() && ( ! vh.GetMaster() ) &&
-             ( vh()->size() <= fIndex ) ) {
-            UserD3PDObject* ncparent = const_cast< UserD3PDObject* >( fParent );
-            ncparent->Variable< std::vector< T >* >( name )()->resize( fIndex + 1 );
+             ( vh()->size() <= m_index ) ) {
+            UserD3PDObject* ncparent = const_cast< UserD3PDObject* >( m_parent );
+            ncparent->Variable< std::vector< T >* >( name )()->resize( m_index + 1 );
          }
          // Return the proxy:
          return *result;
@@ -65,17 +65,17 @@ namespace D3PDReader {
 
       // Add the new proxy variable:
       VarProxy< T >* result =
-         new VarProxy< T >( fParent->Variable< std::vector< T >* >( name ),
-                            fIndex );
-      fProxies[ name ] = result;
+         new VarProxy< T >( m_parent->Variable< std::vector< T >* >( name ),
+                            m_index );
+      m_proxies[ name ] = result;
 
       // Check if the underlying vector is large enough:
       const VarHandle< std::vector< T >* >& vh = 
-         fParent->Variable< std::vector< T >* >( name );
+         m_parent->Variable< std::vector< T >* >( name );
       if( vh.IsAvailable() && ( ! vh.GetMaster() ) &&
-          ( vh()->size() <= fIndex ) ) {
-         UserD3PDObject* ncparent = const_cast< UserD3PDObject* >( fParent );
-         ncparent->Variable< std::vector< T >* >( name )()->resize( fIndex + 1 );
+          ( vh()->size() <= m_index ) ) {
+         UserD3PDObject* ncparent = const_cast< UserD3PDObject* >( m_parent );
+         ncparent->Variable< std::vector< T >* >( name )()->resize( m_index + 1 );
       }
 
       // Return the proxy:
@@ -101,8 +101,8 @@ namespace D3PDReader {
 
       // Try to find the variable:
       std::map< ::TString, VarProxyBase* >::const_iterator itr =
-         fProxies.find( name );
-      if( itr != fProxies.end() ) {
+         m_proxies.find( name );
+      if( itr != m_proxies.end() ) {
          // If it's already known, let's see if it's the right type:
          VarProxy< T >* result =
             dynamic_cast< VarProxy< T >* >( itr->second );
@@ -110,9 +110,9 @@ namespace D3PDReader {
             // Create a dummy object. The code will crash soon
             // anyway...
             VarProxy< T >* dummy =
-               new VarProxy< T >( fParent->Variable< std::vector< T >* >( name ),
-                                  fIndex );
-            fProxies[ name ] = dummy;
+               new VarProxy< T >( m_parent->Variable< std::vector< T >* >( name ),
+                                  m_index );
+            m_proxies[ name ] = dummy;
             // Tell the user what happened:
             Error( "Variable",
                    "Variable with name '%s' requested with wrong type",
@@ -125,9 +125,9 @@ namespace D3PDReader {
 
       // Add the new proxy variable:
       VarProxy< T >* result =
-         new VarProxy< T >( fParent->Variable< std::vector< T >* >( name ),
-                            fIndex );
-      fProxies[ name ] = result;
+         new VarProxy< T >( m_parent->Variable< std::vector< T >* >( name ),
+                            m_index );
+      m_proxies[ name ] = result;
 
       // Return the proxy:
       return *result;
@@ -145,16 +145,16 @@ namespace D3PDReader {
 
       // Check if the variable with this name is already in place:
       std::map< ::TString, VarHandleBase* >::const_iterator itr =
-         fHandles.find( name );
-      if( itr != fHandles.end() ) {
+         m_handles.find( name );
+      if( itr != m_handles.end() ) {
          Warning( "DeclareVariable",
                   "Variable with name '%s' already declared",
-                  ( fPrefix + name ).Data() );
+                  ( m_prefix + name ).Data() );
          return;
       }
 
       // Declare the new variable:
-      fHandles[ name ] = new VarHandle< T >( fPrefix + name, 0 );
+      m_handles[ name ] = new VarHandle< T >( m_prefix + name, 0 );
 
       return;
    }
@@ -172,8 +172,8 @@ namespace D3PDReader {
 
       // Try to find the variable:
       std::map< ::TString, VarHandleBase* >::const_iterator itr =
-         fHandles.find( name );
-      if( itr != fHandles.end() ) {
+         m_handles.find( name );
+      if( itr != m_handles.end() ) {
          // It's already known, so let's see if it's of the right type:
          VarHandle< T >* result =
             dynamic_cast< VarHandle< T >* >( itr->second );
@@ -181,12 +181,12 @@ namespace D3PDReader {
             // Add a dummy object for technical reasons. The user code
             // will anyway probably die after this.
             VarHandle< T >* dummy = new VarHandle< T >();
-            fExtraHandles.push_back( dummy );
+            m_extraHandles.push_back( dummy );
             // Tell the user what happened:
             Error( "Variable",
                    "Variable with name '%s' is of type '%s', "
                    "not of type '%s'",
-                   ( fPrefix + name ).Data(), itr->second->GetType(),
+                   ( m_prefix + name ).Data(), itr->second->GetType(),
                    dummy->GetType() );
             // Return the dummy:
             return *dummy;
@@ -196,9 +196,9 @@ namespace D3PDReader {
       }
 
       // If it doesn't exist yet, let's add it:
-      VarHandle< T >* result = new VarHandle< T >( fPrefix + name, fMaster );
-      if( fInTree ) result->ReadFrom( fInTree );
-      fHandles[ name ] = result;
+      VarHandle< T >* result = new VarHandle< T >( m_prefix + name, m_master );
+      if( m_inTree ) result->ReadFrom( m_inTree );
+      m_handles[ name ] = result;
       return *result;
    }
 
@@ -214,8 +214,8 @@ namespace D3PDReader {
 
       // Try to find the variable:
       std::map< ::TString, VarHandleBase* >::const_iterator itr =
-         fHandles.find( name );
-      if( itr != fHandles.end() ) {
+         m_handles.find( name );
+      if( itr != m_handles.end() ) {
          // It's already known, so let's see if it's of the right type:
          VarHandle< T >* result =
             dynamic_cast< VarHandle< T >* >( itr->second );
@@ -223,12 +223,12 @@ namespace D3PDReader {
             // Add a dummy object for technical reasons. The user code
             // will anyway probably die after this.
             VarHandle< T >* dummy = new VarHandle< T >();
-            fExtraHandles.push_back( dummy );
+            m_extraHandles.push_back( dummy );
             // Tell the user what happened:
             Error( "Variable",
                    "Variable with name '%s' is of type '%s', "
                    "not of type '%s'",
-                   ( fPrefix + name ).Data(), itr->second->GetType(),
+                   ( m_prefix + name ).Data(), itr->second->GetType(),
                    dummy->GetType() );
             // Return the dummy:
             return *dummy;
@@ -238,9 +238,9 @@ namespace D3PDReader {
       }
 
       // If it doesn't exist yet, let's add it:
-      VarHandle< T >* result = new VarHandle< T >( fPrefix + name, fMaster );
-      if( fInTree ) result->ReadFrom( fInTree );
-      fHandles[ name ] = result;
+      VarHandle< T >* result = new VarHandle< T >( m_prefix + name, m_master );
+      if( m_inTree ) result->ReadFrom( m_inTree );
+      m_handles[ name ] = result;
       return *result;
    }
 

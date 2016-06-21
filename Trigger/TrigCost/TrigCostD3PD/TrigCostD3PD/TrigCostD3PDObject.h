@@ -15,7 +15,6 @@
 // STL include(s):
 #include <map>
 #include <vector>
-using std::vector;
 
 // ROOT include(s):
 #include <TObject.h>
@@ -222,9 +221,9 @@ namespace D3PDReader {
       /// Function setting up all the VarHandle members
       void SetVarHandles( const ::Long64_t* master );
 
-      std::map< ::TString, VarHandleBase* > fHandles; ///< Book-keeper of the VarHandle members
-      const ::Bool_t fFromInput; ///< Flag specifying if object is used for D3PD reading
-      ::TString fPrefix; ///< Prefix to the branch names
+      std::map< ::TString, VarHandleBase* > m_handles; ///< Book-keeper of the VarHandle members
+      const ::Bool_t m_fromInput; ///< Flag specifying if object is used for D3PD reading
+      ::TString m_prefix; ///< Prefix to the branch names
 
       ClassDef( TrigCostD3PDObject, 0 )
 

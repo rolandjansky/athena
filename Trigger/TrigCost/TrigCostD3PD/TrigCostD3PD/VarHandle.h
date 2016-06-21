@@ -97,20 +97,20 @@ namespace D3PDReader {
       /// Translate the typeid() type name to a huma-readable ROOT type name
       const char* RootCppType( const char* typeid_type ) const;
 
-      const ::Long64_t* fMaster; ///< Pointer to the current entry number
-      ::Bool_t fFromInput; ///< Flag showing if the variable is read from an input TTree
-      ::TTree* fInTree; ///< The input TTree
-      mutable ::TBranch* fInBranch; /// The input branch belonging to this variable
-      mutable BranchAvailability fAvailable; ///< Availability of the branch
+      const ::Long64_t* m_master; ///< Pointer to the current entry number
+      ::Bool_t m_fromInput; ///< Flag showing if the variable is read from an input TTree
+      ::TTree* m_inTree; ///< The input TTree
+      mutable ::TBranch* m_inBranch; /// The input branch belonging to this variable
+      mutable BranchAvailability m_available; ///< Availability of the branch
 
    private:
-      ::TString fName; ///< Name of the branch to handle
-      ::Bool_t fActive; ///< Flag telling if the variable can be written to the output
+      ::TString m_name; ///< Name of the branch to handle
+      ::Bool_t m_active; ///< Flag telling if the variable can be written to the output
 
-      ::TString fType; ///< Variable type
-      mutable std::vector< ::Long64_t > fEntriesRead; ///< Number of read entries for each tree
-      mutable std::vector< ::Float_t > fBranchSize; ///< Unzipped entry size for each tree
-      mutable std::vector< ::Float_t > fZippedSize; ///< Zipped entry size for each tree
+      ::TString m_type; ///< Variable type
+      mutable std::vector< ::Long64_t > m_entriesRead; ///< Number of read entries for each tree
+      mutable std::vector< ::Float_t > m_branchSize; ///< Unzipped entry size for each tree
+      mutable std::vector< ::Float_t > m_zippedSize; ///< Zipped entry size for each tree
 
    }; // class VarHandleBase
 
@@ -160,7 +160,7 @@ namespace D3PDReader {
       void Set( Type value );
 
    private:
-      mutable Type fVariable; ///< The variable in memory
+      mutable Type m_variable; ///< The variable in memory
 
    }; // class VarHandle
 
@@ -211,7 +211,7 @@ namespace D3PDReader {
       void Set( const_result_type value );
 
    private:
-      mutable Type* fVariable; ///< The variable in memory
+      mutable Type* m_variable; ///< The variable in memory
 
    }; // class VarHandle
 

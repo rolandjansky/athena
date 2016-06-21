@@ -63,8 +63,8 @@ namespace D3PDReader {
       TrigDBKeysD3PDObject trig_DB;
 
    private:
-      Long64_t fEntry; ///< Variable storing the current entry number
-      Bool_t fFromInput; ///< Flag specifying if object is used for D3PD reading
+      Long64_t m_entry; ///< Variable storing the current entry number
+      Bool_t m_fromInput; ///< Flag specifying if object is used for D3PD reading
 
       ClassDef( NTUP_TRIGCOST, 0 )
 
