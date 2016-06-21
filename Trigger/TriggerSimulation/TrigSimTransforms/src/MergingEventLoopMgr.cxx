@@ -577,7 +577,7 @@ namespace TrigSim {
                 proxyContainerPopulate(m_secEvtStore->proxies(), &secProxyMap, secProxyNames);
 
 
-                /*                
+                /*
                 m_log << MSG::DEBUG << "Got " << secProxyNames->size()<< " secondary proxies."
                       << endreq;
                 for(std::set<std::string>::iterator it = secProxyNames->begin();
@@ -587,7 +587,7 @@ namespace TrigSim {
                           << endreq;
                 }
                 */
-                
+
 
                 /*
                  * Make a blacklist and start by filling it with the intersecting proxies
@@ -670,6 +670,8 @@ namespace TrigSim {
                     for(std::map<std::string, SG::DataProxy *>::iterator it = primProxyMap.begin();
                             it != primProxyMap.end(); ++it) {
             
+                        if (! it->second->address()) continue;
+
                         m_log << MSG::INFO << "Adding primary proxy '" << it->first << "' to secondary data store."
                               //<< " Proxy is " << (it->second->isValid() ? "" : "NOT ") << "valid"
                               << endreq;
@@ -694,6 +696,8 @@ namespace TrigSim {
                     for(std::map<std::string, SG::DataProxy *>::iterator it = secProxyMap.begin();
                             it != secProxyMap.end(); ++it) {
             
+                        if (! it->second->address()) continue;
+
                         m_log << MSG::INFO << "Adding secondary proxy '" << it->first << "' to primary data store."
                               //<< " Proxy is " << (it->second->isValid() ? "" : "NOT ") << "valid"
                               << endreq;
