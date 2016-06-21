@@ -19,10 +19,10 @@ namespace D3PDReader {
 
    NTUP_TRIGCOST::NTUP_TRIGCOST()
       : D3PDObjectBase(),
-        TrigCostHLT( fEntry, "TrigCostHLT_" ),
-        trig_DB( fEntry, "trig_DB_" ),
-        fEntry( 0 ),
-        fFromInput( kTRUE ) {
+        TrigCostHLT( m_entry, "TrigCostHLT_" ),
+        trig_DB( m_entry, "trig_DB_" ),
+        m_entry( 0 ),
+        m_fromInput( kTRUE ) {
 
    }
 
@@ -30,8 +30,8 @@ namespace D3PDReader {
       : D3PDObjectBase(),
         TrigCostHLT( "TrigCostHLT_" ),
         trig_DB( "trig_DB_" ),
-        fEntry( 0 ),
-        fFromInput( kFALSE ) {
+        m_entry( 0 ),
+        m_fromInput( kFALSE ) {
 
    }
 
@@ -49,7 +49,7 @@ namespace D3PDReader {
 
    void NTUP_TRIGCOST::ReadFrom( ::TTree* tree ) {
 
-      if( ! fFromInput ) {
+      if( ! m_fromInput ) {
          Error( "ReadFrom", "Object can't read a D3PD. Use a different constructor!" );
          return;
       }
@@ -98,7 +98,7 @@ namespace D3PDReader {
 
    void NTUP_TRIGCOST::GetEntry( ::Long64_t entry ) {
 
-      fEntry = entry;
+      m_entry = entry;
       return;
    }
 

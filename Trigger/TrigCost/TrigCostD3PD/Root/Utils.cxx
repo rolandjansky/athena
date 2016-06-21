@@ -129,13 +129,13 @@ namespace D3PDReader {
     */
    ::TString SizeToString( ::Long64_t bytes ) {
 
-      if( ::fabs( bytes ) > 1e12 ) {
+      if( std::abs( bytes ) > 1e12 ) {
          return ::TString::Format( "%g TB", bytes * 1e-12 );
-      } else if( ::fabs( bytes ) > 1e9 ) {
+      } else if( std::abs( bytes ) > 1e9 ) {
          return ::TString::Format( "%g GB", bytes * 1e-9 );
-      } else if( ::fabs( bytes ) > 1e6 ) {
+      } else if( std::abs( bytes ) > 1e6 ) {
          return ::TString::Format( "%g MB", bytes * 1e-6 );
-      } else if( ::fabs( bytes ) > 1e3 ) {
+      } else if( std::abs( bytes ) > 1e3 ) {
          return ::TString::Format( "%g kB", bytes * 1e-3 );
       } else {
          return ::TString::Format( "%lli bytes", bytes );

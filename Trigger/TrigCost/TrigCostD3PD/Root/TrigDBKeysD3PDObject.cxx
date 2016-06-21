@@ -30,9 +30,9 @@ namespace D3PDReader {
     */
    TrigDBKeysD3PDObject::TrigDBKeysD3PDObject( const ::Long64_t& master, const char* prefix )
       : UserD3PDObject( master, prefix ),
-        fHandles(),
-        fFromInput( kTRUE ),
-        fPrefix( prefix ) {
+        m_handles(),
+        m_fromInput( kTRUE ),
+        m_prefix( prefix ) {
 
       SetVarHandles( &master );
    }
@@ -46,9 +46,9 @@ namespace D3PDReader {
     */
    TrigDBKeysD3PDObject::TrigDBKeysD3PDObject( const char* prefix )
       : UserD3PDObject( prefix ),
-        fHandles(),
-        fFromInput( kFALSE ),
-        fPrefix( prefix ) {
+        m_handles(),
+        m_fromInput( kFALSE ),
+        m_prefix( prefix ) {
 
       SetVarHandles( 0 );
    }
@@ -58,7 +58,7 @@ namespace D3PDReader {
     */
    const char* TrigDBKeysD3PDObject::GetPrefix() const {
 
-      return fPrefix;
+      return m_prefix;
    }
 
    /**
@@ -70,11 +70,11 @@ namespace D3PDReader {
       UserD3PDObject::SetPrefix( prefix );
 
       // Remember the prefix:
-      fPrefix = prefix;
+      m_prefix = prefix;
 
       // Set all the variable names:
-      std::map< TString, VarHandleBase* >::const_iterator itr = fHandles.begin();
-      std::map< TString, VarHandleBase* >::const_iterator end = fHandles.end();
+      std::map< TString, VarHandleBase* >::const_iterator itr = m_handles.begin();
+      std::map< TString, VarHandleBase* >::const_iterator end = m_handles.end();
       for( ; itr != end; ++itr ) {
          itr->second->SetName( ::TString( prefix ) + itr->first );
       }
@@ -91,7 +91,7 @@ namespace D3PDReader {
    void TrigDBKeysD3PDObject::ReadFrom( TTree* tree ) {
 
       // Check if the object will be able to read from the TTree:
-      if( ! fFromInput ) {
+      if( ! m_fromInput ) {
          Error( "ReadFrom", "The object was not created with the correct" );
          Error( "ReadFrom", "constructor to read data from a D3PD!" );
          return;
@@ -101,8 +101,8 @@ namespace D3PDReader {
       UserD3PDObject::ReadFrom( tree );
 
       // Call ReadFrom(...) on all the variables:
-      std::map< TString, VarHandleBase* >::const_iterator itr = fHandles.begin();
-      std::map< TString, VarHandleBase* >::const_iterator end = fHandles.end();
+      std::map< TString, VarHandleBase* >::const_iterator itr = m_handles.begin();
+      std::map< TString, VarHandleBase* >::const_iterator end = m_handles.end();
       for( ; itr != end; ++itr ) {
          itr->second->ReadFrom( tree );
       }
@@ -123,8 +123,8 @@ namespace D3PDReader {
       UserD3PDObject::WriteTo( tree );
 
       // Call WriteTo(...) on all the variables:
-      std::map< TString, VarHandleBase* >::const_iterator itr = fHandles.begin();
-      std::map< TString, VarHandleBase* >::const_iterator end = fHandles.end();
+      std::map< TString, VarHandleBase* >::const_iterator itr = m_handles.begin();
+      std::map< TString, VarHandleBase* >::const_iterator end = m_handles.end();
       for( ; itr != end; ++itr ) {
          itr->second->WriteTo( tree );
       }
@@ -150,10 +150,10 @@ namespace D3PDReader {
 
       ::TPRegexp re( pattern );
 
-      std::map< TString, VarHandleBase* >::const_iterator itr = fHandles.begin();
-      std::map< TString, VarHandleBase* >::const_iterator end = fHandles.end();
+      std::map< TString, VarHandleBase* >::const_iterator itr = m_handles.begin();
+      std::map< TString, VarHandleBase* >::const_iterator end = m_handles.end();
       for( ; itr != end; ++itr ) {
-         if( ! re.Match( fPrefix + itr->first ) ) continue;
+         if( ! re.Match( m_prefix + itr->first ) ) continue;
          if( active ) {
             if( itr->second->IsAvailable() ) itr->second->SetActive( active );
          } else {
@@ -173,7 +173,7 @@ namespace D3PDReader {
    void TrigDBKeysD3PDObject::ReadAllActive() {
 
       // Check if it makes sense to call this function:
-      if( ! fFromInput ) {
+      if( ! m_fromInput ) {
          static ::Bool_t wPrinted = kFALSE;
          if( ! wPrinted ) {
             Warning( "ReadAllActive", "Function only meaningful when used on objects" );
@@ -186,8 +186,8 @@ namespace D3PDReader {
       UserD3PDObject::ReadAllActive();
 
       // Read in the current entry for each active variable:
-      std::map< TString, VarHandleBase* >::const_iterator itr = fHandles.begin();
-      std::map< TString, VarHandleBase* >::const_iterator end = fHandles.end();
+      std::map< TString, VarHandleBase* >::const_iterator itr = m_handles.begin();
+      std::map< TString, VarHandleBase* >::const_iterator end = m_handles.end();
       for( ; itr != end; ++itr ) {
          if( ! itr->second->IsActive() ) continue;
          itr->second->ReadCurrentEntry();
@@ -210,8 +210,8 @@ namespace D3PDReader {
    //    D3PDReadStats result = UserD3PDObject::GetStatistics();
 
    //    // Add the statistics from each variable to the result:
-   //    std::map< ::TString, VarHandleBase* >::const_iterator itr = fHandles.begin();
-   //    std::map< ::TString, VarHandleBase* >::const_iterator end = fHandles.end();
+   //    std::map< ::TString, VarHandleBase* >::const_iterator itr = m_handles.begin();
+   //    std::map< ::TString, VarHandleBase* >::const_iterator end = m_handles.end();
    //    for( ; itr != end; ++itr ) {
    //       result.AddVariable( itr->second->GetStatistics() );
    //    }
@@ -231,7 +231,7 @@ namespace D3PDReader {
    TrigDBKeysD3PDObject& TrigDBKeysD3PDObject::Set( const TrigDBKeysD3PDObject& parent ) {
 
       // Check if this function can be used on the object:
-      if( fFromInput ) {
+      if( m_fromInput ) {
          Error( "Set", "Objects used for reading a D3PD can't be modified!" );
          return *this;
       }
@@ -301,12 +301,12 @@ namespace D3PDReader {
          { "SMK", "SMK" }
       };
 
-      // Set up the fHandles map using this list:
+      // Set up the m_handles map using this list:
       for( Int_t i = 0; i < NVARNAMES; ++i ) {
          VarHandleBase* vh = GetVarHandle( VARNAMES[ i ][ 0 ] );
-         vh->SetName( fPrefix + VARNAMES[ i ][ 1 ] );
+         vh->SetName( m_prefix + VARNAMES[ i ][ 1 ] );
          vh->SetMaster( master );
-         fHandles[ VARNAMES[ i ][ 0 ] ] = vh;
+         m_handles[ VARNAMES[ i ][ 0 ] ] = vh;
       }
 
       return;
