@@ -446,10 +446,18 @@ fexes["L2MbSpFex"] = L2MbSpFex
 L2MbSpFex_BLayer =  MbSpFex("L2MbSpFex_BLayer")
 L2MbSpFex_BLayer.PixelSP_ContainerName = "PixelTrigSpacePoints"
 L2MbSpFex_BLayer.SCT_SP_ContainerName = "SCT_TrigSpacePoints"
-L2MbSpFex_BLayer.PixelModuleThreshold = 1000000 # Disable dynamic masking.
+L2MbSpFex_BLayer.PixelModuleThreshold = 30 # Enable dynamic masking.
 L2MbSpFex_BLayer.SCTModuleThreshold = 1000000 # Disable dynamic masking.
 L2MbSpFex_BLayer.OnlyCountBLayer = True # Pixel counter only uses inner BLayer
 fexes["L2MbSpFex_BLayer"] = L2MbSpFex_BLayer
+
+L2MbSpFex_ncb =  MbSpFex("L2MbSpFex_ncb")
+L2MbSpFex_ncb.PixelSP_ContainerName = "PixelTrigSpacePoints"
+L2MbSpFex_ncb.SCT_SP_ContainerName = "SCT_TrigSpacePoints"
+L2MbSpFex_ncb.PixelModuleThreshold = 1000000 # Disable dynamic masking.
+L2MbSpFex_ncb.SCTModuleThreshold = 30 # Enable dynamic masking.
+L2MbSpFex_ncb.ReadPixelSp = False # Disable the Pixel readout
+fexes["L2MbSpFex_ncb"] = L2MbSpFex_ncb
 
 L2MbSpFex_SCTNoiseSup =  MbSpFex("L2MbSpFex_SCTNoiseSup")
 L2MbSpFex_SCTNoiseSup.PixelSP_ContainerName = "PixelTrigSpacePoints"
