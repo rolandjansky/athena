@@ -1,3 +1,249 @@
+2015-06-17 Daiki Yamaguchi  <daiki.yamaguchi@cern.ch>
+	* Pixel/collisions_run.config: added hit occ vs BCID
+
+2016-06-15 Shunsuke Honda <shunsuke.shonda@cern.ch>
+	* SCT/*_run.config: modified error/warning thresholds
+	* SCT/*_run.config: changed histograms location
+
+2015-06-15 Tuna <tuna@cern.ch>
+	* MuonCombined/collisions_run.config: add simple alg to ME tracks chi2/ndf
+
+2016-06-13 Ryan White <ryan.white@cern.ch>
+	* Fix algorithm to add reference
+	
+2015-06-13 Tuna <tuna@cern.ch>
+	* MuonCombined/collisions_run.config: add avg hits for various MS detectors
+
+2015-06-06 Daiki Yamaguchi  <daiki.yamaguchi@cern.ch>
+	* Pixel/collisions_run.config: fixed wrong paths
+
+2016-06-05 gabriele.chiodini@le.infn.it
+        * fix RPC broken code
+
+2015-05-30 Daiki Yamaguchi  <daiki.yamaguchi@cern.ch>
+	* Pixel/collisions_run.config: added histograms of hit efficiency
+
+2016-05-28 gabriele.chiodini@le.infn.it
+	* RPC shifter plots fixed chamber boundary graphics
+	
+2015-05-26 Lotte Thomsen <lotte.ansgaard.thomsen@cern.ch>
+	* HLT/HLTtau/collisions_run.config: Added more subfolders in the expert folder
+
+2015-05-25 Lotte Thomsen <lotte.ansgaard.thomsen@cern.ch>
+	* HLT/HLTtau/collisions_run.config: Added folders in the expert folder
+
+2016-05-20 Fumiaki Ito  <fumiaki.ito@cern.ch>
+	* SCT/*_run.config: added new error histograms
+	* SCT/*_run.config: adjusted warning thresholds
+
+2016-05-18 Kate Whalen <kate.whalen@cern.ch>
+        * L1Calo/collisions_run.config: rearranged L1Interfaces Calo histos
+	* L1Calo/cosmics_run.config: rearranged L1Interfaces Calo histos
+
+2016-05-17 Kate Whalen <kate.whalen@cern.ch>
+        * L1Calo/collisions_run.config: remove unused L1Interfaces Calo histos
+	* L1Calo/cosmics_run.config: remove unused L1Interfaces Calo histos
+
+2016-05-12 Claudia Glasman  <claudia.glasman@cern.ch>
+	* Jets/collisions_minutes10.config: eta/phi lin scale
+	* Jets/collisions_run.config: eta/phi lin scale
+	* Jets/cosmics_minutes10.config: eta/phi lin scale
+	* Jets/cosmics_run.config: eta/phi lin scale
+2016-05-12 Ryan White <ryan.white@cern.ch>
+	* Add central reference
+	* M       HLT/HLTegamma/collisions_run.config
+
+2016-05-11 Tuna <tuna@cern.ch>
+	* MuonCombined/collisions_run.config: adding Ref2D, adjusting axes
+	
+2016-05-10 Giulio Cornelio Grossi  <giulio.cornelio.grossi@cern.ch>
+	* HLT/HLTjet/collisions_run.config: removed 2 chains for pp monitoring
+	
+2016-05-04 Claudia Glasman  <claudia.glasman@cern.ch>
+	* Jets/collisions_minutes10.config: fix of histogram naming
+	* Jets/collisions_run.config: fix of histogram naming
+	* Jets/cosmics_minutes10.config: fix of histogram naming
+	* Jets/cosmics_run.config: fix of histogram naming
+2016-05-03 Daiki Yamaguchi  <daiki.yamaguchi@cern.ch>
+	* Pixel/cosmics_run.config: copied from collisions_run.config
+
+2015-04-27 Lotte Thomsen <lotte.ansgaard.thomsen@cern.ch>
+        * HLT/HLTtau/collisions_run.config: Added new chains for the tau trigger
+	* HLT/HLTtau/collisions_run.config: Added folders for some chains in the expert folder
+	* HLT/HLTtau/collisions_run.config: Changed the algorithm for some histograms
+
+2016-04-26 Giulio Cornelio Grossi  <giulio.cornelio.grossi@cern.ch>
+	* HLT/HLTjet/collisions_run.config: added new chain for pp monitoring
+	
+
+2016-04-24 Daiki Yamaguchi  <daiki.yamaguchi@cern.ch>
+	* Pixel/collisions_run.config: added new error histograms
+	* Pixel/collisions_run.config: modified the path for histograms
+
+2016-04-23 Fumiaki Ito  <fumiaki.ito@cern.ch>
+	* SCT/*_run.config: modified wrong path for histograms
+
+2016-04-23 Daiki Yamaguchi  <daiki.yamaguchi@cern.ch>
+	* Pixel/collisions_run.config: modified wrong path for histograms
+	* Pixel/collisions_run.config: modified wrong path for histograms
+
+2016-04-22 Daiki Yamaguchi  <daiki.yamaguchi@cern.ch>
+	* Pixel/collisions_run.config: add TSOS histograms for IBL and Status
+	histograms for IBL 2D and 3D
+
+2016-04-22  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+
+	* Tile/MBTS/collisions_run.config: return back some histograms from TileCal/Expert/MBTS/ forlder int TileCal/MBTS
+	* Tile/MBTS/cosmics_run.config: return back some histograms from TileCal/Expert/MBTS/ forlder int TileCal/MBTS
+	* Tile/MBTS/heavyions_run.config: return back some histograms from TileCal/Expert/MBTS/ forlder int TileCal/MBTS
+
+2015-04-22 Lotte Thomsen <lotte.ansgaard.thomsen@cern.ch>
+        * Update config/HLT/HLTtau/collisions_run.config - Added folder for both expert folder and shifter folder
+
+2016-04-21 Claudia Glasman <claudia.glasman@cern.ch>
+	* Modified Jets configurations 
+
+2016-04-21  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+
+	* Tile/MBTS/collisions_run.config: moved extra histograms produced by request into TileCal/Expert subfolder
+	* Tile/MBTS/cosmics_run.config: moved extra histograms produced by request into TileCal/Expert subfolder
+	* Tile/MBTS/heavyions_run.config: moved extra histograms produced by request into TileCal/Expert subfolder
+	* Tile/collisions_run.config: moved extra histograms produced by request into TileCal/Expert subfolder
+	* Tile/cosmics_run.config: moved extra histograms produced by request into TileCal/Expert subfolder
+	* Tile/heavyions_run.config: moved extra histograms produced by request into TileCal/Expert subfolder
+
+2016-04-21 Ryan White <ryan.white@cern.ch>
+	* Display efficiency plots for HLT Egamma
+	
+2016-04-20 Daiki Yamaguchi  <daiki.yamaguchi@cern.ch>
+	* Add the LV/HV histograms for IBL in collisions_run.config
+
+2016-04-19 Tatjana Lenz <tlenz@cern.ch>
+	* JetTagging/collisions_run.config: add histos to monitor IBL
+	
+2016-04-16  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+
+	* Tile/heavyions_run.config: shadowed area for non existing DMU on histograms with DMU digital errors
+
+2016-04-15  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+
+	* Tile/collisions_run.config: shadowed area for non existing DMU on histograms with DMU digital errors
+	* Tile/cosmics_run.config: shadowed area for non existing DMU on histograms with DMU digital errors
+
+
+2016-04-15 Emre Celebi <emre.celebi@cern.ch>
+	* Add Missing Argon histograms added to cosmics config
+	* Modified TRT configurations
+
+2016-04-08 Claudia Glasman <claudia.glasman@cern.ch>
+	* Modified Jets configurations 
+
+2016-04-08 Emre Celebi <emre.celebi@cern.ch>
+	* Add collisions_minutes10.config file
+	* Add new residual and pull histograms
+	* Modified TRT configurations 
+
+2016-04-06 Ryan White <ryan.white@cern.ch>
+	* Remove old HLTelec and HLTgamma 
+	* Add HLTegamma common config
+	* Startup config for 2016
+	* M       cosmics_run.config
+	* M       collisions_run.config
+	* A       HLT/HLTegamma
+	* A       HLT/HLTegamma/collisions_run.config
+	* D       HLT/HLTelec
+	* D       HLT/HLTelec/collisions_run.config
+	* D       HLT/HLTelec/cosmics_run.config
+	* D       HLT/HLTelec/heavyions_run.config
+	* D       HLT/HLTgamma
+	* D       HLT/HLTgamma/collisions_run.config
+	* D       HLT/HLTgamma/cosmics_run.config
+	* D       HLT/HLTgamma/heavyions_run.config
+	* M       heavyions_run.config
+
+2016-04-05 Daiki Yamaguchi  <daiki.yamaguchi@cern.ch>
+	* Removed unused histograms in Pixel/collisions/cosmic_run.config
+
+2016-03-30 Kate Whalen <kate.whalen@cern.ch>
+	* L1Calo/collisions_run.config & L1Calo/cosmics_run.config: Updated
+	Calo monitoring histograms in L1Interfaces folder 
+
+2016-03-19 Daiki Yamaguchi  <daiki.yamaguchi@cern.ch>
+	* Modified names of  histograms produced by post-process in Pixel/collisions/cosmic_run.config
+
+2016-03-18 Daiki Yamaguchi  <daiki.yamaguchi@cern.ch>
+	* Added histograms produced by post-process in Pixel/collisions/cosmic_run.config
+
+2016-03-03 gabriele.chiodini@le.infn.it
+        * fix rpc bugs 
+	
+2016-2-29 Giulio Cornelio Grossi <giulio.cornelio.grossi@cern.ch>
+	  * Updated cosmics config for HLTjet slice	
+
+2016-2-19 gabriele.chiodini@le.infn.it
+        * Reshuffling expert-shifter plots 
+
+2016-1-13 Marianna Testa <marianna.testa@lnf.infn.it>
+        * add in  MET/collisions_run.config histos with MET>80 GeV cut
+
+2015-12-14 Rachel Rosten  <rachel.rosten@cern.ch>
+	* MuonCombined/collisions_run.config: Switching a few histograms to default algorithm
+	* MuonCombined/heavyions_run.config: Switching a few histograms to default algorithm
+
+2015-12-13  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+
+	* Tile/collisions_run.config: corrected names of histograms with Tile channel time from cells included in jets
+	* Tile/heavyions_run.config: corrected names of histograms with Tile channel time from cells included in jets
+
+2015-12-08 Kazuki Motohashi  <kazuki.motohashi@cern.ch>
+	* updated Pixel/heavyions_run.config
+	* changed the path of a directory for LB dependency plots of IBL DCS
+
+2015-11-24 Daiki Yamaguchi  <daiki.yamaguchi@cern.ch>
+	* changed the thresholds for error plots in Pixel/***_run.config
+
+2015-11-20 Craig Wiglesworth <craig.wiglesworth@cern.ch>
+	* updated heavyions_run.config for HLTcalo
+
+2015-11-20 Fumiaki Ito <fumiaki.ito@cern.ch>
+	* Add algorithms in SCT/heavyions_run.config 
+
+2015-11-19 Giulio Cornelio Grossi <giulio.cornelio.grossi@cern.ch>
+  * Added stream wise call to reference in HLTjet
+
+2015-11-17  Daiki Yamaguchi  <daiki.yamaguchi@cern.ch>
+	* updated the Pixel/heavyions_run.config
+
+2015-11-17  Siarhei Harkusha  <Siarhei.Harkusha@cern.ch>
+
+	* Tile/collisions_run.config: added histograms with Tile channel time from cells included in jets
+	* Tile/heavyions_run.config: added histograms with Tile channel time from cells included in jets
+
+2015-11-16 Elin Bergeaas Kuutmann <ebergeas@cern.ch>
+	* Removing all MET references from HLT/HLTOfflineShift/heavyions (no MET chains being run).
+
+2015-11-16 Elin Bergeaas Kuutmann <ebergeas@cern.ch>
+	* Emptying the HLT/HLTtau/heavyions config file (no tau trigger chains being run for HI in 2015).
+
+2015-11-16 Fumiaki Ito <fumiaki.ito@cerh.ch>
+	* Updated SCT/heavyions_run.config
+
+2015-11-15 Elin Bergeaas Kuutmann <ebergeas@cern.ch>
+	* Removing all references to tau triggers from HLT OfflineShift and global for heavyions config.
+	* Updating HLT OfflineShift heavyions for Bphys, Jets, Muons and MET.
+	* Fixing the small typo in HLTjet/heavyions which led to misplaced histograms.
+
+2015-11-14 Elin Bergeaas Kuutmann <ebergeas@cern.ch>
+        * Updated heavyions_run.config in HLT/HLTidtrk (from Mark Sutton)
+        * Updated cosmics_run.config in HLT/HLTidtrk (from Mark Sutton)
+	* New version of HLT/HLTOfflineShift/collisions_run.config (updated jets section)
+
+2015-11-13 Giulio Cornelio Grossi <giulio.cornelio.grossi@cern.ch>
+          * Fixed a bug in HI config for HLTjet slice
+
+2015-11-12 Rachel Rosten <rachel.rosten@cern.ch>
+	* MuonCombined/heavyions_run.config just moved four plots to experts
+
 2015-11-01 Semen Turchikhin <Semen.Turchikhin@cern.ch>
 	* HLTbphys config update for HI runs
 
