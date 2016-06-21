@@ -6,7 +6,7 @@
 
 // AthAnalysisAlgorithm.h 
 // Header file for class AthAnalysisAlgorithm
-// Inherits from AthAlgorithm but adds beginInputFile incident listener
+// Inherits from AthHistogramAlgorithm but adds beginInputFile incident listener
 // and includes a retrieveMetadata method for easy metadata access
 // Author: W.Buttinger<will@cern.ch>
 /////////////////////////////////////////////////////////////////// 
@@ -18,19 +18,21 @@
  *
  *  Same as AthAlgorithm but adds a beginInputFile method and handle method for incident listening
  *  Also adds a retrieveMetadata method for easy metadata retrieval from InputMetaDataStore (method not IOV Safe though!)
- *  
+ *  Update Feb 2016: Made inherit from AthHistogramAlgorithm, since that has nice histogram booking features
+
  *  @author Will Buttinger
  *  @date   2015
  */ 
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthHistogramAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h" //included under assumption you'll want to use some tools!
 #include "GaudiKernel/IIncidentSvc.h"
 
 
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
+#include "TFile.h"
 
-class AthAnalysisAlgorithm : public ::AthAlgorithm, virtual public IIncidentListener {
+class AthAnalysisAlgorithm : public ::AthHistogramAlgorithm, virtual public IIncidentListener {
  public: 
 
   /// Constructor with parameters: 
@@ -53,9 +55,29 @@ class AthAnalysisAlgorithm : public ::AthAlgorithm, virtual public IIncidentList
 
       /// Function initialising the tool in the correct way in Athena
       virtual StatusCode sysInitialize();
+      /// override to do firstEvent method
+      virtual StatusCode sysExecute() override;
 
       /// Helper function to access IOVMetaDataContainer information helped in the MetaDataStore
-      template<typename T> StatusCode retrieveMetadata(const std::string& folder, const std::string& key, T& out) { return AthAnalysisHelper::retrieveMetadata(folder,key,out,inputMetaStore()); }
+      template<typename T> StatusCode retrieveMetadata(const std::string& folder, const std::string& key, T& out) { 
+         try {
+            return AthAnalysisHelper::retrieveMetadata(folder,key,out,inputMetaStore()); 
+         } catch(std::exception& e) { 
+            ATH_MSG_WARNING(e.what());
+            return StatusCode::FAILURE;
+         }
+      }
+
+      /// Helper function to access IOVMetaDataContainer information held in InputMetaDataStore, but will check IOVTime. Also can give a channel (leave as -1 to take first available)
+      /// IOVTime(runNumber, eventNumber) is a valid constructor for example
+  template<typename T> StatusCode retrieveMetadata(const std::string& folder, const std::string& key, T& out, IOVTime time, int channel=-1) { 
+         try {
+	   return AthAnalysisHelper::retrieveMetadata(folder,key,out,inputMetaStore(),time,channel); 
+         } catch(std::exception& e) { 
+            ATH_MSG_WARNING(e.what());
+            return StatusCode::FAILURE;
+         }
+      }
 
    protected:
       /// @name Callback functions helping in metadata reading
@@ -66,7 +88,11 @@ class AthAnalysisAlgorithm : public ::AthAlgorithm, virtual public IIncidentList
 
       /// Function called when a new input file is opened
       virtual StatusCode beginInputFile();
+      
+      /// Function called when first event is encountered
+      virtual StatusCode firstEvent();
 
+      virtual TFile* currentFile(const char* evtSelName="EventSelector") final;
  
  private:
       /// Object accessing the input metadata store
@@ -74,7 +100,12 @@ class AthAnalysisAlgorithm : public ::AthAlgorithm, virtual public IIncidentList
       /// Object accessing the output metadata store
       mutable ServiceHandle< StoreGateSvc > m_outputMetaStore;
 
-  
+      TFile* m_currentFile = 0; //used to cache the current file
+
+
+      
+      bool m_doneFirstEvent=false;
+
 }; 
 
 
