@@ -187,6 +187,7 @@ class HLTMuonMonTool : public IHLTMonTool
   std::vector<std::string> m_histChainMSonly;  
   std::vector<std::string> m_histChainEFFS ;  
   std::vector<std::string> m_chainsEFiso;  
+  std::vector<std::string> m_chainSupport;  
   std::vector<std::string> m_chainsL2Standard;
   std::vector<std::string> m_chainsL2passHLT;
   std::map<std::string, std::string> m_ztpmap; // added marx
