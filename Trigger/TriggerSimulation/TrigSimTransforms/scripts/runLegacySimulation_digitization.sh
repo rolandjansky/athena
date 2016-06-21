@@ -27,23 +27,24 @@ echo "Geometry  : "$DIGIGEO
 echo
 
 
-DigiMReco_trf.py \
-    inputHitsFile="$INPUTDIR/$INPUTHITS" \
-    maxEvents="50" \
-    skipEvents="50" \
-    preInclude_h2r="Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py,RunDependentSimData/configLumi_mc12_v1.py" \
-    preExec_h2r="from LArROD.LArRODFlags import larRODFlags;larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.UseDelta.set_Value_and_Lock(3);from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=[\"SimLayout\",\"PhysicsList\"]" \
-    RunNumber="126940" \
-    autoConfiguration="everything" \
-    conditionsTag="$DIGICON" \
-    geometryVersion="$DIGIGEO" \
-    outputRDOFile="$OUTPUT" \
-    numberOfLowPtMinBias="39.954664" \
-    numberOfHighPtMinBias="0.045336" \
-    LowPtMinbiasHitsFile="$INPUTDIR/$INPUTMBLOWPT" \
-    DataRunNumber="-1" \
-    jobNumber="1200" \
-    digiSeedOffset1="1200" \
-    digiSeedOffset2="1200" \
-    HighPtMinbiasHitsFile="$INPUTDIR/$INPUTMBHIGHPT" \
-    digiRndmSvc="AtDSFMTGenSvc"
+Reco_tf.py \
+    --inputHITSFile="$INPUTDIR/$INPUTHITS" \
+    --maxEvents="50" \
+    --skipEvents="50" \
+    --runNumber="126940" \
+    --preInclude="h2r:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py,RunDependentSimData/configLumi_mc12_v1.py" \
+    --preExec="h2r:from LArROD.LArRODFlags import larRODFlags;larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.UseDelta.set_Value_and_Lock(3);from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=[\"SimLayout\",\"PhysicsList\"];from GeoModelSvc.GeoModelSvcConf import GeoModelSvc;GeoModelSvc = GeoModelSvc();GeoModelSvc.IgnoreTagSupport = True;GeoModelSvc.IgnoreTagDifference = True" \
+    --autoConfiguration="everything" \
+    --conditionsTag="$DIGICON" \
+    --geometryVersion="$DIGIGEO" \
+    --outputRDOFile="$OUTPUT" \
+    --numberOfLowPtMinBias="39.954664" \
+    --numberOfHighPtMinBias="0.045336" \
+    --inputLowPtMinbiasHitsFile="$INPUTDIR/$INPUTMBLOWPT" \
+    --DataRunNumber="-1" \
+    --jobNumber="1200" \
+    --digiSeedOffset1="1200" \
+    --digiSeedOffset2="1200" \
+    --inputHighPtMinbiasHitsFile="$INPUTDIR/$INPUTMBHIGHPT" \
+    --digiRndmSvc="AtDSFMTGenSvc" \
+    > log 2>&1

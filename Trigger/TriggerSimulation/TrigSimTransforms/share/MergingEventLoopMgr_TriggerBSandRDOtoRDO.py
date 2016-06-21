@@ -174,7 +174,7 @@ svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DEFAULT_BUFFERSIZE = '32000'" ]
 svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'TTree=POOLContainer'; TREE_AUTO_FLUSH = '0'" ]
 
 svcMgr.AthenaSealSvc.CheckDictionary = True
-svcMgr.AthenaSealSvc.CheckDictAtInit = True
+#svcMgr.AthenaSealSvc.CheckDictAtInit = True
 
 
 from OutputStreamAthenaPool.OutputStreamAthenaPool import AthenaPoolOutputStream
