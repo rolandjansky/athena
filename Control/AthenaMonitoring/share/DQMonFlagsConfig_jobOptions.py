@@ -145,6 +145,7 @@ else:
       DQMonFlags.doMuonCombinedMon=False
       DQMonFlags.doLucidMon=False
       DQMonFlags.doJetTagMon=False
+      DQMonFlags.doJetMon=False
       
    # switch off monitoring if reco is off during BS reading
    if rec.readRDO() and not 'DetFlags' in dir():
@@ -264,6 +265,7 @@ if DQMonFlags.doStreamAwareMon:
    LArMonFlags.doLArAffectedRegions=False
    LArMonFlags.doLArHVCorrectionMonTool=False
    LArMonFlags.doLArCoverage=False
+   doCaloCellVecMon=False
 
    # The following are ON except for certain streams
    LArMonFlags.doLArDigitMon=True
@@ -278,6 +280,8 @@ if DQMonFlags.doStreamAwareMon:
       LArMonFlags.doLArHVCorrectionMonTool=True
       LArMonFlags.doLArCoverage=True
       LArMonFlags.doLArRODMonTool=True          # savannah bug report #83390
+      if (rec.triggerStream()=='express' or rec.triggerStream()=='Main'):
+         doCaloCellVecMon=True
 
    elif (rec.triggerStream()=='CosmicCalo'):
       LArMonFlags.doLArRawChannelMon=True
@@ -286,6 +290,7 @@ if DQMonFlags.doStreamAwareMon:
       LArMonFlags.doLArHVCorrectionMonTool=True
       LArMonFlags.doLArCoverage=True
       LArMonFlags.doLArDigitMon=False
+      doCaloCellVecMon=True
       HLTMonFlags.doBjet=False
       HLTMonFlags.doEgamma=False
       HLTMonFlags.doTau=False
@@ -397,7 +402,7 @@ if DQMonFlags.doStreamAwareMon:
       #LArMonFlags.doLArNoisyROMon=False
       #LArMonFlags.doLArRODMonTool=True          # savannah bug report #83390
 
-   elif (rec.triggerStream()=='L1Calo'):
+   elif (rec.triggerStream()=='L1Calo' or rec.triggerStream()=='L1Topo'):
       HLTMonFlags.doBjet=False
       HLTMonFlags.doMuon=False
       DQMonFlags.doPixelMon=False
@@ -433,8 +438,12 @@ if DQMonFlags.doStreamAwareMon:
 else:
    local_logger.info("Stream-Aware monitoring is turned OFF")
 
-# disabled until further notice 20140401 - PUEO
-# DQMonFlags.doMuonRawMon=False
+# If data type is '*comm' disable ATLAS Ready filter by default
+if (rec.projectName.get_Value().endswith('_comm') and 
+    not DQMonFlags.disableAtlasReadyFilter()
+    ):
+   local_logger.info("This is a commissioning project tag, will attempt to disable ATLAS Ready filter for monitoring tools. To really enable it, use DQMonFlags.disableAtlasReadyFilter.set_Value_and_Lock(False).")
+   DQMonFlags.disableAtlasReadyFilter=True
 
 DQMonFlags.lock_JobProperties()
 DQMonFlags.print_JobProperties()
