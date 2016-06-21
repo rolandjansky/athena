@@ -273,26 +273,65 @@ namespace dqutils {
         TH2F* m_Efficiency = (TH2F*)dir1->Get(Form("%sMuons_%s_%s_eff", plotdirname.Data(), recalg_path.Data(), muonqualstr[i].Data()));
         TwoDto2D_Eff(m_EffNumerator, m_EffDenominator, m_Efficiency);//here change the default binnning of eta-phi
       }
-      TH2F* m_eff_nPrec    = (TH2F*)dir1->Get(Form("%sMuons_%s_eff_nPrec", plotdirname.Data(), recalg_path.Data()));
-      TH2F* m_eff_nPhi     = (TH2F*)dir1->Get(Form("%sMuons_%s_eff_nPhi", plotdirname.Data(), recalg_path.Data()));
-      TH2F* m_eff_nTrigEta = (TH2F*)dir1->Get(Form("%sMuons_%s_eff_nTrigEta", plotdirname.Data(), recalg_path.Data()));
-      TH2F* m_eff_ndof     = (TH2F*)dir1->Get(Form("%sMuons_%s_eff_ndof", plotdirname.Data(), recalg_path.Data()));
-      TH2F* m_eff_chi2     = (TH2F*)dir1->Get(Form("%sMuons_%s_eff_chi2", plotdirname.Data(), recalg_path.Data()));
-      TH2F* m_ID_eff_ndof  = (TH2F*)dir1->Get(Form("%sMuons_%s_ID_eff_ndof", plotdirname.Data(), recalg_path.Data()));
-      TH2F* m_ID_eff_chi2  = (TH2F*)dir1->Get(Form("%sMuons_%s_ID_eff_chi2", plotdirname.Data(), recalg_path.Data()));
-      TH2F* m_MS_eff_ndof  = (TH2F*)dir1->Get(Form("%sMuons_%s_MS_eff_ndof", plotdirname.Data(), recalg_path.Data()));
-      TH2F* m_MS_eff_chi2  = (TH2F*)dir1->Get(Form("%sMuons_%s_MS_eff_chi2", plotdirname.Data(), recalg_path.Data()));
 
-      TwoDto2D_Eff(m_eff_nPrec, m_EffDenominator, m_eff_nPrec);
-      TwoDto2D_Eff(m_eff_nPhi, m_EffDenominator, m_eff_nPhi);
+      TH2F* m_eff_nPrec    = (TH2F*)dir1->Get(Form("%sMuons_%s_eff_nPrec",    plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_eff_nPhi     = (TH2F*)dir1->Get(Form("%sMuons_%s_eff_nPhi",     plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_eff_nTrigEta = (TH2F*)dir1->Get(Form("%sMuons_%s_eff_nTrigEta", plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_eff_ndof     = (TH2F*)dir1->Get(Form("%sMuons_%s_eff_ndof",     plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_eff_chi2     = (TH2F*)dir1->Get(Form("%sMuons_%s_eff_chi2",     plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_ID_eff_ndof  = (TH2F*)dir1->Get(Form("%sMuons_%s_ID_eff_ndof",  plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_ID_eff_chi2  = (TH2F*)dir1->Get(Form("%sMuons_%s_ID_eff_chi2",  plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_MS_eff_ndof  = (TH2F*)dir1->Get(Form("%sMuons_%s_MS_eff_ndof",  plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_MS_eff_chi2  = (TH2F*)dir1->Get(Form("%sMuons_%s_MS_eff_chi2",  plotdirname.Data(), recalg_path.Data()));
+
+      TH2F* m_avg_hits_precision_inner    = (TH2F*)dir1->Get(Form("%sMuons_%s_avg_hits_precision_inner",    plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_avg_hits_precision_middle   = (TH2F*)dir1->Get(Form("%sMuons_%s_avg_hits_precision_middle",   plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_avg_hits_precision_outer    = (TH2F*)dir1->Get(Form("%sMuons_%s_avg_hits_precision_outer",    plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_avg_hits_precision_extended = (TH2F*)dir1->Get(Form("%sMuons_%s_avg_hits_precision_extended", plotdirname.Data(), recalg_path.Data()));
+
+      TH2F* m_avg_hits_trigger_layer1 = (TH2F*)dir1->Get(Form("%sMuons_%s_avg_hits_trigger_layer1", plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_avg_hits_trigger_layer2 = (TH2F*)dir1->Get(Form("%sMuons_%s_avg_hits_trigger_layer2", plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_avg_hits_trigger_layer3 = (TH2F*)dir1->Get(Form("%sMuons_%s_avg_hits_trigger_layer3", plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_avg_hits_trigger_layer4 = (TH2F*)dir1->Get(Form("%sMuons_%s_avg_hits_trigger_layer4", plotdirname.Data(), recalg_path.Data()));
+
+      TH2F* m_avg_hits_ibl = (TH2F*)dir1->Get(Form("%sMuons_%s_avg_hits_ibl", plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_avg_hits_pix = (TH2F*)dir1->Get(Form("%sMuons_%s_avg_hits_pix", plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_avg_hits_sct = (TH2F*)dir1->Get(Form("%sMuons_%s_avg_hits_sct", plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_avg_hits_trt = (TH2F*)dir1->Get(Form("%sMuons_%s_avg_hits_trt", plotdirname.Data(), recalg_path.Data()));
+
+      TH2F* m_avg_ddpt_idme = (TH2F*)dir1->Get(Form("%sMuons_%s_avg_ddpt_idme", plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_avg_dptsignif = (TH2F*)dir1->Get(Form("%sMuons_%s_avg_dptsignif", plotdirname.Data(), recalg_path.Data()));
+
+      TwoDto2D_Eff(m_eff_nPrec,    m_EffDenominator, m_eff_nPrec);
+      TwoDto2D_Eff(m_eff_nPhi,     m_EffDenominator, m_eff_nPhi);
       TwoDto2D_Eff(m_eff_nTrigEta, m_EffDenominator, m_eff_nTrigEta);
-      TwoDto2D_Eff(m_eff_ndof, m_EffDenominator, m_eff_ndof);
-      TwoDto2D_Eff(m_eff_chi2, m_EffDenominator, m_eff_chi2);
-      TwoDto2D_Eff(m_ID_eff_ndof, m_EffDenominator, m_ID_eff_ndof);
-      TwoDto2D_Eff(m_ID_eff_chi2, m_EffDenominator, m_ID_eff_chi2);
-      TwoDto2D_Eff(m_MS_eff_ndof, m_EffDenominator, m_MS_eff_ndof);
-      TwoDto2D_Eff(m_MS_eff_chi2, m_EffDenominator, m_MS_eff_chi2);
-    }//ends different subfolder for muon efficiency
+      TwoDto2D_Eff(m_eff_ndof,     m_EffDenominator, m_eff_ndof);
+      TwoDto2D_Eff(m_eff_chi2,     m_EffDenominator, m_eff_chi2);
+      TwoDto2D_Eff(m_ID_eff_ndof,  m_EffDenominator, m_ID_eff_ndof);
+      TwoDto2D_Eff(m_ID_eff_chi2,  m_EffDenominator, m_ID_eff_chi2);
+      TwoDto2D_Eff(m_MS_eff_ndof,  m_EffDenominator, m_MS_eff_ndof);
+      TwoDto2D_Eff(m_MS_eff_chi2,  m_EffDenominator, m_MS_eff_chi2);
+
+      TwoDto2D_Eff(m_avg_hits_precision_inner,    m_EffDenominator, m_avg_hits_precision_inner);
+      TwoDto2D_Eff(m_avg_hits_precision_middle,   m_EffDenominator, m_avg_hits_precision_middle);
+      TwoDto2D_Eff(m_avg_hits_precision_outer,    m_EffDenominator, m_avg_hits_precision_outer);
+      TwoDto2D_Eff(m_avg_hits_precision_extended, m_EffDenominator, m_avg_hits_precision_extended);
+
+      TwoDto2D_Eff(m_avg_hits_trigger_layer1, m_EffDenominator, m_avg_hits_trigger_layer1);
+      TwoDto2D_Eff(m_avg_hits_trigger_layer2, m_EffDenominator, m_avg_hits_trigger_layer2);
+      TwoDto2D_Eff(m_avg_hits_trigger_layer3, m_EffDenominator, m_avg_hits_trigger_layer3);
+      TwoDto2D_Eff(m_avg_hits_trigger_layer4, m_EffDenominator, m_avg_hits_trigger_layer4);
+
+      TwoDto2D_Eff(m_avg_hits_ibl, m_EffDenominator, m_avg_hits_ibl);
+      TwoDto2D_Eff(m_avg_hits_pix, m_EffDenominator, m_avg_hits_pix);
+      TwoDto2D_Eff(m_avg_hits_sct, m_EffDenominator, m_avg_hits_sct);
+      TwoDto2D_Eff(m_avg_hits_trt, m_EffDenominator, m_avg_hits_trt);
+
+      TwoDto2D_Eff(m_avg_ddpt_idme, m_EffDenominator, m_avg_ddpt_idme);
+      TwoDto2D_Eff(m_avg_dptsignif, m_EffDenominator, m_avg_dptsignif);
+
+ 
+   }//ends different subfolder for muon efficiency
 
 
     //Do the luminoisty part

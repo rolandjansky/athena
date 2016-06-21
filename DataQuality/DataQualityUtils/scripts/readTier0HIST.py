@@ -28,17 +28,37 @@ gStyle.SetOptStat("emuo")
 parser = argparse.ArgumentParser()
 parser.add_argument('-r','--run',type=int,dest='runNumber',default='267599',help="Run number",action='store')
 parser.add_argument('-s','--stream',dest='stream',default='express',help="Stream without prefix: express, CosmicCalo, Egamma...",action='store')
-parser.add_argument('-t','--tag',dest='tag',default='data15_13TeV',help="DAQ tag: data12_8TeV, data12_calocomm...",action='store')
+parser.add_argument('-t','--tag',dest='tag',default='data16_13TeV',help="DAQ tag: data12_8TeV, data12_calocomm...",action='store')
 parser.add_argument('-a','--amiTag',dest='amiTag',default='x',help="First letter of AMI tag: x->express / f->bulk",action='store')
+parser.add_argument('-l','--lumiblock',type=int,dest='lumiblock',default='0',help="if none empty, try to get unmerged HIST files for a specific LB",action='store')
 
 parser.print_help()
 
 args = parser.parse_args()
 
-path = "root://eosatlas.cern.ch/%s"%(pathExtract.returnEosHistPath(args.runNumber,args.stream,args.amiTag,args.tag)).rstrip()
+run = args.runNumber
+LB = args.lumiblock
+stream = args.stream
+tag = args.tag
+amiTag = args.amiTag
 
-if ("NO FILE" not in path):
-   print "I am opening %s"%(path)
-   f = TFile.Open(path)
-   gStyle.SetPalette(1)
-   tb = TBrowser()
+
+path = []
+
+if args.lumiblock == 0:
+   path.append("root://eosatlas.cern.ch/%s"%(pathExtract.returnEosHistPath(args.runNumber,args.stream,args.amiTag,args.tag)).rstrip())
+else:
+   allUnmerged = pathExtract.returnEosHistPathLB(run,LB,LB,stream,amiTag,tag)
+   for iFile in allUnmerged:
+      path.append("root://eosatlas.cern.ch/%s"%(iFile).rstrip())
+#   path.add("root://eosatlas.cern.ch/%s"%(.rstrip())
+
+
+file = []
+for iPath in path:
+   if ("NO FILE" not in iPath):
+      print "I am opening %s"%(iPath)
+      file.append( TFile.Open(iPath))
+
+gStyle.SetPalette(1)
+tb = TBrowser()

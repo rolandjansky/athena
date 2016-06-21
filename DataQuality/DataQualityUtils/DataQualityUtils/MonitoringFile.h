@@ -183,9 +183,9 @@ namespace dqutils {
     static void MuonTrack_Main(std::string inFileName, TString dirname);
 
     //For Muon MDT
-    static void  MDTPostProcess(std::string inFilename, bool isIncremental = false, int txtFileOutputType = 0, bool useOfflineTubeID = false, bool makePDF = false, bool doAllPDF = true);
+    static void  MDTPostProcess(std::string inFilename, int txtFileOutputType = 0);
     static void  MDTChamReAlign(std::string inFilename, std::string title="MDT");
-    static void  MDTChamEff(std::string inFilename, bool isIncremental = false, std::string title="MDT", int txtFileOutputType = 0, bool useOfflineTubeID = false, bool makePDF = false, bool doAllPDF = true);
+    static void  MDTChamEff(std::string inFilename,  std::string title="MDT", int txtFileOutputType = 0 );
     static void  MDTChamOcc(std::string inFilename, std::string title="MDT");
     static void  MDTTDCSum(std::string inFilename, std::string title="MDT");
     static void  MDTLowStat(std::string inFilename, std::string title="MDT");

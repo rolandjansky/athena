@@ -4,7 +4,7 @@
 # Script to browse a TAG file and extract LBs for which at least N occurences of an object is found
 # in a region defined as noisy.
 # Uses the pathExtract library to extract the EOS path
-#Options:
+# Options:
 #  -h, --help            show this help message and exit
 #  -r RUN, --run=RUN     Run number
 #  -s STREAMS, --stream=STREAMS Data stream : express/CosmicCalo/JetTauEtmiss/Egamma
@@ -20,13 +20,10 @@
 
 
 import os, sys  
-import string
-from optparse import OptionParser
+import string,math
+from math import fabs
 import argparse
-
-
-#sys.path.append("/afs/cern.ch/user/t/trocme/public/libraries")
-import pathExtract         
+import pathExtract
 
 import ROOT
 from ROOT import *
@@ -36,15 +33,13 @@ from ROOT import TFile, TTree
 from ROOT import TH1F,TH2F,TBrowser
 from ROOT import TPaveText
 
-gROOT.Reset()
-gStyle.SetPalette(1)
-gStyle.SetOptStat("em")
-
+# Analysis functions===========================================================================================================
 def analyzeTree():
   global nbHitInHot
   global cumEnergInHot
   global nbLArNoisyRO_Std
   global nbLArNoisyRO_SatTight
+
   if (tree.LArFlags & 8):nbNoiseBurstVeto[tree.LumiBlockN] = nbNoiseBurstVeto[tree.LumiBlockN] + 1
   # Fill the list of coordinates depending on the object type
   if ("TopoCluster" in objectType):
@@ -53,6 +48,8 @@ def analyzeTree():
     coordEnergy = [[tree.JetPt1,tree.JetEta1,tree.JetPhi1],[tree.JetPt2,tree.JetEta2,tree.JetPhi2],[tree.JetPt3,tree.JetEta3,tree.JetPhi3],[tree.JetPt4,tree.JetEta4,tree.JetPhi4],[tree.JetPt5,tree.JetEta5,tree.JetPhi5],[tree.JetPt6,tree.JetEta6,tree.JetPhi6]]
   if ("LoosePhoton" in objectType):
     coordEnergy = [[tree.LoosePhotonPt1,tree.LoosePhotonEta1,tree.LoosePhotonPhi1],[tree.LoosePhotonPt2,tree.LoosePhotonEta2,tree.LoosePhotonPhi2]]
+  if ("LooseElectron" in objectType):
+    coordEnergy = [[tree.LooseElectronPt1,tree.LooseElectronEta1,tree.LooseElectronPhi1],[tree.LooseElectronPt2,tree.LooseElectronEta2,tree.LooseElectronPhi2],[tree.LooseElectronPt3,tree.LooseElectronEta3,tree.LooseElectronPhi3],[tree.LooseElectronPt4,tree.LooseElectronEta4,tree.LooseElectronPhi4]]
   if ("Tau" in objectType):
     coordEnergy = [[tree.TauJetPt1,tree.TauJetEta1,tree.TauJetPhi1],[tree.TauJetPt2,tree.TauJetEta2,tree.TauJetPhi2]]
   if ("MET" in objectType):
@@ -85,20 +82,21 @@ parser.add_argument('-r','--run',type=int,dest='runNumber',default='267599',help
 parser.add_argument('-ll','--lowerlb',type=int,dest='lowerLB',default='0',help="Lower lb",action='store')
 parser.add_argument('-ul','--upperlb',type=int,dest='upperLB',default='999999',help="Upper lb",action='store')
 parser.add_argument('-s','--stream',dest='stream',default='express',help="Stream without prefix: express, CosmicCalo, Egamma...",action='store')
-parser.add_argument('-t','--tag',dest='tag',default='data15_13TeV',help="DAQ tag: data12_8TeV, data12_calocomm...",action='store')
+parser.add_argument('-t','--tag',dest='tag',default='data16_13TeV',help="DAQ tag: data12_8TeV, data12_calocomm...",action='store')
 parser.add_argument('-a','--amiTag',dest='amiTag',default='x',help="First letter of AMI tag: x->express / f->bulk",action='store')
 parser.add_argument('-e','--eta',type=float,dest='etaSpot',default='0',help='Eta of hot spot',action='store')
 parser.add_argument('-p','--phi',type=float,dest='phiSpot',default='0.',help='Phi of hot spot (or MET bump)',action='store')
 parser.add_argument('-c','--cut',type=int,dest='thresholdE',default='1000',help='Et/pt threshold (in MeV)',action='store')
 parser.add_argument('-d','--delta',type=float,dest='deltaSpot',default='0.1',help='Distance to look around hot spot (or MET bump)',action='store')
-parser.add_argument('-o','--object',dest='objectType',default='TopoCluster',help='TopoCluster/Jet/LoosePhoton/TauJet/MET',action='store')
+parser.add_argument('-o','--object',dest='objectType',default='TopoCluster',help='TopoCluster/Jet/LoosePhoton/LooseElectron/TauJet/MET',action='store')
 parser.add_argument('-m','--min',type=int,dest='minInLB',default='5',help='Min number of object in a LB',action='store')
 parser.add_argument('-n','--noplot',dest='noplot',help='Do not plot LB map',action='store_true')
 parser.add_argument('-l','--larcleaning',dest='larcleaning',help='Ignore LAr cleaning to find hot spot',action='store_true')
+parser.add_argument('-f','--files',dest='fileDirectory',default='',help='Read directory TAG files from local directory specified',action='store')
 
 args = parser.parse_args()
 
-parser.print_help()
+#parser.print_help()
 
 run = args.runNumber
 lowerLumiBlock = args.lowerLB
@@ -112,6 +110,11 @@ thresholdE = args.thresholdE
 deltaSpot = args.deltaSpot
 objectType = args.objectType
 minInLB = args.minInLB
+tagDirectory = args.fileDirectory
+
+gROOT.Reset()
+gStyle.SetPalette(1)
+gStyle.SetOptStat("em")
 
 if ("MET" in objectType):
   etaSpot=0
@@ -119,17 +122,30 @@ if ("MET" in objectType):
 print '\n'
 print '---------------------------------'
 print "Investigation on run "+str(run)+"/"+stream+" stream with ami TAG "+amiTag
-listOfFiles = pathExtract.returnEosTagPath(run,stream,amiTag,tag)
 
 tree = TChain("POOLCollectionTree")
-
-for files in listOfFiles:
-  tree.AddFile("root://eosatlas/%s"%(files))
-  print "I chained the file %s"%(files)
+if tagDirectory=="": # TAG files stored on EOS
+  listOfFiles = pathExtract.returnEosTagPath(run,stream,amiTag,tag)
+  if len(listOfFiles)>0:
+    for files in listOfFiles:
+      tree.AddFile("root://eosatlas/%s"%(files))
+      print "I chained the file %s"%(files)
+  else:
+    print "No file found on EOS.Exiting..."
+    sys.exit()
+else: # TAG files on user account
+  listOfFiles = returnFilesPath(tagDirectory,"TAG")
+  if len(listOfFiles)>0:
+    for files in listOfFiles:
+      tree.AddFile("%s"%(files))
+      print "I chained the file %s"%(files)
+    else:
+      print "No TAG file found in directory %s.Exiting..."%(tagDirectory)
+  
 
 entries = tree.GetEntries()
 
-nLB=2000
+nLB=2500
 nbHitInHot = [0] * nLB
 cumEnergInHot = [0] * nLB
 nbNoiseBurstVeto = [0] * nLB
@@ -143,6 +159,7 @@ else:
   h0map = TH2D("map","General map of %s with Et/Pt > %d MeV"%(objectType,thresholdE),90,-4.5,4.5,64,-3.14,3.14)
   h0mapClean = TH2D("mapClean","General map of %s with Et/Pt > %d MeV - LArFlags != ERROR"%(objectType,thresholdE),90,-4.5,4.5,64,-3.14,3.14)
 
+print "I am looking for LBs with at least %d %s in a region of %.2f around (%.2f,%.2f) and Et/Pt > %d MeV"%(minInLB,objectType,deltaSpot,etaSpot,phiSpot,thresholdE)
 for jentry in xrange( entries ): # Loop on all events
   if (jentry % 100000 == 0):
     print "%d / %d evnt processed"%(jentry,entries)
@@ -157,7 +174,7 @@ else:
   print "The LArCleaning (LArEventInfo != ERROR) for noise bursts has been activated"
 
 nLB_offending = []
-lowerLB = 2000
+lowerLB = 2500
 upperLB = 0
 for i in range(nLB):
   if nbHitInHot[i]>=minInLB:

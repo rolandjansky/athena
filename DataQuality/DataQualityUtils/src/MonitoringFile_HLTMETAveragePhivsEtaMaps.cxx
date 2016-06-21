@@ -54,8 +54,8 @@ namespace dqutils {
 
       // all merged root files have the structure "rootfile.root:/run_NNNNNNN"
       // use that to extract run number
-      int run_number = atoi( (run_dir2.substr(4, run_dir2.size()-4 )).c_str() );
-      run_number=run_number;
+      //int run_number = atoi( (run_dir2.substr(4, run_dir2.size()-4 )).c_str() );
+      //run_number=run_number;
 
       // begin HLTMET
       // note 1: prefix all dirs and hists with '/'

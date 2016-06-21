@@ -88,8 +88,8 @@ namespace dqutils {
 	std::cout << "HLTMuon: run directory is " << run_dir << std::endl;
       }
       std::string run_dir2 = run_dir.Data();
-      int run_number = atoi( (run_dir2.substr(4, run_dir2.size()-4 )).c_str() );
-      run_number=run_number;
+      //int run_number = atoi( (run_dir2.substr(4, run_dir2.size()-4 )).c_str() );
+      //run_number=run_number;
 
       //===HLTMuon
 

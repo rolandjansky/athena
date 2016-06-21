@@ -106,11 +106,11 @@ namespace dqutils {
 	return;
       }
 
-      const static int nlayer = 6;
+      const static int nlayer = 8;
       float nevents = h_norm->Integral();
-      TString layerName[nlayer] = {"IBL", "B0", "B1", "B2", "ECA", "ECC"};
-      float npixel[nlayer] = {26880, 46080, 46080, 46080, 46080, 46080};
-      float nmodule[nlayer] = {280., 286., 494., 676., 144., 144.};
+      TString layerName[nlayer] = {"IBL", "B0", "B1", "B2", "ECA", "ECC", "IBL2D", "IBL3D"};
+      float npixel[nlayer] = {26880, 46080, 46080, 46080, 46080, 46080, 26880, 26880};
+      float nmodule[nlayer] = {280., 286., 494., 676., 144., 144., 168., 112.};
 
       const static int nerror = 5;
       //TString errorName[nerror] = {"OpticalErrors_", "SEUErrors_", "SyncErrors_", "TimeoutErrors_", "TruncErrors_"};
@@ -196,7 +196,7 @@ namespace dqutils {
          if( h_disabled_per_lumi[i] && h_syncerr_per_lumi[i]){
            keyname = "DisabledAndSyncErrorsModules_per_lumi_";
            TString tmpname = keyname + layerName[i] + "_byPostProcess";
-           h_disabled_syncerr_per_lumi[i] = new TH1F(tmpname, ";Lumi block;Avg. fraction per event", 2500, 0, 2500);
+           h_disabled_syncerr_per_lumi[i] = new TH1F(tmpname, "Disable and Sync error per module per event;Lumi block;Avg. fraction per event", 2500, 0, 2500);
            //h_disabled_syncerr_per_lumi[i]->Scale( 1.0/nmodule[i] );
            for(int ibin=0; ibin<2500+1 ; ibin++){
              Double_t cont1 = h_disabled_per_lumi[i]->GetBinContent(ibin) / nmodule[i];
