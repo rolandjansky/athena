@@ -791,17 +791,21 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
          public:
         OfflineStream( const std::string& fileKey, AthenaMonManager::DataType_t /*dataType*/,
                        AthenaMonManager::Environment_t /*environment*/ )
-               : m_fileKey(fileKey) { }
+               : m_fileKey(fileKey),
+                 m_prev_run_number(0),
+                 m_prev_lumi_block(0) { }
 
             virtual ~OfflineStream() { }
             virtual std::string getStreamName( const ManagedMonitorToolBase* tool, const MonGroup& group, const std::string& objName, bool usePreviousInterval=false );
             virtual std::string getDirectoryName( const ManagedMonitorToolBase* tool, const MonGroup& group, const std::string& objName, const bool usePreviousInterval );
+	    void updateRunLB();
 
          private:
             OfflineStream() { }
             const std::string                m_fileKey;
             //AthenaMonManager::DataType_t     m_dataType;
             //AthenaMonManager::Environment_t  m_environment;
+            uint32_t m_prev_run_number, m_prev_lumi_block;
             std::set<std::string> m_ebNames;
             void getLBrange(int*,int*,int,int);
       };
