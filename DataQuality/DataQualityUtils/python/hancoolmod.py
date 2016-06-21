@@ -434,7 +434,10 @@ def dqmf_node_defect(node, defect, badstatuses=['Red']):
     return dqmf_node_defect_core
 
 def hancool_defects(runNumber, filePath="./", dbConnection="", db_tag='HEAD', isESn=True):
-    analyzers = [ctp_defects]
+    import pix_defect
+    analyzers = []
+    if False:
+        analyzers += [ctp_defects]
     if isESn:
         analyzers += [dqmf_node_defect('InnerDetector/SCT/SCTAll/Hits/SctTotalEff', 'SCT_EFF_LT99', ['Yellow', 'Red']),
                       dqmf_node_defect('InnerDetector/SCT/SCTAll/Hits/SctTotalEff', 'SCT_GLOBAL_UNKNOWN', ['Red']),
@@ -455,6 +458,7 @@ def hancool_defects(runNumber, filePath="./", dbConnection="", db_tag='HEAD', is
 
     fnames = ([ [filePath+"run_"+str(runNumber)+"_han.root"], [] ]
               + [glob.glob(os.path.join(filePath, 'run_%s%s*_han.root' % (runNumber, intervalType[i]))) for i in [2, 3]])
+
     for i, itype in enumerate(fnames):
         ldefects_by_function = {}
         for globname in itype:
@@ -477,15 +481,31 @@ def hancool_defects(runNumber, filePath="./", dbConnection="", db_tag='HEAD', is
         defects_by_function.update(ldefects_by_function)
     defects = sum(defects_by_function.values(), [])
 
+    if isESn:
+        globname = fnames[0][0]
+        filename = os.path.basename(globname)    
+        since, until = getLimits(filename)
+        defects += pix_defect.execute(runNumber, globname, until-1)
+
     from DQDefects import DefectsDB
     ddb = DefectsDB(dbConnection, read_only=False)
     if isESn:
         detmask_defects(runNumber, ddb)
     with ddb.storage_buffer:
-        for defect in defects:
-            print defect
+        for defect in iovs_merge(defects):
+            #print defect
             ddb.insert(defect.defect, since=(runNumber << 32 | defect.since),
                        until=(runNumber << 32 | defect.until),
                        comment=defect.comment,
                        recoverable=defect.recoverable,
                        added_by='sys:hancool')
+
+
+    # Assign Pixel defect
+    #globname_pix = filePath+"run_"+str(runNumber)+"_han.root"
+    #filename_pix = "run_"+str(runNumber)+"_han.root"
+    #from DQDefects import DefectsDB
+    #ddb = DefectsDB(dbConnection, read_only=False, tag="HEAD")
+    #import pix_defect
+    #pix_defect.execute(runNumber, globname_pix, until-1, 'sys:hancool', ddb)
+
