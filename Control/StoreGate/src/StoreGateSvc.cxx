@@ -114,7 +114,7 @@ StoreGateSvc::addedNewPersObject(CLID clid, SG::DataProxy* dp) {
 /// Create a proxy object using an IOpaqueAddress and a transient key
 StatusCode 
 StoreGateSvc::recordAddress(const std::string& skey,
-				IOpaqueAddress* pAddress, bool clearAddressFlag) {
+                            IOpaqueAddress* pAddress, bool clearAddressFlag) {
   _SGXCALL(recordAddress, (skey, pAddress, clearAddressFlag), StatusCode::FAILURE);
 }
 /// Create a proxy object using an IOpaqueAddress
@@ -147,7 +147,7 @@ StatusCode StoreGateSvc::initialize()    {
   if(!(Service::initialize()).isSuccess()) return StatusCode::FAILURE;
 
   MsgStream log( messageService(), name() );
-  log << MSG::INFO << "Initializing " << name() 
+  log << MSG::VERBOSE << "Initializing " << name() 
       << " - package version " << PACKAGE_VERSION << endreq ;
 
   // lifted from AlwaysPrivateToolSvc (see Wim comment about lack of global jo svc accessor
@@ -204,7 +204,7 @@ StatusCode StoreGateSvc::initialize()    {
 
 /// Service start
 StatusCode StoreGateSvc::stop()    {
-  msg() << MSG::INFO << "Stop " << name() << endreq;
+  msg() << MSG::VERBOSE << "Stop " << name() << endreq;
   //HACK ALERT: ID event store objects refer to det store objects
   //by setting an ad-hoc priority for event store(s) we make sure they are finalized and hence cleared first
   // see e.g. https://savannah.cern.ch/bugs/index.php?99993
@@ -213,8 +213,8 @@ StatusCode StoreGateSvc::stop()    {
     if (!pISM)
       return StatusCode::FAILURE;
     pISM->setPriority(name(), pISM->getPriority(name())+1).ignore();
-    msg() << MSG::INFO << "stop: setting service priority to " << pISM->getPriority(name()) 
-	  << " so that event stores get finalized and cleared before other stores" <<endmsg;
+    msg() << MSG::VERBOSE << "stop: setting service priority to " << pISM->getPriority(name()) 
+          << " so that event stores get finalized and cleared before other stores" <<endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -224,8 +224,8 @@ IIOVSvc* StoreGateSvc::getIIOVSvc() {
   // Get hold of the IOVSvc
   if (0 == m_pIOVSvc && !(service("IOVSvc", m_pIOVSvc)).isSuccess()) {
     msg() << MSG::WARNING
-	<< "Could not locate IOVSvc "
-	<< endreq;
+          << "Could not locate IOVSvc "
+          << endreq;
   }
   return m_pIOVSvc;
 }
@@ -234,7 +234,7 @@ StatusCode
 StoreGateSvc::finalize() {
   if(!(Service::finalize()).isSuccess()) return StatusCode::FAILURE;
   MsgStream log( messageService(), name() );
-  log << MSG::INFO << "Finalizing " << name() 
+  log << MSG::VERBOSE << "Finalizing " << name() 
       << " - package version " << PACKAGE_VERSION << endreq ;
   if (m_defaultStore) {
     // m_defaultStore is not active, so ServiceManager won't finalize it!
@@ -295,17 +295,26 @@ StatusCode StoreGateSvc::addToStore (CLID id, SG::DataProxy* proxy)
  * @param obj The data object to store.
  * @param key The key as which it should be stored.
  * @param allowMods If false, the object will be recorded as const.
+ * @param returnExisting If true, return proxy if this key already exists.
+ *                       If the object has been recorded under a different
+ *                       key, then make an alias.
  *
  * Full-blown record.  @c obj should usually be something
  * deriving from @c SG::DataBucket.
  *
  * Returns the proxy for the recorded object; nullptr on failure.
+ * If the requested CLID/key combination already exists in the store,
+ * the behavior is controlled by @c returnExisting.  If true, then
+ * the existing proxy is returned; otherwise, nullptr is returned.
+ * In either case, @c obj is destroyed.
  */
-SG::DataProxy* StoreGateSvc::recordObject (std::unique_ptr<DataObject> obj,
-                                           const std::string& key,
-                                           bool allowMods)
+SG::DataProxy*
+StoreGateSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
+                            const std::string& key,
+                            bool allowMods,
+                            bool returnExisting)
 {
-  _SGXCALL(recordObject, (std::move(obj), key, allowMods), nullptr);
+  _SGXCALL(recordObject, (std::move(obj), key, allowMods, returnExisting), nullptr);
 }
 
 
@@ -349,7 +358,7 @@ StoreGateSvc::accessData(const CLID& id, const std::string& key) const {
 
 bool
 StoreGateSvc::transientSwap( const CLID& id,
-			     const std::string& keyA, const std::string& keyB ) {
+                             const std::string& keyA, const std::string& keyB ) {
   _SGXCALL(transientSwap, (id, keyA, keyB), false);
 }
 
@@ -361,19 +370,19 @@ StoreGateSvc::typeless_readPrivateCopy(const CLID& clid, const std::string& key)
 /// specifying const-access and history record
 StatusCode 
 StoreGateSvc::typeless_record( DataObject* obj, const std::string& key,
-			       const void* const raw_ptr,
-			       bool allowMods, bool resetOnly,
-			       bool noHist ) {
+                               const void* const raw_ptr,
+                               bool allowMods, bool resetOnly,
+                               bool noHist ) {
   _SGXCALL(typeless_record, (obj, key, raw_ptr, allowMods, resetOnly, noHist), StatusCode::FAILURE);
 }
 /// same as typeless_record, allows to ovewrite an object in memory or on disk
 StatusCode 
 StoreGateSvc::typeless_overwrite( const CLID& id,
-				  DataObject* obj, const std::string& key,
-				  const void* const raw_ptr,
-				  bool allowMods,
-				  bool noHist,
-				  const std::type_info* tinfo) {
+                                  DataObject* obj, const std::string& key,
+                                  const void* const raw_ptr,
+                                  bool allowMods,
+                                  bool noHist,
+                                  const std::type_info* tinfo) {
   _SGXCALL(typeless_overwrite, (id, obj, key, raw_ptr, allowMods, noHist, tinfo), StatusCode::FAILURE);
 }
 
@@ -383,10 +392,15 @@ StoreGateSvc::setStoreID(StoreID::type id)
 {
   _SGVOIDCALL(setStoreID,(id));
 }
+StoreID::type 
+StoreGateSvc::storeID() const
+{
+  _SGXCALL(storeID,(),StoreID::UNKNOWN);
+}
 
 void
 StoreGateSvc::keys(const CLID& id, std::vector<std::string>& vkeys, 
-		   bool includeAlias, bool onlyValid) 
+                   bool includeAlias, bool onlyValid) 
 { 
   _SGVOIDCALL(keys,(id, vkeys, includeAlias, onlyValid));
 } 
@@ -423,27 +437,27 @@ StoreGateSvc::keyToString (sgkey_t key, CLID& clid) const {
 
 void 
 StoreGateSvc::registerKey (sgkey_t key,
-			   const std::string& str,
-			   CLID clidid) {
+                           const std::string& str,
+                           CLID clidid) {
   _SGVOIDCALL( registerKey, (key, str, clidid) );
 }
 void 
 StoreGateSvc::remap_impl (sgkey_t source,
-			  sgkey_t target,
-			  off_t index_offset) {
+                          sgkey_t target,
+                          off_t index_offset) {
   _SGVOIDCALL( remap_impl, (source, target, index_offset) );
 }
 
 bool 
 StoreGateSvc::tryELRemap (sgkey_t sgkey_in, size_t index_in,
-			  sgkey_t& sgkey_out, size_t& index_out) {
+                          sgkey_t& sgkey_out, size_t& index_out) {
   _SGXCALL( tryELRemap, (sgkey_in, index_in, sgkey_out, index_out), false );
 }
 
 StatusCode 
 StoreGateSvc::proxyRange(const CLID& id,
-			 SG::ConstProxyIterator& beg,
-			 SG::ConstProxyIterator& end) const {
+                         SG::ConstProxyIterator& beg,
+                         SG::ConstProxyIterator& end) const {
   _SGXCALL( proxyRange, (id, beg, end), StatusCode::FAILURE );
 }
 
@@ -506,9 +520,6 @@ StatusCode StoreGateSvc::queryInterface(const InterfaceID& riid, void** ppvInter
   else if ( IProxyDict::interfaceID().versionMatch(riid) )    {
     *ppvInterface = (IProxyDict*)this;
   }
-  else if ( IProxyDictWithPool::interfaceID().versionMatch(riid) )    {
-    *ppvInterface = (IProxyDictWithPool*)this;
-  }
   else if ( IHiveStore::interfaceID().versionMatch(riid) )    {
     *ppvInterface = (IHiveStore*)this;
   }
@@ -530,6 +541,11 @@ StatusCode StoreGateSvc::queryInterface(const InterfaceID& riid, void** ppvInter
 void StoreGateSvc::makeCurrent()
 {
   _SGVOIDCALL (makeCurrent, ());
+}
+
+StatusCode StoreGateSvc::removeProxy(SG::DataProxy* proxy, const void* pTrans, 
+                                     bool forceRemove) {
+  _SGXCALL(removeProxy, (proxy, pTrans, forceRemove), StatusCode::FAILURE);
 }
 
 

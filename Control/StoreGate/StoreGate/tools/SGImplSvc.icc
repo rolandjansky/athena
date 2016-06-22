@@ -29,12 +29,12 @@
 
 
 // HACK LIFTED FROM AthenaBaseComps/AthMsgStreamMacros.h to remove dep loop
-#define SG_MSG_LVL(lvl, x) \
-   do {                                      \
-     if (msg().level() <= lvl) {                     \
-       msg() << lvl << x  << endmsg;                 \
-     }                                       \
-   } while (0)
+#define SG_MSG_LVL(lvl, x)                      \
+  do {                                          \
+    if (msg().level() <= lvl) {                 \
+      msg() << lvl << x  << endmsg;             \
+    }                                           \
+  } while (0)
  
 #define SG_MSG_VERBOSE(x) SG_MSG_LVL(MSG::VERBOSE, x)
 #define SG_MSG_DEBUG(x)   SG_MSG_LVL(MSG::DEBUG, x)
@@ -64,7 +64,7 @@ StatusCode SGImplSvc::record(const T* pObject)
 template <typename T> 
 StatusCode SGImplSvc::record(T* pObject, const bool& allowMods)
 {
-  //always delete the proxy of a keyless object	
+  //always delete the proxy of a keyless object 
   static const bool RESETONLY(false); 
   // generate a default unique key
   return record(pObject, createKey(ClassID_traits<T>::ID()), allowMods, RESETONLY);
@@ -125,7 +125,7 @@ StatusCode SGImplSvc::record(const T* pObject, const TKEY& key)
 //-------------------------------------------------------------------
 template <typename T, typename TKEY> 
 StatusCode SGImplSvc::record(T* pObject, const TKEY& key, 
-				bool allowMods, bool resetOnly, bool noHist)
+                             bool allowMods, bool resetOnly, bool noHist)
 {
   return record1 (SG::asStorable<T>(pObject), pObject, key,
                   allowMods, resetOnly, noHist);
@@ -134,8 +134,8 @@ StatusCode SGImplSvc::record(T* pObject, const TKEY& key,
 //-------------------------------------------------------------------
 template <typename T, typename TKEY> 
 StatusCode SGImplSvc::record1(DataObject* obj,
-                                 T* pObject, const TKEY& key, 
-                                 bool allowMods, bool resetOnly, bool noHist)
+                              T* pObject, const TKEY& key, 
+                              bool allowMods, bool resetOnly, bool noHist)
 {
 #ifndef __clang__
   BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
@@ -153,13 +153,13 @@ StatusCode SGImplSvc::record1(DataObject* obj,
 #ifndef NDEBUG
   if (sc.isSuccess()) {
     SG_MSG_DEBUG( 
-		  "Recorded object @" << pObject 
-		  << " with key " << (std::string)key 
-		  << " of type "  << ClassID_traits<T>::typeName()
-		  << "(CLID " << ClassID_traits<T>::ID() 
-		  << ")\n in DataObject @" << obj 
-		  << "\n object " << (allowMods ? "" : "not ")
-		  << "modifiable when retrieved");
+                 "Recorded object @" << pObject 
+                 << " with key " << (std::string)key 
+                 << " of type "  << ClassID_traits<T>::typeName()
+                 << "(CLID " << ClassID_traits<T>::ID() 
+                 << ")\n in DataObject @" << obj 
+                 << "\n object " << (allowMods ? "" : "not ")
+                 << "modifiable when retrieved");
   }
 #endif
 
@@ -177,7 +177,7 @@ StatusCode SGImplSvc::record(std::unique_ptr<T> pUnique, const TKEY& key)
 //-------------------------------------------------------------------
 template <typename T, typename TKEY>
 StatusCode SGImplSvc::record(std::unique_ptr<const T> pUnique,
-                                const TKEY& key)
+                             const TKEY& key)
 {
   const bool NOMODS(false);
   T* ptr = const_cast<T*> (pUnique.release());
@@ -188,7 +188,7 @@ StatusCode SGImplSvc::record(std::unique_ptr<const T> pUnique,
 //-------------------------------------------------------------------
 template <typename T, typename TKEY> 
 StatusCode SGImplSvc::record(std::unique_ptr<T> pUnique, const TKEY& key, 
-				bool allowMods, bool resetOnly, bool noHist)
+                             bool allowMods, bool resetOnly, bool noHist)
 {
   T* ptr = pUnique.get();
   return record1 (SG::asStorable<T>(std::move(pUnique)), ptr, key,
@@ -198,8 +198,8 @@ StatusCode SGImplSvc::record(std::unique_ptr<T> pUnique, const TKEY& key,
 
 template <typename T, typename TKEY> 
 StatusCode SGImplSvc::overwrite1(DataObject* obj, T* pObject,
-				 const TKEY& key, 
-				 bool allowMods, bool noHist)
+                                 const TKEY& key, 
+                                 bool allowMods, bool noHist)
 {
 #ifndef __clang__
   BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
@@ -212,18 +212,18 @@ StatusCode SGImplSvc::overwrite1(DataObject* obj, T* pObject,
   if (ClassID_traits<T>::s_isConst) allowMods = false;
 
   StatusCode sc = typeless_overwrite(ClassID_traits<T>::ID(), obj, key, 
-				     pObject, allowMods,  noHist,
+                                     pObject, allowMods,  noHist,
                                      &typeid(T));
 #ifndef NDEBUG
   if (sc.isSuccess()) {
     SG_MSG_DEBUG( 
-		 "overwrite: Recorded object @" << pObject 
-		 << " with key " << (std::string)key 
-		 << " of type "  << ClassID_traits<T>::typeName()
-		 << "(CLID " << ClassID_traits<T>::ID() 
-		 << ")\n in DataObject @" << obj 
-		 << "\n object " << (allowMods ? "" : "not ")
-		 << "modifiable when retrieved");
+                 "overwrite: Recorded object @" << pObject 
+                 << " with key " << (std::string)key 
+                 << " of type "  << ClassID_traits<T>::typeName()
+                 << "(CLID " << ClassID_traits<T>::ID() 
+                 << ")\n in DataObject @" << obj 
+                 << "\n object " << (allowMods ? "" : "not ")
+                 << "modifiable when retrieved");
   }
 #endif
   return sc;
@@ -239,7 +239,7 @@ StatusCode SGImplSvc::overwrite(T* p2BRegistered, const TKEY& key)
 
 template <typename T, typename TKEY> 
 StatusCode SGImplSvc::overwrite(T* pObject, const TKEY& key, 
-				  bool allowMods, bool noHist)
+                                bool allowMods, bool noHist)
 {
   return overwrite1 (SG::asStorable<T>(pObject), pObject, key,
                      allowMods, noHist);
@@ -255,7 +255,7 @@ StatusCode SGImplSvc::overwrite(std::unique_ptr<T> pUnique, const TKEY& key)
 
 template <typename T, typename TKEY> 
 StatusCode SGImplSvc::overwrite(std::unique_ptr<T> pUnique, const TKEY& key, 
-                                   bool allowMods, bool noHist)
+                                bool allowMods, bool noHist)
 {
   T* ptr = pUnique.get();
   return overwrite1 (SG::asStorable<T>(std::move(pUnique)), ptr, key,
@@ -294,7 +294,7 @@ StatusCode SGImplSvc::setAlias(const T* pObject, const AKEY& aKey)
 //-------------------------------------------------------------------
 template <typename T, typename TKEY, typename AKEY>
 StatusCode SGImplSvc::setAlias(const T* /*pObject*/,
- 				  const TKEY& key, const AKEY& aKey)
+                               const TKEY& key, const AKEY& aKey)
 {
 #ifndef __clang__
   BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
@@ -335,7 +335,7 @@ StatusCode SGImplSvc::symLink(const T* pObject, TLINK*)
   SG::DataProxy* dp(proxy(pObject));
   CLID linkID = ClassID_traits<TLINK>::ID();
 
-  // if symLink already exists, just return success 	 
+  // if symLink already exists, just return success      
   return isSymLinked(linkID,dp) ?
     StatusCode::SUCCESS :
     addSymLink(linkID,dp);
@@ -349,7 +349,7 @@ StatusCode SGImplSvc::symLink(const T* pObject, const TLINK*)
 {
   SG::DataProxy* dp(proxy(pObject));
   CLID linkID = ClassID_traits<TLINK>::ID();
-  // if symLink already exists, just return success 	 
+  // if symLink already exists, just return success      
   return isSymLinked(linkID,dp) ?
     StatusCode::SUCCESS :
     addSymLink(linkID,dp);
@@ -364,7 +364,7 @@ StatusCode SGImplSvc::symLink(const CLID& id, const TKEY& key, const CLID& linkI
   BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
 #endif
   SG::DataProxy* dp(proxy(id, key, false));
-  // if symLink already exists, just return success 	 
+  // if symLink already exists, just return success      
   return isSymLinked(linkID,dp) ?
     StatusCode::SUCCESS :
     addSymLink(linkID,dp);
@@ -462,8 +462,8 @@ StatusCode SGImplSvc::retrieve(const DataHandle<T>& handle)
     this->associateAux(handle);
 #ifndef NDEBUG
     SG_MSG_DEBUG("retrieve(default): Retrieved const handle to default object \n" 
-		  << " of type "  << ClassID_traits<T>::typeName() 
-		  << "(CLID " << ClassID_traits<T>::ID() << ')');
+                 << " of type "  << ClassID_traits<T>::typeName() 
+                 << "(CLID " << ClassID_traits<T>::ID() << ')');
 #endif
     addedNewPersObject(ClassID_traits<T>::ID(), dp);
   }
@@ -491,8 +491,8 @@ StatusCode SGImplSvc::retrieve(DataHandle<T>& handle)
     this->associateAux(handle);
 #ifndef NDEBUG
     SG_MSG_DEBUG("Retrieved non-const handle to default object " 
-		  << " of type "  << ClassID_traits<T>::typeName() 
-		  << "(CLID " << ClassID_traits<T>::ID() << ')');
+                 << " of type "  << ClassID_traits<T>::typeName() 
+                 << "(CLID " << ClassID_traits<T>::ID() << ')');
 #endif
     addedNewPersObject(ClassID_traits<T>::ID(), dp);
   }
@@ -505,7 +505,7 @@ StatusCode SGImplSvc::retrieve(DataHandle<T>& handle)
 //////////////////////////////////////////////////////////////////
 template <typename T, typename TKEY>
 StatusCode SGImplSvc::retrieve(const DataHandle<T>& handle, 
-			       const TKEY& key)
+                               const TKEY& key)
 {
 #ifndef __clang__
   BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
@@ -516,16 +516,16 @@ StatusCode SGImplSvc::retrieve(const DataHandle<T>& handle,
 
   if (sc.isFailure()) {
     msg() << MSG::WARNING 
-	<< "retrieve(const): No valid proxy for object " << key  << ' ' 
-	<< " of type "  << ClassID_traits<T>::typeName() << "(CLID "
-	<< ClassID_traits<T>::ID() << ')' << endreq;
+          << "retrieve(const): No valid proxy for object " << key  << ' ' 
+          << " of type "  << ClassID_traits<T>::typeName() << "(CLID "
+          << ClassID_traits<T>::ID() << ')' << endreq;
   } else {
     //for types with an associated store, try to retrieve it and associate it
     this->associateAux(handle);
 #ifndef NDEBUG
     SG_MSG_DEBUG( "Retrieved const handle to object " << key  << ' '
-		   << " of type "  << ClassID_traits<T>::typeName() 
-		   << "(CLID " << ClassID_traits<T>::ID() << ')');
+                  << " of type "  << ClassID_traits<T>::typeName() 
+                  << "(CLID " << ClassID_traits<T>::ID() << ')');
 #endif
     addedNewPersObject(ClassID_traits<T>::ID(), dp);
   }
@@ -537,7 +537,7 @@ StatusCode SGImplSvc::retrieve(const DataHandle<T>& handle,
 //////////////////////////////////////////////////////////////////
 template <typename T, typename TKEY> 
 StatusCode SGImplSvc::retrieve(DataHandle<T>& handle, 
-				  const TKEY& key)
+                               const TKEY& key)
 {
 #ifndef __clang__
   BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
@@ -548,17 +548,17 @@ StatusCode SGImplSvc::retrieve(DataHandle<T>& handle,
 
   if (sc.isFailure()) {
     SG_MSG_WARNING("retrieve(non-const): No valid proxy for object "
-		   << (std::string)key  << ' ' 
-		   << " of type "  << ClassID_traits<T>::typeName() << "(CLID "
-		   << ClassID_traits<T>::ID() 
-		   << ") \n Try to use a const DataHandle" );
+                   << (std::string)key  << ' ' 
+                   << " of type "  << ClassID_traits<T>::typeName() << "(CLID "
+                   << ClassID_traits<T>::ID() 
+                   << ") \n Try to use a const DataHandle" );
   } else {
     //for types with an associated store, try to retrieve it and associate it
     this->associateAux(handle);
 #ifndef NDEBUG
     SG_MSG_DEBUG("Retrieved non-const handle to object " << (std::string)key  
-		  << ' ' << " of type "  << ClassID_traits<T>::typeName() 
-		  << "(CLID " << ClassID_traits<T>::ID() << ')');
+                 << ' ' << " of type "  << ClassID_traits<T>::typeName() 
+                 << "(CLID " << ClassID_traits<T>::ID() << ')');
 #endif
     addedNewPersObject(ClassID_traits<T>::ID(), dp);
   }
@@ -572,7 +572,7 @@ StatusCode SGImplSvc::retrieve(DataHandle<T>& handle,
 //////////////////////////////////////////////////////////////////
 template <typename T> 
 StatusCode SGImplSvc::retrieve(SG::ConstIterator<T>& cibegin,
-			          SG::ConstIterator<T>& ciend )
+                               SG::ConstIterator<T>& ciend )
 {
   const DataHandle<T> chbegin, chend;
   StatusCode sc = this->retrieve(chbegin, chend);
@@ -590,7 +590,7 @@ StatusCode SGImplSvc::retrieve(SG::ConstIterator<T>& cibegin,
 //////////////////////////////////////////////////////////////////
 template <typename T> 
 StatusCode SGImplSvc::retrieve(const DataHandle<T>& chbegin,
-			       const DataHandle<T>& chend )
+                               const DataHandle<T>& chend )
 {
   SG::ConstProxyIterator first;
   SG::ConstProxyIterator end = first;
@@ -598,8 +598,8 @@ StatusCode SGImplSvc::retrieve(const DataHandle<T>& chbegin,
   if (!(proxyRange(ClassID_traits<T>::ID(),first,end)).isSuccess()) {
 #ifndef NDEBUG
     SG_MSG_DEBUG("retrieve(range): no object found " 
-		  << " of type "  << ClassID_traits<T>::typeName() 
-		  << "(CLID " << ClassID_traits<T>::ID() << ')');
+                 << " of type "  << ClassID_traits<T>::typeName() 
+                 << "(CLID " << ClassID_traits<T>::ID() << ')');
 #endif
   }
 
@@ -608,8 +608,8 @@ StatusCode SGImplSvc::retrieve(const DataHandle<T>& chbegin,
   if (!(chbegin.setState(first, end)).isSuccess()) {
 #ifndef NDEBUG
     SG_MSG_DEBUG("retrieve(range): Can't set DataHandle for object range " 
-		  << " of type "  << ClassID_traits<T>::typeName() 
-		  << "(CLID " << ClassID_traits<T>::ID() << ')');
+                 << " of type "  << ClassID_traits<T>::typeName() 
+                 << "(CLID " << ClassID_traits<T>::ID() << ')');
 #endif
     return StatusCode::FAILURE;
   }
@@ -626,7 +626,7 @@ StatusCode SGImplSvc::retrieve(const DataHandle<T>& chbegin,
  * @brief Retrieve an object of type @c T from storegate.
  *        Return 0 if not found.
  * @param key The key to use for the lookup.
-**/
+ **/
 template <typename T>
 T* SGImplSvc::retrieve ()
 {
@@ -639,7 +639,7 @@ T* SGImplSvc::retrieve ()
  * @brief Retrieve an object of type @c T from storegate.
  *        Return 0 if not found.
  * @param key The key to use for the lookup.
-**/
+ **/
 template <typename T, class TKEY>
 T* SGImplSvc::retrieve (const TKEY& key)
 {
@@ -652,7 +652,7 @@ T* SGImplSvc::retrieve (const TKEY& key)
  * @brief Retrieve an object of type @c T from storegate.
  *        Return 0 if not found.
  * @param key The key to use for the lookup.
-**/
+ **/
 template <typename T>
 T* SGImplSvc::tryRetrieve ()
 {
@@ -681,7 +681,7 @@ const T* SGImplSvc::tryConstRetrieve()
  * @brief Retrieve an object of type @c T from storegate.
  *        Return 0 if not found. Don't print any WARNINGs
  * @param key The key to use for the lookup.
-**/
+ **/
 template <typename T, class TKEY>
 T* SGImplSvc::tryRetrieve (const TKEY& key)
 {
@@ -709,7 +709,7 @@ const T* SGImplSvc::tryConstRetrieve (const TKEY& key)
  *        to its auxiliary store
  *        Return 0 the object or the aux store is not found.
  * @param key The key to use for the lookup.
-**/
+ **/
 template <typename T, class TKEY>
 T* SGImplSvc::retrieveAux (const TKEY& key)
 {
@@ -739,7 +739,7 @@ std::auto_ptr<T>
 SGImplSvc::readPrivateCopy (const std::string& key)
 {
   return std::auto_ptr<T>(SG::Storable_cast<T>(
-     this->typeless_readPrivateCopy(ClassID_traits<T>::ID(), key)));
+                                               this->typeless_readPrivateCopy(ClassID_traits<T>::ID(), key)));
 }
 
 
@@ -748,7 +748,7 @@ std::unique_ptr<T>
 SGImplSvc::readUniquePrivateCopy (const std::string& key)
 {
   return std::unique_ptr<T>(SG::Storable_cast<T>(
-     this->typeless_readPrivateCopy(ClassID_traits<T>::ID(), key)));
+                                                 this->typeless_readPrivateCopy(ClassID_traits<T>::ID(), key)));
 }
 
 
@@ -864,7 +864,7 @@ SGImplSvc::transientContains(const CLID& id, const TKEY& key) const
 template <typename T>
 void
 SGImplSvc::keys(std::vector<std::string>& vkeys, 
-		   bool includeAlias, bool onlyValid) {
+                bool includeAlias, bool onlyValid) {
   return this->keys(ClassID_traits<T>::ID(), vkeys, includeAlias, onlyValid);
 } 
 
@@ -872,7 +872,7 @@ SGImplSvc::keys(std::vector<std::string>& vkeys,
 template <typename T> 
 std::vector<std::string> SGImplSvc::keys(bool allKeys)
 {
-   return this->keys(ClassID_traits<T>::ID(), allKeys);
+  return this->keys(ClassID_traits<T>::ID(), allKeys);
 } 
 // DEPRECATED
 inline
@@ -891,13 +891,13 @@ SGImplSvc::remove(const T* pObject)
   return removeProxy(proxy(pObject), pObject);
 }
 
-// remove an object and its proxy from Store 	 
-template <typename T> 	 
-StatusCode 	 
-SGImplSvc::removeDataAndProxy(const T* pObject) 	 
-{ 	 
-  const bool FORCEREMOVE(true); 	 
-  return removeProxy(proxy(pObject), pObject, FORCEREMOVE); 	 
+// remove an object and its proxy from Store     
+template <typename T>    
+StatusCode       
+SGImplSvc::removeDataAndProxy(const T* pObject)          
+{        
+  const bool FORCEREMOVE(true);          
+  return removeProxy(proxy(pObject), pObject, FORCEREMOVE);      
 }
 
 // utility method put a dobj pointer in a bucket as appropriate
@@ -926,8 +926,8 @@ SGImplSvc::createProxy(IOpaqueAddress* pAddress, bool clearAddressFlag)
 inline
 SG::DataProxy* 
 SGImplSvc::setupProxy(const CLID& dataID, 
-				    const std::string& gK, 
-				    DataObject* pDObj) {
+                      const std::string& gK, 
+                      DataObject* pDObj) {
   return setupProxy(dataID, gK, pDObj, true, true);
 }
 
@@ -939,13 +939,13 @@ SGImplSvc::bind(const DataHandle<T>& handle, const TKEY& key) {
   const IResetable *ir = &handle;
   SG::DataProxy *dp = 0;
   if (!(bindHandleToProxy(ClassID_traits<T>::ID(), key,
-		          const_cast<IResetable*>(ir),dp) ))  
-  {
-    return StatusCode::FAILURE;
-  } else 
-  {
-    return (handle.setState(dp)); // FIXME - should be retrieve?
-  }
+                          const_cast<IResetable*>(ir),dp) ))  
+    {
+      return StatusCode::FAILURE;
+    } else 
+    {
+      return (handle.setState(dp)); // FIXME - should be retrieve?
+    }
 }
 
 
@@ -975,7 +975,7 @@ SGImplSvc::regHandle(const DataHandle<H>& handle, const TKEY& key) {
   // bind the handle to the key, creates an invalid DataProxy
   if (bind(handle,key).isFailure()) {
     msg() << MSG::ERROR << "regHandle: could not bind handle to " << tname
-	<< " to key: " << key << endreq;
+          << " to key: " << key << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -984,7 +984,7 @@ SGImplSvc::regHandle(const DataHandle<H>& handle, const TKEY& key) {
 
   if ( dp == 0 ) {
     msg() << MSG::ERROR << "could not get proxy for handle " << fullname
-	<<  endreq;
+          <<  endreq;
     return StatusCode::FAILURE;
   }
 
@@ -1001,7 +1001,7 @@ SGImplSvc::regHandle(const DataHandle<H>& handle, const TKEY& key) {
 template <typename H, typename TKEY>
 StatusCode 
 SGImplSvc::regHandle( DataHandle<H>& /*handle*/, 
-			 const TKEY& key) {
+                      const TKEY& key) {
 
   CLID id = ClassID_traits<H>::ID();
   std::string tname;
@@ -1019,8 +1019,8 @@ SGImplSvc::regHandle( DataHandle<H>& /*handle*/,
 template <typename T, typename H, typename TKEY>
 StatusCode 
 SGImplSvc::regFcn(StatusCode (T::*/*updFcn*/)(IOVSVC_CALLBACK_ARGS), 
-		     const T* /*obj*/, DataHandle<H>& /*handle*/, 
-		     const TKEY& key, bool /*trigger*/) {
+                  const T* /*obj*/, DataHandle<H>& /*handle*/, 
+                  const TKEY& key, bool /*trigger*/) {
 
   CLID id = ClassID_traits<H>::ID();
   std::string tname;
@@ -1039,8 +1039,8 @@ SGImplSvc::regFcn(StatusCode (T::*/*updFcn*/)(IOVSVC_CALLBACK_ARGS),
 template <typename T, typename H, typename TKEY>
 StatusCode 
 SGImplSvc::regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
-		     const T* obj, const DataHandle<H>& handle, 
-		     const TKEY& key, bool trigger) {
+                  const T* obj, const DataHandle<H>& handle, 
+                  const TKEY& key, bool trigger) {
 
   CLID id = ClassID_traits<H>::ID();
   std::string tname;
@@ -1051,7 +1051,7 @@ SGImplSvc::regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS),
   // bind the handle to the key, creates an invalid DataProxy
   if (bind(handle,key).isFailure()) {
     msg() << MSG::ERROR << "regFcn: could not bind handle to " << tname
-	<< " to key: " << key << endreq;
+          << " to key: " << key << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -1060,7 +1060,7 @@ SGImplSvc::regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS),
 
   if ( dp == 0 ) {
     msg() << MSG::ERROR << "could not get proxy for handle " << fullname 
-	<<  endreq;
+          <<  endreq;
     return StatusCode::FAILURE;
   }
 
@@ -1081,10 +1081,10 @@ SGImplSvc::regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS),
 template <typename T1, typename T2>
 StatusCode 
 SGImplSvc::regFcn( StatusCode (T1::*updFcn1)(IOVSVC_CALLBACK_ARGS), 
-		      const T1* obj1, 
-		      StatusCode (T2::*updFcn2)(IOVSVC_CALLBACK_ARGS), 
-		      const T2* obj2, 
-		      bool trigger) {
+                   const T1* obj1, 
+                   StatusCode (T2::*updFcn2)(IOVSVC_CALLBACK_ARGS), 
+                   const T2* obj2, 
+                   bool trigger) {
 
 
   const CallBackID c1(updFcn1, obj1);
@@ -1101,9 +1101,9 @@ SGImplSvc::regFcn( StatusCode (T1::*updFcn1)(IOVSVC_CALLBACK_ARGS),
 template <typename T2>
 StatusCode 
 SGImplSvc::regFcn( const std::string& toolName,
-		      StatusCode (T2::*updFcn2)(IOVSVC_CALLBACK_ARGS), 
-		      const T2* obj2, 
-		      bool trigger) {
+                   StatusCode (T2::*updFcn2)(IOVSVC_CALLBACK_ARGS), 
+                   const T2* obj2, 
+                   bool trigger) {
 
 
   const CallBackID c2(updFcn2, obj2);
@@ -1128,7 +1128,7 @@ SGImplSvc::regFcn( const std::string& toolName,
 template <typename T, class TKEY>
 StatusCode 
 SGImplSvc::retrieveHighestVersion(SG::ObjectWithVersion<T>& dobjWithVersion, 
-				     const TKEY& requestedKey) {
+                                  const TKEY& requestedKey) {
   std::list< SG::ObjectWithVersion<T> > allVersions;
   StatusCode sc(this->retrieveAllVersions(allVersions,requestedKey));
   if (sc.isSuccess()) {
@@ -1148,7 +1148,7 @@ SGImplSvc::retrieveHighestVersion(SG::ObjectWithVersion<T>& dobjWithVersion,
 template <typename T, class TKEY>
 StatusCode
 SGImplSvc::retrieveAllVersions(std::list< SG::ObjectWithVersion<T> >& allVersions,
-		    const TKEY& requestedKey) {
+                               const TKEY& requestedKey) {
   StatusCode sc(StatusCode::FAILURE);
   const DataHandle<T> i,e;
   if ((this->retrieve<T>(i,e)).isSuccess()){
@@ -1156,9 +1156,9 @@ SGImplSvc::retrieveAllVersions(std::list< SG::ObjectWithVersion<T> >& allVersion
     while (i != e) {
       SG::VersionedKey vk(i.key());
       if (reqVK.sameKey(vk)) {
-	sc = StatusCode::SUCCESS;
-	SG::ObjectWithVersion<T> okOWV(vk, i);
-	allVersions.push_back(okOWV);
+        sc = StatusCode::SUCCESS;
+        SG::ObjectWithVersion<T> okOWV(vk, i);
+        allVersions.push_back(okOWV);
       }
       ++i;
     }
@@ -1192,9 +1192,9 @@ SGImplSvc::retrieveAllVersions(std::list< SG::ObjectWithVersion<T> >& allVersion
 */
 template <class TKEY>
 void SGImplSvc::remap (CLID clid,
-                          const TKEY& source,
-                          const TKEY& target,
-                          off_t index_offset)
+                       const TKEY& source,
+                       const TKEY& target,
+                       off_t index_offset)
 {
   this->remap_impl (this->stringToKey (source, clid),
                     this->stringToKey (target, clid),
@@ -1207,7 +1207,7 @@ void SGImplSvc::remap (CLID clid,
  * @brief associate a data object to its auxiliary store
  *        Return false if the aux store is not found.
  * @param key The key to use for the lookup.
-**/
+ **/
 template <class DOBJ, class AUXSTORE>
 bool SGImplSvc::associateAux_impl(DataHandle<DOBJ>& handle, const AUXSTORE*)
 {
@@ -1228,7 +1228,7 @@ bool SGImplSvc::associateAux_impl(DataHandle<DOBJ>& handle, const AUXSTORE*)
  * @brief associate a data object to its auxiliary store
  *        Return false if the aux store is not found.
  * @param key The key to use for the lookup.
-**/
+ **/
 template <class DOBJ, class AUXSTORE>
 bool SGImplSvc::associateAux_impl(const DataHandle<DOBJ>& handle, const AUXSTORE*)
 {
@@ -1249,16 +1249,16 @@ bool SGImplSvc::associateAux_impl(const DataHandle<DOBJ>& handle, const AUXSTORE
  * @brief associate a data object to its auxiliary store
  *        Return false if the aux store is not found.
  * @param key The key to use for the lookup.
-**/
+ **/
 template <class DOBJ>
 bool SGImplSvc::associateAux (DataHandle<DOBJ>& handle, bool ignoreMissing)
 {
   typename SG::AuxStore_traits<DOBJ>::type* pDummy(0); //used to pass down auxstore type
   bool hasAux=associateAux_impl(handle, pDummy) || ignoreMissing;
   if (!hasAux) SG_MSG_WARNING("associateAux const: Could not associate AuxStore of type "  
-			      << SG::AuxStore_traits<DOBJ>::const_typeName()
-			      << "\n to object of type "  << ClassID_traits<DOBJ>::typeName() << "(CLID " 
-			      << ClassID_traits<DOBJ>::ID() << ") with key " << handle.key() << endreq);
+                              << SG::AuxStore_traits<DOBJ>::const_typeName()
+                              << "\n to object of type "  << ClassID_traits<DOBJ>::typeName() << "(CLID " 
+                              << ClassID_traits<DOBJ>::ID() << ") with key " << handle.key() << endreq);
   return hasAux;
 }
 
@@ -1268,9 +1268,9 @@ bool SGImplSvc::associateAux (const DataHandle<DOBJ>& handle, bool ignoreMissing
   typename SG::AuxStore_traits<DOBJ>::const_type* pDummy(0); //used to pass down auxstore type
   bool hasAux=associateAux_impl(handle, pDummy) || ignoreMissing;
   if (!hasAux) SG_MSG_WARNING("associateAux const: Could not associate AuxStore of type "  
-			      << SG::AuxStore_traits<DOBJ>::const_typeName()
-			      << "\n to object of type "  << ClassID_traits<DOBJ>::typeName() << "(CLID " 
-			      << ClassID_traits<DOBJ>::ID() << ") with key " << handle.key() << endreq);
+                              << SG::AuxStore_traits<DOBJ>::const_typeName()
+                              << "\n to object of type "  << ClassID_traits<DOBJ>::typeName() << "(CLID " 
+                              << ClassID_traits<DOBJ>::ID() << ") with key " << handle.key() << endreq);
   return hasAux;
 }
 #endif   // STOREGATE_SGIMPLSVC_ICC

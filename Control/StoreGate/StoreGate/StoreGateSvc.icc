@@ -14,24 +14,24 @@
 
 /// macro to help writing the function calls.
 /// first looks if there is a hive slot defined, otherwise forwards to the "serial" implementation
-#define _SGXCALL(FUN,ARGS,ONERR)				 \
-  if (isHiveStore()) {							\
-    SG::HiveEventSlot* pSlot(StoreGateSvc::currentSlot());		\
+#define _SGXCALL(FUN,ARGS,ONERR)                                        \
+  if (isHiveStore()) {                                                  \
+    SG::HiveEventSlot* pSlot(StoreGateSvc::currentSlot());              \
     SG::HiveEventSlot::mutex_t::scoped_lock lock; lock.acquire(pSlot->storeMutex); \
-    return (0 != pSlot->pEvtStore) ?					\
-      pSlot->pEvtStore->FUN ARGS : ONERR;			\
-  } else { \
-    std::lock_guard<std::recursive_mutex> lock (m_recMutex); \
+    return (0 != pSlot->pEvtStore) ?                                    \
+      pSlot->pEvtStore->FUN ARGS : ONERR;                               \
+  } else {                                                              \
+    std::lock_guard<std::recursive_mutex> lock (m_recMutex);            \
     return m_defaultStore->FUN ARGS; }
 
 /// macro to help writing the function calls
-#define _SGVOIDCALL(FUN,ARGS) \
-  if (isHiveStore()) {							\
-    SG::HiveEventSlot* pSlot(StoreGateSvc::currentSlot());		\
+#define _SGVOIDCALL(FUN,ARGS)                                           \
+  if (isHiveStore()) {                                                  \
+    SG::HiveEventSlot* pSlot(StoreGateSvc::currentSlot());              \
     SG::HiveEventSlot::mutex_t::scoped_lock lock; lock.acquire(pSlot->storeMutex); \
-    if (0 != pSlot->pEvtStore) pSlot->pEvtStore->FUN ARGS;	\
-  } else { \
-    std::lock_guard<std::recursive_mutex> lock (m_recMutex); \
+    if (0 != pSlot->pEvtStore) pSlot->pEvtStore->FUN ARGS;              \
+  } else {                                                              \
+    std::lock_guard<std::recursive_mutex> lock (m_recMutex);            \
     m_defaultStore->FUN ARGS; }
 
 inline
@@ -63,8 +63,8 @@ StoreGateSvc::regHandle( DataHandle<H>& handle, const TKEY& key) {
 template <typename T, typename H, typename TKEY>
 StatusCode 
 StoreGateSvc::regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
-		     const T* obj, const DataHandle<H>& handle, 
-		     const TKEY& key, bool trigger) {
+                     const T* obj, const DataHandle<H>& handle, 
+                     const TKEY& key, bool trigger) {
   _SGXCALL( regFcn, (updFcn, obj, handle, key, trigger), StatusCode::FAILURE );
 }
 
@@ -72,8 +72,8 @@ StoreGateSvc::regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS),
 template <typename T, typename H, typename TKEY>
 StatusCode 
 StoreGateSvc::regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
-		     const T* obj, DataHandle<H>& handle, 
-		     const TKEY& key, bool trigger) {
+                     const T* obj, DataHandle<H>& handle, 
+                     const TKEY& key, bool trigger) {
   _SGXCALL( regFcn, (updFcn, obj, handle, key, trigger), StatusCode::FAILURE );
 }
 
@@ -82,9 +82,9 @@ StoreGateSvc::regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS),
 template <typename T1, typename T2>
 StatusCode 
 StoreGateSvc::regFcn(StatusCode (T1::*fcn1)(IOVSVC_CALLBACK_ARGS), 
-		     const T1* obj1,
-		     StatusCode (T2::*fcn2)(IOVSVC_CALLBACK_ARGS), 
-		     const T2* obj2, bool trigger) {
+                     const T1* obj1,
+                     StatusCode (T2::*fcn2)(IOVSVC_CALLBACK_ARGS), 
+                     const T2* obj2, bool trigger) {
   _SGXCALL( regFcn, (fcn1, obj1, fcn2, obj2, trigger), StatusCode::FAILURE );
 }
 
@@ -93,8 +93,8 @@ StoreGateSvc::regFcn(StatusCode (T1::*fcn1)(IOVSVC_CALLBACK_ARGS),
 template <typename T2>
 StatusCode 
 StoreGateSvc::regFcn(const std::string& toolName,
-		     StatusCode (T2::*fcn2)(IOVSVC_CALLBACK_ARGS), 
-		     const T2* obj2, bool trigger) {
+                     StatusCode (T2::*fcn2)(IOVSVC_CALLBACK_ARGS), 
+                     const T2* obj2, bool trigger) {
   _SGXCALL( regFcn, (toolName, fcn2, obj2, trigger), StatusCode::FAILURE );
 }
 
@@ -151,7 +151,7 @@ StatusCode StoreGateSvc::record(const T* pObject, const TKEY& key)
 //-------------------------------------------------------------------
 template <typename T, typename TKEY> 
 StatusCode StoreGateSvc::record(T* pObject, const TKEY& key, 
-				    bool allowMods, bool resetOnly, bool noHist)
+                                bool allowMods, bool resetOnly, bool noHist)
 {
   _SGXCALL(record, (pObject, key, allowMods, resetOnly, noHist ), StatusCode::FAILURE);
 }
@@ -195,7 +195,7 @@ StatusCode StoreGateSvc::retrieve(T*& ptr, const TKEY& key)
 template <typename T> 
 StatusCode 
 StoreGateSvc::retrieve(SG::ConstIterator<T>& begin, 
-			   SG::ConstIterator<T>& end) {
+                       SG::ConstIterator<T>& end) {
   _SGXCALL(retrieve, (begin, end), StatusCode::FAILURE);
 }
 
@@ -203,7 +203,7 @@ StoreGateSvc::retrieve(SG::ConstIterator<T>& begin,
 /**
  * @brief Retrieve an object of type @c T from storegate.
  *        Return 0 if not found.
-**/
+ **/
 
 template <typename T>
 T* StoreGateSvc::retrieve ()
@@ -215,7 +215,7 @@ T* StoreGateSvc::retrieve ()
  * @brief Retrieve an object of type @c T from storegate.
  *        Return 0 if not found.
  * @param key The key to use for the lookup.
-**/
+ **/
 template <typename T, class TKEY>
 T* StoreGateSvc::retrieve (const TKEY& key)
 {
@@ -225,7 +225,7 @@ T* StoreGateSvc::retrieve (const TKEY& key)
 /**
  * @brief Retrieve an object of type @c T from storegate.
  *        Return 0 if not found.
-**/
+ **/
 template <typename T>
 T* StoreGateSvc::tryRetrieve ()
 {
@@ -242,7 +242,7 @@ const T* StoreGateSvc::tryConstRetrieve()
  * @brief Retrieve an object of type @c T from storegate.
  *        Return 0 if not found. Don't print any WARNINGs
  * @param key The key to use for the lookup.
-**/
+ **/
 template <typename T, class TKEY>
 T* StoreGateSvc::tryRetrieve (const TKEY& key)
 {
@@ -260,7 +260,7 @@ const T* StoreGateSvc::tryConstRetrieve (const TKEY& key)
  *        to its auxiliary store
  *        Return 0 the object or the aux store is not found.
  * @param key The key to use for the lookup.
-**/
+ **/
 template <typename T, class TKEY>
 T* StoreGateSvc::retrieveAux (const TKEY& key)
 {
@@ -314,7 +314,7 @@ StoreGateSvc::transientContains(const CLID& id, const TKEY& key) const
 template <typename T>
 void
 StoreGateSvc::keys(std::vector<std::string>& vkeys, 
-		   bool includeAlias, bool onlyValid) {
+                   bool includeAlias, bool onlyValid) {
   return this->keys(ClassID_traits<T>::ID(), vkeys, includeAlias, onlyValid);
 } 
 
@@ -343,7 +343,7 @@ StatusCode StoreGateSvc::record(std::unique_ptr<const T> pUnique,
 //-------------------------------------------------------------------
 template <typename T, typename TKEY> 
 StatusCode StoreGateSvc::record(std::unique_ptr<T> pUnique, const TKEY& key, 
-				bool allowMods, bool resetOnly, bool noHist)
+                                bool allowMods, bool resetOnly, bool noHist)
 {
   _SGXCALL(record, (std::move(pUnique), key, allowMods, resetOnly, noHist), StatusCode::FAILURE);
 }
@@ -359,7 +359,7 @@ StatusCode StoreGateSvc::overwrite(T* p2BRegistered, const TKEY& key)
 template <typename T, typename TKEY> 
 StatusCode 
 StoreGateSvc::overwrite(T* pObject, const TKEY& key, 
-			  bool allowMods, bool noHist) 
+                        bool allowMods, bool noHist) 
 {
   _SGXCALL(overwrite, (pObject, key, allowMods, noHist), StatusCode::FAILURE);
 }
@@ -388,7 +388,7 @@ StatusCode StoreGateSvc::setAlias(const T* pObject, const AKEY& aKey)
 template <typename T, typename TKEY, typename AKEY>
 StatusCode 
 StoreGateSvc::setAlias(const T* dummy,
- 				  const TKEY& key, const AKEY& aKey)
+                       const TKEY& key, const AKEY& aKey)
 {
   _SGXCALL(setAlias, (dummy, key, aKey), StatusCode::FAILURE);
 }
@@ -428,8 +428,8 @@ StoreGateSvc::remove(const T* pObject) {
   _SGXCALL(remove, (pObject), StatusCode::FAILURE);
 }
 
-/// Remove pObject and its proxy no matter what. 	 
-template <typename T> 	 
+/// Remove pObject and its proxy no matter what.         
+template <typename T>    
 StatusCode 
 StoreGateSvc::removeDataAndProxy(const T* pObject)  {
   _SGXCALL(removeDataAndProxy, (pObject), StatusCode::FAILURE);
@@ -438,14 +438,14 @@ StoreGateSvc::removeDataAndProxy(const T* pObject)  {
 template <typename T, class TKEY>
 StatusCode 
 StoreGateSvc::retrieveHighestVersion(SG::ObjectWithVersion<T>& dobjWithVersion, 
-				     const TKEY& requestedKey) {
+                                     const TKEY& requestedKey) {
   _SGXCALL(retrieveHighestVersion, (dobjWithVersion, requestedKey), StatusCode::FAILURE);
 }
 
 template <typename T, class TKEY>
 StatusCode
 StoreGateSvc::retrieveAllVersions(std::list< SG::ObjectWithVersion<T> >& allVersions,
-		    const TKEY& requestedKey) {
+                                  const TKEY& requestedKey) {
   _SGXCALL(retrieveAllVersions, (allVersions, requestedKey), StatusCode::FAILURE);
 }
 
@@ -468,12 +468,12 @@ StoreGateSvc::retrievePrivateCopy (const std::string& key) {
 template <typename T>
 std::unique_ptr<T> 
 StoreGateSvc::readUniquePrivateCopy (const std::string& key) {
-  if (isHiveStore()) {							
-    SG::HiveEventSlot* pSlot(StoreGateSvc::currentSlot());		
+  if (isHiveStore()) {                                                  
+    SG::HiveEventSlot* pSlot(StoreGateSvc::currentSlot());              
     SG::HiveEventSlot::mutex_t::scoped_lock lock; lock.acquire(pSlot->storeMutex); 
-    return (0 != pSlot->pEvtStore) ?					
+    return (0 != pSlot->pEvtStore) ?                                    
       pSlot->pEvtStore->readUniquePrivateCopy<T>(key) :
-      std::unique_ptr<T>{};			
+      std::unique_ptr<T>{};                     
   } else { 
     std::lock_guard<std::recursive_mutex> lock (m_recMutex); 
     return m_defaultStore->readUniquePrivateCopy<T>(key);
@@ -484,12 +484,12 @@ StoreGateSvc::readUniquePrivateCopy (const std::string& key) {
 template <typename T>
 std::unique_ptr<T> 
 StoreGateSvc::retrieveUniquePrivateCopy (const std::string& key) {
-  if (isHiveStore()) {							
-    SG::HiveEventSlot* pSlot(StoreGateSvc::currentSlot());		
+  if (isHiveStore()) {                                                  
+    SG::HiveEventSlot* pSlot(StoreGateSvc::currentSlot());              
     SG::HiveEventSlot::mutex_t::scoped_lock lock; lock.acquire(pSlot->storeMutex); 
-    return (0 != pSlot->pEvtStore) ?					
+    return (0 != pSlot->pEvtStore) ?                                    
       pSlot->pEvtStore->retrieveUniquePrivateCopy<T>(key) :
-      std::unique_ptr<T>{};			
+      std::unique_ptr<T>{};                     
   } else { 
     std::lock_guard<std::recursive_mutex> lock (m_recMutex); 
     return m_defaultStore->retrieveUniquePrivateCopy<T>(key);
@@ -532,7 +532,7 @@ StoreGateSvc::setProxyProviderSvc(IProxyProviderSvc* pPPSvc) {
  * @brief associate a data object to its auxiliary store
  *        Return false if the aux store is not found.
  * @param key The key to use for the lookup.
-**/
+ **/
 template <class DOBJ>
 bool StoreGateSvc::associateAux (DataHandle<DOBJ>& handle, bool ignoreMissing)
 {
@@ -548,9 +548,9 @@ bool StoreGateSvc::associateAux (const DataHandle<DOBJ>& handle, bool ignoreMiss
 template <class TKEY>
 void 
 StoreGateSvc::remap (CLID clid,
-		     const TKEY& source,
-		     const TKEY& target,
-		     off_t index_offset) {
+                     const TKEY& source,
+                     const TKEY& target,
+                     off_t index_offset) {
   _SGVOIDCALL(remap, (clid, source, target, index_offset));
 }
 
@@ -587,7 +587,7 @@ StoreGateSvc::retrieve(DataHandle<T>& handle, const TKEY& key) {
 template <typename T> 
 StatusCode 
 StoreGateSvc::retrieve(const DataHandle<T>& begin, 
-		       const DataHandle<T>& end) {
+                       const DataHandle<T>& end) {
   _SGXCALL(retrieve, (begin, end), StatusCode::FAILURE);
 }
 

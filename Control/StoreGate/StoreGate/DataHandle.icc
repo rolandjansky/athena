@@ -73,23 +73,23 @@ DataHandle<DATA>::~DataHandle()
 template <class DATA> 
 const DataHandle<DATA>& 
 DataHandle<DATA>::operator++() const //prefix
-{	
+{       
   if (m_proxy) m_proxy->release();
   m_proxy = 0;
   m_ptr = 0;       // reset pointer to perform retrieveObject
 
-// set the iterator to the next valid proxy (or end)
+  // set the iterator to the next valid proxy (or end)
   if (m_useItr && m_itr != m_itrEnd)
-  {
-    while (m_itr != m_itrEnd) {
-      ++m_itr;
-      if (m_itr != m_itrEnd && m_itr->second->isValid() )
-      {
-         m_proxy = (*m_itr).second;
-	 break;
+    {
+      while (m_itr != m_itrEnd) {
+        ++m_itr;
+        if (m_itr != m_itrEnd && m_itr->second->isValid() )
+          {
+            m_proxy = (*m_itr).second;
+            break;
+          }
       }
     }
-  }
 
   if (m_proxy) m_proxy->addRef();
   return *this;
@@ -99,24 +99,24 @@ DataHandle<DATA>::operator++() const //prefix
 template <class DATA> 
 DataHandle<DATA> 
 DataHandle<DATA>::operator++ (int) const //postfix
-{	
+{       
   DataHandle<DATA> ret(*this);
   if (m_proxy) m_proxy->release();
   m_proxy = 0;
   m_ptr = 0;       // reset pointer to perform retrieveObject
 
-// set the iterator to the next valid proxy (or end)
+  // set the iterator to the next valid proxy (or end)
   if (m_useItr && m_itr != m_itrEnd)
-  {
-    while (m_itr != m_itrEnd) {
-      ++m_itr;
-      if (m_itr != m_itrEnd && m_itr->second->isValid() )
-      {
-         m_proxy = m_itr->second;
-	 break;
+    {
+      while (m_itr != m_itrEnd) {
+        ++m_itr;
+        if (m_itr != m_itrEnd && m_itr->second->isValid() )
+          {
+            m_proxy = m_itr->second;
+            break;
+          }
       }
     }
-  }
 
   if (m_proxy) m_proxy->addRef();
   return ret;

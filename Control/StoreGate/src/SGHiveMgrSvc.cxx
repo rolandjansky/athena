@@ -13,9 +13,9 @@ using namespace SG;
 __thread HiveEventSlot* s_current(0);
 
 HiveMgrSvc::HiveMgrSvc(const std::string& name, 
-		       ISvcLocator* svc) : Service(name, svc),
-					   m_hiveStore("StoreGateSvc", name),
-					   m_nSlots(1)
+                       ISvcLocator* svc) : Service(name, svc),
+                                           m_hiveStore("StoreGateSvc", name),
+                                           m_nSlots(1)
 {
   declareProperty("HiveStoreSvc", m_hiveStore);
   declareProperty("NSlots", m_nSlots, "number of event slots");
@@ -87,7 +87,7 @@ size_t HiveMgrSvc::allocateStore( int evtNumber ) {
     } else if (m_slots[index].eventNumber == -1) {
       m_slots[index].eventNumber = evtNumber;
       debug() << "Slot " << index 
-	      << " allocated to event number "<< evtNumber << endmsg;
+              << " allocated to event number "<< evtNumber << endmsg;
       return index;
     }
   }
@@ -135,7 +135,7 @@ bool HiveMgrSvc::newDataObjectsPresent() {
 
 StatusCode HiveMgrSvc::initialize() {
   info() << "Initializing " << name() 
-	 << " - package version " << PACKAGE_VERSION << endreq ;
+         << " - package version " << PACKAGE_VERSION << endreq ;
 
   if ( !(Service::initialize().isSuccess()) )  {
     fatal() << "Unable to initialize base class" << endmsg;
@@ -155,12 +155,12 @@ StatusCode HiveMgrSvc::initialize() {
     std::ostringstream oss;
     oss << i << '_' << m_hiveStore->currentStore()->name();
     if (CloneService::clone(m_hiveStore->currentStore(), oss.str(), child).isSuccess() &&
-	child->initialize().isSuccess() &&
-	0 != (pSG = dynamic_cast<SGImplSvc*>(child)) )
-    {
-      pSG->setSlotNumber (i, m_nSlots);
-      m_slots.push_back(SG::HiveEventSlot(pSG));
-    } else {
+        child->initialize().isSuccess() &&
+        0 != (pSG = dynamic_cast<SGImplSvc*>(child)) )
+      {
+        pSG->setSlotNumber (i, m_nSlots);
+        m_slots.push_back(SG::HiveEventSlot(pSG));
+      } else {
       fatal() << "Unable to clone event store " << oss.str() << endmsg;
       return StatusCode::FAILURE;
     }
@@ -169,7 +169,7 @@ StatusCode HiveMgrSvc::initialize() {
 }
 StatusCode HiveMgrSvc::finalize() {
   info() <<  "Finalizing " << name() 
-	 << " - package version " << PACKAGE_VERSION << endreq ;
+         << " - package version " << PACKAGE_VERSION << endreq ;
 
   for (SG::HiveEventSlot& s : m_slots) {
     // The impl services are not set to active, so ServiceMananger
@@ -185,10 +185,10 @@ StatusCode HiveMgrSvc::queryInterface( const InterfaceID& riid, void** ppvInterf
   if ( IHiveWhiteBoard::interfaceID().versionMatch(riid) )    {
     *ppvInterface = (IHiveWhiteBoard*)this;
   }
-    else  {
-      // Interface is not directly available: try out a base class
-      return Service::queryInterface(riid, ppvInterface);
-    }
+  else  {
+    // Interface is not directly available: try out a base class
+    return Service::queryInterface(riid, ppvInterface);
+  }
   addRef();
   return StatusCode::SUCCESS;
 }

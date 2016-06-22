@@ -1,0 +1,61 @@
+
+
+Initializing Gaudi ApplicationMgr using job opts ../share/VarHandleBase_test.txt
+JobOptionsSvc        INFO # =======> /home/sss/nobackup/atlas/build/../tests/../share/VarHandleBase_test.txt
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc = ["StoreGateSvc/OtherStore"]
+JobOptionsSvc        INFO # (2,1): OtherStore.ProxyProviderSvc = ""
+JobOptionsSvc        INFO Job options successfully read in from ../share/VarHandleBase_test.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v999r999)
+                                          running on karma on Sun Apr 24 21:36:13 2016
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+OtherStore           INFO Initializing OtherStore - package version StoreGate-00-00-00
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 156 CLIDRegistry entries for module ALL
+ClassIDSvc          ERROR uncheckedSetTypePackageForID: PyAnalysisExamples-00-00-00 can not set CLID <86839352> for type name MyObj: Known CLID for this name <293847295> It was set by StoreGate-00-00-00
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+test1
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-00-00-00
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 833 CLIDRegistry entries for module ALL
+ServiceManager      FATAL No Service factory for BazSvc available.
+VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
+                    FATAL FILE:LINE (StatusCode SG::VarHandleKey::initialize()): code 0: m_storeHandle.retrieve()
+ServiceManager      FATAL No Service factory for BazSvc available.
+VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service BazSvc
+                    FATAL FILE:LINE (StatusCode SG::VarHandleKey::initialize()): code 0: m_storeHandle.retrieve()
+test2
+test3
+test4
+ServiceManager      FATAL No Service factory for FooSvc available.
+VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service FooSvc
+                    FATAL FILE:LINE (StatusCode SG::VarHandleKey::initialize()): code 0: m_storeHandle.retrieve()
+VarHandle(FooSv...  FATAL FILE:LINE (StatusCode SG::VarHandleBase::initialize()): code 0: VarHandleKey::initialize()
+test5
+ServiceManager      FATAL No Service factory for FooSvc available.
+VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service FooSvc
+                    FATAL FILE:LINE (StatusCode SG::VarHandleKey::initialize()): code 0: m_storeHandle.retrieve()
+VarHandle(FooSv...  FATAL FILE:LINE (StatusCode SG::VarHandleBase::initialize()): code 0: VarHandleKey::initialize()
+VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key foo
+VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)):  try using a ReadHandle
+test6
+test7
+ServiceManager      FATAL No Service factory for FooSvc available.
+VarHandleKey.Se...  ERROR ServiceLocatorHelper::service: can not locate service FooSvc
+                    FATAL FILE:LINE (StatusCode SG::VarHandleKey::initialize()): code 0: m_storeHandle.retrieve()
+VarHandle(FooSv...  FATAL FILE:LINE (StatusCode SG::VarHandleBase::record_impl(std::unique_ptr<DataObject>, void*, bool, bool)): code 0: VarHandleKey::initialize()
+VarHandle(FooSv...  ERROR FILE:LINE (StatusCode SG::VarHandleBase::record_impl(std::unique_ptr<DataObject>, void*, bool, bool)): code 0: recordObject failed
+VarHandle(FooSv...  ERROR FILE:LINE (StatusCode SG::VarHandleBase::record_impl(std::unique_ptr<DataObject>, void*, bool, bool)): code 0: Attempt to record an object with a null key
+test8
+VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): could not get proxy for key foo
+VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)):  try using a ReadHandle
+VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): Proxy  [293847295/foo] is in an invalid state
+VarHandle(FooSv...WARNING FILE:LINE (void*SG::VarHandleBase::typeless_dataPointer_impl(bool)): Request for an invalid object; requested CLID = 293847295, proxy primary ID is 293847296
+test9
+VarHandleBase @0x7ffcec9b1760 store=FooSvc, clid=293847295, key=foo----------- ptr@0, proxy@0

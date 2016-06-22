@@ -82,7 +82,7 @@ public:
   }
 
   virtual ~DataHandle();  ///< unbind from the proxy before we go
-   //@}
+  //@}
 
   /// \name validity checks
   //@{
@@ -136,7 +136,7 @@ public:
   //@}
 
   /// the CLID of the object we are bound to
-  virtual CLID clid() const { return ClassID_traits<DATA>::ID(); }
+  virtual CLID clid() const override { return ClassID_traits<DATA>::ID(); }
 
   friend
   bool operator==<>(const DataHandle<DATA>& h1,
@@ -156,20 +156,20 @@ private:
 //@{
 template <class DATA>
 bool operator==(const DataHandle<DATA>& h1,
-		const DataHandle<DATA>& h2)
+                const DataHandle<DATA>& h2)
 {
   return (h1.m_proxy == h2.m_proxy); 
 }
 template <class DATA>
 bool operator!=(const DataHandle<DATA>& h1,
-		const DataHandle<DATA>& h2)
+                const DataHandle<DATA>& h2)
 {
   return (h1.m_proxy != h2.m_proxy); 
 }
 //@}
 
 #ifndef STOREGATE_DATAHANDLE_ICC
- #include "StoreGate/DataHandle.icc"
+#include "StoreGate/DataHandle.icc"
 #endif
 
 /* FIXME LEGACY - No dependency on ActiveStoreSvc here, but a number of Muon AtlasEvent packages are 

@@ -10,7 +10,7 @@
 /** @file StorableConversions.h
  * @brief  TEMPORARY forwarding to SGTools
  * @author Paolo Calafiura <pcalafiura@lbl.gov> - ATLAS Collaboration
- *$Id: StorableConversions.h,v 1.7 2003-04-02 23:12:21 calaf Exp $	
+ *$Id: StorableConversions.h,v 1.7 2003-04-02 23:12:21 calaf Exp $      
  */
 # warning deprecated include file: forwarding to SGTools/StorableConversions.h
 #ifndef SGTOOLS_STORABLECONVERSIONS_H

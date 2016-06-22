@@ -29,7 +29,7 @@ template <class TYPE> class SvcFactory;
  **/
 
 class SegMemSvc: public Service,
-	   public IIncidentListener {
+                 public IIncidentListener {
 
 public:
 

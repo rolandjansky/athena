@@ -9,7 +9,7 @@
  ATLAS Collaboration
  ***************************************************************************/
 
-// $Id: SGHive_test.cxx 696018 2015-09-21 16:42:02Z ssnyder $
+// $Id: SGHive_test.cxx 704712 2015-10-29 21:48:11Z leggett $
 
 
 #include <string>
@@ -95,7 +95,7 @@ public:
       rSG.commitNewDataObjects();
       rSG.getNewDataObjects(products).ignore();    
       assert( 1 == products.size() );
-      assert (products.count (DataObjID ("blassed", 81010)) == 1);
+      assert (products.count (DataObjID (81010,"blassed")) == 1);
 
       //add something to store
       assert(rSG.record(new SG::Foo(1), "pFoo1").isSuccess());
@@ -104,7 +104,7 @@ public:
       assert( rSG.newDataObjectsPresent() );
       rSG.getNewDataObjects(products).ignore();    
       assert( 2 == products.size() );
-      assert (products.count (DataObjID ("pFoo1", 81010)) == 1);
+      assert (products.count (DataObjID (81010,"pFoo1")) == 1);
       //we have emptied newdataobject array with call to newDataObjects
       assert( !rSG.newDataObjectsPresent() );
       assert(rSG.record(new SG::Foo(3), "pFoo3").isSuccess());
@@ -112,7 +112,8 @@ public:
       assert( rSG.newDataObjectsPresent() );
       rSG.getNewDataObjects(products).ignore();    
       assert( 1 == products.size() );
-      assert (products.count (DataObjID ("pFoo3", 81010)) == 1);
+      //      assert (products.count (DataObjID (81010,"pFoo3")) == 1);
+      assert (products.count (DataObjID ("SG::Foo","pFoo3")) == 1);
     }
     void testNoSlot() {
       cout << "\n*** SGHive_test noSlot BEGINS ***" << endl;

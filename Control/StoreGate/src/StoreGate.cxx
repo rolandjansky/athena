@@ -26,7 +26,7 @@ getActiveStoreSvc() {
   } else {
 #ifndef NDEBUG
     cerr << __FILE__ << ':' << __LINE__ << ":   "
-	 << "ERROR Could not locate ActiveStoreSvc " <<endl;
+         << "ERROR Could not locate ActiveStoreSvc " <<endl;
 #endif
     return 0;
   }
@@ -44,7 +44,7 @@ getStore() {
   } else {
 #ifndef NDEBUG
     cerr << __FILE__ << ':' << __LINE__ << ":   "
-	 << "ERROR Could not locate active StoreGate " <<endl;
+         << "ERROR Could not locate active StoreGate " <<endl;
 #endif
     return 0;
   }
@@ -60,8 +60,8 @@ getStore(std::string name) throw (std::runtime_error) {
   } else {
 #ifndef NDEBUG
     cerr << __FILE__ << ':' << __LINE__ << ":   "
-	 << "ERROR Could not locate StoreGate "
-	 << "instance named " << name << endl;
+         << "ERROR Could not locate StoreGate "
+         << "instance named " << name << endl;
 #endif
     return 0;
   }
@@ -69,9 +69,7 @@ getStore(std::string name) throw (std::runtime_error) {
 
 StoreGateSvc*
 StoreGate::pointer() {
-  //singleton (a la S. Meyers)
-  static StoreGateSvc* sgService = getStore();
-  return sgService;
+  return getStore();
 }
 
 
@@ -86,22 +84,12 @@ StoreGate::instance() {
 
 ActiveStoreSvc*
 StoreGate::activeStoreSvc() {
-  //singleton (a la S. Meyers)
-  static ActiveStoreSvc* pASG = getActiveStoreSvc();
-  return pASG;
+  return getActiveStoreSvc();
 }
 
 StoreGateSvc*
 StoreGate::pointer(std::string sgID) {
-  //multipleton
-  typedef SG_HASH_MAP_TYPE(std::string, StoreGateSvc*) SGSvcMap;
-  static SGSvcMap svcMap;
-
-  SGSvcMap::iterator iSG = svcMap.find(sgID);      //lookup the store
-
-  return (svcMap.end() == iSG) ?                   //got this one already?
-     (svcMap[sgID] = getStore(sgID)) :   //not there, locate & insert
-     (iSG->second);                                //already there return
+  return getStore(sgID);
 }
 
 

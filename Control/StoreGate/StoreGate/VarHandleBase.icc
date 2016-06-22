@@ -1,0 +1,43 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file StoreGate/VarHandleBase.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Feb, 2016
+ * @brief Property holding a SG store/key/clid from which a WriteHandle is made.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Retrieve an object from StoreGate.
+ * @param quiet If true, suppress failure messages.
+ *
+ * Inline method: first check cached pointer, then call the _impl method.
+ */
+inline
+void* VarHandleBase::typeless_dataPointer(bool quiet/*=defaultQuiet*/)
+{
+  if (m_ptr) { return m_ptr; }
+  return typeless_dataPointer_impl(quiet);
+}
+
+
+/**
+ * @brief Retrieve an object from StoreGate as a const pointer.
+ *
+ * Same as typeless_dataPointer with the return value converted to const.
+ */
+inline
+const void* VarHandleBase::typeless_cptr()
+{
+  return typeless_dataPointer();
+}
+
+
+} // namespace SG
