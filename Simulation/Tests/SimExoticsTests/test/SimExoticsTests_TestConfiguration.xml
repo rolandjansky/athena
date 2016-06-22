@@ -28,7 +28,7 @@
                 <doc>This transform calculates where the gluinos stop in the first step then simulates them starting from those positions in the second step.</doc>
                 <jobTransformJobName>StoppedGluinoSim</jobTransformJobName>
                 <jobTransformCmd>
-                    StoppedParticleG4_tf.py --conditionsTag OFLCOND-MC12-SIM-00 --physicsList QGSP_BERT --maxEvents 50 --outputHITSFile test.HITS.pool.root --inputEVNTFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/StoppedGluino.EVNT.pool.root --geometryVersion ATLAS-GEO-20-00-01 --enableLooperKiller SPGenerator:False SPSim:True --randomSeed SPGenerator:9375655 SPSim:847433
+                    StoppedParticleG4_tf.py --conditionsTag 'OFLCOND-RUN12-SDR-19' --physicsList FTFP_BERT_ATL --maxEvents 50 --outputHITSFile test.HITS.pool.root --inputEVNTFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/StoppedGluino.EVNT.pool.root --geometryVersion 'ATLAS-R2-2015-03-01-00' --DataRunNumber '222525' --enableLooperKiller SPGenerator:False SPSim:True --randomSeed SPGenerator:9375655 SPSim:847433
                 </jobTransformCmd>
                 <group>ExoticGenJobTransforms</group>
                 <queue>long</queue>
@@ -65,7 +65,7 @@ export DATAPATH=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share
                <doc>PYTHIA6 R-Hadrons stable generic stop 600GeV - Simulation</doc>
                <jobTransformJobName>StableRHadronSim114865</jobTransformJobName>
                <jobTransformCmd>
-AtlasG4_tf.py --inputEVNTFile evgen.pool.root --outputHITSFile test.HITS.pool.root --conditionsTag OFLCOND-MC12-SIM-00 --physicsList QGSP_BERT --maxEvents 10 --geometryVersion ATLAS-GEO-20-00-01 --randomSeed 9375655
+AtlasG4_tf.py --inputEVNTFile evgen.pool.root --outputHITSFile test.HITS.pool.root --conditionsTag 'OFLCOND-RUN12-SDR-19' --physicsList FTFP_BERT_ATL --maxEvents 10 --geometryVersion 'ATLAS-R2-2015-03-01-00' --DataRunNumber '222525' --randomSeed 9375655
                </jobTransformCmd>
                <group>ExoticGenJobTransforms</group>
                <chaindataset_info>
@@ -112,7 +112,7 @@ export DATAPATH=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share
                <doc>PYTHIA6 R-Hadrons stable generic sbottom 600GeV - Simulation</doc>
                <jobTransformJobName>StableRHadronSim114875</jobTransformJobName>
                <jobTransformCmd>
-AtlasG4_tf.py --inputEVNTFile evgen.pool.root --outputHITSFile test.HITS.pool.root --conditionsTag OFLCOND-MC12-SIM-00 --physicsList QGSP_BERT --maxEvents 10 --geometryVersion ATLAS-GEO-20-00-01 --randomSeed 9375655
+AtlasG4_tf.py --inputEVNTFile evgen.pool.root --outputHITSFile test.HITS.pool.root --conditionsTag 'OFLCOND-RUN12-SDR-19' --physicsList FTFP_BERT_ATL --maxEvents 10 --geometryVersion 'ATLAS-R2-2015-03-01-00' --DataRunNumber '222525' --randomSeed 9375655
                </jobTransformCmd>
                <group>ExoticGenJobTransforms</group>
                <chaindataset_info>
@@ -159,7 +159,7 @@ export DATAPATH=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share
                <doc>PYTHIA6 R-Hadrons stable generic gluino gball0.1 1000GeV - Simulation</doc>
                <jobTransformJobName>StableRHadronSim176089</jobTransformJobName>
                <jobTransformCmd>
-AtlasG4_tf.py --inputEVNTFile evgen.pool.root --outputHITSFile test.HITS.pool.root --conditionsTag OFLCOND-MC12-SIM-00 --physicsList QGSP_BERT --maxEvents 10 --geometryVersion ATLAS-GEO-20-00-01 --randomSeed 9375655
+AtlasG4_tf.py --inputEVNTFile evgen.pool.root --outputHITSFile test.HITS.pool.root --conditionsTag 'OFLCOND-RUN12-SDR-19' --physicsList FTFP_BERT_ATL --maxEvents 10 --geometryVersion 'ATLAS-R2-2015-03-01-00' --DataRunNumber '222525' --randomSeed 9375655
                </jobTransformCmd>
                <group>ExoticGenJobTransforms</group>
                <chaindataset_info>
@@ -186,44 +186,6 @@ AtlasG4_tf.py --inputEVNTFile evgen.pool.root --outputHITSFile test.HITS.pool.ro
            </chainElement>
         </sequential>
       </chain>
-<!--
-      <chain>
-        <chainName>DecayInFlightGluinos</chainName>
-        <sequential>
-           <chainElement>
-             <jobTransform userJobId="DecayInFlightGluinoEvgen">
-               <doc></doc>
-               <jobTransformJobName>DecayInFlightGluinoEvgen</jobTransformJobName>
-               <jobTransformCmd>
-Generate_trf.py ecmEnergy=8000 runNumber=114685 randomSeed=7744445 firstEvent=1 maxEvents=5500 jobConfig=MC12.114685.Pythia_generic_gluino_prod_600GeV_ttbar.pyoutputEVNTFile=evgen.pool.root</jobTransformCmd>
-               <group>ExoticGenJobTransforms</group>
-               <queue>short</queue>
-             </jobTransform>
-             <chainfileout>evgen.pool.root</chainfileout>
-           </chainElement>
-           <chainElement>
-             <jobTransform userJobId="DecayInFlightGluinoSim">
-               <doc>Gluinos forced to decay to ttbar</doc>
-               <jobTransformJobName>DecayInFlightGluinoSim</jobTransformJobName>
-               <jobTransformCmd>
-                 AtlasG4_trf.py outputHITSFile=test.HITS..pool.root conditionsTag=OFLCOND-MC12-SIM-00 physicsList=QGSP_BERT maxEvents=10 preInclude=SimulationJobOptions/preInclude.DecaysHaas.py inputEVNTFile=evgen.pool.root geometryVersion=ATLAS-GEO-20-00-01 enableLooperKiller=False randomSeed=9375655</jobTransformCmd>
-               <group>ExoticGenJobTransforms</group>
-               <chaindataset_info>
-                 <jobTransformData />
-                 <chaindatasetName>evgen.pool.root</chaindatasetName>
-                 <dataset_info>
-                   <jobTransformData />
-                   <datasetName>/eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/Gluino_decayinflight.EVNT.pool.root</datasetName>
-                 </dataset_info>
-               </chaindataset_info>
-               <queue>long</queue>
-               <batchWallTime>300</batchWallTime>
-             </jobTransform>
-             <chainfileout>test.HITS.pool.root</chainfileout>
-           </chainElement>
-        </sequential>
-      </chain>
--->
 
       <chain>
         <chainName>AMSB_500GeV_Chargino_1ns</chainName>
@@ -245,7 +207,7 @@ export DATAPATH=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share
                <doc>Simulation AMSB 500GeV Charginos 1ns lifetime</doc>
                <jobTransformJobName>AMSB_500GeV_Chargino_1nsSim</jobTransformJobName>
                <jobTransformCmd>
-AtlasG4_tf.py --inputEVNTFile evgen.pool.root --outputHITSFile test.HITS.pool.root --conditionsTag OFLCOND-MC12-SIM-00 --physicsList QGSP_BERT --maxEvents 100 --geometryVersion ATLAS-GEO-20-00-01 --randomSeed 10
+AtlasG4_tf.py --inputEVNTFile evgen.pool.root --outputHITSFile test.HITS.pool.root --conditionsTag 'OFLCOND-RUN12-SDR-19' --physicsList FTFP_BERT_ATL --maxEvents 100 --geometryVersion 'ATLAS-R2-2015-03-01-00' --DataRunNumber '222525' --randomSeed 10
                </jobTransformCmd>
                <group>ExoticGenJobTransforms</group>
                <chaindataset_info>
@@ -293,7 +255,7 @@ export DATAPATH=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share
                <doc>Simulation Monopole</doc>
                <jobTransformJobName>Monopole_Sim</jobTransformJobName>
                <jobTransformCmd>
-AtlasG4_tf.py --inputEVNTFile evgen.pool.root --outputHITSFile test.HITS.pool.root --conditionsTag OFLCOND-MC12-SIM-00 --physicsList QGSP_BERT --maxEvents 100 --geometryVersion ATLAS-GEO-20-00-01 --randomSeed 10
+AtlasG4_tf.py --inputEVNTFile evgen.pool.root --outputHITSFile test.HITS.pool.root --conditionsTag 'OFLCOND-RUN12-SDR-19' --physicsList FTFP_BERT_ATL --maxEvents 100 --geometryVersion 'ATLAS-R2-2015-03-01-00' --DataRunNumber '222525' --randomSeed 10
                </jobTransformCmd>
                <group>ExoticGenJobTransforms</group>
                <chaindataset_info>
