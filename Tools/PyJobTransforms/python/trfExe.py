@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 750283 2016-05-27 12:30:08Z graemes $
+# @version $Id: trfExe.py 754078 2016-06-10 08:42:09Z mavogel $
 
 import copy
 import json
@@ -46,13 +46,10 @@ class executorConfig(object):
     #  @param argdict Argument dictionary for this executor
     #  @param dataDictionary Mapping from input data names to argFile instances
     #  @param firstExecutor Boolean set to @c True if we are the first executor 
-    #  @param disableMP Ensure that AthenaMP is not used (i.e., also unset 
-    #  @c ATHENA_PROC_NUMBER before execution)
-    def __init__(self, argdict={}, dataDictionary={}, firstExecutor=False, disableMP=False):
+    def __init__(self, argdict={}, dataDictionary={}, firstExecutor=False):
         self._argdict = argdict
         self._dataDictionary = dataDictionary
         self._firstExecutor = firstExecutor
-        self._disableMP = disableMP
        
     @property
     def argdict(self):
@@ -77,14 +74,6 @@ class executorConfig(object):
     @firstExecutor.setter
     def firstExecutor(self, value):
         self._firstExecutor = value
-        
-    @property
-    def disableMP(self):
-        return self._disableMP
-    
-    @disableMP.setter
-    def disableMP(self, value):
-        self._disableMP = value
         
     ## @brief Set configuration properties from the parent transform
     #  @note  It's not possible to set firstExecutor here as the transform holds
@@ -689,6 +678,8 @@ class athenaExecutor(scriptExecutor):
     #  executor to the workflow graph, run the executor manually with these data parameters (useful for 
     #  post-facto executors, e.g., for AthenaMP merging)
     #  @param memMonitor Enable subprocess memory monitoring
+    #  @param disableMP Ensure that AthenaMP is not used (i.e., also unset 
+    #  @c ATHENA_PROC_NUMBER before execution)
     #  @note The difference between @c extraRunargs, @runtimeRunargs and @literalRunargs is that: @c extraRunargs 
     #  uses repr(), so the RHS is the same as the python object in the transform; @c runtimeRunargs uses str() so 
     #  that a string can be interpreted at runtime; @c literalRunargs allows the direct insertion of arbitary python
@@ -697,7 +688,7 @@ class athenaExecutor(scriptExecutor):
                  outData = set(), inputDataTypeCountCheck = None, exe = 'athena.py', exeArgs = ['athenaopts'], substep = None, inputEventTest = True,
                  perfMonFile = None, tryDropAndReload = True, extraRunargs = {}, runtimeRunargs = {},
                  literalRunargs = [], dataArgs = [], checkEventCount = False, errorMaskFiles = None,
-                 manualDataDictionary = None, memMonitor = True):
+                 manualDataDictionary = None, memMonitor = True, disableMP = False):
         
         self._substep = forceToAlphaNum(substep)
         self._inputEventTest = inputEventTest
@@ -708,6 +699,7 @@ class athenaExecutor(scriptExecutor):
         self._dataArgs = dataArgs
         self._errorMaskFiles = errorMaskFiles
         self._inputDataTypeCountCheck = inputDataTypeCountCheck
+        self._disableMP = disableMP
 
         if perfMonFile:
             self._perfMonFile = None
@@ -727,7 +719,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 750283 2016-05-27 12:30:08Z graemes $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 754078 2016-06-10 08:42:09Z mavogel $')
         else:
             self._jobOptionsTemplate = None
 
@@ -742,6 +734,14 @@ class athenaExecutor(scriptExecutor):
     @property
     def substep(self):
         return self._substep
+
+    @property
+    def disableMP(self):
+        return self._disableMP
+    
+    @disableMP.setter
+    def disableMP(self, value):
+        self._disableMP = value
         
     def preExecute(self, input = set(), output = set()):
         msg.debug('Preparing for execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
@@ -790,7 +790,7 @@ class athenaExecutor(scriptExecutor):
             expectedEvents = 0
         
         # Try to detect AthenaMP mode and number of workers
-        if self.conf._disableMP:
+        if self._disableMP:
             self._athenaMP = 0
         else:
             self._athenaMP = detectAthenaMPProcs(self.conf.argdict)
@@ -1068,15 +1068,15 @@ class athenaExecutor(scriptExecutor):
                     if currentSubstep is not None:
                         self.conf.argdict['athenaopts'].value[currentSubstep].append("--preloadlib={0}".format(self._envUpdate.value('LD_PRELOAD')))
                     else:
-                        self.conf.argdict['ahtenaopts'].value['all'] = ["--preloadlib={0}".format(self._envUpdate.value('LD_PRELOAD'))]
+                        self.conf.argdict['athenaopts'].value['all'] = ["--preloadlib={0}".format(self._envUpdate.value('LD_PRELOAD'))]
                 else:
                     self.conf.argdict['athenaopts'] = trfArgClasses.argSubstepList(["--preloadlib={0}".format(self._envUpdate.value('LD_PRELOAD'))])
 
         # Now update command line with the options we have (including any changes to preload)
         if 'athenaopts' in self.conf.argdict:
-            if currentSubstep is None:
+            if currentSubstep is None and "all" in self.conf.argdict['athenaopts'].value:
                 self._cmd.extend(self.conf.argdict['athenaopts'].value['all'])
-            else:
+            elif currentSubstep in self.conf.argdict['athenaopts'].value:
                 self._cmd.extend(self.conf.argdict['athenaopts'].value[currentSubstep])
         
         ## Add --drop-and-reload if possible (and allowed!)
@@ -1153,7 +1153,7 @@ class athenaExecutor(scriptExecutor):
                     print >>wrapper, 'export CORAL_DBLOOKUP_PATH={directory}'.format(directory = path.join(dbroot, 'XMLConfig'))
                     print >>wrapper, 'export TNS_ADMIN={directory}'.format(directory = path.join(dbroot, 'oracle-admin'))
                     print >>wrapper, 'DATAPATH={dbroot}:$DATAPATH'.format(dbroot = dbroot)
-                if self.conf._disableMP:
+                if self._disableMP:
                     print >>wrapper, "# AthenaMP explicitly disabled for this executor"
                     print >>wrapper, "export ATHENA_PROC_NUMBER=0"
                 if self._envUpdate.len > 0:
