@@ -55,6 +55,8 @@
 
 </shapes>
 
+<logvol name="EC_PolyMod" shape="shEC_PolyMod" material="BoratedPolyethylene"/>
+
 <logvol name="PolyModOCEnvelope" shape="shPolyModOCEnvelope" material="N2">
 
   <logvol name="OC_InnerFace" shape="shOC_InnerFace" material="CFRP"/>
@@ -62,7 +64,6 @@
   <logvol name="OC_Core"      shape="shOC_Core"      material="Honeycomb10pcf"/>
 
   <logvol name="PolyMod"    shape="shPolyMod"    material="BoratedPolyethylene"/>
-  <logvol name="EC_PolyMod" shape="shEC_PolyMod" material="BoratedPolyethylene"/>
 
 </logvol>
 
