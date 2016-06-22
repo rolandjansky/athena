@@ -122,7 +122,13 @@ class TrigHLTJetHypo : public HLT::HypoAlgo {
   float m_hecqLlpThreshold;
   float m_avLarQFLlpThreshold;
 
-  // std::shared_ptr<ICleaner> m_cleaner;
+  //Heavy Particle 2016
+  double m_innerMassMin0;
+  double m_innerMassMax0;
+  double m_innerMassMin1;
+  double m_innerMassMax1;
+  double m_outerMassMin;
+  double m_outerMassMax;
 
   // Timing:
 

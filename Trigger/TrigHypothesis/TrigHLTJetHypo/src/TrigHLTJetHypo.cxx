@@ -66,6 +66,14 @@ TrigHLTJetHypo::TrigHLTJetHypo(const std::string& name,
   declareProperty("mass_maxs", m_massMaxs);
   declareProperty("jetvec_indices",   m_jetvec_indices);
 
+  // Heavy object parameters
+  declareProperty("innerMassMin0", m_innerMassMin0);
+  declareProperty("innerMassMax0", m_innerMassMax0);
+  declareProperty("innerMassMin1", m_innerMassMin1);
+  declareProperty("innerMassMax1", m_innerMassMax1);
+  declareProperty("outerMassMin", m_outerMassMin);
+  declareProperty("outerMassMax", m_outerMassMax);
+
   // cleaning
   declareProperty("cleaningAlg", m_cleaningAlg = "noCleaning");
 
