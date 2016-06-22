@@ -19,7 +19,7 @@
 #include <string>
 #include <fstream>
 
-
+#include "xAODEventInfo/EventInfo.h"
 
 //#define PIXEL_DEBUG ;
 
@@ -265,8 +265,22 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
     // ============== ============== ============== ============== ============== ============== ============== ============== //
     // loop over the data in the fragment
+    bool corruptionError = false;
     for (uint32_t dataword_it = 0; dataword_it < dataword_it_end; ++dataword_it) {   // loop over ROD
         rawDataWord = vint[dataword_it];   // set the dataword to investigate
+	if (rawDataWord==0xaa1234aa){
+	  generalwarning("Evt marker encountered during loop on ROD datawords");
+	  corruptionError = true;
+	  break;
+	} else if (rawDataWord==0xdd1234dd){
+	  generalwarning("ROB marker encountered during loop on ROD datawords");
+	  corruptionError = true;
+	  break;
+	} else if (rawDataWord==0xee1234ee){
+	  generalwarning("ROD marker encountered during loop on ROD datawords");
+	  corruptionError = true;
+	  break;
+	}
         uint32_t word_type = getDataType(rawDataWord,link_start);   // get type of data word
         unsigned int headererror;
         int trailererror;
@@ -1091,6 +1105,19 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
         } // end of switch
     }   // end of loop over ROD
+
+    if (corruptionError) {
+      //Set EventInfo error
+      const xAOD::EventInfo* ei_cst=nullptr;
+      ATH_CHECK(evtStore()->retrieve(ei_cst));
+      xAOD::EventInfo* eventInfo=const_cast< xAOD::EventInfo* >(ei_cst);
+      if (!eventInfo->setErrorState(xAOD::EventInfo::Pixel,xAOD::EventInfo::Error)) {
+	msg(MSG::WARNING) << " cannot set EventInfo error state for Pixel " << endreq;
+      }
+      if (!eventInfo->setEventFlagBit(xAOD::EventInfo::Pixel,0x1)) { //FIXME an enum at some appropriate place to indicating 0x1 as 
+	msg(MSG::WARNING) << " cannot set flag bit for Pixel " << endreq;
+      }
+    } // end if corruption error 
 
 
     // Verify that all active IBL FEs sent the same number of headers
