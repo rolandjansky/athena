@@ -33,7 +33,7 @@
             <doc>All slices, ttbar events, pu46, run2 chains</doc>
             <displayName>All slices, ttbar, pu46, run2 chains</displayName>
 	    <commandLineFlags>EventMax=1000;runMergedChain=True;doIDNewTracking=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_AllSlices</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_AllSlices</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -212,7 +212,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -315,7 +315,7 @@
            <doc>Jpsie3e3, pu0, run2 chains</doc>
            <displayName>ElectronSlice-Jpsie3e3, pu40, run2 chains</displayName>
            <commandLineFlags>EventMax=10000;runMergedChain=True</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
@@ -401,7 +401,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -503,7 +503,7 @@
             <doc>Single part electron test 7-80 GeV, larged0</doc>
             <displayName>ElectronSlice single particle e 7-80 GeV, larged0</displayName>
 	    <commandLineFlags>EventMax=6000;runMergedChain=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -625,7 +625,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -727,7 +727,7 @@
             <doc>Single part electron test 7-80 GeV, larged0</doc>
             <displayName>ElectronSlice single particle e 7-80 GeV, larged0</displayName>
 	    <commandLineFlags>EventMax=6000;runMergedChain=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -844,7 +844,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -949,7 +949,7 @@
            <doc>Zee, pu40, IBL, run2 chains</doc>
            <displayName>Zee pu40, IBL, run2 chains</displayName>
            <commandLineFlags>EventMax=5000;runMergedChain=True</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
@@ -1064,7 +1064,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -1166,7 +1166,7 @@
            <doc>Zee, pu40, IBL, run2 chains</doc>
            <displayName>Zee pu40, IBL, run2 chains</displayName>
            <commandLineFlags>EventMax=2500;runMergedChain=True;doIDNewTracking=True;PdgId=11</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
@@ -1280,7 +1280,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -1382,7 +1382,7 @@
            <doc>Zee, pu40, IBL, run2 chains</doc>
            <displayName>Zee pu40, IBL, run2 chains</displayName>
            <commandLineFlags>EventMax=2500;runMergedChain=True;doIDNewTracking=True;PdgId=11</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
@@ -1496,7 +1496,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -1598,7 +1598,7 @@
            <doc>Zee, pu40, IBL, run2 chains</doc>
            <displayName>Zee pu40, IBL, run2 chains</displayName>
            <commandLineFlags>EventMax=5000;runMergedChain=True;PdgId=11</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
@@ -1712,7 +1712,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -1810,37 +1810,17 @@
 
 
 
-	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_ttbar_pu46'>
+	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_ttbar_pu40'>
            <doc>ttbar, pu40, run2 chains</doc>
            <displayName>ttbar pu40, run2 chains</displayName>
            <commandLineFlags>EventMax=8000;runMergedChain=True</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
 
 
-          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000005.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000143.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000174.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000176.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000269.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000291.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000332.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000340.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000375.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000476.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000604.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000647.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000664.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000671.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000678.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000697.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000711.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000714.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000718.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000754.pool.root.1</dataset>
-
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e4032_s2608_s2183_r7430/RDO.07255566._000001.pool.root.1</dataset>
 
 	   
            <action position="01">
@@ -1866,7 +1846,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu46-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu40-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots  </argvalue>
               </arg>
             </action>
 
@@ -1880,7 +1860,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu46-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu40-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots  </argvalue>
               </arg>
             </action>
 
@@ -1894,7 +1874,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu46-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu40-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -1907,7 +1887,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu46-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu40-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -1938,7 +1918,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -2014,8 +1994,8 @@
            </testToRemove>
 	   
 
-           <auxFilePattern>data-el_ttbar_pu46-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_ttbar_pu46-ref.root</auxFilePattern>
+           <auxFilePattern>data-el_ttbar_pu40-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-el_ttbar_pu40-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -2036,50 +2016,21 @@
 
 
 
-	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_ttbar_pu69'>
-           <doc>ttbar, pu69, run2 chains</doc>
-           <displayName>ttbar pu69, run2 chains</displayName>
-           <commandLineFlags>EventMax=5000;runMergedChain=True</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_ttbar_pu80'>
+           <doc>ttbar, pu80, run2 chains</doc>
+           <displayName>ttbar pu80, run2 chains</displayName>
+           <commandLineFlags>EventMax=8000;runMergedChain=True</commandLineFlags>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
 
 
-          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000009.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000036.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000037.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000089.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000095.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000138.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000162.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000180.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000182.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000185.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000186.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000201.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000212.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000247.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000278.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000283.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000335.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000386.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000400.pool.root.2</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000435.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000446.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000457.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000470.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000474.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000475.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000478.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000502.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000510.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000535.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000550.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000551.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000552.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d602_tid579396_00/RDO.579396._000562.pool.root.1</dataset>
-	  
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e4032_s2608_s2183_r7432/RDO.07268362._000008.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e4032_s2608_s2183_r7432/RDO.07268362._000009.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e4032_s2608_s2183_r7432/RDO.07268362._000010.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e4032_s2608_s2183_r7432/RDO.07268362._000011.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e4032_s2608_s2183_r7432/RDO.07268362._000012.pool.root.1</dataset>
 
 	   
            <action position="01">
@@ -2095,7 +2046,6 @@
              </arg>
            </action>
 	   
-	   
 
      <action position="02">
               <modulename>RttLibraryTools</modulename> 
@@ -2106,7 +2056,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu69-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu80-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots  </argvalue>
               </arg>
             </action>
 
@@ -2120,7 +2070,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu69-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu80-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots  </argvalue>
               </arg>
             </action>
 
@@ -2134,7 +2084,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu69-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu80-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -2147,7 +2097,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu69-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu80-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -2178,7 +2128,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -2254,8 +2204,8 @@
            </testToRemove>
 	   
 
-           <auxFilePattern>data-el_ttbar_pu69-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_ttbar_pu69-ref.root</auxFilePattern>
+           <auxFilePattern>data-el_ttbar_pu80-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-el_ttbar_pu80-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -2276,39 +2226,17 @@
 
 
 
-
-
-	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_ttbar_pu138'>
-           <doc>ttbar, pu138, run2 chains</doc>
-           <displayName>ttbar pu138, run2 chains</displayName>
-           <commandLineFlags>EventMax=400;runMergedChain=True</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
+	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_ttbar_pu100'>
+           <doc>ttbar, pu100, run2 chains</doc>
+           <displayName>ttbar pu100, run2 chains</displayName>
+           <commandLineFlags>EventMax=8000;runMergedChain=True</commandLineFlags>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
 
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842506_00/RDO.00842506._000011.pool.root.2</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842506_00/RDO.00842506._000080.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842506_00/RDO.00842506._000088.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842506_00/RDO.00842506._000273.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842506_00/RDO.00842506._000302.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842506_00/RDO.00842506._000335.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842506_00/RDO.00842506._000521.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842506_00/RDO.00842506._000566.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000617.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000638.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000694.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000732.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000733.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000784.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000824.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000848.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000866.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000909.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000980.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d672_tid00842507_00/RDO.00842507._000993.pool.root.1</dataset>
-	    
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e4032_s2608_s2183_r7430/RDO.07255566._000001.pool.root.1</dataset>
 
 	   
            <action position="01">
@@ -2324,7 +2252,7 @@
              </arg>
            </action>
 	   
-	
+
      <action position="02">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
@@ -2334,7 +2262,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu138-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu100-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots  </argvalue>
               </arg>
             </action>
 
@@ -2348,7 +2276,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu138-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu100-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots  </argvalue>
               </arg>
             </action>
 
@@ -2362,7 +2290,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu138-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu100-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -2375,7 +2303,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_ttbar_pu138-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
+                <argvalue>data-electron-merge.root data-el_ttbar_pu100-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
               </arg>
             </action>
 
@@ -2406,7 +2334,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -2482,8 +2410,8 @@
            </testToRemove>
 	   
 
-           <auxFilePattern>data-el_ttbar_pu138-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_ttbar_pu138-ref.root</auxFilePattern>
+           <auxFilePattern>data-el_ttbar_pu100-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-el_ttbar_pu100-ref.root</auxFilePattern>
 
 
             <auxFilePattern>TIDA*.dat</auxFilePattern>
@@ -2509,7 +2437,7 @@
             <doc> Cosmic slice test</doc>
             <displayName>CosmicSlice</displayName>
 	    <commandLineFlags>EventMax=5000;</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_CosmicSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_CosmicSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -2582,7 +2510,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -2683,7 +2611,7 @@
             <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
             <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
 	    <commandLineFlags>EventMax=900;runMergedChain=True;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_BjetSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -2767,7 +2695,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -2871,7 +2799,7 @@
             <doc>Bjetslice, ttbar, pu40, IBL, run2 chains, vs offline</doc>
             <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains, vs offline</displayName>
 	    <commandLineFlags>EventMax=900;doIDNewTracking=True;runMergedChain=True;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_BjetSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -2955,7 +2883,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -3060,7 +2988,7 @@
            <doc>TauSlice, H->tautau IBL sample, pu46, run2 chains</doc>
            <displayName>TauSlice, H->tautau IBL sample, pu46, run2 chains</displayName>
            <commandLineFlags>EventMax=4000;runMergedChain=True</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_TauSlice</options>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
@@ -3157,7 +3085,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -3257,7 +3185,7 @@
            <doc>TauSlice, H->tautau IBL sample, pu46, run2 chains</doc>
            <displayName>TauSlice, H->tautau IBL sample, pu46, run2 chains</displayName>
            <commandLineFlags>EventMax=2000;runMergedChain=True;doIDNewTracking=True;PdgId=15</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_TauSlice</options>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
@@ -3354,7 +3282,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -3455,7 +3383,7 @@
             <doc>Single muon 100 GeV, run2 chains </doc>
             <displayName>MuonSlice-single muon larged0, pu0, run2 chains</displayName>
             <commandLineFlags>EventMax=5000;runMergedChain=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -3547,7 +3475,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -3649,7 +3577,7 @@
             <doc>Single muon 100 GeV, run2 chains </doc>
             <displayName>MuonSlice-single muon larged0, pu, run2 chains</displayName>
             <commandLineFlags>EventMax=5000;runMergedChain=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -3742,7 +3670,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -3845,7 +3773,7 @@
             <doc>Z->mumu pu40, IBL, run2 chains</doc>
             <displayName>MuonSlice, Z->mumu, pu40, IBL, run2 chains</displayName>
 	    <commandLineFlags>EventMax=2500;runMergedChain=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -3933,7 +3861,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -4034,7 +3962,7 @@
             <doc>Z->mumu pu40, IBL, run2 chains</doc>
             <displayName>MuonSlice, Z->mumu, pu40, IBL, run2 chains</displayName>
 	    <commandLineFlags>EventMax=2000;runMergedChain=True;doIDNewTracking=True;PdgId=13</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -4121,7 +4049,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -4222,7 +4150,7 @@
             <doc>Z->mumu pu40, IBL, run2 chains</doc>
             <displayName>MuonSlice, Z->mumu, pu40, IBL, run2 chains</displayName>
 	    <commandLineFlags>EventMax=2000;runMergedChain=True;doIDNewTracking=True;PdgId=13</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -4310,7 +4238,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -4411,7 +4339,7 @@
             <doc>Z->mumu pu40, IBL, run2 chains</doc>
             <displayName>MuonSlice, Z->mumu, pu40, IBL, run2 chains</displayName>
 	    <commandLineFlags>EventMax=2500;runMergedChain=True;PdgId=13</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -4499,7 +4427,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -4601,7 +4529,7 @@
             <doc>Muon slice B->Jpsi->mumu IBL sample, run2 chains</doc>
             <displayName>MuonSlice, B->Jpsi->mumu IBL , run2 chains</displayName>
 	    <commandLineFlags>EventMax=5000;runMergedChain=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -4680,7 +4608,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -4783,7 +4711,7 @@
             <doc>Tests LVL2 and EF ID full scan instance of tracking algorithms in the di-jet sample</doc>
             <displayName>FullScan on di-jet events</displayName>
 	    <commandLineFlags>EventMax=1000;</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MonitorSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MonitorSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -4873,7 +4801,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -4974,7 +4902,7 @@
             <doc>Tests ID full scan tracking in the di-jet sample vs offline</doc>
             <displayName>FullScan on di-jet event vs offlines</displayName>
 	    <commandLineFlags>EventMax=1000;doIDNewTracking=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MonitorSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MonitorSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -5064,7 +4992,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -5167,7 +5095,7 @@
             <doc>Muon slice FTK ttbar sample</doc>
             <displayName>MuonSlice FTK ttbar sample</displayName>
 	    <commandLineFlags>EventMax=5000;runMergedChain=True;doFTK=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -5281,7 +5209,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -5382,7 +5310,7 @@
             <doc>Tau slice FTK tautau sample</doc>
             <displayName>TauSlice FTK tautau sample</displayName>
 	    <commandLineFlags>EventMax=5000;runMergedChain=True;doFTK=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_TauSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -5470,7 +5398,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
@@ -5571,7 +5499,7 @@
             <doc>Bjetslice, ttbar, FTK chains</doc>
             <displayName>BjetSlice, ttbar, FYK chains</displayName>
 	    <commandLineFlags>EventMax=500;runMergedChain=True;doFTK=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_BjetSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
@@ -5657,7 +5585,7 @@
               </arg> 
               <arg> 
                 <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
+                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals </argvalue>
               </arg> 
             </action>
 
