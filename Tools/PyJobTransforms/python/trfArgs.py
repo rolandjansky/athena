@@ -3,7 +3,7 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 725567 2016-02-22 17:38:18Z mavogel $
+#  @version $Id: trfArgs.py 755761 2016-06-17 13:26:21Z mavogel $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -17,7 +17,6 @@ from PyJobTransforms.trfLogger import stdLogLevels
 def addStandardTrfArgs(parser):
     parser.add_argument('--verbose', '--debug', action='store_true', help='Set transform loglevel to DEBUG')
     parser.add_argument('--loglevel', choices=stdLogLevels.keys(), help='Set transform logging level')
-    parser.add_argument('--argdict', metavar='FILE', help='File containing pickled argument dictionary')
     parser.add_argument('--argJSON', '--argjson', metavar='FILE', help='File containing JSON serialised argument dictionary')
     parser.add_argument('--dumpargs', action='store_true', help='Dump transform arguments and exit')
     parser.add_argument('--showGraph', action='store_true', help='Show multi-step transform graph, then exit')
@@ -92,16 +91,21 @@ def addAthenaArguments(parser, maxEventsDefaultSubstep='first', addValgrind=True
                         metavar='dataType:targetSizeInMegaBytes', nargs='+', group='Athena',
                         help='Set the target merge size for an AthenaMP output file type (give size in MB). '
                         'Note that the special value 0 means do not merge this output file; negative values mean '
-                        'always merge to a single file. Note that the datatype "ALL" will be used as a default '
-                        'for all datatypes not explicitly given their own value.')
-    parser.add_argument('--athenaMPStrategy', type=trfArgClasses.argFactory(trfArgClasses.argSubstep), nargs='+',
-                        metavar='substep:Strategy', group='Athena',
+                        'always merge to a single file. Globbing is supported, e.g. "DESD_*:500" is understood. '
+                        'Special datatype "ALL" can be used as a default for all datatypes not explicitly '
+                        'given their own value or glob matched.')
+    parser.add_argument('--athenaMPStrategy', type=trfArgClasses.argFactory(trfArgClasses.argSubstep, runarg=False), 
+                        nargs='+', metavar='substep:Strategy', group='Athena',
                         help='Set the AthenaMP scheduling strategy for a particular substep. Default is unset, '
                         'except when n_inputFiles = n_workers, when it is "FileScheduling" (useful for '
                         'ephemeral outputs).')
     parser.add_argument('--athenaMPUseEventOrders', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=False),
                         metavar='BOOL', group='Athena',
-                        help='Force AthenaMP to read event numbers from event orders files')
+                        help='Change AthenaMP setup to read event numbers from event orders files')
+    parser.add_argument('--athenaMPEventsBeforeFork', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=False),
+                        metavar='N', group='Athena',
+                        help='Set AthenaMP to fork after processing N events (default is to fork immediately after '
+                        'initialisation')
     if addValgrind:
         addValgrindArguments(parser)
 
@@ -179,13 +183,19 @@ def addMetadataArguments(parser):
 # @param pick Optional list of DPD types to add (use short names, e.g., @c DESDM_MUON)
 # @param transform Transform object. DPD data types will be added to the correct executor (by name or substep)
 # @param multipleOK If the @c multipleOK flag should be set for this argument
+# @param RAWtoALL Flag if DPDs should be made direct from bytestream, instead of 'classic' workflow
 #@silent
-def addPrimaryDPDArguments(parser, pick = None, transform = None, multipleOK=False):
+def addPrimaryDPDArguments(parser, pick = None, transform = None, multipleOK=False, RAWtoALL=False):
     parser.defineArgGroup('Primary DPDs', 'Primary DPD File Options')
     # list* really gives just a list of DPD names
     try:
         from PrimaryDPDMaker.PrimaryDPDFlags import listRAWtoDPD,listESDtoDPD,listAODtoDPD
-        for substep, dpdList in [(['r2e'], listRAWtoDPD), (['e2d'], listESDtoDPD), (['a2d'], listAODtoDPD)]:
+        if RAWtoALL:
+            listRAWtoDPD.extend(listESDtoDPD)
+            matchedOutputList = [(['r2a'], listRAWtoDPD), (['a2d'], listAODtoDPD)]
+        else:
+            matchedOutputList = [(['r2e'], listRAWtoDPD), (['e2d'], listESDtoDPD), (['a2d'], listAODtoDPD)]
+        for substep, dpdList in matchedOutputList:
             for dpdName in [ dpd.replace('Stream', '') for dpd in dpdList ]:
                 msg.debug('Handling {0}'.format(dpdName))
                 if pick == None or dpdName in pick:
@@ -411,6 +421,9 @@ def getExtraDPDList(NTUPOnly = False):
     extraDPDs.append(dpdType('NTUP_MCPTP', substeps=['a2d'], help="Ntuple file for MCP Tag and Probe"))
     extraDPDs.append(dpdType('NTUP_MCPScale', substeps=['a2d'], help="Ntuple file for MCP scale calibration"))
 
+    extraDPDs.append(dpdType('NTUP_FastCaloSim', substeps=['e2d']))
+    extraDPDs.append(dpdType('NTUP_MUONCALIB', substeps=['r2a']))
+
     # Trigger NTUPs (for merging only!)
     if NTUPOnly:
         extraDPDs.append(dpdType('NTUP_TRIGCOST', treeNames=['trig_cost']))
@@ -509,7 +522,7 @@ def addTriggerArguments(parser, addTrigFilter=True):
                         help='Trigger configuration string (substep aware argument - default is to run trigger in RDOtoRDOTrigger step, '
                         'use syntax SUBSTEP=TRIGCONF if you want to run trigger somewhere else). '
                         'N.B. This argument uses EQUALS (=) to separate the substep name from the value.', 
-                        group='Trigger')
+                        group='Trigger', nargs='+')
     if addTrigFilter:
         parser.add_argument('--trigFilterList',
                             type=argFactory(trfArgClasses.argList), nargs="+",

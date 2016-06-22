@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfUtils
 # @brief Transform utility functions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfUtils.py 712411 2015-12-03 16:46:19Z mavogel $
+# @version $Id: trfUtils.py 743527 2016-04-28 11:27:16Z graemes $
 
 import os
 import os.path as path
@@ -221,28 +221,24 @@ def call(args, bufsize=0, executable=None, stdin=None, preexec_fn=None, close_fd
 ## @brief Return a string with a report of the current athena setup
 def asetupReport():
     setupMsg = str()
-    for eVar in ('AtlasBaseDir', 'AtlasProject', 'AtlasVersion', 'AtlasPatch', 'AtlasPatchVersion', 'CMTCONFIG', 'TestArea'):
+    eVars = ['AtlasBaseDir', 'AtlasProject', 'AtlasVersion', 'AtlasPatch', 'AtlasPatchVersion', 'CMTCONFIG', 'TestArea']
+    if "AtlasProject" in os.environ:
+        CMake_Platform = "{0}_PLATFORM".format(os.environ["AtlasProject"])
+        if CMake_Platform in os.environ:
+            eVars.remove("CMTCONFIG")
+            eVars.append(CMake_Platform)
+    for eVar in eVars:
         if eVar in os.environ:
             setupMsg += '\t%s=%s\n' % (eVar, os.environ[eVar])
-        else:
-            setupMsg+ '\t%s undefined\n' % eVar
     # Look for patches so that the job can be rerun 
     if 'TestArea' in os.environ and os.access(os.environ['TestArea'], os.R_OK):
         setupMsg += "\n\tPatch packages are:\n"
         try:
-            cmd = ['cmt', 'show', 'packages', os.environ['TestArea']]
-            cmtProc = Popen(cmd, shell = False, stdout = PIPE, stderr = STDOUT, bufsize = 1)
-            cmtOut = cmtProc.communicate()[0] 
-            for line in cmtOut.split('\n'):
-                try:
-                    if line.strip() == '':
-                        continue
-                    (package, packageVersion, packagePath) = line.split()
-                    setupMsg += '\t\t%s\n' % (packageVersion)
-                except ValueError:
-                    setupMsg += "Warning, unusual output from cmt: %s\n" % line 
+            cmd = ['lstags']
+            lstagsOut = Popen(cmd, shell = False, stdout = PIPE, stderr = STDOUT, bufsize = 1).communicate()[0]
+            setupMsg +=  "\n".join([ "\t\t{0}".format(pkg) for pkg in lstagsOut.split("\n") ])
         except (CalledProcessError, OSError), e:
-            setupMsg += 'Execution of CMT failed: %s' % e
+            setupMsg += 'Execution of lstags failed: {0}'.format(e)
     else:
         setupMsg+= "No readable patch area found"
 

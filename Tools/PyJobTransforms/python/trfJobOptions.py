@@ -5,7 +5,7 @@
 # @brief Contains functions related Athena Job Options files 
 # @details Generates runArgs JobOptions and interfaces with skeleton
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfJobOptions.py 726763 2016-02-29 11:07:55Z mavogel $
+# @version $Id: trfJobOptions.py 731249 2016-03-19 22:05:45Z graemes $
 # 
 
 import os
@@ -186,6 +186,9 @@ class JobOptionsTemplate(object):
                             print >>runargsFile, 'AthenaMPJobProps.AthenaMPFlags.ReadEventOrders=True'
                         else:
                             raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_EXEC_RUNARGS_ERROR"), "Failed to find file: {0} required by athenaMP option: --athenaMPUseEventOrders true".format(self._exe._athenaMPEventOrdersFile))
+                    if 'athenaMPEventsBeforeFork' in self._exe.conf.argdict:
+                        print >>runargsFile, 'AthenaMPJobProps.AthenaMPFlags.EventsBeforeFork={0}'.format(self._exe.conf.argdict['athenaMPEventsBeforeFork'].value)
+
                 msg.info('Successfully wrote runargs file {0}'.format(self._runArgsFile))
                 
             except (IOError, OSError) as e:

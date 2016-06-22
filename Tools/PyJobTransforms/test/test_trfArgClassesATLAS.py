@@ -5,7 +5,7 @@
 ## @Package test_trfArgClasses.py
 #  @brief Unittests for test_trfArgClasses.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfArgClassesATLAS.py 667158 2015-05-14 16:14:07Z vanyash $
+#  @version $Id: test_trfArgClassesATLAS.py 731518 2016-03-22 07:29:46Z graemes $
 #  @note Tests of ATLAS specific file formats (that thus rely on other
 #  parts of Athena) live here
 
@@ -18,7 +18,7 @@ from PyJobTransforms.trfLogger import msg
 from PyJobTransforms.trfArgClasses import *
 
 # Stripped down key list for files which are inputs 
-from PyJobTransforms.trfFileUtils import inpFileInterestingKeys
+from PyJobTransforms.trfFileUtils import athFileInterestingKeys
 
 class argFileEOSTests(unittest.TestCase):
     def test_SimExpansion(self):
@@ -51,9 +51,9 @@ class argPOOLFiles(unittest.TestCase):
             testFile = '/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.ESD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root'
             os.stat(testFile)
             esdFile = argPOOLFile(testFile, io = 'input', type='esd')
-            self.assertEqual(esdFile.getMetadata(metadataKeys =  tuple(inpFileInterestingKeys)), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.ESD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'file_type': 'pool', 'file_guid': '0CABA22E-9096-E011-AE25-0030487C8CE6', 'nentries': 10L, 'file_size': 17033381}})
+            self.assertEqual(esdFile.getMetadata(metadataKeys =  tuple(athFileInterestingKeys)), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.ESD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'file_type': 'pool', 'file_guid': '0CABA22E-9096-E011-AE25-0030487C8CE6', 'nentries': 10L, 'file_size': 17033381}})
             esdFile = argPOOLFile(testFile, io = 'output', type='esd')
-            self.assertEqual(esdFile.getMetadata(), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.ESD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'_exists': True, 'run_number': [182796L], 'beam_energy': [3500000.0], 'file_type': 'pool', 'AODFixVersion': '', 'file_size': 17033381L, 'geometry': 'ATLAS-GEO-16-00-01', 'file_guid': '0CABA22E-9096-E011-AE25-0030487C8CE6', 'beam_type': ['collisions'], 'lumi_block': [300L], 'conditions_tag': 'COMCOND-BLKPST-004-00', 'integrity': True, 'nentries': 10L}}) 
+            self.assertEqual(esdFile.getMetadata(), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.ESD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'_exists': True, 'file_type': 'pool', 'file_guid': '0CABA22E-9096-E011-AE25-0030487C8CE6', 'file_size': 17033381, 'integrity': True, 'nentries': 10L}}) 
             self.assertEqual(esdFile.getMetadata(metadataKeys = ('nentries',)), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.ESD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'nentries': 10}})
             self.assertEqual(esdFile.prodsysDescription['type'],'file')
         except OSError:
@@ -65,9 +65,9 @@ class argPOOLFiles(unittest.TestCase):
             testFile = '/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.AOD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root'
             os.stat(testFile)
             aodFile = argPOOLFile(testFile, io = 'input', type='aod')
-            self.assertEqual(aodFile.getMetadata(metadataKeys = tuple(inpFileInterestingKeys)), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.AOD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'file_type': 'pool', 'file_guid': '6E1FE6F0-9096-E011-9DDA-0030487C8CE6', 'nentries': 10L, 'file_size': 4673269}})
+            self.assertEqual(aodFile.getMetadata(metadataKeys = tuple(athFileInterestingKeys)), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.AOD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'file_type': 'pool', 'file_guid': '6E1FE6F0-9096-E011-9DDA-0030487C8CE6', 'nentries': 10L, 'file_size': 4673269}})
             aodFile = argPOOLFile(testFile, io = 'output', type='aod')
-            self.assertEqual(aodFile.getMetadata(), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.AOD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'_exists': True, 'run_number': [182796L], 'beam_energy': [3500000.0], 'file_type': 'pool', 'AODFixVersion': '', 'file_size': 4673269L, 'geometry': 'ATLAS-GEO-16-00-01', 'file_guid': '6E1FE6F0-9096-E011-9DDA-0030487C8CE6', 'beam_type': ['collisions'], 'lumi_block': [300L], 'conditions_tag': 'COMCOND-BLKPST-004-00', 'integrity': True, 'nentries': 10L}}) 
+            self.assertEqual(aodFile.getMetadata(),{'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.AOD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'_exists': True, 'file_type': 'pool', 'file_guid': '6E1FE6F0-9096-E011-9DDA-0030487C8CE6', 'file_size': 4673269, 'integrity': True, 'nentries': 10L}}) 
             self.assertEqual(aodFile.getMetadata(metadataKeys = ('nentries',)), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.AOD._lb0300._SFO-10._0001.1.10evts.16.6.6.4.pool.root': {'nentries': 10}}) 
             self.assertEqual(aodFile.prodsysDescription['type'],'file')
             self.assertTrue(aodFile.prodsysDescription['subtype']=='AOD')
@@ -81,8 +81,7 @@ class argTAGFiles(unittest.TestCase):
             testFile = '/afs/cern.ch/work/g/graemes/ddm/data12_8TeV.00207865.physics_JetTauEtmiss.merge.TAG.r4065_p1278_tid01030417_00/TAG.01030417._000001.pool.root.1'
             os.stat(testFile)
             tagFile = argTAGFile(testFile, io = 'input', type='tag')
-            print '+++', tagFile.getMetadata()
-            self.assertEqual(tagFile.getMetadata(), {'/afs/cern.ch/work/g/graemes/ddm/data12_8TeV.00207865.physics_JetTauEtmiss.merge.TAG.r4065_p1278_tid01030417_00/TAG.01030417._000001.pool.root.1': {'_exists': True, 'run_number': [207865L], 'beam_energy': [], 'file_type': 'tag', 'AODFixVersion': '', 'file_size': 12222088, 'geometry': None, 'file_guid': '3CCAD8D2-9195-5845-857B-550D616962F9', 'beam_type': [], 'lumi_block': [], 'conditions_tag': None, 'integrity': True, 'nentries': 38112L}})
+            self.assertEqual(tagFile.getMetadata(), {'/afs/cern.ch/work/g/graemes/ddm/data12_8TeV.00207865.physics_JetTauEtmiss.merge.TAG.r4065_p1278_tid01030417_00/TAG.01030417._000001.pool.root.1': {'_exists': True, 'file_type': 'tag', 'file_guid': '3CCAD8D2-9195-5845-857B-550D616962F9', 'file_size': 12222088, 'integrity': True, 'nentries': 38112L}}) 
             self.assertEqual(tagFile.getMetadata(metadataKeys = ('nentries',)), {'/afs/cern.ch/work/g/graemes/ddm/data12_8TeV.00207865.physics_JetTauEtmiss.merge.TAG.r4065_p1278_tid01030417_00/TAG.01030417._000001.pool.root.1': {'nentries': 38112L}})
             self.assertEqual(tagFile.prodsysDescription['type'],'file')
         except OSError:
@@ -102,7 +101,7 @@ class argBSFiles(unittest.TestCase):
             testFile = '/afs/cern.ch/atlas/offline/test/data11_7TeV.00191920.physics_JetTauEtmiss.merge.RAW._lb0257._SFO-9._0001.1.10evts'
             os.stat(testFile)
             rawFile = argBSFile(testFile, io = 'input', type='bs')
-            self.assertEqual(rawFile.getMetadata(), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00191920.physics_JetTauEtmiss.merge.RAW._lb0257._SFO-9._0001.1.10evts': {'_exists': True, 'run_number': [191920], 'beam_energy': [0], 'file_type': 'bs', 'AODFixVersion': '', 'file_size': 12998048L, 'geometry': None, 'file_guid': '4A511034-3A53-E111-8745-003048F0E7AE', 'beam_type': ['collisions'], 'lumi_block': [257], 'conditions_tag': None, 'integrity': True, 'nentries': 10}}) 
+            self.assertEqual(rawFile.getMetadata(),{'/afs/cern.ch/atlas/offline/test/data11_7TeV.00191920.physics_JetTauEtmiss.merge.RAW._lb0257._SFO-9._0001.1.10evts': {'_exists': True, 'file_type': 'bs', 'file_guid': '4A511034-3A53-E111-8745-003048F0E7AE', 'file_size': 12998048, 'integrity': True, 'nentries': 10}}) 
             self.assertEqual(rawFile.getMetadata(metadataKeys = ('nentries',)), {'/afs/cern.ch/atlas/offline/test/data11_7TeV.00191920.physics_JetTauEtmiss.merge.RAW._lb0257._SFO-9._0001.1.10evts': {'nentries': 10}})
 
             self.assertEqual(rawFile.prodsysDescription['type'],'file')
@@ -119,7 +118,7 @@ class argBSFiles(unittest.TestCase):
             for fname in testFiles:
                 os.stat(fname)
             rawFile = argBSFile(testFiles, io = 'input', type = 'bs')
-            self.assertEqual(rawFile.getMetadata(), {'/afs/cern.ch/atlas/offline/test/data11_cos.00182609.physics_CosmicCalo.merge.RAW._lb0100._SFO-ALL._0001.1.SFO-ALL._0001.1.10evts.data': {'_exists': True, 'run_number': [182609], 'beam_energy': [0], 'file_type': 'bs', 'AODFixVersion': '', 'file_size': 10487108L, 'geometry': None, 'file_guid': 'E8B69378-EF91-E011-A6F0-003048CAD388', 'beam_type': ['cosmics'], 'lumi_block': [100], 'conditions_tag': None, 'integrity': True, 'nentries': 10}, '/afs/cern.ch/atlas/offline/test/data11_7TeV.00191920.physics_JetTauEtmiss.merge.RAW._lb0257._SFO-9._0001.1.10evts': {'_exists': True, 'run_number': [191920], 'beam_energy': [0], 'file_type': 'bs', 'AODFixVersion': '', 'file_size': 12998048L, 'geometry': None, 'file_guid': '4A511034-3A53-E111-8745-003048F0E7AE', 'beam_type': ['collisions'], 'lumi_block': [257], 'conditions_tag': None, 'integrity': True, 'nentries': 10}, '/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.RAW._lb0300._SFO-10._0001.1.10evts.data': {'_exists': True, 'run_number': [182796], 'beam_energy': [3500], 'file_type': 'bs', 'AODFixVersion': '', 'file_size': 12946296L, 'geometry': None, 'file_guid': 'FABAAD37-B38E-E011-8C1D-003048CAD384', 'beam_type': ['collisions'], 'lumi_block': [300], 'conditions_tag': None, 'integrity': True, 'nentries': 10}}) 
+            self.assertEqual(rawFile.getMetadata(),{'/afs/cern.ch/atlas/offline/test/data11_cos.00182609.physics_CosmicCalo.merge.RAW._lb0100._SFO-ALL._0001.1.SFO-ALL._0001.1.10evts.data': {'_exists': True, 'file_type': 'bs', 'file_guid': 'E8B69378-EF91-E011-A6F0-003048CAD388', 'file_size': 10487108, 'integrity': True, 'nentries': 10}, '/afs/cern.ch/atlas/offline/test/data11_7TeV.00191920.physics_JetTauEtmiss.merge.RAW._lb0257._SFO-9._0001.1.10evts': {'_exists': True, 'file_type': 'bs', 'file_guid': '4A511034-3A53-E111-8745-003048F0E7AE', 'file_size': 12998048, 'integrity': True, 'nentries': 10}, '/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.RAW._lb0300._SFO-10._0001.1.10evts.data': {'_exists': True, 'file_type': 'bs', 'file_guid': 'FABAAD37-B38E-E011-8C1D-003048CAD384', 'file_size': 12946296, 'integrity': True, 'nentries': 10}}) 
             self.assertEqual(rawFile.getMetadata(metadataKeys = ('nentries',)), {'/afs/cern.ch/atlas/offline/test/data11_cos.00182609.physics_CosmicCalo.merge.RAW._lb0100._SFO-ALL._0001.1.SFO-ALL._0001.1.10evts.data': {'nentries': 10}, '/afs/cern.ch/atlas/offline/test/data11_7TeV.00191920.physics_JetTauEtmiss.merge.RAW._lb0257._SFO-9._0001.1.10evts': {'nentries': 10}, '/afs/cern.ch/atlas/offline/test/data11_7TeV.00182796.physics_JetTauEtmiss.merge.RAW._lb0300._SFO-10._0001.1.10evts.data': {'nentries': 10}})
             self.assertEqual(rawFile.getMetadata(metadataKeys = ('nentries',), files = '/afs/cern.ch/atlas/offline/test/data11_cos.00182609.physics_CosmicCalo.merge.RAW._lb0100._SFO-ALL._0001.1.SFO-ALL._0001.1.10evts.data'), {'/afs/cern.ch/atlas/offline/test/data11_cos.00182609.physics_CosmicCalo.merge.RAW._lb0100._SFO-ALL._0001.1.SFO-ALL._0001.1.10evts.data': {'nentries': 10}})
 
