@@ -6,6 +6,7 @@
 #include "JetUncertainties/Helpers.h"
 
 #include "TObject.h"
+#include "TMath.h"
 #include "TFile.h"
 #include "TAxis.h"
 #include "TH3.h"
@@ -21,60 +22,49 @@ namespace jet
 //                                              //
 //////////////////////////////////////////////////
 
-UncertaintyHistogram::UncertaintyHistogram(const std::string& histName, const std::string& validHistName, const bool interpolate)
+UncertaintyHistogram::UncertaintyHistogram(const std::string& histName, const bool interpolate)
     : asg::AsgMessaging(histName)
     , m_isInit(false)
     , m_name(histName.c_str())
-    , m_validName(validHistName.c_str())
     , m_interpolate(interpolate)
-    , m_uncHisto(NULL)
-    , m_validHisto(NULL)
+    , m_histo(NULL)
     , m_nDim(0)
 {
     if (histName == "")
         JESUNC_NO_DEFAULT_CONSTRUCTOR;
-    ATH_MSG_DEBUG(Form("Creating UncertaintyHistogram named %s",getFullName().Data()));
+    ATH_MSG_DEBUG(Form("Creating UncertaintyHistogram named %s",getName().Data()));
 }
 
-UncertaintyHistogram::UncertaintyHistogram(const TString histName, const TString validHistName, const bool interpolate)
-    : UncertaintyHistogram(std::string(histName.Data()),std::string(validHistName.Data()),interpolate)
+UncertaintyHistogram::UncertaintyHistogram(const TString histName, const bool interpolate)
+    : UncertaintyHistogram(std::string(histName.Data()),interpolate)
 { }
 
-//UncertaintyHistogram::UncertaintyHistogram(const char* histName, const char* validHistName, const bool interpolate)
-//    : UncertaintyHistogram(std::string(histName),std::string(validHistName!=NULL?validHistName:""),interpolate)
-//{ }
+UncertaintyHistogram::UncertaintyHistogram(const char* histName, const bool interpolate)
+    : UncertaintyHistogram(std::string(histName),interpolate)
+{ }
 
 UncertaintyHistogram::UncertaintyHistogram(const UncertaintyHistogram& toCopy)
     : asg::AsgMessaging(Form("%s",toCopy.m_name.Data()))
     , m_isInit(toCopy.m_isInit)
     , m_name(toCopy.m_name)
-    , m_validName(toCopy.m_validName)
     , m_interpolate(toCopy.m_interpolate)
-    , m_uncHisto(NULL)
-    , m_validHisto(NULL)
+    , m_histo(NULL)
     , m_nDim(toCopy.m_nDim)
 {
-    ATH_MSG_DEBUG("Creating copy of UncertaintyHistogram named " << getFullName().Data());
+    ATH_MSG_DEBUG("Creating copy of UncertaintyHistogram named " << getName().Data());
 
-    if (toCopy.m_uncHisto)
+    if (toCopy.m_histo)
     {
-        m_uncHisto = dynamic_cast<TH1*>(toCopy.m_uncHisto->Clone());
-        if (!m_uncHisto)
-            ATH_MSG_FATAL("Failed to copy uncertainty histogram for " << getFullName().Data());
-    }
-    if (toCopy.m_validHisto)
-    {
-        m_validHisto = dynamic_cast<TH1*>(toCopy.m_validHisto->Clone());
-        if (!m_validHisto)
-            ATH_MSG_FATAL("Failed to copy validity histogram for " << getFullName().Data());
+        m_histo = dynamic_cast<TH1*>(toCopy.m_histo->Clone());
+        if (!m_histo)
+            ATH_MSG_FATAL("Failed to copy uncertainty histogram for " << getName().Data());
     }
 }
 
 UncertaintyHistogram::~UncertaintyHistogram()
 {
-    ATH_MSG_DEBUG(Form("Deleting UncertaintyHistogram named %s",getFullName().Data()));
-    JESUNC_SAFE_DELETE(m_uncHisto);
-    JESUNC_SAFE_DELETE(m_validHisto);
+    ATH_MSG_DEBUG(Form("Deleting UncertaintyHistogram named %s",getName().Data()));
+    JESUNC_SAFE_DELETE(m_histo);
 }
 
 StatusCode UncertaintyHistogram::initialize(TFile* histFile)
@@ -82,182 +72,80 @@ StatusCode UncertaintyHistogram::initialize(TFile* histFile)
     // Ensure it wasn't already initialized
     if (m_isInit)
     {
-        ATH_MSG_ERROR(Form("UncertaintyComponent was already initialized: %s",getFullName().Data()));
+        ATH_MSG_ERROR(Form("UncertaintyHistogram was already initialized: %s",getName().Data()));
         return StatusCode::FAILURE;
     }
 
     // Ensure we can read from the file
     if (!histFile->IsOpen())
     {
-        ATH_MSG_ERROR(Form("Histogram file is not open for reading (%s)",getFullName().Data()));
+        ATH_MSG_ERROR(Form("Histogram file is not open for reading (%s)",getName().Data()));
         return StatusCode::FAILURE;
     }
 
     // Find the histogram by name
-    TObject* uncHisto = histFile->Get(m_name);
-    if (!uncHisto)
+    TObject* histo = histFile->Get(m_name);
+    if (!histo)
     {
-        ATH_MSG_ERROR(Form("Histogram file does not contain a histogram named %s",getFullName().Data()));
+        ATH_MSG_ERROR(Form("Histogram file does not contain a histogram named %s",getName().Data()));
         return StatusCode::FAILURE;
     }
 
     // Ensure the object is a histogram
-    m_uncHisto = dynamic_cast<TH1*>(uncHisto);
-    if (!m_uncHisto)
+    m_histo = dynamic_cast<TH1*>(histo);
+    if (!m_histo)
     {
-        ATH_MSG_ERROR(Form("Histogram file contains the expected key, but it's not a TH1* (%s)",getFullName().Data()));
+        ATH_MSG_ERROR(Form("Histogram file contains the expected key, but it's not a TH1* (%s)",getName().Data()));
         return StatusCode::FAILURE;
     }
-    else
-        m_uncHisto->SetDirectory(0);
+    m_histo->SetDirectory(0);
 
-    // Look for a validity histogram
-    TObject* validHisto = histFile->Get(m_validName == "" ? "valid_" + m_name : m_validName);
-    if (validHisto)
-    {
-        // Set the default name as we found an object
-        //if (m_validName == "") m_validName = "valid_" + m_name;
-        
-        // Now check if it's a histogram
-        m_validHisto = dynamic_cast<TH1*>(validHisto);
-        if (!m_validHisto)
-        {
-            ATH_MSG_ERROR(Form("Histogram file contains validity key, but it's not a TH* (%s)",getFullName().Data()));
-            return StatusCode::FAILURE;
-        }
-        else
-            // Cache it so it won't disappear when we close the TFile
-            m_validHisto->SetDirectory(0);
-    }
-
-    // Check dimensionality
-    if (m_uncHisto)
-        m_nDim = m_uncHisto->GetDimension();
-    if (m_validHisto && m_validHisto->GetDimension() != m_nDim)
-    {
-        ATH_MSG_ERROR(Form("Got %d dimensions for the uncertainty histogram, but %d for the validity histogram (%s)",m_nDim,m_validHisto->GetDimension(),getFullName().Data()));
-        return StatusCode::FAILURE;
-    }
+    // Cache dimensionality
+    m_nDim = m_histo->GetDimension();
 
     // Print a summary
-    if (m_uncHisto && m_validHisto)
-        ATH_MSG_DEBUG(Form("%s: Found both uncertainty and validity histograms",getFullName().Data()));
-    else if (m_uncHisto)
-        ATH_MSG_DEBUG(Form("%s: Found uncertainty histogram",getFullName().Data()));
-    else
-    {
-        ATH_MSG_ERROR(Form("%s: Failed to find uncertainty histogram",getFullName().Data()));
-        return StatusCode::FAILURE;
-    }
+    ATH_MSG_DEBUG(Form("%s: Found histogram",getName().Data()));
 
     m_isInit = true;
     return StatusCode::SUCCESS;
 }
 
 
-//////////////////////////////////////////////////
-//                                              //
-//  Generic helper methods                      //
-//                                              //
-//////////////////////////////////////////////////
-
-TString UncertaintyHistogram::getFullName() const
-{
-    return TString(m_validName == "" ? m_name.Data() : Form("%s|%s",m_name.Data(),m_validName.Data()));
-}
-
 
 //////////////////////////////////////////////////
 //                                              //
-//  Validity and uncertainty retrieval          //
+//  Histogram information access                //
 //                                              //
 //////////////////////////////////////////////////
 
-// Validity retrieval
-bool UncertaintyHistogram::getValidity(const float var1) const
+double UncertaintyHistogram::getValue(const double var1) const
 {
     if (m_nDim != 1)
     {
-        ATH_MSG_ERROR(Form("Wrong dimensionality - asked for 1D for a %dD histo (%s)",m_nDim,getFullName().Data()));
+        ATH_MSG_ERROR(Form("Wrong dimensionality - asked for 1D for a %dD histo (%s)",m_nDim,getName().Data()));
         return false;
     }
-
-    return readValidityHisto(var1);
+    return readHisto(var1);
 }
 
-bool UncertaintyHistogram::getValidity(const float var1, const float var2) const
+double UncertaintyHistogram::getValue(const double var1, const double var2) const
 {
     if (m_nDim != 2)
     {
-        ATH_MSG_ERROR(Form("Wrong dimensionality - asked for 2D for a %dD histo (%s)",m_nDim,getFullName().Data()));
+        ATH_MSG_ERROR(Form("Wrong dimensionality - asked for 2D for a %dD histo (%s)",m_nDim,getName().Data()));
         return false;
     }
-
-    return readValidityHisto(var1,var2);
+    return readHisto(var1,var2);
 }
 
-bool UncertaintyHistogram::getValidity(const float var1, const float var2, const float var3) const
+double UncertaintyHistogram::getValue(const double var1, const double var2, const double var3) const
 {
     if (m_nDim != 3)
     {
-        ATH_MSG_ERROR(Form("Wrong dimensionality - asked for 3D for a %dD histo (%s)",m_nDim,getFullName().Data()));
+        ATH_MSG_ERROR(Form("Wrong dimensionality - asked for 3D for a %dD histo (%s)",m_nDim,getName().Data()));
         return false;
     }
-    
-    return readValidityHisto(var1,var2,var3);
-}
-
-// Uncertainty retrieval (crash if not valid)
-double UncertaintyHistogram::getUncertainty(const float var1) const
-{
-    double unc = -1;
-    bool success = getValidUncertainty(unc,var1);
-    if (!success)
-        ATH_MSG_ERROR(Form("Uncertainty is outside of validity region (%s[%f])",getFullName().Data(),var1));
-    return unc;
-}
-
-double UncertaintyHistogram::getUncertainty(const float var1, const float var2) const
-{
-    double unc = -1;
-    bool success = getValidUncertainty(unc,var1,var2);
-    if (!success)
-        ATH_MSG_ERROR(Form("Uncertainty is outside of validity region (%s[%f,%f])",getFullName().Data(),var1,var2));
-    return unc;
-}
-
-double UncertaintyHistogram::getUncertainty(const float var1, const float var2, const float var3) const
-{
-    double unc = -1;
-    bool success = getValidUncertainty(unc,var1,var2,var3);
-    if (!success)
-        ATH_MSG_ERROR(Form("Uncertainty is outside of validity region (%s[%f,%f,%f])",getFullName().Data(),var1,var2,var3));
-    return unc;
-}
-
-// Uncertainty retrieval (unc only set if valid, returns true if valid)
-bool UncertaintyHistogram::getValidUncertainty(double& unc, const float var1) const
-{
-    bool valid = getValidity(var1);
-    if (valid)
-        unc = readUncertaintyHisto(var1);
-    return valid;
-}
-
-bool UncertaintyHistogram::getValidUncertainty(double& unc, const float var1, const float var2) const
-{
-    bool valid = getValidity(var1,var2);
-    if (valid)
-        unc = readUncertaintyHisto(var1,var2);
-    return valid;
-}
-
-bool UncertaintyHistogram::getValidUncertainty(double& unc, const float var1, const float var2, const float var3) const
-{
-    bool valid = getValidity(var1,var2,var3);
-    if (valid)
-        unc = readUncertaintyHisto(var1,var2,var3);
-    return valid;
+    return readHisto(var1,var2,var3);
 }
 
 
@@ -267,69 +155,47 @@ bool UncertaintyHistogram::getValidUncertainty(double& unc, const float var1, co
 //                                              //
 //////////////////////////////////////////////////
 
-double UncertaintyHistogram::readHisto(const TH1* histo, const float var1, const float var2, const float var3, const bool interpolate) const
+double UncertaintyHistogram::readHisto(const double var1, const double var2, const double var3) const
 {
     // Ensure the component was initialized
     if (!m_isInit)
     {
-        ATH_MSG_ERROR(Form("Component was not initialized (%s)",getFullName().Data()));
+        ATH_MSG_ERROR(Form("Component was not initialized (%s)",getName().Data()));
         return JESUNC_ERROR_CODE;
     }
 
     
     // Ensure that the histogram exists
-    if (!histo)
+    if (!m_histo)
     {
-        ATH_MSG_ERROR(Form("Histogram to read is NULL (%s)",getFullName().Data()));
+        ATH_MSG_ERROR(Form("Histogram to read is NULL (%s)",getName().Data()));
         return JESUNC_ERROR_CODE;
     }
 
     // Check first dimension boundaries, always applicable
-    const float valX = checkBoundaries(histo->GetXaxis(),histo->GetNbinsX(),var1);
+    const float valX = checkBoundaries(m_histo->GetXaxis(),m_histo->GetNbinsX(),var1);
     if (m_nDim == 1)
     {
-        if (interpolate) return Interpolate(histo,valX);
-        else             return histo->GetBinContent(FindBin(histo->GetXaxis(),valX));
+        if (m_interpolate) return Interpolate(m_histo,valX);
+        else               return m_histo->GetBinContent(FindBin(m_histo->GetXaxis(),valX));
     }
 
     // Check second dimension boundaries, if applicable
-    const float valY = checkBoundaries(histo->GetYaxis(),histo->GetNbinsY(),var2);
+    const float valY = checkBoundaries(m_histo->GetYaxis(),m_histo->GetNbinsY(),var2);
     if (m_nDim == 2)
     {
-        if (interpolate) return Interpolate(histo,valX,valY);
-        else             return histo->GetBinContent(FindBin(histo->GetXaxis(),valX),FindBin(histo->GetYaxis(),valY));
+        if (m_interpolate) return Interpolate(m_histo,valX,valY);
+        else               return m_histo->GetBinContent(FindBin(m_histo->GetXaxis(),valX),FindBin(m_histo->GetYaxis(),valY));
     }
 
     // Check third dimension boundaries, if applicable
-    const float valZ = checkBoundaries(histo->GetZaxis(),histo->GetNbinsZ(),var3);
-    if (interpolate) return Interpolate(histo,valX,valY,valZ);
-    return histo->GetBinContent(FindBin(histo->GetXaxis(),valX),FindBin(histo->GetYaxis(),valY),FindBin(histo->GetZaxis(),valZ));
-}
-
-bool UncertaintyHistogram::readValidityHisto(const float var1, const float var2, const float var3) const
-{
-    // If the validity histogram doesn't exist, it's always valid
-    if (!m_validHisto)
-        return true;
-    
-    // Don't interpolate!  Validity is true or false, not something in between
-    double validity = readHisto(m_validHisto,var1,var2,var3,false);
-    if (fabs(validity-1.0) < 1.0e-3)
-        return true;
-    else if (fabs(validity) < 1.0e-3)
-        return false;
-
-    ATH_MSG_ERROR(Form("Validity histogram value is not of the expected form, got %f (%s)",validity,getFullName().Data()));
-    return false;
-}
-
-double UncertaintyHistogram::readUncertaintyHisto(const float var1, const float var2, const float var3) const
-{
-    return readHisto(m_uncHisto,var1,var2,var3,m_interpolate);
+    const float valZ = checkBoundaries(m_histo->GetZaxis(),m_histo->GetNbinsZ(),var3);
+    if (m_interpolate) return Interpolate(m_histo,valX,valY,valZ);
+                       return m_histo->GetBinContent(FindBin(m_histo->GetXaxis(),valX),FindBin(m_histo->GetYaxis(),valY),FindBin(m_histo->GetZaxis(),valZ));
 }
 
 
-float UncertaintyHistogram::checkBoundaries(const TAxis* axis, const int numBins, const float valInput) const
+double UncertaintyHistogram::checkBoundaries(const TAxis* axis, const int numBins, const double valInput) const
 {
     const static int maxNumWarn = 0; //100
     static int       numWarn    = 0;
@@ -344,7 +210,7 @@ float UncertaintyHistogram::checkBoundaries(const TAxis* axis, const int numBins
     if (val < lowVal || val >= highVal)
     {
         if (val != highVal && ++numWarn < maxNumWarn)
-            ATH_MSG_WARNING(Form("Variable value is %f, outside of the axis range of (%f,%f) for %s.  Using closest valid value.  (Only first %d instances printed, this is %d)",val,lowVal,highVal,getFullName().Data(),maxNumWarn,numWarn));
+            ATH_MSG_WARNING(Form("Variable value is %f, outside of the axis range of (%f,%f) for %s.  Using closest valid value.  (Only first %d instances printed, this is %d)",val,lowVal,highVal,getName().Data(),maxNumWarn,numWarn));
     
         // Watch for the boundary sign (controls the scale factor)
         if (val < lowVal)
@@ -400,7 +266,7 @@ double UncertaintyHistogram::Interpolate2D(const TH1* histo, const double x, con
 
     if (!fXaxis || !fYaxis)
     {
-        Error("Interpolate2D","Failed to parse axes from inputs");
+        histo->Error("Interpolate2D","Failed to parse axes from inputs");
         return 0;
     }
 
@@ -410,7 +276,7 @@ double UncertaintyHistogram::Interpolate2D(const TH1* histo, const double x, con
     Int_t bin_x = FindBin(fXaxis,x);
     Int_t bin_y = FindBin(fYaxis,y);
     if(bin_x<1 || bin_x>fXaxis->GetNbins() || bin_y<1 || bin_y>fYaxis->GetNbins()) {
-       Error("Interpolate","Cannot interpolate outside histogram domain. (x: %f vs [%f,%f], y: %f vs [%f,%f])",x,fXaxis->GetBinLowEdge(1),fXaxis->GetBinLowEdge(fXaxis->GetNbins()+1),y,fYaxis->GetBinLowEdge(1),fYaxis->GetBinLowEdge(fYaxis->GetNbins()+1));
+       histo->Error("Interpolate","Cannot interpolate outside histogram domain. (x: %f vs [%f,%f], y: %f vs [%f,%f])",x,fXaxis->GetBinLowEdge(1),fXaxis->GetBinLowEdge(fXaxis->GetNbins()+1),y,fYaxis->GetBinLowEdge(1),fYaxis->GetBinLowEdge(fYaxis->GetNbins()+1));
        return 0;
     }
     Int_t quadrant = 0; // CCW from UR 1,2,3,4
@@ -516,7 +382,7 @@ double UncertaintyHistogram::Interpolate2D(const TH1* histo, const double x, con
         }
         else
         {
-            Error("Interpolate2D","Unsupported axis combination: (x,y)=(%d,%d) with one bin fixed",xAxis,yAxis);
+            histo->Error("Interpolate2D","Unsupported axis combination: (x,y)=(%d,%d) with one bin fixed",xAxis,yAxis);
             return 0;
         }
     }
@@ -540,7 +406,7 @@ double UncertaintyHistogram::Interpolate2D(const TH1* histo, const double x, con
         }
         else
         {
-            Error("Interpolate2D","Unsupported axis combination: (x,y)=(%d,%d)",xAxis,yAxis);
+            histo->Error("Interpolate2D","Unsupported axis combination: (x,y)=(%d,%d)",xAxis,yAxis);
             return 0;
         }
     }
@@ -567,7 +433,7 @@ double UncertaintyHistogram::Interpolate(const TH1* histo, const double x, const
     // Check if the value(s) are outside of the bin range(s)
     if ( ubx < 1 || ubx > histo->GetNbinsX() || uby < 1 || uby > histo->GetNbinsY() || ubz < 1 || ubz > histo->GetNbinsZ() )
     {
-       Error("Interpolate","Cannot interpolate outside histogram domain. (x: %f vs [%f,%f], y: %f vs [%f,%f], z: %f vs [%f,%f])",x,fXaxis->GetBinLowEdge(1),fXaxis->GetBinLowEdge(histo->GetNbinsX()+1),y,fYaxis->GetBinLowEdge(1),fYaxis->GetBinLowEdge(histo->GetNbinsY()+1),z,fZaxis->GetBinLowEdge(1),fZaxis->GetBinLowEdge(histo->GetNbinsZ()+1));
+       histo->Error("Interpolate","Cannot interpolate outside histogram domain. (x: %f vs [%f,%f], y: %f vs [%f,%f], z: %f vs [%f,%f])",x,fXaxis->GetBinLowEdge(1),fXaxis->GetBinLowEdge(histo->GetNbinsX()+1),y,fYaxis->GetBinLowEdge(1),fYaxis->GetBinLowEdge(histo->GetNbinsY()+1),z,fZaxis->GetBinLowEdge(1),fZaxis->GetBinLowEdge(histo->GetNbinsZ()+1));
        return 0;
     }
 

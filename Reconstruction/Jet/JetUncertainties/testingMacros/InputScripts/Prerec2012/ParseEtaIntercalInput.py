@@ -39,11 +39,8 @@ def ReadEtaIntercalibrationHistograms(dirName):
         # Read in the histograms of interest from the file
         inFile = TFile(aFileName,"READ")
         for aName in SystematicNames.keys():
-            getsystematicName = aName + "_" + jetDef
+            getsystematicName = aName + "_" + jetDef.replace("Topo","")
             systematicName = SystematicNames[aName] + "_" + jetDef
-
-            # HACK UNTIL NAME FIXED IN INPUTS
-            getsystematicName = getsystematicName.replace("4","")
 
             histo = inFile.Get(getsystematicName)
             if histo is None:

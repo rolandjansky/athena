@@ -16,23 +16,20 @@ namespace jet
 
 ClosebyUncertaintyComponent::ClosebyUncertaintyComponent(const std::string& name)
     : UncertaintyComponent(ComponentHelper(name))
-    , m_minDRaccessor("MinDR")
 {
     JESUNC_NO_DEFAULT_CONSTRUCTOR;
 }
 
 ClosebyUncertaintyComponent::ClosebyUncertaintyComponent(const ComponentHelper& component)
     : UncertaintyComponent(component)
-    , m_minDRaccessor("MinDR")
 {
-    ATH_MSG_DEBUG(Form("Creating ClosebyUncertaintyComponent named %s",m_name.Data()));
+    ATH_MSG_DEBUG(Form("Creating ClosebyUncertaintyComponent named %s",m_uncHistName.Data()));
 }
 
 ClosebyUncertaintyComponent::ClosebyUncertaintyComponent(const ClosebyUncertaintyComponent& toCopy)
     : UncertaintyComponent(toCopy)
-    , m_minDRaccessor(toCopy.m_minDRaccessor)
 {
-    ATH_MSG_DEBUG(Form("Creating copy of ClosebyUncertaintyComponent named %s",m_name.Data()));
+    ATH_MSG_DEBUG(Form("Creating copy of ClosebyUncertaintyComponent named %s",m_uncHistName.Data()));
 }
 
 ClosebyUncertaintyComponent* ClosebyUncertaintyComponent::clone() const
@@ -47,26 +44,26 @@ ClosebyUncertaintyComponent* ClosebyUncertaintyComponent::clone() const
 //                                              //
 //////////////////////////////////////////////////
 
-bool ClosebyUncertaintyComponent::getValidity(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo&) const
+bool ClosebyUncertaintyComponent::getValidityImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    //float minDR = 0;
-    //if (!jet.getAttribute<float>("MinDR",minDR))
-    //{
-    //    ATH_MSG_ERROR("Failed to retrieve MinDR from jet");
-    //    return false;
-    //}
-
-    return histo->getValidity(jet.pt()*m_energyScale,m_minDRaccessor(jet));
+    return !m_validHist ? true : getValidBool(m_validHist->getValue(jet.pt()*m_energyScale,getMinDR(jet)));
 }
 
-double ClosebyUncertaintyComponent::getUncertainty(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo&) const
+double ClosebyUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    return histo->getUncertainty(jet.pt()*m_energyScale,m_minDRaccessor(jet));
+    return m_uncHist->getValue(jet.pt()*m_energyScale,getMinDR(jet));
 }
 
-bool ClosebyUncertaintyComponent::getValidUncertainty(const UncertaintyHistogram* histo, double& unc, const xAOD::Jet& jet, const xAOD::EventInfo&) const
+float ClosebyUncertaintyComponent::getMinDR(const xAOD::Jet& jet) const
 {
-    return histo->getValidUncertainty(unc,jet.pt()*m_energyScale,m_minDRaccessor(jet));
+    static SG::AuxElement::Accessor<float> accMinDR("MinDR");
+
+    if (!accMinDR.isAvailable(jet))
+    {
+        ATH_MSG_ERROR("Failed to retrieve MinDR attribute from the jet");
+        return JESUNC_ERROR_CODE;
+    }
+    return accMinDR(jet);
 }
 
 } // end jet namespace

@@ -75,7 +75,8 @@ def relativeMetric(numerator,denominator):
 ##################################################
 
 def DrawLabels(hist,jetDefString,scenarioString):
-    AtlasStyleMacro.ATLASLabel(0.10,0.845,DrawLabels.ATLASLabelName)
+    if DrawLabels.DrawATLASLabel:
+        AtlasStyleMacro.ATLASLabel(0.10,0.845,DrawLabels.ATLASLabelName)
     jetDefLabel = ""
 
     if jetDefString.startswith("AntiKt4"):
@@ -88,9 +89,10 @@ def DrawLabels(hist,jetDefString,scenarioString):
     elif jetDefString.endswith("EMTopo") or jetDefString.endswith("TopoEM"):
         jetDefLabel += "EM+JES"
     
-    DrawText(0.10,0.900,jetDefLabel+" 2012")
+    DrawText(0.10,0.900,jetDefLabel+" 2015")
     DrawText(0.10,0.955,scenarioString)
 DrawLabels.ATLASLabelName = "Internal"
+DrawLabels.DrawATLASLabel = True
 
 def DrawLabelsGuessScenario(histo):
     jetDefString = histo.jetDef
@@ -213,18 +215,18 @@ def getFixedValuesFromFiles(inFiles,jetDef):
         # Check for equality
         # Note that these are floating point equalities, so be careful
         if len(localFixedPt) != len(fixedPt):
-            print "ERROR: File %s has %d fixed pt values, while %s has %d values"%(aFile.GetNameNoDir(),len(localFixedPt),inFileNames[0],len(fixedPt))
+            print "ERROR: File %s has %d fixed pt values, while %s has %d values"%(aFile.GetNameNoDir(),len(localFixedPt),inFiles[0],len(fixedPt))
             sys.exit(3)
         elif len(localFixedEta) != len(fixedEta):
-            print "ERROR: File %s has %d fixed eta values, while %s has %d values"%(aFile.GetNameNoDir(),len(localFixedEta),inFileNames[0],len(fixedEta))
+            print "ERROR: File %s has %d fixed eta values, while %s has %d values"%(aFile.GetNameNoDir(),len(localFixedEta),inFiles[0],len(fixedEta))
             sys.exit(4)
         for localVal,globalVal in zip(localFixedPt,fixedPt):
             if fabs(localVal[0]-globalVal[0]) > 1.e-4 or fabs(localVal[1]-globalVal[1]) > 1.e-4:
-                print "ERROR: File %s and %s have different fixed pt values, was comparing %f and %f"%(aFile.GetNameNoDir(),inFileNames[0],localVal,globalVal)
+                print "ERROR: File %s and %s have different fixed pt values, was comparing %f and %f"%(aFile.GetNameNoDir(),inFiles[0],localVal,globalVal)
                 sys.exit(5)
         for localVal,globalVal in zip(localFixedEta,fixedEta):
             if fabs(localVal[0]-globalVal[0]) > 1.e-4 or fabs(localVal[1]-globalVal[1]) > 1.e-4:
-                print "ERROR: File %s and %s have different fixed eta values, was comparing %f and %f"%(aFile.GetNameNoDir(),inFileNames[0],localVal,globalVal)
+                print "ERROR: File %s and %s have different fixed eta values, was comparing %f and %f"%(aFile.GetNameNoDir(),inFiles[0],localVal,globalVal)
                 sys.exit(6)
     
     # Files have now been confirmed to match in fixed values, assuming multiple files were specified

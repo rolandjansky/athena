@@ -18,6 +18,9 @@ from CorrelationMatrixHelpers import *
 granularityFactor = 1
 SetAxisRange.forceOneSided = True
 #DrawLabels.ATLASLabelName = "Preliminary"
+DrawLabels.DrawATLASLabel = True
+SetAxisRange.invertAxisColour = False
+DetermineStatValues.minInsteadOfMax = False
 
 # Check arguments
 if len(sys.argv) < 6:

@@ -13,26 +13,131 @@ isRelative="false"
 
 
 # Check arguments
-if test $# -ne 1 ; then
+if test $# -ne 1 && test $# -ne 4; then
     echo "USAGE: $0 <scenario type>"
     echo "Scenario types available:"
     echo "  1. \"3NP\" for set of 4 configs with 3NP each"
     echo "  2. \"4NP\" for set of 3 configs with 4NP each"
     echo "  3. \"Nominal\" for the uncertainties on the correlations from the nominal sets"
+    echo "  4. \"generic\" for interpreting command line arguments (more help if only this is specified)"
     exit 1
 fi
 
 
-if ! [[ -e "$corrUncFile" ]] ; then
-    $corrPlotScript Final2012_Nominal_Stronger $GridType $isRelative
-    if test $? -ne 0 ; then
-        exit -1
-    fi
-    mv CorrelationMatrix-Final2012-Nominal-Stronger.pdf ${corrUncFile/.root/.pdf}
-    mv CorrelationMatrix-Final2012-Nominal-Stronger.root $corrUncFile
-fi
+#if ! [[ -e "$corrUncFile" ]] ; then
+#    $corrPlotScript Final2012_Nominal_Stronger $GridType $isRelative
+#    if test $? -ne 0 ; then
+#        exit -1
+#    fi
+#    mv CorrelationMatrix-Final2012-Nominal-Stronger.pdf ${corrUncFile/.root/.pdf}
+#    mv CorrelationMatrix-Final2012-Nominal-Stronger.root $corrUncFile
+#fi
 
-if [[ $1 = 3NP ]] ; then
+if [[ $1 = generic ]] ; then
+    if test $# -ne 4 ; then
+        echo "USAGE of generic: $0 generic <release path> <base of config name> < ref config name>"
+        echo "  Release path example: JES_2015/Moriond2016"
+        echo "  Base of config name example: JES2015_SR"
+        echo "  Reference config name example: JES2015_AllNuisanceParameters.config"
+        exit 1
+    fi
+    configBase="$PWD/../../share/$2/$3"
+    refConfig="$PWD/../../share/$2/$4"
+    config1="${configBase}_Scenario1.config"
+    config2="${configBase}_Scenario2.config"
+    config3="${configBase}_Scenario3.config"
+    config4="${configBase}_Scenario4.config"
+
+    # Ensure these worked
+    if ! [ -f $refConfig ] ; then
+        echo "Reference config doesn't exist: $refConfig"
+        exit 1
+    elif ! [ -f $config1 ] ; then
+        echo "Config1 doesn't exist: $config1"
+        exit 1
+    elif ! [ -f $config2 ] ; then
+        echo "Config2 doesn't exist: $config2"
+        exit 1
+    elif ! [ -f $config3 ] ; then
+        echo "Config3 doesn't exist: $config3"
+        exit 1
+    elif ! [ -f $config4 ] ; then
+        echo "Config4 doesn't exist: $config4"
+        exit 1
+    fi
+
+    plot1="NONE" #"$PWD/SR1.pdf"
+    plot2="NONE" #"$PWD/SR2.pdf"
+    plot3="NONE" #"$PWD/SR3.pdf"
+    plot4="NONE" #"$PWD/SR4.pdf"
+
+    root1="$PWD/SR1.root"
+    root2="$PWD/SR2.root"
+    root3="$PWD/SR3.root"
+    root4="$PWD/SR4.root"
+
+    outFile="$PWD/SR-4D.png"
+
+    grid="FineGridFixedEta"
+    if [[ $2 = TLA* ]] ; then
+        echo "Switching to TLA grid"
+        grid="FineGridFixedEtaTLA"
+    fi
+    
+    
+    # Ensure root files are newer than config files, otherwise re-produce root files
+    if ! [[ -e "$root1" ]] || [[ "$config1" -nt "$root1" ]] ; then
+        jetDefinition="AntiKt4EMTopo" configFiles="$refConfig;$config1" outFile="$plot1" outHistFile="$root1" $corrPlotScript Flexible $grid
+        #$corrPlotScript Final2012_Nominal_3NP1 $GridType $isRelative
+        if test $? -ne 0 ; then
+            exit -1
+        fi
+        #mv CorrelationMatrix-Final2012-Nominal-3NP1.pdf $plot1
+        #mv CorrelationMatrix-Final2012-Nominal-3NP1.root $root1
+    fi
+    if ! [[ -e "$root2" ]] || [[ "$config2" -nt "$root2" ]] ; then
+        jetDefinition="AntiKt4EMTopo" configFiles="$refConfig;$config2" outFile="$plot2" outHistFile="$root2" $corrPlotScript Flexible $grid
+        #$corrPlotScript Final2012_Nominal_3NP2 $GridType $isRelative
+        if test $? -ne 0 ; then
+            exit -1
+        fi
+        #mv CorrelationMatrix-Final2012-Nominal-3NP2.pdf $plot2
+        #mv CorrelationMatrix-Final2012-Nominal-3NP2.root $root2
+    fi
+    if ! [[ -e "$root3" ]] || [[ "$config3" -nt "$root3" ]] ; then
+        jetDefinition="AntiKt4EMTopo" configFiles="$refConfig;$config3" outFile="$plot3" outHistFile="$root3" $corrPlotScript Flexible $grid
+        #$corrPlotScript Final2012_Nominal_3NP3 $GridType $isRelative
+        if test $? -ne 0 ; then
+            exit -1
+        fi
+        #mv CorrelationMatrix-Final2012-Nominal-3NP3.pdf $plot3
+        #mv CorrelationMatrix-Final2012-Nominal-3NP3.root $root3
+    fi
+    if ! [[ -e "$root4" ]] || [[ "$config4" -nt "$root4" ]] ; then
+        jetDefinition="AntiKt4EMTopo" configFiles="$refConfig;$config4" outFile="$plot4" outHistFile="$root4" $corrPlotScript Flexible $grid
+        #$corrPlotScript Final2012_Nominal_3NP4 $GridType $isRelative
+        if test $? -ne 0 ; then
+            exit -1
+        fi
+        #mv CorrelationMatrix-Final2012-Nominal-3NP4.pdf $plot4
+        #mv CorrelationMatrix-Final2012-Nominal-3NP4.root $root4
+    fi
+    
+    # Now run comparison if any are newer
+    if ! [[ -e "$outFile" ]] || [[ "$outFile" -ot "$root1" ]] || [[ "$outFile" -ot "$root2" ]] || [[ "$outFile" -ot "$root3" ]] || [[ "$outFile" -ot "$root4" ]] ; then
+        echo ""
+        echo "Running comparison script..."
+        echo ""
+        if [ -e $corrUncFile ] ; then
+            corrFile="$corrUncFile"
+        else
+            corrFile="NONE"
+        fi
+        $corrCompScript $jetType $outFile $corrFile $isRelative $root1 $root2 $root3 $root4
+    else
+        echo "Nothing to do - output file is already up to date"
+    fi
+elif [[ $1 = 3NP ]] ; then
     # Files
     config1="$PWD/../../share/JES_2012/Final/InsituJES2012_3NP_Scenario1.config"
     config2="$PWD/../../share/JES_2012/Final/InsituJES2012_3NP_Scenario2.config"

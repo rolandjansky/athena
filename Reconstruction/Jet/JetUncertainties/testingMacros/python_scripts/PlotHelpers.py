@@ -139,7 +139,7 @@ def SetAxisRange(histo,oneSided=True,lowBound=-1e10,highBound=1e10):
 
             # Round to nearest 5% beyond the max
             #set_palette("SophieInverse")
-            set_palette("StevenInverse")
+            set_palette("StevenInverse" if not SetAxisRange.invertAxisColour else "Steven")
             
             if not SetAxisRange.relativeAxis:
                 histo.GetZaxis().SetRangeUser(-1.e-4,int(max*20+1)/20.)
@@ -156,7 +156,7 @@ def SetAxisRange(histo,oneSided=True,lowBound=-1e10,highBound=1e10):
 
             # Round to nearest 5% beyond the min
             #set_palette("Sophie")
-            set_palette("Steven")
+            set_palette("Steven" if not SetAxisRange.invertAxisColour else "StevenInverse")
 
             if not SetAxisRange.relativeAxis:
                 histo.GetZaxis().SetRangeUser(-int(fabs(min)*20+1)/20.,1.e-4)
@@ -188,6 +188,7 @@ def SetAxisRange(histo,oneSided=True,lowBound=-1e10,highBound=1e10):
                 histo.GetZaxis().SetRangeUser(pow(10,-log10(max)),max)
 SetAxisRange.forceOneSided = False
 SetAxisRange.relativeAxis = False
+SetAxisRange.invertAxisColour = False
 
 
 
@@ -263,7 +264,7 @@ def DetermineStatValues(histo,xValues,yValues,lowBound=-1e10,highBound=1e10,perc
             highY = (indexY+1)*factorY
             
             # Stat info
-            maxVal = 0
+            extremeVal = 0
             meanVal = 0
             numValid = 0
 
@@ -274,12 +275,15 @@ def DetermineStatValues(histo,xValues,yValues,lowBound=-1e10,highBound=1e10,perc
                     if binValue > lowBound and binValue < highBound:
                         numValid += 1
                         meanVal += binValue
-                        if fabs(binValue) > fabs(maxVal):
-                            maxVal = binValue
+                        if not DetermineStatValues.minInsteadOfMax and fabs(binValue) > fabs(extremeVal):
+                            extremeVal = binValue
+                        elif DetermineStatValues.minInsteadOfMax and fabs(binValue) < fabs(extremeVal):
+                            extremeVal = binValue
             meanVal /= numValid
-            DetermineStatValues.tex.DrawLatex(int(factorX*(indexX+0.4)),int(factorY*(indexY+0.70)),"%.f"%(maxVal*100) if percent else "%.1f"%(maxVal))
+            DetermineStatValues.tex.DrawLatex(int(factorX*(indexX+0.4)),int(factorY*(indexY+0.70)),"%.f"%(extremeVal*100) if percent else "%.1f"%(extremeVal))
             DetermineStatValues.tex.DrawLatex(int(factorX*(indexX+0.4)),int(factorY*(indexY+0.30)),"%.f"%(meanVal*100) if percent else "%.1f"%(meanVal))
 DetermineStatValues.tex = None
+DetermineStatValues.minInsteadOfMax = False
 
 
 def DrawText(xPos,yPos,text):

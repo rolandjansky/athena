@@ -5,8 +5,6 @@
 #ifndef JETUNCERTAINTIES_UNCERTAINTYENUM_H
 #define JETUNCERTAINTIES_UNCERTAINTYENUM_H
 
-//#include "xAODJet/Jet.h"
-
 #include "TString.h"
 
 namespace jet
@@ -49,12 +47,33 @@ namespace CompParametrization
         Pt,             // 1D, (pT) dependence
         PtEta,          // 2D, (pT,eta) dependence
         PtAbsEta,       // 2D, (pT,|eta|) dependence
+        PtMass,         // 2D, (pt,m/pT) dependence
         PtMassEta,      // 3D, (pT,m/pT,eta) dependence
         PtMassAbsEta    // 3D, (pT,m/pT,|eta|) dependence
     };
+
     TString enumToString(const TypeEnum type);
     TypeEnum stringToEnum(const TString type);
     bool isAbsEta(const TypeEnum type);
+}
+
+namespace CompMassDef
+{
+    enum TypeEnum
+    {
+        UNKNOWN=0,      // Failure/unset/etc
+        CaloMass,       // Calorimeter jet mass
+        TAMass,         // Track-assisted jet mass = (mTrack/pTtrack) * pTcalo
+        CombMassQCD,    // Combined jet mass = mCalo*wCalo + mTA*wTA, QCD weights
+        CombMassWZ,     // Combined jet mass = mCalo*wCalo + mTA*wTA, W/Z weights
+        CombMassHbb,    // Combined jet mass = mCalo*wCalo + mTA*wTA, Hbb weights
+        CombMassTop     // Combined jet mass = mCalo*wCalo + mTA*wTA, Top weights
+    };
+
+    TString enumToString(const TypeEnum type);
+    TypeEnum stringToEnum(const TString type);
+    TString getJetScaleString(const TypeEnum type);
+
 }
 
 namespace CompScaleVar
@@ -63,12 +82,16 @@ namespace CompScaleVar
     {
         UNKNOWN=0,      // Failure/unset/etc
         FourVec,        // The full jet 4-vector
-        Pt,             // Just the jet pT
-        Mass,           // Just the jet mass
-        D12,            // Just the 1,2 splitting distance
-        D23,            // Just the 2,3 splitting distance
-        Tau21,          // Just the ratio on n-subjettiness 2/1
-        Tau32           // Just the ratio on n-subjettiness 3/2
+        Pt,             // The jet pT
+        Mass,           // The jet mass (the default four-vector mass)
+        D12,            // The 1,2 splitting distance
+        D23,            // The 2,3 splitting distance
+        Tau21,          // The ratio on n-subjettiness 2/1
+        Tau32,          // The ratio on n-subjettiness 3/2
+        Tau32WTA,       // The ratio on n-subjettiness 3/2 with WTA axis
+        D2Beta1,        // The value of D2^{beta=1} (ECF ratio)
+        
+        MassRes         // The jet mass resolution
     };
     TString enumToString(const TypeEnum type);
     TypeEnum stringToEnum(const TString type);
@@ -96,6 +119,33 @@ namespace FlavourComp
         Response,       // Flavour response
         Composition,    // Flavour compositon
         bJES            // bJES response
+    };
+    TString enumToString(const TypeEnum type);
+    TypeEnum stringToEnum(const TString type);
+}
+
+namespace CombMassComp
+{
+    enum TypeEnum
+    {
+        UNKNOWN=0,      // Failure/unset/setc
+        Calo,           // Calorimeter-only uncertainty
+        TA,             // Track-assisted-only uncertainty
+        Both            // Coherent calo and TA uncertainties
+    };
+    TString enumToString(const TypeEnum type);
+    TypeEnum stringToEnum(const TString type);
+}
+
+namespace JetTopology
+{
+    enum TypeEnum
+    {
+        UNKNOWN=0,      // Failure/unset/etc
+        QCD,            // QCD jet topology
+        WZ,             // W/Z jet topology
+        Hbb,            // Hbb jet topology
+        Top             // Top jet topology
     };
     TString enumToString(const TypeEnum type);
     TypeEnum stringToEnum(const TString type);

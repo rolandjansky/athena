@@ -32,29 +32,26 @@ class PileupUncertaintyComponent : public UncertaintyComponent
                                     );
         PileupUncertaintyComponent(const PileupUncertaintyComponent& toCopy);
         virtual PileupUncertaintyComponent* clone() const;
-        virtual ~PileupUncertaintyComponent() {}
-        virtual StatusCode initialize(const std::vector<TString>& histNames, TFile* histFile);
-        virtual StatusCode initialize(const std::vector<TString>& histNames, const std::vector<TString>& validHistNames, TFile* histFile);
+        virtual ~PileupUncertaintyComponent();
+        virtual StatusCode initialize(TFile* histFile);
         
         // Extra information retrieval methods
         virtual PileupComp::TypeEnum    getPileupType() const   { return m_pileupType; }
         virtual float                   getNPVRef()     const   { return m_refNPV;     }
         virtual float                   getMuRef()      const   { return m_refMu;      }
 
-        using UncertaintyComponent::getValidity;
-        using UncertaintyComponent::getUncertainty;
-        using UncertaintyComponent::getValidUncertainty;
-
     protected:
-        // Uncertainty retrieval helper methods (implementations)
-        virtual bool   getValidity(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
-        virtual double getUncertainty(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
-        virtual bool   getValidUncertainty(const UncertaintyHistogram* histo, double& unc, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
+
+        // Uncertainty/validity retrieval helper methods
+        virtual bool   getValidityImpl(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo)    const;
+        virtual double getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
 
     private:
         // Default constructor is forbidden
         PileupUncertaintyComponent(const std::string& name = "");
 
+        enum PileupRefType { PileupRef_UNKNOWN, PileupRef_NONE, PileupRef_NPV, PileupRef_MU };
+        
         // Additional private members
         const PileupComp::TypeEnum m_pileupType;
         const float m_refNPV;
@@ -62,12 +59,14 @@ class PileupUncertaintyComponent : public UncertaintyComponent
         const UncertaintyHistogram* m_refNPVHist;
         const UncertaintyHistogram* m_refMuHist;
         const bool m_absEta;
-        SG::AuxElement::Accessor<float> m_NPVaccessor;
+        const TString m_secondUncName;
+        
+        UncertaintyHistogram* m_secondUncHist;
+        PileupRefType m_refType;
+        PileupRefType m_secondRefType;
 
         // Helper indices/methods
-        static const size_t PT_TERM_NPV;
-        static const size_t PT_TERM_MU;
-        double getPileupWeight(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
+        double getPileupWeight(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo, const PileupRefType refType) const;
 };
 
 } // end jet namespace

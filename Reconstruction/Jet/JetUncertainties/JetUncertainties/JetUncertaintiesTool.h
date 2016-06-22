@@ -6,6 +6,7 @@
 #define JETUNCERTAINTIES_JETUNCERTAINTIESTOOL_H
 
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
+#include "JetUncertainties/UncertaintyEnum.h"
 #include "AsgTools/AsgTool.h"
 
 #include <string>
@@ -15,14 +16,18 @@
 namespace jet
 {
     class UncertaintyHistogram;
+    class ValidityHistogram;
     class UncertaintyComponent;
-    class UncertaintyComponentGroup;
+    class UncertaintyGroup;
     class UncertaintySet;
+    class ConfigHelper;
+    class GroupHelper;
     class ComponentHelper;
 }
 
 class TFile;
 class TH2D;
+class TRandom3;
 
 namespace xAOD
 {
@@ -47,6 +52,9 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         
         // Initialization method
         virtual StatusCode initialize();
+
+        // Control methods
+        virtual void setRandomSeed(long long int seed) { m_userSeed = seed; }
 
         
         // Tool information retrieval methods
@@ -75,13 +83,16 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         virtual std::string getComponentCategory(const size_t index)   const;
         virtual bool        getComponentIsReducible(const size_t index) const;
         // Retrieve component scaling information
-        virtual bool        getComponentScalesFourVec(const size_t index) const;
-        virtual bool        getComponentScalesPt(const size_t index)      const;
-        virtual bool        getComponentScalesMass(const size_t index)    const;
-        virtual bool        getComponentScalesD12(const size_t index)     const;
-        virtual bool        getComponentScalesD23(const size_t index)     const;
-        virtual bool        getComponentScalesTau21(const size_t index)   const;
-        virtual bool        getComponentScalesTau32(const size_t index)   const;
+        virtual bool        getComponentScalesFourVec(const size_t index)  const;
+        virtual bool        getComponentScalesPt(const size_t index)       const;
+        virtual bool        getComponentScalesMass(const size_t index)     const;
+        virtual bool        getComponentScalesD12(const size_t index)      const;
+        virtual bool        getComponentScalesD23(const size_t index)      const;
+        virtual bool        getComponentScalesTau21(const size_t index)    const;
+        virtual bool        getComponentScalesTau32(const size_t index)    const;
+        virtual bool        getComponentScalesTau32WTA(const size_t index) const;
+        virtual bool        getComponentScalesD2Beta1(const size_t index)  const;
+        virtual bool        getComponentScalesMultiple(const size_t index) const;
         // Retrieve multi-component information
         virtual std::vector<std::string> getComponentCategories() const;
         virtual std::vector<size_t>      getComponentsInCategory(const std::string& category) const;
@@ -91,10 +102,21 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         // Retrieve uncertainty and validity information for a given component
         virtual bool   getValidity(size_t index, const xAOD::Jet& jet) const;
         virtual bool   getValidity(size_t index, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
-        virtual double getUncertainty(size_t index, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
+        virtual bool   getValidity(size_t index, const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum scaleVar) const;
+        virtual bool   getValidity(size_t index, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo, const jet::CompScaleVar::TypeEnum scaleVar) const;
+
         virtual double getUncertainty(size_t index, const xAOD::Jet& jet) const;
+        virtual double getUncertainty(size_t index, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
+        virtual double getUncertainty(size_t index, const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum scaleVar) const;
+        virtual double getUncertainty(size_t index, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo, const jet::CompScaleVar::TypeEnum scaleVar) const;
+
         virtual bool   getValidUncertainty(size_t index, double& unc, const xAOD::Jet& jet) const;
         virtual bool   getValidUncertainty(size_t index, double& unc, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
+        virtual bool   getValidUncertainty(size_t index, double& unc, const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum scaleVar) const;
+        virtual bool   getValidUncertainty(size_t index, double& unc, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo, const jet::CompScaleVar::TypeEnum scaleVar) const;
+
+        virtual double getNormalizedCaloMassWeight(const xAOD::Jet& jet) const;
+        virtual double getNormalizedTAMassWeight(  const xAOD::Jet& jet) const;
 
         // Inherited methods from CP::IJetUncertaintiesTool to implement
         // Apply a systematic variation or get a new copy
@@ -155,18 +177,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         float m_refMu;
         jet::UncertaintyHistogram* m_refNPVHist;
         jet::UncertaintyHistogram* m_refMuHist;
-        std::vector<jet::UncertaintyComponent*> m_components;
-        std::vector<jet::UncertaintyComponentGroup*> m_groups;
-
-        // Accessors
-        SG::AuxElement::Accessor<float> m_NPVAccessor;
-        SG::AuxElement::Accessor<float> m_D12Accessor;
-        SG::AuxElement::Accessor<float> m_D23Accessor;
-        SG::AuxElement::Accessor<float> m_Tau21Accessor;
-        SG::AuxElement::Accessor<float> m_Tau32Accessor;
-        SG::AuxElement::Accessor<float> m_Tau1Accessor;
-        SG::AuxElement::Accessor<float> m_Tau2Accessor;
-        SG::AuxElement::Accessor<float> m_Tau3Accessor;
+        std::vector<jet::UncertaintyGroup*> m_groups;
         
         // The SystematicSet known sets, maps, and current state
         CP::SystematicSet    m_recognizedSystematics;
@@ -176,12 +187,40 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         std::unordered_map<CP::SystematicSet,CP::SystematicSet> m_systFilterMap;
         std::unordered_map<CP::SystematicSet,jet::UncertaintySet*> m_systSetMap;
 
+        // File-wide validity histogram
+        jet::ValidityHistogram* m_fileValidHist;
+
+        // Jet combined mass information
+        jet::UncertaintyHistogram* m_caloMassWeight;
+        jet::UncertaintyHistogram* m_TAMassWeight;
+        jet::CompMassDef::TypeEnum m_combMassWeightCaloMassDef;
+        jet::CompMassDef::TypeEnum m_combMassWeightTAMassDef;
+ 
+        // Smearing information
+        long long int m_userSeed;
+        TRandom3* m_rand; // pointer so it can be changed in a const function (volatile wasn't working)
+
         // Default prefix for each component name
         const std::string m_namePrefix;
 
+
+
+
         // Helper methods for this tool's functions
-        StatusCode addUncertaintyComponent(TFile* histFile, const jet::ComponentHelper& component);
+        StatusCode addUncertaintyGroup    (const jet::ConfigHelper& helper);
+        StatusCode addUncertaintyComponent(const jet::ConfigHelper& helper);
+        jet::UncertaintyComponent* buildUncertaintyComponent(const jet::ComponentHelper& component) const;
         const xAOD::EventInfo* getDefaultEventInfo() const;
+        StatusCode checkIndexInput(const size_t index) const;
+        float getMassSmearingFactor(xAOD::Jet& jet, const double shift) const;
+
+        // Helper methods for setting shifted moments
+        StatusCode updateSplittingScale12(xAOD::Jet& jet, const double shift) const;
+        StatusCode updateSplittingScale23(xAOD::Jet& jet, const double shift) const;
+        StatusCode updateTau21(xAOD::Jet& jet, const double shift) const;
+        StatusCode updateTau32(xAOD::Jet& jet, const double shift) const;
+        StatusCode updateTau32WTA(xAOD::Jet& jet, const double shift) const;
+        StatusCode updateD2Beta1(xAOD::Jet& jet, const double shift) const;
 
 
         // Helper methods for CP::ISystematicsTool functions
