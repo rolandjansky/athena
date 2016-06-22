@@ -1,8 +1,10 @@
-<!-- $Id: selection.xml 662681 2015-04-23 18:04:34Z khoo $ -->
+<!-- $Id: selection.xml 742675 2016-04-25 14:50:23Z rsmith $ -->
 <lcgdict>
 
   <!-- MissingET_v1 dictionaries: -->
-  <class name="xAOD::MissingET_v1" />
+  <class name="xAOD::MissingET_v1">
+      <field name="m_nameHashPair" transient="true" />
+  </class>
   <class name="DataVector<xAOD::MissingET_v1>" />
   <class name="xAOD::MissingETContainer_v1" id="F49162FE-6BC0-49BC-A7DA-A792136BD939" />
   <class name="xAOD::MissingETAuxContainer_v1" id="2F92EC94-8CD1-49F3-BCA4-3D78599D4D60" />
@@ -51,7 +53,9 @@
     <field name="m_lastConstLink" transient="true" />
     <field name="m_miscAssocIndex" transient="true" />
   </class>
+  <!-- Schema evolve aux container -->
   <class name="xAOD::MissingETAuxAssociationMap_v1" id="48EEF1CD-F937-445C-A09C-B978D152868E" />
+  <class name="xAOD::MissingETAuxAssociationMap_v2" id="05184C74-A3CE-4C89-959E-D7E9F0A98D13" />
 
   <!-- Smart pointer dictionaries: -->
   <class name="DataLink<xAOD::MissingETContainer_v1>" />

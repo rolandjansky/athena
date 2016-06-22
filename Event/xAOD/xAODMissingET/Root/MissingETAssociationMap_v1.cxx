@@ -4,7 +4,6 @@
 
 #include "xAODMissingET/versions/MissingETAssociationMap_v1.h"
 
-#include "xAODCaloEvent/CaloCluster.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODJet/JetAttributes.h"
 
@@ -114,7 +113,7 @@ void MissingETAssociationMap_v1::f_setCache(iterator fAssoc)
 // Cache of jet links //
 ////////////////////////
 
-void MissingETAssociationMap_v1::f_setJetConstMap(std::map<ElementLink<IParticleContainer>, size_t/*, xAOD::lessEL*/> map)
+void MissingETAssociationMap_v1::f_setJetConstMap(std::map<ElementLink<IParticleContainer>, size_t> map)
 {
   m_jetConstLinks.clear();
   m_jetConstLinks = map;
@@ -143,16 +142,6 @@ bool MissingETAssociationMap_v1::setJetConstituents(const std::vector<ElementLin
   if(setConst) {
     for(std::vector<ElementLink<IParticleContainer> >::const_iterator iEL=constLinks.begin();
 	iEL!=constLinks.end(); ++iEL) {
-      if((**iEL)->type()==xAOD::Type::CaloCluster) {
-      	// printf("Jet %lu --> EL to cluster (%p): pt %f eta %f phi %f\n",jetIndex,(void*)(**iEL),
-      	//        (**iEL)->pt(),(**iEL)->eta(),(**iEL)->phi());
-      } if((**iEL)->type()==xAOD::Type::TrackParticle) {
-      	// printf("Jet %lu --> EL to track (%p): pt %f eta %f phi %f\n",jetIndex,(void*)(**iEL),
-	//        (**iEL)->pt(),(**iEL)->eta(),(**iEL)->phi());
-      } if((**iEL)->type()==xAOD::Type::ParticleFlow) {
-      	// printf("Jet %lu --> EL to pfo (%p): pt %f eta %f phi %f\n",jetIndex,(void*)(**iEL),
-	//        (**iEL)->pt(),(**iEL)->eta(),(**iEL)->phi());
-      } 
       m_jetConstLinks[*iEL] = jetIndex;
     }
   }
@@ -220,7 +209,7 @@ size_t MissingETAssociationMap_v1::findIndexByJetConst(ElementLink<IParticleCont
     index = m_lastContribIndex;
   } else {
     std::map<ElementLink<IParticleContainer>, size_t>::const_iterator iConstMap = m_jetConstLinks.find(constLink);
-    //if (iConstMap==m_jetConstLinks.end()) for (std::map<ElementLink<IParticleContainer>, size_t>::const_iterator jConstMap = m_jetConstLinks.begin(); jConstMap!=m_jetConstLinks.end(); jConstMap++) if (*(jConstMap->first)==*constLink) iConstMap = jConstMap;
+    if (iConstMap==m_jetConstLinks.end()) for (std::map<ElementLink<IParticleContainer>, size_t>::const_iterator jConstMap = m_jetConstLinks.begin(); jConstMap!=m_jetConstLinks.end(); jConstMap++) if (*(jConstMap->first)==*constLink) iConstMap = jConstMap;
     if(iConstMap!=m_jetConstLinks.end()) {
       index = iConstMap->second;
       m_lastConstLink = constLink;
@@ -293,6 +282,12 @@ const xAOD::IParticleContainer* MissingETAssociationMap_v1::getUniqueSignals(con
       else {continue;}
     case MissingETBase::UsageHandler::ParticleFlow:
       if((*iSig)->type()==xAOD::Type::ParticleFlow) {break;}
+      else {continue;}
+    case MissingETBase::UsageHandler::TruthParticle:
+      if((*iSig)->type()==xAOD::Type::TruthParticle) {break;}
+      else {continue;}
+    case MissingETBase::UsageHandler::AllCalo:
+      if((*iSig)->type()!=xAOD::Type::TrackParticle) {break;}
       else {continue;}
     default: continue;
     }

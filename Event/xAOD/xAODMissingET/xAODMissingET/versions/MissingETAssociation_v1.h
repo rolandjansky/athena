@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAODMISSINGET_VERSIONS_MISSINGETASSOCIATION_V1_H
-#define XAODMISSINGET_VERSIONS_MISSINGETASSOCIATION_V1_H
+#ifndef XAODMISSINGET_VERSIONS_MISSINGETASSOCIATION_v1_H
+#define XAODMISSINGET_VERSIONS_MISSINGETASSOCIATION_v1_H
 
 #include "AthContainers/AuxElement.h"
 
@@ -81,7 +81,7 @@ namespace xAOD
       /*!@}*/
     }; // MissingETComponent_v1::ConstVec
 
-    MissingETAssociation_v1(bool createStore=false);                                                                                /*!< @brief Default constructor */
+    explicit MissingETAssociation_v1(bool createStore=false);     /*!< @brief Default constructor */
     MissingETAssociation_v1(const Jet* pjet, bool isMisc=false); /*!< @brief Construct with a link to a Jet object */
     MissingETAssociation_v1(const MissingETAssociation_v1& assocDescr);                                    /*!< @brief Copy constructor */
     MissingETAssociation_v1& operator=(const MissingETAssociation_v1& assocDescr);                         /*! @brief Assignment operator */
@@ -109,111 +109,92 @@ namespace xAOD
     /*!@{*/
     const std::vector<double>& calpx() const;                /*!< @brief Get the vector of @f$ P_{x} @f$  */
     double calpx(const IParticle* pPart) const;              /*!< @brief Get the vector @f$ P_{x} @f$ for a given object referenced by pointer */
-    double calpx(size_t objIdx) const;                       /*!< @brief Get the vector @f$ P_{x} @f$ for a given object referenced by index */
+    double calpx(size_t keyIdx) const;                       /*!< @brief Get the vector @f$ P_{x} @f$ for a given object referenced by index */
     //
     bool setCalPx(const std::vector<double>& calpxvec);      /*!< @brief Set the vector of @f$ P_{x} @f$  */
-    bool setCalPx(const IParticle* pPart,double calpx);      /*!< @brief Set calo constituent vector @f$ P_{x} @f$ for a given contributing object referenced by pointer */
-    bool setCalPx(size_t objIdx,double calpx);               /*!< @brief Set calo constituent vector @f$ P_{x} @f$ for a given contributing object referenced by index */
+    bool setCalPx(size_t keyIdx,double calpx);               /*!< @brief Set calo constituent vector @f$ P_{x} @f$ for a given contributing object referenced by index */
     //
     const std::vector<double>& calpy() const;                /*!< @brief Get the vector of @f$ P_{y} @f$  */
-    double calpy(const IParticle* pPart) const;              /*!< @brief Get the vector @f$ P_{y} @f$ for a given object referenced by pointer */
-    double calpy(size_t objIdx) const;                       /*!< @brief Get the vector @f$ P_{y} @f$ for a given object referenced by index */
+    double calpy(size_t keyIdx) const;                       /*!< @brief Get the vector @f$ P_{y} @f$ for a given object referenced by index */
     //
     bool setCalPy(const std::vector<double>& calpyvec);      /*!< @brief Set the vector of @f$ P_{y} @f$  */
-    bool setCalPy(const IParticle* pPart,double calpy);      /*!< @brief Set calo constituent vector @f$ P_{y} @f$ for a given contributing object referenced by pointer */
-    bool setCalPy(size_t objIdx,double calpy);               /*!< @brief Set calo constituent vector @f$ P_{y} @f$ for a given contributing object referenced by index */
+    bool setCalPy(size_t keyIdx,double calpy);               /*!< @brief Set calo constituent vector @f$ P_{y} @f$ for a given contributing object referenced by index */
     //
     const std::vector<double>& calpz() const;                /*!< @brief Get the vector of @f$ P_{z} @f$  */
-    double calpz(const IParticle* pPart) const;              /*!< @brief Get the vector @f$ P_{z} @f$ for a given object referenced by pointer */
-    double calpz(size_t objIdx) const;                       /*!< @brief Get the vector @f$ P_{z} @f$ for a given object referenced by index */
+    double calpz(size_t keyIdx) const;                       /*!< @brief Get the vector @f$ P_{z} @f$ for a given object referenced by index */
     //
     bool setCalPz(const std::vector<double>& calpzvec);      /*!< @brief Set the vector of @f$ P_{z} @f$  */
-    bool setCalPz(const IParticle* pPart,double calpz);      /*!< @brief Set calo constituent vector @f$ P_{z} @f$ for a given contributing object referenced by pointer */
-    bool setCalPz(size_t objIdx,double calpz);               /*!< @brief Set calo constituent vector @f$ P_{z} @f$ for a given contributing object referenced by index */
+    bool setCalPz(size_t keyIdx,double calpz);               /*!< @brief Set calo constituent vector @f$ P_{z} @f$ for a given contributing object referenced by index */
     //
     const std::vector<double>& cale() const;                 /*!< @brief Get the vector of @f$ E @f$  */
-    double cale(const IParticle* pPart) const;               /*!< @brief Get the vector @f$ E @f$ for a given object referenced by pointer */
-    double cale(size_t objIdx) const;                        /*!< @brief Get the vector @f$ E @f$ for a given object referenced by index */
+    double cale(size_t keyIdx) const;                        /*!< @brief Get the vector @f$ E @f$ for a given object referenced by index */
     //
     bool setCalE(const std::vector<double>& calevec);        /*!< @brief Set the vector of @f$ E @f$  */
-    bool setCalE(const IParticle* pPart,double cale);        /*!< @brief Set calo constituent vector @f$ E @f$ for a given contributing object referenced by pointer */
-    bool setCalE(size_t objIdx,double cale);                 /*!< @brief Set calo constituent vector @f$ E @f$ for a given contributing object referenced by index */
+    bool setCalE(size_t keyIdx,double cale);                 /*!< @brief Set calo constituent vector @f$ E @f$ for a given contributing object referenced by index */
     //
     const std::vector<double>& calsumpt() const;             /*!< @brief Get the vector of sumpt  */
-    double calsumpt(const IParticle* pPart) const;           /*!< @brief Get the sumpt for a given object referenced by pointer */
-    double calsumpt(size_t objIdx) const;                    /*!< @brief Get the sumpt for a given object referenced by index */
+    double calsumpt(size_t keyIdx) const;                    /*!< @brief Get the sumpt for a given object referenced by index */
     //
     bool setCalSumpt(const std::vector<double>& calsumptvec); /*!< @brief Set the vector of sumpt  */
-    bool setCalSumpt(const IParticle* pPart,double calsumpt); /*!< @brief Set calo constituent sumpt for a given contributing object referenced by pointer */
-    bool setCalSumpt(size_t objIdx,double calsumpt);          /*!< @brief Set calo constituent sumpt for a given contributing object referenced by index */
+    bool setCalSumpt(size_t keyIdx,double calsumpt);          /*!< @brief Set calo constituent sumpt for a given contributing object referenced by index */
     //
     const std::vector<MissingETBase::Types::bitmask_t>& calkey() const;   /*!< @brief Get the vector of cal keys */
-    MissingETBase::Types::bitmask_t calkey(const IParticle* pPart) const; /*!< @brief Get the key for a given entry referenced by pointer */
     MissingETBase::Types::bitmask_t calkey(size_t keyIdx) const;          /*!< @brief Get the key for a given entry referenced by index */
-    bool isOldFormat() const;
     //
     bool setCalKey(const std::vector<MissingETBase::Types::bitmask_t>& calkeyvec); /*!< @brief Set the vector of keys  */
-    bool setCalKey(const IParticle* pPart,MissingETBase::Types::bitmask_t calkey); /*!< @brief Set calo key for a given contributing entry referenced by pointer */
-    bool setCalKey(size_t objIdx,MissingETBase::Types::bitmask_t calkey);          /*!< @brief Set calo key for a given contributing entry referenced by index */
+    bool setCalKey(size_t keyIdx,MissingETBase::Types::bitmask_t calkey);          /*!< @brief Set calo key for a given contributing entry referenced by index */
     //
-    bool setCalVec(const IParticle* pPart,const ConstVec& cvec=ConstVec());  /*!< @brief Set the calo constituent vector of an object contribution referenced by pointer */
-    bool setCalVec(const IParticle* pPart,double calpx,double calpy,double calpz,double ce,double sumpt);   /*!< @brief Set the calo constituent vectors of an object contribution referenced by pointer */
-    bool setCalVec(size_t objIdx,const ConstVec& cvec=ConstVec());           /*!< @brief Set the calo constituent vector of an object contribution referenced by index */
-    bool setCalVec(size_t objIdx,double calpx,double calpy,double calpz,double ce,double sumpt);            /*!< @brief Set the calo constituent vectors of an object contribution referenced by index */
+    bool setCalVec(size_t keyIdx,const ConstVec& cvec=ConstVec());           /*!< @brief Set the calo constituent vector of an object contribution referenced by index */
+    bool setCalVec(size_t keyIdx,double calpx,double calpy,double calpz,double ce,double sumpt);            /*!< @brief Set the calo constituent vectors of an object contribution referenced by index */
+    //
+    bool addCalVec(MissingETBase::Types::bitmask_t key,double calpx,double calpy,double calpz,double cale,double sumpt);            /*!< @brief Add a key/vector pair for calo contributions */
+    //
+    bool clearCalVecs();           /*!< @brief Reset the calo constituent vectors and keys */
     //
     /*!@{*/
     const std::vector<double>& trkpx() const;                /*!< @brief Get the vector of @f$ P_{x} @f$  */
-    double trkpx(const IParticle* pPart) const;              /*!< @brief Get the vector @f$ P_{x} @f$ for a given object referenced by pointer */
-    double trkpx(size_t objIdx) const;                       /*!< @brief Get the vector @f$ P_{x} @f$ for a given object referenced by index */
+    double trkpx(size_t keyIdx) const;                       /*!< @brief Get the vector @f$ P_{x} @f$ for a given object referenced by index */
     //
     bool setTrkPx(const std::vector<double>& trkpxvec);      /*!< @brief Set the vector of @f$ P_{x} @f$  */
-    bool setTrkPx(const IParticle* pPart,double trkpx);      /*!< @brief Set track constituent vector @f$ P_{x} @f$ for a given contributing object referenced by pointer */
-    bool setTrkPx(size_t objIdx,double trkpx);               /*!< @brief Set track constituent vector @f$ P_{x} @f$ for a given contributing object referenced by index */
+    bool setTrkPx(size_t keyIdx,double trkpx);               /*!< @brief Set track constituent vector @f$ P_{x} @f$ for a given contributing object referenced by index */
     //
     const std::vector<double>& trkpy() const;                /*!< @brief Get the vector of @f$ P_{y} @f$  */
-    double trkpy(const IParticle* pPart) const;              /*!< @brief Get the vector @f$ P_{y} @f$ for a given object referenced by pointer */
-    double trkpy(size_t objIdx) const;                       /*!< @brief Get the vector @f$ P_{y} @f$ for a given object referenced by index */
+    double trkpy(size_t keyIdx) const;                       /*!< @brief Get the vector @f$ P_{y} @f$ for a given object referenced by index */
     //
     bool setTrkPy(const std::vector<double>& trkpyvec);      /*!< @brief Set the vector of @f$ P_{y} @f$  */
-    bool setTrkPy(const IParticle* pPart,double trkpy);      /*!< @brief Set track constituent vector @f$ P_{y} @f$ for a given contributing object referenced by pointer */
-    bool setTrkPy(size_t objIdx,double trkpy);               /*!< @brief Set track constituent vector @f$ P_{y} @f$ for a given contributing object referenced by index */
+    bool setTrkPy(size_t keyIdx,double trkpy);               /*!< @brief Set track constituent vector @f$ P_{y} @f$ for a given contributing object referenced by index */
     //
     const std::vector<double>& trkpz() const;                /*!< @brief Get the vector of @f$ P_{z} @f$  */
-    double trkpz(const IParticle* pPart) const;              /*!< @brief Get the vector @f$ P_{z} @f$ for a given object referenced by pointer */
-    double trkpz(size_t objIdx) const;                       /*!< @brief Get the vector @f$ P_{z} @f$ for a given object referenced by index */
+    double trkpz(size_t keyIdx) const;                       /*!< @brief Get the vector @f$ P_{z} @f$ for a given object referenced by index */
     //
     bool setTrkPz(const std::vector<double>& trkpzvec);      /*!< @brief Set the vector of @f$ P_{z} @f$  */
-    bool setTrkPz(const IParticle* pPart,double trkpz);      /*!< @brief Set track constituent vector @f$ P_{z} @f$ for a given contributing object referenced by pointer */
-    bool setTrkPz(size_t objIdx,double trkpz);               /*!< @brief Set track constituent vector @f$ P_{z} @f$ for a given contributing object referenced by index */
+    bool setTrkPz(size_t keyIdx,double trkpz);               /*!< @brief Set track constituent vector @f$ P_{z} @f$ for a given contributing object referenced by index */
     //
     const std::vector<double>& trke() const;                 /*!< @brief Get the vector of @f$ E @f$  */
-    double trke(const IParticle* pPart) const;               /*!< @brief Get the vector @f$ E @f$ for a given object referenced by pointer */
-    double trke(size_t objIdx) const;                        /*!< @brief Get the vector @f$ E @f$ for a given object referenced by index */
+    double trke(size_t keyIdx) const;                        /*!< @brief Get the vector @f$ E @f$ for a given object referenced by index */
     //
     bool setTrkE(const std::vector<double>& trkevec);        /*!< @brief Set the vector of @f$ E @f$  */
-    bool setTrkE(const IParticle* pPart,double trke);        /*!< @brief Set track constituent vector @f$ E @f$ for a given contributing object referenced by pointer */
-    bool setTrkE(size_t objIdx,double trke);                 /*!< @brief Set track constituent vector @f$ E @f$ for a given contributing object referenced by index */
+    bool setTrkE(size_t keyIdx,double trke);                 /*!< @brief Set track constituent vector @f$ E @f$ for a given contributing object referenced by index */
     //
     const std::vector<double>& trksumpt() const;             /*!< @brief Get the vector of @f$ E @f$  */
-    double trksumpt(const IParticle* pPart) const;           /*!< @brief Get the vector @f$ E @f$ for a given object referenced by pointer */
-    double trksumpt(size_t objIdx) const;                    /*!< @brief Get the vector @f$ E @f$ for a given object referenced by index */
+    double trksumpt(size_t keyIdx) const;                    /*!< @brief Get the vector @f$ E @f$ for a given object referenced by index */
     //
     bool setTrkSumpt(const std::vector<double>& trksumptvec); /*!< @brief Set the vector of @f$ E @f$  */
-    bool setTrkSumpt(const IParticle* pPart,double trksumpt); /*!< @brief Set track constituent vector @f$ E @f$ for a given contributing object referenced by pointer */
-    bool setTrkSumpt(size_t objIdx,double trksumpt);          /*!< @brief Set track constituent vector @f$ E @f$ for a given contributing object referenced by index */
+    bool setTrkSumpt(size_t keyIdx,double trksumpt);          /*!< @brief Set track constituent vector @f$ E @f$ for a given contributing object referenced by index */
     //
     const std::vector<MissingETBase::Types::bitmask_t>& trkkey() const;   /*!< @brief Get the vector of trk keys */
-    MissingETBase::Types::bitmask_t trkkey(const IParticle* pPart) const; /*!< @brief Get the key for a given entry referenced by pointer */
     MissingETBase::Types::bitmask_t trkkey(size_t keyIdx) const;          /*!< @brief Get the key for a given entry referenced by index */
     //
     bool setTrkKey(const std::vector<MissingETBase::Types::bitmask_t>& trkkeyvec); /*!< @brief Set the vector of keys  */
-    bool setTrkKey(const IParticle* pPart,MissingETBase::Types::bitmask_t trkkey); /*!< @brief Set trk key for a given contributing entry referenced by pointer */
-    bool setTrkKey(size_t objIdx,MissingETBase::Types::bitmask_t trkkey);          /*!< @brief Set trk key for a given contributing entry referenced by index */
+    bool setTrkKey(size_t keyIdx,MissingETBase::Types::bitmask_t trkkey);          /*!< @brief Set trk key for a given contributing entry referenced by index */
     //
-    bool setTrkVec(const IParticle* pPart,const ConstVec& cvec=ConstVec());  /*!< @brief Set the track constituent vector of an object contribution referenced by pointer */
-    bool setTrkVec(const IParticle* pPart,double trkpx,double trkpy,double trkpz,double ce,double sumpt);   /*!< @brief Set the track constituent vectors of an object contribution referenced by pointer */
-    bool setTrkVec(size_t objIdx,const ConstVec& cvec=ConstVec());           /*!< @brief Set the track constituent vector of an object contribution referenced by index */
-    bool setTrkVec(size_t objIdx,double trkpx,double trkpy,double trkpz,double trke,double sumpt);            /*!< @brief Set the track constituent vectors of an object contribution referenced by index */
+    bool setTrkVec(size_t keyIdx,const ConstVec& cvec=ConstVec());           /*!< @brief Set the track constituent vector of an object contribution referenced by index */
+    bool setTrkVec(size_t keyIdx,double trkpx,double trkpy,double trkpz,double trke,double sumpt);            /*!< @brief Set the track constituent vectors of an object contribution referenced by index */
+    //
+    bool addTrkVec(MissingETBase::Types::bitmask_t key,double trkpx,double trkpy,double trkpz,double ce,double sumpt);            /*!< @brief Add a key/vector pair for calo contributions */
+    //
+    bool clearTrkVecs();           /*!< @brief Reset the track constituent vectors and keys */
+    //
     /*!@{*/
     double jettrkpx() const;              /*!< @brief Get the vector @f$ P_{x} @f$ for a given object referenced by index */
     double jettrkpy() const;              /*!< @brief Get the vector @f$ P_{y} @f$ for a given object referenced by pointer */
@@ -233,6 +214,7 @@ namespace xAOD
     bool setJetLink(const MissingETBase::Types::jetlink_t& jetLnk);             /*!< @brief Set the link to the reference jet */
     const MissingETBase::Types::objlink_vector_t& objectLinks() const;          /*!< @brief Get the vector of links to the contributing physics or signal objects */
     bool setObjectLinks(const MissingETBase::Types::objlink_vector_t& objLnks); /*!< @brief Set the vector of links to the contributing physics or signal objects */
+
     //
     const std::vector<std::vector<size_t> >& overlapIndices() const;            /*!< @brief Get the list of object overlapIndices */
     std::vector<size_t> overlapIndices(const IParticle* pPart) const;           /*!< @brief Get the overlap indices for a given object referenced by pointer */
@@ -286,9 +268,9 @@ namespace xAOD
 					  const std::vector<double>*& trkePtr,
 					  const std::vector<double>*& trksumptPtr) const; /*!< @brief Access contributing objects and retrieve constituent vectors */
     ConstVec calVec(const IParticle* pPart) const;            /*!< @brief Get calo constituent vector for a given object */
-    ConstVec calVec(size_t objIdx) const;                     /*!< @brief Get calo constituent vector for a given entry (index) in the contributing object list */
+    ConstVec calVec(size_t keyIdx) const;                     /*!< @brief Get calo constituent vector for a given entry (index) in the contributing object list */
     ConstVec trkVec(const IParticle* pPart) const;            /*!< @brief Get track constituent vector for a given object */
-    ConstVec trkVec(size_t objIdx) const;                     /*!< @brief Get track constituent vector for a given entry (index) in the contributing object list */
+    ConstVec trkVec(size_t keyIdx) const;                     /*!< @brief Get track constituent vector for a given entry (index) in the contributing object list */
     ConstVec jetTrkVec() const;                               /*!< @brief Get track constituent vector for the reference jet */
     /*!@}*/ 
 
@@ -477,9 +459,9 @@ namespace MissingETBase
 /*! @name Global namespace operators for MissingETComponent_v1::MissingETBase::Types::constvec_t */
 /*!@{*/
 /*! @brief Add constituent vectors */
-MissingETBase::Types::constvec_t operator+(const MissingETBase::Types::constvec_t& v0,const MissingETBase::Types::constvec_t& v1);
+MissingETBase::Types::constvec_t operator+(const MissingETBase::Types::constvec_t& v0,const MissingETBase::Types::constvec_t& v2);
 /*! @brief Subtract constituent vectors */
-MissingETBase::Types::constvec_t operator-(const MissingETBase::Types::constvec_t& v0,const MissingETBase::Types::constvec_t& v1);
+MissingETBase::Types::constvec_t operator-(const MissingETBase::Types::constvec_t& v0,const MissingETBase::Types::constvec_t& v2);
 /*! @brief Scale constituent vector by multiplication */
 MissingETBase::Types::constvec_t operator*(const MissingETBase::Types::constvec_t& cvec,double scale);
 /*! @brief Scale constituent vector by multiplication */

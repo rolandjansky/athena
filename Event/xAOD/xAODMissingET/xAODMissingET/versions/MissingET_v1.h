@@ -14,6 +14,8 @@
 #include "xAODMissingET/versions/MissingETBase.h"
 
 #include <string>
+#include <functional>
+#include <utility>
 
 namespace xAOD
 {
@@ -24,7 +26,7 @@ namespace xAOD
 
     /*! @name Constructors and destructor */
     /*!@{*/
-    MissingET_v1(bool createStore=false);                                               /*!< @brief Default constructor */
+    explicit MissingET_v1(bool createStore=false);  /*!< @brief Default constructor */
     MissingET_v1(const std::string& name,
 		 MissingETBase::Types::bitmask_t src=MissingETBase::Source::unknown()); /*!< @brief Constructor with identifiers */
     MissingET_v1(const IParticle* particle, const std::string& name="MissingET",
@@ -55,6 +57,7 @@ namespace xAOD
     /*!@{*/
     const std::string& name() const;                /*!< @brief MET object name */
     MissingETBase::Types::bitmask_t source() const; /*!< @brief MET object source tag */
+    const std::size_t& nameHash() const;            /*!< @brief Return hash associated to the MET object name */
     /*!@}*/
 
     /*! @name Identifier setters */
@@ -68,9 +71,9 @@ namespace xAOD
     void add(const IParticle* particle);                 /*!< @brief Add particle kinematics to MET */
     void add(const IParticle* particle,double scale);    /*!< @brief Add scaled particle kinematics to MET */
     void add(double px,double py,double pt);             /*!< @brief Add kinematic variables to MET */
-    MissingET_v1& operator=(const MissingET_v1& met); /*!< @brief Add particle kinematics to MET */ 
-    MissingET_v1& operator+=(const IParticle* particle); /*!< @brief Add particle kinematics to MET */ 
-    MissingET_v1& operator-=(const IParticle* part);     /*!< @brief Remove particle kinematics to MET */ 
+    MissingET_v1& operator=(const MissingET_v1& met); /*!< @brief Add particle kinematics to MET */
+    MissingET_v1& operator+=(const IParticle* particle); /*!< @brief Add particle kinematics to MET */
+    MissingET_v1& operator-=(const IParticle* part);     /*!< @brief Remove particle kinematics to MET */
     /*!@}*/
 
     /*! @name MET object algebra */
@@ -92,6 +95,8 @@ namespace xAOD
     bool operator!=(const MissingET_v1& met) const; /*!< @brief Inequality test. */
     /*!@}*/
 
+
+
   protected:
     /// Function initialising the object to work in standalone mode
     void createPrivateStore();
@@ -105,8 +110,8 @@ namespace xAOD
     MissingETBase::Types::bitmask_t&  f_source(); /*!< @brief Returns reference to MET object source store */
     /*!@}*/
 
-  private: 
-
+  private:
+    mutable std::pair< std::string , std::size_t> m_nameHashPair;/*!< @brief Stores the hash function for the current f_name string */
   };
 }
 

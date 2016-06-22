@@ -47,15 +47,6 @@
  *  @note The pointer to the first object with a matching name is returned. 
  */
 
-/*! @fn const xAOD::MissingET_v1* xAOD::MissingETContainer_v1::operator[](MissingETBase::Types::bitmask_t src) const
- *
- *  @return Valid pointer to a non-modifiable xAOD::MissingET_v1 object with requested source indicator if found, else a @c NULL pointer.
- *
- *  @param[in] src requested source indicator.
- *
- *  @note The pointer to the first object with a matching source indicator is returned. 
- */
-
 /*! @fn xAOD::MissingET_v1* xAOD::MissingETContainer_v1::operator[](const std::string& name);
  *
  *  @return Valid pointer to a modifiable xAOD::MissingET_v1 object with requested name if found, else a @c NULL pointer.
@@ -63,15 +54,6 @@
  *  @param[in] name reference to non-modifiable string holding the requested MET object name (key)
  *
  *  @note The pointer to the first object with a matching name is returned. 
- */
-
-/*! @fn xAOD::MissingET_v1* xAOD::MissingETContainer_v1::operator[](MissingETBase::Types::bitmask_t src)
- *
- *  @return Valid pointer to a modifiable xAOD::MissingET_v1 object with requested source indicator if found, else a @c NULL pointer.
- *
- *  @param[in] src requested source indicator.
- *
- *  @note The pointer to the first object with a matching source indicator is returned. 
  */
 
 /////////////////////

@@ -2,19 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifdef ROOTCORE
-#include "xAODRootAccess/Init.h"
-#include "xAODRootAccess/TEvent.h"
-#include "xAODRootAccess/TStore.h"
-#endif
-
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_MODULE TEST_XAOD_MET_EDM
 #include <boost/test/unit_test.hpp>
-
-#include "TFile.h"
 
 #include "xAODMissingET/MissingET.h"
 #include "xAODMissingET/MissingETContainer.h"

@@ -15,8 +15,15 @@ inline double xAOD::MissingET_v1::mpx()   const { static SG::AuxElement::Accesso
 inline double xAOD::MissingET_v1::mpy()   const { static SG::AuxElement::Accessor<double> acc("mpy"); return acc(*this); }
 inline double xAOD::MissingET_v1::sumet() const { static SG::AuxElement::Accessor<double> acc("sumet"); return acc(*this); }
 
-inline const std::string&              xAOD::MissingET_v1::name()   const { static SG::AuxElement::Accessor<std::string> acc("name"); return acc(*this); }
-inline MissingETBase::Types::bitmask_t xAOD::MissingET_v1::source() const { static SG::AuxElement::Accessor<MissingETBase::Types::bitmask_t> acc("source"); return acc(*this); }
+inline const std::string&              xAOD::MissingET_v1::name()     const { static SG::AuxElement::Accessor<std::string> acc("name"); return acc(*this); }
+//inline const std::string&              xAOD::MissingET_v1::name()     const { return m_nameHashPair.first;  };
+inline const std::size_t&              xAOD::MissingET_v1::nameHash() const {
+  if(!name().empty() && m_nameHashPair.second==0) {
+    m_nameHashPair = {name() , std::hash<std::string>()(name())};
+  }
+  return m_nameHashPair.second;
+}
+inline MissingETBase::Types::bitmask_t xAOD::MissingET_v1::source()   const { static SG::AuxElement::Accessor<MissingETBase::Types::bitmask_t> acc("source"); return acc(*this); }
 
 ////////////////////////////////////////////
 // MissingET_v1 Inline Functions: Setters //
@@ -34,14 +41,16 @@ inline void xAOD::MissingET_v1::setMpy(double mpy)     { this->f_mpy() = mpy; }
 inline void xAOD::MissingET_v1::setSumet(double sumet) { this->f_sumet() = sumet; }
 
 
-inline void xAOD::MissingET_v1::setName(const std::string& name)               { this->f_name() = name; }
+inline void xAOD::MissingET_v1::setName(const std::string& name)               { this->f_name() = name;
+                                                                                 m_nameHashPair = {name , std::hash<std::string>()(name)} ;
+}
 inline void xAOD::MissingET_v1::setSource(MissingETBase::Types::bitmask_t src) { this->f_source() = src; }
 
 ///////////////////////////////////////////////////
 // MissingET_v1 Inline Functions: Object algebra //
 ///////////////////////////////////////////////////
 
-inline xAOD::MissingET_v1& xAOD::MissingET_v1::operator+=(const IParticle* particle) 
+inline xAOD::MissingET_v1& xAOD::MissingET_v1::operator+=(const IParticle* particle)
 { this->add(particle); return *this; }
 
 inline xAOD::MissingET_v1& xAOD::MissingET_v1::operator+=(const MissingET_v1& met)
@@ -51,10 +60,10 @@ inline xAOD::MissingET_v1& xAOD::MissingET_v1::operator-=(const MissingET_v1& me
 { this->f_mpx() -= met.mpx(); this->f_mpy() -= met.mpy(); this->f_sumet() -= met.sumet(); return *this; }
 
 inline xAOD::MissingET_v1& xAOD::MissingET_v1::operator*=(double scale)
-{ this->f_mpx() *= scale; this->f_mpy() *= scale; this->f_sumet() *= scale; return *this; } 
+{ this->f_mpx() *= scale; this->f_mpy() *= scale; this->f_sumet() *= scale; return *this; }
 
 inline xAOD::MissingET_v1& xAOD::MissingET_v1::operator/=(double scale)
-{ double f(MissingETBase::Numerical::divide(1.,scale)); this->operator*=(f); return *this; } 
+{ double f(MissingETBase::Numerical::divide(1.,scale)); this->operator*=(f); return *this; }
 
 ///////////////////////////////////////////////////////////////////////
 // MissingET_v1 Inline Functions: Object Algebra in Global Namespace //
@@ -94,42 +103,42 @@ inline void xAOD::MissingET_v1::clear()
 
 ///////////////////////////////////////////////////////////////
 // The rest of the file contains doxygen documentation only! //
-/////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////
 
 /*! @class xAOD::MissingET_v1
  *
  *  This object provides the data store for the missing transverse momentum (MET) components @f$(p_{x},p_{y},\Sigma E_{\rmT}) @f$. In addition, each
  *  xAOD::MissingET_v1 object stores the name of the MET term it represents, and a source indicator. The object can be instantiated as a default (no-op)
- *  @link xAOD::MissingET_v1::MissingET_v1(bool) object without a datastore @endlink, or a fully functional plain-old-data (POD) object with a private data store. 
- *  The latter is supported by constructors with just @link xAOD::MissingET_v1::MissingET_v1(const std::string&,MissingETBase::Types::bitmask_t) name and source indicator @endlink, 
- *  initial kinematics are set to zero), and constructors storing (initial or final) kinematic contributions, either from a 
+ *  @link xAOD::MissingET_v1::MissingET_v1(bool) object without a datastore @endlink, or a fully functional plain-old-data (POD) object with a private data store.
+ *  The latter is supported by constructors with just @link xAOD::MissingET_v1::MissingET_v1(const std::string&,MissingETBase::Types::bitmask_t) name and source indicator @endlink,
+ *  initial kinematics are set to zero), and constructors storing (initial or final) kinematic contributions, either from a
  *  @link xAOD::MissingET_v1::MissingET_v1(const IParticle*,const std::string&,MissingETBase::Types::bitmask_t) physics or signal object reference @endlink
- *  or from @link xAOD::MissingET_v1::MissingET_v1(double,double,double,const std::string&,MissingETBase::Types::bitmask_t) individually specified kinematics @endlink. 
- * 
- *  @note This object is designed to store only the summed kinematics of a MET term, together with some identifiers. The actual contribution to this term from 
- *        any physics or signal object to this MET term is not stored here, but in a dedicated @link xAOD::MissingETComponent_v1 MET component object @endlink. 
+ *  or from @link xAOD::MissingET_v1::MissingET_v1(double,double,double,const std::string&,MissingETBase::Types::bitmask_t) individually specified kinematics @endlink.
+ *
+ *  @note This object is designed to store only the summed kinematics of a MET term, together with some identifiers. The actual contribution to this term from
+ *        any physics or signal object to this MET term is not stored here, but in a dedicated @link xAOD::MissingETComponent_v1 MET component object @endlink.
  *
  *  Adding kinematics to a MET term implies to use the correct convention, which is given by
  *  @f{eqnarray*}{
- *     p_{x}^{\rm miss} & = & - \sum p_{x} \\ 
+ *     p_{x}^{\rm miss} & = & - \sum p_{x} \\
  *     p_{y}^{\rm miss} & = & - \sum p_{y} \\
  *     \Sigma E_{\rm T} & = & \sum p_{\rm T}.
  *  @f}
  *  Here @f$ p_{x,y} @f$ and @f$ p_{\rm T} @f$ are the transverse momentum and its components of the particle (or detector signal object) added to the MET object. This convention
- *  is implemented by the xAOD::MissingET_v1::add() method, which is highly recommended to be used to fill the MET term. 
- *  
- *  MET data are initially represented in indivdual, non-storable data objects. 
+ *  is implemented by the xAOD::MissingET_v1::add() method, which is highly recommended to be used to fill the MET term.
+ *
+ *  MET data are initially represented in indivdual, non-storable data objects.
  *  As mentioned above, each of these data objects typically contains the contribution from a set of same type final state objects
  *  like particles and jets, and is identified as a specific contribution by a name and a source indicator (bit pattern). In general all MET objects from the various
  *  sources contribute to a given MET reconstruction configuration and their sum is the overall MET for the event. For storage, and to indicated that a given xAOD::MissingET_v1
- *  object represents a certain MET term in a given MET reconstruction configuration, the individual MET objects 
+ *  object represents a certain MET term in a given MET reconstruction configuration, the individual MET objects
  *  are collected into a xAOD::MissingETContainer_v1 object. Typically, the insertion sequence (e.g. the index of an individual MET object) in this container is
- *  determined by the tool  sequence with which the MET terms are reconstructed, there is no particular enforcement of this rule in the EDM. Safe (random) accessors using the 
+ *  determined by the tool  sequence with which the MET terms are reconstructed, there is no particular enforcement of this rule in the EDM. Safe (random) accessors using the
  *  name or the source indicator of the requested MET object are provided by the MET object.
  *
  *  @author  Peter Loch <loch_AT_physics.arizona.edu>
  *  @author  Silvia Resconi <Silvia.Resconi_AT_cern.ch>
- *  
+ *
  *  @date    Feb. 20, 2014
  *  @version v1.0 (for release 19.0.1)
  */
@@ -138,54 +147,54 @@ inline void xAOD::MissingET_v1::clear()
 // Constructors //
 //////////////////
 
-/*! @fn xAOD::MissingET_v1::MissingET_v1(bool createStore) 
+/*! @fn xAOD::MissingET_v1::MissingET_v1(bool createStore)
  *
  *  This constructor generates a no-op object without an attached store, if invoked with its default argument, which is the same as explicitly invoking it
- *  the argument @c false. 
+ *  the argument @c false.
  *
- *  @param[in] createStore flags if private store should be created (@c true) or not (@c false) (optional, default is  @c false - no private store) 
+ *  @param[in] createStore flags if private store should be created (@c true) or not (@c false) (optional, default is  @c false - no private store)
  *
  *  @note The default constructor is provided in accordance with requirements for the general xAOD EDM design. An object constructed this way does not
- *        provide a data store, and any use of an accessor method for such an object may lead to undesired behaviour and program crashes. 
+ *        provide a data store, and any use of an accessor method for such an object may lead to undesired behaviour and program crashes.
  */
 
 /*! @fn xAOD::MissingET_v1::MissingET_v1(const std::string& name="MissingET",MissingETBase::Types::bitmask_t src)
  *
- *  A MET object with a name and and (optional) source indicator is constructed. The initiat MET components @f$ (p_{x},p_{y},\Sigma E_{\rm T}) @f$ are each set to zero. 
- *  
+ *  A MET object with a name and and (optional) source indicator is constructed. The initiat MET components @f$ (p_{x},p_{y},\Sigma E_{\rm T}) @f$ are each set to zero.
+ *
  *  @param[in] name argument providing a name for the MissingET_v1 object, default "MissingET"
  *  @param[in] src  optional argument providing the source tag, default is "unknown" MissingETBase::Source::unknown().
  *
  *  @note This constructors instantiates a MET object with a private data store for the kinematics with meaningful inditial values, and the given name and source indicator. While the
- *        object instantiated this way is not storable, it is otherwise a fully usable. 
+ *        object instantiated this way is not storable, it is otherwise a fully usable.
  */
 
-/*! @fn xAOD::MissingET_v1::MissingET_v1(const IParticle* particle, const std::string& name,MissingETBase::Types::bitmask_t src) 
+/*! @fn xAOD::MissingET_v1::MissingET_v1(const IParticle* particle, const std::string& name,MissingETBase::Types::bitmask_t src)
  *
- *  A MET object with a name (optional) and a source indicator (optional) is constructed. The initial MET components 
+ *  A MET object with a name (optional) and a source indicator (optional) is constructed. The initial MET components
  *  @f$ (p_{x},p_{y},\Sigma E_{\rm T}) @f$ are each set to the corresponding components in the particle.
- *  
+ *
  *  @param[in] particle reference to particle with initial kinematics
  *  @param[in] name optional argument providing a name for the MissingET_v1 object, default "MissingET"
  *  @param[in] src  optional argument providing the source tag, default is "unknown" MissingETBase::Source::unknown().
  *
  *  @note This constructors instantiates a MET object with a private data store for the kinematics with meaningful inditial values, and the given name and source indicator. While the
- *        object instantiated this way is not storable, it is otherwise a fully usable. 
+ *        object instantiated this way is not storable, it is otherwise a fully usable.
  */
 
 /*! @fn xAOD::MissingET_v1::MissingET_v1(double mpx,double mpy,double pt,const std::string& name,MissingETBase::Types::bitmask_t src);
  *
- *  A MET object with a name (optional) and a source indicator (optional) is constructed. The initial MET components 
+ *  A MET object with a name (optional) and a source indicator (optional) is constructed. The initial MET components
  *  @f$ (p_{x},p_{y},\Sigma E_{\rm T}) @f$ are given in the argument list.
  *
- *  @param[in] mpx   momentum component @f$ p_{x} @f$ 
+ *  @param[in] mpx   momentum component @f$ p_{x} @f$
  *  @param[in] mpy   momentum component @f$ p_{y} @f$
  *  @param[in] pt   momentum component @f$ p_{\rm T} @f$
  *  @param[in] name optional argument providing a name for the MissingET_v1 object, default "MissingET"
  *  @param[in] src  optional argument providing the source tag, default is "unknown" MissingETBase::Source::unknown().
  *
  *  @note This constructors instantiates a MET object with a private data store for the kinematics with meaningful inditial values, and the given name and source indicator. While the
- *        object instantiated this way is not storable, it is otherwise a fully usable. Not enforcing @f$ p_{\rm T} = \sqrt{ p_{x}^{2} + p_{y}^{2} } @f$ is intentional, as in 
+ *        object instantiated this way is not storable, it is otherwise a fully usable. Not enforcing @f$ p_{\rm T} = \sqrt{ p_{x}^{2} + p_{y}^{2} } @f$ is intentional, as in
  *        principle the MET components ( @f$ E_{\rm T}^{\rm miss} @f$ ) can have a different scale than the scalar transverse momentum sum @f$ \Sigma E_{\rm T} @f$ .
  */
 
@@ -194,7 +203,7 @@ inline void xAOD::MissingET_v1::clear()
  *  Provides a deep copy of the MET object. The constructed MissingET_v1 object does not share its AuxElement with the source object. If the source object is
  *  incomplete  (has no data store), the resulting object does not have a data store either.
  *
- *  @note The particular behaviour concerning the data store depends on the actual implementation of SG::AuxElement::makePrivateStore. 
+ *  @note The particular behaviour concerning the data store depends on the actual implementation of SG::AuxElement::makePrivateStore.
  *
  *  @parm[in] met reference to non-modifiable MET object (the source).
  */
@@ -205,36 +214,36 @@ inline void xAOD::MissingET_v1::clear()
 
 /*! @fn void xAOD::MissingET_v1::setMpx(double value)
  *
- *  @param[in] value new value for component. 
+ *  @param[in] value new value for component.
  *
- *  @note This is a true setter function. The previous stored value is replaced by the new value. 
+ *  @note This is a true setter function. The previous stored value is replaced by the new value.
  *
- *  @warning This method only sets one MET component. It does not update any other data held by the MET object. Clients should use the 
- *           xAOD::MissingET_v1::add methods for coherent update of all related data.  
+ *  @warning This method only sets one MET component. It does not update any other data held by the MET object. Clients should use the
+ *           xAOD::MissingET_v1::add methods for coherent update of all related data.
  */
 
 /*! @fn void xAOD::MissingET_v1::setMpy(double value)
- *  @copydetails xAOD::MissingET_v1::setMpx(double) 
+ *  @copydetails xAOD::MissingET_v1::setMpx(double)
  */
 
 /*! @fn void xAOD::MissingET_v1::setSumet(double value)
- *  @copydetails xAOD::MissingET_v1::setMpx(double) 
+ *  @copydetails xAOD::MissingET_v1::setMpx(double)
  */
 
 /*! @fn void xAOD::MissingET_v1::setName(const std::string& name)
  *
- *  @param[in] name reference to non-modifiable dataword holding the desired name of  the MET object. 
+ *  @param[in] name reference to non-modifiable dataword holding the desired name of  the MET object.
  *
- *  @note This is a true setter function. The previous stored value is replaced by the new value. 
+ *  @note This is a true setter function. The previous stored value is replaced by the new value.
  */
 
 /*! @fn void xAOD::MissingET_v1::setSource(MissingETBase::Types::bitmask_t src)
  *
- *  Elements of the bitmasks and helpers interpreting them are given in the MissingETBase::Source structure.   
- * 
- *  @param[in] src bitmask of new source indicator 
- * 
- *  @note This is a true setter function. The previous stored value is replaced by the new value. 
+ *  Elements of the bitmasks and helpers interpreting them are given in the MissingETBase::Source structure.
+ *
+ *  @param[in] src bitmask of new source indicator
+ *
+ *  @note This is a true setter function. The previous stored value is replaced by the new value.
  */
 
 ///////////////
@@ -242,13 +251,13 @@ inline void xAOD::MissingET_v1::clear()
 ///////////////
 
 /*! @fn const std::string& xAOD::MissingET_v1::name() const
- * 
+ *
  *  @return Reference to non-modifiable dataword storing the name of the MET object.
  */
 
 /*! @fn MissingETBase::Types::bitmask_t xAOD::MissingET_v1::source() const
  *
- *  @return Bit mask characterizing the source of this MET term 
+ *  @return Bit mask characterizing the source of this MET term
  */
 
 /////////////////////////////
@@ -256,42 +265,42 @@ inline void xAOD::MissingET_v1::clear()
 /////////////////////////////
 
 /*! @fn virtual void xAOD::MissingET_v1::add(const IParticle* particle)
- *  
+ *
  *  The particle kinematics is added to MET.
  *
- *  @param[in] particle pointer to the particle object 
- * 
+ *  @param[in] particle pointer to the particle object
+ *
  *  This method updates the internal data stores holding @f$ (p_{x},p_{y},\Sigma E_{\rm T}) @f$ like:
  *  @f{eqnarray*}{
  *      p_{x}^{\rm miss} & \to & p_{x}^{\rm miss} - p_{x}^{\rm particle} \\
  *      p_{y}^{\rm miss} & \to & p_{y}^{\rm miss} - p_{y}^{\rm particle} \\
- *      \Sigma E_{\rm T} & \to & \Sigma E_{\rm T} + p_{\rm T}^{\rm particle} . 
+ *      \Sigma E_{\rm T} & \to & \Sigma E_{\rm T} + p_{\rm T}^{\rm particle} .
  *  @f}
- *  The particle momentum components contributing to MET are @f$ p_{x}^{\rm particle} @f$, @f$ p_{y}^{\rm particle} @f$, and @f$ p_{\rm T}^{\rm particle} @f$. 
- *  
+ *  The particle momentum components contributing to MET are @f$ p_{x}^{\rm particle} @f$, @f$ p_{y}^{\rm particle} @f$, and @f$ p_{\rm T}^{\rm particle} @f$.
+ *
  *  @note There is no reference to the particle object added to the MET object. Its composition can be stored in a MissingETComponent_v1 object, but this
- *        has to be explicitly done by the user. 
+ *        has to be explicitly done by the user.
  */
 
 /*! @fn virtual void xAOD::MissingET_v1::add(const IParticle* particle,double scale)
- * 
- *  Here the particle kinematics is added to the MET object with a common scale factor. This method updates the internal data stores. If each
- *  MET component needs a different scale, xAOD::MissingET_v1::add(double,double,double) can be used. 
  *
- *  @param[in] particle pointer to the particle object 
+ *  Here the particle kinematics is added to the MET object with a common scale factor. This method updates the internal data stores. If each
+ *  MET component needs a different scale, xAOD::MissingET_v1::add(double,double,double) can be used.
+ *
+ *  @param[in] particle pointer to the particle object
  *  @param[in] scale    scale factor
- * 
+ *
  *  This method updates the internal data stores holding @f$ (p_{x},p_{y},\Sigma E_{\rm T}) @f$ like:
  *  @f{eqnarray*}{
  *      p_{x}^{\rm miss} & \to & p_{x}^{\rm miss} - f \cdot p_{x}^{\rm particle} \\
  *      p_{y}^{\rm miss} & \to & p_{y}^{\rm miss} - f \cdot p_{y}^{\rm particle} \\
- *      \Sigma E_{\rm T} & \to & \Sigma E_{\rm T} + f \cdot p_{\rm T}^{\rm particle} . 
+ *      \Sigma E_{\rm T} & \to & \Sigma E_{\rm T} + f \cdot p_{\rm T}^{\rm particle} .
  *  @f}
- *  The particle momentum components contributing to MET are @f$ p_{x}^{\rm particle} @f$, @f$ p_{y}^{\rm particle} @f$, and @f$ p_{\rm T}^{\rm particle} @f$. 
- *  The scale factor if @f$ f @f$. 
+ *  The particle momentum components contributing to MET are @f$ p_{x}^{\rm particle} @f$, @f$ p_{y}^{\rm particle} @f$, and @f$ p_{\rm T}^{\rm particle} @f$.
+ *  The scale factor if @f$ f @f$.
  *
  *  @note There is no reference to the particle object added to the MET object. Its composition can be stored in a MissingETComponent_v1 object, but this
- *        has to be explicitly done by the user. 
+ *        has to be explicitly done by the user.
  */
 
 /*! @fn virtual void xAOD::MissingET_v1::add(double px,double py)
@@ -300,32 +309,32 @@ inline void xAOD::MissingET_v1::clear()
  *
  *  @param[in] px  momentum component @f$ p_{x} @f$
  *  @param[in] py  momentum component @f$ p_{y} @f$
- * 
- *  This method updates the internal data stores. 
+ *
+ *  This method updates the internal data stores.
  */
 
 /*! @fn xAOD::MissingET_v1& xAOD::MissingET_v1::operator+=(const IParticle* particle)
- * 
+ *
  *  @return Reference to (updated) self.
  *  @copydetails xAOD::MissingET_v1::add(const IParticle* particle)
- */    
+ */
 
 /*! @fn xAOD::MissingET_v1& xAOD::MissingET_v1::operator-=(const IParticle* part)
  *
  *  The particle kinematics is subtracted to the MET object This method updates the internal data stores. If each
- *  MET component needs a different scale, xAOD::MissingET_v1::add(double,double,double) can be used. 
+ *  MET component needs a different scale, xAOD::MissingET_v1::add(double,double,double) can be used.
  *
  *  @return Reference to (updated) self.
  *
- *  @param[in] particle pointer to the particle object 
- * 
+ *  @param[in] particle pointer to the particle object
+ *
  *  This method updates the internal data stores holding @f$ (p_{x},p_{y},\Sigma E_{\rm T}) @f$ like:
  *  @f{eqnarray*}{
  *      p_{x}^{\rm miss} & \to & p_{x}^{\rm miss} + p_{x}^{\rm particle} \\
  *      p_{y}^{\rm miss} & \to & p_{y}^{\rm miss} + p_{y}^{\rm particle} \\
- *      \Sigma E_{\rm T} & \to & \Sigma E_{\rm T} - p_{\rm T}^{\rm particle} . 
+ *      \Sigma E_{\rm T} & \to & \Sigma E_{\rm T} - p_{\rm T}^{\rm particle} .
  *  @f}
- *  The particle momentum components subtracted from MET are @f$ p_{x}^{\rm particle} @f$, @f$ p_{y}^{\rm particle} @f$, and @f$ p_{\rm T}^{\rm particle} @f$. 
+ *  The particle momentum components subtracted from MET are @f$ p_{x}^{\rm particle} @f$, @f$ p_{y}^{\rm particle} @f$, and @f$ p_{\rm T}^{\rm particle} @f$.
  */
 
 /*! @fn xAOD::MissingET_v1& xAOD::MissingET_v1::operator+=(const xAOD::MissingET_v1& met)
@@ -341,8 +350,8 @@ inline void xAOD::MissingET_v1::clear()
  *      \Sigma E_{\rm T} & \to & \Sigma E_{\rm T} + \Sigma E_{\rm miss}^{\prime} .
  *  @f}
  *
- *  Here @f$ (p_{x}^{\rm miss},p_{y}^{\rm miss},\Sigma E_{\rm T}) @f$ are the components of this object, while 
- *  @f$ (p_{x}^{{\rm miss}\prime},p_{y}^{{\rm miss}\prime},\Sigma E_{\rm T}^{\prime}) @f$ are the components of the added object. 
+ *  Here @f$ (p_{x}^{\rm miss},p_{y}^{\rm miss},\Sigma E_{\rm T}) @f$ are the components of this object, while
+ *  @f$ (p_{x}^{{\rm miss}\prime},p_{y}^{{\rm miss}\prime},\Sigma E_{\rm T}^{\prime}) @f$ are the components of the added object.
  */
 
 /*! @fn xAOD::MissingET_v1& xAOD::MissingET_v1::operator-=(const xAOD::MissingET_v1& met)
@@ -358,8 +367,8 @@ inline void xAOD::MissingET_v1::clear()
  *      \Sigma E_{\rm T} & \to & \Sigma E_{\rm T} - \Sigma E_{\rm miss}^{\prime} .
  *  @f}
  *
- *  Here @f$ (p_{x}^{\rm miss},p_{y}^{\rm miss},\Sigma E_{\rm T}) @f$ are the components of this object, while 
- *  @f$ (p_{x}^{{\rm miss}\prime},p_{y}^{{\rm miss}\prime},\Sigma E_{\rm T}^{\prime}) @f$ are the components of the subtracted object. 
+ *  Here @f$ (p_{x}^{\rm miss},p_{y}^{\rm miss},\Sigma E_{\rm T}) @f$ are the components of this object, while
+ *  @f$ (p_{x}^{{\rm miss}\prime},p_{y}^{{\rm miss}\prime},\Sigma E_{\rm T}^{\prime}) @f$ are the components of the subtracted object.
  */
 
 /*! @fn xAOD::MissingET_v1& xAOD::MissingET_v1::operator*=(double scale)
@@ -375,7 +384,7 @@ inline void xAOD::MissingET_v1::clear()
  *      \Sigma E_{\rm T} & \to & f \cdot \Sigma E_{\rm T}
  *  @f}
  *
- *  Here @f$ (p_{x}^{\rm miss},p_{y}^{\rm miss},\Sigma E_{\rm T}) @f$ are the components of this object, and @f$ f @f$ is the scale factor. 
+ *  Here @f$ (p_{x}^{\rm miss},p_{y}^{\rm miss},\Sigma E_{\rm T}) @f$ are the components of this object, and @f$ f @f$ is the scale factor.
  */
 
 /*! @fn xAOD::MissingET_v1& xAOD::MissingET_v1::operator/=(double scale)
@@ -391,7 +400,7 @@ inline void xAOD::MissingET_v1::clear()
  *      \Sigma E_{\rm T} & \to & \Sigma E_{\rm T} / f
  *  @f}
  *
- *  Here @f$ (p_{x}^{\rm miss},p_{y}^{\rm miss},\Sigma E_{\rm T}) @f$ are the components of this object, and @f$ f @f$ is the scale factor. 
+ *  Here @f$ (p_{x}^{\rm miss},p_{y}^{\rm miss},\Sigma E_{\rm T}) @f$ are the components of this object, and @f$ f @f$ is the scale factor.
  *
  *  @note If @f$ f = 0 @f$, the rule implemented in MissingETBase::Numerical::divide(double,double) is applied to the results for each
  *        component.
@@ -404,7 +413,7 @@ inline void xAOD::MissingET_v1::clear()
 /*! @fn void xAOD::MissingET_v1::clear()
  *
  *  This function sets @f$ p_{x} = 0 @f$, @f$ p_{y} = 0 @f$, and @f$ \Sigma E_{\rm T} = 0 @f$. The name and the source indicator
- *  of this MET object are not changed. 
+ *  of this MET object are not changed.
  */
 
 /////////////////
@@ -413,18 +422,18 @@ inline void xAOD::MissingET_v1::clear()
 
 /*! @fn bool xAOD::MissingET_v1::operator==(const xAOD::MissingET_v1& met) const
  *
- *  Two MET objects are equal when they have, within the precision defined in MissingETBase::Numerical::precision(), 
+ *  Two MET objects are equal when they have, within the precision defined in MissingETBase::Numerical::precision(),
  *  the same @f$ E_{\rm T}^{\rm miss} @f$ and the same @f$ \Sigma E_{\rm T} @f$.
  *
- *  @return @c true if two MET objects are equal. 
+ *  @return @c true if two MET objects are equal.
  */
-   
+
  /*! @fn bool xAOD::MissingET_v1::operator!=(const xAOD::MissingET_v1& met) const
   *
   *  Two MET objects are not equal when they do not have, within the precision defined in MissingETBase::Numerical::precision(),
   *  the same @f$ E_{\rm T}^{\rm miss} @f$ and the same @f$ \Sigma E_{\rm T} @f$.
   *
-  *  @return @c true if two MET objects are not equal. 
+  *  @return @c true if two MET objects are not equal.
   */
 
 /////////////////////////
@@ -433,10 +442,10 @@ inline void xAOD::MissingET_v1::clear()
 
 /*! @fn double& xAOD::MissingET_v1::f_mpx(()
  *
- *  The underlying SG::AuxElement store is accessed through references to keyed, modifiable data members. 
+ *  The underlying SG::AuxElement store is accessed through references to keyed, modifiable data members.
  *
- *  @return Reference to modifiable dataword storing MET object data. 
- */    
+ *  @return Reference to modifiable dataword storing MET object data.
+ */
 
 /*! @fn double& xAOD::MissingET_v1::f_py()
  * @copydetails xAOD::MissingET_v1::f_mpx()
@@ -450,7 +459,7 @@ inline void xAOD::MissingET_v1::clear()
  * @copydetails xAOD::MissingET_v1::f_mpx()
  */
 
-/*! @fn MissingETBase::Types::bitmask_t&  xAOD::MissingET_v1::f_source() 
+/*! @fn MissingETBase::Types::bitmask_t&  xAOD::MissingET_v1::f_source()
  * @copydetails xAOD::MissingET_v1::f_mpx()
  */
 
@@ -459,33 +468,33 @@ inline void xAOD::MissingET_v1::clear()
 ////////////////////////////////
 
 /*! @fn xAOD::MissingET_v1 operator+(const xAOD::MissingET_v1& met0,const xAOD::MissingET_v1& met1)
- * 
+ *
  *  The MET components of the two referenced objects are added by (1) creating a copy of the first referenced MET object and
  *  (2) use the xAOD::MissingET_v1::operator+=(const xAOD::MissingET_v1&) method to add the second referenced MET object to it.
- * 
- *  @return New MissingET_v1 object reflecting the result of the add operation. 
+ *
+ *  @return New MissingET_v1 object reflecting the result of the add operation.
  *
  *  @param[in] met0 reference to non-modifiable first MET object
  *  @param[in] met1 reference to non-modifiable second MET object
  */
 
 /*! @fn xAOD::MissingET_v1 operator-(const xAOD::MissingET_v1& met0,const xAOD::MissingET_v1& met1)
- * 
+ *
  *  The MET components of the two referenced objects are subtracted by (1) creating a copy of the first referenced MET object and
  *  (2) use the xAOD::MissingET_v1::operator-=(const xAOD::MissingET_v1&) method to subtract the second referenced MET object from it.
- * 
- *  @return New MissingET_v1 object reflecting the result of the subtract operation. 
+ *
+ *  @return New MissingET_v1 object reflecting the result of the subtract operation.
  *
  *  @param[in] met0 reference to non-modifiable first MET object
- *  @param[in] met1 reference to non-modifiable second MET object 
+ *  @param[in] met1 reference to non-modifiable second MET object
  */
 
 /*! @fn xAOD::MissingET_v1 operator*(const xAOD::MissingET_v1& met,double scale)
- * 
+ *
  *  The kinematic components of the referenced MET objects are scaled by (1) creating a copy of the referenced MET object and
  *  (2) use the xAOD::MissingET_v1::operator*=(double) method to apply the scale to the components of the new MET object.
- * 
- *  @return New MissingET_v1 object reflecting the result of the multiply operation. 
+ *
+ *  @return New MissingET_v1 object reflecting the result of the multiply operation.
  *
  *  @param[in] met   reference to non-modifiable MET object
  *  @param[in] scale scale factor to be applied
@@ -496,11 +505,11 @@ inline void xAOD::MissingET_v1::clear()
  */
 
 /*! @fn xAOD::MissingET_v1 operator/(const xAOD::MissingET_v1& met,double scale);
- * 
+ *
  *  The kinematic components of the referenced MET objects are scaled by (1) creating a copy of the referenced MET object and
  *  (2) use the xAOD::MissingET_v1::operator/=(double) method to divide the components of the new MET object by the scale factor.
- * 
- *  @return New MissingET_v1 object reflecting the result of the divide operation. 
+ *
+ *  @return New MissingET_v1 object reflecting the result of the divide operation.
  *
  *  @param[in] met   reference to non-modifiable MET object
  *  @param[in] scale scale factor to be applied

@@ -3,11 +3,11 @@
 */
 
 
-#include "xAODMissingET/versions/MissingETAuxAssociationMap_v1.h"
+#include "xAODMissingET/versions/MissingETAuxAssociationMap_v2.h"
 
 using namespace xAOD;
 
-MissingETAuxAssociationMap_v1::MissingETAuxAssociationMap_v1()
+MissingETAuxAssociationMap_v2::MissingETAuxAssociationMap_v2()
   : AuxContainerBase()
 {
   AUX_VARIABLE( jetLink );
@@ -17,11 +17,13 @@ MissingETAuxAssociationMap_v1::MissingETAuxAssociationMap_v1()
   AUX_VARIABLE( calpz );
   AUX_VARIABLE( cale  );
   AUX_VARIABLE( calsumpt  );
+  AUX_VARIABLE( calkey  );
   AUX_VARIABLE( trkpx );
   AUX_VARIABLE( trkpy );
   AUX_VARIABLE( trkpz );
   AUX_VARIABLE( trke  );
   AUX_VARIABLE( trksumpt  );
+  AUX_VARIABLE( trkkey  );
   AUX_VARIABLE( jettrkpx );
   AUX_VARIABLE( jettrkpy );
   AUX_VARIABLE( jettrkpz );
@@ -32,6 +34,6 @@ MissingETAuxAssociationMap_v1::MissingETAuxAssociationMap_v1()
   AUX_VARIABLE( isMisc );
 }
 
-MissingETAuxAssociationMap_v1::~MissingETAuxAssociationMap_v1()
+MissingETAuxAssociationMap_v2::~MissingETAuxAssociationMap_v2()
 { }
 

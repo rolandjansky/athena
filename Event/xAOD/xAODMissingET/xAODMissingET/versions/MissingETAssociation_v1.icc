@@ -99,30 +99,19 @@ inline MissingETBase::Types::objlink_vector_t& xAOD::MissingETAssociation_v1::f_
 { static SG::AuxElement::Accessor<MissingETBase::Types::objlink_vector_t> acc("objectLinks"); return acc(*this); }
 
 // ---------------------------------------------------------- constituent vectors
+
 inline const std::vector<double>& xAOD::MissingETAssociation_v1::calpx() const
 { static SG::AuxElement::Accessor<std::vector<double> > acc("calpx"); return acc(*this); }
 inline double xAOD::MissingETAssociation_v1::calpx(const IParticle* pPart) const
 { return this->calpx(this->findIndex(pPart)); }
-
 inline const std::vector<double>& xAOD::MissingETAssociation_v1::calpy() const
 { static SG::AuxElement::Accessor<std::vector<double> > acc("calpy"); return acc(*this); }
-inline double xAOD::MissingETAssociation_v1::calpy(const IParticle* pPart) const
-{ return this->calpy(this->findIndex(pPart)); }
-
 inline const std::vector<double>& xAOD::MissingETAssociation_v1::calpz() const
 { static SG::AuxElement::Accessor<std::vector<double> > acc("calpz"); return acc(*this); }
-inline double xAOD::MissingETAssociation_v1::calpz(const IParticle* pPart) const
-{ return this->calpz(this->findIndex(pPart)); }
-
 inline const std::vector<double>& xAOD::MissingETAssociation_v1::cale() const
 { static SG::AuxElement::Accessor<std::vector<double> > acc("cale"); return acc(*this); }
-inline double xAOD::MissingETAssociation_v1::cale(const IParticle* pPart) const
-{ return this->cale(this->findIndex(pPart)); }
-
 inline const std::vector<double>& xAOD::MissingETAssociation_v1::calsumpt() const
 { static SG::AuxElement::Accessor<std::vector<double> > acc("calsumpt"); return acc(*this); }
-inline double xAOD::MissingETAssociation_v1::calsumpt(const IParticle* pPart) const
-{ return this->calsumpt(this->findIndex(pPart)); }
 
 inline std::vector<double>& xAOD::MissingETAssociation_v1::f_calpx() 
 { static SG::AuxElement::Accessor<std::vector<double> > acc("calpx"); return acc(*this); }
@@ -137,28 +126,14 @@ inline std::vector<double>& xAOD::MissingETAssociation_v1::f_calsumpt()
 
 inline const std::vector<double>& xAOD::MissingETAssociation_v1::trkpx() const
 { static SG::AuxElement::Accessor<std::vector<double> > acc("trkpx"); return acc(*this); }
-inline double xAOD::MissingETAssociation_v1::trkpx(const IParticle* pPart) const
-{ return this->trkpx(this->findIndex(pPart)); }
-
 inline const std::vector<double>& xAOD::MissingETAssociation_v1::trkpy() const
 { static SG::AuxElement::Accessor<std::vector<double> > acc("trkpy"); return acc(*this); }
-inline double xAOD::MissingETAssociation_v1::trkpy(const IParticle* pPart) const
-{ return this->trkpy(this->findIndex(pPart)); }
-
 inline const std::vector<double>& xAOD::MissingETAssociation_v1::trkpz() const
 { static SG::AuxElement::Accessor<std::vector<double> > acc("trkpz"); return acc(*this); }
-inline double xAOD::MissingETAssociation_v1::trkpz(const IParticle* pPart) const
-{ return this->trkpz(this->findIndex(pPart)); }
-
 inline const std::vector<double>& xAOD::MissingETAssociation_v1::trke() const
 { static SG::AuxElement::Accessor<std::vector<double> > acc("trke"); return acc(*this); }
-inline double xAOD::MissingETAssociation_v1::trke(const IParticle* pPart) const
-{ return this->trke(this->findIndex(pPart)); }
-
 inline const std::vector<double>& xAOD::MissingETAssociation_v1::trksumpt() const
 { static SG::AuxElement::Accessor<std::vector<double> > acc("trksumpt"); return acc(*this); }
-inline double xAOD::MissingETAssociation_v1::trksumpt(const IParticle* pPart) const
-{ return this->trksumpt(this->findIndex(pPart)); }
 
 inline std::vector<double>& xAOD::MissingETAssociation_v1::f_trkpx() 
 { static SG::AuxElement::Accessor<std::vector<double> > acc("trkpx"); return acc(*this); }
@@ -199,13 +174,6 @@ inline bool xAOD::MissingETAssociation_v1::isMisc() const
 inline char& xAOD::MissingETAssociation_v1::f_isMisc()           
 { static SG::AuxElement::Accessor<char> acc("isMisc"); return acc(*this); }
 
-// -- non-conventional MissingETBase::Types::constvec_t generator
-inline MissingETBase::Types::constvec_t xAOD::MissingETAssociation_v1::calVec(const IParticle* pPart) const
-{ return this->calVec(this->findIndex(pPart)); } 
-
-inline MissingETBase::Types::constvec_t xAOD::MissingETAssociation_v1::trkVec(const IParticle* pPart) const
-{ return this->trkVec(this->findIndex(pPart)); } 
-
 // -------------------------------------------------------------- overlap indices
 
 inline const std::vector<std::vector<size_t> >& xAOD::MissingETAssociation_v1::overlapIndices() const
@@ -218,19 +186,12 @@ inline std::vector<std::vector<size_t> >& xAOD::MissingETAssociation_v1::f_overl
 
 inline const std::vector<MissingETBase::Types::bitmask_t>& xAOD::MissingETAssociation_v1::calkey() const
 {static SG::AuxElement::Accessor<std::vector<MissingETBase::Types::bitmask_t> > acc("calkey"); return acc(*this); }
-inline MissingETBase::Types::bitmask_t xAOD::MissingETAssociation_v1::calkey(const IParticle* pPart) const
-{ return this->findIndex(pPart)!=MissingETBase::Numerical::invalidIndex() ? (MissingETBase::Types::bitmask_t)1 << this->findIndex(pPart) : 0; }
 
 inline std::vector<MissingETBase::Types::bitmask_t>& xAOD::MissingETAssociation_v1::f_calkey()
 {static SG::AuxElement::Accessor<std::vector<MissingETBase::Types::bitmask_t> > acc("calkey"); return acc(*this); }
 
 inline const std::vector<MissingETBase::Types::bitmask_t>& xAOD::MissingETAssociation_v1::trkkey() const
 {static SG::AuxElement::Accessor<std::vector<MissingETBase::Types::bitmask_t> > acc("trkkey"); return acc(*this); }
-inline MissingETBase::Types::bitmask_t xAOD::MissingETAssociation_v1::trkkey(const IParticle* pPart) const
-{ return this->findIndex(pPart)!=MissingETBase::Numerical::invalidIndex() ? (MissingETBase::Types::bitmask_t)1 << this->findIndex(pPart) : 0; }
-inline bool xAOD::MissingETAssociation_v1::isOldFormat() const
-{static SG::AuxElement::Accessor<std::vector<MissingETBase::Types::bitmask_t> > acc("calkey");
-  return (!acc.isAvailableWritable(*this) || acc(*this).size()>0);}
 
 inline std::vector<MissingETBase::Types::bitmask_t>& xAOD::MissingETAssociation_v1::f_trkkey()
 {static SG::AuxElement::Accessor<std::vector<MissingETBase::Types::bitmask_t> > acc("trkkey"); return acc(*this); }
@@ -265,43 +226,28 @@ inline bool xAOD::MissingETAssociation_v1::resetContrib(const IParticle* pPart) 
 inline bool xAOD::MissingETAssociation_v1::operator!=(const xAOD::MissingETAssociation_v1& assocDescr) const
 { return !this->operator==(assocDescr); }
 // ------------------------------------------------ Set contribution parameters
-inline bool xAOD::MissingETAssociation_v1::setCalPx(const IParticle* pPart,double calpx)
-{ return this->setCalPx(this->findIndex(pPart),calpx); }
-inline bool xAOD::MissingETAssociation_v1::setCalPy(const IParticle* pPart,double calpy)
-{ return this->setCalPy(this->findIndex(pPart),calpy); }
-inline bool xAOD::MissingETAssociation_v1::setCalPz(const IParticle* pPart,double calpz)
-{ return this->setCalPz(this->findIndex(pPart),calpz); }
-inline bool xAOD::MissingETAssociation_v1::setCalE(const IParticle* pPart,double cale)
-{ return this->setCalE(this->findIndex(pPart),cale); }
-inline bool xAOD::MissingETAssociation_v1::setCalSumpt(const IParticle* pPart,double calsumpt)
-{ return this->setCalSumpt(this->findIndex(pPart),calsumpt); }
-inline bool xAOD::MissingETAssociation_v1::setCalVec(const IParticle* pPart,const MissingETBase::Types::constvec_t& cvec)
-{ return this->setCalVec(this->findIndex(pPart),cvec.cpx(),cvec.cpy(),cvec.cpz(),cvec.ce(),cvec.sumpt()); }
-inline bool xAOD::MissingETAssociation_v1::setCalKey(const IParticle* pPart,MissingETBase::Types::bitmask_t calkey)
-{ return this->setCalKey(this->findIndex(pPart),calkey); }
-inline bool xAOD::MissingETAssociation_v1::setCalVec(const IParticle* pPart,double calpx,double calpy,double calpz,double cale,double sumpt)
-{ return this->setCalVec(this->findIndex(pPart),calpx,calpy,calpz,cale,sumpt); }
 inline bool xAOD::MissingETAssociation_v1::setCalVec(size_t pIdx,const MissingETBase::Types::constvec_t& cvec)
 { return this->setCalVec(pIdx,cvec.cpx(),cvec.cpy(),cvec.cpz(),cvec.ce(),cvec.sumpt()); }
-
-inline bool xAOD::MissingETAssociation_v1::setTrkPx(const IParticle* pPart,double trkpx)
-{ return this->setTrkPx(this->findIndex(pPart),trkpx); }
-inline bool xAOD::MissingETAssociation_v1::setTrkPy(const IParticle* pPart,double trkpy)
-{ return this->setTrkPy(this->findIndex(pPart),trkpy); }
-inline bool xAOD::MissingETAssociation_v1::setTrkPz(const IParticle* pPart,double trkpz)
-{ return this->setTrkPz(this->findIndex(pPart),trkpz); }
-inline bool xAOD::MissingETAssociation_v1::setTrkE(const IParticle* pPart,double trke)
-{ return this->setTrkE(this->findIndex(pPart),trke); }
-inline bool xAOD::MissingETAssociation_v1::setTrkSumpt(const IParticle* pPart,double trksumpt)
-{ return this->setTrkSumpt(this->findIndex(pPart),trksumpt); }
-inline bool xAOD::MissingETAssociation_v1::setTrkKey(const IParticle* pPart,MissingETBase::Types::bitmask_t trkkey)
-{ return this->setTrkKey(this->findIndex(pPart),trkkey); }
-inline bool xAOD::MissingETAssociation_v1::setTrkVec(const IParticle* pPart,const MissingETBase::Types::constvec_t& cvec)
-{ return this->setTrkVec(this->findIndex(pPart),cvec.cpx(),cvec.cpy(),cvec.cpz(),cvec.ce(),cvec.sumpt()); }
-inline bool xAOD::MissingETAssociation_v1::setTrkVec(const IParticle* pPart,double trkpx,double trkpy,double trkpz,double trke,double sumpt)
-{ return this->setTrkVec(this->findIndex(pPart),trkpx,trkpy,trkpz,trke,sumpt); }
 inline bool xAOD::MissingETAssociation_v1::setTrkVec(size_t pIdx,const MissingETBase::Types::constvec_t& cvec)
 { return this->setTrkVec(pIdx,cvec.cpx(),cvec.cpy(),cvec.cpz(),cvec.ce(),cvec.sumpt()); }
+
+inline bool xAOD::MissingETAssociation_v1::clearCalVecs()
+{
+  if(this->sizeCal()==0) return false;
+  this->f_calkey().clear();
+  this->f_calpx().clear(); this->f_calpy().clear(); this->f_calpz().clear();
+  this->f_cale().clear();  this->f_calsumpt().clear();
+  return true;
+}
+inline bool xAOD::MissingETAssociation_v1::clearTrkVecs()
+{
+  if(this->sizeTrk()==0) return false;
+  this->f_trkkey().clear();
+  this->f_trkpx().clear(); this->f_trkpy().clear(); this->f_trkpz().clear();
+  this->f_trke().clear();  this->f_trksumpt().clear();
+  return true;
+}
+
 
 inline void xAOD::MissingETAssociation_v1::setJetTrkVec(const MissingETBase::Types::constvec_t& cvec)
 { this->setJetTrkVec(cvec.cpx(),cvec.cpy(),cvec.cpz(),cvec.ce(),cvec.sumpt()); }

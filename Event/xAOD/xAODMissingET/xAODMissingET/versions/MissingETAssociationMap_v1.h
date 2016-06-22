@@ -21,19 +21,6 @@
 namespace xAOD
 {
 
-  // struct lessEL{
-  //   bool operator() (const ElementLink<IParticleContainer>& el1, const ElementLink<IParticleContainer>& el2) const 
-  //   {
-  //     if(el1.isValid()) {
-  // 	if(el2.isValid()) {
-  // 	  // printf("Compare EL pointers %p vs %p\n",(void*)*el1,(void*)*el2);
-  // 	  return (*el1) < (*el2);
-  // 	}
-  //     }
-  //     return el1<el2;
-  //   }
-  // };
-
   class MissingETAssociationMap_v1 : public DataVector<MissingETAssociation_v1>
   {
   public:
@@ -179,9 +166,9 @@ namespace xAOD
 
   protected:
 
-    void f_setJetConstMap(std::map<ElementLink<IParticleContainer>, size_t/*, lessEL*/> map);
+    void f_setJetConstMap(std::map<ElementLink<IParticleContainer>, size_t> map);
     void f_clearJetConstMap();
-    mutable std::map<ElementLink<IParticleContainer>, size_t/*, lessEL*/> m_jetConstLinks;  /*!< @brief Map jet constituents to the jet index */
+    mutable std::map<ElementLink<IParticleContainer>, size_t> m_jetConstLinks;  /*!< @brief Map jet constituents to the jet index */
 
     /*! @name Internal find methods for constant access */
     /*!@{*/

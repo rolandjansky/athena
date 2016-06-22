@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODMissingETDict.h 662681 2015-04-23 18:04:34Z khoo $
+// $Id: xAODMissingETDict.h 693950 2015-09-09 15:29:18Z khoo $
 #ifndef XAODMISSINGET_XAODMISSINGETDICT_H
 #define XAODMISSINGET_XAODMISSINGETDICT_H
 
@@ -27,6 +27,7 @@
 #include "xAODMissingET/MissingETAuxComponentMap.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "xAODMissingET/MissingETAuxAssociationMap.h"
+#include "xAODMissingET/versions/MissingETAuxAssociationMap_v1.h"
 #include "xAODMissingET/versions/MissingETBase.h"
 
 namespace {

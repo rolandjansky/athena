@@ -4,6 +4,7 @@
 
 
 #include "xAODMissingET/versions/MissingETContainer_v1.h"
+#include <functional>
 
 using namespace xAOD;
 
@@ -21,14 +22,8 @@ MissingETContainer_v1::~MissingETContainer_v1()
 
 
 const MissingET_v1* MissingETContainer_v1::operator[](const std::string& name) const
-{ 
-  const_iterator fObj(this->find(name));
-  return fObj != this->end() ? *fObj : (const MissingET_v1*)0;
-}
-
-const MissingET_v1* MissingETContainer_v1::operator[](MissingETBase::Types::bitmask_t src) const
 {
-  const_iterator fObj(this->find(src));
+  const_iterator fObj(this->find(name));
   return fObj != this->end() ? *fObj : (const MissingET_v1*)0;
 }
 
@@ -36,19 +31,30 @@ MissingET_v1* MissingETContainer_v1::operator[](const std::string& name)
 {
   iterator fObj(this->find(name));
   return fObj != this->end() ? *fObj : (MissingET_v1*)0;
-} 
+}
 
-MissingET_v1* MissingETContainer_v1::operator[](MissingETBase::Types::bitmask_t src)
-{ 
-  iterator fObj(this->find(src));
-  return fObj != this->end() ? *fObj : (MissingET_v1*)0; 
-} 
+// MissingETContainer_v1::const_iterator MissingETContainer_v1::find(const std::string& name) const
+// {
+//   const_iterator fObj(this->begin());
+//   const_iterator lObj(this->end());
+//   while ( fObj != lObj && (*fObj)->name() != name ) { ++fObj; }
+//   return fObj;
+// }
+
+// MissingETContainer_v1::iterator MissingETContainer_v1::find(const std::string& name)
+// {
+//   iterator fObj(this->begin());
+//   iterator lObj(this->end());
+//   while ( fObj != lObj && (*fObj)->name() != name ) { ++fObj; }
+//   return fObj;
+// }
 
 MissingETContainer_v1::const_iterator MissingETContainer_v1::find(const std::string& name) const
 {
   const_iterator fObj(this->begin());
   const_iterator lObj(this->end());
-  while ( fObj != lObj && (*fObj)->name() != name ) { ++fObj; }
+  size_t hash_tmp = std::hash<std::string>()(name);
+  while ( fObj != lObj && (*fObj)->nameHash() != hash_tmp ) { ++fObj; }
   return fObj;
 }
 
@@ -56,7 +62,8 @@ MissingETContainer_v1::iterator MissingETContainer_v1::find(const std::string& n
 {
   iterator fObj(this->begin());
   iterator lObj(this->end());
-  while ( fObj != lObj && (*fObj)->name() != name ) { ++fObj; }
+  size_t hash_tmp = std::hash<std::string>()(name);
+  while ( fObj != lObj && (*fObj)->nameHash() != hash_tmp ) { ++fObj; }
   return fObj;
 }
 

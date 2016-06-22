@@ -172,11 +172,13 @@ namespace MissingETBase
   {
     /*! @brief Policies on usage checks */
     enum Policy {
+      AllCalo       = 0x0010, /*!< @brief Inclusive except tracks */
       OnlyCluster   = 0x0011, /*!< @brief CaloCluster based only */
       OnlyTrack     = 0x0012, /*!< @brief Track based only */
       TrackCluster  = 0x0014, /*!< @brief Both cluster and track based */
       PhysicsObject = 0x0020, /*!< @brief Physics object based*/
       ParticleFlow  = 0x0040, /*!< @brief Particle Flow Object based */
+      TruthParticle = 0x0100, /*!< @brief Truth particle based */
       UnknownPolicy = 0x0000  /*!< @brief Unknown policy */};
   } // namespace MissingETBase::OverlapHandler
 } // namespace MissingETBase
