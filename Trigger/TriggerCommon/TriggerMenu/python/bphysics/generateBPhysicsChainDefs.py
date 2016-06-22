@@ -497,6 +497,16 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         L2Hypo = L2BMuMuHypo_B()
         EFFex  = EFBMuMuFex_B()
         EFHypo = EFBMuMuHypo_B_Lxy0() 
+    # legacy vertexing
+    elif ('bDimu' in topoAlgs) & ('legacyVtx' in topoAlgs):
+        from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_DiMu
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu
+        from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_DiMu_legacyVtx
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_DiMu
+        L2Fex  = L2BMuMuFex_DiMu()
+        L2Hypo = L2BMuMuHypo_DiMu()
+        EFFex  = EFBMuMuFex_DiMu_legacyVtx()
+        EFHypo = EFBMuMuHypo_DiMu() 
     else:
         log.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], topoAlgs ))
 
@@ -661,6 +671,10 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
            #L2Hypo = L2BMuMuHypo_1()  
            EFFex  =  EFBMuMuXFex_1()
            EFHypo = EFBMuMuXHypo_1()
+           # legacy vertexing
+           if 'legacyVtx' in topoAlgs:
+               from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_1_legacyVtx
+               EFFex  =  EFBMuMuXFex_1_legacyVtx()
         
     elif 'bBmumuxv3' in topoAlgs:
         print 'MOOOO in bBmumuxv3'
