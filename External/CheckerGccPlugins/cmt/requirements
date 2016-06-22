@@ -134,3 +134,4 @@ apply_pattern checker_test name=thread4
 apply_pattern checker_test name=thread5
 apply_pattern checker_test name=thread6
 apply_pattern checker_test name=thread7
+

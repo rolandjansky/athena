@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 748977 2016-05-23 12:00:12Z krasznaa $
+# $Id: CMakeLists.txt 756969 2016-06-22 14:03:26Z krasznaa $
 
 # The name of the package:
 atlas_subdir( CheckerGccPlugins )
@@ -16,6 +16,10 @@ endif()
 
 # External(s) needed by the compilation:
 find_package( gmp )
+
+# Disable the -Wl,--no-undefined linker flag for the library:
+string( REPLACE "-Wl,--no-undefined" ""
+   CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS}" )
 
 # Set up the build of the library:
 atlas_add_library( checker_gccplugins
