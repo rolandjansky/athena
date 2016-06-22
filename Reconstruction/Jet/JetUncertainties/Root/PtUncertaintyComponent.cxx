@@ -23,13 +23,13 @@ PtUncertaintyComponent::PtUncertaintyComponent(const std::string& name)
 PtUncertaintyComponent::PtUncertaintyComponent(const ComponentHelper& component)
     : UncertaintyComponent(component)
 {
-    ATH_MSG_DEBUG(Form("Creating PtUncertaintyComponent named %s",m_name.Data()));
+    ATH_MSG_DEBUG(Form("Creating PtUncertaintyComponent named %s",m_uncHistName.Data()));
 }
 
 PtUncertaintyComponent::PtUncertaintyComponent(const PtUncertaintyComponent& toCopy)
     : UncertaintyComponent(toCopy)
 {
-    ATH_MSG_DEBUG(Form("Creating copy of PtUncertaintyComponent named %s",m_name.Data()));
+    ATH_MSG_DEBUG(Form("Creating copy of PtUncertaintyComponent named %s",m_uncHistName.Data()));
 }
 
 PtUncertaintyComponent* PtUncertaintyComponent::clone() const
@@ -40,23 +40,18 @@ PtUncertaintyComponent* PtUncertaintyComponent::clone() const
 
 //////////////////////////////////////////////////
 //                                              //
-//  Validity and uncertainty retrieval          //
+//  Uncertainty/validity retrieval methods      //
 //                                              //
 //////////////////////////////////////////////////
 
-bool PtUncertaintyComponent::getValidity(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo&) const
+bool PtUncertaintyComponent::getValidityImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    return histo->getValidity(jet.pt()*m_energyScale);
+    return !m_validHist ? true : getValidBool(m_validHist->getValue(jet.pt()*m_energyScale));
 }
 
-double PtUncertaintyComponent::getUncertainty(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo&) const
+double PtUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    return histo->getUncertainty(jet.pt()*m_energyScale);
-}
-
-bool PtUncertaintyComponent::getValidUncertainty(const UncertaintyHistogram* histo, double& unc, const xAOD::Jet& jet, const xAOD::EventInfo&) const
-{
-    return histo->getValidUncertainty(unc,jet.pt()*m_energyScale);
+    return m_uncHist->getValue(jet.pt()*m_energyScale);
 }
 
 } // end jet namespace

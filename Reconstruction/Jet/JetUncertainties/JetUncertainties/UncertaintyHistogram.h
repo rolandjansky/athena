@@ -5,8 +5,6 @@
 #ifndef JETUNCERTAINTIES_UNCERTAINTYHISTOGRAM_H
 #define JETUNCERTAINTIES_UNCERTAINTYHISTOGRAM_H
 
-#include "xAODJet/Jet.h"
-
 #include "AsgTools/AsgMessaging.h"
 
 #include "TString.h"
@@ -18,54 +16,39 @@ class TAxis;
 namespace jet
 {
 
-class UncertaintyHistogram : virtual public asg::AsgMessaging
+class UncertaintyHistogram : public asg::AsgMessaging
 {
     public:
         // Constructor/destructor/initialization
-        UncertaintyHistogram(const std::string& histName = "", const std::string& validHistName = "", const bool interpolate = true);
-        UncertaintyHistogram(const TString histName, const TString validHistName = "", const bool interpolate = true);
-        //UncertaintyHistogram(const char* histName, const char* validHistName = NULL, const bool interpolate = true);
+        UncertaintyHistogram(const std::string& histName, const bool interpolate);
+        UncertaintyHistogram(const TString histName, const bool interpolate);
+        UncertaintyHistogram(const char* histName, const bool interpolate);
         UncertaintyHistogram(const UncertaintyHistogram& toCopy);
         virtual ~UncertaintyHistogram();
         virtual StatusCode initialize(TFile* histFile);
 
         // Member retrieval methods
-        const TString& getName()  const { return m_name;     }
-        const TH1*     getHisto() const { return m_uncHisto; }
+        const TString& getName()   const { return m_name;        }
+        const TH1*     getHisto()  const { return m_histo;       }
+        bool           getInterp() const { return m_interpolate; }
+        int            getNumDim() const { return m_nDim;        }
 
-        // Validity retrieval
-        bool getValidity(const float var1) const;
-        bool getValidity(const float var1, const float var2) const;
-        bool getValidity(const float var1, const float var2, const float var3) const;
-
-        // Uncertainty retrieval (crash if not valid)
-        double getUncertainty(const float var1) const;
-        double getUncertainty(const float var1, const float var2) const;
-        double getUncertainty(const float var1, const float var2, const float var3) const;
-
-        // Uncertainty retrieval (unc only set if valid, returns true if valid)
-        bool getValidUncertainty(double& unc, const float var1) const;
-        bool getValidUncertainty(double& unc, const float var1, const float var2) const;
-        bool getValidUncertainty(double& unc, const float var1, const float var2, const float var3) const;
+        // Histogram information access
+        double getValue(const double var1) const;
+        double getValue(const double var1, const double var2) const;
+        double getValue(const double var1, const double var2, const double var3) const;
 
     private:
         // Private members
         bool m_isInit;
         const TString m_name;
-        TString m_validName;
         const bool m_interpolate;
-        TH1* m_uncHisto;
-        TH1* m_validHisto;
+        TH1* m_histo;
         int  m_nDim;
 
-        // Generic helpers
-        TString getFullName() const;
-
         // Histogram reading helpers
-        double readHisto(const TH1* histo, const float var1, const float var2=0, const float var3=0, const bool interpolate=true) const;
-        bool   readValidityHisto(const float var1, const float var2=0, const float var3=0) const;
-        double readUncertaintyHisto(const float var1, const float var2=0, const float var3=0) const;
-        float  checkBoundaries(const TAxis* axis, const int numBins, const float valInput) const;
+        double readHisto(const double var1, const double var2=0, const double var3=0) const;
+        double checkBoundaries(const TAxis* axis, const int numBins, const double valInput) const;
 
         // Helper to have a const method for interpolation (why is there not a const version in ROOT???)
         double Interpolate(const TH1* histo, const double x) const;

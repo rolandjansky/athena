@@ -95,6 +95,7 @@ namespace CompParametrization
             case Pt:            return "Pt";
             case PtEta:         return "PtEta";
             case PtAbsEta:      return "PtAbsEta";
+            case PtMass:        return "PtMass";
             case PtMassEta:     return "PtMassEta";
             case PtMassAbsEta:  return "PtMassAbsEta";
             default:            return "UNKNOWN";
@@ -109,6 +110,8 @@ namespace CompParametrization
             return PtEta;
         if (!type.CompareTo("PtAbsEta",TString::kIgnoreCase))
             return PtAbsEta;
+        if (!type.CompareTo("PtMass",TString::kIgnoreCase))
+            return PtMass;
         if (!type.CompareTo("PtMassEta",TString::kIgnoreCase))
             return PtMassEta;
         if (!type.CompareTo("PtMassAbsEta",TString::kIgnoreCase))
@@ -135,6 +138,65 @@ namespace CompParametrization
 //                                              //
 //////////////////////////////////////////////////
 
+namespace CompMassDef
+{
+    TString enumToString(const TypeEnum type)
+    {
+        switch(type)
+        {
+            case CaloMass:      return "Calo";
+            case TAMass:        return "TA";
+            case CombMassQCD:   return "CombQCD";
+            case CombMassWZ:    return "CombWZ";
+            case CombMassHbb:   return "CombHbb";
+            case CombMassTop:   return "CombTop";
+            default:            return "UNKNOWN";
+        }
+    }
+
+    TypeEnum stringToEnum(const TString type)
+    {
+        if (!type.CompareTo("Calo",TString::kIgnoreCase) || !type.CompareTo("Calorimeter",TString::kIgnoreCase))
+            return CaloMass;
+        if (!type.CompareTo("TA",TString::kIgnoreCase) || !type.CompareTo("TrackAssisted",TString::kIgnoreCase))
+            return TAMass;
+        if (type.BeginsWith("Comb",TString::kIgnoreCase) || type.BeginsWith("Combined",TString::kIgnoreCase))
+        {
+            if (type.EndsWith("QCD",TString::kIgnoreCase))
+                return CombMassQCD;
+            if (type.EndsWith("WZ",TString::kIgnoreCase))
+                return CombMassWZ;
+            if (type.EndsWith("Hbb",TString::kIgnoreCase))
+                return CombMassHbb;
+            if (type.EndsWith("Top",TString::kIgnoreCase))
+                return CombMassTop;
+        }
+        return UNKNOWN;
+    }
+
+    TString getJetScaleString(const TypeEnum type)
+    {
+        switch(type)
+        {
+            case CaloMass:      return "JetJMSScaleMomentumCalo";
+            case TAMass:        return "JetJMSScaleMomentumTA";
+            case CombMassQCD:   return "JetJMSScaleMomentumCombQCD";
+            case CombMassWZ:    return "JetJMSScaleMomentumCombWZ";
+            case CombMassHbb:   return "JetJMSScaleMomentumCombHbb";
+            case CombMassTop:   return "JetJMSScaleMomentumCombTop";
+            default:            return "UNKNOWN_JET_MASS_SCALE";
+
+        }
+    }
+
+} // end CompMassDef namespace
+
+//////////////////////////////////////////////////
+//                                              //
+//  Component parametrization type enum methods //
+//                                              //
+//////////////////////////////////////////////////
+
 namespace CompScaleVar
 {
     TString enumToString(const TypeEnum type)
@@ -148,6 +210,9 @@ namespace CompScaleVar
             case D23:           return "D23";
             case Tau21:         return "Tau21";
             case Tau32:         return "Tau32";
+            case Tau32WTA:      return "Tau32WTA";
+            case D2Beta1:       return "D2Beta1";
+            case MassRes:       return "MassRes";
             default:            return "UNKNOWN";
         }
     }
@@ -168,6 +233,12 @@ namespace CompScaleVar
             return Tau21;
         if (!type.CompareTo("Tau32",TString::kIgnoreCase))
             return Tau32;
+        if (!type.CompareTo("Tau32WTA",TString::kIgnoreCase))
+            return Tau32WTA;
+        if (!type.CompareTo("D2Beta1",TString::kIgnoreCase))
+            return D2Beta1;
+        if (!type.CompareTo("MassRes",TString::kIgnoreCase))
+            return MassRes;
         return UNKNOWN;
     }
 }
@@ -213,7 +284,7 @@ namespace PileupComp
 
 //////////////////////////////////////////////////
 //                                              //
-//  Flavour component enumeration methods        //
+//  Flavour component enumeration methods       //
 //                                              //
 //////////////////////////////////////////////////
 
@@ -241,6 +312,73 @@ namespace FlavourComp
         }
         if (type.Contains("bJES",TString::kIgnoreCase))
             return bJES;
+        return UNKNOWN;
+    }
+}
+
+
+//////////////////////////////////////////////////
+//                                              //
+//  Combined mass component enumeration methods //
+//                                              //
+//////////////////////////////////////////////////
+
+namespace CombMassComp
+{
+    TString enumToString(const TypeEnum type)
+    {
+        switch(type)
+        {
+            case Calo:      return "Calo";
+            case TA:        return "TA";
+            case Both:      return "Both";
+            default:        return "UNKNOWN";
+        }
+    }
+
+    TypeEnum stringToEnum(const TString type)
+    {
+        if (type.Contains("Calo",TString::kIgnoreCase))
+            return Calo;
+        if (type.Contains("TA",TString::kIgnoreCase))
+            return TA;
+        if (type.Contains("Both",TString::kIgnoreCase))
+            return Both;
+        return UNKNOWN;
+    }
+}
+
+
+//////////////////////////////////////////////////
+//                                              //
+//  Jet topology enumeration methods            //
+//                                              //
+//////////////////////////////////////////////////
+
+namespace JetTopology
+{
+    TString enumToString(const TypeEnum type)
+    {
+        switch(type)
+        {
+            case QCD:   return "QCD";
+            case WZ:    return "WZ";
+            case Hbb:   return "Hbb";
+            case Top:   return "Top";
+            default:    return "UNKNOWN";
+        }
+    }
+
+    TypeEnum stringToEnum(const TString type)
+    {
+        if (!type.CompareTo("QCD",TString::kIgnoreCase))
+            return QCD;
+        if (!type.CompareTo("WZ",TString::kIgnoreCase))
+            return WZ;
+        if (!type.CompareTo("Hbb",TString::kIgnoreCase))
+            return Hbb;
+        if (!type.CompareTo("Top",TString::kIgnoreCase))
+            return Top;
         return UNKNOWN;
     }
 }

@@ -17,6 +17,8 @@ function Flexible \
                 MCtype="MC11b"
             elif [[ $configFiles = *JES_2012* ]] ; then
                 MCtype="MC12"
+            elif [[ $configFiles = *JES_2015* ]] || [[ $configFiles = *TLA_2015* ]] ; then
+                MCtype="MC15"
             fi
         fi
     fi
@@ -231,8 +233,28 @@ function Prerec2015_Nominal_3NP4_25ns \
     outHistFile="CorrelationMatrix-Prerec2015-Nominal-3NP4-25ns.root"
 }
 
+################################################
+## Moriond 2016 correlation plots
 
+function Moriond2016_Nominal_GlobalReduction \
+{
+    # Prerec 2015 release, full vs 3NP scenario 4
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC15"
+    configFiles="JES_2015/Moriond2016/JES2015_AllNuisanceParameters.config;JES_2015/Moriond2016/JES2015_19NP.config"
+    outFile="CorrelationMatrix-Moriond2016-Nominal-GlobalReduction.pdf"
+    outHistFile="CorrelationMatrix-Moriond2016-NominalGlobalReduction.root"
+}
 
+function Moriond2016_Nominal_CategoryReduction \
+{
+    # Prerec 2015 release, full vs 3NP scenario 4
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC15"
+    configFiles="JES_2015/Moriond2016/JES2015_AllNuisanceParameters.config;JES_2015/Moriond2016/JES2015_25NP_ByCategory.config"
+    outFile="CorrelationMatrix-Moriond2016-Nominal-CategoryReduction.pdf"
+    outHistFile="CorrelationMatrix-Moriond2016-Nominal-CategoryReduction.root"
+}
 
 function CoarseGrid \
 {
@@ -263,6 +285,13 @@ function FineGridFixedEta \
 {
     jetDefinition="AntiKt4EMTopo"
     fixedEta="0;0.5;1;1.5;2;2.5;3;3.5;4;4.5"
+    fixedPt=""
+}
+
+function FineGridFixedEtaTLA \
+{
+    jetDefinition="AntiKt4EMTopo"
+    fixedEta="0;0.5;1;1.5;2;2.4;2.8"
     fixedPt=""
 }
 
@@ -312,24 +341,26 @@ function JER_grid \
 
 function testGrid \
 {
-    jetDefinition="AntiKt4EMTopo"
-    MCtype="MC15"
-    configFiles="JES_2015/Prerec/PrerecJES2015_AllNuisanceParameters_50ns.config;JES_2015/Prerec/PrerecJES2015_Dijet2.config"
-    outFile="CorrelationMatrix-Prerec2015-Dijet2.pdf"
-    outHistFile="CorrelationMatrix-Prerec2015-Dijet2.root"
+    jetDefinition="AntiKt4LCTopo"
+    MCtype="MC12"
+    #configFiles="JES_2015/Prerec/PrerecJES2015_AllNuisanceParameters_50ns.config;JES_2015/Prerec/PrerecJES2015_Dijet2.config"
+    configFiles="JES_2012/Final/InsituJES2012_14NP.config;JES_2012/Final/InsituJES2012_AllNuisanceParameters.config"
+    outFile="CorrelationMatrix-NominalInSitu-14NPInSitu-LC4.eps"
+    outHistFile="" #"CorrelationMatrix-Prerec2015-Dijet2.root"
     fixedEta="0"
-    fixedPt="60"
+    fixedPt="" #"60"
     #fixedEta="0;0.5;1;1.5;2"
     #fixedPt=""
 }
 
 function testATLASCMS \
 {
+    scenario="TopMassDilep"
     jetDefinition="AntiKt4EMTopo;AntiKt4LCTopo"
     MCtype="MC12"
-    configFiles="JES_2012/Final/CMS/FlavourTest.config;JES_2012/Final/CMS/FlavourTestComb.config"
-    outFile="ATLAS-CMS-CorrelationMatrix.pdf"
-    outHistFile="ATLAS-CMS-CorrelationMatrix.root"
+    configFiles="JES_2012/Final/CMS/FlavourTest${scenario}.config;JES_2012/Final/CMS/FlavourTest${scenario}Comb.config"
+    outFile="ATLAS-CMS-CorrelationMatrix-${scenario}.pdf"
+    outHistFile="ATLAS-CMS-CorrelationMatrix-${scenario}.root"
 }
 
 

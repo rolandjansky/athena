@@ -6,20 +6,26 @@
 #include "JetUncertainties/JetUncertaintiesTool.h"
 #include "JetUncertainties/Helpers.h"
 #include "JetUncertainties/UncertaintyEnum.h"
-#include "JetUncertainties/ComponentHelper.h"
+#include "JetUncertainties/ConfigHelper.h"
 #include "JetUncertainties/CorrelationMatrix.h"
+
+// UncertaintyHistogram types
+#include "JetUncertainties/UncertaintyHistogram.h"
+#include "JetUncertainties/ValidityHistogram.h"
 
 // UncertaintyComponent types
 #include "JetUncertainties/UncertaintyComponent.h"
-#include "JetUncertainties/UncertaintyComponentGroup.h"
+#include "JetUncertainties/UncertaintyGroup.h"
 #include "JetUncertainties/UncertaintySet.h"
 #include "JetUncertainties/PtUncertaintyComponent.h"
 #include "JetUncertainties/PtEtaUncertaintyComponent.h"
+#include "JetUncertainties/PtMassUncertaintyComponent.h"
 #include "JetUncertainties/PtMassEtaUncertaintyComponent.h"
 #include "JetUncertainties/PileupUncertaintyComponent.h"
 #include "JetUncertainties/FlavourUncertaintyComponent.h"
 #include "JetUncertainties/PunchthroughUncertaintyComponent.h"
 #include "JetUncertainties/ClosebyUncertaintyComponent.h"
+#include "JetUncertainties/CombinedMassUncertaintyComponent.h"
 
 // xAOD includes
 #include "xAODCore/ShallowCopy.h"
@@ -36,6 +42,7 @@
 #include "TROOT.h"
 #include "TEnv.h"
 #include "TH2D.h"
+#include "TRandom3.h"
 
 // C++ includes
 #include <unordered_set>
@@ -63,22 +70,20 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_refMu(-1)
     , m_refNPVHist(NULL)
     , m_refMuHist(NULL)
-    , m_components()
     , m_groups()
-    , m_NPVAccessor("NPV")
-    , m_D12Accessor("Split12")
-    , m_D23Accessor("Split23")
-    , m_Tau21Accessor("Tau21")
-    , m_Tau32Accessor("Tau32")
-    , m_Tau1Accessor("Tau1")
-    , m_Tau2Accessor("Tau2")
-    , m_Tau3Accessor("Tau3")
     , m_recognizedSystematics()
     , m_recommendedSystematics()
     , m_currentSystSet()
     , m_currentUncSet(NULL)
     , m_systFilterMap()
     , m_systSetMap()
+    , m_fileValidHist(NULL)
+    , m_caloMassWeight(NULL)
+    , m_TAMassWeight(NULL)
+    , m_combMassWeightCaloMassDef(CompMassDef::UNKNOWN)
+    , m_combMassWeightTAMassDef(CompMassDef::UNKNOWN)
+    , m_userSeed(0)
+    , m_rand(new TRandom3())
     , m_namePrefix("JET_")
 {
     declareProperty("JetDefinition",m_jetDef);
@@ -110,31 +115,26 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_refMu(toCopy.m_refMu)
     , m_refNPVHist(toCopy.m_refNPVHist?new UncertaintyHistogram(*toCopy.m_refNPVHist):NULL)
     , m_refMuHist(toCopy.m_refMuHist?new UncertaintyHistogram(*toCopy.m_refMuHist):NULL)
-    , m_components()
     , m_groups()
-    , m_NPVAccessor(toCopy.m_NPVAccessor)
-    , m_D12Accessor(toCopy.m_D12Accessor)
-    , m_D23Accessor(toCopy.m_D23Accessor)
-    , m_Tau21Accessor(toCopy.m_Tau21Accessor)
-    , m_Tau32Accessor(toCopy.m_Tau32Accessor)
-    , m_Tau1Accessor(toCopy.m_Tau1Accessor)
-    , m_Tau2Accessor(toCopy.m_Tau2Accessor)
-    , m_Tau3Accessor(toCopy.m_Tau3Accessor)
     , m_recognizedSystematics(toCopy.m_recognizedSystematics)
     , m_recommendedSystematics(toCopy.m_recommendedSystematics)
     , m_currentSystSet(toCopy.m_currentSystSet)
     , m_currentUncSet(NULL)
     , m_systFilterMap()
     , m_systSetMap()
+    , m_fileValidHist(toCopy.m_fileValidHist)
+    , m_caloMassWeight(NULL)
+    , m_TAMassWeight(NULL)
+    , m_combMassWeightCaloMassDef(CompMassDef::UNKNOWN)
+    , m_combMassWeightTAMassDef(CompMassDef::UNKNOWN)
+    , m_userSeed(toCopy.m_userSeed)
+    , m_rand(toCopy.m_rand ? new TRandom3(*toCopy.m_rand) : NULL)
     , m_namePrefix(toCopy.m_namePrefix)
 {
     ATH_MSG_DEBUG("Creating copy of JetUncertaintiesTool named "<<m_name);
 
-    for (size_t iComp = 0; iComp < toCopy.m_components.size(); ++iComp)
-        m_components.push_back(m_components.at(iComp)->clone());
-
     for (size_t iGroup = 0; iGroup < toCopy.m_groups.size(); ++iGroup)
-        m_groups.push_back(m_groups.at(iGroup)->clone());
+        m_groups.push_back(new UncertaintyGroup(*toCopy.m_groups.at(iGroup)));
 
     if (applySystematicVariation(m_currentSystSet) != CP::SystematicCode::Ok)
         ATH_MSG_ERROR(Form("Failed to re-set applySystematicVariation in new tool copy"));
@@ -144,13 +144,15 @@ JetUncertaintiesTool::~JetUncertaintiesTool()
 {
     ATH_MSG_DEBUG(Form("Deleting JetUncertaintiesTool named %s",m_name.c_str()));
     
-    for (size_t iComp = 0; iComp < m_components.size(); ++iComp)
-        JESUNC_SAFE_DELETE(m_components.at(iComp));
-    m_components.clear();
-    m_groups.clear(); // No need to free - already done in the components list
+    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+        JESUNC_SAFE_DELETE(m_groups.at(iGroup));
+    m_groups.clear();
     
     JESUNC_SAFE_DELETE(m_refNPVHist);
     JESUNC_SAFE_DELETE(m_refMuHist);
+    JESUNC_SAFE_DELETE(m_fileValidHist);
+    JESUNC_SAFE_DELETE(m_caloMassWeight);
+    JESUNC_SAFE_DELETE(m_TAMassWeight);
 
     m_currentUncSet  = NULL;
     
@@ -160,6 +162,8 @@ JetUncertaintiesTool::~JetUncertaintiesTool()
     for (iter = m_systSetMap.begin(); iter != m_systSetMap.end(); ++iter)
         JESUNC_SAFE_DELETE(iter->second);
     m_systSetMap.clear();
+
+    JESUNC_SAFE_DELETE(m_rand);
 }
 
 StatusCode JetUncertaintiesTool::setScaleToMeV()
@@ -288,17 +292,10 @@ StatusCode JetUncertaintiesTool::initialize()
 
     // Get the analysis ROOT file for later use (only if it wasn't specified by user config)
     if (m_analysisFile == "")
-    {
         m_analysisFile = settings.GetValue("AnalysisRootFile","");
-        if (m_analysisFile == "")
-        {
-            ATH_MSG_ERROR("Cannot find analysis root file");
-            return StatusCode::FAILURE;
-        }
-    }
-    ATH_MSG_INFO(Form("  AnalysisFile: %s",m_analysisFile.c_str()));
+    if (m_analysisFile != "")
+        ATH_MSG_INFO(Form("  AnalysisFile: %s",m_analysisFile.c_str()));
 
-    
     // Now open the histogram file
     TFile* histFile = utils::readRootFile(histFileName,m_path.c_str());
     if (!histFile || histFile->IsZombie())
@@ -306,6 +303,75 @@ StatusCode JetUncertaintiesTool::initialize()
         ATH_MSG_ERROR("Cannot open uncertainty histogram file: " << histFileName.Data());
         return StatusCode::FAILURE;
     }
+    
+    // Get a file-wide validity histogram if specified
+    TString validHistForFile = settings.GetValue("FileValidHistogram","");
+    if (validHistForFile != "")
+    {
+        // Ensure that the parametrization is also specified
+        TString validHistForFileParam = settings.GetValue("FileValidHistParam","");
+        if (validHistForFileParam == "")
+        {
+            ATH_MSG_ERROR("Specified a FileValidHistogram without an accompanying FileValidHistParam: " << validHistForFile.Data());
+            return StatusCode::FAILURE;
+        }
+
+        // Translate parametrization to enum
+        const CompParametrization::TypeEnum validHistParam = CompParametrization::stringToEnum(validHistForFileParam);
+
+        // Check if a mass def was specified (optional)
+        const CompMassDef::TypeEnum validHistMassDef = CompMassDef::stringToEnum(settings.GetValue("FileValidHistMassDef",""));
+
+        // Create and initialize the validity histogram
+        m_fileValidHist = new ValidityHistogram(validHistForFile+"_"+m_jetDef,validHistParam,m_energyScale,validHistMassDef);
+        if (m_fileValidHist->initialize(histFile).isFailure())
+            return StatusCode::FAILURE;
+
+        ATH_MSG_INFO(Form("  FileValidHistogram: %s (%s)%s",validHistForFile.Data(),validHistForFileParam.Data(),validHistMassDef == CompMassDef::UNKNOWN ? "" : Form(" [%s]",CompMassDef::enumToString(validHistMassDef).Data())));
+    }
+
+    // Check if combined mass weights have been specified
+    const TString caloMassWeight = TString(settings.GetValue("CombMassWeightCaloHist",""));
+    const TString TAMassWeight   = TString(settings.GetValue("CombMassWeightTAHist",""));
+    if (caloMassWeight != "" && TAMassWeight != "")
+    {
+        m_caloMassWeight = new UncertaintyHistogram(caloMassWeight+"_"+m_jetDef.c_str(),true);
+        m_TAMassWeight = new UncertaintyHistogram(TAMassWeight+"_"+m_jetDef.c_str(),true);
+
+        if (m_caloMassWeight->initialize(histFile).isFailure())
+            return StatusCode::FAILURE;
+        if (m_TAMassWeight->initialize(histFile).isFailure())
+            return StatusCode::FAILURE;
+
+        ATH_MSG_INFO("  Found and loaded combined mass weight factors");
+        ATH_MSG_INFO("    WeightCaloHist = " << m_caloMassWeight->getName());
+        ATH_MSG_INFO("    WeightTAHist   = " << m_TAMassWeight->getName());
+
+        // Check for custom mass definitions for the weight factors (not required, defaults exist)
+        const TString caloWeightMassDef = settings.GetValue("CombMassWeightCaloMassDef","");
+        const TString TAWeightMassDef   = settings.GetValue("CombMassWeightTAMassDef","");
+        if (caloWeightMassDef != "")
+        {
+            m_combMassWeightCaloMassDef = CompMassDef::stringToEnum(caloWeightMassDef);
+            ATH_MSG_INFO("    WeightCaloMassDef was set to " << CompMassDef::enumToString(m_combMassWeightCaloMassDef).Data());
+        }
+        if (TAWeightMassDef != "")
+        {
+            m_combMassWeightTAMassDef   = CompMassDef::stringToEnum(TAWeightMassDef);
+            ATH_MSG_INFO("    WeightTAMassDef was set to " << CompMassDef::enumToString(m_combMassWeightTAMassDef).Data());
+        }
+    }
+    else if (caloMassWeight != "" && TAMassWeight == "")
+    {
+        ATH_MSG_ERROR("  Found combined mass weight factors for the calo term, but not the TA term");
+        return StatusCode::FAILURE;
+    }
+    else if (caloMassWeight == "" && TAMassWeight != "")
+    {
+        ATH_MSG_ERROR("  Found combined mass weight factors for the TA term, but not the calo term");
+        return StatusCode::FAILURE;
+    }
+
     
     // Get the NPV/mu reference values
     // These may not be set - only needed if a pileup component is requested
@@ -324,7 +390,7 @@ StatusCode JetUncertaintiesTool::initialize()
             m_refNPV = utils::getTypeObjFromString<float>(refNPV);
         else
         {
-            m_refNPVHist = new UncertaintyHistogram(refNPV+"_"+m_jetDef,"",false);
+            m_refNPVHist = new UncertaintyHistogram(refNPV+"_"+m_jetDef,false);
             if (m_refNPVHist->initialize(histFile).isFailure())
                 return StatusCode::FAILURE;
         }
@@ -333,48 +399,289 @@ StatusCode JetUncertaintiesTool::initialize()
             m_refMu = utils::getTypeObjFromString<float>(refMu);
         else
         {
-            m_refMuHist = new UncertaintyHistogram(refMu+"_"+m_jetDef,"",false);
+            m_refMuHist = new UncertaintyHistogram(refMu+"_"+m_jetDef,false);
             if (m_refMuHist->initialize(histFile).isFailure())
                 return StatusCode::FAILURE;
         }
     }
     
-    // Loop over uncertainty components in the config
+    // Prepare for reading components and groups
+    // Components can be a group by themself (single component groups) if "Group" == 0
+    // Components can also form simple groups with "SubComp"
+    // Otherwise, need to specify group info separately from component info
+    // As such, start with groups, then handle components
+    
+    // Loop over uncertainty components and groups in the config
     ATH_MSG_INFO("");
-    ATH_MSG_INFO(Form("%6s %-35s : %s","","JES uncert. comp.","Description"));
-    ATH_MSG_INFO(Form("%6s %-35s  -%s","","-----------------","-----------"));
+    ATH_MSG_INFO(Form("%6s %-40s : %s","","JES uncert. comp.","Description"));
+    ATH_MSG_INFO(Form("%6s %-40s  -%s","","-----------------","-----------"));
+    for (size_t iGroup = 0; iGroup < 999; ++iGroup)
+    {
+        // Format the style
+        const TString prefix = Form("JESGroup.%zu.",iGroup);
+        
+        // Read in information in the uncertainty group
+        ConfigHelper helper(prefix,m_mcType.c_str(),m_energyScale);
+        if (helper.initialize(settings).isFailure())
+            return StatusCode::FAILURE;
+
+        // Ignore the group if it's not defined
+        if (!helper.isGroup()) continue;
+        
+        // All groups have to follow a given prefix matching ASG conventions
+        // Enforce this condition here where the helper is not yet const
+        if (m_namePrefix != "")
+            helper.enforceGroupNamePrefix(m_namePrefix);
+
+        // Call the uncertainty group helper method to add a new group
+        if (addUncertaintyGroup(helper).isFailure())
+            return StatusCode::FAILURE;
+    }
     for (size_t iComp = 0; iComp < 999; ++iComp)
     {
         // Format the style
         const TString prefix = Form("JESComponent.%zu.",iComp);
 
         // Read in information on the uncertainty component
-        const ComponentHelper component(settings,prefix,m_mcType.c_str(),m_energyScale);
+        ConfigHelper helper(prefix,m_mcType.c_str(),m_energyScale);
+        if (helper.initialize(settings).isFailure())
+            return StatusCode::FAILURE;
 
         // Ignore component if it is not defined
-        if (component.name == "")
+        if (!helper.isComponent() && !helper.isCompGroup())
             continue;
         
+        // All groups have to follow a given prefix matching ASG conventions
+        // Enforce this condition here where the helper is not yet const
+        // (Still relevant for components as many will be simple groups)
+        if (m_namePrefix != "")
+            helper.enforceGroupNamePrefix(m_namePrefix);
+        
+        // Also add the component name suffix for the jet definition
+        helper.setComponentJetDefSuffix(m_jetDef);
+
         // Call the uncertainty component helper method to add a new component
-        if(addUncertaintyComponent(histFile,component).isFailure())
+        if(addUncertaintyComponent(helper).isFailure())
             return StatusCode::FAILURE;
     }
-    // Initialize the groups to mark them complete
+
+    // Preparing for a sanity check done after group merger
+    // Do this with components rather than groups to make sure totals are the same
+    size_t numCompsBeforeMerger = 0;
     for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
-        if (m_groups.at(iGroup)->initialize().isFailure())
+        numCompsBeforeMerger += m_groups.at(iGroup)->getNumComponents();
+
+    // Merge all of the subgroups into their parent groups
+    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+    {
+        const int groupNum    = m_groups.at(iGroup)->getGroupNum();
+        const int subgroupNum = m_groups.at(iGroup)->getSubgroupNum();
+
+        // groupNum == 0 means this is an independent group (no merging possible)
+        // subgroupNum == 0 means this is not a subgroup of anything (no merging possible)
+        if (!groupNum || !subgroupNum) continue;
+
+        // Ensure we didn't do something silly
+        if (groupNum == subgroupNum)
+        {
+            ATH_MSG_ERROR(Form("Specified group %d (%s) as the parent of itself, blocking for safety",groupNum,m_groups.at(iGroup)->getName().Data()));
             return StatusCode::FAILURE;
+        }
+
+        // Find the parent group
+        for (size_t iParentGroup = 0; iParentGroup < m_groups.size(); ++iParentGroup)
+        {
+            if (iParentGroup == iGroup) continue;
+            
+            const int parentGroupNum = m_groups.at(iParentGroup)->getGroupNum();
+            if (parentGroupNum == subgroupNum)
+            {
+                // Add the subgroup to the parent group
+                if (m_groups.at(iParentGroup)->addSubgroup(m_groups.at(iGroup)).isFailure())
+                {
+                    ATH_MSG_ERROR(Form("Failed to add group %d (%s) as a subgroup of group %d (%s)",groupNum,m_groups.at(iGroup)->getName().Data(),parentGroupNum,m_groups.at(iParentGroup)->getName().Data()));
+                    return StatusCode::FAILURE;
+                }
+            }
+        }
+    }
+
+    // Remove all of the subgroups from the class vector which contains the outermost groups for users to interact with
+    // Faster to do it this way rather than deleting individual entries of the vector
+    std::vector<UncertaintyGroup*> localGroupVec;
+    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+        localGroupVec.push_back(m_groups.at(iGroup));
+    m_groups.clear();
     
+    for (size_t iGroup = 0; iGroup < localGroupVec.size(); ++iGroup)
+    {
+        // If the group is not a sub-group, keep it
+        if (!localGroupVec.at(iGroup)->getSubgroupNum())
+            m_groups.push_back(localGroupVec.at(iGroup));
+    }
+
+    // Sanity check that things make sense
+    // Do this with components rather than groups to make sure totals are the same
+    size_t numCompsAfterMerger = 0;
+    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+        numCompsAfterMerger += m_groups.at(iGroup)->getNumComponents();
     
-    // Determine the number of input parameters (complicated when groups are in use)
+    if (numCompsBeforeMerger != numCompsAfterMerger)
+    {
+        ATH_MSG_ERROR(Form("Something went wrong merging groups: %zu before merger and %zu after merger",numCompsBeforeMerger,numCompsAfterMerger));
+        for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+        {
+            ATH_MSG_ERROR(Form("\tFound %zu components in group: %s",m_groups.at(iGroup)->getNumComponents(),m_groups.at(iGroup)->getName().Data()));
+        }
+        return StatusCode::FAILURE;
+    }
+
+
+    /*
+    // Deal with subgroups
+    // Have to do this carefully to ensure we can have multiple levels of subgroups (groups of groups of groups of ...)
+
+    // First split into complex groups and basic groups (groups which include subgroups and groups which do not include subgroups)
+    // Also get the full list of subgroup requests to ensure there are no duplicates
+    std::vector<size_t> complexGroupIndices;
+    std::vector<size_t> basicGroupIndices;
+    std::set<int> subgroupsRequested;
+    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+    {
+        const std::vector<int> subgroupNums = m_groups.at(iGroup)->getSubgroupNums();
+        if (subgroupNums.size())
+        {
+            for (size_t iSubgroup = 0; iSubgroup < subgroupNums.size(); ++iSubgroup)
+            {
+                const int subgroupNum = subgroupNums.at(iSubgroup);
+                if (subgroupNum == 0)
+                {
+                    ATH_MSG_ERROR("Requested group number 0 as a subgroup, which is forbidden (0 is a simple group)");
+                    return StatusCode::FAILURE;
+                }
+                else if (subgroupsRequested.count(subgroupNum))
+                {
+                    ATH_MSG_ERROR(Form("Requested group number %d as a subgroup of multiple complex groups",subgroupNum));
+                    return StatusCode::FAILURE;
+                }
+                else
+                    subgroupsRequested.insert(subgroupNum);
+            }
+            complexGroupIndices.push_back(iGroup);
+        }
+        else
+            basicGroupIndices.push_back(iGroup);
+    }
+
+    // Match indices to each of the requested subgroups
+    std::vector< std::pair<int,size_t> > subgroupPairs;
+    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+    {
+        const int groupNum = m_groups.at(iGroup)->getGroupNum();
+        if (groupNum == 0) continue;
+        
+        for (std::set<int>::const_iterator iter = subgroupsRequested.begin(); iter != subgroupsRequested.end(); ++iter)
+        {
+            if ( (*iter) == groupNum )
+            {
+                subgroupPairs.push_back(std::make_pair(groupNum,iGroup));
+                break;
+            }
+        }
+    }
+
+    // We now have the map of (group-->index)
+    // Combine all of the groups as applicable
+    // Leave all of the groups in the class member vector for now until we have completed the merger
+    for (size_t iCompGroup = 0; iCompGroup < complexGroupIndices.size(); ++iCompGroup)
+    {
+        const size_t compGroupIndex = complexGroupIndices.at(iCompGroup);
+        const std::vector<int> subgroupNums = m_groups.at(compGroupIndex)->getSubgroupNums();
+        for (size_t iSubgroupPair = 0; iSubgroupPair < subgroupPairs.size(); ++iSubgroupPair)
+        {
+            for (size_t iSubgroup = 0; iSubgroup < subgroupNums.size(); ++iSubgroup)
+            {
+                // Ensure we're not adding a cyclic group
+                if (m_groups.at(compGroupIndex)->getGroupNum() == subgroupNums.at(iSubgroup))
+                {
+                    ATH_MSG_ERROR(Form("Blocking the request to add group number %d as a subgroup of itself",subgroupNums.at(iSubgroup)));
+                    return StatusCode::FAILURE;
+                }
+
+                // Now add the subgroup to the complex group
+                if (subgroupNums.at(iSubgroup) == subgroupPairs.at(iSubgroupPair).first)
+                {
+                    if (m_groups.at(compGroupIndex)->addSubgroup(m_groups.at(subgroupPairs.at(iSubgroupPair).second)).isFailure())
+                    {
+                        ATH_MSG_ERROR(Form("Failed to add subgroup \"%s\" to complex group \"%s\"",m_groups.at(subgroupPairs.at(iSubgroupPair).second)->getName().Data(),m_groups.at(compGroupIndex)->getName().Data()));
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    // Clean up all of the subgroups, leaving only the outermost complex groups and independent groups in the class member variable
+    // Faster to do it this way rather than deleting individual entries of the vector
+    std::vector<UncertaintyGroup*> localGroupVec;
+    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+        localGroupVec.push_back(m_groups.at(iGroup));
+    m_groups.clear();
+    for (size_t iGroup = 0; iGroup < localGroupVec.size(); ++iGroup)
+    {
+        // Check if this group should be retained
+        bool retainGroup = true;
+        for (size_t iSubgroupPair = 0; iSubgroupPair < subgroupPairs.size(); ++iSubgroupPair)
+        {
+            if (subgroupPairs.at(iSubgroupPair).second == iGroup)
+            {
+                retainGroup = false;
+                break;
+            }
+        }
+        // Keep the group if applicable
+        if (retainGroup)
+            m_groups.push_back(localGroupVec.at(iGroup));
+    }
+    */
+
+    
+    // Initialize all of the groups (and thus all of the components)
+    // Also ensure that there are no empty groups
+    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+    {
+        if (m_groups.at(iGroup)->getNumComponents() == 0)
+        {
+            ATH_MSG_ERROR("An empty group was encountered: " << m_groups.at(iGroup)->getName().Data());
+            return StatusCode::FAILURE;
+        }
+        if (m_groups.at(iGroup)->initialize(histFile).isFailure())
+            return StatusCode::FAILURE;
+
+        // Determine if the group is a recommended systematic
+        // Currently, all systematics are recommended with one exception:
+        //      MC closure systematics can be zero (when working with the reference MC)
+        //      Still, check if the component is always zero and don't recommend if so
+        const bool isRecommended = !m_groups.at(iGroup)->isAlwaysZero();
+        CP::SystematicVariation systVar(m_groups.at(iGroup)->getName().Data(),CP::SystematicVariation::CONTINUOUS);
+        if (addAffectingSystematic(systVar,isRecommended) != CP::SystematicCode::Ok)
+            return StatusCode::FAILURE;
+    }
+
+    
+    // Determine the number of input parameters
     size_t numCompInGroups = 0;
     for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
         numCompInGroups += m_groups.at(iGroup)->getNumComponents();
 
     // Summary message
-    ATH_MSG_INFO(Form("   Found and read in %zu components%s",m_components.size(),m_groups.size()?Form(" (%zu inputs in %zu groups, %zu independent input%s):",numCompInGroups,m_groups.size(),m_components.size()-m_groups.size(),m_components.size()-m_groups.size()!=1?"s":""):""));
-    if (m_groups.size())
-        for (size_t iComp = 0; iComp < m_components.size(); ++iComp)
-            ATH_MSG_INFO(Form("%5zu. %-35s : %s",iComp+1,m_components.at(iComp)->getName().Data(),m_components.at(iComp)->getDesc().Data()));
+    ATH_MSG_INFO(Form("   Found and read in %zu individual components into %zu component groups",numCompInGroups,m_groups.size()));
+
+    //// Summary message
+    //ATH_MSG_INFO(Form("   Found and read in %zu components%s",m_components.size(),m_groups.size()?Form(" (%zu inputs in %zu groups, %zu independent input%s):",numCompInGroups,m_groups.size(),m_components.size()-m_groups.size(),m_components.size()-m_groups.size()!=1?"s":""):""));
+    //if (m_groups.size())
+    //    for (size_t iComp = 0; iComp < m_components.size(); ++iComp)
+    //        ATH_MSG_INFO(Form("%5zu. %-35s : %s",iComp+1,m_components.at(iComp)->getName().Data(),m_components.at(iComp)->getDesc().Data()));
     ATH_MSG_INFO(Form("================================================"));
 
     // Close the histogram file
@@ -393,51 +700,164 @@ StatusCode JetUncertaintiesTool::initialize()
 //                                              //
 //////////////////////////////////////////////////
 
-StatusCode JetUncertaintiesTool::addUncertaintyComponent(TFile* histFile, const ComponentHelper& component)
+StatusCode JetUncertaintiesTool::addUncertaintyGroup(const ConfigHelper& helper)
 {
-    // Sanity checks
-    if (component.category == CompCategory::UNKNOWN)
+    const GroupHelper& group = *helper.getGroupInfo();
+    
+    // Ensure the group number is specified and doesn't conflict with existing groups
+    if (group.groupNum == 0)
     {
-        ATH_MSG_ERROR("Unexpected category " << component.cat.Data() << " for component " << component.name.Data());
+        ATH_MSG_ERROR("Group number was not specified for group: " << group.name.Data());
         return StatusCode::FAILURE;
+    }
+    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+        if (m_groups.at(iGroup)->getGroupNum() == group.groupNum)
+        {
+            ATH_MSG_ERROR("Group number matches previous group (" << m_groups.at(iGroup)->getName().Data() << "): " << group.name.Data());
+            return StatusCode::FAILURE;
+        }
+
+    // Build the new group
+    UncertaintyGroup* toAdd = new UncertaintyGroup(group);
+    if (!toAdd)
+    {
+        ATH_MSG_ERROR("Failed to build new group: " << group.name.Data());
+        return StatusCode::FAILURE;
+    }
+
+    m_groups.push_back(toAdd);
+    if (!m_groups.back()->getSubgroupNum())
+    {
+        size_t numGroups = 0;
+        for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+            if (!m_groups.at(iGroup)->getSubgroupNum())
+                numGroups++;
+        ATH_MSG_INFO(Form("%5zu. %-40s : %s",numGroups //m_groups.size()
+                                            ,m_groups.back()->getName().Data()
+                                            ,m_groups.back()->getDesc().Data() ));
+    }
+    return StatusCode::SUCCESS;
+}
+
+StatusCode JetUncertaintiesTool::addUncertaintyComponent(const ConfigHelper& helper)
+{
+    const bool isSimpleGroup = helper.isCompGroup();
+    const ComponentHelper& component = *helper.getComponentInfo();
+    const GroupHelper&     group     = *helper.getGroupInfo();
+
+    ATH_MSG_DEBUG(Form("Starting to process %s named %s",isSimpleGroup?"simple component group":"standard component",component.name.Data()));
+
+    // Find the group index that this component belongs to
+    // Note that if this is a simple group, we first need to build the associated group
+    if (isSimpleGroup)
+    {
+        UncertaintyGroup* simpleGroup = new UncertaintyGroup(group);
+        if (!simpleGroup)
+        {
+            ATH_MSG_ERROR("Failed to build simple group for component: " << component.name.Data());
+            return StatusCode::FAILURE;
+        }
+        const size_t groupIndex = m_groups.size();
+        m_groups.push_back(simpleGroup);
+        ATH_MSG_DEBUG(Form("Created new group \"%s\" for a simple component at index %zu",simpleGroup->getName().Data(),groupIndex));
+    
+        if (!m_groups.back()->getSubgroupNum())
+        {
+            size_t numGroups = 0;
+            for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+                if (!m_groups.at(iGroup)->getSubgroupNum())
+                    numGroups++;
+            ATH_MSG_INFO(Form("%5zu. %-40s : %s",numGroups //m_groups.size()
+                                                ,m_groups.back()->getName().Data()
+                                                ,m_groups.back()->getDesc().Data() ));
+        }
+
+        // We now have the simple component group
+        // Check if we are in the simple case (one component) or more difficult case (sub components)
+        if (!component.subComps.size())
+        {
+            // Easy case, build the component and add it directly
+            UncertaintyComponent* compObject = buildUncertaintyComponent(component);
+            if (!compObject)
+                return StatusCode::FAILURE;
+
+            if (m_groups.at(groupIndex)->addComponent(compObject).isFailure())
+                return StatusCode::FAILURE;
+            ATH_MSG_DEBUG(Form("Added single component \"%s\" to simple group \"%s\" (index %zu)",compObject->getName().Data(),m_groups.at(groupIndex)->getName().Data(),groupIndex));
+        }
+        else
+        {
+            for (size_t iSubComp = 0; iSubComp < component.subComps.size(); ++iSubComp)
+            {
+                // Build a new ComponentHelper object for each subcomponent
+                ComponentHelper subComp(component);
+                subComp.uncNames.clear();
+                subComp.subComps.clear();
+                subComp.name = component.subComps.at(iSubComp);
+                subComp.uncNames.push_back(component.subComps.at(iSubComp));
+
+                UncertaintyComponent* subCompObject = buildUncertaintyComponent(subComp);
+                if (!subCompObject)
+                    return StatusCode::FAILURE;
+
+                if (m_groups.at(groupIndex)->addComponent(subCompObject).isFailure())
+                    return StatusCode::FAILURE;
+                ATH_MSG_DEBUG(Form("Added component \"%s\" (%zu of %zu) to simple group \"%s\" (index %zu)",subCompObject->getName().Data(),iSubComp+1,component.subComps.size(),m_groups.at(groupIndex)->getName().Data(),groupIndex));
+            }
+        }
+    }
+    else
+    {
+        size_t groupIndex = 0;
+        if (!m_groups.size())
+        {
+            ATH_MSG_ERROR("No groups exist to add the component to: " << component.name.Data());
+            return StatusCode::FAILURE;
+        }
+        for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+            if (m_groups.at(iGroup)->getGroupNum() == component.groupNum)
+            {
+                groupIndex = iGroup;
+                break;
+            }
+        if (groupIndex == 0 && m_groups.at(0)->getGroupNum() != component.groupNum)
+        {
+            ATH_MSG_ERROR("Failed to find group " << component.groupNum << " for the component: " << component.name.Data());
+            return StatusCode::FAILURE;
+        }
+        
+        // We now have the group index where the component belongs
+        // Get the component we want to add (complicated function...)
+        UncertaintyComponent* compObject = buildUncertaintyComponent(component);
+        if (!compObject)
+            return StatusCode::FAILURE;
+
+        if (m_groups.at(groupIndex)->addComponent(compObject).isFailure())
+            return StatusCode::FAILURE;
+        ATH_MSG_DEBUG(Form("Added component \"%s\" to group \"%s\" (index %zu)",compObject->getName().Data(),m_groups.at(groupIndex)->getName().Data(),groupIndex));
+    }
+
+    return StatusCode::SUCCESS;
+}
+
+UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const ComponentHelper& component) const
+{
+    // Safety checks for required information
+    if (component.name == "")
+    {
+        ATH_MSG_ERROR("Attempting to create a component with no name");
+        return NULL;
     }
     if (component.parametrization == CompParametrization::UNKNOWN)
     {
-        ATH_MSG_ERROR("Unexpected parametrization " << component.param.Data() << " for component " << component.name.Data());
-        return StatusCode::FAILURE;
+        ATH_MSG_ERROR("Attempting to create a component with no parametrization: " << component.name.Data());
+        return NULL;
     }
-    
-    // Ensure we asked for a reasonable split
-    //       0. Default, no split, no weight required
-    //       1. Split with weight number 1 (linear increase vs log pT)
-    //      -1. Split with weight number 2 (quadratic complement to 1)
-    //      Otherwise, this is currently unsupported
-    if (component.splitNum != 0 && abs(component.splitNum) > 4)
+    if (component.scaleVar == CompScaleVar::UNKNOWN)
     {
-        ATH_MSG_ERROR("Only split numbers of 0, +/-1, +/-2, +/-3, and +/-4 are currently supported, not " << component.splitNum << ", for component " << component.name.Data());
-        return StatusCode::FAILURE;
+        ATH_MSG_ERROR("Attempting to create a component with no variable to scale: " << component.name.Data());
+        return NULL;
     }
-    
-    // Add the split number to the name and description if necessary
-    TString localCompName = component.splitNum != 0 ? Form("%s_T%d%s",component.name.Data(),abs(component.splitNum),component.splitNum > 0 ? "F" : "C") : component.name.Data();
-    TString localCompDesc = component.splitNum != 0 ? Form("%s [Type %d, %s part]",component.desc.Data(),abs(component.splitNum),component.splitNum > 0 ? "functional" : "complementary") : component.desc.Data();
-
-    // Prepend the jet systematic prefix if necessary
-    if (m_namePrefix != "")
-    {
-        // Doesn't have the prefix
-        if (!localCompName.BeginsWith(m_namePrefix.c_str(),TString::kIgnoreCase))
-            localCompName = Form("%s%s",m_namePrefix.c_str(),localCompName.Data());
-        // Has the right prefix, but not the right case (enforce identical prefix)
-        if (!localCompName.BeginsWith(m_namePrefix.c_str()))
-            localCompName.Replace(0,m_namePrefix.size(),m_namePrefix.c_str());
-    }
-
-    // Set the local component name
-    jet::ComponentHelper localComponent(component);
-    localComponent.name = localCompName;
-    localComponent.desc = localCompDesc;
-
 
     // Special cases first
     if (component.isSpecial)
@@ -448,68 +868,210 @@ StatusCode JetUncertaintiesTool::addUncertaintyComponent(TFile* histFile, const 
             // Ensure that the reference values were specified
             if (m_refNPV < 0 && !m_refNPVHist)
             {
-                ATH_MSG_ERROR("Attempted to create pileup component without NPV reference value: " << localCompName.Data());
-                return StatusCode::FAILURE;
+                ATH_MSG_ERROR("Attempted to create pileup component without NPV reference value: " << component.name.Data());
+                return NULL;
             }
             if (m_refMu < 0 && !m_refMuHist)
             {
-                ATH_MSG_ERROR("Attempted to create pileup component without mu reference value: " << localCompName.Data());
-                return StatusCode::FAILURE;
+                ATH_MSG_ERROR("Attempted to create pileup component without mu reference value: " << component.name.Data());
+                return NULL;
             }
 
             if (component.parametrization == CompParametrization::PtEta || component.parametrization == CompParametrization::PtAbsEta)
             {
                 if (m_refNPVHist && m_refMuHist)
-                    m_components.push_back(new PileupUncertaintyComponent(localComponent,m_refNPVHist,m_refMuHist));
+                    return new PileupUncertaintyComponent(component,m_refNPVHist,m_refMuHist);
                 else if (!m_refNPVHist && !m_refMuHist)
-                    m_components.push_back(new PileupUncertaintyComponent(localComponent,m_refNPV,m_refMu));
+                    return new PileupUncertaintyComponent(component,m_refNPV,m_refMu);
                 else if (m_refNPVHist && !m_refMuHist)
-                    m_components.push_back(new PileupUncertaintyComponent(localComponent,m_refNPVHist,m_refMu));
+                    return new PileupUncertaintyComponent(component,m_refNPVHist,m_refMu);
                 else if (!m_refNPVHist && m_refMuHist)
-                    m_components.push_back(new PileupUncertaintyComponent(localComponent,m_refNPV,m_refMuHist));
+                    return new PileupUncertaintyComponent(component,m_refNPV,m_refMuHist);
             }
             else
             {
-                ATH_MSG_ERROR(Form("Unexpected parametrization of %s for component %s",CompParametrization::enumToString(component.parametrization).Data(),localCompName.Data()));
-                return StatusCode::FAILURE;
+                ATH_MSG_ERROR(Form("Unexpected parametrization of %s for component %s",CompParametrization::enumToString(component.parametrization).Data(),component.name.Data()));
+                return NULL;
             }
         }
         // Next check flavour components
         else if (component.flavourType != FlavourComp::UNKNOWN)
         {
-            if (component.parametrization == CompParametrization::PtEta || component.parametrization == CompParametrization::PtAbsEta)
-                m_components.push_back(new FlavourUncertaintyComponent(localComponent,m_jetDef,m_analysisFile,m_path.c_str()));
+            if (m_analysisFile == "")
+            {
+                ATH_MSG_ERROR("Attempting to create a flavour uncertainty component without having specified an AnalysisRootFile");
+                return NULL;
+            }
+            else if (component.parametrization == CompParametrization::PtEta || component.parametrization == CompParametrization::PtAbsEta)
+                return new FlavourUncertaintyComponent(component,m_jetDef,m_analysisFile,m_path.c_str());
             else
             {
-                ATH_MSG_ERROR(Form("Unexpected parametrization of %s for component %s",CompParametrization::enumToString(component.parametrization).Data(),localCompName.Data()));
-                return StatusCode::FAILURE;
+                ATH_MSG_ERROR(Form("Unexpected parametrization of %s for component %s",CompParametrization::enumToString(component.parametrization).Data(),component.name.Data()));
+                return NULL;
             }
         }
         // Next check punchthrough
-        else if (localCompName.Contains("PunchThrough",TString::kIgnoreCase))
+        else if (component.name.Contains("PunchThrough",TString::kIgnoreCase))
         {
             if (component.parametrization == CompParametrization::PtEta || component.parametrization == CompParametrization::PtAbsEta)
-                m_components.push_back(new PunchthroughUncertaintyComponent(localComponent));
+                return new PunchthroughUncertaintyComponent(component);
             else
             {
-                ATH_MSG_ERROR(Form("Unexpected parametrization of %s for component %s",CompParametrization::enumToString(component.parametrization).Data(),localCompName.Data()));
-                return StatusCode::FAILURE;
+                ATH_MSG_ERROR(Form("Unexpected parametrization of %s for component %s",CompParametrization::enumToString(component.parametrization).Data(),component.name.Data()));
+                return NULL;
             }
         }
         // Next check closeby
-        else if (localCompName.Contains("Closeby",TString::kIgnoreCase))
+        else if (component.name.Contains("Closeby",TString::kIgnoreCase))
         {
             if (component.parametrization == CompParametrization::Pt)
-                m_components.push_back(new ClosebyUncertaintyComponent(localComponent));
+                return new ClosebyUncertaintyComponent(component);
             else
             {
-                ATH_MSG_ERROR(Form("Unexpected parametrization of %s for component %s",CompParametrization::enumToString(component.parametrization).Data(),localCompName.Data()));
+                ATH_MSG_ERROR(Form("Unexpected parametrization of %s for component %s",CompParametrization::enumToString(component.parametrization).Data(),component.name.Data()));
+                return NULL;
             }
+        }
+        // Next check combined mass
+        else if (component.combMassType != CombMassComp::UNKNOWN)
+        {
+            // Ensure we have the weights we need for combined mass uncertainties
+            if (!m_caloMassWeight || !m_TAMassWeight)
+            {
+                ATH_MSG_ERROR("Asking to create a combined mass term without specifying weights: " << component.name.Data());
+                return NULL;
+            }
+            
+            // Create the component
+            ComponentHelper combComp(component);
+            combComp.name = component.name;
+            combComp.uncNames.clear();
+            CombinedMassUncertaintyComponent* cmuc = new CombinedMassUncertaintyComponent(combComp);
+            
+            // Set the weights
+            if (cmuc->setCaloWeights(m_caloMassWeight).isFailure()) return NULL;
+            if (cmuc->setTAWeights(m_TAMassWeight).isFailure())     return NULL;
+            if (cmuc->setCombWeightMassDefs(m_combMassWeightCaloMassDef,m_combMassWeightTAMassDef).isFailure()) return NULL;
+            if (component.combMassType == CombMassComp::Calo || component.combMassType == CombMassComp::Both)
+            {
+                // Define the calorimeter group if applicable
+                GroupHelper caloGroupH(component.name+"_CaloGroup");
+                caloGroupH.groupNum = 0;
+                caloGroupH.subgroupNum = 0;
+                caloGroupH.category = CompCategory::UNKNOWN;
+                caloGroupH.correlation = CompCorrelation::Correlated;
+                caloGroupH.reducible = false;
+
+                UncertaintyGroup* caloGroup = new UncertaintyGroup(caloGroupH);
+                if (!caloGroup)
+                {
+                    ATH_MSG_ERROR("Failed to build calo-group for combined mass component: " << component.name.Data());
+                    return NULL;
+                }
+
+                // Get the calo terms and calo mass definitions
+                std::vector<TString> caloComps = jet::utils::vectorize<TString>(component.caloMassTerm,", ");
+                std::vector<TString> caloMassDefs = jet::utils::vectorize<TString>(component.caloMassDef,", ");
+                if (caloComps.size() != caloMassDefs.size())
+                {
+                    ATH_MSG_ERROR("Unbalanced number of calo mass terms and calo mass definitions, " << caloComps.size() << " vs " << caloMassDefs.size() << " for combined mass component: " << component.name.Data());
+                    return NULL;
+                }
+                
+                // Build the component(s) and add them directly
+                for (size_t iComp = 0; iComp < caloComps.size(); ++iComp)
+                {
+                    // Prepare the helper
+                    ComponentHelper caloCompH(component);
+                    caloCompH.uncNames.clear();
+                    caloCompH.isSpecial = false;
+                    caloCompH.name = caloComps.at(iComp);
+                    caloCompH.uncNames.push_back(caloCompH.name+"_"+m_jetDef);
+                    caloCompH.massDef = CompMassDef::stringToEnum(caloMassDefs.at(iComp));
+                    if (caloCompH.massDef == CompMassDef::UNKNOWN)
+                    {
+                        ATH_MSG_ERROR("Failed to parse calo mass definition " << iComp << " (" << caloMassDefs.at(iComp).Data() << ") for combined mass component: " << component.name.Data());
+                        return NULL;
+                    }
+
+                    // Build the component
+                    UncertaintyComponent* caloComp = buildUncertaintyComponent(caloCompH);
+                    if (!caloComp)
+                        return NULL;
+                    
+                    if (caloGroup->addComponent(caloComp).isFailure())
+                        return NULL;
+                }
+
+                // Done preparations, now set the calo mass group
+                if (cmuc->setCaloTerm(caloGroup).isFailure())
+                    return NULL;
+            }
+            if (component.combMassType == CombMassComp::TA || component.combMassType == CombMassComp::Both)
+            {
+                // Define the track-assisted group if applicable
+                GroupHelper TAGroupH(component.name+"_TAGroup");
+                TAGroupH.groupNum = 0;
+                TAGroupH.subgroupNum = 0;
+                TAGroupH.category = CompCategory::UNKNOWN;
+                TAGroupH.correlation = CompCorrelation::Correlated;
+                TAGroupH.reducible = false;
+
+                UncertaintyGroup* TAGroup = new UncertaintyGroup(TAGroupH);
+                if (!TAGroup)
+                {
+                    ATH_MSG_ERROR("Failed to build TA-group for combined mass component: " << component.name.Data());
+                    return NULL;
+                }
+                
+                // Set the TA terms and TA mass definitions
+                std::vector<TString> TAComps = jet::utils::vectorize<TString>(component.TAMassTerm,", ");
+                std::vector<TString> TAMassDefs = jet::utils::vectorize<TString>(component.TAMassDef,", ");
+                if (TAComps.size() != TAMassDefs.size())
+                {
+                    ATH_MSG_ERROR("Unbalanced number of TA mass terms and TA mass definitions, " << TAComps.size() << " vs " << TAMassDefs.size() << " for combined mass component: " << component.name.Data());
+                    return NULL;
+                }
+
+                // Build the component(s) and add them directly
+                for (size_t iComp = 0; iComp < TAComps.size(); ++iComp)
+                {
+                    // Prepare the helper
+                    ComponentHelper TACompH(component);
+                    TACompH.uncNames.clear();
+                    TACompH.isSpecial = false;
+                    TACompH.name = TAComps.at(iComp);
+                    TACompH.uncNames.push_back(TACompH.name+"_"+m_jetDef);
+                    TACompH.massDef = CompMassDef::stringToEnum(TAMassDefs.at(iComp));
+                    if (TACompH.massDef == CompMassDef::UNKNOWN)
+                    {
+                        ATH_MSG_ERROR("Failed to parse TA mass definition " << iComp << " (" << TAMassDefs.at(iComp).Data() << ") for combined mass component: " << component.name.Data());
+                        return NULL;
+                    }
+
+                    //ATH_MSG_INFO("Creating TA component \"" << TACompH.name.Data() << "\" for combined mass component: " << component.name.Data());
+
+                    // Build the component
+                    UncertaintyComponent* TAComp = buildUncertaintyComponent(TACompH);
+                    if (!TAComp)
+                        return NULL;
+
+                    if (TAGroup->addComponent(TAComp).isFailure())
+                        return NULL;
+                }
+
+                // Done preparations, now set the TA mass group
+                if (cmuc->setTATerm(TAGroup).isFailure())
+                    return NULL;
+            }
+
+            // Done, return the component
+            return cmuc;
         }
         else
         {
-            ATH_MSG_ERROR("Unexpected special component: " << localCompName.Data());
-            return StatusCode::FAILURE;
+            ATH_MSG_ERROR("Unexpected special component: " << component.name.Data());
+            return NULL;
         }
         
     }
@@ -519,130 +1081,25 @@ StatusCode JetUncertaintiesTool::addUncertaintyComponent(TFile* histFile, const 
         switch(component.parametrization)
         {
             case CompParametrization::Pt:
-                m_components.push_back(new PtUncertaintyComponent(localComponent));
-                break;
+                return new PtUncertaintyComponent(component);
             case CompParametrization::PtEta:
             case CompParametrization::PtAbsEta:
-                m_components.push_back(new PtEtaUncertaintyComponent(localComponent));
-                break;
+                return new PtEtaUncertaintyComponent(component);
+            case CompParametrization::PtMass:
+                return new PtMassUncertaintyComponent(component);
             case CompParametrization::PtMassEta:
             case CompParametrization::PtMassAbsEta:
-                m_components.push_back(new PtMassEtaUncertaintyComponent(localComponent));
-                break;
+                return new PtMassEtaUncertaintyComponent(component);
             default:
                 ATH_MSG_ERROR("Encountered unexpected parameter type: " << component.param.Data());
-                return StatusCode::FAILURE;
-        }
-    }
-    
-    // Add histogram(s) to components and initialize
-    // No specified histograms == use the name of the component for the histogram name
-    // Note: use the raw name without the split number, not the local name
-    std::vector<TString> histNames;
-    if (component.hists == "")
-        histNames.push_back(component.name);
-    else
-    {
-        const bool success = utils::vectorize<TString>(component.hists,", ",histNames);
-        if (!success)
-        {
-            ATH_MSG_ERROR("Failed to convert histNames into a vector: " << component.hists.Data());
-            return StatusCode::FAILURE;
-        }
-    }
-    // Add the jet string to the end of the name
-    for (size_t iHisto = 0; iHisto < histNames.size(); ++iHisto)
-        histNames[iHisto] = histNames[iHisto]+"_"+m_jetDef;
-
-    
-    // Check if validity histograms were specified
-    std::vector<TString> validHistNames;
-    if (component.validHists != "")
-    {
-        const bool success = utils::vectorize<TString>(component.validHists,", ",validHistNames);
-        if (!success)
-        {
-            ATH_MSG_ERROR("Failed to convert validHists into a vector: " << component.validHists.Data());
-            return StatusCode::FAILURE;
+                return NULL;
         }
     }
 
-    // Now initialize
-    if (!validHistNames.size())
-    {
-        if (m_components.back()->initialize(histNames,histFile).isFailure())
-            return StatusCode::FAILURE;
-    }
-    else
-    {
-        if (m_components.back()->initialize(histNames,validHistNames,histFile).isFailure())
-            return StatusCode::FAILURE;
-    }
-
-    // Check if the component is part of a group
-    if (component.group > 0)
-    {
-        // This component belongs to a group
-        // We need to remove the component from the global list and give it to the group
-        // If the group does not exist, we need to make a new one
-        bool foundGroup = false;
-        for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
-            if (m_groups.at(iGroup)->getGroupNum() == component.group)
-            {
-                foundGroup = true;
-                // Transfer component ownership to the group
-                if (m_groups.at(iGroup)->addComponent(m_components.back()).isFailure())
-                    return StatusCode::FAILURE;
-                m_components.pop_back();
-            }
-
-        if (!foundGroup)
-        {
-            const TString groupName = Form("%sGroupedNP_%zu",m_namePrefix.c_str(),m_groups.size()+1);
-            // Make a new group and use that
-            ComponentHelper groupHelper(groupName,m_energyScale);
-            groupHelper.desc = Form("Component group %zu",m_groups.size()+1);
-            groupHelper.group = component.group;
-            groupHelper.category = CompCategory::Other;
-            groupHelper.correlation = CompCorrelation::Uncorrelated;
-            groupHelper.scaleVar = component.scaleVar;
-            m_groups.push_back(new UncertaintyComponentGroup(groupHelper));
-            if (m_groups.back()->addComponent(m_components.back()).isFailure())
-                return StatusCode::FAILURE;
-            m_components.pop_back();
-            m_components.push_back(m_groups.back());
-
-            // Add the new group to the registry of what can be applied
-            CP::SystematicVariation systVar(groupName.Data(),CP::SystematicVariation::CONTINUOUS);
-            if (addAffectingSystematic(systVar,true) != CP::SystematicCode::Ok)
-                return StatusCode::FAILURE;
-        }
-    }
-    else
-    {
-        // Not part of a group, add the component to the registry of what can be applied
-        // Note: check if this is a MC non-closure term, which is zero for the nominal MC type
-        // In this case, we do not want to set this as a recommended systematic (it has no effect)
-        const bool isRecommended = component.name.BeginsWith("RelativeNonClosure_") && m_components.back()->isAlwaysZero() ? false : true;
-        CP::SystematicVariation systVar(localCompName.Data(),CP::SystematicVariation::CONTINUOUS);
-        if (addAffectingSystematic(systVar,isRecommended) != CP::SystematicCode::Ok)
-            return StatusCode::FAILURE;
-    }
-    
-    // Determine the number of input components (not straightforward when groups are used)
-    size_t compNum = m_components.size() - m_groups.size();
-    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
-        compNum += m_groups.at(iGroup)->getNumComponents();
-
-    // Print the info
-    ATH_MSG_INFO(Form("%5zu. %-40s : %s",
-                    compNum,
-                    localComponent.name.Data(),
-                    localComponent.desc.Data()
-                    ));
-
-    return StatusCode::SUCCESS;
+    ATH_MSG_ERROR("Failed to find the type of component to build: " << component.name.Data());
+    return NULL;
 }
+
 
 
 //////////////////////////////////////////////////
@@ -746,7 +1203,7 @@ CP::SystematicCode JetUncertaintiesTool::getUncertaintySet(const CP::SystematicS
     else
     {
         uncSet = new UncertaintySet(filteredSet.name());
-        if (uncSet == NULL || uncSet->initialize(filteredSet,m_components).isFailure())
+        if (uncSet == NULL || uncSet->initialize(filteredSet,m_groups).isFailure())
         {
             ATH_MSG_ERROR("Failed to create UncertaintySet for filtered CP::SystematicSet: " << filteredSet.name());
             JESUNC_SAFE_DELETE(uncSet);
@@ -816,7 +1273,7 @@ float JetUncertaintiesTool::getRefMu(const xAOD::Jet& jet) const
         ATH_MSG_FATAL("Tool must be initialized before calling getRefMu");
         return JESUNC_ERROR_CODE;
     }
-    return m_refMuHist ? m_refMuHist->getUncertainty(fabs(jet.eta())) : m_refMu;
+    return m_refMuHist ? m_refMuHist->getValue(fabs(jet.eta())) : m_refMu;
 }
 
 float JetUncertaintiesTool::getRefNPV(const xAOD::Jet& jet) const
@@ -826,7 +1283,7 @@ float JetUncertaintiesTool::getRefNPV(const xAOD::Jet& jet) const
         ATH_MSG_FATAL("Tool must be initialized before calling getRefNPV");
         return JESUNC_ERROR_CODE;
     }
-    return m_refNPVHist ? m_refNPVHist->getUncertainty(fabs(jet.eta())) : m_refNPV;
+    return m_refNPVHist ? m_refNPVHist->getValue(fabs(jet.eta())) : m_refNPV;
 }
 
 
@@ -838,7 +1295,7 @@ size_t JetUncertaintiesTool::getNumComponents() const
         return 0;
     }
 
-    return m_components.size();
+    return m_groups.size();
 }
 
 size_t JetUncertaintiesTool::getComponentIndex(const std::string& name) const
@@ -851,15 +1308,15 @@ size_t JetUncertaintiesTool::getComponentIndex(const TString& name) const
     if (!m_isInit)
     {
         ATH_MSG_FATAL("Tool must be initialized before calling getComponentIndex");
-        return m_components.size();
+        return m_groups.size();
     }
 
-    for (size_t iComp = 0; iComp < m_components.size(); ++iComp)
-        if (m_components.at(iComp)->getName().CompareTo(name,TString::kIgnoreCase) == 0)
+    for (size_t iComp = 0; iComp < m_groups.size(); ++iComp)
+        if (m_groups.at(iComp)->getName().CompareTo(name,TString::kIgnoreCase) == 0)
             return iComp;
     
     ATH_MSG_ERROR("Failed to find index for requested component: " << name.Data());
-    return m_components.size();
+    return m_groups.size();
 }
 
 std::string JetUncertaintiesTool::getComponentName(const size_t index) const
@@ -870,8 +1327,8 @@ std::string JetUncertaintiesTool::getComponentName(const size_t index) const
         return "";
     }
 
-    if (index < m_components.size())
-        return m_components.at(index)->getName().Data();
+    if (index < m_groups.size())
+        return m_groups.at(index)->getName().Data();
 
     ATH_MSG_ERROR("Index out of bounds for component name: " << index);
     return "";
@@ -885,8 +1342,8 @@ std::string JetUncertaintiesTool::getComponentDesc(const size_t index) const
         return "";
     }
 
-    if (index < m_components.size())
-        return m_components.at(index)->getDesc().Data();
+    if (index < m_groups.size())
+        return m_groups.at(index)->getDesc().Data();
 
     ATH_MSG_ERROR("Index out of bounds for component desc: " << index);
     return "";
@@ -900,8 +1357,8 @@ std::string JetUncertaintiesTool::getComponentCategory(const size_t index) const
         return "";
     }
 
-    if (index < m_components.size())
-        return CompCategory::enumToString(m_components.at(index)->getCategory()).Data();
+    if (index < m_groups.size())
+        return CompCategory::enumToString(m_groups.at(index)->getCategory()).Data();
 
     ATH_MSG_ERROR("Index out of bounds for component category: " << index);
     return "";
@@ -915,127 +1372,103 @@ bool JetUncertaintiesTool::getComponentIsReducible(const size_t index) const
         return false;
     }
     
-    if (index < m_components.size())
-        return m_components.at(index)->getIsReducible();
+    if (index < m_groups.size())
+        return m_groups.at(index)->getIsReducible();
 
     ATH_MSG_ERROR("Index out of bounds for component category:  " << index);
     return false;
 }
 
-bool JetUncertaintiesTool::getComponentScalesFourVec(const size_t index) const
+StatusCode JetUncertaintiesTool::checkIndexInput(const size_t index) const
 {
-    const CompScaleVar::TypeEnum scaleVar = CompScaleVar::FourVec;
     if (!m_isInit)
     {
-        ATH_MSG_FATAL("Tool must be initialized before calling getComponentScales"<<CompScaleVar::enumToString(scaleVar).Data());
-        return false;
+        ATH_MSG_FATAL("Tool must be initialized before asking for information pertaining to a given component index");
+        return StatusCode::FAILURE;
     }
-    
-    if (index < m_components.size())
-        return m_components.at(index)->getScaleVar() == scaleVar;
 
-    ATH_MSG_ERROR("Index out of bounds for component scales " << CompScaleVar::enumToString(scaleVar).Data() << ", index is " << index);
-    return false;
+    if (index >= m_groups.size())
+    {
+        ATH_MSG_ERROR(Form("Index out of bounds, asking for %zu in a container of size %zu",index,m_groups.size()));
+        return StatusCode::FAILURE;
+    }
+
+
+    return StatusCode::SUCCESS;
+}
+
+bool checkScalesSingleVar(const std::set<CompScaleVar::TypeEnum>& varSet, const CompScaleVar::TypeEnum var)
+{
+    return varSet.size() == 1 && *(varSet.begin()) == var;
+}
+
+bool JetUncertaintiesTool::getComponentScalesFourVec(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return false;
+    return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::FourVec);
 }
 bool JetUncertaintiesTool::getComponentScalesPt(const size_t index) const
 {
-    const CompScaleVar::TypeEnum scaleVar = CompScaleVar::Pt;
-    if (!m_isInit)
-    {
-        ATH_MSG_FATAL("Tool must be initialized before calling getComponentScales"<<CompScaleVar::enumToString(scaleVar).Data());
-        return false;
-    }
-    
-    if (index < m_components.size())
-        return m_components.at(index)->getScaleVar() == scaleVar;
-
-    ATH_MSG_ERROR("Index out of bounds for component scales " << CompScaleVar::enumToString(scaleVar).Data() << ", index is " << index);
-    return false;
+    if (checkIndexInput(index).isFailure()) return false;
+    return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::Pt);
 }
 bool JetUncertaintiesTool::getComponentScalesMass(const size_t index) const
 {
-    const CompScaleVar::TypeEnum scaleVar = CompScaleVar::Mass;
-    if (!m_isInit)
-    {
-        ATH_MSG_FATAL("Tool must be initialized before calling getComponentScales"<<CompScaleVar::enumToString(scaleVar).Data());
-        return false;
-    }
-    
-    if (index < m_components.size())
-        return m_components.at(index)->getScaleVar() == scaleVar;
-
-    ATH_MSG_ERROR("Index out of bounds for component scales " << CompScaleVar::enumToString(scaleVar).Data() << ", index is " << index);
-    return false;
+    if (checkIndexInput(index).isFailure()) return false;
+    return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::Mass);
 }
 bool JetUncertaintiesTool::getComponentScalesD12(const size_t index) const
 {
-    const CompScaleVar::TypeEnum scaleVar = CompScaleVar::D12;
-    if (!m_isInit)
-    {
-        ATH_MSG_FATAL("Tool must be initialized before calling getComponentScales"<<CompScaleVar::enumToString(scaleVar).Data());
-        return false;
-    }
-    
-    if (index < m_components.size())
-        return m_components.at(index)->getScaleVar() == scaleVar;
-
-    ATH_MSG_ERROR("Index out of bounds for component scales " << CompScaleVar::enumToString(scaleVar).Data() << ", index is " << index);
-    return false;
+    if (checkIndexInput(index).isFailure()) return false;
+    return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::D12);
 }
 bool JetUncertaintiesTool::getComponentScalesD23(const size_t index) const
 {
-    const CompScaleVar::TypeEnum scaleVar = CompScaleVar::D23;
-    if (!m_isInit)
-    {
-        ATH_MSG_FATAL("Tool must be initialized before calling getComponentScales"<<CompScaleVar::enumToString(scaleVar).Data());
-        return false;
-    }
-    
-    if (index < m_components.size())
-        return m_components.at(index)->getScaleVar() == scaleVar;
-
-    ATH_MSG_ERROR("Index out of bounds for component scales " << CompScaleVar::enumToString(scaleVar).Data() << ", index is " << index);
-    return false;
+    if (checkIndexInput(index).isFailure()) return false;
+    return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::D23);
 }
 bool JetUncertaintiesTool::getComponentScalesTau21(const size_t index) const
 {
-    const CompScaleVar::TypeEnum scaleVar = CompScaleVar::Tau21;
-    if (!m_isInit)
-    {
-        ATH_MSG_FATAL("Tool must be initialized before calling getComponentScales"<<CompScaleVar::enumToString(scaleVar).Data());
-        return false;
-    }
-    
-    if (index < m_components.size())
-        return m_components.at(index)->getScaleVar() == scaleVar;
-
-    ATH_MSG_ERROR("Index out of bounds for component scales " << CompScaleVar::enumToString(scaleVar).Data() << ", index is " << index);
-    return false;
+    if (checkIndexInput(index).isFailure()) return false;
+    return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::Tau21);
 }
 bool JetUncertaintiesTool::getComponentScalesTau32(const size_t index) const
 {
-    const CompScaleVar::TypeEnum scaleVar = CompScaleVar::Tau32;
-    if (!m_isInit)
-    {
-        ATH_MSG_FATAL("Tool must be initialized before calling getComponentScales"<<CompScaleVar::enumToString(scaleVar).Data());
-        return false;
-    }
-    
-    if (index < m_components.size())
-        return m_components.at(index)->getScaleVar() == scaleVar;
-
-    ATH_MSG_ERROR("Index out of bounds for component scales " << CompScaleVar::enumToString(scaleVar).Data() << ", index is " << index);
-    return false;
+    if (checkIndexInput(index).isFailure()) return false;
+    return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::Tau32);
+}
+bool JetUncertaintiesTool::getComponentScalesTau32WTA(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return false;
+    return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::Tau32WTA);
+}
+bool JetUncertaintiesTool::getComponentScalesD2Beta1(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return false;
+    return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::D2Beta1);
+}
+bool JetUncertaintiesTool::getComponentScalesMultiple(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return false;
+    return m_groups.at(index)->getScaleVars().size() > 1;
 }
 
 
 bool JetUncertaintiesTool::getValidity(size_t index, const xAOD::Jet& jet) const
 {
-    const xAOD::EventInfo* eInfo = getDefaultEventInfo();
-    if (!eInfo) return false;
-    return getValidity(index,jet,*eInfo);
+    return getValidity(index,jet,CompScaleVar::UNKNOWN);
 }
 bool JetUncertaintiesTool::getValidity(size_t index, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const
+{
+    return getValidity(index,jet,eInfo,CompScaleVar::UNKNOWN);
+}
+bool JetUncertaintiesTool::getValidity(size_t index, const xAOD::Jet& jet, const CompScaleVar::TypeEnum scaleVar) const
+{
+    const xAOD::EventInfo* eInfo = getDefaultEventInfo();
+    if (!eInfo) return false;
+    return getValidity(index,jet,*eInfo,scaleVar);
+}
+bool JetUncertaintiesTool::getValidity(size_t index, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo, const CompScaleVar::TypeEnum scaleVar) const
 {
     if (!m_isInit)
     {
@@ -1043,20 +1476,49 @@ bool JetUncertaintiesTool::getValidity(size_t index, const xAOD::Jet& jet, const
         return false;
     }
 
-    if (index < m_components.size())
-        return m_components.at(index)->getValidity(jet,eInfo);
+    // Ensure we are within bounds
+    if (index >= m_groups.size())
+    {
+        ATH_MSG_ERROR("Index out of bounds for validity: " << index);
+        return false;
+    }
 
-    ATH_MSG_ERROR("Index out of bounds for validity: " << index);
-    return false;
+    // Check for a global validity histogram
+    if (m_fileValidHist && !m_fileValidHist->getValidity(jet))
+        return false;
+    
+    // Deal with different possible scale types
+    // If scaleVar is unknown, work if comp is just one type
+    // If scaleVar is specified, request that specific type regardless
+    if (scaleVar == CompScaleVar::UNKNOWN)
+    {
+        if (m_groups.at(index)->getScaleVars().size() != 1)
+        {
+            ATH_MSG_ERROR("Asked for the validity of a set which scales multiple variables without specifying the variable of interest:" << m_groups.at(index)->getName().Data());
+            return false;
+        }
+        return m_groups.at(index)->getValidity(jet,eInfo,*(m_groups.at(index)->getScaleVars().begin()));
+    }
+    return m_groups.at(index)->getValidity(jet,eInfo,scaleVar);
 }
+
+
 
 double JetUncertaintiesTool::getUncertainty(size_t index, const xAOD::Jet& jet) const
 {
-    const xAOD::EventInfo* eInfo = getDefaultEventInfo();
-    if (!eInfo) return JESUNC_ERROR_CODE;
-    return getUncertainty(index,jet,*eInfo);
+    return getUncertainty(index,jet,CompScaleVar::UNKNOWN);
 }
 double JetUncertaintiesTool::getUncertainty(size_t index, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const
+{
+    return getUncertainty(index,jet,eInfo,CompScaleVar::UNKNOWN);
+}
+double JetUncertaintiesTool::getUncertainty(size_t index, const xAOD::Jet& jet, const CompScaleVar::TypeEnum scaleVar) const
+{
+    const xAOD::EventInfo* eInfo = getDefaultEventInfo();
+    if (!eInfo) return JESUNC_ERROR_CODE;
+    return getUncertainty(index,jet,*eInfo,scaleVar);
+}
+double JetUncertaintiesTool::getUncertainty(size_t index, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo, const CompScaleVar::TypeEnum scaleVar) const
 {
     if (!m_isInit)
     {
@@ -1064,34 +1526,120 @@ double JetUncertaintiesTool::getUncertainty(size_t index, const xAOD::Jet& jet, 
         return JESUNC_ERROR_CODE;
     }
 
-    if (index < m_components.size())
-        return m_components.at(index)->getUncertainty(jet,eInfo);
+    // Ensure we are within bounds
+    if (index >= m_groups.size())
+    {
+        ATH_MSG_ERROR("Index out of bounds for uncertainty: " << index);
+        return JESUNC_ERROR_CODE;
+    }
     
-    ATH_MSG_ERROR("Index out of bounds for uncertainty: " << index);
-    return JESUNC_ERROR_CODE;
+    // Watch for a global validity histogram
+    if (m_fileValidHist && !m_fileValidHist->getValidity(jet))
+    {
+        ATH_MSG_ERROR("Jet is out of validity bounds for uncertainty: " << index);
+        return JESUNC_ERROR_CODE;
+    }
+    
+
+    // Deal with different possible scale types
+    // If scaleVar is unknown, work if comp is just one type
+    // If scaleVar is specified, request that specific type regardless
+    if (scaleVar == CompScaleVar::UNKNOWN)
+    {
+        if (m_groups.at(index)->getScaleVars().size() != 1)
+        {
+            ATH_MSG_ERROR("Asked for the uncertainty of a set which scales multiple variables without specifying the variable of interest:" << m_groups.at(index)->getName().Data());
+            return JESUNC_ERROR_CODE;
+        }
+        return m_groups.at(index)->getUncertainty(jet,eInfo,*(m_groups.at(index)->getScaleVars().begin()));
+    }
+    return m_groups.at(index)->getUncertainty(jet,eInfo,scaleVar);
 }
+
+
 
 bool JetUncertaintiesTool::getValidUncertainty(size_t index, double& unc, const xAOD::Jet& jet) const
 {
-    const xAOD::EventInfo* eInfo = getDefaultEventInfo();
-    if (!eInfo) return false;
-    return getValidUncertainty(index,unc,jet,*eInfo);
+    return getValidUncertainty(index, unc, jet, CompScaleVar::UNKNOWN);
 }
 bool JetUncertaintiesTool::getValidUncertainty(size_t index, double& unc, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const
+{
+    return getValidUncertainty(index, unc, jet, eInfo, CompScaleVar::UNKNOWN);
+}
+bool JetUncertaintiesTool::getValidUncertainty(size_t index, double& unc, const xAOD::Jet& jet, const CompScaleVar::TypeEnum scaleVar) const
+{
+    const xAOD::EventInfo* eInfo = getDefaultEventInfo();
+    if (!eInfo) return false;
+    return getValidUncertainty(index,unc,jet,*eInfo,scaleVar);
+}
+bool JetUncertaintiesTool::getValidUncertainty(size_t index, double& unc, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo, const CompScaleVar::TypeEnum scaleVar) const
 {
     if (!m_isInit)
     {
         ATH_MSG_FATAL("Tool must be initialized before calling getValidUncertainty");
         return false;
     }
-
-    if (index < m_components.size())
-        return m_components.at(index)->getValidUncertainty(unc,jet,eInfo);
-
-    ATH_MSG_ERROR("Index out of bounds for valid uncertainty: " << index);
-    return false;
+    
+    // Ensure we are within bounds
+    if (index >= m_groups.size())
+    {
+        ATH_MSG_ERROR("Index out of bounds for valid uncertainty: " << index);
+        return false;
+    }
+    
+    // Check for a global validity histogram
+    if (m_fileValidHist && !m_fileValidHist->getValidity(jet))
+        return false;
+    
+    
+    // Deal with different possible scale types
+    // If scaleVar is unknown, work if comp is just one type
+    // If scaleVar is specified, request that specific type regardless
+    if (scaleVar == CompScaleVar::UNKNOWN)
+    {
+        if (m_groups.at(index)->getScaleVars().size() != 1)
+        {
+            ATH_MSG_ERROR("Asked for the valid uncertainty of a set which scales multiple variables without specifying the variable of interest:" << m_groups.at(index)->getName().Data());
+            return JESUNC_ERROR_CODE;
+        }
+        return m_groups.at(index)->getValidUncertainty(unc,jet,eInfo,*(m_groups.at(index)->getScaleVars().begin()));
+    }
+    return m_groups.at(index)->getValidUncertainty(unc,jet,eInfo,scaleVar);
 }
 
+
+
+double JetUncertaintiesTool::getNormalizedCaloMassWeight(const xAOD::Jet& jet) const
+{
+    if (!m_caloMassWeight || !m_TAMassWeight) return 0;
+
+    static SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t> caloScale (CompMassDef::getJetScaleString(m_combMassWeightCaloMassDef).Data());
+    static SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t> TAScale (CompMassDef::getJetScaleString(m_combMassWeightTAMassDef).Data());
+
+
+    const double caloFactor = m_caloMassWeight->getValue(caloScale(jet).Pt()*m_energyScale,caloScale(jet).M()/caloScale(jet).Pt());
+    const double TAFactor   = m_TAMassWeight->getValue(TAScale(jet).Pt()*m_energyScale,TAScale(jet).M()/TAScale(jet).Pt());
+    
+    if (caloFactor + TAFactor == 0) return 0;
+
+    return caloFactor/(caloFactor+TAFactor);
+}
+
+double JetUncertaintiesTool::getNormalizedTAMassWeight(const xAOD::Jet& jet) const
+{
+    if (!m_caloMassWeight || !m_TAMassWeight) return 0;
+
+    static SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t> caloScale (CompMassDef::getJetScaleString(m_combMassWeightCaloMassDef).Data());
+    static SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t> TAScale (CompMassDef::getJetScaleString(m_combMassWeightTAMassDef).Data());
+
+
+    const double caloFactor = m_caloMassWeight->getValue(caloScale(jet).Pt()*m_energyScale,caloScale(jet).M()/caloScale(jet).Pt());
+    const double TAFactor   = m_TAMassWeight->getValue(TAScale(jet).Pt()*m_energyScale,TAScale(jet).M()/TAScale(jet).Pt());
+    
+    if (caloFactor + TAFactor == 0) return 0;
+
+    return TAFactor/(caloFactor+TAFactor);
+}
 
 //////////////////////////////////////////////////
 //                                              //
@@ -1111,8 +1659,8 @@ std::vector<std::string> JetUncertaintiesTool::getComponentCategories() const
     // Use std::string rather than CompCategory::TypeEnum because std::string has a hash
     // Hashed access should mean there is no speed difference between using the two types
     std::unordered_set<std::string> categories;
-    for (size_t iComp = 0; iComp < m_components.size(); ++iComp)
-        categories.insert(CompCategory::enumToString(m_components.at(iComp)->getCategory()).Data());
+    for (size_t iComp = 0; iComp < m_groups.size(); ++iComp)
+        categories.insert(CompCategory::enumToString(m_groups.at(iComp)->getCategory()).Data());
     
     // Convert the set to a vector
     std::vector<std::string> categoryStrings;
@@ -1140,8 +1688,8 @@ std::vector<size_t> JetUncertaintiesTool::getComponentsInCategory(const std::str
 
     // Now find the components
     std::vector<size_t> components;
-    for (size_t iComp = 0; iComp < m_components.size(); ++iComp)
-        if (m_components.at(iComp)->getCategory() == categoryEnum)
+    for (size_t iComp = 0; iComp < m_groups.size(); ++iComp)
+        if (m_groups.at(iComp)->getCategory() == categoryEnum)
             components.push_back(iComp);
 
     return components;
@@ -1229,6 +1777,11 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
         ATH_MSG_FATAL("Tool must be initialized before calling applyCorrection");
         return CP::CorrectionCode::Error;
     }
+    
+    // Check for a global validity histogram
+    if (m_fileValidHist && !m_fileValidHist->getValidity(jet))
+        return CP::CorrectionCode::OutOfValidityRange;
+    
 
     // Scale the jet and/or its moments by the uncertainty/uncertainties
     // Note that uncertainties may be either positive or negative
@@ -1240,17 +1793,18 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
     bool allValid = true;
     for (size_t iVar = 0; iVar < validitySet.size(); ++iVar)
     {
-        const CompScaleVar::TypeEnum scaleVar = validitySet.at(iVar).first;
         const bool validity = validitySet.at(iVar).second;
 
         if (!validity)
         {
             allValid = false;
-            ATH_MSG_ERROR("Uncertainty configuration is not valid for the specified jet when attempting to scale " << CompScaleVar::enumToString(scaleVar).Data() << ".  Set: " << m_currentUncSet->getName());
+            // Disabled following email from Karsten Koeneke on Jan 28 2016: ATLAS rule is no error messages for out of validity range
+            //const CompScaleVar::TypeEnum scaleVar = validitySet.at(iVar).first;
+            //ATH_MSG_ERROR("Uncertainty configuration is not valid for the specified jet when attempting to scale " << CompScaleVar::enumToString(scaleVar).Data() << ".  Set: " << m_currentUncSet->getName());
         }
     }
     if (!allValid)
-        return CP::CorrectionCode::Error;
+        return CP::CorrectionCode::OutOfValidityRange;
     
     // Handle each case as needed
     for (size_t iVar = 0; iVar < uncSet.size(); ++iVar)
@@ -1259,40 +1813,46 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
         //const double unc = uncSet.at(iVar).second;
         const double shift = 1 + uncSet.at(iVar).second;
         
+
         // Careful of const vs non-const objects with accessors
         // Can unintentionally create something new which didn't exist, as jet is non-const
-        const xAOD::Jet* constJet = &jet;
-        xAOD::JetFourMom_t shifted;
-        float origValue;
         switch (scaleVar)
         {
             case CompScaleVar::FourVec:
-                shifted = xAOD::JetFourMom_t(shift*jet.pt(),jet.eta(),jet.phi(),shift*jet.m());
-                jet.setJetP4(shifted);
+                jet.setJetP4(xAOD::JetFourMom_t(shift*jet.pt(),jet.eta(),jet.phi(),shift*jet.m()));
                 break;
             case CompScaleVar::Pt:
-                shifted = xAOD::JetFourMom_t(shift*jet.pt(),jet.eta(),jet.phi(),jet.m());
-                jet.setJetP4(shifted);
+                jet.setJetP4(xAOD::JetFourMom_t(shift*jet.pt(),jet.eta(),jet.phi(),jet.m()));
                 break;
             case CompScaleVar::Mass:
-                shifted = xAOD::JetFourMom_t(jet.pt(),jet.eta(),jet.phi(),shift*jet.m());
-                jet.setJetP4(shifted);
+                jet.setJetP4(xAOD::JetFourMom_t(jet.pt(),jet.eta(),jet.phi(),shift*jet.m()));
                 break;
             case CompScaleVar::D12:
-                origValue = m_D12Accessor(*constJet);
-                m_D12Accessor(jet) = shift*origValue;
+                if (updateSplittingScale12(jet,shift).isFailure())
+                    return CP::CorrectionCode::Error;
                 break;
             case CompScaleVar::D23:
-                origValue = m_D23Accessor(*constJet);
-                m_D23Accessor(jet) = shift*origValue;
+                if (updateSplittingScale23(jet,shift).isFailure())
+                    return CP::CorrectionCode::Error;
                 break;
             case CompScaleVar::Tau21:
-                origValue = m_Tau21Accessor.isAvailable(*constJet) ? m_Tau21Accessor(*constJet) : m_Tau2Accessor(*constJet)/m_Tau1Accessor(*constJet);
-                m_Tau21Accessor(jet) = shift*origValue;
+                if (updateTau21(jet,shift).isFailure())
+                    return CP::CorrectionCode::Error;
                 break;
             case CompScaleVar::Tau32:
-                origValue = m_Tau32Accessor.isAvailable(*constJet) ? m_Tau32Accessor(*constJet) : m_Tau3Accessor(*constJet)/m_Tau2Accessor(*constJet);
-                m_Tau32Accessor(jet) = shift*origValue;
+                if (updateTau32(jet,shift).isFailure())
+                    return CP::CorrectionCode::Error;
+                break;
+            case CompScaleVar::Tau32WTA:
+                if (updateTau32WTA(jet,shift).isFailure())
+                    return CP::CorrectionCode::Error;
+                break;
+            case CompScaleVar::D2Beta1:
+                if (updateD2Beta1(jet,shift).isFailure())
+                    return CP::CorrectionCode::Error;
+                break;
+            case CompScaleVar::MassRes:
+                jet.setJetP4(xAOD::JetFourMom_t(jet.pt(),jet.eta(),jet.phi(),getMassSmearingFactor(jet,shift)*jet.m()));
                 break;
             default:
                 ATH_MSG_ERROR("Asked to scale an UNKNOWN variable for set: " << m_currentUncSet->getName());
@@ -1356,6 +1916,7 @@ const xAOD::EventInfo* JetUncertaintiesTool::getDefaultEventInfo() const
     static xAOD::EventInfo*           eInfoObj = NULL;
     static xAOD::ShallowAuxContainer* eInfoAux = NULL;
     static unsigned long long         eventNum = 0;
+    static SG::AuxElement::Accessor<float> accNPV("NPV");
 
     // Retrieve the EventInfo object
     const xAOD::EventInfo* eInfoConst = NULL;
@@ -1380,7 +1941,7 @@ const xAOD::EventInfo* JetUncertaintiesTool::getDefaultEventInfo() const
     eInfoAux = eInfoPair.second;
 
     // Check if NPV already exists on const EventInfo object, return if so
-    if (m_NPVAccessor.isAvailable(*eInfoConst))
+    if (accNPV.isAvailable(*eInfoConst))
         return eInfoObj;
 
     // NPV doesn't already exist, so calculate it
@@ -1400,11 +1961,325 @@ const xAOD::EventInfo* JetUncertaintiesTool::getDefaultEventInfo() const
             NPV++;
 
     // Add NPV to the shallow copy EventInfo object
-    m_NPVAccessor(*eInfoObj) = NPV;
+    accNPV(*eInfoObj) = NPV;
 
     // Done, return EventInfo decorated with NPV
     return eInfoObj;
 }
+
+
+
+// Courtest of Francesco Spano
+float JetUncertaintiesTool::getMassSmearingFactor(xAOD::Jet& jet, const double shift) const
+{
+    //----input discussion---
+    // input should the standard deviation of mass response, sigma(M_smear/M_nominal), recover that deviation
+    // even if it is the fractional deviation of the mass response, it is fine as long as the mass is calibrated
+    // sigma(M_smear/M_nominal)/<M_smear/M_nominal>~ sigma(M_smear/M_nominal) as   <M_smear/M_nominal> ~ 1
+    //----
+
+    // the input shift is the fractional resolution + 1--> recover the nominal fractional resolution
+    // we should have the resolution of the mass response, but
+    double frac_sigma_nominal = fabs(shift-1);
+
+    // Set the seed; same procedure as in JERSmearingTool::getSmearingFactor(const xAOD::Jet* jet, double sigma)
+    long long int seed = m_userSeed;
+    if(seed == 0) seed = 1.e+5*std::abs(jet.phi());  
+    m_rand->SetSeed(seed);
+    
+    //  get the Gaussian random number associated to the relative resolution
+    // 1st way : a la JetRes use a relative standard deviation
+    // FIXME: for the moment the additional smearing is hardcoded: it will have to change in the future as a kinematic dependent function
+    double smearingFact1=m_rand->Gaus(1.,0.66*frac_sigma_nominal);  
+
+    // 2nd alternative way : use the relative standard deviation 
+    //  const double GaussZeroOne = m_rand->Gaus(0.,1.); 
+    //  double smearingFact2=1+0.66*GaussZeroOne*frac_sigma_nominal;
+    double smearingFact=smearingFact1;
+
+    return smearingFact;
+}
+
+
+
+
+
+
+
+
+StatusCode JetUncertaintiesTool::updateSplittingScale12(xAOD::Jet& jet, const double shift) const
+{
+    static SG::AuxElement::Accessor<float> accD12("Split12");
+
+    const xAOD::Jet& constJet = jet;
+    if (accD12.isAvailable(constJet))
+    {
+        const float value = accD12(constJet);
+        accD12(jet) = shift*value;
+        return StatusCode::SUCCESS;
+    }
+
+    ATH_MSG_ERROR("Split12 moment (D12) is not available on the jet, please make sure to set Split12 before calling the tool");
+    return StatusCode::FAILURE;       
+}
+
+StatusCode JetUncertaintiesTool::updateSplittingScale23(xAOD::Jet& jet, const double shift) const
+{
+    static SG::AuxElement::Accessor<float> accD23("Split23");
+
+    const xAOD::Jet& constJet = jet;
+    if (accD23.isAvailable(constJet))
+    {
+        const float value = accD23(constJet);
+        accD23(jet) = shift*value;
+        return StatusCode::SUCCESS;
+    }
+    
+    ATH_MSG_ERROR("Split23 moment (D23) is not available on the jet, please make sure to set Split23 before calling the tool");
+    return StatusCode::FAILURE;       
+}
+
+StatusCode JetUncertaintiesTool::updateTau21(xAOD::Jet& jet, const double shift) const
+{
+    static SG::AuxElement::Accessor<float> accTau1("Tau1");
+    static SG::AuxElement::Accessor<float> accTau2("Tau2");
+    static SG::AuxElement::Accessor<float> accTau21("Tau21");
+    const static bool Tau21wasAvailable = accTau21.isAvailable(jet);
+    const static bool TauNNwasAvailable = accTau2.isAvailable(jet) && accTau1.isAvailable(jet);
+
+    const xAOD::Jet& constJet = jet;
+    if (Tau21wasAvailable)
+    {
+        if (!accTau21.isAvailable(jet))
+        {
+            ATH_MSG_ERROR("The Tau21 moment was previously available but is not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float value = accTau21(constJet);
+        accTau21(jet) = shift*value;
+        return StatusCode::SUCCESS;
+    }
+    if (TauNNwasAvailable)
+    {
+        if (! (accTau2.isAvailable(jet) && accTau1.isAvailable(jet)) )
+        {
+            ATH_MSG_ERROR("The Tau2 and Tau1 moments were previously available but are not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float tau2 = accTau2(constJet);
+        const float tau1 = accTau1(constJet);
+        accTau21(jet) = fabs(tau1) > 1.e-6 ? shift*(tau2/tau1) : -999; // 999 to match JetSubStructureMomentTools/NSubjettinessRatiosTool
+        return StatusCode::SUCCESS;
+    }
+    //if (accTau21.isAvailable(constJet))
+    //{
+    //    const float value = accTau21(constJet);
+    //    accTau21(jet) = shift*value;
+    //    return StatusCode::SUCCESS;
+    //}
+    //if (accTau1.isAvailable(constJet) && accTau2.isAvailable(constJet))
+    //{
+    //    const float value = accTau2(constJet)/accTau1(constJet);
+    //    accTau21(jet) = shift*value;
+    //    return StatusCode::SUCCESS;
+    //}
+    
+    ATH_MSG_ERROR("Neither Tau21 nor Tau1+Tau2 moments are available on the jet, please make sure one of these options is available before calling the tool.");
+    return StatusCode::FAILURE;
+}
+
+StatusCode JetUncertaintiesTool::updateTau32(xAOD::Jet& jet, const double shift) const
+{
+    static SG::AuxElement::Accessor<float> accTau2("Tau2");
+    static SG::AuxElement::Accessor<float> accTau3("Tau3");
+    static SG::AuxElement::Accessor<float> accTau32("Tau32");
+    const static bool Tau32wasAvailable = accTau32.isAvailable(jet);
+    const static bool TauNNwasAvailable = accTau3.isAvailable(jet) && accTau2.isAvailable(jet);
+
+    const xAOD::Jet& constJet = jet;
+    if (Tau32wasAvailable)
+    {
+        if (!accTau32.isAvailable(jet))
+        {
+            ATH_MSG_ERROR("The Tau32 moment was previously available but is not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float value = accTau32(constJet);
+        accTau32(jet) = shift*value;
+        return StatusCode::SUCCESS;
+    }
+    if (TauNNwasAvailable)
+    {
+        if (! (accTau3.isAvailable(jet) && accTau2.isAvailable(jet)) )
+        {
+            ATH_MSG_ERROR("The Tau3 and Tau2 moments were previously available but are not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float tau3 = accTau3(constJet);
+        const float tau2 = accTau2(constJet);
+        accTau32(jet) = fabs(tau2) > 1.e-6 ? shift*(tau3/tau2) : -999; // 999 to match JetSubStructureMomentTools/NSubjettinessRatiosTool
+        return StatusCode::SUCCESS;
+    }
+    //if (accTau32.isAvailable(constJet))
+    //{
+    //    const float value = accTau32(constJet);
+    //    accTau32(jet) = shift*value;
+    //    return StatusCode::SUCCESS;
+    //}
+    //if (accTau2.isAvailable(constJet) && accTau3.isAvailable(constJet))
+    //{
+    //    const float value = accTau3(constJet)/accTau2(constJet);
+    //    accTau32(jet) = shift*value;
+    //    return StatusCode::SUCCESS;
+    //}
+    
+    ATH_MSG_ERROR("Neither Tau32 nor Tau2+Tau3 moments are available on the jet, please make sure one of these options is available before calling the tool");
+    return StatusCode::FAILURE;
+}
+
+StatusCode JetUncertaintiesTool::updateTau32WTA(xAOD::Jet& jet, const double shift) const
+{
+    static SG::AuxElement::Accessor<float> accTau2wta("Tau2_wta");
+    static SG::AuxElement::Accessor<float> accTau3wta("Tau3_wta");
+    static SG::AuxElement::Accessor<float> accTau32wta("Tau32_wta");
+    static SG::AuxElement::Accessor<float> accTau2WTA("Tau2_WTA");
+    static SG::AuxElement::Accessor<float> accTau3WTA("Tau3_WTA");
+    static SG::AuxElement::Accessor<float> accTau32WTA("Tau32_WTA");
+    const static bool Tau32wtawasAvailable = accTau32wta.isAvailable(jet);
+    const static bool Tau32WTAwasAvailable = accTau32WTA.isAvailable(jet);
+    const static bool TauNNwtawasAvailable = accTau3wta.isAvailable(jet) && accTau2wta.isAvailable(jet);
+    const static bool TauNNWTAwasAvailable = accTau3WTA.isAvailable(jet) && accTau2WTA.isAvailable(jet);
+
+    const xAOD::Jet& constJet = jet;
+    if (Tau32wtawasAvailable)
+    {
+        if (!accTau32wta.isAvailable(jet))
+        {
+            ATH_MSG_ERROR("The Tau32_wta moment was previously available but is not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float value = accTau32wta(constJet);
+        accTau32wta(jet) = shift*value;
+        return StatusCode::SUCCESS;
+    }
+    if (Tau32WTAwasAvailable)
+    {
+        if (!accTau32WTA.isAvailable(jet))
+        {
+            ATH_MSG_ERROR("The Tau32_WTA moment was previously available but is not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float value = accTau32WTA(constJet);
+        accTau32WTA(jet) = shift*value;
+        return StatusCode::SUCCESS;
+    }
+    if (TauNNwtawasAvailable)
+    {
+        if (! (accTau3wta.isAvailable(jet) && accTau2wta.isAvailable(jet)) )
+        {
+            ATH_MSG_ERROR("The Tau3_wta and Tau2_wta moments were previously available but are not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float tau3 = accTau3wta(constJet);
+        const float tau2 = accTau2wta(constJet);
+        accTau32wta(jet) = fabs(tau2) > 1.e-6 ? shift*(tau3/tau2) : -999; // 999 to match JetSubStructureMomentTools/NSubjettinessRatiosTool
+        return StatusCode::SUCCESS;
+    }
+    if (TauNNWTAwasAvailable)
+    {
+        if (! (accTau3WTA.isAvailable(jet) && accTau2WTA.isAvailable(jet)) )
+        {
+            ATH_MSG_ERROR("The Tau3_WTA and Tau2_WTA moments were previously available but are not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float tau3 = accTau3WTA(constJet);
+        const float tau2 = accTau2WTA(constJet);
+        accTau32WTA(jet) = fabs(tau2) > 1.e-6 ? shift*(tau3/tau2) : -999; // 999 to match JetSubStructureMomentTools/NSubjettinessRatiosTool
+        return StatusCode::SUCCESS;
+    }
+    //if (accTau32wta.isAvailable(constJet))
+    //{
+    //    const float value = accTau32wta(constJet);
+    //    accTau32wta(jet) = shift*value;
+    //    return StatusCode::SUCCESS;
+    //}
+    //if (accTau32WTA.isAvailable(constJet))
+    //{
+    //    const float value = accTau32WTA(constJet);
+    //    accTau32WTA(jet) = shift*value;
+    //    return StatusCode::SUCCESS;
+    //}
+    //if (accTau2wta.isAvailable(constJet) && accTau3wta.isAvailable(constJet))
+    //{
+    //    const float value = accTau3wta(constJet)/accTau2wta(constJet);
+    //    accTau32wta(jet) = shift*value;
+    //    return StatusCode::SUCCESS;
+    //}
+    //if (accTau2WTA.isAvailable(constJet) && accTau3WTA.isAvailable(constJet))
+    //{
+    //    const float value = accTau3WTA(constJet)/accTau2WTA(constJet);
+    //    accTau32WTA(jet) = shift*value;
+    //    return StatusCode::SUCCESS;
+    //}
+    
+    ATH_MSG_ERROR("Neither Tau32_wta nor Tau2_wta+Tau3_wta moments are available on the jet, please make sure one of these options is available before calling the tool");
+    return StatusCode::FAILURE;
+}
+
+StatusCode JetUncertaintiesTool::updateD2Beta1(xAOD::Jet& jet, const double shift) const
+{
+    static SG::AuxElement::Accessor<float> accD2("D2");
+    static SG::AuxElement::Accessor<float> accECF1("ECF1");
+    static SG::AuxElement::Accessor<float> accECF2("ECF2");
+    static SG::AuxElement::Accessor<float> accECF3("ECF3");
+    const static bool D2wasAvailable  = accD2.isAvailable(jet);
+    const static bool ECFwasAvailable = accECF1.isAvailable(jet) && accECF2.isAvailable(jet) && accECF3.isAvailable(jet);
+
+    const xAOD::Jet& constJet = jet;
+    if (D2wasAvailable)
+    {
+        if (!accD2.isAvailable(jet))
+        {
+            ATH_MSG_ERROR("The D2 moment was previously available but is not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float value = accD2(constJet);
+        accD2(jet) = shift*value;
+        return StatusCode::SUCCESS;
+    }
+    if (ECFwasAvailable)
+    {
+        if (! (accECF1.isAvailable(constJet) && accECF2.isAvailable(constJet) && accECF3.isAvailable(constJet)) )
+        {
+            ATH_MSG_ERROR("The ECF1, ECF2, and ECF3 moments were previously available but are not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float ecf1 = accECF1(constJet);
+        const float ecf2 = accECF2(constJet);
+        const float ecf3 = accECF3(constJet);
+        accD2(jet) = fabs(ecf2) > 1.e-6 ? shift * (pow(ecf1/ecf2,3)*ecf3) : -999; // 999 to match JetSubStructureMomentTools/EnergyCorrelatorRatiosTool
+        return StatusCode::SUCCESS;
+    }
+
+    //if (accD2.isAvailable(constJet))
+    //{
+    //    const float value = accD2(constJet);
+    //    accD2(jet) = shift*value;
+    //    return StatusCode::SUCCESS;
+    //}
+    //if (accECF1.isAvailable(constJet) && accECF2.isAvailable(constJet) && accECF3.isAvailable(constJet))
+    //{
+    //    const float ecf1 = accECF1(constJet);
+    //    const float ecf2 = accECF2(constJet);
+    //    const float ecf3 = accECF3(constJet);
+    //    accD2(jet) = shift * (pow(ecf1/ecf2,3)*ecf3);
+    //    return StatusCode::SUCCESS;
+    //}
+
+    ATH_MSG_ERROR("Neither D2 nor ECF1+ECF2+ECF3 moments are available on the jet, please make sure one of these options is available before calling the tool");
+    return StatusCode::FAILURE;
+}
+
 
 
 

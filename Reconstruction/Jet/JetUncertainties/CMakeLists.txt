@@ -53,8 +53,23 @@ atlas_install_generic( share/JES_2012/Final/*.config
 atlas_install_generic( share/JES_2015/Prerec/*.config
                        DESTINATION share/JetUncertainties/JES_2015/Prerec
                        EXECUTABLE )
+atlas_install_generic( share/JES_2015/Moriond2016/*.config
+                       DESTINATION share/JetUncertainties/JES_2015/Moriond2016
+                       EXECUTABLE )
+atlas_install_generic( share/JES_2015/ICHEP2016/*.config
+                       DESTINATION share/JetUncertainties/JES_2015/ICHEP2016
+                       EXECUTABLE )
 atlas_install_generic( share/UJ_2012/*.config
                        DESTINATION share/JetUncertainties/UJ_2012
+                       EXECUTABLE )
+atlas_install_generic( share/UJ_2015/Prerec/*.config
+                       DESTINATION share/JetUncertainties/UJ_2015/Prerec
+                       EXECUTABLE )
+atlas_install_generic( share/UJ_2015/Moriond2016/*.config
+                       DESTINATION share/JetUncertainties/UJ_2015/Moriond2016
+                       EXECUTABLE )
+atlas_install_generic( share/UJ_2015/ICHEP2016/*.config
+                       DESTINATION share/JetUncertainties/UJ_2015/ICHEP2016
                        EXECUTABLE )
 atlas_install_generic( share/analysisInputs/*.root
                        DESTINATION share/JetUncertainties/analysisInputs

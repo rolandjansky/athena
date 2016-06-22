@@ -25,14 +25,14 @@ PtEtaUncertaintyComponent::PtEtaUncertaintyComponent(const ComponentHelper& comp
     : UncertaintyComponent(component)
     , m_absEta(CompParametrization::isAbsEta(component.parametrization))
 {
-    ATH_MSG_DEBUG(Form("Creating PtEtaUncertaintyComponent named %s",m_name.Data()));
+    ATH_MSG_DEBUG(Form("Creating PtEtaUncertaintyComponent named %s",m_uncHistName.Data()));
 }
 
 PtEtaUncertaintyComponent::PtEtaUncertaintyComponent(const PtEtaUncertaintyComponent& toCopy)
     : UncertaintyComponent(toCopy)
     , m_absEta(toCopy.m_absEta)
 {
-    ATH_MSG_DEBUG(Form("Creating copy of PtEtaUncertaintyComponent named %s",m_name.Data()));
+    ATH_MSG_DEBUG(Form("Creating copy of PtEtaUncertaintyComponent named %s",m_uncHistName.Data()));
 }
 
 PtEtaUncertaintyComponent* PtEtaUncertaintyComponent::clone() const
@@ -47,19 +47,14 @@ PtEtaUncertaintyComponent* PtEtaUncertaintyComponent::clone() const
 //                                              //
 //////////////////////////////////////////////////
 
-bool PtEtaUncertaintyComponent::getValidity(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo&) const
+bool PtEtaUncertaintyComponent::getValidityImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    return histo->getValidity(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta());
+    return !m_validHist ? true : getValidBool(m_validHist->getValue(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta()));
 }
 
-double PtEtaUncertaintyComponent::getUncertainty(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo&) const
+double PtEtaUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    return histo->getUncertainty(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta());
-}
-
-bool PtEtaUncertaintyComponent::getValidUncertainty(const UncertaintyHistogram* histo, double& unc, const xAOD::Jet& jet, const xAOD::EventInfo&) const
-{
-    return histo->getValidUncertainty(unc,jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta());
+    return m_uncHist->getValue(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta());
 }
 
 } // end jet namespace

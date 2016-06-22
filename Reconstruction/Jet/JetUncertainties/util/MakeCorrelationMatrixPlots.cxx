@@ -172,9 +172,9 @@ void PlotCorrelationHistos(const TString& outFile,TCanvas* canvas,const std::vec
         histo->Draw("colz");
         DrawLabels(histo,fixedValue1,fixedValue2,providers.at(iHisto));
 
-        if (!outFile.EndsWith(".eps"))
+        if (outFile != "NONE" && !outFile.EndsWith(".eps"))
             canvas->Print(outFile);
-        else
+        else if (outFile != "NONE")
             canvas->Print(TString(outFile).ReplaceAll(".eps",Form("-%d.eps",++iEPS)));
 
         if (outHistFile)
@@ -233,9 +233,9 @@ void PlotCorrelationHistos(const TString& outFile,TCanvas* canvas,const std::vec
         histo->Draw("colz");
         DrawLabels(histo,fixedValue1,fixedValue2,diffProviders.at(iHisto).first,diffProviders.at(iHisto).second,meanDiff,maxDiff,maxX,maxY);
         
-        if (!outFile.EndsWith(".eps"))
+        if (outFile != "NONE" && !outFile.EndsWith(".eps"))
             canvas->Print(outFile);
-        else
+        else if (outFile != "NONE")
             canvas->Print(TString(outFile).ReplaceAll(".eps",Form("-%d.eps",++iEPS)));
         
         if (outHistFile && corrMatDiffs.size() == 1)
@@ -249,6 +249,12 @@ void PlotCorrelationHistos(const TString& outFile,TCanvas* canvas,const std::vec
 
 void MakeCorrelationPlots(const TString& outFile,TCanvas* canvas,const std::vector<JetUncertaintiesTool*>& providers,const std::vector< std::pair<double,double> >& fixedEta,const std::vector< std::pair<double,double> >& fixedPt)
 {
+    const TString release  = providers.at(0)->getRelease();
+    const double minPtVal  = release.EndsWith("TLA") ? 75 : 17;
+    const double maxPtVal  = testJER ? 1500 : release.EndsWith("TLA") ? 1000 : (release.BeginsWith("2011") || release.BeginsWith("2012")) ? 2500 : 3000;
+    const double minEtaVal = 0;
+    const double maxEtaVal = release.EndsWith("TLA") ? 2.8 : 4.5;
+
     // First the pT correlation plots
     canvas->SetLogx(true);
     canvas->SetLogy(true);
@@ -256,12 +262,14 @@ void MakeCorrelationPlots(const TString& outFile,TCanvas* canvas,const std::vect
     {
         const double etaVal1 = fixedEta.at(iFixed).first;
         const double etaVal2 = fixedEta.at(iFixed).second;
+
+        printf("Processing (eta1,eta2) = (%.2f,%.2f)\n",etaVal1,etaVal2);
         
         // Make the initial histograms
         std::vector<TH2D*> corrPt;
         for (size_t iProv = 0; iProv < providers.size(); ++iProv)
         {
-            corrPt.push_back(providers.at(iProv)->getPtCorrelationMatrix(100,!testJER?15:17,!testJER?2500:1500,etaVal1,etaVal2));
+            corrPt.push_back(providers.at(iProv)->getPtCorrelationMatrix(100,minPtVal,maxPtVal,etaVal1,etaVal2));
             corrPt.back()->GetXaxis()->SetTitle("#it{p}_{T}^{jet} [GeV]");
             corrPt.back()->GetYaxis()->SetTitle(corrPt.back()->GetXaxis()->GetTitle());
             
@@ -285,12 +293,14 @@ void MakeCorrelationPlots(const TString& outFile,TCanvas* canvas,const std::vect
     {
         const double ptVal1 = fixedPt.at(iFixed).first;
         const double ptVal2 = fixedPt.at(iFixed).second;
+        
+        printf("Processing (pT1,pT2) = (%.0f,%.0f)\n",ptVal1,ptVal2);
 
         // Make the initial histograms
         std::vector<TH2D*> corrEta;
         for (size_t iProv = 0; iProv < providers.size(); ++iProv)
         {
-            corrEta.push_back(providers.at(iProv)->getEtaCorrelationMatrix(45,0,4.5,ptVal1,ptVal2));
+            corrEta.push_back(providers.at(iProv)->getEtaCorrelationMatrix(round(10*(maxEtaVal-minEtaVal)),minEtaVal,maxEtaVal,ptVal1,ptVal2));
             corrEta.back()->GetXaxis()->SetTitle("#eta^{jet}");
             corrEta.back()->GetYaxis()->SetTitle(corrEta.back()->GetXaxis()->GetTitle());
             
@@ -411,7 +421,7 @@ int main (int argc, char* argv[])
     canvas->cd();
     
     // If this is not an eps, start the output
-    if (!outFile.EndsWith(".eps"))
+    if (outFile != "NONE" && !outFile.EndsWith(".eps"))
         canvas->Print(outFile+"[");
     
     
@@ -480,7 +490,7 @@ int main (int argc, char* argv[])
     }
 
     // If this is not an eps, end the output
-    if (!outFile.EndsWith(".eps"))
+    if (outFile != "NONE" && !outFile.EndsWith(".eps"))
         canvas->Print(outFile+"]");
     
     // If an output histogram file exists, close it

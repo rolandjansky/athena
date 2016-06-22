@@ -21,14 +21,14 @@ UncertaintySet::UncertaintySet(const std::string& name)
     : asg::AsgMessaging(name)
     , m_name(name)
     , m_isInit(false)
-    , m_comps()
+    , m_groups()
     , m_shiftWeights()
 { }
 
 UncertaintySet::~UncertaintySet()
 { }
 
-StatusCode UncertaintySet::initialize(const CP::SystematicSet& systConfig, const std::vector<UncertaintyComponent*>& components)
+StatusCode UncertaintySet::initialize(const CP::SystematicSet& systConfig, const std::vector<UncertaintyGroup*>& groups)
 {
     // Ensure it wasn't already initialized
     if (m_isInit)
@@ -37,30 +37,30 @@ StatusCode UncertaintySet::initialize(const CP::SystematicSet& systConfig, const
         return StatusCode::FAILURE;
     }
 
-    // Parse all of the names to get the components
-    std::set<UncertaintyComponent*> compSet;
+    // Parse all of the names to get the groups
+    std::set<UncertaintyGroup*> compSet;
     for (CP::SystematicSet::const_iterator iter = systConfig.begin(); iter != systConfig.end(); ++iter)
-        for (size_t iComp = 0; iComp < components.size(); ++iComp)
-            if (components.at(iComp)->getName().CompareTo(iter->basename().c_str()) == 0)
+        for (size_t iGroup = 0; iGroup < groups.size(); ++iGroup)
+            if (groups.at(iGroup)->getName().CompareTo(iter->basename().c_str()) == 0)
             {
                 // Watch for double-specified elements
-                if (compSet.count(components.at(iComp)))
+                if (compSet.count(groups.at(iGroup)))
                 {
-                    ATH_MSG_ERROR("Multiple independent shifts requested for a single component: " << components.at(iComp)->getName().Data());
+                    ATH_MSG_ERROR("Multiple independent shifts requested for a single group: " << groups.at(iGroup)->getName().Data());
                     return StatusCode::FAILURE;
                 }
-                compSet.insert(components.at(iComp));
+                compSet.insert(groups.at(iGroup));
                 
-                m_comps.push_back(components.at(iComp));
+                m_groups.push_back(groups.at(iGroup));
                 m_shiftWeights.push_back(iter->parameter());
                 break;
             }
 
     
     // Ensure all of the elements were found
-    if (systConfig.size() != m_comps.size())
+    if (systConfig.size() != m_groups.size())
     {
-        ATH_MSG_ERROR(Form("Input SystematicSet is %zu elements, but only found %zu UncertaintyComponents",systConfig.size(),m_comps.size()));
+        ATH_MSG_ERROR(Form("Input SystematicSet is %zu elements, but only found %zu UncertaintyGroups",systConfig.size(),m_groups.size()));
         return StatusCode::FAILURE;
     }
     
@@ -80,59 +80,70 @@ std::string UncertaintySet::getName() const
 //                                              //
 //////////////////////////////////////////////////
 
+CompScaleVar::TypeEnum UncertaintySet::getSingleVar() const
+{
+    std::set<CompScaleVar::TypeEnum> vars = m_groups.at(0)->getScaleVars();
+    if (vars.size() != 1)
+        return CompScaleVar::UNKNOWN;
+    const CompScaleVar::TypeEnum singleVar = *(vars.begin());
+    
+    for (size_t iGroup = 1; iGroup < m_groups.size(); ++iGroup)
+    {
+        std::set<CompScaleVar::TypeEnum> vars2 = m_groups.at(iGroup)->getScaleVars();
+        if (vars2.size() != 1 || singleVar != *(vars2.begin()))
+        {
+            return CompScaleVar::UNKNOWN;
+        }
+    }
+
+    return singleVar;
+}
+
 bool UncertaintySet::getValidity(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo, const CompScaleVar::TypeEnum scaleVar) const
 {
-    if (!m_comps.size())
+    if (!m_groups.size())
         return true;
 
-    // If the scale var wasn't specified, need to ensure all components match
+    // If the scale var wasn't specified, need to ensure all groups match
     const bool checkScaleVar = scaleVar == CompScaleVar::UNKNOWN;
-    const CompScaleVar::TypeEnum scaleVariable = checkScaleVar ? m_comps.at(0)->getScaleVar() : scaleVar;
-    if (checkScaleVar)
-        for (size_t iComp = 1; iComp < m_comps.size(); ++iComp)
-            if (scaleVariable != m_comps.at(iComp)->getScaleVar())
-            {
-                ATH_MSG_ERROR("Asked for validity of a multi-scale-variable set without specifying any scale variable: " << m_name);
-                return false;
-            }
-    
+    const CompScaleVar::TypeEnum scaleVariable = checkScaleVar ? getSingleVar() : scaleVar;
+    if (scaleVariable == CompScaleVar::UNKNOWN)
+    {
+        ATH_MSG_ERROR("Asked for validity of a multi-scale variable set without specifying any scale variable: " << m_name);
+        return false;
+    }
+
     // Checked conditions, now get the validity
-    for (size_t iComp = 0; iComp < m_comps.size(); ++iComp)
-        if (scaleVariable != m_comps.at(iComp)->getScaleVar())
-            continue;
-        else if (!m_comps.at(iComp)->getValidity(jet,eInfo))
+    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+        if (!m_groups.at(iGroup)->getValidity(jet,eInfo,scaleVariable))
             return false;
     return true;
 }
 
 double UncertaintySet::getUncertainty(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo, const CompScaleVar::TypeEnum scaleVar) const
 {
-    // This is the sum of shifts multiple uncorrelated components
+    // This is the sum of shifts multiple uncorrelated groups
     // This could be a positive or negative number
-    // Each individual component uncertainty will always be positive (quad sum of subcomps)
+    // Each individual group uncertainty will always be positive (quad sum of subgroups)
     // But the weight may be positive or negative (+N sigma or -N sigma variations)
     
-    if (!m_comps.size())
+    if (!m_groups.size())
         return 0;
 
-    // If the scale var wasn't specified, need to ensure all components match
+    // If the scale var wasn't specified, need to ensure all groups match
     const bool checkScaleVar = scaleVar == CompScaleVar::UNKNOWN;
-    const CompScaleVar::TypeEnum scaleVariable = checkScaleVar ? m_comps.at(0)->getScaleVar() : scaleVar;
-    if (checkScaleVar)
-        for (size_t iComp = 1; iComp < m_comps.size(); ++iComp)
-            if (scaleVariable != m_comps.at(iComp)->getScaleVar())
-            {
-                ATH_MSG_ERROR("Asked for validity of a multi-scale-variable set without specifying any scale variable: " << m_name);
-                return false;
-            }
+    const CompScaleVar::TypeEnum scaleVariable = checkScaleVar ? getSingleVar() : scaleVar;
+    if (scaleVariable == CompScaleVar::UNKNOWN)
+    {
+        ATH_MSG_ERROR("Asked for uncertainty of a multi-scale-variable set without specifying any scale variable: " << m_name);
+        return JESUNC_ERROR_CODE;
+    }
     
     // Checked conditions, now get the uncertainty
     double unc = 0;
-    for (size_t iComp = 0; iComp < m_comps.size(); ++iComp)
+    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
     {
-        if (scaleVariable != m_comps.at(iComp)->getScaleVar())
-            continue;
-        unc += m_comps.at(iComp)->getUncertainty(jet,eInfo)*m_shiftWeights.at(iComp);
+        unc += m_groups.at(iGroup)->getUncertainty(jet,eInfo,scaleVariable)*m_shiftWeights.at(iGroup);
     }
 
     return unc;
@@ -143,32 +154,28 @@ bool UncertaintySet::getValidUncertainty(double& unc, const xAOD::Jet& jet, cons
     // See getUncertainty for discussion
     // This is not just calling the other two methods for speed, O(n) instead of O(2n)
     
-    if (!m_comps.size())
+    if (!m_groups.size())
     {
         unc = 0;
         return true;
     }
 
-    // If the scale var wasn't specified, need to ensure all components match
+    // If the scale var wasn't specified, need to ensure all groups match
     const bool checkScaleVar = scaleVar == CompScaleVar::UNKNOWN;
-    const CompScaleVar::TypeEnum scaleVariable = checkScaleVar ? m_comps.at(0)->getScaleVar() : scaleVar;
-    if (checkScaleVar)
-        for (size_t iComp = 1; iComp < m_comps.size(); ++iComp)
-            if (scaleVariable != m_comps.at(iComp)->getScaleVar())
-            {
-                ATH_MSG_ERROR("Asked for validity of a multi-scale-variable set without specifying any scale variable: " << m_name);
-                return false;
-            }
-    
-    // Checked conditions, now get the uncertainty
-    double localUnc = 0;
-    for (size_t iComp = 0; iComp < m_comps.size(); ++iComp)
+    const CompScaleVar::TypeEnum scaleVariable = checkScaleVar ? getSingleVar() : scaleVar;
+    if (scaleVariable == CompScaleVar::UNKNOWN)
     {
-        if (scaleVariable != m_comps.at(iComp)->getScaleVar())
-            continue;
-        else if (!m_comps.at(iComp)->getValidity(jet,eInfo))
+        ATH_MSG_ERROR("Asked for valid uncertainty of a multi-scale-variable set without specifying any scale variable: " << m_name);
+        return false;
+    }
+    
+    // Checked conditions, now get the uncertainty and validity
+    double localUnc = 0;
+    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+    {
+        if (!m_groups.at(iGroup)->getValidity(jet,eInfo,scaleVariable))
             return false;
-        localUnc += m_comps.at(iComp)->getUncertainty(jet,eInfo)*m_shiftWeights.at(iComp);
+        localUnc += m_groups.at(iGroup)->getUncertainty(jet,eInfo,scaleVariable)*m_shiftWeights.at(iGroup);
     }
     unc = localUnc;
     return true;
@@ -182,26 +189,19 @@ bool UncertaintySet::getValidUncertainty(double& unc, const xAOD::Jet& jet, cons
 
 std::vector<CompScaleVar::TypeEnum> UncertaintySet::getScaleVars() const
 {
-    std::vector<CompScaleVar::TypeEnum> scaleVars;
-    for (size_t iComp = 0; iComp < m_comps.size(); ++iComp)
+    // Make a super-set and fill it from each group
+    std::set<CompScaleVar::TypeEnum> scaleVarSet;
+    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
     {
-        // Get the scale variable
-        CompScaleVar::TypeEnum scaleVar = m_comps.at(iComp)->getScaleVar();
-
-        // Check if we already have it
-        size_t index = scaleVars.size();
-        for (size_t iVar = 0; iVar < scaleVars.size(); ++iVar)
-            if (scaleVar == scaleVars.at(iVar))
-            {
-                index = iVar;
-                break;
-            }
-
-        // If we don't already have it, then add it
-        if (index >= scaleVars.size())
-            scaleVars.push_back(scaleVar);
+        std::set<CompScaleVar::TypeEnum> localSet = m_groups.at(iGroup)->getScaleVars();
+        scaleVarSet.insert(localSet.begin(),localSet.end());
     }
 
+    // Convert to a vector
+    std::vector<CompScaleVar::TypeEnum> scaleVars;
+    std::set<CompScaleVar::TypeEnum>::const_iterator iter;
+    for (iter = scaleVarSet.begin(); iter != scaleVarSet.end(); ++iter)
+        scaleVars.push_back(*(iter));
     return scaleVars;
 }
 
@@ -210,7 +210,7 @@ std::vector< std::pair<CompScaleVar::TypeEnum,bool> > UncertaintySet::getValidit
     std::vector< std::pair<CompScaleVar::TypeEnum,bool> > validity;
 
     // Simple case
-    if (!m_comps.size())
+    if (!m_groups.size())
         return validity;
 
     // Get the sets
@@ -229,7 +229,7 @@ std::vector< std::pair<CompScaleVar::TypeEnum,double> > UncertaintySet::getUncer
     std::vector< std::pair<CompScaleVar::TypeEnum,double> > unc;
 
     // Simple case
-    if (!m_comps.size())
+    if (!m_groups.size())
         return unc;
 
     // Get the sets
@@ -249,7 +249,7 @@ std::vector< std::pair<CompScaleVar::TypeEnum,bool> > UncertaintySet::getValidUn
     std::vector< std::pair<CompScaleVar::TypeEnum,double> > localUnc;
 
     // Simple case
-    if (!m_comps.size())
+    if (!m_groups.size())
     {
         unc = localUnc;
         return validity;

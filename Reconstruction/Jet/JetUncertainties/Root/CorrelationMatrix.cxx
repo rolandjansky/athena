@@ -257,10 +257,10 @@ StatusCode CorrelationMatrix::setDefaultProperties(const JetUncertaintiesTool& u
 {
     // TODO make this part of a common file
     static SG::AuxElement::Accessor<int> Nsegments("GhostMuonSegmentCount");
-    static SG::AuxElement::Accessor<bool> IsBjet("IsBjet");
+    static SG::AuxElement::Accessor<char> IsBjet("IsBjet");
     static SG::AuxElement::Accessor<float> mu("averageInteractionsPerCrossing");
-    static SG::AuxElement::Accessor<float> NPV("NPV");
-    
+    static SG::AuxElement::Accessor<float> NPV("NPV");   
+ 
     // 25 segments is about average for jets receiving a correction
     // This is modulated by the probability of punchthrough
     // TODO add punch-through Nsegments/etc dependence on probability
@@ -285,6 +285,12 @@ StatusCode CorrelationMatrix::setDefaultProperties(const JetUncertaintiesTool& u
         sigmaMu  = 5.593*1.11;
         sigmaNPV = 3.672;
     }
+    else if (config.Contains("_2015"))
+    {
+        // Kate, Jan 31 2016
+        sigmaMu = 1.9;
+        sigmaNPV = 2.9;
+    }
     else
     {
         printf("Unexpected year for setPileupShiftsForYear in config: %s\n",config.Data());
@@ -300,7 +306,7 @@ StatusCode CorrelationMatrix::setDefaultProperties(const JetUncertaintiesTool& u
 TH2D* CorrelationMatrix::buildMatrix(const std::vector<double>& bins) const
 {
     TH2D* matrix = new TH2D(m_name,m_name,bins.size()-1,&bins[0],bins.size()-1,&bins[0]);
-    matrix->GetZaxis()->SetRangeUser(0,1);
+    matrix->GetZaxis()->SetRangeUser(-1,1);
     return matrix;
 }
 

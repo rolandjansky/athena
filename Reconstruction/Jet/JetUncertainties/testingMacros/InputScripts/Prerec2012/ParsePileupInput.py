@@ -21,8 +21,6 @@ def ReadPileupHistograms(dirName):
     rootFileList = sorted(glob.glob(dirName+"*.root"))
 
     histos = {}
-    for aJetDef in jetDefs:
-        histos[aJetDef] = {}
 
     for aJetDef in jetDefs.keys():
         histos[jetDefs[aJetDef]] = {}
@@ -30,7 +28,7 @@ def ReadPileupHistograms(dirName):
         for file in rootFileList :
             rootFile = TFile(file,"READ")
 
-            # Lioop over the desired systematics
+            # Loop over the desired systematics
             for aSystName in SystematicNames:
                 systematicName = aSystName + "_" + aJetDef
                 if systematicName+"NEW" not in rootFile.GetKeyNames() :
@@ -44,8 +42,15 @@ def ReadPileupHistograms(dirName):
 
                 histos[jetDefs[aJetDef]][aSystName] = histo
 
-    # Done reading, close the file
-    rootFile.Close()
+            # Done reading, close the file
+            rootFile.Close()
+
+        # one extra file: rho topology term comes from current prerecs
+        # THIS IS A GIANT FIXME
+        rootFile = TFile("/cluster/warehouse/kpachal/JetCalibration/JetUncertainties/JetUncertainties/share/JES_2015/Prerec/JESUncertainty_2015.root","READ")
+        histo = rootFile.Get("Pileup_RhoTopology_AntiKt4EMTopo")
+        histo.SetDirectory(0)
+        histos[jetDefs[aJetDef]]['Pileup_RhoTopology'] = histo
 
     return histos
 
