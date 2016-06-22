@@ -44,7 +44,14 @@ apply_pattern generic_declare_for_link files="../share/JES_2011/Final/*.config .
 apply_pattern generic_declare_for_link files="../share/JES_2012/Moriond2013/*.config ../share/JES_2012/Moriond2013/*.root" kind=calib prefix=share/JetUncertainties/JES_2012/Moriond2013 name=JES_2012_Moriond2013
 apply_pattern generic_declare_for_link files="../share/JES_2012/Final/*.config ../share/JES_2012/Final/*.root" kind=calib prefix=share/JetUncertainties/JES_2012/Final name=JES_2012_Final
 apply_pattern generic_declare_for_link files="../share/JES_2015/Prerec/*.config ../share/JES_2015/Prerec/*.root" kind=calib prefix=share/JetUncertainties/JES_2015/Prerec name=JES_2015_Prerec
+apply_pattern generic_declare_for_link files="../share/JES_2015/Moriond2016/*.config ../share/JES_2015/Moriond2016/*.root" kind=calib prefix=share/JetUncertainties/JES_2015/Moriond2016 name=JES_2015_Moriond2016
+apply_pattern generic_declare_for_link files="../share/JES_2015/ICHEP2016/*.config ../share/JES_2015/ICHEP2016/*.root" kind=calib prefix=share/JetUncertainties/JES_2015/ICHEP2016 name=JES_2015_ICHEP2016
+
 apply_pattern generic_declare_for_link files="../share/UJ_2012/*.config ../share/UJ_2012/*.root" kind=calib prefix=share/JetUncertainties/UJ_2012 name=UJ_2012
+apply_pattern generic_declare_for_link files="../share/UJ_2015/Prerec/*.config ../share/UJ_2015/Prerec/*.root" kind=calib prefix=share/JetUncertainties/UJ_2015/Prerec name=UJ_2015_Prerec
+apply_pattern generic_declare_for_link files="../share/UJ_2015/Moriond2016/*.config ../share/UJ_2015/Moriond2016/*.root" kind=calib prefix=share/JetUncertainties/UJ_2015/Moriond2016 name=UJ_2015_Moriond2016
+apply_pattern generic_declare_for_link files="../share/UJ_2015/ICHEP2016/*.config ../share/UJ_2015/ICHEP2016/*.root" kind=calib prefix=share/JetUncertainties/UJ_2015/ICHEP2016 name=UJ_2015_ICHEP2016
+
 apply_pattern generic_declare_for_link files="../share/analysisInputs/*.root" kind=calib prefix=share/JetUncertainties/analysisInputs name=analysisInputs
 
 

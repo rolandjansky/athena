@@ -24,30 +24,22 @@ class FlavourUncertaintyComponent : public UncertaintyComponent
         FlavourUncertaintyComponent(const FlavourUncertaintyComponent& toCopy);
         virtual FlavourUncertaintyComponent* clone() const;
         virtual ~FlavourUncertaintyComponent();
-        virtual StatusCode initialize(const std::vector<TString>& histNames, TFile* histFile);
-        virtual StatusCode initialize(const std::vector<TString>& histNames, const std::vector<TString>& validHistNames, TFile* histFile);
+        virtual StatusCode initialize(TFile* histFile);
 
         // Extra information retrieval methods
         virtual FlavourComp::TypeEnum   getFlavourType() const  { return m_flavourType; }
 
-        // Uncertainty retrieval methods (overwrite wrappers)
-        virtual bool   getValidity(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
-        virtual double getUncertainty(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
-        virtual bool   getValidUncertainty(double& unc, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
-        
-        using UncertaintyComponent::getValidity;
-        using UncertaintyComponent::getUncertainty;
-        using UncertaintyComponent::getValidUncertainty;
-
     protected:
-        // Uncertainty retrieval helper methods (implementations, blocked)
-        virtual bool   getValidity(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
-        virtual double getUncertainty(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
-        virtual bool   getValidUncertainty(const UncertaintyHistogram* histo, double& unc, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
+
+        // Uncertainty/validity retrieval helper methods
+        virtual bool   getValidityImpl(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo)    const;
+        virtual double getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
 
     private:
         // Default constructor is forbidden
         FlavourUncertaintyComponent(const std::string& name = "");
+
+        enum FlavourRespType { FlavourResp_UNKNOWN, FlavourResp_GLUON, FlavourResp_QUARK };
 
         // Additional private members
         const FlavourComp::TypeEnum m_flavourType;
@@ -55,7 +47,12 @@ class FlavourUncertaintyComponent : public UncertaintyComponent
         const TString m_analysisFileName;
         const TString m_path;
         const bool m_absEta;
-        SG::AuxElement::Accessor<bool> m_BjetAccessor;
+        const TString m_secondUncName;
+        
+        UncertaintyHistogram* m_secondUncHist;
+        FlavourRespType m_respType;
+        FlavourRespType m_secondRespType;
+        SG::AuxElement::Accessor<char> m_BjetAccessor;
         SG::AuxElement::Accessor<int>  m_NjetAccessor;
 
         // Analysis histograms from analysis root file
@@ -73,8 +70,6 @@ class FlavourUncertaintyComponent : public UncertaintyComponent
         double getQuarkResponseBaseline(const double pT, const double eta) const;
         
         // Private helper indices and functions
-        static const size_t BASELINE_RESPONSE_GLUON;
-        static const size_t BASELINE_RESPONSE_QUARK;
         StatusCode readNjetsHistograms(std::vector<UncertaintyHistogram*>& hists, const std::vector<TString>& histKeys);
         StatusCode getNjetFromKey(const TString& key, int& nJets) const;
         StatusCode checkNjetsInput(int& nJets) const;

@@ -17,7 +17,6 @@ namespace jet
 PunchthroughUncertaintyComponent::PunchthroughUncertaintyComponent(const std::string& name)
     : UncertaintyComponent(ComponentHelper(name))
     , m_absEta(false)
-    , m_NSegmentAccessor("GhostMuonSegmentCount")
 {
     JESUNC_NO_DEFAULT_CONSTRUCTOR;
 }
@@ -25,17 +24,15 @@ PunchthroughUncertaintyComponent::PunchthroughUncertaintyComponent(const std::st
 PunchthroughUncertaintyComponent::PunchthroughUncertaintyComponent(const ComponentHelper& component)
     : UncertaintyComponent(component)
     , m_absEta(CompParametrization::isAbsEta(component.parametrization))
-    , m_NSegmentAccessor("GhostMuonSegmentCount")
 {
-    ATH_MSG_DEBUG(Form("Creating PunchthroughUncertaintyComponent named %s",m_name.Data()));
+    ATH_MSG_DEBUG(Form("Creating PunchthroughUncertaintyComponent named %s",m_uncHistName.Data()));
 }
 
 PunchthroughUncertaintyComponent::PunchthroughUncertaintyComponent(const PunchthroughUncertaintyComponent& toCopy)
     : UncertaintyComponent(toCopy)
     , m_absEta(toCopy.m_absEta)
-    , m_NSegmentAccessor(toCopy.m_NSegmentAccessor)
 {
-    ATH_MSG_DEBUG(Form("Creating copy of PunchthroughUncertaintyComponent named %s",m_name.Data()));
+    ATH_MSG_DEBUG(Form("Creating copy of PunchthroughUncertaintyComponent named %s",m_uncHistName.Data()));
 }
 
 PunchthroughUncertaintyComponent* PunchthroughUncertaintyComponent::clone() const
@@ -50,21 +47,29 @@ PunchthroughUncertaintyComponent* PunchthroughUncertaintyComponent::clone() cons
 //                                              //
 //////////////////////////////////////////////////
 
-bool PunchthroughUncertaintyComponent::getValidity(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo&) const
+bool PunchthroughUncertaintyComponent::getValidityImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    // const int nSegments = jet.getAttribute< std::vector<const xAOD::MuonSegment*> >("GhostMuonSegment").size()
-    //const int nSegments = jet.getAttribute<int>("GhostMuonSegmentCount");
-    return histo->getValidity(jet.pt()*m_energyScale,m_NSegmentAccessor(jet),m_absEta ? fabs(jet.eta()) : jet.eta());
+    return !m_validHist ? true : getValidBool(m_validHist->getValue(jet.pt()*m_energyScale,getNumSegments(jet),m_absEta ? fabs(jet.eta()) : jet.eta()));
 }
 
-double PunchthroughUncertaintyComponent::getUncertainty(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo&) const
+double PunchthroughUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    return histo->getUncertainty(jet.pt()*m_energyScale,m_NSegmentAccessor(jet),m_absEta ? fabs(jet.eta()) : jet.eta());
+    return m_uncHist->getValue(jet.pt()*m_energyScale,getNumSegments(jet),m_absEta ? fabs(jet.eta()) : jet.eta());
 }
 
-bool PunchthroughUncertaintyComponent::getValidUncertainty(const UncertaintyHistogram* histo, double& unc, const xAOD::Jet& jet, const xAOD::EventInfo&) const
+int PunchthroughUncertaintyComponent::getNumSegments(const xAOD::Jet& jet) const
 {
-    return histo->getValidUncertainty(unc,jet.pt()*m_energyScale,m_NSegmentAccessor(jet),m_absEta ? fabs(jet.eta()) : jet.eta());
+
+//    std::cout << "Calling getNumSegments for component " << getName() << std::endl;
+
+    static SG::AuxElement::Accessor<int> accNseg("GhostMuonSegmentCount");
+
+    if (!accNseg.isAvailable(jet))
+    {
+        ATH_MSG_ERROR("Failed to retrieve number of segments from the jet");
+        return -1;
+    }
+    return accNseg(jet);
 }
 
 } // end jet namespace
