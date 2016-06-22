@@ -78,6 +78,7 @@ def setupMenu():
         ['mu14_imedium_mu6noL1_msonly',    'L1_MU10',  ['L1_MU10',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu14_imedium','mu6noL1_msonly']]],
         ['2mu6_mu4', 'L1_2MU6_3MU4', ['L1_2MU6','L1_MU4'], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
         ['mu20_msonly_mu6noL1_msonly_nscan05_L1MU4_UNPAIRED_ISO','L1_MU4_UNPAIRED_ISO', ['L1_MU20','L2_mu20_msonly'], ["Late"], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20_msonly','mu6noL1_msonly_nscan05']]],
+        ['mu20_msonly_mu12noL1_msonly_nscan05_noComb',   'L1_MU20',   ['L1_MU20','L2_mu20_msonly'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20_msonly','mu12noL1_msonly_nscan05']]],
 
        # not working for now                                                                                                                                                                                   
         ['mu20_msonly_mu6noL1_msonly_nscan05_noComb',       'L1_MU20',      ['L1_MU20','L2_mu20_msonly'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20_msonly','mu6noL1_msonly_nscan05_noComb']]],
@@ -1352,6 +1353,16 @@ def setupMenu():
         ['2mu6_bJpsimumu_tightChi2',                    'L1_2MU6', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
         ['2mu6_bBmumu_tightChi2',                    'L1_2MU6', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
         ['2mu6_bUpsimumu_tightChi2',                    'L1_2MU6', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
+        # chains with 'broken' vertexing at EF
+        ['2mu4_bDimu_legacyVtx',                    'L1_2MU4',     [],                  [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1], 
+        ['mu6_mu4_bDimu_legacyVtx',                 'L1_MU6_2MU4', ['L1_MU6','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
+        ['2mu6_bDimu_legacyVtx',                    'L1_2MU6', [],                      [PhysicsStream, 'express'], ['RATE:Bphysics','BW:Bphys'], -1], 
+        ['2mu10_bDimu_legacyVtx',                   'L1_2MU10', [],                     [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
+        ['2mu4_bBmumuxv2_legacyVtx',                'L1_2MU4', [],                      [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1], 
+        ['mu6_mu4_bBmumuxv2_legacyVtx',             'L1_MU6_2MU4', ['L1_MU6','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
+        ['2mu6_bBmumuxv2_legacyVtx',                'L1_2MU6', [],                      [PhysicsStream, 'express'], ['RATE:Bphysics','BW:Bphys'], -1], 
+        ['mu10_mu6_bBmumuxv2_legacyVtx',            'L1_MU10_2MU6', ['L1_MU10','L1_MU6'],[PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
+        ['2mu10_bBmumuxv2_legacyVtx',               'L1_2MU10', [],                     [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
         
         #new narrow-scan muon triggers for tau->3mu        
         #['3mu4_bTau', 'L1_3MU4', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
@@ -1444,14 +1455,14 @@ def setupMenu():
         ['2mu4_bBmumu',                   'L1_2MU4', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
         ['mu6_mu4_bBmumu_noL2',           'L1_MU6_2MU4', ['L1_MU6','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
 
-        ['2mu10_bBmumuxv2',               'L1_2MU10', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
-        ['2mu10_bBmumux_BcmumuDsloose',   'L1_2MU10', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
+        ## moved to phys ['2mu10_bBmumuxv2',               'L1_2MU10', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
+        ## moved to phys ['2mu10_bBmumux_BcmumuDsloose',   'L1_2MU10', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
         ['2mu10_bBmumux_BpmumuKp',        'L1_2MU10', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
-        ['2mu10_bDimu',                   'L1_2MU10', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
+        ## moved to phys ['2mu10_bDimu',                   'L1_2MU10', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
         ['2mu10_bDimu_noinvm_novtx_ss',   'L1_2MU10', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
-        ['2mu10_bDimu_novtx_noos',        'L1_2MU10', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
-        ['2mu10_bJpsimumu',               'L1_2MU10', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
-        ['2mu10_bUpsimumu',               'L1_2MU10', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
+        ## moved to phys ['2mu10_bDimu_novtx_noos',        'L1_2MU10', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
+        ## moved to phys ['2mu10_bJpsimumu',               'L1_2MU10', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
+        ## moved to phys ['2mu10_bUpsimumu',               'L1_2MU10', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
         ['2mu10_bBmumu',                  'L1_2MU10', [], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
 
         # Bmumux chains with L2 B-physics selection skipped

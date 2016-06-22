@@ -65,7 +65,7 @@ AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu',
                       'Trkloose', 'Zmumu', 'noL2', 'noEFbph',
                       'noinvm', 'ss', 'BpmumuKp',
                       '11invm24', '24invm60',
-                      'tightChi2', 'Lxy0', 'Ftk']
+                      'tightChi2', 'Lxy0', 'Ftk','legacyVtx']
 AllowedTopos_jet = ['muvtx',
                     'revllp',
                     'llp',
