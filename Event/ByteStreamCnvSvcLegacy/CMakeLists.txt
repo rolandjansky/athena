@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 731777 2016-03-23 09:15:28Z krasznaa $
+# $Id: CMakeLists.txt 756859 2016-06-22 10:53:03Z krasznaa $
 ################################################################################
 # Package: ByteStreamCnvSvcLegacy
 ################################################################################
@@ -7,7 +7,7 @@
 atlas_subdir( ByteStreamCnvSvcLegacy )
 
 # External dependencies:
-find_package( Boost )
+find_package( Boost COMPONENTS system )
 find_package( UUID )
 find_package( tdaq-common COMPONENTS EventStorage eformat eformat_write ers 
    RawFileName )
