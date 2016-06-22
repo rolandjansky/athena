@@ -5,7 +5,7 @@
 # @brief Main package for new style ATLAS job transforms
 # @details Core class for ATLAS job transforms
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: transform.py 743343 2016-04-27 15:47:21Z graemes $
+# @version $Id: transform.py 756692 2016-06-21 16:52:38Z uworlika $
 # 
 
 __version__ = '$Revision'
@@ -359,9 +359,11 @@ class transform(object):
                 msg.debug('Now preparing to execute {0}'.format(executionStep))
                 executor = self._executorDictionary[executionStep['name']]
                 executor.preExecute(input = executionStep['input'], output = executionStep['output'])
-                executor.execute()
-                executor.postExecute()
-                executor.validate()
+                try:
+                    executor.execute()
+                    executor.postExecute()
+                finally:
+                    executor.validate()
                 
             self.validateOutFiles()
             
