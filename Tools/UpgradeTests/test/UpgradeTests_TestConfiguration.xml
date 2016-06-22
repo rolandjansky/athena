@@ -76,6 +76,131 @@
 	</chainElement>
       </sequential>
     </chain>
+
+    <chain>
+      <chainName>SLHCChainTestsFCalGMXExtBrl4</chainName>
+      <sequential>
+	<chainElement>
+	  <jobTransform userJobId="SimsFCalGMXExtBrl4">
+	    <doc>SLHCSimulation</doc>
+	    <jobTransformJobName>chainSimsFCalGMXExtBrl4SLHCRTT</jobTransformJobName>
+	    <jobTransformCmd>
+	      xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/EVNTexample/mc12_14TeV.105204.McAtNloJimmy_AUET2CT10_ttbar_allhad.evgen.EVNT.e2238_tid01485091_00/EVNT.01485091._001049.pool.root.1 .
+        ATHENA_PROC_NUMBER=3 Sim_tf.py --inputEVNTFile=EVNT.01485091._001049.pool.root.1 --outputHITSFile=SLHCtest.sFCalGMXExtBrl4.HITS.pool.root --skipEvents=0 --maxEvents=6 --randomSeed=10 --DataRunNumber=240520 --conditionsTag=OFLCOND-MC15c-SDR-10 --geometryVersion=ATLAS-P2-SFCAL-01-06-01_VALIDATION --preInclude='all:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py,InDetSLHC_Example/preInclude.SLHC_Setup_ExtBrl_4.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py' --postInclude='all:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_ExtBrl_4.py,InDetSLHC_Example/postInclude.SLHC_Setup.py' --postExec 'sim:ToolSvc.ISF_ParticlePositionFilterDynamic.CheckRegion=[1]' --preExec 'all:from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.doGMX.set_Value_and_Lock(True)' 
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <queue>long</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.sFCalGMXExtBrl4.HITS.pool.root</chainfileout>
+	</chainElement>
+
+	<chainElement>
+	  <jobTransform userJobId="DigisFCalGMXExtBrl4">
+	    <doc>SLHCDigitization</doc>
+	    <jobTransformJobName>chainDigisFCalGMXExtBrl4SLHCRTT</jobTransformJobName>
+	    <jobTransformCmd> 
+
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <chaindataset_info>
+	      <jobTransformData/>
+	      <chaindatasetName>SLHCtest.sFCalGMXExtBrl4.HITS.pool.root</chaindatasetName>
+	      <dataset_info>
+		<jobTransformData/>
+		<datasetName>NONE.pool.root</datasetName>
+	      </dataset_info>
+	    </chaindataset_info>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.sFCalGMXExtBrl4.RDO.pool.root</chainfileout>
+	</chainElement>
+
+	<chainElement>
+	  <jobTransform userJobId="RecosFCalGMXExtBrl4">
+	    <doc>SLHCReconstruction</doc>
+	    <jobTransformJobName>chainRecosFCalGMXExtBrl4SLHCRTT</jobTransformJobName>
+	    <jobTransformCmd>
+
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <chaindataset_info>
+	      <jobTransformData/>
+	      <chaindatasetName>SLHCtest.sFCalGMXExtBrl4.RDO.pool.root</chaindatasetName>
+	      <dataset_info>
+		<jobTransformData/>
+		<datasetName>NONE.pool.root</datasetName>
+	      </dataset_info>
+	    </chaindataset_info>
+	    <queue>long</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.sFCalGMXExtBrl4.ESD.pool.root</chainfileout>
+	  <chainfileout>SLHCtest.sFCalGMXExtBrl4.AOD.pool.root</chainfileout>
+	</chainElement>
+      </sequential>
+    </chain>
+
+    <chain>
+      <chainName>SLHCChainTestsFCalGMXInclBrl4</chainName>
+      <sequential>
+	<chainElement>
+	  <jobTransform userJobId="SimsFCalGMXInclBrl4">
+	    <doc>SLHCSimulation</doc>
+	    <jobTransformJobName>chainSimsFCalGMXInclBrl4SLHCRTT</jobTransformJobName>
+	    <jobTransformCmd>
+	      xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/EVNTexample/mc12_14TeV.105204.McAtNloJimmy_AUET2CT10_ttbar_allhad.evgen.EVNT.e2238_tid01485091_00/EVNT.01485091._001049.pool.root.1 .
+        ATHENA_PROC_NUMBER=3 Sim_tf.py --inputEVNTFile=EVNT.01485091._001049.pool.root.1 --outputHITSFile=SLHCtest.sFCalGMXInclBrl4.HITS.pool.root --skipEvents=0 --maxEvents=6 --randomSeed=10 --DataRunNumber=240620 --conditionsTag=OFLCOND-MC15c-SDR-10 --geometryVersion=ATLAS-P2-SFCAL-01-08-01_VALIDATION --preInclude='all:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py,InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py' --postInclude='all:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/postInclude.SLHC_Setup.py' --postExec 'sim:ToolSvc.ISF_ParticlePositionFilterDynamic.CheckRegion=[1]' --preExec 'all:from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.doGMX.set_Value_and_Lock(True)' 
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <queue>long</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.sFCalGMXInclBrl4.HITS.pool.root</chainfileout>
+	</chainElement>
+
+	<chainElement>
+	  <jobTransform userJobId="DigisFCalGMXInclBrl4">
+	    <doc>SLHCDigitization</doc>
+	    <jobTransformJobName>chainDigisFCalGMXInclBrl4SLHCRTT</jobTransformJobName>
+	    <jobTransformCmd> 
+
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <chaindataset_info>
+	      <jobTransformData/>
+	      <chaindatasetName>SLHCtest.sFCalGMXInclBrl4.HITS.pool.root</chaindatasetName>
+	      <dataset_info>
+		<jobTransformData/>
+		<datasetName>NONE.pool.root</datasetName>
+	      </dataset_info>
+	    </chaindataset_info>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.sFCalGMXInclBrl4.RDO.pool.root</chainfileout>
+	</chainElement>
+
+	<chainElement>
+	  <jobTransform userJobId="RecosFCalGMXInclBrl4">
+	    <doc>SLHCReconstruction</doc>
+	    <jobTransformJobName>chainRecosFCalGMXInclBrl4SLHCRTT</jobTransformJobName>
+	    <jobTransformCmd>
+
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <chaindataset_info>
+	      <jobTransformData/>
+	      <chaindatasetName>SLHCtest.sFCalGMXInclBrl4.RDO.pool.root</chaindatasetName>
+	      <dataset_info>
+		<jobTransformData/>
+		<datasetName>NONE.pool.root</datasetName>
+	      </dataset_info>
+	    </chaindataset_info>
+	    <queue>long</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.sFCalGMXInclBrl4.ESD.pool.root</chainfileout>
+	  <chainfileout>SLHCtest.sFCalGMXInclBrl4.AOD.pool.root</chainfileout>
+	</chainElement>
+      </sequential>
+    </chain>
+
   </jobList>
   
   <jobGroups>
