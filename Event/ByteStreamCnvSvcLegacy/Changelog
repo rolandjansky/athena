@@ -1,0 +1,18 @@
+2016-06-22 Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+	* Explicitly linking the library against boost_system with
+	  CMake. Since tdaq-common pulls in that dependency.
+	* Tagging as ByteStreamCnvSvcLegacy-00-00-04
+
+2016-03-24 Andy Salnikov <salnikov@slac.stanford.edu>
+	* Fix for compilation warning in v5_Guid.cxx
+	* Tagging as ByteStreamCnvSvcLegacy-00-00-03
+
+2016-03-23 Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+	* Added a hand-written CMakeLists.txt file to the package that builds
+	  it correctly in the CMake nightly.
+	* Removed the executable flag from all files of the package.
+	* Tagging as ByteStreamCnvSvcLegacy-00-00-02
+
+2016-03-16 Jack Cranshaw <cranshaw@anl.gov>
+	* ByteStreamCnvSvcLegacy-00-00-01
+	* First version
