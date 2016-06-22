@@ -25,7 +25,6 @@
 class IMatcher{
  public:
 // Abstract interface used by a factory function
-  virtual ~IMatcher(){}
   virtual void match(const HypoJetIter&, const HypoJetIter&) = 0;
   virtual bool pass() const = 0;
   virtual const HypoJetVector& passedJets() const noexcept = 0;

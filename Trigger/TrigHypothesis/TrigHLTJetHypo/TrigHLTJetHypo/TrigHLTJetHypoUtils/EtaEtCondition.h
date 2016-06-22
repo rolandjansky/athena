@@ -7,7 +7,7 @@
 
 /********************************************************************
  *
- * NAME:     EtaEtCondition.h
+ * NAME:     TrigHLTJetHypo.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
  *
  * AUTHOR:   P. Sherwood
@@ -30,13 +30,14 @@ class EtaEtCondition: public ICondition{
   ~EtaEtCondition() override {}
 
   bool isSatisfied(const HypoJetVector&) const override;
-  bool isSatisfied(const pHypoJet&) const;
 
   double orderingParameter() const noexcept override;
 
   std::string toString() const noexcept override;
 
  private:
+
+  bool isSatisfied(const pHypoJet&) const;
 
   double m_etaMin;
   double m_etaMax;

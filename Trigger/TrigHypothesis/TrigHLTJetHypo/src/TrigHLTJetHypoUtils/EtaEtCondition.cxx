@@ -33,11 +33,11 @@ EtaEtCondition::isSatisfied(const HypoJetVector& ips)
 
 std::string EtaEtCondition::toString() const noexcept {
   std::stringstream ss;
-  ss << "Eta Et Condition: etaMin "
+  ss << "Condition: etaMin "
      <<  m_etaMin 
      << " etaMax " 
      << m_etaMax 
-     << " Et threshold: " 
+     << " threshold: " 
      << m_threshold
      <<'\n';
 

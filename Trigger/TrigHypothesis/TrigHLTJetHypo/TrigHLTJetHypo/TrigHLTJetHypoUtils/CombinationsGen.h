@@ -18,23 +18,21 @@ has terminated)
 */
 
 class CombinationsGen {
- public:
- CombinationsGen(unsigned int n, unsigned int k): 
-  m_more{true}, m_invalid{false}{
+public:
+ CombinationsGen(unsigned int n, unsigned int k): m_more{true}{
     
-    if (k<=n){
-      m_bitmask = std::string(k, 1);
-      m_bitmask.resize(n, 0);
-    } else {
-      m_invalid = true;
+    if(k>n){
+      std::stringstream ss;
+      ss <<"CombinationsGen error k: "<<k <<" exceeds n: " << n <<'\n';
+      throw std::out_of_range(ss.str());
     }
+    
+    m_bitmask = std::string(k, 1);
+    m_bitmask.resize(n, 0);
   }
   
-  std::pair<std::vector<unsigned int>, bool> next() {
-
-    std::vector<unsigned int> comb;
-    if (m_invalid){return {comb, false};}
-
+  std::pair<std::vector<int>, bool> next() {
+    std::vector<int> comb;
     if(not m_more){return {comb, false};}
     
     for(std::size_t  i = 0; i < m_bitmask.size(); ++i){
@@ -46,7 +44,6 @@ class CombinationsGen {
 
 private:
   bool m_more;
-  bool m_invalid;
   std::string m_bitmask;
 };
 #endif
