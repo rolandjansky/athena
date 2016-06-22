@@ -134,15 +134,25 @@ void TrigTSerializer::add_previous_streamerinfos(){
 
 }
 
+
 void TrigTSerializer::streamerErrorHandler(int level, bool abort_bool,
 					   const char* location, const char *msg){
-  s_decodingError = true;
-  ::DefaultErrorHandler(level,abort_bool, location, msg);
+   if( level > kInfo ) {
+      //MN: ignore stuff below kWarning
+      s_decodingError = true;
+   }
+   int oldLvl = gErrorIgnoreLevel;
+   if( gDebug > 0 ) {
+      gErrorIgnoreLevel = kPrint;
+   }
+   ::DefaultErrorHandler(level,abort_bool, location, msg);
+   gErrorIgnoreLevel = oldLvl;
 }
 
 void TrigTSerializer::prepareForTBuffer(const std::string &nameOfClass){
   m_IgnoreErrLvl = gErrorIgnoreLevel;
-  gErrorIgnoreLevel = kInfo+1;
+  //MN: this setting does not play well with ROOTDEBUG:
+  //  gErrorIgnoreLevel = kInfo+1;
   //had this class a problem before?
   if (m_errCount.find(nameOfClass)!=m_errCount.end()){
     gErrorIgnoreLevel = kError+1;   
@@ -150,7 +160,6 @@ void TrigTSerializer::prepareForTBuffer(const std::string &nameOfClass){
   s_decodingError = false;
 
   m_defaultHandler = ::SetErrorHandler(streamerErrorHandler);
-    
 }
 
 void TrigTSerializer::restoreAfterTBuffer(const std::string &nameOfClass){
