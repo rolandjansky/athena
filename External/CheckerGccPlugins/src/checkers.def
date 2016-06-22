@@ -7,15 +7,23 @@
  * This file should contain a list of the defined checkers, in the format
  *
  *@code
- *  CHECKER(NAME)
+ *  CHECKER(NAME, ENABLED)
  @endcode
  *
  * @c NAME is used to enable and disable individual checkers on the
  * command line.  For each defined checker, there should be a function
  * @c init_NAME_checker to register it with gcc.
+ * @c ENABLED should be @c true if the checker is to be enabled
+ * by default.
  *
  * Checkers will be registered in the order given in this file.
  */
 
 
-CHECKER(gaudi_inheritance)
+CHECKER(gaudi_inheritance, true)
+CHECKER(divcheck, false)
+CHECKER(usingns, true)
+CHECKER(naming, false)
+//CHECKER(static, false)
+CHECKER(thread, false)
+CHECKER(thread_safe_debug, false) // for testing is_thread_safe, should be disabled

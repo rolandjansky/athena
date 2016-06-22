@@ -1,0 +1,46 @@
+../test/naming_test.cxx:21:8: warning: ATLAS coding standards require that the name of function 'void c::m_foo()' not start with 'm_'.
+   void m_foo();
+        ^
+../test/naming_test.cxx:21:8: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#naming_plugin>.
+../test/naming_test.cxx:9:7: warning: ATLAS coding standards require that the name of private non-static member 'c::a' start with 'm_'.
+   int a;
+       ^
+../test/naming_test.cxx:9:7: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#naming_plugin>.
+../test/naming_test.cxx:13:7: warning: ATLAS coding standards require that the name of private non-static member 'c::s_l' start with 'm_'.
+   int s_l;
+       ^
+../test/naming_test.cxx:13:7: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#naming_plugin>.
+../test/naming_test.cxx:14:14: warning: ATLAS coding standards require that the name of private static member 'c::m' start with 'm_' or 's_'.
+   static int m;
+              ^
+../test/naming_test.cxx:14:14: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#naming_plugin>.
+../test/naming_test.cxx:17:20: warning: ATLAS coding standards require that the name of private static member 'c::NotAllCaps' start with 'm_' or 's_'.
+   static const int NotAllCaps;
+                    ^
+../test/naming_test.cxx:17:20: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#naming_plugin>.
+../test/naming_test.cxx:19:8: warning: ATLAS coding standards require that the name of private non-static member 'c::p_y' start with 'm_'.
+   int  p_y;
+        ^
+../test/naming_test.cxx:19:8: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#naming_plugin>.
+../test/naming_test.cxx: In function 'int foo(int, int, int, int)':
+../test/naming_test.cxx:46:7: warning: ATLAS coding standards require that variable name 'm_y' not start with 'm_'.
+   int m_y
+       ^
+../test/naming_test.cxx:46:7: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#naming_plugin>.
+../test/naming_test.cxx:50:7: warning: ATLAS coding standards require that variable name '_s' not start with '_'.
+   int _s = 20;
+       ^
+../test/naming_test.cxx:50:7: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#naming_plugin>.
+../test/naming_test.cxx:43:21: warning: ATLAS coding standards require that the name of function parameter 'm_d' not start with 'm_'.
+ int foo (int c, int m_d, int s_e, int _t)
+                     ^
+../test/naming_test.cxx:43:21: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#naming_plugin>.
+../test/naming_test.cxx:43:39: warning: ATLAS coding standards require that the name of function parameter '_t' not start with '_'.
+ int foo (int c, int m_d, int s_e, int _t)
+                                       ^
+../test/naming_test.cxx:43:39: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#naming_plugin>.
+../test/naming_test.cxx: At global scope:
+../test/naming_test.cxx:55:5: warning: ATLAS coding standards require that variable name 'm_z' not start with 'm_'.
+ int m_z;
+     ^
+../test/naming_test.cxx:55:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#naming_plugin>.

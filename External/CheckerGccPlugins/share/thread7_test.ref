@@ -1,0 +1,12 @@
+/home/sss/atlas/rootaccess/../test/thread7_test.cxx:9:15: warning: Mutable member 'S::a' within thread-safe class 'struct S'; may not be thread-safe.
+   mutable int a;
+               ^
+/home/sss/atlas/rootaccess/../test/thread7_test.cxx:9:15: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread7_test.cxx:11:20: warning: Mutable member 'S::c' within thread-safe class 'struct S'; may not be thread-safe.
+   mutable int *c[10];
+                    ^
+/home/sss/atlas/rootaccess/../test/thread7_test.cxx:11:20: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread7_test.cxx:13:14: warning: Static member 'S::d' within thread-safe class 'struct S'; may not be thread-safe.
+   static int d;
+              ^
+/home/sss/atlas/rootaccess/../test/thread7_test.cxx:13:14: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.

@@ -1,0 +1,5 @@
+In file included from /home/sss/atlas/rootaccess/../test/usingns2_test.cxx:1:0:
+/home/sss/atlas/rootaccess/../test/usingns2_test.h:2:17: warning: Do not use `using namespace' in an #included file.
+ using namespace std;
+                 ^
+/home/sss/atlas/rootaccess/../test/usingns2_test.h:2:17: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#usingns_plugin>.

@@ -1,0 +1,67 @@
+In file included from /home/sss/atlas/rootaccess/../test/ists1_test.cxx:1:0:
+/home/sss/atlas/rootaccess/../test/ists1_test1.h: In function 'void i1()':
+/home/sss/atlas/rootaccess/../test/ists1_test1.h:3:6: warning: 'void i1()' is marked thread-safe.
+ void i1 [[gnu::thread_safe_debug]] () {}
+      ^
+In file included from /home/sss/atlas/rootaccess/../test/ists1_test.cxx:2:0:
+/home/sss/atlas/rootaccess/../test/Control/p1/p1/p1a.h: In function 'void p1a()':
+/home/sss/atlas/rootaccess/../test/Control/p1/p1/p1a.h:1:6: warning: 'void p1a()' is marked thread-safe.
+ void p1a [[gnu::thread_safe_debug]] () {}
+      ^
+In file included from /home/sss/atlas/rootaccess/../test/ists1_test.cxx:3:0:
+/home/sss/atlas/rootaccess/../test/Control/p1/p1/p1b.h: In function 'void p1b()':
+/home/sss/atlas/rootaccess/../test/Control/p1/p1/p1b.h:1:6: warning: 'void p1b()' is marked thread-safe.
+ void p1b [[gnu::thread_safe_debug]] () {}
+      ^
+In file included from /home/sss/atlas/rootaccess/../test/ists1_test.cxx:4:0:
+/home/sss/atlas/rootaccess/../test/Control/p2/p2/p2a.h: In function 'void p2a()':
+/home/sss/atlas/rootaccess/../test/Control/p2/p2/p2a.h:1:6: warning: 'void p2a()' is not marked thread-safe.
+ void p2a [[gnu::thread_safe_debug]] () {}
+      ^
+In file included from /home/sss/atlas/rootaccess/../test/ists1_test.cxx:5:0:
+/home/sss/atlas/rootaccess/../test/Control/p2/p2/p2b.h: In function 'void p2b()':
+/home/sss/atlas/rootaccess/../test/Control/p2/p2/p2b.h:1:6: warning: 'void p2b()' is not marked thread-safe.
+ void p2b [[gnu::thread_safe_debug]] () {}
+      ^
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx: In function 'void f1()':
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx:7:6: warning: 'void f1()' is not marked thread-safe.
+ void f1 [[gnu::thread_safe_debug]] () {}
+      ^
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx: In function 'void f2()':
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx:8:6: warning: 'void f2()' is marked thread-safe.
+ void f2 [[gnu::thread_safe_debug]] [[gnu::thread_safe]] () {}
+      ^
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx: At global scope:
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx:13:8: warning: 'void C1::g1()' is not marked thread-safe.
+   void g1 [[gnu::thread_safe_debug]] () {}
+        ^
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx:14:8: warning: 'void C1::g2()' is not marked thread-safe.
+   void g2 [[gnu::thread_safe_debug]] ();
+        ^
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx:16:8: warning: 'void C1::g4()' is marked thread-safe.
+   void g4 [[gnu::thread_safe]] [[gnu::thread_safe_debug]] ();
+        ^
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx: In member function 'void C1::g2()':
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx:20:6: warning: 'void C1::g2()' is not marked thread-safe.
+ void C1::g2() {}
+      ^
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx: In member function 'void C1::g3()':
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx:21:6: warning: 'void C1::g3()' is not marked thread-safe.
+ void C1::g3 [[gnu::thread_safe_debug]] () {}
+      ^
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx: In member function 'void C1::g4()':
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx:22:6: warning: 'void C1::g4()' is marked thread-safe.
+ void C1::g4() {}
+      ^
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx: At global scope:
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx:27:8: warning: 'void C2::h1()' is marked thread-safe.
+   void h1 [[gnu::thread_safe_debug]] () {}
+        ^
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx: In member function 'void C2::h2()':
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx:35:6: warning: 'void C2::h2()' is marked thread-safe.
+ void C2::h2 [[gnu::thread_safe_debug]] () {}
+      ^
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx: In member function 'void C2::C3::h3()':
+/home/sss/atlas/rootaccess/../test/ists1_test.cxx:36:6: warning: 'void C2::C3::h3()' is marked thread-safe.
+ void C2::C3::h3 [[gnu::thread_safe_debug]] () {}
+      ^

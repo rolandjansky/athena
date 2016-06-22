@@ -1,0 +1,38 @@
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx: In function 'void f1()':
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:18:15: warning: Static expression 'y1' passed to pointer or reference function argument within thread-safe function 'void f1()'; may not be thread-safe.
+   foo1(3, &y1);
+               ^
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:6:12: note: Declared here:
+ static int y1;
+            ^
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:18:15: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   foo1(3, &y1);
+               ^
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:19:14: warning: Static expression 'y1' passed to pointer or reference function argument within thread-safe function 'void f1()'; may not be thread-safe.
+   foo2(3, y1);
+              ^
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:6:12: note: Declared here:
+ static int y1;
+            ^
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:19:14: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   foo2(3, y1);
+              ^
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:20:15: warning: Static expression 'y1' passed to pointer or reference function argument within thread-safe function 'void f1()'; may not be thread-safe.
+   foo3(3, &y1);
+               ^
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:6:12: note: Declared here:
+ static int y1;
+            ^
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:20:15: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   foo3(3, &y1);
+               ^
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx: In function 'void f2()':
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:38:11: warning: Static expression 'c1' passed to pointer or reference function argument within thread-safe function 'void f2()'; may not be thread-safe.
+   c1.foo();
+           ^
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:33:10: note: Declared here:
+ static C c1;
+          ^
+/home/sss/atlas/rootaccess/../test/thread3_test.cxx:38:11: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   c1.foo();
+           ^
