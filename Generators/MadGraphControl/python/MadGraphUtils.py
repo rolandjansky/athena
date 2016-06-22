@@ -12,6 +12,16 @@ from AthenaCommon import Logging
 mglog = Logging.logging.getLogger('MadGraphUtils')
 
 
+def setup_path_protection():
+    if 'GFORTRAN_TMPDIR' in os.environ:
+        return
+    if 'TMPDIR' in os.environ:
+        os.environ['GFORTRAN_TMPDIR']=os.environ['TMPDIR']
+        return
+    if 'TMP' in os.environ:
+        os.environ['GFORTRAN_TMPDIR']=os.environ['TMP']
+        return
+
 def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
     """ Generate a new process in madgraph.  Note that
     you can pass *either* a process card location or a
@@ -40,6 +50,8 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
         return new_process()
 
     madpath=os.environ['MADPATH']
+    # Just in case
+    setup_path_protection()
 
     mgexec='/bin/mg5_aMC'
 
@@ -135,6 +147,8 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
     except:
         pass
 
+    # Just in case
+    setup_path_protection()
 
     if is_gen_from_gridpack(grid_pack):
         if gridpack_dir and nevents and random_seed:
@@ -528,6 +542,9 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
 
 def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,random_seed=-1,card_check=None,param_card=None,madspin_card=None,extlhapath=None):
+
+    # Just in case
+    setup_path_protection()
 
     isNLO=is_NLO_run(proc_dir=gridpack_dir)
     LHAPATH=os.environ['LHAPATH'].split(':')[0]
@@ -1224,7 +1241,9 @@ def get_variations( gentype , masses , syst_mod , xqcut = None ):
             if masses['1000024']<xqcut*4.: xqcut = masses['1000024']*0.25
         elif 'Stau'==gentype:
             if masses['1000015']<xqcut*4.: xqcut = masses['1000015']*0.25
-        if 'T2' in gentype:
+        elif 'SlepSlep'==gentype:
+            if masses['1000011']<xqcut*4.: xqcut = masses['1000011']*0.25
+        elif 'T2' in gentype:
             if masses['2000006']<xqcut*4.: xqcut = masses['2000006']*0.25
         else:
             if 'G' in gentype or 'ALL' in gentype:
