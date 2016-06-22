@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: PhysVal_jobOptions.py 747937 2016-05-18 10:37:38Z sroe $
+# $Id: PhysVal_jobOptions.py 757079 2016-06-22 18:56:37Z goetz $
 
 # Set up the reading of the input xAOD:
 
@@ -10,9 +10,9 @@
 import getpass
 FNAME = "AOD.pool.root"
 if (getpass.getuser())=="mbaugh":
-  #FNAME = "../rootfile_storage/ESD.large.pool.root"
+  FNAME = "../rootfile_storage/ESD.largeC.pool.root"
   #FNAME = "../rootfile_storage/AOD.05522648._000044.pool.root.1"
-  FNAME = "../rootfile_storage/ESD.05297574._000081.pool.root.1"
+  #FNAME = "../rootfile_storage/ESD.05297574._000081.pool.root.1"
   print " Hello, Max"
 
 #FNAME = "ESD.05297574._000081.pool.root.1"
@@ -27,7 +27,7 @@ topSequence = AlgSequence()
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import HistogramDefinitionSvc
 ToolSvc = ServiceMgr.ToolSvc
 ServiceMgr+=HistogramDefinitionSvc()
-ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/hdef.xml"
+ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/InDetPhysValMonitoringPlotDefinitions.xml"
 ServiceMgr.HistogramDefinitionSvc.DefinitionFormat="text/xml"
 
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg

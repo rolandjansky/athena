@@ -16,8 +16,8 @@ m_trackeff_vs_phi{},
 m_trackeff_vs_d0{},
 m_trackeff_vs_z0{},
 m_trackeff_vs_R{},
-m_trackeff_vs_Z{}
-
+m_trackeff_vs_Z{},
+m_trackinjeteff_vs_dr_gr_j100{}
 {
   //nop
 }
@@ -32,12 +32,13 @@ InDetPerfPlot_Eff::initializePlots() {
   book(m_trackeff_vs_z0, "trackeff_vs_z0");
   book(m_trackeff_vs_R, "trackeff_vs_R");
   book(m_trackeff_vs_Z, "trackeff_vs_Z");
+
+  book(m_trackinjeteff_vs_dr_gr_j100, "trackinjeteff_vs_dr_gr_j100");
 }
 
 void InDetPerfPlot_Eff::pro_fill(const xAOD::TruthParticle & truth, float weight){
   double eta = truth.eta();
   double pt = truth.pt()/1000.; //convert MeV to GeV
-  //double logpt = Log10(pt); //-3.0 switches MeV to GeV **UNUSED
   double phi = truth.phi();
   double d0 = truth.auxdata<float>("d0");
   double z0 = truth.auxdata<float>("z0");
@@ -53,6 +54,15 @@ void InDetPerfPlot_Eff::pro_fill(const xAOD::TruthParticle & truth, float weight
   m_trackeff_vs_Z->Fill(Z, weight);
 }
 
+void InDetPerfPlot_Eff::jet_fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight){
+  //double trketa = track.eta(); //unused
+  //double trkphi = track.phi(); //unused
+
+  double dR = jet.p4().DeltaR( track.p4() );
+
+  m_trackinjeteff_vs_dr_gr_j100->Fill(dR, weight);
+
+}
 
 void InDetPerfPlot_Eff::finalizePlots() {
 }

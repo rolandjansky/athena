@@ -25,6 +25,8 @@
 #include "xAODBase/IParticle.h"  
 #include "xAODTracking/TrackParticle.h"
 
+#include "xAODJet/Jet.h"
+
 #include "InDetPhysValMonitoring/IInDetPhysValDecoratorTool.h"
 
 ///class holding Pt plots for Inner Detector RTT Validation and implementing fill methods
@@ -34,6 +36,7 @@ class InDetPerfPlot_Eff:public InDetPlotBase {
   InDetPerfPlot_Eff(InDetPlotBase * pParent, const std::string & dirName);
 
   void pro_fill(const xAOD::TruthParticle& truth, float weight);
+  void jet_fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight);
   
  private:
 
@@ -44,6 +47,8 @@ class InDetPerfPlot_Eff:public InDetPlotBase {
   TProfile * m_trackeff_vs_z0;
   TProfile * m_trackeff_vs_R;
   TProfile * m_trackeff_vs_Z;
+
+  TProfile * m_trackinjeteff_vs_dr_gr_j100;
   
   //plot base has nop default implementation of this; we use it to book the histos
   void initializePlots();

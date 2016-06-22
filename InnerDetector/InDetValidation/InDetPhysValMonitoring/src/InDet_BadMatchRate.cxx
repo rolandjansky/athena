@@ -27,12 +27,11 @@ InDet_BadMatchRate::initializePlots(){
   book(m_BadMatchRate, "BadMatchRate");
   book(m_BMR_vs_logpt, "BadMatchRate_vs_logpt");
 
-  //Fake Rate plots, TMP < 50%
-  //book(m_trackeff_vs_eta, "trackeff_vs_eta");
-
   //Really Fake Rate plots, Truth Matching Probability < 20%
   book(m_ReallyFakeRate, "ReallyFakeRate");
 
+  //TrackinJet Bad Match Rate plots
+  book(m_trackinjet_badmatchrate_vs_dr_gr_j100, "trackinjet_badmatchrate_vs_dr_gr_j100");
 }
 
 void
@@ -46,11 +45,31 @@ InDet_BadMatchRate::fillBMR(const xAOD::TrackParticle& particle, float weight){
 }
 
 void
-InDet_BadMatchRate::fillRF(const xAOD::TrackParticle& particle, Float_t weight){
+InDet_BadMatchRate::fillRF(const xAOD::TrackParticle& particle, float weight){
   float trketa = particle.eta();
   //float trkpt = particle.pt();//unused
 
   m_ReallyFakeRate->Fill(trketa, weight);
+}
+
+void 
+InDet_BadMatchRate::jetBMR(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight){
+  float jet_et = jet.pt()/1000.; //divide by 1000 to convert to GeV
+  //unused float trketa = track.eta();
+  //unused float trkphi = track.phi();
+
+  //unused float jeteta = jet.eta();
+  //unused float jetphi = jet.phi();
+
+  //float deta = trketa - jeteta;
+  //float dphi = trkphi - jetphi;
+
+  float dR = jet.p4().DeltaR( track.p4() ); 
+
+  if(jet_et > 100){
+    m_trackinjet_badmatchrate_vs_dr_gr_j100->Fill(dR, weight);
+  }
+
 }
 
 /*

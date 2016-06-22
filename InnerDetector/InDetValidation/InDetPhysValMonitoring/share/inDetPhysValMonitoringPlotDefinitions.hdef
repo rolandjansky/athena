@@ -265,8 +265,15 @@ TProfile HitContent_vs_eta_NPixelContribLayers "Number of contributed Pixel laye
 TProfile HitContent_vs_eta_NPixelSharedHits "Number of shared Pixel clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel Shared Hits>" default
 TProfile HitContent_vs_eta_NPixelSplitHits "Number of split Pixel clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel Split Hits>" default
 TProfile HitContent_vs_eta_NPixelGangedHits "Number of ganged Pixel clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel Ganged Hits>" default
+TProfile HitContent_vs_eta_NPixelGangedHitsFlaggedFakes "Number of ganged flagged fake Pixel hits vs eta" 20 -2.5 2.5 0 2 "#eta" "Flagged Fakes in Pixel" default
 TProfile HitContent_vs_eta_NSCTOutliers "Number of SCT Outliers" 20 -2.5 2.5 0 100 "#eta" "<Number of SCT Outliers>" default
 TProfile HitContent_vs_eta_NSCTDoubleHoles "Number of SCT double holes" 20 -2.5 2.5 0 100 "#eta" "<Number of SCT Double Holes>" default
 TProfile HitContent_vs_eta_NSCTSharedHits "Number of SCT Shared clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of SCT Shared Hits>" default
 TProfile HitContent_vs_eta_NTRTOutliers "Number of TRT outliers" 20 -2.5 2.5 0 100 "#eta" "<Number of TRT Outliers>" default
 TProfile HitContent_vs_eta_NTRTHighThresholdOutliers "Number of TRT High Threshold outliers" 20 -2.5 2.5 0 100 "#eta" "<Number of TRT High Thresh Outliers>" default
+
+#trackinjet efficiencies
+TProfile trackinjeteff_vs_dr_gr_j100 "Track in jets efficiency vs #DeltaR for |#eta| &lt; 2.5 (E_{T}(jet) > 100 GeV)" 10 0 0.2 0 2.0 "#DeltaR" "Efficiency" default
+
+#trackinjet bad match rates
+TProfile trackinjet_badmatchrate_vs_dr_gr_j100 "Fraction of tracks with &lt; 80% truth matching probability in Jets with E_{T} &gt; 100 GeV" 10 0 0.2 0 2 "#DeltaR" "Bad Match Rate" default

@@ -38,6 +38,7 @@ class InDetPerfPlot_HitDetailed: public InDetPlotBase {
     TProfile* n_vs_eta_PixelSharedHits;
     TProfile* n_vs_eta_PixelSplitHits;
     TProfile* n_vs_eta_PixelGangedHits;
+    TProfile* n_vs_eta_PixelGangedHitsFlaggedFakes;
     TProfile* n_vs_eta_SCTHits;
     TProfile* n_vs_eta_SCTHoles;
     TProfile* n_vs_eta_SCTOutliers;

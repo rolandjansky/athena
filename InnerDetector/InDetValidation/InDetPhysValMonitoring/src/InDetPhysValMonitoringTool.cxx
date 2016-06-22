@@ -163,14 +163,14 @@ InDetPhysValMonitoringTool::fillHistograms(){
     unsigned int nSelectedTracks(0), num_truthmatch_match(0);
 
     // the truth matching probability must not be <= 0., otherwise the tool will seg fault in case of missing truth (e.g. data):
-    const float minProbEffReallyLow(0.20); //temporary probability for plot comparison with PRTT
+    // unused const float minProbEffReallyLow(0.20); //temporary probability for plot comparison with PRTT
     const float minProbEffLow(0.50); //if the probability of a match is less than this, we call it a fake
     const float minProbEffHigh(0.80); //if the probability of a match is higher than this, it is either a match or a duplicate
     //
 
     //Main track loop, filling Track-only, Track 'n' Truth with good matching probability (meas, res, & pull), and Fakes     
     for(const auto & thisTrack: *ptracks){
-      m_monPlots->fillSpectrum(*thisTrack);
+      m_monPlots->fillSpectrum(*thisTrack); //This one needs prob anyway, why not rearrange & eliminate getMatchingProbability from RttPlots? 5-17-16
       if(m_useTrackSelection){   //0 means z0, d0 cut is wrt beam spot - put in a PV to change this   
         if( !(m_trackSelectionTool->accept(*thisTrack, 0))) continue;
       }
@@ -185,7 +185,7 @@ InDetPhysValMonitoringTool::fillHistograms(){
       if(prob < minProbEffHigh){
 	BMR_w = 1;
       }
-      if(prob < minProbEffReallyLow){
+      if(prob < minProbEffLow){
 	RF_w =  1;
       }
 
@@ -326,7 +326,6 @@ InDetPhysValMonitoringTool::fillHistograms(){
       }
     }
 
-
     if (num_truthmatch_match == 0){
       ATH_MSG_DEBUG("NO TRACKS had associated truth.");
     } else {
@@ -377,12 +376,19 @@ InDetPhysValMonitoringTool::fillHistograms(){
 	    if(m_onlyInsideOutTracks and !(isInsideOut(*thisTrack))) continue; //not an inside out track
 	    if(thisJet->p4().DeltaR( thisTrack->p4() ) > m_maxTrkJetDR ) continue;
 	    
-	    if(m_monPlots->filltrkInJetPlot(*thisTrack, *thisJet)){                            
-	      m_monPlots->fillSimpleJetPlots(*thisTrack);                                      //Fill all the simple jet plots        
+	    if(m_monPlots->filltrkInJetPlot(*thisTrack, *thisJet)){                         
+	      float trkInJet_w(0), trkInJet_BMR(1);
+	      float prob = getMatchingProbability(*thisTrack);
+	      if(prob > minProbEffHigh){
+		trkInJet_w = 1;
+		trkInJet_BMR = 0;
+	      }
+	      m_monPlots->jet_fill(*thisTrack, *thisJet, trkInJet_w);                          //fill trkinjeteff plots 
+	      m_monPlots->jetBMR(*thisTrack, *thisJet, trkInJet_BMR);                          //fin in track in jet bad match rate plots
+	      m_monPlots->fillSimpleJetPlots(*thisTrack, prob);                                      //Fill all the simple jet plots        
 	      const xAOD::TruthParticle * associatedTruth = getTruthPtr(*thisTrack);           //Get the associated truth for this track
 	      if (associatedTruth) {
 		m_monPlots->fillJetResPlots(*thisTrack, *associatedTruth, *thisJet);             //Fill jet pull & resolution plots
-		float prob = getMatchingProbability(*thisTrack);
 		int barcode = associatedTruth->barcode();
 		m_monPlots->fillJetHitsPlots(*thisTrack, prob, barcode);                         //Fill the two extra plots
 		if( m_truthSelectionTool->accept(associatedTruth) ){                             //Fill the Jet plots with "Eff" in the name

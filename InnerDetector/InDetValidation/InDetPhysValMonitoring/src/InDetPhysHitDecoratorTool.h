@@ -33,7 +33,7 @@ class IResidualPullCalculator;
 //class to decorate xAOD::TruthParticles with additional information required by validation
 class InDetPhysHitDecoratorTool:virtual public IInDetPhysValDecoratorTool, public AthAlgTool{
 public:
-   enum Subdetector{INVALID_DETECTOR=-1, BLAYER, PIXEL, SCT, TRT, DBM, N_SUBDETECTORS};
+   enum Subdetector{INVALID_DETECTOR=-1, IBL, PIXEL, SCT, TRT, DBM, N_SUBDETECTORS};
    enum Region{INVALID_REGION=-1, BARREL, ENDCAP};
 	 InDetPhysHitDecoratorTool(const std::string& type,const std::string& name,const IInterface* parent);
 	 virtual ~InDetPhysHitDecoratorTool ();

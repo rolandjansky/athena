@@ -19,8 +19,8 @@ AODFlags.TrackParticleLastHitAndPerigeeSlimmer=False
 from RecExConfig.RecFlags import rec
 rec.doTrigger=False
 
-#from InDetRecExample.InDetjobProperties import InDetFlags
-#InDetFlags.doSlimming.set_Value_and_Lock(False)
+from InDetRecExample.InDetJobProperties import InDetFlags
+InDetFlags.doSlimming.set_Value_and_Lock(False)
 
 #from JetRec.JetRecFlags import jetFlags
 #jetFlags.applyCalibration = False 

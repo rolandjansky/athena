@@ -176,7 +176,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle, c
 					//copy-paste from original
 					if (hit && m_isUnbiased) {
 						// Cluster width determination
-						if((det == PIXEL) or (det==SCT)) {
+						if((det == IBL) or (det == PIXEL) or (det==SCT)) {
 							const InDet::SiCluster* pCluster = dynamic_cast <const InDet::SiCluster*>(hit->prepRawData());
 							if(pCluster){
 								InDet::SiWidth width = pCluster->width();
@@ -187,7 +187,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle, c
 					}
 					//end copy-paste
 				  thisResult=std::make_tuple(det, r, iLayer, residualLocX, pullLocX, residualLocY, pullLocY, phiWidth);
-				  ATH_MSG_DEBUG ("**dimension: result "<<det<<":"<<r<<":"<<residualPull->dimension()<<":"<<iLayer<<", "<<residualLocX<<", "<<pullLocX<<", "<<residualLocY<<", "<<pullLocY<<", "<<phiWidth );
+				  ATH_MSG_DEBUG ("**dimension: result "<<det<<":"<<r<<":"<<residualPull->dimension()<<":"<<iLayer<<", "<<residualLocX<<", "<<pullLocX<<",: "<<residualLocY<<", "<<pullLocY<<", "<<phiWidth );
 				  result.push_back(thisResult);
 				  //must delete the pointers?
 				} else {
@@ -242,7 +242,7 @@ InDetPhysHitDecoratorTool::decideDetectorRegion(const Identifier & id, Subdetect
 	const int normalBarrel(0);
 	const int upgradedBarrel(1);
 	const int normalTrtBarrel(1);
-	const int dbm(2);
+	const int dbm(4);
 
 	det = INVALID_DETECTOR;//default
 	r = INVALID_REGION;
@@ -251,7 +251,7 @@ InDetPhysHitDecoratorTool::decideDetectorRegion(const Identifier & id, Subdetect
 	//following the logic in the original code, should be reviewed!
 	if (m_idHelper->is_pixel(id)) {
 	  bec = abs(m_pixelID->barrel_ec(id));
-	  if (bec == dbm)
+		if (bec == dbm)
 	    det=DBM;
 	  else
 	    det=PIXEL;
@@ -262,9 +262,9 @@ InDetPhysHitDecoratorTool::decideDetectorRegion(const Identifier & id, Subdetect
 	//check this specifically
 	if (det==PIXEL) {
 		bec = abs(m_pixelID->barrel_ec(id));
-		r= (bec==normalBarrel)?(BARREL):(ENDCAP);
+	  r= (bec==normalBarrel)?(BARREL):(ENDCAP);
 		layer = m_pixelID->layer_disk(id);
-		if (layer == 0) det=BLAYER;
+		if (layer == 0) det=IBL;
 	}
 	/** cf. Miriam's code 
 	if (det==PIXEL) {
