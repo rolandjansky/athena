@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 751312 2016-06-01 09:10:49Z graemes $
+# @version $Id: trfArgClasses.py 756978 2016-06-22 14:23:04Z graemes $
 
 import argparse
 import bz2
@@ -1347,6 +1347,7 @@ class argBSFile(argAthenaFile):
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
         self._resetMetadata(inputs + [output])
+        return myMerger
     
 
 ## @brief POOL file class.
