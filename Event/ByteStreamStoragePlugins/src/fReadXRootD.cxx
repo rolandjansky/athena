@@ -13,7 +13,7 @@ class XrdPosixCallBack;
 class XrdPosixXrootd {
 public:
   static int Open(const char *path, int oflag, mode_t mode=0, XrdPosixCallBack *cbP=0);
-  static int Close(int fildes, int Stream=0);
+  static int Close(int fildes);
   static size_t Read(int fildes, void *buf, size_t nbyte);
   static off_t Lseek(int fildes, off_t offset, int whence);
 };
