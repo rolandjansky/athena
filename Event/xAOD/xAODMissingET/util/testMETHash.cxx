@@ -6,25 +6,18 @@
 //Email : rsmith@cern.ch
 //Date  : April 2016
 
-//this will only run in RootCore
-#ifdef ROOTCORE
-#include "xAODRootAccess/Init.h"
-#include "xAODRootAccess/TEvent.h"
-#include "xAODRootAccess/TStore.h"
+// Make sure that asserts work:
+#undef NDEBUG
 
-// FrameWork includes
-#include "xAODBase/IParticleContainer.h"
-#include "xAODBase/IParticleHelpers.h"
+// System include(s):
+#include <cassert>
+#include <ctime>
+#include <utility>
 
+// Local include(s):
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "xAODMissingET/MissingETContainer.h"
-
-#include "assert.h"
-#include "TFile.h"
-
-#include <ctime>
-#include <utility>
 
 
 static const std::map<int, std::string>  metStringsMap = {
@@ -71,8 +64,6 @@ double calcMean(std::vector<double> & times){
 }
 
 int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
-   // Initialize the application
-  xAOD::Init() ;
 
   std::pair<xAOD::MissingETContainer, xAOD::MissingETAuxContainer> cont;
   cont.first.setStore(& cont.second);
@@ -111,7 +102,3 @@ int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
 
   return 0;
  }
-
-
-
-#endif
