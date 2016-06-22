@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: WriteHandle.h 726621 2016-02-27 20:03:45Z ssnyder $
+// $Id: WriteHandle.h 756419 2016-06-21 02:02:43Z ssnyder $
 /**
  * @file StoreGate/WriteHandle.h
  * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov>
@@ -145,7 +145,15 @@ public:
   /**
    * @brief Move operator.
    */
-  WriteHandle& operator=( WriteHandle&& rhs ); 
+  WriteHandle& operator=( WriteHandle&& rhs );
+
+
+  /**
+   * @brief Destructor.
+   *
+   * Lock an aux object if m_lockAuxPending is set.
+   */
+  ~WriteHandle();
 
 
   //************************************************************************
@@ -312,6 +320,24 @@ private:
   record (std::unique_ptr<T> data,
           std::unique_ptr<AUXSTORE> auxstore,
           bool isConst);
+
+
+private:
+  /// If non-null, then we need to lock the associated aux store object
+  /// when we're deleted.
+  ///
+  /// This is set when we record an object along with the associated aux const
+  /// with the const flag set (the default).  Recall that for a const record,
+  /// we want to support the semantics that you can get a non-const pointer
+  /// back from the handle as long as it exists, to finish initialization
+  /// of the object.  For an aux store, though, just getting back a non-const
+  /// pointer is not sufficient, since the store will have been locked
+  /// at the time of the record, preventing changes to the store.
+  ///
+  /// So if we're meant to record a const aux store object, we don't actually
+  /// set it const on the record, but instead set this and do the
+  /// setConst in the destructor.
+  SG::DataProxy* m_lockAuxPending = nullptr;
 }; 
 
 

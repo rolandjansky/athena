@@ -30,17 +30,18 @@
 
 
 class MyObjAux
-  : public SG::IConstAuxStore
+  : public SG::IConstAuxStore, public ILockable
 {
 public:
   MyObjAux(int x=0) : x(x) {}
   ~MyObjAux() { deleted.push_back (x); }
   int x;
+  bool m_locked = false;
 
   virtual const void* getData (SG::auxid_t /*auxid*/) const override { return 0; }
   virtual void* getDecoration (SG::auxid_t /*auxid*/, size_t /*size*/, size_t /*capacity*/) override { return 0; }
   virtual const SG::auxid_set_t& getAuxIDs() const override { std::abort(); }
-  virtual void lock() override { }
+  virtual void lock() override { m_locked = true; }
   virtual void clearDecorations() override { }
   virtual size_t size() const override { return 0; }
 
@@ -54,6 +55,7 @@ class MyObj
 public:
   MyObj(int x=0) : x(x) {}
   ~MyObj() { deleted.push_back (x); }
+  SG::IAuxStore* getStore() const { return nullptr; }
   void setStore (SG::IConstAuxStore* store) {aux = dynamic_cast<MyObjAux*>(store); }
   int x;
   MyObjAux* aux {nullptr};
@@ -340,7 +342,7 @@ void test5()
   assert (h4a.isValid());
   assert (h4a.isInitialized());
   assert (h4a->x == 133);
-  assert (h4a.isConst());
+  assert (!h4a.isConst());
 
   MyObj::deleted.clear();
   MyObjAux::deleted.clear();
@@ -365,6 +367,17 @@ void test5()
   assert (h6->aux == nullptr);
   assert (MyObj::deleted == std::vector<int>{});
   assert (MyObjAux::deleted == std::vector<int>{135});
+
+  MyObjAux* paux = nullptr;
+  {
+    SG::WriteHandle<MyObj> h7 ("foo7", "FooSvc");
+    assert (h7.setStore (&testStore).isSuccess());
+    auto ptrs7 = makeWithAux(30);
+    paux = ptrs7.second.get();
+    assert (h7.record (std::move(ptrs7.first), std::move(ptrs7.second)).isSuccess());
+    assert (!paux->m_locked);
+  }
+  assert (paux->m_locked);
 }
 
 

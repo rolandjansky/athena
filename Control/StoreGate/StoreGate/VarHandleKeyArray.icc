@@ -1,0 +1,80 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace SG {
+  //
+  // Forward the initialization to the member VarHandleKeys
+  //
+  template <class Base>
+  inline
+  StatusCode VarHandleKeyArrayCommon<Base>::initialize() {
+    StatusCode sc(StatusCode::SUCCESS);
+    typename std::vector<Base>::iterator itr;
+    for (itr = this->begin(); itr != this->end(); ++itr) {
+      if (! itr->initialize() ) {
+        sc = StatusCode::FAILURE;
+      }
+    }
+    return sc;
+  }
+
+  //
+  // Set the VarHandleKey from a string
+  //
+  template <class Base>
+  inline
+  StatusCode VarHandleKeyArrayCommon<Base>::assign(const std::vector<std::string>& vs) {
+    StatusCode sc(StatusCode::SUCCESS);
+    this->clear();
+    for (auto & s : vs) {
+      Base b;
+      if (!b.assign(s)) {
+        sc = StatusCode::FAILURE;
+      } else {
+        // Skip blank keys
+        if (b.key() != "") {
+          this->push_back(b);
+        }
+      }
+    }
+    return sc;
+  }
+  
+  //
+  // string representation of VarHandleKeyArray
+  //
+  template <class Base>
+  inline
+  std::string VarHandleKeyArrayCommon<Base>::toString() const {
+    std::ostringstream ost;
+    typename std::vector<Base>::const_iterator itr;
+    itr = this->begin();
+    size_t sz = this->size();
+    for ( size_t i=0; i < sz; ++i, ++itr) {
+      ost << "'" << itr->storeHandle().name() << "/" 
+          << itr->objKey() << "'";
+      if (i != sz-1) {
+        ost << ",";
+      }
+    }
+    return ost.str();      
+  }
+  
+  //
+  // create array of all base VarHandleKeys in the Array
+  //
+  template <class Base>
+  inline  
+  std::vector<SG::VarHandleKey*> VarHandleKeyArrayCommon<Base>::keys() const {
+    std::vector<SG::VarHandleKey*> keys;
+    typename std::vector<Base>::const_iterator itr;
+    for (itr = this->begin(); itr != this->end(); ++itr) {
+      SG::VarHandleKey* vk = 
+        const_cast<SG::VarHandleKey*>( (const SG::VarHandleKey*) &(*itr) );
+      keys.push_back( vk );
+    }
+    return keys;
+  }      
+  
+}

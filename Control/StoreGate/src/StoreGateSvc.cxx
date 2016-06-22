@@ -147,7 +147,7 @@ StatusCode StoreGateSvc::initialize()    {
   if(!(Service::initialize()).isSuccess()) return StatusCode::FAILURE;
 
   MsgStream log( messageService(), name() );
-  log << MSG::INFO << "Initializing " << name() 
+  log << MSG::VERBOSE << "Initializing " << name() 
       << " - package version " << PACKAGE_VERSION << endreq ;
 
   // lifted from AlwaysPrivateToolSvc (see Wim comment about lack of global jo svc accessor
@@ -204,7 +204,7 @@ StatusCode StoreGateSvc::initialize()    {
 
 /// Service start
 StatusCode StoreGateSvc::stop()    {
-  msg() << MSG::INFO << "Stop " << name() << endreq;
+  msg() << MSG::VERBOSE << "Stop " << name() << endreq;
   //HACK ALERT: ID event store objects refer to det store objects
   //by setting an ad-hoc priority for event store(s) we make sure they are finalized and hence cleared first
   // see e.g. https://savannah.cern.ch/bugs/index.php?99993
@@ -213,7 +213,7 @@ StatusCode StoreGateSvc::stop()    {
     if (!pISM)
       return StatusCode::FAILURE;
     pISM->setPriority(name(), pISM->getPriority(name())+1).ignore();
-    msg() << MSG::INFO << "stop: setting service priority to " << pISM->getPriority(name()) 
+    msg() << MSG::VERBOSE << "stop: setting service priority to " << pISM->getPriority(name()) 
           << " so that event stores get finalized and cleared before other stores" <<endmsg;
   }
   return StatusCode::SUCCESS;
@@ -234,7 +234,7 @@ StatusCode
 StoreGateSvc::finalize() {
   if(!(Service::finalize()).isSuccess()) return StatusCode::FAILURE;
   MsgStream log( messageService(), name() );
-  log << MSG::INFO << "Finalizing " << name() 
+  log << MSG::VERBOSE << "Finalizing " << name() 
       << " - package version " << PACKAGE_VERSION << endreq ;
   if (m_defaultStore) {
     // m_defaultStore is not active, so ServiceManager won't finalize it!
@@ -296,6 +296,8 @@ StatusCode StoreGateSvc::addToStore (CLID id, SG::DataProxy* proxy)
  * @param key The key as which it should be stored.
  * @param allowMods If false, the object will be recorded as const.
  * @param returnExisting If true, return proxy if this key already exists.
+ *                       If the object has been recorded under a different
+ *                       key, then make an alias.
  *
  * Full-blown record.  @c obj should usually be something
  * deriving from @c SG::DataBucket.
@@ -389,6 +391,11 @@ void
 StoreGateSvc::setStoreID(StoreID::type id)
 {
   _SGVOIDCALL(setStoreID,(id));
+}
+StoreID::type 
+StoreGateSvc::storeID() const
+{
+  _SGXCALL(storeID,(),StoreID::UNKNOWN);
 }
 
 void
@@ -534,6 +541,11 @@ StatusCode StoreGateSvc::queryInterface(const InterfaceID& riid, void** ppvInter
 void StoreGateSvc::makeCurrent()
 {
   _SGVOIDCALL (makeCurrent, ());
+}
+
+StatusCode StoreGateSvc::removeProxy(SG::DataProxy* proxy, const void* pTrans, 
+                                     bool forceRemove) {
+  _SGXCALL(removeProxy, (proxy, pTrans, forceRemove), StatusCode::FAILURE);
 }
 
 
