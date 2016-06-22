@@ -44,6 +44,8 @@ PP="$PP"'|0x\w{4,}'
 # can remove this once we no longer support gcc5 or older.
 PP="$PP"'|^ *[~^]+$'
 
+PP="$PP"'|^-->'
+
 
 
 if [ "$extrapatterns" != "" ]; then
