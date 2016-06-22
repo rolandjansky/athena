@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 730743 2016-03-17 15:28:57Z krasznaa $
+# $Id: CMakeLists.txt 756879 2016-06-22 12:09:32Z krasznaa $
 ################################################################################
 # Package: ByteStreamStoragePlugins
 ################################################################################
@@ -7,15 +7,14 @@
 atlas_subdir( ByteStreamStoragePlugins )
 
 # External dependencies:
-find_package( Boost )
+find_package( Boost COMPONENTS system )
 find_package( CASTOR COMPONENTS rfio )
-find_package( Xrootd COMPONENTS PosixPreload )
+find_package( Xrootd COMPONENTS Posix PosixPreload )
 find_package( dcache_client )
 find_package( tdaq-common COMPONENTS ers )
 
 # Make sure that libraries are linked correctly:
-string( REPLACE "-Wl,--as-needed" "" CMAKE_SHARED_LINKER_FLAGS
-   "${CMAKE_SHARED_LINKER_FLAGS}" )
+atlas_disable_as_needed()
 
 # Component(s) in the package:
 atlas_add_library( fReadCastor
