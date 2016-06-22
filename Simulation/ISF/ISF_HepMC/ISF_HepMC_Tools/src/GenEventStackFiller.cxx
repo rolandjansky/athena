@@ -15,7 +15,6 @@
 
 // ISF_HepMC include
 #include "ISF_Event/TruthBinding.h"
-#include "ISF_HepMC_Interfaces/IGenEventManipulator.h"
 #include "ISF_HepMC_Interfaces/IGenParticleFilter.h"
 // barcode interfaces for bc creation
 #include "BarcodeInterfaces/IBarcodeSvc.h"
@@ -51,11 +50,11 @@ ISF::GenEventStackFiller::GenEventStackFiller(const std::string& t, const std::s
     m_outputPileupMcEventCollection(""),
     m_recordOnlySimulated(false),
     m_useGeneratedParticleMass(false),
-    m_genEventManipulators(),
     m_genParticleFilters(),
     m_barcodeSvc("ISF_BarcodeService",n),
     m_largestBc(0),
     m_uniqueBc(0),
+    m_number_of_gen_minbias(0),
     m_current_event_time(0.0),
     m_current_event_index(0),
     m_current_bcid(0),
@@ -74,18 +73,14 @@ ISF::GenEventStackFiller::GenEventStackFiller(const std::string& t, const std::s
                   m_recordOnlySimulated,
                   "Record only particles that were taken as Input for the Simulation.");
   declareProperty("PileupMcEventCollection",m_pileupMcEventCollection,
-      "StoreGate collection name of pileup generator McEventCollection");
+                  "StoreGate collection name of pileup generator McEventCollection");
   declareProperty("OutputPileupMcEventCollection",
-      m_outputPileupMcEventCollection,
-      "StoreGate collection name of pileup truth McEventCollection");
+                  m_outputPileupMcEventCollection,
+                  "StoreGate collection name of pileup truth McEventCollection");
   // particle mass from particle data table?
   declareProperty("UseGeneratedParticleMass",
                   m_useGeneratedParticleMass,
                   "Use particle mass assigned to GenParticle.");
-  // event manipulators
-  declareProperty("GenEventManipulators",
-                  m_genEventManipulators,
-                  "StackFiller will send the read-in GenEvent to each individual IGenEventManipulator.");
   // particle filters
   declareProperty("GenParticleFilters",
                   m_genParticleFilters,
@@ -103,7 +98,7 @@ ISF::GenEventStackFiller::GenEventStackFiller(const std::string& t, const std::s
 
   // don't do hard scatter
   declareProperty( "DoHardScatter", m_doHardScatter = true,
-                   "Flag to turn off hard scatter for debugging of pileup" ); 
+                   "Flag to turn off hard scatter for debugging of pileup" );
 }
 
 
@@ -115,29 +110,18 @@ StatusCode  ISF::GenEventStackFiller::initialize()
   // setup PDT if required (to get particle masses)
   if (!m_useGeneratedParticleMass) {
     // retrieve the ParticleProperties service
-    if ( m_particlePropSvc.retrieve().isFailure() ) {
-      ATH_MSG_FATAL( "Could not retrieve " << m_particlePropSvc << ". Abort. " );
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_particlePropSvc.retrieve());
     // and the particle data table
     m_particleDataTable = m_particlePropSvc->PDT();
-    if (m_particleDataTable==0) {
-      ATH_MSG_FATAL( "Could not get ParticleDataTable from " << m_particlePropSvc << ". Abort" );
-      return StatusCode::FAILURE;
-    }
-  }
-
-  // the Tools for event manipulation
-  if (!m_genEventManipulators.empty() && m_genEventManipulators.retrieve().isFailure()){
-    ATH_MSG_ERROR( "Could not retrieve " << m_genEventManipulators << ". Abort.");
-    return StatusCode::FAILURE;
+    if (m_particleDataTable==0)
+      {
+        ATH_MSG_FATAL( "Could not get ParticleDataTable from " << m_particlePropSvc << ". Abort" );
+        return StatusCode::FAILURE;
+      }
   }
 
   // the barcode service for consistent BC handling
-  if (m_barcodeSvc.retrieve().isFailure()){
-    ATH_MSG_ERROR( "Could not retrieve " << m_barcodeSvc << ". Abort.");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_barcodeSvc.retrieve());
 
   ATH_MSG_VERBOSE("initialize() successful");
   return StatusCode::SUCCESS;
@@ -151,17 +135,13 @@ StatusCode ISF::GenEventStackFiller::fillStack(ISF::ISFParticleContainer& partic
   m_uniqueBc = 0;
   m_largestBc = 0;
 
-  StatusCode sc;
   // retrieve and process regular mceventcollection, as usual
-  sc = processSingleColl(particleColl);
+  ATH_CHECK(processSingleColl(particleColl));
   // added by RJH, process additional inline pileup collections if requested
-  if (sc.isSuccess() && m_pileupMcEventCollection!="") 
-    sc = processPileupColl(particleColl);
-
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Unable to fill initial particle collection");
-    return StatusCode::FAILURE;
-  }
+  if (m_pileupMcEventCollection!="")
+    {
+      ATH_CHECK(processPileupColl(particleColl));
+    }
 
   // register the largest barcode appearing in GEN_EVENT
   m_barcodeSvc->registerLargestGenEvtParticleBC( m_largestBc );
@@ -176,27 +156,19 @@ StatusCode ISF::GenEventStackFiller::fillStack(ISF::ISFParticleContainer& partic
 StatusCode
 ISF::GenEventStackFiller::processSingleColl(ISF::ISFParticleContainer& particleColl) const
 {
+  //FIXME Use SG::ReadHandle and SG::WriteHandle here
   // Retrieve Truth from StoreGate
   const McEventCollection* inputCollection = 0;
-  if (evtStore()->retrieve(inputCollection, m_inputMcEventCollection).isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve " << m_inputMcEventCollection << " from StoreGateSvc. Abort.");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(evtStore()->retrieve(inputCollection, m_inputMcEventCollection));
 
   // create a copy
   McEventCollection *mcCollection = new McEventCollection(*inputCollection);
 
   // Loop over McEventCollection
-  StatusCode status = mcEventCollLooper( particleColl , mcCollection );
-  if ( status != StatusCode::SUCCESS ) { return status; }
-
+  ATH_CHECK(mcEventCollLooper( particleColl , mcCollection ));
   // record the GenEvent as 'TruthEvent' to StoreGate
   bool allowMods(true);
-  if (evtStore()->record(mcCollection, m_outputMcEventCollection, allowMods).isFailure()) {
-    ATH_MSG_ERROR( "Could not record " << m_outputMcEventCollection << " to StoreGateSvc. Abort.");
-    //delete mcCollection;  // do we need this? (let's wait for mr. coverity's opinion)
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(evtStore()->record(mcCollection, m_outputMcEventCollection, allowMods));
 
   ATH_MSG_DEBUG( "Created particle collection with length " << particleColl.size() );
 
@@ -205,32 +177,23 @@ ISF::GenEventStackFiller::processSingleColl(ISF::ISFParticleContainer& particleC
 
 
 // addd by RJH process pileup mcevent collection
-StatusCode 
-ISF::GenEventStackFiller::processPileupColl(ISF::ISFParticleContainer& 
+StatusCode
+ISF::GenEventStackFiller::processPileupColl(ISF::ISFParticleContainer&
                                             particleColl) const
 {
   // Retrieve pileup collecton from StoreGate
   const McEventCollection* inputCollection=0;
-  if (evtStore()->retrieve(inputCollection,m_pileupMcEventCollection).isFailure()) {
-    ATH_MSG_ERROR("Coould not retrieve " << m_pileupMcEventCollection << 
-                  "from StoreGateSvc");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(evtStore()->retrieve(inputCollection,m_pileupMcEventCollection));
   // create copy
   McEventCollection *mcCollection=new McEventCollection(*inputCollection);
-  StatusCode status=mcEventCollLooper(particleColl,mcCollection,1);
-  if (status!=StatusCode::SUCCESS) return status;
+  ATH_CHECK(mcEventCollLooper(particleColl,mcCollection,1));
 
   // record this additional collection to Storegate
   bool allowMods(true);
-  if (evtStore()->record(mcCollection, m_outputPileupMcEventCollection, 
-                         allowMods).isFailure()) {
-    ATH_MSG_ERROR( "Could not record " << m_outputPileupMcEventCollection << 
-                   " to StoreGateSvc. Abort.");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(evtStore()->record(mcCollection, m_outputPileupMcEventCollection,
+                               allowMods));
 
-  ATH_MSG_DEBUG( "After adding pileup, particle collection has length " << 
+  ATH_MSG_DEBUG( "After adding pileup, particle collection has length " <<
                  particleColl.size() );
   return StatusCode::SUCCESS;
 }
@@ -241,7 +204,7 @@ StatusCode
 ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleColl, McEventCollection* mcCollection, int nPileupCounter) const
 {
   // ensure unique barcode for merged pileup collisions
-  int bcPileupOffset = ( nPileupCounter>0 ? m_largestBc+1 : 0 ); 
+  int bcPileupOffset = ( nPileupCounter>0 ? m_largestBc+1 : 0 );
 
   ATH_MSG_DEBUG("Starting mcEVentCollLooper for pileup " << nPileupCounter
                 << " bcPileupOffset " << bcPileupOffset << " with "
@@ -275,19 +238,6 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
     ATH_MSG_VERBOSE(" event number " << (*eventIt)->event_number() );
     ATH_MSG_VERBOSE(" event time " << m_current_event_time << " event index " << m_current_event_index );
 
-    // manipulate the GenEvent if needed : validating, filtering, smearing, dispersion, ...
-    GenEventManipulators::const_iterator manipulatorIt  = m_genEventManipulators.begin();
-    GenEventManipulators::const_iterator manipulatorEnd = m_genEventManipulators.end();
-    for ( ; manipulatorIt != manipulatorEnd; ++manipulatorIt) {
-      // call manipulate(..) in the current GenEventManipulator
-      if ( (*manipulatorIt)->manipulate(**eventIt).isFailure() ) {
-        ATH_MSG_ERROR( "GenEvent manipulation failed. Abort." );
-        // in case of error: first clean up memory, then return with error code
-        delete mcCollection;
-        return StatusCode::FAILURE;
-      }
-    }
-
     // get particles
     std::vector<HepMC::GenParticle*> particles;
 
@@ -298,7 +248,7 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
 
       // get particles
       std::map< int , HepMC::GenParticle*, std::less<int> > pMap;
-      
+
       for (HepMC::GenVertex::particle_iterator it=
              (*vert)->particles_begin(HepMC::children);
            it!=(*vert)->particles_end(HepMC::children);++it) {
@@ -317,26 +267,26 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
     // ---- LOOP over GenParticles  -------------------------------------------------------
     //std::map< int, HepMC::GenParticle*, std::less<int> >::const_iterator part = pMap.begin();
     //std::map< int, HepMC::GenParticle*, std::less<int> >::const_iterator partE = pMap.end();
-    
+
     std::vector<HepMC::GenParticle*>::iterator part = particles.begin();
     std::vector<HepMC::GenParticle*>::iterator partE = particles.end();
 
     for( ; part != partE ; part++ ) {
-      
+
       // the current particle
       HepMC::GenParticle* tParticle = *part;
-      
+
       // store largest appearing barcode
       int pBarcode = tParticle->barcode();
       // for 1 genevent collection ( = no pileup merging ), the isf particle's barcode is the genparticle barcode
-      m_uniqueBc = bcPileupOffset + pBarcode ; 
+      m_uniqueBc = bcPileupOffset + pBarcode ;
       if ( m_uniqueBc > m_largestBc) m_largestBc = m_uniqueBc;
-      
+
       m_number_of_gen_minbias++;
-      
+
       ATH_MSG_VERBOSE( "Picking up GenParticle with Barcode '" << pBarcode << " tParticle " << tParticle->barcode() );
       //tParticle->print();
-      
+
       // loop over all GenParticleFilters
       //   -> don't add it to the 'particleColl' if one of them returns 'false'
       bool passFilter = true;
@@ -346,19 +296,19 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
         // determine if the particle passes current filter
         passFilter = (*filterIt)->pass(*tParticle);
         ATH_MSG_VERBOSE("GenParticleFilter '" << (*filterIt).typeAndName() << "' returned: "
-                     << (passFilter ? "true, will keep particle."
-                         : "false, will remove particle."));
+                        << (passFilter ? "true, will keep particle."
+                            : "false, will remove particle."));
         ATH_MSG_VERBOSE("Particle: ("
-                     <<tParticle->momentum().px()<<", "
-                     <<tParticle->momentum().py()<<", "
-                     <<tParticle->momentum().pz()<<"), pdgCode: "
-                     <<tParticle->pdg_id() );
+                        <<tParticle->momentum().px()<<", "
+                        <<tParticle->momentum().py()<<", "
+                        <<tParticle->momentum().pz()<<"), pdgCode: "
+                        <<tParticle->pdg_id() );
       }
-      
+
       // if the GenParticleFilters were not passed
       //  -> skip particle
       if (!passFilter) {
-        
+
         // remove the particle from the TruthEvent if requested
         if (m_recordOnlySimulated) {
           // the production vertex
@@ -366,7 +316,7 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
           if (vtx) {
             // remove particle from its production-vertex
             vtx->remove_particle( tParticle);
-            
+
             // remove the vertex form the GenEvent if there
             // are no more particles emerging from it
             if ( vtx->particles_out_size()==0) {
@@ -374,22 +324,22 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
               delete vtx;
             }
           }
-          
+
           // remove particle from its end-vertex
           vtx = tParticle->end_vertex();
           if (vtx) vtx->remove_particle( tParticle);
-          
+
           // destructor should automatically remove particle from GenEvent
           delete tParticle;
         }
-        
+
         // go to the next particle
         continue;
       }
-      
+
       ATH_MSG_VERBOSE( "GenParticle with Barcode '" << pBarcode
-                     << "' passed all cuts, adding it to the initial ISF particle list.");
-      
+                       << "' passed all cuts, adding it to the initial ISF particle list.");
+
       // -> particle origin (TODO: add proper GeoID, collision/cosmics)
       DetRegionSvcIDPair origin( AtlasDetDescr::fUndefinedAtlasRegion, ISF::fEventGeneratorSimID);
       // -> truth binding
@@ -407,39 +357,39 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
                        "' has an unset production_vertex, setting it to (0,0,0).");
         pos = new HepGeom::Point3D<double>(0.,0.,0.);
       }
-      
+
       const HepMC::FourVector &pMomentum = tParticle->momentum();
       // get the pdg_id, mass & time
       int     pPdgId   = tParticle->pdg_id();
       double  pMass    = getParticleMass( *tParticle);
       double  pTime    = pVertex?pVertex->position().t()/(Gaudi::Units::c_light):0.;
       double  charge   = HepPDT::ParticleID(pPdgId).charge();
-      
+
       //if (nparticles>1) continue;
 
       /*
-      std::cout<<"GESF setting primary particle: momentum: ("
-               << tParticle->momentum().x()<<","
-               << tParticle->momentum().y()<<","
-               << tParticle->momentum().z()<<")"
-               <<", pdgCode="<< tParticle->pdg_id()
-               <<", barcode="<< tParticle->barcode()
-               <<std::endl; 
+        std::cout<<"GESF setting primary particle: momentum: ("
+        << tParticle->momentum().x()<<","
+        << tParticle->momentum().y()<<","
+        << tParticle->momentum().z()<<")"
+        <<", pdgCode="<< tParticle->pdg_id()
+        <<", barcode="<< tParticle->barcode()
+        <<std::endl;
       */
 
       goodparticles.push_back(tParticle);
-      
+
       HepGeom::Vector3D<double> mom(pMomentum.px(),pMomentum.py(),pMomentum.pz());
       ISF::ISFParticle* sParticle = new ISF::ISFParticle( *pos,
-                                                           mom,
-                                                           pMass,
-                                                           charge,
-                                                           pPdgId,
-                                                           pTime,
-                                                           origin,
-                                                           m_uniqueBc,
-                                                           tBinding );
-      
+                                                          mom,
+                                                          pMass,
+                                                          charge,
+                                                          pPdgId,
+                                                          pTime,
+                                                          origin,
+                                                          m_uniqueBc,
+                                                          tBinding );
+
       // MB : need this (for now) to store extra barcode information
       Barcode::ParticleBarcode extrabc(Barcode::fUndefinedBarcode);
       sParticle->setUserInformation( new ISF::ParticleUserInformation() );
@@ -458,22 +408,22 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
       }
       // and store the extra bc (for now this is done in the particle's user information
       sParticle->setExtraBC( extrabc );
-      
+
       // free up memory
       delete pos;
-      
+
       // push back the particle into the collection
       particleColl.push_back(sParticle);
 
       if (!m_doHardScatter) return StatusCode::SUCCESS;
     }
-    
+
     /*
     // loop over particles and print info
     std::cout<<"printing HepMC::GenParticles"<<std::endl;
     for (int i=0;i<(int)goodparticles.size();i++) {
-      const HepMC::GenParticle* part=goodparticles[i];
-      std::cout<<*part<<std::endl;
+    const HepMC::GenParticle* part=goodparticles[i];
+    std::cout<<*part<<std::endl;
     }
     */
 
