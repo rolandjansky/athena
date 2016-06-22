@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/**
+/*
  * @file InDetRttLargeD0Plots.cxx
  * @author shaun roe
 **/
@@ -39,8 +39,15 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase* pParent, const std::st
 
     // hits plots
     m_hitsPlots_nonfake_st(this,"LargeD0/HitsPlots/StandardTracks/NonFakeTracks"),
-    m_hitsPlots_nonfake_ld0(this,"LargeD0/HitsPlots/LargeD0Tracks/NonFakeTracks"),
+    m_hitsPlots_matching_truthLink_primary_st(this,"LargeD0/HitsPlots/StandardTracks/Matching/TruthLink/Primary"),
+    m_hitsPlots_matching_truthLink_secondary_st(this,"LargeD0/HitsPlots/StandardTracks/Matching/TruthLink/Secondary"),
+    m_hitsPlots_matching_NotruthLink_st(this,"LargeD0/HitsPlots/StandardTracks/Matching/NotruthLink"),
     m_hitsPlots_fake_st(this,"LargeD0/HitsPlots/StandardTracks/FakeTracks"),
+
+    m_hitsPlots_nonfake_ld0(this,"LargeD0/HitsPlots/LargeD0Tracks/NonFakeTracks"),
+    m_hitsPlots_matching_truthLink_primary_ld0(this,"LargeD0/HitsPlots/LargeD0Tracks/Matching/TruthLink/Primary"),
+    m_hitsPlots_matching_truthLink_secondary_ld0(this,"LargeD0/HitsPlots/LargeD0Tracks/Matching/TruthLink/Secondary"),
+    m_hitsPlots_matching_NotruthLink_ld0(this,"LargeD0/HitsPlots/LargeD0Tracks/Matching/NotruthLink"),
     m_hitsPlots_fake_ld0(this,"LargeD0/HitsPlots/LargeD0Tracks/FakeTracks"),
 
     // basic plots
@@ -48,13 +55,25 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase* pParent, const std::st
     m_basicPlot_nonfake_ld0(this,"LargeD0/basicPlot/LargeD0Tracks/NonFakeTracks"),
     m_basicPlot_fake_st(this,"LargeD0/basicPlot/StandardTracks/FakeTracks"),
     m_basicPlot_fake_ld0(this,"LargeD0/basicPlot/LargeD0Tracks/FakeTracks"),
-    m_basicPlot_truth(this, "LargeD0/basicPlot/TruthTracks/"),
+    m_basicPlot_truth(this, "LargeD0/basicPlot/TruthTracks"),
+
+    m_basicPlot_primary_truth(this, "LargeD0/basicPlot/TruthTracksPrimary"),
+    m_basicPlot_secondary_truth(this, "LargeD0/basicPlot/TruthTracksSecondary"),
+
+    m_basicPlot_pileup_primary_truth(this, "LargeD0/basicPlot/Pileup/TruthTracksPrimary"),
+    m_basicPlot_pileup_secondary_truth(this, "LargeD0/basicPlot/Pileup/TruthTracksSecondary"),
+
 
     // pt plots
     m_ptPlot_nonfake_st(this,"LargeD0/ptPlot/StandardTracks/NonFakeTracks"),
     m_ptPlot_nonfake_ld0(this,"LargeD0/ptPlot/LargeD0Tracks/NonFakeTracks"),
     m_ptPlot_fake_st(this,"LargeD0/ptPlot/StandardTracks/FakeTracks"),
     m_ptPlot_fake_ld0(this,"LargeD0/ptPlot/LargeD0Tracks/FakeTracks"),
+
+    m_ptPlot_primary(this,"LargeD0/ptPlot/TruthTracks/Primary"),
+    m_ptPlot_secondary(this,"LargeD0/ptPlot/TruthTracks/Secondary"),
+    m_ptPlot_pileup_primary(this,"LargeD0/ptPlot/Pileup/TruthTracks/Primary"),
+    m_ptPlot_pileup_secondary(this,"LargeD0/ptPlot/Pileup/TruthTracks/Secondary"),
 
     // Reco info plots
     m_TrackRecoInfoPlots_nonfake_st(this,"LargeD0/TrackRecoInfoPlots/StandardTracks/NonFakeTracks"),
@@ -66,6 +85,11 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase* pParent, const std::st
     m_fakePlots    (this,"LargeD0/FakeRatePlots/StandardTracks"),
     m_fakePlotsLRT (this,"LargeD0/FakeRatePlots/LargeD0Tracks"),
 
+    m_fakePlots_noTruthLink    (this,"LargeD0/FakeRatePlots/StandardTracks/noTruthLink"),
+    m_fakePlots_noTruthLink_matched_05    (this,"LargeD0/FakeRatePlots/StandardTracks/noTruthLink_matched_05"),
+    m_fakePlots_noTruthLink_LRT    (this,"LargeD0/FakeRatePlots/LargeD0Tracks/noTruthLink"),
+    m_fakePlots_noTruthLink_matched_05_LRT    (this,"LargeD0/FakeRatePlots/LargeD0Tracks/noTruthLink_matched_05"),
+
     // Efficiency plots
     m_effPlotsStd            (this, "LargeD0/EffPlots/StandardTracks/All"),
     m_effPlotsStdSignal      (this, "LargeD0/EffPlots/StandardTracks/Signal"),
@@ -76,8 +100,6 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase* pParent, const std::st
     m_effPlotsAll            (this, "LargeD0/EffPlots/AllTracks/All"),
     m_effPlotsAllSignal      (this, "LargeD0/EffPlots/AllTracks/Signal"),
     m_effPlots               (this, "LargeD0/EffPlots"),
-
-    
 
     //=============================================================
     // plots not used for LargeD0
@@ -120,19 +142,6 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase* pParent, const std::st
 
 void
 InDetRttLargeD0Plots::fill(const xAOD::TrackParticle& particle){
-  // filling non-fake tracks
-  if (isLargeD0Track(particle)) {
-    m_hitsPlots_nonfake_ld0.fill(particle);
-    m_basicPlot_nonfake_ld0.fill(particle);
-    m_ptPlot_nonfake_ld0.fill(particle);
-    m_TrackRecoInfoPlots_nonfake_ld0.fill(particle);
-  }
-  else {
-    m_hitsPlots_nonfake_st.fill(particle);
-    m_basicPlot_nonfake_st.fill(particle);
-    m_ptPlot_nonfake_st.fill(particle);
-    m_TrackRecoInfoPlots_nonfake_st.fill(particle);
-  }
 
   m_hitResidualPlot.fill(particle);
   //fill pt plots
@@ -145,6 +154,50 @@ InDetRttLargeD0Plots::fill(const xAOD::TrackParticle& particle){
   m_hitsDetailedPlots.fill(particle);
 }
 
+void
+InDetRttLargeD0Plots::fill(const xAOD::TrackParticle& particle, const int barcode){
+
+  if (isLargeD0Track(particle)) {
+    m_basicPlot_nonfake_ld0.fill(particle);
+    m_ptPlot_nonfake_ld0.fill(particle);
+    m_TrackRecoInfoPlots_nonfake_ld0.fill(particle);
+    m_hitsPlots_nonfake_ld0.fill(particle);
+
+    // primary tracks
+    if ((barcode > 0) and (barcode <200000)) {
+      m_hitsPlots_matching_truthLink_primary_ld0.fill(particle);
+    }
+    // secondary tracks
+    if (barcode >= 200000) {
+      m_hitsPlots_matching_truthLink_secondary_ld0.fill(particle);
+    }
+    // no truth link
+    if (barcode == 0){
+      m_hitsPlots_matching_NotruthLink_ld0.fill(particle);
+    }
+  }
+  else {
+    m_basicPlot_nonfake_st.fill(particle);
+    m_ptPlot_nonfake_st.fill(particle);
+    m_TrackRecoInfoPlots_nonfake_st.fill(particle);
+    m_hitsPlots_nonfake_st.fill(particle);
+
+    // primary tracks
+    if ((barcode > 0) and (barcode <200000)) {
+      m_hitsPlots_matching_truthLink_primary_st.fill(particle);
+    }
+    // secondary tracks
+    if (barcode >= 200000) {
+      m_hitsPlots_matching_truthLink_secondary_st.fill(particle);
+    }
+    // no truth link
+    if (barcode == 0){
+      m_hitsPlots_matching_NotruthLink_st.fill(particle);
+    }
+
+  }
+
+}
 //===================================================================================
 // In the loop over all track particles
 // filling track particle with truthMatching < minProbEffHigh (fake tracks)
@@ -175,6 +228,16 @@ void InDetRttLargeD0Plots::fillFake(const xAOD::TrackParticle& trackParticle){
 void
 InDetRttLargeD0Plots::fillTruth(const xAOD::TruthParticle& truth){
   m_basicPlot_truth.fill(truth);
+
+ if ((truth.barcode() > 0) and (truth.barcode() < 200000)) {
+    m_basicPlot_primary_truth.fill(truth);
+    m_ptPlot_primary.fill(truth);
+ }
+ else {
+    m_basicPlot_secondary_truth.fill(truth);
+    m_ptPlot_secondary.fill(truth);
+ }
+
 }
 
 void
@@ -189,26 +252,17 @@ InDetRttLargeD0Plots::fillEfficiency (const xAOD::TruthParticle& truth, \
 				      const bool isLargeD0Track,	\
 				      const bool isSignal) {
 
-  bool   isStandardTrack = !isLargeD0Track;
+  unsigned int rec = (unsigned int) isReconstructed;
+  unsigned int LRT = (unsigned int) isLargeD0Track;
 
-  float weight(1);
-  if(!(isReconstructed)) weight = 0;
-  m_effPlotsAll.pro_fill(truth, weight);
-  if(!(isStandardTrack)) weight = 0;
-  m_effPlotsStd.pro_fill(truth, weight);
-  if(!(isLargeD0Track)) weight = 0;
-  m_effPlotsLRT.pro_fill(truth, weight);
-
+  m_effPlotsAll.pro_fill(truth, rec);
+  m_effPlotsStd.pro_fill(truth, rec and not LRT);
+  m_effPlotsLRT.pro_fill(truth, rec and LRT);
 
   if(isSignal){
-    float sig_weight(1);
-    if(!(isReconstructed)) weight = 0;
-    m_effPlotsAllSignal.pro_fill(truth, sig_weight);
-    if(!(isStandardTrack)) weight = 0;
-    m_effPlotsStdSignal.pro_fill(truth, sig_weight);
-    if(!(isLargeD0Track)) weight = 0;
-    m_effPlotsLRTSignal.pro_fill(truth, sig_weight);
-
+    m_effPlotsAllSignal.pro_fill(truth, rec);
+    m_effPlotsStdSignal.pro_fill(truth, rec and not LRT);
+    m_effPlotsLRTSignal.pro_fill(truth, rec and LRT);
   }
 
   //Not entirely sure what the LRTnonStd conditions should be
@@ -283,10 +337,18 @@ InDetRttLargeD0Plots::fillCounter(const unsigned int freq, const InDetPerfPlot_n
 }
 
 void
-InDetRttLargeD0Plots::fillFakeRate(const xAOD::TrackParticle& particle, const bool match, const InDetPerfPlot_fakes::Category c){
+InDetRttLargeD0Plots::fillFakeRate(const xAOD::TrackParticle& particle, const bool match, const bool hasTruthLink, const InDetPerfPlot_fakes::Category c){
+
+  //unsigned int link = (unsigned int) hasTruthLink;
+
+
   if (isLargeD0Track(particle)) {
-    m_fakePlotsLRT.fill(particle, match, c);
+    if (hasTruthLink) m_fakePlotsLRT.fill(particle, match, c);
+    m_fakePlots_noTruthLink_matched_05_LRT.fill(particle, !(match) and !(hasTruthLink), c);
+    m_fakePlots_noTruthLink_LRT.fill(particle,!(hasTruthLink), c);
   } else {
-    m_fakePlots.fill(particle, match, c);
+    if (hasTruthLink) m_fakePlots.fill(particle, match, c);
+    m_fakePlots_noTruthLink_matched_05.fill(particle, !(match) and !(hasTruthLink), c);
+    m_fakePlots_noTruthLink.fill(particle, !(hasTruthLink), c);
   }
 }

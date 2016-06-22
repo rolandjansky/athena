@@ -35,7 +35,6 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertexContainer.h"
 
-
 //#include <unordered_map>
 
 using std::pair;
@@ -188,7 +187,7 @@ InDetPhysValLargeD0Tool::fillHistograms()
     ++nSelectedTracks;
 
     // * Get associated truth particle and match probability.
-    //const xAOD::TruthParticle * associatedTruth = getTruthPtr(*thisTrack);
+    const xAOD::TruthParticle * associatedTruth = getTruthPtr(*thisTrack);
     float prob = getMatchingProbability(*thisTrack);
 
     //This is where the BMR, Fake, and Really Fake fillers need to go.
@@ -205,21 +204,25 @@ InDetPhysValLargeD0Tool::fillHistograms()
     m_LargeD0Plots->fillRF(*thisTrack, RF_w);      
 
     bool isFake = (prob < minProbEffLow);
-    // * Distributions for all particles, regardless of fake status.
-    m_LargeD0Plots->fill(*thisTrack);
-    if(isFake) 
-    {
-      // * Distributions for only fake tracks.
-      // (Necessary, or should this simply be included under 'fillFakeRate'?)
-      m_LargeD0Plots->fillFake(*thisTrack);
-    } 
-    else
-    {
-      // * Distributions for non fake tracks.
-      m_LargeD0Plots->fill(*thisTrack);
+    bool hasTruthLink = !(associatedTruth == nullptr);
+    int barcode = 0;
+    //bool isPrimary = false;
+
+    if (hasTruthLink) {
+      barcode = associatedTruth->barcode();
     }
+
     // * Fake rate plots, using 'fake' flag.
-    m_LargeD0Plots->fillFakeRate(*thisTrack, isFake);
+    m_LargeD0Plots->fillFakeRate(*thisTrack, isFake, hasTruthLink);
+
+    // * Distributions for only fake tracks.
+    if(isFake) {
+      m_LargeD0Plots->fillFake(*thisTrack);
+    }
+    else {
+      // * Distributions for non-fake tracks.
+      m_LargeD0Plots->fill(*thisTrack,barcode);
+    }
 
 
   } // END: Main track loop.
@@ -288,38 +291,8 @@ InDetPhysValLargeD0Tool::fillHistograms()
 	}
 	m_LargeD0Plots->pro_fill(*thisTruth, PF_w);
 	// end of bestMatch >= minProbEffHigh
-      
-	// * Efficiencies.
-	/**
-           For standard tracking, the efficiency is defined as:
 
-             number of truth particles reconstructed by standard tracking
-             ------------------------------------------------------------
-                             number of ALL truth particles
-
-           For LRT, the efficiency is defined as:
-
-                             number of truth particles reconstructed by LRT
-             -----------------------------------------------------------------------------------
-             number of all truth particles which haven't been reconstructed by standard tracking
-
-	*/
-
-	//bool standardTrack = !largeD0Track; //unused
 	m_LargeD0Plots->fillEfficiency(*thisTruth,reconstructed,largeD0Track,isSignal(thisTruth));
-	/*
-	m_LargeD0Plots->fillEfficiency(*thisTruth,			\
-				       reconstructed && standardTrack,	\
-				       false,				\
-				       isSignal(thisTruth));
-
-	if (reconstructed && standardTrack) { continue; }
-
-	m_LargeD0Plots->fillEfficiency(*thisTruth,                    \
-				       reconstructed && largeD0Track, \
-				       true,                          \
-				       isSignal(thisTruth));
-	*/
       } // END: loop truthParticles
     } // END: if truthParticles
 
@@ -374,6 +347,12 @@ bool InDetPhysValLargeD0Tool::isLargeD0Track (const xAOD::TrackParticle* tp) {
   return false;
 }
 
+//bool InDetPhysValLargeD0Tool::isPrimaryTrack (const xAOD::TruthParticle* tp) {
+//  if ((tp->barcode() > 0) and (tp->barcode() < 200000)) return true;
+//  else return false;
+//}
+
+
 bool InDetPhysValLargeD0Tool::isSignal (const xAOD::TruthParticle* p) {
   if (m_signalIds.empty()) { return false; }
   if ((p != NULL) &&         \
@@ -383,21 +362,23 @@ bool InDetPhysValLargeD0Tool::isSignal (const xAOD::TruthParticle* p) {
       (p->nParents() > 0) && \
       (p->isCharged())) {
     const xAOD::TruthParticle *parent = p->parent();
-    while ((parent != NULL) &&                  \
-           (parent->hasProdVtx()) &&            \
-           (parent->nParents() > 0)) {
-      if ( (std::find(m_signalIds.begin(),                              \
+    if (parent == NULL) { return false; }
+    do {
+      if ( (std::find(m_signalIds.begin(),			\
                       m_signalIds.end(),                                \
                       parent->absPdgId()) != m_signalIds.end())) { return true; }
       parent = parent->parent();
-    }
+    } while ((parent != NULL) &&                  \
+	     (parent->hasProdVtx()) &&            \
+	     (parent->nParents() > 0));
+
   }
   return false;
 }
 
 bool InDetPhysValLargeD0Tool::MinTrackSelection (const xAOD::TrackParticle* tp) {
   float maxEta = 2.5;
-  float minPt = 1000;
+  float minPt = 0;
   if ( (tp->pt()>1e-7 ? (fabs(tp->eta()) < maxEta) : false) &&  \
        (tp->pt() > minPt) ) return true;
   else return false;

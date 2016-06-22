@@ -60,6 +60,7 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string & sDir):I
     m_trkInJetHitsDetailedPlots(this,"Tracks/SelectedGoodJetTracks"),                   
     m_trkInJetFakePlots(this,"Tracks/SelectedFakeJetTracks"),
     m_trkInJetResPlots(this,"Tracks/SelectedGoodJetTracks"),
+    m_trkInJetEffPlots(this,"Tracks/SelectedGoodJetTracks"),
     m_trkInJetHighPtResPlots(this,"Tracks/SelectedGoodJetHighPtTracks"),
     m_trkInJetHitsFakeTracksPlots(this,"Tracks/SelectedFakeJetTracks"),
     m_trkInJetHitsMatchedTracksPlots(this,"Tracks/SelectedMatchedJetTracks"),
@@ -207,11 +208,13 @@ bool
 InDetRttPlots::filltrkInJetPlot(const xAOD::TrackParticle& particle, const xAOD::Jet& jet){
   bool pass = m_trkInJetPlot.fill(particle, jet);
   m_trkInJetPlot_highPt.fill(particle, jet);
+
+  //m_effPlots.jet_fill(particle, jet, weight);
   return pass;
 }
 
 void
-InDetRttPlots::fillSimpleJetPlots(const xAOD::TrackParticle& particle){
+InDetRttPlots::fillSimpleJetPlots(const xAOD::TrackParticle& particle, float prob){
   // the full suit of track plots                                                                                              
   m_trkInJetPtPlot.fill(particle);
   m_trkInJetPtEtaPlots.fill(particle);
@@ -220,12 +223,10 @@ InDetRttPlots::fillSimpleJetPlots(const xAOD::TrackParticle& particle){
   m_trkInJetHitsPlots.fill(particle);
   m_trkInJetHitsDetailedPlots.fill(particle);
 
-  float minProbEffLow(0.5);
-  float prob = getMatchingProbability(particle);
-
   if ( std::isnan(prob) ) { return; }
-  const bool isFake=(prob<minProbEffLow);
+  const bool isFake=(prob<m_truthProbLowThreshold);
   m_trkInJetFakePlots.fill(particle, isFake, InDetPerfPlot_fakes::ALL);
+  
 }
 
 void
@@ -256,21 +257,21 @@ InDetRttPlots::fillJetResPlots(const xAOD::TrackParticle& particle, const xAOD::
   } // m_moreJetPlots  
 }
 
-
-void 
-InDetRttPlots::fillJetFakes(const xAOD::TrackParticle& particle){
-  const bool isFake = true;
-  m_trkInJetFakePlots.fill(particle, isFake, InDetPerfPlot_fakes::ALL);
-  //m_trkInJetHitsFakeTracksPlots.fill(particle);                        //How is this one different from the above one?!
-}
-
-
 void
 InDetRttPlots::fillJetEffPlots(const xAOD::TruthParticle& truth, const xAOD::Jet& jet){
   m_trkInJetPlot.BookEffReco(truth,jet);         // fill hists with truth info!           
   m_trkInJetPlot_highPt.BookEffReco(truth,jet);  // fill hists with truth info! 
 }
 
+void
+InDetRttPlots::jet_fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight){
+  m_trkInJetEffPlots.jet_fill(track, jet, weight);
+}
+
+void
+InDetRttPlots::jetBMR(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight){
+  m_BadMatchRate.jetBMR(track, jet, weight);
+}
 
 void
 InDetRttPlots::fillJetTrkTruth(const xAOD::TruthParticle& truth, const xAOD::Jet& jet){
@@ -289,9 +290,3 @@ InDetRttPlots::fillJetTrkTruthCounter(const xAOD::Jet& jet){
     m_trkInJetPlot.fillEff(jet);
     m_trkInJetPlot_highPt.fillEff(jet);
 }
-/*
-void InDetRttPlots::SetPrimaryEtaCut( float eta ) { 
-  m_truthPrimaryEtaCut = eta; 
-  m_resPlots.SetEtaBinning( int(2*eta/0.25), -1*eta, eta ); //Isn't this hard-coded into res.cxx anyway?
-}
-*/

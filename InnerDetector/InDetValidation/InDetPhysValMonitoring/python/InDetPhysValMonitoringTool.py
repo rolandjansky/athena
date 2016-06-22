@@ -40,11 +40,34 @@ class InDetPhysValMonitoringTool(object) :
           if isMC() :
               self.TruthParticleContainerName = "TruthParticles"
               self.jetContainerName ='AntiKt4TruthJets'
+              from InDetPhysValMonitoring.addTruthJets import addTruthJetsIfNotExising
+              addTruthJetsIfNotExising(self.jetContainerName)
+
           else :
               # disable truth monitoring for data
               self.TruthParticleContainerName = ''
               # the jet container is actually meant to be a truth jet container
               self.jetContainerName =''
+
+
+          # hack to remove example phyval monitor
+          from RecExConfig.AutoConfiguration import IsInInputFile
+          if not IsInInputFile('xAOD::JetContainer','AntiKt4EMTopoJets') :
+            from InDetPhysValDecoration import findMonMan
+            mon_index = findMonMan()
+            if mon_index != None :
+              import re
+              pattern=re.compile('.*PhysValExample')
+
+              from AthenaCommon.AlgSequence import AlgSequence,AthSequencer 
+              topSequence = AlgSequence()
+              mon_manager = topSequence.getChildren()[mon_index]
+              del_idx=None
+              for tool in mon_manager.AthenaMonTools :
+                print 'DEBUG %s AthenaMonTools %s' % (mon_manager.getName(),tool.getName())
+                if pattern.match(tool.getName()) != None :
+                  mon_manager.AthenaMonTools.remove(tool)
+                  break
 
 
   class InDetPhysValMonitoringToolGSF(InDetPhysValMonitoringTool) :

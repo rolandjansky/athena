@@ -17,7 +17,7 @@ TrackTruthSelectionTool::TrackTruthSelectionTool(const std::string& name):
   
   //declareProperty( "Property", m_nProperty ); //example property declaration
   declareProperty("maxEta", m_maxEta = 2.5);
-  declareProperty("minPt",  m_minPt = 400); //4-4-16 normally 400, set to 300 for testing
+  declareProperty("minPt",  m_minPt = 400); //5-20-16: normally 400, set to 950 for testing
   declareProperty("maxPt",  m_maxPt = -1); 
   declareProperty("maxBarcode",  m_maxBarcode = 200e3); //4-7-16 normally 200e3, set to 100e3 for testing
   declareProperty("requireCharged",  m_requireCharged = true); //4-1-16 normally true, setting to false for testing

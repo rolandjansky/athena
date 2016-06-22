@@ -4,7 +4,7 @@
 
 /**
  * @file InDetPerfPlot_resITk.cxx
- * @author me!
+ * @author me!  WHO?! :P
 **/
 
 #include "InDetPerfPlot_resITk.h"
@@ -582,7 +582,7 @@ void InDetPerfPlot_resITk::makeResolutions(TH3* h, TH1* hres_eta[4][4], TH1* hre
 		}
 	}
 
-	for(unsigned int ipt = 0; ipt < 5; ipt++){
+	for(unsigned int ipt = 0; ipt < 4; ipt++){
 		for(unsigned int ieta = 0; ieta < m_nEtaBins; ieta++){
 			std::string tmpName = h->GetName() + std::string("pz_binPt") + std::to_string(ipt+1) + std::string("pz_binEta") + std::to_string(ieta+1);
 			TH1D *tmp = (TH1D*)h->ProjectionZ(tmpName.c_str(),h->GetXaxis()->FindBin(BinPt[ipt]),h->GetXaxis()->FindBin(BinPt[ipt+1]),h->GetYaxis()->FindBin(m_EtaBins[ieta]),h->GetYaxis()->FindBin(m_EtaBins[ieta+1]));

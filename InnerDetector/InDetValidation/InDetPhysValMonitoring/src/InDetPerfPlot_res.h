@@ -48,10 +48,9 @@ private:
   unsigned int m_trackEtaBins;
   float m_etaMin, m_etaMax;
   //float m_truthEtaCut;
-  //int nBins, m_yBins;
+  
   unsigned int m_PtBins;
   float m_PtMin, m_PtMax;
-  //double m_Pt_logmin, m_Pt_logmax;
 
   //double mean;
 

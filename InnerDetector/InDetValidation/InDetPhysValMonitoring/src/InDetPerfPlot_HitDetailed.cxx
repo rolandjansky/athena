@@ -23,6 +23,7 @@ n_vs_eta_PixelContribLayers{},
 n_vs_eta_PixelSharedHits{},
 n_vs_eta_PixelSplitHits{},
 n_vs_eta_PixelGangedHits{},
+n_vs_eta_PixelGangedHitsFlaggedFakes{},
 n_vs_eta_SCTHits{},
 n_vs_eta_SCTHoles{},
 n_vs_eta_SCTOutliers{},
@@ -65,6 +66,7 @@ void InDetPerfPlot_HitDetailed::initializePlots(){
     book(n_vs_eta_PixelSharedHits,"HitContent_vs_eta_NPixelSharedHits");
     book(n_vs_eta_PixelSplitHits,"HitContent_vs_eta_NPixelSplitHits");
     book(n_vs_eta_PixelGangedHits,"HitContent_vs_eta_NPixelGangedHits");
+    book(n_vs_eta_PixelGangedHitsFlaggedFakes, "HitContent_vs_eta_NPixelGangedHitsFlaggedFakes");
     book(n_vs_eta_SCTOutliers,"HitContent_vs_eta_NSCTOutliers");
     book(n_vs_eta_SCTDoubleHoles,"HitContent_vs_eta_NSCTDoubleHoles");
     book(n_vs_eta_SCTSharedHits,"HitContent_vs_eta_NSCTSharedHits");
@@ -91,7 +93,7 @@ void InDetPerfPlot_HitDetailed::fill(const xAOD::TrackParticle& trk) {
   //expert plots
   if (m_iDetailLevel >= 100) {
     uint8_t iBLayerOutliers(0),iBLayerShared(0),iBLayerSplit(0);
-    uint8_t iPixelOutliers(0),iPixelContribLayers(0),iPixelShared(0),iPixelSplit(0),iPixelGanged(0);
+    uint8_t iPixelOutliers(0),iPixelContribLayers(0),iPixelShared(0),iPixelSplit(0),iPixelGanged(0), iPixelGangedFF(0);
     uint8_t iSCTOutliers(0),iSCTDoubleHoles(0),iSCTShared(0);
     uint8_t iTRTOutliers(0),iTRTHTOutliers(0);
     if (trk.summaryValue(iBLayerOutliers,xAOD::numberOfBLayerOutliers)) n_vs_eta_BLayerOutliers->Fill(eta, iBLayerOutliers);
@@ -102,6 +104,7 @@ void InDetPerfPlot_HitDetailed::fill(const xAOD::TrackParticle& trk) {
     if (trk.summaryValue(iPixelShared,xAOD::numberOfPixelSharedHits)) n_vs_eta_PixelSharedHits->Fill(eta, iPixelShared);
     if (trk.summaryValue(iPixelSplit,xAOD::numberOfPixelSplitHits)) n_vs_eta_PixelSplitHits->Fill(eta, iPixelSplit);
     if (trk.summaryValue(iPixelGanged,xAOD::numberOfGangedPixels)) n_vs_eta_PixelGangedHits->Fill(eta, iPixelGanged);
+    if (trk.summaryValue(iPixelGangedFF, xAOD::numberOfGangedFlaggedFakes)) n_vs_eta_PixelGangedHitsFlaggedFakes->Fill(eta, iPixelGangedFF);
     if (trk.summaryValue(iSCTOutliers,xAOD::numberOfSCTOutliers)) n_vs_eta_PixelOutliers->Fill(eta, iSCTOutliers);
     if (trk.summaryValue(iSCTDoubleHoles,xAOD::numberOfSCTDoubleHoles)) n_vs_eta_SCTDoubleHoles->Fill(eta, iSCTDoubleHoles);
     if (trk.summaryValue(iSCTShared,xAOD::numberOfSCTSharedHits)) n_vs_eta_SCTSharedHits->Fill(eta, iSCTShared);

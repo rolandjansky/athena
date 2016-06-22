@@ -57,7 +57,8 @@ branches src src/components doc
 #apply_pattern lcgdict dict=InDetPhysValMonitoring selectionfile=selection.xml\
 #headerfiles="../InDetPhysValMonitoring/InDetPhysValMonitoringDict.h"
 
-apply_pattern declare_runtime files="*.hdef"
+apply_pattern declare_runtime files="*.hdef *.xml *.xsl"
+
 apply_pattern declare_joboptions files="*.py"
 
 

@@ -52,7 +52,6 @@ class InDetRttPlots:public InDetPlotBase {
 public:
 	InDetRttPlots(InDetPlotBase * pParent, const std::string & dirName);
   void SetFillExtraTIDEPlots( bool fillthem ) { m_moreJetPlots = fillthem; }
-  //void SetPrimaryEtaCut( float eta ); //5-16-16: seems unnecessary, can probably erase w/out harm
 	///fill for things needing truth and track only
 	void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle);
 	///fill for things needing track only
@@ -78,13 +77,13 @@ public:
 
 	//New set has replaced fillJetPlot
 	bool filltrkInJetPlot(const xAOD::TrackParticle& particle, const xAOD::Jet& jet);
-	void fillSimpleJetPlots(const xAOD::TrackParticle& particle);
-
+	void fillSimpleJetPlots(const xAOD::TrackParticle& particle, float prob);
 	void fillJetHitsPlots(const xAOD::TrackParticle& particle, float prob, int barcode);
-
 	void fillJetResPlots(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truth, const xAOD::Jet& jet);
-	void fillJetFakes(const xAOD::TrackParticle& particle);
 	void fillJetEffPlots(const xAOD::TruthParticle& truth, const xAOD::Jet& jet);
+
+	void jet_fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight);
+	void jetBMR(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight);
 
 	void fillJetPlotCounter(const xAOD::Jet& jet);
 	void fillJetTrkTruth(const xAOD::TruthParticle& truth, const xAOD::Jet& jet);
@@ -141,6 +140,7 @@ private:
 	InDetPerfPlot_res*      m_trkInJetResPlotsDr0010;
 	InDetPerfPlot_res*      m_trkInJetResPlotsDr1020;
 	InDetPerfPlot_res*      m_trkInJetResPlotsDr2030;
+	InDetPerfPlot_Eff       m_trkInJetEffPlots;
 	InDetPerfPlot_res       m_trkInJetHighPtResPlots;
 	Trk::IDHitPlots         m_trkInJetHitsFakeTracksPlots;
 	Trk::IDHitPlots         m_trkInJetHitsMatchedTracksPlots;

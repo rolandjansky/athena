@@ -52,6 +52,7 @@ public:
   //void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle); // not used. SC
   ///fill for things needing track only
   void fill(const xAOD::TrackParticle& particle);
+  void fill(const xAOD::TrackParticle& particle, const int barcode);
   ///fill for things needing truth only
   void fill(const xAOD::TruthParticle& particle);
   ///fill for things needing all truth - not just the ones from the reco tracks
@@ -78,7 +79,7 @@ public:
   ///fill for Counters
   void fillCounter(const unsigned int freq, const InDetPerfPlot_nTracks::CounterCategory  counter);
   ///fill for fakes
-  void fillFakeRate(const xAOD::TrackParticle& particle, const bool isFake, const InDetPerfPlot_fakes::Category c = InDetPerfPlot_fakes::ALL);
+  void fillFakeRate(const xAOD::TrackParticle& particle, const bool isFake, const bool hasTruthLink, const InDetPerfPlot_fakes::Category c = InDetPerfPlot_fakes::ALL);
 
   ///fill for fakes (Siinn)
   void fillFake(const xAOD::TrackParticle& particle);
@@ -92,8 +93,15 @@ private:
 
        // hit plots
        Trk::IDHitPlots m_hitsPlots_nonfake_st;
-       Trk::IDHitPlots m_hitsPlots_nonfake_ld0;
+       Trk::IDHitPlots m_hitsPlots_matching_truthLink_primary_st;
+       Trk::IDHitPlots m_hitsPlots_matching_truthLink_secondary_st;
+       Trk::IDHitPlots m_hitsPlots_matching_NotruthLink_st;
        Trk::IDHitPlots m_hitsPlots_fake_st;
+
+       Trk::IDHitPlots m_hitsPlots_nonfake_ld0;
+       Trk::IDHitPlots m_hitsPlots_matching_truthLink_primary_ld0;
+       Trk::IDHitPlots m_hitsPlots_matching_truthLink_secondary_ld0;
+       Trk::IDHitPlots m_hitsPlots_matching_NotruthLink_ld0;
        Trk::IDHitPlots m_hitsPlots_fake_ld0;
 
        // basic plots
@@ -103,11 +111,24 @@ private:
        InDetBasicPlot m_basicPlot_fake_ld0;
        InDetBasicPlot m_basicPlot_truth;
 
+       InDetBasicPlot m_basicPlot_primary_truth;
+       InDetBasicPlot m_basicPlot_secondary_truth;
+
+       InDetBasicPlot m_basicPlot_pileup_primary_truth;
+       InDetBasicPlot m_basicPlot_pileup_secondary_truth;
+
        // pT plots
        InDetPerfPlot_Pt m_ptPlot_nonfake_st;
        InDetPerfPlot_Pt m_ptPlot_nonfake_ld0;
        InDetPerfPlot_Pt m_ptPlot_fake_st;
        InDetPerfPlot_Pt m_ptPlot_fake_ld0;
+
+       InDetPerfPlot_Pt m_ptPlot_primary;
+       InDetPerfPlot_Pt m_ptPlot_secondary;
+
+       InDetPerfPlot_Pt m_ptPlot_pileup_primary;
+       InDetPerfPlot_Pt m_ptPlot_pileup_secondary;
+
 
        // Reco info plots
        Trk::RecoInfoPlots m_TrackRecoInfoPlots_nonfake_st;
@@ -118,6 +139,12 @@ private:
        // Fake rate plots.
        InDetPerfPlot_ExtendedFakes m_fakePlots;
        InDetPerfPlot_ExtendedFakes m_fakePlotsLRT;
+
+       InDetPerfPlot_ExtendedFakes m_fakePlots_noTruthLink;
+       InDetPerfPlot_ExtendedFakes m_fakePlots_noTruthLink_matched_05;
+
+       InDetPerfPlot_ExtendedFakes m_fakePlots_noTruthLink_LRT;
+       InDetPerfPlot_ExtendedFakes m_fakePlots_noTruthLink_matched_05_LRT;
 
        // Efficiency plots
        InDetPerfPlot_Eff m_effPlotsStd;
