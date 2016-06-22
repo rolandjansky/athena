@@ -113,7 +113,7 @@ namespace PerfMon { class StorePayloadMon; }
  * @param "FolderNameList" property (default ""): data folders to be created 
  *                                                in this store
  * @author ATLAS Collaboration
- * $Id: SGImplSvc.h 733875 2016-04-04 23:33:03Z leggett $
+ * $Id: SGImplSvc.h 754375 2016-06-13 02:59:46Z ssnyder $
  **/
 class SGImplSvc :
   public Service, 
@@ -501,6 +501,8 @@ public:
 
   /// set store ID. request forwarded to DataStore:
   void setStoreID(StoreID::type id);
+  /// get store ID. request forwarded to DataStore:
+  StoreID::type storeID() const;
 
 
   /** provide list of all storegate keys associated with an object.
@@ -594,6 +596,8 @@ public:
    * @param key The key as which it should be stored.
    * @param allowMods If false, the object will be recorded as const.
    * @param returnExisting If true, return proxy if this key already exists.
+   *                       If the object has been recorded under a different
+   *                       key, then make an alias.
    *
    * Full-blown record.  @c obj should usually be something
    * deriving from @c SG::DataBucket.

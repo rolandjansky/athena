@@ -56,12 +56,51 @@ using std::hex;
 using std::dec;
 using std::endl;
 using std::ends;
+using std::pair;
 using std::setw;
 using std::string;
+using std::vector;
 
 using SG::DataProxy;
 using SG::DataStore;
 using SG::TransientAddress;
+
+///////////////////////////////////////////////////////////////////////////
+// Find the store id
+
+// return StoreID corresponding to storeNamePrefix. 
+StoreID::type findStoreID(const string& storeNamePrefix) {
+  //vector must be lexically sorted
+  static const vector<pair<string, StoreID::type> > NAMETOID {
+    { "ConditionsStore", StoreID::CONDITION_STORE },
+    { "DetectorStore", StoreID::DETECTOR_STORE },
+    { "EventStore", StoreID::EVENT_STORE },
+    { "InputMetaDataStore", StoreID::METADATA_STORE },
+    { "MetaDataStore", StoreID::SIMPLE_STORE },
+    { "SpareStore", StoreID::SPARE_STORE },
+    { "StoreGateSvc", StoreID::EVENT_STORE },
+    { "TagMetaDataStore", StoreID::METADATA_STORE }
+      };
+  const auto BEG(NAMETOID.begin());
+  const auto END(NAMETOID.end());
+
+  // Account for AthenaMT stores that start with {digits}_
+  size_t ist (0);
+  if (::isdigit(storeNamePrefix.at(0))) {
+    ist = storeNamePrefix.find("_",0) +1;
+  }
+
+  auto i(BEG);
+  while (i != END) {
+    int comp = storeNamePrefix.compare(ist, (i->first).size(), (i->first));
+    //    std::cout << storeNamePrefix <<' '<< storeNamePrefix.size() <<' '<< i->first <<' '<< (i->first).size() <<' '<< comp << std::endl;
+    //NAMETOID is sorted so if we go past storeNamePrefix we are done
+    if (comp < 0) break;
+    else if (comp == 0) return i->second;
+    ++i;
+  }
+  return StoreID::UNKNOWN;
+}
 
 ///////////////////////////////////////////////////////////////////////////
 // Remapping implementation.
@@ -142,47 +181,28 @@ SGImplSvc::~SGImplSvc()  {
 /// Service initialisation
 StatusCode SGImplSvc::initialize()    {
 
-  msg() << MSG::INFO << "Initializing " << name() 
+  msg() << MSG::VERBOSE << "Initializing " << name() 
         << " - package version " << PACKAGE_VERSION << endreq ;
+
+  if(!(Service::initialize()).isSuccess()) {
+    msg() << MSG::ERROR << "Could not initialize base Service !!" << endreq;
+    return StatusCode::FAILURE;
+  }
 
   if (!m_pStore)
     m_pStore = new DataStore (*this);
   if (!m_remap_impl)
     m_remap_impl = new SG::RemapImpl;
 
-  if(!(Service::initialize()).isSuccess()) {
-    msg() << MSG::ERROR << "Could not initialize base Service !!" << endreq;
-    return StatusCode::FAILURE;
-  }
   //properties accessible from now on
   
-  // set store ID (ugly!):
-  string generic_name = name() ;
-  if (generic_name.find("StoreGateSvc")!=std::string::npos || 
-      generic_name.find("EventStore")!=std::string::npos) {
-    store()->setStoreID(StoreID::EVENT_STORE);
-  } else if (generic_name.find("DetectorStore")!=std::string::npos) {
-    store()->setStoreID(StoreID::DETECTOR_STORE);
-  }  else if (generic_name.find("ConditionsStore")!=std::string::npos) {
-    store()->setStoreID(StoreID::CONDITION_STORE);
-  } else if (generic_name.find("InputMetaDataStore")!=std::string::npos ||
-             generic_name.find("TagMetaDataStore")!=std::string::npos) {
-    store()->setStoreID(StoreID::METADATA_STORE);
-  } else if (generic_name.find("MetaDataStore")!=std::string::npos) {
-    store()->setStoreID(StoreID::SIMPLE_STORE);
-  } else if (generic_name.find("SpareStore")!=std::string::npos) {
-    store()->setStoreID(StoreID::SPARE_STORE);
-  } else {
-    store()->setStoreID(StoreID::UNKNOWN);
-  }
+  store()->setStoreID(findStoreID(name()));
   // If this is the default event store (StoreGateSvc), then declare
   // our arena as the default for memory allocations.
-  if (generic_name.find("StoreGateSvc")!=std::string::npos || 
-      generic_name.find("EventStore")!=std::string::npos)
-    {
-      m_arena.makeCurrent();
-      SG::CurrentEventStore::setStore (this);
-    }
+  if (this->storeID() == StoreID::EVENT_STORE) {
+    m_arena.makeCurrent();
+    SG::CurrentEventStore::setStore (this);
+  }
   // set up the incident service:
   if (!(m_pIncSvc.retrieve()).isSuccess()) {
     msg() << MSG::ERROR 
@@ -238,7 +258,7 @@ StatusCode SGImplSvc::initialize()    {
 /// Service start
 StatusCode SGImplSvc::start()    {
 
-  msg() << MSG::INFO << "Start " << name() << endreq;
+  msg() << MSG::VERBOSE << "Start " << name() << endreq;
   /*
   // This will need regFcn clients to be updated first.
   if ( 0 == m_pPPS || (m_pPPS->preLoadProxies(*m_pStore)).isFailure() )
@@ -255,7 +275,7 @@ StatusCode SGImplSvc::start()    {
 /// Service stop
 StatusCode SGImplSvc::stop()    {
 
-  msg() << MSG::INFO << "Stop " << name() << endreq;
+  msg() << MSG::VERBOSE << "Stop " << name() << endreq;
   //HACK ALERT: ID event store objects refer to det store objects
   //by setting an ad-hoc priority for event store(s) we make sure they are finalized and hence cleared first
   // see e.g. https://savannah.cern.ch/bugs/index.php?99993
@@ -264,7 +284,7 @@ StatusCode SGImplSvc::stop()    {
     if (!pISM)
       return StatusCode::FAILURE;
     pISM->setPriority(name(), pISM->getPriority(name())+1).ignore();
-    msg() << MSG::INFO << "stop: setting service priority to " << pISM->getPriority(name()) 
+    msg() << MSG::VERBOSE << "stop: setting service priority to " << pISM->getPriority(name()) 
           << " so that event stores get finalized and cleared before other stores" <<endmsg;
   }
   return StatusCode::SUCCESS;
@@ -349,7 +369,7 @@ StatusCode SGImplSvc::clearStore(bool forceRemove)
 //////////////////////////////////////////////////////////////
 /// Service finalisation
 StatusCode SGImplSvc::finalize()    {
-  msg() << MSG::INFO << "Finalizing " << name() 
+  msg() << MSG::VERBOSE << "Finalizing " << name() 
         << " - package version " << PACKAGE_VERSION << endreq ;
   
   // Incident service may not work in finalizea.
@@ -377,7 +397,7 @@ StatusCode SGImplSvc::finalize()    {
 //////////////////////////////////////////////////////////////
 /// Service reinitialization
 StatusCode SGImplSvc::reinitialize()    {
-  msg() << MSG::INFO << "Reinitializing " << name() 
+  msg() << MSG::VERBOSE << "Reinitializing " << name() 
         << " - package version " << PACKAGE_VERSION << endreq ;
   const bool FORCEREMOVE(true);
   clearStore(FORCEREMOVE).ignore();
@@ -558,6 +578,11 @@ void SGImplSvc::setStoreID(StoreID::type id)
 {
   store()->setStoreID(id);
 }
+/// get store id from DataStore:
+StoreID::type SGImplSvc::storeID() const
+{
+  return store()->storeID();
+}
 
 void
 SGImplSvc::keys(const CLID& id, std::vector<std::string>& vkeys, 
@@ -732,11 +757,18 @@ StatusCode SGImplSvc::addToStore (CLID id, SG::DataProxy* proxy)
  * @param obj The data object to store.
  * @param key The key as which it should be stored.
  * @param allowMods If false, the object will be recorded as const.
+ * @param returnExisting If true, return proxy if this key already exists.
+ *                       If the object has been recorded under a different
+ *                       key, then make an alias.
  *
  * Full-blown record.  @c obj should usually be something
  * deriving from @c SG::DataBucket.
  *
  * Returns the proxy for the recorded object; nullptr on failure.
+ * If the requested CLID/key combination already exists in the store,
+ * the behavior is controlled by @c returnExisting.  If true, then
+ * the existing proxy is returned; otherwise, nullptr is returned.
+ * In either case, @c obj is destroyed.
  */
 SG::DataProxy* SGImplSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
                                         const std::string& key,
@@ -754,6 +786,25 @@ SG::DataProxy* SGImplSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
   if (returnExisting) {
     SG::DataProxy* proxy = this->proxy (obj->clID(), key);
     if (proxy) return proxy;
+
+    // Look for the same object recorded under a different key.
+    proxy = this->proxy (raw_ptr);
+    if (proxy) {
+      // Make an alias.
+      if (addAlias (key, proxy).isFailure()) {
+        CLID clid = proxy->clID();
+        std::string clidTypeName; 
+        m_pCLIDSvc->getTypeNameOfID(clid, clidTypeName).ignore();
+        msg() << MSG::WARNING
+              << "SGImplSvc::recordObject: addAlias fails for object "
+              << clid << "[" << clidTypeName << "] " << proxy->name()
+              << " and new key " << key
+              << endreq;
+
+        proxy = nullptr;
+      }
+      return proxy;
+    }
   }
 
   const bool resetOnly = true;
@@ -1019,8 +1070,10 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
           << " already in store with key="<< dp->name()
           << ". Will not record a duplicate! "
           << endreq;
-    DataBucketBase* pDBB(dynamic_cast<DataBucketBase*>(pDObj));
-    if (pDBB) pDBB->relinquish(); //don't own the data obj already recorded!
+    if (pDObj != dp->object()) {
+      DataBucketBase* pDBB(dynamic_cast<DataBucketBase*>(pDObj));
+      pDBB->relinquish(); //don't own the data obj already recorded!
+    }
     this->recycle(pDObj);
     return nullptr;
   }

@@ -511,6 +511,8 @@ public:
 
   /// set store ID. request forwarded to DataStore:
   void setStoreID(StoreID::type id);
+  /// get store ID. request forwarded to DataStore:
+  StoreID::type storeID() const;
 
 
   /** provide list of all storegate keys associated with an object.
@@ -645,6 +647,8 @@ public:
    * @param key The key as which it should be stored.
    * @param allowMods If false, the object will be recorded as const.
    * @param returnExisting If true, return proxy if this key already exists.
+   *                       If the object has been recorded under a different
+   *                       key, then make an alias.
    *
    * Full-blown record.  @c obj should usually be something
    * deriving from @c SG::DataBucket.
@@ -954,7 +958,9 @@ private:
 
   /// remove proxy from store, unless it is reset only.         
   /// provide pTrans!=0 (must match proxy...) to save time
-  /// @param forceRemove remove the proxy no matter what        
+  /// @param forceRemove remove the proxy no matter what
+  /// DO NOT USE THIS FUNCTION!
+  /// IT IS UNSAFE AND IS LIKELY TO BE REMOVED!
   StatusCode removeProxy(SG::DataProxy* proxy, const void* pTrans, 
                          bool forceRemove=false);
   ///forwarded to DataStore

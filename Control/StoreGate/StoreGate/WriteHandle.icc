@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: WriteHandle.icc 726840 2016-02-29 16:43:53Z ssnyder $
+// $Id: WriteHandle.icc 756419 2016-06-21 02:02:43Z ssnyder $
 /**
  * @file StoreGate/WriteHandle.icc
  * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov>
@@ -21,6 +21,36 @@
 
 
 namespace SG {
+
+
+/**
+ * @brief Helper to temporarily clear aux store association.
+ *
+ * This is used in the object+store version of record, in order to prevent
+ * the store from being locked prematurely.
+ */
+template <class T>
+class SaveStore
+{
+public:
+  SaveStore (T& o)
+    : m_store (o.getStore()),
+      m_o (o)
+  {
+    if (m_store)
+      o.setStore (static_cast<SG::IAuxStore*>(nullptr));
+  }
+
+  ~SaveStore()
+  {
+    if (m_store)
+      m_o.setStore (m_store);
+  }
+
+private:
+  IAuxStore* m_store;
+  T& m_o;
+};
 
 
 //************************************************************************
@@ -137,6 +167,20 @@ WriteHandle<T>::operator= (WriteHandle&& h)
   if (this != &h)
     this->VarHandleBase::operator=(std::move(h));
   return *this;
+}
+
+
+/**
+ * @brief Destructor.
+ *
+ * Lock an aux object if m_lockAuxPending is true.
+ */
+template <class T>
+WriteHandle<T>::~WriteHandle()
+{
+  if (m_lockAuxPending) {
+    m_lockAuxPending->setConst();
+  }
 }
 
 
@@ -414,8 +458,12 @@ WriteHandle<T>::record (std::unique_ptr<T> data,
 {
   T& dref = *data;
 
-  if (isConst)
+  if (isConst) {
+    // Temporarily clear the store association, in order to prevent
+    // the aux store from being locked at this point.
+    SaveStore<T> ss (*data);
     CHECK (this->record(std::move(data)));
+  }
   else
     CHECK (this->recordNonConst(std::move(data)));
 
@@ -425,7 +473,7 @@ WriteHandle<T>::record (std::unique_ptr<T> data,
     (SG::asStorable (std::move (auxstore)));
   SG::DataProxy* proxy = m_store->recordObject (std::move(dobj),
                                                 this->name() + "Aux.",
-                                                !m_proxy->isConst(),
+                                                true,
                                                 false);
   if (!proxy) {
     REPORT_ERROR (StatusCode::FAILURE)
@@ -438,6 +486,8 @@ WriteHandle<T>::record (std::unique_ptr<T> data,
     return StatusCode::FAILURE;
   }
 
+  if (m_proxy->isConst())
+    m_lockAuxPending = proxy;
   return StatusCode::SUCCESS;
 }
 
