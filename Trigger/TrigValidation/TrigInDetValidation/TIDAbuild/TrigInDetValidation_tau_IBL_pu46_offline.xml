@@ -2,7 +2,7 @@
            <doc>TauSlice, H->tautau IBL sample, pu46, run2 chains</doc>
            <displayName>TauSlice, H->tautau IBL sample, pu46, run2 chains</displayName>
            <commandLineFlags>EventMax=2000;runMergedChain=True;doIDNewTracking=True;PdgId=15</commandLineFlags>
-           <options>TrigInDetValidation_RTT_topOptions_TauSlice</options>
+           <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>

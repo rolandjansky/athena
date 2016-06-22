@@ -23,9 +23,9 @@ JOBS =  \
         TrigInDetValidation_el_Zee_IBL_pu40.xml                         \
         TrigInDetValidation_el_single_e_5.xml                           \
         TrigInDetValidation_el_Zee_pu46_run1.xml                        \
-        TrigInDetValidation_el_ttbar_pu46.xml                           \
-        TrigInDetValidation_el_ttbar_pu69.xml                           \
-        TrigInDetValidation_el_ttbar_pu138.xml                          \
+        TrigInDetValidation_el_ttbar_pu40.xml                           \
+        TrigInDetValidation_el_ttbar_pu80.xml                           \
+        TrigInDetValidation_el_ttbar_pu100.xml                          \
                                                                         \
         TrigInDetValidation_cosmic.xml                                  \
                                                                         \

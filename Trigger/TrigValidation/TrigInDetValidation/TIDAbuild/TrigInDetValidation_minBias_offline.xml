@@ -2,7 +2,7 @@
             <doc>Tests ID full scan tracking in the di-jet sample vs offline</doc>
             <displayName>FullScan on di-jet event vs offlines</displayName>
 	    <commandLineFlags>EventMax=1000;doIDNewTracking=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MonitorSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MonitorSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
