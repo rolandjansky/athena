@@ -88,6 +88,8 @@
 #include "xAODTrigMinBias/TrigTrackCountsContainer.h"
 #include "xAODTrigMinBias/TrigTrackCounts.h"
 
+#include "xAODTrigger/TrigPassBitsContainer.h"
+#include "xAODTrigger/TrigPassBits.h"
 
 #include <iostream>
 
@@ -110,6 +112,7 @@ TrigEDMChecker::TrigEDMChecker(const std::string& name, ISvcLocator* pSvcLocator
 	/** switches to control the analysis through job options */
 
 	declareProperty("doDumpAll", m_doDumpAll = true);
+        declareProperty("doDumpTrigPassBits", m_doDumpTrigPassBits = false);
 	declareProperty("doDumpLVL1_ROI", m_doDumpLVL1_ROI = false);
 	declareProperty("doDumpTrigMissingET", m_doDumpTrigMissingET = false);
 	declareProperty("doDumpxAODTrigMissingET", m_doDumpxAODTrigMissingET = false);
@@ -162,6 +165,7 @@ StatusCode TrigEDMChecker::initialize() {
 
 	mLog << MSG::INFO << "REGTEST Initializing..." << endreq;
 	mLog << MSG::INFO << "REGTEST m_doDumpAll                     = " <<  m_doDumpAll  << endreq;
+        mLog << MSG::INFO << "REGTEST m_doDumpTrigPassBits            = " <<  m_doDumpTrigPassBits  << endreq;
 	mLog << MSG::INFO << "REGTEST m_doDumpLVL1_ROI                = " <<  m_doDumpLVL1_ROI << endreq;
 	mLog << MSG::INFO << "REGTEST m_doDumpTrigMissingET           = " <<  m_doDumpTrigMissingET  << endreq;
 	mLog << MSG::INFO << "REGTEST m_doDumpxAODTrigMissingET       = " <<  m_doDumpxAODTrigMissingET  << endreq;
@@ -242,6 +246,15 @@ StatusCode TrigEDMChecker::execute() {
 
 	mLog << MSG::DEBUG << "in execute()" << endreq;
 
+    
+	if(m_doDumpAll || m_doDumpTrigPassBits){
+		StatusCode sc = dumpTrigPassBits();
+		if (sc.isFailure()) {
+			mLog << MSG::ERROR << "The method dumpTrigPassBits() failed" << endreq;
+
+		}
+	}
+	
 	if(m_doDumpTrackParticleContainer){
 		StatusCode sc = dumpTrackParticleContainer();
 		if (sc.isFailure()) {
@@ -586,7 +599,26 @@ StatusCode TrigEDMChecker::execute() {
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-
+StatusCode TrigEDMChecker::dumpTrigPassBits(){
+    const std::string name="HLT_xAOD__TrigPassBitsContainer_passbits";
+    const xAOD::TrigPassBitsContainer *xbitscont=nullptr;
+    StatusCode sc = evtStore()->retrieve(xbitscont,name);
+    if (sc.isFailure() ){
+        ATH_MSG_WARNING("REGTEST: Cannot retrieve TrigPassBits");
+    }
+    else {
+        ATH_MSG_INFO("REGTEST: Size of PassBits container : " << xbitscont->size());
+        for(const auto &bits:*xbitscont){
+            if(bits==nullptr){
+                ATH_MSG_INFO("TrigPassBits point nullptr ");
+                continue;
+            }
+            ATH_MSG_DEBUG("REGTEST: Analyzing bits for " << bits->containerClid() << " of size " 
+                    << bits->size() << " with bit size " << bits->passBits().size());
+        }
+    }
+    return StatusCode::SUCCESS;
+}
 void TrigEDMChecker::dumpTrigSpacePointCounts(MsgStream &mLog)
 {
 	mLog << MSG::INFO << "MinBias in dumpTrigSpacePointCounts()" << endreq;

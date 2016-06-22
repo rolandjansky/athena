@@ -141,6 +141,7 @@ TrigDecisionChecker::TrigDecisionChecker(const std::string &name, ISvcLocator *p
     declareProperty("MinBiasItems",      m_minBiasItems, "MinBias triggers to test");
     declareProperty("JetItems",       m_jetItems, "Jet triggers to test");
     declareProperty("MetItems",       m_metItems, "Met triggers to test");
+    declareProperty("CheckTrigPassBits",       m_checkBits=false, "TrigPassBits retrieval from TDT");
     
 }
 
@@ -459,6 +460,13 @@ StatusCode TrigDecisionChecker::execute()
             msg(MSG::ERROR) << "Could not finish checkElectronEDM test for chain " << electronItem << endreq;
             return sc;
         }
+        if(m_checkBits) {
+            sc = checkEDM<xAOD::ElectronContainer>(electronItem);
+            if ( sc.isFailure() ) {
+                msg(MSG::ERROR) << "Could not finish checkElectronEDM test for chain " << electronItem << endreq;
+                return sc;
+            }
+        }
     }
     
     for(auto photonItem : m_photonItems) {
@@ -679,6 +687,42 @@ StatusCode TrigDecisionChecker::execute()
     // reset first event flag
     if (m_first_event) m_first_event = false;
     
+    return StatusCode::SUCCESS;
+}
+
+template <class T>
+StatusCode TrigDecisionChecker::checkEDM(std::string trigItem){
+    ATH_MSG_INFO("REGTEST: Chain passed = " << m_trigDec->isPassed("HLT_"+trigItem));
+    const auto fc = m_trigDec->features("HLT_"+trigItem);
+    const auto vec = fc.get<T>();
+    for(const auto feat:vec){
+        const auto *cont=feat.cptr();
+        const auto *bits=(m_trigDec->ancestor<TrigPassBits>(feat.te())).cptr();
+        const auto *xbits=(m_trigDec->ancestor<xAOD::TrigPassBits>(feat.te())).cptr();
+        if(!cont){
+            ATH_MSG_INFO("REGTEST: " << ClassID_traits< T >::typeName() << " is null ");
+            continue;
+        }
+        if(!bits){
+            ATH_MSG_WARNING("REGTEST: " << ClassID_traits< T >::typeName() << " bits null ");
+            continue;
+        }
+        if(!xbits){
+            ATH_MSG_WARNING("REGTEST: " << ClassID_traits< T >::typeName() << " xbits null ");
+            continue;
+        }
+        const size_t bitlen = ( (cont->size() - 1)/32 ) + 1;
+        ATH_MSG_INFO("REGTEST: Retrieved container type " << ClassID_traits< T >::typeName() <<  " size " 
+                << cont->size() << " bits " << bits->size() << " Expect vector of bits " << bitlen);
+        ATH_MSG_INFO("REGTEST Retrieved container type " << ClassID_traits< T >::typeName() <<  " size " 
+                << cont->size() << " bits " << bits->size());
+        ATH_MSG_INFO("REGTEST Retrieved container type " << ClassID_traits< T >::typeName() <<  " size " 
+                << cont->size() << " xbits " << xbits->size());
+       
+        for(const auto &ptr:*cont)
+            ATH_MSG_INFO("REGTEST Selected HLT bits " << HLT::isPassing(bits,ptr,cont) << " xAOD bits " << xbits->isPassing(ptr,cont));
+        
+    }
     return StatusCode::SUCCESS;
 }
 

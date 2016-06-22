@@ -36,6 +36,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigMissingET
                           Event/xAOD/xAODTrigMuon
                           Event/xAOD/xAODCore
+                          Event/xAOD/xAODTrigger
                           PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
                           Reconstruction/MuonIdentification/MuonCombinedToolInterfaces
                           Reconstruction/Particle
@@ -55,7 +56,7 @@ atlas_add_component( TrigValAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel TrigDecisionToolLib TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigNavToolsLib TrigNavigationLib TrigParticle TrigSteeringEvent AthenaKernel SGTools EventInfo xAODBTagging xAODEgamma xAODJet xAODMuon xAODTau xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigEgamma xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODCore AnalysisTriggerEvent MuonCombinedToolInterfaces Particle tauEvent VxSecVertex TrigConfigSvcLib TrigDecisionEvent TrigMissingEtEvent TrigInDetTruthEvent )
+                     LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel TrigDecisionToolLib TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigNavToolsLib TrigNavigationLib TrigParticle TrigSteeringEvent AthenaKernel SGTools EventInfo xAODBTagging xAODEgamma xAODJet xAODMuon xAODTau xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigEgamma xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODCore xAODTrigger AnalysisTriggerEvent MuonCombinedToolInterfaces Particle tauEvent VxSecVertex TrigConfigSvcLib TrigDecisionEvent TrigMissingEtEvent TrigInDetTruthEvent )
 
 # Install files from the package:
 atlas_install_headers( TrigValAlgs )

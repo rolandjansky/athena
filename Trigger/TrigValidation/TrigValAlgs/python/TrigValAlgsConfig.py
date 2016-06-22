@@ -44,9 +44,9 @@ class TrigDecisionChecker ( TrigDecisionChecker ):
         WriteEventDecision=False
         MonitoredChains = [ ]
         MonitoringBlock = 100
-
+        self.CheckTrigPassBits=True
         self.MuonItems = ['HLT_mu26_imedium','HLT_mu6_idperf']
-        self.ElectronItems = ['e0_perf_L1EM15VH','e28_loose1_iloose','e28_lhloose_iloose']
+        self.ElectronItems = ['e0_perf_L1EM15VH','e24_lhtight_nod0_ivarloose','e28_lhloose_iloose']
         self.PhotonItems = ['g0_perf_L1EM15VH','g25_loose1','g35_loose1']
         self.MinBiasItems = ['HLT_mb_perf_L1MBTS_1', 'HLT_mb_sptrk', 'HLT_mb_sp2000_pusup600_trk70_hmt']
         self.JetItems = ['HLT_j400','HLT_j460_a10_L1J100','HLT_j200_320eta490','HLT_j60','HLT_j110','HLT_j150','HLT_j200','HLT_j260','HLT_j330','HLT_3j175','HLT_4j100','HLT_5j85','HLT_ht1000_L1J100','HLT_j30_muvtx',] #DC14 jet menu

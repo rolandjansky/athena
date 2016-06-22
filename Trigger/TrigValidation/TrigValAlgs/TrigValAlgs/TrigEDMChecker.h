@@ -50,8 +50,11 @@ class TrigEDMChecker : public AthAlgorithm  {
    /** a handle on Store Gate for access to the Event Store */
    bool m_doDumpAll;
 
+   bool m_doDumpTrigPassBits;
+   StatusCode dumpTrigPassBits();
+
    bool m_doDumpLVL1_ROI;
-  StatusCode dumpLVL1_ROI();
+   StatusCode dumpLVL1_ROI();
 
    bool m_doDumpTrackParticleContainer;
    StatusCode dumpTrackParticleContainer();
