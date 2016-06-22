@@ -73,6 +73,8 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
   log << MSG::VERBOSE << "Dimension of the RDO vector: " << m_RDOs.size() << endreq;
 #endif
 
+  int hitDiscCnfg = 2;
+
   // ordering of the elements of the RDOs vector by offlineId, n5
   if (rdo_it != rdo_it_end) {
     OrderInitialRdos orderInitialRdos(m_pixelCabling, m_PixelID); 
@@ -230,6 +232,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	uint32_t row = m_pixelCabling->getRow(&pixelId,offlineId);
 	uint32_t column = m_pixelCabling->getColumn(&pixelId,offlineId);
         v32rod.push_back(packRawDataWord(FE, row, column, TOT));
+
 	
 	// The following was used for running a validation scrip and making validation plots
 #ifdef PLOTS
@@ -278,6 +281,8 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 #ifdef PIXEL_DEBUG
 	log << MSG::VERBOSE << "FE (w.r.t. SLink) = 0x" << std::hex << FE << " sLink: 0x" << sLink << " => n5: 0x" << n5 << std::dec << endreq;
 #endif
+
+        hitDiscCnfg = m_pixelCabling->getHitDiscCnfg(robId, FE);
 
 //----------------------------------------------------------------------------------------------
 //- Fill the data
@@ -492,7 +497,20 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 #endif
 		int tot0 = (*rdo_same_it)->getToT();
 		int tot1 = (*rdo_test_it)->getToT();
-		totInHitWord = (tot0 << 4) | tot1;
+
+                // Adjust ToT according to hitdisccnfg setting
+                if (hitDiscCnfg == 2 && tot0 == 16) tot0 = 2;
+                if (hitDiscCnfg == 2 && tot1 == 16) tot1 = 2;
+
+                int overflow = 14;
+                if (hitDiscCnfg == 1) overflow = 15;
+                if (hitDiscCnfg == 2) overflow = 16;
+
+                if (tot0 > overflow) tot0 = overflow;
+                if (tot1 > overflow) tot1 = overflow;
+
+                totInHitWord = (tot0 << 4) | tot1;
+
 #ifdef PIXEL_DEBUG
 		log << MSG::VERBOSE << "doubleHit = " << std::boolalpha << doubleHit << std::noboolalpha << " ===> (col0 == col1) : 0x" << std::hex << col0 << " = 0x" << col1 << ";    (row0 = row1 - 1) : 0x" << row0 << " => 0x" << row1 <<";     (tot0) : 0x" << tot0 << ", (tot1) : 0x" << tot1 << " => totInHitWord: 0x" << totInHitWord << std::dec << endreq;
 #endif
@@ -508,7 +526,19 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	  } // end if "row0 == rowsPerFE" (== 336)
 
 	  if (!doubleHit) {
-        totInHitWord = (((*rdo_same_it)->getToT()) << 4) | 0x0;
+
+              int tot0 = (*rdo_same_it)->getToT();
+
+              // Adjust ToT according to hitdisccnfg setting
+              if (hitDiscCnfg == 2 && tot0 == 16) tot0 = 2;
+
+              int overflow = 14;
+              if (hitDiscCnfg == 1) overflow = 15;
+              if (hitDiscCnfg == 2) overflow = 16;
+              if (tot0 > overflow) tot0 = overflow;
+
+              totInHitWord = (tot0 << 4) | 0x0;
+
 #ifdef PIXEL_DEBUG
 	    log << MSG::VERBOSE << "doubleHit = " << std::boolalpha << doubleHit << std::noboolalpha << " ===> col0: 0x" << std::hex << col0 << std::dec << ";   row0: 0x" << std::hex << row0 << std::dec << "   totInHitWord: 0x" << std::hex << totInHitWord << std::dec << endreq;
 #endif
@@ -559,8 +589,9 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	if (vRows.size() != 0) { // packing remaining non-condensed IBL hit words
 	  //	  int cycleCounter(0);
       	  for (; vRows.size() != 0; ) {	  
-	    v32rod.push_back(packRawDataWord_IBL(vRows.at(0), vCols.at(0), vTots.at(0), n5));	    
-     	    vRows.erase(vRows.begin());
+	    v32rod.push_back(packRawDataWord_IBL(vRows.at(0), vCols.at(0), vTots.at(0), n5));	   
+     	
+        vRows.erase(vRows.begin());
 	    vCols.erase(vCols.begin());
 	    vTots.erase(vTots.begin());
 	  }
@@ -896,4 +927,3 @@ bool OrderRdos::operator () (const PixelRDORawData* rdo0, const PixelRDORawData*
   }
   else {return false; }
 }
-
