@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <sstream>
 
 /* 
 Combinations generator. Given n, k > 0, n>= k, next() returns the
