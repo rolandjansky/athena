@@ -352,6 +352,13 @@ def defineCPSGroups():
                                         'mu6_mu4_bDimu_novtx_noos',
                                         ],
 
+        'RATE:CPS:HLT_2mu10_bDimu' : ['2mu10_bBmumux_BcmumuDsloose',
+                                      '2mu10_bJpsimumu',
+                                      '2mu10_bUpsimumu',
+                                      '2mu10_bBmumuxv2',
+                                      '2mu10_bDimu',
+                                      '2mu10_bDimu_novtx_noos',
+                                      ],
 
         'RATE:CPS:HLT_3mu4_bDimu' : ['3mu4_bDimu',
                                      '3mu4_bJpsi',

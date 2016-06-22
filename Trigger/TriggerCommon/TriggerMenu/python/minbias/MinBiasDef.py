@@ -167,7 +167,7 @@ class L2EFChain_MB(L2EFChainDef):
             theL2Fex  = L2MbSpFex_SCTNoiseSup
         elif doSpNcb:
             # spacepoint halo trigger is SCT only
-            theL2Fex  = L2MbSpFex_noPix
+            theL2Fex  = L2MbSpFex_ncb
             chainSuffix = "sp_ncb"
         elif doBLayer:
             # pix occupancy trigger only counts the innermost pix layer
