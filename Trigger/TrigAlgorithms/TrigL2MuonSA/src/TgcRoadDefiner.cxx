@@ -182,14 +182,15 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
 
         double tmp  = (tmp1+tmp2)/2.;
 
-        tgcFitResult.dPhidZ = (fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3])>0.)?
+        tgcFitResult.dPhidZ = (fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]) > ZERO_LIMIT)?
           (tmp2-tmp1)/fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]): 0;
 
         tgcFitResult.phi = (tmp>0.)? tmp - CLHEP::pi : tmp + CLHEP::pi;
 
       } else {
 
-        tgcFitResult.dPhidZ = (tgcFitResult.tgcMid2[1]-tgcFitResult.tgcMid1[1])/fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]);
+        tgcFitResult.dPhidZ = (fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]) > ZERO_LIMIT)?
+	  (tgcFitResult.tgcMid2[1]-tgcFitResult.tgcMid1[1])/fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]): 0;
         tgcFitResult.phi = (tgcFitResult.tgcMid2[1]+tgcFitResult.tgcMid1[1])/2.;
 
       }
