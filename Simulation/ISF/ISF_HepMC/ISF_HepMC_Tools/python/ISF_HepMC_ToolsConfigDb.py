@@ -1,15 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.CfgGetter import addTool, addService, addAlgorithm
-## Lorentz Vector Generators
-addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getVertexPositionFromFile",            "ISF_VertexPositionFromFile")
-addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getVertexBeamCondPositioner",          "ISF_VertexBeamCondPositioner")
-addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getLongBeamspotVertexPositioner",      "ISF_LongBeamspotVertexPositioner")
-addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getCrabKissingVertexPositioner",       "ISF_CrabKissingVertexPositioner")
-## GenEvent Manipulators
-addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getGenEventValidityChecker",           "ISF_GenEventValidityChecker")
-addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getGenEventVertexPositioner",          "ISF_GenEventVertexPositioner")
-addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getGenEventBeamEffectBooster",         "ISF_GenEventBeamEffectBooster")
+from AthenaCommon.CfgGetter import addTool
 ## GenParticle Filters
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getParticleFinalStateFilter",          "ISF_ParticleFinalStateFilter")
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getParticleSimWhiteList",              "ISF_ParticleSimWhiteList")

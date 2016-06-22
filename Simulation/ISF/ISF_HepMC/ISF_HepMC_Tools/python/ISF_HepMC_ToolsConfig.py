@@ -10,59 +10,6 @@ from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 from AthenaCommon.SystemOfUnits import *
 
 #--------------------------------------------------------------------------------------------------
-## LorentzVectorGenerators
-
-def getVertexPositionFromFile(name="ISF_VertexPositionFromFile", **kwargs):
-    # VertexPositionFromFile
-    kwargs.setdefault("VertexPositionsFile"         , "vtx-pos.txt")
-    kwargs.setdefault("RunAndEventNumbersFile"      , "run-evt-nums.txt")
-    return CfgMgr.ISF__VertexPositionFromFile(name, **kwargs)
-
-def getVertexBeamCondPositioner(name="ISF_VertexBeamCondPositioner", **kwargs):
-    # VertexBeamCondPositioner
-    from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault('RandomSvc'               , simFlags.RandomSvc.get_Value())
-    return CfgMgr.ISF__VertexBeamCondPositioner(name, **kwargs)
-
-def getLongBeamspotVertexPositioner(name="ISF_LongBeamspotVertexPositioner", **kwargs):
-    # LongBeamspotVertexPositioner
-    from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault('LParameter'              , 150.0)
-    kwargs.setdefault('RandomSvc'               , simFlags.RandomSvc.get_Value())
-    return CfgMgr.ISF__LongBeamspotVertexPositioner(name, **kwargs)
-
-def getCrabKissingVertexPositioner(name="ISF_CrabKissingVertexPositioner", **kwargs):
-    from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault('BunchLength'             , 75.0)
-    kwargs.setdefault('RandomSvc'               , simFlags.RandomSvc.get_Value())
-    kwargs.setdefault('BunchShape'              , "GAUSS")
-    return CfgMgr.ISF__CrabKissingVertexPositioner(name, **kwargs)
-
-#--------------------------------------------------------------------------------------------------
-## GenEventManipulators
-
-def getGenEventValidityChecker(name="ISF_GenEventValidityChecker", **kwargs):
-    # GenEventValidityChecker
-    return CfgMgr.ISF__GenEventValidityChecker(name, **kwargs)
-
-def getGenEventVertexPositioner(name="ISF_GenEventVertexPositioner", **kwargs):
-    # GenEventVertexPositioner
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    if ISF_Flags.VertexPositionFromFile():
-        kwargs.setdefault("VertexShifters"          , [ 'ISF_VertexPositionFromFile' ])
-    else:
-        # TODO At this point there should be the option of using the
-        # ISF_LongBeamspotVertexPositioner too.
-        kwargs.setdefault("VertexShifters"          , [ 'ISF_VertexBeamCondPositioner' ])
-    return CfgMgr.ISF__GenEventVertexPositioner(name, **kwargs)
-
-def getGenEventBeamEffectBooster(name="ISF_GenEventBeamEffectBooster", **kwargs):
-    from G4AtlasApps.SimFlags import simFlags
-    if not simFlags.RandomSeedList.checkForExistingSeed("BEAM"):
-        simFlags.RandomSeedList.addSeed( "BEAM", 3499598793, 7345291 )
-    return CfgMgr.ISF__GenEventBeamEffectBooster(name, **kwargs)
-
-#--------------------------------------------------------------------------------------------------
 ## GenParticleFilters
 
 def getParticleFinalStateFilter(name="ISF_ParticleFinalStateFilter", **kwargs):
@@ -164,30 +111,17 @@ def getLongLivedStackFiller(name="ISF_LongLivedStackFiller", **kwargs):
 
 
 def getStackFiller(name="ISF_StackFiller", **kwargs):
-    kwargs.setdefault("InputMcEventCollection"                          , 'GEN_EVENT'  )
+    kwargs.setdefault("InputMcEventCollection"                          , 'BeamTruthEvent'  )
     kwargs.setdefault("OutputMcEventCollection"                         , 'TruthEvent' )
     kwargs.setdefault("PurgeOutputCollectionToSimulatedParticlesOnly"   , False        )
     kwargs.setdefault("UseGeneratedParticleMass"                        , False        )
+    genParticleFilters = [ 'ISF_ParticleFinalStateFilter']
     from AthenaCommon.BeamFlags import jobproperties
-    if jobproperties.Beam.beamType() == "cosmics":
-        kwargs.setdefault("GenEventManipulators"                        , [
-                                                                           'ISF_GenEventValidityChecker',
-                                                                          ])
-        kwargs.setdefault("GenParticleFilters"                          , [
-                                                                           'ISF_ParticleFinalStateFilter',
-                                                                           'ISF_GenParticleInteractingFilter',
-                                                                          ])
-    else:
-        kwargs.setdefault("GenEventManipulators"                        , [
-                                                                           'ISF_GenEventValidityChecker',
-                                                                           'ISF_GenEventVertexPositioner',
-                                                                          ])
-        kwargs.setdefault("GenParticleFilters"                          , [
-                                                                           'ISF_ParticleFinalStateFilter',
-                                                                           'ISF_ParticlePositionFilterDynamic',
-                                                                           'ISF_EtaPhiFilter',
-                                                                           'ISF_GenParticleInteractingFilter',
-                                                                          ])
+    if jobproperties.Beam.beamType() != "cosmics":
+        genParticleFilters += [ 'ISF_ParticlePositionFilterDynamic',
+                                'ISF_EtaPhiFilter' ]
+    genParticleFilters += [ 'ISF_GenParticleInteractingFilter' ]
+    kwargs.setdefault("GenParticleFilters"                              , genParticleFilters)
     from ISF_Config.ISF_jobProperties import ISF_Flags
     kwargs.setdefault("BarcodeService"                                  , ISF_Flags.BarcodeService() )
     return CfgMgr.ISF__GenEventStackFiller(name, **kwargs)

@@ -34,11 +34,9 @@ class McEventCollection;
 namespace ISF {
 
    class ISFParticle;
-   class IGenEventManipulator;
    class IGenParticleFilter;
 
     /** make the code a bit cleaner by using an explicit datatype for the GenEvent manipulators */
-    typedef ToolHandleArray<IGenEventManipulator>    GenEventManipulators;
     typedef ToolHandleArray<IGenParticleFilter>      GenParticleFilters;
 
 
@@ -83,7 +81,6 @@ namespace ISF {
       bool                                  m_recordOnlySimulated;      //!< record only simulated particles in output truth collection
       bool                                  m_useGeneratedParticleMass; //!< use GenParticle::generated_mass() in simulation
 
-      GenEventManipulators                  m_genEventManipulators;     //!< event manipulators (executed in given order)
       GenParticleFilters                    m_genParticleFilters;       //!< HepMC::GenParticle filter
 
       ServiceHandle<Barcode::IBarcodeSvc>   m_barcodeSvc;               //!< the ISF barcode service
