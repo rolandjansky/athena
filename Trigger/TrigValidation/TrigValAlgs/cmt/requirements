@@ -71,6 +71,7 @@ use xAODTrigCalo                xAODTrigCalo-*          Event/xAOD
 use xAODTrigMinBias		xAODTrigMinBias-*	Event/xAOD
 use xAODJet			xAODJet-*		Event/xAOD
 use xAODTrigMinBias		xAODTrigMinBias-*	Event/xAOD
+use xAODTrigger                 xAODTrigger-*           Event/xAOD
 
 # for bjet part of the test
 use     VxSecVertex             VxSecVertex-*           Tracking/TrkEvent
