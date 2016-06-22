@@ -3,7 +3,7 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 743343 2016-04-27 15:47:21Z graemes $
+#  @version $Id: trfArgs.py 755761 2016-06-17 13:26:21Z mavogel $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -422,6 +422,7 @@ def getExtraDPDList(NTUPOnly = False):
     extraDPDs.append(dpdType('NTUP_MCPScale', substeps=['a2d'], help="Ntuple file for MCP scale calibration"))
 
     extraDPDs.append(dpdType('NTUP_FastCaloSim', substeps=['e2d']))
+    extraDPDs.append(dpdType('NTUP_MUONCALIB', substeps=['r2a']))
 
     # Trigger NTUPs (for merging only!)
     if NTUPOnly:
@@ -521,7 +522,7 @@ def addTriggerArguments(parser, addTrigFilter=True):
                         help='Trigger configuration string (substep aware argument - default is to run trigger in RDOtoRDOTrigger step, '
                         'use syntax SUBSTEP=TRIGCONF if you want to run trigger somewhere else). '
                         'N.B. This argument uses EQUALS (=) to separate the substep name from the value.', 
-                        group='Trigger')
+                        group='Trigger', nargs='+')
     if addTrigFilter:
         parser.add_argument('--trigFilterList',
                             type=argFactory(trfArgClasses.argList), nargs="+",

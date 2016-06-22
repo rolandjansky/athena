@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 750283 2016-05-27 12:30:08Z graemes $
+# @version $Id: trfArgClasses.py 756978 2016-06-22 14:23:04Z graemes $
 
 import argparse
 import bz2
@@ -1334,7 +1334,7 @@ class argBSFile(argAthenaFile):
         # task (hybrid merged files cannot be further bybrid merged) 
         myDataDictionary = {'BS_MRG_INPUT' : argBSFile(inputs, type=self.type, io='input'),
                             'BS_MRG_OUTPUT' : argBSFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
+        myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = bsMergeExecutor(name='BSMergeAthenaMP{0}{1}'.format(self._subtype, counter), conf=myMergeConf, exe = 'file_merging',
                                   inData=set(['BS_MRG_INPUT']), outData=set(['BS_MRG_OUTPUT']))
         myMerger.doAll(input=set(['BS_MRG_INPUT']), output=set(['BS_MRG_OUTPUT']))
@@ -1347,6 +1347,7 @@ class argBSFile(argAthenaFile):
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
         self._resetMetadata(inputs + [output])
+        return myMerger
     
 
 ## @brief POOL file class.
@@ -1395,10 +1396,10 @@ class argPOOLFile(argAthenaFile):
         # task (hybrid merged files cannot be further bybrid merged) 
         myDataDictionary = {'POOL_MRG_INPUT' : argPOOLFile(inputs, type=self.type, io='input'),
                             'POOL_MRG_OUTPUT' : argPOOLFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
+        myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = athenaExecutor(name='POOLMergeAthenaMP{0}{1}'.format(self._subtype, counter), conf=myMergeConf, 
                                   skeletonFile = 'RecJobTransforms/skeleton.MergePool_tf.py',
-                                  inData=set(['POOL_MRG_INPUT']), outData=set(['POOL_MRG_OUTPUT']), perfMonFile = 'ntuple_POOLMerge.pmon.gz')
+                                  inData=set(['POOL_MRG_INPUT']), outData=set(['POOL_MRG_OUTPUT']), disableMP=True)
         myMerger.doAll(input=set(['POOL_MRG_INPUT']), output=set(['POOL_MRG_OUTPUT']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1432,10 +1433,10 @@ class argHITSFile(argPOOLFile):
         from PyJobTransforms.trfExe import athenaExecutor, executorConfig
         myDataDictionary = {'HITS' : argHITSFile(inputs, type=self.type, io='input'),
                             'HITS_MRG' : argHITSFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
+        myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = athenaExecutor(name = mySubstepName, skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',
                                   conf=myMergeConf, 
-                                  inData=set(['HITS']), outData=set(['HITS_MRG']), perfMonFile = 'ntuple_HITSMerge.pmon.gz')
+                                  inData=set(['HITS']), outData=set(['HITS_MRG']), disableMP=True)
         myMerger.doAll(input=set(['HITS']), output=set(['HITS_MRG']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1468,10 +1469,10 @@ class argRDOFile(argPOOLFile):
         from PyJobTransforms.trfExe import athenaExecutor, executorConfig
         myDataDictionary = {'RDO' : argHITSFile(inputs, type=self.type, io='input'),
                             'RDO_MRG' : argHITSFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
+        myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = athenaExecutor(name = 'RDOMergeAthenaMP{0}'.format(counter), skeletonFile = 'RecJobTransforms/skeleton.MergeRDO_tf.py',
                                   conf=myMergeConf, 
-                                  inData=set(['RDO']), outData=set(['RDO_MRG']), perfMonFile = 'ntuple_RDOMerge.pmon.gz')
+                                  inData=set(['RDO']), outData=set(['RDO_MRG']), disableMP=True)
         myMerger.doAll(input=set(['RDO']), output=set(['RDO_MRG']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1531,7 +1532,7 @@ class argTAGFile(argPOOLFile):
         # We need a tagMergeExecutor to do the merge
         myDataDictionary = {'TAG_MRG_INPUT' : argTAGFile(inputs, type=self.type, io='input'),
                             'TAG_MRG_OUTPUT' : argTAGFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
+        myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = tagMergeExecutor(name='TAGMergeAthenaMP{0}{1}'.format(self._subtype, counter), exe = 'CollAppend', 
                                         conf=myMergeConf, 
                                         inData=set(['TAG_MRG_INPUT']), outData=set(['TAG_MRG_OUTPUT']),)
@@ -1651,7 +1652,7 @@ class argNTUPFile(argFile):
         # We need a NTUPMergeExecutor to do the merge
         myDataDictionary = {'NTUP_MRG_INPUT' : argNTUPFile(inputs, type=self.type, io='input'),
                             'NYUP_MRG_OUTPUT' : argNTUPFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
+        myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = NTUPMergeExecutor(name='NTUPMergeAthenaMP{0}{1}'.format(self._subtype, counter), conf=myMergeConf, 
                                      inData=set(['NTUP_MRG_INPUT']), outData=set(['NTUP_MRG_OUTPUT']))
         myMerger.doAll(input=set(['NTUP_MRG_INPUT']), output=set(['NYUP_MRG_OUTPUT']))
