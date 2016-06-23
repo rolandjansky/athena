@@ -504,7 +504,7 @@ StatusCode TileRawChannelNoiseMonTool::fillHistoPerRawChannel() {
   // Loop over the containers
   for (const TileRawChannelCollection* rawChannelCollection : *rawChannelContainer) {
 
-    if (rawChannelCollection->empty()) continue;
+    if (rawChannelCollection->empty() || (rawChannelCollection->getLvl1Type() != getL1info())) continue;
 
     HWIdentifier adc_id = rawChannelCollection->front()->adc_HWID();
     int ros = m_tileHWID->ros(adc_id);
