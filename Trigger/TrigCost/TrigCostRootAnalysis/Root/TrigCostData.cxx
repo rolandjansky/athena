@@ -920,6 +920,7 @@ namespace TrigCostRootAnalysis {
    */
   Bool_t TrigCostData::getIsROBDataRetrieved(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
+      //   std::cout << "_n    " << _n << " ||||   _r   " << _r << std::endl;
     Bool_t _R = (Bool_t) m_trigCostObject->rob_data_isRetrieved()->at(_n).at(_r);
     MUTEX_OFF
     return _R;

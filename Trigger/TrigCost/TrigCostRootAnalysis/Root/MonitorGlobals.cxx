@@ -229,9 +229,30 @@ namespace TrigCostRootAnalysis {
       "Average per event number of calls made to the Readout System by executed algorithms.",
       kVarROSCalls, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
 
-    _toSave.push_back( TableColumnFormatter("RoIs/Events",
+    _toSave.push_back( TableColumnFormatter("RoIs/Event",
       "Average per event number of Regions of Interest supplied from the lower trigger level.",
       kVarROI, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
+
+    _toSave.push_back( TableColumnFormatter("CostMon Time/Event [ms]",
+      "Average time per event to execute cost monitoring.",
+      kVarTrigCostTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
+
+    // _toSave.push_back( TableColumnFormatter("Texec Time/Event [ms]",
+    //   "Average time per event for the Texec timer.",
+    //   kVarTexecTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
+
+    _toSave.push_back( TableColumnFormatter("Chain Exec Time/Event [ms]",
+      "Average per event to process all chains.",
+      kVarChainExecTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
+
+    // _toSave.push_back( TableColumnFormatter("Result Builder Time/Event [ms]",
+    //   "Average per event number to run the Result Builder.",
+    //   kVarResultBuildingTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
+
+    // _toSave.push_back( TableColumnFormatter("Monitoring Time/Event [ms]",
+    //   "Average per event to run all monitoring tools. Excluding CostMon/",
+    //   kVarMonitoringTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
+
 
     // TODO - add INPUT rate using L1 info (?)
     // Fin LB start time and LB length

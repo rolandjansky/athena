@@ -139,6 +139,9 @@ int main(int argc, char* argv[]) {
   std::string _onlineTimeStr;
   struct rusage _resources;
   std::string _outputProgressFile;
+  const Bool_t _writeEBWeightXML = _config.getInt(kWriteEBWeightXML);
+  const Int_t _LBStart = _config.getInt(kLumiStart);
+  const Int_t _LBEnd = _config.getInt(kLumiEnd);
   // Begin event loop
 
   _config.setLong(kEventsInFiles, _chain.GetEntries(), "EventsInFiles");
@@ -253,19 +256,17 @@ int main(int argc, char* argv[]) {
 
       // Get event weight
       Float_t _weight = 1;
-      if (_config.getInt(kWriteEBWeightXML) == kFALSE) {
+      if (_writeEBWeightXML == kFALSE) {
         _weight = _config.getFloat( kEventWeight ); // This is our base weight that we can apply additional weights on top of
+        TrigConfInterface::newEvent( _HLTData.getLumi() );       // Check / get menu configuration
       }
-
-      // Check / get menu configuration
-      if (_config.getInt(kWriteEBWeightXML) == kFALSE) TrigConfInterface::newEvent();
 
       Bool_t _eventAccepted = kFALSE;
 
       // Execute L2 monitoring
       if (_doL2 && !isZero(_weight)) {
         // Check lumi block
-        if ( _L2Data.getLumi() >= _config.getInt(kLumiStart) && _L2Data.getLumi() <= _config.getInt(kLumiEnd) ) {
+        if ( _L2Data.getLumi() >= _LBStart && _L2Data.getLumi() <= _LBEnd) {
           _eventAccepted = _processEventL2->newEvent( _weight );
         }
       }
@@ -273,16 +274,16 @@ int main(int argc, char* argv[]) {
       // Execute EF monitoring
       if (_doEF && !isZero(_weight)) {
         // Check lumi block
-        if ( _EFData.getLumi() >= _config.getInt(kLumiStart) && _EFData.getLumi() <= _config.getInt(kLumiEnd) ) {
+        if ( _EFData.getLumi() >= _LBStart && _EFData.getLumi() <= _LBEnd) {
           _eventAccepted = _processEventEF->newEvent( _weight );
         }
       }
 
       // Execute HLT monitoring
       if (_doHLT && !isZero(_weight) ) {
-        if (_config.getInt(kWriteEBWeightXML) == kTRUE) {
+        if (_writeEBWeightXML == kTRUE) {
           TrigXMLService::trigXMLService().exportEnhancedBiasXML( _HLTData.getEventNumber(), _HLTData.getEBWeight(), _HLTData.getEBWeightBG(), _HLTData.getEBUnbiased() );
-        } else if ( _HLTData.getLumi() >= _config.getInt(kLumiStart) && _HLTData.getLumi() <= _config.getInt(kLumiEnd) && TrigXMLService::trigXMLService().getIsLBFlaggedBad( _HLTData.getLumi() ) == kFALSE ) {
+        } else if ( _HLTData.getLumi() >= _LBStart && _HLTData.getLumi() <= _LBEnd && TrigXMLService::trigXMLService().getIsLBFlaggedBad( _HLTData.getLumi() ) == kFALSE ) {
           _lbProcessed.insert( _HLTData.getLumi() );
           _eventAccepted = _processEventHLT->newEvent( _weight );
         }
@@ -377,7 +378,7 @@ int main(int argc, char* argv[]) {
   ///  --- OUTPUT SECTION ---  ///
   _timerFinalise.start();
 
-  if (_config.getInt(kWriteEBWeightXML) == kTRUE) TrigXMLService::trigXMLService().saveExportedEnhancedBiasXML();
+  if (_writeEBWeightXML == kTRUE) TrigXMLService::trigXMLService().saveExportedEnhancedBiasXML();
 
   TFile* _outFile = 0;
   if (_config.getInt(kOutputRoot) == kTRUE) {
@@ -413,6 +414,7 @@ int main(int argc, char* argv[]) {
       }
       _config.set(kUserDetails, _userDetails, "Details", kLocked);
     }
+    TrigConfInterface::populateLBPerKeysetStrings();
 
     const std::string _outputMetadata = _config.getStr(kOutputDirectory) + "/metadata.json";
     std::ofstream _fout(_outputMetadata.c_str());
@@ -421,7 +423,7 @@ int main(int argc, char* argv[]) {
     _json.addLeafCustom(_fout, "Date of Processing", _onlineTimeStr );
     Config::config().dumpToMeta(_fout, _json);
     // Get metadata from the last root file
-    if (_config.getInt(kWriteEBWeightXML) == kFALSE) {
+    if (_writeEBWeightXML == kFALSE) {
       for (UInt_t _m = 0; _m < TrigConfInterface::getMetaStringN(); ++_m) {
         std::string _metaKey = TrigConfInterface::getMetaStringKey(_m);
         //Info("TrigCostD3PD","Exporting metadata %s = %s", _metaKey.c_str(), TrigConfInterface::getMetaStringVal(_m).c_str());
