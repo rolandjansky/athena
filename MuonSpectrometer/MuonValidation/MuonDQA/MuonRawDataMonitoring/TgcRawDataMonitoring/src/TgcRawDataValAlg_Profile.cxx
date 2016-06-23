@@ -105,7 +105,7 @@ TgcRawDataValAlg::bookHistogramsProfile(){
   for(int ac=0;ac<2;ac++){
     //number of hits for each SSW in 2LBs
     ss.str(""); ss << "Doublet_Triplet_Hits_"<<side[ac];
-    tgctripletdoublethitsinlbvssect[ac]=new TH2F(ss.str().c_str(), (ss.str() + "; LB;" ).c_str(),750,1.,1501., 148, 0, 148 );       
+    tgctripletdoublethitsinlbvssect[ac]=new TH2F(ss.str().c_str(), (ss.str() + "; LB;" ).c_str(),1250,1.,2501., 148, 0, 148 );       
     sc=tgcprd_shift_ac[ac]->regHist(tgctripletdoublethitsinlbvssect[ac]) ;  
     if(sc.isFailure()) { 
       m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
