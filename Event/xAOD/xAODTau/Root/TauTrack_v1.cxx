@@ -10,6 +10,11 @@
 #define TAUTRACK_V1_ACCESSORS
 #include "TauJetAccessors_v3.h"
 
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTau/TauJet.h"
+
+#include <cmath>
+
 namespace xAOD {
   
   TauTrack_v1::TauTrack_v1()
@@ -96,19 +101,34 @@ namespace xAOD {
   // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauTrack_v1, float, rConvII, setRConvII)
   // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauTrack_v1, float, dRJetSeedAxis, setDRJetSeedAxis)
 
-  float TauTrack_v1::z0sinThetaTJVA(const xAOD::IParticle& ) const{
-    return 0.;
+  float TauTrack_v1::z0sinThetaTJVA(const xAOD::IParticle& part ) const{
+    const xAOD::TrackParticle* xTrackParticle = this->track();
+    const xAOD::TauJet* tau = dynamic_cast<const xAOD::TauJet*> (&part);
+    if(tau)
+      return (xTrackParticle->z0() + xTrackParticle->vz() - tau->vertex()->z()) * sin(xTrackParticle->theta());
+    else {
+      std::cerr << "ERROR xAOD::TauTrack::z0sinThetaTJVA cannot get TauJet" << std::endl;
+      return 0;
+    }
   }
 
   float TauTrack_v1::rConv(const xAOD::IParticle& ) const{
-    return 0.;
+    const xAOD::TrackParticle* xTrackParticle = this->track();
+    return std::sqrt(std::fabs(xTrackParticle->d0())*xTrackParticle->pt()/(.3 /*0.15*2.*/));
   }
 
   float TauTrack_v1::rConvII(const xAOD::IParticle& ) const{
-    return 0.;
+    const xAOD::TrackParticle* xTrackParticle = this->track();
+    return std::sqrt( std::fabs( xTrackParticle->d0() * xTrackParticle->pt() ) / (0.3)  )*(xTrackParticle->d0()/fabs(xTrackParticle->d0()))*xTrackParticle->charge();
   }
 
-  float TauTrack_v1::dRJetSeedAxis(const xAOD::IParticle& ) const{
+  float TauTrack_v1::dRJetSeedAxis(const xAOD::IParticle& part) const{
+    const xAOD::TauJet* tau = dynamic_cast<const xAOD::TauJet*> (&part);
+    if(tau)
+      return tau->jet()->p4().DeltaR(this->p4());//this function should take jet seed as input
+    else {
+      std::cerr << "ERROR xAOD::TauTrack::z0sinThetaTJVA cannot get TauJet" << std::endl;
+    }
     return 0.;
   }
 
