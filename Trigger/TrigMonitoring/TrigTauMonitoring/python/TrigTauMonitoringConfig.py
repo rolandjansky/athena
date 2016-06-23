@@ -233,7 +233,7 @@ def TrigTauMonitoringTool():
 				  doRealZtautauEff       = True,
 				  dodijetFakeTausEff     = True,
 				  doBootstrap		 = False,
-				  doEmulation		 = True,
+				  doEmulation		 = False,
 				  emulation_l1_tau       = emul_l1_tau,
 				  emulation_hlt_tau      = emul_hlt_tau,
 				  L1EmulationTool        = Level1Emulator,
