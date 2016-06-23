@@ -264,6 +264,16 @@ TProfile* TilePaterMonTool::bookProfile(std::string subdir, std::string nam, std
   return hist;
 }
 
+TProfile* TilePaterMonTool::bookProfile(std::string subdir, std::string nam, std::string tit,
+                                          int nx, const float* xbins,
+                                          Interval_t interval, MgmtAttr_t attribute,
+                                          std::string trigChain, std::string mergeAlgo)
+{
+  TProfile* hist = new TProfile(TString(nam), TString(tit), nx, xbins);
+  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
+  return hist;
+}
+
 TProfile2D* TilePaterMonTool::bookProfile2D(std::string subdir, std::string nam, std::string tit,
                                              int nx, double xmin, double xmax,
                                              int ny, double ymin, double ymax,

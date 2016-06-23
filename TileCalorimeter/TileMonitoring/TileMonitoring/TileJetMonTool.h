@@ -43,7 +43,7 @@ class ITileBadChanTool;
  */
 
 class TileJetMonTool: public TileFatherMonTool {
-
+  
   public:
     TileJetMonTool(const std::string & type, const std::string & name, const IInterface* parent);
     //  : TileFatherMonTool(type, name, parent);
@@ -87,6 +87,7 @@ class TileJetMonTool: public TileFatherMonTool {
     bool m_do_2dim_histos;
     bool m_do_enediff_histos;
     float m_enediff_threshold;
+    bool m_do_energy_profiles;
   
     std::string m_partname[NPART];
     std::set<Identifier> m_usedCells;  // cells already used in the given event
@@ -117,6 +118,11 @@ class TileJetMonTool: public TileFatherMonTool {
     std::vector<TH1F*> m_TilePartCellTimeLG[NPART];
     std::vector<TH1F*> m_TilePartCellEneHG[NPART];
     std::vector<TH1F*> m_TilePartCellEneLG[NPART];
+
+  // vector for cell energy histograms, contained in TProfile instead of vector
+  // of TH1F
+    std::vector<TProfile*> m_TilePartCellEneHGProf;
+    std::vector<TProfile*> m_TilePartCellEneLGProf;
 
     std::vector<float> m_cell_ene_hg_up;
     std::vector<float> m_cell_ene_lg_up;

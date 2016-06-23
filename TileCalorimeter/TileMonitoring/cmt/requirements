@@ -16,6 +16,7 @@ private
 use ByteStreamCnvSvcBase  ByteStreamCnvSvcBase-*  Event
 
 use AtlasCLHEP           AtlasCLHEP-*          External
+use AthenaKernel         AthenaKernel-*        Control
 use xAODEventInfo        xAODEventInfo-*       Event/xAOD
 use xAODTrigger          xAODTrigger-*         Event/xAOD
 
@@ -46,9 +47,6 @@ use JetInterface 	 JetInterface-*	       Reconstruction/Jet
 use AsgTools		 AsgTools-* 	       Control/AthToolSupport
 end_public
 
-
-# Specify the required ROOT components for cmake (transparent to CMT)
-apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Graf Gpad Hist Spectrum)"
 
 apply_pattern declare_joboptions files="*.py"
 

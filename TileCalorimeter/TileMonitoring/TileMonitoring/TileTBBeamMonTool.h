@@ -54,38 +54,38 @@ class TileTBBeamMonTool: public TileFatherMonTool {
     StatusCode storeBeamElements();
 
     //Histogramming
-    TH2F* m_BC1Profile;
-    TH2F* m_BC2Profile;
-    TH2F* m_BC1ProfileSum;
-    TH2F* m_BC2ProfileSum;
-    TH1F* m_BC1Xhist;
-    TH1F* m_BC1Yhist;
-    TH1F* m_BC2Xhist;
-    TH1F* m_BC2Yhist;
-    TH2F* m_CellEnergyImpactX;
-    TH2F* m_CellEnergyImpactY;
-    TH2F* m_TotalEnergyImpactX;
-    TH2F* m_TotalEnergyImpactY;
-    TH2F* m_ImpactProfile;
-    TH2F* m_Cher1Energy;
-    TH2F* m_Cher2Energy;
-    TH2F* m_CherCompare;
-    TH2F* m_ScinCalEnergy;
-    TH1F* m_S1hist;
-    TH1F* m_S2hist;
-    TH1F* m_S3hist;
-    TH1F* m_Cher1hist;
-    TH1F* m_Cher2hist;
-    TH1F* m_MuonEnergy;
-    TH1F* m_PMT1;
-    TH1F* m_PMT2;
-    TH1F* m_PMT3;
-    TH1F* m_PMT4;
-    TH1F* m_PMT5;
-    TH1F* m_PMT6;
-    TH1F* m_PMT7;
-    TH1F* m_PMT8;
-    TH2F* m_PMTHitMap;
+    TH2F* m_BC1Profile = nullptr;
+    TH2F* m_BC2Profile = nullptr;
+    TH2F* m_BC1ProfileSum = nullptr;
+    TH2F* m_BC2ProfileSum = nullptr;
+    TH1F* m_BC1Xhist = nullptr;
+    TH1F* m_BC1Yhist = nullptr;
+    TH1F* m_BC2Xhist = nullptr;
+    TH1F* m_BC2Yhist = nullptr;
+    TH2F* m_CellEnergyImpactX = nullptr;
+    TH2F* m_CellEnergyImpactY = nullptr;
+    TH2F* m_TotalEnergyImpactX = nullptr;
+    TH2F* m_TotalEnergyImpactY = nullptr;
+    TH2F* m_ImpactProfile = nullptr;
+    TH2F* m_Cher1Energy = nullptr;
+    TH2F* m_Cher2Energy = nullptr;
+    TH2F* m_CherCompare = nullptr;
+    TH2F* m_ScinCalEnergy = nullptr;
+    TH1F* m_S1hist = nullptr;
+    TH1F* m_S2hist = nullptr;
+    TH1F* m_S3hist = nullptr;
+    TH1F* m_Cher1hist = nullptr;
+    TH1F* m_Cher2hist = nullptr;
+    TH1F* m_MuonEnergy = nullptr;
+    TH1F* m_PMT1 = nullptr;
+    TH1F* m_PMT2 = nullptr;
+    TH1F* m_PMT3 = nullptr;
+    TH1F* m_PMT4 = nullptr;
+    TH1F* m_PMT5 = nullptr;
+    TH1F* m_PMT6 = nullptr;
+    TH1F* m_PMT7 = nullptr;
+    TH1F* m_PMT8 = nullptr;
+    TH2F* m_PMTHitMap = nullptr;
 
     bool m_isFirstEvent;
 
@@ -123,10 +123,10 @@ class TileTBBeamMonTool: public TileFatherMonTool {
     float m_yCha2_sum;
     float m_xImp;
     float m_yImp;
-    float m_deltaX1;
-    float m_deltaY1;
-    float m_deltaX2;
-    float m_deltaY2;
+    //float m_deltaX1;
+    //float m_deltaY1;
+    //float m_deltaX2;
+    //float m_deltaY2;
 
     //Calibration coords
     float m_horizontal_slope1;
@@ -151,7 +151,7 @@ class TileTBBeamMonTool: public TileFatherMonTool {
     std::string m_cellContainer; 
 
     //run number
-    int m_runNumber;
+    //int m_runNumber;
 
     //Beam element container
     std::string m_beamElemContainer;

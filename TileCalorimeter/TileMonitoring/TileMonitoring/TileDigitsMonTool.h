@@ -128,6 +128,8 @@ class TileDigitsMonTool: public TilePaterMonTool
     double m_sumRms2[5][64][48][2];
     double m_meanAmp[5][64][2][48];
     double m_meanAmp_ij[5][64][2][48][48];
+    int m_nEvents_i[5][64][2][48];
+    int m_nEvents_ij[5][64][2][48][48];
     double m_cov_ratio[5][64][2]; //covariance ratio printed in covariance plots
     uint8_t m_stuck_probs[5][64][48][2][10];
     bool m_allHistsFilled;
@@ -139,6 +141,7 @@ class TileDigitsMonTool: public TilePaterMonTool
     //Pointers to Histograms
     std::vector<TH1S *> m_hist0[5][64]; // ros,drawer
     std::vector<TH1S *> m_hist1[5][64][48][2]; // ros,drawer,channel,gain
+    std::vector<TH1I *> m_hist_DMUerr[5][64][48][2]; // ros,drawer,channel,gain for DMU BCID/CRC errors
     std::vector<TH2F *> m_hist2[5][64][2];
     std::vector<TProfile *> m_histP[5][64][48][2];
     std::vector<TH1F *> m_final_hist1[5][64][2]; // ros, drawer, gain

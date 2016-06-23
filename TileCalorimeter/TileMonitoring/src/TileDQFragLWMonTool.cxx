@@ -37,7 +37,17 @@ TileDQFragLWMonTool::TileDQFragLWMonTool(const std::string & type, const std::st
   , m_tileDCSSvc("TileDCSSvc",name)
   , m_beamInfo("TileBeamInfoProvider")
   , m_dqStatus(0)
+  , m_globalErrCount{}
+  , m_global{}
+  , m_mismatchedL1TriggerType{}
+  , m_badChannelJump2D{}
+  , m_badChannelNeg2D{}
+  , m_badChannelJump2DNotMasked{}
+  , m_badChannelNeg2DNotMasked{}
+  , m_errors{{}}
+  , m_errorsLB{{}}
   , m_isFirstEvent(true)
+  , m_nLumiblocks(3000)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -54,6 +64,7 @@ TileDQFragLWMonTool::TileDQFragLWMonTool(const std::string & type, const std::st
   declareProperty("doOnline", m_doOnline = false); // online mode
   declareProperty("CheckDCS", m_checkDCS = false);
   declareProperty("TileBadChanTool", m_tileBadChanTool);
+  declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
 
   m_path = "/Tile/DMUErrors";
   // starting up the label variable....
@@ -165,8 +176,8 @@ void TileDQFragLWMonTool::bookFirstEventHistograms() {
   std::vector<std::string> globalName,globalTitle;
   globalName.push_back("TileGlobalCRC_errors_top");
   globalName.push_back("TileGlobalCRC_errors_bottom");
-  globalTitle.push_back("Run " + runNumStr + ": Global Error Top [1,32]");
-  globalTitle.push_back("Run " + runNumStr + ": Global Error Bottom[33,64]");
+  globalTitle.push_back("Run " + runNumStr + ": Global Error Top [1,32] (entries = events)");
+  globalTitle.push_back("Run " + runNumStr + ": Global Error Bottom[33,64] (entries = events)");
     
   m_global[0] = book2ILW("", globalName[0], globalTitle[0], 32, 0.5, 32.5, 4, 0., 4.);
   m_global[0]->GetXaxis()->SetTitle("Drawer");
@@ -176,6 +187,21 @@ void TileDQFragLWMonTool::bookFirstEventHistograms() {
   m_global[1] = book2ILW("", globalName[1], globalTitle[1], 32, 32.5, 64.5, 4, 0., 4);
   SetBinLabel(m_global[1]->GetYaxis(), m_partitionsLabels);
   m_global[1]->GetXaxis()->SetTitle("Drawer");
+
+  // The Global Histogram with mismatched trigger types
+  m_mismatchedL1TriggerType[0] = book2ILW("", "TileMismatchedL1TriggerTypeTop",
+                                          "Run " + runNumStr + ": Mismatched L1 Trigger Type Top[1,32] (entries = events)", 
+                                          32, 0.5, 32.5, 4, 1., 5.);
+
+  m_mismatchedL1TriggerType[0]->GetXaxis()->SetTitle("Drawer");
+  SetBinLabel(m_mismatchedL1TriggerType[0]->GetYaxis(), m_partitionsLabels);
+
+  m_mismatchedL1TriggerType[1] = book2ILW("", "TileMismatchedL1TriggerTypeBottom", 
+                                          "Run " + runNumStr + ": Mismatched L1 Trigger Type Bottom[33,64] (entries = events)", 
+                                          32, 32.5, 64.5, 4, 1., 5.);
+
+  m_mismatchedL1TriggerType[1]->GetXaxis()->SetTitle("Drawer");
+  SetBinLabel(m_mismatchedL1TriggerType[1]->GetYaxis(), m_partitionsLabels);
 
   // Histograms of bad drawers
   std::string badDrawersDir = "BadDrawers";
@@ -274,7 +300,7 @@ void TileDQFragLWMonTool::bookErrorsHistograms(unsigned int ros, unsigned int dr
   m_errors[ros][drawer]->GetXaxis()->SetTitle("DMU");
   SetBinLabel(m_errors[ros][drawer]->GetYaxis(), m_errorsLabels);  
 
-  m_errorsLB[ros][drawer] = bookProfileLW("", histlbName.c_str(), histlbTitle.c_str(), 1500, -0.5, 1499.5, -1.1, 1.1);
+  m_errorsLB[ros][drawer] = bookProfileLW("", histlbName.c_str(), histlbTitle.c_str(), m_nLumiblocks, -0.5, m_nLumiblocks - 0.5, -1.1, 1.1);
   m_errorsLB[ros][drawer]->GetXaxis()->SetTitle("LumiBlock");
 
   m_errorsLB[ros][drawer]->GetYaxis()->SetTitle("Fraction of Digital errors");
@@ -307,6 +333,8 @@ StatusCode TileDQFragLWMonTool::fillHistograms() {
   m_global[0]->SetEntries(m_nEvents);
   m_global[1]->SetEntries(m_nEvents);
 
+  m_mismatchedL1TriggerType[0]->SetEntries(m_nEvents);
+  m_mismatchedL1TriggerType[1]->SetEntries(m_nEvents);
 
   return StatusCode::SUCCESS;
 }
@@ -440,6 +468,14 @@ void TileDQFragLWMonTool::fillBadDrawer() {
         int module = drawer + 1;  // range 1-64
         int ROS = fragId >> 8;  // range 1-4
         int partition = m_ros2partition[ROS]; // range 0-3
+
+        if (getL1info() != digitsCollection->getLvl1Type()) {
+          if (drawer < 32) {
+            m_mismatchedL1TriggerType[0]->Fill(module, ROS, 1.0);
+          } else {
+            m_mismatchedL1TriggerType[1]->Fill(module, ROS, 1.0);
+          }
+        }
 
         int error;
         float dmin, dmax;
@@ -630,6 +666,7 @@ void TileDQFragLWMonTool::fillMasking() {
     for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
       unsigned int idx = TileCalibUtils::getDrawerIdx(ros + 1, drawer);
       for (int ch = 0; ch < 48; ch += 3) {
+        int dmu = ch / 3;
         TileBchStatus status0 = m_tileBadChanTool->getAdcStatus(idx, ch, 1);
         status0 += m_tileBadChanTool->getAdcStatus(idx, ch, 0);
         TileBchStatus status1 = m_tileBadChanTool->getAdcStatus(idx, ch + 1, 1);
@@ -643,19 +680,19 @@ void TileDQFragLWMonTool::fillMasking() {
           sp_EB = false;
 
         if (status0.isBad() && status1.isBad() && status2.isBad()) {
-          m_errors[ros][drawer]->Fill(ch / 3, 12, 1);
+          m_errors[ros][drawer]->Fill(dmu, 12, 1);
         } else if ((ros > 1) && ((ch == 18 && !sp_EB) || ch == 33)) { //disconnected channels for EBs
-          if (status2.isBad()) m_errors[ros][drawer]->Fill(ch / 3, 12, 1);
+          if (status2.isBad()) m_errors[ros][drawer]->Fill(dmu, 12, 1);
         } else if ((ros < 2) && (ch == 30)) { //disconnected channels for LBs
-          if (status2.isBad()) m_errors[ros][drawer]->Fill(ch / 3, 12, 1);
+          if (status2.isBad()) m_errors[ros][drawer]->Fill(dmu, 12, 1);
         } else if ((ros < 2) && (ch == 42)) { //disconnected channels for LBs
-          if (status0.isBad() && status2.isBad()) m_errors[ros][drawer]->Fill(ch / 3, 12, 1);
+          if (status0.isBad() && status2.isBad()) m_errors[ros][drawer]->Fill(dmu, 12, 1);
         } else if ((ros > 1) && (ch == 24 || ch == 27 || ch == 42 || ch == 45)) { // void DMUs for EBs
-          m_errors[ros][drawer]->Fill(ch / 3, 12, 1);
+          m_errors[ros][drawer]->Fill(dmu, 12, 1);
         } else if (sp_EB && (ch == 0)) { // void DMU 0 for EBA15, EBC18
-          m_errors[ros][drawer]->Fill(ch / 3, 12, 1);
+          m_errors[ros][drawer]->Fill(dmu, 12, 1);
         } else if (sp_EB && (ch == 3)) { // disconnected PMT of DMU 1 for EBA15, EBC18
-          if (status1.isBad() && status2.isBad()) m_errors[ros][drawer]->Fill(ch / 3, 12, 1);
+          if (status1.isBad() && status2.isBad()) m_errors[ros][drawer]->Fill(dmu, 12, 1);
         }
       } //chan loop
     } // drawer loop

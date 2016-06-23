@@ -56,7 +56,7 @@ class TileCellNoiseMonTool: public TileFatherMonTool {
 
     bool m_doOnline;
     //int32_t m_TileCellTrig;
-    int32_t m_oldLumiblock;
+    //int32_t m_oldLumiblock;
     //int32_t m_delta_lumiblock;
     std::string m_cellsContName;
 

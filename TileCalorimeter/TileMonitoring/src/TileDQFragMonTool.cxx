@@ -44,14 +44,25 @@ TileDQFragMonTool::TileDQFragMonTool(const std::string & type, const std::string
   , m_beamInfo("TileBeamInfoProvider")
   , m_dqStatus(0)
   , m_last_lb(0)
+  , m_globalErrCount{}
+  , m_hist_error{}
+  , m_hist_error_shadow{}
+  , m_hist_global{}
+  , m_mismatchedL1TriggerType{}
+  , m_hist_BadChannelJump2D{}
+  , m_hist_BadChannelNeg2D{}
+  , m_hist_BadChannelJump2D_nonmask{}
+  , m_hist_BadChannelNeg2D_nonmask{}
+  , m_hist_error_lb{}
+  , m_nLumiblocks(3000)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
   declareProperty("TileRawChannelContainerDSP",   m_contNameDSP =     "TileRawChannelCnt"); //SG DSP RCh Container
   declareProperty("TileRawChannelContainerOffl",  m_contNameOffline = "TileRawChannelFixed"); //SG offline RCh Container
   declareProperty("TileDigitsContainer",          m_contNameDigits =  "TileDigitsCnt");     // Digits
-  declareProperty("NegAmpHG",m_negAmpHG = -200.);  // cut on negative amplitude in high gain
-  declareProperty("NegAmpLG",m_negAmpLG = -15.);   // cut on negative amplitude in low gain
+  declareProperty("NegAmpHG", m_negAmpHG = -200.);  // cut on negative amplitude in high gain
+  declareProperty("NegAmpLG", m_negAmpLG = -15.);   // cut on negative amplitude in low gain
   declareProperty("JumpDeltaHG",  m_jumpDeltaHG = 99.9); // minimal jump in high gain
   declareProperty("JumpDeltaLG",  m_jumpDeltaLG = 49.9); // minimal jump in low gain
   declareProperty("PedDetlaHG",   m_pedDeltaHG  =  4.1); // max variation of "const" value in high gain
@@ -62,6 +73,7 @@ TileDQFragMonTool::TileDQFragMonTool(const std::string & type, const std::string
   declareProperty("doOnline",m_doOnline = false); // online mode
   declareProperty("CheckDCS",m_checkDCS = false);
   declareProperty("TileBadChanTool"        , m_tileBadChanTool);
+  declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
 
   m_path = "/Tile/DMUErrors";
   // starting up the label variable....
@@ -239,20 +251,38 @@ void TileDQFragMonTool::bookFirstHist(  )
     
     
   // The First Global Histogram
-  std::vector<std::string> globalName,globalTitle;
+  std::vector<std::string> globalName, globalTitle;
   globalName.push_back("TileGlobalCRC_errors_top");
   globalName.push_back("TileGlobalCRC_errors_bottom");
-  globalTitle.push_back("Run "+runNumStr+": Global Error Top [1,32]");
-  globalTitle.push_back("Run "+runNumStr+": Global Error Bottom[33,64]");
+  globalTitle.push_back("Run " + runNumStr + ": Global Error Top [1,32] (entries = events)");
+  globalTitle.push_back("Run " + runNumStr + ": Global Error Bottom[33,64] (entries = events)");
     
-  m_hist_global[0] = book2I("",globalName[0],globalTitle[0],32,0.5,32.5,4,0.,4.);
+  m_hist_global[0] = book2I("", globalName[0], globalTitle[0], 32, 0.5, 32.5, 4, 0., 4.);
   m_hist_global[0]->GetXaxis()->SetTitle("Drawer");
-  SetBinLabel(m_hist_global[0]->GetYaxis(),m_PartitionsLabels);
+  SetBinLabel(m_hist_global[0]->GetYaxis(), m_PartitionsLabels);
     
   // The Second Global Histogram
-  m_hist_global[1] = book2I("",globalName[1],globalTitle[1],32,32.5,64.5,4,0.,4);
-  SetBinLabel(m_hist_global[1]->GetYaxis(),m_PartitionsLabels);
+  m_hist_global[1] = book2I("", globalName[1], globalTitle[1], 32, 32.5, 64.5, 4, 0., 4);
+  SetBinLabel(m_hist_global[1]->GetYaxis(), m_PartitionsLabels);
   m_hist_global[1]->GetXaxis()->SetTitle("Drawer");
+
+  // The Global Histogram with mismatched trigger types
+  m_mismatchedL1TriggerType[0] = book2I("", "TileMismatchedL1TriggerTypeTop",
+                                        "Run " + runNumStr + ": Mismatched L1 Trigger Type Top[1,32] (entries = events)", 
+                                        32, 0.5, 32.5, 4, 1., 5.);
+
+  m_mismatchedL1TriggerType[0]->GetXaxis()->SetTitle("Drawer");
+  SetBinLabel(m_mismatchedL1TriggerType[0]->GetYaxis(), m_PartitionsLabels);
+
+  m_mismatchedL1TriggerType[1] = book2I("", "TileMismatchedL1TriggerTypeBottom", 
+                                        "Run " + runNumStr + ": Mismatched L1 Trigger Type Bottom[33,64] (entries = events)", 
+                                        32, 32.5, 64.5, 4, 1., 5.);
+
+  m_mismatchedL1TriggerType[1]->GetXaxis()->SetTitle("Drawer");
+  SetBinLabel(m_mismatchedL1TriggerType[1]->GetYaxis(), m_PartitionsLabels);
+
+
+  
 
   // Histograms of bad drawers
   std::string badDrawersDir = "BadDrawers";
@@ -361,7 +391,7 @@ void TileDQFragMonTool::bookErrHist(int ros, int drawer) {
     m_hist_error_lb[ros][drawer] = bookProfile("", histlbName.c_str(), histlbTitle.c_str(), 100, -99.5, 0.5, -1.1, 1.1);
     m_hist_error_lb[ros][drawer]->GetXaxis()->SetTitle("Last LumiBlocks");
   } else {
-    m_hist_error_lb[ros][drawer] = bookProfile("", histlbName.c_str(), histlbTitle.c_str(), 1500, -0.5, 1499.5, -1.1, 1.1);
+    m_hist_error_lb[ros][drawer] = bookProfile("", histlbName.c_str(), histlbTitle.c_str(), m_nLumiblocks, -0.5, m_nLumiblocks - 0.5, -1.1, 1.1);
     m_hist_error_lb[ros][drawer]->GetXaxis()->SetTitle("LumiBlock");
   }
   m_hist_error_lb[ros][drawer]->GetYaxis()->SetTitle("Fraction of Digital errors");
@@ -389,14 +419,16 @@ StatusCode TileDQFragMonTool::fillHistograms() {
   fillBadDrawer();
   for (int ros = 0; ros < 4; ros++) {
     for (int drawer = 0; drawer < 64; ++drawer){
-      fillErrHist(ros,drawer);
-      fillGlobalHist(ros,drawer);
+      fillErrHist(ros, drawer);
+      fillGlobalHist(ros, drawer);
     }
   }
 
   m_hist_global[0]->SetEntries(m_nEvents);
   m_hist_global[1]->SetEntries(m_nEvents);
 
+  m_mismatchedL1TriggerType[0]->SetEntries(m_nEvents);
+  m_mismatchedL1TriggerType[1]->SetEntries(m_nEvents);
 
   if (m_doOnline) {
     updateHistograms();
@@ -570,6 +602,14 @@ void TileDQFragMonTool::fillBadDrawer() {
         int module = drawer + 1;  // range 1-64
         int ROS = fragId >> 8;  // range 1-4
         int partition = m_ros2partition[ROS]; // range 0-3
+
+        if (getL1info() != digitsCollection->getLvl1Type()) {
+          if (drawer < 32) {
+            m_mismatchedL1TriggerType[0]->Fill(module, ROS, 1.0);
+          } else {
+            m_mismatchedL1TriggerType[1]->Fill(module, ROS, 1.0);
+          }
+        }
 
         int error;
         float dmin, dmax;
@@ -747,6 +787,7 @@ void TileDQFragMonTool::fillGlobalHist(int ros, int drawer) {
       m_hist_global[1]->Fill(drawer + 1, (ros), 1.0);
     } //else
   } // if
+
 }
 /*---------------------------------------------------------*/
 
@@ -878,7 +919,7 @@ void TileDQFragMonTool::drawGlobalHist() {
 StatusCode TileDQFragMonTool::procHistograms() {
   /*---------------------------------------------------------*/
 
-  if (endOfRun && !m_doOnline) {
+  if (endOfRunFlag() && !m_doOnline) {
     ATH_MSG_INFO( "in procHistograms..." );
 
     updateHistograms();
