@@ -454,7 +454,11 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
        if(comb==combEnd){
          ATH_MSG_DEBUG("No features for chain " << trig_item_L1);
          hist("hL1CountsDebug","HLT/TauMon/Expert")->Fill(trigItem.c_str(),1.);
-       }
+       } else if (f.getCombinations().size()>100) {
+		ATH_MSG_WARNING("Chain " << trig_item_L1 << " has " << f.getCombinations().size() << " combinations. Looping over first 100");
+		combEnd = comb;
+		std::advance(combEnd,100);	
+	}
        else ATH_MSG_DEBUG("The chain " << trig_item_L1 << " has " << f.getCombinations().size() << " combinations");
 
 
@@ -465,21 +469,32 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
        std::vector< float > jet_roi_eta;
        std::vector< float > jet_roi_phi;
 
+       const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
+       if ( m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isFailure() ){ // retrieve arguments: container type, container key
+           ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container. Exiting.");
+       } else {
+           ATH_MSG_DEBUG("found LVL1EmTauRoI in SG");
+       }
+       xAOD::EmTauRoIContainer::const_iterator itEMTau;
+       xAOD::EmTauRoIContainer::const_iterator itEMTau_e = l1Tau_cont->end();
+
+       const xAOD::JetRoIContainer *l1jets = 0;
+       if ( m_storeGate->retrieve( l1jets, "LVL1JetRoIs").isFailure() ){
+                ATH_MSG_WARNING("Failed to retrieve LVL1JetRoIs container. Exiting.");
+                
+       } else {
+                ATH_MSG_DEBUG("found LVL1JetRoIs in SG");
+       }
+
+       xAOD::JetRoIContainer::const_iterator itJetRoI;
+       xAOD::JetRoIContainer::const_iterator itJetRoI_e = l1jets->end();
+
        for(;comb!=combEnd;++comb){
 
          const std::vector< Trig::Feature<TrigRoiDescriptor> > vec_roi = comb->get<TrigRoiDescriptor>("initialRoI",m_L1TriggerCondition);
          std::vector< Trig::Feature<TrigRoiDescriptor> >::const_iterator roi = vec_roi.begin(), roi_e = vec_roi.end();
          ATH_MSG_DEBUG("Combination with " << vec_roi.size() << "RoIs"); 
 	 
-         const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
-         if ( m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isFailure() ){ // retrieve arguments: container type, container key
-           ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container. Exiting.");
-           //return StatusCode::FAILURE;
-         } else {
-           ATH_MSG_DEBUG("found LVL1EmTauRoI in SG");
-         }
-         xAOD::EmTauRoIContainer::const_iterator itEMTau;
-         xAOD::EmTauRoIContainer::const_iterator itEMTau_e = l1Tau_cont->end();
 
          for(roi = vec_roi.begin(); roi != roi_e; ++roi)
            if(roi->cptr()){
@@ -504,18 +519,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
                }
              }
            }
-
-	  // retrieve L1 jet features, if any
-	  const xAOD::JetRoIContainer *l1jets = 0;
-	  if ( m_storeGate->retrieve( l1jets, "LVL1JetRoIs").isFailure() ){
-		ATH_MSG_WARNING("Failed to retrieve LVL1JetRoIs container. Exiting.");
-		//return StatusCode::FAILURE;	
-	  } else {
-		ATH_MSG_DEBUG("found LVL1JetRoIs in SG");
-	  }
-	
-	  xAOD::JetRoIContainer::const_iterator itJetRoI;
-          xAOD::JetRoIContainer::const_iterator itJetRoI_e = l1jets->end();
+  
 	  std::vector< Trig::Feature<TrigRoiDescriptor> >::const_iterator roi1 = vec_roi.begin(), roi1_e = vec_roi.end();
 	  
 	  for(roi = vec_roi.begin(); roi != roi_e; ++roi) if(roi->cptr()){
@@ -604,7 +608,12 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
          ATH_MSG_DEBUG("No features for chain " << trig_item_EF);
          hist("hHLTCountsDebug","HLT/TauMon/Expert")->Fill(trigItem.c_str(),1.);
          //return StatusCode::FAILURE;
+       } else if (f.getCombinations().size()>100) {
+                ATH_MSG_WARNING("Chain " << trig_item_EF << " has " << f.getCombinations().size() << " combinations. Looping over first 100");
+                combEnd = comb;
+                std::advance(combEnd,100);
        }
+
        for(;comb!=combEnd;++comb){
 
          const std::vector< Trig::Feature<xAOD::TauJetContainer> >  vec_preseltau = comb->get<xAOD::TauJetContainer>("TrigTauRecPreselection",m_HLTTriggerCondition);
@@ -1623,17 +1632,22 @@ void HLTTauMonTool::testL1TopoNavigation(const std::string & trigItem){
 		Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()), combEnd(f.getCombinations().end());
 		if(comb==combEnd){
 			ATH_MSG_WARNING("No combination found!");
-		}
-		for(;comb!=combEnd;++comb){
+		} else if (f.getCombinations().size()>100) {
+                	ATH_MSG_WARNING("Chain " << trig_item_EF << " has " << f.getCombinations().size() << " combinations. Looping over first 100");
+               		combEnd = comb;
+                	std::advance(combEnd,100);
+                }
 
-			const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
-			if ( m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isFailure() ){
-				ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container");
-			} else{
-				ATH_MSG_DEBUG("found LVL1EmTauRoI in SG");
-			}
-			xAOD::EmTauRoIContainer::const_iterator itEMTau;
-			xAOD::EmTauRoIContainer::const_iterator itEMTau_e = l1Tau_cont->end();	
+                const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
+                if ( m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isFailure() ){
+                                ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container");
+                } else{
+                                ATH_MSG_DEBUG("found LVL1EmTauRoI in SG");
+                        }
+                xAOD::EmTauRoIContainer::const_iterator itEMTau;
+                xAOD::EmTauRoIContainer::const_iterator itEMTau_e = l1Tau_cont->end();
+
+		for(;comb!=combEnd;++comb){
 		
 			const std::vector< Trig::Feature<TrigRoiDescriptor> > vec_roi = comb->get<TrigRoiDescriptor>("initialRoI",m_L1TriggerCondition);
 			std::vector< Trig::Feature<TrigRoiDescriptor> >::const_iterator roi = vec_roi.begin(), roi_e = vec_roi.end();
@@ -2991,6 +3005,12 @@ bool HLTTauMonTool::PresTauMatching(const std::string & trigItem, const TLorentz
        Trig::FeatureContainer f = ( getTDT()->features(trig_item_EF,m_HLTTriggerCondition) );
        Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()), combEnd(f.getCombinations().end());
 
+	if (f.getCombinations().size()>100) {
+                ATH_MSG_WARNING("Chain " << trig_item_EF << " has " << f.getCombinations().size() << " combinations. Looping over first 100");
+                combEnd = comb;
+                std::advance(combEnd,100);
+        }
+
        for(;comb!=combEnd;++comb){
 
        	 const std::vector< Trig::Feature<xAOD::TauJetContainer> >  vec_preseltau = comb -> get<xAOD::TauJetContainer>("HLT_xAOD__TauJetContainer_TrigTauRecPreselection", m_HLTTriggerCondition);
@@ -3044,7 +3064,11 @@ bool HLTTauMonTool::HLTTauMatching(const std::string & trigItem, const TLorentzV
       	{
       	  ATH_MSG_DEBUG("No features for chain " << trig_item_EF << ", HLTMatching return false");
       	  return false;
-      	}
+      	} else if (f.getCombinations().size()>100) {
+                ATH_MSG_WARNING("Chain " << trig_item_EF << " has " << f.getCombinations().size() << " combinations. Looping over first 100");
+                combEnd = comb;
+                std::advance(combEnd,100);
+        }
       
       int nComb(0);
       for(;comb!=combEnd;++comb)
@@ -3123,7 +3147,12 @@ bool HLTTauMonTool::L1TauMatching(const std::string & l1_item, const TLorentzVec
 	{
 	  ATH_MSG_DEBUG("No features for chain " <<l1_item <<", L1Matching return false");
 	  return false;
-	}
+	} else if (f.getCombinations().size()>100) {
+                ATH_MSG_WARNING("Chain " << l1_item << " has " << f.getCombinations().size() << " combinations. Looping over first 100");
+                combEnd = comb;
+                std::advance(combEnd,100);
+       }
+
       for(;comb!=combEnd;++comb)
 	{
 	  const std::vector<Trig::Feature<TrigRoiDescriptor> >  vec_tauL1 = comb->get<TrigRoiDescriptor>("initialRoI",TrigDefs::Physics | TrigDefs::allowResurrectedDecision);
