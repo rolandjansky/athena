@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigParticle
                           Trigger/TrigEvent/TrigSteeringEvent
                           PRIVATE
+                          LumiBlock/LumiBlockComps
                           Control/AthenaMonitoring
                           Control/StoreGate
                           Event/EventInfo
