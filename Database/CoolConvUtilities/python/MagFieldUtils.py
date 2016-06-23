@@ -8,6 +8,10 @@
 from PyCool import cool
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 
+#Cache for run/LB time stamp (avoid multiple DB lookup)
+global _timeForLB
+_timeForLB=dict()
+
 class MagFieldDCSInfo:
     "Wrapper class to hold magnetic field current info from DCS data and the filename tag for the SOR"
     def __init__(self,solC,solSetC,torC,torSetC,fnt):
@@ -77,30 +81,23 @@ def getFieldForRun(run,readOracle=True,quiet=False,lumiblock=None):
     if lumiblock is not None:
         if not quiet:
             print "Reading specific timestamp for lumiblock %i" % lumiblock
-        trigDB=indirectOpen('COOLONL_TRIGGER/%s' % dbname,oracle=readOracle)
-        if (trigDB is None):
-            print "MagFieldUtils.getFieldForRun ERROR: Cannot connect to COOLONL_TDAQ/%s" % dbname
-            return None
-        lbtime=0
-        try:
-            trigfolder=trigDB.getFolder('/TRIGGER/LUMI/LBLB')
-            lbtime=getTimeForLB(trigfolder,run,lumiblock)
-            if (lbtime==0 and lumiblock>1):
-                # sometimes fails as last LB is missing in LBLB - try previous
-                print "MagFieldUtils.getFieldForRun WARNING: Cannot find LB %i, trying %i" % (lumiblock,lumiblock-1)
-                lbtime=getTimeForLB(trigfolder,run,lumiblock-1)
-            if (lbtime==0):
-                print "MagFieldUtils.getFieldForRun WARNING: Cannot find LB %i, fall back on SOR time" % lumiblock
-            if (lbtime>0):
-                # use this time instead of SORtime
-                if not quiet:
-                    print "Lumiblock starts %i seconds from start of run" % int((lbtime-sortime)/1.E9)
-                sortime=lbtime
-        except Exception,e:
+        
+        lbtime=getTimeForLB(run,lumiblock,readOracle)
+        if (lbtime==0 and lumiblock>1):
+            # sometimes fails as last LB is missing in LBLB - try previous
+            print "MagFieldUtils.getFieldForRun WARNING: Cannot find LB %i, trying %i" % (lumiblock,lumiblock-1)
+            lbtime=getTimeForLB(run,lumiblock-1,readOracle)
+        if (lbtime==0):
+            print "MagFieldUtils.getFieldForRun WARNING: Cannot find LB %i, fall back on SOR time" % lumiblock
+        if (lbtime>0):
+            # use this time instead of SORtime
+            if not quiet:
+                print "Lumiblock starts %i seconds from start of run" % int((lbtime-sortime)/1.E9)
+            sortime=lbtime
+        else:
             print "MagFieldUtils.getFieldForRun ERROR accessing /TRIGGER/LUMI/LBLB"
-            print e
             print "Fall back on SOR time from %s" % sorfolder
-        trigDB.closeDatabase()
+            lbtime=sortime
     
     # if we do not have a valid time, exit
     if (sortime==0): return None
@@ -135,16 +132,36 @@ def getFieldForRun(run,readOracle=True,quiet=False,lumiblock=None):
     # return a MagFIeldDCSInfo object containing the result
     return MagFieldDCSInfo(data[0],data[1],data[2],data[3],fnt)
 
-def getTimeForLB(lblbfolder,run,lb):
+def getTimeForLB(run,LB,readOracle=False):
     "Return the time a specific run/LB, given the folder, or 0 for bad/no data"
-    runiov=(run << 32)+lb
+    runiov=(run << 32)+LB
+
+    if _timeForLB.has_key(runiov):
+        print "getTimeForLB: Returning cached time for run %i, LumiBlock %i " % (run,LB)
+        return _timeForLB[runiov]
+
+    if (run>=236107):
+        dbname="CONDBR2"
+    else:
+        dbname="COMP200"
+
+    #print "Querying DB for time of run %i LB %i" % (run,LB)
+
     try:
+        trigDB=indirectOpen('COOLONL_TRIGGER/%s' % dbname,oracle=readOracle)
+        if (trigDB is None):
+            print "MagFieldUtils.getTimeForLB ERROR: Cannot connect to COOLONL_TDAQ/%s" % dbname
+            return 0
+
+        lblbfolder=trigDB.getFolder('/TRIGGER/LUMI/LBLB')
         obj=lblbfolder.findObject(runiov,0)
         payload=obj.payload()
         lbtime=payload['StartTime']
+        _timeForLB[runiov]=lbtime
+        trigDB.closeDatabase()
         return lbtime
     except Exception,e:
-        print "MagFieldUtils.getTimeForLB WARNING: accessing /TRIGGER/LUMI/LBLB for run %i LB %i" % (run,lb)
+        print "MagFieldUtils.getTimeForLB WARNING: accessing /TRIGGER/LUMI/LBLB for run %i, LB %i" % (run,LB)
         print e
         return 0
 
