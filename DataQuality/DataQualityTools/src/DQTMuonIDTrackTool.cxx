@@ -132,6 +132,11 @@ DQTMuonIDTrackTool::DQTMuonIDTrackTool(const std::string & type,
    , m_nMinSCTHits(5)
    , m_minPtCut(4000)
    , m_muonPtCut(6000)
+   , m_JPsiCounter(0)
+   , printedErrorID(false)
+   , printedErrorMuon(false)
+   , printedErrorCombined(false)
+   , printedErrorMuonColl(false)
 
 //----------------------------------------------------------------------------------
 
@@ -147,10 +152,10 @@ DQTMuonIDTrackTool::DQTMuonIDTrackTool(const std::string & type,
    declareProperty("MinSCTHits", m_nMinSCTHits);
    declareProperty("MinPtCut", m_minPtCut);
    declareProperty("muonPtCut", m_muonPtCut);
-   declareProperty("doRunCosmics", m_doRunCosmics = 1);
-   declareProperty("doRunBeam", m_doRunBeam = 1);  
-   declareProperty("doOfflineHists", m_doOfflineHists = 1);
-   declareProperty("doOnlineHists", m_doOnlineHists = 1);
+   //declareProperty("doRunCosmics", m_doRunCosmics = 1);
+   //declareProperty("doRunBeam", m_doRunBeam = 1);  
+   //declareProperty("doOfflineHists", m_doOfflineHists = 1);
+   //declareProperty("doOnlineHists", m_doOnlineHists = 1);
    declareInterface<IMonitorToolBase>(this);
    m_path = "GLOBAL/DQTMuonIDTrack";
 
@@ -888,7 +893,7 @@ StatusCode DQTMuonIDTrackTool::procHistograms( )
 //----------------------------------------------------------------------------------
 {
    //if ( endOfEventsBlock || endOfLumiBlock || endOfRun ) {
-   if ( endOfLumiBlock || endOfRun ) {
+  if ( endOfLumiBlockFlag() || endOfRunFlag() ) {
       MsgStream log(msgSvc(), name());
 
       log << MSG::DEBUG << "in finalHists()" << endreq;
