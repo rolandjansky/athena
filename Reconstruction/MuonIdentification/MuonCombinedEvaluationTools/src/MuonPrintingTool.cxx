@@ -200,6 +200,8 @@ std::string Rec::MuonPrintingTool::print( const xAOD::Muon& muon ) const {
        << " trigEta " << static_cast<int>(ntrigEtaLayers) << " holes " << static_cast<int>(ntrigEtaHoleLayers)
        << " main sector " << static_cast<int>(mainSector) << " secondary " << static_cast<int>(secondSector) << std::endl;
 
+  bool printMeasurements = true;
+
   if( muon.combinedTrackParticleLink().isValid() ){
     const xAOD::TrackParticle* cbtp = *muon.combinedTrackParticleLink();
     if( cbtp ){
@@ -211,6 +213,8 @@ std::string Rec::MuonPrintingTool::print( const xAOD::Muon& muon ) const {
 	const Trk::Track* cbtr = *cbtp->trackLink();
 	if( cbtr ) sout << std::endl
 			<< m_edmPrinter->printStations(*cbtr);
+	if( cbtr && printMeasurements) sout << std::endl
+			<< m_edmPrinter->printMeasurements(*cbtr);
       }
       sout << std::endl;
     }    
@@ -256,6 +260,8 @@ std::string Rec::MuonPrintingTool::print( const xAOD::Muon& muon ) const {
 	const Trk::Track* satr = *satp->trackLink();
 	if( satr ) sout << std::endl
 			<< m_edmPrinter->printStations(*satr);
+	if( satr && printMeasurements) sout << std::endl
+			<< m_edmPrinter->printMeasurements(*satr);
       }
       sout << std::endl;
     }
@@ -272,6 +278,8 @@ std::string Rec::MuonPrintingTool::print( const xAOD::Muon& muon ) const {
 	const Trk::Track* satr = *satp->trackLink();
 	if( satr ) sout << std::endl
 			<< m_edmPrinter->printStations(*satr);
+	if( satr && printMeasurements) sout << std::endl
+			<< m_edmPrinter->printMeasurements(*satr);
       }
       sout << std::endl;
     }
