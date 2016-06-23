@@ -19,8 +19,7 @@
 #include <map>
 #include <list>
 #include "egammaMVACalib/egammaMVACalib.h"
-#include "egammaMVACalib/BDT.h"
-#include "egammaMVACalib/Node.h"
+#include "MVAUtils/BDT.h"
 #include "TMVA/MethodBase.h"
 #include "TMVA/IMethod.h"
 
@@ -175,7 +174,7 @@ namespace Analysis {
 
     std::map<std::string, TMVA::Reader*> m_tmvaReaders;
     std::map<std::string, TMVA::MethodBase*> m_tmvaMethod; 
-    std::map<std::string, egammaMVACalibNmsp::BDT*> m_egammaBDTs;
+    std::map<std::string, MVAUtils::BDT*> m_egammaBDTs;
     std::list<std::string> m_undefinedReaders; // keep track of undefined readers to prevent too many warnings.
 
 
@@ -195,16 +194,11 @@ namespace Analysis {
     void PrintInputs();
     void SetVariableRefs(const std::vector<std::string> inputVars, TMVA::Reader* tmvaReader, 
 			  unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers);
-    //KM: The fuctions below will be migrated to the new class, somewhere in common btwn egamma/b-tagging
-    std::vector<float> GetMulticlassResponse(egammaMVACalibNmsp::BDT* bdt,const std::vector<float>& values   ) const;
-    std::vector<float> GetMulticlassResponse(egammaMVACalibNmsp::BDT* bdt,const std::vector<float*>& pointers) const;
-    std::vector<float> GetMulticlassResponse(egammaMVACalibNmsp::BDT* bdt) const {
+    std::vector<float> GetMulticlassResponse(MVAUtils::BDT* bdt) const {
       std::vector<float> v(m_nClasses,-1);
-      return (bdt->GetPointers().size() ? GetMulticlassResponse(bdt,bdt->GetPointers()) : v); 
+      return (bdt->GetPointers().size() ? bdt->GetMultiResponse(bdt->GetPointers(),m_nClasses) : v);
     }
-    double GetClassResponse (egammaMVACalibNmsp::BDT* bdt,const std::vector<float>& values   ) const;
-    double GetClassResponse (egammaMVACalibNmsp::BDT* bdt,const std::vector<float*>& pointers) const;
-    double GetClassResponse (egammaMVACalibNmsp::BDT* bdt) const { return (bdt->GetPointers().size() ? GetClassResponse(bdt,bdt->GetPointers()) : -9.); }
+    double GetClassResponse (MVAUtils::BDT* bdt) const { return (bdt->GetPointers().size() ? bdt->GetGradBoostMVA(bdt->GetPointers()) : -9.); }
   }; // End class
 
 

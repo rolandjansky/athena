@@ -124,7 +124,7 @@ namespace Analysis {
   StatusCode MV2Tag::tagJet(xAOD::Jet& myJet, xAOD::BTagging* BTag) {
     /*
      * #index for this function
-     * #1: Preparation of MVA instance using tmva/egammaBDT
+     * #1: Preparation of MVA instance using tmva/MVAUtils
      * #2: Set necessary input variables
      * #3: Calcuation of MVA output variable(s)
      * #4: Fill MVA output variable(s) into xAOD
@@ -139,7 +139,7 @@ namespace Analysis {
       return StatusCode::SUCCESS;
     }
     
-    // #1: Preparation of MVA instance using tmva/egammaBDT    
+    // #1: Preparation of MVA instance using tmva/MVAUtils    
     /* jet author: */
     std::string author ;
     if (m_forceMV2CalibrationAlias) {
@@ -160,8 +160,8 @@ namespace Analysis {
 
     TMVA::Reader* tmvaReader=0;     std::map<std::string, TMVA::Reader*>::iterator pos;
     TMVA::MethodBase * kl=0;        std::map<std::string, TMVA::MethodBase*>::iterator it_mb;
-    egammaMVACalibNmsp::BDT *bdt=0; std::map<std::string, egammaMVACalibNmsp::BDT*>::iterator it_egammaBDT;
-    
+    MVAUtils::BDT *bdt=0; std::map<std::string, MVAUtils::BDT*>::iterator it_egammaBDT;
+ 
     /*KM: Retrieval of objects from the calibration file and store it back in the calibration broker temporarily*/
     if(calibHasChanged) {
       ATH_MSG_DEBUG("#BTAG# " << m_taggerNameBase << " calib updated -> try to retrieve");
@@ -283,8 +283,8 @@ namespace Analysis {
 	  TObjArray trees, variables, classes;
 	  TString *vars = egammaMVACalib::getVariables(tmvaReader);  assert(vars);
 	  TMVA::MethodBDT* tbdt= dynamic_cast<TMVA::MethodBDT*>(method);  assert(tbdt);
-	  bdt= new egammaMVACalibNmsp::BDT(tbdt);
-	  TFile *f = new TFile(filename.data(),"recreate");
+	  bdt= new MVAUtils::BDT(tbdt);
+          TFile *f = new TFile(filename.data(),"recreate");
 	  TTree *tree = bdt->WriteTree(m_treeName.data());
 	  variables.AddAtAndExpand(new TObjString(*vars),0);
 	  trees.AddAtAndExpand(tree,0);
@@ -315,19 +315,18 @@ namespace Analysis {
 
       }
       else {//if m_useEgammaMethodMV2
-	ATH_MSG_INFO("#BTAG# Booking egammaMVACalibNmsp::BDT for "<<m_taggerNameBase);
+	ATH_MSG_INFO("#BTAG# Booking  MVAUtils::BDT for "<<m_taggerNameBase);
 
 	// TDirectoryFile* f= (TDirectoryFile*)calib.first;
 	// TTree *tree = (TTree*) f->Get(treeName.data());
 	
 	if (tree) {
-	  bdt = new egammaMVACalibNmsp:: BDT(tree);
+	  bdt = new  MVAUtils:: BDT(tree);
 	  delete tree;//<- Crash at finalization if w/o this
 	}
 	else {
 	  ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");
 	  m_disableAlgo=true;
-	  delete bdt;
 	  return StatusCode::SUCCESS;
 	}
 	
@@ -338,6 +337,7 @@ namespace Analysis {
 	if ( inputVars.size()!=nConfgVar or badVariableFound ) {
 	  ATH_MSG_WARNING( "#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
 	  m_disableAlgo=true;
+          delete bdt;
 	  return StatusCode::SUCCESS;
 	}
 
@@ -1005,67 +1005,5 @@ namespace Analysis {
     //std::cout<<std::endl;
 
   }
-
-  //KM: The fuctions below will be migrated to the new class, somewhere in common btwn egamma/b-tagging
-  std::vector<float> MV2Tag::GetMulticlassResponse(egammaMVACalibNmsp::BDT* bdt,const std::vector<float>& values) const {
-    std::vector<double> sum(m_nClasses,0);
-    std::vector<float> v_out;
-    
-    for (unsigned it=0; it <bdt->GetForest().size() ; it++) 
-      sum[it%m_nClasses]  += bdt->GetForest().at(it)->GetResponse(values);
-    
-    
-    for (unsigned icl=0; icl<m_nClasses; icl++) {
-      double norm=0;
-      for (unsigned jcl=0; jcl<m_nClasses; jcl++) {
-	if (icl!=jcl) norm+= exp(sum[jcl]-sum[icl]);
-      }
-      v_out.push_back(1/(1+norm));
-    }
-
-    if (v_out.size()!=m_nClasses)
-      ATH_MSG_WARNING("#BTAG# Unkown error, outputs vector size not "<<m_nClasses<<"!!!" );
-    
-    return v_out;
-  }
-  std::vector<float> MV2Tag::GetMulticlassResponse(egammaMVACalibNmsp::BDT* bdt,const std::vector<float*>& pointers) const {
-    std::vector<double> sum(m_nClasses,0);
-    std::vector<float> v_out;
-
-    for (unsigned it=0; it <bdt->GetForest().size() ; it++)
-      sum[it%m_nClasses]  += bdt->GetForest().at(it)->GetResponse(pointers);
-    
-
-    for (unsigned icl=0; icl<m_nClasses; icl++) {
-      double norm=0;
-      for (unsigned jcl=0; jcl<m_nClasses; jcl++) {
-    	if (icl!=jcl) norm+= exp(sum[jcl]-sum[icl]);
-      }
-      v_out.push_back(1/(1+norm));
-    }
-
-    if (v_out.size()!=m_nClasses)
-      ATH_MSG_WARNING("#BTAG# Unkown error, outputs vector size not "<<m_nClasses<<"!!!" );
-    
-    return v_out;
-  }
-  
-  double MV2Tag::GetClassResponse(egammaMVACalibNmsp::BDT* bdt,const std::vector<float>& values) const {
-    double sum=0;
-    std::vector<egammaMVACalibNmsp::Node*>::const_iterator it;
-    for (it = bdt->GetForest().begin(); it != bdt->GetForest().end(); ++it) {
-      sum  += (*it)->GetResponse(values);
-    }
-    return 2./(1+exp(-2*sum))-1;//output shaping for gradient boosted decision tree (-1,1)
-  }
-  double MV2Tag::GetClassResponse(egammaMVACalibNmsp::BDT* bdt,const std::vector<float*>& pointers) const {
-    double sum=0;
-    std::vector<egammaMVACalibNmsp::Node*>::const_iterator it;
-    for (it = bdt->GetForest().begin(); it != bdt->GetForest().end(); ++it) {
-      sum  += (*it)->GetResponse(pointers);
-    }
-    return 2./(1+exp(-2*sum))-1;//output shaping for gradient boosted decision tree (-1,1)
-  }
-
 
 }//end namespace

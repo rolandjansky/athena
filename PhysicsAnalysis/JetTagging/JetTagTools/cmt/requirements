@@ -13,6 +13,7 @@ use TrkParameters        TrkParameters-*         Tracking/TrkEvent
 use xAODJet              xAODJet-*               Event/xAOD
 use xAODBTagging         xAODBTagging-*          Event/xAOD
 use xAODTracking         xAODTracking-*          Event/xAOD
+use MVAUtils             MVAUtils-*              Reconstruction/
 use egammaMVACalib       egammaMVACalib-*        Reconstruction/egamma
 
 # for ExKtbbTagTool
@@ -61,6 +62,8 @@ use TrackVertexAssociationTool TrackVertexAssociationTool-* InnerDetector/InDetR
 #use JetTagEvent          JetTagEvent-*           PhysicsAnalysis/JetTagging
 use JetTagCalibration    JetTagCalibration-*     PhysicsAnalysis/JetTagging
 use MuonSelectorTools	MuonSelectorTools-*	PhysicsAnalysis/MuonID
+use MuonMomentumCorrections	MuonMomentumCorrections-*	PhysicsAnalysis/MuonID/MuonIDAnalysis
+
 
 use TrkEventPrimitives   TrkEventPrimitives-*    Tracking/TrkEvent
 use TrkVertexFitterInterfaces  TrkVertexFitterInterfaces-*     Tracking/TrkVertexFitter

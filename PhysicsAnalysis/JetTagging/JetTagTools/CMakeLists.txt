@@ -19,6 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/Jet/JetRec
                           Reconstruction/Jet/JetSubStructureMomentTools
                           Reconstruction/Jet/JetSubStructureUtils
+                          Reconstruction/MVAUtils
                           Reconstruction/egamma/egammaMVACalib
                           Tracking/TrkEvent/TrkParameters
                           PRIVATE
@@ -30,6 +31,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/AnalysisCommon/ParticleJetTools
                           PhysicsAnalysis/JetTagging/JetTagCalibration
                           PhysicsAnalysis/MuonID/MuonSelectorTools
+                          PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections
                           Reconstruction/Jet/JetEDM
                           Reconstruction/Particle
                           Reconstruction/RecoTools/ITrackToVertex
@@ -81,13 +83,13 @@ atlas_add_library( JetTagToolsLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AsgTools AthenaBaseComps SGTools GeoPrimitives xAODBTagging xAODJet xAODTracking GaudiKernel JetTagInfo JetSubStructureUtils TrkParameters JetRecLib JetSubStructureMomentToolsLib egammaMVACalibLib TrackVertexAssociationToolLib ParticleJetToolsLib JetTagCalibrationLib MuonSelectorToolsLib TrkNeuralNetworkUtilsLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AsgTools AthenaBaseComps SGTools GeoPrimitives xAODBTagging xAODJet xAODTracking GaudiKernel JetTagInfo JetSubStructureUtils TrkParameters JetRecLib JetSubStructureMomentToolsLib egammaMVACalibLib MVAUtilsLib TrackVertexAssociationToolLib ParticleJetToolsLib JetTagCalibrationLib MuonSelectorToolsLib TrkNeuralNetworkUtilsLib
                    PRIVATE_LINK_LIBRARIES ${FASTJET_LIBRARIES} AthenaKernel Navigation xAODMuon JetEDM Particle ITrackToVertex TrkEventPrimitives TrkLinks TrkTrack TrkTrackSummary VxJetVertex VxSecVertex VxVertex TrkVertexFitterInterfaces )
 
 atlas_add_component( JetTagTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AsgTools AthenaBaseComps SGTools GeoPrimitives xAODBTagging xAODJet xAODTracking GaudiKernel JetTagInfo JetRecLib JetSubStructureMomentToolsLib JetSubStructureUtils egammaMVACalibLib TrkParameters AthenaKernel Navigation xAODMuon TrackVertexAssociationToolLib ParticleJetToolsLib JetTagCalibrationLib MuonSelectorToolsLib JetEDM Particle ITrackToVertex TrkEventPrimitives TrkLinks TrkTrack TrkTrackSummary VxJetVertex VxSecVertex VxVertex TrkNeuralNetworkUtilsLib TrkVertexFitterInterfaces JetTagToolsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AsgTools AthenaBaseComps SGTools GeoPrimitives xAODBTagging xAODJet xAODTracking GaudiKernel JetTagInfo JetRecLib JetSubStructureMomentToolsLib JetSubStructureUtils egammaMVACalibLib MVAUtilsLib TrkParameters AthenaKernel Navigation xAODMuon TrackVertexAssociationToolLib ParticleJetToolsLib JetTagCalibrationLib MuonSelectorToolsLib JetEDM Particle ITrackToVertex TrkEventPrimitives TrkLinks TrkTrack TrkTrackSummary VxJetVertex VxSecVertex VxVertex TrkNeuralNetworkUtilsLib TrkVertexFitterInterfaces JetTagToolsLib )
 
 # Install files from the package:
 atlas_install_runtime( share/*.root share/*.txt )

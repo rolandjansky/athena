@@ -20,8 +20,7 @@
 #include <map>
 #include <list>
 #include "egammaMVACalib/egammaMVACalib.h"
-#include "egammaMVACalib/BDT.h"
-#include "egammaMVACalib/Node.h"
+#include "MVAUtils/BDT.h"
 #include "TMVA/IMethod.h"
 #include "TMVA/MethodBase.h"
 namespace TMVA { class Reader; }
@@ -100,17 +99,14 @@ namespace Analysis
       //...
       std::map<std::string, TMVA::Reader*> m_tmvaReaders;
       std::map<std::string, TMVA::MethodBase*> m_tmvaMethod; 
-      std::map<std::string, egammaMVACalibNmsp::BDT*> m_egammaBDTs;
+      std::map<std::string, MVAUtils::BDT*> m_egammaBDTs;
       std::list<std::string> m_undefinedReaders;
       std::string m_sv0_infosource;
       std::string m_sv1_infosource;
 
       void SetVariableRefs(const std::vector<std::string> inputVars, TMVA::Reader* tmvaReader, 
 			   unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers);
-      //KM: The fuctions below will be migrated to the new class, somewhere in common btwn egamma/b-tagging
-      double GetClassResponse (egammaMVACalibNmsp::BDT* bdt,const std::vector<float>& values   ) const;
-      double GetClassResponse (egammaMVACalibNmsp::BDT* bdt,const std::vector<float*>& pointers) const;
-      double GetClassResponse (egammaMVACalibNmsp::BDT* bdt) const { return (bdt->GetPointers().size() ? GetClassResponse(bdt,bdt->GetPointers()) : -9.); }
+      double GetClassResponse (MVAUtils::BDT* bdt) const { return (bdt->GetPointers().size() ? bdt->GetGradBoostMVA(bdt->GetPointers()) : -9.); }
     }; // End class
 
 
