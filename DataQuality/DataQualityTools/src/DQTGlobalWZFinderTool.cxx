@@ -20,76 +20,64 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
 
-//#include "egammaEvent/ElectronContainer.h"
-//#include "egammaEvent/EMTrackMatch.h"
-//#include "muonEvent/Muon.h"
-//#include "muonEvent/MuonContainer.h"
-//#include "MissingETEvent/MissingET.h"
-
-//#include "VxVertex/VxContainer.h"
-//#include "VxVertex/VxCandidate.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
-// #include "xAODJet/JetContainer.h"
-//#include "xAODEgamma/ElectronContainer.h"
-//#include "xAODEgamma/PhotonContainer.h"
+#include "xAODTracking/TrackParticlexAODHelpers.h"
 #include "xAODMuon/MuonContainer.h"
-//#include "xAODTau/TauJetContainer.h"
 #include "xAODMissingET/MissingET.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODEventInfo/EventInfo.h"
-//#include "xAODBTagging/BTagging.h"
-
-//#include "TrkTrack/Track.h"
 
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 
-#include "TrkVertexAnalysisUtils/V0Tools.h"
-//EP #include "TrkVxEdmCnv/IVxCandidateXAODVertex.h"
+#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "IsolationSelection/IIsolationSelectionTool.h"
 
 #include <vector>
 
 #include "xAODEventInfo/EventInfo.h"
+#include "TProfile.h"
+#include "LWHists/TH1F_LW.h"
+#include "LWHists/TH2F_LW.h"
 
 using xAOD::Jet;
 using xAOD::JetContainer;
+using Gaudi::Units::GeV;
+using Gaudi::Units::mm;
 
 //----------------------------------------------------------------------------------
 DQTGlobalWZFinderTool::DQTGlobalWZFinderTool(const std::string & type, 
 		   const std::string & name,
 		   const IInterface* parent)
    : DataQualityFatherMonTool(type, name, parent),
+     m_muon_Pt(nullptr),
+     m_muon_Eta(nullptr),
+     m_ele_Et(nullptr),
+     m_ele_Eta(nullptr),
      m_electronContainerName("Electrons"),
      m_egDetailContainerName("egDetailAOD"),
      //m_VxPrimContainerName("VxPrimaryCandidate"), //Kshort
      m_VxPrimContainerName("PrimaryVertices"),
      m_VxContainerName("SecVertices"), //Kshort
-     m_METName("MET_Reference_AntiKt4LCTopo"),
+     m_METName("MET_Reference_AntiKt4EMTopo"),
      m_muonContainerName("Muons"),
-     m_jetCollectionName("AntiKt4LCTopoJets"),
+     m_jetCollectionName("AntiKt4EMTopoJets"),
      m_tracksName("InDetTrackParticles"), //Kshort
-     m_electronEtCut(20000),
-     m_metCut(25000),
-     m_doEtaCuts(0),
-     m_zCutLow(86.0),
-     m_zCutHigh(96.0)//,
-     //EP m_xaodConverter("Trk::VxCandidateXAODVertex")
-  
-//  declareProperty( "JetContainerName", m_jetName = "AntiKt4EMTopoJets" );
-//  declareProperty( "ElectronContainerName", m_elecName = "ElectronCollection" ); 
-//  declareProperty( "PhotonContainerName", m_photonName = "PhotonCollection" ); 
-//  declareProperty( "MuonContainerName", m_muonName = "Muons" ); 
-//  declareProperty( "TauContainerName", m_tauName = "TauRecContainer" );
-//  declareProperty( "TrackContainerName", m_trackName = "InDetTrackParticles" );  
-//  declareProperty( "VertexContainerName", m_vertexName = "PrimaryVertices" );  
-//  declareProperty( "METContainerName", m_metName = "MET_RefFinal" ); 
-    
+     m_electronEtCut(25),
+     m_muonPtCut(25),
+     m_metCut(25),
+     m_zCutLow(66.0),
+     m_zCutHigh(116.0),
+     m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
+     m_isolationSelectionTool("CP::IsolationSelectionTool/IsolationSelectionTool"),
+     m_Jpsi_mm_trigger{"CATEGORY_primary_bphys"},
+     m_Z_mm_trigger{"CATEGORY_monitoring_muonIso", "CATEGORY_monitoring_muonNonIso"},
+     m_Z_ee_trigger{"CATEGORY_primary_single_ele"}
 //----------------------------------------------------------------------------------
 
 {
-  declareInterface<IMonitorToolBase>(this);
   m_path = "GLOBAL/DQTGlobalWZFinder";
   declareProperty("ElectronContainerName", m_electronContainerName);
   declareProperty("ElectronDetailContainerName", m_egDetailContainerName);
@@ -97,16 +85,15 @@ DQTGlobalWZFinderTool::DQTGlobalWZFinderTool(const std::string & type,
   declareProperty("MuonContainerName",m_muonContainerName);
   declareProperty("JetCollectionName", m_jetCollectionName);
   declareProperty("ElectronEtCut",m_electronEtCut);
+  declareProperty("MuonPtCut",m_muonPtCut);
   declareProperty("MetCut",m_metCut);
-  declareProperty("doRunCosmics", m_doRunCosmics = 1);
-  declareProperty("doRunBeam", m_doRunBeam = 1);
-  declareProperty("doOfflineHists", m_doOfflineHists = 1);
-  declareProperty("doOnlineHists", m_doOnlineHists = 1);
-  declareProperty("doEtaCuts", m_doEtaCuts = 1);
-  declareProperty("ZCutLow", m_zCutLow = 86.0);
-  declareProperty("ZCutHigh", m_zCutHigh = 96.0);
+  declareProperty("ZCutLow", m_zCutLow);
+  declareProperty("ZCutHigh", m_zCutHigh);
   declareProperty("doTrigger", m_doTrigger = 1);    
-  //EP declareProperty("XAODConverter",m_xaodConverter);
+  declareProperty("ZmmTriggers", m_Z_mm_trigger);
+  declareProperty("ZeeTriggers", m_Z_ee_trigger);
+  declareProperty("MuonSelectionTool", m_muonSelectionTool);
+  declareProperty("IsolationSelectionTool", m_isolationSelectionTool);
 
   m_W_mt_ele = 0;
   m_W_mt_mu = 0;
@@ -121,18 +108,56 @@ DQTGlobalWZFinderTool::DQTGlobalWZFinderTool(const std::string & type,
   m_metHist = 0;
   m_metPhiHist = 0;
   
-  m_graph_Wenu = 0;
-  m_graph_Wmunu = 0;
-  m_graph_Zee_ops = 0;
-  m_graph_Zmumu_ops = 0;
-  m_graph_Zee_ss = 0;
-  m_graph_Zmumu_ss = 0;
+  m_livetime_lb = nullptr;
+  m_lblength_lb = nullptr;
+  m_mu_lb = nullptr;
+  m_Z_ee_trig_ps = nullptr;
+  m_Z_mm_trig_ps = nullptr;
+
+
 }
 
 //----------------------------------------------------------------------------------
 DQTGlobalWZFinderTool::~DQTGlobalWZFinderTool()
 //----------------------------------------------------------------------------------
 {
+}
+
+StatusCode DQTGlobalWZFinderTool::bookHistogramsRecurrent()
+{ 
+  updateTriggersForGroups(m_Jpsi_mm_trigger);
+  updateTriggersForGroups(m_Z_mm_trigger);
+  updateTriggersForGroups(m_Z_ee_trigger);
+
+  bool failure(false);
+
+  std::string  fullPathDQTGlobalWZFinder=m_path;
+  
+
+  const xAOD::EventInfo* thisEventInfo;
+  StatusCode sc = evtStore()->retrieve(thisEventInfo);
+  if(sc.isFailure()) {
+    ATH_MSG_ERROR("Could not find EventInfo in evtStore()");
+    return sc;
+  } else {
+    this_lb = thisEventInfo->lumiBlock() ;
+  }
+
+  failure |= registerHist(fullPathDQTGlobalWZFinder, m_livetime_lb = new TProfile("m_livetime_lb", "Livetime", 1, this_lb-0.5, this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
+  failure |= registerHist(fullPathDQTGlobalWZFinder, m_lblength_lb = new TProfile("m_lblength_lb", "LB length", 1, this_lb-0.5, this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
+  failure |= registerHist(fullPathDQTGlobalWZFinder, m_mu_lb = new TProfile("m_mu_lb", "#mu", 1, this_lb-0.5, this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
+  failure |= registerHist(fullPathDQTGlobalWZFinder, m_Z_ee_trig_ps = new TProfile("m_Z_ee_trig_ps", "Z->ee trigger PS", 1, this_lb-0.5, this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
+  failure |= registerHist(fullPathDQTGlobalWZFinder, m_Z_mm_trig_ps = new TProfile("m_Z_mm_trig_ps", "Z->#mu#mu trigger PS", 1, this_lb-0.5, this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
+  failure |= registerHist(fullPathDQTGlobalWZFinder, m_ZBosonCounter_El = TH1F_LW::create("m_Z_Counter_el","Z to e e Count per Lumi Block", 1, this_lb-0.5, this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
+  failure |= registerHist(fullPathDQTGlobalWZFinder, m_ZBosonCounter_Mu = TH1F_LW::create("m_Z_Counter_mu","Z to mu mu Count per Lumi Block", 1, this_lb-0.5, this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
+  
+  if (!failure) {
+    m_livetime_lb->Fill(this_lb, lbAverageLivefraction());
+    m_lblength_lb->Fill(this_lb, lbDuration());
+    m_mu_lb->Fill(this_lb, lbAverageInteractionsPerCrossing());
+  }  
+
+  return (failure ? StatusCode::FAILURE : StatusCode::SUCCESS);
 }
 
 //----------------------------------------------------------------------------------
@@ -158,17 +183,13 @@ StatusCode DQTGlobalWZFinderTool::bookHistograms( )
     UpsilonCounterBG[index]=0;
     UpsilonCounterSignal[index]=0;
 
-    KshortCounterSBG[index]=0;
-    KshortCounterBG[index]=0;
-    KshortCounterSignal[index]=0;
-
     ZBosonCounterSBG_El[index]=0;
     ZBosonCounterSBG_Mu[index]=0;
   }
   
   //if (newRun) {
-     log << MSG::DEBUG << "in bookHistograms() and m_doRunCosmics = " << m_doRunCosmics << " and m_doRunBeam = " << m_doRunBeam << endreq;
-     log << MSG::DEBUG << "Using base path " << m_path << endreq;
+  ATH_MSG_DEBUG("in bookHistograms() and m_doRunCosmics = " << m_doRunCosmics << " and m_doRunBeam = " << m_doRunBeam);
+  ATH_MSG_DEBUG("Using base path " << m_path);
      
      failure = bookDQTGlobalWZFinderTool();
   //}
@@ -189,7 +210,7 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
   //  if (isNewEventsBlock || isNewLumiBlock || isNewRun) {
   MsgStream log(msgSvc(), name());
  
-  std::string  fullPathDQTGlobalWZFinder=m_path+"/DQTGlobalWZFinder";
+  std::string  fullPathDQTGlobalWZFinder=m_path;
   
   if (m_doRunBeam) {
      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_W_mt_ele = TH1F_LW::create("m_W_mt_ele","W#rightarrowe#nu M_{T} ",40,20*1000,400*1000)).isFailure();
@@ -198,86 +219,33 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_W_pt_v_met_mu = TH2F_LW::create("m_W_pt_v_met_mu","W#rightarrow#mu#nu #mu p_{T} vs met ",100,5*1000,200*1000, 100, 5*1000, 200*1000)).isFailure();
      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_metHist = TH1F_LW::create("m_metHist","MET",50,0*1000,500*1000)).isFailure();
      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_metPhiHist = TH1F_LW::create("m_metPhiHist","MET phi",10,-1.6,1.6)).isFailure();
-     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_Z_mass_opsele = TH1F_LW::create("m_Z_mass_opsele","Z#rightarrowee (op. sign) Mass ",40, 70000, 110000)).isFailure();
-     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_Z_mass_opsmu = TH1F_LW::create("m_Z_mass_opsmu","Z#rightarrow#mu#mu (op. sign) Mass ",40, 70000, 110000)).isFailure();
      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_JPsi_mass_opsmu = TH1F_LW::create("m_JPsi_mass_opsmu","JPsi#rightarrow#mu#mu (op. sign) Mass ",40, 2600, 3600)).isFailure();
      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_Upsilon_mass_opsmu = TH1F_LW::create("m_Upsilon_mass_opsmu", "Upsilon#rightarrow#mu#mu", 40, 4500, 14500)).isFailure();
-     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_Kshort_mass_pipi = TH1F_LW::create("m_Kshort_mass_pipi","K^{0}_{S}#rightarrow#pi#pi (op. sign) Mass ",40, 450, 550)).isFailure();
-     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_Z_mass_ssele = TH1F_LW::create("m_Z_mass_ssele","Z#rightarrowee (same sign) Mass ",40, 70000, 110000)).isFailure();
-     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_Z_mass_ssmu = TH1F_LW::create("m_Z_mass_ssmu","Z#rightarrow#mu#mu (same sign) Mass ",40, 70000, 110000)).isFailure();
      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_Z_Q_ele = TH1F_LW::create("m_Z_Q_ele","Z#rightarrowee Charge ",7, -3, 3)).isFailure();
      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_Z_Q_mu = TH1F_LW::create("m_Z_Q_mu","Z#rightarrow#mu#mu Charge ",7, -3, 3)).isFailure();
+     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muon_Pt = TH1F_LW::create("m_muon_Pt", "Selected Muon p_{T}", 50, 0, 200)).isFailure();
+     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_muon_Eta = TH1F_LW::create("m_muon_Eta", "Selected Muon #eta", 50, -2.5, 2.5)).isFailure();
+     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_Et = TH1F_LW::create("m_ele_Et", "Selected Electron E_{T}", 50, 0, 200)).isFailure();
+     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ele_Eta = TH1F_LW::create("m_ele_Eta", "Selected Electron #eta", 50, -2.5, 2.5)).isFailure();
 
-
+     int nzbins = int(ceilf( m_zCutHigh - m_zCutLow ));
+     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_Z_mass_opsele = TH1F_LW::create("m_Z_mass_opsele","Z#rightarrowee (op. sign) Mass ", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV), lumiBlock).isFailure();
+     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_Z_mass_opsmu = TH1F_LW::create("m_Z_mass_opsmu","Z#rightarrow#mu#mu (op. sign) Mass ", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV), lumiBlock).isFailure();
+     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_Z_mass_ssele = TH1F_LW::create("m_Z_mass_ssele","Z#rightarrowee (same sign) Mass ", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV), lumiBlock).isFailure();
+     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_Z_mass_ssmu = TH1F_LW::create("m_Z_mass_ssmu","Z#rightarrow#mu#mu (same sign) Mass ", nzbins, m_zCutLow*GeV, m_zCutHigh*GeV), lumiBlock).isFailure();
+     
      //Resonance particle rate monitoring
      minLumiBlock  = 0.0;
      maxLumiBlock = 1200.0;
      numBins = 30.0;
-     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ZBosonCounter_El = TH1F_LW::create("m_Z_Counter_el","Z to e e Count per Lumi Block",numBins, minLumiBlock+0.5, maxLumiBlock+0.5)).isFailure();
-     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ZBosonCounter_Mu = TH1F_LW::create("m_Z_Counter_mu","Z to mu mu Count per Lumi Block", numBins, minLumiBlock+0.5, maxLumiBlock+0.5)).isFailure();
      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_JPsiCounter_Mu   = TH1F_LW::create("m_JPsi_Counter_mu", "JPsi to mu mu Count per Lumi Block", numBins, minLumiBlock+0.5, maxLumiBlock+0.5)).isFailure();
      failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_UpsilonCounter_Mu   = TH1F_LW::create("m_Upsilon_Counter_mu", "Upsilon to mu mu Count per Lumi Block", numBins, minLumiBlock+0.5, maxLumiBlock+0.5)).isFailure();
-     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_KshortCounter_Pi   = TH1F_LW::create("m_Kshort_Counter_pi", "Kshort to pi pi Count per Lumi Block", numBins, minLumiBlock+0.5, maxLumiBlock+0.5)).isFailure();
 
-     if(m_doTrigger) {
-       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ZBosonCounter_El_triggerAware = TH1F_LW::create("m_Z_Counter_el_triggerAware","Z to e e Count per Lumi Block (trigger aware)",numBins, minLumiBlock+0.5, maxLumiBlock+0.5)).isFailure();
-       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_ZBosonCounter_Mu_triggerAware = TH1F_LW::create("m_Z_Counter_mu_triggerAware","Z to mu mu Count per Lumi Block (trigger aware)", numBins, minLumiBlock+0.5, maxLumiBlock+0.5)).isFailure();
-       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_JPsiCounter_Mu_triggerAware   = TH1F_LW::create("m_JPsi_Counter_mu_triggerAware", "JPsi to mu mu Count per Lumi Block (trigger aware)", numBins, minLumiBlock+0.5, maxLumiBlock+0.5)).isFailure();
-       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_UpsilonCounter_Mu_triggerAware   = TH1F_LW::create("m_Upsilon_Counter_mu_triggerAware", "Upsilon to mu mu Count per Lumi Block (trigger aware)", numBins, minLumiBlock+0.5, maxLumiBlock+0.5)).isFailure();
-       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_KshortCounter_Pi_triggerAware   = TH1F_LW::create("m_Kshort_Counter_pi_triggerAware", "Kshort to pi pi Count per Lumi Block (trigger aware)", numBins, minLumiBlock+0.5, maxLumiBlock+0.5)).isFailure();
-     }
-
-     m_graph_Wenu = new TGraph();
-     m_graph_Wenu->SetNameTitle("graph_Wenu","W#rightarrowe#nu candidates");
-     m_graph_Wenu->GetYaxis()->SetTitle("Event Number");
-     m_graph_Wenu->GetXaxis()->SetTitle("LumiBlock");
-     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_graph_Wenu).isFailure();
-
-     m_graph_Wmunu = new TGraph();
-     m_graph_Wmunu->SetNameTitle("graph_Wmunu","W#rightarrow#mu#nu candidates");
-     m_graph_Wmunu->GetYaxis()->SetTitle("Event Number");
-     m_graph_Wmunu->GetXaxis()->SetTitle("LumiBlock");
-     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_graph_Wmunu).isFailure();
-
-     m_graph_Zee_ops = new TGraph();
-     m_graph_Zee_ops->SetNameTitle("graph_Zee_ops","Z#rightarrowee (op. sign) candidates");
-     m_graph_Zee_ops->GetYaxis()->SetTitle("Event Number");
-     m_graph_Zee_ops->GetXaxis()->SetTitle("LumiBlock");
-     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_graph_Zee_ops).isFailure();
-
-     m_graph_Zmumu_ops = new TGraph();
-     m_graph_Zmumu_ops->SetNameTitle("graph_Zmumu_ops","Z#rightarrow#mu#mu (op. sign) candidates");
-     m_graph_Zmumu_ops->GetYaxis()->SetTitle("Event Number");
-     m_graph_Zmumu_ops->GetXaxis()->SetTitle("LumiBlock");
-     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_graph_Zmumu_ops).isFailure();
-
-     m_graph_Zee_ss = new TGraph();
-     m_graph_Zee_ss->SetNameTitle("graph_Zee_ss","Z#rightarrowee (same sign) candidates");
-     m_graph_Zee_ss->GetYaxis()->SetTitle("Event Number");
-     m_graph_Zee_ss->GetXaxis()->SetTitle("LumiBlock");
-     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_graph_Zee_ss).isFailure();
-
-     m_graph_Zmumu_ss = new TGraph();
-     m_graph_Zmumu_ss->SetNameTitle("graph_Zmumu_ss","Z#rightarrow#mu#mu (same sign) candidates");
-     m_graph_Zmumu_ss->GetYaxis()->SetTitle("Event Number");
-     m_graph_Zmumu_ss->GetXaxis()->SetTitle("LumiBlock");
-     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_graph_Zmumu_ss).isFailure();
   }
-  
+   
   if (failure) {
      log << MSG::ERROR << "Error Booking histograms " << endreq;
   }
-
-  if(m_doTrigger ) {
-    StatusCode sctdt = StatusCode::SUCCESS;
-    sctdt = m_trigDec.retrieve();
-    if ( sctdt.isFailure() ){
-      log << MSG::ERROR << "Can't get handle on TrigDecisionTool" << endreq;
-    } else {
-      log << MSG::DEBUG << "Got handle on TrigDecisionTool" << endreq;
-    }
-  }
-
 
   return failure;
 
@@ -294,10 +262,6 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      StatusCode sc = StatusCode::SUCCESS;
 
      //Get LumiBlock and EventNumber
-     
-     //Int_t lumiBlock = 0;
-     //Int_t eventNumber = 0;
-	     
      const xAOD::EventInfo* thisEventInfo;
      sc = evtStore()->retrieve(thisEventInfo);
      if(sc.isFailure()) 
@@ -307,9 +271,15 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
        }
      else
        {
-	 lumiBlock = thisEventInfo->lumiBlock() ;
+	 this_lb = thisEventInfo->lumiBlock() ;
 	 eventNumber  = thisEventInfo->eventNumber();
        }
+
+     Float_t evtWeight = 1;
+     if (thisEventInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
+       evtWeight = thisEventInfo->mcEventWeight();
+       ATH_MSG_DEBUG("Event Weight: " << evtWeight);
+     }
   
      //Get MET
      
@@ -321,14 +291,14 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
        evtStore()->retrieve(missETcont,m_METName);
        missET = (*missETcont)["FinalClus"];
        if (!missET){
-	 log << MSG::WARNING << "Cannot retrieve xAOD::MissingET LocHadTopo"  << endreq;
+	 ATH_MSG_WARNING("Cannot retrieve xAOD::MissingET " << m_METName);
 	 if (!printedErrorMet)
-	   log << MSG::WARNING << "Cannot retrieve " << m_METName << endreq;
+	   ATH_MSG_WARNING("Cannot retrieve " << m_METName);
 	 printedErrorMet = true;
        }
        else {
 	 phiMet = missET->phi();
-	 metMet = missET->sumet();
+	 metMet = missET->met();
        }
      }
      else {
@@ -337,7 +307,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
         printedErrorMet = true;
      }
 
-     log << MSG::DEBUG << " MET = " << metMet << " and met phi = " << phiMet << endreq;
+     ATH_MSG_DEBUG(" MET = " << metMet << " and met phi = " << phiMet);
 
 
      //Get Electrons
@@ -358,7 +328,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
         return StatusCode::SUCCESS;
      }
      
-     log << MSG::DEBUG << "ElectronContainer successfully retrieved" << endreq;
+     ATH_MSG_DEBUG("ElectronContainer successfully retrieved");
 
 
      //Get Muons
@@ -378,22 +348,21 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
         return StatusCode::SUCCESS;
      }
 
-     log << MSG::DEBUG << "Got muon collection! " << endreq;
+     ATH_MSG_DEBUG("Got muon collection! ");
 
-     std::vector<CLHEP::HepLorentzVector> goodelectrons;
-     std::vector<Int_t> goodelectroncharge;
-     std::vector<CLHEP::HepLorentzVector> goodmuonsZ;
+     std::vector<const xAOD::Electron*> goodelectrons;
+     std::vector<const xAOD::Muon*> goodmuonsZ;
      std::vector<CLHEP::HepLorentzVector> goodmuonsJPsi;
-     std::vector<Int_t> goodmuonZcharge;
      std::vector<Int_t> goodmuonJPsicharge;
 
      //get primary vertex info
      //const VxContainer *m_vertices;
      const xAOD::VertexContainer* m_vertices(0);
-     bool vertexCut = false;
+     //bool vertexCut = false;
      
      //EP CHECK( m_xaodConverter.retrieve() );
 
+     xAOD::Vertex* pVtx(0);
      if ( evtStore()->contains<xAOD::VertexContainer>(m_VxPrimContainerName)) {
        sc = evtStore()->retrieve(m_vertices,m_VxPrimContainerName);
 
@@ -402,186 +371,16 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 	 //return StatusCode::SUCCESS;
        }
        else {
-	 log << MSG::DEBUG << "Collection with name " << m_VxPrimContainerName << " with size " << m_vertices->size() << " found in evtStore()" << endreq;
-	 //	 VxContainer::const_iterator vxItr = m_vertices->begin();
-	 //      VxContainer::const_iterator vxItrE = m_vertices->end();
+	 ATH_MSG_DEBUG("Collection with name " << m_VxPrimContainerName << " with size " << m_vertices->size() << " found in evtStore()");
 	 xAOD::VertexContainer::const_iterator vxItr = m_vertices->begin();
 	 xAOD::VertexContainer::const_iterator vxItrE = m_vertices->end();
-	 //    for(xAOD::VertexContainer::const_iterator vi=vertices->begin(); vi!=vertices->end()-1; vi++){
-	 int ntrkMin=3;
 	 for (; vxItr != vxItrE; ++vxItr) {
-           if (! ((*vxItr)->vxTrackAtVertexAvailable())) continue;
-
-	   int numTracksPerVertex = (*vxItr)->vxTrackAtVertex().size();
-	   if (numTracksPerVertex>(ntrkMin-1)) {
-	     vertexCut = true;
-	    }
-	 }
-
-
-	 //Get Pi tracks for Kshort monitoring (code from InDetPerformanceMonitoring, IDPerfMonKshort.cxx)
-	 const xAOD::TrackParticleContainer* tracks = 0;
-	 StatusCode scTracks = evtStore()->retrieve(tracks,m_tracksName);  
-
-	 if (scTracks.isFailure()) {
-	   log << MSG::WARNING << "No Collection with name "<<m_tracksName<<" found in evtStore()" << endreq;
-	   //return StatusCode::SUCCESS;
-	 } 
-	 else {
-	   log << MSG::DEBUG << "Collection with name "<<m_tracksName<<" found in evtStore()" << endreq;
-
-	   const  xAOD::VertexContainer* vertices = 0;
-	   StatusCode scVertices = evtStore()->retrieve(vertices,m_VxPrimContainerName);
-	   if (scVertices.isFailure()) {
-	     log << MSG::DEBUG << "No Collection with name "<<m_VxPrimContainerName<<" found in evtStore()" << endreq;
-	     //return StatusCode::SUCCESS;
-	   }
-	   else {
-	     log << MSG::DEBUG << "Collection with name "<<m_VxPrimContainerName<<" found in evtStore()" << endreq;
-
-	     // Trk::RecVertex *primaryVertex=&((*(vertices->begin()))->recVertex());
-	     //EP xAOD::Vertex* primaryVx(0);
-	     //EP for (xAOD::VertexContainer::const_iterator fz = vertices->begin(); fz != vertices->end(); ++fz) {
-	     //EP   if ((*fz)->vertexType() == xAOD::VxType::PriVtx) {
-	     //EP     primaryVx = *fz;
-	     //EP     break;
-	     //EP   }
-	     //EP }
-             //EP xAOD::Vertex* primaryVertex = primaryVx;
-	     //EP Trk::VxCandidate* primVxCandidate;
-	     //EP if( m_xaodConverter->createVxCandidate(*primaryVx,primVxCandidate).isFailure() ) {
-	     //EP         ATH_MSG_ERROR("Failed to create VxCandidate for xAODVertex.");
-	     //EP }
-	     
-	     //EP Trk::RecVertex* primaryVertex = &(primVxCandidate->recVertex());
-	     
-	     
-	     //	     const VxContainer* theVxContainer (0);
-	     const xAOD::VertexContainer* theVxContainer (0);
-	     if(evtStore()->contains<xAOD::VertexContainer>(m_VxContainerName)){
-	       scVertices = evtStore()->retrieve(theVxContainer,m_VxContainerName);
-	       if (scVertices.isFailure()) {
-		 log << MSG::WARNING << "No Collection with name "<<m_VxContainerName<<" found in evtStore()" << endreq;
-		 //return StatusCode::SUCCESS;
-	       }
-	       else {
-		 // iterators over the V0 container
-		 xAOD::VertexContainer::const_iterator Itr = theVxContainer->begin();
-		 xAOD::VertexContainer::const_iterator ItrEnd = theVxContainer->end(); 
-		 //log << MSG::DEBUG << "V0 Iterator started" << endreq;
-		 
-		 //EP Trk::VxCandidate* theVxCandidate;
-		 ToolHandle <Trk::V0Tools> myV0Tools("Trk::V0Tools");
-		 // = new Trk::V0Tools("V0Tools","myV0Tools",m_parent);
-		 //EP double piMass = 139.57018;
-		 //EP double ksMassPDG = 497.648; 
-		 for (; Itr != ItrEnd; ++Itr) {
-		   //EP xAOD::Vertex* vx = (*Itr);
-		   //createVxCandidate(vx, theVxCandidate);
-		   //EP if( m_xaodConverter->createVxCandidate(*vx,theVxCandidate).isFailure() ) {
-		   //EP   ATH_MSG_ERROR("Failed to create VxCandidate for xAODVertex.");
-		   //EP   continue;
-		   //EP }
-		   //const Trk::V0Hypothesis* myV0Hypothesis = myV0Tools->v0Unconstr(theV0Candidate);
-		   //const Trk::V0Hypothesis* myKsHypothesis = myV0Tools->v0Kshort(theV0Candidate);
-		  
-                   // EP: V0Tools is not yet completely migrated to xAOD
-                   // see https://indico.cern.ch/event/314902/contribution/7/material/slides/0.pdf slide 5
-                   // Useless to rewrite it here. Comment out this part until the tool is migrated.
-                   // (the m_xaodConverter gives problems at the ESD2AOD step, not using it for now)
-                   /*
-		   double ksMass = myV0Tools->invariantMass((const Trk::ExtendedVxCandidate*)theVxCandidate,piMass,piMass);
-		   // double ksMassConstrained = myV0Tools->invariantMass((const Trk::ExtendedVxCandidate*)myKsHypothesis,piMass,piMass);
-		   //double ksPt = myV0Tools->V04Momentum((const Trk::ExtendedVxCandidate*)theVxCandidate,ksMassPDG).perp();
-		   double ksMomentum = myV0Tools->V04Momentum((const Trk::ExtendedVxCandidate*)theVxCandidate,ksMassPDG).vect().mag();
-		   CLHEP::Hep3Vector ksMomentumVector = myV0Tools->V04Momentum((const Trk::ExtendedVxCandidate*)theVxCandidate,ksMassPDG).vect();
-		   
-		   double transverseFlightDistance, totalFlightDistance;
-                   Amg::Vector3D flightVector;
-		   //EP if(primaryVertex!=NULL) {
-		   //EP   transverseFlightDistance = myV0Tools->lxy((const Trk::ExtendedVxCandidate*)theVxCandidate,*primaryVertex);
-		   //EP   totalFlightDistance = (myV0Tools->vtx((const Trk::ExtendedVxCandidate*)theVxCandidate)-primaryVertex->position()).mag();
-		   //EP   flightVector = myV0Tools->vtx((const Trk::ExtendedVxCandidate*)theVxCandidate)-primaryVertex->position();
-		   //EP }
-		   //EP else {
-		   //EP   transverseFlightDistance = myV0Tools->rxy((const Trk::ExtendedVxCandidate*)theVxCandidate);
-		   //EP   totalFlightDistance = (myV0Tools->vtx((const Trk::ExtendedVxCandidate*)theVxCandidate)).mag();      
-		   //EP   flightVector = myV0Tools->vtx((const Trk::ExtendedVxCandidate*)theVxCandidate);
-		   //EP }
-		   
-		   double properDecayTime = 1./CLHEP::c_light*ksMassPDG/ksMomentum*totalFlightDistance;
-		   
-		   double ksPx = ksMomentumVector.x();
-		   double ksPy = ksMomentumVector.y();
-		   double flightX = flightVector.x();
-		   double flightY = flightVector.y();
-		   double cosThetaPointing = (ksPx*flightX+ksPy*flightY)/sqrt(ksPx*ksPx+ksPy*ksPy)/sqrt(flightX*flightX+flightY*flightY);
-		   
-		   int trackPos_nSVTHits = 0;
-		   // int trackPos_nPixelHits = 0;
-		   int trackNeg_nSVTHits = 0;
-		   // int trackNeg_nPixelHits = 0;
-		   const Trk::TrackParticleBase* trackPos = myV0Tools->positiveOrigTrackPB((const Trk::ExtendedVxCandidate*)theVxCandidate);
-		   if(trackPos!=0) {
-		     trackPos_nSVTHits = trackPos->trackSummary()->get(Trk::numberOfSCTHits);
-		     // trackPos_nPixelHits = trackPos->trackSummary()->get(Trk::numberOfPixelHits);
-		   }
-		   const Trk::TrackParticleBase* trackNeg = myV0Tools->negativeOrigTrackPB((const Trk::ExtendedVxCandidate*)theVxCandidate);
-		   if(trackNeg!=0) {
-		     trackNeg_nSVTHits = trackNeg->trackSummary()->get(Trk::numberOfSCTHits);
-		     // trackNeg_nPixelHits = trackNeg->trackSummary()->get(Trk::numberOfPixelHits);
-		   }
-		   
-		   int selectorValue = 0;
-		   
-		   log << MSG::DEBUG << "ksTau = " << properDecayTime << " Lxy = " <<transverseFlightDistance<< " cosTheta = " << cosThetaPointing <<endreq;
-		   log << MSG::DEBUG << "trackPos nSVThits = " << trackPos_nSVTHits << " trackNeg nSVThits = " << trackNeg_nSVTHits <<endreq;
-		   // log << MSG::DEBUG << "ksMass = " << ksMass<< " ksMassConstrained = " << ksMassConstrained << endreq;
-		   
-		   //log << MSG::DEBUG << "ksPt = " << ksPt <<endreq;
-		   
-		   if( 1 &&
-		       properDecayTime > 0.004 && 
-		       transverseFlightDistance > 12. &&
-		       cosThetaPointing > 0.998 &&
-		       ksMass>400. && 
-		       ksMass<600. &&
-		       trackPos_nSVTHits > 2 &&
-		       trackNeg_nSVTHits > 2 ) selectorValue = 1;
-		   if(selectorValue==1 ) { 
-		     m_Kshort_mass_pipi->Fill(ksMass); 
-		     
-		     if ((ksMass > 456 && ksMass < 470) || (ksMass > 526 && ksMass < 540)) {
-		       ++KshortCounterBG[0];
-		       if(m_doTrigger) {
-			 if( m_trigDec->isPassed("EF_InDetMon_FS") ) {
-			   ++KshortCounterBG[1];
-			 }
-		       }
-		     }
-		     if ( ksMass > 484 && ksMass < 512) {
-		       ++KshortCounterSBG[0];
-		       if(m_doTrigger) {
-			 if( m_trigDec->isPassed("EF_InDetMon_FS") ) {
-			   ++KshortCounterSBG[1];
-			 }
-		       }
-		     }
-		   }
-*/
-		 }
-	       }
-	     } 
-	     else {
-	       log << MSG::WARNING << "evtStore() does not contain Collection with name "<<m_VxContainerName<<" " <<endreq;
-	       //return StatusCode::SUCCESS;
-	     }
+           //if (! ((*vxItr)->vxTrackAtVertexAvailable())) continue;
+	   if ((*vxItr)->vertexType() == xAOD::VxType::PriVtx) {
+	     pVtx = *vxItr;
 	   }
 	 }
        }
-     }
-     else {
-       log << MSG::WARNING << "evtStore() does not contain VxPrimaryCandidate Container" << endreq;
      }
 
 
@@ -616,7 +415,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
        isBad = true;
        return StatusCode::SUCCESS;
      }
-     log << MSG::DEBUG << "JetCollection successfully retrieved" << endreq;
+     ATH_MSG_DEBUG("JetCollection successfully retrieved");
      
 
      // Electron Cut Flow
@@ -624,42 +423,48 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 
      //TLorentzVector* tlv_e = new TLorentzvector();
      for (xAOD::ElectronContainer::const_iterator itr=elecTES->begin(); itr != elecTES->end(); ++itr) {
-        Float_t eta = (*itr)->eta();
-        bool isMedium = 0;
-        if (!((*itr)->passSelection(isMedium, "Medium"))) log << MSG::DEBUG << "Electron Medium Not Defined" << endreq;
-	if ( ((*itr)->p4().Et() > m_electronEtCut) &&
-             ((*itr)->author(xAOD::EgammaParameters::AuthorElectron) == true) &&
-             (fabs(eta) < 2.47 && m_doEtaCuts) &&
-             //(fabs(eta) < 1.37 && fabs(eta) > 1.52 && m_doEtaCuts) &&
-	     (isMedium == false) && // before was ((*itr)->isem((egammaPID::ElectronMedium)) == 0)
-	     vertexCut &&
+       //Float_t eta = (*itr)->eta();
+        bool passSel = false;
+        if (!((*itr)->passSelection(passSel, "LHLoose"))) ATH_MSG_WARNING("Electron ID WP Not Defined");
+	auto elTrk = (*itr)->trackParticle();
+	float d0sig;
+	try {
+	  d0sig = xAOD::TrackingHelpers::d0significance(elTrk, thisEventInfo->beamPosSigmaX(), thisEventInfo->beamPosSigmaY(), thisEventInfo->beamPosSigmaXY());
+	} catch (...) {
+	  ATH_MSG_DEBUG("Invalid beamspot");
+	  d0sig = xAOD::TrackingHelpers::d0significance(elTrk);
+	}
+	/*
+	ATH_MSG_INFO("Electron accept: " << passSel);
+	ATH_MSG_INFO("Electron eta: " << (*itr)->caloCluster()->etaBE(2));
+	ATH_MSG_INFO("Electron pt: " << (*itr)->pt() << " " << m_electronEtCut*GeV);
+	ATH_MSG_INFO("Electron iso: " << m_isolationSelectionTool->accept(**itr));
+	ATH_MSG_INFO("Electron d0sig: " << d0sig);
+	ATH_MSG_INFO("Electron Good vtx: " << pVtx);
+	if (pVtx) 
+	  ATH_MSG_INFO("Electron z0sinth: " << fabs((elTrk->z0()+elTrk->vz()-pVtx->z())*std::sin(elTrk->theta())) << " " << 0.5*mm);
+	ATH_MSG_INFO("Electron isBad: " << isBad);
+	*/
+
+	if ( ((*itr)->pt() > m_electronEtCut*GeV) &&
+             ((*itr)->caloCluster()->etaBE(2) < 2.47) &&
+	     passSel &&
+	     m_isolationSelectionTool->accept(**itr) &&
+	     fabs(d0sig) < 5 &&
+	     pVtx && 
+	     fabs((elTrk->z0()+elTrk->vz()-pVtx->z())*std::sin(elTrk->theta())) < 0.5*mm &&
 	     !isBad
 	     ) {
 
-           El_N++;
-	   
-           CLHEP::HepLorentzVector thislepton;
-           thislepton.setPx((*itr)->p4().Px());
-           thislepton.setPy((*itr)->p4().Py());
-           thislepton.setPz((*itr)->p4().Pz());
-           thislepton.setE((*itr)->p4().E());
-           goodelectrons.push_back(thislepton);
+	  ATH_MSG_DEBUG("Good electron");
+	  El_N++;
+	  
+	  m_ele_Et->Fill((*itr)->pt()/GeV, evtWeight);
+	  m_ele_Eta->Fill((*itr)->eta(), evtWeight);
+	  goodelectrons.push_back(*itr);
 
-           goodelectroncharge.push_back((*itr)->charge());
-           //// to be updated to xAOD
-           //const EMTrackMatch* pEMTrackMatch = (*itr)->detail<EMTrackMatch>(m_egDetailContainerName);
-           //if(pEMTrackMatch) {
-           //   Int_t charge = (Int_t)((*itr)->trackParticle()->charge());           
-           //   goodelectroncharge.push_back(charge);
-           //}
-           //else {
-           //   Int_t charge = (Int_t)((*itr)->charge());
-           //   goodelectroncharge.push_back(charge);
-           //}
         }
      }
-     //delete tlv_e;        
-
 
      // Muon Cut Flow
 
@@ -668,113 +473,40 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 
      xAOD::MuonContainer::const_iterator muonItr;
      for (muonItr=muons->begin(); muonItr != muons->end(); ++muonItr) {
-
-         // First retreive some standalone muon info
-         // This part is imported from PhysicsAnalysis/D3PDMaker/MuonD3PDMaker/src/MuonComponentTrkParameters.cxx
-
-         //EP const Trk::TrackParameters *idtparb=0, *metparb=0;
-         //EP const Trk::TrackParameters *idtpar=0, *metpar=0;
-
-         //idtparb = idtp ? & idtp->definingParameters() : 0;
-         //metparb = metp ? & metp->definingParameters() : 0;
-         //idtpar = idtparb ? dynamic_cast<const Trk::TrackParameters* > (idtparb) : 0;
-         //metpar = metparb ? dynamic_cast<const Trk::TrackParameters* > (metparb) : 0;
-
-         //Float_t id_d0 = -99999;
-         //Float_t id_z0 = -99999;
-         //Float_t id_phi = -99999;
-         //Float_t id_theta = -99999;
-         Float_t id_qoverp = -99999;
-         //Float_t me_d0 = -99999;
-         //Float_t me_z0 = -99999;
-         //Float_t me_phi = -99999;
-         //Float_t me_theta = -99999;
-         Float_t me_qoverp = -99999;
-
-	 ATH_MSG_DEBUG("Valid ID? " << (*muonItr)->inDetTrackParticleLink().isValid());
-	 if ((*muonItr)->inDetTrackParticleLink().isValid()) {
-	   const xAOD::TrackParticle* idtp = *((*muonItr)->inDetTrackParticleLink());
-	   id_qoverp = idtp->qOverP();
-	 } else {
-	   id_qoverp = 0;
-	 }
-
-	 ATH_MSG_DEBUG("Valid MS? " << (*muonItr)->muonSpectrometerTrackParticleLink().isValid());
-	 if ((*muonItr)->muonSpectrometerTrackParticleLink().isValid()) {
-	   const xAOD::TrackParticle* metp = *((*muonItr)->muonSpectrometerTrackParticleLink());
-	   me_qoverp = metp->qOverP();
-	 } else {
-	   id_qoverp = 0;
-	 }
-
-         //if(idtpar) {
-         //  //id_d0 = idtpar->parameters()[Trk::d0];
-         //  //id_z0 = idtpar->parameters()[Trk::z0];
-         //  //id_phi = idtpar->parameters()[Trk::phi0];
-         //  //id_theta = idtpar->parameters()[Trk::theta];
-         //  id_qoverp = idtpar->parameters()[Trk::qOverP];
-         //}
-         //if(metpar) {
-         //  //me_d0 = metpar->parameters()[Trk::d0];
-         //  //me_z0 = metpar->parameters()[Trk::z0];
-         //  //me_phi = metpar->parameters()[Trk::phi0];
-         //  //me_theta = metpar->parameters()[Trk::theta];
-         //  me_qoverp = metpar->parameters()[Trk::qOverP];
-         //}
-
-         // Cut flow from W' early analysis.  Missing cuts: PVzmax,maxd0,maxz0diff 
-
-         //int minTrkinPVCut(3);
-         //Float_t maxPVzCut(150);
-         Float_t etaCut(2.0);
-         Float_t minptCut(20*CLHEP::GeV);
          Float_t minptCutJPsi(1.0*CLHEP::GeV);
-         Int_t minPixHitsCut(1);
-         Int_t minSCTHitsCut(4);
-         Int_t minSiHitsCut(6);
-         Float_t maxPMSoverPID(2);
-         //Float_t maxd0Cut(1);
-         //Float_t maxz0diffCut(5);
-         Float_t maxIsoptCut(0.05);
-         uint8_t NumOfPixHits = 0;
-         uint8_t NumOfSCTHits = 0;
-         float   ptcone30=0;
-         if (! (*muonItr)->summaryValue(NumOfSCTHits, xAOD::numberOfSCTHits) )
-             log << MSG::DEBUG << "Could not retrieve number of SCT hits"<< endreq;
-         if (! (*muonItr)->summaryValue(NumOfPixHits, xAOD::numberOfPixelHits) )
-             log << MSG::DEBUG << "Could not retrieve number of Pixel hits"<< endreq;
-         if (! (*muonItr)->isolation(ptcone30, xAOD::Iso::ptcone30))
-             log << MSG::DEBUG << "Could not retrieve ptcone30"<< endreq;
-
-         if ( ((*muonItr)->combinedTrackParticleLink().isValid()) &&
-              (fabs((*muonItr)->eta()) < etaCut) &&
-              ((*muonItr)->pt() > minptCut) &&
-              (NumOfPixHits > minPixHitsCut) &&
-              (NumOfSCTHits > minSCTHitsCut) &&
-              (NumOfPixHits+NumOfSCTHits > minSiHitsCut) &&
-              (1/maxPMSoverPID < id_qoverp/me_qoverp) && (id_qoverp/me_qoverp < maxPMSoverPID) &&
-	      //   (fabs((*muonItr)->d0_exPV()) < maxd0Cut) &&
-	      //   (fabs((*muonItr)->z0_exPV()) < maxz0diffCut) &&
-              (ptcone30/(*muonItr)->pt() < maxIsoptCut) &&
-	      vertexCut &&
+	 auto muTrk = (*muonItr)->primaryTrackParticle();
+	 float d0sig;
+	 try {
+	   d0sig = xAOD::TrackingHelpers::d0significance(muTrk, thisEventInfo->beamPosSigmaX(), thisEventInfo->beamPosSigmaY(), thisEventInfo->beamPosSigmaXY());
+	 } catch (...) {
+	   ATH_MSG_DEBUG("Invalid beamspot");
+	   d0sig = xAOD::TrackingHelpers::d0significance(muTrk);
+	 }
+	 
+	 /*
+	 ATH_MSG_INFO("Muon accept: " << m_muonSelectionTool->accept(**muonItr));
+	 ATH_MSG_INFO("Muon pt: " << (*muonItr)->pt() << " " << m_muonPtCut*GeV);
+	 ATH_MSG_INFO("Muon iso: " << m_isolationSelectionTool->accept(**muonItr));
+	 ATH_MSG_INFO("Muon d0sig: " << d0sig);
+	 ATH_MSG_INFO("Muon Good vtx: " << pVtx);
+	 if (pVtx) 
+	   ATH_MSG_INFO("Muon z0sinth: " << fabs((muTrk->z0()+muTrk->vz()-pVtx->z())*std::sin(muTrk->theta())) << " " << 0.5*mm);
+	 ATH_MSG_INFO("Muon isBad: " << isBad);
+	 */
+         if ( m_muonSelectionTool->accept(**muonItr) &&
+              ((*muonItr)->pt() > m_muonPtCut*GeV) &&
+	      m_isolationSelectionTool->accept(**muonItr) &&
+	      fabs(d0sig) < 3 &&
+	      pVtx &&
+	      fabs((muTrk->z0()+muTrk->vz()-pVtx->z())*std::sin(muTrk->theta())) < 0.5*mm &&
 	      !isBad
 	      ) {
 
              MuZ_N++;
 
-             Float_t px = (*muonItr)->p4().Px();
-	     Float_t py = (*muonItr)->p4().Py();
-             Float_t pz = (*muonItr)->p4().Pz();
-             Float_t e = (*muonItr)->p4().E();
-             Int_t charge = 0;//(Int_t)((*muonItr)->charge()); // TODO update when xAODMuon-00-06-00 
-
-             CLHEP::HepLorentzVector thislepton;
-             thislepton.setPx(px);
-             thislepton.setPy(py);
-             thislepton.setPz(pz);
-             thislepton.setE(e);
-             goodmuonsZ.push_back(thislepton);
-             goodmuonZcharge.push_back(charge);
+	     m_muon_Pt->Fill((*muonItr)->pt()/GeV, evtWeight);
+	     m_muon_Eta->Fill((*muonItr)->eta(), evtWeight);
+             goodmuonsZ.push_back(*muonItr);
          }
          if ( ((*muonItr)->pt() > minptCutJPsi) ) {
              MuJPsi_N++;
@@ -802,60 +534,52 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      // Check Sum of Candidate Leptons, Return if None
 
 
-     log << MSG::DEBUG << "Candidate e+mu = " << El_N+MuZ_N+MuJPsi_N << endreq; 
+     ATH_MSG_DEBUG("Candidate e+mu = " << El_N+MuZ_N+MuJPsi_N); 
      if ((El_N + MuZ_N + MuJPsi_N) < 1) return sc;
 
      // Sort Candidates by Pt
 
 
-     CLHEP::HepLorentzVector leadingEle;
-     CLHEP::HepLorentzVector subleadingEle;
-     CLHEP::HepLorentzVector leadingMuZ;
-     CLHEP::HepLorentzVector subleadingMuZ;
+     const xAOD::Electron* leadingEle(0);
+     const xAOD::Electron*  subleadingEle(0);
+     const xAOD::Muon* leadingMuZ(0);
+     const xAOD::Muon* subleadingMuZ(0);
      CLHEP::HepLorentzVector leadingMuJPsi;
      CLHEP::HepLorentzVector subleadingMuJPsi;
      
-     leadingEle.setPerp(0);
-     subleadingEle.setPerp(0);
-     leadingMuZ.setPerp(0);
-     subleadingMuZ.setPerp(0);
      leadingMuJPsi.setPerp(0);
      subleadingMuJPsi.setPerp(0);
      
-     Int_t leadingElecharge = 0;
-     Int_t subleadingElecharge = 0;
-     Int_t leadingMuZcharge = 0;
-     Int_t subleadingMuZcharge = 0;
      Int_t leadingMuJPsicharge = 0;
      Int_t subleadingMuJPsicharge = 0;
 
 
+     ATH_MSG_DEBUG("Beginning ele loop");
      for (UInt_t iEle = 0; iEle < goodelectrons.size(); iEle++) {
-        Float_t pt = goodelectrons[iEle].perp();
-        if (pt > leadingEle.perp()) {
+        Float_t pt = goodelectrons[iEle]->pt();
+	ATH_MSG_DEBUG("Ele pt " << pt);
+        if (! leadingEle || pt > leadingEle->pt()) {
            subleadingEle = leadingEle;
-	   subleadingElecharge = leadingElecharge;
            leadingEle = goodelectrons[iEle];
-	   leadingElecharge = goodelectroncharge[iEle];
         }
-        else if (pt > subleadingEle.perp()) {
+        else if (! subleadingEle || pt > subleadingEle->pt()) {
            subleadingEle = goodelectrons[iEle];
-	   subleadingElecharge = goodelectroncharge[iEle];
         }
      }
+     ATH_MSG_DEBUG("Done ele loop");
+     ATH_MSG_DEBUG("Start mu Z loop");
      for (UInt_t iMu = 0; iMu < goodmuonsZ.size(); iMu++) {
-        Float_t pt = goodmuonsZ[iMu].perp();
-        if (pt > leadingMuZ.perp()) {
+        Float_t pt = goodmuonsZ[iMu]->pt();
+        if (! leadingMuZ || pt > leadingMuZ->pt()) {
            subleadingMuZ = leadingMuZ;
-           subleadingMuZcharge = leadingMuZcharge;
            leadingMuZ = goodmuonsZ[iMu];
-           leadingMuZcharge = goodmuonZcharge[iMu];
         }
-        else if (pt > subleadingMuZ.perp()) {
+        else if (! subleadingMuZ || pt > subleadingMuZ->pt()) {
            subleadingMuZ = goodmuonsZ[iMu];
-           subleadingMuZcharge = goodmuonZcharge[iMu];
         }
      }
+     ATH_MSG_DEBUG("Done mu Z loop");
+     ATH_MSG_DEBUG("Start mu J/psi loop");
      for (UInt_t iMu = 0; iMu < goodmuonsJPsi.size(); iMu++) {
         Float_t pt = goodmuonsJPsi[iMu].perp();
         if (pt > leadingMuJPsi.perp()) {
@@ -869,87 +593,80 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
            subleadingMuJPsicharge = goodmuonJPsicharge[iMu];
         }
      }
+     ATH_MSG_DEBUG("End mu J/psi loop");
      
-     
+     ATH_MSG_DEBUG("Fill MET");
      //MET histograms
-     m_metHist->Fill(metMet);
-     m_metPhiHist->Fill(phiMet);
-
+     m_metHist->Fill(metMet, evtWeight);
+     m_metPhiHist->Fill(phiMet, evtWeight);
+     ATH_MSG_DEBUG("End MET");
+     
      // Z Mass
 
      bool isZee = (goodelectrons.size() > 1);
      bool isZmumu = (goodmuonsZ.size() > 1);
      bool isJPsimumu = (goodmuonsJPsi.size() > 1);
+     ATH_MSG_DEBUG("Evaluated Event");
 
-     if (isZee) {
-        CLHEP::HepLorentzVector Zee = leadingEle + subleadingEle;
-	Float_t mass = Zee.m();
-	Int_t Zeecharge = leadingElecharge + subleadingElecharge;
-     
-	m_Z_Q_ele->Fill(Zeecharge);
-	if (Zeecharge == 0) {
-	  m_Z_mass_opsele->Fill(mass);
-	  m_graph_Zee_ops->SetPoint(m_graph_Zee_ops->GetN(), lumiBlock, eventNumber);
-	  if (mass > 86990 && mass < 95386 ) { //assuming Z mass of 91188 MeV and range of 2 sigma (sigma = 4 198 MeV)
-	    ++ZBosonCounterSBG_El[0];
-	    if(m_doTrigger) {
-	      if( m_trigDec->isPassed("EF_2e12Tvh_loose1") ) {
-		++ZBosonCounterSBG_El[1];
-	      }
-	    }
-	  }
-	}
-	else {
-	  m_Z_mass_ssele->Fill(mass);
-	  m_graph_Zee_ss->SetPoint(m_graph_Zee_ss->GetN(), lumiBlock, eventNumber);
-	}
-	log << MSG::DEBUG << "Found a Z to ee candidate!  Mass = " << mass << ", and charge = " << Zeecharge << endreq;
+     if (isZee && trigChainsArePassed(m_Z_ee_trigger)) {
+       ATH_MSG_DEBUG("Zee found");
+       TLorentzVector Zee = (leadingEle->p4() + subleadingEle->p4());
+       Float_t mass = Zee.M();
+       Int_t Zeecharge = leadingEle->charge() + subleadingEle->charge();
+       
+       if (mass > m_zCutLow*GeV && mass < m_zCutHigh*GeV ) {
+	 m_Z_Q_ele->Fill(Zeecharge, evtWeight);
+	 ATH_MSG_DEBUG( "Found a Z to ee candidate!  Mass = " << mass << ", and charge = " << Zeecharge );
+	 if (Zeecharge == 0) {
+	   m_Z_mass_opsele->Fill(mass, evtWeight);
+	   m_ZBosonCounter_El->Fill(this_lb, evtWeight);
+	   ++ZBosonCounterSBG_El[0];
+	 } else {
+	   m_Z_mass_ssele->Fill(mass, evtWeight);
+	 }
+       }
      }
 
-     if (isZmumu) {
-        CLHEP::HepLorentzVector Zmumu = leadingMuZ + subleadingMuZ;
-        Float_t mass = Zmumu.m();
-        Int_t Zmumucharge = leadingMuZcharge + subleadingMuZcharge;
+     if (isZmumu && trigChainsArePassed(m_Z_mm_trigger)) {
+       ATH_MSG_DEBUG("Zmumu found");
+       TLorentzVector Zmumu = leadingMuZ->p4() + subleadingMuZ->p4();
+       Float_t mass = Zmumu.M();
+       Int_t Zmumucharge = leadingMuZ->charge() + subleadingMuZ->charge();
 
-	m_Z_Q_mu->Fill(Zmumucharge);
-	if (Zmumucharge == 0) {
-	  m_Z_mass_opsmu->Fill(mass);
-	  m_graph_Zmumu_ops->SetPoint(m_graph_Zmumu_ops->GetN(), lumiBlock, eventNumber);
-          if (mass > 87831 && mass < 94545) {// assuming Z mass of 91188 MeV and range of 2 sigma (sigma = 3357 MeV)
-              ++ZBosonCounterSBG_Mu[0];
-	      if(m_doTrigger) {
-		if( m_trigDec->isPassed("EF_mu24i_tight") ) {
-		  ++ZBosonCounterSBG_Mu[1];
-		}
-	      }
+	if (mass > m_zCutLow*GeV && mass < m_zCutHigh*GeV) {
+	  m_Z_Q_mu->Fill(Zmumucharge, evtWeight);
+	  ATH_MSG_DEBUG("Found a Z to mumu candidate!  Mass = " << mass << ", and charge = " << Zmumucharge);
+	  if (Zmumucharge == 0) {
+	    m_Z_mass_opsmu->Fill(mass, evtWeight);
+	    m_ZBosonCounter_Mu->Fill(this_lb, evtWeight);
+	    ++ZBosonCounterSBG_Mu[0];
+	  } else {
+	    m_Z_mass_ssmu->Fill(mass, evtWeight);
 	  }
 	}
-	else {
-	  m_Z_mass_ssmu->Fill(mass);
-	  m_graph_Zmumu_ss->SetPoint(m_graph_Zmumu_ss->GetN(), lumiBlock, eventNumber);
-	}
-	log << MSG::DEBUG << "Found a Z to mumu candidate!  Mass = " << mass << ", and charge = " << Zmumucharge << endreq;
      }     
-
+     
 
      //JPsi and Upsilon counter
-     if (isJPsimumu) {
+     if (isJPsimumu && trigChainsArePassed(m_Jpsi_mm_trigger)) {
+       ATH_MSG_DEBUG("Jpsi mm found");
          CLHEP::HepLorentzVector JPsimumu = leadingMuJPsi + subleadingMuJPsi;
          Float_t mass = JPsimumu.m();
          Int_t JPsimumucharge = leadingMuJPsicharge + subleadingMuJPsicharge;
 
         
          if (JPsimumucharge == 0) {
-             m_JPsi_mass_opsmu->Fill(mass);
-             m_Upsilon_mass_opsmu->Fill(mass);
-             //m_graph_Zmumu_ops->SetPoint(m_graph_Zmumu_ops->GetN(), lumiBlock, eventNumber);
+             m_JPsi_mass_opsmu->Fill(mass, evtWeight);
+             m_Upsilon_mass_opsmu->Fill(mass, evtWeight);
 
 		 
 
              if (mass > 3038 && mass < 3156) {
                  ++JPsiCounterSBG[0];
 		 if(m_doTrigger) {
-		   if( m_trigDec->isPassed("EF_2mu6_Jpsimumu") ) {
+		   ATH_MSG_DEBUG("ABOUT TO DO BAD THINGS");
+		   //ATH_MSG_DEBUG("Pointer?" << getTrigDecTool());
+		   if( trigChainsArePassed(m_Jpsi_mm_trigger) ) {
 		     ++JPsiCounterSBG[1];
 		   }
 		 }
@@ -957,26 +674,26 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
              if ((mass > 2802 && mass < 2920) || (mass > 3274 && mass < 3391)) {
                  ++JPsiCounter2BG[0];
 		 if(m_doTrigger) {
-		   if( m_trigDec->isPassed("EF_2mu6_Jpsimumu") ) {
-		     ++JPsiCounter2BG[1];
-		   }
+		   //if( m_trigDecTool->isPassed("EF_2mu6_Jpsimumu") ) {
+		   //  ++JPsiCounter2BG[1];
+		   //}
 		 }
              }
              //assuming JPsi mass of 3 097 MeV and range of 2 sigma (sigma = 59 MeV, based on root best fit of distribution)
 	     if (mass > 8242 && mass < 10678) {
                  ++UpsilonCounterSBG[0];
 		 if(m_doTrigger) {
-		   if( m_trigDec->isPassed("EF_2mu6_Upsimumu") ) {
-		     ++UpsilonCounterSBG[1];
-		   }
+		   //if( m_trigDecTool->isPassed("EF_2mu6_Upsimumu") ) {
+		   //  ++UpsilonCounterSBG[1];
+		   //}
 		 }
              }
              if ((mass > 4588 && mass < 5806) || (mass > 13114 && mass < 14332)) {
                  ++UpsilonCounterBG[0];
 		 if(m_doTrigger) {
-		   if( m_trigDec->isPassed("EF_2mu6_Upsimumu") ) {
-		     ++UpsilonCounterBG[1];
-		   }
+		   //if( m_trigDecTool->isPassed("EF_2mu6_Upsimumu") ) {
+		   //  ++UpsilonCounterBG[1];
+		   //}
 		 }
              }
              //assuming Upsilon mass of 9 460 MeV and range of 2 sigma (sigma = 1218 MeV)
@@ -985,60 +702,52 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
          }
          //else {
          //    m_Z_mass_ssmu->Fill(mass);
-         //    m_graph_Zmumu_ss->SetPoint(m_graph_Zmumu_ss->GetN(), lumiBlock, eventNumber);
          //}
-         log << MSG::DEBUG << "Found a JPsi/Upsilon to mumu candidate!  Mass = " << mass << ", and charge = " << JPsimumucharge << endreq;
+         ATH_MSG_DEBUG("Found a JPsi/Upsilon to mumu candidate!  Mass = " << mass << ", and charge = " << JPsimumucharge);
      }  
-
-
-
-
-
-
-
 
      // W Transverse Mass
 
      Float_t metx = metMet*cos(phiMet);
      Float_t mety = metMet*sin(phiMet);
-     Float_t m_mtCut = 40000;
+     Float_t m_mtCut = 40*GeV;
 
-     bool isWenu =  ((goodelectrons.size()  > 0) && (metMet > m_metCut) && !isZee);
-     bool isWmunu = ((goodmuonsZ.size() > 0) && (metMet > m_metCut) && !isZmumu);
+     bool isWenu =  ((goodelectrons.size()  > 0) && (metMet > m_metCut*GeV) && !isZee);
+     bool isWmunu = ((goodmuonsZ.size() > 0) && (metMet > m_metCut*GeV) && !isZmumu);
 
 
      if (isWenu) {
-        Float_t px = leadingEle.px();
-        Float_t py = leadingEle.py();
-        Float_t pz = leadingEle.pz();
+       ATH_MSG_DEBUG("Wenu found " << leadingEle);
+       Float_t px = leadingEle->p4().Px();
+       Float_t py = leadingEle->p4().Py();
+       Float_t pz = leadingEle->p4().Pz();
         Float_t p = sqrt(px*px+py*py+pz*pz);
-        Float_t et = leadingEle.e()*leadingEle.perp()/p;
+        Float_t et = leadingEle->e()*leadingEle->pt()/p;
         Float_t mt = sqrt(2*(et*metMet-px*metx-py*mety));     
 
 	if (mt > m_mtCut)
 	{
-	  m_W_pt_v_met_ele->Fill(leadingEle.perp(), metMet);
-	  m_W_mt_ele->Fill(mt);
-	  m_graph_Wenu->SetPoint(m_graph_Wenu->GetN(), lumiBlock, eventNumber);
-	  log << MSG::DEBUG << "Found a W to enu candidate!  M_T = " << mt << ", and MET = " << metMet << ", and mu_pt = " << leadingMuZ.perp() << endreq;
+	  m_W_pt_v_met_ele->Fill(leadingEle->pt(), metMet, evtWeight);
+	  m_W_mt_ele->Fill(mt, evtWeight);
+	  ATH_MSG_DEBUG("Found a W to enu candidate!  M_T = " << mt << ", and MET = " << metMet << ", and ele_pt = " << leadingEle->pt());
 	}
      }
 
      if (isWmunu) {
-        Float_t px = leadingMuZ.px();
-        Float_t py = leadingMuZ.py();
-        Float_t pz = leadingMuZ.pz();
-        Float_t p = sqrt(px*px+py*py+pz*pz);
-        Float_t et = leadingMuZ.e()*leadingMuZ.perp()/p;
-        Float_t mt = sqrt(2*(et*metMet-px*metx-py*mety));
-
-	if (mt > m_mtCut)
-	{
-	  m_W_pt_v_met_mu->Fill(leadingMuZ.perp(), metMet);
-	  m_W_mt_mu->Fill(mt);
-	  m_graph_Wmunu->SetPoint(m_graph_Wmunu->GetN(), lumiBlock, eventNumber);
-	  log << MSG::DEBUG << "Found a W to munu candidate!  M_T = " << mt << ", and MET = " << metMet << ", and mu_pt = " << leadingMuZ.perp() << endreq;
-	}
+       ATH_MSG_DEBUG("Wmunu found");
+       Float_t px = leadingMuZ->p4().Px();
+       Float_t py = leadingMuZ->p4().Py();
+       Float_t pz = leadingMuZ->p4().Pz();
+       Float_t p = sqrt(px*px+py*py+pz*pz);
+       Float_t et = leadingMuZ->e()*leadingMuZ->pt()/p;
+       Float_t mt = sqrt(2*(et*metMet-px*metx-py*mety));
+       
+       if (mt > m_mtCut)
+	 {
+	   m_W_pt_v_met_mu->Fill(leadingMuZ->pt(), metMet, evtWeight);
+	   m_W_mt_mu->Fill(mt, evtWeight);
+	   ATH_MSG_DEBUG("Found a W to munu candidate!  M_T = " << mt << ", and MET = " << metMet << ", and mu_pt = " << leadingMuZ->pt());
+	 }
      }
 
      return sc;
@@ -1054,27 +763,24 @@ StatusCode DQTGlobalWZFinderTool::procHistograms( )
 //----------------------------------------------------------------------------------
 {
   //if ( endOfEventsBlock || endOfLumiBlock || endOfRun ) {
-  if ( endOfLumiBlock || endOfRun ) {
+  if ( endOfLumiBlockFlag() || endOfRunFlag() ) {
   MsgStream log(msgSvc(), name());
 
-  log << MSG::DEBUG << "in finalHists()" << endreq;
+  ATH_MSG_DEBUG("in finalHists()");
   }
 
 
    //---Filling rate monitoring histograms---//
-   if (endOfLumiBlock) {
+  if (endOfLumiBlockFlag()) {
          JPsiCounterSignal[0] = JPsiCounterSBG[0] - JPsiCounter2BG[0]/2;
          JPsiCounterSignal[1] = JPsiCounterSBG[1] - JPsiCounter2BG[1]/2;
 
          UpsilonCounterSignal[0] = UpsilonCounterSBG[0] - UpsilonCounterBG[0];
          UpsilonCounterSignal[1] = UpsilonCounterSBG[1] - UpsilonCounterBG[1];
 
-         KshortCounterSignal[0] = KshortCounterSBG[0] - KshortCounterBG[0];
-         KshortCounterSignal[1] = KshortCounterSBG[1] - KshortCounterBG[1];
-
          if (m_doRunBeam) {
              //Map lumiBlock to corresponding bin
-             int binNumber = int((lumiBlock-0.50)/((maxLumiBlock - minLumiBlock)/numBins))+1;
+             int binNumber = int((this_lb-0.50)/((maxLumiBlock - minLumiBlock)/numBins))+1;
 
 	     //JPsi->mu mu
 	     if(JPsiCounterSignal[0] < 0) {
@@ -1085,16 +791,9 @@ StatusCode DQTGlobalWZFinderTool::procHistograms( )
 	     }
 
 	     for(int i = 0 ; i < JPsiCounterSignal[0] ; i++) {
-	       m_JPsiCounter_Mu->Fill(lumiBlock); 
+	       m_JPsiCounter_Mu->Fill(this_lb); 
 	     }
 	     m_JPsiCounter_Mu->SetBinError(binNumber, TMath::Sqrt(m_JPsiCounter_Mu->GetBinContent( binNumber)));
-
-	     if(m_doTrigger) {
-	       for(int i = 0 ; i < JPsiCounterSignal[1] ; i++) {
-		 m_JPsiCounter_Mu_triggerAware->Fill(lumiBlock); 
-	       }
-	       m_JPsiCounter_Mu_triggerAware->SetBinError(binNumber, TMath::Sqrt(m_JPsiCounter_Mu_triggerAware->GetBinContent( binNumber)));
-	     }
 
 	     //Upsilon->mu mu
              if(UpsilonCounterSignal[0] < 0) {
@@ -1105,36 +804,9 @@ StatusCode DQTGlobalWZFinderTool::procHistograms( )
              }
 
 	     for(int i = 0 ; i < UpsilonCounterSignal[0] ; i++) {
-	       m_UpsilonCounter_Mu->Fill(lumiBlock);
+	       m_UpsilonCounter_Mu->Fill(this_lb);
 	     }
 	     m_UpsilonCounter_Mu->SetBinError(binNumber, TMath::Sqrt(m_UpsilonCounter_Mu->GetBinContent( binNumber)));
-
-	     if(m_doTrigger) {
-	       for(int i = 0 ; i < UpsilonCounterSignal[1] ; i++) {
-		 m_UpsilonCounter_Mu_triggerAware->Fill(lumiBlock);
-	       }
-	       m_UpsilonCounter_Mu_triggerAware->SetBinError(binNumber, TMath::Sqrt(m_UpsilonCounter_Mu_triggerAware->GetBinContent( binNumber)));
-	     }
-
-             //Kshort ->pi pi
-	     if(KshortCounterSignal[0] < 0) {
-	       KshortCounterSignal[0]=0;
-	     }
-	     if(KshortCounterSignal[1] < 0) {
-	       KshortCounterSignal[1]=0;
-	     }
-
-	     for(int i = 0 ; i < KshortCounterSignal[0] ; i++) {
-	       m_KshortCounter_Pi->Fill(lumiBlock);
-	     }
-	     m_KshortCounter_Pi->SetBinError(binNumber, TMath::Sqrt(m_KshortCounter_Pi->GetBinContent( binNumber)));
-
-	     if ( m_doTrigger) {
-	       for(int i = 0 ; i < KshortCounterSignal[1] ; i++) {
-		 m_KshortCounter_Pi_triggerAware->Fill(lumiBlock);
-	       }
-	       m_KshortCounter_Pi_triggerAware->SetBinError(binNumber, TMath::Sqrt(m_KshortCounter_Pi_triggerAware->GetBinContent( binNumber)));
-	     }
 
              //Z->e e
 	     if(ZBosonCounterSBG_El[0] < 0) {
@@ -1143,39 +815,7 @@ StatusCode DQTGlobalWZFinderTool::procHistograms( )
 	     if(ZBosonCounterSBG_El[1] < 0) {
 	       ZBosonCounterSBG_El[1] = 0;
 	     }
-
-	     for(int i = 0 ; i < ZBosonCounterSBG_El[0] ; i++) {
-	       m_ZBosonCounter_El->Fill(lumiBlock);
-	     }
-	     m_ZBosonCounter_El->SetBinError(binNumber, TMath::Sqrt(m_ZBosonCounter_El->GetBinContent( binNumber)));
-
-	     if(m_doTrigger) {
-	       for(int i = 0 ; i < ZBosonCounterSBG_El[1] ; i++) {
-		 m_ZBosonCounter_El_triggerAware->Fill(lumiBlock);
-	       }
-	       m_ZBosonCounter_El_triggerAware->SetBinError(binNumber, TMath::Sqrt(m_ZBosonCounter_El_triggerAware->GetBinContent( binNumber)));
-	     }
-
-             //Z->mu mu
-	     if(ZBosonCounterSBG_Mu[0] < 0) {
-	       ZBosonCounterSBG_Mu[0] = 0;
-	     }
-	     if(ZBosonCounterSBG_Mu[1] < 0) {
-	       ZBosonCounterSBG_Mu[1] = 0;
-	     }
-
-	     for(int i = 0 ; i < ZBosonCounterSBG_Mu[0] ; i++) {
-	       m_ZBosonCounter_Mu->Fill(lumiBlock);
-	     }
-	     m_ZBosonCounter_Mu->SetBinError(binNumber, TMath::Sqrt(m_ZBosonCounter_Mu->GetBinContent( binNumber)));
-
-	     if(m_doTrigger) {
-	       for(int i = 0 ; i < ZBosonCounterSBG_Mu[1] ; i++) {
-		 m_ZBosonCounter_Mu_triggerAware->Fill(lumiBlock);
-	       }
-	       m_ZBosonCounter_Mu_triggerAware->SetBinError(binNumber, TMath::Sqrt(m_ZBosonCounter_Mu_triggerAware->GetBinContent( binNumber)));
-	     }
-         }
+        }
 	 for (int index =0 ; index < 2 ; index++) {
 	   JPsiCounterSBG[index]=0;
 	   JPsiCounterSBG[index]=0;
@@ -1185,10 +825,6 @@ StatusCode DQTGlobalWZFinderTool::procHistograms( )
 	   UpsilonCounterSBG[index]=0;
 	   UpsilonCounterBG[index]=0;
 	   UpsilonCounterSignal[index]=0;
-	   
-	   KshortCounterSBG[index]=0;
-	   KshortCounterBG[index]=0;
-	   KshortCounterSignal[index]=0;
 	   
 	   ZBosonCounterSBG_El[index]=0;
 	   ZBosonCounterSBG_Mu[index]=0;
@@ -1208,7 +844,7 @@ StatusCode DQTGlobalWZFinderTool::checkHists(bool /* fromFinalize */)
 {
   MsgStream log(msgSvc(), name());
 
-  log << MSG::DEBUG << "in checkHists()" << endreq;
+  ATH_MSG_DEBUG("in checkHists()");
 
   return StatusCode::SUCCESS;
 }
