@@ -151,6 +151,7 @@ class ModuleSpecialPixelMap : private std::map<unsigned int, unsigned int>{
   //static unsigned int pixelType(unsigned int column, unsigned int row);
              
    //!< returns pixel type (normal, long etc.) -- global 
+  static std::vector<unsigned int> decodePixelID(unsigned int pixelID, unsigned int type);
   static unsigned int encodePixelID(unsigned int chip, unsigned int column, unsigned int row, unsigned int mchips); 
   static unsigned int encodePixelID(unsigned int chip, unsigned int column, unsigned int row);
 

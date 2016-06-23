@@ -1332,6 +1332,25 @@ unsigned int ModuleSpecialPixelMap::pixelType(unsigned int column, unsigned int 
 }
 */
 
+
+std::vector<unsigned int> ModuleSpecialPixelMap::decodePixelID(unsigned int pixelID, unsigned int typeFE){
+  
+  unsigned int chip = (pixelID & 0xF);
+  pixelID >>=4;
+  unsigned int column = (pixelID & 0x1F);
+  (typeFE == 0) ? pixelID >>=5 : pixelID >>=8; //typeFE = 0 for FEI3 and 1 for FEI4
+  unsigned int row = pixelID;
+
+  std::vector<unsigned int> ChipColRow;
+  ChipColRow.push_back(chip);
+  ChipColRow.push_back(column);
+  ChipColRow.push_back(row);
+  
+  return ChipColRow;
+
+}
+
+
 unsigned int ModuleSpecialPixelMap::encodePixelID(unsigned int chip, unsigned int column, unsigned int row, unsigned int mchips){
   int i = mchips%10; // type of module 
   unsigned int pixelID = row;
