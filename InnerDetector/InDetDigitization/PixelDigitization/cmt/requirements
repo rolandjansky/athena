@@ -44,7 +44,6 @@ use  StoreGate                StoreGate-*             Control
 use HitManagement	    HitManagement-*	      Simulation
 use  InDetSimData             InDetSimData-*          InnerDetector/InDetRawEvent
 use PileUpTools             PileUpTools-*             Control
-use xAODEventInfo           xAODEventInfo-*               Event/xAOD 
 use AtlasROOT		    AtlasROOT-*		External
 
 use PixelConditionsTools    PixelConditionsTools-*    InnerDetector/InDetConditions
@@ -54,7 +53,6 @@ use  InDetSimEvent            InDetSimEvent-*         InnerDetector
 use SiDigitization          SiDigitization-*          InnerDetector/InDetDigitization
 use InDetReadoutGeometry    InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
 use InDetRawData            InDetRawData-*            InnerDetector/InDetRawEvent
-use PixelConditionsData     PixelConditionsData-*     InnerDetector/InDetConditions
 use AthenaKernel            AthenaKernel-*            Control
 use CommissionEvent         CommissionEvent-*         Commission
 use SiPropertiesSvc	    SiPropertiesSvc-*	      InnerDetector/InDetConditions
@@ -64,5 +62,5 @@ use  InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector
 use PixelConditionsServices PixelConditionsServices-* InnerDetector/InDetConditions
 use  PixelGeoModel             PixelGeoModel-*          InnerDetector/InDetDetDescr
 use  PathResolver               PathResolver-*                  Tools
-public
 use  AthenaBaseComps          AthenaBaseComps-*       Control
+use  CxxUtils                 CxxUtils-*              Control 

@@ -9,7 +9,7 @@
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include "PixelDigitizationTool.h"
+//#include "PixelDigitizationTool.h"
 #include "SpecialPixelGenerator.h"
 #include "TimeSvc.h"
 
@@ -17,6 +17,9 @@
 #include "SiDigitization/SiHelper.h"
 #include "PixelConditionsServices/ISpecialPixelMapSvc.h"
 #include "InDetIdentifier/PixelID.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetSimEvent/SiCharge.h"
 
 #include "CLHEP/Random/RandomEngine.h"
@@ -43,7 +46,8 @@ SpecialPixelGenerator::SpecialPixelGenerator(const std::string& type, const std:
   m_specialPixelMapSvc("SpecialPixelMapSvc",name),
   m_rndmSvc("AtDSFMTGenSvc",name),
   m_rndmEngineName("PixelDigitization"), 
-  m_rndmEngine(0)
+  m_rndmEngine(0),
+  m_pixMgr(0)
 {
   declareInterface< SpecialPixelGenerator >( this );
   
@@ -91,7 +95,12 @@ StatusCode SpecialPixelGenerator::initialize() {
   else { 
     ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);  
   }
-
+  
+  const PixelDetectorManager *m_pixMgr;
+  CHECK(detStore()->retrieve(m_pixMgr,"Pixel"));
+  ATH_MSG_DEBUG("PixelDetectorManager: <" << "Pixel" << "> retrieved");
+  setManager(m_pixMgr);
+  
   return StatusCode::SUCCESS;
 }
 
@@ -133,14 +142,14 @@ void SpecialPixelGenerator::generatePixelMap() const {
   //
   // first clear the current map
   ATH_MSG_VERBOSE ( "generating a new SpecialPixelMap" );
-  ATH_MSG_VERBOSE ( "map size = " << m_detectorMapGen.size() );
-  if (m_detectorMapGen.size()>0)
-    m_detectorMapGen.clear();
+  ATH_MSG_VERBOSE ( "map size = " << m_detectorMapGen->size() );
+  if (m_detectorMapGen->size()>0)
+    m_detectorMapGen->clear();
   
-  m_detectorMapGen.resize(m_pixelID->wafer_hash_max());
+  m_detectorMapGen->resize(m_pixelID->wafer_hash_max());
 
   for(unsigned int i = 0; i < m_pixelID->wafer_hash_max(); i++){
-    m_detectorMapGen[i] = new ModuleSpecialPixelMap();
+    (*m_detectorMapGen)[i] = new ModuleSpecialPixelMap();
   }
 
   //
@@ -222,10 +231,21 @@ int SpecialPixelGenerator::fillSpecialPixels( double prob, unsigned int status, 
 //       ATH_MSG_ERROR ( "failed making full Id of IdHash!" );
 //     }
 
+    const InDetDD::SiDetectorElement* element = m_pixMgr->getDetectorElement(idHash);
+    const InDetDD::PixelModuleDesign* p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+    
+    int nChips = p_design->numberOfCircuits();
+    int nCols  = p_design->columnsPerCircuit();
+    int nRows  = p_design->rowsPerCircuit();
+    if ( nChips == 8 ) { // FE-I3
+      nChips = 2 * nChips; // a circuit in FE-I3 is 2 chips at the same eta.
+      nRows = nRows/2 + 4; //add ganged pixels
+    }  
+    
     // TODO: these constants should NOT BE HARDCODED!!! FIX THIS!
-    const int nChips = 16;
-    const int nCols  = 18;
-    const int nRows  = 164;
+    //const int nChips = 16;
+    //const int nCols  = 18;
+    //const int nRows  = 164;
 
     // with a given module hash, select FE, row and col
     int pixChip = CLHEP::RandFlat::shootInt(m_rndmEngine,nChips);
@@ -238,10 +258,10 @@ int SpecialPixelGenerator::fillSpecialPixels( double prob, unsigned int status, 
     ATH_MSG_VERBOSE ( "setting status" );
     // set status
     if (merge) {
-      unsigned int oldstat = m_detectorMapGen[idHash]->pixelStatus(pixelID);
+      unsigned int oldstat = (*m_detectorMapGen)[idHash]->pixelStatus(pixelID);
       status |= oldstat;
     }
-    m_detectorMapGen[idHash]->setPixelStatus(pixelID,status);
+    (*m_detectorMapGen)[idHash]->setPixelStatus(pixelID,status);
     ATH_MSG_VERBOSE ( "done!" );
   }
   //
@@ -279,7 +299,7 @@ void SpecialPixelGenerator::process(SiChargedDiodeCollection &collection) const 
   getID(pixid, pixelID, mchips);
   const ModuleSpecialPixelMap *modmap=0;
   if (m_usePixCondSum) { modmap = m_detectorMap->module(moduleHash); }
-  else modmap=m_detectorMapGen.module(moduleHash);
+  else modmap=m_detectorMapGen->module(moduleHash);
   if ( !modmap ) return; // no special pixels for this module: nothing to do!
   // process hits
   for(SiChargedDiodeIterator i_chargedDiode=collection.begin();
@@ -342,7 +362,7 @@ void SpecialPixelGenerator::getID( const Identifier & id, unsigned int & pixID, 
 
 const DetectorSpecialPixelMap* SpecialPixelGenerator::getDetectorMap() const{
   if (m_usePixCondSum) { return m_detectorMap; }
-  else return  &m_detectorMapGen; 
+  else { return  m_detectorMapGen; }
 }
 
 void SpecialPixelGenerator::maskDead(SiChargedDiodeCollection &collection) const {
