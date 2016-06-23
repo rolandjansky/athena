@@ -216,8 +216,7 @@ StatusCode TileDigiNoiseMonTool::fillHistograms() {
     
     for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
 
-      if (getL1info() != digitsCollection->getLvl1Type()) continue;
-      if (digitsCollection->empty()) continue;
+      if (digitsCollection->empty() || (digitsCollection->getLvl1Type() !=  getL1info())) continue;
       
       HWIdentifier adc_id = digitsCollection->front()->adc_HWID();
       int ros = m_tileHWID->ros(adc_id);

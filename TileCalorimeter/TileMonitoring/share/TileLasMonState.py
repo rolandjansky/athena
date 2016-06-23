@@ -1,3 +1,6 @@
+from AthenaCommon.Logging import logging
+tilemon_log = logging.getLogger('TileLasMonState.py')
+
 #########################################
 #
 # Set db
