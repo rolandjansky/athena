@@ -66,7 +66,7 @@ namespace TrigCostRootAnalysis {
     Bool_t m_overflowMET;
     Bool_t m_overflowHT;
    public:
-    TOBAccumulator() : m_vX(0), m_vY(0), m_HT(0) {}
+    TOBAccumulator() : m_vX(0), m_vY(0), m_HT(0), m_overflowMET(kFALSE), m_overflowHT(kFALSE) {}
     Float_t HT() { return m_HT; }
     Float_t vX() { return m_vX; }
     Float_t vY() { return m_vY; }

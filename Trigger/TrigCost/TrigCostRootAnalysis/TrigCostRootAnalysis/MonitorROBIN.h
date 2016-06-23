@@ -33,12 +33,21 @@ namespace TrigCostRootAnalysis {
 
    public:
 
+    // StringIntSetMap_t& getROBINMapping(UInt_t _robReq);
+    //static void collateROBINRequests(UInt_t _level, const TrigCostData* _costData);
+
     MonitorROBIN(const TrigCostData* _costData);
     void newEvent(Float_t _weight = 1.);
     CounterBase* newCounter( const std::string &_name, Int_t _ID );
     Bool_t getIfActive(ConfKey_t _mode);
     void saveOutput();
 
+    /*
+  protected: 
+    static Int_t m_eventNumber; //!< Static event number which is buffered
+    static UInt_t m_level; //!<Static level which is buffered
+    static std::vector< StringIntSetMap_t > m_ROBINRequestStorage; //!< For each ROS request, buffer which ROBINs are hit
+    */
    private:
 
 

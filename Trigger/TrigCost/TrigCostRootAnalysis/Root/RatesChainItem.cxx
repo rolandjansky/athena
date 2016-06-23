@@ -15,6 +15,7 @@
 #include "../TrigCostRootAnalysis/RatesChainItem.h"
 #include "../TrigCostRootAnalysis/CounterBaseRates.h"
 #include "../TrigCostRootAnalysis/Config.h"
+#include "../TrigCostRootAnalysis/TrigXMLService.h"
 
 // ROOT includes
 #include <TError.h>
@@ -59,12 +60,6 @@ namespace TrigCostRootAnalysis {
     m_doDirectPS = Config::config().getInt(kDirectlyApplyPrescales); // Cache for speed
     m_advancedLumiScaling = Config::config().getInt(kDoAdvancedLumiScaling);
 
-    // If L1: then classify my bunchgroup
-    if (m_level == 1) {
-      classifyBunchGroup();
-    }
-    // Classify random happens later now, called by MonitorRates once the seeding relationship is set
-
     if (m_PS <= 0.) m_PSWeight = 0.;
     m_forcePassRaw = (Bool_t) Config::config().getInt(kRatesForcePass);
     m_matchRandomToOnline = (Bool_t) Config::config().getInt(kMatchL1RandomToOnline);
@@ -75,16 +70,23 @@ namespace TrigCostRootAnalysis {
    */
   void RatesChainItem::classifyBunchGroup() {
 
-    if (getName().find("_BPTX") != std::string::npos || getName().find("_BGRP") != std::string::npos) { // Ignore the beam pickup triggers
+    RatesChainItem* _toCheck = this;
+    if (m_level > 1 && m_lower.size() == 1) _toCheck = *(m_lower.begin());
+
+    if (_toCheck->getName().find("_BPTX") != std::string::npos || _toCheck->getName().find("_BGRP") != std::string::npos) { // Ignore the beam pickup & specialist triggers
       m_bunchGroupType = kBG_NONE;
-    } else if (getName().find("_FIRSTEMPTY") != std::string::npos) {
+    } else if (_toCheck->getName().find("_FIRSTEMPTY") != std::string::npos) {
       m_bunchGroupType = kBG_FIRSTEMPTY;
-    } else if (getName().find("_EMPTY") != std::string::npos) {
+    } else if (_toCheck->getName().find("_EMPTY") != std::string::npos) {
       m_bunchGroupType = kBG_EMPTY;
-    } else if (getName().find("_UNPAIRED_ISO") != std::string::npos) {
+    } else if (_toCheck->getName().find("_UNPAIRED_ISO") != std::string::npos) {
       m_bunchGroupType = kBG_UNPAIRED_ISO;
-    } else if (getName().find("_UNPAIRED_NONISO") != std::string::npos) {
+    } else if (_toCheck->getName().find("_UNPAIRED_NONISO") != std::string::npos) {
       m_bunchGroupType = kBG_UNPAIRED_NONISO;
+    } else if (_toCheck->getName().find("_ABORTGAPNOTCALIB") != std::string::npos) {
+      m_bunchGroupType = kBG_ABORTGAPNOTCALIB;
+    } else if (_toCheck->getName().find("_CALREQ") != std::string::npos) {
+      m_bunchGroupType = kBG_CALREQ;
     } else {
       m_bunchGroupType = kBG_FILLED;
     }
@@ -103,6 +105,8 @@ namespace TrigCostRootAnalysis {
    * If NOT RANDOM, then simple linear extrapolation holds.
    */
   void RatesChainItem::classifyLumiAndRandom() {
+
+    classifyBunchGroup();
 
     RatesChainItem* _toCheck = this;
     if (m_level > 1 && m_lower.size() == 1) _toCheck = *(m_lower.begin());
@@ -156,6 +160,19 @@ namespace TrigCostRootAnalysis {
         // Same as special case #3
         m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalMuComponent);
         m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
+
+      } else if (m_bunchGroupType == kBG_EMPTY || m_bunchGroupType == kBG_FIRSTEMPTY) {
+
+        // For empty BG, we scale with the *inverse* number of bunches, i.e. more bunches is less empty hence less empty rate
+        // Fist empty is a bit of a fudge - assumes that NBunch is proportional to NTrain
+        m_lumiExtrapolationFactor = Config::config().getFloat(kEmptyBunchgroupExtrapolaion); // No extra deadtime factor here (not physics item).
+
+      } else if (m_bunchGroupType == kBG_UNPAIRED_ISO || m_bunchGroupType == kBG_UNPAIRED_NONISO || 
+                 m_bunchGroupType == kBG_ABORTGAPNOTCALIB || m_bunchGroupType == kBG_CALREQ) {
+
+        // We have no idea how the UNPAIRED items will change in the prediction - for now, zero extrapolation
+        // Abort gap and calreq are always the same so again, no extrap here
+        m_lumiExtrapolationFactor = 1.; // No extra deadtime factor here (not physics item).
 
       } else {
 

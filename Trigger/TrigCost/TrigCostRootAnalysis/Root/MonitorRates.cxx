@@ -936,6 +936,16 @@ namespace TrigCostRootAnalysis {
 
     TrigXMLService::trigXMLService().saveRuleBookXML(m_counterCollections, getLevelStr());
 
+    // Also copy any PS files
+    if (Config::config().getIsSet(kPrescaleXMLPath1)) {
+      const std::string _outputFile = Config::config().getStr(kOutputDirectory) + "/" + Config::config().getStr(kOutputXMLDirectory) + "/prescales1.xml";
+      gSystem->CopyFile(Config::config().getStr(kPrescaleXMLPath1).c_str(), _outputFile.c_str());
+    }
+    if (Config::config().getIsSet(kPrescaleXMLPath2)) {
+      const std::string _outputFile = Config::config().getStr(kOutputDirectory) + "/" + Config::config().getStr(kOutputXMLDirectory) + "/prescales2.xml";
+      gSystem->CopyFile(Config::config().getStr(kPrescaleXMLPath2).c_str(), _outputFile.c_str());
+    }
+
     if (Config::config().getInt(kOutputRatesGraph) == kTRUE) saveRateGraphs();
 
     VariableOptionVector_t _toSavePlots;// = m_dummyCounter->getAllHistograms();

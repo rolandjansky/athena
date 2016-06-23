@@ -95,12 +95,13 @@ namespace TrigCostRootAnalysis {
     kBG_UNPAIRED_NONISO = 5,
     kBG_FIRSTEMPTY = 6,
     kBG_UNPAIRED = 7, // Not used
-    kBG_UNSET = 8, // Internal default value
-    kEBBunchGroupType_SIZE = 9 //!< Size of this enum, this entry must always come last.
+    kBG_ABORTGAPNOTCALIB = 8,
+    kBG_UNSET = 9, // Internal default value
+    kEBBunchGroupType_SIZE = 10 //!< Size of this enum, this entry must always come last.
   };
 
   const static std::string BunchGroupNameStr[] = {
-    "NONE", "FILLED", "CALREQ", "EMPTY", "UNPAIRED_ISO", "UNPAIRED_NONISO", "FIRSTEMPTY", "UNPAIRED", "UNSET"
+    "NONE", "FILLED", "CALREQ", "EMPTY", "UNPAIRED_ISO", "UNPAIRED_NONISO", "FIRSTEMPTY", "UNPAIRED", "ABORTGAPNOTCALIB", "UNSET"
   };
 
   enum FormatterOption_t {
@@ -256,6 +257,7 @@ namespace TrigCostRootAnalysis {
     kPredictionLumiFinal, // The value actually chosen to be used
     kPredictionLumiFinalMuComponent, // What part of PredictionLumiFinal is due to increased mu
     kPredictionLumiFinalBunchComponent, // What part of PredictionLumiFinal is due to extra bunches
+    kEmptyBunchgroupExtrapolaion, // How much we extrapolate empty items
     kDoAdvancedLumiScaling,
     kTargetPeakMuAverage,
     kTargetPairedBunches,
@@ -268,6 +270,8 @@ namespace TrigCostRootAnalysis {
     kCurrentPass,
     kMessageWait,
     kCleanAll,
+    kMaxBunches,
+    kMaxBCIDs,
     kSloppyExit,
     kROSXMLPath,
     kROSXMLName,
@@ -338,6 +342,7 @@ namespace TrigCostRootAnalysis {
     kEventsSkipped,
     kRunNumber,
     kVersionString,
+    kLBPerKeyset,
     kVarTime,     // Study Variable ENUMs
     kVarRerunTime,
     kVarPassTime,
@@ -361,6 +366,11 @@ namespace TrigCostRootAnalysis {
     kVarROBNotOK,
     kVarROBUnclassified,
     kVarROBPrefetched,
+    kVarTrigCostTime,
+    kVarTexecTime,
+    kVarChainExecTime,
+    kVarResultBuildingTime,
+    kVarMonitoringTime,
     kVarCalls,
     kVarCallsRaw,
     kVarCallsSlow,
@@ -408,6 +418,7 @@ namespace TrigCostRootAnalysis {
     kDecDoExpressChain,
     kDecElapsedTime,
     kDecRatesGroupName,
+    kDecGroupName,
     kDecPrescaleStr,
     kDecPrescaleVal,
     kDecPrescaleValOnlineL1,
