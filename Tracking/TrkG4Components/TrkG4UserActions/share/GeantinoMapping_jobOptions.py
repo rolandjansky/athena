@@ -5,7 +5,7 @@
 #		of the ATLAS detector and the GeantinoMapping.
 #		It can be run using athena.py
 #
-__version__="$Revision: 729147 $"
+__version__="$Revision: 757321 $"
 #==============================================================
 
 
@@ -95,17 +95,12 @@ myAtRndmGenSvc.OutputLevel 	= VERBOSE
 myAtRndmGenSvc.EventReseeding   = False
 ServiceMgr += myAtRndmGenSvc
 
-
-## Add an action
-def geantino_action():
-    from G4AtlasApps import AtlasG4Eng,PyG4Atlas
-    GeantinoAction = PyG4Atlas.UserAction('TrkG4UserActions','MaterialStepRecorder', ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
-    GeantinoAction.set_Properties({ "verboseLevel" : "1",
-                                    "recordELoss"  : "1",
-                                    "recordMSc"    : "1" })
-    AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(GeantinoAction)
-
-SimFlags.InitFunctions.add_function('preInitG4', geantino_action)
+## add the material step recording action
+SimFlags.UseV2UserActions = True
+SimFlags.OptionalUserActionList.addAction('G4UA::MaterialStepRecorderTool',['BeginOfRun','BeginOfEvent','EndOfEvent','Step'])
+#SimFlags.UserActionConfig.addConfig('G4UA::MaterialStepRecorderTool','verboseLevel',1)
+#SimFlags.UserActionConfig.addConfig('G4UA::MaterialStepRecorderTool','recordELoss',1)
+#SimFlags.UserActionConfig.addConfig('G4UA::MaterialStepRecorderTool','recordMSc',1)
 
 ############### The Material hit collection ##################
 
@@ -116,10 +111,14 @@ ServiceMgr.AthenaSealSvc.CheckDictionary   = True
 ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
 ServiceMgr.AthenaPoolCnvSvc.CommitInterval = 10
 MaterialStream              = AthenaPoolOutputStream ( 'MaterialStream' )
-MaterialStream.OutputFile   =   "MaterialStepFile.root" 
-MaterialStream.ItemList    += [ 'MaterialStepVector#*']
+MaterialStream.OutputFile   =   "MaterialStepFile.root"
+MaterialStream.ItemList    += [ 'Trk::MaterialStepCollection#*']
 
 ##############################################################
+
+# Add the beam effects algorithm
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
 ## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
