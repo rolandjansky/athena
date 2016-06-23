@@ -60,10 +60,17 @@
 class PixelID;
 class TimeSvc;
 class IPixelCalibSvc;
+class DetectorSpecialPixelMap;
 
 class IAtRndmGenSvc;
 namespace CLHEP {
   class HepRandomEngine;
+}
+
+namespace InDetDD {
+  class PixelDetectorManager;
+  class SiDetectorElement;
+  class SiDetectorManager;
 }
 
 class PixelNoisyCellGenerator : public AthAlgTool, virtual public ISiChargedDiodesProcessorTool {
@@ -91,6 +98,7 @@ public:
   virtual void setNoisyPixel(std::map<unsigned int,std::vector<unsigned int> > *noisyPixelMap) {m_noisyPixel=noisyPixelMap;}
 
 protected:
+
   std::map<unsigned int,std::vector<unsigned int> > *m_noisyPixel;
 
 private:
@@ -115,6 +123,8 @@ private:
   CLHEP::HepRandomEngine* m_rndmEngine;
   double m_spmNoiseOccu;
   double m_rndNoiseProb;
+  const InDetDD::PixelDetectorManager *m_pixMgr;
+
 };
 
 #endif // PIXELDIGITIZATION_PIXELNOISYCELLGENERATOR_H
