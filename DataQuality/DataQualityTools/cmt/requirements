@@ -103,7 +103,7 @@ use     MuonRDO         MuonRDO-*               MuonSpectrometer
 use TrkParameters	TrkParameters-*		Tracking/TrkEvent
 
 #### for Kshort rate monitoring
-use TrkVertexAnalysisUtils      TrkVertexAnalysisUtils-*        Tracking/TrkVertexFitter
+#use TrkVertexAnalysisUtils      TrkVertexAnalysisUtils-*        Tracking/TrkVertexFitter
 
 #For background monitoring
 use TagEvent            TagEvent-*              PhysicsAnalysis/EventTag
@@ -135,7 +135,8 @@ use xAODMissingET       xAODMissingET-*         Event/xAOD
 #use xAODEventInfo       xAODEventInfo-*         Event/xAOD 
 #use xAODBTagging        xAODBTagging-*          Event/xAOD 
 
-
+use MuonSelectorTools MuonSelectorTools-* PhysicsAnalysis/MuonID
+use IsolationSelection IsolationSelection-* PhysicsAnalysis/AnalysisCommon
 
 #use TrkVxEdmCnv		   TrkVxEdmCnv-*	    Tracking/TrkVertexFitter
 
@@ -146,3 +147,4 @@ use xAODMissingET       xAODMissingET-*         Event/xAOD
 #use GaudiSvc      v* -no_auto_imports
 #macro_append use_linkopts " -lGaudiSvc"
 #macro_append use_includes " -I$(GAUDISVCROOT)/src"
+

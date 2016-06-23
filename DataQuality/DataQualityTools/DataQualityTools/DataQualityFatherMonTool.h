@@ -50,9 +50,9 @@ class DataQualityFatherMonTool: public ManagedMonitorToolBase
 			   const IInterface* parent);
     
 
-  ~DataQualityFatherMonTool();
+  virtual ~DataQualityFatherMonTool();
 
-  StatusCode initialize();
+  virtual StatusCode initialize();
 
   //
   // pure virtual methods
@@ -61,14 +61,13 @@ class DataQualityFatherMonTool: public ManagedMonitorToolBase
   virtual StatusCode bookHistograms( );
   virtual StatusCode fillHistograms();
   virtual StatusCode procHistograms( );
-  StatusCode checkHists(bool fromFinalize);
+  virtual StatusCode checkHists(bool fromFinalize);
 
-  StatusCode registerHist(const std::string& path, TH1* h1, Interval_t interval=run, MgmtAttr_t histo_mgmt = ATTRIB_MANAGED);
+  StatusCode registerHist(const std::string& path, TH1* h1, Interval_t interval=run, MgmtAttr_t histo_mgmt = ATTRIB_MANAGED, const std::string& merge_algo="");
   StatusCode registerHist(const std::string& path, TGraph* h1, Interval_t interval=run, MgmtAttr_t histo_mgmt = ATTRIB_MANAGED);
-  // NOTE: LWHists are not supported for the moment 
   StatusCode registerHist(const std::string& path, TH1I_LW* h1, Interval_t interval=run, MgmtAttr_t histo_mgmt = ATTRIB_MANAGED);
   StatusCode registerHist(const std::string& path, TH2I_LW* h1, Interval_t interval=run, MgmtAttr_t histo_mgmt = ATTRIB_MANAGED);
-  StatusCode registerHist(const std::string& path, TH1F_LW* h1, Interval_t interval=run, MgmtAttr_t histo_mgmt = ATTRIB_MANAGED);
+  StatusCode registerHist(const std::string& path, TH1F_LW* h1, Interval_t interval=run, MgmtAttr_t histo_mgmt = ATTRIB_MANAGED, const std::string& merge_algo="");
   StatusCode registerHist(const std::string& path, TH2F_LW* h1, Interval_t interval=run, MgmtAttr_t histo_mgmt = ATTRIB_MANAGED);
   StatusCode registerHist(const std::string& path, TProfile_LW* h1, Interval_t interval=run, MgmtAttr_t histo_mgmt = ATTRIB_MANAGED);
   StatusCode registerHist(const std::string& path, TProfile2D_LW* h1, Interval_t interval=run, MgmtAttr_t histo_mgmt = ATTRIB_MANAGED);
@@ -82,8 +81,6 @@ class DataQualityFatherMonTool: public ManagedMonitorToolBase
 
 protected:
 
-  std::string   m_path;
-  //StoreGateSvc* m_storeGate;
   StoreGateSvc* m_detStore  ;
   bool m_doRunCosmics;
   bool m_doRunBeam;

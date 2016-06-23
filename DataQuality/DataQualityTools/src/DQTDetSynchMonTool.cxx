@@ -160,14 +160,37 @@ DQTDetSynchMonTool::DQTDetSynchMonTool(const std::string & type,
      m_Bfield_toroid_vsLB(0),    
      m_diff_BCID(0),
      m_diff_BCID_rate(0), //rate plot; bcid diff relative to ctp
-     m_diff_L1ID(0)
+     m_diff_L1ID(0),
+     m_nevents(0),
+     m_n_sct_nrobs(0),
+     m_n_trt_nrobs(0),
+     m_n_lar_nrobs(0),
+     m_n_tile_nrobs(0),
+     m_n_pixel_nrobs(0),
+     m_n_sct_bcid_nrobs(0),
+     m_n_trt_bcid_nrobs(0),
+     m_n_sct_lvl1_nrobs(0),
+     m_n_trt_lvl1_nrobs(0),
+     m_n_pixel_bcid_nrobs(0),
+     m_n_pixel_lvl1_nrobs(0),
+     printedErrorCTP_RIO(false),
+     printedErrorTRT_BCID(false),
+     printedErrorSCT_BCID(false),
+     printedErrorPixel_BCID(false),
+     printedErrorTRT_LVL1ID(false),
+     printedErrorSCT_LVL1ID(false),
+     printedErrorPixel_LVL1ID(false),
+     printedErrorLAr(false),
+     printedErrorTile(false),
+     printedErrorTileCtr(false),
+     printedErrorRPC(false)
 {
    declareInterface<IMonitorToolBase>(this);
    m_path = "GLOBAL/DQTSynch",
-      declareProperty("doRunCosmics", m_doRunCosmics = 1);
-   declareProperty("doRunBeam", m_doRunBeam = 1);
-   declareProperty("doOfflineHists", m_doOfflineHists = 1);
-   declareProperty("doOnlineHists", m_doOnlineHists = 1);
+     //declareProperty("doRunCosmics", m_doRunCosmics = 1);
+     //declareProperty("doRunBeam", m_doRunBeam = 1);
+     //declareProperty("doOfflineHists", m_doOfflineHists = 1);
+     //declareProperty("doOnlineHists", m_doOnlineHists = 1);
    declareProperty("MagFieldTool", m_field);
    declareProperty("SolenoidPositionX", m_solenoidPositionX = 0);
    declareProperty("SolenoidPositionY", m_solenoidPositionY = 10);
@@ -1231,8 +1254,7 @@ StatusCode DQTDetSynchMonTool::procHistograms( )
 //StatusCode DQTDetSynchMonTool::procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun )
 //----------------------------------------------------------------------------------
 {
-   //if ( endOfEventsBlock || endOfLumiBlock || endOfRun ) {
-   if ( endOfLumiBlock || endOfRun ) {
+  if ( endOfLumiBlockFlag() || endOfRunFlag() ) {
       MsgStream log(msgSvc(), name());
 
       //log << MSG::DEBUG << "in finalHists()" << endreq;

@@ -112,17 +112,18 @@ if DQMonFlags.monManEnvironment != 'tier0ESD':
     #ManagedAthenaGlobalMon.AthenaMonTools += [ DQTMuTrkMon ];
 
      # Import Det Synch tool
-    from DataQualityTools.DataQualityToolsConf import  DQTDetSynchMonTool
-    DQTDetSynchMon = DQTDetSynchMonTool(name            = 'DQTDetSynchMon',
-                                  histoPathBase   = "/GLOBAL/DQTSynch",
-                                  doRunCosmics            = isCosmics,
-                                  doRunBeam               = isBeam,
-                                  doOfflineHists          = isOffline,
-                                  doOnlineHists           = isOnline
-                                  );
+    if DQMonFlags.monManEnvironment in ('tier0Raw', 'tier0'):
+        from DataQualityTools.DataQualityToolsConf import  DQTDetSynchMonTool
+        DQTDetSynchMon = DQTDetSynchMonTool(name            = 'DQTDetSynchMon',
+                                            histoPathBase   = "/GLOBAL/DQTSynch",
+                                            doRunCosmics            = isCosmics,
+                                            doRunBeam               = isBeam,
+                                            doOfflineHists          = isOffline,
+                                            doOnlineHists           = isOnline
+                                            );
 
-    ToolSvc += DQTDetSynchMon;
-    ManagedAthenaGlobalMon.AthenaMonTools += [ DQTDetSynchMon ];
+        ToolSvc += DQTDetSynchMon;
+        ManagedAthenaGlobalMon.AthenaMonTools += [ DQTDetSynchMon ];
 
     if rec.doCalo and CALOCLUSTER:
         ## Import CaloCluster Tool
@@ -242,15 +243,15 @@ if 'AtlasProject' in os.environ and 'AtlasVersion' in os.environ:
 else:
     releaseString = 'Unknown'
 DQTDataFlowMon = DQTDataFlowMonTool(name = 'DQTDataFlowMon',
-                                    histoPathBase = '/GLOBAL/DataFlow',
+                                    histoPathBase = '/GLOBAL/DQTDataFlow',
                                     releaseString = releaseString
                                     );
 ToolSvc += DQTDataFlowMon
 ManagedAthenaGlobalMon.AthenaMonTools += [ DQTDataFlowMon ]
-print ManagedAthenaGlobalMon;
+#print ManagedAthenaGlobalMon;
 
 #if isBeam==True and (DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.monManEnvironment == 'online' or DQMonFlags.monManEnvironment == 'tier0' or DQMonFlags.monManEnvironment == 'tier0Raw' ) and rec.doInDet():
-if isBeam==True and (DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.monManEnvironment == 'online' or DQMonFlags.monManEnvironment == 'tier0') and rec.doInDet():
+if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet() and rec.doTrigger():
 
     topSequence += AthenaMonManager( "GlobalMonPhysicsManager" )
     ManagedAthenaGlobalPhysMon = topSequence.GlobalMonPhysicsManager
@@ -259,11 +260,22 @@ if isBeam==True and (DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.mo
     ManagedAthenaGlobalPhysMon.DataType            = DQMonFlags.monManDataType()
     ManagedAthenaGlobalPhysMon.Environment         = DQMonFlags.monManEnvironment()
 
+    from MuonSelectorTools.MuonSelectorToolsConf import CP__MuonSelectionTool
+    ToolSvc += CP__MuonSelectionTool("DQTMuonSelectionTool",
+                                     MaxEta=2.4,
+                                     MuQuality=1)
+    ToolSvc += CfgMgr.CP__IsolationSelectionTool("DQTIsoGradientTool",
+                                                 MuonWP="LooseTrackOnly",
+                                                 ElectronWP="LooseTrackOnly"
+                                                 );
+
     from DataQualityTools.DataQualityToolsConf import DQTGlobalWZFinderTool
     MyDQTGlobalWZFinderTool = DQTGlobalWZFinderTool(
         name  = 'DQTGlobalWZFinderTool',
         doTrigger = rec.doTrigger(),
-        JetCollectionName = JetCollectionKey
+        JetCollectionName = JetCollectionKey,
+        MuonSelectionTool = ToolSvc.DQTMuonSelectionTool,
+        IsolationSelectionTool = ToolSvc.DQTIsoGradientTool
     )
     ToolSvc += MyDQTGlobalWZFinderTool;
     ManagedAthenaGlobalPhysMon.AthenaMonTools += [ MyDQTGlobalWZFinderTool ];
@@ -276,48 +288,15 @@ if isBeam==True and (DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.mo
     DQTLumiMonToolMu = DQTLumiMonTool(
         name = 'DQTLumiMonToolMu',
         histoPath = '/GLOBAL/Luminosity/EF_muX',
-        TriggerChain = 'HLT_mu24_imedium',
+        TriggerChain = 'CATEGORY_monitoring_muonIso',
         TrigDecisionTool = monTrigDecTool if DQMonFlags.useTrigger() else "",
     )
     DQTLumiMonToolEl = DQTLumiMonTool(
         name = 'DQTLumiMonToolEl',
         histoPath = '/GLOBAL/Luminosity/EF_eX',
-        TriggerChain = 'EF_e24_medium_L1EM18VH',
+        TriggerChain = 'CATEGORY_primary_single_ele',
         TrigDecisionTool = monTrigDecTool if DQMonFlags.useTrigger() else "",
     )
-#    DQTLumiMonToolZero = DQTLumiMonTool(
-#        name = 'DQTLumiMonToolZero',
-#        histoPath = '/GLOBAL/Luminosity/EF_zerobias_NoAlg',
-#        TriggerChain = 'EF_zerobias_NoAlg',
-#        TrigDecisionTool = monTrigDecTool if DQMonFlags.useTrigger() else "",
-#    )    
-#    DQTLumiMonToolRD0 = DQTLumiMonTool(
-#        name = 'DQTLumiMonToolRD0',
-#        histoPath = '/GLOBAL/Luminosity/EF_rd0_filled_NoAlg',
-#        TriggerChain = 'EF_rd0_filled_NoAlg',
-#        TrigDecisionTool = monTrigDecTool if DQMonFlags.useTrigger() else "",
-#    )
-#    ToolSvc += [DQTLumiMonToolAnyTrigger, DQTLumiMonToolMu, DQTLumiMonToolEl, DQTLumiMonToolZero, DQTLumiMonToolRD0]
     ToolSvc += [DQTLumiMonToolAnyTrigger, DQTLumiMonToolMu, DQTLumiMonToolEl]
-#    ManagedAthenaGlobalPhysMon.AthenaMonTools += [ DQTLumiMonToolAnyTrigger, DQTLumiMonToolMu, DQTLumiMonToolEl, DQTLumiMonToolZero, DQTLumiMonToolRD0]
     ManagedAthenaGlobalPhysMon.AthenaMonTools += [ DQTLumiMonToolAnyTrigger, DQTLumiMonToolMu, DQTLumiMonToolEl]
 
-## ---> Obsolete
-##         from DataQualityTools.DataQualityToolsConf import DQTTopLeptonJetsFinderTool
-##         MyDQTTopLeptonJetsFinderTool = DQTTopLeptonJetsFinderTool(name  = 'DQTTopLeptonJetsFinderTool', TopInputsCollName = 'TTbarDefaultsMonitoring')
-##         ToolSvc += MyDQTTopLeptonJetsFinderTool
-##         ManagedAthenaGlobalPhysMon.AthenaMonTools += [ MyDQTTopLeptonJetsFinderTool ]
-    
-## ---> Obsolete
-##         from DataQualityTools.DataQualityToolsConf import DQTGlobalTopDilFinderTool
-##         MyDQTGlobalTopDilFinderTool = DQTGlobalTopDilFinderTool(name  = 'DQTGlobalTopDilFinderTool', TopInputsCollName = 'TTbarDefaultsMonitoring')
-##         ToolSvc += MyDQTGlobalTopDilFinderTool
-##         ManagedAthenaGlobalPhysMon.AthenaMonTools += [ MyDQTGlobalTopDilFinderTool ]
-
-    print ManagedAthenaGlobalPhysMon
-       
-print topSequence
-
-### Some more debug from StoreGate ###
-#StoreGateSvc = Service( "StoreGateSvc" )
-#StoreGateSvc.Dump = True  #true will dump data store contents

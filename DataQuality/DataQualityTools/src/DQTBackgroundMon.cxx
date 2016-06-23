@@ -77,13 +77,13 @@ DQTBackgroundMon::DQTBackgroundMon(const std::string & type,
 
 {
   declareInterface<IMonitorToolBase> (this);
-  declareProperty("TrigDecisionTool", m_trigDec, "The tool to access TrigDecision");
+  //declareProperty("TrigDecisionTool", m_trigDec, "The tool to access TrigDecision");
 
   declareProperty("histoPath",        m_path           = "GLOBAL/DQTBackgroundMon");
-  declareProperty("doRunCosmics",     m_doRunCosmics   = 1);
-  declareProperty("doRunBeam",        m_doRunBeam      = 1);
-  declareProperty("doOfflineHists",   m_doOfflineHists = 1);
-  declareProperty("doOnlineHists",    m_doOnlineHists  = 1);
+  //declareProperty("doRunCosmics",     m_doRunCosmics   = 1);
+  //declareProperty("doRunBeam",        m_doRunBeam      = 1);
+  //declareProperty("doOfflineHists",   m_doOfflineHists = 1);
+  //declareProperty("doOnlineHists",    m_doOnlineHists  = 1);
   declareProperty("doMuons",          m_doMuons        = 1);
   declareProperty("doTrigger",        m_doTrigger      = 1);
 

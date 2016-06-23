@@ -56,9 +56,10 @@ private:
   //TH2I_LW* m_eventflag_summary_lowStat;
   TH2I* m_eventflag_summary_lowStat;
   TH2I* m_eventflag_summary_lb;
-  TGraph* m_eventflag_run[xAOD::EventInfo::nDets];
+  //  TGraph* m_eventflag_run[xAOD::EventInfo::nDets];
+  TH1D* m_sumweights;
   typedef std::pair<unsigned int, unsigned int> EvFlagPt_t;
-  std::vector<EvFlagPt_t>* m_eventflag_vec[xAOD::EventInfo::nDets];
+  //std::vector<EvFlagPt_t>* m_eventflag_vec[xAOD::EventInfo::nDets];
 
 };
 

@@ -34,18 +34,25 @@ DQTNonCollBkg_ZDC::DQTNonCollBkg_ZDC(const std::string & type,
                                           const std::string & name,
                                           const IInterface* parent) :
                                           DataQualityFatherMonTool(type, name, parent),
+					  m_HistEnergySideA(nullptr),
+					  m_HistEnergySideC(nullptr),
+					  m_HistTimeSideA(nullptr),
+					  m_HistTimeSideC(nullptr),
+					  m_HistTimeDeltaSidesAC(nullptr),
                                           m_digitsContainerName("ZdcDigitsCollection"),
                                           m_complainContain(1),
-                                          m_complainRetrieve(1)
+                                          m_complainRetrieve(1),
+					  m_nsamples(0),
+					  bcid(nullptr)
 
 {
   declareInterface<IMonitorToolBase> (this);
 
   declareProperty("histoPath",           m_path           = "GLOBAL/DQTNonCollBkg_ZDC");
-  declareProperty("doRunCosmics",   m_doRunCosmics   = 1);
-  declareProperty("doRunBeam",       m_doRunBeam      = 1);
-  declareProperty("doOfflineHists",    m_doOfflineHists = 1);
-  declareProperty("doOnlineHists",     m_doOnlineHists  = 1);
+  //declareProperty("doRunCosmics",   m_doRunCosmics   = 1);
+  //declareProperty("doRunBeam",       m_doRunBeam      = 1);
+  //declareProperty("doOfflineHists",    m_doOfflineHists = 1);
+  //declareProperty("doOnlineHists",     m_doOnlineHists  = 1);
   declareProperty("complainContain",m_complainContain   = 1);
   declareProperty("complainRetrieve",m_complainRetrieve = 1);
 
