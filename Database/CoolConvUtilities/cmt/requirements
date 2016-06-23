@@ -11,7 +11,7 @@ use AtlasROOT            AtlasROOT-*           External
 use AtlasCOOL            AtlasCOOL-*           External
 use AtlasCORAL           AtlasCORAL-*          External
 use CoraCool             CoraCool-*            Database
-use AtlasConditionsRunTime AtlasConditionsRunTime-* 
+# use AtlasConditionsRunTime AtlasConditionsRunTime-* 
 
 # Specify the required ROOT components (cmake-specific) 
 apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Hist Tree RIO)"
