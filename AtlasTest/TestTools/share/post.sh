@@ -146,7 +146,7 @@ PP="$PP"'|^ConditionStore +INFO Stop ConditionStore'
 PP="$PP"'|DEBUG input handles:|DEBUG output handles:|DEBUG Data Deps for|DEBUG Property update for OutputLevel :|-ExtraInputs |-ExtraOutputs |-Cardinality |-IsClonable |-NeededResources |-Timeline '
 
 # StoreGate INFO messages changed to VERBOSE
-PP="$PP"'|^StoreGateSvc +(INFO|VERBOSE) (Stop|stop|Start)'
+PP="$PP"'|^(StoreGateSvc|[^ ]+Store) +(INFO|VERBOSE) (Stop|stop|Start)'
 
 
 if [ "$extrapatterns" != "" ]; then
