@@ -140,6 +140,11 @@ if hasattr(runArgs, "printEvts") and runArgs.printEvts > 0:
     postSeq.PrintMC.FirstEvent = 1
     postSeq.PrintMC.LastEvent  = runArgs.printEvts
 
+## Estimate time needed for Simulation
+#from EvgenProdTools.EvgenProdToolsConf import SimTimeEstimate
+#if not hasattr(postSeq, "SimTimeEstimate"):
+#    postSeq += SimTimeEstimate()
+
 ## Add Rivet_i to the job
 # TODO: implement auto-setup of analyses triggered on evgenConfig.keywords (from T Balestri)
 if hasattr(runArgs, "rivetAnas"):

@@ -33,7 +33,8 @@ mainGenerators += ["AcerMC", "TopRex", "LPair"]
 mainGenerators += ["HepMCAscii"]
 
 ## Special QED and decay afterburners
-afterburnerGenerators = ["Photos", "Photospp", "Tauola", "Tauolapp", "EvtGen", "ParticleDecayer"]
+afterburnerGenerators = ["Photos", "Photospp", "Tauola", "TauolaPP", "EvtGen", "ParticleDecayer"]
+# note: we have to use TauolaPP, because Tauolapp is used as a namespace in the external Tauolapp code
 
 ## Set up list of allowed generators. The evgenConfig.generators list will be used
 ## to set random seeds, determine input config and event files, and report used generators to AMI.
