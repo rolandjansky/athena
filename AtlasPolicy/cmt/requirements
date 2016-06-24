@@ -60,9 +60,9 @@ macro_remove cpplinkflags          "-Wl,--as-needed"    notAsNeeded "-Wl,--as-ne
 
 # additional (otherwise optional) flags for working with GaudiHive
 macro_append cppflags ""    \
-  HIVE   " -DATHENAHIVE "
+  ATHENAHIVE   " -DATHENAHIVE "
 macro_append reflex_dict_options_cppflags "" \
-  HIVE   " -DATHENAHIVE "
+  ATHENAHIVE   " -DATHENAHIVE "
 
 # The allowUndefined tag is weaker than the notAsNeeded tag but allows symbols to remain undefined
 # after linking libraries.
@@ -867,3 +867,8 @@ pattern use_ifndef \
     macro <package>_use_statement_<pkg> "`basename "<pkg>"` `basename "<pkg>"`-* `dirname "<pkg>"`" <package>_<pkg>_hasPP "" ; \
     end_public ; \
     use $(<package>_use_statement_<pkg>) 
+
+#these two lines let us specify sites where single core compilation must happen
+apply_tag SITE_$(PANDA_SITE_NAME)
+macro_append MAKEFLAGS "" SITE_ " -l " SITE_ANALY_FZK_SHORT " -j1 " SITE_ANALY_NSC " -j1 " SITE_ANALY_MPPMU " -j1 " SITE_ANALY_FREIBURG " -j1 " SITE_ANALY_LRZ " -j1 " SITE_ANALY_FZK " -j1 "
+#action checkreq "echo $(MAKEFLAGS)"
