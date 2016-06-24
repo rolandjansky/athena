@@ -231,7 +231,8 @@ class checker:
 # list of projects
     self.projmap={"AtlasCore":None, "AtlasConditions":None, "AtlasEvent":None, "AtlasReconstruction":None, \
       "AtlasTrigger":None, "AtlasAnalysis":None, "AtlasSimulation":None, "AtlasOffline":None, \
-      "AtlasProduction":None, "DetCommon":None, "AtlasHLT":None, "GAUDI":None, "AthAnalysisBase":None, "AthSimulationBase":None}
+      "AtlasProduction":None, "DetCommon":None, "AtlasHLT":None, "GAUDI":None, 
+      "AthAnalysisBase":None, "AthAnalysisSUSY":None, "AthSimulationBase":None}
 # per project, setup list of non-accessible projects
     self.projmap["AtlasProduction"]=[]
     self.projmap["AtlasOffline"]=["AtlasProduction"]
@@ -246,7 +247,9 @@ class checker:
     self.projmap["AtlasHLT"]=[]
     self.projmap["GAUDI"]=[]
     self.projmap["AthAnalysisBase"]=[]
+    self.projmap["AthAnalysisSUSY"]=[]
     self.projmap["AthSimulationBase"]=[]
+  
 
     self.policy1 = ["AtlasPolicy", "GaudiPolicy", "DetCommonPolicy", "AtlasHLTPolicy", "ExternalPolicy", "TestPolicy", \
                     "TDAQPolicy", "AtlasFortranPolicy", "AtlasCommonPolicy", "AtlasCxxPolicy"]
@@ -1882,6 +1885,8 @@ def do_check_3(c, p):
           linkopt_ok = False
           for dl in deflibraries:
             if m.startswith(dl): linkopt_ok = True
+          # Allow it for unit tests.
+          if m.endswith('_test_use_linkopts'): linkopt_ok = True
           if not linkopt_ok:
             if p.reqpub[ind]:
               p.ckrmsg(1, p.thispac + " changes linkopts for " + m[:-len("_linkopts")] + " in public:")
