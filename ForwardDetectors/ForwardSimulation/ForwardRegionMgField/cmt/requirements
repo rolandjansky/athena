@@ -2,25 +2,22 @@ package ForwardRegionMgField
 
 author Ladislav Chytka <ladislav.chytka@cern.ch>
 
-branches src cmt
-
+public
 use AtlasPolicy         AtlasPolicy-*
-
-use FadsField           FadsField-*             Simulation/G4Sim/FADS
-use Geant4              Geant4-*                External
-use AtlasCLHEP     AtlasCLHEP-*        External
+use GaudiInterface      GaudiInterface-*        External
+use AtlasCLHEP          AtlasCLHEP-*            External
 
 private
-use AthenaKernel   AthenaKernel-*      Control
-use PathResolver          PathResolver-*             Tools
+use AthenaBaseComps     AthenaBaseComps-*       Control
+use Geant4              Geant4-*                External
+use MagFieldInterfaces  MagFieldInterfaces-*    MagneticField
+use PathResolver        PathResolver-*          Tools
 end_private
 
-use GaudiInterface GaudiInterface-* External
-
-library ForwardRegionMgField *.cxx
-apply_pattern installed_library
+apply_pattern dual_use_library files="*.cxx"
 
 apply_pattern declare_runtime files="-s=../share/ *.dat"
+apply_pattern declare_python_modules files="*.py"
 
 #private
 #macro cppdebugflags '$(cppdebugflags_s)'
