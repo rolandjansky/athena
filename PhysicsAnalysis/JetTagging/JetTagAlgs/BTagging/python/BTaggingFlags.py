@@ -155,7 +155,7 @@ class _BTaggingFlags:
       self.DL1LocalNNConfig = ''
       self.ForceDL1CalibrationAlias = True
       self.DL1CalibAlias = 'AntiKt4TopoEM'
-      self.DL1 = False
+      self.DL1 = True
       self.DL1Flip = False
 
       self.TagNtupleDumper = False
