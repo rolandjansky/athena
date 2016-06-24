@@ -13,13 +13,14 @@
 #include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h"
 #include "InDetReadoutGeometry/SCT_ForwardModuleSideDesign.h"
 #include "IRegionSelector/IRoiDescriptor.h"
+#include "RoiDescriptor/RoiDescriptor.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkFitterUtils/FitterTypes.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkParameters/TrackParameters.h"
-
+//#include "TrigFTKSim/ftkdefs.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/ParamDefs.h"
@@ -60,8 +61,6 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "InDetRecToolInterfaces/IVertexFinder.h"
-#include "VxVertex/VxContainer.h"
-#include "VxVertex/VxCandidate.h"
 
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "IRegionSelector/RoiUtil.h"
@@ -76,11 +75,7 @@ namespace {
     return x*x;
   }
   const double ONE_TWELFTH = 1./12.;
-
-
 }
-
-
 
 FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* svc):
   AthService(name, svc),
@@ -110,12 +105,6 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_refit_tp(nullptr),
   m_conv_tpAuxCont(nullptr),
   m_refit_tpAuxCont(nullptr),
-  m_raw_vx(nullptr),
-  m_conv_vx(nullptr),
-  m_refit_vx(nullptr),
-  m_got_raw_vx(false),
-  m_got_conv_vx(false),
-  m_got_refit_vx(false),
   m_conv_vertex(nullptr),
   m_refit_vertex(nullptr),
   m_got_conv_vertex(false),
@@ -128,7 +117,6 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_gotRawTracks(false),
   m_trackCacheName("FTK_TrackCollection"),
   m_trackParticleCacheName("FTK_TrackParticleContainer"),
-  m_VxContainerCacheName("FTK_VxContainer"),
   m_VertexContainerCacheName("FTK_VertexContainer"),
   m_doTruth(false),
   m_ftkPixelTruthName("FTK_PRD_MultiTruthPixel"),
@@ -145,9 +133,20 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_barrelOnly(false),
   m_barrelMaxCotTheta(2.)
 {
+  m_pixelBarrelPhiOffsets.reserve(4);
+  m_pixelBarrelEtaOffsets.reserve(4);
+  m_pixelEndCapPhiOffsets.reserve(3);
+  m_pixelEndCapEtaOffsets.reserve(3);
+  for (int ib=0; ib<4; ib++) {
+    m_pixelBarrelPhiOffsets.push_back(0.); 
+    m_pixelBarrelEtaOffsets.push_back(0.);
+  }
+  for (int ie=0; ie<3; ie++) {
+    m_pixelEndCapPhiOffsets.push_back(0.); 
+    m_pixelEndCapEtaOffsets.push_back(0.);
+  }
   declareProperty("TrackCollectionName",m_trackCacheName);
   declareProperty("TrackParticleContainerName",m_trackParticleCacheName);
-  declareProperty("VxContainerName",m_VxContainerCacheName);
   declareProperty("VertexContainerName",m_VertexContainerCacheName);
   declareProperty("TrackFitter", m_trackFitter);
   declareProperty("UncertaintyTool",m_uncertaintyTool);
@@ -173,6 +172,12 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   declareProperty("UseViewContainers",m_useViewContainers);
   declareProperty("BarrelOnly",m_useViewContainers);
   declareProperty("BarrelMaxCotTheta",m_barrelMaxCotTheta);
+  declareProperty("PixelBarrelPhiOffsets", m_pixelBarrelPhiOffsets," Pixel Barrel Phi Offsets in mm" );
+  declareProperty("PixelBarrelEtaOffsets", m_pixelBarrelEtaOffsets," Pixel Barrel Eta Offsets in mm" );
+  declareProperty("PixelEndCapPhiOffsets", m_pixelEndCapPhiOffsets," Pixel EndCap Phi Offsets in mm" );
+  declareProperty("PixelEndCapEtaOffsets", m_pixelEndCapEtaOffsets," Pixel EndCap Eta Offsets in mm" );
+
+
 }
 
 FTK_DataProviderSvc::~FTK_DataProviderSvc(){
@@ -211,7 +216,6 @@ StatusCode FTK_DataProviderSvc::initialize() {
 
   ATH_MSG_INFO( "TrackCollection names: " << m_trackCacheName<< ", " << m_trackCacheName<<"Refit");
   ATH_MSG_INFO( "TrackParticleContainer names: " <<  m_trackParticleCacheName << ", " << m_trackParticleCacheName <<"Refit");
-  ATH_MSG_INFO( "VxContainer names: " <<  m_VxContainerCacheName<< ", " << m_VxContainerCacheName<< "Refit");
   ATH_MSG_INFO( "VertexContainer names: " << m_VertexContainerCacheName<< ", " <<m_VertexContainerCacheName<<"Refit");
   ATH_MSG_INFO( "PixelClusterContainer name : " << m_PixelClusterContainerName);
   ATH_MSG_INFO( "SCT_ClusterContainer name : " << m_SCT_ClusterContainerName);
@@ -226,7 +230,10 @@ StatusCode FTK_DataProviderSvc::initialize() {
 
   ATH_MSG_INFO( "Correcting for FTK training beamspot at x " <<  m_trainingBeamspotX <<" y " << 	m_trainingBeamspotY
       << " z " <<  m_trainingBeamspotZ << " TiltX " << m_trainingBeamspotTiltX << "TiltY " << m_trainingBeamspotTiltY );
-
+  ATH_MSG_INFO( " Pixel Barrel Phi Offsets (pixels): " << m_pixelBarrelPhiOffsets);
+  ATH_MSG_INFO( " Pixel Barrel Eta Offsets (pixels): " << m_pixelBarrelEtaOffsets);
+  ATH_MSG_INFO( " Pixel EndCap Phi Offsets (pixels): " << m_pixelEndCapPhiOffsets);
+  ATH_MSG_INFO( " Pixel EndCap Eta Offsets (pixels): " << m_pixelEndCapEtaOffsets);
 
   return StatusCode::SUCCESS;
 
@@ -522,115 +529,6 @@ StatusCode FTK_DataProviderSvc::fillTrackCache(const bool withRefit) {
 
 }
 
-bool FTK_DataProviderSvc::fillVxContainer(bool withRefit, TrackCollection* tracks) {
-
-  bool gotVertices=false;
-
-  if (tracks->size() > 0) {
-    ATH_MSG_DEBUG("fillVxContainer: finding vertices from " << tracks->size() << " tracks ");
-    VxContainer* vertices = m_VertexFinderTool->findVertex(tracks);
-    if (vertices == nullptr) return gotVertices;
-    std::string cacheName= m_VxContainerCacheName;
-    if (withRefit) cacheName+="Refit";
-    StatusCode sc = m_storeGate->record(vertices, cacheName);
-    if (sc.isFailure()) {
-      ATH_MSG_DEBUG( "fillVxContainer: Failed to record VxCollection " << cacheName );
-      delete(vertices);
-      return gotVertices;
-    }
-    gotVertices = true;
-    if (withRefit) {
-      m_refit_vx= vertices;
-    } else {
-      m_conv_vx= vertices;
-    }
-    ATH_MSG_DEBUG( "fillVxContainer: returning " << vertices->size() <<  " vertices ");
-  }
-  return gotVertices;
-}
-
-VxContainer* FTK_DataProviderSvc::getVxContainer(const ftk::FTK_TrackType trackType) {
-
-  VxContainer *userVertex = nullptr;
-  if (m_useViewContainers) {
-    userVertex = new VxContainer(SG::VIEW_ELEMENTS);
-  } else {
-    userVertex = new VxContainer();
-  }
-
- 
-  if (trackType == ftk::RawTrackType) {
-    ATH_MSG_DEBUG( "getVxContainer: filling VxContainer from RAW tracks ");
-    // get vertices from Raw FTK tracks
-
-    if (!m_got_raw_vx) {
-      getFTK_RawTracksFromSG();
-      if (!m_gotRawTracks) return userVertex;
-
-      if (!m_barrelOnly) {
-	m_raw_vx = m_RawVertexFinderTool->findVertex(m_ftk_tracks);
-      } else {
-	FTK_RawTrackContainer barrel_tracks;
-	for (auto pTrack = m_ftk_tracks->begin(); pTrack !=  m_ftk_tracks->end(); pTrack++) {
-	  if (fabs((*pTrack)->getCotTh()) < m_barrelMaxCotTheta) {
-	    barrel_tracks.push_back(*pTrack);
-	  }
-	}
-	m_raw_vx = m_RawVertexFinderTool->findVertex(&barrel_tracks);
-      }
-      std::string cacheName=m_VxContainerCacheName+"Raw";
-      StatusCode sc = m_storeGate->record( m_raw_vx, cacheName);
-      if (sc.isFailure()) {
-        ATH_MSG_DEBUG( "getVxContainer: Failed to record VxCollection " << cacheName );
-        delete(m_raw_vx);
-        return userVertex;
-      }
-      m_got_raw_vx = true;
-    }
-
-    for (auto pv = m_raw_vx->begin(); pv != m_raw_vx->end(); ++pv) {
-      userVertex->push_back(*pv);
-    }
-    ATH_MSG_DEBUG( "getVxContainer: returning " << m_raw_vx->size() <<  " vertices from RAW tracks ");
-    return userVertex;
-
-  }
-
-  // Get Vertices from converted or refitted tracks
-
-  bool withRefit=false;
-  if (trackType == ftk::RefittedTrackType) withRefit=true;
-
-  if (fillTrackCache(withRefit).isFailure()) return userVertex;
-
-  if (withRefit) {
-    if (!m_got_refit_vx) {
-      ATH_MSG_DEBUG( "getVxContainer: filling VxContainer from refitted tracks ");
-      m_got_refit_vx = fillVxContainer(withRefit, m_refit_tracks);
-      ATH_MSG_DEBUG( "getVxContainer: found " << m_refit_vx->size() << " vertices from refitted tracks");
-    }
-    if (m_got_refit_vx) {
-      ATH_MSG_DEBUG( "getVxContainer: cache contains " << m_refit_vx->size() <<  " vertices from refitted tracks");
-      for (auto pv = m_refit_vx->begin(); pv != m_refit_vx->end(); ++pv) {
-        userVertex->push_back(*pv);
-      }
-    }
-  } else {
-    if (!m_got_conv_vx) {
-      ATH_MSG_DEBUG( "getVxContainer: filling VxContainer from converted tracks ");
-      m_got_conv_vx = fillVxContainer(withRefit, m_conv_tracks);
-      ATH_MSG_DEBUG( "getVxContainer: found " << m_conv_vx->size() << " vertices from converted tracks");
-    }
-    if (m_got_conv_vx) {
-      ATH_MSG_DEBUG( "getVxContainer: cache contains " << m_conv_vx->size() <<  " vertices from converted tracks");
-      for (auto pv = m_conv_vx->begin(); pv != m_conv_vx->end(); ++pv) {
-        userVertex->push_back(*pv);
-      }
-    }
-  }
-  return userVertex;
-}
-
 bool FTK_DataProviderSvc::fillVertexContainerCache(bool withRefit, xAOD::TrackParticleContainer* tps) {
 
   bool gotVertices = false;
@@ -678,7 +576,31 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getVertexContainer(const bool withRe
     userVertex->setStore(userVertexAux);
   }
 
-  if (fillTrackParticleCache(withRefit).isFailure()) return userVertex;
+  if (fillTrackParticleCache(withRefit).isFailure()) {
+    // must always create a VertexContainer in StroreGate
+
+    std::string cacheName= m_VertexContainerCacheName;
+    if (withRefit) cacheName+="Refit";
+    if (!m_storeGate->contains<xAOD::VertexContainer>(cacheName)) {
+      xAOD::VertexContainer* vertex = new xAOD::VertexContainer();
+      xAOD::VertexAuxContainer* vertexAux =new xAOD::VertexAuxContainer();
+      vertex->setStore(vertexAux);
+      StatusCode sc = m_storeGate->record(vertex, cacheName);
+      if (sc.isFailure()) {
+	ATH_MSG_DEBUG( "fillVertexContainerCache: Failed to record VertexCollection " << cacheName );
+	delete(vertex);
+	delete(vertexAux);
+      } else {
+	sc = m_storeGate->record(vertexAux, cacheName+"Aux.");
+	if (sc.isFailure()) {
+	  ATH_MSG_DEBUG( "fillVertexContainerCache: Failed to record VertexAuxCollection " << cacheName );
+	  delete(vertexAux);
+	}
+      }
+    }
+ 	  
+    return userVertex;
+  }
 
   if (withRefit) { // get vertex from refitted tracks
     if (!m_got_refit_vertex) {
@@ -709,7 +631,31 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getVertexContainer(const bool withRe
 
 StatusCode FTK_DataProviderSvc::getVertexContainer(xAOD::VertexContainer* userVertex, const bool withRefit){
 
-  if (fillTrackParticleCache(withRefit).isFailure()) return StatusCode::SUCCESS;
+  if (fillTrackParticleCache(withRefit).isFailure()) {
+    // must always create a VertexContainer in StroreGate
+    
+    std::string cacheName= m_VertexContainerCacheName;
+    if (withRefit) cacheName+="Refit";
+    if (!m_storeGate->contains<xAOD::VertexContainer>(cacheName)) {
+      xAOD::VertexContainer* vertex = new xAOD::VertexContainer();
+      xAOD::VertexAuxContainer* vertexAux =new xAOD::VertexAuxContainer();
+      vertex->setStore(vertexAux);
+      StatusCode sc = m_storeGate->record(vertex, cacheName);
+      if (sc.isFailure()) {
+	ATH_MSG_DEBUG( "fillVertexContainerCache: Failed to record VertexCollection " << cacheName );
+	delete(vertex);
+	delete(vertexAux);
+      } else {
+	sc = m_storeGate->record(vertexAux, cacheName+"Aux.");
+	if (sc.isFailure()) {
+	  ATH_MSG_DEBUG( "fillVertexContainerCache: Failed to record VertexAuxCollection " << cacheName );
+	  delete(vertexAux);
+	}
+      }
+    }
+    
+    return StatusCode::SUCCESS;
+  }
 
   if (withRefit) { // get vertex from refitted tracks
     if (!m_got_refit_vertex) {
@@ -1023,12 +969,13 @@ return  (m_gotRawTracks? StatusCode::SUCCESS : StatusCode::FAILURE) ;
 
 StatusCode FTK_DataProviderSvc::initTrackParticleCache(bool withRefit) {
 
+
+  // Must always create a container, even if it is empty
+
+  bool gotTracks=false;
   getFTK_RawTracksFromSG();
-  if (not m_gotRawTracks) {
-     return StatusCode::FAILURE;
-  }
-  if (initTrackCache(withRefit).isFailure()) {
-    return StatusCode::FAILURE;
+  if (m_gotRawTracks) {
+    if (!initTrackCache(withRefit).isFailure()) {  gotTracks=true; }
   }
 
   if (withRefit) {
@@ -1055,10 +1002,11 @@ StatusCode FTK_DataProviderSvc::initTrackParticleCache(bool withRefit) {
         delete(m_refit_tpAuxCont);
         return sc;
       }
-      m_refit_tp_map.reserve(m_ftk_tracks->size());
-      for (unsigned int i = 0; i!=m_ftk_tracks->size(); i++) m_refit_tp_map.push_back(-1);
-      ATH_MSG_VERBOSE( "initTrackParticleCache:  map initialized for refitted TracksParticles with size " << m_ftk_tracks->size());
-
+      if (gotTracks) {
+	m_refit_tp_map.reserve(m_ftk_tracks->size());
+	for (unsigned int i = 0; i!=m_ftk_tracks->size(); i++) m_refit_tp_map.push_back(-1);
+	ATH_MSG_VERBOSE( "initTrackParticleCache:  map initialized for refitted TracksParticles with size " << m_ftk_tracks->size());
+      }
     }
   } else {
 
@@ -1083,13 +1031,14 @@ StatusCode FTK_DataProviderSvc::initTrackParticleCache(bool withRefit) {
         delete(m_conv_tpAuxCont);
         return sc;
       }
-      m_conv_tp_map.reserve(m_ftk_tracks->size());
-      for (unsigned int i = 0; i!=m_ftk_tracks->size(); i++) m_conv_tp_map.push_back(-1);
-      ATH_MSG_VERBOSE( "initTrackParticleCache: map initialized for converted TracksParticles, map size "<<m_ftk_tracks->size());
+      if (gotTracks) {
+	m_conv_tp_map.reserve(m_ftk_tracks->size());
+	for (unsigned int i = 0; i!=m_ftk_tracks->size(); i++) m_conv_tp_map.push_back(-1);
+	ATH_MSG_VERBOSE( "initTrackParticleCache: map initialized for converted TracksParticles, map size "<<m_ftk_tracks->size());
+      }
     }
-
   }
-  return StatusCode::SUCCESS;
+  return (gotTracks?StatusCode::SUCCESS:StatusCode::FAILURE);
 }
 
 
@@ -1120,15 +1069,13 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
   for( unsigned int cluster_number = 0; cluster_number < track.getPixelClusters().size(); ++cluster_number){
 
     FTK_RawPixelCluster raw_pixel_cluster = track.getPixelCluster(cluster_number);
-    if ( raw_pixel_cluster.getLayer()==FTK_RawPixelCluster::missingLayer
-        || (raw_pixel_cluster.getWordA() == 0 && raw_pixel_cluster.getWordB()==0) // **Temp for old RDO datasets where FTK_RawPixelCluster::missingLayer not set
-       ) {
+    if ( track.isMissingPixelLayer(cluster_number)) {
 
       ATH_MSG_VERBOSE( " No hit for layer " << cluster_number);
       continue;
     }
     if (raw_pixel_cluster.getModuleID()==0){
-      ATH_MSG_DEBUG( "hashId is " << raw_pixel_cluster.getModuleID() << " getLayer() " << raw_pixel_cluster.getLayer() << " getWordA() "
+      ATH_MSG_DEBUG( "hashId is " << raw_pixel_cluster.getModuleID() << " Layer " << cluster_number << " getWordA() "
           << raw_pixel_cluster.getWordA() << " getWordB() " << raw_pixel_cluster.getWordB() );
     }
     InDet::PixelCluster* pixel_cluster = createPixelCluster(raw_pixel_cluster,trkEta);
@@ -1136,7 +1083,6 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
       Identifier wafer_id = m_pixelId->wafer_id(pixel_cluster->identify());
       if (m_pixelId->barrel_ec(wafer_id)==0 && m_pixelId->layer_disk(wafer_id)==0) hasIBL=true;
       const IdentifierHash idHash = m_pixelId->wafer_hash(m_pixelId->wafer_id(pixel_cluster->identify()));
-
       //ATH_MSG_VERBOSE( "   ConvertTrack: PixelClusterLoop: InDet::PixelCluster Created ");
       InDet::PixelClusterCollection* pColl = getPixelClusterCollection(idHash);
       if(pColl!=NULL) {
@@ -1183,9 +1129,7 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
   for( unsigned int cluster_number = 0; cluster_number < track.getSCTClusters().size(); ++cluster_number){
 
     FTK_RawSCT_Cluster raw_cluster = track.getSCTCluster(cluster_number);
-    if ( raw_cluster.getLayer()==FTK_RawSCT_Cluster::missingLayer
-        || raw_cluster.getWord() == 0 // **TEMP for old RDO datasets where  FTK_RawSCT_Cluster::missingLayer was not set
-       ){
+    if ( track.isMissingSCTLayer(cluster_number)) {
       ATH_MSG_VERBOSE( "  No SCT Hit for layer "  << cluster_number);
       continue;
     }
@@ -1327,7 +1271,7 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
   double dy = m_trainingBeamspotY + m_trainingBeamspotTiltY*track.getZ0();//correction for tilt
 
   double d0 = track.getD0()-dx*sin( track.getPhi())+dy*cos( track.getPhi());
-  double z0 = track.getZ0() - ((cos( track.getPhi()) *dx + sin( track.getPhi()*dy))/tan(trkTheta));
+  double z0 = track.getZ0() - ((cos( track.getPhi()) *dx + sin( track.getPhi())*dy)/tan(trkTheta));
 
   const Trk::Perigee* trkPerigee = new Trk::Perigee( d0,
       z0,
@@ -1368,18 +1312,19 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
 }
 
 
-InDet::SCT_Cluster* FTK_DataProviderSvc::createSCT_Cluster(const IdentifierHash hash, const int strip, const int clusterWidth) {
+InDet::SCT_Cluster* FTK_DataProviderSvc::createSCT_Cluster(const IdentifierHash hash, const int rawStripCoord, const int clusterWidth) {
 
+  // clusterWidth is 0 for a 1-strip cluster, 1 for 2-strips, etc.
+
+  double stripCoord = ((double) rawStripCoord)/2.; // rawStribCoord is in units of half a strip
+
+  int strip = (int) stripCoord;
 
   const InDetDD::SiDetectorElement* pDE = m_SCT_Manager->getDetectorElement(hash);
-  float locPos = strip+0.1; // adding 0.1 to prevent rounding errors
 
-  ATH_MSG_VERBOSE( " SCT FTKHit HitCoord locPos" << locPos << " hashID 0x" << std::hex << hash << std::dec << " " << m_id_helper->print_to_string(pDE->identify()));
-  int w = clusterWidth;
-  if (w==0) {
-    ATH_MSG_VERBOSE( " SCT FTKHit HitCoord " << locPos << " has zero width. Setting to 1 " <<  m_id_helper->print_to_string(pDE->identify()));
-    w = 1;
-  }
+
+  ATH_MSG_VERBOSE( " SCT FTKHit HitCoord rawStripCoord" << rawStripCoord << " hashID 0x" << std::hex << hash << std::dec << " " << m_id_helper->print_to_string(pDE->identify()));
+
   Identifier wafer_id = m_sctId->wafer_id(hash);
   Identifier strip_id = m_sctId->strip_id(wafer_id, strip);
 
@@ -1394,11 +1339,11 @@ InDet::SCT_Cluster* FTK_DataProviderSvc::createSCT_Cluster(const IdentifierHash 
   std::vector<Identifier> rdoList;
   rdoList.push_back(strip_id);
 
-  int firstStrip = (int)(locPos+0.5-0.5*(w-1));
-  int lastStrip  = (int)(locPos+0.5+0.5*(w-1));
+  int firstStrip = (int)(stripCoord-0.5*clusterWidth);
+  int lastStrip  = (int)(stripCoord+0.5*clusterWidth);
 
-  ATH_MSG_VERBOSE( "FTK_DataProviderSvc::createSCT_Cluster: raw coord= " << strip << " width " << w << " locpos= " <<
-      locPos << " strip, firstStrip, lastStrip= "  << strip << "," << firstStrip << "," << lastStrip);
+  ATH_MSG_VERBOSE( "FTK_DataProviderSvc::createSCT_Cluster: raw coord= " << rawStripCoord << " stripCoord " << stripCoord << 
+		   " width " << clusterWidth+1 << " strip, firstStrip, lastStrip= "  << strip << "," << firstStrip << "," << lastStrip);
 
   if (firstStrip < 0) {
     firstStrip = 0;
@@ -1423,12 +1368,11 @@ InDet::SCT_Cluster* FTK_DataProviderSvc::createSCT_Cluster(const IdentifierHash 
 
   ATH_MSG_VERBOSE(" centre.xPhi() " << centre.xPhi()  << " centre.xEta() " << centre.xEta());
 
-
   const std::pair<InDetDD::SiLocalPosition, InDetDD::SiLocalPosition> ends(design->endsOfStrip(centre));
   double stripLength(fabs(ends.first.xEta()-ends.second.xEta()));
 
-  ATH_MSG_VERBOSE(" creating SiWidth with nstrips   = " << w << " width " << width << " stripLength " << stripLength);
-  InDet::SiWidth siWidth(Amg::Vector2D(w,1), Amg::Vector2D(width,stripLength) );
+  ATH_MSG_VERBOSE(" creating SiWidth with nstrips   = " << clusterWidth+1 << " width " << width << " stripLength " << stripLength);
+  InDet::SiWidth siWidth(Amg::Vector2D(clusterWidth+1,1), Amg::Vector2D(width,stripLength) );
 
   double shift = pDE->getLorentzCorrection();
 
@@ -1508,58 +1452,80 @@ InDet::PixelCluster* FTK_DataProviderSvc::createPixelCluster(const FTK_RawPixelC
 
   ATH_MSG_VERBOSE( "FTK_DataProviderSvc::createPixelCluster: raw FTK cluster position: " <<
       " Row(phi): " <<  raw_pixel_cluster.getRowCoord() << " Col(eta): " << raw_pixel_cluster.getColCoord() <<
-      " RowWidth: " << raw_pixel_cluster.getRowWidth() << " ColWidth: " << raw_pixel_cluster.getColWidth());
+      " RowWidth: " << raw_pixel_cluster.getRowWidth()+1 << " ColWidth: " << raw_pixel_cluster.getColWidth()+1);
 
-  if (m_pixelId->barrel_ec(wafer_id)==0) {
-    if (m_pixelId->layer_disk(wafer_id)==0) {
+  unsigned int layer = m_pixelId->layer_disk(wafer_id);
+  bool isBarrel = (m_pixelId->barrel_ec(wafer_id)==0);
+
+
+  if (isBarrel) {
+    if (layer==0) {
       ATH_MSG_VERBOSE( " IBL ");
     } else {
-      ATH_MSG_VERBOSE( " Pixel Barrel layer  " << m_pixelId->layer_disk(wafer_id));
+      ATH_MSG_VERBOSE( " Pixel Barrel layer  " << layer);
     }
   } else {
-    ATH_MSG_VERBOSE( " Pixel Endcap layer  " << m_pixelId->layer_disk(wafer_id));
+    ATH_MSG_VERBOSE( " Pixel Endcap layer  " << layer);
   }
   ATH_MSG_VERBOSE( " Module rows= " << design->rows() << " phiPitch= " << design->phiPitch() << " width= " << design->width() );
   ATH_MSG_VERBOSE( " columns = " << design->columns() << " etaPitch= " << design->etaPitch() <<  " length " << design->length());
 
-  int phiIndex = raw_pixel_cluster.getRowCoord();
-  int etaIndex = raw_pixel_cluster.getColCoord();
+  int rawLocalPhiCoord = raw_pixel_cluster.getRowCoord();
+  int rawLocalEtaCoord= raw_pixel_cluster.getColCoord();
 
-  const InDetDD::SiCellId cell(phiIndex, etaIndex);
+  const InDetDD::SiCellId cornerCell(0, 0);
+  const InDetDD::SiLocalPosition localPositionOfCornerCell = design->localPositionOfCell(cornerCell);
+  const double phi0 = localPositionOfCornerCell.xPhi();
+  const double eta0 = localPositionOfCornerCell.xEta();
 
+  ATH_MSG_VERBOSE( " local position of pixel at (0,0) is "<<  phi0 << ",  " << eta0);
 
+  // zero is center of the row coordinates, so to find the cell we can use it, units of 6.25 microns
+  // zero is edge of the column coordinates, so to find the cell we add 0.5, units of 25 microns
+  double phiPos = ((double) rawLocalPhiCoord) * 6.25e-3 + phi0; // rawLocalPhiCoord=0 is the centre of the zeroth pixel
+  double etaPos = ((double) rawLocalEtaCoord) * 25.0e-3 + eta0 - 0.3; // rawLocalEtaCoord=0 is the edge (-0.3mm) of the zeroth pixel.
 
-  if(m_pixelId->barrel_ec(wafer_id)!=0 && m_pixelId->layer_disk(wafer_id)==0 && phiIndex==0 && etaIndex==0) { // ***temp hack - remove bad hits
-    ATH_MSG_DEBUG( "FTK_DataProviderSvc::createPixelCluster: Invalid Cell barrel_ec=0 layer_disk=0, phiIndex= "
-        << phiIndex << "etaIndex= "<< etaIndex);
-    return nullptr;
+  if (isBarrel)  {
+    phiPos += m_pixelBarrelPhiOffsets[layer];
+    etaPos += m_pixelBarrelEtaOffsets[layer];
+  } else {
+    phiPos += m_pixelEndCapPhiOffsets[layer];
+    etaPos += m_pixelEndCapEtaOffsets[layer];
   }
 
-  if(!cell.isValid()) {
-    ATH_MSG_DEBUG( "FTK_DataProviderSvc::createPixelCluster: Invalid Cell at phiIndex, etaIndex "<<  phiIndex << ", " << etaIndex);
-    return nullptr;
+
+  double shift = pixelDetectorElement->getLorentzCorrection();
+
+  ATH_MSG_VERBOSE( "Cluster position phiPos, etaPos "<<  phiPos << ", " << etaPos);
+
+  if ( etaPos >  design->length()/2.) {
+    ATH_MSG_DEBUG( "Illegal position: Setting Cluster eta position to module length/2.");
+    etaPos = design->length()/2.;
+  } else if (  etaPos <  -design->length()/2. ) {
+    etaPos = -design->length()/2.;
+    ATH_MSG_DEBUG( "llegal position: Setting Cluster eta position to -(module length/2.)");
   }
+  if ( phiPos >  design->width()/2.) {
+    phiPos = design->width()/2.;
+    ATH_MSG_DEBUG( "llegal position: Setting Cluster phi position to module width/2.");
+  } else if (  phiPos <  -design->width()/2. ) {
+    phiPos = -design->width()/2.;
+    ATH_MSG_DEBUG( "llegal position: Setting Cluster phi position to -(module width/2.)");
+  }
+  const InDetDD::SiLocalPosition cellLocalPosition(etaPos,phiPos);
 
-  const InDetDD::SiLocalPosition cellLocalPosition(pixelDetectorElement->rawLocalPositionOfCell(cell));
+  const InDetDD::SiCellId  cell = design->cellIdOfPosition(cellLocalPosition);
 
-  double phiOffset = (raw_pixel_cluster.getRowCoord() - (float) phiIndex) *  design->phiPitch();
-  double etaOffset = (raw_pixel_cluster.getColCoord() - (float) etaIndex) *  design->etaPitch();
-
-  double phiPos = cellLocalPosition.xPhi() + phiOffset;
-  double etaPos = cellLocalPosition.xEta() + etaOffset;
-  ATH_MSG_VERBOSE( "FTK_DataProviderSvc::createPixelCluster: local coordinates phiPos, etaPos "<<  phiPos << ", " << etaPos);
-
-  //InDetDD::SiLocalPosition silPos(phiPos, etaPos);// use the converted positions in mm !!!
-  //InDetDD::SiCellId cell =  design->cellIdOfPosition(silPos);
   int phi_index = cell.phiIndex();
   int eta_index = cell.etaIndex();
+  ATH_MSG_VERBOSE( "Cell created with phiIndex " << phi_index << " eta_index " <<   eta_index << " expected: phiIndex " << (int) ((phiPos-phi0)/design->phiPitch()) << " eta index " << (int) ((etaPos-eta0)/design->etaPitch()));
 
-  ATH_MSG_VERBOSE( " created cell with phiIndex, etaIndex " << cell.phiIndex() << ", " << cell.etaIndex());
 
   Identifier pixel_id = m_pixelId->pixel_id(wafer_id, phi_index, eta_index);
 
-  int phiWidth    = std::max(raw_pixel_cluster.getRowWidth(),(unsigned int) 1); // catch case when width is set to 0
-  int etaWidth    = std::max(raw_pixel_cluster.getColWidth(),(unsigned int) 1); // catch case when width is set to 0
+
+  int phiWidth    = raw_pixel_cluster.getRowWidth()+1;
+  int etaWidth    = raw_pixel_cluster.getColWidth()+1;
 
   int colMin = (int)(eta_index-0.5*etaWidth);
   int colMax = colMin+etaWidth;
@@ -1567,16 +1533,20 @@ InDet::PixelCluster* FTK_DataProviderSvc::createPixelCluster(const FTK_RawPixelC
   int rowMin = (int)(phi_index-0.5*phiWidth);
   int rowMax = rowMin+phiWidth;
 
+
   double etaW = design->widthFromColumnRange(colMin, colMax-1);
   double phiW = design->widthFromRowRange(rowMin, rowMax-1);
 
+
+  ATH_MSG_VERBOSE("phiW = design->widthFromRowRange("<<rowMin<<","<<rowMax-1<<") = " << phiW);
+  ATH_MSG_VERBOSE("etaW = design->widthFromRowRange("<<colMin<<","<<colMax-1<<") = " << etaW);
+
   InDet::SiWidth siWidth(Amg::Vector2D(phiWidth,etaWidth),Amg::Vector2D(phiW,etaW));
 
-  double shift = pixelDetectorElement->getLorentzCorrection();
   Amg::Vector2D position(phiPos+shift,etaPos);
 
   ATH_MSG_VERBOSE("FTK_DataProviderSvc::createPixelCluster: local coordinates phiPos, etaPos"<<  phiPos+shift << ", " << etaPos << " includes Lorentz shift " << shift);
-  ATH_MSG_VERBOSE(" phiwidth " << phiWidth << " etawidth " <<  etaWidth << " siWidth.phiR() " << siWidth.phiR() << " siWidth.z() " << siWidth.z());
+  ATH_MSG_VERBOSE(" FTK cluster phiwidth " << phiWidth << " etawidth " <<  etaWidth << " siWidth.phiR() " << siWidth.phiR() << " siWidth.z() " << siWidth.z());
 
   // bool blayer = pixelDetectorElement->isBlayer();
 
@@ -1779,9 +1749,6 @@ void FTK_DataProviderSvc::handle(const Incident& incident) {
     }
     m_newEvent = true;
     m_gotRawTracks = false;
-    m_got_raw_vx=false;
-    m_got_conv_vx=false;
-    m_got_refit_vx=false;
     m_got_conv_vertex=false;
     m_got_refit_vertex=false;
 
