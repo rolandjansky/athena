@@ -256,7 +256,8 @@ namespace MuonCalib {
   StatusCode MuonCalibAlg::execute(){
 
     MsgStream log(messageService(), name());
-    log << MSG::DEBUG << " execute()     " << endreq;
+    //log << MSG::DEBUG << " execute()     " << endreq;
+    //std::cout<<"execute()"<<std::endl;
     if( m_createRootFile )
     	{
 	  if(!m_ntupFileOpen) {
@@ -296,7 +297,7 @@ namespace MuonCalib {
 	std::map<std::string, std::string> metadata;
 	for(TagInfo::NameTagPairVec::const_iterator it=tags.begin(); it!=tags.end(); it++)
 		{
-		std::cout<<it->first<<" "<<it->second<<std::endl;
+		  //std::cout<<it->first<<" "<<it->second<<std::endl;
 		metadata[it->first]=it->second;
 		}     
 	RootFileManager::getInstance()->WriteMetaData(metadata, m_ntupleName);
@@ -304,11 +305,14 @@ namespace MuonCalib {
 	}
   
     const MuonCalibEvent* event = retrieveEvent();
+    //std::cout<<"got event"<<std::endl;
 
     m_muonCalibTool->handleEvent( event ) ;
-    if (m_doDeleteEvent == true){delete event;}
-    else {m_events.push_back(event);}
+    //std::cout<<"calib tool handled event"<<std::endl;
+    if (m_doDeleteEvent == true) delete event;
+    else m_events.push_back(event);
 
+    //std::cout<<"done with execute"<<std::endl;
     return StatusCode::SUCCESS;
   }
 
@@ -338,6 +342,7 @@ namespace MuonCalib {
     //  retrieve MuonCalibPatternCollection
     if (!p_StoreGateSvc->contains<MuonCalibPatternCollection>(m_globalPatternLocation)) {
       log << MSG::DEBUG << "MuonCalibPatternCollection not contained in StoreGate at:"  << m_globalPatternLocation << endreq;
+      //std::cout<<"MuonCalibPatternCollection not contained in StoreGate at: "<<m_globalPatternLocation <<std::endl;
       return patternVec;
     }
     const MuonCalibPatternCollection* pats = 0;
@@ -346,7 +351,7 @@ namespace MuonCalib {
       log << MSG::WARNING << "Could not find MuonCalibPatternCollection at " << m_globalPatternLocation <<endreq;
     }else{
       log << MSG::DEBUG << "retrieved MuonCalibPatternCollection "  << pats->size() << endreq;
-    
+      //std::cout<< "retrieved MuonCalibPatternCollection "  << pats->size() <<std::endl;
       patternVec.reserve(pats->size());
       
       MuonCalibPatternCollection::const_iterator pat_it     = pats->begin();
@@ -445,9 +450,15 @@ namespace MuonCalib {
       
     
 
-    if(found && filled) log << MSG::DEBUG << "TracksRecordCollections collected at location: " << location << endreq;
-    if(!found) log  << MSG::DEBUG << "TracksRecordCollections nowhere to found in Storegate, nor filled" << endreq;
-    if(found && !filled) log << MSG::DEBUG << "TracksRecordCollections collected at location: " << location << " are empty " << endreq;
+    if(found && filled){
+      log << MSG::DEBUG << "TracksRecordCollections collected at location: " << location << endreq;
+    }
+    if(!found){
+      log  << MSG::DEBUG << "TracksRecordCollections nowhere to found in Storegate, nor filled" << endreq;
+    }
+    if(found && !filled){
+      log << MSG::DEBUG << "TracksRecordCollections collected at location: " << location << " are empty " << endreq;
+    }
 
     MuonCalibTruthCollection* MCtruthCollection = new MuonCalibTruthCollection();
     
@@ -468,7 +479,9 @@ namespace MuonCalib {
       std::string MClocation = "TruthEvent";
       if(p_StoreGateSvc->contains<McEventCollection>(MClocation)) {
 	StatusCode scmc = p_StoreGateSvc->retrieve(mcEventCollection, MClocation);
-	if (StatusCode::SUCCESS == scmc ) log<<MSG::DEBUG << " McEventCollection collection retrieved " <<endreq;
+	if (StatusCode::SUCCESS == scmc ){
+	  log<<MSG::DEBUG << " McEventCollection collection retrieved " <<endreq;
+	}
 
 	log << MSG::DEBUG << "retrieved TrackRecordCollection "  << truthCollection->size() << endreq;
 	//Convert TrackRecordCollection to MuonCalibTruthCollection
@@ -1174,6 +1187,7 @@ namespace MuonCalib {
 	  for( ; mdt_it!=mdt_it_end; ++ mdt_it)
 	    {
 	      if (m_mdt_tdc_cut == true && (*mdt_it)->status()==Muon::MdtStatusMasked) continue;
+	      if((*mdt_it)->localPosition()[Trk::locR]==0) continue;
 	      
 	      MuonCalibRawMdtHit* rawMdtHit = new MuonCalibRawMdtHit();     
 	      MuonFixedId fID = m_idToFixedIdTool->idToFixedId( (*mdt_it)->identify() ) ;
@@ -1192,8 +1206,12 @@ namespace MuonCalib {
 	      rawMdtHit->setGlobalPosition( tubePos );
 	      rawMdtHit->setAdc( (*mdt_it)->adc() );
 	      rawMdtHit->setTdc( (*mdt_it)->tdc() );
+	      //std::cout<<"raw hit adc: "<<(*mdt_it)->adc()<<", tdc: "<<(*mdt_it)->tdc()<<std::endl;
+	      //printf("raw hit adc: %d, tdc: %d \n",(*mdt_it)->adc(),(*mdt_it)->tdc());
 	      rawMdtHit->setDriftTime( 0. ); 
 	      rawMdtHit->setDriftRadius( (*mdt_it)->localPosition()[Trk::locR] );
+	      //std::cout<<"mdt hit locR covariance: "<<(*mdt_it)->localCovariance()(Trk::locR,Trk::locR)<<std::endl;
+	      //printf("mdt hit locR and covariance: %.2f, %.15f \n",(*mdt_it)->localPosition()[Trk::locR],(*mdt_it)->localCovariance()(Trk::locR,Trk::locR));
 	      rawMdtHit->setDriftRadiusError( 1./sqrt((*mdt_it)->localCovariance()(Trk::locR,Trk::locR)) );
 	      
 	      int occupancy = 0;
@@ -1203,6 +1221,8 @@ namespace MuonCalib {
 		occupancy = -1; //ID of RawHit not found on any segment
 	      else
 		occupancy = position->second;             //ID of RawHit found n times on a segment in this event
+	      //std::cout<<"raw hit occupancy: "<<occupancy<<std::endl;
+	      //printf("raw hit occupancy: %d \n",occupancy);
 	      rawMdtHit->setOccupancy(occupancy);
 	      
 	      rawHits->addMuonCalibRawHit( rawMdtHit );
@@ -1670,7 +1690,7 @@ namespace MuonCalib {
       }
       event->setRpcSectorLogicContainer(slLogic);
       
-      if( log.level() <= MSG::DEBUG && slLogic ){
+      if( /*log.level() <= MSG::DEBUG &&*/ slLogic ){
 	const RpcSectorLogicContainer& slContainer = *slLogic;
 	// loop over container
 	RpcSectorLogicContainer::const_iterator slit = slContainer.begin();
@@ -1682,12 +1702,12 @@ namespace MuonCalib {
 	      << " felId " << slLogic.fel1Id()
 	      << " bcId " << slLogic.bcid()
 	      << " errCode " << slLogic.errorCode()
-	      << " crc " << slLogic.crc() << endreq;
+		<< " crc " << slLogic.crc() << endreq;
 	  RpcSectorLogic::const_iterator hitIt = slLogic.begin();
 	  RpcSectorLogic::const_iterator hitIt_end = slLogic.end();
 	  for( ;hitIt != hitIt_end; ++hitIt ){
 	    const RpcSLTriggerHit& slHit = **hitIt;
-	    log << MSG::DEBUG << " hit: rowinBcid " << slHit.rowinBcid() 
+	    log << MSG::DEBUG<< " hit: rowinBcid " << slHit.rowinBcid() 
 		<< " padId " << slHit.padId() 
 		<< " ptid " << slHit.ptId()
 		<< " roi " << slHit.roi()
@@ -1695,7 +1715,7 @@ namespace MuonCalib {
 		<< " overlapPhi " << slHit.overlapPhi() 
 		<< " overlapEta " << slHit.overlapEta()
 		<< " triggerBcid " << slHit.triggerBcid()
-		<< " isInput" << slHit.isInput() << endreq;
+		  << " isInput" << slHit.isInput() << endreq;
 	  }
 	}
       }
