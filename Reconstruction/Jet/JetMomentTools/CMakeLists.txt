@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 740780 2016-04-16 13:24:06Z krasznaa $
+# $Id: CMakeLists.txt 757525 2016-06-24 15:23:55Z krasznaa $
 ################################################################################
 # Package: JetMomentTools
 ################################################################################
@@ -41,7 +41,7 @@ atlas_add_component( JetMomentTools
   LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} CaloDetDescrLib
   CaloEvent CaloIdentifier AsgTools AthenaKernel xAODCaloEvent xAODJet
   xAODMissingET xAODTracking GaudiKernel JetEDM JetInterface JetRecLib
-  JetUtils CaloGeoHelpers xAODEventInfo xAODPFlow PathResolver )
+  JetUtils CaloGeoHelpers xAODEventInfo xAODPFlow PathResolver JetRecCaloLib )
 
 # Install files from the package:
 atlas_install_headers( JetMomentTools )
