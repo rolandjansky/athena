@@ -24,4 +24,3 @@ apply_pattern cmake_add_command command=metalibrary
 
 use AtlasReflex    AtlasReflex-*    External
 apply_pattern lcgdict dict=METInterface selectionfile=selection.xml headerfiles="../METInterface/METInterfaceDict.h"
-
