@@ -32,6 +32,7 @@
 #include "TrigConfStorage/StorageMgr.h"
 #include "TrigConfStorage/IHLTFrameLoader.h"
 #include "TrigConfStorage/TrigConfCoolWriter.h"
+#include "TrigConfStorage/MCKLoader.h"
 
 #include "TrigConfL1Data/CaloInfo.h"
 #include "TrigConfL1Data/CTPConfig.h"
@@ -457,6 +458,13 @@ int main( int argc, char* argv[] ) {
       l1psk  = gConfig.getKey(1);
       hltpsk = gConfig.getKey(2);
       bgsk   = gConfig.getKey(3);
+
+      // loading attached MCK
+      unsigned int mck{0};
+      auto mckloader = new MCKLoader(*sm);
+      mckloader->loadMCKlinkedToSMK(smk, mck);
+      
+      log << "Loaded MCK " << mck << " (active for SMK " << smk << ")" << endl;
 
    }
    /*------------------
