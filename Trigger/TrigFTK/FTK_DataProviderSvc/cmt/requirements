@@ -19,7 +19,6 @@ use TrigFTK_RawData	       TrigFTK_RawData-*            Trigger/TrigFTK
 use FTK_DataProviderInterfaces FTK_DataProviderInterfaces-* Trigger/TrigFTK
 #TrkTrack and VxVertec need to be public for Collection typedef 
 use TrkTrack		       TrkTrack-*		    Tracking/TrkEvent
-use VxVertex            VxVertex-*       Tracking/TrkEvent
 use xAODTracking                xAODTracking-*            Event/xAOD
 use InDetPrepRawData 		InDetPrepRawData-* 	InnerDetector/InDetRecEvent
 use InDetRIO_OnTrack           InDetRIO_OnTrack-*         InnerDetector/InDetRecEvent

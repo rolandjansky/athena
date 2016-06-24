@@ -1,5 +1,5 @@
 ################################################################################
-# Package: FTK_DataProviderSvc
+# Package: FTK_DataProviderSvc 
 ################################################################################
 
 # Declare the package name:
@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           Tools/PyJobTransforms
                           Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/VxVertex
                           Trigger/TrigFTK/FTK_DataProviderInterfaces
                           Trigger/TrigFTK/TrigFTK_RawData
                           PRIVATE

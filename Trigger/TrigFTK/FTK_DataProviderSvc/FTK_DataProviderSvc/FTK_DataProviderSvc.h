@@ -16,7 +16,6 @@
 #include "TrigFTK_RawData/FTK_RawTrack.h"
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
 #include "TrkTrack/TrackCollection.h"
-#include "VxVertex/VxContainer.h"
 #include "FTK_DataProviderInterfaces/IFTK_DataProviderSvc.h"
 
 //#include "TrkFitterInterfaces/ITrackFitter.h"
@@ -90,7 +89,6 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  virtual xAOD::TrackParticleContainer* getTrackParticles(const bool withRefit);
  virtual xAOD::TrackParticleContainer* getTrackParticlesInRoi(const IRoiDescriptor&, const bool withRefit);
  
- virtual VxContainer* getVxContainer(const ftk::FTK_TrackType trackType);
  virtual xAOD::VertexContainer* getVertexContainer(const bool withRefit);
  StatusCode getVertexContainer(xAOD::VertexContainer* vertex, const bool withRefit);
 
@@ -103,7 +101,6 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  StatusCode initTrackParticleCache(bool do_refit);
  StatusCode fillTrackCache(bool do_refit);
  StatusCode fillTrackParticleCache(const bool withRefit);
- bool fillVxContainer(bool withRefit, TrackCollection* tracks);
  bool fillVertexContainerCache(bool withRefit, xAOD::TrackParticleContainer*);
  protected:
 
@@ -161,14 +158,6 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   xAOD::TrackParticleAuxContainer* m_conv_tpAuxCont;
   xAOD::TrackParticleAuxContainer* m_refit_tpAuxCont;
 
-  // VxVertex cache 
-  VxContainer* m_raw_vx;
-  VxContainer* m_conv_vx;
-  VxContainer* m_refit_vx;
-  bool m_got_raw_vx;
-  bool m_got_conv_vx;
-  bool m_got_refit_vx;
-
   // xAOD vertex cache
   xAOD::VertexContainer* m_conv_vertex;
   xAOD::VertexAuxContainer* m_conv_vertexAux;
@@ -190,7 +179,6 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   bool m_gotRawTracks;
   std::string m_trackCacheName;
   std::string m_trackParticleCacheName;
-  std::string m_VxContainerCacheName;
   std::string  m_VertexContainerCacheName;
   bool m_doTruth;
   std::string m_ftkPixelTruthName;
