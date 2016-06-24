@@ -169,6 +169,9 @@ StatusCode SCT_ConfigurationConditionsSvc::fillData(int& /*i*/ , std::list<std::
 
 // Fill bad strip, chip and link info
 StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
+  unsigned int nDisabledChips(0);
+  unsigned int nDisabledChipsExclusive(0);
+  unsigned int nDisabledStripsExclusive(0);
   const std::string channelFolderName=determineFolder(coolChannelFolderName,coolChannelFolderName2);
   const bool run1=(channelFolderName==coolChannelFolderName);
   //
@@ -219,6 +222,9 @@ StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
     if (not hash.is_valid()) continue;
     const Identifier  waferId(m_pHelper->wafer_id(hash));
     const Identifier  moduleId(m_pHelper->module_id(waferId));
+
+    bool isBadModule(m_badModuleIds->find(moduleId) != m_badModuleIds->end()); 
+
     // Don't need to bother checking chips if the module is already bad
     // Commented out until fully tested
     //if (m_badModuleIds->find(moduleId) == m_badModuleIds->end()) continue;
@@ -267,7 +273,14 @@ StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
       }
       // Bad chips (= all strips bad) bitpacked
       // Should only do this for modules with at least one chip bad?
-      if (thisChip->numberOfMaskedChannels() == stripsPerChip) chipStatusWord |= (1<<thisChip->id());
+      if (thisChip->numberOfMaskedChannels() == stripsPerChip) {
+	chipStatusWord |= (1<<thisChip->id());
+	nDisabledChips++; // A bad chip
+	if(!isBadModule) nDisabledChipsExclusive++; // A bad chip in a good module
+      } else { // Good chip
+	if(!isBadModule) nDisabledStripsExclusive += thisChip->numberOfMaskedChannels(); // Bad strips in a good chip of a good module
+      }
+
     }
     // Store chip status if not all good (==0)
     if (chipStatusWord != 0) (*m_badChips)[moduleId] = chipStatusWord;
@@ -281,7 +294,10 @@ StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
   m_IOVDbSvc->dropObject(channelFolderName,true); 
 
   const unsigned int totalBad(m_badChannelIds->size());
+  msg(MSG:: INFO)<< "Total number of bad chips is " << nDisabledChips << endreq;
+  msg(MSG:: INFO)<< "Total number of bad chips not in bad modules is " << nDisabledChipsExclusive << endreq;
   msg(MSG:: INFO)<< "Total number of bad strip identifiers is " << totalBad << endreq;
+  msg(MSG:: INFO)<< "Total number of bad strip identifiers not in bad modules nor bad chips is " << nDisabledStripsExclusive << endreq;
   return StatusCode::SUCCESS;
 }
 
