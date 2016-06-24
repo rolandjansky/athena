@@ -7,7 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthExHive/IHiveTool.h"
-#include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "AthExHive/HiveDataObj.h"
 
 #include <string>
@@ -28,7 +28,7 @@ public:
 private:
    std::string m_myMessage;
 
-  SG::ReadHandle<HiveDataObj> m_rdh1;
+  SG::ReadHandleKey<HiveDataObj> m_rdh1;
 
 };
 

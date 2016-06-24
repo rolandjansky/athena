@@ -5,6 +5,7 @@
 #include "HiveTool.h"
 
 #include "GaudiKernel/SvcFactory.h"
+#include "StoreGate/ReadHandle.h"
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -32,6 +33,8 @@ StatusCode
 HiveTool::initialize() {
   ATH_MSG_INFO("initialize");
 
+  ATH_CHECK( m_rdh1.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -45,12 +48,14 @@ HiveTool::finalize() {
 StatusCode HiveTool::saySomething() const {
   ATH_MSG_INFO ("message: " << m_myMessage);
 
-  if (!m_rdh1.isValid()) {
-    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << m_rdh1.key());
-    return StatusCode::FAILURE;
-  }
+  SG::ReadHandle<HiveDataObj> rh( m_rdh1 );
 
-  ATH_MSG_INFO("  read: " << m_rdh1.key() << " = " << m_rdh1->val() );
+  // if (!m_rdh1.isValid()) {
+  //   ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << m_rdh1.key());
+  //   return StatusCode::FAILURE;
+  // }
+
+  ATH_MSG_INFO("  read: " << rh.key() << " = " << rh->val() );
 
   return StatusCode::SUCCESS;
 }

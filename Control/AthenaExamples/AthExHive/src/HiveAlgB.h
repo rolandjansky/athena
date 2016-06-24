@@ -6,20 +6,13 @@
 #define ATHEXHIVE_ALGB_H 1
 
 #include "HiveAlgBase.h"
-#include "StoreGate/WriteHandle.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "AthExHive/HiveDataObj.h"
 #include "GaudiKernel/ContextSpecificPtr.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthExHive/IHiveExSvc.h"
 
 #include <string>
-
-/*
-  
-  This is the HEADER file for the Algorithm SGWrite.
-  It illustrates how to write a data object into StoreGate
-  
-*/
 
 class HiveAlgB : public HiveAlgBase {
   
@@ -40,7 +33,7 @@ private:
   
   void dump();
 
-  SG::WriteHandle<HiveDataObj> m_wrh1;
+  SG::WriteHandleKey<HiveDataObj> m_wrh1;
 
   Gaudi::Hive::ContextSpecificData<int> m_di;
 

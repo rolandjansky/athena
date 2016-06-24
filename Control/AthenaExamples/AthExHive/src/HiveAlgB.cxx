@@ -31,6 +31,9 @@ StatusCode HiveAlgB::initialize() {
 
   dump();
 
+
+  ATH_CHECK( m_wrh1.initialize() );
+
   return HiveAlgBase::initialize();
 
 }
@@ -58,8 +61,9 @@ StatusCode HiveAlgB::execute() {
   ATH_MSG_INFO("m_di was: " << m_di << " setting to " << s);
   m_di = s;
 
-  m_wrh1 = CxxUtils::make_unique< HiveDataObj >( HiveDataObj(20000) );
-  ATH_MSG_INFO("  write: " << m_wrh1.key() << " = " << m_wrh1->val() );
+  SG::WriteHandle<HiveDataObj> wrh1( m_wrh1 );
+  wrh1 = CxxUtils::make_unique< HiveDataObj >( HiveDataObj(20000) );
+  ATH_MSG_INFO("  write: " << wrh1.key() << " = " << wrh1->val() );
 
   return StatusCode::SUCCESS;
 

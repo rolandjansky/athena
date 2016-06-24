@@ -6,19 +6,11 @@
 #define ATHEXHIVE_ALGF_H 1
 
 #include "HiveAlgBase.h"
-#include "StoreGate/WriteHandle.h"
-#include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "AthExHive/HiveDataObj.h"
 #include "rGen.h"
 
 #include <string>
-
-/*
-
-This is the HEADER file for the Algorithm SGWrite.
-It illustrates how to write a data object into StoreGate
-
-*/
 
 class HiveAlgF  :  public HiveAlgBase {
   
@@ -37,9 +29,9 @@ public:
   
 private:
   
-  SG::ReadHandle<HiveDataObj> m_rdh1;
-  SG::ReadHandle<HiveDataObj> m_rdh2;
-  SG::ReadHandle<HiveDataObj> m_rdh3;
+  SG::ReadHandleKey<HiveDataObj> m_rdh1;
+  SG::ReadHandleKey<HiveDataObj> m_rdh2;
+  SG::ReadHandleKey<HiveDataObj> m_rdh3;
 
    
   

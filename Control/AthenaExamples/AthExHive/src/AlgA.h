@@ -2,38 +2,36 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ATHEXHIVE_ALGG_H
-#define ATHEXHIVE_ALGG_H 1
+#ifndef CONDALGS_ALGA_H
+#define CONDALGS_ALGA_H 1
 
-#include "HiveAlgBase.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "AthExHive/HiveDataObj.h"
-#include "rGen.h"
+
+#include "EventInfo/EventInfo.h"
 
 #include <string>
 
-class HiveAlgG  :  public HiveAlgBase {
+class AlgA  :  public AthAlgorithm {
   
 public:
   
-  // Standard Algorithm Constructor:
-  
-  HiveAlgG (const std::string& name, ISvcLocator* pSvcLocator);
-  ~HiveAlgG();
-
-  // Define the initialize, execute and finalize methods:
+  AlgA (const std::string& name, ISvcLocator* pSvcLocator);
+  ~AlgA ();
   
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
   
 private:
-  
-  SG::ReadHandleKey<HiveDataObj> m_rdh1;
-  SG::WriteHandleKey<HiveDataObj> m_wrh1;
 
-   
+  SG::WriteHandleKey<HiveDataObj> m_wrh1;
+  SG::WriteHandleKey<HiveDataObj> m_wrh2;
+  SG::ReadHandleKey<EventInfo> m_evt;
+
+  std::atomic<int> m_i {1};
   
 };
 #endif

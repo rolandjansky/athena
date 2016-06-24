@@ -26,6 +26,11 @@ HiveAlgC::~HiveAlgC() {}
 
 StatusCode HiveAlgC::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
+
+  ATH_CHECK( m_rdh1.initialize() );
+  ATH_CHECK( m_wrh1.initialize() );
+  ATH_CHECK( m_wrh2.initialize() );
+
   return HiveAlgBase::initialize();
 }
 
@@ -40,18 +45,22 @@ StatusCode HiveAlgC::execute() {
 
   sleep();
 
-  if (!m_rdh1.isValid()) {
-    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << m_rdh1.key());
+  SG::ReadHandle<HiveDataObj> rdh1( m_rdh1 );
+  if (!rdh1.isValid()) {
+    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << rdh1.key());
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_INFO("  read: " << m_rdh1.key() << " = " << m_rdh1->val() );
+  ATH_MSG_INFO("  read: " << rdh1.key() << " = " << rdh1->val() );
   
-  m_wrh1 = CxxUtils::make_unique< HiveDataObj >( HiveDataObj(30000) );
-  m_wrh2 = CxxUtils::make_unique< HiveDataObj >( HiveDataObj(30001) );
+  SG::WriteHandle<HiveDataObj> wrh1( m_wrh1 );
+  wrh1 = CxxUtils::make_unique< HiveDataObj >( HiveDataObj(30000) );
+
+  SG::WriteHandle<HiveDataObj> wrh2( m_wrh2 );
+  wrh2 = CxxUtils::make_unique< HiveDataObj >( HiveDataObj(30001) );
   
-  ATH_MSG_INFO("  write: " << m_wrh1.key() << " = " << m_wrh1->val() );
-  ATH_MSG_INFO("  write: " << m_wrh2.key() << " = " << m_wrh2->val() );
+  ATH_MSG_INFO("  write: " << wrh1.key() << " = " << wrh1->val() );
+  ATH_MSG_INFO("  write: " << wrh2.key() << " = " << wrh2->val() );
 
   return StatusCode::SUCCESS;
 

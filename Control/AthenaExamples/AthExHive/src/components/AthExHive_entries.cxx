@@ -5,8 +5,20 @@
 #include "../HiveAlgE.h"
 #include "../HiveAlgF.h"
 #include "../HiveAlgG.h"
+#include "../HiveAlgV.h"
 #include "../HiveTool.h"
 #include "../HiveExSvc.h"
+
+#ifdef REENTRANT_GAUDI
+  #include "../HiveAlgR.h"
+#endif
+
+#include "../AlgA.h"
+#include "../AlgB.h"
+#include "../AlgC.h"
+#include "../AlgD.h"
+#include "../CondAlgX.h"
+#include "../CondAlgY.h"
 
 #include "../ThreadInitTool.h"
 
@@ -19,21 +31,21 @@ DECLARE_ALGORITHM_FACTORY( HiveAlgD )
 DECLARE_ALGORITHM_FACTORY( HiveAlgE )
 DECLARE_ALGORITHM_FACTORY( HiveAlgF )
 DECLARE_ALGORITHM_FACTORY( HiveAlgG )
+DECLARE_ALGORITHM_FACTORY( HiveAlgV )
+
+#ifdef REENTRANT_GAUDI
+  DECLARE_ALGORITHM_FACTORY( HiveAlgR )
+#endif
+
+DECLARE_ALGORITHM_FACTORY( AlgA )
+DECLARE_ALGORITHM_FACTORY( AlgB )
+DECLARE_ALGORITHM_FACTORY( AlgC )
+DECLARE_ALGORITHM_FACTORY( AlgD )
+DECLARE_ALGORITHM_FACTORY( CondAlgX )
+DECLARE_ALGORITHM_FACTORY( CondAlgY )
 
 DECLARE_TOOL_FACTORY( ThreadInitTool )
 DECLARE_TOOL_FACTORY( HiveTool )
 
 DECLARE_SERVICE_FACTORY( HiveExSvc )
 
-DECLARE_FACTORY_ENTRIES(AthExHive) {
-  DECLARE_ALGORITHM( HiveAlgA )
-  DECLARE_ALGORITHM( HiveAlgB )
-  DECLARE_ALGORITHM( HiveAlgC )
-  DECLARE_ALGORITHM( HiveAlgD )
-  DECLARE_ALGORITHM( HiveAlgE )
-  DECLARE_ALGORITHM( HiveAlgF )
-  DECLARE_ALGORITHM( HiveAlgG )
-  DECLARE_TOOL( ThreadInitTool )
-  DECLARE_TOOL( HiveTool )
-  DECLARE_SERVICE( HiveExSvc )
-}

@@ -25,6 +25,11 @@ HiveAlgF::~HiveAlgF() {}
 
 StatusCode HiveAlgF::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
+
+  ATH_CHECK( m_rdh1.initialize() );
+  ATH_CHECK( m_rdh2.initialize() );
+  ATH_CHECK( m_rdh3.initialize() );
+
   return HiveAlgBase::initialize ();
 }
 
@@ -39,22 +44,27 @@ StatusCode HiveAlgF::execute() {
  
   sleep();
 
-  if (!m_rdh1.isValid()) {
-    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << m_rdh1.key());
-    return StatusCode::FAILURE;
-  }
-  if (!m_rdh2.isValid()) {
-    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << m_rdh2.key());
-    return StatusCode::FAILURE;
-  }
-  if (!m_rdh3.isValid()) {
-    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << m_rdh3.key());
+  SG::ReadHandle<HiveDataObj> rdh1( m_rdh1 );
+  if (!rdh1.isValid()) {
+    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << rdh1.key());
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_INFO("  read: " << m_rdh1.key() << " = " << m_rdh1->val() );
-  ATH_MSG_INFO("  read: " << m_rdh2.key() << " = " << m_rdh2->val() );
-  ATH_MSG_INFO("  read: " << m_rdh3.key() << " = " << m_rdh3->val() );
+  SG::ReadHandle<HiveDataObj> rdh2( m_rdh2 );
+  if (!rdh2.isValid()) {
+    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << rdh2.key());
+    return StatusCode::FAILURE;
+  }
+
+  SG::ReadHandle<HiveDataObj> rdh3( m_rdh3 );
+  if (!rdh3.isValid()) {
+    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << rdh3.key());
+    return StatusCode::FAILURE;
+  }
+
+  ATH_MSG_INFO("  read: " << rdh1.key() << " = " << rdh1->val() );
+  ATH_MSG_INFO("  read: " << rdh2.key() << " = " << rdh2->val() );
+  ATH_MSG_INFO("  read: " << rdh3.key() << " = " << rdh3->val() );
 
   return StatusCode::SUCCESS;
 

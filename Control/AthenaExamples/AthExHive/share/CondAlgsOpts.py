@@ -17,6 +17,14 @@ if (nThreads < 1) :
 from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr
 # svcMgr.AthenaHiveEventLoopMgr.OutputLevel = INFO
 
+from StoreGate.StoreGateConf import StoreGateSvc
+# svcMgr.StoreGateSvc.Dump = True
+# svcMgr += StoreGateSvc("ConditionStore", Dump=True)
+
+# from StoreGate.StoreGateConf import StoreGateSvc
+# theApp.CreateSvc += ["StoreGateSvc/ConditionStore"]
+
+
 from StoreGate.StoreGateConf import SG__HiveMgrSvc
 # svcMgr.EventDataSvc.OutputLevel = INFO
 
@@ -26,6 +34,7 @@ from GaudiHive.GaudiHiveConf import AlgResourcePool
 from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
 svcMgr.ForwardSchedulerSvc.OutputLevel = INFO
 svcMgr.ForwardSchedulerSvc.CheckDependencies = True
+svcMgr.ForwardSchedulerSvc.EnableConditions = True
 
 #
 ## Override defaults for numStores and numAlgsInFlight 
@@ -41,9 +50,13 @@ svcMgr.ForwardSchedulerSvc.CheckDependencies = True
 # svcMgr.ForwardSchedulerSvc.MaxAlgosInFlight = numAlgsInFlight
 
 # ThreadPoolService thread local initialization
-from GaudiHive.GaudiHiveConf import ThreadPoolSvc
-svcMgr += ThreadPoolSvc("ThreadPoolSvc")
-svcMgr.ThreadPoolSvc.ThreadInitTools = ["ThreadInitTool"]
+# from GaudiHive.GaudiHiveConf import ThreadPoolSvc
+# svcMgr += ThreadPoolSvc("ThreadPoolSvc")
+# svcMgr.ThreadPoolSvc.ThreadInitTools = ["ThreadInitTool"]
+
+
+from IOVSvc.IOVSvcConf import CondSvc
+svcMgr += CondSvc( OutputLevel=DEBUG, CondFile = "condDb.txt")
 
 #---------------------------------------------------------------------------------#
 
@@ -57,6 +70,9 @@ svcMgr.ThreadPoolSvc.ThreadInitTools = ["ThreadInitTool"]
 #---------------------------------------------------------------------------------#
 
 
+# from StoreGate.StoreGateConf import StoreGateSvc
+# theApp.CreateSvc += ["StoreGateSvc/ConditionStore"]
+
 #
 ## AlgSequence
 #
@@ -69,16 +85,18 @@ topSequence+=SGInputLoader(OutputLevel=INFO, ShowEventDump=False)
 topSequence.SGInputLoader.Load = [ ('EventInfo','McEventInfo') ]
 
 from AthExHive.AthExHiveConf import *
-topSequence+=HiveAlgA(OutputLevel=DEBUG,Time=20)
-topSequence+=HiveAlgB(OutputLevel=DEBUG,Time=10)
-topSequence+=HiveAlgC(OutputLevel=DEBUG,Time=190)
-topSequence+=HiveAlgD(OutputLevel=DEBUG,Time=10)
-topSequence+=HiveAlgE(OutputLevel=DEBUG,Time=30)
-topSequence+=HiveAlgG(OutputLevel=DEBUG,Time=10)
-topSequence+=HiveAlgF(OutputLevel=DEBUG,Time=30)
+topSequence+=AlgA(OutputLevel=DEBUG)
+topSequence+=AlgB(OutputLevel=DEBUG, Key_R1="a1", Key_W1="a3")
+topSequence+=AlgC("AlgC1", OutputLevel=DEBUG, Key_R1="a2", Key_CH="X1")
+topSequence+=AlgC("AlgC2", OutputLevel=DEBUG, Key_R1="a1", Key_CH="X2")
+topSequence+=AlgD("AlgD1", OutputLevel=DEBUG, Key_R1="a3", Key_CH1="X1", Key_CH2="X2")
+#topSequence+=AlgD("AlgD2", OutputLevel=DEBUG, Key_R1="a1", Key_CH1="Y1", Key_CH2="Y2")
 
-topSequence+=HiveAlgV(OutputLevel=DEBUG,Time=30)
-topSequence.HiveAlgV.Key_RV = [ "a1", "a2", "d1", "e1", "c1" ]
+topSequence+=CondAlgX("CondAlgX1", OutputLevel=DEBUG, Key_CH="X1", Key_DB="X1")
+topSequence+=CondAlgX("CondAlgX2", OutputLevel=DEBUG, Key_CH="X2", Key_DB="X2")
+
+topSequence+=CondAlgY("CondAlgY1", OutputLevel=DEBUG, Key_CH1="Y1", Key_CH2="Y2", Key_DB1="Y1", Key_DB2="Y2")
+
 
 #--------------------------------------------------------------
 # Event related parameters

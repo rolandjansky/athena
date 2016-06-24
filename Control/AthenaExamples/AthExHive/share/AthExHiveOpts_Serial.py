@@ -13,6 +13,10 @@ job+=HiveAlgE(OutputLevel=DEBUG,Time=30)
 job+=HiveAlgG(OutputLevel=DEBUG,Time=10)
 job+=HiveAlgF(OutputLevel=DEBUG,Time=30)
 
+job+=HiveAlgV(OutputLevel=DEBUG,Time=30)
+job.HiveAlgV.Key_RV = [ "a1", "a2", "d1", "e1", "c1" ]
+
+
 #from StoreGate.StoreGateConf import StoreGateSvc
 #svcMgr.StoreGateSvc.Dump=True
 
