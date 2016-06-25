@@ -138,7 +138,7 @@ if DQMonFlags.useTrigger() :
                                                commonMonitoringTool( "AntiKt4HIJets", pathSuffix='_trig' ),
                                                ] , IntervalType = 6 )
     ToolSvc += athenaMonTool_trig
-    athenaMonTool_trig.TrigDecisionTool =  ToolSvc.monTrigDecTool
+    athenaMonTool_trig.TrigDecisionTool =  getattr(ToolSvc, DQMonFlags.nameTrigDecTool().split('/')[-1])
     athenaMonTool_trig.TriggerChain =  "CATEGORY_monitoring_jet"
     #athenaMonTool_trig.TriggerChain =  "HLT_j25,HLT_j60,HLT_j200_jes_PS" 
 #    athenaMonTool_trig.TriggerChain =  "j20 ion"
