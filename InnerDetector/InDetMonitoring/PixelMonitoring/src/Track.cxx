@@ -190,6 +190,14 @@ StatusCode PixelMainMon::BookTrackMon(void)
          hname = makeHistname(("HitEff_actv_"+modlabel[i]), false);
          htitles = makeHisttitle(("hit efficiency for active modules, "+modlabel[i]), ";lumi block;hit efficiency", false);
          sc = trackHistos.regHist(m_hiteff_actv_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), m_lbRange, -0.5, -0.5+(float)m_lbRange));
+         
+         /// clusters
+         //hname = makeHistname(("ClusterSize_Measurement_"+modlabel[i]), false);
+         //htitles = makeHisttitle(("cluster size  for clusters on tracks, "+modlabel[i]), ";cluster size;#clusters", false);
+         //sc = trackHistos.regHist(m_clusize_measurement_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), 300, -0.5, -0.5+300.0));
+         //hname = makeHistname(("ClusterSize_Outlier_"+modlabel[i]), false);
+         //htitles = makeHisttitle(("cluster size  for outliers , "+modlabel[i]), ";cluster size;#clusters", false);
+         //sc = trackHistos.regHist(m_clusize_outlier_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), 300, -0.5, -0.5+300.0));
       }
 
    }
@@ -318,7 +326,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	 }
 
 
-         /// Calculate the hit efficiency
+        /// Calculate the hit efficiency
 	 if(m_idHelper->is_pixel(surfaceID) && (*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){
 	   if( m_tsos_hitmap ) m_tsos_hitmap->Fill(surfaceID,m_pixelid,m_doIBL,false);
 	   if( m_tsos_hiteff_vs_lumi ) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),1.,surfaceID,m_pixelid,m_doIBL);
@@ -355,13 +363,21 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	   }
 	 }
 
-         /// Require hits on layers
-	 if(!(*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){continue;}
+         /// clusters are valid
+         if(!(*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){continue;}
          if(!clus)continue;
-
          const InDet::SiCluster *RawDataClus = dynamic_cast< const InDet::SiCluster*>(clus->prepRawData());
          if(!RawDataClus)continue;
 	 
+         //if (RawDataClus->detectorElement()->isPixel()){
+         //   const InDet::PixelCluster* pixelCluster=dynamic_cast<const InDet::PixelCluster*>(RawDataClus);
+         //   if(pixelCluster){
+         //      float size = pixelCluster->rdoList().size();
+         //      if( m_clusize_measurement_mod[pixlayer] ) m_clusize_measurement_mod[pixlayer]->Fill(size,nMeasurement);
+         //      if( m_clusize_outlier_mod[pixlayer] ) m_clusize_outlier_mod[pixlayer]->Fill(size,nOutlier);
+         //   }
+         //}
+         //if(!(*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){continue;}
          //if the cluster is a pixel cluster (not SCT) get the pixel information
          if (RawDataClus->detectorElement()->isPixel()){
 
@@ -570,6 +586,12 @@ StatusCode PixelMainMon::ProcTrackMon(void)
   //  double trackRateLB = (double) ntrkLB/lengthLB;
   //  m_trackRate_per_lumi->Fill(m_manager->lumiBlockNumber(),trackRateLB);
   //}
+  for(int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
+     if(m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMinimum(0.8);
+     if(m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMaximum(1.01);
+     if(m_hiteff_actv_mod[i]) m_hiteff_actv_mod[i]->SetMinimum(0.8);
+     if(m_hiteff_actv_mod[i]) m_hiteff_actv_mod[i]->SetMaximum(1.01);
+  }
   return StatusCode::SUCCESS;
   
 }
