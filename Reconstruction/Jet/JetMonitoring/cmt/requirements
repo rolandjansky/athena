@@ -10,6 +10,7 @@ private
 use AthContainers   AthContainers-*     Control
 use AthenaMonitoring    AthenaMonitoring-*      Control
 use JetUtils            JetUtils-*              Reconstruction/Jet
+use xAODEventInfo       xAODEventInfo-*         Event/xAOD
 
 public
 use xAODJet             xAODJet-*               Event/xAOD

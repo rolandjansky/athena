@@ -8,6 +8,7 @@ atlas_subdir( JetMonitoring )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthToolSupport/AsgTools
+                          Event/xAOD/xAODEvent
                           Event/xAOD/xAODHIEvent
                           Event/xAOD/xAODJet
                           GaudiKernel
