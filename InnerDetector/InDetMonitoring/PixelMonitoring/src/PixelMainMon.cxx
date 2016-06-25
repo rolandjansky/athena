@@ -103,8 +103,8 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("PixelConditionsSummarySvc", m_pixelCondSummarySvc);
    declareProperty("PixelByteStreamErrorsSvc",  m_ErrorSvc);
    declareProperty("PixelCablingSvc",           m_pixelCableSvc);
-   declareProperty("HoleSearchTool",  m_holeSearchTool);
-   declareProperty("LuminosityTool",  m_lumiTool);
+   declareProperty("HoleSearchTool",            m_holeSearchTool);
+   declareProperty("LuminosityTool",            m_lumiTool);
 
    //declareProperty("TrkSummaryTool",            m_trkSummaryTool);
 
@@ -152,18 +152,24 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("DetailsMod4",     m_DetailsMod4 = "");
    declareProperty("OccupancyCut",    m_occupancy_cut = 1e-5);
 
+   m_lbRange = 3000;
+   m_bcidRange = 3600;
    m_isNewRun = false;
    m_isNewLumiBlock = false;
    m_newLowStatInterval = false;
    m_doRefresh = false;
+   m_doRefresh5min = false;
    m_firstBookTime = 0;
+   m_currentBCID = 0;
    isFirstBook = false;
    m_nRefresh = 0;
+   m_nRefresh5min = 0;
 
    //initalize all the histograms to 0 to start
    m_events_per_lumi = 0;
    m_storegate_errors = 0;
    m_mu_vs_lumi = 0;
+   m_mu_vs_bcid = 0;
    m_hiteff_mod = 0;
    m_hits_per_lumi = 0;
 
@@ -178,7 +184,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_Atlas_BCID = 0;            
    m_Atlas_BCID_hits = 0;            
    m_BCID_Profile = 0;          
-   m_diff_ROD_BCID = 0;         
+   ///m_diff_ROD_BCID = 0;         
    m_occupancy = 0;
    m_occupancy_10min = 0;
    m_average_pixocc = 0;
@@ -205,8 +211,8 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_Details_mod3_ToT = 0;     
    m_Details_mod4_ToT = 0;  
    m_pixel_occupancy = 0;
-   m_pixel_noise_map = 0;
-   m_pixel_occupancy_spectrum = 0;
+   //m_pixel_noise_map = 0;
+   //m_pixel_occupancy_spectrum = 0;
    m_hit_num_mod = 0;
 
    //-------------------
@@ -237,10 +243,10 @@ PixelMainMon::PixelMainMon(const std::string & type,
    //m_track_phi0 = 0;    
    //m_track_theta = 0;   
    //m_track_eta = 0;    
-   m_tracks_per_lumi = 0;
-   m_trackRate_per_lumi = 0;
-   m_tracksPerEvt_per_lumi = 0;
-   m_tracksPerEvtPerMu_per_lumi = 0;
+   //m_tracks_per_lumi = 0;
+   //m_trackRate_per_lumi = 0;
+   //m_tracksPerEvt_per_lumi = 0;
+   //m_tracksPerEvtPerMu_per_lumi = 0;
    //m_track_dedx = 0;
    //m_track_mass_dedx = 0;
    m_clustot_vs_pt = 0;
@@ -254,6 +260,13 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_tsos_hitmap = 0;
    m_tsos_holemap = 0;
    m_tsos_outliermap = 0;
+   //m_tsos_measratio = 0;
+   //m_tsos_holeratio = 0;
+   m_misshits_ratio = 0;
+   m_tsos_holeratio_tmp = 0;
+   m_tsos_holeratio_mon = 0;
+   m_misshits_ratio_tmp = 0;
+   m_misshits_ratio_mon = 0;
    m_clusters_per_lumi = 0;
    m_largeclusters_per_lumi = 0;
    m_verylargeclusters_per_lumi = 0;
@@ -265,13 +278,13 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_cluster_groupsize = 0;
    m_cluster_col_width = 0;
    m_cluster_row_width = 0;
-   m_cluster_row_width_IBL = 0;
+   //m_cluster_row_width_IBL = 0;
    m_cluster_LVL1A = 0;
    m_clus_LVL1A_sizenot1 = 0; 
-   m_cluster_LVL1A_highToT = 0;
+   //m_cluster_LVL1A_highToT = 0;
    m_clusterSize_eta = 0;
    m_cluster_occupancy = 0;
-   m_clusocc_DBM = 0;
+   //m_clusocc_DBM = 0;
    m_clusocc_sizenot1 = 0; 
    m_cluseff_mod = 0;
    m_cluster_ToT_mod = 0;
@@ -281,7 +294,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_cluster_occupancy_time2 = 0;
    m_cluster_occupancy_time3 = 0;
    m_num_clusters = 0;
-   m_num_clusters_PIX = 0;
+   //m_num_clusters_PIX = 0;
    m_num_clusters_low = 0;
    m_num_clusters_ECA = 0;
    m_num_clusters_ECC = 0;
@@ -306,59 +319,59 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_Status_modules = 0;
    m_status = 0;
    m_dqStatus = 0;
-   m_error1 = 0;            
-   m_errorTypes = 0;        
-   m_otherROD_per_lumi_IBL = 0; 
-   m_chip_per_lumi_IBL = 0; 
+   //m_error1 = 0;            
+   //m_errorTypes = 0;        
+   //m_otherROD_per_lumi_IBL = 0; 
+   //m_chip_per_lumi_IBL = 0; 
    m_error_time1 = 0;       
    m_error_time2 = 0;       
    m_error_time3 = 0;       
    m_errors = 0;
-   m_OpticalErrors = 0;
-   m_SEU_Errors = 0;
-   m_TimeoutErrors = 0;
-   m_SyncErrorsIBL = 0; 
-   m_SyncErrors = 0; 
-   m_SyncCategory = 0; 
-   m_TruncationCategory = 0; 
-   m_OpticalCategory = 0; 
-   m_SEUCategory = 0; 
-   m_TimeoutCategory = 0; 
-   m_TruncationErrors = 0;
-   m_sync_mod_BCID1_per_LB = 0;
-   m_sync_mod_BCID1_int_LB = 0;
-   m_sync_mod_BCID2_per_LB = 0;
-   m_sync_mod_BCID2_int_LB = 0;
-   m_sync_mod_LVL1ID_per_LB = 0;
-   m_sync_mod_LVL1ID_int_LB = 0;
-   m_sync_rod_BCID_per_LB = 0;
-   m_sync_rod_BCID_int_LB = 0;
-   m_sync_rod_LVL1ID_per_LB = 0;
-   m_sync_rod_LVL1ID_int_LB = 0;
-   m_trunc_mod_EOC_per_LB = 0;
-   m_trunc_mod_EOC_int_LB = 0;
-   m_trunc_mod_hitOF_per_LB = 0;
-   m_trunc_mod_hitOF_int_LB = 0;
-   m_trunc_mod_EoEOF_per_LB = 0;
-   m_trunc_mod_EoEOF_int_LB = 0;
-   m_trunc_rod_HTlim_per_LB = 0;
-   m_trunc_rod_HTlim_int_LB = 0;
-   m_trunc_rod_FIFOOF_per_LB = 0;
-   m_trunc_rod_FIFOOF_int_LB = 0;
-   m_optical_error_per_LB = 0;
-   m_optical_error_int_LB = 0;
-   m_seu_hit_parity_per_LB = 0;
-   m_seu_hit_parity_int_LB = 0;
-   m_seu_reg_parity_per_LB = 0;
-   m_seu_reg_parity_int_LB = 0;
-   m_seu_hamming_per_LB = 0;
-   m_seu_hamming_int_LB = 0;
-   m_timeout_per_LB = 0;
-   m_timeout_int_LB = 0;
-   m_FEwarning_per_LB = 0;
-   m_FEwarning_int_LB = 0;
-   m_sync_mod_corr_LVL1ID_BCID2_per_LB = 0;
-   m_sync_rod_corr_LVL1ID_BCID_per_LB = 0;
+   //m_OpticalErrors = 0;
+   //m_SEU_Errors = 0;
+   //m_TimeoutErrors = 0;
+   //m_SyncErrorsIBL = 0; 
+   //m_SyncErrors = 0; 
+   //m_SyncCategory = 0; 
+   //m_TruncationCategory = 0; 
+   //m_OpticalCategory = 0; 
+   //m_SEUCategory = 0; 
+   //m_TimeoutCategory = 0; 
+   //m_TruncationErrors = 0;
+   //m_sync_mod_BCID1_per_LB = 0;
+   //m_sync_mod_BCID1_int_LB = 0;
+   //m_sync_mod_BCID2_per_LB = 0;
+   //m_sync_mod_BCID2_int_LB = 0;
+   //m_sync_mod_LVL1ID_per_LB = 0;
+   //m_sync_mod_LVL1ID_int_LB = 0;
+   //m_sync_rod_BCID_per_LB = 0;
+   //m_sync_rod_BCID_int_LB = 0;
+   //m_sync_rod_LVL1ID_per_LB = 0;
+   //m_sync_rod_LVL1ID_int_LB = 0;
+   //m_trunc_mod_EOC_per_LB = 0;
+   //m_trunc_mod_EOC_int_LB = 0;
+   //m_trunc_mod_hitOF_per_LB = 0;
+   //m_trunc_mod_hitOF_int_LB = 0;
+   //m_trunc_mod_EoEOF_per_LB = 0;
+   //m_trunc_mod_EoEOF_int_LB = 0;
+   //m_trunc_rod_HTlim_per_LB = 0;
+   //m_trunc_rod_HTlim_int_LB = 0;
+   //m_trunc_rod_FIFOOF_per_LB = 0;
+   //m_trunc_rod_FIFOOF_int_LB = 0;
+   //m_optical_error_per_LB = 0;
+   //m_optical_error_int_LB = 0;
+   //m_seu_hit_parity_per_LB = 0;
+   //m_seu_hit_parity_int_LB = 0;
+   //m_seu_reg_parity_per_LB = 0;
+   //m_seu_reg_parity_int_LB = 0;
+   //m_seu_hamming_per_LB = 0;
+   //m_seu_hamming_int_LB = 0;
+   //m_timeout_per_LB = 0;
+   //m_timeout_int_LB = 0;
+   //m_FEwarning_per_LB = 0;
+   //m_FEwarning_int_LB = 0;
+   //m_sync_mod_corr_LVL1ID_BCID2_per_LB = 0;
+   //m_sync_rod_corr_LVL1ID_BCID_per_LB = 0;
    m_num_spacepoints = 0;
    m_num_spacepoints_low = 0;
    m_spHit_x = 0;
@@ -380,6 +393,10 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_num_clusters_LB = 0;                                
    m_num_clusters_low_LB = 0;  
    m_hitmap_mon = 0;
+   m_lowToTHitsFraction_7 = 0;
+   m_lowToTHitsFraction_9 = 0;
+   m_lowToTHitsFraction_11 = 0;
+   m_lowToTHitsFraction_13 = 0;
 
    m_pixelid =0;
    pixelmgr =0;
@@ -411,6 +428,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
       m_occupancy_summary_mod[i] = 0;
       m_occupancy_summary_low_mod[i] = 0;
       m_nhits_mod[i] = 0;
+      m_totalhits_per_bcid_mod[i] = 0;
       m_diff_ROD_vs_Module_BCID_mod[i] = 0;
       m_Lvl1ID_diff_mod_ATLAS_mod[i] = 0;
       //m_Lvl1A_mod[i] = 0;
@@ -418,21 +436,30 @@ PixelMainMon::PixelMainMon(const std::string & type,
       m_hit_ToT_tmp_mod[i] = 0;
       m_hit_ToT_Mon_mod[i] = 0;
       m_avgocc_per_lumi_mod[i] = 0;
+      m_avgocc_wSyncMod_per_lumi_mod[i] = 0;
+      m_avgocc_per_bcid_mod[i] = 0;
       m_maxocc_per_lumi_mod[i] = 0;
+      m_maxocc_per_bcid_mod[i] = 0;
       m_hits_per_lumi_mod[i] = 0;
+      m_avgocc_LBvsBCID_mod[i] = 0;
       m_clusters_per_lumi_mod[i] = 0;
+      m_clusters_col_width_per_lumi_mod[i] = 0;
+      m_clusters_row_width_per_lumi_mod[i] = 0;
+      m_clusters_col_width_per_bcid_mod[i] = 0;
+      m_clusters_row_width_per_bcid_mod[i] = 0;
       m_totalclusters_per_lumi_mod[i] = 0;
+      m_totalclusters_per_bcid_mod[i] = 0;
       m_cluster_col_width_mod[i] = 0;
       m_cluster_row_width_mod[i] = 0;
       m_cluster_groupsize_mod[i] = 0;
-      m_clusQ_vs_eta_mod[i] = 0;
+      //m_clusQ_vs_eta_mod[i] = 0;
       m_clussize_vs_eta_mod[i] = 0;
       m_bad_mod_errors_mod[i] = 0;
       m_errors_etaid_mod[i] = 0;
       m_hit_ToT_LB_mod[i] = 0;
       m_clusToT_vs_eta_mod[i] = 0;
       m_ToT_vs_clussize_mod[i] = 0;
-      m_Q_vs_clussize_mod[i] = 0;
+      //m_Q_vs_clussize_mod[i] = 0;
       m_nlowToT_vs_clussize_mod[i] = 0;
       m_1cluster_ToT_mod[i] = 0;
       m_2cluster_ToT_mod[i] = 0;
@@ -443,11 +470,16 @@ PixelMainMon::PixelMainMon(const std::string & type,
       m_3cluster_Q_mod[i] = 0;
       m_bigcluster_Q_mod[i] = 0;
       m_cluster_LVL1A1d_mod[i] = 0;
+      m_hiteff_incl_mod[i] = 0;
+      m_hiteff_actv_mod[i] = 0;
+      m_clusize_ontrack_mod[i] = 0;
+      m_clusize_offtrack_mod[i] = 0;
    }
    for( int j=0; j<16; j++){
       m_errors_int_LB[j] = 0;
    }
    for( int i=0; i<PixLayerIBL2D3D::COUNT; i++){
+      m_nActivAndSync_mod[i] = 0;
       m_errors_per_lumi_mod[i] = 0;
       m_SyncErrors_per_lumi_mod[i] = 0;
       m_OpticalErrors_per_lumi_mod[i] = 0;
@@ -477,7 +509,8 @@ PixelMainMon::PixelMainMon(const std::string & type,
    }
    for( int i=0; i<16; i++){
       m_ErrorStateMap[i] = 0;
-      m_ErrorStateMap_per_LB[i] = 0;
+      //m_ErrorStateMap_per_LB[i] = 0;
+      for( int j=0 ; j<PixLayer::COUNT-1 ; j++) m_errorStates_per_lumi_mod[j][i] = 0;
    }
 
   // DCS Monitorning
@@ -893,6 +926,15 @@ StatusCode PixelMainMon::bookHistograms()
       MonGroup errorHistos( this, path.c_str(), run, ATTRIB_MANAGED ); //declare a group of histograms
       sc = errorHistos.regHist(m_storegate_errors  = new TH2S("storegate_errors",  ("Storegate Errors" + m_histTitleExt + ";Container Name;Error Type").c_str(), 5,0.5,5.5,4,0.5,4.5));
       if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
+   
+      //path = "Pixel/Hits";
+      //if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/HitsOnTrack");
+      //if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/HitsOnPixelTrack");
+      //MonGroup hitHistos(   this, path.c_str(),  run, ATTRIB_MANAGED ); //declare a group of histograms
+      //std::string hname = makeHistname("Interactions_vs_bcid", false);
+      //std::string htitles = makeHisttitle("<Interactions> vs BCID", ";BCID;<#Interactions/event>", false);
+      //sc = hitHistos.regHist(m_mu_vs_bcid = TProfile_LW::create(hname.c_str(), htitles.c_str(), 3000, -0.5, -0.5+3000.0));
+      
       
       //Set lables and style for error histogram
       m_storegate_errors->SetOption("colz");
@@ -967,8 +1009,11 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
       if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endreq;
    }else{
       m_currentTime = thisEventInfo->event_ID()->time_stamp(); 
+      m_currentBCID = thisEventInfo->event_ID()->bunch_crossing_id();
       //msg(MSG::INFO) << "First booking time:" << m_firstBookTime << " Current time: " << m_currentTime << endreq;
       unsigned int currentdiff = (m_currentTime - m_firstBookTime)/100;
+      unsigned int currentdiff5min = (m_currentTime - m_firstBookTime)/300;
+      /// for 100 sec
       if( currentdiff > m_nRefresh ){
          m_doRefresh = true;
          m_nRefresh = currentdiff;
@@ -976,6 +1021,16 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
       }else{
          m_doRefresh = false;
       }
+      /// for 5min
+      if( currentdiff5min > m_nRefresh5min ){
+         m_doRefresh5min = true;
+         m_nRefresh5min = currentdiff5min;
+      //   msg(MSG::INFO) << "m_doRefresh:" << m_doRefresh << " " << m_nRefresh << endreq;
+      }else{
+         m_doRefresh5min = false;
+      }
+
+      if(m_mu_vs_bcid) m_mu_vs_bcid->Fill( m_currentBCID, thisEventInfo->actualInteractionsPerCrossing() );
    }
 
    PixelID::const_id_iterator idIt    = m_pixelid->wafer_begin();
@@ -1023,6 +1078,13 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
       sc=FillStatusMon();   
       if(sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
    }
+   if(m_doRODError)
+   {
+      sc=FillRODErrorMon();
+      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
+   }else{
+      m_storegate_errors->Fill(5.,1.);
+   }
 
    if(m_doTrack&&evtStore()->contains< TrackCollection >(m_TracksName))
    {
@@ -1040,13 +1102,13 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
    }
    //if(m_doRODError&&evtStore()->contains<PixelRODErrorCollection>(m_detector_error_name))
 
-   if(m_doRODError)
-   {
-      sc=FillRODErrorMon();
-      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
-   }else{
-      m_storegate_errors->Fill(5.,1.);
-   }
+   //if(m_doRODError)
+   //{
+   //   sc=FillRODErrorMon();
+   //   if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
+   //}else{
+   //   m_storegate_errors->Fill(5.,1.);
+   //}
    if(m_doSpacePoint&&evtStore()->contains<SpacePointContainer>(m_Pixel_SpacePointsName))
    {
       sc=FillSpacePointMon();
@@ -1083,7 +1145,7 @@ StatusCode PixelMainMon::procHistograms()
    if(endOfLumiBlock)
    {
      m_LBendTime = m_currentTime;
-     if (m_doTrack) { sc=ProcTrackMon(); }
+     //if (m_doTrack) { sc=ProcTrackMon(); }
      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endreq; 
    }
    
@@ -1098,6 +1160,7 @@ StatusCode PixelMainMon::procHistograms()
       if (m_doCluster) { sc=ProcClustersMon(); }
       if (m_doStatus)  { sc=ProcStatusMon(); }
       if (m_doDCS) { sc=ProcPixelDCSMon(); }
+      if (m_doTrack) { sc=ProcTrackMon(); }
       if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endreq; 
    }
   
