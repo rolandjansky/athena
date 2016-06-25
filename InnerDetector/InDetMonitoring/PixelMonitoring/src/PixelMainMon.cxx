@@ -153,12 +153,14 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("OccupancyCut",    m_occupancy_cut = 1e-5);
 
    m_lbRange = 3000;
+   m_bcidRange = 3600;
    m_isNewRun = false;
    m_isNewLumiBlock = false;
    m_newLowStatInterval = false;
    m_doRefresh = false;
    m_doRefresh5min = false;
    m_firstBookTime = 0;
+   m_currentBCID = 0;
    isFirstBook = false;
    m_nRefresh = 0;
    m_nRefresh5min = 0;
@@ -167,6 +169,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_events_per_lumi = 0;
    m_storegate_errors = 0;
    m_mu_vs_lumi = 0;
+   m_mu_vs_bcid = 0;
    m_hiteff_mod = 0;
    m_hits_per_lumi = 0;
 
@@ -425,6 +428,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
       m_occupancy_summary_mod[i] = 0;
       m_occupancy_summary_low_mod[i] = 0;
       m_nhits_mod[i] = 0;
+      m_totalhits_per_bcid_mod[i] = 0;
       m_diff_ROD_vs_Module_BCID_mod[i] = 0;
       m_Lvl1ID_diff_mod_ATLAS_mod[i] = 0;
       //m_Lvl1A_mod[i] = 0;
@@ -432,18 +436,24 @@ PixelMainMon::PixelMainMon(const std::string & type,
       m_hit_ToT_tmp_mod[i] = 0;
       m_hit_ToT_Mon_mod[i] = 0;
       m_avgocc_per_lumi_mod[i] = 0;
+      m_avgocc_wSyncMod_per_lumi_mod[i] = 0;
       m_avgocc_per_bcid_mod[i] = 0;
       m_maxocc_per_lumi_mod[i] = 0;
+      m_maxocc_per_bcid_mod[i] = 0;
       m_hits_per_lumi_mod[i] = 0;
+      m_avgocc_LBvsBCID_mod[i] = 0;
       m_clusters_per_lumi_mod[i] = 0;
       m_clusters_col_width_per_lumi_mod[i] = 0;
       m_clusters_row_width_per_lumi_mod[i] = 0;
+      m_clusters_col_width_per_bcid_mod[i] = 0;
+      m_clusters_row_width_per_bcid_mod[i] = 0;
       m_totalclusters_per_lumi_mod[i] = 0;
+      m_totalclusters_per_bcid_mod[i] = 0;
       m_cluster_col_width_mod[i] = 0;
       m_cluster_row_width_mod[i] = 0;
       m_cluster_groupsize_mod[i] = 0;
       //m_clusQ_vs_eta_mod[i] = 0;
-      //m_clussize_vs_eta_mod[i] = 0;
+      m_clussize_vs_eta_mod[i] = 0;
       m_bad_mod_errors_mod[i] = 0;
       m_errors_etaid_mod[i] = 0;
       m_hit_ToT_LB_mod[i] = 0;
@@ -462,11 +472,14 @@ PixelMainMon::PixelMainMon(const std::string & type,
       m_cluster_LVL1A1d_mod[i] = 0;
       m_hiteff_incl_mod[i] = 0;
       m_hiteff_actv_mod[i] = 0;
+      m_clusize_ontrack_mod[i] = 0;
+      m_clusize_offtrack_mod[i] = 0;
    }
    for( int j=0; j<16; j++){
       m_errors_int_LB[j] = 0;
    }
    for( int i=0; i<PixLayerIBL2D3D::COUNT; i++){
+      m_nActivAndSync_mod[i] = 0;
       m_errors_per_lumi_mod[i] = 0;
       m_SyncErrors_per_lumi_mod[i] = 0;
       m_OpticalErrors_per_lumi_mod[i] = 0;
@@ -913,6 +926,15 @@ StatusCode PixelMainMon::bookHistograms()
       MonGroup errorHistos( this, path.c_str(), run, ATTRIB_MANAGED ); //declare a group of histograms
       sc = errorHistos.regHist(m_storegate_errors  = new TH2S("storegate_errors",  ("Storegate Errors" + m_histTitleExt + ";Container Name;Error Type").c_str(), 5,0.5,5.5,4,0.5,4.5));
       if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
+   
+      //path = "Pixel/Hits";
+      //if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/HitsOnTrack");
+      //if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/HitsOnPixelTrack");
+      //MonGroup hitHistos(   this, path.c_str(),  run, ATTRIB_MANAGED ); //declare a group of histograms
+      //std::string hname = makeHistname("Interactions_vs_bcid", false);
+      //std::string htitles = makeHisttitle("<Interactions> vs BCID", ";BCID;<#Interactions/event>", false);
+      //sc = hitHistos.regHist(m_mu_vs_bcid = TProfile_LW::create(hname.c_str(), htitles.c_str(), 3000, -0.5, -0.5+3000.0));
+      
       
       //Set lables and style for error histogram
       m_storegate_errors->SetOption("colz");
@@ -987,6 +1009,7 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
       if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endreq;
    }else{
       m_currentTime = thisEventInfo->event_ID()->time_stamp(); 
+      m_currentBCID = thisEventInfo->event_ID()->bunch_crossing_id();
       //msg(MSG::INFO) << "First booking time:" << m_firstBookTime << " Current time: " << m_currentTime << endreq;
       unsigned int currentdiff = (m_currentTime - m_firstBookTime)/100;
       unsigned int currentdiff5min = (m_currentTime - m_firstBookTime)/300;
@@ -1006,6 +1029,8 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
       }else{
          m_doRefresh5min = false;
       }
+
+      if(m_mu_vs_bcid) m_mu_vs_bcid->Fill( m_currentBCID, thisEventInfo->actualInteractionsPerCrossing() );
    }
 
    PixelID::const_id_iterator idIt    = m_pixelid->wafer_begin();
@@ -1053,6 +1078,13 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
       sc=FillStatusMon();   
       if(sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
    }
+   if(m_doRODError)
+   {
+      sc=FillRODErrorMon();
+      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
+   }else{
+      m_storegate_errors->Fill(5.,1.);
+   }
 
    if(m_doTrack&&evtStore()->contains< TrackCollection >(m_TracksName))
    {
@@ -1070,13 +1102,13 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
    }
    //if(m_doRODError&&evtStore()->contains<PixelRODErrorCollection>(m_detector_error_name))
 
-   if(m_doRODError)
-   {
-      sc=FillRODErrorMon();
-      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
-   }else{
-      m_storegate_errors->Fill(5.,1.);
-   }
+   //if(m_doRODError)
+   //{
+   //   sc=FillRODErrorMon();
+   //   if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
+   //}else{
+   //   m_storegate_errors->Fill(5.,1.);
+   //}
    if(m_doSpacePoint&&evtStore()->contains<SpacePointContainer>(m_Pixel_SpacePointsName))
    {
       sc=FillSpacePointMon();
@@ -1128,6 +1160,7 @@ StatusCode PixelMainMon::procHistograms()
       if (m_doCluster) { sc=ProcClustersMon(); }
       if (m_doStatus)  { sc=ProcStatusMon(); }
       if (m_doDCS) { sc=ProcPixelDCSMon(); }
+      if (m_doTrack) { sc=ProcTrackMon(); }
       if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endreq; 
    }
   

@@ -193,11 +193,13 @@ class PixelMainMon:public ManagedMonitorToolBase
     bool m_majorityDisabled; //check for each event, true if >50% modules disabled 
 
     int m_lbRange;
+    int m_bcidRange;
     int m_lumiBlockNum;
     unsigned int m_firstBookTime;
     unsigned int m_currentTime;
     unsigned int m_LBstartTime;
     unsigned int m_LBendTime;
+    unsigned int m_currentBCID;
     int m_runNum;
     int m_nGood_IBL2D;
     int m_nGood_IBL3D;
@@ -206,6 +208,7 @@ class PixelMainMon:public ManagedMonitorToolBase
     int m_nGood_B2;
     int m_nGood_ECC;
     int m_nGood_ECA;
+    int m_nActivAndSync_mod[PixLayerIBL2D3D::COUNT];
     unsigned int m_nRefresh;
     unsigned int m_nRefresh5min;
 
@@ -287,6 +290,7 @@ class PixelMainMon:public ManagedMonitorToolBase
     /// Hitmap  histograms  
     ///
     TH1F_LW*              m_mu_vs_lumi;
+    TProfile_LW*          m_mu_vs_bcid;
     TH1F_LW*              m_events_per_lumi;
     TProfile_LW*          m_hits_per_lumi;
     TProfile_LW*          m_avgocc_per_lumi;
@@ -311,8 +315,10 @@ class PixelMainMon:public ManagedMonitorToolBase
 
     TProfile_LW*          m_hits_per_lumi_mod[PixLayer::COUNT];
     TProfile_LW*          m_avgocc_per_lumi_mod[PixLayer::COUNT];
+    TProfile_LW*          m_avgocc_wSyncMod_per_lumi_mod[PixLayer::COUNT];
     TProfile_LW*          m_avgocc_per_bcid_mod[PixLayer::COUNT];
     TH2F_LW*              m_maxocc_per_lumi_mod[PixLayer::COUNT];
+    TH1F_LW*              m_maxocc_per_bcid_mod[PixLayer::COUNT];
     TH1F_LW*              m_nlargeevt_per_lumi_mod[PixLayer::COUNT];
 
     TH1F_LW*              m_hit_ToT[PixLayerIBL2D3DDBM::COUNT];
@@ -329,6 +335,8 @@ class PixelMainMon:public ManagedMonitorToolBase
     TH1F_LW*              m_occupancy_summary_low_mod[PixLayer::COUNT];
     TH1F_LW*              m_occupancy_summary_mod[PixLayer::COUNT];
     TH1F_LW*              m_nhits_mod[PixLayer::COUNT];
+    TH1F_LW*              m_totalhits_per_bcid_mod[PixLayer::COUNT];
+    TProfile2D_LW*        m_avgocc_LBvsBCID_mod[PixLayer::COUNT];
 
     TProfile*             m_occupancy_time1;
     TProfile*             m_occupancy_time2;
@@ -391,6 +399,8 @@ class PixelMainMon:public ManagedMonitorToolBase
     TH1F_LW*              m_clustot_highpt;
     TH1F_LW*              m_1hitclustot_highpt;
     TH1F_LW*              m_2hitclustot_highpt;
+    TH1F_LW*              m_clusize_ontrack_mod[PixLayer::COUNT];
+    TH1F_LW*              m_clusize_offtrack_mod[PixLayer::COUNT];
 
     PixelMonModulesProf*  m_tsos_hiteff_vs_lumi;
     PixelMon2DMapsLW*     m_tsos_hitmap;
@@ -417,10 +427,13 @@ class PixelMainMon:public ManagedMonitorToolBase
     TProfile_LW*          m_clusters_per_lumi_mod[PixLayer::COUNT];
     TProfile_LW*          m_clusters_row_width_per_lumi_mod[PixLayer::COUNT];
     TProfile_LW*          m_clusters_col_width_per_lumi_mod[PixLayer::COUNT];
+    TProfile_LW*          m_clusters_row_width_per_bcid_mod[PixLayer::COUNT];
+    TProfile_LW*          m_clusters_col_width_per_bcid_mod[PixLayer::COUNT];
     TProfile_LW*          m_largeclusters_per_lumi;
     TProfile_LW*          m_verylargeclusters_per_lumi;
     TH1I_LW*              m_totalclusters_per_lumi;
     TH1I_LW*              m_totalclusters_per_lumi_mod[PixLayer::COUNT];
+    TH1I_LW*              m_totalclusters_per_bcid_mod[PixLayer::COUNT];
     TH1I_LW*              m_highNclusters_per_lumi;
     TH1F_LW*              m_cluster_ToT1d_mod[PixLayerIBL2D3D::COUNT];
     TH1F_LW*              m_1cluster_ToT_mod[PixLayer::COUNT];
@@ -449,11 +462,13 @@ class PixelMainMon:public ManagedMonitorToolBase
     TH1F_LW*              m_cluster_LVL1A1d_mod[PixLayer::COUNT];
     TProfile_LW*          m_clusterSize_eta;
     TH2F_LW*              m_clusToT_vs_eta_mod[PixLayer::COUNT];
+    //TProfile_LW*          m_clusQ_vs_eta_mod[PixLayer::COUNT];
     //TH2F_LW*              m_clusQ_vs_eta_mod[PixLayer::COUNT];
     TH2F_LW*              m_ToT_vs_clussize_mod[PixLayer::COUNT];
     //TH2F_LW*              m_Q_vs_clussize_mod[PixLayer::COUNT];
 
     //TH2F_LW*              m_clussize_vs_eta_mod[PixLayer::COUNT];
+    TProfile_LW*          m_clussize_vs_eta_mod[PixLayer::COUNT];
     PixelMon2DMaps*       m_cluster_occupancy;
     //DBMMon2DMaps  *       m_clusocc_DBM;
     PixelMon2DMaps*       m_clusocc_sizenot1; 
