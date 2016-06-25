@@ -492,6 +492,11 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
    
    for(int i=0; i<PixLayerIBL2D3D::COUNT; i++){
 
+      m_nActivAndSync_mod[i] = nErrorsCategory_permod[i][ErrorCategory::kSync];
+      if(i == PixLayerIBL2D3D::kIBL){
+         m_nActivAndSync_mod[i] = 2*nErrorsCategory_permod[PixLayerIBL2D3D::kIBL2D][ErrorCategory::kSync] + nErrorsCategory_permod[PixLayerIBL2D3D::kIBL3D][ErrorCategory::kSync];
+      }
+
       if(m_errors_per_lumi_mod[i]) m_errors_per_lumi_mod[i]->Fill(LBnum, nErrors_mod[i]);
       if(m_SyncErrors_per_lumi_mod[i]) m_SyncErrors_per_lumi_mod[i]->Fill(LBnum, nErrorsCategory_permod[i][ErrorCategory::kSync]);
       if(m_OpticalErrors_per_lumi_mod[i]) m_OpticalErrors_per_lumi_mod[i]->Fill(LBnum, nErrorsCategory_permod[i][ErrorCategory::kOpt]);
