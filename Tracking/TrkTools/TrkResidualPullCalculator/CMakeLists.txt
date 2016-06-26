@@ -15,8 +15,11 @@ atlas_depends_on_subdirs( PRIVATE
                           Tracking/TrkEvent/TrkEventUtils
                           Tracking/TrkEvent/TrkMeasurementBase
                           Tracking/TrkEvent/TrkParameters
+                          Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkRIO_OnTrack
                           Tracking/TrkTools/TrkToolInterfaces )
+
+find_package( Eigen )
 
 # Component(s) in the package:
 atlas_add_component( TrkResidualPullCalculator
