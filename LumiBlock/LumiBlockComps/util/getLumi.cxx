@@ -409,22 +409,25 @@ std::cout << lbrs->size() << " is size"<<std::endl;
    }
    long nEntries = tmp->GetEntries();
    double totalLumi = 0; double totalLumiIncomplete = 0; double totalLumiSuspect=0;
-   int startMissingBlock = -1;UInt_t lastRunNumber=0;UInt_t lastLb=0;double missingLumi=0; double allMissing=0;
-   std::map<UInt_t, bool> missingRuns;std::map<UInt_t,bool> allRuns;std::set<UInt_t> incompleteRuns;
+   int startMissingBlock = -1;UInt_t lastRunNumber=0;int lastLb=0;double missingLumi=0; double allMissing=0;
+   std::map<UInt_t, float> missingRuns;std::map<UInt_t,bool> allRuns;std::set<UInt_t> incompleteRuns;std::set<UInt_t> suspectRuns;
+   std::map<UInt_t, std::string> missingRunLB; //lumiblocks that are missing
    for(long i=0;i<nEntries;i++) {
       b_runNbr->GetEntry(i);b_intLumi->GetEntry(i);b_lb->GetEntry(i);
       if(hasMask && !grlMask.HasRunLumiBlock(runNbr,lb)) continue;
       providedL.AddRunLumiBlock(runNbr,lb);
       bool hasLumi = l.HasRunLumiBlock(runNbr,lb);
-
       if(hasLumi) totalLumi += intLumi;
       else if(lIncomplete.HasRunLumiBlock(runNbr,lb)) {hasLumi=true; totalLumiIncomplete += intLumi; incompleteRuns.insert(runNbr);} //else if ensures we never double count lumi
-      else if(lSuspect.HasRunLumiBlock(runNbr,lb)) {hasLumi=true;totalLumiSuspect += intLumi;}
+      else if(lSuspect.HasRunLumiBlock(runNbr,lb)) {hasLumi=true;totalLumiSuspect += intLumi; suspectRuns.insert(runNbr);}
 
       if(!hasLumi && intLumi==0.) hasLumi=true; //if there is no lumi, it's as good as having some
       if((lastRunNumber!=runNbr&&startMissingBlock>=0) || (hasLumi && startMissingBlock>=0)) {
          //print now, if startMissingBlock not negative
-         if(showMissing) std::cout << "[" << lastRunNumber << "," << startMissingBlock << "-" << lastLb << "," << missingLumi << "]";missingRuns[lastRunNumber]=true;
+	missingRunLB[lastRunNumber] += ((startMissingBlock==lastLb) ? TString::Format("%d",startMissingBlock) : TString::Format("%d-%d",startMissingBlock,lastLb));
+	missingRunLB[lastRunNumber] += ",";
+         if(showMissing) std::cout << "[" << lastRunNumber << "," << startMissingBlock << "-" << lastLb << "," << missingLumi << "]";
+	 missingRuns[lastRunNumber]+=missingLumi;
          allMissing+=missingLumi; missingLumi=0;
          startMissingBlock=-1;
       }
@@ -434,29 +437,43 @@ std::cout << lbrs->size() << " is size"<<std::endl;
       allRuns[runNbr] = true;
    }
    lumicalcFile->Close();
+   std::cout << "Done" << std::endl;
    allMissing += missingLumi;
-   if(missingRuns.size()>0 && showMissing) {
+   if(missingLumi) {
+     missingRuns[lastRunNumber] += missingLumi;
+     missingRunLB[lastRunNumber] += ((startMissingBlock==lastLb) ? TString::Format("%d",startMissingBlock) : TString::Format("%d-%d",startMissingBlock,lastLb));
+     missingRunLB[lastRunNumber] += ",";
+   }
+   
+   if(suspectRuns.size()) {
+     std::cout << std::endl << "WARNING: Runs with suspect blocks (please report this!): " << std::endl;
+     for(auto r : suspectRuns) {
+         std::cout << r << ",";
+      }
+   } else {
+     std::cout << std::endl << "No suspect runs, that's good!";
+   }
+
       std::cout << std::endl << "Runs with incomplete blocks: ";
       for(auto r : incompleteRuns) {
          std::cout << r << ",";
       }
-      std::cout << std::endl << "Runs with missing blocks: ";
-      for(std::map<UInt_t,bool>::iterator it=missingRuns.begin();it!=missingRuns.end();++it) {
-         std::cout << it->first << ",";
+      std::cout << std::endl << "Runs with missing blocks (missing blocks in brackets): " << std::endl << std::endl;
+      for(auto it=missingRuns.begin();it!=missingRuns.end();++it) {
+	std::cout << "  " << it->first << ": " << it->second << " pb-1 (" << missingRunLB[it->first] << ")" << std::endl;
       }
       std::cout << std::endl << "Complete runs: ";
       for(std::map<UInt_t,bool>::iterator it=allRuns.begin();it!=allRuns.end();++it) {
-         if(missingRuns.find(it->first) == missingRuns.end()) std::cout << it->first << ",";
+	if(missingRuns.find(it->first) == missingRuns.end() && incompleteRuns.find(it->first)==incompleteRuns.end() && suspectRuns.find(it->first) == suspectRuns.end()) std::cout << it->first << ",";
       }
       std::cout << std::endl;
-   }
-   std::cout << "Done" << std::endl;
+
 
    std::cout << "Complete Luminosity = " << totalLumi/1E6 << " pb-1" << std::endl;
    if(totalLumiIncomplete) std::cout << "Incomplete Luminosity = " << totalLumiIncomplete/1E6 << " pb-1" << std::endl;
    if(totalLumiSuspect) std::cout << "Suspect Luminosity = " << totalLumiSuspect/1E6 << " pb-1" << std::endl;
    std::cout << "(Complete+Incomplete+Suspect) Luminosity = " << (totalLumi+totalLumiIncomplete+totalLumiSuspect)/1E6 << " pb-1" << std::endl;
-   if(missingLumi) {
+   if(allMissing) {
       std::cout << "(Missing Lumonisity = " << allMissing << " pb-1)"; //already divided by 1E6 in loop above
       if(!showMissing) std::cout << " rerun with the '-m' option to see runs where this luminosity resides";
       std::cout << std::endl; 
