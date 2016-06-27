@@ -272,10 +272,9 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
   ElementLinkVector< xAOD::TrackParticleContainer > v_inputTracks;
   stat = getFeaturesLinks< xAOD::TrackParticleContainer, xAOD::TrackParticleContainer > (inputTE, v_inputTracks, "");
 
-  if ( stat != HLT::OK || v_inputTracks.size() < 1) {
-    if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "No track collections found! Leaving." << endreq;
-    return HLT::OK;
+  if ( stat != HLT::OK){ 
+      ATH_MSG_WARNING("Failed to retrieve track collection! "); 
+      return HLT::MISSING_FEATURE;
   }
 
   if (  msgLvl() <= MSG::DEBUG )
