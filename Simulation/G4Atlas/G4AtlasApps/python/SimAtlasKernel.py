@@ -61,7 +61,8 @@ class AtlasSimSkeleton(SimSkeleton):
         DetFlags.pileup.all_setOff()
         DetFlags.simulateLVL1.all_setOff()
         DetFlags.digitize.all_setOff()
-        DetFlags.overlay.all_setOff()
+        if not simFlags.IsEventOverlayInputSim():
+            DetFlags.overlay.all_setOff()
         DetFlags.readRDOPool.all_setOff()
         DetFlags.makeRIO.all_setOff()
         DetFlags.writeBS.all_setOff()
