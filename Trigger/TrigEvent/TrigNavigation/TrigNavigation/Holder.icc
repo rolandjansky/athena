@@ -182,7 +182,7 @@ void  HLTNavDetails::HolderImp<STORED, CONTAINER>::prepare(MsgStream* log, HLT::
 /////////////////////////////////////////////////////////////////////////////
 template<class STORED, class CONTAINER> 
 bool  HLTNavDetails::HolderImp<STORED, CONTAINER>::syncWithSG(SG::OwnershipPolicy policy) {
-  HMLOG(WARNING) << "HolderImp::syncWithSG policy " << policy << endreq;
+  HMLOG(DEBUG) << "HolderImp::syncWithSG policy " << policy << endreq;
   typedef Holder<STORED> H;
   if ( !H::m_storeGate ) {    
     HMLOG(WARNING) << "HolderImp::syncWithSG no SG available " << *this << endreq;
