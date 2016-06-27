@@ -2,14 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "G4AtlasAlg/G4AtlasRunManager.h"
+#include "G4AtlasRunManager.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "FadsKinematics/GeneratorCenter.h" // FIXME: to remove
 #include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
-#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
+#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
+#include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "GaudiKernel/ISvcLocator.h"
@@ -28,26 +28,31 @@
 #include "G4Run.hh"
 #include "G4ScoringManager.hh"
 #include "G4StateManager.hh"
-#include "G4Timer.hh"
 #include "G4TransportationManager.hh"
+#include "G4Timer.hh"
 #include "G4UImanager.hh"
 #include "G4UserRunAction.hh"
 #include "G4Version.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4VUserDetectorConstruction.hh"
+#include "G4VUserPhysicsList.hh"
 #include "G4VUserPrimaryGeneratorAction.hh"
 
 #include <string>
 #include <vector>
 
+
+
 G4AtlasRunManager::G4AtlasRunManager()
-  : G4RunManager()
-  , m_msg("G4AtlasRunManager")
-  , m_releaseGeo(false)
-  , m_recordFlux(false)
-  , m_senDetTool("SensitiveDetectorMasterTool")
-  , m_fastSimTool("FastSimulationMasterTool")
-  , m_physListTool("PhysicsListToolBase")
+  : G4RunManager(),
+    m_msg("G4AtlasRunManager"),
+    m_releaseGeo(false),
+    m_recordFlux(false),
+    // FIXME: these should all be configured by a component (e.g. G4AtlasAlg)
+    m_senDetTool("SensitiveDetectorMasterTool"),
+    m_fastSimTool("FastSimulationMasterTool"),
+    m_physListTool("PhysicsListToolBase"),
+    m_userActionSvc("G4UA::UserActionSvc", "G4AtlasRunManager")
 {  }
 
 
@@ -56,15 +61,34 @@ G4AtlasRunManager* G4AtlasRunManager::GetG4AtlasRunManager()
   static G4AtlasRunManager* thisManager=0;
   if (!thisManager)
     {
-      thisManager=new G4AtlasRunManager;
+      thisManager=new G4AtlasRunManager; // Leaked
     }
   return thisManager;
 }
 
 
+void G4AtlasRunManager::Initialize()
+{
+  // Setup the user actions now.
+  if( !m_userActionSvc.name().empty() ) {
+    ATH_MSG_INFO("Creating user actions now");
+    if(m_userActionSvc.retrieve().isFailure()) {
+      throw GaudiException("Could not retrieve UserActionSvc",
+                           "CouldNotRetrieveUASvc", StatusCode::FAILURE);
+    }
+    if(m_userActionSvc->initializeActions().isFailure()) {
+      throw GaudiException("Failed to initialize actions",
+                           "UserActionInitError", StatusCode::FAILURE);
+    }
+  }
+  // Call the base class
+  G4RunManager::Initialize();
+}
+
+
 void G4AtlasRunManager::InitializeGeometry()
 {
-  ATH_MSG_DEBUG ( "Starting InitializeGeometry()");
+  // FIXME: use a ServiceHandle
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
   IDetectorGeometrySvc *detGeoSvc;
   if (svcLocator->service("DetectorGeometrySvc",detGeoSvc,true).isFailure())
@@ -75,6 +99,7 @@ void G4AtlasRunManager::InitializeGeometry()
       G4Exception("G4AtlasRunManager", "CouldNotRetrieveDetGeoSvc", FatalException, description);
       abort(); // to keep Coverity happy
     }
+
   G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
   for (unsigned int i=0;i<lvs->size();++i)
     {
@@ -89,7 +114,10 @@ void G4AtlasRunManager::InitializeGeometry()
           ATH_MSG_INFO( "Set smartlessness for LArMgr::LAr::EMB::STAC to 0.5" );
         }
     }
+
+  // Create/assign detector construction
   G4RunManager::SetUserInitialization(detGeoSvc->GetDetectorConstruction());
+
   if (userDetector)
     {
       G4RunManager::InitializeGeometry();
@@ -100,7 +128,7 @@ void G4AtlasRunManager::InitializeGeometry()
     }
 
   // Geometry has been initialized.  Now get services to add some stuff to the geometry.
-  if (m_senDetTool.retrieve().isFailure())
+  if (m_senDetTool.retrieve().isFailure()) //svcLocator->service("SensitiveDetector",m_senDetSvc).isFailure())
     {
       ATH_MSG_ERROR ( "Could not retrieve the SD master tool" );
       G4ExceptionDescription description;
@@ -115,7 +143,6 @@ void G4AtlasRunManager::InitializeGeometry()
       G4Exception("G4AtlasRunManager", "FailedToInitializeSDs", FatalException, description);
       abort(); // to keep Coverity happy
     }
-  ATH_MSG_DEBUG ( "Finished InitializeGeometry()");
   return;
 }
 
@@ -160,14 +187,13 @@ void G4AtlasRunManager::InitializePhysics()
     }
 
   if (m_recordFlux){
+    // @TODO move this block into a separate function.
     G4UImanager *ui = G4UImanager::GetUIpointer();
     ui->ApplyCommand("/run/setCutForAGivenParticle proton 0 mm");
 
     G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
 
     if(!ScM) return;
-
-    //G4UImanager *ui=G4UImanager::GetUIpointer();
 
     ui->ApplyCommand("/score/create/cylinderMesh cylMesh_1");
     //                        R  Z(-24 to 24)
@@ -232,7 +258,7 @@ void G4AtlasRunManager::InitializePhysics()
 
         mesh->Construct(pWorld);
       }
-  } // Do flux recording
+  } //if (m_recordFlux)
   return;
 }
 
@@ -331,7 +357,7 @@ bool G4AtlasRunManager::SimulateFADSEvent()
     if(ScM){
       G4int nPar = ScM->GetNumberOfMesh();
       G4HCofThisEvent* HCE = currentEvent->GetHCofThisEvent();
-      if(HCE && nPar>0){
+      if(HCE && nPar>0){;
         G4int nColl = HCE->GetCapacity();
         for(G4int i=0;i<nColl;i++)
           {
@@ -341,7 +367,6 @@ bool G4AtlasRunManager::SimulateFADSEvent()
       }
     }
   }
-
   //      stateManager->SetNewState(G4State_GeomClosed);
   // Register all of the collections if there are any new-style SDs
   if (m_senDetTool)
