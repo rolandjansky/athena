@@ -138,6 +138,7 @@ bool HistogramUtils::AxisDetails::isEmpty() const {
 /// default constructor of a TH1 tool
 HistogramUtils::HistogramToolTH1::HistogramToolTH1(const std::string& type, const std::string& name, const IInterface* parent) :
   AthHistogramTool(type,name,parent),
+  m_histogram(nullptr),
   m_parserX(0)
 #ifndef XAOD_ANALYSIS
   , m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool")
@@ -152,6 +153,7 @@ HistogramUtils::HistogramToolTH1::HistogramToolTH1(const std::string& type, cons
 /// default constructor of a TH1 tool
 HistogramUtils::HistogramToolTH2::HistogramToolTH2(const std::string& type, const std::string& name, const IInterface* parent) :
   AthHistogramTool(type,name,parent),
+  m_histogram(nullptr),
   m_parserX(0),
   m_parserY(0)
 #ifndef XAOD_ANALYSIS
@@ -168,6 +170,7 @@ HistogramUtils::HistogramToolTH2::HistogramToolTH2(const std::string& type, cons
 /// default constructor of a TH1 tool
 HistogramUtils::HistogramToolTH3::HistogramToolTH3(const std::string& type, const std::string& name, const IInterface* parent) :
   AthHistogramTool(type,name,parent),
+  m_histogram(nullptr),
   m_parserX(0),
   m_parserY(0),
   m_parserZ(0)
