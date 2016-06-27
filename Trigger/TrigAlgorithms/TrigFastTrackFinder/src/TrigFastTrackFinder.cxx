@@ -699,18 +699,28 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
 
     if ( timerSvc() ) m_TrackFitterTimer->start();
 
-    TrackCollection* fittedTracks = m_trigInDetTrackFitter->fit(*initialTracks, m_particleHypothesis);
+    TrackCollection* fittedTracksInitial = m_trigInDetTrackFitter->fit(*initialTracks, m_particleHypothesis);
     delete initialTracks;
 
-    if( fittedTracks->empty() ) {
-      ATH_MSG_DEBUG("REGTEST / No tracks fitted");
-    }
-
-    for (auto fittedTrack = fittedTracks->begin(); fittedTrack!=fittedTracks->end(); ++fittedTrack) {
+    TrackCollection* fittedTracks = new TrackCollection;
+    fittedTracks->reserve(fittedTracksInitial->size()); 
+    for (auto fittedTrack = fittedTracksInitial->begin(); fittedTrack!=fittedTracksInitial->end(); ++fittedTrack) {
       (*fittedTrack)->info().setPatternRecognitionInfo(Trk::TrackInfo::FastTrackFinderSeed);
       ATH_MSG_VERBOSE("Updating fitted track: " << **fittedTrack);
       m_trackSummaryTool->updateTrack(**fittedTrack);
       ATH_MSG_VERBOSE("Updated track: " << **fittedTrack);
+      const float d0 = fabs((*fittedTrack)->perigeeParameters()->parameters()[Trk::d0]);
+      if (std::abs(d0) < 100.0) {
+        fittedTracks->push_back(new Trk::Track(**fittedTrack));
+      }
+      else {
+        ATH_MSG_WARNING("Rejecting fitted track with d0 = " << d0 << " > 100 mm");
+      }
+    }
+    delete fittedTracksInitial;
+
+    if( fittedTracks->empty() ) {
+      ATH_MSG_DEBUG("REGTEST / No tracks fitted");
     }
 
     if ( timerSvc() ) { 
