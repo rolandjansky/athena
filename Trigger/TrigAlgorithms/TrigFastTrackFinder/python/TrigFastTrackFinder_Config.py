@@ -455,7 +455,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           ToolSvc += resCalc
           self.TrigL2ResidualCalculator = resCalc
           self.doCloneRemoval = InDetTrigSliceSettings[('doCloneRemoval',remapped_type)]
-        print self
 
 
 class TrigFastTrackFinder_Muon(TrigFastTrackFinderBase):

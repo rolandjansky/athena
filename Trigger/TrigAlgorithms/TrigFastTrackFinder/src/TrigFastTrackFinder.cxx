@@ -382,20 +382,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
 
   clearMembers();
 
-  // Retrieve vertexing information if needed
-
-  const TrigVertexCollection* vertexCollection = nullptr;
-
-  if(m_vertexSeededMode) {
-    //HLT::ErrorCode status = getFeature(inputTE, vertexCollection,"");
-    //
-    //NOTE the inputTE vs outputTE difference - the feature is assumed to come from the same step in the sequence
-    HLT::ErrorCode status = getFeature(outputTE, vertexCollection);
-    if(status != HLT::OK) return status;
-    if(vertexCollection==nullptr) return HLT::ERROR;
-  }
-
- 
   // 2. Retrieve beam spot and magnetic field information 
   //
 
@@ -513,7 +499,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     if (m_doZFinder) {
       if ( timerSvc() ) m_ZFinderTimer->start();
       superRoi->setComposite(true);
-      vertexCollection = m_trigZFinder->findZ( convertedSpacePoints, *internalRoI);
+      TrigVertexCollection* vertexCollection = m_trigZFinder->findZ( convertedSpacePoints, *internalRoI);
       ATH_MSG_VERBOSE("vertexCollection->size(): " << vertexCollection->size());
       for (auto vertex : *vertexCollection) {
         ATH_MSG_DEBUG("REGTEST / ZFinder vertex: " << *vertex);
@@ -527,6 +513,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
       }
       m_tcs.roiDescriptor = superRoi.get();
       ATH_MSG_DEBUG("REGTEST / superRoi: " << *superRoi);
+      delete vertexCollection;
       if ( timerSvc() ) m_ZFinderTimer->stop();
     }
     m_currentStage = 3;
@@ -564,7 +551,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     TRIG_TRACK_SEED_GENERATOR seedGen(m_tcs);
     seedGen.loadSpacePoints(convertedSpacePoints);
     seedGen.createSeeds();
-    std::vector<TrigInDetTriplet*> triplets;
+    std::vector<TrigInDetTriplet> triplets;
     seedGen.getSeeds(triplets);
     
     ATH_MSG_DEBUG("number of triplets: " << triplets.size());
@@ -602,11 +589,11 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     
     for(unsigned int tripletIdx=0;tripletIdx!=triplets.size();tripletIdx++) {
       
-      TrigInDetTriplet* seed = triplets[tripletIdx];
+      TrigInDetTriplet seed = triplets[tripletIdx];
       
-      const Trk::SpacePoint* osp1 = seed->s1().offlineSpacePoint();
-      const Trk::SpacePoint* osp2 = seed->s2().offlineSpacePoint();
-      const Trk::SpacePoint* osp3 = seed->s3().offlineSpacePoint();
+      const Trk::SpacePoint* osp1 = seed.s1().offlineSpacePoint();
+      const Trk::SpacePoint* osp2 = seed.s2().offlineSpacePoint();
+      const Trk::SpacePoint* osp3 = seed.s3().offlineSpacePoint();
       
       if(m_checkSeedRedundancy) {
       //check if clusters do not belong to any track
@@ -673,7 +660,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     }
 
     m_trackMaker->endEvent();
-    for(auto& seed : triplets) delete seed;
 
     //clone removal
     if(m_doCloneRemoval) {
@@ -713,18 +699,28 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
 
     if ( timerSvc() ) m_TrackFitterTimer->start();
 
-    TrackCollection* fittedTracks = m_trigInDetTrackFitter->fit(*initialTracks, m_particleHypothesis);
+    TrackCollection* fittedTracksInitial = m_trigInDetTrackFitter->fit(*initialTracks, m_particleHypothesis);
     delete initialTracks;
 
-    if( fittedTracks->empty() ) {
-      ATH_MSG_DEBUG("REGTEST / No tracks fitted");
-    }
-
-    for (auto fittedTrack = fittedTracks->begin(); fittedTrack!=fittedTracks->end(); ++fittedTrack) {
+    TrackCollection* fittedTracks = new TrackCollection;
+    fittedTracks->reserve(fittedTracksInitial->size()); 
+    for (auto fittedTrack = fittedTracksInitial->begin(); fittedTrack!=fittedTracksInitial->end(); ++fittedTrack) {
       (*fittedTrack)->info().setPatternRecognitionInfo(Trk::TrackInfo::FastTrackFinderSeed);
       ATH_MSG_VERBOSE("Updating fitted track: " << **fittedTrack);
       m_trackSummaryTool->updateTrack(**fittedTrack);
       ATH_MSG_VERBOSE("Updated track: " << **fittedTrack);
+      const float d0 = fabs((*fittedTrack)->perigeeParameters()->parameters()[Trk::d0]);
+      if (std::abs(d0) < 100.0) {
+        fittedTracks->push_back(new Trk::Track(**fittedTrack));
+      }
+      else {
+        ATH_MSG_WARNING("Rejecting fitted track with d0 = " << d0 << " > 100 mm");
+      }
+    }
+    delete fittedTracksInitial;
+
+    if( fittedTracks->empty() ) {
+      ATH_MSG_DEBUG("REGTEST / No tracks fitted");
     }
 
     if ( timerSvc() ) { 
@@ -954,13 +950,13 @@ void TrigFastTrackFinder::assignTripletBarCodes(const std::vector<std::shared_pt
   }
 }
 
-void TrigFastTrackFinder::assignTripletBarCodes(const std::vector<TrigInDetTriplet*>& vTR, std::vector<int>& vBar) {
+void TrigFastTrackFinder::assignTripletBarCodes(const std::vector<TrigInDetTriplet>& vTR, std::vector<int>& vBar) {
   int iTR=0;
   for(auto tr : vTR) {
-    bool good = (tr->s1().barCode() == tr->s2().barCode()) && (tr->s3().barCode() == tr->s2().barCode());
-    good = good && (tr->s1().barCode() > 0);
+    bool good = (tr.s1().barCode() == tr.s2().barCode()) && (tr.s3().barCode() == tr.s2().barCode());
+    good = good && (tr.s1().barCode() > 0);
     if(good) {
-      vBar[iTR] = tr->s1().barCode();
+      vBar[iTR] = tr.s1().barCode();
     }
     iTR++;
   }
