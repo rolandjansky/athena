@@ -98,7 +98,7 @@ namespace PESA
     //signature specific modifications
     const std::string instanceName = name();
 
-    if (forIDfound && instanceName.find("IDTrigRoiUpdater_Muon_IDTrig")!=std::string::npos){
+    if (forIDfound && instanceName.find("IDTrigRoiUpdater_Muon_")!=std::string::npos){
       ATH_MSG_DEBUG("don't update roiDecriptor from muFast");
       updateNeeded = false;
     }

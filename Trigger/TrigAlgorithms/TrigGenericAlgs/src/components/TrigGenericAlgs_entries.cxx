@@ -8,7 +8,8 @@
 #include "../AcceptWhenInputPresent.h"
 #include "TrigGenericAlgs/PrescaleAlgo.h"
 #include "TrigGenericAlgs/SeededSuperRoiAllTEAlgo.h"
-
+#include "TrigGenericAlgs/L1CorrelationAlgo.h"
+#include "TrigGenericAlgs/DetectorTimingAlgo.h"
 #include "../ROBRequestAlgo.h"
 #include "../TimeBurner.h"
 #include "../AcceptAnyInput.h"
@@ -27,6 +28,8 @@ DECLARE_ALGORITHM_FACTORY( AcceptWhenInputMissing )
 DECLARE_ALGORITHM_FACTORY( AcceptWhenInputPresent )
 DECLARE_ALGORITHM_FACTORY( PrescaleAlgo )
 DECLARE_ALGORITHM_FACTORY( ROBRequestAlgo )
+DECLARE_ALGORITHM_FACTORY( L1CorrelationAlgo )
+DECLARE_ALGORITHM_FACTORY( DetectorTimingAlgo )
 DECLARE_ALGORITHM_FACTORY( TimeBurner )
 DECLARE_ALGORITHM_FACTORY( AcceptAnyInput )
 DECLARE_ALGORITHM_FACTORY( SeededSuperRoiAllTEAlgo )
@@ -43,7 +46,9 @@ DECLARE_FACTORY_ENTRIES(TrigGenericAlgs) {
     DECLARE_ALGORITHM( AcceptWhenInputMissing )
     DECLARE_ALGORITHM( AcceptWhenInputPresent )
     DECLARE_ALGORITHM( PrescaleAlgo )
-    DECLARE_ALGORITHM( ROBRequestAlgo )      
+    DECLARE_ALGORITHM( ROBRequestAlgo )
+    DECLARE_ALGORITHM( L1CorrelationAlgo )
+    DECLARE_ALGORITHM( DetectorTimingAlgo ) 
     DECLARE_ALGORITHM( TimeBurner )      
     DECLARE_ALGORITHM( AcceptAnyInput )      
     DECLARE_ALGORITHM( SeededSuperRoiAllTEAlgo )      
