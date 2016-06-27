@@ -58,7 +58,7 @@
 
 class JetCollection;
 
-using namespace Trig;
+//using namespace Trig;
 namespace Trig {
   class ChainGroup;
 }
@@ -263,10 +263,10 @@ class AnalysisSkeleton : public AthAlgorithm  {
   std::map<std::string,int> m_triggersPassed;
 
   unsigned int m_eventNr;
-  const ChainGroup* m_all;
-  const ChainGroup* m_allL1;
-  const ChainGroup* m_allL2;
-  const ChainGroup* m_allEF;
+  const Trig::ChainGroup* m_all;
+  const Trig::ChainGroup* m_allL1;
+  const Trig::ChainGroup* m_allL2;
+  const Trig::ChainGroup* m_allEF;
   std::vector<std::string> m_chain_names;
 
   unsigned int    m_runNumber;

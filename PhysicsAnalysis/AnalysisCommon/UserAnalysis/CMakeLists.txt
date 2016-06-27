@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigMuonEvent
                           Trigger/TrigEvent/TrigParticle
                           PRIVATE
+                          Control/AthenaKernel
                           Calorimeter/CaloEvent
                           Event/NavFourMom
                           Event/xAOD/xAODEventInfo
@@ -46,7 +47,7 @@ atlas_add_component( UserAnalysis
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GaudiKernel AthAnalysisToolsLib UserAnalysisUtilsLib TrigDecisionToolLib TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigParticle CaloEvent NavFourMom xAODEventInfo AnalysisTriggerEvent JetTagInfo McParticleEvent JetEvent MissingETEvent muonEvent Particle egammaEvent tauEvent VxVertex TrigSteeringEvent )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GaudiKernel AthAnalysisToolsLib UserAnalysisUtilsLib TrigDecisionToolLib TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigParticle AthenaKernel CaloEvent NavFourMom xAODEventInfo AnalysisTriggerEvent JetTagInfo McParticleEvent JetEvent MissingETEvent muonEvent Particle egammaEvent tauEvent VxVertex TrigSteeringEvent )
 
 # Install files from the package:
 atlas_install_headers( UserAnalysis )
