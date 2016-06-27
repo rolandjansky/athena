@@ -26,6 +26,7 @@ private
 use AtlasCLHEP            *   External
 use AtlasHepMC            *   External
 use AthenaBaseComps       AthenaBaseComps-* Control
+use AthenaKernel          AthenaKernel-*    Control
 
 use EventKernel           *   Event
 use FourMom               *   Event
