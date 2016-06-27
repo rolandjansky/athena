@@ -342,6 +342,7 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
       TrigRoiDescriptor DummyRoiDescriptor;
       TrigL2MuonSA::RpcHits   rpcHits;
       TrigL2MuonSA::RpcPatFinder dummypatfinder( &(msg()) );
+      dummypatfinder.clear();
       m_rpcDataPreparator->prepareData(&DummyRoiDescriptor ,
 				       0  , /// dummy roiword
 				       rpcHits ,
