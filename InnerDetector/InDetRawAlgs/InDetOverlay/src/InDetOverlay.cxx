@@ -245,15 +245,20 @@ InDetOverlay::InDetOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   m_sct_id(0)
 {
 
+  //change via postExec indetovl.do_XXX=True
+
   declareProperty("do_TRT", m_do_TRT=true);
+  declareProperty("do_TRT_background", m_do_TRT_background=true);
   declareProperty("mainInputTRT_Name", m_mainInputTRT_Name="TRT_RDOs");
   declareProperty("overlayInputTRT_Name", m_overlayInputTRT_Name="TRT_RDOs");
 
   declareProperty("do_SCT", m_do_SCT=true);
+  declareProperty("do_SCT_background", m_do_SCT_background=true);
   declareProperty("mainInputSCT_Name", m_mainInputSCT_Name="SCT_RDOs");
   declareProperty("overlayInputSCT_Name", m_overlayInputSCT_Name="SCT_RDOs");
 
   declareProperty("do_Pixel", m_do_Pixel=true);
+  declareProperty("do_Pixel_background", m_do_Pixel_background=true);
   declareProperty("mainInputPixelName", m_mainInputPixel_Name="PixelRDOs");
   declareProperty("overlayInputPixelName", m_overlayInputPixel_Name="PixelRDOs");
 }
@@ -297,7 +302,7 @@ StatusCode InDetOverlay::overlayExecute() {
       ATH_MSG_WARNING("Could not get MC TRT container \""<<m_overlayInputTRT_Name<<"\"");
     }
     ATH_MSG_DEBUG("TRT MC     = "<<shortPrint(cmc));
-
+    if (! m_do_TRT_background ){ cdata->cleanup(); }
     if(cdata.get() && cmc.get()) {
       overlayContainerNew(cdata, cmc);
       ATH_MSG_DEBUG("TRT Result = "<<shortPrint(cdata));
@@ -330,7 +335,7 @@ StatusCode InDetOverlay::overlayExecute() {
       ATH_MSG_WARNING("Could not get MC SCT container \""<<m_overlayInputSCT_Name<<"\"");
     }
     ATH_MSG_DEBUG("SCT MC     = "<<shortPrint(cmc, 50));
-
+    if (! m_do_SCT_background ){ cdata->cleanup(); }
     if(cdata.get() && cmc.get()) {
       overlayContainerNew(cdata, cmc);
       ATH_MSG_DEBUG("SCT Result = "<<shortPrint(cdata, 50));
@@ -363,7 +368,7 @@ StatusCode InDetOverlay::overlayExecute() {
       ATH_MSG_WARNING("Could not get MC Pixel container \""<<m_overlayInputPixel_Name<<"\"");
     }
     ATH_MSG_DEBUG("Pixel MC     = "<<shortPrint(cmc));
-
+    if (! m_do_Pixel_background ){ cdata->cleanup(); }
     if(cdata.get() && cmc.get()) {
       overlayContainerNew(cdata, cmc);
       ATH_MSG_DEBUG("Pixel Result = "<<shortPrint(cdata));
