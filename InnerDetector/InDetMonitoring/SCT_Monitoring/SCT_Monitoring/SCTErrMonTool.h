@@ -84,7 +84,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TH1F_LW * m_secondHit_ECm;
   //@}
   
-  enum ErrorTypes {ABCD, RAW,TIMEOUT, LVL1ID,BCID, PREAMBLE, FORMATTER, MASKEDLINKS, RODCLOCK, TRUNCATEDROD, ROBFRAG, BSPARSE, MISSINGLINK, SUMMARY, BADERR, N_ERRTYPES};
+  enum ErrorTypes {ABCD, RAW,TIMEOUT, LVL1ID,BCID, PREAMBLE, FORMATTER, MASKEDLINKS, RODCLOCK, TRUNCATEDROD, ROBFRAG, BSPARSE, MISSINGLINK, MASKEDRODS, SUMMARY, BADERR, N_ERRTYPES};
   
   ///rate of errors
   TProfile2D_LW* m_allErrs[N_ERRTYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
@@ -106,7 +106,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   int *nLinksWithErrors_buf;
   int nErrors_pos;
 
-  TH1I *m_MaskedLinks;
+  TH1I *m_MaskedAllLinks; // maskedLinks||maskedRODs
 
   //Count number of events
   int m_numberOfEventsLumi;
@@ -236,6 +236,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TProfile_LW * m_ConfOnline[4];
   //TH1F_LW     * m_ConfOnline[4];
   TProfile_LW * m_MaskedLinksVsLB[4];
+  TProfile_LW * m_MaskedRODsVsLB[4];
   TProfile_LW * m_ROBFragmentVsLB[4];
   TProfile_LW * m_ABCDVsLB[4];
   TProfile_LW * m_RawErrsVsLB[4];

@@ -237,7 +237,7 @@ SCTHitsNoiseMonTool::~SCTHitsNoiseMonTool(){
 StatusCode 
 SCTHitsNoiseMonTool::bookHistograms(){
   ATH_MSG_DEBUG( "initialize being called" );
-  if (newRun) m_numberOfEvents=0;
+  if (newRunFlag()) m_numberOfEvents=0;
   m_dataObjectName = "SCT_RDOs";
   // Get the helper:
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper,"SCT_ID"));
@@ -267,7 +267,7 @@ SCTHitsNoiseMonTool::bookHistograms(){
   
   if ( bookClusterSize().isFailure() ) if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Error in bookClusterSize()" << endreq;
 
-  if(newRun){
+  if(newRunFlag()){
     std::string stem=m_stream+"/SCT/GENERAL/hits/summary";
     //book hits histogram
     MonGroup clu(this,"SCT/GENERAL/hits/summary",ManagedMonitorToolBase::run,ATTRIB_UNMANAGED);
@@ -276,7 +276,7 @@ SCTHitsNoiseMonTool::bookHistograms(){
     m_ncluHisto->GetYaxis()->SetTitle("Entries");
     if ( clu.regHist(m_ncluHisto).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:" << stem+"sct_hits" << endreq;
     if (m_booltxscan) {
-      if( newEventsBlock ) {
+      if( newEventsBlockFlag() ) {
 	//book histograms for TX scans
 	m_hitsvstrigger = new TH1F("hits_vs_trigger","Hits vs Trigger Type",32,-0.5,31.5);
 	if ( clu.regHist(m_hitsvstrigger).isFailure() )  msg(MSG::WARNING) << "Cannot book Histogram:" << stem+"hitsvstrigger" << endreq;
@@ -326,7 +326,7 @@ SCTHitsNoiseMonTool::bookHistogramsRecurrent(){
   
   if ( bookClusterSize().isFailure() ) if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Error in bookClusterSize()" << endreq;
 
-  //  if(newRun){
+  //  if(newRunFlag()){
     std::string stem=m_stream+"/SCT/GENERAL/hits/summary";
     //book hits histogram
     MonGroup clu(this,"SCT/GENERAL/hits/summary",ManagedMonitorToolBase::run,ATTRIB_UNMANAGED);
@@ -335,7 +335,7 @@ SCTHitsNoiseMonTool::bookHistogramsRecurrent(){
     m_ncluHisto->GetYaxis()->SetTitle("Num of SCT Hits");
     if ( clu.regHist(m_ncluHisto).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:" << stem+"sct_hits" << endreq;
     if (m_booltxscan) {
-      //      if( newEventsBlock ) {
+      //      if( newEventsBlockFlag() ) {
 	//book histograms for TX scans
 	m_hitsvstrigger = new TH1F("hits_vs_trigger","Hits vs Trigger Type",32,-0.5,31.5);
 	if ( clu.regHist(m_hitsvstrigger).isFailure() )  msg(MSG::WARNING) << "Cannot book Histogram:" << stem+"hitsvstrigger" << endreq;
@@ -400,7 +400,7 @@ StatusCode
 SCTHitsNoiseMonTool::procHistograms(){
   //SCTHitsNoiseMonTool::procHistograms(bool isEndOfEventsBlock, bool /*isEndOfLumiBlock*/, bool /*isEndOfRun*/){
   //  if(isEndOfEventsBlock){
-  bool endOfEventsBlock(endOfLumiBlock);  // hidetoshi 14.01.22 NEED TO BE REPLACED
+  bool endOfEventsBlock(endOfLumiBlockFlag());  // hidetoshi 14.01.22 NEED TO BE REPLACED
   if(endOfEventsBlock){
     if (checkNoiseMaps(true).isFailure()) if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Error in checkNoiseMaps(true)" << endreq ;
   }
@@ -810,7 +810,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise(){
 StatusCode 
 SCTHitsNoiseMonTool::book1DHitHists(){ 
 //SCTHitsNoiseMonTool::book1DHitHists(bool isNewRun){ 
-  if( newRun ) {
+  if( newRunFlag() ) {
     // Pointers are deleted by regHist() method
     m_phitmapHistoVector.clear();
     std::string stem;
@@ -851,7 +851,7 @@ SCTHitsNoiseMonTool::bookGeneralHits( const unsigned int systemIndex) {
   const unsigned int limits[]={N_DISKSx2, N_BARRELSx2, N_DISKSx2};
   //
   //  if( isNewLumiBlock) {
-  if( newLumiBlock) {
+  if( newLumiBlockFlag()) {
     MonGroup lumiHits( this,paths[systemIndex],lumiBlock,ATTRIB_UNMANAGED);
     switch (bec){
      case ENDCAP_C:{
@@ -890,7 +890,7 @@ SCTHitsNoiseMonTool::bookGeneralHits( const unsigned int systemIndex) {
     }
   }
   //  if (isNewRun){
-  if (newRun){
+  if (newRunFlag()){
     VecH2_t * hitsArray[]={&m_phitsHistoVectorECm, &m_phitsHistoVector, &m_phitsHistoVectorECp};
     VecH2_t * hitsArrayRecent[]={&m_phitsHistoVectorRecentECm, &m_phitsHistoVectorRecent, &m_phitsHistoVectorRecentECp};
     VecH1D_t * nClustersArray[]={&m_ncluHistoVectorECm, &m_ncluHistoVector, &m_ncluHistoVectorECp};
@@ -933,7 +933,7 @@ SCTHitsNoiseMonTool::bookClusterSize(){
     m_clusizedistECm[i]=prof2DFactory("clusize_dist_EC_"+disksidenameECm[i],"cluster size in EndcapC_"+disksidenameECm[i],clusizeecGroup,3,-0.5,2.5,52,-0.5,51.5);
   }
   //  if (isNewRun){
-  if (newRun){
+  if (newRunFlag()){
     MonGroup BarrelCluSize(this,"SCT/GENERAL/hits",run,ATTRIB_UNMANAGED );
     //book Cluster width histogram for all SCT Detector
     m_clusize=h1DFactory("clu_size","SCT Cluster size",BarrelCluSize,0.,200.,200);
@@ -989,7 +989,7 @@ SCTHitsNoiseMonTool::bookGeneralCluSize(const unsigned int systemIndex){
   VecH1D_t & clusterSizeVector=*(clusterSizeArray[systemIndex]);
   VecH1D_t & clusterSizeVectorRecent=*(clusterSizeArrayRecent[systemIndex]);
   //  if (isNewRun){
-  if (newRun){
+  if (newRunFlag()){
     clusterSizeVector.clear();
     clusterSizeVectorRecent.clear();
     MonGroup clusterSize(this, paths[systemIndex], run,ATTRIB_UNMANAGED);
@@ -1024,7 +1024,7 @@ SCTHitsNoiseMonTool::bookGeneralNoiseOccupancyMaps(const unsigned int systemInde
     return StatusCode::FAILURE;
   }
   //  if(isNewRun){
-  if(newRun){
+  if(newRunFlag()){
     const string paths[]={"SCT/SCTEC/Noise", "SCT/SCTB/Noise", "SCT/SCTEA/Noise"};
     const unsigned int limits[]={N_DISKSx2, N_BARRELSx2, N_DISKSx2};
     VecProf2_t * storageVectors[]={&m_pnoiseoccupancymapHistoVectorECm, &m_pnoiseoccupancymapHistoVector, &m_pnoiseoccupancymapHistoVectorECp};
@@ -1327,7 +1327,7 @@ SCTHitsNoiseMonTool::bookNoiseDistributions(){
 //SCTHitsNoiseMonTool::bookNoiseDistributions(bool isNewRun){
 
   //  if(isNewRun){
-  if(newRun){
+  if(newRunFlag()){
     MonGroup NoiseDistributions(this,"SCT/GENERAL/noise",ManagedMonitorToolBase::run, ATTRIB_UNMANAGED);
     const Int_t bins = 200; Double_t xmin = 1e-1; Double_t xmax = 500; Double_t logxmin = log10(xmin);
     Double_t logxmax = log10(xmax); Double_t binwidth = (logxmax-logxmin)/bins;
@@ -1402,7 +1402,7 @@ SCTHitsNoiseMonTool::bookSPvsEventNumber(){
   //SCTHitsNoiseMonTool::bookSPvsEventNumber(bool isNewRun){
   // Modified JEGN
   //  if(isNewRun){
-  if(newRun){
+  if(newRunFlag()){
     free(nSP_buf);
     free(nHits_buf);
     free(nmaxHits_buf);
@@ -1591,7 +1591,7 @@ StatusCode SCTHitsNoiseMonTool::bookGeneralTrackHits(const unsigned int systemIn
   string stem=m_stream+"/"+paths[systemIndex]+"mapsOfHitsOnTracks";
   MonGroup tracksMon(this,paths[systemIndex]+"mapsOfHitsOnTracks", run, ATTRIB_UNMANAGED);
   //  if (isNewRun){
-  if (newRun){
+  if (newRunFlag()){
     (histoVec[systemIndex])->clear();
     (histoVecRecent[systemIndex])->clear();
     //book Hitmaps and hits per layer histograms
@@ -1613,7 +1613,7 @@ StatusCode
 SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex){
   //SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(bool isNewRun , const unsigned int systemIndex){
   //  if(isNewRun){
-  if(newRun){
+  if(newRunFlag()){
     const string path[]={"SCT/SCTEC/tbin/tracks/", "SCT/SCTB/tbin/tracks/", "SCT/SCTEA/tbin/tracks/"};
     const unsigned int limits[N_REGIONS]={N_DISKS, N_BARRELS, N_DISKS};
     std::vector<TH1D *> * tbinHistoVectorArray[]={&m_tbinHistoVectorECm ,&m_tbinHistoVector ,&m_tbinHistoVectorECp };
