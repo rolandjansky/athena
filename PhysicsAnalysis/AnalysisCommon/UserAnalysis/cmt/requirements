@@ -26,6 +26,7 @@ use TrigCaloEvent               TrigCaloEvent-*         Trigger/TrigEvent
 
 
 private
+use AthenaKernel                AthenaKernel-*                  Control
 use McParticleEvent		McParticleEvent-*		PhysicsAnalysis/TruthParticleID
 use egammaEvent			egammaEvent-*			Reconstruction/egamma
 use muonEvent			muonEvent-*			Reconstruction/MuonIdentification
