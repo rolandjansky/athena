@@ -2,15 +2,19 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "G4AtlasAlg/G4AtlasAlg.h"
+// Local includes
+#include "G4AtlasAlg.h"
 
-#include "G4AtlasAlg/PreEventActionManager.h"
-#include "G4AtlasAlg/G4AtlasRunManager.h"
+// Can we safely include all of these?
+#include "G4AtlasMTRunManager.h"
+#include "G4AtlasWorkerRunManager.h"
+#include "G4AtlasUserWorkerThreadInitialization.h"
+#include "G4AtlasRunManager.h"
 
-#include "GaudiKernel/AlgFactory.h" //FIXME safe to remove?
-
+// FADS includes
 #include "FadsKinematics/GeneratorCenter.h"
 
+// Geant4 includes
 #include "G4TransportationManager.hh"
 #include "G4RunManagerKernel.hh"
 #include "G4EventManager.hh"
@@ -21,40 +25,51 @@
 #include "G4UImanager.hh"
 #include "G4ScoringManager.hh"
 
+// CLHEP includes
+#include "CLHEP/Random/RandomEngine.h"
+
+// EDM includes
 #include "EventInfo/EventInfo.h"
+
+// call_once mutexes
+#include <mutex>
+static std::once_flag initializeOnceFlag;
+static std::once_flag finalizeOnceFlag;
 
 /////////////////////////////////////////////////////////////////////////////
 
 
 G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_rndmGenSvc("AtDSFMTGenSvc", name),m_UASvc("UserActionSvc",name), m_physListTool("PhysicsListToolBase")
+    m_rndmGenSvc("AtDSFMTGenSvc", name),
+    m_UASvc("UserActionSvc", name),           // current user action design
+    m_userActionSvc("G4UA::UserActionSvc", name), // new user action design
+    m_physListTool("PhysicsListToolBase")
 {
   ATH_MSG_DEBUG(std::endl << std::endl << std::endl);
   ATH_MSG_INFO("++++++++++++  G4AtlasAlg created  ++++++++++++" << std::endl << std::endl);
-  declareProperty( "Dll", m_libList="");
-  declareProperty( "Physics", m_physList="");
-  declareProperty( "Generator", m_generator="");
-  declareProperty( "FieldMap", m_fieldMap="");
-  declareProperty( "RandomGenerator", m_rndmNumberSource="athena");
-  declareProperty( "ReleaseGeoModel",m_releaseGeoModel=true);
-  declareProperty( "RecordFlux",m_recordFlux=false);
-  declareProperty( "IncludeParentsInG4Event",m_IncludeParentsInG4Event=false);
+  declareProperty( "Dll", libList="");
+  declareProperty( "Physics", physList="");
+  declareProperty( "Generator", generator="");
+  declareProperty( "FieldMap", fieldMap="");
+  declareProperty( "RandomGenerator", rndmGen="athena");
+  declareProperty( "ReleaseGeoModel", m_releaseGeoModel=true);
+  declareProperty( "RecordFlux", m_recordFlux=false);
+  declareProperty( "IncludeParentsInG4Event", m_IncludeParentsInG4Event=false);
   declareProperty( "KillAbortedEvents", m_killAbortedEvents=true);
   declareProperty( "FlagAbortedEvents", m_flagAbortedEvents=false);
 
-  // Tool and Service instantiation
+  // Service instantiation
   declareProperty("AtRndmGenSvc", m_rndmGenSvc);
   declareProperty("UserActionSvc", m_UASvc);
+  declareProperty("UserActionSvcV2", m_userActionSvc);
   declareProperty("PhysicsListTool", m_physListTool);
 
-
-  p_runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
-  // if (m_noGeomInit) p_runMgr->NoGeomInit();
-
   // Verbosities
-  m_verbosities.clear();
-  declareProperty( "Verbosities" , m_verbosities );
+  declareProperty("Verbosities", m_verbosities);
+
+  // Multi-threading specific settings
+  declareProperty("MultiThreading", m_useMT=false);
 }
 
 
@@ -62,68 +77,140 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
 
 StatusCode G4AtlasAlg::initialize()
 {
+  // Create the scoring manager if requested
   if (m_recordFlux) G4ScoringManager::GetScoringManager();
 
-  CHECK(m_physListTool.retrieve());
-  m_physListTool->SetPhysicsList();
-
-  CHECK(m_UASvc.retrieve());
-
-  G4UImanager *ui = G4UImanager::GetUIpointer();
-
-  if (!m_libList.empty())
-    {
-      ATH_MSG_INFO("G4AtlasAlg specific libraries requested ") ;
-      std::string temp="/load "+m_libList;
-      ui->ApplyCommand(temp);
-    }
-  if (!m_physList.empty())
-    {
-      ATH_MSG_INFO("requesting a specific physics list "<< m_physList) ;
-      std::string temp="/Physics/GetPhysicsList "+m_physList;
-      ui->ApplyCommand(temp);
-    }
-  FADS::GeneratorCenter * gc = FADS::GeneratorCenter::GetGeneratorCenter();
-  gc->SetIncludeParentsInG4Event( m_IncludeParentsInG4Event );
-  if (!m_generator.empty())
-    {
-      ATH_MSG_INFO("requesting a specific generator "<< m_generator) ;
-      gc->SelectGenerator(m_generator);
-    } else {
-    // make sure that there is a default generator (i.e. HepMC interface)
-    gc->SelectGenerator("AthenaHepMCInterface");
+  // One-time initialization
+  try {
+    std::call_once(initializeOnceFlag, &G4AtlasAlg::initializeOnce, this);
   }
-  if (!m_fieldMap.empty())
-    {
-      ATH_MSG_INFO("requesting a specific field map "<< m_fieldMap) ;
-      ATH_MSG_INFO("the field is initialized straight away") ;
-      std::string temp="/MagneticField/Select "+m_fieldMap;
-      ui->ApplyCommand(temp);
-      ui->ApplyCommand("/MagneticField/Initialize");
-    }
+  catch(const std::exception& e) {
+    ATH_MSG_ERROR("Failure in G4AtlasAlg::initializeOnce: " << e.what());
+    return StatusCode::FAILURE;
+  }
 
-  p_runMgr->SetReleaseGeo( m_releaseGeoModel );
-  p_runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
+  // For now, we decide which user action service to setup based on which
+  // handle has a non-empty name configured. Then we can steer it from the
+  // configuration layer. This will go away when we drop V1 actions.
+
+  // V1 user action service
+  if( !m_UASvc.name().empty() ) {
+    ATH_CHECK( m_UASvc.retrieve() );
+
+    // Make sure only one user action version is used at a time.
+    if( !m_userActionSvc.name().empty() ) {
+      ATH_MSG_ERROR("Configured to use both V1 and V2 user actions, " <<
+                    "which isn't supported!");
+      return StatusCode::FAILURE;
+    }
+    if(m_useMT) {
+      ATH_MSG_ERROR("Using V1 user action design, which won't work in MT");
+      return StatusCode::FAILURE;
+    }
+  }
+
+  // V2 user action service
+  if( !m_userActionSvc.name().empty() ) {
+    ATH_CHECK( m_userActionSvc.retrieve() );
+  }
+
+  if(m_useMT) {
+    // Retrieve the python service to trigger its initialization. This is done
+    // here just to make sure things are initialized in the proper order.
+    // Hopefully we can drop this at some point.
+    ServiceHandle<IService> pyG4Svc("PyAthena::Svc/PyG4AtlasSvc", name());
+    ATH_CHECK( pyG4Svc.retrieve() );
+  }
 
   ATH_MSG_DEBUG(std::endl << std::endl << std::endl);
   ATH_MSG_INFO("++++++++++++  G4AtlasAlg initialized  ++++++++++++" << std::endl << std::endl);
 
-  ATH_MSG_INFO("Setting checkmode to true");
+  return StatusCode::SUCCESS;
+
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+void G4AtlasAlg::initializeOnce()
+{
+  // Assign physics list
+  if(m_physListTool.retrieve().isFailure())
+    {
+      throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");
+    }
+
+  // Create the (master) run manager
+  if(m_useMT) {
+#ifdef G4MULTITHREADED
+    auto runMgr = G4AtlasMTRunManager::GetG4AtlasMTRunManager();
+    m_physListTool->SetPhysicsList();
+    // Worker Thread initialization used to create worker run manager on demand.
+    // @TODO use this class to pass any configuration to worker run manager.
+    runMgr->SetUserInitialization( new G4AtlasUserWorkerThreadInitialization );
+    runMgr->SetUserInitialization( m_physListTool->GetPhysicsList() );
+#else
+    throw std::runtime_error("Trying to use multi-threading in non-MT build!");
+#endif
+  }
+  // Single-threaded run manager
+  else {
+    auto runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
+    m_physListTool->SetPhysicsList();
+    runMgr->SetReleaseGeo( m_releaseGeoModel );
+    runMgr->SetRecordFlux( m_recordFlux );
+    runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
+    runMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
+    runMgr->SetUserInitialization(m_physListTool->GetPhysicsList());
+  }
+
+  // G4 user interface commands
+  G4UImanager *ui = G4UImanager::GetUIpointer();
+
+  // Load custom libraries
+  if (!libList.empty()) {
+    ATH_MSG_INFO("G4AtlasAlg specific libraries requested ") ;
+    std::string temp="/load "+libList;
+    ui->ApplyCommand(temp);
+  }
+  // Load custom physics
+  if (!physList.empty()) {
+    ATH_MSG_INFO("requesting a specific physics list "<< physList) ;
+    std::string temp="/Physics/GetPhysicsList "+physList;
+    ui->ApplyCommand(temp);
+  }
+  // Setup generator
+  FADS::GeneratorCenter* gc = FADS::GeneratorCenter::GetGeneratorCenter();
+  gc->SetIncludeParentsInG4Event( m_IncludeParentsInG4Event );
+  if (!generator.empty()) {
+    ATH_MSG_INFO("requesting a specific generator "<< generator) ;
+    gc->SelectGenerator(generator);
+  } else {
+    // make sure that there is a default generator (i.e. HepMC interface)
+    gc->SelectGenerator("AthenaHepMCInterface");
+  }
+  // Load custom magnetic field
+  if (!fieldMap.empty()) {
+    ATH_MSG_INFO("requesting a specific field map "<< fieldMap) ;
+    ATH_MSG_INFO("the field is initialized straight away") ;
+    std::string temp="/MagneticField/Select "+fieldMap;
+    ui->ApplyCommand(temp);
+    ui->ApplyCommand("/MagneticField/Initialize");
+  }
+
   ui->ApplyCommand("/geometry/navigator/check_mode true");
 
-
-
-  if (m_rndmNumberSource=="athena" || m_rndmNumberSource=="ranecu") {
+  if (rndmGen=="athena" || rndmGen=="ranecu")	{
     // Set the random number generator to AtRndmGen
     if (m_rndmGenSvc.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Could not initialize ATLAS Random Generator Service");
-      return StatusCode::FAILURE;
+      // We can only return void from here. Let's assume that eventually
+      // all this initialization code will be moved elsewhere (like a svc) for
+      // better control. Then, for now, let's just throw.
+      throw std::runtime_error("Could not initialize ATLAS Random Generator Service");
     }
     CLHEP::HepRandomEngine* engine = m_rndmGenSvc->GetEngine("AtlasG4");
     CLHEP::HepRandom::setTheEngine(engine);
     ATH_MSG_INFO("Random nr. generator is set to Athena");
   }
-  else if (m_rndmNumberSource=="geant4" || m_rndmNumberSource.empty()) {
+  else if (rndmGen=="geant4" || rndmGen.empty()) {
     ATH_MSG_INFO("Random nr. generator is set to Geant4");
   }
 
@@ -131,9 +218,6 @@ StatusCode G4AtlasAlg::initialize()
   /// @todo Reinstate or delete?! This can't actually be called from the Py algs
   //ATH_MSG_INFO("Firing initialization of G4!!!");
   //initializeG4();
-
-  return StatusCode::SUCCESS;
-
 }
 
 void G4AtlasAlg::initializeG4()
@@ -144,23 +228,25 @@ void G4AtlasAlg::initializeG4()
     G4RunManagerKernel *rmk = G4RunManagerKernel::GetRunManagerKernel();
     G4EventManager *em = G4EventManager::GetEventManager();
 
-    if (m_verbosities.find("Navigator") != m_verbosities.end()){
-      tm->GetNavigatorForTracking()->SetVerboseLevel( atof(m_verbosities.find("Navigator")->second.data()) );
+    auto itr = m_verbosities.end();
+    if ((itr = m_verbosities.find("Navigator")) != m_verbosities.end()) {
+      tm->GetNavigatorForTracking()->SetVerboseLevel( atof(itr->second.data()) );
     }
-    if (m_verbosities.find("Propagator") != m_verbosities.end()){
-      tm->GetPropagatorInField()->SetVerboseLevel( atof(m_verbosities.find("Propagator")->second.data()) );
+    if ((itr = m_verbosities.find("Propagator")) != m_verbosities.end()) {
+      tm->GetPropagatorInField()->SetVerboseLevel( atof(itr->second.data()) );
     }
-    if (m_verbosities.find("Tracking") != m_verbosities.end()){
-      rmk->GetTrackingManager()->SetVerboseLevel( atof(m_verbosities.find("Tracking")->second.data()) );
+    if ((itr = m_verbosities.find("Tracking")) != m_verbosities.end()) {
+      rmk->GetTrackingManager()->SetVerboseLevel( atof(itr->second.data()) );
     }
-    if (m_verbosities.find("Stepping") != m_verbosities.end()){
-      rmk->GetTrackingManager()->GetSteppingManager()->SetVerboseLevel( atof(m_verbosities.find("Stepping")->second.data()) );
+    if ((itr = m_verbosities.find("Stepping")) != m_verbosities.end()) {
+      rmk->GetTrackingManager()->GetSteppingManager()->
+        SetVerboseLevel( atof(itr->second.data()) );
     }
-    if (m_verbosities.find("Stacking") != m_verbosities.end()){
-      rmk->GetStackManager()->SetVerboseLevel( atof(m_verbosities.find("Stacking")->second.data()) );
+    if ((itr = m_verbosities.find("Stacking")) != m_verbosities.end()) {
+      rmk->GetStackManager()->SetVerboseLevel( atof(itr->second.data()) );
     }
-    if (m_verbosities.find("Event") != m_verbosities.end()){
-      em->SetVerboseLevel( atof(m_verbosities.find("Event")->second.data()) );
+    if ((itr = m_verbosities.find("Event")) != m_verbosities.end()) {
+      em->SetVerboseLevel( atof(itr->second.data()) );
     }
   } // End of the setting of verbosities
 
@@ -172,11 +258,29 @@ StatusCode G4AtlasAlg::finalize() {
   ATH_MSG_DEBUG(std::endl<<std::endl<<std::endl);
   ATH_MSG_INFO("++++++++++++  G4AtlasAlg finalized  ++++++++++++" <<std::endl<<std::endl);
 
-  ATH_MSG_DEBUG("\t terminating the current G4 run");
-
-  p_runMgr->RunTermination();
+  // One time finalization
+  try {
+    std::call_once(finalizeOnceFlag, &G4AtlasAlg::finalizeOnce, this);
+  }
+  catch(const std::exception& e) {
+    ATH_MSG_ERROR("Failure in G4AtlasAlg::finalizeOnce: " << e.what());
+    return StatusCode::FAILURE;
+  }
 
   return StatusCode::SUCCESS;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+void G4AtlasAlg::finalizeOnce() {
+  ATH_MSG_DEBUG("\t terminating the current G4 run");
+  // TODO: could probably just use G4RunManager base class generically.
+  //#ifdef ATHENAHIVE
+  //  auto runMgr = G4AtlasMTRunManager::GetG4AtlasMTRunManager();
+  //#else
+  //  auto runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
+  //#endif
+  auto runMgr = G4RunManager::GetRunManager();
+  runMgr->RunTermination();
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -184,8 +288,6 @@ StatusCode G4AtlasAlg::finalize() {
 StatusCode G4AtlasAlg::execute()
 {
   static int n_Event=0;
-  static PreEventActionManager *preEvent=PreEventActionManager::
-    GetPreEventActionManager();
   ATH_MSG_DEBUG(std::endl<<std::endl<<std::endl);
   ATH_MSG_INFO("++++++++++++  G4AtlasAlg execute  ++++++++++++" <<std::endl<<std::endl);
 
@@ -195,11 +297,26 @@ StatusCode G4AtlasAlg::execute()
     ATH_MSG_ALWAYS("G4AtlasAlg: Event num. "  << n_Event << " start processing");
   }
 
-  preEvent->Execute();
-
   ATH_MSG_DEBUG("Calling SimulateG4Event");
 
-  bool abort = p_runMgr->SimulateFADSEvent();
+  // Worker run manager
+  // Custom class has custom method call: SimulateFADSEvent.
+  // So, grab custom singleton class directly, rather than base.
+  // Maybe that should be changed! Then we can use a base pointer.
+  bool abort = false;
+  if(m_useMT) {
+#ifdef G4MULTITHREADED
+    auto workerRM = G4AtlasWorkerRunManager::GetG4AtlasWorkerRunManager();
+    abort = workerRM->SimulateFADSEvent();
+#else
+    ATH_MSG_ERROR("Trying to use multi-threading in non-MT build!");
+    return StatusCode::FAILURE;
+#endif
+  }
+  else {
+    auto workerRM = G4AtlasRunManager::GetG4AtlasRunManager();
+    abort = workerRM->SimulateFADSEvent();
+  }
 
   if (abort) {
     ATH_MSG_WARNING("Event was aborted !! ");
@@ -209,6 +326,7 @@ StatusCode G4AtlasAlg::execute()
       setFilterPassed(false);
     }
     if (m_flagAbortedEvents){
+      // TODO: update to VarHandle
       const DataHandle<EventInfo> eic = 0;
       if ( sgSvc()->retrieve( eic ).isFailure() || !eic ){
         ATH_MSG_WARNING( "Failed to retrieve EventInfo" );

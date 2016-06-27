@@ -13,35 +13,59 @@
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 #include "G4AtlasInterfaces/IPhysicsListTool.h"
+#include "G4AtlasInterfaces/IUserActionSvc.h"
 
 // Gaudi headers
 #include "GaudiKernel/ToolHandle.h"
 
+
+/// ATLAS custom singleton run manager.
+///
+/// This is the run manager used for serial (not-MT) jobs.
+/// @TODO sync and reduce code duplication with MT run managers.
+///
 class G4AtlasRunManager: public G4RunManager {
 
+  // Is this needed?
   friend class G4AtlasAlg;
+  // Is this needed?
   friend class SimControl;
 
 public:
 
   virtual ~G4AtlasRunManager() {}
 
+  /// Retrieve the singleton instance
   static G4AtlasRunManager* GetG4AtlasRunManager();
 
-  G4Event* GenerateEvent(G4int i_event);
+  G4Event* GenerateEvent(G4int i_event) override final;
+
+  /// Run the simulation for one event.
+  /// @TODO rename method.
   bool SimulateFADSEvent();
-  void RunTermination();
+
+  void RunTermination() override final;
   void SetCurrentG4Event(int);
 
 protected:
 
-  void InitializeGeometry();
-  void InitializePhysics();
+  /// @name Overridden G4 init methods for customization
+  /// @{
+  void Initialize() override final;
+  void InitializeGeometry() override final;
+  void InitializePhysics() override final;
+  /// @}
 
 private:
 
+  /// Private constructor
   G4AtlasRunManager();
   void EndEvent();
+
+  /// Configure the user action service handle
+  void SetUserActionSvc(const std::string& typeAndName) {
+    m_userActionSvc.setTypeAndName(typeAndName);
+  }
 
   void SetReleaseGeo(bool b) { m_releaseGeo = b; }
   void SetRecordFlux(bool b) { m_recordFlux = b; }
@@ -62,6 +86,9 @@ private:
   ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
   ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
   ToolHandle<IPhysicsListTool> m_physListTool;
+
+  /// Handle to the user action service
+  ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
 };
 
 

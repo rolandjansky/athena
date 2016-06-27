@@ -20,8 +20,8 @@ public:
   ~TruthHepMCEventConverter();
   void HepMC2G4(const HepMC::GenEvent* ,G4Event *, const bool) const;
 private:
-  TruthHepMCEventConverter (const TruthHepMCEventConverter&);  //declared, but not defined  	 	 
-  TruthHepMCEventConverter& operator= (const TruthHepMCEventConverter&); //declared, but not defined  	 	 
+  TruthHepMCEventConverter (const TruthHepMCEventConverter&);  //declared, but not defined
+  TruthHepMCEventConverter& operator= (const TruthHepMCEventConverter&); //declared, but not defined
   // helper functions here
   bool SeparateVertices(HepMC::GenVertex* , HepMC::GenVertex*) const ;
   G4PrimaryVertex* ConstructG4PrimaryVertex(HepMC::GenVertex*) const ;
