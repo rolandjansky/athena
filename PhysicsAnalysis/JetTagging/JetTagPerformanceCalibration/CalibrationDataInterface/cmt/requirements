@@ -5,8 +5,8 @@ author Frank Filthaut <F.Filthaut@science.ru.nl>
 public
 
 use AtlasPolicy       AtlasPolicy-* 
-use AthenaBaseComps   AthenaBaseComps-*   Control
-use GaudiInterface    GaudiInterface-*    External
+#use AthenaBaseComps   AthenaBaseComps-*   Control
+#use GaudiInterface    GaudiInterface-*    External
 
 use JetTagCalibration JetTagCalibration-* PhysicsAnalysis/JetTagging
 #use JetTagInfo        JetTagInfo-*        PhysicsAnalysis/JetTagging
