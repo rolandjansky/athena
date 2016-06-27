@@ -16,6 +16,6 @@ MsgStream* msglog;
 
 
 
-#define BEGIN_TEST(__name) const std::string __TEST_NAME=__name;		\
-  *msglog << MSG::INFO << "LINE:" <<_LINE_ << " Start of the test: " <<  __TEST_NAME << endreq 
-#define END_TEST   *msglog << MSG::INFO << "LINE:" <<_LINE_ << " End of the test: " <<  __TEST_NAME << endreq; return StatusCode::SUCCESS
+#define BEGIN_TEST(__name) const std::string TEST_NAME_=__name;		\
+  *msglog << MSG::INFO << "LINE:" <<_LINE_ << " Start of the test: " <<  TEST_NAME_ << endreq 
+#define END_TEST   *msglog << MSG::INFO << "LINE:" <<_LINE_ << " End of the test: " <<  TEST_NAME_ << endreq; return StatusCode::SUCCESS

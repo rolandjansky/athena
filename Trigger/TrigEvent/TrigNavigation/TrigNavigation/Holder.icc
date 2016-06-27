@@ -17,8 +17,9 @@
 #ifndef TrigNavigation_Holder_icc
 #define TrigNavigation_Holder_icc
 
-#define HMLOG(x)   if (Holder<STORED>::m_log->level()<=MSG::x) *Holder<STORED>::m_log << MSG::x 
-#define MLOG(x)   if (m_log->level()<=MSG::x) *m_log << MSG::x 
+#define HOLDERLOG(log,x)   if (log->level()<=MSG::x) *log << MSG::x 
+#define HMLOG(x)   HOLDERLOG(Holder<STORED>::m_log, x)
+#define MLOG(x)    HOLDERLOG(m_log, x)
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -269,14 +270,14 @@ struct transferBetweenContainers;
 // case when the containers can be transfered
 template <class CONTAINER> 
 struct transferBetweenContainers<CONTAINER, true> {
-  static void do_it(CONTAINER *source, CONTAINER* dest, MsgStream* m_log) {
+  static void do_it(CONTAINER *source, CONTAINER* dest, MsgStream* log) {
     const size_t orig_size = dest->size();
     dest->resize( orig_size + source->size() );
     std::swap_ranges( source->begin(), source->end(), dest->begin() + orig_size );
-    MLOG( VERBOSE ) << "insert::do_it objects moved, converting to a view container now"    << endreq;
+    HOLDERLOG(log, VERBOSE ) << "insert::do_it objects moved, converting to a view container now"    << endreq;
     source->setStore((SG::IAuxStore*)0);
     source->clear(SG::VIEW_ELEMENTS);
-    MLOG( VERBOSE ) << "insert::do_it refilling the feature container"    << endreq;
+    HOLDERLOG(log, VERBOSE ) << "insert::do_it refilling the feature container"    << endreq;
     source->insert(source->begin(), std::next(dest->begin(), orig_size), dest->end());
 
   }
@@ -316,10 +317,10 @@ template<class STORED, class CONTAINER, bool b> struct insert;
 //
 template <class STORED, class CONTAINER> 
 struct insert<STORED, CONTAINER, true>{
-  static bool do_it(STORED *source, CONTAINER* dest, bool /*hasAux*/, MsgStream* m_log) {
+  static bool do_it(STORED *source, CONTAINER* dest, bool /*hasAux*/, MsgStream* log) {
 
-    MLOG( VERBOSE ) << "insert::do_it CONTAINER " << ClassID_traits<STORED>::typeName() << endreq;
-    MLOG( VERBOSE ) << "Destination is " << (dest->ownPolicy() == SG::VIEW_ELEMENTS ? "VIEW" : "OWN") 
+    HOLDERLOG(log, VERBOSE ) << "insert::do_it CONTAINER " << ClassID_traits<STORED>::typeName() << endreq;
+    HOLDERLOG(log, VERBOSE ) << "Destination is " << (dest->ownPolicy() == SG::VIEW_ELEMENTS ? "VIEW" : "OWN") 
 		    << " source is " << (source->ownPolicy() == SG::VIEW_ELEMENTS ? "VIEW" : "OWN")  << endreq;
 
     // From Scott
@@ -336,25 +337,25 @@ struct insert<STORED, CONTAINER, true>{
     //   (I don't think trigger will see this case.)
 
     
-    if ( dest->empty() ) { // epmty destination, we can do adaptations
+    if ( dest->empty() ) { // empty destination, we can do adaptations
       if ( source->ownPolicy() == SG::OWN_ELEMENTS ) {
 	dest->clear( SG::OWN_ELEMENTS );
       }
 
       if ( source->ownPolicy() == SG::VIEW_ELEMENTS and source->trackIndices() == false ) {
-	MLOG( VERBOSE ) << "insert::do_it destination container made a VIEW"    << endreq;
+	HOLDERLOG(log, VERBOSE ) << "insert::do_it destination container made a VIEW"    << endreq;
 	dest->setStore(static_cast<SG::IAuxStore*>(nullptr));
 	dest->clear( SG::VIEW_ELEMENTS);
       }
       
       if ( source->ownPolicy() == SG::VIEW_ELEMENTS and source->trackIndices() == true ) {
-	MLOG( VERBOSE ) << "insert::do_it destination container made a VIEW wiht indices tracking "    << endreq;
+	HOLDERLOG(log, VERBOSE ) << "insert::do_it destination container made a VIEW wiht indices tracking "    << endreq;
 	// it should be like this but I can not implemnt it like this because many container do not implement second arg dest->clear( SG::VIEW_ELEMENTS, SG::ALWAYS_TRACK_INDICES );
 	dest->clear( SG::VIEW_ELEMENTS );
       }
     }
     if ( source->ownPolicy() != dest->ownPolicy() ) {  // a simple check if in case of nonempty container we are dooing consistent insertion
-      MLOG( WARNING ) << "insert::do_it objects can not be inserted because of ownership issues. "
+      HOLDERLOG(log, WARNING ) << "insert::do_it objects can not be inserted because of ownership issues. "
 		      << "Destination container has already " << dest->size() << " objects " 
 		      <<  " and ownership policy "
 		      << (dest->ownPolicy() == SG::OWN_ELEMENTS ? "OWN" : "")  // this is dumb code but who knows what other policies will be implemented in the future
@@ -366,7 +367,7 @@ struct insert<STORED, CONTAINER, true>{
     
     if ( source->ownPolicy() == SG::VIEW_ELEMENTS ) {
       dest->insert(dest->end(), source->begin(), source->end());
-      MLOG( VERBOSE ) << "insert::do_it objects copied, conversion to view container not needed"    << endreq;
+      HOLDERLOG(log, VERBOSE ) << "insert::do_it objects copied, conversion to view container not needed"    << endreq;
     } else {
       // We have an owning container.  Transfer the element ownership
       // from SOURCE to DEST.  We can only do this if the container
@@ -374,7 +375,7 @@ struct insert<STORED, CONTAINER, true>{
       // iterators (like CaloTowerContainer), we throw an exception.
       // Such containers should be added only as view containers.
       transferBetweenContainers<CONTAINER, canTransfer<CONTAINER>::value>
-	::do_it(source, dest, m_log);
+	::do_it(source, dest, log);
     }
     return true;    
   }
@@ -403,26 +404,26 @@ struct remap<STORED, CONTAINER, false> {
 /////////////////////////////////////////////////////////////////////////////
 template<class STORED, class CONTAINER> 
 struct remap<STORED, CONTAINER, true> {
-  static void do_it(const std::string& storedkey , const std::string& contkey, STORED *s, CONTAINER* cont, HLT::AccessProxy *sg,  MsgStream* m_log ) {
+  static void do_it(const std::string& storedkey , const std::string& contkey, STORED *s, CONTAINER* cont, HLT::AccessProxy *sg,  MsgStream* log ) {
     std::string skey = storedkey;
     if ( storedkey == "" ) {
       // we can't do it 
-      if ( m_log->level() <= MSG::VERBOSE ) {
-	*m_log << MSG::VERBOSE << "HolderImp::remap trying to discover object key, this is potentially slow and should be avoided, type: "  << ClassID_traits<STORED>::typeName() << " from: " << s << " to: " << cont  << endreq;
+      if ( log->level() <= MSG::VERBOSE ) {
+	*log << MSG::VERBOSE << "HolderImp::remap trying to discover object key, this is potentially slow and should be avoided, type: "  << ClassID_traits<STORED>::typeName() << " from: " << s << " to: " << cont  << endreq;
       }
       SG::DataProxy* px = sg->proxy((void const* )s);
       if ( !px ) {
-	*m_log << MSG::WARNING << "HolderImp::remap When remaping containers found no proxy for the object" << s << " of type " << ClassID_traits<STORED>::typeName()  << endreq;
+	*log << MSG::WARNING << "HolderImp::remap When remaping containers found no proxy for the object" << s << " of type " << ClassID_traits<STORED>::typeName()  << endreq;
 	return;
       }
       if ( !px->isValid() ) {
-	*m_log << MSG::WARNING << "HolderImp::remap When remaping containers found no valid proxy for the object" << s << " of type " << ClassID_traits<STORED>::typeName()  << endreq;
+	*log << MSG::WARNING << "HolderImp::remap When remaping containers found no valid proxy for the object" << s << " of type " << ClassID_traits<STORED>::typeName()  << endreq;
 	return;
       }
       skey = px->name();
     }      
-    if ( m_log->level() <= MSG::VERBOSE ) 
-      *m_log << MSG::VERBOSE << "HolderImp::remap remapping collections of type: " << ClassID_traits<STORED>::typeName() 
+    if ( log->level() <= MSG::VERBOSE ) 
+      *log << MSG::VERBOSE << "HolderImp::remap remapping collections of type: " << ClassID_traits<STORED>::typeName() 
 	     << " from: " << skey << " to: " << contkey << " while destination container size is: " <<  cont->size() << endreq;
     sg->remap(ClassID_traits<CONTAINER>::ID(), skey, contkey, cont->size());
 
