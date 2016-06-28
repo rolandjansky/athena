@@ -117,8 +117,7 @@ StatusCode EMFourMomBuilder::execute(xAOD::Egamma* eg){
   return sc;
 }
 // ======================================================================
-StatusCode EMFourMomBuilder::hltExecute(xAOD::Egamma* eg, unsigned int index){
-  index+=0; //do something dummy here
+StatusCode EMFourMomBuilder::hltExecute(xAOD::Egamma* eg){
   return execute(eg);
 }
 // ===================================================================
