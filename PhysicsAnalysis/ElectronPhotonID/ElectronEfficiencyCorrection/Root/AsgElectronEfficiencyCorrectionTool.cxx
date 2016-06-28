@@ -171,8 +171,12 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
     //
     std::vector<float> eta;
     eta.push_back(0);
+    ///  eta.push_back(0.8);
     eta.push_back(1.37);
+    // eta.push_back(2.01);
     eta.push_back(2.47);
+
+
     std::vector<float> pt;
     pt.push_back(7000);
     pt.push_back(10000);
@@ -271,9 +275,9 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
     }
     runnumber = randomrunnumber(*(eventInfo));
   }
-  const Root::TResult m_result = calculate(inputObject, runnumber, currentSimplifiedUncorrSystRegion,
-                                           currentUncorrSystRegion);
-  efficiencyScaleFactor = m_result.getScaleFactor();
+  const Root::TResult result = calculate(inputObject, runnumber, currentSimplifiedUncorrSystRegion,
+					 currentUncorrSystRegion);
+  efficiencyScaleFactor = result.getScaleFactor();
 
   // The default of the underlying tool is -999 , if we are in a valid range
   // Reset it to 1 fow now to keep old behaviour
@@ -301,12 +305,12 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
       if (m_correlation_model_name == "MCTOYS") {
         auto toy = appliedSystematics().getToyVariationByBaseName("EL_EFF_" + m_sysSubstring + "MCTOY");
         toy.second = m_scale_toys;
-        sys = m_result.getResult((m_rootTool->getFirstToyMCPosition() - 1 + toy.first + 1) * m_scale_toys);
+        sys = result.getResult((m_rootTool->getFirstToyMCPosition() - 1 + toy.first + 1) * m_scale_toys);
       }
       if (m_correlation_model_name == "COMBMCTOYS") {
         auto toy = appliedSystematics().getToyVariationByBaseName("EL_EFF_" + m_sysSubstring + "COMBMCTOY");
         toy.second = m_scale_toys;
-        sys = m_result.getResult((m_rootTool->getFirstToyMCPosition() - 1 + toy.first) * m_scale_toys);
+        sys = result.getResult((m_rootTool->getFirstToyMCPosition() - 1 + toy.first) * m_scale_toys);
       }
     }
     // return here for Toy variations
@@ -327,22 +331,22 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
   if (m_nCorrSyst == 0) {
     if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + "CorrUncertainty" +
                                                                      variation))) {
-      sys = param * sqrt(m_result.getTotalUncertainty() * m_result.getTotalUncertainty() 
-			 - m_result.getResult(4) * m_result.getResult(4)); // total -stat
+      sys = param * sqrt(result.getTotalUncertainty() * result.getTotalUncertainty() 
+			 - result.getResult(4) * result.getResult(4)); // total -stat
       func(efficiencyScaleFactor, sys);
     }
   }else if (m_correlation_model_name == "TOTAL") { // one "TOTAL" uncertainty
     if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
                                                                      m_correlation_model_name + "_" +
                                                                      "1NPCOR_PLUS_UNCOR" + variation))) {
-      sys = param * m_result.getTotalUncertainty();
+      sys = param * result.getTotalUncertainty();
       func(efficiencyScaleFactor, sys);
     }
   }else { // Then do the proper models
     for (int i = 0; i < m_nCorrSyst; ++i) {/// number of correlated sources
       if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
                                                                        Form("CorrUncertaintyNP%d", i) + variation))) {
-        sys = param * m_result.getResult(5 + i);
+        sys = param * result.getResult(5 + i);
         func(efficiencyScaleFactor, sys);
       }
     }
@@ -354,7 +358,7 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
                                                                      m_correlation_model_name + "_" +
                                                                      Form("UncorrUncertaintyNP%d",
                                                                           currentUncorrSystRegion) + variation))) {
-      sys = param * m_result.getResult(4);//
+      sys = param * result.getResult(4);//
       func(efficiencyScaleFactor, sys);
     }
   }
@@ -364,7 +368,7 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
                                                                      Form("UncorrUncertaintyNP%d",
                                                                           currentSimplifiedUncorrSystRegion) +
 								     variation))) {
-      sys = param * m_result.getResult(4);//
+      sys = param * result.getResult(4);//
       func(efficiencyScaleFactor, sys);
     }
   }
@@ -476,6 +480,8 @@ AsgElectronEfficiencyCorrectionTool::calculate(const xAOD::Electron &egam, const
   if (cluster) {
     cluster_eta = cluster->etaBE(2);
   }
+
+  //  std::cout<< cluster_eta << std::endl;
   /* For now the dataType must be set by the user. May be added to the IParticle class later.  */
   if (m_correlation_model_name == "SIMPLIFIED") {
     int ptbin = m_UncorrRegions->GetXaxis()->FindBin(et) - 1;

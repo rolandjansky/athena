@@ -306,7 +306,7 @@ int main( int argc, char* argv[] ) {
   AsgElectronEfficiencyCorrectionTool myEgCorrectionsToys ("myEgCorrectionsToys");
   CHECK( myEgCorrectionsToys.setProperty("CorrectionFileNameList",inputFiles) );
   CHECK( myEgCorrectionsToys.setProperty("ForceDataType",(int)SimType) );
-  // CHECK( myEgCorrectionsToys.setProperty("CorrelationModel", "COMBMCTOYS" ));
+   CHECK( myEgCorrectionsToys.setProperty("CorrelationModel", "MCTOYS" ));
   myEgCorrectionsToys.msg().setLevel(mylevelToy);
   CHECK( myEgCorrectionsToys.initialize() );
 
