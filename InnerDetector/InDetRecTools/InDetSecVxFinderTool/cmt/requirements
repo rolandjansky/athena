@@ -13,7 +13,7 @@ use TrkParticleBase     TrkParticleBase-* Tracking/TrkEvent
 use TrkTrackLink        TrkTrackLink-*       Tracking/TrkEvent
 use GeoPrimitives	GeoPrimitives-*	     DetectorDescription
 use TrkParameters TrkParameters-* Tracking/TrkEvent
-	
+use xAODTracking        xAODTracking-*          Event/xAOD
 
 private
 use AtlasROOT           AtlasROOT-*          External
@@ -34,7 +34,7 @@ use EventPrimitives     EventPrimitives-*	Event
 use TrkNeutralParameters TrkNeutralParameters-* Tracking/TrkEvent
 use TrkLinks            TrkLinks-*              Tracking/TrkEvent
 use TrkVxEdmCnv         TrkVxEdmCnv-*           Tracking/TrkVertexFitter
-use xAODTracking        xAODTracking-*          Event/xAOD
+
 
 public
 apply_pattern dual_use_library files="*.cxx"

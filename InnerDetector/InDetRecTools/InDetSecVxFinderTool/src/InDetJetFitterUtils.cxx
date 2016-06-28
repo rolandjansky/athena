@@ -35,6 +35,7 @@
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 
+
 namespace
 {
     CLHEP::HepMatrix getPhiThetaQOverPToPxPyPzJacobian(double qOverP,double theta,double phi) {
@@ -165,7 +166,7 @@ namespace InDet
     }
     
 
-    Trk::LinearizedTrack* myLinearizedTrack=m_LinearizedTrackFactory->linearizedTrack(&measPerigee,vertex);
+    Trk::LinearizedTrack* myLinearizedTrack=m_LinearizedTrackFactory->linearizedTrack(&measPerigee,vertex.position());
     
     Amg::Vector3D vertexPosition;
     vertexPosition[0]=vertex.position()[0];
@@ -214,7 +215,7 @@ namespace InDet
     }
 
 
-    Trk::LinearizedTrack* myLinearizedTrack=m_LinearizedTrackFactory->linearizedTrack(&measPerigee,vertex);
+    Trk::LinearizedTrack* myLinearizedTrack=m_LinearizedTrackFactory->linearizedTrack(&measPerigee,vertex.position());
     Amg::Vector3D vertexPosition(3);
     vertexPosition[0]=vertex.position()[0];
     vertexPosition[1]=vertex.position()[1];
@@ -299,6 +300,41 @@ namespace InDet
         );
   }
   
+
+  int InDetJetFitterUtils::getTwoTrackVtxCharge(const xAOD::Vertex & myVxCandidate) const 
+  {
+    
+    //now obtain the daughters of the two vertex
+    std::vector<Trk::VxTrackAtVertex>::const_iterator vtxIter=myVxCandidate.vxTrackAtVertex().begin();
+    
+    //obtain first track
+    Trk::VxTrackAtVertex firstTrack(*vtxIter);
+    
+    //obtain second track
+    ++vtxIter;
+    Trk::VxTrackAtVertex secondTrack(*vtxIter);
+    
+    //now obtain the momentum at the track (refitted)
+    const Trk::TrackParameters* firstTrackPerigee=firstTrack.perigeeAtVertex();
+    
+    //second
+    const Trk::TrackParameters* secondTrackPerigee=secondTrack.perigeeAtVertex();
+    
+    if (firstTrackPerigee==0 ||secondTrackPerigee==0)
+    {
+      msg(MSG::WARNING) <<  " No Perigee in one of the two tracks at vertex. No sensible charge returned." << endreq;
+      return -100;
+    }
+    
+    return (int)(
+        std::floor(
+            firstTrackPerigee->parameters()[Trk::qOverP]/
+            fabs(firstTrackPerigee->parameters()[Trk::qOverP])+
+            secondTrackPerigee->parameters()[Trk::qOverP]/
+            fabs(secondTrackPerigee->parameters()[Trk::qOverP])+0.5 )
+        );
+  }
+  
   
   double InDetJetFitterUtils::getTwoTrackVtxMass(const Trk::VxCandidate & myVxCandidate,
                                                  double highestMomMass,
@@ -348,9 +384,62 @@ namespace InDet
     
     return (first4Mom+second4Mom).mag();
   }
+
+
+
+  
+  double InDetJetFitterUtils::getTwoTrackVtxMass(const xAOD::Vertex & myVxCandidate,
+                                                 double highestMomMass,
+                                                 double lowestMomMass) const
+  {
+    
+    
+    //now obtain the daughters of the two vertex
+    std::vector<Trk::VxTrackAtVertex>::const_iterator vtxIter=myVxCandidate.vxTrackAtVertex().begin();
+    
+    //obtain first track
+    Trk::VxTrackAtVertex firstTrack(*vtxIter);
+    
+    //obtain second track
+    ++vtxIter;
+    Trk::VxTrackAtVertex secondTrack(*vtxIter);
+    
+    //now obtain the momentum at the track (refitted)
+    const Trk::TrackParameters* firstTrackPerigee=firstTrack.perigeeAtVertex();
+    
+    //second
+    const Trk::TrackParameters* secondTrackPerigee=secondTrack.perigeeAtVertex();
+    
+    if (firstTrackPerigee==0 ||secondTrackPerigee==0)
+    {
+      msg(MSG::WARNING) <<  " No Perigee in one of the two tracks at vertex. No sensible mass returned." << endreq;
+      return -100;
+    }
+    
+    Amg::Vector3D firstMomentum=firstTrackPerigee->momentum();
+    Amg::Vector3D secondMomentum=secondTrackPerigee->momentum();
+    
+    
+    CLHEP::HepLorentzVector first4Mom;
+    CLHEP::HepLorentzVector second4Mom;
+    
+    if (firstMomentum.mag2()>secondMomentum.mag2())
+    {
+      first4Mom=CLHEP::HepLorentzVector(firstMomentum.x(),firstMomentum.y(),firstMomentum.z(),TMath::Sqrt(highestMomMass*highestMomMass+firstMomentum.mag()*firstMomentum.mag()));
+      second4Mom=CLHEP::HepLorentzVector(secondMomentum.x(),secondMomentum.y(),secondMomentum.z(),TMath::Sqrt(lowestMomMass*lowestMomMass+secondMomentum.mag()*secondMomentum.mag()));
+    }
+    else
+    {
+      first4Mom=CLHEP::HepLorentzVector(firstMomentum.x(),firstMomentum.y(),firstMomentum.z(),TMath::Sqrt(lowestMomMass*highestMomMass+firstMomentum.mag()*firstMomentum.mag()));
+      second4Mom=CLHEP::HepLorentzVector(secondMomentum.x(),secondMomentum.y(),secondMomentum.z(),TMath::Sqrt(highestMomMass*lowestMomMass+secondMomentum.mag()*secondMomentum.mag()));
+    }
+    
+    return (first4Mom+second4Mom).mag();
+  }
+
   
 
-  std::pair<double,double> InDetJetFitterUtils::getDistanceAndErrorBetweenTwoVertices(const Trk::RecVertex & first ,
+  std::pair<double,double> InDetJetFitterUtils::getDistanceAndErrorBetweenTwoVertices(const xAOD::Vertex & first ,
                                                                                       const Trk::RecVertex & second) const
   {
     
@@ -379,7 +468,7 @@ namespace InDet
       else
       {
         msg(MSG::WARNING) << " The significance of the distance to the PV is negative or zero definite: " << endreq;
-        msg(MSG::WARNING) << std::scientific << temp << " two-trk vertex : " << first << " PV " << second << std::fixed << endreq;
+	//MU	msg(MSG::WARNING) << std::scientific << temp << " two-trk vertex : " << first << " PV " << second << std::fixed << endreq;
       }
     }
     else
@@ -429,7 +518,7 @@ namespace InDet
     
     
   const Trk::LinkToTrackParticleBase* InDetJetFitterUtils::findNeutralTrackParticleBase(const std::vector<const Trk::LinkToTrackParticleBase*> & /*neutralTracks*/,
-                                                                                        const Trk::VxCandidate & /*myVxCandidate*/) const 
+                                                                                        const xAOD::Vertex & /*myVxCandidate*/) const 
   {
     //THIS WILL ANYWAY NOT WORK WITH NEW EDM! NEEDS TO BE FIXED!
     /*    
@@ -537,14 +626,14 @@ namespace InDet
   }
   
   
-  bool InDetJetFitterUtils::checkIfVxCandidateIsInVector(const Trk::VxCandidate * vertexToCheck,
-                                                         const std::vector<const Trk::VxCandidate*> & vectorOfCandidates) const
+  bool InDetJetFitterUtils::checkIfVxCandidateIsInVector(const xAOD::Vertex * vertexToCheck,
+                                                         const std::vector<const xAOD::Vertex*> & vectorOfCandidates) const
   {
 
-    std::vector<const Trk::VxCandidate*>::const_iterator vectorOfCandidatesBegin=vectorOfCandidates.begin();
-    std::vector<const Trk::VxCandidate*>::const_iterator vectorOfCandidatesEnd=vectorOfCandidates.end();
+    std::vector<const xAOD::Vertex*>::const_iterator vectorOfCandidatesBegin=vectorOfCandidates.begin();
+    std::vector<const xAOD::Vertex*>::const_iterator vectorOfCandidatesEnd=vectorOfCandidates.end();
     
-    for (std::vector<const Trk::VxCandidate*>::const_iterator vectorOfCandidatesIter=vectorOfCandidatesBegin;
+    for (std::vector<const xAOD::Vertex*>::const_iterator vectorOfCandidatesIter=vectorOfCandidatesBegin;
          vectorOfCandidatesIter!=vectorOfCandidatesEnd;
          ++vectorOfCandidatesIter)
     {
@@ -557,21 +646,21 @@ namespace InDet
   }
   
   bool InDetJetFitterUtils::checkIfTrackIsInV0CandidatesVector(const Trk::ITrackLink * trackToCheck,
-                                                               const std::vector<const Trk::VxCandidate*> & vectorOfVxCandidates) const 
+                                                               const std::vector<const xAOD::Vertex*> & vectorOfVxCandidates) const 
   {
     
-    std::vector<const Trk::VxCandidate*>::const_iterator verticesToVetoBegin=vectorOfVxCandidates.begin();
-    std::vector<const Trk::VxCandidate*>::const_iterator verticesToVetoEnd=vectorOfVxCandidates.end();
+    std::vector<const xAOD::Vertex*>::const_iterator verticesToVetoBegin=vectorOfVxCandidates.begin();
+    std::vector<const xAOD::Vertex*>::const_iterator verticesToVetoEnd=vectorOfVxCandidates.end();
     
-    for (std::vector<const Trk::VxCandidate*>::const_iterator verticesToVetoIter=verticesToVetoBegin;
+    for (std::vector<const xAOD::Vertex*>::const_iterator verticesToVetoIter=verticesToVetoBegin;
          verticesToVetoIter!=verticesToVetoEnd;++verticesToVetoIter) 
     {
       
-      Trk::VxTrackAtVertex* firstTrack((*((*verticesToVetoIter)->vxTrackAtVertex()))[0]);
-      Trk::VxTrackAtVertex* secondTrack((*((*verticesToVetoIter)->vxTrackAtVertex()))[1]);
+      Trk::VxTrackAtVertex  firstTrack((((*verticesToVetoIter)->vxTrackAtVertex()))[0]);
+      Trk::VxTrackAtVertex secondTrack((((*verticesToVetoIter)->vxTrackAtVertex()))[1]);
     
-      const Trk::ITrackLink* linkToTP1=firstTrack->trackOrParticleLink();
-      const Trk::ITrackLink* linkToTP2=secondTrack->trackOrParticleLink();
+      const Trk::ITrackLink* linkToTP1= firstTrack.trackOrParticleLink();
+      const Trk::ITrackLink* linkToTP2=secondTrack.trackOrParticleLink();
 
       if (trackToCheck==linkToTP1||
           trackToCheck==linkToTP2)
