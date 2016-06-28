@@ -120,12 +120,10 @@ class TBSimSkeleton(SimSkeleton):
                 dbFiller.addSimParam('EtaPhiStatus', str(simFlags.EventFilter.get_Value()['EtaPhiFilters']))
                 dbFiller.addSimParam('VertexStatus', str(simFlags.EventFilter.get_Value()['VertexPositioner']))
                 dbFiller.addSimParam('VRangeStatus', str(simFlags.EventFilter.get_Value()['VertexRangeChecker']))
-                #dbFiller.addSimParam('PrimaryEventRotations', str(simFlags.EventFilter.get_Value()['PrimaryEventRotations']))
             else :
                 dbFiller.addSimParam('EtaPhiStatus', 'default')
                 dbFiller.addSimParam('VertexStatus', 'default')
                 dbFiller.addSimParam('VRangeStatus', 'default')
-                #dbFiller.addSimParam('PrimaryEventRotations', 'default')
             dbFiller.addSimParam('G4Version', str(os.environ['G4VERS']))
             dbFiller.addSimParam('beamType',jobproperties.Beam.beamType.get_Value())
 
@@ -344,8 +342,8 @@ class CtbSim(TBSimSkeleton):
         ctb_top_volumes()
 
         # recording envelope added to IDET volume
-        rc=CTBRecordingEnvelopes.CtbCaloEntryLayer()
-        MenuRecordEnvelopes.add_RecEnvelope(rc.recenv)
+        ## rc=CTBRecordingEnvelopes.CtbCaloEntryLayer()
+        ## MenuRecordEnvelopes.add_RecEnvelope(rc.recenv)
 
         from G4AtlasApps.SimFlags import simFlags
         if (simFlags.SimLayout.get_Value()=='ctbh8_photon'):
@@ -365,11 +363,11 @@ class CtbSim(TBSimSkeleton):
             if not(simFlags.BeamConditions.statusOn and
                 simFlags.BeamConditions.get_Value()):
                larupmaterial=LArFarUpstreamMaterial(0)
-               rc1=CTBRecordingEnvelopes.LArFarUpstreamMaterialExitLayer(0)
+               ## rc1=CTBRecordingEnvelopes.LArFarUpstreamMaterialExitLayer(0)
             else:
                larupmaterial=LArFarUpstreamMaterial(1)
-               rc1=CTBRecordingEnvelopes.LArFarUpstreamMaterialExitLayer(1)
-            MenuRecordEnvelopes.add_RecEnvelope(rc1.recenv)
+               ## rc1=CTBRecordingEnvelopes.LArFarUpstreamMaterialExitLayer(1)
+            ## MenuRecordEnvelopes.add_RecEnvelope(rc1.recenv)
 
         # -- Inner detector
         if(DetFlags.ID_on()):
@@ -558,71 +556,71 @@ class CtbSim(TBSimSkeleton):
         if(simFlags.LeadUpstreamAbs.statusOn):
             from ctb_common import leadfoil
 
-    @classmethod
-    def do_MagField(self):
-        """ Defines the magnetic field configurations.
-
-            (constant and magnetic field map supported)
-        """
-        # - Magnetic fields
-        #   - Magnetic Field Map only in the IDET volume
-        from G4AtlasApps.SimFlags import simFlags
-        if simFlags.MagFieldMap.statusOn:
-            if(AtlasG4Eng.G4Eng.Dict_DetFacility.has_key('MBPSID') and
-               AtlasG4Eng.G4Eng.Dict_DetFacility.has_key('IDET')):
-                from ctb_field import CTBFieldMap
-                ctbfieldmap=CTBFieldMap(simFlags.MagFieldMap.get_Value(),\
-                simFlags.MagFieldMapCalculation.get_Value())
-            else:
-               AtlasG4Eng.G4Eng.log.warning('CtbSim: magnetic fields: \
-                                                  No MBPSID or IDET volumes')
-        #   - Constant Fields
-        if(simFlags.MagnetMBPSIDBz.statusOn and
-           not(simFlags.MagFieldMap.statusOn)) :
-            if AtlasG4Eng.G4Eng.Dict_DetFacility.has_key('MBPSID'):
-                from ctb_field import CTBConstantField
-                B_MBPSID=CTBConstantField('MBPSID')
-                B_MBPSID.field.Bz=simFlags.MagnetMBPSIDBz.get_Value()
-                AtlasG4Eng.G4Eng.menu_Field.add_Field(B_MBPSID.field)
-            else:
-                AtlasG4Eng.G4Eng.log.warning('CtbSim: magnetic fields: \
-                                                    No MBPSID volume')
-        if simFlags.MagnetMBPLBy.statusOn:
-            if AtlasG4Eng.G4Eng.Dict_DetFacility.has_key('MBPL'):
-                from ctb_field import CTBConstantField
-                B_MBPL=CTBConstantField('MBPL')
-                B_MBPL.field.By=simFlags.MagnetMBPLBy.get_Value()
-                AtlasG4Eng.G4Eng.menu_Field.add_Field(B_MBPL.field)
-            else:
-                AtlasG4Eng.G4Eng.log.warning('CtbSim: magnetic fields: \
-                                            No MBPL volume')
-        if simFlags.MagnetMBPS2By.statusOn:
-            if AtlasG4Eng.G4Eng.Dict_DetFacility.has_key('MBPS2'):
-                from ctb_field import CTBConstantField
-                B_MBPS2=CTBConstantField('MBPS2')
-                B_MBPS2.field.By=simFlags.MagnetMBPS2By.get_Value()
-                AtlasG4Eng.G4Eng.menu_Field.add_Field(B_MBPS2.field)
-            else:
-                AtlasG4Eng.G4Eng.log.warning('CtbSim: magnetic fields: \
-                                            No MBPS2 volume')
-        if simFlags.MagnetMBPL12Bz.statusOn:
-            if AtlasG4Eng.G4Eng.Dict_DetFacility.has_key('MBPL12'):
-                from ctb_field import CTBConstantField
-                B_MBPL12=CTBConstantField('MBPL12')
-                B_MBPL12.field.Bz=simFlags.MagnetMBPL12Bz.get_Value()
-                AtlasG4Eng.G4Eng.menu_Field.add_Field(B_MBPL12.field)
-            else:
-                AtlasG4Eng.G4Eng.log.warning('CtbSim: magnetic fields: \
-                                            No MBPL12 volume')
-        if simFlags.MagnetMBPL13By.statusOn:
-            if AtlasG4Eng.G4Eng.Dict_DetFacility.has_key('MBPL13'):
-                from ctb_field import CTBConstantField
-                B_MBPL13=CTBConstantField('MBPL13')
-                B_MBPL13.field.By=simFlags.MagnetMBPL13By.get_Value()
-                AtlasG4Eng.G4Eng.menu_Field.add_Field(B_MBPL13.field)
-            else:
-                AtlasG4Eng.G4Eng.log.warning('CtbSim: magnetic fields: \
-                                            No MBPL13 volume')
+    ## @classmethod
+    ## def do_MagField(self):
+    ##     """ Defines the magnetic field configurations.
+    ##
+    ##         (constant and magnetic field map supported)
+    ##     """
+    ##     # - Magnetic fields
+    ##     #   - Magnetic Field Map only in the IDET volume
+    ##     from G4AtlasApps.SimFlags import simFlags
+    ##     if simFlags.MagFieldMap.statusOn:
+    ##         if(AtlasG4Eng.G4Eng.Dict_DetFacility.has_key('MBPSID') and
+    ##            AtlasG4Eng.G4Eng.Dict_DetFacility.has_key('IDET')):
+    ##             from ctb_field import CTBFieldMap
+    ##             ctbfieldmap=CTBFieldMap(simFlags.MagFieldMap.get_Value(),\
+    ##             simFlags.MagFieldMapCalculation.get_Value())
+    ##         else:
+    ##            AtlasG4Eng.G4Eng.log.warning('CtbSim: magnetic fields: \
+    ##                                               No MBPSID or IDET volumes')
+    ##     #   - Constant Fields
+    ##     if(simFlags.MagnetMBPSIDBz.statusOn and
+    ##        not(simFlags.MagFieldMap.statusOn)) :
+    ##         if AtlasG4Eng.G4Eng.Dict_DetFacility.has_key('MBPSID'):
+    ##             from ctb_field import CTBConstantField
+    ##             B_MBPSID=CTBConstantField('MBPSID')
+    ##             B_MBPSID.field.Bz=simFlags.MagnetMBPSIDBz.get_Value()
+    ##             AtlasG4Eng.G4Eng.menu_Field.add_Field(B_MBPSID.field)
+    ##         else:
+    ##             AtlasG4Eng.G4Eng.log.warning('CtbSim: magnetic fields: \
+    ##                                                 No MBPSID volume')
+    ##     if simFlags.MagnetMBPLBy.statusOn:
+    ##         if AtlasG4Eng.G4Eng.Dict_DetFacility.has_key('MBPL'):
+    ##             from ctb_field import CTBConstantField
+    ##             B_MBPL=CTBConstantField('MBPL')
+    ##             B_MBPL.field.By=simFlags.MagnetMBPLBy.get_Value()
+    ##             AtlasG4Eng.G4Eng.menu_Field.add_Field(B_MBPL.field)
+    ##         else:
+    ##             AtlasG4Eng.G4Eng.log.warning('CtbSim: magnetic fields: \
+    ##                                         No MBPL volume')
+    ##     if simFlags.MagnetMBPS2By.statusOn:
+    ##         if AtlasG4Eng.G4Eng.Dict_DetFacility.has_key('MBPS2'):
+    ##             from ctb_field import CTBConstantField
+    ##             B_MBPS2=CTBConstantField('MBPS2')
+    ##             B_MBPS2.field.By=simFlags.MagnetMBPS2By.get_Value()
+    ##             AtlasG4Eng.G4Eng.menu_Field.add_Field(B_MBPS2.field)
+    ##         else:
+    ##             AtlasG4Eng.G4Eng.log.warning('CtbSim: magnetic fields: \
+    ##                                         No MBPS2 volume')
+    ##     if simFlags.MagnetMBPL12Bz.statusOn:
+    ##         if AtlasG4Eng.G4Eng.Dict_DetFacility.has_key('MBPL12'):
+    ##             from ctb_field import CTBConstantField
+    ##             B_MBPL12=CTBConstantField('MBPL12')
+    ##             B_MBPL12.field.Bz=simFlags.MagnetMBPL12Bz.get_Value()
+    ##             AtlasG4Eng.G4Eng.menu_Field.add_Field(B_MBPL12.field)
+    ##         else:
+    ##             AtlasG4Eng.G4Eng.log.warning('CtbSim: magnetic fields: \
+    ##                                         No MBPL12 volume')
+    ##     if simFlags.MagnetMBPL13By.statusOn:
+    ##         if AtlasG4Eng.G4Eng.Dict_DetFacility.has_key('MBPL13'):
+    ##             from ctb_field import CTBConstantField
+    ##             B_MBPL13=CTBConstantField('MBPL13')
+    ##             B_MBPL13.field.By=simFlags.MagnetMBPL13By.get_Value()
+    ##             AtlasG4Eng.G4Eng.menu_Field.add_Field(B_MBPL13.field)
+    ##         else:
+    ##             AtlasG4Eng.G4Eng.log.warning('CtbSim: magnetic fields: \
+    ##                                         No MBPL13 volume')
 
 
 #--- Tile TB 2000-2003  ------------------------------------------------
@@ -902,8 +900,8 @@ class LArH6_TB(TBSimSkeleton):
         # - switch off tasks
         DetFlags.pileup.all_setOff()
         DetFlags.simulateLVL1.all_setOff()
-        DetFlags.digitize.all_setOff()
         DetFlags.overlay.all_setOff()
+        DetFlags.digitize.all_setOff()
         DetFlags.readRDOPool.all_setOff()
         DetFlags.makeRIO.all_setOff()
         DetFlags.writeBS.all_setOff()
@@ -1027,13 +1025,16 @@ class LArH6_TB(TBSimSkeleton):
 
     @classmethod
     def do_UserActions(self):
-        from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-        from G4AtlasApps.SimFlags import simFlags
-        if (simFlags.SimLayout.get_Value()=='tb_LArH6_2004'):
-            # ADS FIXME is it ok to add this system action here?
-            UAStore.addSystemAction('LArHitsH6EventAction',['EndOfEvent'])
-            UAStore.addAction('LArGeoH62004EventAction',['EndOfEvent'])
-            if simFlags.LArTB_H6Step.statusOn:
-               if simFlags.LArTB_H6Step.get_Value():
-                   UAStore.addAction('LArGeoH62004SteppingAction',['Step'])
-                   UAStore.addAction('RadLenNtuple',['BeginOfEvent','EndOfEvent','Step'])
+        # ADS: this is not needed anymore with the migration to the new MT UAs
+        #from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+        #from G4AtlasApps.SimFlags import simFlags
+        #if (simFlags.SimLayout.get_Value()=='tb_LArH6_2004'):
+        #    # ADS FIXME is it ok to add this system action here?
+        #    UAStore.addSystemAction('LArHitsH6EventAction',['EndOfEvent'])
+        #    UAStore.addAction('LArGeoH62004EventAction',['EndOfEvent'])
+        #    if simFlags.LArTB_H6Step.statusOn:
+        #       if simFlags.LArTB_H6Step.get_Value():
+        #           UAStore.addAction('LArGeoH62004SteppingAction',['Step'])
+        #           UAStore.addAction('RadLenNtuple',['BeginOfEvent','EndOfEvent','Step'])
+
+        return

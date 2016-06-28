@@ -61,7 +61,8 @@ class AtlasSimSkeleton(SimSkeleton):
         DetFlags.pileup.all_setOff()
         DetFlags.simulateLVL1.all_setOff()
         DetFlags.digitize.all_setOff()
-        DetFlags.overlay.all_setOff()
+        if not simFlags.IsEventOverlayInputSim():
+            DetFlags.overlay.all_setOff()
         DetFlags.readRDOPool.all_setOff()
         DetFlags.makeRIO.all_setOff()
         DetFlags.writeBS.all_setOff()
@@ -87,12 +88,9 @@ class AtlasSimSkeleton(SimSkeleton):
             if simFlags.EventFilter.statusOn and simFlags.EventFilter.get_Value()['EtaPhiFilters']:
                 AtlasG4Eng.G4Eng.log.info('AtlasSimSkeleton._do_jobproperties :: Running Cavern BG simulation - turning off EtaPhi Filter!')
                 simFlags.EventFilter.switchFilterOff('EtaPhiFilters')
-            if simFlags.CavernBG.get_Value()=='Read' and \
-               simFlags.EventFilter.statusOn and simFlags.EventFilter.get_Value()['VertexPositioner']:
-                AtlasG4Eng.G4Eng.log.info('AtlasSimSkeleton._do_jobproperties :: Reading Cavern BG events - turning off Vertex Positioner (and VertexFromCondDB and VertexTimeOffset)!')
-                simFlags.EventFilter.switchFilterOff('VertexPositioner')
-                simFlags.VertexFromCondDB.set_Off()
-                simFlags.VertexTimeOffset.set_Off()
+            if simFlags.CavernBG.get_Value()=='Read':
+                 simFlags.VertexFromCondDB.set_Off()
+                 simFlags.VertexTimeOffset.set_Off()
 
         # Switch off GeoModel Release in the case of parameterization
         if simFlags.LArParameterization.get_Value()>0 and simFlags.ReleaseGeoModel():
@@ -254,88 +252,39 @@ class AtlasSimSkeleton(SimSkeleton):
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoEnv :: starting')
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoEnv :: done')
 
+
     @classmethod
     def do_UserActions(self):
         """
-        User actions: TrackProcessor
+        User actions: with the migration ot MT UA, this method is no longer needed.
         """
-        # this line to make sure that the default UAs are added to the list
-        from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+        return
 
-        # only setup those user actions if running within ISF
-        from G4AtlasApps.SimFlags import simFlags
-        if simFlags.ISFRun:
-
-            from AthenaCommon.AppMgr import ToolSvc,ServiceMgr
-            ##hack to allow for different named Configurations of the UserActions
-            def UserActionPath(basename):
-                actionString=''
-                for t in ToolSvc.getAllChildren():
-                    if basename in t.getName():
-                        actionString = t.getName()
-                        break
-                from G4AtlasApps import AtlasG4Eng
-                if ''==actionString:
-                    AtlasG4Eng.G4Eng.log.error('ISF_AtlasSimSkeleton::do_UserActions: Could not find ' + basename + ' instance in ToolSvc!')
-                    raise SystemExit('ISF_AtlasSimSkeleton::do_UserActions: Could not find ' + basename + ' instance in ToolSvc!')
-                else:
-                    AtlasG4Eng.G4Eng.log.info('ISF_AtlasSimSkeleton::do_UserActions: Found a ' + basename + ' instance called ' + actionString)
-                return actionString
-            from AthenaCommon.CfgGetter import getPublicTool
-            UAStore.addAction( getPublicTool(UserActionPath('TrackProcessorUserAction')),['Step','BeginOfTracking','BeginOfEvent','EndOfTracking','EndOfEvent'])
-            UAStore.addAction( getPublicTool(UserActionPath('MCTruthUserAction')),['BeginOfTracking','EndOfTracking'])
-            from ISF_Config.ISF_jobProperties import ISF_Flags
-            if ISF_Flags.ValidationMode.get_Value():
-                UAStore.addAction( getPublicTool(UserActionPath('PhysicsValidationUserAction')),['BeginOfRun','EndOfEvent','Step','BeginOfTracking','BeginOfEvent'])
 
     @classmethod
     def do_GeoSD(self):
         """ Configure the geometry and SD
         """
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoSD :: starting')
-        ## Different geometry-levels for rec envelopes depending into simFlags.SimLayout
-        recenv_level = 2
-        from G4AtlasApps.SimFlags import simFlags
-        from AthenaCommon.BeamFlags import jobproperties
-        if jobproperties.Beam.beamType() == 'cosmics' or \
-                (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
-            recenv_level = 3
-
-        # if this is an ISF run, allow the collections on store gate to be modified
-        # by other algorithms (i.e. set them non-const)
-        allowSGMods = True if simFlags.ISFRun else False
-
-        ## Get a handle to the RecEnv menu
-        if not simFlags.ISFRun:
-            menuRecordEnvelopes = AtlasG4Eng.G4Eng.menu_RecordEnvelope()
-            from atlas_mctruth import RecordingEnvelopes
 
         ## Inner detector
         if DetFlags.ID_on():
-            if not simFlags.ISFRun:
-                rc = RecordingEnvelopes.AtlasCaloEntryLayer(recenv_level, allowSGMods)
-                menuRecordEnvelopes.add_RecEnvelope(rc.recenv)
             if DetFlags.geometry.TRT_on():
                 AtlasG4Eng.G4Eng.read_XML("TRgeomodelgeometry.xml") # FIXME need to find a better way to do this
 
         ## Calorimeters
         if DetFlags.Calo_on():
-            if not simFlags.ISFRun:
-                rc = RecordingEnvelopes.AtlasMuonEntryLayer(recenv_level, allowSGMods)
-                menuRecordEnvelopes.add_RecEnvelope(rc.recenv)
-
             ## LAr
             if DetFlags.geometry.LAr_on():
+                from G4AtlasApps.SimFlags import simFlags
+                # if this is an ISF run, allow the collections on store gate to be modified
+                # by other algorithms (i.e. set them non-const)
+                allowSGMods = True if simFlags.ISFRun else False
                 from atlas_calo import PyLArG4RunControler
                 lArG4RunControl = PyLArG4RunControler('PyLArG4RunControl', 'LArG4RunControlDict', allowMods=allowSGMods)
 
-        ## Muon system
-        if DetFlags.geometry.Muon_on():
-            if not simFlags.ISFRun:
-                rc = RecordingEnvelopes.AtlasMuonExitLayer(recenv_level, allowSGMods)
-                menuRecordEnvelopes.add_RecEnvelope(rc.recenv)
-
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoSD :: done')
+
 
     @classmethod
     def do_MCtruth(self):
@@ -387,107 +336,6 @@ class AtlasSimSkeleton(SimSkeleton):
             mcTruthMenu.set_SecondarySaving('StoredSecondaries')
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_MCTruth :: done')
 
-
-    @classmethod
-    def _do_MagField(self):
-        """ Configure the magnetic field
-        """
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_MagField :: starting')
-        from G4AtlasApps.SimFlags import simFlags
-        if simFlags.MagneticField.statusOn:
-            if simFlags.MagneticField() == 'AtlasFieldSvc':
-                from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-                import MagFieldServices.SetupField
-                # TODO: would be useful if the AthenaSvc name can be handed over to the PyG4Atlas.MagneticField somehow
-                # currently G4AtlasFieldSvc.cxx retrieves a field service with the default name 'AtlasFieldSvc'
-                atlasfield = PyG4Atlas.MagneticField('G4Field', 'G4AtlasFieldSvc', typefield='MapField')
-            else:
-                raise Exception('IllegalFieldServiceSpecification')
-
-            atlasfield.set_FieldMapFileName(simFlags.MagneticField.get_Value())
-
-            if DetFlags.bpipe_on():
-                # BeamPipe volume is not added to DetFacility until
-                # later on in the simulation set-up (during the
-                # do_GeoSD method), so have to rely on the DetFlag
-                # check here.
-                AtlasG4Eng.G4Eng.log.debug('AtlasSimSkeleton._do_MagField :: Increasing BeamPipe Tracking Precision')
-                atlasfield.add_Volume('BeamPipe::BeamPipe')
-                atlasfield.set_G4FieldTrackParameters('DeltaIntersection',  'BeamPipe::BeamPipe', 0.00001)
-                atlasfield.set_G4FieldTrackParameters('DeltaOneStep',       'BeamPipe::BeamPipe', 0.0001)
-                atlasfield.set_G4FieldTrackParameters('MaximumEpsilonStep', 'BeamPipe::BeamPipe', 0.001)
-                atlasfield.set_G4FieldTrackParameters('MinimumEpsilonStep', 'BeamPipe::BeamPipe', 0.00001)
-            if DetFlags.ID_on():
-                AtlasG4Eng.G4Eng.log.debug('AtlasSimSkeleton._do_MagField :: Increasing IDET Tracking Precision')
-                atlasfield.add_Volume('IDET::IDET')
-                atlasfield.set_G4FieldTrackParameters('DeltaIntersection', 'IDET::IDET', 0.00001)
-                atlasfield.set_G4FieldTrackParameters('DeltaOneStep', 'IDET::IDET', 0.0001)
-                atlasfield.set_G4FieldTrackParameters('MaximumEpsilonStep', 'IDET::IDET', 0.001)
-                atlasfield.set_G4FieldTrackParameters('MinimumEpsilonStep', 'IDET::IDET', 0.00001)
-            if DetFlags.Muon_on():
-                AtlasG4Eng.G4Eng.log.debug('AtlasSimSkeleton._do_MagField :: Increasing MUONQ02 Tracking Precision')
-                atlasfield.add_Volume('MUONQ02::MUONQ02')
-                atlasfield.set_G4FieldTrackParameters('DeltaIntersection', 'MUONQ02::MUONQ02', 0.00000002)
-                atlasfield.set_G4FieldTrackParameters('DeltaOneStep', 'MUONQ02::MUONQ02', 0.000001)
-                atlasfield.set_G4FieldTrackParameters('MaximumEpsilonStep', 'MUONQ02::MUONQ02', 0.0000009)
-                atlasfield.set_G4FieldTrackParameters('MinimumEpsilonStep', 'MUONQ02::MUONQ02', 0.000001)
-            AtlasG4Eng.G4Eng.menu_Field.add_Field(atlasfield)
-            if simFlags.EquationOfMotion.statusOn:
-                AtlasG4Eng.G4Eng.menu_Field.set_EquationOfMotion( simFlags.EquationOfMotion.get_Value() )
-            ## Forward Region
-            if simFlags.ForwardDetectors.statusOn:
-                if DetFlags.geometry.FwdRegion_on():
-                    # Set up the field
-                    step_limitation = None
-                    if simFlags.FwdStepLimitation.statusOn:
-                        step_limitation = simFlags.FwdStepLimitation()
-                    fieldVolumes = []
-                    fieldVolumes += [ ['Q1', ['FwdRegion::LQXAA.1R1MagQ1'] ] ]
-                    fieldVolumes += [ ['Q2', ['FwdRegion::LQXBA.2R1MagQ2a', 'FwdRegion::LQXBA.2R1MagQ2b'] ] ]
-                    fieldVolumes += [ ['Q3', ['FwdRegion::LQXAG.3R1MagQ3'] ] ]
-                    fieldVolumes += [ ['D1', [ 'FwdRegion::MBXW.A4R1MagD1a', 'FwdRegion::MBXW.B4R1MagD1b', 'FwdRegion::MBXW.C4R1MagD1c',\
-                                               'FwdRegion::MBXW.D4R1MagD1d', 'FwdRegion::MBXW.E4R1MagD1e', 'FwdRegion::MBXW.F4R1MagD1f'] ] ]
-                    fieldVolumes += [ ['D2', ['FwdRegion::LBRCD.4R1MagD2'] ] ]
-                    fieldVolumes += [ ['Q4', ['FwdRegion::LQYCH.4R1MagQ4'] ] ]
-                    fieldVolumes += [ ['Q5', ['FwdRegion::LQNDC.5R1MagQ5'] ] ]
-                    fieldVolumes += [ ['Q6', ['FwdRegion::LQNDD.6R1MagQ6'] ] ]
-                    fieldVolumes += [ ['Q7', ['FwdRegion::LQNFD.7R1MagQ7a', 'FwdRegion::LQNFD.7R1MagQ7b'] ] ]
-                    fieldVolumes += [ ['Q1HKick', ['FwdRegion::LQXAA.1R1MagQ1HKick'] ] ]
-                    fieldVolumes += [ ['Q1VKick', ['FwdRegion::LQXAA.1R1MagQ1VKick'] ] ]
-                    fieldVolumes += [ ['Q2HKick', ['FwdRegion::LQXBA.2R1MagQ2HKick'] ] ]
-                    fieldVolumes += [ ['Q2VKick', ['FwdRegion::LQXBA.2R1MagQ2VKick'] ] ]
-                    fieldVolumes += [ ['Q3HKick', ['FwdRegion::LQXAG.3R1MagQ3HKick'] ] ]
-                    fieldVolumes += [ ['Q3VKick', ['FwdRegion::LQXAG.3R1MagQ3VKick'] ] ]
-                    fieldVolumes += [ ['Q4VKickA', ['FwdRegion::LQYCH.4R1MagQ4VKickA'] ] ]
-                    fieldVolumes += [ ['Q4HKick', ['FwdRegion::LQYCH.4R1MagQ4HKick'] ] ]
-                    fieldVolumes += [ ['Q4VKickB', ['FwdRegion::LQYCH.4R1MagQ4VKickB'] ] ]
-                    fieldVolumes += [ ['Q5HKick', ['FwdRegion::LQNDC.5R1MagQ5HKick'] ] ]
-                    fieldVolumes += [ ['Q6VKick', ['FwdRegion::LQNDD.6R1MagQ6VKick'] ] ]
-
-                    epsMin = 1e-9
-                    epsMax = 1e-8
-                    deltaIntersection = 1e-9
-                    deltaOneStep = 1e-8
-
-                    for i in fieldVolumes:
-                        a_field = PyG4Atlas.MagneticField('ForwardRegionMgField',i[0],typefield='MapField')
-                        for v in i[1]:
-                            a_field.add_Volume(v)
-                            a_field.set_G4FieldTrackParameters('DeltaIntersection',  v, deltaIntersection)
-                            a_field.set_G4FieldTrackParameters('DeltaOneStep',       v, deltaOneStep)
-                            a_field.set_G4FieldTrackParameters('MaximumEpsilonStep', v, epsMax)
-                            a_field.set_G4FieldTrackParameters('MinimumEpsilonStep', v, epsMin)
-
-                            # limit step length
-                            if step_limitation is not None:
-                                AtlasG4Eng.G4Eng._ctrl.geometryMenu.SetMaxStep(v, step_limitation)
-
-                        a_field.set_FieldMapFileName(i[0])
-                        AtlasG4Eng.G4Eng.menu_Field.add_Field(a_field)
-
-                    if step_limitation is not None:
-                        AtlasG4Eng.G4Eng._ctrl.geometryMenu.SetMaxStep('FwdRegion::ForwardRegionGeoModel', step_limitation)
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_MagField :: done')
 
     @classmethod
     def _do_metadata(self):
@@ -646,19 +494,7 @@ class AtlasSimSkeleton(SimSkeleton):
             stat = menu_EventFilter.getFilterStatus()
             ## TODO: Always switch off the EtaPhiFilters if ALFA/ZDC/AFP are being simulated?
             stat['EtaPhiFilters'] = simFlags.EventFilter.get_Value()['EtaPhiFilters']
-            stat['VertexPositioner'] = simFlags.EventFilter.get_Value()['VertexPositioner']
-            if not stat['VertexPositioner']:
-                if simFlags.VertexFromCondDB.statusOn and simFlags.VertexFromCondDB():
-                    AtlasG4Eng.G4Eng.log.error('AtlasSimSkeleton._do_EventFilter :: simFlags.EventFilter[VertexPositioner] has been switched off, but simFlags.VertexFromCondDB is switched on.')
-                    AtlasG4Eng.G4Eng.log.warning('Please check your configuration.')
-                if simFlags.VertexTimeOffset.statusOn and simFlags.VertexTimeOffset.get_Value() != 0:
-                    AtlasG4Eng.G4Eng.log.error('AtlasSimSkeleton._do_EventFilter :: simFlags.EventFilter[VertexPositioner] has been switched off, but simFlags.VertexTimeOffset is set to True.')
-                    AtlasG4Eng.G4Eng.log.warning('Please check your configuration.')
-            elif not simFlags.VertexFromCondDB.statusOn:
-                 AtlasG4Eng.G4Eng.log.info('AtlasSimSkeleton._do_EventFilter :: simFlags.EventFilter[VertexPositioner] is on, but simFlags.VertexFromCondDB is switched off. Assuming that you have set up the BeamCondSvc yourself.')
             stat['VertexRangeChecker'] = simFlags.EventFilter.get_Value()['VertexRangeChecker']
-            stat['BeamEffectTransformation'] = simFlags.EventFilter.get_Value()['BeamEffectTransformation']
-            stat['PrimaryEventRotations'] = simFlags.EventFilter.get_Value()['PrimaryEventRotations']
             menu_EventFilter._build()
 
             if stat['EtaPhiFilters']:
@@ -667,24 +503,4 @@ class AtlasSimSkeleton(SimSkeleton):
                 etarange = 7.0 if DetFlags.geometry.Lucid_on() else 6.0
                 etaFilter.AddEtaInterval(-etarange, etarange)
 
-            # Additional options for beam effect transport
-            if stat['BeamEffectTransformation']:
-                beFilter = menu_EventFilter.getFilter('BeamEffectTransformation')
-                if simFlags.BeamEffectOptions.statusOn:
-                    for opt in simFlags.BeamEffectOptions.get_Value().keys():
-                        exec( 'beFilter.Set_'+opt+'(float('+str(simFlags.BeamEffectOptions.get_Value()[opt])+'))' )
-                        exec( 'new_value = beFilter.Get_'+opt+'()' )
-                        AtlasG4Eng.G4Eng.log.info('Set BeamEffectTransformation option '+opt+' to '+str( new_value ) )
-
-        if simFlags.VertexTimeOffset.statusOn and simFlags.VertexTimeOffset.get_Value() != 0:
-            raise RuntimeError( 'Vertex time offset should not be used!' )
-
-        if hasattr(simFlags, 'RandomSvc') and simFlags.RandomSvc.statusOn:
-                AtlasG4Eng.G4Eng._ctrl.physicsMenu.SetRandomNumberService( simFlags.RandomSvc() )
-        if simFlags.VertexOverrideFile.statusOn:
-            AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_EventFilter :: Setting vertex override file '+str(simFlags.VertexOverrideFile()))
-            AtlasG4Eng.G4Eng._ctrl.physicsMenu.SetVertexOverrideFile( simFlags.VertexOverrideFile() )
-        if simFlags.VertexOverrideEventFile.statusOn:
-            AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_EventFilter :: Setting vertex override event file '+str(simFlags.VertexOverrideEventFile()))
-            AtlasG4Eng.G4Eng._ctrl.physicsMenu.SetVertexOverrideEventFile( simFlags.VertexOverrideEventFile() )
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_EventFilter :: done')
