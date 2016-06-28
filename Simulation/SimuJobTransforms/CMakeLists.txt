@@ -7,8 +7,7 @@ atlas_subdir( SimuJobTransforms )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Tools/PyJobTransforms
-                          Tools/PyJobTransformsCore )
+                          Tools/PyJobTransforms )
 
 # External dependencies:
 find_package( PythonLibs )
