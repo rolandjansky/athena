@@ -19,7 +19,11 @@ def configureFlagsBase():
     ## Configure tasks
     DetFlags.digitize.all_setOff()
     DetFlags.makeRIO.all_setOff()
-    DetFlags.overlay.all_setOff() # will soon be needed
+    from G4AtlasApps.SimFlags import simFlags
+    if not (hasattr(simFlags, 'IsEventOverlayInputSim') and simFlags.IsEventOverlayInputSim()):
+        # Unless this is an Overlay input simulation job switch off
+        # the overlay DetFlags.
+        DetFlags.overlay.all_setOff()
     DetFlags.pileup.all_setOff()
     DetFlags.readRDOBS.all_setOff()
     DetFlags.readRDOPool.all_setOff()
