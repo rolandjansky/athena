@@ -147,38 +147,3 @@ class MCTruthStrategies(object):
         def __init__(self,level=1):
             self.strg=PyG4Atlas.MCTruthStrg('G4TruthStrategies', 'DMuonCatchAll','MUONQ02::MUONQ02',level)
 
-
-class RecordingEnvelopes(object):
-    """
-    Defines the recording envelopes in use in the full ATLAS simulations
-
-    The hits are recorded with the TrackRecorderSD in the
-    TrackRecordCollection collection.
-    """
-
-    class AtlasCaloEntryLayer:
-        """ Defines the recording envelope AtlasCaloEntryLayer
-
-            Hits in TrackRecordCollection#CaloEntryLayer
-            (by default it will be applied to level 2 but this is optional)
-        """
-        def __init__(self,level=2,allowMods=False):
-            self.recenv=PyG4Atlas.RecEnvelope('CaloEntryLayer','IDET::IDET',level,allowMods)
-
-    class AtlasMuonEntryLayer:
-        """ Defines the recording envelope MuonEntryLayer
-
-            Hits in TrackRecordCollection#MuonEntryLayer
-            (by default it will be applied to level 2 but this is optional)
-        """
-        def __init__(self,level=2,allowMods=False):
-            self.recenv=PyG4Atlas.RecEnvelope('MuonEntryLayer','CALO::CALO',level,allowMods)
-
-    class AtlasMuonExitLayer:
-        """ Defines the recording envelope MuonExitLayer
-
-            Hits in TrackRecordCollection#MuonExitLayer
-            (by default it will be applied to level 2 but this is optional)
-        """
-        def __init__(self,level=2,allowMods=False):
-            self.recenv=PyG4Atlas.RecEnvelope('MuonExitLayer','MUONQ02::MUONQ02',level,allowMods)
