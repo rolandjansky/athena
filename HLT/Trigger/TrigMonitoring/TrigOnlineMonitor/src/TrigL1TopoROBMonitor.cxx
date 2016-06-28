@@ -94,6 +94,8 @@ TrigL1TopoROBMonitor::TrigL1TopoROBMonitor(const std::string& name, ISvcLocator*
   m_histTopoCtpHdwEventComparison(0),
   m_histTopoSimResult(0),
   m_histTopoHdwResult(0),
+  m_histTopoSimNotHdwResult(0),
+  m_histTopoHdwNotSimResult(0),
   m_histTopoProblems(0),
   m_histInputLinkCRCfromROIConv(0),
   m_setTopoSimResult(false)
@@ -275,6 +277,8 @@ StatusCode TrigL1TopoROBMonitor::beginRun() {
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoCtpHdwEventComparison, "CTP_Hdw_vs_L1Topo_Hdw_Events", "L1Topo decisions hardware (trigger|overflow) XOR CTP TIP hardware event-by-event differences, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimResult, "SimResults", "L1Topo simulation accepts, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoHdwResult, "HdwResults", "L1Topo hardware accepts, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimNotHdwResult, "SimNotHdwResult", "L1Topo events with simulation accept and hardware fail, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoHdwNotSimResult, "HdwNotSimResult", "L1Topo events with hardware accept and simulation fail, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
   unsigned int nProblems=m_problems.size();
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoProblems, "Problems", "Counts of various problems", nProblems, 0, nProblems) ) ;
   CHECK( bookAndRegisterHist(rootHistSvc, m_histInputLinkCRCfromROIConv, "InputLinkCRCs","CRC flags for input links, from ROI via converter", 5, 0, 5) );
@@ -327,10 +331,13 @@ StatusCode TrigL1TopoROBMonitor::beginRun() {
       else {
         label=std::to_string(binIndex); // do not add 1 because TriggerLines are numbered from zero. The bin label is thus in effect the counter value that is not assigned to any TriggerLine.
       }
+      ATH_MSG_VERBOSE("L1topo bit "<<binIndex<<" label: "<<label);
       m_histTriggerBitsFromROIConv->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histOverflowBitsFromROIConv->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histTopoSimResult->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histTopoHdwResult->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
+      m_histTopoSimNotHdwResult->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
+      m_histTopoHdwNotSimResult->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());      
       m_histTopoSimHdwStatComparison->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histTopoSimHdwEventComparison->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histTopoCtpSimHdwEventComparison->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
@@ -697,6 +704,10 @@ StatusCode TrigL1TopoROBMonitor::doSimMon(bool prescalForDAQROBAccess){
         }
         for (unsigned int i=0; i< m_nTopoCTPOutputs; ++i){
           m_histTopoSimResult->Fill(i,m_topoSimResult.test(i)); 
+        }
+        for (unsigned int i=0; i< m_nTopoCTPOutputs; ++i){
+          m_histTopoSimNotHdwResult->Fill(i, m_topoSimResult.test(i) and not m_triggerBits.test(i));
+          m_histTopoHdwNotSimResult->Fill(i, m_triggerBits.test(i) and not m_topoSimResult.test(i));
         }
 
         // debug printout
