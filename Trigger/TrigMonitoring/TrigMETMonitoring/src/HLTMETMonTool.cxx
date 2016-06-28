@@ -780,8 +780,10 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
   //if (m_hlt_cell_met_cont && m_hlt_cell_met_cont->size()) {  
   //m_hlt_met = m_hlt_cell_met_cont->at(0);
-  if (m_hlt_topocl_met_cont && m_hlt_topocl_met_cont->size()) {  
-    m_hlt_met = m_hlt_topocl_met_cont->at(0);
+  //if (m_hlt_topocl_met_cont && m_hlt_topocl_met_cont->size()) {  
+  //m_hlt_met = m_hlt_topocl_met_cont->at(0);
+  if (m_hlt_mht_met_cont && m_hlt_mht_met_cont->size()) {  
+    m_hlt_met = m_hlt_mht_met_cont->at(0);
     
     hlt_ex = m_hlt_met->ex()/CLHEP::GeV; 
     hlt_ey = m_hlt_met->ey()/CLHEP::GeV; 
