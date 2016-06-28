@@ -8,3 +8,8 @@ if hasattr(runArgs, "jobNumber"):
 if hasattr(runArgs, "inputTXT_EVENTIDFile"):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     overlayFlags.EventIDTextFile = runArgs.inputTXT_EVENTIDFile[0]
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.load_atlas_flags()
+    if hasattr(simFlags, 'IsEventOverlayInputSim'):
+        simFlags.IsEventOverlayInputSim = True
+
