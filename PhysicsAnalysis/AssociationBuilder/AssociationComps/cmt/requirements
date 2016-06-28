@@ -9,8 +9,8 @@ use  AtlasPolicy                AtlasPolicy-*
 private
 use  AssociationKernel          AssociationKernel-*             PhysicsAnalysis/AssociationBuilder
 use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  AthenaKernel               AthenaKernel-*                  Control
 use  AtlasBoost                 AtlasBoost-*                    External
-use  AtlasCLHEP                 AtlasCLHEP-*                    External
 use  CaloEvent                  CaloEvent-*                     Calorimeter
 use  AthContainers              AthContainers-*                 Control
 use  AthLinks                   AthLinks-*                      Control
