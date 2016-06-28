@@ -118,17 +118,17 @@ StatusCode FTK::TrigFTKByteStreamTool::convert(IROBDataProviderSvc& dataProvider
     OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData = 0;
     (*rob)->rod_data(rodData);
 
-    
-    const uint32_t nTracks = FTKByteStreamDecoderEncoder::decodeNumberOfTracks(rodData);
+    uint32_t nTracks = nData / 22; //22: TrackBlobSize, FTKByteStreamDecoderEncoder.h
     
     // sanity check about the sizes
-    if ( nData == nTracks * FTKByteStreamDecoderEncoder::TrackBlobSize + 1) {
-      ATH_MSG_DEBUG( "[convert to FTK_RawTrackContainer] Payload sizes look right" );      
-    } else{
-      ATH_MSG_ERROR ( "[convert to FTK_RawTrackContainer] Payload sizes look wrong " );      
-      return StatusCode::FAILURE;
-    }
-    CHECK( FTKByteStreamDecoderEncoder::decode(rodData, result, msg()));    
+    // if ( nData == nTracks * FTKByteStreamDecoderEncoder::TrackBlobSize + 1) {
+    //   ATH_MSG_DEBUG( "[convert to FTK_RawTrackContainer] Payload sizes look right" );      
+    // } else{
+    //   ATH_MSG_ERROR ( "[convert to FTK_RawTrackContainer] Payload sizes look wrong " );      
+    //   return StatusCode::FAILURE;
+    // }
+
+    CHECK( FTKByteStreamDecoderEncoder::decode(nTracks, rodData, result, msg()));    
   }
   return StatusCode::SUCCESS;
 }

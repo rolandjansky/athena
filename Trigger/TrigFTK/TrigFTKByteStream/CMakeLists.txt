@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Event/ByteStreamCnvSvcBase
                           Event/ByteStreamData
+                          Tools/PyJobTransforms
                           GaudiKernel
                           Trigger/TrigFTK/TrigFTK_RawData
                           PRIVATE
@@ -30,4 +31,5 @@ atlas_add_component( TrigFTKByteStream
 
 # Install files from the package:
 atlas_install_headers( TrigFTKByteStream )
-
+atlas_install_python_modules( python/*.py )
+atlas_install_joboptions( share/*.py )

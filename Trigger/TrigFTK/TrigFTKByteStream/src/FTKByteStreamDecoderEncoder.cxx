@@ -110,19 +110,8 @@ namespace FTKByteStreamDecoderEncoder {
 
 
 
-  StatusCode decode(OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result, 
+  StatusCode decode(uint32_t nTracks, OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result, 
 		    MsgStream& msg) {
-    
-    uint16_t nTracksHighPt;
-    uint16_t nTracksLowPt;
-    uint32_t nTracks;
-    unpackNumberOfTracks(rodData, nTracksLowPt, nTracksHighPt, nTracks);
-    
-    msg << MSG::DEBUG << "[convert to FTK_RawTrackContainer] ntracks All: " << nTracks 
-	<< " Lo pT: " << nTracksLowPt 
-	<< " Hi pT: " << nTracksHighPt << endreq;      
-
-    rodData++;
     
     result->reserve(result->size() + nTracks);
     for ( size_t i = 0; i < nTracks; ++i ) {
