@@ -123,7 +123,8 @@ Root::TElectronEfficiencyCorrectionTool::calcDetailLevels(TH1D *eig) {
       m_sLevel[Root::TElectronEfficiencyCorrectionTool::medium] = i - 2;
     }
   }
-  m_nSys = nSys;
+ 
+    m_nSys = nSys;
 }
 
 // =============================================================================
@@ -208,12 +209,11 @@ Root::TElectronEfficiencyCorrectionTool::buildSingleCombToyMC(TH2D *sf, TH2D *st
 
     // Add larger correlated systematics
     for (int s = m_sLevel[m_detailLevel]; s < m_nSys; s++) {
-      if (corr->At(s) != NULL) {
+       if (corr->At(s) != NULL) {
         val += ((TH2D *) corr->At(s))->GetBinContent(bin) * rnd[s];
       }
     }
-
-    tmpHist->SetBinContent(bin, val + sf->GetBinContent(bin));
+     tmpHist->SetBinContent(bin, val + sf->GetBinContent(bin));
   }
 
   tmpHist->SetDirectory(0);
@@ -413,7 +413,7 @@ Root::TElectronEfficiencyCorrectionTool::initialize() {
   m_result.setResult(m_position_uncorrSys, 0);
   m_isInitialized = kTRUE;
 
-  ATH_MSG_INFO("Tool succesfully initialized!");
+  ATH_MSG_INFO("Tool succesfully initialized!"<< m_nSys << "  " << m_nSysMax);
   return sc;
 }
 
@@ -670,7 +670,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
       }
     }
   }
-  if (m_position_corrSys.size() > 0) {
+  if (m_position_corrSys.size() > 0 && sysList->at(index).at(m_runnumberIndex)->GetEntries()<=1) {
     if (m_result.getResult(m_position_corrSys[0]) == 0) {
       m_result.setResult(m_position_corrSys[0], scaleFactorErr);
     }
