@@ -31,6 +31,7 @@
 //#include "TrkParticleBase/TrackParticleBase.h"
 //#include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkParameters/TrackParameters.h"
+#include "xAODTracking/Vertex.h" 
 
 namespace Trk {
   class VxCandidate;
@@ -80,12 +81,18 @@ namespace InDet {
                                     const Trk::RecVertex & primaryVertex) const;
 
     int getTwoTrackVtxCharge(const Trk::VxCandidate & myVxCandidate) const;
+    int getTwoTrackVtxCharge(const xAOD::Vertex & myVxCandidate) const;
     
     double getTwoTrackVtxMass(const Trk::VxCandidate & myVxCandidate,
                               double highestMomMass,
                               double lowestMomMass) const;
 
-    std::pair<double,double> getDistanceAndErrorBetweenTwoVertices(const Trk::RecVertex &,
+    double getTwoTrackVtxMass(const xAOD::Vertex & myVxCandidate,
+                              double highestMomMass,
+                              double lowestMomMass) const;
+
+
+    std::pair<double,double> getDistanceAndErrorBetweenTwoVertices(const xAOD::Vertex &,
                                                                    const Trk::RecVertex &) const;
     
     std::pair<double,double> getD0andZ0IP(const Trk::TrackParameters & trackPerigee,
@@ -93,6 +100,9 @@ namespace InDet {
     
     const Trk::LinkToTrackParticleBase* findNeutralTrackParticleBase(const std::vector<const Trk::LinkToTrackParticleBase*> &,
                                                                      const Trk::VxCandidate &) const;
+
+    const Trk::LinkToTrackParticleBase* findNeutralTrackParticleBase(const std::vector<const Trk::LinkToTrackParticleBase*> &,
+                                                                     const xAOD::Vertex &) const;
 
     bool checkIfTrackIsInVector(const Trk::ITrackLink * trackToCheck,
                                 const std::vector<const Trk::ITrackLink*> & vectorOfTracks) const;
@@ -104,10 +114,10 @@ namespace InDet {
                                             const std::vector<const Trk::LinkToTrackParticleBase*> & vectorOfNeutrals) const;
 
     bool checkIfTrackIsInV0CandidatesVector(const Trk::ITrackLink * trackToCheck,
-                                            const std::vector<const Trk::VxCandidate*> & vectorOfVxCandidates) const;
+                                            const std::vector<const xAOD::Vertex*> & vectorOfVxCandidates) const;
 
-    bool checkIfVxCandidateIsInVector(const Trk::VxCandidate * vertexToCheck,
-                                      const std::vector<const Trk::VxCandidate*> & vectorOfCandidates) const;
+    bool checkIfVxCandidateIsInVector(const xAOD::Vertex * vertexToCheck,
+                                      const std::vector<const xAOD::Vertex*> & vectorOfCandidates) const;
 
    
     

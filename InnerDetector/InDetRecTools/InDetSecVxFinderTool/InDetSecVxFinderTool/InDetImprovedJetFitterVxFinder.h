@@ -29,16 +29,11 @@
 #ifndef TrkJetVxFitter_InDetImprovedJetFitterVxFinder_H
 #define TrkJetVxFitter_InDetImprovedJetFitterVxFinder_H
 
-
 #include "InDetRecToolInterfaces/ISecVertexInJetFinder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
-
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
-
-
-
 #include "TrkTrackLink/ITrackLink.h"
 
 namespace Trk {
