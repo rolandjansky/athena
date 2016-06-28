@@ -12,6 +12,8 @@ use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-*        Event
 use ByteStreamData       ByteStreamData-*              Event
 use TrigFTK_RawData      TrigFTK_RawData-*             Trigger/TrigFTK
 
+use PyJobTransforms 	PyJobTransforms-* 	Tools
+
 # Specify the required tdaq-common components for cmake (transparent to CMT)
 apply_pattern cmake_add_command command="find_package(tdaq-common COMPONENTS eformat_write DataWriter)"
 
@@ -25,3 +27,8 @@ use StoreGate             StoreGate-*             Control
 use TestPolicy            TestPolicy-*
 use TestTools             TestTools-*             AtlasTest
 apply_pattern CppUnit name=FTKEncodeDecode_test files="-s=../test FTKEncodeDecode_CppUnit.cxx"
+
+apply_pattern declare_job_transforms tfs='*_tf.py' jo='skeleton.*.py'
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_xmls extras="-s=../share *.dtd *.xml"
+apply_pattern declare_python_modules files="*.py"

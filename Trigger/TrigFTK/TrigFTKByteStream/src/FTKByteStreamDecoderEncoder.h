@@ -19,7 +19,7 @@ namespace FTKByteStreamDecoderEncoder {
   const size_t NPixLayers=4;
   const size_t NSCTLayers=8;
 
-  StatusCode decode(OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result,
+  StatusCode decode(uint32_t nTracks, OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result,
   		    MsgStream& msg);
 
   size_t decodeNumberOfTracks(OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData);
