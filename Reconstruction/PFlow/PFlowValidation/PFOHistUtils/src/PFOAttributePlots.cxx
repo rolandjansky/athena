@@ -17,9 +17,9 @@ namespace PFO {
   void PFOAttributePlots::initializePlots(){
 
     m_PFO_LAYER_ENERGY_EM3 = Book1D("PFO_LAYER_ENEGRY_EM3",m_sPFOContainerName+"_LAYER_ENERGY_EM3",201,-1,100);
-    m_PFO_LAYER_ENERGY_HEC0 = Book1D("PFO_LAYER_ENEGRY_HEC0",m_sPFOContainerName+"_LAYER_ENERGY_HEC0",201,-1,100);
-    m_PFO_LAYER_ENERGY_HEC = Book1D("PFO_LAYER_ENEGRY_HEC",m_sPFOContainerName+"_LAYER_ENERGY_HEC",201,-1,100);
-    m_PFO_LAYER_ENERGY_Tile0 = Book1D("PFO_LAYER_ENEGRY_Tile0",m_sPFOContainerName+"_LAYER_ENERGY_Tile0",201,-1,100);
+    m_PFO_LAYER_ENERGY_HEC0 = Book1D("PFO_LAYER_ENEGRY_HEC0",m_sPFOContainerName+"_LAYER_ENERGY_HEC0",60,-1,5);
+    m_PFO_LAYER_ENERGY_HEC = Book1D("PFO_LAYER_ENEGRY_HEC",m_sPFOContainerName+"_LAYER_ENERGY_HEC",60,-1,5);
+    m_PFO_LAYER_ENERGY_Tile0 = Book1D("PFO_LAYER_ENEGRY_Tile0",m_sPFOContainerName+"_LAYER_ENERGY_Tile0",60,-1,5);
     m_PFO_TIMING = Book1D("PFO_TIMING",m_sPFOContainerName+"_TIMING",10,-50,50);
     
   }

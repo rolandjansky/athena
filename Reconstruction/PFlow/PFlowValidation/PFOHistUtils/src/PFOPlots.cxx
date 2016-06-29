@@ -15,10 +15,10 @@ namespace PFO {
 
   void PFOPlots::initializePlots(){
 
-    m_PFO_pt = Book1D("PFO_Pt",m_sPFOContainerName + "_Pt (Entries/1 GeV)",300,-100.0,200.0);
+    m_PFO_pt = Book1D("PFO_Pt",m_sPFOContainerName + "_Pt (Entries/1 GeV)",30,-10.0,20.0);
     m_PFO_eta = Book1D("PFO_Eta",m_sPFOContainerName + "_Eta (Entries/0.1)",100,-5.0,5.0);
     m_PFO_phi = Book1D("PFO_Phi",m_sPFOContainerName + "_Phi (Entries/0.1)",64,-3.2,3.2);
-    m_PFO_m = Book1D("PFO_m",m_sPFOContainerName + "_m (Entries/100 MeV)",100,0.0,10.0);
+    m_PFO_m = Book1D("PFO_m",m_sPFOContainerName + "_m (Entries/100 MeV)",10,0.0,0.5);
 
   }
 

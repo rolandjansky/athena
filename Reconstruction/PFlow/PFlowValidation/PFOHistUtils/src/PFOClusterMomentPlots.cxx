@@ -29,16 +29,16 @@ namespace PFO {
     m_PFO_LONGITUDINAL = Book1D("PFO_LONGITUDINAL",m_sPFOContainerName + "_LONGITUDINAL",60,-1.0,2.0);
     m_PFO_SECOND_R = Book1D("PFO_SECOND_R",m_sPFOContainerName + "_SECOND_R",60,-1.0,50.0); 
     m_PFO_CENTER_LAMBDA = Book1D("PFO_CENTER_LAMBDA",m_sPFOContainerName + "_CENTER_LAMBDA",60,-1.0,3000.0);
-    m_PFO_FIRST_ENG_DENS = Book1D("PFO_FIRST_ENG_DENS",m_sPFOContainerName + "_FIRST_ENG_DENS",60,-1.0,2.0);
+    m_PFO_FIRST_ENG_DENS = Book1D("PFO_FIRST_ENG_DENS",m_sPFOContainerName + "_FIRST_ENG_DENS",26,-1.0,0.3);
     m_PFO_ENG_FRAC_MAX = Book1D("PFO_ENG_FRAC_MAX",m_sPFOContainerName + "_ENG_FRAC_MAX",60,-1.0,2.0);
     m_PFO_ISOLATION = Book1D("PFO_ISOLATION",m_sPFOContainerName + "_ISOLATION",60,-1.0,2.0);
-    m_PFO_ENG_BAD_CELLS = Book1D("PFO_ENG_BAD_CELLS",m_sPFOContainerName + "_ENG_BAD_CELLS",120,-1.0,100.0);
-    m_PFO_N_BAD_CELLS = Book1D("PFO_N_BAD_CELLS",m_sPFOContainerName + "_N_BAD_CELLS",120,-1.0,20.0);
-    m_PFO_BADLARQ_FRAC = Book1D("PFO_BADLARQ_FRAC",m_sPFOContainerName + "_BADLARQ_FRAC",140,-3.0,5.0);
+    m_PFO_ENG_BAD_CELLS = Book1D("PFO_ENG_BAD_CELLS",m_sPFOContainerName + "_ENG_BAD_CELLS",20,-1.0,1);
+    m_PFO_N_BAD_CELLS = Book1D("PFO_N_BAD_CELLS",m_sPFOContainerName + "_N_BAD_CELLS",30,-1.0,2.0);
+    m_PFO_BADLARQ_FRAC = Book1D("PFO_BADLARQ_FRAC",m_sPFOContainerName + "_BADLARQ_FRAC",25,-1.0,1.5);
     m_PFO_ENG_POS = Book1D("PFO_ENG_POS",m_sPFOContainerName + "_ENG_POS",60,-100.0,10000.0);
     m_PFO_SIGNIFICANCE = Book1D("PFO_SIGNIFICANCE",m_sPFOContainerName + "_SIGNIFICANCE",300,-20.0,20.0);
     m_PFO_AVG_LAR_Q = Book1D("PFO_AVG_LAR_Q",m_sPFOContainerName + "_AVG_LAR_Q",240,-1.0,200.0);
-    m_PFO_AVG_TILE_Q = Book1D("PFO_AVG_TILE_Q",m_sPFOContainerName + "_AVG_TILE_Q",240,-1.0,200.0);
+    m_PFO_AVG_TILE_Q = Book1D("PFO_AVG_TILE_Q",m_sPFOContainerName + "_AVG_TILE_Q",21,-1.0,20.0);
 
   }
 
