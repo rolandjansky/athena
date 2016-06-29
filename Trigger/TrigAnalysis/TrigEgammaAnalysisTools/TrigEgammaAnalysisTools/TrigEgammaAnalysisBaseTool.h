@@ -26,6 +26,7 @@
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTrigger/TrigPassBits.h"
 //#include "xAODCaloRings/RingSetContainer.h" 
 //#include "xAODCaloRings/CaloRingsContainer.h"
 //#include "xAODCaloRings/tools/getCaloRingsDecorator.h"
@@ -50,11 +51,12 @@ public:
   template<class T> const T* getFeature(const HLT::TriggerElement* te,const std::string key="");
   template<class T> bool ancestorPassed(const HLT::TriggerElement* te,const std::string key="");
   template <class T1, class T2> const T1* closestObject(const std::pair<const xAOD::Egamma *, const HLT::TriggerElement *>, float &, bool usePassbits=true,const std::string key="");
+  // Interface class methods needed to pass information to additional tools or to set common tools
   void setParent(IHLTMonTool *parent){ m_parent = parent;};
   void setPlotTool(ToolHandle<ITrigEgammaPlotTool> tool){m_plot=tool;}
   void setDetail(bool detail){m_detailedHists=detail;}
   void setTP(bool tp){m_tp=tp;}
-
+  void setAvgMu(const float onlmu,float const offmu){m_onlmu=onlmu; m_offmu=offmu;} //For tools called by tools
   // Set current MonGroup
   void cd(const std::string &dir);
 
@@ -89,6 +91,11 @@ private:
   /*! Helper strings for trigger level analysis */
   static const std::vector<std::string> m_trigLevel;
   static const std::map<std::string,std::string> m_trigLvlMap;
+  
+  /*! Cache pileup info */
+  float m_onlmu;
+  float m_offmu;
+
   // Properties
   
   ToolHandle<Trig::TrigDecisionTool> m_trigdec;
@@ -133,7 +140,14 @@ protected:
   float getEaccordion(const xAOD::Egamma *eg);
   float getE0Eaccordion(const xAOD::Egamma *eg);
   float getAvgMu();
-  
+
+  /*! Setters/Getters for caching Pileup info*/
+  float getAvgOnlineMu(){return m_onlmu;}
+  void setAvgOnlineMu();
+  float getAvgOfflineMu(){return m_offmu;}
+  void setAvgOfflineMu();
+
+
   /* trig rings and offline rings helper method for feature extraction from xaod */
   bool getCaloRings( const xAOD::Electron *el, std::vector<float> &ringsE );
   bool getTrigCaloRings( const xAOD::TrigEMCluster *emCluster, std::vector<float> &ringsE );
@@ -310,17 +324,17 @@ protected:
 template<class T>
 const T*
 TrigEgammaAnalysisBaseTool::getFeature(const HLT::TriggerElement* te,const std::string key){
-    if ( te == NULL ) return NULL;
-    if ( (m_trigdec->ancestor<T>(te,key)).te() == NULL )
-        return NULL;
+    if ( te == nullptr ) return nullptr;
+    if ( (m_trigdec->ancestor<T>(te,key)).te() == nullptr )
+        return nullptr;
     return ( (m_trigdec->ancestor<T>(te)).cptr() );
 }
 
 template<class T>
 bool
 TrigEgammaAnalysisBaseTool::ancestorPassed(const HLT::TriggerElement* te,const std::string key){
-    if ( te == NULL ) return false;
-    if ( (m_trigdec->ancestor<T>(te,key)).te() == NULL )
+    if ( te == nullptr ) return false;
+    if ( (m_trigdec->ancestor<T>(te,key)).te() == nullptr )
         return false;
     return ( (m_trigdec->ancestor<T>(te)).te()->getActiveState());
 }
@@ -333,17 +347,17 @@ TrigEgammaAnalysisBaseTool::closestObject(const std::pair<const xAOD::Egamma *,c
     // Reset to resonable start value
     if(dRmax < 0.15) dRmax = 0.15;
     const auto *cont=getFeature<T2>(pairObj.second,key);
-    if(cont==NULL) return NULL;
-    const TrigPassBits *bits = NULL;
+    if(cont==nullptr) return nullptr;
+    const xAOD::TrigPassBits *bits = nullptr;
     if(usePassbits){ 
-        bits=getFeature<TrigPassBits>(pairObj.second);
-        if(bits==NULL) return NULL;
+        bits=getFeature<xAOD::TrigPassBits>(pairObj.second);
+        if(bits==nullptr) return nullptr;
     }
-    const T1 *cl = NULL;
+    const T1 *cl = nullptr;
     float dr=0.; 
     for(const auto& obj : *cont){
-        if( usePassbits && !HLT::isPassing(bits,obj,cont) ) continue; 
-        if(obj==NULL) continue;
+        if( usePassbits && !bits->isPassing(obj,cont) ) continue; 
+        if(obj==nullptr) continue;
         dr=dR(eta,phi,obj->eta(),obj->phi());
         if ( dr<dRmax){
             dRmax=dr;
