@@ -578,7 +578,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
   const RpcPadContainer* rpcPadContainer; 
   StatusCode sc = m_storeGate->retrieve(rpcPadContainer,"RPCPAD");
   if ( sc != StatusCode::SUCCESS ) { 
-    msg() << MSG::ERROR << "Could not retrieve the " << endreq;
+    msg() << MSG::ERROR << "Could not retrieve the RpcPadContainer" << endreq;
     return sc;
   }
 
@@ -596,7 +596,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
 
     RpcPadContainer::const_iterator itPad = rpcPadContainer->indexFind(padIdHash);  
     if( itPad==rpcPadContainer->end() ) {        
-      msg() << MSG::ERROR << "Failed to retrieve PAD hash Id " << padIdHash << endreq;  
+      msg() << MSG::WARNING << "Failed to retrieve PAD" << endreq;  
       return StatusCode::FAILURE;                         
     } 
 
