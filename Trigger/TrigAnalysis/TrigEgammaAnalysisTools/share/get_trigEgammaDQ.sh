@@ -55,7 +55,7 @@ else
     eos cp ${BASE}/${DIR2}/${FILETOCOPY} .
 fi    
 inputfile=`ls | grep HIST`
-hcg.exe ${inputfile} -d HLT/Egamma -r Egamma TREG --tag "reference = stream=physics_Main:CentrallyManagedReferences_Main;CentrallyManagedReferences" -ds "https://twiki.cern.ch/twiki/bin/view/Atlas/TrigEgammaDataQualityAndMonitoring" --deleteref > ${data}.${stream}.$run.config
+hcg.exe ${inputfile} -d HLT/Egamma -r Egamma TREG -ds "https://twiki.cern.ch/twiki/bin/view/Atlas/TrigEgammaDataQualityAndMonitoring" -a "HLT_Histogram_Not_Empty_with_Ref&GatherData" --deleteref > ${data}.${stream}.$run.config
 trigEgammaDQ.py --file ${inputfile} --run ${run} --t0 True
 rm *.bak
 #tar -czf TrigEgammaDQArchive_Run_${run}.tar.gz ${data}.* *.C *.eps --remove-files

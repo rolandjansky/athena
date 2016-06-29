@@ -247,7 +247,7 @@ void TrigEgammaNavTPBaseTool::matchObjects(const std::string probeTrigItem){
             m_pairObj.push_back(pairProbe);
         } // end of check Probe
         else {
-            std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(m_probeElectrons[i],NULL);
+            std::pair<const xAOD::Electron*,const HLT::TriggerElement*> pairProbe(m_probeElectrons[i],nullptr);
             m_pairObj.push_back(pairProbe);
         } // still include the probe
     }
