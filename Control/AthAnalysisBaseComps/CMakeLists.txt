@@ -24,6 +24,12 @@ atlas_add_library( AthAnalysisBaseComps
                    LINK_LIBRARIES AthenaBaseComps IOVDbDataModel GaudiKernel StoreGateLib SGtests AthContainers
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
+atlas_add_component( AthAnalysisBaseComps
+                     src/components/*.cxx
+                     PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                     LINK_LIBRARIES AthenaBaseComps IOVDbDataModel GaudiKernel StoreGateLib SGtests AthContainers 
+                     PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES})
+
 atlas_add_dictionary( AthAnalysisBaseCompsDict
                       AthAnalysisBaseComps/AthAnalysisBaseCompsDict.h
                       AthAnalysisBaseComps/selection.xml

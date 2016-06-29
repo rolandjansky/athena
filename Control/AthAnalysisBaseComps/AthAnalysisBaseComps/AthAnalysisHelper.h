@@ -26,12 +26,17 @@
 
 #include "AthContainers/AuxElement.h"
 
+#include "GaudiKernel/IAppMgrUI.h"
 
 class AthAnalysisHelper { //thought about being a namespace but went for static methods instead, in case I want private data members in future
 
 public:
     AthAnalysisHelper(); //need a constructor to link the dictionary library with the implementation library
 
+   ///initGaudi method starts the gaudi ApplicationMgr ready for working with all the components
+   static IAppMgrUI* initGaudi(const char* options = "");
+
+   
    ///helper method for adding a property to the JobOptionsSvc
    ///to list all the properties in the catalogue, do: AthAnalysisHelper::dumpJobOptionProperties()
    template<typename W> static StatusCode addPropertyToCatalogue( const std::string& name , const std::string& property, const W& value) {
@@ -167,11 +172,12 @@ public:
 	//use ToolSvc as parent
 	parent = Gaudi::svcLocator()->service( "ToolSvc" );
       }
-      IAlgTool* m_algtool = AlgTool::Factory::create(type,type,name,parent);
-      W* out = dynamic_cast<W*>(m_algtool);
-      if(!out && m_algtool) {
+      IAlgTool* algtool = AlgTool::Factory::create(type,type,name,parent);
+      algtool->addRef(); //important to increment the reference count so that Gaudi Garbage collection wont delete alg ahead of time 
+      W* out = dynamic_cast<W*>(algtool);
+      if(!out && algtool) {
          std::cout << "ERROR: Tool of type " << type << " does not implement the interface " << System::typeinfoName(typeid(W)) << std::endl;
-         delete m_algtool;
+         delete algtool;
          return 0; 
       }
       return out;
@@ -185,7 +191,9 @@ public:
    static IAlgorithm* createAlgorithm(const std::string& typeAndName) {
       std::string type = typeAndName; std::string name = typeAndName;
       if(type.find("/")!=std::string::npos) { type = type.substr(0,type.find("/")); name = name.substr(name.find("/")+1,name.length()); }
-      return Algorithm::Factory::create(type,name,Gaudi::svcLocator());
+      IAlgorithm* out = Algorithm::Factory::create(type,name,Gaudi::svcLocator());
+      out->addRef(); //important to increment the reference count so that Gaudi Garbage collection wont delete alg ahead of time 
+      return out;
    }
 
 
@@ -276,12 +284,21 @@ public:
 
 
    ///Print the aux variables of an xAOD object (aux element)
+   ///An alternative to this method is the 'xAOD::dump' method
    static void printAuxElement(const SG::AuxElement& ae);
+
+
+   ///we keep a static handle to the joboptionsvc, since it's very useful
+   ///can e.g. do: AAH::joSvc->readOptions("myJob.opts","$JOBOPTSEARCHPATH")
+   static ServiceHandle<IJobOptionsSvc> joSvc; 
 
 
 }; //AthAnalysisHelper class
 
 
+class AAH : public AthAnalysisHelper {
+  
+};
 
 
 
