@@ -33,10 +33,12 @@ TrigCaloRatioHypo::TrigCaloRatioHypo(const std::string& name, ISvcLocator* pSvcL
 
   declareProperty("EtCut",       m_etCut = 30*CLHEP::GeV, "cut value forthe jet et"); 
   declareProperty("LogRatioCut", m_logRatioCut = 1.2, "cut value for the jet energy ratio"); 
-  declareProperty("PtMinID",     m_ptCut = 2000.0, "minimum track Pt in MeV");
+  declareProperty("PtMinID",     m_ptCut = 2000.0, "minimum track Pt in MeV for the isolation requirement");
+  declareProperty("TrackCut",    m_trackCut = 0, "minimum number of tracks for the isolation requirement");
   declareProperty("DeltaR",      m_deltaR=0.2, "radius for the track isolation requirement");
   declareProperty("EtaCut",      m_etaCut = 2.5, "cut value for Eta of the Jet");
   declareProperty("Reversed",    m_reversedCut = false, "reversed cut for collimated photons");
+  declareProperty("DoTrackIso",  m_doTrackIso = true, "switch on/off the track isolation requirement");
   declareProperty("AcceptAll",   m_acceptAll=false);
 
   declareMonitoredStdContainer("JetEt",      m_jetEt);
@@ -64,6 +66,20 @@ HLT::ErrorCode TrigCaloRatioHypo::hltInitialize() {
   m_rejected=0;
   m_errors=0;
 
+  //* declareProperty overview *//
+  if (msgLvl() <= MSG::DEBUG) {
+    msg() << MSG::DEBUG << "declareProperty review:" << endreq;
+    msg() << MSG::DEBUG << " EtCut       = " << m_etCut << endreq; 
+    msg() << MSG::DEBUG << " LogRatioCut = " << m_logRatioCut << endreq; 
+    msg() << MSG::DEBUG << " PtMinID     = " << m_ptCut << endreq; 
+    msg() << MSG::DEBUG << " TrackCut    = " << m_trackCut << endreq; 
+    msg() << MSG::DEBUG << " DeltaR      = " << m_deltaR << endreq; 
+    msg() << MSG::DEBUG << " EtaCut      = " << m_etaCut << endreq; 
+    msg() << MSG::DEBUG << " Reversed    = " << m_reversedCut << endreq; 
+    msg() << MSG::DEBUG << " DoTrackIso  = " << m_doTrackIso << endreq; 
+    msg() << MSG::DEBUG << " AcceptAll   = " << m_acceptAll << endreq;
+  }
+
   return HLT::OK;
 }
 
@@ -87,7 +103,7 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
   m_cutCounter = -1;
 
   bool passCutJet = false;
-  bool passCutTrk = true; //default to true, changes false if a track is within m_deltaR of the jet axis
+  bool passCutTrk = true; //default to true, changes false if m_trackCut tracks are within m_deltaR of the jet axis
   pass=false;
 
   double jetRatio = -1.;
@@ -171,7 +187,9 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
     
   }
 
-  if(!m_reversedCut) {
+  if(m_doTrackIso) {
+
+    bool countTracks=0;
 
     const xAOD::TrackParticleContainer* vectorOfTracks;
     status = getFeature(outputTE, vectorOfTracks, "InDetTrigTrackingxAODCnv_Tau_IDTrig");
@@ -214,10 +232,13 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
 	
 	double dR = sqrt((deta*deta)+(dphi*dphi));
 	if (dR<m_deltaR) {
-	  passCutTrk = false;
+	  countTracks++;
 	}
       }
     }
+
+    if(countTracks>m_trackCut)
+      passCutTrk = false;
   }
 
   if((passCutJet&&passCutTrk) || m_acceptAll) {
