@@ -1251,6 +1251,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                         if (trigPartBplusMuMuKplus) {
                             m_bphysHelperTool->setBeamlineDisplacement(trigPartBplusMuMuKplus,{*trackEL3,*trackELmu1,*trackELmu2});
                             if(m_maxBpToStore >= 0 && m_countBpToStore >= m_maxBpToStore) {
+                              delete trigPartBplusMuMuKplus;
                               if(m_countBpToStore == m_maxBpToStore) {
                                 ATH_MSG(WARNING) << "Reached maximum number of B+ candidates to store " << m_maxBpToStore << "; following candidates won't be written out" << endreq;
                                 mon_Errors.push_back(ERROR_MaxNumBpReached);
@@ -1260,6 +1261,10 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                             }
                             else {
                               mTrigBphysColl_b->push_back(trigPartBplusMuMuKplus);
+                              // trackParticleLinks are set by the vertexing method
+                              trigPartBplusMuMuKplus->addParticleLink(ItrackEL3);				// Sergey S.
+                              if(Found1Track) trigPartBplusMuMuKplus->addParticleLink(ELmu1);
+                              if(Found2Track) trigPartBplusMuMuKplus->addParticleLink(ELmu2);
                             }
                             result=true;
                             mon_BMuMuK_n++;
@@ -1268,10 +1273,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                 m_countPassedEventsBplus++;
                                 m_lastEventPassedBplus = IdEvent;
                             }
-                            // trackParticleLinks are set by the vertexing method
-                            trigPartBplusMuMuKplus->addParticleLink(ItrackEL3);				// Sergey S.
-                            if(Found1Track) trigPartBplusMuMuKplus->addParticleLink(ELmu1);
-                            if(Found2Track) trigPartBplusMuMuKplus->addParticleLink(ELmu2);
+                            
                         }
                     } //  end if(m_doB_KMuMuDecay)
                     
@@ -1402,6 +1404,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL3,*trackEL4});
                                         
                                         if(m_maxBdToStore >= 0 && m_countBdToStore >= m_maxBdToStore) {
+                                          delete xaod_trigPartBdMuMuKstar;
+                                          delete xaod_trigPartKstar;
                                           if(m_countBdToStore == m_maxBdToStore) {
                                             ATH_MSG(WARNING) << "Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" << endreq;
                                             mon_Errors.push_back(ERROR_MaxNumBdReached);
@@ -1412,6 +1416,20 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         else {
                                           mTrigBphysColl_b->push_back(xaod_trigPartBdMuMuKstar);
                                           mTrigBphysColl_X->push_back(xaod_trigPartKstar );
+                                          // trackParticleLinks are set by the vertexing method
+                                          xaod_trigPartBdMuMuKstar->addParticleLink(ItrackEL3);				// Sergey S.
+                                          xaod_trigPartBdMuMuKstar->addParticleLink(ItrackEL4);
+                                          if(Found1Track) xaod_trigPartBdMuMuKstar->addParticleLink(ELmu1);
+                                          if(Found2Track) xaod_trigPartBdMuMuKstar->addParticleLink(ELmu2);
+                                          
+                                          xaod_trigPartKstar->addParticleLink(ItrackEL3);				// Sergey S.
+                                          xaod_trigPartKstar->addParticleLink(ItrackEL4);
+
+                                          // set the secondary link; note, does not set correctly for persistified data.
+                                          // see code further down for the re-setting of these links
+                                          int iKstar = mTrigBphysColl_X->size() - 1;
+                                          ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iKstar);
+                                          xaod_trigPartBdMuMuKstar->setSecondaryDecayLink(trigPartXEL);
                                         }
                                         result=true;
                                         mon_BdMuMuKs_n++;
@@ -1420,21 +1438,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                             m_countPassedEventsBplus++;
                                             m_lastEventPassedBplus = IdEvent;
                                         }
-                                        // trackParticleLinks are set by the vertexing method
-                                        xaod_trigPartBdMuMuKstar->addParticleLink(ItrackEL3);				// Sergey S.
-                                        xaod_trigPartBdMuMuKstar->addParticleLink(ItrackEL4);
-                                        if(Found1Track) xaod_trigPartBdMuMuKstar->addParticleLink(ELmu1);
-                                        if(Found2Track) xaod_trigPartBdMuMuKstar->addParticleLink(ELmu2);
-                                        
-                                        xaod_trigPartKstar->addParticleLink(ItrackEL3);				// Sergey S.
-                                        xaod_trigPartKstar->addParticleLink(ItrackEL4);
-
-                                        // set the secondary link; note, does not set correctly for persistified data.
-                                        // see code further down for the re-setting of these links
-                                        int iKstar = mTrigBphysColl_X->size() - 1;
-                                        ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iKstar);
-                                        xaod_trigPartBdMuMuKstar->setSecondaryDecayLink(trigPartXEL);
-                                        
 
                                     } // if hypo1
                                     xaod_trigPartKstar = nullptr; //hypo 1 added to SG(if exists), so reuse the pointer
@@ -1447,6 +1450,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBdMuMuKstar,{*trackEL4,*trackEL3,*trackELmu1,*trackELmu2});
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL4,*trackEL3});
                                         if(m_maxBdToStore >= 0 && m_countBdToStore >= m_maxBdToStore) {
+                                          delete xaod_trigPartBdMuMuKstar;
+                                          delete xaod_trigPartKstar;
                                           if(m_countBdToStore == m_maxBdToStore) {
                                             ATH_MSG(WARNING) << "Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" << endreq;
                                             mon_Errors.push_back(ERROR_MaxNumBdReached);
@@ -1457,6 +1462,20 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         else {
                                           mTrigBphysColl_b->push_back(xaod_trigPartBdMuMuKstar);
                                           mTrigBphysColl_X->push_back(xaod_trigPartKstar );
+                                          // trackParticleLinks are set by the vertexing method
+                                          xaod_trigPartBdMuMuKstar->addParticleLink(ItrackEL4);				// Sergey S.
+                                          xaod_trigPartBdMuMuKstar->addParticleLink(ItrackEL3);
+                                          if(Found1Track) xaod_trigPartBdMuMuKstar->addParticleLink(ELmu1);
+                                          if(Found2Track) xaod_trigPartBdMuMuKstar->addParticleLink(ELmu2);
+                                          
+                                          xaod_trigPartKstar->addParticleLink(ItrackEL4);				// Sergey S.
+                                          xaod_trigPartKstar->addParticleLink(ItrackEL3);
+                                          
+                                          // set the secondary link; note, does not set correctly for persistified data.
+                                          // see code further down for the re-setting of these links
+                                          int iKstar = mTrigBphysColl_X->size() - 1;
+                                          ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iKstar);
+                                          xaod_trigPartBdMuMuKstar->setSecondaryDecayLink(trigPartXEL);
                                         }
                                         result=true;
                                         mon_BdMuMuKs_n++;
@@ -1465,20 +1484,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                             m_countPassedEventsBplus++;
                                             m_lastEventPassedBplus = IdEvent;
                                         }
-                                        // trackParticleLinks are set by the vertexing method
-                                        xaod_trigPartBdMuMuKstar->addParticleLink(ItrackEL4);				// Sergey S.
-                                        xaod_trigPartBdMuMuKstar->addParticleLink(ItrackEL3);
-                                        if(Found1Track) xaod_trigPartBdMuMuKstar->addParticleLink(ELmu1);
-                                        if(Found2Track) xaod_trigPartBdMuMuKstar->addParticleLink(ELmu2);
                                         
-                                        xaod_trigPartKstar->addParticleLink(ItrackEL4);				// Sergey S.
-                                        xaod_trigPartKstar->addParticleLink(ItrackEL3);
-                                        
-                                        // set the secondary link; note, does not set correctly for persistified data.
-                                        // see code further down for the re-setting of these links
-                                        int iKstar = mTrigBphysColl_X->size() - 1;
-                                        ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iKstar);
-                                        xaod_trigPartBdMuMuKstar->setSecondaryDecayLink(trigPartXEL);
                                     } // if hypo2
                                 } // if m_doBd_KstarMuMuDecay
                                 
@@ -1650,6 +1656,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartPhi,        {*trackEL3,*trackEL4});
                                         
                                         if(m_maxBsToStore >= 0 && m_countBsToStore >= m_maxBsToStore) {
+                                          delete xaod_trigPartBsMuMuPhi;
+                                          delete xaod_trigPartPhi;
                                           if(m_countBsToStore == m_maxBsToStore) {
                                             ATH_MSG(WARNING) << "Reached maximum number of Bs candidates to store " << m_maxBsToStore << "; following candidates won't be written out" << endreq;
                                             mon_Errors.push_back(ERROR_MaxNumBsReached);
@@ -1660,6 +1668,20 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         else {
                                           mTrigBphysColl_b->push_back(xaod_trigPartBsMuMuPhi);
                                           mTrigBphysColl_X->push_back(xaod_trigPartPhi );
+                                          // trackParticleLinks are set by the vertexing method
+                                          xaod_trigPartBsMuMuPhi->addParticleLink(ItrackEL3);				// Sergey S.
+                                          xaod_trigPartBsMuMuPhi->addParticleLink(ItrackEL4);
+                                          if(Found1Track) xaod_trigPartBsMuMuPhi->addParticleLink(ELmu1);
+                                          if(Found2Track) xaod_trigPartBsMuMuPhi->addParticleLink(ELmu2);
+                                          
+                                          xaod_trigPartPhi->addParticleLink(ItrackEL3);				// Sergey S.
+                                          xaod_trigPartPhi->addParticleLink(ItrackEL4);
+                                          
+                                          // set the secondary link; note, does not set correctly for persistified data.
+                                          // see code further down for the re-setting of these links
+                                          int iPhi = mTrigBphysColl_X->size() - 1;
+                                          ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iPhi);
+                                          xaod_trigPartBsMuMuPhi->setSecondaryDecayLink(trigPartXEL);
                                         }
                                         result=true;
                                         mon_BsMuMuPhi_n++;
@@ -1668,20 +1690,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                             m_countPassedEventsBplus++;
                                             m_lastEventPassedBplus = IdEvent;
                                         }
-                                        // trackParticleLinks are set by the vertexing method
-                                        xaod_trigPartBsMuMuPhi->addParticleLink(ItrackEL3);				// Sergey S.
-                                        xaod_trigPartBsMuMuPhi->addParticleLink(ItrackEL4);
-                                        if(Found1Track) xaod_trigPartBsMuMuPhi->addParticleLink(ELmu1);
-                                        if(Found2Track) xaod_trigPartBsMuMuPhi->addParticleLink(ELmu2);
-                                        
-                                        xaod_trigPartPhi->addParticleLink(ItrackEL3);				// Sergey S.
-                                        xaod_trigPartPhi->addParticleLink(ItrackEL4);
-                                        
-                                        // set the secondary link; note, does not set correctly for persistified data.
-                                        // see code further down for the re-setting of these links
-                                        int iPhi = mTrigBphysColl_X->size() - 1;
-                                        ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iPhi);
-                                        xaod_trigPartBsMuMuPhi->setSecondaryDecayLink(trigPartXEL);
                                         
                                         
                                     }
@@ -1777,6 +1785,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLambda,      {*trackEL3,*trackEL4});
                                         
                                         if(m_maxLbToStore >= 0 && m_countLbToStore >= m_maxLbToStore) {
+                                          delete xaod_trigPartLbMuMuLambda;
+                                          delete xaod_trigPartLambda;
                                           if(m_countLbToStore == m_maxLbToStore) {
                                             ATH_MSG(WARNING) << "Reached maximum number of Lb candidates to store " << m_maxLbToStore << "; following candidates won't be written out" << endreq;
                                             mon_Errors.push_back(ERROR_MaxNumLbReached);
@@ -1787,6 +1797,20 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         else {
                                           mTrigBphysColl_b->push_back(xaod_trigPartLbMuMuLambda);
                                           mTrigBphysColl_X->push_back(xaod_trigPartLambda );
+                                          // trackParticleLinks are set by the vertexing method
+                                          xaod_trigPartLbMuMuLambda->addParticleLink(ItrackEL3);				// Sergey S.
+                                          xaod_trigPartLbMuMuLambda->addParticleLink(ItrackEL4);
+                                          if(Found1Track) xaod_trigPartLbMuMuLambda->addParticleLink(ELmu1);
+                                          if(Found2Track) xaod_trigPartLbMuMuLambda->addParticleLink(ELmu2);
+                                          
+                                          xaod_trigPartLambda->addParticleLink(ItrackEL3);				// Sergey S.
+                                          xaod_trigPartLambda->addParticleLink(ItrackEL4);
+                                          
+                                          // set the secondary link; note, does not set correctly for persistified data.
+                                          // see code further down for the re-setting of these links
+                                          int iLambda = mTrigBphysColl_X->size() - 1;
+                                          ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iLambda);
+                                          xaod_trigPartLbMuMuLambda->setSecondaryDecayLink(trigPartXEL);
                                         }
                                         result=true;
                                         mon_LbMuMuLambda_n++;
@@ -1795,20 +1819,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                             m_countPassedEventsBplus++;
                                             m_lastEventPassedBplus = IdEvent;
                                         }
-                                        // trackParticleLinks are set by the vertexing method
-                                        xaod_trigPartLbMuMuLambda->addParticleLink(ItrackEL3);				// Sergey S.
-                                        xaod_trigPartLbMuMuLambda->addParticleLink(ItrackEL4);
-                                        if(Found1Track) xaod_trigPartLbMuMuLambda->addParticleLink(ELmu1);
-                                        if(Found2Track) xaod_trigPartLbMuMuLambda->addParticleLink(ELmu2);
                                         
-                                        xaod_trigPartLambda->addParticleLink(ItrackEL3);				// Sergey S.
-                                        xaod_trigPartLambda->addParticleLink(ItrackEL4);
-                                        
-                                        // set the secondary link; note, does not set correctly for persistified data.
-                                        // see code further down for the re-setting of these links
-                                        int iLambda = mTrigBphysColl_X->size() - 1;
-                                        ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iLambda);
-                                        xaod_trigPartLbMuMuLambda->setSecondaryDecayLink(trigPartXEL);
                                     } // if hypo1
                                     xaod_trigPartLambda = nullptr; //hypo 1 added to SG(if exists), so reuse the pointer
 
@@ -1821,6 +1832,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLambda,      {*trackEL4,*trackEL3});
                                         
                                         if(m_maxLbToStore >= 0 && m_countLbToStore >= m_maxLbToStore) {
+                                          delete xaod_trigPartLbMuMuLambda;
+                                          delete xaod_trigPartLambda;
                                           if(m_countLbToStore == m_maxLbToStore) {
                                             ATH_MSG(WARNING) << "Reached maximum number of Lb candidates to store " << m_maxLbToStore << "; following candidates won't be written out" << endreq;
                                             mon_Errors.push_back(ERROR_MaxNumLbReached);
@@ -1831,6 +1844,20 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         else {
                                           mTrigBphysColl_b->push_back(xaod_trigPartLbMuMuLambda);
                                           mTrigBphysColl_X->push_back(xaod_trigPartLambda );
+                                          // trackParticleLinks are set by the vertexing method
+                                          xaod_trigPartLbMuMuLambda->addParticleLink(ItrackEL4);				// Sergey S.
+                                          xaod_trigPartLbMuMuLambda->addParticleLink(ItrackEL3);
+                                          if(Found1Track) xaod_trigPartLbMuMuLambda->addParticleLink(ELmu1);
+                                          if(Found2Track) xaod_trigPartLbMuMuLambda->addParticleLink(ELmu2);
+                                          
+                                          xaod_trigPartLambda->addParticleLink(ItrackEL4);				// Sergey S.
+                                          xaod_trigPartLambda->addParticleLink(ItrackEL3);
+                                          
+                                          // set the secondary link; note, does not set correctly for persistified data.
+                                          // see code further down for the re-setting of these links
+                                          int iLambda = mTrigBphysColl_X->size() - 1;
+                                          ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iLambda);
+                                          xaod_trigPartLbMuMuLambda->setSecondaryDecayLink(trigPartXEL);
                                         }
                                         result=true;
                                         mon_LbMuMuLambda_n++;
@@ -1839,20 +1866,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                             m_countPassedEventsBplus++;
                                             m_lastEventPassedBplus = IdEvent;
                                         }
-                                        // trackParticleLinks are set by the vertexing method
-                                        xaod_trigPartLbMuMuLambda->addParticleLink(ItrackEL4);				// Sergey S.
-                                        xaod_trigPartLbMuMuLambda->addParticleLink(ItrackEL3);
-                                        if(Found1Track) xaod_trigPartLbMuMuLambda->addParticleLink(ELmu1);
-                                        if(Found2Track) xaod_trigPartLbMuMuLambda->addParticleLink(ELmu2);
-                                        
-                                        xaod_trigPartLambda->addParticleLink(ItrackEL4);				// Sergey S.
-                                        xaod_trigPartLambda->addParticleLink(ItrackEL3);
-                                        
-                                        // set the secondary link; note, does not set correctly for persistified data.
-                                        // see code further down for the re-setting of these links
-                                        int iLambda = mTrigBphysColl_X->size() - 1;
-                                        ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iLambda);
-                                        xaod_trigPartLbMuMuLambda->setSecondaryDecayLink(trigPartXEL);
                                     } // if hypo2
 
                                     
@@ -2089,6 +2102,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                 nTriedCombinations++;
                                                 if (trigPartBcMuMuDs) {
                                                     if(m_maxBcToStore >= 0 && m_countBcToStore >= m_maxBcToStore) {
+                                                      delete trigPartBcMuMuDs;
+                                                      delete trigPartDs;
                                                       if(m_countBcToStore == m_maxBcToStore) {
                                                         ATH_MSG(WARNING) << "Reached maximum number of Bc candidates to store " << m_maxBcToStore << "; following candidates won't be written out" << endreq;
                                                         mon_Errors.push_back(ERROR_MaxNumBcReached);
@@ -2099,26 +2114,25 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                     else {
                                                       mTrigBphysColl_b->push_back( trigPartBcMuMuDs );
                                                       mTrigBphysColl_X->push_back( trigPartDs );
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDs,
+                                                                                                {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartDs,
+                                                                                                {*trkIt1,*trkIt2,*trkIt3});
+                                                      trigPartDs->addParticleLink(ItrackEL3);
+                                                      trigPartDs->addParticleLink(ItrackEL4);
+                                                      trigPartDs->addParticleLink(ItrackEL5);
+                                                    
+                                                      int iDs = mTrigBphysColl_X->size() - 1;
+                                                      ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iDs);
+                                                      
+                                                      trigPartBcMuMuDs->addParticleLink(ItrackEL3);
+                                                      trigPartBcMuMuDs->addParticleLink(ItrackEL4);
+                                                      trigPartBcMuMuDs->addParticleLink(ItrackEL5);
+                                                      if(Found1Track) trigPartBcMuMuDs->addParticleLink(ELmu1);
+                                                      if(Found2Track) trigPartBcMuMuDs->addParticleLink(ELmu2);
+                                                      trigPartBcMuMuDs->setSecondaryDecayLink(trigPartXEL);
                                                     }
 
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDs,
-                                                                                               {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartDs,
-                                                                                               {*trkIt1,*trkIt2,*trkIt3});
-                                                    trigPartDs->addParticleLink(ItrackEL3);
-                                                    trigPartDs->addParticleLink(ItrackEL4);
-                                                    trigPartDs->addParticleLink(ItrackEL5);
-                                                   
-                                                    int iDs = mTrigBphysColl_X->size() - 1;
-                                                    ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iDs);
-                                                    
-                                                    trigPartBcMuMuDs->addParticleLink(ItrackEL3);
-                                                    trigPartBcMuMuDs->addParticleLink(ItrackEL4);
-                                                    trigPartBcMuMuDs->addParticleLink(ItrackEL5);
-                                                    if(Found1Track) trigPartBcMuMuDs->addParticleLink(ELmu1);
-                                                    if(Found2Track) trigPartBcMuMuDs->addParticleLink(ELmu2);
-                                                    trigPartBcMuMuDs->setSecondaryDecayLink(trigPartXEL);
-                                                    
                                                     result=true;
                                                     mon_BcMuMuDs_n++;
                                                     m_countBcToStore++;
