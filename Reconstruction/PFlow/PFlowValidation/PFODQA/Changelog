@@ -1,3 +1,11 @@
+29 June 2016 Mark Hodgkinson
+Update to use PFOAlgPropertyPlots
+Tag as PFODQA-00-00-11
+
+11 May 2015 Mark Hodgkinson
+Fix Coverity issues 17432, 16380	
+Tag as PFODQA-00-00-10
+	
 4 November 2014 Mark Hodgkinson
 Add usage of new PFOAttributes class
 Tag as PFODQA-00-00-09

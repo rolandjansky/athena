@@ -42,6 +42,7 @@ StatusCode PhysValCluster::fillHistograms(){
 
   if (!theClusterContainer){
     if (msgLvl(MSG::WARNING))  msg(MSG::WARNING) << " Have NULL pointer to xAOD::PFOContainer " << endreq;
+    return StatusCode::SUCCESS;
   }
   
   xAOD::CaloClusterContainer::const_iterator firstCluster = theClusterContainer->begin();
