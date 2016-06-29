@@ -9,6 +9,7 @@
 #include "PFOHistUtils/PFOPlots.h"
 #include "PFOHistUtils/PFOClusterMomentPlots.h"
 #include "PFOHistUtils/PFOAttributePlots.h"
+#include "PFOHistUtils/PFOAlgPropertyPlots.h"
 #include "PFOHistUtils/PFOEMPlots.h"
 #include "xAODPFlow/PFO.h"
 
@@ -29,6 +30,8 @@ class PFOValidationPlots : public PlotBase {
   PFO::PFOClusterMomentPlots m_PFOClusterMomentPlots;
   /** PFO attributes */
   PFO::PFOAttributePlots m_PFOAttributePlots;
+  /** Algorithm property plots */
+  PFO::PFOAlgPropertyPlots m_PFOAlgPropertyPlots;
   /** 4-vector histograms at EM scale */
   PFO::PFOEMPlots m_PFOEMPlots;
 
