@@ -30,9 +30,6 @@ use xAODTrigRinger              xAODTrigRinger-*                Event/xAOD
 
 
 # Added for Track Isolation Emulation
-use InDetTrackSelectionTool     InDetTrackSelectionTool-*       InnerDetector/InDetRecTools
-use RecoToolInterfaces          RecoToolInterfaces-*            Reconstruction/RecoTools
-use xAODPrimitives              xAODPrimitives-*                Event/xAOD
 use PATCore                     PATCore-*                       PhysicsAnalysis/AnalysisCommon
 
 private
