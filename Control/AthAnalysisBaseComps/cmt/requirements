@@ -24,8 +24,9 @@ use AthContainers AthContainers-* Control
 branches python src src/components 
 
 
-library AthAnalysisBaseComps *.cxx 
-apply_pattern installed_library
+#library AthAnalysisBaseComps *.cxx 
+#apply_pattern installed_library
+apply_pattern dual_use_library files="*.cxx"
 
 apply_pattern declare_joboptions files="*.py"
 
