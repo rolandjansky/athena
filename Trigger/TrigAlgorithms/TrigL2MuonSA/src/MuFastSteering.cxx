@@ -40,6 +40,7 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
     m_backExtrapolatorTool("TrigMuonBackExtrapolator"),
     m_calStreamer("TrigL2MuonSA::MuCalStreamerTool"),
     m_recMuonRoIUtils(),
+    m_cscsegmaker("TrigL2MuonSA::CscSegmentMaker"),
     m_rpcHits(), m_tgcHits(),
     m_mdtRegion(), m_muonRoad(),
     m_rpcFitResult(), m_tgcFitResult(),
@@ -55,6 +56,7 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("TrackExtrapolator", m_trackExtrapolator, "track extrapolator");
 
   declareProperty("BackExtrapolator", m_backExtrapolatorTool, "public tool for back extrapolating the muon tracks to the IV");
+  declareProperty("CscSegmentMaker", m_cscsegmaker);
   declareProperty("Timing", m_use_timer=false);
   declareProperty("UseLUTForMC", m_use_mcLUT=true);
 
@@ -189,6 +191,13 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     return HLT::BAD_JOB_SETUP;
   } 
 
+  // CscSegmentMaker
+  if ( m_cscsegmaker.retrieve().isFailure() ) {
+    ATH_MSG_ERROR("Could not retrieve " << m_cscsegmaker);
+    return HLT::BAD_JOB_SETUP;
+  }
+
+
   // Set service tools
   m_trackExtrapolator->setExtrapolatorTool(&m_backExtrapolatorTool);
   m_dataPreparator->setExtrapolatorTool(&m_backExtrapolatorTool);
@@ -264,6 +273,11 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
       p_incidentSvc.release().ignore();
     }
   }
+
+
+
+
+
   
   ATH_MSG_DEBUG("initialize success");
   
@@ -466,6 +480,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
                                          m_mdtHits_normal,
                                          m_trackPatterns);
 
+
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Pattern finder failed");
          updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
@@ -493,6 +508,9 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
                         m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
          return HLT::OK;
       }
+      /////csc SuperPoint
+      m_cscsegmaker->FindSuperPointCsc(m_cscHits,m_trackPatterns,m_tgcFitResult,m_muonRoad);
+
       if (m_timerSvc) m_timers[ITIMER_STATION_FITTER]->pause();      
 
       // Track fittingh    
@@ -684,6 +702,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
   int middle = 1;
   int outer  = 2;
   int ee     = 6;
+  int csc    = 7;
   int barrelinner = 0;
   int bee = 8;
   int bme = 9;
@@ -736,6 +755,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
     muonSA->setPtEndcapAlpha(pattern.ptEndcapAlpha*pattern.charge);
     muonSA->setPtEndcapBeta(pattern.ptEndcapBeta*pattern.charge);
     muonSA->setPtEndcapRadius(pattern.ptEndcapRadius*pattern.charge);
+    muonSA->setPtCSC(pattern.ptCSC*pattern.charge);
 
     muonSA->setEta(pattern.etaVtx);
     muonSA->setPhi(pattern.phiVtx);
@@ -785,6 +805,8 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
                             pattern.superPoints[ee].Alin, pattern.superPoints[ee].Blin, pattern.superPoints[ee].Chi2);
       muonSA->setSuperPoint(barrelinner, pattern.superPoints[barrelinner].R, pattern.superPoints[barrelinner].Z,
                             pattern.superPoints[barrelinner].Alin, pattern.superPoints[barrelinner].Blin, pattern.superPoints[barrelinner].Chi2);
+      muonSA->setSuperPoint(csc, pattern.superPoints[csc].R, pattern.superPoints[csc].Z,
+			    pattern.superPoints[csc].Alin, pattern.superPoints[csc].Blin, pattern.superPoints[csc].Chi2);
     }
 
     ///////////////////////////////

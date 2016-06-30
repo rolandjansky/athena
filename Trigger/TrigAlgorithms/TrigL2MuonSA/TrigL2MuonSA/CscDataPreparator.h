@@ -78,6 +78,8 @@ namespace TrigL2MuonSA {
 			 double x,
 			 double y);
 
+    double calc_residual_phi(double hitr, double hitphi, double roadphi);
+
   private:
 
     // Reference to StoreGateSvc;

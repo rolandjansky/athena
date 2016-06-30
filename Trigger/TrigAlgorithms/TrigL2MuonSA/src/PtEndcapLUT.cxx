@@ -293,7 +293,7 @@ TrigL2MuonSA::PtEndcapLUT::DataType TrigL2MuonSA::PtEndcapLUT::s2dt(const char* 
     if (stype == "betapol2")   return (BETAPOL2);
     if (stype == "tgcalphapol2")  return (TGCALPHAPOL2);
     if (stype == "invradiuspol2") return (INVRADIUSPOL2);
-
+    if (stype == "cscpol2")  return (CSCPOL2);
     return (INVALID);
 }
 
@@ -315,6 +315,9 @@ const char* TrigL2MuonSA::PtEndcapLUT::dt2s(TrigL2MuonSA::PtEndcapLUT::DataType 
 
   case INVRADIUSPOL2:
     return ("invradiuspol2");   break;
+
+  case CSCPOL2:
+    return ("cscpol2"); break;
 
   case INVALID:
     return ("invalid"); break;

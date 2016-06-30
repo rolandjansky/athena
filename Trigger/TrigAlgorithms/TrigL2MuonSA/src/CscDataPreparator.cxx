@@ -17,12 +17,15 @@
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
+
 using namespace Muon;
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 static const InterfaceID IID_CscDataPreparator("IID_CscDataPreparator", 1, 0);
+bool IsUnspoiled ( Muon::CscClusterStatus status );
+
 
 const InterfaceID& TrigL2MuonSA::CscDataPreparator::interfaceID() { return IID_CscDataPreparator; }
 
@@ -57,6 +60,8 @@ TrigL2MuonSA::CscDataPreparator::~CscDataPreparator()
 
 StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
 {
+
+
   ATH_MSG_DEBUG("Initializing CscDataPreparator - package version " << PACKAGE_VERSION);
    
    StatusCode sc;
@@ -150,6 +155,7 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 {
   const IRoiDescriptor* iroi = (IRoiDescriptor*) p_roids;
 
+
   // Select RoI hits
   std::vector<IdentifierHash> cscHashIDs;
   cscHashIDs.clear();
@@ -222,13 +228,18 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 	double aw = muonRoad.aw[chamber][0];
 	double bw = muonRoad.bw[chamber][0];
 	double rWidth = muonRoad.rWidth[chamber][0];
+	double roadphi = muonRoad.phi[4][0];//roi_descriptor->phi(); //muonRoad.phi[chamber][0];
+
+	//cluster status
+	bool isunspoiled = IsUnspoiled (prepData.status());
+
 
 	// Create new digit
 	TrigL2MuonSA::CscHitData cscHit;
 	cscHit.StationName  = m_cscIdHelper->stationName( prepData.identify() );
 	cscHit.StationEta   = m_cscIdHelper->stationEta( prepData.identify() );
 	cscHit.StationPhi   = m_cscIdHelper->stationPhi( prepData.identify() );
-	cscHit.ChamberLayer = m_cscIdHelper->chamberLayer( prepData.identify() );
+	cscHit.ChamberLayer = (true==isunspoiled) ? 1 : 0;//m_cscIdHelper->chamberLayer( prepData.identify() );
 	cscHit.WireLayer    = m_cscIdHelper->wireLayer( prepData.identify() );
 	cscHit.MeasuresPhi  = m_cscIdHelper->measuresPhi( prepData.identify() );
 	cscHit.Strip        = m_cscIdHelper->strip( prepData.identify() );
@@ -236,13 +247,13 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 	cscHit.StripId = (cscHit.StationName << 18)
 	  | ((cscHit.StationEta + 2) << 16) | (cscHit.StationPhi << 12)
 	  | (cscHit.WireLayer << 9) | (cscHit.MeasuresPhi << 8) | (cscHit.Strip);
-	cscHit.eta = prepData.globalPosition().eta();
+	cscHit.eta = sqrt( prepData.localCovariance()(0,0) );
 	cscHit.phi = prepData.globalPosition().phi();
 	cscHit.r   = prepData.globalPosition().perp();
 	cscHit.z   = prepData.globalPosition().z();
 	cscHit.charge = prepData.charge();
 	cscHit.time   = prepData.time();
-	cscHit.Residual = calc_residual( aw, bw, cscHit.z, cscHit.r );
+	cscHit.Residual =  ( cscHit.MeasuresPhi==0 ) ? calc_residual( aw, bw, cscHit.z, cscHit.r ) : calc_residual_phi( cscHit.r,cscHit.phi,roadphi);
 	cscHit.isOutlier = 0;
 	if( fabs(cscHit.Residual) > rWidth ) {
 	  cscHit.isOutlier = 2;
@@ -271,7 +282,7 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
       }
     }
   }
-  
+
   //
   return StatusCode::SUCCESS;
 }
@@ -287,7 +298,16 @@ double TrigL2MuonSA::CscDataPreparator::calc_residual(double aw,double bw,double
   double iaq = ia*ia;
   double dz  = x - (y-bw)*ia;
   return dz/sqrt(1.+iaq);
+
 }
+
+
+double TrigL2MuonSA::CscDataPreparator::calc_residual_phi( double hitr, double hitphi, double roadphi){
+
+  return hitr*( cos(hitphi)*sin(roadphi)-sin(hitphi)*cos(roadphi) );
+
+}
+
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -302,3 +322,11 @@ StatusCode TrigL2MuonSA::CscDataPreparator::finalize()
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
+
+
+bool IsUnspoiled ( Muon::CscClusterStatus status ) {
+  if (status == Muon::CscStatusUnspoiled || status == Muon::CscStatusSplitUnspoiled )
+    return true;
+
+  return false;
+}

@@ -37,12 +37,14 @@ class TrackPattern
    endcapBeta(0),
    endcapRadius(0),
    endcapRadius3P(0),
+   cscGamma(0),
    slope(0),
    intercept(0),
    deltaR(0),
    ptEndcapAlpha(0),
    ptEndcapBeta(0),
    ptEndcapRadius(0),
+   ptCSC(0),
    isRpcFailure(false),
    isTgcFailure(false)
      {};
@@ -82,6 +84,7 @@ class TrackPattern
     double endcapBeta;
     double endcapRadius;
     double endcapRadius3P;
+    double cscGamma;
 
     double slope;
     double intercept;
@@ -90,6 +93,7 @@ class TrackPattern
     double ptEndcapAlpha;
     double ptEndcapBeta;
     double ptEndcapRadius;
+    double ptCSC;
     
     bool   isRpcFailure;
     bool   isTgcFailure;

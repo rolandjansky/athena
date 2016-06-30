@@ -73,7 +73,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
 							 TrigL2MuonSA::TrackPattern& trackPattern,
                                                          const TrigL2MuonSA::MuonRoad& /*muonRoad*/)
 {
-  const int MAX_STATION = 5;
+  const int MAX_STATION = 6;
   const double PHI_RANGE = 12./(CLHEP::pi/8.);
   
   // computing ALPHA, BETA and RADIUS
@@ -90,6 +90,9 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
   float OuterZ          = 0;
   float EBIR          = 0;//endcap barrel inner
   float EBIZ          = 0;//endcap barrel inner
+  //  float CSCSlope      = 0;//csc currrently not used for gamma-pt
+  float CSCR          = 0;//csc
+  float CSCZ          = 0;//csc 
 
   // set etaMap and phi
   double phi  = 0.;
@@ -105,6 +108,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     if ( i_station == 2 ) chamber = xAOD::L2MuonParameters::Chamber::EndcapOuter;
     if ( i_station == 3 ) chamber = xAOD::L2MuonParameters::Chamber::EndcapExtra;
     if ( i_station == 4 ) chamber = xAOD::L2MuonParameters::Chamber::BarrelInner;
+    if ( i_station == 5 ) chamber = xAOD::L2MuonParameters::Chamber::CSC;
     superPoint = &(trackPattern.superPoints[chamber]);
 
     if ( superPoint->Npoint > 2 && superPoint->R > 0.) {
@@ -126,6 +130,10 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
       } if ( chamber==0 ) {//barrel inner
         EBIR = superPoint->R;
         EBIZ = superPoint->Z;
+      } if ( chamber==7 ) {//csc
+	//CSCSlope = superPoint->Alin; //currently not used
+	CSCR = superPoint->R;
+	CSCZ = superPoint->Z;
       }
       phim = superPoint->Phim;
     }
@@ -233,6 +241,8 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
       trackPattern.endcapRadius = computeRadius(InnerSlope, InnerR,  InnerZ,
 		                              slope,      MiddleR, MiddleZ,
 					      sign);
+    } if (CSCR) {
+      trackPattern.cscGamma = fabsf( atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - atan(slope) );
     }
   } else {    
     if( trackPattern.pt >= 8. || !tgcFitResult.isSuccess) {
@@ -271,9 +281,9 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
   }
   if (distance>500) trackPattern.endcapRadius3P=0;//Reconstruction may fail
 
-  ATH_MSG_DEBUG("... alpha/beta/endcapRadius/charge/s_address="
-		<< trackPattern.endcapAlpha << "/" << trackPattern.endcapBeta << "/" << trackPattern.endcapRadius3P << "/" 
-		<< trackPattern.charge << "/" << trackPattern.s_address);
+  ATH_MSG_DEBUG("... alpha/beta/endcapRadius/cscGamma/charge/s_address="
+		 << trackPattern.endcapAlpha << "/" << trackPattern.endcapBeta << "/" << trackPattern.endcapRadius3P << "/" 
+		 << trackPattern.cscGamma << "/" << trackPattern.charge << "/" << trackPattern.s_address );
   // 
   return StatusCode::SUCCESS; 
 }
