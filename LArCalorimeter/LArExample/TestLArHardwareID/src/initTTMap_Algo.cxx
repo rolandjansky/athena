@@ -27,6 +27,7 @@
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
 #include "CaloTriggerTool/LArTTCell.h"
 #include "CaloTriggerTool/LArTTCellMap.h"
+#include "CxxUtils/make_unique.h"
 
 /********************************************************/
 initTTMap_Algo::initTTMap_Algo(const std::string &name , ISvcLocator* pSvcLocator) :
@@ -363,17 +364,17 @@ StatusCode initTTMap_Algo::testStruct(){
   ATH_MSG_DEBUG("  Dump of LArTTCellMap" );
   ATH_MSG_DEBUG(" Persistent LArTTCell_P version = "<<ttCell_P->m_version);
   int lines=0;
-  std::ofstream* dumpFcal=0;
-  std::ofstream* dumpOther=0;
+  std::unique_ptr<std::ofstream> dumpFcal;
+  std::unique_ptr<std::ofstream> dumpOther;
   std::string fcalFile="initDumpFCAL.txt";
   std::string otherFile="initDumpOther.txt";
   if(m_dumpMap) {
-    dumpFcal=new std::ofstream(fcalFile.c_str());   
+    dumpFcal=CxxUtils::make_unique<std::ofstream>(fcalFile.c_str());   
     if (dumpFcal==0) {
       std::cout << "Problem opening FCAL dump file" << std::endl;
       return 1;
     }
-    dumpOther=new std::ofstream(otherFile.c_str());   
+    dumpOther=CxxUtils::make_unique<std::ofstream>(otherFile.c_str());   
     if (dumpOther==0) {
       std::cout << "Problem opening other dump file" << std::endl;
       return 1;
@@ -436,9 +437,7 @@ StatusCode initTTMap_Algo::testStruct(){
 
   if(m_dumpMap) {
     dumpFcal->close();
-    delete dumpFcal;
     dumpOther->close();
-    delete dumpOther;
   }
 
   ATH_MSG_DEBUG(" number of lines found = "<< lines);
