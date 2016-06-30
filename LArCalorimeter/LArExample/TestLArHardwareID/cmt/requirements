@@ -12,6 +12,7 @@ use RegistrationServices RegistrationServices-* Database
 use AthenaBaseComps      AthenaBaseComps-*      Control
 
 private
+use CxxUtils            CxxUtils-*              Control
 use StoreGate 		StoreGate-* 		Control
 use AthenaKernel     	AthenaKernel-*      	Control
 use PathResolver	PathResolver-*	        Tools
