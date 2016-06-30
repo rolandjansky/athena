@@ -4,6 +4,7 @@
 export USETCMALLOC=true
 export LEAKCHECK=false
 export TCMALLOC_LIB="libtcmalloc_minimal.so"
+export ADD_PRELOAD
 
 for a in ${@}
 do
@@ -14,7 +15,13 @@ do
     elif [ "$a" = "--stdcmalloc" ]; then
         USETCMALLOC=false	
     elif [ "$a" = "--no-ers-signal-handlers" ]; then
-	export TDAQ_ERS_NO_SIGNAL_HANDLERS=1
+        export TDAQ_ERS_NO_SIGNAL_HANDLERS=1
+    elif [[ "$a" = "--preloadlib"* ]] ; then
+        ADD_PRELOAD=${a#*=}
+        if [ "$a" = "--preloadlib" ] ; then
+            echo "ERROR: option --preloadlib needs to be specified with an equals sign (e.g. --preloadlib=foobar.so)"
+            exit 1
+        fi
     fi
 done
 
@@ -49,3 +56,16 @@ if [ $USETCMALLOC == true ]; then
         fi
     fi
 fi
+
+# optionally add user-specific preload library
+if [ "x$ADD_PRELOAD" != "x" ] ; then
+    echo "Preloading $ADD_PRELOAD"
+    if [ -z $LD_PRELOAD ]; then
+        export LD_PRELOAD="$ADD_PRELOAD"
+    else
+        export LD_PRELOAD="$ADD_PRELOAD:$LD_PRELOAD"
+    fi
+else
+    unset ATHENA_ADD_PRELOAD
+fi
+
