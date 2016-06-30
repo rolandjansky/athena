@@ -28,7 +28,7 @@ class JetPileupCorrection
  public:
   JetPileupCorrection();
   JetPileupCorrection(const std::string& name);
-  JetPileupCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool doResidual, bool doOrigin, bool isData);
+  JetPileupCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool doResidual, bool doOrigin, bool isData, bool dev);
   virtual ~JetPileupCorrection();
 
   //virtual bool initializeTool(const std::string& name, TEnv * config, TString jetAlgo, bool doResidual, bool isData);
@@ -41,6 +41,7 @@ class JetPileupCorrection
   TEnv * m_config;
   TString m_jetAlgo;
   TString m_calibAreaTag;
+  bool m_dev;
   bool m_doResidual;
   bool m_doOrigin;
   bool m_isData;

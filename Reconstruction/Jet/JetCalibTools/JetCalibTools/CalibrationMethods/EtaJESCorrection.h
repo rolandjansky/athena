@@ -28,7 +28,7 @@ class EtaJESCorrection
  public:
   EtaJESCorrection();  
   EtaJESCorrection(const std::string& name);
-  EtaJESCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool mass);
+  EtaJESCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool mass, bool dev);
   virtual ~EtaJESCorrection();
 
   //virtual bool initializeTool(TEnv * config, TString jetAlgo);
@@ -51,6 +51,7 @@ class EtaJESCorrection
   TString m_jetAlgo;
   TString m_calibAreaTag;
   bool m_mass;
+  bool m_dev;
   bool m_freezeJESatHighE;
 
   TString m_jesDesc;
