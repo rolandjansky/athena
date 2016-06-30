@@ -173,9 +173,7 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   TString vecCalibSeqtmp;
   for ( unsigned int i=0; i<vecCalibSeq.size(); ++i) {
     if ( vecCalibSeq[i].EqualTo("Residual") || vecCalibSeq[i].EqualTo("Origin") || vecCalibSeq[i].EqualTo("DEV") ) continue;
-    vecCalibSeqtmp = vecCalibSeq[i];
-    if(m_devMode) vecCalibSeqtmp += "DEV";
-    ATH_CHECK( getCalibClass(name,vecCalibSeqtmp ));
+    ATH_CHECK( getCalibClass(name,vecCalibSeq[i] ));
   }
 
   ATH_MSG_INFO("===================================");
@@ -188,16 +186,12 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
   TString jetAlgo = m_jetAlgo;
   TString calibAreaTag = m_calibAreaTag;
   std::string suffix = "";
-  bool dev = false;
-  if(calibration.Contains("DEV")){
-    dev = true;
-    suffix += "_DEV";
-  }
   //ATH_MSG_INFO("Initializing sub tools.");
-  if ( calibration.Contains("JetArea") ) {
+  if ( calibration.EqualTo("JetArea") ) {
     ATH_MSG_INFO("Initializing pileup correction.");
     suffix="_Pileup";
-    m_jetPileupCorr = new JetPileupCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,m_doResidual,m_doOrigin,m_isData,dev);
+    if(m_devMode) suffix+="_DEV";
+    m_jetPileupCorr = new JetPileupCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,m_doResidual,m_doOrigin,m_isData,m_devMode);
     m_jetPileupCorr->msg().setLevel( this->msg().level() );
     if( m_jetPileupCorr->initializeTool(name+suffix).isFailure() ) { 
       ATH_MSG_FATAL("Couldn't initialize the pileup correction. Aborting"); 
@@ -206,10 +200,11 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
       m_calibClasses.push_back(m_jetPileupCorr); 
       return StatusCode::SUCCESS; 
     }
-  } else if ( calibration.Contains("EtaJES") ) {
+  } else if ( calibration.EqualTo("EtaJES") || calibration.EqualTo("AbsoluteEtaJES") ) {
     ATH_MSG_INFO("Initializing JES correction.");
     suffix="_EtaJES";
-    m_etaJESCorr = new EtaJESCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,false,dev);
+    if(m_devMode) suffix+="_DEV";
+    m_etaJESCorr = new EtaJESCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,false,m_devMode);
     m_etaJESCorr->msg().setLevel( this->msg().level() );
     if ( m_etaJESCorr->initializeTool(name+suffix).isFailure() ) {
       ATH_MSG_FATAL("Couldn't initialize the Monte Carlo JES correction. Aborting"); 
@@ -218,10 +213,11 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
       m_calibClasses.push_back(m_etaJESCorr); 
       return StatusCode::SUCCESS; 
     }
-  } else if ( calibration.Contains("EtaMassJES") ) {
+  } else if ( calibration.EqualTo("EtaMassJES") ) {
     ATH_MSG_INFO("Initializing JES correction.");
     suffix="_EtaMassJES";
-    m_etaJESCorr = new EtaJESCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,true,dev);
+    if(m_devMode) suffix+="_DEV";
+    m_etaJESCorr = new EtaJESCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,true,m_devMode);
     m_etaJESCorr->msg().setLevel( this->msg().level() );
     if ( m_etaJESCorr->initializeTool(name+suffix).isFailure() ) {
       ATH_MSG_FATAL("Couldn't initialize the Monte Carlo JES correction. Aborting");
@@ -230,10 +226,11 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
       m_calibClasses.push_back(m_etaJESCorr);
       return StatusCode::SUCCESS;
     }
-  } else if ( calibration.Contains("GSC") ) {
+  } else if ( calibration.EqualTo("GSC") ) {
     ATH_MSG_INFO("Initializing GSC correction.");
     suffix="_GSC";
-    m_globalSequentialCorr = new GlobalSequentialCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,dev);
+    if(m_devMode) suffix+="_DEV";
+    m_globalSequentialCorr = new GlobalSequentialCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,m_devMode);
     m_globalSequentialCorr->msg().setLevel( this->msg().level() );
     if ( m_globalSequentialCorr->initializeTool(name+suffix).isFailure() ) {
       ATH_MSG_FATAL("Couldn't initialize the Global Sequential Calibration. Aborting"); 
@@ -242,10 +239,11 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
       m_calibClasses.push_back(m_globalSequentialCorr); 
       return StatusCode::SUCCESS; 
     }
-  } else if ( calibration.Contains("JMS") ) {
+  } else if ( calibration.EqualTo("JMS") ) {
     ATH_MSG_INFO("Initializing JMS correction.");
     suffix="_JMS";
-    m_jetMassCorr = new JMSCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,dev);
+    if(m_devMode) suffix+="_DEV";
+    m_jetMassCorr = new JMSCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,m_devMode);
     m_jetMassCorr->msg().setLevel( this->msg().level() );
     if ( m_jetMassCorr->initializeTool(name+suffix).isFailure() ) {
       ATH_MSG_FATAL("Couldn't initialize the JMS Calibration. Aborting");
@@ -254,10 +252,11 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
       m_calibClasses.push_back(m_jetMassCorr);
       return StatusCode::SUCCESS;
     }
-  } else if ( calibration.Contains("Insitu") ) {
+  } else if ( calibration.EqualTo("Insitu") ) {
     ATH_MSG_INFO("Initializing Insitu correction.");
     suffix="_Insitu";
-    m_insituDataCorr = new InsituDataCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,dev);
+    if(m_devMode) suffix+="_DEV";
+    m_insituDataCorr = new InsituDataCorrection(name+suffix,m_globalConfig,jetAlgo,calibAreaTag,m_devMode);
     m_insituDataCorr->msg().setLevel( this->msg().level() );
     if ( m_insituDataCorr->initializeTool(name+suffix).isFailure() ) {
       ATH_MSG_FATAL("Couldn't initialize the In-situ data correction. Aborting"); 
@@ -393,7 +392,7 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
   jetEventInfo.setRho(rho);
   ATH_MSG_VERBOSE("  Rho = " << 0.001*rho << " GeV");
 
-  //Retrieve EventInfo object, use it to obtain mu for the residual correction
+  // Retrieve EventInfo object, which now has multiple uses
   if ( m_doResidual || m_doGSC ) {
     const xAOD::EventInfo * eventObj = 0;
     static unsigned int eventInfoWarnings = 0;
@@ -405,49 +404,74 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
       jetEventInfo.setPVIndex(0);
       return StatusCode::SUCCESS; //error is recoverable, so return SUCCESS
     }
-    jetEventInfo.setMu( eventObj->averageInteractionsPerCrossing() );
 
+    // If we are applying the reisdual, then store mu
+    if (m_doResidual)
+      jetEventInfo.setMu( eventObj->averageInteractionsPerCrossing() );
+    
+    // If this is GSC, we need EventInfo to determine the PV to use
+    // This is support for groups where PV0 is not the vertex of interest (H->gamgam, etc)
+    if (m_doGSC)
+    {
+      // First retrieve the PVIndex if specified
+      // Default is to not specify this, so no warning if it doesn't exist
+      // However, if specified, it should be a sane value - fail if not
+      if ( m_doGSC && PVIndexAccessor.isAvailable(*eventObj) )
+        jetEventInfo.setPVIndex( PVIndexAccessor(*eventObj) );
+      else
+        jetEventInfo.setPVIndex(0);
+      
+    }
+
+    // If PV index is not zero, we need to confirm it's a reasonable value
+    // To do this, we need the primary vertices
+    // However, other users of the GSC may not have the PV collection (in particular: trigger GSC in 2016)
+    // So only retrieve vertices if needed for NPV (residual) or a non-zero PV index was specified (GSC)
+    if (m_doResidual || (m_doGSC && jetEventInfo.PVIndex()))
+    {
+      //Retrieve VertexContainer object, use it to obtain NPV for the residual correction or check validity of GSC non-PV0 usage
+      const xAOD::VertexContainer * vertices = 0;
+      static unsigned int vertexContainerWarnings = 0;
+      if ( evtStore()->retrieve(vertices,"PrimaryVertices").isFailure() || !vertices ) {
+        ++vertexContainerWarnings;
+        if ( vertexContainerWarnings < 20 )
+          ATH_MSG_ERROR("   JetCalibrationTool::initializeEvent : Failed to retrieve primary vertices.");
+        jetEventInfo.setNPV(0); //Hard coded value NPV = 0 in case of failure (to prevent seg faults later).
+        return StatusCode::SUCCESS; //error is recoverable, so return SUCCESS
+      }
+
+      // Calculate and set NPV if this is residual
+      if (m_doResidual)
+      {
+        int eventNPV = 0;
+        xAOD::VertexContainer::const_iterator vtx_itr = vertices->begin();
+        xAOD::VertexContainer::const_iterator vtx_end = vertices->end(); 
+        for ( ; vtx_itr != vtx_end; ++vtx_itr ) 
+          if ( (*vtx_itr)->nTrackParticles() >= 2 ) ++eventNPV;
+  
+        jetEventInfo.setNPV(eventNPV);
+      }
+      
+      // Validate value of non-standard PV index usage
+      if (m_doGSC && jetEventInfo.PVIndex())
+      {
+        static unsigned int vertexIndexWarnings = 0;
+        if (jetEventInfo.PVIndex() < 0 || static_cast<size_t>(jetEventInfo.PVIndex()) >= vertices->size())
+        {
+          ++vertexIndexWarnings;
+          if (vertexIndexWarnings < 20)
+            ATH_MSG_ERROR("   JetCalibrationTool::initializeEvent : PV index is out of bounds.");
+          jetEventInfo.setPVIndex(0); // Hard coded value PVIndex = 0 in case of failure (to prevent seg faults later).
+          return StatusCode::SUCCESS; // error is recoverable, so return SUCCESS
+        }
+      }
+    }
 
     //Check if the input jets are coming from data or MC
     //if ( m_eventObj->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
     //     m_isData = false; // controls mu scaling in the pile up correction, no scaling for data
     //}
 
-    //Retrieve VertexContainer object, use it to obtain NPV for the residual correction
-    const xAOD::VertexContainer * vertices = 0;
-    static unsigned int vertexContainerWarnings = 0;
-    if ( evtStore()->retrieve(vertices,"PrimaryVertices").isFailure() || !vertices ) {
-      ++vertexContainerWarnings;
-      if ( vertexContainerWarnings < 20 )
-        ATH_MSG_ERROR("   JetCalibrationTool::initializeEvent : Failed to retrieve primary vertices.");
-      jetEventInfo.setNPV(0); //Hard coded value NPV = 0 in case of failure (to prevent seg faults later).
-      return StatusCode::SUCCESS; //error is recoverable, so return SUCCESS
-    }
-
-    int eventNPV = 0;
-    xAOD::VertexContainer::const_iterator vtx_itr = vertices->begin();
-    xAOD::VertexContainer::const_iterator vtx_end = vertices->end(); 
-    for ( ; vtx_itr != vtx_end; ++vtx_itr ) 
-      if ( (*vtx_itr)->nTrackParticles() >= 2 ) ++eventNPV;
-  
-    jetEventInfo.setNPV(eventNPV);
-
-    // Retrieve the PVIndex if specified
-    // Default is to not specify this, so no warning if it doesn't exist
-    // However, if specified, it should be a sane value - fail if not
-    if ( m_doGSC && PVIndexAccessor.isAvailable(*eventObj) )
-      jetEventInfo.setPVIndex( PVIndexAccessor(*eventObj) );
-    else
-      jetEventInfo.setPVIndex(0);
-    static unsigned int vertexIndexWarnings = 0;
-    if (jetEventInfo.PVIndex() < 0 || static_cast<size_t>(jetEventInfo.PVIndex()) >= vertices->size())
-    {
-      ++vertexIndexWarnings;
-      if (vertexIndexWarnings < 20)
-        ATH_MSG_ERROR("   JetCalibrationTool::initializeEvent : PV index is out of bounds.");
-      jetEventInfo.setPVIndex(0); // Hard coded value PVIndex = 0 in case of failure (to prevent seg faults later).
-      return StatusCode::SUCCESS; // error is recoverable, so return SUCCESS
-    }
   }
 
     return StatusCode::SUCCESS;

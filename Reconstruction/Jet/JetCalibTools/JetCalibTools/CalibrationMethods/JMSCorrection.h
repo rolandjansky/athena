@@ -45,8 +45,8 @@ class JMSCorrection
  private:
   float getMassCorr(double pT_uncorr, double m_uncorr, int etabin) const;
   float getTrackAssistedMassCorr(double pT_uncorr, double m_uncorr, int etabin) const;
-  float getCaloWeight(double pT_uncorr, double m_over_pt_uncorr, int etabin) const;
-  float getTAWeight(double pT_uncorr, double m_over_pt_uncorr, int etabin) const;
+  float getCaloFactor(double pT_uncorr, double m_over_pt_uncorr, int etabin) const;
+  float getTAFactor(double pT_uncorr, double m_over_pt_uncorr, int etabin) const;
 
   void setMassEtaBins(VecD etabins) { 
     if (etabins.size()==0) ATH_MSG_ERROR("Please check that the mass eta binning is properly set in your config file");
@@ -80,8 +80,8 @@ class JMSCorrection
   VecD m_massEtaBins;
   VecTH2F m_respFactorsTrackAssistedMass;
   VecD m_massCombinationEtaBins;
-  VecTH2D m_caloWeightsMassCombination; // Calo Mass Weights
-  VecTH2D m_taWeightsMassCombination;   // Track-Assisted Mass Weights
+  VecTH2D m_caloFactorsMassCombination; // Calo Mass Weights
+  VecTH2D m_taFactorsMassCombination;   // Track-Assisted Mass Weights
   
 };
 
