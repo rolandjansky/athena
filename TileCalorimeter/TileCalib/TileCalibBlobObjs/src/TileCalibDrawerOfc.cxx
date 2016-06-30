@@ -113,9 +113,13 @@ void TileCalibDrawerOfc::init(uint16_t objVersion
   }
   
   //=== initialize rest of blob to zero
-  float* pf = reinterpret_cast<float*>(pi);
+  union {
+    unsigned int ii;
+    float ff;
+  } zero;
+  zero.ff = 0;
   for(unsigned int i = 0; i < blobLengthUint32 - (m_hdrSize32 + extraHeaderSize+phasesSize); ++i){
-    *(++pf) = float(0.); 
+    *(++pi) = zero.ii;
   }
 }
 
