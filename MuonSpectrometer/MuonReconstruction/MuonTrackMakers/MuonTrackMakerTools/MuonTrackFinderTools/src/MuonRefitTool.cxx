@@ -413,37 +413,46 @@ namespace Muon {
    const Trk::Track* inputTrack = &track;
    Trk::Track* updatedTrack = updateMdtErrors(*inputTrack,settings);
 
-   Trk::Track* updatedAEOTsTrack = m_simpleAEOTs ? makeSimpleAEOTs(*updatedTrack,settings) : makeAEOTs(*updatedTrack,settings);
+   Trk::Track* updatedAEOTsTrack = m_simpleAEOTs ? makeSimpleAEOTs(*updatedTrack) : makeAEOTs(*updatedTrack);
 
    return updatedAEOTsTrack;
   }
 
-  Trk::Track* MuonRefitTool::makeAEOTs( const Trk::Track& track, const IMuonRefitTool::Settings& settings ) const {
+  Trk::Track* MuonRefitTool::makeAEOTs( const Trk::Track& track ) const {
 
 //   
 // use the new AlignmentEffectsOnTrack class and alignmentErrorTool
 //
-
+    if( m_alignErrorTool.empty() ) {
+      Trk::Track* newTrack =  new Trk::Track( track );
+      return newTrack;
+    } 
 //
-// store list of hits with error on position and angle 
+// Use the alignmentErrorTool and store a list of hits with error on position and angle 
 //
     std::map< std::vector<Identifier>, std::pair <double, double> > alignerrmap;
 
-    if( !m_alignErrorTool.empty() ){
       std::vector<Trk::AlignmentDeviation*> align_deviations;
       m_alignErrorTool->makeAlignmentDeviations(track, align_deviations);
+
       int iok = 0;
       bool isSmallChamber = false;
       bool isLargeChamber = false;
       bool isEndcap = false;
       bool isBarrel = false;
-      // loop on deviations
       std::vector <int> usedRotations;
+
+      // loop on deviations
       for(auto it : align_deviations){
          double angleError  = 0.;
          double translationError  = 0.;
          bool differentChambers = false;
          int jdifferent = -1;
+         isSmallChamber = false;
+         isLargeChamber = false;
+         isEndcap = false;
+         isBarrel = false;
+
          if( dynamic_cast<MuonAlign::AlignmentTranslationDeviation*>(it) ) {
            translationError = sqrt(it->getCovariance(0,0));
            // vector to store hit id
@@ -491,44 +500,157 @@ namespace Muon {
                if(matchFound) break; 
              }
            }
-           int iRot = -1;
-           for(auto itRot : align_deviations){
-             iRot++;
-             if( dynamic_cast<MuonAlign::AlignmentRotationDeviation*>(itRot) ) {
-               bool used = false;
-               for (unsigned int i = 0; i < usedRotations.size(); i++) {
-                 if(iRot == usedRotations[i]) used = true;
-               }
-               if(used) continue;             
-               std::vector<const Trk::RIO_OnTrack*> vec_riowithdev;
-               itRot->getListOfHits(vec_riowithdev);
-               double angleErrorMissed = sqrt(itRot->getCovariance(0,0));
-               ATH_MSG_DEBUG(" Alignment Angle NOT used for Chamber " << m_idHelper->toString(vec_riowithdev[0]->identify()) << " angleErrorMissed " << angleErrorMissed);
-             }
-           }
- 
-           // if deviation is accecpted (i.e. only on one station) store the hit IDs associated with the deviation and the error
+           // if deviation is accepted (i.e. only on one station) store the hit IDs associated with the deviation and the error
+
+// store (all) translationError with or without a matched angleError 
            iok++;  
            alignerrmap.insert( std::pair < std::vector<Identifier>, std::pair < double, double > > ( hitids, std::pair < double, double > (translationError,angleError) ) );
 
-           ATH_MSG_DEBUG(" AlignmentMap entry " <<  iok  << " filled with nr hitids " << hitids.size() << " " << m_idHelper->toString(hitids[0]) <<  " translationError " << translationError << " angleError " << angleError );
+           if(matchFound) ATH_MSG_DEBUG(" AlignmentMap entry " <<  iok  << " filled with nr hitids " << hitids.size() << " " << m_idHelper->toString(hitids[0]) <<  " translationError " << translationError << " angleError " << angleError );
+           if(!matchFound) ATH_MSG_DEBUG(" AlignmentMap entry No angleError" <<  iok  << " filled with nr hitids " << hitids.size() << " " << m_idHelper->toString(hitids[0]) <<  " translationError " << translationError << " angleError " << angleError );
+           if(isEndcap) ATH_MSG_DEBUG(" AlignmentMap Endcap Chamber "); 
+           if(isBarrel) ATH_MSG_DEBUG(" AlignmentMap Barrel Chamber "); 
+           if(isSmallChamber) ATH_MSG_DEBUG(" AlignmentMap Small Chamber ");
+           if(isLargeChamber) ATH_MSG_DEBUG(" AlignmentMap Large Chamber ");
            if(differentChambers) ATH_MSG_DEBUG(" AlignmentMap entry " <<  iok  << " for different Chamber " <<  m_idHelper->toString(hitids[jdifferent]) );
+        }
+      }
+
+// now add the angleErrors that were NOT matched to a translationError
+
+      int iRot = -1;
+      for(auto itRot : align_deviations){
+         iRot++;
+         isSmallChamber = false;
+         isLargeChamber = false;
+         isEndcap = false;
+         isBarrel = false;
+         if( dynamic_cast<MuonAlign::AlignmentRotationDeviation*>(itRot) ) {
+           bool used = false;
+           for (unsigned int i = 0; i < usedRotations.size(); i++) {
+            if(iRot == usedRotations[i]) used = true;
+           }
+           if(used) continue;             
+           std::vector<const Trk::RIO_OnTrack*> vec_riowithdev;
+           itRot->getListOfHits(vec_riowithdev);
+
+           std::vector<Identifier> hitids;
+           // bool to decide if deviation should be skipped (if it's for more than 1 station)
+           for(auto riowithdev : vec_riowithdev){
+              Identifier id_riowithdev = riowithdev->identify();
+              if(m_idHelper->isEndcap(id_riowithdev)) {
+                 isEndcap = true;
+              } else {
+                 isBarrel = true;
+              }
+              if(m_idHelper->isSmallChamber(id_riowithdev)) {
+                isSmallChamber = true;
+              } else {
+                isLargeChamber = true;
+              }
+              hitids.push_back(id_riowithdev);
+           }
+
+           double translationError = 0.;
+           double angleError = sqrt(itRot->getCovariance(0,0));
+
+           iok++;  
+           alignerrmap.insert( std::pair < std::vector<Identifier>, std::pair < double, double > > ( hitids, std::pair < double, double > (translationError,angleError) ) );
+           ATH_MSG_DEBUG(" AlignmentMap entry No Translation Error " <<  iok  << " filled with nr hitids " << hitids.size() << " " << m_idHelper->toString(hitids[0]) <<  " translationError " << translationError << " angleError " << angleError );
+          if(isEndcap) ATH_MSG_DEBUG(" AlignmentMap Endcap Chamber"); 
+          if(isBarrel) ATH_MSG_DEBUG(" AlignmentMap Barrel Chamber"); 
+          if(isSmallChamber) ATH_MSG_DEBUG(" AlignmentMap Small Chamber ");
+          if(isLargeChamber) ATH_MSG_DEBUG(" AlignmentMap Large Chamber ");
          }
       }
-      if(isEndcap) ATH_MSG_DEBUG(" AlignmentMap Endcap "); 
-      if(isBarrel) ATH_MSG_DEBUG(" AlignmentMap Barrel "); 
-      if(isEndcap&&isBarrel) ATH_MSG_DEBUG(" WARNING AlignmentMap  Endcap Barrel ");
-      if(isSmallChamber) ATH_MSG_DEBUG(" AlignmentMap Small Chamber ");
-      if(isLargeChamber) ATH_MSG_DEBUG(" AlignmentMap Large Chamber ");
-      if(isSmallChamber&&isLargeChamber) ATH_MSG_DEBUG(" WARNING AlignmentMap Small Large ");
   
+
+    const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+    if( !states ){
+      ATH_MSG_WARNING(" track without states, discarding track ");
+      return 0;
     }
 
-   return 0;
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
+
+    std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
+    typePattern.set(Trk::TrackStateOnSurface::Alignment);
+
+    std::vector <int> indexAEOTs;
+    std::vector <Trk::TrackStateOnSurface*> tsosAEOTs;
+
+    ATH_MSG_DEBUG(" AlignmentMap size " << alignerrmap.size()); 
+ 
+    for(auto itAli : alignerrmap){
+      unsigned int imiddle = (itAli.first.size())/2;
+      Identifier idMiddle = itAli.first[imiddle];
+      tsit     = states->begin();
+      int index = -1;
+      bool found = false;
+      for( ;tsit!=tsit_end ; ++tsit ){
+        index++;
+        const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
+        if( !meas ) {
+          continue;
+        }
+        // skip outliers
+        if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
+        Identifier id = m_helper->getIdentifier(*meas);
+
+// make Alignment Effect using the surface of the TSOS 
+
+        if(idMiddle==id) { 
+          double deltaError = itAli.second.first;   
+          double angleError = itAli.second.second; 
+          if(deltaError<0.01) deltaError = 0.01;
+          if(angleError<0.00001) deltaError = 0.00001;
+          Trk::AlignmentEffectsOnTrack* aEOT = new Trk::AlignmentEffectsOnTrack(0.,deltaError,0.,angleError,itAli.first,&((*tsit)->measurementOnTrack()->associatedSurface())); 
+          Trk::TrackStateOnSurface* tsosAEOT = new Trk::TrackStateOnSurface(0,(*tsit)->trackParameters()->clone(),0,0,typePattern,aEOT); 
+          indexAEOTs.push_back(index);
+          tsosAEOTs.push_back(tsosAEOT);
+          found = true;
+          break;
+        }
+      }
+      if(!found) ATH_MSG_WARNING(" This should not happen Identifier from AlignmentErrorTool is not found");
+    }
+    
+//
+// clone the TSOSs and add the tsosAEOTs
+//
+    DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
+    trackStateOnSurfaces->reserve(states->size()+indexAEOTs.size());
+    tsit     = states->begin();
+    int index = -1;
+    for( ;tsit!=tsit_end ; ++tsit ){
+      index++;
+      for(unsigned int i = 0; i<indexAEOTs.size(); i++){
+        if(index==indexAEOTs[i]) {
+          trackStateOnSurfaces->push_back(tsosAEOTs[i]);
+        }
+      }
+      trackStateOnSurfaces->push_back( (*tsit)->clone());
+    }
+
+    Trk::Track* newTrack =  new Trk::Track( track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone():0 );
+
+// dump it
+//    const DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfacesNew = newTrack->trackStateOnSurfaces();
+//    tsit     = trackStateOnSurfacesNew->begin();
+//    tsit_end = trackStateOnSurfacesNew->end();
+//    for( ; tsit!=tsit_end ; ++tsit ){
+//        if((*tsit)->alignmentEffectsOnTrack()) std::cout << " Peter alignmentEffectsOnTrack found with track pars " << (*tsit)->trackParameters() << std::endl;
+//    }
+
+    ATH_MSG_DEBUG(m_printer->print(*newTrack));
+    ATH_MSG_DEBUG(m_printer->printMeasurements(*newTrack));
+
+    return newTrack;
 
   }
 
-  Trk::Track* MuonRefitTool::makeSimpleAEOTs( const Trk::Track& track, const IMuonRefitTool::Settings& settings ) const {
+  Trk::Track* MuonRefitTool::makeSimpleAEOTs( const Trk::Track& track ) const {
 
 
 // use the new AlignmentEffectsOnTrack class

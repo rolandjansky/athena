@@ -72,9 +72,9 @@ namespace Muon {
 
     Trk::Track* updateAlignmentErrors( const Trk::Track& track, const Settings& settings ) const;
 
-    Trk::Track* makeAEOTs( const Trk::Track& track, const Settings& settings ) const;
+    Trk::Track* makeAEOTs( const Trk::Track& track ) const;
 
-    Trk::Track* makeSimpleAEOTs( const Trk::Track& track, const Settings& settings ) const;
+    Trk::Track* makeSimpleAEOTs( const Trk::Track& track ) const;
 
     const Trk::Track* removeOutliers( const Trk::Track& track,const Settings& settings ) const;
 
