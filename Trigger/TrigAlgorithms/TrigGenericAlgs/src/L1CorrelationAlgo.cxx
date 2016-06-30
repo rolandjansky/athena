@@ -117,8 +117,6 @@ HLT::ErrorCode L1CorrelationAlgo::hltInitialize()
   }
   
 
-  //  ATH_MSG_INFO("Hi Nils this is in the L1Correlation algo was able to retrieve this svc thingy");
-
 
   // build the bitmask filtering the l1 items we want. for smk 2224 maybe start with these ones:
 
@@ -158,7 +156,6 @@ HLT::ErrorCode L1CorrelationAlgo::hltInitialize()
 
    const TrigConf::CTPConfig *ctp_confg = m_configSvc->ctpConfig();
    for(TrigConf::TriggerItem *item : ctp_confg->menu().items()) {
-     //     std::cout<<"Hi Nils, this item here is in the L1 menu:"<<     item->name().c_str()     << " ID:"<<item-> ctpId() <<std::endl;
      for(unsigned int nl1=0; nl1< m_l1itemlist.size();nl1++ ){
 
        if(m_l1itemlist[nl1].compare(item->name()) == 0 ){
@@ -167,15 +164,12 @@ HLT::ErrorCode L1CorrelationAlgo::hltInitialize()
 	 ctpids.push_back( item-> ctpId() );
 	 if( m_l1itemlist[nl1].find( "L1_EM" )  != std::string::npos ){
 	   ctpids_ele.push_back( item-> ctpId() );
-	   //	   std::cout<<"Hi Nils, pushing it back as EM item" <<std::endl;
 	 }
 	 if( m_l1itemlist[nl1].find( "L1_MU" )  != std::string::npos ){
 	   ctpids_mu.push_back( item-> ctpId() );
-	   //	   std::cout<<"Hi Nils, pushing it back as MU item" <<std::endl;
 	 }
 	 if( m_l1itemlist[nl1].find( "L1_J" )  != std::string::npos ){
 	   ctpids_jets.push_back( item-> ctpId() );
-	   //   	   std::cout<<"Hi Nils, pushing it back as J item" <<std::endl;
 	 }
        }       
      }     
@@ -403,13 +397,14 @@ HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& fake_seed,
   }
 
   //  if (1){
+  
 
   if ((firedbc[0] && firedbc[1]) || (firedbc[1] && firedbc[2])){
     beforeExecMonitors().ignore();
   
     if(debugoutput){
       ATH_MSG_WARNING("just to print the eventnr");
-      printf(" ==> Hi Nils FIRED:  %u - %u - %u\n", firedbc[0],firedbc[1],firedbc[2]);
+      printf(" ==> FIRED:  %u - %u - %u\n", firedbc[0],firedbc[1],firedbc[2]);
     }
     
     m_l1a_type = 0;
@@ -453,69 +448,40 @@ HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& fake_seed,
     }
 
    
-      
-    // if(debugoutput){
-    //   printf(" Full DEBUG output: \n");
-    
-    //   bool fired[1];
-    //   for(unsigned int bc=l1a-1; bc<l1a+2; bc++) {
-    // 	int nBITs=m_nitems-1;
-    // 	tbp = CTPfragment::triggerDecisionBeforePrescales(rbf,bc);
-    // 	unsigned ntbpwords(tbp.size());
-    // 	for(int iw=ntbpwords-1; iw>=0; iw--  ) {
-    // 	  //	printf("will try to access iw %u \n", iw);
-    // 	  uint32_t tmpand = tbp[iw] & m_bitmasks[iw];
-    // 	  std::cout << std::setw(3) << std::dec;
-    // 	  for (int32_t bit = 31; bit>=0;--bit,--nBITs) {
-    // 	    fired[0]=(((tmpand)>>bit) & 1);
-	    
-    // 	    if(fired[0]) {
-    // 	      if(bc!=l1a) std::cout << "  BC " << std::setw(2) << bc << " Item " << std::setw(3) << nBITs << " ";
-    // 	      else std::cout << "> BC " << std::setw(2) << bc << " Item " << std::setw(3) << nBITs << " ";
-    // 	      if(fired[0]) std::cout << "TBP "; else std::cout << "    ";
-	      
-    // 	      std::cout << std::endl;
-    // 	    }
-    // 	  }
-    // 	}
-    //   }// bc
-    
-    //   //    printf("second monitoring block \n");
-    
-    //   //    for(unsigned int bc=0; bc<nBC; bc++) {
-    //   for(unsigned int bc=l1a-1; bc<l1a+2; bc++) {
-    // 	int nBITs=m_nitems-1;
-    // 	tbp = CTPfragment::triggerDecisionBeforePrescales(rbf,bc);
-    // 	tbp_it = tbp.rbegin();
-      
-    // 	for(; tbp_it != tbp.rend(); ++tbp_it) {
-    // 	  std::cout << std::setw(3) << std::dec;
-    // 	  for (int32_t bit = 31; bit>=0;--bit,--nBITs) {
-    // 	    fired[0]=(((*tbp_it)>>bit) & 1);
-	  
-    // 	    if(fired[0]) {
-    // 	      if(bc!=l1a) std::cout << "  BC " << std::setw(2) << bc << " Item " << std::setw(3) << nBITs << " ";
-    // 	      else std::cout << "> BC " << std::setw(2) << bc << " Item " << std::setw(3) << nBITs << " ";
-    // 	      if(fired[0]) std::cout << "TBP "; else std::cout << "    ";
-
-    // 	      std::cout << std::endl;
-    // 	    }
-    // 	  }
-    // 	}
-    //   }// bc
-    // }
-
+   
 
 
     // if nomuon version of chain => accept
     // else accept only if not  second BC triggered by only muon and current BCID including a muon
     // otherwise need to check that the first muon trigger signal is not a long one which extends into the next BC
-    if(m_nomuon || !( ( m_l1a_type == 2 ||m_l1a_type == 4 ||m_l1a_type == 6 ||m_l1a_type == 7  ) && m_other_type == 2)){
+    if( m_nomuon || !( ( m_l1a_type == 2 ||m_l1a_type == 4 ||m_l1a_type == 6 ||m_l1a_type == 7  ) && m_other_type == 2)){
+
+
+      m_passBitContainer = new xAOD::TrigCompositeContainer();
+      xAOD::TrigCompositeAuxContainer compAux;
+      m_passBitContainer->setStore(&compAux);
+      
+      xAOD::TrigComposite *compObj = new xAOD::TrigComposite();
+      m_passBitContainer->push_back(compObj); //add jets to the composite container
+      compObj->setName("mistimemon_L1Dec");
+      compObj->setDetail( "l1a_type", m_l1a_type);
+      compObj->setDetail( "other_type", m_other_type);
+      compObj->setDetail( "beforeafterflag", m_beforeafterflag);
       
       std::vector<HLT::TriggerElement*> empty_seed;
       HLT::TriggerElement* te = config()->getNavigation()->addNode(empty_seed, output);
       te->setActiveState(true);
+
+      HLT::ErrorCode hltStatus = attachFeature(te, m_passBitContainer , "mistimemon_L1Dec");
       afterExecMonitors().ignore();
+
+      
+      if ( hltStatus != HLT::OK ) {
+	msg() << MSG::ERROR << "Write of TrigCompositeContainer feature into outputTE failed"
+	      << endreq;
+	return hltStatus;
+      }
+      
       return HLT::OK;
 
     }
@@ -525,12 +491,16 @@ HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& fake_seed,
       
       if(debugoutput)
 	std::cout <<  "===> execute() TrigMuonRoITool Test Algorithm: print out of time RoIs" << std::endl;
-    
+
+      bool hasValidOutOfTime_ROI=false;
       for  (std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator it = m_trigMuonRoITool->begin_OutOfTimeRoIs();
 	    it != m_trigMuonRoITool->end_OutOfTimeRoIs(); ++it) {
 
+	// only look at the highest pt thresholds..
+	
 	// look at the neighbouring bcs only 
 	if (abs((*it).second) !=1) continue;
+	if ( ((*it).first).pt() < 6 ) continue;
 	// only look at highgest pt candidates:
 	// if ( !((*it).first).getCandidateIsHighestPt() ) continue;
 	
@@ -549,81 +519,129 @@ HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& fake_seed,
 	// loop over in time muon rois and veto event if the same muon roi is present in both BCIDs
 	bool overlapsInTime=false;
 	for  (std::vector< ROIB::MuCTPIRoI >::const_iterator it_intime = m_trigMuonRoITool->begin_InTimeRoIs();
-	      it_intime != m_trigMuonRoITool->end_InTimeRoIs(); ++it) {
+	      it_intime != m_trigMuonRoITool->end_InTimeRoIs(); ++it_intime) {
+	  
 	  if( ((*it).first).getSectorID() == (*it_intime).getSectorID() &&
 	      ((*it).first).getSectorAddress() == (*it_intime).getSectorAddress() //&&
-	      //((*it).first).pt() == (*it_intime).pt()
 	      ){
-	    //std::cout <<  "Overlaps with intime muon roi .. rejecting event" << std::endl;
-	    m_beforeafterflag = 0;
-	    m_l1a_type = 0;
-	    m_other_type = 0;
-	    afterExecMonitors().ignore();
-	    return HLT::OK;
+	    
 	    overlapsInTime=true;
 	  }
 	}
+	if(overlapsInTime) continue;
+
+	hasValidOutOfTime_ROI=true;
 	
-	unsigned int temp_sysID = getBitMaskValue(((*it).first).getSectorAddress(), LVL1::SysIDMask );
-	unsigned int sysID = 0;                // Barrel
-	if( temp_sysID & 0x2 ) sysID = 1;      // Endcap
-	else if( temp_sysID & 0x1 ) sysID = 2; // Forward
+	// unsigned int temp_sysID = getBitMaskValue(((*it).first).getSectorAddress(), LVL1::SysIDMask );
+	// unsigned int sysID = 0;                // Barrel
+	// if( temp_sysID & 0x2 ) sysID = 1;      // Endcap
+	// else if( temp_sysID & 0x1 ) sysID = 2; // Forward
           
-	const LVL1::RecMuonRoiSvc* recMuonRoiSvc = 0;
-	std::string region = "";
-	if( sysID == 0 ) {
-	  recMuonRoiSvc = &(*m_recRPCRoiSvc);
-	  region = "Barrel region";
-	} else if ( sysID == 1 ){
-	  recMuonRoiSvc = &(*m_recTGCRoiSvc);
-	  region = "Endcap region";
-	} else {
-	  recMuonRoiSvc = &(*m_recTGCRoiSvc);
-	  region = "Forward region";
-	}
+	// const LVL1::RecMuonRoiSvc* recMuonRoiSvc = 0;
+	// std::string region = "";
+	// if( sysID == 0 ) {
+	//   recMuonRoiSvc = &(*m_recRPCRoiSvc);
+	//   region = "Barrel region";
+	// } else if ( sysID == 1 ){
+	//   recMuonRoiSvc = &(*m_recTGCRoiSvc);
+	//   region = "Endcap region";
+	// } else {
+	//   recMuonRoiSvc = &(*m_recTGCRoiSvc);
+	//   region = "Forward region";
+	// }
      
   
-	recMuonRoiSvc->reconstruct( ((*it).first).roIWord() );
-	// create new trigger element for this out of time RoI
-	float eta = recMuonRoiSvc->eta();
-	float phi = recMuonRoiSvc->phi();
-	if(debugoutput){
-	  std::cout <<  "recoETA             :  " <<  eta << std::endl;
-	  std::cout <<  "recoPHI             :  " <<  phi << std::endl;     
-	  std::cout <<  "=================================================" << std::endl;
-	}
-	m_etaOutOfTimeMuon.push_back(eta);
-	m_phiOutOfTimeMuon.push_back(phi);
-	m_ptThrOutOfTimeMuon.push_back(((*it).first).pt());
+	// recMuonRoiSvc->reconstruct( ((*it).first).roIWord() );
+	// // create new trigger element for this out of time RoI
+	// float eta = recMuonRoiSvc->eta();
+	// float phi = recMuonRoiSvc->phi();
+	// if(debugoutput){
+	//   std::cout <<  "recoETA             :  " <<  eta << std::endl;
+	//   std::cout <<  "recoPHI             :  " <<  phi << std::endl;     
+	//   std::cout <<  "=================================================" << std::endl;
+	// }
+	// m_etaOutOfTimeMuon.push_back(eta);
+	// m_phiOutOfTimeMuon.push_back(phi);
+	// m_ptThrOutOfTimeMuon.push_back(((*it).first).pt());
      
       }
+      if(!hasValidOutOfTime_ROI){
+	// reject the event
+	m_beforeafterflag = 0;
+	m_l1a_type = 0;
+	m_other_type = 0;
+	afterExecMonitors().ignore();
+	
+	return HLT::OK; 
+      }
+      
     }
     
 
-    // if(debugoutput)
-    //   std::cout <<  "===> execute() TrigMuonRoITool Test Algorithm: print out in time RoIs" << std::endl;
-    
-    // for  (std::vector< ROIB::MuCTPIRoI >::const_iterator it = m_trigMuonRoITool->begin_InTimeRoIs();
-    // 	  it != m_trigMuonRoITool->end_InTimeRoIs(); ++it) {
-
-    //   if(debugoutput){
-    // 	std::cout <<  "RoIB word               : 0x" << MSG::hex << ((*it)).roIWord() << MSG::dec << std::endl;
-    // 	std::cout <<  "Threshold               :  pt" << ((*it)).pt() << std::endl;
-    // 	std::cout <<  "Sector ID               :  " << ((*it)).getSectorID() << std::endl;
-    // 	std::cout <<  "Sector addr             :  0x" << MSG::hex << ((*it)).getSectorAddress() << MSG::dec << std::endl;
-    // 	std::cout <<  "Sector overflow         :  " << ((*it)).getSectorOverflow() << std::endl;
-    // 	std::cout <<  "RoI overflow            :  " << ((*it)).getRoiOverflow() << std::endl;
-    // 	std::cout <<  "RoI number              :  " << ((*it)).getRoiNumber() << std::endl;
-    // 	std::cout <<  "IsHighestPt             :  " << ((*it)).getCandidateIsHighestPt() << std::endl;
-    //   }
-      
-    // }
+  
     
     std::vector<HLT::TriggerElement*> empty_seed;
     HLT::TriggerElement* te = config()->getNavigation()->addNode(empty_seed, output);
     te->setActiveState(true);
 
+    m_passBitContainer = new xAOD::TrigCompositeContainer();
+    xAOD::TrigCompositeAuxContainer compAux;
+    m_passBitContainer->setStore(&compAux);
+    
+    xAOD::TrigComposite *compObj = new xAOD::TrigComposite();
+    m_passBitContainer->push_back(compObj); //add jets to the composite container
+    compObj->setName("mistimemon_L1Dec");
+    compObj->setDetail( "l1a_type", m_l1a_type);
+    compObj->setDetail( "other_type", m_other_type);
+    compObj->setDetail( "beforeafterflag", m_beforeafterflag);
+    
+    HLT::ErrorCode hltStatus = attachFeature(te, m_passBitContainer , "mistimemon_L1Dec");
+    
+    
   }
+
+  else{
+    // //// THIS IS FOR DEBUGGING ONLY: Pass every event on but flag this in the bitcontainer:
+    // m_beforeafterflag = -5;
+
+    // if(firedbc_ele[1])  m_l1a_type = 1;
+    // if(firedbc_mu[1])  m_l1a_type = 2;
+    // if(firedbc_jet[1])  m_l1a_type = 3;
+    // if(firedbc_ele[1] && firedbc_mu[1])  m_l1a_type = 4;
+    // if(firedbc_ele[1] && firedbc_jet[1])  m_l1a_type = 5;
+    // if(firedbc_mu[1] && firedbc_jet[1])  m_l1a_type = 6;
+    // if(firedbc_ele[1] && firedbc_mu[1] && firedbc_jet[1])  m_l1a_type = 7;
+    
+    // if( firedbc[2]){
+    //   if(firedbc_ele[2])  m_other_type = 1;
+    //   if(firedbc_mu[2])  m_other_type = 2;
+    //   if(firedbc_jet[2])  m_other_type = 3;
+    //   if(firedbc_ele[2] && firedbc_mu[2])  m_other_type = 4;
+    //   if(firedbc_ele[2] && firedbc_jet[2])  m_other_type = 5;
+    //   if(firedbc_mu[2] && firedbc_jet[2])  m_other_type = 6;
+    //   if(firedbc_ele[2] && firedbc_mu[2] && firedbc_jet[2])  m_other_type = 7;
+    
+    // }
+    
+    // std::vector<HLT::TriggerElement*> empty_seed;
+    // HLT::TriggerElement* te = config()->getNavigation()->addNode(empty_seed, output);
+    // te->setActiveState(true);
+
+    // m_passBitContainer = new xAOD::TrigCompositeContainer();
+    // xAOD::TrigCompositeAuxContainer compAux;
+    // m_passBitContainer->setStore(&compAux);
+    
+    // xAOD::TrigComposite *compObj = new xAOD::TrigComposite();
+    // m_passBitContainer->push_back(compObj); //add jets to the composite container
+    // compObj->setName("mistimemon_L1Dec");
+    // compObj->setDetail( "l1a_type", m_l1a_type);
+    // compObj->setDetail( "other_type", m_other_type);
+    // compObj->setDetail( "beforeafterflag", -5);
+    
+    // HLT::ErrorCode hltStatus = attachFeature(te, m_passBitContainer , "mistimemon_L1Dec");
+
+  }
+  
   afterExecMonitors().ignore();
 
  
