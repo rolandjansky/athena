@@ -10,6 +10,7 @@
 #include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
 #include "TrkTrack/Track.h"
+#include "TrkTrack/AlignmentEffectsOnTrack.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
@@ -37,6 +38,7 @@
 
 #include "MuonIdHelpers/MuonStationIndex.h"
 
+#include <algorithm>
 #include <iostream>
 
 namespace Muon {
@@ -187,12 +189,43 @@ namespace Muon {
     if ( !states ) return "";
     DataVector<const Trk::TrackStateOnSurface>::const_iterator it = states->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator it_end = states->end();
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator it2 = states->begin();
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator it2_end = states->end();
+    // Build map of AEOTs and the measurements they affect
+    std::multimap<const Trk::MeasurementBase*, const Trk::AlignmentEffectsOnTrack *> measAndTheirAlignmentEffects;
+    const Trk::MeasurementBase* m = 0;
+    const Trk::AlignmentEffectsOnTrack* aeot = 0;
+    for ( ; it != it_end; ++it ) {
+        aeot = (*it)->alignmentEffectsOnTrack();
+        if (aeot) {
+            // Now get the list of identifiers which this AEOT impacts.
+            const std::vector< Identifier>& identifiers = aeot->vectorOfAffectedTSOS();
+            it2 = states->begin();
+            it2_end = states->end();
+            for (; it2 != it2_end; ++it2 ) {
+                m = (*it2)->measurementOnTrack();
+                if (m) {
+                    Identifier id = m_helper->getIdentifier(*m);
+                    if ( ( id.is_valid() && (std::find(identifiers.begin(), identifiers.end(), id)!=identifiers.end() ) ) 
+                       ||  (aeot->effectsLastFromNowOn() && it2>it) ) {
+                        // Either this measurement is explicitly listed, OR it is in a TSOS after an AEOT whose effects last from now on. 
+                        measAndTheirAlignmentEffects.insert(std::pair<const Trk::MeasurementBase*, const Trk::AlignmentEffectsOnTrack*>(m,aeot) );
+                    }
+                }
+            }
+        }
+    }
+//    std::cout << " measAndTheirAlignmentEffects " << measAndTheirAlignmentEffects.size() << std::endl;
+
+    // Reset
+    it = states->begin();
+    it_end = states->end();
     // first loop to get width of Id's for nice alignment
     std::vector< std::string > idStrings;
     std::vector< std::string > dataStrings;
     unsigned int idWidth = 0;
     for ( ; it != it_end; ++it ) {
-      const Trk::MeasurementBase* m = (*it)->measurementOnTrack();
+      m = (*it)->measurementOnTrack();
       if (m) {
 	// Identifier part
 	std::string idStr = printId(*m);
@@ -202,8 +235,20 @@ namespace Muon {
         const Trk::TrackParameters* trackParameters = (*it)->trackParameters();
 	std::string dataStr = printData(*m);
         if (trackParameters) {
-          const Trk::ResidualPull* resPull = m_pullCalculator->residualPull(m, trackParameters, Trk::ResidualPull::Unbiased);
-          if (resPull) dataStr += print(*resPull);
+          std::multimap<const Trk::MeasurementBase*, const Trk::AlignmentEffectsOnTrack *>::iterator itMap = measAndTheirAlignmentEffects.begin();
+          itMap = measAndTheirAlignmentEffects.find( m );
+          if(itMap != measAndTheirAlignmentEffects.end() ) { 
+            std::vector <const Trk::AlignmentEffectsOnTrack*> aeotos;
+            aeotos.push_back(itMap->second);
+            itMap++;
+            if(itMap != measAndTheirAlignmentEffects.end()&&itMap->first==m) aeotos.push_back(itMap->second);
+            const Trk::ResidualPull* resPull = m_pullCalculator->residualPull(m, trackParameters, Trk::ResidualPull::Unbiased, Trk::TrackState::unidentified, aeotos); 
+            if (resPull) dataStr += print(*resPull);
+            if (resPull) dataStr += " (AEOT)";   
+          } else {
+            const Trk::ResidualPull* resPull = m_pullCalculator->residualPull(m, trackParameters, Trk::ResidualPull::Unbiased);
+            if (resPull) dataStr += print(*resPull);
+          }
         }
 	if ( (*it)->type(Trk::TrackStateOnSurface::Outlier) ) {
 	  dataStr += " (Outlier)";
@@ -212,6 +257,14 @@ namespace Muon {
 	}
 	dataStrings.push_back(dataStr);
       }
+      aeot = (*it)->alignmentEffectsOnTrack();
+      if (aeot) {
+	std::string idStr = " AEOT ";
+	idStrings.push_back(idStr);
+        std::ostringstream souta;
+        souta << std::setprecision(3) << " deltaTranslation (mm) " << aeot->deltaTranslation()  << " error " << aeot->sigmaDeltaTranslation() << " deltaAngle (mrad) " << 1000*aeot->deltaAngle() << " error " << 1000*aeot->sigmaDeltaAngle(); 
+        dataStrings.push_back(souta.str());
+      } 
     }
 
     // second loop to print out aligned strings
