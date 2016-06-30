@@ -26,6 +26,10 @@
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
 #include "TrigMuonRoITools/ITrigMuonRoITool.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
+
+#include "xAODTrigger/TrigComposite.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
+
 class IROBDataProviderSvc;
 class Property;
 
@@ -111,7 +115,8 @@ private:
    ServiceHandle<LVL1::RecMuonRoiSvc> m_recRPCRoiSvc;
    ServiceHandle<LVL1::RecMuonRoiSvc> m_recTGCRoiSvc;
    ServiceHandle<TrigConf::ITrigConfigSvc > m_configSvc;
-   
+
+   xAOD::TrigCompositeContainer * m_passBitContainer ;    //!
 };
 
 #endif
