@@ -73,6 +73,7 @@ void TrigL2MuonSA::RpcPatFinder::clear() {
 // --------------------------------------------------------------------------------
 
 void TrigL2MuonSA::RpcPatFinder::addHit(std::string stationName,
+					int stationEta,
 					bool  measuresPhi,
 					unsigned  int gasGap,
 					unsigned  int doubletR,
@@ -85,12 +86,14 @@ void TrigL2MuonSA::RpcPatFinder::addHit(std::string stationName,
   if (stationName.substr(0,2)=="BO") ilay=4;
   // doubletR
   ilay+=2*(doubletR-1);
+  // BML7 special chamber with 1 RPC doublet (doubletR=1 but RPC2) :
+  if (stationName.substr(0,3)=="BML" && stationEta==7) ilay+=2;
   // gasGap
   ilay+=gasGap-1;
 
   double R=sqrt(gPosX*gPosX+gPosY*gPosY);
   double Phi=atan2(gPosY,gPosX);
-   
+
   if (!measuresPhi){
     // if eta measurement then save Z/R
     R = calibR(stationName,R, Phi);  

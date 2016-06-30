@@ -284,26 +284,29 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        const Muon::RpcPrepData* prd = *cit;
        Identifier id = prd->identify();
 
-       const int doubletR = m_rpcIdHelper->doubletR(id);
-       const int doubletPhi = m_rpcIdHelper->doubletPhi(id);
-       const int doubletZ = m_rpcIdHelper->doubletZ(id);
-       const int gasGap = m_rpcIdHelper->gasGap(id);
-       const bool measuresPhi = m_rpcIdHelper->measuresPhi(id);
+       const int doubletR      = m_rpcIdHelper->doubletR(id);
+       const int doubletPhi    = m_rpcIdHelper->doubletPhi(id);
+       const int doubletZ      = m_rpcIdHelper->doubletZ(id);
+       const int gasGap        = m_rpcIdHelper->gasGap(id);
+       const bool measuresPhi  = m_rpcIdHelper->measuresPhi(id);
+       const int stationEta    = m_rpcIdHelper->stationEta(id);
        std::string stationName = m_rpcIdHelper->stationNameString(m_rpcIdHelper->stationName(id));
-       
+
        int layer = 0;
-       // BO 
+       // BO
        if (stationName.substr(0,2)=="BO") layer = 4;
        // doubletR
        layer += 2*(doubletR-1);
+       // BML7 special chamber with 1 RPC doublet (doubletR=1 but RPC2) :
+       if (stationName.substr(0,3)=="BML"&&stationEta==7) layer+=2;
        // gasGap
        layer += gasGap - 1;
-       
+
        const Amg::Vector3D globalpos = prd->globalPosition();
        const double hitx=globalpos.x();
        const double hity=globalpos.y();
        const double hitz=globalpos.z();
-       
+
        const double hittime = prd->time();
        const MuonGM::RpcReadoutElement* detEl = prd->detectorElement();
        const double distToPhiReadout = detEl->distanceToPhiReadout(globalpos);
@@ -347,16 +350,16 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        rpcHits.push_back(lutDigit);
        
        if (m_use_RoIBasedDataAccess) {
-         if ( fabs(deta)<0.1 && fabs(dphi)<0.1) 
-           (*rpcPatFinder)->addHit(stationName, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
+         if ( fabs(deta)<0.1 && fabs(dphi)<0.1)
+           (*rpcPatFinder)->addHit(stationName, stationEta, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
        } else {
-         if ( fabs(deta)<0.15 && fabs(dphi)<0.1) 
-           (*rpcPatFinder)->addHit(stationName, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
+         if ( fabs(deta)<0.15 && fabs(dphi)<0.1)
+           (*rpcPatFinder)->addHit(stationName, stationEta, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
        }
      }
    }
-     
-     return StatusCode::SUCCESS; 
+
+     return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------

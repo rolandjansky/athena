@@ -26,6 +26,8 @@
 #include "TrigL2MuonSA/PtEndcapLUTSvc.h"
 #include "TrigL2MuonSA/AlignmentBarrelLUTSvc.h"
 #include "TrigL2MuonSA/MuCalStreamerTool.h"
+#include "TrigL2MuonSA/CscSegmentMaker.h"
+#include "TrigL2MuonSA/CscRegUtils.h"
 
 using namespace TrigL2MuonSA;
 
@@ -52,6 +54,8 @@ DECLARE_TOOL_FACTORY(PtFromRadius)
 DECLARE_TOOL_FACTORY(PtBarrelLUT)
 DECLARE_TOOL_FACTORY(PtEndcapLUT)
 DECLARE_TOOL_FACTORY(AlignmentBarrelLUT)
+DECLARE_TOOL_FACTORY(CscSegmentMaker)
+DECLARE_TOOL_FACTORY(CscRegDict)
 
 DECLARE_SERVICE_FACTORY(PtBarrelLUTSvc)
 DECLARE_SERVICE_FACTORY(PtEndcapLUTSvc)
@@ -82,6 +86,8 @@ DECLARE_FACTORY_ENTRIES(TrigL2MuonSA)
   DECLARE_TOOL(PtBarrelLUT);
   DECLARE_TOOL(PtEndcapLUT);
   DECLARE_TOOL(AlignmentBarrelLUT);
+  DECLARE_TOOL(CscSegmentMaker);
+  DECLARE_TOOL(CscRegDict);
 
   DECLARE_SERVICE(PtBarrelLUTSvc);
   DECLARE_SERVICE(PtEndcapLUTSvc);

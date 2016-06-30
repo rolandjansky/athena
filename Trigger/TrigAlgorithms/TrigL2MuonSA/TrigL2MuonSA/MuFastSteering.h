@@ -22,6 +22,8 @@
 #include "TrigL2MuonSA/RecMuonRoIUtils.h"
 #include "TrigL2MuonSA/MuCalStreamerTool.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "TrigL2MuonSA/CscSegmentMaker.h"
+#include "TrigL2MuonSA/CscRegUtils.h"
 
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
@@ -134,6 +136,10 @@ class MuFastSteering : public HLT::FexAlgo,
   // Utils
   TrigL2MuonSA::RecMuonRoIUtils  m_recMuonRoIUtils;
 
+  //Tools for CSC
+  ToolHandle<CscSegmentMaker> m_cscsegmaker;
+
+
  private:
   TrigL2MuonSA::RpcHits      m_rpcHits;
   TrigL2MuonSA::TgcHits      m_tgcHits;
@@ -203,6 +209,8 @@ class MuFastSteering : public HLT::FexAlgo,
   int m_calBufferSize;
   xAOD::TrigCompositeContainer* m_trigCompositeContainer;
   xAOD::TrigCompositeAuxContainer m_trigCompositeAuxContainer;
+
+
  
 };
 

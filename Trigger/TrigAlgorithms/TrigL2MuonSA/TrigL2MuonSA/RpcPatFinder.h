@@ -35,6 +35,7 @@ class RpcPatFinder: public AthAlgTool
 
   void clear();
   void addHit(std::string stationName,
+	      int stationEta,
 	      bool  measuresPhi,
 	      unsigned int  gasGap,
 	      unsigned int doubletR,

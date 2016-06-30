@@ -19,7 +19,7 @@ namespace TrigL2MuonSA {
 class PtEndcapLUT: public AthAlgTool
 {
   public:
-    enum DataType { INVALID, ALPHAPOL2, BETAPOL2, TGCALPHAPOL2, INVRADIUSPOL2 };
+  enum DataType { INVALID, ALPHAPOL2, BETAPOL2, TGCALPHAPOL2, INVRADIUSPOL2, CSCPOL2 };
     
   public:
     static const InterfaceID& interfaceID();
