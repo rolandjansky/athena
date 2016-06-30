@@ -668,7 +668,11 @@ namespace internal_poltrig {
     void MakeEmpty( );
     bool IsEmpty( ) const;
     long int Size() { return size; }
-    BTreeNode<T, KeyType>* Root() { return root; }
+    BTreeNode<T, KeyType>* Root() { 
+      // cppcheck false positive:
+      // cppcheck-suppress CastIntegerToAddressAtReturn
+      return root;
+    }
 
     void Find( const KeyType& keys, BTreeNode<T, KeyType>* & res);
     void FindMin( BTreeNode<T, KeyType>* &min );
