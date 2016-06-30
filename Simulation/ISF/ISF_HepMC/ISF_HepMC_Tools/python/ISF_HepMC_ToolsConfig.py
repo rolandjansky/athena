@@ -100,33 +100,6 @@ def getEtaPhiFilter(name="ISF_EtaPhiFilter", **kwargs):
     return CfgMgr.ISF__GenParticleGenericFilter(name, **kwargs)
 
 #--------------------------------------------------------------------------------------------------
-## Stack Fillers
-
-def getLongLivedStackFiller(name="ISF_LongLivedStackFiller", **kwargs):
-    kwargs.setdefault("GenParticleFilters"      , [ 'ISF_ParticleSimWhiteList',
-                                                    'ISF_ParticlePositionFilterDynamic',
-                                                    'ISF_EtaPhiFilter',
-                                                    'ISF_GenParticleInteractingFilter', ] )
-    return getStackFiller(name, **kwargs)
-
-
-def getStackFiller(name="ISF_StackFiller", **kwargs):
-    kwargs.setdefault("InputMcEventCollection"                          , 'BeamTruthEvent'  )
-    kwargs.setdefault("OutputMcEventCollection"                         , 'TruthEvent' )
-    kwargs.setdefault("PurgeOutputCollectionToSimulatedParticlesOnly"   , False        )
-    kwargs.setdefault("UseGeneratedParticleMass"                        , False        )
-    genParticleFilters = [ 'ISF_ParticleFinalStateFilter']
-    from AthenaCommon.BeamFlags import jobproperties
-    if jobproperties.Beam.beamType() != "cosmics":
-        genParticleFilters += [ 'ISF_ParticlePositionFilterDynamic',
-                                'ISF_EtaPhiFilter' ]
-    genParticleFilters += [ 'ISF_GenParticleInteractingFilter' ]
-    kwargs.setdefault("GenParticleFilters"                              , genParticleFilters)
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    kwargs.setdefault("BarcodeService"                                  , ISF_Flags.BarcodeService() )
-    return CfgMgr.ISF__GenEventStackFiller(name, **kwargs)
-
-#--------------------------------------------------------------------------------------------------
 ## Truth Strategies
 
 # Brems: fBremsstrahlung (3)
