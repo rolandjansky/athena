@@ -346,8 +346,8 @@ int main(int argc, char *argv[])
 
   // ______________ Construct the Server Socket and start waiting for requests ______________
   std::string socketName(cli.yampl?cli.yampl:"TokenExtractorChannel");
-  yampl::ISocketFactory* socketFactory = new yampl::SocketFactory();
-  yampl::ISocket* socket = socketFactory->createServerSocket(yampl::Channel(socketName,yampl::LOCAL_PIPE),yampl::MOVE_DATA);
+  yampl::SocketFactory socketFactory;
+  yampl::ISocket* socket = socketFactory.createServerSocket(yampl::Channel(socketName,yampl::LOCAL_PIPE),yampl::MOVE_DATA);
 
   while(true) {
     char *requestBuffer(0), *responseBuffer(0);
