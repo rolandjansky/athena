@@ -10,6 +10,7 @@
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
+#include "TrkTrack/AlignmentEffectsOnTrack.h"
 
 #include "TrkParameters/TrackParameters.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
