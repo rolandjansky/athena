@@ -62,5 +62,5 @@ bool ISF::GenParticleFinalStateFilter::isFinalState(const HepMC::GenParticle &p)
   // particle is in its final state if both:
   //  * no end_vertex
   //  * status==1
-  return ( (!p.end_vertex()) && (p.status()==1) );
+  return ( !p.end_vertex() && p.status()==1 );
 }
