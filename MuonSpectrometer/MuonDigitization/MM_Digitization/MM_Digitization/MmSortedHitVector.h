@@ -9,8 +9,8 @@ class micromegas_hit_info {
  public:
   micromegas_hit_info(Identifier i,double t,int ch,double strP,const TimedHitPtr<GenericMuonSimHit>* aHit) : 
     id(i),time(t),charge(ch),stripPos(strP),simhit(aHit) {}
-    micromegas_hit_info(Identifier i,double t,int ch) : id(i),time(t),charge(ch) {}
-      micromegas_hit_info() :time(0.),charge(0) {}
+    micromegas_hit_info(Identifier i,double t,int ch) : id(i),time(t),charge(ch),stripPos(0),simhit(0) {}
+      micromegas_hit_info() : time(0.),charge(0),stripPos(0),simhit(0) {}
 	Identifier id;
 	double time;
 	int charge;
