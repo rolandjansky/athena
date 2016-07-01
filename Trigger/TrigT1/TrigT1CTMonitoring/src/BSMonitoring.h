@@ -25,11 +25,18 @@
 #include "CoolKernel/IObject.h"
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
 
+// RPC and TGC includes for access to SL data
+#include "MuonTrigCoinData/TgcCoinDataContainer.h"
+#include "MuonRDO/RpcSectorLogicContainer.h"
+#include "MuonDigitContainer/TgcDigit.h"
+
 class CTP_RDO;
 class CTP_RIO;
 class MuCTPI_RDO;
 class MuCTPI_RIO;
 class CTP_BC;
+
+
 
 class TH2F_LW;
 class TH1F_LW;
@@ -137,7 +144,9 @@ namespace TrigT1CTMonitoring {
     void doCtp(const DataHandle < CTP_RDO > theCTP_RDO,
 	       const DataHandle < CTP_RIO > theCTP_RIO);
     void doMuctpi(const DataHandle < MuCTPI_RDO > theMuCTPI_RDO,
-		  const DataHandle < MuCTPI_RIO > theMuCTPI_RIO);
+		  const DataHandle < MuCTPI_RIO > theMuCTPI_RIO,
+		  const DataHandle < RpcSectorLogicContainer > theRPCContainer,
+		  const DataHandle < Muon::TgcCoinDataContainer > theTGCContainer);
     void doCtpMuctpi(const DataHandle < CTP_RDO > theCTP_RDO,
 		     const DataHandle < CTP_RIO > theCTP_RIO,
 		     const DataHandle < MuCTPI_RDO > theMuCTPI_RDO,

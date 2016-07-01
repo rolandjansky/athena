@@ -1,6 +1,6 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
-#include "TrigT1CTMonitoring/BSMonitoring.h"
-#include "TrigT1CTMonitoring/DeriveSimulationInputs.h"
+#include "../BSMonitoring.h"
+#include "../DeriveSimulationInputs.h"
 
 using TrigT1CTMonitoring::BSMonitoring;
 using TrigT1CTMonitoring::DeriveSimulationInputs;

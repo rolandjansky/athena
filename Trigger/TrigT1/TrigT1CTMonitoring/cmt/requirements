@@ -4,20 +4,24 @@ author David Berge <David.Berge@cern.ch>
 
 public
 use  AtlasPolicy                AtlasPolicy-*                   
-use  AthenaBaseComps            AthenaBaseComps-*               Control
-use  AthenaMonitoring           AthenaMonitoring-*              Control
-use  AtlasCOOL                  AtlasCOOL-*                     External
 use  GaudiInterface             GaudiInterface-*                External
+private
 use  StoreGate                  StoreGate-*                     Control
 use  TrigConfInterfaces         TrigConfInterfaces-*            Trigger/TrigConfiguration
+use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  TrigDecisionInterface      TrigDecisionInterface-*         Trigger/TrigEvent
 use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1
-private
+use  AthenaMonitoring           AthenaMonitoring-*              Control
+use  AtlasCOOL                  AtlasCOOL-*                     External
+use  MuonTrigCoinData           MuonTrigCoinData-*              MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use  MuonDigitContainer         MuonDigitContainer-*            MuonSpectrometer
+use  MuonRDO                    MuonRDO-*                       MuonSpectrometer
 use  AthenaPoolUtilities        AthenaPoolUtilities-*           Database/AthenaPOOL
 use  AtlasCORAL                 AtlasCORAL-*                    External
 use  AtlasROOT                  AtlasROOT-*                     External
 use  CoraCool                   CoraCool-*                      Database
 use  EventInfo			EventInfo-*			Event
+use  AtlasBoost                 AtlasBoost-*                    External
 use  LWHists                    LWHists-*                       Tools
 use  TrigConfL1Data             TrigConfL1Data-*                Trigger/TrigConfiguration
 use  TrigConfStorage            TrigConfStorage-*               Trigger/TrigConfiguration
@@ -26,6 +30,7 @@ use  TrigT1CaloEvent            TrigT1CaloEvent-*               Trigger/TrigT1
 use  TrigT1Result               TrigT1Result-*                  Trigger/TrigT1
 #use  TrigConfigSvc              TrigConfigSvc-*                 Trigger/TrigConfiguration
 end_private
+
 
 apply_pattern dual_use_library  files="*.cxx"
 
