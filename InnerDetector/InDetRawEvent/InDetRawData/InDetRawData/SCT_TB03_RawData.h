@@ -48,9 +48,6 @@ public:
   // decode group of strips
   virtual int getGroupSize() const;
 
-  // decode strip number
-  virtual int getStrip() const;
-
   unsigned int getEvent() const;
 
   unsigned int getFragmentType() const;
@@ -101,12 +98,6 @@ inline int SCT_TB03_RawData::getGroupSize() const
 {
 // Temporary mask, should be fixed later
   return (m_word & 0xFFFF);
-}
-// decode strip information (from Calvet RawData class)
-inline int SCT_TB03_RawData::getStrip() const
-{
-// Temporary mask, should be fixed later
-  return ((m_word >> 16) & 0xFFFF);
 }
 
 inline unsigned int SCT_TB03_RawData::getEvent() const

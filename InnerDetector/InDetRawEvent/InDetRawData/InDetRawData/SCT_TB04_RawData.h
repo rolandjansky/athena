@@ -51,9 +51,6 @@ public:
   // decode group of strips
   virtual int getGroupSize() const;
 
-  // decode strip number
-  virtual int getStrip() const;
-
   unsigned int getEvent() const;
 
   unsigned int getFragmentType() const;
@@ -122,12 +119,6 @@ private:
 inline int SCT_TB04_RawData::getGroupSize() const
 {
   return (m_word & 0x7FF);
-}
-
-//decode strip information
-inline int SCT_TB04_RawData::getStrip() const
-{
-  return ((m_word >> 11) & 0x7FF);
 }
 
 inline unsigned int SCT_TB04_RawData::getEvent() const

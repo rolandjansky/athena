@@ -46,11 +46,6 @@ public:
   // decode group of strips
   virtual int getGroupSize() const;
 
-  // decode strip number
-  virtual int getStrip() const;
-  ///////////////////////////////////////////////////////////////////
-  // Static methods:
-  ///////////////////////////////////////////////////////////////////
 
 
   // Create a new SCT1_RawData and return a pointer to it:
@@ -77,12 +72,6 @@ inline int SCT1_RawData::getGroupSize() const
 {
 // Temporary mask, should be fixed later
   return (m_word & 0xFFFF);
-}
-// decode strip information (from Calvet RawData class)
-inline int SCT1_RawData::getStrip() const
-{
-// Temporary mask, should be fixed later
-  return ((m_word >> 16) & 0xFFFF);
 }
 
 
