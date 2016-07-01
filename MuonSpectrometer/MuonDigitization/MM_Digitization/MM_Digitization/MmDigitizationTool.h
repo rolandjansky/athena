@@ -56,10 +56,7 @@
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 #include "MM_Digitization/StripsResponse.h"
 #include "MM_Digitization/ElectronicsResponse.h"
-
-#include "xAODEventInfo/EventInfo.h"   // SubEventIterator
-#include "xAODEventInfo/EventAuxInfo.h"// SubEventIterator
-
+#include "MM_Digitization/MMStripVmmMappingTool.h"
    
 #include <string>
 #include <sstream>
@@ -69,8 +66,7 @@
 namespace MuonGM{
   class MuonDetectorManager;
   class MMReadoutElement;
-  //class MuonChannelDesign;
-    struct MuonChannelDesign;
+  class MuonChannelDesign;
 }
 namespace CLHEP{
   class HepRandomEngine;
@@ -104,32 +100,32 @@ public:
   MmDigitizationTool(const std::string& type, const std::string& name, const IInterface* parent);
 
   /** Initialize */
-  virtual StatusCode initialize() override final;
+  virtual StatusCode initialize();
 
   /** When being run from PileUpToolsAlgs, this method is called at the start of the subevts loop. Not able to access SubEvents */
-  StatusCode prepareEvent(const unsigned int /*nInputEvents*/) override final;
+  StatusCode prepareEvent(const unsigned int /*nInputEvents*/);
   
   /** When being run from PileUpToolsAlgs, this method is called for each active bunch-crossing to process current SubEvents bunchXing is in ns */
   StatusCode  processBunchXing(int bunchXing,
- 			       SubEventIterator bSubEvents,
- 			       SubEventIterator eSubEvents) override final; 
+ 			       PileUpEventInfo::SubEvent::const_iterator bSubEvents,
+ 			       PileUpEventInfo::SubEvent::const_iterator eSubEvents); 
  
   /** When being run from PileUpToolsAlgs, this method is called at the end of the subevts loop. Not (necessarily) able to access SubEvents */
-  StatusCode mergeEvent() override final;
+  StatusCode mergeEvent();
 
   /** When being run from MM_Digitizer, this method is called during the event loop */
 
   /** alternative interface which uses the PileUpMergeSvc to obtain 
       all the required SubEvents. */ 
-  virtual StatusCode processAllSubEvents() override final; 
+  virtual StatusCode processAllSubEvents(); 
  		 
   /** Just calls processAllSubEvents - leaving for back-compatibility 
       (IMuonDigitizationTool) */ 
 
-  StatusCode digitize() override;
+  StatusCode digitize();
 
   /** Finalize */
-  StatusCode finalize() override final;
+  StatusCode finalize();
 
   /** accessors */
   ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
@@ -141,12 +137,14 @@ public:
 
   void set (const double bunchTime);
 
+
+
 private:
 
   ServiceHandle<StoreGateSvc> m_sgSvc;
   ActiveStoreSvc*             m_activeStore;
 
-  ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc; // 27/05/2015 T.Saito
+  ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc;
   
   /** Record MmDigitContainer and MuonSimDataCollection */
   StatusCode recordDigitAndSdoContainers();
@@ -186,7 +184,8 @@ private:
   void  fillMaps(const GenericMuonSimHit * mmHit, const Identifier digitId, const double driftR);
   int   digitizeTime(double time) const;
   bool outsideWindow(double time) const; // default +-50...
- 
+
+  MmElectronicsToolInput CombinedStripResponseAllhits(const std::vector< MmElectronicsToolInput > & v_StripdigitOutput);
   //TIMING SCHEME
   bool   m_useTimeWindow;
   double m_inv_c_light;
@@ -212,13 +211,15 @@ private:
   StripsResponse *m_StripsResponse;
   float m_qThreshold, m_diffusSigma, m_LogitundinalDiffusSigma, m_driftGap, m_driftVelocity, m_crossTalk1, m_crossTalk2;
   float m_qThresholdForTrigger;
-  std::string m_gasFileName; // 27/05/2015 T.Saito
+  std::string m_gasFileName;
 
   // ElectronicsResponse stuff...
   ElectronicsResponse *m_ElectronicsResponse;
   float m_alpha;// power of responce function 
   float m_RC ;// time constant of responce function
   float m_electronicsThreshold; // threshold "Voltage" for histoBNL
+  float m_stripdeadtime; // dead-time for strip
+  float m_ARTdeadtime; // dead-time for ART
   TFile *m_file;
   TTree *m_ntuple;
   TH1I *m_AngleDistr, *m_AbsAngleDistr, *m_ClusterLength2D, *m_ClusterLength, *m_gasGap,  *m_gasGapDir ;
