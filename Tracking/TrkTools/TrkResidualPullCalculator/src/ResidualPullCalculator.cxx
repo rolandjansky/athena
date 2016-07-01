@@ -22,6 +22,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "TrkTrack/AlignmentEffectsOnTrack.h"
 #include <Eigen/Geometry> 
+#include <algorithm>
 
 //////////////////////////////
 /// constructor
@@ -332,49 +333,110 @@ const Trk::ResidualPull* Trk::ResidualPullCalculator::residualPull(
     const Trk::TrackParameters* originalTrkPar,
     const Trk::ResidualPull::ResidualType resType,
     const Trk::TrackState::MeasurementType detType,
-    const std::vector<Trk::AlignmentEffectsOnTrack*>& aeots) const {
+    const std::vector<const Trk::AlignmentEffectsOnTrack*>& aeots) const {
+
+    bool veryVerbose = true;
+
+    Trk::TrackState::MeasurementType measType = detType;
+    if (detType == Trk::TrackState::unidentified) {
+        Trk::MeasurementTypeID helper = MeasurementTypeID(m_idHelper);
+        measType = helper.defineType(measurement);
+    }
 
     // time to shift the parameter - do this rather than the measurement so we can call the original method.
     Amg::Vector3D loc3Dframe;
     Amg::Vector2D localPos;
+    Amg::Vector2D localPosSimple;
     Amg::Vector3D globalPos;
     AmgVector(5) parameters;
     
     Trk::TrackParameters*  trkPar = originalTrkPar->clone();
     parameters =  trkPar->parameters();
-    
+   
+    if(veryVerbose) std::cout << " ResidualPullCalculator aeots size  " <<  aeots.size() << " parameters[0] " <<  parameters[0] << std::endl; 
+    double residual = measurement->localParameters()[Trk::loc1] - trkPar->parameters()[Trk::loc1];
+    if(veryVerbose) std::cout << " parameters[0] " << parameters[0] << " trkPar->parameters()[Trk::loc1] " << trkPar->parameters()[Trk::loc1] << " measurement->localParameters()[Trk::loc1] " << measurement->localParameters()[Trk::loc1] << " resi " << residual << std::endl;
+
+    localPos[0] = parameters[0];
+    localPosSimple[0] = parameters[0];
     for ( auto aeot : aeots ){
-        // double distanceFromSurface = aeot->associatedSurface().straightLineDistanceEstimate(originalTrkPar->position(),originalTrkPar->position());
-        
-        // Get global position from local
-        localPos[0] = parameters[0];
-        localPos[1] = parameters[1];
-        originalTrkPar->associatedSurface().localToGlobal(localPos, trkPar->momentum(), globalPos);
-        
-        // Translate into local 3D frame
-        loc3Dframe = (aeot->associatedSurface().transform().inverse())*trkPar->position();
-        
-        // Update local position, using AEOT
-        localPos = Amg::Vector2D(loc3Dframe.x(), loc3Dframe.z()); 
-        localPos[0] -= aeot->deltaTranslation(); // Shift in precision direction.
-        Eigen::Rotation2D<double> rot2(-aeot->sigmaDeltaAngle());
-        localPos = rot2 * localPos; // Rotate
-        
-        // Back to global
-        globalPos = aeot->associatedSurface().transform()*loc3Dframe; 
-        
-        // Now onto straight line surface
-        const Amg::Vector2D* newlocalPos = measurement->associatedSurface().globalToLocal(globalPos); 
-        
-        // Update parameters
-        parameters[0]= (*newlocalPos)[0];
-        delete newlocalPos;
+        if(veryVerbose) std::cout << " ResidualPullCalculator aeots deltaTranslation  " <<  aeot->deltaTranslation() << " angle " << aeot->deltaAngle()  << std::endl; 
+
+        Trk::DistanceSolution solution = aeot->associatedSurface().straightLineDistanceEstimate(originalTrkPar->position(),originalTrkPar->momentum().unit());
+        double distance = solution.currentDistance(true); 
+//      calculate sign of distance
+        Amg::Vector3D* displacementVector  = new Amg::Vector3D(originalTrkPar->position().x()-aeot->associatedSurface().center().x(),originalTrkPar->position().y()-aeot->associatedSurface().center().y(),originalTrkPar->position().z()-aeot->associatedSurface().center().z()); 
+        if(displacementVector->dot(originalTrkPar->momentum().unit())<0) distance = - distance;
+
+        if(measType == Trk::TrackState::MDT) {
+// MDT 
+          double distanceX = distance*originalTrkPar->momentum().unit().x();
+          double distanceY = distance*originalTrkPar->momentum().unit().y();
+          double distanceR = cos(originalTrkPar->momentum().phi())*distanceX + sin(originalTrkPar->momentum().phi())*distanceY;
+          if(veryVerbose) std::cout << " originalTrkPar->position() x " << originalTrkPar->position().x() << " y " << originalTrkPar->position().y() << " z " << originalTrkPar->position().z() << std::endl;
+          if(veryVerbose) std::cout << " aeot->associatedSurface().center() x " << aeot->associatedSurface().center().x() << " y " << aeot->associatedSurface().center().y() << " z " << aeot->associatedSurface().center().z() << std::endl;
+          
+//        use drift (circle) derivatives as in TrkiPatFitterUtils 
+
+          Amg::Vector3D*  sensorDirection  = new Amg::Vector3D(measurement->associatedSurface().transform().rotation().col(2));
+          Amg::Vector3D*  driftDirection = new Amg::Vector3D(sensorDirection->cross(originalTrkPar->momentum().unit()));
+          *driftDirection = driftDirection->unit();
+          if(veryVerbose) std::cout << " cos(theta) " << cos(originalTrkPar->momentum().theta()) << " phi " << originalTrkPar->momentum().phi() << std::endl;
+          if(veryVerbose) std::cout << " sensorDirection x " << sensorDirection->x() << " y " << sensorDirection->y() << " z " << sensorDirection->z() << std::endl;
+          if(veryVerbose) std::cout << " driftDirection x " << driftDirection->x() << " y " << driftDirection->y() << " z " << driftDirection->z() << std::endl;
+          
+
+// Barrel 
+          double projection = driftDirection->z();
+// dz because of a dhteta change: factor = dz/dtheta
+          double factor = distanceR/sin(originalTrkPar->momentum().theta())/sin(originalTrkPar->momentum().theta());         
+          const Surface&  surface = aeot->associatedSurface();
+          if(veryVerbose) std::cout << " fabs(surface.normal().z()) " << fabs(surface.normal().z()) << std::endl;
+          if(fabs(surface.normal().z()) > 0.5) {
+// endcap 
+             projection = (driftDirection->x()*surface.center().x() + driftDirection->y()*surface.center().y()) /
+                                 surface.center().perp();
+// dr because of a dhteta change : factor = dR/dtheta
+             factor = -distanceR/sin(originalTrkPar->momentum().theta())/cos(originalTrkPar->momentum().theta());         
+             if(veryVerbose) std::cout << " distance " << distance << " Endcap projection " << projection << " factor " << factor << std::endl;
+          } else {
+             if(veryVerbose) std::cout << " distance " << distance << " Barrel projection " << projection  << " factor " << factor << std::endl;
+          }
+
+
+          localPos[0] += projection*aeot->deltaTranslation() - projection*factor*aeot->deltaAngle(); // Shift in precision direction.
+          
+          if(veryVerbose) std::cout << " MDT old localPos " << parameters[0] << " new localPos " << localPos[0] << std::endl; 
+
+        } else {
+
+// CSC or MM clusters
+
+//        use cluster derivatives as in TrkiPatFitterUtils 
+//            double distance     = fm->surface()->normal().dot(measurement.intersection(FittedTrajectory).position() - fm->intersection(FittedTrajectory).position());
+//            double projection   = fm->surface()->normal().dot(measurement.intersection(FittedTrajectory).direction());
+
+
+          double projection = aeot->associatedSurface().normal().dot(originalTrkPar->momentum().unit()); 
+          localPos[0] += aeot->deltaTranslation()*projection + distance*aeot->deltaAngle();
+
+          if(veryVerbose) std::cout << " CSC old localPos " << parameters[0] << " distance " << distance << " proj " << projection << " new localPos " << localPos[0] << " simple " << localPosSimple[0] << std::endl; 
+          
+        } 
     }
-    
+
+    parameters[0] = localPos[0];
+    residual = measurement->localParameters()[Trk::loc1] -  parameters[0];
+    if(veryVerbose) std::cout << " new residual after end aeots loop " << residual << std::endl;
+
     // Set parameters to the new values;
     const AmgSymMatrix(5)* originalCov = trkPar->covariance();
-    trkPar->updateParameters(parameters, new AmgSymMatrix(5)( *originalCov ) ); 
-    
+    if(originalCov) {
+       trkPar->updateParameters(parameters, new AmgSymMatrix(5)( *originalCov ) );
+    } else {
+       trkPar->updateParameters(parameters); 
+    }
+  
     // Now call original method.
     const Trk::ResidualPull* resPull = residualPull(measurement, trkPar, resType, detType );
     delete trkPar;
