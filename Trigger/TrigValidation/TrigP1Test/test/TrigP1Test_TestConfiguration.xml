@@ -462,7 +462,7 @@
                        
          <TEST name="Trigreco_physicsV6_currentT0" type="script" suite="TrigP1HLTvarious"> 
             <options_atn>trigtest.pl --cleardir --test Trigreco_physicsV6_currentT0 --rundir Trigreco_physicsV6_currentT0 --conf TrigP1Test.conf</options_atn> 
-            <timelimit>50</timelimit> 
+            <timelimit>90</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
