@@ -49,6 +49,18 @@ class doCreateClusters(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
+## Run cluster segment finding
+class doTGCClusterSegmentFinding(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+## Run cluster segment finding
+class doRPCClusterSegmentFinding(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
 ## Run clusterization 
 class prdToxAOD(JobProperty):
     statusOn=True

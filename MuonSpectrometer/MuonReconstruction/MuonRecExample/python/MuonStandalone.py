@@ -118,7 +118,9 @@ class MuonStandalone(ConfiguredMuonRec):
                                                      UseRPC = muonRecFlags.doRPCs(),
                                                      UseTGC = muonRecFlags.doTGCs(),
                                                      UseTGCPriorBC = muonRecFlags.doTGCs() and muonRecFlags.useTGCPriorNextBC(),
-                                                     UseTGCNextBC  = muonRecFlags.doTGCs() and muonRecFlags.useTGCPriorNextBC() ))
+                                                     UseTGCNextBC  = muonRecFlags.doTGCs() and muonRecFlags.useTGCPriorNextBC(),
+                                                     doTGCClust = muonRecFlags.doTGCClusterSegmentFinding(),
+                                                     doRPCClust = muonRecFlags.doRPCClusterSegmentFinding() ))
 
 
 
@@ -141,7 +143,9 @@ class MuonStandalone(ConfiguredMuonRec):
                                                      UseRPC = False,
                                                      UseTGC = False,
                                                      UseTGCPriorBC = False,
-                                                     UseTGCNextBC  = False ) )
+                                                     UseTGCNextBC  = False,
+                                                     doTGCClust = False,
+                                                     doRPCClust = False) )
 
         self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg") )
         self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg_NCB",SegmentContainerName="NCB_MuonSegments",xAODContainerName="NCB_MuonSegments") )
