@@ -43,6 +43,11 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
     // finalize
     virtual StatusCode procHistograms(); 
 
+    float stripsSum_EA;
+    float stripsSum_EAtest;
+    float stripsSum_EC;
+    float stripsSum_ECtest;
+
 
   private:
 
@@ -167,7 +172,11 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
     // cluster width - phi layer
     TH2F *m_h2csc_clus_phicluswidth;           
     TH2F *m_h2csc_clus_phicluswidth_signal;    
-    TH2F *m_h2csc_clus_phicluswidth_noise;     
+    TH2F *m_h2csc_clus_phicluswidth_noise;  
+
+    //totaLl cluster width
+    TH1F *m_h1csc_clus_totalWidth_EA;
+    TH1F *m_h1csc_clus_totalWidth_EC;    
 
 
     // correlation plots

@@ -268,6 +268,10 @@ void CscClusterValAlg::initHistograms() {
   m_h2csc_clus_phicluswidth_signal = 0;
   m_h2csc_clus_phicluswidth_noise = 0;
 
+  //total cluster width
+  m_h1csc_clus_totalWidth_EA = 0;
+  m_h1csc_clus_totalWidth_EC = 0;
+
   // correlation plots
   m_h2csc_clus_eta_vs_phi_charge = 0;
   m_h2csc_clus_eta_vs_phi_charge_noise = 0;
@@ -322,6 +326,11 @@ void CscClusterValAlg::bookClusterHistograms() {
   int ntbins = 260;
   float ntmin = -60;
   float ntmax = 200;
+
+  //total cluster width
+  int Nxbins  = 15360;  //16 chambers * [(192 eta-strips * 4 layers) + (48 phi-strips * 4 layers)] = 15360 channels
+  float Nxmin = 1.; 
+  float Nxmax = 15361.;
   ///******************** DO NOT MODIFY (end) ***********************************************///
 
 
@@ -491,6 +500,11 @@ void CscClusterValAlg::bookClusterHistograms() {
       Form("#phi-cluster width, Qmax > %4u counts;# strips;[sector] + [0.2 #times layer]",m_qmaxADCCut),
       48,0,48,nybins,nymin,nymax);
 
+  //total cluster width
+  m_h1csc_clus_totalWidth_EA = new TH1F("h1csc_clus_totalWidth_EA","EndCap A: Cluster hits in all EA eta(#eta) & phi(#phi) strips;strips;cluster hits",Nxbins,Nxmin,Nxmax);
+ 
+  m_h1csc_clus_totalWidth_EC = new TH1F("h1csc_clus_totalWidth_EC","EndCap C: Cluster hits in all EC eta(#eta) & phi(#phi) strips;strips;cluster hits",Nxbins,Nxmin,Nxmax);
+
   // eta-cluster count
   m_h2csc_clus_etacluscount = new TH2F("h2csc_clus_etacluscount",
       "#eta-cluster count;no.of clusters;[sector] + [0.2 #times layer]",
@@ -617,6 +631,10 @@ void CscClusterValAlg::bookClusterHistograms() {
   m_cscClusExpert.push_back(m_h2csc_clus_phicluswidth);             // expert
   m_cscClusExpert.push_back(m_h2csc_clus_phicluswidth_signal);      // expert
   m_cscClusExpert.push_back(m_h2csc_clus_phicluswidth_noise);       // expert
+
+  //total cluster width
+  m_cscClusOviewEA.push_back(m_h1csc_clus_totalWidth_EA);           // overview
+  m_cscClusOviewEC.push_back(m_h1csc_clus_totalWidth_EC);           // overview
 
   // eta count (# of clusters)
   m_cscClusExpert.push_back(m_h2csc_clus_etacluscount);             // expert
@@ -807,6 +825,12 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& m_cols, con
     // ==============================================================================
 
 
+    stripsSum_EA = 0.;
+    stripsSum_EAtest = -50.;
+    stripsSum_EC = 0.;
+    stripsSum_ECtest = -50.;
+
+
     ATH_MSG_DEBUG ( " Begin loop over clusters ============================");
     for ( CscPrepDataCollection::const_iterator m_Itclu = m_clus.begin();
         m_Itclu != m_clus.end(); ++m_Itclu ) {
@@ -845,6 +869,23 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& m_cols, con
       int m_sectorNo  = m_stationEta * (2 * m_stationPhi - m_chamberType);   // [-16 -> -1] and [+1 -> +16]
       float m_secLayer = m_sectorNo + 0.2 * (m_wireLayer - 1) + 0.1;
       int xfac = m_measuresPhi ? -1 : 1;        // [-1 -> -48] / [+1 -> +192]
+
+
+      //total cluster width (EA and EC) calculation
+       if(m_secLayer > 0.) { 
+          stripsSum_EA = stripsSum_EA + m_noStrips;
+     }
+       if(stripsSum_EA > stripsSum_EAtest) {
+          stripsSum_EAtest = stripsSum_EA;
+     }
+
+       if(m_secLayer < 0. || m_secLayer == 0.) { 
+          stripsSum_EC = stripsSum_EC + m_noStrips;
+     }
+       if(stripsSum_EC > stripsSum_ECtest) {
+          stripsSum_ECtest = stripsSum_EC;
+     }  
+
 
       // check boundaries of sector/layer - redundancy
       //if(!(m_sectorNo+16) < 33) m_sectorNo = 0;
@@ -1100,6 +1141,10 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& m_cols, con
 
 
       } // end if cluster_status
+
+        //filling total cluster width histograms
+        m_h1csc_clus_totalWidth_EA->Fill( stripsSum_EA );
+        m_h1csc_clus_totalWidth_EC->Fill( stripsSum_EC );
 
     } // end for loop over prep-data collection
     ATH_MSG_DEBUG ( " End loop over clusters ============================");
