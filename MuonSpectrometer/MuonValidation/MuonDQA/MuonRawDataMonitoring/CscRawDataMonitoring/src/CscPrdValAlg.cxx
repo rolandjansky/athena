@@ -234,9 +234,9 @@ void CscPrdValAlg::bookPrdHistograms() {
   float nyminEC = -17.; //
   float nymaxEC = 0.;   //
 
-  int nxbinsLB  = 1510; // 1500 LB (x 16 chambers x 5 layers per chamber) + 10 extra
+  int nxbinsLB  = 2510; // 2500 LB (x 16 chambers x 5 layers per chamber) + 10 extra
   float nxminLB = -10.;   //
-  float nxmaxLB = 1500.;  //
+  float nxmaxLB = 2500.;  //
   /// ******************** DO NOT MODIFY (end) *********************************************** ///
 
   //if (newEventsBlock){}
