@@ -68,15 +68,16 @@ class GSCFex (TrigGSCFex):
                 self.GSCCalibrationTool = jrcf.find("AntiKt", 0.4, "EMTopo", "ajg", "reco", "Kt4")
                 print self.GSCCalibrationTool
         # MONITORING
-        from TrigBjetHypo.TrigGSCFexMonitoring import TrigEFGSCFexValidationMonitoring, TrigEFGSCFexOnlineMonitoring
-        validation = TrigEFGSCFexValidationMonitoring()
-        online     = TrigEFGSCFexOnlineMonitoring()    
+        #from TrigBjetHypo.TrigGSCFexMonitoring import TrigEFGSCFexValidationMonitoring, TrigEFGSCFexOnlineMonitoring
+        #validation = TrigEFGSCFexValidationMonitoring()
+        #online     = TrigEFGSCFexOnlineMonitoring()    
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("TimeHistogramForTrigBjetHypo")
         time.TimerHistLimits = [0,2]
         
-        self.AthenaMonTools = [ time, validation, online ]
+        #self.AthenaMonTools = [ time, validation, online ]
+        self.AthenaMonTools = [ time  ]
 
 
 ###########################################
@@ -140,15 +141,16 @@ class GSCFexSplit (TrigGSCFex):
 
 
         # MONITORING
-        from TrigBjetHypo.TrigGSCFexMonitoring import TrigEFGSCFexValidationMonitoring, TrigEFGSCFexOnlineMonitoring
-        validation = TrigEFGSCFexValidationMonitoring()
-        online     = TrigEFGSCFexOnlineMonitoring()    
+        #from TrigBjetHypo.TrigGSCFexMonitoring import TrigEFGSCFexValidationMonitoring, TrigEFGSCFexOnlineMonitoring
+        #validation = TrigEFGSCFexValidationMonitoring()
+        #online     = TrigEFGSCFexOnlineMonitoring()    
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("TimeHistogramForTrigBjetHypo")
         time.TimerHistLimits = [0,2]
         
-        self.AthenaMonTools = [ time, validation, online ]
+        #self.AthenaMonTools = [ time, validation, online ]
+        self.AthenaMonTools = [ time ]
 
 
 ###########################################
@@ -197,15 +199,16 @@ class GSCFexFTK (TrigGSCFex):
             #    self.TaggerBaseNames    = BTagConfig.getJetCollectionSecVertexingToolAttribute("SecVtxFinderxAODBaseNameList", "AntiKt4EMTopo")
                 
         # MONITORING
-        from TrigBjetHypo.TrigGSCFexMonitoring import TrigEFGSCFexValidationMonitoring, TrigEFGSCFexOnlineMonitoring
-        validation = TrigEFGSCFexValidationMonitoring()
-        online     = TrigEFGSCFexOnlineMonitoring()    
+        #from TrigBjetHypo.TrigGSCFexMonitoring import TrigEFGSCFexValidationMonitoring, TrigEFGSCFexOnlineMonitoring
+        #validation = TrigEFGSCFexValidationMonitoring()
+        #online     = TrigEFGSCFexOnlineMonitoring()    
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("TimeHistogramForTrigBjetHypo")
         time.TimerHistLimits = [0,2]
         
-        self.AthenaMonTools = [ time, validation, online ]
+        #self.AthenaMonTools = [ time, validation, online ]
+        self.AthenaMonTools = [ time ]
 
 
 ###########################################
@@ -254,15 +257,16 @@ class GSCFexFTKRefit (TrigGSCFex):
             #    self.TaggerBaseNames    = BTagConfig.getJetCollectionSecVertexingToolAttribute("SecVtxFinderxAODBaseNameList", "AntiKt4EMTopo")
                 
         # MONITORING
-        from TrigBjetHypo.TrigGSCFexMonitoring import TrigEFGSCFexValidationMonitoring, TrigEFGSCFexOnlineMonitoring
-        validation = TrigEFGSCFexValidationMonitoring()
-        online     = TrigEFGSCFexOnlineMonitoring()    
+        #from TrigBjetHypo.TrigGSCFexMonitoring import TrigEFGSCFexValidationMonitoring, TrigEFGSCFexOnlineMonitoring
+        #validation = TrigEFGSCFexValidationMonitoring()
+        #online     = TrigEFGSCFexOnlineMonitoring()    
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("TimeHistogramForTrigBjetHypo")
         time.TimerHistLimits = [0,2]
         
-        self.AthenaMonTools = [ time, validation, online ]
+        #self.AthenaMonTools = [ time, validation, online ]
+        self.AthenaMonTools = [ time ]
 
 
 ###########################################
@@ -311,12 +315,13 @@ class GSCFexFTKVtx (TrigGSCFex):
             #    self.TaggerBaseNames    = BTagConfig.getJetCollectionSecVertexingToolAttribute("SecVtxFinderxAODBaseNameList", "AntiKt4EMTopo")
                 
         # MONITORING
-        from TrigBjetHypo.TrigGSCFexMonitoring import TrigEFGSCFexValidationMonitoring, TrigEFGSCFexOnlineMonitoring
-        validation = TrigEFGSCFexValidationMonitoring()
-        online     = TrigEFGSCFexOnlineMonitoring()    
+        #from TrigBjetHypo.TrigGSCFexMonitoring import TrigEFGSCFexValidationMonitoring, TrigEFGSCFexOnlineMonitoring
+        #validation = TrigEFGSCFexValidationMonitoring()
+        #online     = TrigEFGSCFexOnlineMonitoring()    
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("TimeHistogramForTrigBjetHypo")
         time.TimerHistLimits = [0,2]
         
-        self.AthenaMonTools = [ time, validation, online ]
+        #self.AthenaMonTools = [ time, validation, online ]
+        self.AthenaMonTools = [ time ]
