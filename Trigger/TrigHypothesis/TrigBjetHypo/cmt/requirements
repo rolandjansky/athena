@@ -15,6 +15,7 @@ use     VxSecVertex             VxSecVertex-*                   Tracking/TrkEven
 use     TrigInDetEvent          TrigInDetEvent-*                Trigger/TrigEvent
 use     xAODBase                xAODBase-*                  	Event/xAOD
 use     xAODTracking            xAODTracking-*             	Event/xAOD
+use     JetCalibTools           JetCalibTools-*                 Reconstruction/Jet
 
 # ============================================================================================
 private

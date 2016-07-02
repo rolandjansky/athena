@@ -21,7 +21,7 @@ class BjetEtHypo (TrigBjetEtHypo):
         
         mlog = logging.getLogger('BjetHypoConfig.py')
 
-        AllowedInstances = ["EF", "MuJetChain"]
+        AllowedInstances = ["EF", "MuJetChain", "GSC"]
         AllowedVersions  = ["StartSequence","Btagging"]
 
         if instance not in AllowedInstances :
@@ -41,7 +41,8 @@ class BjetEtHypo (TrigBjetEtHypo):
             self.JetKey = "FarawayJet"
             instance = "EF"
 
-
+        if instance=="GSC" :
+            self.JetKey = "GSCJet"
 
 class BjetEtHypoNoCut (TrigBjetEtHypo):
     __slots__ = []
