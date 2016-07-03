@@ -96,6 +96,13 @@ StatusCode MMDigitVariables::fillVariables()
       std::vector<double> sr_globalPosY;
       std::vector<double> sr_globalPosZ;
 
+      // information for trigger
+      std::vector<float>  time_trigger          = digit->stripTimeForTrigger();
+      std::vector<float>  charge_trigger        = digit->stripChargeForTrigger();
+      std::vector<int>    position_trigger      = digit->stripPositionForTrigger();
+      std::vector<int>    MMFE_VMM_id_trigger   = digit->MMFE_VMM_idForTrigger();
+      std::vector<int>    VMM_id_trigger        = digit->VMM_idForTrigger();
+
       // check if VMM chip and stirp agree
       if ( stripPosition.size() != sr_stripPosition.size() )
         ATH_MSG_DEBUG("MicroMegas digitization: number of strip out from the strip response different from that out from the chip response");
@@ -146,7 +153,7 @@ StatusCode MMDigitVariables::fillVariables()
           if ( fabs(dx)>0.1 || fabs(dy)>0.1 ) {
             ATH_MSG_WARNING("MicroMegas digitization: inconsistency between local/global position and transform:");
             ATH_MSG_WARNING("                         X from stripPosition: " << std::setw(10) << std::setprecision(3) << cr_strip_pos.x()
-                         << ", X from global*transform(id).inverse(): " << lpos.x() );            
+                         << ", X from global*transform(id).inverse(): " << lpos.x() );
             ATH_MSG_WARNING("                         Y from stripPosition: " << std::setw(10) << std::setprecision(3) << cr_strip_pos.y()
                          << ", Y from global*transform(Id).inverse(): " << lpos.y() );
           }
@@ -238,7 +245,7 @@ StatusCode MMDigitVariables::fillVariables()
 
 
       // retrieve the MC truth associated with the digit (means the Geant4 hit information)
-      if (nsw_MmSdoContainer) {
+      if (nsw_MmSdoContainer && nsw_MmSdoContainer->size()>0) {
         // search the truth container with the Id of the digit
         const MuonSimData mm_sdo = (nsw_MmSdoContainer->find(Id))->second;
         std::vector<MuonSimData::Deposit> deposits;
@@ -275,8 +282,11 @@ StatusCode MMDigitVariables::fillVariables()
       }
 
       // some more information of the digit to be stored in the ntuple
-      m_NSWMM_dig_stripForTrigger->push_back(digit->stripForTrigger());
-      m_NSWMM_dig_stripTimeForTrigger->push_back(digit->stripTimeForTrigger());
+      m_NSWMM_dig_time_trigger->push_back(time_trigger);
+      m_NSWMM_dig_charge_trigger->push_back(charge_trigger);
+      m_NSWMM_dig_position_trigger->push_back(position_trigger);
+      m_NSWMM_dig_MMFE_VMM_id_trigger->push_back(MMFE_VMM_id_trigger);
+      m_NSWMM_dig_VMM_id_trigger->push_back(VMM_id_trigger);
 
       // digit counter for the ntuple
       m_NSWMM_nDigits++;
@@ -337,9 +347,12 @@ StatusCode MMDigitVariables::clearVariables()
   m_NSWMM_dig_truth_globalPosY->clear();
   m_NSWMM_dig_truth_globalPosZ->clear();
 
-  // more information (size is m_NSWMM_nDigits)
-  m_NSWMM_dig_stripForTrigger->clear();
-  m_NSWMM_dig_stripTimeForTrigger->clear();
+  // more information for trigger
+  m_NSWMM_dig_time_trigger->clear();
+  m_NSWMM_dig_charge_trigger->clear();
+  m_NSWMM_dig_position_trigger->clear();
+  m_NSWMM_dig_MMFE_VMM_id_trigger->clear();
+  m_NSWMM_dig_VMM_id_trigger->clear();
 
   return StatusCode::SUCCESS;
 }
@@ -383,8 +396,11 @@ StatusCode MMDigitVariables::initializeVariables()
   m_NSWMM_dig_truth_globalPosY = new std::vector<double>;
   m_NSWMM_dig_truth_globalPosZ = new std::vector<double>;
 
-  m_NSWMM_dig_stripForTrigger     = new std::vector<int>;
-  m_NSWMM_dig_stripTimeForTrigger = new std::vector<float>;
+  m_NSWMM_dig_time_trigger        = new std::vector< std::vector<float> >;
+  m_NSWMM_dig_charge_trigger      = new std::vector< std::vector<float> >;
+  m_NSWMM_dig_position_trigger    = new std::vector< std::vector<int> >;
+  m_NSWMM_dig_MMFE_VMM_id_trigger = new std::vector< std::vector<int> >;
+  m_NSWMM_dig_VMM_id_trigger      = new std::vector< std::vector<int> >;
 
   if(m_tree) {
     m_tree->Branch("Digits_MM",    &m_NSWMM_nDigits, "Digits_MM_n/i");
@@ -420,10 +436,12 @@ StatusCode MMDigitVariables::initializeVariables()
     m_tree->Branch("Digits_MM_truth_globalPosX", &m_NSWMM_dig_truth_globalPosX);
     m_tree->Branch("Digits_MM_truth_globalPosY", &m_NSWMM_dig_truth_globalPosY);
     m_tree->Branch("Digits_MM_truth_globalPosZ", &m_NSWMM_dig_truth_globalPosZ);
-
-
-    m_tree->Branch("Digits_MM_stripForTrigger",     &m_NSWMM_dig_stripForTrigger);
-    m_tree->Branch("Digits_MM_stripTimeForTrigger", &m_NSWMM_dig_stripTimeForTrigger);
+      
+    m_tree->Branch("Digits_MM_time_trigger",          &m_NSWMM_dig_time_trigger);
+    m_tree->Branch("Digits_MM_charge_trigger",        &m_NSWMM_dig_charge_trigger);
+    m_tree->Branch("Digits_MM_position_trigger",      &m_NSWMM_dig_position_trigger);
+    m_tree->Branch("Digits_MM_MMFE_VMM_id_trigger",   &m_NSWMM_dig_MMFE_VMM_id_trigger);
+    m_tree->Branch("Digits_MM_VMM_id_trigger",        &m_NSWMM_dig_VMM_id_trigger);
   }
 
   return StatusCode::SUCCESS;
@@ -467,8 +485,11 @@ StatusCode MMDigitVariables::deleteVariables()
   delete m_NSWMM_dig_truth_globalPosY;
   delete m_NSWMM_dig_truth_globalPosZ;
 
-  delete m_NSWMM_dig_stripForTrigger;
-  delete m_NSWMM_dig_stripTimeForTrigger;
+  delete m_NSWMM_dig_time_trigger;
+  delete m_NSWMM_dig_charge_trigger;
+  delete m_NSWMM_dig_position_trigger;
+  delete m_NSWMM_dig_MMFE_VMM_id_trigger;
+  delete m_NSWMM_dig_VMM_id_trigger;
 
   m_NSWMM_nDigits = 0;
   m_NSWMM_dig_stationName = nullptr;
@@ -504,8 +525,11 @@ StatusCode MMDigitVariables::deleteVariables()
   m_NSWMM_dig_truth_globalPosY = nullptr;
   m_NSWMM_dig_truth_globalPosZ = nullptr;
 
-  m_NSWMM_dig_stripForTrigger = nullptr;
-  m_NSWMM_dig_stripTimeForTrigger = nullptr;
+  m_NSWMM_dig_time_trigger = nullptr;
+  m_NSWMM_dig_charge_trigger = nullptr;
+  m_NSWMM_dig_position_trigger = nullptr;
+  m_NSWMM_dig_MMFE_VMM_id_trigger = nullptr;
+  m_NSWMM_dig_VMM_id_trigger = nullptr;
 
   return StatusCode::SUCCESS;
 }
