@@ -44,7 +44,7 @@ class EFBMuMuXHypo_1 (TrigEFBMuMuXHypo):
         self.UpperLambdaMassCut = 1200.
         self.LambdaChi2Cut = 400.
         # Bc
-        self.LowerBcMassCut = 1800.
+        self.LowerBcMassCut = 5450.
         self.UpperBcMassCut = 7050.
         self.BcChi2Cut = 120.
         self.LowerDsMassCut = 1600.
@@ -82,7 +82,7 @@ class EFBMuMuXHypo_allModes_tightBc (EFBMuMuXHypo_allModes):
         EFBMuMuXHypo_allModes.__init__(self, name )
 
         # Bc
-        self.LowerBcMassCut = 5400.
+        self.LowerBcMassCut = 5450.
         
         
 class EFBMuMuXHypo_BplusMuMuKplus (EFBMuMuXHypo_1):
@@ -95,6 +95,24 @@ class EFBMuMuXHypo_BplusMuMuKplus (EFBMuMuXHypo_1):
         self.AcceptAll = False
         # decay modes flags
         self.AcceptBplus = True
+        self.AcceptBd = False
+        self.AcceptBs = False
+        self.AcceptLb = False
+        self.AcceptBc = False
+        
+class EFBMuMuXHypo_TauMuMuX (EFBMuMuXHypo_1):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuXHypo_TauMuMuX"):
+        EFBMuMuXHypo_1.__init__(self, name)
+        #super( TrigEFBMuMuXHypo, self ).__init__( name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll = False
+        # decay modes flags
+        self.AcceptBplus = True
+        self.LowerBplusMassCut = 700.
+        self.UpperBplusMassCut = 2700.
+        self.BplusChi2Cut = 100.
         self.AcceptBd = False
         self.AcceptBs = False
         self.AcceptLb = False
@@ -167,5 +185,5 @@ class EFBMuMuXHypo_BcMuMuDs_tight (EFBMuMuXHypo_BcMuMuDs):
         #super( TrigEFBMuMuXHypo, self ).__init__( name )
         
         # Bc
-        self.LowerBcMassCut = 5400.
+        self.LowerBcMassCut = 5450.
         
