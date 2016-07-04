@@ -341,7 +341,7 @@ def main():
             list_patch_packages()
 
 ########### Get unique name for the clean run directory
-            UniqName = str(uuid.uuid4())
+        UniqName = str(uuid.uuid4())
 
 ########### Define and run jobs
         mythreads={}
