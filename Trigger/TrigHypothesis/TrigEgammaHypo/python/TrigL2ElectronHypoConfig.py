@@ -74,16 +74,18 @@ class L2ElectronHypo_e_ID (L2ElectronHypoBase):
         self.TrackPt = 1.0 * GeV
         self.CaloTrackdETA = [ 0.2 , 0.2 , 0.2 , 0.2 , 0.2 , 0.2 , 0.2 , 0.2 , 0.2 ]
         self.CaloTrackdPHI = [ 999., 999., 999., 999., 999., 999., 999., 999., 999.]
-        if (threshold > 15):
+        if(float(threshold) < 15):
+            self.TrackPt = 1.0 * GeV
+        elif (float(threshold) >= 15 and float(threshold) < 20):
             self.TrackPt = 2.0 * GeV
-        elif (threshold >= 20):
+        elif (float(threshold) >= 20 and float(threshold) < 50):
             self.TrackPt = 3.0 * GeV
-        elif (threshold >= 50):
+        elif (float(threshold) >= 50):
             self.TrackPt = 5.0 * GeV
             self.CaloTrackdETA = [ 999., 999., 999., 999., 999., 999., 999., 999., 999.]
             self.CaloTrackdPHI = [ 999., 999., 999., 999., 999., 999., 999., 999., 999.]
         else:
-            raise RuntimeError('No L2 Electron Theshold: Default cuts configured')
+            raise RuntimeError('No threshold: Default cut configured')
 
 # Configurable L2 Track Algorithm
 class L2ElectronHypo_e_ID_L2TrkAlg (L2ElectronHypo_e_ID):

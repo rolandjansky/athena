@@ -48,9 +48,7 @@
 #include "PATCore/TAccept.h"            // for TAccept
 #include "PATCore/TResult.h"            // for TResult
 // to add TrigPassBits 
-#include "TrigSteeringEvent/TrigPassBits.h"
-#include "TrigSteeringEvent/TrigPassFlags.h"
-
+#include "xAODTrigger/TrigPassBits.h"
 namespace {
     template <class DEST,class SRC>
         inline DEST** my_pp_cast(SRC** ptr) {
@@ -338,8 +336,7 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
       ATH_MSG_DEBUG("AcceptAll property not set: applying selection");
 
   // generate TrigPassBits mask to flag which egamma objects pass hypo cuts
-  TrigPassBits* passBits = HLT::makeTrigPassBits(m_EgammaContainer);
-  //std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits(m_EgammaContainer); 
+  std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits<xAOD::PhotonContainer>(m_EgammaContainer); 
   //counters for each cut
   int Ncand[10];
   for(int i=0; i<10; i++) Ncand[i]=0;
@@ -369,6 +366,10 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   //bool passed1=false;
   for (const auto& egIt : *m_EgammaContainer){
 
+      if(m_acceptAll){
+          xBits->markPassing(egIt,m_EgammaContainer,true);
+          continue;
+      }
       //passed1 = false;
       //-------------------------------------------------------------
       //Apply cut on IsEM bit pattern re-running the  Offline Builder  
@@ -580,8 +581,7 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
     // At least 1 Photon passes selection
     Ncand[8]++;
     pass = true;
-    HLT::markPassing(passBits, egIt, m_EgammaContainer); // set bit for this egamma in TrigPassBits mask
-    //xBits->markPassing(egIt,m_EgammaContainer,true);
+    xBits->markPassing(egIt,m_EgammaContainer,true);
   } // end of loop in egamma objects.
   
   for(int i=0; i<10; i++) m_NofPassedCuts+=(Ncand[i]>0);
@@ -591,12 +591,8 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
     msg() << MSG::DEBUG << "REGTEST: Result = " <<(pass ? "passed" : "failed")<< endreq;
   }
 
-  // store TrigPassBits result
-  if ( attachBits(outputTE, passBits) != HLT::OK ) {
-    msg() << MSG::ERROR << "Could not store TrigPassBits! " << endreq;
-  }
-  /*if(attachFeature(outputTE, xBits.release()) != HLT::OK)
-      ATH_MSG_ERROR("Could not store TrigPassBits! ");*/
+  if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
+      ATH_MSG_ERROR("Could not store TrigPassBits! ");
 
   // Time total TrigEFPhotonHypo execution time.
   // -------------------------------------

@@ -32,7 +32,7 @@
 //#include "xAODEgammaCnv/xAODPhotonMonFuncs.h" // Cannot use macros in more than one place
 #include "CaloEvent/CaloCellContainer.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "TrigSteeringEvent/TrigPassBits.h"
+#include "xAODTrigger/TrigPassBits.h"
 #include "PATCore/TAccept.h"            // for TAccept
 #include "PATCore/TResult.h"            // for TResult
 
@@ -269,8 +269,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
   }
 
   // Create pass bits for clusters
-  TrigPassBits* passBits = HLT::makeTrigPassBits(clusContainer);
-  //std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits(clusContainer);
+  std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits<xAOD::CaloClusterContainer>(clusContainer);
   double mu = 0.;
   double avg_mu = 0.;
   bool useLumiTool=false;
@@ -285,6 +284,10 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
   
   unsigned int iclus=0;
   for(const auto clus : *clusContainer){
+      if(m_acceptAll){
+          xBits->markPassing(clus,clusContainer,true);
+          continue;
+      }
       unsigned int isEMTrig = 0;
       bool isLHAcceptTrig = false;
       float lhval=0.;
@@ -299,7 +302,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
       // Run the tools for each object
       ATH_MSG_DEBUG("REGTEST: Run the tools on eg object");
-      if(m_fourMomBuilder->hltExecute(&eg,0));
+      if(m_fourMomBuilder->hltExecute(&eg));
       else ATH_MSG_DEBUG("Problem with FourMomBuilder");
       if(m_showerBuilder->recoExecute(&eg,pCaloCellContainer));
       else ATH_MSG_DEBUG("Problem with ShowerBuilder");
@@ -382,8 +385,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
           continue;
       }
       accepted=true;
-      //xBits->markPassing(clus,clusContainer,true);
-      HLT::markPassing(passBits, clus, clusContainer); // set bit for this egamma in TrigPassBits mask
+      xBits->markPassing(clus,clusContainer,true);
    
   }
 
@@ -396,9 +398,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
   // Time total TrigEFCaloHypo execution time.
   // -------------------------------------
   // store TrigPassBits result
-  /*if(attachFeature(outputTE, xBits.release()) != HLT::OK)
-      ATH_MSG_ERROR("Could not store TrigPassBits! ");*/
-  if ( attachBits(outputTE, passBits) != HLT::OK ) 
+  if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
       ATH_MSG_ERROR("Could not store TrigPassBits! ");
 
   if (timerSvc()) m_totalTimer->stop();
