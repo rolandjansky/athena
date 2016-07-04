@@ -34,8 +34,6 @@
 #include "TrigInterfaces/ComboAlgo.h"
 
 // trigger EDM
-#include "xAODTrigger/TrigComposite.h"
-#include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 
 /* class StoreGateSvc; */
@@ -74,7 +72,6 @@ private:
   // output data
   std::vector<float> m_massElectronElectron;
   std::vector<float> m_massElectronCluster;
-  xAOD::TrigCompositeContainer *m_cont;
   // to set Accept-All mode: should be done with force-accept when possible
   bool m_acceptAll; //!<  true will accept all events
 

@@ -24,7 +24,8 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "TrigEgammaHypo/TrigEFDielectronMassFex.h"
-
+#include "xAODTrigger/TrigComposite.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
 #include "TLorentzVector.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include <math.h>
@@ -99,20 +100,6 @@ HLT::ErrorCode TrigEFDielectronMassFex::acceptInputs(HLT::TEConstVec& inputTE, b
   // this are 2 TEs which we eventually will combine
   const HLT::TriggerElement* te1 = inputTE[0];
   const HLT::TriggerElement* te2 = inputTE[1];
-
-  // for debugging purpose look into RoIDescriptors
-  /*if ( msgLvl() <= MSG::DEBUG ){
-    const TrigRoiDescriptor* roiDescriptor1 = 0;
-    const TrigRoiDescriptor* roiDescriptor2 = 0;
-    if ( getFeature(te1, roiDescriptor1) != HLT::OK || getFeature(te2, roiDescriptor2) != HLT::OK ) {
-      if ( msgLvl() <= MSG::WARNING) {
-	msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Elements! " << endreq;
-      }  
-    } else {
-      if ( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG  << "Trying to combine 2 RoIs: " << *roiDescriptor1 << " & " << *roiDescriptor2 << endreq;
-    }
-  }*/
   
   // retrieve TrigElectronContainers from this TE
   const xAOD::ElectronContainer* electronCont(0);
@@ -147,29 +134,36 @@ HLT::ErrorCode TrigEFDielectronMassFex::hltExecute(HLT::TEConstVec& inputTE,
   m_monCut=0;
   m_massElectronElectron.clear();
   m_massElectronCluster.clear();
-  m_cont=new xAOD::TrigCompositeContainer();
-  xAOD::TrigCompositeAuxContainer contaux;
-  m_cont->setStore(&contaux);
 
   if (m_useElectronElectron) {
     processElectronElectron(inputTE, m_massElectronElectron);
+    
+    xAOD::TrigCompositeContainer *cont_ee=new xAOD::TrigCompositeContainer();
+    xAOD::TrigCompositeAuxContainer cont_ee_aux;
+    cont_ee->setStore(&cont_ee_aux);
+
     for (const auto &mass:m_massElectronElectron) {
         xAOD::TrigComposite *comp=new xAOD::TrigComposite();;
-        m_cont->push_back(comp);
+        cont_ee->push_back(comp);
         comp->setName("EFDielectron");
         comp->setDetail("Mee",mass);
     }
-    attachFeature(outputTE, m_cont, "MassesElectronElectron");
+    attachFeature(outputTE, cont_ee, "MassesElectronElectron");
   }
   if (m_useElectronCluster) {
     processElectronCluster(inputTE, m_massElectronCluster);
+    
+    xAOD::TrigCompositeContainer *cont_ec=new xAOD::TrigCompositeContainer();
+    xAOD::TrigCompositeAuxContainer cont_ec_aux;
+    cont_ec->setStore(&cont_ec_aux);
+    
     for (const auto &mass:m_massElectronCluster){
         xAOD::TrigComposite *comp=new xAOD::TrigComposite();;
-        m_cont->push_back(comp);
+        cont_ec->push_back(comp);
         comp->setName("EFDielectron");
         comp->setDetail("Mee",mass);
     }
-    attachFeature(outputTE, m_cont, "MassesElectronCluster");
+    attachFeature(outputTE, cont_ec, "MassesElectronCluster");
   }
 
   return HLT::OK;
@@ -215,23 +209,11 @@ void TrigEFDielectronMassFex::processElectronElectron(HLT::TEConstVec& inputTE,
       TLorentzVector hlv2 = p2->p4();
       mass = (hlv1+hlv2).M();
 
-//       if (msgLvl() <= MSG::DEBUG) {
-// 	TLorentzVector v1, v2;
-// 	const float m_e = 0.511;
-
-// 	float pt1 = hlv1.e()*sin(hlv1.theta());
-// 	float pt2 = hlv2.e()*sin(hlv2.theta());
-// 	v1.SetPtEtaPhiM(pt1, hlv1.eta(), hlv1.phi(), m_e);
-// 	v2.SetPtEtaPhiM(pt2, hlv2.eta(), hlv2.phi(), m_e);
-//       }
-
       // apply cut on mass
       if(mass<m_lowerMassCut || mass>m_upperMassCut) {
-	if(msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << "Combination failed mass cut: " 
-		<< mass << " not in [" << m_lowerMassCut << "," 
-		<< m_upperMassCut << "]" << endreq;
-	}
+          ATH_MSG_DEBUG("Combination failed mass cut: " 
+                  << mass << " not in [" << m_lowerMassCut << "," 
+                  << m_upperMassCut << "]");
 	continue;
       } else {
 	// good combination found
@@ -267,7 +249,6 @@ void TrigEFDielectronMassFex::processElectronCluster(HLT::TEConstVec& inputTE,
       //
       // debug dump (both electrons have tracks now)
 
-      //Need to fix for xAOD!!!!!!!!!!!!
 	ATH_MSG_DEBUG("New combination:");
 	ATH_MSG_DEBUG("1st egammaElectron " 
 	      << "  pt="    << p1->pt()  
@@ -279,7 +260,6 @@ void TrigEFDielectronMassFex::processElectronCluster(HLT::TEConstVec& inputTE,
 	      << "; phi="   << p2->phi());
 
       // evaluate mass
-      
       TLorentzVector hlv1 = p1->p4();
       TLorentzVector hlv2 = p2->p4();
       mass = (hlv1+hlv2).M();

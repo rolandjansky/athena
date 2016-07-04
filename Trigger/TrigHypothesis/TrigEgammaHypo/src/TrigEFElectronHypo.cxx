@@ -38,9 +38,7 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "PATCore/TAccept.h"            // for TAccept
 #include "PATCore/TResult.h"            // for TResult
-
-#include "TrigSteeringEvent/TrigPassBits.h"
-#include "TrigSteeringEvent/TrigPassFlags.h"
+#include "xAODTrigger/TrigPassBits.h"
 
 using std::string;
 
@@ -438,8 +436,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 
 
   // generate TrigPassBits mask to flag which egamma objects pass hypo cuts
-  TrigPassBits* passBits = HLT::makeTrigPassBits(m_EgammaContainer);
-  //std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits(m_EgammaContainer);
+  std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits<xAOD::ElectronContainer>(m_EgammaContainer);
   //counters for each cut
   int Ncand[10];
   for(int i=0;i<10;i++) Ncand[i]=0;
@@ -480,7 +477,10 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     Ncand[cutIndex++]++;
 
     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST Ncand[0]: " << Ncand[0] << endreq;
-      
+    if(m_acceptAll){
+        xBits->markPassing(egIt,m_EgammaContainer,true);
+        continue;
+    }
     //-------------------------------------------------------------
     //Apply cut on IsEM bit pattern re-running the  Offline Builder
     if( m_applyIsEM){ 
@@ -821,9 +821,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     //-------------------------------------------------
     Ncand[cutIndex++]++;
     accepted=true;
-    //xAOD need to fix!!!! 
-    HLT::markPassing(passBits, egIt, m_EgammaContainer); // set bit for this egamma in TrigPassBits mask
-    //xBits->markPassing(egIt,m_EgammaContainer,true);
+    xBits->markPassing(egIt,m_EgammaContainer,true);
   }//end of loop over egamma container
   
   //Count No of Events passing individual cuts
@@ -837,12 +835,8 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     msg() << MSG::DEBUG << "REGTEST AcceptAll= " <<(m_acceptAll ? "true (no cuts)" : "false (selection applied)")<< endreq;
   }
 
-  // store TrigPassBits result
-  if ( attachBits(outputTE, passBits) != HLT::OK ) {
-    msg() << MSG::ERROR << "Could not store TrigPassBits! " << endreq;
-  }
-  /*if(attachFeature(outputTE, xBits.release()) != HLT::OK)
-      ATH_MSG_ERROR("Could not store TrigPassBits! ");*/
+  if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
+      ATH_MSG_ERROR("Could not store TrigPassBits! ");
 
   // Time total TrigEFElectronHypo execution time.
   // -------------------------------------
