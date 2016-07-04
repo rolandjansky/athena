@@ -34,6 +34,9 @@ matcherFactoryFactory(const Conditions & conditions,
     IMatcherFactory* imf = new OrderedCollectionsMatcherFactory(conditions,
 								key);
     return std::shared_ptr<IMatcherFactory>(imf);
+  } else if (key == "simple"){
+    IMatcherFactory* imf = new SimpleJetsMatcherFactory(conditions, key);
+    return std::shared_ptr<IMatcherFactory>(imf);
   } else {
     std::stringstream ss;
     auto m =  "matcherFactory: unknown key to make a matcher factory" + key;

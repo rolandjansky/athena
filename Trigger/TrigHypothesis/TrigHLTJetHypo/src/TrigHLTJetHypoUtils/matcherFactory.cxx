@@ -29,6 +29,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/MaximumBipartiteMatcher.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/OrderedCollectionsMatcher.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/SelectedJetsMatcher.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/SimpleJetsMatcher.h"
 
 using pIM = std::shared_ptr<IMatcher>;
 
@@ -58,4 +59,14 @@ SelectedJetsMatcherFactory::SelectedJetsMatcherFactory(const Conditions& conditi
 
 pIM SelectedJetsMatcherFactory::make() const { 
   return pIM(new SelectedJetsMatcher(m_conditions, m_indices, m_name));
+}
+
+
+SimpleJetsMatcherFactory::SimpleJetsMatcherFactory(const Conditions& conditions,
+                                                   const std::string& key) : 
+  m_conditions(conditions), m_name(key){
+}
+
+pIM SimpleJetsMatcherFactory::make() const { 
+  return pIM(new SimpleJetsMatcher(m_conditions, m_name));
 }

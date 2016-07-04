@@ -43,11 +43,23 @@ class OrderedCollectionsMatcherFactory: public IMatcherFactory {
 };
 
 
+class SimpleJetsMatcherFactory: public IMatcherFactory {
+ public:
+  SimpleJetsMatcherFactory(const Conditions&, 
+                           const std::string&);
+
+  std::shared_ptr<IMatcher> make() const override;
+ private:
+  Conditions m_conditions;
+  std::string m_name;
+};
+
+
 class SelectedJetsMatcherFactory: public IMatcherFactory {
  public:
   SelectedJetsMatcherFactory(const Conditions&, 
-			     const std::vector<unsigned int>& indices,
-			     const std::string&);
+                             const std::vector<unsigned int>& indices,
+                             const std::string&);
 
   std::shared_ptr<IMatcher> make() const override;
  private:
