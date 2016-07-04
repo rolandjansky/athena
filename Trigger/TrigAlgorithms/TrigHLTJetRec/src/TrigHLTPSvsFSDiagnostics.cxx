@@ -470,6 +470,8 @@ void TrigHLTPSvsFSDiagnostics::clustersCheck(){
 
     PS++;
     FS++;
+    
+    delete FSmatchCluster;
   }//!-- finish loop over PS clusters --
 
   //std::printf("TEST::CLUST - PSvsFS - evt=%d - PScluster->size()=%d, PS=%d  FScluster->size()=%d FS=%d \n",m_event,PSclusterCont->size(),PS,FSclusterCont->size(),FS);
