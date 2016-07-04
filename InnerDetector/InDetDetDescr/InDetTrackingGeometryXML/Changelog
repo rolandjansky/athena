@@ -1,3 +1,7 @@
+2016-04-07 Noemi Calace <noemi.calace@cern.ch>
+	* Fixing dictionary for GMX-based strip
+	* Tag as InDetTrackingGeometryXML-00-00-42
+
 2016-14-06 Noemi Calace <noemi.calace@cern.ch>
 	* Fixing typo
 	* Tag as InDetTrackingGeometryXML-00-00-41
