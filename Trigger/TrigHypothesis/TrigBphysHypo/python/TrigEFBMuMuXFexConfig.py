@@ -304,6 +304,50 @@ class EFBMuMuXFex_BplusMuMuKplus (TrigEFBMuMuXFex):
 
         self.AthenaMonTools = [ validation, online, time ]
         
+class EFBMuMuXFex_TauMuMuX (TrigEFBMuMuXFex):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuXFex_TauMuMuX"):
+        super( TrigEFBMuMuXFex, self ).__init__( name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll = False
+        # muon part
+        self.OppositeSign = True # if check opposite sign of muons
+        self.LowerMuMuMassCut = 0.
+        self.UpperMuMuMassCut = 2700.
+        ##self.LowerMuVtxMassCut = 100.
+        ##self.UpperMuVtxMassCut = 5500.
+        self.MuVtxChi2Cut = 100.
+        # B{+/-} -> K{+/-} Mu Mu
+        self.DoB_KMuMuDecay = True
+        self.LowerKMuMuMassCut = 700.
+        self.UpperKMuMuMassCut = 2700.
+        #self.LowerB_KMuMuMassCutVtxOff = 4500.
+        #self.UpperB_KMuMuMassCutVtxOff = 5900.        
+        #self.LowerBVtxMassCut = 4500.
+        #self.UpperBVtxMassCut = 5900.
+        self.DoB_KMuMuVertexing = True
+        self.BVtxChi2Cut = 100.
+        # Bd -> K*(892) Mu Mu
+        self.DoBd_KstarMuMuDecay = False
+        # Bs -> Phi(1020) Mu Mu
+        self.DoBs_Phi1020MuMuDecay = False
+        # Lb -> L Mu Mu     
+        self.DoLb_LambdaMuMuDecay = False
+        # Bc -> D_s* Mu Mu
+        self.DoBc_DsMuMuDecay = False
+        
+        #from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexValidationMonitoring
+        #validation = EFBMuMuXFexValidationMonitoring()
+
+        #from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexOnlineMonitoring_BpMuMuKp
+        #online = EFBMuMuXFexOnlineMonitoring_BpMuMuKp()
+        
+        #from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        #time = TrigTimeHistToolConfig("Time")
+
+        #self.AthenaMonTools = [ validation, online, time ]
+        
 class EFBMuMuXFex_BplusMuMuKplus_noVtx (TrigEFBMuMuXFex):
     __slots__ = []
     def __init__(self, name = "EFBMuMuXFex_BplusMuMuKplus_noVtx"):

@@ -100,6 +100,24 @@ class EFBMuMuXHypo_BplusMuMuKplus (EFBMuMuXHypo_1):
         self.AcceptLb = False
         self.AcceptBc = False
         
+class EFBMuMuXHypo_TauMuMuX (EFBMuMuXHypo_1):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuXHypo_TauMuMuX"):
+        EFBMuMuXHypo_1.__init__(self, name)
+        #super( TrigEFBMuMuXHypo, self ).__init__( name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll = False
+        # decay modes flags
+        self.AcceptBplus = True
+        self.LowerBplusMassCut = 700.
+        self.UpperBplusMassCut = 2700.
+        self.BplusChi2Cut = 100.
+        self.AcceptBd = False
+        self.AcceptBs = False
+        self.AcceptLb = False
+        self.AcceptBc = False
+        
 class EFBMuMuXHypo_BdMuMuKstar (EFBMuMuXHypo_1):
     __slots__ = []
     def __init__(self, name = "EFBMuMuXHypo_BdMuMuKstar"):
