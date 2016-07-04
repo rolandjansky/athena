@@ -37,7 +37,7 @@ namespace CP {
       m_is_mc(false),
       m_AFII_corr(false),
       m_set_mc(false),
-      m_apply_dd(false),
+      m_apply_dd(true),
       m_correct_etcone(false),
       m_trouble_categories(false),
       m_shower(nullptr)
@@ -113,9 +113,17 @@ namespace CP {
 
     float etaS2 = input.caloCluster()->etaBE(2);
     float etaS1 = input.caloCluster()->etaBE(1);
+    float etaCluster = input.caloCluster()->eta();
+    float phiCluster = input.caloCluster()->phi();
+    
     if(part_type == IsolationCorrection::PHOTON && fabs(etaS2) > 2.37) return 0.;
     if(part_type == IsolationCorrection::ELECTRON && fabs(etaS2) > 2.47) return 0.;
+    
     if(fabs(etaS1) > 2.5) return 0.;
+    if(fabs(phiCluster) > 3.2) return 0.;
+
+    if (part_type == IsolationCorrection::ELECTRON && input.pt() > 15e3)
+      ATH_MSG_DEBUG("Electron ? " << (part_type == IsolationCorrection::ELECTRON) << " Input E = " << input.caloCluster()->e() << " E used " << energy << " author = " << input.author());
 
     int convFlag_int = 0;
     float conv_radius = 0.;
@@ -155,9 +163,6 @@ namespace CP {
       }
     }
     int author = input.author();
-
-    float etaCluster = input.caloCluster()->eta();
-    float phiCluster = input.caloCluster()->phi();
 
     float etaPointing = m_shower->getCaloPointingEta(etaS1, etaS2, phiCluster, is_mc);
 
@@ -228,18 +233,42 @@ namespace CP {
     bool converted = false;
     if(convFlag_int > 0) converted = true;
 
-    float etaS2 = input.eta();
-    int eta_bin = 0;
-    for(unsigned int i = 0; i < m_eta_bins_dd_2015.size(); i+=2){
-      if(etaS2 > m_eta_bins_dd_2015[i] && etaS2 < m_eta_bins_dd_2015[i+1]) eta_bin = i/2;
+    float etaS2  = input.eta();
+    int eta_bin  = 0;
+
+    if (m_corr_ddshift_2015_file.find("v2") != std::string::npos) {
+      for(unsigned int i = 0; i < m_eta_bins_dd_2015.size(); i+=2){
+	if(etaS2 > m_eta_bins_dd_2015[i] && etaS2 < m_eta_bins_dd_2015[i+1]) eta_bin = i/2;
+      }
+    } else {
+      double feta = fabs(etaS2);
+      for (unsigned int i = 0; i < m_nBinsfEtaDD_2015; i++) {
+	if (feta >= m_feta_bins_dd_2015[i] && feta < m_feta_bins_dd_2015[i+1])
+	  eta_bin = i;
+      }
+      if (eta_bin == 2) {
+	//ATH_MSG_WARNING("Photon in the crack ! No DD correction");
+	eta_bin = -1;
+	return 0;
+      } else if (eta_bin > 2)
+	eta_bin -= 1;
     }
-
-    //std::cout << "Getting correction for photon pt: "<<input.pt()<<" eta: "<<etaS2<<" etabin: "<<eta_bin;
-
+    if (eta_bin < 0) {
+      ATH_MSG_WARNING("Strange cluster S2 eta for photon isolation DD correction ! eta = " << etaS2 << ". No correction");
+      return 0;
+    }
+    
+    if (input.pt() > 25e3) 
+      ATH_MSG_DEBUG("Getting correction for photon pt: " <<input.pt()
+		    << " eta: " << etaS2 << " etabin: " << eta_bin);
+		  
     float pt_gev = input.pt()*0.001;
 
-    if(pt_gev > 400.) pt_gev = 400.;
-
+    if (m_corr_ddshift_2015_file.find("v2") != std::string::npos && pt_gev > 400.)
+      pt_gev = 400.;
+    else if (m_corr_ddshift_2015_file.find("v3") != std::string::npos && pt_gev > 750.)
+      pt_gev = 750.;
+      
     float isolation_ddcorrection = 0;
     if(isol==xAOD::Iso::topoetcone40){
       if(!converted)
@@ -252,8 +281,6 @@ namespace CP {
       else
         isolation_ddcorrection = 1e3*graph_dd_2015_cone20_conv_photon_shift[eta_bin]->Eval(pt_gev);
     }else isolation_ddcorrection = 0;
-
-    //std::cout << " correction " << isolation_ddcorrection << std::endl;
 
     return isolation_ddcorrection;
   }
@@ -327,6 +354,7 @@ namespace CP {
     if(part_type == IsolationCorrection::PHOTON && fabs(etaS2) > 2.37) return 0.;
     if(part_type == IsolationCorrection::ELECTRON && fabs(etaS2) > 2.47) return 0.;
     if(fabs(etaS1) > 2.5) return 0.;
+    if(fabs(phiCluster) > 3.2) return 0.;
 
     float etaPointing = m_shower->getCaloPointingEta(etaS1, etaS2, phiCluster);
     return etaPointing;
@@ -366,14 +394,19 @@ namespace CP {
     m_eta_bins_coarse = {0.0, 0.60, 1.37, 1.52, 1.81, 2.47};
     m_eta_bins_dd = {0.0, 0.15, 0.30, 0.45, 0.60, 0.80, 0.95, 1.17, 1.56, 1.64, 1.72, 1.81, 2.01, 2.17, 2.37};
     m_eta_bins_dd_2015 = {-2.37, -1.52, -1.37, -0.6, -0.6, 0., 0., 0.6, 0.6, 1.37, 1.52, 2.37};
+
+    //JB
+    m_nBinsfEtaDD_2015 = 5; // there are four bins in |eta| + the crack
+    m_feta_bins_dd_2015.reserve(m_nBinsfEtaDD_2015+1);
+    m_feta_bins_dd_2015 = { 0., 0.6, 1.37, 1.52, 1.81, 2.37 };
   }
 
   void IsolationCorrection::setIsolCorr(){
-    if (m_tool_ver == REL17)        { set2011Corr(); setDDCorr(); }
-    else if (m_tool_ver == REL17_2) { set2011Corr(); set2012Corr(); setDDCorr(); }
-    else if (m_tool_ver == REL20_2)  {set2015Corr(); setDDCorr(); setDDCorr_2015();}
+    if      (m_tool_ver == REL17_2) { set2011Corr(); set2012Corr(); setDDCorr(); }
+    else if (m_tool_ver == REL20_2) { set2015Corr(); setDDCorr();   setDDCorr_2015();}
   }
 
+  // This for etcone !!! From 2011 !
   void IsolationCorrection::set2011Corr(){
 
     // -------------------------------------------------------------------------------------------
@@ -385,9 +418,6 @@ namespace CP {
     mc_rel17_leakage_correction_slopes_electron_30 = { 0.01689, 0.01635, 0.01684, 0.02256, 0.02485, 0.04223, 0.02660, 0.03232, 0.04182, 0.04846 };
     mc_rel17_leakage_correction_slopes_electron_35 = { 0.01695, 0.01642, 0.01693, 0.02268, 0.02501, 0.04403, 0.02685, 0.03254, 0.04223, 0.04928 };
     mc_rel17_leakage_correction_slopes_electron_40 = { 0.01701, 0.01646, 0.01702, 0.02272, 0.02517, 0.04550, 0.02698, 0.03267, 0.04242, 0.04964 };
-    mc_rel17_leakage_correction_slopes_electron_tp20 = { 0.01460, 0.01410, 0.01440, 0.02070, 0.02390, 0.04630, 0.02590, 0.03010, 0.03970, 0.04850 };
-    mc_rel17_leakage_correction_slopes_electron_tp30 = { 0.01470, 0.01410, 0.01450, 0.02080, 0.02400, 0.04610, 0.02610, 0.03020, 0.03980, 0.04850 };
-    mc_rel17_leakage_correction_slopes_electron_tp40 = { 0.01470, 0.01420, 0.01450, 0.02080, 0.02400, 0.04660, 0.02630, 0.03020, 0.03980, 0.04850 };
 
     mc_rel17_leakage_correction_offsets_electron_15 = { 21.71, 36.00, 132.56, 191.64, 263.46, 619.58, 288.75, 121.92, 102.35, 175.02 };
     mc_rel17_leakage_correction_offsets_electron_20 = { 76.67, 85.35, 184.90, 276.72, 384.97, 595.60, 657.99, 231.88, 170.48, 312.30 };
@@ -395,9 +425,6 @@ namespace CP {
     mc_rel17_leakage_correction_offsets_electron_30 = { 119.55, 127.09, 279.48, 430.96, 571.81, 846.86, 968.01, 354.46, 263.11, 455.21 };
     mc_rel17_leakage_correction_offsets_electron_35 = { 138.79, 161.87, 371.47, 572.08, 754.17, 1249.38, 1000.44, 389.22, 295.72, 464.28 };
     mc_rel17_leakage_correction_offsets_electron_40 = { 180.08, 187.89, 363.31, 553.46, 707.60, 1006.20, 1105.73, 434.21, 312.78, 535.90 };
-    mc_rel17_leakage_correction_offsets_electron_tp20 = { -368.60, -334.90, -281.10, -331.10, -251.10, -24.20, -441.40, -472.90, -543.40, -500.10 };
-    mc_rel17_leakage_correction_offsets_electron_tp30 = { -371.70, -338.40, -283.80, -326.10, -242.30, 52.00, -439.10, -479.20, -540.80, -491.50 };
-    mc_rel17_leakage_correction_offsets_electron_tp40 = { -371.90, -338.90, -284.00, -322.10, -238.80, 53.20, -437.70, -477.50, -538.10, -491.90 };
 
     // photons: last eta bin isn't used
     mc_rel17_leakage_correction_slopes_photon_converted_15 = { 0.01450, 0.01410, 0.01410, 0.01860, 0.01990, 0.0, 0.02120, 0.02610, 0.03260, 0.0 };
@@ -406,9 +433,6 @@ namespace CP {
     mc_rel17_leakage_correction_slopes_photon_converted_30 = { 0.01630, 0.01600, 0.01630, 0.02240, 0.02460, 0.0, 0.02610, 0.03190, 0.04150, 0.0 };
     mc_rel17_leakage_correction_slopes_photon_converted_35 = { 0.01660, 0.01600, 0.01630, 0.02240, 0.02470, 0.0, 0.02640, 0.03210, 0.04190, 0.0 };
     mc_rel17_leakage_correction_slopes_photon_converted_40 = { 0.01610, 0.01590, 0.01620, 0.02250, 0.02480, 0.0, 0.02650, 0.03220, 0.04210, 0.0 };
-    mc_rel17_leakage_correction_slopes_photon_converted_tp20 = { 0.01480, 0.01430, 0.01450, 0.02090, 0.02370, 0.0, 0.02550, 0.02960, 0.03920, 0.0 };
-    mc_rel17_leakage_correction_slopes_photon_converted_tp30 = { 0.01490, 0.01430, 0.01460, 0.02090, 0.02370, 0.0, 0.02580, 0.02970, 0.03930, 0.0 };
-    mc_rel17_leakage_correction_slopes_photon_converted_tp40 = { 0.01490, 0.01430, 0.01450, 0.02090, 0.02370, 0.0, 0.02590, 0.02970, 0.03930, 0.0 };
 
     mc_rel17_leakage_correction_offsets_photon_converted_15 = { 36.50, 61.80, 176.90, 206.40, 300.70, 0.0, 277.40, 91.70, 126.60, 0.0 };
     mc_rel17_leakage_correction_offsets_photon_converted_20 = { 93.30, 101.40, 270.60, 369.10, 514.70, 0.0, 586.10, 160.80, 193.80, 0.0 };
@@ -416,9 +440,6 @@ namespace CP {
     mc_rel17_leakage_correction_offsets_photon_converted_30 = { 286.60, 241.60, 501.60, 570.70, 739.50, 0.0, 860.00, 264.50, 270.40, 0.0 };
     mc_rel17_leakage_correction_offsets_photon_converted_35 = { 329.90, 314.70, 585.60, 655.60, 835.70, 0.0, 934.30, 291.50, 291.90, 0.0 };
     mc_rel17_leakage_correction_offsets_photon_converted_40 = { 478.70, 383.80, 679.20, 725.70, 938.70, 0.0, 999.30, 322.80, 316.20, 0.0 };
-    mc_rel17_leakage_correction_offsets_photon_converted_tp20 = { -421.90, -362.20, -291.50, -312.20, -170.80, 0.0, -440.70, -464.60, -479.90, 0.0 };
-    mc_rel17_leakage_correction_offsets_photon_converted_tp30 = { -424.40, -368.70, -286.60, -301.50, -150.20, 0.0, -451.00, -468.10, -476.70, 0.0 };
-    mc_rel17_leakage_correction_offsets_photon_converted_tp40 = { -432.10, -368.20, -284.10, -294.40, -141.20, 0.0, -455.70, -470.10, -474.10, 0.0 };
 
     mc_rel17_leakage_correction_slopes_photon_unconverted_15 = { 0.01480, 0.01410, 0.01400, 0.01820, 0.01950, 0.0, 0.02140, 0.02660, 0.03250, 0.0 };
     mc_rel17_leakage_correction_slopes_photon_unconverted_20 = { 0.01630, 0.01560, 0.01560, 0.02060, 0.02240, 0.0, 0.02480, 0.03060, 0.03830, 0.0 };
@@ -426,9 +447,6 @@ namespace CP {
     mc_rel17_leakage_correction_slopes_photon_unconverted_30 = { 0.01690, 0.01630, 0.01640, 0.02170, 0.02360, 0.0, 0.02630, 0.03260, 0.04140, 0.0 };
     mc_rel17_leakage_correction_slopes_photon_unconverted_35 = { 0.01700, 0.01640, 0.01650, 0.02180, 0.02380, 0.0, 0.02650, 0.03280, 0.04180, 0.0 };
     mc_rel17_leakage_correction_slopes_photon_unconverted_40 = { 0.01710, 0.01640, 0.01650, 0.02190, 0.02390, 0.0, 0.02660, 0.03290, 0.04200, 0.0 };
-    mc_rel17_leakage_correction_slopes_photon_unconverted_tp20 = { 0.01470, 0.01400, 0.01400, 0.01930, 0.02220, 0.0, 0.02500, 0.02980, 0.03850, 0.0 };
-    mc_rel17_leakage_correction_slopes_photon_unconverted_tp30 = { 0.01470, 0.01410, 0.01400, 0.01940, 0.02230, 0.0, 0.02530, 0.02980, 0.03860, 0.0 };
-    mc_rel17_leakage_correction_slopes_photon_unconverted_tp40 = { 0.01470, 0.01410, 0.01410, 0.01940, 0.02230, 0.0, 0.02550, 0.02990, 0.03860, 0.0 };
 
     mc_rel17_leakage_correction_offsets_photon_unconverted_15 = { -27.80, 3.80, 67.50, 80.90, 114.90, 0.0, 82.60, 2.10, 39.80, 0.0 };
     mc_rel17_leakage_correction_offsets_photon_unconverted_20 = { -17.70, 12.60, 97.80, 126.50, 186.20, 0.0, 200.80, 24.00, 62.30, 0.0 };
@@ -436,38 +454,13 @@ namespace CP {
     mc_rel17_leakage_correction_offsets_photon_unconverted_30 = { 5.40, 33.80, 141.60, 199.50, 295.40, 0.0, 336.50, 64.80, 90.40, 0.0 };
     mc_rel17_leakage_correction_offsets_photon_unconverted_35 = { 9.60, 47.80, 154.10, 231.10, 346.10, 0.0, 384.60, 77.80, 96.90, 0.0 };
     mc_rel17_leakage_correction_offsets_photon_unconverted_40 = { 13.30, 62.00, 177.00, 267.10, 406.20, 0.0, 419.80, 89.40, 105.90, 0.0 };
-    mc_rel17_leakage_correction_offsets_photon_unconverted_tp20 = { -371.60, -344.40, -306.50, -370.80, -395.70, 0.0, -441.10, -464.50, -492.40, 0.0 };
-    mc_rel17_leakage_correction_offsets_photon_unconverted_tp30 = { -373.30, -346.80, -307.70, -372.40, -393.90, 0.0, -454.40, -467.20, -494.30, 0.0 };
-    mc_rel17_leakage_correction_offsets_photon_unconverted_tp40 = { -373.70, -347.40, -308.10, -372.90, -394.30, 0.0, -461.00, -469.00, -493.30, 0.0 };
-    // ------------------------------------------------------------------------------------------
-
-    // -------------------------------------------------------------------------------------------
-    // ------------- full 2011 (rel 17) pileup corrections --------------------------------------
-    // all corrections use >= 2 tracks/vertex
-
-    // linear corrections from Zee rel 17 full 2011 data
-    // - not used in favor of quadratic corrections below
-    //     rel17_npv_correction_slopes_20 = {066., 075., 0., 065., 075.};
-    //     rel17_npv_correction_slopes_30 = {163., 191., 0., 173., 196.};
-    //     rel17_npv_correction_slopes_40 = {315., 357., 0., 333., 366.};
-
-    // quadratic corrections from rel 17 full 2011 data
-    rel17_npv_correction_slopes_20 = { 42., 52., 0.0, 58., 45. };
-    rel17_npv_correction_slopes_30 = { 140., 137., 0.0, 152., 119. };
-    rel17_npv_correction_slopes_40 = { 253., 248., 0.0, 287., 227. };
-
-    rel17_npv_correction_quads_20 = { 1.65, 1.66, 0.0, 0.467, 2.19 };
-    rel17_npv_correction_quads_30 = { 1.74, 3.63, 0.0, 1.61, 5.39 };
-    rel17_npv_correction_quads_40 = { 4.26, 7.05, 0.0, 3.50, 9.55 };
-
-    // -------------------------------------------------------------------------------------------
   }
 
   void IsolationCorrection::setDDCorr_2015() {
     if( m_corr_ddshift_2015_file != ""){
       load2015DDCorr();
     }else{
-      ATH_MSG_WARNING("Correction file for 2012 data/mc not specified, tool not initialized for 2012 corrections\n");
+      ATH_MSG_WARNING("Correction file for 2015 data/mc not specified, tool not initialized for 2015 corrections\n");
     }
   }
 
@@ -475,42 +468,79 @@ namespace CP {
     TFile* file_ptleakagecorr = new TFile( m_corr_ddshift_2015_file.c_str(), "read" );
 
     if(!file_ptleakagecorr){
-    	ATH_MSG_WARNING("Correction file for 2015 data driven corrections not found, tool not initialized for 2012 corrections\n");
+      ATH_MSG_WARNING("Correction file for 2015 data driven corrections not found, tool not initialized for 2015 corrections\n");
       m_corr_ddshift_2015_file = "";
     }else{
-      if(!file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_-2.37_-1.52_2015")){
-        ATH_MSG_ERROR("Correction file for 2015 data driven corrections not good, tool not initialized for 2012 corrections\n");
+      if (m_corr_ddshift_2015_file.find("v2") != std::string::npos) {
+	graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_-2.37_-1.52_2015"));
+	graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_-1.37_-0.6_2015"));
+	graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_-0.6_0.0_2015"));
+	graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_0.0_0.6_2015"));
+	graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_0.6_1.37_2015"));
+	graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_1.52_2.37_2015"));
+	
+	graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_-2.37_-1.52_2015"));
+	graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_-1.37_-0.6_2015"));
+	graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_-0.6_0.0_2015"));
+	graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_0.0_0.6_2015"));
+	graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_0.6_1.37_2015"));
+	graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_1.52_2.37_2015"));
+
+	graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_-2.37_-1.52_2015"));
+	graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_-1.37_-0.6_2015"));
+	graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_-0.6_0.0_2015"));
+	graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_0.0_0.6_2015"));
+	graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_0.6_1.37_2015"));
+	graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_1.52_2.37_2015"));
+	
+	graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_-2.37_-1.52_2015"));
+	graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_-1.37_-0.6_2015"));
+	graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_-0.6_0.0_2015"));
+	graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_0.0_0.6_2015"));
+	graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_0.6_1.37_2015"));
+	graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_1.52_2.37_2015"));
+	
+      } else {
+	graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_0.0_0.6_2015"));
+	graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_0.6_1.37_2015"));
+	graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_1.52_1.81_2015"));
+	graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_1.81_2.37_2015"));
+	
+	graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_0.0_0.6_2015"));
+	graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_0.6_1.37_2015"));
+	graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_1.52_1.81_2015"));
+	graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_1.81_2.37_2015"));
+
+	graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_0.0_0.6_2015"));
+	graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_0.6_1.37_2015"));
+	graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_1.52_1.81_2015"));
+	graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_1.81_2.37_2015"));
+	
+	graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_0.0_0.6_2015"));
+	graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_0.6_1.37_2015"));
+	graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_1.52_1.81_2015"));
+	graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_1.81_2.37_2015"));
       }
-
-      graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_-2.37_-1.52_2015"));
-      graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_-1.37_-0.6_2015"));
-      graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_-0.6_0.0_2015"));
-      graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_0.0_0.6_2015"));
-      graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_0.6_1.37_2015"));
-      graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_1.52_2.37_2015"));
-
-      graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_-2.37_-1.52_2015"));
-      graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_-1.37_-0.6_2015"));
-      graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_-0.6_0.0_2015"));
-      graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_0.0_0.6_2015"));
-      graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_0.6_1.37_2015"));
-      graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_1.52_2.37_2015"));
-
-      graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_-2.37_-1.52_2015"));
-      graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_-1.37_-0.6_2015"));
-      graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_-0.6_0.0_2015"));
-      graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_0.0_0.6_2015"));
-      graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_0.6_1.37_2015"));
-      graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_1.52_2.37_2015"));
-
-      graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_-2.37_-1.52_2015"));
-      graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_-1.37_-0.6_2015"));
-      graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_-0.6_0.0_2015"));
-      graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_0.0_0.6_2015"));
-      graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_0.6_1.37_2015"));
-      graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_1.52_2.37_2015"));
+      
 
     }
+    for (auto gr : graph_dd_2015_cone40_conv_photon_shift) {
+      if (gr == nullptr)
+	ATH_MSG_ERROR("Null pointeur for one of the DD correction bin (conv,40)");
+    }
+    for (auto gr : graph_dd_2015_cone40_unconv_photon_shift) {
+      if (gr == nullptr)
+	ATH_MSG_ERROR("Null pointeur for one of the DD correction bin (unconv,40)");
+    }
+    for (auto gr : graph_dd_2015_cone20_conv_photon_shift) {
+      if (gr == nullptr)
+	ATH_MSG_ERROR("Null pointeur for one of the DD correction bin (conv,20)");
+    }
+    for (auto gr : graph_dd_2015_cone20_unconv_photon_shift) {
+      if (gr == nullptr)
+	ATH_MSG_ERROR("Null pointeur for one of the DD correction bin (unconv, 20)");
+    }
+    
   }
 
   void IsolationCorrection::set2012Corr() {
@@ -650,21 +680,21 @@ namespace CP {
       }else{
 
         // ******************************
-    	  // Global fit corrections *******
-    	  // ******************************
-
+	// Global fit corrections *******
+	// ******************************
+	
         // *** photon function topoetocone40
 
         function_2015_cone40_photon_unconverted.push_back( (TF1*) file_ptleakagecorr->Get("mean_f_topoetcone40_eta_0.0_0.1_unconverted") );
-    	  function_2015_cone40_photon_unconverted.push_back( (TF1*) file_ptleakagecorr->Get("mean_f_topoetcone40_eta_0.1_0.6_unconverted") );
-    	  function_2015_cone40_photon_unconverted.push_back( (TF1*) file_ptleakagecorr->Get("mean_f_topoetcone40_eta_0.6_0.8_unconverted") );
-    	  function_2015_cone40_photon_unconverted.push_back( (TF1*) file_ptleakagecorr->Get("mean_f_topoetcone40_eta_0.8_1.15_unconverted") );
-    	  function_2015_cone40_photon_unconverted.push_back( (TF1*) file_ptleakagecorr->Get("mean_f_topoetcone40_eta_1.15_1.37_unconverted") );
-    	  function_2015_cone40_photon_unconverted.push_back(  new TF1() );
-    	  function_2015_cone40_photon_unconverted.push_back( (TF1*) file_ptleakagecorr->Get("mean_f_topoetcone40_eta_1.52_1.81_unconverted") );
-    	  function_2015_cone40_photon_unconverted.push_back( (TF1*) file_ptleakagecorr->Get("mean_f_topoetcone40_eta_1.81_2.01_unconverted") );
-    	  function_2015_cone40_photon_unconverted.push_back( (TF1*) file_ptleakagecorr->Get("mean_f_topoetcone40_eta_2.01_2.37_unconverted") );
-    	  function_2015_cone40_photon_unconverted.push_back(  new TF1() );
+	function_2015_cone40_photon_unconverted.push_back( (TF1*) file_ptleakagecorr->Get("mean_f_topoetcone40_eta_0.1_0.6_unconverted") );
+	function_2015_cone40_photon_unconverted.push_back( (TF1*) file_ptleakagecorr->Get("mean_f_topoetcone40_eta_0.6_0.8_unconverted") );
+	function_2015_cone40_photon_unconverted.push_back( (TF1*) file_ptleakagecorr->Get("mean_f_topoetcone40_eta_0.8_1.15_unconverted") );
+	function_2015_cone40_photon_unconverted.push_back( (TF1*) file_ptleakagecorr->Get("mean_f_topoetcone40_eta_1.15_1.37_unconverted") );
+	function_2015_cone40_photon_unconverted.push_back(  new TF1() );
+	function_2015_cone40_photon_unconverted.push_back( (TF1*) file_ptleakagecorr->Get("mean_f_topoetcone40_eta_1.52_1.81_unconverted") );
+	function_2015_cone40_photon_unconverted.push_back( (TF1*) file_ptleakagecorr->Get("mean_f_topoetcone40_eta_1.81_2.01_unconverted") );
+	function_2015_cone40_photon_unconverted.push_back( (TF1*) file_ptleakagecorr->Get("mean_f_topoetcone40_eta_2.01_2.37_unconverted") );
+	function_2015_cone40_photon_unconverted.push_back(  new TF1() );
 
         function_2015_cone40_photon_converted_ok.push_back( (TF1*) file_ptleakagecorr->Get("mean_f_topoetcone40_eta_0.0_0.1_converted_ok") );
         function_2015_cone40_photon_converted_ok.push_back( (TF1*) file_ptleakagecorr->Get("mean_f_topoetcone40_eta_0.1_0.6_converted_ok") );
@@ -837,28 +867,6 @@ namespace CP {
 
         // *** photon graph_histoMean topoetocone40
 
-        graph_histoMean_2015_cone40_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_0.0_0.1_unconverted") );
-    	  graph_histoMean_2015_cone40_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_0.1_0.6_unconverted") );
-    	  graph_histoMean_2015_cone40_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_0.6_0.8_unconverted") );
-    	  graph_histoMean_2015_cone40_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_0.8_1.15_unconverted") );
-    	  graph_histoMean_2015_cone40_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_1.15_1.37_unconverted") );
-    	  graph_histoMean_2015_cone40_photon_unconverted.push_back(  new TGraph() );
-    	  graph_histoMean_2015_cone40_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_1.52_1.81_unconverted") );
-    	  graph_histoMean_2015_cone40_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_1.81_2.01_unconverted") );
-    	  graph_histoMean_2015_cone40_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_2.01_2.37_unconverted") );
-    	  graph_histoMean_2015_cone40_photon_unconverted.push_back(  new TGraph() );
-
-        graph_histoMean_2015_cone40_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_0.0_0.1_converted_ok") );
-        graph_histoMean_2015_cone40_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_0.1_0.6_converted_ok") );
-        graph_histoMean_2015_cone40_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_0.6_0.8_converted_ok") );
-        graph_histoMean_2015_cone40_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_0.8_1.15_converted_ok") );
-        graph_histoMean_2015_cone40_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_1.15_1.37_converted_ok") );
-        graph_histoMean_2015_cone40_photon_converted_ok.push_back(  new TGraph() );
-        graph_histoMean_2015_cone40_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_1.52_1.81_converted_ok") );
-        graph_histoMean_2015_cone40_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_1.81_2.01_converted_ok") );
-        graph_histoMean_2015_cone40_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_2.01_2.37_converted_ok") );
-        graph_histoMean_2015_cone40_photon_converted_ok.push_back(  new TGraph() );
-
         graph_histoMean_2015_cone40_photon_converted_trouble.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_0.0_0.1_converted_trouble") );
         graph_histoMean_2015_cone40_photon_converted_trouble.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_0.1_0.6_converted_trouble") );
         graph_histoMean_2015_cone40_photon_converted_trouble.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_0.6_0.8_converted_trouble") );
@@ -871,28 +879,6 @@ namespace CP {
         graph_histoMean_2015_cone40_photon_converted_trouble.push_back(  new TGraph() );
 
         // *** photon graph_histoMean topoetocone30
-
-        graph_histoMean_2015_cone30_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_0.0_0.1_unconverted") );
-        graph_histoMean_2015_cone30_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_0.1_0.6_unconverted") );
-        graph_histoMean_2015_cone30_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_0.6_0.8_unconverted") );
-        graph_histoMean_2015_cone30_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_0.8_1.15_unconverted") );
-        graph_histoMean_2015_cone30_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_1.15_1.37_unconverted") );
-        graph_histoMean_2015_cone30_photon_unconverted.push_back(  new TGraph() );
-        graph_histoMean_2015_cone30_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_1.52_1.81_unconverted") );
-        graph_histoMean_2015_cone30_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_1.81_2.01_unconverted") );
-        graph_histoMean_2015_cone30_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_2.01_2.37_unconverted") );
-        graph_histoMean_2015_cone30_photon_unconverted.push_back(  new TGraph() );
-
-        graph_histoMean_2015_cone30_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_0.0_0.1_converted_ok") );
-        graph_histoMean_2015_cone30_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_0.1_0.6_converted_ok") );
-        graph_histoMean_2015_cone30_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_0.6_0.8_converted_ok") );
-        graph_histoMean_2015_cone30_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_0.8_1.15_converted_ok") );
-        graph_histoMean_2015_cone30_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_1.15_1.37_converted_ok") );
-        graph_histoMean_2015_cone30_photon_converted_ok.push_back(  new TGraph() );
-        graph_histoMean_2015_cone30_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_1.52_1.81_converted_ok") );
-        graph_histoMean_2015_cone30_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_1.81_2.01_converted_ok") );
-        graph_histoMean_2015_cone30_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_2.01_2.37_converted_ok") );
-        graph_histoMean_2015_cone30_photon_converted_ok.push_back(  new TGraph() );
 
         graph_histoMean_2015_cone30_photon_converted_trouble.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_0.0_0.1_converted_trouble") );
         graph_histoMean_2015_cone30_photon_converted_trouble.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_0.1_0.6_converted_trouble") );
@@ -907,28 +893,6 @@ namespace CP {
 
         // *** photon graph_histoMean topoetocone20
 
-        graph_histoMean_2015_cone20_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_0.0_0.1_unconverted") );
-        graph_histoMean_2015_cone20_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_0.1_0.6_unconverted") );
-        graph_histoMean_2015_cone20_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_0.6_0.8_unconverted") );
-        graph_histoMean_2015_cone20_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_0.8_1.15_unconverted") );
-        graph_histoMean_2015_cone20_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_1.15_1.37_unconverted") );
-        graph_histoMean_2015_cone20_photon_unconverted.push_back(  new TGraph() );
-        graph_histoMean_2015_cone20_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_1.52_1.81_unconverted") );
-        graph_histoMean_2015_cone20_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_1.81_2.01_unconverted") );
-        graph_histoMean_2015_cone20_photon_unconverted.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_2.01_2.37_unconverted") );
-        graph_histoMean_2015_cone20_photon_unconverted.push_back(  new TGraph() );
-
-        graph_histoMean_2015_cone20_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_0.0_0.1_converted_ok") );
-        graph_histoMean_2015_cone20_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_0.1_0.6_converted_ok") );
-        graph_histoMean_2015_cone20_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_0.6_0.8_converted_ok") );
-        graph_histoMean_2015_cone20_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_0.8_1.15_converted_ok") );
-        graph_histoMean_2015_cone20_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_1.15_1.37_converted_ok") );
-        graph_histoMean_2015_cone20_photon_converted_ok.push_back(  new TGraph() );
-        graph_histoMean_2015_cone20_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_1.52_1.81_converted_ok") );
-        graph_histoMean_2015_cone20_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_1.81_2.01_converted_ok") );
-        graph_histoMean_2015_cone20_photon_converted_ok.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_2.01_2.37_converted_ok") );
-        graph_histoMean_2015_cone20_photon_converted_ok.push_back(  new TGraph() );
-
         graph_histoMean_2015_cone20_photon_converted_trouble.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_0.0_0.1_converted_trouble") );
         graph_histoMean_2015_cone20_photon_converted_trouble.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_0.1_0.6_converted_trouble") );
         graph_histoMean_2015_cone20_photon_converted_trouble.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_0.6_0.8_converted_trouble") );
@@ -941,17 +905,6 @@ namespace CP {
         graph_histoMean_2015_cone20_photon_converted_trouble.push_back(  new TGraph() );
 
         // *** electron graph_histoMean topoetocone40
-
-        graph_histoMean_2015_cone40_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_0.0_0.1_author_1_electron") );
-        graph_histoMean_2015_cone40_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_0.1_0.6_author_1_electron") );
-        graph_histoMean_2015_cone40_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_0.6_0.8_author_1_electron") );
-        graph_histoMean_2015_cone40_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_0.8_1.15_author_1_electron") );
-        graph_histoMean_2015_cone40_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_1.15_1.37_author_1_electron") );
-        graph_histoMean_2015_cone40_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_1.37_1.52_author_1_electron") );
-        graph_histoMean_2015_cone40_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_1.52_1.81_author_1_electron") );
-        graph_histoMean_2015_cone40_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_1.81_2.01_author_1_electron") );
-        graph_histoMean_2015_cone40_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_2.01_2.37_author_1_electron") );
-        graph_histoMean_2015_cone40_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_2.37_2.47_author_1_electron") );
 
         graph_histoMean_2015_cone40_author_16_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_0.0_0.1_author_16_electron") );
         graph_histoMean_2015_cone40_author_16_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone40_eta_0.1_0.6_author_16_electron") );
@@ -966,17 +919,6 @@ namespace CP {
 
         // *** electron graph_histoMean topoetocone30
 
-        graph_histoMean_2015_cone30_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_0.0_0.1_author_1_electron") );
-        graph_histoMean_2015_cone30_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_0.1_0.6_author_1_electron") );
-        graph_histoMean_2015_cone30_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_0.6_0.8_author_1_electron") );
-        graph_histoMean_2015_cone30_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_0.8_1.15_author_1_electron") );
-        graph_histoMean_2015_cone30_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_1.15_1.37_author_1_electron") );
-        graph_histoMean_2015_cone30_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_1.37_1.52_author_1_electron") );
-        graph_histoMean_2015_cone30_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_1.52_1.81_author_1_electron") );
-        graph_histoMean_2015_cone30_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_1.81_2.01_author_1_electron") );
-        graph_histoMean_2015_cone30_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_2.01_2.37_author_1_electron") );
-        graph_histoMean_2015_cone30_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_2.37_2.47_author_1_electron") );
-
         graph_histoMean_2015_cone30_author_16_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_0.0_0.1_author_16_electron") );
         graph_histoMean_2015_cone30_author_16_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_0.1_0.6_author_16_electron") );
         graph_histoMean_2015_cone30_author_16_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_0.6_0.8_author_16_electron") );
@@ -988,18 +930,7 @@ namespace CP {
         graph_histoMean_2015_cone30_author_16_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_2.01_2.37_author_16_electron") );
         graph_histoMean_2015_cone30_author_16_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone30_eta_2.37_2.47_author_16_electron") );
 
-        // *** electron graph_histoMean topoetocone20x
-
-        graph_histoMean_2015_cone20_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_0.0_0.1_author_1_electron") );
-        graph_histoMean_2015_cone20_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_0.1_0.6_author_1_electron") );
-        graph_histoMean_2015_cone20_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_0.6_0.8_author_1_electron") );
-        graph_histoMean_2015_cone20_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_0.8_1.15_author_1_electron") );
-        graph_histoMean_2015_cone20_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_1.15_1.37_author_1_electron") );
-        graph_histoMean_2015_cone20_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_1.37_1.52_author_1_electron") );
-        graph_histoMean_2015_cone20_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_1.52_1.81_author_1_electron") );
-        graph_histoMean_2015_cone20_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_1.81_2.01_author_1_electron") );
-        graph_histoMean_2015_cone20_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_2.01_2.37_author_1_electron") );
-        graph_histoMean_2015_cone20_author_1_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_2.37_2.47_author_1_electron") );
+        // *** electron graph_histoMean topoetocone20
 
         graph_histoMean_2015_cone20_author_16_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_0.0_0.1_author_16_electron") );
         graph_histoMean_2015_cone20_author_16_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_0.1_0.6_author_16_electron") );
@@ -1011,7 +942,6 @@ namespace CP {
         graph_histoMean_2015_cone20_author_16_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_1.81_2.01_author_16_electron") );
         graph_histoMean_2015_cone20_author_16_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_2.01_2.37_author_16_electron") );
         graph_histoMean_2015_cone20_author_16_electron.push_back( (TGraph*) file_ptleakagecorr->Get("mean_g_histo_topoetcone20_eta_2.37_2.47_author_16_electron") );
-
 
       }
     }
@@ -1037,8 +967,8 @@ namespace CP {
       m_corr_ddsmearing_file = "";
     }else{
 
-  	  // **********************************
-  	  // Data driven corrections **********
+          // **********************************
+          // Data driven corrections **********
   	  // https://cds.cern.ch/record/2008664
   	  // **********************************
 
@@ -1164,21 +1094,10 @@ namespace CP {
 
 
       //---- Rel 20_2 pT leakage correction with histogram mean file
-      FreeClear( graph_histoMean_2015_cone40_photon_unconverted );
-      FreeClear( graph_histoMean_2015_cone30_photon_unconverted );
-      FreeClear( graph_histoMean_2015_cone20_photon_unconverted );
-
-      FreeClear( graph_histoMean_2015_cone40_photon_converted_ok );
-      FreeClear( graph_histoMean_2015_cone30_photon_converted_ok );
-      FreeClear( graph_histoMean_2015_cone20_photon_converted_ok );
 
       FreeClear( graph_histoMean_2015_cone40_photon_converted_trouble );
       FreeClear( graph_histoMean_2015_cone30_photon_converted_trouble );
       FreeClear( graph_histoMean_2015_cone20_photon_converted_trouble );
-
-      FreeClear( graph_histoMean_2015_cone40_author_1_electron );
-      FreeClear( graph_histoMean_2015_cone30_author_1_electron );
-      FreeClear( graph_histoMean_2015_cone20_author_1_electron );
 
       FreeClear( graph_histoMean_2015_cone40_author_16_electron );
       FreeClear( graph_histoMean_2015_cone30_author_16_electron );
@@ -1186,15 +1105,20 @@ namespace CP {
 
     }
 
+    if (m_corr_ddshift_2015_file != "") {
+      FreeClear(graph_dd_2015_cone40_unconv_photon_shift);
+      FreeClear(graph_dd_2015_cone40_conv_photon_shift);
+      FreeClear(graph_dd_2015_cone20_unconv_photon_shift);
+      FreeClear(graph_dd_2015_cone20_conv_photon_shift);
+    }
+
+    // For etcone, we only have very old corrections...
     mc_rel17_leakage_correction_slopes_electron_15.clear();
     mc_rel17_leakage_correction_slopes_electron_20.clear();
     mc_rel17_leakage_correction_slopes_electron_25.clear();
     mc_rel17_leakage_correction_slopes_electron_30.clear();
     mc_rel17_leakage_correction_slopes_electron_35.clear();
     mc_rel17_leakage_correction_slopes_electron_40.clear();
-    mc_rel17_leakage_correction_slopes_electron_tp20.clear();
-    mc_rel17_leakage_correction_slopes_electron_tp30.clear();
-    mc_rel17_leakage_correction_slopes_electron_tp40.clear();
 
     mc_rel17_leakage_correction_offsets_electron_15.clear();
     mc_rel17_leakage_correction_offsets_electron_20.clear();
@@ -1202,9 +1126,6 @@ namespace CP {
     mc_rel17_leakage_correction_offsets_electron_30.clear();
     mc_rel17_leakage_correction_offsets_electron_35.clear();
     mc_rel17_leakage_correction_offsets_electron_40.clear();
-    mc_rel17_leakage_correction_offsets_electron_tp20.clear();
-    mc_rel17_leakage_correction_offsets_electron_tp30.clear();
-    mc_rel17_leakage_correction_offsets_electron_tp40.clear();
 
     // photons: last eta bin isn't used
     mc_rel17_leakage_correction_slopes_photon_converted_15.clear();
@@ -1213,9 +1134,6 @@ namespace CP {
     mc_rel17_leakage_correction_slopes_photon_converted_30.clear();
     mc_rel17_leakage_correction_slopes_photon_converted_35.clear();
     mc_rel17_leakage_correction_slopes_photon_converted_40.clear();
-    mc_rel17_leakage_correction_slopes_photon_converted_tp20.clear();
-    mc_rel17_leakage_correction_slopes_photon_converted_tp30.clear();
-    mc_rel17_leakage_correction_slopes_photon_converted_tp40.clear();
 
     mc_rel17_leakage_correction_offsets_photon_converted_15.clear();
     mc_rel17_leakage_correction_offsets_photon_converted_20.clear();
@@ -1223,9 +1141,6 @@ namespace CP {
     mc_rel17_leakage_correction_offsets_photon_converted_30.clear();
     mc_rel17_leakage_correction_offsets_photon_converted_35.clear();
     mc_rel17_leakage_correction_offsets_photon_converted_40.clear();
-    mc_rel17_leakage_correction_offsets_photon_converted_tp20.clear();
-    mc_rel17_leakage_correction_offsets_photon_converted_tp30.clear();
-    mc_rel17_leakage_correction_offsets_photon_converted_tp40.clear();
 
     mc_rel17_leakage_correction_slopes_photon_unconverted_15.clear();
     mc_rel17_leakage_correction_slopes_photon_unconverted_20.clear();
@@ -1233,9 +1148,6 @@ namespace CP {
     mc_rel17_leakage_correction_slopes_photon_unconverted_30.clear();
     mc_rel17_leakage_correction_slopes_photon_unconverted_35.clear();
     mc_rel17_leakage_correction_slopes_photon_unconverted_40.clear();
-    mc_rel17_leakage_correction_slopes_photon_unconverted_tp20.clear();
-    mc_rel17_leakage_correction_slopes_photon_unconverted_tp30.clear();
-    mc_rel17_leakage_correction_slopes_photon_unconverted_tp40.clear();
 
     mc_rel17_leakage_correction_offsets_photon_unconverted_15.clear();
     mc_rel17_leakage_correction_offsets_photon_unconverted_20.clear();
@@ -1243,17 +1155,6 @@ namespace CP {
     mc_rel17_leakage_correction_offsets_photon_unconverted_30.clear();
     mc_rel17_leakage_correction_offsets_photon_unconverted_35.clear();
     mc_rel17_leakage_correction_offsets_photon_unconverted_40.clear();
-    mc_rel17_leakage_correction_offsets_photon_unconverted_tp20.clear();
-    mc_rel17_leakage_correction_offsets_photon_unconverted_tp30.clear();
-    mc_rel17_leakage_correction_offsets_photon_unconverted_tp40.clear();
-
-    rel17_npv_correction_slopes_20.clear();
-    rel17_npv_correction_slopes_30.clear();
-    rel17_npv_correction_slopes_40.clear();
-
-    rel17_npv_correction_quads_20.clear();
-    rel17_npv_correction_quads_30.clear();
-    rel17_npv_correction_quads_40.clear();
 
     // -------------------------------------------------------------------------------------------
     //Delete m_shower instance
@@ -1406,102 +1307,12 @@ namespace CP {
 						 bool isConversion, ParticleType parttype, Version ver,
 						 int convFlag_int, int author, float conv_radius, float conv_ratio){
     double correction_value = 0.;
-    if( ver == REL17 ){
-      int newrad = GetRadius(radius);
-      std::vector<float> mc_correction_slopes_ptr;
-      std::vector<float> mc_correction_offsets_ptr;
-      switch(newrad){
-      case 20:
-      	if (parttype == PHOTON) {
-      	  // photons
-      	  if(isConversion) {
-      	    // converted
-      	    if (ver == REL17) {
-      	      mc_correction_slopes_ptr = mc_rel17_leakage_correction_slopes_photon_converted_tp20;
-      	      mc_correction_offsets_ptr = mc_rel17_leakage_correction_offsets_photon_converted_tp20;
-      	    }
-      	  } else {
-      	    // unconverted
-      	    if (ver == REL17) {
-      	      mc_correction_slopes_ptr = mc_rel17_leakage_correction_slopes_photon_unconverted_tp20;
-      	      mc_correction_offsets_ptr = mc_rel17_leakage_correction_offsets_photon_unconverted_tp20;
-      	    }
-      	  }
-      	} else {
-      	  // electrons
-      	  if (ver == REL17) {
-      	    mc_correction_slopes_ptr = mc_rel17_leakage_correction_slopes_electron_tp20;
-      	    mc_correction_offsets_ptr = mc_rel17_leakage_correction_offsets_electron_tp20;
-      	  }
-
-      	}
-      	break;
-      case 30:
-      	if (parttype == PHOTON) {
-      	  // photons
-      	  if(isConversion) {
-      	    // converted
-      	    if (ver == REL17) {
-      	      mc_correction_slopes_ptr = mc_rel17_leakage_correction_slopes_photon_converted_tp30;
-      	      mc_correction_offsets_ptr = mc_rel17_leakage_correction_offsets_photon_converted_tp30;
-      	    }
-      	  } else {
-      	    // unconverted
-      	    if (ver == REL17) {
-      	      mc_correction_slopes_ptr = mc_rel17_leakage_correction_slopes_photon_unconverted_tp30;
-      	      mc_correction_offsets_ptr = mc_rel17_leakage_correction_offsets_photon_unconverted_tp30;
-      	    }
-      	  }
-      	} else {
-      	  // electrons
-      	  if (ver == REL17) {
-      	    mc_correction_slopes_ptr = mc_rel17_leakage_correction_slopes_electron_tp30;
-      	    mc_correction_offsets_ptr = mc_rel17_leakage_correction_offsets_electron_tp30;
-      	  }
-
-      	}
-      	break;
-      case 40:
-      	if (parttype == PHOTON) {
-      	  // photons
-      	  if(isConversion) {
-      	    // converted
-      	    if (ver == REL17) {
-      	      mc_correction_slopes_ptr = mc_rel17_leakage_correction_slopes_photon_converted_tp40;
-      	      mc_correction_offsets_ptr = mc_rel17_leakage_correction_offsets_photon_converted_tp40;
-      	    }
-      	  } else {
-      	    // unconverted
-      	    if (ver == REL17) {
-      	      mc_correction_slopes_ptr = mc_rel17_leakage_correction_slopes_photon_unconverted_tp40;
-      	      mc_correction_offsets_ptr = mc_rel17_leakage_correction_offsets_photon_unconverted_tp40;
-      	    }
-      	  }
-      	} else {
-      	  // electrons
-      	  if (ver == REL17) {
-      	    mc_correction_slopes_ptr = mc_rel17_leakage_correction_slopes_electron_tp40;
-      	    mc_correction_offsets_ptr = mc_rel17_leakage_correction_offsets_electron_tp40;
-      	  }
-
-      	}
-      	break;
-      default:
-	       ATH_MSG_WARNING("Unable to retrieve leakage correction for topoIso cone with radius = " << radius << ".\n--- Radii must be one of {.20, .30, .40} OR {20, 30, 40}.\n");
-	       return 0.;
-      }
-      float scale_factor = GetPtCorrectionFactor(etaS2, mc_correction_slopes_ptr);
-      float offset = 0.;
-      if (!mc_correction_offsets_ptr.empty()) offset = GetPtCorrectionFactor(etaS2, mc_correction_offsets_ptr);
-      correction_value = offset + GetPtCorrectionValue(energy, etaPointing, etaCluster, scale_factor);
-    } else if (ver== REL17_2) {
+    if (ver== REL17_2) {
       correction_value = GetPtCorrection_FromGraph(energy,etaS2,etaPointing,etaCluster,radius,isConversion,parttype);
     } else if (m_tool_ver == REL20_2){
-	     correction_value = GetPtCorrection_FromGraph_2015(energy, etaS2, radius, convFlag_int, author, conv_radius, conv_ratio, parttype);
-   }
+      correction_value = GetPtCorrection_FromGraph_2015(energy, etaS2, radius, convFlag_int, author, conv_radius, conv_ratio, parttype);
+    }
 
-    //avoid warnings
-    if(is_mc) is_mc = true;
     return correction_value;
   }
   //-----------------------------------------------------------------------
@@ -1752,6 +1563,9 @@ namespace CP {
         return 0.;
     }
     //ATH_MSG_INFO("  Correction: "<< correction_value_mev <<"\n");
+    if (et > 20e3)
+      ATH_MSG_DEBUG("Electron ? " << (parttype == ELECTRON) << " et = " << et << " eta = " << etaS2 << " etabin = " << etabin << "  Correction: "<< correction_value_mev);
+
     return correction_value_mev;
   }
 
