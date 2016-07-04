@@ -31,7 +31,9 @@ DijetDEtaMassCondition::isSatisfied(const HypoJetVector& ips) const{
   auto mass = (p4_0 + p4_1).M();
   auto eta0 =  ips[0]->eta();
   auto eta1 =  ips[1]->eta();
-  auto ystar = std::abs(eta0 - eta1);
+  auto rap0 = ips[0]->rapidity();
+  auto rap1 = ips[1]->rapidity();
+  auto ystar = 0.5*std::abs(rap0 - rap1);
 
     
   return 
