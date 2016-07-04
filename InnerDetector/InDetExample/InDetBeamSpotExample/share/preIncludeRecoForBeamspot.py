@@ -33,9 +33,6 @@ from RecExConfig.RecAlgsFlags import recAlgs
 recAlgs.doTrackParticleCellAssociation.set_Value_and_Lock(False)
 recAlgs.doTrigger.set_Value_and_Lock(False)
 
-from AthenaCommon.AthenaCommonFlags import jobproperties
-jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25)
-
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 DQMonFlags.enableLumiAccess=False
 

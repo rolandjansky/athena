@@ -5,7 +5,7 @@
 beamspotman is a command line utility to do typical beam spot related tasks.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: beamspotman.py 717336 2016-01-12 13:11:29Z amorley $'
+__version__ = '$Id: beamspotman.py 759523 2016-07-04 12:49:24Z amorley $'
 __usage__   = '''%prog [options] command [args ...]
 
 Commands are:
@@ -117,7 +117,7 @@ parser.add_option('', '--ru', dest='runMax', type='int', default=None, help='Max
 parser.add_option('', '--rucio', dest='rucio', action='store_true', default=False, help='rucio directory structure')
 parser.add_option('', '--noCheckAcqFlag', dest='noCheckAcqFlag', action='store_true', default=False, help='Don\'t check acqFlag when submitting VdM jobs')
 parser.add_option('', '--mon', dest='mon', action='store_true', default=False, help='mon directory structure')
-
+parser.add_option('', '--resubAll', dest='resubAll', action='store_true', default=False, help='Resubmit all jobs irrespective of status') 
 
 (options,args) = parser.parse_args()
 if len(args) < 1:
@@ -556,7 +556,10 @@ if cmd=='queryT0' and len(args)==3:
     if 'ESD' in options.filter:
         t0TaskName = '%s.recon.ESD.%s.beamspotproc.task' % (dsname,tags)
     else:
-        t0TaskName = '%s.recon.AOD.%s.beamspotproc.task' % (dsname,tags)
+        if "_m" in tags:
+          t0TaskName = '%s.merge.AOD.%s.beamspotproc.task' % (dsname,tags)
+        else: 
+          t0TaskName = '%s.recon.AOD.%s.beamspotproc.task' % (dsname,tags)
     print 'Querying Tier-0 database for task',t0TaskName,'...'
     oracle = getT0DbConnection()
     cur = oracle.cursor()
@@ -889,15 +892,25 @@ if cmd=='resubmit' and len(args)==4:
         if options.mon: 
            jobname= dsname+'-'+taskname+'-'+dir
         fullpath = os.getcwd()+'/'+dsname+'/'+taskname+'/'+dir
+        
 
         isRunning = False
+        isFailed = False
         for f in os.listdir(fullpath):
-          if re.search('RUNNING', f) or re.search('COMPLETED',f):
+          if re.search('RUNNING', f) or re.search('POSTPROCESSING',f):
             isRunning = True
+          if re.search('COMPLETED',f) or re.search('POSTPROCESSING',f):
+            statusFile  = open( fullpath+'/'+jobname + '.exitstatus.dat', 'r')
+            status  = statusFile.read(1)
+            print status
+            if status != "0": 
+              isFailed  = True
+              isRunning = False
 
-        if isRunning:
+        if (isRunning or not isFailed) and not options.resubAll:
           continue
-
+        
+        
         for f in os.listdir(fullpath):
           if re.search('.exitstatus.', f):
             os.remove(os.path.join(fullpath, f))

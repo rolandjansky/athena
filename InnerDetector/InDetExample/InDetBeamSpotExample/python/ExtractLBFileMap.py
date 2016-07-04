@@ -138,8 +138,8 @@ def extractFromFiles(fileNames):
                 sc = 1
                 pass
 
-            if not "eos" in fileName:
-                f.Close()
+            #if not "eos" in fileName:
+            f.Close()
         
         except Exception, e:
             print "## Caught exception [%s] !!" % str(e.__class__)

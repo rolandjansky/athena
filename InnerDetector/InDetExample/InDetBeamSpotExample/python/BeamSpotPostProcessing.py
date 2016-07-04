@@ -98,7 +98,7 @@ class ReprocVertexDefaultProcessing(PostProcessingStep):
 
 class BCIDDefaultProcessing(PostProcessingStep):
     def run(self):
-        postProcSteps = 'MergeNt BeamSpotNt PlotBCID LinkResults'
+        postProcSteps = 'MergeNt BeamSpotNtNoAve PlotBCID LinkResults'
         for step in postProcSteps.split():
             self.log('Running postprocessing step:  %s' % step)
             self.executedSteps  = runPostProcStep(self.taskman,self.taskDict,self.oldStatus,self.executedSteps,step,self.postprocLib,self.jobName)
@@ -331,8 +331,9 @@ class UploadBeamSpot(PostProcessingStep):
             raise PostProcessingError('ERROR: Beam spot already uploaded to COOL - if this is intentional, please upload manually.',
                                       self.executedSteps,TaskManager.StatusCodes['POSTPROCFAILED'])
         # Check that this is the express stream
-        if self.dsName.split('.')[-1] != 'express_express':
-            self.log(text="WARNING: Not running on the express stream, so won't upload anything - if this is intentional, please upload manually\n",doPrint=True)
+        if self.dsName.split('.')[-1] != 'express_express' and self.dsName.split('.')[-1] != 'calibration_BeamSpot':
+            print self.dsName.split('.')[-1] 
+            self.log(text="WARNING: Not running on the express or BeamSpot  stream, so won't upload anything - if this is intentional, please upload manually\n",doPrint=True)
             return
         if os.path.exists('/'.join([self.taskDir,beamSpotDbFileName])):
             # Dumping of the beam spot SQLite file is done by beamspotman
@@ -407,14 +408,26 @@ class UploadDataQuality(PostProcessingStep):
             self.logExec('beamspotman.py -b -n --dqtag %s dqflag %s %s' % (dqtag,self.dsName,self.taskName))            
         else:
             self.log(text='ERROR: No beam spot DQ flag SQLite file %s\n       Nothing to upload - was DQ determination successful?\n' % dqDbFileName,doPrint=True)
-        
+
+
+class BeamSpotNtNoAve(PostProcessingStep):
+    def run(self):
+        ntFileName = self.getFileName('-nt.root','MergeNt')
+        bsNtFileName = self.getFileName('-nt.root','BeamSpotNt')
+        if os.path.exists('/'.join([self.taskDir,ntFileName])):
+            self.logExec("cd %s; rm -f %s; beamspotnt.py -f %s --status '' --fillCOOL merge %s" % (self.taskDir,bsNtFileName,bsNtFileName,ntFileName))
+            self.addResult(bsNtFileName)
+        else:
+            raise PostProcessingError('ERROR: No merged ntuple file %s - did MergeNt step run?\n' % ntFileName,self.executedSteps)
+
+
 
 class BeamSpotNt(PostProcessingStep):
     def run(self):
         ntFileName = self.getFileName('-nt.root','MergeNt')
         bsNtFileName = self.getFileName('-nt.root')
         if os.path.exists('/'.join([self.taskDir,ntFileName])):
-            self.logExec("cd %s; rm -f %s; beamspotnt.py -f %s --status '' --useAve --fillCOOL merge %s" % (self.taskDir,bsNtFileName,bsNtFileName,ntFileName))
+            self.logExec("cd %s; rm -f %s; beamspotnt.py -f %s --status '' --fillCOOL --useAve merge %s" % (self.taskDir,bsNtFileName,bsNtFileName,ntFileName))
             self.addResult(bsNtFileName)
         else:
             raise PostProcessingError('ERROR: No merged ntuple file %s - did MergeNt step run?\n' % ntFileName,self.executedSteps)
@@ -436,10 +449,12 @@ class BeamSpotGlobalNt(PostProcessingStep):
         globalNtDir = '/afs/cern.ch/user/a/atlidbs/nt/t0'
         beamspottag = 'IndetBeampos-RUN2-ES1-UPD2-13' # Always update to one global ntuple so don't resolve current
         globalNtFileName = '%s/beamspotnt-%s.root' % (globalNtDir,beamspottag)
+        globalNtFileName2 = '%s/beamspotnt-%s.root' % (globalNtDir,'IndetBeampos-ES1-UPD2')
         if not os.path.exists(globalNtDir):
             raise PostProcessingError('ERROR: Cannot access directory with global beam spot ntuple: %s' % globalNtDir, self.executedSteps)
         if os.path.exists('/'.join([self.taskDir,ntFileName])):
             self.logExec("cd %s; beamspotnt.py -f %s --status '' --fillCOOL --useAve merge %s" % (self.taskDir,globalNtFileName,ntFileName))
+            self.logExec("cd %s; beamspotnt.py -f %s --status '' --fillCOOL --useAve merge %s" % (self.taskDir,globalNtFileName2,ntFileName))
         else:
             raise PostProcessingError('ERROR: No merged ntuple file %s - did MergeNt step run?\n' % ntFileName, self.executedSteps)
 
