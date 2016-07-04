@@ -1,4 +1,4 @@
-# $Id#
+# $Id: CMakeLists.txt 759447 2016-07-04 08:16:42Z krasznaa $
 #
 # Configuration for building gperftools as part of the offline software build.
 #
@@ -11,16 +11,21 @@ if( ATLAS_RELEASE_MODE )
    return()
 endif()
 
+# Set up a dependency on libunwind. Just to pull in its RPM for sure.
+find_package( libunwind )
+
 # Set up the build of gperftools for the build area:
 ExternalProject_Add( GPerfTools
    PREFIX ${CMAKE_BINARY_DIR}
-   URL /afs/cern.ch/atlas/offline/external/TARs/gperftools-2.4.tar.gz
+   URL ${CMAKE_CURRENT_SOURCE_DIR}/src/gperftools-2.2.tar.gz
    INSTALL_DIR ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}
    BUILD_IN_SOURCE 1
-   CONFIGURE_COMMAND ./configure --enable-frame-pointers
+   CONFIGURE_COMMAND ./configure --enable-shared --enable-static
+   --enable-frame-pointers
    --prefix=${CMAKE_CURRENT_BINARY_DIR}/build
-   LDFLAGS=-L${libunwind_ROOT}/lib
-   CXXFLAGS=-I${libunwind_ROOT}/include
+   LDFLAGS=-L${LIBUNWIND_ROOT}/lib
+   CPPFLAGS=-I${LIBUNWIND_ROOT}/include
+   F9X=$ENV{FC}
    BUILD_COMMAND make
    COMMAND make install
    INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory
