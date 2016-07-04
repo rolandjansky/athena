@@ -1,5 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+# include the python fragment to set up the default bphysics vertex fitter
+from TrigBphysHypo import TrigBphysVertexingConfig
+
 from TrigBphysHypo.TrigBphysHypoConf import TrigEFMultiMuFex
 
 from AthenaCommon.AppMgr import ToolSvc
