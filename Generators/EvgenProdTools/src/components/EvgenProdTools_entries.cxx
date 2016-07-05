@@ -5,13 +5,14 @@
 #include "EvgenProdTools/FixHepMC.h"
 #include "EvgenProdTools/TestHepMC.h"
 #include "EvgenProdTools/EvgenOTFTopUpSvc.h"
+#include "EvgenProdTools/SimTimeEstimate.h"
 
 DECLARE_ALGORITHM_FACTORY(CopyEventWeight)
 DECLARE_ALGORITHM_FACTORY(CountHepMC)
 DECLARE_ALGORITHM_FACTORY(FixHepMC)
 DECLARE_ALGORITHM_FACTORY(TestHepMC)
 DECLARE_SERVICE_FACTORY(EvgenOTFTopUpSvc)
-
+DECLARE_ALGORITHM_FACTORY(SimTimeEstimate)
 
 
 
@@ -23,4 +24,5 @@ DECLARE_FACTORY_ENTRIES( EvgenProdTools ) {
   DECLARE_ALGORITHM(TestHepMC)
   DECLARE_SERVICE(EvgenOTFTopUpSvc)
   DECLARE_SERVICE(HepMCWeightSvc)
+  DECLARE_ALGORITHM(SimTimeEstimate)
 }
