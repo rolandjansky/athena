@@ -29,6 +29,8 @@ TestHepMC::TestHepMC(const string& name, ISvcLocator* pSvcLocator)
   declareProperty("EffFailThreshold", m_eff_fail_threshold=0.98); // fraction
   declareProperty("AccuracyMargin",   m_accur_margin=0.); //MeV
 
+  declareProperty( "G4ExtraWhiteFile", m_paramFile       = "g4_extrawhite.param" );
+
   declareProperty("NoDecayVertexStatuses", m_vertexStatuses );
   m_vertexStatuses.push_back( 1 );
   m_vertexStatuses.push_back( 3 );
@@ -182,6 +184,26 @@ StatusCode TestHepMC::initialize() {
          }
          else{
           ATH_MSG_WARNING("Failed to open G4particle_whitelist.txt, checking that all particles are known by Genat4 cannot be performed");
+         }
+
+ //open the files and read G4particle_whitelist.txt
+	 G4file.open(m_paramFile.c_str());
+	 //         std::string line;
+	 //         int G4pdgID;
+        
+         if (!G4file.fail()){
+	   ATH_MSG_INFO("extra white list for G4 found " << m_paramFile.c_str());
+            while(std::getline(G4file,line)){
+                 std::stringstream ss(line);
+                 ss >> G4pdgID;
+
+                 m_G4pdgID_tab.push_back(G4pdgID);
+                 
+            }
+            G4file.close();
+         }
+         else{
+          ATH_MSG_INFO("extra white list for G4 not provided ");
          }
 
  //open the files and read susyParticlePdgid.txt
@@ -432,8 +454,9 @@ StatusCode TestHepMC::execute() {
            int known_byG4 = 0;
            vector<int>::size_type count =0;
 
-	     while (known_byG4==0 && count < m_G4pdgID_tab.size()){
 
+	     while (known_byG4==0 && count < m_G4pdgID_tab.size()){
+//	       std::cout<< "G4 pdgid " <<  m_G4pdgID_tab[count] << std::endl;
                  if(ppdgid == m_G4pdgID_tab[count]) known_byG4=1;
                  count++;
             }
