@@ -56,11 +56,15 @@ SiDetectorDesign::SiDetectorDesign(double thickness,
                   "ERROR: SiDetectorDesign called with phi and thickness directions equal");
     }
     // phiAxis is "the other one"
-    m_phiAxis = static_cast<Axis> ((xAxis + yAxis + zAxis) - (stripDirection + thicknessDirection)); 
+    m_phiAxis = static_cast<Axis> ((xAxis + yAxis + zAxis) - (stripDirection + thicknessDirection));
 }
 
 // Destructor:
 SiDetectorDesign::~SiDetectorDesign() {
+}
+
+HepGeom::Point3D<double> SiDetectorDesign::sensorCenter() const {
+    return HepGeom::Point3D<double> (0., 0., 0.);
 }
 
 SiIntersect SiDetectorDesign::inDetector(const SiLocalPosition &localPosition,

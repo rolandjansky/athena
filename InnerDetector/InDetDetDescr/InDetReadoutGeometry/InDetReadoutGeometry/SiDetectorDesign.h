@@ -23,7 +23,6 @@
 #include <list>
 #include <vector>
 
-
 class Identifier;
 
 namespace Trk {
@@ -39,7 +38,7 @@ class SiLocalPosition;
 class SiIntersect;
 
 enum DetectorShape {
-    Box=0, Trapezoid, Other
+    Box=0, Trapezoid, Annulus, Other
 };
 
 /** @class SiDetectorDesign
@@ -88,13 +87,18 @@ public:
                      SiDetectorDesign::Axis stripDirection,
                      SiDetectorDesign::Axis depthDirection);
 
-
     /** Destructor: */
     virtual ~SiDetectorDesign();
 
     ///////////////////////////////////////////////////////////////////
     // Const methods:
     ///////////////////////////////////////////////////////////////////
+    /** Give strip angle in the reco frame */
+    virtual double sinStripAngleReco(double phiCoord, double etaCoord) const;
+
+    /** Give a point in the centre of a sensor. For most designs, this is the origin of the local coordinate system.
+        For StripStereoAnnulusDesign, this is not the case (coordinate origin is "on the beamline") */
+    virtual HepGeom::Point3D<double> sensorCenter() const;
 
     /** Test if point is in the active part of the detector with specified tolerances */
     SiIntersect inDetector(const SiLocalPosition &localPosition, double phiTol,
@@ -124,7 +128,6 @@ public:
        NB. Flags can be changed from true to false but not false to true. */
     void setSymmetry(bool phiSymmetric, bool etaSymmetric, bool depthSymmetric);
 
-
     ///////////////////////////////////////////////////////////////////
     // Pure virtual methods:
     ///////////////////////////////////////////////////////////////////
@@ -134,8 +137,6 @@ public:
        -ve = outside */
     virtual void distanceToDetectorEdge(const SiLocalPosition &localPosition,
                                         double &etaDist, double &phiDist) const = 0;
-
-
 
     /** Helper method for stereo angle computation, DEPRECATED */
     virtual HepGeom::Vector3D<double> phiMeasureSegment(const SiLocalPosition &position)
@@ -182,7 +183,6 @@ public:
     /**  Element boundary */
     virtual const Trk::SurfaceBounds &bounds() const = 0;
 
-
     ///////////////////////////////////////////////////////////
     //
     // The following will replace existing methods but are not all implemented yet
@@ -195,7 +195,7 @@ public:
     virtual SiLocalPosition localPositionOfCell(const SiCellId &cellId) const = 0;
 
     /** number of connected cells. Generally 1 except for ganged pixels which will be 2.
-      */
+     */
     virtual int numberOfConnectedCells(const SiReadoutCellId &readoutId) const = 0;
 
     /** readout id -> id of connected diodes.
@@ -229,9 +229,8 @@ public:
                                   std::vector<SiCellId> &neighbours) const = 0;
 
     /** Check if cell is in range. Returns the original cellId if it is in range,
-      otherwise it returns an invalid id. */
+       otherwise it returns an invalid id. */
     virtual SiCellId cellIdInRange(const SiCellId &cellId) const = 0;
-
 
     ///////////////////////////////////////////////////////////////////
     // Private methods:
@@ -247,15 +246,14 @@ private:
     Axis m_phiAxis; // !< local axis corresponding to phi direction
     Axis m_depthAxis; // !< local axis corresponding to depth direction
     double m_thickness; // !< thickness of silicon sensor
-    InDetDD::CarrierType m_carrierType; // !< carrier type that drifts towards readout
-    // !< (ie holes fro SCT and electrons for pixel)
-    bool m_phiSymmetric;
-    bool m_etaSymmetric;
-    bool m_depthSymmetric;
+    InDetDD::CarrierType m_carrierType; // !< Carrier type that drifts towards readout
+                                        // !< (ie holes for SCT and electrons for pixel)
+    bool m_phiSymmetric;        // !< Unable to find out what these are for. No matter how asymmetric
+    bool m_etaSymmetric;        // !< a sensor is, we can still define a coordinate transformation from
+    bool m_depthSymmetric;      // !< one system to another.
 
-    bool m_readoutSidePosDepth; // !< Control which side readout is on.
-                                // !< true = positive Depth Side, false = negative Depth
-                                // Side
+    bool m_readoutSidePosDepth; // !< Control which side readout is on. true = positive Depth side, 
+                                // !< false = negative Depth side.
 
     // Disallow Copy and assignment;
     SiDetectorDesign(const SiDetectorDesign &design);
@@ -265,6 +263,11 @@ private:
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
+
+inline double SiDetectorDesign::sinStripAngleReco(double /* x */, double /* y */) const {
+    return 0.0; // pixel and barrel strip sensors always zero 
+}
+
 inline SiDetectorDesign::Axis SiDetectorDesign::etaAxis() const {
     return m_etaAxis;
 }

@@ -214,23 +214,23 @@ inline int StripBoxDesign::strip(int stripId1Dim) const {
 
 
 /// DEPRECATED for StripBoxDesign; no dead area
-double StripBoxDesign::deadAreaUpperBoundary() const {
+inline double StripBoxDesign::deadAreaUpperBoundary() const {
     return 0.;
 }
 
-double StripBoxDesign::deadAreaLowerBoundary() const {
+inline double StripBoxDesign::deadAreaLowerBoundary() const {
     return 0.;
 }
 
-double StripBoxDesign::deadAreaLength() const {
+inline double StripBoxDesign::deadAreaLength() const {
     return 0.;
 }
 
-bool StripBoxDesign::swapHitPhiReadoutDirection() const {
+inline bool StripBoxDesign::swapHitPhiReadoutDirection() const {
     return false;
 }
 
-bool StripBoxDesign::swapHitEtaReadoutDirection() const {
+inline bool StripBoxDesign::swapHitEtaReadoutDirection() const {
     return false;
 }
 

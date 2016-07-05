@@ -7,6 +7,7 @@
 #include <cmath>
 #include "Identifier/Identifier.h"
 #include "TrkSurfaces/RectangleBounds.h"
+#include <iostream>
 
 using namespace std;
 
@@ -20,9 +21,7 @@ StripBoxDesign::StripBoxDesign(const SiDetectorDesign::Axis stripDirection,
                                const int nStrips,
                                const double pitch,
                                const double length) : 
-// The box is symmetric in all three dimensions. But we have to cover that up or the SCT software 
-// swaps things wrongly and gets the local-to-global transform (transformHit()) wrong.
-    SCT_ModuleSideDesign(thickness, false, false, true, 1, nRows * nStrips, nRows * nStrips, 0, false, carrier,
+    SCT_ModuleSideDesign(thickness, true, true, true, 1, nRows * nStrips, nRows * nStrips, 0, false, carrier,
                          readoutSide, stripDirection, thicknessDirection) {
     if (nRows <= 0) {
         throw std::runtime_error(
@@ -44,6 +43,12 @@ StripBoxDesign::~StripBoxDesign() {
 }
 
 void StripBoxDesign::getStripRow(SiCellId cellId, int *strip, int *row) const {
+    if (!cellId.isValid()) {
+        std::cerr << "StripBoxDesign::getStripRow called with invalid cellId\n";
+        *strip = -1;
+        *row = -2;
+        return;
+    }
     int strip1D = cellId.phiIndex();
     *row = strip1D / m_nStrips;
     *strip = strip1D % m_nStrips;
@@ -91,13 +96,11 @@ SiCellId StripBoxDesign::cellIdOfPosition(SiLocalPosition const &pos) const {
 //
     int strip = (int) floor(pos.xPhi() / m_pitch) + m_nStrips / 2;
     if (strip < 0 || strip >= m_nStrips) {
-
         return SiCellId(); // return an invalid id
     }
 
     int row = (int) floor(pos.xEta() / m_length) + m_nRows / 2; 
     if (row < 0 || row >= m_nRows) {
-
         return SiCellId(); // return an invalid id
     }
     int strip1D = strip1Dim(strip, row);
@@ -110,9 +113,7 @@ SiLocalPosition StripBoxDesign::localPositionOfCell(SiCellId const &cellId) cons
     int row, strip;
     getStripRow(cellId, &strip, &row);
     double eta = ((double) row - (double) m_nRows / 2. + 0.5) * m_length;
-
     double phi = ((double) strip - (double) m_nStrips / 2. + 0.5) * m_pitch;
-
 
     return SiLocalPosition(eta, phi, 0.0);
 }
@@ -122,22 +123,23 @@ SiLocalPosition StripBoxDesign::localPositionOfCluster(SiCellId const &cellId,
 
     SiLocalPosition pos = localPositionOfCell(cellId);
 
-    if (clusterSize <= 1) {
-        return pos;
+    if (clusterSize > 1) {
+        double shift = (clusterSize - 1) * m_pitch / 2.;
+        pos.xPhi(pos.xPhi() + shift); // get then set xPhi
     }
-
-    double clusterWidth = clusterSize * m_pitch;
-    pos.xPhi(pos.xPhi() + clusterWidth / 2.); // get then set xPhi
 
     return pos;
 }
 
 /// Give end points of the strip that covers the given position
-std::pair<SiLocalPosition, SiLocalPosition> StripBoxDesign::endsOfStrip(
-    SiLocalPosition const &pos) const {
+std::pair<SiLocalPosition, SiLocalPosition> StripBoxDesign::endsOfStrip(SiLocalPosition const &pos) const {
 
     SiCellId cellId = cellIdOfPosition(pos);
-
+    if (!cellId.isValid()) {
+        cerr << "StripBoxDesign::endsOfStrip: (eta, phi, depth) = (" << pos.xEta() << ", " << 
+                 pos.xPhi() << ", " <<  pos.xDepth() << ") was outside\n";
+        return std::pair<SiLocalPosition, SiLocalPosition> (SiLocalPosition(0., 0., 0.), SiLocalPosition(0., 0., 0.));
+    }
     int strip, row;
     getStripRow(cellId, &strip, &row);
 
@@ -145,7 +147,6 @@ std::pair<SiLocalPosition, SiLocalPosition> StripBoxDesign::endsOfStrip(
     double etaEnd = etaStart + m_length;
 
     double phi = (strip - m_nStrips / 2. + 0.5) * m_pitch;
-// cout << "etaStart = " << etaStart << "; etaEnd = " << etaEnd << "; phi coord. = " << phi << endl; 
 
     SiLocalPosition end1(etaStart, phi, 0.0);
     SiLocalPosition end2(etaEnd, phi, 0.0);
@@ -167,7 +168,6 @@ double StripBoxDesign::scaledDistanceToNearestDiode(SiLocalPosition const &pos) 
 
     SiCellId cellId = cellIdOfPosition(pos);
     SiLocalPosition posStrip = localPositionOfCell(cellId);
-// cout << "posStrip.xPhi = " << posStrip.xPhi() << " giving " << fabs(pos.xPhi() - posStrip.xPhi()) / m_pitch << endl;
 
     return fabs(pos.xPhi() - posStrip.xPhi()) / m_pitch;
 }
@@ -205,7 +205,7 @@ SiCellId StripBoxDesign::cellIdInRange(const SiCellId &cellId) const {
 }
 
 double StripBoxDesign::length() const {
-    return m_length;
+    return m_length*m_nRows;
 }
 
 double StripBoxDesign::width() const {
@@ -221,7 +221,7 @@ double StripBoxDesign::maxWidth() const {
 }
 
 double StripBoxDesign::etaPitch() const {
-    return length();
+    return m_length;
 }
 
 HepGeom::Vector3D<double> StripBoxDesign::phiMeasureSegment(const SiLocalPosition & /*position*/)

@@ -79,6 +79,12 @@ public:
     /** Destructor: */
     virtual ~SCT_ModuleSideDesign();
 
+//
+//    Virtual method in base-class:
+//
+    using SiDetectorDesign::sensorCenter;
+    using SiDetectorDesign::sinStripAngleReco;
+
     /** readout id -> id of connected diodes
         Not particularly useful for the SCT but implemented to keep a uniform interface.
            */

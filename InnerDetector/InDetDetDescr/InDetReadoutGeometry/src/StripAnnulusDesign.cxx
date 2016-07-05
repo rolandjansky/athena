@@ -70,6 +70,11 @@ StripAnnulusDesign::~StripAnnulusDesign() {
     delete m_bounds;
 }
 
+HepGeom::Point3D<double> StripAnnulusDesign::sensorCenter() const {
+    double centerR = (m_stripStartRadius[0] + m_stripEndRadius.back()) / 2.;
+    return HepGeom::Point3D<double>(centerR, 0., 0.);
+}
+
 void StripAnnulusDesign::getStripRow(SiCellId cellId, int *strip2D, int *rowNum) const {
     int strip1D = cellId.phiIndex();
     *rowNum = row(strip1D);

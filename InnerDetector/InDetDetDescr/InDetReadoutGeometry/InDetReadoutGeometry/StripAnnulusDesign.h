@@ -62,6 +62,8 @@ public:
     // Copy constructor and assignment:
     StripAnnulusDesign(const StripAnnulusDesign &design);
     StripAnnulusDesign &operator = (const StripAnnulusDesign &design);
+
+    HepGeom::Point3D<double> sensorCenter() const;
     void getStripRow(SiCellId cellId, int *strip, int *row) const;
     int strip1Dim(int strip, int row) const;
     int diodesInRow(const int row) const;

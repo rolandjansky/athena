@@ -148,9 +148,15 @@ public:
 
     bool nearBondGap(const SiLocalPosition &, double) const;
 
+    /** Shape of element */
+    virtual DetectorShape shape() const;
 
     // ------------------------------------------------------------------------------------------
-
+//
+//    Virtual method in base-class:
+//
+    HepGeom::Point3D<double> sensorCenter() const;
+    double sinStripAngleReco(double phiCoord, double etaCoord) const;
 //
 //    Accessors
 //
@@ -181,8 +187,10 @@ inline int  StripStereoAnnulusDesign::diodesInRow(const int row) const {
     return m_nStrips[row];
 }
 
-// Unfortunately SCT introduced the name stripPitch as an alternative to phiPitch so
-// everything gets doubled
+// Ways to get the strip pitch. Must return it in mm, until major work switches to doing tracking in (r, phi) space.
+// Possibly these should be scaled to account for the stereo angle built in to the sensor. Currently we give the 
+// pitch seen in the focal-point reference frame.
+// Unfortunately SCT introduced the name stripPitch as an alternative to phiPitch so everything gets doubled
 
 inline double StripStereoAnnulusDesign::stripPitch(const SiLocalPosition &pos) const {
     return phiPitch(pos);
@@ -192,20 +200,29 @@ inline double StripStereoAnnulusDesign::stripPitch(const SiCellId &cellId) const
     return phiPitch(cellId);
 }
 
-inline double StripStereoAnnulusDesign::stripPitch() const { // Don't use; which strip?
+inline double StripStereoAnnulusDesign::stripPitch() const {
     return phiPitch();
 }
 
 inline double StripStereoAnnulusDesign::phiPitch(const SiLocalPosition &pos) const {
-    return phiPitch(cellIdOfPosition(pos));
+// Return pitch in mm for the strip at this position, at this point's distance along the strip.
+    const SiCellId cellId = cellIdOfPosition(pos);
+    const int row = cellId.etaIndex();
+    const double radius = sqrt(pos.xEta() * pos.xEta() + pos.xPhi() * pos.xPhi());
+    return m_pitch[row] * radius;
 }
 
 inline double StripStereoAnnulusDesign::phiPitch(const SiCellId &cellId) const {
-    return m_pitch[cellId.etaIndex()];
+// Return pitch in mm for centre of this strip.
+    const int row = cellId.etaIndex();
+    return m_pitch[row] * (m_stripStartRadius[row] + m_stripEndRadius[row]) / 2.;
 }
 
 inline double StripStereoAnnulusDesign::phiPitch() const {
-    return stripPitch(SiCellId(0, 0));
+// Return pitch in mm for the row just below or including the centre 
+    const int middleRow = m_nRows / 2;
+    const int middleStrip = m_nStrips[middleRow] / 2; 
+    return phiPitch(SiCellId(middleStrip, middleRow));
 }
 
 /*
