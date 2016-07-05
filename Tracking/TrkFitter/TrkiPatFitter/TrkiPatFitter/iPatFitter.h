@@ -139,10 +139,14 @@ private:
     // print TSOS on a track (debugging aid)
     void	printTSOS (const Track&) const;
 
+    void	refit(const Track&		track,
+		      const RunOutlierRemoval	runOutlier,
+		      const ParticleHypothesis	particleHypothesis) const;
+    
     // configurables (tools and options)
     bool						m_aggregateMaterial;
     bool						m_asymmetricCaloEnergy;
-    bool						m_extendedDebug;
+    bool						m_fastMatrixTreatment;
     bool						m_fullCombinedFit;
     bool						m_lineFit;
     double						m_lineMomentum;
@@ -156,6 +160,11 @@ private:
     double						m_orderingTolerance;
     unsigned						m_maxWarnings;
 
+    // configurables for validation purposes
+    bool						m_constrainedAlignmentEffects;
+    bool						m_extendedDebug;
+    int 						m_forcedRefitsForValidation;
+    
     // constants 
     Trk::Volume*					m_calorimeterVolume;
     Trk::Volume*					m_indetVolume;
@@ -164,6 +173,9 @@ private:
     mutable unsigned					m_countFitAttempts;
     mutable unsigned					m_countGoodFits;
     mutable unsigned					m_countIterations;
+    mutable unsigned					m_countRefitAttempts;
+    mutable unsigned					m_countGoodRefits;
+    mutable unsigned					m_countRefitIterations;
 
     // count warnings
     mutable MessageHelper*				m_messageHelper;
