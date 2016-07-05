@@ -19,7 +19,10 @@ use AtlasDetDescr        AtlasDetDescr-*         DetectorDescription
 use AtlasROOT            AtlasROOT-*             External
 use ISF_Event            ISF_Event-*             Simulation/ISF/ISF_Core
 use ISF_Interfaces       ISF_Interfaces-*        Simulation/ISF/ISF_Core
+use CxxUtils             CxxUtils-*              Control
 use PmbCxxUtils          PmbCxxUtils-*           Tools
+use GeneratorObjects     GeneratorObjects-*      Generators
+use StoreGate            StoreGate-*             Control
 
 public
 library ISF_Algorithms *.cxx components/*.cxx
