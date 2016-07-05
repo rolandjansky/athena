@@ -63,6 +63,16 @@ public:
       More accurate but slower. */
   virtual double getTanLorentzAngleEta(const IdentifierHash & elementHash, const Amg::Vector2D & locPos) = 0;
 
+  /** Get bias voltage */
+  virtual double getBiasVoltage(const IdentifierHash & elementHash) = 0;
+
+  /** Get temperature */
+  virtual double getTemperature(const IdentifierHash & elementHash) = 0;
+
+  /** Get depletion voltage */
+  virtual double getDepletionVoltage(const IdentifierHash & elementHash) = 0;
+
+
   /// IOV CallBack
   virtual StatusCode callBack(IOVSVC_CALLBACK_ARGS) = 0;
 
