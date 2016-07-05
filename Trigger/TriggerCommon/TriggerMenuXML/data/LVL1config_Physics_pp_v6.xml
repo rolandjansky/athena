@@ -2335,7 +2335,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="302" partition="1" name="L1_CMU6_2CMU4" complex_deadtime="0" definition="(MULT-CMU4ab[x2]&amp;MULT-CMU6ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="302" partition="1" name="L1_MU6MU4-BO" complex_deadtime="0" definition="(MULT-CMU4ab[x2]&amp;MULT-CMU6ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="2" name="MULT-CMU4ab_x2" triggerthreshold="MULT-CMU4ab"/>
         <TriggerCondition multi="1" name="MULT-CMU6ab_x1" triggerthreshold="MULT-CMU6ab"/>
@@ -2383,14 +2383,14 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="312" partition="1" name="L1_2CMU4" complex_deadtime="0" definition="(MULT-CMU4ab[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="312" partition="1" name="L1_2MU4-BO" complex_deadtime="0" definition="(MULT-CMU4ab[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="2" name="MULT-CMU4ab_x2" triggerthreshold="MULT-CMU4ab"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="313" partition="1" name="L1_2CMU6" complex_deadtime="0" definition="(MULT-CMU6ab[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="313" partition="1" name="L1_2MU6-BO" complex_deadtime="0" definition="(MULT-CMU6ab[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="2" name="MULT-CMU6ab_x2" triggerthreshold="MULT-CMU6ab"/>
         <InternalTrigger name="BGRP0"/>
