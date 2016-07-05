@@ -33,7 +33,7 @@ template <class T> Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::hand
      //EX_MSG_DEBUG(eCell.navigationStep, "Update", "char", "Update on layer with index " << m_layer->layerIndex().value() << " - corr factor = " << pathCorrection*mFactor); 
 
      const Trk::MaterialProperties* materialProperties = m_layer->layerMaterialProperties()->fullMaterial(eCell.leadParameters->position());
-     if ( materialProperties ) {
+     if ( materialProperties && materialProperties->thicknessInX0()>0 ) {
        m_matProp = materialProperties;
        m_thicknessInX0 = mFactor*m_matProp->thicknessInX0();
        m_thicknessInL0 = mFactor*m_matProp->thicknessInL0();
