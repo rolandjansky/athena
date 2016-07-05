@@ -50,6 +50,12 @@ class InputGeometryPath(JobProperty):
     allowedTypes = ['str']
     StoredValue  = ''
 
+class doGMX(JobProperty):
+    """Steering of SLHC jobs, getting the database and the dictionary"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the flag container
@@ -71,6 +77,7 @@ jobproperties.SLHC_JobProperties.add_JobProperty(InputGeometryPath)
 jobproperties.SLHC_JobProperties.add_JobProperty(LocalDictionaryBaseName)
 jobproperties.SLHC_JobProperties.add_JobProperty(LocalGeometryDbEnvName)
 jobproperties.SLHC_JobProperties.add_JobProperty(LocalGeometryDbBaseName)
+jobproperties.SLHC_JobProperties.add_JobProperty(doGMX)
 ##-----------------------------------------------------------------------------
 ## 5th step
 ## short-cut for lazy people

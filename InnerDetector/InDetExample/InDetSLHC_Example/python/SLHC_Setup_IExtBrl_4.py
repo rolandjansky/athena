@@ -13,6 +13,8 @@ import os
 from os.path import exists, join
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
 
+from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
+auto_isGMX = (SLHC_Flags.doGMX()) or (GeometryFlags.StripGeoType() == "GMX") 
 
 class SLHC_Setup_XMLReader :
     # constructor requires the SLHC_Flags
@@ -27,7 +29,7 @@ class SLHC_Setup_XMLReader :
                              createXML = True,
                              doPix=True,
                              doSCT=True,
-                             isGMX=False,
+                             isGMX=auto_isGMX,
                              )
 
 class SLHC_Setup :
