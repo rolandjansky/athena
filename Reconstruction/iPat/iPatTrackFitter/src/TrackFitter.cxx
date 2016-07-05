@@ -617,6 +617,9 @@ TrackFitter::initialize()
 
     // can now create FitProcedure class
     m_fitProcedure = new Trk::FitProcedure(false,
+					   false,
+					   false,
+					   false,
 					   m_rungeKuttaIntersector,
 					   m_solenoidalIntersector,
 					   m_straightLineIntersector);
