@@ -90,8 +90,18 @@ public:
       More accurate but slower. */
   virtual double getTanLorentzAngleEta(const IdentifierHash& elementHash, const Amg::Vector2D& locPos);
 
+  /** Get bias voltage */
+  virtual double getBiasVoltage(const IdentifierHash & elementHash);
+
+  /** Get temperature */
+  virtual double getTemperature(const IdentifierHash & elementHash);
+
+  /** Get depletion voltage */
+  virtual double getDepletionVoltage(const IdentifierHash & elementHash);
+
   /** IOV CallBack */
   virtual StatusCode callBack(IOVSVC_CALLBACK_ARGS);
+
 
   /** GeoInit callback */
   StatusCode geoInitCallback(IOVSVC_CALLBACK_ARGS);
@@ -102,10 +112,8 @@ public:
 private:
   StatusCode geoInitialize();
   void updateCache(const IdentifierHash& elementHash);
-  void updateCache(const IdentifierHash& elementHash, const Amg::Vector2D& locPos);
   void updateCache(const IdentifierHash& elementHash, const Amg::Vector2D& locPos, bool useLocPos);
   const Amg::Vector3D& getMagneticField(const IdentifierHash& elementHash, const Amg::Vector2D& locPos, bool useLocPos);
-  bool valid(const IdentifierHash& elementHash);
   void invalidateCache();
   bool invalidateMagFieldCache();
 
@@ -115,26 +123,19 @@ private:
   std::string              m_detectorName;
   double                   m_temperature;
   double                   m_temperaturePix;
-  double                   m_temperatureMin;
-  double                   m_temperatureMax;
   double                   m_deplVoltage;
   double                   m_biasVoltage;
   double                   m_biasVoltageIBLPl;
   double                   m_biasVoltageIBL3D;
   double                   m_correctionFactor;
   double                   m_nominalField;
-  bool                     m_useFixedValue;
-  double                   m_tanLorentzAngleOverride;
   bool                     m_useMagFieldSvc;
-  bool                     m_loadMagFieldOnInit;
   bool                     m_ignoreLocalPos;   // Makes methods using localPosition behave as method without passing localPosition.
   bool                     m_calcEta;          // Control whether eta component is calculated. Default is false as its a negligible effect.
   std::vector<std::string> m_bfieldFolders;
-  int                      m_outOfRangeWarningThresh;
   std::string              m_corrDBFolder;
   bool                     m_pixelDefaults;
   bool                     m_sctDefaults;
-
 
   // needed services
   ServiceHandle<ISiliconConditionsSvc>   m_siConditionsSvc;
@@ -143,10 +144,7 @@ private:
   ServiceHandle<IGeoModelSvc>            m_geoModelSvc;
 
   const DataHandle<AthenaAttributeList> m_dbData;
-  
 
-  bool m_conditionsSvcValid;
-  bool m_conditionsSvcWarning;
   bool m_isPixel;  
   bool m_magFieldInit;
 
@@ -157,6 +155,9 @@ private:
   std::vector<double> m_lorentzShiftEta;
   std::vector<double> m_tanLorentzAngle;
   std::vector<double> m_tanLorentzAngleEta;
+  std::vector<double> m_monitorBiasVoltage;
+  std::vector<double> m_monitorTemperature;
+  std::vector<double> m_monitorDepletionVoltage;
 
   std::vector<Amg::Vector3D> m_magFieldCache;
 
