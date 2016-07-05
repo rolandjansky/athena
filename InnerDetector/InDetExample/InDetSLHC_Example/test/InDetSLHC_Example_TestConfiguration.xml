@@ -596,7 +596,7 @@
 	    <doc>Regression test</doc>
 	    <jobTransformJobName>chainDigiExtBrl4_mu200_RegSLHCRTT</jobTransformJobName>
 	    <jobTransformCmd>sim_reg_test.py DigiExtBrl4_mu200 RDO_truth.root</jobTransformCmd>
-	    <group>FastChainPileup</group>
+	    <group>SLHCFCTTransform</group>
 	    <queue>long</queue>
 	    <test position="1">
 	      <modulename>RttLibraryTools</modulename>
@@ -650,11 +650,11 @@
 	</chainElement>
 	
 	<chainElement>
-	<jobTransform userJobId="RecoExtBrl4_mu200_RegSLHCRTT">
+	<jobTransform userJobId="RecoExtBrl4_mu200_Reg">
 	  <doc>Regression test</doc>
-	  <jobTransformJobName>RecoExtBrl4_mu200_Reg</jobTransformJobName>
+	  <jobTransformJobName>RecoExtBrl4_mu200_RegSLHCRTT</jobTransformJobName>
 	  <jobTransformCmd>sim_reg_test.py RecoExtBrl4_mu200 InDetStandardPlots.root</jobTransformCmd>
-	  <group>FastChainPileup</group>
+	  <group>SLHCFCTTransform</group>
 	  <queue>long</queue>
 	    <test position="1">
 	      <modulename>RttLibraryTools</modulename>
