@@ -1,0 +1,77 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: TCDVHolderT.icc 657733 2015-03-30 09:22:06Z krasznaa $
+#ifndef XAODROOTACCESS_TOOLS_TCDVHOLDERT_ICC
+#define XAODROOTACCESS_TOOLS_TCDVHOLDERT_ICC
+
+// ROOT include(s):
+#include <TClass.h>
+
+namespace xAOD {
+
+   template< class T >
+   TCDVHolderT< T >::TCDVHolderT( ConstDataVector< T >* object,
+                                  const std::type_info& type,
+                                  ::Bool_t owner )
+      : THolder( object, type, owner ),
+        m_cdvObject( object ),
+        m_holderHelper( const_cast< void* >( static_cast< const void* >(
+                                                     object->asDataVector() ) ),
+                        ::TClass::GetClass( typeid( typename Object_t::base_data_vector ) ),
+                        kFALSE ) {
+
+      // In case there's no dictionary for the underlying DataVector type
+      // (which should only happen for some tests), let's give a type ID for the
+      // helper object.
+      if( ! m_holderHelper.getClass() ) {
+         m_holderHelper =
+            THolder( const_cast< void* >( static_cast< const void* >(
+                                                     object->asDataVector() ) ),
+                     typeid( typename Object_t::base_data_vector ), kFALSE );
+      }
+   }
+
+   template< class T >
+   void TCDVHolderT< T >::set( void* obj ) {
+
+      // Set our own pointer:
+      m_cdvObject = reinterpret_cast< ConstDataVector< T >* >( obj );
+
+      // Update the helper object:
+      m_holderHelper.set( const_cast< void* >( static_cast< const void* >(
+                                              m_cdvObject->asDataVector() ) ) );
+
+      // Finally, update the base class:
+      THolder::set( obj );
+
+      return;
+   }
+
+   template< class T >
+   const void* TCDVHolderT< T >::getAsConst( const std::type_info& tid,
+                                             ::Bool_t silent ) const {
+
+      // Check if the helper holder can handle the request:
+      const void* result = m_holderHelper.getAsConst( tid, kTRUE );
+      if( result ) {
+         // If yes, then we're done:
+         return result;
+      }
+
+      // In case there was no dictionary for the base class, check whether the
+      // user is just asking for the base type:
+      if( tid == typeid( typename Object_t::base_data_vector ) ) {
+         return m_cdvObject->asDataVector();
+      }
+
+      // Otherwise rely on the base class to do its thing:
+      return THolder::getAsConst( tid, silent );
+   }
+
+} // namespace xAOD
+
+#endif // XAODROOTACCESS_TOOLS_TCDVHOLDERT_ICC

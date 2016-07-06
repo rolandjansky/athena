@@ -1,0 +1,45 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: TDestructorRegistry.icc 599851 2014-06-02 12:32:51Z krasznaa $
+#ifndef XAODROOTACCESS_TOOLS_TDESTRUCTORREGISTRY_ICC
+#define XAODROOTACCESS_TOOLS_TDESTRUCTORREGISTRY_ICC
+
+// System include(s):
+#include <typeinfo>
+
+// Local include(s):
+#include "xAODRootAccess/tools/TDestructor.h"
+
+namespace xAOD {
+
+   /// This function is used by the code to teach the registry about new
+   /// types that we want to be able to delete from a type agnostic piece
+   /// of code later on.
+   ///
+   template< class T >
+   void TDestructorRegistry::add() {
+
+      // Get the type's ID:
+      const std::type_info& ti = typeid( T );
+
+      // Check if we already have a destructor for it:
+      if( m_types.find( &ti ) != m_types.end() ) {
+         // Yep, there's nothing to do...
+         return;
+      }
+
+      // Create a new destructor object:
+      TVirtualDestructor* d = new TDestructor< T >();
+      // ...and remember it:
+      m_types[ &ti ].m_destructor = d;
+
+      return;
+   }
+
+} // namespace xAOD
+
+#endif // XAODROOTACCESS_TOOLS_TDESTRUCTORREGISTRY_ICC

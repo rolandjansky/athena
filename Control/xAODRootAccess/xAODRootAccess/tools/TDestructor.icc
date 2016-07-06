@@ -1,0 +1,31 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: TDestructor.icc 599775 2014-06-01 16:20:52Z krasznaa $
+#ifndef XAODROOTACCESS_TOOLS_TDESTRUCTOR_ICC
+#define XAODROOTACCESS_TOOLS_TDESTRUCTOR_ICC
+
+namespace xAOD {
+
+   /// The function just assumes that the pointer given to it is a valid
+   /// pointer of type T, and deletes the object behind the pointer accordingly.
+   ///
+   /// @param ptr A pointer to an object of type T
+   ///
+   template< class T >
+   void TDestructor< T >::destruct( void* ptr ) const {
+
+      // Do a forceful cast:
+      T* p = reinterpret_cast< T* >( ptr );
+      // And now delete the object:
+      delete p;
+
+      return;
+   }
+
+} // namespace xAOD
+
+#endif // XAODROOTACCESS_TOOLS_TDESTRUCTOR_ICC

@@ -1,0 +1,141 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: TStore.icc 663791 2015-04-29 13:08:06Z krasznaa $
+#ifndef XAODROOTACCESS_TSTORE_ICC
+#define XAODROOTACCESS_TSTORE_ICC
+
+// ROOT include(s):
+#include <TError.h>
+
+// EDM include(s):
+#include "AthContainers/ClassName.h"
+#include "AthContainers/normalizedTypeinfoName.h"
+
+// Local include(s):
+#include "xAODRootAccess/tools/TDestructorRegistry.h"
+#include "xAODRootAccess/tools/TCDVHolderT.h"
+
+namespace xAOD {
+
+   template< typename T >
+   ::Bool_t TStore::contains( const std::string& key ) const {
+
+      // Delegate the call:
+      return contains( key, typeid( T ) );
+   }
+
+   template< typename T >
+   ::Bool_t TStore::isConst( const std::string& key ) const {
+
+      // Delegate the call:
+      return isConst( key, typeid( T ) );
+   }
+
+   template< typename T >
+   TReturnCode TStore::retrieve( const T*& obj, const std::string& key ) const {
+
+      // Try to find the object:
+      const void* ptr = getConstObject( key, typeid( T ) );
+      if( ! ptr ) {
+         const std::string typeName = SG::normalizedTypeinfoName( typeid( T ) );
+         ::Warning( "xAOD::TStore::retrieve",
+                    "Couldn't (const) retrieve \"%s/%s\"",
+                    typeName.c_str(), key.c_str() );
+         return TReturnCode::kRecoverable;
+      }
+
+      // If we were successful:
+      obj = reinterpret_cast< const T* >( ptr );
+      return TReturnCode::kSuccess;
+   }
+
+   template< typename T >
+   TReturnCode TStore::retrieve( T*& obj, const std::string& key ) const {
+
+      // Try to find the object:
+      void* ptr = getObject( key, typeid( T ) );
+      if( ! ptr ) {
+         const std::string typeName = SG::normalizedTypeinfoName( typeid( T ) );
+         ::Warning( "xAOD::TStore::retrieve",
+                    "Couldn't (non-const) retrieve \"%s/%s\"",
+                    typeName.c_str(), key.c_str() );
+         return TReturnCode::kRecoverable;
+      }
+
+      // If we were successful:
+      obj = reinterpret_cast< T* >( ptr );
+      return TReturnCode::kSuccess;
+   }
+
+   template< typename T >
+   TReturnCode TStore::record( T* obj, const std::string& key ) {
+
+      // Check if it's possible to record the object with a dictionary:
+      TReturnCode result = record( obj, key, ClassName< T >::name() );
+      // If it's a success or a failure, let's stop here. Only go on for a
+      // recoverable error:
+      if( ! result.isRecoverable() ) {
+         return result;
+      }
+
+      // Apparently we don't have a dictionary for this type. Let's fall back
+      // to a slightly dumber implementation then...
+
+      // Make sure that we'll be able to destruct this type later on:
+      TDestructorRegistry::instance().add< T >();
+
+      // Leave it to the non-template function to record the object:
+      return record( obj, key, typeid( T ) );
+   }
+
+   template< typename T >
+   TReturnCode TStore::record( std::unique_ptr< T > obj,
+                               const std::string& key ) {
+
+      // Check if it's possible to record the object with a dictionary:
+      TReturnCode result = record( obj.get(), key, ClassName< T >::name() );
+      // If it's a success or a failure, let's stop here. Only go on for a
+      // recoverable error:
+      if( ! result.isRecoverable() ) {
+         // In case of success, make the smart pointer give up ownership of
+         // the object:
+         if( result.isSuccess() ) {
+            obj.release();
+         }
+         return result;
+      }
+
+      // Apparently we don't have a dictionary for this type. Let's fall back
+      // to a slightly dumber implementation then...
+
+      // Make sure that we'll be able to destruct this type later on:
+      TDestructorRegistry::instance().add< T >();
+
+      // Leave it to the non-template function to record the object:
+      result = record( obj.get(), key, typeid( T ) );
+      if( ! result.isSuccess() ) {
+         return result;
+      }
+
+      // In case of success, make the smart pointer give up ownership of
+      // the object:
+      obj.release();
+      return TReturnCode::kSuccess;
+   }
+
+   template< class T >
+   TReturnCode TStore::record( ConstDataVector< T >* obj,
+                               const std::string& key,
+                               const std::type_info& ti ) {
+
+      THolder* hldr = new TCDVHolderT< T >( obj, ti );
+      return record( hldr, key );
+   }
+
+} // namespace xAOD
+
+#endif // XAODROOTACCESS_TSTORE_ICC
