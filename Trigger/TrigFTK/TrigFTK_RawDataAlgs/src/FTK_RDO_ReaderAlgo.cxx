@@ -15,7 +15,6 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "VxVertex/VxContainer.h"
 #include "TrkEventPrimitives/VertexType.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackingPrimitives.h"
@@ -35,9 +34,6 @@ FTK_RDO_ReaderAlgo::FTK_RDO_ReaderAlgo(const std::string& name, ISvcLocator* pSv
   m_getRefitTracks(true), // m_refitTrackCollectionName("FTKrefit_TrackCollection"),
   m_getTrackParticles(true), // m_TrackParticleCollectionName("FTK_TrackParticleCollection"),
   m_getRefitTrackParticles(true), //m_refitTrackParticleCollectionName("FTKrefit_TrackParticleCollection"),
-  m_getRawVxVertex(false), //m_VxContainerName("FTK_VxContainer"),
-  m_getVxVertex(true), //m_VxContainerName("FTK_VxContainer"),
-  m_getRefitVxVertex(true), //m_refitVxContainerName("FTKrefit_VxContainer"),
   m_getVertex(true), //m_VertexContainerName("FTK_VertexContainer"),
   m_getRefitVertex(true), //m_refitVertexContainerName("FTKrefit_VertexContainer"),
   m_DataProviderSvc("IFTK_DataProviderSvc/IFTK_DataProviderSvc", name),
@@ -50,9 +46,6 @@ FTK_RDO_ReaderAlgo::FTK_RDO_ReaderAlgo(const std::string& name, ISvcLocator* pSv
   declareProperty("GetRefitTracks",m_getRefitTracks);
   declareProperty("GetTrackParticles",m_getTrackParticles);
   declareProperty("GetRefitTrackParticles",m_getRefitTrackParticles=true);
-  declareProperty("GetRawVxVertex",m_getRawVxVertex);
-  declareProperty("GetVxVertex",m_getVxVertex);
-  declareProperty("GetRefitVxVertex",m_getRefitVxVertex);
   declareProperty("GetVertex",m_getVertex);
   declareProperty("GetRefitVertex",m_getRefitVertex);
 
@@ -76,9 +69,6 @@ StatusCode FTK_RDO_ReaderAlgo::initialize(){
   if (m_getRefitTracks) ATH_MSG_INFO("Getting FTK Refit Trk::Tracks from "<< m_DataProviderSvc);
   if (m_getTrackParticles) ATH_MSG_INFO("Getting FTK xAOD::TrackParticles from "<< m_DataProviderSvc);
   if (m_getRefitTrackParticles) ATH_MSG_INFO("Getting FTK Refit xAOD::TrackParticles from "<< m_DataProviderSvc);
-  if (m_getRawVxVertex) ATH_MSG_INFO("Getting FTK_RawTrack VxVertex from "<< m_DataProviderSvc);
-  if (m_getVxVertex) ATH_MSG_INFO("Getting FTK VxVertex from "<< m_DataProviderSvc);
-  if (m_getRefitVxVertex) ATH_MSG_INFO("Getting FTK Refit VxVertex from "<< m_DataProviderSvc);
   if (m_getVertex) ATH_MSG_INFO("Getting FTK xAOD::Vertex from "<< m_DataProviderSvc);
   if (m_getRefitVertex) ATH_MSG_INFO("Getting FTK Refit xAOD::Vertex  from "<< m_DataProviderSvc);
 
@@ -349,58 +339,6 @@ StatusCode FTK_RDO_ReaderAlgo::execute() {
   }
 
 
-  //
-  // Get VxVertex from raw tracks
-  //
-  if (m_getRawVxVertex) {
-    ATH_MSG_DEBUG( " Getting VxContainer from Raw tracks from DataProviderSvc" );
-    VxContainer* vxr = m_DataProviderSvc->getVxContainer(ftk::RawTrackType);
-    ATH_MSG_DEBUG( "DataProviderSvc returned " <<  vxr->size() << " VxCandidates created from raw tracks" );
-    //       if ( evtStore()->get ( vxc, m_VxContainerName).isFailure() ) {
-    //	 ATH_MSG_DEBUG( "Failed to get FTK VxContainer with name " <<  m_VxContainerName );
-    //       }
-
-    ATH_MSG_VERBOSE( " " );
-    ATH_MSG_VERBOSE( " Printing information for " <<  vxr->size()<< " VxVertex " );
-    int ivx=0;
-    for (auto pvx = vxr->begin(); pvx != vxr->end(); pvx++, ivx++) {
-      ATH_MSG_VERBOSE( ivx << ": (x,y,z) = ( " <<
-          (*pvx)->recVertex().position().x() << ", " <<
-          (*pvx)->recVertex().position().y() << ", " <<
-          (*pvx)->recVertex().position().z() <<
-          " ) Chi2: " << (*pvx)->recVertex().fitQuality().chiSquared() <<
-          " nDoF " << (*pvx)->recVertex().fitQuality().numberDoF() );
-    }
-    delete(vxr);
-  }
-
-
-  //
-  // Get VxVertex from converted tracks
-  //
-  if (m_getVxVertex) {
-    ATH_MSG_DEBUG( " Getting VxContainer from Converted tracks from DataProviderSvc" );
-    VxContainer* vxc = m_DataProviderSvc->getVxContainer(ftk::ConvertedTrackType);
-    ATH_MSG_DEBUG( "DataProviderSvc returned " <<  vxc->size() << " VxCandidates created from converted tracks" );
-    //       if ( evtStore()->get ( vxc, m_VxContainerName).isFailure() ) {
-    //	 ATH_MSG_DEBUG( "Failed to get FTK VxContainer with name " <<  m_VxContainerName );
-    //       }
-
-    ATH_MSG_VERBOSE( " " );
-    ATH_MSG_VERBOSE( " Printing information for " <<  vxc->size()<< " VxVertex " );
-    int ivx=0;
-    for (auto pvx = vxc->begin(); pvx != vxc->end(); pvx++, ivx++) {
-
-      ATH_MSG_VERBOSE( ivx << ": (x,y,z) = ( " <<
-          (*pvx)->recVertex().position().x() << ", " <<
-          (*pvx)->recVertex().position().y() << ", " <<
-          (*pvx)->recVertex().position().z() <<
-          " ) Chi2: " << (*pvx)->recVertex().fitQuality().chiSquared() <<
-          " nDoF " << (*pvx)->recVertex().fitQuality().numberDoF() <<
-          " VertexType: " << this->strVertexType((*pvx)->vertexType()));
-    }
-    delete (vxc);
-  }
 
 
   //
@@ -408,27 +346,18 @@ StatusCode FTK_RDO_ReaderAlgo::execute() {
   //
   if (m_getVertex) {
     ATH_MSG_DEBUG( " Getting xAOD::VertexContainer from Converted tracks from DataProviderSvc" );
-    xAOD::VertexContainer* vertexc = m_DataProviderSvc->getVertexContainer(false);
+    xAOD::VertexContainer* vertexc =  m_DataProviderSvc->getVertexContainer(false);
     ATH_MSG_DEBUG( "DataProviderSvc returned " <<  vertexc->size() << " zAOD:Vertex created from converted tracks" );
-    //       if ( evtStore()->get ( vertexc, m_VertexContainerName).isFailure() ) {
-    //	 ATH_MSG_DEBUG( "Failed to get FTK VertexContainer with name " <<  m_VertexContainerName );
-    //       }
-
-
-    ATH_MSG_VERBOSE( " " );
-    ATH_MSG_VERBOSE( " Printing information for " <<  vertexc->size()<< " xAOD::Vertex" );
-
+      
     int ivertexc = 0;
     for (auto pv = vertexc->begin(); pv != vertexc->end(); pv++, ivertexc++) {
       ATH_MSG_VERBOSE( ivertexc << ": (x,y,z)= ( " << (*pv)->position().x() << ", " <<  (*pv)->position().y() << ", " << (*pv)->position().z() <<
-          " ) chi2: " << (*pv)->chiSquared() << " Ndof: "<< (*pv)->numberDoF() <<
-          " VertexType: " << this->strVertexType((*pv)->vertexType()));
-
-
+		       " ) chi2: " << (*pv)->chiSquared() << " Ndof: "<< (*pv)->numberDoF() <<
+		       " VertexType: " << this->strVertexType((*pv)->vertexType()));
+      
+      
     }
-    delete (vertexc);
   }
-
   //
   // Get refitted Tracks
   //
@@ -505,27 +434,6 @@ StatusCode FTK_RDO_ReaderAlgo::execute() {
     delete (tpr);
   }
 
-  //
-  // Get VxVertex from refitted tracks
-  //
-  if (m_getRefitVxVertex) {
-    ATH_MSG_DEBUG( " Getting VxContainer from refitted tracks from DataProviderSvc" );
-    VxContainer* vxr = m_DataProviderSvc->getVxContainer(ftk::RefittedTrackType);
-    ATH_MSG_DEBUG( "DataProviderSvc returned " <<  vxr->size() << " VxCandidates created from refitted tracks" );
-    //       if ( evtStore()->get ( vxr, m_refitVxContainerName).isFailure() ) {
-    //	 ATH_MSG_DEBUG( "Failed to get refit FTK VxContainer with name " <<  m_refitVxContainerName );
-    //       }
-
-    ATH_MSG_VERBOSE( " " );
-    ATH_MSG_VERBOSE( " Printing information for " <<  vxr->size()<< " VxVertex from refitted tracks" );
-    int ivxr = 0;
-    for (auto pvx = vxr->begin(); pvx != vxr->end(); pvx++, ivxr++) {
-      ATH_MSG_VERBOSE( ivxr << ": (x,y,z)= ( " << (*pvx)->recVertex().position().x() << ", " <<  (*pvx)->recVertex().position().y() << ", " << (*pvx)->recVertex().position().z()
-          << " ) Chi2: " << (*pvx)->recVertex().fitQuality().chiSquared() << " nDoF " << (*pvx)->recVertex().fitQuality().numberDoF() <<
-          " VertexType: " << this->strVertexType((*pvx)->vertexType()));
-    }
-    delete (vxr);
-  }
 
   //
   // Get xAoD::Vertex from converted tracks
@@ -534,22 +442,20 @@ StatusCode FTK_RDO_ReaderAlgo::execute() {
     ATH_MSG_DEBUG( " Getting xAOD::VertexContainer from Converted tracks from DataProviderSvc" );
     xAOD::VertexContainer* vertexr = m_DataProviderSvc->getVertexContainer(true);
     ATH_MSG_DEBUG( "DataProviderSvc returned " <<  vertexr->size() << " xAOD:Vertex created from refitted tracks" );
-
+    
     //       if ( evtStore()->get ( vertexr, m_refitVertexContainerName).isFailure() ) {
     //	 ATH_MSG_DEBUG( "Failed to get refit FTK VertexContainer with name " <<  m_refitVertexContainerName );
     //       }
-
+    
     ATH_MSG_VERBOSE( " " );
     ATH_MSG_VERBOSE( " Printing information for " <<  vertexr->size()<< " xAOD::Vertex from refitted tracks" );
     int ivertexr = 0;
     for (auto pv = vertexr->begin(); pv != vertexr->end(); pv++, ivertexr++) {
       ATH_MSG_VERBOSE( ivertexr << ": (x,y,z)= ( " << (*pv)->position().x() << ", " <<  (*pv)->position().y() << ", " << (*pv)->position().z()<<
-          " ) chi2: " << (*pv)->chiSquared() << " Ndof: "<< (*pv)->numberDoF() <<
-          " VertexType: " << this->strVertexType((*pv)->vertexType()));
+		       " ) chi2: " << (*pv)->chiSquared() << " Ndof: "<< (*pv)->numberDoF() <<
+		       " VertexType: " << this->strVertexType((*pv)->vertexType()));
     }
-    delete(vertexr);
   }
-
 
   // Reset the ftk cache for this event //
   //scFTK = m_DataProviderSvc->endEvent();
