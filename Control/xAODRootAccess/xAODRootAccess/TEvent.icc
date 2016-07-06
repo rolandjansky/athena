@@ -1,0 +1,322 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: TEvent.icc 663791 2015-04-29 13:08:06Z krasznaa $
+#ifndef XAODROOTACCESS_TEVENT_ICC
+#define XAODROOTACCESS_TEVENT_ICC
+
+// ROOT include(s):
+#include <TError.h>
+
+// EDM include(s):
+#include "AthContainers/ClassName.h"
+
+namespace xAOD {
+
+   /// This function works pretty much like StoreGateSvc::contains. It can be
+   /// used to check if an object with a given type having a given key can be
+   /// retrieved from the event.
+   ///
+   /// @param key The key (branch name) of the object
+   /// @returns <code>kTRUE</code> if the object is available,
+   ///          <code>kFALSE</code> otherwise
+   ///
+   template< typename T >
+   ::Bool_t TEvent::contains( const std::string& key ) {
+
+      return contains( key, typeid( T ), kFALSE );
+   }
+
+   /// This function works pretty much like StoreGateSvc::transientContains.
+   /// It doesn't try to do any I/O operations, it just checks if an object
+   /// of a given type, with a given key, is already in memory.
+   ///
+   /// @param key The key (branch name) of the object
+   /// @returns <code>kTRUE</code> if the object is already in memory,
+   ///          <code>kFALSE</code> otherwise
+   ///
+   template< typename T >
+   ::Bool_t TEvent::transientContains( const std::string& key ) const {
+
+      // Simply forward the call:
+      return transientContains( key, typeid( T ), kFALSE );
+   }
+
+   /// This function needs to be used when retrieving an object either from
+   /// the input or the output object list. The returned object can not be
+   /// modified.
+   ///
+   /// @param obj The pointer that will be set to the object requested
+   /// @param key The key (branch name) of the object
+   /// @returns <code>kTRUE</code> if the operation was successful,
+   ///          <code>kFALSE</code> if it wasn't
+   ///
+   template< typename T >
+   TReturnCode TEvent::retrieve( const T*& obj, const std::string& key ) {
+
+      // Look among the output objects first:
+      const void* result = getOutputObject( key, typeid( T ) );
+      // Check if it succeeded:
+      if( ! result ) {
+         // Try the input then:
+         result = getInputObject( key, typeid( T ) );
+         if( ! result ) {
+            ::Warning( "xAOD::TEvent::retrieve",
+                       "Couldn't (const) retrieve \"%s/%s\"",
+                       ClassName< T >::name().c_str(), key.c_str() );
+            return TReturnCode::kRecoverable;
+         }
+      } else {
+         // Even if there is an output object with this key, it may
+         // be an input object that was copied to the output. So let's
+         // try to silently retrieve an input object as well. This makes
+         // sure that the input/output object is updated for the current
+         // event.
+         getInputObject( key, typeid( T ), kTRUE );
+      }
+
+      // If we were successful:
+      obj = reinterpret_cast< const T* >( result );
+      return TReturnCode::kSuccess;
+   }
+
+   /// This function can be used to retrieve an object from the output list.
+   /// Since only output objects are considered, the function returns a
+   /// non-const object, allowing downstream code to modify an object that
+   /// was put into the event somewhere upstream.
+   ///
+   /// @param obj The pointer that will be set to the object requested
+   /// @param key The key (branch name) of the object
+   /// @returns <code>kTRUE</code> if the operation was successful,
+   ///          <code>kFALSE</code> if it wasn't
+   ///
+   template< typename T >
+   TReturnCode TEvent::retrieve( T*& obj, const std::string& key ) {
+
+      // Only look among the output objects in this case:
+      void* result = getOutputObject( key, typeid( T ) );
+      // Check if we found the object:
+      if( ! result ) {
+         ::Warning( "xAOD::TEvent::retrieve",
+                    "Couldn't (non-const) retrieve \"%s/%s\"",
+                    ClassName< T >::name().c_str(), key.c_str() );
+         return TReturnCode::kRecoverable;
+      }
+
+      // If we were successful:
+      obj = reinterpret_cast< T* >( result );
+      return TReturnCode::kSuccess;
+   }
+
+   /// This function can be used to add an object to the output. The function
+   /// takes posession of the object, so the user code must not delete an
+   /// object that was added to an event.
+   ///
+   /// @param obj Pointer to the object to be added to the event
+   /// @param key The key (branch name) to give the object
+   /// @param basketSize Basket size for the branch created from the object
+   /// @param splitLevel The split level of the branch to create
+   /// @returns <code>kTRUE</code> if the operation was successful,
+   ///          <code>kFALSE</code> if it wasn't
+   ///
+   template< typename T >
+   TReturnCode TEvent::record( T* obj, const std::string& key,
+                               ::Int_t basketSize, ::Int_t splitLevel ) {
+
+      // Just call the non-templated implementation:
+      return record( obj, ClassName< T >::name(), key, basketSize, splitLevel );
+   }
+
+   /// This function is used to add an object to the output. As the interface
+   /// clearly states, the function takes posession of the object given to it.
+   /// Since the user must give up ownership of the object in order to call this
+   /// function, it doesn't even need to be said that the user must not delete
+   /// the object by hand after calling this function.
+   ///
+   /// @param obj Smart pointer to the object to tbe added to the event
+   /// @param key The key (branch name) to give the object
+   /// @param basketSize Basket size for the branch created from the object
+   /// @param splitLevel The split level of the branch to create
+   /// @returns <code>kTRUE</code> if the operation was successful,
+   ///          <code>kFALSE</code> if it wasn't
+   ///
+   template< typename T >
+   TReturnCode TEvent::record( std::unique_ptr< T > obj, const std::string& key,
+                               ::Int_t basketSize, ::Int_t splitLevel ) {
+
+      // Just call the non-templated implementation:
+      const TReturnCode rc = record( obj.get(), ClassName< T >::name(), key,
+                                     basketSize, splitLevel );
+      if( ! rc.isSuccess() ) {
+         return rc;
+      }
+
+      // If the record was successful, let's release the object from the unique
+      // pointer:
+      obj.release();
+      return TReturnCode::kSuccess;
+   }
+
+   /// This function works pretty much like StoreGateSvc::contains for metadata
+   /// objects. It can be used to check if a metadata object with a given type
+   /// having a given key can be (const) retrieved.
+   ///
+   /// @param key The key (branch name) of the metadata object
+   /// @returns <code>kTRUE</code> if the object is available,
+   ///          <code>kFALSE</code> otherwise
+   ///
+   template< typename T >
+   ::Bool_t TEvent::containsMeta( const std::string& key ) {
+
+      return contains( key, typeid( T ), kTRUE );
+   }
+
+   /// This function works pretty much like StoreGateSvc::transientContains for
+   /// metadata objects. It doesn't try to do any I/O operations, it just checks
+   /// if an object of a given type, with a given key, can be retrieved in
+   /// non-const mode.
+   ///
+   /// @param key The key (branch name) of the metadata object
+   /// @returns <code>kTRUE</code> if the object is available for modifications,
+   ///          <code>kFALSE</code> otherwise
+   ///
+   template< typename T >
+   ::Bool_t TEvent::transientContainsMeta( const std::string& key ) const {
+
+      // Simply forward the call:
+      return transientContains( key, typeid( T ), kTRUE );
+   }
+
+   /// This function can be used to retrieve an object from the input metadata
+   /// list.
+   ///
+   /// @param obj The pointer that will be set to the object requested
+   /// @param key The key (branch name) of the object
+   /// @returns The usual TReturnCode values
+   ///
+   template< typename T >
+   TReturnCode TEvent::retrieveMetaInput( const T*& obj,
+                                          const std::string& key ) {
+
+      // Only look among the output objects in this case:
+      const void* result = getInputObject( key, typeid( T ), kFALSE, kTRUE );
+      // Check if we found the object:
+      if( ! result ) {
+         ::Warning( "xAOD::TEvent::retrieveMetaInput",
+                    "Couldn't (const) retrieve \"%s/%s\"",
+                    ClassName< T >::name().c_str(), key.c_str() );
+         return TReturnCode::kRecoverable;
+      }
+
+      // If we were successful:
+      obj = reinterpret_cast< const T* >( result );
+      return TReturnCode::kSuccess;
+   }
+
+   /// This function can be used to retrieve an object from the output metadata
+   /// list.
+   ///
+   /// @param obj The pointer that will be set to the object requested
+   /// @param key The key (branch name) of the object
+   /// @returns The usual TReturnCode values
+   ///
+   template< typename T >
+   TReturnCode TEvent::retrieveMetaOutput( const T*& obj,
+                                           const std::string& key ) {
+
+      // Only look among the output objects in this case:
+      const void* result = getOutputObject( key, typeid( T ), kTRUE );
+      // Check if we found the object:
+      if( ! result ) {
+         ::Warning( "xAOD::TEvent::retrieveMetaOutput",
+                    "Couldn't (const) retrieve \"%s/%s\"",
+                    ClassName< T >::name().c_str(), key.c_str() );
+         return TReturnCode::kRecoverable;
+      }
+
+      // If we were successful:
+      obj = reinterpret_cast< const T* >( result );
+      return TReturnCode::kSuccess;
+   }
+
+   /// This function can be used to retrieve an object from the output metadata
+   /// list.
+   ///
+   /// @param obj The pointer that will be set to the object requested
+   /// @param key The key (branch name) of the object
+   /// @returns The usual TReturnCode values
+   ///
+   template< typename T >
+   TReturnCode TEvent::retrieveMetaOutput( T*& obj, const std::string& key ) {
+
+      // Only look among the output objects in this case:
+      void* result = getOutputObject( key, typeid( T ), kTRUE );
+      // Check if we found the object:
+      if( ! result ) {
+         ::Warning( "xAOD::TEvent::retrieveMetaOutput",
+                    "Couldn't (non-const) retrieve \"%s/%s\"",
+                    ClassName< T >::name().c_str(), key.c_str() );
+         return TReturnCode::kRecoverable;
+      }
+
+      // If we were successful:
+      obj = reinterpret_cast< T* >( result );
+      return TReturnCode::kSuccess;
+   }
+
+   /// This function can be used to add a metadata object to the output.
+   /// The function takes posession of the object, so the user code must not
+   /// delete an object that was added to the output.
+   ///
+   /// @param obj Pointer to the object to be added to the output metadata
+   /// @param key The key (branch name) to give the object
+   /// @param basketSize Basket size for the branch created from the object
+   /// @param splitLevel The split level of the branch to create
+   /// @returns <code>kTRUE</code> if the operation was successful,
+   ///          <code>kFALSE</code> if it wasn't
+   ///
+   template< typename T >
+   TReturnCode TEvent::recordMeta( T* obj, const std::string& key,
+                                   ::Int_t basketSize, ::Int_t splitLevel ) {
+
+      // Just call the non-templated implementation:
+      return record( obj, ClassName< T >::name(), key, basketSize, splitLevel,
+                     kFALSE, kTRUE );
+   }
+
+   /// This function can be used to add a metadata object to the output. As the
+   /// interface clearly states, the function takes posession of the object
+   /// given to it. So it's not even worth mentioning that the user must not
+   /// delete the object after giving it to this function.
+   ///
+   /// @param obj Smart pointer to the object to be added to the output metadata
+   /// @param key The key (branch name) to give the object
+   /// @param basketSize Basket size for the branch created from the object
+   /// @param splitLevel The split level of the branch to create
+   /// @returns <code>kTRUE</code> if the operation was successful,
+   ///          <code>kFALSE</code> if it wasn't
+   ///
+   template< typename T >
+   TReturnCode TEvent::recordMeta( std::unique_ptr< T > obj,
+                                   const std::string& key,
+                                   ::Int_t basketSize, ::Int_t splitLevel ) {
+
+      // Just call the non-templated implementation:
+      const TReturnCode rc = record( obj.get(), ClassName< T >::name(), key,
+                                     basketSize, splitLevel, kFALSE, kTRUE );
+      if( ! rc.isSuccess() ) {
+         return rc;
+      }
+
+      // If the record was successful, let's release the object from the unique
+      // pointer:
+      obj.release();
+      return TReturnCode::kSuccess;
+   }
+
+} // namespace xAOD
+
+#endif // XAODROOTACCESS_TEVENT_ICC

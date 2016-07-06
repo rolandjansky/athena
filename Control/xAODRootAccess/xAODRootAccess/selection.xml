@@ -1,0 +1,58 @@
+<!-- $Id: selection.xml 746122 2016-05-11 10:11:31Z krasznaa $ -->
+<lcgdict>
+
+   <!-- The TEvent class: -->
+   <class name="xAOD::TEvent" >
+      <field name="m_auxMode" transient="true" />
+      <field name="m_inTree" transient="true" />
+      <field name="m_inChain" transient="true" />
+      <field name="m_inChainTracker" transient="true" />
+      <field name="m_inTreeNumber" transient="true" />
+      <field name="m_entry" transient="true" />
+      <field name="m_outTree" transient="true" />
+      <field name="m_inputObjects" transient="true" />
+      <field name="m_outputObjects" transient="true" />
+      <field name="m_inputMetaObjects" transient="true" />
+      <field name="m_outputMetaObjects" transient="true" />
+      <field name="m_inputEventFormat" transient="true" />
+      <field name="m_outputEventFormat" transient="true" />
+      <field name="m_auxItemList" transient="true" />
+      <field name="m_listeners" transient="true" />
+      <field name="m_nameRemapping" transient="true" />
+   </class>
+
+   <!-- And things that it depends on: -->
+   <class name="xAOD::TVirtualManager" />
+
+   <!-- The TStore class: -->
+   <class name="xAOD::TStore" >
+      <field name="m_objects" transient="true" />
+      <field name="m_keys" transient="true" />
+   </class>
+
+   <!-- Python interface classes: -->
+   <class name="xAOD::TPyEvent" />
+   <class name="xAOD::TPyStore" />
+
+   <!-- The TTreeMgr class: -->
+   <class name="xAOD::TTreeMgr" >
+     <field name="m_eventTree" transient="true" />
+     <field name="m_metaTree" transient="true" />
+     <field name="m_event" transient="true" />
+     <field name="m_eventTreeName" transient="true" />
+     <field name="m_enableEventObj" transient="true" />
+     <field name="m_suppressEventObj" transient="true" />
+     <field name="m_enableMetaObj" transient="true" />
+     <field name="m_suppressMetaObj" transient="true" />
+   </class>
+
+   <!-- The TActiveStore helper class: -->
+   <class name="xAOD::TActiveStore" />
+
+   <!-- Suppress the unwanted classes found by ROOT 6. -->
+   <!-- Hopefully we can remove these extra lines at one point... -->
+   <exclusion>
+      <class name="SG::IConstAuxStore" />
+      <class name="DataLink<SG::IConstAuxStore>" />
+   </exclusion>
+</lcgdict>
