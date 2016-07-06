@@ -30,8 +30,9 @@ use  InDetSimEvent             InDetSimEvent-*        InnerDetector
 #use  EventPrimitives            EventPrimitives-*               Event
 use TrkSurfaces           TrkSurfaces-*          Tracking/TrkDetDescr
 
-
-use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use PixelConditionsServices 		PixelConditionsServices-* 	InnerDetector/InDetConditions
+use InDetCondServices           InDetCondServices-*         InnerDetector/InDetConditions
+use InDetReadoutGeometry        InDetReadoutGeometry-*      InnerDetector/InDetDetDescr
 
 use  AtlasHepMC                 AtlasHepMC-*           External
 use  AtlasCLHEP                 AtlasCLHEP-*           External

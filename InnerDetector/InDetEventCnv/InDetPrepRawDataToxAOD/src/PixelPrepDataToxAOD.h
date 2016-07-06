@@ -23,6 +23,11 @@ class PixelID;
 class SiHit;
 class InDetSimDataCollection;
 
+class IdentifierHash;
+class IPixelCalibSvc;
+class IPixelDCSSvc;
+class IPixelByteStreamErrorsSvc;
+class ISiLorentzAngleSvc;
 
 namespace InDet
 {
@@ -94,6 +99,11 @@ private:
   bool  m_writeSiHits;
   bool  m_writeNNinformation;
   bool  m_writeRDOinformation;
+
+  ServiceHandle<IPixelCalibSvc> m_calibSvc;
+  ServiceHandle<IPixelDCSSvc> m_pixelDCSSvc;
+  ServiceHandle<IPixelByteStreamErrorsSvc> m_pixelBSErrorsSvc;
+  ServiceHandle<ISiLorentzAngleSvc> m_lorentzAngleSvc;
 
   // -- Private members   
   bool m_firstEventWarnings;
