@@ -162,11 +162,11 @@ namespace InDet {
       return HLT::MISSING_FEATURE; 
     }
     
-    if(trackContainer->size() == 0) {
-      if(outputLevel <= MSG::DEBUG)
-    	msg() << MSG::DEBUG << "Input track collection is empty" << endreq;
-      return HLT::MISSING_FEATURE; 
-    }
+//    if(trackContainer->size() == 0) {
+//      if(outputLevel <= MSG::DEBUG)
+//    	msg() << MSG::DEBUG << "Input track collection is empty" << endreq;
+//      return HLT::MISSING_FEATURE; 
+//    }
 
     m_secVtx_numTrkTot = trackContainer->size();
     if(outputLevel <= MSG::DEBUG) 
