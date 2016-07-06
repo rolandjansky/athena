@@ -33,12 +33,12 @@ FTK_RawTrack::FTK_RawTrack() :
 
   // Initialise dummy Pixel clusters
   for (int i = 0; i < npixlayers; ++i){
-    m_pix_clusters.push_back(FTK_RawPixelCluster(FTK_RawPixelCluster::missingLayer));
+    m_pix_clusters.push_back(FTK_RawPixelCluster());
   }
 
   // Initialise dummy SCT clusters
   for (int i = 0; i < nsctlayers; ++i){
-    m_sct_clusters.push_back(FTK_RawSCT_Cluster(FTK_RawPixelCluster::missingLayer));
+    m_sct_clusters.push_back(FTK_RawSCT_Cluster());
   }
 }
 
@@ -58,12 +58,12 @@ FTK_RawTrack::FTK_RawTrack(uint32_t word_th1, uint32_t word_th2, uint32_t word_t
 
   // Initialise dummy Pixel clusters
   for (int i = 0; i < npixlayers; ++i){
-    m_pix_clusters.push_back(FTK_RawPixelCluster(FTK_RawPixelCluster::missingLayer));
+    m_pix_clusters.push_back(FTK_RawPixelCluster());
   }
 
   // Initialise dummy SCT clusters
   for (int i = 0; i < nsctlayers; ++i){
-    m_sct_clusters.push_back(FTK_RawSCT_Cluster(FTK_RawPixelCluster::missingLayer));
+    m_sct_clusters.push_back(FTK_RawSCT_Cluster());
   }
 } 
 
@@ -136,21 +136,20 @@ FTK_RawSCT_Cluster& FTK_RawTrack::getSCTCluster( int v ) {
   }
 }
 
-void FTK_RawTrack::setPixelCluster( const FTK_RawPixelCluster &v ) {
-  int layer = v.getLayer();
-  if ( layer > npixlayers || layer < 0 || layer > int(m_pix_clusters.size())) {
+void FTK_RawTrack::setPixelCluster( const unsigned int layer, const FTK_RawPixelCluster &v ) {
+  if ( layer > m_pix_clusters.size()) {
     return;
   }
   m_pix_clusters[layer] = v;
   return;
 }
 
-void FTK_RawTrack::setSCTCluster( const FTK_RawSCT_Cluster &v ) {
-  int layer = v.getLayer();
-  if ( layer > nsctlayers || layer < 0 || layer > int(m_sct_clusters.size())) {
+void FTK_RawTrack::setSCTCluster( const unsigned int layer,  const FTK_RawSCT_Cluster &v ) {
+  unsigned int sct_layer = layer -npixlayers;
+  if ( sct_layer > m_sct_clusters.size()) {
     return;
   }
-  m_sct_clusters[layer] = v;
+  m_sct_clusters[sct_layer] = v; 
   return;
 }
 
@@ -183,11 +182,46 @@ unsigned int FTK_RawTrack::getLayerMap() const {
   return m_word_th2 & 0xfff;
 }
 
+bool FTK_RawTrack::isMissingLayer(unsigned int i) const {
+  bool missingLayer=true;
+  if (i<nlayers) {
+    if ( (m_word_th2 & (0x1<<i)) !=0) missingLayer=false;
+  }
+    return missingLayer;
+ }
+      
+bool FTK_RawTrack::isMissingPixelLayer(const unsigned int i) const {
+  bool missingLayer=true;
+  if (i<npixlayers) {
+    if ( (m_word_th2 & (0x1<<i)) !=0) missingLayer=false;
+  }
+    return missingLayer;
+ }
+      
+bool FTK_RawTrack::isMissingSCTLayer(const unsigned int i) const {
+  bool missingLayer=true;
+  
+  int isct=i+npixlayers;
+  if (isct<nlayers) {
+    if ( (m_word_th2 & (0x1<<isct)) !=0) missingLayer=false;
+  }
+    return missingLayer;
+ }
+      
+unsigned int FTK_RawTrack::getTower() const {
+  return (m_word_th2>>16) &  0x7f;
+}
+
+
 void FTK_RawTrack::setLayerMap(unsigned int layerMap) {
   layerMap = layerMap & 0xfff;
   m_word_th2 = (m_word_th2 | layerMap);
 }
 
+void FTK_RawTrack::setTower(unsigned int tower) {
+  tower = (tower & 0x7f) << 16;
+  m_word_th2 = (m_word_th2 | tower);
+}
 
 void FTK_RawTrack::setD0(float track_d0){
 
@@ -241,8 +275,13 @@ double FTK_RawTrack::getCotTh() const{
 void FTK_RawTrack::setPhi(float track_phi){
 
   uint32_t phi = 0;
-  while (track_phi>TMath::Pi()) track_phi -=TMath::Pi(); // get phi in range -pi to pi
-  phi  = round( phi_multiplier*track_phi + sixteen_bit_offset);
+
+  // input phi must be in range -pi to pi 
+
+  float phi_value  = phi_multiplier*track_phi + sixteen_bit_offset;
+  if (phi_value<0) phi_value=0;
+  else if (phi_value>65535.)phi_value=65535.;
+  phi=round(phi_value);
   phi = phi << 16;
   m_word_th6 = phi | m_word_th6;
   return;
