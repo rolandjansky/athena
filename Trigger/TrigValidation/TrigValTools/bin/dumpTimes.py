@@ -17,11 +17,11 @@ def timing(hist):
   if hist.GetEntries() == 0:
     return "0"
   mean_plus_err = str(round(mean,3)) + " +/- " + str(round(error,3))
-  overflow =  str(hist.GetBinContent(hist.GetNbinsX()+1))
-  if overflow != 0.0:
+  overflow =  hist.GetBinContent(hist.GetNbinsX()+1)
+  if overflow == 0.0:
     return mean_plus_err
   else:
-    return mean_plus_err + "\nOverflow: " + overflow
+    return mean_plus_err + "\tOverflow: " + str(overflow)
 
 
 def match(pattern, name):
