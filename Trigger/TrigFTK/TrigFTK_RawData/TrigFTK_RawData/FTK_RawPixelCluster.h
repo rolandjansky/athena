@@ -13,22 +13,17 @@ private:
   
   uint32_t m_word_a;
   uint32_t m_word_b;
-  int m_layer;
   long int m_barcode;
 
 public:
 
-  enum layerValues{missingLayer=255};
-
-
   FTK_RawPixelCluster(); 
-  FTK_RawPixelCluster(int); 
-  FTK_RawPixelCluster( uint32_t,  uint32_t, int);
+  FTK_RawPixelCluster( uint32_t,  uint32_t);
+  FTK_RawPixelCluster( uint32_t,  uint32_t, long int);
   virtual ~FTK_RawPixelCluster();
 
   void setWordA(uint32_t word_a){ m_word_a = word_a;}
   void setWordB(uint32_t word_b){ m_word_b = word_b;}
-  void setLayer(int layer){ m_layer = layer;}
   void setColWidth(unsigned int col_width);
   void setRowWidth(unsigned int row_width);
   void setColCoord(float col_coord);
@@ -38,7 +33,6 @@ public:
 
   uint32_t    getWordA() const { return m_word_a;}
   uint32_t    getWordB() const { return m_word_b;}
-  unsigned int getLayer() const { return m_layer;}
   unsigned int getColWidth() const;
   unsigned int getRowWidth() const;
   float       getColCoord() const;
