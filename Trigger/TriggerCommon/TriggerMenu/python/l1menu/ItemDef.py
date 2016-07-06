@@ -1099,9 +1099,9 @@ class ItemDef:
                 #LVL1MenuItem('L1_JPSI-1M5-EM12s').setLogic( TOPO_1INVM5_EM12s2_EMs & physcond)
 
                 ### NOT WORKING due to acceptaed number of bits in TOPO1
-                LVL1MenuItem("L1_2CMU4"     ).setLogic( TOPO_MULT_CMU4ab.x(2) & physcond)
-                LVL1MenuItem("L1_2CMU6"     ).setLogic( TOPO_MULT_CMU6ab.x(2) & physcond)
-                LVL1MenuItem("L1_CMU6_2CMU4").setLogic( TOPO_MULT_CMU4ab.x(2) & TOPO_MULT_CMU6ab & physcond)
+                LVL1MenuItem("L1_2MU4-BO"     ).setLogic( TOPO_MULT_CMU4ab.x(2) & physcond)
+                LVL1MenuItem("L1_2MU6-BO"     ).setLogic( TOPO_MULT_CMU6ab.x(2) & physcond)
+                LVL1MenuItem("L1_MU6MU4-BO").setLogic( TOPO_MULT_CMU4ab.x(2) & TOPO_MULT_CMU6ab & physcond)
 
                 # B-jet
                 LVL1MenuItem('L1_BTAG-MU4J15').setLogic( TOPO_0DR04_MU4ab_CJ15ab & physcond)

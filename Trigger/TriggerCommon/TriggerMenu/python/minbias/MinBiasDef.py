@@ -217,12 +217,20 @@ class L2EFChain_MB(L2EFChainDef):
             theEFFex2 =  EFMbTrkFex
             efhypo = self.chainPart['hypoEFInfo']
             if efhypo:
-                efth=efhypo.lstrip('pt')
-                threshold=float(efth)
-                theEFHypo = MbTrkHypo('EFMbTrkHypo_pt%d'% threshold)
-                theEFHypo.Min_pt = threshold
-                theEFHypo.Max_z0 = 401.
-                chainSuffix = chainSuffix+'_pt'+efth
+                if "pt" in self.chainPart['hypoEFInfo']:
+                    efth=efhypo.lstrip('pt')
+                    threshold=float(efth)
+                    theEFHypo = MbTrkHypo('EFMbTrkHypo_pt%d'% threshold)
+                    theEFHypo.Min_pt = threshold
+                    theEFHypo.Max_z0 = 401.
+                    chainSuffix = chainSuffix+'_pt'+efth
+                elif "trk" in self.chainPart['hypoEFInfo']:
+                    efth=efhypo.lstrip('trk')
+                    theEFHypo = MbTrkHypo('EFMbTrkHypo_trk%i'% int(efth))
+                    theEFHypo.Required_ntrks = int(efth)
+                    theEFHypo.Min_pt = 0.200
+                    theEFHypo.Max_z0 = 401.
+                    chainSuffix = chainSuffix+'_trk'+efth
             else:
                 efth=0.200 #default
                 theEFHypo =  EFMbTrkHypo

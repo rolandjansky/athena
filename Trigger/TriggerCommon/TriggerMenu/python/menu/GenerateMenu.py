@@ -429,15 +429,13 @@ class GenerateMenu:
                 if (bjetchain == True) and self.doBjetChains:
                     try:
                         chainDef = TriggerMenu.bjet.generateBjetChainDefs.generateChainDefs(chainDict)
-                        #print 'chainDef for bjet chains', chainDef
                     except:
-                        log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                        log.error('Problems creating ChainDef for bjet chain %s ' % (chainDict['chainName']))
                         log.info(traceback.print_exc())
                         continue
                 elif self.doJetChains:                    
                     try:
                         chainDef = TriggerMenu.jet.generateJetChainDefs.generateChainDefs(chainDict)
-                        #print 'chainDef for jet/ht chains', chainDef
                     except:
                         log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                         log.info(traceback.print_exc())

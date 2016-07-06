@@ -71,6 +71,8 @@ class L2EFChain_mu(L2EFChainDef):
       self.L2InputTE = self.L2InputTE.replace("L1_","")
       self.L2InputTE = self.L2InputTE.split("_")[0]
       self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
+      if 'AFP' in self.L2InputTE:
+        self.L2InputTE = ""
     
     # --- used to configure hypos for FS muon chains
     self.allMuThrs=AllMuons
@@ -1859,8 +1861,12 @@ class L2EFChain_mu(L2EFChainDef):
       'L2_mu_step1': mergeRemovingOverlap('L2_mu_SA_',  L2AlgName+muFastThresh+'_'+self.L2InputTE),
       'L2_mu_step2': mergeRemovingOverlap('L2_idtrking_', L2AlgName+muFastThresh+'_'+self.L2InputTE),
       'L2_mu_step3': mergeRemovingOverlap('L2_idtrkmulti_', idmulti+'_'+L2AlgName+muFastThresh+'_'+self.L2InputTE),
-      'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', idmulti+'_'+self.chainPartNameNoMult+'_'+self.L2InputTE),
-      'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   idmulti+'_'+self.chainPartNameNoMult+'_'+self.L2InputTE),
-      'EF_mu_step3': mergeRemovingOverlap('EF_mutrkmulti_', idmulti+'_'+self.chainPartNameNoMult+'_'+self.L2InputTE),
+      ## Following 3 lines were replaced by the ones below to cope with the problems described in ATR-14406:
+      #--> replaced 'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', idmulti+'_'+self.chainPartNameNoMult+'_'+self.L2InputTE),
+      #--> replaced 'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   idmulti+'_'+self.chainPartNameNoMult+'_'+self.L2InputTE),
+      #--> replaced 'EF_mu_step3': mergeRemovingOverlap('EF_mutrkmulti_', idmulti+'_'+self.chainPartNameNoMult+'_'+self.L2InputTE),
+      'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOut_', idmulti+'_'+self.chainPartNameNoMult.replace(self.chainPart['specialStream'], '')+'_'+self.L2InputTE).replace('__', '_'),
+      'EF_mu_step2': mergeRemovingOverlap('EF_SuperEF_',   idmulti+'_'+self.chainPartNameNoMult.replace(self.chainPart['specialStream'], '')+'_'+self.L2InputTE).replace('__', '_'),
+      'EF_mu_step3': mergeRemovingOverlap('EF_mutrkmulti_', idmulti+'_'+self.chainPartNameNoMult.replace(self.chainPart['specialStream'], '')+'_'+self.L2InputTE).replace('__', '_'),
       }
     

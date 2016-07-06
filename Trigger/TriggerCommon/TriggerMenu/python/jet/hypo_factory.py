@@ -181,7 +181,10 @@ class TLAHypo(HypoAlg):
                      'indexlo',
                      'indexhi',
                      'mass_min',
-                     'mass_max')
+                     'mass_max',)
+#                    'ystar_min',
+#                    'ystar_max')
+
 
         HypoAlg.check_missing_args(self, must_have, ddict)
 

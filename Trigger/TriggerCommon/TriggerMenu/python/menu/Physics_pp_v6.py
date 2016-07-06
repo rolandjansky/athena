@@ -39,11 +39,13 @@ def setupMenu():
         ['mu24_ivarloose', 'L1_MU20', [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu24_iloose', 'L1_MU20', [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu24_ivarmedium',	      'L1_MU20',	   [], [PhysicsStream, 'express'], ['RATE:SingleMuon', 'BW:Muon'], -1],
-        ['mu26_ivarmedium',	     'L1_MU20', 	  [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        # ATR-14489: add express: ['mu26_ivarmedium',	     'L1_MU20', 	  [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu26_ivarmedium',	     'L1_MU20', 	  [], [PhysicsStream, 'express'], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu28_ivarmedium',	     'L1_MU20', 	  [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
 
         ['mu0_perf',              'L1_MU4',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1], 
-        ['mu26_imedium',          'L1_MU20',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        # ATR-14489: add express: ['mu26_imedium',          'L1_MU20',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu26_imedium',          'L1_MU20',           [], [PhysicsStream, 'express'], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu28_imedium',          'L1_MU20',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu50',                  'L1_MU20',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu60_0eta105_msonly',   'L1_MU20',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
@@ -143,6 +145,9 @@ def setupMenu():
         ['mu20_nomucomb_mu6noL1_nscan03',                     'L1_MU20',      ['L1_MU20','L2_mu20_nomucomb'],        [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20_nomucomb','mu6noL1_nscan03']]],
 
         ['mu11_nomucomb_2mu4noL1_nscan03_L1MU11_2MU6', 'L1_MU11_2MU6', ['L1_MU11','L2_mu11_nomucomb'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11_nomucomb','2mu4noL1_nscan03']]],
+
+        ## LFV topo based nscan (ATR-14352)
+        ['mu11_nomucomb_2mu4noL1_nscan03_L1LFV-MU', 'L1_LFV-MU', ['L1_MU10','L2_mu11_nomucomb'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11_nomucomb','2mu4noL1_nscan03']]],
 	# -----------------------------------------------------
 
         # LLP chains
@@ -186,6 +191,13 @@ def setupMenu():
 
 				#Delayed Bphys item, needs to be in muon slice: ATR-14367
         ['3mu4_nomucomb_delayed',                                  'L1_3MU4', [], ['BphysDelayed'], ['RATE:BphysDelayed', 'BW:Bphys'], -1],
+        ['mu6_nomucomb_2mu4_nomucomb_delayed_L1MU6_3MU4',          'L1_MU6_3MU4',  ['L1_MU6','L1_2MU4'],          ['BphysDelayed'], ['RATE:BphysDelayed','BW:Bphys'], -1],
+
+        #AFP muons
+        ['mu4_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mu6_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+
+
 			 ]
 	
     TriggerFlags.JetSlice.signatures = [   
@@ -364,7 +376,7 @@ def setupMenu():
         ['j60',                    'L1_J20',  [], [PhysicsStream, 'express'], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j60_280eta320',          'L1_J20.28ETA31', [], [PhysicsStream, 'express'], ['RATE:SingleJet',  'BW:Jet'], -1],
         ['j60_320eta490',          'L1_J20.31ETA49', [], [PhysicsStream, 'express'], ['RATE:SingleJet',  'BW:Jet'], -1],
-        ['j60_L1RD0_FILLED',      'L1_RD0_FILLED', [], [PhysicsStream, 'express'], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['j60_L1RD0_FILLED',       'L1_RD0_FILLED', [], [PhysicsStream, 'express'], ['RATE:SingleJet',  'BW:Jet'], -1],
 
         ['j85',                    'L1_J20',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j85_280eta320',           'L1_J20.28ETA31', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
@@ -447,6 +459,23 @@ def setupMenu():
         ['j0_0i1c500m900TLA_delayed',              'L1_J100',  [], ['ExoDelayed'], ['RATE:ExoDelayed', 'BW:Jet'], -1],
         ['j0_1i2c200m8000TLA_delayed',             'L1_J100',  [], ['ExoDelayed'], ['RATE:ExoDelayed', 'BW:Jet'], -1],
         ['j0_0i1c500m2000TLA_delayed',             'L1_J100',  [], ['ExoDelayed'], ['RATE:ExoDelayed', 'BW:Jet'], -1],
+
+        # Trigger tower (TT) triggers ATR-14446
+        ['j60_TT', 'L1_J20', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+
+        #AFP jets
+        ['j10_L1AFP_C_AND',                        'L1_AFP_C_AND',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['j10_L1AFP_C_ANY',                        'L1_AFP_C_ANY',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['j15_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['j20_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['j30_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['j40_L1AFP_C_J12',                  'L1_AFP_C_J12',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['j10_320eta490_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['j15_320eta490_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['j25_320eta490_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['j35_320eta490_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['j45_320eta490_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+
     ]
 
     TriggerFlags.BjetSlice.signatures = [
@@ -536,6 +565,14 @@ def setupMenu():
         ['j300_bmv2c2077_split', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
         ['j360_bmv2c2085_split', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],                   
         # L1Topo VBF MJJ bjets
+
+        
+        #GSC test 
+        ['j225_boffperf_split',        'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j360_boffperf_split',        'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j225_gsc360_boffperf_split', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j55_gsc110_boffperf_split', 'L1_J30', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+
 
 #        ['2j55_bmv2c2085_split_L1J30_2J20_4J20.0ETA49_MJJ-800', 'L1_J30_2J20_4J20.0ETA49_MJJ-800', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
 #        ['2j55_bmv2c2085_split_L1J30_2J20_4J20.0ETA49_MJJ-900', 'L1_J30_2J20_4J20.0ETA49_MJJ-900', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
@@ -1338,6 +1375,28 @@ def setupMenu():
         ['e140_lhloose_nod0_L1EM24VHI', 'L1_EM24VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e26_lhtight_cutd0dphideta_ivarloose', 'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e24_lhmedium_L1EM20VHI',              'L1_EM20VHI',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        #AFP photons
+        ['g10_loose_L1AFP_C_EM3',                  'L1_AFP_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['g10_medium_L1AFP_C_EM3',                  'L1_AFP_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['g15_loose_L1AFP_C_EM3',                  'L1_AFP_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['g15_medium_L1AFP_C_EM3',                  'L1_AFP_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['g20_loose_L1AFP_C_EM3',                  'L1_AFP_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['g20_medium_L1AFP_C_EM3',                  'L1_AFP_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['2g10_loose_L1AFP_C_EM3',                  'L1_AFP_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['2g10_medium_L1AFP_C_EM3',                  'L1_AFP_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['3g10_loose_L1AFP_C_EM3',                  'L1_AFP_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+
+        #AFP electrons
+        ['e10_lhloose_nod0_L1AFP_C_EM3',                  'L1_AFP_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['e10_lhmedium_nod0_L1AFP_C_EM3',                  'L1_AFP_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['e15_lhloose_nod0_L1AFP_C_EM3',                  'L1_AFP_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['e15_lhmedium_nod0_L1AFP_C_EM3',                  'L1_AFP_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['e20_lhloose_nod0_L1AFP_C_EM3',                  'L1_AFP_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['e20_lhmedium_nod0_L1AFP_C_EM3',                  'L1_AFP_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['2e10_lhloose_nod0_L1AFP_C_EM3',                  'L1_AFP_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['2e10_lhmedium_nod0_L1AFP_C_EM3',                  'L1_AFP_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['3e10_lhloose_nod0_L1AFP_C_EM3',                  'L1_AFP_C_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+
 			 ]
 
     TriggerFlags.BphysicsSlice.signatures = [
@@ -1425,8 +1484,10 @@ def setupMenu():
         ['mu11_nomucomb_2mu4noL1_nscan03_L1MU11_2MU6_bTau', 'L1_MU11_2MU6', ['L1_MU11','L2_mu11_nomucomb'], [PhysicsStream, 'express'], ['RATE:Bphysics','BW:Bphys'], -1,['serial',-1,['mu11_nomucomb','2mu4noL1_nscan03']]],
         ['mu11_nomucomb_mu6noL1_nscan03_L1MU11_2MU6_bTau', 'L1_MU11_2MU6', ['L1_MU11','L2_mu6_nomucomb'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1,['serial',-1,['mu11_nomucomb','mu6noL1_nscan03']]],
         ['mu20_l2idonly_mu6noL1_nscan03_bTau', 'L1_MU20', ['L1_MU20','L2_mu20_l2idonly'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1,['serial',-1,['mu20_l2idonly','mu6noL1_nscan03']]],
-        ['mu6_iloose_mu6_24invm60_noos_L1DY-BOX-2MU6', 'L1_DY-BOX-2MU6', ['L1_MU6','L1_MU6'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
+        ## LFV topo based nscan (ATR-14352)
+        ['mu11_nomucomb_2mu4noL1_nscan03_L1LFV-MU_bTau', 'L1_LFV-MU', ['L1_MU10','L2_mu11_nomucomb'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1,['serial',-1,['mu11_nomucomb','2mu4noL1_nscan03']]],        
 
+        ['mu6_iloose_mu6_24invm60_noos_L1DY-BOX-2MU6', 'L1_DY-BOX-2MU6', ['L1_MU6','L1_MU6'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1, False],
 
 
         ['mu6_nomucomb_2mu4_nomucomb_bTau_L1MU6_3MU4' , 'L1_MU6_3MU4',  ['L1_MU6','L1_2MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
@@ -1437,6 +1498,8 @@ def setupMenu():
         ['mu4_iloose_mu4_7invm9_noos_L1MU6_2MU4',           'L1_MU6_2MU4',                         ['L1_MU4','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
         ['mu4_iloose_mu4_11invm60_noos_novtx_L1MU6_2MU4',           'L1_MU6_2MU4',                         ['L1_MU4','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
         ['mu4_iloose_mu4_7invm9_noos_novtx_L1MU6_2MU4',           'L1_MU6_2MU4',                         ['L1_MU4','L1_MU4'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1],
+
+
 
 				#Delayed stream ATR-14091
         ['mu6_mu4_bBmumuxv2_delayed',             								 'L1_MU6_2MU4', ['L1_MU6','L1_MU4'], ['BphysDelayed'], ['RATE:BphysDelayed','BW:Bphys'], -1],
@@ -1459,11 +1522,15 @@ def setupMenu():
         ['mu6_2mu4_bJpsi_delayed', 																 'L1_MU6_3MU4', ['L1_MU6','L1_3MU4'], ['BphysDelayed'], ['RATE:BphysDelayed', 'BW:Bphys'], -1],
         ['mu6_2mu4_bUpsi_delayed', 																 'L1_MU6_3MU4', ['L1_MU6','L1_3MU4'], ['BphysDelayed'], ['RATE:BphysDelayed', 'BW:Bphys'], -1],
         ['mu11_nomucomb_mu6noL1_nscan03_L1MU11_2MU6_bTau_delayed', 'L1_MU11_2MU6', ['L1_MU11','L2_mu6_nomucomb'], ['BphysDelayed'], ['RATE:BphysDelayed','BW:Bphys'], -1,['serial',-1,['mu11_nomucomb','mu6noL1_nscan03']]],
-        ## clashing with another chain (the same but with "bTau" and without "delayed" in it). commenting while trying to fix: ['mu6_nomucomb_2mu4_nomucomb_L1MU6_3MU4_delayed',          'L1_MU6_3MU4',  ['L1_MU6','L1_2MU4'],          ['BphysDelayed'], ['RATE:BphysDelayed','BW:Bphys'], -1],
+        #moved to muons slice ['mu6_nomucomb_2mu4_nomucomb_delayed_L1MU6_3MU4',          'L1_MU6_3MU4',  ['L1_MU6','L1_2MU4'],          ['BphysDelayed'], ['RATE:BphysDelayed','BW:Bphys'], -1],
         ['2mu10_bBmumux_BcmumuDsloose_delayed',                    'L1_2MU10', [], ['BphysDelayed'], ['RATE:BphysDelayed','BW:Bphys'], -1],
         ['2mu10_bJpsimumu_delayed',                                'L1_2MU10', [], ['BphysDelayed'], ['RATE:BphysDelayed','BW:Bphys'], -1],
         ['2mu10_bUpsimumu_delayed',                                'L1_2MU10', [], ['BphysDelayed'], ['RATE:BphysDelayed','BW:Bphys'], -1],
         ['2mu10_bBmumuxv2_delayed',                                'L1_2MU10', [], ['BphysDelayed'], ['RATE:BphysDelayed','BW:Bphys'], -1],
+
+        ## LFV topo based *delayed* nscan (ATR-14352)
+        ## original proposed item: ['mu11_nomucomb_mu6noL1_nscan03_L1LFV-MU_bTau', 'L1_LFV-MU', ['L1_MU10','L2_mu6_nomucomb'], [PhysicsStream], ['RATE:Bphysics','BW:Bphys'], -1,['serial',-1,['mu11_nomucomb','mu6noL1_nscan03']]],
+        ['mu11_nomucomb_mu6noL1_nscan03_L1LFV-MU_bTau_delayed', 'L1_LFV-MU', ['L1_MU10','L2_mu6_nomucomb'], ['BphysDelayed'], ['RATE:BphysDelayed','BW:Bphys'], -1,['serial',-1,['mu11_nomucomb','mu6noL1_nscan03']]],
 			 ]
 
     TriggerFlags.CombinedSlice.signatures = [
@@ -1647,6 +1714,11 @@ def setupMenu():
         ['j30_jes_cleanLLP_PS_llp_noiso_L1TAU30_EMPTY',        'L1_TAU30_EMPTY',        [], ["Late"], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j30_jes_cleanLLP_PS_llp_noiso_L1TAU30_UNPAIRED_ISO',  'L1_TAU30_UNPAIRED_ISO',        [], ["Late"], ['RATE:SingleJet', 'BW:Jet'], -1],
 
+        # L1Topo LLP with TAU
+        ['j30_jes_cleanLLP_PS_llp_L1LLP-NOMATCH',       'L1_LLP-NOMATCH',       [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1, False],
+        ['j30_jes_cleanLLP_PS_llp_noiso_L1LLP-NOMATCH', 'L1_LLP-NOMATCH',       [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1, False],
+
+
         ['j30_muvtx_noiso_L1MU6_EMPTY',        'L1_MU6_EMPTY',        [], ["Late"], ['RATE:MuonJet','BW:Muon', 'BW:Jet'], -1],
         ['j30_muvtx_noiso_L1MU4_UNPAIRED_ISO', 'L1_MU4_UNPAIRED_ISO', [], ["Late"], ['RATE:MuonJet','BW:Muon', 'BW:Jet'], -1],
         ['j30_muvtx_noiso_L1MU4_UNPAIRED_NONISO', 'L1_MU4_UNPAIRED_NONISO', [], ["Late"], ['RATE:MuonJet','BW:Muon', 'BW:Jet'], -1],
@@ -1687,6 +1759,11 @@ def setupMenu():
         ['g20_loose_L1EM15I_mu4_iloose_taumass',      'L1_EM15I_MU4',  ['L1_EM15I', 'L1_MU4'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g20_loose_L1EM15I","mu4_iloose"]] ],
         ['g10_etcut_L1EM8I_mu10_iloose_taumass',      'L1_EM8I_MU10',  ['L1_EM8I', 'L1_MU10'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g10_etcut_L1EM8I","mu10_iloose"]] ],
         ['g20_etcut_L1EM15I_mu4_iloose_taumass',      'L1_EM15I_MU4',  ['L1_EM15I', 'L1_MU4'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g20_etcut_L1EM15I","mu4_iloose"]] ],
+
+        ## LFV chains (ATR-14352)
+        ['g10_loose_mu10_iloose_taumass_L1LFV-EM8I', 'L1_LFV-EM8I',  ['L1_EM7', 'L1_MU10'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g10_loose","mu10_iloose"]] ],
+        ['g20_loose_mu4_iloose_taumass_L1LFV-EM15I', 'L1_LFV-EM15I',  ['L1_EM15', 'L1_MU4'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g20_loose","mu4_iloose"]] ],
+        
 
         # HLT photon and di-muon chains
         ['g35_loose_L1EM22VHI_mu18noL1',        'L1_EM22VHI', ['L1_EM22VHI', ''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g35_loose_L1EM22VHI','mu18noL1'] ]],
@@ -2312,9 +2389,31 @@ def setupMenu():
         ['mb_sptrk_vetombts2in_peb_L1TRT_ALFA_ANY_UNPAIRED_ISO', 'L1_TRT_ALFA_ANY_UNPAIRED_ISO', [], ['IDFwd'], [ 'RATE:ALFACalibration','BW:Detector'], -1],
         ['mb_sptrk_vetombts2in_L1ZDC_AND',                  'L1_ZDC_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['mb_sptrk_vetombts2in_L1ZDC_A_C',                  'L1_ZDC_A_C',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        
+        #AFP standalone 
+        ['mb_sp3_L1AFP_C_MBTS_A',                  'L1_AFP_C_MBTS_A',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sp5_L1AFP_C_MBTS_A',                  'L1_AFP_C_MBTS_A',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sp10_L1AFP_C_MBTS_A',                  'L1_AFP_C_MBTS_A',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sp15_L1AFP_C_MBTS_A',                  'L1_AFP_C_MBTS_A',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sp3_L1AFP_C_ANY_MBTS_A',                  'L1_AFP_C_ANY_MBTS_A',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sp5_L1AFP_C_ANY_MBTS_A',                  'L1_AFP_C_ANY_MBTS_A',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sp10_L1AFP_C_ANY_MBTS_A',                  'L1_AFP_C_ANY_MBTS_A',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sp3_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sp5_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sp10_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sp15_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sptrk_pt2_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sptrk_pt4_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sptrk_pt6_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sptrk_pt8_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],        
+        ['mb_sptrk_trk3_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sptrk_trk5_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sptrk_trk10_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['mb_sptrk_trk15_L1AFP_C_AND',                  'L1_AFP_C_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                        
 
         ]
-
+        
     TriggerFlags.CalibSlice.signatures   = [
         
         ['lhcfpeb',       'L1_LHCF',       [], ['IDFwd'], ["RATE:Calibration", "BW:Detector"], -1],
@@ -2415,9 +2514,6 @@ def setupMenu():
         ['calibAFP_L1AFP_C_ANY_EMPTY',             'L1_AFP_C_ANY_EMPTY'    ,        [],  ['AFP'], [ 'RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1AFP_C_ANY_FIRSTEMPTY',        'L1_AFP_C_ANY_FIRSTEMPTY' ,      [],  ['AFP'], [ 'RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1AFP_C_AND',                   'L1_AFP_C_AND'    ,              [],  ['AFP'], [ 'RATE:CalibrationAFP','BW:Detector'], -1],
-        
-        ['j10_L1AFP_C_AND',                        'L1_AFP_C_AND',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
-        ['j10_L1AFP_C_ANY',                        'L1_AFP_C_ANY',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         
         #
         ['ibllumi_L1RD0_ABORTGAPNOTCALIB',    'L1_RD0_ABORTGAPNOTCALIB', [], ['IBLLumi'], [ 'RATE:IBLLumi','BW:Detector'], -1],
@@ -2626,6 +2722,9 @@ def setupMenu():
         ['noalg_L1AFP_FSC',  'L1_AFP_FSC',  [], ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['noalg_L1AFP_C_ANY',  'L1_AFP_C_ANY',  [], ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['noalg_L1AFP_C_AND',  'L1_AFP_C_AND',  [], ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['noalg_L1AFP_C_ANY_EMPTY',  'L1_AFP_C_ANY_EMPTY',  [], ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['noalg_L1AFP_C_ANY_FIRSTEMPTY',  'L1_AFP_C_ANY_FIRSTEMPTY',  [], ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        
         ['noalg_L1AFP_C_EM3',  'L1_AFP_C_EM3',  [], ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['noalg_L1AFP_C_ANY_MBTS_A',  'L1_AFP_C_ANY_MBTS_A',  [], ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['noalg_L1AFP_C_MBTS_A',  'L1_AFP_C_MBTS_A',  [], ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],

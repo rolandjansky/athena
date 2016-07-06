@@ -678,9 +678,9 @@ def defineMenu():
 
         # temporarily commented out until CTP Simulation is fixed (menu generation and TMC understand multiplicity topo)
 #SX uncommenting
-        'L1_2CMU4',
-        'L1_2CMU6',
-        'L1_CMU6_2CMU4', 
+        'L1_2MU4-BO',
+        'L1_2MU6-BO',
+        'L1_MU6MU4-BO', 
 
         # L1 items for L1Topo streamers
 #SX        'L1_BPH-2M-2MU4-B',
@@ -1219,7 +1219,7 @@ def defineMenu():
         'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4'  : 299,
         'L1_BPH-2M9-2MU6_BPH-2DR15-2MU6' : 300,
         'L1_BPH-8M15-2MU6_BPH-0DR22-2MU6'  : 301,
-        'L1_CMU6_2CMU4' : 302,
+        'L1_MU6MU4-BO' : 302,
         'L1_2MU4-B' : 303,
         'L1_2MU6-B'  : 304,
         'L1_BPH-1M19-2MU4-B_BPH-0DR34-2MU4'  : 305,
@@ -1229,8 +1229,8 @@ def defineMenu():
         'L1_BPH-2M8-2MU4-BO_BPH-0DR15-2MU4'  : 309,
         'L1_BPH-7M15-2MU4_BPH-0DR24-2MU4-BO'  : 310,
         'L1_BPH-2M8-MU6MU4-B_BPH-0DR15-MU6MU4' : 311,
-        'L1_2CMU4' : 312,
-        'L1_2CMU6' : 313,
+        'L1_2MU4-BO' : 312,
+        'L1_2MU6-BO' : 313,
         'L1_MU6_2MU4-B'  : 314,
 
 
