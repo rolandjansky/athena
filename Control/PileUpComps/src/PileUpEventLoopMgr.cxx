@@ -325,7 +325,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
     const unsigned int nWeights(pEvent->event_type()->n_mc_event_weights());
     for (unsigned int iWeight(0); iWeight<nWeights; ++iWeight)
       {
-        pOvrEt->set_mc_event_weight(pEvent->event_type()->mc_event_weight(iWeight));
+        pOvrEt->set_mc_event_weight(pEvent->event_type()->mc_event_weight(iWeight),iWeight);
       }
     if (m_isEventOverlayJob){
       pOvrEt->set_mc_channel_number(m_mcRunNumber);
