@@ -1,5 +1,5 @@
 package xAODTriggerCnv
-# $Id: requirements 688265 2015-08-08 16:31:45Z stelzer $
+# $Id: requirements 744621 2016-05-03 18:38:44Z krasznaa $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -49,3 +49,4 @@ apply_pattern component_library
 # Install the additional files:
 apply_pattern declare_python_modules files="*.py"
 apply_pattern declare_joboptions     files="*.py"
+
