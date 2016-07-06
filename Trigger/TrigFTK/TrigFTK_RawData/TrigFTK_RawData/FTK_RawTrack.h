@@ -35,6 +35,10 @@ class FTK_RawTrack {
   
   unsigned int getSectorID() const;
   unsigned int getLayerMap() const;
+  unsigned int getTower() const;
+  bool isMissingLayer(unsigned int ilayer) const;
+  bool isMissingPixelLayer(unsigned int ilayer) const;
+  bool isMissingSCTLayer(unsigned int ilayer) const;
 
   float getD0() const;
   float getZ0() const;
@@ -79,6 +83,7 @@ class FTK_RawTrack {
   void setTH6(uint32_t v) { m_word_th6 = v; }
   void setSectorID(unsigned int);
   void setLayerMap(unsigned int);
+  void setTower(unsigned int);
   void setD0(float);
   void setZ0(float);
   void setPhi(float);
@@ -86,8 +91,8 @@ class FTK_RawTrack {
   void setInvPt(float);
   void setChi2(float);
   //  void setQuality(float);
-  void setPixelCluster( const FTK_RawPixelCluster& );
-  void setSCTCluster(   const FTK_RawSCT_Cluster&  );
+  void setPixelCluster(unsigned int layer,  const FTK_RawPixelCluster& );
+  void setSCTCluster( unsigned int layer,    const FTK_RawSCT_Cluster&  );
   void setPixelClusters( std::vector<FTK_RawPixelCluster>& );
   void setSCTClusters(   std::vector<FTK_RawSCT_Cluster>&  );
   void setBarcode(signed long barcode) { m_barcode = barcode; }
@@ -106,6 +111,7 @@ class FTK_RawTrack {
 
   static const int npixlayers = 4; 
   static const int nsctlayers = 8;
+  static const int nlayers=12;
   static const int sixteen_bit_offset = 32767; // 2**15 -1 
   static const int sixteen_bit_max = 65535; // 2**16 -1 
   static const float d0_multiplier;
