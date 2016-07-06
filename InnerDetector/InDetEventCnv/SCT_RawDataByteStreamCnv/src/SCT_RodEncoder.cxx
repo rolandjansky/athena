@@ -61,28 +61,12 @@ SCT_RodEncoder::~SCT_RodEncoder() {
 
 
 StatusCode SCT_RodEncoder::initialize() {
-
-  StatusCode sc = AlgTool::initialize(); 
-  msg(MSG::INFO) <<"SCT_RodEncoder::initialize()"<<endreq;
-  
+  ATH_MSG_DEBUG("SCT_RodEncoder::initialize()");
   /** Retrieve cabling service */
-  sc = m_cabling.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve service " << m_cabling << endreq;
-    return sc;
-  } else 
-    msg(MSG::DEBUG) << "Retrieved service " << m_cabling << endreq;
-
-  sc = detStore()->retrieve(m_sct_id,"SCT_ID") ;
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Cannot retrieve SCT Id helper!"  << endreq;
-    return StatusCode::FAILURE;
-  } 
-
-  if (m_bsErrs.retrieve().isFailure()) 
-    msg(MSG::FATAL) <<"Failed to get ByteStreamErrorSvc"<<endreq;
-
-  return sc;
+  ATH_CHECK( m_cabling.retrieve());
+  ATH_CHECK(detStore()->retrieve(m_sct_id,"SCT_ID")) ;
+  ATH_CHECK(m_bsErrs.retrieve());
+  return StatusCode::SUCCESS;
 }
 
 StatusCode SCT_RodEncoder::finalize() {
@@ -150,7 +134,7 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>&  v32rod, uint32_t robid,
   for(; rdo_it!=rdo_it_end; ++rdo_it) {   
     const RDO * rawdata = (*rdo_it) ;
     if (rawdata == 0) {
-      msg(MSG::ERROR) << "RDO pointer is NULL. skipping this hit." <<endreq;
+      ATH_MSG_ERROR( "RDO pointer is NULL. skipping this hit." );
       continue;
     }
     uint16_t header = this->getHeaderUsingRDO(rawdata);
@@ -278,7 +262,7 @@ void SCT_RodEncoder::encodeData(std::vector<int>& vtbin, std::vector<uint16_t>& 
   int strip1  = strip2 ;
   
   Identifier idColl = offlineId(rdo) ;
-  if( std::find(m_swapModuleId.begin(), m_swapModuleId.end(),idColl) != m_swapModuleId.end() ) {
+  if( m_swapModuleId.find(idColl) != m_swapModuleId.end() ) {
     strip1= 767 - strip1;
     strip1= strip1-(gSize-1) ;
   }
