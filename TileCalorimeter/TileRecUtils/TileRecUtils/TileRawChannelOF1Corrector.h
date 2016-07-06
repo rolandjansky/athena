@@ -15,6 +15,7 @@
 // Tile includes
 #include "TileRecUtils/ITileRawChannelTool.h"
 
+#include <vector>
 
 // forward declarations
 class TileRawChannel;
@@ -22,6 +23,7 @@ class TileRawChannelContainer;
 class TileRawChannelCollection;
 class TileHWID;
 class TileID;
+class TileTBID;
 class TileCondToolNoiseSample;
 class ITileCondToolOfc;
 class TileCondToolTiming;
@@ -59,6 +61,7 @@ class TileRawChannelOF1Corrector: public AthAlgTool, virtual public ITileRawChan
 
     const TileHWID* m_tileHWID; //!< Pointer to TileHWID
     const TileID* m_tileID;     //!< Pointer to TileID
+    const TileTBID* m_tileTBID;     //!< Pointer to TileTBID
 
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample; //!< tool which provided noise values
     ToolHandle<ITileCondToolOfc> m_tileCondToolOfc;    
@@ -69,6 +72,18 @@ class TileRawChannelOF1Corrector: public AthAlgTool, virtual public ITileRawChan
     bool m_zeroAmplitudeWithoutDigits;
     float m_negativeAmplitudeThreshold;
     float m_positiveAmplitudeThreshold;
+
+    float m_E1AmplitudeThreshold;
+    float m_E2AmplitudeThreshold;
+    float m_E3AmplitudeThreshold;
+    float m_E4AmplitudeThreshold;
+    float m_E4PrimeAmplitudeThreshold;
+    float m_innerMBTSAmplitudeThreshold;
+    float m_outerMBTSAmplitudeThreshold;
+    float m_specialC10AmplitudeThreshold;
+
+    std::vector<float> m_thresholds;
+    enum CHANNEL_TYPE {NORMAL = 0, E1 = 1, E2 = 2, E3 = 3, E4 = 4, E4PRIME = 5, INNERMBTS = 6, OUTERMBTS = 7, SPECIALC10 = 8, MAX_TYPES = 9};
 
 };
 

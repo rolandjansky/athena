@@ -16,6 +16,7 @@
 #include "TileConditions/TileCablingService.h"
 
 #include "CaloIdentifier/TileID.h"
+#include "CaloIdentifier/TileTBID.h"
 
 // Atlas includes
 #include "AthenaKernel/errorcheck.h"
@@ -32,12 +33,14 @@ const InterfaceID& TileRawChannelOF1Corrector::interfaceID() {
 TileRawChannelOF1Corrector::TileRawChannelOF1Corrector(const std::string& type,
     const std::string& name, const IInterface* parent)
     : AthAlgTool(type, name, parent)
-    , m_tileHWID(0)
-    , m_tileID(0)
+    , m_tileHWID(nullptr)
+    , m_tileID(nullptr)
+    , m_tileTBID(nullptr)
     , m_tileToolNoiseSample("TileCondToolNoiseSample")
     , m_tileCondToolOfc("TileCondToolOfcCool/TileCondToolOfcCoolOF1")
     , m_tileToolTiming("TileCondToolTiming/TileCondToolOnlineTiming")
     , m_tileToolEms("TileCondToolEmscale")
+    , m_thresholds(MAX_TYPES, 2048.0)
 {
   declareInterface<ITileRawChannelTool>(this);
   declareInterface<TileRawChannelOF1Corrector>(this);
@@ -49,8 +52,17 @@ TileRawChannelOF1Corrector::TileRawChannelOF1Corrector(const std::string& type,
 
   declareProperty("TileDigitsContainer", m_digitsContainerName = "TileDigitsCnt");
   declareProperty("ZeroAmplitudeWithoutDigits", m_zeroAmplitudeWithoutDigits = true);
-  declareProperty("NegativeAmplitudeThresholdToZero", m_negativeAmplitudeThreshold = -10);
-  declareProperty("PositiveAmplitudeThresholdToZero", m_positiveAmplitudeThreshold = 10);
+  declareProperty("NegativeAmplitudeThresholdToZero", m_negativeAmplitudeThreshold = -10.0);
+  declareProperty("PositiveAmplitudeThresholdToZero", m_positiveAmplitudeThreshold = 10.0);
+
+  declareProperty("E1AmplitudeThresholdToZero", m_E1AmplitudeThreshold = 90.0);
+  declareProperty("E2AmplitudeThresholdToZero", m_E2AmplitudeThreshold = 100.0);
+  declareProperty("E3AmplitudeThresholdToZero", m_E3AmplitudeThreshold = 140.0);
+  declareProperty("E4AmplitudeThresholdToZero", m_E4AmplitudeThreshold = 220.0);
+  declareProperty("E4PrimeAmplitudeThresholdToZero", m_E4PrimeAmplitudeThreshold = 140.0);
+  declareProperty("InnerMBTSAmplitudeThresholdToZero", m_innerMBTSAmplitudeThreshold = 400.0);
+  declareProperty("OuterMBTSAmplitudeThresholdToZero", m_outerMBTSAmplitudeThreshold = 400.0);
+  declareProperty("SpecialC10AmplitudeThresholdToZero", m_specialC10AmplitudeThreshold = 10.0);
 
 }
 
@@ -59,9 +71,17 @@ TileRawChannelOF1Corrector::TileRawChannelOF1Corrector(const std::string& type,
 StatusCode TileRawChannelOF1Corrector::initialize() {
 
   ATH_MSG_INFO("Initializing...");
-  
-  //=== TileCondToolEmscale
-  if (m_zeroAmplitudeWithoutDigits) CHECK( m_tileToolEms.retrieve() );
+
+  m_thresholds[NORMAL] = m_positiveAmplitudeThreshold;
+  m_thresholds[E1] = m_E1AmplitudeThreshold;
+  m_thresholds[E2] = m_E2AmplitudeThreshold;
+  m_thresholds[E3] = m_E3AmplitudeThreshold;
+  m_thresholds[E4] = m_E4AmplitudeThreshold;
+  m_thresholds[E4PRIME] = m_E4PrimeAmplitudeThreshold;
+  m_thresholds[INNERMBTS] = m_innerMBTSAmplitudeThreshold;
+  m_thresholds[OUTERMBTS] = m_outerMBTSAmplitudeThreshold;
+  m_thresholds[SPECIALC10] = m_specialC10AmplitudeThreshold;
+
 
   const IGeoModelSvc* geoModel = 0;
   CHECK( service("GeoModelSvc", geoModel) );
@@ -77,6 +97,7 @@ StatusCode TileRawChannelOF1Corrector::initialize() {
                               &TileRawChannelOF1Corrector::geoInit, this) );
   }
   
+
   return StatusCode::SUCCESS;
 }
 
@@ -87,6 +108,10 @@ StatusCode TileRawChannelOF1Corrector::geoInit(IOVSVC_CALLBACK_ARGS) {
   
   CHECK( detStore()->retrieve(m_tileHWID) );
   CHECK( detStore()->retrieve(m_tileID) );
+  CHECK( detStore()->retrieve(m_tileTBID) );
+
+  //=== TileCondToolEmscale
+  if (m_zeroAmplitudeWithoutDigits) CHECK( m_tileToolEms.retrieve() );
 
   //=== get TileCondToolOfc
   CHECK( m_tileCondToolOfc.retrieve() );
@@ -165,38 +190,59 @@ StatusCode TileRawChannelOF1Corrector::process(const TileRawChannelContainer* ra
 
         rawChannel->setAmplitude(rawChannel->amplitude() + energyCorrection);
 
-        if (checkDigits) {
-          float amplitude = m_tileToolEms->undoOnlCalib(drawerIdx, channel, gain, rawChannel->amplitude(), rawChannelUnit);
-          if ((amplitude < m_negativeAmplitudeThreshold
-               || amplitude > m_positiveAmplitudeThreshold)
-              && noDigits[channel]) {
+        if (checkDigits && noDigits[channel]) {
 
-            int index;
-            int pmt;
-            static const TileCablingService* s_cabling = TileCablingService::getInstance();
-            Identifier cell_id = s_cabling->h2s_cell_id_index(ros, drawer, channel, index, pmt);
-            
-            if (!cell_id.is_valid()) continue;
-            if (rawChannel->amplitude() < 0.0 ) {
+          int index;
+          int pmt;
+          static const TileCablingService* s_cabling = TileCablingService::getInstance();
+          Identifier cell_id = s_cabling->h2s_cell_id_index(ros, drawer, channel, index, pmt);
+          if (!cell_id.is_valid()) continue;
 
-              int sample = m_tileID->sample(cell_id);              
-              bool single_PMT = ((index < -1) // MBTS and E4'
-                                 || (sample == TileID::SAMP_E) 
-                                 || (m_tileID->section(cell_id) == TileID::GAPDET 
-                                     && sample == TileID::SAMP_C
-                                     && !s_cabling->C10_connected(drawer)));
-              if (single_PMT) continue;
+          int sample = m_tileID->sample(cell_id);              
+          int tower = m_tileID->tower(cell_id);
+
+          CHANNEL_TYPE channelType(NORMAL);
+        
+          if (index > -1) {
+
+            if (sample == TileID::SAMP_E) {
+              if      (tower == 10) channelType = E1;
+              else if (tower == 11) channelType = E2;
+              else if (tower == 13) channelType = E3;
+              else                  channelType = E4;
+
+            } else if (sample == TileID::SAMP_C
+                       && m_tileID->section(cell_id) == TileID::GAPDET 
+                       && !s_cabling->C10_connected(drawer)) {
+              
+              channelType = SPECIALC10;
             }
+            
+          } else if (index == -2) { // MBTS cells
+
+            if (m_tileTBID->eta(cell_id) == 0) channelType = INNERMBTS;
+            else                               channelType = OUTERMBTS;
+
+          } else if (index == -3) { // E4' cells
+            channelType = E4PRIME;
+          } 
+
+          float amplitude = m_tileToolEms->undoOnlCalib(drawerIdx, channel, gain, rawChannel->amplitude(), rawChannelUnit);
+          
+          if ((channelType == NORMAL && amplitude < m_negativeAmplitudeThreshold)
+              || (amplitude > m_thresholds[channelType]) ) {
 
             ATH_MSG_VERBOSE( TileCalibUtils::getDrawerString(ros, drawer) 
                              << " ch" << channel << (gain ? " HG:" : " LG:")
-                             << " amplitude: " << amplitude
-                             << " [ADC] without digits => set apmlitude/time/quality: 0.0/0.0/15.0");
+                             << " amplitude: " << amplitude << " [ADC]" 
+                             << (amplitude > 0.0F ? " > threshold: " : " < threshold: ")
+                             << (amplitude > 0.0F ? m_thresholds[channelType] : m_negativeAmplitudeThreshold) << " [ADC]"
+                             << " without digits => set apmlitude/time/quality: 0.0/0.0/15.0");
 
             rawChannel->insert(0.0F, 0.0F, 15.0F);
           }
         }
-
+        
       }
     }
 
