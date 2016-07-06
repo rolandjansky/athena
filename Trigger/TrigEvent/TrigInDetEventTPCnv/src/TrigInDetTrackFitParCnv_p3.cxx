@@ -144,7 +144,7 @@ void TrigInDetTrackFitParCnv_p3 :: persToTrans( const TrigInDetTrackFitPar_p3 *p
                                     persObj->m_allDoubles[3], // eta
                                     persObj->m_allDoubles[4], // pT
                                     ea0, ephi0, ez0, eeta, epT,
-                                    persObj->m_surfaceType,
+                                    (TrigInDetTrackFitPar::TrigSurfaceType) persObj->m_surfaceType,
                                     persObj->m_allDoubles[5], // surfaceCoordinate
                                     cov.release());
 }

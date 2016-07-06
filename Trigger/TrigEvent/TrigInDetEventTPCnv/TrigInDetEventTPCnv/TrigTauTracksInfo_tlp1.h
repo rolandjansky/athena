@@ -18,6 +18,7 @@
 
 #include "TrigInDetEventTPCnv/TrigTauTracksInfo_p1.h"
 #include "EventCommonTPCnv/P4PtEtaPhiM_p1.h"
+#include <vector>
 
 class TrigTauTracksInfo_tlp1
 {
