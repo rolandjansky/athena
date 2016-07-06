@@ -57,11 +57,6 @@ private:
   //  std::string m_TrackParticleCollectionName;
   bool m_getRefitTrackParticles; 
   //  std::string m_refitTrackParticleCollectionName;
-  bool m_getRawVxVertex; 
-  bool m_getVxVertex; 
-  //  std::string m_VxContainerName;
-  bool m_getRefitVxVertex; 
-  //  std::string m_refitVxContainerName;
   bool m_getVertex;
   //  std::string m_VertexContainerName;
   bool m_getRefitVertex;
