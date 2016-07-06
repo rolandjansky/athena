@@ -58,7 +58,7 @@ $default_exitmask = 0b00001001;
 $exitmask = $default_exitmask;
     
 # command to use for rootcomp
-$rootcomp_cmd = "rootcomp.py --zip --noRoot";
+$rootcomp_cmd = "rootcomp.py --pdf --noRoot";
 $checkcount_cmd = "trigtest_checkcounts.sh";
 $checkmerge_cmd = "trigtest_check_merge.sh";
 sub main();
