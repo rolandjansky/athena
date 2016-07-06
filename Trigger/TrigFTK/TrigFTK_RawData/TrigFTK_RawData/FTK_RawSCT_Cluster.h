@@ -11,27 +11,22 @@
 class FTK_RawSCT_Cluster {
 private:
   uint32_t    m_word;
-  int         m_layer; 
   long int    m_barcode;
 
 public:
 
-  enum layerValues{missingLayer=255};
-
   FTK_RawSCT_Cluster(); 
-  FTK_RawSCT_Cluster(int); 
-  FTK_RawSCT_Cluster(uint32_t, signed long, int);
+  FTK_RawSCT_Cluster(uint32_t);
+  FTK_RawSCT_Cluster(uint32_t, signed long);
   virtual ~FTK_RawSCT_Cluster();
 
   void setBarcode(signed long barcode){ m_barcode = barcode;}
-  void setLayer(int layer){ m_layer = layer;}
-  void setWord(uint32_t word){ m_word = word;}
+  void setWord(uint32_t word);
   void setHitCoord(float hit_coord);
   void setHitWidth(unsigned int hit_width);
   void setModuleID(unsigned int module_id);
 
   uint32_t     getWord()     const { return m_word;}
-  unsigned int getLayer()    const { return m_layer;}
   long int     getBarcode()  const { return m_barcode;}
   float        getHitCoord() const;
   unsigned int getHitWidth() const;
