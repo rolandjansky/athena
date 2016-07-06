@@ -38,7 +38,6 @@ use InDetIdentifier            InDetIdentifier-*          InnerDetector/InDetDet
 #use InDetRIO_OnTrack           InDetRIO_OnTrack-*         InnerDetector/InDetRecEvent
 use InDetReadoutGeometry       InDetReadoutGeometry-*     InnerDetector/InDetDetDescr
 #use TrkRIO_OnTrack             TrkRIO_OnTrack-*           Tracking/TrkEvent
-use VxVertex            VxVertex-*       Tracking/TrkEvent
 use xAODTracking                xAODTracking-*            Event/xAOD
 
 # Add transform
