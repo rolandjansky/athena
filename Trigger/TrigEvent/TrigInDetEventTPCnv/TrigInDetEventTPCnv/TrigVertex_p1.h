@@ -22,7 +22,6 @@
 #include <vector>
 
 
-#include "TrigInDetEvent/TrigVertex.h"
 #include "AthenaPoolUtilities/TPObjRef.h"
 
 class TrigVertex_p1 

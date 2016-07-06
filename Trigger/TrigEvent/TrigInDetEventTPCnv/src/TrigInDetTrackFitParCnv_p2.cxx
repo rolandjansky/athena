@@ -147,7 +147,7 @@ void TrigInDetTrackFitParCnv_p2 :: persToTrans( const TrigInDetTrackFitPar_p2 *p
                                     persObj->m_eta,
                                     persObj->m_pT,
                                     ea0, ephi0, ez0, eeta, epT,
-                                    persObj->m_surfaceType,
+                                    (TrigInDetTrackFitPar::TrigSurfaceType) persObj->m_surfaceType,
                                     persObj->m_surfaceCoordinate,
                                     cov.release());
 }

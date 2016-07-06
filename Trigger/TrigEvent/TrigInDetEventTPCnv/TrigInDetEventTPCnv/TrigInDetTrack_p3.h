@@ -21,8 +21,6 @@
 
 #include "AthenaPoolUtilities/TPObjRef.h"
 
-#include "TrigInDetEvent/TrigInDetTrack.h"
-
 class TrigInDetTrack_p3 
 {
 

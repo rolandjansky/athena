@@ -18,8 +18,6 @@
 #ifndef TRIGINDETEVENTTPCNV_TRIGINDETTRACKFITPAR_P1_H
 #define TRIGINDETEVENTTPCNV_TRIGINDETTRACKFITPAR_P1_H
 
-#include "TrigInDetEvent/TrigInDetTrackFitPar.h"
-
 
 class TrigInDetTrackFitPar_p1 {
    
@@ -39,7 +37,7 @@ class TrigInDetTrackFitPar_p1 {
      float m_eeta;
      float m_epT;
      std::vector<double>* m_cov;
-     TrigInDetTrackFitPar::TrigSurfaceType m_surfaceType;
+     int    m_surfaceType;   //TrigInDetTrackFitPar::TrigSurfaceType
      double m_surfaceCoordinate;
 
      //a transient member to solve memory leak in *m_cov

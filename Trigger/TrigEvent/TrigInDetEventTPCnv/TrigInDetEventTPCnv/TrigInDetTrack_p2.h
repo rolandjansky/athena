@@ -21,7 +21,6 @@
 
 #include "AthenaPoolUtilities/TPObjRef.h"
 
-#include "TrigInDetEvent/TrigInDetTrack.h"
 
 class TrigInDetTrack_p2 
 {
@@ -33,7 +32,7 @@ class TrigInDetTrack_p2
 
      //private:
 
-     TrigInDetTrack::AlgoId m_algId;
+     int      m_algId;
      TPObjRef m_param;    //actual type is TrigInDetTrackFitPar*
      TPObjRef m_endParam; //actual type is TrigInDetTrackFitPar*
      double  m_chi2;
