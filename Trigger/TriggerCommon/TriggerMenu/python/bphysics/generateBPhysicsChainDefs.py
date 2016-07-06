@@ -655,6 +655,14 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
         #L2Fex = L2BMuMuXFex_BplusMuMuKplus()
         EFFex = EFBMuMuXFex_BplusMuMuKplus()
         EFHypo = EFBMuMuXHypo_BplusMuMuKplus()
+
+    elif 'Taumumux' in topoAlgs:
+        #from TrigBphysHypo.TrigL2BMuMuXFexConfig import L2BMuMuXFex_TauMuMuX
+        from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_TauMuMuX
+        from TrigBphysHypo.TrigEFBMuMuXHypoConfig import EFBMuMuXHypo_TauMuMuX
+        #L2Fex = L2BMuMuXFex_TauMuMuX()
+        EFFex = EFBMuMuXFex_TauMuMuX()
+        EFHypo = EFBMuMuXHypo_TauMuMuX()
         
     elif 'bBmumuxv2' in topoAlgs:
         if 'Ftk' in topoAlgs:

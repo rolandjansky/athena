@@ -91,6 +91,8 @@ class L2EFChain_g(L2EFChainDef):
         self.L2InputTE = self.chainPartL1Item or self.chainL1Item
         # cut of L1_, _EMPTY,..., & multiplicity
         self.L2InputTE = self.L2InputTE.replace("L1_","")
+        if 'AFP' in self.L2InputTE:
+           self.L2InputTE = self.L2InputTE.replace("AFP_C_","")
         self.L2InputTE = self.L2InputTE.split("_")[0]
         self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
 

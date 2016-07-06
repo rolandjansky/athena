@@ -1177,9 +1177,6 @@ def setupMenu():
         ['e17_lhloose_nodeta_L1EM15',            'L1_EM15', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e17_lhloose_nodphires_L1EM15',         'L1_EM15', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
 
-        #electron supporting chains
-        ['e24_tight_iloose_L2EFCalo_L1EM20VH',    'L1_EM20VH',   [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e24_lhtight_iloose_L2EFCalo_L1EM20VH',  'L1_EM20VH',   [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
 
         #nod0 chains:
        	['e24_lhvloose_nod0_L1EM18VH',                'L1_EM18VH',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],  
@@ -1287,7 +1284,6 @@ def setupMenu():
         ['e24_lhtight_nod0_iloose_L1EM20VH', 'L1_EM20VH', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e140_lhloose_nod0', 'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e24_lhtight_cutd0dphideta_iloose_L1EM20VH', 'L1_EM20VH', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e24_tight_iloose_HLTCalo_L1EM20VH',     'L1_EM20VH',   [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         # Single electron trigger for W mass measurement (ATR-11156)
         ['e24_lhtight_smooth_L1EM20VH',                 'L1_EM20VH',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e26_lhtight_smooth_iloose',                   'L1_EM22VHI',   [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
@@ -1414,9 +1410,6 @@ def setupMenu():
         ['e24_lhmedium_nod0_L1EM20VHI',              'L1_EM20VHI',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e26_lhmedium_nod0_L1EM22VHI',              'L1_EM22VHI',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
 
-        ['e12_lhloose_HLTCalo_L12EM10VH', 'L1_2EM10VH', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e15_lhloose_HLTCalo_L12EM13VH', 'L1_2EM13VH', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e17_lhloose_HLTCalo', 'L1_2EM15VH', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
 
          # Supporting triggers
          # pairs of triggers (cut-based -- likelihood) should be in coherent PS
