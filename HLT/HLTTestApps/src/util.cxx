@@ -662,18 +662,6 @@ std::string HLTTestApps::tdaq_time_str_from_microsec(time_t sec, time_t microsec
   return ret;
 }
 
-bool HLTTestApps::finalize_hist_svc()
-{
-  ServiceHandle<ITHistSvc> thsvc("THistSvc", "psc::Psc");
-  return thsvc->sysFinalize().isSuccess();
-}
-
-bool HLTTestApps::initialize_hist_svc()
-{
-  ServiceHandle<ITHistSvc> thsvc("THistSvc", "psc::Psc");
-  return thsvc->sysInitialize().isSuccess();
-}
-
 void HLTTestApps::ers_debug_level(int level) {
   ers::Configuration::instance().debug_level(level);
 }

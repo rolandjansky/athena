@@ -8,7 +8,6 @@ Created on Sep 30, 2013
 
 import os, re, shutil, logging
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-from HLTTestApps import finalize_hist_svc, initialize_hist_svc
 
 class infrastructure(object):
   """ 
@@ -54,45 +53,6 @@ class offline_infrastructure(infrastructure):
   NAME = 'offline infrastructure'
   def __init__(self, config):
     infrastructure.__init__(self, config)
-    self.index = -1    
-  def prepareForRun(self):
-    infrastructure.prepareForRun(self)
-    # get the current THistSvc and update the index
-    self.hsvc = svcMgr.THistSvc if hasattr(svcMgr, 'THistSvc') else None
-    if self.hsvc:
-      self.index += 1
-      if self.index:
-        # it's at least the second time we are preparing (with histogramming)
-        logging.debug("Now renaming histogram files from the previous run "
-                      "and reseting the THistSvc")
-        self.__finalize_hist_svc() # THistSvc closes the files here
-        self.__save_histogram_files(self.index - 1) # index of previous run
-        self.__initialize_hist_svc()
-    return True
-  def __finalize_hist_svc(self):
-    if not finalize_hist_svc():
-      self.__warn_hist_svc('finalize')
-      return False
-    return True
-  def __initialize_hist_svc(self):
-    if not initialize_hist_svc():
-      self.__warn_hist_svc('initialize')
-      return False
-    return True
-  def __warn_hist_svc(self, t):
-    warn = ("Could not %s the THistSvc - histogram saving and stop/start "
-            "feature jeopardized")
-    logging.warning(warn % t)
-  def __save_histogram_files(self, idx):
-    for f in self.__get_histogram_files():
-      newname = "r%010d_%s" % (idx, f)
-      shutil.move(f, newname)
-  def __get_histogram_files(self):
-    if self.hsvc:
-      return [self.__get_hist_file(f) for f in svcMgr.THistSvc.Output]
-  @staticmethod
-  def __get_hist_file(s):
-    return re.search(r"DATAFILE='(.*?)'", s).group(1)
     
 def build_infrastructure(config):
   if config['oh-monitoring']:
@@ -117,7 +77,7 @@ class infrastructure_transitions_test(unittest.TestCase):
     def __init__(self):
       infrastructure.__init__(self, dummy_configuration())
   def setUp(self):
-    self.cli_args = ["-n", '10', "-f", repr(filelist),
+    self.cli_args = ["-n", '10', "-f", filelist[0],
                      'TrigExMTHelloWorld/MTHelloWorldOptions.py']
   def _testInfrastructureTransitions(self, infrastruct):
     self.assertTrue(infrastruct.configure())

@@ -467,7 +467,7 @@ class processor_tests(unittest.TestCase):
   def _setup_cli_args(self):
     self.cli_args = ["-n", '10'] + self._typical_cli_args()
   def _typical_cli_args(self):
-    return ["-f", repr(filelist), self.jops]
+    return ["-f", repr(filelist), '-M', self.jops]
   def _assertState(self, state):
     self.assertEquals(self.processor.state, state)
   def _init_proc(self):
@@ -537,7 +537,7 @@ class datawriter_conventional_processor_tests(processor_tests):
                              % (self.tmpdir, self.tmpbasefilename)),
                       "-C", "HltEventLoopMgr.ForceHltAccept=True", # accept&save
                       "-k", "140", "-n", "20", # to move through both files
-                      "-f", repr(extra_datafiles), self.jops])
+                      "-f", repr(extra_datafiles), '-M', self.jops])
   def test_save_output_conventional(self):
     # test we get the expected output files after running
     self._test_init()
@@ -603,6 +603,6 @@ if __name__ == '__main__':
   print "%s Running multiple tests in separate processes\n" % headmsg
   for test in separate_tests:
     _test_in_subprocesss(test, headmsg, spawnmsg)
-      
+
   print "\n%s Successfully ran multiple tests in separate processes\n" % headmsg
 

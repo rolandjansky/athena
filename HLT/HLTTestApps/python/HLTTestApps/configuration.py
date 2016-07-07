@@ -609,8 +609,7 @@ class configuration_tests(unittest.TestCase):
                          'use-compression': '4',
                          'max-result-size': '500',
                          'debug': '',
-                         'stdcmalloc': '',
-                         'interactive': ''}
+                         'stdcmalloc': ''}
 
   def test_defaults(self):
     c = configuration(self.opt_spec, 
