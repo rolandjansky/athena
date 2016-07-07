@@ -261,20 +261,22 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
 
     // turn off track selection at highpt
     bool applyTrkSel(true);
+    bool applyMaxTrkSel(true);
     if(m_highpt && (EFet > m_highpttrkthr*1e-3) ) applyTrkSel = false;
+    if(m_highpt && (EFet > m_highptjetthr*1e-3) ) applyMaxTrkSel = false;
 
-    if(!(m_numTrack <= m_numTrackMax)) continue;
-    if(applyTrkSel) if( !( m_numTrack >= m_numTrackMin ) )  continue;
-    if(applyTrkSel) if( !(m_numWideTrack <= m_numWideTrackMax)  ) continue;
+    if(applyMaxTrkSel) if( !(m_numTrack <= m_numTrackMax) ) continue;
+    if(applyTrkSel)    if( !(m_numTrack >= m_numTrackMin) ) continue;
+    if(applyTrkSel)    if( !(m_numWideTrack <= m_numWideTrackMax)  ) continue;
    
     m_cutCounter++;
     m_mon_nTrackAccepted = m_numTrack;
     m_mon_nWideTrackAccepted = m_numWideTrack;  
 
- 
+    auto local_level = m_level;
     //loosen and turn off ID cut at highpt
-    if(m_highpt && (EFet > m_highptidthr*1e-3) && m_level>1) m_level = 1; //works only for BDT, not llh
-    if(m_highpt && (EFet > m_highptjetthr*1e-3) ) m_level = -1111;
+    if(m_highpt && (EFet > m_highptidthr*1e-3) && m_level>1) local_level = 1; //works only for BDT, not llh
+    if(m_highpt && (EFet > m_highptjetthr*1e-3) ) local_level = -1111;
  
     if(m_method == 1 || m_method == 0)
       {
@@ -282,7 +284,7 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
 	std::string prong;
 	m_numTrack==1 ?  prong = "1P" : prong = "3P";
 	
-	if(m_level == -1111){ //noCut, accept this TE
+	if(local_level == -1111){ //noCut, accept this TE
 	  pass = true;
 	  m_cutCounter++;
 	  continue;
@@ -317,18 +319,18 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
 	
 	msg() << MSG::DEBUG<<" REGTEST: BDTScore "<<m_BDTScore<<endreq;
 	
-	if(m_level == -1111)
+	if(local_level == -1111)
 	  { //noCut, accept this TE
 	    pass = true;
 	    m_cutCounter++;
 	    continue;
 	  }
 	
-	if (m_level == 1 && (*tauIt)->isTau(xAOD::TauJetParameters::JetBDTSigLoose) == 0)
+	if (local_level == 1 && (*tauIt)->isTau(xAOD::TauJetParameters::JetBDTSigLoose) == 0)
 	  continue;
-	else if (m_level == 2 && (*tauIt)->isTau(xAOD::TauJetParameters::JetBDTSigMedium) == 0)
+	else if (local_level == 2 && (*tauIt)->isTau(xAOD::TauJetParameters::JetBDTSigMedium) == 0)
 	  continue;
-	else if (m_level ==3  && (*tauIt)->isTau(xAOD::TauJetParameters::JetBDTSigTight) == 0)
+	else if (local_level == 3  && (*tauIt)->isTau(xAOD::TauJetParameters::JetBDTSigTight) == 0)
 	  continue;
 	
 	m_cutCounter++;

@@ -9,7 +9,7 @@
 # get defaults
 from TrigTauHypo.TrigTauHypoBase import *
 from TrigTauHypo.TrigTauHypoMonitoring \
-     import setHLTVertexPreselMonTools, setTauEFDiKaonMonTools, setTauEFMVMonTools, setTauT2CoreMonTools, setTauT2IsoMonTools, setHadCalibEFMonTools
+     import setL2TauTopoMonTools, setHLTVertexPreselMonTools, setTauEFDiKaonMonTools, setTauEFMVMonTools, setTauT2CoreMonTools, setTauT2IsoMonTools, setHadCalibEFMonTools
 
 ## T2IDCoreTau TEST
 class T2IDCoreTauHypo_tau29_medium_2stTest (T2IDCoreTauHypo):
@@ -59,6 +59,19 @@ class EFTauMVHypo_highpt (EFTauMVHypoBase):
         self.Method    = 2 #default bdt as of March 22
         self.Highpt    = True
         setVarCut(self, var, val)
+
+## L2TauTopo
+class L2TauTopoHypoBase (L2TauTopoHypo):
+    __slots__ = []
+    def __init__(self, name):
+        super(L2TauTopoHypoBase, self).__init__(name)
+        setL2TauTopoMonTools(self)
+
+class L2TauTopoHypo (L2TauTopoHypoBase):
+    __slots__ = []
+    def __init__(self, name = "L2TauTopoHypo", var = [], val = []):
+        super(L2TauTopoHypo, self).__init__(name)
+
 
 ## HLTVertexPreSelHypo
 class HLTVertexPreSelHypoBase (HLTVertexPreSelHypo):

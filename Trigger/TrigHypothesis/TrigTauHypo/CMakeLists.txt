@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigEvent/TrigTopoEvent
                           Trigger/TrigSteer/TrigInterfaces
+			  Event/xAOD/xAODTrigger
                           PRIVATE
                           Calorimeter/CaloEvent
                           Control/AthContainers
@@ -44,7 +45,7 @@ atlas_add_library( TrigTauHypoLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigTauHypo
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel MuidEvent Particle ITrackToVertex egammaEvent tauEvent VxVertex TrigInDetEvent TrigMuonEvent TrigParticle TrigSteeringEvent TrigTopoEvent StoreGateLib SGtests TrigInterfacesLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel MuidEvent Particle ITrackToVertex egammaEvent tauEvent xAODTrigger  VxVertex TrigInDetEvent TrigMuonEvent TrigParticle TrigSteeringEvent TrigTopoEvent StoreGateLib SGtests TrigInterfacesLib
                    PRIVATE_LINK_LIBRARIES CaloEvent AthContainers AthenaBaseComps EventInfo xAODCaloEvent xAODJet xAODTau xAODTracking PathResolver TrkTrack TrkTrackSummary TrigCaloEvent TrigNavStructure )
 
 atlas_add_component( TrigTauHypo

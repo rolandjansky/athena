@@ -27,8 +27,8 @@ class L2TauTopoHypo : public HLT::HypoAlgo
 	HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE, bool& pass);
 
  private:
-
-
+	float m_monDR;
+	int m_cutCounter;
 };
 #endif
 
