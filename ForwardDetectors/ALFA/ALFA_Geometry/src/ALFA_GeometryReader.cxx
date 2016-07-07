@@ -149,7 +149,7 @@ void ALFA_GeometryReader::TransformFiberPositionsFCSCladding(PFIBERPARAMS pFiber
 	{
 	case EFT_UFIBER:
 	case EFT_VFIBER:
-		if(pFiberParams->nPlateID>10)
+		if(pFiberParams->nPlateID<1 && pFiberParams->nPlateID>10)
 		{
 			LogStream<<MSG::ERROR<<"Wrong PlateID "<<pFiberParams->nPlateID<<" (RP no."<<eRPName<<")"<<endreq;
 			return;
@@ -163,7 +163,7 @@ void ALFA_GeometryReader::TransformFiberPositionsFCSCladding(PFIBERPARAMS pFiber
 		case EFT_ODFIBERU1:
 		case EFT_ODFIBERV0:
 		case EFT_ODFIBERV1:
-		if(pFiberParams->nPlateID>3)
+		if(pFiberParams->nPlateID<1 && pFiberParams->nPlateID>3)
 		{
 			LogStream<<MSG::ERROR<<"Wrong ODPlateID "<<pFiberParams->nPlateID<<" (RP no."<<eRPName<<")"<<endreq;
 			return;
@@ -688,146 +688,58 @@ bool ALFA_GeometryReader::Initialize(const PGEOMETRYCONFIGURATION pConfig, eFibe
 	bool bRes=true;
 	std::string FilePath;
 	m_eFCoordSystem=eFCoordSystem;
-
-	if(!InitializeDefault(pConfig)) return false;
 	
 	if(pConfig!=NULL)
 	{
-		MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::Initialize");
-		LogStream<<MSG::INFO<<"Metrology type:"<<pConfig->eRPMetrologyGeoType<<endreq;
-		LogStream<<MSG::INFO<<"Metrology source:"<<pConfig->strRPMetrologyConnString<<endreq;
+		if(InitializeDefault(pConfig))
+		{
+			MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::Initialize");
+			LogStream<<MSG::INFO<<"Metrology type:"<<pConfig->eRPMetrologyGeoType<<endreq;
+			LogStream<<MSG::INFO<<"Metrology source:"<<pConfig->strRPMetrologyConnString<<endreq;
 
-		if(pConfig->bShiftToX97Pos){
-			m_ASPosParams[EASN_B7L1].ASTransformInATLAS=HepGeom::TranslateX3D(-97.0*CLHEP::mm)*m_ASPosParams[EASN_B7L1].ASTransformInATLAS;
-			m_ASPosParams[EASN_A7L1].ASTransformInATLAS=HepGeom::TranslateX3D(-97.0*CLHEP::mm)*m_ASPosParams[EASN_A7L1].ASTransformInATLAS;
-			m_ASPosParams[EASN_A7R1].ASTransformInATLAS=HepGeom::TranslateX3D(-97.0*CLHEP::mm)*m_ASPosParams[EASN_A7R1].ASTransformInATLAS;
-			m_ASPosParams[EASN_B7R1].ASTransformInATLAS=HepGeom::TranslateX3D(-97.0*CLHEP::mm)*m_ASPosParams[EASN_B7R1].ASTransformInATLAS;
-		}
-
-		m_eMetrologyType=(eMetrologyType)pConfig->eRPMetrologyGeoType;
-		if(m_eMetrologyType==EMT_NOMINAL){
-			SetupUserCorrections(pConfig);
-		}
-		else if(m_eMetrologyType==EMT_METROLOGY) {
-			SetupCurrentLVDT(pConfig);
-
-			if(pConfig->strRPMetrologyConnString==std::string("")) FilePath = PathResolver::find_file(METROLOGYFILE,"DATAPATH", PathResolver::RecursiveSearch);
-			else FilePath=pConfig->strRPMetrologyConnString;
-			LogStream<<MSG::INFO<<"Metrology data loaded from file "<<FilePath<<endreq;
-			bRes=ParseRPMetrology(EGST_FILE,FilePath.c_str());
-			if(bRes==true) {
-				UpdateStationsPosParams();
+			if(pConfig->bShiftToX97Pos)
+			{
+				m_ASPosParams[EASN_B7L1].ASTransformInATLAS=HepGeom::TranslateX3D(-97.0*CLHEP::mm)*m_ASPosParams[EASN_B7L1].ASTransformInATLAS;
+				m_ASPosParams[EASN_A7L1].ASTransformInATLAS=HepGeom::TranslateX3D(-97.0*CLHEP::mm)*m_ASPosParams[EASN_A7L1].ASTransformInATLAS;
+				m_ASPosParams[EASN_A7R1].ASTransformInATLAS=HepGeom::TranslateX3D(-97.0*CLHEP::mm)*m_ASPosParams[EASN_A7R1].ASTransformInATLAS;
+				m_ASPosParams[EASN_B7R1].ASTransformInATLAS=HepGeom::TranslateX3D(-97.0*CLHEP::mm)*m_ASPosParams[EASN_B7R1].ASTransformInATLAS;
 			}
-			else return false;
-		}
-		else if(m_eMetrologyType==EMT_SWCORRECTIONS){
-			SetupSWCorrections(pConfig);
-		}
-		else if(m_eMetrologyType==EMT_UNDEFINED){
-			//do nothing, there will be no shift to regular positions
-		}
-		else{
-			throw GaudiException(" Unknown metrology type ", "ALFA_GeometryReader::Initialize", StatusCode::FAILURE);
-		}
 
-		for(i=1;i<=RPOTSCNT;i++)
-		{
-			eRPotName eName=(eRPotName)i;
+			m_eMetrologyType=(eMetrologyType)pConfig->eRPMetrologyGeoType;
+			if(m_eMetrologyType==EMT_NOMINAL){
+				SetupUserCorrections(pConfig);
+			}
+			else if(m_eMetrologyType==EMT_METROLOGY) {
+				SetupCurrentLVDT(pConfig);
 
-			if(pConfig->eRPMetrologyGeoType!=EMT_UNDEFINED) UpdateSimRPPos(eName);
-			m_ListExistingRPots.push_back(eName);
-		}
+				if(pConfig->strRPMetrologyConnString==std::string("")) FilePath = PathResolver::find_file(METROLOGYFILE,"DATAPATH", PathResolver::RecursiveSearch);
+				else FilePath=pConfig->strRPMetrologyConnString;
+				LogStream<<MSG::INFO<<"Metrology data loaded from file "<<FilePath<<endreq;
+				bRes=ParseRPMetrology(EGST_FILE,FilePath.c_str());
+				if(bRes==true) {
+					UpdateStationsPosParams();
+				}
+				else return false;
+			}
+			else if(m_eMetrologyType==EMT_SWCORRECTIONS){
+				SetupSWCorrections(pConfig);
+			}
+			else if(m_eMetrologyType==EMT_UNDEFINED){
+				//do nothing, there will be no shift to regular positions
+			}
+			else{
+				throw GaudiException(" Unknown metrology type ", "ALFA_GeometryReader::Initialize", StatusCode::FAILURE);
+			}
 
-		/*
-		if((eRPPositionType)pConfig->CfgRPosParams[0].eRPPosType==ERPPT_ACTIVE)
-		{
-			//use RP metrology otherwise leave ideal position of the RP
-			if(pConfig->eRPMetrologyGeoType!=EMT_UNDEFINED) UpdateSimRPPos(ERPN_B7L1U);
-			m_ListExistingRPots.push_back(ERPN_B7L1U);
-		}
-		else if((eRPPositionType)pConfig->CfgRPosParams[0].eRPPosType==ERPPT_INACTIVE)
-		{
-			UpdateToInactivePos(ERPN_B7L1U);
-			m_ListExistingRPots.push_back(ERPN_B7L1U);
-		}
+			for(i=1;i<=RPOTSCNT;i++)
+			{
+				eRPotName eName=(eRPotName)i;
 
-		if((eRPPositionType)pConfig->CfgRPosParams[1].eRPPosType==ERPPT_ACTIVE)
-		{
-			if(pConfig->eRPMetrologyGeoType!=EMT_UNDEFINED) UpdateSimRPPos(ERPN_B7L1L);
-			m_ListExistingRPots.push_back(ERPN_B7L1L);
-		}
-		else if((eRPPositionType)pConfig->CfgRPosParams[1].eRPPosType==ERPPT_INACTIVE)
-		{
-			UpdateToInactivePos(ERPN_B7L1L);
-			m_ListExistingRPots.push_back(ERPN_B7L1L);
-		}
+				if(pConfig->eRPMetrologyGeoType!=EMT_UNDEFINED) UpdateSimRPPos(eName);
+				m_ListExistingRPots.push_back(eName);
+			}
 
-		if((eRPPositionType)pConfig->CfgRPosParams[2].eRPPosType==ERPPT_ACTIVE)
-		{
-			if(pConfig->eRPMetrologyGeoType!=EMT_UNDEFINED) UpdateSimRPPos(ERPN_A7L1U);
-			m_ListExistingRPots.push_back(ERPN_A7L1U);
 		}
-		else if((eRPPositionType)pConfig->CfgRPosParams[2].eRPPosType==ERPPT_INACTIVE)
-		{
-			UpdateToInactivePos(ERPN_A7L1U);
-			m_ListExistingRPots.push_back(ERPN_A7L1U);
-		}
-
-		if((eRPPositionType)pConfig->CfgRPosParams[3].eRPPosType==ERPPT_ACTIVE)
-		{
-			if(pConfig->eRPMetrologyGeoType!=EMT_UNDEFINED) UpdateSimRPPos(ERPN_A7L1L);
-			m_ListExistingRPots.push_back(ERPN_A7L1L);
-		}
-		else if((eRPPositionType)pConfig->CfgRPosParams[3].eRPPosType==ERPPT_INACTIVE)
-		{
-			UpdateToInactivePos(ERPN_A7L1L);
-			m_ListExistingRPots.push_back(ERPN_A7L1L);
-		}
-		
-		if((eRPPositionType)pConfig->CfgRPosParams[4].eRPPosType==ERPPT_ACTIVE)
-		{
-			if(pConfig->eRPMetrologyGeoType!=EMT_UNDEFINED) UpdateSimRPPos(ERPN_A7R1U);
-			m_ListExistingRPots.push_back(ERPN_A7R1U);
-		}
-		else if((eRPPositionType)pConfig->CfgRPosParams[4].eRPPosType==ERPPT_INACTIVE)
-		{
-			UpdateToInactivePos(ERPN_A7R1U);
-			m_ListExistingRPots.push_back(ERPN_A7R1U);
-		}
-
-		if((eRPPositionType)pConfig->CfgRPosParams[5].eRPPosType==ERPPT_ACTIVE)
-		{
-			if(pConfig->eRPMetrologyGeoType!=EMT_UNDEFINED) UpdateSimRPPos(ERPN_A7R1L);
-			m_ListExistingRPots.push_back(ERPN_A7R1L);
-		}
-		else if((eRPPositionType)pConfig->CfgRPosParams[5].eRPPosType==ERPPT_INACTIVE)
-		{
-			UpdateToInactivePos(ERPN_A7R1L);
-			m_ListExistingRPots.push_back(ERPN_A7R1L);
-		}
-
-		if((eRPPositionType)pConfig->CfgRPosParams[6].eRPPosType==ERPPT_ACTIVE)
-		{
-			if(pConfig->eRPMetrologyGeoType!=EMT_UNDEFINED) UpdateSimRPPos(ERPN_B7R1U);
-			m_ListExistingRPots.push_back(ERPN_B7R1U);
-		}
-		else if((eRPPositionType)pConfig->CfgRPosParams[6].eRPPosType==ERPPT_INACTIVE)
-		{
-			UpdateToInactivePos(ERPN_B7R1U);
-			m_ListExistingRPots.push_back(ERPN_B7R1U);
-		}
-
-		if((eRPPositionType)pConfig->CfgRPosParams[7].eRPPosType==ERPPT_ACTIVE)
-		{
-			if(pConfig->eRPMetrologyGeoType!=EMT_UNDEFINED) UpdateSimRPPos(ERPN_B7R1L);
-			m_ListExistingRPots.push_back(ERPN_B7R1L);
-		}
-		else if((eRPPositionType)pConfig->CfgRPosParams[7].eRPPosType==ERPPT_INACTIVE)
-		{
-			UpdateToInactivePos(ERPN_B7R1U);
-			m_ListExistingRPots.push_back(ERPN_B7R1U);
-		}
-		*/
 	}
 	else
 	{
@@ -1432,7 +1344,8 @@ bool ALFA_GeometryReader::ReadDatabase(const eRPotName eRPName, const eFiberType
 	char szSource[64];
 	char *pch;
 	
-	strcpy(szSource, szDataSource);
+	memset(szSource,0,sizeof(szSource));
+	if(szDataSource) strncpy(szSource, szDataSource, sizeof(szSource)-1);
 	pch = strtok(szSource,":");
 	while (pch != NULL)
 	{
@@ -2105,8 +2018,10 @@ bool ALFA_GeometryReader::GetMDFiberParams(PFIBERPARAMS pFiberParams, const eFib
 		switch(eFType){
 		case EFT_UFIBER:
 			bRes=GetUFiberParams(pFiberParams, eRPName, nPlateID, nFiberID);
+			break;
 		case EFT_VFIBER:
 			bRes=GetVFiberParams(pFiberParams, eRPName, nPlateID, nFiberID);
+			break;
 		default:
 			LogStream<<MSG::ERROR<<"Invalid fiber type"<<endreq;
 			break;
@@ -2705,7 +2620,7 @@ bool ALFA_GeometryReader::ParseArrayOfValues(const char* szvalue, std::vector<do
 
 	vecValues.clear();
 	memset(szbuff,0,sizeof(szbuff));
-	strcpy(szbuff,szvalue);
+	if(szvalue) strncpy(szbuff,szvalue,sizeof(szbuff)-1);
 
 	ppos1=szbuff;
 	ppos2=strchr(ppos1,',');
@@ -2737,14 +2652,14 @@ bool ALFA_GeometryReader::ParseArrayOfValues(const char* szvalue, std::vector<do
 
 bool ALFA_GeometryReader::SetupDetMetrologyPoints(ALFA_ConfigParams& CfgParams, eRPotName eRPName)
 {
-	bool bIsLightMetrology=true;
+	//bool bIsLightMetrology=true;
 
 	double fZc;
 	//double a1,a2;
 	double a3,a4;
 	double xp1,yp1;
 	//double xp2,yp2,xp3,yp3,xr3;
-	double xr1,yr1,xr2,yr2,yr3;
+	double xr1,yr1,xr2,yr2;//,yr3;
 	HepGeom::Point3D<double> PointIdealD3, PointRealD3;
 	HepGeom::Point3D<double> PointIdealD4, PointRealD4;
 	HepGeom::Point3D<double> PointIdealD5, PointRealD5;
@@ -2780,23 +2695,24 @@ bool ALFA_GeometryReader::SetupDetMetrologyPoints(ALFA_ConfigParams& CfgParams, 
 	xr2=vecRealDetPoints[1].x();
 	yr2=vecRealDetPoints[1].y();
 	//xr3=vecRealDetPoints[2].x();
-	yr3=vecRealDetPoints[2].y();
+	//yr3=vecRealDetPoints[2].y();
 
 	double alpha=-atan((xr2-xr1)/(yr2-yr1));
 	//a1=cos(alpha); a2=-sin(alpha);
 	a3=xr1-xp1;//a3=0.5*(xr1+xr2);
 	a4=yr1-yp1;//a4=0.5*(yr1+yr2);
 
-	double beta=-asin((vecDetEdges[1]-vecDetEdges[0])/90.0);
-	double gamma=asin((yr3-yr1)/8.0);
-	double dz=135.0*sin(gamma);
+	//double beta=-asin((vecDetEdges[1]-vecDetEdges[0])/90.0);
+	//double gamma=asin((yr3-yr1)/8.0);
+	//double dz=135.0*sin(gamma);
 
 	//-----------------------------------------
 	HepGeom::Transform3D CorrectionInMainPoint, CorrectionInDetPin1;
 
 	//HepGeom::Transform3D CorrectionInDetPin1=HepTransform3D();
-	if(bIsLightMetrology) CorrectionInDetPin1=HepGeom::Translate3D(a3,a4,fZc-113.0*CLHEP::mm)*HepGeom::RotateZ3D(alpha);
-	else HepGeom::Transform3D CorrectionInDetPin1=HepGeom::RotateX3D(gamma)*HepGeom::RotateY3D(beta)*HepGeom::Translate3D(a3,a4,dz+fZc-113.0*CLHEP::mm)*HepGeom::RotateZ3D(alpha);
+	//use light metrology
+	CorrectionInDetPin1=HepGeom::Translate3D(a3,a4,fZc-113.0*CLHEP::mm)*HepGeom::RotateZ3D(alpha);
+	//CorrectionInDetPin1=HepGeom::RotateX3D(gamma)*HepGeom::RotateY3D(beta)*HepGeom::Translate3D(a3,a4,dz+fZc-113.0*CLHEP::mm)*HepGeom::RotateZ3D(alpha);
 
 	//HepGeom::Point3D<double> MainPoint=m_RPPosParams[eRPName].RPIdealTransformInStation*HepGeom::Point3D<double>(0.0,0.0,0.0);
 	HepGeom::Point3D<double> MainPoint=ms_NominalRPMainPoint;
