@@ -43,7 +43,7 @@ athenaCommonFlags.AllowIgnoreConfigError=False
 from AthenaCommon.AppMgr import theApp
 theApp.EvtMax = -1
 
-DetDescrVersion = 'ATLAS-GEO-20-00-01'
+DetDescrVersion = 'ATLAS-R2-2015-03-01-00'
 from AthenaCommon.GlobalFlags import globalflags
 #globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion )
 globalflags.DetDescrVersion.set_Value_and_Lock( DetDescrVersion )
