@@ -10,7 +10,8 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Tools/PyJobTransforms
                           Tracking/TrkEvent/TrkTrack
-                          Trigger/TrigFTK/TrigFTK_RawData )
+                          Trigger/TrigFTK/TrigFTK_RawData
+                          Event/xAOD/xAODTracking  )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
