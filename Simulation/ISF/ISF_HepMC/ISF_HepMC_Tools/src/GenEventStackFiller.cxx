@@ -56,6 +56,7 @@ ISF::GenEventStackFiller::GenEventStackFiller(const std::string& t, const std::s
     m_barcodeSvc("ISF_BarcodeService",n),
     m_largestBc(0),
     m_uniqueBc(0),
+    m_number_of_gen_minbias(0),
     m_current_event_time(0.0),
     m_current_event_index(0),
     m_current_bcid(0),
