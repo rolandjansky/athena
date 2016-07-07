@@ -36,8 +36,6 @@ private
 use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  AtlasBoost                 AtlasBoost-*                    External
 use  AtlasROOT                  AtlasROOT-*                     External
-#use  CaloClusterCorrection      CaloClusterCorrection-*         Calorimeter
-use_ifndef pplist="XAOD_ANALYSIS" pkg="Calorimeter/CaloClusterCorrection"
 #use  CaloEvent                  CaloEvent-*                     Calorimeter
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Calorimeter/CaloEvent"
 use  CaloGeoHelpers             CaloGeoHelpers-*                Calorimeter
@@ -55,5 +53,6 @@ use  xAODJet                    xAODJet-*                       Event/xAOD
 use AthenaBaseComps AthenaBaseComps-* Control
 end_private
 
-apply_pattern dual_use_library files= "../Root/*.cxx ../src/*.cxx ../src/components/*.cxx"
+# apply_pattern dual_use_library files= "../Root/*.cxx ../src/*.cxx ../src/components/*.cxx"
+apply_pattern dual_use_library files= "../Root/*.cxx ../src/*.cxx"
 #################################################

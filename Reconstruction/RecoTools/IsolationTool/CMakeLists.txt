@@ -7,7 +7,6 @@ atlas_subdir( IsolationTool )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloClusterCorrection
                           Calorimeter/CaloEvent
                           Calorimeter/CaloRec
                           Calorimeter/CaloUtils
@@ -48,11 +47,11 @@ atlas_add_library( IsolationToolLib
                    src/components/*.cxx
                    PUBLIC_HEADERS IsolationTool
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                   LINK_LIBRARIES CaloEvent AsgTools xAODBase xAODCaloEvent xAODCore xAODEgamma xAODEventShape xAODMuon xAODPFlow xAODPrimitives xAODTracking GaudiKernel RecoToolInterfaces TrkCaloExtension TrkParameters TrkParametersIdentificationHelpers CaloClusterCorrectionLib CaloRecLib CaloUtilsLib IsolationCorrectionsLib TrackToCaloLib
+                   LINK_LIBRARIES CaloEvent AsgTools xAODBase xAODCaloEvent xAODCore xAODEgamma xAODEventShape xAODMuon xAODPFlow xAODPrimitives xAODTracking GaudiKernel RecoToolInterfaces TrkCaloExtension TrkParameters TrkParametersIdentificationHelpers CaloRecLib CaloUtilsLib IsolationCorrectionsLib TrackToCaloLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} CaloGeoHelpers AthenaBaseComps xAODEventInfo xAODJet )
 
 atlas_add_component( IsolationTool
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} CaloClusterCorrectionLib CaloEvent CaloRecLib CaloUtilsLib AsgTools xAODBase xAODCaloEvent xAODCore xAODEgamma xAODEventShape xAODMuon xAODPFlow xAODPrimitives xAODTracking GaudiKernel IsolationCorrectionsLib RecoToolInterfaces TrackToCaloLib TrkCaloExtension TrkParameters TrkParametersIdentificationHelpers CaloGeoHelpers AthenaBaseComps xAODEventInfo xAODJet IsolationToolLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} CaloEvent CaloRecLib CaloUtilsLib AsgTools xAODBase xAODCaloEvent xAODCore xAODEgamma xAODEventShape xAODMuon xAODPFlow xAODPrimitives xAODTracking GaudiKernel IsolationCorrectionsLib RecoToolInterfaces TrackToCaloLib TrkCaloExtension TrkParameters TrkParametersIdentificationHelpers CaloGeoHelpers AthenaBaseComps xAODEventInfo xAODJet IsolationToolLib )
 

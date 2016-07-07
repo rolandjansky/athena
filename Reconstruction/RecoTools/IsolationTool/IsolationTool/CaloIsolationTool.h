@@ -16,7 +16,7 @@
 #include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
-#include "CaloRec/CaloClusterCollectionProcessor.h"
+#include "CaloRec/CaloClusterProcessor.h"
 #endif // XAOD_ANALYSIS
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
@@ -36,10 +36,6 @@
 #include "xAODPFlow/PFOContainer.h"
 
 #include <vector>
-
-#ifndef XAOD_ANALYSIS
-class CaloFillRectangularCluster;
-#endif
 
 namespace xAOD {
   
@@ -213,6 +209,13 @@ namespace xAOD {
       /** get reference particle */
       const IParticle* getReferenceParticle(const IParticle& particle) const;
 
+      // add the calo decoration
+      void decorateTrackCaloPosition(const IParticle& particle, float eta, float phi) const;
+
+      //JB
+      /** to know what type of electrons */
+      const CaloCluster *m_fwdClus;
+
 #ifndef XAOD_ANALYSIS
       ToolHandle<Rec::IParticleCaloCellAssociationTool>        m_assoTool;
       ToolHandle<Trk::IParticleCaloExtensionTool>              m_caloExtTool;
@@ -225,8 +228,7 @@ namespace xAOD {
       ToolHandle<IPFlowObjectsInConeTool> m_pflowObjectsInConeTool; 
       
       /** @brief  Property: calo cluster filling tool */
-      ToolHandle<CaloClusterCollectionProcessor> m_caloFillRectangularTool;
-      CaloFillRectangularCluster* m_caloFillRectangularToolPtr;
+      ToolHandle<CaloClusterProcessor> m_caloFillRectangularTool;
 
       /** Property: Use cached caloExtension if avaliable. */
       bool m_useCaloExtensionCaching;
@@ -262,6 +264,10 @@ namespace xAOD {
       /** Property: Name of the forward topocluster energy-density container. */ 
       std::string m_tpEDForward;
 
+      //JB
+      /** Property: Name of the forward topocluster energy-density container. */ 
+      std::string m_tpEDveryForward;
+
       /** Property: Name of the central neutral energy flow energy-density container. */ 
       std::string m_efEDCentral;
 
@@ -274,6 +280,8 @@ namespace xAOD {
       /** map to the orignal particle */
       std::map<const IParticle*, const IParticle*> m_derefMap;
 
+      /** Property: Turn on/off the calo extension decoration. */
+      bool m_addCaloDeco;
 
 #ifdef XAOD_ANALYSIS // particlesInCone tool will not be avaible. Write our own...
       bool particlesInCone( float eta, float phi, float dr, std::vector<const CaloCluster*>& clusts );
