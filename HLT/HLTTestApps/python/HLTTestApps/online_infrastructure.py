@@ -296,8 +296,10 @@ class online_infrastructure(infrastructure):
     return self.mon.configure(self.config.get_mon_config_ptree())
   def prepareForRun(self):
     infrastructure.prepareForRun(self)
-    return (self.mon.prepareForRun(self.config.get_mon_prepare_ptree()) and
-            self.mon.prepareWorker(self.config.get_mon_prepareWorker_ptree()))
+    return self.mon.prepareForRun(self.config.get_mon_prepare_ptree())
+  def prepareWorker(self):
+    infrastructure.prepareWorker(self)
+    return self.mon.prepareWorker(self.config.get_mon_prepareWorker_ptree())
   def run(self):
     self.run_index += 1
     return infrastructure.run(self)

@@ -21,6 +21,10 @@ def keep_processing(config, processed, total, skipped):
     return processed + skipped < total
   else:
     return processed < config
+    
+def log_processed(skipped, processed):
+  logging.info('Skipped %d events at the beginning' % skipped)
+  logging.info('Processed %d events' % processed)
 
 class FSMTransitionError(RuntimeError): pass
 
@@ -157,10 +161,13 @@ class Processor:
                   
       except KeyboardInterrupt, upd_proc: # we can still update processed
           skipped, processed = upd_proc.args
-          logging.info("Keyboard interruption caught. Stopping "
-                       "event processing cleanly...")
-      logging.info('Skipped %d events' % skipped)
-      logging.info('Processed %d events' % processed)
+          logging.error("Keyboard interruption caught! Aborting event "
+                       "processing.")
+          log_processed(skipped, processed)
+          raise
+      
+      logging.info("Event processing finished successfully.")
+      log_processed(skipped, processed)
       logging.info('Current state is "%s"' % self.state)
       
   def _run_aux(self, skipped, processed, total):
@@ -598,3 +605,4 @@ if __name__ == '__main__':
     _test_in_subprocesss(test, headmsg, spawnmsg)
       
   print "\n%s Successfully ran multiple tests in separate processes\n" % headmsg
+

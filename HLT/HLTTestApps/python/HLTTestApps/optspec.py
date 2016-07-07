@@ -22,13 +22,13 @@ supported =  ['file', 'number-of-events', 'perfmon', 'verbosity',
               'event-modifier', 'precommand', 'postcommand', 'log-level', 
               'appmgrdll', 'rewind', 'run-number', 
               'save-output', 'save-output-conventional', 
-              'ers-debug-level', 'tcmalloc', 'stdcmalloc', 'msgsvc-type', 
-              'joboptionsvc-type', 'interactive', 'show-includes', 
-              'use-database', 'db-type', 'db-server', 'db-smkey', 'db-hltpskey',
-              'db-extra', 'sor-time', 'detector-mask', 
-              'ros2rob', 'leak-check-execute', 'leak-check', 'delete-check',
-              'no-ers-signal-handlers', 'oh-monitoring', 'oh-display', 
-              'user-ipc', 'info-service', 'histogram-include',
+              'ers-debug-level', 'tcmalloc', 'stdcmalloc', 'imf', 'stdcmath',
+              'preloadlib', 'msgsvc-type', 'joboptionsvc-type', 'interactive',
+              'show-includes', 'use-database', 'db-type', 'db-server', 
+              'db-smkey', 'db-hltpskey', 'db-extra', 'sor-time', 
+              'detector-mask', 'ros2rob', 'leak-check-execute', 'leak-check', 
+              'delete-check', 'no-ers-signal-handlers', 'oh-monitoring', 
+              'oh-display', 'user-ipc', 'info-service', 'histogram-include',
               'histogram-exclude', 'histogram-publishing-interval', 
               'appmgrfactory', 'python-setup', 'timeout', 
               'use-compression', 'trace', 'extra-l1r-robs', 'skip-events',
@@ -333,6 +333,24 @@ common['stdcmalloc'] = \
    'default': None, 
    'group': 'Run mode', 
    'description': 'Use stdcmalloc intead of tcmalloc.'}
+common['imf'] = \
+  {'short': '', 
+   'arg': False, 
+   'default': None, 
+   'group': 'Run mode', 
+   'description': "Use Intel's imf library, instead of stdcmath [DEFAULT]."}
+common['stdcmath'] = \
+  {'short': '', 
+   'arg': False, 
+   'default': None, 
+   'group': 'Run mode', 
+   'description': "Use stdcmath, instead of Intel's imf library."}
+common['preloadlib'] = \
+  {'short': '', 
+   'arg': True, 
+   'default': None, 
+   'group': 'Run mode', 
+   'description': 'Preload an arbitrary library, to be specified with an equals sign (e.g. --preloadlib=foobar.so).'}
 common['no-ers-signal-handlers'] = \
   {'short': '', 
    'arg': False,
