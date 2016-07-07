@@ -22,8 +22,8 @@ supported =  ['file', 'number-of-events', 'perfmon', 'verbosity',
               'event-modifier', 'precommand', 'postcommand', 'log-level', 
               'appmgrdll', 'rewind', 'run-number', 
               'save-output', 'save-output-conventional', 
-              'ers-debug-level', 'tcmalloc', 'stdcmalloc', 'preloadlib', 
-              'msgsvc-type', 'joboptionsvc-type', 'interactive', 
+              'ers-debug-level', 'tcmalloc', 'stdcmalloc', 'imf', 'stdcmath',
+              'preloadlib', 'msgsvc-type', 'joboptionsvc-type', 'interactive',
               'show-includes', 'use-database', 'db-type', 'db-server', 
               'db-smkey', 'db-hltpskey', 'db-extra', 'sor-time', 
               'detector-mask', 'ros2rob', 'leak-check-execute', 'leak-check', 
@@ -333,6 +333,18 @@ common['stdcmalloc'] = \
    'default': None, 
    'group': 'Run mode', 
    'description': 'Use stdcmalloc intead of tcmalloc.'}
+common['imf'] = \
+  {'short': '', 
+   'arg': False, 
+   'default': None, 
+   'group': 'Run mode', 
+   'description': "Use Intel's imf library, instead of stdcmath [DEFAULT]."}
+common['stdcmath'] = \
+  {'short': '', 
+   'arg': False, 
+   'default': None, 
+   'group': 'Run mode', 
+   'description': "Use stdcmath, instead of Intel's imf library."}
 common['preloadlib'] = \
   {'short': '', 
    'arg': True, 
