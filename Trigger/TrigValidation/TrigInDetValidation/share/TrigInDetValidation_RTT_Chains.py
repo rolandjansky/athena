@@ -224,11 +224,12 @@ def beamspotChains(runMergedChain, doIDNewTracking):
   if doIDNewTracking:
     tidaAnalysischains += ["Offline"]
 
-  idTrigChainlist.append(['beamspot_allTE_L2StarB',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
+##  idTrigChainlist.append(['beamspot_allTE_L2StarB',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
   idTrigChainlist.append(['beamspot_allTE_trkfast',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
   tidaAnalysischains += [
     'HLT_beamspot_allTE_L2StarB:TrigL2SiTrackFinder_BeamSpotB',
     'HLT_beamspot_allTE_trkfast:TrigFastTrackFinder_BeamSpot_IDTrig',
+    'HLT_beamspot_allTE_trkfast:InDetTrigTrackingxAODCnv_BeamSpot_FTF',
     ]
   return (idTrigChainlist, tidaAnalysischains)
 
