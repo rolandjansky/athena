@@ -91,7 +91,10 @@ from RecExConfig.RecAlgsFlags import recAlgs
 # recAlgs.doTrigger.set_Value_and_Lock(True)
 
 
-
+### JK Do reidual monitoring for FTK tracks
+from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings as InDetSettings
+InDetSettings[('doResMon','FTK')]=True
+InDetSettings[('doResMon','FTKRefit')]=True
 
 
 flags = {}
@@ -279,6 +282,12 @@ if('PdgId' in dir()):
      print "select truth pdgid : ", TestMonTool.SelectTruthPdgId	
 
 #
+
+#TestMonTool.KeepAllEvents=True
+#print TestMonTool
+#print HLTMonManager.AthenaMonTools
+
+
 if 'tidaAnalysischains' in dir():
      TestMonTool.ntupleChainNames += tidaAnalysischains
 else:
