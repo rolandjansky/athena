@@ -25,7 +25,7 @@ function runtest()
   fi
 }
 
-targets=( "option.py" "pausable_istream.py" "configuration.py" "processor.py" "infrastructure.py" "online_infrastructure.py")
+targets=( "option.py" "pausable_istream.py" "configuration.py" "infrastructure.py" "online_infrastructure.py" "processor.py")
                      
 for tgt in "${targets[@]}" 
 do

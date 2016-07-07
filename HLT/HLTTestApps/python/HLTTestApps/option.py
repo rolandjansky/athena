@@ -14,8 +14,12 @@ from HLTTestApps import random_sub_dict
 def file_optcheck(option_spec, kwargs, extra):
   """Checks if the options passed make sense all together."""
   
-  if len(kwargs['file']) == 0:
+  nfiles = len(kwargs['file'])
+  if nfiles == 0:
     raise BadOptionSet, 'Cannot process without any input files.'
+  elif nfiles > 1 and not kwargs['oh-monitoring']:
+    raise BadOptionSet, ('Cannot have multiple input files without '
+                         '--oh-monitoring (see --help for explanation)')
   
   # do checks that are common to both emon and file based runs
   common_optcheck(option_spec, kwargs, extra)
@@ -111,27 +115,15 @@ def skip_events_optcheck(option_spec, kwargs):
         
 def oh_optcheck(option_spec, kwargs):
   if not kwargs['oh-monitoring']:
-    if kwargs['oh-display']:
-      raise BadOptionSet, ('You cannot launch an OH display if OH monitoring '
-                           'is not enabled.')
-    if kwargs['user-ipc']:
-      raise BadOptionSet, ('You cannot use the user ipc ref file if OH '
-                           'monitoring is not enabled.')
-    if kwargs['info-service'] != option_spec['info-service']['default']:
-      raise BadOptionSet, ('You cannot choose an IInfoRegister if OH '
-                           'monitoring is not enabled.')
-    if (kwargs['histogram-publishing-interval'] != 
-        option_spec['histogram-publishing-interval']['default']):
-      raise BadOptionSet, ('You cannot choose a histogram publishing interval '
-                           'if OH monitoring is not enabled.')
-    if (kwargs['histogram-include'] != 
-        option_spec['histogram-include']['default']):
-      raise BadOptionSet, ('You cannot choose the histogram inclusion regexp '
-                           'if OH monitoring is not enabled.')
-    if (kwargs['histogram-exclude'] != 
-        option_spec['histogram-exclude']['default']):
-      raise BadOptionSet, ('You cannot choose the histogram exclusion regexp '
-                           'if OH monitoring is not enabled.')
+    ohopts = [o for o in option_spec if option_spec[o]['group'] == 
+                                        'Online Histogramming']
+    ohopts.append('interactive')
+    for o in ohopts:
+      if o in kwargs and kwargs[o] and kwargs[o] != option_spec[o]['default']:
+        justify = (' (see help for explanation).' 
+                   if o == 'interactive' else '.')
+        raise BadOptionSet, ("Option --%s cannot be specified without " + 
+                             "--oh-monitoring%s") % (o, justify)
 
 def db_optcheck(option_spec, kwargs, extra):
   if kwargs['use-database']:
@@ -421,30 +413,37 @@ class option_diverse_specific_tests(option_consistency_tests):
     self._check_opt_disallowed('histogram-include', 'abc*')
   def test_histogram_exclude_requires_oh(self):
     self._check_opt_disallowed('histogram-exclude', 'abc*')    
+  def test_interactive_requires_oh(self):
+    self._check_opt_disallowed('interactive')
+  def test_multiple_files_require_oh(self):
+    multiple_files = '[\'fake_file\', \'another_fake_file\']'
+    del self.required['file']
+    self._check_opt_disallowed('file', multiple_files)
   def test_oh_display_ok_with_oh(self):
-    self._aux_test_explicitly_supported(["oh-display"],
-                                         ["--oh-display", "--oh-monitoring"] +
-                                         self._get_required_args())
+    self._aux_test_explicitly_supported(sup_args=["--oh-display", 
+                                                  "--oh-monitoring"])
   def test_user_ipc_ok_with_oh(self):
-    self._aux_test_explicitly_supported(cmd_args=["--user-ipc", 
-                                                   "--oh-monitoring"]
-                                         + self._get_required_args())
+    self._aux_test_explicitly_supported(sup_args=["--user-ipc", 
+                                                  "--oh-monitoring"])
   def test_info_service_ok_with_oh(self):
-    self._aux_test_explicitly_supported(cmd_args=["--info-service", "bla",
-                                                   "--oh-monitoring"]
-                                         + self._get_required_args())
+    self._aux_test_explicitly_supported(sup_args=["--info-service", "bla",
+                                                  "--oh-monitoring"])
   def test_histogram_publishing_interval_ok_with_oh(self):
-    cargs=["--histogram-publishing-interval", "5", "--oh-monitoring"]
-    cargs += self._get_required_args()
-    self._aux_test_explicitly_supported(cmd_args=cargs)
+    sargs=["--histogram-publishing-interval", "5", "--oh-monitoring"]
+    self._aux_test_explicitly_supported(sup_args=sargs)
   def test_histogram_include_ok_with_oh(self):
-    cargs = ['--histogram-include', '.*', '--oh-monitoring']
-    cargs += self._get_required_args()
-    self._aux_test_explicitly_supported(cmd_args=cargs)
+    sargs = ['--histogram-include', '.*', '--oh-monitoring']
+    self._aux_test_explicitly_supported(sup_args=sargs)
   def test_histogram_exclude_ok_with_oh(self):
-    cargs = ['--histogram-exclude', ' ', '--oh-monitoring']
-    cargs += self._get_required_args()
-    self._aux_test_explicitly_supported(cmd_args=cargs)
+    sargs = ['--histogram-exclude', ' ', '--oh-monitoring']
+    self._aux_test_explicitly_supported(sup_args=sargs)
+  def test_intaractive_ok_with_oh(self):
+    sargs = ['--interactive', '--oh-monitoring']
+    self._aux_test_explicitly_supported(sup_args=sargs)
+  def test_multiple_files_ok_with_oh(self):
+    del self.required['file']
+    sargs = ['--oh-monitoring', '--file', '["fake_file", "another_fake_file"]']
+    self._aux_test_explicitly_supported(sup_args=sargs)
   def test_sor_time_allowed(self):
     allowed = ['now', 1386355338658000000, '13/3/13  08:30:00.123',
                '4/4/04 4:4:4.444444', -123]

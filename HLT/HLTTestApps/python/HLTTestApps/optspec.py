@@ -22,13 +22,13 @@ supported =  ['file', 'number-of-events', 'perfmon', 'verbosity',
               'event-modifier', 'precommand', 'postcommand', 'log-level', 
               'appmgrdll', 'rewind', 'run-number', 
               'save-output', 'save-output-conventional', 
-              'ers-debug-level', 'tcmalloc', 'stdcmalloc', 'msgsvc-type', 
-              'joboptionsvc-type', 'interactive', 'show-includes', 
-              'use-database', 'db-type', 'db-server', 'db-smkey', 'db-hltpskey',
-              'db-extra', 'sor-time', 'detector-mask', 
-              'ros2rob', 'leak-check-execute', 'leak-check', 'delete-check',
-              'no-ers-signal-handlers', 'oh-monitoring', 'oh-display', 
-              'user-ipc', 'info-service', 'histogram-include',
+              'ers-debug-level', 'tcmalloc', 'stdcmalloc', 'imf', 'stdcmath',
+              'preloadlib', 'msgsvc-type', 'joboptionsvc-type', 'interactive',
+              'show-includes', 'use-database', 'db-type', 'db-server', 
+              'db-smkey', 'db-hltpskey', 'db-extra', 'sor-time', 
+              'detector-mask', 'ros2rob', 'leak-check-execute', 'leak-check', 
+              'delete-check', 'no-ers-signal-handlers', 'oh-monitoring', 
+              'oh-display', 'user-ipc', 'info-service', 'histogram-include',
               'histogram-exclude', 'histogram-publishing-interval', 
               'appmgrfactory', 'python-setup', 'timeout', 
               'use-compression', 'trace', 'extra-l1r-robs', 'skip-events',
@@ -160,48 +160,49 @@ common['ers-debug-level'] = \
    'arg': True, 
    'group': 'Run mode',
    'description': 'An ERS debug level to be set dynamically, in the range [0,3].  This will overwrite your environmental settings for TDAQ_ERS_DEBUG_LEVEL.'}
+oh_warn = "This option can only be used together with --oh-monitoring."
 common['oh-monitoring'] = \
   {'short': 'M', 
    'arg': False, 
    'default': None,
-   'group': 'Monitoring',
+   'group': 'Online Histogramming',
    'description': 'Run with OH monitoring'}
 common['oh-display'] = \
   {'short': 'W', 
    'arg': False, 
    'default': None,
-   'group': 'Monitoring',
-   'description': 'If running with OH monitoring, triggering this flag will launch an histogram display as well'}
+   'group': 'Online Histogramming',
+   'description': 'Launch an histogram display. ' + oh_warn}
 common['info-service'] = \
   {'short': 'x',
    'arg': True,
    'default': 'MonSvcInfoService',
-   'group': 'Monitoring',
-   'description': 'The IInfoRegister that should be used as TrigMonTHistSvc back-end. This option can only be used together with --oh-monitoring'}  
+   'group': 'Online Histogramming',
+   'description': 'The IInfoRegister that should be used as TrigMonTHistSvc back-end. ' + oh_warn}  
 common['user-ipc'] = \
   {'short': 'I', 
    'arg': False, 
    'default': None,
-   'group': 'Monitoring', 
-   'description': 'If running with OH monitoring, triggering this flag makes the program use the IPC init file point to by the environment variable TDAQ_IPC_INIT_REF.'}
+   'group': 'Online Histogramming', 
+   'description': 'Use the IPC init file pointed to by the environment variable TDAQ_IPC_INIT_REF. ' + oh_warn}
 common['histogram-publishing-interval'] = \
   {'short': 'U',
    'arg': True,
    'default': 5,
-   'group': 'Monitoring',
-   'description': 'Positive integer determining the number of seconds between each two consecutive online histogram publications. This option can only be used together with --oh-monitoring'}
+   'group': 'Online Histogramming',
+   'description': 'Positive integer determining the number of seconds between each two consecutive online histogram publications. ' + oh_warn}
 common['histogram-exclude'] = \
   {'short': '',
    'arg': True,
    'default': '',
-   'group': 'Monitoring',
-   'description': 'Regular expression describing the histograms that should be excluded from online publishing. This option can only be used together with --oh-monitoring'}
+   'group': 'Online Histogramming',
+   'description': 'Regular expression describing the histograms that should be excluded from online publishing. ' + oh_warn}
 common['histogram-include'] = \
   {'short': '',
    'arg': True,
    'default': '.*',
-   'group': 'Monitoring',
-   'description': 'Regular expression describing the histograms that should be included in online publishing. This option can only be used together with --oh-monitoring'}
+   'group': 'Online Histogramming',
+   'description': 'Regular expression describing the histograms that should be included in online publishing. ' + oh_warn}
 common['show-includes'] = \
   {'short': 's', 
    'arg': False, 
@@ -333,6 +334,24 @@ common['stdcmalloc'] = \
    'default': None, 
    'group': 'Run mode', 
    'description': 'Use stdcmalloc intead of tcmalloc.'}
+common['imf'] = \
+  {'short': '', 
+   'arg': False, 
+   'default': None, 
+   'group': 'Run mode', 
+   'description': "Use Intel's imf library, instead of stdcmath [DEFAULT]."}
+common['stdcmath'] = \
+  {'short': '', 
+   'arg': False, 
+   'default': None, 
+   'group': 'Run mode', 
+   'description': "Use stdcmath, instead of Intel's imf library."}
+common['preloadlib'] = \
+  {'short': '', 
+   'arg': True, 
+   'default': None, 
+   'group': 'Run mode', 
+   'description': 'Preload an arbitrary library, to be specified with an equals sign (e.g. --preloadlib=foobar.so).'}
 common['no-ers-signal-handlers'] = \
   {'short': '', 
    'arg': False,
@@ -402,9 +421,9 @@ common['db-extra'] = \
 fileinput = {}
 fileinput['file'] = {'short': 'f', 'arg': True, 'default': [],
                      'group': 'Data',
-                     'description': 'python-list of input files'}
+                     'description': 'The input data-file, or a python list thereof. Multiple files can only be specified with --oh-monitoring, because the implicit stop/start transitions at file boundaries are not supported by the default (offline) histogramming service.'}
 fileinput['interactive'] = {'short': 'i', 'arg': False, 'default': None,
-                            'description': 'Switches on interactive mode, so you can control the state transition manually',
+                            'description': 'Switches on interactive mode, so you can control the state transitions manually. This option can only be used together with --oh-monitoring, because the default (offline) histogramming service does not support arbitrary state transitions.',
                             'group': 'Run mode'}
 
 # Options that deal with emon input

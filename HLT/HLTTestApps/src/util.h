@@ -93,16 +93,6 @@ namespace HLTTestApps {
   std::string tdaq_time_str_from_microsec(time_t sec, time_t microsec);
 
   /**
-   * finalizes the ITHistSvc
-   */
-  bool finalize_hist_svc();
-
-  /**
-   * initializes the ITHistSvc
-   */
-  bool initialize_hist_svc();
-
-  /**
    * Changes the ERS debug level, dynamically
    *
    * @param level The debugging level (0 means no messages will be printed),

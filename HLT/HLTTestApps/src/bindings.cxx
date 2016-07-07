@@ -88,8 +88,6 @@ BOOST_PYTHON_MODULE(libpyhlttestapps)
   def("python_exec", &python_exec, docstr);
   def("python_execfile", &python_execfile, docstr);
   def("tdaq_time_str_from_microsec", &tdaq_time_str_from_microsec, docstr);
-  def("finalize_hist_svc", &finalize_hist_svc, docstr);
-  def("initialize_hist_svc", &initialize_hist_svc, docstr);
   def("ers_debug_level", &ers_debug_level, docstr);
   def("get_ers_debug_level", &get_ers_debug_level, docstr);
   def("ers_debug", &ers_debug, docstr);
