@@ -58,8 +58,9 @@ inputFile = "root://eosatlas//eos/atlas/atlastier0/tzero/prod/valid1/PowhegPythi
 #inputFile = "root://eosatlas//eos/atlas/atlastier0/tzero/prod/valid1/PowhegPythia_P2011C_ttbar/117050/valid1.117050.PowhegPythia_P2011C_ttbar.recon.AOD.e2658_s1967_s1964_r5787_v111/valid1.117050.PowhegPythia_P2011C_ttbar.recon.AOD.e2658_s1967_s1964_r5787_v111._000001.4";
 #inputFile = "root://eosatlas//eos/atlas/atlastier0/tzero/prod/valid1/PowhegPythia8_AU2CT10_Zee/147806/valid1.147806.PowhegPythia8_AU2CT10_Zee.recon.AOD.e2658_s1967_s1964_r5787_v114/valid1.147806.PowhegPythia8_AU2CT10_Zee.recon.AOD.e2658_s1967_s1964_r5787_v114._000001.1";
 #inputFile = "root://eosatlas//eos/atlas/atlastier0/tzero/prod/valid1/PowhegPythia8_AU2CT10_ggH125_gamgam/160009/valid1.160009.PowhegPythia8_AU2CT10_ggH125_gamgam.recon.AOD.e2658_s1967_s1964_r5787_v114/valid1.160009.PowhegPythia8_AU2CT10_ggH125_gamgam.recon.AOD.e2658_s1967_s1964_r5787_v114._000001.1";
+# inputFile = "/afs/cern.ch/user/k/kaplan/public/DAOD_SUSY5.output.pool.root"
 
-inputFile = os.environ["ASG_TEST_FILE_MC"]
+# inputFile = os.environ["ASG_TEST_FILE_MC"]
 
 # n events ( use -1 to process all events )
 nEvents = 20
@@ -71,7 +72,7 @@ algseq = CfgMgr.AthSequencer("AthAlgSeq")
 ## The Tool
 isoTool_2 = CfgMgr.CP__IsolationHelper( "IsolationHelper" )
 
-isoTool_2.IsolationSelectionTool.MuonWP = "Gradient"
+# isoTool_2.IsolationSelectionTool.MuonWP = "Gradient"
 
 # isoTool_2.SelectorTool.muonWP = "Loose"
 svcMgr.ToolSvc += isoTool_2

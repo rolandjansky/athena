@@ -52,6 +52,8 @@ namespace CP {
 		declareProperty("TrackParticleLocation",m_indetTrackParticleLocation = "InDetTrackParticles"); 
 		declareProperty("OverlapCone", m_overlapCone = 0.1);
 		declareProperty("CoreCone", m_coreCone = 0.1);
+// 		declareProperty("OverlapCone", m_overlapCone = 0.05);
+// 		declareProperty("CoreCone", m_coreCone = 0.05);
 		declareProperty("PtvarconeRadius", m_ptvarconeRadius = 10000.0);
 		m_isCoreSubtracted = false;
 		m_isInitialised = false;
@@ -252,7 +254,7 @@ namespace CP {
 		if(corrMask.test(static_cast<unsigned int>(xAOD::Iso::core57cells))){
 			areacore = 5*0.025*7*M_PI/128;
 		}else if(corrMask.test(static_cast<unsigned int>(xAOD::Iso::coreCone))){
-			areacore = 0.01*M_PI; // dR = 0.1, dR^2 = 0.01
+			areacore = m_coreCone*m_coreCone*M_PI;
 		}
 
 		return getPileupCorrection(value, par, type, areacore);
@@ -708,8 +710,13 @@ namespace CP {
 
     bool IsolationHelper::getExtrapEtaPhi(const xAOD::IParticle& par, float& eta, float& phi) const {
         const xAOD::Muon* mu = dynamic_cast<const xAOD::Muon*>(&par);
+        eta = 0;
+        phi = 0;
         bool foundCluster = false;
+//         bool isMuon = false;
+//         bool isEGamma = false;
         if(mu){
+//             isMuon = true;
             auto cluster = mu->cluster();
             if(cluster){
                 float etaT = 0, phiT = 0;
@@ -733,28 +740,37 @@ namespace CP {
 //                         << ", " << mu->phi());
                 }else{
                     if(mu->muonType() != xAOD::Muon::MuonType::MuonStandAlone) {
-                        ATH_MSG_WARNING("BADCLUSTER: Muon calo cluster is empty?");
-                        ATH_MSG_WARNING("Type, quality, pT, eta, phi: " << mu->muonType() 
-                        << ", " << mu->quality() << ", " << mu->pt() << ", " << mu->eta()
-                        << ", " << mu->phi());
+                        foundCluster = true;
+                        eta = mu->eta();
+                        phi = mu->phi();
+//                         ATH_MSG_WARNING("BADCLUSTER: Muon calo cluster is empty?");
+//                         ATH_MSG_WARNING("Type, quality, pT, eta, phi: " << mu->muonType() 
+//                         << ", " << mu->quality() << ", " << mu->pt() << ", " << mu->eta()
+//                         << ", " << mu->phi());
                     }
                 }
             }else{
                 if(mu->muonType() != xAOD::Muon::MuonType::MuonStandAlone) {
-                    ATH_MSG_WARNING("BADCLUSTER: Muon calo cluster not found. Calo extension can not be obtained!!!");
-                    ATH_MSG_WARNING("Type, quality, pT, eta, phi: " << mu->muonType() 
-                        << ", " << mu->quality() << ", " << mu->pt() << ", " << mu->eta()
-                        << ", " << mu->phi());
+//                     ATH_MSG_WARNING("BADCLUSTER: Muon calo cluster not found. Calo extension can not be obtained!!!");
+//                     ATH_MSG_WARNING("Type, quality, pT, eta, phi: " << mu->muonType() 
+//                         << ", " << mu->quality() << ", " << mu->pt() << ", " << mu->eta()
+//                         << ", " << mu->phi());
+                    foundCluster = true;
+                    eta = mu->eta();
+                    phi = mu->phi();
                 }
-                        
             }
         } else {
             const xAOD::IParticle* refPar = getReferenceParticle(par);
             const xAOD::Egamma* eg = dynamic_cast<const xAOD::Egamma*>(refPar);
             if(eg) {
-                phi = eg->caloCluster()->phi();
-                eta = eg->caloCluster()->eta();
-                foundCluster = true;
+//                 isEGamma = true;
+                auto cluster = eg->caloCluster();
+                if(cluster) {
+                    phi = cluster->phi();
+                    eta = cluster->eta();
+                    foundCluster = true;
+                }
             }
         }
         if(!foundCluster) {
@@ -783,6 +799,9 @@ namespace CP {
 //                 }
 //             }
 // #else // ATHENA
+            ATH_MSG_WARNING("BADCLUSTER: the calo cluster could not be retrieved.");
+            eta = par.eta();
+            phi = par.phi();
             return false;
 // #endif // XAOD_ANALYSIS
         }
