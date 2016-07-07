@@ -123,6 +123,9 @@ public:
 	m_autoset = true;
 	m_norm    = true;
       }
+      else if  ( keys[i]=="norm" )  {
+	m_norm    = true;
+      }
       else if  ( keys[i]=="autosym" ) { 
 	m_autoset = true; 
 	m_symmetric = true; 
@@ -320,6 +323,8 @@ public:
 
     Legend leg = _leg;
 
+    //    std::cout << "\thref() " << href() << "\thtest() " << htest() << std::endl;  
+
     if ( htest() ) {
       gStyle->SetOptStat(0);
       if ( href() ) { 
@@ -333,7 +338,7 @@ public:
       htest()->SetMarkerColor(htest()->GetLineColor());
       htest()->SetMarkerStyle(markers[i%6]);
 
-      std::cout << "Draw() href() " << href() << "\thtest() " << htest() << "\ttgtest() " << tgtest();
+      //      std::cout << "Draw() href() " << href() << "\thtest() " << htest() << "\ttgtest() " << tgtest();
       if ( htest() ) std::cout << "\tentries " << plotable( htest() );
       std::cout << std::endl;
 
@@ -354,7 +359,10 @@ public:
 	    // tgtest()->Draw("p1same");
 	    tgtest()->Draw("esame");
 	  }
-	  else htest()->Draw("ep");
+	  else { 
+	    htest()->GetXaxis()->SetMoreLogLabels(true);
+	    htest()->Draw("ep");
+	  }
 	}
       }
 
@@ -516,7 +524,8 @@ public:
   Plots(const std::string& s="") : 
     m_name(s), 
     m_logx(false), m_logy(false), 
-    m_maxset(false), m_minset(false), 
+    m_maxset(false), m_max(0),
+    m_minset(false), m_min(0),
     m_rangeset(false) 
   { }
 
@@ -729,15 +738,17 @@ public:
   void Draw( Legend& leg, bool means=false ) {  
     //   Max();
 
-    /// plotting range options etc  
-    //    std::cout << "Plotter::Draw() " << m_name << "\txaxis: log: " << m_logx;
+    //    std::cout << "\thref() " << href() << "\thtest() " << htest() << std::endl;  
 
-    //    if ( m_rangeset ) std::cout << "\trange: " << m_lo << " - " << m_hi;
+    ///  plotting range options etc  
+    //   std::cout << "Plotter::Draw() " << m_name << "\tsize " << size() << "\txaxis: log: " << m_logx;
 
-    //    std::cout << "\tyaxis: log:" << m_logy;
-    //    if ( m_minset )   std::cout << "\tymin: " << m_min;
-    //    if ( m_maxset )   std::cout << "\tymax: " << m_max;
-    //    std::cout << std::endl;
+    //   if ( m_rangeset ) std::cout << "\trange: " << m_lo << " - " << m_hi;
+
+    //   std::cout << "\tyaxis: log:" << m_logy;
+    //   if ( m_minset )   std::cout << "\tymin: " << m_min;
+    //   if ( m_maxset )   std::cout << "\tymax: " << m_max;
+    //   std::cout << std::endl;
     
     bool first = true;
 

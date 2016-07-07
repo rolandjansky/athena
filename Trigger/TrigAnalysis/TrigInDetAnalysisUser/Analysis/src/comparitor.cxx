@@ -56,26 +56,29 @@ int usage(const std::string& name, int status) {
   //  s << "Configuration: \n";
   //  s << "    -o filename   \tname of output grid (filename required)\n\n";
   s << "Options: \n";
-  s << "    -c,  --config value   \t configure which histograms to plot from config file,\n";
-  s << "    -t,  --tag value      \t appends tag 'value' to the end of output plot names, \n";
-  s << "    -k,  --key value      \t prepends key 'value' to the from of output plots name, \n";
-  s << "    -d,  --dir value      \t creates output files into directory, \"value\" \n";
-  s << "    -e,  --efficiencies   \t make test efficiencies with respect to reference \n";
-  s << "    -es, --effscale value \t scale efficiencies to value\n";
-  s << "    -r,  --refit          \t refit all resplots\n";
-  s << "    -l,  --labels         \t use specified labels for key\n";
-  s << "    -nb  --nobayes        \t do not calculate Basyesian efficiency uncertaintiesr\n";
-  s << "    -as, --atlasstyle     \t use ATLAS style\n";
-  s << "    -ns, --nostats        \t do not show stats for mean and rms\n";
-  s << "    -nr, --noref          \t do not plot reference histograms\n";
-  s << "    -np, --noplots        \t do not actually make any plot\n";
-  s << "    -C,  --Cfiles         \t write C files also\n"; 
-  s << "    -nw, --nowatermark    \t do not plot the release watermark\n"; 
-  s << "         --nopng          \t do not print png files\n"; 
-  s << "         --deleteref      \t delete unused reference histograms\n";
-  s << "    -xo, --xoffset        \t relative x offset for the key\n"; 
-  s << "         --fe,            \t relative x offset for the key\n"; 
-  s << "    -h,  --help           \t this help\n";
+  s << "    -c,  --config value     \t configure which histograms to plot from config file,\n";
+  s << "    -t,  --tag value        \t appends tag 'value' to the end of output plot names, \n";
+  s << "    -k,  --key value        \t prepends key 'value' to the from of output plots name, \n";
+  s << "    -d,  --dir value        \t creates output files into directory, \"value\" \n";
+  s << "    -e,  --efficiencies     \t make test efficiencies with respect to reference \n";
+  s << "    -es, --effscale value   \t scale efficiencies to value\n";
+  s << "    -r,  --refit            \t refit all resplots\n";
+  s << "    -l,  --labels           \t use specified labels for key\n";
+  s << "         --taglabels        \t use specified additional labels \n";
+  s << "    -nb  --nobayes          \t do not calculate Basyesian efficiency uncertaintiesr\n";
+  s << "    -as, --atlasstyle       \t use ATLAS style\n";
+  s << "    -al, --atlaslable value \t set value for atlas label\n";
+  s << "         --yrange  min max  \t use specified y axis range\n";  
+  s << "    -ns, --nostats          \t do not show stats for mean and rms\n";
+  s << "    -nr, --noref            \t do not plot reference histograms\n";
+  s << "    -np, --noplots          \t do not actually make any plot\n";
+  s << "    -C,  --Cfiles           \t write C files also\n"; 
+  s << "    -nw, --nowatermark      \t do not plot the release watermark\n"; 
+  s << "         --nopng            \t do not print png files\n"; 
+  s << "         --deleteref        \t delete unused reference histograms\n";
+  s << "    -xo, --xoffset          \t relative x offset for the key\n"; 
+  //  s << "         --fe,            \t relative x offset for the key\n"; 
+  s << "    -h,  --help            \t this help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
   //  s << "\nReport bugs to <" << PACKAGE_BUGREPORT << ">";
   s << std::endl;
@@ -129,7 +132,10 @@ int main(int argc, char** argv) {
   bool nowatermark = false;
   bool noplots     = false;
   bool Cfile       = false;
-  
+  bool notitle     = false;
+
+  std::string atlaslabel = "for approval";
+
   double scale_eff = 100;
   
   std::string configfile = "";
@@ -137,6 +143,7 @@ int main(int argc, char** argv) {
   double xoffset = 0;
 
   
+  double _ypos = 0;
 
   std::vector<std::string> chains;
   for(int i=1; i<argc; i++){
@@ -199,6 +206,9 @@ int main(int argc, char** argv) {
     else if ( arg=="-ns" || arg=="--nostats" ) { 
       nostats = true;
     }
+    else if ( arg=="-nt" || arg=="--notitle" ) { 
+      notitle = true;
+    }
     else if ( arg=="-nr" || arg=="--noref" ) { 
       Plotter::setplotref(false);
       noref = true;
@@ -225,8 +235,16 @@ int main(int argc, char** argv) {
     else if ( arg=="-as" || arg=="--atlasstyle" ) { 
       atlasstyle = true;
     }
+    else if ( arg=="-al" || arg=="--atlaslabel" ) { 
+      if ( ++i<argc ) atlaslabel=argv[i];
+      else return usage(argv[0], -1);
+    }
     else if ( arg=="-xo" || arg=="--xoffset" ) { 
       if ( ++i<argc ) xoffset=std::atof(argv[i]);
+      else return usage(argv[0], -1);
+    }
+    else if ( arg=="-yp" || arg=="--ypos" ) { 
+      if ( ++i<argc ) _ypos=std::atof(argv[i]);
       else return usage(argv[0], -1);
     }
     else if ( arg.find("-")==0 ) {
@@ -305,34 +323,35 @@ int main(int argc, char** argv) {
 
   /// get release data
 
+  
   TTree*   dataTree = 0;
   TString* releaseData = new TString("");
-
-  dataTree = (TTree*)_ftest->Get("dataTree");
-  
   std::vector<std::string> release_data;
   
-  if ( dataTree ) { 
-    dataTree->SetBranchAddress( "ReleaseMetaData", &releaseData);
-    
-    for (unsigned int i=0; i<dataTree->GetEntries() ; i++ ) {
-      dataTree->GetEntry(i);      
-      release_data.push_back( releaseData->Data() );
-      std::cout << "main() release data: " << release_data.back() << " " << *releaseData << std::endl;
+  if ( !nowatermark ) { 
+    dataTree = (TTree*)_ftest->Get("dataTree");
+  
+    if ( dataTree ) { 
+      dataTree->SetBranchAddress( "ReleaseMetaData", &releaseData);
+      
+      for (unsigned int i=0; i<dataTree->GetEntries() ; i++ ) {
+	dataTree->GetEntry(i);      
+	release_data.push_back( releaseData->Data() );
+	std::cout << "main() release data: " << release_data.back() << " " << *releaseData << std::endl;
+      }
+    }
+  
+  
+    if ( release_data.size()>0 ) { 
+      if ( release_data.size()>1 ) std::cerr << "main() more than one release - using only the first" << std::endl;  
+      
+      //    std::cout << "release: " << chop(release_data[0], " " ) << std::endl;
+      //    std::cout << "release: " << chop(release_data[0], " " ) << std::endl;
+      
+      release += "  (" + chop(release_data[0], " " );
+      release += " " + chop(release_data[0], " " ) + ")";
     }
   }
-  
-  
-  if ( release_data.size()>0 ) { 
-    if ( release_data.size()>1 ) std::cerr << "main() more than one release - using only the first" << std::endl;  
-    
-    //    std::cout << "release: " << chop(release_data[0], " " ) << std::endl;
-    //    std::cout << "release: " << chop(release_data[0], " " ) << std::endl;
-    
-    release += "  (" + chop(release_data[0], " " );
-    release += " " + chop(release_data[0], " " ) + ")";
-  }
-
   
   
   // Make output directory                                                                                                                           
@@ -354,17 +373,26 @@ int main(int argc, char** argv) {
   int NeventTest=0;
   int NeventRef=0;
 
-  TH1D* htestev = (TH1D*)ftest.Get("event") ;
-  TH1D* hrefev  = (TH1D*)fref.Get("event") ;
-
-  std::cout << "htestev " << htestev << " " << hrefev  << std::endl;
-
-
-  NeventTest = htestev->GetEntries();
-  NeventRef  = hrefev->GetEntries();
 
   std::vector<std::string> savedhistos;
-  savedhistos.push_back("event");
+
+  
+  if ( !nowatermark ) { 
+    TH1D* htestev = (TH1D*)ftest.Get("event") ;
+    TH1D* hrefev  = (TH1D*)fref.Get("event") ;
+
+    std::cout << "htestev " << htestev << " " << hrefev  << std::endl;
+    
+    NeventTest = htestev->GetEntries();
+    NeventRef  = hrefev->GetEntries();
+  
+    savedhistos.push_back("event");
+  }
+  else { 
+    NeventTest = 1; /// get from Chains? 
+    NeventRef  = 1; 
+  }
+
 
 
   int    Nhistos = 48;
@@ -506,8 +534,6 @@ int main(int argc, char** argv) {
 
   if ( _histos.size()==0 ) return usage(argv[0], -1);
 
-
-
   const int Nhistos2D = 2;
 
   std::string histos2D[Nhistos2D] = {
@@ -519,8 +545,6 @@ int main(int argc, char** argv) {
     "#phi vs #eta",
     "d_{0} vs #phi",
   };
-
-
 
   //  std::cout << "size of chains " << chains.size() << std::endl;
 
@@ -635,13 +659,15 @@ int main(int argc, char** argv) {
 
     double xpos  = 0.15;
     double ypos  = 0.93;
-    if ( contains(histos[i],"eff") ) ypos = 0.15;
+    if ( contains(histos[i],"eff") || contains(histos[i],"Eff_") ) ypos = 0.15;
 
     if ( atlasstyle ) { 
       xpos  = 0.18;
       if ( ypos>0.5 ) ypos = 0.85; 
       else            ypos = 0.18;
     }
+
+    if ( _ypos!=0 ) ypos = _ypos;
 
     xpos += xoffset;
 
@@ -752,28 +778,40 @@ int main(int argc, char** argv) {
 	    //   href = (TH1F*)rref.Sigma()->Clone("rref_sigma"); href->SetDirectory(0);
 
 	    /// still get the reference histo
+
+
 	    href  = (TH1F*)fref.Get((chains[j]+"/"+histos[i]).c_str()) ;
+
+	    std::cout << "\tget" << (chains[j]+"/"+histos[i]) << "\t" << href << std::endl;
 
 	    savedhistos.push_back( chains[j]+"/"+histos[i] );
 
       }
       else { 
+
         htest = (TH1F*)ftest.Get((chains[j]+"/"+histos[i]).c_str()) ;
 	href  = (TH1F*)fref.Get((chains[j]+"/"+histos[i]).c_str()) ;
 
+	std::cout << "\tget" << (chains[j]+"/"+histos[i]) << "\thref  " << href << std::endl;
+	std::cout << "\tget" << (chains[j]+"/"+histos[i]) << "\thtest " << htest << std::endl;
+
+
 	if ( htest==0 || href==0 ) continue;
+
+	if ( notitle ) { 
+	  htest->SetTitle("");
+	  href->SetTitle("");
+	} 
 
 	savedhistos.push_back( chains[j]+"/"+histos[i] );
 
-	if ( yinfo.normset() ) { 
-	  Norm( htest );
-	  Norm( href );
-	}
-	
       }
 
       if ( make_ref_efficiencies ) { 
 	if ( htest && href ) { 
+
+	  //	  std::cout << "contains _eff " << contains( std::string(htest->GetName()), "eff" ) << std::endl;
+
 	  if ( contains( std::string(htest->GetName()), "_eff" ) ) {
 
 	    htestnum = (TH1F*)ftest.Get((chains[j]+"/"+histos[i]+"_n").c_str()) ;
@@ -789,7 +827,7 @@ int main(int argc, char** argv) {
 
 
       if ( _bayes ) { 
-	if ( htest && contains( std::string(htest->GetName()), "_eff" ) ) {
+	if ( htest && contains( std::string(htest->GetName()), "eff" ) ) {
 
 	  //	  delete htest;
 
@@ -830,7 +868,8 @@ int main(int argc, char** argv) {
       href->GetYaxis()->SetTitleOffset(1.5);
       href->GetXaxis()->SetTitleOffset(1.5);
       href->GetXaxis()->SetTitle(xaxis.c_str());
-      href->GetYaxis()->SetTitle(yaxis.c_str());
+      if ( contains(yaxis,"Efficiency") && !contains(yaxis,"%") && scale_eff==100 ) href->GetYaxis()->SetTitle((yaxis+" [%]").c_str());
+      else href->GetYaxis()->SetTitle(yaxis.c_str());
 
       if ( contains(histos[i],"ntracks") ) {
 	htest->Rebin(2);
@@ -878,6 +917,10 @@ int main(int argc, char** argv) {
 	replace(plotname, "/", "_"); 
 	
       }
+
+      bool residual = false;
+      
+      if ( contains(histos[i],"_res") ||  contains(histos[i],"residual_") || contains(histos[i],"1d") ) residual = true; 
 
       std::string c = chains[j];
 
@@ -929,7 +972,7 @@ int main(int argc, char** argv) {
 	}     
       }
       
-      if( contains(histos[i],"_res") || contains(histos[i],"1d") ) { 
+      if( residual ) {
 	
 	/// resolutions 
 
@@ -942,9 +985,9 @@ int main(int argc, char** argv) {
 	double    rms_95 = d95->GetParameter(2);
 	double   drms_95 = d95->GetParError(2);
 	
-	//	std::cout <<  "\t\t" << histos[i] 
-	//		  << "\tmean:     " << mean_95 << " +- " << dmean_95 
-	//		  << "\trms:     "  <<  rms_95 << " +- " << drms_95 << std::endl; 
+	std::cout <<  "\t\t" << histos[i] 
+		  << "\tmean:     " << mean_95 << " +- " << dmean_95 
+		  << "\trms:     "  <<  rms_95 << " +- " << drms_95 << std::endl; 
 
 	/// calculate power
 
@@ -1025,7 +1068,12 @@ int main(int argc, char** argv) {
         href->Scale(1./NeventRef);
 
       }
-      
+     
+      if ( yinfo.normset() ) { 
+	Norm( htest );
+	if ( href ) Norm( href );
+      }
+    
     }
 
     if ( !noplots ) { 
@@ -1062,7 +1110,10 @@ int main(int argc, char** argv) {
 
 	  yminset =  rmin*std::pow(10,-delta*0.1);
 
-	  if ( yminset!=yminset ) std::exit(-1);
+	  if ( yminset!=yminset ) { 
+	    std::cerr << " range error " << delta << " " << yminset << " " << ymaxset << "\t(" << rmin << " " << rmax << ")" << std::endl;
+	    std::exit(-1);
+	  }
 
 	}
 	else { 
@@ -1116,14 +1167,10 @@ int main(int argc, char** argv) {
       
       /// actually draw the plot here ...
       
-      //      std::cout << "drawing ..." << std::endl;
-
       plots.Draw( legend );
 
-      //      std::cout << "done" << std::endl;
-      
-      if ( atlasstyle ) ATLASLabel( xpos, ypositions[0]+deltay, "for approval" );
-      
+      if ( atlasstyle ) ATLASLabel( xpos, ypositions[0]+deltay, atlaslabel.c_str() );
+          
       for ( unsigned it=0 ; it<taglabels.size() ; it++ ) { 
 	//      std::cout << "\ttaglabel " << ypositions[it] << "\t(" << histos[i] << ")" << std::endl;
 	DrawLabel( xpos, ypositions[it], taglabels[it], kBlack, 0.04 );
@@ -1141,19 +1188,26 @@ int main(int argc, char** argv) {
       myText(      0.6,0.7,1,"#intL dt = 20.3 fb^{-1}", 0.045); 
       }
     */
-    
+
     if ( !nostats && !noplots ) { 
       if ( (contains(histos[i],"_res") || 
 	    contains(histos[i],"1d")   ||
 	    histos[i]=="pT"            || 
+	    contains(histos[i],"residual_") ||
 	    contains(histos[i],"vs_pt") ) && !contains(histos[i],"sigma") ) { 
-	if ( contains(histos[i],"_res") || contains(histos[i],"1d") ){
+
+	if ( contains(histos[i],"_res") || contains(histos[i],"residual_") || contains(histos[i],"1d") ){
 	  for ( unsigned j=0 ; j<chains.size() ; j++ ) { 
-	    if ( j<MeanRef.size() ) {
-	      if ( !noref ) DrawLabel( xpos-0.02, (0.6-j*0.035), MeanRef[j], colours[j%6] );
-	      if ( !noref ) DrawLabel( xpos-0.02, (0.6-0.035*chains.size()-j*0.035)-0.01, RMSRef[j],  colours[j%6] );
+	    if ( !noref ) { 
+	      if ( j<MeanRef.size() ) {
+		DrawLabel( xpos-0.02, (0.6-j*0.035), MeanRef[j], colours[j%6] );
+		DrawLabel( xpos-0.02, (0.6-0.035*chains.size()-j*0.035)-0.01, RMSRef[j],  colours[j%6] );
+	      }
+	    }
+	    if ( j<Mean.size() ) {
 	      DrawLabel( 0.62, (0.6-j*0.035), Mean[j],  colours[j%6] );
 	      DrawLabel( 0.62, (0.6-0.035*chains.size()-j*0.035)-0.01, RMS[j],  colours[j%6] );
+	      //	      std::cout << "\tdraw stats " << histos[i] << "\tMean " << Mean[j] << std::endl;
 	    }
 	  }
 	}
@@ -1221,7 +1275,7 @@ int main(int argc, char** argv) {
       TFile* newout = new TFile(".newout.root","recreate"); 
       newout->cd();
       
-      /// copy the release tree is need be 
+      /// copy the release tree if need be 
 
       if ( dataTree ) dataTree->Write("dataTree");
       
@@ -1234,7 +1288,7 @@ int main(int argc, char** argv) {
 	std::vector<std::string> dirs = AxisInfo::split( savedhistos[i], "/" );
 	
 	for ( unsigned j=0 ; j<dirs.size()-1 ; j++ ) { 
-	  //   std::cout << "\t" << dirs[j] << std::endl;
+	  std::cout << "\t" << dirs[j] << std::endl;
 	  TDirectory* renedir = gDirectory->GetDirectory( dirs[j].c_str() );
 	  if ( renedir==0 ) gDirectory->mkdir( dirs[j].c_str() );
 	  gDirectory->cd( dirs[j].c_str() );
@@ -1242,7 +1296,7 @@ int main(int argc, char** argv) {
 	
 	TH1* href  = (TH1*)fref.Get( savedhistos[i].c_str() );
 	if ( href ) {
-	  //	  std::cout << i << " " << savedhistos[i] << " 0x" << href << std::endl;
+	  std::cout << i << " " << savedhistos[i] << " 0x" << href << std::endl;
 	  href->Write( dirs.back().c_str() );
 	}
       
@@ -1271,6 +1325,9 @@ int main(int argc, char** argv) {
       
       cmd = std::string("mv .newout.root ") + std::string(frefname);
       std::system( cmd.c_str() );
+    }
+    else {
+      std::cerr << "reference file and test file are the same - not replacing" << std::endl;
     }
   }  
  
