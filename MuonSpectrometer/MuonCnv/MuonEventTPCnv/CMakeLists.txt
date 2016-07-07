@@ -117,6 +117,9 @@ foreach( name CscMcDataCnv_p1_test CscSimDataCnv_p1_test
       IdDict IdDictDetDescr IdDictParser InDetIdentifier InDetReadoutGeometry
       MuonAGDDDescription MuonReadoutGeometry MuonIdHelpersLib
       TrkEventPrimitives TrkPseudoMeasurementOnTrack MuonEventTPCnv
+      EXTRA_PATTERNS "MultiRange built successfully|element hash max"
+      PROPERTIES TIMEOUT 300
       ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 endforeach()
+
