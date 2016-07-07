@@ -28,3 +28,5 @@ use AthLinks      AthLinks-*      Control
 apply_pattern lcgdict dict=xAODTrigL1Calo selectionfile=selection.xml \
 	              headerfiles="../xAODTrigL1Calo/xAODTrigL1CaloDict.h" \
                       extralibfiles=../Root/dict/*.cxx
+                      
+apply_pattern do_genCLIDDB library=xAODTrigL1Calo                     
