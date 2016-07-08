@@ -342,7 +342,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
       m_EBE2.push_back(clus->energyBE(2));
       m_EBE3.push_back(clus->energyBE(3));
       m_Eta.push_back(clus->eta());
-      m_Phi.push_back(clus->eta());
+      m_Phi.push_back(clus->phi());
       double tmpeta = -999.;
       clus->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta);
       double tmpphi = -999.;
