@@ -19,7 +19,7 @@ oFext="png" # output file extention without the dot
 if (userPDF): oFext="pdf"
 
 ####
-canvasText   = [" ", " ", "",""] #specifies additional canvas text
+canvasText   = ["IDCosmics", " ", "",""] #specifies additional canvas text
 if (len(userCanvasText)>=1):
     canvasText = SetCanvasText(userCanvasText)
 
@@ -30,8 +30,12 @@ unitArea = False # set to true if you want to draw residual histos to unit area
     
 # specify the ROOT histogram files containing the monitoring plots here
 
-SetNextInputFile("/afs/cern.ch/user/h/hoide/workdir/alignment/2016InitialAlign/20.7.5.7/run297041/Iter1pass1/collisions/TotalMonitoring.root", "297041 Iter1", kOpenSquare, kGray+3,"AlignTracks_all","run_297041")
-SetNextInputFile("/afs/cern.ch/user/h/hoide/workdir/alignment/2016InitialAlign/20.7.5.7/run297041/Iter0pass1/collisions/TotalMonitoring.root", "297041 Iter0", kOpenSquare, kOrange+3,"AlignTracks_all","run_297041")
+#SetNextInputFile("/Users/martis/scratch/Run301973_IDCosmics_Monitoring_PostTS1_2.root", "Reco with Post_TS1_June2016", kOpenSquare, kRed-7,"AlignTracks_all","run_301973")
+SetNextInputFile("/Users/martis/scratch/Run301973_IDCosmics_Monitoring.root", "301973", kOpenSquare, kGray+3,"AlignTracks_all","run_301973")
+SetNextInputFile("/Users/martis/scratch/Run302393_IDCosmics_Monitoring.root", "302393", kOpenSquare, kRed+1,"AlignTracks_all","run_302393")
+#SetNextInputFile("/Users/martis/scratch/Run301973_IDCosmics_Monitoring.root", "Upper segment", kOpenSquare, kBlue-4,"AlignTracks_Upper_all","run_301973")
+#SetNextInputFile("/Users/martis/scratch/Run301973_IDCosmics_Monitoring.root", "Lower segment", kOpenSquare, kRed-4,"AlignTracks_Lower_all","run_301973")
+#SetNextInputFile("/afs/cern.ch/user/h/hoide/workdir/alignment/2016InitialAlign/20.7.5.7/run297041/Iter0pass1/collisions/TotalMonitoring.root", "297041 Iter0", kOpenSquare, kOrange+3,"AlignTracks_all","run_297041")
 
 
 # when arguments are passed from command line

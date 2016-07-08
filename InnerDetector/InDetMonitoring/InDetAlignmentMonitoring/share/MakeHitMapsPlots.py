@@ -23,8 +23,8 @@ if (userCollectOutput):
 for i in range(nFiles):    
 
     PIXBAR_HitMaps = MakeHitMaps(hitEffDir, legendTitles, rootFiles, i, "pixels", "BAR", True, 0, "measurements")
-    outputFileName =  outputDir+"/"+"PIXBAR_HitMaps_File_"+str(i)+"."+oFext
-    outputFileName =  outputDir+"/"+"PIXBAR_HitMaps_File_"+legendTitles[i]+"."+oFext
+    outputFileName =  outputDir+"/"+userPrefix+"PIXBAR_HitMaps_File_"+str(i)+"."+oFext
+    outputFileName =  outputDir+"/"+userPrefix+"PIXBAR_HitMaps_File_"+legendTitles[i]+"."+oFext
     outputFileName = outputFileName.replace(" ","_")    
     outputFileName = outputFileName.replace("(","_")    
     outputFileName = outputFileName.replace(")","_")    
@@ -33,8 +33,8 @@ for i in range(nFiles):
     if (userCollectOutput): Canvases.append(thiscan)
     
     PIXECA_HitMaps = MakeHitMaps(hitEffDir, legendTitles, rootFiles, i, "pixels", "ECA")
-    outputFileName =  outputDir+"/"+"PIXECA_HitMaps_File_"+str(i)+"."+oFext
-    outputFileName =  outputDir+"/"+"PIXECA_HitMaps_File_"+legendTitles[i]+"."+oFext
+    outputFileName =  outputDir+"/"+userPrefix+"PIXECA_HitMaps_File_"+str(i)+"."+oFext
+    outputFileName =  outputDir+"/"+userPrefix+"PIXECA_HitMaps_File_"+legendTitles[i]+"."+oFext
     outputFileName = outputFileName.replace(" ","_")    
     outputFileName = outputFileName.replace("(","_")    
     outputFileName = outputFileName.replace(")","_")    
@@ -43,8 +43,8 @@ for i in range(nFiles):
     if (userCollectOutput): Canvases.append(thiscan)
 
     PIXECC_HitMaps = MakeHitMaps(hitEffDir, legendTitles, rootFiles, i, "pixels", "ECC")
-    outputFileName =  outputDir+"/"+"PIXECC_HitMaps_File_"+str(i)+"."+oFext
-    outputFileName =  outputDir+"/"+"PIXECC_HitMaps_File_"+legendTitles[i]+"."+oFext
+    outputFileName =  outputDir+"/"+userPrefix+"PIXECC_HitMaps_File_"+str(i)+"."+oFext
+    outputFileName =  outputDir+"/"+userPrefix+"PIXECC_HitMaps_File_"+legendTitles[i]+"."+oFext
     outputFileName = outputFileName.replace(" ","_")     
     outputFileName = outputFileName.replace("(","_")    
     outputFileName = outputFileName.replace(")","_")    
@@ -54,8 +54,8 @@ for i in range(nFiles):
 
     # SCT barrel side 0 and side 1
     SCTBAR_s0HitMaps = MakeHitMaps(hitEffDir, legendTitles, rootFiles, i, "SCT", "BAR", True, 0)
-    outputFileName =  outputDir+"/"+"SCTBAR_s0HitMaps_File_"+str(i)+"."+oFext
-    outputFileName =  outputDir+"/"+"SCTBAR_s0HitMaps_File_"+legendTitles[i]+"."+oFext
+    outputFileName =  outputDir+"/"+userPrefix+"SCTBAR_s0HitMaps_File_"+str(i)+"."+oFext
+    outputFileName =  outputDir+"/"+userPrefix+"SCTBAR_s0HitMaps_File_"+legendTitles[i]+"."+oFext
     outputFileName = outputFileName.replace(" ","_")    
     outputFileName = outputFileName.replace("(","_")    
     outputFileName = outputFileName.replace(")","_")    
@@ -64,8 +64,8 @@ for i in range(nFiles):
     if (userCollectOutput): Canvases.append(thiscan)
 
     SCTBAR_s1HitMaps = MakeHitMaps(hitEffDir, legendTitles, rootFiles, i, "sct", "BAR", True, 1)
-    outputFileName =  outputDir+"/"+"SCTBAR_s1HitMaps_File_"+str(i)+"."+oFext
-    outputFileName =  outputDir+"/"+"SCTBAR_s1HitMaps_File_"+legendTitles[i]+"."+oFext
+    outputFileName =  outputDir+"/"+userPrefix+"SCTBAR_s1HitMaps_File_"+str(i)+"."+oFext
+    outputFileName =  outputDir+"/"+userPrefix+"SCTBAR_s1HitMaps_File_"+legendTitles[i]+"."+oFext
     outputFileName = outputFileName.replace(" ","_")    
     outputFileName = outputFileName.replace("(","_")    
     outputFileName = outputFileName.replace(")","_")    
@@ -73,10 +73,9 @@ for i in range(nFiles):
                           0.2, 0.96, "#mum",canvasText, makeOutput,"SCT","BAR")
     if (userCollectOutput): Canvases.append(thiscan)
     
-    '''
     # SCT ECA side 0 and sie 1
     SCTECA_s0HitMaps = MakeHitMaps(hitEffDir, legendTitles, rootFiles, i, "sct", "ECA", True, 0)
-    outputFileName = outputDir+"/"+"SCTECA_s0HitMaps_File_"+legendTitles[i]+"."+oFext
+    outputFileName = outputDir+"/"+userPrefix+"SCTECA_s0HitMaps_File_"+legendTitles[i]+"."+oFext
     outputFileName = outputFileName.replace(" ","_")    
     outputFileName = outputFileName.replace("(","_")    
     outputFileName = outputFileName.replace(")","_")    
@@ -85,7 +84,7 @@ for i in range(nFiles):
     if (userCollectOutput): Canvases.append(thiscan)
     
     SCTECA_s1HitMaps = MakeHitMaps(hitEffDir, legendTitles, rootFiles, i, "sct", "ECA", True, 1)
-    outputFileName = outputDir+"/"+"SCTECA_s1HitMaps_File_"+legendTitles[i]+"."+oFext
+    outputFileName = outputDir+"/"+userPrefix+"SCTECA_s1HitMaps_File_"+legendTitles[i]+"."+oFext
     outputFileName = outputFileName.replace(" ","_")    
     outputFileName = outputFileName.replace("(","_")    
     outputFileName = outputFileName.replace(")","_")    
@@ -94,7 +93,7 @@ for i in range(nFiles):
     if (userCollectOutput): Canvases.append(thiscan)
     
     # SCT ECC side 0 and sie 1
-    outputFileName = outputDir+"/"+"SCTECC_s0HitMaps_File_"+legendTitles[i]+"."+oFext
+    outputFileName = outputDir+"/"+userPrefix+"SCTECC_s0HitMaps_File_"+legendTitles[i]+"."+oFext
     outputFileName = outputFileName.replace(" ","_")    
     outputFileName = outputFileName.replace("(","_")    
     outputFileName = outputFileName.replace(")","_")    
@@ -103,7 +102,7 @@ for i in range(nFiles):
                           0.2, 0.96, "#mum",canvasText, makeOutput,"SCT","ECA")
     if (userCollectOutput): Canvases.append(thiscan)
         
-    outputFileName = outputDir+"/"+"SCTECC_s1HitMaps_File_"+legendTitles[i]+"."+oFext
+    outputFileName = outputDir+"/"+userPrefix+"SCTECC_s1HitMaps_File_"+legendTitles[i]+"."+oFext
     outputFileName = outputFileName.replace(" ","_")    
     outputFileName = outputFileName.replace("(","_")    
     outputFileName = outputFileName.replace(")","_")    
@@ -112,14 +111,12 @@ for i in range(nFiles):
                           0.2, 0.96, "#mum",canvasText, makeOutput,"SCT","ECA")
     if (userCollectOutput): Canvases.append(thiscan)
 
-    '''
-
     #
     # HIT EFFICIENCY PER MODULE AND PLANE
     #
     # pixel barrel hit efficiency map
     PIXBAR_HitEffMaps = MakeHitEffMaps(hitEffDir, legendTitles, rootFiles, i, "PIX", "BAR", True, 0)
-    outputFileName =  outputDir+"/"+"PIXBAR_HitEffMaps_File_"+legendTitles[i]+"."+oFext
+    outputFileName =  outputDir+"/"+userPrefix+"PIXBAR_HitEffMaps_File_"+legendTitles[i]+"."+oFext
     outputFileName = outputFileName.replace(" ","_")    
     outputFileName = outputFileName.replace("(","_")    
     outputFileName = outputFileName.replace(")","_")    
@@ -129,7 +126,7 @@ for i in range(nFiles):
     
     # SCT barrel side 0 and side 1
     SCTBAR_s0HitEffMaps = MakeHitEffMaps(hitEffDir, legendTitles, rootFiles, i, "SCT", "BAR", True, 0)
-    outputFileName =  outputDir+"/"+"SCTBAR_s0HitEffMaps_File_"+legendTitles[i]+"."+oFext
+    outputFileName =  outputDir+"/"+userPrefix+"SCTBAR_s0HitEffMaps_File_"+legendTitles[i]+"."+oFext
     outputFileName = outputFileName.replace(" ","_")    
     outputFileName = outputFileName.replace("(","_")    
     outputFileName = outputFileName.replace(")","_")    
@@ -138,7 +135,7 @@ for i in range(nFiles):
     if (userCollectOutput): Canvases.append(thiscan)
 
     SCTBAR_s1HitEffMaps = MakeHitEffMaps(hitEffDir, legendTitles, rootFiles, i, "sct", "BAR", True, 1)
-    outputFileName =  outputDir+"/"+"SCTBAR_s1HitEffMaps_File_"+legendTitles[i]+"."+oFext
+    outputFileName =  outputDir+"/"+userPrefix+"SCTBAR_s1HitEffMaps_File_"+legendTitles[i]+"."+oFext
     outputFileName = outputFileName.replace(" ","_")    
     outputFileName = outputFileName.replace("(","_")    
     outputFileName = outputFileName.replace(")","_")    
@@ -152,8 +149,8 @@ for i in range(nFiles):
     if (userExtended):
         print " <MakeHitMapsPlots> Extended = True "
         PIXBAR_ExpectedHitMaps = MakeHitMaps(hitEffDir, legendTitles, rootFiles, i, "pixels", "BAR", True, 0, "hits")
-        outputFileName =  outputDir+"/"+"PIXBAR_ExpectedHitMaps_File_"+str(i)+"."+oFext
-        outputFileName =  outputDir+"/"+"PIXBAR_ExpectedHitMaps_File_"+legendTitles[i]+"."+oFext
+        outputFileName =  outputDir+"/"+userPrefix+"PIXBAR_ExpectedHitMaps_File_"+str(i)+"."+oFext
+        outputFileName =  outputDir+"/"+userPrefix+"PIXBAR_ExpectedHitMaps_File_"+legendTitles[i]+"."+oFext
         outputFileName = outputFileName.replace(" ","_")    
         outputFileName = outputFileName.replace("(","_")    
         outputFileName = outputFileName.replace(")","_")    
@@ -161,8 +158,8 @@ for i in range(nFiles):
                     0.2, 0.96, "#mum",canvasText,makeOutput)
         
         PIXBAR_HoleMaps = MakeHitMaps(hitEffDir, legendTitles, rootFiles, i, "pixels", "BAR", True, 0, "holes")
-        outputFileName =  outputDir+"/"+"PIXBAR_HoleMaps_File_"+str(i)+"."+oFext
-        outputFileName =  outputDir+"/"+"PIXBAR_HoleMaps_File_"+legendTitles[i]+"."+oFext
+        outputFileName =  outputDir+"/"+userPrefix+"PIXBAR_HoleMaps_File_"+str(i)+"."+oFext
+        outputFileName =  outputDir+"/"+userPrefix+"PIXBAR_HoleMaps_File_"+legendTitles[i]+"."+oFext
         outputFileName = outputFileName.replace(" ","_")    
         outputFileName = outputFileName.replace("(","_")    
         outputFileName = outputFileName.replace(")","_")    
@@ -170,8 +167,8 @@ for i in range(nFiles):
                     0.2, 0.96, "#mum",canvasText,makeOutput)
         
         PIXBAR_OutliersMaps = MakeHitMaps(hitEffDir, legendTitles, rootFiles, i, "pixels", "BAR", True, 0, "outliers")
-        outputFileName =  outputDir+"/"+"PIXBAR_OutlierMaps_File_"+str(i)+"."+oFext
-        outputFileName =  outputDir+"/"+"PIXBAR_OutlierMaps_File_"+legendTitles[i]+"."+oFext
+        outputFileName =  outputDir+"/"+userPrefix+"PIXBAR_OutlierMaps_File_"+str(i)+"."+oFext
+        outputFileName =  outputDir+"/"+userPrefix+"PIXBAR_OutlierMaps_File_"+legendTitles[i]+"."+oFext
         outputFileName = outputFileName.replace(" ","_")    
         outputFileName = outputFileName.replace("(","_")    
         outputFileName = outputFileName.replace(")","_")    

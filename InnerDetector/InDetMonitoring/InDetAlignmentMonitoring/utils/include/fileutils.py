@@ -79,7 +79,7 @@ def readConstants(file, useBarrels=True,  useEndCaps=True):
         elif "Number of tracks passing" in line:
             if (counter >= 0):
                 line = line[25:]
-                print " In Ntracks --> counter:", counter, "  Ntracks: ",line 
+                #print " In Ntracks --> counter:", counter, "  Ntracks: ",line 
                 detector.GetModule(counter).setTracks(int(line))
         elif "total time spent in solve" in line:
             print " ** readConstants ** ** WARNING ** ** DISCARDING REST OF THE FILE ** after counter ", counter 

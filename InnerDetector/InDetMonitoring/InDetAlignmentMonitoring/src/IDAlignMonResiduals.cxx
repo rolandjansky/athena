@@ -337,8 +337,8 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
 	m_FinerBinningFactor    = 1;
 	m_LBGranularity         = 1;
 	m_LBRangeMin            = -0.5;
-	m_LBRangeMax            = 1199.5;
-	m_nBinsLB               = 24;
+	m_LBRangeMax            = 2599.5; // 1199.5
+	m_nBinsLB               = 52; // 24
 	m_gap_pix = 4;
 	m_gap_sct = 4;
 	m_mu = 0.;
@@ -3752,6 +3752,32 @@ void IDAlignMonResiduals::MakePIXBarrelHistograms(MonGroup& al_mon)
   m_pix_b_yresvsmodphi = new TH1F("pix_b_yresvsmodphi","Y Residual Mean vs (Modified) Module Phi Pixel Barrel;(Modified) Module Phi Identifier;Mean Residual Y",
 				  totalPhiModules+2, -1.5, totalPhiModules+1.5);
   RegisterHisto(al_mon,m_pix_b_yresvsmodphi); 
+
+  // - x axis should label correct eta ring
+  //int m_layerModEtaShift[4] = {10,30,48,65};       //HARDCODED!
+  //int m_layerModPhiShift[4] = {0,18,44,86};
+
+  int phibinid = 0;
+  for (int ibin=1; ibin <= m_pix_b_xresvsmodphi->GetNbinsX(); ibin++) {
+    // - SALVA - 
+    // there is a free bin at the beginning and the end
+    // IBL has 14 staves: starts at bin 2 
+    if (2 <= ibin && ibin <= 15) {
+      phibinid++;
+      if (ibin == 2) phibinid = 1; // IBL stave count starts at 1
+      m_pix_b_xresvsmodphi->GetXaxis()->SetBinLabel(ibin,("IBL_"+intToString(phibinid)).c_str());
+      m_pix_b_yresvsmodphi->GetXaxis()->SetBinLabel(ibin,("IBL_"+intToString(phibinid)).c_str());
+    }
+    // B layer has 22 staves: starts at bin 24 
+    if (24 <= ibin && ibin <= 45) {
+      phibinid++;
+      if (ibin == 24) phibinid = 0;
+      m_pix_b_xresvsmodphi->GetXaxis()->SetBinLabel(ibin,("BLay_"+intToString(phibinid)).c_str());
+      m_pix_b_yresvsmodphi->GetXaxis()->SetBinLabel(ibin,("BLay_"+intToString(phibinid)).c_str());
+    }
+  } 
+
+  //
   
   if (m_extendedPlots){
     
