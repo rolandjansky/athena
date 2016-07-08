@@ -111,18 +111,18 @@ namespace CaloG4 {
 
     // Some private methods for internal calculations:
 
-    G4double m_measurableEnergy(const G4ParticleDefinition *particleDef, 
+    G4double measurableEnergy(const G4ParticleDefinition *particleDef, 
 				G4int PDGEncoding,
 				G4double totalEnergy,
 				G4double kineticEnergy);
 
-    G4double m_measurableEnergyV2(const G4ParticleDefinition *particleDef, 
-				  G4int PDGEncoding,
-				  G4double totalEnergy,
-				  G4double kineticEnergy);
+    G4double measurableEnergyV2(const G4ParticleDefinition *particleDef, 
+                                G4int PDGEncoding,
+                                G4double totalEnergy,
+                                G4double kineticEnergy);
 
     // Escaped energy requires special processing.
-    G4bool m_ProcessEscapedEnergy( G4ThreeVector point, G4double energy );
+    G4bool ProcessEscapedEnergy( G4ThreeVector point, G4double energy );
 
     // Used to keep track of processing state.
     static G4bool m_calledForStep;
