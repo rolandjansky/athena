@@ -143,7 +143,7 @@ namespace MuonCalib {
       ATH_MSG_FATAL("Track is not stored! Arey you running on AOD?");
       return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO("going to handle track");
+    ATH_MSG_VERBOSE("going to handle track");
     handleTrack(track, index, author + m_authorOffset + 10*isPrimaryAuthor, writeHits);
     return StatusCode::SUCCESS;
   }  //end ExtraTreeMuonFillerTool::writeTrackPartice
