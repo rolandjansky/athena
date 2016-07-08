@@ -47,11 +47,11 @@ namespace HLTNavDetails {
   class IHolder : public HLT::BaseHolder {
   public:
     IHolder();
-    //    IHolder(const std::string& label, uint16_t idx );
+    IHolder(const std::string& prefix, const std::string& label, uint16_t idx );
     virtual ~IHolder();
 
 
-    virtual IHolder* clone(const std::string& label,  uint16_t idx) = 0; // actual constructor
+    virtual IHolder* clone(const std::string& prefix, const std::string& label,  uint16_t idx) = 0; // actual constructor
 
     /**
      * @brief prepares this holder by setting messaging, StoreGate access and providing serializer
@@ -73,24 +73,25 @@ namespace HLTNavDetails {
      */
     inline const std::string& label() const { return  m_label; }
 
-
-    void setObjectsKeyPrefix(const std::string& p) { m_prefix = p; }
+    /**
+     * @brief returns the containers StoreGate prefix
+     */
+    virtual const std::string& prefix() const { return m_prefix; }
 
     /**
      * @brief returns the containers StoreGate key
      */
-
-    virtual const std::string key() const = 0;
+    virtual const std::string& key() const = 0;
 
     /**
      * @brief returns the object's name stored by this holder
      */
-    virtual const std::string typeName() const = 0;
+    virtual const std::string& typeName() const = 0;
 
     /**
      * @brief returns the collection's name stored by this holder
      */
-    virtual const std::string collectionName() const = 0;
+    virtual const std::string& collectionName() const = 0;
 
     /**
      * @brief returns the index (short number used when linking object to the TE)
@@ -140,20 +141,19 @@ namespace HLTNavDetails {
     virtual std::string getNextKey() = 0;   // this is backward compatibility for TrigCaloRec and TrigTauRec, whould be removed
 
   protected:
-    mutable std::vector<uint32_t>*  m_serialized;              //!< serialized vector of this type
     // serialization helpers
-    MsgStream*                      m_log;
-    IConversionSvc*                 m_objectserializerSvc;     //!< pointer to object serializer
-    HLT::AccessProxy*               m_storeGate;               //!< pointer to SG
+    MsgStream*                      m_log{0};
+    IConversionSvc*                 m_objectserializerSvc{0};     //!< pointer to object serializer
+    HLT::AccessProxy*               m_storeGate{0};               //!< pointer to SG
 
-    std::string  m_label;          //!< label given to the objects in this holder (labels given at attachFeature)
-    std::string  m_prefix;         //!< prefix for key given to the objects
-    uint16_t     m_subTypeIndex;   //!< index to notify how many objects of given type we have (we need to record it in case of slimming will be done latter)
-    bool         m_readonly;     
-    ITypeProxy*  m_aux;
+    bool         m_readonly{false};
+    ITypeProxy*  m_aux{0};
+
   private:
-    mutable std::ostringstream m_ostream; //!< used internally for keys generation
-    int m_uniqueCounter; 
+    std::string  m_prefix;            //!< prefix for key given to the objects
+    std::string  m_label;             //!< label given to the objects in this holder (labels given at attachFeature)
+    uint16_t     m_subTypeIndex{0};   //!< index to notify how many objects of given type we have (we need to record it in case of slimming will be done latter)
+    int          m_uniqueCounter{0}; 
   };
 
 
@@ -198,7 +198,7 @@ namespace HLTNavDetails {
   class Holder : public IHolder {
   public:
     Holder();
-    Holder(const std::string& label, uint16_t idx);
+    Holder(const std::string& prefix, const std::string& label, uint16_t idx);
     virtual ~Holder();
 
     virtual HLT::TriggerElement::ObjectIndex add( const STORED* f, bool inSG, const std::string& = "" ) = 0;          //!< saved object in this holder
@@ -243,10 +243,10 @@ namespace HLTNavDetails {
     typedef HLTNavDetails::TypeProxy<CONTAINER> ContainerProxy;
 
     HolderImp();
-    HolderImp(const std::string& label, uint16_t idx);
+    HolderImp(const std::string& prefix, const std::string& label, uint16_t idx);
     virtual ~HolderImp();
 
-    virtual IHolder* clone(const std::string& label, uint16_t idx );
+    virtual IHolder* clone(const std::string& prefix, const std::string& label, uint16_t idx );
 
     /**
      * @brief adds object(s) to be holded
@@ -278,9 +278,7 @@ namespace HLTNavDetails {
 
     virtual bool serialize(std::vector<uint32_t>& output) const;
 
-    virtual const std::string key() const {
-      return formatSGkey(this->m_prefix,ClassID_traits<CONTAINER>::typeName(),this->m_label);
-    };
+    virtual const std::string& key() const { return m_key; }
     virtual void print(MsgStream& m) const;
 
     virtual DataObject* getDataObject();
@@ -289,9 +287,9 @@ namespace HLTNavDetails {
     virtual bool setAuxDataObject(DataObject* dobjaux);
 
     virtual CLID typeClid() const { return ClassID_traits<STORED>::ID(); }
-    virtual const std::string typeName() const { return ClassID_traits<STORED>::typeName(); }
+    virtual const std::string& typeName() const { return ClassID_traits<STORED>::typeName(); }
     virtual CLID containerClid() const { return ClassID_traits<CONTAINER>::ID(); }
-    virtual const std::string collectionName() const { return ClassID_traits<CONTAINER>::typeName(); }
+    virtual const std::string& collectionName() const { return ClassID_traits<CONTAINER>::typeName(); }
     virtual CLID auxClidOrZero() const;
 
     virtual const ITypeProxy& containerTypeProxy() const { return m_containerProxy; }
@@ -309,6 +307,9 @@ namespace HLTNavDetails {
 
     typedef std::multimap<HLT::TriggerElement::ObjectIndex, MemoryMgr> MemoryMgrMap;
     MemoryMgrMap m_memMgr;
+
+  private:
+    std::string m_key; //<! StoreGate key
   };
 
   MsgStream& operator<< ( MsgStream& m, const HLTNavDetails::IHolder& nav ); //<! printing helper
