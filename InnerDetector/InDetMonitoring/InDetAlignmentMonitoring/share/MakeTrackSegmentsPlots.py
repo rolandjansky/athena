@@ -76,22 +76,6 @@ DrawPlots(DELTAETA,outputDir+"/"+"DELTAETAvsZ0."+oFext,"#Delta(Up-Down) Tracks",
 DELTAQOPT = MakeProfPlots(splitTracksDir,legendTitles,markerColors,markerStyles,"delta_qOverPtVsZ0","noFit",rootFiles,nFiles,True)
 DrawPlots(DELTAQOPT,outputDir+"/"+"DELTAQOPTvsZ0."+oFext,"#Delta(Up-Down) Tracks","#Delta q/p_{T} [GeV^{-1}]", "z_{0} [mm]",xLabels,yLabels,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
 
-# sigma vs pt (Reprocessed plots: This plots are only available if the collection has been reprocessed)
-if (TrackSegmentCollection == "AlignTracks_NoTriggerSelection" and userExtended):
-	SIGMAD0VSPT_FIT = MakePlots(splitTracksDir,legendTitles,markerColors,markerStyles,"sigma_delta_d0VsPt","noFit",rootFiles,nFiles,True)
-	DrawPlots(SIGMAD0VSPT_FIT,outputDir+"/"+"SIGMAD0vsPT_FIT."+oFext,"#Delta(Up-Down) Tracks","#sigma #Delta d_{0} [mm]", "p_{T}  [GeV]",xLabels,yLabels,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
-
-	SIGMAZ0VSPT_FIT = MakePlots(splitTracksDir,legendTitles,markerColors,markerStyles,"sigma_delta_z0VsPt","noFit",rootFiles,nFiles,True)
-	DrawPlots(SIGMAZ0VSPT_FIT,outputDir+"/"+"SIGMAZ0vsPT_FIT."+oFext,"#Delta(Up-Down) Tracks","#sigma #Delta z_{0} [mm]", "p_{T}  [GeV]",xLabels,yLabels,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
-
-	SIGMAPHIVSPT_FIT = MakePlots(splitTracksDir,legendTitles,markerColors,markerStyles,"sigma_delta_phi0VsPt","noFit",rootFiles,nFiles,True)
-	DrawPlots(SIGMAPHIVSPT_FIT,outputDir+"/"+"SIGMAPHIvsPT_FIT."+oFext,"#Delta(Up-Down) Tracks","#sigma #Delta #phi_{0} [rad]", "p_{T}  [GeV]",xLabels,yLabels,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
-
-	SIGMAETAVSPT_FIT = MakePlots(splitTracksDir,legendTitles,markerColors,markerStyles,"sigma_delta_eta0VsPt","noFit",rootFiles,nFiles,True)
-	DrawPlots(SIGMAETAVSPT_FIT,outputDir+"/"+"SIGMAETAvsPT_FIT."+oFext,"#Delta(Up-Down) Tracks","#sigma #Delta #eta", "p_{T}  [GeV]",xLabels,yLabels,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
-
-	SIGMAQOPTVSPT_FIT = MakePlots(splitTracksDir,legendTitles,markerColors,markerStyles,"sigma_delta_qOverPtVsPt","noFit",rootFiles,nFiles,True)
-	DrawPlots(SIGMAQOPTVSPT_FIT,outputDir+"/"+"SIGMAQOPTvsPT_FIT."+oFext,"#Delta(Up-Down) Tracks","#sigma #Delta q/p_{T} [GeV^{-1}]", "p_{T}  [GeV]",xLabels,yLabels,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
 
 # sigma vs pt (From TH2, using RMS)
 SIGMAD0VSPT = MakeProfSigmaPlots(splitTracksDir,legendTitles,markerColors,markerStyles,"delta_d0VsPt","noFit",rootFiles,nFiles,True)
@@ -124,5 +108,23 @@ if (userExtended):
     DrawPlots(DELTAQOPTVSZ0,outputDir+"/"+"DELTAQOPTvsZ0."+oFext,"#Delta(Up-Down) Tracks","#Delta q/p_{T} [GeV^{-1}]", "z_{0} [mm]",xLabels,yLabels,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
     
 
+# sigma vs pt (Reprocessed plots: This plots are only available if the collection has been reprocessed)
+#print "<MakeTrackSegmentsPlots> TrackSegmentCollection = ", TrackSegmentCollection
+#if (TrackSegmentCollection == "AlignTracks_NoTriggerSelection" and userExtended):
+if (userExtended):
+	SIGMAD0VSPT_FIT = MakePlots(splitTracksDir,legendTitles,markerColors,markerStyles,"sigma_delta_d0VsPt","noFit",rootFiles,nFiles,True)
+	DrawPlots(SIGMAD0VSPT_FIT,outputDir+"/"+"SIGMAD0vsPT_FIT."+oFext,"#Delta(Up-Down) Tracks","#sigma #Delta d_{0} [mm]", "p_{T}  [GeV]",xLabels,yLabels,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
+
+	SIGMAZ0VSPT_FIT = MakePlots(splitTracksDir,legendTitles,markerColors,markerStyles,"sigma_delta_z0VsPt","noFit",rootFiles,nFiles,True)
+	DrawPlots(SIGMAZ0VSPT_FIT,outputDir+"/"+"SIGMAZ0vsPT_FIT."+oFext,"#Delta(Up-Down) Tracks","#sigma #Delta z_{0} [mm]", "p_{T}  [GeV]",xLabels,yLabels,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
+
+	SIGMAPHIVSPT_FIT = MakePlots(splitTracksDir,legendTitles,markerColors,markerStyles,"sigma_delta_phi0VsPt","noFit",rootFiles,nFiles,True)
+	DrawPlots(SIGMAPHIVSPT_FIT,outputDir+"/"+"SIGMAPHIvsPT_FIT."+oFext,"#Delta(Up-Down) Tracks","#sigma #Delta #phi_{0} [rad]", "p_{T}  [GeV]",xLabels,yLabels,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
+
+	SIGMAETAVSPT_FIT = MakePlots(splitTracksDir,legendTitles,markerColors,markerStyles,"sigma_delta_eta0VsPt","noFit",rootFiles,nFiles,True)
+	DrawPlots(SIGMAETAVSPT_FIT,outputDir+"/"+"SIGMAETAvsPT_FIT."+oFext,"#Delta(Up-Down) Tracks","#sigma #Delta #eta", "p_{T}  [GeV]",xLabels,yLabels,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
+
+	SIGMAQOPTVSPT_FIT = MakePlots(splitTracksDir,legendTitles,markerColors,markerStyles,"sigma_delta_qOverPtVsPt","noFit",rootFiles,nFiles,True)
+	DrawPlots(SIGMAQOPTVSPT_FIT,outputDir+"/"+"SIGMAQOPTvsPT_FIT."+oFext,"#Delta(Up-Down) Tracks","#sigma #Delta q/p_{T} [GeV^{-1}]", "p_{T}  [GeV]",xLabels,yLabels,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
 print " -- MakeTrackSegmentsPlots -- completed "
 #exit()
