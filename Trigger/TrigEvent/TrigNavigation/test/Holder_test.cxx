@@ -32,7 +32,7 @@ StoreGateSvc* pStore(0);
 template<class HTYPE> 
 StatusCode reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typename HTYPE::base_type*& base_holder ) {
   BEGIN_TEST("Registration");
-  IHolder* iholder = full->clone(name, idx);
+  IHolder* iholder = full->clone("", name, idx);
   if ( ! iholder ) REPORT_AND_STOP ("Holder can't create IHolder" );
 
   base_holder = dynamic_cast<typename HTYPE::base_type*>(iholder); // we do nto intend to do it but here it is to see if types realy fit
@@ -232,7 +232,7 @@ StatusCode externalCollection() {
     REPORT_AND_STOP("Failed to record in SG");
   
   Holder<TestBContainer> *base = new HolderImp<TestBContainer, TestBContainer >();
-  Holder<TestBContainer> *h =   dynamic_cast<Holder<TestBContainer>*>(base->clone("external", 77));
+  Holder<TestBContainer> *h =   dynamic_cast<Holder<TestBContainer>*>(base->clone("", "external", 77));
   h->prepare(msglog, pStore,0, false);  
 
   END_TEST;

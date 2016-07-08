@@ -23,15 +23,16 @@ using namespace HLTNavDetails;
  *
  *****************************************************************************/
 IHolder::IHolder()
-  : m_serialized(0),
-    m_log(0),
-    m_objectserializerSvc(0),
-    m_storeGate(0),
-    m_label(""),
-    m_subTypeIndex(0),
-    m_aux(0),
-    m_uniqueCounter(0)
-{}
+{
+}
+
+IHolder::IHolder(const std::string& prefix, const std::string& label, uint16_t idx )
+  : m_prefix(prefix),
+    m_label(label),
+    m_subTypeIndex(idx)
+{
+}
+
 
 IHolder::~IHolder() {
   if ( m_aux ) { delete m_aux; }

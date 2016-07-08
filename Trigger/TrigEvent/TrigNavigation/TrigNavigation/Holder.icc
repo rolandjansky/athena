@@ -39,9 +39,9 @@ HLTNavDetails::Holder<STORED>::Holder() {
 
 /////////////////////////////////////////////////////////////////////////////
 template<class STORED>
-HLTNavDetails::Holder<STORED>::Holder(const std::string& label, uint16_t idx) {
-  m_label = label;
-  m_subTypeIndex = idx;
+HLTNavDetails::Holder<STORED>::Holder(const std::string& prefix, const std::string& label, uint16_t idx) :
+  IHolder(prefix, label, idx)
+{
 }
 
 
@@ -94,13 +94,13 @@ bool HLTNavDetails::Holder<STORED>::get( ElementLinkVector<CONTAINER2>& el ) {
 template<class STORED, class CONTAINER>
 HLTNavDetails::HolderImp<STORED, CONTAINER>::HolderImp() 
   : Holder<STORED>() {
-
 }
 
 /////////////////////////////////////////////////////////////////////////////
 template<class STORED, class CONTAINER>
-HLTNavDetails::HolderImp<STORED, CONTAINER>::HolderImp(const std::string& label, uint16_t idx) 
-  : Holder<STORED>(label, idx) {
+HLTNavDetails::HolderImp<STORED, CONTAINER>::HolderImp(const std::string& prefix, const std::string& label, uint16_t idx) 
+  : Holder<STORED>(prefix, label, idx) {
+  m_key = formatSGkey(prefix, ClassID_traits<CONTAINER>::typeName(), label);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -116,12 +116,12 @@ HLTNavDetails::HolderImp<STORED, CONTAINER>::~HolderImp() {
 
 /////////////////////////////////////////////////////////////////////////////
 template<class STORED, class CONTAINER>
-HLTNavDetails::IHolder* HLTNavDetails::HolderImp<STORED, CONTAINER>::clone(const std::string& label, uint16_t idx ) {
+HLTNavDetails::IHolder* HLTNavDetails::HolderImp<STORED, CONTAINER>::clone(const std::string& prefix, const std::string& label, uint16_t idx ) {
   //typedef Holder<STORED> H;
   if ( not m_containerProxy.empty() ) {
     return 0;
   }
-  HolderImp<STORED, CONTAINER> *imp = new HolderImp<STORED, CONTAINER>(label, idx);
+  HolderImp<STORED, CONTAINER> *imp = new HolderImp<STORED, CONTAINER>(prefix, label, idx);
   IHolder *h        = imp;
   return h;
 }
@@ -189,9 +189,8 @@ bool  HLTNavDetails::HolderImp<STORED, CONTAINER>::syncWithSG(SG::OwnershipPolic
     return false;
   }
   HMLOG(VERBOSE) << "HolderImp::syncWithSG syncing holder with SG " << *this << endreq;
-  std::string l = key();
 
-  std::string auxkey = key()+"Aux.";
+  const std::string auxkey = key()+"Aux.";
   HMLOG(VERBOSE) << "HolderImp::syncWithSG looking in SG for key " << key() << " possible aux should have " << auxkey << endreq;
 
   const bool transientInSG ( m_containerProxy.transientContains(H::m_storeGate, key() ) );
@@ -233,34 +232,31 @@ bool  HLTNavDetails::HolderImp<STORED, CONTAINER>::syncWithSG(SG::OwnershipPolic
     CLID auxCLID = auxCLIDOrZero<typename Container2Aux<CONTAINER>::type>::get();
     if ( auxCLID and policy != SG::VIEW_ELEMENTS ) {
       if ( H::m_aux == 0 ) {
-	HMLOG(ERROR) << "HolderImp::syncWithSG can not clone Aux store proxy " << *this << endreq;
-	return false;
+        HMLOG(ERROR) << "HolderImp::syncWithSG can not clone Aux store proxy " << *this << endreq;
+        return false;
       }
       
       HMLOG(VERBOSE) << "HolderImp::syncWithSG proxy toAux store ready decorating" << endreq;
 
       if( H::m_aux->create().isFailure() ) {
-	HMLOG(WARNING) << "HolderImp::syncWithSG can not create Aux store for container " << *this << endreq;
-	return false;
+        HMLOG(WARNING) << "HolderImp::syncWithSG can not create Aux store for container " << *this << endreq;
+        return false;
       }
-      std::string auxkey = formatSGkey(this->m_prefix,
-				       ClassID_traits<CONTAINER>::typeName(),
-				       this->m_label+"Aux.");
 
       if( H::m_aux->reg(H::m_storeGate,auxkey).isFailure() ) {
-	HMLOG(WARNING) << "HolderImp::syncWithSG can not register Aux store for container in SG " << *this << endreq;
-	return false;
+        HMLOG(WARNING) << "HolderImp::syncWithSG can not register Aux store for container in SG " << *this << endreq;
+        return false;
       }
 
       SG::AuxVectorBase* container = m_containerProxy.castAuxVectorBase();
       SG::IAuxStore* aux = H::m_aux->castIAuxStore();
       if ( container and aux ) {
-	HMLOG(DEBUG) << "HolderImp::syncWithSG Aux sotore configured for " << *this << endreq;
-	container->setStore(aux);
+        HMLOG(DEBUG) << "HolderImp::syncWithSG Aux sotore configured for " << *this << endreq;
+        container->setStore(aux);
       } else {
-	HMLOG(WARNING) << "HolderImp::syncWithSG type configured to have Aux store but no appropriate Aux interfaces are implemented AuxVectorBase for container: " 
-		       << container << " IAuxStore for Aux sotore: " << aux <<  " "<<  *this << endreq;
-	return false;	
+        HMLOG(WARNING) << "HolderImp::syncWithSG type configured to have Aux store but no appropriate Aux interfaces are implemented AuxVectorBase for container: " 
+                       << container << " IAuxStore for Aux sotore: " << aux <<  " "<<  *this << endreq;
+        return false;	
       }
     } 
     
