@@ -546,9 +546,22 @@ def DrawEvolutionPlot(inputTuple, outputName, plotTitle, yAxisTitle, legendLeftX
     # Y axis title  
     evolutionHisto.GetYaxis().SetTitle(yAxisTitle)
         
+    theMaximum = 0.
     # fill the evolution histogram 
     for i in range(0,nPoints):
-        evolutionHisto.Fill( i, histoGram[i].GetMean()) 
+        newval = histoGram[i].GetMean()
+        newerr = histoGram[i].GetRMS()/math.sqrt(histoGram[i].GetEntries())
+        thismax = abs(newval) + abs(newerr)
+        evolutionHisto.SetBinContent(i+1, newval) 
+        evolutionHisto.SetBinError(i+1, newerr) 
+        if (thismax >theMaximum): theMaximum = thismax
+
+    # rescale the maximum
+    theMaximum *= 1.10
+    
+    # symmetrize range
+    evolutionHisto.SetMaximum(theMaximum)
+    evolutionHisto.SetMinimum(-theMaximum)
 
     # open the canvas
     canvasName = "evolutionCanvas_"+outputName    
