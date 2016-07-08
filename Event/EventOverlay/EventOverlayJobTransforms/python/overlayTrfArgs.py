@@ -30,10 +30,10 @@ def addOverlayBSFilterArgs(parser):
     parser.add_argument('--lumiBlockMapFile',
                         type=argFactory(argString),
                         help='Lumi block information file', group='Overlay Filter')
-    parser.add_argument('--outputBS_SKIMFile', '--outputBSFile',
+    parser.add_argument('--outputBS_SKIMFile', 
                         type=argFactory(argBSFile, io='output', type='BS', subtype='BS_SKIM'),
                         help='Output skimmed BS file', group='Overlay Filter')
-    parser.add_argument('--inputBS_SKIMFile', '--inputBSFile',
+    parser.add_argument('--inputBS_SKIMFile', 
                         type=argFactory(argBSFile, io='input', type='BS', subtype='BS_SKIM'),
                         help='Input skimmed BS file', group='Overlay Filter')
     parser.add_argument('--outputBS_TRIGSKIMFile', '--outputBSTRIGFile',
@@ -116,4 +116,7 @@ def addOverlayInputSimArgs(parser):
     parser.add_argument('--hitarFile',
                     type=argFactory(argFile, io='input', type='TAR', subtype='TAR_CONFIG'),
                     help='Input Heavy Ion vertex and filter tarball file', group='EventOverlayInputSim')
+    parser.add_argument('--inputVertexPosFile',
+                    type=argFactory(argString),
+                    help='Input overlay file with vertex positions', group='EventOverlayInputSim')
 

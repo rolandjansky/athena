@@ -17,12 +17,13 @@ msg.info('logging set in %s' % sys.argv[0])
 from PyJobTransforms.transform import transform
 from PyJobTransforms.trfExe import athenaExecutor, DQMergeExecutor
 from PyJobTransforms.trfArgs import addAthenaArguments, addDetectorArguments, addTriggerArguments
+from RecJobTransforms.recTransformUtils import addRecoSubsteps, addAllRecoArgs
 from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTrace
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
 # Prodsys hack...
-ListOfDefaultPositionalKeys=['--AFPOn', '--ALFAOn', '--AMIConfig', '--AMITag', '--AddCaloDigi', '--CosmicFilterVolume', '--CosmicFilterVolume2', '--CosmicPtSlice', '--DBRelease', '--DataRunNumber', '--FwdRegionOn', '--LucidOn', '--ReadByteStream', '--ZDCOn', '--argJSON', '--asetup', '--athena', '--athenaMPMergeTargetSize', '--athenaopts', '--attempt', '--beamType', '--checkEventCount', '--command', '--conditionsTag', '--digiRndmSvc', '--digiSeedOffset1', '--digiSeedOffset2', '--digiSteeringConf', '--doAllNoise', '--dumpJSON', '--dumpPickle', '--enableLooperKiller', '--env', '--eventAcceptanceEfficiency', '--outputTXT_EVENTIDFile','--inputTXT_EVENTIDFile', '--execOnly', '--fSampltag', '--fileValidation', '--firstEvent', '--geometryVersion', '--ignoreErrors', '--ignoreFiles', '--ignorePatterns', '--imf', '--inputBS_SKIMFile', '--inputEVNTFile', '--inputEVNT_CAVERNFile', '--inputEVNT_COSMICSFile', '--inputFileValidation', '--inputHITSFile', '--inputZeroBiasBSFile', '--jobNumber', '--jobid', '--lumiBlockMapFile', '--maxEvents', '--maxFilesPerSubjob', '--orphanKiller', '--outputBS_SKIMFile', '--outputEVNT_CAVERNTRFile', '--outputEVNT_COSMICSTRFile', '--outputFileValidation', '--outputHITSFile', '--outputRDOFile', '--outputRDO_FILTFile', '--outputRDO_SGNLFile', '--overlayConfigFile', '--parallelFileValidation', '--physicsList', '--postExec', '--postInclude', '--preExec', '--preInclude', '--randomSeed', '--reportName', '--reportType', '--runNumber', '--samplingFractionDbTag', '--showGraph', '--showPath', '--showSteps', '--simulator', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation', '--steering', '--taskid', '--tcmalloc', '--tmpRDO', '--tmpRDO_FILT', '--triggerBit', '--truthStrategy', '--useISF', '--valgrind', '--valgrindbasicopts', '--valgrindextraopts', '--WriteRDOFileMetaData']
+ListOfDefaultPositionalKeys=['--AFPOn', '--ALFAOn', '--AMIConfig', '--AMITag', '--AddCaloDigi', '--CosmicFilterVolume', '--CosmicFilterVolume2', '--CosmicPtSlice', '--DBRelease', '--DataRunNumber', '--FwdRegionOn', '--LucidOn', '--ReadByteStream', '--ZDCOn', '--argJSON', '--asetup', '--athena', '--athenaMPMergeTargetSize', '--athenaopts', '--attempt', '--beamType', '--checkEventCount', '--command', '--conditionsTag', '--digiRndmSvc', '--digiSeedOffset1', '--digiSeedOffset2', '--digiSteeringConf', '--doAllNoise', '--dumpJSON', '--dumpPickle', '--enableLooperKiller', '--env', '--eventAcceptanceEfficiency', '--outputTXT_EVENTIDFile','--inputTXT_EVENTIDFile', '--execOnly', '--fSampltag', '--fileValidation', '--firstEvent', '--geometryVersion', '--ignoreErrors', '--ignoreFiles', '--ignorePatterns', '--imf', '--inputBS_SKIMFile', '--inputEVNTFile', '--inputEVNT_CAVERNFile', '--inputEVNT_COSMICSFile', '--inputFileValidation', '--inputHITSFile', '--inputZeroBiasBSFile', '--jobNumber', '--jobid', '--lumiBlockMapFile', '--maxEvents', '--maxFilesPerSubjob', '--orphanKiller', '--outputAODFile', '--outputBS_SKIMFile', '--outputESDFile', '--outputEVNT_CAVERNTRFile', '--outputEVNT_COSMICSTRFile', '--outputFileValidation', '--outputHITSFile', '--outputRDOFile', '--outputRDO_FILTFile', '--outputRDO_SGNLFile', '--overlayConfigFile', '--parallelFileValidation', '--physicsList', '--postExec', '--postInclude', '--preExec', '--preInclude', '--randomSeed', '--reportName', '--reportType', '--runNumber', '--samplingFractionDbTag', '--showGraph', '--showPath', '--showSteps', '--simulator', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation', '--steering', '--taskid', '--tcmalloc', '--tmpRDO', '--tmpRDO_FILT', '--triggerBit', '--truthStrategy', '--useISF', '--valgrind', '--valgrindbasicopts', '--valgrindextraopts', '--WriteRDOFileMetaData']
 
 @stdTrfExceptionHandler
 @sigUsrStackTrace
@@ -42,6 +43,7 @@ def getTransform():
     executorSet = set()
     from EventOverlayJobTransforms.overlayTransformUtils import addOverlayBSFilterSubstep, addOverlay_BSSubstep, addCommonOverlayArguments, addUniqueOverlayBSFilterArguments, addUniqueOverlay_BSArguments, addOverlayChainOverrideArguments
     from SimuJobTransforms.SimTransformUtils import addSimulationSubstep, addSimulationArguments
+    addRecoSubsteps(executorSet)
     addOverlayBSFilterSubstep(executorSet)
     addSimulationSubstep(executorSet, overlayTransform = True)
     addOverlay_BSSubstep(executorSet)
@@ -55,6 +57,10 @@ def getTransform():
     addUniqueOverlayBSFilterArguments(trf.parser)
     addSimulationArguments(trf.parser)
     addUniqueOverlay_BSArguments(trf.parser)
+
+    # Reconstruction arguments and outputs 
+    addAllRecoArgs(trf)
+   
    
     return trf
 
