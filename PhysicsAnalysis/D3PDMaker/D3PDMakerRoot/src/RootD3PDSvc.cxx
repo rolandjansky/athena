@@ -133,12 +133,13 @@ StatusCode RootD3PDSvc::stop()
         CHECK( m_histSvc->getTree (d3pd->master(), master) );
       if (master) {
         // Make an index for the master if needed.
-        if (!master->GetTreeIndex())
+        if (!master->GetTreeIndex()) {
           // AANTupleStream will leave branch addresses in the master
           // tree pointing at dead objects.
           master->ResetBranchAddresses();
 
           master->BuildIndex (m_indexMajor.c_str(), m_indexMinor.c_str());
+        }
 
         // Make this tree a friend of the master.
         master->AddFriend (d3pd->tree());
