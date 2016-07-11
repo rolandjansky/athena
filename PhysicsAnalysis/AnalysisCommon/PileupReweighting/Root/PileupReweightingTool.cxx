@@ -26,29 +26,35 @@
 namespace CP {
 
 PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPileupReweighting(name.c_str()), asg::AsgTool( name ), 
-									 m_inConfigMode(false), 
-									 m_upTool(0), m_downTool(0), m_systUp("PRW_DATASF", 1 ), m_systDown("PRW_DATASF", -1), 
-									 m_activeTool(this), 
-									 m_noWeightsMode(false), 
-									 m_weightTool("McEventWeight/myWeightTool") {
+   m_inConfigMode(false), 
+   m_upTool(0), m_downTool(0), m_systUp("PRW_DATASF", 1 ), m_systDown("PRW_DATASF", -1), 
+   m_activeTool(this), 
+   m_noWeightsMode(false), 
+   m_weightTool("McEventWeight/myWeightTool"),
+   m_grlTool("") {
 
 #ifndef XAOD_STANDALONE
    declareProperty("ConfigOutputStream", m_configStream="", "When creating PRW config files, this is the THistSvc stream it goes into. If blank, it wont write this way");
 #endif
 
-   declareProperty("ConfigFiles", m_prwFiles, "List of prw config files"); //array of files
+   declareProperty("ConfigFiles", m_prwFiles={"dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root","dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"}, "List of prw config files"); //array of files
    declareProperty("ConfigFilesPathPrefix", m_prwFilesPathPrefix="", "Path of additional folder structure in prw config files"); //string prefix
    declareProperty("LumiCalcFiles", m_lumicalcFiles, "List of lumicalc files, in the format '<filename>:<trigger>' .. if no trigger given, 'None' is assumed"); //array of files
    declareProperty("Prefix",m_prefix="","Prefix to attach to all decorations ... only used in the 'apply' method");
    declareProperty("UnrepresentedDataAction",m_unrepresentedDataAction=3,"1 = remove unrepresented data, 2 = leave it there, 3 = reassign it to nearest represented bin");
-   declareProperty("DataScaleFactor",m_dataScaleFactorX=1.);
+   declareProperty("UnrepresentedDataThreshold",m_unrepDataTolerance=0.05,"When unrepresented data is above this level, will require the PRW config file to be repaired");
+   declareProperty("DataScaleFactor",m_dataScaleFactorX=1./1.16);
    declareProperty("DefaultChannel",m_defaultChannel=0); //when channel info not present in config file, use this channel instead
    declareProperty("UsePeriodConfig",m_usePeriodConfig="auto","Use this period configuration when in config generating mode. Set to 'auto' to auto-detect");
 
-   declareProperty("DataScaleFactorUP",m_upVariation=0.,"Set to a value representing the 'up' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
-   declareProperty("DataScaleFactorDOWN",m_downVariation=0.,"Set to a value representing the 'down' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
+   declareProperty("IgnoreBadChannels",m_ignoreBadChannels=true,"If true, will ignore channels with too much unrepresented data, printing a warning for them");
 
-   declareProperty("LumiCalcRunNumberOffset",m_lumicalcRunNumberOffset=0,"Use to 'fake' a Run2 lumicalc file. Suggest using a value of 22000 to do this from an 8TeV lumicalc file");
+   declareProperty("DataScaleFactorUP",m_upVariation=1./1.,"Set to a value representing the 'up' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
+   declareProperty("DataScaleFactorDOWN",m_downVariation=1./1.23,"Set to a value representing the 'down' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
+
+   //REMOVED ... obsolete declareProperty("LumiCalcRunNumberOffset",m_lumicalcRunNumberOffset=0,"Use to 'fake' a Run2 lumicalc file. Suggest using a value of 22000 to do this from an 8TeV lumicalc file");
+
+   declareProperty("GRLTool", m_grlTool, "If you provide a GoodRunsListSelectionTool, any information from lumicalc files will be automatically filtered" );
 
 #ifdef XAOD_STANDALONE
    declareProperty( "WeightTool", m_weightTool = new McEventWeight("myWeightTool"),"The tool to compute the weight in the sumOfWeights");
@@ -57,7 +63,7 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
 #endif
 
 #ifndef XAOD_STANDALONE
-   //attached update handler to the outputlevel property, so we can pass changes on to the underlying tool 
+   //attached update handler to the outputlevel property, so we can pass changes on to the underlying tool
    auto props = getProperties();
  	for( Property* prop : props ) {
       if( prop->name() != "OutputLevel" ) {
@@ -78,6 +84,11 @@ void PileupReweightingTool::updateHandler(Property& p) {
    EnableDebugging(this->msgLvl(MSG::DEBUG));
 }
 #endif
+
+bool PileupReweightingTool::runLbnOK(Int_t runNbr, Int_t lbn) {
+   if(m_grlTool.empty()) return true;
+   return m_grlTool->passRunLB(runNbr,lbn);
+}
 
 bool PileupReweightingTool::isAffectedBySystematic( const CP::SystematicVariation& systematic ) const {
    CP::SystematicSet sys = affectingSystematics(); return sys.find( systematic ) != sys.end();
@@ -112,7 +123,24 @@ CP::SystematicCode PileupReweightingTool::applySystematicVariation( const CP::Sy
 }
 
 
-float PileupReweightingTool::getLumiBlockMu( const xAOD::EventInfo& eventInfo ) { return CP::TPileupReweighting::GetLumiBlockMu(eventInfo.runNumber(),eventInfo.lumiBlock()); }
+float PileupReweightingTool::getCorrectedAverageInteractionsPerCrossing( const xAOD::EventInfo& eventInfo, bool includeDataScaleFactor ) { 
+   if(eventInfo.eventType(xAOD::EventInfo::IS_SIMULATION)) {
+      return eventInfo.averageInteractionsPerCrossing(); //no correction needed for MC
+   }
+   float out = CP::TPileupReweighting::GetLumiBlockMu(eventInfo.runNumber(),eventInfo.lumiBlock());
+   if(out<0) return out; //will be -1
+   return out * ( (includeDataScaleFactor) ? m_activeTool->GetDataScaleFactor() : 1.); 
+}
+     
+float PileupReweightingTool::getCorrectedActualInteractionsPerCrossing( const xAOD::EventInfo& eventInfo, bool includeDataScaleFactor ) { 
+   if(eventInfo.eventType(xAOD::EventInfo::IS_SIMULATION)) {
+      return eventInfo.actualInteractionsPerCrossing(); //no correction needed for MC
+   }
+   float correctedMu = CP::TPileupReweighting::GetLumiBlockMu(eventInfo.runNumber(),eventInfo.lumiBlock());
+   if(correctedMu<0) return correctedMu; //will be -1
+   return eventInfo.actualInteractionsPerCrossing() * (correctedMu/eventInfo.averageInteractionsPerCrossing()) * ( (includeDataScaleFactor) ? m_activeTool->GetDataScaleFactor() : 1.); 
+}
+
 
 double PileupReweightingTool::getLumiBlockIntegratedLumi(const xAOD::EventInfo& eventInfo) { return CP::TPileupReweighting::GetLumiBlockIntegratedLumi(eventInfo.runNumber(),eventInfo.lumiBlock()); }
 
@@ -122,18 +150,20 @@ StatusCode PileupReweightingTool::initialize() {
    EnableDebugging(this->msgLvl(MSG::DEBUG));
 
    //see if we need variations 
-   if(m_upVariation) {
+   if(m_upVariation && (m_prwFiles.size()+m_lumicalcFiles.size())!=0) {
       m_upTool = new TPileupReweighting((name()+"_upVariation").c_str());
-      m_upTool->SetUnrepresentedDataAction(m_unrepresentedDataAction);
+      m_upTool->SetParentTool(this);
+      m_upTool->CopyProperties(this);
       m_upTool->SetDataScaleFactors(m_upVariation);
    }
-   if(m_downVariation) {
+   if(m_downVariation && (m_prwFiles.size()+m_lumicalcFiles.size())!=0) {
       m_downTool = new TPileupReweighting((name()+"_downVariation").c_str());
-      m_downTool->SetUnrepresentedDataAction(m_unrepresentedDataAction);
+      m_downTool->SetParentTool(this);
+      m_downTool->CopyProperties(this);
       m_downTool->SetDataScaleFactors(m_downVariation);
    }
 
-   SetDefaultChannel(m_defaultChannel); if(m_upTool) m_upTool->SetDefaultChannel(m_defaultChannel); if(m_downTool) m_downTool->SetDefaultChannel(m_defaultChannel);
+   SetDefaultChannel(m_defaultChannel); //handled in GetDefaultChannel method now! if(m_upTool) m_upTool->SetDefaultChannel(m_defaultChannel); if(m_downTool) m_downTool->SetDefaultChannel(m_defaultChannel);
 
    //should we set the period config (file maker mode)
    if(m_prwFiles.size()+m_lumicalcFiles.size()==0) {
@@ -150,11 +180,13 @@ StatusCode PileupReweightingTool::initialize() {
    } else {
       //have we any prw to load
       for(unsigned int j=0;j<m_prwFiles.size();j++) {
-            ATH_MSG_INFO("Locating File: " << m_prwFiles[j]);
+            ATH_MSG_VERBOSE("Locating File: " << m_prwFiles[j]);
             std::string file = PathResolverFindCalibFile(m_prwFiles[j]);
             if(file=="") { ATH_MSG_ERROR("Unable to find the PRW Config file: " << m_prwFiles[j]); return StatusCode::FAILURE; }
+            ATH_MSG_VERBOSE("Adding Config file: " << file);
             /*m_tool->*/AddConfigFile(file.c_str());
-            if(m_upTool) m_upTool->AddConfigFile(file.c_str()); if(m_downTool) m_downTool->AddConfigFile(file.c_str());
+            if(m_upTool) m_upTool->AddConfigFile(file.c_str());
+            if(m_downTool) m_downTool->AddConfigFile(file.c_str());
       }
 
       //have we any lumicalc files to load? .. if we do and had no prwFiles then the user must specify the period configuration
@@ -165,7 +197,8 @@ StatusCode PileupReweightingTool::initialize() {
                ATH_MSG_ERROR("Unrecognised PeriodConfig: " << m_usePeriodConfig); return StatusCode::FAILURE;
             }
             m_noWeightsMode=true; //will stop the prw weight being decorated in apply method
-            if(m_upTool) m_upTool->UsePeriodConfig(m_usePeriodConfig); if(m_downTool) m_downTool->UsePeriodConfig(m_usePeriodConfig);
+            if(m_upTool) m_upTool->UsePeriodConfig(m_usePeriodConfig);
+            if(m_downTool) m_downTool->UsePeriodConfig(m_usePeriodConfig);
          } else {
             ATH_MSG_INFO("No config files provided, but " << m_lumicalcFiles.size() << " lumicalc file provided. Please specify a UsePeriodConfig if you want to use the tool without a config file (e.g. do 'MC15') ");
             return StatusCode::FAILURE;
@@ -177,11 +210,12 @@ StatusCode PileupReweightingTool::initialize() {
             TString myFile = m_lumicalcFiles[j];
             TString myTrigger = (myFile.Contains(':')) ? TString(myFile(myFile.Last(':')+1,myFile.Length()-myFile.Last(':'))) : TString("None");
             myFile = (myFile.Contains(':')) ? TString(myFile(0,myFile.Last(':'))) : myFile;
-            ATH_MSG_INFO("Locating File: " << myFile);
+            ATH_MSG_VERBOSE("Locating File: " << myFile);
             std::string file = PathResolverFindCalibFile(myFile.Data());
             if(file=="") { ATH_MSG_ERROR("Unable to find the Lumicalc file: " << myFile); return StatusCode::FAILURE; }
             /*m_tool->*/AddLumiCalcFile(file.c_str(),myTrigger);
-            if(m_upTool) m_upTool->AddLumiCalcFile(file.c_str(),myTrigger); if(m_downTool) m_downTool->AddLumiCalcFile(file.c_str(),myTrigger);
+            if(m_upTool) m_upTool->AddLumiCalcFile(file.c_str(),myTrigger);
+            if(m_downTool) m_downTool->AddLumiCalcFile(file.c_str(),myTrigger);
       }
    }
 
@@ -223,41 +257,45 @@ StatusCode PileupReweightingTool::finalize() {
       TTree *outTreeMC=0;
       TTree *outTreeData=0;
       Int_t channel = 0;UInt_t runNumber = 0; 
-      std::vector<UInt_t>* pStarts = 0;std::vector<UInt_t>* pEnds = 0;
+      std::vector<UInt_t> pStarts;
+      std::vector<UInt_t> pEnds;
+      std::vector<UInt_t>* pStartsPtr = &pStarts;
+      std::vector<UInt_t>* pEndsPtr = &pEnds;
       Char_t histName[150];
-
+      
 
       //loop over periods ... periods only get entry in table if they have an input histogram 
       for(auto period : m_periods) {
          if(!period.second) continue; //should never happen, but just in case!
+         if(period.first<0) continue; //avoid the global run number
          if(period.first != period.second->id) continue; //skips redirects 
          runNumber = period.first;
-         pStarts = new std::vector<UInt_t>;pEnds = new std::vector<UInt_t>;
+         pStarts.clear();
+         pEnds.clear();
          if(period.second->subPeriods.size()==0) { 
-            pStarts->push_back(period.second->start); pEnds->push_back(period.second->end); 
+            pStarts.push_back(period.second->start); pEnds.push_back(period.second->end); 
          }
          else {
             for(auto subp : period.second->subPeriods) {
-               pStarts->push_back(subp->start); pEnds->push_back(subp->end);
+               pStarts.push_back(subp->start); pEnds.push_back(subp->end);
             }
          }
          for(auto inHist : period.second->inputHists) {
             channel = inHist.first;
             TH1* hist = inHist.second;
-            strcpy(histName,hist->GetName());
+            strncpy(histName,hist->GetName(),sizeof(histName)-1);
             CHECK( histSvc->regHist(TString::Format("/%s/PileupReweighting/%s",m_configStream.c_str(),hist->GetName()).Data(),hist) );
             if(!outTreeMC) {
                outTreeMC = new TTree("MCPileupReweighting","MCPileupReweighting");
                outTreeMC->Branch("Channel",&channel);
                outTreeMC->Branch("RunNumber",&runNumber);
-               outTreeMC->Branch("PeriodStarts",&pStarts);
-               outTreeMC->Branch("PeriodEnds",&pEnds);
+               outTreeMC->Branch("PeriodStarts",&pStartsPtr);
+               outTreeMC->Branch("PeriodEnds",&pEndsPtr);
                outTreeMC->Branch("HistName",&histName,"HistName/C");
                CHECK( histSvc->regTree(TString::Format("/%s/PileupReweighting/%s",m_configStream.c_str(),outTreeMC->GetName()).Data(),outTreeMC) );
             }
             outTreeMC->Fill();
          }
-         delete pStarts; delete pEnds;
       }
 
       //loop over data 
@@ -266,7 +304,7 @@ StatusCode PileupReweightingTool::finalize() {
          if(run.second.inputHists.find("None")==run.second.inputHists.end()) continue;
    
          TH1* hist = run.second.inputHists["None"];
-         strcpy(histName,hist->GetName());
+         strncpy(histName,hist->GetName(),sizeof(histName)-1);
          CHECK( histSvc->regHist(TString::Format("/%s/PileupReweighting/%s",m_configStream.c_str(),hist->GetName()).Data(),hist) );
          if(!outTreeData) {
             outTreeData = new TTree("DataPileupReweighting","DataPileupReweighting");
@@ -322,7 +360,7 @@ int PileupReweightingTool::getRandomRunNumber( const xAOD::EventInfo& eventInfo 
 }
 
 int PileupReweightingTool::fill( const xAOD::EventInfo& eventInfo ) {
-   return fill(eventInfo,eventInfo.averageInteractionsPerCrossing());
+   return fill(eventInfo,eventInfo.averageInteractionsPerCrossing(),0);
 }
 
 int PileupReweightingTool::fill( const xAOD::EventInfo& eventInfo, Double_t x, Double_t y) {
@@ -338,7 +376,7 @@ int PileupReweightingTool::fill( const xAOD::EventInfo& eventInfo, Double_t x, D
             //case 195847: case 195848: m_usePeriodConfig="MC12ab";/*m_tool->*/UsePeriodConfig("MC12ab");break;
             case 212272: UsePeriodConfig("MC14_8TeV");break;
             case 222222: UsePeriodConfig("MC14_13TeV");break;
-            case 222510: case 222525: UsePeriodConfig("MC15"); break;
+            case 222510: case 222525: case 222526: case 284500: UsePeriodConfig("MC15"); break;
          }
       }
       m_doneConfigs[eventInfo.runNumber()] = true;
@@ -356,7 +394,7 @@ StatusCode PileupReweightingTool::apply(const xAOD::EventInfo& eventInfo, bool m
    }
 
    if(!eventInfo.eventType(xAOD::EventInfo::IS_SIMULATION)) {
-      eventInfo.auxdecor<float>(m_prefix+"corrected_averageInteractionsPerCrossing") = getLumiBlockMu(eventInfo);
+      eventInfo.auxdecor<float>(m_prefix+"corrected_averageInteractionsPerCrossing") = getCorrectedMu(eventInfo,false);
       return StatusCode::SUCCESS;
    }
 
@@ -367,7 +405,7 @@ StatusCode PileupReweightingTool::apply(const xAOD::EventInfo& eventInfo, bool m
    if(!m_noWeightsMode) {
       double weight =  /*m_tool->*/getCombinedWeight( eventInfo );
       if(m_unrepresentedDataAction==2) weight *= getUnrepresentedDataWeight( eventInfo );
-      eventInfo.auxdecor<double>(m_prefix+"PileupWeight") = weight;
+      eventInfo.auxdecor<float>(m_prefix+"PileupWeight") = weight;
    }
    //decorate with random run number etc
    eventInfo.auxdecor<unsigned int>(m_prefix+"RandomRunNumber") = /*m_tool->*/getRandomRunNumber( eventInfo, mu_dependent );
@@ -375,7 +413,7 @@ StatusCode PileupReweightingTool::apply(const xAOD::EventInfo& eventInfo, bool m
 
    eventInfo.auxdecor<ULong64_t>(m_prefix+"PRWHash") = getPRWHash( eventInfo );
 
-   ATH_MSG_VERBOSE("PileupWeight = " << eventInfo.auxdecor<double>(m_prefix+"PileupWeight") << " RandomRunNumber = " << eventInfo.auxdecor<unsigned int>(m_prefix+"RandomRunNumber") << " RandomLumiBlockNumber = " << eventInfo.auxdecor<unsigned int>(m_prefix+"RandomLumiBlockNumber"));
+   ATH_MSG_VERBOSE("PileupWeight = " << eventInfo.auxdecor<float>(m_prefix+"PileupWeight") << " RandomRunNumber = " << eventInfo.auxdecor<unsigned int>(m_prefix+"RandomRunNumber") << " RandomLumiBlockNumber = " << eventInfo.auxdecor<unsigned int>(m_prefix+"RandomLumiBlockNumber"));
 
    return StatusCode::SUCCESS;
 }
@@ -388,8 +426,17 @@ float PileupReweightingTool::getDataWeight(const xAOD::EventInfo& eventInfo, con
    }
 
    if(!mu_dependent) return /*m_tool->*/m_activeTool->GetDataWeight(eventInfo.runNumber(), trigger);
-   return /*m_tool->*/m_activeTool->GetDataWeight( eventInfo.runNumber(), trigger, getLumiBlockMu(eventInfo) /*use the 'correct' mu instead of the one from the file!!*/ );
+   return /*m_tool->*/m_activeTool->GetDataWeight( eventInfo.runNumber(), trigger, getCorrectedMu(eventInfo,false) /*use the 'correct' mu instead of the one from the file!!*/ );
 
+}
+
+float PileupReweightingTool::getCombinedWeight( const xAOD::EventInfo& eventInfo , const TString& trigger, bool mu_dependent ) {
+   float out = getCombinedWeight(eventInfo);
+   //need to use the random run number ... only used to pick the subperiod, but in run2 so far we only have one subperiod
+   unsigned int randomRunNum = (eventInfo.isAvailable<unsigned int>(m_prefix+"RandomRunNumber")) ? eventInfo.auxdataConst<unsigned int>(m_prefix+"RandomRunNumber") : getRandomRunNumber( eventInfo, mu_dependent );
+   if(!mu_dependent) out /= m_activeTool->GetDataWeight(randomRunNum, trigger);
+   out /= m_activeTool->GetDataWeight( randomRunNum, trigger, getCorrectedMu(eventInfo,false) /*use the 'correct' mu instead of the one from the file!!*/ );
+   return out;
 }
 
 

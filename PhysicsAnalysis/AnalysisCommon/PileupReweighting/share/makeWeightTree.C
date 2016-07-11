@@ -26,12 +26,24 @@
    std::vector<std::string> lumiFiles = {"/usera/will/testareas/ZdZd13TeV/ZdZdAnalysis/share/data15_13TeV.periodA.None.lumicalc.gerl.root"};
 
    tool.setProperty("ConfigFiles",configFiles);
-   tool.setProperty("LumicalcFiles",lumiFiles);
+   tool.setProperty("LumiCalcFiles",lumiFiles);
    tool.setProperty("DefaultChannel",361106);
+   tool.setProperty("OutputLevel",2);//DEBUG
 
+   ///this part is optional ... if we wanted to filter our lumicalc file based on a GRL
+   //what is happening here is we grab the JobOptionsSvc, and put a property in the catalogue
+   //then we tell our prw tool that we will want a GRL tool: when it gets initialized, it will
+   //use the property in the joboptions catalogue to configure itself
+   //This is how Gaudi works!
+   ServiceHandle<IJobOptionsSvc> josvc("JobOptionsSvc","");
+   std::vector<std::string> testXML = {"test.xml"};
+   josvc->addPropertyToCatalogue("ToolSvc.grlTool",StringArrayProperty("GoodRunsListVec",testXML));
+   tool.setProperty("GRLTool","GoodRunsListSelectionTool/grlTool");
+   ///end of optional part!
 
    tool.initialize();
-   tool.expert()->MakeWeightTree("361106,361107,361108,123456","prwTree.root","PRWHash" /*change to name of branch in main tree*/ ,"PileupWeight" /*optional change to name of branch you want to be the weight*/);
+   //tool.expert()->MakeWeightTree("361106,361107,361108,123456","prwTree.root","PRWHash" /*change to name of branch in main tree*/ ,"PileupWeight" /*optional change to name of branch you want to be the weight*/);
+tool.expert()->MakeWeightTree("361106","prwTree.root","PRWHash" /*change to name of branch in main tree*/ ,"PileupWeight" /*optional change to name of branch you want to be the weight*/);
 
 
 }
