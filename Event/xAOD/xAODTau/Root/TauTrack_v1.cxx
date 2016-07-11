@@ -16,37 +16,45 @@
 #include <cmath>
 
 namespace xAOD {
-  
+
   TauTrack_v1::TauTrack_v1()
     : IParticle(), m_p4(), m_p4Cached( false ) {
   }
-  
 
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauTrack_v1, float, double, pt)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauTrack_v1, float, double, eta)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauTrack_v1, float, double, phi)
-  //  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauTrack_v1, float, double, m)
 
+  // Pion mass, as assumed for the track:
+  static const double PION_MASS = 139.570;
 
   const TauTrack_v1::FourMom_t& TauTrack_v1::p4() const {
-    //    if(!m_p4Cached){
-    m_p4.SetPtEtaPhiM( pt(), eta(), phi(), 139.570);//using pion mass
-    //    m_p4.SetPtEtaPhiM( pt(), eta(), phi(), this->track()->m());//using pion mass
-      m_p4Cached = true;
-      //    }
-    return m_p4;
+
+     // Update the 4-momentum object if necessary:
+     if( ! m_p4Cached ) {
+        m_p4.SetPtEtaPhiM( pt(), eta(), phi(), PION_MASS );//using pion mass
+        m_p4Cached = true;
+     }
+
+     // Return the object:
+     return m_p4;
   }
 
 
   void TauTrack_v1::setP4(double pt, double eta, double phi, double /*m*/)  {
-    static Accessor< float > acc1( "pt" );
-    static Accessor< float > acc2( "eta" );
-    static Accessor< float > acc3( "phi" );
-    //static Accessor< float > acc4( "m" );
-    acc1( *this ) = pt;
-    acc2( *this ) = eta;
-    acc3( *this ) = phi;
-    //acc4( *this ) = m;
+
+     // Set the raw variables:
+     static Accessor< float > acc1( "pt" );
+     static Accessor< float > acc2( "eta" );
+     static Accessor< float > acc3( "phi" );
+     acc1( *this ) = pt;
+     acc2( *this ) = eta;
+     acc3( *this ) = phi;
+
+     // Reset the cache:
+     m_p4Cached = false;
+
+     return;
   }
 
 
@@ -60,7 +68,7 @@ namespace xAOD {
   }
 
   double TauTrack_v1::m() const {
-    return p4().M();
+     return PION_MASS;
   }
 
   double TauTrack_v1::e() const {
@@ -104,9 +112,14 @@ namespace xAOD {
   float TauTrack_v1::z0sinThetaTJVA(const xAOD::IParticle& part ) const{
     const xAOD::TrackParticle* xTrackParticle = this->track();
     const xAOD::TauJet* tau = dynamic_cast<const xAOD::TauJet*> (&part);
-    if(tau)
-      return (xTrackParticle->z0() + xTrackParticle->vz() - tau->vertex()->z()) * sin(xTrackParticle->theta());
-    else {
+    if( tau ) {
+       float zv = 0.0;
+       if( tau->vertexLink().isValid() ) {
+          zv = tau->vertex()->z();
+       }
+       return ( ( xTrackParticle->z0() + xTrackParticle->vz() - zv ) *
+                std::sin( xTrackParticle->theta() ) );
+    } else {
       std::cerr << "ERROR xAOD::TauTrack::z0sinThetaTJVA cannot get TauJet" << std::endl;
       return 0;
     }
