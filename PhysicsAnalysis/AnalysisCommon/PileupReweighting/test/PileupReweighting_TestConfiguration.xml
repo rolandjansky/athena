@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">   
+<unifiedTestConfiguration> 
+<atn>
+   <TEST name="PileupReweighting" type="athena" suite="ASGTests">
+      <options_atn>PileupReweighting/testPRWJobOptions.py</options_atn>
+      <timelimit>5</timelimit>
+      <author> Will Buttinger </author>
+      <mailto> will@cern.ch </mailto>
+      <expectations>
+         <errorMessage>FAILURE (ERROR)</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+    <TEST name="PileupReweighting_makeCheck" type="makecheck">
+      <package>PileupReweighting</package>
+      <timelimit>5</timelimit>
+      <author>Will Buttinger</author>
+      <mailto> will@cern.ch </mailto>
+      <expectations>
+         <errorMessage> Athena exited abnormally </errorMessage>
+         <errorMessage>differ</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+</atn>
+</unifiedTestConfiguration>
