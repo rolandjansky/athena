@@ -43,12 +43,12 @@ ClassImp(CP::TPileupReweighting)
 // Constructor
 //=============================================================================
 CP::TPileupReweighting::TPileupReweighting(const char* name) :
-  TNamed(name,"notitle"), 
+  TNamed(name,"notitle"), m_parentTool(this),
    m_SetWarnings(true),m_debugging(false),
    m_countingMode(true),m_unrepresentedDataAction(0),m_isInitialized(false),m_lumiVectorIsLoaded(false),
    m_dataScaleFactorX(1.),m_dataScaleFactorY(1.),
    m_mcScaleFactorX(1.),m_mcScaleFactorY(1.),
-   m_nextPeriodNumber(1),m_ignoreFilePeriods(false),m_metadatatree(0),m_unrepDataTolerance(0.05),m_doGlobalDataWeight(false),m_lumicalcRunNumberOffset(0), m_emptyHistogram(0), m_random3(0)
+   m_nextPeriodNumber(1),m_ignoreFilePeriods(false),m_metadatatree(0),m_unrepDataTolerance(0.05),m_doGlobalDataWeight(false),m_lumicalcRunNumberOffset(0), m_emptyHistogram(0), m_random3(0), m_ignoreBadChannels(false)
 {
    m_random3 = new TRandom3(0);
    m_random3->SetSeed(1);
@@ -72,7 +72,7 @@ CP::TPileupReweighting::~TPileupReweighting() {
 void CP::TPileupReweighting::RemapPeriod(Int_t periodNumber1, Int_t periodNumber2) {
    //check if periodNumber2 exists
    if(m_periods.find(periodNumber2)==m_periods.end()) {
-      m_periods[periodNumber2] = new Period(periodNumber2,0,0,m_periods[-1]->defaultChannel);
+      m_periods[periodNumber2] = new Period(periodNumber2,0,0,GetDefaultChannel(-1)/*m_periods[-1]->defaultChannel*/);
    }
    m_periods[periodNumber1] = m_periods[periodNumber2];
 }
@@ -98,18 +98,21 @@ Int_t CP::TPileupReweighting::SetUniformBinning(Int_t nbinsx, Double_t xlow, Dou
    std::vector<double> xbins(nbinsx+1);
    std::vector<double> ybins(nbinsy+1);
    for(int i=0;i<nbinsx+1;i++) xbins[i] = xlow + i*(xup-xlow)/nbinsx;
-   for(int i=0;i<nbinsy+1;i++) ybins[i] = ylow + i*(yup-ylow)/nbinsy;
+   if (nbinsy > 0)
+     for(int i=0;i<nbinsy+1;i++) ybins[i] = ylow + i*(yup-ylow)/nbinsy;
    return SetBinning(nbinsx,&xbins[0],nbinsy,&ybins[0]);
 }
 Int_t CP::TPileupReweighting::SetBinning(TH1* hist) {
    if(!hist) return -1;
    if(m_emptyHistogram) { delete m_emptyHistogram; }
    m_emptyHistogram = dynamic_cast<TH1*>(hist->Clone("default"));
-   m_emptyHistogram->SetDirectory(0);
+   if (m_emptyHistogram)
+     m_emptyHistogram->SetDirectory(0);
    return 0;
 }
 
 Int_t CP::TPileupReweighting::GetDefaultChannel(Int_t mcRunNumber) {
+   if(m_parentTool != this) return m_parentTool->GetDefaultChannel(mcRunNumber); 
    return m_periods[mcRunNumber]->defaultChannel;
 }
 
@@ -117,7 +120,7 @@ Int_t CP::TPileupReweighting::GetDefaultChannel(Int_t mcRunNumber) {
 Double_t CP::TPileupReweighting::GetIntegratedLumi(const TString& trigger) { 
    if(!m_isInitialized) { Info("GetIntegratedLumi","Initializing the subtool.."); Initialize(); }
    if(!m_lumiVectorIsLoaded) {
-      Error("GetIntegratedLumi","No Lumicalc file loaded, so cannot get integrated lumi, returning 0");
+      Error("GetIntegratedLumi","No UNPRESCALED (Trigger=None) Lumicalc file loaded, so cannot get integrated lumi, returning 0");
       return 0;
    }
    if(trigger=="" || trigger=="None") return GetSumOfEventWeights(-1)/1E6; 
@@ -154,10 +157,10 @@ Double_t CP::TPileupReweighting::GetLumiBlockIntegratedLumi(Int_t runNumber, UIn
 
 Float_t CP::TPileupReweighting::GetLumiBlockMu(Int_t runNumber, UInt_t lb) {
    if(!m_isInitialized) { Info("GetLumiBlockMu","Initializing the subtool.."); Initialize(); }
-   if(m_runs.find(runNumber)==m_runs.end()) return 0.;
+   if(m_runs.find(runNumber)==m_runs.end()) return -1.0;
    auto& run = m_runs[runNumber];
 
-   if(run.lumiByLbn.find(lb)==run.lumiByLbn.end()) return 0.;
+   if(run.lumiByLbn.find(lb)==run.lumiByLbn.end()) return -1.0;
    return run.lumiByLbn[lb].second;
 }
 
@@ -165,7 +168,7 @@ Double_t CP::TPileupReweighting::GetIntegratedLumiFraction(Int_t periodNumber, U
    if(!m_isInitialized) { Info("GetIntegratedLumiFraction","Initializing the subtool.."); Initialize(); }
 
    if(!m_lumiVectorIsLoaded) {
-      Error("GetIntegratedLumiFraction","No Lumicalc file loaded, so no lumi fraction possible, returning 0");
+      Error("GetIntegratedLumiFraction","No UNPRESCALED (Trigger=None) Lumicalc file loaded, so no lumi fraction possible, returning 0");
       return 0;
    }
    //total lumi in period is given by sumOfWeights[-1]
@@ -181,7 +184,7 @@ Double_t CP::TPileupReweighting::GetIntegratedLumiFraction(Int_t periodNumber, U
 Double_t CP::TPileupReweighting::GetIntegratedLumiFraction(Int_t periodNumber, Double_t mu, UInt_t start, UInt_t end) {
    if(!m_isInitialized) { Info("GetIntegratedLumiFraction","Initializing the subtool.."); Initialize(); }
    if(!m_lumiVectorIsLoaded) {
-      Error("GetIntegratedLumiFraction","No Lumicalc file loaded, so no lumi fraction possible, returning 0");
+      Error("GetIntegratedLumiFraction","No UNPRESCALED (Trigger=None) Lumicalc file loaded, so no lumi fraction possible, returning 0");
       return 0;
    }
    //determine the mubin
@@ -280,6 +283,8 @@ Int_t CP::TPileupReweighting::UsePeriodConfig(const TString configName) {
    } else if(configName=="MC15") {
       AddPeriod(222510,222222,999999);
       AddPeriod(222525,222222,999999);
+      AddPeriod(222526,222222,999999);
+      AddPeriod(284500,222222,999999);
       if(m_emptyHistogram && (m_emptyHistogram->GetNbinsX()!=100 || fabs(m_emptyHistogram->GetXaxis()->GetBinLowEdge(1))>0.01 || fabs(m_emptyHistogram->GetXaxis()->GetBinUpEdge(100)-100.)>0.01) ) {
          Error("UsePeriodConfig","Cannot use MC15, an incompatible config has already been set up");
          throw std::runtime_error("Throwing 13: Cannot use MC15, an incompatible config has already been set up");
@@ -304,7 +309,7 @@ Int_t CP::TPileupReweighting::AddPeriod(Int_t periodNumber, UInt_t start, UInt_t
    }
 
    if(m_periods.find(periodNumber)==m_periods.end()) {
-      m_periods[periodNumber] = new Period(periodNumber,start,end,m_periods[-1]->defaultChannel);
+      m_periods[periodNumber] = new Period(periodNumber,start,end,GetDefaultChannel(-1));
       return periodNumber;
    }
 
@@ -371,9 +376,11 @@ TH1* CP::TPileupReweighting::CloneEmptyHistogram(Int_t runNumber, Int_t channelN
    }
 
    TH1* out = dynamic_cast<TH1*>(m_emptyHistogram->Clone(s));
-   out->SetTitle(s);
-   out->SetDirectory(0); //take ownership
-   out->SetEntries(0);
+   if (out) {
+     out->SetTitle(s);
+     out->SetDirectory(0); //take ownership
+     out->SetEntries(0);
+   }
    return out;
 
 }
@@ -678,7 +685,10 @@ Int_t CP::TPileupReweighting::AddDistribution(TH1* hist,Int_t runNumber, Int_t c
                throw std::runtime_error("Throwing 98");
             }
          }
-         m_emptyHistogram->Reset();m_emptyHistogram->SetEntries(0);m_emptyHistogram->SetDirectory(0);//clear the histogram
+         if (m_emptyHistogram)
+         {
+           m_emptyHistogram->Reset();m_emptyHistogram->SetEntries(0);m_emptyHistogram->SetDirectory(0);//clear the histogram
+         }
       }
       inputHist = CloneEmptyHistogram(runNumber,channelNumber);
 
@@ -729,7 +739,7 @@ Int_t CP::TPileupReweighting::AddLumiCalcFile(const TString fileName, const TStr
       //try to get the the known TTrees 
       TTree *tmp = (TTree*)rootFile->Get( "LumiMetaData" );
       if(tmp) {
-         m_lumicalcFiles[trigger] = fileName;
+         m_lumicalcFiles[trigger].push_back(fileName);
          if(trigger=="None") {
             Info("AddLumiCalcFile","Adding LumiMetaData (scale factor=%f)...",m_dataScaleFactorX);
             //structure expected is as given by iLumiCalc:
@@ -755,11 +765,14 @@ Int_t CP::TPileupReweighting::AddLumiCalcFile(const TString fileName, const TStr
                runNbr += m_lumicalcRunNumberOffset;
                //save the lumi by run and lbn 
                b_lbn->GetEntry(i);
-   
+
+               //before going any further, check the runnbr and lbn are ok
+               if(!m_parentTool->runLbnOK(runNbr,lbn)) continue;
+
                Run& r = m_runs[runNbr];
-               //rescale the mu value 
-               mu *= m_dataScaleFactorX;
                if(trigger=="None") {r.lumiByLbn[lbn].first += intLumi; r.lumiByLbn[lbn].second = mu;}
+               //rescale the mu value  ... do this *after* having stored the mu value in the lumiByLbn map
+               mu *= m_dataScaleFactorX; 
                //fill into input data histograms 
                //check if we need to create an empty histogram 
                
@@ -806,37 +819,37 @@ Int_t CP::TPileupReweighting::AddConfigFile(const TString fileName) {
       //try to get the the known TTrees 
       TTree *tmp = (TTree*)rootFile->Get( std::string(m_prwFilesPathPrefix+"MCPileupReweighting").c_str() );
       if(tmp) {
-         Info("AddConfigFile","Adding MCPileupReweighting...");
+         //Info("AddConfigFile","Adding MCPileupReweighting...");
          AddDistributionTree(tmp,rootFile);
          m_countingMode=false;
       }
       tmp = 0;tmp = (TTree*)rootFile->Get( std::string(m_prwFilesPathPrefix+"MCCustomReweighting").c_str() );
       if(tmp) {
-         Info("AddConfigFile","Adding MCCustomReweighting...");
+         //Info("AddConfigFile","Adding MCCustomReweighting...");
          AddDistributionTree(tmp,rootFile);
          m_countingMode=false;
       }
       tmp = 0;tmp = (TTree*)rootFile->Get( std::string(m_prwFilesPathPrefix+"DataCustomReweighting").c_str() );
       if(tmp) {
-         Info("AddConfigFile","Adding DataCustomReweighting...");
+         //Info("AddConfigFile","Adding DataCustomReweighting...");
          AddDistributionTree(tmp,rootFile);
          m_countingMode=false;
       }
       tmp=0; tmp = (TTree*)rootFile->Get( std::string(m_prwFilesPathPrefix+"PileupReweighting/MCPileupReweighting").c_str() ); //allow trees in the PileupReweighting dir instead
       if(tmp) {
-         Info("AddConfigFile","Adding MCPileupReweighting...");
+         //Info("AddConfigFile","Adding MCPileupReweighting...");
          AddDistributionTree(tmp,rootFile);
          m_countingMode=false;
       }
       tmp = 0;tmp = (TTree*)rootFile->Get( std::string(m_prwFilesPathPrefix+"PileupReweighting/MCCustomReweighting").c_str() );
       if(tmp) {
-         Info("AddConfigFile","Adding MCCustomReweighting...");
+         //Info("AddConfigFile","Adding MCCustomReweighting...");
          AddDistributionTree(tmp,rootFile);
          m_countingMode=false;
       }
       tmp = 0;tmp = (TTree*)rootFile->Get( std::string(m_prwFilesPathPrefix+"PileupReweighting/DataCustomReweighting").c_str() );
       if(tmp) {
-         Info("AddConfigFile","Adding DataCustomReweighting...");
+         //Info("AddConfigFile","Adding DataCustomReweighting...");
          AddDistributionTree(tmp,rootFile);
          m_countingMode=false;
       }
@@ -848,6 +861,27 @@ Int_t CP::TPileupReweighting::AddConfigFile(const TString fileName) {
    gDirectory = origDir;
 
    return 0;
+}
+
+Bool_t CP::TPileupReweighting::RemoveChannel(int chanNum) {
+   if(m_isInitialized) {
+      Error("RemoveChannel","You cannot RemoveChannel after initializing the tool. Reorder your code!");
+      throw std::runtime_error("Throwing 5: You cannot RemoveChannel after initializing the tool. Reorder your code!");
+   }
+
+   bool found(false);
+   for(auto& period : m_periods) {
+      auto itr = period.second->inputHists.begin();
+      while(itr != period.second->inputHists.end()) {
+         if(itr->first!=chanNum) ++itr;
+         else {
+            found=true;
+            if(itr->second) delete itr->second; //delete the hist 
+            itr = period.second->inputHists.erase(itr);
+         }
+      }
+   }
+   return found;
 }
 
 Int_t CP::TPileupReweighting::Initialize() {
@@ -882,6 +916,88 @@ Int_t CP::TPileupReweighting::Initialize() {
 //       }
       m_isInitialized=true;
       return 0;
+   }
+
+   //find all channels that have too much unrepresented data (more than tolerance). We will remove these channels entirely 
+
+   double totalData(0);
+   //count up the unrepresented data, indexed by channel 
+   for(auto& run : m_runs) {
+      if(run.second.inputHists.find("None") == run.second.inputHists.end()) continue;
+      TH1* hist = run.second.inputHists["None"];
+      Int_t bin,binx,biny;
+      for(biny=1; biny<=hist->GetNbinsY(); biny++) {
+         for(binx=1; binx<=hist->GetNbinsX(); binx++) {
+            bin = hist->GetBin(binx,biny);
+            Double_t value = hist->GetBinContent(bin);
+            totalData += value;
+            if(value==0.) continue;
+            bool isUnrep(false);
+            std::map<Int_t, bool> doneChannels;
+            for(auto& period : m_periods) {
+               if(period.first != period.second->id) continue; //skip remappings
+               if(!period.second->contains(run.first)) continue;
+               for(auto& inHist : period.second->inputHists) {
+                  if(inHist.first<0) continue; //skips any data hists (shouldn't happen really)
+                  if((inHist.second)->GetBinContent(bin)==0) { 
+                     period.second->unrepData[inHist.first] += value;  //store unrep data by period too, because will use in GetUnrepresentedFraction 
+                     if(!isUnrep) {isUnrep=true; unrepDataByChannel[-1] += value;}    //store total unrep data... must be sure not to double count across the channels (if multiple channels have same unrep data
+                  }
+                  if(doneChannels[inHist.first]) continue; //dont doublecount the data if the channel was to blame across multiple periods
+                  if((inHist.second)->GetBinContent(bin)==0) {unrepDataByChannel[inHist.first] += value;doneChannels[inHist.first]=true;  }
+               }
+            }
+         }
+      }
+   }
+
+   if(m_ignoreBadChannels && unrepDataByChannel[-1] && totalData && (unrepDataByChannel[-1]/totalData)>m_unrepDataTolerance) {
+      Warning("Initialize","There is %f%% unrepresented data and 'IgnoreBadChannels' property is set to true. Will start ignoring channels until this is below the tolerance (%f%%)", 100.*(unrepDataByChannel[-1]/totalData),100.*m_unrepDataTolerance);
+      //remove channels one-by-one until we are under tolerance 
+      while( (unrepDataByChannel[-1]/totalData)>m_unrepDataTolerance ) {
+         int worstChannel = -1;
+         double worstFraction = 0;
+         for(auto& channel : unrepDataByChannel) {
+            if(channel.first<0) continue; //ignore the data 
+            if(channel.second/totalData > worstFraction) { worstChannel=channel.first; worstFraction = channel.second/totalData; }
+         }
+         if(worstChannel==-1) {
+            Error("Initialize","Run out of channels to remove. All your channels are bad ... oh dear oh dear oh dear. Please a better PRW config file");
+            throw std::runtime_error("Throwing exception 333: Run out of channels to remove. All your channels are bad ... oh dear oh dear oh dear. Please a better PRW config file");
+         }
+
+         Warning("Initialize","Ignoring channel %d, which has %f%% unrepresented data (%f%% of the total unrep data)",worstChannel,100.*unrepDataByChannel[worstChannel]/totalData,100.*unrepDataByChannel[worstChannel]/unrepDataByChannel[-1]);
+         //remove the bad channel 
+         RemoveChannel(worstChannel);
+         unrepDataByChannel.erase(unrepDataByChannel.find(worstChannel));
+
+         //recalculate the total unrep data 
+         unrepDataByChannel[-1] = 0;
+         for(auto& run : m_runs) {
+            if(run.second.inputHists.find("None") == run.second.inputHists.end()) continue;
+            TH1* hist = run.second.inputHists["None"];
+            Int_t bin,binx,biny;
+            for(biny=1; biny<=hist->GetNbinsY(); biny++) {
+               for(binx=1; binx<=hist->GetNbinsX(); binx++) {
+                  bin = hist->GetBin(binx,biny);
+                  Double_t value = hist->GetBinContent(bin);
+                  if(value==0.) continue;
+                  for(auto& period : m_periods) {
+                     if(period.first != period.second->id) continue; //skip remappings
+                     if(!period.second->contains(run.first)) continue;
+                     bool done(false);
+                     for(auto& inHist : period.second->inputHists) {
+                        if(inHist.first<0) continue; //skips any data hists (shouldn't happen really)
+                        if((inHist.second)->GetBinContent(bin)==0) { 
+                           unrepDataByChannel[-1] += value; done=true; break;
+                        }
+                     }
+                     if(done) break;
+                  }
+               }
+            }
+         }
+      }
    }
 
 
@@ -972,28 +1088,6 @@ Int_t CP::TPileupReweighting::Initialize() {
 
    }
 
-   Double_t unrepData(0);
-   //count up the unrepresented data, indexed by channel 
-
-   for(auto& run : m_runs) {
-      for(auto& b : run.second.badBins) {
-         if(!b.second) continue;
-         int bin = b.first;
-         unrepData += b.second;
-         //find out which channel in which period caused this bad bin!
-         std::map<Int_t, bool> doneChannels;
-         for(auto& period : m_periods) {
-            if(period.first != period.second->id) continue;
-            if(!period.second->contains(run.first)) continue;
-            for(auto& inHist : period.second->inputHists) {
-               if(inHist.first<0) continue; //skips any data hists (shouldn't happen really)
-               if((inHist.second)->GetBinContent(bin)==0) { period.second->unrepData[inHist.first] += b.second; } //store unrep data by period too, because will use in GetUnrepresentedFraction 
-               if(doneChannels[inHist.first]) continue; //dont doublecount the data if the channel was to blame across multiple periods
-               if((inHist.second)->GetBinContent(bin)==0) {unrepDataByChannel[inHist.first] += b.second;doneChannels[inHist.first]=true;}
-            }
-         }
-      }
-   }
 
    //now that all periods and runs have been checked, with redirects set up where necessary, we actually accumulate the data across the runs 
    //we should also check if there are any data runs that are not covered by the period assignments 
@@ -1023,16 +1117,16 @@ Int_t CP::TPileupReweighting::Initialize() {
          ignoredData += hist->GetSumOfWeights();
       } 
    }
-   double totalData =  (m_unrepresentedDataAction==1) ? (m_periods[-1]->sumOfWeights[-1]+unrepData) : m_periods[-1]->sumOfWeights[-1];
+   //double totalData =  (m_unrepresentedDataAction==1) ? (m_periods[-1]->sumOfWeights[-1]+unrepDataByChannel[-1]) : m_periods[-1]->sumOfWeights[-1];
 
    if(ignoredData>0.) Warning("Initialize", "Period Assignments missed %f%% data",100.*ignoredData/totalData);
 
 
 
-   if(unrepData) {
-      double frac = unrepData/totalData;
+   if(unrepDataByChannel[-1]) {
+      double frac = unrepDataByChannel[-1]/totalData;
       if( frac  > m_unrepDataTolerance) {
-               Error("Initialize", "%f%% unrepresented data, which suggests something is wrong with your prw config. Try EnableDebugging(true) to investigate",100.* (unrepData/m_periods[-1]->sumOfWeights[-1]));
+               Error("Initialize", "%f%% unrepresented data, which suggests something is wrong with your prw config. Try EnableDebugging(true) to investigate",100.* (unrepDataByChannel[-1]/totalData));
       }
       if(m_unrepresentedDataAction==1) {
          Warning("Initialize","has %f%% unrepresented data. This was removed (UnrepresentedDataAction=1)",100.*frac);
@@ -1044,7 +1138,8 @@ Int_t CP::TPileupReweighting::Initialize() {
          Error("Initialize","has %f%% unrepresented data:",100.*frac);
          //print the report of which channels caused it 
          for(auto& it : unrepDataByChannel) {
-            Error("Initialize","   Channel %d caused %f%% of the unrepresented data (nEntries=%d)",it.first,100.*it.second/unrepData,m_periods[-1]->numberOfEntries[it.first]);
+            if(it.first<0) continue; //ignore data
+            Error("Initialize","   Channel %d caused %f%% of the unrepresented data (nEntries=%d)",it.first,100.*it.second/unrepDataByChannel[-1],m_periods[-1]->numberOfEntries[it.first]);
          }
          Error("Initialize","Exiting. You must decide how to proceed...");
          Error("Initialize","1) use AddPeriod or RemapPeriod to redefine the mc periods to include this data. You should not need to regenerate your mc config file");
@@ -1136,7 +1231,7 @@ Double_t CP::TPileupReweighting::GetUnrepresentedDataFraction(Int_t periodNumber
    }
 
    //look for channel through sumOfWeights - because if the channel has no unrepData, it will have no entry in the unrepData map
-   if(p->sumOfWeights.find(channel) == p->sumOfWeights.end()) channel = m_periods[periodNumber]->defaultChannel;
+   if(p->sumOfWeights.find(channel) == p->sumOfWeights.end()) channel = GetDefaultChannel(periodNumber);
 
 
    if(p->sumOfWeights.find(channel) == p->sumOfWeights.end()) {
@@ -1166,9 +1261,9 @@ UInt_t CP::TPileupReweighting::GetRandomRunNumber(Int_t periodNumber) {
    double lumiSum=0;
    for(auto runNum : p->runNumbers) {
       lumiSum += m_runs[runNum].inputHists["None"]->GetSumOfWeights();
-      if(lumiSum >= lumi) return runNum;
+      if(lumiSum >= lumi-0.00001) return runNum; //small difference is to catch rounding errors
    }
-   Error("GetRandomRunNumber","overran integrated luminosity for periodNumber=%d",periodNumber);
+   Error("GetRandomRunNumber","overran integrated luminosity for periodNumber=%d (%f vs %f)",periodNumber,lumiSum,lumi);
    throw std::runtime_error("Throwing 46.1: overran integrated luminosity for GetRandomRunNumber");
    return 0;
 }
@@ -1194,9 +1289,9 @@ UInt_t CP::TPileupReweighting::GetRandomRunNumber(Int_t periodNumber, Double_t x
    double lumiSum=0;
    for(auto runNum : p->runNumbers) {
       lumiSum += m_runs[runNum].inputHists["None"]->GetBinContent(bin);
-      if(lumiSum >= lumi) return runNum;
+      if(lumiSum >= lumi-0.00001) return runNum;  //small difference is to catch rounding errors
    }
-   Error("GetRandomRunNumber","overran integrated luminosity for periodNumber=%d",periodNumber);
+   Error("GetRandomRunNumber","overran integrated luminosity for periodNumber=%d (%f vs %f)",periodNumber,lumiSum,lumi);
    throw std::runtime_error("Throwing 46.1: overran integrated luminosity for GetRandomRunNumber");
    return 0;
 }
@@ -1349,7 +1444,7 @@ Float_t CP::TPileupReweighting::GetPeriodWeight(Int_t periodNumber, Int_t channe
       Error("GetPeriodWeight","Unrecognised periodNumber: %d",periodNumber);
       throw std::runtime_error("Throwing 1: Unrecognised periodNumber");
    }
-   if(p->sumOfWeights.find(channelNumber) == p->sumOfWeights.end()) channelNumber = p->defaultChannel;
+   if(p->sumOfWeights.find(channelNumber) == p->sumOfWeights.end()) channelNumber = GetDefaultChannel(periodNumber);//p->defaultChannel;
 
    double n_a = p->sumOfWeights[channelNumber];
    double n = m_periods[-1]->sumOfWeights[channelNumber];
@@ -1371,7 +1466,7 @@ Float_t CP::TPileupReweighting::GetPrimaryWeight(Int_t periodNumber, Int_t chann
       throw std::runtime_error("Throwing 1: Unrecognised periodNumber");
    }
    int oChanNumber = channelNumber;
-   if(p->sumOfWeights.find(channelNumber) == p->sumOfWeights.end()) channelNumber = p->defaultChannel;
+   if(p->sumOfWeights.find(channelNumber) == p->sumOfWeights.end()) channelNumber = GetDefaultChannel(periodNumber);//p->defaultChannel;
 
    if(!p->primaryHists[channelNumber]) {
       Error("GetPrimaryWeight","Unrecognised channelNumber: %d",oChanNumber);
@@ -1402,7 +1497,7 @@ Float_t CP::TPileupReweighting::GetSecondaryWeight(Int_t periodNumber, Int_t cha
       Error("GetSecondaryWeight","Unrecognised periodNumber: %d",periodNumber);
       throw std::runtime_error("Throwing 1: Unrecognised periodNumber");
    }
-   if(p->sumOfWeights.find(channelNumber) == p->sumOfWeights.end()) channelNumber = p->defaultChannel;
+   if(p->sumOfWeights.find(channelNumber) == p->sumOfWeights.end()) channelNumber = GetDefaultChannel(periodNumber);//p->defaultChannel;
    int bin = p->secondaryHists[channelNumber]->FindFixBin(x,y);
    double n = p->secondaryHists[channelNumber]->GetBinContent(bin);
    double l = p->secondaryHists[-1]->GetBinContent(bin);
@@ -1456,7 +1551,7 @@ Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, TString trigger,
    
    if(m_doGlobalDataWeight) return numerHist->Integral(0,numerHist->GetNbinsX()+1)/denomHist->Integral(0,denomHist->GetNbinsX()+1);
 
-   Int_t bin=numerHist->FindFixBin(x);
+   Int_t bin=numerHist->FindFixBin(x*m_dataScaleFactorX); //MUST SCALE BY THE DATA SCALE FACTOR!
    return numerHist->GetBinContent(bin)/denomHist->GetBinContent(bin);
 
 }
@@ -1539,6 +1634,7 @@ Int_t CP::TPileupReweighting::WriteToFile(TFile* outFile) {
    //loop over periods ... periods only get entry in table if they have an input histogram 
    for(auto period : m_periods) {
       if(period.first != period.second->id) continue; //skips redirects 
+      if(period.first<0) continue; //avoid the global run number
       runNumber = period.first;
       pStarts = new std::vector<UInt_t>;pEnds = new std::vector<UInt_t>;
       if(period.second->subPeriods.size()==0) { 
@@ -1552,7 +1648,7 @@ Int_t CP::TPileupReweighting::WriteToFile(TFile* outFile) {
       for(auto inHist : period.second->inputHists) {
          channel = inHist.first;
          TH1* hist = inHist.second;
-         strcpy(histName,hist->GetName());
+         strncpy(histName,hist->GetName(),sizeof(histName)-1);
          hist->Write();
 
          if(!outTreeMC) {
@@ -1574,7 +1670,7 @@ Int_t CP::TPileupReweighting::WriteToFile(TFile* outFile) {
       if(run.second.inputHists.find("None")==run.second.inputHists.end()) continue;
 
       TH1* hist = run.second.inputHists["None"];
-      strcpy(histName,hist->GetName());
+      strncpy(histName,hist->GetName(),sizeof(histName)-1);
       hist->Write();
       if(!outTreeData) {
          outTreeData = new TTree("DataPileupReweighting","DataPileupReweighting");
@@ -1716,119 +1812,122 @@ void CP::TPileupReweighting::CalculatePrescaledLuminosityHistograms(const TStrin
    //Load the prescales for each lumicalc subTrigger 
    for(std::vector<TString>::iterator it = subTriggers.begin();it!=subTriggers.end();++it) {
       //Info("aa","subtrigger %s Int lumi is %f", it->Data(), m_triggerPrimaryDistributions[*it][1]->Integral());
-      TString fileName = m_lumicalcFiles[*it];
-      TFile* rootFile = TFile::Open( fileName, "READ" );
-      if ( rootFile->IsZombie() ) {
-         Error("CalculatePrescaledLuminosityHistograms","Could not open file: %s",fileName.Data());
-         std::string toThrow = "Throwing 6: Could not open file: "; toThrow += fileName;
-         throw std::runtime_error(toThrow);
-      } else {
-         //try to get the the known TTrees 
-         TTree *tmp = (TTree*)rootFile->Get( "LumiMetaData" );
-         if(tmp) {
-            //structure expected is as given by iLumiCalc:
-            //   RunNbr, AvergeInteractionPerXing, IntLumi
-            UInt_t runNbr=0;Float_t ps1=0;Float_t ps2=0; Float_t ps3=0;UInt_t lbn=0;TBranch *b_runNbr=0;TBranch *b_L1Presc=0;TBranch *b_L2Presc=0;TBranch *b_L3Presc=0;TBranch *b_lbn=0;
-            if(tmp->SetBranchAddress("RunNbr",&runNbr,&b_runNbr)!=0) {
-               Error("CalculatePrescaledLuminosityHistograms","Could not find RunNbr branch in Data TTree");throw std::runtime_error("Could not find RunNbr branch in Data TTree");
-            }
-            if(tmp->SetBranchAddress("L1Presc",&ps1,&b_L1Presc)!=0) {
-               Error("CalculatePrescaledLuminosityHistograms","Could not find L1Presc branch in Data TTree");throw std::runtime_error("Could not find L1Presc branch in Data TTree");
-            }
-            if(tmp->SetBranchAddress("L2Presc",&ps2,&b_L2Presc)!=0) {
-               Error("CalculatePrescaledLuminosityHistograms","Could not find L2Presc branch in Data TTree");throw std::runtime_error("Could not find L2Presc branch in Data TTree");
-            }
-            if(tmp->SetBranchAddress("L3Presc",&ps3,&b_L3Presc)!=0) {
-               Error("CalculatePrescaledLuminosityHistograms","Could not find L3Presc branch in Data TTree");throw std::runtime_error("Could not find L3Presc branch in Data TTree");
-            }
-            if(tmp->SetBranchAddress("LBStart",&lbn,&b_lbn)!=0) {
-               Error("CalculatePrescaledLuminosityHistograms","Could not find LBStart branch in Data TTree");throw std::runtime_error("Could not find LBStart branch in Data TTree");
-            }
-            long nEntries = tmp->GetEntries();
-            for(long i=0;i<nEntries;i++) {
-               b_runNbr->GetEntry(i);b_L1Presc->GetEntry(i);b_L2Presc->GetEntry(i);b_L3Presc->GetEntry(i);b_lbn->GetEntry(i);
-               runNbr += m_lumicalcRunNumberOffset;
-               //save the prescale by run and lbn 
-               //if(runNbr==215643) Info("...","prescale in [%d,%d] = %f %f %f", runNbr,lbn,ps1,ps2,ps3);
-               if(ps1>0&&ps2>0&&ps3>0) prescaleByRunAndLbn[*it][runNbr][lbn] = ps1*ps2*ps3;
-            }
-         }
-      }
+      for(auto& fileName : m_lumicalcFiles[*it]) {
+        TFile* rootFile = TFile::Open( fileName, "READ" );
+        if ( rootFile->IsZombie() ) {
+          Error("CalculatePrescaledLuminosityHistograms","Could not open file: %s",fileName.Data());
+          std::string toThrow = "Throwing 6: Could not open file: "; toThrow += fileName;
+          throw std::runtime_error(toThrow);
+        } else {
+          //try to get the the known TTrees 
+          TTree *tmp = (TTree*)rootFile->Get( "LumiMetaData" );
+          if(tmp) {
+              //structure expected is as given by iLumiCalc:
+              //   RunNbr, AvergeInteractionPerXing, IntLumi
+              UInt_t runNbr=0;Float_t ps1=0;Float_t ps2=0; Float_t ps3=0;UInt_t lbn=0;TBranch *b_runNbr=0;TBranch *b_L1Presc=0;TBranch *b_L2Presc=0;TBranch *b_L3Presc=0;TBranch *b_lbn=0;
+              if(tmp->SetBranchAddress("RunNbr",&runNbr,&b_runNbr)!=0) {
+                Error("CalculatePrescaledLuminosityHistograms","Could not find RunNbr branch in Data TTree");throw std::runtime_error("Could not find RunNbr branch in Data TTree");
+              }
+              if(tmp->SetBranchAddress("L1Presc",&ps1,&b_L1Presc)!=0) {
+                Error("CalculatePrescaledLuminosityHistograms","Could not find L1Presc branch in Data TTree");throw std::runtime_error("Could not find L1Presc branch in Data TTree");
+              }
+              if(tmp->SetBranchAddress("L2Presc",&ps2,&b_L2Presc)!=0) {
+                Error("CalculatePrescaledLuminosityHistograms","Could not find L2Presc branch in Data TTree");throw std::runtime_error("Could not find L2Presc branch in Data TTree");
+              }
+              if(tmp->SetBranchAddress("L3Presc",&ps3,&b_L3Presc)!=0) {
+                Error("CalculatePrescaledLuminosityHistograms","Could not find L3Presc branch in Data TTree");throw std::runtime_error("Could not find L3Presc branch in Data TTree");
+              }
+              if(tmp->SetBranchAddress("LBStart",&lbn,&b_lbn)!=0) {
+                Error("CalculatePrescaledLuminosityHistograms","Could not find LBStart branch in Data TTree");throw std::runtime_error("Could not find LBStart branch in Data TTree");
+              }
+              long nEntries = tmp->GetEntries();
+              for(long i=0;i<nEntries;i++) {
+                b_runNbr->GetEntry(i);b_L1Presc->GetEntry(i);b_L2Presc->GetEntry(i);b_L3Presc->GetEntry(i);b_lbn->GetEntry(i);
+                runNbr += m_lumicalcRunNumberOffset;
+                //save the prescale by run and lbn 
+                //if(runNbr==215643) Info("...","prescale in [%d,%d] = %f %f %f", runNbr,lbn,ps1,ps2,ps3);
+                if(ps1>0&&ps2>0&&ps3>0) prescaleByRunAndLbn[*it][runNbr][lbn] = ps1*ps2*ps3;
+              }
+          }
+        }
+       } //end of loop over lumicalc files for this trigger
    }
 
-   TString fileName = m_lumicalcFiles["None"];
-   // Load the data ROOT file for the 'None' lumicalc file
-   TFile* rootFile = TFile::Open( fileName, "READ" );
-   if ( rootFile->IsZombie() ) {
-      Error("CalculatePrescaledLuminosityHistograms","Could not open file: %s",fileName.Data());
-      std::string toThrow = "Throwing 6: Could not open file: "; toThrow += fileName;
-      throw std::runtime_error(toThrow);
-   } else {
-      //try to get the the known TTrees 
-      TTree *tmp = (TTree*)rootFile->Get( "LumiMetaData" );
-      if(tmp) {
-         //structure expected is as given by iLumiCalc:
-         //   RunNbr, AvergeInteractionPerXing, IntLumi
-         UInt_t runNbr=0;Float_t intLumi=0;UInt_t lbn=0;TBranch *b_runNbr=0;TBranch *b_intLumi=0;TBranch *b_lbn=0;
-         Float_t mu=0.; TBranch *b_mu=0;
-         if(tmp->SetBranchAddress("RunNbr",&runNbr,&b_runNbr)!=0) {
-            Error("CalculatePrescaledLuminosityHistograms","Could not find RunNbr branch in Data TTree");throw std::runtime_error("Could not find RunNbr branch in Data TTree");
-         }
-         if(tmp->SetBranchAddress("AvergeInteractionPerXing",&mu,&b_mu)!=0) {
-            Error("CalculatePrescaledLuminosityHistograms","Could not find AvergeInteractionPerXing branch in Data TTree");throw std::runtime_error("Could not find AvergeInteractionPerXing branch in Data TTree");
-         }
-         if(tmp->SetBranchAddress("IntLumi",&intLumi,&b_intLumi)!=0) {
-            Error("CalculatePrescaledLuminosityHistograms","Could not find IntLumi branch in Data TTree");throw std::runtime_error("Could not find IntLumi branch in Data TTree");
-         }
-         if(tmp->SetBranchAddress("LBStart",&lbn,&b_lbn)!=0) {
-            Error("CalculatePrescaledLuminosityHistograms","Could not find LBStart branch in Data TTree");throw std::runtime_error("Could not find LBStart branch in Data TTree");
-         }
-         long nEntries = tmp->GetEntries();
-         for(long i=0;i<nEntries;i++) {
-            b_runNbr->GetEntry(i);b_intLumi->GetEntry(i);b_mu->GetEntry(i);
-            b_lbn->GetEntry(i);
-
-            runNbr += m_lumicalcRunNumberOffset;
-            //for each subtrigger, lookup prescale, and calculate pFactor 
-/*
-            double pFactor(1);
-            for(std::vector<TString>::iterator it = subTriggers.begin();it!=subTriggers.end();++it) {
-               if(prescaleByRunAndLbn[*it][runNbr].find(lbn) != prescaleByRunAndLbn[*it][runNbr].end()) {
-                  pFactor *= (1. - 1./prescaleByRunAndLbn[*it][runNbr][lbn]);
-               }
-            }
-            pFactor = 1. - pFactor;
-*/
-
-            double pFactor = t->eval(prescaleByRunAndLbn,runNbr,lbn);
-
-            //Info("...","prescale in [%d,%d] = %f", runNbr,lbn,1./pFactor);
-
-            int bin = m_emptyHistogram->FindFixBin(mu*m_dataScaleFactorX);
-
-            //add into all periods that contain this runNbr 
-            for(auto p : m_periods) {
-               if(p.first != p.second->id) continue; //skips remappings 
-               if(!p.second->contains(runNbr)) continue;
-               std::map<TString,TH1D*>& triggerHists = p.second->triggerHists;
-               if(triggerHists.find(trigger) == triggerHists.end()) {
-                  triggerHists[trigger] = dynamic_cast<TH1D*>(CloneEmptyHistogram(p.first,-1));
-                  if(m_debugging) Info("CalculatePrescaledLuminosityHistograms","Created Data Weight Histogram for [%s,%d]",trigger.Data(),p.first);
-               }
-                //check if we were about to fill a bad bin ... if we are, we either skipp the fill (unrep action=1) or redirect (unrep action=3)
-               if( (m_unrepresentedDataAction==1) && p.second->inputBinRedirect[bin]!=bin) { } //do nothing
-               else if( (m_unrepresentedDataAction==3) ) triggerHists[trigger]->Fill(triggerHists[trigger]->GetBinCenter(p.second->inputBinRedirect[bin]), intLumi*pFactor);
-               else triggerHists[trigger]->Fill(mu*m_dataScaleFactorX,intLumi*pFactor);
-               
-            }
-         }
-      }
-   }
+   for(auto& fileName : m_lumicalcFiles["None"]) {
+    // Load the data ROOT file for the 'None' lumicalc file
+    TFile* rootFile = TFile::Open( fileName, "READ" );
+    if ( rootFile->IsZombie() ) {
+        Error("CalculatePrescaledLuminosityHistograms","Could not open file: %s",fileName.Data());
+        std::string toThrow = "Throwing 6: Could not open file: "; toThrow += fileName;
+        throw std::runtime_error(toThrow);
+    } else {
+        //try to get the the known TTrees 
+        TTree *tmp = (TTree*)rootFile->Get( "LumiMetaData" );
+        if(tmp) {
+          //structure expected is as given by iLumiCalc:
+          //   RunNbr, AvergeInteractionPerXing, IntLumi
+          UInt_t runNbr=0;Float_t intLumi=0;UInt_t lbn=0;TBranch *b_runNbr=0;TBranch *b_intLumi=0;TBranch *b_lbn=0;
+          Float_t mu=0.; TBranch *b_mu=0;
+          if(tmp->SetBranchAddress("RunNbr",&runNbr,&b_runNbr)!=0) {
+              Error("CalculatePrescaledLuminosityHistograms","Could not find RunNbr branch in Data TTree");throw std::runtime_error("Could not find RunNbr branch in Data TTree");
+          }
+          if(tmp->SetBranchAddress("AvergeInteractionPerXing",&mu,&b_mu)!=0) {
+              Error("CalculatePrescaledLuminosityHistograms","Could not find AvergeInteractionPerXing branch in Data TTree");throw std::runtime_error("Could not find AvergeInteractionPerXing branch in Data TTree");
+          }
+          if(tmp->SetBranchAddress("IntLumi",&intLumi,&b_intLumi)!=0) {
+              Error("CalculatePrescaledLuminosityHistograms","Could not find IntLumi branch in Data TTree");throw std::runtime_error("Could not find IntLumi branch in Data TTree");
+          }
+          if(tmp->SetBranchAddress("LBStart",&lbn,&b_lbn)!=0) {
+              Error("CalculatePrescaledLuminosityHistograms","Could not find LBStart branch in Data TTree");throw std::runtime_error("Could not find LBStart branch in Data TTree");
+          }
+          long nEntries = tmp->GetEntries();
+          for(long i=0;i<nEntries;i++) {
+              b_runNbr->GetEntry(i);b_intLumi->GetEntry(i);b_mu->GetEntry(i);
+              b_lbn->GetEntry(i);
+  
+              runNbr += m_lumicalcRunNumberOffset;
+              //for each subtrigger, lookup prescale, and calculate pFactor 
+  /*
+              double pFactor(1);
+              for(std::vector<TString>::iterator it = subTriggers.begin();it!=subTriggers.end();++it) {
+                if(prescaleByRunAndLbn[*it][runNbr].find(lbn) != prescaleByRunAndLbn[*it][runNbr].end()) {
+                    pFactor *= (1. - 1./prescaleByRunAndLbn[*it][runNbr][lbn]);
+                }
+              }
+              pFactor = 1. - pFactor;
+  */
+  
+              double pFactor = t->eval(prescaleByRunAndLbn,runNbr,lbn);
+  
+              //Info("...","prescale in [%d,%d] = %f", runNbr,lbn,1./pFactor);
+  
+              int bin = m_emptyHistogram->FindFixBin(mu*m_dataScaleFactorX);
+  
+              //add into all periods that contain this runNbr 
+              for(auto p : m_periods) {
+                if(p.first != p.second->id) continue; //skips remappings 
+                if(!p.second->contains(runNbr)) continue;
+                std::map<TString,TH1D*>& triggerHists = p.second->triggerHists;
+                if(triggerHists.find(trigger) == triggerHists.end()) {
+                    triggerHists[trigger] = dynamic_cast<TH1D*>(CloneEmptyHistogram(p.first,-1));
+                    if(m_debugging) Info("CalculatePrescaledLuminosityHistograms","Created Data Weight Histogram for [%s,%d]",trigger.Data(),p.first);
+                }
+                  //check if we were about to fill a bad bin ... if we are, we either skipp the fill (unrep action=1) or redirect (unrep action=3)
+                if( (m_unrepresentedDataAction==1) && p.second->inputBinRedirect[bin]!=bin) { } //do nothing
+                else if( m_unrepresentedDataAction==3 ) {triggerHists[trigger]->Fill(triggerHists[trigger]->GetBinCenter(p.second->inputBinRedirect[bin]), intLumi*pFactor);}
+                else triggerHists[trigger]->Fill(mu*m_dataScaleFactorX,intLumi*pFactor);
+                
+              }
+          }
+        }
+    }
+    delete rootFile;
+   } //end loop over unprescaled lumicalc files
    delete t;
 
    //Info("aa","Int lumi is %f", m_triggerPrimaryDistributions[trigger][1]->Integral());
 
-   delete rootFile;
+
 
    // Return to the original ROOT directory
    gDirectory = origDir;

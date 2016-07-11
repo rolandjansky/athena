@@ -31,6 +31,8 @@ class PileupReweightingProvider : public AthAlgorithm {
          CHECK( m_tool.retrieve() ); 
 
          IProperty* myTool = dynamic_cast<IProperty*>(&*m_tool);
+         if (!myTool)
+           return StatusCode::FAILURE;
          CHECK( myTool->setProperty("ConfigOutputStream",m_configStream) );
 
          //get the list of systematics 

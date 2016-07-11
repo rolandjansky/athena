@@ -13,22 +13,31 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "PATInterfaces/ISystematicsTool.h"
+#include "GoodRunsLists/IGoodRunsListSelectionTool.h"
+
+
 
 class TH1;
 
 namespace CP {
 class TPileupReweighting;
 
-   class IPileupReweightingTool : public virtual asg::IAsgTool, virtual public CP::ISystematicsTool {
+   class IPileupReweightingTool : virtual public CP::ISystematicsTool
+{
 
       ASG_TOOL_INTERFACE( CP::IPileupReweightingTool )
 
       public:
+
+
          /// Return combined pileup weight
          virtual float getCombinedWeight( const xAOD::EventInfo& eventInfo ) = 0;
 
          /// Same as above, but for a 'custom weight' variable
          virtual float getCombinedWeight( const xAOD::EventInfo& eventInfo,Double_t x, Double_t y=0. ) = 0;
+
+         /// get combined weight (i.e. pileup weight) but with a 1./dataWeight factor applied, this if used for 'prescaling' MC
+         virtual float getCombinedWeight( const xAOD::EventInfo& eventInfo , const TString& trigger, bool mu_dependent=true ) = 0;
 
          /// When using UnrepresentedDataAction=2, you may want to apply this additional weight to ensure sum of weights are preserved
          virtual float getUnrepresentedDataWeight( const xAOD::EventInfo& eventInfo ) = 0;
@@ -39,8 +48,20 @@ class TPileupReweighting;
          /// Get a random run number for this MC event, mu_dependency is recommended ... jetetmiss seem to like it muchly
          virtual int getRandomRunNumber( const xAOD::EventInfo& eventInfo , bool mu_dependent=true) = 0;
 
-         /// Get the mu of a lumiblock ... needed to 'correct' the number in datasets
-         virtual float getLumiBlockMu( const xAOD::EventInfo& eventInfo ) = 0;
+         /// Get the corrected average mu of a lumiblock ... (averaging is over all filled BCID in the fill)
+         /// The additional flag indicates if the returned value should include the data scale factor or not.
+         /// Note: if the lumiblock is not present in the input lumicalc file, then -1.0 will be returned
+         /// This method will soon be deprecated in favour of the new naming: getCorrectedAverageInteractionsPerCrossing
+         virtual float getCorrectedMu( const xAOD::EventInfo& eventInfo, bool includedDataScaleFactor=false ) {
+            return getCorrectedAverageInteractionsPerCrossing( eventInfo, includedDataScaleFactor );
+         }
+         virtual float getCorrectedAverageInteractionsPerCrossing( const xAOD::EventInfo& eventInfo, bool includedDataScaleFactor=false ) = 0;
+         
+         /// Get the actual mu of a lumiblock ... (BCID-specific mu)
+         /// The additional flag indicates if the returned value should include the data scale factor or not.
+         /// Note: if the lumiblock is not present in the input lumicalc file, then -1.0 will be returned
+         virtual float getCorrectedActualInteractionsPerCrossing( const xAOD::EventInfo& eventInfo, bool includedDataScaleFactor=false ) = 0;
+         
          /// Get the integrated lumi of a lumiblock (in pb-1)
          virtual double getLumiBlockIntegratedLumi( const xAOD::EventInfo& eventInfo ) = 0;
 

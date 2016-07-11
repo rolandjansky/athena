@@ -166,6 +166,9 @@ namespace CP {
       Int_t AddLumiCalcFile(const TString fileName, const TString trigger="None");
       Int_t AddMetaDataFile(const TString fileName,const TString channelBranchName="mc_channel_number");
 
+      /** Removes a channel from the inputs ... this is for experts only */
+      Bool_t RemoveChannel(int chanNum);
+
       /** Initialize this class once before the event loop starts 
           If distribution information is provided, it is assumed to be 
           for the standard pileup reweighting */
@@ -274,7 +277,16 @@ namespace CP {
 
       Int_t AddDistribution(TH1* hist, Int_t runNumber, Int_t channelNumber);
 
+      /** This method is DEFINITELY EXPERT USE ONLY. Used in the checkPRWConfigFile utitlity */
+      void ResetCountingMode() { m_countingMode=true; }
+
+      
+      void SetParentTool(TPileupReweighting* tool) { m_parentTool = tool; }
+
+      Float_t GetDataScaleFactor() const { return m_dataScaleFactorX; }
+
   protected:
+      virtual bool runLbnOK(Int_t /*runNbr*/, Int_t /*lbn*/) { return true; } //override in the ASG tool
       Int_t GetNearestGoodBin(Int_t thisMCRunNumber, Int_t bin);
       Int_t IsBadBin(Int_t thisMCRunNumber, Int_t bin);
 
@@ -288,12 +300,13 @@ namespace CP {
       void CalculatePrescaledLuminosityHistograms(const TString trigger);
 
       //********** Private members*************************
+      TPileupReweighting* m_parentTool; //points to self if not a 'systematic varion' tool instance
       Bool_t m_SetWarnings;
       Bool_t m_debugging;
       Bool_t m_countingMode;
-      Int_t m_unrepresentedDataAction;
+      Int_t m_unrepresentedDataAction;                         //used as property in wrapper tool
       Bool_t m_isInitialized;Bool_t m_lumiVectorIsLoaded;
-      Float_t m_dataScaleFactorX;Float_t m_dataScaleFactorY;
+      Float_t m_dataScaleFactorX;Float_t m_dataScaleFactorY;   //first is used as property in wrapper tool
       Float_t m_mcScaleFactorX;Float_t m_mcScaleFactorY;
       Int_t m_nextPeriodNumber;
       Bool_t m_ignoreFilePeriods;
@@ -303,7 +316,7 @@ namespace CP {
       Int_t m_lumicalcRunNumberOffset; //used for 'faking' a lumicalc file for run2
 
       /** map storing the lumicalc file locations - used when building DataPileupWeights */
-      std::map<TString,TString> m_lumicalcFiles;
+      std::map<TString,std::vector<TString> > m_lumicalcFiles;
 
       //-----------------------------------------------------
       //Shared private data members
@@ -329,7 +342,7 @@ namespace CP {
          ~CompositeTrigger() { if(trig1) delete trig1; if(trig2) delete trig2; }
          double eval(std::map<TString, std::map<Int_t, std::map<Int_t, Float_t> > >& m, int run, int lbn) {
             switch(op) {
-               case 0: if(m[val][run].find(lbn)==m[val][run].end()) return 0; /*trigger disabled, so cannot contribute*/   return 1./m[val][run][lbn];
+               case 0: if(m[val][run].find(lbn)==m[val][run].end() || !m[val][run][lbn]) return 0; /*trigger disabled, so cannot contribute*/   return 1./m[val][run][lbn];
                case 1: return 1. - (1. - trig1->eval(m,run,lbn))*(1.-trig2->eval(m,run,lbn)); //OR
                case 2: return trig1->eval(m,run,lbn)*trig2->eval(m,run,lbn);
                default: return 1;
@@ -400,7 +413,18 @@ protected:
       //-----------------------------------------------------
       TRandom3 *m_random3;
 
+      Bool_t m_ignoreBadChannels; //if true, will print a warning about any channels with too much unrepresented data, but will then just ignore them
+
+      
 public:
+      //this method is a convenience for copying over properties to the tools that are used for systematic variations
+      inline void CopyProperties(const TPileupReweighting* in) {
+         m_prwFilesPathPrefix = in->m_prwFilesPathPrefix;
+         m_ignoreBadChannels = in->m_ignoreBadChannels;
+         m_unrepresentedDataAction = in->m_unrepresentedDataAction;
+         m_unrepDataTolerance= in->m_unrepDataTolerance;
+      }
+
       ClassDef(TPileupReweighting,0)
 
 
