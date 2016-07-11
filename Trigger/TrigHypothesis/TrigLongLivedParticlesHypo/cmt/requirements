@@ -6,10 +6,10 @@ author Stefano Giagu <stefano.giagu AT cern.ch>
 
 use AtlasPolicy         AtlasPolicy-*
 
-use TrigMuonEvent	TrigMuonEvent-*		Trigger/TrigEvent
-use TrigSteeringEvent	TrigSteeringEvent-*	Trigger/TrigEvent
-use TrigInterfaces      TrigInterfaces-* 	Trigger/TrigSteer
-use TrigInDetEvent      TrigInDetEvent-*	Trigger/TrigEvent
+use TrigMuonEvent		TrigMuonEvent-*			Trigger/TrigEvent
+use TrigSteeringEvent	TrigSteeringEvent-*		Trigger/TrigEvent
+use TrigInterfaces      TrigInterfaces-* 		Trigger/TrigSteer
+use TrigInDetEvent      TrigInDetEvent-*		Trigger/TrigEvent
 use TrigTimeAlgs        TrigTimeAlgs-*          Trigger/TrigTools
 use TrigCaloEvent       TrigCaloEvent-*         Trigger/TrigEvent
 
@@ -21,7 +21,8 @@ use AtlasROOT           AtlasROOT-*             External
 use GaudiInterface      GaudiInterface-*        External
 use CaloEvent           CaloEvent-*             Calorimeter
 use CxxUtils            CxxUtils-*              Control
-use TrigParticle	TrigParticle-*		Trigger/TrigEvent
+use TrigParticle		TrigParticle-*			Trigger/TrigEvent
+use xAODTrigger			xAODTrigger-*			Event/xAOD
 
 private
 apply_tag ROOTMathLibs

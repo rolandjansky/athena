@@ -40,10 +40,16 @@ class TrigCaloRatioHypo : public HLT::HypoAlgo {
   double m_logRatioCut;
   /** @brief cut on minimum track pT. */
   double m_ptCut;
+  /** @brief cut on the minimum number of tracks. */
+  int m_trackCut;
   /** @brief radius for the track isolation requirement. */
   double m_deltaR;
   /** @brief cut on jet eta. */
   double m_etaCut;
+  /** @brief flag for the reversed cut. */
+  bool m_reversedCut;
+  /** @brief switch on/off the track isolation requirement. */
+  bool m_doTrackIso;
 
   //Events accepted, rejected and with some error
   int m_accepted;

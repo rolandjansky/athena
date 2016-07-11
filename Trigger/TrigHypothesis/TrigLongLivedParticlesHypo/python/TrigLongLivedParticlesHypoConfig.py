@@ -2,9 +2,29 @@
 
 from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import *
 from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoMonitoring import *
-from AthenaCommon.SystemOfUnits import GeV
+from AthenaCommon.SystemOfUnits import MeV, GeV
 from AthenaCommon.AppMgr import ToolSvc
+from AthenaCommon.Logging import logging
 
+
+
+def getCaloRatioHypoInstance( instance, threshold, logratio, dotrackiso):
+
+    if(logratio>0):
+        name=instance+"_"+str(threshold)+"GeV"
+
+    if(logratio<0):
+        if (dotrackiso):
+            name=instance+"_"+str(threshold)+"GeV_reversed"
+        else:
+            name=instance+"_"+str(threshold)+"GeV_reversed_notrackiso"
+
+    print "AACC name "+name
+
+    return CaloRatioHypo( threshold=threshold, 
+                          logratio=logratio, 
+                          dotrackiso=dotrackiso, 
+                          name=name )
 
 
 class MuonClusterHypoConfig (MuonClusterHypo):
@@ -188,12 +208,28 @@ class TrigLoFRemovalHypoConfig (TrigLoFRemovalHypo):
 
 class CaloRatioHypo (TrigCaloRatioHypo):
     __slots__ = []
-    def __init__(self, name, threshold, logratio):
+    def __init__(self, threshold, logratio, dotrackiso, name):
         super( CaloRatioHypo, self ).__init__( name )
 
-        self.EtCut       = threshold
+        self.EtCut       = float(threshold)*GeV
         self.LogRatioCut = logratio
 
+        if(logratio>0):
+            self.PtMinID     = 2*GeV
+            self.TrackCut    = 0
+            self.DeltaR      = 0.2
+            self.EtaCut      = 2.5
+            self.Reversed    = False
+            self.DoTrackIso  = True
+
+        if(logratio<0):
+            self.PtMinID     = 2*GeV
+            self.TrackCut    = 0
+            self.DeltaR      = 0.4
+            self.EtaCut      = 2.5
+            self.Reversed    = True
+            self.DoTrackIso  = dotrackiso
+        
         from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoMonitoring import TrigCaloRatioHypoValidationMonitoring, TrigCaloRatioHypoOnlineMonitoring, TrigCaloRatioHypoCosmicMonitoring
         validation = TrigCaloRatioHypoValidationMonitoring()
         online = TrigCaloRatioHypoOnlineMonitoring()
