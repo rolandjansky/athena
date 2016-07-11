@@ -211,7 +211,7 @@ class CaloRatioHypo (TrigCaloRatioHypo):
     def __init__(self, threshold, logratio, dotrackiso, name):
         super( CaloRatioHypo, self ).__init__( name )
 
-        self.EtCut       = threshold
+        self.EtCut       = float(threshold)*GeV
         self.LogRatioCut = logratio
 
         if(logratio>0):
