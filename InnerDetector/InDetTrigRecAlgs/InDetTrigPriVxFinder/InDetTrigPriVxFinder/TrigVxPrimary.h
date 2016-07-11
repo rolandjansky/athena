@@ -8,9 +8,9 @@
 //
 // author: Adapted for the Event Filter: Iwona Grabowska-Bold, Nov 2005
 //         Iwona.Grabowska@cern.ch
+//         Jiri Masik <jiri.masik@manchester.ac.uk>,  May 2007
 //
 // Description:  Trigger version of the InDetPriVxFinder
-//               (see original package documentation).
 //
 // -------------------------------
 // ATLAS Collaboration
@@ -40,6 +40,8 @@ namespace MagField {
   class IMagFieldSvc;
 }
 
+class IBeamCondSvc;
+
 namespace InDet
 {
   class IVertexFinder;
@@ -64,7 +66,7 @@ namespace InDet
     
     ToolHandle< IVertexFinder > m_VertexFinderTool;
     ServiceHandle< MagField::IMagFieldSvc> m_fieldSvc;
-
+    ServiceHandle<IBeamCondSvc> m_BeamCondSvc;
 
   };
 }

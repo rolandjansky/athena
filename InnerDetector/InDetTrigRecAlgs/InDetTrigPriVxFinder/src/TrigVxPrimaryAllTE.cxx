@@ -10,11 +10,12 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkParameters/TrackParameters.h"
-#include "VxVertex/VxContainer.h"
-#include "VxVertex/VxCandidate.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 namespace InDet
 {
@@ -24,11 +25,13 @@ namespace InDet
       m_runWithoutField(false),
       m_VertexFinderTool("InDet::InDetPriVxFinderTool/InDetTrigPriVxFinderTool"),
       m_fieldSvc("AtlasFieldSvc", n),
+      m_BeamCondSvc("BeamCondSvc", n),
       m_retrieve_tracks_from_SG(false),
       m_track_collection_from_SG("Unconfigured_TrigVxPrimaryAllTE_For_SG_Access")
   {
     declareProperty("VertexFinderTool",m_VertexFinderTool);
     declareProperty("RunWithoutField", m_runWithoutField, "It may be unsafe to run vertexing w/o field on");
+    declareProperty("BeamCondSvc", m_BeamCondSvc);
 
     //
     declareProperty("RetrieveTracksFromSG", m_retrieve_tracks_from_SG,
@@ -61,11 +64,19 @@ namespace InDet
     }
     
     if (m_fieldSvc.retrieve().isFailure()){
-      msg() << MSG::FATAL << "Failed to retrieve tool " << m_fieldSvc << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve service " << m_fieldSvc << endreq;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     } 
     else {
       msg() << MSG::INFO << "Retrieved tool " << m_fieldSvc << endreq;
+    }
+
+    if (m_BeamCondSvc.retrieve().isFailure()){
+      msg() << MSG::FATAL << "Failed to retrieve tool " << m_BeamCondSvc << endreq;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }
+    else {
+      msg() << MSG::INFO << "Retrieved service " << m_fieldSvc << endreq;
     }
 
     return HLT::OK;
@@ -184,18 +195,35 @@ namespace InDet
 	}
       }
     
-    
-    VxContainer* theVxContainer(0);
-    if (runVtx){
-      theVxContainer = m_VertexFinderTool->findVertex(trackTES_All);
+    // Create the xAOD container and its auxiliary store:
+    xAOD::VertexContainer* theVxContainer = 0;
+    xAOD::VertexAuxContainer* theVxAuxContainer = 0;
+    std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> theVxContainers
+	= std::make_pair( theVxContainer, theVxAuxContainer );
+
+    if (runVtx) {
+      theVxContainers = m_VertexFinderTool->findVertex(trackTES_All);
+      theVxContainer = theVxContainers.first;
+      theVxAuxContainer = theVxContainers.second;  // the vertex finder has already called setStore
     }
-    else {
-      theVxContainer = new VxContainer();
-      Trk::VxCandidate * dummyvtx = new Trk::VxCandidate ();
-      dummyvtx->setVertexType(Trk::NoVtx);
-      theVxContainer->push_back ( dummyvtx );
+    
+    if (!runVtx || !theVxContainers.first){  // create and fill place-holder VertexContainer if necessary
+      theVxContainer = new xAOD::VertexContainer();
+      theVxAuxContainer = new xAOD::VertexAuxContainer(); 
+      theVxContainer->setStore(theVxAuxContainer);
+      theVxContainers.first = theVxContainer;
+      theVxContainers.second = theVxAuxContainer;
+      
+      xAOD::Vertex *dummyvtx = new xAOD::Vertex();
+      theVxContainer->push_back(dummyvtx);  // put vertex in container so it has Aux store
+      dummyvtx->setVertexType(xAOD::VxType::NoVtx);  // now safe to set member variable
+      dummyvtx->setPosition( m_BeamCondSvc->beamVtx().position() );
+      dummyvtx->setCovariancePosition( m_BeamCondSvc->beamVtx().covariancePosition() );
+      dummyvtx->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
+
     }
     
+
     
     //
     //  Attach resolved tracks to the trigger element.
@@ -205,11 +233,12 @@ namespace InDet
     outputTE->setActiveState(true);
 
 
-    HLT::ErrorCode stat = attachFeature(outputTE, theVxContainer,"PrimVx");
+    HLT::ErrorCode stat = attachFeature(outputTE, theVxContainer,"xPrimVx");
     if (stat != HLT::OK) {
       if (msgLvl() <= MSG::WARNING)
 	    msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
       
+      delete theVxAuxContainer; theVxAuxContainer=0;
       return HLT::NAV_ERROR;
     }
 
@@ -226,6 +255,7 @@ namespace InDet
     // since this is an AllTEAlgo, we have to call the monitoring ourselves:
     afterExecMonitors().ignore();
 
+    delete theVxAuxContainer; theVxAuxContainer=0;
     
     return HLT::OK;
   }

@@ -8,11 +8,11 @@
 //
 // author: Iwona Grabowska-Bold, Nov 2005
 //         Iwona.Grabowska@cern.ch
+//         Jiri Masik <jiri.masik@manchester.ac.uk>,  May 2007
 //
 // Description:  Trigger version of the InDetPriVxFinder
-//               (see original package documentation).
-//
 // **************************************************************************
+
 #include "InDetTrigPriVxFinder/TrigVxPrimary.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "InDetRecToolInterfaces/IVertexFinder.h"
@@ -20,13 +20,14 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkParameters/TrackParameters.h"
-#include "VxVertex/VxContainer.h"
-#include "VxVertex/VxCandidate.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
 
 #include "TrkEventPrimitives/ParamDefs.h"
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
+#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 using Amg::Vector3D;
 
@@ -37,10 +38,13 @@ namespace InDet
     : HLT::FexAlgo(n, pSvcLoc),
       m_runWithoutField(false),
       m_VertexFinderTool("InDet::InDetPriVxFinderTool/InDetTrigPriVxFinderTool"),
-      m_fieldSvc("AtlasFieldSvc", n)
+      m_fieldSvc("AtlasFieldSvc", n),
+      m_BeamCondSvc("BeamCondSvc", n)
   {
     declareProperty("VertexFinderTool",m_VertexFinderTool);
     declareProperty("RunWithoutField", m_runWithoutField, "It may be unsafe to run vertexing w/o field on");
+    declareProperty("BeamCondSvc", m_BeamCondSvc);
+
     
     declareMonitoredVariable("numTracks", m_nTracks   );
     declareMonitoredVariable("numVertices", m_nVertices    );
@@ -71,7 +75,15 @@ namespace InDet
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     } 
     else {
-      msg() << MSG::INFO << "Retrieved tool " << m_fieldSvc << endreq;
+      msg() << MSG::INFO << "Retrieved service " << m_fieldSvc << endreq;
+    }
+
+    if (m_BeamCondSvc.retrieve().isFailure()){
+      msg() << MSG::FATAL << "Failed to retrieve tool " << m_BeamCondSvc << endreq;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    } 
+    else {
+      msg() << MSG::INFO << "Retrieved service " << m_fieldSvc << endreq;
     }
 
     return HLT::OK;
@@ -151,40 +163,58 @@ namespace InDet
       }
     }
 
-    VxContainer* theVxContainer(0);
-    if (runVtx){
-      theVxContainer = m_VertexFinderTool->findVertex(trackTES);
+    // Create the xAOD container and its auxiliary store:
+    xAOD::VertexContainer* theVxContainer = 0;
+    xAOD::VertexAuxContainer* theVxAuxContainer = 0;
+    std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> theVxContainers
+	= std::make_pair( theVxContainer, theVxAuxContainer );
+    
+    if (runVtx) {
+      theVxContainers = m_VertexFinderTool->findVertex(trackTES);
+      theVxContainer = theVxContainers.first;
+      theVxAuxContainer = theVxContainers.second;  // the vertex finder has already called setStore
     }
-    else {
-      theVxContainer = new VxContainer();
-      Trk::VxCandidate * dummyvtx = new Trk::VxCandidate ();
-      dummyvtx->setVertexType(Trk::NoVtx);
-      theVxContainer->push_back ( dummyvtx );
+    
+    if (!runVtx || !theVxContainers.first){  // create and fill place-holder VertexContainer if necessary
+      theVxContainer = new xAOD::VertexContainer();
+      theVxAuxContainer = new xAOD::VertexAuxContainer(); 
+      
+      theVxContainer->setStore(theVxAuxContainer);
+      theVxContainers.first = theVxContainer;
+      theVxContainers.second = theVxAuxContainer;
+      
+      xAOD::Vertex *dummyvtx = new xAOD::Vertex();
+      theVxContainer->push_back(dummyvtx);  // put vertex in container so it has Aux store
+      dummyvtx->setVertexType(xAOD::VxType::NoVtx);  // now safe to set member variable
+      dummyvtx->setPosition( m_BeamCondSvc->beamVtx().position() );
+      dummyvtx->setCovariancePosition( m_BeamCondSvc->beamVtx().covariancePosition() );
+      dummyvtx->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
+
     }
 
     //
     //  Attach resolved tracks to the trigger element.
     
-    if ( HLT::OK !=  attachFeature(outputTE, theVxContainer, "PrimVx") ) {
+    if ( HLT::OK !=  attachFeature(outputTE, theVxContainer, "xPrimVx") ) {
       msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
-      
+
+      delete theVxAuxContainer; theVxAuxContainer=0;
       return HLT::NAV_ERROR;
     }
     
     m_nVertices = theVxContainer->size();
-    if(outputLevel <= MSG::DEBUG){
-      msg() << MSG::DEBUG << "Container recorded in StoreGate." << endreq;
-      msg() << MSG::DEBUG << "REGTEST: Container size :" << m_nVertices << endreq;
-    }    
+    ATH_MSG_DEBUG("Container recorded in StoreGate.");
+    ATH_MSG_DEBUG("REGTEST: Container size :" << m_nVertices);
+
     
     size_t privtxcount(0), pileupvtxcount(0);
     for (int iv=0; iv<m_nVertices; iv++){
-      Trk::VxCandidate *mvtx = theVxContainer->at(iv);
+      xAOD::Vertex *mvtx = theVxContainer->at(iv);
       if ( mvtx ){
 	Vector3D vtx;
-	vtx = mvtx->recVertex().position();
-	const Amg::MatrixX& verr = mvtx->recVertex().covariancePosition();
-	if (mvtx->vertexType()==Trk::PriVtx){
+	vtx = mvtx->position();
+	const Amg::MatrixX& verr = mvtx->covariancePosition();
+	if (mvtx->vertexType()==xAOD::VxType::PriVtx){
 	  ++privtxcount;
 	  if(outputLevel <= MSG::DEBUG){
 	    msg() << MSG::DEBUG << "REGTEST " << privtxcount
@@ -196,7 +226,7 @@ namespace InDet
 	  }
 	  m_zOfPriVtx.push_back(vtx.z());
 	}
-	else if (mvtx->vertexType()==Trk::PileUp){
+	else if (mvtx->vertexType()==xAOD::VxType::PileUp){
 	  ++pileupvtxcount;
 	  if(outputLevel <= MSG::DEBUG){
 	    msg() << MSG::DEBUG << "REGTEST " << pileupvtxcount
@@ -208,7 +238,7 @@ namespace InDet
 	  }
 	  m_zOfPileUp.push_back(vtx.z());
 	}
-	else if (mvtx->vertexType()==Trk::NoVtx){
+	else if (mvtx->vertexType()==xAOD::VxType::NoVtx){
 	  m_zOfNoVtx.push_back(vtx.z());
 	}
       } else {
@@ -216,6 +246,8 @@ namespace InDet
       }
     }
     
+    delete theVxAuxContainer; theVxAuxContainer=0;
+
     return HLT::OK;
   }
   //---------------------------------------------------------------------------
