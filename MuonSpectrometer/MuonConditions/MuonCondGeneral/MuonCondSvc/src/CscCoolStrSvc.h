@@ -140,8 +140,7 @@ namespace MuonCalib {
 
     /**Conversions between online and offline identifiers (and offline to ASM)*/
     virtual StatusCode offlineToOnlineId(const Identifier & id, unsigned int &onlineId) const;
-    virtual StatusCode offlineToAsmId(const Identifier & id, std::string & AsmId,
-      unsigned int & iChamber, unsigned int & iASM) const;
+    virtual StatusCode offlineToAsmId(const Identifier & id, std::string & AsmId, unsigned int & iChamber, unsigned int & iASM) const;
     virtual StatusCode offlineElementToOnlineId(const Identifier & id, unsigned int &onlineId) const;
     virtual StatusCode onlineToOfflineIds(const unsigned int & onlineId, Identifier &elementId, Identifier &channelId) const;
     virtual StatusCode onlineToOfflineElementId(const unsigned int & onlineId, Identifier &elementId) const;

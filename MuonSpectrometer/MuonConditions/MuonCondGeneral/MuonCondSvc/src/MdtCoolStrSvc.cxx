@@ -213,40 +213,40 @@ StatusCode MdtCoolStrSvc::putFileRT(const std::string& folder,
   log << "header finale "<< endreq;
   puts(header);
 
-  if (f != NULL)   {
-    log << MSG::INFO << "Input file size is " << size << endreq;
-    char pack[1000]={""};
-    while(!feof(f))
-      {
-	float rad; float sigma; float time;
-	
-	int ret = fscanf(f,"%80f %80f %80f", &rad, &time, &sigma);
-	//printf("\n %8.3f %8.3f %8.3f \n",rad,time,sigma);
-	if (ret!=0){
-	  char * xmlt0;
-	  asprintf (&xmlt0, "%f,%f,%f,", rad, time, sigma);
-	  if (strlen(pack)+strlen(xmlt0) <= sizeof(pack) ) strcpy(pack,xmlt0);
-	  else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
-	  if (strlen(header)+strlen(pack) <= sizeof(header) ) strcat(header,pack);
-	  else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
-	}
+  //if (f != NULL)   { //f==NULL case is handled on line 156 above
+  log << MSG::INFO << "Input file size is " << size << endreq;
+  char pack[1000]={""};
+  while(!feof(f))
+    {
+      float rad; float sigma; float time;
+      
+      int ret = fscanf(f,"%80f %80f %80f", &rad, &time, &sigma);
+      //printf("\n %8.3f %8.3f %8.3f \n",rad,time,sigma);
+      if (ret!=0){
+	char * xmlt0;
+	asprintf (&xmlt0, "%f,%f,%f,", rad, time, sigma);
+	if (strlen(pack)+strlen(xmlt0) <= sizeof(pack) ) strcpy(pack,xmlt0);
+	else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
+	if (strlen(header)+strlen(pack) <= sizeof(header) ) strcat(header,pack);
+	else { std::cout << "Target char-array too small. Crashing!" << std::endl; throw;}
       }
-
-    std::string sdata = strcat(header," end ");
-    int size_rt = sdata.size();
-    std::cout << size_rt << std::endl;
-    fclose (f);
-    std::string sdata_rt;
-
-      sdata_rt+= sdata;
-      int size_fin2 = sdata_rt.size();
-      std::cout << "size of fin " << size_fin2 << std::endl;
-
-    putData(folder,filename,chan,tech,sdata_rt );
-  } else {
-    log << MSG::INFO << "Cannot open file " << filename << endreq;
-    return StatusCode::FAILURE;
-  }
+    }
+  
+  std::string sdata = strcat(header," end ");
+  int size_rt = sdata.size();
+  std::cout << size_rt << std::endl;
+  fclose (f);
+  std::string sdata_rt;
+  
+  sdata_rt+= sdata;
+  int size_fin2 = sdata_rt.size();
+  std::cout << "size of fin " << size_fin2 << std::endl;
+  
+  putData(folder,filename,chan,tech,sdata_rt );
+  //} else {
+  //log << MSG::INFO << "Cannot open file " << filename << endreq;
+  //return StatusCode::FAILURE;
+  //}
   return StatusCode::SUCCESS;
 }// fine RT
 

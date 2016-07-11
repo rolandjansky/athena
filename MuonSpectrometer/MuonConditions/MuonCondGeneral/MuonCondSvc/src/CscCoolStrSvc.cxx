@@ -1352,17 +1352,22 @@ namespace MuonCalib {
 
     if (measuresPhi==1)  iASM=5;
     else if (strip<=96)
-    { if (wireLayer<=2)  iASM=1;
+    { 
+      if (wireLayer<=2)  iASM=1;
       else  iASM=2;
     }
-    else if (strip>=97)  
-    { if (wireLayer<=2)  iASM=3;
+    else
+    { 
+      if (wireLayer<=2)  iASM=3;
       else  iASM=4;
     }
+    /* Never gonna reach this code
     else
-    { m_log << MSG::ERROR << "Could not assign iASM in CscCoolStrSvc::offlineToAsmId" << endreq;
+    { 
+      m_log << MSG::ERROR << "Could not assign iASM in CscCoolStrSvc::offlineToAsmId" << endreq;
       return StatusCode::RECOVERABLE;
     }
+    */
 
     std::stringstream ss;
     ss << "ASM" << iASM << "_" << stationEtaString << stationPhi << "_" << stationName;
@@ -1370,7 +1375,6 @@ namespace MuonCalib {
 
     return StatusCode::SUCCESS;
   }
-
 
   //-----------------------------------------------------------------------------------
   StatusCode CscCoolStrSvc::offlineElementToOnlineId(const Identifier & id, unsigned int &onlineId) const
@@ -1549,6 +1553,7 @@ namespace MuonCalib {
     unsigned int phi =              ((onlineId >> 13)&0x7);
     unsigned int eta =              (((onlineId >> 12)&0x1));
 
+    /* According to coverity 105392, this never becomes true
     if(stationName > 1
         || phi > 7
         || eta > 1
@@ -1560,6 +1565,7 @@ namespace MuonCalib {
         << endreq;
       return StatusCode::RECOVERABLE;
     }
+    */
 
     chamCoolChan = m_chamberCoolChannels[stationName][eta][phi];
     if(chamCoolChan < 1 || chamCoolChan > 32) {
@@ -1569,7 +1575,6 @@ namespace MuonCalib {
     }
     return StatusCode::SUCCESS;
   }
-
 
   //-----------------------------------------------------------------------------------
   StatusCode CscCoolStrSvc::coolChamberChannelToOnlineId(const unsigned int & chamCoolChan, unsigned int & onlineId ) const {
