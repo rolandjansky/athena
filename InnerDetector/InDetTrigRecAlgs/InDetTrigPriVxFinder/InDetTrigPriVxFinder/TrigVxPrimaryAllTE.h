@@ -28,7 +28,7 @@ namespace MagField {
   class IMagFieldSvc;
 }
 
-
+class IBeamCondSvc;
 
 
 namespace InDet
@@ -54,6 +54,7 @@ namespace InDet
     
     ToolHandle< IVertexFinder > m_VertexFinderTool;
     ServiceHandle< MagField::IMagFieldSvc> m_fieldSvc;
+    ServiceHandle<IBeamCondSvc> m_BeamCondSvc;
 
     bool                 m_retrieve_tracks_from_SG;
     std::string          m_track_collection_from_SG;
