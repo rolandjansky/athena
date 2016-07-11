@@ -263,8 +263,6 @@ StatusCode PixelCalibDbTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
 
 	Identifier ident = m_pixid->wafer_id(component, layer, phi, eta);
 	PixelCalib::PixelCalibData* datamod = 0;
-	std::cout<<" mytest - x "<<isRUN1<<" "<<kx<<" "<<component<<" "<<layer<<" "<<phi<<" "<< eta<<std::endl;
-	std::cout<<" mytest "<<ident<<" "<<m_pixid->wafer_hash(ident)<<std::endl;
 	datamod = getCalibPtr(ident);
 	  
 	int item[12];
