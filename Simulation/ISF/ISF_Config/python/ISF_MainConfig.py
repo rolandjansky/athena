@@ -187,7 +187,6 @@ def getKernel_GenericSimulator(name="ISF_Kernel_GenericSimulator", **kwargs):
     kwargs.setdefault("MemoryMonitoringTool"    , "ISF_MemoryMonitor"                  )
     kwargs.setdefault("DoCPUMonitoring"         , ISF_Flags.DoTimeMonitoring()         )
     kwargs.setdefault("DoMemoryMonitoring"      , ISF_Flags.DoMemoryMonitoring()       )
-    kwargs.setdefault("ValidationOutput"        , ISF_Flags.ValidationMode()           )
 
 
     from ISF_Algorithms.ISF_AlgorithmsConf import ISF__SimKernel
