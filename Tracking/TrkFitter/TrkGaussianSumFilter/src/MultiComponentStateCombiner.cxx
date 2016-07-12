@@ -150,8 +150,19 @@ const Trk::ComponentParameters* Trk::MultiComponentStateCombiner::compute( const
     const TrackParameters* trackParameters = (*component).first;
     double weight                          = (*component).second;
     
-    const AmgVector(5) parameters = trackParameters->parameters();
+    AmgVector(5) parameters = trackParameters->parameters();
 
+   
+   
+    //Ensure that we don't have any problems with the cyclical nature of phi
+    //Use first state as reference poin
+    double deltaPhi = (*uncombinedState->begin()).first->parameters()[2] - parameters[2];
+   
+    if( deltaPhi > M_PI ){
+      parameters[2] += 2 * M_PI;
+    } else if ( deltaPhi < -M_PI ){
+      parameters[2] -= 2 * M_PI;
+    }
 
 
     sumW += weight;
@@ -194,6 +205,15 @@ const Trk::ComponentParameters* Trk::MultiComponentStateCombiner::compute( const
   } // end loop over all components
  
   mean /= sumW;
+  
+  //Ensure that phi is between -pi and pi 
+  //
+  if(  mean[2] > M_PI ){
+    mean[2] -= 2 * M_PI;
+  } else if (  mean[2] < -M_PI ){
+    mean[2] += 2 * M_PI;
+  } 
+
 
   (*covariance) = covariancePart1 / sumW + covariancePart2 / (sumW * sumW);
   
