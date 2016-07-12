@@ -67,7 +67,7 @@ std::condition_variable cv;
 std::mutex cv_m;
 bool sigusr1 = false;
 
-void SignalCallbackHandler(int /*signal*/) { std::unique_lock<std::mutex> l(cv_m); sigusr1 = true; cv.notify_one(); }
+void SignalCallbackHandler(int /*signal*/) { std::lock_guard<std::mutex> l(cv_m); sigusr1 = true; cv.notify_one(); }
 
 int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int interval){
      
