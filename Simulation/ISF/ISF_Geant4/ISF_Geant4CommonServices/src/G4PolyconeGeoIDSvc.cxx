@@ -53,16 +53,16 @@ ISF::G4PolyconeGeoIDSvc::~G4PolyconeGeoIDSvc()
 
 
 /** Query the interfaces. */
-StatusCode ISF::G4PolyconeGeoIDSvc::queryInterface(const InterfaceID& riid, void** ppvInterface){
-
+StatusCode ISF::G4PolyconeGeoIDSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
   if ( ISF::IID_IGeoIDSvc == riid )
-    *ppvInterface = (IGeoIDSvc*)this;
-  else  {
-    // Interface is not directly available: try out a base class
-    return Service::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
+    {
+      *ppvInterface = (IGeoIDSvc*)this;
+      addRef();
+      return StatusCode::SUCCESS;
+    }
+  // Interface is not directly available: try out a base class
+  return AthService::queryInterface(riid, ppvInterface);
 }
 
 
@@ -72,16 +72,16 @@ StatusCode  ISF::G4PolyconeGeoIDSvc::initialize()
   ATH_MSG_INFO("initialize()");
 
   // retrieve envelope definition service
-  if ( m_envDefSvc.retrieve().isFailure() ){
-    ATH_MSG_FATAL( "Could not retrieve EnvelopeDefinition service. Abort.");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_envDefSvc.retrieve() );
 
   // create internal volume representations for the given dimensions
-  for (int geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions; ++geoID) {
-    if ( createVolume( AtlasDetDescr::AtlasRegion(geoID)).isFailure())
-      ATH_MSG_ERROR("Unable to create volume representation for geoID="<<geoID);
-  }
+  for (int geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions; ++geoID)
+    {
+      if ( createVolume( AtlasDetDescr::AtlasRegion(geoID)).isFailure())
+        {
+          ATH_MSG_ERROR("Unable to create volume representation for geoID="<<geoID);
+        }
+    }
 
   // setup the converter for: G4 enum to ISF::InsideType
   m_typeConverter[kOutside] = ISF::fOutside;
@@ -93,45 +93,53 @@ StatusCode  ISF::G4PolyconeGeoIDSvc::initialize()
 }
 
 
-StatusCode  ISF::G4PolyconeGeoIDSvc::finalize() {
+StatusCode  ISF::G4PolyconeGeoIDSvc::finalize()
+{
   ATH_MSG_INFO("finalize() successful");
   return StatusCode::SUCCESS;
 }
 
 
-ISF::InsideType ISF::G4PolyconeGeoIDSvc::inside(const Amg::Vector3D &pos, AtlasDetDescr::AtlasRegion geoID) const {
+ISF::InsideType ISF::G4PolyconeGeoIDSvc::inside(const Amg::Vector3D &pos, AtlasDetDescr::AtlasRegion geoID) const
+{
   // initialized with default return value
   InsideType where = ISF::fOutside;
 
   // check for volume to be present
   G4VSolid *curVol = m_volume[geoID];
-  if (curVol) {
-    G4ThreeVector posG4( pos.x(), pos.y(), pos.z() );
-    EInside g4Where = curVol->Inside( posG4 );
+  if (curVol)
+    {
+      G4ThreeVector posG4( pos.x(), pos.y(), pos.z() );
+      EInside g4Where = curVol->Inside( posG4 );
 
-    // use this trick to quickly convert G4 type to ISF::InsideType
-    where = m_typeConverter[g4Where];
-  }
+      // use this trick to quickly convert G4 type to ISF::InsideType
+      where = m_typeConverter[g4Where];
+    }
 
   // hand back the position information
   return where;
 }
 
 
-AtlasDetDescr::AtlasRegion ISF::G4PolyconeGeoIDSvc::identifyGeoID(const Amg::Vector3D &pos) const {
+AtlasDetDescr::AtlasRegion ISF::G4PolyconeGeoIDSvc::identifyGeoID(const Amg::Vector3D &pos) const
+{
   // loop over geoIDs
-  for (unsigned short geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions; ++geoID) {
-    // point inside given geoID -> return geoID
-    if ( inside(pos, AtlasDetDescr::AtlasRegion(geoID))==ISF::fInside)
-      return AtlasDetDescr::AtlasRegion(geoID);
-  }
+  for (unsigned short geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions; ++geoID)
+    {
+      // point inside given geoID -> return geoID
+      if ( inside(pos, AtlasDetDescr::AtlasRegion(geoID))==ISF::fInside)
+        {
+          return AtlasDetDescr::AtlasRegion(geoID);
+        }
+    }
   // point is not inside any of the registered geoIDs
   return AtlasDetDescr::fUndefinedAtlasRegion;
 }
 
 
 AtlasDetDescr::AtlasRegion ISF::G4PolyconeGeoIDSvc::identifyNextGeoID(const Amg::Vector3D &pos,
-                                                                      const Amg::Vector3D &dir) const {
+                                                                      const Amg::Vector3D &dir) const
+{
 
   // if position inside a volume -> return that volume as the next geoID
   AtlasDetDescr::AtlasRegion geoID = identifyGeoID(pos);
@@ -151,7 +159,8 @@ AtlasDetDescr::AtlasRegion ISF::G4PolyconeGeoIDSvc::identifyNextGeoID(const Amg:
 }
 
 
-StatusCode ISF::G4PolyconeGeoIDSvc::createVolume(AtlasDetDescr::AtlasRegion geoID) {
+StatusCode ISF::G4PolyconeGeoIDSvc::createVolume(AtlasDetDescr::AtlasRegion geoID)
+{
 
   // ensure a proper numeric value for geoID
   assertAtlasRegion( geoID);
@@ -163,9 +172,9 @@ StatusCode ISF::G4PolyconeGeoIDSvc::createVolume(AtlasDetDescr::AtlasRegion geoI
   m_volume[geoID] = 0;
 
   // volume definitions
-  double phimin    = 0.;
-  double deltaphi  = 360.*CLHEP::deg;
-  std::string volumeName( AtlasDetDescr::AtlasRegionHelper::getName(geoID));
+  const double phimin    = 0.;
+  const double deltaphi  = 360.*CLHEP::deg;
+  const std::string volumeName( AtlasDetDescr::AtlasRegionHelper::getName(geoID));
 
   {
     // retrieve the vector of (r,z) values from the EnvelopeDefSvc
@@ -173,11 +182,12 @@ StatusCode ISF::G4PolyconeGeoIDSvc::createVolume(AtlasDetDescr::AtlasRegion geoI
 
     // entries in the database table
     size_t curVolNumPoints = rz.size();
-    if ( !curVolNumPoints) {
-      ATH_MSG_ERROR("No entries for " << AtlasDetDescr::AtlasRegionHelper::getName(geoID) << " envelope in envelope definition service. Unable to build envelope.");
-      // resources cleanup
-      return StatusCode::FAILURE;
-    }
+    if ( !curVolNumPoints)
+      {
+        ATH_MSG_ERROR("No entries for " << AtlasDetDescr::AtlasRegionHelper::getName(geoID) << " envelope in envelope definition service. Unable to build envelope.");
+        // resources cleanup
+        return StatusCode::FAILURE;
+      }
 
     // arrays of (r,z) coordinates of the current envelope volume
     double *z = new double[curVolNumPoints];
@@ -185,12 +195,13 @@ StatusCode ISF::G4PolyconeGeoIDSvc::createVolume(AtlasDetDescr::AtlasRegion geoI
 
     // convert vector of pairs into two arrays
     RZPairVector::const_iterator rzIt = rz.begin();
-    for ( size_t i=0; i<curVolNumPoints; ++i) {
-      r[i] = rzIt->first;
-      z[i] = rzIt->second;
+    for ( size_t i=0; i<curVolNumPoints; ++i)
+      {
+        r[i] = rzIt->first;
+        z[i] = rzIt->second;
 
-      ++rzIt;
-    }
+        ++rzIt;
+      }
 
     // create a G4Polycone volume with the given dimensions
     std::stringstream curName;
