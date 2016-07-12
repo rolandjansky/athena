@@ -16,7 +16,7 @@
 
 namespace MuonCalib {
 
-inline unsigned int get_station_id(unsigned int & tube_id) {
+inline unsigned int get_station_id(unsigned int &tube_id) {
   MuonFixedId id(tube_id);
   return id.mdtChamberId().getIdInt();
 }
@@ -28,7 +28,7 @@ public:
   std::map<unsigned int, HepGeom::Transform3D> global_to_local;
 };
 
-GeoDraw_Data * GeoDraw::s_data = NULL;
+GeoDraw_Data *GeoDraw::s_data = NULL;
 
 void GeoDraw::Load(const char *filename) {
   if(s_data) delete s_data;

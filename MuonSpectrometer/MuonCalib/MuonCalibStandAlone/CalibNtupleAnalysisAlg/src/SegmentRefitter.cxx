@@ -24,7 +24,8 @@
 
 namespace MuonCalib {
 
-SegmentRefitter::SegmentRefitter(const std::string & t, const std::string & n, const IInterface *p): AthAlgTool(t, n, p), m_calib_input_svc("MdtCalibInputSvc", n) {
+SegmentRefitter::SegmentRefitter(const std::string &t, const std::string &n, const IInterface *p): AthAlgTool(t, n, p), 
+m_calib_input_svc("MdtCalibInputSvc", n) {
   m_curved = false;
   declareProperty("Curved", m_curved);
   m_t0_refine = false;
@@ -89,7 +90,7 @@ void SegmentRefitter::prepareSegments(const MuonCalibEvent *& /*event*/, std::ma
   }
 }  //end SegmentRefitter::prepareSegments
 
-inline bool SegmentRefitter::refine_t0(MuonCalibSegment *& segment) {
+inline bool SegmentRefitter::refine_t0(MuonCalibSegment *&segment) {
   double err;
   bool failed;
   p_t0_refinement->setRoadWidth(1.25*m_road_width);

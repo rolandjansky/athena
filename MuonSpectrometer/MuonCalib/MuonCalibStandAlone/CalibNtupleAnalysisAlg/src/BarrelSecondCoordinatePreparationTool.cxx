@@ -121,7 +121,7 @@ StatusCode BarrelSecondCoordinatePreparationTool::finalize(void) {
 // METHOD prepareSegments //
 ////////////////////////////
 void BarrelSecondCoordinatePreparationTool::prepareSegments(
-  const MuonCalibEvent *& event, std::map<NtupleStationId, MuonCalibSegment *> &segments) {
+  const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> &segments) {
 
 /////////////
 // OBJECTS //
@@ -370,7 +370,7 @@ bool BarrelSecondCoordinatePreparationTool::handleRPChits(MuonCalibSegment & MDT
 /////////////////////////////////////////////
 // Fit by RPC hits                         //
 /////////////////////////////////////////////
-int BarrelSecondCoordinatePreparationTool::rpcFit(vector<CLHEP::HepVector> & RPC_hits,
+int BarrelSecondCoordinatePreparationTool::rpcFit(vector<CLHEP::HepVector> &RPC_hits,
 				vector<int> in_sect, vector<int> num_same, double max_r,
 				CLHEP::HepVector &tr_par, double &angle_err) {
   int ierr(0); // Status of Matrix Inversion

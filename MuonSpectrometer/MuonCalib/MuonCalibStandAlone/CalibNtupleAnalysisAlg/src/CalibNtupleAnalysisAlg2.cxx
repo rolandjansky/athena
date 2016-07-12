@@ -23,7 +23,9 @@
 
 namespace MuonCalib {
 
-CalibNtupleAnalysisAlg2::CalibNtupleAnalysisAlg2(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator),  m_calib_tool_handle("MuonCalib::NtupleRunScanTool"), m_num_segments(-1), m_dbservice("MdtCalibOutputDbSvc", name), m_calib_input_svc("MdtCalibInputSvc", name), p_calib_tool(NULL), m_crash_if_no_segments(false), m_eventnumber(0) {
+CalibNtupleAnalysisAlg2::CalibNtupleAnalysisAlg2(const std::string &name, ISvcLocator *pSvcLocator) : AthAlgorithm(name, pSvcLocator),  
+m_calib_tool_handle("MuonCalib::NtupleRunScanTool"), m_num_segments(-1), m_dbservice("MdtCalibOutputDbSvc", name), 
+m_calib_input_svc("MdtCalibInputSvc", name), p_calib_tool(NULL), m_crash_if_no_segments(false), m_eventnumber(0) {
   declareProperty("CalibrationTool", m_calib_tool_handle);
   declareProperty("CalibSegmentPreparationTools", m_seg_prep_tool_handles);
   declareProperty("NumberOfSegments", m_num_segments);
@@ -37,7 +39,7 @@ CalibNtupleAnalysisAlg2::~CalibNtupleAnalysisAlg2() {
 
 StatusCode CalibNtupleAnalysisAlg2::initialize() {
 //greet user
-  ATH_MSG_INFO( "Thank you for using CalibNtupleAnalysisAlg2!" );
+//  ATH_MSG_INFO( "Thank you for using CalibNtupleAnalysisAlg2!" );
 //get MdtCalibOutptSvc
   ATH_CHECK( m_dbservice.retrieve() );
   ATH_MSG_INFO( "Retrieved MdtCalibOutputDbSvc");
@@ -47,7 +49,7 @@ StatusCode CalibNtupleAnalysisAlg2::initialize() {
 //create the segment preparation tools
   ATH_CHECK( m_seg_prep_tool_handles.retrieve() );
   for (unsigned int k=0; k<m_seg_prep_tool_handles.size(); k++) {
-      ATH_MSG_INFO( m_seg_prep_tool_handles[k].type() << " retrieved" );
+    ATH_MSG_INFO( m_seg_prep_tool_handles[k].type() << " retrieved" );
   }
   ATH_CHECK( m_calib_tool_handle.retrieve(p_calib_tool) );
   ATH_MSG_INFO( "Retrieved Tool " << m_calib_tool_handle.type() );
@@ -63,11 +65,12 @@ StatusCode CalibNtupleAnalysisAlg2::execute() {
   std::map<NtupleStationId, MuonCalibSegment *> segments;
   m_eventnumber = 0;
   while(1) {
-    if(m_eventnumber % 1000 == 0) {
-      ATH_MSG_INFO( m_eventnumber << " events read, " << m_stored_segment.size()<< " segments collected" );
+// Print number of segments every 1k events for first 20k events, then every 10k to avoid maxing out number of allowed messages
+    if( (m_eventnumber < 20000 && m_eventnumber%1000 == 0) || m_eventnumber%10000 == 0 ) {
+      ATH_MSG_INFO( m_eventnumber << " events read, " << m_stored_segment.size() << " segments collected" );
     }
     if (static_cast<int>(m_stored_segment.size()) >= m_num_segments && m_num_segments>=0) {
-      ATH_MSG_INFO( "Enough segemnts collected!" );
+      ATH_MSG_INFO( "Enough segments collected!" );
       return StatusCode::SUCCESS;
     }
     segments.clear();
@@ -99,23 +102,25 @@ StatusCode CalibNtupleAnalysisAlg2::finalize() {
     } else {
       ATH_MSG_WARNING("No Segments found!");
       return StatusCode::SUCCESS;
-    }
-			
+    }			
   }
+// Final tally of events/segments
+  ATH_MSG_INFO( m_eventnumber << " events read, " << m_stored_segment.size() << " segments collected" );
+
   ATH_CHECK( p_calib_tool->analyseSegments(m_stored_segment) );
 //special sausage for resolution fitters
-  const IRtResolution * resolution(p_calib_tool->getResolution());
+  const IRtResolution *resolution(p_calib_tool->getResolution());
   if(resolution != NULL) {
-    ATH_MSG_INFO( "Storing resolution!" );
+    ATH_MSG_INFO( "Storing resolution calibration!" );
     const IRtRelation *rt_rel(m_calib_input_svc->GetRtRelation());
     if(rt_rel == NULL) {
-      ATH_MSG_FATAL( "Cannot store a resolutino without an rt-relation!" );
+      ATH_MSG_FATAL( "Cannot store a resolution without an rt-relation!" );
       return StatusCode::FAILURE;
     }
     RtCalibrationOutput *output(new RtCalibrationOutput(rt_rel, new RtFullInfo(std::string("Resolution"), 1, m_stored_segment.size(), 0.0, 0.0, 0.0, 0.0)));
     m_dbservice->memorize(output, resolution);
   } else {
-    ATH_MSG_INFO( "Storing other calibration!" );
+    ATH_MSG_INFO( "Storing calibration!" );
     const IMdtCalibrationOutput *calib_res(p_calib_tool->getResults());
     if(calib_res == NULL) {
       ATH_MSG_WARNING( "Calibration Tool returned NULL-Pointer to Calibration Results!" );
@@ -125,7 +130,7 @@ StatusCode CalibNtupleAnalysisAlg2::finalize() {
       m_dbservice->memorize(p_calib_tool->getResults());
     }
   }
-  ATH_MSG_INFO( "Bye!" );
+//  ATH_MSG_INFO( "Bye!" );
 //	m_calibration_programme->endOfData();
   return StatusCode::SUCCESS;
 }  //end CalibNtupleAnalysisAlg2::finalize

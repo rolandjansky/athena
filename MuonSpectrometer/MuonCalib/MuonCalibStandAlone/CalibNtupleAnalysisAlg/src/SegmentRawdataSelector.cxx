@@ -72,7 +72,7 @@ StatusCode SegmentRawdataSelector::initialize(void) {
   return StatusCode::SUCCESS;
 }  //end SegmentRawdataSelector::initialize
 
-void SegmentRawdataSelector::prepareSegments(const MuonCalibEvent *& event, std::map<NtupleStationId, MuonCalibSegment *> & segments) {
+void SegmentRawdataSelector::prepareSegments(const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> & segments) {
 //delete old segments
   for(std::set<MuonCalibSegment *>::iterator it=m_segments.begin(); it!=m_segments.end(); it++) {
     delete (*it);
@@ -138,7 +138,8 @@ void SegmentRawdataSelector::prepareSegments(const MuonCalibEvent *& event, std:
   }
 }  //end SegmentRawdataSelector::prepareSegments
 
-inline const Amg::Vector3D SegmentRawdataSelector::get_raw_position(const MuonCalibRawMdtHit *hit, const MuonCalibRawHitCollection* coll, const Amg::Transform3D & global_to_local) const {
+inline const Amg::Vector3D SegmentRawdataSelector::get_raw_position(const MuonCalibRawMdtHit *hit, 
+const MuonCalibRawHitCollection *coll, const Amg::Transform3D &global_to_local) const {
 //	std::cout<<"event"<<std::endl;
   double x_pos=0.0;
   int n_rpc_hits=0;
@@ -155,8 +156,8 @@ inline const Amg::Vector3D SegmentRawdataSelector::get_raw_position(const MuonCa
     }
     //we need only phi strips
     if(rpc_hit->identify().rpcMeasuresPhi() == 0) continue;
-    Amg::Vector3D local_strip_pos=global_to_local * rpc_hit->globalPosition();
-    x_pos+= local_strip_pos.x();
+    Amg::Vector3D local_strip_pos = global_to_local*rpc_hit->globalPosition();
+    x_pos += local_strip_pos.x();
 //		std::cout<< local_strip_pos << std::endl;
     n_rpc_hits++;
   }

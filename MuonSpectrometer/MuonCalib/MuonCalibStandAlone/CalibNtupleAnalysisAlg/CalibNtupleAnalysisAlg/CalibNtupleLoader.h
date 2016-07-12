@@ -29,7 +29,7 @@ class NTReader;
 class CalibNtupleLoader: public AthAlgTool, virtual public CalibSegmentPreparationTool {
  public:
 //=========================constructor==========================================
-  CalibNtupleLoader(const std::string & t, const std::string & n, const IInterface *p);
+  CalibNtupleLoader(const std::string &t, const std::string &n, const IInterface *p);
   inline ~CalibNtupleLoader() {}
 //=========================public member functions==============================
   //initialize and finalize
@@ -38,13 +38,15 @@ class CalibNtupleLoader: public AthAlgTool, virtual public CalibSegmentPreparati
     return StatusCode :: SUCCESS;
   }
   //load event
-  void prepareSegments(const MuonCalibEvent *& event, std::map<NtupleStationId, MuonCalibSegment *> & segments);
+  void prepareSegments(const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> &segments);
  private:
 //=========================private data=========================================
   //!path to the file list - job option
   std::string m_filelist;
   //! type of ntuple - AUTO/NORMAL/REGION
-  //! NOTE: Do not use auto if you are directly reading ntuples from castor or dcache. In this case all files have to be opened at initialisation.
+
+  //! NOTE: Do not use auto if you are directly reading ntuples from
+  //! castor or dcache. In this case all files have to be opened at initialisation.
   std::string m_ntuple_type;
   int m_ntuple_type_num;
   //! skip double events (event numbers) - job options
@@ -60,10 +62,10 @@ class CalibNtupleLoader: public AthAlgTool, virtual public CalibSegmentPreparati
   int m_last;
   //! ntuple reader
   NTReader *m_reader;
-  //! pointer to regino selectin service
+  //! pointer to region selection service
   ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
   //! ntuple chain
-  TChain * m_chain;
+  TChain *m_chain;
 
   //! pointer to StoreGateSvc to manipulate EventInfo
   ServiceHandle<StoreGateSvc> m_sgSvc ;

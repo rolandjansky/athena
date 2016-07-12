@@ -19,7 +19,7 @@ class IMdtSlewCorFunc;
 class SegmentRecalibration : public AthAlgTool, virtual public CalibSegmentPreparationTool {
  public:
 //=========================constructor==========================================
-  SegmentRecalibration(const std::string & t, const std::string & n, const IInterface *p);
+  SegmentRecalibration(const std::string &t, const std::string  &n, const IInterface *p);
   inline ~SegmentRecalibration() {}
 //=========================public member functions==============================
   //initialize and finalize
@@ -28,7 +28,7 @@ class SegmentRecalibration : public AthAlgTool, virtual public CalibSegmentPrepa
     return StatusCode :: SUCCESS;
   }
   //load event
-  void prepareSegments(const MuonCalibEvent *& /*event*/, std::map<NtupleStationId, MuonCalibSegment *> & segments);
+  void prepareSegments(const MuonCalibEvent *& /*event*/, std::map<NtupleStationId, MuonCalibSegment *> &segments);
  private:
 //=========================private data=========================================
   //! switches for tube by tube correction
@@ -58,7 +58,7 @@ class SegmentRecalibration : public AthAlgTool, virtual public CalibSegmentPrepa
   ServiceHandle<MdtCalibInputSvc> m_calib_input_svc;
   IMdtSlewCorFunc *p_ts_corr_func;
   //convert text switches to numerical values	
-  inline bool convert_switch(const std::string & s_switch, int & num_switch, const char * switchname) const;	
+  inline bool convert_switch(const std::string &s_switch, int &num_switch, const char *switchname) const;	
 };	
 
 } //namespace MuonCalib
