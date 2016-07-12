@@ -366,9 +366,12 @@ StatusCode HGTDPileUpTool::MakeDigit()
 
 StatusCode HGTDPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime, bool isSignal)
 {
+  if ( isSignal ) {
+    // hookup for a special treatment of the signal
+  }
   // retrieve the hitcontainer and loop over hits:
   const DataHandle<LArHitContainer> hit_container ;
-  if (myStore->contains<LArHitContainer>(m_HgtdHitContainerName) && isSignal ) {
+  if (myStore->contains<LArHitContainer>(m_HgtdHitContainerName)) {
     StatusCode sc = myStore->retrieve( hit_container, m_HgtdHitContainerName);
     if (sc.isFailure() || !hit_container) {
       return StatusCode::FAILURE;
