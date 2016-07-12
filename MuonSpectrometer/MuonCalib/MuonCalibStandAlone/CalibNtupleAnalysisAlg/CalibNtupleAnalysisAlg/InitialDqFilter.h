@@ -31,7 +31,7 @@ class InitialDqFilter: public AthAlgTool, virtual public CalibSegmentPreparation
       return StatusCode :: SUCCESS;
     }
     //load event
-    void prepareSegments(const MuonCalibEvent *& /*event*/, std::map<NtupleStationId, MuonCalibSegment *> & segments);
+    void prepareSegments(const MuonCalibEvent *& /*event*/, std::map<NtupleStationId, MuonCalibSegment *> &segments);
   private:
 //=========================private data=========================================
     //location of initial dq file - jo

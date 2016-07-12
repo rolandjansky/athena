@@ -21,7 +21,7 @@ class IIdToFixedIdTool;
 class ApplyRawTimes : public AthAlgTool, virtual public CalibSegmentPreparationTool {
  public:
 //=========================constructor==========================================
-  ApplyRawTimes(const std::string & t, const std::string & n, const IInterface *p);
+  ApplyRawTimes(const std::string &t, const std::string &n, const IInterface *p);
   inline ~ApplyRawTimes() {}
 //=========================public member functions==============================
   //initialize and finalize
@@ -30,7 +30,7 @@ class ApplyRawTimes : public AthAlgTool, virtual public CalibSegmentPreparationT
     return StatusCode :: SUCCESS;
   }
   //load event
-  void prepareSegments(const MuonCalibEvent *& event, std::map<NtupleStationId, MuonCalibSegment *> & segments);
+  void prepareSegments(const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> &segments);
  private:
 //=========================private data=========================================
   //! pointer to regino selectin service

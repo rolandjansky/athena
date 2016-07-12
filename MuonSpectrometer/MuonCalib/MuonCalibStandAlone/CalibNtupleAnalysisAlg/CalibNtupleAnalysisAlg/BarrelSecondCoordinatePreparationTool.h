@@ -63,9 +63,7 @@ class BarrelSecondCoordinatePreparationTool : public AthAlgTool, virtual public 
   ///< initialization of the tools
   StatusCode finalize(void);
                             ///< finalization of the tool
-  void prepareSegments(
-    const MuonCalibEvent *& event,
-    std::map<NtupleStationId, MuonCalibSegment *> & segments);
+  void prepareSegments( const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> &segments);
   ///< Method to calculate the second coordinate of 
   ///< MDT hits in the barrel based on RPC hits.
   ///< \param event Current event (contains raw hits
@@ -73,10 +71,9 @@ class BarrelSecondCoordinatePreparationTool : public AthAlgTool, virtual public 
   ///> \param segments Vector of segments to be
   ///>                 prepared.
 
-  bool handleRPChits(MuonCalibSegment & MDT_segment,
-    std::vector<MuonCalibRawRpcHit *> & raw_hits);
+  bool handleRPChits(MuonCalibSegment &MDT_segment, std::vector<MuonCalibRawRpcHit *> &raw_hits);
 
-  int rpcFit(std::vector<CLHEP::HepVector> & RPC_hits, std::vector<int> in_sect, 
+  int rpcFit(std::vector<CLHEP::HepVector> &RPC_hits, std::vector<int> in_sect, 
     std::vector<int> num_same, double max_r, CLHEP::HepVector &tr_par, double &angle_err);
 
  private:
@@ -87,8 +84,7 @@ class BarrelSecondCoordinatePreparationTool : public AthAlgTool, virtual public 
   bool write_rpc_hits;
 
 //    RPCTrackAssociator m_RPC_track_associator; // tool for the determination of
-                                               // the second coordinates of MDT
-                                               // hits
+                                                 // the second coordinates of MDT hits
 
 };
 

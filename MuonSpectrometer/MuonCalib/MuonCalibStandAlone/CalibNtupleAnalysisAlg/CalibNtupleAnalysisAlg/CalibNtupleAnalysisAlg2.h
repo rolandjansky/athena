@@ -36,7 +36,7 @@ class CalibNtupleAnalysisAlg2 : public AthAlgorithm {
 //===========================================
  public:
 /** Algorithm Constructor */
-  CalibNtupleAnalysisAlg2(const std::string& name, ISvcLocator* pSvcLocator);
+  CalibNtupleAnalysisAlg2(const std::string &name, ISvcLocator *pSvcLocator);
 /** Algorithm destrucrtor*/
   ~CalibNtupleAnalysisAlg2();
 /** Is called at the beginning of the analysis */

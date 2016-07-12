@@ -26,10 +26,10 @@
 //MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/MdtStationT0Container.h"
 
-
 namespace MuonCalib {
 
-SegmentRecalibration::SegmentRecalibration(const std::string & t, const std::string & n, const IInterface *p): AthAlgTool(t, n, p), m_calib_input_svc("MdtCalibInputSvc", n) {
+SegmentRecalibration::SegmentRecalibration(const std::string &t, const std::string &n, const IInterface *p): AthAlgTool(t, n, p), 
+m_calib_input_svc("MdtCalibInputSvc", n) {
   m_t0_switch="LEAVE";
   declareProperty("T0Switch", m_t0_switch);
   m_B_corr_switch="LEAVE";
@@ -74,7 +74,7 @@ StatusCode SegmentRecalibration::initialize(void) {
   return StatusCode::SUCCESS;
 }  //end SegmentRecalibration::SegmentRecalibration
 
-void SegmentRecalibration::prepareSegments(const MuonCalibEvent *& event, std::map<NtupleStationId, MuonCalibSegment *> &segments) {
+void SegmentRecalibration::prepareSegments(const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> &segments) {
   const MdtStationT0Container *t0(NULL);
   const BFieldCorFunc *B_corr(NULL);
   const IRtResolution *spat_res(NULL);

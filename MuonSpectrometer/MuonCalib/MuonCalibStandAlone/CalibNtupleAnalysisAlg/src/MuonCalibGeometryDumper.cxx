@@ -28,7 +28,7 @@
 
 namespace MuonCalib {
 
-MuonCalibGeometryDumper::MuonCalibGeometryDumper(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator){
+MuonCalibGeometryDumper::MuonCalibGeometryDumper(const std::string &name, ISvcLocator *pSvcLocator) : AthAlgorithm(name, pSvcLocator){
 
   m_MDT_ID_helper = std::string("MDTIDHELPER");
   declareProperty("MDTIdHelper", m_MDT_ID_helper);
@@ -63,7 +63,7 @@ StatusCode MuonCalibGeometryDumper::initialize() {
   ATH_CHECK( toolSvc()->retrieveTool(m_idToFixedIdToolType,
 			       m_idToFixedIdToolName, m_id_tool) );
 
-  const IGeoModelSvc * geoModel;
+  const IGeoModelSvc *geoModel;
   ATH_CHECK( service ("GeoModelSvc", geoModel) );
 	
   TFile *output_file = new TFile(m_rootFile.c_str(), "RECREATE");
@@ -91,7 +91,7 @@ inline bool MuonCalibGeometryDumper::dump_mdt_geometry() {
   MdtIdHelper::const_id_iterator it_end = m_MdtIdHelper->module_end();
   for( ; it!=it_end;++it ) {
     std::cout<<"."<<std::flush;
-    const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement( m_MdtIdHelper->channelID(*it,1,1,1));
+    const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_MdtIdHelper->channelID(*it,1,1,1));
     if(!detEl) continue;
     station_row.ReadHepTransform(detEl->AmdbLRSToGlobalTransform());
     MuonFixedId fixed_id(m_id_tool->idToFixedId(*it));
@@ -101,7 +101,7 @@ inline bool MuonCalibGeometryDumper::dump_mdt_geometry() {
     int n_mls=m_MdtIdHelper->numberOfMultilayers(*it);
     //loop on multilayers
     for(int ml=1; ml<=n_mls; ml++) {
-      const MuonGM::MdtReadoutElement* detEl_ml = m_detMgr->getMdtReadoutElement(m_MdtIdHelper->channelID(*it,ml ,1,1));
+      const MuonGM::MdtReadoutElement *detEl_ml = m_detMgr->getMdtReadoutElement(m_MdtIdHelper->channelID(*it,ml ,1,1));
       int n_layers=detEl_ml->getNLayers();
 //			if(detEl_ml==NULL) {
 //				std::cerr<<"detEl_ml==NULL"<<std::endl;
@@ -115,7 +115,7 @@ inline bool MuonCalibGeometryDumper::dump_mdt_geometry() {
 }  //end MuonCalibGeometryDumper::dump_mdt_geometry
 
 inline void MuonCalibGeometryDumper::fillLayer(const Identifier &ch_id,
-const MuonGM::MdtReadoutElement* detEl, MdtTubeGeomertyRow &row, TTree *tree, const int &ml, const int &ly) {
+const MuonGM::MdtReadoutElement *detEl, MdtTubeGeomertyRow &row, TTree *tree, const int &ml, const int &ly) {
 //	std::cout<<"fillTubePos for "<<ml<<", "<<ly<<", "<<tb<<std::endl;
   int n_tubes=detEl->getNtubesperlayer();
   for(int tb=1; tb<=n_tubes; tb++) {

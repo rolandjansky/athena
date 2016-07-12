@@ -22,7 +22,7 @@ class T0Refinement;
 class SegmentRefitter : public AthAlgTool, virtual public CalibSegmentPreparationTool {
  public:
 //=========================constructor==========================================
-  SegmentRefitter(const std::string & t, const std::string & n, const IInterface *p);
+  SegmentRefitter(const std::string &t, const std::string &n, const IInterface *p);
   inline ~SegmentRefitter() {}
 //=========================public member functions==============================
   //initialize and finalize
@@ -31,7 +31,7 @@ class SegmentRefitter : public AthAlgTool, virtual public CalibSegmentPreparatio
     return StatusCode :: SUCCESS;
   }
   //load event
-  void prepareSegments(const MuonCalibEvent *& /*event*/, std::map<NtupleStationId, MuonCalibSegment *> & segments);
+  void prepareSegments(const MuonCalibEvent *& /*event*/, std::map<NtupleStationId, MuonCalibSegment *> &segments);
  private:
 //=========================private data=========================================
   //! if set to true, curved segments are fitted - jo
@@ -53,10 +53,9 @@ class SegmentRefitter : public AthAlgTool, virtual public CalibSegmentPreparatio
   //! calibration input service	
   ServiceHandle<MdtCalibInputSvc> m_calib_input_svc;
   //refine t0
-  inline bool refine_t0(MuonCalibSegment *& segment);
+  inline bool refine_t0(MuonCalibSegment *&segment);
 		
 };
 
 } //namespace MuonCalib
-
 #endif

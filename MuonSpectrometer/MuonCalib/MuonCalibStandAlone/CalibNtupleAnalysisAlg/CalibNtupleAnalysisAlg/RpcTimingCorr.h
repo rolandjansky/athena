@@ -28,26 +28,26 @@ class RPCCluster;
 class RpcTimingCorr : public AlgTool, virtual public CalibSegmentPreparationTool {
  public:
 //=========================constructor==========================================
-  RpcTimingCorr(const std::string & t, const std::string & n, const IInterface *p);
+  RpcTimingCorr(const std::string &t, const std::string &n, const IInterface *p);
   inline ~RpcTimingCorr() {}
 //=========================public member functions==============================
   //initialize and finalize
   StatusCode initialize(void);
   StatusCode finalize(void);
   //load event
-  void prepareSegments(const MuonCalibEvent *& event, std::map<NtupleStationId, MuonCalibSegment *> & segments);
+  void prepareSegments(const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> &segments);
  private:
 //=========================private data=========================================
   bool m_strict_nhits_cut;
   bool m_do_debug_ntuple;
-  //! pointer to regino selectin service
+  //! pointer to region selection service
   RegionSelectionSvc *p_reg_sel_svc;
-  StoreGateSvc *m_detStore; // pointer to the detector store
-  const RpcIdHelper *m_RpcIdHelper; // pointer to the MDT ID helper
+  StoreGateSvc *m_detStore;         // pointer to the detector store
+  const RpcIdHelper *m_RpcIdHelper; // pointer to the RPC ID helper
   const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon
 		
   std::string m_detector_store; // name of the detector store
-  std::string m_RPC_ID_helper; // name of the MDT ID helper
+  std::string m_RPC_ID_helper;  // name of the RPC ID helper
   std::string m_offset_file;
   const MuonCalib::IIdToFixedIdTool *m_id_tool;
   RPCClusterBuilder *m_cluster_builder;
@@ -60,7 +60,7 @@ class RpcTimingCorr : public AlgTool, virtual public CalibSegmentPreparationTool
   Double_t m_t_corr, m_t_strip[100];
   char m_mdt_station_str[4];
   char m_station_str[100][4];
-  void fill_debug_rpc(const RPCCluster * cluster);
+  void fill_debug_rpc(const RPCCluster *cluster);
 };
 
 } //namespace MuonCalib

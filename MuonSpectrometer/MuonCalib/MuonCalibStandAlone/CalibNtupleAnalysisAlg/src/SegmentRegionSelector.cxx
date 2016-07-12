@@ -19,7 +19,8 @@ namespace MuonCalib {
 ///////////////////////////
 // SegmentRegionSelector //
 ///////////////////////////
-SegmentRegionSelector::SegmentRegionSelector(const std::string & t, const std::string & n, const IInterface *p): AthAlgTool(t, n, p), m_reg_sel_svc("RegionSelectionSvc", n) {
+SegmentRegionSelector::SegmentRegionSelector(const std::string &t, const std::string &n, const IInterface *p): AthAlgTool(t, n, p), 
+m_reg_sel_svc("RegionSelectionSvc", n) {
   m_exclusive_segments = false;
   declareProperty("ExclusiveSegments", m_exclusive_segments);
   m_min_hits = 1;
@@ -42,7 +43,7 @@ StatusCode SegmentRegionSelector::initialize(void) {
   return StatusCode :: SUCCESS;
 }
 
-void SegmentRegionSelector::prepareSegments(const MuonCalibEvent *& event, std::map<NtupleStationId, MuonCalibSegment *> &segments) {
+void SegmentRegionSelector::prepareSegments(const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> &segments) {
   segments.clear();
   std::vector<unsigned int> calib_region_hit_map;
 //---------------------loop on all patterns-------------------------------------

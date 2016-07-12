@@ -75,7 +75,8 @@ StatusCode InitialDqFilter::initialize(void) {
   return StatusCode::SUCCESS;
 }  //end InitialDqFilter::initialize
 
-void InitialDqFilter::prepareSegments(const MuonCalibEvent *& /*event*/, std::map<NtupleStationId, MuonCalibSegment *> &segments) {
+void InitialDqFilter::prepareSegments(const MuonCalibEvent *& /*event*/, 
+std::map<NtupleStationId, MuonCalibSegment *> &segments) {
 //reject empty segments
   std::set<NtupleStationId> empty_segments;	
   for(std::map<NtupleStationId, MuonCalibSegment *>::iterator it=segments.begin(); it!=segments.end(); it++) {

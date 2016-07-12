@@ -45,7 +45,7 @@ class MuonCalibGeometryDumper : public AthAlgorithm {
  public:
 //=============================constructor - destructor=========================
   /** Algorithm Constructor */
-  MuonCalibGeometryDumper(const std::string& name, ISvcLocator* pSvcLocator);
+  MuonCalibGeometryDumper(const std::string& name, ISvcLocator *pSvcLocator);
   /** Algorithm destrucrtor*/
   ~MuonCalibGeometryDumper();
 //=============================public members===================================
@@ -70,8 +70,8 @@ class MuonCalibGeometryDumper : public AthAlgorithm {
   const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon detector manager
   const IIdToFixedIdTool *m_id_tool; // identifier converter
   inline bool dump_mdt_geometry();
-  inline void fillLayer(const Identifier &ch_id, const MuonGM::MdtReadoutElement* detEl, MdtTubeGeomertyRow &row, TTree *tree, const int &ml, const int &ly);
-  inline void init_root_transform(ROOT::Math::Transform3D & local_to_global, const HepGeom::Transform3D &hep_transform);
+  inline void fillLayer(const Identifier &ch_id, const MuonGM::MdtReadoutElement *detEl, MdtTubeGeomertyRow &row, TTree *tree, const int &ml, const int &ly);
+  inline void init_root_transform(ROOT::Math::Transform3D &local_to_global, const HepGeom::Transform3D &hep_transform);
 };
 
 }//namespace MuonCalib

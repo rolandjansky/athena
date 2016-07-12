@@ -8,8 +8,8 @@
 
 namespace MuonCalib {
 
-UpdateBField::UpdateBField(const std::string & t, const std::string & n, const IInterface *p): AthAlgTool(t, n, p),   
-                                                                                                 m_fieldServiceHandle("AtlasFieldSvc",n) {
+UpdateBField::UpdateBField(const std::string &t, const std::string &n, const IInterface *p): AthAlgTool(t, n, p),   
+m_fieldServiceHandle("AtlasFieldSvc",n) {
   declareProperty("MagFieldSvc", m_fieldServiceHandle);
   declareInterface< CalibSegmentPreparationTool >(this);
 }
@@ -19,7 +19,7 @@ StatusCode UpdateBField::initialize(void) {
   return  StatusCode::SUCCESS;
 }
 	
-void UpdateBField::prepareSegments(const MuonCalibEvent *& /*event*/, std::map<NtupleStationId, MuonCalibSegment *> & segments) {
+void UpdateBField::prepareSegments(const MuonCalibEvent *& /*event*/, std::map<NtupleStationId, MuonCalibSegment *> &segments) {
   for(std::map<NtupleStationId, MuonCalibSegment *>::iterator it = segments.begin(); it!=segments.end(); it++) {
     for(unsigned int j=0; j<it->second->mdtHitsOnTrack(); j++) {
       MdtCalibHitBase *hit = it->second->mdtHOT()[j];

@@ -19,7 +19,7 @@ namespace MuonCalib {
 class UpdateBField: public AthAlgTool, virtual public CalibSegmentPreparationTool {
   public:
 //===========================constructor - destructor===========================
-    UpdateBField(const std::string & t, const std::string & n, const IInterface *p);
+    UpdateBField(const std::string &t, const std::string &n, const IInterface *p);
     inline ~UpdateBField() {}
 //===========================public member functions============================
     //initialize and finalize
@@ -28,7 +28,7 @@ class UpdateBField: public AthAlgTool, virtual public CalibSegmentPreparationToo
       return StatusCode :: SUCCESS;
     }
     //update b-field
-    void prepareSegments(const MuonCalibEvent *& /*event*/, std::map<NtupleStationId, MuonCalibSegment *> & segments);
+    void prepareSegments(const MuonCalibEvent *& /*event*/, std::map<NtupleStationId, MuonCalibSegment *> &segments);
   private:
 //==========================private data========================================
     //handle of b-field service - job option
@@ -36,5 +36,4 @@ class UpdateBField: public AthAlgTool, virtual public CalibSegmentPreparationToo
   }; //class
 
 } //namespace MuonCalib
-
 #endif

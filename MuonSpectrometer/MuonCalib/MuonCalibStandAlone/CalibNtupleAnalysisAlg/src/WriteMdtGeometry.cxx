@@ -39,7 +39,7 @@
 
 namespace MuonCalib {
 
-WriteMdtGeometry::WriteMdtGeometry(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator),   m_context( &coral::Context::instance() ) {
+WriteMdtGeometry::WriteMdtGeometry(const std::string &name, ISvcLocator *pSvcLocator) : AthAlgorithm(name, pSvcLocator),   m_context( &coral::Context::instance() ) {
   m_MDT_ID_helper = std::string("MDTIDHELPER");
   declareProperty("MDTIdHelper", m_MDT_ID_helper);
 
@@ -77,19 +77,19 @@ StatusCode WriteMdtGeometry::initialize() {
 	
   try {
     OpenConnection();
-    coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle("MDT_CHAMBER").dataEditor();		
+    coral::ITableDataEditor &editor = m_session->nominalSchema().tableHandle("MDT_CHAMBER").dataEditor();
     if (!fill_db(editor)) {
       CloseConnection(false);
       return StatusCode::FAILURE;
     }
     CloseConnection(true);	
   }
-  catch ( coral::SchemaException& e )  {
+  catch ( coral::SchemaException &e )  {
     ATH_MSG_ERROR( "Schema exception : " << e.what() );
     CloseConnection(false);	
     return StatusCode::FAILURE;
   }
-//	catch (std::exception& e  )
+//	catch (std::exception &e  )
 //		{
 //		std::cerr << "std::exception : " << e.what() << std::endl;
 //		CloseConnection(false);	
@@ -112,7 +112,7 @@ void WriteMdtGeometry::loadServices() {
   m_context->loadComponent( "CORAL/Services/RelationalService" );
 }  //end WriteMdtGeometry::loadServices
 
-inline bool WriteMdtGeometry::fill_db(coral::ITableDataEditor& editor) {
+inline bool WriteMdtGeometry::fill_db(coral::ITableDataEditor &editor) {
   ATH_MSG_INFO( "Filling db" );
   coral::AttributeList rowBuffer;
   rowBuffer.extend<int>("CHAMBER");
@@ -127,7 +127,7 @@ inline bool WriteMdtGeometry::fill_db(coral::ITableDataEditor& editor) {
   MdtIdHelper::const_id_iterator it_end = m_MdtIdHelper->module_end();
   for( ; it!=it_end;++it ) {
     std::cout<<"."<<std::flush;
-    const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement( m_MdtIdHelper->channelID(*it,1,1,1));
+    const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_MdtIdHelper->channelID(*it,1,1,1));
     if(!detEl) continue;
     //get number of mls;
     int n_mls=m_MdtIdHelper->numberOfMultilayers(*it);
@@ -137,7 +137,7 @@ inline bool WriteMdtGeometry::fill_db(coral::ITableDataEditor& editor) {
     //loop on multilayers
     for(int ml=1; ml<=n_mls; ml++) {
       rowBuffer["ML"].data<int>()=ml;
-      const MuonGM::MdtReadoutElement* detEl_ml = m_detMgr->getMdtReadoutElement(m_MdtIdHelper->channelID(*it,ml ,1,1));
+      const MuonGM::MdtReadoutElement *detEl_ml = m_detMgr->getMdtReadoutElement(m_MdtIdHelper->channelID(*it,ml ,1,1));
       int n_layers=detEl_ml->getNLayers();
       int n_tubes=detEl_ml->getNtubesperlayer();
       //			if(detEl_ml==NULL) {
@@ -154,7 +154,7 @@ inline bool WriteMdtGeometry::fill_db(coral::ITableDataEditor& editor) {
   return true;
 }  //end WriteMdtGeometry::fill_db
 
-inline void WriteMdtGeometry::fillLayer(const MuonGM::MdtReadoutElement* detEl, coral::AttributeList & rowBuffer, const int & ml, const int &ly) {
+inline void WriteMdtGeometry::fillLayer(const MuonGM::MdtReadoutElement *detEl, coral::AttributeList &rowBuffer, const int &ml, const int &ly) {
   //	std::cout<<"fillTubePos for "<<ml<<", "<<ly<<", "<<tb<<std::endl;
   Amg::Vector3D TubePos1 = detEl->GlobalToAmdbLRSCoords(detEl->tubePos(ml,ly,1));
   Amg::Vector3D TubePos2 = detEl->GlobalToAmdbLRSCoords(detEl->tubePos(ml,ly,2));
@@ -178,7 +178,7 @@ void WriteMdtGeometry::CloseConnection(bool commit) {
   m_session=NULL;
 }
 
-coral::IRelationalDomain& WriteMdtGeometry::domain( const std::string& connectionString ) {
+coral::IRelationalDomain& WriteMdtGeometry::domain( const std::string &connectionString ) {
   coral::IHandle<coral::IRelationalService> relationalService= m_context->query<coral::IRelationalService>();
   if ( !relationalService.isValid() ) {
     throw std::runtime_error( "Could not locate the relational service" );
@@ -189,7 +189,7 @@ coral::IRelationalDomain& WriteMdtGeometry::domain( const std::string& connectio
       throw std::runtime_error( "Could not locate the authentication service" );
     }
     
-    const coral::IAuthenticationCredentials& credentials = authenticationService->credentials( connectionString );
+    const coral::IAuthenticationCredentials &credentials = authenticationService->credentials( connectionString );
     m_username = credentials.valueForItem( "user" );
     m_password = credentials.valueForItem( "password" );
   } else {

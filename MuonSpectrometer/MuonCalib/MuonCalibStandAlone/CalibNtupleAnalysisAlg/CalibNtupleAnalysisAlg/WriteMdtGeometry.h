@@ -32,7 +32,7 @@ class WriteMdtGeometry : public AthAlgorithm {
  public:
 //=============================constructor - destructor=========================
   /** Algorithm Constructor */
-  WriteMdtGeometry(const std::string& name, ISvcLocator* pSvcLocator);
+  WriteMdtGeometry(const std::string &name, ISvcLocator *pSvcLocator);
   /** Algorithm destrucrtor*/
   ~WriteMdtGeometry();
 //=============================public members===================================
@@ -48,8 +48,8 @@ class WriteMdtGeometry : public AthAlgorithm {
   }
 //============================private members===================================
  private:
-  coral::Context* m_context;
-  coral::IRelationalDomain& domain( const std::string& connectionString );
+  coral::Context *m_context;
+  coral::IRelationalDomain& domain( const std::string &connectionString );
   void loadServices();
   coral::ISessionProxy *m_session;
   std::string connectionString;
@@ -64,12 +64,11 @@ class WriteMdtGeometry : public AthAlgorithm {
   const IIdToFixedIdTool *m_id_tool; // identifier converter
 		
   inline bool fill_db(coral::ITableDataEditor& editor);
-  inline void fillLayer(const MuonGM::MdtReadoutElement* detEl, coral::AttributeList & rowBuffer, const int & ml, const int &ly);
+  inline void fillLayer(const MuonGM::MdtReadoutElement *detEl, coral::AttributeList &rowBuffer, const int &ml, const int &ly);
 		
   void OpenConnection();
   void CloseConnection(bool commit);
 };
-
 
 }//namespace MuonCalib
 #endif //code guard

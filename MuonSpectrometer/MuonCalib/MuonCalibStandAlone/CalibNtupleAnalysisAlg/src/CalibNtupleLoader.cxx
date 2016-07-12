@@ -34,11 +34,10 @@
 
 namespace MuonCalib {
 
-
 ///////////////////////
 // CalibNtupleLoader //
 ///////////////////////
-CalibNtupleLoader::CalibNtupleLoader(const std::string & t, const std::string & n, const IInterface *p): 
+CalibNtupleLoader::CalibNtupleLoader(const std::string &t, const std::string &n, const IInterface *p): 
   AthAlgTool(t, n, p), m_prev_event_nr(-1), m_prev_run_nr(0), m_reg_sel_svc("RegionSelectionSvc", n),
   m_sgSvc("StoreGateSvc", n), m_incSvc("IncidentSvc", n) {
   m_filelist="file_list.txt";
@@ -60,7 +59,6 @@ CalibNtupleLoader::CalibNtupleLoader(const std::string & t, const std::string & 
 ////////////////
 // initialize //
 ////////////////
-
 StatusCode CalibNtupleLoader::initialize(void) {
   ATH_MSG_INFO( "Filelist is '"<<m_filelist<<"'" );
   //convert Ntuple Type
@@ -135,7 +133,7 @@ StatusCode CalibNtupleLoader::initialize(void) {
 /////////////////////
 // prepareSegments //
 /////////////////////
-void CalibNtupleLoader::prepareSegments(const MuonCalibEvent *& event, std::map<NtupleStationId, MuonCalibSegment *> & /*segments*/) {
+void CalibNtupleLoader::prepareSegments(const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> & /*segments*/) {
   if(m_last>0 && m_last<=m_first) {
     ATH_MSG_INFO( "Enough events read!" );
     event=NULL;
@@ -168,7 +166,7 @@ void CalibNtupleLoader::prepareSegments(const MuonCalibEvent *& event, std::map<
   m_first++;
 
   // get the current EventInfo from StoreGateSvc
-  const EventInfo * currentEvent(NULL) ;
+  const EventInfo *currentEvent(NULL) ;
   StatusCode sc = m_sgSvc->retrieve(currentEvent) ;
   if ( sc.isFailure() ) {
     ATH_MSG_INFO( "Couldnt retrieve EventInfo from StoreGateSvc" );
@@ -183,7 +181,7 @@ void CalibNtupleLoader::prepareSegments(const MuonCalibEvent *& event, std::map<
 
   // Change the EventInfo in StoreGate to the correct info from 
   // the event in the ntuple
-  EventInfo * nonconst_currentEvent = 
+  EventInfo *nonconst_currentEvent = 
     const_cast<EventInfo*>(currentEvent) ;
   nonconst_currentEvent->event_ID()->set_run_number(event->eventInfo().runNumber());
   nonconst_currentEvent->event_ID()->set_event_number(event->eventInfo().eventNumber());
