@@ -11,7 +11,7 @@
  */
 
 // Trigger includes
-#include "TrigSteerMonitor/TrigROBMoni.h"
+#include "TrigROBMoni.h"
 #include "TrigSteering/TrigSteer.h"
 #include "TrigInterfaces/TECreateAlgo.h"
 #include "TrigSteeringEvent/Chain.h"

@@ -34,7 +34,7 @@
 #include "TrigConfHLTData/HLTStreamTag.h"
 #include "TrigConfHLTData/HLTUtils.h"
 
-#include "TrigSteerMonitor/TrigCorMoni.h"
+#include "TrigCorMoni.h"
 
 //------------------------------------------------------------------------------------------
 TrigCorMoni::TrigCorMoni(const std::string & type,

@@ -6,7 +6,7 @@
 #include "GaudiKernel/ThreadGaudi.h"
 
 
-#include "TrigSteerMonitor/TrigSteerMoni.h"
+#include "TrigSteerMoni.h"
 
 #include "TrigSteering/TrigSteer.h"
 #include "TrigSteering/SteeringChain.h"
@@ -20,12 +20,7 @@
 
 TrigSteerMoni::TrigSteerMoni(const std::string & type, const std::string & name,
 			     const IInterface* parent)
-  :  MonitorToolBase(type, name, parent),
-     m_chainAcceptanceHist(0),
-     m_chainAcceptancePSHist(0),
-     m_chainAcceptancePTHist(0),
-     m_signatureAcceptanceHist(0),
-     m_totalEvts(0)
+  :  MonitorToolBase(type, name, parent)
 {
     declareInterface<IMonitorToolBase>(this);
     declareProperty("HistoPath", m_histoPath = "/EXPERT/TrigSteering");

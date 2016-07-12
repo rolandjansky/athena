@@ -13,7 +13,7 @@
  * @author Gordon Fischer        Gordon.Fischer@cern.ch
  *
  * File and Version Information:
- * $Id: TrigSignatureMoni.h,v 1.17 2009-04-14 14:59:18 medinnis Exp $
+ * $Id: TrigSignatureMoni.h 761301 2016-07-12 11:51:07Z fwinkl $
  **********************************************************************************/
 #ifndef TRIGSIGNATUREMONI_H
 #define TRIGSIGNATUREMONI_H

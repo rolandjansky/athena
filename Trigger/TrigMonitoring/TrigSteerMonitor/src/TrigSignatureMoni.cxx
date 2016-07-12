@@ -7,7 +7,7 @@
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/Property.h"
 
-#include "TrigSteerMonitor/TrigSignatureMoni.h"
+#include "TrigSignatureMoni.h"
 
 #include "TrigSteering/TrigSteer.h"
 #include "TrigSteering/SteeringChain.h"

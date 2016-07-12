@@ -14,7 +14,7 @@
  * @author Gordon Fischer        Gordon.Fischer@cern.ch
  *
  * File and Version Information:
- * $Id: TrigChainMoni.h,v 1.13 2009-02-17 08:05:45 tbold Exp $
+ * $Id: TrigChainMoni.h 761301 2016-07-12 11:51:07Z fwinkl $
  **********************************************************************************/
 
 
