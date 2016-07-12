@@ -5,7 +5,7 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 07.10.2006, AUTHOR: OLIVER KORTNER
 // Modifications: 13.01.2007 by O. Kortner, singleton-like construction added
-//                                          to simplify use in stand-alon mode.
+//                                          to simplify use in standalone mode.
 //                11.04.2007 by O. Kortner, new method which allows the user
 //                                          store a resolution function
 //                                          associated with an r-t function.
@@ -51,142 +51,104 @@ class RegionSelectionSvc;
 class MdtCalibInputSvc;
 class MdtIdHelper;
 namespace MuonGM {
-class MuonDetectorManager;
+  class MuonDetectorManager;
 }
 
 // MuonCalib //
 //#include "MuonCalibIdentifier/MdtRegion.h"
 //#include "MuonCalibIdentifier/MdtHashTable.h"
 namespace MuonCalib {
-class IMdtCalibrationOutput;
-class IRtRelation;
-class IRtResolution;
-class MdtTubeFitContainer;
+  class IMdtCalibrationOutput;
+  class IRtRelation;
+  class IRtResolution;
+  class MdtTubeFitContainer;
 }
 //class CalibDBCoral;
 #include "MdtCalibUtils/RtDataFromFile.h"
 
-
 // interface to enable retrieving of a pointer to the singleton //
 const InterfaceID IID_IMdtCalibOutputDbSvc("MdtCalibOutputDbSvc", 1, 0);
-
 
 class MdtCalibOutputDbSvc : public AthService {
 
 public:
 // Constructor //
-	MdtCalibOutputDbSvc(const std::string & name,
-						ISvcLocator *svc_locator);
-	///< Constructor
+  MdtCalibOutputDbSvc(const std::string &name, ISvcLocator *svc_locator);
+  ///< Constructor
 
-	virtual ~MdtCalibOutputDbSvc(void) {};
-	///< Virtual destructor
+  virtual ~MdtCalibOutputDbSvc(void) {};
+  ///< Virtual destructor
 
 // Methods //
 /// Methods required as defined in the base class "Service"
-	/** interface */
-  		static const InterfaceID& interfaceID() { return IID_IMdtCalibOutputDbSvc; }
-	virtual StatusCode queryInterface(const InterfaceID& riid, 
-							void** ppvUnknown);
-	                                ///< method required by the base class
-	                                ///< which is need to obtain a pointer
-	                                ///< to the service in the standard way
-	virtual StatusCode initialize(void);
-	                                ///< initialize method as required by
-	                                ///< the base class
+  /** interface */
+  static const InterfaceID& interfaceID() { return IID_IMdtCalibOutputDbSvc; }
+  virtual StatusCode queryInterface(const InterfaceID &riid, void **ppvUnknown);
+  ///< method required by the base class which is need to obtain a pointer to the service in the standard way
+  virtual StatusCode initialize(void);
+  ///< initialize method as required by the base class
 
-	virtual StatusCode finalize(void);
-	                                ///< finalize method as required by
-	                                ///< the base class;
-	                                ///< the finalize method calls the
-	                                ///< method "save_calibration_results"
-	void AddRunNumber(int run_number);
-					///< add a run number to the iov
-					///< interval. The interval will begin 
-					///< with the smallest run number, and
-					///< end with the largest run number
-	bool memorize(const MuonCalib::IMdtCalibrationOutput * result);
-	                                ///< memorize the result of a particular
-	                                ///< calibration (given in result) for
-	                                ///< the calibration region "regionKey";
-	                                ///< a previous calibration result
-	                                ///< of the same type (e.g. r-t relation
-	                                ///< calibration) will be overwritten
-	                                ///< internally if overwrite is true;
-	                                ///< the calibration which is memorized
-	                                ///< will only be saved for ever after
-	                                ///< a call to the method
-	                                ///< "saved_calibration_results";
-	                                ///< method return true in case of
-	                                ///< success, false otherwise
-	bool memorize(const MuonCalib::IMdtCalibrationOutput * result,
-					const MuonCalib::IRtResolution * resol);
-	                                ///< memorize the result of a particular
-	                                ///< calibration (given in result) for
-	                                ///< the calibration region "regionKey";
-	                                ///< a previous calibration result
-	                                ///< of the same type (e.g. r-t relation
-	                                ///< calibration) will be overwritten
-	                                ///< internally if overwrite is true;
-	                                ///< the calibration which is memorized
-	                                ///< will only be saved for ever after
-	                                ///< a call to the method
-	                                ///< "saved_calibration_results";
-	                                ///< method return true in case of
-	                                ///< success, false otherwise;
-					///< the user can pass a pointer to a
-					///< resolution function which should
-					///< be associated with the calibration
-					///< output
-	void reset(void);
-	                                ///< reset, clear memory of results
+  virtual StatusCode finalize(void);
+  ///< finalize method as required by the base class;
+  ///< the finalize method calls the method "save_calibration_results"
+  void AddRunNumber(int run_number);
+  ///< add a run number to the iov interval. The interval will begin 
+  ///< with the smallest run number, and end with the largest run number
+  bool memorize(const MuonCalib::IMdtCalibrationOutput *result);
+  ///< memorize the result of a particular calibration (given in result) for
+  ///< the calibration region "regionKey"; previous calibration result
+  ///< of the same type (e.g. r-t relation calibration) will be overwritten
+  ///< internally if overwrite is true; the calibration which is memorized
+  ///< will only be saved for ever after a call to the method
+  ///< "saved_calibration_results"; method return true in case of success, false otherwise
+  bool memorize(const MuonCalib::IMdtCalibrationOutput *result, const MuonCalib::IRtResolution *resol);
+  ///< memorize the result of a particular calibration (given in result) for
+  ///< the calibration region "regionKey"; a previous calibration result
+  ///< of the same type (e.g. r-t relation calibration) will be overwritten
+  ///< internally if overwrite is true; the calibration which is memorized
+  ///< will only be saved for ever after a call to the method
+  ///< "saved_calibration_results"; method return true in case of success,
+  ///< false otherwise; the user can pass a pointer to a resolution 
+  ///< function which should be associated with the calibration output
+  void reset(void);
+  ///< reset, clear memory of results
 
 private:
 
 // calibration outputs //
-	const MuonCalib::IMdtCalibrationOutput *m_results; 
-	                                                // vector holding the
-	                                                // results of the
-							// calibration
-							// algorithms
+  const MuonCalib::IMdtCalibrationOutput *m_results; 
+  // vector holding the results of the calibration algorithms
 // associated resolution functions //
-	const MuonCalib::IRtResolution * m_resolution;
-						// vector of pointers to
-						// associated resolution
-						// functions
+  const MuonCalib::IRtResolution *m_resolution;
+  // vector of pointers to associated resolution functions
 
 // postprocess calibration data - job option
 //NOTE: Detector geometry has to be loaded to do this
-	bool m_postprocess_calibration;
+  bool m_postprocess_calibration;
 //flat default resolution - job option
-	double m_flat_default_resolution;
+  double m_flat_default_resolution;
 //use default resolution even if a resolution was loaded by the input service
-	bool m_force_default_resolution;
+  bool m_force_default_resolution;
 //calibration io tool to be used
-	ToolHandle<MuonCalib::CalibrationIOTool> m_calib_output_tool;
+  ToolHandle<MuonCalib::CalibrationIOTool> m_calib_output_tool;
 // iov range in run numbers//
-	int m_iov_start, m_iov_end;
+  int m_iov_start, m_iov_end;
 //access to geomodel
-	const MdtIdHelper* m_mdtIdHelper;
-	const MuonGM::MuonDetectorManager* m_detMgr;
+  const MdtIdHelper *m_mdtIdHelper;
+  const MuonGM::MuonDetectorManager *m_detMgr;
 //region selection service
-	ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
+  ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
 //calibration input service
-	ServiceHandle<MdtCalibInputSvc> m_input_service;	
-	std::vector<MuonCalib::NtupleStationId> region_ids;
+  ServiceHandle<MdtCalibInputSvc> m_input_service;	
+  std::vector<MuonCalib::NtupleStationId> region_ids;
 // private methods //
-	StatusCode saveCalibrationResults(void);
-	                                ///< write out all memorized results
-	                                ///< to text files (location specified
-	                                ///< in the job options) which can be
-	                                ///< uploaded to the calibration
-	                                ///< database;
-					///< method returns true in case of
-					///< success, false otherwise
+  StatusCode saveCalibrationResults(void);
+  ///< write out all memorized results to text files (location specified
+  ///< in the job options) which can be uploaded to the calibration
+  ///< database; method returns true in case of success, false otherwise
 
 //postprocess t0 
-	MuonCalib::MdtTubeFitContainer * postprocess_t0s(MuonCalib::MdtTubeFitContainer * new_t0, const MuonCalib::NtupleStationId &id);
-	inline void create_default_resolution(const MuonCalib::IRtRelation *rt);
+  MuonCalib::MdtTubeFitContainer* postprocess_t0s(MuonCalib::MdtTubeFitContainer *new_t0, const MuonCalib::NtupleStationId &id);
+  inline void create_default_resolution(const MuonCalib::IRtRelation *rt);
 };
-
 #endif
