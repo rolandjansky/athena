@@ -9,8 +9,7 @@
 
 namespace MuonCalib {
 
-  void NTReaderBase_E::Loop()
-  {
+  void NTReaderBase_E::Loop() {
     if (fChain == 0) return;
 
     Long64_t nentries = fChain->GetEntriesFast();
@@ -24,8 +23,7 @@ namespace MuonCalib {
     }
   }
 
-  NTReaderBase_E::NTReaderBase_E(TTree *tree) : NTReaderBase( tree )
-  {
+  NTReaderBase_E::NTReaderBase_E(TTree *tree) : NTReaderBase( tree ) {
     // if parameter tree is not specified (or zero), connect the file
     // used to generate this class and read the Tree.
     if (tree == 0) {
@@ -41,7 +39,6 @@ namespace MuonCalib {
       tree = (TTree*)gDirectory->Get("NTReaderBase");
 
 #else // SINGLE_TREE
-
       // The following code should be used if you want this class to access a chain
       // of trees.
       TChain * chain = new TChain("NTReaderBase","");
@@ -53,18 +50,16 @@ namespace MuonCalib {
     Init(tree);
   }
 
-  NTReaderBase_E::~NTReaderBase_E()
-  {
+  NTReaderBase_E::~NTReaderBase_E() {
   }
 
-  Int_t NTReaderBase_E::GetEntry(Long64_t entry)
-  {
+  Int_t NTReaderBase_E::GetEntry(Long64_t entry) {
     // Read contents of entry.
     if (!fChain) return 0;
     return fChain->GetEntry(entry);
   }
-  Long64_t NTReaderBase_E::LoadTree(Long64_t entry)
-  {
+
+  Long64_t NTReaderBase_E::LoadTree(Long64_t entry) {
     // Set the environment to read one entry
     if (!fChain) return -5;
     Long64_t centry = fChain->LoadTree(entry);
@@ -77,8 +72,7 @@ namespace MuonCalib {
     return centry;
   }
 
-  void NTReaderBase_E::Init(TTree *tree)
-  {
+  void NTReaderBase_E::Init(TTree *tree) {
     // The Init() function is called when the selector needs to initialize
     // a new tree or chain. Typically here the branch addresses of the tree
     // will be set. It is normaly not necessary to make changes to the
@@ -129,7 +123,7 @@ namespace MuonCalib {
     fChain->SetBranchAddress("muctpi_eta", &muctpi_eta);
 
 //mu rpcsl info
-    if(fChain->GetBranch("rpc_SL_nSectors") != NULL){
+    if(fChain->GetBranch("rpc_SL_nSectors") != NULL) {
       rpc_SL_nSectors = 0;
       fChain->SetBranchAddress("rpc_SL_nSectors", &rpc_SL_nSectors);
       fChain->SetBranchAddress("rpc_SL_sectorId", &rpc_SL_sectorId);
@@ -176,53 +170,61 @@ namespace MuonCalib {
       fChain->SetBranchAddress("rpcSl_isInput", &rpcSl_isInput);
     }
     
-    //rpc coin info
+//rpc coin info
     rawRpcCoin_nRpcCoin =0;
-    fChain->SetBranchAddress("rawRpcCoin_nRpcCoin", &rawRpcCoin_nRpcCoin);
-    fChain->SetBranchAddress("rawRpcCoin_occupancy", rawRpcCoin_occupancy);
-    fChain->SetBranchAddress("rawRpcCoin_id", rawRpcCoin_id); 
-    fChain->SetBranchAddress("rawRpcCoin_t", rawRpcCoin_t); 
-    fChain->SetBranchAddress("rawRpcCoin_width", rawRpcCoin_width); 
-    fChain->SetBranchAddress("rawRpcCoin_length", rawRpcCoin_length);
-    fChain->SetBranchAddress("rawRpcCoin_gPosX", rawRpcCoin_gPosX);
-    fChain->SetBranchAddress("rawRpcCoin_gPosY", rawRpcCoin_gPosY);
-    fChain->SetBranchAddress("rawRpcCoin_gPosZ", rawRpcCoin_gPosZ);
-    fChain->SetBranchAddress("rawRpcCoin_ijk", rawRpcCoin_ijk);
-    fChain->SetBranchAddress("rawRpcCoin_threshold", rawRpcCoin_threshold);
-    fChain->SetBranchAddress("rawRpcCoin_overlap", rawRpcCoin_overlap); 
-    fChain->SetBranchAddress("rawRpcCoin_parentCmId", rawRpcCoin_parentCmId); 
-    fChain->SetBranchAddress("rawRpcCoin_parentPadId", rawRpcCoin_parentPadId); 
-    fChain->SetBranchAddress("rawRpcCoin_parentSectorId", rawRpcCoin_parentSectorId); 
-    fChain->SetBranchAddress("rawRpcCoin_lowPtCm", rawRpcCoin_lowPtCm);
-    
+    if(fChain->GetBranch("rawRpcCoin_nRpcCoin") != NULL) {
+      fChain->SetBranchAddress("rawRpcCoin_nRpcCoin", &rawRpcCoin_nRpcCoin);
+      fChain->SetBranchAddress("rawRpcCoin_occupancy", rawRpcCoin_occupancy);
+      fChain->SetBranchAddress("rawRpcCoin_id", rawRpcCoin_id); 
+      fChain->SetBranchAddress("rawRpcCoin_t", rawRpcCoin_t); 
+      fChain->SetBranchAddress("rawRpcCoin_width", rawRpcCoin_width); 
+      fChain->SetBranchAddress("rawRpcCoin_length", rawRpcCoin_length);
+      fChain->SetBranchAddress("rawRpcCoin_gPosX", rawRpcCoin_gPosX);
+      fChain->SetBranchAddress("rawRpcCoin_gPosY", rawRpcCoin_gPosY);
+      fChain->SetBranchAddress("rawRpcCoin_gPosZ", rawRpcCoin_gPosZ);
+      fChain->SetBranchAddress("rawRpcCoin_ijk", rawRpcCoin_ijk);
+      fChain->SetBranchAddress("rawRpcCoin_threshold", rawRpcCoin_threshold);
+      fChain->SetBranchAddress("rawRpcCoin_overlap", rawRpcCoin_overlap); 
+      fChain->SetBranchAddress("rawRpcCoin_parentCmId", rawRpcCoin_parentCmId); 
+      fChain->SetBranchAddress("rawRpcCoin_parentPadId", rawRpcCoin_parentPadId); 
+      fChain->SetBranchAddress("rawRpcCoin_parentSectorId", rawRpcCoin_parentSectorId); 
+      fChain->SetBranchAddress("rawRpcCoin_lowPtCm", rawRpcCoin_lowPtCm);
+    }  
+
 // calo hit info
     calo_nHits=0;
-    fChain->SetBranchAddress("calo_nHits",&calo_nHits);
-    fChain->SetBranchAddress("calo_id",calo_id);
-    fChain->SetBranchAddress("calo_posX",calo_posX);
-    fChain->SetBranchAddress("calo_posY",calo_posY);
-    fChain->SetBranchAddress("calo_posZ",calo_posZ);
-    fChain->SetBranchAddress("calo_charge",calo_charge);
-    fChain->SetBranchAddress("calo_time",calo_time);
+    if(fChain->GetBranch("calo_nHits") != NULL) {
+      fChain->SetBranchAddress("calo_nHits",&calo_nHits);
+      fChain->SetBranchAddress("calo_id",calo_id);
+      fChain->SetBranchAddress("calo_posX",calo_posX);
+      fChain->SetBranchAddress("calo_posY",calo_posY);
+      fChain->SetBranchAddress("calo_posZ",calo_posZ);
+      fChain->SetBranchAddress("calo_charge",calo_charge);
+      fChain->SetBranchAddress("calo_time",calo_time);
+    }
 // mbts  hit info
     mbts_nHits=0;
-    fChain->SetBranchAddress("mbts_nHits",&mbts_nHits);
-    fChain->SetBranchAddress("mbts_id",mbts_id);
-    fChain->SetBranchAddress("mbts_posX",mbts_posX);
-    fChain->SetBranchAddress("mbts_posY",mbts_posY);
-    fChain->SetBranchAddress("mbts_posZ",mbts_posZ);
-    fChain->SetBranchAddress("mbts_charge",mbts_charge);
-    fChain->SetBranchAddress("mbts_time",mbts_time);
+    if(fChain->GetBranch("mbts_nHits") != NULL) {
+      fChain->SetBranchAddress("mbts_nHits",&mbts_nHits);
+      fChain->SetBranchAddress("mbts_id",mbts_id);
+      fChain->SetBranchAddress("mbts_posX",mbts_posX);
+      fChain->SetBranchAddress("mbts_posY",mbts_posY);
+      fChain->SetBranchAddress("mbts_posZ",mbts_posZ);
+      fChain->SetBranchAddress("mbts_charge",mbts_charge);
+      fChain->SetBranchAddress("mbts_time",mbts_time);
+    }
 
 // phi hit info 
     phi_nPhiHits =0;
-    fChain->SetBranchAddress("phi_nPhiHits",&phi_nPhiHits);
-    fChain->SetBranchAddress("phi_phiPatIndex", phi_phiPatIndex);
-    fChain->SetBranchAddress("phi_id",phi_id);
-    fChain->SetBranchAddress("phi_posX",phi_posX);
-    fChain->SetBranchAddress("phi_posY",phi_posY);
-    fChain->SetBranchAddress("phi_posZ",phi_posZ);
-    fChain->SetBranchAddress("phi_error",phi_error);
+    if(fChain->GetBranch("phi_nPhiHits") != NULL) {
+      fChain->SetBranchAddress("phi_nPhiHits",&phi_nPhiHits);
+      fChain->SetBranchAddress("phi_phiPatIndex", phi_phiPatIndex);
+      fChain->SetBranchAddress("phi_id",phi_id);
+      fChain->SetBranchAddress("phi_posX",phi_posX);
+      fChain->SetBranchAddress("phi_posY",phi_posY);
+      fChain->SetBranchAddress("phi_posZ",phi_posZ);
+      fChain->SetBranchAddress("phi_error",phi_error);
+    }
 
     fChain->SetBranchAddress("trk_nTracks", &trk_nTracks);
     fChain->SetBranchAddress("trk_x0", trk_x0);
@@ -257,6 +259,11 @@ namespace MuonCalib {
     fChain->SetBranchAddress("trkHit_posX", trkHit_posX);
     fChain->SetBranchAddress("trkHit_posY", trkHit_posY);
     fChain->SetBranchAddress("trkHit_posZ", trkHit_posZ);
+    if(fChain->GetBranch("trkHit_driftTime")!=0) {
+      fChain->SetBranchAddress("trkHit_driftTime", trkHit_driftTime);
+    } else {
+      for( int i=0; i<3000; i++ ) trkHit_driftTime[i] = 0.;
+    }
     fChain->SetBranchAddress("trkHit_driftRadius", trkHit_driftRadius);
     fChain->SetBranchAddress("trkHit_error", trkHit_error);
     fChain->SetBranchAddress("trkHit_resi", trkHit_resi);
@@ -270,37 +277,30 @@ namespace MuonCalib {
     fChain->SetBranchAddress("trkHole_posY", trkHole_posY);
     fChain->SetBranchAddress("trkHole_posZ", trkHole_posZ);
     
-    if(fChain->GetBranch("trkSeg_nTrkSegs")!=0)
-    	{
-    	fChain->SetBranchAddress("trkSeg_nTrkSegs", &trkSeg_nTrkSegs);
-    	fChain->SetBranchAddress("trkSeg_trkIndex", trkSeg_trkIndex);
-    	fChain->SetBranchAddress("trkSeg_segIndex", trkSeg_segIndex);
-	hasTrkSegs=true;
-	}
- else
- 	{
-	trkSeg_nTrkSegs=0;
-	hasTrkSegs=false;
-	}
+    if(fChain->GetBranch("trkSeg_nTrkSegs")!=0) {
+      fChain->SetBranchAddress("trkSeg_nTrkSegs", &trkSeg_nTrkSegs);
+      fChain->SetBranchAddress("trkSeg_trkIndex", trkSeg_trkIndex);
+      fChain->SetBranchAddress("trkSeg_segIndex", trkSeg_segIndex);
+      hasTrkSegs=true;
+    } else {
+      trkSeg_nTrkSegs=0;
+      hasTrkSegs=false;
+    }
     
-  }
+  }  //end NTReaderBase_E::Init
 
-
-
-  void NTReaderBase_E::Show(Long64_t entry)
-  {
+  void NTReaderBase_E::Show(Long64_t entry) {
     // Print contents of entry.
     // If entry is not specified, print current entry
     if (!fChain) return;
     fChain->Show(entry);
   }
-  Int_t NTReaderBase_E::Cut(Long64_t /*entry*/)
-  {
+
+  Int_t NTReaderBase_E::Cut(Long64_t /*entry*/) {
     // This function may be called from Loop.
     // returns  1 if entry is accepted.
     // returns -1 otherwise.
     return 1;
   }
-
 
 } //namespace MuonCalib
