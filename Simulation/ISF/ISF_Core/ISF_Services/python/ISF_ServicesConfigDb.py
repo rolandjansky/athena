@@ -5,14 +5,7 @@ Configuration database for ISF_Services
 Elmar Ritsch, 16/12/2014
 """
 
-from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorithm, \
-     addTypesToExcludeIfDefaultValue, addNamesToExcludeIfDefaultValue, addFullNamesToExcludeIfDefaultValue, \
-     addPropertiesToExcludeIfDefault, \
-     addTypesToSkipIfNotAvailable, addNamesToSkipIfNotAvailable, addFullNamesToSkipIfNotAvailable, \
-     addTypesOnlyToSkip
-
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-import AthenaCommon.SystemOfUnits as Units
+from AthenaCommon.CfgGetter import addService
 
 # Common tools, services and algorithms used by jobs
 addService("ISF_Services.ISF_ServicesConfig.getISFEnvelopeDefSvc"           , "ISF_ISFEnvelopeDefSvc"               )
@@ -26,3 +19,4 @@ addService("ISF_Services.ISF_ServicesConfig.getAFIIParticleBrokerSvc"       , "I
 addService("ISF_Services.ISF_ServicesConfig.getSimHitService"               , "ISF_SimHitService"                   )
 addService("ISF_Services.ISF_ServicesConfig.getNoG4SimHitService"           , "ISF_NoG4SimHitService"               )
 addService("ISF_Services.ISF_ServicesConfig.getPileupSimHitService"         , "ISF_PileupSimHitService"             )
+addService("ISF_Services.ISF_ServicesConfig.getParticleKillerSvc"           , "ISF_ParticleKillerSvc"               )

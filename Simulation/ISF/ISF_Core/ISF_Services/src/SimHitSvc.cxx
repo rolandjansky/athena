@@ -499,7 +499,7 @@ void ISF::SimHitSvc::fillSimHitsTree()
     // pixel hits
     SiHitCollection* pixHits=(ipileup==0) ? m_pixHits : m_pixPileupHits;
 
-    if (pixHits->size()) {
+    if (pixHits && pixHits->size()) {
       SiHitCollection::const_iterator ih=pixHits->begin();
       while (ih!=pixHits->end()) {
         m_type = 5;
@@ -523,7 +523,7 @@ void ISF::SimHitSvc::fillSimHitsTree()
       }
     }
     SiHitCollection* sctHits=(ipileup==0) ? m_sctHits : m_sctPileupHits;
-    if (sctHits->size()) {
+    if (sctHits && sctHits->size()) {
       SiHitCollection::const_iterator ih=sctHits->begin();
       while (ih!=sctHits->end()) {
         m_type = 6;
@@ -547,7 +547,7 @@ void ISF::SimHitSvc::fillSimHitsTree()
       }
     }
     TRTUncompressedHitCollection* trtHits = (ipileup==0) ? m_trtHits : m_trtPileupHits;
-    if (trtHits->size()) {
+    if (trtHits && trtHits->size()) {
       TRTUncompressedHitCollection::const_iterator ih=trtHits->begin();
       while ( ih!=trtHits->end()) {
         m_type = 7;
