@@ -235,7 +235,7 @@ class ISF_HITSStream:
 
       ## Simulated detector flags: add each enabled detector to the simulatedDetectors list
       simDets = []
-      for det in ['pixel','SCT','TRT','BCM','DBM','Lucid','FwdRegion','ZDC','ALFA','AFP','LAr','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']:
+      for det in ['pixel','SCT','TRT','BCM','DBM','Lucid','FwdRegion','ZDC','ALFA','AFP','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']:
           attrname = det+"_on"
           checkfn = getattr(DetFlags.geometry, attrname, None)
           if checkfn is None:
