@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_FastCaloSimServices/FastCaloSimSvc.h"
+#include "FastCaloSimSvc.h"
 
 // StoreGate
 #include "StoreGate/StoreGateSvc.h"
@@ -304,12 +304,8 @@ StatusCode ISF::FastCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
     return StatusCode::SUCCESS;
   }
   // (c.) individual particle processing
-  else {
-    ATH_MSG_DEBUG("particle is simulated individually");
-    return processOneParticle( isfp);
-  }
-
-  return StatusCode::SUCCESS;
+  ATH_MSG_DEBUG("particle is simulated individually");
+  return processOneParticle( isfp);
 }
 
 
