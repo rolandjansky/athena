@@ -13,12 +13,11 @@
 
 namespace MuonCalib {
 
-  CscRawHitNtupleBranch::CscRawHitNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), index(0)
-  {
-  }
+  CscRawHitNtupleBranch::CscRawHitNtupleBranch(std::string branchName) : 
+    m_branchName(branchName), branchesInit(false), index(0)
+  {}
 
-  bool  CscRawHitNtupleBranch::fillBranch(const MuonCalibRawCscHit& hit )
-  {
+  bool CscRawHitNtupleBranch::fillBranch(const MuonCalibRawCscHit &hit ) {
     // check if branches where initialized
     if( !branchesInit )
       return false;    
@@ -30,27 +29,23 @@ namespace MuonCalib {
     //    Trk::GlobalPosition global = hit.globalP
  
     // copy values 
-    occupancy[index]  = hit.occupancy() ;
-    id[index]         = hit.identify().getIdInt();
-    width[index]      = hit.width() ;
-    charge[index]     = hit.charge() ;
-    t[index]          = hit.t() ;
-    gPosX[index]      = hit.globalPosition().x();
-    gPosY[index]      = hit.globalPosition().y();
-    gPosZ[index]      = hit.globalPosition().z();
+    occupancy[index] = hit.occupancy() ;
+    id[index]        = hit.identify().getIdInt();
+    width[index]     = hit.width() ;
+    charge[index]    = hit.charge() ;
+    t[index]         = hit.t() ;
+    gPosX[index]     = hit.globalPosition().x();
+    gPosY[index]     = hit.globalPosition().y();
+    gPosZ[index]     = hit.globalPosition().z();
 
-    ++index;
-   
+    ++index;   
     return true;
-  }
+  }  //end CscRawHitNtupleBranch::fillBranch
 
-
-  bool  CscRawHitNtupleBranch::createBranch(TTree* tree)
-  {
+  bool CscRawHitNtupleBranch::createBranch(TTree *tree) {
     // check if pointer is valid
     if( !tree )
-      return false;
-    
+      return false;    
 
     // helper class to create branches in trees
     NtupleBranchCreator branchCreator(m_branchName);
@@ -79,6 +74,6 @@ namespace MuonCalib {
     reset();
 
     return true;
-  }
+  }  //end CscRawHitNtupleBranch::createBranch
 
-}
+}  //namespace MuonCalib

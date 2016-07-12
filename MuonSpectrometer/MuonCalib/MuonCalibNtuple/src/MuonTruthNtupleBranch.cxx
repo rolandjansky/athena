@@ -14,16 +14,12 @@
 // std packages
 #include <iostream>
 
-
 namespace MuonCalib {
 
   MuonTruthNtupleBranch::MuonTruthNtupleBranch(std::string branchName) : m_branchName(branchName),  branchesInit(false), m_first(true), index(0)
-  {
+  {}
 
-  }
-
-  bool  MuonTruthNtupleBranch::fillBranch(const MuonCalibTruth& truth)
-  {
+  bool MuonTruthNtupleBranch::fillBranch(const MuonCalibTruth &truth) {
 //    std::cout << "Fill Truth Branch" << std::endl;
     // check if branches where initialized
     if( !branchesInit ){
@@ -59,10 +55,9 @@ namespace MuonCalib {
     ++index;
   
     return true;
-  }
+  }  //end MuonTruthNtupleBranch::fillBranch
 
-  bool  MuonTruthNtupleBranch::createBranch(TTree* tree)
-  {
+  bool MuonTruthNtupleBranch::createBranch(TTree *tree) {
     // check if pointer is valid
     if( !tree ){
       // std::cout << "MuonTruthNtupleBranch::createBranch  ERROR <got invalid tree pointer> " 
@@ -98,5 +93,6 @@ namespace MuonCalib {
     reset();
 
     return true;
-  }
-}
+  }  //end MuonTruthNtupleBranch::createBranch
+
+}  //namespace MuonCalib

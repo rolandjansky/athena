@@ -11,16 +11,13 @@
 namespace MuonCalib {
 
   MdtCalibNtupleMaker::MdtCalibNtupleMaker( std::string name ) :
-    IMdtCalibration(name), m_ntMaker(name)
-  {
+    IMdtCalibration(name), m_ntMaker(name) {
     m_printLevel = 0;
     m_ntMaker.setPrintLevel(0);
     //std::cout << "MdtCalibNtupleMaker::MdtCalibNtupleMaker" << std::endl;
-
   }
 
-
-  const IMdtCalibrationOutput*  MdtCalibNtupleMaker::analyseSegments( const IMdtCalibration::MuonSegVec& segs ){
+  const IMdtCalibrationOutput* MdtCalibNtupleMaker::analyseSegments( const IMdtCalibration::MuonSegVec &segs ){
     MuonSegCit seg_it = segs.begin();
     MuonSegCit seg_it_end = segs.end();
     for(;seg_it!=seg_it_end;++seg_it){
@@ -29,18 +26,14 @@ namespace MuonCalib {
     return getResults() ;
   }
 
-
-  bool  MdtCalibNtupleMaker::handleSegment( MuonCalibSegment& seg )
-  {
+  bool  MdtCalibNtupleMaker::handleSegment( MuonCalibSegment &seg ) {
     m_ntMaker.setEvent(0);
     m_ntMaker.handleSegment(seg);
     m_ntMaker.finishEvent();
     return true;
-  }
-  
+  }  
 
-  bool  MdtCalibNtupleMaker::analyse()
-  {
+  bool  MdtCalibNtupleMaker::analyse() {
     // write ntuple to file
     m_ntMaker.writeTree();
 
@@ -48,19 +41,16 @@ namespace MuonCalib {
     return true;
   }
   
-  const IMdtCalibrationOutput* MdtCalibNtupleMaker::getResults() const
-  {
+  const IMdtCalibrationOutput* MdtCalibNtupleMaker::getResults() const {
     return 0;
   }
 
-  void MdtCalibNtupleMaker::setInput( const IMdtCalibrationOutput* /*calib_in*/ )
-  {
+  void MdtCalibNtupleMaker::setInput( const IMdtCalibrationOutput* /*calib_in*/ ) {
     // empty routine
   }
 
-  bool MdtCalibNtupleMaker::converged() const
-  {
+  bool MdtCalibNtupleMaker::converged() const {
     return true;
   }
 
-}
+}  //namespace MuonCalib

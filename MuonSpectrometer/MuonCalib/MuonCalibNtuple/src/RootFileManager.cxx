@@ -13,20 +13,16 @@ namespace MuonCalib {
 
   RootFileManager* MuonCalib::RootFileManager::m_instance = 0;
 
-  RootFileManager::RootFileManager() : m_fileOption("RECREATE"), m_outFile(0),  m_key(NULL), m_value(NULL)
-  {
+  RootFileManager::RootFileManager() : m_fileOption("RECREATE"), m_outFile(0),  m_key(NULL), m_value(NULL) {
     m_printLevel = 0;
   }
 
-
-  RootFileManager::RootFileManager(const RootFileManager& /*mgr*/): m_fileOption("RECREATE"), m_outFile(0),  m_key(NULL), m_value(NULL)
-  {
+  RootFileManager::RootFileManager(const RootFileManager& /*mgr*/): m_fileOption("RECREATE"), m_outFile(0),  m_key(NULL), m_value(NULL) {
     // empty method, no copying
     m_printLevel = 0;
   }
 
-  TDirectory* RootFileManager::getDirectory( std::string dirname)
-  {
+  TDirectory* RootFileManager::getDirectory( std::string dirname ) {
     if( !m_outFile ){
       //std::cout << "  RootFileManager::getDirectory ERROR <open file first> " << std::endl;
       return 0;
@@ -48,65 +44,57 @@ namespace MuonCalib {
 
     // return pointer
     return dir;
-  }
+  }  //end RootFileManager::getDirectory
 
-  bool RootFileManager::openFile( std::string filename)
-  {
+  bool RootFileManager::openFile( std::string filename) {
 
-    if (m_outfiles[filename]==NULL)
-    	{
-	  //	std::cout<<"Creating new file: "<<filename<<std::endl;
-	m_outfiles[filename] = new TFile( filename.c_str(), m_fileOption.c_str() );
-	}
+    if (m_outfiles[filename]==NULL) {
+      //	std::cout<<"Creating new file: "<<filename<<std::endl;
+      m_outfiles[filename] = new TFile( filename.c_str(), m_fileOption.c_str() );
+    }
     // create new root file
     m_outFile = m_outfiles[filename];
 
     return true;
-  }
+  }  //end RootFileManager::openFile
 
-  bool RootFileManager::closeFile()
-  {
+  bool RootFileManager::closeFile() {
     // write output and close file
-    for(std::map<std::string, TFile *> :: iterator it=m_outfiles.begin(); it!=m_outfiles.end(); it++)
-    	{
-	it->second->Write();
-        it->second->Close();
-//	delete m_meta_data_tree[it->first]; m_meta_data_tree[it->first]=NULL;
-	}
+    for(std::map<std::string, TFile *> :: iterator it=m_outfiles.begin(); it!=m_outfiles.end(); it++) {
+      it->second->Write();
+      it->second->Close();
+      //	delete m_meta_data_tree[it->first]; m_meta_data_tree[it->first]=NULL;
+    }
     // set pointer to zero
     delete m_key; m_key=NULL;
     delete m_value; m_value=NULL;
     m_outfiles.clear();
     m_dirMap.clear();
     return true;
-  }
+  }  //end RootFileManager::closeFile
 
-void RootFileManager::WriteMetaData(const std::map<std::string, std::string> & metadata, const std::string & filename)
-	{
-	std::cout<<"Writing Metadata to "<<filename<<std::endl;
-	if(m_outfiles.find(filename)==m_outfiles.end())
-		{
-		std::cerr<<"RootFileManager::WriteMetaData: File " << filename <<" is not created!"<<std::endl;
-		return;
-		}
-	TDirectory *current=gDirectory;
-	m_outfiles[filename]->cd();
-	std::cout<<">>>>>>>>>>>>>"<<gDirectory->GetName()<<std::endl;
-	if(!m_key) m_key = new std::string();
-	if(!m_value) m_value = new std::string();
-	TTree *meta_data_tree=new TTree("meta_data", "Meta Data");
-	m_meta_data_tree[filename] = meta_data_tree;
-	meta_data_tree->Branch("key", "std::string", &m_key);
-	meta_data_tree->Branch("value", "std::string", &m_value);
-	for(std::map<std::string, std::string>::const_iterator it=metadata.begin(); it!=metadata.end(); it++)
-		{
-		m_key->assign(it->first);
-		m_value->assign(it->second);
-		meta_data_tree->Fill();
-		}
-	meta_data_tree->Write();
-	current->cd();
-	}
+  void RootFileManager::WriteMetaData(const std::map<std::string, std::string> &metadata, const std::string &filename) {
+    //    std::cout<<"Writing Metadata to "<<filename<<std::endl;
+    if(m_outfiles.find(filename)==m_outfiles.end()) {
+      //      std::cerr<<"RootFileManager::WriteMetaData: File " << filename <<" is not created!"<<std::endl;
+      return;
+    }
+    TDirectory *current=gDirectory;
+    m_outfiles[filename]->cd();
+    //    std::cout<<">>>>>>>>>>>>>"<<gDirectory->GetName()<<std::endl;
+    if(!m_key) m_key = new std::string();
+    if(!m_value) m_value = new std::string();
+    TTree *meta_data_tree=new TTree("meta_data", "Meta Data");
+    m_meta_data_tree[filename] = meta_data_tree;
+    meta_data_tree->Branch("key", "std::string", &m_key);
+    meta_data_tree->Branch("value", "std::string", &m_value);
+    for(std::map<std::string, std::string>::const_iterator it=metadata.begin(); it!=metadata.end(); it++) {
+      m_key->assign(it->first);
+      m_value->assign(it->second);
+      meta_data_tree->Fill();
+    }
+    meta_data_tree->Write();
+    current->cd();
+  }  //end RootFileManager::WriteMetaData
 
-
-}
+}  //end namespace MuonCalib

@@ -20,7 +20,7 @@ namespace MuonCalib {
   public:
     NtupleBranchCreator(std::string name) : m_name(name) {}
 
-    void createBranch(TTree* tree, std::string entry_name, void* address, std::string entry_size) {
+    void createBranch(TTree *tree, std::string entry_name, void *address, std::string entry_size) {
       /** 
 	  The entry_name is passed into the Branch-function of the tree together with the address
 	
@@ -40,6 +40,6 @@ namespace MuonCalib {
     std::string m_name;
   };
 
-}
+}  //namespace MuonCalib
 
 #endif
