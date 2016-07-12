@@ -7,18 +7,19 @@ atlas_subdir( TrigSteerMonitor )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          GaudiKernel
+                          PRIVATE
                           Control/AthenaKernel
                           Control/AthenaMonitoring
                           Event/EventInfo
-                          GaudiKernel
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigDataAccess/TrigDataAccessMonitoring
                           Trigger/TrigMonitoring/TrigMonitorBase
                           Trigger/TrigSteer/TrigSteering
-                          PRIVATE
                           Control/StoreGate
                           Event/xAOD/xAODEventInfo
                           MagneticField/MagFieldInterfaces
+                          LumiBlock/LumiBlockComps
                           Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigConfiguration/TrigConfL1Data
                           Trigger/TrigEvent/TrigNavigation
@@ -37,7 +38,7 @@ atlas_add_component( TrigSteerMonitor
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaKernel AthenaMonitoringLib EventInfo GaudiKernel TrigDataAccessMonitoringLib TrigMonitorBaseLib TrigSteeringLib StoreGateLib SGtests MagFieldInterfaces TrigConfHLTData TrigConfL1Data TrigNavigationLib TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigT1Result )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaKernel AthenaMonitoringLib EventInfo GaudiKernel TrigDataAccessMonitoringLib TrigMonitorBaseLib TrigSteeringLib StoreGateLib SGtests MagFieldInterfaces LumiBlockComps TrigConfHLTData TrigConfL1Data TrigNavigationLib TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigT1Result )
 
 # Install files from the package:
 atlas_install_headers( TrigSteerMonitor )

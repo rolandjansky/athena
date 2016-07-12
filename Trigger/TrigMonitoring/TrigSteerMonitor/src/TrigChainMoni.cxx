@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigSteerMonitor/TrigChainMoni.h"
+#include "TrigChainMoni.h"
 #include "TrigSteering/TrigSteer.h"
 #include "TrigSteering/SteeringChain.h"
 #include "TrigInterfaces/AlgoConfig.h"

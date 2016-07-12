@@ -13,7 +13,7 @@
 #include "AthenaKernel/AlgorithmTimer.h"
 #include "TrigMonitorBase/TrigMonitorToolBase.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrigSteerMonitor/TimeDivider.h"
+#include "TimeDivider.h"
 
 
 
@@ -111,10 +111,10 @@ class TrigRateMoni : public TrigMonitorToolBase {
   std::map<const HLT::SteeringChain*, int> m_chains_map; 
   
 
-  TH2F* m_published; //!< histogram which is published
-  TH2F* m_buffer;    //!< buffer to collect statistics
+  TH2F* m_published{0}; //!< histogram which is published
+  TH2F* m_buffer{0};    //!< buffer to collect statistics
 
-  const HLT::TrigSteer* m_parentAlg;
+  const HLT::TrigSteer* m_parentAlg{0};
   std::vector<std::string> m_specialStreamSetProperties;// for undecoded specials
 
   enum ybins { input=0, prescale=1, raw=2, output=3, rerun=4, algoIn=5, passedrerun=6 };

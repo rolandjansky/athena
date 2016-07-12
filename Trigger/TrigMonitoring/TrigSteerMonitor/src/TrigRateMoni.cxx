@@ -28,7 +28,7 @@
 #include "TrigSteering/StreamTag.h"
 #include "TrigSteering/TrigSteer.h"
 
-#include "TrigSteerMonitor/TrigRateMoni.h"
+#include "TrigRateMoni.h"
 #include "TrigMonitorBase/TrigLockedHist.h"
 
 
@@ -39,7 +39,6 @@ TrigRateMoni::TrigRateMoni(const std::string & type, const std::string & name,
     m_duration(10),
     m_intervals(6),
     m_timeDivider(0),
-    m_buffer(0),
     m_timer(0),
     m_in_running(false)
 {  
