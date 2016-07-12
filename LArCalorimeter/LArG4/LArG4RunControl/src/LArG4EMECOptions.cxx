@@ -16,8 +16,8 @@ void LArG4EMECOptions::saveMe()
 
   if(result.isSuccess())
   {
-    StoreGateSvc* m_detStore = dynamic_cast<StoreGateSvc*>(pSvc);
-    result=m_detStore->record(this,"LArG4EMECOptions");
+    StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*>(pSvc);
+    result=detStore->record(this,"LArG4EMECOptions");
 
    if(!result.isSuccess())
        std::cout << "Can not record LArG4EMECOptions" << std::endl;

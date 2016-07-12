@@ -17,8 +17,8 @@ void LArG4FCALOptions::saveMe()
 
   if(result.isSuccess())
   {
-    StoreGateSvc* m_detStore = dynamic_cast<StoreGateSvc*>(pSvc);
-    result=m_detStore->record(this,"LArG4FCALOptions");
+    StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*>(pSvc);
+    result=detStore->record(this,"LArG4FCALOptions");
 
    if(!result.isSuccess())
        std::cout << "Can not record LArG4FCALOptions" << std::endl;
