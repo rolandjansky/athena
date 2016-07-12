@@ -197,7 +197,7 @@ if setupForMC:   # for MC
     defaultOptions['useCOMCONDDB']=False
 else:            # for data
     defaultOptions['useCOMCONDDB']=True
-    defaultOptions['setDetDescr']='ATLAS-R2-2015-03-01-00'    
+    defaultOptions['setDetDescr']='ATLAS-R2-2015-04-00-00'    
     defaultOptions['setGlobalTag']='CONDBR2-HLTP-2016-01'
 
 # Setup list of modifiers

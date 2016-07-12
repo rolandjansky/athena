@@ -149,9 +149,12 @@ excludeTracePattern.append("*/TriggerMenu/menu/HltConfig.py")
 # trigger menu files generation
 log.info("generating menu")
 from TriggerMenu.menu.GenerateMenu import GenerateMenu
+import time
 
 g = GenerateMenu()
+t0 = time.time()
 g.generate()
+log.info('Trigger menu generation took %0.fs', time.time()-t0)
 
 log = logging.getLogger( 'Trigger_topOptions_standalone.py' )  # generate modifies the log
 
