@@ -115,6 +115,9 @@ else :
 
 from ISF_Example.ISF_Input import ISF_Input
 
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("BeamEffectsAlg")
+
 #--------------------------------------------------------------
 # ISF kernel configuration
 #--------------------------------------------------------------
