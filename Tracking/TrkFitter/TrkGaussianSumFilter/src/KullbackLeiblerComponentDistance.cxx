@@ -104,6 +104,16 @@ double Trk::KullbackLeiblerComponentDistance::operator() (const Trk::ComponentPa
 
 
     Amg::VectorX parametersDifference = firstComponentParameters - secondComponentParameters;
+
+    //Ensure that we don't have any problems with the cyclical nature of phi 
+    if( parametersDifference[2] > M_PI ){
+      parametersDifference[2] -= 2 * M_PI;
+    } else if ( parametersDifference[2] < -M_PI ){
+      parametersDifference[2] += 2 * M_PI;
+    }
+
+    
+    
     AmgSymMatrix(5) covarianceDifference = *firstMeasuredCov - *secondMeasuredCov;
     AmgSymMatrix(5) G_difference = G2 - G1;
     AmgSymMatrix(5) G_sum        = G1 + G2;

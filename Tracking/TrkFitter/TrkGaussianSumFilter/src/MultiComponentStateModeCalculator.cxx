@@ -105,10 +105,7 @@ Amg::VectorX Trk::MultiComponentStateModeCalculator::calculateMode( const Trk::M
       
       double pdfVal = pdf( modes[i], i );      
       double highX(0); 
-      double lowX(0);
-      
-      
-      
+      double lowX(0);      
 
       double upperbound =modes[i] + 1.5 * currentWidth;
       while(true){
@@ -151,6 +148,14 @@ Amg::VectorX Trk::MultiComponentStateModeCalculator::calculateMode( const Trk::M
         ATH_MSG_DEBUG( i << " Failed to find 1/2 width "  );
         
       }
+      //Ensure that phi is between -pi and pi
+      if(i==2){
+        if(  modes[i] > M_PI ){
+          modes[i] -= 2 * M_PI;
+        } else if (  modes[i] < -M_PI ){
+          modes[i] += 2 * M_PI;
+        }
+      }
     }
     
 
@@ -185,6 +190,19 @@ void Trk::MultiComponentStateModeCalculator::fillMixture( const Trk::MultiCompon
     double sigma  = sqrt(fabs((*measuredCov)(parameter[i],parameter[i])));
 
     
+    //Ensure that we don't have any problems with the cyclical nature of phi
+    //Use first state as reference point
+    if(i==2){ //phi
+      double deltaPhi = multiComponentState.begin()->first->parameters()[2] -mean;  
+      if( deltaPhi > M_PI ){
+        mean += 2 * M_PI;
+      } else if ( deltaPhi < -M_PI ){
+        mean -= 2 * M_PI;
+      }
+    }
+
+
+
     Mixture mixture(weight, mean, sigma );
 
     m_mixture[i].push_back( mixture );
