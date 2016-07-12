@@ -15,11 +15,9 @@
 namespace MuonCalib {
 
   RpcRawHitNtupleBranch::RpcRawHitNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), index(0)
-  {
-  }
+  {}
 
-  bool  RpcRawHitNtupleBranch::fillBranch(const MuonCalibRawRpcHit& hit )
-  {
+  bool RpcRawHitNtupleBranch::fillBranch(const MuonCalibRawRpcHit &hit ) {
     // check if branches where initialized
     if( !branchesInit )
       return false;    
@@ -43,16 +41,13 @@ namespace MuonCalib {
     ++index;
    
     return true;
-  }
+  }  //end RpcRawHitNtupleBranch::fillBranch
 
-
-  bool  RpcRawHitNtupleBranch::createBranch(TTree* tree)
-  {
+  bool RpcRawHitNtupleBranch::createBranch(TTree *tree) {
     // check if pointer is valid
     if( !tree )
       return false;
     
-
     // helper class to create branches in trees
     NtupleBranchCreator branchCreator(m_branchName);
 
@@ -80,6 +75,6 @@ namespace MuonCalib {
     reset();
 
     return true;
-  }
+  }  //end RpcRawHitNtupleBranch::createBranch
 
-}
+}  //namespace MuonCalib

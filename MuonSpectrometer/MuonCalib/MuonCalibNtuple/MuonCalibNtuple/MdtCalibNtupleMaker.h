@@ -22,7 +22,7 @@ namespace MuonCalib {
   class MdtCalibNtupleMaker : public IMdtCalibration {
   public:
     MdtCalibNtupleMaker( std::string name );  //!< constructor
-    const IMdtCalibrationOutput* analyseSegments( const IMdtCalibration::MuonSegVec& segs ); //!< Loops over segmentvector and calls handleSegment
+    const IMdtCalibrationOutput* analyseSegments( const IMdtCalibration::MuonSegVec &segs ); //!< Loops over segmentvector and calls handleSegment
     void  setInput( const IMdtCalibrationOutput* /*rt_in*/ ); //!< empty routine
     bool  analyse();                                          //!< writes tree
     bool  converged() const;                                  //!< always returning true
@@ -30,14 +30,13 @@ namespace MuonCalib {
     void setPrintLevel(int level) { m_printLevel = level; }   //!< set print level 
 
   private:
-    bool  handleSegment( MuonCalibSegment& seg );             //!< Calls MuonCalibBranchNtuple::handleSegment().
+    bool  handleSegment( MuonCalibSegment &seg );             //!< Calls MuonCalibBranchNtuple::handleSegment().
     int m_printLevel;                                         //!< printlevel of output
 
     MuonCalibBranchNtuple m_ntMaker;                          //!< Ntuple maker
   };
 
-
-}
+}  //namespace MuonCalib
 
 #endif  
  

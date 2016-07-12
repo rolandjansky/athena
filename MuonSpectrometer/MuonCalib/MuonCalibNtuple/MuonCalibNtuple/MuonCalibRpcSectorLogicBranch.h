@@ -12,8 +12,6 @@ class TTree;
 
 namespace MuonCalib {
 
-
-
   /**@class RpcSectorLogicBranch
      Class to create and fill a branch in a root tree which contains 
      information of RpcSectorLogic
@@ -23,12 +21,12 @@ namespace MuonCalib {
   class MuonCalibRpcSectorLogicBranch 
   {
   public:
-    MuonCalibRpcSectorLogicBranch(std::string branchName = "rpc_SL");  //!< default constructor 
-    bool  fillBranch(const RpcSectorLogicContainer& slContainer);      //!< fill content of container into branch 
-    bool  createBranch(TTree* tree);                                   //!< create branch structure in tree 
-    inline void reset() { index = 0; index2=0; index3=0; }                    //!< set index to zero 
-    inline const int & getBranchEntries() const{ return index; }                           //!< returns the number of pats currently in the branch 
-    inline  int blockSize() const{ return m_blockSize; }                      //!< returns maximum number of entries stored to ntuple
+    MuonCalibRpcSectorLogicBranch(std::string branchName = "rpc_SL"); //!< default constructor 
+    bool  fillBranch(const RpcSectorLogicContainer &slContainer);     //!< fill content of container into branch 
+    bool  createBranch(TTree *tree);                                  //!< create branch structure in tree 
+    inline void reset() { index = 0; index2=0; index3=0; }            //!< set index to zero 
+    inline const int& getBranchEntries() const{ return index; }       //!< returns the number of pats currently in the branch 
+    inline  int blockSize() const{ return m_blockSize; }              //!< returns maximum number of entries stored to ntuple
   
   private:
     std::string m_branchName;             //!< name of branch in tree, per default prepended to variable names 
@@ -72,6 +70,6 @@ namespace MuonCalib {
     
   };
 
-}
+}  //namespace MuonCalib
 
 #endif

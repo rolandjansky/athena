@@ -23,23 +23,25 @@ namespace MuonCalib {
   class MuonCalibRawTgcHit;
   class MuonFixedId;
   /**@class TgcRawHitNtupleBranch
-     Class to create and fill a branch in a root tree which contains information
-     of MuonCalibRawTgcHits. All members of MuonCalibRawTgcHit are stored on this branch.
+     Class to create and fill a branch in a root tree which contains
+     information of MuonCalibRawTgcHits. All members of
+     MuonCalibRawTgcHit are stored on this branch.
 
-     See the <a href="https://twiki.cern.ch/twiki/bin/view/Atlas/MuonCalibNuptleContent"><span>Calibration Ntuple wiki</span></a> for information on ntuple variables.
+     See  
+     <a href="https://twiki.cern.ch/twiki/bin/view/Atlas/MuonCalibNuptleContent"><span>Calibration Ntuple wiki</span></a> 
+     for information on ntuple variables.
 
      @author Niels.Van.Eldik@cern.ch, Zdenko.Van.Kesteren@cern.ch
   */
 
-  class TgcRawHitNtupleBranch 
-  {
+  class TgcRawHitNtupleBranch {
   public:
     TgcRawHitNtupleBranch(std::string branchName = "rawTgc_"); //!< default constructor 
-    bool  fillBranch(const MuonCalibRawTgcHit& hit );          //!< fill content of hit into branch 
-    bool  createBranch(TTree* tree);                           //!< create branch structure in tree 
+    bool  fillBranch(const MuonCalibRawTgcHit &hit );          //!< fill content of hit into branch 
+    bool  createBranch(TTree *tree);                           //!< create branch structure in tree 
     inline void reset() { index_Curr = 0; index_Prev = 0; index_Next = 0; index = 0; } //!< set hit_index to zero 
-    inline const int & getBranchEntries() const { return index; }                   //!< returns the number of hits currently in the branch 
-    inline int blockSize() const { return m_blockSize; }                //!< returns maximum number of entries stored to ntuple
+    inline const int & getBranchEntries() const { return index; }  //!< returns the number of hits currently in the branch 
+    inline int blockSize() const { return m_blockSize; }           //!< returns maximum number of entries stored to ntuple
   
   private:
     std::string m_branchName;          //!< name of branch in tree, per default prepended to variable names 
@@ -72,6 +74,7 @@ namespace MuonCalib {
     float gPosZ[m_blockSize];
 
   };
-}
+
+}  //namespace MuonCalib 
 
 #endif

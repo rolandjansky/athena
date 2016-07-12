@@ -18,7 +18,6 @@
 // forward declarations
 class TTree;
 
-
 namespace MuonCalib {
 
   class MuonCalibPattern;
@@ -30,33 +29,41 @@ namespace MuonCalib {
   class PatInfo  {
   public:
     /** constructor */
-    PatInfo()  {}
+    PatInfo() {}
   };
 
   /**@class MuonPatternNtupleBranch
-     Class to create and fill a branch in a root tree which contains 
-     information of MuonCalibPattern s. All members of MuonCalibPattern are stored on this branch.
+     Class to create and fill a branch in a root tree which contains
+     information of MuonCalibPattern s. All members of
+     MuonCalibPattern are stored on this branch.
 
-     See the <a href="https://twiki.cern.ch/twiki/bin/view/Atlas/MuonCalibNuptleContent"><span>Calibration Ntuple wiki</span></a> for information on ntuple variables.
+     See
+     <a href="https://twiki.cern.ch/twiki/bin/view/Atlas/MuonCalibNuptleContent"><span>Calibration Ntuple wiki</span></a>
+     for information on ntuple variables.
      
      @author Niels.Van.Eldik@cern.ch, Zdenko.Van.Kesteren
+
+     2016-03-18 E. Diehl 
+     MuonPatternNtupleBranch removed from calib ntuple since Athena 20 reconstruction 
+     because pattern data written to ntuples was all zero, 
+     and because pattern data is not used by calib algoritms.
+     However, leave class in place in case we ever want to use it.
   */
-  class MuonPatternNtupleBranch 
-  {
+  class MuonPatternNtupleBranch {
   public:
     MuonPatternNtupleBranch(std::string branchName = "pat_");           //!< default constructor 
-    bool  fillBranch(const MuonCalibPattern& pat, const PatInfo& info); //!< fill content of pat into branch 
-    bool  createBranch(TTree* tree);                                    //!< create branch structure in tree 
-    inline void reset() { index = 0; }                                         //!< set pat_index to zero 
-    inline const int & getBranchEntries() const { return index; }                            //!< returns the number of pats currently in the branch 
-    inline int blockSize() const { return m_blockSize; }                         //!< returns maximum number of entries stored to ntuple
+    bool  fillBranch(const MuonCalibPattern &pat, const PatInfo &info); //!< fill content of pat into branch 
+    bool  createBranch(TTree *tree);                                    //!< create branch structure in tree 
+    inline void reset() { index = 0; }                                  //!< set pat_index to zero 
+    inline const int& getBranchEntries() const { return index; }        //!< returns the number of pats currently in the branch 
+    inline int blockSize() const { return m_blockSize; }                //!< returns maximum number of entries stored to ntuple
   
   private:
-    std::string m_branchName;             //!< name of branch in tree, per default prepended to variable names 
-    bool branchesInit;                    //!< flag to check whether branches were initialized 
-    bool m_first;                        //!< flag to make sure that overflow message is only printed once
-    static const int m_blockSize = 100;     //!< quantities stored in the tree 
-    int   index;                          //!< counter keeping track on the number of MuonCalibPattern s stored in the event
+    std::string m_branchName;           //!< name of branch in tree, per default prepended to variable names 
+    bool branchesInit;                  //!< flag to check whether branches were initialized 
+    bool m_first;                       //!< flag to make sure that overflow message is only printed once
+    static const int m_blockSize = 100; //!< quantities stored in the tree 
+    int   index;                        //!< counter keeping track on the number of MuonCalibPattern s stored in the event
 
     float chi2[m_blockSize];
     float z0[m_blockSize];
@@ -69,9 +76,7 @@ namespace MuonCalib {
     int   nrpc[m_blockSize];
     int   ncsc[m_blockSize];
     int   ntgc[m_blockSize];
-
   };
 
-}
-
+}  //namespace MuonCalib
 #endif

@@ -31,20 +31,19 @@ namespace MuonCalib {
      @author Niels.Van.Eldik@cern.ch, Zdenko.Van.Kesteren@cern.ch
   */
   
-  class MdtCalibHitNtupleBranch 
-  {
+  class MdtCalibHitNtupleBranch {
   public:
     MdtCalibHitNtupleBranch(std::string branchName = "mdt_");         //!< default constructor 
-    bool  fillBranch(const MdtCalibHitBase& hit, const int segIndex); //!< fill content of hit into branch 
-    bool  createBranch(TTree* tree);                                  //!< create branch structure in tree 
-    inline void  reset() { index = 0; }                                       //!< set hit_index to zero 
-    inline const int & getBranchEntries() const { return index; }                          //!< returns the number of hits currently in the branch 
-    inline int blockSize() const { return m_blockSize; }                       //!< returns maximum number of entries stored to ntuple
+    bool  fillBranch(const MdtCalibHitBase &hit, const int segIndex); //!< fill content of hit into branch 
+    bool  createBranch(TTree *tree);                                  //!< create branch structure in tree 
+    inline void  reset() { index = 0; }                               //!< set hit_index to zero 
+    inline const int& getBranchEntries() const { return index; }      //!< returns the number of hits currently in the branch 
+    inline int blockSize() const { return m_blockSize; }              //!< returns maximum number of entries stored to ntuple
   
   private:
     std::string m_branchName;                                         //!< name of branch in tree, per default prepended to variable names 
     bool branchesInit;                                                //!< flag to check whether branches were initialized 
-    static const int m_blockSize = 3000;                                //!< quantities stored in the tree 
+    static const int m_blockSize = 3000;                              //!< quantities stored in the tree 
     int   index;                                                      //!< counter keeping track on the number of MdtCalibHitBase s stored in the event
 
     int   segIndex[m_blockSize];
@@ -79,11 +78,12 @@ namespace MuonCalib {
     float gClosesApproachY[m_blockSize];
     float gClosesApproachZ[m_blockSize];
     float tube_t0[m_blockSize];
+    float tube_adccal[m_blockSize];
     float xtwin[m_blockSize];
     float temperature_time[m_blockSize];
     float wire_sag_time[m_blockSize];
     bool segment_t0_applied[m_blockSize];
   };
-}
+}  //namespace MuonCalib
 
 #endif
