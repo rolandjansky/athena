@@ -10,7 +10,7 @@ if not ('OutputLevel' in dir()):
     rec.OutputLevel=INFO
 
 if not ('FileList' in dir()):
-    acf.FilesInput = ["/afs/cern.ch/work/o/okuprash/public/AtlasAnalysis.20.7.X-VALrel2_24.11.2015/Trigger/TrigValidation/TrigAnalysisTest/Testing/TrigHLT_Run1BStoxAOD/myAOD.pool.root"]
+    acf.FilesInput = ["/afs/cern.ch/user/o/okuprash/public/ATN_reference/AODexampleAtlasAnalysis207XVAL151124.root"]
 else:
     acf.FilesInput = FileList
 
