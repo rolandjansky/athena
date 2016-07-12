@@ -9,27 +9,30 @@ manager Wolfgang Lukas <Wolfgang.Lukas@cern.ch>
 # public use statements
 use AtlasPolicy                 AtlasPolicy-*
 use GaudiInterface              GaudiInterface-*        External
-use AthenaBaseComps             AthenaBaseComps-*       Control
-use CaloInterface               CaloInterface-*         Calorimeter
-use BarcodeInterfaces           BarcodeInterfaces-*     Simulation/Barcode
-use ISF_Interfaces              ISF_Interfaces-*        Simulation/ISF/ISF_Core
 
 #################################################################
 # private use statements
 private
+use AthenaBaseComps             AthenaBaseComps-*           Control
+use BarcodeInterfaces           BarcodeInterfaces-*         Simulation/Barcode
+use CaloInterface               CaloInterface-*             Calorimeter
+use ISF_Interfaces              ISF_Interfaces-*            Simulation/ISF/ISF_Core
 use AtlasCLHEP                  AtlasCLHEP-*            	External
 use AtlasHepMC                  AtlasHepMC-*            	External
 use StoreGate                   StoreGate-*             	Control
 
 use ISF_Event                   ISF_Event-*             	Simulation/ISF/ISF_Core
-use ISF_HepMC_Event             ISF_HepMC_Event-*       	Simulation/ISF/ISF_HepMC
 use NavFourMom                  NavFourMom-*            	Event
 use CaloEvent                   CaloEvent-*             	Calorimeter
 #use FastSimulationEvent         FastSimulationEvent-*   	Simulation/FastSimulation
 use FastCaloSim                 FastCaloSim-*           	Simulation/FastShower
 use ISF_FastCaloSimInterfaces	ISF_FastCaloSimInterfaces-*	Simulation/ISF/ISF_FastCaloSim
+use ISF_FastCaloSimEvent    	ISF_FastCaloSimEvent-*      	Simulation/ISF/ISF_FastCaloSim
+use GeneratorObjects            GeneratorObjects-*              Generators
 
-use GeneratorObjects            GeneratorObjects-*        Generators
+use TrkExInterfaces      TrkExInterfaces-*      Tracking/TrkExtrapolation
+use TrkEventPrimitives   TrkEventPrimitives-*   Tracking/TrkEvent
+
 
 public
 library ISF_FastCaloSimServices *.cxx components/*.cxx
