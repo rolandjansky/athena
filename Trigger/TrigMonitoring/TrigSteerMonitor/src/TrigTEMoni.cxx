@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigSteerMonitor/TrigTEMoni.h"
+#include "TrigTEMoni.h"
 
 #include "TrigConfL1Data/ThresholdConfig.h"
 

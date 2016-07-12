@@ -36,7 +36,7 @@
 #include "TrigConfHLTData/HLTUtils.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
 
-#include "TrigSteerMonitor/TrigRoIMoni.h"
+#include "TrigRoIMoni.h"
 
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/CTPConfig.h"

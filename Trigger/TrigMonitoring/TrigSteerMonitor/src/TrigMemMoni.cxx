@@ -9,8 +9,8 @@
  *
  */
 
-#include "TrigSteerMonitor/ITrigMemAuditor.h"
-#include "TrigSteerMonitor/TrigMemMoni.h"
+#include "ITrigMemAuditor.h"
+#include "TrigMemMoni.h"
 #include "TrigSteering/TrigSteer.h"
 #include "TrigInterfaces/TECreateAlgo.h"
 
@@ -201,7 +201,7 @@ StatusCode TrigMemMoni::fillHists()
    m_event++;
 
    // Print memory consumption
-   if(outputLevel() <= MSG::VERBOSE) {
+   if(msgLvl(MSG::VERBOSE)) {
      if (m_MemAbsMem) {
        msg() << MSG::VERBOSE << "Event #" << m_event << ": VMEM = " << m_AbsMemSize << " kB";
      }
