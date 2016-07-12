@@ -39,8 +39,7 @@ namespace MuonCalib {
 class BFieldCorrectionUpdateTool : public AthAlgTool, virtual public CalibSegmentPreparationTool {
   public:
     // Constructor //
-    BFieldCorrectionUpdateTool(const std::string &t,
-			       const std::string &n, const IInterface *p);
+    BFieldCorrectionUpdateTool(const std::string &t, const std::string &n, const IInterface *p);
     ///< Constructor of the tool.
 
     ~BFieldCorrectionUpdateTool(void);
@@ -54,7 +53,7 @@ class BFieldCorrectionUpdateTool : public AthAlgTool, virtual public CalibSegmen
                             ///< finalization of the tool
     void prepareSegments(
       const MuonCalibEvent *& /*event*/,
-      std::map<NtupleStationId, MuonCalibSegment *> & segments);
+      std::map<NtupleStationId, MuonCalibSegment *> &segments);
     ///< Method to add the Lorentz effect to the
     ///< measured drift times.
 
@@ -64,8 +63,7 @@ class BFieldCorrectionUpdateTool : public AthAlgTool, virtual public CalibSegmen
     IRtRelation *m_rt; // pointer to the reference r-t relationship at B=0
     BFieldCorFunc *m_corr_func; // pointer to the B field correction function
 
-    bool initialize_BFieldCorFunc(void); // method to initialize the Lorentz
-                                         // angle correction
+    bool initialize_BFieldCorFunc(void); // method to initialize the Lorentz angle correction
 
 };
 

@@ -36,7 +36,7 @@ StatusCode ApplyRawTimes::initialize(void) {
   return StatusCode::SUCCESS;
 }
 
-void ApplyRawTimes::prepareSegments(const MuonCalibEvent *& event, std::map<NtupleStationId, MuonCalibSegment *> &segments) {
+void ApplyRawTimes::prepareSegments(const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> &segments) {
   std::map<MuonFixedId, std::set<int> > raw_times;
   const MuonCalibRawHitCollection *raw_coll(event->rawHitCollection());
   for(MuonCalibRawHitCollection::MuonCalibRawMdtHitVecCit it=raw_coll->rawMdtHitCollectionBegin(); it!=raw_coll->rawMdtHitCollectionEnd(); it++) {

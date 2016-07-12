@@ -54,7 +54,7 @@ BFieldCorrectionUpdateTool::BFieldCorrectionUpdateTool(
 ////////////////////
 // RESET POINTERS //
 ////////////////////
-    m_rt = 0;
+  m_rt = 0;
 }
 
 //*****************************************************************************
@@ -118,7 +118,7 @@ StatusCode BFieldCorrectionUpdateTool::finalize(void) {
 //::::::::::::::::::::::::::::
 void BFieldCorrectionUpdateTool::prepareSegments(
                     const MuonCalibEvent *& /*event*/,
-                    std::map<NtupleStationId, MuonCalibSegment *> & segments) {
+                    std::map<NtupleStationId, MuonCalibSegment *> &segments) {
 
 //////////////////////////////////////////////////////////////////////////////
 // LOOP OVER THE SEGMENTS AND THEIR HITS TO ADD THE LORENTZ ANGLE EFFECT TO //

@@ -23,7 +23,7 @@ StatusCode GoodRunListFilter::initialize(void) {
   return StatusCode::SUCCESS;
 }
 
-void GoodRunListFilter::prepareSegments(const MuonCalibEvent *& event, std::map<NtupleStationId, MuonCalibSegment *> &segments) {
+void GoodRunListFilter::prepareSegments(const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> &segments) {
   const MuonCalibEventInfo &event_info=event->eventInfo();
   if(!m_good_runlist_tool->passRunLB(event_info.runNumber(), event_info.lumiBlock())) {
     segments.clear();
