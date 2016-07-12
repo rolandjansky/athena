@@ -16,8 +16,8 @@ void LArGeoTBGeometricOptions::saveMe()
 
   if(result.isSuccess())
   {
-    StoreGateSvc* m_detStore = dynamic_cast<StoreGateSvc*>(pSvc);
-    result=m_detStore->record(this,"LArGeoTBGeometricOptions");
+    StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*>(pSvc);
+    result=detStore->record(this,"LArGeoTBGeometricOptions");
     if(!result.isSuccess())
       std::cout << "Can not record LArGeoTBGeometricOptions" << std::endl;
   }

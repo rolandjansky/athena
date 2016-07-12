@@ -16,8 +16,8 @@ void LArGeoTB2004Options::saveMe()
 
   if(result.isSuccess())
   {
-    StoreGateSvc* m_detStore = dynamic_cast<StoreGateSvc*>(pSvc);
-    result=m_detStore->record(this,"LArGeoTB2004Options");
+    StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*>(pSvc);
+    result=detStore->record(this,"LArGeoTB2004Options");
     if(!result.isSuccess())
       std::cout << "Can not record LArGeoTB2004Options" << std::endl;
   }

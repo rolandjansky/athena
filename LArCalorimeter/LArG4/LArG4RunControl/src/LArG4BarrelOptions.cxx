@@ -17,8 +17,8 @@ void LArG4BarrelOptions::saveMe()
 
   if(result.isSuccess())
   {
-    StoreGateSvc* m_detStore = dynamic_cast<StoreGateSvc*>(pSvc);
-    result=m_detStore->record(this,"LArG4BarrelOptions");
+    StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*>(pSvc);
+    result=detStore->record(this,"LArG4BarrelOptions");
 
    if(!result.isSuccess())
        std::cout << "Can not record LArG4BarrelOptions" << std::endl;
