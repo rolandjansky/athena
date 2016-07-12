@@ -31,13 +31,14 @@ def usage():
     print "-x, --txtfile=  specify the text file with the new constants for reading"
     print "-m, --comment=  specify comment to write"
     print "-p, --prefix=   specify prefix which is expected on every line in input file, default - no prefix"
+    print "-k, --keep=     field numbers or channel numbers to ignore, e.g. '0,2,3,EBch0,EBch1,EBch12,EBch13,EBspD4ch18,EBspD4ch19,EBspC10ch4,EBspC10ch5' "
     print "-i, --inschema=   specify the input schema to use, default is 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_TILE;dbname=CONDBR2'"
     print "-o, --outschema=  specify the output schema to use, default is 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'"
     print "-s, --schema=     specify input/output schema to use when both input and output schemas are the same"
     print "-u  --update      set this flag if output sqlite file should be updated, otherwise it'll be recreated"
     
-letters = "hr:l:R:L:s:i:o:t:T:f:F:C:G:n:v:x:m:p:dcazZu"
-keywords = ["help","run=","lumi=","run2=","lumi2=","schema=","inschema=","outschema=","tag=","outtag=","folder=","outfolder=","nchannel=","ngain=","nval=","version=","txtfile=","comment=","prefix=","default","channel","all","zero","allzero","update"]
+letters = "hr:l:R:L:s:i:o:t:T:f:F:C:G:n:v:x:m:p:dcazZuk:"
+keywords = ["help","run=","lumi=","run2=","lumi2=","schema=","inschema=","outschema=","tag=","outtag=","folder=","outfolder=","nchannel=","ngain=","nval=","version=","txtfile=","comment=","prefix=","default","channel","all","zero","allzero","update","keep="]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
@@ -55,7 +56,7 @@ schema = 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'
 inSchema = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_TILE;dbname=CONDBR2"
 outSchema = 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'
 folderPath =  "/TILE/OFL02/TIME/CHANNELOFFSET/GAP/LAS"
-tag = "RUN2-HLT-UPD1-00"
+tag = "UPD1"
 outfolderPath = None
 outtag = None
 readGain=True
@@ -71,6 +72,7 @@ txtFile= ""
 comment = ""
 prefix = ""
 update = False
+keep=[]
 
 for o, a in opts:
     if o in ("-f","--folder"):
@@ -123,6 +125,8 @@ for o, a in opts:
         comment = a
     elif o in ("-p","--prefix"):
         prefix = a
+    elif o in ("-k","--keep"):
+        keep = a.split(",")
     elif o in ("-h","--help"):
         usage()
         sys.exit(2)
@@ -257,6 +261,23 @@ if len(txtFile)>0:
     #=== loop over whole detector
     for ros in xrange(rosmin,5):
         for mod in xrange(min(64,TileCalibUtils.getMaxDrawer(ros))):
+            modName = TileCalibUtils.getDrawerString(ros,mod)
+            if modName in ['EBA39','EBA40','EBA41','EBA42','EBA55','EBA56','EBA57','EBA58',
+                           'EBC39','EBC40','EBC41','EBC42','EBC55','EBC56','EBC57','EBC58' ]:
+                modSpec = 'EBspC10'
+            elif modName in ['EBA15','EBC18']:
+                modSpec = 'EBspD4'
+            elif modName in ['EBC29','EBC32','EBC34','EBC37']:
+                modSpec = 'EBspE4'
+            elif modName in ['EBA07', 'EBA25', 'EBA44', 'EBA53',
+                             'EBC07', 'EBC25', 'EBC44', 'EBC53',
+                             'EBC28', 'EBC31', 'EBC35', 'EBC38' ]:
+                modSpec = 'EBspE1'
+            elif modName in ['EBA08', 'EBA24', 'EBA43', 'EBA54',
+                             'EBC08', 'EBC24', 'EBC43', 'EBC54' ]:
+                modSpec = 'EBMBTS'
+            else:
+                modSpec = modName
             newDrawer=True
             flt1 = blobReader.getDrawer(ros, mod, since, False, False)
             for chn in xrange(nchan):
@@ -329,11 +350,23 @@ if len(txtFile)>0:
                             coef=float(strval[1:])
                             val = calibDrawer.getData(chn,adc,n)+coef
                             log.debug("%i/%2i/%2i/%i: new data[%i] = %s  shift old value by %s" % (ros,mod,chn,adc, n, val, coef))
-                        elif strval=="keep":
-                            val = -9999.9
+                        elif strval=="sync":
+                            val = calibDrawer.getData(chn,adc,n)
+                            if val==0.0 or val==-1.0 or val==1.0: # copy from another gain only if in this gain one of default values
+                                val = calibDrawer.getData(chn,1-adc,n)
+                        elif strval=="copy":
+                            val = calibDrawer.getData(chn,1-adc,n) # copy from another gain
+                        elif strval=="lg" and adc==1:
+                            val = calibDrawer.getData(chn,0,n) # copy from low gain
+                        elif strval=="hg" and adc==0:
+                            val = calibDrawer.getData(chn,1,n) # copy from high gain
+                        elif strval=="keep" or strval=="None" or str(n) in keep or modName in keep or  modSpec in keep or modName[:3] in keep or  modName[:2] in keep \
+                             or ("%sch%i"% (modName,chn)) in keep or ("%sch%i"% (modSpec,chn)) in keep or ("%sch%i"% (modName[:3],chn)) in keep or ("%sch%i"% (modName[:2],chn)) in keep \
+                             or ("%sch%ig%i"% (modName,chn,adc)) in keep or ("%sch%ig%i"% (modSpec,chn,adc)) in keep or ("%sch%ig%i"% (modName[:3],chn,adc)) in keep or ("%sch%ig%i"% (modName[:2],chn,adc)) in keep:
+                            val = None
                         else:
                             val = float(strval)
-                        if val>-9999 or coef is not None:
+                        if val is not None:
                             nvnew+=1
                             calibDrawer.setData(chn,adc,n,val)
                             if coef is None:
@@ -358,19 +391,25 @@ if len(txtFile)>0:
     
 #=== commit changes
 if mval!=0 and (len(comment)>0 or len(txtFile)>0):
-    if len(comment)==0:
-        if begin[1]==0:
-            comment="Update for run %i from file %s" % (begin[0],txtFile)
-        else:
-            comment="Update for run,lumi %i,%i from file %s" % (begin[0],begin[1],txtFile)
-    blobWriter.setComment(os.getlogin(),comment)
+    if (comment is None) or (comment == "None"):
+        blobWriter.setComment("None","None")
+    else:
+        if len(comment)==0:
+            if begin[1]==0:
+                comment="Update for run %i from file %s" % (begin[0],txtFile)
+            else:
+                comment="Update for run,lumi %i,%i from file %s" % (begin[0],begin[1],txtFile)
+        blobWriter.setComment(os.getlogin(),comment)
     blobWriter.register(begin, until, outfolderTag)
     if undo:
-        if run2>begin[0] and lumi2==0 and begin[1]==0:
-            comment="Update for run %i - undoing changes done for run %i from file %s" % (run2,begin[0],txtFile)
+        if (comment is None) or (comment == "None"):
+            blobWriter2.setComment("None","None")
         else:
-            comment="Update for run,lumi %i,%i - undoing changes done for %i,%i from file %s" % (run2,lumi2,begin[0],begin[1],txtFile)
-        blobWriter2.setComment(os.getlogin(),comment)
+            if run2>begin[0] and lumi2==0 and begin[1]==0:
+                comment="Update for run %i - undoing changes done for run %i from file %s" % (run2,begin[0],txtFile)
+            else:
+                comment="Update for run,lumi %i,%i - undoing changes done for %i,%i from file %s" % (run2,lumi2,begin[0],begin[1],txtFile)
+            blobWriter2.setComment(os.getlogin(),comment)
         blobWriter2.register((run2,lumi2), until, outfolderTag)
     elif run2>=0 and (run2<begin[0] or (run2==begin[0] and lumi2<begin[1]) and lumi2!=0):
         log.warning("(run2,lumi2)=(%i,%i) is smaller than (run,lumi)=(%i,%i) - will not create second IOV" % (run2,lumi2,begin[0],begin[1]))
