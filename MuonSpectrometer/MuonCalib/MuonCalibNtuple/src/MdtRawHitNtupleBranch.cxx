@@ -15,11 +15,9 @@
 namespace MuonCalib {
 
   MdtRawHitNtupleBranch::MdtRawHitNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), index(0)
-  {
-  }
+  {}
 
-  bool  MdtRawHitNtupleBranch::fillBranch( const MuonCalibRawMdtHit& hit )
-  {
+  bool MdtRawHitNtupleBranch::fillBranch( const MuonCalibRawMdtHit &hit ) {
     //std::cout << "Got into the fillBranch routine of MdtRawHitNtupleBranch" << std::endl;
     // check if branches where initialized
     if( !branchesInit ){
@@ -55,11 +53,9 @@ namespace MuonCalib {
     ++index;
    
     return true;
-  }
+  }  //end MdtRawHitNtupleBranch::fillBranch
 
-
-  bool  MdtRawHitNtupleBranch::createBranch(TTree* tree)
-  {
+  bool MdtRawHitNtupleBranch::createBranch(TTree *tree) {
     // check if pointer is valid
     if( !tree ){
       //      std::cout << "MdtRawHitNtupleBranch::createBranch  ERROR <got invalid tree pointer> " 
@@ -99,6 +95,6 @@ namespace MuonCalib {
     reset();
 
     return true;
-  }
+  }  //end MdtRawHitNtupleBranch::createBranch
 
-}
+}  //namespace MuonCalib

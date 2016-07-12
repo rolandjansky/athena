@@ -14,12 +14,9 @@
 namespace MuonCalib {
 
   RpcTruthHitNtupleBranch::RpcTruthHitNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), index(0)
-  {
+  {}
 
-  }
-
-  bool  RpcTruthHitNtupleBranch::fillBranch(const MuonCalibRpcTruthHit& hit)
-  {
+  bool RpcTruthHitNtupleBranch::fillBranch(const MuonCalibRpcTruthHit &hit) {
     // check if branches where initialized
     if( !branchesInit ){
       //std::cout << "RpcTruthHitNtupleBranch::fillBranch  ERROR <branches where not initialized>"
@@ -43,10 +40,9 @@ namespace MuonCalib {
     ++index;
   
     return true;
-  }
+  }  //end RpcTruthHitNtupleBranch::fillBranch
 
-  bool  RpcTruthHitNtupleBranch::createBranch(TTree* tree)
-  {
+  bool RpcTruthHitNtupleBranch::createBranch(TTree *tree) {
     // check if pointer is valid
     if( !tree ){
       //std::cout << "RpcTruthHitNtupleBranch::createBranch  ERROR <got invalid tree pointer> " 
@@ -66,10 +62,9 @@ namespace MuonCalib {
     std::string array_size( std::string("[") + m_branchName + index_name + std::string("]") );
 
     // create the branches
-    branchCreator.createBranch( tree, "id",          &id,                array_size + "/I" );
-    branchCreator.createBranch( tree, "barCode",     &barCode,           array_size + "/I" );
-    branchCreator.createBranch( tree, "time", &time,       array_size + "/D" );
-
+    branchCreator.createBranch( tree, "id",      &id,      array_size + "/I" );
+    branchCreator.createBranch( tree, "barCode", &barCode, array_size + "/I" );
+    branchCreator.createBranch( tree, "time",    &time,    array_size + "/D" );
 
     branchesInit = true;
   
@@ -77,6 +72,6 @@ namespace MuonCalib {
     reset();
 
     return true;
-  }
+  }  //end RpcTruthHitNtupleBranch::createBranch
 
-}
+}  //end namespace MuonCalib

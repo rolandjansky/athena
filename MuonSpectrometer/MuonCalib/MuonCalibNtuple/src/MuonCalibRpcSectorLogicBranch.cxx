@@ -14,11 +14,9 @@ namespace MuonCalib {
 
   MuonCalibRpcSectorLogicBranch::MuonCalibRpcSectorLogicBranch(std::string branchName)
      : m_branchName(branchName), branchesInit(false), m_first(true) , index(0), index2(0), index3(0)
-  {
-  }        
+  {}        
 
-
-  bool  MuonCalibRpcSectorLogicBranch::fillBranch(const RpcSectorLogicContainer& slContainer) {
+  bool MuonCalibRpcSectorLogicBranch::fillBranch(const RpcSectorLogicContainer &slContainer) {
     // check if branches where initialized
     if( !branchesInit ){
       //std::cout << "MuonCalibRpcSectorLogicBranch::fillBranch "
@@ -38,13 +36,12 @@ namespace MuonCalib {
       return false;
     }
     
-
     // loop over container
     RpcSectorLogicContainer::const_iterator slit = slContainer.begin();
     RpcSectorLogicContainer::const_iterator slit_end = slContainer.end();
-    for( ;slit!=slit_end;++slit ){
+    for( ;slit!=slit_end;++slit ) {
       if(index >= m_blockSize || index<0) return false;
-      const RpcSectorLogic& slLogic = **slit;
+      const RpcSectorLogic &slLogic = **slit;
 
       // sector logic information
       sectorId[index] = slLogic.sectorId();
@@ -61,7 +58,7 @@ namespace MuonCalib {
 
 	if( index3 >= m_blockSize3 || index3 < 0 ) break;
 
-	const RpcSLTriggerHit& slHit = **hitIt;
+	const RpcSLTriggerHit &slHit = **hitIt;
 	
 	slIndex2[index3]    = slLogic.sectorId();
 	rowinBcid[index3]   = slHit.rowinBcid();
@@ -80,9 +77,9 @@ namespace MuonCalib {
       ++index;
     }
     return true;
-  }
+  }  //end MuonCalibRpcSectorLogicBranch::fillBranch
 
-  bool  MuonCalibRpcSectorLogicBranch::createBranch(TTree* tree){
+  bool MuonCalibRpcSectorLogicBranch::createBranch(TTree *tree) {
     // check if pointer is valid
     if( !tree ){
       //std::cout << "MuonPatternNtupleBranch::createBranch  ERROR <got invalid tree pointer> " 
@@ -107,7 +104,7 @@ namespace MuonCalib {
     branchCreator.createBranch( tree, "_bcid",      &bcid,      array_size + "/I" );
     branchCreator.createBranch( tree, "_errorCode", &errorCode, array_size + "/I" );
     branchCreator.createBranch( tree, "_crc",       &crc,       array_size + "/I" );
-    branchCreator.createBranch( tree, "_hasMoreThan2TriggerCand",  &hasMoreThan2TriggerCand,  array_size + "/I" );
+    branchCreator.createBranch( tree, "_hasMoreThan2TriggerCand", &hasMoreThan2TriggerCand, array_size + "/I" );
 
     /**
     // second branch for vector properties
@@ -150,8 +147,6 @@ namespace MuonCalib {
     reset();
   
     return true;
+  }  //end MuonCalibRpcSectorLogicBranch::createBranch
 
-  }
-
-
-}
+} //namespace MuonCalib

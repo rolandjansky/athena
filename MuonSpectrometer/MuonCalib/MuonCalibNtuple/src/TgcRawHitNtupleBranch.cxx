@@ -15,11 +15,9 @@ namespace MuonCalib {
 
   TgcRawHitNtupleBranch::TgcRawHitNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false)
    , index(-1), index_Curr(-1), index_Prev(-1), index_Next(-1)
-  {
-  }
+  {}
 
-  bool  TgcRawHitNtupleBranch::fillBranch(const MuonCalibRawTgcHit& hit)
-  {
+  bool TgcRawHitNtupleBranch::fillBranch(const MuonCalibRawTgcHit &hit) {
     // check if branches where initialized
     if( !branchesInit )
       return false;    
@@ -57,11 +55,9 @@ namespace MuonCalib {
     else if(hit.bcTag()==3) ++index_Next;
 
     return true;
-  }
+  }  //end TgcRawHitNtupleBranch::fillBranch
 
-
-  bool  TgcRawHitNtupleBranch::createBranch(TTree* tree)
-  {
+  bool TgcRawHitNtupleBranch::createBranch(TTree *tree) {
     // check if pointer is valid
     if( !tree )
       return false;
@@ -70,16 +66,16 @@ namespace MuonCalib {
     // helper class to create branches in trees
     NtupleBranchCreator branchCreator(m_branchName);
 
-    std::string index_name ="nRTgc";
+    std::string index_name      ="nRTgc";
     std::string index_name_Prev ="nRTgc_Prev";
     std::string index_name_Next ="nRTgc_Next";
-    std::string index_name_All ="nRTgc_All_Bunch";
+    std::string index_name_All  ="nRTgc_All_Bunch";
 
     // create a branch for every data member
-    branchCreator.createBranch( tree, index_name, &index_Curr, "/I");
+    branchCreator.createBranch( tree, index_name,      &index_Curr, "/I");
     branchCreator.createBranch( tree, index_name_Prev, &index_Prev, "/I");
     branchCreator.createBranch( tree, index_name_Next, &index_Next, "/I");
-    branchCreator.createBranch( tree, index_name_All, &index, "/I");
+    branchCreator.createBranch( tree, index_name_All,  &index, "/I");
 
     // all entries of same size, the number of hits in the event
     std::string array_size( std::string("[") + m_branchName + index_name_All + std::string("]") );
@@ -112,6 +108,6 @@ namespace MuonCalib {
     reset();
 
     return true;
-  }
+  }  //end TgcRawHitNtupleBranch::createBranch
 
-}
+}  //namespace MuonCalib

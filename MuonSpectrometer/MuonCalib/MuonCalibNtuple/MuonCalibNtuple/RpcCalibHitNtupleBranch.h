@@ -19,15 +19,17 @@ class TTree;
 
 namespace MuonCalib {
 
-
   // forward declarations
 class RpcCalibHitBase;
 
   /**@class RpcCalibHitNtupleBranch
-     Class to create and fill a branch in a root tree which contains information
-     of RpcCalibHits. All members of RpcCalibHitBase are stored on this branch.
+     Class to create and fill a branch in a root tree which contains
+     information of RpcCalibHits. All members of RpcCalibHitBase are
+     stored on this branch.
 
-     See the <a href="https://twiki.cern.ch/twiki/bin/view/Atlas/MuonCalibNuptleContent"><span>Calibration Ntuple wiki</span></a> for information on ntuple variables.
+     See 
+     <a href="https://twiki.cern.ch/twiki/bin/view/Atlas/MuonCalibNuptleContent"><span>Calibration Ntuple wiki</span></a>
+     for information on ntuple variables.
 
      @author zkestere@nikhef.nl
   */
@@ -35,12 +37,12 @@ class RpcCalibHitBase;
   class RpcCalibHitNtupleBranch 
   {
   public:
-    RpcCalibHitNtupleBranch(std::string branchName = "rpcOs_");             //!< default constructor 
-    bool  fillBranch(const RpcCalibHitBase& hit, const int segmentIndex); //!< fill content of hit into branch 
-    bool  createBranch(TTree* tree);                                      //!< create branch structure in tree 
-    inline void reset() { index = 0; }                                           //!< set hit_index to zero 
-    inline const int & getBranchEntries() const { return index; }                              //!< returns the number of hits currently in the branch 
-    inline int blockSize() const { return m_blockSize; }                    //!< returns maximum number of entries stored to ntuple
+    RpcCalibHitNtupleBranch(std::string branchName = "rpcOs_");           //!< default constructor 
+    bool  fillBranch(const RpcCalibHitBase &hit, const int segmentIndex); //!< fill content of hit into branch 
+    bool  createBranch(TTree *tree);                                      //!< create branch structure in tree 
+    inline void reset() { index = 0; }                                    //!< set hit_index to zero 
+    inline const int& getBranchEntries() const { return index; }          //!< returns the number of hits currently in the branch 
+    inline int blockSize() const { return m_blockSize; }                  //!< returns maximum number of entries stored to ntuple
   
   private:
     std::string m_branchName;          //!< name of branch in tree, per default prepended to variable names 
@@ -63,6 +65,6 @@ class RpcCalibHitBase;
     float gPosZ[m_blockSize];
     float distanceToRO[m_blockSize];
   };
-}
+}  //namespace MuonCalib
 
 #endif

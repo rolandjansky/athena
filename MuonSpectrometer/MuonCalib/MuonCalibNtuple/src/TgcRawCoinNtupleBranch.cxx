@@ -13,12 +13,13 @@
 
 namespace MuonCalib {
 
-  TgcRawCoinNtupleBranch::TgcRawCoinNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), index(0), index_Curr(0), index_Prev(0), index_Next(0), index_tracklet(0), index_highpt(0), index_sl(0), index_tracklet_Curr(0), index_tracklet_Prev(0), index_tracklet_Next(0), index_highpt_Curr(0), index_highpt_Prev(0), index_highpt_Next(0), index_sl_Curr(0), index_sl_Prev(0), index_sl_Next(0)
-  {
-  }
+  TgcRawCoinNtupleBranch::TgcRawCoinNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), 
+    index(0), index_Curr(0), index_Prev(0), index_Next(0), index_tracklet(0), index_highpt(0), index_sl(0), 
+    index_tracklet_Curr(0), index_tracklet_Prev(0), index_tracklet_Next(0), index_highpt_Curr(0), index_highpt_Prev(0), 
+    index_highpt_Next(0), index_sl_Curr(0), index_sl_Prev(0), index_sl_Next(0)
+  {}
 
-  bool  TgcRawCoinNtupleBranch::fillBranch(const MuonCalibRawTgcCoin& coin)
-  {
+  bool TgcRawCoinNtupleBranch::fillBranch(const MuonCalibRawTgcCoin& coin) {
     // check if branches where initialized
     if( !branchesInit )
       return false;    
@@ -128,15 +129,12 @@ namespace MuonCalib {
     index++;
     
     return true;
-  }
+  }  //end TgcRawCoinNtupleBranch::fillBranch
 
-
-  bool  TgcRawCoinNtupleBranch::createBranch(TTree* tree)
-  {
+  bool TgcRawCoinNtupleBranch::createBranch(TTree *tree) {
     // check if pointer is valid
     if( !tree )
-      return false;
-    
+      return false;    
 
     // helper class to create branches in trees
     NtupleBranchCreator branchCreator(m_branchName);
@@ -159,22 +157,22 @@ namespace MuonCalib {
     std::string index_name_All ="nRTgc_All";
 
     // create a branch for every data member
-    branchCreator.createBranch( tree, index_name_Curr, &index_Curr, "/I");
-    branchCreator.createBranch( tree, index_name_Prev, &index_Prev, "/I");
-    branchCreator.createBranch( tree, index_name_Next, &index_Next, "/I");
-    branchCreator.createBranch( tree, index_name_tracklet, &index_tracklet, "/I");
-    branchCreator.createBranch( tree, index_name_highpt, &index_highpt, "/I");
-    branchCreator.createBranch( tree, index_name_sl, &index_sl, "/I");
+    branchCreator.createBranch( tree, index_name_Curr,          &index_Curr,          "/I");
+    branchCreator.createBranch( tree, index_name_Prev,          &index_Prev,          "/I");
+    branchCreator.createBranch( tree, index_name_Next,          &index_Next,          "/I");
+    branchCreator.createBranch( tree, index_name_tracklet,      &index_tracklet,      "/I");
+    branchCreator.createBranch( tree, index_name_highpt,        &index_highpt,        "/I");
+    branchCreator.createBranch( tree, index_name_sl,            &index_sl,            "/I");
     branchCreator.createBranch( tree, index_name_tracklet_Curr, &index_tracklet_Curr, "/I");
     branchCreator.createBranch( tree, index_name_tracklet_Prev, &index_tracklet_Prev, "/I");
     branchCreator.createBranch( tree, index_name_tracklet_Next, &index_tracklet_Next, "/I");
-    branchCreator.createBranch( tree, index_name_highpt_Curr, &index_highpt_Curr, "/I");
-    branchCreator.createBranch( tree, index_name_highpt_Prev, &index_highpt_Prev, "/I");
-    branchCreator.createBranch( tree, index_name_highpt_Next, &index_highpt_Next, "/I");
-    branchCreator.createBranch( tree, index_name_sl_Curr, &index_sl_Curr, "/I");
-    branchCreator.createBranch( tree, index_name_sl_Prev, &index_sl_Prev, "/I");
-    branchCreator.createBranch( tree, index_name_sl_Next, &index_sl_Next, "/I");
-    branchCreator.createBranch( tree, index_name_All, &index, "/I");
+    branchCreator.createBranch( tree, index_name_highpt_Curr,   &index_highpt_Curr,   "/I");
+    branchCreator.createBranch( tree, index_name_highpt_Prev,   &index_highpt_Prev,   "/I");
+    branchCreator.createBranch( tree, index_name_highpt_Next,   &index_highpt_Next,   "/I");
+    branchCreator.createBranch( tree, index_name_sl_Curr,       &index_sl_Curr,       "/I");
+    branchCreator.createBranch( tree, index_name_sl_Prev,       &index_sl_Prev,       "/I");
+    branchCreator.createBranch( tree, index_name_sl_Next,       &index_sl_Next,       "/I");
+    branchCreator.createBranch( tree, index_name_All,           &index,               "/I");
 
     // all entries of same size, the number of coins in the event
     std::string array_size_Curr( std::string("[") + m_branchName + index_name_Curr + std::string("]") );
@@ -203,41 +201,41 @@ namespace MuonCalib {
     branchCreator.createBranch( tree, "num_sl_Curr",          &num_sl_Curr,          array_size_All + "/I");
     branchCreator.createBranch( tree, "num_sl_Next",          &num_sl_Next,          array_size_All + "/I");
 
-    branchCreator.createBranch( tree, "id_tracklet",              &id_tracklet,              array_size_tracklet + "/I" );
-    branchCreator.createBranch( tree, "gPosInX_tracklet",         &gPosInX_tracklet,         array_size_tracklet + "/F" );
-    branchCreator.createBranch( tree, "gPosInY_tracklet",         &gPosInY_tracklet,         array_size_tracklet + "/F" );
-    branchCreator.createBranch( tree, "gPosInZ_tracklet",         &gPosInZ_tracklet,         array_size_tracklet + "/F" );
-    branchCreator.createBranch( tree, "gPosOutX_tracklet",        &gPosOutX_tracklet,        array_size_tracklet + "/F" );
-    branchCreator.createBranch( tree, "gPosOutY_tracklet",        &gPosOutY_tracklet,        array_size_tracklet + "/F" );
-    branchCreator.createBranch( tree, "gPosOutZ_tracklet",        &gPosOutZ_tracklet,        array_size_tracklet + "/F" );
-    branchCreator.createBranch( tree, "eta_tracklet",             &eta_tracklet,             array_size_tracklet + "/I" );
-    branchCreator.createBranch( tree, "phi_tracklet",             &phi_tracklet,             array_size_tracklet + "/I" );
-    branchCreator.createBranch( tree, "sector_tracklet",          &sector_tracklet,          array_size_tracklet + "/I" );
-    branchCreator.createBranch( tree, "isForward_tracklet",       &isForward_tracklet,       array_size_tracklet + "/I" );
-    branchCreator.createBranch( tree, "isStrip_tracklet",         &isStrip_tracklet,         array_size_tracklet + "/I" );
-    branchCreator.createBranch( tree, "trackletId_tracklet",      &trackletId_tracklet,      array_size_tracklet + "/I" );
-    branchCreator.createBranch( tree, "widthIn_tracklet",         &widthIn_tracklet,         array_size_tracklet + "/F" );
-    branchCreator.createBranch( tree, "widthOut_tracklet",        &widthOut_tracklet,        array_size_tracklet + "/F" );
-    branchCreator.createBranch( tree, "delta_tracklet",           &delta_tracklet,           array_size_tracklet + "/I" );
-    branchCreator.createBranch( tree, "sub_tracklet",             &sub_tracklet,             array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "id_tracklet",          &id_tracklet,          array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "gPosInX_tracklet",     &gPosInX_tracklet,     array_size_tracklet + "/F" );
+    branchCreator.createBranch( tree, "gPosInY_tracklet",     &gPosInY_tracklet,     array_size_tracklet + "/F" );
+    branchCreator.createBranch( tree, "gPosInZ_tracklet",     &gPosInZ_tracklet,     array_size_tracklet + "/F" );
+    branchCreator.createBranch( tree, "gPosOutX_tracklet",    &gPosOutX_tracklet,    array_size_tracklet + "/F" );
+    branchCreator.createBranch( tree, "gPosOutY_tracklet",    &gPosOutY_tracklet,    array_size_tracklet + "/F" );
+    branchCreator.createBranch( tree, "gPosOutZ_tracklet",    &gPosOutZ_tracklet,    array_size_tracklet + "/F" );
+    branchCreator.createBranch( tree, "eta_tracklet",         &eta_tracklet,         array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "phi_tracklet",         &phi_tracklet,         array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "sector_tracklet",      &sector_tracklet,      array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "isForward_tracklet",   &isForward_tracklet,   array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "isStrip_tracklet",     &isStrip_tracklet,     array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "trackletId_tracklet",  &trackletId_tracklet,  array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "widthIn_tracklet",     &widthIn_tracklet,     array_size_tracklet + "/F" );
+    branchCreator.createBranch( tree, "widthOut_tracklet",    &widthOut_tracklet,    array_size_tracklet + "/F" );
+    branchCreator.createBranch( tree, "delta_tracklet",       &delta_tracklet,       array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "sub_tracklet",         &sub_tracklet,         array_size_tracklet + "/I" );
 
-    branchCreator.createBranch( tree, "id_highpt",              &id_highpt,              array_size_highpt + "/I" );
-    branchCreator.createBranch( tree, "gPosInX_highpt",         &gPosInX_highpt,         array_size_highpt + "/F" );
-    branchCreator.createBranch( tree, "gPosInY_highpt",         &gPosInY_highpt,         array_size_highpt + "/F" );
-    branchCreator.createBranch( tree, "gPosInZ_highpt",         &gPosInZ_highpt,         array_size_highpt + "/F" );
-    branchCreator.createBranch( tree, "gPosOutX_highpt",        &gPosOutX_highpt,        array_size_highpt + "/F" );
-    branchCreator.createBranch( tree, "gPosOutY_highpt",        &gPosOutY_highpt,        array_size_highpt + "/F" );
-    branchCreator.createBranch( tree, "gPosOutZ_highpt",        &gPosOutZ_highpt,        array_size_highpt + "/F" );
-    branchCreator.createBranch( tree, "eta_highpt",             &eta_highpt,             array_size_highpt + "/I" );
-    branchCreator.createBranch( tree, "phi_highpt",             &phi_highpt,             array_size_highpt + "/I" );
-    branchCreator.createBranch( tree, "sector_highpt",          &sector_highpt,          array_size_highpt + "/I" );
-    branchCreator.createBranch( tree, "isForward_highpt",       &isForward_highpt,       array_size_highpt + "/I" );
-    branchCreator.createBranch( tree, "isStrip_highpt",         &isStrip_highpt,         array_size_highpt + "/I" );
-    branchCreator.createBranch( tree, "trackletId_highpt",      &trackletId_highpt,      array_size_highpt + "/I" );
-    branchCreator.createBranch( tree, "widthIn_highpt",         &widthIn_highpt,         array_size_highpt + "/F" );
-    branchCreator.createBranch( tree, "widthOut_highpt",        &widthOut_highpt,        array_size_highpt + "/F" );
-    branchCreator.createBranch( tree, "delta_highpt",           &delta_highpt,           array_size_highpt + "/I" );
-    branchCreator.createBranch( tree, "sub_highpt",             &sub_highpt,             array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "id_highpt",            &id_highpt,            array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "gPosInX_highpt",       &gPosInX_highpt,       array_size_highpt + "/F" );
+    branchCreator.createBranch( tree, "gPosInY_highpt",       &gPosInY_highpt,       array_size_highpt + "/F" );
+    branchCreator.createBranch( tree, "gPosInZ_highpt",       &gPosInZ_highpt,       array_size_highpt + "/F" );
+    branchCreator.createBranch( tree, "gPosOutX_highpt",      &gPosOutX_highpt,      array_size_highpt + "/F" );
+    branchCreator.createBranch( tree, "gPosOutY_highpt",      &gPosOutY_highpt,      array_size_highpt + "/F" );
+    branchCreator.createBranch( tree, "gPosOutZ_highpt",      &gPosOutZ_highpt,      array_size_highpt + "/F" );
+    branchCreator.createBranch( tree, "eta_highpt",           &eta_highpt,           array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "phi_highpt",           &phi_highpt,           array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "sector_highpt",        &sector_highpt,        array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "isForward_highpt",     &isForward_highpt,     array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "isStrip_highpt",       &isStrip_highpt,       array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "trackletId_highpt",    &trackletId_highpt,    array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "widthIn_highpt",       &widthIn_highpt,       array_size_highpt + "/F" );
+    branchCreator.createBranch( tree, "widthOut_highpt",      &widthOut_highpt,      array_size_highpt + "/F" );
+    branchCreator.createBranch( tree, "delta_highpt",         &delta_highpt,         array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "sub_highpt",           &sub_highpt,           array_size_highpt + "/I" );
 
     branchCreator.createBranch( tree, "id_sl",               &id_sl,               array_size_sl + "/I" );
     branchCreator.createBranch( tree, "gPosOutX_sl",         &gPosOutX_sl,         array_size_sl + "/F" );
@@ -261,6 +259,6 @@ namespace MuonCalib {
     reset();
 
     return true;
-  }
+  }  //end TgcRawCoinNtupleBranch::createBranch
 
-}
+}  //namespace MuonCalib

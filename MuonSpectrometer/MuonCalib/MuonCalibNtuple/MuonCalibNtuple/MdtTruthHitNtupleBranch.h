@@ -19,7 +19,6 @@ class TTree;
 
 namespace MuonCalib {
 
-
   // forward declarations
   class MuonCalibMdtTruthHit;
 
@@ -32,15 +31,14 @@ namespace MuonCalib {
      @author zkestere@nikhef.nl
   */
 
-  class MdtTruthHitNtupleBranch 
-  {
+  class MdtTruthHitNtupleBranch {
   public:
     MdtTruthHitNtupleBranch(std::string branchName = "mdtTruth_"); //!< default constructor 
-    bool  fillBranch(const MuonCalibMdtTruthHit& hit);             //!< fill content of hit into branch 
-    bool  createBranch(TTree* tree);                               //!< create branch structure in tree 
-    inline void reset() { index = 0; }                                    //!< set hit_index to zero 
-    inline const int & getBranchEntries() const { return index; }                   //!< returns the number of hits currently in the branch 
-    inline int  blockSize() const { return m_blockSize; }                    //!< returns maximum number of entries stored to ntuple
+    bool  fillBranch(const MuonCalibMdtTruthHit &hit);             //!< fill content of hit into branch 
+    bool  createBranch(TTree *tree);                               //!< create branch structure in tree 
+    inline void reset() { index = 0; }                             //!< set hit_index to zero 
+    inline const int& getBranchEntries() const { return index; }   //!< returns the number of hits currently in the branch 
+    inline int  blockSize() const { return m_blockSize; }          //!< returns maximum number of entries stored to ntuple
   
   private:
     std::string m_branchName;          //!< name of branch in tree, per default prepended to variable names 
@@ -58,6 +56,6 @@ namespace MuonCalib {
     double time[m_blockSize];
     
   };
-}
+}  //namespace MuonCalib
 
 #endif

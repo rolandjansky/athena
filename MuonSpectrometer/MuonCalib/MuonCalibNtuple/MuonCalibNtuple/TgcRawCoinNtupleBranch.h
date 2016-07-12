@@ -23,10 +23,13 @@ namespace MuonCalib {
   class MuonCalibRawTgcCoin;
   class MuonFixedId;
   /**@class TgcRawCoinNtupleBranch
-     Class to create and fill a branch in a root tree which contains information
-     of MuonCalibRawTgcCoins. All members of MuonCalibRawTgcCoin are stored on this branch.
+     Class to create and fill a branch in a root tree which contains
+     information of MuonCalibRawTgcCoins. All members of
+     MuonCalibRawTgcCoin are stored on this branch.
 
-     See the <a href="https://twiki.cern.ch/twiki/bin/view/Atlas/MuonCalibNuptleContent"><span>Calibration Ntuple wiki</span></a> for information on ntuple variables.
+     See 
+     <a href="https://twiki.cern.ch/twiki/bin/view/Atlas/MuonCalibNuptleContent"><span>Calibration Ntuple wiki</span></a> 
+     for information on ntuple variables.
 
      @author Niels.Van.Eldik@cern.ch, Zdenko.Van.Kesteren@cern.ch
   */
@@ -35,14 +38,14 @@ namespace MuonCalib {
   {
   public:
     TgcRawCoinNtupleBranch(std::string branchName = "rawTgcCoin_"); //!< default constructor 
-    bool  fillBranch(const MuonCalibRawTgcCoin& coin );          //!< fill content of coin into branch 
-    bool  createBranch(TTree* tree);                           //!< create branch structure in tree 
+    bool  fillBranch(const MuonCalibRawTgcCoin &coin );             //!< fill content of coin into branch 
+    bool  createBranch(TTree *tree);                                //!< create branch structure in tree 
     inline void reset() { index = 0; index_Curr=0; index_Prev = 0; index_Next = 0;
                    index_tracklet_Curr = 0; index_tracklet_Prev = 0; index_tracklet_Next = 0; 
                    index_highpt_Curr = 0; index_highpt_Prev = 0; index_highpt_Next = 0; 
                    index_sl_Curr = 0; index_sl_Prev = 0; index_sl_Next = 0; 
 		   index_tracklet = 0; index_highpt = 0; index_sl = 0; }//!< set coin_index to zero 
-    inline const int & getBranchEntries() const{ return index; }                   //!< returns the number of coins currently in the branch 
+    inline const int& getBranchEntries() const{ return index; }         //!< returns the number of coins currently in the branch 
     inline int  blockSize() const{ return m_blockSize; }                //!< returns maximum number of entries stored to ntuple
   
   private:
@@ -142,6 +145,7 @@ namespace MuonCalib {
     float widthPhi_sl[m_blockSize];
 
   };
-}
+
+}  //namespace MuonCalib
 
 #endif

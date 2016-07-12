@@ -14,12 +14,9 @@
 namespace MuonCalib {
 
   TgcCalibHitNtupleBranch::TgcCalibHitNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), index(0)
-  {
+  {}
 
-  }
-
-  bool  TgcCalibHitNtupleBranch::fillBranch(const TgcCalibHitBase& hit, const int segmentIndex )
-  {
+  bool TgcCalibHitNtupleBranch::fillBranch(const TgcCalibHitBase &hit, const int segmentIndex ) {
     // check if branches where initialized
     if( !branchesInit ){
       //std::cout << "TgcCalibHitNtupleBranch::fillBranch  ERROR <branches where not initialized>"
@@ -35,12 +32,12 @@ namespace MuonCalib {
     }
 
     // copy values 
-    segIndex[index]   = segmentIndex;
-    id[index]         = (hit.identify()).getIdInt();
-    stripWidth[index] = hit.stripWidth();
+    segIndex[index]    = segmentIndex;
+    id[index]          = (hit.identify()).getIdInt();
+    stripWidth[index]  = hit.stripWidth();
     stripLength[index] = hit.stripLength();
-    nStrips[index]    = hit.nStrips();
-    error[index]      = hit.error();
+    nStrips[index]     = hit.nStrips();
+    error[index]       = hit.error();
     posX[index]  = hit.localPosition().x();
     posY[index]  = hit.localPosition().y();
     posZ[index]  = hit.localPosition().z();
@@ -52,10 +49,9 @@ namespace MuonCalib {
     ++index;
   
     return true;
-  }
+  }  //end TgcCalibHitNtupleBranch::fillBranch
 
-  bool  TgcCalibHitNtupleBranch::createBranch(TTree* tree)
-  {
+  bool TgcCalibHitNtupleBranch::createBranch(TTree *tree) {
     // check if pointer is valid
     if( !tree ){
       // std::cout << "TgcCalibHitNtupleBranch::createBranch  ERROR <got invalid tree pointer> " 
@@ -75,18 +71,18 @@ namespace MuonCalib {
     std::string array_size( std::string("[") + m_branchName + index_name + std::string("]") );
 
     // create the branches
-    branchCreator.createBranch( tree, "segIndex",  &segIndex,  array_size + "/I" );
-    branchCreator.createBranch( tree, "id",        &id,        array_size + "/I" );
-    branchCreator.createBranch( tree, "nStrips",   &nStrips,   array_size + "/I" );
-    branchCreator.createBranch( tree, "stripWidth",&stripWidth,array_size + "/F" );
+    branchCreator.createBranch( tree, "segIndex",   &segIndex,   array_size + "/I" );
+    branchCreator.createBranch( tree, "id",         &id,         array_size + "/I" );
+    branchCreator.createBranch( tree, "nStrips",    &nStrips,    array_size + "/I" );
+    branchCreator.createBranch( tree, "stripWidth", &stripWidth, array_size + "/F" );
     branchCreator.createBranch( tree, "stripLength",&stripLength,array_size + "/F" );
-    branchCreator.createBranch( tree, "error",     &error,     array_size + "/F" );
-    branchCreator.createBranch( tree, "posX",      &posX,      array_size + "/F" );
-    branchCreator.createBranch( tree, "posY",      &posY,      array_size + "/F" );
-    branchCreator.createBranch( tree, "posZ",      &posZ,      array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosX",     &gPosX,     array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosY",     &gPosY,     array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosZ",     &gPosZ,     array_size + "/F" );
+    branchCreator.createBranch( tree, "error",      &error,      array_size + "/F" );
+    branchCreator.createBranch( tree, "posX",       &posX,       array_size + "/F" );
+    branchCreator.createBranch( tree, "posY",       &posY,       array_size + "/F" );
+    branchCreator.createBranch( tree, "posZ",       &posZ,       array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosX",      &gPosX,      array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosY",      &gPosY,      array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosZ",      &gPosZ,      array_size + "/F" );
 
     branchesInit = true;
   
@@ -94,6 +90,6 @@ namespace MuonCalib {
     reset();
 
     return true;
-  }
+  }  //end TgcCalibHitNtupleBranch::createBranch
 
-}
+}  //end namespace MuonCalib

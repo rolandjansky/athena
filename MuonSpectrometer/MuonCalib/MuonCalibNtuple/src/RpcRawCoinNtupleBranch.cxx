@@ -15,11 +15,9 @@
 namespace MuonCalib {
 
   RpcRawCoinNtupleBranch::RpcRawCoinNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), index(0)
-  {
-  }
+  {}
 
-  bool  RpcRawCoinNtupleBranch::fillBranch(const MuonCalibRawRpcCoin& hit )
-  {
+  bool RpcRawCoinNtupleBranch::fillBranch(const MuonCalibRawRpcCoin &hit ) {
     // check if branches where initialized
     if( !branchesInit )
       return false;    
@@ -48,16 +46,13 @@ namespace MuonCalib {
     ++index;
    
     return true;
-  }
+  }  //end RpcRawCoinNtupleBranch::fillBranch
 
-
-  bool  RpcRawCoinNtupleBranch::createBranch(TTree* tree)
-  {
+  bool RpcRawCoinNtupleBranch::createBranch(TTree *tree) {
     // check if pointer is valid
     if( !tree )
       return false;
     
-
     // helper class to create branches in trees
     NtupleBranchCreator branchCreator(m_branchName);
 
@@ -70,21 +65,21 @@ namespace MuonCalib {
     std::string array_size( std::string("[") + m_branchName + index_name + std::string("]") );
 
     // create the branches
-    branchCreator.createBranch( tree, "occupancy", &occupancy, array_size + "/I" );
-    branchCreator.createBranch( tree, "id",        &id,        array_size + "/I" );
-    branchCreator.createBranch( tree, "t",         &t,         array_size + "/F" );
-    branchCreator.createBranch( tree, "width",     &width,     array_size + "/F" );
-    branchCreator.createBranch( tree, "length",    &length,    array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosX",     &gPosX,     array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosY",     &gPosY,     array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosZ",     &gPosZ,     array_size + "/F" );
-    branchCreator.createBranch( tree, "ijk",            &ijk,             array_size + "/I" );
-    branchCreator.createBranch( tree, "threshold",      &threshold,       array_size + "/I" );
-    branchCreator.createBranch( tree, "overlap",        &overlap,         array_size + "/I" );
-    branchCreator.createBranch( tree, "parentCmId",     &parentCmId,      array_size + "/I" );
-    branchCreator.createBranch( tree, "parentPadId",    &parentPadId,     array_size + "/I" );
-    branchCreator.createBranch( tree, "parentSectorId", &parentSectorId,  array_size + "/I" );
-    branchCreator.createBranch( tree, "lowPtCm",        &lowPtCm,         array_size + "/I" );
+    branchCreator.createBranch( tree, "occupancy",      &occupancy,      array_size + "/I" );
+    branchCreator.createBranch( tree, "id",             &id,             array_size + "/I" );
+    branchCreator.createBranch( tree, "t",              &t,              array_size + "/F" );
+    branchCreator.createBranch( tree, "width",          &width,          array_size + "/F" );
+    branchCreator.createBranch( tree, "length",         &length,         array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosX",          &gPosX,          array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosY",          &gPosY,          array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosZ",          &gPosZ,          array_size + "/F" );
+    branchCreator.createBranch( tree, "ijk",            &ijk,            array_size + "/I" );
+    branchCreator.createBranch( tree, "threshold",      &threshold,      array_size + "/I" );
+    branchCreator.createBranch( tree, "overlap",        &overlap,        array_size + "/I" );
+    branchCreator.createBranch( tree, "parentCmId",     &parentCmId,     array_size + "/I" );
+    branchCreator.createBranch( tree, "parentPadId",    &parentPadId,    array_size + "/I" );
+    branchCreator.createBranch( tree, "parentSectorId", &parentSectorId, array_size + "/I" );
+    branchCreator.createBranch( tree, "lowPtCm",        &lowPtCm,        array_size + "/I" );
 
     branchesInit = true;
   
@@ -92,6 +87,6 @@ namespace MuonCalib {
     reset();
 
     return true;
-  }
+  }  //end RpcRawCoinNtupleBranch::createBranch
 
-}
+}  //end namespace MuonCalib 

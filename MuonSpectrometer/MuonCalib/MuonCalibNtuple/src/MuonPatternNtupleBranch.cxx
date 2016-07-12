@@ -14,14 +14,11 @@
 
 namespace MuonCalib {
 
-  MuonPatternNtupleBranch::MuonPatternNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), m_first(true), index(0)
-  {
-  
-  }
+  MuonPatternNtupleBranch::MuonPatternNtupleBranch(std::string branchName) : m_branchName(branchName), 
+    branchesInit(false), m_first(true), index(0) {}
 
-  bool  MuonPatternNtupleBranch::fillBranch(const MuonCalibPattern& pat, const PatInfo& /* info */)
-  {
-    // check if branches where initialized
+  bool MuonPatternNtupleBranch::fillBranch(const MuonCalibPattern &pat, const PatInfo& /* info (not used) */) {
+    // check if branches were initialized
     if( !branchesInit ){
       //     std::cout << "MuonPatternNtupleBranch::fillBranch "
       //	<< " ERROR <branches where not initialized>"
@@ -29,7 +26,7 @@ namespace MuonCalib {
       return false;    
     }
 
-    // check if index not out of range 
+    // check if index is within range 
     if( index >= m_blockSize || index < 0 ){
       if (m_first == true) {
 	//std::cout << "MuonPatternNtupleBranch::fillBranch  " 
@@ -39,8 +36,7 @@ namespace MuonCalib {
       }
       return false;
     }
-    
-    
+        
     // copy values 
     chi2[index]    = NtupleSafeCast(pat.chi2());
     z0[index]      = NtupleSafeCast(pat.z0());
@@ -54,15 +50,13 @@ namespace MuonCalib {
     ncsc[index] = pat.ncscHits();
     ntgc[index] = pat.ntgcHits();
 
-
     // increment pat index
     ++index;
 
     return true;
-  }
+  }  //end MuonPatternNtupleBranch::fillBranch
 
-  bool  MuonPatternNtupleBranch::createBranch(TTree* tree)
-  {
+  bool MuonPatternNtupleBranch::createBranch(TTree *tree) {
     // check if pointer is valid
     if( !tree ){
       //   std::cout << "MuonPatternNtupleBranch::createBranch: <got invalid tree pointer> " 
@@ -88,7 +82,7 @@ namespace MuonCalib {
     branchCreator.createBranch( tree, "invP",  &invP,  array_size + "/F" );
     branchCreator.createBranch( tree, "phi",   &phi,   array_size + "/F" );
     branchCreator.createBranch( tree, "theta", &theta, array_size + "/F" );
-    branchCreator.createBranch( tree, "nSegments",  &nSegments,  array_size + "/I" );
+    branchCreator.createBranch( tree, "nSegments", &nSegments, array_size + "/I" );
     branchCreator.createBranch( tree, "nmdt",  &nmdt,  array_size + "/I" );
     branchCreator.createBranch( tree, "nrpc",  &nrpc,  array_size + "/I" );
     branchCreator.createBranch( tree, "ncsc",  &ncsc,  array_size + "/I" );
@@ -100,6 +94,6 @@ namespace MuonCalib {
     reset();
   
     return true;
-  }
+  }  //end MuonPatternNtupleBranch::createBranch
 
-}
+}  //namespace MuonCalib
