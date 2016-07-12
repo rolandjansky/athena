@@ -68,11 +68,15 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   : PileUpToolBase(type, name, pIID)
   , m_digitContainer(0)
   , m_sdoContainer(0)
+  , m_GMmgr(0)
   , m_idHelper(0)
   , muonHelper(0)
   , m_thpcRPC(0)
   , m_rSummarySvc("RPCCondSummarySvc", name)
+  , m_cs3Para(0)
   , m_validationSetup(false)
+  , SetPhiOn(false)
+  , SetEtaOn(false)
   , m_mergeSvc(0)
   , m_inputHitCollectionName("RPC_Hits")
   , m_outputDigitCollectionName("RPC_DIGITS")
@@ -80,6 +84,7 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   , m_rndmSvc("AtRndmGenSvc", name )
   , m_rndmEngine(0)
   , m_rndmEngineName("RPC_Digitization")
+  , m_tagInfoMgr(0)
 {
 
   declareInterface<IMuonDigitizationTool>(this);
