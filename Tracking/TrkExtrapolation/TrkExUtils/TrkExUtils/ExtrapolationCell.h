@@ -64,27 +64,27 @@ namespace Trk {
       public:
         /** Constructor */
         ExtrapolationConfig(unsigned int evalue=0) :
-          value(evalue)
+          m_value(evalue)
         {}
         
         /** Copy Constructor */
         ExtrapolationConfig(const ExtrapolationConfig& eConfig) :
-          value(eConfig.value)
+          m_value(eConfig.m_value)
         {}
         
         /** add a configuration mode */
         void addMode(ExtrapolationMode::eMode em) {
             // set the bit corresponding to this mode
-            value |= (1 << int(em));
+            m_value |= (1 << int(em));
         }
         
         /** check the configuration mode */
         bool checkMode(ExtrapolationMode::eMode em) const  {
             // check if the bit is set or not
-            return (value & (1 << int(em)));
+            return (m_value & (1 << int(em)));
         }
       private:
-        unsigned int value;
+        unsigned int m_value;
         
     };
     
