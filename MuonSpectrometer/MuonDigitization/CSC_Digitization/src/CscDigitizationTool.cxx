@@ -28,9 +28,9 @@
 
 CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID) 
   : PileUpToolBase(type, name, pIID), m_pcalib("CscCalibTool"), m_container(0)
-  , m_geoMgr(0), m_cscDigitizer(0), m_cscIdHelper(0), m_thpcCSC(0), m_inputObjectName("CSC_Hits")
-  , m_outputObjectName("csc_digits"), m_rndmSvc("AtRndmGenSvc", name ), m_rndmEngine(0)
-  , m_rndmEngineName("MuonDigitization") {
+  , m_geoMgr(0), m_cscDigitizer(0), m_cscIdHelper(0), m_thpcCSC(0), m_run(0), m_evt(0), m_mergeSvc(0)
+  , m_inputObjectName("CSC_Hits"), m_outputObjectName("csc_digits"), m_rndmSvc("AtRndmGenSvc", name )
+  , m_rndmEngine(0), m_rndmEngineName("MuonDigitization") {
 
   declareInterface<IMuonDigitizationTool>(this);
 
