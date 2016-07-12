@@ -1602,7 +1602,18 @@ class BeamspotFromSqlite(_modifier):
                 folders += [f]
         svcMgr.IOVDbSvc.Folders = folders
 
-
+class LumiFromSqlite(_modifier):
+    """
+    Read beamspot from sqlite file (./lumi.db)
+    """
+    def postSetup(self):
+        folders = []
+        for f in svcMgr.IOVDbSvc.Folders:
+            if f.find('/TRIGGER/LUMI/HLTPrefLumi')!=-1:
+                folders += ['<db>sqlite://;schema=lumi.db;dbname=CONDBR2</db> /TRIGGER/LUMI/HLTPrefLumi <tag>HLTPrefLumi-HLT-UPD1-001-00</tag>']
+            else:
+                folders += [f]
+        svcMgr.IOVDbSvc.Folders = folders
 
 class LumiRegionZmax168(_modifier):
     """
