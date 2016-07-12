@@ -21,6 +21,8 @@ MDT_Response_DigiTool::MDT_Response_DigiTool( const std::string& type,
 					      const std::string& name,
 					      const IInterface* parent )
   : AthAlgTool(type,name,parent)
+	 , m_muonGeoMgr(0)
+	 , m_idHelper(0)
 	 , m_rndmEngine(0)
 	 , m_rndmEngineName("MuonDigitization")
 	 , m_rndmSvc("AtRndmGenSvc", name )
