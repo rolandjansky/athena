@@ -14,13 +14,14 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 /** Constructor **/
-ISF::PileupSimSelector::PileupSimSelector(const std::string& t, const std::string& n, const IInterface* p) : 
-  ISimulationSelector(t,n,p),
-  m_npass(0),m_nfail(0)
+ISF::PileupSimSelector::PileupSimSelector(const std::string& t, const std::string& n, const IInterface* p)
+  : ISimulationSelector(t,n,p)
+  , m_npass(0)
+  , m_nfail(0)
 {
     declareInterface<ISF::ISimulationSelector>(this);
     declareProperty("PileupBCID",m_pileupbcid,
-		   "BICDs to be flagged as being pileup");
+                   "BICDs to be flagged as being pileup");
 }
 
 /** Destructor **/
@@ -32,7 +33,7 @@ ISF::PileupSimSelector::~PileupSimSelector()
 StatusCode  ISF::PileupSimSelector::initialize()
 {
   ATH_MSG_INFO("Initializing with " << m_pileupbcid.size() <<
-	       " BCIDs to be accepted");
+               " BCIDs to be accepted");
   for (std::vector<int>::const_iterator itr=m_pileupbcid.begin();
        itr!=m_pileupbcid.end();++itr)
     ATH_MSG_INFO(" - accept BCID " << *itr);
@@ -41,31 +42,24 @@ StatusCode  ISF::PileupSimSelector::initialize()
 
 StatusCode  ISF::PileupSimSelector::finalize()
 {
-  ATH_MSG_INFO("Finalizing with " << m_npass << " particles accepted and " 
-	       << m_nfail << " rejected by filter");
+  ATH_MSG_INFO("Finalizing with " << m_npass << " particles accepted and "
+               << m_nfail << " rejected by filter");
   return StatusCode::SUCCESS;
 }
 
 /** check whether given particle passes all cuts -> will be used for routing decision*/
 bool  ISF::PileupSimSelector::passSelectorCuts(const ISFParticle& particle) const
 {
-  // test to see if extra barcode BCID is in list to accept
-  // if no ExtraBC present, default to BCID 0
+  int bcid = particle.getBCID();
 
-  int extrabc = particle.getExtraBC();
-  int bcid2=0;
-  if (extrabc>=0) {
-    bcid2=m_bitcalculator.GetBCID(extrabc);
-  }
-  // check if extra BCID is in list
-  for (std::vector<int>::const_iterator itr=m_pileupbcid.begin();
-       itr!=m_pileupbcid.end();++itr) {
-    if ((*itr)==bcid2) {
-      ++m_npass;
+  // test to see if BCID is in list to accept
+  bool isPileup = std::find(begin(m_pileupbcid), end(m_pileupbcid), bcid) != end(m_pileupbcid);
+
+  if (isPileup)
+    {
+      m_npass++;
       return true;
     }
-  }
-  ++m_nfail;
+  m_nfail++;
   return false;
 }
-

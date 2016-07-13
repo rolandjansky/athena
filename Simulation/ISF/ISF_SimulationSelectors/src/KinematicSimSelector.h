@@ -13,31 +13,33 @@
 #include "ISF_Event/KinematicParticleCuts.h"
 #include "ISF_Interfaces/ISimulationSelector.h"
 
-namespace ISF {
+namespace ISF
+{
 
   /** @class KinematicSimSelector
-  
+
       Simplistic kinematic filter on energy and pseudorapidity.
-  
+
       @author Elmar.Ritsch -at- cern.ch
-     */
-  class KinematicSimSelector : public ISimulationSelector, public KinematicParticleCuts {
-      
-    public: 
-     /** Constructor with parameters */
-     KinematicSimSelector( const std::string& t, const std::string& n, const IInterface* p );
+  */
+  class KinematicSimSelector : public ISimulationSelector, public KinematicParticleCuts
+  {
 
-     /** Destructor */
-     ~KinematicSimSelector();
+  public:
+    /** Constructor with parameters */
+    KinematicSimSelector( const std::string& t, const std::string& n, const IInterface* p );
 
-     // Athena algtool's Hooks
-     virtual StatusCode  initialize();
-     virtual StatusCode  finalize();
-     
-     /** check whether given particle passes all cuts -> will be used for routing decision*/
-     virtual bool passSelectorCuts(const ISFParticle& particle) const;
-  }; 
-  
+    /** Destructor */
+    ~KinematicSimSelector();
+
+    // Athena algtool's Hooks
+    virtual StatusCode  initialize() override final;
+    virtual StatusCode  finalize() override final;
+
+    /** check whether given particle passes all cuts -> will be used for routing decision*/
+    virtual bool passSelectorCuts(const ISFParticle& particle) const override final;
+  };
+
 }
 
 #endif //> !ISF_TOOLS_KINEMATICSIMSELECTOR_H
