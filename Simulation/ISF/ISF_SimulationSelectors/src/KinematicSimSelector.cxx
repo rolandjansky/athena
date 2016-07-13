@@ -10,9 +10,9 @@
 #include "KinematicSimSelector.h"
 
 /** Constructor **/
-ISF::KinematicSimSelector::KinematicSimSelector(const std::string& t, const std::string& n, const IInterface* p) : 
-  ISimulationSelector(t,n,p),
-  KinematicParticleCuts()
+ISF::KinematicSimSelector::KinematicSimSelector(const std::string& t, const std::string& n, const IInterface* p)
+  : ISimulationSelector(t,n,p)
+  , KinematicParticleCuts()
 {
   declareInterface<ISF::ISimulationSelector>(this);
 
@@ -50,6 +50,7 @@ StatusCode  ISF::KinematicSimSelector::finalize()
   return StatusCode::SUCCESS;
 }
 
-bool  ISF::KinematicSimSelector::passSelectorCuts(const ISFParticle& particle) const {
+bool  ISF::KinematicSimSelector::passSelectorCuts(const ISFParticle& particle) const
+{
   return ISF::KinematicParticleCuts::pass(particle);
 }
