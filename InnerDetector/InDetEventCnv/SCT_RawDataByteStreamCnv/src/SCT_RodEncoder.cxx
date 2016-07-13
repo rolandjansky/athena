@@ -73,7 +73,7 @@ SCT_RodEncoder::~SCT_RodEncoder() {
 
 StatusCode SCT_RodEncoder::initialize() {
 	//prob. dont need this next line now:
-  ATH_CHECK( AlgTool::initialize()); 
+  //ATH_CHECK( AlgTool::initialize()); 
   ATH_MSG_DEBUG("SCT_RodEncoder::initialize()");
   
   /** Retrieve cabling service */
@@ -277,7 +277,7 @@ void SCT_RodEncoder::encodeData(std::vector<int>& vtbin, std::vector<uint16_t>& 
   int strip1  = strip2 ;
   
   Identifier idColl = offlineId(rdo) ;
-  if( std::find(m_swapModuleId.begin(), m_swapModuleId.end(),idColl) != m_swapModuleId.end() ) {
+  if(m_swapModuleId.find(idColl)!= m_swapModuleId.end() ) {
     strip1= 767 - strip1;
     strip1= strip1-(gSize-1) ;
   }
@@ -300,7 +300,7 @@ void SCT_RodEncoder::encodeData(std::vector<int>& vtbin, std::vector<uint16_t>& 
   ///-------------------------------------------------------------------------------------
   if(m_condensed){/** single Hit on condensed Mode */
     
-    if(gSize == 1) {/** Groupe size = 1 */
+    if(gSize == 1) {/** Group size = 1 */
       uint16_t HitCondSingle = 0x8000 | encodedSide | chipNb | clustBaseAddr | firstHitErr;
       v16.push_back(HitCondSingle);
       m_singleCondHitNumber++;
