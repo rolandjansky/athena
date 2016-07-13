@@ -69,13 +69,15 @@ def getTruthJetRange(name="TruthJetRange", **kwargs):
     return CfgMgr.PileUpXingFolder(name, **kwargs)
 
 
-def MergeTruthJetsTool(name="MergeTruthJetsTool", **kwargs):
+def getMergeTruthJetsTool(name="MergeTruthJetsTool", **kwargs):
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", TruthJet_FirstXing() )
         kwargs.setdefault("LastXing",  TruthJet_LastXing() )
-    #kwargs.setdefault("OutputLevel",  1 )
-
     return CfgMgr.MergeTruthJetsTool(name, **kwargs)
+
+def getMergeTruthJetsFilterTool(name="MergeTruthJetsFilterTool", **kwargs):
+    kwargs.setdefault("ActivateFilter", True )
+    return getMergeTruthJetsTool(name, **kwargs)
 
 
 ############################################################################
