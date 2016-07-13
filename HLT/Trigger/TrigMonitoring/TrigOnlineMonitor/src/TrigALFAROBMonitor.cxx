@@ -7,7 +7,10 @@
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
 #include "TrigConfL1Data/TriggerItem.h"
+#include "TrigConfHLTData/HLTChain.h"
+#include "TrigConfHLTData/HLTChainList.h"
 #include "TrigSteeringEvent/Lvl1Result.h"
+#include "TrigSteeringEvent/HLTResult.h"
 #include "TrigT1ResultByteStream/RoIBResultByteStreamTool.h"
 #include "TrigT1Result/MuCTPI_RDO.h"
 #include "TrigT1Result/MuCTPI_MultiplicityWord_Decoder.h"
@@ -37,6 +40,9 @@
 #include <TH2F.h>
 #include <TProfile2D.h>
 
+#include "boost/foreach.hpp"
+
+
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
 #   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
 #else
@@ -54,12 +60,13 @@ const InterfaceID& RoIBResultByteStreamTool::interfaceID() {
   return IID_IRoIBResultByteStreamTool;
 }
  
-/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 
 TrigALFAROBMonitor::TrigALFAROBMonitor(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator), 
   m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
   m_lvl1ConfSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
+  m_rootHistSvc("THistSvc", name),
   m_robDataProviderSvc( "ROBDataProviderSvc", name ),
 
   m_hist_failedChecksumForALFAROB(0),
@@ -69,7 +76,9 @@ TrigALFAROBMonitor::TrigALFAROBMonitor(const std::string& name, ISvcLocator* pSv
   m_hist_genericStatusForROB(0),
   m_hist_specificStatusForROB(0),
   m_lvl1muCTPIResult(0),
-  m_daqmuCTPIResult(0),
+  m_LB(-1),
+  m_previousEventLB(-1),
+  m_prescKey(-999),
   m_hist_timeALFA(0),
   m_histProp_timeALFA(Gaudi::Histo1DDef("Time_ALFA_Monitor" ,0.,100.,100))
 {
@@ -80,6 +89,7 @@ TrigALFAROBMonitor::TrigALFAROBMonitor(const std::string& name, ISvcLocator* pSv
   declareProperty("DaqCTPROBid",                        m_daqCTPROBid=0x770000);
   declareProperty("SetDebugStream",                     m_setDebugStream=false);
   declareProperty("DebugStreamName",                    m_debugStreamName="ALFAROBErrorStream");
+  declareProperty("CalibrationStreamName",              m_calibrationStreamName="ALFACalib");
   declareProperty("TestROBChecksum",                    m_doROBChecksum=true);
   declareProperty("HistFailedChecksumForALFAROB",       m_histProp_failedChecksumForALFAROB,"ALFA ROBs with inconsistent checksum");
   declareProperty("TestROBStatus",                      m_doROBStatus=true);
@@ -174,6 +184,7 @@ StatusCode TrigALFAROBMonitor::initialize(){
       << std::setw(6) << " (=0x" << MSG::hex << m_daqCTPROBid.value() << MSG::dec << ")" );
   ATH_MSG_INFO( " Put events with ROB errors on DEBUG stream = " << m_setDebugStream );
   ATH_MSG_INFO( "         Name of used DEBUG stream          = " << m_debugStreamName );
+  ATH_MSG_INFO( " Name of streamTag to select events for monitoring  = " << m_calibrationStreamName );
   ATH_MSG_INFO( " Do ROB checksum test                       = " << m_doROBChecksum );
   ATH_MSG_INFO( "        Hist:FailedChecksumForALFAROB       = " << m_histProp_failedChecksumForALFAROB );
   ATH_MSG_INFO( " Do ROB status test                         = " << m_doROBStatus );
@@ -226,6 +237,7 @@ StatusCode TrigALFAROBMonitor::initialize(){
     m_ALFARobIds.push_back(m_lvl1ALFA2ROBid.value());
   }
 
+  ATH_MSG_INFO("Initialize completed");
   return StatusCode::SUCCESS;
 }
 
@@ -233,36 +245,123 @@ StatusCode TrigALFAROBMonitor::initialize(){
 
 StatusCode TrigALFAROBMonitor::execute() {
 
-  struct timeval time_start;
-  struct timeval time_stop;
-  if ( m_doTiming.value() ) {
-    gettimeofday(&time_start, 0);
-  }
-
-  ATH_MSG_DEBUG("execute()");
-
   //--------------------------------------------------------------------------
-  // check that there is still time left
+  // check that there is still time left after all HLT chains and TopAlg completed
   //--------------------------------------------------------------------------
   if (Athena::Timeout::instance().reached()) {
     ATH_MSG_DEBUG(" Time out reached in entry to execute.");
     return StatusCode::SUCCESS;
   }
 
-  //--------------------------------------------------------------------------
-  // Loop over all ROB fragments held in the ROBDataProviderSvc and do the checks
-  //--------------------------------------------------------------------------
-  bool event_with_checksum_failure(false);
+  struct timeval time_start;
+  struct timeval time_stop;
+  if ( m_doTiming.value() ) {
+    gettimeofday(&time_start, 0);
+  }
 
-  // first read Lvl1Result from SG
-  if(evtStore()->contains<LVL1CTP::Lvl1Result>(m_keyL1Result)) {
-     const LVL1CTP::Lvl1Result* l1ptr = 0;
-     if(evtStore()->retrieve<LVL1CTP::Lvl1Result>(l1ptr, m_keyL1Result).isSuccess() && l1ptr) {
-          LVL1CTP::Lvl1Result resultL1 = *l1ptr;
-     }
+  // get EventInfo
+  const EventInfo* p_EventInfo(0);
+  StatusCode sc = evtStore()->retrieve(p_EventInfo);
+  if(sc.isFailure()){
+      ATH_MSG_ERROR("Can't get EventIinfo object");
+      return StatusCode::SUCCESS;
+  } 
+       
+  //--------------------------------------------------------------------------
+  // take only events with alfaCalibrationStream tag  
+  //--------------------------------------------------------------------------
+  bool eventInCalibStream = false;
+  typedef std::vector< TriggerInfo::StreamTag > StreamTagVector_t;
+  StreamTagVector_t vecStreamTags = p_EventInfo->trigger_info()->streamTags();
+  for (std::vector<TriggerInfo::StreamTag>::iterator iter = vecStreamTags.begin(); iter!=vecStreamTags.end(); iter++) {
+         if ((*iter).name().compare(m_calibrationStreamName.value()) == 0 ){
+             eventInCalibStream = true;
+             break;
+         }
+  }
+  if (!eventInCalibStream) {
+       //ATH_MSG_INFO ("event not tagged for calibration stream - return without ROS data request ");
+    return StatusCode::SUCCESS;
+  }
+
+  bool event_with_checksum_failure(false);
+  
+  //ATH_MSG_INFO ("new event");
+  // get EventID
+  const EventID* p_EventID = p_EventInfo->event_ID();
+  m_LB = p_EventID->lumi_block();
+
+  // check if we have new LB and any histograms need reset
+  // if we have new LB and StableBeams start filling and resetting SB histograms
+             //ATH_MSG_INFO ("HLT prescale key evaluation ");
+             const TrigConf::HLTChainList *chainlist = m_configSvc->chainList();
+             if (chainlist) {
+                 BOOST_FOREACH(TrigConf::HLTChain* chain, *chainlist) {
+                   if (chain->chain_name() == "HLT_costmonitor") {
+                        if (chain->prescale() >=1 ) {
+                               m_SBflag = true;
+                        } else {
+                               m_SBflag = false;
+                        }
+                        //ATH_MSG_INFO ("HLT_costmonitor chain with prescale " << chain->prescale()<< " and the SB flag set to: "<<m_SBflag);
+                   } else {
+                      //ATH_MSG_INFO ("HLT prescale key evaluation - " << chain->chain_name());
+                   }
+                 }
+             } else {
+             ATH_MSG_WARNING ("HLT prescale key evaluation  - failed");
+             }
+
+  if (m_previousEventLB < 0) {
+    m_previousEventLB = m_LB;  // first event
   } else {
-    ATH_MSG_DEBUG("Lvl1Result does not exist with key: ");
- }
+     if (m_LB > m_previousEventLB){ // new LB
+        reset1LBhistos(m_previousEventLB);
+        if (m_LB % 10 == 0) reset10LBhistos(m_previousEventLB);
+        if (m_LB % 60 == 0) reset60LBhistos(m_previousEventLB);
+        uint32_t newPrescKey = m_configSvc->hltPrescaleKey();
+        if (newPrescKey != m_prescKey) {
+             // check with cont monitor if the SB fla has been set
+             ATH_MSG_INFO ("HLT prescale key changed to "<<newPrescKey );
+             const TrigConf::HLTChainList *chainlist = m_configSvc->chainList();
+             if (chainlist) {
+                 BOOST_FOREACH(TrigConf::HLTChain* chain, *chainlist) {
+                   if (chain->chain_name() == "HLT_costmonitor") {
+                        if (chain->prescale() >=1 ) {
+                               m_SBflag = true;
+                        } else {
+                               m_SBflag = false;
+                        }
+                        ATH_MSG_INFO ("found HLT_costmonitor chain with prescale " << chain->prescale()<< " and the SB flag set to: "<<m_SBflag);
+                   }
+                 }
+             }
+             m_prescKey = newPrescKey;
+        }
+        m_previousEventLB = m_LB;
+     }
+  }
+
+  // read Lvl1Result from SG
+  LVL1CTP::Lvl1Result resultL1(true);
+  if (!getLvl1Result(resultL1)) {
+     return StatusCode::SUCCESS;
+  }
+
+  // read HLTResult from SG
+  HLT::HLTResult resultHLT;
+  if (!getHLTResult(resultHLT)) {
+    return StatusCode::SUCCESS;
+  }
+
+ //if(evtStore()->contains<LVL1CTP::Lvl1Result>(m_keyL1Result)) {
+     //const LVL1CTP::Lvl1Result* l1ptr = 0;
+     //if(evtStore()->retrieve<LVL1CTP::Lvl1Result>(l1ptr, m_keyL1Result).isSuccess() && l1ptr) {
+          //LVL1CTP::Lvl1Result resultL1 = *l1ptr;
+     //}
+  //} else {
+    //ATH_MSG_DEBUG("Lvl1Result does not exist with key: ");
+ //}
 
   // Now try to extract L1 decisons from ROIB fragment
   if(!evtStore()->contains<ROIB::RoIBResult>(m_keyRBResult)) {
@@ -270,7 +369,7 @@ StatusCode TrigALFAROBMonitor::execute() {
   }
 
   const ROIB::RoIBResult* roIBResult=0;
-  StatusCode sc = evtStore()->retrieve(roIBResult,m_keyRBResult);
+  sc = evtStore()->retrieve(roIBResult,m_keyRBResult);
 
   if(sc.isFailure()){
     ATH_MSG_DEBUG(" Unable to retrieve RoIBResult from storeGate!");
@@ -304,17 +403,6 @@ StatusCode TrigALFAROBMonitor::execute() {
     return StatusCode::SUCCESS;
   } 
  
-    // get EventInfo
-    const EventInfo* p_EventInfo(0);
-    sc = evtStore()->retrieve(p_EventInfo);
-    if(sc.isFailure()){
-      ATH_MSG_ERROR("Can't get EventIinfo object");
-    } else {
-       // get EventID
-       const EventID* p_EventID = p_EventInfo->event_ID();
-       m_LB = p_EventID->lumi_block();
-       //ATH_MSG_INFO << "Got EventID object with LB: " <<m_LB<<endreq;
-    }
 
   // initialize to positive values arrays which will be used in distance measurements with ODs - data needed accross both ROBs (RODs).
   for (int detector=0; detector <8; detector++)
@@ -337,8 +425,8 @@ StatusCode TrigALFAROBMonitor::execute() {
     if (! event_with_checksum_failure) {
        decodeALFA(**it );
 
-       LVL1CTP::Lvl1Result resultL1(true);
-       if (getLvl1Result(resultL1)) {
+       //LVL1CTP::Lvl1Result resultL1(true);
+       //if (getLvl1Result(resultL1)) {
        		std::vector<uint32_t> itemsBP = resultL1.itemsBeforePrescale();
                 for (std::map<int, int>::iterator it = m_map_TrgItemNumbersToHistGroups.begin(); it != m_map_TrgItemNumbersToHistGroups.end(); ++it) {
                     int word = it->first>>5;
@@ -351,7 +439,7 @@ StatusCode TrigALFAROBMonitor::execute() {
           		//ATH_MSG_INFO ("triggerWord: "<<*it);
        		}
        findALFATracks(resultL1);
-       }
+       //}
        findODTracks ();
     }
   }
@@ -452,20 +540,20 @@ StatusCode TrigALFAROBMonitor::beginRun() {
   if ((not m_doROBChecksum.value()) && (not m_doROBStatus.value())) return StatusCode::SUCCESS;
 
   // find histogramming service
-  ServiceHandle<ITHistSvc> rootHistSvc("THistSvc", name());
-  if ((rootHistSvc.retrieve()).isFailure()) {
-    ATH_MSG_ERROR("Unable to locate THistSvc");
-    rootHistSvc.release().ignore();
-    return StatusCode::FAILURE;
-  }
+  //m_rootHistSvc("THistSvc", name());
+  //if ((m_rootHistSvc.retrieve()).isFailure()) {
+    //ATH_MSG_ERROR("Unable to locate THistSvc");
+    //m_rootHistSvc.release().ignore();
+    //return StatusCode::FAILURE;
+  //}
 
   // *-- booking path
-  std::string path = std::string("/EXPERT/")+getGaudiThreadGenericName(name())+"/";
+  m_pathHisto = std::string("/EXPERT/")+getGaudiThreadGenericName(name())+"/";
 
   // Specific source identifiers
-  eformat::helper::SourceIdentifier srcID_ALFA( eformat::FORWARD_ALPHA ,0);
-  eformat::helper::SourceIdentifier srcID_CTP( eformat::TDAQ_CTP ,0);
-  eformat::helper::SourceIdentifier srcID_HLT( eformat::TDAQ_HLT, 0);
+  //eformat::helper::SourceIdentifier srcID_ALFA( eformat::FORWARD_ALPHA ,0);
+  //eformat::helper::SourceIdentifier srcID_CTP( eformat::TDAQ_CTP ,0);
+  //eformat::helper::SourceIdentifier srcID_HLT( eformat::TDAQ_HLT, 0);
 
   if ( m_doROBChecksum.value() ) {
     // *-- ROBs with failed checksum
@@ -476,7 +564,7 @@ StatusCode TrigALFAROBMonitor::beginRun() {
 					        m_histProp_failedChecksumForALFAROB.value().highEdge());
     if (m_hist_failedChecksumForALFAROB) {
       CAN_REBIN(m_hist_failedChecksumForALFAROB);
-      if( rootHistSvc->regHist(path + "common/" + m_hist_failedChecksumForALFAROB->GetName(), m_hist_failedChecksumForALFAROB).isFailure() ) {
+      if( m_rootHistSvc->regHist(m_pathHisto + "common/" + m_hist_failedChecksumForALFAROB->GetName(), m_hist_failedChecksumForALFAROB).isFailure() ) {
 	ATH_MSG_WARNING("Can not register ALFA ROB checksum monitoring histogram: " << m_hist_failedChecksumForALFAROB->GetName());
       }
     }
@@ -488,63 +576,128 @@ StatusCode TrigALFAROBMonitor::beginRun() {
     m_hist_goodData = new TH1F (histTitle.c_str(), (histTitle + " elastics").c_str(), 10, -0.5, 9.5);
     if (m_hist_goodData) {
       CAN_REBIN(m_hist_goodData);
-      if( rootHistSvc->regHist(path + "common/" + m_hist_goodData->GetName(), m_hist_goodData).isFailure() ) {
+      if( m_rootHistSvc->regHist(m_pathHisto + "common/" + m_hist_goodData->GetName(), m_hist_goodData).isFailure() ) {
 	ATH_MSG_WARNING("Can not register ALFA ROB good data elastic monitoring histogram: " << m_hist_goodData->GetName());
       }
     }
     histTitle = "goodDataAssessmentLB15";
     m_hist_goodDataLB15 = new TH2F (histTitle.c_str(), (histTitle + " elasticsLB").c_str(), 1000, -0.5, 999.5, 2, 0.5, 2.5);
-    if( rootHistSvc->regHist(path + "common/" + m_hist_goodDataLB15->GetName(), m_hist_goodDataLB15).isFailure() ) {
+    if( m_rootHistSvc->regHist(m_pathHisto + "common/" + m_hist_goodDataLB15->GetName(), m_hist_goodDataLB15).isFailure() ) {
 	ATH_MSG_WARNING("Can not register ALFA ROB good data elastic LB 15 monitoring histogram: " << m_hist_goodDataLB15->GetName());
     }
     histTitle = "goodDataAssessmentLB18";
     m_hist_goodDataLB18 = new TH2F (histTitle.c_str(), (histTitle + " elasticsLB").c_str(), 1000, -0.5, 999.5, 2, 0.5, 2.5);
-    if( rootHistSvc->regHist(path + "common/" + m_hist_goodDataLB18->GetName(), m_hist_goodDataLB18).isFailure() ) {
+    if( m_rootHistSvc->regHist(m_pathHisto + "common/" + m_hist_goodDataLB18->GetName(), m_hist_goodDataLB18).isFailure() ) {
 	ATH_MSG_WARNING("Can not register ALFA ROB good data elastic LB 18 monitoring histogram: " << m_hist_goodDataLB18->GetName());
     }
   }
 
-     std::vector<std::string> stationNames;
-     std::vector<std::string> trigConditions;
 
-     stationNames.push_back("B7L1U");
-     stationNames.push_back("B7L1L");
-     stationNames.push_back("A7L1U");
-     stationNames.push_back("A7L1L");
-     stationNames.push_back("A7R1U");
-     stationNames.push_back("A7R1L");
-     stationNames.push_back("B7R1U");
-     stationNames.push_back("B7R1L");
+     m_stationNames.push_back("B7L1U");
+     m_stationNames.push_back("B7L1L");
+     m_stationNames.push_back("A7L1U");
+     m_stationNames.push_back("A7L1L");
+     m_stationNames.push_back("A7R1U");
+     m_stationNames.push_back("A7R1L");
+     m_stationNames.push_back("B7R1U");
+     m_stationNames.push_back("B7R1L");
 
-     trigConditions.push_back("elastic");
-     trigConditions.push_back("elastic_ALFA_BG");
-     trigConditions.push_back("singleDiffr");
-     trigConditions.push_back("ALFA_MBTS_singleDiffr");
-     trigConditions.push_back("ALFA_LUCID_singleDiffr");
-     trigConditions.push_back("ALFA_EM3");
-     trigConditions.push_back("ALFA_J12");
-     trigConditions.push_back("ALFA_TRT");
-     trigConditions.push_back("ANY");
-     trigConditions.push_back("ANY_UNPAIRED_ISO");
-     trigConditions.push_back("ANY_ALFA_BG");
-     trigConditions.push_back("ALFA_EMPTY");
-
-     float y_min[2] = {0.,-35.};
-     float y_max[2] = {35.,0.};
+     m_trigConditions.push_back("elastic");
+     m_trigConditions.push_back("elastic_ALFA_BG");
+     m_trigConditions.push_back("singleDiffr");
+     m_trigConditions.push_back("ALFA_MBTS_singleDiffr");
+     m_trigConditions.push_back("ALFA_LUCID_singleDiffr");
+     m_trigConditions.push_back("ALFA_EM3");
+     m_trigConditions.push_back("ALFA_J12");
+     m_trigConditions.push_back("ALFA_TRT");
+     m_trigConditions.push_back("ANY");
+     m_trigConditions.push_back("ANY_UNPAIRED_ISO");
+     m_trigConditions.push_back("ANY_ALFA_BG");
+     m_trigConditions.push_back("ALFA_EMPTY");
 
   if ( m_doALFATracking.value() ) {
      std::string histTitle;
 
      for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
          for (uint32_t station = 0; station < 8; station++) {
-              histTitle = stationNames[station] + "_" + trigConditions[trgCond];
+              histTitle = m_stationNames[station] + "_f_" + m_trigConditions[trgCond];
               m_hist_ALFA_trig_validated_tracks[trgCond][station] = new TH2F (histTitle.c_str(), (histTitle).c_str(),
-                                                                                    260,-23,23,175,y_min[station%2],y_max[station%2]); 
+                                                                                    260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
               if (m_hist_ALFA_trig_validated_tracks[trgCond][station]) {
-                 if( rootHistSvc->regHist(path + "tracking/" + trigConditions[trgCond] + "/" + stationNames[station] , 
+                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/full/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
                         m_hist_ALFA_trig_validated_tracks[trgCond][station]).isFailure() ) {
                        ATH_MSG_WARNING("Can not register ALFA tracking histogram: " 
                                    << (m_hist_ALFA_trig_validated_tracks[trgCond][station])->GetName());
+                 }
+              }
+         }
+     }
+     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
+         for (uint32_t station = 0; station < 8; station++) {
+              histTitle = m_stationNames[station] + "_f_SB_" + m_trigConditions[trgCond];
+              m_hist_ALFA_trig_validated_tracks_SB[trgCond][station] = new TH2F (histTitle.c_str(), (histTitle).c_str(),
+                                                                                    260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
+              if (m_hist_ALFA_trig_validated_tracks_SB[trgCond][station]) {
+                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/full_SB/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
+                        m_hist_ALFA_trig_validated_tracks_SB[trgCond][station]).isFailure() ) {
+                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " 
+                                   << (m_hist_ALFA_trig_validated_tracks_SB[trgCond][station])->GetName());
+                 }
+              }
+         }
+     }
+     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
+         for (uint32_t station = 0; station < 8; station++) {
+              histTitle = m_stationNames[station] + "_1_" + m_trigConditions[trgCond];
+              m_hist_ALFA_trig_validated_tracks_1LB[trgCond][station] = new TH2F (histTitle.c_str(), (histTitle).c_str(),
+                                                                                    260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
+              if (m_hist_ALFA_trig_validated_tracks_1LB[trgCond][station]) {
+                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/reset1LB/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
+                        m_hist_ALFA_trig_validated_tracks_1LB[trgCond][station]).isFailure() ) {
+                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " 
+                                   << (m_hist_ALFA_trig_validated_tracks_1LB[trgCond][station])->GetName());
+                 } 
+              }
+         }
+     }
+     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
+         for (uint32_t station = 0; station < 8; station++) {
+              histTitle = m_stationNames[station] + "_10_" + m_trigConditions[trgCond];
+              m_hist_ALFA_trig_validated_tracks_10LB[trgCond][station] = new TH2F (histTitle.c_str(), (histTitle).c_str(),
+                                                                                    260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
+              if (m_hist_ALFA_trig_validated_tracks_10LB[trgCond][station]) {
+                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/reset10LB/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
+                        m_hist_ALFA_trig_validated_tracks_10LB[trgCond][station]).isFailure() ) {
+                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " 
+                                   << (m_hist_ALFA_trig_validated_tracks_10LB[trgCond][station])->GetName());
+                 }
+              }
+         }
+     }
+     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
+         for (uint32_t station = 0; station < 8; station++) {
+              histTitle = m_stationNames[station] + "_10_SB_" + m_trigConditions[trgCond];
+              m_hist_ALFA_trig_validated_tracks_10LB_SB[trgCond][station] = new TH2F (histTitle.c_str(), (histTitle).c_str(),
+                                                                                    260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
+              if (m_hist_ALFA_trig_validated_tracks_10LB_SB[trgCond][station]) {
+                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/reset10LB_SB/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
+                        m_hist_ALFA_trig_validated_tracks_10LB_SB[trgCond][station]).isFailure() ) {
+                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " 
+                                   << (m_hist_ALFA_trig_validated_tracks_10LB_SB[trgCond][station])->GetName());
+                 }
+              }
+         }
+     }
+     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
+         for (uint32_t station = 0; station < 8; station++) {
+              histTitle = m_stationNames[station] + "_60_" + m_trigConditions[trgCond];
+              m_hist_ALFA_trig_validated_tracks_60LB[trgCond][station] = new TH2F (histTitle.c_str(), (histTitle).c_str(),
+                                                                                    260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
+              if (m_hist_ALFA_trig_validated_tracks_60LB[trgCond][station]) {
+                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/reset60LB/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
+                        m_hist_ALFA_trig_validated_tracks_60LB[trgCond][station]).isFailure() ) {
+                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " 
+                                   << (m_hist_ALFA_trig_validated_tracks_60LB[trgCond][station])->GetName());
                  }
               }
          }
@@ -559,7 +712,7 @@ StatusCode TrigALFAROBMonitor::beginRun() {
          histTitle = "RP_" + std::to_string(station+1) + " PMT_activity";
          m_hist_pmfMonitoring[station] = new TH2F (histTitle.c_str(), (histTitle + " all PMTs").c_str(), 64,0.,64.,23.,1.,24.);
               if (m_hist_pmfMonitoring[station]) {
-                 if( rootHistSvc->regHist(path + "detectors/"+ stationNames[station] + "/" + (m_hist_pmfMonitoring[station])->GetName(), 
+                 if( m_rootHistSvc->regHist(m_pathHisto + "detectors/"+ m_stationNames[station] + "/" + (m_hist_pmfMonitoring[station])->GetName(), 
                        m_hist_pmfMonitoring[station]).isFailure() ) {
                        ATH_MSG_WARNING("Can not register ALFA PMT monitoring histogram: " 
                                    << (m_hist_pmfMonitoring[station])->GetName());
@@ -577,7 +730,7 @@ StatusCode TrigALFAROBMonitor::beginRun() {
          histTitle = "RP_" + std::to_string(iDet+1) + "_" + std::to_string(iSide) + " position";
          m_hist_PosDetector[iDet][iSide] = new TH1F (histTitle.c_str(), (histTitle).c_str(), 200.,-145.0,-125.0);
          if (m_hist_PosDetector[iDet][iSide]) {
-             if( rootHistSvc->regHist(path + "OD/"+ stationNames[iDet] + "/" + (m_hist_PosDetector[iDet][iSide])->GetName(), 
+             if( m_rootHistSvc->regHist(m_pathHisto + "OD/"+ m_stationNames[iDet] + "/" + (m_hist_PosDetector[iDet][iSide])->GetName(), 
                      m_hist_PosDetector[iDet][iSide]).isFailure() ) {
                      ATH_MSG_WARNING("Can not register ALFA PMT monitoring histogram: " 
                                  << (m_hist_PosDetector[iDet][iSide])->GetName());
@@ -590,7 +743,7 @@ StatusCode TrigALFAROBMonitor::beginRun() {
          histTitle = "RP_" + std::to_string(iStation+1) + "_" + std::to_string(iSide) + " distance";
          m_hist_DistStation[iStation][iSide] = new TH1F (histTitle.c_str(), (histTitle).c_str(), 401.,-20.05,20.05);
          if (m_hist_DistStation[iStation][iSide]) {
-             if( rootHistSvc->regHist(path + "OD/"+ stationNames[iStation] + "/" + (m_hist_DistStation[iStation][iSide])->GetName(),                   
+             if( m_rootHistSvc->regHist(m_pathHisto + "OD/"+ m_stationNames[iStation] + "/" + (m_hist_DistStation[iStation][iSide])->GetName(),                   
                      m_hist_DistStation[iStation][iSide]).isFailure() ) {
                      ATH_MSG_WARNING("Can not register ALFA PMT monitoring histogram: "  
                                  << (m_hist_DistStation[iStation][iSide])->GetName());
@@ -611,14 +764,14 @@ StatusCode TrigALFAROBMonitor::beginRun() {
 				  m_histProp_timeALFA.value().highEdge());
     if (m_hist_timeALFA) {
       //      m_hist_timeMuCTPi->SetBit(TH1::kCanRebin);
-      if( rootHistSvc->regHist(path + m_hist_timeALFA->GetName(), m_hist_timeALFA).isFailure() ) {
+      if( m_rootHistSvc->regHist(m_pathHisto + m_hist_timeALFA->GetName(), m_hist_timeALFA).isFailure() ) {
 	ATH_MSG_WARNING("Can not register monitoring histogram: " << m_hist_timeALFA->GetName());
       }
     }
   }
 
   // release histogramming service
-  rootHistSvc.release().ignore();
+  // when we plan to book now histograms at the LB boundaries we should not release the histogramming service ...m_rootHistSvc.release().ignore();
 
   return StatusCode::SUCCESS;
 }
@@ -628,6 +781,7 @@ StatusCode TrigALFAROBMonitor::beginRun() {
 StatusCode TrigALFAROBMonitor::endRun() {
 
   ATH_MSG_INFO("endRun()");
+  reset1LBhistos(m_LB);
 
   return StatusCode::SUCCESS;
 }
@@ -1021,6 +1175,118 @@ bool TrigALFAROBMonitor::getLvl1Result(LVL1CTP::Lvl1Result &resultL1) {
 
 }
 
+bool TrigALFAROBMonitor::getHLTResult(HLT::HLTResult &resultHLT) {
+
+   if(evtStore()->contains<HLT::HLTResult>("HLTResult_HLT")) {
+
+	const HLT::HLTResult* hltptr = 0;    
+	if(evtStore()->retrieve<HLT::HLTResult>(hltptr, "HLTResult_HLT").isSuccess() && hltptr) {
+		resultHLT = *hltptr;
+		return true;
+	}
+	else {
+                ATH_MSG_INFO ("Error retrieving HLTResult from StoreGate");
+		return false;
+	}
+    }
+    else {
+	if(1) /* outputLevel() <= MSG::DEBUG) */ {
+		ATH_MSG_INFO ("HLTResult does not exist with key: " << "HLTResult_HLT");
+                return false;
+	}
+    }
+}
+
+void TrigALFAROBMonitor::reset1LBhistos(int lbNumber) {
+
+     std::ostringstream ost_LB;
+
+     ost_LB << lbNumber;
+     ATH_MSG_INFO ("reset 1LB histos: " << m_LB);
+     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
+         for (uint32_t station = 0; station < 8; station++) {
+              std::string histTitle = m_stationNames[station] + "_LB_" + ost_LB.str() + "_"+ m_trigConditions[trgCond];
+              TH2F* aHisto = new TH2F (histTitle.c_str(), (histTitle).c_str(), 260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
+              if (aHisto) {
+                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/reset1LB/LB_" + ost_LB.str() + "/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
+                        aHisto).isFailure() ) {
+                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " << aHisto->GetName());
+                 } else {
+                       ATH_MSG_INFO ("copying histogram "<<(m_hist_ALFA_trig_validated_tracks_1LB[trgCond][station])->GetName()<< " to "<<aHisto->GetName());
+                       aHisto->Add(m_hist_ALFA_trig_validated_tracks_1LB[trgCond][station]);
+                       (m_hist_ALFA_trig_validated_tracks_1LB[trgCond][station])->Reset();
+                 } 
+              }
+         }
+     }
+}
+
+
+void TrigALFAROBMonitor::reset10LBhistos(int lbNumber) {
+     std::ostringstream ost_LB;
+
+     ost_LB << lbNumber-10 << "-"<<lbNumber;
+     ATH_MSG_INFO ("reset 10LB histos: " << m_LB);
+     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
+         for (uint32_t station = 0; station < 8; station++) {
+              std::string histTitle = m_stationNames[station] + "_LB_" + ost_LB.str() + "_"+ m_trigConditions[trgCond];
+              TH2F* aHisto = new TH2F (histTitle.c_str(), (histTitle).c_str(), 260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
+              if (aHisto) {
+                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/reset10LB/LB_" + ost_LB.str() + "/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
+                        aHisto).isFailure() ) {
+                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " << aHisto->GetName());
+                 } else {
+                       ATH_MSG_INFO ("copying histogram "<<(m_hist_ALFA_trig_validated_tracks_10LB[trgCond][station])->GetName()<< " to "<<aHisto->GetName());
+                       aHisto->Add(m_hist_ALFA_trig_validated_tracks_10LB[trgCond][station]);
+                       (m_hist_ALFA_trig_validated_tracks_10LB[trgCond][station])->Reset();
+                 } 
+              }
+         }
+     }
+     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
+         for (uint32_t station = 0; station < 8; station++) {
+              std::string histTitle = m_stationNames[station] + "_SB_LB_" + ost_LB.str() + "_"+ m_trigConditions[trgCond];
+              TH2F* aHisto = new TH2F (histTitle.c_str(), (histTitle).c_str(), 260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
+              if (aHisto) {
+                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/reset10LB_SB/LB_" + ost_LB.str() + "/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
+                        aHisto).isFailure() ) {
+                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " << aHisto->GetName());
+                 } else {
+                       ATH_MSG_INFO ("copying histogram "<<(m_hist_ALFA_trig_validated_tracks_10LB_SB[trgCond][station])->GetName()<< " to "<<aHisto->GetName());
+                       aHisto->Add(m_hist_ALFA_trig_validated_tracks_10LB_SB[trgCond][station]);
+                       (m_hist_ALFA_trig_validated_tracks_10LB_SB[trgCond][station])->Reset();
+                 } 
+              }
+         }
+     }
+}
+
+
+void TrigALFAROBMonitor::reset60LBhistos(int lbNumber) {
+     std::ostringstream ost_LB;
+
+     ost_LB << lbNumber-60 << "-"<<lbNumber;
+     ATH_MSG_INFO ("reset 60LB histos: " << m_LB);
+     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
+         for (uint32_t station = 0; station < 8; station++) {
+              std::string histTitle = m_stationNames[station] + "_LB_" + ost_LB.str() + "_"+ m_trigConditions[trgCond];
+              TH2F* aHisto = new TH2F (histTitle.c_str(), (histTitle).c_str(), 260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
+              if (aHisto) {
+                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/reset60LB/LB_" + ost_LB.str() + "/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
+                        aHisto).isFailure() ) {
+                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " << aHisto->GetName());
+                 } else {
+                       ATH_MSG_INFO ("copying histogram "<<(m_hist_ALFA_trig_validated_tracks_60LB[trgCond][station])->GetName()<< " to "<<aHisto->GetName());
+                       aHisto->Add(m_hist_ALFA_trig_validated_tracks_60LB[trgCond][station]);
+                       (m_hist_ALFA_trig_validated_tracks_60LB[trgCond][station])->Reset();
+                 } 
+              }
+         }
+     }
+}
+
+
+
 void TrigALFAROBMonitor::findALFATracks( LVL1CTP::Lvl1Result &resultL1 ) {
 	float x_Rec[8];
 	float y_Rec[8];
@@ -1164,6 +1430,13 @@ void TrigALFAROBMonitor::findALFATracks( LVL1CTP::Lvl1Result &resultL1 ) {
                                        int offset = (it->first)%32;
                                        if (itemsBP.at(word) & 1<<offset) {
                                              m_hist_ALFA_trig_validated_tracks[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
+                                             m_hist_ALFA_trig_validated_tracks_1LB[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
+                                             m_hist_ALFA_trig_validated_tracks_10LB[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
+                                             m_hist_ALFA_trig_validated_tracks_60LB[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
+                                             if (m_SBflag) {
+                                                m_hist_ALFA_trig_validated_tracks_SB[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
+                                                m_hist_ALFA_trig_validated_tracks_10LB_SB[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
+                                             }
                                              //ATH_MSG_INFO ("found track in det: "<<iDet<<" item: "<<it->first<<" in word: "<<word<<" offset: "<<offset);
                     			}
                 		}
@@ -1439,7 +1712,7 @@ void TrigALFAROBMonitor::findODTracks( ) {
 
         }//end of iSide-loop
     }//end of iStation-loop
-    ATH_MSG_INFO ("end of findOD tracks");
+    ATH_MSG_DEBUG ("end of findOD tracks");
 }
 
 

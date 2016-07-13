@@ -11,9 +11,9 @@ use AthenaBaseComps       AthenaBaseComps-*        Control
 use TrigConfInterfaces    TrigConfInterfaces-*     Trigger/TrigConfiguration/
 use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent
 
-
 private
 use AtlasROOT             AtlasROOT-*              External
+use AtlasBoost            AtlasBoost-*             External
 use AthenaKernel          AthenaKernel-*           Control
 use TrigROBDataProviderSvc TrigROBDataProviderSvc-* Trigger/TrigDataAccess
 use EventInfo             EventInfo-*              Event
@@ -26,6 +26,7 @@ use L1TopoConfig	  L1TopoConfig-*	   Trigger/TrigT1/L1Topo
 use TrigSteering          TrigSteering-*           Trigger/TrigSteer
 use TrigT1Result          TrigT1Result-*           Trigger/TrigT1
 use TrigConfL1Data        TrigConfL1Data-*         Trigger/TrigConfiguration
+use TrigConfHLTData       TrigConfHLTData-*        Trigger/TrigConfiguration
 use TrigSteeringEvent     TrigSteeringEvent-*      Trigger/TrigEvent
 
 library TrigOnlineMonitor *.cxx -s=components *.cxx
