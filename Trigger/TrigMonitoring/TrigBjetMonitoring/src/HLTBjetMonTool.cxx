@@ -189,10 +189,14 @@ StatusCode HLTBjetMonTool::book(){
 
 
       // PV
-      addHistogram(new TH1F("nPV_tr_Split","Number of online PV per event", 101, -1., 100.));
-      addHistogram(new TH1F("PVx_tr_Split","online (1st) xPV", 200, -1.0, 1.0));
-      addHistogram(new TH1F("PVy_tr_Split","online (1st) yPV", 200, -1.0, 1.0));
-      addHistogram(new TH1F("PVz_tr_Split","online (1st) zPV", 200, -200., 200.));
+      addHistogram(new TH1F("nPV_tr_Split","Number of online PV per event for xPrimVtx", 101, -1., 100.));
+      addHistogram(new TH1F("PVx_tr_Split","online (1st) xPV for xPrimVtx", 200, -1.0, 1.0));
+      addHistogram(new TH1F("PVy_tr_Split","online (1st) yPV for xPrimVtx", 200, -1.0, 1.0));
+      addHistogram(new TH1F("PVz_tr_Split","online (1st) zPV for xPrimVtx", 200, -200., 200.));
+      addHistogram(new TH1F("nPV_tr_Split_Hist","Number of online PV per event for EFHistoPrmVtx", 101, -1., 100.));
+      addHistogram(new TH1F("PVx_tr_Split_Hist","online (1st) xPV for EFHistoPrmVtx", 200, -1.0, 1.0));
+      addHistogram(new TH1F("PVy_tr_Split_Hist","online (1st) yPV for EFHistoPrmVtx", 200, -1.0, 1.0));
+      addHistogram(new TH1F("PVz_tr_Split_Hist","online (1st) zPV for EFHistoPrmVtx", 200, -200., 200.));
       addHistogram(new TH1F("diffzPV0offPVon_Split","z difference of the 1st offline and (1st) online PV", 200, -1., 1.));
       // Tracks    
       addHistogram(new TH1F("nTrack_Split","Number of tracks", 40, 0., 40.));
@@ -419,12 +423,13 @@ StatusCode HLTBjetMonTool::book(){
 	float m_zPrmVtx = 0.; // used for muon-jets
 	
 	// Get online PV
+	bool DummyVtx = false;
 	const std::vector< Trig::Feature<xAOD::VertexContainer> > onlinepvs = comb.get<xAOD::VertexContainer>(m_priVtxKey);
-	ATH_MSG_DEBUG("RETRIEVED PV (H) -   size: " << onlinepvs.size());
-	if ( not onlinepvs.empty() ) {   // SR
+	ATH_MSG_DEBUG("RETRIEVED PV  -   size: " << onlinepvs.size());
+	if ( not onlinepvs.empty() ) {  
 	  const xAOD::VertexContainer* onlinepv = onlinepvs[0].cptr();
 	  ATH_MSG_DEBUG("                 -   nVert: " << onlinepv->size());
-	  if( not onlinepv->empty()) {  // SR
+	  if( not onlinepv->empty()) {  
             if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)                                                                
 	      hist("PVx_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(onlinepv))[0]->x());
 	      hist("PVy_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(onlinepv))[0]->y());
@@ -434,15 +439,37 @@ StatusCode HLTBjetMonTool::book(){
 	      ATH_MSG_DEBUG("         Online PV -   z[0]: " << (*(onlinepv))[0]->z());
 	    } // if PV not dummy  
 	    else {
+	      DummyVtx = true;
+	      ATH_MSG_DEBUG("  Dummy Vertex found: DummyVtx = " << DummyVtx << " m_jetKey = " << m_jetKey << " HistExt = " << HistExt << " m_priVtxKey " << m_priVtxKey ); 
 	      ATH_MSG_DEBUG(" Online dummy PV - type: " << (*(onlinepv))[0]->vertexType() << " x[0]: " << (*(onlinepv))[0]->x() 
 			   << " y[0]: " << (*(onlinepv))[0]->y() <<  " z[0]: " << (*(onlinepv))[0]->z() );
 	      int dummyflag = -1;
 	      hist("nPV_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(dummyflag);
-	      continue; // if vertex is dummy skip reading out the other quntities for this trigger combination (EN)
+	      //	      continue; // if vertex is dummy skip reading out the other quntities for this trigger combination (EN)
 	    } // else
-	    hist("nPV_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(onlinepv->size());
+	    if (!DummyVtx) hist("nPV_tr"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(onlinepv->size());
 	  }  // if onlinepv not empty
 	} // if onlinepvs not empty
+	if ( (m_jetKey == "SplitJet") && DummyVtx ) {
+	  // for SplitJets and DummyVtx monitor Vtx with Histogram algorithm
+	  const std::vector< Trig::Feature<xAOD::VertexContainer> >onlinepvsd = comb.get<xAOD::VertexContainer>("EFHistoPrmVtx");
+	  ATH_MSG_DEBUG("RETRIEVED PV with Histo algo for Split chains when Dummy vtx found with xPrimVx algo-   size: " << onlinepvsd.size());
+	  if ( not onlinepvsd.empty() ) {
+	    const xAOD::VertexContainer* onlinepv = onlinepvsd[0].cptr();
+	    ATH_MSG_DEBUG("                 -   nVert: " << onlinepv->size());
+	    if( not onlinepv->empty()) {
+	      if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)                                                            
+		hist("PVx_tr"+HistExt+"_Hist","HLT/BjetMon/Shifter"+HistDir)->Fill((*(onlinepv))[0]->x());
+		hist("PVy_tr"+HistExt+"_Hist","HLT/BjetMon/Shifter"+HistDir)->Fill((*(onlinepv))[0]->y());
+		hist("PVz_tr"+HistExt+"_Hist","HLT/BjetMon/Shifter"+HistDir)->Fill((*(onlinepv))[0]->z());
+		hist("nPV_tr"+HistExt+"_Hist","HLT/BjetMon/Shifter"+HistDir)->Fill(onlinepv->size());
+		ATH_MSG_DEBUG(" Dummy PV using Histogram algorithm - type: " << (*(onlinepv))[0]->vertexType() << " x[0]: " << (*(onlinepv))[0]->x()
+			     << " y[0]: " << (*(onlinepv))[0]->y() <<  " z[0]: " << (*(onlinepv))[0]->z() );
+	      } // if VertexType
+	    } // if not onlinepv
+	  } // if not onlinepvs
+	  continue; // if vertex is dummy skip reading out the other quntities for this trigger combination (EN)
+	} // if DummyVtx
 
 	// Get online jet
 	const std::vector< Trig::Feature<xAOD::JetContainer> > onlinejets = comb.get<xAOD::JetContainer>(m_jetKey);
