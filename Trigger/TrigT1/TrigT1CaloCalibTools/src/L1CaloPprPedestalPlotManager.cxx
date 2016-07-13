@@ -193,12 +193,12 @@ void L1CaloPprPedestalPlotManager::fillGlobalOnlineHistos(const xAOD::TriggerTow
 	m_h_ppm_em_2d_value_BCN_Lumi =
           m_histTool->bookProfile2D(Form("ppm_em_pedestal_BCN_lumi"),
                                   Form("Profile plot of Pedestal Vs BCN Vs Lumi: Em TriggerTower; Lumi Block; Relative BCN"),
-                                  nbins, xmin, xmax, 154, 0, 154);
+                                  nbins, xmin, xmax, 77, 0, 154);
 	  
         m_h_ppm_had_2d_value_BCN_Lumi =
           m_histTool->bookProfile2D(Form("ppm_had_pedestal_BCN_lumi"),
                                   Form("Profile plot of Pedestal Vs BCN Vs Lumi: Had TriggerTower; Lumi Block; Relative BCN"),
-                                  nbins, xmin, xmax, 154, 0, 154);
+                                  nbins, xmin, xmax, 77, 0, 154);
     
         ManagedMonitorToolBase::MonGroup ADC_Global(m_monObj,m_pathInRootFile, ManagedMonitorToolBase::run, attr);
         m_histTool->setMonGroup(&ADC_Global);
@@ -239,20 +239,20 @@ void L1CaloPprPedestalPlotManager::fillGlobalOnlineHistos(const xAOD::TriggerTow
     if( layer == 0 ) {
       m_p_online_em_valueVsLumi->Fill(m_lumiNo,value);
       m_p_online_em_valueVsBCN->Fill(m_bunchCrossing,value);
-      if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 1 && m_distanceFromHeadOfTrain[m_bunchCrossing].second >= 0) { //After long gap
+      if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 1) { //After long gap
             m_h_ppm_em_2d_value_BCN_Lumi->Fill(m_lumiNo, m_distanceFromHeadOfTrain[m_bunchCrossing].second, value);
           }
-      if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 0 && m_distanceFromHeadOfTrain[m_bunchCrossing].second >= 0) { //After short gap
+      if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 0) { //After short gap
             m_h_ppm_em_2d_value_BCN_Lumi->Fill(m_lumiNo, (m_distanceFromHeadOfTrain[m_bunchCrossing].second + 80), value);
           }
     }
     else {
       m_p_online_had_valueVsLumi->Fill(m_lumiNo,value);
       m_p_online_had_valueVsBCN->Fill(m_bunchCrossing,value);
-      if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 1 && m_distanceFromHeadOfTrain[m_bunchCrossing].second >= 0) { //After long gap
+      if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 1) { //After long gap
             m_h_ppm_had_2d_value_BCN_Lumi->Fill(m_lumiNo, m_distanceFromHeadOfTrain[m_bunchCrossing].second, value);
       }
-      if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 0 && m_distanceFromHeadOfTrain[m_bunchCrossing].second >= 0) { //After short gap
+      if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 0) { //After short gap
             m_h_ppm_had_2d_value_BCN_Lumi->Fill(m_lumiNo, (m_distanceFromHeadOfTrain[m_bunchCrossing].second + 80), value);
       }
     }    
@@ -347,14 +347,14 @@ void L1CaloPprPedestalPlotManager::fillPartitionOnlineHistos(const xAOD::Trigger
 								    m_currentRunNo,
 								    m_monitoringTitle.data(),
 								    detectorRegionString.data()),
-								    nbins, xmin, xmax, 154, 0, 154);
+								    nbins, xmin, xmax, 77, 0, 154);
 	
 	anLWProfileHist->Fill(m_lumiNo,value);
 	anLWProfileHist2->Fill(m_bunchCrossing,value);
-	if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 1 && m_distanceFromHeadOfTrain[m_bunchCrossing].second >= 0) { //After long gap
+	if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 1) { //After long gap
 	  anLWProfileHist3->Fill(m_lumiNo,m_distanceFromHeadOfTrain[m_bunchCrossing].second,value);
 	}
-	if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 0 && m_distanceFromHeadOfTrain[m_bunchCrossing].second >= 0) { //After short gap
+	if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 0) { //After short gap
 	  anLWProfileHist3->Fill(m_lumiNo,(m_distanceFromHeadOfTrain[m_bunchCrossing].second+80),value);
 	}
 	
@@ -368,10 +368,10 @@ void L1CaloPprPedestalPlotManager::fillPartitionOnlineHistos(const xAOD::Trigger
     {
         part_itr->second->Fill(m_lumiNo,value);
 	part_itr2->second->Fill(m_bunchCrossing,value);
-	if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 1 && m_distanceFromHeadOfTrain[m_bunchCrossing].second >= 0) { //After long gap
+	if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 1) { //After long gap
 	  part_itr3->second->Fill(m_lumiNo,m_distanceFromHeadOfTrain[m_bunchCrossing].second,value);
 	}
-	if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 0 && m_distanceFromHeadOfTrain[m_bunchCrossing].second >= 0) { //After short gap
+	if (!m_distanceFromHeadOfTrain.empty() && m_distanceFromHeadOfTrain[m_bunchCrossing].first == 0) { //After short gap
 	  part_itr3->second->Fill(m_lumiNo,(m_distanceFromHeadOfTrain[m_bunchCrossing].second+80),value);
 	}
     } 
