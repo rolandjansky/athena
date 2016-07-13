@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 754078 2016-06-10 08:42:09Z mavogel $
+# @version $Id: trfExe.py 759229 2016-07-01 19:59:29Z mavogel $
 
 import copy
 import json
@@ -719,7 +719,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 754078 2016-06-10 08:42:09Z mavogel $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 759229 2016-07-01 19:59:29Z mavogel $')
         else:
             self._jobOptionsTemplate = None
 
@@ -1424,32 +1424,36 @@ class reductionFrameworkExecutor(athenaExecutor):
     def preExecute(self, input=set(), output=set()):
         msg.debug('Preparing for execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
 
-        if 'reductionConf' not in self.conf.argdict:
-            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_REDUCTION_CONFIG_ERROR'),
-                                                            'No reduction configuration specified')
-        if 'DAOD' not in output:
-            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_REDUCTION_CONFIG_ERROR'),
-                                                            'No base name for DAOD reduction')
+        if 'NTUP_PILEUP' not in output:
+            if 'reductionConf' not in self.conf.argdict:
+                raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_REDUCTION_CONFIG_ERROR'),
+                                                                'No reduction configuration specified')
+
+            if 'DAOD' not in output:
+                raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_REDUCTION_CONFIG_ERROR'),
+                                                                'No base name for DAOD reduction')
         
-        for reduction in self.conf.argdict['reductionConf'].value:
-            dataType = 'DAOD_' + reduction
-            outputName = 'DAOD_' + reduction + '.' + self.conf.argdict['outputDAODFile'].value[0]
-            msg.info('Adding reduction output type {0}'.format(dataType))
-            output.add(dataType)
-            newReduction = trfArgClasses.argPOOLFile(outputName, io='output', runarg=True, type='AOD',
+            for reduction in self.conf.argdict['reductionConf'].value:
+                dataType = 'DAOD_' + reduction
+                outputName = 'DAOD_' + reduction + '.' + self.conf.argdict['outputDAODFile'].value[0]
+                msg.info('Adding reduction output type {0}'.format(dataType))
+                output.add(dataType)
+                newReduction = trfArgClasses.argPOOLFile(outputName, io='output', runarg=True, type='AOD',
                                                      name=reduction)
-            # References to _trf - can this be removed?
-            self.conf.dataDictionary[dataType] = newReduction
+                # References to _trf - can this be removed?
+                self.conf.dataDictionary[dataType] = newReduction
             
-        # Clean up the stub file from the executor input and the transform's data dictionary
-        # (we don't remove the actual argFile instance)
-        output.remove('DAOD')
-        del self.conf.dataDictionary['DAOD']
-        del self.conf.argdict['outputDAODFile']
+            # Clean up the stub file from the executor input and the transform's data dictionary
+            # (we don't remove the actual argFile instance)
+            output.remove('DAOD')
+            del self.conf.dataDictionary['DAOD']
+            del self.conf.argdict['outputDAODFile']
+        
+            msg.info('Data dictionary is now: {0}'.format(self.conf.dataDictionary))
+            msg.info('Input/Output: {0}/{1}'.format(input, output))
         
         msg.info('Data dictionary is now: {0}'.format(self.conf.dataDictionary))
         msg.info('Input/Output: {0}/{1}'.format(input, output))
-        
         super(reductionFrameworkExecutor, self).preExecute(input, output)
 
 

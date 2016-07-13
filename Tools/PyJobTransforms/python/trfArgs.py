@@ -3,7 +3,7 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 755761 2016-06-17 13:26:21Z mavogel $
+#  @version $Id: trfArgs.py 757535 2016-06-24 16:03:51Z mavogel $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -423,6 +423,7 @@ def getExtraDPDList(NTUPOnly = False):
 
     extraDPDs.append(dpdType('NTUP_FastCaloSim', substeps=['e2d']))
     extraDPDs.append(dpdType('NTUP_MUONCALIB', substeps=['r2a']))
+    extraDPDs.append(dpdType('NTUP_PILEUP', substeps=['a2da']))
 
     # Trigger NTUPs (for merging only!)
     if NTUPOnly:

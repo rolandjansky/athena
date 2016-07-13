@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 756978 2016-06-22 14:23:04Z graemes $
+# @version $Id: trfArgClasses.py 761740 2016-07-13 19:40:39Z mavogel $
 
 import argparse
 import bz2
@@ -1327,7 +1327,7 @@ class argBSFile(argAthenaFile):
         myargdict = self._mergeArgs(argdict)
         myargdict['maskEmptyInputs'] = argBool(True)
         myargdict['allowRename'] = argBool(True)
-        myargdict['emptyStubFile'] = argString(output)
+        myargdict['emptyStubFile'] = argString(inputs[0])
         
         # We need a athenaExecutor to do the merge
         # N.B. We never hybrid merge AthenaMP outputs as this would prevent further merging in another
