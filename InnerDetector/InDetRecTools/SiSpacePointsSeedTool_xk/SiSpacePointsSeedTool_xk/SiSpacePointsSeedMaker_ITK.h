@@ -157,6 +157,7 @@ namespace InDet {
       float                       m_ftrig                         ;
       float                       m_ftrigW                        ;
       float                       r_rmax                          ;
+      float                       r_rmin                          ;
       float                       r_rstep                         ;
       float                       m_dzver                         ;
       float                       m_dzdrver                       ;
@@ -174,6 +175,7 @@ namespace InDet {
       float                       m_ipt2C                         ;
       float                       m_COFK                          ;  
       float                       m_umax                          ;
+      float                       m_dzmaxPPP                      ;
       int r_size                                                  ;
       int r_first                                                 ;
       int rf_size                                                 ;

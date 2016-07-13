@@ -64,12 +64,14 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   m_dzdrver   = .02     ;
   m_diver     = 10.     ;
   m_diverpps  =  1.7    ;
-  m_diversss  =  50     ;
+  m_diversss  =  20     ;
   m_divermax  =  20.    ;
   m_dazmax    = .02     ;
   r_rmax      = 1100.   ;
+  r_rmin      = 0.      ;
   m_umax      = 0.      ;
   r_rstep     =  2.     ;
+  m_dzmaxPPP  = 600.    ; 
   r_Sorted    = 0       ;
   r_index     = 0       ;
   r_map       = 0       ;    
@@ -111,6 +113,7 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   declareProperty("etaMax"                ,m_etamax                );  
   declareProperty("pTmin"                 ,m_ptmin                 );
   declareProperty("radMax"                ,r_rmax                  );
+  declareProperty("radMin"                ,r_rmin                  );
   declareProperty("radStep"               ,r_rstep                 );
   declareProperty("maxSize"               ,m_maxsize               );
   declareProperty("maxSizeSP"             ,m_maxsizeSP             );
@@ -136,6 +139,7 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   declareProperty("maxdImpactSSS"         ,m_diversss              );
   declareProperty("maxdImpactForDecays"   ,m_divermax              );
   declareProperty("minSeedsQuality"       ,m_umax                  );
+  declareProperty("dZmaxForPPPSeeds"      ,m_dzmaxPPP              );
   declareProperty("maxSeedsForSpacePoint" ,m_maxOneSize            );
   declareProperty("maxNumberVertices"     ,m_maxNumberVertices     );
   declareProperty("SpacePointsSCTName"    ,m_spacepointsSCT        );
@@ -303,7 +307,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration)
     
 	for(; sp != spe; ++sp) {
 
-	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax) continue;
+	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax || (*sp)->r() < r_rmin ) continue;
 
 	  InDet::SiSpacePointForSeedITK* sps = newSpacePoint((*sp)); if(!sps) continue;
 
@@ -336,7 +340,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration)
     
 	for(; sp != spe; ++sp) {
 
-	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax) continue;
+	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax || (*sp)->r() < r_rmin ) continue;
 
 	  InDet::SiSpacePointForSeedITK* sps = newSpacePoint((*sp)); if(!sps) continue;
 
@@ -361,7 +365,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration)
 	
 	for (; sp!=spe; ++sp) {
 
-	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax) continue;
+	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax || (*sp)->r() < r_rmin) continue;
 
 	  InDet::SiSpacePointForSeedITK* sps = newSpacePoint((*sp)); if(!sps) continue;
 
@@ -440,7 +444,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
 
 	for(; sp != spe; ++sp) {
 
-	  float r = (*sp)->r(); if(r > r_rmax) continue;
+	  float r = (*sp)->r(); if(r > r_rmax || r < r_rmin) continue;
 	  InDet::SiSpacePointForSeedITK* sps = newSpacePoint((*sp)); 
 	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
 	  r_Sorted[ir].push_back(sps); ++r_map[ir];
@@ -474,7 +478,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
 
 	for(; sp != spe; ++sp) {
 
-	  float r = (*sp)->r(); if(r > r_rmax) continue;
+	  float r = (*sp)->r(); if(r > r_rmax || r < r_rmin) continue;
 	  InDet::SiSpacePointForSeedITK* sps = newSpacePoint((*sp)); 
 	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
 	  r_Sorted[ir].push_back(sps); ++r_map[ir];
@@ -700,6 +704,9 @@ MsgStream& InDet::SiSpacePointsSeedMaker_ITK::dumpConditions( MsgStream& out ) c
      <<"                              |"<<std::endl;
   out<<"| max radius SP           | "
      <<std::setw(12)<<std::setprecision(5)<<r_rmax 
+     <<"                              |"<<std::endl;
+  out<<"| min radius SP           | "
+     <<std::setw(12)<<std::setprecision(5)<<r_rmin 
      <<"                              |"<<std::endl;
   out<<"| radius step             | "
      <<std::setw(12)<<std::setprecision(5)<<r_rstep
@@ -2000,8 +2007,6 @@ void InDet::SiSpacePointsSeedMaker_ITK::newOneSeedWithCurvaturesComparison
   const float dC = .00003;
 
   bool  pixb = !SPb->spacepoint->clusterList().second;
-  float ub   = SPb->quality()                        ;
-  float u0   = SP0->quality()                        ;
 
   std::sort(m_CmSp.begin(),m_CmSp.end(),comCurvatureITK());
   std::vector<std::pair<float,InDet::SiSpacePointForSeedITK*>>::iterator j,jn,i = m_CmSp.begin(),ie = m_CmSp.end(); jn=i; 
@@ -2009,10 +2014,11 @@ void InDet::SiSpacePointsSeedMaker_ITK::newOneSeedWithCurvaturesComparison
   for(; i!=ie; ++i) {
 
     float u    = (*i).second->param(); 
-    float Im   = (*i).second->param();
 
     bool                pixt = !(*i).second->spacepoint->clusterList().second;
     
+    if(pixt && fabs(SPb->z() -(*i).second->z()) > m_dzmaxPPP) continue;  
+
     const Trk::Surface* Sui  = (*i).second->sur   ();
     float               Ri   = (*i).second->radius();  
     float               Ci1  =(*i).first-dC         ;
@@ -2044,11 +2050,6 @@ void InDet::SiSpacePointsSeedMaker_ITK::newOneSeedWithCurvaturesComparison
       }
     }
     if(u > m_umax) continue;
-    if(pixb!=pixt) {
-      if(u > 0. || (u > ub && u > u0 && u > (*i).second->quality()) ) continue;
-    }
-
-    if(!pixb && Im > m_diversss && u > Im-500.) continue;
 
     newOneSeed(SPb,SP0,(*i).second,Zob,u);
   }
