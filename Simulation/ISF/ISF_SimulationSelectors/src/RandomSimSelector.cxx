@@ -16,41 +16,40 @@
 #include "TRandom.h"
 
 /** Constructor **/
-ISF::RandomSimSelector::RandomSimSelector(const std::string& t, const std::string& n, const IInterface* p) : 
-  ISimulationSelector(t,n,p),
-  m_random(0)
+ISF::RandomSimSelector::RandomSimSelector(const std::string& t, const std::string& n, const IInterface* p)
+  : ISimulationSelector(t,n,p)
+  , m_random(0)
 {
-    declareInterface<ISF::ISimulationSelector>(this);
+  declareInterface<ISF::ISimulationSelector>(this);
 
-    m_random = new TRandom(); 
+  m_random = new TRandom();
 }
 
 /** Destructor **/
 ISF::RandomSimSelector::~RandomSimSelector()
 {
-    if (m_random!=NULL) delete m_random;
+  if (m_random!=NULL) delete m_random;
 }
 
 // Athena algtool's Hooks
 StatusCode  ISF::RandomSimSelector::initialize()
 {
-    ATH_MSG_VERBOSE("Initializing ...");
-    return StatusCode::SUCCESS;
+  ATH_MSG_VERBOSE("Initializing ...");
+  return StatusCode::SUCCESS;
 }
 
 StatusCode  ISF::RandomSimSelector::finalize()
 {
-    ATH_MSG_VERBOSE("Finalizing ...");
-    return StatusCode::SUCCESS;
+  ATH_MSG_VERBOSE("Finalizing ...");
+  return StatusCode::SUCCESS;
 }
 
 /** check whether given particle passes all cuts -> will be used for routing decision*/
 bool  ISF::RandomSimSelector::passSelectorCuts(const ISFParticle& particle) const
 {
-  bool pass = (m_random->Uniform()<0.5); 
+  bool pass = (m_random->Uniform()<0.5);
 
   ATH_MSG_VERBOSE("[fatras randomselector] barcode = " << particle.barcode() << " pass = " << pass);
 
   return pass;
 }
-

@@ -5,15 +5,7 @@ Configuration database for ISF_SimulationSelectors
 Elmar Ritsch, 10/11/2014
 """
 
-from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorithm, \
-     addTypesToExcludeIfDefaultValue, addNamesToExcludeIfDefaultValue, addFullNamesToExcludeIfDefaultValue, \
-     addPropertiesToExcludeIfDefault, \
-     addTypesToSkipIfNotAvailable, addNamesToSkipIfNotAvailable, addFullNamesToSkipIfNotAvailable, \
-     addTypesOnlyToSkip
-
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-import AthenaCommon.SystemOfUnits as Units
-
+from AthenaCommon.CfgGetter import addTool
 
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getElectronGeant4Selector"               , "ISF_ElectronGeant4Selector"              )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getNeutralGeant4Selector"                , "ISF_NeutralGeant4Selector"               )
@@ -41,6 +33,7 @@ addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultFastCal
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFastCaloSimPileupSelector"            , "ISF_FastCaloSimPileupSelector"           )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFastHitConvAlgFastCaloSimSelector"    , "ISF_FastHitConvAlgFastCaloSimSelector"   )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultLegacyAFIIFastCaloSimSelector" , "ISF_DefaultLegacyAFIIFastCaloSimSelector")
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultFastCaloSimV2Selector"         , "ISF_DefaultFastCaloSimV2Selector"        )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFastHitConvAlgLegacyAFIIFastCaloSimSelector" , "ISF_FastHitConvAlgLegacyAFIIFastCaloSimSelector")
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultFatrasSelector"                , "ISF_DefaultFatrasSelector"               )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultFatrasNewExtrapolationSelector", "ISF_DefaultFatrasNewExtrapolationSelector")
