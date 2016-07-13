@@ -57,9 +57,9 @@ bool TCS::TopoASCIIReader::getNextEvent() {
     
       if(currentLine == "<end_file>" || currentLine == "</file>") return false;
       if(currentLine == "<end_event>" || currentLine == "</event>") break;
-      if(currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<muon>" || currentLine == "<latemuon>" || currentLine == "<tau>" || currentLine == "<met>") type = currentLine;
-      if(currentLine == "</cluster>" || currentLine == "</jet>" || currentLine == "</muon>" || currentLine == "</latemuon>" || currentLine == "</tau>" || currentLine == "</met>") { type = ""; continue; }
-      if(currentLine == "<begin_file>" || currentLine == "<file>" || currentLine == "<begin_event>" || currentLine == "<event>" || currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<muon>" || currentLine == "<latemuon>" || currentLine == "<tau>" || currentLine == "<met>") continue;
+      if(currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<muon>" || currentLine == "<lateMuon>" || currentLine == "<muonNextBC>" || currentLine == "<tau>" || currentLine == "<met>") type = currentLine;
+      if(currentLine == "</cluster>" || currentLine == "</jet>" || currentLine == "</muon>" || currentLine == "</lateMuon>" || currentLine == "</muonNextBC>" || currentLine == "</tau>" || currentLine == "</met>") { type = ""; continue; }
+      if(currentLine == "<begin_file>" || currentLine == "<file>" || currentLine == "<begin_event>" || currentLine == "<event>" || currentLine == "<cluster>" || currentLine == "<jet>" || currentLine == "<muon>" || currentLine == "<lateMuon>" || currentLine == "<muonNextBC>" || currentLine == "<tau>" || currentLine == "<met>") continue;
     
       // use stream iterators to copy the stream to a vector as whitespace separated strings
       std::stringstream ss(currentLine);
@@ -103,7 +103,7 @@ bool TCS::TopoASCIIReader::getNextEvent() {
             muon.setPhiDouble( atof(results.at(4).c_str()) );
          }
          m_event->addMuon( muon );
-      } else if(type == "<latemuon>") {
+      } else if(type == "<lateMuon>") {
          unsigned int et = atoi(results.at(0).c_str());
          int eta = atoi(results.at(1).c_str());
          int phi = atoi(results.at(2).c_str());
@@ -113,6 +113,16 @@ bool TCS::TopoASCIIReader::getNextEvent() {
             latemuon.setPhiDouble( atof(results.at(4).c_str()) );
          }
          m_event->addLateMuon( latemuon );
+      } else if(type == "<muonNextBC>") {
+         unsigned int et = atoi(results.at(0).c_str());
+         int eta = atoi(results.at(1).c_str());
+         int phi = atoi(results.at(2).c_str());
+         TCS::MuonNextBCTOB nextbcmuon( et, 0, eta, phi );
+         if(results.size()==5) {
+            nextbcmuon.setEtaDouble( atof(results.at(3).c_str()) );
+            nextbcmuon.setPhiDouble( atof(results.at(4).c_str()) );
+         }
+         m_event->addMuonNextBC( nextbcmuon );
       } else if(type == "<met>") {
          int ex = atoi(results.at(0).c_str());
          int ey = atoi(results.at(1).c_str());
@@ -120,8 +130,7 @@ bool TCS::TopoASCIIReader::getNextEvent() {
          TCS::MetTOB met( ex, ey, et );
          m_event->setMET( met );
       } else {
-
-         TCS_EXCEPTION( "TOB for this event is of unknown type " << type);
+          TCS_EXCEPTION( "TOB for this event is of unknown type " << type<<": '"<<currentLine<<"'");
 
       }
    } // end read event
