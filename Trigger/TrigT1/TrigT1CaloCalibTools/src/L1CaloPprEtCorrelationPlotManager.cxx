@@ -103,19 +103,29 @@ double L1CaloPprEtCorrelationPlotManager::getMonitoringValue(const xAOD::Trigger
 {
     Identifier id;
     std::vector<float> CaloEnergyLayers;
+    std::vector<float> CaloETLayers;
     float caloEnergy = 0.;
-    float ttCpEnergy;
-    ttCpEnergy=trigTower->cpET();
+    float ttCpEnergy = trigTower->cpET()*0.5;
+    float absEta = fabs(trigTower->eta() );
 
     if (ttCpEnergy <= m_EtMin) return -1000.;
-    if ( trigTower->isAvailable< std::vector<float> > ("CaloCellEnergyByLayer") ) {
-      CaloEnergyLayers = trigTower->auxdataConst< std::vector<float> > ("CaloCellEnergyByLayer");
-      for (std::vector<float>::iterator it = CaloEnergyLayers.begin(); it != CaloEnergyLayers.end(); it++) {
-        caloEnergy += *it;
+    if (absEta < 3.2){
+      if ( trigTower->isAvailable< std::vector<float> > ("CaloCellEnergyByLayer") ) {
+        CaloEnergyLayers = trigTower->auxdataConst< std::vector<float> > ("CaloCellEnergyByLayer");
+        for (std::vector<float>::iterator it = CaloEnergyLayers.begin(); it != CaloEnergyLayers.end(); it++) {
+          caloEnergy += *it;
+        }
+        caloEnergy = caloEnergy / cosh( trigTower->eta() );
       }
-      caloEnergy = caloEnergy / cosh( trigTower->eta() );
-    }
-
+    }//for central region only                                                                                                                                                                      
+    else {
+      if( trigTower->isAvailable< std::vector<float> > ("CaloCellETByLayer") ){
+	CaloETLayers = trigTower->auxdataConst< std::vector<float> > ("CaloCellETByLayer");
+        for (std::vector<float>::iterator it = CaloETLayers.begin(); it != CaloETLayers.end(); it++){
+          caloEnergy += *it;
+        }
+      }
+    }//forward region      
     // round calo energy to nearest GeV in order to compare with L1 energy
     caloEnergy=int(caloEnergy+0.5);
 
