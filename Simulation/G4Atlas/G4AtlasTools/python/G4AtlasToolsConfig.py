@@ -28,7 +28,7 @@ def generateFastSimulationList():
             print "getFastSimulationMasterTool INFO No Frozen Showers"
     if DetFlags.Muon_on():
         if hasattr(simFlags, 'CavernBG') and simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() != 'Read' and\
-           not (hasattr(simFlags, 'RecordFlux') and simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
+                not (hasattr(simFlags, 'RecordFlux') and simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
             FastSimulationList += ['NeutronFastSim']
     return FastSimulationList
 
@@ -95,11 +95,10 @@ def generateCaloSensitiveDetectorList():
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.simulate.LAr_on():
         SensitiveDetectorList += [ 'LArEMBSensitiveDetector','LArEMECSensitiveDetector','LArFCALSensitiveDetector',\
-                                       'LArHECSensitiveDetector','LArMiniFCALSensitiveDetector']
+                                   'LArHECSensitiveDetector','LArMiniFCALSensitiveDetector']
         if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
             SensitiveDetectorList += [ 'HGTDSensorSD' ]
-        else:
-            SensitiveDetectorList += [ 'MinBiasScintillatorSD' ]
+        SensitiveDetectorList += [ 'MinBiasScintillatorSD' ]
         from G4AtlasApps.SimFlags import simFlags
         if simFlags.CalibrationRun.get_Value() in ['LAr', 'LAr+Tile']:
             SensitiveDetectorList += [ 'LArDeadSensitiveDetector','LArInactiveSensitiveDetector','LArActiveSensitiveDetector' ]
@@ -140,14 +139,6 @@ def generateEnvelopeSensitiveDetectorList():
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, "ReadTR") and not simFlags.ReadTR.statusOn:
         SensitiveDetectorList+=['CosmicRecord']
-    if not simFlags.ISFRun:
-        from AthenaCommon.DetFlags import DetFlags
-        if DetFlags.ID_on():
-            SensitiveDetectorList+=['CaloEntryLayer']
-        if DetFlags.Calo_on():
-            SensitiveDetectorList+=['MuonEntryLayer']
-        if DetFlags.geometry.Muon_on():
-            SensitiveDetectorList+=['MuonExitLayer']
     return SensitiveDetectorList
 
 def generateSensitiveDetectorList():
@@ -171,15 +162,10 @@ def generateTestBeamSensitiveDetectorList():
                 SensitiveDetectorList += [ 'TileCTBGeoG4CalibSD' ] # mode 1 : With CaloCalibrationHits
             else:
                 SensitiveDetectorList += [ 'TileCTBGeoG4SD' ]      # mode 0 : No CaloCalibrationHits
-        if DetFlags.simulate.Calo_on():
-            SensitiveDetectorList += [ 'MuonWallSD' ]
+                if DetFlags.simulate.Calo_on():
+                    SensitiveDetectorList += [ 'MuonWallSD' ]
         return SensitiveDetectorList
 
-    if (hasattr(simFlags, "LArFarUpstreamMaterial") and
-        simFlags.LArFarUpstreamMaterial.statusOn and
-        simFlags.LArFarUpstreamMaterial.get_Value()):
-        SensitiveDetectorList += [ 'LArFarUpstreamMaterialExitLayer' ]
-    from AthenaCommon.DetFlags import DetFlags
     if DetFlags.simulate.pixel_on():
         SensitiveDetectorList += [ 'PixelSensor_CTB' ]
     if DetFlags.simulate.SCT_on():
