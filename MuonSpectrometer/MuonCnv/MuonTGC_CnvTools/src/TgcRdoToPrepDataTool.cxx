@@ -1847,7 +1847,6 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeSL(const TgcRdo::const_iterator& it
   ATH_MSG_DEBUG("coincollection->push_back done (for SL)");
 
   m_nSLPRDs++; // Count the number of output SL PRDs.
-  
   return StatusCode::SUCCESS;
 }
 
