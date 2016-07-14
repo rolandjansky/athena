@@ -90,6 +90,7 @@ using namespace std;
 TrigSteer::TrigSteer(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_config(0),
+    m_stepForEB(0),
     m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
     m_l1topoConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
     m_robDataProvider("ROBDataProviderSvc/ROBDataProviderSvc",name),
@@ -106,9 +107,6 @@ TrigSteer::TrigSteer(const std::string& name, ISvcLocator* pSvcLocator)
     m_executionOrderStrategy("HLT__OptimalExecutionOrderStrategy", this),
     m_EventInfoTool("HLT::EventInfoAccessTool/EventInfoAccessTool", this),
     m_timerSvc("TrigTimerSvc/TrigTimerSvc", name),    
-    m_timerTotal(0),m_timerTotalAccepted(0), m_timerTotalRejected(0),
-    m_timerLvlConverter(0), m_timerChains(0), m_timerResultBuilder(0), m_timerMonitoring(0), m_timerMonitoringSave(0),
-    m_timerExec(0), m_timerCallEB(0), 
     m_abortTimer(0),
     m_incidentTimer(0, HLT::Incidents::EventTimeout::type())
 {
@@ -162,11 +160,7 @@ StatusCode TrigSteer::initialize()
   
    // Setup the HLT ROB Data Provider Service when configured
    if ( &*m_robDataProvider ) {
-#ifdef ATLAS_GAUDI_V21
       m_trigROBDataProvider = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProvider );
-#else
-      m_trigROBDataProvider = SmartIF<ITrigROBDataProviderSvc>( IID_ITrigROBDataProviderSvc, &*m_robDataProvider );
-#endif
       if (m_trigROBDataProvider.isValid()) {
         ATH_MSG_INFO(" A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found.");
       } else {
@@ -395,9 +389,6 @@ StatusCode TrigSteer::initialize()
       ATH_MSG_ERROR("Failed to reset vector of all configured HLT::Chain objects!");
    }
 
-   //  ATH_MSG_INFO("m_prescaleBeforeExecution = " << m_prescaleBeforeExecution);
-   //  ATH_MSG_INFO("m_calculatePrescaledChains = " << m_calculatePrescaledChains);
-  
    if ( m_hardEventTimeout > 0 )
       ATH_MSG_WARNING("Hard event timeout set (" << m_hardEventTimeout/1e6 << " ms)");
    if ( m_softEventTimeout > 0 )
