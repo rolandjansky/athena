@@ -123,7 +123,7 @@
     </TEST>
     
     <TEST name="RECOSHIFT_bs0_rdotobs" type="athena" suite="recobs">
-      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ;jp.AthenaCommonFlags.FilesInput=['root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1'] " AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_common.py RecExCommon/rdotobs.py</options_atn>
+      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ;jp.AthenaCommonFlags.FilesInput=['/afs/cern.ch/atlas/project/rig/referencefiles/mc15/RDO.pool.root'] " AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_common.py RecExCommon/rdotobs.py</options_atn>
       <timelimit>30</timelimit>
       <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
@@ -162,23 +162,6 @@
       <mailto> atlas.rig@cern.ch </mailto>
       <platform>opt</platform>
     </TEST>
-    
-    <TEST name="RECOSHIFT_qtest_run1" type="script" suite="qtests">
-      <options_atn>qtest_run1.sh</options_atn>
-      <timelimit>20</timelimit> 
-      <author> Xiaohu Sun </author>
-      <mailto> atlas.rig@cern.ch </mailto>
-      <platform>opt</platform>
-    </TEST>
-    
-    <TEST name="RECOSHIFT_qtest_run2" type="script" suite="qtests">
-      <options_atn>qtest_run2.sh</options_atn>
-      <timelimit>20</timelimit> 
-      <author> Xiaohu Sun </author>
-      <mailto> atlas.rig@cern.ch </mailto>
-      <platform>opt</platform>
-    </TEST>
-    
   </atn>
   
   <kv/>
@@ -197,9 +180,9 @@
 	<displayComponent>Det-Combined</displayComponent>
       </classification>
       
-      <athena userJobId="mc12_all_fpeAna">
+      <athena userJobId="mc15_all_fpeAna">
 	<doc> Run all reco on default file with floating point exception enabled </doc>
-	<displayName>RecExAnaTest_RTT_mc11_all_fpe</displayName>
+	<displayName>RecExAnaTest_RTT_mc15_all_fpe</displayName>
 	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;doFloatingPointException=True;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
 	<options>RecExAnaTest_RTT_all</options>
 	<group>RecExAna</group>
