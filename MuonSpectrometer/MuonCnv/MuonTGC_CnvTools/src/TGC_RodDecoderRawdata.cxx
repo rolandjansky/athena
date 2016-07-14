@@ -24,7 +24,8 @@ using eformat::helper::SourceIdentifier;
 Muon::TGC_RodDecoderRawdata::TGC_RodDecoderRawdata(const std::string& t,
 						   const std::string& n,
 						   const IInterface*  p) :
-  AthAlgTool(t, n, p)
+  AthAlgTool(t, n, p),
+  m_tgcRODReadOut(0)
 {
   declareInterface<ITGC_RodDecoder>(this);
 
