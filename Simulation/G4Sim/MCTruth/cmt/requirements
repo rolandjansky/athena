@@ -6,8 +6,9 @@ use AtlasPolicy  AtlasPolicy-*
 use AtlasHepMC   AtlasHepMC-*   External
 use CLIDSvc      CLIDSvc-*      Control
 use Geant4       Geant4-*       External
-
+use GeneratorObjects GeneratorObjects-* Generators
 private
+use ISF_Event    ISF_Event-*    Simulation/ISF/ISF_Core
 use SimHelpers   SimHelpers-*   Simulation/G4Sim
 end_private
 
