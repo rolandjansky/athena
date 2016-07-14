@@ -120,7 +120,7 @@ StatusCode Lvl1ResultAccessTool::updateItemsConfigOnly() {
 
    clearLvl1Items();
 
-   const vector<int> & prescales = ctpConfig->prescaleSet().prescales();
+   const vector<float> & prescales = ctpConfig->prescaleSet().prescales_float();
 
    for(const TrigConf::TriggerItem * item : ctpConfig->menu().items() ) {
 

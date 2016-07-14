@@ -90,6 +90,7 @@ using namespace std;
 TrigSteer::TrigSteer(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_config(0),
+    m_stepForEB(0),
     m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
     m_l1topoConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
     m_robDataProvider("ROBDataProviderSvc/ROBDataProviderSvc",name),
@@ -106,9 +107,6 @@ TrigSteer::TrigSteer(const std::string& name, ISvcLocator* pSvcLocator)
     m_executionOrderStrategy("HLT__OptimalExecutionOrderStrategy", this),
     m_EventInfoTool("HLT::EventInfoAccessTool/EventInfoAccessTool", this),
     m_timerSvc("TrigTimerSvc/TrigTimerSvc", name),    
-    m_timerTotal(0),m_timerTotalAccepted(0), m_timerTotalRejected(0),
-    m_timerLvlConverter(0), m_timerChains(0), m_timerResultBuilder(0), m_timerMonitoring(0), m_timerMonitoringSave(0),
-    m_timerExec(0), m_timerCallEB(0), 
     m_abortTimer(0),
     m_incidentTimer(0, HLT::Incidents::EventTimeout::type())
 {
@@ -141,6 +139,7 @@ TrigSteer::TrigSteer(const std::string& name, ISvcLocator* pSvcLocator)
    declareProperty("doL1TopoSimulation",m_doL1TopoSimulation=true,"Turns on L1Topo Sim");
    declareProperty("TopoOutputLevel", m_topoOutputLevel, "OutputLevel for L1Topo algorithms" );
    declareProperty("EventInfoAccessTool", m_EventInfoTool,"Tool to update the EventInfo at the end of the execution");
+   declareProperty("AuditChains", m_auditChains=false, "Call auditor hooks for chain execution");
 }
 
 
@@ -161,11 +160,7 @@ StatusCode TrigSteer::initialize()
   
    // Setup the HLT ROB Data Provider Service when configured
    if ( &*m_robDataProvider ) {
-#ifdef ATLAS_GAUDI_V21
       m_trigROBDataProvider = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProvider );
-#else
-      m_trigROBDataProvider = SmartIF<ITrigROBDataProviderSvc>( IID_ITrigROBDataProviderSvc, &*m_robDataProvider );
-#endif
       if (m_trigROBDataProvider.isValid()) {
         ATH_MSG_INFO(" A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found.");
       } else {
@@ -394,9 +389,6 @@ StatusCode TrigSteer::initialize()
       ATH_MSG_ERROR("Failed to reset vector of all configured HLT::Chain objects!");
    }
 
-   //  ATH_MSG_INFO("m_prescaleBeforeExecution = " << m_prescaleBeforeExecution);
-   //  ATH_MSG_INFO("m_calculatePrescaledChains = " << m_calculatePrescaledChains);
-  
    if ( m_hardEventTimeout > 0 )
       ATH_MSG_WARNING("Hard event timeout set (" << m_hardEventTimeout/1e6 << " ms)");
    if ( m_softEventTimeout > 0 )
@@ -808,6 +800,16 @@ void TrigSteer::runChains(bool secondPass) {
   int  step = 0; //just for debug: follow numeration of signature counters: starts from 1 (but currentStep in chains starts from 0)
   bool doEBbyChain = false;
 
+  if(m_config -> getSteeringOPILevel() > 0) {
+    // Create new chain step OPI as before
+    TrigOperationalInfo *steer_opi = new TrigOperationalInfo();
+    std::string key;
+    m_config -> getNavigation() -> attachFeature(m_config -> getNavigation() -> getInitialNode(),
+                                                 steer_opi, HLT::Navigation::ObjectCreatedByNew, key, 
+                                                 "OPI_extended"+m_config->getInstance());
+    m_config -> setSteeringOPI(steer_opi);
+  }
+
   while ( chainsStillActive && noError ) {
     step++;
     if (msgLvl(MSG::DEBUG)) {
@@ -835,7 +837,7 @@ void TrigSteer::runChains(bool secondPass) {
         if ( ! (*iterChain)->runInSecondPass()) continue;
       }
 
- 
+      if (m_auditChains) auditorSvc()->before(IAuditor::Execute,(*iterChain)->getChainName());
       // In case we crash, CoreDumpSvc will print this info
       m_coreDumpSvc->setCoreDumpInfo("Current trigger chain",(*iterChain)->getChainName());
 
@@ -887,7 +889,8 @@ void TrigSteer::runChains(bool secondPass) {
           issueEventBuildingRequest(step);
         }
       }
-      
+      if (m_auditChains) auditorSvc()->after(IAuditor::Execute,(*iterChain)->getChainName());
+
       chainsStillActive = (*iterChain)->isActive() || chainsStillActive;
     }   
   }
@@ -1292,6 +1295,11 @@ const std::vector<const HLT::SteeringChain*> TrigSteer::getConfiguredChains() co
    sort(sortedChains.begin(), sortedChains.end(), compareByName);
 
    return sortedChains;
+}
+
+
+std::vector<TriggerInfo::StreamTag> TrigSteer::getErrorStreamTags() const {
+  return m_resultBuilder->getErrorStreamTags();
 }
 
 

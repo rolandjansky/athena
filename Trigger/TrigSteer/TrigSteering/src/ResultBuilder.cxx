@@ -13,7 +13,6 @@
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigSteeringEvent/PartialEventBuildingInfo.h"
 #include "TrigConfHLTData/HLTTriggerType.h"
-#include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventInfo.h"
 #include "TrigSteeringEvent/ScoutingInfo.h"
 #include "eformat/SourceIdentifier.h"
@@ -50,9 +49,7 @@ ResultBuilder::~ResultBuilder()
 
 StatusCode ResultBuilder::initialize()
 {
-  ATH_MSG_DEBUG("initializing " << name());
-
-  CHECK(decodeErrorStreamaTagsProperty());
+  CHECK(decodeErrorStreamTagsProperty());
   CHECK(m_streamingStrategy.retrieve());
 
   return StatusCode::SUCCESS;
@@ -657,7 +654,7 @@ ErrorCode ResultBuilder::getPEBInfo() {
 }
  */
 
-StatusCode ResultBuilder::decodeErrorStreamaTagsProperty() {
+StatusCode ResultBuilder::decodeErrorStreamTagsProperty() {
    std::stringstream ss;
    std::vector<std::string>::const_iterator it;
    for ( it = m_errorStreamTagsProperty.begin(); it != m_errorStreamTagsProperty.end(); ++it ){
@@ -699,4 +696,24 @@ StatusCode ResultBuilder::decodeErrorStreamaTagsProperty() {
    }
 
    return StatusCode::SUCCESS;
+}
+
+std::vector<TriggerInfo::StreamTag> ResultBuilder::getErrorStreamTags() const 
+{ 
+  std::vector<TriggerInfo::StreamTag> streamTags;
+
+  // Default error stream
+  streamTags.push_back(TriggerInfo::StreamTag( m_defaultStreamTagForErrors,"debug", false));	
+        
+  // Additional configured debug streams
+  for (auto& kv : m_errorStreamTags) {
+    streamTags.push_back(kv.second);    
+  }
+
+  // make a unique list of all streams
+  std::sort(streamTags.begin(), streamTags.end(), lessThan_StreamTag);
+  std::vector<TriggerInfo::StreamTag>::iterator new_end = std::unique(streamTags.begin(), streamTags.end(), equal_StreamTag);
+  streamTags.erase(new_end, streamTags.end());   
+  
+  return streamTags;
 }
