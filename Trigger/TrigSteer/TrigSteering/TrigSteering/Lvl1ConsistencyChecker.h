@@ -42,19 +42,39 @@ public:
   static const InterfaceID& interfaceID() { return IID_Lvl1ConsistencyChecker; } 
   
   StatusCode start(); 
-  StatusCode initialize(); 
+
+  /**
+   * Initialize with L1 configuration. Needs to be called before start().
+   */
   StatusCode updateConfig(const TrigConf::ILVL1ConfigSvc* config);
+
+  /**
+   * Check if all L1 items have a corresponding threshold/RoI
+   *
+   * The tool will create two histograms. One with all missing thresholds and
+   * one by ignoring the listed threshold types. This is useful to ignore known
+   * mismatches for events with e.g. overflows.
+   *
+   * @param items            Trigger items
+   * @param nav              Pointer to navigation
+   * @param ignoreThresholds thresholds to ignore (e.g. 'EM','TAU')
+   */
   HLT::ErrorCode check(const std::vector<const LVL1CTP::Lvl1Item*>& items,
-		       const HLT::Navigation* nav);
+                       const HLT::Navigation* nav, 
+                       const std::vector<std::string>& ignoreThresholds);
 
 private:
   bool m_printErrorMessages;
   bool m_returnFailure;
-  TH1I* m_histogram;
+  std::vector<std::string> m_thresholdsToCheck;
+
+  TH1I* m_hist{0};
+  TH1I* m_histAll{0};
 
   // aux data structures
   struct Threshold {
     std::string name;
+    std::string type;     // L1DataDef::TriggerType as string
     uint8_t multiplicity;
   };
   typedef uint32_t ThresholdId;
@@ -65,14 +85,9 @@ private:
     void addThreshold(const Threshold& t);
   };
   typedef uint32_t ItemId;
-  std::map<ItemId, Item> m_configuredItems;
-
-
-  typedef std::map<ThresholdId, Threshold>::const_iterator thresholds_iterator;
-  typedef std::map<ItemId, Item>::const_iterator items_iterator;
+  std::map<ItemId, Item> m_configuredItems; 
   
   void makeItemRoIMap(const TrigConf::TriggerItemNode *node, Item& item);
-  bool thresholdToCheck(const std::string& );
 };
 
 
