@@ -108,8 +108,8 @@ namespace HLT {
 
     unsigned int m_infoSize;
 
-    uint32_t m_superMasterKey; 
-    uint32_t m_prescalesKey; 
+    uint32_t m_superMasterKey{0}; 
+    uint32_t m_prescalesKey{0}; 
 
     bool m_buildAlways; //!< forces event building on every event (also the rejected)
     std::map<unsigned int, std::set<std::pair<CLID, std::string> > > m_modId_clid_name; // map from merged ScoutingInfo
