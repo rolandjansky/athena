@@ -2,7 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TruthEvent_v1.cxx 623284 2014-10-22 14:07:48Z krasznaa $
+// $Id: TruthEvent_v1.cxx 761798 2016-07-14 08:15:01Z krasznaa $
+
+// System include(s):
+#include <cmath>
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -93,6 +96,21 @@ namespace xAOD {
       return true;
    }
 
+   TruthEvent_v1::PdfInfo::PdfInfo()
+      : pdgId1( 0 ), pdgId2( 0 ), pdfId1( -1 ), pdfId2( -1 ),
+        x1( NAN ), x2( NAN ), Q( NAN ), xf1( NAN ), xf2( NAN ) {
+
+   }
+
+   bool TruthEvent_v1::PdfInfo::valid() const {
+
+      return ( ( pdgId1 != 0 ) && ( pdgId2 != 0 ) &&
+               ( pdfId1 >= 0 ) && ( pdfId2 >= 0 ) &&
+               ( ! std::isnan( x1 ) ) && ( ! std::isnan( x2 ) ) &&
+               ( ! std::isnan( Q ) ) &&
+               ( ! std::isnan( xf1 ) ) && ( ! std::isnan( xf2 ) ) );
+   }
+
    TruthEvent_v1::PdfInfo TruthEvent_v1::pdfInfo() const {
 
       // The result object:
@@ -107,7 +125,7 @@ namespace xAOD {
       pdfInfoParameter( rtn.x2,     X2 );
       pdfInfoParameter( rtn.Q,      Q );
       pdfInfoParameter( rtn.xf1,    XF1 );
-      pdfInfoParameter( rtn.xf1,    XF1 );
+      pdfInfoParameter( rtn.xf2,    XF2 );
 
       return rtn;
    }

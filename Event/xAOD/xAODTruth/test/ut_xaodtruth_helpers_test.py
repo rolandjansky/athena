@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: ut_xaodtruth_helpers_test.py 668406 2015-05-19 15:32:15Z krasznaa $
+# $Id: ut_xaodtruth_helpers_test.py 761304 2016-07-12 12:03:36Z krasznaa $
 #
 # This is a simple unit test for checking the health of the truth helper
 # functions in the standalone analysis environment.
@@ -16,7 +16,8 @@ def main():
     ROOT.gROOT.Macro( "$ROOTCOREDIR/scripts/load_packages.C" )
 
     # Open an input xAOD file:
-    FNAME = "/afs/cern.ch/atlas/project/PAT/xAODs/r6630/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.AOD.e3698_s2608_s2183_r6630_tid05352803_00/AOD.05352803._000031.pool.root.1"
+    import os
+    FNAME = os.getenv( "ROOTCORE_TEST_FILE", "FileNotSpecifiedInEnvironment" )
     f = ROOT.TFile.Open( FNAME, "READ" )
     if not f:
         print( "Couldn't open \"%s\"" % FNAME )
@@ -24,11 +25,12 @@ def main():
     print( "Opened: %s" % FNAME )
 
     # Make a transient tree from it:
-    t = ROOT.xAOD.MakeTransientTree( f )
-    if not t:
+    treeMgr = ROOT.xAOD.TTreeMgr( ROOT.xAOD.TEvent.kAthenaAccess )
+    if not treeMgr.readFrom( f ).isSuccess():
         print( "Couldn't make a transient tree from the input file!" )
         return 1
     import xAODRootAccess.GenerateDVIterators
+    t = treeMgr.eventTree()
 
     # Loop on the first few events:
     for entry in xrange( 10 ):

@@ -1,5 +1,5 @@
 package xAODTruth
-# $Id: requirements 687341 2015-08-04 13:07:53Z krasznaa $
+# $Id: requirements 761796 2016-07-14 08:06:02Z krasznaa $
 
 author Andy Buckley <andy.buckley@cern.ch>
 author James Catmore <james.catmore@cern.ch>
@@ -39,3 +39,4 @@ apply_pattern do_genCLIDDB library=xAODTruth
 # Specify the unit test(s) of the package:
 use TestTools       TestTools-*        AtlasTest
 apply_pattern UnitTest_run unit_test=ut_xaodtruth_particle
+

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TruthEvent_v1.h 622193 2014-10-16 16:08:34Z krasznaa $
+// $Id: TruthEvent_v1.h 761796 2016-07-14 08:06:02Z krasznaa $
 #ifndef XAODTRUTH_VERSIONS_TRUTHEVENT_V1_H
 #define XAODTRUTH_VERSIONS_TRUTHEVENT_V1_H
 
@@ -29,8 +29,8 @@ namespace xAOD {
    /// @author Jovan Mitervski <Jovan.Mitrevski@cern.ch>
    /// @author Andy Buckley <Andy.Buckley@cern.ch>
    ///
-   /// $Revision: 622193 $
-   /// $Date: 2014-10-16 18:08:34 +0200 (Thu, 16 Oct 2014) $
+   /// $Revision: 761796 $
+   /// $Date: 2016-07-14 10:06:02 +0200 (Thu, 14 Jul 2016) $
    ///
    class TruthEvent_v1 : public TruthEventBase_v1 {
 
@@ -100,17 +100,10 @@ namespace xAOD {
       struct PdfInfo {
 
          /// Constructor to set (invalid) defaults
-         /// @todo Use C++11 inline member init when allowed
-         PdfInfo()
-            : pdgId1( -1 ), pdgId2( -1 ), pdfId1( -1 ), pdfId2( -1 ),
-              x1( -1 ), x2( -1 ), Q( -1 ), xf1( -1 ), xf2( -1 ) { }
+         PdfInfo();
 
          /// Check if all the variables in the object are valid
-         bool valid() const {
-            return ( ( pdgId1 > 0 ) && ( pdgId2 > 0 ) && ( pdfId1 > 0 ) &&
-                     ( pdfId2 > 0 ) && ( x1 > 0 ) && ( x2 > 0 ) &&
-                     ( Q > 0 ) && ( xf1 > 0 ) && ( xf2 > 0 ) );
-         }
+         bool valid() const;
 
          int pdgId1;
          int pdgId2;
