@@ -63,11 +63,9 @@ G4bool SctSensorGmxSD::ProcessHits(G4Step *aStep, G4TouchableHistory * /* not us
   //
   const int id = myTouch->GetVolume(0)->GetCopyNo();
 
-  // get the barcode from the trackhelper
+  // get the HepMcParticleLink from the TrackHelper
   TrackHelper trHelp(aStep->GetTrack());
-  int barcode = trHelp.GetBarcode();
-
-  m_HitColl->Emplace(lP1, lP2, edep, aStep->GetPreStepPoint()->GetGlobalTime(), barcode, id);
+  m_HitColl->Emplace(lP1, lP2, edep, aStep->GetPreStepPoint()->GetGlobalTime(), trHelp.GetParticleLink(), id);
 
   return true;
 }
