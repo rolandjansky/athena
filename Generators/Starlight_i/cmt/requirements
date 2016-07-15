@@ -27,3 +27,4 @@ apply_pattern dual_use_library files=" *.cxx "
 apply_pattern declare_joboptions files="*.py"
 
 path_prepend LD_LIBRARY_PATH "$(Starlight_lib)"
+
