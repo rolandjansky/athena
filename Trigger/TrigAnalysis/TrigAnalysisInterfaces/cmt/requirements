@@ -14,3 +14,4 @@ apply_pattern lcgdict dict=TrigAnalysisInterfaces selectionfile=selection.xml \
                       headerfiles="../TrigAnalysisInterfaces/TrigAnalysisInterfacesDict.h"
 
 end_private
+
