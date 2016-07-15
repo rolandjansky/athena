@@ -64,11 +64,11 @@ if hasattr(runArgs, "inputFile"):
 if hasattr(runArgs, "inputEVNTFile"):
     setInputEvgenFileJobProperties( runArgs.inputEVNTFile )
 elif hasattr(runArgs, "inputEVNT_COSMICSFile"):
-    setInputEvgenFileJobProperties( runArgs.inputEVNT_COSMICSFile )
+    raise RuntimeError("Unsupported configuration! Currently cosmics simulation is not supported by FullChain_tf.py.")
 elif hasattr(runArgs, "inputEVNT_CAVERNFile"):
-    setInputEvgenFileJobProperties( runArgs.inputEVNT_CAVERNFile )
+    raise RuntimeError("Unsupported configuration! Currently cavern background simulation is not supported by FullChain_tf.py.")
 elif hasattr(runArgs, "inputEVNT_STOPPEDFile"):
-    setInputEvgenFileJobProperties( runArgs.inputEVNT_STOPPEDFile )
+    raise RuntimeError("Unsupported configuration! Currently stopped gluino simulation is not supported by FullChain_tf.py.")
 elif jobproperties.Beam.beamType.get_Value() == 'cosmics':
     fast_chain_log.debug('No inputEVNTFile provided. OK, as performing cosmics simulation.')
     athenaCommonFlags.PoolEvgenInput.set_Off()
@@ -81,7 +81,7 @@ if hasattr(runArgs, "outputHITSFile"):
     athenaCommonFlags.PoolHitsOutput.set_Value_and_Lock( runArgs.outputHITSFile )
 else:
     if hasattr(runArgs, "outputEVNT_STOPPEDFile"):
-        simFlags.StoppedParticleFile.set_Value_and_Lock( runArgs.outputEVNT_STOPPEDFile )
+        raise RuntimeError("Unsupported configuration! Currently stopped gluino simulation is not supported by FullChain_tf.py.")
     #raise RuntimeError("No outputHITSFile provided.")
     fast_chain_log.info('No outputHITSFile provided. This simulation job will not write out any HITS file.')
     athenaCommonFlags.PoolHitsOutput = ""
@@ -102,16 +102,6 @@ if hasattr(runArgs, "preSimInclude"):
     for fragment in runArgs.preSimInclude:
         include(fragment)
 
-
-# Avoid command line preInclude for stopped particles
-if hasattr(runArgs, "inputEVNT_STOPPEDFile"):
-    include('SimulationJobOptions/preInclude.ReadStoppedParticles.py')
-
-# Avoid command line preInclude for cavern background
-if hasattr(runArgs, "inputEVNT_CAVERNFile"):
-    include('SimulationJobOptions/preInclude.G4ReadCavern.py')
-if hasattr(runArgs, "outputEVNT_CAVERNTRFile"):
-    include('SimulationJobOptions/preInclude.G4WriteCavern.py')
 
 ## Select detectors
 
@@ -144,8 +134,11 @@ except:
     DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
     DetFlags.Truth_setOn()
     DetFlags.Forward_setOff() # Forward dets are off by default
+    checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
+    if checkHGTDOff is not None:
+        checkHGTDOff() #Default for now
+
 from AthenaCommon.DetFlags import DetFlags
-DetFlags.overlay.all_setOff() #TODO - remove this one ISF_Config is updated.
 DetFlags.FTK_setOff() #FTK is not part of G4 sim
 DetFlags.DBM_setOff() #Separate treatment of DBM is on hold
 # note this makeRIO enables forward detectors, so have to set them off after
@@ -166,6 +159,13 @@ if hasattr(runArgs, "LucidOn"):
 if hasattr(runArgs, "ZDCOn"):
     if runArgs.ZDCOn:
         DetFlags.ZDC_setOn()
+if hasattr(runArgs, "HGTDOn"):
+    if runArgs.HGTDOn:
+        checkHGTDOn = getattr(DetFlags, 'HGTD_setOn', None)
+        if checkHGTDOn is not None:
+            checkHGTDOn()
+        else:
+            fast_chain_log.warning('The HGTD DetFlag is not supported in this release')
 if not simFlags.SimulateNewSmallWheel():
     DetFlags.Micromegas_setOff()
     DetFlags.sTGC_setOff()
@@ -226,7 +226,7 @@ if hasattr(runArgs, 'truthStrategy'):
             simFlags.SimBarcodeOffset  = 200000 #MC12 setting
         else:
             simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
-        atlasG4log.warning('Using unknown truth strategy '+str(runArgs.truthStrategy)+' guessing that barcode offset is '+str(simFlags.SimBarcodeOffset))
+        fast_chain_log.warning('Using unknown truth strategy '+str(runArgs.truthStrategy)+' guessing that barcode offset is '+str(simFlags.SimBarcodeOffset))
     except ImportError:
         # Temporary back-compatibility
         if 'MC12' in runArgs.truthStrategy or 'MC15a' in runArgs.truthStrategy:
@@ -278,20 +278,38 @@ if hasattr(runArgs, "postSimExec"):
         exec(cmd)
 
 ## Always enable the looper killer, unless it's been disabled
-if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
-    try:
-        # Post UserAction Migration (ATLASSIM-1752)
-        from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-        UAStore.addAction('LooperKiller',['Step']) # add default configurable
-    except:
-        # Pre UserAction Migration
-        def use_looperkiller():
-            from G4AtlasApps import PyG4Atlas, AtlasG4Eng
-            lkAction = PyG4Atlas.UserAction('G4UserActions', 'LooperKiller', ['BeginOfRun', 'EndOfRun', 'BeginOfEvent', 'EndOfEvent', 'Step'])
-            AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(lkAction)
-        simFlags.InitFunctions.add_function("postInit", use_looperkiller)
-else:
-    fast_chain_log.warning("The looper killer will NOT be run in this job.")
+if ISF_Flags.UsingGeant4():
+    if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
+        print "GOT HERE 1"
+        try:
+            if (hasattr(simFlags, 'UseV2UserActions') and simFlags.UseV2UserActions()):
+                print "GOT HERE 2"
+                # this configures the MT LooperKiller
+                from G4UserActions import G4UserActionsConfig
+                try:
+                    G4UserActionsConfig.addLooperKillerTool()
+                except AttributeError:
+                    fast_chain_log.warning("Could not add the MT-version of the LooperKiller")
+            else:
+                print "GOT HERE 3"
+                # this configures the non-MT looperKiller
+                try:
+                    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+                except ImportError:
+                    print "GOT HERE 4"
+                    from G4AtlasServices.UserActionStore import UAStore
+                # add default configurable
+                UAStore.addAction('LooperKiller',['Step'])
+        except:
+            print "GOT HERE 3"
+            # Pre UserAction Migration
+            def use_looperkiller():
+                from G4AtlasApps import PyG4Atlas, AtlasG4Eng
+                lkAction = PyG4Atlas.UserAction('G4UserActions', 'LooperKiller', ['BeginOfRun', 'EndOfRun', 'BeginOfEvent', 'EndOfEvent', 'Step'])
+                AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(lkAction)
+            simFlags.InitFunctions.add_function("postInit", use_looperkiller)
+    else:
+        fast_chain_log.warning("The looper killer will NOT be run in this job.")
 
 ### End of Sim
 
