@@ -5,51 +5,9 @@ Configuration database for ISF
 KG Tan, 17/06/2012
 """
 
-from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorithm, \
-     addTypesToExcludeIfDefaultValue, addNamesToExcludeIfDefaultValue, addFullNamesToExcludeIfDefaultValue, \
-     addPropertiesToExcludeIfDefault, \
-     addTypesToSkipIfNotAvailable, addNamesToSkipIfNotAvailable, addFullNamesToSkipIfNotAvailable, \
-     addTypesOnlyToSkip
+from AthenaCommon.CfgGetter import addAlgorithm
 
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-import AthenaCommon.SystemOfUnits as Units
-
-# Common tools, services and algorithms used by jobs
-addService("ISF_Geant4CommonServices.ISF_Geant4CommonServicesConfig.getG4PolyconeGeoIDSvc",    "ISF_G4PolyconeGeoIDSvc"   )
-addService("ISF_Geant4CommonServices.ISF_Geant4CommonServicesConfig.getAFIIG4PolyconeGeoIDSvc","ISF_AFIIG4PolyconeGeoIDSvc")
-addService("ISF_Geant4CommonServices.ISF_Geant4CommonServicesConfig.getG4PolyconeGeoIDSvc_G4", "ISF_G4PolyconeGeoIDSvc_G4")
-
-addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getNIMatEffUpdator",                 "ISF_NIMatEffUpdator")
-addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getNIPropagator",                    "ISF_NIPropagator")
-addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getNITimedExtrapolator",             "ISF_NITimedExtrapolator")
-addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getPunchThroughTool",                "ISF_PunchThroughTool")
-addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getEmptyCellBuilderTool",            "ISF_EmptyCellBuilderTool")
-addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastShowerCellBuilderTool",       "ISF_FastShowerCellBuilderTool")
-addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getLegacyFastShowerCellBuilderTool", "ISF_LegacyFastShowerCellBuilderTool")
-addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getPileupFastShowerCellBuilderTool", "ISF_PileupFastShowerCellBuilderTool")
-addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getCaloNoiseTool",                   "ISF_FCS_CaloNoiseTool")
-addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getAddNoiseCellBuilderTool",         "ISF_AddNoiseCellBuilderTool")
-addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getCaloCellContainerFinalizerTool",  "ISF_CaloCellContainerFinalizerTool")
-
-addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getNativeFastCaloSimSvc",         "ISF_NativeFastCaloSimSvc")
-addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSimSvc",               "ISF_FastCaloSimSvc")
-addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSimPileupSvc",         "ISF_FastCaloSimPileupSvc")
-addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastHitConvAlgFastCaloSimSvc", "ISF_FastHitConvFastCaloSimSvc")
-addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastCaloSimSvcBase",           "ISF_FastCaloSimSvcBase")
-addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getLegacyAFIIFastCaloSimSvc",     "ISF_LegacyAFIIFastCaloSimSvc")
-addService("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastHitConvAlgLegacyAFIIFastCaloSimSvc",     "ISF_FastHitConvAlgLegacyAFIIFastCaloSimSvc")
-addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastHitConvertTool",              "ISF_FastHitConvertTool")
-addAlgorithm("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastHitConvAlg",             "ISF_FastHitConvAlg")
-
-addService("ISF_Geant4Config.ISF_iGeant4Config.getGeant4SimSvc",                        "ISF_Geant4SimSvc")
-addService("ISF_Geant4Config.ISF_iGeant4Config.getFullGeant4SimSvc",                    "ISF_FullGeant4SimSvc")
-addService("ISF_Geant4Config.ISF_iGeant4Config.getPassBackGeant4SimSvc",                "ISF_PassBackGeant4SimSvc")
-
-addService("ISF_Config.ISF_Geant4CommonConfig.getAFIIGeant4SimSvc",                     "ISF_AFIIGeant4SimSvc")
-addService("ISF_Config.ISF_Geant4CommonConfig.getLongLivedGeant4SimSvc",                "ISF_LongLivedGeant4SimSvc")
-
-addService("ISF_Example.ISF_iParticleKillerConfig.getParticleKillerSvc", "ISF_ParticleKillerSvc")
-
+# Common algorithms used by jobs
 addAlgorithm("ISF_Config.ISF_MainConfig.getInput_GenericGenerator",     "ISF_Input_GenericGenerator")
 addAlgorithm("ISF_Config.ISF_MainConfig.getInput_GenericFiles",         "ISF_Input_GenericFiles")
 addAlgorithm("ISF_Config.ISF_MainConfig.getInput_geantinos",            "ISF_Input_geantinos")
