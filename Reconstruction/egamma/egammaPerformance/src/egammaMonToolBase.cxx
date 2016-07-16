@@ -214,7 +214,7 @@ bool egammaMonToolBase::hasBadLar()
 
 StatusCode egammaMonToolBase::procHistograms()
 {
-  if(endOfRun) {
+  if(endOfRunFlag()) {
     // Extra work to be done at end of run
   }
 

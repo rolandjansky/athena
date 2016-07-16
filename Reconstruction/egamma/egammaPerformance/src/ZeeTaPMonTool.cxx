@@ -30,13 +30,25 @@ using CLHEP::GeV;
 ZeeTaPMonTool::ZeeTaPMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   :  egammaMonToolBase(type,name,parent),
      m_hNZcandidates(nullptr),
+     m_electronGroup(nullptr),
+     m_electronTrkGroup(nullptr),
+     m_electronIdGroup(nullptr),
+     m_electronIsoGroup(nullptr),
+     m_electronLBGroup(nullptr),
+     m_electronEffGroup(nullptr),
      m_hMass(nullptr),
      m_hIDEt(nullptr),
      m_hIDEta(nullptr),
      m_hIDPhi(nullptr),
+     m_effhIDEt(nullptr),
+     m_effhIDEta(nullptr),
+     m_effhIDPhi(nullptr),
      m_hISOEt(nullptr),
      m_hISOEta(nullptr),
      m_hISOPhi(nullptr),
+     m_effhISOEt(nullptr),
+     m_effhISOEta(nullptr),
+     m_effhISOPhi(nullptr),
      m_hN(nullptr),
      m_hEt(nullptr),
      m_hEta(nullptr),
@@ -51,7 +63,6 @@ ZeeTaPMonTool::ZeeTaPMonTool(const std::string & type, const std::string & name,
   declareProperty("massLowerCut", m_MassLowerCut = 70*GeV,"Lower mass cut");
   declareProperty("massUpperCut", m_MassUpperCut = 110*GeV,"Upper mass cut");
 
-  m_lumiBlockNumber=-1;
   m_lumiBlockNumber = 0;
   m_nZCandidatesInCurrentLB = 0;
   m_nZCandidates = 0; 

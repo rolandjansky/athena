@@ -81,7 +81,21 @@
 #include "TH2F.h"
 
 forwardElectronMonTool::forwardElectronMonTool(const std::string & type, const std::string & name, const IInterface* parent)
-  :  egammaMonToolBase(type,name,parent)
+  :  egammaMonToolBase(type,name,parent),
+     m_hN(nullptr),
+     m_hEt(nullptr),
+     m_hEta(nullptr),
+     m_hPhi(nullptr),
+     m_hEtaPhi(nullptr),
+     m_hTopoEtCone40(nullptr),
+     m_hTime(nullptr),
+     m_hTightN(nullptr),
+     m_hTightEt(nullptr),
+     m_hTightEta(nullptr),
+     m_hTightPhi(nullptr),
+     m_hTightEtaPhi(nullptr),
+     m_hTightTopoEtCone40(nullptr),
+     m_hTightTime(nullptr)
 {
   // Name of the electron collection
   declareProperty("ForwardElectronContainer", m_ForwardElectronContainer = "egammaForwardCollection", "Name of the forward electron collection" );
@@ -202,7 +216,6 @@ StatusCode forwardElectronMonTool::fillHistograms()
     if((*e_iter)->author(xAOD::EgammaParameters::AuthorFwdElectron)==0) continue;
 
     // Basic kinematics
-    float energy = (*e_iter)->e();
     float et  = (*e_iter)->pt();
     float eta = (*e_iter)->eta();
     float phi = (*e_iter)->phi();      
@@ -232,7 +245,7 @@ StatusCode forwardElectronMonTool::fillHistograms()
     ++n_tot;
     ++(n_el[ir]);
     if(m_hEt)     m_hEt->Fill(et);
-    if(m_hEtaPhi&&energy>10000.) m_hEtaPhi->Fill(eta,phi);
+    if(m_hEtaPhi&&et>10000.) m_hEtaPhi->Fill(eta,phi);
     if(m_hEta)    m_hEta->Fill(eta);
     if(m_hPhi)    m_hPhi->Fill(phi);
     
@@ -278,7 +291,7 @@ StatusCode forwardElectronMonTool::fillHistograms()
 	n_tot_tight++;
 	++(n_el_tight[ir]);
 	if(m_hTightEt)     m_hTightEt->Fill(et);
-	if(m_hTightEtaPhi&&energy>10000) m_hTightEtaPhi->Fill(eta,phi);
+	if(m_hTightEtaPhi&&et>10000) m_hTightEtaPhi->Fill(eta,phi);
 	if(m_hTightEta)    m_hTightEta->Fill(eta);
 	if(m_hTightPhi)    m_hTightPhi->Fill(phi);
 	if (m_hTightTime)  m_hTightTime->Fill(time);
