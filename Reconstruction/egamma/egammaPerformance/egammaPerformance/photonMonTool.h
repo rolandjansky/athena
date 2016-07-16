@@ -138,6 +138,8 @@ class photonHist
     m_hPhiUnconv(nullptr),
     m_hPhiConv(nullptr),
     m_hEtaPhi(nullptr),
+    m_hEtaPhi4GeV(nullptr),
+    m_hEtaPhi20GeV(nullptr),
     m_hEtaPhiUnconv(nullptr),
     m_hEtaPhiConv(nullptr),
     m_hTopoEtCone40(nullptr),
