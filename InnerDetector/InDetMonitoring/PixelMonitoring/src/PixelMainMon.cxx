@@ -249,6 +249,14 @@ PixelMainMon::PixelMainMon(const std::string & type,
    //m_tracksPerEvtPerMu_per_lumi = 0;
    //m_track_dedx = 0;
    //m_track_mass_dedx = 0;
+   
+   m_LorentzAngle_IBL = 0;
+   m_LorentzAngle_IBL2D = 0;
+   m_LorentzAngle_IBL3D = 0;
+   m_LorentzAngle_B0 = 0;
+   m_LorentzAngle_B1 = 0;
+   m_LorentzAngle_B2 = 0;
+
    m_clustot_vs_pt = 0;
    m_clustot_lowpt = 0;
    m_1hitclustot_lowpt = 0;
@@ -423,35 +431,35 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_nGood_B2=0;
 
    for( int i=0; i<PixLayer::COUNT; i++){
-      m_nlargeevt_per_lumi_mod[i] = 0;
+      //m_nlargeevt_per_lumi_mod[i] = 0;
       m_ToT_etaphi_mod[i] = 0;
       m_occupancy_summary_mod[i] = 0;
       m_occupancy_summary_low_mod[i] = 0;
       m_nhits_mod[i] = 0;
-      m_totalhits_per_bcid_mod[i] = 0;
+      //m_totalhits_per_bcid_mod[i] = 0;
       m_diff_ROD_vs_Module_BCID_mod[i] = 0;
       m_Lvl1ID_diff_mod_ATLAS_mod[i] = 0;
       //m_Lvl1A_mod[i] = 0;
       m_Lvl1A_10min_mod[i] = 0;
       m_hit_ToT_tmp_mod[i] = 0;
       m_hit_ToT_Mon_mod[i] = 0;
-      m_avgocc_per_lumi_mod[i] = 0;
-      m_avgocc_wSyncMod_per_lumi_mod[i] = 0;
-      m_avgocc_per_bcid_mod[i] = 0;
-      m_maxocc_per_lumi_mod[i] = 0;
-      m_maxocc_per_bcid_mod[i] = 0;
+      //m_avgocc_per_lumi_mod[i] = 0;
+      //m_avgocc_wSyncMod_per_lumi_mod[i] = 0;
+      //m_avgocc_per_bcid_mod[i] = 0;
+      //m_maxocc_per_lumi_mod[i] = 0;
+      //m_maxocc_per_bcid_mod[i] = 0;
       m_hits_per_lumi_mod[i] = 0;
-      m_avgocc_LBvsBCID_mod[i] = 0;
+      //m_avgocc_LBvsBCID_mod[i] = 0;
       m_clusters_per_lumi_mod[i] = 0;
-      m_clusters_col_width_per_lumi_mod[i] = 0;
-      m_clusters_row_width_per_lumi_mod[i] = 0;
-      m_clusters_col_width_per_bcid_mod[i] = 0;
-      m_clusters_row_width_per_bcid_mod[i] = 0;
-      m_totalclusters_per_lumi_mod[i] = 0;
-      m_totalclusters_per_bcid_mod[i] = 0;
-      m_cluster_col_width_mod[i] = 0;
-      m_cluster_row_width_mod[i] = 0;
-      m_cluster_groupsize_mod[i] = 0;
+      //m_clusters_col_width_per_lumi_mod[i] = 0;
+      //m_clusters_row_width_per_lumi_mod[i] = 0;
+      //m_clusters_col_width_per_bcid_mod[i] = 0;
+      //m_clusters_row_width_per_bcid_mod[i] = 0;
+      //m_totalclusters_per_lumi_mod[i] = 0;
+      //m_totalclusters_per_bcid_mod[i] = 0;
+      //m_cluster_col_width_mod[i] = 0;
+      //m_cluster_row_width_mod[i] = 0;
+      //m_cluster_groupsize_mod[i] = 0;
       //m_clusQ_vs_eta_mod[i] = 0;
       m_clussize_vs_eta_mod[i] = 0;
       m_bad_mod_errors_mod[i] = 0;
@@ -472,13 +480,35 @@ PixelMainMon::PixelMainMon(const std::string & type,
       m_cluster_LVL1A1d_mod[i] = 0;
       m_hiteff_incl_mod[i] = 0;
       m_hiteff_actv_mod[i] = 0;
-      m_clusize_ontrack_mod[i] = 0;
-      m_clusize_offtrack_mod[i] = 0;
+      //m_clusize_ontrack_mod[i] = 0;
+      //m_clusize_offtrack_mod[i] = 0;
    }
    for( int j=0; j<16; j++){
       m_errors_int_LB[j] = 0;
    }
    for( int i=0; i<PixLayerIBL2D3D::COUNT; i++){
+      /// Hit occupancy
+      m_avgocc_per_lumi_mod[i] = 0;
+      m_avgocc_per_bcid_mod[i] = 0;
+      m_avgocc_LBvsBCID_mod[i] = 0;
+      m_avgocc_wSyncMod_per_lumi_mod[i] = 0;
+      m_maxocc_per_lumi_mod[i] = 0;
+      m_maxocc_per_bcid_mod[i] = 0;
+      m_totalhits_per_bcid_mod[i] = 0;
+      m_nlargeevt_per_lumi_mod[i] = 0;
+      /// Cluster
+      m_cluster_groupsize_mod[i] = 0;
+      m_cluster_col_width_mod[i] = 0;
+      m_cluster_row_width_mod[i] = 0;
+      m_totalclusters_per_lumi_mod[i] = 0;
+      m_totalclusters_per_bcid_mod[i] = 0;
+      m_clusters_col_width_per_lumi_mod[i] = 0;
+      m_clusters_row_width_per_lumi_mod[i] = 0;
+      m_clusters_col_width_per_bcid_mod[i] = 0;
+      m_clusters_row_width_per_bcid_mod[i] = 0;
+      m_clusize_ontrack_mod[i] = 0;
+      m_clusize_offtrack_mod[i] = 0;
+      //
       m_nActivAndSync_mod[i] = 0;
       m_errors_per_lumi_mod[i] = 0;
       m_SyncErrors_per_lumi_mod[i] = 0;
@@ -920,33 +950,28 @@ StatusCode PixelMainMon::bookHistograms()
    }
 
    //   if(newRun) {
+      ///
+      ///
+      ///
       std::string path = "Pixel/Errors";
       if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/ErrorsOnTrack");
       if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/ErrorsOnPixelTrack");
       MonGroup errorHistos( this, path.c_str(), run, ATTRIB_MANAGED ); //declare a group of histograms
-      sc = errorHistos.regHist(m_storegate_errors  = new TH2S("storegate_errors",  ("Storegate Errors" + m_histTitleExt + ";Container Name;Error Type").c_str(), 5,0.5,5.5,4,0.5,4.5));
+      sc = errorHistos.regHist(m_storegate_errors = new TH2S("storegate_errors",  ("Storegate Errors" + m_histTitleExt + ";Container Name;Error Type").c_str(), 6,0.5,6.5,5,0.5,5.5));
       if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
    
-      //path = "Pixel/Hits";
-      //if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/HitsOnTrack");
-      //if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/HitsOnPixelTrack");
-      //MonGroup hitHistos(   this, path.c_str(),  run, ATTRIB_MANAGED ); //declare a group of histograms
-      //std::string hname = makeHistname("Interactions_vs_bcid", false);
-      //std::string htitles = makeHisttitle("<Interactions> vs BCID", ";BCID;<#Interactions/event>", false);
-      //sc = hitHistos.regHist(m_mu_vs_bcid = TProfile_LW::create(hname.c_str(), htitles.c_str(), 3000, -0.5, -0.5+3000.0));
-      
-      
-      //Set lables and style for error histogram
+      ///
+      ///Set lables and style for error histogram
+      ///
       m_storegate_errors->SetOption("colz");
-      const char *xlabel[5] = { "RDOs", "SpacePoints", "Clusters", "Tracks", "RODErrors" };
-      for (int i=0; i<5; i++) {
-	m_storegate_errors->GetXaxis()->SetBinLabel( i+1, xlabel[i] );  // bin 0 is underflow
-      }
-      const char *ylabel[4] = { "Container not found", "Can't retrieve container", "Container empty", "Data is bad"};
-      for (int i=0; i<4; i++) {
-	m_storegate_errors->GetYaxis()->SetBinLabel( i+1, ylabel[i] );  // bin 0 is underflow
-      }
+      const char *xlabel[6] = { "RDOs", "SpacePoints", "Clusters", "Tracks", "RODErrors", "DCS" };
+      for (int i=0; i<6; i++)  m_storegate_errors->GetXaxis()->SetBinLabel( i+1, xlabel[i] );  // bin 0 is underflow
+      const char *ylabel[5] = { "Not flagged", "Container not found", "Can't retrieve container", "Container empty", "Data is bad"};
+      for (int i=0; i<5; i++) m_storegate_errors->GetYaxis()->SetBinLabel( i+1, ylabel[i] );  // bin 0 is underflow
       
+      ///
+      /// Initialize histograms
+      ///
       if(m_doTrack)
       {
          sc=BookTrackMon();
@@ -1072,12 +1097,16 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
 	      }
       }
    }
+
    ////////////////////////////////////////////////////////////////
    //fill methods go here
+   ////////////////////////////////////////////////////////////////
+   
    if(m_doStatus) { //fill status histograms first, to check number of disabled modules
       sc=FillStatusMon();   
       if(sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
    }
+   //if(m_doRODError&&evtStore()->contains<PixelRODErrorCollection>(m_detector_error_name))
    if(m_doRODError)
    {
       sc=FillRODErrorMon();
@@ -1086,52 +1115,54 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
       m_storegate_errors->Fill(5.,1.);
    }
 
-   if(m_doTrack&&evtStore()->contains< TrackCollection >(m_TracksName))
-   {
-      sc=FillTrackMon();
-      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
+   /// Hits
+   if(m_doRDO){
+      if(evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName) ) sc=FillHitsMon();
+      else m_storegate_errors->Fill(1.,2.); 
    }else{
-      m_storegate_errors->Fill(4.,1.);
+      m_storegate_errors->Fill(1.,1.); 
    }
 
-   if(m_doRDO&&evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName))
-   {
-      sc=FillHitsMon();
+   /// Cluster
+   if(m_doCluster){
+      if(evtStore()->contains<InDet::PixelClusterContainer>(m_Pixel_SiClustersName)){
+        sc=FillClustersMon();
+        if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
+      }else m_storegate_errors->Fill(3.,2.);
    }else{
-      m_storegate_errors->Fill(1.,1.);  //first 1. is for RDO, second is for container not found
+      m_storegate_errors->Fill(3.,1.);
    }
-   //if(m_doRODError&&evtStore()->contains<PixelRODErrorCollection>(m_detector_error_name))
 
-   //if(m_doRODError)
-   //{
-   //   sc=FillRODErrorMon();
-   //   if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
-   //}else{
-   //   m_storegate_errors->Fill(5.,1.);
-   //}
-   if(m_doSpacePoint&&evtStore()->contains<SpacePointContainer>(m_Pixel_SpacePointsName))
+   /// Space Point
+   if(m_doSpacePoint)
    {
-      sc=FillSpacePointMon();
-      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
+      if(evtStore()->contains<SpacePointContainer>(m_Pixel_SpacePointsName)){
+        sc=FillSpacePointMon();
+        if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
+      }else m_storegate_errors->Fill(2.,2.);
    }else{
       m_storegate_errors->Fill(2.,1.);
    }
 
-   if(m_doCluster&&evtStore()->contains<InDet::PixelClusterContainer>(m_Pixel_SiClustersName))
-   {
-      sc=FillClustersMon();
-      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
+   /// Track
+   if(m_doTrack){
+      if(evtStore()->contains< TrackCollection >(m_TracksName)){
+        sc=FillTrackMon();
+        if(sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
+      }else m_storegate_errors->Fill(4.,2.);
    }else{
-      m_storegate_errors->Fill(3.,1.);
+      m_storegate_errors->Fill(4.,1.);
    }
 
-   if(m_doDCS)
-   {
+   /// DCS
+   if(m_doDCS){
       sc=FillPixelDCSMon();
       if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq;
    }else{
-      m_storegate_errors->Fill(3.,1.);
+      m_storegate_errors->Fill(6.,1.);
    }
+
+
    return StatusCode::SUCCESS;
 }
 

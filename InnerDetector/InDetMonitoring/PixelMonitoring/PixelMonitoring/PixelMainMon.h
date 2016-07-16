@@ -314,12 +314,18 @@ class PixelMainMon:public ManagedMonitorToolBase
     TProfile_LW*          m_hiteff_actv_mod[PixLayer::COUNT];
 
     TProfile_LW*          m_hits_per_lumi_mod[PixLayer::COUNT];
-    TProfile_LW*          m_avgocc_per_lumi_mod[PixLayer::COUNT];
-    TProfile_LW*          m_avgocc_wSyncMod_per_lumi_mod[PixLayer::COUNT];
-    TProfile_LW*          m_avgocc_per_bcid_mod[PixLayer::COUNT];
-    TH2F_LW*              m_maxocc_per_lumi_mod[PixLayer::COUNT];
-    TH1F_LW*              m_maxocc_per_bcid_mod[PixLayer::COUNT];
-    TH1F_LW*              m_nlargeevt_per_lumi_mod[PixLayer::COUNT];
+    //TProfile_LW*          m_avgocc_per_lumi_mod[PixLayer::COUNT];
+    TProfile_LW*          m_avgocc_per_lumi_mod[PixLayerIBL2D3D::COUNT];
+    //TProfile_LW*          m_avgocc_wSyncMod_per_lumi_mod[PixLayer::COUNT];
+    TProfile_LW*          m_avgocc_wSyncMod_per_lumi_mod[PixLayerIBL2D3D::COUNT];
+    //TProfile_LW*          m_avgocc_per_bcid_mod[PixLayer::COUNT];
+    TProfile_LW*          m_avgocc_per_bcid_mod[PixLayerIBL2D3D::COUNT];
+    //TH2F_LW*              m_maxocc_per_lumi_mod[PixLayer::COUNT];
+    TH2F_LW*              m_maxocc_per_lumi_mod[PixLayerIBL2D3D::COUNT];
+    //TH1F_LW*              m_maxocc_per_bcid_mod[PixLayer::COUNT];
+    TH1F_LW*              m_maxocc_per_bcid_mod[PixLayerIBL2D3D::COUNT];
+    //TH1F_LW*              m_nlargeevt_per_lumi_mod[PixLayer::COUNT];
+    TH1F_LW*              m_nlargeevt_per_lumi_mod[PixLayerIBL2D3D::COUNT];
 
     TH1F_LW*              m_hit_ToT[PixLayerIBL2D3DDBM::COUNT];
     TH1F_LW*              m_hit_ToT_Mon_mod[PixLayer::COUNT];
@@ -335,8 +341,10 @@ class PixelMainMon:public ManagedMonitorToolBase
     TH1F_LW*              m_occupancy_summary_low_mod[PixLayer::COUNT];
     TH1F_LW*              m_occupancy_summary_mod[PixLayer::COUNT];
     TH1F_LW*              m_nhits_mod[PixLayer::COUNT];
-    TH1F_LW*              m_totalhits_per_bcid_mod[PixLayer::COUNT];
-    TProfile2D_LW*        m_avgocc_LBvsBCID_mod[PixLayer::COUNT];
+    //TH1F_LW*              m_totalhits_per_bcid_mod[PixLayer::COUNT];
+    TH1F_LW*              m_totalhits_per_bcid_mod[PixLayerIBL2D3D::COUNT];
+    //TProfile2D_LW*        m_avgocc_LBvsBCID_mod[PixLayer::COUNT];
+    TProfile2D_LW*        m_avgocc_LBvsBCID_mod[PixLayerIBL2D3D::COUNT];
 
     TProfile*             m_occupancy_time1;
     TProfile*             m_occupancy_time2;
@@ -388,8 +396,8 @@ class PixelMainMon:public ManagedMonitorToolBase
     //TH1F_LW*              m_track_eta;    
     //TH1I_LW*              m_tracks_per_lumi;
     //TH1F_LW*              m_trackRate_per_lumi;
-    //TProfile_LW*          m_tracksPerEvt_per_lumi;
-    //TProfile_LW*          m_tracksPerEvtPerMu_per_lumi;
+    TProfile_LW*          m_tracksPerEvt_per_lumi;
+    TProfile_LW*          m_tracksPerEvtPerMu_per_lumi;
     //TH2F_LW*              m_track_dedx;
     //TH1F_LW*              m_track_mass_dedx;
     TH2F_LW*              m_clustot_vs_pt;
@@ -399,8 +407,10 @@ class PixelMainMon:public ManagedMonitorToolBase
     TH1F_LW*              m_clustot_highpt;
     TH1F_LW*              m_1hitclustot_highpt;
     TH1F_LW*              m_2hitclustot_highpt;
-    TH1F_LW*              m_clusize_ontrack_mod[PixLayer::COUNT];
-    TH1F_LW*              m_clusize_offtrack_mod[PixLayer::COUNT];
+    //TH1F_LW*              m_clusize_ontrack_mod[PixLayer::COUNT];
+    //TH1F_LW*              m_clusize_offtrack_mod[PixLayer::COUNT];
+    TH1F_LW*              m_clusize_ontrack_mod[PixLayerIBL2D3D::COUNT];
+    TH1F_LW*              m_clusize_offtrack_mod[PixLayerIBL2D3D::COUNT];
 
     PixelMonModulesProf*  m_tsos_hiteff_vs_lumi;
     PixelMon2DMapsLW*     m_tsos_hitmap;
@@ -414,6 +424,13 @@ class PixelMainMon:public ManagedMonitorToolBase
     PixelMon2DProfilesLW* m_misshits_ratio_tmp;
     PixelMon2DProfilesLW* m_misshits_ratio_mon;
 
+    TProfile2D_LW*        m_LorentzAngle_IBL;
+    TProfile2D_LW*        m_LorentzAngle_IBL2D;
+    TProfile2D_LW*        m_LorentzAngle_IBL3D;
+    TProfile2D_LW*        m_LorentzAngle_B0;
+    TProfile2D_LW*        m_LorentzAngle_B1;
+    TProfile2D_LW*        m_LorentzAngle_B2;
+
     TProfile2D_LW*        m_degFactorMap;
     TProfile_LW*          m_degFactorMap_per_lumi;
     TProfile2D_LW*        m_degFactorMap_eta_per_lumi;
@@ -425,15 +442,21 @@ class PixelMainMon:public ManagedMonitorToolBase
     TH2F_LW*              m_nlowToT_vs_clussize_mod[PixLayer::COUNT];
     TProfile_LW*          m_clusters_per_lumi;
     TProfile_LW*          m_clusters_per_lumi_mod[PixLayer::COUNT];
-    TProfile_LW*          m_clusters_row_width_per_lumi_mod[PixLayer::COUNT];
-    TProfile_LW*          m_clusters_col_width_per_lumi_mod[PixLayer::COUNT];
-    TProfile_LW*          m_clusters_row_width_per_bcid_mod[PixLayer::COUNT];
-    TProfile_LW*          m_clusters_col_width_per_bcid_mod[PixLayer::COUNT];
+    //TProfile_LW*          m_clusters_row_width_per_lumi_mod[PixLayer::COUNT];
+    //TProfile_LW*          m_clusters_col_width_per_lumi_mod[PixLayer::COUNT];
+    //TProfile_LW*          m_clusters_row_width_per_bcid_mod[PixLayer::COUNT];
+    //TProfile_LW*          m_clusters_col_width_per_bcid_mod[PixLayer::COUNT];
+    TProfile_LW*          m_clusters_row_width_per_lumi_mod[PixLayerIBL2D3D::COUNT];
+    TProfile_LW*          m_clusters_col_width_per_lumi_mod[PixLayerIBL2D3D::COUNT];
+    TProfile_LW*          m_clusters_row_width_per_bcid_mod[PixLayerIBL2D3D::COUNT];
+    TProfile_LW*          m_clusters_col_width_per_bcid_mod[PixLayerIBL2D3D::COUNT];
     TProfile_LW*          m_largeclusters_per_lumi;
     TProfile_LW*          m_verylargeclusters_per_lumi;
     TH1I_LW*              m_totalclusters_per_lumi;
-    TH1I_LW*              m_totalclusters_per_lumi_mod[PixLayer::COUNT];
-    TH1I_LW*              m_totalclusters_per_bcid_mod[PixLayer::COUNT];
+    //TH1I_LW*              m_totalclusters_per_lumi_mod[PixLayer::COUNT];
+    //TH1I_LW*              m_totalclusters_per_bcid_mod[PixLayer::COUNT];
+    TH1I_LW*              m_totalclusters_per_lumi_mod[PixLayerIBL2D3D::COUNT];
+    TH1I_LW*              m_totalclusters_per_bcid_mod[PixLayerIBL2D3D::COUNT];
     TH1I_LW*              m_highNclusters_per_lumi;
     TH1F_LW*              m_cluster_ToT1d_mod[PixLayerIBL2D3D::COUNT];
     TH1F_LW*              m_1cluster_ToT_mod[PixLayer::COUNT];
@@ -454,9 +477,12 @@ class PixelMainMon:public ManagedMonitorToolBase
     TH1F_LW*              m_cluster_col_width;
     TH1F_LW*              m_cluster_row_width;
     //TH1F_LW*              m_cluster_row_width_IBL;
-    TH1F_LW*              m_cluster_col_width_mod[PixLayer::COUNT];
-    TH1F_LW*              m_cluster_row_width_mod[PixLayer::COUNT];
-    TH1F_LW*              m_cluster_groupsize_mod[PixLayer::COUNT];
+    //TH1F_LW*              m_cluster_col_width_mod[PixLayer::COUNT];
+    //TH1F_LW*              m_cluster_row_width_mod[PixLayer::COUNT];
+    //TH1F_LW*              m_cluster_groupsize_mod[PixLayer::COUNT];
+    TH1F_LW*              m_cluster_col_width_mod[PixLayerIBL2D3D::COUNT];
+    TH1F_LW*              m_cluster_row_width_mod[PixLayerIBL2D3D::COUNT];
+    TH1F_LW*              m_cluster_groupsize_mod[PixLayerIBL2D3D::COUNT];
     TH1F_LW*              m_cluster_LVL1A;
     //TH1F_LW*              m_cluster_LVL1A_highToT;
     TH1F_LW*              m_cluster_LVL1A1d_mod[PixLayer::COUNT];
