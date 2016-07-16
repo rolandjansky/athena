@@ -75,7 +75,11 @@
 #include "egammaPerformance/electronMonTool.h"
 
 electronMonTool::electronMonTool(const std::string & type, const std::string & name, const IInterface* parent) : 
-  egammaMonToolBase(type,name,parent)
+  egammaMonToolBase(type,name,parent),
+  m_electronGroup(nullptr),
+  m_electronTrkGroup(nullptr),
+  m_electronIdGroup(nullptr),
+  m_electronLBGroup(nullptr)
 {
 
   // Name of the electron collection
@@ -319,8 +323,8 @@ StatusCode electronMonTool::bookHistograms()
   m_electronGroup = new MonGroup(this,"egamma/electrons"+m_GroupExtension,run); // to be re-booked every new run
   // Create sub groups
   m_electronTrkGroup = new MonGroup(this,"egamma/electrons"+m_GroupExtension+"/Track",            run); // to be re-booked every new run
-  m_electronIdGroup = new MonGroup(this,"egamma/electrons"+m_GroupExtension+"/ID",               run); // to be re-booked every new run
-  m_electronLBGroup = new MonGroup(this,"egamma/electrons"+m_GroupExtension+"/LBMon",            run); // to be re-booked every new run
+  m_electronIdGroup = new MonGroup(this,"egamma/electrons"+m_GroupExtension+"/ID",               run);  // to be re-booked every new run
+  m_electronLBGroup = new MonGroup(this,"egamma/electrons"+m_GroupExtension+"/LBMon", run, ATTRIB_X_VS_LB, "", "merge"); // to be re-booked every new run
 
   StatusCode sc;
   sc = bookHistogramsForOneElectronType(*m_LhLooseElectrons);
