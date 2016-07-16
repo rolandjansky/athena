@@ -99,6 +99,8 @@ class electronHist
     m_hEta (nullptr),
     m_hPhi (nullptr),
     m_hEtaPhi (nullptr),
+    m_hEtaPhi4GeV (nullptr),
+    m_hEtaPhi20GeV (nullptr),
     m_hTopoEtCone40 (nullptr),
     m_hPtCone20 (nullptr),
     m_hTime (nullptr),
