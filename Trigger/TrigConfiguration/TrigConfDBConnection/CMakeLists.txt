@@ -6,7 +6,7 @@
 atlas_subdir( TrigConfDBConnection )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
+find_package( Boost COMPONENTS filesystem thread system python )
 find_package( Frontier_Client )
 find_package( PythonLibs )
 
@@ -16,6 +16,13 @@ atlas_add_library( TrigConfDBConnection
                    PUBLIC_HEADERS TrigConfDBConnection
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${FRONTIER_CLIENT_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${FRONTIER_CLIENT_LIBRARIES} ${PYTHON_LIBRARIES} )
+
+atlas_add_library( TrigConfDBFrontier
+                   src/*.cxx
+                   PUBLIC_HEADERS TrigConfDBConnection
+                   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${FRONTIER_CLIENT_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${FRONTIER_CLIENT_LIBRARIES} ${PYTHON_LIBRARIES} )
+
 
 atlas_add_executable( TriggerFrontierClientTest
                       src/exe/TriggerFrontierClientTest.cxx

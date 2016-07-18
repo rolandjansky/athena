@@ -2,10 +2,9 @@
 
 
 
-from TrigConfDBConnection.libfrontier_client import Session as _Session
-from TrigConfDBConnection.libfrontier_client import AnyData as __AnyData
-#from TrigConfDBConnection.libfrontier_client import init, Connection, Request, encoding_t
-from TrigConfDBConnection.libfrontier_client import *
+from libTrigConfDBFrontier import Session as _Session
+from libTrigConfDBFrontier import AnyData as __AnyData
+from libTrigConfDBFrontier import *
 
 class AnyData(__AnyData):
     def __str__(self):

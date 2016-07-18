@@ -16,7 +16,6 @@ make_fragment install_pylib_header
 make_fragment install_pylib -header=install_pylib_header
 
 pattern install_pylib \
-    #macro lib_python_path "$(CMTINSTALLAREA)/$(tag)/lib/python$(Python_config_version_twodigit)" ; \
     macro lib_python_path "$(CMTINSTALLAREA)/python" ; \
     document install_pylib "<package>install_pylib" install_dir=$(lib_python_path) file=$(TrigConfDBConnection_root)/$(tag)/lib<package>.so target=<target>
 
