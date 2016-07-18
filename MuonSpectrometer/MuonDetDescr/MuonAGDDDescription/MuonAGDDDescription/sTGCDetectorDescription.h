@@ -19,10 +19,12 @@ struct sTGCReadoutParameters {
     double sPadWidth;
     double lPadWidth;
     std::vector<double> padH;
-    std::vector<int> nPadX;
-    double anglePadX;
-    std::vector<double> firstPadPhi;
-    std::vector<double> PadPhiShift;
+    std::vector<int> nPadPhi;
+    double anglePadPhi;
+    std::vector<double> firstPadPhiDivision_A;
+    std::vector<double> firstPadPhiDivision_C;
+    std::vector<double> PadPhiShift_A;
+    std::vector<double> PadPhiShift_C;
     std::vector<double> nPadH;
     std::vector<double> firstPadH;
     std::vector<int> firstPadRow;
@@ -40,9 +42,7 @@ struct sTGCReadoutParameters {
     std::vector<int> StripsInBandsLayer4;
     std::vector<int> nWireGroups;
     std::vector<int> firstWireGroup;
-    std::vector<int> leftmostPadColumn;
-    std::vector<int> rightmostPadColumn;
-	
+
 };
 
 class sTGCDetectorDescription: public AGDDDetector {
@@ -83,6 +83,8 @@ public:
 	static sTGCDetectorDescription* GetCurrent() {return current;}
 	
 	sTGC_Technology* GetTechnology();
+	
+	
 protected:
 
 	double _yCutout;
@@ -90,7 +92,7 @@ protected:
 	double _xFrame;
 	double _ysFrame;
 	double _ylFrame;
-	
+
 	static sTGCDetectorDescription* current;
 	void SetDetectorAddress(AGDDDetectorPositioner*);
 };
