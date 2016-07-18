@@ -150,7 +150,7 @@ if rec.doTimeLimit():
 ###############
 # Output file options
 # rather use default athenapool value
-if hasattr(svcMgr, 'AthenaPoolCnvSvc'):
+if rec.doPersistencyOptimization() and hasattr(svcMgr, 'AthenaPoolCnvSvc'):
     svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "12000000000" ]
     svcMgr.AthenaPoolCnvSvc.CommitInterval = 1000000000
 
