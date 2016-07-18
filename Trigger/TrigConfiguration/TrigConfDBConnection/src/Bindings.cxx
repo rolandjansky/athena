@@ -115,7 +115,7 @@ enum BLOB_TYPE {
 };
 
 
-BOOST_PYTHON_MODULE(libfrontier_client)
+BOOST_PYTHON_MODULE(libTrigConfDBFrontier)
 {
    using namespace boost::python;
 
