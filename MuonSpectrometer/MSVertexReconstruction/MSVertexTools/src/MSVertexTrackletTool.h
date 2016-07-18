@@ -46,8 +46,8 @@ namespace Muon {
     float m_maxDeltabCut;
     float m_EndcapDeltaAlphaCut;
     float m_DeltaAlphaCut;
-    float m_DeltabCut;
-    float m_TrackPhiAngle;
+    //float m_DeltabCut; //this variable is not used right now
+    //float m_TrackPhiAngle; //this variable is not used right now
 
     bool m_tightTrackletRequirement;
 

@@ -46,7 +46,16 @@ namespace Muon {
   MSVertexTrackletTool::MSVertexTrackletTool (const std::string& type, const std::string& name,
 					      const IInterface* parent)
     : 
-    AthAlgTool(type, name, parent) {
+    AthAlgTool(type, name, parent),
+    m_mdtIdHelper(0),
+    m_DeltaAlphaCut(0),
+    m_nMDT(0),
+    m_PI(3.1415927),
+    m_BIL(28.4366),
+    m_BML(62.8267),
+    m_BMS(53.1259),
+    m_BOL(29.7554)
+  {
     declareInterface<IMSVertexTrackletTool>(this);    
 
     declareProperty("xAODTrackParticleContainer",m_TPContainer = "MSonlyTracklets");
