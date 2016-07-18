@@ -123,6 +123,10 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder (const std::string&type,
 	m_calorimeterVolume		(0),
 	m_indetVolume			(0),
 	m_spectrometerEntrance		(0),
+	m_beamAxis                      (0),
+	m_perigeeSurface                (0),
+	m_sigmaPhiSector                (0),
+	m_vertex                        (0),
 	m_countAcceptedStandaloneFit	(0),
 	m_countBeamAxis			(0),
 	m_countCombinedCleanerVeto	(0),
@@ -140,7 +144,7 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder (const std::string&type,
 	m_refineELossStandAloneTrackFit (true),
         m_addElossID                    (true),
         m_addIDMSerrors                 (true),
-        m_DetID(0)
+        m_DetID                         (0)
 {
     m_messageHelper	= new MessageHelper(*this);
     declareInterface<ICombinedMuonTrackBuilder>(this);
@@ -1873,6 +1877,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
     }
 
     // in case of the unexpected ...
+    /*Coverity doesn't think track can ever not exist at this point
     if (! track)
 	{
 	    // final track lost, this should not happen
@@ -1883,7 +1888,9 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
             ATH_MSG_VERBOSE(" SA::failed (11)");
 	    return 0;
 	}
-    else if (! m_trackQuery->isCaloAssociated(*track)) 
+    */
+    //else if (! m_trackQuery->isCaloAssociated(*track)) 
+    if (! m_trackQuery->isCaloAssociated(*track)) //still want to perform this check probably though
 	{
 	    // fail as calo incorrectly described
 	    m_messageHelper->printWarning(12);
@@ -1983,38 +1990,39 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 
     bool	addPhiPseudo		= false;
 // release 21
-    bool	addVertexRegion		= true;
+    //bool	addVertexRegion		= true;
     unsigned	spectrometerPhiQuality	= m_trackQuery->spectrometerPhiQuality(combinedTrack);
     if (spectrometerPhiQuality > 1)
     {
 	addPhiPseudo	= true;
-	addVertexRegion	= true;
+	//addVertexRegion	= true; //In r21, addVertexRegion is true by default
     }
 
     // add vertex region constraint:
     //			for all tracks at high eta,
     //			in cases with poor phi measurement from the spectrometer, 
     //			or if there's a low spectrometer field integral (T.m units)
-    double eta			= combinedTrack.perigeeParameters()->momentum().eta();
-    double pt			= combinedTrack.perigeeParameters()->momentum().perp();
-    double spectrometerBdl	=
-		m_trackQuery->fieldIntegral(combinedTrack).betweenSpectrometerMeasurements();
+    //double eta			= combinedTrack.perigeeParameters()->momentum().eta();
+    //double pt			= combinedTrack.perigeeParameters()->momentum().perp();
+    //double spectrometerBdl	= m_trackQuery->fieldIntegral(combinedTrack).betweenSpectrometerMeasurements();
+    /* In r21, addVertexRegion is true by default
     if (spectrometerPhiQuality	> 0
 	|| spectrometerBdl	< 2.0
 	|| fabs(eta) 		> 2.0
 	|| pt			< 7.*Gaudi::Units::GeV)	addVertexRegion	= true;
-
+    */
     if (msgLvl(MSG::VERBOSE))
     {
-	if (addVertexRegion)
-	{
-	    ATH_MSG_VERBOSE( "standaloneRefit: using vertex region constraint with "
-			     << "spectrometerPhiQuality " << spectrometerPhiQuality );
-	}
-	else
-	{
-	    ATH_MSG_VERBOSE( "standaloneRefit:" );
-	}
+      //in r21, addVertexRegion is always true
+      //if (addVertexRegion)
+      //{
+      ATH_MSG_VERBOSE( "standaloneRefit: using vertex region constraint with "
+		       << "spectrometerPhiQuality " << spectrometerPhiQuality );
+      //}
+      //else
+      //{
+      //    ATH_MSG_VERBOSE( "standaloneRefit:" );
+      //}
     }
     
     // create standalone track TSOS vector
@@ -2023,7 +2031,8 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 
     // size will allow for perigee + all TSOS outside indet
     unsigned size = combinedTrack.trackStateOnSurfaces()->size() + 2;
-    if (addVertexRegion)	++size;
+    //if (addVertexRegion)	++size;
+    ++size; //in r21, addVertexRegion is always true
     if (addPhiPseudo)		++size;
 
     trackStateOnSurfaces->reserve(size);
@@ -2063,20 +2072,22 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
     const Trk::TrackParameters* parameters		= (**s).trackParameters();
     if (materialEffects && parameters && m_calorimeterVolume->inside(parameters->position()))
     {
-	// keep scattering angles when vertex constrained
-	if (addVertexRegion)
+      // keep scattering angles when vertex constrained
+      // in r21, addVertexRegion is always true
+      //if (addVertexRegion)
+      //{
+      innerTSOS           =(**s).clone();
+      const Trk::MaterialEffectsOnTrack* meot		=
+	dynamic_cast<const Trk::MaterialEffectsOnTrack*>(materialEffects);
+      if (! meot )
 	{
-	    innerTSOS           =(**s).clone();
-	    const Trk::MaterialEffectsOnTrack* meot		=
-		dynamic_cast<const Trk::MaterialEffectsOnTrack*>(materialEffects);
-	    if (! meot )
-	    {
-		// innerScattering dynamic_cast failed
-		m_messageHelper->printWarning(16);
-		return 0;
-	    }
-	    innerScattering	= meot->scatteringAngles();
+	  // innerScattering dynamic_cast failed
+	  m_messageHelper->printWarning(16);
+	  return 0;
 	}
+      innerScattering	= meot->scatteringAngles();
+      //}
+      /*
 	else
 	{
 	    materialEffects	= new Trk::MaterialEffectsOnTrack(materialEffects->thicknessInX0(),
@@ -2088,6 +2099,7 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 						       materialEffects,
 						       typePattern);
 	}
+      */
 	
 	if (s != combinedTrack.trackStateOnSurfaces()->end()
 	    && ! (**s).type(Trk::TrackStateOnSurface::CaloDeposit)) ++s;
@@ -2149,19 +2161,21 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
     if (materialEffects && parameters && m_calorimeterVolume->inside(parameters->position()))
     {
 	pOuter	= parameters->momentum().mag();
-	if (addVertexRegion)
-	{
-	    outerTSOS   = (**s).clone();
-	    const Trk::MaterialEffectsOnTrack* meot	=
-		dynamic_cast<const Trk::MaterialEffectsOnTrack*>(materialEffects);
-	    if (! meot )
-	    {
-		// outerScattering dynamic_cast failed
-		m_messageHelper->printWarning(24);
-		return 0;
-	    }
-	    outerScattering	= meot->scatteringAngles();
-	}
+	//in r21, addVertexRegion is always true
+	//if (addVertexRegion)
+	//	{
+	outerTSOS   = (**s).clone();
+	const Trk::MaterialEffectsOnTrack* meot	=
+	  dynamic_cast<const Trk::MaterialEffectsOnTrack*>(materialEffects);
+	if (! meot )
+	  {
+	    // outerScattering dynamic_cast failed
+	    m_messageHelper->printWarning(24);
+	    return 0;
+	  }
+	outerScattering	= meot->scatteringAngles();
+	//}
+	/*
 	else
 	{
 	    materialEffects	= new Trk::MaterialEffectsOnTrack(materialEffects->thicknessInX0(),
@@ -2173,6 +2187,7 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 						       materialEffects,
 						       typePattern);
 	}
+	*/
 	
 	++s;
 
@@ -2367,21 +2382,21 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 					    0,
 					    type) );
     
-    // including vertex region pseudoMeas if requested
-    if (addVertexRegion)
-    {
-	const Trk::PseudoMeasurementOnTrack* vertexInFit = vertexOnTrack(*perigee,m_vertex);
-	if (vertexInFit)
-	{
-	    std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type;
-	    type.set(Trk::TrackStateOnSurface::Measurement);
-	    trackStateOnSurfaces->push_back(new const Trk::TrackStateOnSurface(vertexInFit,
-									       0,
-									       0,
-									       0,
-									       type) );
-	}
-    }	    
+    // including vertex region pseudoMeas if requested: in r21, this is always requested
+    //if (addVertexRegion)
+    //{
+    const Trk::PseudoMeasurementOnTrack* vertexInFit = vertexOnTrack(*perigee,m_vertex);
+    if (vertexInFit)
+      {
+	std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type;
+	type.set(Trk::TrackStateOnSurface::Measurement);
+	trackStateOnSurfaces->push_back(new const Trk::TrackStateOnSurface(vertexInFit,
+									   0,
+									   0,
+									   0,
+									   type) );
+      }
+    //}	    
 
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator t = combinedTrack.trackStateOnSurfaces()->begin();
@@ -3500,7 +3515,7 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
 									       type) );
 	}
     }
-    
+
     // append calo TSOS
     if (caloTSOS)
     {
@@ -3589,6 +3604,8 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
         ATH_MSG_VERBOSE(" found track " << m_printer->print(*fittedTrack) );
 	return fittedTrack;
     }
+
+    //if(trackParameters) delete trackParameters; //if these are still hanging around (coverity thinks yes), delete them
 
     // return the unfitted track in case of problem
     return track;
