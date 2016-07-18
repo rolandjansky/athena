@@ -79,9 +79,18 @@
 // constructor
 Muon::MuonStationBuilder::MuonStationBuilder(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
+  m_muonMgr(0),
+  m_mdtIdHelper(0),
+  m_rpcIdHelper(0),
+  m_cscIdHelper(0),
+  m_tgcIdHelper(0),
+  m_stgcIdHelper(0),
+  m_mmIdHelper(0),
   m_muonMgrLocation("MuonMgr"),
   m_muonStationTypeBuilder("Muon::MuonStationTypeBuilder/MuonStationTypeBuilder"),
   m_trackingVolumeHelper("Trk::TrackingVolumeHelper/TrackingVolumeHelper"),
+  m_geoShapeConverter(0),
+  m_materialConverter(0),
   m_buildBarrel(true),
   m_buildEndcap(true),
   m_buildCsc(true),
@@ -1254,7 +1263,7 @@ void Muon::MuonStationBuilder::identifyPrototype(const Trk::TrackingVolume* stat
     if (stationName.substr(0,3)=="EIS") nameIndexC = 22; 
     if (stationName.substr(0,3)=="BIM") nameIndexC = 23; 
     if (stationName.substr(0,3)=="BME") nameIndexC = 24; 
-    if (stationName.substr(0,3)=="BOE") nameIndexC = 25; 
+    if (stationName.substr(0,3)=="BMG") nameIndexC = 25; 
 
     for (int multi = 0; multi < 2; multi++ ) {
       const MuonGM::MdtReadoutElement* multilayer = m_muonMgr->getMdtReadoutElement(nameIndexC,eta+8,phi-1,multi);
@@ -1300,7 +1309,7 @@ void Muon::MuonStationBuilder::identifyPrototype(const Trk::TrackingVolume* stat
         const std::vector<const Trk::Layer*>* layers = vols[iv]->confinedArbitraryLayers();
         int nameIndex = m_rpcIdHelper->stationNameIndex( stationName.substr(0,3) ); 
         if (stationName.substr(0,3)=="BME") nameIndex=12;              // hack for BME
-        if (stationName.substr(0,3)=="BOE") nameIndex=13;              // hack for BOE
+        if (stationName.substr(0,3)=="BMG") nameIndex=13;              // hack for BMG (even though BMG don't have RPC)
         // loop over doubletR, doubletZ 
 	for (int doubletR = 0; doubletR < 2; doubletR++ ) {
 	for (int doubletZ = 0; doubletZ < 3; doubletZ++ ) {

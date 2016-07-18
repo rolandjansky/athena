@@ -488,9 +488,9 @@ const Trk::TrackingVolumeArray* Muon::MuonStationTypeBuilder::processTrdStationC
         } else if ( clv->getShape()->type()=="Box") {
 	  const GeoBox* box = dynamic_cast<const GeoBox*> (clv->getShape());
 	  halfX1 = box->getXHalfLength();
-          halfX2 = halfX1;
+          //halfX2 = halfX1; //neither halfX2 nor halfY2 are ever used after this assignment
           halfY1 = box->getYHalfLength();  
-          halfY2 = halfY1;
+          //halfY2 = halfY1;
 	  halfZ  = box->getZHalfLength(); 
           volBounds = new Trk::CuboidVolumeBounds(halfX1,halfY1,halfZ);
         } else {
@@ -2531,7 +2531,7 @@ std::pair<const Trk::Layer*,const std::vector<const Trk::Layer*>*> Muon::MuonSta
       }}      
     }
   }
-  if (trdBounds) {
+  else if (trdBounds) {
     double thickness = 2*trdBounds->halflengthZ();
     //std::cout <<"trdBounds:"<<thickness<<std::endl;
     double sf        = 2*(trdBounds->minHalflengthX()+trdBounds->maxHalflengthX())*trdBounds->halflengthY();
@@ -2565,7 +2565,7 @@ std::pair<const Trk::Layer*,const std::vector<const Trk::Layer*>*> Muon::MuonSta
       }}      
     }
   }
-  if (dtrdBounds) {
+  else if (dtrdBounds) {
     double thickness = 2*dtrdBounds->halflengthZ();
     double sf        = 2*(dtrdBounds->minHalflengthX()+dtrdBounds->medHalflengthX())*dtrdBounds->halflengthY1()
                       +2*(dtrdBounds->medHalflengthX()+dtrdBounds->maxHalflengthX())*dtrdBounds->halflengthY2();
@@ -2769,7 +2769,7 @@ const Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const Trk::TrackingV
 						     Amg::AngleAxis3D(0.5*M_PI,Amg::Vector3D(0.,0.,1.))),
                                 bounds, mat, thickness, od, 1 );
   }
-  if (trdBounds) {
+  else if (trdBounds) {
     double thickness = 2*trdBounds->halflengthZ();
     Trk::OverlapDescriptor* od=0;
     double scale = matEx->thickness()/thickness;
@@ -2793,7 +2793,7 @@ const Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const Trk::TrackingV
 				bounds, mat, thickness, od, 1 );
     }
   }
-  if (dtrdBounds) {
+  else if (dtrdBounds) {
     double thickness = 2*dtrdBounds->halflengthZ();
     //double sf        = 2*(dtrdBounds->minHalflengthX()+dtrdBounds->medHalflengthX())*dtrdBounds->halflengthY1()
     //                  +2*(dtrdBounds->medHalflengthX()+dtrdBounds->maxHalflengthX())*dtrdBounds->halflengthY2();
