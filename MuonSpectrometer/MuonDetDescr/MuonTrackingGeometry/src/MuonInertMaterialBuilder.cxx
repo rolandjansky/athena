@@ -76,6 +76,7 @@
 Muon::MuonInertMaterialBuilder::MuonInertMaterialBuilder(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   Trk::TrackingVolumeManipulator(),
+  m_muonMgr(0),
   m_muonMgrLocation("MuonMgr"),
   m_simplify(false),
   m_simplifyToLayers(false),
@@ -87,6 +88,8 @@ Muon::MuonInertMaterialBuilder::MuonInertMaterialBuilder(const std::string& t, c
   m_buildShields(true),
   m_buildSupports(true),
   m_blendLimit(3e+09),
+  m_materialConverter(0),
+  m_geoShapeConverter(0),
   m_rndmGenSvc("RndmGenSvc","randomGen"),
   m_flatDist(0),
   m_extraMaterial(false),

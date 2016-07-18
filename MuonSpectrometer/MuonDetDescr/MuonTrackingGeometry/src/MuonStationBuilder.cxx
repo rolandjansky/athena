@@ -79,9 +79,18 @@
 // constructor
 Muon::MuonStationBuilder::MuonStationBuilder(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
+  m_muonMgr(0),
+  m_mdtIdHelper(0),
+  m_rpcIdHelper(0),
+  m_cscIdHelper(0),
+  m_tgcIdHelper(0),
+  m_stgcIdHelper(0),
+  m_mmIdHelper(0),
   m_muonMgrLocation("MuonMgr"),
   m_muonStationTypeBuilder("Muon::MuonStationTypeBuilder/MuonStationTypeBuilder"),
   m_trackingVolumeHelper("Trk::TrackingVolumeHelper/TrackingVolumeHelper"),
+  m_geoShapeConverter(0),
+  m_materialConverter(0),
   m_buildBarrel(true),
   m_buildEndcap(true),
   m_buildCsc(true),
