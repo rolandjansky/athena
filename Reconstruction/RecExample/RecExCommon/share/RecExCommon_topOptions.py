@@ -102,7 +102,7 @@ excludeTracePattern.append("*/TrigL2MissingET/TrigL2MissingETMonitoring.py")
 
 include ( "RecExCond/RecExCommon_flags.py" )
 
-if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoAOD')):
+if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoALL')):
 
     from RecAlgs.RecAlgsConf import TimingAlg
     topSequence+=TimingAlg("RecoTimerBegin")
@@ -642,7 +642,7 @@ if rec.doTrigger:
 AODFix_postTrigger()
 
 if globalflags.DataSource()=='geant4':
-    if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoAOD')):
+    if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoALL')):
         topSequence+=TimingAlg("RecoTimerAfterTrigger")
         topSequence.RecoTimerAfterTrigger.TimingObjOutputName=rec.OutputFileNameForRecoStep()+"_timings"
         try:
@@ -817,7 +817,7 @@ if len(rec.UserExecs())>0:
         exec(uExec)
     del allExecs
 
-if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoAOD')):
+if (rec.doRecoTiming() and rec.OutputFileNameForRecoStep() in ('RAWtoESD','ESDtoAOD','RAWtoALL')):
     topSequence+=TimingAlg("RecoTimerBeforeOutput")
     topSequence.RecoTimerBeforeOutput.TimingObjOutputName=rec.OutputFileNameForRecoStep()+"_timings"
     try:
