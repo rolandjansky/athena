@@ -14,6 +14,9 @@ using namespace std;
 MuonAlignErrorExampleAlg::MuonAlignErrorExampleAlg (const std::string& name, ISvcLocator* pSvcLocator)
 : AthAlgorithm(name, pSvcLocator),
   m_alignErrorTool("MuonAlign::AlignmentErrorTool"),
+  m_debug(0),
+  m_cham_per_dev(0),
+  m_dev_per_track(0),
   m_idHelperTool("Muon::MuonIdHelperTool"),
   m_idTool("MuonCalib::IdToFixedIdTool")
 {
