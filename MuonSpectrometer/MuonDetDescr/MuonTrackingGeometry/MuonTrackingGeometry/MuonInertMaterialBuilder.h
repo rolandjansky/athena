@@ -21,7 +21,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IRndmGenSvc.h"
 #include "GaudiKernel/RndmGenerators.h"
-#
+
 #include "GeoModelKernel/GeoVPhysVol.h"
 //mw
 #include "TrkDetDescrGeoModelCnv/GeoMaterialConverter.h"

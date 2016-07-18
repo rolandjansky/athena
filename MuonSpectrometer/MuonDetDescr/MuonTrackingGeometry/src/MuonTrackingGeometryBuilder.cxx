@@ -70,6 +70,7 @@ Muon::MuonTrackingGeometryBuilder::MuonTrackingGeometryBuilder(const std::string
   m_innerShieldRadius(850.),
   m_outerShieldRadius(1550.),
   m_diskShieldZ(6915.),
+  m_standaloneTrackingVolume(0),
   m_barrelEtaPartition(9),
   m_innerEndcapEtaPartition(3),
   m_outerEndcapEtaPartition(3),
@@ -1154,6 +1155,7 @@ const Trk::TrackingVolume* Muon::MuonTrackingGeometryBuilder::processVolume(cons
         if ( etaN>1 && eta>0) m_trackingVolumeHelper->glueTrackingVolumes(*sVol, Trk::negativeFaceXY,
 						      *(sVols[(eta-1)*phiN+phi]), Trk::positiveFaceXY);        
         //
+	delete subVol; //shouldn't need this any more
       }
     }
 
