@@ -78,12 +78,43 @@ namespace Muon {
     , m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
       //, m_trackingVolumesSvc("TrackingVolumesSvc/TrackingVolumesSvc",name) //rdh problems with Eigen migration!
     , m_idHelper(0)   
+    , m_measTypeIdHelper(0)
     , m_particleNumber(2)
     , m_particleHypothesis(Trk::muon)
-    , m_resetScatteringAngles(0)
     , m_tree(0)
+    , m_runNumber(0)
+    , m_evtNumber(0)
+    , m_nresiduals(0)
     , m_residuals(new double[100])
     , m_respulls(new double[100])
+    , m_nInnerLayersHit(0)
+    , m_nMiddleLayersHit(0)
+    , m_nOuterLayersHit(0)
+    , m_nOtherLayersHit(0)
+    , m_nTubeLayersHitInner(0)
+    , m_nTubeLayersHitMiddle(0)
+    , m_nTubeLayersHitOuter(0)
+    , m_nTubeLayersHitOther(0)
+    , m_nChambersHit(0)
+    , m_nLargeChambersHit(0)
+    , m_nSmallChambersHit(0)
+    , m_driftSignsInnerLayer(0)
+    , m_driftSignsMiddleLayer(0)
+    , m_driftSignsOuterLayer(0)
+    , m_driftSignsOtherLayer(0)
+    , m_nInnerLayerOutliers(0)
+    , m_nMiddleLayerOutliers(0)
+    , m_nOuterLayerOutliers(0)
+    , m_nOtherLayerOutliers(0)
+    , m_nInnerLayerHoles(0)
+    , m_nMiddleLayerHoles(0)
+    , m_nOuterLayerHoles(0)
+    , m_nOtherLayerHoles(0)
+    , m_trackNDoF(0)
+    , m_trackChi2(0)
+    , m_trackPt(0)
+    , m_trackEta(0)
+    , m_qOverP(0)
     , m_IDres(new double[100]), m_IDerr(new double[100])
     , m_IDscatPhiRes(new double[100]), m_IDscatPhiErr(new double[100])
     , m_IDscatThetaRes(new double[100]), m_IDscatThetaErr(new double[100])
@@ -97,6 +128,8 @@ namespace Muon {
     , m_nChambers(0)
     , m_chamberId(new int[50])
     , m_resIndex(new int[50])
+    , m_beePosX(0)
+    , m_beePosY(0)
     , m_nProcessed(0)
     , m_nPassHitRemoval(0)
     , m_nPassTGCHitRemoval(0)
@@ -144,14 +177,14 @@ namespace Muon {
 
     declareProperty("RefitTracks",                 m_refitTracks = false );    
     declareProperty("ParticleNumber",              m_particleNumber);
-    declareProperty("RunOutlierRemoval",           m_runOutlierRemoval);
+    //declareProperty("RunOutlierRemoval",           m_runOutlierRemoval);
 
     declareProperty("ResetScatteringAngles",       m_resetScatteringAngles = false);
     declareProperty("RemoveScattererTSOS",         m_removeScattererTSOS = false);
 
-    declareProperty("DeclusterTGCHits",            m_declusterTGCHits = true);
-    declareProperty("RedoErrorScaling",            m_redoErrorScaling = false);
-    declareProperty("RemovePerigeeBeforeRefit",    m_removePerigeeBeforeRefit = false);
+    //declareProperty("DeclusterTGCHits",            m_declusterTGCHits = true);
+    //declareProperty("RedoErrorScaling",            m_redoErrorScaling = false);
+    //declareProperty("RemovePerigeeBeforeRefit",    m_removePerigeeBeforeRefit = false);
     declareProperty("pTCorrectTrack",              m_pTCorrectTrack = false);
 
 
@@ -159,7 +192,7 @@ namespace Muon {
     declareProperty("ApplySelectionCuts",          m_applySelectionCuts = true);
     declareProperty("RequireInnerLayerEndcapMdt",  m_requireInnerLayerEndcapMdt = false);
     declareProperty("RequireOuterLayerEndcapMdt",  m_requireOuterLayerEndcapMdt = false);
-    declareProperty("CutOnBarrel",                 m_cutOnBarrel = false);
+    //declareProperty("CutOnBarrel",                 m_cutOnBarrel = false);
     declareProperty("RequireOneHitPerTubeLayerEC", m_requireOneHitPerTubeLayerEC = false);
     declareProperty("RequireSmallLargeOverlap",    m_requireSmallLargeOverlap = false);
     declareProperty("RequireSectorOverlap",        m_requireSectorOverlap = false);
@@ -422,9 +455,9 @@ namespace Muon {
     
     delete m_measTypeIdHelper;
 
-    delete m_msVolume;
-    delete m_calVolume;
-    delete m_indetVolume;
+    //delete m_msVolume;
+    //delete m_calVolume;
+    //delete m_indetVolume;
     
     return StatusCode::SUCCESS;
   }
