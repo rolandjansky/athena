@@ -61,9 +61,11 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 
-
 using std::auto_ptr;
 using std::string;
+
+#define STR(s) STR_EXP(s)
+#define STR_EXP(s) #s
 
 //Should be 100000
 #define MAXBARCODE 100000
@@ -71,10 +73,9 @@ using std::string;
 // *********************************************************************
 // Public Methods
 // *********************************************************************
-
 IDStandardPerformance::IDStandardPerformance( const std::string & type, const std::string & name, const IInterface* parent )
-         :ManagedMonitorToolBase( type, name, parent ),
-	      m_Pi(3.14156),
+             :ManagedMonitorToolBase( type, name, parent ),
+	      m_Pi(3.1415926),
 	      m_truthToTrack("Trk::TruthToTrack"),
 	      m_trkSummaryTool("Trk::TrackSummaryTool/InDetTrackSummaryTool"),
 	      m_tracksName("ExtendedTracks"),
@@ -111,57 +112,56 @@ IDStandardPerformance::IDStandardPerformance( const std::string & type, const st
 	      m_SCTtracksName("ResolvedSCTTracks"),
 	      m_TRTtracksName("StandaloneTRTTracks")
 {
-  declareProperty("TruthToTrackTool"        , m_truthToTrack);
+  declareProperty("TruthToTrackTool",         m_truthToTrack);
   declareProperty("SummaryTool",              m_trkSummaryTool);
-  declareProperty("tracksName"              , m_tracksName);
-  declareProperty("tracksTruthName"         , m_tracksTruthName);
-  declareProperty("tracksDetailedTruthName" , m_tracksDetailedTruthName);
+  declareProperty("tracksName",               m_tracksName);
+  declareProperty("tracksTruthName",          m_tracksTruthName);
+  declareProperty("tracksDetailedTruthName",  m_tracksDetailedTruthName);
   declareProperty("ResidualPullCalculatorTool", m_residualPullCalculator,
 		  "Tool to calculate residuals and pulls");
   declareProperty("UpdatorTool",              m_updatorHandle,
 		  "Measurement updator to calculate unbiased track states");
-  declareProperty("HoleSearch"              , m_holeSearchTool);
-  declareProperty("useTrackSelection"       , m_useTrackSelection);
-  declareProperty("TrackSelectorTool"       , m_trackSelectorTool);
-  declareProperty("HistDirectoryName"       , m_histDirectoryName,
+  declareProperty("HoleSearch",               m_holeSearchTool);
+  declareProperty("useTrackSelection",        m_useTrackSelection);
+  declareProperty("TrackSelectorTool",        m_trackSelectorTool);
+  declareProperty("HistDirectoryName",        m_histDirectoryName,
 		  "Directory where histograms are stored in root file");
-  declareProperty("MinTrackPtEff"           , m_minTrackPtEff,
+  declareProperty("MinTrackPtEff",            m_minTrackPtEff,
 		  "Minimum pT cut for efficiency plots vs eta");
-  declareProperty("MaxTrackPtEff"           , m_maxTrackPtEff,
+  declareProperty("MaxTrackPtEff",            m_maxTrackPtEff,
                   "Maximum pT cut for efficiency plots vs eta");
-  declareProperty("PtBins"                 , m_trackPtBins,
-          "Number of Bins in Pt for the resiudual/pull plots"); 
-  declareProperty("EtaBins"                 , m_trackEtaBins,
-          "Number of Bins in Eta for the residual/pull plots");  
-  declareProperty("MinTrackPtRes"           , m_minTrackPtRes,
+  declareProperty("PtBins",                   m_trackPtBins,
+                  "Number of Bins in Pt for the resiudual/pull plots"); 
+  declareProperty("EtaBins",                  m_trackEtaBins,
+                  "Number of Bins in Eta for the residual/pull plots");  
+  declareProperty("MinTrackPtRes",            m_minTrackPtRes,
 		  "Minimum pT cut for residual plots");
-  declareProperty("MaxTrackEta"             , m_maxTrackEta,
+  declareProperty("MaxTrackEta",              m_maxTrackEta,
                   "Maximum Track Eta");
-  declareProperty("MinTrackEta"             , m_minTrackEta,
+  declareProperty("MinTrackEta",              m_minTrackEta,
                   "Minimum Track Eta");
-  declareProperty("MaxTrackPhi"             , m_maxTrackPhi,
+  declareProperty("MaxTrackPhi",              m_maxTrackPhi,
                   "Maximum Track Phi");
-  declareProperty("MinTrackPhi"             , m_minTrackPhi,
+  declareProperty("MinTrackPhi",              m_minTrackPhi,
                   "Minimum Track Phi");
-  declareProperty("minProbEff"              , m_minProbEff,
+  declareProperty("minProbEff",               m_minProbEff,
 		  "Probability cut for track efficiency and fake rate");
-  declareProperty("minProbEffLow"           , m_minProbEffLow,
+  declareProperty("minProbEffLow",            m_minProbEffLow,
                   "Probability lower cut for track efficiency and fake rate");
   declareProperty("TruthParticleContainerName", m_truthParticleName="TruthEvent"); 
-  declareProperty("TruthJetCollName"        , m_truthJetCollName,
-		  "Truth Jet Collection");
-  declareProperty("doTrackInJet"            , m_doTrackInJet);
-  declareProperty("doUpgrade"               , m_doUpgrade);
-  declareProperty("plotsVsAbsEta"           , m_plotsVsAbsEta);
-  declareProperty("selectHardScatter"       , m_selHardScatter);
-  declareProperty("z0CutwrtPrimary"         , m_z0cutwrtPrimary);
-  declareProperty("makeHitPlots"            , m_makeHitPlots);
-  declareProperty("DoTruth"                 , m_doTruth); //CB
-  declareProperty("doHitBasedMatching"      , m_doHitBasedMatching);
-  declareProperty("PixeltracksName"         , m_PixeltracksName);
-  declareProperty("SCTtracksName"           , m_SCTtracksName);
-  declareProperty("TRTtracksName"           , m_TRTtracksName);
-
+  declareProperty("TruthJetCollName",         m_truthJetCollName,
+                  "Truth Jet Collection");
+  declareProperty("doTrackInJet",             m_doTrackInJet);
+  declareProperty("doUpgrade",                m_doUpgrade);
+  declareProperty("plotsVsAbsEta",            m_plotsVsAbsEta);
+  declareProperty("selectHardScatter",        m_selHardScatter);
+  declareProperty("z0CutwrtPrimary",          m_z0cutwrtPrimary);
+  declareProperty("makeHitPlots",             m_makeHitPlots);
+  declareProperty("DoTruth",                  m_doTruth); //CB
+  declareProperty("doHitBasedMatching",       m_doHitBasedMatching);
+  declareProperty("PixeltracksName",          m_PixeltracksName);
+  declareProperty("SCTtracksName",            m_SCTtracksName);
+  declareProperty("TRTtracksName",            m_TRTtracksName);
   m_UpdatorWarning = false;
   m_isUnbiased = 0;
 }
@@ -213,7 +213,6 @@ StatusCode IDStandardPerformance::initialize()
 
   m_particleDataTable = partPropSvc->PDT();
 
-
   //ID Helper
   m_idHelper = new AtlasDetectorID;
 
@@ -253,6 +252,7 @@ StatusCode IDStandardPerformance::initialize()
       return StatusCode::FAILURE;
     }
   }
+
   // ----------------------------------
   // use updator to get unbiased states
   if ( ! m_updatorHandle.empty() ) {
@@ -268,7 +268,7 @@ StatusCode IDStandardPerformance::initialize()
     //m_updator = 0;
   }
 
-
+  // ----------------------------------
   //get residual and pull calculator
   if (m_residualPullCalculator.empty()) {
     msg(MSG::INFO) <<
@@ -315,11 +315,11 @@ StatusCode IDStandardPerformance::initialize()
 
 TH1F*
 IDStandardPerformance::create_registeredTH1F(MonGroup &mon
-                                           , const char* name
-                                           , const char* title
-                                           , int nBins
-                                           , double min
-                                           , double max)
+                                             , const char* name
+                                             , const char* title
+                                             , int nBins
+                                             , double min
+                                             , double max)
 {
   TH1F* hist = new TH1F(name, title, nBins, min, max);
   hist->Sumw2();
@@ -332,34 +332,34 @@ IDStandardPerformance::create_registeredTH1F(MonGroup &mon
 
 TH2F*
 IDStandardPerformance::create_registeredTH2F(MonGroup &mon
-                                          , const char* name
-                                          , const char* title
-                                          , int nBinsX
-                                          , double minX
-                                          , double maxX
-                                          , int nBinsY
-                                          , double minY
-                                          , double maxY)
+                                             , const char* name
+                                             , const char* title
+                                             , int nBinsX
+                                             , double minX
+                                             , double maxX
+                                             , int nBinsY
+                                             , double minY
+                                             , double maxY)
 {
-    TH2F* hist = new TH2F(name, title, nBinsX, minX, maxX, nBinsY, minY, maxY);
-    hist->Sumw2();
-    StatusCode sc = mon.regHist(hist);
-    if (sc.isFailure() ) {
-      msg(MSG::ERROR) << "Cannot book TH1 Histogram: " << name << endreq;
-    }
-    return hist;
+  TH2F* hist = new TH2F(name, title, nBinsX, minX, maxX, nBinsY, minY, maxY);
+  hist->Sumw2();
+  StatusCode sc = mon.regHist(hist);
+  if (sc.isFailure() ) {
+    msg(MSG::ERROR) << "Cannot book TH1 Histogram: " << name << endreq;
+  }
+  return hist;
 }
 
 
 TProfile*
 IDStandardPerformance::create_registeredTProfile(MonGroup &mon
-                                               , const char* name
-                                               , const char* title
-                                               , int nBins
-                                               , double min
-                                               , double max
-                                               , double ylow
-                                               , double yup)
+                                                 , const char* name
+                                                 , const char* title
+                                                 , int nBins
+                                                 , double min
+                                                 , double max
+                                                 , double ylow
+                                                 , double yup)
 {
   TProfile* hist = new TProfile(name, title, nBins, min, max, ylow, yup);
   StatusCode sc = mon.regHist(hist);
@@ -371,11 +371,11 @@ IDStandardPerformance::create_registeredTProfile(MonGroup &mon
 
 TProfile*
 IDStandardPerformance::create_registeredTProfile(MonGroup &mon
-                                               , const char* name
-                                               , const char* title
-                                               , int nBins
-                                               , double min
-                                               , double max)
+                                                 , const char* name
+                                                 , const char* title
+                                                 , int nBins
+                                                 , double min
+                                                 , double max)
 {
   TProfile* hist = new TProfile(name, title, nBins, min, max);
   StatusCode sc = mon.regHist(hist);
@@ -401,8 +401,7 @@ StatusCode IDStandardPerformance::bookHistograms()
   MonGroup pull_shift(this, outputDirName+"/residualPulls/raw", run);
   MonGroup al_debug(this, outputDirName, run);
 
-
-  if (newRunFlag()) {
+  if ( newRunFlag() ) {
     m_ngenevent = create_registeredTH1F(al_expert,"ngenevent","Number of generated MC events; nevent",1000,0,1000);
     m_ntrack = create_registeredTH1F(al_expert, "ntrack","Number of Tracks;Num. tracks",200,0,200);
     m_mu = create_registeredTH1F(al_expert, "mu","mu; mu",50,0,50);
@@ -412,8 +411,8 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_nparticleprimary = create_registeredTH1F(al_expert, "nparticleprimary","Number of Selected Truth Particles (prim);Num. prim truth particles",200,0,200);
     m_nbarcode0 = create_registeredTH1F(al_expert,"nbcode0","Number of matched tracks with barcode 0; nbarcode0",1000,0,5000);
     m_nbarcode0match = create_registeredTH1F(al_expert,"nbcode0match","Number of matched tracks with barcode 0 with >50% prob; nbarc0m",1000,0,5000);
-    m_nbarcode100k = create_registeredTH1F(al_expert,"nbcode100k","Number of matched tracks with barcode>MAXBARCODE; nbc100k",1000,0,5000);
-    m_nbarcodegood = create_registeredTH1F(al_expert,"nbcodegood","Number of matched tracks with 0<barcode<MAXBARCODE; nbcnot100k",1000,0,5000);
+    m_nbarcode100k = create_registeredTH1F(al_expert,"nbcode100k","Number of matched tracks with barcode>" STR(MAXBARCODE) "; nbc100k",1000,0,5000);
+    m_nbarcodegood = create_registeredTH1F(al_expert,"nbcodegood","Number of matched tracks with 0<barcode<" STR(MAXBARCODE) "; nbcnot100k",1000,0,5000);
     m_nbadmatch = create_registeredTH1F(al_expert,"nbadmatch","Number of bad match or barcode=0 tracks; nbadmatch",1000,0,5000);
     m_nlowprob = create_registeredTH1F(al_expert,"nlowprob","Number of bad match for barcode!=0 tracks; nbcnot0antlowprob",1000,0,5000);
 
@@ -470,7 +469,6 @@ StatusCode IDStandardPerformance::bookHistograms()
 
     
 
-
     // reserve the eta bins 
     m_hd0.reserve(m_trackEtaBins);
     m_hz0.reserve(m_trackEtaBins);
@@ -522,6 +520,8 @@ StatusCode IDStandardPerformance::bookHistograms()
       sprintf(name,"qoptpullres_bin%i",i);
       m_pullqopt.push_back(create_registeredTH1F(al_debug, name,name,200,-5.,5.));
    }
+
+
 
     // reserve the pt bins
     m_hptd0.reserve(m_trackPtBins);
@@ -670,9 +670,9 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_trackeff_primary_vs_eta = create_registeredTProfile(al_shift, "trackeff_primary_vs_eta","track efficiency for primary tracks vs #eta;#eta;Efficiency",nbins_eta,min_eta,max_eta);
     m_trackeff_primary_vs_phi = create_registeredTProfile(al_shift, "trackeff_primary_vs_phi","track efficiency for primary tracks vs #phi;#phi;Efficiency",24,-180,180);
     // tracking efficiency versus pt for three eta regions
-    m_trackeff_primary_vs_pt = new TProfile("trackeff_primary_vs_pt","track efficiency for primary tracks vs p_{T} for |#eta|<2.5;p_{T}(GeV/c);p_{T}(GeV/c);Efficiency",25,0,50.0);
+    m_trackeff_primary_vs_pt = new TProfile("trackeff_primary_vs_pt","track efficiency for primary tracks vs p_{T} for |#eta|<2.5;p_{T}(GeV/c);Efficiency",25,0,50.0);
     RegisterHisto(al_shift,m_trackeff_primary_vs_pt);
-    m_trackeff_primary_vs_pt_lowpt = new TProfile("trackeff_primary_vs_pt_lowpt","track efficiency for primary tracks vs p_{T} for |#eta|<2.5;p_{T}(GeV/c);p_{T}(GeV/c);Efficiency",25,0,5.0);
+    m_trackeff_primary_vs_pt_lowpt = new TProfile("trackeff_primary_vs_pt_lowpt","track efficiency for primary tracks vs p_{T} for |#eta|<2.5;p_{T}(GeV/c);Efficiency",25,0,5.0);
     RegisterHisto(al_shift,m_trackeff_primary_vs_pt_lowpt);
     m_trackeff_primary_vs_pt_loweta = new TProfile("trackeff_primary_vs_pt_loweta","track efficiency for primary tracks vs p_{T} for |#eta|<0.8;p_{T}(GeV/c);Efficiency",25,0,50.0);
     RegisterHisto(al_shift,m_trackeff_primary_vs_pt_loweta);
@@ -682,13 +682,13 @@ StatusCode IDStandardPerformance::bookHistograms()
     RegisterHisto(al_shift,m_trackeff_primary_vs_pt_higheta);
 
     // track efficiency vs log pt
-    m_trackeff_primary_vs_logpt = new TProfile("trackeff_primary_vs_logpt","track efficiency vs p_{T} for |#eta|<2.5 (Det. Paper def.);Log(p_{T}(GeV/c));Efficiency",30,-0.5,2.5);
+    m_trackeff_primary_vs_logpt = new TProfile("trackeff_primary_vs_logpt","track efficiency for primary tracks vs p_{T} for |#eta|<2.5 (Det. Paper def.);Log(p_{T}(GeV/c));Efficiency",30,-0.5,2.5);
     RegisterHisto(al_shift,m_trackeff_primary_vs_logpt);
-    m_trackeff_primary_vs_logpt_loweta = new TProfile("trackeff_primary_vs_logpt_loweta","track efficiency vs p_{T} for |#eta|<0.8 (Det. Paper def.);Log(p_{T}(GeV/c));Efficiency",30,-0.5,2.5);
+    m_trackeff_primary_vs_logpt_loweta = new TProfile("trackeff_primary_vs_logpt_loweta","track efficiency for primary tracks vs p_{T} for |#eta|<0.8 (Det. Paper def.);Log(p_{T}(GeV/c));Efficiency",30,-0.5,2.5);
     RegisterHisto(al_shift,m_trackeff_primary_vs_logpt_loweta);
-    m_trackeff_primary_vs_logpt_medeta = new TProfile("trackeff_primary_vs_logpt_medeta","track efficiency vs p_{T} for 0.8<|#eta|<1.5 (Det. Paper def.);Log(p_{T}(GeV/c));Efficiency",30,-0.5,2.5);
+    m_trackeff_primary_vs_logpt_medeta = new TProfile("trackeff_primary_vs_logpt_medeta","track efficiency for primary tracks vs p_{T} for 0.8<|#eta|<1.5 (Det. Paper def.);Log(p_{T}(GeV/c));Efficiency",30,-0.5,2.5);
     RegisterHisto(al_shift,m_trackeff_primary_vs_logpt_medeta);
-    m_trackeff_primary_vs_logpt_higheta = new TProfile("trackeff_primary_vs_logpt_higheta","track efficiency vs p_{T} for 1.5<|#eta|<2.5 (Det. Paper def.);Log(p_{T}(GeV/c));Efficiency",30,-0.5,2.5);
+    m_trackeff_primary_vs_logpt_higheta = new TProfile("trackeff_primary_vs_logpt_higheta","track efficiency for primary tracks vs p_{T} for 1.5<|#eta|<2.5 (Det. Paper def.);Log(p_{T}(GeV/c));Efficiency",30,-0.5,2.5);
     RegisterHisto(al_shift,m_trackeff_primary_vs_logpt_higheta);
 
     m_trackeff_primary_vs_eta_vlowpt = new TProfile("trackeff_primary_vs_eta_vlowpt","track efficiency for primary tracks vs #eta for 0.1<p_{T}<0.5 GeV;#eta;Efficiency",nbins_eta,min_eta,max_eta);
@@ -708,6 +708,7 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_trackeff_secondary_vs_radius = create_registeredTProfile(al_shift, "trackeff_secondary_vs_radius","track efficiency for secondary tracks vs decay vertex;R_{xy}(mm);Efficiency",36,0,360);
 
     // hit efficiencies and fractions of holes and outliers
+    m_eff_hit_vs_eta_ibl_barrel = create_registeredTProfile(al_shift, "eff_hit_vs_eta_ibl_barrel","Cluster Efficiency: Pixel Barrel IBL;#eta;Clus. Efficiency",10,0,2.5);
     m_eff_hit_vs_eta_blay_barrel = create_registeredTProfile(al_shift, "eff_hit_vs_eta_blay_barrel","Cluster Efficiency: Pixel Barrel B-Layer;#eta;Clus. Efficiency",10,0,2.5);
     m_eff_hit_vs_eta_pix_barrel = create_registeredTProfile(al_shift, "eff_hit_vs_eta_pix_barrel","Cluster Efficiency: Pixel Barrel;#eta;Clus. Efficiency",10,0,2.5);
     m_eff_hit_vs_eta_pix_endcap = create_registeredTProfile(al_shift, "eff_hit_vs_eta_pix_endcap","Cluster Efficiency: Pixel Endcaps;#eta;Clus. Efficiency",4,1.5,2.5);
@@ -716,6 +717,7 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_eff_hit_vs_eta_trt_barrel = create_registeredTProfile(al_shift, "eff_hit_vs_eta_trt_barrel","Cluster Efficiency: TRT Barrel;#eta;Hit Efficiency",5,0,1.25);
     m_eff_hit_vs_eta_trt_endcap = create_registeredTProfile(al_shift, "eff_hit_vs_eta_trt_endcap","Cluster Efficiency: TRT Endcap;#eta;Hit Efficiency",6,0.75,2.25);
 
+    m_frac_hole_vs_eta_ibl_barrel = create_registeredTProfile(al_expert, "frac_hole_vs_eta_ibl_barrel","Hole Fraction: Pixel Barrel IBL;#eta;Hole Frac.",10,0,2.5);
     m_frac_hole_vs_eta_blay_barrel = create_registeredTProfile(al_expert, "frac_hole_vs_eta_blay_barrel","Hole Fraction: Pixel Barrel B-Layer;#eta;Hole Frac.",10,0,2.5);
     m_frac_hole_vs_eta_pix_barrel = create_registeredTProfile(al_expert, "frac_hole_vs_eta_pix_barrel","Hole Fraction: Pixel Barrel;#eta;Hole Frac.",10,0,2.5);
     m_frac_hole_vs_eta_pix_endcap = create_registeredTProfile(al_expert, "frac_hole_vs_eta_pix_endcap","Hole Fraction: Pixel Endcaps;#eta;Hole Frac.",4,1.5,2.5);
@@ -724,12 +726,13 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_frac_hole_vs_eta_trt_barrel = create_registeredTProfile(al_expert, "frac_hole_vs_eta_trt_barrel","Hole Fraction: TRT Barrel;#eta;Hole Frac.",5,0,1.25);
     m_frac_hole_vs_eta_trt_endcap = create_registeredTProfile(al_expert, "frac_hole_vs_eta_trt_endcap","Hole Fraction: TRT Endcap;#eta;Hole Frac.",6,0.75,2.25);
 
+    m_frac_outlier_vs_eta_ibl_barrel = create_registeredTProfile(al_expert, "frac_outlier_vs_eta_ibl_barrel","Outlier Fraction: Pixel Barrel IBL;#eta;Outlier Frac.",10,0,2.5);
     m_frac_outlier_vs_eta_blay_barrel = create_registeredTProfile(al_expert, "frac_outlier_vs_eta_blay_barrel","Outlier Fraction: Pixel Barrel B-Layer;#eta;Outlier Frac.",10,0,2.5);
     m_frac_outlier_vs_eta_pix_barrel = create_registeredTProfile(al_expert, "frac_outlier_vs_eta_pix_barrel","Outlier Fraction: Pixel Barrel;#eta;Outlier Frac.",10,0,2.5);
     m_frac_outlier_vs_eta_pix_endcap = create_registeredTProfile(al_expert, "frac_outlier_vs_eta_pix_endcap","Outlier Fraction: Pixel Endcaps;#eta;Outlier Frac.",4,1.5,2.5);
     m_frac_outlier_vs_eta_sct_barrel = create_registeredTProfile(al_expert, "frac_outlier_vs_eta_sct_barrel","Outlier Fraction: SCT Barrel;#eta;Outlier Frac.",7,0,1.75);
     m_frac_outlier_vs_eta_sct_endcap = create_registeredTProfile(al_expert, "frac_outlier_vs_eta_sct_endcap","Outlier Fraction: SCT Endcaps;#eta;Outlier Frac.",6,1,2.5);
-    m_frac_outlier_vs_eta_trt_barrel = create_registeredTProfile(al_expert, "frac_outlier_vs_eta_trt_barrel","Outlier Fraction Barrel: TRT;#eta;Outlier Frac.",5,0,1.25);
+    m_frac_outlier_vs_eta_trt_barrel = create_registeredTProfile(al_expert, "frac_outlier_vs_eta_trt_barrel","Outlier Fraction: TRT Barrel;#eta;Outlier Frac.",5,0,1.25);
     m_frac_outlier_vs_eta_trt_endcap = create_registeredTProfile(al_expert, "frac_outlier_vs_eta_trt_endcap","Outlier Fraction: TRT Endcap;#eta;Outlier Frac.",6,0.75,2.25);
 
     // charge mididentification rate
@@ -750,16 +753,16 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_track_fakerate_vs_eta= create_registeredTProfile(al_shift, "track_fakerate_vs_eta","Fraction of tracks with <20% truth match probability ;#eta;Fake Rate",nbins_eta,min_eta,max_eta,0,1);
     m_track_fakerate_vs_pt= create_registeredTProfile(al_shift, "track_fakerate_vs_pt","Fraction of tracks with <20% truth match probability ;p_{T}(GeV/c);Fake Rate",25,0,50,0,1);
     m_track_fakerate_vs_phi= create_registeredTProfile(al_shift, "track_fakerate_vs_phi","Fraction of tracks with <20% truth match probability ;#phi;Fake Rate",24,-180,180);
-    m_track_fakerate_vs_d0= create_registeredTProfile(al_shift, "track_fakerate_vs_d0","Fraction of tracks with <20% truth match probability ;Fake Rate",20,-6,6);
-    m_track_fakerate_vs_z0= create_registeredTProfile(al_shift, "track_fakerate_vs_z0","Fraction of tracks with <20% truth match probability ;Fake Rate",20,-300,300);
-    m_track_fakerate_vs_deltaz0= create_registeredTProfile(al_shift, "track_fakerate_vs_deltaz0","Fraction of tracks with <20% truth match probability ;Fake Rate",60,-15,15);
+    m_track_fakerate_vs_d0= create_registeredTProfile(al_shift, "track_fakerate_vs_d0","Fraction of tracks with <20% truth match probability ;d_{0}(mm);Fake Rate",20,-6,6);
+    m_track_fakerate_vs_z0= create_registeredTProfile(al_shift, "track_fakerate_vs_z0","Fraction of tracks with <20% truth match probability ;z_{0}(mm);Fake Rate",20,-300,300);
+    m_track_fakerate_vs_deltaz0= create_registeredTProfile(al_shift, "track_fakerate_vs_deltaz0","Fraction of tracks with <20% truth match probability ;#Delta(z_{0})xsin(#theta)(mm);Fake Rate",60,-15,15);
 
     m_track_badmatchrate_vs_eta= create_registeredTProfile(al_shift, "track_badmatchrate_vs_eta","Fraction of tracks with <80% truth match probability ;#eta;Bad Match Rate",nbins_eta,min_eta,max_eta,0,1);
     m_track_badmatchrate_vs_pt= create_registeredTProfile(al_shift, "track_badmatchrate_vs_pt","Fraction of tracks with <80% truth match probability ;p_{T}(GeV/c);Bad Match Rate",25,0,50,0,1);
     m_track_badmatchrate_vs_phi= create_registeredTProfile(al_shift, "track_badmatchrate_vs_phi","Fraction of tracks with <80% truth match probability ;#phi;Bad Match Rate",24,-180,180);
     m_track_badmatchrate_vs_d0= create_registeredTProfile(al_shift, "track_badmatchrate_vs_d0","Fraction of tracks with <80% truth match probability ;d_{0}(mm);Bad Match Rate",20,-6,6);
     m_track_badmatchrate_vs_z0= create_registeredTProfile(al_shift, "track_badmatchrate_vs_z0","Fraction of tracks with <80% truth match probability ;z_{0}(mm);Bad Match Rate",20,-300,300);
-    m_track_badmatchrate_vs_deltaz0= create_registeredTProfile(al_shift, "track_badmatchrate_vs_deltaz0","Fraction of tracks with <80% truth match probability ;Fake Rate",60,-15,15);
+    m_track_badmatchrate_vs_deltaz0= create_registeredTProfile(al_shift, "track_badmatchrate_vs_deltaz0","Fraction of tracks with <80% truth match probability ;#Delta(z_{0})xsin(#theta)(mm);Bad Match Rate",60,-15,15);
 
     m_track_bcode0rate_vs_eta= create_registeredTProfile(al_shift, "track_bcode0rate_vs_eta","Fraction of tracks with <80% truth match probability ;#eta;Bad Match Rate",nbins_eta,min_eta,max_eta,0,1);
     m_track_bcode0rate_vs_pt= create_registeredTProfile(al_shift, "track_bcode0rate_vs_pt","Fraction of tracks with <80% truth match probability ;p_{T}(GeV/c);Bad Match Rate",25,0,50,0,1);
@@ -767,9 +770,9 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_track_bcode0rate_vs_d0= create_registeredTProfile(al_shift, "track_bcode0rate_vs_d0","Fraction of tracks with <80% truth match probability ;d_{0}(mm);Bad Match Rate",20,-6,6);
     m_track_bcode0rate_vs_z0= create_registeredTProfile(al_shift, "track_bcode0rate_vs_z0","Fraction of tracks with <80% truth match probability ;z_{0}(mm);Bad Match Rate",20,-300,300);
     m_track_bcode0rate_vs_deltaz0= create_registeredTProfile(al_shift, "track_bcode0rate_vs_deltaz0","Fraction of tracks with <80% truth match probability ;#Delta(z_{0})xsin(#theta)(mm);Bad Match Rate",60,-15,15);
-    m_track_bcode0rate_matchbc0_vs_eta = create_registeredTProfile(al_shift, "track_bcode0rate_matchbc0_vs_eta","Fraction of tracks with <80% truth match probability ;z_{0}(mm);Bad Match Rate",nbins_eta,min_eta,max_eta,0,1);
-    m_track_bcode0rate_matchprim_vs_eta = create_registeredTProfile(al_shift, "track_bcode0rate_matchprim_vs_eta","Fraction of tracks with <80% truth match probability ;z_{0}(mm);Bad Match Rate",nbins_eta,min_eta,max_eta,0,1);
-    m_track_bcode0rate_matchsec_vs_eta = create_registeredTProfile(al_shift, "track_bcode0rate_matchsec_vs_eta","Fraction of tracks with <80% truth match probability ;z_{0}(mm);Bad Match Rate",nbins_eta,min_eta,max_eta,0,1);
+    m_track_bcode0rate_matchbc0_vs_eta = create_registeredTProfile(al_shift, "track_bcode0rate_matchbc0_vs_eta","Fraction of tracks with <80% truth match probability ;#eta;Bad Match Rate",nbins_eta,min_eta,max_eta,0,1);
+    m_track_bcode0rate_matchprim_vs_eta = create_registeredTProfile(al_shift, "track_bcode0rate_matchprim_vs_eta","Fraction of tracks with <80% truth match probability ;#eta;Bad Match Rate",nbins_eta,min_eta,max_eta,0,1);
+    m_track_bcode0rate_matchsec_vs_eta = create_registeredTProfile(al_shift, "track_bcode0rate_matchsec_vs_eta","Fraction of tracks with <80% truth match probability ;#eta;Bad Match Rate",nbins_eta,min_eta,max_eta,0,1);
 
     m_trackinjet_fakerate_vs_eta= create_registeredTProfile(al_shift, "trackinjet_fakerate_vs_eta","Fraction of tracks in jets with <20% truth match probability ;#eta;Fake Rate",nbins_eta,min_eta,max_eta,0,1);
     m_trackinjet_fakerate_vs_phi= create_registeredTProfile(al_shift, "trackinjet_fakerate_vs_phi","Fraction of tracks in jets with <20% truth match probability ;#phi;Fake Rate",24,-180,180);
@@ -796,14 +799,16 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_prob = create_registeredTH1F(al_shift, "prob","Truth match probability;Prob.",57,-0.12,1.02);
     m_prob_injet = create_registeredTH1F(al_shift, "prob_injet","Truth match probability (inside jet);Prob.",57,-0.12,1.02);
     m_prob_barcode0 = create_registeredTH1F(al_shift, "prob_barcode0","Truth match probability; prob",57,-0.12,1.02);
-    m_prob_barcodeMAXBARCODE = create_registeredTH1F(al_shift, "prob_barcodeMAXBARCODE","Truth match probability; prob",57,-0.12,1.02);
+    m_prob_barcodeMAXBARCODE = create_registeredTH1F(al_shift, "prob_barcode" STR(MAXBARCODE),"Truth match probability; prob",57,-0.12,1.02);
     m_prob_barcode_primary = create_registeredTH1F(al_shift, "prob_barcode_primary","Truth match probability; prob",57,-0.12,1.02);
     m_nTrkMatchesSameHmpl = create_registeredTH1F(al_shift, "nTrkMatchesSameHmpl","Number of tracks matching the same truth particle; ntrk",20,0,20);
     m_nTrkMatchesSameHmpl_barcode0 = create_registeredTH1F(al_shift, "nTrkMatchesSameHmpl_barcode0","Number of tracks matching the same truth particle; ntrk",20,0,20);
-    m_nTrkMatchesSameHmpl_barcodeMAXBARCODE = create_registeredTH1F(al_shift, "nTrkMatchesSameHmpl_barcodeMAXBARCODE","Number of tracks matching the same truth particle; ntrk",20,0,20);
+    m_nTrkMatchesSameHmpl_barcodeMAXBARCODE = create_registeredTH1F(al_shift, "nTrkMatchesSameHmpl_barcode" STR(MAXBARCODE),"Number of tracks matching the same truth particle; ntrk",20,0,20);
     m_nTrkMatchesSameHmpl_barcode_primary = create_registeredTH1F(al_shift, "nTrkMatchesSameHmpl_barcode_primary","Number of tracks matching the same truth particle; ntrk",20,0,20);
 
     // hit map
+    m_nHits_blay_2d = create_registeredTH2F(al_shift, "nHits_blay_2d","B-Layer clus. #eta vs #phi;#eta;#phi", 30,-3,3,32,-M_PI,M_PI);
+    m_nExpectedHits_blay_2d = create_registeredTH2F(al_shift, "nExpectedHits_blay_2d","Expected B-Layer hit. #eta vs #phi", 30, -3, 3, 32, -M_PI, M_PI);
     m_nHits_pixel_2d = create_registeredTH2F(al_shift, "nHits_pixel_2d","Pixel clus. #eta vs #phi;#eta;#phi", 30,-3,3,32,-M_PI,M_PI);
     m_nHits_SCT_2d = create_registeredTH2F(al_shift, "nHits_SCT_2d","SCT clus. #eta vs #phi;#eta;#phi", 30,-3,3,32,-M_PI,M_PI);
     m_nHits_TRT_2d = create_registeredTH2F(al_shift, "nHits_TRT_2d","TRT clus. #eta vs #phi;#eta;#phi", 30,-3,3,32,-M_PI,M_PI);
@@ -812,7 +817,7 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_prodvtx_secondaries_RZ = create_registeredTH2F(al_shift, "prodvtx_secondaries_RZ","Secondaries Prod. vtx Map Plots; r(mm); z(mm)", 400,-3200,3200,400,0,1150);
     m_prodvtx_primaries_RZ = create_registeredTH2F(al_shift, "prodvtx_primaries_RZ","Primaries Prod. vtx Map Plots; r(mm); z(mm)", 400,-3200,3200,400,0,1150);
 
-       // Multi turth match with different event index
+    // Multi turth match with different event index
     m_num_eventindex_match = create_registeredTH1F(al_shift, "num_eventindex_match", "num_eventindex_match",10,0,10);
     m_Good_num_eventindex_match = create_registeredTH1F(al_shift, "Good_num_eventindex_match", "Good_num_eventindex_match; evi match",10,0,10);
     m_Fake_num_eventindex_match = create_registeredTH1F(al_shift, "Fake_num_eventindex_match", "Fake_num_eventindex_match; evi match",10,0,10);
@@ -822,7 +827,7 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_Fake_num_truthmatch_match = create_registeredTH1F(al_shift, "Fake_num_truthmatch_match", "Fake_num_truthmatch_match; evi match",10,0,10);
     m_bc0_num_truthmatch_match = create_registeredTH1F(al_shift, "bc0_num_truthmatch_match", "bc0_num_truthmatch_match; evi match",10,0,10);
 
-    // cluster information
+    // Cluster information
     m_cluster_width_phi_pixel = create_registeredTH1F(al_expert, "cluster_width_phi_pixel", "Cluster width in #phi for pixels", 5, 0.5, 5.5);
     m_cluster_width_eta_pixel = create_registeredTH1F(al_expert, "cluster_width_eta_pixel", "Cluster width in #eta for pixels", 5, 0.5, 5.5);
     m_cluster_width_phi_sct = create_registeredTH1F(al_expert, "cluster_width_phi_sct", "Cluster width in #phi for SCT", 5, 0.5, 5.5);
@@ -842,7 +847,7 @@ StatusCode IDStandardPerformance::bookHistograms()
 	    m_cluster_angle_phi[i][j] =
 	      create_registeredTH1F(al_expert,
 				    (string("cluster_angle_phi_")+
-				     detAreaTypesStrings[i]+"_"+num[j]).c_str(),
+                                     detAreaTypesStrings[i]+"_"+num[j]).c_str(),
 				    (num[j]+
 				     " width (#phi) clusters vs. incidence angle").c_str(),
 				    100, 0, 3.1416);
@@ -933,7 +938,6 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_residualMeanZ_vs_phi_pixel_barrel_layer.reserve(pixelBarrelLayers);
     m_residualWidthZ_vs_phi_pixel_barrel_layer.reserve(pixelBarrelLayers);
 
-
     // initialize the eta binned histograms
     for (int ieta=0; ieta<5; ieta++){
         m_residualPhi_vs_phi_pixel_barrel_etaBins.push_back(std::vector<TH2F*>(pixelBarrelLayers));
@@ -986,51 +990,61 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_residualMeanZ_vs_phi_pixel_endcap_disk.reserve(pixelEndcapDisks);
     m_residualWidthZ_vs_phi_pixel_endcap_disk.reserve(pixelEndcapDisks);
 
-
-
-
     for (int ilayer=0; ilayer<nPixelLayers; ilayer++) {
       char name[200];
       char title[200];
-
+      // IBL 
+      if (ilayer == 0){
+        m_residualx_pixel_barrel_l.push_back(create_registeredTH1F(al_expert, "residualx_pixel_barrel_ibl", "Residual: Pixel Barrel X IBL ;x residual(#mum)", 120, -50, 50));
+        m_residualy_pixel_barrel_l.push_back(create_registeredTH1F(al_expert, "residualy_pixel_barrel_ibl", "Residual: Pixel Barrel Y IBL ;y residual(#mum)", 120, -300, 300));
+        m_residualpullx_pixel_barrel_l.push_back(create_registeredTH1F(al_expert, "residualpullx_pixel_barrel_ibl", "Residualpull: Pixel Barrel X IBL ;x pull residual", 100, -5, 5));
+        m_residualpully_pixel_barrel_l.push_back(create_registeredTH1F(al_expert, "residualpully_pixel_barrel_ibl", "Residualpull: Pixel Barrel Y IBL ;y pull residual", 100, -5, 5)); 
+      }
+      // B-layer
+      if (ilayer == 1){
+        m_residualx_pixel_barrel_l.push_back(create_registeredTH1F(al_expert, "residualx_pixel_barrel_blayer", "Residual: Pixel Barrel X B-layer :x residual(#mum)", 120, -50, 50));
+        m_residualy_pixel_barrel_l.push_back(create_registeredTH1F(al_expert, "residualy_pixel_barrel_blayer", "Residual: Pixel Barrel Y B-layer ;y residual(#mum)", 120, -300, 300));
+        m_residualpullx_pixel_barrel_l.push_back(create_registeredTH1F(al_expert, "residualpullx_pixel_barrel_blayer", "Residualpull: Pixel Barrel X B-layer ;x pull residual", 100, -5, 5));
+        m_residualpully_pixel_barrel_l.push_back(create_registeredTH1F(al_expert, "residualpully_pixel_barrel_blayer", "Residualpull: Pixel Barrel Y B-layer ;y pull residual", 100, -5, 5)); 
+      }
       // pixel barrel section
-      if (ilayer < pixelBarrelLayers){
-        sprintf(name, "residualx_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual: Pixel Barrel X Layer %i;x residual(#mum)" ,ilayer);
+      if (ilayer < pixelBarrelLayers && ilayer>1){
+        sprintf(name, "residualx_pixel_barrel_l%i", ilayer-1);
+        sprintf(title, "Residual: Pixel Barrel X Layer %i;x residual(#mum)" ,ilayer-1);
         m_residualx_pixel_barrel_l.push_back(create_registeredTH1F(al_expert, name, title, 120, -50, 50));
 
-        sprintf(name, "residualy_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual: Pixel Barrel Y Layer %i;y residual(#mum)" ,ilayer);
+        sprintf(name, "residualy_pixel_barrel_l%i", ilayer-1);
+        sprintf(title, "Residual: Pixel Barrel Y Layer %i;y residual(#mum)" ,ilayer-1);
         m_residualy_pixel_barrel_l.push_back(create_registeredTH1F(al_expert, name, title, 120, -300, 300));
 
-        sprintf(name, "residualpullx_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residualpull: Pixel Barrel X Layer %i;x pull residual" ,ilayer);
+        sprintf(name, "residualpullx_pixel_barrel_l%i", ilayer-1);
+        sprintf(title, "Residualpull: Pixel Barrel X Layer %i;x pull residual" ,ilayer-1);
         m_residualpullx_pixel_barrel_l.push_back(create_registeredTH1F(al_expert, name, title, 100,-5,5));
 
-        sprintf(name, "residualpully_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residualpull: Pixel Barrel Y Layer %i;y pull residual" ,ilayer);
+        sprintf(name, "residualpully_pixel_barrel_l%i", ilayer-1);
+        sprintf(title, "Residualpull: Pixel Barrel Y Layer %i;y pull residual" ,ilayer-1);
         m_residualpully_pixel_barrel_l.push_back(create_registeredTH1F(al_expert, name, title, 100,-5,5));
       }
       // pixel endcap section
       if (ilayer < pixelEndcapDisks){
-        sprintf(name, "residualx_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual: Pixel Endcap X Layer %i;x residual(#mum)" ,ilayer);
+        sprintf(name, "residualx_pixel_endcap_d%i", ilayer+1);
+        sprintf(title, "Residual: Pixel Endcap X Disk %i;x residual(#mum)" ,ilayer+1);
         m_residualx_pixel_endcap_d.push_back(create_registeredTH1F(al_expert, name, title, 120, -50, 50));
 
-        sprintf(name, "residualy_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual: Pixel Endcap Y Layer %i;y residual(#mum)" ,ilayer);
+        sprintf(name, "residualy_pixel_endcap_d%i", ilayer+1);
+        sprintf(title, "Residual: Pixel Endcap Y Disk %i;y residual(#mum)" ,ilayer+1);
         m_residualy_pixel_endcap_d.push_back(create_registeredTH1F(al_expert, name, title, 120, -300, 300));
 
-        sprintf(name, "residualpullx_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residualpull: Pixel Endcap X Layer %i;x pull residual" ,ilayer);
+        sprintf(name, "residualpullx_pixel_endcap_d%i", ilayer+1);
+        sprintf(title, "Residualpull: Pixel Endcap X Disk %i;x pull residual" ,ilayer+1);
         m_residualpullx_pixel_endcap_d.push_back(create_registeredTH1F(al_expert, name, title, 100,-5,5));
 
-        sprintf(name, "residualpully_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residualpull: Pixel Endcap Y Layer %i;y pull residual" ,ilayer);
+        sprintf(name, "residualpully_pixel_endcap_d%i", ilayer+1);
+        sprintf(title, "Residualpull: Pixel Endcap Y Disk %i;y pull residual" ,ilayer+1);
         m_residualpully_pixel_endcap_d.push_back(create_registeredTH1F(al_expert, name, title, 100,-5,5));
       }
-// --
 
+// --
       // pixel barrel section
       if (ilayer < pixelBarrelLayers){
         sprintf(name, "pullPhi_incident_pixel_barrel_l%i", ilayer);
@@ -1149,31 +1163,32 @@ StatusCode IDStandardPerformance::bookHistograms()
         sprintf(title, "Pull width: Pixel Barrel Z Layer %i vs. incident phi;pixel phi;pull (r-z) width" ,ilayer);
         m_pullWidthZ_vs_phi_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-      sprintf(name, "residualMeanZ_vs_incident_pixel_barrel_l%i", ilayer);
-      sprintf(title, "Residual mean: Pixel Barrel Z Layer %i vs. incident normal;angle w/ normal;residual (r-z) mean" ,ilayer);
-      m_residualMeanZ_vs_incident_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
+        sprintf(name, "residualMeanZ_vs_incident_pixel_barrel_l%i", ilayer);
+        sprintf(title, "Residual mean: Pixel Barrel Z Layer %i vs. incident normal;angle w/ normal;residual (r-z) mean" ,ilayer);
+        m_residualMeanZ_vs_incident_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-      sprintf(name, "residualWidthZ_vs_incident_pixel_barrel_l%i", ilayer);
-      sprintf(title, "Residual width: Pixel Barrel Z Layer %i vs. incident normal;angle w/normal;residual (r-z) width" ,ilayer);
-      m_residualWidthZ_vs_incident_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
+        sprintf(name, "residualWidthZ_vs_incident_pixel_barrel_l%i", ilayer);
+        sprintf(title, "Residual width: Pixel Barrel Z Layer %i vs. incident normal;angle w/normal;residual (r-z) width" ,ilayer);
+        m_residualWidthZ_vs_incident_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-      sprintf(name, "residualMeanZ_vs_eta_pixel_barrel_l%i", ilayer);
-      sprintf(title, "Residual mean: Pixel Barrel Z Layer %i vs. incident eta;pixel eta;residual (r-z) mean" ,ilayer);
-      m_residualMeanZ_vs_eta_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
+        sprintf(name, "residualMeanZ_vs_eta_pixel_barrel_l%i", ilayer);
+        sprintf(title, "Residual mean: Pixel Barrel Z Layer %i vs. incident eta;pixel eta;residual (r-z) mean" ,ilayer);
+        m_residualMeanZ_vs_eta_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-      sprintf(name, "residualWidthZ_vs_eta_pixel_barrel_l%i", ilayer);
-      sprintf(title, "Residual width: Pixel Barrel Z Layer %i vs. incident eta;pixel eta;residual (r-z) width" ,ilayer);
-      m_residualWidthZ_vs_eta_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
+        sprintf(name, "residualWidthZ_vs_eta_pixel_barrel_l%i", ilayer);
+        sprintf(title, "Residual width: Pixel Barrel Z Layer %i vs. incident eta;pixel eta;residual (r-z) width" ,ilayer);
+        m_residualWidthZ_vs_eta_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-      sprintf(name, "residualMeanZ_vs_phi_pixel_barrel_l%i", ilayer);
-      sprintf(title, "Residual mean: Pixel Barrel Z Layer %i vs. incident phi;pixel phi;residual (r-z) mean" ,ilayer);
-      m_residualMeanZ_vs_phi_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
+        sprintf(name, "residualMeanZ_vs_phi_pixel_barrel_l%i", ilayer);
+        sprintf(title, "Residual mean: Pixel Barrel Z Layer %i vs. incident phi;pixel phi;residual (r-z) mean" ,ilayer);
+        m_residualMeanZ_vs_phi_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-      sprintf(name, "residualWidthZ_vs_phi_pixel_barrel_l%i", ilayer);
-      sprintf(title, "Residual width: Pixel Barrel Z Layer %i vs. incident phi;pixel phi;residual (r-z) width" ,ilayer);
-      m_residualWidthZ_vs_phi_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
+        sprintf(name, "residualWidthZ_vs_phi_pixel_barrel_l%i", ilayer);
+        sprintf(title, "Residual width: Pixel Barrel Z Layer %i vs. incident phi;pixel phi;residual (r-z) width" ,ilayer);
+        m_residualWidthZ_vs_phi_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
      }
+
 // --
       // pixel endcap section
       if (ilayer < pixelEndcapDisks){
@@ -1365,6 +1380,7 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_residualy_pixel_endcap_1hit = create_registeredTH1F(al_expert, "residualy_pixel_endcap_1hit", "Residual: Pixel Endcap Y, 1 hit;y residual(#mum)",120,-300,300);
     m_residualx_sct_barrel_1hit = create_registeredTH1F(al_expert, "residualx_sct_barrel_1hit", "Residual: SCT Barrel X, 1 hit;x residual(#mum)",140,-70,70);
     m_residualx_sct_endcap_1hit = create_registeredTH1F(al_expert, "residualx_sct_endcap_1hit", "Residual: SCT Endcap X, 1 hit;x residual(#mum)",140,-70,70);
+    //
     m_residualx_pixel_barrel_2ormorehits = create_registeredTH1F(al_expert, "residualx_pixel_barrel_2ormorehits", "Residual: Pixel Barrel X, 2+ hits;x residual(#mum)",120,-50,50);
     m_residualy_pixel_barrel_2ormorehits = create_registeredTH1F(al_expert, "residualy_pixel_barrel_2ormorehits", "Residual: Pixel Barrel Y, 2+ hits;y residual(#mum)",120,-300,300);
     m_residualx_pixel_endcap_2ormorehits = create_registeredTH1F(al_expert, "residualx_pixel_endcap_2ormorehits", "Residual: Pixel Endcap X, 2+ hits;x residual(#mum)",120,-50,50);
@@ -1406,7 +1422,7 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_residualx_trt_barrel = create_registeredTH1F(al_shift, "residualx_trt_barrel", "Residual: TRT Barrel X;x residual(#mum)",200,-500,500);
     m_residualx_trt_endcap = create_registeredTH1F(al_shift, "residualx_trt_endcap", "Residual: TRT Endcap X;x residual(#mum)",200,-500,500);
 
-   // residual pulls
+    // residual pulls
     m_residualpullx_pixel_barrel = create_registeredTH1F(al_shift, "residualpullx_pixel_barrel", "Residualpull: Pixel Barrel X;x pull residual",100,-5,5);
     m_residualpully_pixel_barrel = create_registeredTH1F(al_shift, "residualpully_pixel_barrel", "Residualpull: Pixel Barrel Y;y pull residual",100,-5,5);
     m_residualpullx_pixel_endcap = create_registeredTH1F(al_shift, "residualpullx_pixel_endcap", "Residualpull: Pixel Endcap X;x pull residual",100,-5,5);
@@ -1420,6 +1436,10 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_residualpullx_trt_endcap = create_registeredTH1F(al_shift, "residualpullx_trt_endcap", "Residualpull: TRT Endcap X;x pull residual",100,-5,5);
 
     // hit information from TrackSummary object
+    // IBL 
+    m_HitContent_NiblHits = create_registeredTH1F(al_expert,"HitContent_NIBLHits","Number of IBL clus.;Num. Clus.",5,-0.5,4.5);
+    m_HitContent_NiblOutliers = create_registeredTH1F(al_expert,"HitContent_NIBLOutliers","Number of IBL outliers;Num. Outliers",5,-0.5,4.5);
+    m_HitContent_NiblSharedHits = create_registeredTH1F(al_expert,"HitContent_NIBLSharedHits","Number of shared IBL clus.;Num. Shared. Clus.",5,-0.5,4.5);     
     // B-layer
     m_HitContent_NBlayerHits = create_registeredTH1F(al_expert,"HitContent_NBlayerHits","Number of B-layer clus.;Num. Clus.",5,-0.5,4.5);
     m_HitContent_NBlayerOutliers = create_registeredTH1F(al_expert,"HitContent_NBlayerOutliers","Number of B-layer outliers;Num. Outliers",5,-0.5,4.5);
@@ -1445,7 +1465,11 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_HitContent_NTRTHighThresholdOutliers = create_registeredTH1F(al_expert,"HitContent_NTRTHighThresholdOutliers","Number of TRT High Threshold outliers;Num. Outliers",51,-0.5,50.5);
 
     // fake tracks
-
+    // IBL 
+    m_Fake_HitContent_NiblHits = create_registeredTH1F(al_expert,"Fake_HitContent_NIBLHits","Number of IBL clus. for fake tracks;Num. Clus.",5,-0.5,4.5);
+    m_Fake_HitContent_NiblOutliers = create_registeredTH1F(al_expert,"Fake_HitContent_NIBLOutliers","Number of IBL outliers for fake tracks;Num. Outliers",5,-0.5,4.5);
+    m_Fake_HitContent_NiblSharedHits = create_registeredTH1F(al_expert,"Fake_HitContent_NIBLSharedHits","Number of shared IBL clus. for fake tracks;Num. Shared. Clus.",5,-0.5,4.5);
+    // B-layer
     m_Fake_HitContent_NBlayerHits = create_registeredTH1F(al_expert,"Fake_HitContent_NBlayerHits","Number of B-layer clus. for fake tracks;Num. Clus.",5,-0.5,4.5);
     m_Fake_HitContent_NBlayerOutliers = create_registeredTH1F(al_expert,"Fake_HitContent_NBlayerOutliers","Number of B-layer outliers for fake tracks;Num. Outliers",5,-0.5,4.5);
     m_Fake_HitContent_NBlayerSharedHits = create_registeredTH1F(al_expert,"Fake_HitContent_NBlayerSharedHits","Number of shared B-layer clus. for fake tracks;Num. Shared. Clus.",5,-0.5,4.5);
@@ -1465,9 +1489,12 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_Fake_Chi2 = create_registeredTH1F(al_expert,"Fake_Chi2","chi2 for fake tracks;chi2",200,0,10);
     m_Fake_NPixvNSct = create_registeredTH2F(al_expert,"Fake_NPixvNSct","pixel vs sct hits for fake tracks;nsct;npix",21,-0.5,20.5,21,-0.5,20.5);
 
-    //
     // good tracks
-    //
+    // IBL 
+    m_Good_HitContent_NiblHits = create_registeredTH1F(al_expert,"Good_HitContent_NIBLHits","Number of IBL clus. for good tracks;Num. Clus.",5,-0.5,4.5);
+    m_Good_HitContent_NiblOutliers = create_registeredTH1F(al_expert,"Good_HitContent_NIBLOutliers","Number of IBL outliers for good tracks;Num. Outliers",5,-0.5,4.5);
+    m_Good_HitContent_NiblSharedHits = create_registeredTH1F(al_expert,"Good_HitContent_NIBLSharedHits","Number of shared IBL clus. for good tracks;Num. Shared. Clus.",5,-0.5,4.5);
+    // B-layer
     m_Good_HitContent_NBlayerHits = create_registeredTH1F(al_expert,"Good_HitContent_NBlayerHits","Number of B-layer clus. for good tracks;Num. Clus.",5,-0.5,4.5);
     m_Good_HitContent_NBlayerOutliers = create_registeredTH1F(al_expert,"Good_HitContent_NBlayerOutliers","Number of B-layer outliers for good tracks;Num. Outliers",5,-0.5,4.5);
     m_Good_HitContent_NBlayerSharedHits = create_registeredTH1F(al_expert,"Good_HitContent_NBlayerSharedHits","Number of shared B-layer clus. for good tracks;Num. Shared. Clus.",5,-0.5,4.5);
@@ -1488,12 +1515,18 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_Good_NPixvNSct = create_registeredTH2F(al_expert,"Good_NPixvNSct","pixel vs sct hits for good tracks;nsct;npix",21,-0.5,20.5,21,-0.5,20.5);
 
     // eta dependence of hit content
+    // IBL 
+    m_HitContent_vs_eta_NiblHits = create_registeredTProfile(al_expert, "HitContent_vs_eta_NIBLHits","Number of IBL hits vs eta;#eta;Num. Clus.",nbins_eta,min_eta,max_eta,0,100);
+    m_HitContent_vs_eta_NiblOutliers = create_registeredTProfile(al_expert, "HitContent_vs_eta_NIBLOutliers","Number of IBL outliers  vs eta;#eta;Num. Outliers",nbins_eta,min_eta,max_eta,0,100);
+    m_HitContent_vs_eta_NiblSharedHits = create_registeredTProfile(al_expert, "HitContent_vs_eta_NIBLSharedHits","Number of shared IBL hits  vs eta;#eta;Num. Shared. Clus.",nbins_eta,min_eta,max_eta,0,100); 
+    // B-layer
     m_HitContent_vs_eta_NBlayerHits = create_registeredTProfile(al_expert, "HitContent_vs_eta_NBlayerHits","Number of B-layer hits vs eta;#eta;Num. Clus.",nbins_eta,min_eta,max_eta,0,100);
     m_HitContent_vs_eta_NBlayerOutliers = create_registeredTProfile(al_expert, "HitContent_vs_eta_NBlayerOutliers","Number of B-layer outliers  vs eta;#eta;Num. Outliers",nbins_eta,min_eta,max_eta,0,100);
     m_HitContent_vs_eta_NBlayerSharedHits = create_registeredTProfile(al_expert, "HitContent_vs_eta_NBlayerSharedHits","Number of shared B-layer hits  vs eta;#eta;Num. Shared. Clus.",nbins_eta,min_eta,max_eta,0,100);
     // pixels
     m_HitContent_vs_eta_NPixelHits = create_registeredTProfile(al_expert, "HitContent_vs_eta_NPixelHits","Number of Pixel hits  vs eta;#eta;Num. Clus.",nbins_eta,min_eta,max_eta,0,100);
     m_HitContent_vs_eta_NPixelHoles = create_registeredTProfile(al_expert, "HitContent_vs_eta_NPixelHoles","Number of Pixel holes  vs eta;#eta;Num. Holes",nbins_eta,min_eta,max_eta,0,100);
+    m_HitContent_vs_phi_NPixelHoles = create_registeredTProfile(al_expert, "HitContent_vs_phi_NPixelHoles","Number of Pixel holes vs phi;#phi;Num. Holes",50,0.0,6.3,0,100);
     m_HitContent_vs_eta_NPixelOutliers = create_registeredTProfile(al_expert, "HitContent_vs_eta_NPixelOutliers","Number of Pixel Outliers  vs eta;#eta;Num. Outliers",nbins_eta,min_eta,max_eta,0,100);
 
     m_HitContent_vs_eta_NPixelContribLayers = create_registeredTProfile(al_expert, "HitContent_vs_eta_NPixelContribLayers","Number of contributed Pixel layers  vs eta;#eta;Num. Layers",nbins_eta,min_eta,max_eta,0,100);
@@ -1512,7 +1545,7 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_HitContent_vs_eta_NTRTHighThresholdHits = create_registeredTProfile(al_expert, "HitContent_vs_eta_NTRTHighThresholdHits","Number of TRT high threshold hits vs eta;#eta;Num. Hits",nbins_eta,min_eta,max_eta,0,100);
     m_HitContent_vs_eta_NTRTHighThresholdOutliers = create_registeredTProfile(al_expert, "HitContent_vs_eta_NTRTHighThresholdOutliers","Number of TRT High Threshold outliers vs eta;#eta;Num. Outliers",nbins_eta,min_eta,max_eta,0,100);
 
-       // look for outliers that might fake vertices for b-tagging
+    // Look for outliers that might fake vertices for b-tagging
     m_nTrackpT1_d0siggt3 = create_registeredTH1F(al_expert,"nTrackpT1_d0siggt3","Number of tracks",1000,0,1000);
     m_nTrackpT2_d0siggt3 = create_registeredTH1F(al_expert,"nTrackpT2_d0siggt3","Number of tracks",1000,0,1000);
     m_nTrackpT1_d0siggt5 = create_registeredTH1F(al_expert,"nTrackpT1_d0siggt5","Number of tracks",1000,0,1000);
@@ -1562,7 +1595,6 @@ StatusCode IDStandardPerformance::bookHistograms()
 void IDStandardPerformance::RegisterHisto(MonGroup &mon, TH1* histo) {
 
   //MsgStream log( msgSvc(), name() );
-
   histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
@@ -1573,7 +1605,6 @@ void IDStandardPerformance::RegisterHisto(MonGroup &mon, TH1* histo) {
 void IDStandardPerformance::RegisterHisto(MonGroup &mon, TProfile* histo) {
 
   //MsgStream log( msgSvc(), name() );
-
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
     msg(MSG::ERROR) << "Cannot book TProfile Histogram:" << endreq;
@@ -1583,7 +1614,6 @@ void IDStandardPerformance::RegisterHisto(MonGroup &mon, TProfile* histo) {
 void IDStandardPerformance::RegisterHisto(MonGroup &mon, TH2* histo) {
 
   //MsgStream log( msgSvc(), name() );
-
   histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
@@ -1595,7 +1625,6 @@ void IDStandardPerformance::RegisterHisto(MonGroup &mon, TH2* histo) {
 StatusCode IDStandardPerformance::fillHistograms()
 {
   //MsgStream log( msgSvc(), name() );
-
   // get TrackCollection
   const DataVector<Trk::Track>* trks;
   if (StatusCode::SUCCESS!=evtStore()->retrieve(trks,m_tracksName)) {
@@ -1604,8 +1633,8 @@ StatusCode IDStandardPerformance::fillHistograms()
     if (msgLvl(MSG::VERBOSE)) msg() << "Track Collection with name " << m_tracksName << " with size " << trks->size() <<" found in StoreGate" << endreq;
   }
 
-  //although we select tracks using the TrackSelectionTool, we still need to get a complete TrackCollection
-  //from StoreGate for use in the track-truth map, otherwise the track-truth matching is screwed up
+  // Although we select tracks using the TrackSelectionTool, we still need to get a complete TrackCollection
+  // from StoreGate for use in the track-truth map, otherwise the track-truth matching is screwed up
   const TrackCollection       * RecCollection = NULL;
   StatusCode sc = StatusCode :: SUCCESS;
   sc = evtStore()->retrieve(RecCollection, m_tracksName);
@@ -1829,7 +1858,7 @@ StatusCode IDStandardPerformance::procHistograms()
 
     projectStandardProfileY (m_pulld0,    m_d0_pullmean_vs_eta,    m_d0_pullres_vs_eta,    fold, "gaus");
     projectStandardProfileY (m_pullz0,    m_z0_pullmean_vs_eta,    m_z0_pullres_vs_eta,    fold, "gaus");
-//  projectStandardProfileY (m_pullz0st,  m_z0st_pullmean_vs_eta,  m_z0st_pullres_vs_eta,  fold, "gaus");
+    //projectStandardProfileY (m_pullz0st,  m_z0st_pullmean_vs_eta,  m_z0st_pullres_vs_eta,  fold, "gaus");
     projectStandardProfileY (m_pullphi,   m_phi_pullmean_vs_eta,   m_phi_pullres_vs_eta,   fold, "gaus");
     projectStandardProfileY (m_pullqopt,  m_qopt_pullmean_vs_eta,  m_qopt_pullres_vs_eta,  fold, "gaus");
     projectStandardProfileY (m_pulltheta, m_theta_pullmean_vs_eta, m_theta_pullres_vs_eta, fold, "gaus");
@@ -1873,6 +1902,7 @@ StatusCode IDStandardPerformance::procHistograms()
     SetSafeMinimumMaximum(m_trackeff_secondary_vs_phi, 0.0, 1.05);
     SetSafeMinimumMaximum(m_trackeff_secondary_vs_radius, 0.0, 1.05);
     // hit efficiency: set minimum to 0.95 for barrel and 0.85 for endcap
+    SetSafeMinimumMaximum(m_eff_hit_vs_eta_ibl_barrel, 0.95, 1.02);
     SetSafeMinimumMaximum(m_eff_hit_vs_eta_blay_barrel, 0.95, 1.02);
     SetSafeMinimumMaximum(m_eff_hit_vs_eta_pix_barrel, 0.95, 1.02);
     SetSafeMinimumMaximum(m_eff_hit_vs_eta_sct_barrel, 0.95, 1.02);
@@ -1882,6 +1912,7 @@ StatusCode IDStandardPerformance::procHistograms()
     SetSafeMinimumMaximum(m_eff_hit_vs_eta_trt_endcap, 0.95, 1.02);
 
     m_frac_outlier_vs_eta_blay_barrel->SetMinimum(0.0);
+    m_frac_outlier_vs_eta_ibl_barrel->SetMinimum(0.0);
     m_frac_outlier_vs_eta_pix_barrel->SetMinimum(0.0);
     m_frac_outlier_vs_eta_pix_endcap->SetMinimum(0.0);
     m_frac_outlier_vs_eta_sct_barrel->SetMinimum(0.0);
@@ -1936,7 +1967,7 @@ StatusCode IDStandardPerformance::procHistograms()
   for (int ilayer=0; ilayer<nPixelLayers; ilayer++) {
     // ------------- residualPulls in the pixels ---------------------------------------------------
     if (ilayer < pixelBarrelLayers){
-   projectStandardProfileY(m_pullPhi_vs_incident_pixel_barrel_l[ilayer]
+    projectStandardProfileY(m_pullPhi_vs_incident_pixel_barrel_l[ilayer]
       , m_pullMeanPhi_vs_incident_pixel_barrel_layer[ilayer], m_pullWidthPhi_vs_incident_pixel_barrel_layer[ilayer]);
     SetSafeMinimumMaximum(m_pullMeanPhi_vs_incident_pixel_barrel_layer[ilayer], -0.3, 0.3);
     SetSafeMinimumMaximum(m_pullWidthPhi_vs_incident_pixel_barrel_layer[ilayer], 0.7, 1.3);
@@ -2138,7 +2169,6 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
   DataVector<Trk::Track>::const_iterator trksItrE = trks->end();
   DataVector<Trk::Track>::const_iterator trksItr2  = trks->begin();
   DataVector<Trk::Track>::const_iterator trksItrE2 = trks->end();
-  msg(MSG::VERBOSE) << "Will loop over the " << trks->size() << " Trk::Tracks" << endreq;
   for (; trksItr != trksItrE; ++trksItr) {
 
     // ---------------------------------------------
@@ -2149,8 +2179,8 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 
     nTracks++;
 
-//    int trkAuthor = (*trksItr)->info().author();
-//    if (msgLvl(MSG::VERBOSE)) msg() <<(*trksItr)->info().dumpInfo()<< endreq;
+    //int trkAuthor = (*trksItr)->info().author();
+    //if (msgLvl(MSG::VERBOSE)) msg() <<(*trksItr)->info().dumpInfo()<< endreq;
 
     // ------------------------
     // track selection tool
@@ -2193,7 +2223,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
     float trkqopterr     = -999;
 
     // get fit quality and chi2 probability of track
-    // chi2Prob = TMath::Prob(chi2,DoF) ROOT function
+    //chi2Prob = TMath::Prob(chi2,DoF) ROOT function
     const Trk::FitQuality* fitQual = (*trksItr)->fitQuality();
     const Trk::Perigee* startPerigee = (*trksItr)->perigeeParameters();
     if (startPerigee == NULL) {
@@ -2213,7 +2243,8 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       //trkcot   = 1./tan(trktheta);
       trketa   = - log(tan(trktheta / 2.0));
       trkqOverPt  = perigeeParams[Trk::qOverP]*1000./sin(trktheta);
-      trkpt    = abs(1.0 / trkqOverPt);
+      //trkpt       = fabs(1.0 / trkqOverPt);
+      trkpt         = fabs(1.0 / trkqOverPt);
       if (trkqOverPt<0) charge=-1;
       else charge=+1;
       const AmgSymMatrix(5) * ErrorMat = startPerigee->covariance();
@@ -2222,18 +2253,18 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       Trk::JacobianThetaPToCotThetaPt TheJac(mtheta,mqp);
       AmgSymMatrix(5) covVert;
       covVert = ErrorMat->similarity(TheJac);
-      // trkd0err = sqrt(covVert[0][0]);
-      // trkz0err = sqrt(covVert[1][1]);
-      // trkphierr = sqrt(covVert[2][2]);
-      // trkcoterr = sqrt(covVert[3][3]);
-      // trkqopterr = sqrt(covVert[4][4])*1000.;
-      // trkthetaerr = ErrorMat->error(Trk::theta);
-      trkd0err = Amg::error(covVert,0);
-      trkz0err = Amg::error(covVert,1);
-      trkphierr = Amg::error(covVert,2);
-      //trkcoterr = Amg::error(covVert,3);
-      trkqopterr = Amg::error(covVert,4)*1000.;
-      trkthetaerr = Amg::error((*ErrorMat),Trk::theta);
+      //trkd0err    = sqrt(covVert[0][0]);
+      //trkz0err    = sqrt(covVert[1][1]);
+      //trkphierr   = sqrt(covVert[2][2]);
+      //trkcoterr   = sqrt(covVert[3][3]);
+      //trkqopterr  = sqrt(covVert[4][4])*1000.;
+      //trkthetaerr = ErrorMat->error(Trk::theta);
+      trkd0err      = Amg::error(covVert,0);
+      trkz0err      = Amg::error(covVert,1);
+      trkphierr     = Amg::error(covVert,2);
+      //trkcoterr   = Amg::error(covVert,3);
+      trkqopterr    = Amg::error(covVert,4)*1000.;
+      trkthetaerr   = Amg::error((*ErrorMat),Trk::theta);
       //////////////////////////////////////////////////////
     }
     float signed_trkphi = trkphi;
@@ -2241,13 +2272,12 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 
     if (fabs(trketa)>m_maxTrackEta) continue;
     if (fabs(trketa)<m_minTrackEta) continue;
-
     if (trkphi>m_maxTrackPhi) continue;
     if (trkphi<m_minTrackPhi) continue;
     m_recdeltaz0->Fill((trkz0-zVertex)*sin(trktheta));
     if (fabs(trkz0-zVertex)*sin(trktheta)>m_z0cutwrtPrimary) continue;
-
     nTrackSelected++;
+
     // ========================================================================================
     // make a map between gnerated and reconstructed tracks (needed for efficiencies and fake rates)
     // =========================================================================================
@@ -2283,7 +2313,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
     m_receta->Fill(trketa);
     m_recd0->Fill(trkd0);
     m_recz0->Fill(trkz0);
-    m_recd0c->Fill(trkd0c);  // currently just -999
+    m_recd0c->Fill(trkd0c); // currently just -999
     m_recchi2->Fill(chi2oDoF);
     m_reccharge->Fill(charge);
 
@@ -2399,7 +2429,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 
 	      number_truthmatches++;
 	      //log << MSG::ERROR << i->second << endreq;
-	      //  Iterate on HMPL of the truth trajectory
+	      // Iterate on HMPL of the truth trajectory
 	      TruthTrajectory traj = i->second.trajectory();
 	      //log<<i->second<<endreq;
 	      for(unsigned int i_hmpl=0; i_hmpl<traj.size(); i_hmpl++){
@@ -2407,7 +2437,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 		int eventIndex = (int)traj[i_hmpl].eventIndex();
 		//msg(MSG::ERROR)<<"Evt Index = " << eventIndex << endreq;
 		//msg(MSG::ERROR)<<"barcode = " << (int)traj[i_hmpl].barcode() << endreq;
-		// iterate on vector on event index to check if this one already exists
+		// Iterate on vector on event index to check if this one already exists
 		std::vector<int>::iterator itVectorData;
 		bool alreadyExist = false;
 		for(itVectorData = list_eventIndex.begin(); itVectorData != list_eventIndex.end(); itVectorData++){
@@ -2476,42 +2506,42 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 		    // calculate d0 w.r.t. beam spot
 
 		    if (msgLvl(MSG::VERBOSE)) msg()<< genparptr->status()<<" mass "<< genparptr->momentum().m() <<" eta "
-						   <<genparptr->momentum().eta()<<" phi "<<genparptr->momentum().phi()<<" Gen Vertex barcode "
-						   <<genparptr->production_vertex()->barcode()<<"Gen Vertex Position x"
-						   <<genparptr->production_vertex()->position().x()<<" y "
-						   <<genparptr->production_vertex()->position().y()<<" z "
-						   <<genparptr->production_vertex()->position().z()<<endreq;
-
+		    <<genparptr->momentum().eta()<<" phi "<<genparptr->momentum().phi()<<" Gen Vertex barcode "
+		    <<genparptr->production_vertex()->barcode()<<"Gen Vertex Position x"
+		    <<genparptr->production_vertex()->position().x()<<" y "
+		    <<genparptr->production_vertex()->position().y()<<" z "
+		    <<genparptr->production_vertex()->position().z()<<endreq;
 
 		    if(genparptr->pdg_id() == 0){
 		      msg(MSG::WARNING)<<" Particle with PDG ID = 0! Status "<<endreq;
 		    }else{
-
 		      const Trk::TrackParameters* generatedTrackPerigee = m_truthToTrack->makePerigeeParameters(genparptr);
 		      if (!generatedTrackPerigee)   msg(MSG::WARNING) <<  "Unable to extrapolate genparticle to perigee!" << endreq;
-
 		      if ( generatedTrackPerigee) {
-			float m_track_truth_qoverpt      = 1000. * generatedTrackPerigee->parameters()[Trk::qOverP]/sin(generatedTrackPerigee->parameters()[Trk::theta]);
-			float m_track_truth_phi          = generatedTrackPerigee->parameters()[Trk::phi0];
-			float m_track_truth_d0           = generatedTrackPerigee->parameters()[Trk::d0];
-			float m_track_truth_z0           = generatedTrackPerigee->parameters()[Trk::z0];
-			float m_track_truth_theta        = generatedTrackPerigee->parameters()[Trk::theta];
-			float m_track_truth_eta          = generatedTrackPerigee->eta();
-			//		      float m_track_truth_cot          = 1/tan(generatedTrackPerigee->parameters()[Trk::theta]);
-			//		      float m_track_truth_pdgid        = genparptr->pdg_id();
-			//		      delete  generatedTrackPerigee;
-			float m_track_truth_pt           = 1./fabs(m_track_truth_qoverpt);
-			float m_track_truth_charge       = 1;
-			if (m_track_truth_qoverpt<0) m_track_truth_charge = -1;
-			if (m_track_truth_phi<0) m_track_truth_phi+=2*m_Pi;
+			float m_track_truth_qoverpt = 1000. * generatedTrackPerigee->parameters()[Trk::qOverP]/sin(generatedTrackPerigee->parameters()[Trk::theta]);
+			float m_track_truth_phi     = generatedTrackPerigee->parameters()[Trk::phi0];
+			float m_track_truth_d0      = generatedTrackPerigee->parameters()[Trk::d0];
+			float m_track_truth_z0      = generatedTrackPerigee->parameters()[Trk::z0];
+			float m_track_truth_theta   = generatedTrackPerigee->parameters()[Trk::theta];
+			float m_track_truth_eta     = generatedTrackPerigee->eta();
+			//float m_track_truth_cot      = 1/tan(generatedTrackPerigee->parameters()[Trk::theta]);
+			//float m_track_truth_pdgid    = genparptr->pdg_id();
+
+			// Delete  generatedTrackPerigee;
+			float m_track_truth_pt      = 1./fabs(m_track_truth_qoverpt);
+			float m_track_truth_charge  = 1;
+			if (m_track_truth_qoverpt<0)    
+                        m_track_truth_charge = -1;
+			if (m_track_truth_phi<0)
+                        m_track_truth_phi+=2*m_Pi;
 			ATH_MSG_VERBOSE("Found matched truth track with phi, PT = " << m_track_truth_phi << ", " << m_track_truth_pt);
-			// calculate d0 corrected to vertex position
 
-			// float d0x=m_track_truth_d0*sin(m_track_truth_phi)-genparptr->production_vertex()->position().x();
-			// float d0y=m_track_truth_d0*cos(m_track_truth_phi)-genparptr->production_vertex()->position().y();
-			// float d0corr=sqrt(d0x*d0x+d0y*d0y);
+			// Calculate d0 corrected to vertex position
+			//float d0x=m_track_truth_d0*sin(m_track_truth_phi)-genparptr->production_vertex()->position().x();
+			//float d0y=m_track_truth_d0*cos(m_track_truth_phi)-genparptr->production_vertex()->position().y();
+			//float d0corr=sqrt(d0x*d0x+d0y*d0y);
 
-			// fill generic tracks parameters
+			// Fill generic tracks parameters
 			m_truthpT->Fill(m_track_truth_pt);
 			m_truthpTlow->Fill(m_track_truth_pt);
 			m_truthcharge->Fill(m_track_truth_charge);
@@ -2519,22 +2549,22 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 			m_trutheta->Fill(m_track_truth_eta);
 			m_truthd0->Fill(m_track_truth_d0);
 			m_truthz0->Fill(m_track_truth_z0);
-			// m_truthd0c->Fill(d0corr);
+			//m_truthd0c->Fill(d0corr);
 
-			//int ieta =abs(int(m_track_truth_eta/0.25));
+			//int ieta = fabs(int(m_track_truth_eta/0.25));
 			//int ieta = int(m_track_truth_eta/0.25 + 10.0);
 			int ieta = int(0.5*m_trackEtaBins*(m_track_truth_eta/m_maxTrackEta + 1.0));
 			if (ieta < 0 || ieta>=m_trackEtaBins){
 			  delete generatedTrackPerigee;
 			  continue;
 			}
-			float log10pt=log10(m_track_truth_pt);
-			//int ipt = int((log10pt+0.5)/0.25);
-			int ipt = int(m_trackPtBins*(log10pt+0.5)/2.5);
+			float log10pt = log10(m_track_truth_pt);
+			//int ipt     = int((log10pt+0.5)/0.25);
+			int ipt       = int(m_trackPtBins*(log10pt+0.5)/2.5);
 			if (ipt>=m_trackPtBins) ipt=m_trackPtBins-1;
 			if (ipt<0) ipt=0;
 
-			// fill histograms for resolutions
+			// Fill histograms for resolutions
 			// versus eta
 			m_hd0[ieta]->Fill(trkd0-m_track_truth_d0);
 			m_hz0[ieta]->Fill(trkz0-m_track_truth_z0);
@@ -2553,8 +2583,6 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 			//m_hptqopt[ipt]->Fill((trkqOverPt-m_track_truth_qoverpt)*fabs(m_track_truth_pt));
 			m_hptqopt[ipt]->Fill((trkqOverPt-m_track_truth_qoverpt)*fabs(m_track_truth_pt)*m_track_truth_charge);
 			m_hptz0st[ipt]->Fill(trkz0*sin(trktheta)-m_track_truth_z0*sin(m_track_truth_theta));
-
-
 			// fill histograms for pulls vs eta
 			m_pulld0[ieta]->Fill((trkd0-m_track_truth_d0)/trkd0err);
 			m_pullz0[ieta]->Fill((trkz0-m_track_truth_z0)/trkz0err);
@@ -2595,7 +2623,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
     if(m_plotsVsAbsEta && trketa < 0.0) trketa *= -1.0;
 
     //if(isPion){
-    // fake rates: Move fake rate cut from 0.2 to 0.5. This is the same as InDetRecStatistics.
+    // Fake rates: Move fake rate cut from 0.2 to 0.5. This is the same as InDetRecStatistics.
     if (prob>m_minProbEffLow){
       //if (prob>0.2) {
       m_track_fakerate_vs_eta->Fill(trketa,0);
@@ -2748,7 +2776,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 
    if (msgLvl(MSG::VERBOSE)) msg() << " Done filling fake rate histograms " << endreq;
 
-   // barcode 0 rate
+   // Barcode 0 rate
    if (barcode==0) {
      nBarCode0++;
      if (prob>m_minProbEffLow) nBarCode0Match++;
@@ -2789,10 +2817,10 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       if(barcode>MAXBARCODE)
         m_nTrkMatchesSameHmpl_barcodeMAXBARCODE->Fill(nTrkMatchesSameHmpl);
     }
-        // now also make plotsof the hit content for fake and good tracks
+        // Now also make plotsof the hit content for fake and good tracks
     const Trk::TrackSummary* summary = m_trkSummaryTool->createSummary(**trksItr);
     if (summary) {
-      //fill impact parameter significance for different numbers of shared hits
+      // Fill impact parameter significance for different numbers of shared hits
       if (summary->get(Trk::numberOfBLayerSharedHits)>0) {
         m_d0sig_pt1_sharedBL->Fill(trkd0/trkd0err);
       }
@@ -2804,9 +2832,15 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       }
 
       if (prob<m_minProbEffLow) {
-        m_Fake_HitContent_NBlayerHits->Fill(summary->get(Trk::numberOfBLayerHits));
-        m_Fake_HitContent_NBlayerOutliers->Fill(summary->get(Trk::numberOfBLayerOutliers));
-        m_Fake_HitContent_NBlayerSharedHits->Fill(summary->get(Trk::numberOfBLayerSharedHits));
+
+        // IBL
+        m_Fake_HitContent_NiblHits->Fill(summary->get(Trk::numberOfInnermostPixelLayerHits));
+        m_Fake_HitContent_NiblOutliers->Fill(summary->get(Trk::numberOfInnermostPixelLayerOutliers));
+        m_Fake_HitContent_NiblSharedHits->Fill(summary->get(Trk::numberOfInnermostPixelLayerSharedHits));
+        // B-layer
+        m_Fake_HitContent_NBlayerHits->Fill(summary->get(Trk::numberOfNextToInnermostPixelLayerHits));
+        m_Fake_HitContent_NBlayerOutliers->Fill(summary->get(Trk::numberOfNextToInnermostPixelLayerOutliers));
+        m_Fake_HitContent_NBlayerSharedHits->Fill(summary->get(Trk::numberOfNextToInnermostPixelLayerSharedHits));
         // Pixel
         m_Fake_HitContent_NPixelHits->Fill(summary->get(Trk::numberOfPixelHits));
         m_Fake_HitContent_NPixelHoles->Fill(summary->get(Trk::numberOfPixelHoles));
@@ -2826,13 +2860,19 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
         m_fakeeta->Fill(trketa);
         m_fakez0->Fill(trkz0);
         m_faked0->Fill(trkd0);
-        m_faked0c->Fill(trkd0c);  // currently just -999
+        m_faked0c->Fill(trkd0c);  // Currently just -999
         m_fakephi->Fill(trkphi);
         m_fakedeltaz0->Fill((trkz0-zVertex)*sin(trktheta));
      }  else if (barcode<MAXBARCODE && barcode !=0) {
-        m_Good_HitContent_NBlayerHits->Fill(summary->get(Trk::numberOfBLayerHits));
-        m_Good_HitContent_NBlayerOutliers->Fill(summary->get(Trk::numberOfBLayerOutliers));
-        m_Good_HitContent_NBlayerSharedHits->Fill(summary->get(Trk::numberOfBLayerSharedHits));
+ 
+        // IBL 
+        m_Good_HitContent_NiblHits->Fill(summary->get(Trk::numberOfInnermostPixelLayerHits));
+        m_Good_HitContent_NiblOutliers->Fill(summary->get(Trk::numberOfInnermostPixelLayerOutliers));
+        m_Good_HitContent_NiblSharedHits->Fill(summary->get(Trk::numberOfInnermostPixelLayerSharedHits));
+        // B-layer
+        m_Good_HitContent_NBlayerHits->Fill(summary->get(Trk::numberOfNextToInnermostPixelLayerHits));
+        m_Good_HitContent_NBlayerOutliers->Fill(summary->get(Trk::numberOfNextToInnermostPixelLayerOutliers));
+        m_Good_HitContent_NBlayerSharedHits->Fill(summary->get(Trk::numberOfNextToInnermostPixelLayerSharedHits));
         // Pixel
         m_Good_HitContent_NPixelHits->Fill(summary->get(Trk::numberOfPixelHits));
         m_Good_HitContent_NPixelHoles->Fill(summary->get(Trk::numberOfPixelHoles));
@@ -2854,13 +2894,10 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 
   }
 
-
-
   m_nTrackpT1_d0siggt3->Fill(ntrackpt1d0sig3);
   m_nTrackpT2_d0siggt3->Fill(ntrackpt2d0sig3);
   m_nTrackpT1_d0siggt5->Fill(ntrackpt1d0sig5);
   m_nTrackpT2_d0siggt5->Fill(ntrackpt2d0sig5);
-
 
   int nChargedParticle=0;
   int nChargedParticleEta=0;
@@ -2872,8 +2909,6 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
   //     now make efficiency plots:
   //     loop through generated tracks and check if there is a reconstructed tracks near it
   // ------------------------------------------------------------------------------------
-
-
 
   unsigned int nb_mc_event = SimTracks->size();
   m_ngenevent->Fill(nb_mc_event);
@@ -2903,7 +2938,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 
 
     for (HepMC::GenEvent::particle_const_iterator it = genEvent->particles_begin();
-     it != genEvent->particles_end(); ++it) {
+      it != genEvent->particles_end(); ++it) {
 
       HepMC::GenParticle * const particle = *it;
 
@@ -2913,13 +2948,12 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       }
 
       // -----------------------------------------------
-      // require the particles to be stable and charged
+      // Require the particles to be stable and charged
       // -----------------------------------------------
       // only consider stable particles
       if (particle->status()%1000!=1) continue;
       int   pdgCode         = particle->pdg_id();
-      const HepPDT::ParticleData* pd =
-	m_particleDataTable->particle(abs(pdgCode));
+      const HepPDT::ParticleData* pd =	m_particleDataTable->particle(abs(pdgCode));
       if (!pd) {
 	//MsgStream log(msgSvc(), name());
 	if (msgLvl(MSG::DEBUG)) msg() <<"Could not get particle data for particle with "
@@ -2932,15 +2966,17 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 
       float charge          = pd->charge();
       if (fabs(charge)<0.5) continue;
-      //     bool isPion=false;
-      //     if (abs(pdgCode)==211) isPion=true;
-      //     if (!isPion) continue;
+      //bool isPion=false;
+      //if (abs(pdgCode)==211) isPion=true;
+      //if (!isPion) continue;
 
+      // Only consider stable particles
+      if (particle->status()%1000!=1) continue;
       nChargedParticle++;
       if (fabs(particle->momentum().pseudoRapidity())<3) nChargedParticleEta++;
       if (particle->barcode()>MAXBARCODE || particle->barcode()==0) continue;
 
-           float genPt=particle->momentum().perp()/1000;
+      float genPt=particle->momentum().perp()/1000;
       float genEta=particle->momentum().pseudoRapidity();
       float genPhi=particle->momentum().phi();
 
@@ -2961,11 +2997,11 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
         continue;
       }
 
-//       if (genPt<m_minTrackPtEff)  continue;
+      //if (genPt<m_minTrackPtEff)  continue;
 
 
       // ------------------------------------------------
-      // determine if particle is prompt or secondary
+      // Determine if particle is prompt or secondary
       // ------------------------------------------------
       bool isPrimary=true;
       bool isSecondary=true;
@@ -2987,12 +3023,12 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       m_truthvtx_z->Fill(primaryVtx.z());
 
       //HepGeom::Point3D<double>  startVertex(particle->production_vertex()->point3d().x(),
-      //         particle->production_vertex()->point3d().y(),
-      //          particle->production_vertex()->point3d().z());
+      //particle->production_vertex()->point3d().y(),
+      //particle->production_vertex()->point3d().z());
       Amg::Vector3D  startVertex(particle->production_vertex()->point3d().x(),particle->production_vertex()->point3d().y(),particle->production_vertex()->point3d().z());
-      // detector paper cuts: impact parameter <2 and barcode reasonable
+      // Detector paper cuts: impact parameter <2 and barcode reasonable
       // JFA (Sep 18, 2008): replace IP cut by cut on difference between primary and track start vertex
-      // if (startVertex.perp()>2) isPrimary=false;
+      // If (startVertex.perp()>2) isPrimary=false;
       // JFA (Feb. 2, 2009): Replace cut on difference between IP and startvertex by a cut on truth d0
       //if (genEvent->signal_process_vertex() != 0 && primaryVtx.distance(startVertex) > 2.0) isPrimary=false;
       if (!singPart && fabs(truth_d0corr) > 2.0) isPrimary=false;
@@ -3010,8 +3046,8 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 
       if (particle->end_vertex() != 0) {
 	//HepGeom::Point3D<double>  endVertex(particle->end_vertex()->point3d().x(),
-	// particle->end_vertex()->point3d().y(),
-	//		      particle->end_vertex()->point3d().z());
+	//particle->end_vertex()->point3d().y(),
+	//particle->end_vertex()->point3d().z());
 
 	Amg::Vector3D  endVertex(particle->end_vertex()->point3d().x(),
 			      particle->end_vertex()->point3d().y(),
@@ -3088,7 +3124,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       if (isPrimary) isSecondary=false;
 
       // Iteration on jets
-      bool matchedJet = false;
+      bool  matchedJet   = false;
       float matchedJetDr = -999.;
       float matchedJetEt = -999.;
       //float matchedJetEta = -999.;
@@ -3142,19 +3178,11 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 	  }
 	}
       }
-      /*else {
-	if (msgLvl(MSG::VERBOSE)) msg() << "... not found !!! Will dump the full rttMap here:"<< endreq;
-	for(recoToTruthMap::iterator rtt_it = rttMap.begin(); rtt_it != rttMap.end(); ++rtt_it){
-	      HepMcParticleLink hmpl = rtt_it->first;
-	      if (msgLvl(MSG::VERBOSE)) msg() << "   " << hmpl << endreq;
-	}
-      }*/
 
       if(particle->barcode()>MAXBARCODE)
         m_prodvtx_secondaries_RZ->Fill( startVertex.z(),sqrt(pow(startVertex.x(),2)+pow(startVertex.y(),2)) );
       if(particle->barcode()<MAXBARCODE && particle->barcode()!=0)
         m_prodvtx_primaries_RZ->Fill( startVertex.z(),sqrt(pow(startVertex.x(),2)+pow(startVertex.y(),2)) );
-
 
       // now printout for debugging gen particles
       if (isDetPaperCut && genPt>30){
@@ -3183,11 +3211,11 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       }
       // BHcheck
       if (m_selHardScatter && ievt!=0) {
-// 	delete generatedTrackPerigee;
+        //delete generatedTrackPerigee;
         continue;
       }
-       if (genPt>m_minTrackPtEff && genPt<m_maxTrackPtEff){
-	if (matchedDetPaper){
+      if (genPt>m_minTrackPtEff && genPt<m_maxTrackPtEff){
+       	if (matchedDetPaper){
 	  if (isDetPaperCut) {
 	    m_trackeff_vs_eta->Fill(genEta,1.0);
 	    m_trackeff_vs_phi->Fill(genPhi*57.296,1.0);
@@ -3246,7 +3274,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 	    if (fabs(genEta)<0.8) m_trackeff_vs_pt_loweta->Fill(genPt,1.0);
 	    else if (fabs(genEta)<1.5) m_trackeff_vs_pt_medeta->Fill(genPt,1.0);
 	    else m_trackeff_vs_pt_higheta->Fill(genPt,1.0);
-            // efficiency vs log(pt)
+            // Efficiency vs log(pt)
             m_trackeff_vs_logpt->Fill(logPt,1.0);
             if (fabs(genEta)<0.8) m_trackeff_vs_logpt_loweta->Fill(logPt,1.0);
             else if (fabs(genEta)<1.5) m_trackeff_vs_logpt_medeta->Fill(logPt,1.0);
@@ -3262,7 +3290,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 	    if (fabs(genEta)<0.8) m_trackeff_vs_pt_loweta->Fill(genPt,0.0);
 	    else if (fabs(genEta)<1.5) m_trackeff_vs_pt_medeta->Fill(genPt,0.0);
 	    else m_trackeff_vs_pt_higheta->Fill(genPt,0.0);
-            // efficiency vs log(pt)
+            // Efficiency vs log(pt)
             m_trackeff_vs_logpt->Fill(logPt,0.0);
             if (fabs(genEta)<0.8) m_trackeff_vs_logpt_loweta->Fill(logPt,0.0);
             else if (fabs(genEta)<1.5) m_trackeff_vs_logpt_medeta->Fill(logPt,0.0);
@@ -3324,7 +3352,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 	    if (fabs(genEta)<0.8) m_trackeff_primary_vs_pt_loweta->Fill(genPt,1.0);
 	    else if (fabs(genEta)<1.5) m_trackeff_primary_vs_pt_medeta->Fill(genPt,1.0);
 	    else m_trackeff_primary_vs_pt_higheta->Fill(genPt,1.0);
-            // efficiency vs log(pt)
+            // Efficiency vs log(pt)
             m_trackeff_primary_vs_logpt->Fill(logPt,1.0);
             if (fabs(genEta)<0.8) m_trackeff_primary_vs_logpt_loweta->Fill(logPt,1.0);
             else if (fabs(genEta)<1.5) m_trackeff_primary_vs_logpt_medeta->Fill(logPt,1.0);
@@ -3338,7 +3366,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 	    if (fabs(genEta)<0.8) m_trackeff_primary_vs_pt_loweta->Fill(genPt,0.0);
 	    else if (fabs(genEta)<1.5) m_trackeff_primary_vs_pt_medeta->Fill(genPt,0.0);
 	    else m_trackeff_primary_vs_pt_higheta->Fill(genPt,0.0);
-            // efficiency vs log(pt)
+            // Efficiency vs log(pt)
             m_trackeff_primary_vs_logpt->Fill(logPt,0.0);
             if (fabs(genEta)<0.8) m_trackeff_primary_vs_logpt_loweta->Fill(logPt,0.0);
             else if (fabs(genEta)<1.5) m_trackeff_primary_vs_logpt_medeta->Fill(logPt,0.0);
@@ -3348,7 +3376,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 	}
       }
       // BH
-      //      delete generatedTrackPerigee;
+      //delete generatedTrackPerigee;
     }
     m_nprimperevent->Fill(nprimperevent);
     m_nsecperevent->Fill(nsecperevent);
@@ -3358,7 +3386,8 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
   }
 
   if (msgLvl(MSG::VERBOSE))
-    msg() << "Number of Tracks: all = " << nTracks<< "   selected = " << nTrackSelected<< endreq;
+  msg() << "Number of Tracks: all = " << nTracks<< "   selected = " << nTrackSelected<< endreq;
+
   m_ntrack->Fill(nTracks);
   m_ntracksel->Fill(nTrackSelected);
   m_nparticle->Fill(nChargedParticle);
@@ -3389,14 +3418,14 @@ void IDStandardPerformance::MakeDataPlots(const DataVector<Trk::Track>* trks) { 
 
     // ---------------------------------------------
     //
-    // analyze the hit content of tracks
+    // Analyze the hit content of tracks
     //
     // ---------------------------------------------
 
     nTracks++;
 
     // ------------------------
-    // track selection tool
+    // Track selection tool
     // ------------------------
     if (m_useTrackSelection) {
       if (m_trackSelectorTool->decision(**trksItr)) {
@@ -3422,18 +3451,18 @@ void IDStandardPerformance::MakeDataPlots(const DataVector<Trk::Track>* trks) { 
     float trktheta       = -999;
     float trketa         = -999;
     float trkpt          = -999;
-    //    float trkcot         = -999;
+    //float trkcot         = -999;
     float trkqOverPt     = -999;
     float charge         = 0;
     float trkd0c         = -999;
-    float trkd0err          = -999;
-    float trkz0err          = -999;
-    float trkphierr         = -999;
-    float trkthetaerr       = -999;
-    //float trkcoterr         = -999;
+    float trkd0err       = -999;
+    float trkz0err       = -999;
+    float trkphierr      = -999;
+    float trkthetaerr    = -999;
+    //float trkcoterr      = -999;
     float trkqopterr     = -999;
 
-    // get fit quality and chi2 probability of track
+    // Get fit quality and chi2 probability of track
     // chi2Prob = TMath::Prob(chi2,DoF) ROOT function
     // const Trk::FitQuality* fitQual = (*trksItr)->fitQuality();
 
@@ -3456,7 +3485,8 @@ void IDStandardPerformance::MakeDataPlots(const DataVector<Trk::Track>* trks) { 
       //trkcot   = 1./tan(trktheta);
       trketa   = - log (tan(trktheta / 2.0));
       trkqOverPt  = perigeeParams[Trk::qOverP]*1000./sin(trktheta);
-      trkpt    = abs(1.0 / trkqOverPt);
+      //trkpt    = abs(1.0 / trkqOverPt);
+      trkpt    = fabs(1.0 / trkqOverPt);
       //std::cout <<"trkpt = "<<trkpt<<"theta = "<<trktheta<<" sin(trktheta) = "<<sin(trktheta)<<" qOverPt = "<<trkqOverPt<<"perigeeParams[Trk::qOverP] = "<< perigeeParams[Trk::qOverP]<<std::endl;
       if (trkqOverPt >-10e-6 && trkqOverPt <10e-6) charge=-2;//unphysical default if no magnetic field, (as can happen in Data) CB
       else if (trkqOverPt<0) charge=-1;
@@ -3484,16 +3514,14 @@ void IDStandardPerformance::MakeDataPlots(const DataVector<Trk::Track>* trks) { 
       int DoF = (fitQual) ? fitQual->numberDoF() : -1;
       if(DoF>0) chi2oDoF = chisquared/(float)DoF;
     }
-    
-    
-    
+   
     m_recpT->Fill(trkpt);
     m_recpTlow->Fill(trkpt);
     m_recphi->Fill(trkphi);
     m_receta->Fill(trketa);
     m_recd0->Fill(trkd0);
     m_recz0->Fill(trkz0);
-    m_recd0c->Fill(trkd0c);  // currently just -999
+    m_recd0c->Fill(trkd0c); // Currently just -999
     m_recchi2->Fill(chi2oDoF);
     m_reccharge->Fill(charge);
 
@@ -3505,8 +3533,7 @@ void IDStandardPerformance::MakeDataPlots(const DataVector<Trk::Track>* trks) { 
     if (msgLvl(MSG::VERBOSE)) msg() << "track parameters: d0=" <<trkd0 << " +/-"<< trkd0err<<" , z0=" <<trkz0 << " +/-"<< trkz0err
       << " , q/pt=" <<trkqOverPt << " +/-"<< trkqopterr << " , phi=" <<trkphi << " +/-"<< trkphierr<< " , theta=" <<trktheta<< " +/-"<< trkthetaerr<<endreq;
 
-
-    // now check for duplicates/close-by tracks
+    // Now check for duplicates/close-by tracks
     if (msgLvl(MSG::VERBOSE)) {
       for (; trksItr2 != trksItrE2 && trksItr2 != trksItr; ++trksItr2) {
 	if (m_useTrackSelection) {
@@ -3544,7 +3571,7 @@ void IDStandardPerformance::MakeDataPlots(const DataVector<Trk::Track>* trks) { 
 
 
 void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
-  // this function determines general track properties and hit efficiencies and can be run both on data and MC
+  // This function determines general track properties and hit efficiencies and can be run both on data and MC
 
   const int nPixelLayers=m_PIX_Mgr->numerology().numLayers();
   const int nPixelDisks=m_PIX_Mgr->numerology().numDisks();
@@ -3556,8 +3583,8 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 
   for (; trksItr != trksItrE; ++trksItr) {
 
-//    int trkAuthor = (*trksItr)->info().author();
-//    if (msgLvl(MSG::VERBOSE)) msg() << (*trksItr)->info().dumpInfo() << endreq;
+    //int trkAuthor = (*trksItr)->info().author();
+    //if (msgLvl(MSG::VERBOSE)) msg() << (*trksItr)->info().dumpInfo() << endreq;
 
     if (m_useTrackSelection) {
       if (!m_trackSelectorTool->decision(**trksItr)) {
@@ -3566,11 +3593,11 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
     }
     // ---------------------------------------------
     //
-    // analyze the hit content of tracks
+    // Analyze the hit content of tracks
     //
     // ---------------------------------------------
 
-    // get fit quality and chi2 probability of track
+    // Get fit quality and chi2 probability of track
     // chi2Prob = TMath::Prob(chi2,DoF) ROOT function
     // const Trk::FitQuality* fitQual = (*trksItr)->fitQuality();
     const Trk::Perigee* startPerigee = (*trksItr)->perigeeParameters();
@@ -3586,12 +3613,13 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
     }
     AmgVector(5) perigeeParams = startPerigee->parameters();
 
-    //    float trkz0    = perigeeParams[Trk::z0];
-    //    trkphi   = perigeeParams[Trk::phi0];
-    //    trktheta = perigeeParams[Trk::theta];
-    //    trkcot   = 1./tan(trktheta);
+    //float trkz0    = perigeeParams[Trk::z0];
+    //trkphi         = perigeeParams[Trk::phi0];
+    //trktheta       = perigeeParams[Trk::theta];
+    //trkcot         = 1./tan(trktheta);
     float trketa   = - log(tan(perigeeParams[Trk::theta] / 2.0));
-    float trkpt    = abs(sin(perigeeParams[Trk::theta])*1000. / perigeeParams[Trk::qOverP]);
+    //float trkpt    = fabs(sin(perigeeParams[Trk::theta])*1000. / perigeeParams[Trk::qOverP]);
+    float trkpt    = fabs(sin(perigeeParams[Trk::theta])*1000. / perigeeParams[Trk::qOverP]);
     float trkphi   = perigeeParams[Trk::phi0];
 
     //for each track see if we can get updator tool
@@ -3601,8 +3629,9 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
     } else {
       m_isUnbiased = 0;
     }
+
     // ----------------------------------------------------------------
-    // use TrackSummary object to get hit content of tracks
+    // Use TrackSummary object to get hit content of tracks
     // ----------------------------------------------------------------
     //Trk::Track& nonConstTrack = const_cast<Trk::Track&>(**trksItr);
     //m_trkSummaryTool->updateTrack(nonConstTrack);
@@ -3617,27 +3646,37 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
     float eta_histo = trketa;
     bool havesummary = false;
     if (m_plotsVsAbsEta) eta_histo = fabs(trketa);
-    // invalid entries means all contents of the summary are -1
+    // Invalid entries means all contents of the summary are -1
     if (summary.get() and summary->get(Trk::numberOfSCTHoles) >=0) {
       havesummary = true;
+      // IBL 
+      m_HitContent_NiblHits->Fill(summary->get(Trk::numberOfInnermostPixelLayerHits));
+      m_HitContent_NiblOutliers->Fill(summary->get(Trk::numberOfInnermostPixelLayerOutliers));
+      m_HitContent_NiblSharedHits->Fill(summary->get(Trk::numberOfInnermostPixelLayerSharedHits));
+      m_HitContent_vs_eta_NiblHits->Fill(eta_histo,summary->get(Trk::numberOfInnermostPixelLayerHits));
+      m_HitContent_vs_eta_NiblOutliers->Fill(eta_histo,summary->get(Trk::numberOfInnermostPixelLayerOutliers));
+      m_HitContent_vs_eta_NiblSharedHits->Fill(eta_histo,summary->get(Trk::numberOfInnermostPixelLayerSharedHits));
       // B-layer
-      m_HitContent_NBlayerHits->Fill(summary->get(Trk::numberOfBLayerHits));
-      m_HitContent_NBlayerOutliers->Fill(summary->get(Trk::numberOfBLayerOutliers));
-      m_HitContent_NBlayerSharedHits->Fill(summary->get(Trk::numberOfBLayerSharedHits));
-      m_HitContent_vs_eta_NBlayerHits->Fill(eta_histo,summary->get(Trk::numberOfBLayerHits));
-      m_HitContent_vs_eta_NBlayerOutliers->Fill(eta_histo,summary->get(Trk::numberOfBLayerOutliers));
-      m_HitContent_vs_eta_NBlayerSharedHits->Fill(eta_histo,summary->get(Trk::numberOfBLayerSharedHits));
+      m_HitContent_NBlayerHits->Fill(summary->get(Trk::numberOfNextToInnermostPixelLayerHits));
+      m_HitContent_NBlayerOutliers->Fill(summary->get(Trk::numberOfNextToInnermostPixelLayerOutliers));
+      m_HitContent_NBlayerSharedHits->Fill(summary->get(Trk::numberOfNextToInnermostPixelLayerSharedHits));
+      m_HitContent_vs_eta_NBlayerHits->Fill(eta_histo,summary->get(Trk::numberOfNextToInnermostPixelLayerHits));
+      m_HitContent_vs_eta_NBlayerOutliers->Fill(eta_histo,summary->get(Trk::numberOfNextToInnermostPixelLayerOutliers));
+      m_HitContent_vs_eta_NBlayerSharedHits->Fill(eta_histo,summary->get(Trk::numberOfNextToInnermostPixelLayerSharedHits));
       // Pixel
       m_HitContent_NPixelHits->Fill(summary->get(Trk::numberOfPixelHits));
       m_HitContent_NPixelHoles->Fill(summary->get(Trk::numberOfPixelHoles));
-      //BH doesnot exist yet in 14.4.0      m_HitContent_NPixelOutliers->Fill(summary->get(Trk::numberOfPixelOutliers));
+      // BH doesnot exist yet in 14.4.0
+      //m_HitContent_NPixelOutliers->Fill(summary->get(Trk::numberOfPixelOutliers));
       m_HitContent_NPixelContribLayers->Fill(summary->get(Trk::numberOfContribPixelLayers));
       m_HitContent_NPixelSharedHits->Fill(summary->get(Trk::numberOfPixelSharedHits));
       m_HitContent_NPixelGangedHits->Fill(summary->get(Trk::numberOfGangedPixels));
       m_HitContent_NPixelGangedHitsFlaggedFakes->Fill(summary->get(Trk::numberOfGangedFlaggedFakes));
       m_HitContent_vs_eta_NPixelHits->Fill(eta_histo,summary->get(Trk::numberOfPixelHits));
       m_HitContent_vs_eta_NPixelHoles->Fill(eta_histo,summary->get(Trk::numberOfPixelHoles));
-      // BH doesnot exist yet in 14.4.0      m_HitContent_vs_eta_NPixelOutliers->Fill(eta_histo,summary->get(Trk::numberOfPixelOutliers));
+      m_HitContent_vs_phi_NPixelHoles->Fill(trkphi,summary->get(Trk::numberOfPixelHoles));
+      // BH doesnot exist yet in 14.4.0
+      //m_HitContent_vs_eta_NPixelOutliers->Fill(eta_histo,summary->get(Trk::numberOfPixelOutliers));
       m_HitContent_vs_eta_NPixelContribLayers->Fill(eta_histo,summary->get(Trk::numberOfContribPixelLayers));
       m_HitContent_vs_eta_NPixelSharedHits->Fill(eta_histo,summary->get(Trk::numberOfPixelSharedHits));
       m_HitContent_vs_eta_NPixelGangedHits->Fill(eta_histo,summary->get(Trk::numberOfGangedPixels));
@@ -3653,6 +3692,8 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
       m_HitContent_vs_eta_NSCTSharedHits->Fill(eta_histo,summary->get(Trk::numberOfSCTSharedHits));
 
       // Hit map plot a la InDetRecStatistics
+      m_nHits_blay_2d->Fill(trketa,trkphi,summary->get(Trk::numberOfNextToInnermostPixelLayerHits)); //correctly looking at B-Layer for Run-2
+      m_nExpectedHits_blay_2d->Fill(trketa,trkphi,summary->get(Trk::expectNextToInnermostPixelLayerHit)); //correctly looking at B-Layer for Run-2
       m_nHits_pixel_2d->Fill(trketa,trkphi,summary->get(Trk::numberOfPixelHits));
       m_nHits_SCT_2d->Fill(trketa,trkphi,summary->get(Trk::numberOfSCTHits));
     }
@@ -3675,13 +3716,13 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
     
     if (!havesummary && msgLvl(MSG::VERBOSE)) msg() << "Could not find TrackSummary object"<<endreq;
 
-    // only use tracks>800 MeV for the hit efficiencies and residuals
+    // Only use tracks>800 MeV for the hit efficiencies and residuals
     // to avoid crashes that sometimes occur for low pt tracks for the hole search tool
     if (msgLvl(MSG::VERBOSE)) msg() << "Calculate hit efficiencies and residuals for track : pT = " << trkpt << "  eta = " << trketa<<endreq;
     if (trkpt>0.8) {
       auto_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**trksItr));
 
-      // loop over all hits on track
+      // Loop over all hits on track
       DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr = trackWithHoles->trackStateOnSurfaces()->begin();
       for (; TSOSItr != trackWithHoles->trackStateOnSurfaces()->end(); ++TSOSItr) {
         if (not *TSOSItr ) {
@@ -3755,7 +3796,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
             }
           }
           if (m_idHelper->is_pixel(surfaceID)){
-            // for the default ATLAS geometry 0 is barrel and +/-1 is endcap
+              // for the default ATLAS geometry 0 is barrel and +/-1 is endcap
             if (m_pixelID->barrel_ec(surfaceID) == 0){
               ilayB = m_pixelID->layer_disk(surfaceID);
             } else {
@@ -3763,14 +3804,14 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
             }
           } else if (m_idHelper->is_sct(surfaceID)){
             if (!m_doUpgrade) {
-          // for the default ATLAS geometry 0 is barrel and +/-1 is endcap
+              // for the default ATLAS geometry 0 is barrel and +/-1 is endcap
               if (m_sctID->barrel_ec(surfaceID) == 0){
                 ilayB=nPixelLayers+m_sctID->layer_disk(surfaceID);
               } else {
                 ilayE=nPixelDisks+m_sctID->layer_disk(surfaceID);
               }
             } else {
-          // for the upgraded detector +/-1 is barrel and +/-2 is endcap
+              // for the upgraded detector +/-1 is barrel and +/-2 is endcap
               if (abs(m_sctID->barrel_ec(surfaceID)) <2){
                 ilayB=nPixelLayers+m_sctID->layer_disk(surfaceID);
               } else if (abs(m_sctID->barrel_ec(surfaceID)) == 2){
@@ -3795,7 +3836,10 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 
         // now get hit efficiency versus eta
           if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement) ){
-            if (ilayB==0) { // B-layer
+            if (ilayB==0) { // IBL
+              m_eff_hit_vs_eta_ibl_barrel->Fill(fabs(trketa),1);
+            }
+            if (ilayB==1) { // B-layer
               m_eff_hit_vs_eta_blay_barrel->Fill(fabs(trketa),1);
             }
             if (ilayB>=0) { // entire pixel and SCT barrel detectors
@@ -3810,7 +3854,10 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
             if (itrt==1) m_eff_hit_vs_eta_trt_barrel->Fill(fabs(trketa),1);
             else if (itrt==2) m_eff_hit_vs_eta_trt_endcap->Fill(fabs(trketa),1);
           } else {
-            if (ilayB==0) { // B-layer
+            if (ilayB==0) { // IBL
+              m_eff_hit_vs_eta_ibl_barrel->Fill(fabs(trketa),0);
+            }
+            if (ilayB==1) { // B-layer
               m_eff_hit_vs_eta_blay_barrel->Fill(fabs(trketa),0);
             }
             if (ilayB>=0) {// entire pixel and SCT barrel detectors
@@ -3828,6 +3875,9 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
         // now get fraction of holes versus eta
           if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Hole) ){
             if (ilayB==0) {
+              m_frac_hole_vs_eta_ibl_barrel->Fill(fabs(trketa),1);
+            }
+            if (ilayB==1) {
               m_frac_hole_vs_eta_blay_barrel->Fill(fabs(trketa),1);
             }
             if (ilayB>=0) {
@@ -3842,6 +3892,9 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
             else if (itrt==2) m_frac_hole_vs_eta_trt_endcap->Fill(fabs(trketa),1);
           } else {
             if (ilayB==0) {
+              m_frac_hole_vs_eta_ibl_barrel->Fill(fabs(trketa),0);
+            }
+            if (ilayB==1) {
               m_frac_hole_vs_eta_blay_barrel->Fill(fabs(trketa),0);
             }
             if (ilayB>=0) {
@@ -3858,6 +3911,9 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
         // now get fraction of outliers versus eta
           if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Outlier) ){
             if (ilayB==0) {
+              m_frac_outlier_vs_eta_ibl_barrel->Fill(fabs(trketa),1);
+            }
+            if (ilayB==1) {
               m_frac_outlier_vs_eta_blay_barrel->Fill(fabs(trketa),1);
             }
             if (ilayB>=0) {
@@ -3872,6 +3928,9 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
             else if (itrt==2) m_frac_outlier_vs_eta_trt_endcap->Fill(fabs(trketa),1);
           } else {
             if (ilayB==0) {
+              m_frac_outlier_vs_eta_ibl_barrel->Fill(fabs(trketa),0);
+            }
+            if (ilayB==1) {
               m_frac_outlier_vs_eta_blay_barrel->Fill(fabs(trketa),0);
             }
             if (ilayB>=0) {
@@ -3976,7 +4035,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 		  Amg::Vector3D my_etaax = element->etaAxis();
 		  // track component on etaAxis:
 		  float trketacomp = my_track.dot(my_etaax);
-	      // track component on phiAxis:
+                  // track component on phiAxis:
 		  float trkphicomp = my_track.dot(my_phiax);
 		  // track component on the normal to the module
 		  float trknormcomp = my_track.dot(my_normal);
@@ -4003,23 +4062,23 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
               if (msgLvl(MSG::VERBOSE)) msg() << "obtained Hit Residual and Pull " << endreq;
               residualLocX = 1000*residualPull->residual()[Trk::loc1]; // residuals in microns
               pullLocX = residualPull->pull()[Trk::loc1]; // residuals in microns
+              detArea = pix_b;
               if (ilayB>=0 && ilayB<nPixelLayers) { // Pixel
-		detArea = pix_b;
-                m_residualx_pixel_barrel->Fill(residualLocX);
-		if (phiWidth==1) m_residualx_pixel_barrel_1hit->Fill(residualLocX);
-		if (phiWidth>=2) m_residualx_pixel_barrel_2ormorehits->Fill(residualLocX);
-                m_residualx_pixel_barrel_l[ilayB]->Fill(residualLocX);
-                m_residualpullx_pixel_barrel->Fill(pullLocX);
-                m_residualpullx_pixel_barrel_l[ilayB]->Fill(pullLocX);
+                m_residualx_pixel_barrel->Fill(residualLocX);//set 1
+		if (phiWidth==1) m_residualx_pixel_barrel_1hit->Fill(residualLocX);//set 2
+		if (phiWidth>=2) m_residualx_pixel_barrel_2ormorehits->Fill(residualLocX);//set 3
+                m_residualx_pixel_barrel_l[ilayB]->Fill(residualLocX);//set 5
+                m_residualpullx_pixel_barrel->Fill(pullLocX);//set 4
+                m_residualpullx_pixel_barrel_l[ilayB]->Fill(pullLocX);//set 6
                 if (residualPull->dimension() >= 2) {
                   residualLocY = 1000*residualPull->residual()[Trk::loc2];
                   pullLocY = residualPull->pull()[Trk::loc2];
-                  m_residualy_pixel_barrel->Fill(residualLocY);
-		  if (zWidth==1) m_residualy_pixel_barrel_1hit->Fill(residualLocY);
-		  if (zWidth>=2) m_residualy_pixel_barrel_2ormorehits->Fill(residualLocY);
-                  m_residualy_pixel_barrel_l[ilayB]->Fill(residualLocY);
-                  m_residualpully_pixel_barrel->Fill(pullLocY);
-                  m_residualpully_pixel_barrel_l[ilayB]->Fill(pullLocY);
+                  m_residualy_pixel_barrel->Fill(residualLocY);//set 1
+		  if (zWidth==1) m_residualy_pixel_barrel_1hit->Fill(residualLocY);//set 2
+		  if (zWidth>=2) m_residualy_pixel_barrel_2ormorehits->Fill(residualLocY);//set 3
+                  m_residualy_pixel_barrel_l[ilayB]->Fill(residualLocY);//set 5
+                  m_residualpully_pixel_barrel->Fill(pullLocY);//set 4
+                  m_residualpully_pixel_barrel_l[ilayB]->Fill(pullLocY);// set 6
                 }
               } else if (ilayB>=nPixelLayers) { // SCT
 		detArea = sct_b;
@@ -4155,7 +4214,8 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	    
 	    //these are for track perigee params
 	    float trketa   = - log(tan(perigeeParams[Trk::theta] / 2.0));
-	    float trkpt    = abs(sin(perigeeParams[Trk::theta])*1000. / perigeeParams[Trk::qOverP]);
+	    //float trkpt    = abs(sin(perigeeParams[Trk::theta])*1000. / perigeeParams[Trk::qOverP]);
+	    float trkpt    = fabs(sin(perigeeParams[Trk::theta])*1000. / perigeeParams[Trk::qOverP]);
 	    float trkphi   = perigeeParams[Trk::phi0];
 	    
 	    float trk_d0    = perigeeParams[Trk::d0];
@@ -4244,7 +4304,8 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	    
 	    //these are for track perigee params, not SCT track perigee params
 	    float trketa   =  - log(tan(perigeeParams[Trk::theta] / 2.0));
-	    float trkpt    = abs(sin(perigeeParams[Trk::theta])*1000. / perigeeParams[Trk::qOverP]);
+	    //float trkpt    = abs(sin(perigeeParams[Trk::theta])*1000. / perigeeParams[Trk::qOverP]);
+	    float trkpt    = fabs(sin(perigeeParams[Trk::theta])*1000. / perigeeParams[Trk::qOverP]);
 	    float trkphi   = perigeeParams[Trk::phi0];
 	    
 	    float trk_d0    = perigeeParams[Trk::d0];
@@ -4341,7 +4402,8 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	    
 	    //these are for the track perigee params, not TRT track
 	    float trkphi   = perigeeParams[Trk::phi0];
-	    float trkpt    = abs(sin(perigeeParams[Trk::theta])*1000. / perigeeParams[Trk::qOverP]);
+	    //float trkpt    = abs(sin(perigeeParams[Trk::theta])*1000. / perigeeParams[Trk::qOverP]);
+	    float trkpt    = fabs(sin(perigeeParams[Trk::theta])*1000. / perigeeParams[Trk::qOverP]);
 	    trt_trk_phi.push_back(trkphi);
 	    trt_trk_pt.push_back(trkpt);
 
