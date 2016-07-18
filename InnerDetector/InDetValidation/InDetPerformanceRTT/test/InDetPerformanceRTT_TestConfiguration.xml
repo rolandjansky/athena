@@ -335,6 +335,107 @@
          <package>InnerDetector/InDetValidation/InDetPerformanceRTT</package>
          <group>TtbarIDPRTT</group>
          <queue>medium</queue>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/d6/dc/RDO.08543088._000001.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/83/0c/RDO.08543088._000002.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/4d/6e/RDO.08543088._000003.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/13/04/RDO.08543088._000004.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/26/75/RDO.08543088._000005.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/91/97/RDO.08543088._000006.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/59/7c/RDO.08543088._000007.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/9f/4d/RDO.08543088._000008.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/fc/ad/RDO.08543088._000009.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/14/5b/RDO.08543088._000010.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/0b/e3/RDO.08543088._000011.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/83/c6/RDO.08543088._000012.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/43/d3/RDO.08543088._000013.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/98/7f/RDO.08543088._000014.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/15/ce/RDO.08543088._000015.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/31/8f/RDO.08543088._000016.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/ba/e5/RDO.08543088._000018.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/97/e4/RDO.08543088._000019.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/c5/4e/RDO.08543088._000021.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/d9/a3/RDO.08543088._000022.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/46/99/RDO.08543088._000023.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/e5/fd/RDO.08543088._000024.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/db/7f/RDO.08543088._000025.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/cc/b3/RDO.08543088._000026.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/03/fc/RDO.08543088._000027.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/eb/d6/RDO.08543088._000028.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/88/d3/RDO.08543088._000031.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/f3/f4/RDO.08543088._000032.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/ea/ee/RDO.08543088._000033.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/f8/e9/RDO.08543088._000034.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/a3/04/RDO.08543088._000035.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/1d/07/RDO.08543088._000041.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/50/19/RDO.08543088._000044.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/85/1d/RDO.08543088._000046.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/95/1b/RDO.08543088._000050.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/5a/4b/RDO.08543088._000052.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/f8/56/RDO.08543088._000053.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/89/c9/RDO.08543088._000061.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/ff/a5/RDO.08543088._000062.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/8a/b9/RDO.08543088._000063.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/e4/73/RDO.08543088._000064.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/3e/a1/RDO.08543088._000065.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/84/2b/RDO.08543088._000066.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/d2/5c/RDO.08543088._000067.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/23/b6/RDO.08543088._000068.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/21/86/RDO.08543088._000069.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/70/34/RDO.08543088._000070.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/0f/8a/RDO.08543088._000071.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/ff/a1/RDO.08543088._000072.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/71/40/RDO.08543088._000073.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/38/4d/RDO.08543088._000074.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/f8/5a/RDO.08543088._000075.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/24/9a/RDO.08543088._000076.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/b2/b2/RDO.08543088._000077.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/54/05/RDO.08543088._000078.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/5f/2e/RDO.08543088._000079.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/f4/86/RDO.08543088._000080.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/1d/b2/RDO.08543088._000081.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/d0/f2/RDO.08543088._000082.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/fa/db/RDO.08543088._000083.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/70/3b/RDO.08543088._000084.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/8e/80/RDO.08543088._000085.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/34/38/RDO.08543088._000086.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/da/22/RDO.08543088._000087.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/0f/f2/RDO.08543088._000088.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/49/08/RDO.08543088._000089.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/32/5a/RDO.08543088._000090.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/2f/02/RDO.08543088._000091.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/7d/72/RDO.08543088._000092.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/b8/e1/RDO.08543088._000093.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/8c/f8/RDO.08543088._000094.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/4c/58/RDO.08543088._000095.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/9a/80/RDO.08543088._000096.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/d8/3e/RDO.08543088._000097.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/d2/69/RDO.08543088._000098.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/67/48/RDO.08543088._000099.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/b7/07/RDO.08543088._000100.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/64/ae/RDO.08543088._000101.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/fa/d5/RDO.08543088._000102.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/ed/52/RDO.08543088._000103.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/45/c4/RDO.08543088._000104.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/3b/be/RDO.08543088._000106.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/5b/41/RDO.08543088._000107.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/4e/b6/RDO.08543088._000108.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/4a/ca/RDO.08543088._000111.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/de/5b/RDO.08543088._000112.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/e5/06/RDO.08543088._000113.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/ec/48/RDO.08543088._000114.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/ac/f5/RDO.08543088._000115.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/e6/43/RDO.08543088._000116.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/dc/0b/RDO.08543088._000117.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/ab/5a/RDO.08543088._000118.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/38/12/RDO.08543088._000119.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/31/fc/RDO.08543088._000120.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/22/33/RDO.08543088._000121.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/87/9c/RDO.08543088._000122.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/5e/7a/RDO.08543088._000123.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/a7/c3/RDO.08543088._000124.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/59/c2/RDO.08543088._000125.pool.root.1</dataset>
+	 <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/70/b0/RDO.08543088._000126.pool.root.1</dataset>
+<!--
          <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/60/11/RDO.07497143._000001.pool.root.1</dataset>
          <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/53/69/RDO.07497143._000002.pool.root.1</dataset>
          <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/38/03/RDO.07497143._000003.pool.root.1</dataset>
@@ -360,6 +461,7 @@
          <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/a7/68/RDO.07497143._000023.pool.root.1</dataset>
          <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/95/0a/RDO.07497143._000024.pool.root.1</dataset>
          <dataset>/eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/8a/d8/RDO.07497143._000025.pool.root.1</dataset>
+--> 
       </athena>
 
       <athena userJobId="ZtomumuPileupIDPRTT">

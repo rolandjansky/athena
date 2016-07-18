@@ -299,18 +299,21 @@ class IDStandardPerformance : public ManagedMonitorToolBase
 
 
     // hit efficiencies
+    TProfile* m_eff_hit_vs_eta_ibl_barrel;
     TProfile* m_eff_hit_vs_eta_blay_barrel;
     TProfile* m_eff_hit_vs_eta_pix_barrel;
     TProfile* m_eff_hit_vs_eta_sct_barrel;
     TProfile* m_eff_hit_vs_eta_pix_endcap;
     TProfile* m_eff_hit_vs_eta_sct_endcap;
 
+    TProfile* m_frac_hole_vs_eta_ibl_barrel;
     TProfile* m_frac_hole_vs_eta_blay_barrel;
     TProfile* m_frac_hole_vs_eta_pix_barrel;
     TProfile* m_frac_hole_vs_eta_sct_barrel;
     TProfile* m_frac_hole_vs_eta_pix_endcap;
     TProfile* m_frac_hole_vs_eta_sct_endcap;
 
+    TProfile* m_frac_outlier_vs_eta_ibl_barrel;
     TProfile* m_frac_outlier_vs_eta_blay_barrel;
     TProfile* m_frac_outlier_vs_eta_pix_barrel;
     TProfile* m_frac_outlier_vs_eta_sct_barrel;
@@ -393,6 +396,8 @@ class IDStandardPerformance : public ManagedMonitorToolBase
 
     // Hit map plots
     TH2F*  m_nHits_pixel_2d;
+    TH2F*  m_nHits_blay_2d;
+    TH2F*  m_nExpectedHits_blay_2d;
     TH2F*  m_nHits_SCT_2d;
     TH2F*  m_nHits_TRT_2d;
     TH2F*  m_nHits_ALL_RZ;
@@ -588,7 +593,9 @@ class IDStandardPerformance : public ManagedMonitorToolBase
     TH1F* m_residualWidthPhi_vs_incident_pixel;
     TH1F* m_pullWidthPhi_vs_incident_pixel;
     // hit content
-
+    TH1F* m_HitContent_NiblHits;
+    TH1F* m_HitContent_NiblOutliers;
+    TH1F* m_HitContent_NiblSharedHits;
     TH1F* m_HitContent_NBlayerHits;
     TH1F* m_HitContent_NBlayerOutliers;
     TH1F* m_HitContent_NBlayerSharedHits;
@@ -609,6 +616,9 @@ class IDStandardPerformance : public ManagedMonitorToolBase
     TH1F* m_HitContent_NTRTHighThresholdHits;
     TH1F* m_HitContent_NTRTHighThresholdOutliers;
 
+    TH1F* m_Fake_HitContent_NiblHits;
+    TH1F* m_Fake_HitContent_NiblOutliers;
+    TH1F* m_Fake_HitContent_NiblSharedHits;
     TH1F* m_Fake_HitContent_NBlayerHits;
     TH1F* m_Fake_HitContent_NBlayerOutliers;
     TH1F* m_Fake_HitContent_NBlayerSharedHits;
@@ -626,6 +636,9 @@ class IDStandardPerformance : public ManagedMonitorToolBase
     TH2F* m_Fake_NPixvNSct;
     TH1F* m_Fake_Chi2;
 
+    TH1F* m_Good_HitContent_NiblHits;
+    TH1F* m_Good_HitContent_NiblOutliers;
+    TH1F* m_Good_HitContent_NiblSharedHits;
     TH1F* m_Good_HitContent_NBlayerHits;
     TH1F* m_Good_HitContent_NBlayerOutliers;
     TH1F* m_Good_HitContent_NBlayerSharedHits;
@@ -643,11 +656,15 @@ class IDStandardPerformance : public ManagedMonitorToolBase
     TH2F* m_Good_NPixvNSct;
     TH1F* m_Good_Chi2;
 
+    TProfile* m_HitContent_vs_eta_NiblHits;
+    TProfile* m_HitContent_vs_eta_NiblOutliers;
+    TProfile* m_HitContent_vs_eta_NiblSharedHits;
     TProfile* m_HitContent_vs_eta_NBlayerHits;
     TProfile* m_HitContent_vs_eta_NBlayerOutliers;
     TProfile* m_HitContent_vs_eta_NBlayerSharedHits;
     TProfile* m_HitContent_vs_eta_NPixelHits;
     TProfile* m_HitContent_vs_eta_NPixelHoles;
+    TProfile* m_HitContent_vs_phi_NPixelHoles;
     TProfile* m_HitContent_vs_eta_NPixelOutliers;
     TProfile* m_HitContent_vs_eta_NPixelContribLayers;
     TProfile* m_HitContent_vs_eta_NPixelSharedHits;
