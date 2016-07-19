@@ -103,6 +103,7 @@ namespace LVL1
       virtual void cpLut(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output);
       virtual void jepLut(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output);
       virtual void lut(const std::vector<int> &fir, int slope, int offset, int cut, int ped, int strategy, bool disabled, std::vector<int> &output);
+      virtual void nonLinearLut(const std::vector<int> &fir, int slope, int offset, int cut, int scale, short par1, short par2, short par3, short par4, bool disabled, std::vector<int> &output);
       virtual void applyEtRange(const std::vector<int>& lut, const std::vector<int>& range, const L1CaloCoolChannelId& channelId, std::vector<int> &output);
       virtual void firParams(const L1CaloCoolChannelId& channelId, std::vector<int> &firCoeffs);
       virtual void bcidParams(const L1CaloCoolChannelId& channelId, int &energyLow, int &energyHigh, int &decisionSource, std::vector<unsigned int> &decisionConditions,
@@ -133,7 +134,7 @@ namespace LVL1
       bool disabledChannel(const L1CaloCoolChannelId& channelId, unsigned int& noiseCut);
 
       bool              m_debug;
-    
+
       /// Id managers
       const CaloIdManager* m_caloMgr;
       
@@ -148,6 +149,9 @@ namespace LVL1
 
       /// L1Calo conditions
       ServiceHandle<L1CaloCondSvc> m_l1CondSvc;
+
+      /// Trig configurations
+      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
 
       // one of L1CaloPprConditionsContainer{,Run2}*
       bool m_isRun2;
