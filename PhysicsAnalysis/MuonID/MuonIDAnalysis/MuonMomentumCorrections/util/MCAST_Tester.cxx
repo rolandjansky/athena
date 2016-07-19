@@ -35,6 +35,9 @@
 // Local include(s):
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 #include "MuonSelectorTools/MuonSelectionTool.h"
+#include <string>
+
+using namespace std;
 
 int main( int argc, char* argv[] ) {
 
@@ -49,6 +52,17 @@ int main( int argc, char* argv[] ) {
     return 1;
   }
 
+  string options;
+  for( int i=0; i<argc; i++)   { options+=(argv[i]);  }
+  
+  int Ievent=-1;
+  if(options.find("-event")!=string::npos){
+  for( int ipos=0; ipos<argc ; ipos++ ) {
+    if (string(argv[ipos]).compare("-event")==0)
+      {       Ievent=atoi(argv[ipos+1]); break; }
+  }}
+  
+  //std::cout<<"Checking for event "<<Ievent<<std::endl;  
   //::: Initialise the application:
   //ATH_CHECK( xAOD::Init( APP_NAME ) );
   xAOD::Init( APP_NAME );
@@ -68,12 +82,13 @@ int main( int argc, char* argv[] ) {
 
   //::: Decide how many events to run over:
   Long64_t entries = event.getEntries();
-  if( argc > 2 ) {
-    const Long64_t e = atoll( argv[ 2 ] );
-    if( e < entries ) {
-      entries = e;
-    }
-  }
+
+  //if( argc > 2 ) {
+  // const Long64_t e = atoll( argv[ 2 ] );
+  //if( e < entries ) {
+  //  entries = e;
+  //}
+  //}
 
   //::: Create the tool(s) to test:
 
@@ -82,9 +97,12 @@ int main( int argc, char* argv[] ) {
   //corrTool.msg().setLevel( MSG::DEBUG );
   //ATH_CHECK( corrTool.initialize() );
   //corrTool.setProperty( "Release", "PreRecs" );
-  corrTool.initialize();
+  //corrTool.setProperty( "Year", "Data15" );
+  corrTool.setProperty( "Year", "Data16" );
+  if(corrTool.initialize()!=StatusCode::SUCCESS) return 1;
 
   //::: Muon Selection
+
   CP::MuonSelectionTool selTool( "MuonSelectionTool" );
   //selTool.setProperty( "MaxEta", 2.5 );
   //ATH_CHECK( selTool.initialize() );
@@ -92,16 +110,20 @@ int main( int argc, char* argv[] ) {
 
   //::: Systematics initialization
   std::vector< CP::SystematicSet > sysList;
-  sysList.push_back( CP::SystematicSet() );
-  /*
+  //sysList.push_back( CP::SystematicSet() );
+  
   const CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
   const CP::SystematicSet& recommendedSystematics = registry.recommendedSystematics();
   for( CP::SystematicSet::const_iterator sysItr = recommendedSystematics.begin(); sysItr != recommendedSystematics.end(); ++sysItr ) {
     sysList.push_back( CP::SystematicSet() );
     sysList.back().insert( *sysItr );
   }
-  */
+  
   std::vector< CP::SystematicSet >::const_iterator sysListItr;
+
+  std::cout<<"Systematics are "<<std::endl;
+  for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr )
+    std::cout<<sysListItr->name()<<std::endl;
 
   //::: Output initialization
   Float_t InitPtCB( 0. ), InitPtID( 0. ), InitPtMS( 0. );
@@ -140,7 +162,12 @@ int main( int argc, char* argv[] ) {
     const xAOD::EventInfo* evtInfo = 0;
     //ATH_CHECK( event.retrieve( evtInfo, "EventInfo" ) );
     event.retrieve( evtInfo, "EventInfo" );
-    Info( APP_NAME, "===>>>  start processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry ) );
+    if(Ievent!=-1 && static_cast <int> (evtInfo->eventNumber())!=Ievent) {
+      //std::cout<<"Event "<<evtInfo->eventNumber()<<" Ievent "<<Ievent<<std::endl;
+      continue;  
+    }
+
+    //Info( APP_NAME, "===>>>  start processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry ) );
 
     //::: Get the Muons from the event:
     const xAOD::MuonContainer* muons = 0;
@@ -160,13 +187,14 @@ int main( int argc, char* argv[] ) {
     //::: Loop over systematics
     for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {
       
-      Info( APP_NAME, "Looking at %s systematic", ( sysListItr->name() ).c_str() );
+      //Info( APP_NAME, "Looking at %s systematic", ( sysListItr->name() ).c_str() );
 
       //::: Check if systematic is applicable
       if( corrTool.applySystematicVariation( *sysListItr ) != CP::SystematicCode::Ok ) { 
         Error( APP_NAME, "Cannot configure muon calibration tool for systematic" );
       }
 
+      for( int i=-0; i<1e3 ; i++) { 
       //::: Loop over muon container
       for( auto muon: *muonsCorr ) {
 
@@ -183,7 +211,7 @@ int main( int argc, char* argv[] ) {
         Phi = muon->phi();
         Charge = muon->charge();
         //::: Print some info about the selected muon:
-        Info( APP_NAME, "Selected muon: eta = %g, phi = %g, pt = %g", muon->eta(), muon->phi(), muon->pt() );
+        //Info( APP_NAME, "Selected muon: eta = %g, phi = %g, pt = %g", muon->eta(), muon->phi(), muon->pt()/1e3 );
         //:::
         if( do_it_the_right_way ) {
           //::: Create a calibrated muon:
@@ -216,16 +244,18 @@ int main( int argc, char* argv[] ) {
           ExpResoID = corrTool.ExpectedResolution( "ID", *muon );
           ExpResoMS = corrTool.ExpectedResolution( "MS", *muon );
 
-          Info( APP_NAME, "resoCB = %g, resoID = %g, resoMS = %g", ExpResoCB, ExpResoID, ExpResoMS );
-          //Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muon->eta(), muon->phi(), muon->pt(), muon->auxdata< float >( "InnerDetectorPt" ), muon->auxdata< float >( "MuonSpectrometerPt" ) );
+          //Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muon->eta(), muon->phi(), muon->pt()/1e3, muon->auxdata< float >( "InnerDetectorPt" )/1e3, muon->auxdata< float >( "MuonSpectrometerPt" )/1e3 );
 
           sysTreeMap[ *sysListItr ]->Fill();
-        }
+	}
+	break; 
+      }
       }
     }
-
+    
     //::: Close with a message:
-    Info( APP_NAME, "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry + 1 ) );
+    if(entry %  1000 ==0 ) 
+      Info( APP_NAME, "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry + 1 ) );
   }
 
   for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {
