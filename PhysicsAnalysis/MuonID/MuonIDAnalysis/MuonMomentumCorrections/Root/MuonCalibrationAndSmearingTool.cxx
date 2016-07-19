@@ -27,10 +27,11 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::strin
 
   m_loadNames( false ), m_nb_regions( 0. ), m_doMacroRegions( false ) {
 
-  declareProperty( "Year", m_year = "Data15" );
+  declareProperty( "Year", m_year = "Data16" );
   declareProperty( "Algo", m_algo = "muons" );
   declareProperty( "SmearingType", m_type = "q_pT" );
-  declareProperty( "Release", m_release = "PreRecs2016_05_23" );
+  //  declareProperty( "Release", m_release = "Recs2016_08_07" );
+  declareProperty( "Release", m_release = "Recs2016_15_07" );
   declareProperty( "ToroidOff", m_toroidOff = false );
   declareProperty( "FilesPath", m_FilesPath = "" );
 
@@ -147,10 +148,12 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const MuonCalibr
   m_Parameters( tool.m_Parameters ),
   m_currentParameters( NULL ) {
 
-  declareProperty( "Year", m_year = "Data15" );
+  declareProperty( "Year", m_year = "Data16" );
   declareProperty( "Algo", m_algo = "muons" );
   declareProperty( "SmearingType", m_type = "q_pT" );
-  declareProperty( "Release", m_release = "PreRecs2016_05_23" );
+  declareProperty( "Release", m_release = "Recs2016_15_07" );
+  //declareProperty( "Release", m_release = "Recs2016_08_07" );
+  //declareProperty( "Release", m_release = "PreRecs2016_05_23" );
   declareProperty( "ToroidOff", m_toroidOff = false );
   declareProperty( "FilesPath", m_FilesPath = "" );
 
@@ -191,6 +194,13 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       regionMode = 1; 
       m_useNsigmaForICombine = 0;
     }
+
+    //    else if ( m_Trel >= MCAST::Release::Recs2016_08_07 ) {
+    //regionsPath = PathResolverFindCalibFile( "MuonMomentumCorrections/RegionsPhi18.dat" );
+    //regionMode = 1;
+    //m_useNsigmaForICombine = 0;
+    //}
+
     else {
       ATH_MSG_ERROR( "Unknown release" );
       return StatusCode::FAILURE;
@@ -338,6 +348,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
     //::: Construct a seed for the random number generator:
     const UInt_t seed = 1 + abs( mu.phi() ) * 1E6 + std::abs( mu.eta() ) * 1E3 + eventNumber;
     m_random3.SetSeed( seed );
+    //m_random3.SetSeed(0);
   }
 
   m_smearDeltaMS = 0.;
@@ -583,6 +594,10 @@ StatusCode MuonCalibrationAndSmearingTool::SetData( std::string data ) {
   else if( data == "Data15" ) {
     m_Tdata = MCAST::DataType::Data15;
   }
+  else if( data == "Data16" ) {
+    m_Tdata = MCAST::DataType::Data16;
+  }
+
   else {
     ATH_MSG_ERROR( "Unrecognized value for SetData" );
     return StatusCode::FAILURE;
@@ -666,9 +681,17 @@ StatusCode MuonCalibrationAndSmearingTool::SetRelease( std::string rel ) {
   else if( rel == "PreRecs2016_05_23" ) {
     m_Trel = MCAST::Release::PreRec_2016_05_23;
   }
+  else if (rel == "Recs2016_08_07") {
+    m_Trel = MCAST::Release::Recs2016_08_07;
+  }
+  else if (rel == "Recs2016_15_07") {
+    m_Trel = MCAST::Release::Recs2016_08_07;
+  }
+  
   else {
-    ATH_MSG_ERROR( "Unrecognized value for SetRelease" );
-    return StatusCode::FAILURE;
+    m_Trel = MCAST::Release::Recs2016_08_07;
+    //ATH_MSG_ERROR( "Unrecognized value for SetRelease" );
+    //return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
 
