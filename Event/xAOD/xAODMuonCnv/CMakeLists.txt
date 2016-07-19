@@ -14,10 +14,12 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaKernel
+                          Control/CxxUtils
                           Event/xAOD/xAODPrimitives
                           GaudiKernel
                           Reconstruction/MuonIdentification/muonEvent
-                          Reconstruction/Particle )
+                          Reconstruction/Particle
+			  Event/xAOD/xAODTruth )
 
 # Component(s) in the package:
 atlas_add_component( xAODMuonCnv
