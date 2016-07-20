@@ -131,7 +131,7 @@ bool Trig::FillConf::FillLV1(TrigMonConfig &confg,
    // Collect L1 config
    //
 
-   const std::vector<int> prescalesL1 = ctp_config.prescaleSet().prescales();
+   const std::vector<float> prescalesL1 = ctp_config.prescaleSet().prescales_float();
 
    std::set<TrigConfSeq> myth_set;
 
@@ -141,7 +141,7 @@ bool Trig::FillConf::FillLV1(TrigMonConfig &confg,
          continue;
       }
     
-      int prescale = 0;
+      float prescale = 0;
       if(int(prescalesL1.size()) > item->ctpId()) {
          prescale = prescalesL1[item->ctpId()];
       } else {
@@ -523,7 +523,7 @@ void Trig::FillConf::UpdateLV1(TrigMonConfig &confg,
   // Update L1 config
   //
 
-  const std::vector<int> prescalesL1 = ctp_config.prescaleSet().prescales();
+  const std::vector<float> prescalesL1 = ctp_config.prescaleSet().prescales_float();
 
   BOOST_FOREACH(TrigConf::TriggerItem *item, ctp_config.menu().items()) {
     if(!item) {
@@ -531,7 +531,7 @@ void Trig::FillConf::UpdateLV1(TrigMonConfig &confg,
       continue;
     }
     
-    int prescale = 0;
+    float prescale = 0;
     if(int(prescalesL1.size()) > item->ctpId()) {
       prescale = prescalesL1[item->ctpId()];
     } else {

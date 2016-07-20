@@ -84,6 +84,8 @@ namespace Trig
 
     void CollectTEs(TrigMonTE &elem_parent,
         const std::vector<HLT::TriggerElement *> &te_vec);
+
+    void FillAllRoI(const HLT::TriggerElement* _initialNode);
     
     TrigMonTE& MakeElem(const HLT::TriggerElement *hlt_te);
 

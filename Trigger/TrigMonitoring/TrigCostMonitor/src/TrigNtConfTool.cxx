@@ -19,6 +19,10 @@
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
 #include "TrigConfL1Data/PrescaleSet.h"
+#include "TrigT1Result/CTP_RDO.h"
+#include "CTPfragment/CTPfragment.h"
+#include "CTPfragment/CTPExtraWordsFormat.h"
+#include "CTPfragment/Issue.h"
 
 // Loader classes
 #include "TrigConfStorage/StorageMgr.h"
@@ -48,7 +52,8 @@ Trig::TrigNtConfTool::TrigNtConfTool(const std::string &name,
    m_countConfig_db(0),
    m_countConfig_sv(0),
    m_run(0),
-   m_dbOrConfSvcPass(0)
+   m_dbOrConfSvcPass(0),
+   m_currentL1PSK(0)
 {
   declareInterface<Trig::ITrigNtTool>(this);
 
@@ -120,7 +125,7 @@ bool Trig::TrigNtConfTool::Fill(TrigMonConfig *confg)
   ATH_MSG_DEBUG("Filling Trigger Configuration using Option: " << m_dbOrConfSvcPass << ". (1=ConfSvc, 2=DB)." );
 
   // Require each call of "Fill" to act on only one of DB or ConfSvc
-  if(m_dbOrConfSvcPass < 1 && m_dbOrConfSvcPass > 2) {
+  if(m_dbOrConfSvcPass != 1 && m_dbOrConfSvcPass != 2) {
     ATH_MSG_WARNING("Set one of SetOption(1) for ConfSvc OR SetOption(2) for DB to true before calling Fill" );
     return false;
   }
@@ -187,6 +192,43 @@ bool Trig::TrigNtConfTool::Fill(TrigMonEvent &event)
   return true;
 }
 
+uint32_t Trig::TrigNtConfTool::GetL1PSK(bool updateValue) {
+
+  if (updateValue == true) {
+    ATH_MSG_DEBUG("Updating L1 PSK value from CTP fragment.");
+
+    const CTP_RDO* ctpRDO = nullptr; 
+    ctpRDO = evtStore()->tryConstRetrieve<CTP_RDO>();
+    if (!ctpRDO) {
+      ATH_MSG_WARNING("Could not retrieve CTP_RDO (converted from CTP DAQ ROB). Cannot update L1 prescale key in HLT Cost Monitoring.");
+      return m_currentL1PSK;
+    }
+
+    // Expect at least 2 initial words, plus our payload, plus extra folders (optional)
+    std::vector<uint32_t> l1ExtraPayload = ctpRDO->getEXTRAWords();
+    if (l1ExtraPayload.size() < 3) {
+      ATH_MSG_WARNING("Extra data in CTP_RDO was size < 3. Cannot update L1 prescale key in HLT Cost Monitoring.");
+      return m_currentL1PSK;
+    }
+
+    // Remove first two entries (time since previous crossing and turn counter)
+    l1ExtraPayload.erase(l1ExtraPayload.begin(), l1ExtraPayload.begin()+2);
+
+    // Extra check - we don't want CTPfragment to trip up decoding this
+    if (l1ExtraPayload.size() > 1 && l1ExtraPayload.at(1) > l1ExtraPayload.size() - 2) {
+      ATH_MSG_WARNING("Mal-formatted extra payload data. Cannot update L1 prescale key in HLT Cost Monitoring.");
+      return m_currentL1PSK;
+    }
+
+    CTPfragment::ExtraPayload ctp_payload(l1ExtraPayload);
+    m_currentL1PSK = ctp_payload.getL1PSK();
+    ATH_MSG_DEBUG("L1 PSK is now " << m_currentL1PSK);
+ 
+  }
+
+  return m_currentL1PSK;
+}
+
 //---------------------------------------------------------------------------------------
 bool Trig::TrigNtConfTool::GetKeysChangedFromSv(TrigMonConfig &confg) {
 
@@ -196,27 +238,18 @@ bool Trig::TrigNtConfTool::GetKeysChangedFromSv(TrigMonConfig &confg) {
      return true;
   }
 
-  // Latter calls
-  // Get if any of the keys have changed 
-  //
-  const TrigConf::CTPConfig *ctp_confg = m_configSvc->ctpConfig();
-  if(!ctp_confg) {
-    ATH_MSG_WARNING("Failed to get CTPConfig or Menu" );
-    return false;
+  if ( m_configSvc->masterKey() != confg.getMasterKey() ) {
+    ATH_MSG_DEBUG("Master key has changed from " << confg.getMasterKey() << " to " << m_configSvc->masterKey() << " - (re)fill " );
+    return true;
+  } else if ( (int)GetL1PSK() != (int)confg.getLV1PrescaleKey() ) {
+    ATH_MSG_DEBUG("L1 key has changed from " << confg.getLV1PrescaleKey() << " to " << GetL1PSK() << " - (re)fill " );
+    return true;
+  } else  if ( m_configSvc->hltPrescaleKey() != confg.getHLTPrescaleKey() ) {
+    ATH_MSG_DEBUG("HLT key has changed from " << confg.getHLTPrescaleKey() << " to " << m_configSvc->hltPrescaleKey() << " - (re)fill " );
+    return true;
   }
-
-   if ( m_configSvc->masterKey() != confg.getMasterKey() ) {
-     ATH_MSG_DEBUG("Master key has changed from " << confg.getMasterKey() << " to " << m_configSvc->masterKey() << " - (re)fill " );
-     return true;
-   } else if ( (int)ctp_confg->prescaleSetId() != (int)confg.getLV1PrescaleKey() ) {
-     ATH_MSG_DEBUG("L1 key has changed from " << confg.getMasterKey() << " to " << ctp_confg->prescaleSetId() << " - (re)fill " );
-     return true;
-   } else  if ( m_configSvc->hltPrescaleKey() != confg.getHLTPrescaleKey() ) {
-     ATH_MSG_DEBUG("HLT key has changed from " << confg.getHLTPrescaleKey() << " to " << m_configSvc->hltPrescaleKey() << " - (re)fill " );
-     return true;
-   }
-   ATH_MSG_DEBUG("No kyes have changed from ConfigSvc - no need to fetch config again " );
-   return false;
+  ATH_MSG_DEBUG("No kyes have changed from ConfigSvc - no need to fetch config again " );
+  return false;
 
 }
 
@@ -226,6 +259,7 @@ bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
   //
   // Fill trigger configuration from config service
   //
+  GetL1PSK(true); // Update cached value for L1 PSK
 
   // Do we need to update?
   if (GetKeysChangedFromSv(confg) == false) {
@@ -258,12 +292,12 @@ bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
     return false;
   }
 
-  ATH_MSG_INFO("Exporting a new TrigConf from ConfigSvc for : SMK,L1,HLT=" << m_configSvc->masterKey() << "," << ctp_confg->prescaleSetId() << "," << m_configSvc->hltPrescaleKey() );
+  ATH_MSG_INFO("Exporting a new TrigConf from ConfigSvc for : SMK,L1,HLT=" << m_configSvc->masterKey() << "," << GetL1PSK() << "," << m_configSvc->hltPrescaleKey() );
 
   std::stringstream _ss1, _ss2, _ss3;
   _ss1 << m_configSvc->masterKey();
   _ss1 >> m_triggerMenuSetup;
-  _ss2 << ctp_confg->prescaleSetId();
+  _ss2 << GetL1PSK();
   _ss2 >> m_L1PrescaleSet;
   _ss3 << m_configSvc->hltPrescaleKey();
   _ss3 >> m_HLTPrescaleSet;
@@ -277,14 +311,14 @@ bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
     if(m_configSvc->hltPrescaleKey()  != confg.getHLTPrescaleKey()) {
       conf.UpdateHLT(confg, *chn_confg);
     }
-    if((unsigned)ctp_confg->prescaleSetId() != confg.getLV1PrescaleKey()) {
+    if((unsigned)GetL1PSK() != confg.getLV1PrescaleKey()) {
       conf.UpdateLV1(confg, *ctp_confg);
     }
 
     ATH_MSG_DEBUG("SMK has not changed: " << confg.getMasterKey() << ", just reading in updates prescales." );
     
     confg.setTriggerKeys(m_configSvc->masterKey(), 
-       ctp_confg->prescaleSetId(), 
+       GetL1PSK(), 
        m_configSvc->hltPrescaleKey());
 
     conf.FillVar(confg, m_triggerMenuSetup, m_L1PrescaleSet, m_HLTPrescaleSet);
@@ -350,7 +384,7 @@ bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
 
 
   confg.setTriggerKeys(m_configSvc->masterKey(), 
-           ctp_confg->prescaleSetId(), 
+           GetL1PSK(), 
            m_configSvc->hltPrescaleKey());
   
   confg.addValue("SOURCE", "CONFIG_SVC");
