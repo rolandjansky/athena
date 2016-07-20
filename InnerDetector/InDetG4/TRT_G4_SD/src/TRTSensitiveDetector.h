@@ -45,49 +45,49 @@ class TRTSensitiveDetector : public G4VSensitiveDetector
   //FIXME all class variables should have an "m_" prefix.
 
   ///Configuration paremeters
-  int printMessages; // FIXME not used anywhere?
-  int hitsWithZeroEnergyDeposit;
-  G4VProcess* phot;
-  double energyThreshold;
-  double probabilityThreshold;
-  double energyDepositCorrection;
-  double energyThresholdKr;
-  double probabilityThresholdKr;
-  double energyDepositCorrectionKr;
-  double energyThresholdAr;
-  double probabilityThresholdAr;
-  double energyDepositCorrectionAr;
-  double boundaryZ;
+  int m_printMessages; // FIXME not used anywhere?
+  int m_hitsWithZeroEnergyDeposit;
+  G4VProcess* m_phot;
+  double m_energyThreshold;
+  double m_probabilityThreshold;
+  double m_energyDepositCorrection;
+  double m_energyThresholdKr;
+  double m_probabilityThresholdKr;
+  double m_energyDepositCorrectionKr;
+  double m_energyThresholdAr;
+  double m_probabilityThresholdAr;
+  double m_energyDepositCorrectionAr;
+  double m_boundaryZ;
 
   ///Properties of current TRTUncompressedHit, set by
   ///TRTProcessingOfBarrelHits and TRTProcessingOfEndCapHits friend classes.
-  int hitID;
-  int trackID; //DC 2-29-04 use it as barcode
-  int particleEncoding;
-  double kineticEnergy;
-  double energyDeposit;
-  double energyDepositInKeV;
-  double preStepX;
-  double preStepY;
-  double preStepZ;
-  double postStepX;
-  double postStepY;
-  double postStepZ;
-  double globalTime;
+  int m_hitID;
+  HepMcParticleLink m_partLink;
+  int m_particleEncoding;
+  double m_kineticEnergy;
+  double m_energyDeposit;
+  double m_energyDepositInKeV;
+  double m_preStepX;
+  double m_preStepY;
+  double m_preStepZ;
+  double m_postStepX;
+  double m_postStepY;
+  double m_postStepZ;
+  double m_globalTime;
 
   ///Other member variables
   // The hits collection
   SG::WriteHandle<TRTUncompressedHitCollection> m_HitColl; //pUncompressedHitCollection;
 
-  TRTParameters* pParameters;
+  TRTParameters* m_pParameters;
 
-  TRTProcessingOfBarrelHits* pProcessingOfBarrelHits;
-  TRTProcessingOfEndCapHits* pProcessingOfEndCapHits;
+  TRTProcessingOfBarrelHits* m_pProcessingOfBarrelHits;
+  TRTProcessingOfEndCapHits* m_pProcessingOfEndCapHits;
 
   // Gas switches
-  G4Material *pMaterialXe;
-  G4Material *pMaterialKr;
-  G4Material *pMaterialAr;
+  G4Material *m_pMaterialXe;
+  G4Material *m_pMaterialKr;
+  G4Material *m_pMaterialAr;
 };
 
 #endif //TRT_G4_SD_TRTSensitiveDetector_h

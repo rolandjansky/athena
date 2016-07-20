@@ -40,30 +40,30 @@
 TRTSensitiveDetector::TRTSensitiveDetector(const std::string& name, const std::string& hitCollectionName, int setVerboseLevel)
   : G4VSensitiveDetector( name ),
     //Variables properly set during InitializeHitProcessing() method
-    hitsWithZeroEnergyDeposit(0), phot(nullptr),
-    energyThreshold(0.0), probabilityThreshold(0.0), energyDepositCorrection(0.0),
-    energyThresholdKr(0.0), probabilityThresholdKr(0.0), energyDepositCorrectionKr(0.0),
-    energyThresholdAr(0.0), probabilityThresholdAr(0.0), energyDepositCorrectionAr(0.0),
-    boundaryZ(0.0),
+    m_hitsWithZeroEnergyDeposit(0), m_phot(nullptr),
+    m_energyThreshold(0.0),   m_probabilityThreshold(0.0),   m_energyDepositCorrection(0.0),
+    m_energyThresholdKr(0.0), m_probabilityThresholdKr(0.0), m_energyDepositCorrectionKr(0.0),
+    m_energyThresholdAr(0.0), m_probabilityThresholdAr(0.0), m_energyDepositCorrectionAr(0.0),
+    m_boundaryZ(0.0),
     //End of variables properly set during InitializeHitProcessing() method
     //Properties of current TRTUncompressedHit
-    hitID(0), trackID(0), particleEncoding(0), kineticEnergy(0.0),
-    energyDeposit(0.0), energyDepositInKeV(0.0), preStepX(0.0),
-    preStepY(0.0), preStepZ(0.0), postStepX(0.0), postStepY(0.0),
-    postStepZ(0.0), globalTime(0.0),
+    m_hitID(0), m_particleEncoding(0), m_kineticEnergy(0.0),
+    m_energyDeposit(0.0), m_energyDepositInKeV(0.0), m_preStepX(0.0),
+    m_preStepY(0.0), m_preStepZ(0.0), m_postStepX(0.0), m_postStepY(0.0),
+    m_postStepZ(0.0), m_globalTime(0.0),
     //End of Properties of current TRTUncompressedHit
-    m_HitColl( hitCollectionName ), pParameters(nullptr),
-    pProcessingOfBarrelHits(nullptr), pProcessingOfEndCapHits(nullptr),
-    pMaterialXe(nullptr), pMaterialKr(nullptr), pMaterialAr(nullptr)
+    m_HitColl( hitCollectionName ), m_pParameters(nullptr),
+    m_pProcessingOfBarrelHits(nullptr), m_pProcessingOfEndCapHits(nullptr),
+    m_pMaterialXe(nullptr), m_pMaterialKr(nullptr), m_pMaterialAr(nullptr)
 {
-  pParameters = TRTParameters::GetPointer();
+  m_pParameters = TRTParameters::GetPointer();
 
-  printMessages = pParameters->GetInteger("PrintMessages"); //FIXME not used - remove?
+  m_printMessages = m_pParameters->GetInteger("PrintMessages"); //FIXME not used - remove?
   verboseLevel = setVerboseLevel;
 
-  InitializeHitProcessing();
+  this->InitializeHitProcessing();
 
-  pParameters = nullptr;
+  m_pParameters = nullptr;
 }
 
 
@@ -74,75 +74,84 @@ void TRTSensitiveDetector::InitializeHitProcessing()
 {
   if(verboseLevel>4)
     {
-      G4cout << "InitializeHitProcessing()" << G4endl;
+      G4cout << GetName() << " InitializeHitProcessing()" << G4endl;
     }
-  hitsWithZeroEnergyDeposit =
-    pParameters->GetInteger("HitsWithZeroEnergyDeposit");
+  m_hitsWithZeroEnergyDeposit =
+    m_pParameters->GetInteger("HitsWithZeroEnergyDeposit");
 
-  phot = nullptr;
+  m_phot = nullptr;
 
   // Parameters describing flourecense in Xe gas mixture:
   // Units of these numbers in management file are in keV; change to default units
 
-  energyThreshold           = pParameters->GetDouble("EnergyThreshold"  ) * CLHEP::keV;
-  energyThresholdKr         = pParameters->GetDouble("EnergyThresholdKr") * CLHEP::keV;
-  energyThresholdAr         = pParameters->GetDouble("EnergyThresholdAr") * CLHEP::keV;
-  probabilityThreshold      = pParameters->GetDouble("ProbabilityThreshold"  );
-  probabilityThresholdKr    = pParameters->GetDouble("ProbabilityThresholdKr");
-  probabilityThresholdAr    = pParameters->GetDouble("ProbabilityThresholdAr");
-  energyDepositCorrection   = pParameters->GetDouble("EnergyDepositCorrection"  ) * CLHEP::keV;
-  energyDepositCorrectionKr = pParameters->GetDouble("EnergyDepositCorrectionKr") * CLHEP::keV;
-  energyDepositCorrectionAr = pParameters->GetDouble("EnergyDepositCorrectionAr") * CLHEP::keV;
+  m_energyThreshold           = m_pParameters->GetDouble("EnergyThreshold"  ) * CLHEP::keV;
+  m_energyThresholdKr         = m_pParameters->GetDouble("EnergyThresholdKr") * CLHEP::keV;
+  m_energyThresholdAr         = m_pParameters->GetDouble("EnergyThresholdAr") * CLHEP::keV;
+  m_probabilityThreshold      = m_pParameters->GetDouble("ProbabilityThreshold"  );
+  m_probabilityThresholdKr    = m_pParameters->GetDouble("ProbabilityThresholdKr");
+  m_probabilityThresholdAr    = m_pParameters->GetDouble("ProbabilityThresholdAr");
+  m_energyDepositCorrection   = m_pParameters->GetDouble("EnergyDepositCorrection"  ) * CLHEP::keV;
+  m_energyDepositCorrectionKr = m_pParameters->GetDouble("EnergyDepositCorrectionKr") * CLHEP::keV;
+  m_energyDepositCorrectionAr = m_pParameters->GetDouble("EnergyDepositCorrectionAr") * CLHEP::keV;
   if(verboseLevel>9)
     {
-      G4cout << "Fluorescence parameters: EnergyThreshold            " << energyThreshold           << G4endl;
-      G4cout << "Fluorescence parameters: EnergyThresholdKr          " << energyThresholdKr         << G4endl;
-      G4cout << "Fluorescence parameters: EnergyThresholdAr          " << energyThresholdAr         << G4endl;
-      G4cout << "Fluorescence parameters: ProbabilityThreshold       " << probabilityThreshold      << G4endl;
-      G4cout << "Fluorescence parameters: ProbabilityThresholdKr     " << probabilityThresholdKr    << G4endl;
-      G4cout << "Fluorescence parameters: ProbabilityThresholdAr     " << probabilityThresholdAr    << G4endl;
-      G4cout << "Fluorescence parameters: EnergyDepositCorrection    " << energyDepositCorrection   << G4endl;
-      G4cout << "Fluorescence parameters: EnergyDepositCorrectionKr  " << energyDepositCorrectionKr << G4endl;
-      G4cout << "Fluorescence parameters: EnergyDepositCorrectionAr  " << energyDepositCorrectionAr << G4endl;
+      G4cout << GetName() << " Fluorescence parameters: EnergyThreshold            "
+             << m_energyThreshold           << G4endl;
+      G4cout << GetName() << " Fluorescence parameters: EnergyThresholdKr          "
+             << m_energyThresholdKr         << G4endl;
+      G4cout << GetName() << " Fluorescence parameters: EnergyThresholdAr          "
+             << m_energyThresholdAr         << G4endl;
+      G4cout << GetName() << " Fluorescence parameters: ProbabilityThreshold       "
+             << m_probabilityThreshold      << G4endl;
+      G4cout << GetName() << " Fluorescence parameters: ProbabilityThresholdKr     "
+             << m_probabilityThresholdKr    << G4endl;
+      G4cout << GetName() << " Fluorescence parameters: ProbabilityThresholdAr     "
+             << m_probabilityThresholdAr    << G4endl;
+      G4cout << GetName() << " Fluorescence parameters: EnergyDepositCorrection    "
+             << m_energyDepositCorrection   << G4endl;
+      G4cout << GetName() << " Fluorescence parameters: EnergyDepositCorrectionKr  "
+             << m_energyDepositCorrectionKr << G4endl;
+      G4cout << GetName() << " Fluorescence parameters: EnergyDepositCorrectionAr  "
+             << m_energyDepositCorrectionAr << G4endl;
     }
-  boundaryZ = pParameters->GetDouble("LengthOfBarrelVolume") / 2.;
+  m_boundaryZ = m_pParameters->GetDouble("LengthOfBarrelVolume") / 2.;
 
   TRTParametersForBarrelHits* pParametersForBarrelHits = nullptr;
   TRTParametersForEndCapHits* pParametersForEndCapHits = nullptr;
 
-  pProcessingOfBarrelHits = new TRTProcessingOfBarrelHits(this);
-  pProcessingOfEndCapHits = new TRTProcessingOfEndCapHits(this);
+  m_pProcessingOfBarrelHits = new TRTProcessingOfBarrelHits(this);
+  m_pProcessingOfEndCapHits = new TRTProcessingOfEndCapHits(this);
 
   pParametersForBarrelHits =
-    new TRTParametersForBarrelHits(pProcessingOfBarrelHits);
+    new TRTParametersForBarrelHits(m_pProcessingOfBarrelHits);
   pParametersForEndCapHits =
-    new TRTParametersForEndCapHits(pProcessingOfEndCapHits);
+    new TRTParametersForEndCapHits(m_pProcessingOfEndCapHits);
 
   delete pParametersForBarrelHits;
   delete pParametersForEndCapHits;
 
   // Get nist material manager
   G4NistManager* nist = G4NistManager::Instance();
-  pMaterialXe = nist->FindOrBuildMaterial("XeCO2O2");
-  if (!pMaterialXe && verboseLevel>4)
+  m_pMaterialXe = nist->FindOrBuildMaterial("XeCO2O2");
+  if (!m_pMaterialXe && verboseLevel>4)
     {
-      G4cout << "Could not find Xe material (Only OK if no TRT straws are filled with Xenon)" << G4endl;
+      G4cout << GetName() << " Could not find Xe material (Only OK if no TRT straws are filled with Xenon)" << G4endl;
     }
-  pMaterialKr = nist->FindOrBuildMaterial("KrCO2O2");
-  if (!pMaterialKr)
+  m_pMaterialKr = nist->FindOrBuildMaterial("KrCO2O2");
+  if (!m_pMaterialKr)
     {
-      pMaterialKr = nist->FindOrBuildMaterial("trt::KrCO2O2");
-      if (!pMaterialKr && verboseLevel>4)
+      m_pMaterialKr = nist->FindOrBuildMaterial("trt::KrCO2O2");
+      if (!m_pMaterialKr && verboseLevel>4)
         {
-          G4cout << "Could not find Kr material (Only OK if no TRT straws are filled with Krypton)" << G4endl;
+          G4cout << GetName() << " Could not find Kr material (Only OK if no TRT straws are filled with Krypton)" << G4endl;
         }
     }
-  pMaterialAr = nist->FindOrBuildMaterial("ArCO2O2");
-  if (!pMaterialAr && verboseLevel>4)
+  m_pMaterialAr = nist->FindOrBuildMaterial("ArCO2O2");
+  if (!m_pMaterialAr && verboseLevel>4)
     {
-      G4cout << "Could not find Ar material (Only OK if no TRT straws are filled with Argon)" << G4endl;
+      G4cout << GetName() << " Could not find Ar material (Only OK if no TRT straws are filled with Argon)" << G4endl;
     }
-  if(!pMaterialXe && !pMaterialKr && !pMaterialAr)
+  if(!m_pMaterialXe && !m_pMaterialKr && !m_pMaterialAr)
     {
       G4ExceptionDescription description;
       description << "InitializeHitProcessing: Could not find Xe, Kr or Ar materials (Not OK!)";
@@ -151,7 +160,7 @@ void TRTSensitiveDetector::InitializeHitProcessing()
 
   if(verboseLevel>4)
     {
-      G4cout << "InitializeHitProcessing() done" << G4endl;
+      G4cout << GetName() << " InitializeHitProcessing() done" << G4endl;
     }
 }
 
@@ -163,7 +172,7 @@ void TRTSensitiveDetector::Initialize(G4HCofThisEvent* /*pHCofThisEvent*/)
 {
   if(verboseLevel>4)
     {
-      G4cout << "Initialize()" << G4endl;
+      G4cout << GetName() << " Initialize()" << G4endl;
     }
 
   // The following code etablishes a pointer to the "phot" process.
@@ -171,30 +180,24 @@ void TRTSensitiveDetector::Initialize(G4HCofThisEvent* /*pHCofThisEvent*/)
   // For performance reasons we test directly on the pointer address rather
   // than doing the string comparison for each hit in ProcessHits.
 
-  if(!phot) {  // Only for the first event
+  if(!m_phot) {  // Only for the first event
     const G4ProcessVector* pVec =
       G4Gamma::Definition()->GetProcessManager()->GetProcessList();
     for(G4int ip=0;ip<pVec->entries();ip++)
       {
         if((*pVec)[ip]->GetProcessName()=="phot")
           {
-            phot = (*pVec)[ip];
+            m_phot = (*pVec)[ip];
             break;
           }
       }
   }
 
-  // Necessary to new the write handle for now
-#ifdef ATHENAHIVE
-  // Temporary fix for Hive until isValid is fixed
-  m_HitColl = CxxUtils::make_unique<TRTUncompressedHitCollection>();
-#else
   if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<TRTUncompressedHitCollection>();
-#endif
 
   if(verboseLevel>4)
     {
-      G4cout << "Initialize() done" << G4endl;
+      G4cout << GetName() << " Initialize() done" << G4endl;
     }
 }
 
@@ -205,13 +208,13 @@ void TRTSensitiveDetector::Initialize(G4HCofThisEvent* /*pHCofThisEvent*/)
 bool TRTSensitiveDetector::ProcessHits(G4Step* pStep,
                                        G4TouchableHistory* /*pTouchableHistory*/)
 {
-  energyDeposit = pStep->GetTotalEnergyDeposit();
+  m_energyDeposit = pStep->GetTotalEnergyDeposit();
 
   G4Track* pTrack = pStep->GetTrack();
   G4ParticleDefinition* pParticleDefinition = pTrack->GetDefinition();
 
   // Skip particles which deposit no energy
-  if ( energyDeposit == 0. && !hitsWithZeroEnergyDeposit )
+  if ( m_energyDeposit == 0. && !m_hitsWithZeroEnergyDeposit )
     {
       if ( pParticleDefinition != G4Geantino::Definition() &&
            pParticleDefinition != G4ChargedGeantino::Definition() )
@@ -225,43 +228,43 @@ bool TRTSensitiveDetector::ProcessHits(G4Step* pStep,
   // give the wrong energy deposit.
   // Instead we count for a photon which undergoes a "phot" reaction
   // the full energy as deposited in the interaction point (see below)
-  if(pTrack->GetCreatorProcess()==phot)
+  if(pTrack->GetCreatorProcess()==m_phot)
     {
       return false;
     }
 
   // Get kinetic energy of depositing particle
-  kineticEnergy = pStep->GetPreStepPoint()->GetKineticEnergy();
+  m_kineticEnergy = pStep->GetPreStepPoint()->GetKineticEnergy();
 
   // If we are dealing with a photon undergoing a "phot" reaction, count
   // the photon kinetic energy as deposited energy in the point of
   // the reaction
 
   if ( pParticleDefinition==G4Gamma::GammaDefinition() &&
-       pStep->GetPostStepPoint()->GetProcessDefinedStep()==phot )
+       pStep->GetPostStepPoint()->GetProcessDefinedStep()==m_phot )
     {
-      energyDeposit = kineticEnergy;
+      m_energyDeposit = m_kineticEnergy;
       double current_energyThreshold         = 1E+99;
       double current_probabilityThreshold    = 2.0;
       double current_energyDepositCorrection = 0.0;
       G4Material *pPreStepMaterial = pStep->GetPreStepPoint()->GetMaterial();
-      if      (pPreStepMaterial == pMaterialXe)
+      if      (pPreStepMaterial == m_pMaterialXe)
         {
-          current_energyThreshold         = energyThreshold;
-          current_probabilityThreshold    = probabilityThreshold;
-          current_energyDepositCorrection = energyDepositCorrection;
+          current_energyThreshold         = m_energyThreshold;
+          current_probabilityThreshold    = m_probabilityThreshold;
+          current_energyDepositCorrection = m_energyDepositCorrection;
         }
-      else if (pPreStepMaterial == pMaterialKr)
+      else if (pPreStepMaterial == m_pMaterialKr)
         {
-          current_energyThreshold         = energyThresholdKr;
-          current_probabilityThreshold    = probabilityThresholdKr;
-          current_energyDepositCorrection = energyDepositCorrectionKr;
+          current_energyThreshold         = m_energyThresholdKr;
+          current_probabilityThreshold    = m_probabilityThresholdKr;
+          current_energyDepositCorrection = m_energyDepositCorrectionKr;
         }
-      else if (pPreStepMaterial == pMaterialAr)
+      else if (pPreStepMaterial == m_pMaterialAr)
         {
-          current_energyThreshold         = energyThresholdAr;
-          current_probabilityThreshold    = probabilityThresholdAr;
-          current_energyDepositCorrection = energyDepositCorrectionAr;
+          current_energyThreshold         = m_energyThresholdAr;
+          current_probabilityThreshold    = m_probabilityThresholdAr;
+          current_energyDepositCorrection = m_energyDepositCorrectionAr;
         }
       else
         {
@@ -275,42 +278,42 @@ bool TRTSensitiveDetector::ProcessHits(G4Step* pStep,
       //    energy above threshold (4.9 keV) reduce deposited energy
       //    by correction (4.0 keV)
       //    (Different numbers for Ar and Kr)
-      if ( energyDeposit > current_energyThreshold &&
+      if ( m_energyDeposit > current_energyThreshold &&
            CLHEP::RandFlat::shoot() > current_probabilityThreshold )
         {
-          energyDeposit -= current_energyDepositCorrection;
+          m_energyDeposit -= current_energyDepositCorrection;
         }
     }
 
 
+  // Particle code of depositing particle
+  m_particleEncoding = pParticleDefinition->GetPDGEncoding();
+
   bool trackerHit = false;
 
-  if ( std::fabs(pStep->GetPreStepPoint()->GetPosition().z()) < boundaryZ )
+  if ( std::fabs(pStep->GetPreStepPoint()->GetPosition().z()) < m_boundaryZ )
     {
-      trackerHit = pProcessingOfBarrelHits->ProcessHit(pStep);
+      trackerHit = m_pProcessingOfBarrelHits->ProcessHit(pStep);
     }
   else
     {
-      trackerHit = pProcessingOfEndCapHits->ProcessHit(pStep);
+      trackerHit = m_pProcessingOfEndCapHits->ProcessHit(pStep);
     }
-
-  // Particle code of depositing particle
-  int particleEncoding = pParticleDefinition->GetPDGEncoding();
 
   // TRTUncompressedHit appearently expects energyDeposit in keV.
   // Convert:
-  energyDepositInKeV = energyDeposit/CLHEP::keV;
+  m_energyDepositInKeV = m_energyDeposit/CLHEP::keV;
 
   // Create UncompressedHit
 
   if (trackerHit)
     {
       // Build the hit straight onto the vector
-      m_HitColl->Emplace(hitID, trackID, particleEncoding,
-                         (float) kineticEnergy, (float) energyDepositInKeV,
-                         (float) preStepX, (float) preStepY, (float) preStepZ,
-                         (float) postStepX, (float) postStepY, (float) postStepZ,
-                         (float) globalTime );
+      m_HitColl->Emplace(m_hitID, m_partLink, m_particleEncoding,
+                         (float) m_kineticEnergy, (float) m_energyDepositInKeV,
+                         (float) m_preStepX, (float) m_preStepY, (float) m_preStepZ,
+                         (float) m_postStepX, (float) m_postStepY, (float) m_postStepZ,
+                         (float) m_globalTime );
     }
 
   return true;
@@ -323,14 +326,14 @@ void TRTSensitiveDetector::DeleteObjects()
 {
   if(verboseLevel>4)
     {
-      G4cout << "DeleteObjects()" << G4endl;
+      G4cout << GetName() << " DeleteObjects()" << G4endl;
     }
 
-  delete pProcessingOfBarrelHits;
-  delete pProcessingOfEndCapHits;
+  delete m_pProcessingOfBarrelHits;
+  delete m_pProcessingOfEndCapHits;
 
   if(verboseLevel>4)
     {
-      G4cout << "DeleteObjects() done" << G4endl;
+      G4cout << GetName() << " DeleteObjects() done" << G4endl;
     }
 }
