@@ -314,7 +314,8 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
         if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Fit not allowed, Problems with TP1" << endreq;
     }
 
-    const Trk::Vertex startingPoint(Amg::Vector3D(0.,0.,0.)); // #FIXME use beamline for starting point?
+    //const Trk::Vertex startingPoint(Amg::Vector3D(0.,0.,0.)); // #FIXME use beamline for starting point?
+    const Amg::Vector3D startingPoint(0.,0.,0.);
     std::vector<const xAOD::TrackParticle*> trks;
     trks.push_back(*particles[0]);
     trks.push_back(*particles[1]);
@@ -404,7 +405,8 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
         trks.push_back(*ptlEL);
     } // loop over particle ELs
     
-    const Trk::Vertex startingPoint(Amg::Vector3D(0.,0.,0.)); // #FIXME use beamline for starting point?
+    const Amg::Vector3D startingPoint(0.,0.,0.); // #FIXME use beamline for starting point?
+    //const Trk::Vertex startingPoint(Amg::Vector3D(0.,0.,0.)); // #FIXME use beamline for starting point?
     xAOD::Vertex * vx(0);
     if (doFit) vx =  m_fitterSvc->fit(trks,startingPoint);
     

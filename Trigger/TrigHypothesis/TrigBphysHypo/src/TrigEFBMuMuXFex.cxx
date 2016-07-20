@@ -2341,778 +2341,778 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     
 }
 
-/*----------------------------------------------------------------------------*/
-TrigEFBphys* TrigEFBMuMuXFex::checkBMuMu2X(const Trk::Track* mu1, const Trk::Track* mu2, const Trk::Track* track1, const Trk::Track* track2, const int decay, TrigEFBphys* & trigPartX)
-{
-    TrigEFBphys* trigPartXMuMu(0);
-    
-    double lowerXMassCut, upperXMassCut;
-    double lowerXMuMuMassCut, upperXMuMuMassCut;
-    double chi2XCut;
-    double chi2XMuMuCut;
-    std::string decayName;
-    TrigEFBphys::pType decayType;
-    unsigned int *countPassedXMass;
-    unsigned int *countPassedXMuMuMass;
-    unsigned int *countPassedXVtx;
-    unsigned int *countPassedXVtxChi2;
-    unsigned int *countPassedXMuMuVtx;
-    unsigned int *countPassedXMuMuVtxChi2;
-    
-    bool do2XVertexing;
-    bool doBMuMu2XVertexing;
-    
-    std::vector<float> *pMon_BMuMu2X_Pt_X1;
-    std::vector<float> *pMon_BMuMu2X_Eta_X1;
-    std::vector<float> *pMon_BMuMu2X_Phi_X1;
-    std::vector<float> *pMon_BMuMu2X_Pt_X2;
-    std::vector<float> *pMon_BMuMu2X_Eta_X2;
-    std::vector<float> *pMon_BMuMu2X_Phi_X2;
-    std::vector<float> *pMon_BMuMu2X_InvMass_2X;
-    std::vector<float> *pMon_BMuMu2X_VtxMass_2X;
-    std::vector<float> *pMon_BMuMu2X_Chi2_2X;
-    std::vector<float> *pMon_BMuMu2X_InvMass_B;
-    std::vector<float> *pMon_BMuMu2X_VtxMass_B;
-    std::vector<float> *pMon_BMuMu2X_Chi2_B;
-    
-    // Fix silly warning messages
-    (void)pMon_BMuMu2X_VtxMass_2X;
-    (void)pMon_BMuMu2X_VtxMass_B;
-    
-    if(decay == bD_to_Kstar) {
-        lowerXMassCut = m_lowerKstar_KaonMassCut;
-        upperXMassCut = m_upperKstar_KaonMassCut;
-        chi2XCut = m_kStarVtxChi2Cut;
-        lowerXMuMuMassCut = m_lowerBd_KstarMuMuMassCut;
-        upperXMuMuMassCut = m_upperBd_KstarMuMuMassCut;
-        chi2XMuMuCut = m_bDVtxChi2Cut;
-        decayName = "Bd -> mu mu K*";
-        decayType = TrigEFBphys::BDKSTMUMU;
-        countPassedXMass        = &m_countPassedKstarMass;
-        countPassedXMuMuMass    = &m_countPassedBdMass;
-        countPassedXVtx         = &m_countPassedKstarVtx;
-        countPassedXVtxChi2     = &m_countPassedKstarVtxChi2;
-        countPassedXMuMuVtx     = &m_countPassedBdVtx;
-        countPassedXMuMuVtxChi2 = &m_countPassedBdVtxChi2;
-        do2XVertexing      = m_doKstar_KPiVertexing;
-        doBMuMu2XVertexing = m_doBd_KstarMuMuVertexing;
-        pMon_BMuMu2X_Pt_X1      = &mon_BdMuMuKs_Pt_K;
-        pMon_BMuMu2X_Eta_X1     = &mon_BdMuMuKs_Eta_K;
-        pMon_BMuMu2X_Phi_X1     = &mon_BdMuMuKs_Phi_K;
-        pMon_BMuMu2X_Pt_X2      = &mon_BdMuMuKs_Pt_Pi;
-        pMon_BMuMu2X_Eta_X2     = &mon_BdMuMuKs_Eta_Pi;
-        pMon_BMuMu2X_Phi_X2     = &mon_BdMuMuKs_Phi_Pi;
-        pMon_BMuMu2X_InvMass_2X = &mon_BdMuMuKs_InvMass_Kstar;
-        pMon_BMuMu2X_VtxMass_2X = &mon_BdMuMuKs_VtxMass_Kstar;
-        pMon_BMuMu2X_Chi2_2X    = &mon_BdMuMuKs_Chi2_Kstar;
-        pMon_BMuMu2X_InvMass_B  = &mon_BdMuMuKs_InvMass_Bd;
-        pMon_BMuMu2X_VtxMass_B  = &mon_BdMuMuKs_VtxMass_Bd;
-        pMon_BMuMu2X_Chi2_B     = &mon_BdMuMuKs_Chi2_Bd;
-    } else if(decay == bS_to_Phi) {
-        lowerXMassCut = m_lowerPhi1020_KaonMassCut;
-        upperXMassCut = m_upperPhi1020_KaonMassCut;
-        chi2XCut = m_phi1020VtxChi2Cut;
-        lowerXMuMuMassCut = m_lowerBs_Phi1020MuMuMassCut;
-        upperXMuMuMassCut = m_upperBs_Phi1020MuMuMassCut;
-        chi2XMuMuCut = m_bSVtxChi2Cut;
-        decayName = "Bs -> mu mu phi";
-        decayType = TrigEFBphys::BSPHIMUMU;
-        countPassedXMass        = &m_countPassedPhi1020Mass;
-        countPassedXMuMuMass    = &m_countPassedBsMass;
-        countPassedXVtx         = &m_countPassedPhi1020Vtx;
-        countPassedXVtxChi2     = &m_countPassedPhi1020VtxChi2;
-        countPassedXMuMuVtx     = &m_countPassedBsVtx;
-        countPassedXMuMuVtxChi2 = &m_countPassedBsVtxChi2;
-        do2XVertexing      = m_doPhi1020_KKVertexing;
-        doBMuMu2XVertexing = m_doBs_Phi1020MuMuVertexing;
-        pMon_BMuMu2X_Pt_X1      = &mon_BsMuMuPhi_Pt_K1;
-        pMon_BMuMu2X_Eta_X1     = &mon_BsMuMuPhi_Eta_K1;
-        pMon_BMuMu2X_Phi_X1     = &mon_BsMuMuPhi_Phi_K1;
-        pMon_BMuMu2X_Pt_X2      = &mon_BsMuMuPhi_Pt_K2;
-        pMon_BMuMu2X_Eta_X2     = &mon_BsMuMuPhi_Eta_K2;
-        pMon_BMuMu2X_Phi_X2     = &mon_BsMuMuPhi_Phi_K2;
-        pMon_BMuMu2X_InvMass_2X = &mon_BsMuMuPhi_InvMass_Phi1020;
-        pMon_BMuMu2X_VtxMass_2X = &mon_BsMuMuPhi_VtxMass_Phi1020;
-        pMon_BMuMu2X_Chi2_2X    = &mon_BsMuMuPhi_Chi2_Phi1020;
-        pMon_BMuMu2X_InvMass_B  = &mon_BsMuMuPhi_InvMass_Bs;
-        pMon_BMuMu2X_VtxMass_B  = &mon_BsMuMuPhi_VtxMass_Bs;
-        pMon_BMuMu2X_Chi2_B     = &mon_BsMuMuPhi_Chi2_Bs;
-    } else if(decay == lB_to_L) {
-        lowerXMassCut = m_lowerLambda_PrPiMassCut;
-        upperXMassCut = m_upperLambda_PrPiMassCut;
-        chi2XCut = m_lambdaVtxChi2Cut;
-        lowerXMuMuMassCut = m_lowerLb_LambdaMuMuMassCut;
-        upperXMuMuMassCut = m_upperLb_LambdaMuMuMassCut;
-        chi2XMuMuCut = m_lBVtxChi2Cut;
-        decayName = "Lambda_b -> mu mu Lambda";
-        decayType = TrigEFBphys::LBLMUMU;
-        countPassedXMass        = &m_countPassedLambdaMass;
-        countPassedXMuMuMass    = &m_countPassedLbMass;
-        countPassedXVtx         = &m_countPassedLambdaVtx;
-        countPassedXVtxChi2     = &m_countPassedLambdaVtxChi2;
-        countPassedXMuMuVtx     = &m_countPassedLbVtx;
-        countPassedXMuMuVtxChi2 = &m_countPassedLbVtxChi2;
-        do2XVertexing      = m_doLambda_PPiVertexing;
-        doBMuMu2XVertexing = m_doLb_LambdaMuMuVertexing;
-        pMon_BMuMu2X_Pt_X1      = &mon_LbMuMuLambda_Pt_P;
-        pMon_BMuMu2X_Eta_X1     = &mon_LbMuMuLambda_Eta_P;
-        pMon_BMuMu2X_Phi_X1     = &mon_LbMuMuLambda_Phi_P;
-        pMon_BMuMu2X_Pt_X2      = &mon_LbMuMuLambda_Pt_Pi;
-        pMon_BMuMu2X_Eta_X2     = &mon_LbMuMuLambda_Eta_Pi;
-        pMon_BMuMu2X_Phi_X2     = &mon_LbMuMuLambda_Phi_Pi;
-        pMon_BMuMu2X_InvMass_2X = &mon_LbMuMuLambda_InvMass_Lambda;
-        pMon_BMuMu2X_VtxMass_2X = &mon_LbMuMuLambda_VtxMass_Lambda;
-        pMon_BMuMu2X_Chi2_2X    = &mon_LbMuMuLambda_Chi2_Lambda;
-        pMon_BMuMu2X_InvMass_B  = &mon_LbMuMuLambda_InvMass_Lb;
-        pMon_BMuMu2X_VtxMass_B  = &mon_LbMuMuLambda_VtxMass_Lb;
-        pMon_BMuMu2X_Chi2_B     = &mon_LbMuMuLambda_Chi2_Lb;
-    } else {
-        ATH_MSG(DEBUG) << "Wrong decay identifier passed to checkBMuMu2X: decay = " << decay << endreq;
-        mon_Errors.push_back(ERROR_WrongDecayID);
-        return trigPartXMuMu;
-    }
-    
-    ATH_MSG(DEBUG) << "Try to build " << decayName << " with tracks " << track1 << ", " << track2 << endreq;
-    
-    float massX = XMass(track1, track2, decay);
-    if( !(massX > lowerXMassCut && massX < upperXMassCut) ) {
-        ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by X mass cut: m = " << massX << endreq;
-    } else {
-        (*countPassedXMass)++;
-        
-        float massXMuMu = XMuMuMass(mu1, mu2, track1, track2, decay);
-        if( !(massXMuMu > lowerXMuMuMassCut && massXMuMu < upperXMuMuMassCut) ) {
-            ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by XMuMu mass cut: m = " << massXMuMu << endreq;
-        } else {
-            (*countPassedXMuMuMass)++;
-            
-            if(do2XVertexing) {
-                // Try to fit X -> track1 track2 vertex
-                if ( timerSvc() ) m_VtxFitTimer->resume();
-                Amg::Vector3D vtx ( 0.,0.,0. );
-                Trk::Vertex vertex ( vtx );
-                std::vector<const Trk::Track*> trackPair;
-                trackPair.push_back(track1);
-                trackPair.push_back(track2);
-                Trk::VxCandidate * XVxCandidate ( 0 );
-                XVxCandidate = m_fitterSvc->fit(trackPair,vertex);
-                if ( timerSvc() ) m_VtxFitTimer->pause();
-                
-                if( !XVxCandidate ) {
-                    ATH_MSG(DEBUG) << " Failed to fit X vertex for " << decayName << endreq;
-                    // mon_Errors.push_back(ERROR_XVtxFit_Fails);
-                } else {
-                    (*countPassedXVtx)++;
-                    
-                    float chi2X = XVxCandidate->recVertex().fitQuality().chiSquared();
-                    if( !(chi2X < chi2XCut) ) {
-                        ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by X vertex chi2 cut: chi2 = " << chi2X << endreq;
-                    } else {
-                        (*countPassedXVtxChi2)++;
-                        
-                        // calculate X mass from vertexing
-                        double vtxMassX(-1.), vtxMassErrorX(-1.);
-                        std::vector<int> trkIndicesX;
-                        for (int i=0;i<(int)trackPair.size();++i) {trkIndicesX.push_back(1);}
-                        if( !(m_VKVFitter->VKalGetMassError(trkIndicesX,vtxMassX,vtxMassErrorX).isSuccess()) ) {
-                            ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for X in " << decayName << "!" << endreq;
-                            mon_Errors.push_back(ERROR_XVtxMass_Fails);
-                        }
-                        
-                        if(doBMuMu2XVertexing) {
-                            // Try to fit XMuMu -> mu mu X vertex
-                            if ( timerSvc() ) m_VtxFitTimer->resume();
-                            std::vector<const Trk::Track*> quartet;
-                            quartet.push_back(mu1);
-                            quartet.push_back(mu2);
-                            quartet.push_back(track1);
-                            quartet.push_back(track2);
-                            Trk::VxCandidate * XMuMuVxCandidate ( 0 );
-                            XMuMuVxCandidate = m_fitterSvc->fit(quartet,vertex);
-                            if ( timerSvc() ) m_VtxFitTimer->pause();
-                            
-                            if( !XMuMuVxCandidate ) {
-                                ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << decayName << endreq;
-                                // mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
-                            } else {
-                                (*countPassedXMuMuVtx)++;
-                                
-                                float chi2XMuMu = XMuMuVxCandidate->recVertex().fitQuality().chiSquared();
-                                if( !(chi2XMuMu < chi2XMuMuCut) ) {
-                                    ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endreq;
-                                } else {
-                                    (*countPassedXMuMuVtxChi2)++;
-                                    
-                                    //                   // calculate XMuMu mass from vertexing
-                                    //                   double vtxMassXMuMu(-1.), vtxMassErrorXMuMu(-1.);
-                                    //                   std::vector<int> trkIndicesXMuMu;
-                                    //                   for (int i=0;i<(int)quartet.size();++i) {trkIndicesXMuMu.push_back(1);}
-                                    //                   if( !(m_VKVFitter->VKalGetMassError(trkIndicesXMuMu,vtxMassXMuMu,vtxMassErrorXMuMu).isSuccess()) ) {
-                                    //                     ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for XMuMu in " << decayName << "!" << endreq;
-                                    //                     mon_Errors.push_back(ERROR_XMuMuVtxMass_Fails);
-                                    //                   }
-                                    
-                                    trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, massX);
-                                    trigPartX->fitchi2(XVxCandidate->recVertex().fitQuality().chiSquared());
-                                    //                   trigPartX->fitmass(vtxMassX);
-                                    trigPartX->fitx(XVxCandidate->recVertex().position() [0]);
-                                    trigPartX->fity(XVxCandidate->recVertex().position() [1]);
-                                    trigPartX->fitz(XVxCandidate->recVertex().position() [2]);
-                                    
-                                    //                   trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BMUMUX, massXMuMu);
-                                    trigPartXMuMu = new TrigEFBphys( 0, 0., 0., decayType, massXMuMu);
-                                    trigPartXMuMu->fitchi2(XMuMuVxCandidate->recVertex().fitQuality().chiSquared());
-                                    //                   trigPartXMuMu->fitmass(vtxMassXMuMu);
-                                    trigPartXMuMu->fitx(XMuMuVxCandidate->recVertex().position() [0]);
-                                    trigPartXMuMu->fity(XMuMuVxCandidate->recVertex().position() [1]);
-                                    trigPartXMuMu->fitz(XMuMuVxCandidate->recVertex().position() [2]);
-                                    
-                                    // Fill BMuMu2X monitoring containers
-                                    pMon_BMuMu2X_Pt_X1->push_back(track1->perigeeParameters()->pT()/1000.);
-                                    pMon_BMuMu2X_Eta_X1->push_back(track1->perigeeParameters()->eta());
-                                    pMon_BMuMu2X_Phi_X1->push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
-                                    pMon_BMuMu2X_Pt_X2->push_back(track2->perigeeParameters()->pT()/1000.);
-                                    pMon_BMuMu2X_Eta_X2->push_back(track2->perigeeParameters()->eta());
-                                    pMon_BMuMu2X_Phi_X2->push_back(track2->perigeeParameters()->parameters()[Trk::phi0]);
-                                    pMon_BMuMu2X_InvMass_2X->push_back(massX/1000.);
-                                    //                   pMon_BMuMu2X_VtxMass_2X->push_back(vtxMassX/1000.);
-                                    pMon_BMuMu2X_Chi2_2X->push_back(chi2X);
-                                    pMon_BMuMu2X_InvMass_B->push_back(massXMuMu/1000.);
-                                    //                   pMon_BMuMu2X_VtxMass_B->push_back(vtxMassXMuMu/1000.);
-                                    pMon_BMuMu2X_Chi2_B->push_back(chi2XMuMu);
-                                    
-                                    if(msgLvl() <= MSG::DEBUG)
-                                        msg() << MSG::DEBUG << " Good " << decayName << " found!" << std::endl
-                                        << "  m = " << trigPartXMuMu->mass() << ", "
-                                        << "chi2 = " << trigPartXMuMu->fitchi2() << ", vertex (" << trigPartXMuMu->fitx() << ", "
-                                        << trigPartXMuMu->fity() << ", " << trigPartXMuMu->fitz() << ")" << endreq;
-                                } // end XMuMu chi2 cut
-                            } // end if(XMuMuVxCandidate)
-                            delete XMuMuVxCandidate;
-                        } // end if(doBMuMu2XVertexing), do2XVertexing
-                        else {
-                            trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, massX);
-                            trigPartX->fitchi2(XVxCandidate->recVertex().fitQuality().chiSquared());
-                            //               trigPartX->fitmass(vtxMassX);
-                            trigPartX->fitx(XVxCandidate->recVertex().position() [0]);
-                            trigPartX->fity(XVxCandidate->recVertex().position() [1]);
-                            trigPartX->fitz(XVxCandidate->recVertex().position() [2]);
-                            
-                            //               trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BMUMUX, massXMuMu);
-                            trigPartXMuMu = new TrigEFBphys( 0, 0., 0., decayType, massXMuMu);
-                            //               trigPartXMuMu->fitchi2(XMuMuVxCandidate->recVertex().fitQuality().chiSquared());
-                            //               trigPartXMuMu->fitmass(vtxMassXMuMu);
-                            //               trigPartXMuMu->fitx(XMuMuVxCandidate->recVertex().position() [0]);
-                            //               trigPartXMuMu->fity(XMuMuVxCandidate->recVertex().position() [1]);
-                            //               trigPartXMuMu->fitz(XMuMuVxCandidate->recVertex().position() [2]);
-                            
-                            // Fill BMuMu2X monitoring containers
-                            pMon_BMuMu2X_Pt_X1->push_back(track1->perigeeParameters()->pT()/1000.);
-                            pMon_BMuMu2X_Eta_X1->push_back(track1->perigeeParameters()->eta());
-                            pMon_BMuMu2X_Phi_X1->push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
-                            pMon_BMuMu2X_Pt_X2->push_back(track2->perigeeParameters()->pT()/1000.);
-                            pMon_BMuMu2X_Eta_X2->push_back(track2->perigeeParameters()->eta());
-                            pMon_BMuMu2X_Phi_X2->push_back(track2->perigeeParameters()->parameters()[Trk::phi0]);
-                            pMon_BMuMu2X_InvMass_2X->push_back(massX/1000.);
-                            //               pMon_BMuMu2X_VtxMass_2X->push_back(vtxMassX/1000.);
-                            pMon_BMuMu2X_Chi2_2X->push_back(chi2X);
-                            pMon_BMuMu2X_InvMass_B->push_back(massXMuMu/1000.);
-                            //               pMon_BMuMu2X_VtxMass_B->push_back(vtxMassXMuMu/1000.);
-                            //               pMon_BMuMu2X_Chi2_B->push_back(chi2XMuMu);
-                            
-                            if(msgLvl() <= MSG::DEBUG)
-                                msg() << MSG::DEBUG << " Good " << decayName << " found (no BMuMu2X vertexing)!" << std::endl
-                                << "  m = " << trigPartXMuMu->mass() << endreq;
-                        } // end if(!doBMuMu2XVertexing), do2XVertexing
-                        
-                    } // end X chi2 cut
-                } // end if(XVxCandidate)
-                delete XVxCandidate;
-            } // end if(do2XVertexing)
-            else {
-                if(doBMuMu2XVertexing) { // !do2XVertexing, STUPID CONFIGURATION
-                    // Try to fit XMuMu -> mu mu X vertex
-                    Amg::Vector3D vtx ( 0.,0.,0. );
-                    Trk::Vertex vertex ( vtx );
-                    if ( timerSvc() ) m_VtxFitTimer->resume();
-                    std::vector<const Trk::Track*> quartet;
-                    quartet.push_back(mu1);
-                    quartet.push_back(mu2);
-                    quartet.push_back(track1);
-                    quartet.push_back(track2);
-                    Trk::VxCandidate * XMuMuVxCandidate ( 0 );
-                    XMuMuVxCandidate = m_fitterSvc->fit(quartet,vertex);
-                    if ( timerSvc() ) m_VtxFitTimer->pause();
-                    
-                    if( !XMuMuVxCandidate ) {
-                        ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << decayName << endreq;
-                        // mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
-                    } else {
-                        (*countPassedXMuMuVtx)++;
-                        
-                        float chi2XMuMu = XMuMuVxCandidate->recVertex().fitQuality().chiSquared();
-                        if( !(chi2XMuMu < chi2XMuMuCut) ) {
-                            ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endreq;
-                        } else {
-                            (*countPassedXMuMuVtxChi2)++;
-                            
-                            //               // calculate XMuMu mass from vertexing
-                            //               double vtxMassXMuMu(-1.), vtxMassErrorXMuMu(-1.);
-                            //               std::vector<int> trkIndicesXMuMu;
-                            //               for (int i=0;i<(int)quartet.size();++i) {trkIndicesXMuMu.push_back(1);}
-                            //               if( !(m_VKVFitter->VKalGetMassError(trkIndicesXMuMu,vtxMassXMuMu,vtxMassErrorXMuMu).isSuccess()) ) {
-                            //                 ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for XMuMu in " << decayName << "!" << endreq;
-                            //                 mon_Errors.push_back(ERROR_XMuMuVtxMass_Fails);
-                            //               }
-                            
-                            trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, massX);
-                            
-                            //               trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BMUMUX, massXMuMu);
-                            trigPartXMuMu = new TrigEFBphys( 0, 0., 0., decayType, massXMuMu);
-                            trigPartXMuMu->fitchi2(XMuMuVxCandidate->recVertex().fitQuality().chiSquared());
-                            //               trigPartXMuMu->fitmass(vtxMassXMuMu);
-                            trigPartXMuMu->fitx(XMuMuVxCandidate->recVertex().position() [0]);
-                            trigPartXMuMu->fity(XMuMuVxCandidate->recVertex().position() [1]);
-                            trigPartXMuMu->fitz(XMuMuVxCandidate->recVertex().position() [2]);
-                            
-                            // Fill BMuMu2X monitoring containers
-                            pMon_BMuMu2X_Pt_X1->push_back(track1->perigeeParameters()->pT()/1000.);
-                            pMon_BMuMu2X_Eta_X1->push_back(track1->perigeeParameters()->eta());
-                            pMon_BMuMu2X_Phi_X1->push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
-                            pMon_BMuMu2X_Pt_X2->push_back(track2->perigeeParameters()->pT()/1000.);
-                            pMon_BMuMu2X_Eta_X2->push_back(track2->perigeeParameters()->eta());
-                            pMon_BMuMu2X_Phi_X2->push_back(track2->perigeeParameters()->parameters()[Trk::phi0]);
-                            pMon_BMuMu2X_InvMass_2X->push_back(massX/1000.);
-                            //               pMon_BMuMu2X_VtxMass_2X->push_back(vtxMassX/1000.);
-                            //               pMon_BMuMu2X_Chi2_2X->push_back(chi2X);
-                            pMon_BMuMu2X_InvMass_B->push_back(massXMuMu/1000.);
-                            //               pMon_BMuMu2X_VtxMass_B->push_back(vtxMassXMuMu/1000.);
-                            pMon_BMuMu2X_Chi2_B->push_back(chi2XMuMu);
-                            
-                            if(msgLvl() <= MSG::DEBUG)
-                                msg() << MSG::DEBUG << " Good " << decayName << " found (no 2X vertexing)!" << std::endl
-                                << "  m = " << trigPartXMuMu->mass() << ", "
-                                << "chi2 = " << trigPartXMuMu->fitchi2()
-                                << ", vertex ("
-                                << trigPartXMuMu->fitx() << ", "
-                                << trigPartXMuMu->fity() << ", "
-                                << trigPartXMuMu->fitz() << ")" << endreq;
-                        } // end XMuMu chi2 cut
-                    } // end if(XMuMuVxCandidate)
-                    delete XMuMuVxCandidate;
-                } // end if(doBMuMu2XVertexing), !do2XVertexing
-                else {
-                    trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, massX);
-                    
-                    //           trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BMUMUX, massXMuMu);
-                    trigPartXMuMu = new TrigEFBphys( 0, 0., 0., decayType, massXMuMu);
-                    
-                    // Fill BMuMu2X monitoring containers
-                    pMon_BMuMu2X_Pt_X1->push_back(track1->perigeeParameters()->pT()/1000.);
-                    pMon_BMuMu2X_Eta_X1->push_back(track1->perigeeParameters()->eta());
-                    pMon_BMuMu2X_Phi_X1->push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
-                    pMon_BMuMu2X_Pt_X2->push_back(track2->perigeeParameters()->pT()/1000.);
-                    pMon_BMuMu2X_Eta_X2->push_back(track2->perigeeParameters()->eta());
-                    pMon_BMuMu2X_Phi_X2->push_back(track2->perigeeParameters()->parameters()[Trk::phi0]);
-                    pMon_BMuMu2X_InvMass_2X->push_back(massX/1000.);
-                    //               pMon_BMuMu2X_VtxMass_2X->push_back(vtxMassX/1000.);
-                    //               pMon_BMuMu2X_Chi2_2X->push_back(chi2X);
-                    pMon_BMuMu2X_InvMass_B->push_back(massXMuMu/1000.);
-                    //           pMon_BMuMu2X_VtxMass_B->push_back(vtxMassXMuMu/1000.);
-                    //           pMon_BMuMu2X_Chi2_B->push_back(chi2XMuMu);
-                    
-                    if(msgLvl() <= MSG::DEBUG)
-                        msg() << MSG::DEBUG << " Good " << decayName << " found (no 2X vertexing, no BMuMu2X vertexing)!" << std::endl
-                        << "  m = " << trigPartXMuMu->mass() << endreq;
-                }// end if(!doBMuMu2XVertexing), !do2XVertexing
-                
-            } // end if(!do2XVertexing)
-            
-        } // end if XMuMu mass cut
-    } // end if X mass cut
-    
-    return trigPartXMuMu;
-    
-}
+// /*----------------------------------------------------------------------------*/
+// TrigEFBphys* TrigEFBMuMuXFex::checkBMuMu2X(const Trk::Track* mu1, const Trk::Track* mu2, const Trk::Track* track1, const Trk::Track* track2, const int decay, TrigEFBphys* & trigPartX)
+// {
+//     TrigEFBphys* trigPartXMuMu(0);
+//     
+//     double lowerXMassCut, upperXMassCut;
+//     double lowerXMuMuMassCut, upperXMuMuMassCut;
+//     double chi2XCut;
+//     double chi2XMuMuCut;
+//     std::string decayName;
+//     TrigEFBphys::pType decayType;
+//     unsigned int *countPassedXMass;
+//     unsigned int *countPassedXMuMuMass;
+//     unsigned int *countPassedXVtx;
+//     unsigned int *countPassedXVtxChi2;
+//     unsigned int *countPassedXMuMuVtx;
+//     unsigned int *countPassedXMuMuVtxChi2;
+//     
+//     bool do2XVertexing;
+//     bool doBMuMu2XVertexing;
+//     
+//     std::vector<float> *pMon_BMuMu2X_Pt_X1;
+//     std::vector<float> *pMon_BMuMu2X_Eta_X1;
+//     std::vector<float> *pMon_BMuMu2X_Phi_X1;
+//     std::vector<float> *pMon_BMuMu2X_Pt_X2;
+//     std::vector<float> *pMon_BMuMu2X_Eta_X2;
+//     std::vector<float> *pMon_BMuMu2X_Phi_X2;
+//     std::vector<float> *pMon_BMuMu2X_InvMass_2X;
+//     std::vector<float> *pMon_BMuMu2X_VtxMass_2X;
+//     std::vector<float> *pMon_BMuMu2X_Chi2_2X;
+//     std::vector<float> *pMon_BMuMu2X_InvMass_B;
+//     std::vector<float> *pMon_BMuMu2X_VtxMass_B;
+//     std::vector<float> *pMon_BMuMu2X_Chi2_B;
+//     
+//     // Fix silly warning messages
+//     (void)pMon_BMuMu2X_VtxMass_2X;
+//     (void)pMon_BMuMu2X_VtxMass_B;
+//     
+//     if(decay == bD_to_Kstar) {
+//         lowerXMassCut = m_lowerKstar_KaonMassCut;
+//         upperXMassCut = m_upperKstar_KaonMassCut;
+//         chi2XCut = m_kStarVtxChi2Cut;
+//         lowerXMuMuMassCut = m_lowerBd_KstarMuMuMassCut;
+//         upperXMuMuMassCut = m_upperBd_KstarMuMuMassCut;
+//         chi2XMuMuCut = m_bDVtxChi2Cut;
+//         decayName = "Bd -> mu mu K*";
+//         decayType = TrigEFBphys::BDKSTMUMU;
+//         countPassedXMass        = &m_countPassedKstarMass;
+//         countPassedXMuMuMass    = &m_countPassedBdMass;
+//         countPassedXVtx         = &m_countPassedKstarVtx;
+//         countPassedXVtxChi2     = &m_countPassedKstarVtxChi2;
+//         countPassedXMuMuVtx     = &m_countPassedBdVtx;
+//         countPassedXMuMuVtxChi2 = &m_countPassedBdVtxChi2;
+//         do2XVertexing      = m_doKstar_KPiVertexing;
+//         doBMuMu2XVertexing = m_doBd_KstarMuMuVertexing;
+//         pMon_BMuMu2X_Pt_X1      = &mon_BdMuMuKs_Pt_K;
+//         pMon_BMuMu2X_Eta_X1     = &mon_BdMuMuKs_Eta_K;
+//         pMon_BMuMu2X_Phi_X1     = &mon_BdMuMuKs_Phi_K;
+//         pMon_BMuMu2X_Pt_X2      = &mon_BdMuMuKs_Pt_Pi;
+//         pMon_BMuMu2X_Eta_X2     = &mon_BdMuMuKs_Eta_Pi;
+//         pMon_BMuMu2X_Phi_X2     = &mon_BdMuMuKs_Phi_Pi;
+//         pMon_BMuMu2X_InvMass_2X = &mon_BdMuMuKs_InvMass_Kstar;
+//         pMon_BMuMu2X_VtxMass_2X = &mon_BdMuMuKs_VtxMass_Kstar;
+//         pMon_BMuMu2X_Chi2_2X    = &mon_BdMuMuKs_Chi2_Kstar;
+//         pMon_BMuMu2X_InvMass_B  = &mon_BdMuMuKs_InvMass_Bd;
+//         pMon_BMuMu2X_VtxMass_B  = &mon_BdMuMuKs_VtxMass_Bd;
+//         pMon_BMuMu2X_Chi2_B     = &mon_BdMuMuKs_Chi2_Bd;
+//     } else if(decay == bS_to_Phi) {
+//         lowerXMassCut = m_lowerPhi1020_KaonMassCut;
+//         upperXMassCut = m_upperPhi1020_KaonMassCut;
+//         chi2XCut = m_phi1020VtxChi2Cut;
+//         lowerXMuMuMassCut = m_lowerBs_Phi1020MuMuMassCut;
+//         upperXMuMuMassCut = m_upperBs_Phi1020MuMuMassCut;
+//         chi2XMuMuCut = m_bSVtxChi2Cut;
+//         decayName = "Bs -> mu mu phi";
+//         decayType = TrigEFBphys::BSPHIMUMU;
+//         countPassedXMass        = &m_countPassedPhi1020Mass;
+//         countPassedXMuMuMass    = &m_countPassedBsMass;
+//         countPassedXVtx         = &m_countPassedPhi1020Vtx;
+//         countPassedXVtxChi2     = &m_countPassedPhi1020VtxChi2;
+//         countPassedXMuMuVtx     = &m_countPassedBsVtx;
+//         countPassedXMuMuVtxChi2 = &m_countPassedBsVtxChi2;
+//         do2XVertexing      = m_doPhi1020_KKVertexing;
+//         doBMuMu2XVertexing = m_doBs_Phi1020MuMuVertexing;
+//         pMon_BMuMu2X_Pt_X1      = &mon_BsMuMuPhi_Pt_K1;
+//         pMon_BMuMu2X_Eta_X1     = &mon_BsMuMuPhi_Eta_K1;
+//         pMon_BMuMu2X_Phi_X1     = &mon_BsMuMuPhi_Phi_K1;
+//         pMon_BMuMu2X_Pt_X2      = &mon_BsMuMuPhi_Pt_K2;
+//         pMon_BMuMu2X_Eta_X2     = &mon_BsMuMuPhi_Eta_K2;
+//         pMon_BMuMu2X_Phi_X2     = &mon_BsMuMuPhi_Phi_K2;
+//         pMon_BMuMu2X_InvMass_2X = &mon_BsMuMuPhi_InvMass_Phi1020;
+//         pMon_BMuMu2X_VtxMass_2X = &mon_BsMuMuPhi_VtxMass_Phi1020;
+//         pMon_BMuMu2X_Chi2_2X    = &mon_BsMuMuPhi_Chi2_Phi1020;
+//         pMon_BMuMu2X_InvMass_B  = &mon_BsMuMuPhi_InvMass_Bs;
+//         pMon_BMuMu2X_VtxMass_B  = &mon_BsMuMuPhi_VtxMass_Bs;
+//         pMon_BMuMu2X_Chi2_B     = &mon_BsMuMuPhi_Chi2_Bs;
+//     } else if(decay == lB_to_L) {
+//         lowerXMassCut = m_lowerLambda_PrPiMassCut;
+//         upperXMassCut = m_upperLambda_PrPiMassCut;
+//         chi2XCut = m_lambdaVtxChi2Cut;
+//         lowerXMuMuMassCut = m_lowerLb_LambdaMuMuMassCut;
+//         upperXMuMuMassCut = m_upperLb_LambdaMuMuMassCut;
+//         chi2XMuMuCut = m_lBVtxChi2Cut;
+//         decayName = "Lambda_b -> mu mu Lambda";
+//         decayType = TrigEFBphys::LBLMUMU;
+//         countPassedXMass        = &m_countPassedLambdaMass;
+//         countPassedXMuMuMass    = &m_countPassedLbMass;
+//         countPassedXVtx         = &m_countPassedLambdaVtx;
+//         countPassedXVtxChi2     = &m_countPassedLambdaVtxChi2;
+//         countPassedXMuMuVtx     = &m_countPassedLbVtx;
+//         countPassedXMuMuVtxChi2 = &m_countPassedLbVtxChi2;
+//         do2XVertexing      = m_doLambda_PPiVertexing;
+//         doBMuMu2XVertexing = m_doLb_LambdaMuMuVertexing;
+//         pMon_BMuMu2X_Pt_X1      = &mon_LbMuMuLambda_Pt_P;
+//         pMon_BMuMu2X_Eta_X1     = &mon_LbMuMuLambda_Eta_P;
+//         pMon_BMuMu2X_Phi_X1     = &mon_LbMuMuLambda_Phi_P;
+//         pMon_BMuMu2X_Pt_X2      = &mon_LbMuMuLambda_Pt_Pi;
+//         pMon_BMuMu2X_Eta_X2     = &mon_LbMuMuLambda_Eta_Pi;
+//         pMon_BMuMu2X_Phi_X2     = &mon_LbMuMuLambda_Phi_Pi;
+//         pMon_BMuMu2X_InvMass_2X = &mon_LbMuMuLambda_InvMass_Lambda;
+//         pMon_BMuMu2X_VtxMass_2X = &mon_LbMuMuLambda_VtxMass_Lambda;
+//         pMon_BMuMu2X_Chi2_2X    = &mon_LbMuMuLambda_Chi2_Lambda;
+//         pMon_BMuMu2X_InvMass_B  = &mon_LbMuMuLambda_InvMass_Lb;
+//         pMon_BMuMu2X_VtxMass_B  = &mon_LbMuMuLambda_VtxMass_Lb;
+//         pMon_BMuMu2X_Chi2_B     = &mon_LbMuMuLambda_Chi2_Lb;
+//     } else {
+//         ATH_MSG(DEBUG) << "Wrong decay identifier passed to checkBMuMu2X: decay = " << decay << endreq;
+//         mon_Errors.push_back(ERROR_WrongDecayID);
+//         return trigPartXMuMu;
+//     }
+//     
+//     ATH_MSG(DEBUG) << "Try to build " << decayName << " with tracks " << track1 << ", " << track2 << endreq;
+//     
+//     float massX = XMass(track1, track2, decay);
+//     if( !(massX > lowerXMassCut && massX < upperXMassCut) ) {
+//         ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by X mass cut: m = " << massX << endreq;
+//     } else {
+//         (*countPassedXMass)++;
+//         
+//         float massXMuMu = XMuMuMass(mu1, mu2, track1, track2, decay);
+//         if( !(massXMuMu > lowerXMuMuMassCut && massXMuMu < upperXMuMuMassCut) ) {
+//             ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by XMuMu mass cut: m = " << massXMuMu << endreq;
+//         } else {
+//             (*countPassedXMuMuMass)++;
+//             
+//             if(do2XVertexing) {
+//                 // Try to fit X -> track1 track2 vertex
+//                 if ( timerSvc() ) m_VtxFitTimer->resume();
+//                 Amg::Vector3D vtx ( 0.,0.,0. );
+//                 Trk::Vertex vertex ( vtx );
+//                 std::vector<const Trk::Track*> trackPair;
+//                 trackPair.push_back(track1);
+//                 trackPair.push_back(track2);
+//                 Trk::VxCandidate * XVxCandidate ( 0 );
+//                 XVxCandidate = m_fitterSvc->fit(trackPair,vertex);
+//                 if ( timerSvc() ) m_VtxFitTimer->pause();
+//                 
+//                 if( !XVxCandidate ) {
+//                     ATH_MSG(DEBUG) << " Failed to fit X vertex for " << decayName << endreq;
+//                     // mon_Errors.push_back(ERROR_XVtxFit_Fails);
+//                 } else {
+//                     (*countPassedXVtx)++;
+//                     
+//                     float chi2X = XVxCandidate->recVertex().fitQuality().chiSquared();
+//                     if( !(chi2X < chi2XCut) ) {
+//                         ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by X vertex chi2 cut: chi2 = " << chi2X << endreq;
+//                     } else {
+//                         (*countPassedXVtxChi2)++;
+//                         
+//                         // calculate X mass from vertexing
+//                         double vtxMassX(-1.), vtxMassErrorX(-1.);
+//                         std::vector<int> trkIndicesX;
+//                         for (int i=0;i<(int)trackPair.size();++i) {trkIndicesX.push_back(1);}
+//                         if( !(m_VKVFitter->VKalGetMassError(trkIndicesX,vtxMassX,vtxMassErrorX).isSuccess()) ) {
+//                             ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for X in " << decayName << "!" << endreq;
+//                             mon_Errors.push_back(ERROR_XVtxMass_Fails);
+//                         }
+//                         
+//                         if(doBMuMu2XVertexing) {
+//                             // Try to fit XMuMu -> mu mu X vertex
+//                             if ( timerSvc() ) m_VtxFitTimer->resume();
+//                             std::vector<const Trk::Track*> quartet;
+//                             quartet.push_back(mu1);
+//                             quartet.push_back(mu2);
+//                             quartet.push_back(track1);
+//                             quartet.push_back(track2);
+//                             Trk::VxCandidate * XMuMuVxCandidate ( 0 );
+//                             XMuMuVxCandidate = m_fitterSvc->fit(quartet,vertex);
+//                             if ( timerSvc() ) m_VtxFitTimer->pause();
+//                             
+//                             if( !XMuMuVxCandidate ) {
+//                                 ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << decayName << endreq;
+//                                 // mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
+//                             } else {
+//                                 (*countPassedXMuMuVtx)++;
+//                                 
+//                                 float chi2XMuMu = XMuMuVxCandidate->recVertex().fitQuality().chiSquared();
+//                                 if( !(chi2XMuMu < chi2XMuMuCut) ) {
+//                                     ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endreq;
+//                                 } else {
+//                                     (*countPassedXMuMuVtxChi2)++;
+//                                     
+//                                     //                   // calculate XMuMu mass from vertexing
+//                                     //                   double vtxMassXMuMu(-1.), vtxMassErrorXMuMu(-1.);
+//                                     //                   std::vector<int> trkIndicesXMuMu;
+//                                     //                   for (int i=0;i<(int)quartet.size();++i) {trkIndicesXMuMu.push_back(1);}
+//                                     //                   if( !(m_VKVFitter->VKalGetMassError(trkIndicesXMuMu,vtxMassXMuMu,vtxMassErrorXMuMu).isSuccess()) ) {
+//                                     //                     ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for XMuMu in " << decayName << "!" << endreq;
+//                                     //                     mon_Errors.push_back(ERROR_XMuMuVtxMass_Fails);
+//                                     //                   }
+//                                     
+//                                     trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, massX);
+//                                     trigPartX->fitchi2(XVxCandidate->recVertex().fitQuality().chiSquared());
+//                                     //                   trigPartX->fitmass(vtxMassX);
+//                                     trigPartX->fitx(XVxCandidate->recVertex().position() [0]);
+//                                     trigPartX->fity(XVxCandidate->recVertex().position() [1]);
+//                                     trigPartX->fitz(XVxCandidate->recVertex().position() [2]);
+//                                     
+//                                     //                   trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BMUMUX, massXMuMu);
+//                                     trigPartXMuMu = new TrigEFBphys( 0, 0., 0., decayType, massXMuMu);
+//                                     trigPartXMuMu->fitchi2(XMuMuVxCandidate->recVertex().fitQuality().chiSquared());
+//                                     //                   trigPartXMuMu->fitmass(vtxMassXMuMu);
+//                                     trigPartXMuMu->fitx(XMuMuVxCandidate->recVertex().position() [0]);
+//                                     trigPartXMuMu->fity(XMuMuVxCandidate->recVertex().position() [1]);
+//                                     trigPartXMuMu->fitz(XMuMuVxCandidate->recVertex().position() [2]);
+//                                     
+//                                     // Fill BMuMu2X monitoring containers
+//                                     pMon_BMuMu2X_Pt_X1->push_back(track1->perigeeParameters()->pT()/1000.);
+//                                     pMon_BMuMu2X_Eta_X1->push_back(track1->perigeeParameters()->eta());
+//                                     pMon_BMuMu2X_Phi_X1->push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
+//                                     pMon_BMuMu2X_Pt_X2->push_back(track2->perigeeParameters()->pT()/1000.);
+//                                     pMon_BMuMu2X_Eta_X2->push_back(track2->perigeeParameters()->eta());
+//                                     pMon_BMuMu2X_Phi_X2->push_back(track2->perigeeParameters()->parameters()[Trk::phi0]);
+//                                     pMon_BMuMu2X_InvMass_2X->push_back(massX/1000.);
+//                                     //                   pMon_BMuMu2X_VtxMass_2X->push_back(vtxMassX/1000.);
+//                                     pMon_BMuMu2X_Chi2_2X->push_back(chi2X);
+//                                     pMon_BMuMu2X_InvMass_B->push_back(massXMuMu/1000.);
+//                                     //                   pMon_BMuMu2X_VtxMass_B->push_back(vtxMassXMuMu/1000.);
+//                                     pMon_BMuMu2X_Chi2_B->push_back(chi2XMuMu);
+//                                     
+//                                     if(msgLvl() <= MSG::DEBUG)
+//                                         msg() << MSG::DEBUG << " Good " << decayName << " found!" << std::endl
+//                                         << "  m = " << trigPartXMuMu->mass() << ", "
+//                                         << "chi2 = " << trigPartXMuMu->fitchi2() << ", vertex (" << trigPartXMuMu->fitx() << ", "
+//                                         << trigPartXMuMu->fity() << ", " << trigPartXMuMu->fitz() << ")" << endreq;
+//                                 } // end XMuMu chi2 cut
+//                             } // end if(XMuMuVxCandidate)
+//                             delete XMuMuVxCandidate;
+//                         } // end if(doBMuMu2XVertexing), do2XVertexing
+//                         else {
+//                             trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, massX);
+//                             trigPartX->fitchi2(XVxCandidate->recVertex().fitQuality().chiSquared());
+//                             //               trigPartX->fitmass(vtxMassX);
+//                             trigPartX->fitx(XVxCandidate->recVertex().position() [0]);
+//                             trigPartX->fity(XVxCandidate->recVertex().position() [1]);
+//                             trigPartX->fitz(XVxCandidate->recVertex().position() [2]);
+//                             
+//                             //               trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BMUMUX, massXMuMu);
+//                             trigPartXMuMu = new TrigEFBphys( 0, 0., 0., decayType, massXMuMu);
+//                             //               trigPartXMuMu->fitchi2(XMuMuVxCandidate->recVertex().fitQuality().chiSquared());
+//                             //               trigPartXMuMu->fitmass(vtxMassXMuMu);
+//                             //               trigPartXMuMu->fitx(XMuMuVxCandidate->recVertex().position() [0]);
+//                             //               trigPartXMuMu->fity(XMuMuVxCandidate->recVertex().position() [1]);
+//                             //               trigPartXMuMu->fitz(XMuMuVxCandidate->recVertex().position() [2]);
+//                             
+//                             // Fill BMuMu2X monitoring containers
+//                             pMon_BMuMu2X_Pt_X1->push_back(track1->perigeeParameters()->pT()/1000.);
+//                             pMon_BMuMu2X_Eta_X1->push_back(track1->perigeeParameters()->eta());
+//                             pMon_BMuMu2X_Phi_X1->push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
+//                             pMon_BMuMu2X_Pt_X2->push_back(track2->perigeeParameters()->pT()/1000.);
+//                             pMon_BMuMu2X_Eta_X2->push_back(track2->perigeeParameters()->eta());
+//                             pMon_BMuMu2X_Phi_X2->push_back(track2->perigeeParameters()->parameters()[Trk::phi0]);
+//                             pMon_BMuMu2X_InvMass_2X->push_back(massX/1000.);
+//                             //               pMon_BMuMu2X_VtxMass_2X->push_back(vtxMassX/1000.);
+//                             pMon_BMuMu2X_Chi2_2X->push_back(chi2X);
+//                             pMon_BMuMu2X_InvMass_B->push_back(massXMuMu/1000.);
+//                             //               pMon_BMuMu2X_VtxMass_B->push_back(vtxMassXMuMu/1000.);
+//                             //               pMon_BMuMu2X_Chi2_B->push_back(chi2XMuMu);
+//                             
+//                             if(msgLvl() <= MSG::DEBUG)
+//                                 msg() << MSG::DEBUG << " Good " << decayName << " found (no BMuMu2X vertexing)!" << std::endl
+//                                 << "  m = " << trigPartXMuMu->mass() << endreq;
+//                         } // end if(!doBMuMu2XVertexing), do2XVertexing
+//                         
+//                     } // end X chi2 cut
+//                 } // end if(XVxCandidate)
+//                 delete XVxCandidate;
+//             } // end if(do2XVertexing)
+//             else {
+//                 if(doBMuMu2XVertexing) { // !do2XVertexing, STUPID CONFIGURATION
+//                     // Try to fit XMuMu -> mu mu X vertex
+//                     Amg::Vector3D vtx ( 0.,0.,0. );
+//                     Trk::Vertex vertex ( vtx );
+//                     if ( timerSvc() ) m_VtxFitTimer->resume();
+//                     std::vector<const Trk::Track*> quartet;
+//                     quartet.push_back(mu1);
+//                     quartet.push_back(mu2);
+//                     quartet.push_back(track1);
+//                     quartet.push_back(track2);
+//                     Trk::VxCandidate * XMuMuVxCandidate ( 0 );
+//                     XMuMuVxCandidate = m_fitterSvc->fit(quartet,vertex);
+//                     if ( timerSvc() ) m_VtxFitTimer->pause();
+//                     
+//                     if( !XMuMuVxCandidate ) {
+//                         ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << decayName << endreq;
+//                         // mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
+//                     } else {
+//                         (*countPassedXMuMuVtx)++;
+//                         
+//                         float chi2XMuMu = XMuMuVxCandidate->recVertex().fitQuality().chiSquared();
+//                         if( !(chi2XMuMu < chi2XMuMuCut) ) {
+//                             ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endreq;
+//                         } else {
+//                             (*countPassedXMuMuVtxChi2)++;
+//                             
+//                             //               // calculate XMuMu mass from vertexing
+//                             //               double vtxMassXMuMu(-1.), vtxMassErrorXMuMu(-1.);
+//                             //               std::vector<int> trkIndicesXMuMu;
+//                             //               for (int i=0;i<(int)quartet.size();++i) {trkIndicesXMuMu.push_back(1);}
+//                             //               if( !(m_VKVFitter->VKalGetMassError(trkIndicesXMuMu,vtxMassXMuMu,vtxMassErrorXMuMu).isSuccess()) ) {
+//                             //                 ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for XMuMu in " << decayName << "!" << endreq;
+//                             //                 mon_Errors.push_back(ERROR_XMuMuVtxMass_Fails);
+//                             //               }
+//                             
+//                             trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, massX);
+//                             
+//                             //               trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BMUMUX, massXMuMu);
+//                             trigPartXMuMu = new TrigEFBphys( 0, 0., 0., decayType, massXMuMu);
+//                             trigPartXMuMu->fitchi2(XMuMuVxCandidate->recVertex().fitQuality().chiSquared());
+//                             //               trigPartXMuMu->fitmass(vtxMassXMuMu);
+//                             trigPartXMuMu->fitx(XMuMuVxCandidate->recVertex().position() [0]);
+//                             trigPartXMuMu->fity(XMuMuVxCandidate->recVertex().position() [1]);
+//                             trigPartXMuMu->fitz(XMuMuVxCandidate->recVertex().position() [2]);
+//                             
+//                             // Fill BMuMu2X monitoring containers
+//                             pMon_BMuMu2X_Pt_X1->push_back(track1->perigeeParameters()->pT()/1000.);
+//                             pMon_BMuMu2X_Eta_X1->push_back(track1->perigeeParameters()->eta());
+//                             pMon_BMuMu2X_Phi_X1->push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
+//                             pMon_BMuMu2X_Pt_X2->push_back(track2->perigeeParameters()->pT()/1000.);
+//                             pMon_BMuMu2X_Eta_X2->push_back(track2->perigeeParameters()->eta());
+//                             pMon_BMuMu2X_Phi_X2->push_back(track2->perigeeParameters()->parameters()[Trk::phi0]);
+//                             pMon_BMuMu2X_InvMass_2X->push_back(massX/1000.);
+//                             //               pMon_BMuMu2X_VtxMass_2X->push_back(vtxMassX/1000.);
+//                             //               pMon_BMuMu2X_Chi2_2X->push_back(chi2X);
+//                             pMon_BMuMu2X_InvMass_B->push_back(massXMuMu/1000.);
+//                             //               pMon_BMuMu2X_VtxMass_B->push_back(vtxMassXMuMu/1000.);
+//                             pMon_BMuMu2X_Chi2_B->push_back(chi2XMuMu);
+//                             
+//                             if(msgLvl() <= MSG::DEBUG)
+//                                 msg() << MSG::DEBUG << " Good " << decayName << " found (no 2X vertexing)!" << std::endl
+//                                 << "  m = " << trigPartXMuMu->mass() << ", "
+//                                 << "chi2 = " << trigPartXMuMu->fitchi2()
+//                                 << ", vertex ("
+//                                 << trigPartXMuMu->fitx() << ", "
+//                                 << trigPartXMuMu->fity() << ", "
+//                                 << trigPartXMuMu->fitz() << ")" << endreq;
+//                         } // end XMuMu chi2 cut
+//                     } // end if(XMuMuVxCandidate)
+//                     delete XMuMuVxCandidate;
+//                 } // end if(doBMuMu2XVertexing), !do2XVertexing
+//                 else {
+//                     trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, massX);
+//                     
+//                     //           trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BMUMUX, massXMuMu);
+//                     trigPartXMuMu = new TrigEFBphys( 0, 0., 0., decayType, massXMuMu);
+//                     
+//                     // Fill BMuMu2X monitoring containers
+//                     pMon_BMuMu2X_Pt_X1->push_back(track1->perigeeParameters()->pT()/1000.);
+//                     pMon_BMuMu2X_Eta_X1->push_back(track1->perigeeParameters()->eta());
+//                     pMon_BMuMu2X_Phi_X1->push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
+//                     pMon_BMuMu2X_Pt_X2->push_back(track2->perigeeParameters()->pT()/1000.);
+//                     pMon_BMuMu2X_Eta_X2->push_back(track2->perigeeParameters()->eta());
+//                     pMon_BMuMu2X_Phi_X2->push_back(track2->perigeeParameters()->parameters()[Trk::phi0]);
+//                     pMon_BMuMu2X_InvMass_2X->push_back(massX/1000.);
+//                     //               pMon_BMuMu2X_VtxMass_2X->push_back(vtxMassX/1000.);
+//                     //               pMon_BMuMu2X_Chi2_2X->push_back(chi2X);
+//                     pMon_BMuMu2X_InvMass_B->push_back(massXMuMu/1000.);
+//                     //           pMon_BMuMu2X_VtxMass_B->push_back(vtxMassXMuMu/1000.);
+//                     //           pMon_BMuMu2X_Chi2_B->push_back(chi2XMuMu);
+//                     
+//                     if(msgLvl() <= MSG::DEBUG)
+//                         msg() << MSG::DEBUG << " Good " << decayName << " found (no 2X vertexing, no BMuMu2X vertexing)!" << std::endl
+//                         << "  m = " << trigPartXMuMu->mass() << endreq;
+//                 }// end if(!doBMuMu2XVertexing), !do2XVertexing
+//                 
+//             } // end if(!do2XVertexing)
+//             
+//         } // end if XMuMu mass cut
+//     } // end if X mass cut
+//     
+//     return trigPartXMuMu;
+//     
+// }
 
-/*----------------------------------------------------------------------------*/
-TrigEFBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const Trk::Track* mu1, const Trk::Track* mu2, const Trk::Track* track1, const Trk::Track* track2, double xPhiMass, const Trk::Track* track3, TrigEFBphys* & trigPartX)
-{
-    TrigEFBphys* trigPartXMuMu(0);
-    
-    m_countPassedPhiDsMass++;
-    
-    ATH_MSG(DEBUG) << "Try to build " << "D_s" << " with tracks " << track1 << ", " << track2 << ", " << track3 << endreq;
-    
-    float massX = X3Mass(track1, track2, track3);
-    if( !(massX > m_lowerDs_MassCut && massX < m_upperDs_MassCut) ) {
-        ATH_MSG(DEBUG) << " " << "D_s" << " candidate rejected by the mass cut: m = " << massX << endreq;
-    } else {
-        m_countPassedDsMass++;
-        
-        float massXMuMu = X3MuMuMass(mu1, mu2, track1, track2, track3);
-        if( !(massXMuMu > m_lowerBc_DsMuMuMassCut && massXMuMu < m_upperBc_DsMuMuMassCut) ) {
-            ATH_MSG(DEBUG) << " " << "B_c" << " candidate rejected by the mass cut: m = " << massXMuMu << endreq;
-        } else {
-            m_countPassedBcMass++;
-            
-            if(m_doDs_Vertexing) {
-                // Try to fit X -> track1 track2 track3 vertex
-                if ( timerSvc() ) m_VtxFitTimer->resume();
-                Amg::Vector3D vtx ( 0.,0.,0. );
-                Trk::Vertex vertex ( vtx );
-                std::vector<const Trk::Track*> trackTroika;
-                trackTroika.push_back(track1);
-                trackTroika.push_back(track2);
-                trackTroika.push_back(track3);
-                Trk::VxCandidate * XVxCandidate ( 0 );
-                XVxCandidate = m_fitterSvc->fit(trackTroika,vertex);
-                if ( timerSvc() ) m_VtxFitTimer->pause();
-                
-                if( !XVxCandidate ) {
-                    ATH_MSG(DEBUG) << " Failed to fit X vertex for " << "D_s" << endreq;
-                    // mon_Errors.push_back(ERROR_XVtxFit_Fails);
-                } else {
-                    m_countPassedDsVtx++;
-                    
-                    float chi2X = XVxCandidate->recVertex().fitQuality().chiSquared();
-                    if( !(chi2X < m_DsVtxChi2Cut) ) {
-                        ATH_MSG(DEBUG) << " " << "D_s" << " candidate rejected by X vertex chi2 cut: chi2 = " << chi2X << endreq;
-                    } else {
-                        m_countPassedDsVtxChi2++;
-                        
-                        // calculate X mass from vertexing
-                        double vtxMassX(-1.), vtxMassErrorX(-1.);
-                        std::vector<int> trkIndicesX;
-                        for (int i=0;i<(int)trackTroika.size();++i) {trkIndicesX.push_back(1);}
-                        if( !(m_VKVFitter->VKalGetMassError(trkIndicesX,vtxMassX,vtxMassErrorX).isSuccess()) ) {
-                            ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for X in " << "D_s" << "!" << endreq;
-                            mon_Errors.push_back(ERROR_XVtxMass_Fails);
-                        }
-                        
-                        if(m_doBc_DsMuMuVertexing) {
-                            // Try to fit XMuMu -> mu mu X vertex
-                            if ( timerSvc() ) m_VtxFitTimer->resume();
-                            std::vector<const Trk::Track*> quintet;
-                            quintet.push_back(mu1);
-                            quintet.push_back(mu2);
-                            quintet.push_back(track1);
-                            quintet.push_back(track2);
-                            quintet.push_back(track3);
-                            Trk::VxCandidate * XMuMuVxCandidate ( 0 );
-                            XMuMuVxCandidate = m_fitterSvc->fit(quintet,vertex);
-                            if ( timerSvc() ) m_VtxFitTimer->pause();
-                            
-                            if( !XMuMuVxCandidate ) {
-                                ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << "B_c" << endreq;
-                                // mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
-                            } else {
-                                m_countPassedBcVtx++;
-                                
-                                float chi2XMuMu = XMuMuVxCandidate->recVertex().fitQuality().chiSquared();
-                                if( !(chi2XMuMu < m_bCVtxChi2Cut) ) {
-                                    ATH_MSG(DEBUG) << " " << "B_c" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endreq;
-                                } else {
-                                    m_countPassedBcVtxChi2++;
-                                    
-                                    //                  trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, xPhiMass);
-                                    trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::DSPHIPI, massX);
-                                    trigPartX->fitchi2(XVxCandidate->recVertex().fitQuality().chiSquared());
-                                    //                   trigPartX->fitmass(vtxMassX);
-                                    trigPartX->fitx(XVxCandidate->recVertex().position() [0]);
-                                    trigPartX->fity(XVxCandidate->recVertex().position() [1]);
-                                    trigPartX->fitz(XVxCandidate->recVertex().position() [2]);
-                                    
-                                    trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BCDSMUMU, massXMuMu);
-                                    trigPartXMuMu->fitchi2(XMuMuVxCandidate->recVertex().fitQuality().chiSquared());
-                                    //                   trigPartXMuMu->fitmass(vtxMassXMuMu);
-                                    trigPartXMuMu->fitx(XMuMuVxCandidate->recVertex().position() [0]);
-                                    trigPartXMuMu->fity(XMuMuVxCandidate->recVertex().position() [1]);
-                                    trigPartXMuMu->fitz(XMuMuVxCandidate->recVertex().position() [2]);
-                                    
-                                    // Fill BMuMu2X monitoring containers
-                                    mon_BcMuMuDs_Pt_K1.push_back(track1->perigeeParameters()->pT()/1000.);
-                                    mon_BcMuMuDs_Eta_K1.push_back(track1->perigeeParameters()->eta());
-                                    mon_BcMuMuDs_Phi_K1.push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
-                                    mon_BcMuMuDs_Pt_K2.push_back(track2->perigeeParameters()->pT()/1000.);
-                                    mon_BcMuMuDs_Eta_K2.push_back(track2->perigeeParameters()->eta());
-                                    mon_BcMuMuDs_Phi_K2.push_back(track2->perigeeParameters()->parameters()[Trk::phi0]);
-                                    mon_BcMuMuDs_Pt_pi.push_back(track3->perigeeParameters()->pT()/1000.);
-                                    mon_BcMuMuDs_Eta_pi.push_back(track3->perigeeParameters()->eta());
-                                    mon_BcMuMuDs_Phi_pi.push_back(track3->perigeeParameters()->parameters()[Trk::phi0]);
-                                    mon_BcMuMuDs_InvMass_PhiDs.push_back(xPhiMass/1000.);
-                                    mon_BcMuMuDs_InvMass_Ds.push_back(massX/1000.);
-                                    //                   mon_BcMuMuDs_VtxMass_Ds.push_back(vtxMassX/1000.);
-                                    mon_BcMuMuDs_Chi2_Ds.push_back(chi2X);
-                                    mon_BcMuMuDs_InvMass_Bc.push_back(massXMuMu/1000.);
-                                    //                   mon_BcMuMuDs_VtxMass_Bc.push_back(vtxMassXMuMu/1000.);
-                                    mon_BcMuMuDs_Chi2_Bc.push_back(chi2XMuMu);
-                                    
-                                    if(msgLvl() <= MSG::DEBUG)
-                                        msg() << MSG::DEBUG << " Good " << "B_c" << " found!" << std::endl
-                                        << "  m = " << trigPartXMuMu->mass() << ", "
-                                        << "chi2 = " << trigPartXMuMu->fitchi2()
-                                        << ", vertex ("
-                                        << trigPartXMuMu->fitx() << ", "
-                                        << trigPartXMuMu->fity() << ", "
-                                        << trigPartXMuMu->fitz() << ")" << endreq;
-                                } // end XMuMu chi2 cut
-                            } // end if(XMuMuVxCandidate)
-                            delete XMuMuVxCandidate;
-                        } // end if(doBMuMu2XVertexing), do2XVertexing
-                        else {
-                            //              trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, xPhiMass);
-                            trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::DSPHIPI, massX);
-                            trigPartX->fitchi2(XVxCandidate->recVertex().fitQuality().chiSquared());
-                            //               trigPartX->fitmass(vtxMassX);
-                            trigPartX->fitx(XVxCandidate->recVertex().position() [0]);
-                            trigPartX->fity(XVxCandidate->recVertex().position() [1]);
-                            trigPartX->fitz(XVxCandidate->recVertex().position() [2]);
-                            
-                            //               trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BCDSMUMU, massXMuMu);
-                            trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BCDSMUMU, massXMuMu);
-                            //               trigPartXMuMu->fitchi2(XMuMuVxCandidate->recVertex().fitQuality().chiSquared());
-                            //               trigPartXMuMu->fitmass(vtxMassXMuMu);
-                            //               trigPartXMuMu->fitx(XMuMuVxCandidate->recVertex().position() [0]);
-                            //               trigPartXMuMu->fity(XMuMuVxCandidate->recVertex().position() [1]);
-                            //               trigPartXMuMu->fitz(XMuMuVxCandidate->recVertex().position() [2]);
-                            
-                            // Fill BMuMu2X monitoring containers
-                            mon_BcMuMuDs_Pt_K1.push_back(track1->perigeeParameters()->pT()/1000.);
-                            mon_BcMuMuDs_Eta_K1.push_back(track1->perigeeParameters()->eta());
-                            mon_BcMuMuDs_Phi_K1.push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
-                            mon_BcMuMuDs_Pt_K2.push_back(track2->perigeeParameters()->pT()/1000.);
-                            mon_BcMuMuDs_Eta_K2.push_back(track2->perigeeParameters()->eta());
-                            mon_BcMuMuDs_Phi_K2.push_back(track2->perigeeParameters()->parameters()[Trk::phi0]);
-                            mon_BcMuMuDs_Pt_pi.push_back(track3->perigeeParameters()->pT()/1000.);
-                            mon_BcMuMuDs_Eta_pi.push_back(track3->perigeeParameters()->eta());
-                            mon_BcMuMuDs_Phi_pi.push_back(track3->perigeeParameters()->parameters()[Trk::phi0]);
-                            mon_BcMuMuDs_InvMass_PhiDs.push_back(xPhiMass/1000.);
-                            mon_BcMuMuDs_InvMass_Ds.push_back(massX/1000.);
-                            //               mon_BcMuMuDs_VtxMass_Ds.push_back(vtxMassX/1000.);
-                            mon_BcMuMuDs_Chi2_Ds.push_back(chi2X);
-                            mon_BcMuMuDs_InvMass_Bc.push_back(massXMuMu/1000.);
-                            //               mon_BcMuMuDs_VtxMass_Bc.push_back(vtxMassXMuMu/1000.);
-                            //               mon_BcMuMuDs_Chi2_Bc.push_back(chi2XMuMu);
-                            
-                            if(msgLvl() <= MSG::DEBUG) 
-                                msg() << MSG::DEBUG << " Good " << "B_c" << " found (no BMuMu2X vertexing)!" << std::endl
-                                << "  m = " << trigPartXMuMu->mass() << endreq;
-                        } // end if(!doBMuMu2XVertexing), do2XVertexing
-                        
-                    } // end X chi2 cut
-                } // end if(XVxCandidate)
-                delete XVxCandidate;
-            } // end if(do2XVertexing)
-            else {
-                if(m_doBc_DsMuMuVertexing) { // !do2XVertexing, STUPID CONFIGURATION
-                    // Try to fit XMuMu -> mu mu X vertex
-                    Amg::Vector3D vtx ( 0.,0.,0. );
-                    Trk::Vertex vertex ( vtx );
-                    if ( timerSvc() ) m_VtxFitTimer->resume();
-                    std::vector<const Trk::Track*> quintet;
-                    quintet.push_back(mu1);
-                    quintet.push_back(mu2);
-                    quintet.push_back(track1);
-                    quintet.push_back(track2);
-                    quintet.push_back(track3);
-                    Trk::VxCandidate * XMuMuVxCandidate ( 0 );
-                    XMuMuVxCandidate = m_fitterSvc->fit(quintet,vertex);
-                    if ( timerSvc() ) m_VtxFitTimer->pause();
-                    
-                    if( !XMuMuVxCandidate ) {
-                        ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << "B_c" << endreq;
-                        // mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
-                    } else {
-                        m_countPassedBcVtx++;
-                        
-                        float chi2XMuMu = XMuMuVxCandidate->recVertex().fitQuality().chiSquared();
-                        if( !(chi2XMuMu < m_bCVtxChi2Cut) ) {
-                            ATH_MSG(DEBUG) << " " << "B_c" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endreq;
-                        } else {
-                            m_countPassedBcVtxChi2++;
-                            
-                            //               // calculate XMuMu mass from vertexing
-                            //               double vtxMassXMuMu(-1.), vtxMassErrorXMuMu(-1.);
-                            //               std::vector<int> trkIndicesXMuMu;
-                            //               for (int i=0;i<(int)quartet.size();++i) {trkIndicesXMuMu.push_back(1);} 
-                            //               if( !(m_VKVFitter->VKalGetMassError(trkIndicesXMuMu,vtxMassXMuMu,vtxMassErrorXMuMu).isSuccess()) ) {
-                            //                 ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for XMuMu in " << decayName << "!" << endreq;
-                            //                 mon_Errors.push_back(ERROR_XMuMuVtxMass_Fails);
-                            //               }
-                            
-                            //              trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, xPhiMass);
-                            trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::DSPHIPI, massX);
-                            
-                            //               trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BMUMUX, massXMuMu);
-                            trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BCDSMUMU, massXMuMu);
-                            trigPartXMuMu->fitchi2(XMuMuVxCandidate->recVertex().fitQuality().chiSquared());
-                            //               trigPartXMuMu->fitmass(vtxMassXMuMu);
-                            trigPartXMuMu->fitx(XMuMuVxCandidate->recVertex().position() [0]);
-                            trigPartXMuMu->fity(XMuMuVxCandidate->recVertex().position() [1]);
-                            trigPartXMuMu->fitz(XMuMuVxCandidate->recVertex().position() [2]);
-                            
-                            // Fill BMuMu2X monitoring containers
-                            mon_BcMuMuDs_Pt_K1.push_back(track1->perigeeParameters()->pT()/1000.);
-                            mon_BcMuMuDs_Eta_K1.push_back(track1->perigeeParameters()->eta());
-                            mon_BcMuMuDs_Phi_K1.push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
-                            mon_BcMuMuDs_Pt_K2.push_back(track2->perigeeParameters()->pT()/1000.);
-                            mon_BcMuMuDs_Eta_K2.push_back(track2->perigeeParameters()->eta());
-                            mon_BcMuMuDs_Phi_K2.push_back(track2->perigeeParameters()->parameters()[Trk::phi0]);
-                            mon_BcMuMuDs_Pt_pi.push_back(track3->perigeeParameters()->pT()/1000.);
-                            mon_BcMuMuDs_Eta_pi.push_back(track3->perigeeParameters()->eta());
-                            mon_BcMuMuDs_Phi_pi.push_back(track3->perigeeParameters()->parameters()[Trk::phi0]);
-                            mon_BcMuMuDs_InvMass_PhiDs.push_back(xPhiMass/1000.);
-                            mon_BcMuMuDs_InvMass_Ds.push_back(massX/1000.);
-                            //               mon_BcMuMuDs_VtxMass_Ds.push_back(vtxMassX/1000.);
-                            //               mon_BcMuMuDs_Chi2_Ds.push_back(chi2X);
-                            mon_BcMuMuDs_InvMass_Bc.push_back(massXMuMu/1000.);
-                            //               mon_BcMuMuDs_VtxMass_Bc.push_back(vtxMassXMuMu/1000.);
-                            mon_BcMuMuDs_Chi2_Bc.push_back(chi2XMuMu);
-                            
-                            if(msgLvl() <= MSG::DEBUG) 
-                                msg() << MSG::DEBUG << " Good " << "B_c" << " found (no 2X vertexing)!" << std::endl
-                                << "  m = " << trigPartXMuMu->mass() << ", "
-                                << "chi2 = " << trigPartXMuMu->fitchi2() << ", vertex (" << trigPartXMuMu->fitx() << ", " 
-                                << trigPartXMuMu->fity() << ", " << trigPartXMuMu->fitz() << ")" << endreq;
-                        } // end XMuMu chi2 cut
-                    } // end if(XMuMuVxCandidate)
-                    delete XMuMuVxCandidate;
-                } // end if(doBMuMu2XVertexing), !do2XVertexing
-                else {
-                    //              trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, xPhiMass);
-                    trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::DSPHIPI, massX);
-                    
-                    //           trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BMUMUX, massXMuMu);
-                    trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BCDSMUMU, massXMuMu);
-                    
-                    // Fill BMuMu2X monitoring containers
-                    mon_BcMuMuDs_Pt_K1.push_back(track1->perigeeParameters()->pT()/1000.);
-                    mon_BcMuMuDs_Eta_K1.push_back(track1->perigeeParameters()->eta());
-                    mon_BcMuMuDs_Phi_K1.push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
-                    mon_BcMuMuDs_Pt_K2.push_back(track2->perigeeParameters()->pT()/1000.);
-                    mon_BcMuMuDs_Eta_K2.push_back(track2->perigeeParameters()->eta());
-                    mon_BcMuMuDs_Phi_K2.push_back(track2->perigeeParameters()->parameters()[Trk::phi0]);
-                    mon_BcMuMuDs_Pt_pi.push_back(track3->perigeeParameters()->pT()/1000.);
-                    mon_BcMuMuDs_Eta_pi.push_back(track3->perigeeParameters()->eta());
-                    mon_BcMuMuDs_Phi_pi.push_back(track3->perigeeParameters()->parameters()[Trk::phi0]);
-                    mon_BcMuMuDs_InvMass_PhiDs.push_back(xPhiMass/1000.);
-                    mon_BcMuMuDs_InvMass_Ds.push_back(massX/1000.);
-                    //           mon_BcMuMuDs_VtxMass_Ds.push_back(vtxMassX/1000.);
-                    //           mon_BcMuMuDs_Chi2_Ds.push_back(chi2X);
-                    mon_BcMuMuDs_InvMass_Bc.push_back(massXMuMu/1000.);
-                    //           mon_BcMuMuDs_VtxMass_Bc.push_back(vtxMassXMuMu/1000.);
-                    //           mon_BcMuMuDs_Chi2_Bc.push_back(chi2XMuMu);
-                    
-                    if(msgLvl() <= MSG::DEBUG) 
-                        msg() << MSG::DEBUG << " Good " << "B_c" << " found (no 2X vertexing, no BMuMu2X vertexing)!" << std::endl
-                        << "  m = " << trigPartXMuMu->mass() << endreq;
-                }// end if(!doBMuMu2XVertexing), !do2XVertexing
-                
-            } // end if(!do2XVertexing)
-            
-        } // end if XMuMu mass cut
-    } // end if X mass cut
-    
-    return trigPartXMuMu;
-    
-}
+// /*----------------------------------------------------------------------------*/
+// TrigEFBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const Trk::Track* mu1, const Trk::Track* mu2, const Trk::Track* track1, const Trk::Track* track2, double xPhiMass, const Trk::Track* track3, TrigEFBphys* & trigPartX)
+// {
+//     TrigEFBphys* trigPartXMuMu(0);
+//     
+//     m_countPassedPhiDsMass++;
+//     
+//     ATH_MSG(DEBUG) << "Try to build " << "D_s" << " with tracks " << track1 << ", " << track2 << ", " << track3 << endreq;
+//     
+//     float massX = X3Mass(track1, track2, track3);
+//     if( !(massX > m_lowerDs_MassCut && massX < m_upperDs_MassCut) ) {
+//         ATH_MSG(DEBUG) << " " << "D_s" << " candidate rejected by the mass cut: m = " << massX << endreq;
+//     } else {
+//         m_countPassedDsMass++;
+//         
+//         float massXMuMu = X3MuMuMass(mu1, mu2, track1, track2, track3);
+//         if( !(massXMuMu > m_lowerBc_DsMuMuMassCut && massXMuMu < m_upperBc_DsMuMuMassCut) ) {
+//             ATH_MSG(DEBUG) << " " << "B_c" << " candidate rejected by the mass cut: m = " << massXMuMu << endreq;
+//         } else {
+//             m_countPassedBcMass++;
+//             
+//             if(m_doDs_Vertexing) {
+//                 // Try to fit X -> track1 track2 track3 vertex
+//                 if ( timerSvc() ) m_VtxFitTimer->resume();
+//                 Amg::Vector3D vtx ( 0.,0.,0. );
+//                 Trk::Vertex vertex ( vtx );
+//                 std::vector<const Trk::Track*> trackTroika;
+//                 trackTroika.push_back(track1);
+//                 trackTroika.push_back(track2);
+//                 trackTroika.push_back(track3);
+//                 Trk::VxCandidate * XVxCandidate ( 0 );
+//                 XVxCandidate = m_fitterSvc->fit(trackTroika,vertex);
+//                 if ( timerSvc() ) m_VtxFitTimer->pause();
+//                 
+//                 if( !XVxCandidate ) {
+//                     ATH_MSG(DEBUG) << " Failed to fit X vertex for " << "D_s" << endreq;
+//                     // mon_Errors.push_back(ERROR_XVtxFit_Fails);
+//                 } else {
+//                     m_countPassedDsVtx++;
+//                     
+//                     float chi2X = XVxCandidate->recVertex().fitQuality().chiSquared();
+//                     if( !(chi2X < m_DsVtxChi2Cut) ) {
+//                         ATH_MSG(DEBUG) << " " << "D_s" << " candidate rejected by X vertex chi2 cut: chi2 = " << chi2X << endreq;
+//                     } else {
+//                         m_countPassedDsVtxChi2++;
+//                         
+//                         // calculate X mass from vertexing
+//                         double vtxMassX(-1.), vtxMassErrorX(-1.);
+//                         std::vector<int> trkIndicesX;
+//                         for (int i=0;i<(int)trackTroika.size();++i) {trkIndicesX.push_back(1);}
+//                         if( !(m_VKVFitter->VKalGetMassError(trkIndicesX,vtxMassX,vtxMassErrorX).isSuccess()) ) {
+//                             ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for X in " << "D_s" << "!" << endreq;
+//                             mon_Errors.push_back(ERROR_XVtxMass_Fails);
+//                         }
+//                         
+//                         if(m_doBc_DsMuMuVertexing) {
+//                             // Try to fit XMuMu -> mu mu X vertex
+//                             if ( timerSvc() ) m_VtxFitTimer->resume();
+//                             std::vector<const Trk::Track*> quintet;
+//                             quintet.push_back(mu1);
+//                             quintet.push_back(mu2);
+//                             quintet.push_back(track1);
+//                             quintet.push_back(track2);
+//                             quintet.push_back(track3);
+//                             Trk::VxCandidate * XMuMuVxCandidate ( 0 );
+//                             XMuMuVxCandidate = m_fitterSvc->fit(quintet,vertex);
+//                             if ( timerSvc() ) m_VtxFitTimer->pause();
+//                             
+//                             if( !XMuMuVxCandidate ) {
+//                                 ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << "B_c" << endreq;
+//                                 // mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
+//                             } else {
+//                                 m_countPassedBcVtx++;
+//                                 
+//                                 float chi2XMuMu = XMuMuVxCandidate->recVertex().fitQuality().chiSquared();
+//                                 if( !(chi2XMuMu < m_bCVtxChi2Cut) ) {
+//                                     ATH_MSG(DEBUG) << " " << "B_c" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endreq;
+//                                 } else {
+//                                     m_countPassedBcVtxChi2++;
+//                                     
+//                                     //                  trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, xPhiMass);
+//                                     trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::DSPHIPI, massX);
+//                                     trigPartX->fitchi2(XVxCandidate->recVertex().fitQuality().chiSquared());
+//                                     //                   trigPartX->fitmass(vtxMassX);
+//                                     trigPartX->fitx(XVxCandidate->recVertex().position() [0]);
+//                                     trigPartX->fity(XVxCandidate->recVertex().position() [1]);
+//                                     trigPartX->fitz(XVxCandidate->recVertex().position() [2]);
+//                                     
+//                                     trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BCDSMUMU, massXMuMu);
+//                                     trigPartXMuMu->fitchi2(XMuMuVxCandidate->recVertex().fitQuality().chiSquared());
+//                                     //                   trigPartXMuMu->fitmass(vtxMassXMuMu);
+//                                     trigPartXMuMu->fitx(XMuMuVxCandidate->recVertex().position() [0]);
+//                                     trigPartXMuMu->fity(XMuMuVxCandidate->recVertex().position() [1]);
+//                                     trigPartXMuMu->fitz(XMuMuVxCandidate->recVertex().position() [2]);
+//                                     
+//                                     // Fill BMuMu2X monitoring containers
+//                                     mon_BcMuMuDs_Pt_K1.push_back(track1->perigeeParameters()->pT()/1000.);
+//                                     mon_BcMuMuDs_Eta_K1.push_back(track1->perigeeParameters()->eta());
+//                                     mon_BcMuMuDs_Phi_K1.push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
+//                                     mon_BcMuMuDs_Pt_K2.push_back(track2->perigeeParameters()->pT()/1000.);
+//                                     mon_BcMuMuDs_Eta_K2.push_back(track2->perigeeParameters()->eta());
+//                                     mon_BcMuMuDs_Phi_K2.push_back(track2->perigeeParameters()->parameters()[Trk::phi0]);
+//                                     mon_BcMuMuDs_Pt_pi.push_back(track3->perigeeParameters()->pT()/1000.);
+//                                     mon_BcMuMuDs_Eta_pi.push_back(track3->perigeeParameters()->eta());
+//                                     mon_BcMuMuDs_Phi_pi.push_back(track3->perigeeParameters()->parameters()[Trk::phi0]);
+//                                     mon_BcMuMuDs_InvMass_PhiDs.push_back(xPhiMass/1000.);
+//                                     mon_BcMuMuDs_InvMass_Ds.push_back(massX/1000.);
+//                                     //                   mon_BcMuMuDs_VtxMass_Ds.push_back(vtxMassX/1000.);
+//                                     mon_BcMuMuDs_Chi2_Ds.push_back(chi2X);
+//                                     mon_BcMuMuDs_InvMass_Bc.push_back(massXMuMu/1000.);
+//                                     //                   mon_BcMuMuDs_VtxMass_Bc.push_back(vtxMassXMuMu/1000.);
+//                                     mon_BcMuMuDs_Chi2_Bc.push_back(chi2XMuMu);
+//                                     
+//                                     if(msgLvl() <= MSG::DEBUG)
+//                                         msg() << MSG::DEBUG << " Good " << "B_c" << " found!" << std::endl
+//                                         << "  m = " << trigPartXMuMu->mass() << ", "
+//                                         << "chi2 = " << trigPartXMuMu->fitchi2()
+//                                         << ", vertex ("
+//                                         << trigPartXMuMu->fitx() << ", "
+//                                         << trigPartXMuMu->fity() << ", "
+//                                         << trigPartXMuMu->fitz() << ")" << endreq;
+//                                 } // end XMuMu chi2 cut
+//                             } // end if(XMuMuVxCandidate)
+//                             delete XMuMuVxCandidate;
+//                         } // end if(doBMuMu2XVertexing), do2XVertexing
+//                         else {
+//                             //              trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, xPhiMass);
+//                             trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::DSPHIPI, massX);
+//                             trigPartX->fitchi2(XVxCandidate->recVertex().fitQuality().chiSquared());
+//                             //               trigPartX->fitmass(vtxMassX);
+//                             trigPartX->fitx(XVxCandidate->recVertex().position() [0]);
+//                             trigPartX->fity(XVxCandidate->recVertex().position() [1]);
+//                             trigPartX->fitz(XVxCandidate->recVertex().position() [2]);
+//                             
+//                             //               trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BCDSMUMU, massXMuMu);
+//                             trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BCDSMUMU, massXMuMu);
+//                             //               trigPartXMuMu->fitchi2(XMuMuVxCandidate->recVertex().fitQuality().chiSquared());
+//                             //               trigPartXMuMu->fitmass(vtxMassXMuMu);
+//                             //               trigPartXMuMu->fitx(XMuMuVxCandidate->recVertex().position() [0]);
+//                             //               trigPartXMuMu->fity(XMuMuVxCandidate->recVertex().position() [1]);
+//                             //               trigPartXMuMu->fitz(XMuMuVxCandidate->recVertex().position() [2]);
+//                             
+//                             // Fill BMuMu2X monitoring containers
+//                             mon_BcMuMuDs_Pt_K1.push_back(track1->perigeeParameters()->pT()/1000.);
+//                             mon_BcMuMuDs_Eta_K1.push_back(track1->perigeeParameters()->eta());
+//                             mon_BcMuMuDs_Phi_K1.push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
+//                             mon_BcMuMuDs_Pt_K2.push_back(track2->perigeeParameters()->pT()/1000.);
+//                             mon_BcMuMuDs_Eta_K2.push_back(track2->perigeeParameters()->eta());
+//                             mon_BcMuMuDs_Phi_K2.push_back(track2->perigeeParameters()->parameters()[Trk::phi0]);
+//                             mon_BcMuMuDs_Pt_pi.push_back(track3->perigeeParameters()->pT()/1000.);
+//                             mon_BcMuMuDs_Eta_pi.push_back(track3->perigeeParameters()->eta());
+//                             mon_BcMuMuDs_Phi_pi.push_back(track3->perigeeParameters()->parameters()[Trk::phi0]);
+//                             mon_BcMuMuDs_InvMass_PhiDs.push_back(xPhiMass/1000.);
+//                             mon_BcMuMuDs_InvMass_Ds.push_back(massX/1000.);
+//                             //               mon_BcMuMuDs_VtxMass_Ds.push_back(vtxMassX/1000.);
+//                             mon_BcMuMuDs_Chi2_Ds.push_back(chi2X);
+//                             mon_BcMuMuDs_InvMass_Bc.push_back(massXMuMu/1000.);
+//                             //               mon_BcMuMuDs_VtxMass_Bc.push_back(vtxMassXMuMu/1000.);
+//                             //               mon_BcMuMuDs_Chi2_Bc.push_back(chi2XMuMu);
+//                             
+//                             if(msgLvl() <= MSG::DEBUG) 
+//                                 msg() << MSG::DEBUG << " Good " << "B_c" << " found (no BMuMu2X vertexing)!" << std::endl
+//                                 << "  m = " << trigPartXMuMu->mass() << endreq;
+//                         } // end if(!doBMuMu2XVertexing), do2XVertexing
+//                         
+//                     } // end X chi2 cut
+//                 } // end if(XVxCandidate)
+//                 delete XVxCandidate;
+//             } // end if(do2XVertexing)
+//             else {
+//                 if(m_doBc_DsMuMuVertexing) { // !do2XVertexing, STUPID CONFIGURATION
+//                     // Try to fit XMuMu -> mu mu X vertex
+//                     Amg::Vector3D vtx ( 0.,0.,0. );
+//                     Trk::Vertex vertex ( vtx );
+//                     if ( timerSvc() ) m_VtxFitTimer->resume();
+//                     std::vector<const Trk::Track*> quintet;
+//                     quintet.push_back(mu1);
+//                     quintet.push_back(mu2);
+//                     quintet.push_back(track1);
+//                     quintet.push_back(track2);
+//                     quintet.push_back(track3);
+//                     Trk::VxCandidate * XMuMuVxCandidate ( 0 );
+//                     XMuMuVxCandidate = m_fitterSvc->fit(quintet,vertex);
+//                     if ( timerSvc() ) m_VtxFitTimer->pause();
+//                     
+//                     if( !XMuMuVxCandidate ) {
+//                         ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << "B_c" << endreq;
+//                         // mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
+//                     } else {
+//                         m_countPassedBcVtx++;
+//                         
+//                         float chi2XMuMu = XMuMuVxCandidate->recVertex().fitQuality().chiSquared();
+//                         if( !(chi2XMuMu < m_bCVtxChi2Cut) ) {
+//                             ATH_MSG(DEBUG) << " " << "B_c" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endreq;
+//                         } else {
+//                             m_countPassedBcVtxChi2++;
+//                             
+//                             //               // calculate XMuMu mass from vertexing
+//                             //               double vtxMassXMuMu(-1.), vtxMassErrorXMuMu(-1.);
+//                             //               std::vector<int> trkIndicesXMuMu;
+//                             //               for (int i=0;i<(int)quartet.size();++i) {trkIndicesXMuMu.push_back(1);} 
+//                             //               if( !(m_VKVFitter->VKalGetMassError(trkIndicesXMuMu,vtxMassXMuMu,vtxMassErrorXMuMu).isSuccess()) ) {
+//                             //                 ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for XMuMu in " << decayName << "!" << endreq;
+//                             //                 mon_Errors.push_back(ERROR_XMuMuVtxMass_Fails);
+//                             //               }
+//                             
+//                             //              trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, xPhiMass);
+//                             trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::DSPHIPI, massX);
+//                             
+//                             //               trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BMUMUX, massXMuMu);
+//                             trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BCDSMUMU, massXMuMu);
+//                             trigPartXMuMu->fitchi2(XMuMuVxCandidate->recVertex().fitQuality().chiSquared());
+//                             //               trigPartXMuMu->fitmass(vtxMassXMuMu);
+//                             trigPartXMuMu->fitx(XMuMuVxCandidate->recVertex().position() [0]);
+//                             trigPartXMuMu->fity(XMuMuVxCandidate->recVertex().position() [1]);
+//                             trigPartXMuMu->fitz(XMuMuVxCandidate->recVertex().position() [2]);
+//                             
+//                             // Fill BMuMu2X monitoring containers
+//                             mon_BcMuMuDs_Pt_K1.push_back(track1->perigeeParameters()->pT()/1000.);
+//                             mon_BcMuMuDs_Eta_K1.push_back(track1->perigeeParameters()->eta());
+//                             mon_BcMuMuDs_Phi_K1.push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
+//                             mon_BcMuMuDs_Pt_K2.push_back(track2->perigeeParameters()->pT()/1000.);
+//                             mon_BcMuMuDs_Eta_K2.push_back(track2->perigeeParameters()->eta());
+//                             mon_BcMuMuDs_Phi_K2.push_back(track2->perigeeParameters()->parameters()[Trk::phi0]);
+//                             mon_BcMuMuDs_Pt_pi.push_back(track3->perigeeParameters()->pT()/1000.);
+//                             mon_BcMuMuDs_Eta_pi.push_back(track3->perigeeParameters()->eta());
+//                             mon_BcMuMuDs_Phi_pi.push_back(track3->perigeeParameters()->parameters()[Trk::phi0]);
+//                             mon_BcMuMuDs_InvMass_PhiDs.push_back(xPhiMass/1000.);
+//                             mon_BcMuMuDs_InvMass_Ds.push_back(massX/1000.);
+//                             //               mon_BcMuMuDs_VtxMass_Ds.push_back(vtxMassX/1000.);
+//                             //               mon_BcMuMuDs_Chi2_Ds.push_back(chi2X);
+//                             mon_BcMuMuDs_InvMass_Bc.push_back(massXMuMu/1000.);
+//                             //               mon_BcMuMuDs_VtxMass_Bc.push_back(vtxMassXMuMu/1000.);
+//                             mon_BcMuMuDs_Chi2_Bc.push_back(chi2XMuMu);
+//                             
+//                             if(msgLvl() <= MSG::DEBUG) 
+//                                 msg() << MSG::DEBUG << " Good " << "B_c" << " found (no 2X vertexing)!" << std::endl
+//                                 << "  m = " << trigPartXMuMu->mass() << ", "
+//                                 << "chi2 = " << trigPartXMuMu->fitchi2() << ", vertex (" << trigPartXMuMu->fitx() << ", " 
+//                                 << trigPartXMuMu->fity() << ", " << trigPartXMuMu->fitz() << ")" << endreq;
+//                         } // end XMuMu chi2 cut
+//                     } // end if(XMuMuVxCandidate)
+//                     delete XMuMuVxCandidate;
+//                 } // end if(doBMuMu2XVertexing), !do2XVertexing
+//                 else {
+//                     //              trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, xPhiMass);
+//                     trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::DSPHIPI, massX);
+//                     
+//                     //           trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BMUMUX, massXMuMu);
+//                     trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BCDSMUMU, massXMuMu);
+//                     
+//                     // Fill BMuMu2X monitoring containers
+//                     mon_BcMuMuDs_Pt_K1.push_back(track1->perigeeParameters()->pT()/1000.);
+//                     mon_BcMuMuDs_Eta_K1.push_back(track1->perigeeParameters()->eta());
+//                     mon_BcMuMuDs_Phi_K1.push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
+//                     mon_BcMuMuDs_Pt_K2.push_back(track2->perigeeParameters()->pT()/1000.);
+//                     mon_BcMuMuDs_Eta_K2.push_back(track2->perigeeParameters()->eta());
+//                     mon_BcMuMuDs_Phi_K2.push_back(track2->perigeeParameters()->parameters()[Trk::phi0]);
+//                     mon_BcMuMuDs_Pt_pi.push_back(track3->perigeeParameters()->pT()/1000.);
+//                     mon_BcMuMuDs_Eta_pi.push_back(track3->perigeeParameters()->eta());
+//                     mon_BcMuMuDs_Phi_pi.push_back(track3->perigeeParameters()->parameters()[Trk::phi0]);
+//                     mon_BcMuMuDs_InvMass_PhiDs.push_back(xPhiMass/1000.);
+//                     mon_BcMuMuDs_InvMass_Ds.push_back(massX/1000.);
+//                     //           mon_BcMuMuDs_VtxMass_Ds.push_back(vtxMassX/1000.);
+//                     //           mon_BcMuMuDs_Chi2_Ds.push_back(chi2X);
+//                     mon_BcMuMuDs_InvMass_Bc.push_back(massXMuMu/1000.);
+//                     //           mon_BcMuMuDs_VtxMass_Bc.push_back(vtxMassXMuMu/1000.);
+//                     //           mon_BcMuMuDs_Chi2_Bc.push_back(chi2XMuMu);
+//                     
+//                     if(msgLvl() <= MSG::DEBUG) 
+//                         msg() << MSG::DEBUG << " Good " << "B_c" << " found (no 2X vertexing, no BMuMu2X vertexing)!" << std::endl
+//                         << "  m = " << trigPartXMuMu->mass() << endreq;
+//                 }// end if(!doBMuMu2XVertexing), !do2XVertexing
+//                 
+//             } // end if(!do2XVertexing)
+//             
+//         } // end if XMuMu mass cut
+//     } // end if X mass cut
+//     
+//     return trigPartXMuMu;
+//     
+// }
 
 
 
-/*----------------------------------------------------------------------------*/
-TrigEFBphys* TrigEFBMuMuXFex::checkBplusMuMuKplus(const Trk::Track* mu1, const Trk::Track* mu2, const Trk::Track* track1)
-{
-    TrigEFBphys* trigPartXMuMu(0);
-    
-    ATH_MSG(DEBUG) << "Try to build B+ -> mu mu K+ with track " << track1 << endreq;
-    
-    float massKMuMu = KMuMuMass(mu1,mu2,track1);
-    if( !(massKMuMu > m_lowerKMuMuMassCut && massKMuMu < m_upperKMuMuMassCut) ) {
-        ATH_MSG(DEBUG) << " B+ -> mu mu K+ candidate rejected by mass cut: m = " << massKMuMu << endreq;
-    } else {
-        m_countPassedBplusMass++;
-        
-        if(m_doB_KMuMuVertexing) {
-            // Try to fit B+ -> mu mu K+ vertex
-            if ( timerSvc() ) m_VtxFitTimer->resume();
-            Amg::Vector3D vtx ( 0.,0.,0. );
-            Trk::Vertex vertex ( vtx );
-            std::vector<const Trk::Track*> trio;
-            trio.push_back(mu1);
-            trio.push_back(mu2);
-            trio.push_back(track1);
-            Trk::VxCandidate * bPlusVxCandidate ( 0 );
-            bPlusVxCandidate = m_fitterSvc->fit(trio,vertex);
-            if ( timerSvc() ) m_VtxFitTimer->pause();
-            
-            if( !bPlusVxCandidate ) {
-                ATH_MSG(DEBUG) << " Failed to fit B+ -> mu mu K+ vertex" << endreq;
-                // mon_Errors.push_back(ERROR_BplusVtxFit_Fails);
-            } else {
-                m_countPassedBplusVtx++;
-                
-                float chi2KMuMu = bPlusVxCandidate->recVertex().fitQuality().chiSquared();
-                if( !(chi2KMuMu < m_bVtxChi2Cut) ) {
-                    ATH_MSG(DEBUG) << " B+ -> mu mu K+ candidate rejected by chi2 cut: chi2 = " << chi2KMuMu << endreq;
-                } else {
-                    m_countPassedBplusVtxChi2++;
-                    
-                    //           // calculate KMuMu mass from vertexing
-                    //           double vtxMassKMuMu(-1.), vtxMassErrorKMuMu(-1.);
-                    //           std::vector<int> trkIndices;
-                    //           for (int i=0;i<(int)trio.size();++i) {trkIndices.push_back(1);} 
-                    //           if( !(m_VKVFitter->VKalGetMassError(trkIndices,vtxMassKMuMu,vtxMassErrorKMuMu).isSuccess()) ) {
-                    //             ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for B+ -> mu mu K+!" << endreq;
-                    //             mon_Errors.push_back(ERROR_BplusVtxMass_Fails);
-                    //           }
-                    
-                    //           trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BMUMUX, massKMuMu);
-                    trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BKMUMU, massKMuMu);
-                    trigPartXMuMu->fitchi2(bPlusVxCandidate->recVertex().fitQuality().chiSquared());
-                    //           trigPartXMuMu->fitmass(vtxMassKMuMu);
-                    trigPartXMuMu->fitx(bPlusVxCandidate->recVertex().position() [0]);
-                    trigPartXMuMu->fity(bPlusVxCandidate->recVertex().position() [1]);
-                    trigPartXMuMu->fitz(bPlusVxCandidate->recVertex().position() [2]);
-                    
-                    // Fill BMuMuK monitoring containers
-                    mon_BMuMuK_Pt_K.push_back(track1->perigeeParameters()->pT()/1000.);
-                    mon_BMuMuK_Eta_K.push_back(track1->perigeeParameters()->eta());
-                    mon_BMuMuK_Phi_K.push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
-                    mon_BMuMuK_InvMass_B.push_back(massKMuMu/1000.);
-                    //           mon_BMuMuK_VtxMass_B.push_back(vtxMassKMuMu/1000.);
-                    mon_BMuMuK_Chi2_B.push_back(chi2KMuMu);
-                    
-                    if(msgLvl() <= MSG::DEBUG) 
-                        msg() << MSG::DEBUG << " Good B+ -> mu mu K+ found!" << std::endl
-                        << "  m = " << trigPartXMuMu->mass() << ", "
-                        << "chi2 = " << trigPartXMuMu->fitchi2() << ", vertex (" << trigPartXMuMu->fitx() << ", " 
-                        << trigPartXMuMu->fity() << ", " << trigPartXMuMu->fitz() << ")" << endreq;
-                } // end KMuMu chi2 cut
-            } // end if(bPlusVxCandidate)
-            delete bPlusVxCandidate;
-        }
-        else { // no vertexing
-            //       trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BMUMUX, massKMuMu);
-            trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BKMUMU, massKMuMu);
-            
-            // Fill BMuMuK monitoring containers
-            mon_BMuMuK_Pt_K.push_back(track1->perigeeParameters()->pT()/1000.);
-            mon_BMuMuK_Eta_K.push_back(track1->perigeeParameters()->eta());
-            mon_BMuMuK_Phi_K.push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
-            mon_BMuMuK_InvMass_B.push_back(massKMuMu/1000.);
-            //       mon_BMuMuK_VtxMass_B.push_back(vtxMassKMuMu/1000.);
-            //       mon_BMuMuK_Chi2_B.push_back(chi2KMuMu);
-            
-            if(msgLvl() <= MSG::DEBUG) 
-                msg() << MSG::DEBUG << " Good B+ -> mu mu K+ found (no vertexing)!" << std::endl
-                << "  m = " << trigPartXMuMu->mass() << endreq;
-        }
-        
-    } // end if KMuMu mass cut
-    
-    return trigPartXMuMu;
-}
+// /*----------------------------------------------------------------------------*/
+// TrigEFBphys* TrigEFBMuMuXFex::checkBplusMuMuKplus(const Trk::Track* mu1, const Trk::Track* mu2, const Trk::Track* track1)
+// {
+//     TrigEFBphys* trigPartXMuMu(0);
+//     
+//     ATH_MSG(DEBUG) << "Try to build B+ -> mu mu K+ with track " << track1 << endreq;
+//     
+//     float massKMuMu = KMuMuMass(mu1,mu2,track1);
+//     if( !(massKMuMu > m_lowerKMuMuMassCut && massKMuMu < m_upperKMuMuMassCut) ) {
+//         ATH_MSG(DEBUG) << " B+ -> mu mu K+ candidate rejected by mass cut: m = " << massKMuMu << endreq;
+//     } else {
+//         m_countPassedBplusMass++;
+//         
+//         if(m_doB_KMuMuVertexing) {
+//             // Try to fit B+ -> mu mu K+ vertex
+//             if ( timerSvc() ) m_VtxFitTimer->resume();
+//             Amg::Vector3D vtx ( 0.,0.,0. );
+//             Trk::Vertex vertex ( vtx );
+//             std::vector<const Trk::Track*> trio;
+//             trio.push_back(mu1);
+//             trio.push_back(mu2);
+//             trio.push_back(track1);
+//             Trk::VxCandidate * bPlusVxCandidate ( 0 );
+//             bPlusVxCandidate = m_fitterSvc->fit(trio,vertex);
+//             if ( timerSvc() ) m_VtxFitTimer->pause();
+//             
+//             if( !bPlusVxCandidate ) {
+//                 ATH_MSG(DEBUG) << " Failed to fit B+ -> mu mu K+ vertex" << endreq;
+//                 // mon_Errors.push_back(ERROR_BplusVtxFit_Fails);
+//             } else {
+//                 m_countPassedBplusVtx++;
+//                 
+//                 float chi2KMuMu = bPlusVxCandidate->recVertex().fitQuality().chiSquared();
+//                 if( !(chi2KMuMu < m_bVtxChi2Cut) ) {
+//                     ATH_MSG(DEBUG) << " B+ -> mu mu K+ candidate rejected by chi2 cut: chi2 = " << chi2KMuMu << endreq;
+//                 } else {
+//                     m_countPassedBplusVtxChi2++;
+//                     
+//                     //           // calculate KMuMu mass from vertexing
+//                     //           double vtxMassKMuMu(-1.), vtxMassErrorKMuMu(-1.);
+//                     //           std::vector<int> trkIndices;
+//                     //           for (int i=0;i<(int)trio.size();++i) {trkIndices.push_back(1);} 
+//                     //           if( !(m_VKVFitter->VKalGetMassError(trkIndices,vtxMassKMuMu,vtxMassErrorKMuMu).isSuccess()) ) {
+//                     //             ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for B+ -> mu mu K+!" << endreq;
+//                     //             mon_Errors.push_back(ERROR_BplusVtxMass_Fails);
+//                     //           }
+//                     
+//                     //           trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BMUMUX, massKMuMu);
+//                     trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BKMUMU, massKMuMu);
+//                     trigPartXMuMu->fitchi2(bPlusVxCandidate->recVertex().fitQuality().chiSquared());
+//                     //           trigPartXMuMu->fitmass(vtxMassKMuMu);
+//                     trigPartXMuMu->fitx(bPlusVxCandidate->recVertex().position() [0]);
+//                     trigPartXMuMu->fity(bPlusVxCandidate->recVertex().position() [1]);
+//                     trigPartXMuMu->fitz(bPlusVxCandidate->recVertex().position() [2]);
+//                     
+//                     // Fill BMuMuK monitoring containers
+//                     mon_BMuMuK_Pt_K.push_back(track1->perigeeParameters()->pT()/1000.);
+//                     mon_BMuMuK_Eta_K.push_back(track1->perigeeParameters()->eta());
+//                     mon_BMuMuK_Phi_K.push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
+//                     mon_BMuMuK_InvMass_B.push_back(massKMuMu/1000.);
+//                     //           mon_BMuMuK_VtxMass_B.push_back(vtxMassKMuMu/1000.);
+//                     mon_BMuMuK_Chi2_B.push_back(chi2KMuMu);
+//                     
+//                     if(msgLvl() <= MSG::DEBUG) 
+//                         msg() << MSG::DEBUG << " Good B+ -> mu mu K+ found!" << std::endl
+//                         << "  m = " << trigPartXMuMu->mass() << ", "
+//                         << "chi2 = " << trigPartXMuMu->fitchi2() << ", vertex (" << trigPartXMuMu->fitx() << ", " 
+//                         << trigPartXMuMu->fity() << ", " << trigPartXMuMu->fitz() << ")" << endreq;
+//                 } // end KMuMu chi2 cut
+//             } // end if(bPlusVxCandidate)
+//             delete bPlusVxCandidate;
+//         }
+//         else { // no vertexing
+//             //       trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BMUMUX, massKMuMu);
+//             trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BKMUMU, massKMuMu);
+//             
+//             // Fill BMuMuK monitoring containers
+//             mon_BMuMuK_Pt_K.push_back(track1->perigeeParameters()->pT()/1000.);
+//             mon_BMuMuK_Eta_K.push_back(track1->perigeeParameters()->eta());
+//             mon_BMuMuK_Phi_K.push_back(track1->perigeeParameters()->parameters()[Trk::phi0]);
+//             mon_BMuMuK_InvMass_B.push_back(massKMuMu/1000.);
+//             //       mon_BMuMuK_VtxMass_B.push_back(vtxMassKMuMu/1000.);
+//             //       mon_BMuMuK_Chi2_B.push_back(chi2KMuMu);
+//             
+//             if(msgLvl() <= MSG::DEBUG) 
+//                 msg() << MSG::DEBUG << " Good B+ -> mu mu K+ found (no vertexing)!" << std::endl
+//                 << "  m = " << trigPartXMuMu->mass() << endreq;
+//         }
+//         
+//     } // end if KMuMu mass cut
+//     
+//     return trigPartXMuMu;
+// }
 
 
 xAOD::TrigBphys* TrigEFBMuMuXFex::checkBplusMuMuKplus(const ElementLink<xAOD::TrackParticleContainer> & eltrack1,
@@ -3772,116 +3772,116 @@ double TrigEFBMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 
 
 
-/*----------------------------------------------------------------------------*/
-double TrigEFBMuMuXFex::XMass(const Trk::Track* particle1, const Trk::Track* particle2, int decay)
-{
-    std::vector<double> massHypo;
-    massHypo.clear();
-    if(decay == di_to_muons){
-        massHypo.push_back(MUMASS);
-        massHypo.push_back(MUMASS);
-    }
-    if(decay == bD_to_Kstar){  
-        massHypo.push_back(KPLUSMASS);
-        massHypo.push_back(PIMASS);
-    }
-    if(decay == bS_to_Phi){  
-        massHypo.push_back(KPLUSMASS);
-        massHypo.push_back(KPLUSMASS);    
-    }
-    if(decay == lB_to_L){  
-        massHypo.push_back(PROTONMASS);
-        massHypo.push_back(PIMASS);    
-    }
-    std::vector<const Trk::Track*> bTracks;
-    bTracks.clear();
-    bTracks.push_back(particle1);
-    bTracks.push_back(particle2);
-    return InvMass(bTracks, massHypo);                                            
-}
+// /*----------------------------------------------------------------------------*/
+// double TrigEFBMuMuXFex::XMass(const Trk::Track* particle1, const Trk::Track* particle2, int decay)
+// {
+//     std::vector<double> massHypo;
+//     massHypo.clear();
+//     if(decay == di_to_muons){
+//         massHypo.push_back(MUMASS);
+//         massHypo.push_back(MUMASS);
+//     }
+//     if(decay == bD_to_Kstar){  
+//         massHypo.push_back(KPLUSMASS);
+//         massHypo.push_back(PIMASS);
+//     }
+//     if(decay == bS_to_Phi){  
+//         massHypo.push_back(KPLUSMASS);
+//         massHypo.push_back(KPLUSMASS);    
+//     }
+//     if(decay == lB_to_L){  
+//         massHypo.push_back(PROTONMASS);
+//         massHypo.push_back(PIMASS);    
+//     }
+//     std::vector<const Trk::Track*> bTracks;
+//     bTracks.clear();
+//     bTracks.push_back(particle1);
+//     bTracks.push_back(particle2);
+//     return InvMass(bTracks, massHypo);                                            
+// }
 
 
-/*----------------------------------------------------------------------------*/
-double TrigEFBMuMuXFex::X3Mass(const Trk::Track* particle1, const Trk::Track* particle2, const Trk::Track* particle3)
-{
-    std::vector<double> massHypo;
-    massHypo.clear();
-    massHypo.push_back(KPLUSMASS);
-    massHypo.push_back(KPLUSMASS);    
-    massHypo.push_back(PIMASS);    
-    std::vector<const Trk::Track*> bTracks;
-    bTracks.clear();
-    bTracks.push_back(particle1);
-    bTracks.push_back(particle2);
-    bTracks.push_back(particle3);
-    return InvMass(bTracks, massHypo);                                            
-}
+// /*----------------------------------------------------------------------------*/
+// double TrigEFBMuMuXFex::X3Mass(const Trk::Track* particle1, const Trk::Track* particle2, const Trk::Track* particle3)
+// {
+//     std::vector<double> massHypo;
+//     massHypo.clear();
+//     massHypo.push_back(KPLUSMASS);
+//     massHypo.push_back(KPLUSMASS);    
+//     massHypo.push_back(PIMASS);    
+//     std::vector<const Trk::Track*> bTracks;
+//     bTracks.clear();
+//     bTracks.push_back(particle1);
+//     bTracks.push_back(particle2);
+//     bTracks.push_back(particle3);
+//     return InvMass(bTracks, massHypo);                                            
+// }
 
 
-/*----------------------------------------------------------------------------*/
-double TrigEFBMuMuXFex::KMuMuMass(const Trk::Track* mu1, const Trk::Track* mu2,
-                                       const Trk::Track* kaon)
-{
-    std::vector<double> massHypo;
-    massHypo.clear();
-    massHypo.push_back(MUMASS);
-    massHypo.push_back(MUMASS);
-    massHypo.push_back(KPLUSMASS);  //K
-    std::vector<const Trk::Track*> bTracks;
-    bTracks.clear();
-    bTracks.push_back(mu1);
-    bTracks.push_back(mu2);
-    bTracks.push_back(kaon);
-    return InvMass(bTracks, massHypo);                                            
-}
+// /*----------------------------------------------------------------------------*/
+// double TrigEFBMuMuXFex::KMuMuMass(const Trk::Track* mu1, const Trk::Track* mu2,
+//                                        const Trk::Track* kaon)
+// {
+//     std::vector<double> massHypo;
+//     massHypo.clear();
+//     massHypo.push_back(MUMASS);
+//     massHypo.push_back(MUMASS);
+//     massHypo.push_back(KPLUSMASS);  //K
+//     std::vector<const Trk::Track*> bTracks;
+//     bTracks.clear();
+//     bTracks.push_back(mu1);
+//     bTracks.push_back(mu2);
+//     bTracks.push_back(kaon);
+//     return InvMass(bTracks, massHypo);                                            
+// }
+// 
+// 
+// /*----------------------------------------------------------------------------*/
+// double TrigEFBMuMuXFex::XMuMuMass(const Trk::Track* mu1, const Trk::Track* mu2,
+//                                        const Trk::Track* particle1, const Trk::Track* particle2, int decay)
+// {
+//     std::vector<double> massHypo;
+//     massHypo.clear();
+//     massHypo.push_back(MUMASS);
+//     massHypo.push_back(MUMASS);
+//     if(decay == bD_to_Kstar){  
+//         massHypo.push_back(KPLUSMASS);
+//         massHypo.push_back(PIMASS);
+//     }
+//     if(decay == bS_to_Phi){  
+//         massHypo.push_back(KPLUSMASS);
+//         massHypo.push_back(KPLUSMASS);
+//     }
+//     if(decay == lB_to_L){  
+//         massHypo.push_back(PROTONMASS);
+//         massHypo.push_back(PIMASS);    
+//     }  
+//     std::vector<const Trk::Track*> bTracks;
+//     bTracks.clear();
+//     bTracks.push_back(mu1);
+//     bTracks.push_back(mu2);
+//     bTracks.push_back(particle1);
+//     bTracks.push_back(particle2);  
+//     return InvMass(bTracks, massHypo);
+// }
 
-
-/*----------------------------------------------------------------------------*/
-double TrigEFBMuMuXFex::XMuMuMass(const Trk::Track* mu1, const Trk::Track* mu2,
-                                       const Trk::Track* particle1, const Trk::Track* particle2, int decay)
-{
-    std::vector<double> massHypo;
-    massHypo.clear();
-    massHypo.push_back(MUMASS);
-    massHypo.push_back(MUMASS);
-    if(decay == bD_to_Kstar){  
-        massHypo.push_back(KPLUSMASS);
-        massHypo.push_back(PIMASS);
-    }
-    if(decay == bS_to_Phi){  
-        massHypo.push_back(KPLUSMASS);
-        massHypo.push_back(KPLUSMASS);
-    }
-    if(decay == lB_to_L){  
-        massHypo.push_back(PROTONMASS);
-        massHypo.push_back(PIMASS);    
-    }  
-    std::vector<const Trk::Track*> bTracks;
-    bTracks.clear();
-    bTracks.push_back(mu1);
-    bTracks.push_back(mu2);
-    bTracks.push_back(particle1);
-    bTracks.push_back(particle2);  
-    return InvMass(bTracks, massHypo);
-}
-
-/*----------------------------------------------------------------------------*/
-double TrigEFBMuMuXFex::X3MuMuMass(const Trk::Track* mu1, const Trk::Track* mu2,
-                                        const Trk::Track* particle1, const Trk::Track* particle2, const Trk::Track* particle3)
-{
-    std::vector<double> massHypo;
-    massHypo.clear();
-    massHypo.push_back(MUMASS);
-    massHypo.push_back(MUMASS);
-    massHypo.push_back(KPLUSMASS);
-    massHypo.push_back(KPLUSMASS);
-    massHypo.push_back(PIMASS);    
-    std::vector<const Trk::Track*> bTracks;
-    bTracks.clear();
-    bTracks.push_back(mu1);
-    bTracks.push_back(mu2);
-    bTracks.push_back(particle1);
-    bTracks.push_back(particle2);  
-    bTracks.push_back(particle3);  
-    return InvMass(bTracks, massHypo);
-}
+// /*----------------------------------------------------------------------------*/
+// double TrigEFBMuMuXFex::X3MuMuMass(const Trk::Track* mu1, const Trk::Track* mu2,
+//                                         const Trk::Track* particle1, const Trk::Track* particle2, const Trk::Track* particle3)
+// {
+//     std::vector<double> massHypo;
+//     massHypo.clear();
+//     massHypo.push_back(MUMASS);
+//     massHypo.push_back(MUMASS);
+//     massHypo.push_back(KPLUSMASS);
+//     massHypo.push_back(KPLUSMASS);
+//     massHypo.push_back(PIMASS);    
+//     std::vector<const Trk::Track*> bTracks;
+//     bTracks.clear();
+//     bTracks.push_back(mu1);
+//     bTracks.push_back(mu2);
+//     bTracks.push_back(particle1);
+//     bTracks.push_back(particle2);  
+//     bTracks.push_back(particle3);  
+//     return InvMass(bTracks, massHypo);
+// }
