@@ -44,6 +44,8 @@ TrigCostTool::TrigCostTool(const std::string& type,
   :AthAlgTool(type, name, parent),
    m_appId(0),
    m_appName(), 
+   m_configReductionValue(0),
+   m_doConfigReduction(0),
    m_parentAlg(0),
    m_timer(0),
    m_timerSvc("TrigTimerSvc/TrigTimerSvc", name),
@@ -94,6 +96,9 @@ TrigCostTool::TrigCostTool(const std::string& type,
   declareProperty("writeConfigDB",    m_writeConfigDB    = false);  
   declareProperty("onlySaveCostEvent",m_onlySaveCostEvent= true, "Only save events which have passed the OPI prescale which run all scale tools");
   declareProperty("obeyCostChainPS",  m_obeyCostChainPS  = true, "Only monitor events if the cost chain prescale is > 0");
+
+  declareProperty("configReductionValue", m_configReductionValue = 50, "Random chance, 1/Value, that this PU gets chosen to write out configs to T0.");
+  declareProperty("doConfigReduction", m_doConfigReduction = false, "Reduce duplicate configs being sent by every PU online. Only send from 1/configReuctionValue PUs.");
 
   declareProperty("stopAfterNEvent",  m_stopAfterNEvent  = 1000);
   declareProperty("execPrescale",     m_execPrescale     = 1.0);
@@ -201,6 +206,8 @@ StatusCode TrigCostTool::initialize()
     }
   }
 
+  m_appId = m_configReductionValue;
+
   ATH_MSG_INFO("level            = " << m_level            );
   ATH_MSG_INFO("monitoringLogic  = " << m_monitoringLogic  );
   ATH_MSG_INFO("monitoringStream = " << m_monitoringStream );
@@ -219,6 +226,8 @@ StatusCode TrigCostTool::initialize()
   ATH_MSG_INFO("doOperationalInfo= " << m_doOperationalInfo);
   ATH_MSG_INFO("printEvent       = " << m_printEvent       );
   ATH_MSG_INFO("obeyCostChainPS  = " << m_obeyCostChainPS  );
+  ATH_MSG_INFO("doConfigReduction= " << m_doConfigReduction);
+  ATH_MSG_INFO("configReducValue = " << m_configReductionValue);
 
   return StatusCode::SUCCESS;
 }
@@ -310,6 +319,25 @@ StatusCode TrigCostTool::fillHists()
   CHECK( IsMonitoringEvent(monitoringEvent) ); // Have I passed the CostMon chain and no other chains? (changes value of monitoringEvent)
 
   const unsigned opiLevel = m_parentAlg->getAlgoConfig()->getSteeringOPILevel(); // Have I passed the OPI "prescale"?
+
+  // Get My PU name
+  if (m_appId == m_configReductionValue) {
+    const HLT::HLTResult *hlt_result = 0;
+    if(!evtStore()->contains<HLT::HLTResult>(m_hltResult)) {
+      ATH_MSG_DEBUG("StoreGate does not contain HLTResult: " << m_hltResult);
+    } else if(evtStore()->retrieve<HLT::HLTResult>(hlt_result, m_hltResult).isFailure() || !hlt_result) {
+       ATH_MSG_DEBUG("Failed to retrieve HLTResult: " << m_hltResult);
+    } else {
+      const std::vector<uint32_t> &extraData = hlt_result->getExtras();
+      if(extraData.empty()) {
+        ATH_MSG_DEBUG("Extra data is empty");
+      } else {
+        StringSerializer().deserialize(extraData, m_appName); 
+        m_appId = TrigConf::HLTUtils::string2hash(m_appName, "APP_ID_TCT");
+        ATH_MSG_DEBUG("Running on " << m_appName << " with hash " << m_appId);
+      }
+    }
+  }
 
   // Have I passed my own personal "prescale" (not this is currently not used)
   bool _prescaleDecision = true;
@@ -411,6 +439,16 @@ StatusCode TrigCostTool::fillHists()
       ATH_MSG_WARNING("Failed to get HLT::Navigation pointer. Cannot save this cost event!");
       return StatusCode::SUCCESS;
     }    
+
+    // See if this PU is writing CONFIG data
+    if (m_doConfigReduction == true) {
+      if (m_appId % m_configReductionValue != 0) {
+        m_bufferConfig.clear();
+        ATH_MSG_DEBUG( "This PU, " << m_appName << ", hash " << m_appId << " is not divisible by " << m_configReductionValue << " NOT writing");
+      } else {
+        ATH_MSG_DEBUG( "This PU, " << m_appName << ", hash " << m_appId << " is divisible by " << m_configReductionValue << " writing config");
+      }
+    }
 
     if(!m_bufferConfig.empty()) {
 
@@ -614,7 +652,14 @@ void TrigCostTool::ProcessConfig(xAOD::EventInfo* info)
         }
       }
 
-      if(m_writeConfig || (m_writeAlways && m_level == "EF") || (m_writeAlways && m_level == "HLT")) {
+      bool writeConfig = true;
+      if      (m_writeAlways == true) writeConfig = true; // First check WriteAlways flag
+      else if (m_writeConfig == false) writeConfig = false; // Next comes WriteConfig flag. This is normally true.
+      else if (m_costForCAF == true) writeConfig = true; // If offline, then we don't have any other preconditions
+      else if (m_obeyCostChainPS == true && m_costChainPS > 0) writeConfig = true; // Online, we normally only write out if we are in stable beams
+      else if (m_obeyCostChainPS == true && m_costChainPS <= 0) writeConfig = false;
+      
+      if(writeConfig) {
         m_bufferConfig.push_back(new TrigMonConfig(m_config_sv));
         ATH_MSG_DEBUG( "ProcessConfig - writing out full svc configuration" );
       }

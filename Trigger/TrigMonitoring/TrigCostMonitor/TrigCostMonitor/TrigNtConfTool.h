@@ -64,6 +64,8 @@ namespace Trig
     bool ReadFromDB(TrigMonConfig &confg, unsigned run, unsigned lumi);
     bool ReadKeysDB(unsigned run);
 
+    uint32_t GetL1PSK(bool updateValue = false);
+
   private:
 
     typedef std::map<Trig::ConfigKeys, TrigMonConfig> ConfigMap;
@@ -101,6 +103,7 @@ namespace Trig
     ConfigMap                      m_configMap;   // Map: Trigger config keys -> TrigMonConfig
 
     unsigned                       m_dbOrConfSvcPass; // This should be set to 1 for ConfigService pass or 2 for DB pass 
+    unsigned                       m_currentL1PSK; // Cache current L1 PSK as read from CTP_RD0 online
   };
 }
 

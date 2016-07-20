@@ -41,6 +41,7 @@ find_package( COOL COMPONENTS CoolKernel CoolApplication )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
 find_package( tdaq-common )
+find_package( tdaq-common COMPONENTS CTPfragment )
 
 # tag NEEDS_CORAL_BASE was not recognized in automatic conversion in cmt2cmake
 
