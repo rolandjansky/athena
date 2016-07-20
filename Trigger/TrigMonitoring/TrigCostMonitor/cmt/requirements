@@ -48,6 +48,8 @@ use TrigConfL1Data           TrigConfL1Data-*           Trigger/TrigConfiguratio
 use TrigConfHLTData          TrigConfHLTData-*          Trigger/TrigConfiguration
 use TrigConfStorage          TrigConfStorage-*          Trigger/TrigConfiguration
 
+use CTPfragment              *
+
 use TrigDataAccessMonitoring TrigDataAccessMonitoring-* Trigger/TrigDataAccess
 use TrigInterfaces           TrigInterfaces-*           Trigger/TrigSteer
 use TrigNavigation           TrigNavigation-*           Trigger/TrigEvent
@@ -56,9 +58,11 @@ use TrigT1Interfaces	     TrigT1Interfaces-*         Trigger/TrigT1
 use TrigT1Result	         TrigT1Result-*             Trigger/TrigT1
 use TrigSerializeResult      TrigSerializeResult-*      Trigger/TrigDataAccess
 
+
 macro_append TrigCostMonitorLib_cppflags " `xml2-config --cflags`"
 macro_append TrigCostMonitorLib_use_linkopts " -L$(ROOTSYS)/lib -lXMLIO -lXMLParser"
 macro_append TrigCostMonitorLib_use_linkopts " -lxml2" slc4-gcc34 " /usr/lib/libxml2.so.2"
+macro_append TrigCostMonitorLib_use_linkopts " -lCTPfragment "
 
 apply_pattern lcgdict dict=TrigCostMonitor \
 	              selectionfile=selection.xml \
@@ -66,3 +70,7 @@ apply_pattern lcgdict dict=TrigCostMonitor \
 
 #macro cppdebugflags '$(cppdebugflags_s)'
 end_private
+
+# Following needs to be public
+macro_append TrigCostMonitorLib_use_linkopts " -lers -leformat -leformat_write "
+

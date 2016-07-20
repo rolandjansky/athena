@@ -65,6 +65,7 @@ def prepareCostTool(target):
     tool.saveEventTimers  = True
     tool.stopAfterNEvent  = 800
     tool.execPrescale     = 1.0
+    tool.doConfigReduction = True # Online, only send config info from 1/50 PU nodes to reduce wasted bandwidth (only 1 copy needed at T0) 
     
     tool.toolConf     = Trig__TrigNtConfTool('Conf'+target)
     tool.toolEBWeight = Trig__TrigNtEBWeightTool('Ebwt'+target)
@@ -293,93 +294,6 @@ def prepareCostRun(name, option = 'hlt'):
 
     log.info('Prepared TrigCostRun algorithm instance: '+run.getName())
     return run
-
-#----------------------------------------------------------------------
-# prepare TrigCostAlg configuration for running offline trigger
-#
-def prepareCostAlg(name, option, suffix):
-
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    if not hasattr(svcMgr, 'THistSvc'):
-        from GaudiSvc.GaudiSvcConf import THistSvc
-        svcMgr += THistSvc()
-
-    alg = TrigCostAlg(name)
-    log = logging.getLogger('prepareCostAlg')
-
-    conf_tool = Trig__TrigNtConfTool('CostConf_'+suffix)
-    post_tool = Trig__TrigNtPostTool('CostPost_'+suffix)    
-    vars_tool = Trig__TrigNtVarsTool('CostVars_'+suffix)
-
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    conf_tool.triggerMenuSetup = TriggerFlags.triggerMenuSetup.get_Value()
-    conf_tool.L1PrescaleSet    = TriggerFlags.L1PrescaleSet.get_Value()
-    conf_tool.HLTPrescaleSet   = TriggerFlags.HLTPrescaleSet.get_Value()
-
-    alg.mergeEvent      = True
-    alg.printEvent      = True
-    vars_tool.collectTD = False
-
-    #
-    # Add all tools except TrigNtSaveTool - these tools have to be last in tool sequence
-    #
-    alg.tools += [conf_tool, vars_tool, post_tool]
-
-    #
-    # Attempt to add additional tools
-    #
-    try:
-        from TrigCostAthena.TrigCostAthenaConfig import CostAthenaToolsList
-        
-        for atool in CostAthenaToolsList:
-            alg.tools += [ atool ]
-            log.info('Added TrigCostAthena tool: '+atool.name())
-    except:
-        log.info('TrigCostAthena extra tools are not available... continue without them')
-            
-    #
-    # Add TrigNtSaveTool tool(s) - last after all other tools
-    #
-    if option.count('cost'):
-        svcMgr.THistSvc.Output += ["TrigCostAL DATAFILE='TrigCostAL.root' OPT='RECREATE'"]
-
-        save_cost = Trig__TrigNtSaveTool('CostSave_full_'+suffix)
-        save_cost.streamConfig  = 'TrigCostAL'
-        save_cost.streamEvent   = 'TrigCostAL'
-        save_cost.writeFile     = False
-        save_cost.writeRateOnly = False
-        
-        alg.tools += [save_cost]
-        
-    if option.count('rate'):
-        svcMgr.THistSvc.Output += ["TrigRateAL DATAFILE='TrigRateAL.root' OPT='RECREATE'"]
-
-        save_rate = Trig__TrigNtSaveTool('CostSave_rate_'+suffix)
-        save_rate.streamConfig  = 'TrigRateAL'
-        save_rate.streamEvent   = 'TrigRateAL'
-        save_rate.writeFile     = False
-        save_rate.writeRateOnly = True
-
-        alg.tools += [save_rate]
-
-    return alg
-
-#----------------------------------------------------------------------
-# Configure full offline cost algorithm
-#
-def setupCostAlg(config = ''):
-
-    log = logging.getLogger('setupCostAlg')
-    
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSeq = AlgSequence()
-
-    if not hasattr(topSeq, 'TrigDecMaker'):
-        log.info('Setup TrigDecisionMaker...')
-        from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
-        trigDecWriter = WriteTrigDecision()
-            
-    topSeq += prepareCostAlg('TrigCostAlg_offline', 'cost rate', 'offline')
     
 #----------------------------------------------------------------------
 # prepare TrigCostAlg configuration for reading online LV1 and HLT results
