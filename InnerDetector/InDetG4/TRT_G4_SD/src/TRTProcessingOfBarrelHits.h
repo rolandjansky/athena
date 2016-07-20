@@ -28,31 +28,31 @@ private:
   int GetLayerID2(const int&, int&) const;
   void DeleteArrays();
 
-  int printMessages; //FIXME obsolete?
+  int m_printMessages; //FIXME obsolete?
 
-  int barrelIdentifier;
-  int testLocalCoordinatesOfHits;
+  int m_barrelIdentifier;
+  int m_testLocalCoordinatesOfHits;
 
-  int numberOfStrawLayersA;
-  int numberOfStrawLayersB;
-  int numberOfStrawLayersC;
+  int m_numberOfStrawLayersA;
+  int m_numberOfStrawLayersB;
+  int m_numberOfStrawLayersC;
 
-  int numberOfStrawsA;
-  int numberOfStrawsB;
-  int numberOfStrawsC;
+  int m_numberOfStrawsA;
+  int m_numberOfStrawsB;
+  int m_numberOfStrawsC;
 
-  int* integralDistributionOfStrawsA;
-  int* integralDistributionOfStrawsB;
-  int* integralDistributionOfStrawsC;
+  int* m_integralDistributionOfStrawsA;
+  int* m_integralDistributionOfStrawsB;
+  int* m_integralDistributionOfStrawsC;
 
-  int* strawIDToLayerIDA;
-  int* strawIDToLayerIDB;
-  int* strawIDToLayerIDC;
+  int* m_strawIDToLayerIDA;
+  int* m_strawIDToLayerIDB;
+  int* m_strawIDToLayerIDC;
 
-  TRTParameters* pParameters;
-  TRTSensitiveDetector* pSensitiveDetector;
+  TRTParameters* m_pParameters;
+  TRTSensitiveDetector* m_pSensitiveDetector;
 
-  int verboseLevel;
+  int m_verboseLevel;
 };
 
 #endif //TRT_G4_SD_TRTProcessingOfBarrelHits_hh

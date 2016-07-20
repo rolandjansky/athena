@@ -18,12 +18,12 @@ private:
   void DefineParameters() const;
   void PrintParameters() const;
 
-  int printMessages;
+  int m_printMessages; //FIXME not used
 
-  TRTParameters* pParameters;
-  TRTProcessingOfBarrelHits* pProcessingOfBarrelHits;
+  TRTParameters* m_pParameters;
+  TRTProcessingOfBarrelHits* m_pProcessingOfBarrelHits;
 
-  int verboseLevel;
+  int m_verboseLevel;
 };
 
 #endif //TRT_G4_SD_TRTParametersForBarrelHits_hh

@@ -19,14 +19,14 @@ TRTPrintingOfHits::TRTPrintingOfHits(): m_msg("TRTPrintingOfHits")
 {
   TRTParameters* pParameters = TRTParameters::GetPointer();
 
-  printMessages = pParameters->GetInteger("PrintMessages");
+  m_printMessages = pParameters->GetInteger("PrintMessages");
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTPrintingOfHits" << endreq;
 
-  mask = 0x0000001F;
-  shift = 5;
+  m_mask = 0x0000001F;
+  m_shift = 5;
 
-  pOutputFile = TRTOutputFile::GetPointer();
+  m_pOutputFile = TRTOutputFile::GetPointer();
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTPrintingOfHits done" << endreq;
 }
@@ -46,7 +46,7 @@ TRTPrintingOfHits::~TRTPrintingOfHits()
 void TRTPrintingOfHits::PrintUncompressedHit
 (TRTUncompressedHit* pUncompressedHit)
 {
-  std::ofstream& output = pOutputFile->GetReference();
+  std::ofstream& output = m_pOutputFile->GetReference();
 
   int hitID = pUncompressedHit->GetHitID();
   int trackID = pUncompressedHit->GetTrackID();
@@ -65,14 +65,14 @@ void TRTPrintingOfHits::PrintUncompressedHit
     {
       int trtID, ringID, moduleID, layerID, strawID;
 
-      strawID = hitID & mask;
-      hitID >>= shift;
-      layerID = hitID & mask;
-      hitID >>= shift;
-      moduleID = hitID & mask;
-      hitID >>= shift;
-      ringID = hitID & mask;
-      trtID = hitID >> shift;
+      strawID = hitID & m_mask;
+      hitID >>= m_shift;
+      layerID = hitID & m_mask;
+      hitID >>= m_shift;
+      moduleID = hitID & m_mask;
+      hitID >>= m_shift;
+      ringID = hitID & m_mask;
+      trtID = hitID >> m_shift;
 
       output << "Hit: trtID=" << trtID << "  ringID=" << ringID << "  moduleID="
              << moduleID << "  layerID=" << layerID << "  strawID=" << strawID;
@@ -81,14 +81,14 @@ void TRTPrintingOfHits::PrintUncompressedHit
     {
       int trtID, wheelID, planeID, sectorID, strawID;
 
-      strawID = hitID & mask;
-      hitID >>= shift;
-      planeID = hitID & mask;
-      hitID >>= shift;
-      sectorID = hitID & mask;
-      hitID >>= shift;
-      wheelID = hitID & mask;
-      trtID = hitID >> shift;
+      strawID = hitID & m_mask;
+      hitID >>= m_shift;
+      planeID = hitID & m_mask;
+      hitID >>= m_shift;
+      sectorID = hitID & m_mask;
+      hitID >>= m_shift;
+      wheelID = hitID & m_mask;
+      trtID = hitID >> m_shift;
 
       output << "Hit: trtID=" << trtID << "  wheelID=" << wheelID
              << "  planeID=" << planeID << "  sectorID=" << sectorID

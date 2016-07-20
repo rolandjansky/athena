@@ -29,33 +29,33 @@
 
 TRTProcessingOfEndCapHits::TRTProcessingOfEndCapHits
 (TRTSensitiveDetector* pSensitiveDet):
-  printMessages(0), //FIXME obsolete?
-  sectorsABC(0),
-  testLocalCoordinatesOfHits(0),
-  numberOfStrawsInPlanesAB(0),
-  numberOfStrawsInPlaneC(0),
-  numberOfWheelsAB(0),
-  numberOfStrawsInSectorsAB(0),
-  numberOfStrawsInSectorC(0),
-  initialStrawIDInSectorsAB(0),
-  initialStrawIDInSectorC(0),
-  numberOfStrawsInIDSectorsAB(0),
-  numberOfStrawsInIDSectorC(0),
-  pParameters(nullptr),
-  pSensitiveDetector(pSensitiveDet),
-  verboseLevel(pSensitiveDet->verboseLevel)
+  m_printMessages(0), //FIXME obsolete?
+  m_sectorsABC(0),
+  m_testLocalCoordinatesOfHits(0),
+  m_numberOfStrawsInPlanesAB(0),
+  m_numberOfStrawsInPlaneC(0),
+  m_numberOfWheelsAB(0),
+  m_numberOfStrawsInSectorsAB(0),
+  m_numberOfStrawsInSectorC(0),
+  m_initialStrawIDInSectorsAB(0),
+  m_initialStrawIDInSectorC(0),
+  m_numberOfStrawsInIDSectorsAB(0),
+  m_numberOfStrawsInIDSectorC(0),
+  m_pParameters(nullptr),
+  m_pSensitiveDetector(pSensitiveDet),
+  m_verboseLevel(pSensitiveDet->verboseLevel)
 {
-  pParameters = TRTParameters::GetPointer();
+  m_pParameters = TRTParameters::GetPointer();
 
-  printMessages = pParameters->GetInteger("PrintMessages"); //FIXME Obsolete?
+  m_printMessages = m_pParameters->GetInteger("PrintMessages"); //FIXME Obsolete?
 
-  if (verboseLevel>5) { G4cout << "##### Constructor TRTProcessingOfEndCapHits" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "##### Constructor TRTProcessingOfEndCapHits" << G4endl; }
 
-  Initialize();
+  this->Initialize();
 
-  pParameters = nullptr;
+  m_pParameters = nullptr;
 
-  if (verboseLevel>5) { G4cout << "##### Constructor TRTProcessingOfEndCapHits done" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "##### Constructor TRTProcessingOfEndCapHits done" << G4endl; }
 }
 
 
@@ -70,14 +70,14 @@ TRTProcessingOfEndCapHits::~TRTProcessingOfEndCapHits()
 
 void TRTProcessingOfEndCapHits::Initialize()
 {
-  if (verboseLevel>5) { G4cout << "######### Method TRTProcessingOfEndCapHits::Initialize" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "######### Method TRTProcessingOfEndCapHits::Initialize" << G4endl; }
 
-  sectorsABC = pParameters->GetInteger("SectorsABC");
+  m_sectorsABC = m_pParameters->GetInteger("SectorsABC");
 
-  testLocalCoordinatesOfHits =
-    pParameters->GetInteger("TestLocalCoordinatesOfHits");
+  m_testLocalCoordinatesOfHits =
+    m_pParameters->GetInteger("TestLocalCoordinatesOfHits");
 
-  if (verboseLevel>5) { G4cout << "######### Method TRTProcessingOfEndCapHits::Initialize done" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "######### Method TRTProcessingOfEndCapHits::Initialize done" << G4endl; }
 
 }
 
@@ -100,7 +100,7 @@ bool TRTProcessingOfEndCapHits::ProcessHit(G4Step* pStep)
 
   int sectorID = 0;
 
-  if (sectorsABC)
+  if (m_sectorsABC)
     sectorID = pTouchableHandle->GetReplicaNumber(depth++);
 
   int planeID = pTouchableHandle->GetReplicaNumber(depth++);
@@ -116,20 +116,20 @@ bool TRTProcessingOfEndCapHits::ProcessHit(G4Step* pStep)
   else
     endCapID = 1;
 
-  if (sectorsABC)
+  if (m_sectorsABC)
     {
-      if (wheelID < numberOfWheelsAB)
+      if (wheelID < m_numberOfWheelsAB)
         {
-          strawID += numberOfStrawsInSectorsAB * sectorID -
-            initialStrawIDInSectorsAB;
+          strawID += m_numberOfStrawsInSectorsAB * sectorID -
+            m_initialStrawIDInSectorsAB;
           if (strawID < 0)
-            strawID += numberOfStrawsInPlanesAB;
+            strawID += m_numberOfStrawsInPlanesAB;
         }
       else
         {
-          strawID += numberOfStrawsInSectorC * sectorID - initialStrawIDInSectorC;
+          strawID += m_numberOfStrawsInSectorC * sectorID - m_initialStrawIDInSectorC;
           if (strawID < 0)
-            strawID += numberOfStrawsInPlaneC;
+            strawID += m_numberOfStrawsInPlaneC;
         }
     }
 
@@ -152,16 +152,16 @@ bool TRTProcessingOfEndCapHits::ProcessHit(G4Step* pStep)
   double postStepZ = localPostStepPoint.z();
 
 
-  if (testLocalCoordinatesOfHits)
+  if (m_testLocalCoordinatesOfHits)
     {
       double preStepR = std::sqrt(preStepX * preStepX + preStepY * preStepY);
       double postStepR = std::sqrt(postStepX * postStepX + postStepY * postStepY);
 
       if (preStepR > 2.0000001 || postStepR > 2.0000001)
         {
-          G4int particleEncoding = pSensitiveDetector->m_particleEncoding;
-          G4double kineticEnergy = pSensitiveDetector->m_kineticEnergy;
-          G4double energyDeposit = pSensitiveDetector->m_energyDeposit;
+          G4int particleEncoding = m_pSensitiveDetector->m_particleEncoding;
+          G4double kineticEnergy = m_pSensitiveDetector->m_kineticEnergy;
+          G4double energyDeposit = m_pSensitiveDetector->m_energyDeposit;
 
           std::cout << "!!!!! End-caps. Error in local coordinates of hits!" << std::endl;
           std::cout << "  endCapID=" << endCapID << "  wheelID=" << wheelID
@@ -204,12 +204,12 @@ bool TRTProcessingOfEndCapHits::ProcessHit(G4Step* pStep)
   int numberOfStrawsInPlane;
   int numberOfStrawsInIDSector;
 
-  if (wheelID < numberOfWheelsAB) {
-    numberOfStrawsInPlane = numberOfStrawsInPlanesAB;
-    numberOfStrawsInIDSector = numberOfStrawsInIDSectorsAB;
+  if (wheelID < m_numberOfWheelsAB) {
+    numberOfStrawsInPlane = m_numberOfStrawsInPlanesAB;
+    numberOfStrawsInIDSector = m_numberOfStrawsInIDSectorsAB;
   } else {
-    numberOfStrawsInPlane = numberOfStrawsInPlaneC;
-    numberOfStrawsInIDSector = numberOfStrawsInIDSectorC;
+    numberOfStrawsInPlane = m_numberOfStrawsInPlaneC;
+    numberOfStrawsInIDSector = m_numberOfStrawsInIDSectorC;
   }
 
   // Mapping for negative endcap is
@@ -244,15 +244,15 @@ bool TRTProcessingOfEndCapHits::ProcessHit(G4Step* pStep)
   hitID += (planeID << 5);
   hitID += strawID;
 
-  pSensitiveDetector->m_hitID = hitID;
-  pSensitiveDetector->m_partLink = trHelp.GetParticleLink();
-  pSensitiveDetector->m_preStepX = preStepX;
-  pSensitiveDetector->m_preStepY = preStepY;
-  pSensitiveDetector->m_preStepZ = preStepZ;
-  pSensitiveDetector->m_postStepX = postStepX;
-  pSensitiveDetector->m_postStepY = postStepY;
-  pSensitiveDetector->m_postStepZ = postStepZ;
-  pSensitiveDetector->m_globalTime = globalTime;
+  m_pSensitiveDetector->m_hitID = hitID;
+  m_pSensitiveDetector->m_partLink = trHelp.GetParticleLink();
+  m_pSensitiveDetector->m_preStepX = preStepX;
+  m_pSensitiveDetector->m_preStepY = preStepY;
+  m_pSensitiveDetector->m_preStepZ = preStepZ;
+  m_pSensitiveDetector->m_postStepX = postStepX;
+  m_pSensitiveDetector->m_postStepY = postStepY;
+  m_pSensitiveDetector->m_postStepZ = postStepZ;
+  m_pSensitiveDetector->m_globalTime = globalTime;
 
   return true;
 }

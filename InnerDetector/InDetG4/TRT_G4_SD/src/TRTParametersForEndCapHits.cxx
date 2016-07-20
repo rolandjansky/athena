@@ -18,22 +18,22 @@
 // Called by TRTSensitiveDetector::InitializeHitProcessing
 
 TRTParametersForEndCapHits::TRTParametersForEndCapHits
-(TRTProcessingOfEndCapHits* pProcessing): pProcessingOfEndCapHits(pProcessing),
-                                          verboseLevel(pProcessing->verboseLevel)
+(TRTProcessingOfEndCapHits* pProcessing): m_pProcessingOfEndCapHits(pProcessing),
+                                          m_verboseLevel(pProcessing->m_verboseLevel)
 {
-  pParameters = TRTParameters::GetPointer();
+  m_pParameters = TRTParameters::GetPointer();
 
-  printMessages = pParameters->GetInteger("PrintMessages");
+  m_printMessages = m_pParameters->GetInteger("PrintMessages"); //FIXME not used?
 
 
-  if (verboseLevel>5) { G4cout << "######### Constructor TRTParametersForEndCapHits" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "######### Constructor TRTParametersForEndCapHits" << G4endl; }
 
-  DefineParameters();
+  this->DefineParameters();
 
-  if (pParameters->GetInteger("PrintParametersForEndCapHits"))
-    PrintParameters();
+  if (m_pParameters->GetInteger("PrintParametersForEndCapHits"))
+    this->PrintParameters();
 
-  if (verboseLevel>5) { G4cout << "######### Constructor TRTParametersForEndCapHits done" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "######### Constructor TRTParametersForEndCapHits done" << G4endl; }
 
 }
 
@@ -42,8 +42,8 @@ TRTParametersForEndCapHits::TRTParametersForEndCapHits
 
 TRTParametersForEndCapHits::~TRTParametersForEndCapHits()
 {
-  if (verboseLevel>5) { G4cout << "######### Destructor TRTParametersForEndCapHits" << G4endl; }
-  if (verboseLevel>5) { G4cout << "######### Destructor TRTParametersForEndCapHits done" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "######### Destructor TRTParametersForEndCapHits" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "######### Destructor TRTParametersForEndCapHits done" << G4endl; }
 }
 
 
@@ -52,50 +52,50 @@ TRTParametersForEndCapHits::~TRTParametersForEndCapHits()
 void TRTParametersForEndCapHits::DefineParameters() const
 {
 
-  if (verboseLevel>5) { G4cout << "#########  TRTParametersForEndCapHits::DefineParameters" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "#########  TRTParametersForEndCapHits::DefineParameters" << G4endl; }
 
   int numberOfStrawsInPlanesAB =
-    pParameters->GetInteger("NumberOfStrawsInPlanesAB");
+    m_pParameters->GetInteger("NumberOfStrawsInPlanesAB");
   int numberOfStrawsInPlaneC =
-    pParameters->GetInteger("NumberOfStrawsInPlaneC");
+    m_pParameters->GetInteger("NumberOfStrawsInPlaneC");
 
-  pProcessingOfEndCapHits->numberOfStrawsInPlanesAB = numberOfStrawsInPlanesAB;
-  pProcessingOfEndCapHits->numberOfStrawsInPlaneC = numberOfStrawsInPlaneC;
+  m_pProcessingOfEndCapHits->m_numberOfStrawsInPlanesAB = numberOfStrawsInPlanesAB;
+  m_pProcessingOfEndCapHits->m_numberOfStrawsInPlaneC = numberOfStrawsInPlaneC;
 
   int numberOfWheelsA
-    = pParameters->GetInteger("NumberOfWheelsA");
-  int numberOfWheelsB = pParameters->GetInteger("NumberOfWheelsB");
-  //  int numberOfWheelsC = pParameters->GetInteger("NumberOfWheelsC"); // There were no c-wheels ever built :(
+    = m_pParameters->GetInteger("NumberOfWheelsA");
+  int numberOfWheelsB = m_pParameters->GetInteger("NumberOfWheelsB");
+  //  int numberOfWheelsC = m_pParameters->GetInteger("NumberOfWheelsC"); // There were no c-wheels ever built :(
 
   int numberOfWheelsAB = numberOfWheelsA + numberOfWheelsB;
 
-  pProcessingOfEndCapHits->numberOfWheelsAB = numberOfWheelsAB;
+  m_pProcessingOfEndCapHits->m_numberOfWheelsAB = numberOfWheelsAB;
 
   int numberOfIdentifierSectors =
-    pParameters->GetInteger("NumberOfIdentifierSectors");
-  pProcessingOfEndCapHits->numberOfStrawsInIDSectorsAB =
+    m_pParameters->GetInteger("NumberOfIdentifierSectors");
+  m_pProcessingOfEndCapHits->m_numberOfStrawsInIDSectorsAB =
     numberOfStrawsInPlanesAB / numberOfIdentifierSectors;
-  pProcessingOfEndCapHits->numberOfStrawsInIDSectorC =
+  m_pProcessingOfEndCapHits->m_numberOfStrawsInIDSectorC =
     numberOfStrawsInPlaneC / numberOfIdentifierSectors;
 
-  if (pParameters->GetInteger("SectorsABC"))
+  if (m_pParameters->GetInteger("SectorsABC"))
     {
-      int numberOfSectorsAB = pParameters->GetInteger("NumberOfSectorsAB");
-      int numberOfSectorsC = pParameters->GetInteger("NumberOfSectorsC");
+      int numberOfSectorsAB = m_pParameters->GetInteger("NumberOfSectorsAB");
+      int numberOfSectorsC = m_pParameters->GetInteger("NumberOfSectorsC");
       int numberOfStrawsInSectorsAB = numberOfStrawsInPlanesAB /
         numberOfSectorsAB;
       int numberOfStrawsInSectorC = numberOfStrawsInPlaneC / numberOfSectorsC;
-      pProcessingOfEndCapHits->numberOfStrawsInSectorsAB =
+      m_pProcessingOfEndCapHits->m_numberOfStrawsInSectorsAB =
         numberOfStrawsInSectorsAB;
-      pProcessingOfEndCapHits->numberOfStrawsInSectorC = numberOfStrawsInSectorC;
-      pProcessingOfEndCapHits->initialStrawIDInSectorsAB =
+      m_pProcessingOfEndCapHits->m_numberOfStrawsInSectorC = numberOfStrawsInSectorC;
+      m_pProcessingOfEndCapHits->m_initialStrawIDInSectorsAB =
         numberOfStrawsInSectorsAB / 2 - 1;
-      pProcessingOfEndCapHits->initialStrawIDInSectorC =
+      m_pProcessingOfEndCapHits->m_initialStrawIDInSectorC =
         numberOfStrawsInSectorC / 2 - 1;
     }
 
 
-  if (verboseLevel>5) { G4cout << "#########  TRTParametersForEndCapHits::DefineParameters done" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "#########  TRTParametersForEndCapHits::DefineParameters done" << G4endl; }
 
 }
 
@@ -104,9 +104,9 @@ void TRTParametersForEndCapHits::DefineParameters() const
 
 void TRTParametersForEndCapHits::PrintParameters() const
 {
-  if (verboseLevel>5) { G4cout << "######### Method TRTParametersForEndCapHits::PrintParameters" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "######### Method TRTParametersForEndCapHits::PrintParameters" << G4endl; }
 
-  int wheelsC = pParameters->GetInteger("WheelsC");
+  int wheelsC = m_pParameters->GetInteger("WheelsC");
 
   TRTOutputFile* pOutputFile = TRTOutputFile::GetPointer();
 
@@ -118,40 +118,40 @@ void TRTParametersForEndCapHits::PrintParameters() const
 
   output << "Parameters of end-cap straws:" << std::endl;
   output << "  numberOfStrawsInPlanesAB="
-         << pProcessingOfEndCapHits->numberOfStrawsInPlanesAB << std::endl;
+         << m_pProcessingOfEndCapHits->m_numberOfStrawsInPlanesAB << std::endl;
   if (wheelsC)
     output << "  numberOfStrawsInPlaneC="
-           << pProcessingOfEndCapHits->numberOfStrawsInPlaneC << std::endl;
+           << m_pProcessingOfEndCapHits->m_numberOfStrawsInPlaneC << std::endl;
 
   output << "  numberOfStrawsInIDSectorsAB="
-         << pProcessingOfEndCapHits->numberOfStrawsInIDSectorsAB << std::endl;
+         << m_pProcessingOfEndCapHits->m_numberOfStrawsInIDSectorsAB << std::endl;
   if (wheelsC)
     output << "  numberOfStrawsInIDSectorC="
-           << pProcessingOfEndCapHits->numberOfStrawsInIDSectorC << std::endl;
+           << m_pProcessingOfEndCapHits->m_numberOfStrawsInIDSectorC << std::endl;
 
 
-  if (pParameters->GetInteger("SectorsABC"))
+  if (m_pParameters->GetInteger("SectorsABC"))
     {
       output << "  numberOfStrawsInSectorsAB="
-             << pProcessingOfEndCapHits->numberOfStrawsInSectorsAB << std::endl;
+             << m_pProcessingOfEndCapHits->m_numberOfStrawsInSectorsAB << std::endl;
       if (wheelsC)
         output << "  numberOfStrawsInSectorC="
-               << pProcessingOfEndCapHits->numberOfStrawsInSectorC << std::endl;
+               << m_pProcessingOfEndCapHits->m_numberOfStrawsInSectorC << std::endl;
 
       output << "  initialStrawIDInSectorsAB="
-             << pProcessingOfEndCapHits->initialStrawIDInSectorsAB << std::endl;
+             << m_pProcessingOfEndCapHits->m_initialStrawIDInSectorsAB << std::endl;
       if (wheelsC)
         output << "  initialStrawIDInSectorC="
-               << pProcessingOfEndCapHits->initialStrawIDInSectorC << std::endl;
+               << m_pProcessingOfEndCapHits->m_initialStrawIDInSectorC << std::endl;
     }
 
   output << std::endl << "Parameters of end-cap wheels:" << std::endl;
 
-  output << "  numberOfWheelsAB=" << pProcessingOfEndCapHits->numberOfWheelsAB
+  output << "  numberOfWheelsAB=" << m_pProcessingOfEndCapHits->m_numberOfWheelsAB
          << std::endl;
 
   output << std::endl;
 
-  if (verboseLevel>5) { G4cout << "######### Method TRTParametersForEndCapHits::PrintParameters done" << G4endl; }
+  if (m_verboseLevel>5) { G4cout << "######### Method TRTParametersForEndCapHits::PrintParameters done" << G4endl; }
 
 }
