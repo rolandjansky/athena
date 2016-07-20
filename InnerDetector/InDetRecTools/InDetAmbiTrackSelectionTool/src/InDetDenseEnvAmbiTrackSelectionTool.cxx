@@ -46,8 +46,10 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(
   m_IBLParameterSvc("IBLParameterSvc",n),
   m_incidentSvc("IncidentSvc", n),
   m_observerTool("Trk::TrkObserverTool/TrkObserverTool"),
+  m_dynamicCutsTool("InDet::InDetDynamicCutsTool/InDetDynamicCutsTool"),
   m_mapFilled(false),
-  m_monitorTracks(false)
+  m_monitorTracks(false),
+  m_useDynamicCuts(false)
 {
   declareInterface<IAmbiTrackSelectionTool>(this);
 
@@ -84,6 +86,8 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(
   
   declareProperty("MonitorAmbiguitySolving"  , m_monitorTracks = false);
   declareProperty("ObserverTool"             , m_observerTool);
+	declareProperty("InDetDynamicCutsTool" 		 , m_dynamicCutsTool);
+  declareProperty("UseDynamicCuts"  		     , m_useDynamicCuts);  
 
   // compute the number of shared hits from the number of max shared modules
   m_maxShared=2*m_maxSharedModules+1;
@@ -149,6 +153,19 @@ StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::initialize()
     else 
       ATH_MSG_INFO( "Retrieved tool " << m_observerTool );
   }
+
+	// Get InDetDynamicCutsTool
+  //
+  if (m_useDynamicCuts) {
+    sc = m_dynamicCutsTool.retrieve();
+    if (sc.isFailure()) {
+	  	ATH_MSG_ERROR("Failed to retrieve AlgTool " << m_dynamicCutsTool);
+		  return sc;
+  	}
+	  else 
+  		ATH_MSG_INFO( "Retrieved tool " << m_dynamicCutsTool );
+  }
+
 
   if (m_incidentSvc.retrieve().isFailure()){
     ATH_MSG_WARNING("Can not retrieve " << m_incidentSvc << ". Exiting.");
@@ -234,6 +251,33 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
   // Fill structs will information
   fillTrackDetails( ptrTrack, trackHitDetails, tsosDetails );
   
+
+	if(m_useDynamicCuts) {
+  	/*
+		std::map<std::string, double> dynamicCutsMap;
+		dynamicCutsMap = m_dynamicCutsTool->getAllCutsByTrackEta(ptrTrack);
+		if(dynamicCutsMap.size() > 0) {
+			m_minHits = static_cast<int>(dynamicCutsMap["minClusters"]);
+			m_minNotShared = static_cast<int>(dynamicCutsMap["minSiNotShared"]);
+			m_maxSharedModules = static_cast<int>(dynamicCutsMap["maxShared"]);
+			m_maxShared				 = 2*m_maxSharedModules+1;
+		}
+		else
+			ATH_MSG_ERROR ("Can not find eta-dependent cuts");	
+*/	
+
+		std::map<std::string, int> dynamicCutsMap;
+		dynamicCutsMap = m_dynamicCutsTool->getAllIntegerCutsByTrackEta(ptrTrack);
+		if(dynamicCutsMap.size() > 0) {
+			m_minHits = dynamicCutsMap["minClusters"];
+			m_minNotShared = dynamicCutsMap["minSiNotShared"];
+			m_maxSharedModules = dynamicCutsMap["maxShared"];
+			m_maxShared				 = 2*m_maxSharedModules+1;
+		}
+		else
+			ATH_MSG_ERROR ("Can not find eta-dependent cuts");	
+	}
+
   //Decide which hits to keep
   ATH_MSG_DEBUG ("DecideWhichHitsToKeep");
   bool TrkCouldBeAccepted = decideWhichHitsToKeep( ptrTrack,  score,  trackHitDetails, tsosDetails, nCutTRT );

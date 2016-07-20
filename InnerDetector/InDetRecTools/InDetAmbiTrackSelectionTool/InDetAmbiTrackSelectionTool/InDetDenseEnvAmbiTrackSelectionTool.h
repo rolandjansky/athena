@@ -21,6 +21,8 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkValInterfaces/ITrkObserverTool.h"
 
+#include "InDetRecToolInterfaces/IInDetDynamicCutsTool.h"
+
 
 class SiliconID;
 class Identifier;
@@ -266,9 +268,12 @@ namespace InDet
       
       /**atlas id helper*/
       const SiliconID* m_detID;
-      
-      /**Observer tool      This tool is used to observe the tracks and their 'score' */
+
+			/**Observer tool      This tool is used to observe the tracks and their 'score' */
       ToolHandle<Trk::ITrkObserverTool> m_observerTool;
+
+			/** tool to get cut values depending on different variable */   
+      ToolHandle<IInDetDynamicCutsTool>     m_dynamicCutsTool;      
       
       /** some cut values */
       int m_minHits;                // Min Number of hits on track            
@@ -307,6 +312,7 @@ namespace InDet
       bool                  m_mapFilled;
       
       bool m_monitorTracks; // to track observeration/monitoring (default is false)
+      bool m_useDynamicCuts;	// use InDetDynamicCutsTool to determine the cut value depending on characteristics of each track (default is false)
       // Counters  
       //mutable int 
       
