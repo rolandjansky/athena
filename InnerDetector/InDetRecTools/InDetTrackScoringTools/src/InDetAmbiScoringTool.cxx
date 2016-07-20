@@ -31,8 +31,10 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   m_summaryTypeScore(Trk::numberOfTrackSummaryTypes),
   m_iBeamCondSvc("BeamCondSvc",n),
   m_magFieldSvc("AtlasFieldSvc",n), 
+  m_dynamicCutsTool("InDet::InDetDynamicCutsTool/InDetDynamicCutsTool"),
   m_fieldOn(true),
-  m_holesearch(false)
+  m_holesearch(false),
+  m_useDynamicCuts(false)
 {
   declareInterface<Trk::ITrackScoringTool>(this);
   
@@ -69,6 +71,8 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   declareProperty("DriftCircleCutTool",m_selectortool );
   declareProperty("BeamPositionSvc",   m_iBeamCondSvc );
   declareProperty("MagFieldSvc", m_magFieldSvc);
+  declareProperty("InDetDynamicCutsTool", m_dynamicCutsTool); 
+  declareProperty("UseDynamicCuts"      , m_useDynamicCuts);
 
   //set values for scores
   m_summaryTypeScore[Trk::numberOfPixelHits]	        =  20;
@@ -148,6 +152,18 @@ StatusCode InDet::InDetAmbiScoringTool::initialize()
     msg(MSG::DEBUG) << "Retrieved " << m_magFieldSvc << endreq;
   }
 
+  // Get InDetDynamicCutsTool
+  //
+	if(m_useDynamicCuts) { 
+		sc = m_dynamicCutsTool.retrieve();
+		if (sc.isFailure()) {
+			ATH_MSG_ERROR("Failed to retrieve AlgTool " << m_dynamicCutsTool);
+			return sc;
+		}
+		else 
+			ATH_MSG_INFO( "Retrieved tool " << m_dynamicCutsTool );
+	}
+
   if (m_useAmbigFcn && m_useTRT_AmbigFcn) {
     msg(MSG::FATAL) << "Both on, normal ambi funciton and the one for back tracking, configuration problem, not recoverable" << endreq;
     return StatusCode::FAILURE;
@@ -206,6 +222,46 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
 
   if (numPixelDead<0) numPixelDead = 0;
   if (numSCTDead<0)   numSCTDead   = 0;
+
+  // Setting eta-dependent cuts
+	if(m_useDynamicCuts) {
+
+		std::map<std::string, double> dynamicDoubleCutsMap;
+		dynamicDoubleCutsMap = m_dynamicCutsTool->getAllDoubleCutsByTrackEta(&track);
+		if(dynamicDoubleCutsMap.size() > 0) {
+			m_minPt = dynamicDoubleCutsMap["minPT"];
+			m_maxRPhiImp = dynamicDoubleCutsMap["maxPrimaryImpact"];
+			m_maxZImp = dynamicDoubleCutsMap["maxZImpact"];
+
+			// because cast double-->int is expensive we use extra map for integer cut values
+			std::map<std::string, int> dynamicIntegerCutsMap = m_dynamicCutsTool->getAllIntegerCutsByTrackEta(&track);
+			m_minSiClusters = dynamicIntegerCutsMap["minClusters"];		
+			m_minPixel = dynamicIntegerCutsMap["minPixelHits"];
+			m_maxSiHoles = dynamicIntegerCutsMap["maxHoles"];
+			m_maxPixelHoles = dynamicIntegerCutsMap["maxPixelHoles"];
+			m_maxSctHoles = dynamicIntegerCutsMap["maxSctHoles"];
+			m_maxDoubleHoles = dynamicIntegerCutsMap["maxDoubleHoles"];
+
+/*
+		std::map<std::string, double> dynamicCutsMap;
+		dynamicCutsMap = m_dynamicCutsTool->getAllCutsByTrackEta(&track);
+		if(dynamicCutsMap.size() > 0) {
+			m_minPt = dynamicCutsMap["minPT"];
+			m_maxRPhiImp = dynamicCutsMap["maxPrimaryImpact"];
+			m_maxZImp = dynamicCutsMap["maxZImpact"];
+
+			// because cast double-->int is expensive we use extra map for integer cut values
+			m_minSiClusters = static_cast<int>(dynamicCutsMap["minClusters"]);
+			m_minPixel = static_cast<int>(dynamicCutsMap["minPixelHits"]);
+			m_maxSiHoles = static_cast<int>(dynamicCutsMap["maxHoles"]);
+			m_maxPixelHoles = static_cast<int>(dynamicCutsMap["maxPixelHoles"]);
+			m_maxSctHoles = static_cast<int>(dynamicCutsMap["maxSctHoles"]);
+			m_maxDoubleHoles = static_cast<int>(dynamicCutsMap["maxDoubleHoles"]);
+*/
+		}
+		else
+			ATH_MSG_ERROR ("Can not find eta-dependent cuts");
+	}
   
   // is this a track from the pattern or a fitted track ?
   bool ispatterntrack = (track.info().trackFitter()==Trk::TrackInfo::Unknown);

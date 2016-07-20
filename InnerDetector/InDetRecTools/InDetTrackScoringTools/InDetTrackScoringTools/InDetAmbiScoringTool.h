@@ -19,6 +19,8 @@
 #include <vector>
 #include <string>
 
+#include "InDetRecToolInterfaces/IInDetDynamicCutsTool.h"
+
 class IBeamCondSvc;
 
 namespace Trk {
@@ -77,6 +79,9 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool, public AthAl
   
   ToolHandle<Trk::IExtrapolator>          m_extrapolator;
   ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
+
+	/** tool to get cut values depending on different variable */   
+	ToolHandle<IInDetDynamicCutsTool>     m_dynamicCutsTool;
   
   /** use the scoring tuned to Ambiguity processing or not */
   bool m_useAmbigFcn;
@@ -104,6 +109,8 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool, public AthAl
   int    m_minPixel;      //!< minimum number of pixel clusters
 
   mutable bool m_holesearch; 
+
+  bool m_useDynamicCuts;	// use InDetDynamicCutsTool to determine the cut value depending on characteristics of each track (default is false)
 };
 
 

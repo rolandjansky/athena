@@ -16,7 +16,6 @@ use InDetIdentifier              InDetIdentifier-*              InnerDetector/In
 use InDetRIO_OnTrack      	 InDetRIO_OnTrack-*	        InnerDetector/InDetRecEvent
 use TrkExInterfaces       	 TrkExInterfaces-*	        Tracking/TrkExtrapolation
 use InDetBeamSpotService         InDetBeamSpotService-*         InnerDetector/InDetConditions
-use InDetRecToolInterfaces       InDetRecToolInterfaces-*       InnerDetector/InDetRecTools
 use MagFieldInterfaces           MagFieldInterfaces-*           MagneticField
 use GeoPrimitives                GeoPrimitives-*                DetectorDescription
 public
@@ -26,6 +25,7 @@ use GaudiInterface        	 GaudiInterface-*	        External
 use AthenaBaseComps              AthenaBaseComps-*              Control
 use TrkEventPrimitives    	 TrkEventPrimitives-*	        Tracking/TrkEvent
 use TrkToolInterfaces     	 TrkToolInterfaces-*	        Tracking/TrkTools
+use InDetRecToolInterfaces       InDetRecToolInterfaces-*       InnerDetector/InDetRecTools
 use AthenaKernel                 AthenaKernel-*                 Control
 
 branches InDetTrackScoringTools src
