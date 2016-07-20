@@ -38,8 +38,8 @@ StatusCode PrimaryVertexRefitter::finalize() {
 
 PrimaryVertexRefitter::PrimaryVertexRefitter(const std::string& t, const std::string& n, const IInterface* p)  : AthAlgTool(t,n,p),
    m_ntrk_min(2),
-   m_trackToVertexIPEstimator("Trk::TrackToVertexIPEstimator")
-
+   m_trackToVertexIPEstimator("Trk::TrackToVertexIPEstimator"),
+   m_lastExitCode(0)
 {
   declareInterface<PrimaryVertexRefitter>(this);
   declareProperty("MinimumNumberOfTracksInVertex", m_ntrk_min);              
@@ -50,27 +50,31 @@ PrimaryVertexRefitter::PrimaryVertexRefitter(const std::string& t, const std::st
 PrimaryVertexRefitter::~PrimaryVertexRefitter() { }
 
 // -------------------------------------------------------------------------------------------------
-const xAOD::Vertex* PrimaryVertexRefitter::refitVertex(const xAOD::Vertex* vertex, const xAOD::Vertex* excludeVertex) const
+const xAOD::Vertex* PrimaryVertexRefitter::refitVertex(const xAOD::Vertex* vertex, const xAOD::Vertex* excludeVertex, bool returnCopy)
 {
 
   if (vertex == 0) {
-    ATH_MSG_WARNING("Empty original xAOD::Vertex pointer passed: returning 0");
+    ATH_MSG_DEBUG("Empty original xAOD::Vertex pointer passed: returning 0");
+    m_lastExitCode = -1;
     return 0;
   }
   unsigned int ntrk_pv = vertex->nTrackParticles();
   if (ntrk_pv == 0) {
-    ATH_MSG_WARNING("Input vertex has no associated tracks: returning 0");
+    ATH_MSG_DEBUG("Input vertex has no associated tracks: returning 0");
+    m_lastExitCode = -2;
     return 0;
   }
   if (excludeVertex == 0) {
-    ATH_MSG_WARNING("Empty exclude xAOD::Vertex pointer passed: returning original vertex");
-    return new xAOD::Vertex(*vertex);
+    ATH_MSG_DEBUG("Empty exclude xAOD::Vertex pointer passed: returning original vertex");
+    m_lastExitCode = 10;
+    return returnCopy ? new xAOD::Vertex(*vertex) : nullptr;
   }
   std::vector<const xAOD::TrackParticle*> tps; tps.clear();
   unsigned int ntrk = excludeVertex->nTrackParticles();
   if (ntrk == 0) {
-    ATH_MSG_WARNING("Exclude vertex has no associated tracks: returning original vertex");
-    return new xAOD::Vertex(*vertex);
+    ATH_MSG_DEBUG("Exclude vertex has no associated tracks: returning original vertex");
+    m_lastExitCode=11;
+    return returnCopy ? new xAOD::Vertex(*vertex) : nullptr;
   }
 
   for (unsigned int i = 0; i < ntrk ; ++i) {
@@ -78,30 +82,34 @@ const xAOD::Vertex* PrimaryVertexRefitter::refitVertex(const xAOD::Vertex* verte
     if (tp==0) continue;
     tps.push_back(tp);
   }
-  return refitVertex(vertex,tps);
+  return refitVertex(vertex,tps, returnCopy);
 }
 
 // -------------------------------------------------------------------------------------------------
-const xAOD::Vertex* PrimaryVertexRefitter::refitVertex(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*> &tps) const
+const xAOD::Vertex* PrimaryVertexRefitter::refitVertex(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*> &tps, bool returnCopy)
 {
 
   if (vertex == 0) {
-    ATH_MSG_WARNING("Empty original xAOD::Vertex pointer passed: returning 0");
+    ATH_MSG_DEBUG("Empty original xAOD::Vertex pointer passed: returning 0");
+    m_lastExitCode = -1;
     return 0;
   }
   unsigned int ntrk_pv = vertex->nTrackParticles();
   if (ntrk_pv == 0) {
-    ATH_MSG_WARNING("Input vertex has no associated tracks: returning 0");
+    ATH_MSG_DEBUG("Input vertex has no associated tracks: returning 0");
+    m_lastExitCode = -2;
     return 0;
   }
   if (ntrk_pv <= m_ntrk_min) {
-    ATH_MSG_WARNING("The number of tracks " << ntrk_pv << " in the original vertex is already <= the allowed minimum number of tracks " << m_ntrk_min << ", returning original vertex");
-    return new xAOD::Vertex(*vertex);
+    ATH_MSG_DEBUG("The number of tracks " << ntrk_pv << " in the original vertex is already <= the allowed minimum number of tracks " << m_ntrk_min << ", returning original vertex");
+    m_lastExitCode = 2;
+    return returnCopy ? new xAOD::Vertex(*vertex) : nullptr;
   }
   unsigned int ntrk = tps.size();
   if (ntrk == 0) {
-    ATH_MSG_WARNING("No tracks requested to be removed: returning original vertex");
-    return new xAOD::Vertex(*vertex);
+    ATH_MSG_DEBUG("No tracks requested to be removed: returning original vertex");
+    m_lastExitCode = 3;
+    return returnCopy ? new xAOD::Vertex(*vertex) : nullptr;
   }
 
   const xAOD::Vertex* reducedVertex(0);
@@ -113,17 +121,19 @@ const xAOD::Vertex* PrimaryVertexRefitter::refitVertex(const xAOD::Vertex* verte
     reducedVertex = m_trackToVertexIPEstimator->getUnbiasedVertex(tp,tmpVert);
     if (tmpVert != vertex) delete tmpVert;
     if (reducedVertex == 0) {
-      ATH_MSG_WARNING("Refit failed: returning original vertex");
-      return new xAOD::Vertex(*vertex);
+      ATH_MSG_DEBUG("Refit failed: returning original vertex");
+      m_lastExitCode = -4;
+      return returnCopy ? new xAOD::Vertex(*vertex) : nullptr;
     }
     tmpVert = reducedVertex;
     if (tmpVert->nTrackParticles() <= m_ntrk_min-1) {
-      ATH_MSG_WARNING("The number of tracks in the refitted vertex would be less than the allowed minimum number of tracks: " << m_ntrk_min << ", returning original vertex");
+      ATH_MSG_DEBUG("The number of tracks in the refitted vertex would be less than the allowed minimum number of tracks: " << m_ntrk_min << ", returning original vertex");
       delete reducedVertex;
-      return new xAOD::Vertex(*vertex);
+      m_lastExitCode = 5;
+      return returnCopy ? new xAOD::Vertex(*vertex) : nullptr;
     }
   }
-
+  m_lastExitCode = 1;
   return reducedVertex;
 }
 
