@@ -939,7 +939,7 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
         Trk::Track* refittedTrack = fit(*newTrack, false, Trk::muon);      
 	if(newTrack != combinedTrack)
 	  delete newTrack;
-        if(refittedTrack && refittedTrack->fitQuality()) {
+        if(refittedTrack && refittedTrack->fitQuality() && checkTrack("combinedFit",refittedTrack,combinedTrack)) {
 	  delete combinedTrack;
 	  combinedTrack = refittedTrack;
         }else{
@@ -1842,7 +1842,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
         Trk::Track* refittedTrack = fit(*newTrack, false, Trk::muon);      
 	if(newTrack != track)
 	  delete newTrack;
-        if(refittedTrack && refittedTrack->fitQuality()) {
+        if(refittedTrack && refittedTrack->fitQuality()&& checkTrack("standaloneFit",refittedTrack,track)) {
 	  delete track;
 	  track = refittedTrack;
         }else {
@@ -2388,6 +2388,11 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack) cons
 	}
     }
 
+    if(!checkTrack("standaloneRefit",refittedTrack,standaloneTrack)) {
+      delete refittedTrack;
+      return 0;
+    }
+
     return refittedTrack;
 }
 
@@ -2515,6 +2520,10 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		track,
     // quit if fit has failed
     if (! fittedTrack)	return 0;
 
+    if(!checkTrack("fitInterface1",fittedTrack, fittedTrack)) {
+      delete fittedTrack;
+      return 0;
+    }
 
    // track cleaning
     if (runOutlier)
@@ -2525,8 +2534,12 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		track,
 	  ATH_MSG_VERBOSE( " perform spectrometer error optimization before cleaning " );
 	  Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack);
 	  if (optimizedTrack) {
-	    delete fittedTrack;
-	    fittedTrack = optimizedTrack;
+            if(checkTrack("fitInterface1Opt",optimizedTrack, fittedTrack)) {
+  	      delete fittedTrack;
+	      fittedTrack = optimizedTrack;
+            } else {
+              delete optimizedTrack;
+            }
 	  }
         }
  
@@ -2537,6 +2550,10 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		track,
 	ATH_MSG_VERBOSE( " perform track cleaning... "  << m_printer->print(*fittedTrack) << std::endl << m_printer->printStations(*fittedTrack) );
 
         Trk::Track* cleanTrack = m_cleaner->clean(*fittedTrack);
+        if(cleanTrack && !checkTrack("fitInterface1Cleaner",cleanTrack, fittedTrack)) {
+          delete cleanTrack;
+          cleanTrack = 0;
+        }    
 
 	if (! cleanTrack)
 	  {
@@ -2630,6 +2647,11 @@ CombinedMuonTrackBuilder::fit (const Trk::MeasurementSet&	measurementSet,
 
     if (! fittedTrack)			return 0;
 
+    if(!checkTrack("fitInterface2",fittedTrack, fittedTrack)) {
+      delete fittedTrack;
+      return 0;
+    }
+
     // track cleaning
     if (runOutlier)
     {
@@ -2639,8 +2661,12 @@ CombinedMuonTrackBuilder::fit (const Trk::MeasurementSet&	measurementSet,
 	  ATH_MSG_VERBOSE( " perform spectrometer error optimization before cleaning " );
 	  Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack);
 	  if (optimizedTrack) {
-	    delete fittedTrack;
-	    fittedTrack = optimizedTrack;
+            if(checkTrack("fitInterface2Opt",optimizedTrack, fittedTrack)) {
+  	      delete fittedTrack;
+	      fittedTrack = optimizedTrack;
+            } else {
+              delete optimizedTrack;
+            }
 	  }
         }
     
@@ -2650,6 +2676,12 @@ CombinedMuonTrackBuilder::fit (const Trk::MeasurementSet&	measurementSet,
 	// muon cleaner
 	ATH_MSG_VERBOSE( " perform track cleaning... " );
         Trk::Track* cleanTrack = m_cleaner->clean(*fittedTrack);
+
+        if(cleanTrack && !checkTrack("fitInterface2Cleaner",cleanTrack, fittedTrack)) {
+          delete cleanTrack;
+          cleanTrack = 0;
+        }    
+
 	if (! cleanTrack)
 	{
 	    if (m_allowCleanerVeto && chi2Before > m_badFitChi2)
@@ -4201,7 +4233,7 @@ CombinedMuonTrackBuilder::finalTrackBuild(Trk::Track*& track) const
 	
 	ATH_MSG_VERBOSE( " perform spectrometer hole recovery procedure... " );
 	Trk::Track* recoveredTrack = m_muonHoleRecovery->recover(*track);
-	if (! recoveredTrack || ! recoveredTrack->fitQuality())
+	if (! recoveredTrack || ! recoveredTrack->fitQuality()|| ! checkTrack("finalTrackBuild1",recoveredTrack,track) )
 	{
 	    // final track lost, this should not happen
 	    m_messageHelper->printWarning(44);
@@ -4235,7 +4267,7 @@ CombinedMuonTrackBuilder::finalTrackBuild(Trk::Track*& track) const
     {
 	ATH_MSG_VERBOSE( " perform spectrometer error optimization... " );
 	Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*track);
-	if (optimizedTrack)
+	if (optimizedTrack&&checkTrack("finalTrackBuild2",optimizedTrack,track))
 	{
 	    delete track;
 	    track = optimizedTrack;
@@ -4691,6 +4723,41 @@ CombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters&	parameters,
 
 
     return;
+  }
+
+   bool CombinedMuonTrackBuilder::checkTrack(std::string txt , Trk::Track* newTrack, Trk::Track* track) const
+  {
+
+    if(!newTrack) return false;
+
+    const DataVector<const Trk::TrackParameters>* pars = newTrack->trackParameters();
+    if( !pars || pars->empty() ){
+      return false;
+    }
+    bool newTrackOK = true;
+    DataVector<const Trk::TrackParameters>::const_iterator it     = pars->end();
+    it = it-1;  
+    if((*it)->position().dot((*it)->momentum().unit()) <0 ) {
+      newTrackOK = false; 
+      ATH_MSG_DEBUG( txt << " checkTrack newTrack ALARM position " << (*it)->position() << " direction " << (*it)->momentum().unit());
+    } else {
+      ATH_MSG_DEBUG( txt << " checkTrack newTrack OK position " << (*it)->position() << " direction " << (*it)->momentum().unit());
+    }
+    
+    if(!track) return newTrackOK;     
+//    pars = track->trackParameters();
+//    if( !pars || pars->empty() ){
+//      return newTrackOK;
+//    }
+//    it     = pars->end();
+//    it = it-1;  
+//    if((*it)->position().dot((*it)->momentum().unit()) <0 ) {
+//        ATH_MSG_DEBUG( txt << " checkTrack track ALARM position " << (*it)->position() << " direction " << (*it)->momentum().unit());
+//    } else {
+//        ATH_MSG_DEBUG( txt << " checkTrack track OK position " << (*it)->position() << " direction " << (*it)->momentum().unit());
+//    }
+    
+    return newTrackOK;
   }
 
 }	// end of namespace

@@ -221,6 +221,7 @@ namespace Rec
 
         void dumpCaloEloss(const Trk::Track* track, std::string txt ) const;
 
+        bool checkTrack(std::string txt, Trk::Track* newTrack, Trk::Track* track) const;
 	
 	// helpers, managers, tools
 	ToolHandle<Rec::IMuidCaloEnergy>		m_caloEnergyParam;
