@@ -56,3 +56,4 @@ def resetSigs():
   TriggerFlags.BeamspotSlice.signatures = idtrigChainlist
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
+topSequence.TrigSteer_HLT.terminateAlgo.Prescale=1.

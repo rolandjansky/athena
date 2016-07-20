@@ -91,7 +91,10 @@ from RecExConfig.RecAlgsFlags import recAlgs
 # recAlgs.doTrigger.set_Value_and_Lock(True)
 
 
-
+### JK Do reidual monitoring for FTK tracks
+from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings as InDetSettings
+InDetSettings[('doResMon','FTK')]=True
+InDetSettings[('doResMon','FTKRefit')]=True
 
 
 flags = {}
@@ -157,7 +160,7 @@ if 'use_new_tm' in dir() and use_new_tm:
   if 'triggerMenuVersion' in dir():
     TriggerFlags.triggerMenuSetup = triggerMenuVersion
   else:
-    TriggerFlags.triggerMenuSetup = 'Physics_pp_v5'
+    TriggerFlags.triggerMenuSetup = 'Physics_pp_v6'
   TriggerFlags.doHLT=True
   from TriggerMenu.menu.GenerateMenu import GenerateMenu
 else:
@@ -279,6 +282,12 @@ if('PdgId' in dir()):
      print "select truth pdgid : ", TestMonTool.SelectTruthPdgId	
 
 #
+
+#TestMonTool.KeepAllEvents=True
+#print TestMonTool
+#print HLTMonManager.AthenaMonTools
+
+
 if 'tidaAnalysischains' in dir():
      TestMonTool.ntupleChainNames += tidaAnalysischains
 else:

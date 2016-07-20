@@ -2,7 +2,7 @@
             <doc>Tau slice, H->tautau sample, pu46, run1</doc>
             <displayName>TauSlice, H->tautau sample, pu46 </displayName>
 	    <commandLineFlags>EventMax=4000;</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_TauSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>

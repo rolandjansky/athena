@@ -2,7 +2,7 @@
             <doc>Z->mumu pu40</doc>
             <displayName>MuonSlice, Zmumu pu40</displayName>
 	    <commandLineFlags>EventMax=4000;</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>

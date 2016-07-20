@@ -29,6 +29,9 @@
 
 
 #     include   "TrigInDetValidation_all_ttbar_pu46.xml"
+
+#     include   "TrigInDetValidation_beamspot_ttbar_pu46.xml"
+
 #     include   "TrigInDetValidation_el_Jpsiee_pu40.xml"
 #     include   "TrigInDetValidation_el_single_e_7-80_larged0.xml"
 #     include   "TrigInDetValidation_el_single_e_7-80_larged0_PU.xml"
@@ -43,9 +46,12 @@
 #     include   "TrigInDetValidation_el_Zee_IBL_pu40_offline.xml"
 #     include   "TrigInDetValidation_el_Zee_IBL_pu40_offline_rzMatcher.xml"
 #     include   "TrigInDetValidation_el_Zee_IBL_pu40_rzMatcher.xml"
-#     include   "TrigInDetValidation_el_ttbar_pu46.xml"
-#     include   "TrigInDetValidation_el_ttbar_pu69.xml"
-#     include   "TrigInDetValidation_el_ttbar_pu138.xml"
+<!-- #     include   "TrigInDetValidation_el_ttbar_pu46.xml" -->
+<!-- #     include   "TrigInDetValidation_el_ttbar_pu69.xml" -->
+<!-- #     include   "TrigInDetValidation_el_ttbar_pu138.xml" -->
+#     include   "TrigInDetValidation_el_ttbar_pu40.xml"
+#     include   "TrigInDetValidation_el_ttbar_pu80.xml"
+#     include   "TrigInDetValidation_el_ttbar_pu100.xml"
 
 #     include   "TrigInDetValidation_cosmic.xml"
 
