@@ -476,7 +476,46 @@ def ConfigureBeamBunchSpacing():
             logAutoConfiguration.info("Auto configured bunchSpacing: %s ", jobproperties.Beam.bunchSpacing())
         except:
             logAutoConfiguration.warning("bunchSpacing could not be auto configured, no info available using default value: %s ",jobproperties.Beam.bunchSpacing() )
-                        
+    else: 
+        #real data
+        if not jobproperties.Beam.beamType.is_locked():
+            ConfigureBeamType()
+        if jobproperties.Beam.beamType() == 'collisions':
+            runnumber = GetRunNumber()
+            if runnumber is None:
+                  logAutoConfiguration.info("Couldn't get run number. Aborting.")
+                  return
+            if (runnumber<236107): # run-1
+                  logAutoConfiguration.info("Run-1 data, set to 50ns.")
+                  jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50)
+                  # could have just left default, but at least this is explicit.
+                  return
+            #Real data collision run, try to get bunch spacing from database
+            from CoolConvUtilities.BunchSpacingUtils import bunchSpacingOfRun
+            
+            lb=GetLBNumber()
+            if lb is None:
+                logAutoConfiguration.info("No LB nubmer, autoconfigure to 25 ns")
+                jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25)
+                return
+
+            bc=bunchSpacingOfRun(runnumber,lb)
+            if bc is None:
+                logAutoConfiguration.info("No data, autoconfigure to 25 ns")
+                jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25)
+                return
+
+            if bc==1: 
+                jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25)
+                logAutoConfiguration.info("Autoconfigure bunch-spacing to 25 ns")
+            else:
+                logAutoConfiguration.info("larger bunch spacing, leave default value of %i ns" % jobproperties.Beam.bunchSpacing())
+                pass
+            pass
+        else:
+            logAutoConfiguration.info("Not a collisions run, bunch spacing not autoconfigured")
+            pass
+        pass
     return
  
 
