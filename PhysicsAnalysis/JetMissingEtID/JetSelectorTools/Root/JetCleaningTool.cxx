@@ -21,6 +21,7 @@ Description: Class for selecting jets that pass some cleaning cuts
 // STL includes
 #include <iostream>
 #include <cmath>
+#include <cfloat>
 
 // ROOT includes
 #include "TEnv.h"
@@ -202,6 +203,7 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
 
   // -----------------------------------------------------------
   // Do the actual selection
+  if (pt<DBL_MIN) return m_accept;
   const double chf=sumpttrk/pt;
 
   //=============================================================
@@ -249,6 +251,7 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
   //Run-II tight cuts
   //=============================================================
   // NCB monojet-style cut in central, EMF cut in forward
+  if (fmax<DBL_MIN) return m_accept;
   if(std::fabs(eta)<2.4 && chf/fmax<0.1) return m_accept;
   //if(std::fabs(eta)>=2.4 && emf<0.1) return m_accept;
   if(TightBad==m_cutLevel){
