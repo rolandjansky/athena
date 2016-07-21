@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 754379 2016-06-13 03:05:17Z ssnyder $
+# $Id: CMakeLists.txt 757711 2016-06-26 13:59:12Z ssnyder $
 ################################################################################
 # Package: ControlTest
 ################################################################################
@@ -90,7 +90,7 @@ atlas_add_test( ClearStore_test
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 atlas_add_test( StoreID
-   SOURCES test/StoreID.cxx
+   SOURCES test/StoreID_test.cxx
    LINK_LIBRARIES TestTools StoreGateLib
    EXTRA_PATTERNS "^JobOptionsSvc +INFO|Service base class initialized successfully|DEBUG Property update for OutputLevel"
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )

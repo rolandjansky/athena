@@ -350,6 +350,8 @@ int main() {
 
   testRecordObject(*pStore);
 
+  testWriteAux(*pStore);
+
   test_lock (*pStore);
 
   pStore->finalize().ignore();
