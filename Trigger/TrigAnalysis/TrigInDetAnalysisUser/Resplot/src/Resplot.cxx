@@ -39,8 +39,8 @@ bool Resplot::mAddDirectoryStatus = true;
 bool Resplot::interpolate_flag = true;
 
 /// use the new error estimates
-bool Resplot::oldrms95   = false;
-bool Resplot::scalerms95 = true;
+bool Resplot::oldrms95   = true;
+bool Resplot::scalerms95 = false;
 
 Resplot::ERROR Resplot::ErrorSet = Resplot::OK;
 
