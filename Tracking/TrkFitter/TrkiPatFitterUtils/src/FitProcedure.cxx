@@ -46,7 +46,10 @@ namespace Trk{
 
 
 // constructor
-FitProcedure::FitProcedure (bool				lineFit,
+FitProcedure::FitProcedure (bool				constrainedAlignmentEffects,
+			    bool				extendedDebug,
+			    bool				fastMatrixTreatment,
+			    bool				lineFit,
 			    const ToolHandle<IIntersector>&	rungeKuttaIntersector,
 			    const ToolHandle<IIntersector>&	solenoidalIntersector,
 			    const ToolHandle<IIntersector>&	straightLineIntersector,
@@ -64,8 +67,10 @@ FitProcedure::FitProcedure (bool				lineFit,
 	m_debug				(false),
 	m_driftSum			(0.),
 	m_driftSumLast			(0.),
+	m_extendedDebug 		(extendedDebug),
 	m_extremeOneOverP		(1./(10.*Gaudi::Units::TeV)),
-	m_fitMatrices  			(new FitMatrices),
+	m_fitMatrices  			(new FitMatrices(constrainedAlignmentEffects,
+							 fastMatrixTreatment)),
 	m_fitProbability		(0.),
 	m_fitQuality			(0),
 	m_indetVolume			(indetVolume),
@@ -339,6 +344,8 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 	{
 	    const AlignmentEffectsOnTrack&	AEOT	= *(**m).alignmentEffects();
 	    unsigned align				= (**m).alignmentParameter() - 1;
+
+            *m_log << MSG::VERBOSE  <<" Fitprocedure AEOT input deltaTranslation " << AEOT.deltaTranslation() << " deltaAngle " << AEOT.deltaAngle() << " output Trans " << parameters.alignmentOffset(align) << " deltaAngle " << parameters.alignmentAngle(align) << endreq; 
 	    alignmentEffects				=
 		new Trk::AlignmentEffectsOnTrack(parameters.alignmentOffset(align),
 						 AEOT.sigmaDeltaTranslation(),
