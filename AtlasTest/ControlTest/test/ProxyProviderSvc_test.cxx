@@ -122,7 +122,7 @@ void testReadPrivate(StoreGateSvc& rSG) {
   SGASSERTERROR((rSG.readPrivateCopy<Foo>("NotThere")).get() != 0);
   
   apFoo=rSG.readUniquePrivateCopy<Foo>("diskFoo");
-  assert(0 != &*apFoo);
+  assert(0 != apFoo.get());
   assert(floatEQ(0, static_cast<float>(apFoo->a()))); //check that our Foo is the def constr one
 
   //now test the situation in which we have a transient obj in the way
@@ -132,11 +132,11 @@ void testReadPrivate(StoreGateSvc& rSG) {
   assert(rSG.overwrite(CxxUtils::make_unique<Foo>(6.28), "privFoo").isSuccess());
   
   apFoo=rSG.readUniquePrivateCopy<Foo>("privFoo");
-  assert(0 != &*apFoo);
+  assert(0 != apFoo.get());
   assert(floatNEQ(6.28f, static_cast<float>(apFoo->a()))); //check that our Foo is a different one
   apFoo->setA(3.14);
   std::unique_ptr<Foo> bpFoo(rSG.readUniquePrivateCopy<Foo>("privFoo"));
-  assert(0 != &*bpFoo);
+  assert(0 != bpFoo.get());
   assert(&*bpFoo != &*apFoo); //two independent instances
   assert(floatNEQ(6.28f, static_cast<float>(bpFoo->a()))); 
   assert(floatNEQ(3.14f, static_cast<float>(bpFoo->a()))); 
