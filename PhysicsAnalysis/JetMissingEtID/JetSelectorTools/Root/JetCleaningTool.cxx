@@ -21,6 +21,7 @@ Description: Class for selecting jets that pass some cleaning cuts
 // STL includes
 #include <iostream>
 #include <cmath>
+#include <cfloat>
 
 // ROOT includes
 #include "TEnv.h"
@@ -202,6 +203,7 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
 
   // -----------------------------------------------------------
   // Do the actual selection
+  if (pt<DBL_MIN) return m_accept;
   const double chf=sumpttrk/pt;
 
   //=============================================================
@@ -213,8 +215,12 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
   //Run-II loose cuts
   //=============================================================
   //Non-collision background & cosmics
-  if(emf<0.05 && chf<0.05 && std::fabs(eta)<2)            return m_accept;
-  if(emf<0.05 && std::fabs(eta)>=2)                       return m_accept;
+  const bool useLLP = (LooseBadLLP == m_cutLevel); // LLP cleaning cannot use emf...
+  const bool isTrigger = (LooseBadTrigger == m_cutLevel); // trigger cannot use chf
+  if (!useLLP) {
+    if(!isTrigger && emf<0.05 && chf<0.05 && std::fabs(eta)<2)            return m_accept;
+    if(emf<0.05 && std::fabs(eta)>=2)                       return m_accept;
+  }
   if(fmax>0.99 && std::fabs(eta)<2)                       return m_accept;
   //HEC spike
   if(std::fabs(negE/1000.)>60)                            return m_accept;
@@ -223,8 +229,11 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
   if(emf>0.95 && std::fabs(larq)>0.8 && std::fabs(eta)<2.8 && AverageLArQF/65535>0.8)    return m_accept;
   //// New pre-sampler topoclustering algorithm cut
   //if(fmaxIndex==0 && fmax>0.6) return m_accept;
+  // LLP cleaning uses negative energy cut
+  // (https://indico.cern.ch/event/472320/contribution/8/attachments/1220731/1784456/JetTriggerMeeting_20160102.pdf)
+  if (useLLP && std::fabs(negE/1000)>4 && fmax >0.85) return m_accept;
   
-  if (LooseBad==m_cutLevel){
+  if (LooseBad==m_cutLevel || LooseBadLLP==m_cutLevel || LooseBadTrigger==m_cutLevel){
     m_accept.setCutResult( "Cleaning", true );
     return m_accept;
   }
@@ -242,6 +251,7 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
   //Run-II tight cuts
   //=============================================================
   // NCB monojet-style cut in central, EMF cut in forward
+  if (fmax<DBL_MIN) return m_accept;
   if(std::fabs(eta)<2.4 && chf/fmax<0.1) return m_accept;
   //if(std::fabs(eta)>=2.4 && emf<0.1) return m_accept;
   if(TightBad==m_cutLevel){
@@ -255,6 +265,12 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
   return m_accept;
 }
 
+
+void missingVariable(const char* varName)
+{
+    throw std::string(Form("JetCleaningTool failed to retrieve a required variable - please confirm that the xAOD::Jet being passed contains the variable named %s",varName));
+}
+
 const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
 {
   std::vector<float> sumPtTrkvec;
@@ -262,18 +278,50 @@ const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
   double sumpttrk = 0;
   if( ! sumPtTrkvec.empty() ) sumpttrk = sumPtTrkvec[0];
 
-  return accept (jet.getAttribute<float>(xAOD::JetAttribute::EMFrac),
-                 jet.getAttribute<float>(xAOD::JetAttribute::HECFrac),
-                 jet.getAttribute<float>(xAOD::JetAttribute::LArQuality),
-                 jet.getAttribute<float>(xAOD::JetAttribute::HECQuality),
+  // Get all of the required variables
+  // Do it this way so we can gracefully handle missing variables (rather than segfaults)
+  float EMFrac = 0;
+  if (!jet.getAttribute(xAOD::JetAttribute::EMFrac,EMFrac))
+    missingVariable("EMFrac");
+  float HECFrac = 0;
+  if (!jet.getAttribute(xAOD::JetAttribute::HECFrac,HECFrac))
+    missingVariable("HECFrac");
+  float LArQuality = 0;
+  if (!jet.getAttribute(xAOD::JetAttribute::LArQuality,LArQuality))
+    missingVariable("LArQuality");
+  float HECQuality = 0;
+  if (!jet.getAttribute(xAOD::JetAttribute::HECQuality,HECQuality))
+    missingVariable("HECQuality");
+  float FracSamplingMax = 0;
+  if (!jet.getAttribute(xAOD::JetAttribute::FracSamplingMax,FracSamplingMax))
+    missingVariable("FracSamplingMax");
+  float NegativeE = 0;
+  if (!jet.getAttribute(xAOD::JetAttribute::NegativeE,NegativeE))
+    missingVariable("NegativeE");
+  float AverageLArQF = 0;
+  if (!jet.getAttribute(xAOD::JetAttribute::AverageLArQF,AverageLArQF))
+    missingVariable("AverageLArQF");
+
+  // fmax index is not necessarily required
+  // This is only used if doUgly is set
+  // Handle it gracefully if the variable is not present but doUgly is false
+  int FracSamplingMaxIndex = -1;
+  if (!jet.getAttribute(xAOD::JetAttribute::FracSamplingMaxIndex,FracSamplingMaxIndex) && m_doUgly)
+    missingVariable("FracSamplingMaxIndex");
+
+  
+  return accept (EMFrac,
+                 HECFrac,
+                 LArQuality,
+                 HECQuality,
                  //jet.getAttribute<float>(xAOD::JetAttribute::Timing),
                  sumpttrk,
                  jet.eta(),
                  jet.pt(),
-                 jet.getAttribute<float>(xAOD::JetAttribute::FracSamplingMax),
-                 jet.getAttribute<float>(xAOD::JetAttribute::NegativeE),
-                 jet.getAttribute<float>(xAOD::JetAttribute::AverageLArQF),
-                 jet.getAttribute<int>(xAOD::JetAttribute::FracSamplingMaxIndex));
+                 FracSamplingMax,
+                 NegativeE,
+                 AverageLArQF,
+                 FracSamplingMaxIndex);
 }
 
 /** Hot cell checks */
@@ -302,6 +350,8 @@ JetCleaningTool::CleaningLevel JetCleaningTool::getCutLevel( const std::string s
 {
   //if (s=="VeryLooseBad") return VeryLooseBad;
   if (s=="LooseBad")     return LooseBad;
+  if (s=="LooseBadLLP")     return LooseBadLLP;
+  if (s=="LooseBadTrigger")     return LooseBadTrigger;
   //if (s=="MediumBad")    return MediumBad;
   if (s=="TightBad")     return TightBad;
   ATH_MSG_ERROR( "Unknown cut level requested: " << s );
@@ -312,6 +362,8 @@ std::string JetCleaningTool::getCutName( const CleaningLevel c) const
 {
   //if (c==VeryLooseBad) return "VeryLooseBad";
   if (c==LooseBad)     return "LooseBad";
+  if (c==LooseBadLLP)     return "LooseBadLLP";
+  if (c==LooseBadTrigger)     return "LooseBadTrigger";
   //if (c==MediumBad)    return "MediumBad";
   if (c==TightBad)     return "TightBad";
   return "UnknownCut";
@@ -393,5 +445,6 @@ StatusCode JetCleaningTool::readHotCells()
     // Done
     return StatusCode::SUCCESS;
 }
+
 
 
