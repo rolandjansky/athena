@@ -106,6 +106,7 @@ class TileRawChannelGetter ( Configured)  :
 
                     from TileRecUtils.TileRecUtilsConf import TileRawChannelOF1Corrector
                     theTileRawChannelOF1Corrector = TileRawChannelOF1Corrector()
+                    theTileRawChannelOF1Corrector.ZeroAmplitudeWithoutDigits = False
                     ToolSvc += theTileRawChannelOF1Corrector
                     NoiseFilterTools += [theTileRawChannelOF1Corrector]
 
