@@ -12,6 +12,7 @@ genseeds = {
     'Pythia8B'          : ["PYTHIA8 OFFSET {rnd} 4789899 {rnd}", "PYTHIA8_INIT 820021 2347532"],
     'Herwig'            : ["HERWIG OFFSET {rnd} 30450275 {rnd}", "HERWIG_INIT 620021 5347532"],
     'Herwigpp'          : ["Herwigpp OFFSET {rnd} {rnd} 31122001"],
+    'Herwig7'          : ["Herwig7 OFFSET {rnd} {rnd} 31122001"],
     'Jimmy'             : ["JIMMY OFFSET {rnd}  39002061 {rnd}", "JIMMY_INIT  720021 4347532"],
     'Cascade'           : ["CASCADE OFFSET {rnd} 4789899 {rnd}", "CASCADE_INIT 889223465 78782321"],
     'Tauola'            : ["TAUOLA OFFSET {rnd} 10480275 {rnd}", "TAUOLA_INIT 920021 3347532"],

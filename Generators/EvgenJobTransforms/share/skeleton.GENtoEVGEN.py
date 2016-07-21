@@ -141,9 +141,9 @@ if hasattr(runArgs, "printEvts") and runArgs.printEvts > 0:
     postSeq.PrintMC.LastEvent  = runArgs.printEvts
 
 ## Estimate time needed for Simulation
-#from EvgenProdTools.EvgenProdToolsConf import SimTimeEstimate
-#if not hasattr(postSeq, "SimTimeEstimate"):
-#    postSeq += SimTimeEstimate()
+from EvgenProdTools.EvgenProdToolsConf import SimTimeEstimate
+if not hasattr(postSeq, "SimTimeEstimate"):
+    postSeq += SimTimeEstimate()
 
 ## Add Rivet_i to the job
 # TODO: implement auto-setup of analyses triggered on evgenConfig.keywords (from T Balestri)
@@ -250,7 +250,7 @@ gennames = sorted(evgenConfig.generators, key=gen_sortkey)
 ## Check that the actual generators, tune, and main PDF are consistent with the JO name
 if joparts[0].startswith("MC"): #< if this is an "official" JO
     genpart = jo_physshortparts[0]
-#    genpart = genpart.replace("Py8", "Pythia8").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp",Herwigpp").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("Py","Pythia").replace("EG","EvtGen").replace("PG","ParticleGun")
+#    genpart = genpart.replace("Py8", "Pythia8").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp",Herwigpp").replace("H7",Herwig7").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("Py","Pythia").replace("EG","EvtGen").replace("PG","ParticleGun")
     expectedgenpart = ''.join(gennames)
     ## We want to record that HERWIG was used in metadata, but in the JO naming we just use a "Herwig" label
     expectedgenpart = expectedgenpart.replace("HerwigJimmy", "Herwig")
@@ -258,10 +258,10 @@ if joparts[0].startswith("MC"): #< if this is an "official" JO
         # TODO: add EvtGen to this normalization for MC14?
         return s.replace("Photospp", "").replace("Photos", "").replace("Tauola", "")
     def _norm2(s):
-        return s.replace("Py", "Pythia").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp","Herwigpp").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("EG","EvtGen").replace("PG","ParticleGun")
+        return s.replace("Py", "Pythia").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp","Herwigpp").replace("H7","Herwig7").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("EG","EvtGen").replace("PG","ParticleGun")
         
     def _short2(s):
-         return s.replace("Pythia","Py").replace("MadGraph","MG").replace("Powheg","Ph").replace("Herwigpp","Hpp").replace("Sherpa","Sh").replace("Alpgen","Ag").replace("EvtGen","EG").replace("PG","ParticleGun")
+         return s.replace("Pythia","Py").replace("MadGraph","MG").replace("Powheg","Ph").replace("Herwigpp","Hpp").replace("Herwig7","H7").replace("Sherpa","Sh").replace("Alpgen","Ag").replace("EvtGen","EG").replace("PG","ParticleGun")
      
     if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart) and _norm2(genpart) != expectedgenpart and _norm2(genpart) != _norm(expectedgenpart):
         evgenLog.error("Expected first part of JO name to be '%s' or '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, _short2(expectedgenpart), genpart))
