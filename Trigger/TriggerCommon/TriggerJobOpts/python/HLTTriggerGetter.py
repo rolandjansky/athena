@@ -192,10 +192,13 @@ class HLTSimulationGetter(Configured):
             if hasattr(TrigSteer_HLT.LvlTopoConverter, 'MuonInputProvider'):
                 print "TrigSteer_HLT.LvlTopoConverter has attribute MuonInputProvider"
 
-                from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
-                from AthenaCommon.AppMgr import ToolSvc
-                ToolSvc += L1MuctpiTool()
-                TrigSteer_HLT.LvlTopoConverter.MuonInputProvider.MuctpiSimTool = L1MuctpiTool()
+                try: # this is temporary until TrigT1Muctpi-00-06-29 is in the release
+                    from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
+                    from AthenaCommon.AppMgr import ToolSvc
+                    ToolSvc += L1MuctpiTool()
+                    TrigSteer_HLT.LvlTopoConverter.MuonInputProvider.MuctpiSimTool = L1MuctpiTool()
+                except ImportError:
+                    pass
 
                 from AthenaCommon.GlobalFlags  import globalflags
                 if globalflags.DataSource()!='data':

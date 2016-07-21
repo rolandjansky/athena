@@ -165,6 +165,14 @@ class doAlwaysUnpackDSResult(JobProperty):
 
 _flags.append(doAlwaysUnpackDSResult)
 
+class writeL1TopoValData(JobProperty):
+    """ if False disable writing out of the xAOD L1Topo validation object """
+    statusOn=True
+    allowedType=['bool']
+    StoredValue=True
+
+_flags.append(writeL1TopoValData)
+
 class EDMDecodingVersion(JobProperty):
     """ if 1, Run1 decoding version is set; if 2, Run2 """
     statusOn=True
@@ -1048,6 +1056,8 @@ class triggerMenuSetup(JobProperty):
         'DC14', 'DC14_no_prescale', 'DC14_tight_mc_prescale', 'DC14_loose_mc_prescale', # for DC14
         'Physics_HI_v3', 'Physics_HI_v3_no_prescale', # for 2015 lead-lead menu 
         'MC_HI_v3', 'MC_HI_v3_tight_mc_prescale',
+        'Physics_HI_v4', 'Physics_HI_v4_no_prescale', # for 2016 proton-lead menu 
+        'MC_HI_v4', 'MC_HI_v4_tight_mc_prescale',
 
         'MC_pp_v6','Physics_pp_v6','MC_pp_v6_no_prescale', 'MC_pp_v6_tight_mc_prescale', 'MC_pp_v6_tightperf_mc_prescale', 'MC_pp_v6_loose_mc_prescale','Physics_pp_v6_tight_physics_prescale',
         ]
@@ -1083,98 +1093,16 @@ _flags.append(triggerMenuSetup)
 class L1PrescaleSet(JobProperty):
     statusOn = True
     allowedTypes = ['str']
-    allowedValues = [
-        '', 'None',
-        # Physics menus
-        'L1Prescales100_Physics_lumi1E31_simpleL1Calib','L1PrescalesNone_Physics_lumi1E31_simpleL1Calib',
-        'L1Prescales100_Physics_lumi1E32_simpleL1Calib','L1PrescalesNone_Physics_lumi1E32_simpleL1Calib',
-        'L1Prescales100_Physics_lumi1E33','L1PrescalesNone_Physics_lumi1E33',
-        'L1Prescales100_Physics_lumi1E34','L1PrescalesNone_Physics_lumi1E34',
-        'L1Prescales100_MC_lumi1E31_simpleL1Calib','L1PrescalesNone_MC_lumi1E31_simpleL1Calib',
-        'L1Prescales100_MC_lumi1E32_simpleL1Calib','L1PrescalesNone_MC_lumi1E32_simpleL1Calib',
-        'L1Prescales100_MC_lumi1E33','L1PrescalesNone_MC_lumi1E33',
-        # Enhanced bias
-        'L1Prescales100_enhBias','L1PrescalesNone_enhBias',
-        # Cosmic menus
-        'L1Prescales100_Cosmic_v1', 'L1PrescalesNone_Cosmic_v1',
-        'L1Prescales100_Cosmic2009_v1', 'L1PrescalesNone_Cosmic2009_v1',
-        'L1Prescales100_Cosmic2009_v2', 'L1PrescalesNone_Cosmic2009_v2',
-        'L1Prescales100_Cosmic_v2', 'L1PrescalesNone_Cosmic_v2',
-        'L1Prescales100_Cosmic_v3', 'L1PrescalesNone_Cosmic_v3',
-        'L1Prescales100_Cosmic2009_simpleL1Calib', 'L1PrescalesNone_Cosmic2009_simpleL1Calib',
-        'L1Prescales100_Cosmic2009_inclMuons', 'L1PrescalesNone_Cosmic2009_inclMuons',
-        # Commissioning menus
-        'L1Prescales100_InitialBeam_v1', 'L1PrescalesNone_InitialBeam_v1',
-        'L1Prescales100_MC_InitialBeam_v1', 'L1PrescalesNone_MC_InitialBeam_v1',
-        'L1Prescales100_InitialBeam_v2', 'L1PrescalesNone_InitialBeam_v2',
-        'L1Prescales100_MC_InitialBeam_v2', 'L1PrescalesNone_MC_InitialBeam_v2',
-        'L1Prescales100_InitialBeam_v3', 'L1PrescalesNone_InitialBeam_v3',
-        'L1Prescales100_MC_InitialBeam_v3', 'L1PrescalesNone_MC_InitialBeam_v3',
-        #2010-2011 menus
-        'L1Prescales100_Physics_pp_v1','L1PrescalesNone_Physics_pp_v1',
-        'L1Prescales100_MC_pp_v1','L1PrescalesNone_MC_pp_v1',
-        'L1Prescales100_MC_pp_v1_tight_mc_prescale','L1PrescalesNone_MC_pp_v1_tight_mc_prescale',
-        'L1Prescales100_MC_pp_v1_loose_mc_prescale','L1PrescalesNone_MC_pp_v1_loose_mc_prescale',
-        # HeavyIon
-        'L1Prescales100_InitialBeam_HI_v1','L1PrescalesNone_InitialBeam_HI_v1',
-        'L1Prescales100_MC_InitialBeam_HI_v1', 'L1PrescalesNone_MC_InitialBeam_HI_v1',
-        'L1Prescales100_Physics_HI_v1','L1PrescalesNone_Physics_HI_v1',
-        'L1Prescales100_MC_HI_v1','L1PrescalesNone_MC_HI_v1',
-        'L1Prescales100_Physics_HI_v2','L1PrescalesNone_Physics_HI_v2',
-        'L1Prescales100_MC_HI_v2','L1PrescalesNone_MC_HI_v2',
-        'tight_physics_prescale',
-        ]
+    allowedValues = ['', 'None']
     StoredValue = ''
 _flags.append(L1PrescaleSet)
 
 class HLTPrescaleSet(JobProperty):
     statusOn = True
     allowedTypes = ['str']
-    allowedValues = [
-        '', 'None',
-        # Physics menus
-        'HLTPrescales100_Physics_lumi1E31_simpleL1Calib','HLTPrescalesNone_Physics_lumi1E31_simpleL1Calib',
-        'HLTPrescales100_Physics_lumi1E32_simpleL1Calib','HLTPrescalesNone_Physics_lumi1E32_simpleL1Calib',
-        'HLTPrescales100_Physics_lumi1E33','HLTPrescalesNone_Physics_lumi1E33',
-        'HLTPrescales100_Physics_lumi1E34','HLTPrescalesNone_Physics_lumi1E34',        
-        'HLTPrescales100_MC_lumi1E31_simpleL1Calib','HLTPrescalesNone_MC_lumi1E31_simpleL1Calib',
-        'HLTPrescales100_MC_lumi1E32_simpleL1Calib','HLTPrescalesNone_MC_lumi1E32_simpleL1Calib',
-        'HLTPrescales100_MC_lumi1E33','HLTPrescalesNone_MC_lumi1E33',
-        # Enhanced bias
-        'HLTPrescales100_enhBias','HLTPrescalesNone_enhBias',
-        # Cosmic menus
-        'HLTPrescales100_Cosmic_v1', 'HLTPrescalesNone_Cosmic_v1',
-        'HLTPrescales100_Cosmic2009_v1', 'HLTPrescalesNone_Cosmic2009_v1',
-        'HLTPrescales100_Cosmic2009_v2', 'HLTPrescalesNone_Cosmic2009_v2',
-        'HLTPrescales100_Cosmic2009_simpleL1Calib', 'HLTPrescalesNone_Cosmic2009_simpleL1Calib',
-        'HLTPrescales100_Cosmic2009_inclMuons', 'HLTPrescalesNone_Cosmic2009_inclMuons',
-        'HLTPrescales100_Cosmic_v2', 'HLTPrescalesNone_Cosmic_v2',        
-        'HLTPrescales100_Cosmic_v3', 'HLTPrescalesNone_Cosmic_v3',        
-        # Commissioning menus
-        'HLTPrescales100_InitialBeam_v1', 'HLTPrescalesNone_InitialBeam_v1',
-        'HLTPrescales100_MC_InitialBeam_v1', 'HLTPrescalesNone_MC_InitialBeam_v1',
-        'HLTPrescales100_InitialBeam_v2', 'HLTPrescalesNone_InitialBeam_v2',
-        'HLTPrescales100_MC_InitialBeam_v2', 'HLTPrescalesNone_MC_InitialBeam_v2',
-        'HLTPrescales100_InitialBeam_v3', 'HLTPrescalesNone_InitialBeam_v3',
-        'HLTPrescales100_MC_InitialBeam_v3', 'HLTPrescalesNone_MC_InitialBeam_v3',
-        # 2010-2011 menus
-        #2010-2011 menus
-        'HLTPrescales100_Physics_pp_v1','HLTPrescalesNone_Physics_pp_v1',
-        'HLTPrescales100_MC_pp_v1','HLTPrescalesNone_MC_pp_v1',
-        'HLTPrescales100_MC_pp_v1_tight_mc_prescale','HLTPrescalesNone_MC_pp_v1_tight_mc_prescale',
-        'HLTPrescales100_MC_pp_v1_loose_mc_prescale','HLTPrescalesNone_MC_pp_v1_loose_mc_prescale',
-        # HeavyIon
-        'HLTPrescales100_InitialBeam_HI_v1','HLTPrescalesNone_InitialBeam_HI_v1',
-        'HLTPrescales100_MC_InitialBeam_HI_v1', 'HLTPrescalesNone_MC_InitialBeam_HI_v1',
-        'HLTPrescales100_Physics_HI_v1','HLTPrescalesNone_Physics_HI_v1',
-        'HLTPrescales100_MC_HI_v1','HLTPrescalesNone_MC_HI_v1',
-        'HLTPrescales100_Physics_HI_v2','HLTPrescalesNone_Physics_HI_v2',
-        'HLTPrescales100_MC_HI_v2','HLTPrescalesNone_MC_HI_v2',
-        'tight_physics_prescale',
-        ]
+    allowedValues = ['', 'None']
     StoredValue = ''
 _flags.append(HLTPrescaleSet)
-
 
 
 # the container of all trigger flags

@@ -430,7 +430,7 @@ class TriggerConfigGetter(Configured):
         # the output:
         try: 
             from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriter
-            topAlgs += TrigConf__xAODMenuWriter()
+            topAlgs += TrigConf__xAODMenuWriter( OverwriteEventObj = True )
 
             # The metadata objects to add to the output:
             metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",

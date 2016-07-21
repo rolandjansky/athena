@@ -64,10 +64,13 @@ class Lvl1SimulationGetter (Configured):
                 topSequence += L1TopoSimulation()
                 topSequence.L1TopoSimulation.OutputLevel = DEBUG
 
-                from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
-                from AthenaCommon.AppMgr import ToolSvc
-                ToolSvc += L1MuctpiTool()
-                topSequence.L1TopoSimulation.MuonInputProvider.MuctpiSimTool = L1MuctpiTool()
+                try: # this is temporary until TrigT1Muctpi-00-06-29 is in the release
+                    from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
+                    from AthenaCommon.AppMgr import ToolSvc
+                    ToolSvc += L1MuctpiTool()
+                    topSequence.L1TopoSimulation.MuonInputProvider.MuctpiSimTool = L1MuctpiTool()
+                except ImportError:
+                    pass
 
                 # enable the reduced (coarse) granularity topo simulation
                 # currently only for MC
