@@ -46,7 +46,10 @@ namespace Trk
 class FitProcedure
 {
 public:
-    FitProcedure (bool					lineFit,
+    FitProcedure (bool					constrainedAlignmentEffects,
+		  bool					extendedDebug,
+		  bool					fastMatrixTreatment,
+		  bool					lineFit,
 		  const ToolHandle<IIntersector>&	rungeKuttaIntersector,
 		  const ToolHandle<IIntersector>&	solenoidalIntersector,
 		  const ToolHandle<IIntersector>&	straightLineIntersector,
@@ -100,6 +103,7 @@ private:
     bool				m_debug;
     double				m_driftSum;
     double				m_driftSumLast;
+    bool				m_extendedDebug;
     double				m_extremeOneOverP;
     FitMatrices*			m_fitMatrices;
     double				m_fitProbability;

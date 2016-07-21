@@ -359,8 +359,10 @@ MeasurementProcessor::calculateResiduals(void)
 	    }
 	    else if ((**m).isAlignment())	// alignment uncertainties
 	    {
-		(**m).residual(-(**m).weight()*m_parameters->alignmentAngle(nAlign));
-		(**m).residual2(-(**m).weight2()*m_parameters->alignmentOffset(nAlign));
+		(**m).residual(-(**m).weight()   * (m_parameters->alignmentAngle(nAlign) -
+						  m_parameters->alignmentAngleConstraint(nAlign)));
+		(**m).residual2(-(**m).weight2() * (m_parameters->alignmentOffset(nAlign) -
+						    m_parameters->alignmentOffsetConstraint(nAlign)));
 		++nAlign;
 	    }
 	    else if ((**m).isEnergyDeposit())
@@ -939,14 +941,14 @@ MeasurementProcessor::driftDerivatives(int derivativeFlag, const FitMeasurement&
 	    // offset derivative: barrel (endcap) projection factor onto the surface plane in the z (r) direction
 	    double projection;
 	    const Surface& surface	= *fm->surface();
-	    if (surface.normal().dot(surface.center().unit()) < 0.5)
+	    if (std::abs(surface.normal().z()) > 0.5)
 	    {
-		projection	= driftDirection.z();
+		projection = (driftDirection.x()*surface.center().x() + driftDirection.y()*surface.center().y()) /
+			     surface.center().perp();
 	    }
 	    else
 	    {
-		projection =	(driftDirection.x()*surface.center().x() + driftDirection.y()*surface.center().y()) /
-				surface.center().perp();
+		projection = driftDirection.z();
 	    }
 	    measurement.derivative(++param, weight*projection);
 	     
