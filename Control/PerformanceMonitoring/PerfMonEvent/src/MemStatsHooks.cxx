@@ -56,6 +56,12 @@ static void  pmon_mem_free( void* ptr, const void* /*caller*/ )
 #else /* __linux__ */
 
 
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+
 void PerfMon::MemStats::start()
 {
   if (0 != pthread_mutex_init(&pmon_mem_lock, NULL)) {
