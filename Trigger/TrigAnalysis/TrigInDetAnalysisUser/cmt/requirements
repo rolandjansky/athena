@@ -86,7 +86,7 @@ macro_append TIDAmakeSmallRefFile_cppflags     " "
 macro_append TIDAmakeSmallRefFilelinkopts      " "
 macro_append TIDAmakeSmallRefFile_dependencies " "
 
-apply_pattern declare_runtime extras="../share/TIDA*.dat ../share/Test_bin.dat"
+apply_pattern declare_runtime extras="../share/TIDA*.dat ../share/TIDA*.py ../share/Test_bin.dat"
 
 
 

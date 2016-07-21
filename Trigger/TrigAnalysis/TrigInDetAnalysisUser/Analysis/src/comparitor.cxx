@@ -56,29 +56,32 @@ int usage(const std::string& name, int status) {
   //  s << "Configuration: \n";
   //  s << "    -o filename   \tname of output grid (filename required)\n\n";
   s << "Options: \n";
-  s << "    -c,  --config value     \t configure which histograms to plot from config file,\n";
-  s << "    -t,  --tag value        \t appends tag 'value' to the end of output plot names, \n";
-  s << "    -k,  --key value        \t prepends key 'value' to the from of output plots name, \n";
-  s << "    -d,  --dir value        \t creates output files into directory, \"value\" \n";
-  s << "    -e,  --efficiencies     \t make test efficiencies with respect to reference \n";
-  s << "    -es, --effscale value   \t scale efficiencies to value\n";
-  s << "    -r,  --refit            \t refit all resplots\n";
-  s << "    -l,  --labels           \t use specified labels for key\n";
-  s << "         --taglabels        \t use specified additional labels \n";
-  s << "    -nb  --nobayes          \t do not calculate Basyesian efficiency uncertaintiesr\n";
-  s << "    -as, --atlasstyle       \t use ATLAS style\n";
-  s << "    -al, --atlaslable value \t set value for atlas label\n";
-  s << "         --yrange  min max  \t use specified y axis range\n";  
-  s << "    -ns, --nostats          \t do not show stats for mean and rms\n";
-  s << "    -nr, --noref            \t do not plot reference histograms\n";
-  s << "    -np, --noplots          \t do not actually make any plot\n";
-  s << "    -C,  --Cfiles           \t write C files also\n"; 
-  s << "    -nw, --nowatermark      \t do not plot the release watermark\n"; 
-  s << "         --nopng            \t do not print png files\n"; 
-  s << "         --deleteref        \t delete unused reference histograms\n";
-  s << "    -xo, --xoffset          \t relative x offset for the key\n"; 
+  s << "    -c,  --config value       \t configure which histograms to plot from config file,\n";
+  s << "    -t,  --tag value          \t appends tag 'value' to the end of output plot names, \n";
+  s << "    -k,  --key value          \t prepends key 'value' to the from of output plots name, \n";
+  s << "    -d,  --dir value          \t creates output files into directory, \"value\" \n";
+  s << "    -e,  --efficiencies       \t make test efficiencies with respect to reference \n";
+  s << "    -es, --effscale value     \t scale efficiencies to value\n";
+  s << "    -er, --effscaleref  value \t scale efficiencies to value\n";
+  s << "    -r,  --refit              \t refit all resplots\n";
+  s << "    -l,  --labels             \t use specified labels for key\n";
+  s << "         --taglabels          \t use specified additional labels \n";
+  s << "    -nb  --nobayes            \t do not calculate Basyesian efficiency uncertaintiesr\n";
+  s << "    -as, --atlasstyle         \t use ATLAS style\n";
+  s << "    -al, --atlaslable value   \t set value for atlas label\n";
+  s << "         --yrange  min max    \t use specified y axis range\n";  
+  s << "    -ns, --nostats            \t do not show stats for mean and rms\n";
+  s << "    -nm, --nomeans            \t do not show stats for the means\n";
+  s << "    -nr, --noref              \t do not plot reference histograms\n";
+  s << "    -np, --noplots            \t do not actually make any plot\n";
+  s << "         --chi2               \t show the chi2 with respect to the reference\n";
+  s << "    -C,  --Cfiles             \t write C files also\n"; 
+  s << "    -nw, --nowatermark        \t do not plot the release watermark\n"; 
+  s << "         --nopng              \t do not print png files\n"; 
+  s << "         --deleteref          \t delete unused reference histograms\n";
+  s << "    -xo, --xoffset            \t relative x offset for the key\n"; 
   //  s << "         --fe,            \t relative x offset for the key\n"; 
-  s << "    -h,  --help            \t this help\n";
+  s << "    -h,  --help              \t this help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
   //  s << "\nReport bugs to <" << PACKAGE_BUGREPORT << ">";
   s << std::endl;
@@ -86,7 +89,49 @@ int usage(const std::string& name, int status) {
 }
 
 
+void ascale( TH1F* h, double s_ ) { 
+  for ( int i=1 ; i<=h->GetNbinsX() ; i++ ) { 
+    h->SetBinContent( i, h->GetBinContent(i)*s_ );
+    h->SetBinError( i, h->GetBinError(i)*s_ );
+  }
+}
 
+
+// replace from a string
+std::string fullreplace( std::string s, const std::string& s2, const std::string& s3) {
+  if ( s2!="" ) { 
+    std::string::size_type pos;
+    while ( (pos = s.find(s2))!=std::string::npos ) s.replace(pos, s2.size(), s3);
+  }
+  return s;
+} 
+
+
+
+// std::string replace( std::string s, const std::string& pattern, const std::string& regex ) { 
+//  if ( pattern!="" && regex!="" && s.find(pattern)!=std::string::npos ) s.replace( s.find(pattern), pattern.size(), regex );
+//  return s;
+// }
+
+
+double chi2( TH1* h0, TH1* h1 ) { 
+  double c2 = 0;
+  for ( int i=0 ; i<h0->GetNbinsX() ; i++ ) {
+ 
+    double d0 = h0->GetBinContent(i+1);
+    double d1 = h1->GetBinContent(i+1);
+ 
+    double e0 = h0->GetBinError(i+1);
+    double e1 = h1->GetBinError(i+1);
+
+    double  e2 = e0*e0+e1*e1;
+    
+    if ( e2>0 ) c2 += (d0-d1)*(d0-d1)/e2; 
+
+  }
+  
+  return c2;
+}
 
 
 int main(int argc, char** argv) { 
@@ -126,6 +171,7 @@ int main(int argc, char** argv) {
   bool _bayes      = true;
   bool nopng       = false;
   bool nostats     = false;
+  bool nomeans     = false;
   bool noref       = false;
   bool atlasstyle  = false;
   bool deleteref   = false;
@@ -133,10 +179,13 @@ int main(int argc, char** argv) {
   bool noplots     = false;
   bool Cfile       = false;
   bool notitle     = false;
+  bool dochi2      = false;
 
+  
   std::string atlaslabel = "for approval";
 
-  double scale_eff = 100;
+  double scale_eff     = -1;
+  double scale_eff_ref = -1;
   
   std::string configfile = "";
 
@@ -144,6 +193,9 @@ int main(int argc, char** argv) {
 
   
   double _ypos = 0;
+
+  std::string pattern = "";
+  std::string regex   = "";
 
   std::vector<std::string> chains;
   for(int i=1; i<argc; i++){
@@ -203,8 +255,14 @@ int main(int argc, char** argv) {
       nowatermark = true;
       Plots::setwatermark(!nowatermark);
     }
+    else if ( arg=="--chi2" ) { 
+      dochi2 = true;
+    }
     else if ( arg=="-ns" || arg=="--nostats" ) { 
       nostats = true;
+    }
+    else if ( arg=="-nm" || arg=="--nomeans" ) { 
+      nomeans = true;
     }
     else if ( arg=="-nt" || arg=="--notitle" ) { 
       notitle = true;
@@ -218,6 +276,10 @@ int main(int argc, char** argv) {
     }
     else if ( arg=="-es" || arg=="--effscale" ) { 
       if ( ++i<argc ) scale_eff=std::atof(argv[i]);
+      else return usage(argv[0], -1);
+    } 
+    else if ( arg=="-er" || arg=="--effscaleref" ) { 
+      if ( ++i<argc ) scale_eff_ref=std::atof(argv[i]);
       else return usage(argv[0], -1);
     } 
     else if ( arg=="-np" || arg=="--noplots" ) { 
@@ -245,6 +307,12 @@ int main(int argc, char** argv) {
     }
     else if ( arg=="-yp" || arg=="--ypos" ) { 
       if ( ++i<argc ) _ypos=std::atof(argv[i]);
+      else return usage(argv[0], -1);
+    }
+    else if ( arg=="-s" || arg=="--swap" ) { 
+      if ( ++i<argc ) pattern=argv[i];
+      else return usage(argv[0], -1);
+      if ( ++i<argc ) regex=argv[i];
       else return usage(argv[0], -1);
     }
     else if ( arg.find("-")==0 ) {
@@ -282,11 +350,16 @@ int main(int argc, char** argv) {
     }
   }
 
+  if ( scale_eff     == -1 ) scale_eff     = 100;
+  if ( scale_eff_ref == -1 ) scale_eff_ref = scale_eff;
+
+
   std::cout << argv[0] << " options:" << std::endl;
   std::cout << "\tATLAS style:                 " << ( atlasstyle ? "true" : "false" ) << std::endl; 
   std::cout << "\tBayesian uncertainties:      " << ( _bayes ? "true" : "false" ) << std::endl; 
   std::cout << "\trefit resplot uncertainties: " << ( refit_resplots ? "true" : "false" ) << std::endl; 
   std::cout << "\tsuppress mean and rms stats: " << ( nostats ? "true" : "false" ) << std::endl;  
+  if ( !nostats ) std::cout << "\tsuppress meanstats:          " << ( nomeans ? "true" : "false" ) << std::endl;  
   std::cout << "\tsuppress png output:         " << ( nopng ? "true" : "false" ) << std::endl;  
   std::cout << "\tsuppress reference output:   " << ( noref ? "true" : "false" ) << std::endl;  
   if ( usrlabels.size()>0 )    std::cout << "\tlabels:       " << usrlabels << std::endl;  
@@ -579,15 +652,15 @@ int main(int argc, char** argv) {
       ////////////////////
 
 
-      if ( chains[j]=="FTK_TrackParticle"){
+      if ( chains[j]=="FTK_TrackParticle" ){
 
           for ( int i=0 ; i<Nhistos2D ; i++ ) {
 
-	    if ( contains( histos2D[i],"eta_phi_rec") ) gStyle->SetPalette(100, MyPalette);
-              else   gStyle->SetPalette(1);
+	      if ( contains( histos2D[i],"eta_phi_rec") ) gStyle->SetPalette(100, MyPalette);
+	      else   gStyle->SetPalette(1);
            
-              gStyle->SetOptStat(0);
-              TH2F* htest2D = (TH2F*)ftest.Get((chains[j]+"/"+histos2D[i]).c_str()) ;
+	      gStyle->SetOptStat(0);
+	      TH2F* htest2D = (TH2F*)ftest.Get((chains[j]+"/"+histos2D[i]).c_str()) ;
               TH2F* href2D  = (TH2F*)fref.Get((chains[j]+"/"+histos2D[i]).c_str()) ;
            
 	      savedhistos.push_back( chains[j]+"/"+histos2D[i] );
@@ -669,6 +742,8 @@ int main(int argc, char** argv) {
 
     if ( _ypos!=0 ) ypos = _ypos;
 
+    double xpos_original = xpos;
+
     xpos += xoffset;
 
     /// calculate all the postions for the items in the legend
@@ -707,11 +782,13 @@ int main(int argc, char** argv) {
     Mean.clear();
     RMS.clear();
 
+    std::vector<std::string> Chi2;
     std::vector<std::string> MeanRef;
     std::vector<std::string> RMSRef;
   
     //    int colours[6] = { 1, 2, 4, 6, 7, 8 };
 
+    Chi2.clear();
     MeanRef.clear();
     RMSRef.clear();
 
@@ -779,10 +856,12 @@ int main(int argc, char** argv) {
 
 	    /// still get the reference histo
 
+	    std::string refchain = fullreplace( chains[j], pattern, regex );
 
-	    href  = (TH1F*)fref.Get((chains[j]+"/"+histos[i]).c_str()) ;
+	    //	    href  = (TH1F*)fref.Get((chains[j]+"/"+histos[i]).c_str()) ;
+	    href  = (TH1F*)fref.Get( (refchain+"/"+histos[i]).c_str() );
 
-	    std::cout << "\tget" << (chains[j]+"/"+histos[i]) << "\t" << href << std::endl;
+	    std::cout << "\tget " << (refchain+"/"+histos[i]) << "\t" << href << std::endl;
 
 	    savedhistos.push_back( chains[j]+"/"+histos[i] );
 
@@ -790,13 +869,20 @@ int main(int argc, char** argv) {
       else { 
 
         htest = (TH1F*)ftest.Get((chains[j]+"/"+histos[i]).c_str()) ;
-	href  = (TH1F*)fref.Get((chains[j]+"/"+histos[i]).c_str()) ;
 
-	std::cout << "\tget" << (chains[j]+"/"+histos[i]) << "\thref  " << href << std::endl;
-	std::cout << "\tget" << (chains[j]+"/"+histos[i]) << "\thtest " << htest << std::endl;
+	std::string refchain = fullreplace( chains[j], pattern, regex );
+
+	href  = (TH1F*)fref.Get((refchain+"/"+histos[i]).c_str()) ;
+
+	std::cout << "\tget " << ( refchain+"/"+histos[i]) << "\thref  " << href << std::endl;
+	std::cout << "\tget " << (chains[j]+"/"+histos[i]) << "\thtest " << htest << std::endl;
 
 
 	if ( htest==0 || href==0 ) continue;
+
+	if ( std::string(htest->GetName()).find("npix")!=std::string::npos ) htest->Scale(0.5);
+
+	
 
 	if ( notitle ) { 
 	  htest->SetTitle("");
@@ -815,9 +901,13 @@ int main(int argc, char** argv) {
 	  if ( contains( std::string(htest->GetName()), "_eff" ) ) {
 
 	    htestnum = (TH1F*)ftest.Get((chains[j]+"/"+histos[i]+"_n").c_str()) ;
-	    hrefnum  = (TH1F*)fref.Get((chains[j]+"/"+histos[i]+"_n").c_str()) ;
+
+	    std::string refchain = fullreplace( chains[j], pattern, regex );
+
+	    hrefnum  = (TH1F*)fref.Get((refchain+"/"+histos[i]+"_n").c_str()) ;
 	    
-	    savedhistos.push_back( chains[j]+"/"+histos[i]+"_n" );
+	    //	    savedhistos.push_back( chains[j]+"/"+histos[i]+"_n" );
+	    savedhistos.push_back( refchain+"/"+histos[i]+"_n" );
 	    
 	    //	    std::cout << "numerator histos " << htestnum << " " << hrefnum << std::endl;
 
@@ -846,7 +936,31 @@ int main(int argc, char** argv) {
 	    htest = e.Hist();
 
 	  }
+	
+	  /// now recalculate reference
+
+	  if ( href ) { 
+
+	    //	  delete htest;
+	    
+	    TH1F* hrefnum = (TH1F*)fref.Get((chains[j]+"/"+histos[i]+"_n").c_str()) ;
+	    TH1F* hrefden = (TH1F*)fref.Get((chains[j]+"/"+histos[i]+"_d").c_str()) ;
+
+	    //	    savedhistos.push_back( chains[j]+"/"+histos[i]+"_n" );
+	    //      savedhistos.push_back( chains[j]+"/"+histos[i]+"_d" );
+
+	    std::cout << "Bayesian error calculation " << htestnum << " " << htestden << "\tscale " << scale_eff << std::endl;
+	    
+	    if ( hrefnum && hrefden ) { 
+	      Efficiency e( hrefnum, hrefden, "", scale_eff_ref );
+	      // tgref = e.Bayes(scale_eff);
+
+	      href = e.Hist();
+	      
+	    }
+	  }
 	}
+	
       }
       
       if ( htest==0 ) { 
@@ -972,6 +1086,10 @@ int main(int argc, char** argv) {
 	}     
       }
       
+
+      Chi2.push_back( label( "chi2 = %lf", chi2( htest, href ) ) );
+
+
       if( residual ) {
 	
 	/// resolutions 
@@ -1189,7 +1307,8 @@ int main(int argc, char** argv) {
       }
     */
 
-    if ( !nostats && !noplots ) { 
+    if ( ( !nostats || !nomeans ) && !noplots ) { 
+      if ( dochi2 ) for ( int j=0 ; j<Chi2.size() ; j++ ) DrawLabel( 0.75, 0.85-j*0.035, Chi2[j], colours[j%6] );
       if ( (contains(histos[i],"_res") || 
 	    contains(histos[i],"1d")   ||
 	    histos[i]=="pT"            || 
@@ -1200,13 +1319,13 @@ int main(int argc, char** argv) {
 	  for ( unsigned j=0 ; j<chains.size() ; j++ ) { 
 	    if ( !noref ) { 
 	      if ( j<MeanRef.size() ) {
-		DrawLabel( xpos-0.02, (0.6-j*0.035), MeanRef[j], colours[j%6] );
-		DrawLabel( xpos-0.02, (0.6-0.035*chains.size()-j*0.035)-0.01, RMSRef[j],  colours[j%6] );
+		if ( !nomeans ) DrawLabel( xpos_original-0.02, (0.57-j*0.035), MeanRef[j], colours[j%6] );
+		DrawLabel( xpos_original-0.02, (0.57-0.035*chains.size()-j*0.035)-0.01, RMSRef[j],  colours[j%6] );
 	      }
 	    }
 	    if ( j<Mean.size() ) {
-	      DrawLabel( 0.62, (0.6-j*0.035), Mean[j],  colours[j%6] );
-	      DrawLabel( 0.62, (0.6-0.035*chains.size()-j*0.035)-0.01, RMS[j],  colours[j%6] );
+	      if ( !nomeans ) DrawLabel( 0.62, (0.57-j*0.035), Mean[j],  colours[j%6] );
+	      DrawLabel( 0.62, (0.57-0.035*chains.size()-j*0.035)-0.01, RMS[j],  colours[j%6] );
 	      //	      std::cout << "\tdraw stats " << histos[i] << "\tMean " << Mean[j] << std::endl;
 	    }
 	  }

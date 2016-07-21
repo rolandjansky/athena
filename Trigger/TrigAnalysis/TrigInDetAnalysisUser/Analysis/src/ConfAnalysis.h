@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.h 689896 2015-08-18 08:15:28Z sutt $
+//   $Id: ConfAnalysis.h 760970 2016-07-11 10:25:16Z sutt $
 
 
 #ifndef __CONFANALYSIS_H
@@ -185,6 +185,8 @@ private:
   Resplot* rnsct_eta;
   Resplot* rntrt_eta;
   Resplot* rnsihit_eta;
+  Resplot* rnpix_lb;
+
 
   Resplot* rnpix_phi;
   Resplot* rnsct_phi;

@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.cxx 718206 2016-01-17 16:16:48Z sutt $
+//   $Id: ConfAnalysis.cxx 760970 2016-07-11 10:25:16Z sutt $
 
 
 #include "ConfAnalysis.h"
@@ -228,6 +228,8 @@ void ConfAnalysis::initialiseInternal() {
   mres.push_back( rnsct_eta  = new Resplot( "nsct_eta",  /* 2* */ etaBins, -tmp_maxEta, tmp_maxEta,  22, -0.5, 21.5 ) );
   mres.push_back( rntrt_eta  = new Resplot( "ntrt_eta",  /* 2* */ etaBins, -tmp_maxEta, tmp_maxEta, 100, -0.5, 99.5 ) );
   mres.push_back( rnsihit_eta= new Resplot( "nsihit_eta",etaBins, -tmp_maxEta, tmp_maxEta,  22, -0.5, 21.5 ) );
+
+  mres.push_back( rnpix_lb  = new Resplot( "npix_lb", 200, 0, 2000,  22, -0.5, 21.5 ) );
 
   mres.push_back(  rnpix_phi  = new Resplot( "npix_phi",  etaBins, -M_PI, M_PI,  22, -0.5, 21.5 ) );
   mres.push_back(  rnsct_phi  = new Resplot( "nsct_phi",  etaBins, -M_PI, M_PI,  22, -0.5, 21.5 ) );
@@ -1322,6 +1324,7 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
     rnpixh_pt->Fill( std::fabs(pTt), npixht );
     rnscth_pt->Fill( std::fabs(pTt), nsctht );
 
+    rnpix_lb->Fill( event->lumi_block(), npixt*0.5 );
 
 
     

@@ -41,6 +41,7 @@
 
 
 #include "lumiList.h"
+#include "lumiParser.h"
 #include "dataset.h"
 
 #include "event_selector.h"
@@ -531,16 +532,22 @@ int main(int argc, char** argv)
   
 
   std::vector<double> _lumiblocks;
-  lumiList  goodrunslist;
+  lumiParser  goodrunslist;
 
-  if ( inputdata.isTagDefined("LumiBlocks") )  { 
+  
+  if ( inputdata.isTagDefined("GRL") )  { 
+    /// read the (xml?) GRL 
+    goodrunslist.read( inputdata.GetString("GRL") ); 
+  }
+  else if ( inputdata.isTagDefined("LumiBlocks") )  { 
+    /// else get the list from the dat file directly
     _lumiblocks = inputdata.GetVector("LumiBlocks");
-
+    
     for (unsigned int i=0 ; i<_lumiblocks.size()-2 ; i+=3 ){ 
       goodrunslist.addRange( _lumiblocks[i],  _lumiblocks[i+1],  _lumiblocks[i+2] );  
     }
   }
-
+  
 
   /// reference vertex selection 
   
@@ -687,6 +694,8 @@ int main(int argc, char** argv)
 
   bool monitorZBeam = false;
   if ( inputdata.isTagDefined("MonitorinZBeam") )  monitorZBeam = ( inputdata.GetValue("MonitorZBeam")==0 ? false : true );
+
+  std::cout << "dbg " << __LINE__ << std::endl;
 
   ReadCards* binningConfig = &inputdata;
 
@@ -1005,10 +1014,13 @@ int main(int argc, char** argv)
 
   if ( inputdata.isTagDefined("DataSets") ) {  
 
+    std::cout << "fetching dataset details" << std::endl;
     std::vector<std::string> datasets = inputdata.GetStringVector("DataSets");
-    for (unsigned int ids=0 ; ids<datasets.size() ; ids++ ) { 
+    for (unsigned int ids=0 ; ids<datasets.size() ; ids++ ) {
+      std::cout << "\tdataset " << datasets[ids] << std::endl; 
       dataset d( datasets[ids] );
       std::vector<std::string> _filenames = d.datafiles();
+      std::cout << "\tdataset contains " << _filenames.size() << " files" << std::endl; 
       filenames.insert(filenames.end(),_filenames.begin(),_filenames.end());
     }
   }
@@ -1032,12 +1044,14 @@ int main(int argc, char** argv)
 
   if ( show_release ){
 
-    for ( unsigned i=0 ; i<filenames.size() ; i++ ) {
+    bool first = true;
+
+    for ( unsigned i=0 ; first && i<filenames.size() ; i++ ) {
     
       TFile* finput = TFile::Open( filenames[i].c_str() );
 
 
-      if (!finput->IsOpen()) {
+      if ( finput==0 || !finput->IsOpen() || finput->IsZombie() ) {
 	std::cerr << "Error: could not open input file" << filenames[i] << std::endl;
 	exit(-1);
       }
@@ -1054,6 +1068,7 @@ int main(int argc, char** argv)
 	  if (  release_data_save != release_data.back() ) { 
 	    std::cout << "main() release data: " << release_data.back() << " : " << *releaseData << std::endl;
 	  }
+	  first = false;
 	  release_data_save = release_data.back();
 	}
       }
@@ -1095,69 +1110,112 @@ int main(int argc, char** argv)
   //  exit(0);
 
 
-  TChain *data = new TChain("tree");
-
-  TIDA::Event* track_ev = new TIDA::Event();
-
-  data->SetBranchAddress("TIDA::Event",&track_ev);
-
-
 
   int addedfiles = 0;
 
-  event = track_ev;
-  for ( unsigned i=0 ; i<filenames.size() && ( nfiles==0 || i<nfiles ) ; i++ ) { 
-    addedfiles++;  
-    data->AddFile(filenames[i].c_str());
-  }
-
-  std::cout << "added " << addedfiles << " files" << std::endl;
-  //smh If no files can be opened, exit
-  if (addedfiles == 0) {
-    std::cout << "Cannot read any files, exiting" << std::endl;
-    return (-1);
-  }
 
 
+  unsigned _Nentries = 0;
 
-  /// so we can specify the number of entries 
-  /// we like, rather than run on all of them
-
-  unsigned Nentries = data->GetEntries();
   if ( inputdata.isTagDefined("Nentries") ) { 
-    unsigned _Nentries = unsigned(inputdata.GetValue("Nentries"));
-    if ( _Nentries<Nentries ) Nentries = _Nentries;
+    _Nentries = unsigned(inputdata.GetValue("Nentries"));
   }
 
-  std::cout << "file: " << argv[1] << "\tentries=" << data->GetEntries() << "\t( running over " << Nentries << " )" << std::endl;
 
-  std::cout << "starting event loop " << time_str() << std::endl;
+
+  unsigned Nentries = 0; //data->GetEntries();
 
   unsigned event_counter = 0;
+    
 
-
-  int maxtime = track_ev->time_stamp();
-  int mintime = track_ev->time_stamp();
-
-  //  int Nentries = data->GetEntries();
-  
   typedef std::pair<int,double> zpair; 
   std::vector<zpair>  refz;
   std::vector<zpair>  testz;
-
+  
   std::vector<double> beamline_ref;
   std::vector<double> beamline_test;
+  
+  int maxtime = 0;
+  int mintime = 0;
+
+  std::cout << "opening files" << std::endl;
+
+  bool run = true;
+
+  int  grl_counter = 0;
+  bool grldbg      = true;
+
+  for ( unsigned ifile=0 ; run && ifile<filenames.size() && ( nfiles==0 || ifile<nfiles ) ; ifile++ ) { 
+    addedfiles++;  
+
+    TFile*  finput = TFile::Open( filenames[ifile].c_str() );
+
+    if ( finput==0 || !finput->IsOpen() || finput->IsZombie() ) {
+      std::cerr << "Error: could not open output file " << filenames[ifile] << std::endl;
+      continue;
+    }
+  
+    TTree* data = (TTree*)finput->Get("tree");
+
+    TIDA::Event* track_ev = new TIDA::Event();
+
+    event = track_ev;
+
+    data->SetBranchAddress("TIDA::Event",&track_ev);
+
+    /// TChain *data = new TChain("tree");
+    /// data->AddFile(filenames[ifile].c_str());
+    //  }
+
+    //    std::cout << "added " << addedfiles << " files" << std::endl;
+
+    //  if (addedfiles == 0) {
+    //  std::cout << "Cannot read any files, exiting" << std::endl;
+    //  return (-1);
+    // }
 
 
-  /// so we can specify the number of entries 
-  /// we like, rather than run on all of them
-  for (unsigned int i=0; i<Nentries ; i++ ) {
-    data->GetEntry(i);
-    //    if (i==0) {
-    //      std::cout << "TrkNtuple generated with: " << *releaseMetaData << std::endl;//Only necessary for first event
-    //    }
+
+    /// so we can specify the number of entries 
+    /// we like, rather than run on all of them
     
-    //    if ( r!=h->run_number() ) std::cout <<* h << std::endl;
+    //  unsigned Nentries = data->GetEntries();
+    //  if ( inputdata.isTagDefined("Nentries") ) { 
+    //   unsigned _Nentries = unsigned(inputdata.GetValue("Nentries"));
+    //    if ( _Nentries<Nentries ) Nentries = _Nentries;
+    //  }
+    
+    std::cout << "file: " << filenames[ifile] << "\tentries=" << data->GetEntries() 
+	      << "\tevt count "  << event_counter << " " << _Nentries << "\t( running over " << Nentries << " )" 
+	      << "\t(filecount " << addedfiles << ") : "; // << std::endl;
+    
+    std::cout << "starting event loop " << time_str() << std::endl;
+    
+    
+    maxtime = track_ev->time_stamp();
+    mintime = track_ev->time_stamp();
+    
+    unsigned cNentries = data->GetEntries();
+    
+    bool skip = true;
+    
+    /// so we can specify the number of entries 
+    /// we like, rather than run on all of them
+    for (unsigned int i=0; skip && run && i<cNentries ; i++ ) {
+
+      
+      //      if ( _Nentries<Nentries ) { 
+      //	run = false;
+      //	break;
+      //     }
+      //    Nentries++;
+
+     data->GetEntry(i);
+     //    if (i==0) {
+     //      std::cout << "TrkNtuple generated with: " << *releaseMetaData << std::endl;//Only necessary for first event
+     //    }
+     
+     //    if ( r!=h->run_number() ) std::cout <<* h << std::endl;
 
     r         = track_ev->run_number();
     ev        = track_ev->event_number();
@@ -1170,8 +1228,19 @@ int main(int argc, char** argv)
 
     hipt = false;
 
+
+    
+    bool ingrl = goodrunslist.inRange( r, lb );
+
+    if ( grldbg ) { 
+      std::cout << "run " << r << "\tevent " << ev << "\tlb: " << lb << "\tingrl " << ingrl << std::endl;
+      if ( grl_counter > 20 ) grldbg = false;
+      grl_counter++;
+    }
+
     /// check whether in good lumi block range
-    if ( !goodrunslist.inRange( r, lb ) ) continue;
+    if ( !ingrl ) continue;
+ 
 
     /// check whether it's in the event selector list
     if ( event_selector_flag && !es.in( event ) ) continue;
@@ -1179,15 +1248,21 @@ int main(int argc, char** argv)
     if ( mintime>ts ) mintime = ts;
     if ( maxtime<ts ) maxtime = ts;
 
+    if ( _Nentries>0 && event_counter>_Nentries ) { 
+      run = false;
+      std::cout << "breaking out " << run << std::endl;
+      break;
+    }
+
+    event_counter++;
+    Nentries++;
+
     //    if ( !elist.find(event) ) continue;
 
     //    std::cout << "run " << r << "\tevent " << event << "\tlb " << lb << std::endl;
 
     hevent->Fill( event );
 
-    if ( event_counter>Nentries ) break;
-
-    event_counter++;
 
     if ( (Nentries<10) || i%(Nentries/10)==0 || i%1000==0 || debugPrintout )  { 
       std::cout << "run "      << track_ev->run_number() 
@@ -1647,6 +1722,14 @@ int main(int argc, char** argv)
       }
       
     }
+  }
+
+  delete track_ev;
+  delete data;
+  delete finput;
+
+  //  std::cout << "run: " << run << std::endl;
+
   }
 
   std::cout << "done " << time_str() << "\tprocessed " << event_counter << " events\ttimes " << mintime << " " << maxtime << std::endl;
