@@ -367,7 +367,7 @@ namespace Analysis {
      //twotrackVerticesInJet   
      const Trk::TwoTrackVerticesInJet* TwoTrkVtxInJet =  myVertexInfoJetFitter->getTwoTrackVerticesInJet();
 
-     const std::vector< const Trk::VxCandidate*> vecTwoTrkVtx =  TwoTrkVtxInJet->getTwoTrackVertice();
+     const std::vector< const xAOD::Vertex*> vecTwoTrkVtx =  TwoTrkVtxInJet->getTwoTrackVertice();
 
      int N2TrkVtx = vecTwoTrkVtx.size();
      if("JetFitter" == basename){
@@ -378,7 +378,7 @@ namespace Analysis {
      }
          
      //list of JFvertices
-     const std::vector<Trk::VxCandidate*> JFvertices =  myVertexInfoJetFitter->verticesJF();
+     const std::vector<Trk::VxJetCandidate*> JFvertices =  myVertexInfoJetFitter->verticesJF();
   
      int nVtx = 0;
      if (JFvertices.size() > 0) {
