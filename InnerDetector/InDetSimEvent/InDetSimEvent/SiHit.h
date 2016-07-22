@@ -6,13 +6,11 @@
 // SiHit.h
 //   Header file for class SiHit
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 // Class for the Pixel and SCT hits
 ///////////////////////////////////////////////////////////////////
 
-#ifndef SITRACKEREVENT_SIHIT_H
-#define SITRACKEREVENT_SIHIT_H
+#ifndef INDETSIMEVENT_SIHIT_H
+#define INDETSIMEVENT_SIHIT_H
 
 #include <iostream>
 // Data members classes
@@ -34,19 +32,39 @@ public:
   //   number of track which released this energy
   //
   SiHit(const HepGeom::Point3D<double> &localStartPosition,
-	       const HepGeom::Point3D<double> &localEndPosition,
-	       const double energyLoss,
-	       const double meanTime,
-	       const int trackNumber,
-	       const unsigned int id); 
+        const HepGeom::Point3D<double> &localEndPosition,
+        const double energyLoss,
+        const double meanTime,
+        const int trackNumber,
+        const unsigned int id);
 
   SiHit(const HepGeom::Point3D<double> &localStartPosition,
-	       const HepGeom::Point3D<double> &localEndPosition,
-	       const double energyLoss,
-	       const double meanTime,
-	       const int trackNumber,
-	       const int, const int, const int, const int, const int, const int);
-// needed by athenaRoot
+        const HepGeom::Point3D<double> &localEndPosition,
+        const double energyLoss,
+        const double meanTime,
+        const int trackNumber,
+        const int, const int, const int, const int, const int, const int);
+  // Constructor with parameters:
+  //   local start position of the energy deposit
+  //   local end position of the energy deposit
+  //   deposited energy
+  //   time of energy deposition
+  //   link to particle which released this energy
+  //
+  SiHit(const HepGeom::Point3D<double> &localStartPosition,
+        const HepGeom::Point3D<double> &localEndPosition,
+        const double energyLoss,
+        const double meanTime,
+        const HepMcParticleLink &track,
+        const unsigned int id);
+
+  SiHit(const HepGeom::Point3D<double> &localStartPosition,
+        const HepGeom::Point3D<double> &localEndPosition,
+        const double energyLoss,
+        const double meanTime,
+        const HepMcParticleLink &track,
+        const int, const int, const int, const int, const int, const int);
+  // needed by athenaRoot
   SiHit();
 
   // Destructor:
@@ -81,28 +99,28 @@ public:
   // Pixel or SCT
   bool isPixel() const;
   bool isSCT() const;
-  
+
   // Barrel or Endcap
   int getBarrelEndcap() const;
 
   // Layer/Disk
   int getLayerDisk() const;
-  
+
   // eta module
   int getEtaModule() const;
 
   // phi module
   int getPhiModule() const;
-  
+
   // side
   int getSide() const;
 
   // some print-out:
   void print() const;
-  
+
   bool operator < (const SiHit& rhs) const
-    {return m_ID < rhs.m_ID;}
-  
+  {return m_ID < rhs.m_ID;}
+
   ///////////////////////////////////////////////////////////////////
   // Non-const methods:
   ///////////////////////////////////////////////////////////////////
@@ -118,7 +136,7 @@ public:
   // Private data:
   ///////////////////////////////////////////////////////////////////
 private:
- 
+
   //  HepGeom::Point3D<double> m_localStartPosition; // local start position of the hit
   //  HepGeom::Point3D<double> m_localEndPosition; // local end position of the hit
   float m_stX, m_stY, m_stZ;
@@ -128,7 +146,7 @@ private:
   HepMcParticleLink m_partLink;
   //   int m_trackNumber; // number of track which released this energy
   unsigned int m_ID;
- public:
+public:
   enum
     { xDep = 0, xPhi = 1, xEta = 2};
 };
@@ -138,7 +156,7 @@ private:
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
 
-inline unsigned int SiHit::identify() const 
+inline unsigned int SiHit::identify() const
 {
   return m_ID;
 }
@@ -153,7 +171,7 @@ inline double SiHit::meanTime() const
   return (double) m_meanTime;
 }
 
-inline void SiHit::setMeanTime(float meanTime) 
+inline void SiHit::setMeanTime(float meanTime)
 {
   m_meanTime=meanTime;
 }
@@ -174,4 +192,4 @@ inline float hitTime(const SiHit& hit)
   return (float) hit.meanTime();
 }
 
-#endif // SITRACKEREVENT_SITRACKERHIT_H
+#endif // INDETSIMEVENT_SIHIT_H
