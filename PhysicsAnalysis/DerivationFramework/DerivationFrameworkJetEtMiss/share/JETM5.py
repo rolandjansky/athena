@@ -45,6 +45,14 @@ JETM5ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(n
 ToolSvc += JETM5ElectronTPThinningTool
 thinningTools.append(JETM5ElectronTPThinningTool)
 
+# TrackParticles associated with photons
+JETM5PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "JETM5PhotonTPThinningTool",
+                                                                             ThinningService         = "JETM5ThinningSvc",
+                                                                             SGKey                   = "Photons",
+                                                                             InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += JETM5PhotonTPThinningTool
+thinningTools.append(JETM5PhotonTPThinningTool)
+
 # # TrackParticles associated with taus
 # from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 # JETM5TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            = "JETM5TauTPThinningTool",
@@ -106,8 +114,12 @@ svcMgr += createThinningSvc( svcName="JETM5ThinningSvc", outStreams=[evtStream] 
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM5SlimmingHelper = SlimmingHelper("JETM5SlimmingHelper")
 JETM5SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
-                                        "InDetTrackParticles", "PrimaryVertices"]
-JETM5SlimmingHelper.AllVariables = ["BTagging_AntiKt4LCTopo", "BTagging_AntiKt4EMTopo", "CaloCalTopoClusters",
+                                        "InDetTrackParticles", "PrimaryVertices",
+                                        "MET_Reference_AntiKt4EMTopo",
+                                        "MET_Reference_AntiKt4LCTopo",
+                                        "MET_Reference_AntiKt4EMPFlow",
+                                        "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets"]
+JETM5SlimmingHelper.AllVariables = ["BTagging_AntiKt4LCTopo", "BTagging_AntiKt4EMTopo",# "CaloCalTopoClusters",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "MuonSegments"

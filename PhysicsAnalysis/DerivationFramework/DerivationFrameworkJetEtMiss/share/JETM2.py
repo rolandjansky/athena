@@ -20,52 +20,18 @@ if globalflags.DataSource()=='geant4':
 # SKIMMING TOOL 
 #====================================================================
 
-electronTriggers = [
-    # EnhancedBias
-    'HLT_noalg_L1EM18VH', 'HLT_noalg_L1EM15',  'HLT_noalg_L1EM12',
-    'HLT_noalg_L12EM7',   'HLT_noalg_L12EM15', 'HLT_noalg_L1EM15VH_3EM7',
-    # Week 1
-    'HLT_e17_lhloose_L1EM15',
-    # LLH
-    'HLT_e24_lhtight_iloose', 'HLT_e26_lhtight_iloose',
-    'HLT_e60_lhmedium',
-    'HLT_e24_lhmedium_L1EM20VH',
-    'HLT_e24_lhmedium_iloose_L1EM20VH',
-    'HLT_e24_lhmedium_iloose_L1EM18VH',
-    # Cut-based
-    'HLT_e24_tight_iloose',   'HLT_e26_tight_iloose',
-    'HLT_e60_medium',
-    'HLT_e24_medium_iloose_L1EM18VH',
-    'HLT_e24_medium_iloose_L1EM20VH',
-    ]
-
-muonTriggers = [
-    # EnhancedBias
-    'HLT_noalg_L1MU4',     'HLT_noalg_L1MU6',     'HLT_noalg_L1MU10',
-    'HLT_noalg_L1MU4_J12', 'HLT_noalg_L1MU4_J30', 'HLT_noalg_L1MU4_3J15',
-    'HLT_noalg_L1MU6_J20', 'HLT_noalg_L12MU4',
-    #Week 1
-    'HLT_mu10',
-    # All-year
-    'HLT_mu20_iloose_L1MU15',  'HLT_mu24_imedium',
-    'HLT_mu24_iloose_L1MU15',  'HLT_mu26_imedium',
-    'HLT_mu50', 'HLT_mu60_0eta105_msonly'
-    ]
+from DerivationFrameworkJetEtMiss.TriggerLists import *
+electronTriggers = singleElTriggers
+muonTriggers = singleMuTriggers
 
 orstr  = ' || '
 andstr = ' && '
 eltrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(electronTriggers)
-elofflinesel = andstr.join(['count((Electrons.pt > 25*GeV) && (Electrons.DFCommonElectronsLHMedium)) >= 1',
-                            'count((Electrons.pt > 10*GeV) && (Electrons.DFCommonElectronsLHMedium)) <= 1',
-                            'count((Muons.pt > 10*GeV) && (Muons.DFCommonMuonsMedium)) <= 1'
-                            ])
+elofflinesel = andstr.join(['count((Electrons.pt > 25*GeV) && (Electrons.DFCommonElectronsLHMedium)) >= 1'])
 electronSelection = '( (' + eltrigsel + ') && (' + elofflinesel + ') )'
 
 mutrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(muonTriggers)
-muofflinesel = andstr.join(['count((Muons.pt > 25*GeV) && (Muons.DFCommonMuonsMedium)) >= 1',
-                            'count((Muons.pt > 10*GeV) && (Muons.DFCommonMuonsMedium)) <= 1',
-                            'count((Electrons.pt > 10*GeV) && (Electrons.DFCommonElectronsLHMedium)) <= 1'
-                            ])
+muofflinesel = andstr.join(['count((Muons.pt > 25*GeV) && (Muons.DFCommonMuonsPreselection)) >= 1'])
 muonSelection = '( (' + mutrigsel + ') && (' + muofflinesel + ') )'
 
 expression = '( ' + electronSelection + ' || ' + muonSelection + ' )'
@@ -114,6 +80,14 @@ JETM2ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(n
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM2ElectronTPThinningTool
 thinningTools.append(JETM2ElectronTPThinningTool)
+
+# TrackParticles associated with photons
+JETM2PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "JETM2PhotonTPThinningTool",
+                                                                             ThinningService         = JETM2ThinningHelper.ThinningSvc(),
+                                                                             SGKey                   = "Photons",
+                                                                             InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += JETM2PhotonTPThinningTool
+thinningTools.append(JETM2PhotonTPThinningTool)
 
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
@@ -181,8 +155,12 @@ if globalflags.DataSource()=='geant4':
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM2SlimmingHelper = SlimmingHelper("JETM2SlimmingHelper")
 JETM2SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
-                                        "InDetTrackParticles", "PrimaryVertices"]
-JETM2SlimmingHelper.AllVariables = ["BTagging_AntiKt4LCTopo", "BTagging_AntiKt4EMTopo", "CaloCalTopoClusters",
+                                        "InDetTrackParticles", "PrimaryVertices",
+                                        "MET_Reference_AntiKt4EMTopo",
+                                        "MET_Reference_AntiKt4LCTopo",
+                                        "MET_Reference_AntiKt4EMPFlow",
+                                        "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets"]
+JETM2SlimmingHelper.AllVariables = ["BTagging_AntiKt4LCTopo", "BTagging_AntiKt4EMTopo",# "CaloCalTopoClusters",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "MuonSegments"

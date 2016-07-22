@@ -26,7 +26,9 @@ namespace DerivationFramework {
     dec_jvt(0),
     m_jvtTool(""),
     m_dojvt(false),
-    m_dobtag(false)
+    m_dobtag(false),
+    m_jetTrackSumMomentsTool(""),
+    m_decoratetracksum(false)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("MomentPrefix",   m_momentPrefix = "DFCommonJets_");
@@ -38,10 +40,13 @@ namespace DerivationFramework {
     declareProperty("JetJvtTool",     m_jvtTool);
     declareProperty("JetBtagTools",   m_btagSelTools);
     declareProperty("JetBtagWPs",     m_btagWP);
+    declareProperty("JetTrackSumMomentsTool", m_jetTrackSumMomentsTool);
   }
 
   StatusCode JetAugmentationTool::initialize()
   {
+    ATH_MSG_INFO("Initialising JetAugmentationTool");
+
     if(!m_jetCalibTool.empty()) {
       CHECK(m_jetCalibTool.retrieve());
       ATH_MSG_INFO("Augmenting jets with calibration \"" << m_momentPrefix+m_calibMomentKey << "\"");
@@ -72,6 +77,14 @@ namespace DerivationFramework {
       }
     }
 
+    if(!m_jetTrackSumMomentsTool.empty()) {
+      CHECK(m_jetTrackSumMomentsTool.retrieve());
+      ATH_MSG_INFO("Augmenting jets with track sum moments \"" << m_momentPrefix << "TrackSumMass,Pt\"");
+      m_decoratetracksum = true;
+      dec_tracksummass = new SG::AuxElement::Decorator<float>(m_momentPrefix+"TrackSumMass");
+      dec_tracksumpt   = new SG::AuxElement::Decorator<float>(m_momentPrefix+"TrackSumPt");
+    }
+
     return StatusCode::SUCCESS;
   }
     
@@ -92,6 +105,12 @@ namespace DerivationFramework {
     if(m_dobtag) {
       for(const auto& pdec : dec_btag) delete pdec;
     }
+
+    if(m_decoratetracksum){
+      delete dec_tracksummass;
+      delete dec_tracksumpt;
+    }
+
     return StatusCode::SUCCESS;
   }
 
@@ -114,6 +133,14 @@ namespace DerivationFramework {
       if(m_jetCalibTool->modify(*jets_copy) ) {
 	ATH_MSG_WARNING("Problem applying jet calibration");
 	return StatusCode::FAILURE;
+      }
+    }
+
+    if(m_decoratetracksum){
+      if(m_jetTrackSumMomentsTool->modify(*jets_copy) )
+      {
+        ATH_MSG_WARNING("Problems calculating TrackSumMass and TrackSumPt");
+        return StatusCode::FAILURE;
       }
     }
 
@@ -146,8 +173,15 @@ namespace DerivationFramework {
 	  }
 	}
       }
+
+      if(m_decoratetracksum) {  
+	(*dec_tracksummass)(jet_orig) = jet->getAttribute<float>("TrackSumMass");
+	(*dec_tracksumpt)(jet_orig)   = jet->getAttribute<float>("TrackSumPt");
+	ATH_MSG_VERBOSE("TrackSumMass: " << (*dec_tracksummass)(jet_orig) );
+	ATH_MSG_VERBOSE("TrackSumPt: "   << (*dec_tracksummass)(jet_orig) );
+      }
     }
-    
+
     return StatusCode::SUCCESS;
   }
 }

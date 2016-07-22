@@ -11,33 +11,8 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
-triggers = [
-'L1_RD0_FILLED',
-'HLT_j15',       'HLT_j15_320eta490',
-'HLT_j25',       'HLT_j25_320eta490',
-'HLT_j60',       'HLT_j60_320eta490',
-'HLT_j35',       'HLT_j35_320eta490',
-'HLT_j45_L1RDO', 
-'HLT_j45',       'HLT_j45_320eta490',
-'HLT_j55_L1RDO', 
-'HLT_j55',       'HLT_j55_320eta490',
-'HLT_j85_L1RDO',
-'HLT_j85',       'HLT_j85_320eta490',
-'HLT_j110',      'HLT_j110_320eta490',
-'HLT_j35_j35_320eta490',
-'HLT_j45_j45_320eta490',
-'HLT_j55_j55_320eta490',
-'HLT_j60_j60_320eta490',
-'HLT_j85_j85_320eta490',
-'HLT_j15_j15_320eta490',
-'HLT_j25_j25_320eta490',
-'HLT_j175',
-'HLT_j260',
-'HLT_j360',
-'HLT_j175_320eta490',
-'HLT_j260_320eta490',
-'HLT_j360_320eta490'
-]
+from DerivationFrameworkJetEtMiss.TriggerLists import *
+triggers = jetTriggers
 
 # NOTE: need to be able to OR isSimulated as an OR with the trigger
 orstr =' || '
@@ -50,9 +25,42 @@ JETM1SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "JETM1Ski
 ToolSvc += JETM1SkimmingTool
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_JETM1Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_JETM1Stream )
+JETM1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+JETM1Stream.AcceptAlgs(["JETM1Kernel"])
+
+#=======================================
+# ESTABLISH THE THINNING HELPER
+#=======================================
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+JETM1ThinningHelper = ThinningHelper( "JETM1ThinningHelper" )
+JETM1ThinningHelper.AppendToStream( JETM1Stream )
+
+#====================================================================
 # THINNING TOOLS 
 #====================================================================
 thinningTools = []
+
+# TrackParticles associated with Muons
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
+JETM1MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name     = "JETM1MuonTPThinningTool",
+                                                                    ThinningService         = JETM1ThinningHelper.ThinningSvc(),
+                                                                    MuonKey                 = "Muons",
+                                                                    InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += JETM1MuonTPThinningTool
+thinningTools.append(JETM1MuonTPThinningTool)
+
+# TrackParticles associated with electrons
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+JETM1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "JETM1ElectronTPThinningTool",
+                                                                               ThinningService         = JETM1ThinningHelper.ThinningSvc(),
+                                                                               SGKey                   = "Electrons",
+                                                                               InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += JETM1ElectronTPThinningTool
+thinningTools.append(JETM1ElectronTPThinningTool)
 
 # Truth particle thinning
 doTruthThinning = True
@@ -115,24 +123,13 @@ addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.15, algseq=jetm1Seq, o
 addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.04, algseq=jetm1Seq, outputGroup="JETM1")
 
 #====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_JETM1Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_JETM1Stream )
-JETM1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-JETM1Stream.AcceptAlgs(["JETM1Kernel"])
-# for thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="JETM1ThinningSvc", outStreams=[evtStream] )
-
-#====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM1SlimmingHelper = SlimmingHelper("JETM1SlimmingHelper")
-JETM1SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "PrimaryVertices"]
+JETM1SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "PrimaryVertices",
+                                        "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
+                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 JETM1SlimmingHelper.AllVariables = ["BTagging_AntiKt4LCTopo", "BTagging_AntiKt4EMTopo",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",

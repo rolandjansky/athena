@@ -5,13 +5,19 @@ author James Catmore <james.catmore@cern.ch>
 # public use statements
 use AtlasPolicy                 AtlasPolicy-*
 use GaudiInterface              GaudiInterface-*        External
-use AtlasROOT                       AtlasROOT-*                          External
+use AtlasROOT                   AtlasROOT-*             External
+
 private
-use PathResolver                    PathResolver-*                       Tools
-use xAODTrigger                     xAODTrigger-*                        Event/xAOD
+
 use AthenaBaseComps             AthenaBaseComps-*       Control
+use PathResolver                PathResolver-*          Tools
+
+use xAODTrigger                 xAODTrigger-*           Event/xAOD
 use xAODJet                     xAODJet-*               Event/xAOD
 use xAODCore                    xAODCore-*              Event/xAOD
+use xAODPFlow                   xAODPFlow-*             Event/xAOD
+use xAODTracking                xAODTracking-*          Event/xAOD
+
 use JetInterface		JetInterface-*		Reconstruction/Jet
 use DerivationFrameworkInterfaces DerivationFrameworkInterfaces-* PhysicsAnalysis/DerivationFramework
 use xAODBTaggingEfficiency	xAODBTaggingEfficiency-* PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration
