@@ -16,7 +16,9 @@
 ///////////////////////////////////////////////////////////////////
 
 InDet::TrackClusterAssValidation::TrackClusterAssValidation
-(const std::string& name,ISvcLocator* pSvcLocator) : AthAlgorithm(name,pSvcLocator)
+(const std::string& name,ISvcLocator* pSvcLocator) : AthAlgorithm(name,pSvcLocator),
+  m_dynamicCutsTool("InDet::InDetDynamicCutsTool/InDetDynamicCutsTool"),
+  m_useDynamicCuts(false)
 {
 
   // TrackClusterAssValidation steering parameters
@@ -96,6 +98,8 @@ InDet::TrackClusterAssValidation::TrackClusterAssValidation
   declareProperty("useTRT"                ,m_useTRT                );
   declareProperty("useOutliers"           ,m_useOutliers           );
   declareProperty("pdgParticle"           ,m_pdg                   );
+	declareProperty("InDetDynamicCutsTool" 	,m_dynamicCutsTool       );
+  declareProperty("UseDynamicCuts"  		  ,m_useDynamicCuts        );  
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -106,6 +110,18 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
 {
   
   StatusCode sc; 
+
+	// Get InDetDynamicCutsTool
+  //
+  if (m_useDynamicCuts) {
+    sc = m_dynamicCutsTool.retrieve();
+    if (sc.isFailure()) {
+	  	ATH_MSG_ERROR("Failed to retrieve AlgTool " << m_dynamicCutsTool);
+		  return sc;
+  	}
+	  else 
+  		ATH_MSG_INFO( "Retrieved tool " << m_dynamicCutsTool );
+  }
 
   m_rapcut ? m_tcut = 1./tan(2.*atan(exp(-m_rapcut))) : m_tcut = 0.;
 
@@ -581,9 +597,16 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
   std::cout<<"|               Additional cuts for truth particles are                             |"
 	   <<std::endl;
 
-  std::cout<<"|                    number silicon clusters >=" 
+  if(!m_useDynamicCuts) {
+     std::cout<<"|                    number silicon clusters >=" 
 	   <<std::setw(13)<<m_clcut
 	   <<"                        |"<<std::endl;
+  }
+  else {   // use dynamic cuts
+     std::cout<<"|                    number silicon clusters >=" 
+	   << " eta dependent"
+	   <<"                       |"<<std::endl;  
+  }
   std::cout<<"|                    number   trt   clusters >=" 
 	   <<std::setw(13)<<m_clcutTRT
 	   <<"                        |"<<std::endl;
@@ -1523,6 +1546,7 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
   std::list<int> worskine;
 
   int          rp = 0;
+	double			 etaExact = 0.0;
   int          t  = 0;
   int          k0 = (*c).first;
   int          q0 = k0*charge((*c),rp);
@@ -1531,7 +1555,12 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
   for(++c; c!=m_kinecluster.end(); ++c) {
 
     if((*c).first==k0) {++nc; continue;}
-    q0 = charge((*c),rp)*k0;
+    //q0 = charge((*c),rp)*k0;
+    q0 = charge((*c),rp, etaExact)*k0;
+
+		if(m_useDynamicCuts) {
+			m_clcut = m_dynamicCutsTool->getMinClustersByEta(etaExact);
+		}
 
     nc < 50 ?  ++m_particleClusters   [nc]     : ++m_particleClusters   [49];
     nc < 50 ?  ++m_particleClustersBTE[nc][rp] : ++m_particleClustersBTE[49][rp];
@@ -1549,8 +1578,13 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
     }
 
     k0 = (*c).first;
-    q0 =charge((*c),rp)*k0;
+    //q0 =charge((*c),rp)*k0;
+    q0 = charge((*c),rp, etaExact)*k0;
     nc = 1         ;
+  }
+
+  if(m_useDynamicCuts) {
+    m_clcut = m_dynamicCutsTool->getMinClustersByEta(etaExact);
   }
 
   nc < 50 ?  ++m_particleClusters   [nc]     : ++m_particleClusters   [49];  
@@ -2054,6 +2088,47 @@ int InDet::TrackClusterAssValidation::charge(std::pair<int,const Trk::PrepRawDat
       double pt = sqrt(px*px+py*py)   ;
       double t  = atan2(pt,pz)        ;
       double ra = fabs(log(tan(.5*t)));
+      // DBM
+      if (ra > 3.0)
+	rap = 3;
+      else
+      // other regions
+	ra > 1.6 ? rap = 2 : ra > .8 ?  rap = 1 : rap = 0;
+
+      int                         pdg = pat->pdg_id();  
+      const HepPDT::ParticleData* pd  = m_particleDataTable->particle(abs(pdg));
+      if(!pd) return 0;
+      double ch = pd->charge(); if(pdg < 0) ch = -ch;
+      if(ch >  .5) return  1;
+      if(ch < -.5) return -1;
+      return 0;
+    } 	
+  }
+  return 0;
+}
+
+int InDet::TrackClusterAssValidation::charge(std::pair<int,const Trk::PrepRawData*> pa,int& rap, double& etaExact)
+{
+  int                     k = pa.first;
+  const Trk::PrepRawData* d = pa.second;
+  PRD_MultiTruthCollection::const_iterator mce;
+  PRD_MultiTruthCollection::const_iterator mc = findTruth(d,mce);
+  
+  for(; mc!=mce; ++mc) {
+    if((*mc).second.cptr()->barcode()==k) {
+
+      const HepMC::GenParticle*   pat  = (*mc).second.cptr();
+      
+      rap       = 0;
+      double px =  pat->momentum().px();
+      double py =  pat->momentum().py();
+      double pz =  pat->momentum().pz();
+      double pt = sqrt(px*px+py*py)   ;
+      double t  = atan2(pt,pz)        ;
+      double ra = fabs(log(tan(.5*t)));
+
+      etaExact = ra;
+
       // DBM
       if (ra > 3.0)
 	rap = 3;

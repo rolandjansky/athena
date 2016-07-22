@@ -10,6 +10,7 @@
 #include <map>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h" 
 #include "InDetPrepRawData/SiClusterContainer.h"
@@ -17,6 +18,8 @@
 #include "HepMC/GenParticle.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
+
+#include "InDetRecToolInterfaces/IInDetDynamicCutsTool.h"
 
 namespace InDet {
 
@@ -181,6 +184,10 @@ namespace InDet {
       std::list<int>                             m_difference[100];
       std::multimap<int,int>                     m_tracks[100]    ;
       const HepPDT::ParticleDataTable*        m_particleDataTable ;
+			
+      /** tool to get cut values depending on different variable */   
+      ToolHandle<IInDetDynamicCutsTool>     m_dynamicCutsTool;   
+      bool m_useDynamicCuts;	// use InDetDynamicCutsTool to determine the cut value depending on characteristics of each track (default is false)   
 
       ///////////////////////////////////////////////////////////////////
       // Protected methods
@@ -204,6 +211,7 @@ namespace InDet {
 	(const Trk::PrepRawData*,PRD_MultiTruthCollection::const_iterator&);
       
       int charge(std::pair<int,const Trk::PrepRawData*>,int&);
+      int charge(std::pair<int,const Trk::PrepRawData*>,int&, double&);
 
       MsgStream&    dumptools(MsgStream&    out) const;
       MsgStream&    dumpevent(MsgStream&    out) const;
