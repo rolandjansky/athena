@@ -90,12 +90,7 @@ StatusCode LArG4H8CalibSDTool::initializeSD()
 StatusCode LArG4H8CalibSDTool::Gather()
 {
     // In this case, *unlike* other SDs, the *tool* owns the collection
-#ifdef ATHENAHIVE
-    // Temporary fix for Hive until isValid is fixed
-    m_HitColl = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_HitColl.name());
-#else
     if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_HitColl.name());
-#endif
     m_barCrySD  ->EndOfAthenaEvent( &*m_HitColl );
     m_bpInSD    ->EndOfAthenaEvent( &*m_HitColl );
     m_bpDeadSD  ->EndOfAthenaEvent( &*m_HitColl );
