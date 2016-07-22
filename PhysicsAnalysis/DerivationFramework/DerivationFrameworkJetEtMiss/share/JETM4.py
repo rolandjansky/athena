@@ -18,29 +18,10 @@ if globalflags.DataSource()=='geant4':
 # SKIMMING TOOL 
 #====================================================================
 # NOTE: need to add isSimulation as OR with trigger
-triggerlist = [
-'HLT_g10_loose',
-'HLT_g15_loose',
-'HLT_g20_loose',
-'HLT_g50_loose',
-'HLT_g40_loose',
-'HLT_g60_loose',
-'HLT_g70_loose',
-'HLT_g80_loose',
-'HLT_g100_loose',
-'HLT_g120_loose',
-'HLT_g140_loose',
-'HLT_g15_loose_L1EM3',
-'HLT_g15_loose_L1EM7',
-'HLT_g20_loose_L1EM12',
-'HLT_g20_loose_L1EM15',
-'HLT_g25_loose_L1EM15',
-'HLT_g35_loose_L1EM15',
-'HLT_g40_loose_L1EM15',
-'HLT_g45_loose_L1EM15',
-'HLT_g50_loose_L1EM15',
-'HLT_g60_loose_L1EM15VH'
-]
+
+from DerivationFrameworkJetEtMiss.TriggerLists import *
+triggerlist = singlePhotonTriggers
+
 triggers = '||'.join(triggerlist)
 expression = '( (EventInfo.eventTypeBitmask==1) || ('+triggers+') )'
 
@@ -88,6 +69,14 @@ JETM4ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(n
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM4ElectronTPThinningTool
 thinningTools.append(JETM4ElectronTPThinningTool)
+
+# TrackParticles associated with electrons
+JETM4PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "JETM4PhotonTPThinningTool",
+                                                                             ThinningService         = JETM4ThinningHelper.ThinningSvc(),
+                                                                             SGKey                   = "Photons",
+                                                                             InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += JETM4PhotonTPThinningTool
+thinningTools.append(JETM4PhotonTPThinningTool)
 
 thinning_expression = "( abs(InDetTrackParticles.d0) < 2 ) && ( abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta)) < 3 )"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
@@ -163,8 +152,13 @@ addDefaultTrimmedJets(jetm4Seq,"JETM4")
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM4SlimmingHelper = SlimmingHelper("JETM4SlimmingHelper")
 JETM4SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
-                                        "InDetTrackParticles", "PrimaryVertices"]
-JETM4SlimmingHelper.AllVariables = ["BTagging_AntiKt4LCTopo", "BTagging_AntiKt4EMTopo", "CaloCalTopoClusters",
+                                        "InDetTrackParticles", "PrimaryVertices",
+                                        "MET_Reference_AntiKt4EMTopo",
+                                        "MET_Reference_AntiKt4LCTopo",
+                                        "MET_Reference_AntiKt4EMPFlow",
+                                        "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
+                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
+JETM4SlimmingHelper.AllVariables = ["BTagging_AntiKt4LCTopo", "BTagging_AntiKt4EMTopo",# "CaloCalTopoClusters",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "MuonSegments"
@@ -184,8 +178,8 @@ for truthc in [
 JETM4SlimmingHelper.IncludeEGammaTriggerContent = True
 
 # Add the jet containers to the stream
-addJetOutputs(JETM4SlimmingHelper,["SmallR","AntiKt4TruthWZJets","AntiKt10LCTopoJets"])
+addJetOutputs(JETM4SlimmingHelper,["SmallR","AntiKt4TruthWZJets","AntiKt10LCTopoJets","JETM4"])
 # Add the MET containers to the stream
-addMETOutputs(JETM4SlimmingHelper,["Diagnostic","AntiKt4LCTopo","AntiKt4EMPFlow","Track","JETM4"])
+addMETOutputs(JETM4SlimmingHelper,["Diagnostic","AntiKt4LCTopo","AntiKt4EMPFlow","Track"])
 
 JETM4SlimmingHelper.AppendContentToStream(JETM4Stream)

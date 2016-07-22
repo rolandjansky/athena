@@ -14,7 +14,7 @@ from JetRec.JetRecFlags import jetFlags
 def addDefaultTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
     if jetFlags.useTruth and dotruth:
         addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
-    addTrimmedJets('AntiKt', 1.0, 'LCTopo', rclus=0.2, ptfrac=0.05, algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)    
+    addTrimmedJets('AntiKt', 1.0, 'LCTopo', rclus=0.2, ptfrac=0.05, algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
 
 ##################################################################
 
@@ -51,26 +51,25 @@ def applyJetCalibration(jetalg,algname,sequence):
     else:
         isdata=False
 
-        configdict = {'AntiKt4EMTopo':('JES_MC15Prerecommendation_April2015.config',
+        configdict = {'AntiKt4EMTopo':('JES_MC15cRecommendation_May2016.config',
                                        'JetArea_Residual_Origin_EtaJES_GSC'),
-                      'AntiKt4LCTopo':('JES_MC15Prerecommendation_April2015.config',
-                                       'JetArea_Residual_Origin_EtaJES_GSC'),
+#                      'AntiKt4LCTopo':('JES_2015dataset_recommendation_Feb2016.config',
+#                                       'JetArea_Residual_Origin_EtaJES_GSC'),
                       'AntiKt4EMPFlow':('JES_MC15Prerecommendation_PFlow_July2015.config',
                                         'JetArea_Residual_EtaJES_GSC'),
                       'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC15recommendation_FatJet_June2015.config',
                                                               'EtaJES_JMS'),
                       }
-        isMC = inputFileSummary["evt_type"] == "IS_SIMULATION"
+        isMC = "IS_SIMULATION" in inputFileSummary["evt_type"]
         isAF2 = False
         if isMC:
-            isAF2 = inputFileSummary['metadata']['/Simulation/Parameters']['SimulationFlavour']!='default'
+            isAF2 = 'ATLFASTII' in inputFileSummary['metadata']['/Simulation/Parameters']['SimulationFlavour'].upper()
         if isMC and isAF2: configdict['AntiKt4EMTopo'] = ('JES_MC15Prerecommendation_AFII_June2015.config',
                                                           'JetArea_Residual_Origin_EtaJES_GSC')
 
         config,calibseq = configdict[jetalg]
-        from AthenaCommon.GlobalFlags import globalflags
-        if not globalflags.DataSource()=='geant4' and jetalg=='AntiKt4EMTopo':
-            calibseq+='Insitu'
+        if (not isMC) and jetalg=='AntiKt4EMTopo':
+            calibseq+='_Insitu'
             isdata=True
 
         calibtool = CfgMgr.JetCalibrationTool(
@@ -87,7 +86,7 @@ def applyJetCalibration(jetalg,algname,sequence):
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
 def applyJetCalibration_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
-    supportedJets = ['AntiKt4EMTopo','AntiKt4LCTopo','AntiKt4EMPFlow']
+    supportedJets = ['AntiKt4EMTopo','AntiKt4EMPFlow']#'AntiKt4LCTopo'
     if not jetalg in supportedJets:
         print 'ExtendedJetCommon: ExtendedJetCommon: *** WARNING: Calibration requested for unsupported jet collection! ***'
         return
@@ -129,7 +128,7 @@ def updateJVT_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     else:
         updateJVT(jetalg,'JetCommonKernel_xAODJets',sequence)
 
-def applyBTaggingAugmentation(jetalg,algname,sequence,btagtooldict):
+def applyBTaggingAugmentation(jetalg,algname='JetCommonKernel_xAODJets',sequence=DerivationFrameworkJob,btagtooldict={}):
     jetaugtool = getJetAugmentationTool(jetalg)
 
     if(jetaugtool==None or jetaugtool.JetCalibTool=='' or jetaugtool.JetJvtTool==''):
@@ -145,6 +144,14 @@ def applyBTaggingAugmentation(jetalg,algname,sequence,btagtooldict):
     jetaugtool.JetBtagWPs = btagWPs
 
     print 'ExtendedJetCommon: Applying b-tagging working points for jet collection:', jetalg+'Jets'
+    applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
+
+def addTrackSumMoments(jetalg,algname='JetCommonKernel_xAODJets',sequence=DerivationFrameworkJob):
+    jetaugtool = getJetAugmentationTool(jetalg)
+    jetaugtool.JetTrackSumMomentsTool = jtm.trksummoms
+    print jetaugtool
+    print jetaugtool.JetTrackSumMomentsTool
+    print 'ExtendedJetCommon: Applying track sum moments for jet collection:', jetalg+'Jets'
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
 ##################################################################

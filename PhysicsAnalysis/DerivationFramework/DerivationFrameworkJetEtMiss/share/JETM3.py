@@ -1,4 +1,4 @@
-#====================================================================
+m#====================================================================
 # JETM3.py 
 # reductionConf flag JETM3 in Reco_tf.py   
 #====================================================================
@@ -6,6 +6,7 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.PFlowCommon import *
 #from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
@@ -21,64 +22,19 @@ if globalflags.DataSource()=='geant4':
 # SKIMMING TOOL 
 #====================================================================
 
-electronTriggers = [
-    # EnhancedBias
-    'HLT_noalg_L1EM18VH', 'HLT_noalg_L1EM15',  'HLT_noalg_L1EM12',
-    'HLT_noalg_L12EM7',   'HLT_noalg_L12EM15', 'HLT_noalg_L1EM15VH_3EM7',
-    # Week 1
-    'HLT_e17_lhloose_L1EM15',
-    # LLH
-    'HLT_e24_lhtight_iloose', 'HLT_e26_lhtight_iloose',
-    'HLT_e60_lhmedium',
-    'HLT_e24_lhmedium_L1EM20VH',
-    'HLT_e24_lhmedium_iloose_L1EM20VH',
-    'HLT_e24_lhmedium_iloose_L1EM18VH',
-    # Dielectron
-    'HLT_2e17_lhloose',
-    'HLT_2e15_lhloose_L12EM13VH',
-    'HLT_2e12_lhloose_L12EM10VH',
-    # Cut-based
-    'HLT_e24_tight_iloose',   'HLT_e26_tight_iloose',
-    'HLT_e60_medium',
-    'HLT_e24_medium_iloose_L1EM18VH',
-    'HLT_e24_medium_iloose_L1EM20VH',
-    # Dielectron
-    'HLT_2e17_loose',
-    'HLT_2e15_loose_L12EM13VH',
-    'HLT_2e12_loose_L12EM10VH'
-    ]
-
-muonTriggers = [
-    # EnhancedBias
-    'HLT_noalg_L1MU4',     'HLT_noalg_L1MU6',     'HLT_noalg_L1MU10',
-    'HLT_noalg_L1MU4_J12', 'HLT_noalg_L1MU4_J30', 'HLT_noalg_L1MU4_3J15',
-    'HLT_noalg_L1MU6_J20', 'HLT_noalg_L12MU4',
-    # Week 1
-    'HLT_mu10',
-    # All-year
-    'HLT_mu20_iloose_L1MU15',  'HLT_mu24_imedium',
-    'HLT_mu24_iloose_L1MU15',  'HLT_mu26_imedium',
-    'HLT_mu50',   'HLT_mu60_0eta105_msonly'
-    # Dimuon
-    'HLT_2mu10',  'HLT_2mu14',
-    'HLT_mu18_mu8noL1',  'HLT_mu20_mu8noL1',
-    'HLT_mu22_mu8noL1',  'HLT_mu24_mu8noL1',
-    ]
+from DerivationFrameworkJetEtMiss.TriggerLists import *
+electronTriggers = singleElTriggers
+muonTriggers = singleMuTriggers
 
 orstr  = ' || '
 andstr = ' && '
 eltrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(electronTriggers)
-elofflinesel = andstr.join(['count((Electrons.pt > 20*GeV) && (Electrons.charge > 0.) && (Electrons.DFCommonElectronsLHMedium)) >= 1',
-                            'count((Electrons.pt > 20*GeV) && (Electrons.charge < 0.) && (Electrons.DFCommonElectronsLHMedium)) >= 1'
-                           ])
+elofflinesel = andstr.join(['count((Electrons.pt > 20*GeV) && (Electrons.DFCommonElectronsLHMedium)) >= 2'])
 electronSelection = '( (' + eltrigsel + ') && (' + elofflinesel + ') )'
 
 mutrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(muonTriggers)
-muofflinesel = andstr.join(['count((Muons.pt > 20*GeV) && (Muons.charge > 0.) && (Muons.DFCommonMuonsMedium)) >=1',
-                            'count((Muons.pt > 20*GeV) && (Muons.charge < 0.) && (Muons.DFCommonMuonsMedium)) >=1'
-                            ])
+muofflinesel = andstr.join(['count((Muons.pt > 20*GeV) && (Muons.DFCommonMuonsPreselection)) >= 2'])
 muonSelection = '( (' + mutrigsel + ') && (' + muofflinesel + ') )'
-# NOTE: muon and electron charges requested...
 expression = '( ' + electronSelection + ' || ' + muonSelection + ' )'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
@@ -126,7 +82,7 @@ JETM3ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(n
 ToolSvc += JETM3ElectronTPThinningTool
 thinningTools.append(JETM3ElectronTPThinningTool)
 
-# TrackParticles associated with electrons
+# TrackParticles associated with photons
 JETM3PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "JETM3PhotonTPThinningTool",
                                                                              ThinningService         = JETM3ThinningHelper.ThinningSvc(),
                                                                              SGKey                   = "Photons",
@@ -146,7 +102,7 @@ thinningTools.append(JETM3TauTPThinningTool)
 thinning_expression = "( abs(InDetTrackParticles.d0) < 2 ) && ( abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta)) < 3 )"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 JETM3TPThinningTool = DerivationFramework__TrackParticleThinning( name                = "JETM3TPThinningTool",
-                                                                  ThinningService         = "JETM3ThinningSvc",
+                                                                  ThinningService         = JETM3ThinningHelper.ThinningSvc(),
                                                                   SelectionString         = thinning_expression,
                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM3TPThinningTool
@@ -183,6 +139,7 @@ if doTruthThinning and globalflags.DataSource()=='geant4':
 
 jetm3Seq = CfgMgr.AthSequencer("JETM3Sequence")
 DerivationFrameworkJob += jetm3Seq
+applyPFOAugmentation(jetm3Seq)
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
@@ -209,11 +166,18 @@ if globalflags.DataSource()=='geant4':
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM3SlimmingHelper = SlimmingHelper("JETM3SlimmingHelper")
 JETM3SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
-                                        "InDetTrackParticles", "PrimaryVertices"]
+                                        "InDetTrackParticles", "PrimaryVertices",
+                                        "MET_Reference_AntiKt4EMTopo",
+                                        "MET_Reference_AntiKt4LCTopo",
+                                        "MET_Reference_AntiKt4EMPFlow",
+                                        "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets"
+                                        ]
 JETM3SlimmingHelper.AllVariables = ["BTagging_AntiKt4LCTopo", "BTagging_AntiKt4EMTopo", "CaloCalTopoClusters",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
-                                    "MuonSegments"
+                                    "MuonSegments",
+                                    "JetETMissChargedParticleFlowObjects",
+                                    "JetETMissNeutralParticleFlowObjects"
                                     ]
 JETM3SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"]
 for truthc in [

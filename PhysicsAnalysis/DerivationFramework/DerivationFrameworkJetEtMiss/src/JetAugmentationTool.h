@@ -60,6 +60,12 @@ namespace DerivationFramework {
     /// Athena configured tools
     ToolHandleArray<IBTaggingSelectionTool> m_btagSelTools;
     
+    //TrackSumMass and TrackSumPt for calo-jets built in Tier-0
+    //@author: nurfikri.bin.norjoharuddeen@cern.ch
+    ToolHandle<IJetModifier> m_jetTrackSumMomentsTool;
+    bool m_decoratetracksum;
+    SG::AuxElement::Decorator<float>* dec_tracksummass;
+    SG::AuxElement::Decorator<float>* dec_tracksumpt;
   }; 
 }
 
