@@ -458,7 +458,7 @@ namespace MuonCalib{
          double qOverP = 1./(itIP->second->momentum().mag());
          if(pdgcode<0) qOverP = - qOverP; 
          int author = -13;
-         if(fabs(pdgcode)!=13) author = -113;
+         if(std::abs(pdgcode)!=13) author = -113;
          if(m_debug) std::cout << " pdgcode " << pdgcode << " author " << author << std::endl;
          int ndof = 0;
          double cov00 = -999.;
@@ -572,7 +572,7 @@ namespace MuonCalib{
          double qOverP = 1./(itME->second->momentum().mag());
          if(pdgcode<0) qOverP = - qOverP; 
          int author = -1013;
-         if(fabs(pdgcode)!=13) author = -1113;
+         if(std::abs(pdgcode)!=13) author = -1113;
          if(m_debug) std::cout << " pdgcode " << pdgcode << " author " << author << std::endl;
          int ndof = 0;
          double cov00 = -999.;
