@@ -13,7 +13,8 @@
 
 namespace MuonCalib {
 
-  struct MuonCalibTrackSummary {
+  class MuonCalibTrackSummary {
+  public:
 
     struct ChamberHitSummary {
       struct Projection {
@@ -30,30 +31,30 @@ namespace MuonCalib {
       MuonFixedId chId;
       bool isMdt() const { return chId.is_mdt(); }
 
-      int nhits() const     { return first.nhits + second.nhits; }
-      int nholes() const    { return first.nholes + second.nholes; }
-      int noutliers() const { return first.noutliers + second.noutliers; }
-      int ndeltas() const   { return first.ndeltas + second.ndeltas; }
+      int nhits() const     { return m_first.nhits + m_second.nhits; }
+      int nholes() const    { return m_first.nholes + m_second.nholes; }
+      int noutliers() const { return m_first.noutliers + m_second.noutliers; }
+      int ndeltas() const   { return m_first.ndeltas + m_second.ndeltas; }
 
-      int netaHits() const { return isMdt() ? nhits() : first.nhits; }
-      int nphiHits() const { return isMdt() ? 0       : second.nhits; }
+      int netaHits() const { return isMdt() ? nhits() : m_first.nhits; }
+      int nphiHits() const { return isMdt() ? 0       : m_second.nhits; }
 
-      int nMdtHitsMl1() const { return isMdt() ? first.nhits  : 0; }
-      int nMdtHitsMl2() const { return isMdt() ? second.nhits : 0; }
+      int nMdtHitsMl1() const { return isMdt() ? m_first.nhits  : 0; }
+      int nMdtHitsMl2() const { return isMdt() ? m_second.nhits : 0; }
 
       // before using make sure isMdt == true!
-      Projection& mdtMl1() const { return first; }
-      Projection& mdtMl2() const { return second; }
+      Projection& mdtMl1() const { return m_first; }
+      Projection& mdtMl2() const { return m_second; }
 
       // before using make sure isMdt == false!
-      Projection& etaProjection() const { return first; }
-      Projection& phiProjection() const { return second; }
+      Projection& etaProjection() const { return m_first; }
+      Projection& phiProjection() const { return m_second; }
       
 
       private:
       
-      mutable Projection first;  //<! eta projections for cluster chambers, first multi layer for mdt chambers
-      mutable Projection second; //<! phi projections for cluster chambers, first multi layer for mdt chambers
+      mutable Projection m_first;  //<! eta projections for cluster chambers, first multi layer for mdt chambers
+      mutable Projection m_second; //<! phi projections for cluster chambers, first multi layer for mdt chambers
 
     };
 
