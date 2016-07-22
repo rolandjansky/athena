@@ -16,47 +16,8 @@ if globalflags.DataSource()=='geant4':
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
-triggers = [
-'HLT_j15',       'HLT_j15_320eta490',
-'HLT_j25',       'HLT_j25_320eta490',
-'HLT_j60',       'HLT_j60_320eta490',
-'HLT_j35',       'HLT_j35_320eta490',
-'HLT_j45_L1RDO', 'HLT_j45_320eta490',
-'HLT_j55_L1RDO', 
-'HLT_j55',       'HLT_j55_320eta490',
-'HLT_j85_L1RDO',
-'HLT_j85',       'HLT_j85_320eta490',
-'HLT_j110',      'HLT_j110_320eta490',
-'HLT_j150',
-'HLT_j175',
-'HLT_j200',
-'HLT_j260',
-'HLT_j360',
-'HLT_j300',
-'HLT_j320',
-'HLT_j35_j35_320eta490',
-'HLT_j45_j45_320eta490',
-'HLT_j55_j55_320eta490',
-'HLT_j60_j60_320eta490',
-'HLT_j85_j85_320eta490',
-'HLT_j15_j15_320eta490',
-'HLT_j25_j25_320eta490',
-'HLT_j260_a10_sub_L1J75',
-'HLT_j260_a10_lcw_sub_L1J75',
-'HLT_j300_a10_sub_L1J75',
-'HLT_j300_a10_lcw_sub_L1J75',
-'HLT_j300_a10r_L1J75',
-'HLT_j360_a10_lcw_nojcalib',
-'HLT_j360_a10_lcw_nojcalib_L1HT150-J20.ETA30',
-'HLT_j360_a10_lcw_sub',
-'HLT_j360_a10_lcw_sub_L1HT150-J20.ETA30',
-'HLT_j360_a10_nojcalib',
-'HLT_j360_a10_nojcalib_L1HT150-J20.ETA30',
-'HLT_j360_a10_sub',
-'HLT_j360_a10_sub_L1HT150-J20.ETA30',
-'HLT_j360_a10r',
-'HLT_j360_a10r_L1J100',
-'HLT_j460_a10r_L1J100',]
+from DerivationFrameworkJetEtMiss.TriggerLists import *
+triggers = jetTriggers
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 JETM8TrigSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name           = "JETM8TrigSkimmingTool",
@@ -134,6 +95,14 @@ JETM8ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(n
 ToolSvc += JETM8ElectronTPThinningTool
 thinningTools.append(JETM8ElectronTPThinningTool)
 
+# TrackParticles associated with photons
+JETM8PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "JETM8PhotonTPThinningTool",
+                                                                             ThinningService         = "JETM8ThinningSvc",
+                                                                             SGKey                   = "Photons",
+                                                                             InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += JETM8PhotonTPThinningTool
+thinningTools.append(JETM8PhotonTPThinningTool)
+
 # # TrackParticles associated with taus
 # from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 # JETM8TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            = "JETM8TauTPThinningTool",
@@ -166,6 +135,12 @@ if doTruthThinning and globalflags.DataSource()=='geant4':
     
     ToolSvc += JETM8TruthThinningTool
     thinningTools.append(JETM8TruthThinningTool)    
+
+#=======================================
+# AUGMENT ANTIKT4EMTOPO JETS
+#=======================================
+
+addTrackSumMoments("AntiKt4EMTopo")
 
 #=======================================
 # CREATE PRIVATE SEQUENCE
@@ -207,7 +182,7 @@ addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.04, algseq=jetm8Seq, o
 addStandardJets("CamKt", 1.5, "LCTopo", mods="calib", calibOpt="none", ghostArea=0.01, ptmin=2000, ptminFilter=50000,
                 algseq=jetm8Seq, outputGroup="JETM8")
 # AntiKt10Track
-addStandardJets("AntiKt", 1.5, "PV0Track", ptmin=40000, algseq=jetm8Seq, outputGroup="JETM8")
+#addStandardJets("AntiKt", 1.0, "PV0Track", ptmin=40000, algseq=jetm8Seq, outputGroup="JETM8")
 addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, algseq=jetm8Seq, outputGroup="JETM8")
 
 # PFlow fat jets
@@ -233,9 +208,14 @@ svcMgr += createThinningSvc( svcName="JETM8ThinningSvc", outStreams=[evtStream] 
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM8SlimmingHelper = SlimmingHelper("JETM8SlimmingHelper")
 JETM8SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
-                                        "InDetTrackParticles", "PrimaryVertices"]
+                                        "InDetTrackParticles", "PrimaryVertices",
+                                        "MET_Reference_AntiKt4EMTopo",
+                                        "MET_Reference_AntiKt4LCTopo",
+                                        "MET_Reference_AntiKt4EMPFlow",
+                                        "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
+                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 JETM8SlimmingHelper.AllVariables = ["BTagging_AntiKt4LCTopo", "BTagging_AntiKt4EMTopo",
-                                    "BTagging_AntiKt2Track", "BTagging_AntiKt3Track", "BTagging_AntiKt3Track",
+                                    "BTagging_AntiKt2Track", "BTagging_AntiKt3Track",
                                     "CaloCalTopoClusters",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",

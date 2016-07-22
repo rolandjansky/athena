@@ -13,7 +13,7 @@ from DerivationFrameworkMuons.MuonsCommon import*
 # SKIMMING TOOL
 #======================================================================================================================
 cutExpression = ("(count(Electrons.DFCommonElectronsLHLoose && Electrons.pt > (10*GeV) && abs(Electrons.eta) < 2.47) + " +
-                 "count(Muons.DFCommonMuonsLoose && Muons.pt > (10*GeV) && abs(Muons.eta) < 2.47)) >=1")
+                 "count(Muons.DFCommonMuonsPreselection && Muons.pt > (10*GeV) && abs(Muons.eta) < 2.47)) >=1")
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 JETM11StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "JETM11StringSkimmingTool",
                                                                        expression = cutExpression)

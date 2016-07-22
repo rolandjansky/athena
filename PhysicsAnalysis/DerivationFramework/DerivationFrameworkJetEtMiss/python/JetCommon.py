@@ -104,19 +104,18 @@ jtm.modifiersMap["dfgroomed"] = jtm.modifiersMap["groomed"] + [
     jtm.planarflow,
     jtm.width,
     jtm.qw,
-    #jtm.showerdec
     jtm.trksummoms
+    #jtm.showerdec
     ]
 
-
-def reCreatePseudoJets(jetalg, rsize, inputtype):
+def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variableRMinRadius=-1.0):
     """Return a list of tools (possibly empty) to be run in a jetalg. These tools will make sure PseudoJets will be associated
     to the container specified by the input arguments.    
     """
     
     from JetRec.JetRecStandard import jtm
     from JetRec.JetRecUtils import buildJetContName
-    jetContName = buildJetContName(jetalg, rsize, inputtype)
+    jetContName = buildJetContName(jetalg, rsize, inputtype, variableRMassScale, variableRMinRadius)
 
     # Set default for the arguments to be passd to addJetFinder
     finderArgs = dict( modifiersin= [], consumers = [], ghostArea= 0.01 , ptmin=40000, )
@@ -128,8 +127,8 @@ def reCreatePseudoJets(jetalg, rsize, inputtype):
         # make sure we don't already have what we need
         tmpName = "tmp_"+jetContName
         if tmpName  in jtm.tools:
-            return []
-#            return [jtm.tools[tmpName]]
+#            return []
+            return [jtm.tools[tmpName]]
         
         # then we'll have to build a temporary container to re-create the pseudojet
         # and we recopy this pseudojets to the original collection. This done through
@@ -146,8 +145,8 @@ def reCreatePseudoJets(jetalg, rsize, inputtype):
         # make sure we don't already have what we need
         tmpName = jetContName
         if tmpName  in jtm.tools:
-            return []
-#            return [jtm.tools[tmpName]]
+#            return []
+            return [jtm.tools[tmpName]]
 
         # no container exist. simply build a new one.
         if inputtype=="LCTopo" or inputtype=="EMTopo" or inputtype == "EMPFlow" or inputtype == "EMCPFlow":
@@ -155,7 +154,17 @@ def reCreatePseudoJets(jetalg, rsize, inputtype):
             finderArgs['ptmin'] = 2000
             finderArgs['ptminFilter'] = 50000
             finderArgs['calibOpt'] = "none"
+        elif inputtype=="PV0Track":
+            finderArgs['modifiersin'] = ""
+            finderArgs['ptmin'] = 2000
+            finderArgs['ptminFilter'] = 40000
+            finderArgs['calibOpt'] = "none"
         if not "PFlow" in inputtype: finderArgs.pop('modifiersin') # leave the default modifiers.
+
+    if (variableRMassScale>0):  
+        finderArgs['variableRMassScale']=variableRMassScale
+        finderArgs['variableRMinRadius']=variableRMinRadius
+        #finderArgs['ghostArea'] =0  ## Cannot afford ghost area calculation for variable-R jets (for now)
     
     # map the input to the jtm code for PseudoJetGetter
     getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow', Truth='truth', TruthWZ='truthwz', PV0Track='pv0track')
@@ -167,55 +176,64 @@ def reCreatePseudoJets(jetalg, rsize, inputtype):
 
 def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
                          includePreTools=False, algseq=None, outputGroup="CustomJets",
-                         writeUngroomed=False):
+                         writeUngroomed=False, variableRMassScale=-1.0, variableRMinRadius=-1.0):
     algname = "jetalg"+groomedName
 
-    from JetRec.JetRecUtils import buildJetContName
-    ungroomedName = buildJetContName(jetalg, rsize, inputtype)
-
-    # add these groomed jets to the output (use setdefault() to constuct the list if not existing yet)
-    OutputJets.setdefault(outputGroup , [] ).append(groomedName+"Jets")
-    if writeUngroomed: OutputJets.setdefault(outputGroup , [] ).append(ungroomedName+"Jets")
-
-    # return if the alg is already scheduled here :
     if algseq is None:
         print "No algsequence passed! Will not schedule", algname
         return
     elif cfgKeyStore.isInInput("xAOD::JetContainer",groomedName):
         print "Collection ", algname, "is already in input AOD!"
-        return        
-    elif algname in DFJetAlgs:
-        if hasattr(algseq,algname):
-            print "   Algsequence", algseq, "already has an instance of", algname
-        else:
-            print "   Added", algname, "to sequence", algseq
-            algseq += DFJetAlgs[algname]
-        return DFJetAlgs[algname]
+        return
 
-    # 1. make sure we have pseudo-jet in our original container
-    # this returns a list of the needed tools to do so.
-    jetalgTools = reCreatePseudoJets(jetalg, rsize, inputtype)
+    from JetRec.JetRecUtils import buildJetContName
+    ungroomedName = buildJetContName(jetalg, rsize, inputtype, variableRMassScale, variableRMinRadius)
+    ungroomedalgname = "jetalg"+ungroomedName[:-4] # Remove "Jets" from name
 
-    # 2nd step run the trimming alg. We can re-use the original largeR jet since we reassociated the PseudoJet already.
-    fatjet_trim = jetToolBuilder(groomedName+"Jets", ungroomedName)
+    # add these groomed jets to the output (use setdefault() to constuct the list if not existing yet)
+    OutputJets.setdefault(outputGroup , [] ).append(groomedName+"Jets")
+    if writeUngroomed: OutputJets.setdefault(outputGroup , [] ).append(ungroomedName+"Jets")
 
     from JetRec.JetRecConf import JetAlgorithm
-    if includePreTools:
-        # enable track ghost association and JVF
-        jetalgTools =  [jtm.tracksel, jtm.tvassoc] + jetalgTools 
+    # return if the alg is already scheduled here :
+    if hasattr(algseq,ungroomedalgname):
+        print "   Algsequence", algseq, "already has an instance of", ungroomedalgname
+    elif ungroomedalgname in DFJetAlgs:
+        print "   Added jet finder", ungroomedalgname, "to sequence", algseq
+        algseq += DFJetAlgs[ungroomedalgname]
+    else:
+        # 1. make sure we have pseudo-jet in our original container
+        # this returns a list of the needed tools to do so.
+        jetalgTools = reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale, variableRMinRadius)
+        if includePreTools:
+            # enable track ghost association and JVF
+            jetalgTools =  [jtm.tracksel, jtm.tvassoc] + jetalgTools 
+        print jetalgTools
 
-    alg = JetAlgorithm(algname, Tools = jetalgTools + [fatjet_trim] )
-    DFJetAlgs[algname] = alg;
+        finderalg = JetAlgorithm(ungroomedalgname, Tools = jetalgTools )
+        DFJetAlgs[ungroomedalgname] = finderalg;
+        print "   Added jet finder", ungroomedalgname, "to sequence", algseq
+        algseq += finderalg
 
-    print "   Added", algname, "to sequence", algseq
-    algseq += alg
-    return alg
+    # 2nd step run the trimming alg. We can re-use the original largeR jet since we reassociated the PseudoJet already.
+    fatjet_groom = jetToolBuilder(groomedName+"Jets", ungroomedName)
+
+    print "   Added jet groomer", algname, "to sequence", algseq
+    groomeralg = JetAlgorithm(algname, Tools = [fatjet_groom])
+    DFJetAlgs[algname] = groomeralg;
+    algseq += groomeralg
+    return groomeralg
 
 ##################################################################
 def addTrimmedJets(jetalg, rsize, inputtype, rclus=0.3, ptfrac=0.05, mods="dfgroomed",
                    includePreTools=False, algseq=None, outputGroup="Trimmed",
-                   writeUngroomed=False):
-    trimmedName = "{0}{1}{2}TrimmedPtFrac{3}SmallR{4}".format(jetalg,int(rsize*10),inputtype,int(ptfrac*100),int(rclus*100))
+                   writeUngroomed=False, variableRMassScale=-1.0, variableRMinRadius=-1.0):
+    from JetRec.JetRecUtils import buildJetContName
+    #trimmedName = "{0}{1}{2}TrimmedPtFrac{3}SmallR{4}".format(jetalg,int(rsize*10),inputtype,int(ptfrac*100),int(rclus*100))
+#    Helper for this doesn't quite exist yet
+    from JetRec.JetRecUtils import buildJetAlgName
+    #trimmedName = "{0}{1}{2}TrimmedPtFrac{3}SmallR{4}".format(buildJetContName(jetalg, rsize, variableRMassScale, variableRMinRadius),int(rsize*10),inputtype,int(ptfrac*100),int(rclus*100))
+    trimmedName = "{0}{1}TrimmedPtFrac{2}SmallR{3}".format(buildJetAlgName(jetalg, rsize, variableRMassScale, variableRMinRadius),inputtype,int(ptfrac*100),int(rclus*100))
 
     # a function dedicated to build Trimmed jet :
     def trimToolBuilder( name, inputJetCont):
@@ -227,7 +245,8 @@ def addTrimmedJets(jetalg, rsize, inputtype, rclus=0.3, ptfrac=0.05, mods="dfgro
     # pass the trimmedName and our specific trimming tool builder to the generic function :
     return buildGenericGroomAlg(jetalg, rsize, inputtype, trimmedName, trimToolBuilder,
                                 includePreTools, algseq, outputGroup,
-                                writeUngroomed=writeUngroomed)
+                                writeUngroomed=writeUngroomed,
+                                variableRMassScale=variableRMassScale, variableRMinRadius=variableRMinRadius)
 
 
 ##################################################################
@@ -422,7 +441,7 @@ def addJetOutputs(slimhelper,contentlist,smartlist=[],vetolist=[]):
                 if item in vetolist: continue
                 outputlist.append(item)
         else:
-            outputlist.append(item)
+            outputlist.append(content)
 
     for item in outputlist:
         if item in Tier0Jets:
