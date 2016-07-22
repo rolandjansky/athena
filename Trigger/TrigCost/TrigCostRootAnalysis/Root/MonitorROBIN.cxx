@@ -22,11 +22,13 @@
 #include "../TrigCostRootAnalysis/ROSConfService.h"
 #include "../TrigCostRootAnalysis/Config.h"
 
+
 // ROOT includes
 #include <TError.h>
 
 namespace TrigCostRootAnalysis {
 
+ 
   /**
    * Monitor constructor. Sets name and calls base constructor.
    */
@@ -57,12 +59,33 @@ namespace TrigCostRootAnalysis {
       startEvent();
 
       // All looping over individual RODs to do their event monitoring can go here
-      for (UInt_t _rob = 0; _rob < m_costData->getNROBs(); ++_rob) {
+      for (UInt_t _robReq = 0; _robReq < m_costData->getNROBs(); ++_robReq) {
         //Info("TEMP", "*** ROBIN MON *** REQUEST %i / %i", _rob,  m_costData->getNROBs()  );
 
-        for (UInt_t _robData = 0; _robData < m_costData->getROBDataN( _rob); ++_robData) {
+	StringIntSetMap_t _ROBINMapping = getROBINMapping(_robReq);
+	for (StringIntSetMapIt_t _reqIt = _ROBINMapping.begin(); _reqIt != _ROBINMapping.end(); ++_reqIt) {
+	  CounterBase* _counter = getCounter( _counterMap, (*_reqIt).first, 0 /*not used*/ );
+	  
+	  if (_counter->getCalls() == 0) {
+	    _counter->decorate(kDecType, Config::config().getStr(kROBINString));
+	    _counter->decorate(kDecMyROS, (*_reqIt).first);
+	    
+	  }
+	  
+	  _counter->processEventCounter( _robReq, UINT_MAX /*not used*/, _weight );
+	}
+      }
 
-          Int_t _robId = m_costData->getROBDataID(_rob, _robData);
+      endEvent(_weight);
+    }
+    m_timer.stop();
+  }
+
+
+	/*
+        for (UInt_t _robData = 0; _robData < m_costData->getROBDataN( _robReq); ++_robData) {
+
+          Int_t _robId = m_costData->getROBDataID(_robReq, _robData);
           const std::string _robinName = ROSConfService::rosConfService().getRobinNameFromId( (UInt_t) _robId );
 
           // TEMP
@@ -83,7 +106,7 @@ namespace TrigCostRootAnalysis {
     }
     m_timer.stop();
   }
-
+	*/
   /**
    * Do we use this monitor for this particular mode? Try and keep things managable in terms of output created!
    * Note these are currently hard-coded. We may want to make them configurable

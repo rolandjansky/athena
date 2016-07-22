@@ -156,13 +156,16 @@ namespace TrigCostRootAnalysis {
     for (const auto _chainItem : m_chainItemsL1)  _chainItem.second->classifyLumiAndRandom();
 
     if (Config::config().getVecSize(kListOfNoLumiWeightChains) > 0) {
-      Info("MonitorRates::populateChainItemMaps", "Special cases: %swill get no luminosity extrapolation.", Config::config().getStr(kListOfNoLumiWeightChains).c_str());
+      Info("MonitorRates::populateChainItemMaps", "Special cases, these chains will get no luminosity extrapolation: %s", Config::config().getStr(kListOfNoLumiWeightChains).c_str());
     }
     if (Config::config().getVecSize(kListOfNoMuLumiWeightChains) > 0) {
-      Info("MonitorRates::populateChainItemMaps", "Special cases: %swill only get lumi extrapolation based on number of bunches (not <mu>)", Config::config().getStr(kListOfNoMuLumiWeightChains).c_str());
+      Info("MonitorRates::populateChainItemMaps", "Special cases, these chains will only get lumi extrapolation based on number of bunches (not <mu>): %s", Config::config().getStr(kListOfNoMuLumiWeightChains).c_str());
     }    
     if (Config::config().getVecSize(kListOfNoBunchLumiWeightChains) > 0) {
-      Info("MonitorRates::populateChainItemMaps", "Special cases: %swill only get lumi extrapolation based on change in <mu> (not change in bunches).", Config::config().getStr(kListOfNoBunchLumiWeightChains).c_str());
+      Info("MonitorRates::populateChainItemMaps", "Special cases, these chains will only get lumi extrapolation based on change in <mu> (not change in bunches): %s", Config::config().getStr(kListOfNoBunchLumiWeightChains).c_str());
+    }
+    if (Config::config().getVecSize(kListOfExpoMuLumiWeightChains) > 0) {
+      Info("MonitorRates::populateChainItemMaps", "Special cases, these chains will get exponential extrapolation in <mu>: %s", Config::config().getStr(kListOfExpoMuLumiWeightChains).c_str());
     }
 
     // Get the common factor of all the CPS groups
@@ -935,6 +938,16 @@ namespace TrigCostRootAnalysis {
     }
 
     TrigXMLService::trigXMLService().saveRuleBookXML(m_counterCollections, getLevelStr());
+
+    // Also copy any PS files
+    if (Config::config().getIsSet(kPrescaleXMLPath1)) {
+      const std::string _outputFile = Config::config().getStr(kOutputDirectory) + "/" + Config::config().getStr(kOutputXMLDirectory) + "/prescales1.xml";
+      gSystem->CopyFile(Config::config().getStr(kPrescaleXMLPath1).c_str(), _outputFile.c_str());
+    }
+    if (Config::config().getIsSet(kPrescaleXMLPath2)) {
+      const std::string _outputFile = Config::config().getStr(kOutputDirectory) + "/" + Config::config().getStr(kOutputXMLDirectory) + "/prescales2.xml";
+      gSystem->CopyFile(Config::config().getStr(kPrescaleXMLPath2).c_str(), _outputFile.c_str());
+    }
 
     if (Config::config().getInt(kOutputRatesGraph) == kTRUE) saveRateGraphs();
 

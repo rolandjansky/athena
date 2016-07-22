@@ -142,6 +142,7 @@ namespace TrigCostRootAnalysis {
     std::vector< std::string > _patternsNoLumiWeight;
     std::vector< std::string > _patternsNoMuLumiWeight;
     std::vector< std::string > _patternsNoBunchLumiWeight;
+    std::vector< std::string > _patternsExpoMuLumiWeight;
     std::vector< Int_t > _eventPicker;
     std::string _fileList = "";
     std::string _fullEventFileList = "";
@@ -164,7 +165,7 @@ namespace TrigCostRootAnalysis {
     std::string _prescaleXML1 = "";//"cool_208354_366_366.xml"; // This is an old XML for test purposes
     std::string _prescaleXML2 = "";
     std::string _ROSXML = "rob-ros-robin-2015.xml";
-    std::string _version = "TrigCostRootAnalysis-00-09-16";
+    std::string _version = "TrigCostRootAnalysis-00-09-29";
     std::string _upgradeScenario = "";
     std::string _jira = "";
     Int_t _lbBegin = INT_MIN;
@@ -193,6 +194,7 @@ namespace TrigCostRootAnalysis {
     Float_t _binMin = FLT_MIN;
     Float_t _binMax = FLT_MIN;
     Float_t _targetMu = 0.;
+    Float_t _expoRateScaleModifier = 2.05;
 
     // Parse CLI
     Int_t _status = 0;
@@ -327,6 +329,8 @@ namespace TrigCostRootAnalysis {
         {"patternsNoLumiWeight",   required_argument, 0,                      '1'},
         {"patternsNoMuLumiWeight", required_argument, 0,                      '2'},
         {"patternsNoBunchLumiWeight", required_argument, 0,                   '3'},
+        {"patternsExpoMuLumiWeight",required_argument, 0,                     '4'},
+        {"expoRateScaleModifier",  required_argument, 0,                      '5'},
         {0, 0, 0, 0}
       };
 
@@ -424,7 +428,7 @@ namespace TrigCostRootAnalysis {
           std::cout << "--debug\t\t\t\t\t\tEnable debug output." << std::endl;
           std::cout << "--noMsgSuppression\t\t\t\tDo not suppress any output." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ TRIGGER RATES CONFIGURATION ~~~~~~~~~~~~~~~" << std::endl;
-          std::cout << "--predictionMu\t\t\tSpecify a target pileup for prescaled rates prediction. This enables advanced weighting and affects the rates of explicit L1 random seeded triggers and must be supplied to get accurate predictions here." << std::endl;
+          std::cout << "--predictionMu\t\t\t\t\tSpecify a target pileup for prescaled rates prediction. This enables advanced weighting and affects the rates of explicit L1 random seeded triggers and must be supplied to get accurate predictions here." << std::endl;
           std::cout << "--prescaleXML1 \"" << _prescaleXML1 << "\"\t\t\t\tPrescale/Menu/L1 XML file from which to read custom prescales for rates calculation (place in /data or current dir for Athena use)." << std::endl;
           std::cout << "--prescaleXML2 \"" << _prescaleXML2 << "\"\t\t\t\tSecond Prescale/Menu/L1 XML file. For if you have L1 and HLT values split over two files. (place in /data or current dir for Athena use)." << std::endl;
           std::cout << "--writeDummyPSXML\t\t\t\tGenerate a file Prescales.xml which contains all chains and can be edited to manually prescale the menu. Use the generated file with --prescaleXML1." << std::endl;
@@ -433,18 +437,20 @@ namespace TrigCostRootAnalysis {
           std::cout << "--forceAllPass\t\t\t\t\tForce all L1 and HLT chains to pass-raw in every event. Use to isolate the effect of prescales." << std::endl;
           std::cout << "--doUniqueRates\t\t\t\t\tCalculate unique rates for chains. Warning, this is slow." << std::endl;
           std::cout << "--doCPS\t\t\t\t\t\tEnable special treatment for chains in coherent prescale groups." << std::endl;
+          std::cout << "--expoRateScaleModifier " << _expoRateScaleModifier << "\t\t\tMultiplier to exponent for exponential in <mu> rates extrapolation." << std::endl;
           std::cout << "--patternsUnique patt1 patt2 ...\t\tPatterns to match in names doing unique rates, recommended to use this rather than doing unique for all." << std::endl;
           std::cout << "--patternsExclude patt1 patt2 ...\t\tWhen doing unique rates, you may need to explicitly exclude some chains (PS:-1). Force this here." << std::endl;
           std::cout << "--patternsOverlap patt1 patt2 ...\t\tPatterns to match in chain names when doing chain-overlap rates, recommended to use this rather than doing unique for all." << std::endl;
-          std::cout << "--patternsNoLumiWeight patt1 patt2 ... \tPatterns to match in special-case chains which get no lumi weighting. Auto applied to random L1. (req. advanced weighting mode w. --predictionMu)" << std::endl;
+          std::cout << "--patternsNoLumiWeight patt1 patt2 ... \t\tPatterns to match in special-case chains which get no lumi weighting. Auto applied to random L1. (req. advanced weighting mode w. --predictionMu)" << std::endl;
           std::cout << "--patternsNoMuLumiWeight patt1 patt2 ... \tPatterns to match in special-case chains which get no <mu> component of lumi weight (req. advanced weighting mode w. --predictionMu)" << std::endl;
           std::cout << "--patternsNoBunchLumiWeight patt1 patt2 ... \tPatterns to match in special-case chains which get no bunch compoment of lumi weighting. Auto applied to random seeded HLT. (req. advanced weighting mode w. --predictionMu)" << std::endl;
+          std::cout << "--patternsExpoMuLumiWeight patt1 patt2 ... \tPatterns to match in special-case chains which get lumi extrap. which is exponential in mu (req. advanced weighting mode w. --predictionMu, see also --expoRateScaleModifier)" << std::endl;          
           std::cout << "--doGroupOverlap\t\t\t\tCalculate overlaps between all chains within each rate group. Warning, this is slow." << std::endl;
           std::cout << "--doAllOverlap\t\t\t\t\tCalculate overlaps between all chains. Warning, this is very slow.." << std::endl;
           std::cout << "--ratesOverlapWarning "<<_ratesOverlapWarning<<"%\t\t\tValue in percent (0-100) above which to warn about chain overlaps within rates groups." << std::endl;
           std::cout << "--rateFallbackPrescaleL1\t\t\tIf prescales are not supplied for some or any items, what value to apply to L1 items." << std::endl;
           std::cout << "--rateFallbackPrescaleHLT\t\t\tIf prescales are not supplied for some or any items, what value to apply to HLT items." << std::endl;
-          std::cout << "--useDefaultLumiScalingExceptions\t Use hard coded list of common special case chains for advanced lumi extrapolation (requires --predictionMu)." << std::endl;
+          std::cout << "--useDefaultLumiScalingExceptions\t\tUse hard coded list of common special case chains for advanced lumi extrapolation (requires --predictionMu)." << std::endl;
           std::cout << "--scaleRatesByPS\t\t\t\tScale up chains by their L1 prescale to get their rate for L1 PS=1. Only for basic L1 and HLT chains, not combinations and global rates."<<std::endl;
           std::cout << "--maxMultiSeed "<< _maxMultiSeed <<"\t\t\t\tMaximum number of L1 seeds a chain can have before it is dropped from Union rate groups due to exploding (2^nL1) computational complexity." << std::endl;
           std::cout << "--noOnlineDTCorrection\t\t\t\tFlag to prevent automated scaling to correct for L1 deadtime of EB data." << std::endl;
@@ -565,7 +571,7 @@ namespace TrigCostRootAnalysis {
           if ( std::string( argv[optind] ).substr(0, 1) == "-") { //We're back to arguments
             break;
           }
-          _patternsNoLumiWeight.push_back( std::string(" ") + std::string( argv[optind++] ) );
+          _patternsNoLumiWeight.push_back( std::string( argv[optind++] ) );
         }
         break;
       case '2':
@@ -575,7 +581,7 @@ namespace TrigCostRootAnalysis {
           if ( std::string( argv[optind] ).substr(0, 1) == "-") { //We're back to arguments
             break;
           }
-          _patternsNoMuLumiWeight.push_back( std::string(" ") + std::string( argv[optind++] ) );
+          _patternsNoMuLumiWeight.push_back( std::string( argv[optind++] ) );
         }
         break;
       case '3':
@@ -585,7 +591,17 @@ namespace TrigCostRootAnalysis {
           if ( std::string( argv[optind] ).substr(0, 1) == "-") { //We're back to arguments
             break;
           }
-          _patternsNoBunchLumiWeight.push_back( std::string(" ") + std::string( argv[optind++] ) );
+          _patternsNoBunchLumiWeight.push_back( std::string( argv[optind++] ) );
+        }
+        break;
+      case '4':
+        // I'm setting the patternsExpoMuLumiWeight strings
+        _patternsExpoMuLumiWeight.push_back( std::string( optarg ) );
+        while (optind < argc) {
+          if ( std::string( argv[optind] ).substr(0, 1) == "-") { //We're back to arguments
+            break;
+          }
+          _patternsExpoMuLumiWeight.push_back( std::string( argv[optind++] ) );
         }
         break;
       case 'n':
@@ -707,6 +723,11 @@ namespace TrigCostRootAnalysis {
         // nLbPerHLTConfig
         _ss << optarg;
         _ss >> _nLbPerHLTConfig;
+        break;
+      case '5':
+        // expoRateScaleModifier
+        _ss << optarg;
+        _ss >> _expoRateScaleModifier;
         break;
       case 'K':
         // File list
@@ -1000,13 +1021,14 @@ namespace TrigCostRootAnalysis {
     }
 
     // Check for rates only processing, and relax the LB requirement
+    Int_t _ratesOnly = 0;
     if ((_monitorRates == 1 || _monitorRatesUpgrade == 1) && _nMon == (_monitorRates + _monitorRatesUpgrade)) {
-      set(kRatesOnly, 1, "RatesOnly");
-      if (_nLbPerHLTConfig == 20 && _summaryAll == 0) {
-        Warning("Config::parseCLI", "Just doing rates, I'm pretty sure you want to process everything so I'm setting --nLbPerHLTConfig=INT_MAX");
-        _nLbPerHLTConfig = INT_MAX;
+      _ratesOnly = 1;
+      if (_nLbPerHLTConfig != INT_MAX && _summaryAll == 0 && _summaryPerHLTConfig == 1) {
+        Warning("Config::parseCLI", "We're in 'rates only' mode, --nLbPerHLTConfig is ignored and all LB are processed per HLT config.");
       }
     }
+    set(kRatesOnly, _ratesOnly, "RatesOnly");
 
     // We save monitorAll separately as it is picked up in a time saving loop later
     set(kDoAllMonitor,               _monitorAll, "MonitorAll"); // This one is magic, and will be picked up in a loop later - force enabling all others
@@ -1035,7 +1057,7 @@ namespace TrigCostRootAnalysis {
       set(kNPasses, 1, "NPasses");
     }
 
-    if (isZero(_targetMu) && (_patternsNoLumiWeight.size() || _patternsNoMuLumiWeight.size() || _patternsNoBunchLumiWeight.size()) ) {
+    if (isZero(_targetMu) && (_patternsNoLumiWeight.size() || _patternsNoMuLumiWeight.size() || _patternsNoBunchLumiWeight.size() || _patternsExpoMuLumiWeight.size()) ) {
       Error("Config::parseCLI", "If using --patternsNoLumiWeight, --patternsNoMuLumiWeight or --patternsNoBunchLumiWeight then --predictionMu must be specified too.");
       return kFALSE;
     }
@@ -1049,6 +1071,9 @@ namespace TrigCostRootAnalysis {
       _patternsNoLumiWeight.push_back("HLT_l1calocalib");
       _patternsNoLumiWeight.push_back("HLT_sct_noise");
       _patternsNoLumiWeight.push_back("HLT_noalg_L1RD");
+
+      _patternsExpoMuLumiWeight.push_back("HLT_noalg_L1XE");
+      _patternsExpoMuLumiWeight.push_back("HLT_xe");      
     }
 
     // String patterns to match when doing monitoring
@@ -1060,6 +1085,8 @@ namespace TrigCostRootAnalysis {
     set(kPatternsNoLumiWeight, _patternsNoLumiWeight, "PatternsNoLumiWeight");
     set(kPatternsNoMuLumiWeight, _patternsNoMuLumiWeight, "PatternsNoMuLumiWeight");
     set(kPatternsNoBunchLumiWeight, _patternsNoBunchLumiWeight, "PatternsNoBunchLumiWeight");
+    set(kPatternsExpoMuLumiWeight, _patternsExpoMuLumiWeight, "PatternsExpoMuLumiWeight");
+
 
     // If there are patterns here, make sure we switch on unique rates
     if ( _patternsUnique.size() > 0 && _doUniqueRates == kFALSE) {
@@ -1207,6 +1234,7 @@ namespace TrigCostRootAnalysis {
     set(kIgnoreNonPhysBunchGroups, _ignoreNonPhysBunchGroups, "IgnoreNonPhyBunchgroups");
     set(kNoLBRescaling, _noLBRescaling, "NoLBRescaling");
     setFloat(kTargetPeakMuAverage, _targetMu, "TargetMu", kUnlocked);
+    setFloat(kExpoRateScaleModifier, _expoRateScaleModifier, "ExpoRateScaleModifier");
 
     set(kMaxMultiSeed, _maxMultiSeed, "MaxMultiSeed");
     if (_runNumber != 0) set(kRunNumber, _runNumber, "RunNucmber");
@@ -1320,6 +1348,7 @@ namespace TrigCostRootAnalysis {
     set(kUpgradeJetLargeWindow, 1, "UpgradeJetLargeWindow");
     setFloat(kLumiExtrapWeight, 1., "FinalLumiExtrapWeight", kUnlocked); // This should be overwritten with the real weight later
     set(kDoAdvancedLumiScaling, 0, "DoAdvancedLumiScaling", kUnlocked); // This should be overwritten if decided it is enabled
+    set(kFarmXML, "HLTFarm.xml", "FarmXML");
 
     // Maximum number of certain messages to show
     setDisplayMsg(kMsgDivZero, 5, "Division by zero");
@@ -1385,6 +1414,14 @@ namespace TrigCostRootAnalysis {
 
     // Different variables to save
     set(kVarTime, "Time");
+    set(kVarSteeringTimeCPUType1, "SteeringTimeCPUType1");
+    set(kVarSteeringTimeCPUType2, "SteeringTimeCPUType2");
+    set(kVarSteeringTimeCPUType3, "SteeringTimeCPUType3");
+    set(kVarSteeringTimeCPUType4, "SteeringTimeCPUType4");
+    set(kVarEventsCPUType1, "EventsCPUType1");
+    set(kVarEventsCPUType2, "EventsCPUType2");
+    set(kVarEventsCPUType3, "EventsCPUType3");
+    set(kVarEventsCPUType4, "EventsCPUType4");
     set(kVarRerunTime, "RerunTime");
     set(kVarPassTime, "PassTime");
     set(kVarTimeExec, "TimeExec");
@@ -1463,6 +1500,7 @@ namespace TrigCostRootAnalysis {
     set(kListOfNoBunchLumiWeightChains, std::vector<std::string>(), "NoBunchLumiWeightChains", kUnlocked ); // Populated during execution
     set(kListOfNoMuLumiWeightChains, std::vector<std::string>(), "NoMuLumiWeightChains", kUnlocked ); // Populated during execution
     set(kListOfNoLumiWeightChains, std::vector<std::string>(), "NoLumiWeightChains", kUnlocked ); // Populated during execution
+    set(kListOfExpoMuLumiWeightChains, std::vector<std::string>(), "ExpoMuLumiWeightChains", kUnlocked ); // Populated during execution
 
     set(kLBPerKeyset, std::vector<std::string>(), "LumiBlocksPerKeyset", kUnlocked ); // Populated during execution
 

@@ -57,7 +57,7 @@ namespace TrigCostRootAnalysis {
     m_costData->setParent(this);
     m_nThread = Config::config().getInt(kNThread);
     m_threadFnPtr = &newEventThreaded;
-    m_ratesOnly = Config::config().getIsSet(kRatesOnly);
+    m_ratesOnly = Config::config().getInt(kRatesOnly);
     m_isCPUPrediction = (Bool_t) Config::config().getInt(kIsCPUPrediction);
     m_pass = 0;
   }
@@ -229,6 +229,7 @@ namespace TrigCostRootAnalysis {
       m_cacheAlgTimer.stop();
       m_cacheROSTimer.start();
       MonitorROSCommon::collateROSRequests(getLevel(), m_costData);
+      //MonitorROBIN::collateROBINRequests(getLevel(), m_costData);
       m_cacheROSTimer.stop();
     }
 

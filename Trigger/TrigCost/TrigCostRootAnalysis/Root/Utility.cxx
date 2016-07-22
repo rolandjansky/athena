@@ -74,6 +74,16 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
+   * Check to see if a chain is on the list of chains to get *exponential* scaling in <mu>
+   * @param _counterName Const reference to counter name to test.
+   * @result If the counter is on the list
+   */
+  Bool_t checkPatternExponentialWithMu( const std::string& _counterName) {
+    return Config::config().getVecMatches(kPatternsExpoMuLumiWeight, _counterName);
+  }
+
+
+  /**
    * Check to see if a counter name has been specified by the user as one we're interested in saving.
    * Match it to the vector of chains to save.
    * @param _counterName Const reference to counter name to test.
@@ -279,17 +289,19 @@ namespace TrigCostRootAnalysis {
   
   /**
    * Helper function, returns basic hash of string.
-   * Based on http://stackoverflow.com/questions/2535284/
+   * hash function (based on available elswhere ELF hash function)
    * @param _s String to hash
    * @returns Hash value.
    */
-  Int_t stringToIntHash( std::string _s ) {
-    Int_t _hash = 0;
-    Int_t _offset = 'a' - 1;
-    for(std::string::const_iterator it = _s.begin(); it != _s.end(); ++it) {
-      _hash = _hash << 1 | (*it - _offset);
-    }
-    return _hash;
+  UInt_t stringToIntHash( std::string& _s ) {
+   UInt_t _hash;
+   _hash = 0xd2d84a61;
+   Int_t i;
+ 
+   for ( i = (Int_t)_s.size()-1; i >= 0; --i ) _hash ^= ( _hash >> 5) + _s[i] + ( _hash << 7 );
+   for ( i = 0; i < (Int_t)_s.size(); ++i ) _hash ^= ( _hash >> 5) + _s[i] + ( _hash << 7 );
+ 
+   return _hash;
   }
 
   const std::string& getLevelString(UInt_t _level) {
