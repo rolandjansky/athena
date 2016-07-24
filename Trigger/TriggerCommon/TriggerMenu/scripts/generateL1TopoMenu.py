@@ -32,6 +32,8 @@ def main():
         generateL1TopoMenu(menu="Physics_pp_v6")
         generateL1TopoMenu(menu="Physics_HI_v3")
         generateL1TopoMenu(menu="MC_HI_v3")
+        generateL1TopoMenu(menu="Physics_HI_v4")
+        generateL1TopoMenu(menu="MC_HI_v4")
         generateL1TopoMenu(menu="LS1_v1" )
         generateL1TopoMenu(menu="DC14")
         return 0
@@ -55,6 +57,14 @@ def main():
     if sys.argv[1].lower().startswith("himc"):
         generateL1TopoMenu(menu="MC_HI_v3")
         return 0
+    
+    if sys.argv[1].lower().startswith("hipph"):
+        generateL1TopoMenu(menu="Physics_HI_v4")
+        return 0
+
+    if sys.argv[1].lower().startswith("hipmc"):
+        generateL1TopoMenu(menu="MC_HI_v4")
+        return 0    
 
     if sys.argv[1].lower().startswith("ls"):
         generateL1TopoMenu(menu="LS1_v1")

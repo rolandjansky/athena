@@ -196,6 +196,14 @@ def main():
     if sys.argv[1].lower().startswith("himc"):
         generateL1Menu(menu="MC_HI_v3")
         return 0
+    
+    if sys.argv[1].lower().startswith("hipphy"):
+        generateL1Menu(menu="Physics_HI_v4")
+        return 0
+
+    if sys.argv[1].lower().startswith("hipmc"):
+        generateL1Menu(menu="MC_HI_v4")
+        return 0    
 
 if __name__=="__main__":
     sys.exit( main() )

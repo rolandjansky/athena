@@ -118,7 +118,9 @@ class ItemDef:
         LVL1MenuItem('L1_EM20VH_2EM7'    ).setLogic( EM20VH & EM7.x(2)    & physcond).setTriggerType( TT.calo )        
 
         # 4xEM
-        LVL1MenuItem('L1_EM15VH_3EM7'   ).setLogic( EM15VH & EM7.x(3)    & physcond).setTriggerType( TT.calo )
+        LVL1MenuItem('L1_EM15VH_3EM7'         ).setLogic( EM15VH & EM7.x(3)    & physcond).setTriggerType( TT.calo )
+        LVL1MenuItem('L1_EM15VH_3EM8VH'       ).setLogic( EM15VH & EM8VH.x(3)    & physcond).setTriggerType( TT.calo )
+        LVL1MenuItem('L1_EM15VH_2EM10VH_3EM7' ).setLogic( EM15VH & EM10VH.x(2) & EM7.x(3)     & physcond).setTriggerType( TT.calo )
 
         # EM and jet
         LVL1MenuItem('L1_JJ15.23ETA49' ).setLogic( JJ1523ETA49 & physcond).setTriggerType(TT.calo)
@@ -474,7 +476,7 @@ class ItemDef:
         LVL1MenuItem('L1_5J15.0ETA25' ).setLogic( J150ETA25.x(5) & physcond).setTriggerType(TT.calo)
 
 #        LVL1MenuItem('L1_ZB_J20').setLogic(ZB_EM15 & J20 & physcond).setTriggerType(TT.zerobs)
-        if (('Physics_HI_v3' in TriggerFlags.triggerMenuSetup()) or ('MC_HI_v3' in TriggerFlags.triggerMenuSetup())):
+        if (('Physics_HI_v3' in TriggerFlags.triggerMenuSetup()) or ('MC_HI_v3' in TriggerFlags.triggerMenuSetup()) or ('Physics_HI_v4' in TriggerFlags.triggerMenuSetup()) or ('MC_HI_v4' in TriggerFlags.triggerMenuSetup())):
             LVL1MenuItem('L1_ZB', ctpid=240).setLogic(ZB_J75 & physcond).setTriggerType(TT.zerobs)
         else:
             LVL1MenuItem('L1_ZB', ctpid=240).setLogic(ZB_EM15 & physcond).setTriggerType(TT.zerobs)
@@ -1320,6 +1322,7 @@ class ItemDef:
                     #LVL1MenuItem('L1_MJJ-250-0').setLogic( TOPO_250INVM9999_J30s6_J20s6 & physcond)
                     #LVL1MenuItem('L1_MJJ-200-0').setLogic( TOPO_200INVM9999_J30s6_J20s6 & physcond)
                     LVL1MenuItem('L1_HT150-JJ15.ETA49').setLogic( TOPO_HT150_AJj15allETA49 & physcond)
+                    LVL1MenuItem('L1_HT150-JJ15.ETA49_MJJ-400').setLogic( TOPO_HT150_AJj15allETA49 & TOPO_400INVM9999_AJ30s6_AJ20s6 & physcond)
                     LVL1MenuItem('L1_DETA-JJ').setLogic( TOPO_0DETA10_Js1_Js2 & physcond)
                     LVL1MenuItem('L1_J4-MATCH').setLogic( TOPO_0MATCH_4AJ20ETA31_4AJj15ETA31 & physcond)
                     LVL1MenuItem('L1_W-05RO-XEEMHT').setLogic( TOPO_05RATIO_XE0_SUM0_EM10s1_HT0_AJj15allETA49 & physcond)

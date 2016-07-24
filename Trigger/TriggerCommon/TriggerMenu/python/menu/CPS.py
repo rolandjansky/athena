@@ -514,6 +514,8 @@ def defineCPSGroups():
                                       'mu10_mu6_bBmumux_BpmumuKp',
                                       'mu10_mu6_bJpsimumu',
                                       'mu10_mu6_bJpsimumu_Lxy0',
+                                      'mu10_mu6_bBmumux_Taumumux',
+                                      'mu10_mu6_bBmumux_Taumumux_noL2',
                                      ],
 
           "RATE:CPS:HLT_razor"   :  [''
@@ -538,6 +540,8 @@ def defineCPSGroups():
                                           '2mu6_bBmumux_BpmumuKp',
                                           '2mu6_bJpsimumu',
                                           '2mu6_bJpsimumu_Lxy0',
+                                          '2mu6_bBmumux_Taumumux',
+                                          '2mu6_bBmumux_Taumumux_noL2',
                                          ],
         'RATE:CPS:HLT_mu6_mu4_bBmumuX' : ['mu6_mu4_bBmumuxv2',            
                                           'mu6_mu4_bBmumux_BcmumuDsloose',

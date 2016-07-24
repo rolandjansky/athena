@@ -92,6 +92,32 @@ def lumi(triggerPythonConfig):
         else:
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales
+    
+    elif menu_name.startswith('Physics_HI_v4') :
+        log.info('Physics_HI_v4 menu setup')
+        from TriggerMenu.menu.Physics_HI_v4 import setupMenu, Prescales
+        setupMenu()
+        if 'cosmics_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_cosmics
+            HLTPrescales = Prescales.HLTPrescales_cosmics
+        else:
+            L1Prescales = Prescales.L1Prescales
+            HLTPrescales = Prescales.HLTPrescales
+            
+
+    elif menu_name.startswith('MC_HI_v4') :
+        log.info('MC_HI_v4 menu setup')
+        from TriggerMenu.menu.MC_HI_v4 import setupMenu, Prescales
+        setupMenu()
+        if 'cosmics_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_cosmics
+            HLTPrescales = Prescales.HLTPrescales_cosmics
+        elif 'tight_mc_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_tight_mc_prescale
+            HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
+        else:
+            L1Prescales = Prescales.L1Prescales
+            HLTPrescales = Prescales.HLTPrescales        
             
     else:
         log.fatal ('Menu with name %s is not known in this version of TriggerMenu! ', menu_name)
