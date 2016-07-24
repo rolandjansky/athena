@@ -93,7 +93,7 @@ namespace asg
   {						\
     using namespace asg::msgUserCode;		\
     ANA_CHECK_SET_TYPE (int);			\
-    StatusCode::enableFailure();		\
+    ::StatusCode::enableFailure();		\
     ANA_CHECK (xAOD::Init ());			\
     ::testing::InitGoogleTest (&argc, argv);	\
     return RUN_ALL_TESTS();			\

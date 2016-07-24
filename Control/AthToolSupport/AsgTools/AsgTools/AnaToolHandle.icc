@@ -92,9 +92,12 @@ namespace asg
 	using namespace msgToolHandle;
 	//tool has 2 ref counts out of the box?? (ToolSvc and, and ToolSvc again because of the queryInterface call (line 348 of ToolSvc.cpp .. and see line 34 of AlgTool.cpp))
 	if(m_handle->isSet()) {
-	  ANA_MSG_DEBUG (*m_handle << " " << (*m_handle)->refCount());
-	  if((*m_handle)->refCount()==3) (*m_handle)->release(); //may cause problem if the other 'something' wants to use the tool still??
-	  ANA_MSG_DEBUG (*m_handle << " " << (*m_handle)->refCount());
+	  //before deleting, check ToolSvc still knows about it, because it might already have been destroyed by ToolSvc finalize
+	  interfaceType_t *tool = nullptr;
+          if( !detail::toolExists( m_handle->parentName() + "." + m_handle->name(), tool ) ) return; //already deleted
+	  ANA_MSG_DEBUG( *m_handle << " " << (*m_handle)->refCount() );
+	  //if((*m_handle)->refCount()==3) (*m_handle)->release(); //may cause problem if the other 'something' wants to use the tool still??
+	  //ANA_MSG_DEBUG (*m_handle << " " << (*m_handle)->refCount());
 	  if((*m_handle)->refCount()==2) (*m_handle)->release(); //may cause problem if the other 'something' wants to use the tool still??
 	  ANA_MSG_DEBUG (*m_handle << " " << (*m_handle)->refCount());
 	  m_handle->release().ignore(); //triggers tool destruction
@@ -398,45 +401,19 @@ namespace asg
         ANA_MSG_ERROR("Tool " << toolHandle.typeAndName() << " must be initialized before you can pass it to another tool with setProperty");
         return StatusCode::FAILURE;
     }
-/*
-    //the tool being set must have a matching parent
-    if( ( !m_parent && (tool->parent() && dynamic_cast<const parentType_t*>(tool->parent())->name()!="ToolSvc"))
-         || (m_parent && tool->parent()!=m_parent) ) {
-      ANA_MSG_FATAL("when setProperty with another toolhandle, the parents must match, but have: " << m_parent->name() << " and " << dynamic_cast<const parentType_t*>(tool->parent())->name());
-      ANA_MSG_FATAL("provided tool is: " << tool->name());
-      return StatusCode::FAILURE;
-    }
-*/
+
     //strip the parent name
-    std::string tool_name = tool->name();
-    if(tool_name.find(fullName()+".")==0) {
+    std::string tool_name = toolHandle.name();
+    if(tool_name.find(name()+".")==0) {
       //we also strip the name of our tool, if it appears at the front of tool_name ...
       //this is so private subtools can be set with code like:
       //ATH<> subtool("MyTool/ParentTool.SubTool");
       //ATH<> parenttool("MyTool2/ParentTool");
       //parenttool.setProperty("SubToolProperty",subtool);
-      tool_name.replace(0,fullName().size()+1,"");
+      tool_name.replace(0,name().size()+1,"");
     } 
-    else if( !m_parent && tool_name.find("ToolSvc.")==0 ) {
-         tool_name.replace(0,strlen("ToolSvc."),"");
-    } else if(m_parent && tool_name.find(m_parent->name()+".")==0) {
-         tool_name.replace(0,strlen(m_parent->name().c_str())+1,"");
-    }
 
-
-/*
-    if(tool->parent() && dynamic_cast<const parentType_t*>(tool->parent())->name()!="ToolSvc") {
-      ANA_MSG_FATAL("Cannot setPropertyToolHandle with a private tool");
-      return StatusCode::FAILURE;
-    }
-    //if setting a private subtool, we will need to strip the name of our 
-    //strip 'ToolSvc.' from the name of the tool
-    std::string tool_name = tool->name();
-    if(strncmp(tool_name.c_str(),"ToolSvc.",strlen("ToolSvc."))==0) {
-      tool_name.replace(0,strlen("ToolSvc."),"");
-    }
-*/
-    return setProperty( property, tool->type() + "/" + tool_name /*th*/ );
+    return setProperty( property, tool->type() + "/" + tool_name );
 #endif
   }
 
@@ -475,28 +452,23 @@ template <class T> template <class T2>
   #endif
         return StatusCode::FAILURE;
       }
-      if(toolHandle.retrieve().isFailure()) {
-        ANA_MSG_ERROR("Tool " << toolHandle.typeAndName() << " could not be initialized, which is necessary before you can pass it to another tool with setProperty");
+
+       auto tool = toolHandle.get();
+      if(tool == nullptr) {
+        ANA_MSG_ERROR("Tool " << toolHandle.typeAndName() << " must be initialized before you can pass it to another tool with setProperty");
         return StatusCode::FAILURE;
       }
-       auto tool = toolHandle.get();
-
       
       //strip the parent name
-      std::string tool_name = tool->name();
-      if(tool_name.find(fullName()+".")==0) {
+      std::string tool_name = toolHandle.name();
+      if(tool_name.find(name()+".")==0) {
         //we also strip the name of our tool, if it appears at the front of tool_name ...
         //this is so private subtools can be set with code like:
         //ATH<> subtool("MyTool/ParentTool.SubTool");
         //ATH<> parenttool("MyTool2/ParentTool");
         //parenttool.setProperty("SubToolProperty",subtool);
-        tool_name.replace(0,fullName().size()+1,"");
+        tool_name.replace(0,name().size()+1,"");
       } 
-      else if( !m_parent && tool_name.find("ToolSvc.")==0 ) {
-          tool_name.replace(0,strlen("ToolSvc."),"");
-      } else if(m_parent && tool_name.find(m_parent->name()+".")==0) {
-          tool_name.replace(0,strlen(m_parent->name().c_str())+1,"");
-      }
       
       tools.push_back( tool->type() + "/" + tool_name );
       
@@ -596,7 +568,7 @@ template <class T> template <class T2>
     ANA_CHECK (m_handle->retrieve());
 
     //must increment refcount on the tool (get two refcounts automatically, one for ToolSvc, and *i think* one for HistorySvc (yuck)
-    (*m_handle)->addRef();
+    //(*m_handle)->addRef();
     m_toolPtr = &**m_handle;
 
 #endif
@@ -936,7 +908,7 @@ template <class T> template <class T2>
     case State::PREINITIALIZED:
       // we are using a tool that already has all its properties set
       // and initialized, so we are not doing that again
-      ANA_MSG_WARNING ("Ignoring setProperty for " << *this << "." << property << " - tool preInitialized");
+      ANA_MSG_INFO ("Ignoring setProperty for " << *this << "." << property << " - tool preInitialized");
       return StatusCode::SUCCESS;
     case State::CREATED:
     case State::BAD_PROPERTY:
