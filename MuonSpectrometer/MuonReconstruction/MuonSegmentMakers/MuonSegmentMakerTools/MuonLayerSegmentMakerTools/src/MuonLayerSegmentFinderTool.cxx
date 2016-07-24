@@ -66,7 +66,7 @@ namespace Muon {
     ATH_CHECK(m_csc4dSegmentFinder.retrieve());
     ATH_CHECK(m_clusterSegmentFinder.retrieve());
     ATH_CHECK(m_layerHoughTool.retrieve());
-    ATH_CHECK(m_recoValidationTool.retrieve());
+    if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
 
     return StatusCode::SUCCESS;
   }
