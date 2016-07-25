@@ -35,6 +35,7 @@ use MinimalRunTime        MinimalRunTime-*           Control -no_auto_imports
 macro test_pattern_opt_only "athenarun_test" \
       debug        ""
 
+# Tests were updated for cmake
 # Write out some simple data objects (hits):
 # AthenaPoolExample_Write
 apply_pattern athenarun_test name="AthenaPoolExample_Write" pre_script="../test/pre_check.sh AthenaPoolExample_Write " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_WriteJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_Write "
@@ -118,7 +119,7 @@ apply_pattern athenarun_test name="AthenaPoolExample_RWcBs" pre_script="../test/
 apply_pattern athenarun_test name="AthenaPoolExample_ReadcBs" pre_script="../test/pre_check.sh AthenaPoolExample_ReadcBs " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBsJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_ReadcBs AthenaPoolExample_ReadBs "
 
 # AthenaPoolExample_ReadcBsTag
-apply_pattern athenarun_test name="AthenaPoolExample_ReadcBsTag" pre_script="../test/pre_check.sh AthenaPoolExample_ReadBscTag " options="./AthenaPoolExample_ReadBsTag.py" post_script="../test/post_check.sh AthenaPoolExample_ReadcBsTag AthenaPoolExample_ReadBsTag "
+#apply_pattern athenarun_test name="AthenaPoolExample_ReadcBsTag" pre_script="../test/pre_check.sh AthenaPoolExample_ReadBscTag " options="./AthenaPoolExample_ReadBsTagJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_ReadcBsTag AthenaPoolExample_ReadBsTag "
 
 # AthenaPoolExample_WCond
 apply_pattern athenarun_test name="AthenaPoolExample_WCond" pre_script="../test/pre_check.sh AthenaPoolExample_WCond " options="AthenaPoolExampleAlgorithms/AthenaPoolExample_WCondJobOptions.py" post_script="../test/post_check.sh AthenaPoolExample_WCond "
@@ -173,6 +174,7 @@ macro_append AthenaPoolExample_ReadTag_test_dependencies " AthenaPoolExample_ReW
 macro_append AthenaPoolExample_ReadBN_test_dependencies " AthenaPoolExample_ReWrite_test "
 macro_append AthenaPoolExample_ReadNoBN_test_dependencies " AthenaPoolExample_Read_test AthenaPoolExample_ReadTag_test AthenaPoolExample_ReadBN_test "
 
+# Delayed in cmake
 macro_append AthenaPoolExample_Copy_test_dependencies " AthenaPoolExample_Write_test "
 macro_append AthenaPoolExample_ReWriteAgain_test_dependencies " AthenaPoolExample_ReadNoBN_test AthenaPoolExample_Copy_test "
 macro_append AthenaPoolExample_ReWriteNext_test_dependencies " AthenaPoolExample_ReWriteAgain_test "
@@ -193,13 +195,14 @@ macro_append AthenaPoolExample_ReadBs_test_dependencies " AthenaPoolExample_RWBs
 macro_append AthenaPoolExample_ReadBsTag_test_dependencies " AthenaPoolExample_ReadBs_test "
 macro_append AthenaPoolExample_RWcBs_test_dependencies " AthenaPoolExample_ReadBs_test AthenaPoolExample_ReadBsTag_test "
 macro_append AthenaPoolExample_ReadcBs_test_dependencies " AthenaPoolExample_RWcBs_test "
-macro_append AthenaPoolExample_ReadcBsTag_test_dependencies " AthenaPoolExample_RWcBs_test "
+#macro_append AthenaPoolExample_ReadcBsTag_test_dependencies " AthenaPoolExample_RWcBs_test "
 
 macro_append AthenaPoolExample_WCond_test_dependencies " AthenaPoolExample_ReadConcat_test "
 macro_append AthenaPoolExample_ACond_test_dependencies " AthenaPoolExample_WCond_test "
 macro_append AthenaPoolExample_RCond_test_dependencies " AthenaPoolExample_ACond_test "
 
-macro_append AthenaPoolExample_ReadBNzip_test_dependencies " AthenaPoolExample_ReadcBs_test AthenaPoolExample_ReadcBsTag_test AthenaPoolExample_RCond_test "
+#macro_append AthenaPoolExample_ReadBNzip_test_dependencies " AthenaPoolExample_ReadcBs_test AthenaPoolExample_ReadcBsTag_test AthenaPoolExample_RCond_test "
+macro_append AthenaPoolExample_ReadBNzip_test_dependencies " AthenaPoolExample_ReadcBs_test AthenaPoolExample_RCond_test "
 
 macro_append AthenaPoolExample_WMeta_test_dependencies " AthenaPoolExample_ReadBNzip_test "
 macro_append AthenaPoolExample_AMeta_test_dependencies " AthenaPoolExample_WMeta_test "
@@ -211,3 +214,4 @@ macro_append AthenaPoolExample_ReWriteFast_test_dependencies " AthenaPoolExample
 #macro_append AthenaPoolExample_ReWriteTagFast_test_dependencies " AthenaPoolExample_ReWriteFast_test "
 macro_append AthenaPoolExample_ReadFast_test_dependencies " AthenaPoolExample_ReWriteFast_test "
 #macro_append AthenaPoolExample_ReadTagFast_test_dependencies " AthenaPoolExample_ReWriteTagFast_test "
+

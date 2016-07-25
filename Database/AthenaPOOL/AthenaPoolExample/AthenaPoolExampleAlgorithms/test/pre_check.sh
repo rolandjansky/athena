@@ -5,16 +5,16 @@ test=${1}
 #
 if [ "${test}" = "AthenaPoolExample_Write" ]
 then
-	echo "## clean up"
-	echo $LD_LIBRARY_PATH
+	#echo "## clean up"
+	#echo $LD_LIBRARY_PATH
 	/bin/rm -f *
 elif [ "${test}" = "AthenaPoolExample_Concat" ]
 then
-	echo "## clean up ii"
-	/bin/rm -f SimplePool*[13].root
+	#echo "## clean up ii"
+	/bin/rm -f SimplePoolFile[13].root
 elif [ "${test}" = "AthenaPoolExample_WriteFast" ]
 then
-	echo "## clean up iii"
+	#echo "## clean up iii"
 	/bin/rm -f SimplePool*[1-4].root #*.xml*
 #	cat ../share/AthenaPoolExample_WriteJobOptions.py | \
 #	sed -e 's/SimplePoolFile2.root/SimplePoolFileA.root/g' > ${test}.py
@@ -43,7 +43,7 @@ then
 #	sed -e 's/^#Switch Off for TAG - end/\"\"\"/g' > ${test}.py
 elif [ "${test}" = "AthenaPoolExample_WMeta" ]
 then
-	echo "## clean up iii"
+	#echo "## clean up iii"
 	/bin/rm -f Catalog1.xml* SimplePool*1.root SimplePool*2.root SimplePool*3.root SimplePool*4.root
 	/bin/rm -f *.root *.xml* *.h5
 elif [ "${test}" == "AthenaPoolExample_ReWriteAgain" ]
@@ -78,16 +78,16 @@ then
 	#catalogBytestreamFiles.sh /afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data
 	FCregisterPFN -g "7AB2B62D-7276-DC11-9AB7-0018FE6D438B" -t "BYTE_STREAM" -p "/afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data" # For now, as catalogBytestreamFiles.sh fails on gcc4.8
 	rm SimplePoolFromRaw.root
-#	cat ../share/AthenaPoolExample_ReadBsJobOptions.py | \
-#	sed -e 's/^#svcMgr.EventSelector.InputCollections/svcMgr.EventSelector.InputCollections/g' | \
-#	sed -e 's/^#svcMgr.EventSelector.CollectionType/svcMgr.EventSelector.CollectionType/g' | \
-#	sed -e 's/^#svcMgr.EventSelector.RefName/svcMgr.EventSelector.RefName/g' | \
-#	sed -e 's/^#svcMgr.EventSelector.Query/svcMgr.EventSelector.Query/g' | \
-#	grep -v "^\"\"\"" > ${test}.py
+	cat ../share/AthenaPoolExample_ReadBsJobOptions.py | \
+	sed -e 's/^#svcMgr.EventSelector.InputCollections/svcMgr.EventSelector.InputCollections/g' | \
+	sed -e 's/^#svcMgr.EventSelector.CollectionType/svcMgr.EventSelector.CollectionType/g' | \
+	sed -e 's/^#svcMgr.EventSelector.RefName/svcMgr.EventSelector.RefName/g' | \
+	sed -e 's/^#svcMgr.EventSelector.Query/svcMgr.EventSelector.Query/g' | \
+	grep -v "^\"\"\"" > ${test}.py
 elif [ "${test}" == "AthenaPoolExample_RWcBs" ]
 then
-#	cat ../share/AthenaPoolExample_RWBsJobOptions.py | \
-#	sed -e 's/^#svcMgr.ByteStreamInputSvc.FullFileName/svcMgr.ByteStreamInputSvc.FullFileName/g' > ${test}.py
+	cat ../share/AthenaPoolExample_RWBsJobOptions.py | \
+	sed -e 's/^#svcMgr.ByteStreamInputSvc.FullFileName/svcMgr.ByteStreamInputSvc.FullFileName/g' > ${test}.py
 	AtlCopyBSEvent.exe -d -e 14350,14356,14382 -o test_defl.data /afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data
 	#catalogBytestreamFiles.sh test_defl.data
         guid=`strings ../run/test_defl.data | grep "GUID=" | cut -d= -f2`
