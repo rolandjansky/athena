@@ -9,7 +9,7 @@ from optparse import OptionParser
 
 physicsStreams = ["physics_Main","physics_MinBias","physics_MinBiasOverlay","physics_ZeroBias","physics_HardProbes",
                   "physics_TauOverlay","physics_CosmicCalo", "physics_CosmicMuons","physics_IDCosmic",
-                    "physics_HLT_IDCosmic","physics_Standby","physics_Late","physics_L1Calo",
+                    "physics_HLT_IDCosmic","physics_Standby","physics_Late","physics_L1Calo","physics_L1Topo",
                     "express_express"] 
 
 
