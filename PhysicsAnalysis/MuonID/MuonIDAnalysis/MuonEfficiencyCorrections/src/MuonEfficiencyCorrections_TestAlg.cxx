@@ -18,14 +18,19 @@ namespace CP {
 MuonEfficiencyCorrections_TestAlg::MuonEfficiencyCorrections_TestAlg( const std::string& name, ISvcLocator* svcLoc )
 : AthAlgorithm( name, svcLoc ),
   m_sf_Tool("CP::MuonEfficiencyScaleFactors/MuonEfficiencyScaleFactors", this ),
+  m_isosf_Tool("CP::MuonEfficiencyScaleFactors/MuonEfficiencyScaleFactors", this ),
+  m_ttvasf_Tool("CP::MuonEfficiencyScaleFactors/MuonEfficiencyScaleFactors", this ),
   m_trigsf_Tool("CP::MuonEfficiencyScaleFactors/MuonTriggerScaleFactors", this )
 {
     declareProperty( "SGKey", m_sgKey = "Muons" );
     // prepare the handle
     declareProperty( "TrigScaleFactorTool", m_trigsf_Tool );
     declareProperty( "ScaleFactorTool", m_sf_Tool );
+    declareProperty( "TTVAScaleFactorTool", m_ttvasf_Tool );
     declareProperty( "IsolationScaleFactorTool", m_isosf_Tool );
+    // force strict checking of return codes
     CP::SystematicCode::enableFailure();
+    CP::CorrectionCode::enableFailure();
 }
 
 StatusCode MuonEfficiencyCorrections_TestAlg::initialize() {
@@ -36,8 +41,11 @@ StatusCode MuonEfficiencyCorrections_TestAlg::initialize() {
     ATH_MSG_DEBUG( "ScaleFactorTool  = " << m_sf_Tool );
     ATH_CHECK( m_sf_Tool.retrieve() );
 
-    ATH_MSG_DEBUG( "IsolaitonScaleFactorTool  = " << m_isosf_Tool );
+    ATH_MSG_DEBUG( "IsolationScaleFactorTool  = " << m_isosf_Tool );
     ATH_CHECK( m_isosf_Tool.retrieve() );
+
+    ATH_MSG_DEBUG( "TTVAScaleFactorTool  = " << m_ttvasf_Tool );
+    ATH_CHECK( m_ttvasf_Tool.retrieve() );
 
     ATH_MSG_DEBUG( "TriggerScaleFactorTool  = " << m_trigsf_Tool );
     ATH_CHECK( m_trigsf_Tool.retrieve() );
@@ -58,8 +66,12 @@ StatusCode MuonEfficiencyCorrections_TestAlg::execute() {
 
     CP::SystematicSet statup;
     statup.insert (CP::SystematicVariation ("MUON_EFF_STAT", 1));
+    CP::SystematicSet statupLowPt;
+    statupLowPt.insert (CP::SystematicVariation ("MUON_EFF_STAT_LOWPT", 1));
     CP::SystematicSet sysup;
     sysup.insert (CP::SystematicVariation ("MUON_EFF_SYS", 1));
+    CP::SystematicSet sysupLowPt;
+    sysupLowPt.insert (CP::SystematicVariation ("MUON_EFF_SYS_LOWPT", 1));
 //     statup.insert (CP::SystematicVariation ("MUON_EFF_STAT", 1));
     // make sure the tool is not affected by other unsupported systematics in the same set
     statup.insert (CP::SystematicVariation ("TÖRÖÖÖÖ", 1));
@@ -97,8 +109,16 @@ StatusCode MuonEfficiencyCorrections_TestAlg::execute() {
             ATH_MSG_WARNING( "Couldn't run efficiencies on muon with stat up variation!" );
             continue;
         }
-        ATH_MSG_INFO( "       Scale Factor (stat up) via getEfficiencyScaleFactor = "
-		      << sf);
+        ATH_MSG_INFO( "       Scale Factor (stat up) via getEfficiencyScaleFactor = " << sf);
+        if (!m_sf_Tool->applySystematicVariation(statupLowPt)){
+            ATH_MSG_WARNING( "Unable to switch to low-pt stat up sys!" );
+            continue;
+        }
+        if(  m_sf_Tool->getEfficiencyScaleFactor((**mu_itr),sf) == CP::CorrectionCode::Error ) {
+            ATH_MSG_WARNING( "Couldn't run efficiencies on muon with stat up variation!" );
+            continue;
+        }
+        ATH_MSG_INFO( "       Scale Factor (low-pt stat up) via getEfficiencyScaleFactor = " << sf);
         if (!m_sf_Tool->applySystematicVariation(CP::SystematicSet())){
             ATH_MSG_WARNING( "Unable to switch to nominal sys!" );
             continue;
@@ -111,8 +131,16 @@ StatusCode MuonEfficiencyCorrections_TestAlg::execute() {
             ATH_MSG_WARNING( "Couldn't run efficiencies on muon with sys up variation!" );
             continue;
         }
-        ATH_MSG_INFO( "       Scale Factor (sys up) via getEfficiencyScaleFactor = "
-              << sf);
+        ATH_MSG_INFO( "       Scale Factor (sys up) via getEfficiencyScaleFactor = " << sf);
+        if (!m_sf_Tool->applySystematicVariation(sysupLowPt)){
+            ATH_MSG_WARNING( "Unable to switch to low pt sys up sys!" );
+            continue;
+        }
+        if(  m_sf_Tool->getEfficiencyScaleFactor((**mu_itr),sf) == CP::CorrectionCode::Error ) {
+            ATH_MSG_WARNING( "Couldn't run efficiencies on muon with low pt sys up variation!" );
+            continue;
+        }
+        ATH_MSG_INFO( "       Scale Factor (low pt sys up) via getEfficiencyScaleFactor = " << sf);
         if (!m_sf_Tool->applySystematicVariation(CP::SystematicSet())){
             ATH_MSG_WARNING( "Unable to switch to nominal sys!" );
             continue;
@@ -121,8 +149,7 @@ StatusCode MuonEfficiencyCorrections_TestAlg::execute() {
             ATH_MSG_WARNING( "Couldn't run efficiencies on muon!" );
             continue;
         }
-        ATH_MSG_INFO( "       Scale Factor (central value) via getEfficiencyScaleFactor = "
-		      << sf);
+        ATH_MSG_INFO( "       Scale Factor (central value) via getEfficiencyScaleFactor = " << sf);
         // decorate the muon with SF info (alternative to the above)
         if(  m_sf_Tool->applyEfficiencyScaleFactor(**mu_itr) == CP::CorrectionCode::Error || m_sf_Tool->applyRecoEfficiency(**mu_itr) == CP::CorrectionCode::Error) {
             ATH_MSG_WARNING( "Couldn't run efficiencies on muon!" );
@@ -145,8 +172,70 @@ StatusCode MuonEfficiencyCorrections_TestAlg::execute() {
         ATH_MSG_INFO( "       Scale Factor Replica #2 = "
                 << (**mu_itr).auxdata< std::vector<float> >( "EfficiencyScaleFactorReplicas" )[1] );
 
+
+
         ////////////////////////////////////////
-        //// do the same thing for isolaiton
+        //// do the same thing for TTVA SFs
+        ////////////////////////////////////////
+        float ttvasf = -1;
+        if (!m_ttvasf_Tool->applySystematicVariation(statup)){
+            ATH_MSG_WARNING( "Unable to switch to stat up sys!" );
+            continue;
+        }
+        if(  m_ttvasf_Tool->getEfficiencyScaleFactor((**mu_itr),ttvasf) == CP::CorrectionCode::Error ) {
+            ATH_MSG_WARNING( "Couldn't run efficiencies on muon with stat up variation!" );
+            continue;
+        }
+        ATH_MSG_INFO( "       Scale Factor (stat up) via getEfficiencyScaleFactor = " << ttvasf);
+        if (!m_ttvasf_Tool->applySystematicVariation(statupLowPt)){
+            ATH_MSG_WARNING( "Unable to switch to low-pt stat up sys!" );
+            continue;
+        }
+        if(  m_ttvasf_Tool->getEfficiencyScaleFactor((**mu_itr),ttvasf) == CP::CorrectionCode::Error ) {
+            ATH_MSG_WARNING( "Couldn't run efficiencies on muon with stat up variation!" );
+            continue;
+        }
+        ATH_MSG_INFO( "       TTVA Scale Factor (low-pt stat up) via getEfficiencyScaleFactor = " << ttvasf);
+        if (!m_ttvasf_Tool->applySystematicVariation(CP::SystematicSet())){
+            ATH_MSG_WARNING( "Unable to switch to nominal sys!" );
+            continue;
+        }
+        if (!m_ttvasf_Tool->applySystematicVariation(sysup)){
+            ATH_MSG_WARNING( "Unable to switch to sys up sys!" );
+            continue;
+        }
+        if(  m_ttvasf_Tool->getEfficiencyScaleFactor((**mu_itr),ttvasf) == CP::CorrectionCode::Error ) {
+            ATH_MSG_WARNING( "Couldn't run efficiencies on muon with sys up variation!" );
+            continue;
+        }
+        ATH_MSG_INFO( "       TTVA Scale Factor (sys up) via getEfficiencyScaleFactor = " << ttvasf);
+        if (!m_ttvasf_Tool->applySystematicVariation(sysupLowPt)){
+            ATH_MSG_WARNING( "Unable to switch to low pt sys up sys!" );
+            continue;
+        }
+        if(  m_ttvasf_Tool->getEfficiencyScaleFactor((**mu_itr),ttvasf) == CP::CorrectionCode::Error ) {
+            ATH_MSG_WARNING( "Couldn't run efficiencies on muon with low pt sys up variation!" );
+            continue;
+        }
+        ATH_MSG_INFO( "       TTVA Scale Factor (low pt sys up) via getEfficiencyScaleFactor = " << ttvasf);
+        if (!m_ttvasf_Tool->applySystematicVariation(CP::SystematicSet())){
+            ATH_MSG_WARNING( "Unable to switch to nominal sys!" );
+            continue;
+        }
+        if( m_ttvasf_Tool->getEfficiencyScaleFactor((**mu_itr),ttvasf) == CP::CorrectionCode::Error ) {
+            ATH_MSG_WARNING( "Couldn't run efficiencies on muon!" );
+            continue;
+        }
+        ATH_MSG_INFO( "       TTVA Scale Factor (central value) via getEfficiencyScaleFactor = " << ttvasf);
+        // decorate the muon with SF info (alternative to the above)
+        if(  m_ttvasf_Tool->applyEfficiencyScaleFactor(**mu_itr) == CP::CorrectionCode::Error || m_ttvasf_Tool->applyRecoEfficiency(**mu_itr) == CP::CorrectionCode::Error) {
+            ATH_MSG_WARNING( "Couldn't run TTVA efficiencies on muon!" );
+            continue;
+        }
+
+
+        ////////////////////////////////////////
+        //// do the same thing for isolation
         ////////////////////////////////////////
 	
         // obtain the isolation scale factor directly from the muon
@@ -159,7 +248,7 @@ StatusCode MuonEfficiencyCorrections_TestAlg::execute() {
             ATH_MSG_WARNING( "Couldn't run ISO efficiencies on muon with syst down variation!" );
             continue;
         }
-        ATH_MSG_INFO( "      Isolaiton Scale Factor (syst down) via getEfficiencyScaleFactor = "
+        ATH_MSG_INFO( "      Isolation Scale Factor (syst down) via getEfficiencyScaleFactor = "
 		      << isosf);
         if (!m_isosf_Tool->applySystematicVariation(CP::SystematicSet())){
             ATH_MSG_WARNING( "Unable to switch to nominal sys for Isolation!" );
@@ -210,7 +299,10 @@ StatusCode MuonEfficiencyCorrections_TestAlg::execute() {
     std::string singletrig = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
     std::string multitrig = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50_HLT_2mu14";
     Int_t runNumber = 267639;
-    m_trigsf_Tool->setRunNumber(runNumber);
+    if ( m_trigsf_Tool->setRunNumber(runNumber) != CP::CorrectionCode::Ok ) {
+        ATH_MSG_FATAL("Could not set run number for MuonTriggerScaleFactors tool" );
+        return StatusCode::FAILURE;
+    }
     
     // Systematic up
     CP::SystematicSet trigsfsys_up;

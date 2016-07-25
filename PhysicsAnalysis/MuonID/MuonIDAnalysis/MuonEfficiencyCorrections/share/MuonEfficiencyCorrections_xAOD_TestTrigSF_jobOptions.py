@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-import os 
+import os
 
 doTrigMatch = True
 inputFiles = []
@@ -36,18 +36,16 @@ def getMuonTriggers():
              'HLT_mu24_L1MU15',
              'HLT_mu26',
              'HLT_mu26_imedium',
+             'HLT_mu26_ivarmedium',
+             'HLT_mu24_ivarmedium',
+             'HLT_mu40',
              'HLT_mu4',
              'HLT_mu4_msonly',
              'HLT_mu50',
              'HLT_mu6',
              'HLT_mu6_msonly',
-             'HLT_noalg_L1MU4',
-             'HLT_noalg_L1MU6',
-             'HLT_noalg_L1MU10',
-             'HLT_noalg_L1MU15',
-             'HLT_noalg_L1MU20',
              ]
-    
+
     return trigs
 
 #------------------------------------------------------------------------------
@@ -62,7 +60,7 @@ def getMuonTriggersL1():
              'L1_MU15',
              'L1_MU20',
              ]
-    
+
     return trigs
 
 #------------------------------------------------------------------------------
@@ -70,7 +68,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 import AthenaPoolCnvSvc.ReadAthenaPool
 
 ServiceMgr.EventSelector.InputCollections = inputFiles
-print ServiceMgr.EventSelector.InputCollections 
+print ServiceMgr.EventSelector.InputCollections
 
 if 'EvtMax' in dir():
     theApp.EvtMax = EvtMax

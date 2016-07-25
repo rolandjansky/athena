@@ -17,7 +17,7 @@
 #endif // __GCCXML__
 
 #include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
-
+#include "MuonEfficiencyCorrections/MuonTriggerScaleFactors.h"
 
 
 #endif /* MUONEFFICIENCYCORRECTIONSDICT_H_ */
