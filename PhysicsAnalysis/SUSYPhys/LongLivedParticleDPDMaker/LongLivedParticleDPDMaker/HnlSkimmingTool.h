@@ -24,7 +24,7 @@ namespace DerivationFramework {
   public: 
     /** Constructor with parameters */
     HnlSkimmingTool( const std::string& t, const std::string& n, const IInterface* p );
-   
+
     /** Destructor */
     ~HnlSkimmingTool();
    
@@ -34,7 +34,7 @@ namespace DerivationFramework {
  
     /** Check that the current event passes this filter */
     virtual bool eventPassesFilter() const;
-
+ 		bool IsGood(const xAOD::Muon& mu) const;
   private:
     ToolHandle< Trig::TrigDecisionTool > m_trigDecisionTool;
     std::vector< std::string > m_triggers;

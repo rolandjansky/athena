@@ -77,6 +77,21 @@ StatusCode DerivationFramework::HnlSkimmingTool::finalize()
 }
 
 // The filter itself
+//Add of the chi2 cut
+bool DerivationFramework::HnlSkimmingTool::IsGood(const xAOD::Muon& mu) const
+{
+  if(mu.muonType() != xAOD::Muon::Combined) return false;
+
+  float chi2 = 0.;
+  if(!mu.parameter(chi2, xAOD::Muon::msInnerMatchChi2)) return false;
+
+  int dof = 1;
+  if(!mu.parameter(dof, xAOD::Muon::msInnerMatchDOF)) return false;
+  if(dof == 0) dof = 1;
+
+  return (chi2 / static_cast<float>(dof)) < 5.;
+}
+/////////////////////End of add of the chi2 cut
 bool DerivationFramework::HnlSkimmingTool::eventPassesFilter() const
 {
   bool acceptEvent(false);
@@ -146,17 +161,21 @@ bool DerivationFramework::HnlSkimmingTool::eventPassesFilter() const
     }
     bool passD0cut = true;
     int type = (*mu_itr2)->muonType();
-    if(type==0){ //d0 cut is for combined muons only
-      passD0cut = false;
-      if(fabs((*mu_itr2)->primaryTrackParticle()->d0())>m_mu2d0Min) passD0cut = true;
-    }
-    if((*mu_itr2)->pt()>m_mu2PtMin && fabs((*mu_itr2)->eta())<m_mu2AbsEtaMax && passTypeCut && isIso && passD0cut){
-      muon2passed = true;
-      break;
+    const xAOD::Muon *mu = (*mu_itr2);
+    if(IsGood(*mu)){
+      if(type==0){ //d0 cut is for combined muons only
+	passD0cut = false;
+	if(fabs((*mu_itr2)->primaryTrackParticle()->d0())>m_mu2d0Min) passD0cut = true;
+      }
+      if((*mu_itr2)->pt()>m_mu2PtMin && fabs((*mu_itr2)->eta())<m_mu2AbsEtaMax && passTypeCut && isIso && passD0cut){
+	muon2passed = true;
+	break;
+      }
     }
   }
   
   if(muon2passed) acceptEvent = true;
   
   return acceptEvent; 
-}  
+}
+
