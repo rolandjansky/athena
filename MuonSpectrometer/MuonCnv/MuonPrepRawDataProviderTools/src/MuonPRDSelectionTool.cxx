@@ -44,7 +44,7 @@ namespace Muon {
     ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_mdtCreator.retrieve());
     ATH_CHECK(m_clusterCreator.retrieve());
-    ATH_CHECK(m_recoValidationTool.retrieve());
+    if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
     // ATH_CHECK(m_pullCalculator.retrieve());
 
     return StatusCode::SUCCESS;
