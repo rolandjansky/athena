@@ -100,9 +100,9 @@ class DV_METFilterFlags(JobProperty):
 		          "HLT_xe90_tc_lcw_L1XE50","HLT_xe100_tc_lcw_L1XE50","HLT_xe120_tc_lcw_L1XE50",
 		          "HLT_xe90_tc_lcw_L1XE55","HLT_xe100_tc_lcw_L1XE55","HLT_xe120_tc_lcw_L1XE55",
 		          "HLT_xe90_tc_lcw_L1XE60","HLT_xe100_tc_lcw_L1XE60","HLT_xe120_tc_lcw_L1XE60",
-		          "HLT_xe90_mht_L1XE50","HLT_xe100_mht_L1XE50","HLT_xe120_mht_L1XE50",
-		          "HLT_xe90_mht_L1XE55","HLT_xe100_mht_L1XE55","HLT_xe120_mht_L1XE55",
-		          "HLT_xe90_mht_L1XE60","HLT_xe100_mht_L1XE60","HLT_xe120_mht_L1XE60",
+		          "HLT_xe90_mht_L1XE50","HLT_xe100_mht_L1XE50","HLT_xe110_mht_LXE50","HLT_xe120_mht_L1XE50",
+		          "HLT_xe90_mht_L1XE55","HLT_xe100_mht_L1XE55","HLT_xe110_mht_LXE55","HLT_xe120_mht_L1XE55",
+		          "HLT_xe90_mht_L1XE60","HLT_xe100_mht_L1XE60","HLT_xe110_mht_LXE60","HLT_xe120_mht_L1XE60",
 		          "HLT_xe90_topoclPS_L1XE50","HLT_xe100_topoclPS_L1XE50","HLT_xe120_topoclPS_L1XE50",
 		          "HLT_xe90_topoclPS_L1XE55","HLT_xe100_topoclPS_L1XE55","HLT_xe120_topoclPS_L1XE55",
 		          "HLT_xe90_topoclPS_L1XE60","HLT_xe100_topoclPS_L1XE60","HLT_xe120_topoclPS_L1XE60",
@@ -142,16 +142,16 @@ class DV_MeffFilterFlags(JobProperty):
     cutMEToverMeffMax=0.7   ## 
     cutJetPtMin=40.0*Units.GeV
     cutJetEtaMax=2.5
-    cutMETMin=100.0*Units.GeV
+    cutMETMin=150.0*Units.GeV
     triggers=["HLT_xe90_L1XE50","HLT_xe100_L1XE50","HLT_xe120_L1XE50",
 		          "HLT_xe90_L1XE55","HLT_xe100_L1XE55","HLT_xe120_L1XE55",
 		          "HLT_xe90_L1XE60","HLT_xe100_L1XE60","HLT_xe120_L1XE60",
 		          "HLT_xe90_tc_lcw_L1XE50","HLT_xe100_tc_lcw_L1XE50","HLT_xe120_tc_lcw_L1XE50",
 		          "HLT_xe90_tc_lcw_L1XE55","HLT_xe100_tc_lcw_L1XE55","HLT_xe120_tc_lcw_L1XE55",
 		          "HLT_xe90_tc_lcw_L1XE60","HLT_xe100_tc_lcw_L1XE60","HLT_xe120_tc_lcw_L1XE60",
-		          "HLT_xe90_mht_L1XE50","HLT_xe100_mht_L1XE50","HLT_xe120_mht_L1XE50",
-		          "HLT_xe90_mht_L1XE55","HLT_xe100_mht_L1XE55","HLT_xe120_mht_L1XE55",
-		          "HLT_xe90_mht_L1XE60","HLT_xe100_mht_L1XE60","HLT_xe120_mht_L1XE60",
+		          "HLT_xe90_mht_L1XE50","HLT_xe100_mht_L1XE50","HLT_xe110_mht_L1XE50","HLT_xe120_mht_L1XE50",
+		          "HLT_xe90_mht_L1XE55","HLT_xe100_mht_L1XE55","HLT_xe110_mht_L1XE51","HLT_xe120_mht_L1XE55",
+		          "HLT_xe90_mht_L1XE60","HLT_xe100_mht_L1XE60","HLT_xe110_mht_L1XE60","HLT_xe120_mht_L1XE60",
 		          "HLT_xe90_topoclPS_L1XE50","HLT_xe100_topoclPS_L1XE50","HLT_xe120_topoclPS_L1XE50",
 		          "HLT_xe90_topoclPS_L1XE55","HLT_xe100_topoclPS_L1XE55","HLT_xe120_topoclPS_L1XE55",
 		          "HLT_xe90_topoclPS_L1XE60","HLT_xe100_topoclPS_L1XE60","HLT_xe120_topoclPS_L1XE60",
