@@ -575,7 +575,18 @@ namespace Muon {
     
     auto maximaSortingLambda = []( const MuonHough::MuonPhiLayerHough::Maximum* m1, const MuonHough::MuonPhiLayerHough::Maximum* m2 ) { 
                                    if( m1->max == m2->max ){
-                                     if( m1->hits.size() == m2->hits.size() ) return m1->pos < m2->pos;
+                                     if( m1->hits.size() == m2->hits.size() ) {
+                                       if( m1->pos == m2->pos ) {
+                                         std::set<unsigned int> nbrlaym1;
+                                         std::set<unsigned int> nbrlaym2;
+                                         for( unsigned int k=0; k < m1->hits.size(); ++k ){
+                                            nbrlaym1.insert((m1->hits)[k]->layer);
+                                            nbrlaym2.insert((m2->hits)[k]->layer);
+                                         }
+                                         return nbrlaym1.size() < nbrlaym2.size();
+                                       }
+                                       return m1->pos < m2->pos;
+                                     }
                                      return m1->hits.size() < m2->hits.size();  // least hits -> most collimated maximum
                                    }
                                    return m1->max > m2->max; 
