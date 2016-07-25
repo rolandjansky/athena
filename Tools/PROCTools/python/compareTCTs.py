@@ -243,7 +243,7 @@ if __name__ == "__main__":
                     if(v.startswith("/eos")): v = "root://eosatlas/"+v
                     if not diffroot: stat=diffPoolFiles(r,v,details)
                     else: 
-		        stat=os.system("acmd.py diff-root "+r+" "+v+" --error-mode resilient --ignore-leaves HITStoRDO_timings RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings --entries 10 > tmp.txt")
+		        stat=os.system("acmd.py diff-root "+r+" "+v+" --error-mode resilient --ignore-leaves HITStoRDO_timings RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings RAWtoALL_mems RAWtoALL_timings RecoTimingObj_p1_RAWtoALL_mems RecoTimingObj_p1_RAWtoALL_timings --entries 10 > tmp.txt")
                         os.system("cat tmp.txt|grep -v sync")
                         os.system("rm -f tmp.txt")
                     identical=not stat
