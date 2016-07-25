@@ -60,7 +60,7 @@ public:
     /// default constructor - will create the histos as NULL pointers
     EfficiencyScaleFactor();
     /// constructor to use in real life - will read in the histos from the given file
-    EfficiencyScaleFactor(std::string file, std::string time_unit, SystematicSet sys, std::string effType="EFF");
+    EfficiencyScaleFactor(std::string file, std::string time_unit, SystematicSet sys, std::string effType="EFF", bool is_lowpt=false, bool hasPtDepSys = false);
     
     EfficiencyScaleFactor(const EfficiencyScaleFactor & other);
     EfficiencyScaleFactor & operator = (const EfficiencyScaleFactor & other);
@@ -119,6 +119,12 @@ public:
     HistHandler* get_eff_sys(){
         return m_eff_sys;
     }
+    HistHandler* get_sf_PtDepsys(){
+        return m_sf_PtDepsys;
+    }
+    HistHandler* get_eff_PtDepsys(){
+        return m_eff_PtDepsys;
+    }
 
 
 private:
@@ -161,6 +167,9 @@ private:
     HistHandler* m_eff;
     HistHandler* m_sf_sys;
     HistHandler* m_eff_sys;
+    // these are for the continuous pt dependent systematic if we have one
+    HistHandler* m_sf_PtDepsys;
+    HistHandler* m_eff_PtDepsys;
 
     // replicas, in case we use them
     SFvec m_sf_replicas;
@@ -173,6 +182,12 @@ private:
     SystematicSet m_sys;
 
     std::string m_effType;
+    
+    // states that this SF should respond to low pt systematics rather than high pt ones
+    bool m_is_lowpt;    
+    // steers the pt dependent systematics
+    bool m_respond_to_PtDepsys;
+    float m_PtDepsys_weight;
 
 };
 } /* namespace CP */

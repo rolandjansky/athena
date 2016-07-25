@@ -3,8 +3,10 @@
 */
 
 
-/// a simple testing macro for the MuonEfficiencyCorrections_xAOD package
+/// a simple testing macro for the MuonEfficiencyCorrections_xAOD package in RC
 /// shamelessly stolen from CPToolTests.cxx
+///
+/// Usage: MuonEfficiencyCorrectionsRootCoreTest <input file>
 
 // System include(s):
 #include <memory>
@@ -17,6 +19,7 @@
 #include <TError.h>
 #include <TStopwatch.h>
 #include <TString.h>
+
 
 // Infrastructure include(s):
 #ifdef ROOTCORE
@@ -35,6 +38,11 @@
 #include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
 #include "PATInterfaces/ISystematicsTool.h"
 
+#include "xAODCore/tools/IOStats.h"
+#include "xAODCore/tools/ReadStats.h"
+
+#include "PileupReweighting/PileupReweightingTool.h"
+
 #define CHECK_CPCorr(Arg) \
     if (Arg.code() == CP::CorrectionCode::Error){    \
         Error(#Arg,"Correction Code 'Error' (returned in line %i) ",__LINE__); \
@@ -50,11 +58,10 @@
 int main( int argc, char* argv[] ) {
 
     // force strict checking of return codes
-    //	CP::SystematicCode::enableFailure();
-    //	xAOD::TReturnCode::enableFailure();
+    CP::SystematicCode::enableFailure();
+    xAOD::TReturnCode::enableFailure();
+    StatusCode::enableFailure();
 
-	// some package in rcSetup Base,2.3.10 seems to crash here -> uncomment
-//    StatusCode::enableFailure();
     // The application's name:
     const char* APP_NAME = argv[ 0 ];
 
@@ -80,8 +87,7 @@ int main( int argc, char* argv[] ) {
     // Create a TEvent object:
     xAOD::TEvent event;
     RETURN_CHECK(APP_NAME,event.readFrom( ifile.get(), xAOD::TEvent::kClassAccess ));
-    Info( APP_NAME, "Number of events in the file: %i",
-            static_cast< int >( event.getEntries() ) );
+    Info( APP_NAME, "Number of events in the file: %i", static_cast< int >( event.getEntries() ) );
 
     // Decide how many events to run over:
     Long64_t entries = event.getEntries();
@@ -92,34 +98,60 @@ int main( int argc, char* argv[] ) {
         }
     }
 
+    // instantiate the PRW tool which is needed for the lumi calculation
+    CP::IPileupReweightingTool* m_prw_tool = new CP::PileupReweightingTool("MyPRWTool");
+    // This is just a placeholder configuration for testing. Do not use these config files for your analysis!
+    ASG_CHECK_SA( APP_NAME,asg::setProperty( m_prw_tool, "DefaultChannel", 410000));
+    std::vector<std::string> m_ConfigFiles {"/afs/cern.ch/user/n/nkoehler/public/MCP/share/160425_MEC/pileup_rw.mc15b.root"};
+    ASG_CHECK_SA( APP_NAME,asg::setProperty( m_prw_tool, "ConfigFiles", m_ConfigFiles));
+    std::vector<std::string> m_LumiCalcFiles {"/afs/cern.ch/user/n/nkoehler/public/MCP/share/160425_MEC/ilumicalc_histograms_None_276262-284484.root"};
+    ASG_CHECK_SA( APP_NAME,asg::setProperty( m_prw_tool, "LumiCalcFiles", m_LumiCalcFiles));
+    ASG_CHECK_SA( APP_NAME,asg::setProperty( m_prw_tool, "DataScaleFactor", 1. / 1.16));
+    ASG_CHECK_SA( APP_NAME,asg::setProperty( m_prw_tool, "DataScaleFactorUP", 1.));
+    ASG_CHECK_SA( APP_NAME,asg::setProperty( m_prw_tool, "DataScaleFactorDOWN", 1. / 1.23));
+    // Initialize the PRW tool
+    ASG_CHECK_SA(APP_NAME,m_prw_tool->initialize()) ;
+    // Create a ToolHandle of the PRW tool which is passed to the MuonEfficiencyScaleFactors class later
+    ToolHandle<CP::IPileupReweightingTool> PRWToolHandle = m_prw_tool;
+
     // instantiate the MCP tool
     CP::MuonEfficiencyScaleFactors m_effi_corr("TestSFClass");
 
-    // Configure it :
-    ASG_CHECK_SA(APP_NAME,m_effi_corr.setProperty("WorkingPoint","Loose"));
-    // Configure it :
-//     ASG_CHECK_SA(APP_NAME,m_effi_corr.setProperty("CustomInputFolder","/afs/cern.ch/user/g/goblirsc/public/ScaleFactorFiles/2015-09-01"));
-    
-    // test audit trail
-    ASG_CHECK_SA(APP_NAME,m_effi_corr.setProperty("doAudit",true));		// audit trail functionality.
-    
-//     ASG_CHECK_SA(APP_NAME,m_effi_corr.setProperty("Use50nsForD5",true));     // test this flag .
+    // Configure it:
+    // set a working point
+    ASG_CHECK_SA( APP_NAME,asg::setProperty( m_effi_corr, "WorkingPoint", "Medium"));
+    // pass the PRW ToolHandle
+    ASG_CHECK_SA( APP_NAME,asg::setProperty( m_effi_corr, "PileupReweightingTool", PRWToolHandle));
+    // turn on audit trail functionality
+    ASG_CHECK_SA( APP_NAME,asg::setProperty( m_effi_corr, "doAudit", true));
+
+    // setting a custom input folder containing SF files: this is NOT recommended!
+//    ASG_CHECK_SA( APP_NAME,asg::setProperty( m_effi_corr, "CustomInputFolder", "/afs/cern.ch/user/n/nkoehler/public/MCP/ScaleFactorFiles/160619_ICHEP/"));
 
     // test if the tool is robust against nonexistent properties being set
     //    m_effi_corr.setProperty("Foo","Bar");
 
-    //     set custom lumis (optional)
-//     std::map<std::string, double> custom_lumis;
-//     custom_lumis["A"] = 1;
-//     custom_lumis["B"] = 42;
-//     custom_lumis["E"] = 1337;
-//     m_effi_corr.setProperty("LumiWeights",custom_lumis);
 
     TStopwatch tsw;
     tsw.Start();
     ASG_CHECK_SA(APP_NAME,m_effi_corr.initialize());
     double t_init = tsw.CpuTime();
     tsw.Reset();
+
+    // instantiate an MCP tool for testing TTVA scale factors
+    CP::MuonEfficiencyScaleFactors m_ttva_corr("TestTTVAClass");
+
+    // Configure it:
+    // set a working point
+    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "WorkingPoint", "TTVA"));
+    // pass the PRW ToolHandle
+    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "PileupReweightingTool", PRWToolHandle));
+    // turn on audit trail functionality
+    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "doAudit", true));
+
+    // setting a custom input folder containing SF files: this is NOT recommended!
+//    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "CustomInputFolder", "/afs/cern.ch/user/n/nkoehler/public/MCP/ScaleFactorFiles/160619_ICHEP/"));
+    ASG_CHECK_SA(APP_NAME,m_ttva_corr.initialize());
 
     // try out systematics support - define a few sets to run
     CP::SystematicSet statup;
@@ -140,13 +172,17 @@ int main( int argc, char* argv[] ) {
 
     // instance for isolation scale factor
     CP::MuonEfficiencyScaleFactors m_iso_effi_corr("TestIsolationSF");
-    ASG_CHECK_SA(APP_NAME,m_iso_effi_corr.setProperty("WorkingPoint","GradientLooseIso"));
-//     ASG_CHECK_SA(APP_NAME,m_iso_effi_corr.setProperty("CustomInputFolder","/afs/cern.ch/user/g/goblirsc/public/ScaleFactorFiles/2015-09-01"));
-//     ASG_CHECK_SA(APP_NAME,m_iso_effi_corr.setProperty("DataPeriod","run1"));
+    ASG_CHECK_SA(APP_NAME,m_iso_effi_corr.setProperty("WorkingPoint","GradientIso"));
+    ASG_CHECK_SA(APP_NAME,m_iso_effi_corr.setProperty("PileupReweightingTool",PRWToolHandle));
+//    ASG_CHECK_SA(APP_NAME,m_iso_effi_corr.setProperty("CustomInputFolder","/afs/cern.ch/user/n/nkoehler/public/MCP/ScaleFactorFiles/160619_ICHEP/"));
     ASG_CHECK_SA(APP_NAME,m_iso_effi_corr.initialize());
     CP::SystematicSet isosysup;
     isosysup.insert (CP::SystematicVariation ("MUON_ISO_SYS", 1));
     /// done for isolation scale factor
+
+    CP::SystematicSet isobothup;
+//     isobothup.insert (CP::SystematicVariation ("MUON_ISO_SYS", 1));
+    isobothup.insert (CP::SystematicVariation ("MUON_ISO_STAT", 1));
 
     // Loop over the events:
     tsw.Start();
@@ -220,19 +256,44 @@ int main( int argc, char* argv[] ) {
             CHECK_CPCorr( m_effi_corr.getEfficiencyScaleFactorReplicas( **mu_itr, replicas ) );
             //
             //
-            //         for (size_t t =0; t < replicas.size();t++){
-            //        	 Info( APP_NAME, "       scaleFactor Replica %d = %.8f",static_cast<int>(t), replicas[t] );
-            //         }
+                     for (size_t t =0; t < replicas.size();t++){
+                    	 Info( APP_NAME, "       scaleFactor Replica %d = %.8f",static_cast<int>(t), replicas[t] );
+                     }
 
 
             // also run in decorating mode... Note that here we use our non-const copy created further up
             CHECK_CPCorr( m_effi_corr.applyEfficiencyScaleFactor( **mu_itr ) );
             CHECK_CPCorr( m_effi_corr.applyRecoEfficiency( **mu_itr ) );
             // now we can retrieve the info from the muon directly:
-            Info( APP_NAME, "       efficiency from decorated muon = %g",
-                    (**mu_itr).auxdataConst< float >( "Efficiency" ) );
-            Info( APP_NAME, "       SF from decorated muon = %g",
-                    (**mu_itr).auxdataConst< float >( "EfficiencyScaleFactor" ) );
+            Info( APP_NAME, "       efficiency from decorated muon = %g", (**mu_itr).auxdataConst< float >( "Efficiency" ) );
+            Info( APP_NAME, "       SF from decorated muon = %g", (**mu_itr).auxdataConst< float >( "EfficiencyScaleFactor" ) );
+
+
+
+            CHECK_CPCorr( m_ttva_corr.getRecoEfficiency( **mu_itr, eff ) );
+            Info( APP_NAME, "        TTVA efficiency = %g", eff );
+
+            CHECK_CPSys(m_ttva_corr.applySystematicVariation(CP::SystematicSet()));
+            CHECK_CPCorr( m_ttva_corr.getEfficiencyScaleFactor( **mu_itr, sf ) );
+            Info( APP_NAME, "       TTVA Central scaleFactor = %g", sf );
+            // if in audit mode, this should return a true
+            Info( APP_NAME, "    TTVA Already applied this SF: %d", m_ttva_corr.AlreadyApplied(**mu_itr) );
+            CHECK_CPSys(m_ttva_corr.applySystematicVariation(statup));
+            // and this a false (since we are looking at a different systematic)
+            Info( APP_NAME, "    TTVA Already applied this SF: %d", m_ttva_corr.AlreadyApplied(**mu_itr) );
+            //         }
+            CHECK_CPCorr( m_ttva_corr.getEfficiencyScaleFactor( **mu_itr, sf ) );
+            Info( APP_NAME, "           TTVA Stat Up scaleFactor = %g", sf );
+            CHECK_CPSys(m_ttva_corr.applySystematicVariation(statdown));
+            CHECK_CPCorr( m_ttva_corr.getEfficiencyScaleFactor( **mu_itr, sf ) );
+            Info( APP_NAME, "           TTVA Stat Down scaleFactor = %g", sf );
+            CHECK_CPSys(m_ttva_corr.applySystematicVariation(sysup));
+            CHECK_CPCorr( m_ttva_corr.getEfficiencyScaleFactor( **mu_itr, sf ) );
+            Info( APP_NAME, "           TTVA Sys Up scaleFactor = %g", sf );
+            CHECK_CPSys(m_ttva_corr.applySystematicVariation(sysdown));
+            CHECK_CPCorr( m_ttva_corr.getEfficiencyScaleFactor( **mu_itr, sf ) );
+            Info( APP_NAME, "           TTVA Sys Down scaleFactor = %g", sf );
+            CHECK_CPSys(m_ttva_corr.applySystematicVariation(CP::SystematicSet()));
 
             // if we run in audit trail mode, we get some info
             //             Info( APP_NAME,"    Muon Audit info: MuonEfficiencyCorrections = %d, MuonEfficiencyCorrectionsVersion = %s, AppliedCorrections = %s",
@@ -250,6 +311,10 @@ int main( int argc, char* argv[] ) {
             CHECK_CPSys(m_iso_effi_corr.applySystematicVariation(isosysup));
             CHECK_CPCorr( m_iso_effi_corr.getEfficiencyScaleFactor( **mu_itr, isosf ) );
             Info( APP_NAME, "           Sys Up isolation scaleFactor = %g", isosf );
+
+            CHECK_CPSys(m_iso_effi_corr.applySystematicVariation(isobothup));
+            CHECK_CPCorr( m_iso_effi_corr.getEfficiencyScaleFactor( **mu_itr, isosf ) );
+            Info( APP_NAME, "           Sys Up isolation scaleFactor2 = %g", isosf );
             CHECK_CPCorr( m_iso_effi_corr.applyEfficiencyScaleFactor( **mu_itr ) );
             CHECK_CPCorr( m_iso_effi_corr.applyRecoEfficiency( **mu_itr ) );
             // now we can retrieve the info from the muon directly:
@@ -271,6 +336,11 @@ int main( int argc, char* argv[] ) {
     double t_run = tsw.CpuTime() / entries;
     Info( APP_NAME, " MCP init took %g s",t_init);
     Info( APP_NAME, " time per event: %g s",t_run);
+
+
+    //get smart slimming list
+    xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
+
 
     // Return gracefully:
     return 0;

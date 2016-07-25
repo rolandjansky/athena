@@ -228,9 +228,21 @@ CorrectionCode HistHandler_TH2Poly::FindBin (const xAOD::Muon & muon, int & bin)
     return CorrectionCode::Ok;
 }
 
+std::string AxisHandler::EraseWhiteSpaces(std::string str) {
+    str.erase(std::remove(str.begin(), str.end(), '\t'), str.end());
+    if (str.find(" ") == 0) return EraseWhiteSpaces(str.substr(1, str.size()));
+    if (str.size() > 0 && str.find(" ") == str.size() - 1) return EraseWhiteSpaces(str.substr(0, str.size() - 1));
+    return str;
+}
+
 AxisHandler* AxisHandlerProvider::GetAxisHandler (TAxis* axisptr){
     if (axisptr != NULL){
         std::string axis = axisptr->GetTitle();
+        axis = AxisHandler::EraseWhiteSpaces(axis);
+        size_t Abs1 = axis.find("|");
+        size_t Abs2(0);
+        if (Abs1 != std::string::npos) Abs2 = axis.find("|", Abs1+1);
+        bool AbsAxis = (Abs2 != std::string::npos) && (Abs2 != 0);
         if (axis.find("pt") != std::string::npos || axis.find("pT") != std::string::npos || axis.find("p_{T}") != std::string::npos ){
             return new PtAxisHandler;
         }
@@ -252,8 +264,13 @@ AxisHandler* AxisHandlerProvider::GetAxisHandler (TAxis* axisptr){
             return new ChargeAxisHandler;
         }
         else if (axis.find("eta") != std::string::npos){
+            if (AbsAxis) return new AbsEtaAxisHandler;
             return new EtaAxisHandler;
         }
+        else if (axis.find("dRJet") != std::string::npos){
+            return new dRJetAxisHandler;
+        }
+
         Error("AxisHandlerProvider","Can not interpret axis title %s",axis.c_str());
     }
     else {

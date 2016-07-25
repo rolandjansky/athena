@@ -14,10 +14,11 @@
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "PathResolver/PathResolver.h"
+#include <PileupReweighting/PileupReweightingTool.h>
 
 namespace CP {
 
-static std::string CURRENT_MEC_VERSION = "MuonEfficiencyCorrections-03-01-16";
+static std::string CURRENT_MEC_VERSION = "MuonEfficiencyCorrections-03-03-08";
 
 MuonEfficiencyScaleFactors::MuonEfficiencyScaleFactors( const std::string& name):
                                             asg::AsgTool( name ),
@@ -26,31 +27,36 @@ MuonEfficiencyScaleFactors::MuonEfficiencyScaleFactors( const std::string& name)
                                             m_lumi_weights_central(),
                                             m_lumi_weights_calo(),
                                             m_lumi_weights_forward(),
+                                            m_lumi_weights_lowpt(),
+                                            m_lumi_weights_lowptcalo(),
                                             classname(name.c_str()),
                                             m_lumi_handler(),
                                             m_audit_processed(),
                                             m_version_string(CURRENT_MEC_VERSION),
                                             m_sys_string(""),
                                             m_audit_last_evt(-1),
-                                            m_effType(""),m_effDec(0),m_sfDec(0),m_sfrDec(0){
+                                            m_effType(""),m_effDec(0),m_sfDec(0),m_sfrDec(0),
+                                            m_prwtool(""){
 
     declareProperty( "WorkingPoint", m_wp = "Medium" );
-    declareProperty( "DataPeriod", m_year = "2015");
     declareProperty( "doAudit", m_doAudit = false);
-    declareProperty( "LumiWeights", m_user_lumi_weights = lumimap());
-    declareProperty( "Use50nsForD5", m_D5_with_50ns = false);
 
     // these are for debugging / testing, *not* for general use!
     declareProperty( "CustomInputFolder", m_custom_dir = "");
     declareProperty( "CustomFileCaloTag", m_custom_file_Calo = "");
     declareProperty( "CustomFileCombined", m_custom_file_Combined = "");
-    declareProperty( "CustomFileHighPt", m_custom_file_HighEta = "");
+    declareProperty( "CustomFileHighEta", m_custom_file_HighEta = "");
+    declareProperty( "CustomFileLowPt", m_custom_file_LowPt = "");
+    declareProperty( "CustomFileLowPtCalo", m_custom_file_LowPtCalo = "");
 
     declareProperty( "EfficiencyDecorationName", m_efficiency_decoration_name = "");
     declareProperty( "ScaleFactorDecorationName", m_sf_decoration_name = "");
     declareProperty( "ScaleFactorReplicaDecorationName", m_sf_replica_decoration_name = "");
-    declareProperty( "CalibrationRelease", m_calibration_version = "Data15_ACD_150903");
+    declareProperty( "CalibrationRelease", m_calibration_version = "160725_ICHEP");
     declareProperty( "EfficiencyType", m_effType = "");
+    declareProperty( "LowPtThreshold", m_lowpt_threshold = 15000.);
+
+    declareProperty( "PileupReweightingTool", m_prwtool);
 }
 
 MuonEfficiencyScaleFactors::~MuonEfficiencyScaleFactors(){
@@ -65,23 +71,53 @@ MuonEfficiencyScaleFactors::~MuonEfficiencyScaleFactors(){
 }
 
 StatusCode MuonEfficiencyScaleFactors::initialize(){
-    Info(classname,"Trying to initialize, with working point %s and data period %s ",m_wp.c_str(),m_year.c_str());
+    ATH_MSG_INFO("Trying to initialize, with working point "<<m_wp<<", using calibration release "<<m_calibration_version);
 
-    /// so the decoration will work with other Efficiency types
-    if(m_effType=="") m_effType = (m_wp.find("Iso")==std::string::npos)?"EFF":"ISO";
-    Info(classname, "m_effType = %s", m_effType.c_str());
+    if (!m_prwtool.retrieve().isSuccess()) {
+        ATH_MSG_FATAL("MuonEfficiencyScaleFactors requires an initialized instance of the PileupReweighting tool! Please pass such to the 'PileupReweightingTool' property of this tool.");
+        return StatusCode::FAILURE;
+    }
+
+      /// so the decoration will work with other Efficiency types
+
+    if(m_effType==""){
+    	if (m_wp.find("Iso") != std::string::npos){
+    		m_effType = "ISO";
+    	}
+    	else if (m_wp.find("TTVA") != std::string::npos){
+    	    m_effType = "TTVA";
+    	}
+    	else {
+    		m_effType = "EFF";
+    	}
+    }
+    ATH_MSG_INFO( "Efficiency type is = "<< m_effType);
+    
+    /// for isolation efficiencies, we don't use a low pt component for now - set the low pt threshold to -1
+    /// same holds for TTVA SF, and for the HighPt WP
+    if (m_effType == "ISO" || m_effType == "TTVA" || (m_effType == "EFF" && m_wp.find("HighPt") != std::string::npos)){
+        ATH_MSG_DEBUG("We are running Isolation or TTVA or High Pt reco SF, so we use Zmumu based SF for the whole pt range!");
+        m_lowpt_threshold = -1;
+    }
+    else if (m_lowpt_threshold < 0){
+        ATH_MSG_INFO("Low pt SF turned off as crossover threshold is negative! Using Zmumu based SF for all pt values.");
+    }
+    else {
+        ATH_MSG_INFO("JPsi based low pt SF will start to rock below "<<m_lowpt_threshold/1000.<<" GeV!");
+    }
+    
     if(m_efficiency_decoration_name == "") m_efficiency_decoration_name = (m_effType=="EFF")?"Efficiency":m_effType+"Efficiency";
-    Info(classname, "m_efficiency_decoration_name = %s", m_efficiency_decoration_name.c_str());
+    ATH_MSG_INFO( "Efficiency decoration name is "<< m_efficiency_decoration_name);
     if(m_effDec) delete m_effDec;
     m_effDec = new SG::AuxElement::Decorator< float>(m_efficiency_decoration_name);
  
     if(m_sf_decoration_name == "") m_sf_decoration_name = (m_effType=="EFF")?"EfficiencyScaleFactor":m_effType+"EfficiencyScaleFactor";
-    Info(classname, "m_sf_decoration_name = %s", m_sf_decoration_name.c_str());
+    ATH_MSG_INFO("SF decoration_name is "<< m_sf_decoration_name);
     if(m_sfDec) delete m_sfDec;
     m_sfDec = new SG::AuxElement::Decorator< float>(m_sf_decoration_name);
 
     if(m_sf_replica_decoration_name == "") m_sf_replica_decoration_name = (m_effType=="EFF")?"EfficiencyScaleFactorReplicas":m_effType+"EfficiencyScaleFactorReplicas";
-    Info(classname, "m_sf_replica_decoration_name = %s", m_sf_replica_decoration_name.c_str());
+    ATH_MSG_INFO("SF replica decoration_name is "<< m_sf_replica_decoration_name);
     if(m_sfrDec) delete m_sfrDec;
     m_sfrDec = new SG::AuxElement::Decorator< std::vector<float> >(m_sf_replica_decoration_name);
 
@@ -89,30 +125,31 @@ StatusCode MuonEfficiencyScaleFactors::initialize(){
     m_affectingSys = affectingSystematics();
 
     /// continue with the orignal code
-    if (!m_user_lumi_weights.empty()) Info(classname,"Note: setting up with user specified Luminosities");
-    if (m_custom_dir!="") Info(classname,"Note: setting up with user specified input file location %s - this is not encouraged!",m_custom_dir.c_str());
-    if (m_custom_file_Calo!="") Info(classname,"Note: setting up with user specified CaloTag input file %s - this is not encouraged!",m_custom_file_Calo.c_str());
-    if (m_custom_file_Combined!="") Info(classname,"Note: setting up with user specified Central muon input file %s - this is not encouraged! ",m_custom_file_Combined.c_str());
-    if (m_custom_file_HighEta!="") Info(classname,"Note: setting up with user specified High Eta input file %s - this is not encouraged! " ,m_custom_file_HighEta.c_str());
+    if (m_custom_dir!="") ATH_MSG_WARNING("Note: setting up with user specified input file location "<<m_custom_dir<<" - this is not encouraged!");
+    if (m_custom_file_Calo!="") ATH_MSG_WARNING("Note: setting up with user specified CaloTag input file "<<m_custom_file_Calo<<" - this is not encouraged!");
+    if (m_custom_file_Combined!="") ATH_MSG_WARNING("Note: setting up with user specified Central muon input file "<<m_custom_file_Combined<<" - this is not encouraged! ");
+    if (m_custom_file_HighEta!="") ATH_MSG_WARNING("Note: setting up with user specified High Eta input file "<<m_custom_file_HighEta<<" - this is not encouraged! ");
+    if (m_custom_file_LowPt!="") ATH_MSG_WARNING("Note: setting up with user specified Low Pt input file "<<m_custom_file_LowPt<<" - this is not encouraged! ");
+    if (m_custom_file_LowPtCalo!="") ATH_MSG_WARNING("Note: setting up with user specified Low Pt CaloTag input file "<<m_custom_file_LowPtCalo<<" - this is not encouraged! ");
     if ( !LoadLumiFromInput() || !LoadInputs()){
-        Error(classname,"Error setting up the tool");
+        ATH_MSG_ERROR("Error setting up the MuonEfficiencyScaleFactors tool");
         return StatusCode::FAILURE;
     }
     else {
         // set up for default running without systematics
         if (!applySystematicVariation (SystematicSet ())) {
-            Error(classname,"loading the central value systematic set failed");
+            ATH_MSG_ERROR("loading the central value systematic set failed");
             return StatusCode::FAILURE;
         }
         // Add the affecting systematics to the global registry
         SystematicRegistry& registry = SystematicRegistry::getInstance();
         if (!registry.registerSystematics(*this)){
-            Error (classname, "unable to register the systematics");
+            ATH_MSG_ERROR ( "unable to register the systematics");
             return StatusCode::FAILURE;
         }
-        Info(classname,"Successfully initialized! ");
+        ATH_MSG_INFO("Successfully initialized! ");
         if (m_doAudit){
-            Info(classname, "Note: Running with Audit trail active. If not needed, turn off to save CPU time");
+            ATH_MSG_INFO("Note: Running with Audit trail active. If not needed, turn off to save CPU time");
         }
         return StatusCode::SUCCESS;
     }
@@ -163,11 +200,12 @@ CorrectionCode MuonEfficiencyScaleFactors::applyRecoEfficiency( const xAOD::Muon
 
 std::string MuonEfficiencyScaleFactors::resolve_file_location(std::string filename){
 
-    // can be overridden by user defined directory - mainly for development, not for everyday use!
+    // can be overridden by u   ser defined directory - mainly for development, not for everyday use!
     if (m_custom_dir != "") return m_custom_dir+"/"+filename;
-    std::string fullPathToFile = PathResolverFindCalibFile(Form("MuonEfficiencyCorrections/%s/%s",m_calibration_version.c_str(),filename.c_str()));
+    std::string fullPathToFile = PathResolverFindCalibFile(Form("MuonEfficiencyCorrections/%s/%s",m_calibration_version.c_str(),
+            filename.c_str()));
     if (fullPathToFile==""){
-        Error(classname, "Unable to resolve the input file %s/%s via the PathResolver!",m_calibration_version.c_str(),filename.c_str());
+        ATH_MSG_ERROR( "Unable to resolve the input file "<<m_calibration_version<<"/"<<filename<<" via the PathResolver!");
     }
     return fullPathToFile;
 }
@@ -175,21 +213,55 @@ std::string MuonEfficiencyScaleFactors::resolve_file_location(std::string filena
 std::string MuonEfficiencyScaleFactors::filename_Central(){
 
     if (m_custom_file_Combined!="") return (resolve_file_location(m_custom_file_Combined));
-    else if(m_wp.find("Iso")!=std::string::npos) return resolve_file_location(Form("Muons_%s_%s_SF.root",m_wp.c_str(),m_year.c_str()));
-    else return resolve_file_location(Form("MuonsChain_%s_%s_SF.root",m_wp.c_str(),m_year.c_str()));
+    else if (m_wp.find("Iso")!=std::string::npos){
+        return resolve_file_location(Form("Iso_%s_Z.root",m_wp.c_str()));
+    } else if(m_wp.find("TTVA")!=std::string::npos ){
+        return resolve_file_location("TTVA_Z.root");
+    }
+    else return resolve_file_location(Form("Reco_%s_Z.root",m_wp.c_str()));
 }
 std::string MuonEfficiencyScaleFactors::filename_Calo(){
 
     if (m_custom_file_Calo!="") return resolve_file_location(m_custom_file_Calo);
-    else if(m_wp.find("Iso")!=std::string::npos) return resolve_file_location(Form("Muons_%s_%s_SF.root",m_wp.c_str(),m_year.c_str()));
-    else return resolve_file_location(Form("CaloTag_%s_SF.root",m_year.c_str()));
+    else if(m_wp.find("Iso")!=std::string::npos ||m_wp.find("TTVA")!=std::string::npos){
+        return filename_Central();
+    }
+    else return resolve_file_location("Reco_CaloTag_Z.root");
 }
 
 std::string MuonEfficiencyScaleFactors::filename_HighEta(){
 
     if (m_custom_file_HighEta!="") return resolve_file_location(m_custom_file_HighEta);
-    else if(m_wp.find("Iso")!=std::string::npos) return resolve_file_location(Form("Muons_%s_%s_SF.root",m_wp.c_str(),m_year.c_str()));
-    else return resolve_file_location("SF_higheta_MUON.root");
+    else if(m_wp.find("Iso")!=std::string::npos ||m_wp.find("TTVA")!=std::string::npos){
+        return filename_Central();
+    }
+    else return resolve_file_location("Reco_HighEta_Z.root");
+}
+
+std::string MuonEfficiencyScaleFactors::filename_LowPt(){
+
+    if (m_custom_file_LowPt!="") return resolve_file_location(m_custom_file_LowPt);
+    // for the no reco WPs, we currently use the existing Z SF also for the low pt regime
+    else if(m_wp.find("Iso")!=std::string::npos ||m_wp.find("TTVA")!=std::string::npos){
+        return filename_Central();
+    }
+    else if (m_lowpt_threshold < 0){ // catch cases where JPsi is turned off
+        return filename_Central();
+    }
+    else return resolve_file_location(Form("Reco_%s_JPsi.root",m_wp.c_str()));
+}
+
+std::string MuonEfficiencyScaleFactors::filename_LowPtCalo(){
+
+    if (m_custom_file_LowPtCalo!="") return resolve_file_location(m_custom_file_LowPtCalo);
+    // for the no reco WPs, we currently use the existing Z SF also for the low pt regime
+    else if(m_wp.find("Iso")!=std::string::npos ||m_wp.find("TTVA")!=std::string::npos){
+        return filename_Central();
+    }
+    else if (m_lowpt_threshold < 0){ // catch cases where JPsi is turned off
+        return filename_Calo();
+    }
+    else return resolve_file_location("Reco_CaloTag_JPsi.root");
 }
 
 
@@ -225,10 +297,14 @@ bool MuonEfficiencyScaleFactors::LoadEffiSet (SystematicSet sys){
             filename_Central(),
             filename_Calo(),
             filename_HighEta(),
+            filename_LowPt(),
+            filename_LowPtCalo(),
             m_lumi_weights_central,
             m_lumi_weights_calo,
             m_lumi_weights_forward,
-            sys, m_effType);
+            m_lumi_weights_lowpt,
+            m_lumi_weights_lowptcalo,
+            sys, m_effType, m_lowpt_threshold);
 
     m_sf_sets.insert (std::make_pair(sys,ec));
 
@@ -237,13 +313,31 @@ bool MuonEfficiencyScaleFactors::LoadEffiSet (SystematicSet sys){
 }
 
 bool MuonEfficiencyScaleFactors::LoadLumiFromInput(){
-    // tell the lumi handler what the user requested
-    m_lumi_handler.SetLumiWeights(m_user_lumi_weights);
-    // and have it read the weights for us
-    return  (m_lumi_handler.LoadLumiFromInput(m_lumi_weights_central,filename_Central(), m_D5_with_50ns )
-            && m_lumi_handler.LoadLumiFromInput(m_lumi_weights_calo,filename_Calo(), m_D5_with_50ns)
-            && m_lumi_handler.LoadLumiFromInput(m_lumi_weights_forward,filename_HighEta(), m_D5_with_50ns));
 
+    if (!(	   m_lumi_handler.LoadLumiFromInput(m_lumi_weights_central,filename_Central(), m_prwtool)
+            && m_lumi_handler.LoadLumiFromInput(m_lumi_weights_calo,filename_Calo(), m_prwtool)
+            && m_lumi_handler.LoadLumiFromInput(m_lumi_weights_forward,filename_HighEta(), m_prwtool)
+            && m_lumi_handler.LoadLumiFromInput(m_lumi_weights_lowpt,filename_LowPt(), m_prwtool)
+            && m_lumi_handler.LoadLumiFromInput(m_lumi_weights_lowptcalo,filename_LowPtCalo(), m_prwtool))){
+    	ATH_MSG_ERROR("Failed to load the luminosity compositions from the PRW tool for at least one input file!");
+    	return false;
+    }
+
+    // check if we have a nonzero int lumi
+    std::vector<lumimap*> maps {&m_lumi_weights_central, &m_lumi_weights_calo, &m_lumi_weights_forward, &m_lumi_weights_lowpt, &m_lumi_weights_lowptcalo};
+    for (auto & map : maps){
+    	float ltot = 0;
+        for (const auto & entry : *map){
+        	ltot += entry.second;
+        }
+        if (ltot == 0){
+        	ATH_MSG_ERROR("Your ilumicalc file provides zero integrated luminosity for the data periods described by the muon scale factors instance you set up. "<<
+        			"Please make sure that both the MuonEfficiencyScaleFactors instance and the PRW tool have been configured with consistent calibration releases / ilumicalc files! "<<
+					"The current setup leads to ill-defined scale factors - can not continue.");
+        	return false;
+        }
+    }
+    return true;
 }
 
 bool
@@ -263,6 +357,15 @@ MuonEfficiencyScaleFactors::affectingSystematics() const{
 
     result.insert (SystematicVariation ("MUON_"+m_effType+"_SYS", 1));
     result.insert (SystematicVariation ("MUON_"+m_effType+"_SYS", -1));
+    
+    if (m_effType == "EFF" && m_lowpt_threshold > 0){
+        result.insert (SystematicVariation ("MUON_"+m_effType+"_STAT_LOWPT", 1));
+        result.insert (SystematicVariation ("MUON_"+m_effType+"_STAT_LOWPT", -1));
+
+        result.insert (SystematicVariation ("MUON_"+m_effType+"_SYS_LOWPT", 1));
+        result.insert (SystematicVariation ("MUON_"+m_effType+"_SYS_LOWPT", -1));
+        
+    }
     return result;
 }
 
@@ -276,7 +379,7 @@ SystematicCode MuonEfficiencyScaleFactors::applySystematicVariation (const Syste
     SystematicSet mySysConf;
     if (m_filtered_sys_sets.find(systConfig) == m_filtered_sys_sets.end()){
         if (!SystematicSet::filterForAffectingSystematics(systConfig,m_affectingSys, mySysConf)){
-            Error(classname, "Unsupported combination of systematics passed to the tool! ");
+            ATH_MSG_ERROR("Unsupported combination of systematics passed to the tool! ");
             return SystematicCode::Unsupported;
         }
         m_filtered_sys_sets[systConfig] = mySysConf;
@@ -291,10 +394,10 @@ SystematicCode MuonEfficiencyScaleFactors::applySystematicVariation (const Syste
         return SystematicCode::Ok;
     }
     else {
-        Error(classname, "Illegal combination of systematics passed to the tool! Did you maybe request multiple variations at the same time? ");
-        Info(classname," List of relevant systematics included in your combination:");
+        ATH_MSG_ERROR("Illegal combination of systematics passed to the tool! Did you maybe request multiple variations at the same time? ");
+        ATH_MSG_DEBUG(" List of relevant systematics included in your combination:");
         for (std::set<SystematicVariation>::iterator t = mySysConf.begin();t!= mySysConf.end();++t){
-            Info(classname, (*t).name().c_str());
+            ATH_MSG_DEBUG("\t"<<(*t).name());
         }
         return SystematicCode::Unsupported;
     }
@@ -344,31 +447,36 @@ MuonEfficiencyScaleFactors::MuonEfficiencyScaleFactors( const MuonEfficiencyScal
                         m_lumi_weights_central(toCopy.m_lumi_weights_central),
                         m_lumi_weights_calo(toCopy.m_lumi_weights_calo),
                         m_lumi_weights_forward(toCopy.m_lumi_weights_forward),
+                        m_lumi_weights_lowpt(toCopy.m_lumi_weights_lowpt),
+                        m_lumi_weights_lowptcalo(toCopy.m_lumi_weights_lowptcalo),
                         classname(toCopy.classname),
                         m_lumi_handler(toCopy.m_lumi_handler),
                         m_audit_processed(toCopy.m_audit_processed),
                         m_version_string(toCopy.m_version_string),
                         m_sys_string(toCopy.m_sys_string),
                         m_audit_last_evt(toCopy.m_audit_last_evt),
-                        m_effType(toCopy.m_effType),m_effDec(0),m_sfDec(0),m_sfrDec(0){
+                        m_effType(toCopy.m_effType),m_lowpt_threshold(toCopy.m_lowpt_threshold), m_effDec(0),m_sfDec(0),m_sfrDec(0){
 
     declareProperty( "WorkingPoint", m_wp = "Medium" );
-    declareProperty( "DataPeriod", m_year = "2015");
     declareProperty( "doAudit", m_doAudit = false);
-    declareProperty( "LumiWeights", m_user_lumi_weights = lumimap());
-    declareProperty( "50ns_MC_for_D5", m_D5_with_50ns = false);
 
     // these are for debugging / testing, *not* for general use!
     declareProperty( "CustomInputFolder", m_custom_dir = "");
     declareProperty( "CustomFileCaloTag", m_custom_file_Calo = "");
     declareProperty( "CustomFileCombined", m_custom_file_Combined = "");
-    declareProperty( "CustomFileHighPt", m_custom_file_HighEta = "");
+    declareProperty( "CustomFileHighEta", m_custom_file_HighEta = "");
+    declareProperty( "CustomFileLowPt", m_custom_file_LowPt = "");
+    declareProperty( "CustomFileLowPtCalo", m_custom_file_LowPtCalo = "");
 
     declareProperty( "EfficiencyDecorationName", m_efficiency_decoration_name = "");
     declareProperty( "ScaleFactorDecorationName", m_sf_decoration_name = "");
     declareProperty( "ScaleFactorReplicaDecorationName", m_sf_replica_decoration_name = "");
-    declareProperty( "CalibrationRelease", m_calibration_version = "Data15_ACD_150903");
+
+    declareProperty( "CalibrationRelease", m_calibration_version = "160725_ICHEP");
     declareProperty( "EfficiencyType", m_effType = "");
+    declareProperty( "LowPtThreshold", m_lowpt_threshold = 15000.);
+
+    declareProperty( "PileupReweightingTool", m_prwtool);
 }
 
 MuonEfficiencyScaleFactors & MuonEfficiencyScaleFactors::operator = (const MuonEfficiencyScaleFactors & tocopy){
@@ -382,20 +490,21 @@ MuonEfficiencyScaleFactors & MuonEfficiencyScaleFactors::operator = (const MuonE
     m_lumi_weights_central= tocopy.m_lumi_weights_central;
     m_lumi_weights_calo= tocopy.m_lumi_weights_calo;
     m_lumi_weights_forward= tocopy.m_lumi_weights_forward;
+    m_lumi_weights_lowpt= tocopy.m_lumi_weights_lowpt;
+    m_lumi_weights_lowptcalo= tocopy.m_lumi_weights_lowptcalo;
     classname= tocopy.classname;
     m_lumi_handler= tocopy.m_lumi_handler;
     m_audit_processed= tocopy.m_audit_processed;
     m_version_string= tocopy.m_version_string;
     m_sys_string= tocopy.m_sys_string;
     m_audit_last_evt= tocopy.m_audit_last_evt;
-    m_D5_with_50ns = tocopy.m_D5_with_50ns;
 
     m_wp = tocopy.m_wp;
-    m_year = tocopy.m_year;
-    m_doAudit = tocopy.m_doAudit;
-    m_user_lumi_weights = tocopy.m_user_lumi_weights;
+	m_doAudit = tocopy.m_doAudit;
     m_custom_dir = tocopy.m_custom_dir;
     m_custom_file_Calo = tocopy.m_custom_file_Calo;
+    m_custom_file_LowPt = tocopy.m_custom_file_LowPt;
+    m_custom_file_LowPtCalo = tocopy.m_custom_file_LowPtCalo;
 
     m_custom_file_Combined = tocopy.m_custom_file_Combined;
     m_custom_file_HighEta = tocopy.m_custom_file_HighEta;
@@ -405,6 +514,7 @@ MuonEfficiencyScaleFactors & MuonEfficiencyScaleFactors::operator = (const MuonE
 
     m_calibration_version= tocopy.m_calibration_version;
     m_effType = tocopy.m_effType;
+    m_lowpt_threshold = tocopy.m_lowpt_threshold;
     m_effDec = 0;
     m_sfDec = 0;
     m_sfrDec = 0;

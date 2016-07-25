@@ -13,7 +13,6 @@
 #define MUONEFFICIENCYSCALEFACTORS_H_
 
 #include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
-#include "AsgTools/AsgTool.h"
 #include "MuonEfficiencyCorrections/EfficiencyScaleFactor.h"
 #include "MuonEfficiencyCorrections/EffiCollection.h"
 #include "MuonEfficiencyCorrections/LumiWeightHandler.h"
@@ -99,9 +98,8 @@ private:
     lumimap m_lumi_weights_central;
     lumimap m_lumi_weights_calo;
     lumimap m_lumi_weights_forward;
-    /// allow the user to specify the lumi composition
-    lumimap m_user_lumi_weights;
-    
+    lumimap m_lumi_weights_lowpt;
+    lumimap m_lumi_weights_lowptcalo;
     
     ///  flag if the user is treating D5 (50ns run) with 50ns instead of 25ns MC
     bool m_D5_with_50ns;    
@@ -110,6 +108,8 @@ private:
     std::string m_custom_file_Combined;
     std::string m_custom_file_Calo;
     std::string m_custom_file_HighEta;
+    std::string m_custom_file_LowPt;
+    std::string m_custom_file_LowPtCalo;
 
     const char* classname;
 
@@ -127,6 +127,8 @@ private:
     std::string filename_Central();
     std::string filename_Calo();
     std::string filename_HighEta();
+    std::string filename_LowPt();
+    std::string filename_LowPtCalo();
 
 
     // utility method to 'dress' a filename using the path resolver
@@ -160,11 +162,17 @@ private:
     std::string m_calibration_version;
 
     std::string m_effType;
+    
+    // threshold below which low-pt SF (i.e. from JPsi) should be used
+    double m_lowpt_threshold;
+    // decorators to quickly apply the eff and SF
     SG::AuxElement::Decorator< float >* m_effDec;
     SG::AuxElement::Decorator< float >* m_sfDec;
     SG::AuxElement::Decorator< std::vector<float> >* m_sfrDec;
 
     CP::SystematicSet m_affectingSys;
+
+    ToolHandle<IPileupReweightingTool> m_prwtool;
 };
 
 } /* namespace CP */

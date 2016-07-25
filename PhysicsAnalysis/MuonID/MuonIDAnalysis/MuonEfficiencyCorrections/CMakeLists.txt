@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODMuon
                           PhysicsAnalysis/AnalysisCommon/PATInterfaces
+                          PhysicsAnalysis/AnalysisCommon/PileupReweighting
                           PRIVATE
                           Control/AthContainers
                           Control/AthenaBaseComps

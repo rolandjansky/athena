@@ -11,6 +11,7 @@
 
 #include "MuonEfficiencyCorrections/EfficiencyScaleFactor.h"
 #include <TRandom3.h>
+#include <TClass.h>
 namespace CP {
 
 EfficiencyScaleFactor::EfficiencyScaleFactor():
@@ -18,23 +19,33 @@ EfficiencyScaleFactor::EfficiencyScaleFactor():
                                 m_eff(0),
                                 m_sf_sys(0),
                                 m_eff_sys(0),
+                                m_sf_PtDepsys(0),
+                                m_eff_PtDepsys(0),
                                 m_sf_replicas(),
                                 m_eff_replicas(),
                                 m_etaphi(),
                                 m_sys(),
-                                m_effType("EFF"){
+                                m_effType("EFF"),
+                                m_is_lowpt(false),
+                                m_respond_to_PtDepsys(false),
+                                m_PtDepsys_weight(0.){
 }
 
-EfficiencyScaleFactor::EfficiencyScaleFactor(std::string file, std::string time_unit, SystematicSet sys, std::string effType):
+EfficiencyScaleFactor::EfficiencyScaleFactor(std::string file, std::string time_unit, SystematicSet sys, std::string effType, bool isLowPt, bool hasPtDepSys):
                                     m_sf(0),
                                     m_eff(0),
                                     m_sf_sys(0),
                                     m_eff_sys(0),
+                                    m_sf_PtDepsys(0),
+                                    m_eff_PtDepsys(0),
                                     m_sf_replicas(),
                                     m_eff_replicas(),
                                     m_etaphi(),
                                     m_sys(sys),
-                                    m_effType(effType){
+                                    m_effType(effType),
+                                    m_is_lowpt(isLowPt),
+                                    m_respond_to_PtDepsys(hasPtDepSys),
+                                    m_PtDepsys_weight(0.){
 
     ReadFromFile(file, time_unit);
 }
@@ -48,6 +59,14 @@ EfficiencyScaleFactor::EfficiencyScaleFactor(const EfficiencyScaleFactor & other
     m_eff_sys = package_histo(dynamic_cast<TH1*>(other.m_eff_sys->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_eff_sys->GetHist()->GetName()).c_str())));
     m_sys = other.m_sys;
     m_effType = other.m_effType;
+    m_is_lowpt = other.m_is_lowpt;
+    m_respond_to_PtDepsys = other.m_respond_to_PtDepsys;
+    m_PtDepsys_weight = other.m_PtDepsys_weight;
+
+    if (other.m_respond_to_PtDepsys){
+        m_sf_PtDepsys = package_histo(dynamic_cast<TH1*>(other.m_sf_PtDepsys->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_sf_PtDepsys->GetHist()->GetName()).c_str())));
+        m_eff_PtDepsys = package_histo(dynamic_cast<TH1*>(other.m_eff_PtDepsys->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_eff_PtDepsys->GetHist()->GetName()).c_str())));
+    }
 
     for (ciSFvec h = other.m_sf_replicas.begin(); h != other.m_sf_replicas.end();++h) {
         m_sf_replicas.push_back(package_histo(dynamic_cast<TH1*>((*h)->GetHist()->Clone((std::string("EffSFsfReplicaCloneOf")+(*h)->GetHist()->GetName()).c_str()))));
@@ -66,6 +85,8 @@ EfficiencyScaleFactor & EfficiencyScaleFactor::operator = (const EfficiencyScale
     delete m_eff;
     delete m_eff_sys;
     delete m_sf_sys;
+    if (m_sf_PtDepsys) delete m_sf_PtDepsys;
+    if (m_eff_PtDepsys) delete m_eff_PtDepsys;
 
     for (iSFvec h = m_sf_replicas.begin(); h != m_sf_replicas.end();++h) {
         if (*h) delete *h;
@@ -82,7 +103,15 @@ EfficiencyScaleFactor & EfficiencyScaleFactor::operator = (const EfficiencyScale
     m_eff = package_histo(dynamic_cast<TH1*>(other.m_eff->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_eff->GetHist()->GetName()).c_str())));
     m_sf_sys = package_histo(dynamic_cast<TH1*>(other.m_sf_sys->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_sf_sys->GetHist()->GetName()).c_str())));
     m_eff_sys = package_histo(dynamic_cast<TH1*>(other.m_eff_sys->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_eff_sys->GetHist()->GetName()).c_str())));
+    if (other.m_respond_to_PtDepsys){
+        m_sf_PtDepsys = package_histo(dynamic_cast<TH1*>(other.m_sf_PtDepsys->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_sf_PtDepsys->GetHist()->GetName()).c_str())));
+        m_eff_PtDepsys = package_histo(dynamic_cast<TH1*>(other.m_eff_PtDepsys->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_eff_PtDepsys->GetHist()->GetName()).c_str())));
+    }
     m_sys = other.m_sys;
+    m_effType = other.m_effType;
+    m_is_lowpt = other.m_is_lowpt;
+    m_respond_to_PtDepsys = other.m_respond_to_PtDepsys;
+    m_PtDepsys_weight = other.m_PtDepsys_weight;
 
 
     for (ciSFvec h = other.m_sf_replicas.begin(); h != other.m_sf_replicas.end();++h) {
@@ -111,6 +140,11 @@ bool EfficiencyScaleFactor::ReadFromFile(std::string file, std::string time_unit
     m_sf = ReadHistFromFile("SF",f,time_unit);
     m_sf_sys = ReadHistFromFile("SF_sys",f,time_unit);
     m_eff_sys = ReadHistFromFile("Eff_sys",f,time_unit);
+    // for high pt eff, we also load the pt dependent part
+    if (m_respond_to_PtDepsys){
+        m_sf_PtDepsys = ReadHistFromFile("SF_PtDep_sys",f,time_unit);
+        m_eff_PtDepsys = ReadHistFromFile("Eff_PtDep_sys",f,time_unit);
+    }
 
     // and don't forget to close the file again!
     f->Close();
@@ -119,8 +153,8 @@ bool EfficiencyScaleFactor::ReadFromFile(std::string file, std::string time_unit
 
 bool EfficiencyScaleFactor::CheckConsistency(){
 
-    return (m_eff_sys != NULL && m_eff != NULL && m_sf_sys != NULL && m_sf != NULL);
-
+    bool OK = (m_eff_sys != NULL && m_eff != NULL && m_sf_sys != NULL && m_sf != NULL && (!m_respond_to_PtDepsys || (m_sf_PtDepsys != NULL && m_eff_PtDepsys != NULL)));
+    return OK;
 }
 
 HistHandler* EfficiencyScaleFactor::ReadHistFromFile(std::string name, TFile* f, std::string time_unit){
@@ -128,7 +162,7 @@ HistHandler* EfficiencyScaleFactor::ReadHistFromFile(std::string name, TFile* f,
     f->GetObject((name+std::string("_")+time_unit).c_str(),histHolder);
     if (!histHolder){
         // if no period weighting, the histo may also not have a time period in the name at all
-        if (time_unit == "All"){
+        if (time_unit == "All"){    
             f->GetObject(name.c_str(),histHolder);
         }
         if (! histHolder){
@@ -137,7 +171,8 @@ HistHandler* EfficiencyScaleFactor::ReadHistFromFile(std::string name, TFile* f,
         }
     }
     // replace the histos by clones so that we can close the files again
-    return package_histo((TH1*)(histHolder->Clone(Form("%s_%s_%s%s",name.c_str(),f->GetName(),time_unit.c_str(),sysname().c_str()))));
+    HistHandler* out =  package_histo((TH1*)(histHolder->Clone(Form("%s_%s_%s%s",name.c_str(),f->GetName(),time_unit.c_str(),sysname().c_str()))));
+    return out;
 }
 
 
@@ -178,6 +213,19 @@ bool EfficiencyScaleFactor::AddPeriod (std::string file, std::string time_unit, 
         delete toadd;
     }
 
+    if (m_respond_to_PtDepsys){
+        toadd = ReadHistFromFile("Eff_PtDep_sys",f,time_unit);
+        if (toadd){
+            AddHistos(m_eff_PtDepsys,toadd,weight);
+            delete toadd;
+        }
+        toadd = ReadHistFromFile("SF_PtDep_sys",f,time_unit);
+        if (toadd){
+            AddHistos(m_sf_PtDepsys,toadd,weight);
+            delete toadd;
+        }
+    }
+
     // and close the file
     f->Close();
     return true;
@@ -197,7 +245,10 @@ HistHandler *EfficiencyScaleFactor::package_histo (TH1* h){
     else if (dynamic_cast<TH2Poly*>(h)){
         return new HistHandler_TH2Poly(dynamic_cast<TH2Poly*>(h));
     }
-    else return 0;
+    else {
+        Error("EfficiencyScaleFactor","Unable to package histo %s (%s) in a known HistHandler",h->GetName(),h->IsA()->GetName());
+        return 0;
+    }
 }
 std::string EfficiencyScaleFactor::sysname(void){
 
@@ -227,6 +278,17 @@ bool EfficiencyScaleFactor::Add ( EfficiencyScaleFactor & to_add, float weight )
     if (htoadd) AddHistos(m_eff_sys,htoadd,weight);
     else return false;
 
+    if (m_respond_to_PtDepsys){
+
+        htoadd = to_add.get_eff_PtDepsys();
+        if (htoadd) AddHistos(m_eff_PtDepsys,htoadd,weight);
+        else return false;
+
+        htoadd = to_add.get_sf_PtDepsys();
+        if (htoadd) AddHistos(m_sf_PtDepsys,htoadd,weight);
+        else return false;
+    }
+
     return true;
 }
 
@@ -235,6 +297,10 @@ bool EfficiencyScaleFactor::Scale (float scale ){
     ScaleHisto(m_eff,scale);
     ScaleHisto(m_sf_sys,scale);
     ScaleHisto(m_eff_sys,scale);
+    if (m_respond_to_PtDepsys){
+        ScaleHisto(m_sf_PtDepsys,scale);
+        ScaleHisto(m_eff_PtDepsys,scale);
+    }
 
     return true;
 }
@@ -247,8 +313,18 @@ CorrectionCode EfficiencyScaleFactor::ScaleFactor(const xAOD::Muon& mu, float & 
     }
     else {
         SF = m_sf->GetBinContent(bin);
-        return CorrectionCode::Ok;
     }
+    // if we need to, apply an additional relative pt dependent contribution
+    if (m_respond_to_PtDepsys && m_PtDepsys_weight != 0 && mu.pt() > 200000.){
+        int binsys = -1;
+        cc = m_sf_PtDepsys->FindBin(mu,binsys);
+        if (cc != CorrectionCode::Ok) {
+            return cc;
+        }
+        // pt dependent sys is stored as relative error per TeV of pT
+        SF = SF * (1 + m_PtDepsys_weight* m_sf_PtDepsys->GetBinContent(binsys) * mu.pt() / 1.0e6 );
+       }
+    return CorrectionCode::Ok;
 }
 
 CorrectionCode EfficiencyScaleFactor::Efficiency(const xAOD::Muon& mu, float & Eff){
@@ -257,8 +333,18 @@ CorrectionCode EfficiencyScaleFactor::Efficiency(const xAOD::Muon& mu, float & E
     if (cc != CorrectionCode::Ok) return cc;
     else {
         Eff = m_eff->GetBinContent(bin);
-        return CorrectionCode::Ok;
     }
+    // if we need to, apply an additional relative pt dependent contribution
+    if (m_respond_to_PtDepsys && m_PtDepsys_weight != 0 && mu.pt() > 200000.){
+        int binsys = -1;
+        cc = m_eff_PtDepsys->FindBin(mu,binsys);
+        if (cc != CorrectionCode::Ok) {
+            return cc;
+        }
+        // pt dependent sys is stored as relative error per TeV of pT
+        Eff = Eff * (1 + m_PtDepsys_weight* m_eff_PtDepsys->GetBinContent(binsys) * mu.pt() / 1.0e6 );
+    }
+    return CorrectionCode::Ok;
 }
 
 CorrectionCode EfficiencyScaleFactor::ScaleFactorReplicas(const xAOD::Muon& mu, std::vector<float> & SF){
@@ -315,6 +401,8 @@ EfficiencyScaleFactor::~EfficiencyScaleFactor(){
     if (m_eff) delete m_eff;
     if (m_sf_sys) delete m_sf_sys;
     if (m_eff_sys) delete m_eff_sys;
+    if (m_sf_PtDepsys) delete m_sf_PtDepsys;
+    if (m_eff_PtDepsys) delete m_eff_PtDepsys;
 }
 
 void EfficiencyScaleFactor::AddHistos (HistHandler* & add_to, HistHandler* add_this, float weight){
@@ -378,10 +466,18 @@ EfficiencyScaleFactor::SFvec EfficiencyScaleFactor::GenerateReplicasFromHist(His
 void EfficiencyScaleFactor::ApplySysVariation(){
 
     if (m_sys == SystematicSet()) return;
-    if (*(m_sys.begin()) == SystematicVariation ("MUON_"+m_effType+"_STAT", -1)) AddStatErrors(-1.);
-    if (*(m_sys.begin()) == SystematicVariation ("MUON_"+m_effType+"_STAT", 1)) AddStatErrors(1.);
-    if (*(m_sys.begin()) == SystematicVariation ("MUON_"+m_effType+"_SYS", -1)) AddSysErrors(-1.);
-    if (*(m_sys.begin()) == SystematicVariation ("MUON_"+m_effType+"_SYS", 1)) AddSysErrors(1.);
+    if (!m_is_lowpt){
+        if (*(m_sys.begin()) == SystematicVariation ("MUON_"+m_effType+"_STAT", -1)) AddStatErrors(-1.);
+        if (*(m_sys.begin()) == SystematicVariation ("MUON_"+m_effType+"_STAT", 1)) AddStatErrors(1.);
+        if (*(m_sys.begin()) == SystematicVariation ("MUON_"+m_effType+"_SYS", -1)) AddSysErrors(-1.);
+        if (*(m_sys.begin()) == SystematicVariation ("MUON_"+m_effType+"_SYS", 1)) AddSysErrors(1.);
+    }
+    else{
+        if (*(m_sys.begin()) == SystematicVariation ("MUON_"+m_effType+"_STAT_LOWPT", -1)) AddStatErrors(-1.);
+        if (*(m_sys.begin()) == SystematicVariation ("MUON_"+m_effType+"_STAT_LOWPT", 1)) AddStatErrors(1.);
+        if (*(m_sys.begin()) == SystematicVariation ("MUON_"+m_effType+"_SYS_LOWPT", -1)) AddSysErrors(-1.);
+        if (*(m_sys.begin()) == SystematicVariation ("MUON_"+m_effType+"_SYS_LOWPT", 1)) AddSysErrors(1.);
+    }
 
 }
 void EfficiencyScaleFactor::AddStatErrors (float weight){
@@ -392,6 +488,11 @@ void EfficiencyScaleFactor::AddStatErrors (float weight){
 }
 
 void EfficiencyScaleFactor::AddSysErrors (float weight){
+
+    // turn on the pt dependent contribution, if there is any
+    if (m_respond_to_PtDepsys){
+        m_PtDepsys_weight = weight;
+    }
 
     AddSysErrors_histo(m_sf,m_sf_sys,weight);
     AddSysErrors_histo(m_eff,m_eff_sys,weight);
@@ -427,6 +528,8 @@ void EfficiencyScaleFactor::DebugPrint (void){
     m_sf->GetHist()->Print();
     m_eff_sys->GetHist()->Print();
     m_sf_sys->GetHist()->Print();
+    if (m_eff_PtDepsys) m_eff_PtDepsys->GetHist()->Print();
+    if (m_sf_PtDepsys) m_sf_PtDepsys->GetHist()->Print();
 }
 
 

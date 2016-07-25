@@ -36,6 +36,7 @@ private:
   /// Scale factor tool
   ToolHandle< IMuonEfficiencyScaleFactors > m_sf_Tool;
   ToolHandle< IMuonEfficiencyScaleFactors > m_isosf_Tool;
+  ToolHandle< IMuonEfficiencyScaleFactors > m_ttvasf_Tool;
   ToolHandle< IMuonTriggerScaleFactors > m_trigsf_Tool;
 
 }; // class MuonEfficiencyCorrections_TestAlg

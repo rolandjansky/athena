@@ -66,6 +66,7 @@ public:
     virtual CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value)=0;
 
     virtual ~AxisHandler(){};
+    static std::string EraseWhiteSpaces(std::string str);
 };
 
 class HistHandler_TH1F: public HistHandler{
@@ -275,6 +276,15 @@ public:
     virtual ~EtaAxisHandler(){
     };
 };
+class AbsEtaAxisHandler: public AxisHandler {
+public:
+    virtual CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value){
+        value =   fabs(mu.eta());
+        return CorrectionCode::Ok;
+    }
+    virtual ~AbsEtaAxisHandler(){
+    };
+};
 class PhiAxisHandler: public AxisHandler {
 public:
     virtual CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value){
@@ -282,6 +292,16 @@ public:
         return CorrectionCode::Ok;
     }
     virtual ~PhiAxisHandler(){
+    };
+};
+class dRJetAxisHandler: public AxisHandler {
+public:
+    virtual CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value){
+        static SG::AuxElement::ConstAccessor<float> dRJet("dRJet");
+        value =  dRJet.isAvailable(mu)?dRJet(mu):-1;
+        return CorrectionCode::Ok;
+    }
+    virtual ~dRJetAxisHandler(){
     };
 };
 class UndefinedAxisHandler: public AxisHandler {

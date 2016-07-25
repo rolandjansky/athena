@@ -32,10 +32,16 @@ public:
     EffiCollection(std::string file_central,
             std::string file_calo,
             std::string file_forward,
+            std::string file_lowpt_central,
+            std::string file_lowpt_caloo,
+//             std::string file_lowpt_forward,
             std::map<std::string,double> lumis_central,
             std::map<std::string,double> lumis_calo,
             std::map<std::string,double> lumis_forward,
-            SystematicSet sys, std::string effType="EFF");
+            std::map<std::string,double> lumis_lowpt_central,
+            std::map<std::string,double> lumis_lowpt_calo,
+//             std::map<std::string,double> lumis_lowpt_forward,
+            SystematicSet sys, std::string effType="EFF", double lowPtTransition = 20000.);
 
     EffiCollection (const EffiCollection & other);
     EffiCollection & operator = (const EffiCollection & other);
@@ -57,9 +63,13 @@ protected:
     EfficiencyScaleFactor* m_central_eff;
     EfficiencyScaleFactor* m_forward_eff;
     EfficiencyScaleFactor* m_calo_eff;
+    EfficiencyScaleFactor* m_lowpt_central_eff;
+    EfficiencyScaleFactor* m_lowpt_calo_eff;
+//     EfficiencyScaleFactor* m_lowpt_forward_eff;
 
 private:
     std::string m_effType;
+    double m_lowpt_transition;
 };
 }
 #endif /* EFFICOLLECTION_H_ */
