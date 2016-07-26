@@ -14,7 +14,7 @@
  ***************************************************************************
  -->
 <!-- NB validate this file here before commiting to svn:
- /afs/cern.ch/user/r/rtt/public/xmlvalidate.py TrigP1Test_TestConfiguration.xml.autoconf
+ /afs/cern.ch/user/r/rtt/public/xmlvalidate.py TrigP1Test_TestConfiguration.xml
  -->
 
 <unifiedTestConfiguration>
@@ -71,31 +71,6 @@
             </expectations> 
         </TEST> 
         
-        <!-- OFF -->
-        <TEST name="HLT_MC_BSfromRDO" type="script" suite="TP1core">
-            <options_atn>trigtest.pl --cleardir --test HLT_MC_BSfromRDO --rundir HLT_MC_BSfromRDO --conf TrigP1Test.conf</options_atn>
-            <timelimit>20</timelimit>
-            <nightly_exclude>.*</nightly_exclude>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-        <!-- OFF -->
-        
-        <!-- OFF -->
-        <TEST name="HLT_MC_run_stop_run" type="script" suite="TP1core">
-            <doc>athenaHLT all slices</doc>
-            <options_atn>trigtest.pl --cleardir --test HLT_MC_run_stop_run--rundir HLT_MC_run_stop_run --conf TrigP1Test.conf</options_atn>
-            <timelimit>20</timelimit>
-            <nightly_exclude>.*</nightly_exclude>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-        <!-- OFF -->
-        
         <TEST name="HLT_HIV3" type="script" suite="TP1hi"> 
             <options_atn>trigtest.pl --cleardir --test HLT_HIV3  --rundir HLT_HIV3 --conf TrigP1Test.conf</options_atn> 
             <timelimit>35</timelimit> 
@@ -116,15 +91,7 @@
                 <returnValue>0</returnValue> 
             </expectations> 
         </TEST>
-        
-        <TEST name="HLT_physicsV6_COS_2012" type="script" suite="TP1cos1"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS_2012 --rundir HLT_physicsV6_COS_2012 --conf TrigP1Test.conf</options_atn> 
-            <timelimit>20</timelimit> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST>    
+          
         
         <TEST name="HLT_physicsV6_COS_2015MUONS" type="script" suite="TP1cos2"> 
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS_2015MUONS --rundir HLT_physicsV6_COS_2015MUONS --conf TrigP1Test.conf</options_atn> 
@@ -135,7 +102,7 @@
             </expectations> 
         </TEST>
         
-        <TEST name="HLT_physicsV6_COS_2015IDCOSMICS" type="script" suite="TP1cos2"> 
+        <TEST name="HLT_physicsV6_COS_2015IDCOSMICS" type="script" suite="TP1cos3"> 
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS_2015IDCOSMICS --rundir HLT_physicsV6_COS_2015IDCOSMICS --conf TrigP1Test.conf</options_atn> 
             <timelimit>30</timelimit>  
             <expectations> 
@@ -144,24 +111,6 @@
             </expectations> 
         </TEST>
         
-        
-        <TEST name="HLT_physicsV6_COS_2015CALO" type="script" suite="TP1cos3"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS_2015CALO --rundir HLT_physicsV6_COS_2015CALO   --conf TrigP1Test.conf</options_atn> 
-            <timelimit>20</timelimit> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST>
-        
-        <TEST name="HLT_physicsV6_COS_2015MBTS" type="script" suite="TP1cos3"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS_2015MBTS --rundir HLT_physicsV6_COS_2015MBTS   --conf TrigP1Test.conf</options_atn> 
-            <timelimit>45</timelimit> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST>
         
         
         <!-- End of physics COSMICS menu chain --> 
@@ -181,42 +130,6 @@
             </expectations>
         </TEST>
         
-        <!-- OFF -->
-        <TEST name="HLT_physicsV6_caf" type="script" suite="TP1mc">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_caf --rundir HLT_physicsV6_caf --conf TrigP1Test.conf</options_atn>
-            <timelimit>30</timelimit>
-            <nightly_exclude>.*</nightly_exclude>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-        <!-- OFF -->
-        
-        
-        <!-- OFF -->
-        <TEST name="PrepareMenuKeys_mcV6_caf" type="script" suite="TP1mc">
-            <options_atn>trigtest.pl --cleardir  --test PrepareMenuKeys_mcV6_caf --rundir PrepareMenuKeys_mcV6_caf --conf TrigP1Test.conf</options_atn>
-            <timelimit>25</timelimit>
-            <nightly_exclude>.*</nightly_exclude>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-        <!-- OFF -->
-        
-        <!-- OFF -->
-        <TEST name="PrepareMenuKeys_physicsV6_caf" type="script" suite="TP1mc">
-            <options_atn>trigtest.pl --cleardir  --test PrepareMenuKeys_physicsV6_caf --rundir PrepareMenuKeys_physicsV6_caf --conf TrigP1Test.conf</options_atn>
-            <timelimit>25</timelimit>
-            <nightly_exclude>.*</nightly_exclude>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-        <!-- OFF -->
         
         <!-- end of MC chain of tests -->
         
@@ -242,6 +155,7 @@
         <TEST name="RAWtoESD_physicsV6" type="script" suite="TP1phys1"> 
             <options_atn>trigtest.pl --cleardir  --test RAWtoESD_physicsV6 --rundir RAWtoESD_physicsV6 --conf TrigP1Test.conf</options_atn> 
             <timelimit>30</timelimit> 
+            <nightly_exclude> MIG LCG EXP CMAKE 22 21 20.99 </nightly_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -352,6 +266,7 @@
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_menu --rundir HLT_physicsV6_menu --conf TrigP1Test.conf</options_atn>
             <timelimit>20</timelimit>
             <platform>opt</platform>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -363,6 +278,7 @@
             <options_atn>trigtest.pl --cleardir  --test UploadMenuKeys --rundir UploadMenuKeys --conf TrigP1Test.conf</options_atn>
             <timelimit>35</timelimit>
             <platform>opt</platform>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
             <!--<mailto>joerg.stelzer@cern.ch</mailto>-->    
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -374,6 +290,7 @@
             <options_atn>trigtest.pl --cleardir  --test HLT_physicsV6_menu_rerundb --rundir HLT_physicsV6_menu_rerundb --conf TrigP1Test.conf</options_atn>
             <timelimit>25</timelimit>
             <platform>opt</platform>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -385,6 +302,7 @@
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_rerun --rundir HLT_physicsV6_rerun --conf TrigP1Test.conf</options_atn>
             <timelimit>20</timelimit> 
             <platform>opt</platform>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -397,33 +315,18 @@
             <timelimit>59</timelimit>     
             <mailto>joerg.stelzer@cern.ch</mailto> 
             <platform>opt</platform>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
-        
-        
-        
-        
-        <!-- OFF -->
-        <TEST name="HLT_physicsV6_prescaleChange" type="script" suite="TP1menu">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_prescaleChange --rundir HLT_physicsV6_prescaleChange --conf TrigP1Test.conf</options_atn>
-            <timelimit>25</timelimit>
-            <platform>opt</platform>
-            <nightly_exclude>.*</nightly_exclude>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-        <!-- OFF -->
-        
         
         <TEST name="HLT_physicsV6_rerunLvL1_menu" type="script" suite="TP1menuRL1">
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_rerunLvL1_menu --rundir HLT_physicsV6_rerunLvL1_menu --conf TrigP1Test.conf</options_atn>
             <timelimit>30</timelimit>
             <platform>opt</platform>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -436,6 +339,7 @@
             <timelimit>35</timelimit>
             <!--<mailto>joerg.stelzer@cern.ch</mailto>-->    
             <platform>opt</platform>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -446,6 +350,7 @@
             <options_atn>trigtest.pl --cleardir  --test HLT_physicsV6_rerunLvL1_menu_rerundb --rundir HLT_physicsV6_rerunLvL1_menu_rerundb --conf TrigP1Test.conf</options_atn>
             <timelimit>25</timelimit>
             <platform>opt</platform>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -453,36 +358,8 @@
         </TEST>
         
         
-        <!-- OFF -->
-        <TEST name="TriggerDBAccessTest" type="script" suite="TP1menu">
-            <options_atn>trigtest.pl --cleardir --test TriggerDBAccessTest --run TriggerDBAccessTest --conf TrigP1Test.conf</options_atn>
-            <timelimit>5</timelimit>
-            <platform>opt</platform> 
-            <nightly_exclude>.*</nightly_exclude>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-        <!-- OFF -->
         
         
-        <!--  rerun MT and PT on physics_pp_V6 menu and upload to db again (same test, different dir), check same key returned: only in P1 HLT -->
-        
-        
-        
-        <!-- OFF -->
-        <TEST name="PrepareMenuKeys_p1" type="script" suite="TP1menu">
-            <options_atn>trigtest.pl --cleardir  --test PrepareMenuKeys_p1 --rundir PrepareMenuKeys_p1 --conf TrigP1Test.conf</options_atn>
-            <timelimit>25</timelimit>
-            <platform>opt</platform>
-            <nightly_exclude>.*</nightly_exclude>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-        <!-- OFF -->
         
         
         <!-- End of menu uploading test chain -->
@@ -498,7 +375,7 @@
         <TEST name="Trigreco_physicsV6_currentT0" type="script" suite="TP1var1"> 
             <options_atn>trigtest.pl --cleardir --test Trigreco_physicsV6_currentT0 --rundir Trigreco_physicsV6_currentT0 --conf TrigP1Test.conf</options_atn> 
             <timelimit>45</timelimit> 
-            <project_exclude>AtlasHLT</project_exclude>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 21 20.99 </nightly_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -508,7 +385,7 @@
         <TEST name="TrigEDMCheck_physicsV6_currentT0_ESD" type="script" suite="TP1var1"> 
             <options_atn>trigtest.pl --cleardir --test TrigEDMCheck_physicsV6_currentT0_ESD --rundir TrigEDMCheck_physicsV6_currentT0_ESD --conf TrigP1Test.conf</options_atn> 
             <timelimit>10</timelimit> 
-            <project_exclude>AtlasHLT</project_exclude>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 21 20.99 </nightly_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -518,7 +395,7 @@
         <TEST name="TrigEDMCheck_physicsV6_currentT0_AOD" type="script" suite="TP1var1"> 
             <options_atn>trigtest.pl --cleardir --test TrigEDMCheck_physicsV6_currentT0_AOD --rundir TrigEDMCheck_physicsV6_currentT0_AOD --conf TrigP1Test.conf</options_atn> 
             <timelimit>10</timelimit> 
-            <project_exclude>AtlasHLT</project_exclude>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 21 20.99 </nightly_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -528,6 +405,7 @@
         <TEST name="Trigreco_dbgstream_T0" type="script" suite="TP1var2"> 
             <options_atn>trigtest.pl --cleardir --test Trigreco_dbgstream_T0  --rundir Trigreco_dbgstream_T0 --conf TrigP1Test.conf</options_atn> 
             <timelimit>30</timelimit> 
+            <nightly_exclude> MIG LCG EXP CMAKE 22 21 20.99 </nightly_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
