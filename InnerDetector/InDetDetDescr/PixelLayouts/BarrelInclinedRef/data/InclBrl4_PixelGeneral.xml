@@ -9,13 +9,13 @@
   <PixelEnvelope>
      <RadiusMin> 33.001 </RadiusMin>
      <RadiusMax> 361.751 </RadiusMax>
-     <HalfLength> 3512. </HalfLength>
+     <HalfLength> 3475. </HalfLength>
   </PixelEnvelope>
 
   <PixelCommon>
      <RadiusMin> 33.001 </RadiusMin>
      <RadiusMax> 361.751 </RadiusMax>
-     <HalfLength> 3512. </HalfLength>
+     <HalfLength> 3475. </HalfLength>
   </PixelCommon>
 
   <PixelBarrelEnvelope>
@@ -32,7 +32,7 @@
      <RadiusMin> 33.001 </RadiusMin>
      <RadiusMax> 340.99 </RadiusMax>
      <ZMin> 781.11 </ZMin>
-     <ZMax> 3512. </ZMax>
+     <ZMax> 3475. </ZMax>
      <RadiusList> 34.1  149.9 340.99</RadiusList>
      <ZMinList> 1228.1 781.1 </ZMinList>
   </PixelEndcapEnvelope>
