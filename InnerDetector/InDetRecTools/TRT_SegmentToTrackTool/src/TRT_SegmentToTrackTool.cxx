@@ -6,6 +6,7 @@
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "InDetIdentifier/TRT_ID.h"
+#include "TrkSurfaces/Surface.h"
 
 ///Needed for the track refitter
 #include "TrkFitterInterfaces/ITrackFitter.h"
@@ -578,9 +579,10 @@ namespace InDet {
       const Trk::TrackParameters *firstmeaspar=0;
       DataVector<const Trk::TrackParameters>::const_iterator parit = fitTrack->trackParameters()->begin();
       do {
-	parit++;
-	if ( (*parit)->covariance()) firstmeaspar = *parit;
-      } while (firstmeaspar==0);
+	// skip pesudo measurements on perigee
+	if ( (*parit)->covariance() && ((*parit)->associatedSurface()  == tS.associatedSurface())) firstmeaspar = *parit;
+	++parit;
+      } while (firstmeaspar==0 || parit == fitTrack->trackParameters()->end());
 
       //Create new perigee starting from the modified first measurement that has a more reasonable covariance matrix
       // const Trk::Perigee* perTrack=dynamic_cast<const Trk::Perigee*>(fitTrack->perigeeParameters());
