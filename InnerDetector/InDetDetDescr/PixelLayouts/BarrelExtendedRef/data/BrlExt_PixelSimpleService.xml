@@ -38,7 +38,7 @@
   <RMIN> 33 </RMIN>
   <RMAX> 361.75 </RMAX>
   <ZMIN> 3170 </ZMIN>
-  <ZMAX> 3441 </ZMAX>
+  <ZMAX> 3405 </ZMAX>
   <ZSYMM> 1 </ZSYMM>
   <MATERIAL> pix::PP0_Fixed_Weight </MATERIAL>
 </SimpleService>
@@ -47,8 +47,8 @@
   <NAME>Moderator</NAME>
   <RMIN> 33 </RMIN>
   <RMAX> 361.75 </RMAX>
-  <ZMIN> 3442 </ZMIN>
-  <ZMAX> 3512 </ZMAX>
+  <ZMIN> 3405 </ZMIN>
+  <ZMAX> 3475 </ZMAX>
   <ZSYMM> 1 </ZSYMM>
   <MATERIAL> pix::Moderator </MATERIAL>
 </SimpleService>
