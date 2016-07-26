@@ -1308,11 +1308,11 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   // -----------------------------------
   // Create xAOD::BTagging and attach feature
   // -----------------------------------
-  xAOD::BTagging * newBTag = new xAOD::BTagging();
   if (!m_trigBTaggingContainer) {
     msg() << MSG::ERROR << "Feature BTaggingContainer not found" << endreq;
     return HLT::BAD_JOB_SETUP;
   }
+  xAOD::BTagging * newBTag = new xAOD::BTagging();
 
   m_trigBTaggingContainer->push_back(newBTag);
 
