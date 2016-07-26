@@ -18,7 +18,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkFitter/TrkFitterInterfaces
-                          Tracking/TrkTools/TrkToolInterfaces )
+                          Tracking/TrkTools/TrkToolInterfaces
+			  Tracking/TrkDetDescr/TrkSurfaces)
 
 # Component(s) in the package:
 atlas_add_component( TRT_SegmentToTrackTool
