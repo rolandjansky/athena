@@ -217,7 +217,7 @@ def bjetChains(runMergedChain, doIDNewTracking, doFTK):
       ]
   return (idTrigChainlist, tidaAnalysischains)
 
-def beamspotChains(runMergedChain, doIDNewTracking):
+def beamspotChains(runMergedChain, doIDNewTracking, doFTK):
   idTrigChainlist = []
   tidaAnalysischains = ["Truth"]
 
@@ -226,10 +226,14 @@ def beamspotChains(runMergedChain, doIDNewTracking):
 
 ##  idTrigChainlist.append(['beamspot_allTE_L2StarB',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
   idTrigChainlist.append(['beamspot_allTE_trkfast',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
+  if doFTK:
+    idTrigChainlist.append(['beamspot_allTE_FTK',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
+  
   tidaAnalysischains += [
     'HLT_beamspot_allTE_L2StarB:TrigL2SiTrackFinder_BeamSpotB',
     'HLT_beamspot_allTE_trkfast:TrigFastTrackFinder_BeamSpot_IDTrig',
     'HLT_beamspot_allTE_trkfast:InDetTrigTrackingxAODCnv_BeamSpot_FTF',
+    'HLT_beamspot_allTE_FTK:InDetTrigTrackingxAODCnv_BeamSpot_FTK',
     ]
   return (idTrigChainlist, tidaAnalysischains)
 
