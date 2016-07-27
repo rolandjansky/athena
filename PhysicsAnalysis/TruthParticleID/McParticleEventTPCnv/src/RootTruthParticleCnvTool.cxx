@@ -115,7 +115,7 @@ RootTruthParticleCnvTool::convert(const McEventCollection *mcCollection,
     if ( etIsolName.empty() ) {
       m_msg << MSG::WARNING
 	    << "Could not retrieve the name of the TruthEtIsolations container"
-	    << endreq;
+	    << endmsg;
       return StatusCode::RECOVERABLE;
     }
 
@@ -124,7 +124,7 @@ RootTruthParticleCnvTool::convert(const McEventCollection *mcCollection,
       m_msg << MSG::WARNING
 	    << "Could not retrieve the TruthEtIsolations container at ["
 	    << etIsolName << "] !!"
-	    << endreq;
+	    << endmsg;
       return StatusCode::RECOVERABLE;
     }
 
@@ -142,11 +142,12 @@ RootTruthParticleCnvTool::convert(const McEventCollection *mcCollection,
 
 double RootTruthParticleCnvTool::chargeFromPdgId (int pdgId) const
 {
+  const double third = 1./3;
   if (0 == pdgId)
     return -999;
   TParticlePDG* ap = TDatabasePDG::Instance()->GetParticle (pdgId);
   if ( ap ) {
-    return ap->Charge()/3;
+    return ap->Charge()*third;
   } else {
     /** Set charge using PDG convention:
 	id = nnnnijkl
@@ -165,16 +166,16 @@ double RootTruthParticleCnvTool::chargeFromPdgId (int pdgId) const
       q = (abs(pdgId) / 10000) % 1000;
     }
     else if( idmod < 100 ) {
-      q = qcharge[idmod]/3.;
+      q = qcharge[idmod]*third;
     }
     else if ( idmod < 1000 ) {
-      q = (qcharge[q1]-qcharge[q2])/3.;
+      q = (qcharge[q1]-qcharge[q2])*third;
       if ( qcharge[q2] == 2 ) {
 	q *= -1.;
       }
     }
     else if( idmod < 10000 ) {
-      q = (qcharge[q3]+qcharge[q2]+qcharge[q1])/3.;
+      q = (qcharge[q3]+qcharge[q2]+qcharge[q1])*third;
     }
     if (q == 0) q = 0; // Change -0 to 0.
     return (pdgId < 0) ? -q : q;

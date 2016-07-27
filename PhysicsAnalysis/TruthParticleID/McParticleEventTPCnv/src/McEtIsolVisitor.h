@@ -132,10 +132,10 @@ McEtIsolVisitor<TruthParticleContainer_pX>::visit( TruthParticle* mc ) const
   } catch (std::out_of_range& e) {
     *m_msg << MSG::WARNING 
            << "Caught an out of range exception for this barcode: " << barcode
-           << endreq
-           << e.what() << endreq
+           << endmsg
+           << e.what() << endmsg
            << "This particle won't have any et isolation informations !!"
-           << endreq;
+           << endmsg;
     // we don't want to have a buggy McTruth, do we ?
     throw std::runtime_error("Reqested an UNKNOWN TruthParticle/barcode");
   }
