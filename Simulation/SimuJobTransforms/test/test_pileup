@@ -29,6 +29,6 @@ if [[ $? -ne 0 ]]; then
   echo "ERROR: $TRF not found"
   exit 2
 fi
-cmd="$TRF --inputHITSFile $INPUTFILE --outputRDOFile $RDOFILE --maxEvents 10 --skipEvents 0 --geometryVersion $GEOMETRY --digiSeedOffset1 $DIGIOFFSET1 --digiSeedOffset2 $DIGIOFFSET2 --inputLowPtMinbiasHitsFile $MINBIASFILE --inputCavernHitsFile $CAVERNFILE --numberOfCavernBkg 1 --numberOfLowPtMinBias 1.0 --bunchSpacing 450 --pileupInitialBunch -1 --pileupFinalBunch 1 --conditionsTag $IOVDBGLOBALTAG $ARGS"
+cmd="$TRF --inputHITSFile $INPUTFILE --outputRDOFile $RDOFILE --maxEvents 10 --skipEvents 0 --geometryVersion $GEOMETRY --digiSeedOffset1 $DIGIOFFSET1 --digiSeedOffset2 $DIGIOFFSET2 --inputLowPtMinbiasHitsFile $MINBIASFILE --inputCavernHitsFile $CAVERNFILE --numberOfCavernBkg 1 --numberOfLowPtMinBias 1.0 --bunchSpacing 450 --pileupInitialBunch -1 --pileupFinalBunch 1 --conditionsTag $IOVDBGLOBALTAG --DataRunNumber $DATARUNNUMBER $ARGS"
 echo $cmd
 $cmd
