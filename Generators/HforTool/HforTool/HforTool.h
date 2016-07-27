@@ -73,7 +73,7 @@ private:
   std::vector<std::string> m_McEventCollectionKeys;
 
   HepMC::GenEvent* m_evt;
-  McEventCollection* m_mceventTESout;
+  //McEventCollection* m_mceventTESout;
   /// @todo Remove and use evtStore() instead
   StoreGateSvc* m_storeGate;
   const JetCollection* m_jets;

@@ -211,7 +211,7 @@ void HforTool::findHFQuarks() {
   }
 
   // Make sure that we haven't processed this event before
-  EventType* eventType = currentEvent->event_type();
+  const EventType* eventType = currentEvent->event_type();
   EventID::number_type run_number(eventType->mc_channel_number()) ;
   //EventID::number_type run_number(currentEvent->event_ID()->run_number()) ;
   EventID::number_type event_number(currentEvent->event_ID()->event_number()) ;
@@ -1266,7 +1266,7 @@ void HforTool::checkSampleType()
     ATH_MSG_INFO("Couldnt retrieve EventInfo from StoreGateSvc");
     return ;
   }
-  EventType* eventType = currentEvent->event_type();
+  const EventType* eventType = currentEvent->event_type();
   EventID::number_type run_number(eventType->mc_channel_number()) ;
 
   // If running on EVGEN files, mc_channel_number may not be set yet
