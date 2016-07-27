@@ -244,7 +244,7 @@ void TPCnvIDCont<TRANS, PERS, CONV>::persToTrans(const PERS* persCont,
          delete coll;
          throw std::runtime_error("Failed to add collection to ID Container");
       }
-      log << MSG::DEBUG << "TPCnvIDCont::persToTrans, collection, hash id=" << id_hash << ", added to Identifiable container." << endreq;
+      log << MSG::DEBUG << "TPCnvIDCont::persToTrans, collection, hash id=" << id_hash << ", added to Identifiable container." << endmsg;
    }
 }
 
@@ -260,7 +260,7 @@ void TPCnvIDCont<TRANS, PERS, CONV>::transToPers(const TRANS* transCont,
       persCont->resize(entries + 1);
       element_cnv.transToPers(&(**it_Coll), &(*persCont)[entries], log);
    }
-   log << MSG::DEBUG << "TPCnvIDCont::transToPers, container size was " << entries << endreq;
+   log << MSG::DEBUG << "TPCnvIDCont::transToPers, container size was " << entries << endmsg;
 }
 
 //--------------------------------------------------------------------
@@ -286,7 +286,7 @@ void TPCnvIDContFromIdentifier<TRANS, PERS, CONV>::persToTrans(const PERS* persC
          delete coll;
          throw std::runtime_error("Failed to add collection to ID Container");
       }
-      log << MSG::DEBUG << "TPCnvIDContFromIdentifier::persToTrans, collection, hash id=" << id_hash << ", added to Identifiable container." << endreq;
+      log << MSG::DEBUG << "TPCnvIDContFromIdentifier::persToTrans, collection, hash id=" << id_hash << ", added to Identifiable container." << endmsg;
    }
 }
 
@@ -302,5 +302,5 @@ void TPCnvIDContFromIdentifier<TRANS, PERS, CONV>::transToPers(const TRANS* tran
       persCont->resize(entries + 1);
       element_cnv.transToPers(&(**it_Coll), &(*persCont)[entries], log);
    }
-   log << MSG::DEBUG << "TPCnvIDContFromIdentifier::transToPers, container size was " << entries << endreq;
+   log << MSG::DEBUG << "TPCnvIDContFromIdentifier::transToPers, container size was " << entries << endmsg;
 }
