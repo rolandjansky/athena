@@ -77,6 +77,19 @@ if jobproperties.egammaRecFlags.doEgammaTruthAssociation() and jobproperties.ega
 ####################################################################
 # Lock egamma containers
 if rec.doESD():
+
+    #Decorate cluster with links to Topo clusters (when not superclusters)
+    if not jobproperties.egammaRecFlags.doSuperclusters:
+        try:
+            topSequence+=CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("EgammaTCLinks",
+                                                                         ClustersToDecorate=egammaKeys.outputClusterKey())
+            topSequence+=CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("TopoEgammaTCLinks",
+                                                                         ClustersToDecorate=egammaKeys.outputTopoSeededClusterKey())
+            
+        except:
+            treatException("Could not set up ClusterMatching tool! Switched off")
+
+    #Finalize clusters 
     try:
         from egammaRec.egammaRecConf import egammaFinalizeClusters
         topSequence += egammaFinalizeClusters(name= "egammaFinalizeClusters",
