@@ -25,7 +25,7 @@
 	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns</doc>
 	<jobTransformJobName>system_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=1; xrdcp root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 RDO.05191878._000121.pool.root.1; Reco_tf.py --inputRDOFile RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;rec.doForwardDet=False;rec.doInDet=True;rec.doMuon=True;rec.doCalo=True;rec.doEgamma=False;rec.doMuonCombined=False;rec.doJetMissingETTag=False;rec.doTau=False;from RecExConfig.RecAlgsFlags import recAlgs;recAlgs.doMuonSpShower=False;rec.doBTagging=False;recAlgs.doEFlow=False;recAlgs.doEFlowJet=False;recAlgs.doMissingET=False;recAlgs.doMissingETSig=False; from JetRec.JetRecFlags import jetFlags;jetFlags.Enabled=False;' --conditionsTag "default:OFLCOND-RUN12-SDR-31" --ignoreErrors 'True' | tee  __log.txt; 
+	  export TRF_ECHO=1; xrdcp root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 RDO.05191878._000121.pool.root.1; Reco_tf.py --inputRDOFile RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;rec.doForwardDet=False;rec.doInDet=True;rec.doMuon=True;rec.doCalo=True;rec.doEgamma=False;rec.doMuonCombined=False;rec.doJetMissingETTag=False;rec.doTau=False;from RecExConfig.RecAlgsFlags import recAlgs;recAlgs.doMuonSpShower=False;rec.doBTagging=False;recAlgs.doEFlow=False;recAlgs.doEFlowJet=False;recAlgs.doMissingET=False;recAlgs.doMissingETSig=False; from JetRec.JetRecFlags import jetFlags;jetFlags.Enabled=False;'  --ignoreErrors 'True' | tee  __log.txt; 
 	  echo $? &gt;  __exitcode ; 
 	  touch __done ;
 	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
@@ -49,7 +49,7 @@
 	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns</doc>
 	<jobTransformJobName>calo_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=1; xrdcp root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 RDO.05191878._000121.pool.root.1; Reco_tf.py --inputRDOFile RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;rec.doForwardDet=False;rec.doInDet=False;rec.doMuon=True;rec.doCalo=True;rec.doEgamma=False;rec.doMuonCombined=False;rec.doJetMissingETTag=False;rec.doTau=False;from RecExConfig.RecAlgsFlags import recAlgs;recAlgs.doMuonSpShower=False;rec.doBTagging=False;recAlgs.doEFlow=False;recAlgs.doEFlowJet=False;recAlgs.doMissingET=False;recAlgs.doMissingETSig=False; from JetRec.JetRecFlags import jetFlags;jetFlags.Enabled=False;recAlgs.doTrackParticleCellAssociation=False;rec.doExpressProcessing.set_Value_and_Lock(True);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25);' --conditionsTag "default:OFLCOND-RUN12-SDR-31" --ignoreErrors 'True' | tee  __log.txt; 
+	  export TRF_ECHO=1; xrdcp root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 RDO.05191878._000121.pool.root.1; Reco_tf.py --inputRDOFile RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;rec.doForwardDet=False;rec.doInDet=False;rec.doMuon.set_Value_and_Lock(False);rec.doCalo=True;rec.doEgamma=False;rec.doMuonCombined=False;rec.doJetMissingETTag=False;rec.doTau=False;from RecExConfig.RecAlgsFlags import recAlgs;recAlgs.doMuonSpShower=False;rec.doBTagging=False;recAlgs.doEFlow=False;recAlgs.doEFlowJet=False;recAlgs.doMissingET=False;recAlgs.doMissingETSig=False; from JetRec.JetRecFlags import jetFlags;jetFlags.Enabled=False;recAlgs.doTrackParticleCellAssociation=False;rec.doExpressProcessing.set_Value_and_Lock(True);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25);'  --ignoreErrors 'True' | tee  __log.txt; 
 	  echo $? &gt;  __exitcode ; 
 	  touch __done ;
 	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
@@ -69,11 +69,35 @@
 	<queue>atlasrttperf</queue>
       </jobTransform>
 
+      <jobTransform userJobId="muon_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40">
+	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns</doc>
+	<jobTransformJobName>muon_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
+	<jobTransformCmd>
+	  export TRF_ECHO=1; xrdcp root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 RDO.05191878._000121.pool.root.1; Reco_tf.py --inputRDOFile RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;rec.doForwardDet=False;rec.doInDet=False;rec.doMuon.set_Value_and_Lock(False);rec.doCalo=True;rec.doEgamma=False;rec.doMuonCombined=False;rec.doJetMissingETTag=False;rec.doTau=False;from RecExConfig.RecAlgsFlags import recAlgs;recAlgs.doMuonSpShower=False;rec.doBTagging=False;recAlgs.doEFlow=False;recAlgs.doEFlowJet=False;recAlgs.doMissingET=False;recAlgs.doMissingETSig=False; from JetRec.JetRecFlags import jetFlags;jetFlags.Enabled=False;recAlgs.doTrackParticleCellAssociation=False;rec.doExpressProcessing.set_Value_and_Lock(True);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25);from MuonRecExample.MuonRecFlags import muonRecFlags;muonRecFlags.doStandalone.set_Value_and_Lock(True)'  --ignoreErrors 'True' | tee  __log.txt; 
+	  echo $? &gt;  __exitcode ; 
+	  touch __done ;
+	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
+	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
+	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
+	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
+	  export userJobId="muon_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40"; 
+	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  gzip *txt; 
+	  mkdir -p                       ${OutputDestination} ; 
+	  rsync -avz ntuple*             ${OutputDestination}/. ; 
+	  rsync -avz __*                 ${OutputDestination}/. ; 
+	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
+	</jobTransformCmd>
+	<group>TrfRecPerf</group>
+	<queue>atlasrttperf</queue>
+      </jobTransform>
+
       <jobTransform userJobId="combined_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40">
 	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns</doc>
 	<jobTransformJobName>combined_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=1; xrdcp root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 RDO.05191878._000121.pool.root.1 ; Reco_tf.py --inputRDOFile RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;'  --conditionsTag "default:OFLCOND-RUN12-SDR-31" --ignoreErrors 'True' | tee  __log.txt; 
+	  export TRF_ECHO=1; xrdcp root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 RDO.05191878._000121.pool.root.1 ; Reco_tf.py --inputRDOFile RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;' --ignoreErrors 'True' | tee  __log.txt; 
 	  echo $? &gt;  __exitcode ; 
 	  touch __done ;
 	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
@@ -98,7 +122,7 @@
 	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns</doc>
 	<jobTransformJobName>monitoring_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=1; xrdcp root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 RDO.05191878._000121.pool.root.1 ; Reco_tf.py --inputRDOFile RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root  --outputAODFile myAOD.pool.root --preExec='rec.doTrigger=False;rec.doMonitoring=True;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' --conditionsTag "default:OFLCOND-RUN12-SDR-31" --ignoreErrors 'True' | tee  __log.txt; 
+	  export TRF_ECHO=1; xrdcp root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 RDO.05191878._000121.pool.root.1 ; Reco_tf.py --inputRDOFile RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root  --outputAODFile myAOD.pool.root --preExec='rec.doTrigger=False;rec.doMonitoring=True;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' --ignoreErrors 'True' | tee  __log.txt; 
 	  echo $? &gt;  __exitcode ; 
 	  touch __done ;
 	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
@@ -248,7 +272,7 @@
 	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns</doc>
 	<jobTransformJobName>trigger_reco_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=1; xrdcp root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 RDO.05191878._000121.pool.root.1 ; Reco_tf.py --inputRDOFile RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root  --outputAODFile myAOD.pool.root --preExec='rec.doTrigger=True;rec.doMonitoring=True;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' --conditionsTag "default:OFLCOND-RUN12-SDR-31" --ignoreErrors 'True' | tee  __log.txt; 
+	  export TRF_ECHO=1; xrdcp root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6220_tid05191878_00/RDO.05191878._000121.pool.root.1 RDO.05191878._000121.pool.root.1 ; Reco_tf.py --inputRDOFile RDO.05191878._000121.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root  --outputAODFile myAOD.pool.root --preExec='rec.doTrigger=True;rec.doMonitoring=True;from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;'  --ignoreErrors 'True' | tee  __log.txt; 
 	  echo $? &gt;  __exitcode ;
 	  touch __done ;
 	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
@@ -397,7 +421,7 @@
 	<doc>Reco_tf runs on 13TeV collision mc ttbar 25 ns mu40</doc>
 	<jobTransformJobName>combined_reco_mc15_ttbar_valid_13tev_25ns_mu40</jobTransformJobName>
 	<jobTransformCmd>
-	  export TRF_ECHO=1; xrdcp root://eosatlas//eos/atlas/user/a/atlaspmb/mc/mc15_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e4032_s2608_s2183_r7011/RDO.06336725._000001.pool.root.1 RDO.06336725._000001.pool.root.1 ;  Reco_tf.py --inputRDOFile RDO.06336725._000001.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;'  --conditionsTag "default:OFLCOND-RUN12-SDR-31" --ignoreErrors 'True' | tee  __log.txt; 
+	  export TRF_ECHO=1; xrdcp root://eosatlas//eos/atlas/user/a/atlaspmb/mc/mc15_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e4032_s2608_s2183_r7011/RDO.06336725._000001.pool.root.1 RDO.06336725._000001.pool.root.1 ;  Reco_tf.py --inputRDOFile RDO.06336725._000001.pool.root.1 --maxEvents 100 --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;rec.doTrigger=False;'  --ignoreErrors 'True' | tee  __log.txt; 
 	  echo $? &gt;  __exitcode ; 
 	  touch __done ;
 	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
