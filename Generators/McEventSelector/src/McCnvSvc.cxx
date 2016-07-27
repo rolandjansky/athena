@@ -41,7 +41,7 @@ StatusCode McCnvSvc::initialize()     {
 
 /// Update state of the service
 StatusCode McCnvSvc::updateServiceState(IOpaqueAddress* pAddress)    {
-  MsgStream log(messageService(), name());
+  MsgStream log(msgSvc(), name());
   static bool first = true;
   //  static int fid   = 0;
   //  static int recid = 0;
