@@ -76,12 +76,12 @@ DetDescrConverter::storageType()
 
 //      StatusCode status = StatusCode::SUCCESS;
 //      MsgStream log(messageService(), "DetDescrConverter");
-//      log << MSG::DEBUG << "in addToDetStore" << endreq;
+//      log << MSG::DEBUG << "in addToDetStore" << endmsg;
 
 //      if(!m_cnvSvc) {
 //  	log << MSG::INFO << " Unable to add address for " << name 
 //  	    << " with CLID " << clid 
-//  	    << " to detector store " <<endreq;
+//  	    << " to detector store " <<endmsg;
 //  	return StatusCode::FAILURE;
 //      }
 //      else {
