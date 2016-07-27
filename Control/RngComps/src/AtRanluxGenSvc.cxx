@@ -155,19 +155,19 @@ AtRanluxGenSvc::initialize()
             // across platforms.
             msg() << ((*i) & 0xffffffffu) << " ";
 	  }
-	  msg() << " read from file " << m_file_to_read << endreq;
+	  msg() << " read from file " << m_file_to_read << endmsg;
 	  if (CreateStream(seeds, stream)) {
 	    msg(MSG::DEBUG)
-	      << stream << " stream initialized succesfully" <<endreq;
+	      << stream << " stream initialized succesfully" <<endmsg;
 	  } else {
 	    msg(MSG::ERROR)
-	      << stream << " stream FAILED to initialize" <<endreq;
+	      << stream << " stream FAILED to initialize" <<endmsg;
 	    return StatusCode::FAILURE;
 	  }
 	} else {		
 	  msg(MSG::ERROR)
 	    << "bad line\n" << buffer 
-	    << "\n in input file " << m_file_to_read << endreq;
+	    << "\n in input file " << m_file_to_read << endmsg;
 	  return StatusCode::FAILURE;
 	}		
       }
@@ -246,7 +246,7 @@ AtRanluxGenSvc::handle(const Incident &inc) {
     print();    
   } else if (inc.type() == "BeginEvent") {
     ATH_MSG_DEBUG (" Handle BeginEvent ");
-    EventID* pei((dynamic_cast<const EventIncident&>(inc)).eventInfo().event_ID());
+    const EventID* pei((dynamic_cast<const EventIncident&>(inc)).eventInfo().event_ID());
     //clear static RandGauss cache (generates two numbers per call to shoot()
     CLHEP::RandGauss::setFlag(false);
     //loop over generator streams, combining the stream name to the hash
@@ -429,7 +429,7 @@ AtRanluxGenSvc::print(const std::string& StreamName )
         // across platforms.
 	msg() << ((*i) & 0xffffffffu) << " ";
       }
-      msg() << endreq;
+      msg() << endmsg;
     }
 }
 
