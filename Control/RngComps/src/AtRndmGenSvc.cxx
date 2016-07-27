@@ -219,7 +219,7 @@ AtRndmGenSvc::handle(const Incident &inc) {
     print();    
   } else if (inc.type() == "BeginEvent") {
     ATH_MSG_DEBUG (" Handle BeginEvent ");
-    EventID* pei((dynamic_cast<const EventIncident&>(inc)).eventInfo().event_ID());
+    const EventID* pei((dynamic_cast<const EventIncident&>(inc)).eventInfo().event_ID());
     //clear static RandGauss cache (generates two numbers per call to shoot()
     CLHEP::RandGauss::setFlag(false);
     //loop over generator streams, combining the stream name to the hash
