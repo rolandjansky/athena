@@ -67,7 +67,7 @@ namespace G4UA
 
     private:
       Report m_report;
-      bool HIPacc;
+      bool m_HIPacc;
 
   }; // class HIPLArVolumeAccept
 

@@ -11,6 +11,9 @@
 #include <string>
 #include <map>
 
+#include "G4Pow.hh"
+#include "TString.h"
+
 class TProfile;
 class TProfile2D;
 
@@ -31,7 +34,13 @@ class LengthIntegrator final: public UserActionBase {
 
   virtual StatusCode initialize() override;
 
+  virtual StatusCode finalize() override;
+
  private:
+
+  G4Pow* m_g4pow;
+
+  void addToDetThick(std::string, double, double);
 
   void regAndFillHist(const std::string&,const std::pair<double,double>&);
 
@@ -50,6 +59,13 @@ class LengthIntegrator final: public UserActionBase {
   std::map<std::string,TProfile*,std::less<std::string> > m_phiMapIL;
 
   ServiceHandle<ITHistSvc> m_hSvc;
+
+  std::map<std::string,TProfile2D*,std::less<std::string> > m_rzMapRL;
+  std::map<std::string,TProfile2D*,std::less<std::string> > m_xyMapRL;
+
+  std::map<std::string,TProfile2D*,std::less<std::string> > m_rzMapIL;
+  std::map<std::string,TProfile2D*,std::less<std::string> > m_xyMapIL;
+
 };
 
 
@@ -99,8 +115,18 @@ namespace G4UA
 
     private:
 
+      // Holder for G4 math tools
+      G4Pow* m_g4pow;
+
+      // Add elements and values into the map
+      void addToDetThickMap(std::string, double, double);
+
       /// Setup one set of measurement hists for a detector name.
       void regAndFillHist(const std::string&, const std::pair<double, double>&);
+
+      /// this method checks if a histo is on THsvc already and caches a local pointer to it
+      /// if the histo is not present, it creates and registers it
+      TProfile2D* getOrCreateProfile(std::string regName, TString histoname, TString xtitle, int nbinsx, float xmin, float xmax,TString ytitle, int nbinsy,float ymin, float ymax,TString ztitle);
 
       /// Handle to the histogram service
       ServiceHandle<ITHistSvc> m_hSvc;
@@ -126,6 +152,13 @@ namespace G4UA
       std::map<std::string, TProfile*> m_etaMapIL;
       /// Int-length profile hist in phi
       std::map<std::string, TProfile*> m_phiMapIL;
+
+      // 2D plots of rad-length and int-length
+      std::map<std::string,TProfile2D*,std::less<std::string> > m_rzMapRL;
+      std::map<std::string,TProfile2D*,std::less<std::string> > m_xyMapRL;
+
+      std::map<std::string,TProfile2D*,std::less<std::string> > m_rzMapIL;
+      std::map<std::string,TProfile2D*,std::less<std::string> > m_xyMapIL;
 
   }; // class LengthIntegrator
 

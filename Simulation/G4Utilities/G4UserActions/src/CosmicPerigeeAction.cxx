@@ -140,11 +140,12 @@ namespace G4UA
 {
 
   //---------------------------------------------------------------------------
-  CosmicPerigeeAction::CosmicPerigeeAction(const Config& config):
-    m_config(config),
-    m_trackRecordCollection("CosmicPerigee"),
-    m_idZ(3490.), // ID maximum Z coordiate by default.
-    m_idR(1150.)  // ID outer radius by default.
+  CosmicPerigeeAction::CosmicPerigeeAction(const Config& config)
+    : m_config(config)
+    , m_trackRecordCollection("CosmicPerigee")
+    , m_hasBeenSaved(false)
+    , m_idZ(3490.) // ID maximum Z coordiate by default.
+    , m_idR(1150.) // ID outer radius by default.
   {
   }
 
@@ -172,7 +173,7 @@ namespace G4UA
   void CosmicPerigeeAction::preTracking(const G4Track*)
   {
     // reset the field
-    hasBeenSaved = false;
+    m_hasBeenSaved = false;
   }
 
   //---------------------------------------------------------------------------
@@ -180,10 +181,10 @@ namespace G4UA
   {
     // See if this is a new track
     if (aStep->GetPreStepPoint()->GetStepStatus() == fUndefined)
-      hasBeenSaved = false;
+      m_hasBeenSaved = false;
 
     // See if we've already saved it
-    if (hasBeenSaved) return;
+    if (m_hasBeenSaved) return;
 
     // Only save muons or tracks in the ID
     if (aStep->GetTrack()->GetDefinition() != G4MuonPlus::Definition() &&
@@ -205,7 +206,7 @@ namespace G4UA
          aStep->GetTrack()->GetMomentum().y() * aStep->GetPostStepPoint()->GetPosition().y() < 0) return;
 
     // Save the vertex...
-    hasBeenSaved = true;
+    m_hasBeenSaved = true;
 
     // Decide whether to save the prestep or poststep point
     // - which one is closer to Perigee?

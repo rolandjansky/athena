@@ -4,6 +4,7 @@ public
 use AtlasPolicy         AtlasPolicy-*
 use AthenaBaseComps     AthenaBaseComps-*       Control
 use AthenaKernel        AthenaKernel-*          Control
+use AtlasROOT           AtlasROOT-*             External
 use GaudiInterface      GaudiInterface-*        External
 use Geant4              Geant4-*                External
 use G4AtlasInterfaces   G4AtlasInterfaces-*     Simulation/G4Atlas
@@ -14,7 +15,6 @@ use TrackRecord         TrackRecord-*           Simulation/G4Sim
 private
 use AtlasCLHEP          AtlasCLHEP-*            External
 use AtlasTBB            AtlasTBB-*              External
-use AtlasROOT           AtlasROOT-*             External
 use CxxUtils            CxxUtils-*              Control
 use EventInfo           EventInfo-*             Event
 use InDetSimEvent       InDetSimEvent-*         InnerDetector

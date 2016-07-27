@@ -64,7 +64,7 @@ namespace G4UA
 
     Config m_config;
     SG::WriteHandle<TrackRecordCollection> m_trackRecordCollection;
-    bool hasBeenSaved;
+    bool m_hasBeenSaved;
     double m_idZ, m_idR;
 
   }; // class CosmicPerigeeAction

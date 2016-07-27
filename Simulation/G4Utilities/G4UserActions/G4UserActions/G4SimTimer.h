@@ -83,9 +83,13 @@ namespace G4UA
   /// Results across worker threads are merged in finalize method of the
   /// G4SimTimerTool.
   ///
-  /// Important note: we don't yet have end-run actions working in the
-  /// multi-threaded framework. We have to decide whether it's worth the
-  /// effort. So, for now, I've removed the run timer.
+  /// IMPORTANT NOTE: The G4SimTimer results will seem nonsensical in MT
+  /// because the USER time is reported which sums over all threads in the
+  /// process. The per-event timing can roughly be determined by dividing
+  /// by the number of threads, but this is only precise when averaged over
+  /// all events.
+  ///
+  /// @todo TODO: Enable the run timer using a run-action (now possible).
   ///
   /// @author Steve Farrell <Steven.Farrell>
   /// @author ???

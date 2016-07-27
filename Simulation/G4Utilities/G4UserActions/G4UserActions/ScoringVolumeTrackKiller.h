@@ -44,7 +44,7 @@ namespace G4UA
       virtual void endOfEvent(const G4Event*) override;
       virtual void processStep(const G4Step*) override;
     private:
-      unsigned long killCount;
+      unsigned long m_killCount;
   }; // class ScoringVolumeTrackKiller
 
 } // namespace G4UA
