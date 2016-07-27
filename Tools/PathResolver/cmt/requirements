@@ -56,6 +56,3 @@ private
 use AtlasReflex  AtlasReflex-*  External -no_auto_imports
 apply_pattern lcgdict dict=PathResolver selectionfile=selection.xml headerfiles="../PathResolver/PathResolverDict.h"
 end_private
-
-
-
