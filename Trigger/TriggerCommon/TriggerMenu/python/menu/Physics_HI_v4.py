@@ -7,7 +7,7 @@ def setupMenu():
     from TriggerMenu.menu.TriggerPythonConfig import TriggerPythonConfig
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
-    log = logging.getLogger( 'TriggerMenu.menu.Physics_HI_v3.py' )
+    log = logging.getLogger( 'TriggerMenu.menu.Physics_HI_v4.py' )
 
     from TriggerMenu.TriggerConfigLVL1 import TriggerConfigLVL1 as tcl1
     

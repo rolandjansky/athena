@@ -15,6 +15,8 @@ def defineMenu():
         ]
 
     Lvl1Flags.items += [
+        # for running high rate tests in secondary CTP partitions
+        'L1_RD2_BGRP14', 'L1_RD3_BGRP15',
         ]
 
     #---------------------------------

@@ -16,7 +16,7 @@ def defineMenu():
     # if this flag is False for physics v6: produce xml with v6 new items removed, so to match with FW 
     mcv6_flag = True
 
-    if 'Physics_pp_v6' in TriggerFlags.triggerMenuSetup():
+    if 'Physics_pp_v6' in TriggerFlags.triggerMenuSetup() or 'HI' in TriggerFlags.triggerMenuSetup():
         mcv6_flag = False
 
     newalgos_onlyinv6 = [

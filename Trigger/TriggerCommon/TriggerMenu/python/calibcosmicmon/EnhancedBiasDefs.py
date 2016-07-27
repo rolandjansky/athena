@@ -33,8 +33,8 @@ l1_seeds ={
               'L1_XE35', 'L1_MU6_2MU4',
               'L1_MU6_J20', 'L1_EM7_MU10',
               'L1_EM15VH_3EM7', 'L1_2EM15',
-              'L1_EM15I_MU4', 'L1_J75',
-              'L1_TAU20_2TAU12_XE35',
+              'L1_EM15I_MU4', 'L1_2MU6',
+              'L1_TAU20_2TAU12_XE35', 
               'L1_DR-TAU20ITAU12I', 'L1_DY-BOX-2MU4', # Topo
               'L1_DY-DR-2MU4', 'L1_2CMU4', # Topo
               'L1_2MU4-B', 'L1_BTAG-MU4J15', # Topo

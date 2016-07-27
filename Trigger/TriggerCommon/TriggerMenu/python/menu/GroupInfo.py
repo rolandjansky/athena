@@ -21,22 +21,6 @@ AllowedGroups = ['Muon',
                  ]
 
 
-AllowedGroups_v5=['Muon',
-                 'Jets',
-                 'Bjet',
-                 'MET',
-                 'Tau',
-                 'Egamma',
-                 'Bphys',
-                 'BeamSpot',
-                 'MinBias',
-                 'Detector',
-                 'Other',
-                 'DISCARD',
-                 'ID',
-                 'TauOverlay',
-                 'ZeroBias',
-                 ]
 
 AllowedGroup_HI = ['UltraCentral',
                    'EventShape',
@@ -49,8 +33,6 @@ AllowedGroup_HI = ['UltraCentral',
 def getAllAllowedGroups(menu):    
     if 'pp_v6' in menu:
         return AllowedGroups
-    elif 'pp_v5' in menu:
-        return AllowedGroups_v5
     elif 'HI' in menu:
         return AllowedGroups+AllowedGroup_HI
     else:

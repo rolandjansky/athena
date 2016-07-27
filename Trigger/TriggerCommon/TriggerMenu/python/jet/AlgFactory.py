@@ -394,7 +394,7 @@ class AlgFactory(object):
         eta_mins = [eta_min]
         eta_maxs = [eta_max]
         ystar_mins = [0]
-        ystar_maxs = [1.2]
+        ystar_maxs = [0.65]
         #ystar_maxs = [min(0.5*abs(eta_max-eta_min), 1.2)]
         mass_mins = [float(hypo.mass_min) * GeV]
         mass_maxs = [float(hypo.mass_max) * GeV]
