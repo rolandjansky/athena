@@ -40,7 +40,7 @@ AthExParticlesCnv_p1::persToTrans( const AthExParticles_p1* persObj,
 {
   msg << MSG::DEBUG 
       << "Loading Particles from persistent state..."
-      << endreq;
+      << endmsg;
 
   const std::vector<AthExParticle_p1>& particles = persObj->m_particles;
   const std::size_t nMax = particles.size();
@@ -56,7 +56,7 @@ AthExParticlesCnv_p1::persToTrans( const AthExParticles_p1* persObj,
 
   msg << MSG::DEBUG 
       << "Loaded Particles from persistent state [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 
@@ -67,7 +67,7 @@ AthExParticlesCnv_p1::transToPers( const AthExParticles* transObj,
 {
   msg << MSG::DEBUG 
       << "Creating persistent state of Particles..."
-      << endreq;
+      << endmsg;
 
   for ( unsigned int i = 0; i != transObj->size(); ++i ) {
     const AthExParticle * p = (*transObj)[i];
@@ -84,7 +84,7 @@ AthExParticlesCnv_p1::transToPers( const AthExParticles* transObj,
 
   msg << MSG::DEBUG 
       << "Created persistent state of Particles [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 

@@ -52,7 +52,7 @@ AthExDecayCnv::createPersistent(AthExDecay* transCont)
   AthExDecayCnv_p1 cnv;
   AthExDecay_PERS *persObj = cnv.createPersistent(transCont, msg);
 
-  msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+  msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return persObj; 
 }
 

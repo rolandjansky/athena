@@ -42,7 +42,7 @@ AthExElephantinoCnv_p1::persToTrans( const AthExElephantino_p1* pers,
 {
   msg << MSG::DEBUG 
       << "Loading Elephantino from persistent state..."
-      << endreq;
+      << endmsg;
   
   m_cnv.persToTrans( &pers->m_legs, &trans->m_legs, msg );
   // known to be thinned away...
@@ -50,7 +50,7 @@ AthExElephantinoCnv_p1::persToTrans( const AthExElephantino_p1* pers,
 
   msg << MSG::DEBUG 
       << "Loaded Elephantino from persistent state [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 
@@ -61,7 +61,7 @@ AthExElephantinoCnv_p1::transToPers( const AthExElephantino* trans,
 {
   msg << MSG::DEBUG 
       << "Creating persistent state of Elephantino..."
-      << endreq;
+      << endmsg;
 
   m_cnv.transToPers( &trans->m_legs, &pers->m_legs, msg );
   // known to be thinned away...
@@ -69,7 +69,7 @@ AthExElephantinoCnv_p1::transToPers( const AthExElephantino* trans,
 
   msg << MSG::DEBUG 
       << "Created persistent state of Elephantino [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 
