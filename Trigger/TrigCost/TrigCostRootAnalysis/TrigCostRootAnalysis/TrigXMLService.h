@@ -37,6 +37,7 @@ namespace TrigCostRootAnalysis {
    public:
 
     static TrigXMLService& trigXMLService(); //!< Use this method to get the singleton
+    void init();
 
     Double_t getPrescale( const std::string& _name );
     Float_t  getEventWeight(UInt_t _eventNumber, UInt_t _lb, UInt_t _pass);
@@ -68,6 +69,10 @@ namespace TrigCostRootAnalysis {
     std::string getBunchGroupName(Int_t _id);
     Int_t       getBunchGroupSize(Int_t _id);
     Int_t       getOnlineEventsInLB(Int_t _lb);
+
+    void  parseHLTFarmXML();
+    const IntStringMap_t& getComputerTypeToNameMap() { return m_computerTypeToNameMap; }
+    UInt_t getComputerType(UInt_t _hash);
 
    private:
 
@@ -148,6 +153,11 @@ namespace TrigCostRootAnalysis {
     Int_PairStringInt_Map_t m_bunchGroupXML; //!< Bunchgroup config, loaded from XML
     Bool_t                  m_parsedRunXML; //!< If we managed to read the run XML
     std::set<Int_t>         m_badLumiBlocks; //!< LBs flagged as bad by rate experts in the run XML
+
+    // For decoding a PUs location in the farm
+    UIntUIntMap_t  m_PUHashToPUType; //!< Map of a PU's HASH to it's processor type
+    IntStringMap_t m_computerTypeToNameMap; //!< Map of a processor type to its name
+    UInt_t         m_computerUnknownID; //!< ID of the "UNKNOWN" type
 
   }; //class TrigXMLService
 

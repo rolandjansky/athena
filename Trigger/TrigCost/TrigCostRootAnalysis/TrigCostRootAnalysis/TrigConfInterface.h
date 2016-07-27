@@ -36,7 +36,7 @@ namespace TrigCostRootAnalysis {
   class DBKey {
 
    public:
-    DBKey() {}
+    DBKey() : m_SMK(-1), m_L1PSK(-1), m_HLTPSK(-1), m_keyString() {}
     DBKey(Int_t _SMK, Int_t _L1PSK, Int_t _HLTPSK) : m_SMK(-1), m_L1PSK(-1), m_HLTPSK(-1), m_keyString()  {
       set(_SMK, _L1PSK, _HLTPSK);
     }

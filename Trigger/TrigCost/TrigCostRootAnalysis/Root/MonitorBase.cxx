@@ -59,6 +59,15 @@ namespace TrigCostRootAnalysis {
     m_timer("Monitor",_name) {
     m_invertFilter = Config::config().getInt(kPatternsInvert);
     m_isCPUPrediction = (Bool_t) Config::config().getInt(kIsCPUPrediction);
+    m_doKeySummary = (Bool_t) Config::config().getInt(kDoKeySummary);
+    m_doLumiBlockSummary = (Bool_t) Config::config().getInt(kDoLumiBlockSummary);
+    m_doAllSummary = (Bool_t) Config::config().getInt(kDoAllSummary);
+    m_ratesOnly = (Bool_t) Config::config().getInt(kRatesOnly);
+    m_allString = Config::config().getStr(kAllString);
+    m_nLbFullSkip = Config::config().getInt(kNLbFullSkip);
+    m_nHLTConfigSummary = Config::config().getInt(kNHLTConfigSummary);
+    m_nLBPerHLTConfig = Config::config().getInt(kNLbPerHLTConfig);
+    m_lumiBlockString = Config::config().getStr(kLumiBlockString);
   }
 
   /**
@@ -140,12 +149,12 @@ namespace TrigCostRootAnalysis {
     m_collectionsToProcessNames.clear();
 
     // Add the "All" collection. Simplist, just runs over all the events. There may be a lot of events
-    if ( Config::config().getInt(kDoAllSummary) && getIfActive(kDoAllSummary)) {
-      addToCollectionsToProcess( Config::config().getStr(kAllString), _lumiBlockNumber, _lumiLength, kDoAllSummary );
+    if (getIfActive(kDoAllSummary) && m_doAllSummary) {
+      addToCollectionsToProcess( m_allString, _lumiBlockNumber, _lumiLength, kDoAllSummary );
     }
 
     //Active for this monitor?
-    if ( Config::config().getInt(kDoLumiBlockSummary) && getIfActive(kDoLumiBlockSummary) ) {
+    if (getIfActive(kDoLumiBlockSummary) && m_doLumiBlockSummary) {
 
       // Do we look at this lumi block on its own?
       static Int_t _lbSummaryStart = INT_MIN, _lbSummaryEnd = INT_MIN;
@@ -171,39 +180,39 @@ namespace TrigCostRootAnalysis {
       // Does the current lumiblock fall in the range?
       if ( (Int_t) _lumiBlockNumber >= _lbSummaryStart && (Int_t) _lumiBlockNumber <= _lbSummaryEnd ) {
         // Is it a multiple of NLbFullSkip?
-        if ( (_lumiBlockNumber - _lbSummaryStart) % Config::config().getInt(kNLbFullSkip) == 0) {
+        if ( (_lumiBlockNumber - _lbSummaryStart) % m_nLbFullSkip == 0) {
           std::string _LBIdentifier;
           std::ostringstream _ss;
           _ss << std::setfill('0') << std::setw(5)  << _lumiBlockNumber;
-          _LBIdentifier = Config::config().getStr(kLumiBlockString) + std::string("_") + _ss.str();
+          _LBIdentifier = m_lumiBlockString + std::string("_") + _ss.str();
           addToCollectionsToProcess( _LBIdentifier, _lumiBlockNumber, _lumiLength, kDoLumiBlockSummary );
         }
       }
     }
 
     // Are we providing a summary per keyset?
-    if ( Config::config().getInt(kDoKeySummary) && getIfActive(kDoKeySummary) ) {
+    if (getIfActive(kDoKeySummary) && m_doKeySummary) {
       Bool_t _doKeySummaryDesicion = kTRUE;
 
-      // Do we not have this summary in the books?
-      if (m_perKeySummaries.count(_key) == 0) {
+      if (!m_ratesOnly) { // Only apply extra logic if this is not "rates mode"
+        if (m_perKeySummaries.count(_key) == 0) { // Do we not have this summary in the books?
+          if (m_perKeySummaries.size() < (size_t) m_nHLTConfigSummary) {
+            // We have not yet reached the max number of key summaries.
+            m_perKeySummaries.insert( _key );
+            m_perKeySummaryLBStart[ _key ] = _lumiBlockNumber;
+          } else {
+            _doKeySummaryDesicion = kFALSE;
+          }
 
-        if (m_perKeySummaries.size() < (size_t) Config::config().getInt(kNHLTConfigSummary)) {
-          // We have not yet reached the max number of key summaries.
-          m_perKeySummaries.insert( _key );
-          m_perKeySummaryLBStart[ _key ] = _lumiBlockNumber;
-        } else {
-          _doKeySummaryDesicion = kFALSE;
+        } else { // seen this one before
+
+          // Check LB range
+          Int_t _diff = _lumiBlockNumber - m_perKeySummaryLBStart[ _key ];
+          if (_diff < 0 || _diff >= m_nLBPerHLTConfig) {
+            _doKeySummaryDesicion = kFALSE;
+          }
+
         }
-
-      } else { // seen this one before
-
-        // Check LB range
-        Int_t _diff = _lumiBlockNumber - m_perKeySummaryLBStart[ _key ];
-        if (_diff < 0 || _diff >= Config::config().getInt(kNLbPerHLTConfig)) {
-          _doKeySummaryDesicion = kFALSE;
-        }
-
       }
 
       if (_doKeySummaryDesicion == kTRUE) addToCollectionsToProcess( _key.name(), _lumiBlockNumber, _lumiLength, kDoKeySummary );
