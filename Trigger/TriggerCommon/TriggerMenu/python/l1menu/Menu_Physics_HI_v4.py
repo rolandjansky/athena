@@ -310,7 +310,7 @@ def defineMenu():
 		       'L1_ZDC_A_C_VTE200',
 	               'L1_ZDC_A_C_TE5_VTE200',
                        #NIMDIR stuff
-                       # temporary commented out in HI_v3: 'L1_NIM_S8C2B21', 'L1_NIM_S8C2B22', 'L1_NIM_S8C2B23',  
+                       # temporary commented out in HI_v4: 'L1_NIM_S8C2B21', 'L1_NIM_S8C2B22', 'L1_NIM_S8C2B23',  
                        # votoed by TE
                        #UPC triggers
                        'L1_MU0_NZ',

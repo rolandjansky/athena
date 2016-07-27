@@ -81,6 +81,17 @@ def _addTopoInfo(theChainDef,chainDicts,listOfChainDefs,doAtL2AndEF=True):
         else:
             theChainDef=_addMatching(theChainDef,chainDicts,listOfChainDefs)   
 
+    elif any("mVis" in alg for alg in topoAlgs):
+        ##Check that we only have a Photon and Tau chain
+        inputChains=[]
+        for ChainPart in chainDicts:
+            if 'Photon' in ChainPart['signature']  or 'Tau' in ChainPart['signature']:
+                inputChains.append(ChainPart['signature'])
+        if len(inputChains)<2:
+            log.warning("Need a Photon and a Tau chain to run the matching algorithm")
+        else:
+            theChainDef=_addMVis(theChainDef,chainDicts,listOfChainDefs)
+
     # elif any("deta" in alg for alg in topoAlgs):
     #     ##Check that we only have a Jet and Muon chain
     #     inputChains=[]
@@ -331,6 +342,40 @@ def _addTauMass(theChainDef,chainDicts,listOfChainDefs):
     
     theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])    
+
+    return theChainDef
+
+##############################################################################
+
+def _addMVis(theChainDef,chainDicts,listOfChainDefs):
+
+    inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']           
+
+    maxMvis=-1
+    minMvis=-1
+    for topo_item in chainDicts[0]['topo']:
+        if 'mVis' in topo_item:
+            minMvis=float(topo_item.split('mVis')[0])
+            maxMvis=float(topo_item.split('mVis')[1])
+    log.debug("mVis cuts at [GeV]: %d and %d", minMvis, maxMvis)
+    if minMvis==-1 or maxMvis==-1:
+        log.error("No mVis chain part found in Photon-Tau mVis Topo cut")
+
+    from TrigTauHypo.TrigTauHypoConfig2012 import EFPhotonTauHypo
+    from TrigTauHypo.TrigTauHypoConf       import EFPhotonTauFex 
+
+    EFFex  =  EFPhotonTauFex()
+    theVars    = ['MvisMin','MvisMax']
+    theThresh  = [minMvis*1000.,maxMvis*1000.]
+    PhotonTaumVis_Hypo = EFPhotonTauHypo("EFPhotonTau_"+str(minMvis).replace(".","")+"mVis"+str(maxMvis).replace(".",""),
+                                           theVars, theThresh)
+
+    log.debug("Input TEs to mVis algorithm: %s", inputTEsEF)
+
+    EFChainName = "EF_" + chainDicts[0]['chainName']
+
+    theChainDef.addSequence([EFFex, PhotonTaumVis_Hypo],inputTEsEF,EFChainName)
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
 
     return theChainDef
 

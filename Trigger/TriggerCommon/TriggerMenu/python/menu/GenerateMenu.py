@@ -473,7 +473,7 @@ class GenerateMenu:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
                     continue
-
+                 
             elif (chainDict["signature"] == "MET" or chainDict["signature"] == "XS" or chainDict["signature"] == "TE") and self.doMETChains:
                 try:
                     chainDef = TriggerMenu.met.generateMETChainDefs.generateChainDefs(chainDict)
@@ -568,7 +568,7 @@ class GenerateMenu:
                 log.error('Chain %s ignored - either because the trigger signature ("slice") has been turned off or because the corresponding chain dictionary cannot be read.' %(chainDict['chainName']))
                 log.debug('Chain dictionary of failed chain is %s.', chainDict)
                          
-            
+            log.debug(' ChainDef  %s ' % chainDef)
             from ChainDef import ErrorChainDef,ChainDef
             if isinstance(chainDef, ErrorChainDef): 
                 self.listOfErrorChainDefs.append(chainDict['chainName'])

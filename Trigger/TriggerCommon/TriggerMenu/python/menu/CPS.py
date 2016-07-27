@@ -114,6 +114,9 @@ def defineCPSGroups():
         'RATE:CPS:HLT_e26_vloose_L1EM20VH' : ['e26_lhvloose_L1EM20VH',
                                               'e26_lhvloose_nod0_L1EM20VH',],
         
+        'RATE:CPS:HLT_e24_medium_L1EM18VH': ['e24_lhmedium_L1EM18VH',
+                                             'e24_lhmedium_nod0_L1EM18VH',],
+        
         'RATE:CPS:HLT_e5_tight_e4_etcut' : ['e5_lhtight_e4_etcut',
                                             'e5_lhtight_nod0_e4_etcut',],
 
@@ -176,7 +179,6 @@ def defineCPSGroups():
                                                'tau25_medium1_tracktwo',],  
         'RATE:CPS:HLT_tau160'		     :['tau160_idperf_track',
                                                'tau160_idperf_tracktwo',
-                                               'tau160_perf_track',
                                                'tau160_perf_tracktwo',],  
         #Jet chains
         'RATE:CPS:HLT_j35' : ['j35',
@@ -512,6 +514,8 @@ def defineCPSGroups():
                                       'mu10_mu6_bBmumux_BpmumuKp',
                                       'mu10_mu6_bJpsimumu',
                                       'mu10_mu6_bJpsimumu_Lxy0',
+                                      'mu10_mu6_bBmumux_Taumumux',
+                                      'mu10_mu6_bBmumux_Taumumux_noL2',
                                      ],
 
           "RATE:CPS:HLT_razor"   :  [''
@@ -527,8 +531,7 @@ def defineCPSGroups():
          "RATE:CPS:HLT_mu6_mu4_bBmumu"   : ['mu6_mu4_bBmumu',
 	                                    'mu6_mu4_bBmumu_Lxy0',],
 	 "RATE:CPS:HLT_mu6_2mu4"         : ['mu6_2mu4_bJpsi',
-                                      'mu6_2mu4_bTau_noL2',
-												 					    'mu6_2mu4_bUpsi',
+                                            'mu6_2mu4_bUpsi',
 												 					    'mu6_2mu4',
                                             ],
 
@@ -537,6 +540,8 @@ def defineCPSGroups():
                                           '2mu6_bBmumux_BpmumuKp',
                                           '2mu6_bJpsimumu',
                                           '2mu6_bJpsimumu_Lxy0',
+                                          '2mu6_bBmumux_Taumumux',
+                                          '2mu6_bBmumux_Taumumux_noL2',
                                          ],
         'RATE:CPS:HLT_mu6_mu4_bBmumuX' : ['mu6_mu4_bBmumuxv2',            
                                           'mu6_mu4_bBmumux_BcmumuDsloose',

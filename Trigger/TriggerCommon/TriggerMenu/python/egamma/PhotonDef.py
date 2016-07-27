@@ -115,8 +115,6 @@ class L2EFChain_g(L2EFChainDef):
            self.setup_gXX_ID_ringer()
         elif 'iloose' in self.chainPart['isoInfo']: 
            self.setup_gXX_ID_iso()
-        elif self.chainPart['caloInfo']=='HLTCalo':
-           self.setup_gXX_ID_HLTCalo()
         else:
             if 'ion' in self.chainPart['extra']:
                 self.setup_gXX_ID_heavyIon()
@@ -473,60 +471,6 @@ class L2EFChain_g(L2EFChainDef):
             }
 
 
-    def setup_gXX_ID_HLTCalo(self):
-        threshold = self.chainPart['threshold']
-        IDinfo = self.chainPart['IDinfo']
-        algoSuffix = "g%s_%s()" % (str(threshold),IDinfo)
-       
-        if 'etcut' in self.chainPart['addInfo']:
-            theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_g"+str(threshold)+"_EtCut",threshold);
-            theEFPhotonHypo  = EFPhotonHypo_g_EtCut("TrigEFPhotonHypo_g"+str(threshold)+"_EtCut",threshold)
-        elif 'perf' in self.chainPart['addInfo']:
-            theTrigEFCaloHypo = TrigEFCaloHypo_All("TrigEFCaloHypo_g"+str(threshold)+"_NoCut",threshold);
-            theEFPhotonHypo  = EFPhotonHypo_g_NoCut("TrigEFPhotonHypo_g"+str(threshold)+"_NoCut",threshold)
-        elif self.chainPart['IDinfo']:
-            theTrigEFCaloHypo = TrigEFCaloHypo_g_ID("TrigEFCaloHypo_g"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo);
-            theEFPhotonHypo  = EFPhotonHypo_g_ID_CaloOnly("EFPhotonHypo_g"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
-        else:
-            log.error('Chain %s could not be assembled' % (self.chainPartName))
-            return False
-            # these can be made more configurable later 
-            #theL2CaloHypo   = L2CaloHypo_g7()
-            #theL2PhotonHypo = eval("L2PhotonHypo_"+algoSuffix)
-            #theEFPhotonHypo = eval("EFPhotonHypo_"+algoSuffix) 
-        
-        if 'conv' in self.chainPart['addInfo']:
-            theTrigEgammaFex = self.theTrigEgammaRec_Conv_eGamma
-        else :
-            theTrigEgammaFex = self.theTrigEgammaRec_NoIDEF_eGamma
-
-        ########### Sequences ###########
-        
-        self.EFsequenceList += [[self.L2InputTE, 
-                                 [self.theTrigCaloCellMaker_eGamma, self.theTrigCaloTowerMaker_eGamma, self.theTrigCaloClusterMaker_slw], 
-                                 'EF_g_step1']]
-        
-        self.EFsequenceList += [[['EF_g_step1'], 
-                                 [self.theTrigEFCaloCalibFex,theTrigEFCaloHypo], 
-                                 'EF_g_step2']]
-        
-        self.EFsequenceList += [[['EF_g_step2'], 
-                                 [theTrigEgammaFex, theEFPhotonHypo],
-                                 'EF_g_step3']]
-
-        ########### Signatures ###########
-
-        self.EFsignatureList += [ [['EF_g_step1']*self.mult] ]
-        self.EFsignatureList += [ [['EF_g_step2']*self.mult] ]
-        self.EFsignatureList += [ [['EF_g_step3']*self.mult] ]
-
-        ########### TE renaming ###########
-
-        self.TErenamingDict = {
-            'EF_g_step1': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_calo'),
-            'EF_g_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_calocalib'),
-            'EF_g_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),
-            }
 
     def setup_gnocut_hiptrt(self):
         

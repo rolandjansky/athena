@@ -234,9 +234,10 @@ def generateReversedCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputT
     from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import getCaloRatioHypoInstance
     if ('trkiso' in topoAlgs):
         fex_llp_jet_hypo = getCaloRatioHypoInstance("TrigCaloRatioHypo", 200, -1.7, True)
-    else:
+    elif ('230' in HLTChainName):
         fex_llp_jet_hypo = getCaloRatioHypoInstance("TrigCaloRatioHypo", 230, -1.7, False)
-
+    elif ('250' in HLTChainName):
+        fex_llp_jet_hypo = getCaloRatioHypoInstance("TrigCaloRatioHypo", 250, -1.7, False)
 
     TE_SplitJets = HLTChainName+'_SplitJetTool'
     TE_TrackMuonIsoB = HLTChainName+'_TrkMuIsoB'
