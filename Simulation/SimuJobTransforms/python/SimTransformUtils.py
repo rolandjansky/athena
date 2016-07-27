@@ -51,6 +51,10 @@ def addHITSValidArguments(parser):
     from SimuJobTransforms.simTrfArgs import addHITSValidArgs
     addHITSValidArgs(parser)
 
+def addRDOValidArguments(parser):
+    from SimuJobTransforms.simTrfArgs import addRDOValidArgs
+    addRDOValidArgs(parser)
+
 ### Add Sub-step Methods
 ## @brief Add ISF transform substep
 #  @param overlayTransform If @c True use the tweaked version of in/outData for an overlay job
@@ -106,6 +110,11 @@ def addSimValidationSubstep(executorSet):
                                            skeletonFile = 'SimuJobTransforms/skeleton.HITStoHIST_SIM.py',
                                            inData = ['HITS'], outData = ['HIST_SIM'],))
 
+def addDigiValidationSubstep(executorSet):
+    executorSet.add(athenaExecutor(name = 'DigiValidation',
+                                           skeletonFile = 'SimuJobTransforms/skeleton.RDOtoHIST_DIGI.py',
+                                           inData = ['RDO'], outData = ['HIST_DIGI'],))
+
 ### Append Sub-step Methods
 def appendSimulationSubstep(trf):
     executor = set()
@@ -145,3 +154,8 @@ def appendDigitizationSubstep(trf):
 #   executor = set()
 #  addSimValidationSubstep(executor)
 # trf.appendSimVAlidationSubstep(executor)
+
+#def appendDigiValidationSubstep(trf):
+#   executor = set()
+#  addDigiValidationSubstep(executor)
+# trf.appendDigiVAlidationSubstep(executor)
