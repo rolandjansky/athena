@@ -69,7 +69,7 @@
 
 #include "TrackSegmentAssociationTool.h"
 
-#include "xAODTruth/TruthEventContainer.h"
+//#include "xAODTruth/TruthEventContainer.h"
 
 
 namespace MuonCombined {
@@ -125,7 +125,7 @@ namespace MuonCombined {
     declareProperty("SigmaCaloNoiseCut", m_sigmaCaloNoiseCut=3.4);
     declareProperty("CaloMaterialProvider", m_caloMaterialProvider);
     declareProperty("FillTimingInformation", m_fillTimingInformation = true );
-    declareProperty("FillMuonTruthLinks", m_fillMuonTruthLinks = true );
+    //declareProperty("FillMuonTruthLinks", m_fillMuonTruthLinks = true );
      
   }
 
@@ -1144,7 +1144,7 @@ namespace MuonCombined {
           muon.primaryTrackParticleLink().dataID()<<"] is zero. Setting charge=0.0. The eta/phi of the muon is: "<<muon.eta()<<"/"<<muon.phi());
         muon.setCharge(0.0);
       } 
-      
+      /*
       if (m_fillMuonTruthLinks){
         // Add truth information
         // Check if primary has a truth link (if not, we need to do something different.)
@@ -1162,6 +1162,7 @@ namespace MuonCombined {
           muon.auxdata<int>("truthOrigin") = -99999;
         }
       }
+      */
     }else{
       ATH_MSG_WARNING("No primary track particle set, deleting muon");
       return false;
