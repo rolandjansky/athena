@@ -112,7 +112,9 @@ void MuonTruthAssociationAlg::addMuon( const xAOD::TruthParticleContainer& truth
 	    // add the link from xAOD::Muon to TruthParticle in m_muonTruthParticleContainerName
 	    ElementLink< xAOD::TruthParticleContainer > muonTruthLink = ElementLink< xAOD::TruthParticleContainer >(truthParticle, truthParticles);
 	    muonTruthLink.toPersistent();
-	    const_cast<xAOD::Muon&>(*muon).auxdata<ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink") = muonTruthLink;  	  
+	    const_cast<xAOD::Muon&>(*muon).auxdata<ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink") = muonTruthLink;
+	    const_cast<xAOD::Muon&>(*muon).auxdata<int>("truthType") = tp->auxdata<int>("truthType");
+	    const_cast<xAOD::Muon&>(*muon).auxdata<int>("truthOrigin") = tp->auxdata<int>("truthOrigin");
 	    break;
 	  }
       }else{
