@@ -615,7 +615,7 @@ StatusCode topoEgammaBuilder::execute()
   //-----------------------------------------------------------------
   //Set the ambiguity link
   ///Needs the same logic as the ambiguity after building the objects (make sure they are all valid)
-  const static SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > ELink ("ambigutityLink");
+  const static SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > ELink ("ambiguityLink");
   ElementLink<xAOD::EgammaContainer> dummylink;
   for (size_t photonIndex=0; photonIndex < photonContainer->size() ; ++photonIndex) {    
     

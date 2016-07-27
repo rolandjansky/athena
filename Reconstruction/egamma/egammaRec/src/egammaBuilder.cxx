@@ -28,6 +28,7 @@ PURPOSE:  Algorithm which makes a egammaObjectCollection. For each cluster
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
+#include "xAODEgamma/EgammaContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/ElectronAuxContainer.h"
@@ -493,31 +494,64 @@ StatusCode egammaBuilder::execute()
   }
   
   // Run the ambiguity resolving to decide if we should create electron and/or photon
+  static const  SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
+  static const SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > ELink ("ambiguityLink");
+  ElementLink<xAOD::EgammaContainer> dummylink;
+
   for (const auto& egRec : *egammaRecs){
+
+    xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::unknown;
+
     ATH_MSG_DEBUG("Running AmbiguityTool");
     unsigned int author = m_ambiguityTool->ambiguityResolve(egRec->caloCluster(),
                                                             egRec->vertex(),
-                                                            egRec->trackParticle());
-    
+                                                            egRec->trackParticle(),
+							    type);
+   
     ATH_MSG_DEBUG("...author: " << author);
-    if (author == xAOD::EgammaParameters::AuthorUnknown) continue;
-    
-    if (author == xAOD::EgammaParameters::AuthorElectron || 
-        author == xAOD::EgammaParameters::AuthorAmbiguous)
-      {
+    if (author == xAOD::EgammaParameters::AuthorUnknown) {
+      continue;
+    }
+    //Electron
+    if (author == xAOD::EgammaParameters::AuthorElectron){
 	ATH_MSG_DEBUG("getElectron");
-	if ( !getElectron(egRec, electronContainer, author) )
+	if ( !getElectron(egRec, electronContainer, author) ){
 	  return StatusCode::FAILURE;
+	}
+	acc(*(electronContainer->back())) = type;
+	ELink(*(electronContainer->back()))=dummylink;
+    }
+    //Photon
+    if (author == xAOD::EgammaParameters::AuthorPhoton ){
+      ATH_MSG_DEBUG("getPhoton");
+      if ( !getPhoton(egRec, photonContainer, author) ){
+	return StatusCode::FAILURE;
       }
-    if (author == xAOD::EgammaParameters::AuthorPhoton || 
-        author == xAOD::EgammaParameters::AuthorAmbiguous)
-      {
-	ATH_MSG_DEBUG("getPhoton");
-	if ( !getPhoton(egRec, photonContainer, author) )
-	  return StatusCode::FAILURE;
+	acc(*(photonContainer->back())) = type;
+	ELink(*(photonContainer->back()))=dummylink;
+    }
+    //Both Electron and Photon
+    if(author == xAOD::EgammaParameters::AuthorAmbiguous){
+   
+      ATH_MSG_DEBUG("get Electron and Photon");
+      
+      if ( !getPhoton(egRec, photonContainer, author) || 
+	   !getElectron(egRec, electronContainer, author)){
+	return StatusCode::FAILURE;
       }
+      
+      acc(*(electronContainer->back())) = type;
+      size_t photonIndex=photonContainer->size()-1;
+      ElementLink<xAOD::EgammaContainer> linktoPhoton (*photonContainer,photonIndex);
+      ELink(*(electronContainer->back()))=linktoPhoton;
+      
+      acc(*(photonContainer->back())) = type;
+      size_t electronIndex=electronContainer->size()-1;
+      ElementLink<xAOD::EgammaContainer> linktoElectron (*electronContainer,electronIndex);
+      ELink(*(photonContainer->back()))=linktoElectron;
+    }
   }
-  
+ 
   // Add topo-seeded clusters to the photon collection
   if (m_doTopoSeededPhotons)
     CHECK( addTopoSeededPhotons(photonContainer, clusters) );
@@ -537,7 +571,6 @@ StatusCode egammaBuilder::execute()
   {
     CHECK( CallTool(tool, 0, photonContainer) );
   }
-
   ATH_MSG_DEBUG("execute completed successfully");
 
   return StatusCode::SUCCESS;
