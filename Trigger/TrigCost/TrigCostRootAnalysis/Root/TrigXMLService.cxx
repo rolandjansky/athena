@@ -203,7 +203,7 @@ namespace TrigCostRootAnalysis {
       Float_t _expoRateScaleModifier = Config::config().getFloat(kExpoRateScaleModifier);
       Float_t _lumiMuScaling = _targetMu / _onlineMu;
       Float_t _lumiBunchScaling = _lumiScaling / _lumiMuScaling;
-      Float_t _lumiMuScalingExpo = TMath::Exp(((_targetMu / _onlineMu) - 1) * _expoRateScaleModifier);
+      Float_t _lumiMuScalingExpo = TMath::Exp((_targetMu - _onlineMu) * _expoRateScaleModifier);
       Float_t _lumiScalingExpo = _lumiBunchScaling * _lumiMuScalingExpo;
       Int_t _maxBunches = Config::config().getInt(kMaxBunches);
       Int_t _maxBCIDs = Config::config().getInt(kMaxBCIDs);

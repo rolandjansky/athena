@@ -132,6 +132,9 @@ namespace TrigCostRootAnalysis {
       Error("CounterROB::processEventCounter", "Does not match ROS or ROBIN");
     }
 
+    // Put nullptr check here so covertiry sees it
+    if (_ROBsForCounter == nullptr) return;
+
     Int_t _nROBSForCounter = _ROBsForCounter->size();
 
     // Loop over the ROBINs in this ROS request

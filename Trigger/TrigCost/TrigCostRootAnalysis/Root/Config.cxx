@@ -131,6 +131,7 @@ namespace TrigCostRootAnalysis {
     static Int_t _ignoreNonPhysBunchGroups = kFALSE;
     static Int_t _noLBRescaling = kFALSE;
     static Int_t _useDefaultLumiScalingExceptions = kFALSE;
+    static Int_t _useDefaultExponentialScalingList = kFALSE;
 
     // User options
     std::vector< std::string > _inputFiles;
@@ -165,7 +166,7 @@ namespace TrigCostRootAnalysis {
     std::string _prescaleXML1 = "";//"cool_208354_366_366.xml"; // This is an old XML for test purposes
     std::string _prescaleXML2 = "";
     std::string _ROSXML = "rob-ros-robin-2015.xml";
-    std::string _version = "TrigCostRootAnalysis-00-09-29";
+    std::string _version = "TrigCostRootAnalysis-00-09-30";
     std::string _upgradeScenario = "";
     std::string _jira = "";
     Int_t _lbBegin = INT_MIN;
@@ -194,7 +195,7 @@ namespace TrigCostRootAnalysis {
     Float_t _binMin = FLT_MIN;
     Float_t _binMax = FLT_MIN;
     Float_t _targetMu = 0.;
-    Float_t _expoRateScaleModifier = 2.05;
+    Float_t _expoRateScaleModifier = 0.149;
 
     // Parse CLI
     Int_t _status = 0;
@@ -272,6 +273,7 @@ namespace TrigCostRootAnalysis {
         {"ignoreNonPhyBunchGroups",no_argument,       &_ignoreNonPhysBunchGroups,1},
         {"noLBRescaling",          no_argument,       &_noLBRescaling,          1},
         {"useDefaultLumiScalingExceptions", no_argument, &_useDefaultLumiScalingExceptions,1},
+        {"useDefaultExponentialScalingList", no_argument, &_useDefaultExponentialScalingList,1},
         {"treeName",               required_argument, 0,                      't'},
         {"prescaleXML",            required_argument, 0,                      'M'},
         {"prescaleXML1",           required_argument, 0,                      'g'},
@@ -353,7 +355,7 @@ namespace TrigCostRootAnalysis {
           std::cout << "\t~~~~~~~~~~~~~~~ OPERATING MODE ALIASES ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--costMode\t\t\t\t\tAlias for: --cleanAll --doHLT --summaryAll --monitorAllChainSeqAlgs --monitorAllROS --monitorROI --monitorGlobals --monitorFullEvent --monitorEventProfile --monitorSliceCPU --ignoreNonPhyBunchGroups --outputModeStandard" << std::endl;
           std::cout << "--onlineMode\t\t\t\t\tAlias for: --cleanAll --summaryPerHLTConfig --summaryPerLumiBlock --monitorAllChainSeqAlg --monitorROS --monitorROBIN --monitorROI --monitorGlobals --monitorFullEvent --monitorEventProfile --monitorSliceCPU --outputModeStandard" << std::endl;
-          std::cout << "--ratesMode\t\t\t\t\tAlias for: --cleanAll --doHLT --summaryPerHLTConfig --monitorRates --useEBWeight --matchL1RandomToOnline --doCPS --useDefaultLumiScalingExceptions --nLbPerHLTConfig=INT_MAX --outputModeStandard" << std::endl;
+          std::cout << "--ratesMode\t\t\t\t\tAlias for: --cleanAll --doHLT --summaryPerHLTConfig --monitorRates --useEBWeight --matchL1RandomToOnline --doCPS --useDefaultLumiScalingExceptions --useDefaultExponentialScalingList --nLbPerHLTConfig=9999 --outputModeStandard" << std::endl;
           std::cout << "--outputModeStandard\t\t\t\tAlias for: --doOutputHist --doOutputCSV --doOutputRatesGraph --doOutputRatesXML --doOutputMenus" << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ HLT LEVELS TO PROCESS ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--doL2\t\t\t\t\t\tProcess just Level 2 cost data if present in ntuple." << std::endl;
@@ -850,6 +852,7 @@ namespace TrigCostRootAnalysis {
       _outputModeStandard = 1;
       _doCPS = 1;
       _useDefaultLumiScalingExceptions = 1;
+      _useDefaultExponentialScalingList = 1;
     }
 
     if (_costMode == kTRUE) {
@@ -1070,10 +1073,13 @@ namespace TrigCostRootAnalysis {
       _patternsNoLumiWeight.push_back("HLT_ibllumi_L1RD");
       _patternsNoLumiWeight.push_back("HLT_l1calocalib");
       _patternsNoLumiWeight.push_back("HLT_sct_noise");
-      _patternsNoLumiWeight.push_back("HLT_noalg_L1RD");
+      _patternsNoLumiWeight.push_back("HLT_noalg_L1RD");    
+    }
 
+    if (_useDefaultExponentialScalingList) {
       _patternsExpoMuLumiWeight.push_back("HLT_noalg_L1XE");
-      _patternsExpoMuLumiWeight.push_back("HLT_xe");      
+      _patternsExpoMuLumiWeight.push_back("HLT_xe");  
+      _patternsExpoMuLumiWeight.push_back("L1_XE");  
     }
 
     // String patterns to match when doing monitoring

@@ -324,7 +324,7 @@ namespace TrigCostRootAnalysis {
 
         // LIMITATION - cannot do unique for CPS chains
         if (m_doCPS == kTRUE && TrigConfInterface::getChainCPSGroup(_i) != "") {
-          Error("MonitorRates::createHLTCounters", "Unique rates for chains in CPS groups are not currently supported - bug atlas-trigger-rate-expert@cern.ch if you really need this");
+          Error("MonitorRates::createHLTCounters", "Unique rates for chains in CPS groups are not currently supported (%s) - bug atlas-trigger-rate-expert@cern.ch if you really need this", _chainName.c_str());
           continue;
         }
 
@@ -562,6 +562,10 @@ namespace TrigCostRootAnalysis {
 
       // They are still groups, can still get their basic rate
       if (m_doCPS == false && _chainCPSGroup != "") _chainGroups.push_back( _chainCPSGroup );
+
+      // Also add STREAM rates
+      std::vector<std::string> _chainStreams = TrigConfInterface::getChainStreamNames(_i);
+      _chainGroups.insert(_chainGroups.end(), _chainStreams.begin(), _chainStreams.end());
 
       // Debug
       // std::stringstream _ss;
