@@ -55,8 +55,7 @@ if hasattr(runArgs,"preInclude"):
     for fragment in runArgs.preInclude:
         include(fragment)
 
-
-include("RDOAnalysis/RDOAnalysis_topOptions.py")
+include("RDOAnalysis/RDOAnalysis_commonOptions.py")
 
 ## Post-include
 if hasattr(runArgs,"postInclude"):

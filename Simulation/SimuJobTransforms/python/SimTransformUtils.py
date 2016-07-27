@@ -112,7 +112,7 @@ def addSimValidationSubstep(executorSet):
 
 def addDigiValidationSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'DigiValidation',
-                                           skeletonFile = 'DigiuJobTransforms/skeleton.RDOtoHIST_DIGI.py',
+                                           skeletonFile = 'SimuJobTransforms/skeleton.RDOtoHIST_DIGI.py',
                                            inData = ['RDO'], outData = ['HIST_DIGI'],))
 
 ### Append Sub-step Methods

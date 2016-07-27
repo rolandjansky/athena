@@ -12,4 +12,6 @@ if hasattr(runArgs, "inputTXT_EVENTIDFile"):
     simFlags.load_atlas_flags()
     if hasattr(simFlags, 'IsEventOverlayInputSim'):
         simFlags.IsEventOverlayInputSim = True
+    if hasattr(runArgs, 'inputVertexPosFile'):
+        simFlags.VertexOverrideFile= runArgs.inputVertexPosFile
 

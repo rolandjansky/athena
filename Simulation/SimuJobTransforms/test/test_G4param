@@ -26,6 +26,6 @@ if [[ $? -ne 0 ]]; then
   echo "ERROR: $TRF not found"
   exit 2
 fi
-cmd="$TRF --inputEVNTFile=$INPUTFILE --outputHITSFile=$HITSFILE --maxEvents=5 --skipEvents=0 --randomSeed=5332532 --geometryVersion=$GEOMETRY$SIMVALIDATION --physicsList=$PHYSICSLIST --preInclude=$JOBCONFIG --conditionsTag=$IOVDBGLOBALTAG $@"
+cmd="$TRF --inputEVNTFile=$INPUTFILE --outputHITSFile=$HITSFILE --maxEvents=5 --skipEvents=0 --randomSeed=5332532 --geometryVersion=$GEOMETRY$SIMVALIDATION --physicsList=$PHYSICSLIST --preInclude=$JOBCONFIG --conditionsTag=$IOVDBGLOBALTAG --DataRunNumber $DATARUNNUMBER $@"
 echo $cmd
 $cmd
