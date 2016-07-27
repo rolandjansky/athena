@@ -124,6 +124,7 @@ def HitsFilePeeker(runArgs, skeletonLog):
                 skeletonLog.warning('Failed to switch on subdetector %s',subdet)
         DetFlags.simulateLVL1.all_setOff()
         DetFlags.digitize.all_setOff()
+        if hasattr(DetFlags, 'overlay'): DetFlags.overlay.all_setOff()
         DetFlags.pileup.all_setOff()
         DetFlags.readRDOBS.all_setOff()
         DetFlags.readRDOPool.all_setOff()
