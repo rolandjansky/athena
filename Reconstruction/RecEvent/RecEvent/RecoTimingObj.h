@@ -15,7 +15,7 @@ class RecoTimingObj : public std::vector<float>
   
   friend class RecoTimingObjCnv_p1;
   
-  RecoTimingObj(bool isTimings=true) : m_readFromFile(false), m_isTimings(isTimings), m_usetcmalloc(true) { };
+RecoTimingObj(bool isTimings=true) : m_readFromFile(false), m_isTimings(isTimings)/*, m_usetcmalloc(true)*/ { };
     
  private:
   
@@ -23,7 +23,7 @@ class RecoTimingObj : public std::vector<float>
 
   bool m_isTimings;
 
-  bool m_usetcmalloc;
+  //bool m_usetcmalloc;
 };
 
 // clid for float is now defined by SGTools
