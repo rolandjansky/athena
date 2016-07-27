@@ -106,7 +106,7 @@ IdDictCnvTest::initialize()
  
 // 	    log << MSG::DEBUG 
 // 		<< "region #" << region.m_index 
-// 		<< endreq;
+// 		<< endmsg;
  
 // 	    std::vector <IdDictFieldImplementation>::const_iterator fit; 
            
@@ -144,7 +144,7 @@ IdDictCnvTest::initialize()
 // 		log << " -> " << (std::string) impl.field() 
 // 		    <<  "/" << (std::string) impl.ored_field() 
 // 		    <<  " (" << impl.bits() << " bits)" 
-// 		    << endreq;
+// 		    << endmsg;
  
 // 		bits += impl.bits(); 
 // 	    } 
@@ -155,7 +155,7 @@ IdDictCnvTest::initialize()
 // 		<< " -> " << (std::string) range <<  
 // 		" (cardinality=" << range.cardinality () << ")" << 
 // 		" (" << bits << " bits)" 
-// 		<< endreq;
+// 		<< endmsg;
 // 	} 
 //     } 
     }
