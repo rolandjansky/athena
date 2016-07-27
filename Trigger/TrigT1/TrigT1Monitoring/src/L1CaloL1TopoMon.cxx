@@ -92,19 +92,15 @@ L1CaloL1TopoMon::L1CaloL1TopoMon( const std::string & type,
     m_h_l1topo_2d_JetTobs_Hitmap_match(0),
     m_h_l1topo_1d_Errors(0),
     m_h_l1topo_1d_DAQTobs(0),
-    m_h_l1topo_1d_DAQJetTobs_no0(0),
     m_h_l1topo_1d_DAQJetTobs(0),
-    m_h_l1topo_1d_DAQTauTobs_no0(0),
     m_h_l1topo_1d_DAQTauTobs(0),
-    m_h_l1topo_1d_DAQEMTobs_no0(0),
     m_h_l1topo_1d_DAQEMTobs(0),
-    m_h_l1topo_1d_DAQMuonTobs_no0(0),
     m_h_l1topo_1d_DAQMuonTobs(0),
-    m_h_l1topo_1d_DAQEnergyTobs(0),
     m_h_l1topo_1d_DAQTriggerBits(0),
     m_h_l1topo_1d_DAQMismatchTriggerBits(0),
     m_h_l1topo_1d_DAQOverflowBits(0),
     m_h_l1topo_1d_ROITobs(0)
+
 
     /*---------------------------------------------------------*/
 {
@@ -172,6 +168,8 @@ StatusCode L1CaloL1TopoMon::initialize()
 StatusCode L1CaloL1TopoMon::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
+
+
   msg(MSG::DEBUG) << "in L1CaloL1TopoMon::bookHistograms" << endreq;
 
   if ( m_environment == AthenaMonManager::online ) {
@@ -201,6 +199,8 @@ StatusCode L1CaloL1TopoMon::bookHistogramsRecurrent()
       m_h_l1topo_1d_Errors->GetXaxis()->
 	SetBinLabel(i+1,ERROR_LABELS[i].c_str());
 
+  
+
     m_h_l1topo_1d_CMXTobs =
       m_histTool->book1F("l1topo_1d_CMXTobs",
 			 "Number of CMX TOBs",
@@ -216,49 +216,32 @@ StatusCode L1CaloL1TopoMon::bookHistogramsRecurrent()
     m_h_l1topo_2d_JetTobs_Hitmap_match = m_histTool->
       bookJEMCrateModuleVsFrameLoc("l1topo_2d_JetTobs_Hitmap_match",
 				   "CMX-matched L1Topo-Jet TOBs Hit Map");
+
     m_h_l1topo_1d_JetTobs_EnergyLg = m_histTool->
       book1F("l1topo_1d_JetTobs_EnergyLg",
 	     "L1Topo-Jet TOB Energy Large Window Size", 256, 0., 1024);
+    m_h_l1topo_1d_JetTobs_EnergyLg->SetOption("HIST");
+
     m_h_l1topo_1d_DAQTobs =
       m_histTool->book1F("l1topo_1d_DAQTobs",
                          "Number of L1Topo DAQ L1Topo TOBs",
                          20, 0, 20);
-    m_h_l1topo_1d_DAQJetTobs_no0 =
-      m_histTool->book1F("l1topo_1d_DAQJetTobs_no0",
-                         "Number of L1Topo DAQ Jet TOBs (zero supp.)",
-                         MAXTOBS, 0, MAXTOBS);
     m_h_l1topo_1d_DAQJetTobs =
       m_histTool->book1F("l1topo_1d_DAQJetTobs",
                          "Number of L1Topo DAQ Jet TOBs",
                          MAXTOBS, 0, MAXTOBS);
-    m_h_l1topo_1d_DAQTauTobs_no0 =
-      m_histTool->book1F("l1topo_1d_DAQTauTobs_no0",
-			 "Number of L1Topo DAQ Tau TOBs (zero supp.)",
-			 MAXTOBS, 0, MAXTOBS);
     m_h_l1topo_1d_DAQTauTobs =
       m_histTool->book1F("l1topo_1d_DAQTauTobs",
 			 "Number of L1Topo DAQ Tau TOBs",
-			 MAXTOBS, 0, MAXTOBS);
-    m_h_l1topo_1d_DAQEMTobs_no0 =
-      m_histTool->book1F("l1topo_1d_DAQEMTobs_no0",
-			 "Number of L1Topo DAQ EM TOBs (zero supp.)",
 			 MAXTOBS, 0, MAXTOBS);
     m_h_l1topo_1d_DAQEMTobs =
       m_histTool->book1F("l1topo_1d_DAQEMTobs",
 			 "Number of L1Topo DAQ EM TOBs",
 			 MAXTOBS, 0, MAXTOBS);
-    m_h_l1topo_1d_DAQMuonTobs_no0 =
-      m_histTool->book1F("l1topo_1d_DAQMuonTobs_no0",
-			 "Number of L1Topo DAQ Muon TOBs (zero supp.)",
-			 MAXTOBS, 0, MAXTOBS);
     m_h_l1topo_1d_DAQMuonTobs =
       m_histTool->book1F("l1topo_1d_DAQMuonTobs",
 			 "Number of L1Topo DAQ Muon TOBs",
 			 MAXTOBS, 0, MAXTOBS);
-    m_h_l1topo_1d_DAQEnergyTobs =
-      m_histTool->book1F("l1topo_1d_DAQEnergyTobs",
-			 "Number of L1Topo DAQ Energy TOBs",
-			 20, 0, 20);
     m_h_l1topo_1d_DAQTriggerBits =
       m_histTool->book1F("l1topo_1d_DAQTriggerBits",
 			 "L1Topo DAQ trigger bits",
@@ -281,7 +264,7 @@ StatusCode L1CaloL1TopoMon::bookHistogramsRecurrent()
       m_h_l1topo_2d_ItemsBC[i] =
 	m_histTool->bookTH2F(std::string("l1topo_2d_ItemsBC")+
 			     std::to_string(i),
-			     std::string("L1Topo TOP vs BC")+textFPGA[i],
+			     std::string("Bunch Crossing vs Algorithm Number ")+textFPGA[i],
 			     32, i*32, (i+1)*32, 3, -1.5, 1.5);
     }
 
@@ -311,6 +294,7 @@ StatusCode L1CaloL1TopoMon::bookHistogramsRecurrent()
 	}
 	else {
 	  label=std::to_string(binIndex);
+    // cout << (binIndex%32+1);
 	}
 	m_h_l1topo_2d_ItemsBC[binIndex/32]->GetXaxis()->
 	  SetBinLabel(binIndex%32+1,label.c_str());
@@ -328,6 +312,7 @@ StatusCode L1CaloL1TopoMon::bookHistogramsRecurrent()
 StatusCode L1CaloL1TopoMon::fillHistograms()
 /*---------------------------------------------------------*/
 {
+
   if (m_debug) msg(MSG::DEBUG) << "in L1CaloL1TopoMon::fillHistograms"
 			       << endreq;
 
@@ -337,6 +322,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   }
 
   StatusCode sc = StatusCode::SUCCESS;
+
   std::vector<xAOD::CMXJetTob*> cmxtobs;  
 
   // Validate properly unpacked input from L1Calo
@@ -368,13 +354,27 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 	  const unsigned int topoTipStart(384);
 	  const unsigned int nTopoCTPOutputs(128);
 	  for (unsigned int item=0; item<nTopoCTPOutputs; ++item){
-	    if (tip.test(item+topoTipStart))
-	      m_h_l1topo_2d_ItemsBC[item/32]->Fill(item,bc);
-	  }
-	}
+      int h = (int)item/32;
+      int binx = m_h_l1topo_2d_ItemsBC[h]->GetXaxis()->FindBin(item);
+      int biny = m_h_l1topo_2d_ItemsBC[h]->GetYaxis()->FindBin(bc);
+	    if (item == 8 || item == 29 || item == 30 || item == 31 || item == 46 || item == 47 || 
+           item == 48 || item == 49 || item == 50 || item == 51 || item == 52 || item == 53 || 
+           item == 54 || item == 55 || item == 56 || item == 57 || item == 58 || item == 59 || 
+           item == 60 || item == 61 || item == 62 || item == 63 || item == 88 || item == 89 || 
+           item == 90 || item == 91 || item == 92 || item == 93 || item == 94 || item == 95 || 
+           item == 107 || item == 108) { 
+          m_h_l1topo_2d_ItemsBC[item/32]->SetBinContent(binx, biny,-200); //Sets bin value for algorithms not used in the run
+          } 
+      else {
+           if (tip.test(item+topoTipStart)) { //Checks if algorithms fired on event-by-event basis
+             m_h_l1topo_2d_ItemsBC[item/32]->Fill(item,bc);
+              }
+           }
+        }
       }
     }
-  } 
+  }
+}
 
   // Retrieve CMX tobs
   bool cmx_ematch=true;
@@ -392,6 +392,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
       }
     }
     m_h_l1topo_1d_CMXTobs->Fill(std::min((int)cmxtobs.size(),MAXTOBS-1));
+    
   }
 
   // Retrieve L1Topo CTP simulted decision if present
@@ -450,6 +451,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   }
 
   // Retrieve the L1Topo RDOs from the DAQ RODs
+  const int NFPGA=4;
   const DataHandle<L1TopoRDOCollection> rdos = 0;
   sc = evtStore()->retrieve(rdos);
   if (sc.isFailure() or 0 == rdos) {
@@ -460,12 +462,10 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   else {
     // initialise collections filled for all blocks
     std::vector<L1Topo::L1TopoTOB> daqTobs;
-    std::vector<L1Topo::L1TopoTOB> daqTobsBC0;
-    std::vector<uint32_t> daqJetTobs_no0,daqJetTobs;
-    std::vector<uint32_t> daqTauTobs_no0,daqTauTobs;
-    std::vector<uint32_t> daqEMTobs_no0,daqEMTobs;
-    std::vector<uint32_t> daqMuonTobs_no0,daqMuonTobs;
-    std::vector<uint32_t> daqEnergyTobs;
+    std::vector<uint32_t> daqJetTobs;
+    std::vector<uint32_t> daqTauTobs;
+    std::vector<uint32_t> daqEMTobs;
+    std::vector<uint32_t> daqMuonTobs;
     std::vector<uint32_t> vFibreSizes;
     std::vector<uint32_t> vFibreStatus;
     
@@ -473,11 +473,6 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
       ATH_MSG_VERBOSE( *rdo );
       ATH_MSG_DEBUG( "Found DAQ RDO with source ID "
                      << L1Topo::formatHex8(rdo->getSourceID()) );
-      /*
-      m_histSIDsViaConverters->
-      Fill((L1Topo::formatHex8(rdo->getSourceID())).c_str(), 1.);
-      m_histSIDsViaConverters->LabelsDeflate("X");
-      */
       auto errors = rdo->getErrors();
       if (! errors.empty()){
 	ATH_MSG_WARNING( "Converter errors reported: " << errors );
@@ -525,96 +520,88 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 	  }
 	case L1Topo::BlockTypes::L1TOPO_TOB:
 	  {
-	    auto tob = L1Topo::L1TopoTOB(word);
-	    ATH_MSG_DEBUG(tob);
-	    daqTobs.push_back(tob);
 	    if (header.bcn_offset()==0){
-	      daqTobsBC0.push_back(tob);
-	    }
-	    auto index = L1Topo::triggerBitIndex(rdo->getSourceID(),tob);
-	    for (unsigned int i=0; i<8; ++i){
-	      if ((tob.trigger_bits() >>i)&1)
-		m_h_l1topo_1d_DAQTriggerBits->Fill(index+i);
-	      if ((tob.overflow_bits()>>i)&1)
-		m_h_l1topo_1d_DAQOverflowBits->Fill(index+i);
+	      auto tob = L1Topo::L1TopoTOB(word);
+	      ATH_MSG_DEBUG(tob);
+	      daqTobs.push_back(tob);
+	      auto index = L1Topo::triggerBitIndex(rdo->getSourceID(),tob);
+	      for (unsigned int i=0; i<8; ++i){
+		if ((tob.trigger_bits() >>i)&1)
+		  m_h_l1topo_1d_DAQTriggerBits->Fill(index+i);
+		if ((tob.overflow_bits()>>i)&1)
+		  m_h_l1topo_1d_DAQOverflowBits->Fill(index+i);
+	      }
 	    }
 	    break;
 	  }
 	case L1Topo::BlockTypes::JET1_TOB:
 	case L1Topo::BlockTypes::JET2_TOB:
 	  {
-	    const int crate    = (word >> 28) & 0x1;
-	    const int jem      = (word >> 24) & 0xF;
-	    const int frame    = (word >> 21) & 0x7;
-	    const int location = (word >> 19) & 0x3;
-	    const int energyL  = (word & 0x2FF);
-	    const int x = crate*16 + jem;
-	    const int y = frame*4 + location;
-	    //auto tob = L1Topo::JetTOB(word);
-	    //daqJetTobs.push_back(tob);
-	    int tob = 1; // Fake object until defined
-	    if (energyL) {
-	      m_h_l1topo_1d_JetTobs_EnergyLg->Fill(energyL);
-	      daqJetTobs_no0.push_back(tob);
-	      bool match=false;
-	      bool ematch=false;
-	      for (auto & t : cmxtobs) {
-		const int cmx_x = t->crate()*16 + t->jem();
-		const int cmx_y = t->frame()*4 + t->location();
-		if (x==cmx_x && y==cmx_y && energyL==t->energyLarge())
-		  match=true;
-		if (energyL==t->energyLarge())
-		  ematch=true;
+	    if (header.bcn_offset()==0){
+	      const int crate    = (word >> 28) & 0x1;
+	      const int jem      = (word >> 24) & 0xF;
+	      const int frame    = (word >> 21) & 0x7;
+	      const int location = (word >> 19) & 0x3;
+	      const int energyL  = (word & 0x2FF);
+	      const int x = crate*16 + jem;
+	      const int y = frame*4 + location;
+	      //auto tob = L1Topo::JetTOB(word);
+	      //daqJetTobs.push_back(tob);
+	      int tob = 1; // Fake object until defined
+	      if (energyL) {
+		daqJetTobs.push_back(tob);
+		m_h_l1topo_1d_JetTobs_EnergyLg->Fill(energyL,1./NFPGA);
+		bool match=false;
+		bool ematch=false;
+		for (auto & t : cmxtobs) {
+		  const int cmx_x = t->crate()*16 + t->jem();
+		  const int cmx_y = t->frame()*4 + t->location();
+		  if (x==cmx_x && y==cmx_y && energyL==t->energyLarge())
+		    match=true;
+		  if (energyL==t->energyLarge())
+		    ematch=true;
+		}
+		if (!ematch) cmx_ematch=false;
+		if (match)
+		  m_h_l1topo_2d_JetTobs_Hitmap_match->Fill(x, y, 1./NFPGA);
+		else
+		  m_h_l1topo_2d_JetTobs_Hitmap_mismatch->Fill(x, y, 1./NFPGA);
 	      }
-	      if (!ematch) cmx_ematch=false;
-	      if (match)
-		m_h_l1topo_2d_JetTobs_Hitmap_match->Fill(x, y);
-	      else
-		m_h_l1topo_2d_JetTobs_Hitmap_mismatch->Fill(x, y);
 	    }
-	    else
-	      daqJetTobs.push_back(tob);
 	    break;
 	  }
+
+
 	case L1Topo::BlockTypes::TAU_TOB:
-	  {
-	    //auto tob = L1Topo::TauTOB(word);
-	    //daqTauTobs.push_back(tob);
-	    int tob = 1; // Fake object until defined
-	    if (word & 0xFF)
-	      daqTauTobs_no0.push_back(tob);
-	    else
-	      daqTauTobs.push_back(tob);
-	    break;
-	  }
-	case L1Topo::BlockTypes::EM_TOB:
-	  {
-	    //auto tob = L1Topo::EMTOB(word);
-	    //daqEMTobs.push_back(tob);
-	    int tob = 1; // Fake object until defined
-	    if (word & 0xFF)
-	      daqEMTobs_no0.push_back(tob);
-	    else
-	      daqEMTobs.push_back(tob);
-	    break;
-	  }
+    {
+      if (header.bcn_offset()==0){
+        int tob = 1; // Fake object until defined
+        daqTauTobs.push_back(tob);
+      }
+      break;
+    }
+
+  case L1Topo::BlockTypes::EM_TOB:
+    {
+      if (header.bcn_offset()==0){
+        int tob = 1; // Fake object until defined
+        daqEMTobs.push_back(tob);
+      }
+      break;
+    }
+
 	case L1Topo::BlockTypes::MUON_TOB:
 	  {
-	    //auto tob = L1Topo::MuonTOB(word);
-	    //daqMuonTobs.push_back(tob);
-	    int tob = 1; // Fake object until defined
-	    if (word & 0x202)
-	      daqMuonTobs_no0.push_back(tob);
-	    else
+	    if (header.bcn_offset()==0){
+	      int tob = 1; // Fake object until defined
 	      daqMuonTobs.push_back(tob);
+	    }
 	    break;
 	  }
 	case L1Topo::BlockTypes::ENERGY_TOB:
 	  {
-	    //auto tob = L1Topo::EnergyTOB(word);
-	    //daqEnergyTobs.push_back(tob);
-	    int tob = 1; // Fake object until defined
-	    daqEnergyTobs.push_back(tob);
+	    if (header.bcn_offset()==0){
+	    }
 	    break;
 	  }
 	default:
@@ -624,21 +611,17 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 	}
       } // for word
     }
-    m_h_l1topo_1d_DAQTobs->Fill(std::min((int)daqTobs.size(),19));
-    m_h_l1topo_1d_DAQJetTobs_no0->Fill(std::min((int)daqJetTobs_no0.size(),
-						MAXTOBS-1));
-    m_h_l1topo_1d_DAQJetTobs->Fill(std::min((int)daqJetTobs.size(),MAXTOBS-1));
-    m_h_l1topo_1d_DAQTauTobs_no0->Fill(std::min((int)daqTauTobs_no0.size(),
-						MAXTOBS-1));
-    m_h_l1topo_1d_DAQTauTobs->Fill(std::min((int)daqTauTobs.size(),MAXTOBS-1));
-    m_h_l1topo_1d_DAQMuonTobs_no0->Fill(std::min((int)daqMuonTobs_no0.size(),
-						 MAXTOBS-1));
-    m_h_l1topo_1d_DAQMuonTobs->Fill(std::min((int)daqMuonTobs.size(),
+    m_h_l1topo_1d_DAQTobs->Fill(std::min((int)daqTobs.size()/NFPGA,19));
+    m_h_l1topo_1d_DAQJetTobs->Fill(std::min((int)daqJetTobs.size()/NFPGA,
+					    MAXTOBS-1));
+    m_h_l1topo_1d_DAQTauTobs->Fill(std::min((int)daqTauTobs.size()/NFPGA,
+					    MAXTOBS-1));
+    m_h_l1topo_1d_DAQMuonTobs->Fill(std::min((int)daqMuonTobs.size()/NFPGA,
 					     MAXTOBS-1));
-    m_h_l1topo_1d_DAQEMTobs->Fill(std::min((int)daqEMTobs.size(),MAXTOBS-1));
-    m_h_l1topo_1d_DAQEnergyTobs->Fill(std::min((int)daqEnergyTobs.size(),19));
+    m_h_l1topo_1d_DAQEMTobs->Fill(std::min((int)daqEMTobs.size()/NFPGA,
+					   MAXTOBS-1));
   }
-
+  
   // Retrieve and print the L1Topo RDOs from the ROI RODs
   std::vector<L1Topo::L1TopoTOB> roiTobs;
   const ROIB::RoIBResult* roibresult = 0;
@@ -651,8 +634,6 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
     auto rdo = r.rdo();
     ATH_MSG_DEBUG( "Found ROI RDO with source ID "
 		   << L1Topo::formatHex8(rdo.getSourceID()) );
-    //m_histSIDsViaConverters->Fill((L1Topo::formatHex8(rdo.getSourceID())).c_str(), 1.);
-    //m_histSIDsViaConverters->LabelsDeflate("X");
     auto errors = rdo.getErrors();
     if (! errors.empty()) {
       ATH_MSG_WARNING( "Converter errors reported: " << errors );

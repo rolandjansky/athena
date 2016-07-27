@@ -43,7 +43,7 @@ if l1caloRawMon:
 
     ## get a handle on the ToolSvc
     from AthenaCommon.AppMgr import ToolSvc
-
+    
     if globalflags.InputFormat() == "bytestream":
         include ("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")
         if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
