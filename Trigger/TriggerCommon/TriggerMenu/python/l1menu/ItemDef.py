@@ -1412,19 +1412,24 @@ class ItemDef:
         
         
         # =======================================================
-        # Partition 1
+        #
+        # Here we define the items for the secondary partitions
+        #
+        # =======================================================
+        
+        # Partition 2
         LVL1MenuItem.currentPartition = 2
 
+        LVL1MenuItem('L1_RD2_BGRP14'         ).setLogic( RNDM2 & BGRP0 & BGRP14             ).setTriggerType(TT.rand)
 
 
-
-        #        LVL1MenuItem('L1_CALREQ0_P1', ctpid=480).setLogic( NIM28 & calibcond1).setTriggerType( 0x0f & TT.calreq0 )
-        #        LVL1MenuItem('L1_CALREQ1_P1', ctpid=481).setLogic( NIM29 & calibcond1).setTriggerType( 0x0f & TT.calreq1 )
-        #        LVL1MenuItem('L1_CALREQ2_P1', ctpid=482).setLogic( NIM30 & calibcond1).setTriggerType( 0x0f & TT.calreq2 )
-
+        # Partition 3
         LVL1MenuItem.currentPartition = 3
+        
+        LVL1MenuItem('L1_RD3_BGRP15'         ).setLogic( RNDM3 & BGRP0 & BGRP15             ).setTriggerType(TT.rand)
                       
 
+        # reset to partition 1
         LVL1MenuItem.currentPartition = 1
 
 

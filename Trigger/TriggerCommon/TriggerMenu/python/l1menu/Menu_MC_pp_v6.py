@@ -13,7 +13,7 @@ def defineMenu():
 
     Lvl1Flags.CTPVersion = 4 # new CTP
 
-    Lvl1Flags.BunchGroupPartitioning = [1, 13, 14] # partition 1: 1-10, partition 2: 13, partition 3: 14-15 (note that BGRP0 is used by all items)
+    Lvl1Flags.BunchGroupPartitioning = [1, 14, 15] # partition 1: 1-10, partition 2: 14, partition 3: 15 (note that BGRP0 is used by all items)
     Lvl1Flags.BunchGroupNames = ['BCRVeto', 'Paired', 'CalReq', 'Empty', 'IsolatedUnpaired', 'NonIsolatedUnpaired', 'EmptyAfterPaired', 'InTrain', 'AbortGapNotCalReq', 'VdM', 'ALFA', 'EmptyBeforePaired','EmptyAndPaired']
     Lvl1Flags.BunchGroupNames += ['NotUsed'] * len(Lvl1Flags.BunchGroupNames())
 
