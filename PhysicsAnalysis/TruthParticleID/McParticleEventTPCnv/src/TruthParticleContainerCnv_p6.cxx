@@ -56,14 +56,14 @@ TruthParticleContainerCnv_p6::persToTrans( const TruthParticleContainer_p6* pers
 {
   msg << MSG::DEBUG 
       << "Loading TruthParticleContainer from persistent state..."
-      << endreq;
+      << endmsg;
 
   if ( 0 == m_cnvTool ) {
     msg << MSG::ERROR
 	<< "NULL pointer to ITruthParticleCnvTool !!" 
-	<< endreq
+	<< endmsg
 	<< "Can't create *ANY* TruthParticleContainer !!" 
-	<< endreq;
+	<< endmsg;
     throw std::runtime_error("NULL pointer to ITruthParticleCnvTool !!");
   }
 
@@ -76,7 +76,7 @@ TruthParticleContainerCnv_p6::persToTrans( const TruthParticleContainer_p6* pers
   if ( 0 == evt ) {
     const std::string error("NULL pointer to McEventCollection !!");
     msg << MSG::ERROR << error
-	<< endreq;
+	<< endmsg;
     throw std::runtime_error(error);
   }
 
@@ -85,7 +85,7 @@ TruthParticleContainerCnv_p6::persToTrans( const TruthParticleContainer_p6* pers
   // retrieve all GenEvent corresponding to this pile-up type :
   size_t firstEvt, lastEvt;
   PileUpClassification::findEventIterators(putype, evt, firstEvt, lastEvt);
-  msg << MSG::DEBUG << " Converting pile-up type = "<< putype << " from McEventCollection index "<< firstEvt << " to "<< lastEvt << endreq;
+  msg << MSG::DEBUG << " Converting pile-up type = "<< putype << " from McEventCollection index "<< firstEvt << " to "<< lastEvt << endmsg;
   // loop on the GenEvent to fill the container.
   for( ; firstEvt != lastEvt; firstEvt++){
 
@@ -97,14 +97,14 @@ TruthParticleContainerCnv_p6::persToTrans( const TruthParticleContainer_p6* pers
           << trans->m_genEvent.dataID()      << "][" 
           << firstEvt << "]"
           << " to TruthParticleContainer !"
-          << endreq;
+          << endmsg;
       throw std::runtime_error("No TruthParticleContainer created !!");
     }
   }
 
   if ( !trans->m_genEvent.isValid() ) {
     const std::string err = "ElementLink to McEventCollection is not valid !";
-    msg << MSG::ERROR << err << endreq;
+    msg << MSG::ERROR << err << endmsg;
     throw std::runtime_error(err);
   }
 
@@ -116,7 +116,7 @@ TruthParticleContainerCnv_p6::persToTrans( const TruthParticleContainer_p6* pers
 
   msg << MSG::DEBUG 
       << "Loaded TruthParticleContainer from persistent state [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 
@@ -127,7 +127,7 @@ TruthParticleContainerCnv_p6::transToPers( const TruthParticleContainer* trans,
 {
   msg << MSG::DEBUG 
       << "Creating persistent state of TruthParticleContainer..."
-      << endreq;
+      << endmsg;
 
   // convert the ElementLink<McEventCollection>
   m_genEvtCnv.transToPers( &trans->m_genEvent, 
@@ -136,7 +136,7 @@ TruthParticleContainerCnv_p6::transToPers( const TruthParticleContainer* trans,
 
   if ( !trans->m_genEvent.isValid() ) {
     msg << MSG::WARNING
-        << "Transient ElementLink is NOT valid !!" << endreq;
+        << "Transient ElementLink is NOT valid !!" << endmsg;
   }
 
   // convert the ElementLink<TruthEtIsolationsContainer>

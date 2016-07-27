@@ -54,7 +54,7 @@ TruthEtIsolationsCnv_p1::persToTrans( const TruthEtIsolations_p1* pers,
 {
   msg << MSG::DEBUG 
       << "Loading TruthEtIsolations from persistent state..."
-      << endreq;
+      << endmsg;
 
   if (0==pers || 0==trans) {
     msg << MSG::WARNING 
@@ -73,7 +73,7 @@ TruthEtIsolationsCnv_p1::persToTrans( const TruthEtIsolations_p1* pers,
   if ( 0 == evt ) {
     const std::string error("NULL pointer to McEventCollection !!");
     msg << MSG::ERROR << error
-	<< endreq;
+	<< endmsg;
     throw std::runtime_error(error);
   }
 
@@ -89,7 +89,7 @@ TruthEtIsolationsCnv_p1::persToTrans( const TruthEtIsolations_p1* pers,
   
   msg << MSG::DEBUG 
       << "Loaded TruthEtIsolations from persistent state [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 
@@ -100,7 +100,7 @@ TruthEtIsolationsCnv_p1::transToPers( const TruthEtIsolations* trans,
 {
   msg << MSG::DEBUG 
       << "Creating persistent state of TruthEtIsolations..."
-      << endreq;
+      << endmsg;
   
   // convert the ElementLink<McEventCollection>
   m_genEvtCnv.transToPers( &trans->m_genEvtLink, 
@@ -110,7 +110,7 @@ TruthEtIsolationsCnv_p1::transToPers( const TruthEtIsolations* trans,
   if ( !trans->m_genEvtLink.isValid() ) {
     msg << MSG::WARNING
         << "Transient ElementLink to McEventCollection is NOT valid !!" 
-        << endreq;
+        << endmsg;
   }
 
   pers->m_etIsolations.reserve( trans->size() );

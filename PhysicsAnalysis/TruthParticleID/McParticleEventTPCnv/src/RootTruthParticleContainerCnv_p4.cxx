@@ -87,7 +87,7 @@ T_TPCnv<TruthParticleContainer, TruthParticleContainer_p4>
     msg << MSG::ERROR
 	<< "Could not record a TruthEtIsolationsContainer at ["
 	<< etIsolName << "] !!"
-	<< endreq;
+	<< endmsg;
     delete etIsols; etIsols = 0;
     throw std::runtime_error("No TruthEtIsolationsContainer could be stored !!");
   }
@@ -95,7 +95,7 @@ T_TPCnv<TruthParticleContainer, TruthParticleContainer_p4>
     msg << MSG::WARNING
 	<< "Could not setConst the TruthEtIsolationsContainer at ["
 	<< etIsolName << "] !!"
-	<< endreq;
+	<< endmsg;
   }
 #endif
 

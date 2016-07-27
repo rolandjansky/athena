@@ -56,23 +56,23 @@ TruthParticleContainerCnv_p2::persToTrans( const TruthParticleContainer_p2* pers
 {
   msg << MSG::DEBUG 
       << "Loading TruthParticleContainer from persistent state..."
-      << endreq;
+      << endmsg;
 
   if ( 0 == m_cnvTool ) {
     msg << MSG::ERROR
 	<< "NULL pointer to ITruthParticleCnvTool !!" 
-	<< endreq
+	<< endmsg
 	<< "Can't create *ANY* TruthParticleContainer !!" 
-	<< endreq;
+	<< endmsg;
     throw std::runtime_error("NULL pointer to ITruthParticleCnvTool !!");
   }
 
   if ( 0 == m_storeGate ) {
     msg << MSG::ERROR
 	<< "NULL pointer to StoreGateSvc !!" 
-	<< endreq
+	<< endmsg
 	<< "Can't create *ANY* TruthParticleContainer !!" 
-	<< endreq;
+	<< endmsg;
     throw std::runtime_error("NULL pointer to StoreGateSvc !!");
   }
 
@@ -83,7 +83,7 @@ TruthParticleContainerCnv_p2::persToTrans( const TruthParticleContainer_p2* pers
 	<< "Could not retrieve McEventCollection at ["
 	<< pers->m_parentKey
 	<< "] !!"
-	<< endreq;
+	<< endmsg;
     throw std::runtime_error("No McEventCollection retrieved !!");
   }
   
@@ -95,7 +95,7 @@ TruthParticleContainerCnv_p2::persToTrans( const TruthParticleContainer_p2* pers
     msg << MSG::ERROR
 	<< "Could not record a TruthEtIsolationsContainer at ["
 	<< etIsolName << "] !!"
-	<< endreq;
+	<< endmsg;
     delete etIsols; etIsols = 0;
     throw std::runtime_error("No TruthEtIsolationsContainer could be stored !!");
   }
@@ -103,7 +103,7 @@ TruthParticleContainerCnv_p2::persToTrans( const TruthParticleContainer_p2* pers
     msg << MSG::WARNING
 	<< "Could not setConst the TruthEtIsolationsContainer at ["
 	<< etIsolName << "] !!"
-	<< endreq;
+	<< endmsg;
   }
 
   // at that time, the default was to write the first element
@@ -126,7 +126,7 @@ TruthParticleContainerCnv_p2::persToTrans( const TruthParticleContainer_p2* pers
 			    &visitor ).isSuccess() ) {
     msg << MSG::ERROR
 	<< "Problem converting McEventCollection to TruthParticleContainer !"
-	<< endreq;
+	<< endmsg;
     throw std::runtime_error("No TruthParticleContainer created !!");
   }
 
@@ -135,7 +135,7 @@ TruthParticleContainerCnv_p2::persToTrans( const TruthParticleContainer_p2* pers
 
   msg << MSG::DEBUG 
       << "Loaded TruthParticleContainer from persistent state [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 
@@ -146,13 +146,13 @@ TruthParticleContainerCnv_p2::transToPers( const TruthParticleContainer* /*trans
 {
   msg << MSG::DEBUG 
       << "Creating persistent state of TruthParticleContainer..."
-      << endreq;
+      << endmsg;
 
   msg << MSG::ERROR
       << "This transient-to-persistent converter method has been RETIRED !!"
-      << endreq
+      << endmsg
       << "You are not supposed to end-up here ! Go away !"
-      << endreq;
+      << endmsg;
 
   throw std::runtime_error( "Retired TruthParticleContainerCnv_p2::transToPers() !!" );
   // not reached
