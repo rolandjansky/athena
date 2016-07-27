@@ -17,6 +17,13 @@ std::string cleanLoc (const std::string& s)
   if (pos != std::string::npos) {
     return s.substr (pos + pat.size(), std::string::npos);
   }
+
+  pat = "/PathResolver/test/";
+  pos = s.find (pat);
+  if (pos != std::string::npos) {
+    return "../test/" + s.substr (pos + pat.size(), std::string::npos);
+  }
+
   return s;
 }
 
