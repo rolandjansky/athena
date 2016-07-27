@@ -333,8 +333,11 @@ class ConfiguredFTK_DataProviderSvc(FTK_DataProviderSvc) :
         theFTK_UncertaintyTool= FTK_UncertaintyTool(name="FTK_UncertaintyTool")
         ToolSvc+=theFTK_UncertaintyTool
 
+
+
         from FTK_RecTools.FTK_RecToolsConf import FTK_VertexFinderTool
-        FTK_RawVertexFinderTool=  FTK_VertexFinderTool(name="FTK_RawVertexFinderTool")
+        FTK_RawVertexFinderTool=  FTK_VertexFinderTool(name="FTK_RawVertexFinderTool",
+                                                       VertexInternalEdmFactory=FTK_VxEdmCnv)
         ToolSvc+=FTK_RawVertexFinderTool
 
 
@@ -356,14 +359,14 @@ class ConfiguredFTK_DataProviderSvc(FTK_DataProviderSvc) :
         from RecExConfig.RecFlags import rec
 
         self.doTruth=rec.doTruth()
-        self.TrainingBeamspotX= -0.0497705
-        self.TrainingBeamspotY=1.06299
+        self.TrainingBeamspotX= 0.0
+        self.TrainingBeamspotY= 0.0
         self.TrainingBeamspotZ = 0.0
-        self.TrainingBeamspotTiltX= -1.51489e-05 
-        self.TrainingBeamspotTiltY= -4.83891e-05
+        self.TrainingBeamspotTiltX= 0.0
+        self.TrainingBeamspotTiltY= 0.0
         self. PixelBarrelPhiOffsets=[0.,0.,0.,0.]
         self. PixelBarrelEtaOffsets=[0.,0.,0.,0.]
-        self. PixelEndCapPhiOffsets=[-0.005,0.,0.]
+        self. PixelEndCapPhiOffsets=[0.,0.,0.]
         self. PixelEndCapEtaOffsets=[0.,0.,0.]
 
 

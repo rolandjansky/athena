@@ -6,8 +6,8 @@ if rec.doFTK():
   from FTK_RecExample.FTK_DataProviderSvc_Config import ConfiguredFTK_DataProviderSvc
   FTK_DataProviderSvc = ConfiguredFTK_DataProviderSvc("ConfiguredFTK_DataProviderSvc")
   ServiceMgr += FTK_DataProviderSvc
-  ServiceMgr.ConfiguredFTK_DataProviderSvc.TrainingBeamspotX= -0.0497705
-  ServiceMgr.ConfiguredFTK_DataProviderSvc.TrainingBeamspotY=1.06299
+  ServiceMgr.ConfiguredFTK_DataProviderSvc.TrainingBeamspotX= 0.
+  ServiceMgr.ConfiguredFTK_DataProviderSvc.TrainingBeamspotY=0.
 
   from TrigFTK_RawDataAlgs.TrigFTK_RawDataAlgsConf import FTK_RDO_ReaderAlgo
 
@@ -18,12 +18,9 @@ if rec.doFTK():
   
   FTK_RDO_Reader.GetTracks=True
   FTK_RDO_Reader.GetTrackParticles=True
-  FTK_RDO_Reader.GetRawVxVertex=True
-  FTK_RDO_Reader.GetVxVertex=True
   FTK_RDO_Reader.GetVertex=True
   FTK_RDO_Reader.GetRefitTracks=True
   FTK_RDO_Reader.GetRefitTrackParticles=True
-  FTK_RDO_Reader.GetRefitVxVertex=True
   FTK_RDO_Reader.GetRefitVertex=True
 
   from AthenaCommon.AlgSequence import AlgSequence
