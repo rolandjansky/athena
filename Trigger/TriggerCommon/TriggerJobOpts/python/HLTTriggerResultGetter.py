@@ -431,18 +431,15 @@ class HLTTriggerResultGetter(Configured):
         from AthenaServices.Configurables import ThinningSvc, createThinningSvc
         
         _doSlimming = True
-        if _doSlimming and rec.doWriteAOD() and not (rec.readAOD() or rec.readESD()): 
+        if _doSlimming and rec.readRDO() and rec.doWriteAOD():
             if not hasattr(svcMgr, 'ThinningSvc'): # if the default is there it is configured for AODs
                 svcMgr += ThinningSvc(name='ThinningSvc', Streams=['StreamAOD'])             
-            _addSlimming('StreamAOD', svcMgr.ThinningSvc, _TriggerAODList )
+            _addSlimming('StreamAOD', svcMgr.ThinningSvc, _TriggerESDList ) #Use ESD item list also for AOD!
             log.info("configured navigation slimming for AOD output")
             
-        if _doSlimming and rec.doWriteESD() and not rec.readESD(): 
-            svcMgr += ThinningSvc(name='ESDThinningSvc', Streams=['StreamESD']) # the default is configured for AODs
-            # this was recommended but does not work
-            # from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-            # svcMgr += createThinningSvc(svcName="ESDThinningSvc", outStreams=[MSMgr.GetStream('StreamESD').GetEventStream()])
-
+        if _doSlimming and rec.readRDO() and rec.doWriteESD(): #rec.doWriteESD() and not rec.readESD(): 
+            if not  hasattr(svcMgr, 'ESDThinningSvc'):
+                svcMgr += ThinningSvc(name='ESDThinningSvc', Streams=['StreamESD']) # the default is configured for AODs
             _addSlimming('StreamESD', svcMgr.ESDThinningSvc, _TriggerESDList )                
             log.info("configured navigation slimming for ESD output")              
             
