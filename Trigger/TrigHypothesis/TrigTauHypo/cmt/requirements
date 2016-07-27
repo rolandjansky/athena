@@ -36,6 +36,7 @@ use     TrkTrackSummary         TrkTrackSummary-*       Tracking/TrkEvent
 use	xAODJet                 xAODJet-*               Event/xAOD
 use	xAODCaloEvent           xAODCaloEvent-*         Event/xAOD
 use	xAODTau                 xAODTau-*		Event/xAOD
+use     xAODEgamma              xAODEgamma-*            Event/xAOD
 use 	xAODTracking            xAODTracking-*          Event/xAOD
 use     CaloEvent               CaloEvent-*             Calorimeter
 use  	TrigNavStructure        TrigNavStructure-*      Trigger/TrigEvent

@@ -21,7 +21,8 @@
 #include "TrigTauHypo/HLTVertexCombo.h"
 #include "TrigTauHypo/L2TauTopoFex.h"
 #include "TrigTauHypo/L2TauTopoHypo.h"
-
+#include "TrigTauHypo/EFPhotonTauFex.h"
+#include "TrigTauHypo/EFPhotonTauHypo.h"
 
 
 DECLARE_ALGORITHM_FACTORY( T2CaloTauHypo )
@@ -46,7 +47,8 @@ DECLARE_ALGORITHM_FACTORY( HLTVertexPreSelHypo )
 DECLARE_ALGORITHM_FACTORY( HLTVertexCombo )
 DECLARE_ALGORITHM_FACTORY( L2TauTopoFex )
 DECLARE_ALGORITHM_FACTORY( L2TauTopoHypo )
-
+DECLARE_ALGORITHM_FACTORY( EFPhotonTauFex )
+DECLARE_ALGORITHM_FACTORY( EFPhotonTauHypo )
 
 
 DECLARE_FACTORY_ENTRIES( TrigTauHypo ) {
@@ -72,6 +74,7 @@ DECLARE_FACTORY_ENTRIES( TrigTauHypo ) {
   DECLARE_ALGORITHM( HLTVertexCombo );
   DECLARE_ALGORITHM( L2TauTopoFex );
   DECLARE_ALGORITHM( L2TauTopoHypo );
-
+  DECLARE_ALGORITHM( EFPhotonTauFex );
+  DECLARE_ALGORITHM( EFPhotonTauHypo );
 
 }

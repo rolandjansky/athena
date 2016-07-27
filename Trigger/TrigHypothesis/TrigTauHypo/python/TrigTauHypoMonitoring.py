@@ -53,6 +53,9 @@ class TrigTauHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         elif myName.find("tsf") > -1:
             cuts=['Input','', '', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
+        elif myName.find("mVis") > -1:
+            cuts=['Input','mVis', '', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+
         elif myName.find("HLTCaloTauHypo") > -1:
             cuts=['Input', 'E_{T} calib', 'Calo Cuts', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
@@ -332,6 +335,19 @@ class EFTauMVHypoValidationMonitoring(EFTauMVHypoOnlineMonitoring):
         super(EFTauMVHypoValidationMonitoring, self).__init__(name)
         self.defineTarget("Validation")
 
+class EFPhotonTauHypoOnlineMonitoring(TrigTauHypoOnlineMonitoring):
+    def __init__ (self, name):
+        super(EFPhotonTauHypoOnlineMonitoring, self).__init__(name)
+        self.defineTarget("Online")
+
+        self.Histograms += [defineHistogram('MvisOfAccepted',type='TH1F',title='mVis Passed', xbins=50, xmin=0.,xmax=150.)]
+
+class EFPhotonTauHypoValidationMonitoring(EFPhotonTauHypoOnlineMonitoring):
+    def __init__ (self, name):
+        super(EFPhotonTauHypoValidationMonitoring, self).__init__(name)
+        self.defineTarget("Validation")
+
+
 class EFTauDiKaonHypoOnlineMonitoring(TrigTauHypoOnlineMonitoring):
     def __init__ (self, name):
         super(EFTauDiKaonHypoOnlineMonitoring, self).__init__(name)
@@ -408,6 +424,21 @@ def setTauEFMVMonTools( algoObject ):
     onlTool = EFTauMVHypoOnlineMonitoring(nameOnl)
 
     algoObject.AthenaMonTools = [ time, onlTool, valTool]
+
+def setPhotonTauMonTools( algoObject ):
+    algoName=algoObject.getName()
+
+    from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+    time = TrigTimeHistToolConfig(algoName+"Time")
+    time.TimerHistLimits = [0,3]
+
+    nameVal = algoName+"_Val"
+    nameOnl = algoName+"_Onl"
+    valTool = EFPhotonTauHypoValidationMonitoring(nameVal)
+    onlTool = EFPhotonTauHypoOnlineMonitoring(nameOnl)
+
+    algoObject.AthenaMonTools = [ time, onlTool, valTool]
+
 
 def setTauEFDiKaonMonTools( algoObject ):
     algoName=algoObject.getName()

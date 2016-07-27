@@ -9,7 +9,7 @@
 # get defaults
 from TrigTauHypo.TrigTauHypoBase import *
 from TrigTauHypo.TrigTauHypoMonitoring \
-     import setL2TauTopoMonTools, setHLTVertexPreselMonTools, setTauEFDiKaonMonTools, setTauEFMVMonTools, setTauT2CoreMonTools, setTauT2IsoMonTools, setHadCalibEFMonTools
+     import setL2TauTopoMonTools, setHLTVertexPreselMonTools, setPhotonTauMonTools, setTauEFDiKaonMonTools, setTauEFMVMonTools, setTauT2CoreMonTools, setTauT2IsoMonTools, setHadCalibEFMonTools
 
 ## T2IDCoreTau TEST
 class T2IDCoreTauHypo_tau29_medium_2stTest (T2IDCoreTauHypo):
@@ -99,6 +99,18 @@ class EFTauDiKaonHypo (EFTauDiKaonHypoBase):
         super(EFTauDiKaonHypo, self).__init__(name)     
         setVarCut(self, var, val)
 
+## EFPhotonTau
+class EFPhotonTauHypoBase (EFPhotonTauHypo):
+    __slots__ = []
+    def __init__(self, name):
+        super(EFPhotonTauHypoBase, self).__init__(name)
+        setPhotonTauMonTools(self)
+
+class EFPhotonTauHypo (EFPhotonTauHypoBase):
+    __slots__ = []
+    def __init__(self, name = "EFPhotonTauHypo", var = [], val = []):
+        super(EFPhotonTauHypo, self).__init__(name)
+        setVarCut(self, var, val)
 
 ## EFHadCalib: from mdacunha
 class EFHadCalibHypoBase (EFHadCalibHypo):
