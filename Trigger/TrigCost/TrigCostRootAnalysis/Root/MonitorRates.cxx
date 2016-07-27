@@ -156,13 +156,16 @@ namespace TrigCostRootAnalysis {
     for (const auto _chainItem : m_chainItemsL1)  _chainItem.second->classifyLumiAndRandom();
 
     if (Config::config().getVecSize(kListOfNoLumiWeightChains) > 0) {
-      Info("MonitorRates::populateChainItemMaps", "Special cases: %swill get no luminosity extrapolation.", Config::config().getStr(kListOfNoLumiWeightChains).c_str());
+      Info("MonitorRates::populateChainItemMaps", "Special cases, these chains will get no luminosity extrapolation: %s", Config::config().getStr(kListOfNoLumiWeightChains).c_str());
     }
     if (Config::config().getVecSize(kListOfNoMuLumiWeightChains) > 0) {
-      Info("MonitorRates::populateChainItemMaps", "Special cases: %swill only get lumi extrapolation based on number of bunches (not <mu>)", Config::config().getStr(kListOfNoMuLumiWeightChains).c_str());
+      Info("MonitorRates::populateChainItemMaps", "Special cases, these chains will only get lumi extrapolation based on number of bunches (not <mu>): %s", Config::config().getStr(kListOfNoMuLumiWeightChains).c_str());
     }    
     if (Config::config().getVecSize(kListOfNoBunchLumiWeightChains) > 0) {
-      Info("MonitorRates::populateChainItemMaps", "Special cases: %swill only get lumi extrapolation based on change in <mu> (not change in bunches).", Config::config().getStr(kListOfNoBunchLumiWeightChains).c_str());
+      Info("MonitorRates::populateChainItemMaps", "Special cases, these chains will only get lumi extrapolation based on change in <mu> (not change in bunches): %s", Config::config().getStr(kListOfNoBunchLumiWeightChains).c_str());
+    }
+    if (Config::config().getVecSize(kListOfExpoMuLumiWeightChains) > 0) {
+      Info("MonitorRates::populateChainItemMaps", "Special cases, these chains will get exponential extrapolation in <mu>: %s", Config::config().getStr(kListOfExpoMuLumiWeightChains).c_str());
     }
 
     // Get the common factor of all the CPS groups
@@ -321,7 +324,7 @@ namespace TrigCostRootAnalysis {
 
         // LIMITATION - cannot do unique for CPS chains
         if (m_doCPS == kTRUE && TrigConfInterface::getChainCPSGroup(_i) != "") {
-          Error("MonitorRates::createHLTCounters", "Unique rates for chains in CPS groups are not currently supported - bug atlas-trigger-rate-expert@cern.ch if you really need this");
+          Error("MonitorRates::createHLTCounters", "Unique rates for chains in CPS groups are not currently supported (%s) - bug atlas-trigger-rate-expert@cern.ch if you really need this", _chainName.c_str());
           continue;
         }
 
@@ -559,6 +562,10 @@ namespace TrigCostRootAnalysis {
 
       // They are still groups, can still get their basic rate
       if (m_doCPS == false && _chainCPSGroup != "") _chainGroups.push_back( _chainCPSGroup );
+
+      // Also add STREAM rates
+      std::vector<std::string> _chainStreams = TrigConfInterface::getChainStreamNames(_i);
+      _chainGroups.insert(_chainGroups.end(), _chainStreams.begin(), _chainStreams.end());
 
       // Debug
       // std::stringstream _ss;

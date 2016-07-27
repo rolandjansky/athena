@@ -127,39 +127,37 @@ namespace TrigCostRootAnalysis {
 
     if (m_advancedLumiScaling == kFALSE) { // Just do linear extrapolation
 
-      m_lumiExtrapolationFactor = Config::config().getFloat(kLumiExtrapWeight); // Linear
+      m_lumiExtrapolationFactor = Config::config().getFloat(kLumiExtrapWeight); // Linear (including deadtime)
       
     } else { // m_advancedLumiScaling == kTRUE. Chains can have different extrapolation  
 
-      if (checkPatternNoLumiWeight(getName())) { // SPECIAL CASE #1
+      Bool_t _specialCase1 = kFALSE, _specialCase3 = kFALSE;
 
-        m_lumiExtrapolationFactor = Config::config().getFloat(kDeadtimeScalingFinal);
+      if      (m_iAmRandom == kTRUE && m_level == 1) _specialCase1 = kTRUE;
+      else if (m_iAmRandom == kTRUE && m_level >  1) _specialCase3 = kTRUE;
+
+      if (checkPatternNoLumiWeight(getName()) || _specialCase1) { // SPECIAL CASE #1
+
+        m_lumiExtrapolationFactor = Config::config().getFloat(kDeadtimeScalingFinal); // Only deadtime
         Config::config().addVecEntry(kListOfNoLumiWeightChains, getName());
 
       } else if (checkPatternNoMuLumiWeight(getName())) { // SPECIAL CASE #2
 
-        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalBunchComponent);
+        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalBunchComponent); // Bunch and deadtime
         m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
         Config::config().addVecEntry(kListOfNoMuLumiWeightChains, getName());
 
-      } else if (checkPatternNoBunchLumiWeight(getName())) { // SPECIAL CASE #3
+      } else if (checkPatternNoBunchLumiWeight(getName()) || _specialCase3) { // SPECIAL CASE #3
 
-        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalMuComponent);
+        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalMuComponent); // Mu and deadtime
         m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
         Config::config().addVecEntry(kListOfNoBunchLumiWeightChains, getName());
 
-      } else if (m_iAmRandom == kTRUE && m_level == 1) {
+      } else if (checkPatternExponentialWithMu(getName())) { // SPECIAL CASE #4
 
-        // No extrapolation... except for the deadtime fraction. Still want this.
-        // Same as special case #1
-        m_lumiExtrapolationFactor = Config::config().getFloat(kDeadtimeScalingFinal);
-
-      } else if (m_iAmRandom == kTRUE && m_level > 1) {
-
-        // Only <mu> based extrapolation. Putting in the deadtime fraction too
-        // Same as special case #3
-        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalMuComponent);
+        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalExpo); // Exponential mu, bunch and deadtime
         m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
+        Config::config().addVecEntry(kListOfExpoMuLumiWeightChains, getName());
 
       } else if (m_bunchGroupType == kBG_EMPTY || m_bunchGroupType == kBG_FIRSTEMPTY) {
 

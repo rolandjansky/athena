@@ -12,6 +12,7 @@
 #include <map>
 #include <utility> //std::pair
 #include <iostream>
+#include <iomanip>
 #include <assert.h>
 #include <sstream>
 #include <cmath>
@@ -56,15 +57,8 @@ namespace TrigCostRootAnalysis {
       m_eventsPerBGCounter(),
       m_unbiasedPerBGCounter(),
       m_weightsServiceEnabled(kFALSE),
-      m_parsedRunXML(kFALSE) {
-
-    parseRunXML();
-    if ( Config::config().getIsSet(kPrescaleXMLPath1) == kTRUE) parseXML(1);
-    if ( Config::config().getIsSet(kPrescaleXMLPath2) == kTRUE) parseXML(2);
-	  if (m_serviceEnabled == kFALSE) {
-      Warning("TrigXMLService::TrigXMLService", "User did not supply any prescale XML files. L1 PS=%f and HLT PS=%f will be used.",
-        Config::config().getFloat(kRateFallbackPrescaleL1), Config::config().getFloat(kRateFallbackPrescaleHLT));
-    }
+      m_parsedRunXML(kFALSE),
+      m_computerUnknownID(0) {
   }
 
   /**
@@ -74,6 +68,16 @@ namespace TrigCostRootAnalysis {
   TrigXMLService& TrigXMLService::trigXMLService() { // Instance getter
     static TrigXMLService instance; // Guaranteed to be destroyed.
     return instance;        // Instantiated on first use.
+  }
+
+  void TrigXMLService::init() {
+    parseRunXML();
+    if ( Config::config().getIsSet(kPrescaleXMLPath1) == kTRUE) parseXML(1);
+    if ( Config::config().getIsSet(kPrescaleXMLPath2) == kTRUE) parseXML(2);
+    if (m_serviceEnabled == kFALSE) {
+      Warning("TrigXMLService::TrigXMLService", "User did not supply any prescale XML files. L1 PS=%f and HLT PS=%f will be used.",
+        Config::config().getFloat(kRateFallbackPrescaleL1), Config::config().getFloat(kRateFallbackPrescaleHLT));
+    }
   }
 
   Double_t TrigXMLService::getPrescale(const std::string& _name) {
@@ -188,23 +192,33 @@ namespace TrigCostRootAnalysis {
       return 1.;
     }
 
+    Float_t _scalingFactor = _predictionLumi / _runLumi;
+    _scalingFactor *= 1 + _onlineDeadtime;
+
     // Do we have a target mu?
     if ( !isZero(Config::config().getFloat(kTargetPeakMuAverage)) && Config::config().getIsSet(kOnlinePeakMuAverage) ) {
       Float_t _lumiScaling = _predictionLumi / _runLumi;
       Float_t _targetMu = Config::config().getFloat(kTargetPeakMuAverage);
       Float_t _onlineMu = Config::config().getFloat(kOnlinePeakMuAverage);
+      Float_t _expoRateScaleModifier = Config::config().getFloat(kExpoRateScaleModifier);
       Float_t _lumiMuScaling = _targetMu / _onlineMu;
       Float_t _lumiBunchScaling = _lumiScaling / _lumiMuScaling;
+      Float_t _lumiMuScalingExpo = TMath::Exp((_targetMu - _onlineMu) * _expoRateScaleModifier);
+      Float_t _lumiScalingExpo = _lumiBunchScaling * _lumiMuScalingExpo;
       Int_t _maxBunches = Config::config().getInt(kMaxBunches);
       Int_t _maxBCIDs = Config::config().getInt(kMaxBCIDs);
       Int_t _targetBunches = (Int_t) std::round(m_bunchGroupXML[1].second * _lumiBunchScaling);
-      Info("TrigXMLService::getLumiExtrapWeight", "Using targetMu setting %.2f. <mu> scaling factor: %.2f->%.2f = %.2f. Bunch scaling factor: %i->%i = %.2f. Total lumi scaling factor = %.2f",
-        _targetMu, _onlineMu, _targetMu, _lumiMuScaling, m_bunchGroupXML[1].second, _targetBunches, _lumiBunchScaling, _lumiScaling);
-      Info("TrigXMLService::getLumiExtrapWeight", "The targetMu setting allows for the rates prediction to properly extrapolate random seeded chains. Otherwise their rates are overestimated.");
+      Info("TrigXMLService::getLumiExtrapWeight", "Using targetMu setting %.2f. <mu> scaling factor: %.2f->%.2f = %.2f. Bunch scaling factor: %i->%i = %.2f. Lumi scaling factor, reg. = %.2f, expo. mu = %.2f",
+        _targetMu, _onlineMu, _targetMu, _lumiMuScaling, m_bunchGroupXML[1].second, _targetBunches, _lumiBunchScaling, _lumiScaling, _lumiScalingExpo);
+      Info("TrigXMLService::getLumiExtrapWeight", "Online deadtime was %.2f%%, including deadtime - the final lumi scaling factors are: linear = %.2f, exponential in mu = %.2f, bunch only = %.2f, mu only = %.2f",
+        _onlineDeadtime*100., _lumiScaling * (1 + _onlineDeadtime), _lumiScalingExpo * (1 + _onlineDeadtime), _lumiBunchScaling * (1 + _onlineDeadtime), _lumiMuScaling * (1 + _onlineDeadtime) );
+      Info("TrigXMLService::getLumiExtrapWeight", "PredictionLumi taken from %s.", _predFrom.c_str());
       if (_targetBunches > _maxBunches + 15 /*allow wiggle room*/ || _targetBunches < 1) {
         Warning("TrigXMLService::getLumiExtrapWeight", "To get to L=%.2e with a --targetMu of %.2f requires %i bunches. A full ring is %i!",
           _predictionLumi, _targetMu, _targetBunches, _maxBunches);
       }
+      // Can request exponential scaling in <mu>
+
       // Some extra calculations for EMPTY bunchgroup scaling
       Int_t _currentEmptyBunches = std::max(0, _maxBCIDs - m_bunchGroupXML[1].second); // Filled
       Int_t _targetEmptyBunches = std::max(0, _maxBCIDs - _targetBunches);
@@ -213,16 +227,16 @@ namespace TrigCostRootAnalysis {
       // Write info
       Config::config().set(kDoAdvancedLumiScaling, 1, "DoAdvancedLumiScaling");
       Config::config().setFloat(kPredictionLumiFinalMuComponent, _lumiMuScaling, "PredictionLumiFinalMuComponent");
+      Config::config().setFloat(kPredictionLumiFinalMuExpoComponent, _lumiMuScalingExpo, "PredictionLumiFinalExponentialMuComponent");
       Config::config().setFloat(kPredictionLumiFinalBunchComponent, _lumiBunchScaling, "PredictionLumiFinalBunchComponent");
+      Config::config().setFloat(kPredictionLumiFinalExpo, _lumiScalingExpo, "PredictionLumiFinalExponentialMu");
       Config::config().setFloat(kEmptyBunchgroupExtrapolaion, _emptyExtrap, "EmptyBunchgroupExtrapolation");
       Config::config().set(kTargetPairedBunches, _targetBunches, "TargetPairedBunches");
+    } else {
+      // This is the old-style message, only show it now if doing basic extrapolation mode
+      Info("TrigXMLService::getLumiExtrapWeight","Predictions will be scaled by %.4f from EB RunLumi %.2e to "
+        "PredictionLumi %.2e. Including a %.2f%% correction for online deadtime. PredictionLumi taken from %s.", _scalingFactor, _runLumi, _predictionLumi, _onlineDeadtime*100., _predFrom.c_str());
     }
-
-    Float_t _scalingFactor = _predictionLumi / _runLumi;
-    _scalingFactor *= 1 + _onlineDeadtime;
-    Info("TrigXMLService::getLumiExtrapWeight","Predictions will be scaled by %.4f from EB RunLumi %.2e to "
-      "PredictionLumi %.2e. Including a %.2f%% correction for online deadtime. PredictionLumi taken from %s.", _scalingFactor, _runLumi, _predictionLumi, _onlineDeadtime*100., _predFrom.c_str());
-
 
     Config::config().setFloat(kLumiExtrapWeight, _scalingFactor, "FinalLumiExtrapWeight", kLocked); // Keep a note of this factor
     Config::config().setFloat(kPredictionLumiFinal, _predictionLumi, "PredictionLumiFinal", kLocked); 
@@ -378,19 +392,17 @@ namespace TrigCostRootAnalysis {
         XMLNodePointer_t _chainNode = _xml->GetChild( _listNode );
         while( _chainNode != 0) {
           assert( _xml->GetNodeName(_chainNode) == std::string("Prescale"));
-          Int_t _ctpid = stringToInt( _xml->GetAttr(_chainNode, "ctpid"));
+          Int_t _ctpid = stringToInt( _xml->GetAttr(_chainNode, "ctpid") );
           const std::string _L1Name = m_CTPIDToL1Name[ _ctpid ];
-          if (_L1Name == Config::config().getStr(kBlankString)) {
+          Double_t _prescale = stringToDouble( _xml->GetAttr(_chainNode, "value") );
+          if (_L1Name == Config::config().getStr(kBlankString) && _prescale >= 0) {
             Error("TrigXMLService::parseL1MenuXML","XML trying to set PS for CTPID %i, but no chain name was supplied by the file", _ctpid);
             _chainNode = _xml->GetNext(_chainNode);
             continue;
-          }
-          if (_xml->GetNodeContent(_chainNode) == NULL) {
-            Error("TrigXMLService::parseL1MenuXML","Unable to extract prescale for %s", _L1Name.c_str());
+          } else if (_L1Name == Config::config().getStr(kBlankString)) { // Silent continue
             _chainNode = _xml->GetNext(_chainNode);
             continue;
           }
-          Double_t _prescale = stringToDouble( _xml->GetNodeContent(_chainNode) );
           m_chainCounter[_L1Name] = _ctpid;
           m_chainPS[_L1Name] = _prescale;
           ++_chainsRead;
@@ -401,7 +413,7 @@ namespace TrigCostRootAnalysis {
         }
 
       } else {
-        Error("TrigXMLService::parseL1MenuXML","Found an unknown XML element %s", _listName.c_str());
+        Info("TrigXMLService::parseL1MenuXML","Ignoring an unknown L1 menu XML element %s", _listName.c_str());
       }
 
       _listNode = _xml->GetNext(_listNode);
@@ -709,6 +721,138 @@ namespace TrigCostRootAnalysis {
    */
   Int_t TrigXMLService::getOnlineEventsInLB(Int_t _lb) {
     return m_totalEventsPerLB[ _lb ];
+  }
+
+
+  /**
+   * Load which PCs have which CPUs
+   */
+  void TrigXMLService::parseHLTFarmXML() {
+    TXMLEngine* _xml = new TXMLEngine();
+
+    std::string _path;
+    if (Config::config().getInt(kIsRootCore) == kTRUE) {
+      _path = std::string( Config::config().getStr(kDataDir) + Config::config().getStr(kFarmXML) );
+    } else {
+// CAUTION - "ATHENA ONLY" CODE
+#ifndef ROOTCORE
+      _path = PathResolverFindDataFile( Config::config().getStr(kFarmXML) );
+#endif // not ROOTCORE
+    }
+
+    XMLDocPointer_t _xmlDoc = _xml->ParseFile( _path.c_str() );
+
+    if (_xmlDoc == 0) {
+      Error("TrigXMLService::parseHLTFarmXML","Unable to load HLT farm XML %s.", Config::config().getStr(kFarmXML).c_str());
+      delete _xml;
+      return;
+    }
+
+    // Navigate XML
+    XMLNodePointer_t _mainNode = _xml->DocGetRootElement(_xmlDoc);
+    assert( _xml->GetNodeName(_mainNode) == std::string("oks-data") );
+    XMLNodePointer_t _typesNode = _xml->GetChild( _mainNode );
+    XMLNodePointer_t _compsNode = _xml->GetNext( _typesNode );
+
+    XMLNodePointer_t _typeNode = _xml->GetChild( _typesNode );
+    XMLNodePointer_t _compNode = _xml->GetChild( _compsNode );
+
+    while ( _typeNode != 0 ) { // Loop over all menu elements
+      assert( _xml->GetNodeName(_typeNode) == std::string("type"));
+      UInt_t _id = stringToInt(_xml->GetAttr(_typeNode, "code"));
+      std::string _name = _xml->GetAttr(_typeNode, "name");
+      m_computerTypeToNameMap[_id] = _name;
+      if (_name == "UNKNOWN CPU") m_computerUnknownID = _id; 
+      _typeNode = _xml->GetNext(_typeNode);
+    }
+
+    std::map< std::pair<UInt_t,UInt_t>, UInt_t> _computerIDToTypeMap;
+    std::map< std::pair<UInt_t,UInt_t>, UInt_t>::const_iterator _compIt;
+    while ( _compNode != 0 ) { // Loop over all menu elements
+      assert( _xml->GetNodeName(_compNode) == std::string("c"));
+      std::string _computer = _xml->GetAttr(_compNode, "i");
+      UInt_t _rack = stringToInt( _computer.substr(0,2) );
+      UInt_t _comp = stringToInt( _computer.substr(2,3) );
+      UInt_t _type = stringToInt(_xml->GetAttr(_compNode, "t"));
+      _computerIDToTypeMap[ std::make_pair(_rack,_comp) ] = _type;
+      _compNode = _xml->GetNext(_compNode);
+    }
+
+    // Now build a map of PU hash to computer type
+    const std::string _hltLevel = "HLT";
+    std::set<Int_t> _coreTypes = {8, 12, 24};
+    Int_t _myCompType = -1;
+    for (Int_t _core : _coreTypes) {
+      for (Int_t _rack = 1; _rack <= 95; ++_rack) {
+        for (Int_t _pc = 1; _pc <= 40; ++_pc) {
+          _compIt = _computerIDToTypeMap.find( std::make_pair(_rack,_pc) );
+          if ( _compIt != _computerIDToTypeMap.end() ) _myCompType = (*_compIt).second;
+          else                                         _myCompType = m_computerUnknownID;
+          for (Int_t _pu = 1; _pu <= _core; ++_pu) {
+            std::stringstream _ss;
+            std::string _s;
+            _ss << std::setfill('0') 
+              << "APP_" << _hltLevel 
+              << ":HLTMPPU-" 
+              << _core
+              << "-MTS:HLT-" 
+              << _core
+              << ":tpu-rack-"  
+              << std::setw(2) << _rack 
+              << ":pc-tdq-tpu-" 
+              << std::setw(2) << _rack 
+              << std::setw(3) << _pc 
+              << "-"
+              << std::setw(2) << _pu;
+            _s = _ss.str();
+            m_PUHashToPUType[stringToIntHash(_s)] = _myCompType;
+
+            _ss.str(std::string());
+            _ss << std::setfill('0') 
+              << "APP_" << _hltLevel 
+              << ":HLTMPPU-" 
+              << _core
+              << "-MTS:HLT-" 
+              << _core
+              << "-MTS:tpu-rack-"  
+              << std::setw(2) << _rack 
+              << ":pc-tdq-tpu-" 
+              << std::setw(2) << _rack 
+              << std::setw(3) << _pc 
+              << "-"
+              << std::setw(2) << _pu;
+            _s = _ss.str();
+            m_PUHashToPUType[stringToIntHash(_s)] = _myCompType;
+
+            _ss.str(std::string());
+            _ss << std::setfill('0') 
+              << "APP_" << _hltLevel 
+              << ":HLTMPPU-" 
+              << _core
+              << ":HLT-" 
+              << _core
+              << "-NoTS:tpu-rack-"  
+              << std::setw(2) << _rack 
+              << ":pc-tdq-tpu-" 
+              << std::setw(2) << _rack 
+              << std::setw(3) << _pc 
+              << "-"
+              << std::setw(2) << _pu;
+            _s = _ss.str();
+            m_PUHashToPUType[stringToIntHash(_s)] = _myCompType;
+          }
+        }
+      }
+    }
+
+    delete _xml;
+    return;
+  }
+
+  UInt_t TrigXMLService::getComputerType(UInt_t _hash) {
+    UIntUIntMapIt_t _it = m_PUHashToPUType.find(_hash);
+    if (_it == m_PUHashToPUType.end()) return m_computerUnknownID;
+    return (*_it).second;
   }
 
   /**
