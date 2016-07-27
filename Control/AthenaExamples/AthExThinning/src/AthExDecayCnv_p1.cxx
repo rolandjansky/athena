@@ -42,7 +42,7 @@ AthExDecayCnv_p1::persToTrans( const AthExDecay_p1* persObj,
 {
   msg << MSG::DEBUG 
       << "Loading Decay from persistent state..."
-      << endreq;
+      << endmsg;
   
   // convert the ElementLink<Particles>
   m_partLinkCnv.persToTrans( &persObj->m_p1,
@@ -62,7 +62,7 @@ AthExDecayCnv_p1::persToTrans( const AthExDecay_p1* persObj,
 
   msg << MSG::DEBUG 
       << "Loaded Decay from persistent state [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 
@@ -73,7 +73,7 @@ AthExDecayCnv_p1::transToPers( const AthExDecay* transObj,
 {
   msg << MSG::DEBUG 
       << "Creating persistent state of Decay..."
-      << endreq;
+      << endmsg;
 
   // convert the ElementLink<Particles>
   m_partLinkCnv.transToPers( &transObj->m_p1,
@@ -92,7 +92,7 @@ AthExDecayCnv_p1::transToPers( const AthExDecay* transObj,
 			     msg );
   msg << MSG::DEBUG 
       << "Created persistent state of Decay [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 

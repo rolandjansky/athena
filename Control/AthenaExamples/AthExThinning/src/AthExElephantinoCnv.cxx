@@ -52,7 +52,7 @@ AthExElephantinoCnv::createPersistent(AthExElephantino* transCont)
   AthExElephantinoCnv_p1 cnv;
   AthExElephantino_PERS *persObj = cnv.createPersistent(transCont, msg);
 
-  msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+  msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return persObj; 
 }
 

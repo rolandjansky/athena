@@ -52,7 +52,7 @@ AthExParticlesCnv::createPersistent(AthExParticles* transCont)
   AthExParticlesCnv_p1 cnv;
   AthExParticles_PERS *persObj = cnv.createPersistent(transCont, msg);
 
-  msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+  msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return persObj; 
 }
 

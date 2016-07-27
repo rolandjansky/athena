@@ -42,7 +42,7 @@ AthExFatObjectCnv_p1::persToTrans (const AthExFatObject_p1* pers,
 {
   msg << MSG::DEBUG 
       << "Loading FatObject from persistent state..."
-      << endreq;
+      << endmsg;
   
   m_cnv.persToTrans( &pers->m_particleLink, &trans->m_particleLink, msg );
   // restore the raw-pointer too
@@ -54,7 +54,7 @@ AthExFatObjectCnv_p1::persToTrans (const AthExFatObject_p1* pers,
 
   msg << MSG::DEBUG 
       << "Loaded FatObject from persistent state [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 
@@ -65,13 +65,13 @@ AthExFatObjectCnv_p1::transToPers( const AthExFatObject* trans,
 {
   msg << MSG::DEBUG 
       << "Creating persistent state of FatObject..."
-      << endreq;
+      << endmsg;
 
   m_cnv.transToPers( &trans->m_particleLink, &pers->m_particleLink, msg );
 
   msg << MSG::DEBUG 
       << "Created persistent state of FatObject [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 

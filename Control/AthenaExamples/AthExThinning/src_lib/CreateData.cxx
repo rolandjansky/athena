@@ -176,10 +176,10 @@ StatusCode CreateData::makeData( const std::string& test )
 
   const double igev = 1. / CLHEP::GeV;
   ATH_MSG_INFO
-    ("Created a Decay from :" << endreq
-     << " p1: px= " << dcy->p1()->px() * igev << endreq
-     << " p2: px= " << dcy->p2()->px() * igev << endreq
-     << " l1: px= " << dcy->l1()->px() * igev << endreq
+    ("Created a Decay from :" << endmsg
+     << " p1: px= " << dcy->p1()->px() * igev << endmsg
+     << " p2: px= " << dcy->p2()->px() * igev << endmsg
+     << " l1: px= " << dcy->l1()->px() * igev << endmsg
      << " l2: px= " << dcy->l2()->px() * igev
      );
 
@@ -221,15 +221,15 @@ StatusCode CreateData::makeData( const std::string& test )
   }
 
   ATH_MSG_INFO("  particles: " <<  particles->size()
-	       << endreq <<
+	       << endmsg <<
 	       " iparticles: " << iparticles->size());
     
   if ( iparticles->size() != particles->size() ) {
-    ATH_MSG_ERROR("Error performing the symlink !" << endreq
-		  << " #iparticles: " << iparticles->size() << endreq
-		  << "  #particles: " <<  particles->size() << endreq
-		  << " @iparticles: " << iparticles << endreq
-		  << "  @particles: " <<  particles << endreq
+    ATH_MSG_ERROR("Error performing the symlink !" << endmsg
+		  << " #iparticles: " << iparticles->size() << endmsg
+		  << "  #particles: " <<  particles->size() << endmsg
+		  << " @iparticles: " << iparticles << endmsg
+		  << "  @particles: " <<  particles << endmsg
 		  << "=== StoreGate content ===\n"
 		  << evtStore()->dump());
     return StatusCode::FAILURE;
@@ -249,12 +249,12 @@ StatusCode CreateData::makeData( const std::string& test )
   const ElementLink<AthExIParticles> ie2( (*iparticles)[9], *iparticles );
   eleph->setEars( ie1, ie2 );
 
-  ATH_MSG_INFO("Created an Elephantino from :" << endreq
-	       << " leg1: px= " << eleph->leg1()->px() * igev << endreq
-	       << " leg2: px= " << eleph->leg2()->px() * igev << endreq
-	       << " leg3: px= " << eleph->leg3()->px() * igev << endreq
-	       << " leg4: px= " << eleph->leg4()->px() * igev << endreq
-	       << " ear1: px= " << eleph->ear1()->px() * igev << endreq
+  ATH_MSG_INFO("Created an Elephantino from :" << endmsg
+	       << " leg1: px= " << eleph->leg1()->px() * igev << endmsg
+	       << " leg2: px= " << eleph->leg2()->px() * igev << endmsg
+	       << " leg3: px= " << eleph->leg3()->px() * igev << endmsg
+	       << " leg4: px= " << eleph->leg4()->px() * igev << endmsg
+	       << " ear1: px= " << eleph->ear1()->px() * igev << endmsg
 	       << " ear2: px= " << eleph->ear2()->px() * igev);
 
   return StatusCode::SUCCESS;
