@@ -126,7 +126,7 @@ std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
     const PrepRawData*       prd   = 0;
     const Identifier& id           = rioOnTrack.identify();
 
-    if ( m_muonMgr!=0 && (&rioOnTrack)!=0) {
+    if ( m_muonMgr!=0) {
         //TODO Check that these are in the most likely ordering, for speed. EJWM.
       if (m_muonMgr->rpcIdHelper()->is_rpc(id)){
         detEl =  m_muonMgr->getRpcReadoutElement( id ) ;
