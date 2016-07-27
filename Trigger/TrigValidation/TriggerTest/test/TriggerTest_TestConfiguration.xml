@@ -11,7 +11,9 @@
  tt_20    MC_pp_v6
  tt_21    Physics_pp_v6 
  tt_22    Physics_HI_v3 
- tt_23    MC_pp_v6
+ tt_23    Physics_HI_v4
+ tt_24    MC_HI_v4
+ tt_25    MC_pp_v6_no_prescale_toxAOD_FTK"
  the link setting (tt_3) below is not needed anymore ... 
  tt_3     linker (needs either MC_pp_v6 or Physics_pp_v6) run only 1! of these!
  tt_40    Leakcheck
@@ -62,7 +64,27 @@
             </expectations>
         </TEST>
         
-        <TEST name="AthenaTrigRDO_MC_pp_v6_no_prescale_toxAOD_FTK" type="script" suite="tt_23">
+        <TEST name="AthenaTrigRDO_Physics_HI_v4" type="script" suite="tt_23">
+            <options_atn>trigtest.pl --test AthenaTrigRDO_Physics_HI_v4 --run AthenaTrigRDO_Physics_HI_v4 --conf TriggerTest.conf</options_atn>
+            <timelimit>60</timelimit>
+            <author>Trigger Validation</author>
+            <expectations>
+                <errorMessage>FAILURE </errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <TEST name="AthenaTrigRDO_MC_HI_v3" type="script" suite="tt_24">
+            <options_atn>trigtest.pl --test AthenaTrigRDO_MC_HI_v3 --run AthenaTrigRDO_MC_HI_v3 --conf TriggerTest.conf</options_atn>
+            <timelimit>60</timelimit>
+            <author>Trigger Validation</author>
+            <expectations>
+                <errorMessage>FAILURE </errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <TEST name="AthenaTrigRDO_MC_pp_v6_no_prescale_toxAOD_FTK" type="script" suite="tt_25">
             <options_atn>trigtest.pl --test AthenaTrigRDO_MC_pp_v6_no_prescale_toxAOD_FTK --run AthenaTrigRDO_MC_pp_v6_no_prescale_toxAOD_FTK --conf TriggerTest.conf</options_atn>
             <timelimit>60</timelimit>
             <author>Trigger Validation</author>
@@ -293,6 +315,8 @@
             <prerequisite>tt_21</prerequisite>
             <prerequisite>tt_22</prerequisite>
             <prerequisite>tt_23</prerequisite>
+            <prerequisite>tt_24</prerequisite>
+            <prerequisite>tt_25</prerequisite>
             <!--prerequisite>tt_3</prerequisite-->
             <!--prerequisite>tt_40</prerequisite-->
             <!--prerequisite>tt_41</prerequisite-->
@@ -415,7 +439,7 @@
                 </doc>
                 <displayName>Physics_HI_v3</displayName>
                 <commandLineFlags>
-                    enableCostMonitoring=True;RunningRTT=True;menu='Physics_HI_v3';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(500);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_5TeV.420000.Hijing_PbPb_5p02TeV_MinBias_Flow_JJFV6.recon.RDO.e3754_s2633_r7161';fileRange=[1,10]
+                    enableCostMonitoring=True;RunningRTT=True;menu='Physics_HI_v3';from AthenaCommon.GlobalFlags import globalflags;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(500);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_5TeV.420000.Hijing_PbPb_5p02TeV_MinBias_Flow_JJFV6.recon.RDO.e3754_s2633_r7161';fileRange=[1,10]
                 </commandLineFlags>
                 <options>testCommonSliceAthenaTrigRDO.py</options>
                 <package>Trigger/TrigValidation/TriggerTest</package>
@@ -424,6 +448,20 @@
                 <alwaysRunPostProc />
             </athena>
             
+            <athena  userJobId="Physics_HI_v4" >
+                <doc>
+                    Test of Physics_HI_v4 menu on RDO
+                </doc>
+                <displayName>Physics_HI_v4</displayName>
+                <commandLineFlags>
+                    enableCostMonitoring=True;RunningRTT=True;menu='Physics_HI_v4';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00';fileRange=[1,2]
+                </commandLineFlags>
+                <options>testCommonSliceAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>   
+                <queue>long</queue>
+                <alwaysRunPostProc />
+            </athena>
             
             
             <athena userJobId="MC_pp_v6" doMonitoring="True">
@@ -516,7 +554,21 @@
                 <alwaysRunPostProc />
             </athena>
             
-            
+            <athena  userJobId="MC_HI_v4" >
+                <doc>
+                    Test of MC_HI_v4 menu on ttbar RDO
+                </doc>
+                <displayName>MC_HI_v4</displayName>
+                <commandLineFlags>
+                    enableCostMonitoring=True;RunningRTT=True;menu='MC_HI_v3_tight_mc_prescale';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00';fileRange=[1,2]
+                </commandLineFlags>
+                <options>testCommonSliceAthenaTrigRDO.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>   
+                <queue>long</queue>
+                <alwaysRunPostProc />
+            </athena>
+
             <!-- Jobs to run each slice and keep monitoring histograms - RG 14/5/07 -->
             <!-- MC based slice tests --> 
             
