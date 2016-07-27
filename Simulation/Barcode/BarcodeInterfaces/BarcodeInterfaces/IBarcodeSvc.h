@@ -9,8 +9,8 @@
 #define BARCODEINTERFACES_IBARCODESVC_H 1
 
 // Barcode includes
-#include "BarcodeInterfaces/Barcode.h"
-#include "BarcodeInterfaces/PhysicsProcessCode.h"
+#include "BarcodeEvent/Barcode.h"
+#include "BarcodeEvent/PhysicsProcessCode.h"
 
 // Include Files
 #include "GaudiKernel/IInterface.h"
