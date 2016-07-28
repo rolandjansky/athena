@@ -44,7 +44,7 @@ IOVDbParser::IOVDbParser(const std::string& input, MsgStream* log) :
         } else {
           *m_log << MSG::ERROR << 
             "Badly formed XML string, no closing tag for " << tag <<
-            " in " << input << endreq;
+            " in " << input << endmsg;
           m_valid=false;
           iofs=std::string::npos;
         }
@@ -67,7 +67,7 @@ IOVDbParser::IOVDbParser(const std::string& input, MsgStream* log) :
         // found a < but no closing >
         *m_log << MSG::ERROR << 
           "Badly formed XML string, no closing < in input " <<
-          input << endreq;
+          input << endmsg;
         iofs=std::string::npos;
         m_valid=false;
       }
@@ -80,11 +80,11 @@ IOVDbParser::IOVDbParser(const std::string& input, MsgStream* log) :
   this->clean(); //rectify obsolete key names
   if (m_log->level()<=MSG::VERBOSE) {
     *m_log << MSG::VERBOSE << 
-      "parseXML processed input string: " << input << endreq;
+      "parseXML processed input string: " << input << endmsg;
     for (KeyValMap::const_iterator itr=m_keys.begin();
          itr!=m_keys.end();++itr) {
       *m_log << MSG::VERBOSE << "Key: " << itr->first << " value:" << 
-        itr->second << endreq;
+        itr->second << endmsg;
     }
   }
 }
@@ -145,12 +145,12 @@ unsigned IOVDbParser::applyOverrides(const IOVDbParser& other, MsgStream* log) {
     KeyValMap::iterator it=m_keys.find(otherKey);
     if (it==m_keys.end()) {
       *log << MSG::INFO << "Folder " << m_keys[""] << ", adding new key " << otherKey 
-           << " with value " << otherValue << endreq; 
+           << " with value " << otherValue << endmsg; 
       m_keys[otherKey]=otherValue;
     }
     else {
       *log << MSG::INFO << "Folder " << m_keys[""] << ", Key: " << otherKey 
-           <<  "Overriding existing value " << m_keys[otherKey] << " to new value " << otherValue << endreq;
+           <<  "Overriding existing value " << m_keys[otherKey] << " to new value " << otherValue << endmsg;
       it->second=otherValue;
     }
     ++keyCounter;
