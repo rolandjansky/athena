@@ -223,7 +223,7 @@ StatusCode TrigDecisionMaker::execute()
   if ( evtStore()->retrieve(eventInfo).isFailure() ) {
     ATH_MSG_WARNING ( "Failed to retrieve event info" ) ;
   } else {
-    EventID* myEventID = eventInfo->event_ID();
+    const EventID* myEventID = eventInfo->event_ID();
     ATH_MSG_DEBUG ( "Run " << myEventID->run_number()
                     << "; Event " << myEventID->event_number()
                     << "; BC-ID " << myEventID->bunch_crossing_id() ) ;
@@ -331,9 +331,8 @@ std::string TrigDecisionMaker::updatedDecisionKey()
 
   while (alreadyThere) {
     if (evtStore()->contains<TrigDecision>( key )) {
-      if (outputLevel() <= MSG::WARNING)
-        ATH_MSG_WARNING ( key << " already exists: "
-                          << " using new key " << key << "+." ) ;
+      ATH_MSG_WARNING ( key << " already exists: "
+                        << " using new key " << key << "+." ) ;
       key += "+";
     }
     else alreadyThere = false;
