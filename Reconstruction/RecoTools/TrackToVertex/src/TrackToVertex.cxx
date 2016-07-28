@@ -227,6 +227,21 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtBeamline(const Trk::Track& tra
   Trk::PerigeeSurface persf(amgTransf); 
   
   const Trk::Perigee* vertexPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(track, persf));
+  if (!vertexPerigee) {
+    // workaround.
+    // try again using the first track parameter set, since the current extrapolator will
+    // use "the closest" track parameterset which is not necessarily the mostuseful one to
+    // start the extrapolation with.
+    // @TODO should try to improve the extrapolator to pick the correct start parameters.
+    const DataVector<const Trk::TrackParameters> *track_parameter_list= track.trackParameters();
+    if (track_parameter_list) {
+      for(const Trk::TrackParameters *trk_params: *track_parameter_list) {
+        if (!trk_params) continue;
+        vertexPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(*trk_params, persf));
+        break;
+      }
+    }
+  }
   if (!vertexPerigee){
     const Trk::Perigee* trackPerigee = track.perigeeParameters();
     if ( trackPerigee && trackPerigee->associatedSurface() == persf )
