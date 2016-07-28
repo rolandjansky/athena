@@ -81,23 +81,23 @@ namespace MuonCalib {
     m_log.setLevel(outputLevel());    //individual outputlevel not known before inialize
     m_debugLevel = (m_log.level() <= MSG::DEBUG);
     
-    m_log << MSG::INFO << "Initializing RpcCoolStrSvc" <<endreq;
+    m_log << MSG::INFO << "Initializing RpcCoolStrSvc" <<endmsg;
     
     // get detector store, linked to cool database by other algorithms in your
     // jobOptions file.
     if (StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
-      m_log << MSG::FATAL << "Detector store not found" << endreq; 
+      m_log << MSG::FATAL << "Detector store not found" << endmsg; 
       return StatusCode::FAILURE;
     }
     
     
-    m_log << MSG::ERROR << "THIS CODE IS EXPERIMENTAL, NOT TO BE USED IN PRODUCTION" << endreq;
-    m_log << MSG::ERROR << "THIS CODE IS EXPERIMENTAL, NOT TO BE USED IN PRODUCTION" << endreq;
-    m_log << MSG::ERROR << "************** LOTS OF MEMORY LEAKS YET ***************" << endreq;
-    m_log << MSG::ERROR << "                 USE AT YOUR OWN RISK" << endreq;
-    m_log << MSG::ERROR << "                 USE AT YOUR OWN RISK" << endreq;
+    m_log << MSG::ERROR << "THIS CODE IS EXPERIMENTAL, NOT TO BE USED IN PRODUCTION" << endmsg;
+    m_log << MSG::ERROR << "THIS CODE IS EXPERIMENTAL, NOT TO BE USED IN PRODUCTION" << endmsg;
+    m_log << MSG::ERROR << "************** LOTS OF MEMORY LEAKS YET ***************" << endmsg;
+    m_log << MSG::ERROR << "                 USE AT YOUR OWN RISK" << endmsg;
+    m_log << MSG::ERROR << "                 USE AT YOUR OWN RISK" << endmsg;
 
-    m_log << MSG::INFO << "using folder " << m_folder<<endreq;
+    m_log << MSG::INFO << "using folder " << m_folder<<endmsg;
 
     //Setup RpcIdHelper
     StoreGateSvc* detStore= 0;
@@ -108,13 +108,13 @@ namespace MuonCalib {
 	sc = detStore->retrieve(m_rpcId,"RPCIDHELPER");
 	if(sc.isFailure())
 	  {
-	    m_log << MSG::ERROR << "Cannot retrieve RpcIdHelper from detector store" << endreq;
+	    m_log << MSG::ERROR << "Cannot retrieve RpcIdHelper from detector store" << endmsg;
 	    return sc;
 	  }
       }
     else
       {
-	m_log << MSG::ERROR << "MuonDetDescrMgr not found in DetectorStore " << endreq;
+	m_log << MSG::ERROR << "MuonDetDescrMgr not found in DetectorStore " << endmsg;
 	return sc;
       } 
 
@@ -123,7 +123,7 @@ namespace MuonCalib {
   
   StatusCode RpcCoolStrSvc::finalize()
   {
-    m_log << MSG::DEBUG << "in finalize()" << endreq;
+    m_log << MSG::DEBUG << "in finalize()" << endmsg;
     return StatusCode::SUCCESS;
   }
   
@@ -133,13 +133,13 @@ namespace MuonCalib {
     // for the time being let's keep this 
 
     m_theOnlineEntries.clear();
-    m_log << MSG::INFO << "Opening the online mask file " << filename << " for entry into COOL database." << endreq;
+    m_log << MSG::INFO << "Opening the online mask file " << filename << " for entry into COOL database." << endmsg;
     
     //open file
     ifstream in(filename.c_str());       
     if(!in.is_open())
       {
-	m_log << MSG::ERROR << "Can't open online mask file " << filename << "!" << endreq;
+	m_log << MSG::ERROR << "Can't open online mask file " << filename << "!" << endmsg;
 	return StatusCode::FAILURE;
       }	
 
@@ -163,7 +163,7 @@ namespace MuonCalib {
 
     }
     
-    m_log << MSG::DEBUG << "Finished reading file, now writing to database " << endreq; 
+    m_log << MSG::DEBUG << "Finished reading file, now writing to database " << endmsg; 
 
     return writeToOnlineDB();
  
@@ -180,13 +180,13 @@ namespace MuonCalib {
     
 
     m_theEntries.clear();
-    m_log << MSG::INFO << "Opening the calibration file " << filename << " for entry into COOL database." << endreq;
+    m_log << MSG::INFO << "Opening the calibration file " << filename << " for entry into COOL database." << endmsg;
     
     //open file
     ifstream in(filename.c_str());       
     if(!in.is_open())
       {
-	m_log << MSG::ERROR << "Can't open calibration file " << filename << "!" << endreq;
+	m_log << MSG::ERROR << "Can't open calibration file " << filename << "!" << endmsg;
 	return StatusCode::FAILURE;
       }	
 
@@ -208,7 +208,7 @@ namespace MuonCalib {
 
     }
 
-    m_log << MSG::INFO << "Finished reading file, now writing to database " << endreq; 
+    m_log << MSG::INFO << "Finished reading file, now writing to database " << endmsg; 
 
     return writeToDB();
     
@@ -222,11 +222,11 @@ namespace MuonCalib {
     CondAttrListCollection* atrc=0;
     if (!p_detstore->contains<CondAttrListCollection>(m_folder)) {
       m_log << MSG::DEBUG << "Creating new CondAttrListCollection for folder "
-	  << m_folder << endreq;
+	  << m_folder << endmsg;
       CondAttrListCollection* atrc=new CondAttrListCollection(true);
       if (StatusCode::SUCCESS!=p_detstore->record(atrc,m_folder)) {
 	m_log << MSG::ERROR << "Could not create CondAttrListCollection " <<
-	  m_folder << endreq;
+	  m_folder << endmsg;
 	return StatusCode::FAILURE;
       }
     }
@@ -234,10 +234,10 @@ namespace MuonCalib {
 
     // do const cast here so we can add to already exisiting collections
     const CondAttrListCollection* catrc=0;
-    m_log << MSG::DEBUG << "Attempting to retrieve collection (const)" << endreq;
+    m_log << MSG::DEBUG << "Attempting to retrieve collection (const)" << endmsg;
     if (StatusCode::SUCCESS!=p_detstore->retrieve(catrc,m_folder)) {
       m_log << MSG::ERROR << "Could not retrieve CondAttrListCollection " <<
-	m_folder << endreq;
+	m_folder << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -245,11 +245,11 @@ namespace MuonCalib {
     atrc=const_cast<CondAttrListCollection*>(catrc);
     if (atrc==0) {
       m_log << MSG::ERROR << "Could not retrieve non-const pointer to atrc" <<
-	endreq;
+	endmsg;
       return StatusCode::FAILURE;
     }
     
-    m_log << MSG::DEBUG << "About to create AttributeListSpecification" << endreq;
+    m_log << MSG::DEBUG << "About to create AttributeListSpecification" << endmsg;
     
     coral::AttributeListSpecification* aspec=0;
     aspec=new coral::AttributeListSpecification();
@@ -281,7 +281,7 @@ namespace MuonCalib {
 
     //    std::cout<<"****** "<<std::oct<<channum<< " " <<m_theOnlineEntries[k]->getID()<<std::dec<<std::endl;
 
-    m_log << MSG::DEBUG << "About to add channel to: " << atrc << endreq;
+    m_log << MSG::DEBUG << "About to add channel to: " << atrc << endmsg;
     atrc->add(channum,alist);
 
     }
@@ -307,31 +307,31 @@ namespace MuonCalib {
     CondAttrListCollection* atrc=0;
     if (!p_detstore->contains<CondAttrListCollection>(m_folder)) {
       m_log << MSG::DEBUG << "Creating new CondAttrListCollection for folder "
-	    << m_folder << endreq;
+	    << m_folder << endmsg;
       CondAttrListCollection* atrc=new CondAttrListCollection(true);
       if (StatusCode::SUCCESS!=p_detstore->record(atrc,m_folder)) {
 	m_log << MSG::ERROR << "Could not create CondAttrListCollection " <<
-	  m_folder << endreq;
+	  m_folder << endmsg;
 	return StatusCode::FAILURE;
       }
     }
     
     // do const cast here so we can add to already exisiting collections
     const CondAttrListCollection* catrc=0;
-    m_log << MSG::DEBUG << "Attempting to retrieve collection (const)" << endreq;
+    m_log << MSG::DEBUG << "Attempting to retrieve collection (const)" << endmsg;
     if (StatusCode::SUCCESS!=p_detstore->retrieve(catrc,m_folder)) {
       m_log << MSG::ERROR << "Could not retrieve CondAttrListCollection " <<
-	m_folder << endreq;
+	m_folder << endmsg;
       return StatusCode::FAILURE;
     }
     atrc=const_cast<CondAttrListCollection*>(catrc);
     if (atrc==0) {
       m_log << MSG::ERROR << "Could not retrieve non-const pointer to atrc" <<
-	endreq;
+	endmsg;
       return StatusCode::FAILURE;
     }
     
-    m_log << MSG::DEBUG << "About to create AttributeListSpecification" << endreq;
+    m_log << MSG::DEBUG << "About to create AttributeListSpecification" << endmsg;
     
     coral::AttributeListSpecification* aspec=0;
     aspec=new coral::AttributeListSpecification();
@@ -364,7 +364,7 @@ namespace MuonCalib {
       CondAttrListCollection::ChanNum channum = (m_theEntries[k]->getGapID()).get_identifier32().get_compact();
       //   std::cout << "About to add channel " << channum << " "<< m_theEntries[k]->getGapID()<< " "<<std::endl;
 
-      m_log << MSG::DEBUG << "About to add channel to: " << atrc << endreq;
+      m_log << MSG::DEBUG << "About to add channel to: " << atrc << endmsg;
       atrc->add(channum,alist);
     }
     
@@ -382,18 +382,18 @@ namespace MuonCalib {
   
   StatusCode RpcCoolStrSvc::makeOnlineFile(const string fileName) const{
     
-        m_log << MSG::INFO << "Opening online mask output file "<< fileName << " for writing." << endreq;
+        m_log << MSG::INFO << "Opening online mask output file "<< fileName << " for writing." << endmsg;
         ofstream out(fileName.c_str());
         if(!out.is_open())
         {
-            m_log << MSG::ERROR << "Failed opening " << fileName << "!" << endreq;
+            m_log << MSG::ERROR << "Failed opening " << fileName << "!" << endmsg;
             return StatusCode::FAILURE;
         }
-        m_log << MSG::DEBUG <<"File is open" << endreq;
+        m_log << MSG::DEBUG <<"File is open" << endmsg;
 	
 	const CondAttrListCollection* atrc;
 	if (StatusCode::SUCCESS!=p_detstore->retrieve(atrc,m_folder)) {
-	  m_log << MSG::ERROR << "can't find data for folder " << m_folder << endreq;
+	  m_log << MSG::ERROR << "can't find data for folder " << m_folder << endmsg;
 	  return StatusCode::FAILURE;
 	}
 
@@ -426,18 +426,18 @@ namespace MuonCalib {
   StatusCode RpcCoolStrSvc::makeFile(const string fileName) const
   {
 
-        m_log << MSG::INFO << "Opening calibration output file "<< fileName << " for writing." << endreq;
+        m_log << MSG::INFO << "Opening calibration output file "<< fileName << " for writing." << endmsg;
         ofstream out(fileName.c_str());
         if(!out.is_open())
         {
-            m_log << MSG::ERROR << "Failed opening " << fileName << "!" << endreq;
+            m_log << MSG::ERROR << "Failed opening " << fileName << "!" << endmsg;
             return StatusCode::FAILURE;
         }
-        m_log << MSG::DEBUG <<"File is open" << endreq;
+        m_log << MSG::DEBUG <<"File is open" << endmsg;
 	
 	const CondAttrListCollection* atrc;
 	if (StatusCode::SUCCESS!=p_detstore->retrieve(atrc,m_folder)) {
-	  m_log << MSG::ERROR << "can't find data for folder " << m_folder << endreq;
+	  m_log << MSG::ERROR << "can't find data for folder " << m_folder << endmsg;
 	  return StatusCode::FAILURE;
 	}
 
