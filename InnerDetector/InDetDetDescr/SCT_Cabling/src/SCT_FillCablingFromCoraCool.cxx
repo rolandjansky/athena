@@ -56,7 +56,7 @@ static const std::string geoFolderName2("/SCT/DAQ/Config/Geog");
 //the following applied to run1 (pre Sept 2014)
 //static const unsigned int possibleSlots[]={6,7,8,10,11,12,14,15,16,18,19,20};// strange numbering of slots for the rods, found in DB.
 //...now the 'expanding DAQ' has all slots filled; the TIM sits in slot 13, so...
-static const unsigned int possibleSlots[]={5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21};
+//static const unsigned int possibleSlots[]={5,6,7,8,9,10,11,12,14,15,16,17,18,19,20,21};
 // earlier uploads were then found to have slots 0-11... how to resolve the two?
 static const int disabledFibre(255);
 static const int defaultLink(128);
@@ -218,7 +218,7 @@ StatusCode
 SCT_FillCablingFromCoraCool::setDataSource(const std::string & dataSource){
   //should check for db existence here
   m_source=dataSource;
-  msg(MSG::INFO)<<"Reading cabling from "<<m_source<<endreq;
+  msg(MSG::INFO)<<"Reading cabling from "<<m_source<<endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -238,7 +238,7 @@ SCT_FillCablingFromCoraCool::filled() const{
 StatusCode 
 SCT_FillCablingFromCoraCool::fillMaps(SCT_CablingSvc * cabling){
   m_filled=false;
-  if (readDataFromDb(cabling).isFailure()) return msg(MSG::FATAL)<<"Could not read cabling from database"<<endreq, StatusCode::FAILURE;
+  if (readDataFromDb(cabling).isFailure()) return msg(MSG::FATAL)<<"Could not read cabling from database"<<endmsg, StatusCode::FAILURE;
   m_filled=true;
   return StatusCode::SUCCESS;
 }
@@ -249,7 +249,7 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
   ServiceHandle<StoreGateSvc> detStore("DetectorStore",name());
   if (not retrievedService(detStore,"DetectorStore")) return StatusCode::FAILURE;
   const SCT_ID *  idHelper(nullptr);
-  if (detStore->retrieve(idHelper,"SCT_ID").isFailure()) return msg(MSG::ERROR)  << "SCT mgr failed to retrieve" << endreq, StatusCode::FAILURE;
+  if (detStore->retrieve(idHelper,"SCT_ID").isFailure()) return msg(MSG::ERROR)  << "SCT mgr failed to retrieve" << endmsg, StatusCode::FAILURE;
   // let's get the ROD AttrLists
   const DataHandle<CondAttrListVec> pRod;
   std::string folder=determineFolder(rodFolderName,rodFolderName2) ;
@@ -297,21 +297,21 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
     //see note in header; these may be 0-15, but not necessarily, so we need to map these onto 0-15
     IntMap::const_iterator pSlot = slotMap.find(crateSlot);
     int slot = (pSlot==slotMap.end())?-1:pSlot->second;
-    if (slot==-1) msg(MSG::ERROR)<<"Failed to find a crate slot in the crate map"<<endreq;
+    if (slot==-1) msg(MSG::ERROR)<<"Failed to find a crate slot in the crate map"<<endmsg;
     int rodPosition= (crate * slotsPerCrate) +slot;//generate identifier using crate and slot for use later
     //use the return type of insert which is a pair with the second component(bool) indicating whether the insert was successful
     bool thisInsertSucceeded(crateSlot2RobMap.insert(IntMap::value_type(rodPosition, rob)).second);
     if (not thisInsertSucceeded) {
-      msg(MSG::WARNING)<<"Insert (rodPosition, rob) "<<rodPosition<<", "<<rob<<" failed."<<endreq;
-      msg(MSG::INFO)<<"map(rod position) is already "<<crateSlot2RobMap[rodPosition]<<endreq;
-      msg(MSG::INFO)<<"crate, slot, slots per crate: "<<crate<<", "<<slot<<", "<<slotsPerCrate<<endreq;
+      msg(MSG::WARNING)<<"Insert (rodPosition, rob) "<<rodPosition<<", "<<rob<<" failed."<<endmsg;
+      msg(MSG::INFO)<<"map(rod position) is already "<<crateSlot2RobMap[rodPosition]<<endmsg;
+      msg(MSG::INFO)<<"crate, slot, slots per crate: "<<crate<<", "<<slot<<", "<<slotsPerCrate<<endmsg;
     }
     allInsertsSucceeded = thisInsertSucceeded and allInsertsSucceeded;
     ++nrods;
   }
   ATH_MSG_INFO(nrods<<" rods entered, of which "<<tempRobSet.size()<<" are unique.");
   
-  if (not allInsertsSucceeded) msg(MSG::WARNING)<<"Some Rod-Rob map inserts failed."<<endreq;
+  if (not allInsertsSucceeded) msg(MSG::WARNING)<<"Some Rod-Rob map inserts failed."<<endmsg;
 
   /**
    * Get the geography table which gives where the MURs (harnesses, for endcap) really are.
@@ -349,15 +349,15 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
     //map slot onto 0-15 range
     IntMap::const_iterator pSlot = slotMap.find(crateSlot);
     int slot = (pSlot==slotMap.end())?-1:pSlot->second;
-    if (slot==-1) msg(MSG::ERROR)<<"Failed to find a crate slot in the crate map"<<endreq;
+    if (slot==-1) msg(MSG::ERROR)<<"Failed to find a crate slot in the crate map"<<endmsg;
     //
     int order = (db==CONDBR2)?(rodMurAttributes["position"].data<unsigned char>()) : (rodMurAttributes["position"].data<int>());
     int fibreOrder = ((((crate * slotsPerCrate) + slot ) * mursPerRod) + order) * fibresPerMur;
     bool thisInsertSucceeded(murPositionMap.insert(IntMap::value_type(mur, fibreOrder)).second);
-    if (not thisInsertSucceeded) msg(MSG::WARNING)<<"Insert (mur, fibre) "<<mur<<", "<<fibreOrder<<" failed."<<endreq;
+    if (not thisInsertSucceeded) msg(MSG::WARNING)<<"Insert (mur, fibre) "<<mur<<", "<<fibreOrder<<" failed."<<endmsg;
     allInsertsSucceeded = thisInsertSucceeded and allInsertsSucceeded;
   }
-  if (not allInsertsSucceeded) msg(MSG::WARNING)<<"Some MUR-position map inserts failed."<<endreq;
+  if (not allInsertsSucceeded) msg(MSG::WARNING)<<"Some MUR-position map inserts failed."<<endmsg;
   //
   // let's get the MUR AttrLists
   const DataHandle<CondAttrListVec> pMur;
@@ -386,7 +386,7 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
     IntMap::const_iterator pFibre(murPositionMap.find(mur));
     int fibreOffset(-1);
     if (pFibre==murPositionMap.end()){
-      msg(MSG::WARNING)<<"Failed to find an MUR position in the cabling"<<endreq;
+      msg(MSG::WARNING)<<"Failed to find an MUR position in the cabling"<<endmsg;
     } else {
       fibreOffset = pFibre->second;
     }
@@ -394,7 +394,7 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
     int rob(-1);
     IntMap::const_iterator pCrate(crateSlot2RobMap.find(encodedCrateSlot));
     if (pCrate == crateSlot2RobMap.end()){
-      msg(MSG::WARNING)<<"Failed to find a crate slot in the cabling, slot "<<encodedCrateSlot<<endreq;
+      msg(MSG::WARNING)<<"Failed to find a crate slot in the cabling, slot "<<encodedCrateSlot<<endmsg;
     } else {
       rob=pCrate->second;
       tempRobSet2.insert(rob);
@@ -430,7 +430,7 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
 
     }
     if (not (validLinkNumber(rxLink[0]) and validLinkNumber(rxLink[1]) )){
-      msg(MSG::WARNING)<<"Invalid link number in database in one of these db entries: rx0Fibre="<<rxLink[0]<<", rx1Fibre="<<rxLink[1]<<endreq;
+      msg(MSG::WARNING)<<"Invalid link number in database in one of these db entries: rx0Fibre="<<rxLink[0]<<", rx1Fibre="<<rxLink[1]<<endmsg;
       continue;
     }
     //normal ordering is like rx0=0, rx1=1; i.e. odd links in rx1.
@@ -449,7 +449,7 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
     }
     for (int side(0); side!= 2 ;++side){
       if ((-1==phi) and (-1==eta)) {
-        msg(MSG::WARNING)<<"Invalid eta, phi..skipping insertion to map for module "<<snString<<" (may be already present in map)"<< endreq;
+        msg(MSG::WARNING)<<"Invalid eta, phi..skipping insertion to map for module "<<snString<<" (may be already present in map)"<< endmsg;
         continue;
       }
       Identifier offlineId = idHelper->wafer_id(bec,layer,phi,eta,side);
@@ -468,11 +468,11 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
       }
       int onlineId = (rob & 0xFFFFFF)|(link<<24) ;
       //check uniqueness
-      if (not onlineIdSet.insert(onlineId).second) msg(MSG::WARNING)<<"Insert of online Id : "<<onlineId<<" failed."<<endreq;
+      if (not onlineIdSet.insert(onlineId).second) msg(MSG::WARNING)<<"Insert of online Id : "<<onlineId<<" failed."<<endmsg;
       if (not offlineIdSet.insert(offlineId).second){
-        msg(MSG::WARNING)<<"Insert of offline Id : "<<offlineId<<" failed."<<endreq;
-        msg(MSG::WARNING)<<bec<<" "<<layer<<" "<<phi<<" "<<eta<<" "<<side<<endreq;
-        msg(MSG::INFO)<<"MUR, position "<<mur<<", "<<harnessPosition<<endreq;
+        msg(MSG::WARNING)<<"Insert of offline Id : "<<offlineId<<" failed."<<endmsg;
+        msg(MSG::WARNING)<<bec<<" "<<layer<<" "<<phi<<" "<<eta<<" "<<side<<endmsg;
+        msg(MSG::INFO)<<"MUR, position "<<mur<<", "<<harnessPosition<<endmsg;
       } 
       IdentifierHash offlineIdHash = idHelper->wafer_hash(offlineId);
       cabling->insert(offlineIdHash, onlineId, SCT_SerialNumber(sn) );
@@ -498,9 +498,9 @@ SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingSvc * cabling){
   
   
 bool  SCT_FillCablingFromCoraCool::successfulFolderRetrieve(const DataHandle<CondAttrListVec> &pDataVec, const std::string & folderName){
-  if (!m_detStore) return (msg(MSG::FATAL)  <<"The detector store pointer is NULL"<<endreq), false;
-  if (m_detStore->retrieve(pDataVec, folderName).isFailure()) return (msg(MSG::FATAL)  <<"Could not retrieve AttrListVec for "<<folderName<<endreq),false;
-  if (0==pDataVec->size()) return (msg(MSG::FATAL)  <<"This folders data set appears to be empty: "<<folderName<<endreq),false;
+  if (!m_detStore) return (msg(MSG::FATAL)  <<"The detector store pointer is NULL"<<endmsg), false;
+  if (m_detStore->retrieve(pDataVec, folderName).isFailure()) return (msg(MSG::FATAL)  <<"Could not retrieve AttrListVec for "<<folderName<<endmsg),false;
+  if (0==pDataVec->size()) return (msg(MSG::FATAL)  <<"This folders data set appears to be empty: "<<folderName<<endmsg),false;
   return true;
 }
 

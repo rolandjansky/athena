@@ -88,7 +88,7 @@ private:
   //retrieve a service and give err msg in case of failure
   template<class S>
   bool retrievedService(S & service, const std::string & serviceName){
-    if (service.retrieve().isFailure()) return msg(MSG::ERROR)<<"The service "<<serviceName<<" could not be retrieved."<<endreq, false;
+    if (service.retrieve().isFailure()) return msg(MSG::ERROR)<<"The service "<<serviceName<<" could not be retrieved."<<endmsg, false;
     return true; 
   }
   bool m_filled;
