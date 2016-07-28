@@ -21,8 +21,7 @@
 #include "TTree.h"
 
 // event includes
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 using namespace AthEx;
 
@@ -100,17 +99,16 @@ StatusCode Ntup::execute()
   m_run = 0;
 
   // get event data...
-  const EventInfo* evt = 0;
+  const xAOD::EventInfo* evt = 0;
   if (!evtStore()->retrieve(evt, m_evtInfoName).isSuccess() ||
       0==evt) {
     ATH_MSG_ERROR("could not get event-info at [" << m_evtInfoName << "]");
     return StatusCode::FAILURE;
   }
 
-  const EventID* eid = evt->event_ID();
-  m_event= eid->event_number();
+  m_event= evt->eventNumber();
   m_size = 2 + (m_event % 3);
-  m_run = eid->run_number();
+  m_run = evt->runNumber();
 
   m_rundata.resize(m_size);
   m_rundata[0] = m_run;
@@ -124,8 +122,8 @@ StatusCode Ntup::execute()
     ATH_MSG_WARNING("problems writing n-tuple");
   }
 
-  ATH_MSG_INFO("run: [" << m_run << "]" << endreq <<
-               "size: [" << m_size << "]" << endreq <<
+  ATH_MSG_INFO("run: [" << m_run << "]" << endmsg <<
+               "size: [" << m_size << "]" << endmsg <<
                "rundata-sz: [" << m_rundata.size() << "]");
 
   return StatusCode::SUCCESS;

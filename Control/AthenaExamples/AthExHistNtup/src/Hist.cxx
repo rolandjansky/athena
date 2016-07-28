@@ -21,8 +21,7 @@
 #include "TH1F.h"
 
 // event includes
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 using namespace AthEx;
 
@@ -87,20 +86,14 @@ StatusCode Hist::execute()
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
   // get event data...
-  const EventInfo* evt = 0;
+  const xAOD::EventInfo* evt = 0;
   if (!evtStore()->retrieve(evt, m_evtInfoName).isSuccess() ||
       0==evt) {
     ATH_MSG_ERROR("could not get event-info at [" << m_evtInfoName << "]");
     return StatusCode::FAILURE;
   }
 
-  const EventID* eid = evt->event_ID();
-  if (0 == eid) {
-    ATH_MSG_ERROR("null ptr to EventID");
-    return StatusCode::FAILURE;
-  }
-
-  int event = eid->event_number();
+  int event = evt->eventNumber();
 
   // fill the histogram
   m_hist->Fill( float(event), 1.);

@@ -7,7 +7,7 @@ use AtlasROOT 	       AtlasROOT-* 		External
 private
 use AthenaBaseComps    AthenaBaseComps-*	Control
 use GaudiInterface     GaudiInterface-* 	External
-use EventInfo 	       EventInfo-* 		Event
+use xAODEventInfo      xAODEventInfo-* 		Event/xAOD
 end_private
 
 library AthExHistNtup *.cxx components/*.cxx
