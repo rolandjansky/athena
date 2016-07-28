@@ -71,41 +71,41 @@ StatusCode
 SCT_TestCablingAlg::execute(){
   const string testAreaPath=CoveritySafe::getenv("TestArea");
   string filename=testAreaPath+"/cabling.txt";
-  msg(MSG::INFO)<<"Filename: "<<filename<<" will be written to your $TestArea."<<endreq;
+  msg(MSG::INFO)<<"Filename: "<<filename<<" will be written to your $TestArea."<<endmsg;
   ofstream opFile1(filename.c_str(),ios::out);
-  msg(MSG::INFO)<<"Executing..."<<endreq;
-  msg(MSG::INFO)<<"hash, offline Id, online Id(hex), serial number"<<endreq;
+  msg(MSG::INFO)<<"Executing..."<<endmsg;
+  msg(MSG::INFO)<<"hash, offline Id, online Id(hex), serial number"<<endmsg;
   const unsigned int nHashesInCabling(2*m_cablingSvc->size());
   for (unsigned int i(0);i!=nHashesInCabling;++i){
     IdentifierHash hash(i);
     Identifier offlineId(m_idHelper->wafer_id(hash));
     SCT_OnlineId onlineId(m_cablingSvc->getOnlineIdFromHash(hash));
     SCT_SerialNumber sn(m_cablingSvc->getSerialNumberFromHash(hash));
-    msg(MSG::INFO)<<i<<" "<<offlineId<<" "<<hex<<onlineId<<dec<<" "<<sn<<" "<<coordString(offlineId)<<endreq;
+    msg(MSG::INFO)<<i<<" "<<offlineId<<" "<<hex<<onlineId<<dec<<" "<<sn<<" "<<coordString(offlineId)<<endmsg;
     opFile1<<i<<" "<<offlineId<<" "<<hex<<onlineId<<dec<<" "<<sn<<" "<<coordString(offlineId)<<std::endl;
     if (m_cablingSvc->getHashFromOnlineId(onlineId) != hash){
-      msg(MSG::ERROR)<<"?? "<<m_cablingSvc->getHashFromOnlineId(onlineId)<<endreq;
+      msg(MSG::ERROR)<<"?? "<<m_cablingSvc->getHashFromOnlineId(onlineId)<<endmsg;
     }
   }
   opFile1.close();
-  msg(MSG::INFO)<<"Size: "<<m_cablingSvc->size()<<endreq;
+  msg(MSG::INFO)<<"Size: "<<m_cablingSvc->size()<<endmsg;
   std::vector<unsigned int> rods;
   m_cablingSvc->getAllRods(rods);
-  msg(MSG::INFO)<<"Num. of rods= "<<rods.size()<<endreq;
-  msg(MSG::INFO)<<"First rod id "<<std::hex<<rods[0]<<std::dec<<endreq;
+  msg(MSG::INFO)<<"Num. of rods= "<<rods.size()<<endmsg;
+  msg(MSG::INFO)<<"First rod id "<<std::hex<<rods[0]<<std::dec<<endmsg;
   string sn("20220130000299");
-  msg(MSG::INFO)<<"Hash from serial number "<<m_cablingSvc->getHashFromSerialNumber(sn)<<endreq;
+  msg(MSG::INFO)<<"Hash from serial number "<<m_cablingSvc->getHashFromSerialNumber(sn)<<endmsg;
   int tsn(130000299);
-  msg(MSG::INFO)<<"Hash from truncated serial number "<<m_cablingSvc->getHashFromSerialNumber(tsn)<<endreq;
+  msg(MSG::INFO)<<"Hash from truncated serial number "<<m_cablingSvc->getHashFromSerialNumber(tsn)<<endmsg;
   unsigned long long snll(20220130000299LL);
-  msg(MSG::INFO)<<"Hash from truncated serial number "<<m_cablingSvc->getHashFromSerialNumber(snll)<<endreq;
-  msg(MSG::INFO)<<"Hash from onlineid "<<m_cablingSvc->getHashFromOnlineId(0x3d230006)<<endreq;
-  msg(MSG::INFO)<<"Hash from invalid onlineid "<<m_cablingSvc->getHashFromOnlineId(0x3d250006)<<endreq;
-  msg(MSG::INFO)<<"Hash from textfile onlineid "<<m_cablingSvc->getHashFromOnlineId(0x3d220010)<<endreq;
-  msg(MSG::INFO)<<"Hash from db onlineid "<<m_cablingSvc->getHashFromOnlineId(0x3d220105)<<endreq;
+  msg(MSG::INFO)<<"Hash from truncated serial number "<<m_cablingSvc->getHashFromSerialNumber(snll)<<endmsg;
+  msg(MSG::INFO)<<"Hash from onlineid "<<m_cablingSvc->getHashFromOnlineId(0x3d230006)<<endmsg;
+  msg(MSG::INFO)<<"Hash from invalid onlineid "<<m_cablingSvc->getHashFromOnlineId(0x3d250006)<<endmsg;
+  msg(MSG::INFO)<<"Hash from textfile onlineid "<<m_cablingSvc->getHashFromOnlineId(0x3d220010)<<endmsg;
+  msg(MSG::INFO)<<"Hash from db onlineid "<<m_cablingSvc->getHashFromOnlineId(0x3d220105)<<endmsg;
   std::vector<IdentifierHash> hashVec;
   m_cablingSvc->getHashesForRod(hashVec, 0x220005);
-  msg(MSG::INFO)<<"number of hashes for rod 0x220005: "<<hashVec.size()<<endreq;
+  msg(MSG::INFO)<<"number of hashes for rod 0x220005: "<<hashVec.size()<<endmsg;
   //new section December 2014
   
   //make a 'rodHash'
@@ -116,7 +116,7 @@ SCT_TestCablingAlg::execute(){
   }
   //open a file for writing
   const std::string fullFileName=testAreaPath + "/" + makeCablingFileName();
-  msg(MSG::INFO)<<"Open file for write "<<fullFileName<<endreq;
+  msg(MSG::INFO)<<"Open file for write "<<fullFileName<<endmsg;
   ofstream opFile(fullFileName.c_str(),ios::out);
   opFile<<XmlHeader<<endl;
   opFile<<OpenRootTag<<endl;
@@ -150,6 +150,6 @@ SCT_TestCablingAlg::execute(){
 
 StatusCode
 SCT_TestCablingAlg::finalize(){
-  msg(MSG::INFO)<<"finalize()"<<endreq;
+  msg(MSG::INFO)<<"finalize()"<<endmsg;
   return StatusCode::SUCCESS;
 }
