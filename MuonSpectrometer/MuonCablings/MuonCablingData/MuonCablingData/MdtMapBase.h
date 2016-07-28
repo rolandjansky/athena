@@ -135,7 +135,7 @@ template<class T> bool MdtMapBase<T>::addItem(uint8_t itemId, T* item) {
   // check if the id are matching
   if (itemId != item->moduleId() ) {
     *m_log << MSG::ERROR << m_itemName << " Id different from the module one: " 
-	   << MSG::hex << (int) item->moduleId() << MSG::dec << endreq;
+	   << MSG::hex << (int) item->moduleId() << MSG::dec << endmsg;
     return false;
   }
   
@@ -143,13 +143,13 @@ template<class T> bool MdtMapBase<T>::addItem(uint8_t itemId, T* item) {
   if (m_mapOfItems->find(itemId) != m_mapOfItems->end()) {
     *m_log << MSG::ERROR << m_itemName << " with id " << MSG::hex << (int) itemId
 	   << MSG::dec << " already added in moduleId: " << MSG::hex 
-	   << (int) m_moduleId << endreq;
+	   << (int) m_moduleId << endmsg;
   }
   else {
     if (m_debug) {
       *m_log << MSG::VERBOSE << "Adding " << m_itemName << " with id: 0x" 
 	     << MSG::hex << (int) itemId << MSG::dec << " to module 0x" 
-	     << MSG::hex << (int) m_moduleId << MSG::dec << endreq;
+	     << MSG::hex << (int) m_moduleId << MSG::dec << endmsg;
     }
     m_mapOfItems->insert(std::pair<uint8_t,T*>(itemId,item));
     itemAdded=true;
@@ -187,7 +187,7 @@ template<class T> T* MdtMapBase<T>::findItem(uint8_t itemId) {
   }
   else {
     //    *m_log << MSG::ERROR << m_itemName << " with Id: " << MSG::hex << itemId 
-    //   << MSG::dec << " not found " << endreq;
+    //   << MSG::dec << " not found " << endmsg;
     m_currentItem=NULL;
   }
   
