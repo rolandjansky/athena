@@ -252,7 +252,7 @@ class EFJetHypoNoiseConfig (TrigEFJetHypoNoise):
 
         self.Etcut = ef_thr
         self.BadFEBCut=3
-        theLArNoisyROTool=LArNoisyROTool(SaturatedCellTightCut=50)
+        theLArNoisyROTool=LArNoisyROTool(SaturatedCellTightCut=20)
         self.NoiseTool = theLArNoisyROTool
 
 
