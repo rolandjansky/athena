@@ -29,7 +29,7 @@ TRT_ConditionsTestSvc::~TRT_ConditionsTestSvc() {}
 /// Initialize
 /////
 StatusCode TRT_ConditionsTestSvc::initialize() {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ConditionsTestSvc: Initialize." << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ConditionsTestSvc: Initialize." << endmsg;
   StatusCode sc(StatusCode::SUCCESS);
 
   return StatusCode::SUCCESS;

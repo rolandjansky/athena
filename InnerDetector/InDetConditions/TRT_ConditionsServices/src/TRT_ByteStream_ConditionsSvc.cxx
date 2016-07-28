@@ -57,7 +57,7 @@ TRT_ByteStream_ConditionsSvc::~TRT_ByteStream_ConditionsSvc() {}
 /////
 StatusCode TRT_ByteStream_ConditionsSvc::initialize()
 {
-  if(msgLvl(MSG::DEBUG)) msg() << "TRT_ByteStream_ConditionsSvc: Initialize." << endreq;
+  if(msgLvl(MSG::DEBUG)) msg() << "TRT_ByteStream_ConditionsSvc: Initialize." << endmsg;
 
 
   /*
@@ -119,18 +119,18 @@ TRT_ByteStream_ConditionsSvc::finalize()
    this->resetSets();
    this->resetCounts();
 
-   msg(MSG::INFO) << " " << endreq;
-   msg(MSG::INFO) << "---------------------------------" << endreq;
-   msg(MSG::INFO) << "      TRT BS Error Summary" << endreq;
-   msg(MSG::INFO) << " " << endreq;
-   msg(MSG::INFO) << " Number of L1ID Mismatch errors     : " << m_tot_num_l1id_errors << endreq;
-   msg(MSG::INFO) << " Number of BCID Mismatch errors     : " << m_tot_num_bcid_errors << endreq;
-   msg(MSG::INFO) << " Number of Missing FE errors        : " << m_tot_num_missing_errors << endreq;
-   msg(MSG::INFO) << " Number of FE with error bit        : " << m_tot_num_error_errors << endreq;
-   msg(MSG::INFO) << " Number of FE with SID bit          : " << m_tot_num_sid_errors << endreq;
-   msg(MSG::INFO) << " Number of ROB with non-zero status : " << m_tot_num_robStatus_errors << endreq;
-   msg(MSG::INFO) << "---------------------------------" << endreq;
-   msg(MSG::INFO) << " " << endreq;
+   msg(MSG::INFO) << " " << endmsg;
+   msg(MSG::INFO) << "---------------------------------" << endmsg;
+   msg(MSG::INFO) << "      TRT BS Error Summary" << endmsg;
+   msg(MSG::INFO) << " " << endmsg;
+   msg(MSG::INFO) << " Number of L1ID Mismatch errors     : " << m_tot_num_l1id_errors << endmsg;
+   msg(MSG::INFO) << " Number of BCID Mismatch errors     : " << m_tot_num_bcid_errors << endmsg;
+   msg(MSG::INFO) << " Number of Missing FE errors        : " << m_tot_num_missing_errors << endmsg;
+   msg(MSG::INFO) << " Number of FE with error bit        : " << m_tot_num_error_errors << endmsg;
+   msg(MSG::INFO) << " Number of FE with SID bit          : " << m_tot_num_sid_errors << endmsg;
+   msg(MSG::INFO) << " Number of ROB with non-zero status : " << m_tot_num_robStatus_errors << endmsg;
+   msg(MSG::INFO) << "---------------------------------" << endmsg;
+   msg(MSG::INFO) << " " << endmsg;
 
 
    return StatusCode::SUCCESS;
@@ -154,13 +154,13 @@ TRT_ByteStream_ConditionsSvc::handle(const Incident&)
       m_IdCont = new TRT_BSIdErrContainer();
       sc = m_evtStore->record(m_IdCont,"TRT_ByteStreamIdErrs");
       if (sc.isFailure() ) 
-	 msg(MSG::ERROR) <<"Failed to record BSIdErrors to SG"<<endreq;
+	 msg(MSG::ERROR) <<"Failed to record BSIdErrors to SG"<<endmsg;
 
 
       m_cont = new TRT_BSErrContainer();
       sc = m_evtStore->record(m_cont,"TRT_ByteStreamErrs");
       if (sc.isFailure() ) 
-	 msg(MSG::ERROR) <<"Failed to record BSErrors to SG"<<endreq;
+	 msg(MSG::ERROR) <<"Failed to record BSErrors to SG"<<endmsg;
    }
 
 
@@ -439,13 +439,10 @@ TRT_ByteStream_ConditionsSvc::readData()
 
      // = new TRT_BSIdErrContainer();
 
-     
-     std::vector< std::pair<uint8_t, std::pair<uint32_t,uint8_t> >* >::const_iterator it=errCont->begin();
-     std::vector< std::pair<uint8_t, std::pair<uint32_t,uint8_t> >* >::const_iterator itEnd=errCont->end();
 
-     for (; it != itEnd; ++it)
+     for (const auto* elt : *errCont)
      {
-	int errorType = (*it)->first;
+	int errorType = elt->first;
 
 	//	std::cout << "TRT BSerr: " << errorType << " " << ((*it)->second).first
 	//		  << " " << (uint32_t) ((*it)->second).second << std::endl;
@@ -454,11 +451,11 @@ TRT_ByteStream_ConditionsSvc::readData()
 	{
 	
 	case TRTByteStreamErrors::BCIDError:
-	   add_bcid_error( ((*it)->second).first,  ((*it)->second).second );
+	   add_bcid_error( elt->second.first,  elt->second.second );
 	   break;
 
 	case TRTByteStreamErrors::L1IDError:
-	   add_l1id_error( ((*it)->second).first,  ((*it)->second).second );
+	   add_l1id_error( elt->second.first,  elt->second.second );
 	   break;
 	}
      }
@@ -478,12 +475,9 @@ TRT_ByteStream_ConditionsSvc::readData()
      }
 
 
-     std::vector< std::pair<uint8_t, uint32_t >* >::const_iterator it=errCont->begin();
-     std::vector< std::pair<uint8_t, uint32_t >* >::const_iterator itEnd=errCont->end();
-
-     for (; it != itEnd; ++it)
+     for (const auto* elt : *errCont)
      {
-	int errorType = (*it)->first;
+	int errorType = elt->first;
 
 	//	std::cout << "TRT BSerr: " << errorType << " " << (*it)->second << std::endl;
 
@@ -491,15 +485,15 @@ TRT_ByteStream_ConditionsSvc::readData()
 	{
 	
 	case TRTByteStreamErrors::MISSINGError:
-	   add_missing_error( (*it)->second );
+	   add_missing_error( elt->second );
 	   break;
 
 	case TRTByteStreamErrors::ERRORError:
-	   add_error_error( (*it)->second );
+	   add_error_error( elt->second );
 	   break;
 
 	case TRTByteStreamErrors::SIDError:
-	   add_sid_error( (*it)->second );
+	   add_sid_error( elt->second );
 	   break;
 	}
      }
@@ -533,7 +527,7 @@ TRT_ByteStream_ConditionsSvc::recordData()
 	if ( ! errors )
 	{
 #ifdef TRT_BS_ERR_DEBUG
-	   msg(MSG::INFO) << "No TRT BS errors of type " << errType << " to record" << endreq;
+	   msg(MSG::INFO) << "No TRT BS errors of type " << errType << " to record" << endmsg;
 #endif // TRT_BS_ERR_DEBUG
 	   continue;
 	}
@@ -572,7 +566,7 @@ TRT_ByteStream_ConditionsSvc::recordData()
 	if ( ! errors )
 	{
 #ifdef TRT_BS_ERR_DEBUG
-	   msg(MSG::INFO) << "No TRT BS errors of type " << errType << " to record" << endreq;
+	   msg(MSG::INFO) << "No TRT BS errors of type " << errType << " to record" << endmsg;
 #endif // TRT_BS_ERR_DEBUG
 	   continue;
 	}

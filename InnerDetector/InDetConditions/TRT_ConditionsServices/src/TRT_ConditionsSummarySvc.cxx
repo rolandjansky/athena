@@ -36,21 +36,21 @@ TRT_ConditionsSummarySvc::~TRT_ConditionsSummarySvc(){
 //Initialize
 StatusCode 
 TRT_ConditionsSummarySvc::initialize(){
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ConditionsSummarySvc::initialize." << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ConditionsSummarySvc::initialize." << endmsg;
   StatusCode sc(StatusCode::SUCCESS);
 
   // Retrieve the services to be called.
   if ( m_svcCollection.size() == 0 ) {
-    msg(MSG::WARNING) << "No services to be called!" << endreq;
+    msg(MSG::WARNING) << "No services to be called!" << endmsg;
   } else {
     sc = m_svcCollection.retrieve();
     if ( sc.isFailure() ) {
       msg(MSG::ERROR) << "Couldn't retrieve services: "
-	   << m_svcCollection << endreq;
+	   << m_svcCollection << endmsg;
       return sc;
     } else {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successfully retrieved services: "
-	   << m_svcCollection << endreq;
+	   << m_svcCollection << endmsg;
     }
   }
 
@@ -58,7 +58,7 @@ TRT_ConditionsSummarySvc::initialize(){
   StoreGateSvc* detStore;
   sc = service("DetectorStore", detStore);
   if (sc.isFailure()){
-    msg(MSG::FATAL) << "DetectorStore service not found!" << endreq;
+    msg(MSG::FATAL) << "DetectorStore service not found!" << endmsg;
     return sc;
   }
   
@@ -68,7 +68,7 @@ TRT_ConditionsSummarySvc::initialize(){
   if (sc.isFailure() || !m_manager)
     {
       msg(MSG::FATAL) << "Could not find the Manager: "
-	    << managerName << " !" << endreq;
+	    << managerName << " !" << endmsg;
       return sc;
     }
 
@@ -114,7 +114,7 @@ TRT_ConditionsSummarySvc::isActive(const Identifier & elementId, const InDetCond
       }
     }
   }else{
-    msg(MSG::FATAL)<<"Hierarchy Level "<<h<<" not yet implemented!!!"<<endreq;
+    msg(MSG::FATAL)<<"Hierarchy Level "<<h<<" not yet implemented!!!"<<endmsg;
     result=false;
   }
 
@@ -199,7 +199,7 @@ TRT_ConditionsSummarySvc::isGood(const Identifier & elementId, const InDetCondit
       }
     }
   }else{
-    msg(MSG::FATAL)<<"Hierarchy Level "<<h<<" not yet implemented!!!"<<endreq;
+    msg(MSG::FATAL)<<"Hierarchy Level "<<h<<" not yet implemented!!!"<<endmsg;
     result=false;
   }
 

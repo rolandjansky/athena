@@ -47,18 +47,18 @@ TRT_StrawAlignDbSvc::~TRT_StrawAlignDbSvc()
 
 StatusCode TRT_StrawAlignDbSvc::initialize() 
 {
-  msg(MSG::INFO) << "TRT_StrawAlignDbSvc initialize method called" << endreq;
+  msg(MSG::INFO) << "TRT_StrawAlignDbSvc initialize method called" << endmsg;
 
   // Get the TRT ID helper
   if (StatusCode::SUCCESS!=m_detStore->retrieve(m_trtid,"TRT_ID")) {
-    msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endreq;
+    msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endmsg;
     return StatusCode::FAILURE;
   }
 
   // Get the geometry.
   if (StatusCode::SUCCESS!=m_detStore->retrieve(m_trtman,"TRT") || 
       m_trtman==0) {
-    msg(MSG::FATAL) << "Could not find TRT manager " << endreq;
+    msg(MSG::FATAL) << "Could not find TRT manager " << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -66,31 +66,31 @@ StatusCode TRT_StrawAlignDbSvc::initialize()
   bool dxcontainerexists = m_detStore->StoreGateSvc::contains<StrawDxContainer>(par_dxcontainerkey) ;
   
   if( dxcontainerexists ) {
-    msg(MSG::INFO) << " dx container exists - reg callback " << endreq ;
+    msg(MSG::INFO) << " dx container exists - reg callback " << endmsg ;
     if( (m_detStore->regFcn(&TRT_StrawAlignDbSvc::IOVCallBack,this,m_dxcontainer,par_dxcontainerkey)).isFailure()) 
-      msg(MSG::ERROR) << "Could not register IOV callback for key: " << par_dxcontainerkey << endreq ;
+      msg(MSG::ERROR) << "Could not register IOV callback for key: " << par_dxcontainerkey << endmsg ;
 
   } else {
     
     // create, record and update data handle
-    msg(MSG::INFO) << "Creating new dx container" << endreq ;
+    msg(MSG::INFO) << "Creating new dx container" << endmsg ;
     const StrawDxContainer* dxcontainer = new StrawDxContainer() ;
 
     if( (m_detStore->record(dxcontainer,par_dxcontainerkey))!=StatusCode::SUCCESS ) {
-      msg(MSG::ERROR) << "Could not record StrawDxContainer for key " << par_dxcontainerkey << endreq;
+      msg(MSG::ERROR) << "Could not record StrawDxContainer for key " << par_dxcontainerkey << endmsg;
     }
 
     if(StatusCode::SUCCESS!=m_detStore->retrieve(m_dxcontainer,par_dxcontainerkey)) {
-      msg(MSG::FATAL) << "Could not retrieve data handle for StrawDxContainer " << endreq;
+      msg(MSG::FATAL) << "Could not retrieve data handle for StrawDxContainer " << endmsg;
       return StatusCode::FAILURE ;
     }
     
-    msg(MSG::INFO) << "Created StrawDxContainer in detstore" << endreq;
+    msg(MSG::INFO) << "Created StrawDxContainer in detstore" << endmsg;
     
     // reading from file 
     if( !par_strawtextfile.empty() ) {
       if(StatusCode::SUCCESS!=this->readTextFile(par_strawtextfile)) {
-	msg(MSG::FATAL) << "Could not read objects from text file" << par_strawtextfile << endreq;
+	msg(MSG::FATAL) << "Could not read objects from text file" << par_strawtextfile << endmsg;
 	return StatusCode::FAILURE ;
       }
     }
@@ -102,13 +102,13 @@ StatusCode TRT_StrawAlignDbSvc::initialize()
 
 StatusCode TRT_StrawAlignDbSvc::finalize()
 {
-  msg(MSG::INFO) << "TRT_StrawAlignDbSvc finalize method called" << endreq;
+  msg(MSG::INFO) << "TRT_StrawAlignDbSvc finalize method called" << endmsg;
   return StatusCode::SUCCESS;
 }
 
 StatusCode TRT_StrawAlignDbSvc::writeTextFile(const std::string& filename) const
 {
-  msg(MSG::INFO) << " Write straw alignment data to text file " << filename << endreq ;
+  msg(MSG::INFO) << " Write straw alignment data to text file " << filename << endmsg ;
   std::ofstream outfile(filename.c_str());
 
 
@@ -143,11 +143,11 @@ StatusCode TRT_StrawAlignDbSvc::writeTextFile(const std::string& filename) const
 
 StatusCode TRT_StrawAlignDbSvc::readTextFile(const std::string& filename) 
 {
-  msg(MSG::INFO) << "Reading straw alignment data from text file " << filename << endreq ;
+  msg(MSG::INFO) << "Reading straw alignment data from text file " << filename << endmsg ;
 
   StrawDxContainer* dxcontainer = getDxContainer() ;
   if(!dxcontainer) {
-    msg(MSG::WARNING) << " Could not find the container " << endreq;
+    msg(MSG::WARNING) << " Could not find the container " << endmsg;
     return StatusCode::FAILURE;
   }
   dxcontainer->clear() ;
@@ -157,13 +157,13 @@ StatusCode TRT_StrawAlignDbSvc::readTextFile(const std::string& filename)
   int nentries(0) ;
   while ((infile >> id >> dx1 >> dx2 >> dxerr ) ) {
     setDx(id,dx1,dx2,dxerr) ;
-    if(msgLvl(MSG::DEBUG)) msg() << " read from file: dx1 " << dx1 << " dx2 " << dx2 << " dxerr " << dxerr << endreq;
+    if(msgLvl(MSG::DEBUG)) msg() << " read from file: dx1 " << dx1 << " dx2 " << dx2 << " dxerr " << dxerr << endmsg;
     ++nentries ;
   }
   size_t dxfootprint = dxcontainer->footprint()  ;
-  msg(MSG::INFO) << " read " << nentries << " from file. " << endreq ; 
-  msg(MSG::INFO) << " dx footprints " << dxfootprint << endreq;
-  msg(MSG::INFO) << " (no compression) " << endreq ;
+  msg(MSG::INFO) << " read " << nentries << " from file. " << endmsg ; 
+  msg(MSG::INFO) << " dx footprints " << dxfootprint << endmsg;
+  msg(MSG::INFO) << " (no compression) " << endmsg ;
 
   // force a call back in the geometry
   int i(0);
@@ -176,14 +176,14 @@ StatusCode TRT_StrawAlignDbSvc::readTextFile(const std::string& filename)
 
 StatusCode TRT_StrawAlignDbSvc::streamOutObjects() const
 {
-  msg(MSG::INFO) << "entering streamOutObjects "  << endreq;
+  msg(MSG::INFO) << "entering streamOutObjects "  << endmsg;
   StatusCode sc;
   
   // Get Output Stream tool for writing
   sc = m_streamer.retrieve();
   
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to find AthenaOutputStreamTool" << endreq;
+    msg(MSG::ERROR) << "Unable to find AthenaOutputStreamTool" << endmsg;
     return StatusCode::FAILURE;
     }
   
@@ -191,7 +191,7 @@ StatusCode TRT_StrawAlignDbSvc::streamOutObjects() const
     
   sc = streamer->connectOutput();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) <<"Could not connect stream to output" <<endreq;
+    msg(MSG::ERROR) <<"Could not connect stream to output" <<endmsg;
     return( StatusCode::FAILURE);
   }
   
@@ -201,39 +201,39 @@ StatusCode TRT_StrawAlignDbSvc::streamOutObjects() const
   
   sc = streamer->streamObjects(typeKeys);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) <<"Could not stream out containers " <<endreq;
+    msg(MSG::ERROR) <<"Could not stream out containers " <<endmsg;
     return( StatusCode::FAILURE);
   }
   
   sc = streamer->commitOutput();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) <<"Could not commit output stream" <<endreq;
+    msg(MSG::ERROR) <<"Could not commit output stream" <<endmsg;
     return( StatusCode::FAILURE);
   }
   
-  msg(MSG::INFO) << "   Streamed out and committed "  << typeKeys.size() << " objects " << endreq;
+  msg(MSG::INFO) << "   Streamed out and committed "  << typeKeys.size() << " objects " << endmsg;
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode TRT_StrawAlignDbSvc::registerObjects(std::string tag, int run1, int event1, int run2, int event2) const 
 {
-  msg(MSG::INFO) << "registerObjects with IOV " << endreq;
-  msg(MSG::INFO) << "Run/evt1 [" << run1 << "," << event1 << "]" << endreq;
-  msg(MSG::INFO) << "Run/evt2 [" << run2 << "," << event2 << "]" << endreq;
+  msg(MSG::INFO) << "registerObjects with IOV " << endmsg;
+  msg(MSG::INFO) << "Run/evt1 [" << run1 << "," << event1 << "]" << endmsg;
+  msg(MSG::INFO) << "Run/evt2 [" << run2 << "," << event2 << "]" << endmsg;
   
   // get pointer to registration svc
   IIOVRegistrationSvc* regsvc;
   if (StatusCode::SUCCESS!=service("IOVRegistrationSvc",regsvc)) {
-    msg(MSG::FATAL) << "IOVRegistrationSvc not found" << endreq;
+    msg(MSG::FATAL) << "IOVRegistrationSvc not found" << endmsg;
     return( StatusCode::FAILURE);
   }
   
   if (StatusCode::SUCCESS==regsvc->registerIOV(StrawDxContainer::classname(),
 					       par_dxcontainerkey,tag,run1,run2,event1,event2))
-    msg(MSG::INFO) << "Registered StrawDxContainer object with key " << par_dxcontainerkey << endreq ;
+    msg(MSG::INFO) << "Registered StrawDxContainer object with key " << par_dxcontainerkey << endmsg ;
   else 
-    msg(MSG::ERROR) << "Could not register StrawDxContainer object with key " << par_dxcontainerkey << endreq ;
+    msg(MSG::ERROR) << "Could not register StrawDxContainer object with key " << par_dxcontainerkey << endmsg ;
   
   return( StatusCode::SUCCESS);
 }
@@ -243,7 +243,7 @@ StatusCode TRT_StrawAlignDbSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
   for (std::list<std::string>::const_iterator 
 	 itr=keys.begin(); itr!=keys.end(); ++itr) 
-    msg(MSG::INFO) << " IOVCALLBACK for key " << *itr << " number " << I << endreq;
+    msg(MSG::INFO) << " IOVCALLBACK for key " << *itr << " number " << I << endmsg;
   
   // if constants need to be read from textfile, we sue the call back routine to refill the IOV objects
   if(!par_strawtextfile.empty()) return readTextFile( par_strawtextfile ) ;

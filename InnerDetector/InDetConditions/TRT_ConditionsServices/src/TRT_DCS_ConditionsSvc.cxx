@@ -79,7 +79,7 @@ TRT_DCS_ConditionsSvc::~TRT_DCS_ConditionsSvc() {}
 /// Initialize
 /////
 StatusCode TRT_DCS_ConditionsSvc::initialize() {
-  if (msgLvl(MSG::DEBUG)) msg() << "Initialize." << endreq;
+  if (msgLvl(MSG::DEBUG)) msg() << "Initialize." << endmsg;
   StatusCode sc(StatusCode::SUCCESS);
 
   // Retrieve the EventStore and DetectorStore
@@ -89,7 +89,7 @@ StatusCode TRT_DCS_ConditionsSvc::initialize() {
   }
   sc = m_detStore.retrieve();
   if ( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Unable to retrieve " << m_detStore << endreq;
+    msg(MSG::ERROR) << "Unable to retrieve " << m_detStore << endmsg;
   }
 
   // Get the TRT Identifier Helper.

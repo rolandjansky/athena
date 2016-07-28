@@ -61,13 +61,13 @@ StatusCode TRT_StrawNeighbourSvc::initialize()
   ATH_MSG_DEBUG("TRT_StrawNeighbourSvc initialize method called");
 
   if (StatusCode::SUCCESS!=m_detStore.retrieve()) {
-    msg(MSG::FATAL) << "Couldn't retrieve " << m_detStore << endreq;
+    msg(MSG::FATAL) << "Couldn't retrieve " << m_detStore << endmsg;
     return StatusCode::FAILURE;
   }
   
    // Get the TRT ID helper
   if (StatusCode::SUCCESS!=m_detStore->retrieve(m_trtid,"TRT_ID")) {
-    msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endreq;
+    msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -106,7 +106,7 @@ StatusCode TRT_StrawNeighbourSvc::initialize()
   IRDBAccessSvc* iAccessSvc = NULL;
   StatusCode result = svcLocator->service("RDBAccessSvc",iAccessSvc);
   if ( result.isFailure()  ||  iAccessSvc == NULL ) {
-    msg(MSG::FATAL) << "Could not initialize RDBAccessSvc!" << endreq;
+    msg(MSG::FATAL) << "Could not initialize RDBAccessSvc!" << endmsg;
     throw GaudiException("Could not initalize RDBAccessSvc","TRT_GeoModel",StatusCode::FAILURE);
   }
   
@@ -115,7 +115,7 @@ StatusCode TRT_StrawNeighbourSvc::initialize()
   IGeoModelSvc *geoModel;
   result = svcLocator->service ("GeoModelSvc",geoModel);
   if ( result.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
     throw GaudiException("Could not locate GeoModelSvc","TRT_GeoModel",StatusCode::FAILURE);
   }
   DecodeVersionKey versionKey(geoModel, "TRT");
@@ -125,7 +125,7 @@ StatusCode TRT_StrawNeighbourSvc::initialize()
   
   if (RDB_TRTElec->size()==0) {
     RDB_TRTElec = iAccessSvc->getRecordset("TRTBarElecToStrawRel","TRTBarElecToStrawRel-02");
-    msg(MSG::INFO) << "The folder: InnerDetector->TRT->TRTBarrel->TRTBarrelElectronics not found in DetDesc tag. Using hardcoded tag: TRTBarElecToStrawRel-02" << endreq;
+    msg(MSG::INFO) << "The folder: InnerDetector->TRT->TRTBarrel->TRTBarrelElectronics not found in DetDesc tag. Using hardcoded tag: TRTBarElecToStrawRel-02" << endmsg;
   }
   
 
@@ -339,7 +339,7 @@ StatusCode TRT_StrawNeighbourSvc::initialize()
 StatusCode TRT_StrawNeighbourSvc::finalize()
 {
 
-  msg(MSG::INFO) << "TRT_StrawNeighbourSvc finalize method called" << endreq;
+  msg(MSG::INFO) << "TRT_StrawNeighbourSvc finalize method called" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -394,7 +394,7 @@ void TRT_StrawNeighbourSvc::getAtlasIdentifier(int strawnumber, Identifier &outp
 int TRT_StrawNeighbourSvc::getRunningNumbering(Identifier offlineID){
 
   if (abs((m_trtid->barrel_ec(offlineID)))!=1 ) {
-    msg(MSG::ERROR) << "Sorry, getRunningNumbering only works for barrel" << endreq;
+    msg(MSG::ERROR) << "Sorry, getRunningNumbering only works for barrel" << endmsg;
     return 0;
   }
   
@@ -424,7 +424,7 @@ int TRT_StrawNeighbourSvc::getRunningNumbering(Identifier offlineID){
 void TRT_StrawNeighbourSvc::getSocket(Identifier offlineID, int&socket){
 
   if ( !(abs(m_trtid->barrel_ec(offlineID))==1)) {
-    msg(MSG::ERROR) << "Sorry, this only works for barrel"<<endreq;
+    msg(MSG::ERROR) << "Sorry, this only works for barrel"<<endmsg;
     return;
   }  else {
     
@@ -454,7 +454,7 @@ void TRT_StrawNeighbourSvc::getChip(Identifier offlineID, int& chip ){
      if (layer_or_wheel == 0) socket = (int)m_chip_vector1[getRunningNumbering(offlineID)-1];
      else if (layer_or_wheel == 1) socket = (int)m_chip_vector2[getRunningNumbering(offlineID)-1];
      else if (layer_or_wheel == 2) socket = (int)m_chip_vector3[getRunningNumbering(offlineID)-1];
-     else { msg(MSG::ERROR) << "Something is very wrong: According to identifier, straw belongs to a barrel module which is not of type 1,2 or 3 (corresponding to offline numbering: layer_or_wheel = 0,1 or 2) " << endreq;}
+     else { msg(MSG::ERROR) << "Something is very wrong: According to identifier, straw belongs to a barrel module which is not of type 1,2 or 3 (corresponding to offline numbering: layer_or_wheel = 0,1 or 2) " << endmsg;}
      
      
      if (layer_or_wheel == 0) chip = m_chipConversionSocketToChip_m1[socket] ;
@@ -482,7 +482,7 @@ void TRT_StrawNeighbourSvc::getChip(Identifier offlineID, int& chip ){
      map = nominal_reversed ? m_endcapChipMapC8 : m_endcapChipMapC0;
      chip = map[chip];
   }
-  else { msg(MSG::ERROR) << "Something is very wrong: endcap chip mapping " << bec << endreq; chip = 12; }
+  else { msg(MSG::ERROR) << "Something is very wrong: endcap chip mapping " << bec << endmsg; chip = 12; }
 
   chip += 104;
 
@@ -580,13 +580,13 @@ void TRT_StrawNeighbourSvc::getPin(Identifier offlineID, int& pin ){
     else if (layer_or_wheel == 2){
       pin = (int)(100*fmod(m_chip_vector3[getRunningNumbering(offlineID)-1],1.)+0.1);
     }
-    else { msg(MSG::ERROR) << "Something is very wrong: According to identifier, straw belongs to a barrel module which is not of type 1,2 or 3 (corresponding to offline numbering: layer_or_wheel = 0,1 or 2) " << endreq;}
+    else { msg(MSG::ERROR) << "Something is very wrong: According to identifier, straw belongs to a barrel module which is not of type 1,2 or 3 (corresponding to offline numbering: layer_or_wheel = 0,1 or 2) " << endmsg;}
     
     return;
   }
   
   else { 
-    msg(MSG::WARNING) << " Sorry getPin only implemented for barrel so far. Returning pin=0 "  << endreq;
+    msg(MSG::WARNING) << " Sorry getPin only implemented for barrel so far. Returning pin=0 "  << endmsg;
     pin=0;
     
     return ;
@@ -599,7 +599,7 @@ void TRT_StrawNeighbourSvc::getPin(Identifier offlineID, int& pin ){
 void TRT_StrawNeighbourSvc::getPad(Identifier offlineID, int& pad ){
 
   if (abs((m_trtid->barrel_ec(offlineID)))!=1 ) {
-    //    msg(MSG::ERROR) << "Sorry, getPad only works for barrel. barrel_ec(offlineID) = "<<m_trtid->barrel_ec(offlineID) << endreq;
+    //    msg(MSG::ERROR) << "Sorry, getPad only works for barrel. barrel_ec(offlineID) = "<<m_trtid->barrel_ec(offlineID) << endmsg;
     int temp_straw = (m_trtid->straw(offlineID))/8;
     int temp_straw_layer = (m_trtid->straw_layer(offlineID))/4;
     pad= temp_straw_layer*3+temp_straw+1;
@@ -627,7 +627,7 @@ void TRT_StrawNeighbourSvc::getPad(Identifier offlineID, int& pad ){
     pad = m_m3[strawnumber]; 
     return;
   }
-  msg(MSG::ERROR) << "Something went wrong: Pad not found, returning 0" << endreq;
+  msg(MSG::ERROR) << "Something went wrong: Pad not found, returning 0" << endmsg;
   pad = 0;
 
   return;
@@ -738,13 +738,13 @@ void TRT_StrawNeighbourSvc::convert_numbering_bar(int& strawnumber, int& straw, 
       return;
     }
     else {
-      msg(MSG::ERROR) <<" Error ! write the author" << endreq;
+      msg(MSG::ERROR) <<" Error ! write the author" << endmsg;
       return;
     }
   }
 
   else {
-    msg(MSG::WARNING) <<" Confused by input. straw = "<<straw<<" strawnumber = "<<strawnumber<<" layer = "<<layer<< endreq;
+    msg(MSG::WARNING) <<" Confused by input. straw = "<<straw<<" strawnumber = "<<strawnumber<<" layer = "<<layer<< endmsg;
     return;
   }
 
@@ -756,7 +756,7 @@ void TRT_StrawNeighbourSvc::convert_numbering_bar(int& strawnumber, int& straw, 
 void TRT_StrawNeighbourSvc::convert_numbering_ec(int electronics_row,int electronics_layer,int  electronics_chip,int  electronics_wheel,int  electronics_phi, int& straw, int& strawlayer, int& bec,  int& sector, int& wheel, Identifier inputID) {
 
    /* JAAA this code is BROKEN. It does not work. It does not seem to be called anywhere in ATLAS. Do nothing now */
-   msg(MSG::WARNING) << " You called a function, convert_numbering_ec() that is deprivated and not used anymore. Sorry! It never worked anyway. So it was only going to return something bad, anyway"<<endreq;
+   msg(MSG::WARNING) << " You called a function, convert_numbering_ec() that is deprivated and not used anymore. Sorry! It never worked anyway. So it was only going to return something bad, anyway"<<endmsg;
    msg(MSG::WARNING) << " electronics_row = " << electronics_row << " and electronics_layer = " << electronics_layer << " and electronics_chip = " << electronics_chip << " and electronics_wheel = " << electronics_wheel << " and electronics_phi = " << electronics_phi << " and straw = " << straw << " and strawlayer = " << strawlayer << " and bec = " << bec << " and sector = " << sector << " and wheel = " << wheel << " and identifier = " << inputID << std::endl;
    
 
@@ -775,7 +775,7 @@ void TRT_StrawNeighbourSvc::getStrawsFromPad(Identifier offlineID, std::vector<I
     Identifier outputID;
 
   if (abs((m_trtid->barrel_ec(offlineID))) != 1 ) {
-    //    msg(MSG::ERROR) << "Sorry, getStrawsFromPad only works for barrel" << endreq;
+    //    msg(MSG::ERROR) << "Sorry, getStrawsFromPad only works for barrel" << endmsg;
     // The Endcap getStrawsFromPad has NOT been properly tested!!!! 
 
     int temp_straw = (m_trtid->straw(offlineID))/8;
@@ -806,7 +806,7 @@ void TRT_StrawNeighbourSvc::getStrawsFromPad(Identifier offlineID, std::vector<I
       getAtlasIdentifier((m_pad_to_straw[moduleType][pad-1][j]),outputID,offlineID);
       neighbourIDs.push_back(outputID);
       if (j>9) {
-	msg(MSG::ERROR) << " Error in  getStrawsFromPad. Returning "<<endreq;
+	msg(MSG::ERROR) << " Error in  getStrawsFromPad. Returning "<<endmsg;
 	continue;
       }
     }
@@ -872,13 +872,13 @@ void TRT_StrawNeighbourSvc::getStrawsFromChip(Identifier inputID, std::vector<Id
       getChip(outputID,chiptest);
       neighbourIDs.push_back(outputID);
       if (j>17) {
-        msg(MSG::ERROR) << " Error in  getStrawsFromChip. Returning "<<endreq;
+        msg(MSG::ERROR) << " Error in  getStrawsFromChip. Returning "<<endmsg;
         continue;
       }
     }
   }
   else if ( (abs((m_trtid->barrel_ec(inputID))) != 1 ) &&  (abs((m_trtid->barrel_ec(inputID))) != 2 )) {
-    msg(MSG::ERROR) << "Attempt to use getStrawsFromChip based on a non-TRT identifier. barrel_ec(inputID) = " << m_trtid->barrel_ec(inputID) <<endreq; }
+    msg(MSG::ERROR) << "Attempt to use getStrawsFromChip based on a non-TRT identifier. barrel_ec(inputID) = " << m_trtid->barrel_ec(inputID) <<endmsg; }
  
 
 
@@ -917,7 +917,7 @@ TRTCond::ExpandedIdentifier  TRT_StrawNeighbourSvc::getFirstStrawFromChip(Identi
     getAtlasIdentifier(m_chip_to_straw[moduleType][chip][0],outputID,inputID);
     
   }
-  else { msg(MSG::ERROR) << "Attempt to use getFirstStrawFromChip based on a non-TRT identifier. barrel_ec(inputID) = "<<m_trtid->barrel_ec(inputID) << endreq; }
+  else { msg(MSG::ERROR) << "Attempt to use getFirstStrawFromChip based on a non-TRT identifier. barrel_ec(inputID) = "<<m_trtid->barrel_ec(inputID) << endmsg; }
   
   int level = TRTCond::ExpandedIdentifier::STRAW ;
   TRTCond::ExpandedIdentifier id=  TRTCond::ExpandedIdentifier( m_trtid->barrel_ec(outputID),m_trtid->layer_or_wheel(outputID),
@@ -932,7 +932,7 @@ int TRT_StrawNeighbourSvc::chipToBoardBarrel(int chip, int layer) {
   // First translate between internal software numbering and hardware numbering:
   int hardwarechip = 0;
 
-  if ( (chip<1) || (chip > 50) || (abs(layer)>2) )  msg(MSG::ERROR) << "Attempt to use chipToBoard(int chip, int layer) with input outside bounds: 1<=chip<=50 and 0<=|layer|<=2 . Input was: chip = "<<chip<<" layer = "<<layer <<endreq;  
+  if ( (chip<1) || (chip > 50) || (abs(layer)>2) )  msg(MSG::ERROR) << "Attempt to use chipToBoard(int chip, int layer) with input outside bounds: 1<=chip<=50 and 0<=|layer|<=2 . Input was: chip = "<<chip<<" layer = "<<layer <<endmsg;  
 
   if (abs(layer)==0) hardwarechip = chip -1;
   else if  (abs(layer)==1) hardwarechip = chip + 20;
@@ -960,7 +960,7 @@ int TRT_StrawNeighbourSvc::chipToBoardBarrel(int chip, int layer) {
   assert(count==104);
   assert(0); // should never come this far
 
-  msg(MSG::ERROR) << "Something went wrong in chipToBoardBarrel - please contact the author "<<endreq; 
+  msg(MSG::ERROR) << "Something went wrong in chipToBoardBarrel - please contact the author "<<endmsg; 
 
   return -1;
 }
@@ -1098,7 +1098,7 @@ int TRT_StrawNeighbourSvc::strawNumber( Identifier id)
     return strawNumber;
   }
   else {    
-    msg(MSG::ERROR) << "corrupted input identifier to TRT_StrawNeighbourSvc::strawNumber(). barrel_ec=" <<bec<< endreq;
+    msg(MSG::ERROR) << "corrupted input identifier to TRT_StrawNeighbourSvc::strawNumber(). barrel_ec=" <<bec<< endmsg;
   }
   return -1;
 }
@@ -1131,7 +1131,7 @@ int TRT_StrawNeighbourSvc::strawNumber( Identifier id)
   return strawLayerNumber;
   }//strawLayerNumber()
   else{ 
-    msg(MSG::ERROR) << "Sorry,  TRT_StrawNeighbourSvc::strawLayerNumber only works for barrel" << endreq;
+    msg(MSG::ERROR) << "Sorry,  TRT_StrawNeighbourSvc::strawLayerNumber only works for barrel" << endmsg;
   }
   return -1;
 }
