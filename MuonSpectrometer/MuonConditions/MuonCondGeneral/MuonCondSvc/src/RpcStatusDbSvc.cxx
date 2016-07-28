@@ -53,10 +53,10 @@ StatusCode RpcStatusDbSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
 StatusCode RpcStatusDbSvc::initialize(){
 
 
-  MsgStream log(messageService(), name());
+  MsgStream log(msgSvc(), name());
   StatusCode sc ;
 
-  log << MSG::DEBUG << "in initialize()" << endreq;
+  log << MSG::DEBUG << "in initialize()" << endmsg;
 
 
   // access the Tool for retreival of DB info
@@ -66,11 +66,11 @@ StatusCode RpcStatusDbSvc::initialize(){
   sc = p_toolSvc->retrieveTool(m_dbToolType, m_dbToolName, m_dbTool);
     if (sc.isFailure()) {
       log << MSG::FATAL << "Could not find tool " << m_dbToolName << ". Exiting."
-	  << endreq;
+	  << endmsg;
       return sc;
     } else {
       log << MSG::INFO << "Database tool \"" << m_dbToolName << "\" retrieved."
-	  << endreq;
+	  << endmsg;
     }
 
 
@@ -80,8 +80,8 @@ StatusCode RpcStatusDbSvc::initialize(){
 
 
 StatusCode RpcStatusDbSvc::finalize() {
-   MsgStream log(messageService(), name());
-   log << MSG::DEBUG << "in finalize()" << endreq;
+   MsgStream log(msgSvc(), name());
+   log << MSG::DEBUG << "in finalize()" << endmsg;
   return StatusCode::SUCCESS;
 }
 

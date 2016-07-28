@@ -82,8 +82,8 @@ private:
 
  ServiceHandleArray<IMDTConditionsSvc> m_reportingServices; //!< list of services to be used
   
- std::vector<Identifier> emptyId;
- std::vector<std::string> empty;
+ std::vector<Identifier> m_emptyId;
+ std::vector<std::string> m_empty;
  const MdtIdHelper * m_pHelper;
 
  ServiceHandle<StoreGateSvc> m_detStore;

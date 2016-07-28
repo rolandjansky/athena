@@ -35,14 +35,14 @@ StatusCode MDT_DQConditionsSvc::initialize()
 {
   
   msg(MSG::INFO) << "Initializing " << name() << " - package version " 
-		 << PACKAGE_VERSION << endreq;
+		 << PACKAGE_VERSION << endmsg;
   
   StoreGateSvc * detStore;
   StatusCode status = service("DetectorStore",detStore);
   if (status.isFailure()) {
-    msg(MSG::FATAL) << "DetectorStore service not found !" << endreq; 
+    msg(MSG::FATAL) << "DetectorStore service not found !" << endmsg; 
   } else {
-    msg(MSG::INFO) << "DetectorStore service found !" << endreq; 
+    msg(MSG::INFO) << "DetectorStore service found !" << endmsg; 
     
   }
   if(m_dqInfofromCool)
@@ -51,12 +51,12 @@ StatusCode MDT_DQConditionsSvc::initialize()
       if ( sc.isFailure() )
 	{
 	  
-	  msg(MSG::ERROR) << "Could not retrieve MDT_DQConditionsTool" << endreq;
+	  msg(MSG::ERROR) << "Could not retrieve MDT_DQConditionsTool" << endmsg;
 	}
       else
 	{
 	  
-	  msg(MSG::INFO)<<"MDT_DQConditionsTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool<<endreq;
+	  msg(MSG::INFO)<<"MDT_DQConditionsTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool<<endmsg;
 	}
             
       std::vector<std::string> folderNames;
@@ -64,7 +64,7 @@ StatusCode MDT_DQConditionsSvc::initialize()
       folderNames.push_back((m_condDataTool)->NoisyFolderName());
       
       
-      msg(MSG::INFO)<<"Register call-back  against "<<folderNames.size()<<" folders listed below "<<endreq;
+      msg(MSG::INFO)<<"Register call-back  against "<<folderNames.size()<<" folders listed below "<<endmsg;
       //  bool aFolderFound = false;
       short ic=0;
       for (std::vector<std::string>::const_iterator ifld =folderNames.begin(); ifld!=folderNames.end(); ++ifld )
@@ -73,7 +73,7 @@ StatusCode MDT_DQConditionsSvc::initialize()
 	  msg(MSG::INFO)<<" Folder n. "<<ic<<" <"<<(*ifld)<<">";
 	  if (detStore->contains<CondAttrListCollection>(*ifld)) {
 	    //    aFolderFound=true;
-	    msg(MSG::INFO)<<"     found in the DetStore"<<endreq;
+	    msg(MSG::INFO)<<"     found in the DetStore"<<endmsg;
 	    const DataHandle<CondAttrListCollection> MDTDQData;
 	    if (detStore->regFcn(&IMDT_DQConditionsSvc::initInfo,
 				 dynamic_cast<IMDT_DQConditionsSvc *>(this),
@@ -82,12 +82,12 @@ StatusCode MDT_DQConditionsSvc::initialize()
 	      {
 		msg(MSG::WARNING)<<"Unable to register call back for initDQInfo against folder <"<<(*ifld)<<">";
 	      }
-	    else msg(MSG::INFO)<<"initDQInfo registered for call-back against folder <"<<(*ifld)<<">"<<endreq;
+	    else msg(MSG::INFO)<<"initDQInfo registered for call-back against folder <"<<(*ifld)<<">"<<endmsg;
 	  }
 	  else
 	    {   
 	      msg(MSG::WARNING)<<"Folder "<<(*ifld)
-			       <<" NOT found in the DetStore --- failing to init ???"<<endreq;
+			       <<" NOT found in the DetStore --- failing to init ???"<<endmsg;
 	    }
 	}
     }
@@ -105,20 +105,20 @@ StatusCode MDT_DQConditionsSvc::finalize()
 
 StatusCode MDT_DQConditionsSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
 {
-  msg(MSG::INFO) << "queryInterface Start" << endreq;
+  msg(MSG::INFO) << "queryInterface Start" << endmsg;
   if(IMDT_DQConditionsSvc::interfaceID().versionMatch(riid) )
     {
-      msg(MSG::INFO) << "versionMatch=true" << endreq;
+      msg(MSG::INFO) << "versionMatch=true" << endmsg;
       *ppvIF = this;
     }else if ( IMDTConditionsSvc::interfaceID().versionMatch(riid) ){
       *ppvIF = dynamic_cast<IMDTConditionsSvc*>(this);
-      msg(MSG::INFO) << "service cast***************************" << endreq;
+      msg(MSG::INFO) << "service cast***************************" << endmsg;
       
     } else {
-      msg(MSG::INFO) << "cannot find the interface!" << endreq;
+      msg(MSG::INFO) << "cannot find the interface!" << endmsg;
       return AthService::queryInterface(riid, ppvIF);
     }
-  msg(MSG::INFO) << "queryInterface succesfull" << endreq;
+  msg(MSG::INFO) << "queryInterface succesfull" << endmsg;
   //addRef();  // is this needed ??
   return StatusCode::SUCCESS;
 }
@@ -127,8 +127,8 @@ StatusCode MDT_DQConditionsSvc::queryInterface(const InterfaceID& riid, void** p
 	
 StatusCode MDT_DQConditionsSvc::initInfo(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
-  msg(MSG::INFO)<<"initDQInfo has been called"<<endreq;
-  msg(MSG::INFO)<<"ToolHandle in init DQ Info - <"<<m_condDataTool<<">"<<endreq;
+  msg(MSG::INFO)<<"initDQInfo has been called"<<endmsg;
+  msg(MSG::INFO)<<"ToolHandle in init DQ Info - <"<<m_condDataTool<<">"<<endmsg;
    
   if(m_dqInfofromCool)
     {
@@ -136,7 +136,7 @@ StatusCode MDT_DQConditionsSvc::initInfo(IOVSVC_CALLBACK_ARGS_P(I,keys))
       StatusCode sc = m_condDataTool->loadParameters(I, keys);
       if (sc.isFailure())
 	{
-	  msg(MSG::WARNING)<<"Reading DQ from COOL failed; NO MDT DQ INFO AVAILABLE"<<endreq;
+	  msg(MSG::WARNING)<<"Reading DQ from COOL failed; NO MDT DQ INFO AVAILABLE"<<endmsg;
 	}
     }
     
@@ -152,7 +152,7 @@ const std::vector<std::string>& MDT_DQConditionsSvc::deadTubes() const{
 
 const std::vector<std::string>& MDT_DQConditionsSvc::deadStations() const{
    
-  msg(MSG::DEBUG)<<"CONFIGURATION SERVICE: Number of DEAD STATIONS NOT AVAILABLE: "<<endreq;
+  msg(MSG::DEBUG)<<"CONFIGURATION SERVICE: Number of DEAD STATIONS NOT AVAILABLE: "<<endmsg;
   
   return m_cachedDeadStations;
 }
@@ -160,7 +160,7 @@ const std::vector<std::string>& MDT_DQConditionsSvc::deadStations() const{
 
 const std::vector<std::string>& MDT_DQConditionsSvc::deadMultiLayers() const{
    
-  msg(MSG::DEBUG)<<"CONFIGURATION SERVICE: Number of DEAD ML NOT AVAILABLE: "<<endreq;
+  msg(MSG::DEBUG)<<"CONFIGURATION SERVICE: Number of DEAD ML NOT AVAILABLE: "<<endmsg;
   
   return m_cachedDeadMultiLayers;
 }
@@ -197,14 +197,14 @@ bool MDT_DQConditionsSvc::isGoodMultiLayer(const Identifier & /*Id*/) const{
 const std::vector<Identifier>& MDT_DQConditionsSvc::deadTubesId() const{
   
   unsigned int size_new =m_condDataTool->deadTubesId().size();
-  msg(MSG::DEBUG)<<"DCS SERVICE: Number of DEAD TUBE: "<<size_new <<endreq;
+  msg(MSG::DEBUG)<<"DCS SERVICE: Number of DEAD TUBE: "<<size_new <<endmsg;
   return m_condDataTool->deadTubesId();
 }
 
 
 const std::vector<Identifier>& MDT_DQConditionsSvc::deadStationsId() const{
    
-  msg(MSG::DEBUG)<<"CONFIGURATION SERVICE: Number of DEAD STATIONS NOT AVAILABLE: "<<endreq;
+  msg(MSG::DEBUG)<<"CONFIGURATION SERVICE: Number of DEAD STATIONS NOT AVAILABLE: "<<endmsg;
   
   return m_cachedDeadStationsId;
 }
@@ -212,7 +212,7 @@ const std::vector<Identifier>& MDT_DQConditionsSvc::deadStationsId() const{
 
 const std::vector<Identifier>& MDT_DQConditionsSvc::deadMultiLayersId() const{
    
-  msg(MSG::DEBUG)<<"CONFIGURATION SERVICE: Number of DEAD ML NOT AVAILABLE: "<<endreq;
+  msg(MSG::DEBUG)<<"CONFIGURATION SERVICE: Number of DEAD ML NOT AVAILABLE: "<<endmsg;
   
   return m_cachedDeadMultiLayersId;
 }
@@ -220,14 +220,14 @@ const std::vector<Identifier>& MDT_DQConditionsSvc::deadMultiLayersId() const{
 
 const std::vector<Identifier>& MDT_DQConditionsSvc::deadLayersId() const{
    
-  msg(MSG::DEBUG)<<"CONFIGURATION SERVICE: Number of DEAD LAYER NOT AVAILABLE: "<<endreq;
+  msg(MSG::DEBUG)<<"CONFIGURATION SERVICE: Number of DEAD LAYER NOT AVAILABLE: "<<endmsg;
   
   return m_cachedDeadLayersId;
 }
 
 const std::vector<Identifier>& MDT_DQConditionsSvc::List_Chambers_with_deadTube() const{
    
-  msg(MSG::DEBUG)<<"CONFIGURATION SERVICE: Name of STATIONS WITH DEAD TUBE: "<<endreq;
+  msg(MSG::DEBUG)<<"CONFIGURATION SERVICE: Name of STATIONS WITH DEAD TUBE: "<<endmsg;
   
   return m_condDataTool->List_Chambers_with_deadTube();
 }
