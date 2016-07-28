@@ -59,7 +59,7 @@ TRT_ActiveFractionSvc::~TRT_ActiveFractionSvc() {}
 StatusCode TRT_ActiveFractionSvc::initialize() {
   StatusCode sc(StatusCode::SUCCESS);
 
-  if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "TRT_ActiveFractionSvc:initialize()" << endreq;
+  if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "TRT_ActiveFractionSvc:initialize()" << endmsg;
 
   // Get the TRT_StrawStatusSummarySvc
   sc = m_deadStrawSvc.retrieve();
@@ -100,20 +100,20 @@ void TRT_ActiveFractionSvc::handle( const Incident& inc ) {
      * Sasa July 22, 2009
      */
     if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "TRT_ActiveFractionSvc: initialize TRT_ActiveFractionSvc table (BeginRun), N phi, eta bins: " 
-                                 << m_phiBins.size() << ", " << m_etaBins.size() << endreq;
+                                 << m_phiBins.size() << ", " << m_etaBins.size() << endmsg;
 
     for (unsigned int i=0; i<m_etaBins.size(); i++) {
       double etaMin = m_etaBins[i].first;
       double etaMax = m_etaBins[i].second;
       int bin = findEtaBin( (etaMin+etaMax)/2. );
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ActiveFractionSvc: findEtaBin( "<< etaMin << ", " << etaMax << " ] = " << bin << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ActiveFractionSvc: findEtaBin( "<< etaMin << ", " << etaMax << " ] = " << bin << endmsg;
     }
 
     for (unsigned int i=0; i<m_phiBins.size(); i++) {
       double phiMin = m_phiBins[i].first;
       double phiMax = m_phiBins[i].second;
       int bin = findPhiBin( (phiMin+phiMax)/2. );
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ActiveFractionSvc: findPhiBin( "<< phiMin << ", " << phiMax << " ] = " << bin << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ActiveFractionSvc: findPhiBin( "<< phiMin << ", " << phiMax << " ] = " << bin << endmsg;
     }
 
     std::vector<int> dummyPhiVec( m_phiBins.size(), 0 );
@@ -122,21 +122,21 @@ void TRT_ActiveFractionSvc::handle( const Incident& inc ) {
 
     StatusCode sc = m_detStore.retrieve();
     if ( sc.isFailure() ) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "TRT_ActiveFractionSvc::handle: Unable to retrieve DetectorStore" << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "TRT_ActiveFractionSvc::handle: Unable to retrieve DetectorStore" << endmsg;
       return;
     }
 
     const InDetDD::TRT_DetectorManager *TRTDetMgr = 0;	
     sc = m_detStore->retrieve(TRTDetMgr, "TRT");
     if ( sc.isFailure() ) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "TRT_ActiveFractionSvc::handle: Unable to retrieve TRT Detector Manager " << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "TRT_ActiveFractionSvc::handle: Unable to retrieve TRT Detector Manager " << endmsg;
       return;
     }	
 
     const TRT_ID *TRTHelper;
     sc = m_detStore->retrieve(TRTHelper, "TRT_ID");
     if ( sc.isFailure() ) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "TRT_ActiveFractionSvc::handle: Could not get TRT ID helper, TRT_ActiveFraction == 1" << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "TRT_ActiveFractionSvc::handle: Could not get TRT ID helper, TRT_ActiveFraction == 1" << endmsg;
       return;
     }  
 	 
@@ -154,7 +154,7 @@ void TRT_ActiveFractionSvc::handle( const Incident& inc ) {
         const Amg::Vector3D &strawPosition = TRTDetMgr->getElement( id )->center( id );
         double phi = atan2( strawPosition.y(), strawPosition.x() );
         int phiBin = findPhiBin( phi );
-	if (phiBin<0) { if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ActiveFractionSvc::handle phiBin<0: " << phi << " " << phiBin << endreq; countPhiSkipped++; continue; }
+	if (phiBin<0) { if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ActiveFractionSvc::handle phiBin<0: " << phi << " " << phiBin << endmsg; countPhiSkipped++; continue; }
 
 	// calculate etaMin, etaMax
 	int side = TRTHelper->barrel_ec(id);
@@ -179,9 +179,9 @@ void TRT_ActiveFractionSvc::handle( const Incident& inc ) {
         double thetaCheck[] = {thetaMax, thetaMin};
         double etaCheck[] = {0., 0.};
         for (int ti=0; ti<2; ti++) {
-          if (thetaCheck[ti]<=0.||thetaCheck[ti]>=M_PI) if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ActiveFractionSvc: theta " << ti << " " << thetaCheck[ti] << endreq;
+          if (thetaCheck[ti]<=0.||thetaCheck[ti]>=M_PI) if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ActiveFractionSvc: theta " << ti << " " << thetaCheck[ti] << endmsg;
           double tanTheta = tan(thetaCheck[ti]/2.);
-          if (tanTheta<=0.) { if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ActiveFractionSvc: theta tan " << ti << " " << tanTheta << endreq; countInvalidEtaValues++; continue; }
+          if (tanTheta<=0.) { if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ActiveFractionSvc: theta tan " << ti << " " << tanTheta << endmsg; countInvalidEtaValues++; continue; }
           etaCheck[ti] = -log( tanTheta );
         }
        double etaMin = etaCheck[0];
@@ -190,15 +190,15 @@ void TRT_ActiveFractionSvc::handle( const Incident& inc ) {
 //        double etaMax =  -log( tan( thetaMin / 2.) );
 	int etaMinBin = findEtaBin( etaMin );
 	int etaMaxBin = findEtaBin( etaMax ); 
-        if (etaMin>=etaMax) if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "TRT_ActiveFractionSvc::handle etaMaxBin<etaMinBin " << etaMin << " " << etaMax << " " << thetaMin << " " << thetaMax << endreq;
+        if (etaMin>=etaMax) if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "TRT_ActiveFractionSvc::handle etaMaxBin<etaMinBin " << etaMin << " " << etaMax << " " << thetaMin << " " << thetaMax << endmsg;
 	if (etaMinBin<0 && etaMaxBin<0) { 
           if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "TRT_ActiveFractionSvc::handle etaMaxBin<etaMinBin " << thetaMin << " " << thetaMax 
-                                          << " " << etaMin << " " << etaMax << " " << etaMinBin << " " << etaMaxBin << ", side: " << side << endreq;
+                                          << " " << etaMin << " " << etaMax << " " << etaMinBin << " " << etaMaxBin << ", side: " << side << endmsg;
           countEtaSkipped++; continue; 
         }
 	if (etaMinBin<0) etaMinBin = 0;
 	if (etaMaxBin<0) etaMaxBin = m_etaBins.size() - 1;
-        if (etaMaxBin<etaMinBin) if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "TRT_ActiveFractionSvc::handle etaMaxBin<etaMinBin " << etaMinBin << " " << etaMaxBin << ", side: " << side << endreq;
+        if (etaMaxBin<etaMinBin) if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "TRT_ActiveFractionSvc::handle etaMaxBin<etaMinBin " << etaMinBin << " " << etaMaxBin << ", side: " << side << endmsg;
 
         countSaved++; // now save straw info for these bins
 	for (int iEta = etaMinBin; iEta <= etaMaxBin; iEta++) {
@@ -214,15 +214,15 @@ void TRT_ActiveFractionSvc::handle( const Incident& inc ) {
         double deadFraction = 1. * dummyTableCountDead[i][j];
 	if (dummyTableCountAll[i][j]>0) deadFraction /= (1. * dummyTableCountAll[i][j]);
         m_activeFracTable[i][j] = 1. - deadFraction;
-        if ( msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "dummyTableCountDead: " << i << ", " << j << ", count " << dummyTableCountAll[i][j] << " dead " << deadFraction << endreq;
+        if ( msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "dummyTableCountDead: " << i << ", " << j << ", count " << dummyTableCountAll[i][j] << " dead " << deadFraction << endmsg;
       }
 
      double deadStrawFraction = (1.*countDead) / (1.*countAll);
      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "TRT_ActiveFractionSvc: initialize TRT_ActiveFractionSvc table finished, count all TRT straws: " << countAll 
                                   << ", count dead straws: " << countDead << " (" << deadStrawFraction << "%), straws skipped due to invalid phi, eta range: " 
-                                  << countPhiSkipped << " " << countEtaSkipped << endreq;
+                                  << countPhiSkipped << " " << countEtaSkipped << endmsg;
 
-     if (countInvalidEtaValues && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "TRT_ActiveFractionSvc: found invalid eta range, check: " << countInvalidEtaValues << endreq;
+     if (countInvalidEtaValues && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "TRT_ActiveFractionSvc: found invalid eta range, check: " << countInvalidEtaValues << endmsg;
   } // end if BeginRun
 
   return;
