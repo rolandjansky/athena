@@ -50,11 +50,11 @@ TrigCollQueryTool::~TrigCollQueryTool()
 StatusCode TrigCollQueryTool::initialize()
 {
    MsgStream log( msgSvc(), name() );
-   log << MSG::DEBUG << "Initialize" << endreq;
+   log << MSG::DEBUG << "Initialize" << endmsg;
    
    queryRuns( m_queryRuns );
    if( !m_XMLDir.empty() ) {
-      log << MSG::DEBUG << "Using Trigger configuration from XML files: " << m_XMLDir << endreq;
+      log << MSG::DEBUG << "Using Trigger configuration from XML files: " << m_XMLDir << endmsg;
       XMLConfigDir( m_XMLDir );
       readTriggerMap( );
    }
@@ -67,47 +67,47 @@ StatusCode TrigCollQueryTool::initialize()
 StatusCode TrigCollQueryTool::postInitialize()
 {
    MsgStream log( msgSvc(), name() );
-   log << MSG::DEBUG << "postInitialization start" << endreq;
+   log << MSG::DEBUG << "postInitialization start" << endmsg;
 
    const IService* parentSvc = dynamic_cast<const IService*>(this->parent());
    if (parentSvc == 0) {
-      log << MSG::ERROR << "Unable to get parent Service" << endreq;
+      log << MSG::ERROR << "Unable to get parent Service" << endmsg;
       return(StatusCode::FAILURE);
    }
    const IProperty* propertyServer = dynamic_cast<const IProperty*>(parentSvc);
    if( propertyServer == 0 ) {
-      log << MSG::ERROR << "Unable to get Property Server from the parent service" << endreq;
+      log << MSG::ERROR << "Unable to get Property Server from the parent service" << endmsg;
       return(StatusCode::FAILURE);
    }
    StringProperty queryProperty("Query", "");
    StatusCode status = propertyServer->getProperty(&queryProperty);
    if (!status.isSuccess()) {
-      log << MSG::ERROR << "Unable to get Query property from " << parentSvc->name() << endreq;
+      log << MSG::ERROR << "Unable to get Query property from " << parentSvc->name() << endmsg;
       return(StatusCode::FAILURE);
    }
-   log << MSG::INFO << "EventSelector property Query is: " << queryProperty.toString() << endreq;
+   log << MSG::INFO << "EventSelector property Query is: " << queryProperty.toString() << endmsg;
    StringProperty collProperty("CollectionType", "");
    status = propertyServer->getProperty(&collProperty);
    if (!status.isSuccess()) {
-      log << MSG::ERROR << "Unable to get CollectionType property from " << parentSvc->name() << endreq;
+      log << MSG::ERROR << "Unable to get CollectionType property from " << parentSvc->name() << endmsg;
       return(StatusCode::FAILURE);
    }
-   log << MSG::DEBUG << "EventSelector property CollectionType is: " << collProperty.toString() << endreq;
+   log << MSG::DEBUG << "EventSelector property CollectionType is: " << collProperty.toString() << endmsg;
    try {
       string remappedQ = triggerQueryRemap(queryProperty.toString(), collProperty.toString());
-      log << MSG::INFO << "Remappeed Trigger Query: " << remappedQ << endreq;
+      log << MSG::INFO << "Remappeed Trigger Query: " << remappedQ << endmsg;
       queryProperty.setValue(remappedQ);
    } catch( runtime_error &e ) {	
-       log << MSG::ERROR << "Trigger Query Error: " << e.what() << endreq;
+       log << MSG::ERROR << "Trigger Query Error: " << e.what() << endmsg;
        return StatusCode::FAILURE;
    } 
    status = const_cast<IProperty*>(propertyServer)->setProperty(queryProperty);
    if (!status.isSuccess()) {
-      log << MSG::ERROR << "Unable to set Query property from " << parentSvc->name() << endreq;
+      log << MSG::ERROR << "Unable to set Query property from " << parentSvc->name() << endmsg;
       return(StatusCode::FAILURE);
    }
 
-   log << MSG::DEBUG << "postInitialization end"  << endreq; 
+   log << MSG::DEBUG << "postInitialization end"  << endmsg; 
    return StatusCode::SUCCESS;
 }
    
