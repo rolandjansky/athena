@@ -18,7 +18,7 @@
 #include "AthenaBaseComps/AthService.h"
 
 //include
-#include "BarcodeInterfaces/Barcode.h"
+#include "BarcodeEvent/Barcode.h"
 #include "BarcodeInterfaces/IBarcodeSvc.h"
 
 class IIncidentSvc;

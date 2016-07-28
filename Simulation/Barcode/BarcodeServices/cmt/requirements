@@ -9,8 +9,9 @@ manager Wolfgang Lukas <Wolfgang.Lukas@cern.ch>
 # public use statements
 use GaudiInterface            GaudiInterface-*        External
 use AtlasPolicy               AtlasPolicy-*
-use  AtlasROOT                  AtlasROOT-*                     External
+use AtlasROOT                 AtlasROOT-*             External
 use AthenaBaseComps           AthenaBaseComps-*       Control
+use BarcodeEvent              BarcodeEvent-*          Simulation/Barcode
 use BarcodeInterfaces         BarcodeInterfaces-*     Simulation/Barcode
 
 ## macros

@@ -9,6 +9,7 @@ atlas_subdir( BarcodeServices )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
+                          Simulation/Barcode/BarcodeEvent
                           Simulation/Barcode/BarcodeInterfaces )
 
 # External dependencies:
