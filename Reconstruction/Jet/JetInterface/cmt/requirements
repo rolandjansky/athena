@@ -15,3 +15,9 @@ use xAODEventInfo       xAODEventInfo-*         Event/xAOD
 library JetInterface ../Root/*.cxx
 apply_pattern installed_library
 
+private
+use AtlasReflex AtlasReflex-* External
+apply_pattern lcgdict dict=JetInterface \
+                   selectionfile=selection.xml \
+                   headerfiles="../JetInterface/JetInterfaceDict.h"
+end_private

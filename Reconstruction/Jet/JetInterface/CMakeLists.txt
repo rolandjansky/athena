@@ -19,3 +19,9 @@ atlas_add_library( JetInterface
                    PUBLIC_HEADERS JetInterface
                    LINK_LIBRARIES AsgTools xAODEventInfo xAODJet xAODTracking xAODBase)
 
+atlas_add_dictionary( JetInterfaceDict
+                      JetInterface/JetInterfaceDict.h
+                      JetInterface/selection.xml
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet xAODTracking xAODBase JetInterface )
+

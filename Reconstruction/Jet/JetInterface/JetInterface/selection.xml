@@ -1,0 +1,20 @@
+<lcgdict>
+  <class name="IJetModifier" />  
+  <class name="IJetBuildTool" />
+  <class name="IJetConstituentModifier" />
+  <class name="IJetConstituentsRetriever" />
+  <class name="IJetConsumer" />
+  <class name="IJetExecuteTool" />
+  <class name="IJetFinder" />
+  <class name="IJetFromPseudojet" />
+  <class name="IJetGroomer" />
+  <class name="IJetModifier" />
+  <class name="IJetPseudojetRetriever" />
+  <class name="IJetSelector" />
+  <class name="IJetTrackSelector" />
+  <class name="IJetUncertaintiesTool" />
+  <class name="IJetUpdateJvt" />
+  <class name="IPseudoJetGetter" />
+  <class name="ISingleJetModifier" />
+
+</lcgdict>
