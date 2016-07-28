@@ -11,7 +11,7 @@ MdtCsmMap::MdtCsmMap(uint8_t csmId):
   MdtMapBase<MdtAmtMap>(csmId,"MdtAmtMap")
 {
   if (m_debug) { 
-    *m_log << MSG::VERBOSE << "Adding Csm number: " << (int) csmId << endreq;
+    *m_log << MSG::VERBOSE << "Adding Csm number: " << (int) csmId << endmsg;
   }
 }
 
