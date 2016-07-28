@@ -47,7 +47,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_BankLevel(1), m_doTSPSim(0), m_minTSPCoverage(0),
   m_setAMSize(0), m_setAMSplit(0), m_maxAMAfterSplit(-1), m_minDVolOverDNPatt(0), 
   m_doMakeCache(0), m_CachePath("bankcache.root"),
-  m_SaveAllRoads(0),
+  m_SaveAllRoads(0), m_StoreAllSS(0),
   m_pmap(0x0), m_pmap_unused(0x0),
   m_rmap(0x0), m_rmap_unused(0x0), m_CUR_REGION(-1),
   m_ssmap(0x0), m_ssmap_unused(0x0), m_ssmap_tsp(0x0),
@@ -127,7 +127,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("SaveRoads",m_saveroads,"If true (default) the output roads are saved into the SG");
 
   declareProperty("UseMinimalAMIN",m_useMinimalAMIN);
-
+  declareProperty("StoreAllSS",m_StoreAllSS,"If true, store all SS, not just in roads");
   declareProperty("HWModeSS",m_HWModeSS,"Enable the HW-like encoding for the SS");
 
   declareProperty("MaxMissingSCTPairs",m_MaxMissingSCTPairs,"Increase the number of missing SCT modules, enable the transition region fix");
@@ -460,6 +460,7 @@ StatusCode FTKRoadFinderAlgo::initialize(){
        the number of hits is correctly updated to the number of verified
        layers */
     curbank->setSaveAllRoads(m_SaveAllRoads);
+    curbank->setStoreAllSS(m_StoreAllSS);
     curbank->setRequireFirst(m_require_first);
     curbank->setUseMinimalAMIN(m_useMinimalAMIN);
 

@@ -111,6 +111,9 @@ private:
   // save all found roads if >0
   int m_SaveAllRoads;
 
+  // store all ss not just in roads
+  bool m_StoreAllSS; 
+
   // Plane map pointer, to be set during the initialization
   FTKPlaneMap *m_pmap;
   FTKPlaneMap *m_pmap_unused;

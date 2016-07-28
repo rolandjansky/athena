@@ -42,7 +42,6 @@ class FTKPatternOneSector;
 #define VECTOR std::vector
 #define LIST std::list
 
-//#define CANDIDATES_WITHOUT_SECTORID
 #define OPTIMIZED_VECTORMAP
 
 #ifdef OPTIMIZED_VECTORMAP
@@ -136,7 +135,7 @@ public:
    //   flat format=1: pbank format
    //   flat format=2: pbank+ccache format
    int writePCachedBankFile(char const *cachedBankFile,
-                            int flatFormat=0,int nsub=0) const;
+                            int flatFormat=0,int nsub=0,int nlamb=0) const;
 
    // write root file (reasonaby fast)
    int writeCCachedBankFile(char const *cachedBankFile,int flatFormat=0) const;
@@ -184,12 +183,12 @@ public:
    int getDCssidConst(int layer,int sector,int tspSSID) const;
 
    // read root file (sector-ordered), one subregion
-   int readSectorOrderedBank(const char *name, int maxpatts,int nSub,int numSectorMax);
+   int readSectorOrderedBank(const char *name, int maxpatts,int nSub,int numSectorMax,int nlamb);
    // read root file (sector-ordered)
    //   the sectors are divided into partitions
    //   each partition comes with a maximum number of patterns
    int readSectorOrderedBank(const char *name,const char *partitionListName,
-                             int nSub,int numSectorMax);
+                             int nSub,int numSectorMax,int nlamb);
    // this method reads patterns as defined in the partition list
    // a given partition implements two limits
    //   maximum number of sectors
@@ -203,7 +202,9 @@ public:
       std::set<int> fSectorSet;
    };
    int readPartitionedSectorOrderedBank(const char *name,
-                                        std::list<Partition> const &partitionList);
+                                        std::list<Partition> const &partitionList,int nlamb);
+
+   bool isReservedPatternId(int patternID) const;
 
    int readBANKjson(char const *jsonFile);
    int writeBANKjson(char const *jsonFile) const;
@@ -218,7 +219,7 @@ protected:
    // convert sector-ordered DC bank (in memory) to TSP-bank
    void importDCpatterns
       (int nLayer,int offsetSSID,int32_t *ssidData,
-       VECTOR<std::pair<int,int> > const &sectorPointer);
+       VECTOR<std::pair<int,int> > const &sectorPointer,int nlamb);
 
    // finalize memory structures after reading bank data from file
    void readBankPostprocessing(const char *where);
@@ -298,9 +299,6 @@ protected:
   // holds all pattern data
   PatternBank m_bank;
   MAP<int,std::pair<int,int> > m_SectorFirstLastPattern;
-#ifdef CANDIDATES_WITHOUT_SECTORID
-  MAP<int,int> m_patternToSector;
-#endif
   //
   // hold wildcards (layer mask) per sector
   typedef uint8_t HitPattern_t;
@@ -322,13 +320,7 @@ protected:
   // road candidates
   static int const MAX_NROAD;
   unsigned m_nRoadCand;
-  VECTOR<
-#ifdef CANDIDATES_WITHOUT_SECTORID
-     uint32_t
-#else
-     std::pair<uint32_t,uint32_t>
-#endif
-     > m_roadCand;
+  VECTOR<std::pair<uint32_t,uint32_t> > m_roadCand;
   //
   // minimum number of hits
   uint8_t m_nhWCmin;

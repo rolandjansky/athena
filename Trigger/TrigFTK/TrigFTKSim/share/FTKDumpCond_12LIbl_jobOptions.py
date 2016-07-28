@@ -14,13 +14,13 @@ print "Add FTKDetector tool"
 FTKDet = FTKDetectorTool()
 FTKDet.FTK_BadModuleMapPath = "badModulemap_12LIbl_FTK.bmap"
 FTKDet.ATLAS_BadModuleMapPath = "badModulemap_12LIbl_ATLAS.bmap"
-FTKDet.pmap_path = "../Trigger/TrigFTK/TrigFTKSim/config/map_file/raw_12LIbl.pmap"
-FTKDet.rmap_path = "../Trigger/TrigFTK/TrigFTKSim/config/map_file/raw_12Libl.tmap"
+FTKDet.pmap_path = "../Trigger/TrigFTK/TrigFTKSim/config/map_file/raw_12LiblHW3D.pmap"
+FTKDet.rmap_path = "../Trigger/TrigFTK/TrigFTKSim/config/map_file/raw_12Libl32TmodB_3D_t13.tmap"
 ToolSvc += FTKDet
 
 FTKDumpCond = FTKDumpCondAlgo( "FTKDumpCondAlgo" , OutputLevel=INFO)
-FTKDumpCond.IBLMode = 1
-FTKDumpCond.DumpBadModules = True
+FTKDumpCond.IBLMode = 2
+####FTKDumpCond.DumpBadModules = True
 FTKDumpCond.DumpGlobalToLocalMap = True
 theJob += FTKDumpCond  
 

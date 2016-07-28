@@ -50,10 +50,10 @@ def getTransform():
     executorSet = set()
     executorSet.add(athenaExecutor(name = 'FTKSimulationMerge',
                                    skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py',
-                                   inData = ['NTUP_FTKTMP'],
+                                   inData = ['NTUP_FTKTMP'],disableMP=True,
                                    outData = ['NTUP_FTK','RDO_FTK'],))
     executorSet.add(athenaExecutor(name = 'FTKSimulationRDOMerge',
-                                   skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py',
+                                   skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py',disableMP=True,
                                    inData = [('NTUP_FTKTMP','RDO')],
                                    outData = ['RDO_FTK'],))
     executorSet.add(athenaExecutor(name = 'FTKRecoRDOtoESD', skeletonFile = 'RecJobTransforms/skeleton.RAWtoESD.py',

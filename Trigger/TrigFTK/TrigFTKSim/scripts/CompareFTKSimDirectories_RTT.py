@@ -10,7 +10,11 @@
 
 # USE: CompareFTKSimDirectories.py RefName RefFile ChkName ChkFile [OutFile] [--PlotTowers] 
 
-from ROOT import *
+try:
+	ROOT
+except NameError:
+	from ROOT import *
+
 import sys, os, subprocess, time, glob, argparse
 import array
 

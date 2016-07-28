@@ -246,6 +246,18 @@ public:
   const static int strip_width_mask = 0x7000; ///< Bitmask marking the location of the strip width in m_hw_word  for SCT (3 bits)
   const static int strip_width_bit  = 12; ///< Starting bit of strip width in m_hw_word for SCT
 
+  const float SCT_row_scaling = 2.;
+  const float PIX_row_scaling = 8.;
+  const float PIX_column_scaling = 
+    (16*ftk::lengthOfPixelModuleIn400umPixels)/ftk::numberOfEtaPixelsInPixelModule; // (16*19)/18);
+  const float IBL_planar_row_scaling = 8.;
+  const float IBL_planar_column_scaling =
+    (10*ftk::lengthOfIblModuleIn250umPixels)/ftk::numberOfEtaPixelsInIblModule; // (10*163.2)/160);
+  const float IBL_3D_row_scaling = 8.;
+  const float IBL_3D_column_scaling =
+    (10*ftk::lengthOfIblModuleIn250umPixels)/ftk::numberOfEtaPixelsInIblModule; // (10*163.2)/160);
+
+
   ClassDef(FTKRawHit,4)
 };
 
