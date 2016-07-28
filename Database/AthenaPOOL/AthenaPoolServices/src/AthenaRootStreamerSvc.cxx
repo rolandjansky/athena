@@ -140,7 +140,7 @@ StatusCode AthenaRootStreamerSvc::AddStreamer(const std::string& converter_class
       log << MSG::DEBUG << "Loaded dictionary for class " << converter_classname
  //         << " ntypes before load " << ntypesBefore
  //         << " ntypes loaded " << Reflex::Type::TypeSize() - ntypesBefore
-          << endreq;
+          << endmsg;
    }
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
    RootObject convObj = streamer_class.Construct();
