@@ -75,7 +75,7 @@ PixelID::wafer_id_checks ( int barrel_ec,
     if (!m_full_wafer_range.match(id)) {  // module range check is sufficient
         MsgStream log(m_msgSvc, "PixelID");
         if(m_msgSvc) log << MSG::ERROR << " PixelID::wafer_id result is NOT ok. ID, range " 
-                         << (std::string)id << "   " << (std::string)m_full_wafer_range << endreq;
+                         << (std::string)id << "   " << (std::string)m_full_wafer_range << endmsg;
         else std::cout << " ERROR PixelID::wafer_id result is NOT ok. ID, range " 
                        << (std::string)id << "   " << (std::string)m_full_wafer_range << std::endl;
     }
@@ -100,7 +100,7 @@ PixelID::pixel_id_checks ( int barrel_ec,
     if (!m_full_pixel_range.match(id)) {  
         MsgStream log(m_msgSvc, "PixelID");
         if(m_msgSvc) log << MSG::ERROR << " PixelID::pixel_id result is NOT ok. ID, range " 
-                         << (std::string)id << " " << (std::string)m_full_pixel_range << endreq;
+                         << (std::string)id << " " << (std::string)m_full_pixel_range << endmsg;
         else std::cout << " ERROR PixelID::pixel_id result is NOT ok. ID, range " 
                        << (std::string)id << " " << (std::string)m_full_pixel_range << std::endl;
     }
@@ -244,17 +244,17 @@ PixelID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 {
 
     MsgStream log(m_msgSvc, "PixelID");
-    if(m_msgSvc) log << MSG::INFO << "Initialize from dictionary" << endreq;
+    if(m_msgSvc) log << MSG::INFO << "Initialize from dictionary" << endmsg;
     else         std::cout << " INFO Initialize from dictionary" << std::endl;
   
     // Check whether this helper should be reinitialized
     if (!reinitialize(dict_mgr)) {
-        if(m_msgSvc) log << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endreq;
+        if(m_msgSvc) log << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
         else std::cout << " INFO Request to reinitialize not satisfied - tags have not changed" << std::endl;
         return (0);
     }
     else {
-        if(m_msgSvc) log << MSG::DEBUG << "(Re)initialize" << endreq;
+        if(m_msgSvc) log << MSG::DEBUG << "(Re)initialize" << endmsg;
         else         std::cout << " DEBUG (Re)initialize" << std::endl;
     }
 
@@ -267,7 +267,7 @@ PixelID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     m_dict = dict_mgr.find_dictionary ("InnerDetector"); 
     if(!m_dict) {
         if(m_msgSvc) log << MSG::FATAL << " PixelID::initialize_from_dict - cannot access InnerDetector dictionary "
-                         << endreq;
+                         << endmsg;
         else std::cout << " FATAL PixelID::initialize_from_dict - cannot access InnerDetector dictionary "
                        << std::endl;
         return (1);
@@ -282,7 +282,7 @@ PixelID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     m_pixel_id = pixel();
     if(!is_pixel(m_pixel_id)) {
         if(m_msgSvc) log << MSG::FATAL << " PixelID::initialize_from_dict - cannot get pixel id dictionary "
-                         << endreq;
+                         << endmsg;
         else std::cout << " FATAL PixelID::initialize_from_dict - cannot get pixel id dictionary "
                        << std::endl;
         return(1);
@@ -297,7 +297,7 @@ PixelID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     if (m_dict->get_label_value("barrel_endcap", "barrel", barrel_value)) {
         if(m_msgSvc) log << MSG::FATAL << "Could not get value for label 'barrel' of field 'barrel_endcap' in dictionary " 
                          << m_dict->m_name
-                         << endreq;
+                         << endmsg;
         else std::cout << " FATAL Could not get value for label 'barrel' of field 'barrel_endcap' in dictionary " 
                        << m_dict->m_name
                        << std::endl;
@@ -308,7 +308,7 @@ PixelID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     if(m_msgSvc)    log << MSG::DEBUG << " PixelID::initialize_from_dict " 
                         << "Set barrel field values: "  
                         << (std::string)m_barrel_field
-                        << endreq;
+                        << endmsg;
     else std::cout << " DEBUG PixelID::initialize_from_dict " 
                    << "Set barrel field values: "  
                    << (std::string)m_barrel_field
@@ -328,7 +328,7 @@ PixelID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
       if(m_dict->m_version.find("DBM") != std::string::npos) {
         if(m_msgSvc) log << MSG::WARNING << "Could not get value for label 'negative_dbm' of field 'barrel_endcap' in dictionary "
                          << m_dict->m_name
-                         << endreq;
+                         << endmsg;
         else std::cout << " WARNING Could not get value for label 'negative_dbm' of field 'barrel_endcap' in dictionary "
                        << m_dict->m_name
                        << std::endl;
@@ -342,7 +342,7 @@ PixelID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
       if(m_dict->m_version.find("DBM") != std::string::npos) {
         if(m_msgSvc) log << MSG::WARNING << "Could not get value for label 'positive_dbm' of field 'barrel_endcap' in dictionary "
                          << m_dict->m_name
-                         << endreq;
+                         << endmsg;
         else std::cout << " WARNING Could not get value for label 'positive_dbm' of field 'barrel_endcap' in dictionary "
                        << m_dict->m_name
                        << std::endl;
@@ -355,7 +355,7 @@ PixelID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     if(m_msgSvc)    log << MSG::DEBUG << " PixelID::initialize_from_dict "
                         << "Set dbm field values: "
                         << (std::string)m_dbm_field
-                        << endreq;
+                        << endmsg;
     else std::cout << " DEBUG PixelID::initialize_from_dict "
                    << "Set dbm field values: "
                    << (std::string)m_dbm_field
@@ -373,7 +373,7 @@ PixelID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     if (atlasDict->get_label_value("subdet", "InnerDetector", inDetField)) {
         if(m_msgSvc) log << MSG::FATAL << "Could not get value for label 'InnerDetector' of field 'subdet' in dictionary " 
                          << atlasDict->m_name
-                         << endreq;
+                         << endmsg;
         else std::cout << " FATAL Could not get value for label 'InnerDetector' of field 'subdet' in dictionary " 
                        << atlasDict->m_name
                        << std::endl;
@@ -385,7 +385,7 @@ PixelID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     if (m_dict->get_label_value("part", "Pixel", pixelField)) {
         if(m_msgSvc) log << MSG::FATAL << "Could not get value for label 'Pixel' of field 'part' in dictionary " 
                          << m_dict->m_name
-                         << endreq;
+                         << endmsg;
         else std::cout << " FATAL Could not get value for label 'Pixel' of field 'part' in dictionary " 
                        << m_dict->m_name
                        << std::endl;
@@ -395,7 +395,7 @@ PixelID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
                      << "Found field values: InDet/Pixel "  
                      << inDetField << "/"
                      << pixelField
-                     << endreq;
+                     << endmsg;
     else std::cout << " DEBUG PixelID::initialize_from_dict " 
                    << "Found field values: InDet/Pixel "  
                    << inDetField << "/"
@@ -418,13 +418,13 @@ PixelID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     
     if(m_msgSvc) {
         log << MSG::DEBUG << " PixelID::initialize_from_dict " 
-            << endreq;
+            << endmsg;
         log << MSG::DEBUG  
             << "Wafer range -> " << (std::string)m_full_wafer_range
-            <<  endreq;
+            <<  endmsg;
         log << MSG::DEBUG 
             << "Pixel range -> " << (std::string)m_full_pixel_range
-            << endreq;
+            << endmsg;
     }
     else {
         std::cout << " DEBUG PixelID::initialize_from_dict " 
@@ -470,7 +470,7 @@ PixelID::init_hashes(void)
                                  << " Error: duplicated id for wafer id. nid " << nids
                                  << " id " << show_to_string(id)
                                  << " exp id " << (std::string)exp_id 
-                                 << " " << (std::string)m_full_wafer_range << endreq;
+                                 << " " << (std::string)m_full_wafer_range << endmsg;
                 else std::cout << " FATAL PixelID::init_hashes "
                                << " Error: duplicated id for wafer id. nid " << nids
                                << " id " << show_to_string(id)
@@ -485,7 +485,7 @@ PixelID::init_hashes(void)
         if(m_msgSvc) log << MSG::FATAL << " PixelID::init_hashes "
                          << " Error: set size NOT EQUAL to hash max. size " << ids.size()
                          << " hash max " << m_wafer_hash_max 
-                         << endreq;
+                         << endmsg;
         else std::cout << " FATAL PixelID::init_hashes "
                        << " Error: set size NOT EQUAL to hash max. size " << ids.size()
                        << " hash max " << m_wafer_hash_max 
@@ -566,7 +566,7 @@ PixelID::init_neighbors(void)
     //
     MsgStream log(m_msgSvc, "PixelID");
 
-    if(m_msgSvc) log << MSG::DEBUG << "PixelID::init_neighbors " << endreq;
+    if(m_msgSvc) log << MSG::DEBUG << "PixelID::init_neighbors " << endmsg;
     else std::cout << " DEBUG PixelID::init_neighbors " << std::endl;
 
     m_prev_phi_wafer_vec.clear();
@@ -611,7 +611,7 @@ PixelID::init_neighbors(void)
                                       exp_id[m_ETA_MODULE_INDEX]);
             if (get_hash(id, hash_id, &wcontext)) {
                 if(m_msgSvc) log << MSG::FATAL << " PixelID::init_neighbors - unable to get hash, exp/compact " 
-                                 << id.getString() << " " << show_to_string(id) << endreq;
+                                 << id.getString() << " " << show_to_string(id) << endmsg;
                 else std::cout << " FATAL PixelID::init_neighbors - unable to get hash, exp/compact " 
                                << id.getString() << " " << show_to_string(id) << std::endl;
                 return (1);
@@ -634,7 +634,7 @@ PixelID::init_neighbors(void)
                                           expId[m_ETA_MODULE_INDEX]);
                 if (get_hash(id, hash_id, &wcontext)) {
                     if(m_msgSvc) log << MSG::FATAL << " PixelID::init_neighbors - unable to get previous phi hash, exp/compact "
-                                     << id.getString() << " " << show_to_string(id) << endreq;
+                                     << id.getString() << " " << show_to_string(id) << endmsg;
                     else std::cout << " FATAL PixelID::init_neighbors - unable to get previous phi hash, exp/compact "
                                    << id.getString() << " " << show_to_string(id) << std::endl;
                     return (1);
@@ -652,7 +652,7 @@ PixelID::init_neighbors(void)
                                           expId[m_ETA_MODULE_INDEX]);
                 if (get_hash(id, hash_id, &wcontext)) {
                     if(m_msgSvc) log << MSG::FATAL << " PixelID::init_neighbors - unable to get next phi hash, exp/compact " << 
-                                     id.getString() << " " << show_to_string(id) << endreq;
+                                     id.getString() << " " << show_to_string(id) << endmsg;
                     else std::cout << " FATAL PixelID::init_neighbors - unable to get next phi hash, exp/compact " << 
                              id.getString() << " " << show_to_string(id) << std::endl;
                     return (1);
@@ -670,7 +670,7 @@ PixelID::init_neighbors(void)
                                           expId[m_ETA_MODULE_INDEX]);
                 if (get_hash(id, hash_id, &wcontext)) {
                     if(m_msgSvc) log << MSG::FATAL << " PixelID::init_neighbors - unable to get previous eta hash, exp/compact " 
-                                     << id.getString() << " " << show_to_string(id) << endreq;
+                                     << id.getString() << " " << show_to_string(id) << endmsg;
                     else std::cout << " FATAL PixelID::init_neighbors - unable to get previous eta hash, exp/compact " 
                                    << id.getString() << " " << show_to_string(id) << std::endl;
                     return (1);
@@ -688,7 +688,7 @@ PixelID::init_neighbors(void)
                                           expId[m_ETA_MODULE_INDEX]);
                 if (get_hash(id, hash_id, &wcontext)) {
                     if(m_msgSvc) log << MSG::FATAL << " PixelID::init_neighbors - unable to get next eta hash, exp/compact "
-                                     << id.getString() << " " << show_to_string(id) << endreq;
+                                     << id.getString() << " " << show_to_string(id) << endmsg;
                     else std::cout << " FATAL PixelID::init_neighbors - unable to get next eta hash, exp/compact "
                                    << id.getString() << " " << show_to_string(id) << std::endl;
                     return (1);
@@ -721,7 +721,7 @@ PixelID::initLevelsFromDict(void)
 {
     MsgStream log(m_msgSvc, "PixelID");
     if(!m_dict) {
-        if(m_msgSvc) log << MSG::FATAL << " PixelID::initLevelsFromDict - dictionary NOT initialized " << endreq;
+        if(m_msgSvc) log << MSG::FATAL << " PixelID::initLevelsFromDict - dictionary NOT initialized " << endmsg;
         else std::cout << " FATAL PixelID::initLevelsFromDict - dictionary NOT initialized " << std::endl;
         return (1);
     }
@@ -744,7 +744,7 @@ PixelID::initLevelsFromDict(void)
     if (m_dict->find_region(id, m_pixel_region_index)) {
         if(m_msgSvc) log << MSG::FATAL << "PixelID::initLevelsFromDict - unable to find pixel region index: id, reg "  
                          << (std::string)id << " " << m_pixel_region_index
-                         << endreq;
+                         << endmsg;
         else std::cout << " FATAL PixelID::initLevelsFromDict - unable to find pixel region index: id, reg "  
                        << (std::string)id << " " << m_pixel_region_index
                        << std::endl;
@@ -758,7 +758,7 @@ PixelID::initLevelsFromDict(void)
     }
     else {
         if(m_msgSvc) log << MSG::FATAL << "PixelID::initLevelsFromDict - unable to find 'subdet' field "        
-                         << endreq;
+                         << endmsg;
         else std::cout << " FATAL PixelID::initLevelsFromDict - unable to find 'subdet' field "         
                        << std::endl;
         return (1);
@@ -769,7 +769,7 @@ PixelID::initLevelsFromDict(void)
         m_PIXEL_INDEX = field->m_index;
     }
     else {
-        if(m_msgSvc) log << MSG::FATAL << "PixelID::initLevelsFromDict - unable to find 'part' field " << endreq;       
+        if(m_msgSvc) log << MSG::FATAL << "PixelID::initLevelsFromDict - unable to find 'part' field " << endmsg;       
         else std::cout << " FATAL PixelID::initLevelsFromDict - unable to find 'part' field " << std::endl;     
         return (1);
     }
@@ -779,7 +779,7 @@ PixelID::initLevelsFromDict(void)
         m_BARREL_EC_INDEX = field->m_index;
     }
     else {
-        if(m_msgSvc) log << MSG::FATAL << "PixelID::initLevelsFromDict - unable to find 'barrel_endcap' field "  << endreq;     
+        if(m_msgSvc) log << MSG::FATAL << "PixelID::initLevelsFromDict - unable to find 'barrel_endcap' field "  << endmsg;     
         else std::cout << " FATAL PixelID::initLevelsFromDict - unable to find 'barrel_endcap' field "  << std::endl;   
         return (1);
     }
@@ -789,7 +789,7 @@ PixelID::initLevelsFromDict(void)
         m_LAYER_DISK_INDEX = field->m_index;
     }
     else {
-        if(m_msgSvc) log << MSG::FATAL << "PixelID::initLevelsFromDict - unable to find 'layer' field "  << endreq;
+        if(m_msgSvc) log << MSG::FATAL << "PixelID::initLevelsFromDict - unable to find 'layer' field "  << endmsg;
         else std::cout << " FATAL PixelID::initLevelsFromDict - unable to find 'layer' field "  << std::endl;
         return (1);
     }
@@ -799,7 +799,7 @@ PixelID::initLevelsFromDict(void)
         m_PHI_MODULE_INDEX = field->m_index;
     }
     else {
-        if(m_msgSvc) log << MSG::FATAL << "PixelID::initLevelsFromDict - unable to find 'phi_module' field " << endreq; 
+        if(m_msgSvc) log << MSG::FATAL << "PixelID::initLevelsFromDict - unable to find 'phi_module' field " << endmsg; 
         else std::cout << " FATAL PixelID::initLevelsFromDict - unable to find 'phi_module' field " << std::endl;       
         return (1);
     }
@@ -808,7 +808,7 @@ PixelID::initLevelsFromDict(void)
         m_ETA_MODULE_INDEX = field->m_index;
     }
     else {
-        if(m_msgSvc) log << MSG::FATAL  << "PixelID::initLevelsFromDict - unable to find 'eta_module' field "    << endreq;
+        if(m_msgSvc) log << MSG::FATAL  << "PixelID::initLevelsFromDict - unable to find 'eta_module' field "    << endmsg;
         else std::cout << " FATAL PixelID::initLevelsFromDict - unable to find 'eta_module' field "      << std::endl;
         return (1);
     }
@@ -817,7 +817,7 @@ PixelID::initLevelsFromDict(void)
         m_PHI_INDEX_INDEX = field->m_index;
     }
     else {
-        if(m_msgSvc) log << MSG::FATAL << "PixelID::initLevelsFromDict - unable to find 'phi_index' field " << endreq;  
+        if(m_msgSvc) log << MSG::FATAL << "PixelID::initLevelsFromDict - unable to find 'phi_index' field " << endmsg;  
         else std::cout << " FATAL PixelID::initLevelsFromDict - unable to find 'phi_index' field " << std::endl;        
         return (1);
     }
@@ -826,7 +826,7 @@ PixelID::initLevelsFromDict(void)
         m_ETA_INDEX_INDEX = field->m_index;
     }
     else {
-        if(m_msgSvc) log << MSG::FATAL << "PixelID::initLevelsFromDict - unable to find 'eta_index' field " << endreq;
+        if(m_msgSvc) log << MSG::FATAL << "PixelID::initLevelsFromDict - unable to find 'eta_index' field " << endmsg;
         else std::cout << " FATAL PixelID::initLevelsFromDict - unable to find 'eta_index' field " << std::endl;
         return (1);
     }
@@ -846,20 +846,20 @@ PixelID::initLevelsFromDict(void)
     m_eta_index_impl  = region.m_implementation[m_ETA_INDEX_INDEX]; 
 
     if(m_msgSvc) {
-        log << MSG::DEBUG << "decode index and bit fields for each level: " << endreq;
-        log << MSG::DEBUG << "indet          "  << m_indet_impl.show_to_string() << endreq;
-        log << MSG::DEBUG << "pixel          "  << m_pixel_impl.show_to_string() << endreq; 
-        log << MSG::DEBUG << "bec            "  << m_bec_impl.show_to_string() << endreq; 
-        log << MSG::DEBUG << "bec_shift      "  << m_bec_shift_impl.show_to_string() << endreq; 
-        log << MSG::DEBUG << "lay_disk       "  << m_lay_disk_impl.show_to_string() << endreq; 
-        log << MSG::DEBUG << "lay_disk_shift "  << m_lay_disk_shift_impl.show_to_string() << endreq; 
-        log << MSG::DEBUG << "phi_mod        "  << m_phi_mod_impl.show_to_string() << endreq; 
-        log << MSG::DEBUG << "phi_mod_shift  "  << m_phi_mod_shift_impl.show_to_string() << endreq; 
-        log << MSG::DEBUG << "eta_mod        "  << m_eta_mod_impl.show_to_string() << endreq; 
-        log << MSG::DEBUG << "eta_mod_shift  "  << m_eta_mod_shift_impl.show_to_string() << endreq; 
-        log << MSG::DEBUG << "phi_index      "  << m_phi_index_impl.show_to_string() << endreq; 
-        log << MSG::DEBUG << "eta_index      "  << m_eta_index_impl.show_to_string() << endreq; 
-        log << MSG::DEBUG << "bec_eta_mod    "  << m_bec_eta_mod_impl.show_to_string() << endreq; 
+        log << MSG::DEBUG << "decode index and bit fields for each level: " << endmsg;
+        log << MSG::DEBUG << "indet          "  << m_indet_impl.show_to_string() << endmsg;
+        log << MSG::DEBUG << "pixel          "  << m_pixel_impl.show_to_string() << endmsg; 
+        log << MSG::DEBUG << "bec            "  << m_bec_impl.show_to_string() << endmsg; 
+        log << MSG::DEBUG << "bec_shift      "  << m_bec_shift_impl.show_to_string() << endmsg; 
+        log << MSG::DEBUG << "lay_disk       "  << m_lay_disk_impl.show_to_string() << endmsg; 
+        log << MSG::DEBUG << "lay_disk_shift "  << m_lay_disk_shift_impl.show_to_string() << endmsg; 
+        log << MSG::DEBUG << "phi_mod        "  << m_phi_mod_impl.show_to_string() << endmsg; 
+        log << MSG::DEBUG << "phi_mod_shift  "  << m_phi_mod_shift_impl.show_to_string() << endmsg; 
+        log << MSG::DEBUG << "eta_mod        "  << m_eta_mod_impl.show_to_string() << endmsg; 
+        log << MSG::DEBUG << "eta_mod_shift  "  << m_eta_mod_shift_impl.show_to_string() << endmsg; 
+        log << MSG::DEBUG << "phi_index      "  << m_phi_index_impl.show_to_string() << endmsg; 
+        log << MSG::DEBUG << "eta_index      "  << m_eta_index_impl.show_to_string() << endmsg; 
+        log << MSG::DEBUG << "bec_eta_mod    "  << m_bec_eta_mod_impl.show_to_string() << endmsg; 
     }
     else {
         std::cout << " DEBUG decode index and bit fields for each level: " << std::endl;
@@ -1118,7 +1118,7 @@ PixelID::test_wafer_packing     (void) const
             if (id != new_id) {
                 if(m_msgSvc) log << MSG::ERROR << "PixelID::test_wafer_packing: new and old compact id not equal. New/old/expanded ids " 
                                  << show_to_string(new_id) << " " << show_to_string(id) << " "
-                                 << (std::string)expId << endreq;
+                                 << (std::string)expId << endmsg;
                 else std::cout << " ERROR PixelID::test_wafer_packing: new and old compact id not equal. New/old/expanded ids " 
                                << show_to_string(new_id) << " " << show_to_string(id) << " "
                                << (std::string)expId << std::endl;
@@ -1149,7 +1149,7 @@ PixelID::test_wafer_packing     (void) const
                 if(m_msgSvc) log << MSG::ERROR << "PixelID::test_wafer_packing: new and old expanded ids not equal. New/old/compact ids "
                                  << (std::string)new_exp_id 
                                  << " " << (std::string)exp_id 
-                                 << " " <<  show_to_string(id) << endreq;
+                                 << " " <<  show_to_string(id) << endmsg;
                 else std::cout << " ERROR PixelID::test_wafer_packing: new and old expanded ids not equal. New/old/compact ids "
                                << (std::string)new_exp_id 
                                << " " << (std::string)exp_id 
@@ -1171,7 +1171,7 @@ PixelID::test_wafer_packing     (void) const
             if (pid != pid1) {
                 if(m_msgSvc) log << MSG::ERROR << "PixelID::test_wafer_packing: new and old pixel ids not equal. New/old ids "
                                  << " " << show_to_string(pid1) << " " 
-                                 << show_to_string(pid) << endreq;
+                                 << show_to_string(pid) << endmsg;
                 else std::cout << " ERROR PixelID::test_wafer_packing: new and old pixel ids not equal. New/old ids "
                                << " " << show_to_string(pid1) << " " 
                                << show_to_string(pid) << std::endl;
@@ -1180,14 +1180,14 @@ PixelID::test_wafer_packing     (void) const
 
         if(m_msgSvc) log << MSG::DEBUG << "PixelID::test_wafer_packing: Successful tested " 
                          << nids << " ids. " 
-                         << endreq;
+                         << endmsg;
         else std::cout << " DEBUG PixelID::test_wafer_packing: Successful tested " 
                        << nids << " ids. " 
                        << std::endl;
     }
     else {
         if(m_msgSvc) log << MSG::ERROR << "PixelID::test_wafer_packing: Unable to test wafer is packing - no dictionary has been defined. " 
-                         << endreq;
+                         << endmsg;
         else std::cout << " ERROR PixelID::test_wafer_packing: Unable to test wafer is packing - no dictionary has been defined. " 
                        << std::endl;
     }
