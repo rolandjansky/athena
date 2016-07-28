@@ -10,6 +10,7 @@
 
 #include "DataHeaderCnv.h"
 
+#include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModelTPCnv/DataHeaderCnv_p3.h"
 #include "PersistentDataModelTPCnv/DataHeaderCnv_p4.h"
@@ -20,6 +21,7 @@
 #include <memory>
 #include <stdexcept>
 
+// cppcheck-suppress uninitMemberVar
 DataHeaderCnv::DataHeaderCnv(ISvcLocator* svcloc) :
 	T_AthenaPoolCustomCnv<DataHeader, DataHeader_p5>::T_AthenaPoolCustomCnv(svcloc),
 	m_TPconverter(),
@@ -31,48 +33,92 @@ DataHeaderCnv::~DataHeaderCnv() {
 }
 
 //______________________________________________________________________________
+StatusCode DataHeaderCnv::updateRep(IOpaqueAddress* pAddress, DataObject* pObject) {
+   if (!m_dhForm) {
+      MsgStream log(msgSvc(), "DataHeaderCnv");
+      log << MSG::ERROR << "updateRep called without DataHeaderForm being set" << endmsg;
+      return(StatusCode::FAILURE);
+   }
+   std::size_t clidBeg = pAddress->par()[0].find("[CLID=") + 6;
+   std::size_t clidSize = pAddress->par()[0].find("]", clidBeg) - clidBeg;
+   if (pAddress->par()[0].substr(clidBeg, clidSize) != "D82968A1-CF91-4320-B2DD-E0F739CBC7E6") {
+      MsgStream log(msgSvc(), "DataHeaderCnv");
+      log << MSG::ERROR << "updateRep called without DataHeader_p5" << endmsg;
+      return(StatusCode::FAILURE);
+   }
+   DataHeader_p5* dataHeader = (DataHeader_p5*)pObject;
+   dataHeader->setDhForm(m_dhForm);
+   m_dhForm->start();
+   for (unsigned int i = 0; i < dataHeader->elements().size(); i++) {
+      m_dhForm->next();
+   }
+   std::size_t tagBeg = pAddress->par()[1].find("[KEY=") + 5;
+   std::size_t tagSize = pAddress->par()[1].find("]", tagBeg) - tagBeg;
+   m_TPconverter.insertDHRef(dataHeader, pAddress->par()[1].substr(tagBeg, tagSize), pAddress->par()[0]);
+   std::size_t tokenBeg = pAddress->par()[1].find("[FORM=[") + 6;
+   std::size_t tokenSize = pAddress->par()[1].find("]]", tokenBeg) + 1 - tokenBeg;
+   dataHeader->setDhFormToken(pAddress->par()[1].substr(tokenBeg, tokenSize));
+   return(StatusCode::SUCCESS);
+}
+
+//______________________________________________________________________________
+StatusCode DataHeaderCnv::updateRepRefs(IOpaqueAddress* pAddress, DataObject* pObject) {
+   std::size_t clidBeg = pAddress->par()[0].find("[CLID=") + 6;
+   std::size_t clidSize = pAddress->par()[0].find("]", clidBeg) - clidBeg;
+   if (pAddress->par()[0].substr(clidBeg, clidSize) != "3397D8A3-BBE6-463C-9F8E-4B3DFD8831FE") {
+      MsgStream log(msgSvc(), "DataHeaderCnv");
+      log << MSG::ERROR << "updateRep called without DataHeaderForm_p5" << endmsg;
+      return(StatusCode::FAILURE);
+   }
+   m_dhForm = (DataHeaderForm_p5*)pObject;
+   return(StatusCode::SUCCESS);
+}
+
+//______________________________________________________________________________
 StatusCode DataHeaderCnv::DataObjectToPool(DataObject* pObj, const std::string& tname) {
    const std::string className = "DataHeader_p5";
    const std::string classMapName = "DataHeaderForm_p5";
    if (!m_classDesc) {
-      MsgStream log(messageService(), "DataHeaderCnv");
-      log << MSG::DEBUG << "Retrieve class description for class \"" << className << "\"" << endreq;
+      MsgStream log(msgSvc(), "DataHeaderCnv");
+      log << MSG::DEBUG << "Retrieve class description for class \"" << className << "\"" << endmsg;
       m_classDesc = RootType(className);
    }
    if (!m_mapClassDesc) {
-      MsgStream log(messageService(), "DataHeaderCnv");
-      log << MSG::DEBUG << "Retrieve class description for map class \"" << classMapName << "\"" << endreq;
+      MsgStream log(msgSvc(), "DataHeaderCnv");
+      log << MSG::DEBUG << "Retrieve class description for map class \"" << classMapName << "\"" << endmsg;
       m_mapClassDesc = RootType(classMapName);
    }
    DataHeader* obj = 0;
    bool success = SG::fromStorable(pObj, obj);
    if (!success || obj == 0) {
-      MsgStream log(messageService(), "DataHeaderCnv");
-      log << MSG::ERROR << "Failed to cast DataHeader to transient type" << endreq;
+      MsgStream log(msgSvc(), "DataHeaderCnv");
+      log << MSG::ERROR << "Failed to cast DataHeader to transient type" << endmsg;
       return(StatusCode::FAILURE);
    }
    DataHeader_p5* persObj = 0;
    try {
       persObj = createPersistent(obj);
    } catch (std::exception &e) {
-      MsgStream log(messageService(), "DataHeaderCnv");
-      log << MSG::FATAL << "Failed to convert DataHeader to persistent type: " << e.what() << endreq;
+      MsgStream log(msgSvc(), "DataHeaderCnv");
+      log << MSG::FATAL << "Failed to convert DataHeader to persistent type: " << e.what() << endmsg;
       return(StatusCode::FAILURE);
    }
    m_persObjList.push_back(persObj);
    this->setPlacementWithType("DataHeaderForm", tname);
    const Token* dhf_token = m_athenaPoolCnvSvc->registerForWrite(m_placement, persObj->dhForm(), m_mapClassDesc);
    if (dhf_token == 0) {
-      MsgStream log(messageService(), "DataHeaderCnv");
-      log << MSG::FATAL << "Failed to write DataHeaderForm = " << persObj->dhForm() << endreq;
+      MsgStream log(msgSvc(), "DataHeaderCnv");
+      log << MSG::FATAL << "Failed to write DataHeaderForm = " << persObj->dhForm() << endmsg;
       return(StatusCode::FAILURE);
    }
    this->setPlacementWithType("DataHeader", tname);
-   const Token* dh_token = m_athenaPoolCnvSvc->registerForWrite(m_placement, persObj, m_classDesc);
+   Placement placement;
+   placement.fromString(m_placement->toString() + "[KEY=" + obj->getProcessTag() + "][FORM=" + dhf_token->toString() + "]");
+   const Token* dh_token = m_athenaPoolCnvSvc->registerForWrite(&placement, persObj, m_classDesc);
    if (dh_token == 0) {
       delete dhf_token; dhf_token = 0;
-      MsgStream log(messageService(), "DataHeaderCnv");
-      log << MSG::FATAL << "Failed to write DataHeader" << endreq;
+      MsgStream log(msgSvc(), "DataHeaderCnv");
+      log << MSG::FATAL << "Failed to write DataHeader" << endmsg;
       return(StatusCode::FAILURE);
    }
    m_TPconverter.insertDHRef(persObj, obj->getProcessTag(), dh_token->toString());
