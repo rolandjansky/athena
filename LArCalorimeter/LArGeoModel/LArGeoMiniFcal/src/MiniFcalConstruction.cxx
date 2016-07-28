@@ -61,26 +61,26 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
     throw std::runtime_error("Error in MiniFcalConstruction, cannot access MessageSvc");
 
   MsgStream log(msgSvc, "LArGeo::MiniFcalConstruction"); 
-  log << MSG::DEBUG << "In MiniFcalConstruction GetEnvelope" << endreq;
+  log << MSG::DEBUG << "In MiniFcalConstruction GetEnvelope" << endmsg;
 
   IRDBAccessSvc* pAccessSvc(0);
   sc=svcLocator->service("RDBAccessSvc",pAccessSvc);
   if(sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR <<"Cannot locate RDBAccessSvc!!" << endreq;
+    log << MSG::ERROR <<"Cannot locate RDBAccessSvc!!" << endmsg;
     return 0;
   }
 
   IGeoModelSvc* geoModelSvc(0);
   sc = svcLocator->service ("GeoModelSvc",geoModelSvc);
   if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR <<"Cannot locate GeoModelSvc!!" << endreq;
+    log << MSG::ERROR <<"Cannot locate GeoModelSvc!!" << endmsg;
     return 0;
   }
   
   StoreGateSvc* detStore(0);
   sc = svcLocator->service("DetectorStore", detStore, false);
   if(sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR <<"Error in MiniFcalConstruction, cannot access DetectorStore" << endreq;
+    log << MSG::ERROR <<"Error in MiniFcalConstruction, cannot access DetectorStore" << endmsg;
     return 0;
   }
 
@@ -93,7 +93,7 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
 
   IRDBRecordset_ptr recEnvelope = pAccessSvc->getRecordsetPtr("MiniFcalEnvelope",detectorKey,detectorNode);
   if(recEnvelope->size()==0) {
-    log << MSG::ERROR << "Unable to get envelope parameters from the database" << endreq;
+    log << MSG::ERROR << "Unable to get envelope parameters from the database" << endmsg;
     return 0;
   }
   const IRDBRecord* envParameters = (*recEnvelope)[0];
@@ -102,25 +102,25 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
   DataHandle<StoredMaterialManager> materialManager;
   sc = detStore->retrieve(materialManager, std::string("MATERIALS"));
   if(sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Unable to retrieve the Stored Material Manager" << endreq;
+    log << MSG::ERROR << "Unable to retrieve the Stored Material Manager" << endmsg;
     return 0;
   }
   
   GeoMaterial* Copper  = materialManager->getMaterial(envParameters->getString("MATERIAL"));
   if(!Copper) {
-    log << MSG::ERROR << "Error in MiniFcalConstruction, unable to find material for the envelope" << endreq;
+    log << MSG::ERROR << "Error in MiniFcalConstruction, unable to find material for the envelope" << endmsg;
     return 0;
   }
 
   GeoMaterial* Diamond  = materialManager->getMaterial("pix::Diamond");
   if(!Diamond) {
-    log << MSG::ERROR << "Error in MiniFcalConstruction, unable to find Diamond material" << endreq;
+    log << MSG::ERROR << "Error in MiniFcalConstruction, unable to find Diamond material" << endmsg;
     return 0;
   }
 
   GeoMaterial *Feldspar  = materialManager->getMaterial("std::Feldspar");
   if (!Feldspar) {
-    log << MSG::ERROR << "Error in MiniFcalConstruction, unable to find material for the Ceramic Layers" << endreq;
+    log << MSG::ERROR << "Error in MiniFcalConstruction, unable to find material for the Ceramic Layers" << endmsg;
     return 0;
   }
 
@@ -143,17 +143,17 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
 
     IRDBRecordset_ptr recCommon = pAccessSvc->getRecordsetPtr("MiniFcalCommon",detectorKey,detectorNode);
     if(recCommon->size()==0) {
-      log << MSG::ERROR << "Unable to get MiniFcalCommon from the database" << endreq;
+      log << MSG::ERROR << "Unable to get MiniFcalCommon from the database" << endmsg;
       return 0;
     }
     IRDBRecordset_ptr recLayers = pAccessSvc->getRecordsetPtr("MiniFcalLayers",detectorKey,detectorNode);
     if(recLayers->size()==0) {
-      log << MSG::ERROR << "Unable to get MiniFcalLayers from the database" << endreq;
+      log << MSG::ERROR << "Unable to get MiniFcalLayers from the database" << endmsg;
       return 0;
     }
     IRDBRecordset_ptr recRings = pAccessSvc->getRecordsetPtr("MiniFcalRings",detectorKey,detectorNode);
     if(recRings->size()==0) {
-      log << MSG::ERROR << "Unable to get MiniFcalRings from the database" << endreq;
+      log << MSG::ERROR << "Unable to get MiniFcalRings from the database" << endmsg;
       return 0;
     }
 
@@ -173,7 +173,7 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
 
     log << MSG::DEBUG << "=====> Build a Mini FCal of length  " << 2.*halfLength << " CLHEP::mm and " 
 	<< NLayers << " layers of  " << LayerThick << " CLHEP::mm thickness each; place them every  "
-	<< L1 << " CLHEP::mm " << endreq;
+	<< L1 << " CLHEP::mm " << endmsg;
 
     // Make the Layers (all the same) - out of Feldspar (perhaps close to ceramics)
     std::string layerName = moduleName + "::Layer" ;
@@ -195,7 +195,7 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
     for(unsigned j=0; j<recLayers->size(); ++j) {
       // Check whether we have all layers available in the database
       if(layerIndexes.find(j)==layerIndexes.end()) {
-	log << MSG::ERROR << "Wrong numbering of Layers. " << j << "  is missing" << endreq;
+	log << MSG::ERROR << "Wrong numbering of Layers. " << j << "  is missing" << endmsg;
 	logiLayer->ref(); logiLayer->unref();
 	physiWafer->ref(); physiWafer->unref();
 	m_physiMiniFcal->ref(); m_physiMiniFcal->unref();
@@ -214,7 +214,7 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
 
       for (unsigned int i=0; i<recRings->size(); i++){  // loop over the number of wafer rings
 	if(ringIndexes.find(i)==ringIndexes.end()) {
-	  log << MSG::ERROR << "Wrong numbering of Rings. " << i << "  is missing" << endreq;
+	  log << MSG::ERROR << "Wrong numbering of Rings. " << i << "  is missing" << endmsg;
 	  physiLayer->ref(); physiLayer->unref();
 	  physiWafer->ref(); physiWafer->unref();
 	  m_physiMiniFcal->ref(); m_physiMiniFcal->unref();
@@ -225,7 +225,7 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
 	nwafers = (*recRings)[ringIndexes[i]]->getInt("NWAFERS");
 
 	GeoSerialIdentifier  *sIF = new GeoSerialIdentifier(i*100);
-	log << MSG::DEBUG << "MiniFcal - Put " << nwafers << " wafers into Ring " << i << " now " << endreq;
+	log << MSG::DEBUG << "MiniFcal - Put " << nwafers << " wafers into Ring " << i << " now " << endmsg;
 	double wAngle = 2.*M_PI/nwafers;
       
 	// for the negative z-side have to add pi to get things right:
@@ -238,7 +238,7 @@ GeoFullPhysVol* LArGeo::MiniFcalConstruction::GetEnvelope()
       }
 
       log << MSG::DEBUG << "- Working on layer " << j << " now. Place it at " 
-	  << ( -halfLength + L1 + double(j)*( L1 + LayerThick) + LayerThick/2. ) << " CLHEP::mm " << endreq;
+	  << ( -halfLength + L1 + double(j)*( L1 + LayerThick) + LayerThick/2. ) << " CLHEP::mm " << endmsg;
       m_physiMiniFcal->add(new GeoIdentifierTag(j));        
       GeoTransform *xf = new GeoTransform(HepGeom::TranslateZ3D( -halfLength + L1 + double(j)*( L1 + LayerThick) + LayerThick/2. ));
       m_physiMiniFcal->add(xf);
