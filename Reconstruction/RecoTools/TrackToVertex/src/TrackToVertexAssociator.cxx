@@ -39,7 +39,8 @@ Reco::TrackToVertexAssociator::TrackToVertexAssociator( const std::string& type,
   m_primaryVertexContainer("VxPrimaryVertices"),
   m_primaryVertices(0),
   m_beamLine(0),
-  m_particleHypo(2)
+  m_particleHypo(2),
+  m_cut(0)
 {
   declareInterface< Reco::ITrackToVertexAssociator >(this);
   // Property declaration
