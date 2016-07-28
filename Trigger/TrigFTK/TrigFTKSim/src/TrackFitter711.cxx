@@ -1676,6 +1676,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
         curhit_more[ip] = hits_more[ip].begin();
         endhit_more[ip] = hits_more[ip].end();
 
+
         if (curhit_more[ip]!=endhit_more[ip]) {
           // icrement the number of combinations
           ncombs_more *= hits_more[ip].size();
@@ -1758,6 +1759,8 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
             const int &cid = m_idcoords_eff[ip]+i;
             newtrk.setFTKHit(m_idplanes_eff[ip],*curhit_more[ip]);
             newtrk.setCoord(cid,(*curhit_more[ip])[i]);
+
+
           }
         }
 
@@ -3138,7 +3141,9 @@ void TrackFitter711::prepareTrack() {
   // set connindex
   newtrk.setConnectionIndex(cur_iconn);
 
-
+  // update the track sector ID with the 12L sector ID so it models SSB output
+  newtrk.setSectorID(conn_sectors[cur_iconn]);
+  
   //// ===== Incomplete tracks are ready to be extrapolated!
 }
 

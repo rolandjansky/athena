@@ -42,7 +42,7 @@ def main():
 
 ## Get the base transform with all arguments added
 def getTransform():
-    trf = transform(executor = athenaExecutor(name = 'FTKSimulationMerge',
+    trf = transform(executor = athenaExecutor(name = 'FTKSimulationMerge',disableMP=True,
                                               skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py'))
     addAthenaArguments(trf.parser)
     addFTKMergerArgs(trf.parser)

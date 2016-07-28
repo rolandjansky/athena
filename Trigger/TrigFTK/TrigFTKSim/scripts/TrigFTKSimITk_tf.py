@@ -55,7 +55,7 @@ def getTransform():
             athenaExecutor(
                 name = 'FTKFullSimulationBank{0}'.format(subregion) ,
                 skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneSim.py' ,
-                inData = ['NTUP_FTKIP','TXT_FTKIP'] ,
+                inData = ['NTUP_FTKIP','TXT_FTKIP'] ,disableMP=True,
                 outData = ['NTUP_FTKTMP_{0}'.format(subregion)] ,
                 extraRunargs = {
                     'banksubregion' : [subregion] ,
@@ -77,7 +77,7 @@ def getTransform():
     executorSet.add(
         athenaExecutor(
             name = 'FTKSimulationMerge' ,
-            skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py' ,
+            skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py' ,disableMP=True,
             inData = [tuple([ 'NTUP_FTKTMP_{0}'.format(subregion) for subregion in range(subregions) ])+('NTUP_FTKIP',)] ,
             outData = ['NTUP_FTKTMP'] ,
             extraRunargs = {

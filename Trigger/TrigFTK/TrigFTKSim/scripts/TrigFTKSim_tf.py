@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## FTK Simulation Transform
-# @version $Id: TrigFTKSim_tf.py 727800 2016-03-04 17:07:37Z sschmitt $
+# @version $Id: TrigFTKSim_tf.py 751833 2016-06-02 14:23:13Z jahreda $
 
 import argparse
 import sys
@@ -42,7 +42,7 @@ def main():
 
 ## Get the base transform with all arguments added
 def getTransform():
-    trf = transform(executor = athenaExecutor(name = 'FTKFullSimulation',
+    trf = transform(executor = athenaExecutor(name = 'FTKFullSimulation',disableMP=True,
                                               skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneSim.py'))
     addAthenaArguments(trf.parser)
     addFTKSimulationArgs(trf.parser)

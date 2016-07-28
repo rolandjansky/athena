@@ -65,7 +65,7 @@ def getTransform():
                     skeletonFile='TrigFTKSim/skeleton.FTKStandaloneSim.py',
                     substep='FTKTwr{0:02d}'.format(tower),
                     inData=['NTUP_FTKIP', 'TXT_FTKIP'],
-                    inputEventTest = False,
+                    inputEventTest = False,disableMP=True,
                     outData=['NTUP_FTKTMP_{0:02d}'.format(tower)],
                     extraRunargs={
                         'bankregion': [tower],
@@ -91,7 +91,7 @@ def getTransform():
         athenaExecutor(name="FTKSimulationMergeFinal",
             skeletonFile='TrigFTKSim/skeleton.FTKStandaloneMerge.py',
             substep = "FTKFinal",
-            inputEventTest = False,
+            inputEventTest = False,disableMP=True,
             inData=[tuple([
                 'NTUP_FTKTMP_{0:02d}'.format(tower)
                 for tower in range(ntowers)]) + ('NTUP_FTKIP',)],

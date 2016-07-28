@@ -4,7 +4,7 @@
 
 ## FTK Simulation Transform
 #  Specialist version to do sim x 4 subregions and merge in one job
-# @version $Id: TrigFTKSM4Un_tf.py 725454 2016-02-22 09:44:33Z sschmitt $
+# @version $Id: TrigFTKSM4Un_tf.py 751833 2016-06-02 14:23:13Z jahreda $
 
 import sys
 import time
@@ -55,7 +55,7 @@ def getTransform():
         executorSet.add(athenaExecutor(name = 'FTKFullSimulationBank{0}'.format(subregion),
                                        skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneSim.py',
                                        inData = ['NTUP_FTKIP','TXT_FTKIP'], outData = ['NTUP_FTKTMP_{0}'.format(subregion)],
-                                       extraRunargs = {'banksubregion': [subregion]},
+                                       extraRunargs = {'banksubregion': [subregion]},disableMP=True,
                                        # Need to ensure that the correct subregion is used
                                        runtimeRunargs = {'patternbankpath': 'runArgs.patternbank{0}path'.format(subregion),
                                                          'outputNTUP_FTKTMPFile': 'runArgs.outputNTUP_FTKTMP_{0}File'.format(subregion),
@@ -65,7 +65,7 @@ def getTransform():
     executorSet.add(athenaExecutor(name = 'FTKSimulationMerge',
                                    skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py',
                                    inData = [tuple([ 'NTUP_FTKTMP_{0}'.format(subregion) for subregion in range(subregions) ])+('NTUP_FTKIP',)],
-                                   outData = ['NTUP_FTKTMP'],
+                                   outData = ['NTUP_FTKTMP'],disableMP=True,
                                    extraRunargs = {'inputNTUP_FTKTMPFile': [ 'tmp.NTUP_FTKTMP_{0}'.format(subregion) for subregion in range(subregions)]},
                                    runtimeRunargs = {'MergeRegion': 'runArgs.bankregion[0]',
                                                      'FirstRegion': 'runArgs.bankregion[0]',

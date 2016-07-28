@@ -422,7 +422,18 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         tmpSGhit.setY(gPos.y());
         tmpSGhit.setZ(gPos.z());
         tmpSGhit.setHitType(ftk::PIXEL);
-        tmpSGhit.setModuleType(ftk::MODULETYPE_PIXEL);
+
+	bool isIBL = (m_pixelId->barrel_ec(rdoId) == 0 && m_pixelId->layer_disk(rdoId) == 0) ? true : false;
+	bool isIBL3D = (isIBL && FTKSetup::getFTKSetup().getIBLMode() == 2 && 
+			(abs(m_pixelId->eta_module(rdoId)) >= 7)) ? true : false;
+
+	if (isIBL3D)
+	  tmpSGhit.setModuleType(ftk::MODULETYPE_IBL3D);
+	else if (isIBL)
+	  tmpSGhit.setModuleType(ftk::MODULETYPE_IBL_PLANAR);
+	else
+	  tmpSGhit.setModuleType(ftk::MODULETYPE_PIXEL);
+	
         tmpSGhit.setIdentifierHash(sielement->identifyHash());
         tmpSGhit.setBarrelEC(m_pixelId->barrel_ec(rdoId));
         tmpSGhit.setLayer( m_pixelId->layer_disk(rdoId));

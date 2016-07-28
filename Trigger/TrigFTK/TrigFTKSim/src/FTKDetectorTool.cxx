@@ -36,6 +36,8 @@ FTKDetectorTool::FTKDetectorTool(const std::string &algname,const std::string &n
   , m_pmap_path()
   , m_bad_module_map(0x0),
   m_global2local_path("global-to-local-map.moduleidmap"),
+  m_sram_path_pix("sram_lookup_pixel.txt"),
+  m_sram_path_sct("sram_lookup_sct.txt"),
   m_rmap_path(""),
   m_rmap(0x0)
 {
@@ -51,6 +53,8 @@ FTKDetectorTool::FTKDetectorTool(const std::string &algname,const std::string &n
   declareProperty("pmap_path",                m_pmap_path);
 
   declareProperty("GlobalToLocalMapPath",m_global2local_path);
+  declareProperty("SRAMPathPixel",m_sram_path_pix);
+  declareProperty("SRAMPathSCT",m_sram_path_sct);
   declareProperty("rmap_path",m_rmap_path);
 }
 
@@ -301,7 +305,11 @@ void FTKDetectorTool::dumpGlobalToLocalModuleMap() {
    */
   list<FTKRawHit> CompleteIDModuleList;
 
-  // take the list of dead pixels
+  // To save the SRAM lookup into an output file
+  ofstream fout_pix(m_sram_path_pix);
+  ofstream fout_sct(m_sram_path_sct);
+  Int_t countForSRAM(0);
+
   for( InDetDD::SiDetectorElementCollection::const_iterator i=m_PIX_mgr->getDetectorElementBegin(), f=m_PIX_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
     const InDetDD::SiDetectorElement* sielement( *i );
     Identifier id = sielement->identify();
@@ -320,10 +328,16 @@ void FTKDetectorTool::dumpGlobalToLocalModuleMap() {
     tmpmodraw.setIdentifierHash(idhash);
     tmpmodraw.normalizeLayerID();
 
+    if (abs(m_pixelId->barrel_ec(id)) != 4) { // remove diamond hits
+      fout_pix << m_pixelId->barrel_ec(id) << "\t" << m_pixelId->layer_disk(id) << "\t" << m_pixelId->phi_module(id) << "\t" << m_pixelId->eta_module(id) << "\t" << countForSRAM << endl;
+      countForSRAM++;
+    }
+
     CompleteIDModuleList.push_back(tmpmodraw);
   }
 
-  // take the list of the dead SCT modules
+  countForSRAM = 0;
+
   for( InDetDD::SiDetectorElementCollection::const_iterator i=m_SCT_mgr->getDetectorElementBegin(), f=m_SCT_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
     const InDetDD::SiDetectorElement* sielement( *i );
     Identifier id = sielement->identify();
@@ -342,8 +356,13 @@ void FTKDetectorTool::dumpGlobalToLocalModuleMap() {
     tmpmodraw.setIdentifierHash(idhash);
     tmpmodraw.normalizeLayerID();
 
+    fout_sct << m_sctId->barrel_ec(id) << "\t" << m_sctId->layer_disk(id) << "\t" << m_sctId->phi_module(id) << "\t" << m_sctId->eta_module(id) << "\t" << countForSRAM << endl;
+    countForSRAM++;
+
     CompleteIDModuleList.push_back(tmpmodraw);
   }
+
+
 
   /* The modules are store by tower and by logical layer */
   int nregions(m_rmap->getNumRegions()); // get the number of towers
@@ -386,6 +405,10 @@ void FTKDetectorTool::dumpGlobalToLocalModuleMap() {
       }
   }
   fout.close();
+
+  // Close SRAM lookup tables
+  fout_pix.close();
+  fout_sct.close();
 
   // clear the memory
   for (int ireg=0;ireg!=nregions;++ireg) delete [] grouped_modules[ireg];

@@ -1,5 +1,5 @@
 # FTK Simulation Transform Skeleton Job Options
-# $Id: skeleton.FTKStandaloneSim.py 744352 2016-05-03 02:00:18Z jahreda $
+# $Id: skeleton.FTKStandaloneSim.py 760052 2016-07-06 16:04:21Z gvolpi $
 
 from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 from AthenaCommon.Logging import logging
@@ -79,6 +79,7 @@ FTKRoadFinder.RoadWarrior = 0
 FTKRoadFinder.SaveRoads = False
 FTKRoadFinder.SctClustering = 0
 FTKRoadFinder.SetAMSize = 0
+FTKRoadFinder.StoreAllSS = False
 FTKRoadFinder.SetAMSplit = 5
 FTKRoadFinder.MaxAMAfterSplit = 4194304
 FTKRoadFinder.MinDVolOverDNPatt = 5
@@ -128,6 +129,7 @@ runArgsFromTrfOptionalRF = {
     'SetAMSize': 0,
     'SetAMSplit' : 5,
     'IBLMode': 0,
+    'StoreAllSS' : False,
     'FixEndCapL0': False,
     'ITkMode': False,
     'PixelClusteringMode': 0,
@@ -303,6 +305,7 @@ FTKTagOptions["HWMode2Test32Tower"] = {
     'MaxNhitsPerPlane': 8,
     'HWModeSS': 2,
     'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 1,
+    'MaxMissingSCTPairs': 0,
     'GangedPatternReco': 0, 'DuplicateGanged': 1
     }
 

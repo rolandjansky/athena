@@ -29,6 +29,8 @@
 
  */
 
+#define QSORT_FOR_DC_IMPORT
+
 #define PRINT_ROADS_SECTORID -1
 #define PRINT_DETAILS_NEVENT 0
 #define PRINT_SS PRINT_DETAILS_NEVENT
@@ -357,14 +359,14 @@ void FTK_CompressedAMBank::readSectorDefinition
 
 */
 int FTK_CompressedAMBank::writePCachedBankFile
-(char const *cachedBankFile,int flatFormat,int nsub) const {
+(char const *cachedBankFile,int flatFormat,int nsub,int nlamb) const {
    TDirectory *outputFile=
       FTKRootFile::Instance()->CreateRootFile(cachedBankFile);
    TTree *amtree;
    // loop over subregions
    //  if(nsub==0) the loop is executed only once and all patterns are
    //    stored in one TTree
-   //  if(nsub>0) the loopi s executed multiple times and
+   //  if(nsub>0) the loop is executed multiple times and
    //    subregions are stored in different TTrees
    amtree=new TTree("Bank","Pattern bank");
    FTKPattern *curpatt =0;
@@ -393,34 +395,64 @@ int FTK_CompressedAMBank::writePCachedBankFile
    } else {
       curpatt->setNPlanes(getNPlanes());
    }
-   // the coverage in the cache file is arbitrary set to -1
-   if(flatFormat) {
-      //coverage=-1;
-   } else {
+   if(!flatFormat) {
       curpatt->setCoverage(-1);
    }
+   // patternID counter, requred for writing special patterns
+   int patternID=0;
    // loop over sectors
    int isub=getSubID();
+   MAP<int,int> sectorByPatternID;
    VECTOR<int> sectorWritten;
    for(MAP<int,std::pair<int,int> >::const_iterator isector=
           m_SectorFirstLastPattern.begin();
        isector!=m_SectorFirstLastPattern.end();isector++) {
-      int sector=(*isector).first;
+      sectorByPatternID[(*isector).second.first]=(*isector).first;
+   }
+   for(MAP<int,int>::const_iterator iSector=sectorByPatternID.begin();
+       iSector!=sectorByPatternID.end();iSector++) {
+      int sector=(*iSector).second;
       if(nsub && (!flatFormat) &&((sector %nsub)!=isub)) continue;
       if(!((sector-isub)%100)) {
          Info("writePCachedBankFile")<<"sector="<<sector<<"\n";
       }
       sectorWritten.push_back(sector);
+      MAP<int,std::pair<int,int>>::const_iterator isector=
+         m_SectorFirstLastPattern.find(sector);
       int firstPattern=(*isector).second.first;
       int lastPattern=(*isector).second.second;
       // loop over all patterns in the sector
+      sectorID=sector;
       for(int ipattern=firstPattern;ipattern<=lastPattern;ipattern++) {
-         if(flatFormat) {
-            //patternID=ipattern+1;
-         } else {
+         // skip over reserved patterns
+         if(isReservedPatternId(ipattern)) continue;
+         // write special pattern if required
+         while(patternID<ipattern) {
+            if(!flatFormat) {
+               curpatt->clearSubPatterns();
+               curpatt->setPatternID(patternID);
+               curpatt->setPatternDBID(patternID);
+               for (int ipl=getNPlanes()-1;ipl>=0;--ipl) {
+                  curpatt->setSSID(ipl,-1);
+               }
+               curpatt->setSectorID(sector);
+               curpatt->setDCMask(0);
+               curpatt->setHBMask(0);
+            } else {
+               dcmask =0;
+               hbmask =0;
+               for (int ipl=getNPlanes()-1;ipl>=0;--ipl) {
+                  ssid[ipl]=-1;
+               }
+            }
+            amtree->Fill();
+            patternID++;
+         }
+
+         if(!flatFormat) {
             curpatt->clearSubPatterns();
-            curpatt->setPatternID(ipattern+1);
-            curpatt->setPatternDBID(ipattern+1);
+            curpatt->setPatternID(patternID);
+            curpatt->setPatternDBID(patternID);
          }
          // DC bits and HB mask are composed inside the loop 
          dcmask=0;
@@ -455,10 +487,8 @@ int FTK_CompressedAMBank::writePCachedBankFile
             } else {
                curpatt->setSSID(ipl,dcSSID);
             }
-            }
-         if(flatFormat) {
-            sectorID=sector;
-         } else {
+         }
+         if(!flatFormat) {
             // specify the sector
             curpatt->setSectorID(sector);
             // set DC,HB words
@@ -467,6 +497,7 @@ int FTK_CompressedAMBank::writePCachedBankFile
          }
          // store this pattern
          amtree->Fill();
+         patternID++;
       }
    }
    if(curpatt) delete curpatt;
@@ -474,14 +505,16 @@ int FTK_CompressedAMBank::writePCachedBankFile
    amtree->Write("", TObject::kOverwrite);
 
    if(flatFormat) {
-      TTree *auxtree=new TTree("Sector","Sector information");
+      // sector information
+      TTree *auxtree=new TTree("Sector","Sector-wise auxillary information");
       unsigned int ndc[8]; // number of DC bits per plane
-      int sector,firstPattern,lastPattern,isub;
+      int sector,firstPattern,lastPattern,isub,lamb;
       auxtree->Branch("nplanes",&nplanes,"nplanes/I");
       auxtree->Branch("ndc",ndc,"ndc[nplanes]/I");
       auxtree->Branch("sector",&sector,"sector/I");
       auxtree->Branch("first",&firstPattern,"first/I");
       auxtree->Branch("last",&lastPattern,"last/I");
+      auxtree->Branch("lamb",&lamb,"lamb/I");
       auxtree->Branch("isub",&isub,"isub/I");
       // set number of DC bits per plane (constant)
       for(int i=0;i<getNPlanes();i++) {
@@ -494,9 +527,42 @@ int FTK_CompressedAMBank::writePCachedBankFile
          firstPattern=(*isector).second.first;
          lastPattern=(*isector).second.second;
          isub= nsub ? (sector % nsub) : 0;
+         lamb= nlamb ? (sector % nlamb) : 0;
          auxtree->Fill();
       }
       auxtree->Write("", TObject::kOverwrite);
+      // plane information
+      int plane,ndcx,ndcy,sswx,sswy,modwx,modwy;
+      auxtree=new TTree("SSMap","Plane-wise auxillary information");
+      auxtree->Branch("plane",&plane,"plane/I");
+      auxtree->Branch("ndcx",&ndcx,"ndcx/I");
+      auxtree->Branch("ndcy",&ndcy,"ndcy/I");
+      auxtree->Branch("sswx",&sswx,"sswx/I");
+      auxtree->Branch("sswy",&sswy,"sswy/I");
+      auxtree->Branch("modwx",&modwx,"modwx/I");
+      auxtree->Branch("modwy",&modwy,"modwy/I");
+      for(plane=0;plane<getNPlanes();plane++) {
+         ndcx=m_TSPmap->getNBits(plane,0);
+         ndcy=m_TSPmap->getNBits(plane,1);
+         sswx=m_ssmap->getMap(plane,0,0).m_phiss;
+         sswy=m_ssmap->getMap(plane,0,0).m_etass;
+         modwx=m_ssmap->getMap(plane,0,0).m_phiwidth;
+         modwy=m_ssmap->getMap(plane,0,0).m_etawidth;
+         auxtree->Fill();
+      }
+      auxtree->Write("", TObject::kOverwrite);
+#ifdef UNUSED
+      // SSID encoding information
+      auxtree=new TTree("SSID","Superstrip encoding auxillary information");
+      auxtree->Branch("plane",&plane,"plane/I");
+      auxtree->Branch("ssid",&ssid,"ssid/I");
+      auxtree->Branch("moduleLocal",&local,"moduleLocal/I");
+      auxtree->Branch("moduleHash",&hash,"moduleHash/I");
+      auxtree->Branch("localX",&localX,"localX/I");
+      auxtree->Branch("localY",&localY,"localY/I");
+      auxtree->Branch("dcpart",&dcpart,"dcpart/I");
+      auxtree->Write("", TObject::kOverwrite);
+#endif
    }
    //
    // silently add ccache format
@@ -942,7 +1008,7 @@ int FTK_CompressedAMBank::readROOTBankCache(char const *cachedBank) {
    read bank in pcache format (the format written by FTKTSPBank)
 */
 
-int FTK_CompressedAMBank::readPCachedBank(TDirectory *inputDir,int nsub) {
+int FTK_CompressedAMBank::readPCachedBank(TDirectory *inputDir,int nlamb) {
    MAP<int,int> sectorcount;
    int error=0;
    int32_t *ssidData=0;
@@ -986,14 +1052,14 @@ int FTK_CompressedAMBank::readPCachedBank(TDirectory *inputDir,int nsub) {
       }
       // loop over all patterns, determine maximum sector number
       //   and number of planes
-      int isub=getSubID();
+      //int isub=getSubID();
       for(int iPattern=0;iPattern<nPattern;++iPattern) {
          // only read the branches which are really required
          branch_sectorID->GetEntry(iPattern);
          if(pattern) {
             sectorID=pattern->getSectorID();
          }
-         if(nsub && (sectorID %nsub != isub)) continue;
+         //if(nsub && (sectorID %nsub != isub)) continue;
          branch_nplanes->GetEntry(iPattern);
          if(pattern) {
             // non-flat format, extract data from class FTKPattern
@@ -1017,7 +1083,7 @@ int FTK_CompressedAMBank::readPCachedBank(TDirectory *inputDir,int nsub) {
          <<"nLayer="<<nLayer<<" maxSector="<<maxSector<<"\n";
       sectorPointer.resize(maxSector);
       int pos=0;
-      // in this lool, determine the pattern start address fro each sector
+      // in this loop, determine the pattern start address for each sector
       //  valid within the array "ssidData"
       for(MAP<int,int>::const_iterator isector=sectorcount.begin();
           isector!=sectorcount.end();isector++) {
@@ -1096,7 +1162,7 @@ int FTK_CompressedAMBank::readPCachedBank(TDirectory *inputDir,int nsub) {
       error=-2;
    }
    if(ssidData) {
-      importDCpatterns(nLayer,offsetSSID,ssidData,sectorPointer);
+      importDCpatterns(nLayer,offsetSSID,ssidData,sectorPointer,nlamb);
       delete [] ssidData;
    }
    readBankPostprocessing("readPCachedBank");
@@ -1105,7 +1171,7 @@ int FTK_CompressedAMBank::readPCachedBank(TDirectory *inputDir,int nsub) {
 
 void FTK_CompressedAMBank::importDCpatterns
 (int nLayer,int offsetSSID,int32_t *ssidData,
- VECTOR<std::pair<int,int> > const &sectorPointer) {
+ VECTOR<std::pair<int,int> > const &sectorPointer,int nlamb) {
    //
    // clear old bank data
    erase();
@@ -1152,199 +1218,218 @@ void FTK_CompressedAMBank::importDCpatterns
       }
    }
    uint32_t ipattSector=0;
-   int nSector=0;
    m_bank.m_PatternByLayer.resize(nLayer);
    for(int iLayer=0;iLayer<nLayer;iLayer++) {
       m_bank.m_PatternByLayer[iLayer].
          m_CompressedDeltaBySector.resize(sectorPointer.size());
    }
-   //
-   // sector loop
-   for(unsigned sector=0;sector<sectorPointer.size();sector++) {
-      int nPattern=(sectorPointer[sector].second-
-                    sectorPointer[sector].first)/offsetSSID;
-      if(!nPattern) continue;
-      // sort patterns in each sector
-      int *patternDataSectorNC=ssidData+sectorPointer[sector].first;
-      qsort(patternDataSectorNC,nPattern,sizeof(int)*offsetSSID,
-            ssidCompare);
-      int const *patternDataSector(patternDataSectorNC);
-      // 
-      // loop two times over all patterns in this sector
-      //  first look: count patterns
-      //  second loop: allocate memory and store patterns
-      uint32_t ipatt;
+   // subregion loop
+   if(nlamb<=0) nlamb=1;
+   for(int ilamb=0;ilamb<nlamb;ilamb++) {
       //
-      struct CompressionHelper {
+      // sector loop
+      for(unsigned sector=ilamb;sector<sectorPointer.size();sector+=nlamb) {
+         int nPattern=(sectorPointer[sector].second-
+                       sectorPointer[sector].first)/offsetSSID;
+         if(!nPattern) continue;
+         // sort patterns in each sector
+#ifdef QSORT_FOR_DC_IMPORT
+         int *patternDataSectorNC=ssidData+sectorPointer[sector].first;
+         qsort(patternDataSectorNC,nPattern,sizeof(int)*offsetSSID,
+               ssidCompare);
+         int const *patternDataSector(patternDataSectorNC);
+#else
+         int const *patternDataSector(ssidData+sectorPointer[sector].first);
+#endif
+         // 
+         // loop two times over all patterns in this sector
+         //  first look: count patterns
+         //  second loop: allocate memory and store patterns
+         uint32_t ipatt;
          //
-         // previous pattern ID (to determine delta)
-         uint32_t m_lastPattern;
-         //
-         // current position when storing compressed data
-         uint32_t m_position;
-         //
-         // for compression: delta and repetition count
-         uint32_t m_repeatDelta1;
-      };
-      //
-      // adress auxillary information by layer and SSID
-      std::vector<MAP<int,CompressionHelper> > compressionHelper(nLayer);
-      for(int iLoop=0;iLoop<2;iLoop++) {
-         ipatt=ipattSector;
-         if(iLoop) {
-            // allocate memory
-            for(unsigned iLayer=0;iLayer<compressionHelper.size();iLayer++) {
-               MAP<int,CompressionHelper>
-                  &helperThisLayer=compressionHelper[iLayer];
-               uint32_t nByte=0;
-               for(MAP<int,CompressionHelper>::const_iterator ssid=
-                      helperThisLayer.begin();ssid!=helperThisLayer.end();
-                   ssid++) {
-                  PatternBySector_t &sectorList
-                     (m_bank.m_PatternByLayer[iLayer].
-                      m_SSidData[(*ssid).first]);
-                  PatternBySector_t::iterator dataPtr=
-                     sectorList.find(sector);
-                  SectorData &data=(*dataPtr).second;
-                  data.m_offset=nByte;
-                  data.m_length=(*ssid).second.m_position;
-                  nByte+=data.m_length; 
-               }
-               m_bank.m_PatternByLayer[iLayer].
-                  m_CompressedDeltaBySector[sector].resize(nByte);
-            }
-         }
-         // loop over all patterns in this sector
-         for(int iPattern=0;iPattern<nPattern;iPattern++) {
-            int const *patternData=patternDataSector+iPattern*offsetSSID;
-            // DC information for this pattern
-            uint32_t dcMaskAll=patternData[nLayer];
-            uint32_t hbMaskAll=patternData[nLayer+1];
+         struct CompressionHelper {
             //
-            // loop over all planes
-            for(int iLayer=0;iLayer<nLayer;iLayer++) {
-               MAP<int,CompressionHelper>
-                  &helperThisLayer=compressionHelper[iLayer];
-               uint8_t *compressedDelta=m_bank.m_PatternByLayer[iLayer].
-                  m_CompressedDeltaBySector[sector].data();
-               //  decode DC information
-               int nBitsX=m_TSPmap->getNBits(iLayer,0);
-               int nBitsY=0;
-               int ndim=m_TSPmap->getDim(iLayer);
-               if(ndim!=1) {
-                  nBitsY=m_TSPmap->getNBits(iLayer,1);
-               }
-               int maskX=(1<<nBitsX)-1;
-               int maskY=(1<<nBitsY)-1;
-               int dcx=dcMaskAll & maskX;
-               dcMaskAll>>=nBitsX;
-               int dcy=dcMaskAll & maskY;
-               dcMaskAll>>=nBitsY;
-               int hbx=hbMaskAll & maskX;
-               hbMaskAll>>=nBitsX;
-               int hby=hbMaskAll & maskY;
-               hbMaskAll>>=nBitsY;
-               int dchb=(((((dcy<<nBitsY)|hby)<<nBitsX)|dcx)<<nBitsX)|hbx;
-               // expand DC bits to the list of valid subSS indexes
-               std::vector<int> const &tspIndexes=
-                  xyFromHBDCandLayer[iLayer][dchb];
-               int ssid=patternData[iLayer];
-               // loop over subSS indexes within dcSSID
-               for(unsigned iTSP=0;iTSP<tspIndexes.size();iTSP++) {
-                  // calculate TSP pattern address
-                  uint32_t tspid=getTSPssid
-                     (iLayer,sector,ssid,tspIndexes[iTSP]);
-                  // find auxillary information
-                  CompressionHelper &helper=helperThisLayer[tspid];
-                  // find target section of the pattern bank
-                  PatternBySector_t &sectorList
-                     (m_bank.m_PatternByLayer[iLayer].m_SSidData[tspid]);
-                  PatternBySector_t::iterator dataPtr=
-                     sectorList.find(sector);
-                  if(dataPtr==sectorList.end()) {
-                     // first look, first pattern
-                     // initialize data structure
-                     SectorData &data=sectorList[sector];
-                     // first pattern in this bank section, reset members
-                     // store pattern ID
-                     data.m_FirstPattern=ipatt;
-                     // reset pattern counter
-                     data.m_NPattern=1;
-                     // reset compressed data counter
-                     helper.m_position=0;
-                     helper.m_repeatDelta1=0;
-                  } else {
+            // previous pattern ID (to determine delta)
+            uint32_t m_lastPattern;
+            //
+            // current position when storing compressed data
+            uint32_t m_position;
+            //
+            // for compression: delta and repetition count
+            uint32_t m_repeatDelta1;
+         };
+         //
+         // adress auxillary information by layer and SSID
+         std::vector<MAP<int,CompressionHelper> > compressionHelper(nLayer);
+         for(int iLoop=0;iLoop<2;iLoop++) {
+            ipatt=ipattSector;
+            if(iLoop) {
+               // allocate memory
+               for(unsigned iLayer=0;iLayer<compressionHelper.size();iLayer++) {
+                  MAP<int,CompressionHelper>
+                     &helperThisLayer=compressionHelper[iLayer];
+                  uint32_t nByte=0;
+                  for(MAP<int,CompressionHelper>::const_iterator ssid=
+                         helperThisLayer.begin();ssid!=helperThisLayer.end();
+                      ssid++) {
+                     PatternBySector_t &sectorList
+                        (m_bank.m_PatternByLayer[iLayer].
+                         m_SSidData[(*ssid).first]);
+                     PatternBySector_t::iterator dataPtr=
+                        sectorList.find(sector);
                      SectorData &data=(*dataPtr).second;
-                     if(ipatt==data.m_FirstPattern) {
-                        // second loop, first pattern
+                     data.m_offset=nByte;
+                     data.m_length=(*ssid).second.m_position;
+                     nByte+=data.m_length; 
+                  }
+                  m_bank.m_PatternByLayer[iLayer].
+                     m_CompressedDeltaBySector[sector].resize(nByte);
+               }
+            }
+            // loop over all patterns in this sector
+            for(int iPattern=0;iPattern<nPattern;iPattern++) {
+               // reserve special pattern IDs as required by hardware
+               if(isReservedPatternId(ipatt)) {
+                  /* std::cout<<"Skipping reserved pattern "
+                     <<std::setbase(16)<<ipatt<<std::setbase(10)<<"\n"; */
+                  ipatt++;
+               }
+               int const *patternData=patternDataSector+iPattern*offsetSSID;
+               // skip pattern if all IDs are invalid
+               int invalid=0;
+               for(unsigned iLayer=0;iLayer<compressionHelper.size();iLayer++) {
+                  if(patternData[iLayer]==-1) invalid++;
+               }
+               if(invalid==compressionHelper.size()) continue;
+
+               // DC information for this pattern
+               uint32_t dcMaskAll=patternData[nLayer];
+               uint32_t hbMaskAll=patternData[nLayer+1];
+               //
+               // loop over all planes
+               for(int iLayer=0;iLayer<nLayer;iLayer++) {
+                  MAP<int,CompressionHelper>
+                     &helperThisLayer=compressionHelper[iLayer];
+                  uint8_t *compressedDelta=m_bank.m_PatternByLayer[iLayer].
+                     m_CompressedDeltaBySector[sector].data();
+                  //  decode DC information
+                  int nBitsX=m_TSPmap->getNBits(iLayer,0);
+                  int nBitsY=0;
+                  int ndim=m_TSPmap->getDim(iLayer);
+                  if(ndim!=1) {
+                     nBitsY=m_TSPmap->getNBits(iLayer,1);
+                  }
+                  int maskX=(1<<nBitsX)-1;
+                  int maskY=(1<<nBitsY)-1;
+                  int dcx=dcMaskAll & maskX;
+                  dcMaskAll>>=nBitsX;
+                  int dcy=dcMaskAll & maskY;
+                  dcMaskAll>>=nBitsY;
+                  int hbx=hbMaskAll & maskX;
+                  hbMaskAll>>=nBitsX;
+                  int hby=hbMaskAll & maskY;
+                  hbMaskAll>>=nBitsY;
+                  int dchb=(((((dcy<<nBitsY)|hby)<<nBitsX)|dcx)<<nBitsX)|hbx;
+                  // expand DC bits to the list of valid subSS indexes
+                  std::vector<int> const &tspIndexes=
+                     xyFromHBDCandLayer[iLayer][dchb];
+                  int ssid=patternData[iLayer];
+                  // loop over subSS indexes within dcSSID
+                  for(unsigned iTSP=0;iTSP<tspIndexes.size();iTSP++) {
+                     // calculate TSP pattern address
+                     uint32_t tspid=getTSPssid
+                        (iLayer,sector,ssid,tspIndexes[iTSP]);
+                     // find auxillary information
+                     CompressionHelper &helper=helperThisLayer[tspid];
+                     // find target section of the pattern bank
+                     PatternBySector_t &sectorList
+                        (m_bank.m_PatternByLayer[iLayer].m_SSidData[tspid]);
+                     PatternBySector_t::iterator dataPtr=
+                        sectorList.find(sector);
+                     if(dataPtr==sectorList.end()) {
+                        // first look, first pattern
+                        // initialize data structure
+                        SectorData &data=sectorList[sector];
+                        // first pattern in this bank section, reset members
+                        // store pattern ID
+                        data.m_FirstPattern=ipatt;
                         // reset pattern counter
                         data.m_NPattern=1;
-                        // reset position and count of repeated deltas
+                        // reset compressed data counter
                         helper.m_position=0;
                         helper.m_repeatDelta1=0;
                      } else {
-                        // calculate delta to previous pattern 
-                        uint32_t delta=ipatt-helper.m_lastPattern-1;
-                        // number of bytes needed to store this delta
-                        uint32_t &pos=helper.m_position;
-                        uint32_t mask4=0x780;
-                        int shift=7;
-                        // check whether some bits >=7 are nonzero
-                        //  -> need extra bytes to store this delta
-                        for(uint32_t mask=0xffffff80;mask;mask<<=4) {
-                           if((delta & mask)==0) break;
-                           uint32_t bits=delta & mask4;
-                           if(bits) {
+                        SectorData &data=(*dataPtr).second;
+                        if(ipatt==data.m_FirstPattern) {
+                           // second loop, first pattern
+                           // reset pattern counter
+                           data.m_NPattern=1;
+                           // reset position and count of repeated deltas
+                           helper.m_position=0;
+                           helper.m_repeatDelta1=0;
+                        } else {
+                           // calculate delta to previous pattern 
+                           uint32_t delta=ipatt-helper.m_lastPattern-1;
+                           // number of bytes needed to store this delta
+                           uint32_t &pos=helper.m_position;
+                           uint32_t mask4=0x780;
+                           int shift=7;
+                           // check whether some bits >=7 are nonzero
+                           //  -> need extra bytes to store this delta
+                           for(uint32_t mask=0xffffff80;mask;mask<<=4) {
+                              if((delta & mask)==0) break;
+                              uint32_t bits=delta & mask4;
+                              if(bits) {
+                                 if(iLoop) {
+                                    compressedDelta[data.m_offset+pos]=
+                                       (bits>>shift)|((shift+25)<<2);
+                                 }
+                                 pos++;
+                              }
+                              mask4 <<=4;
+                              shift+=4;
+                           }
+                           // count number of patterns
+                           data.m_NPattern++;
+                           // count number of data bytes needed
+                           if(!delta) {
+                              if((helper.m_repeatDelta1<1)||
+                                 (helper.m_repeatDelta1>=16)) {
+                                 helper.m_repeatDelta1=1;
+                                 if(iLoop) {
+                                    compressedDelta[data.m_offset+pos]=0;
+                                 }
+                                 pos++;
+                              } else {
+                                 helper.m_repeatDelta1++;
+                                 if(iLoop) {
+                                    compressedDelta[data.m_offset+pos-1]=
+                                       helper.m_repeatDelta1 + 0xee;
+                                 }
+                              }
+                           } else {
+                              helper.m_repeatDelta1=0;
                               if(iLoop) {
                                  compressedDelta[data.m_offset+pos]=
-                                    (bits>>shift)|((shift+25)<<2);
+                                    delta & 0x7f;
                               }
                               pos++;
                            }
-                           mask4 <<=4;
-                           shift+=4;
-                        }
-                        // count number of patterns
-                        data.m_NPattern++;
-                        // count number of data bytes needed
-                        if(!delta) {
-                           if((helper.m_repeatDelta1<1)||
-                              (helper.m_repeatDelta1>=16)) {
-                              helper.m_repeatDelta1=1;
-                              if(iLoop) {
-                                 compressedDelta[data.m_offset+pos]=0;
-                              }
-                              pos++;
-                           } else {
-                              helper.m_repeatDelta1++;
-                              if(iLoop) {
-                                 compressedDelta[data.m_offset+pos-1]=
-                                    helper.m_repeatDelta1 + 0xee;
-                              }
-                           }
-                        } else {
-                           helper.m_repeatDelta1=0;
-                           if(iLoop) {
-                              compressedDelta[data.m_offset+pos]=
-                                 delta & 0x7f;
-                           }
-                           pos++;
                         }
                      }
+                     helper.m_lastPattern=ipatt;
                   }
-                  helper.m_lastPattern=ipatt;
                }
+               ipatt++;
             }
-            ipatt++;
+         }
+         ipattSector=ipatt;
+         if((!(sector%100))||
+            (sector<10)||((sector<100)&&(!(sector%10)))) {
+            Debug("importDCpatterns")
+               <<"sector "<<sector<<" nPatt="<<ipatt<<"\n";
          }
       }
-      ipattSector=ipatt;
-      if((!(sector%100))||
-         (sector<10)||((sector<100)&&(!(sector%10)))) {
-         Debug("importDCpatterns")
-            <<"sector "<<sector<<" nPatt="<<ipatt<<"\n";
-      }
-      nSector++;
    }
 }
 
@@ -1478,15 +1563,6 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
    m_hitPatterns.resize(m_npatterns);
    m_roadCand.resize(MAX_NROAD);
    //
-   // get sector number from pattern ID
-   //   m_PatternToSector.lower_bound(pattern) returns pointer to sector
-#ifdef CANDIDATES_WITHOUT_SECTORID
-   for(MAP<int,std::pair<int,int> >::const_iterator
-          iSector=m_SectorFirstLastPattern.begin();
-       iSector!=m_SectorFirstLastPattern.end();iSector++) {
-      m_patternToSector[(*iSector).second.second]=(*iSector).first;
-   }
-#endif
 #ifdef PRINT_MULTIPLICITY
    MAP<uint64_t,int> histogram;
    for(int i=0;i<0x100;i++) {
@@ -1516,6 +1592,7 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
          if(maxPattern<nPattern) maxPattern=nPattern;
       }
    }
+   // determine maximum sector ID
    int maxSector=0;
    if(m_SectorFirstLastPattern.rbegin()!=m_SectorFirstLastPattern.rend()) 
       maxSector=(*m_SectorFirstLastPattern.rbegin()).first+1;
@@ -2232,13 +2309,13 @@ int FTK_CompressedAMBank::readCCachedBank(TDirectory *inputDir) {
             }
             int maxSector=(*sectorSize.rbegin()).first+1;
             VECTOR<int> sectorOffset(maxSector);
-            std::vector<Int_t> data(dataSize);
             layerData.m_CompressedDeltaBySector.resize(maxSector);
             for(MAP<int,int>::const_iterator isector=sectorSize.begin();
                 isector!=sectorSize.end();isector++) {
                layerData.m_CompressedDeltaBySector[(*isector).first].resize
                   ((*isector).second);
             }
+            std::vector<Int_t> data(dataSize);
             tree->SetBranchAddress("data",data.data());
             tree->SetBranchStatus("data");
             tree->SetBranchStatus("ssid");
@@ -2624,7 +2701,7 @@ void FTK_CompressedAMBank::insertPatterns
    interface provided by base class
 */
 int FTK_CompressedAMBank::readROOTBank(const char *name, int maxpatts) {
-   return readSectorOrderedBank(name,maxpatts,1,0);
+   return readSectorOrderedBank(name,maxpatts,1,0,1);
 }
 
 
@@ -2637,7 +2714,7 @@ int FTK_CompressedAMBank::readROOTBank(const char *name, int maxpatts) {
       FTKPatternBySectorReader::SelectSubregion()
 */
 int FTK_CompressedAMBank::readSectorOrderedBank(const char *name, int maxpatts,
-                                                int nSub,int numSectorMax) {
+                                                int nSub,int numSectorMax,int nlamb) {
    // create partitions based on the number of subregions
    std::list<Partition> partitions;
    TDirectory *infile=FTKRootFile::Instance()->OpenRootFileReadonly(name);
@@ -2660,7 +2737,7 @@ int FTK_CompressedAMBank::readSectorOrderedBank(const char *name, int maxpatts,
    } else {
       Error("readSectorOrderedBank")<<"failed to open \""<<name<<"\"\n";
    }
-   return readPartitionedSectorOrderedBank(name,partitions);
+   return readPartitionedSectorOrderedBank(name,partitions,nlamb);
 }
 
 /**
@@ -2677,7 +2754,7 @@ int FTK_CompressedAMBank::readSectorOrderedBank(const char *name, int maxpatts,
 */
 
 int FTK_CompressedAMBank::readSectorOrderedBank
-(const char *name,const char *partitionListName,int nSub,int numSectorMax) {
+   (const char *name,const char *partitionListName,int nSub,int numSectorMax,int nlamb) {
    std::list<Partition> partitionList;
    ftk_dcap::istream *partitionFile=ftk_dcap::open_for_read(partitionListName);
    if(!partitionFile) {
@@ -2804,7 +2881,7 @@ int FTK_CompressedAMBank::readSectorOrderedBank
          <<std::setbase(10)<<")\n";
    }
    delete partitionFile;
-   return readPartitionedSectorOrderedBank(name,partitionList);
+   return readPartitionedSectorOrderedBank(name,partitionList,nlamb);
 }
 
 /**
@@ -2815,7 +2892,8 @@ int FTK_CompressedAMBank::readSectorOrderedBank
    with a maximum number of patterns
 */
 int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
-(const char *name,std::list<FTK_CompressedAMBank::Partition> const &partitionList) {
+(const char *name,std::list<FTK_CompressedAMBank::Partition> const &partitionList,
+ int nlamb) {
    // open file
    int error=0;
    TDirectory *infile=FTKRootFile::Instance()->OpenRootFileReadonly(name);
@@ -2991,7 +3069,7 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
          }
       }
       dcPatterns.resize(0);
-      importDCpatterns(nLayer,offsetSSID,ssidData,sectorPointer);
+      importDCpatterns(nLayer,offsetSSID,ssidData,sectorPointer,nlamb);
       delete [] ssidData;
 
       readBankPostprocessing("readSectorOrderedBank");
@@ -3291,22 +3369,13 @@ void FTK_CompressedAMBank::am_in_r
       //   as the threshold is passed
    public:
       inline MaskUpdaterSlow(HitPattern_t *hits,HitPattern_t msk,
-#ifndef CANDIDATES_WITHOUT_SECTORID
                              uint32_t sectorID,
-#endif
                              uint8_t nhmin,uint8_t const *nh16,
                              VECTOR<
-#ifdef CANDIDATES_WITHOUT_SECTORID
-                             uint32_t
-#else
                              std::pair<uint32_t,uint32_t>
-#endif
                              > &rc,unsigned &nrc)
          : patternPtr(hits), mask(msk),notMask(~msk),roadCandidates(rc),
-           nRC(nrc),nhMin(nhmin),nhit16(nh16)
-#ifndef CANDIDATES_WITHOUT_SECTORID
-         ,sector(sectorID)
-#endif
+           nRC(nrc),nhMin(nhmin),nhit16(nh16),sector(sectorID)
       {
          base=patternPtr;
       }
@@ -3322,11 +3391,7 @@ void FTK_CompressedAMBank::am_in_r
             ) {
             if(nRC<roadCandidates.size()) {
                roadCandidates[nRC++] =
-#ifdef CANDIDATES_WITHOUT_SECTORID
-                  patternPtr-base
-#else
                   std::make_pair(patternPtr-base,sector)
-#endif
                   ;
             }
          }
@@ -3342,19 +3407,11 @@ void FTK_CompressedAMBank::am_in_r
       HitPattern_t * __restrict  patternPtr,* __restrict  base;
       HitPattern_t mask;
       HitPattern_t notMask;
-      VECTOR<
-#ifdef CANDIDATES_WITHOUT_SECTORID
-                             uint32_t
-#else
-                             std::pair<uint32_t,uint32_t>
-#endif
-         > &roadCandidates;
+      VECTOR<std::pair<uint32_t,uint32_t> > &roadCandidates;
       unsigned &nRC;
       uint8_t nhMin;
       uint8_t const *nhit16;
-#ifndef CANDIDATES_WITHOUT_SECTORID
       uint32_t sector;
-#endif
    };
    m_nRoadCand=0;
    for(int iplane=0;iplane<getNPlanes();++iplane) {
@@ -3390,9 +3447,7 @@ void FTK_CompressedAMBank::am_in_r
                   // last planes, update bit mask and remember road candidates
                   MaskUpdaterSlow updater
                      (m_hitPatterns.data(),mask,
-#ifndef CANDIDATES_WITHOUT_SECTORID
                       sector,
-#endif
                       m_nhWCmin,m_nHit16.data(),
                       m_roadCand,m_nRoadCand);
                   patternLoop(updater,
@@ -3415,15 +3470,8 @@ void FTK_CompressedAMBank::am_in_r
 
 void FTK_CompressedAMBank::am_output() {
    for(unsigned iCand=0;iCand<m_nRoadCand;iCand++) {
-#ifdef CANDIDATES_WITHOUT_SECTORID
-      int patternID=m_roadCand[iCand];
-      MAP<int,int>::const_iterator sectorPtr=
-         m_patternToSector.lower_bound(patternID);
-      int sector=(*sectorPtr).second;
-#else
       int patternID=m_roadCand[iCand].first;
       int sector=m_roadCand[iCand].second;
-#endif
 
       const FTKPlaneMap *pmap = getSSMap()->getPlaneMap();
 
@@ -3456,8 +3504,8 @@ void FTK_CompressedAMBank::am_output() {
                (FTKRoad
                 (getNRoads()-1,
                  getBankID()+100*getSubID(),
-                 // ID is set to patternID+1, so ID=0 is not used
-                 patternID+1,getNPlanes(),
+                 // ID is set to patternID
+                 patternID,getNPlanes(),
                  nh,     // 
                  hitmaskNoWC // FTK_TSPBANK::attach_SS
                  ));
@@ -3482,7 +3530,7 @@ void FTK_CompressedAMBank::am_output() {
             //   sector ID 
             road.setSectorID(sector);  //attachSS[ 655 -> 662]
             //   DBID is set identical to ID
-            road.setPatternDBID(patternID+1);
+            road.setPatternDBID(patternID);
             //
             // unpack DC bits and DC-SSID from pattern bank
             int dcMask=0,hbmask=0;
@@ -3755,6 +3803,7 @@ FTK_CompressedAMBank::getStrips(int plane) {
      printSS--;
   }
 #endif
+
   if(getStoreAllSS()) {
      //m_FiredSSmap[plane].erase(m_WCID);
      return m_FiredSSmap[plane];
@@ -3999,3 +4048,6 @@ void FTK_CompressedAMBank::printSector(int sector,int npattern) {
    }
 }
 
+bool FTK_CompressedAMBank::isReservedPatternId(int patternID) const {
+   return !(patternID & 0x1ffff);
+}
