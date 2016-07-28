@@ -1912,6 +1912,7 @@
                 <keepFilePattern>*MyCOOL_histo.db</keepFilePattern>
                 <keepFilePattern>*.pickle</keepFilePattern>
                 <keepFilePattern>*.gpickle</keepFilePattern>
+		<keepFilePattern>jobReport*.json</keepFilePattern>
             </jobGroup>
             
         </jobGroups>
