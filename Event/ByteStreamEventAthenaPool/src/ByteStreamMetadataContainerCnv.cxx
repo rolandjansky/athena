@@ -13,10 +13,10 @@
 
 //______________________________________________________________________________
 ByteStreamMetadataContainer_PERS* ByteStreamMetadataContainerCnv::createPersistent(ByteStreamMetadataContainer* transObj) {
-   MsgStream log(messageService(), "ByteStreamMetadataContainerConverter");
+   MsgStream log(msgSvc(), "ByteStreamMetadataContainerConverter");
    ByteStreamMetadataContainerCnv_p1 tPconverter_p1;
    ByteStreamMetadataContainer_PERS *persObj = tPconverter_p1.createPersistent(transObj, log);
-   log << MSG::DEBUG << "Success" << endreq;
+   log << MSG::DEBUG << "Success" << endmsg;
    return(persObj);
 }
 //______________________________________________________________________________
@@ -25,7 +25,7 @@ ByteStreamMetadataContainer* ByteStreamMetadataContainerCnv::createTransient() {
    if (compareClassGuid(p1_guid)) {
       // using auto_ptr ensures deletion of the persistent object
       std::auto_ptr<ByteStreamMetadataContainer_p1> bsmdc_p1(poolReadObject<ByteStreamMetadataContainer_p1>());
-      MsgStream log(messageService(), "ByteStreamMetadataContainerConverter");
+      MsgStream log(msgSvc(), "ByteStreamMetadataContainerConverter");
       ByteStreamMetadataContainerCnv_p1 tPconverter_p1;
       return(tPconverter_p1.createTransient(bsmdc_p1.get(), log));
    }
