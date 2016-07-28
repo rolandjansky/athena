@@ -8,6 +8,9 @@ atlas_subdir( OffloadSvc )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
+                          Control/SGTools
+                          Control/StoreGate
+                          Event/EventInfo
                           GaudiKernel )
 
 # External dependencies:
@@ -23,7 +26,7 @@ atlas_add_component( OffloadSvc
                      src/IOffloadSvc.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${YAMPL_INCLUDE_DIRS} ${APE_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${YAMPL_LIBRARIES} ${APE_LIBRARIES} AthenaBaseComps GaudiKernel )
+                     LINK_LIBRARIES ${YAMPL_LIBRARIES} ${APE_LIBRARIES} AthenaBaseComps SGTools StoreGateLib SGtests EventInfo GaudiKernel )
 
 # Install files from the package:
 atlas_install_headers( OffloadSvc )

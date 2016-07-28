@@ -6,6 +6,9 @@ use GaudiInterface       GaudiInterface-*    External
 
 
 use AthenaBaseComps	 AthenaBaseComps-*   Control
+use StoreGate		 StoreGate-*	     Control
+use EventInfo		 EventInfo-*	     Event
+use SGTools         SGTools-*         Control
 
 library OffloadSvc "OffloadSvc.cxx \
 	IOffloadSvc.cxx" \

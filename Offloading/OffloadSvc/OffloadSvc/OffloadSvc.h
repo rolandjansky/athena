@@ -28,6 +28,7 @@
 // OffloadManagerSvc includes
 #include "OffloadSvc/IOffloadSvc.h"
 #include "yampl/SocketFactory.h"
+#include "StoreGate/StoreGateSvc.h"
 
 
 // Forward declaration
@@ -96,15 +97,21 @@ private:
   std::string m_connType;
   std::string m_commChannelSend;
   std::string m_commChannelRecv;
+  uint m_forkDelay;
   bool m_useUID;
   bool m_isConnected;
+  bool m_dumpOffloadRequests;
+  bool m_dumpReplies;
   std::map<int,OffloadSvc::TransferStats> m_stats;
   std::shared_ptr<yampl::ISocket> m_sendSock,m_recvSock;
   std::queue<int> m_tokens;
   int m_maxTokens;
   std::condition_variable m_tCond;
   std::mutex m_cMutex;
-
+  uint64_t m_currEvt;
+  int m_requestNumber;
+  ServiceHandle<StoreGateSvc> m_evtStore;
+  yampl::ISocketFactory *m_fact;
 }; 
 
 /// I/O operators
