@@ -45,6 +45,7 @@ use HitManagement	    HitManagement-*	      Simulation
 use  InDetSimData             InDetSimData-*          InnerDetector/InDetRawEvent
 use PileUpTools             PileUpTools-*             Control
 use AtlasROOT			AtlasROOT-*		External
+use AtlasDetDescr     AtlasDetDescr-*      DetectorDescription
 
 use PixelConditionsTools    PixelConditionsTools-*    InnerDetector/InDetConditions
 
@@ -63,5 +64,7 @@ use  InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector
 use PixelConditionsServices PixelConditionsServices-* InnerDetector/InDetConditions
 use  PixelGeoModel             PixelGeoModel-*          InnerDetector/InDetDetDescr
 use  PathResolver               PathResolver-*                  Tools
+use  EventInfo                  EventInfo-*                     Event
+
 public
 use  AthenaBaseComps          AthenaBaseComps-*       Control

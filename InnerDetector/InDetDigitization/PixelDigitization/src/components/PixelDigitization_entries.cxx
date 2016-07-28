@@ -2,6 +2,7 @@
 
 #include "PixelDigitization/PixelDigitization.h"
 #include "src/PixelDigitizationTool.h"
+#include "src/PixelLightDigitizationTool.h"
 #include "src/SurfaceChargesTool.h"
 #include "src/PixelNoisyCellGenerator.h"
 #include "src/PixelGangedMerger.h"
@@ -29,6 +30,7 @@
 DECLARE_ALGORITHM_FACTORY(PixelDigitization)
 DECLARE_TOOL_FACTORY(BichselSimTool)
 DECLARE_TOOL_FACTORY(PixelDigitizationTool)
+DECLARE_TOOL_FACTORY(PixelLightDigitizationTool)
 DECLARE_TOOL_FACTORY(SurfaceChargesTool)
 DECLARE_TOOL_FACTORY(PixelNoisyCellGenerator)
 DECLARE_TOOL_FACTORY(PixelGangedMerger)
@@ -56,6 +58,7 @@ DECLARE_FACTORY_ENTRIES(PixelDigitization) {
   DECLARE_ALGORITHM(PixelDigitization)
   DECLARE_TOOL(BichselSimTool)
   DECLARE_TOOL(PixelDigitizationTool)
+  DECLARE_TOOL(PixelLightDigitizationTool)
   DECLARE_TOOL(SurfaceChargesTool)
   DECLARE_TOOL(PixelNoisyCellGenerator)
   DECLARE_TOOL(PixelGangedMerger)

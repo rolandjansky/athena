@@ -3,6 +3,7 @@
 from AthenaCommon.CfgGetter import addTool,addService,addAlgorithm
 
 addTool("PixelDigitization.PixelDigitizationConfig.PixelDigitizationTool", "PixelDigitizationTool")
+addTool("PixelDigitization.PixelDigitizationConfig.PixelLightDigitizationTool", "PixelLightDigitizationTool")
 addTool("PixelDigitization.PixelDigitizationConfig.PixelDigitizationToolHS", "PixelDigitizationToolHS")
 addTool("PixelDigitization.PixelDigitizationConfig.PixelDigitizationToolPU", "PixelDigitizationToolPU")
 addTool("PixelDigitization.PixelDigitizationConfig.PixelDigitizationToolSplitNoMergePU", "PixelDigitizationToolSplitNoMergePU")

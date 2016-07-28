@@ -262,6 +262,23 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
         kwargs.setdefault("LastXing", Pixel_LastXing() )
     return CfgMgr.PixelDigitizationTool(name, **kwargs)
 
+def PixelLightDigitizationTool(name="PixelLightDigitizationTool", **kwargs):
+    from AthenaCommon import CfgGetter
+    from AthenaCommon.BeamFlags import jobproperties
+    from AthenaCommon.Resilience import protectedInclude
+    from AthenaCommon.Include import include
+    from AthenaCommon.AppMgr import ServiceMgr
+    if not hasattr(ServiceMgr, "PixelSiPropertiesSvc"):
+        from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
+        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
+        pixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",DetectorName="Pixel",SiConditionsServices = lorentzAngleSvc.pixelSiliconConditionsSvc)
+        ServiceMgr += pixelSiPropertiesSvc
+    kwargs.setdefault("InputObjectName", "PixelHits")
+    if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
+        kwargs.setdefault("FirstXing", Pixel_FirstXing() )
+        kwargs.setdefault("LastXing", Pixel_LastXing() )
+    return CfgMgr.PixelLightDigitizationTool(name, **kwargs)
+
 def PixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     kwargs.setdefault("HardScatterSplittingMode", 0)
     from IOVDbSvc.CondDB import conddb
@@ -313,3 +330,5 @@ def PixelDigitizationPU(name="PixelDigitizationPU",**kwargs):
 def PixelOverlayDigitization(name="PixelOverlayDigitization",**kwargs):
     kwargs.setdefault("DigitizationTool", "PixelOverlayDigitizationTool")
     return CfgMgr.PixelDigitization(name,**kwargs)
+
+
