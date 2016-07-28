@@ -24,7 +24,7 @@ public:
     if ( !this->BaseCnv_t::initialize().isSuccess() ) {
       msg << MSG::ERROR << "Could not initialize base class' converter ["
 	  << ClassName<BaseCnv_t>::name() << "] !"
-	  << endreq;
+	  << endmsg;
       return StatusCode::FAILURE;
     }
     const std::type_info& ti = typeid(T);
@@ -35,7 +35,7 @@ public:
 	  << ti.name() 
 	  << "] for class ["
 	  << ClassName<T>::name() << "] !"
-	  << endreq;
+	  << endmsg;
       return StatusCode::FAILURE;
     }
     this->BaseCnv_t::m_classDesc = rflx_type;
