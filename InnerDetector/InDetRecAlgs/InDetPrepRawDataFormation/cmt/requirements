@@ -4,6 +4,7 @@
 package InDetPrepRawDataFormation
 author  Tommaso Lari <Tommaso.Lari@cern.ch>
 
+
 use AtlasPolicy          AtlasPolicy-*
 use AthenaBaseComps      AthenaBaseComps-*      Control
 use GaudiInterface       GaudiInterface-*       External
