@@ -77,7 +77,7 @@ TrigEFMissingEtHelper::TrigEFMissingEtHelper(unsigned char len){
   len>REASONABLE_MAX ? m_elements=REASONABLE_MAX : m_elements=len;
   m_vecOfComponents.resize(m_elements);
 
-  char names[38][10] = { // from CaloSampling::CaloSample, apart from muons
+  char names[42][10] = { // from CaloSampling::CaloSample, apart from muons
     "PreSamplB", "EMB1     ", "EMB2     ", "EMB3     ",   // LAr barrel
     "PreSamplE", "EME1     ", "EME2     ", "EME3     ",   // LAr EM endcap 
     "HEC0     ", "HEC1     ", "HEC2     ", "HEC3     ",   // Hadronic end cap cal.
@@ -92,12 +92,14 @@ TrigEFMissingEtHelper::TrigEFMissingEtHelper(unsigned char len){
     "TCEMB1   ", "TCEMB2   ",							  // pos. and neg. eta barrel 
     "TCEME1   ", "TCEME2   ",							  // pos. and neg. eta endcap 
     "JET      ",                                          // Jet 
+    "JETB1   ", "JETB2   ",							      //
+    "JETE1   ", "JETE2   ",						     	  // 
     "TCPUC    ",                                          // Topo. cluster Fit 
     "TCPUCUnc ",                                          // Topo. cluster Fit -- uncorrected
     "Muons    "                                           // Muons 
   };
   // calibration: constant term, MeV
-  float c0[38] = { 0.0,   0.0,   0.0,   0.0,    // LAr barrel
+  float c0[42] = { 0.0,   0.0,   0.0,   0.0,    // LAr barrel
 		   0.0,   0.0,   0.0,   0.0,    // LAr EM endcap
 		   0.0,   0.0,   0.0,   0.0,    // Hadronic end cap cal.
 		   0.0,   0.0,   0.0,           // Tile barrel
@@ -112,12 +114,14 @@ TrigEFMissingEtHelper::TrigEFMissingEtHelper(unsigned char len){
 		   0.0,   0.0,                  // 
 		   0.0,   0.0,                  // 		   
 		   0.0,                         // Jet
+		   0.0,   0.0,                  // 
+		   0.0,   0.0,                  // 		   
 		   0.0,                         // Topo. cluster Fit 
 		   0.0,                         // Topo. cluster Fit -- uncorrected
 		   0.0                          // Muons
   };
   // calibration: linear term (slope)
-  float c1[38] = { 1.0,  1.0,  1.0,  1.0,    // LAr barrel
+  float c1[42] = { 1.0,  1.0,  1.0,  1.0,    // LAr barrel
 		   1.0,  1.0,  1.0,  1.0,    // LAr EM endcap
 		   1.0,  1.0,  1.0,  1.0,    // Hadronic end cap cal.
 		   1.0,  1.0,  1.0,           // Tile barrel
@@ -132,13 +136,15 @@ TrigEFMissingEtHelper::TrigEFMissingEtHelper(unsigned char len){
 		   1.0, 1.0,                     // 
 		   1.0, 1.0,                     // 
 		   1.0,                          // Jet
+		   1.0, 1.0,                     // 
+		   1.0, 1.0,                     // 
 		   1.0,                          // Topo. cluster Fit 
 		   1.0,                          // Topo. cluster Fit -- uncorrected
 		   1.0                           // Muons
   };
 
   for (unsigned char i=0; i<m_elements; ++i){
-    if(m_elements==38){ // finest granularity
+    if(m_elements==42){ // finest granularity
       std::snprintf(m_vecOfComponents[i].m_name,10, names[i]);
       m_vecOfComponents[i].m_calib0 = c0[i];
       m_vecOfComponents[i].m_calib1 = c1[i];

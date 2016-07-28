@@ -243,9 +243,9 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
   float FCal_SumE=0;
 
 
-  if (elem == 38) { // compute subdetector energies 
+  if (elem == 42) { // compute subdetector energies 
  
-     for (unsigned char i=0; i<elem-14; ++i) { // EMB
+     for (unsigned char i=0; i<elem-18; ++i) { // EMB
       TrigEFMissingEtComponent* metComp = metHelper->GetComponent(i);
       string Name=metComp->m_name;
 
@@ -312,7 +312,7 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
 	  break;
 	}
       } else { // FCal
-        // note: i must be < 24 because i < elem-14 = 38-14 = 24
+        // note: i must be < 28 because i < elem-18 = 42-14 = 28
 	if (Name.substr(0,4)=="FCal") {
 	  if (Name == "FCalEM") EM_SumE += sumE;
 	  FCal_SumE += sumE;
@@ -323,11 +323,11 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
 	}
       }  // end loop over i 
 
-     }  //end elem == 38
+     }  //end elem == 42
 
   } else {
     msg(MSG::WARNING) << "Found " << elem 
-	     << " (!=38) auxiliary components.  Skipping checks!" << endreq;
+	     << " (!=42) auxiliary components.  Skipping checks!" << endreq;
   }
 
   /// main loop over components ///

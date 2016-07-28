@@ -45,7 +45,7 @@ EFMissingETFromClustersPS::EFMissingETFromClustersPS(const std::string& type,
 
   _fextype = FexType::TOPO;
 
-  m_methelperposition = 14; 
+  m_methelperposition = 18; 
 
   //initialization to make coverity happy:
   m_clusterstate = xAOD::CaloCluster_v1::UNCALIBRATED;
@@ -74,7 +74,7 @@ StatusCode EFMissingETFromClustersPS::initialize()
     m_glob_timer = m_timersvc->addItem(basename);
   } // if timing service
 
-  if(m_saveuncalibrated) m_methelperposition = 9; 
+  if(m_saveuncalibrated) m_methelperposition = 13; 
 
   if(m_saveuncalibrated) m_clusterstate = xAOD::CaloCluster_v1::UNCALIBRATED;
    else m_clusterstate = xAOD::CaloCluster_v1::CALIBRATED;
