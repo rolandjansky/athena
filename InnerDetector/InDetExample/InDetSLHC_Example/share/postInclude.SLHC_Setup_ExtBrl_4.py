@@ -45,6 +45,7 @@ if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
     ToolSvc.InDetSpSeedsMakerSLHC.NsigmaClusSizeZcut = 4.0
     ToolSvc.InDetSpSeedsMakerSLHC.useITKseedCutsPixHole = False
     ToolSvc.InDetSpSeedsMakerSLHC.useITKseedCutsSctHole = False
+    ToolSvc.InDetSiTrackMakerSLHC.ITKclusterSizeCuts = True
 
     ToolSvc.InDetSpSeedsMakerVeryForwardSLHCTracks.usePixelClusterCleanUp = True
     ToolSvc.InDetSpSeedsMakerVeryForwardSLHCTracks.usePixelClusterCleanUpSizePhicutsB = True
@@ -58,3 +59,4 @@ if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
     ToolSvc.InDetSpSeedsMakerVeryForwardSLHCTracks.NsigmaClusSizeZcut = 4.0
     ToolSvc.InDetSpSeedsMakerVeryForwardSLHCTracks.useITKseedCutsPixHole = False
     ToolSvc.InDetSpSeedsMakerVeryForwardSLHCTracks.useITKseedCutsSctHole = False
+    ToolSvc.InDetSiTrackMakerVeryForwardSLHCTracks.ITKclusterSizeCuts = True
