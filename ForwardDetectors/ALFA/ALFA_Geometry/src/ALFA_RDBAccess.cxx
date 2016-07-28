@@ -29,7 +29,7 @@ bool ALFA_RDBAccess::ReadGeometry(const eRPotName eRPName, eFiberType eFType, st
 	StatusCode result = m_svcLocator->service("RDBAccessSvc", iAccessSvc);
 	if (result.isFailure() || iAccessSvc == NULL)
 	{
-		LogStream << MSG::FATAL << " Could not initialize RDBAccessSvc! ((RP no."<<eRPName<<", Fiber type "<<eFType<<")"<< endreq;
+		LogStream << MSG::FATAL << " Could not initialize RDBAccessSvc! ((RP no."<<eRPName<<", Fiber type "<<eFType<<")"<< endmsg;
 
 		throw GaudiException(" Could not initalize RDBAccessSvc ", "ALFA_RDBAccess::ReadGeometry", StatusCode::FAILURE);
 	}
@@ -39,7 +39,7 @@ bool ALFA_RDBAccess::ReadGeometry(const eRPotName eRPName, eFiberType eFType, st
 	result = m_svcLocator->service("GeoModelSvc",geoModel);
 	if (result.isFailure() || geoModel == 0)
 	{
-		LogStream << MSG::FATAL << " Could not initialize GeoModelSvc! (RP no."<<eRPName<<", Fiber type "<<eFType<<")"<< endreq;
+		LogStream << MSG::FATAL << " Could not initialize GeoModelSvc! (RP no."<<eRPName<<", Fiber type "<<eFType<<")"<< endmsg;
 
 		throw GaudiException(" Could not initalize GeoModelSvc ", "ALFA_RDBAccess::ReadGeometry", StatusCode::FAILURE);
 	}*/
@@ -68,7 +68,7 @@ bool ALFA_RDBAccess::ReadFiberGeometry(IRDBAccessSvc* iAccessSvc, std::string el
 	if (!m_fiberGeometry->size())
 	{
 		bRes = false;
-		LogStream << MSG::FATAL << " ERROR: Unable to retrieve " << element <<" data from database" << endreq;
+		LogStream << MSG::FATAL << " ERROR: Unable to retrieve " << element <<" data from database" << endmsg;
 		//throw GaudiException(" Unable to retrieve database data ", "ALFA_RDBAccess::ReadFiberGeometry", StatusCode::FAILURE);
 	}
 	else
