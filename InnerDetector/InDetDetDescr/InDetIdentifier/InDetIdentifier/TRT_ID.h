@@ -901,8 +901,8 @@ TRT_ID::invalidMessage() const
 {
     MsgStream log(m_msgSvc, "TRT_ID");
     if(m_msgSvc) {
-        log << MSG::ERROR << " TRT_ID is NOT valid for this layout. " << endreq;
-        log << MSG::ERROR << " Please use 'trt_id->is_valid()' if a layout test is needed. " << endreq;
+        log << MSG::ERROR << " TRT_ID is NOT valid for this layout. " << endmsg;
+        log << MSG::ERROR << " Please use 'trt_id->is_valid()' if a layout test is needed. " << endmsg;
     }
     else {
         std::cout << " ERROR TRT_ID is NOT valid for this layout. " << std::endl;

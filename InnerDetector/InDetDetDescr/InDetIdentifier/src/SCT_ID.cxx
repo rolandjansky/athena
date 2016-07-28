@@ -78,7 +78,7 @@ SCT_ID::wafer_id_checks ( int barrel_ec,
     if (!m_full_wafer_range.match(id)) {  // module range check is sufficient
         MsgStream log(m_msgSvc, "SCT_ID");
         log << MSG::ERROR << " SCT_ID::wafer_id result is NOT ok. ID, range "
-            << (std::string)id <<  " " << (std::string)m_full_wafer_range << endreq;
+            << (std::string)id <<  " " << (std::string)m_full_wafer_range << endmsg;
     }
 }
 
@@ -269,16 +269,16 @@ int
 SCT_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 {
     MsgStream log(m_msgSvc, "SCT_ID");
-    log << MSG::INFO << "Initialize from dictionary" << endreq;
+    log << MSG::INFO << "Initialize from dictionary" << endmsg;
   
     // Check whether this helper should be reinitialized
     if (!reinitialize(dict_mgr)) {
-        log << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endreq;
+        log << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
         return (0);
     }
     else {
         if (m_msgSvc) {
-            log << MSG::DEBUG << "(Re)initialize" << endreq;
+            log << MSG::DEBUG << "(Re)initialize" << endmsg;
         }
         else {
             std::cout  << " DEBUG (Re)initialize" << std::endl;
@@ -293,7 +293,7 @@ SCT_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 
     m_dict = dict_mgr.find_dictionary ("InnerDetector"); 
     if(!m_dict) {
-        log << MSG::ERROR << " SCT_ID::initialize_from_dict - cannot access InnerDetector dictionary " << endreq;
+        log << MSG::ERROR << " SCT_ID::initialize_from_dict - cannot access InnerDetector dictionary " << endmsg;
         return 1;
     }
 
@@ -307,7 +307,7 @@ SCT_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     if (m_dict->get_label_value("barrel_endcap", "barrel", barrel_value)) {
         log << MSG::ERROR << "Could not get value for label 'barrel' of field 'barrel_endcap' in dictionary " 
             << m_dict->m_name
-            << endreq;
+            << endmsg;
         return (1);
     }
     m_barrel_field.clear();
@@ -316,7 +316,7 @@ SCT_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
         log << MSG::DEBUG << " SCT_ID::initialize_from_dict " 
             << "Set barrel field values: "  
             << (std::string)m_barrel_field
-            << endreq;
+            << endmsg;
     }
     else {
         std::cout << " DEBUG SCT_ID::initialize_from_dict " 
@@ -337,7 +337,7 @@ SCT_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     if (atlasDict->get_label_value("subdet", "InnerDetector", inDetField)) {
         log << MSG::ERROR << "Could not get value for label 'InnerDetector' of field 'subdet' in dictionary " 
             << atlasDict->m_name
-            << endreq;
+            << endmsg;
         return (1);
     }
 
@@ -346,7 +346,7 @@ SCT_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     if (m_dict->get_label_value("part", "SCT", sctField)) {
         log << MSG::ERROR << "Could not get value for label 'SCT' of field 'part' in dictionary " 
             << m_dict->m_name
-            << endreq;
+            << endmsg;
         return (1);
     }
     if (m_msgSvc) {
@@ -377,13 +377,13 @@ SCT_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     if(init_neighbors()) return (1);
     
     if (m_msgSvc) {
-        log << MSG::INFO << " SCT_ID::initialize_from_dict "  << endreq;
+        log << MSG::INFO << " SCT_ID::initialize_from_dict "  << endmsg;
         log << MSG::DEBUG  
             << "Wafer range -> " << (std::string)m_full_wafer_range
-            <<   endreq;
+            <<   endmsg;
         log << MSG::DEBUG
             << "Strip range -> " << (std::string)m_full_strip_range
-            << endreq;
+            << endmsg;
     }
     else {
         std::cout << " INFO SCT_ID::initialize_from_dict "  << std::endl;
@@ -426,7 +426,7 @@ SCT_ID::init_hashes(void)
                 log << MSG::ERROR << " SCT_ID::init_hashes "
                     << " Error: duplicated id for wafer id. nid " << nids
                     << " compact id " << id.getString()
-                    << " id " << (std::string)exp_id << endreq;
+                    << " id " << (std::string)exp_id << endmsg;
                 return (1);
             }
             nids++;
@@ -436,7 +436,7 @@ SCT_ID::init_hashes(void)
         log << MSG::ERROR << " SCT_ID::init_hashes "
             << " Error: set size NOT EQUAL to hash max. size " << ids.size()
             << " hash max " << m_wafer_hash_max 
-            << endreq;
+            << endmsg;
         return (1);
     }
 
@@ -527,7 +527,7 @@ SCT_ID::init_neighbors(void)
 
     MsgStream log(m_msgSvc, "SCT_ID");
     if (m_msgSvc) {
-        log << MSG::DEBUG << "SCT_ID::init_neighbors " << endreq;
+        log << MSG::DEBUG << "SCT_ID::init_neighbors " << endmsg;
     }
     else {
         std::cout << " DEBUG SCT_ID::init_neighbors " << std::endl;
@@ -568,7 +568,7 @@ SCT_ID::init_neighbors(void)
             if (get_hash(id, hash_id, &wcontext)) {
                 log << MSG::ERROR << " SCT_ID::init_neighbors - unable to get hash, exp/compact "
                     << show_to_string(id, &wcontext)
-                    << " " << (std::string)m_full_wafer_range << endreq;
+                    << " " << (std::string)m_full_wafer_range << endmsg;
                 return (1);
             }
 
@@ -590,7 +590,7 @@ SCT_ID::init_neighbors(void)
                                          expId[m_SIDE_INDEX]);
                 if (get_hash(id, hash_id, &wcontext)) {
                     log << MSG::ERROR << " SCT_ID::init_neighbors - unable to get previous phi hash, exp/compact " << id.getString() << " " 
-                        << endreq;
+                        << endmsg;
                     return (1);
                 }
                 m_prev_phi_wafer_vec[index] = hash_id;
@@ -607,7 +607,7 @@ SCT_ID::init_neighbors(void)
                                          expId[m_SIDE_INDEX]);
                 if (get_hash(id, hash_id, &wcontext)) {
                     log << MSG::ERROR << " SCT_ID::init_neighbors - unable to get next phi hash, exp/compact " << id.getString() << 
-                        " " << MSG::hex << id.getString() << MSG::dec << endreq;
+                        " " << MSG::hex << id.getString() << MSG::dec << endmsg;
                     return (1);
                 }
                 m_next_phi_wafer_vec[index] = hash_id;
@@ -641,7 +641,7 @@ SCT_ID::init_neighbors(void)
                                          expId[m_SIDE_INDEX]);
                 if (get_hash(id, hash_id, &wcontext)) {
                     log << MSG::ERROR << " SCT_ID::init_neighbors - unable to get next eta hash, exp/compact " << id.getString() 
-                        << " " << endreq;
+                        << " " << endmsg;
                     return (1);
                 }
                 m_next_eta_wafer_vec[index] = hash_id;
@@ -675,7 +675,7 @@ SCT_ID::initLevelsFromDict()
 
     MsgStream log(m_msgSvc, "SCT_ID");
     if(!m_dict) {
-        log << MSG::ERROR << " SCT_ID::initLevelsFromDict - dictionary NOT initialized " << endreq;
+        log << MSG::ERROR << " SCT_ID::initLevelsFromDict - dictionary NOT initialized " << endmsg;
         return (1);
     }
     
@@ -700,7 +700,7 @@ SCT_ID::initLevelsFromDict()
     if (m_dict->find_region(id, m_sct_region_index)) {
         log << MSG::ERROR << "SCT_ID::initLevelsFromDict - unable to find sct region index: id, reg "  
             << (std::string)id << " " << m_sct_region_index
-            << endreq;
+            << endmsg;
         return (1);
     }
 
@@ -710,7 +710,7 @@ SCT_ID::initLevelsFromDict()
         m_INDET_INDEX = field->m_index;
     }
     else {
-        log << MSG::ERROR << "SCT_ID::initLevelsFromDict - unable to find 'subdet' field "  << endreq;
+        log << MSG::ERROR << "SCT_ID::initLevelsFromDict - unable to find 'subdet' field "  << endmsg;
         return (1);
     }
     field = m_dict->find_field("part");
@@ -718,7 +718,7 @@ SCT_ID::initLevelsFromDict()
         m_SCT_INDEX = field->m_index;
     }
     else {
-        log << MSG::ERROR << "SCT_ID::initLevelsFromDict - unable to find 'part' field "  << endreq;
+        log << MSG::ERROR << "SCT_ID::initLevelsFromDict - unable to find 'part' field "  << endmsg;
         return (1);
     }
     field = m_dict->find_field("barrel_endcap");
@@ -726,7 +726,7 @@ SCT_ID::initLevelsFromDict()
         m_BARREL_EC_INDEX = field->m_index;
     }
     else {
-        log << MSG::ERROR << "SCT_ID::initLevelsFromDict - unable to find 'barrel_endcap' field "  << endreq;
+        log << MSG::ERROR << "SCT_ID::initLevelsFromDict - unable to find 'barrel_endcap' field "  << endmsg;
         return (1);
     }
     field = m_dict->find_field("layer");
@@ -734,7 +734,7 @@ SCT_ID::initLevelsFromDict()
         m_LAYER_DISK_INDEX = field->m_index;
     }
     else {
-        log << MSG::ERROR << "SCT_ID::initLevelsFromDict - unable to find 'layer' field "   << endreq;
+        log << MSG::ERROR << "SCT_ID::initLevelsFromDict - unable to find 'layer' field "   << endmsg;
         return (1);
     }
     field = m_dict->find_field("phi_module");
@@ -742,7 +742,7 @@ SCT_ID::initLevelsFromDict()
         m_PHI_MODULE_INDEX = field->m_index;
     }
     else {
-        log << MSG::ERROR<< "SCT_ID::initLevelsFromDict - unable to find 'phi_module' field "  << endreq;
+        log << MSG::ERROR<< "SCT_ID::initLevelsFromDict - unable to find 'phi_module' field "  << endmsg;
         return (1);
     }
     field = m_dict->find_field("eta_module");
@@ -750,7 +750,7 @@ SCT_ID::initLevelsFromDict()
         m_ETA_MODULE_INDEX = field->m_index;
     }
     else {
-        log << MSG::ERROR << "SCT_ID::initLevelsFromDict - unable to find 'eta_module' field " << endreq;       
+        log << MSG::ERROR << "SCT_ID::initLevelsFromDict - unable to find 'eta_module' field " << endmsg;       
         return (1);
     }
     field = m_dict->find_field("side");
@@ -758,7 +758,7 @@ SCT_ID::initLevelsFromDict()
         m_SIDE_INDEX = field->m_index;
     }
     else {
-        log << MSG::ERROR << "SCT_ID::initLevelsFromDict - unable to find 'side' field "        << endreq;
+        log << MSG::ERROR << "SCT_ID::initLevelsFromDict - unable to find 'side' field "        << endmsg;
         return (1);
     }
 
@@ -771,7 +771,7 @@ SCT_ID::initLevelsFromDict()
 	    
     else {
 
-    	//log << MSG::ERROR << "SCT_ID::initLevelsFromDict - unable to find 'row' field " << endreq;
+    	//log << MSG::ERROR << "SCT_ID::initLevelsFromDict - unable to find 'row' field " << endmsg;
 	//return (1);
     }
 
@@ -781,7 +781,7 @@ SCT_ID::initLevelsFromDict()
         m_STRIP_INDEX = field->m_index;
     }
     else {
-        log << MSG::ERROR << "SCT_ID::initLevelsFromDict - unable to find 'strip' field " << endreq;    
+        log << MSG::ERROR << "SCT_ID::initLevelsFromDict - unable to find 'strip' field " << endmsg;    
         return (1);
     }
     
@@ -802,18 +802,18 @@ SCT_ID::initLevelsFromDict()
     m_strip_impl      = region.m_implementation[m_STRIP_INDEX]; 
 
     if (m_msgSvc) {
-        log << MSG::DEBUG << "decode index and bit fields for each level: " << endreq;
-        log << MSG::DEBUG << "indet    "  << m_indet_impl.show_to_string() << endreq;
-        log << MSG::DEBUG << "sct      "  << m_sct_impl.show_to_string() << endreq; 
-        log << MSG::DEBUG << "bec      "  << m_bec_impl.show_to_string() << endreq; 
-        log << MSG::DEBUG << "lay_disk "  << m_lay_disk_impl.show_to_string() << endreq; 
-        log << MSG::DEBUG << "phi_mod  "  << m_phi_mod_impl.show_to_string() << endreq; 
-        log << MSG::DEBUG << "eta_mod  "  << m_eta_mod_impl.show_to_string() << endreq; 
-        log << MSG::DEBUG << "side     "  << m_side_impl.show_to_string() << endreq; 
+        log << MSG::DEBUG << "decode index and bit fields for each level: " << endmsg;
+        log << MSG::DEBUG << "indet    "  << m_indet_impl.show_to_string() << endmsg;
+        log << MSG::DEBUG << "sct      "  << m_sct_impl.show_to_string() << endmsg; 
+        log << MSG::DEBUG << "bec      "  << m_bec_impl.show_to_string() << endmsg; 
+        log << MSG::DEBUG << "lay_disk "  << m_lay_disk_impl.show_to_string() << endmsg; 
+        log << MSG::DEBUG << "phi_mod  "  << m_phi_mod_impl.show_to_string() << endmsg; 
+        log << MSG::DEBUG << "eta_mod  "  << m_eta_mod_impl.show_to_string() << endmsg; 
+        log << MSG::DEBUG << "side     "  << m_side_impl.show_to_string() << endmsg; 
 	if (m_hasRows){
-		log << MSG::DEBUG << "row     "  << m_row_impl.show_to_string() << endreq;
+		log << MSG::DEBUG << "row     "  << m_row_impl.show_to_string() << endmsg;
 	}
-        log << MSG::DEBUG << "strip    "  << m_strip_impl.show_to_string() << endreq; 
+        log << MSG::DEBUG << "strip    "  << m_strip_impl.show_to_string() << endmsg; 
     }
     else {
         std::cout << " DEBUG decode index and bit fields for each level: " << std::endl;
@@ -1062,7 +1062,7 @@ SCT_ID::test_wafer_packing      (void) const
             if (id != new_id) {
                 log << MSG::ERROR << "SCT_ID::test_wafer_packing: new and old compacts not equal. New/old/expanded ids " 
                     << MSG::hex << show_to_string(id) << " " << show_to_string(new_id) << " " << MSG::dec 
-                    << (std::string)exp_id << endreq;
+                    << (std::string)exp_id << endmsg;
                 nerr++;
                 continue;
             }
@@ -1076,7 +1076,7 @@ SCT_ID::test_wafer_packing      (void) const
                 if (id != new_id1) {
                     log << MSG::ERROR << "SCT_ID::test_wafer_packing: new and old module idsnot equal. New/old/expanded ids " 
                         << MSG::hex << show_to_string(id) << " " << show_to_string(new_id1) << " " << MSG::dec 
-                        << (std::string)exp_id << endreq;
+                        << (std::string)exp_id << endmsg;
                     nerr++;
                     continue;
                 }
@@ -1085,7 +1085,7 @@ SCT_ID::test_wafer_packing      (void) const
 
         if (m_msgSvc) { 
             log << MSG::DEBUG << "SCT_ID::test_wafer_packing: tested wafer and module ids. nids, errors " 
-                << nids << " " << nerr << endreq;
+                << nids << " " << nerr << endmsg;
         }
         else {
             std::cout << " DEBUG SCT_ID::test_wafer_packing: tested wafer and module ids. nids, errors " 
@@ -1116,7 +1116,7 @@ SCT_ID::test_wafer_packing      (void) const
                 exp_id[6] != new_exp_id[6]) {
                 log << MSG::ERROR << "SCT_ID::test_wafer_packing: new and old ids not equal. New/old/compact ids "
                     << (std::string)new_exp_id << " " << (std::string)exp_id
-                    << " " << show_to_string(id) << endreq;
+                    << " " << show_to_string(id) << endmsg;
                 continue;
             }
 
@@ -1165,7 +1165,7 @@ SCT_ID::test_wafer_packing      (void) const
             if (stripid != stripid1) {
                 log << MSG::ERROR << "SCT_ID::test_wafer_packing: new and old pixel ids not equal. New/old ids "
                     << " " << show_to_string(stripid1) << " " 
-                    << show_to_string(stripid) << endreq;
+                    << show_to_string(stripid) << endmsg;
             }
         }
 
@@ -1174,7 +1174,7 @@ SCT_ID::test_wafer_packing      (void) const
         if (m_msgSvc) {
             log << MSG::DEBUG << "SCT_ID::test_wafer_packing: Successful tested " 
                 << nids << " ids. " 
-                << endreq;
+                << endmsg;
         }
         else {
             std::cout << " DEBUG SCT_ID::test_wafer_packing: Successful tested " 
@@ -1184,7 +1184,7 @@ SCT_ID::test_wafer_packing      (void) const
     }
     else {
         log << MSG::ERROR << "SCT_ID::test_wafer_packing: Unable to test wafer is packing - no dictionary has been defined. " 
-            << endreq;
+            << endmsg;
     }
 }
 
