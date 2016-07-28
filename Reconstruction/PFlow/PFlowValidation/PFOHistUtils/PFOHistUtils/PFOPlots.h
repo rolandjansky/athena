@@ -24,6 +24,11 @@ namespace PFO {
      TH1* m_PFO_phi;
      TH1* m_PFO_m;
 
+    /** Pt Histogram binned in eta */
+    TH1* m_PFO_pt_etaBinA;
+    TH1* m_PFO_pt_etaBinB;
+    TH1* m_PFO_pt_etaBinC;
+    
      void initializePlots();
      std::string m_sPFOContainerName;
 
