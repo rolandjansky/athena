@@ -60,12 +60,12 @@ bool MdtMezzanineType::addLayer(uint8_t layerNumber, MdtLayer layer)
 {
 
   if (layerNumber>4) {
-    *m_log << MSG::ERROR << "layer number " << layerNumber << " not accepted!" << endreq;
+    *m_log << MSG::ERROR << "layer number " << layerNumber << " not accepted!" << endmsg;
     return false;
   }
   if (m_layers[layerNumber].size() != 0) {
     *m_log << MSG::ERROR << "The layer number " << layerNumber 
-	   << " is not empty " << endreq;
+	   << " is not empty " << endmsg;
     return false;
   }
     
@@ -77,7 +77,7 @@ bool MdtMezzanineType::addLayer(uint8_t layerNumber, MdtLayer layer)
     for (unsigned int i=0 ; i<m_layers[layerNumber].size() ; ++i) {
       *m_log << MSG::VERBOSE << (int) m_layers[layerNumber][i];
     }
-    *m_log << MSG::VERBOSE << endreq;
+    *m_log << MSG::VERBOSE << endmsg;
   }
 
   m_nOfLayers++;
