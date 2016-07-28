@@ -204,7 +204,7 @@ StatusCode DBReplicaSvc::readConfig() {
     " servers found for host " << m_hostname << " [";
   for (ServerMap::const_iterator itr=m_servermap.begin();
        itr!=m_servermap.end();++itr) msg() <<  itr->first << " ";
-  msg() << "]" << endreq;
+  msg() << "]" << endmsg;
   return StatusCode::SUCCESS;
 }
 
