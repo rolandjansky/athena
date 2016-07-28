@@ -66,7 +66,7 @@ StatusCode HelloPipeAlg::initialize() {
   ATH_MSG_INFO 
     ("  " << m_myPrivateHelloTool.propertyName() 
      << " = " << m_myPrivateHelloTool.type() 
-     << endreq
+     << endmsg
      << "  " << m_myPublicHelloTool.propertyName() 
      << " = " << m_myPublicHelloTool.type());
 
