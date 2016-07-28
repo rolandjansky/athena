@@ -8,7 +8,7 @@ atlas_subdir( AthExHistNtup )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaBaseComps
-                          Event/EventInfo
+                          Event/xAOD/xAODEventInfo
                           GaudiKernel )
 
 # External dependencies:
@@ -19,7 +19,7 @@ atlas_add_component( AthExHistNtup
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps EventInfo GaudiKernel )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODEventInfo GaudiKernel )
 
 # Install files from the package:
 atlas_install_headers( AthExHistNtup )
