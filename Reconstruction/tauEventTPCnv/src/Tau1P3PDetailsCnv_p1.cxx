@@ -106,6 +106,6 @@ void Tau1P3PDetailsCnv_p1::transToPers
     MsgStream &msg )
 {
     msg << MSG::WARNING << "Tau1P3PDetailsCnv_p1::transToPers called "
-	"this should not happen, as this method is deprecated" << endreq;
+	"this should not happen, as this method is deprecated" << endmsg;
     return;
 }

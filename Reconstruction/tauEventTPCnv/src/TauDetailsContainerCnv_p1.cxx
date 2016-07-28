@@ -17,6 +17,7 @@
 /// $Id: TauDetailsContainerCnv_p1.cxx,v 1.4 2009-05-08 14:32:44 tburgess Exp $
 
 #include "tauEventTPCnv/TauDetailsContainerCnv_p1.h"
+#include "tauEventTPCnv/TauShotCnv_p1.h"
 #include "tauEvent/TauRecDetails.h"
 #include "tauEvent/TauRecExtraDetails.h"
 #include "tauEvent/Tau1P3PDetails.h"
@@ -62,9 +63,22 @@ void TauDetailsContainerCnv_p1::persToTrans(
     transVect->clear();
     transVect->reserve( persVect->size() );
     for( TauDetailsContainer_p1 :: const_iterator it  = persVect->begin();
-	 it != persVect->end();  ++it ) {
-	transVect->push_back(
+	 it != persVect->end();  ++it )
+    {
+      // Bleh --- the list of converters was reordered at one point,
+      // a Thing One Should Never Do.
+      // Try to hack around this.
+      TPObjRef ref = *it;
+      ITPConverter* cnvtest = nullptr;
+      cnvtest = converterForRef (cnvtest, ref, msg);
+      if (dynamic_cast<TauShotCnv_p1*>(cnvtest)) {
+        unsigned short tlid = ref.topLevelCnvID();
+        unsigned short cnvid = (ref.typeID() & 0xffff);
+        ref = TPObjRef (TPObjRef::typeID_t(tlid, cnvid+1), ref.index());
+      }
+
+      transVect->push_back(
 	    createTransFromPStore(
-		&cnv, *it, msg ) );
+		&cnv, ref, msg ) );
     }
 }
