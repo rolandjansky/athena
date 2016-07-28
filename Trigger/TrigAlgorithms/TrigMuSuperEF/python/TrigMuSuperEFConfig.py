@@ -72,7 +72,7 @@ class TrigMuSuperEFConfig(TrigMuSuperEF):
         self.StauCreatorTool = getPublicToolClone("TMEF_StauCreatorTool","TMEF_MuonCreatorTool",BuildStauContainer=True)
         # only add TrigMuGirl monitoring if it is run
         if doTrigMuGirl:
-            self.MuGirlTool = getPublicTool("TrigMuGirlTagTool")
+            self.MuGirlTool = getPublicTool("TMEF_MuonInsideOutRecoTool")
             #from TrigMuGirl.TrigMuGirlMonitoring import TrigMuGirlToolMonitoring
             #montool = TrigMuGirlToolMonitoring()
             #print montool
