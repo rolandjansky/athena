@@ -13,7 +13,7 @@
 #include <vector>
 
 // Barcode include
-#include "BarcodeInterfaces/PhysicsProcessCode.h"
+#include "BarcodeEvent/PhysicsProcessCode.h"
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
@@ -70,8 +70,8 @@ namespace ISF {
     HepMC::GenParticle*       parentParticle() const override final;
     /** Return the barcode of the parent particle */
     Barcode::ParticleBarcode  parentBarcode() const override final;
-    /** Return the extra barcode of the parent particle */
-    Barcode::ParticleBarcode  parentExtraBarcode() const override final;
+    /** Return the bunch-crossing identifier of the parent particle */
+    int                       parentBCID() const override final;
     /** Return a boolean whether or not the parent particle survives the incident */
     bool                      parentSurvivesIncident() const override final;
     /** Return the parent particle after the TruthIncident vertex (and give
@@ -93,10 +93,6 @@ namespace ISF {
                                             Barcode::ParticleBarcode bc) const override final;
     /** Set the the barcode of all child particles to the given bc */
     void                      setAllChildrenBarcodes(Barcode::ParticleBarcode bc) override final;
-    /** Set the the extra barcode of all child particles to the given bc */
-    void                      setAllChildrenExtraBarcodes(Barcode::ParticleBarcode bc) override final;
-    /** Set the the extra barcode of a child particles to the given bc */
-    void                      setChildExtraBarcode(unsigned short index, Barcode::ParticleBarcode bc) override final;
   private:
     ISFTruthIncident();
 

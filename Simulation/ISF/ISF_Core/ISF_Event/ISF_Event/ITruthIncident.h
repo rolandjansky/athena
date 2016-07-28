@@ -12,8 +12,8 @@
 #include "AtlasDetDescr/AtlasRegion.h"
 
 // Barcode includes
-#include "BarcodeInterfaces/Barcode.h"
-#include "BarcodeInterfaces/PhysicsProcessCode.h"
+#include "BarcodeEvent/Barcode.h"
+#include "BarcodeEvent/PhysicsProcessCode.h"
 
 // forward declarations
 namespace HepMC {
@@ -65,7 +65,7 @@ namespace ISF {
     /** Return the barcode of the parent particle */
     virtual Barcode::ParticleBarcode  parentBarcode() const = 0;
     /** Return the extra barcode of the parent particle */
-    virtual Barcode::ParticleBarcode  parentExtraBarcode() const { return 0; }
+    virtual Barcode::ParticleBarcode  parentBCID() const = 0;
     /** Return a boolean whether or not the parent particle survives the incident */
     virtual bool                      parentSurvivesIncident() const = 0;
     /** Return the parent particle after the TruthIncident vertex (and assign
@@ -98,10 +98,6 @@ namespace ISF {
                                                     Barcode::ParticleBarcode bc = Barcode::fUndefinedBarcode) const = 0;
     /** Set the the barcode of all child particles to the given bc */
     virtual void                      setAllChildrenBarcodes(Barcode::ParticleBarcode bc) = 0;
-    /** Set the the extra barcode of all child particles to the given bc */
-    virtual void                      setAllChildrenExtraBarcodes(Barcode::ParticleBarcode /*bc*/) {};
-    /** Set the the extra barcode of a child particles to the given bc */
-    virtual void                      setChildExtraBarcode(unsigned short /*index*/, Barcode::ParticleBarcode /*bc*/) {};
 
     /** Record that a particular child passed a check */
     inline void                       setChildPassedFilters(unsigned short index);

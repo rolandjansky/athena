@@ -9,7 +9,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "AtlasDetDescr/AtlasRegion.h"
-#include "BarcodeInterfaces/Barcode.h"
+#include "BarcodeEvent/Barcode.h"
 
 void testConstructors() {
     Amg::Vector3D pos(1., 0., 2.);
@@ -18,6 +18,7 @@ void testConstructors() {
     double charge  = 987.;
     int    pdgCode = 675;
     double time    = 923.;
+    int    bcid    = 123;
     const ISF::DetRegionSvcIDPair origin( AtlasDetDescr::fAtlasCalo, 2 );
     Barcode::ParticleBarcode bc = Barcode::fUndefinedBarcode;
     ISF::TruthBinding *truth = 0;
@@ -32,6 +33,7 @@ void testConstructors() {
                            pdgCode,
                            time,
                            origin,
+                           bcid,
                            bc,
                            truth );
 
@@ -44,6 +46,7 @@ void testConstructors() {
     const ISF::ParticleHistory &history1 = isp1.history();
     assert( 1       == history1.size()     );
     assert( origin  == history1[0]         );
+    assert( bcid    == isp1.getBCID()      );
     assert( bc      == isp1.barcode()      );
     assert( truth   == isp1.getTruthBinding() );
 
@@ -98,31 +101,6 @@ void testConstructors() {
     assert( origin  == history3[0]         );
     assert( bc      == isp3.barcode()      );
     assert( truth   == isp3.getTruthBinding() );
-
-    //
-    // HepGeom & origin
-    //
-    ISF::ISFParticle isp4( hepPos,
-                           hepMom,
-                           mass,
-                           charge,
-                           pdgCode,
-                           time,
-                           origin,
-                           bc,
-                           truth );
-
-    assert( pos     == isp4.position()     );
-    assert( mom     == isp4.momentum()     );
-    assert( mass    == isp4.mass()         );
-    assert( charge  == isp4.charge()       );
-    assert( pdgCode == isp4.pdgCode()      );
-    assert( time    == isp4.timeStamp()    );
-    const ISF::ParticleHistory &history4 = isp4.history();
-    assert( 1       == history4.size()     );
-    assert( origin  == history4[0]         );
-    assert( bc      == isp4.barcode()      );
-    assert( truth   == isp4.getTruthBinding() );
 }
 
 
