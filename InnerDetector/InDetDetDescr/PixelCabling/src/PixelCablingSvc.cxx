@@ -171,7 +171,7 @@ PixelCablingSvc::~PixelCablingSvc()
 StatusCode PixelCablingSvc::initialize( )
 {
     StatusCode sc;
-    msg(MSG::INFO) << "PixelCablingSvc::initialize" << endreq;
+    msg(MSG::INFO) << "PixelCablingSvc::initialize" << endmsg;
 
     // Get an Identifier helper object
     sc = m_detStore.retrieve();
@@ -180,30 +180,30 @@ StatusCode PixelCablingSvc::initialize( )
         return StatusCode::FAILURE;
     }
     else {
-        msg(MSG::DEBUG) << "DetectorStore service found" << endreq;
+        msg(MSG::DEBUG) << "DetectorStore service found" << endmsg;
     }
 
 
     // Get the PixelID Helper
     if (m_detStore->retrieve(m_idHelper, "PixelID").isFailure()) {
-        msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+        msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
         return StatusCode::FAILURE;
     }
 
     // Get ToolSvc
     IToolSvc* toolSvc;
     if(StatusCode::SUCCESS != service("ToolSvc", toolSvc)) {
-        msg(MSG::ERROR) << "Cannot get ToolSvc!" << endreq;
+        msg(MSG::ERROR) << "Cannot get ToolSvc!" << endmsg;
         return StatusCode::FAILURE;
     }
 
 
     // Get IBLParameterSvc
     if (!m_useIBLParameterSvc) {
-        msg(MSG::INFO) << "IBLParameterSvc not used" << endreq;
+        msg(MSG::INFO) << "IBLParameterSvc not used" << endmsg;
     }
     else if (m_IBLParameterSvc.retrieve().isFailure()) {
-        msg(MSG::FATAL) << "Could not retrieve IBLParameterSvc" << endreq;
+        msg(MSG::FATAL) << "Could not retrieve IBLParameterSvc" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -256,22 +256,22 @@ StatusCode PixelCablingSvc::initialize( )
 
     // Print out all values
 #ifdef PIXEL_DEBUG
-    msg(MSG::DEBUG) << "-- PixelCablingSvc ------------------------------" << endreq;
-    msg(MSG::DEBUG) << "m_IBLpresent = " << m_IBLpresent << endreq;
-    msg(MSG::DEBUG) << "m_DBMpresent = " << m_DBMpresent << endreq;
-    msg(MSG::DEBUG) << "m_isHybrid = " << m_isHybrid << endreq;
-    msg(MSG::DEBUG) << "m_layer_columnsPerFE = " << m_layer_columnsPerFE << endreq;
-    msg(MSG::DEBUG) << "m_layer_rowsPerFE = " << m_layer_rowsPerFE << endreq;
-    msg(MSG::DEBUG) << "m_layer_FEsPerHalfModule = " << m_layer_FEsPerHalfModule << endreq;
-    msg(MSG::DEBUG) << "m_disk_columnsPerFE = " << m_disk_columnsPerFE << endreq;
-    msg(MSG::DEBUG) << "m_disk_rowsPerFE = " << m_disk_rowsPerFE << endreq;
-    msg(MSG::DEBUG) << "m_disk_FEsPerHalfModule = " << m_disk_FEsPerHalfModule << endreq;
-    msg(MSG::DEBUG) << "m_dbm_columnsPerFE = " << m_dbm_columnsPerFE << endreq;
-    msg(MSG::DEBUG) << "m_dbm_rowsPerFE = " << m_dbm_rowsPerFE << endreq;
-    msg(MSG::DEBUG) << "m_dbm_FEsPerHalfModule = " << m_dbm_FEsPerHalfModule << endreq;
-    msg(MSG::DEBUG) << "m_final_mapping_file = " << m_final_mapping_file << endreq;
-    msg(MSG::DEBUG) << "useMapFromOptions = " << useMapFromOptions << endreq;
-    msg(MSG::DEBUG) << "-------------------------------------------------" << endreq;
+    msg(MSG::DEBUG) << "-- PixelCablingSvc ------------------------------" << endmsg;
+    msg(MSG::DEBUG) << "m_IBLpresent = " << m_IBLpresent << endmsg;
+    msg(MSG::DEBUG) << "m_DBMpresent = " << m_DBMpresent << endmsg;
+    msg(MSG::DEBUG) << "m_isHybrid = " << m_isHybrid << endmsg;
+    msg(MSG::DEBUG) << "m_layer_columnsPerFE = " << m_layer_columnsPerFE << endmsg;
+    msg(MSG::DEBUG) << "m_layer_rowsPerFE = " << m_layer_rowsPerFE << endmsg;
+    msg(MSG::DEBUG) << "m_layer_FEsPerHalfModule = " << m_layer_FEsPerHalfModule << endmsg;
+    msg(MSG::DEBUG) << "m_disk_columnsPerFE = " << m_disk_columnsPerFE << endmsg;
+    msg(MSG::DEBUG) << "m_disk_rowsPerFE = " << m_disk_rowsPerFE << endmsg;
+    msg(MSG::DEBUG) << "m_disk_FEsPerHalfModule = " << m_disk_FEsPerHalfModule << endmsg;
+    msg(MSG::DEBUG) << "m_dbm_columnsPerFE = " << m_dbm_columnsPerFE << endmsg;
+    msg(MSG::DEBUG) << "m_dbm_rowsPerFE = " << m_dbm_rowsPerFE << endmsg;
+    msg(MSG::DEBUG) << "m_dbm_FEsPerHalfModule = " << m_dbm_FEsPerHalfModule << endmsg;
+    msg(MSG::DEBUG) << "m_final_mapping_file = " << m_final_mapping_file << endmsg;
+    msg(MSG::DEBUG) << "useMapFromOptions = " << useMapFromOptions << endmsg;
+    msg(MSG::DEBUG) << "-------------------------------------------------" << endmsg;
 #endif
 
 
@@ -509,7 +509,7 @@ Identifier PixelCablingSvc::getPixelId(Identifier offlineId, uint32_t FE, uint32
     switch (thisModule) {
 
     case NONE:
-        msg(MSG::ERROR) << "Module type not identified -- cannot build pixelId" << endreq;
+        msg(MSG::ERROR) << "Module type not identified -- cannot build pixelId" << endmsg;
         return Identifier();
 
     case DBM:
@@ -530,7 +530,7 @@ Identifier PixelCablingSvc::getPixelId(Identifier offlineId, uint32_t FE, uint32
         eta_module = m_idHelper->eta_module(offlineId) + m_eta_module_offset;
         if (eta_module >= m_layer_FEsPerHalfModule[0].size()) {
             msg(MSG::WARNING) << "getPixelId: Eta_module out of range (eta_module = " << eta_module
-                              << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endreq;
+                              << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endmsg;
             return Identifier();
         }
         // fall through
@@ -554,9 +554,9 @@ Identifier PixelCablingSvc::getPixelId(Identifier offlineId, uint32_t FE, uint32
     if (row >= rowsPerFE || column >= columnsPerFE ||
             FE >= ((thisModule == IBL || thisModule == DBM) ? FEsPerHalfModule : 2*FEsPerHalfModule)) {
         msg(MSG::WARNING) << "Illegal pixel requested OfflineID: " << std::hex << offlineId << std::dec
-                        << " FE: " << FE << " row: " << row << " column: " << column << endreq;
+                        << " FE: " << FE << " row: " << row << " column: " << column << endmsg;
         msg(MSG::DEBUG) << "Limits are: FE < " << ((thisModule == IBL || thisModule == DBM) ? FEsPerHalfModule : 2*FEsPerHalfModule)
-                       << ", row < " << rowsPerFE << ", column < " << columnsPerFE << endreq;
+                       << ", row < " << rowsPerFE << ", column < " << columnsPerFE << endmsg;
         return Identifier(); // illegal Identifier, standardized for PixelRodDecoder
     }
 
@@ -593,7 +593,7 @@ Identifier PixelCablingSvc::getPixelId(Identifier offlineId, uint32_t FE, uint32
             if ((m_idHelper->phi_module(offlineId))%2 == 0) {
                 phi_index = 2*rowsPerFE-phi_index-1;
                 if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Even disk module found, phi module: " << m_idHelper->phi_module(offlineId)
-                                << " swapped phi index to : " << phi_index << endreq;
+                                << " swapped phi index to : " << phi_index << endmsg;
             }
         }
         break;
@@ -606,15 +606,15 @@ Identifier PixelCablingSvc::getPixelId(Identifier offlineId, uint32_t FE, uint32
 #ifdef PIXEL_DEBUG
     unsigned int eta_index_max =  m_idHelper->eta_index_max(offlineId);
     unsigned int phi_index_max =  m_idHelper->phi_index_max(offlineId);
-    if (eta_index > eta_index_max) msg(MSG::WARNING) << "Error! eta_index: " << eta_index << " > eta_index_max: " << eta_index_max << endreq;
-    if (phi_index > phi_index_max) msg(MSG::WARNING) << "Error! phi_index: " << phi_index << " > phi_index_max: " << phi_index_max << endreq;
+    if (eta_index > eta_index_max) msg(MSG::WARNING) << "Error! eta_index: " << eta_index << " > eta_index_max: " << eta_index_max << endmsg;
+    if (phi_index > phi_index_max) msg(MSG::WARNING) << "Error! phi_index: " << phi_index << " > phi_index_max: " << phi_index_max << endmsg;
     //consistency check - to be removed to speed up
     uint32_t check_FE = getFE(&pixelId,offlineId);
     uint32_t check_row = getRow(&pixelId,offlineId) + column_row_offset;
     uint32_t check_column = getColumn(&pixelId,offlineId) + column_row_offset;
     if (check_FE != FE || check_row != row || check_column != column) {
-        msg(MSG::WARNING) << "identify OfflineID: 0x" << std::hex << offlineId << std::dec << " FE: " << FE << " row: " << row << " column: " << column << " unequal to:" << endreq;
-        msg(MSG::WARNING) << "identify PixelID: 0x" << std::hex << pixelId << std::dec << " FE: " << check_FE << " row: " << check_row << " column: " << check_column << endreq;
+        msg(MSG::WARNING) << "identify OfflineID: 0x" << std::hex << offlineId << std::dec << " FE: " << FE << " row: " << row << " column: " << column << " unequal to:" << endmsg;
+        msg(MSG::WARNING) << "identify PixelID: 0x" << std::hex << pixelId << std::dec << " FE: " << check_FE << " row: " << check_row << " column: " << check_column << endmsg;
     }
 #endif
 
@@ -668,7 +668,7 @@ uint32_t PixelCablingSvc::getFE(Identifier *pixelId, Identifier offlineId)
         eta_module = m_idHelper->eta_module(offlineId) + m_eta_module_offset; //offset by 10 to start counting from 0
         if (eta_module >= m_layer_FEsPerHalfModule[0].size()) {
             msg(MSG::WARNING) << "getFE: Eta_module out of range (eta_module = " << eta_module
-                              << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endreq;
+                              << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endmsg;
             return 0xffffffff;
         }
         // fall through
@@ -741,7 +741,7 @@ uint32_t PixelCablingSvc::getColumn(Identifier *pixelId, Identifier offlineId)
         eta_module = m_idHelper->eta_module(offlineId) + m_eta_module_offset; //offset by 10 to start counting from 0
         if (eta_module >= m_layer_FEsPerHalfModule[0].size()) {
             msg(MSG::WARNING) << "getColumn: Eta_module out of range (eta_module = " << eta_module
-                              << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endreq;
+                              << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endmsg;
             return 0xffffffff;
         }
         // fall through
@@ -779,7 +779,7 @@ uint32_t PixelCablingSvc::getColumn(Identifier *pixelId, Identifier offlineId)
     // ---------------------
     if (column >= (int)columnsPerFE) {
         msg(MSG::WARNING) << "Computed column number exceeds maximum value: col = " << column + column_offset
-                          << " (max = " << columnsPerFE << ")" <<  endreq;
+                          << " (max = " << columnsPerFE << ")" <<  endmsg;
         return 0xffffffff;
     }
 
@@ -827,7 +827,7 @@ uint32_t PixelCablingSvc::getRow(Identifier *pixelId, Identifier offlineId)
         eta_module = m_idHelper->eta_module(offlineId) + m_eta_module_offset; //offset by 10 to start counting from 0
         if (eta_module >= m_layer_FEsPerHalfModule[0].size()) {
             msg(MSG::WARNING) << "getRow: Eta_module out of range (eta_module = " << eta_module
-                              << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endreq;
+                              << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endmsg;
             return 0xffffffff;
         }
         // fall through
@@ -869,7 +869,7 @@ uint32_t PixelCablingSvc::getRow(Identifier *pixelId, Identifier offlineId)
     // ---------------------
     if (row >= (int)rowsPerFE) {
         msg(MSG::WARNING) << "Computed row number exceeds maximum value: row = " << row + row_offset
-                          << "(max = " << rowsPerFE << ")" << endreq;
+                          << "(max = " << rowsPerFE << ")" << endmsg;
         return 0xffffffff;
     }
 
@@ -897,7 +897,7 @@ uint32_t PixelCablingSvc::getFEwrtSlink(Identifier *pixelId) {
     nnn = (linkNum >> (localFE * 8)) & 0xF;
 
     // Check for errors
-    if (nnn > 7) msg(MSG::WARNING) << "Error in the identification of the FE-I4 w.r.t. Slink" << endreq;
+    if (nnn > 7) msg(MSG::WARNING) << "Error in the identification of the FE-I4 w.r.t. Slink" << endmsg;
 
     return nnn;
 }
@@ -1122,7 +1122,7 @@ unsigned int PixelCablingSvc::getLocalFEI4(const uint32_t fe, const uint64_t onl
     if (fe == linknum40) return 0;
     else if (fe == linknum80) return 1;
     else msg(MSG::WARNING) << "Error in retrieving local FE-I4 number: linknumber " << fe
-                           << " not found in onlineID " << std::hex << onlineId << endreq;
+                           << " not found in onlineID " << std::hex << onlineId << endmsg;
     return 0xF;
 }
 

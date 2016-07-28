@@ -64,7 +64,7 @@ const InterfaceID& PixelFillCablingData::interfaceID()
 StatusCode PixelFillCablingData::initialize()
 {
   StatusCode sc;
-  msg(MSG::DEBUG) << "PixelFillCablingData::initialize" <<endreq;
+  msg(MSG::DEBUG) << "PixelFillCablingData::initialize" <<endmsg;
 
   // Get the PixelID Helper
   if (detStore()->retrieve(m_idHelper, "PixelID").isFailure()) {
@@ -87,11 +87,11 @@ bool PixelFillCablingData::fillMapFromFile(const std::string infilename, PixelCa
     std::string filename = PathResolver::find_file(infilename, "DATAPATH");
     if (filename.size() == 0) {
       ATH_MSG_FATAL("Mapping File: " << infilename << " not found!");
-      return NULL;
+      return false;
     }
 
     std::ifstream fin(filename.c_str());
-    if (!fin) return NULL;
+    if (!fin) return false;
 
     return parseAndFill(fin,cabling);
 }
@@ -204,7 +204,7 @@ bool PixelFillCablingData::parseAndFill(std::istream &instr, PixelCablingData* c
             ATH_MSG_ERROR("not mapped OfflineID: " << std::hex << offlineId << std::dec << " barrel_ec: " << barrel_ec
                             << " layer_disk: " << layer_disk << " phi_module: " << phi_module << " eta_module: " << eta_module);
             ATH_MSG_ERROR("to OnlineID: 0x" << std::hex << onlineId << " robid: 0x" << robid << " rodid: 0x" << rodid << std::dec
-                            << " link: 0x" << std::hex << link << " -> Linknumber: 0x" << linknumber << " HashId: 0x"
+                             << " link: 0x" << std::hex /*<< link*/ << " -> Linknumber: 0x" << linknumber << " HashId: 0x"
                             << hashId << std::dec);
 
             // Check if offlineId fail was caused by exceeding eta_module range
@@ -221,7 +221,7 @@ bool PixelFillCablingData::parseAndFill(std::istream &instr, PixelCablingData* c
                 }
             }
 
-            return NULL;
+            return false;
         }
 
         // Fill the maps
