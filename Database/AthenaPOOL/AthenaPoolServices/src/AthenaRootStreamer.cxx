@@ -72,7 +72,7 @@ void AthenaRootStreamer::operator()(TBuffer& b, void* obj) {
 	       MsgStream log(m_service->msgSvc(), m_service->name()); 
 	       log << MSG::INFO << "Found unknown streamer checksum " << m_streamerChecksum
 		   << " for class "
-		   << m_className << " - using default ROOT streamer" << endreq;
+		   << m_className << " - using default ROOT streamer" << endmsg;
 	       m_seenChecksums.insert( m_streamerChecksum );
 	    }
 	 }
