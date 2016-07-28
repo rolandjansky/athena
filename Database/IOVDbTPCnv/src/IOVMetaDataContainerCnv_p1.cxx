@@ -17,7 +17,7 @@ IOVMetaDataContainerCnv_p1::persToTrans(const IOVMetaDataContainer_p1* persObj,
 {
 
     log << MSG::DEBUG << "IOVMetaDataContainerCnv_p1::persToTrans - entering "
-        << endreq;
+        << endmsg;
 
     // copy foldername and description
     transObj->setFolderName (persObj->m_folderName);
