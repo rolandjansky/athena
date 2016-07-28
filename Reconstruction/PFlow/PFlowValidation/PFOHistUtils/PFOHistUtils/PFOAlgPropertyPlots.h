@@ -23,6 +23,17 @@ namespace PFO {
     TH1* m_PFO_isInDenseEnvironment;
     TH1* m_PFO_tracksExpectedEnergyDeposit;
 
+    /* Same histograms in three eta bins of |eta| < 1, 1 <= |eta| < 2 and |eta| >= 2 */
+    TH1* m_PFO_isInDenseEnvironment_etaBinA;
+    TH1* m_PFO_tracksExpectedEnergyDeposit_etaBinA;
+
+    TH1* m_PFO_isInDenseEnvironment_etaBinB;
+    TH1* m_PFO_tracksExpectedEnergyDeposit_etaBinB;
+
+    TH1* m_PFO_isInDenseEnvironment_etaBinC;
+    TH1* m_PFO_tracksExpectedEnergyDeposit_etaBinC;
+
+    
     void initializePlots();
     std::string m_sPFOContainerName;
     
