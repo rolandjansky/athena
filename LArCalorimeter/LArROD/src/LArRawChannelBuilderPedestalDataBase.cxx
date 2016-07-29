@@ -23,7 +23,7 @@ LArRawChannelBuilderPedestalDataBase::LArRawChannelBuilderPedestalDataBase(const
 StatusCode LArRawChannelBuilderPedestalDataBase::initTool()
 {
   if (detStore()->regHandle(m_larPedestal,m_pedestalKey).isFailure()){
-    msg(MSG::ERROR) << "No pedestals with key <" << m_pedestalKey << "> found in database." << endreq;
+    msg(MSG::ERROR) << "No pedestals with key <" << m_pedestalKey << "> found in database." << endmsg;
     m_helper->incrementErrorCount(1);
     return StatusCode::FAILURE;
   }
@@ -39,7 +39,7 @@ bool LArRawChannelBuilderPedestalDataBase::pedestal(float& pedestal, MsgStream* 
     {
       if(bool(pLog))
 	(*pLog) << MSG::WARNING << "No pedestal found in database."
-	     << endreq;
+	     << endmsg;
       m_helper->incrementErrorCount(1);
       return false;
     }

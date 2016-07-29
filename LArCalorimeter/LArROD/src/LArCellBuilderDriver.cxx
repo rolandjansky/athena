@@ -148,11 +148,11 @@ bool LArCellBuilderDriver::buildLArCell(const LArDigit* digit,
 {
   /* #ifndef NDEBUG
      if(bool(pLog))
-     (*pLog) << MSG::DEBUG << "In buildLArCell" << endreq;
+     (*pLog) << MSG::DEBUG << "In buildLArCell" << endmsg;
      if(bool(pLog))
-     (*pLog) << MSG::DEBUG << "chid : " << digit->channelID() << endreq;
+     (*pLog) << MSG::DEBUG << "chid : " << digit->channelID() << endmsg;
      if(bool(pLog))
-     (*pLog) << MSG::DEBUG << "gain : " << digit->gain() << endreq;
+     (*pLog) << MSG::DEBUG << "gain : " << digit->gain() << endmsg;
      #endif */
   
   //StatusCode sc;
@@ -200,20 +200,20 @@ bool LArCellBuilderDriver::buildLArCell(const LArDigit* digit,
       
       while( !((*it)->buildRawChannel(digit, pedestal, m_ramps, pLog)) && ++it != itEnd )
 	if(bool(pLog))
-	  (*pLog) << MSG::DEBUG << "One LArRawChannelBuilderTool failed" << endreq;
+	  (*pLog) << MSG::DEBUG << "One LArRawChannelBuilderTool failed" << endmsg;
       // Keep the last calculated values
        energy = (*it)->energy();
 	 time   = (*it)->time();
 	 gain   = (*it)->gain(); 
 	 
-      // (*pLog) << MSG::VERBOSE << "done building LArRawChannel" << endreq;
+      // (*pLog) << MSG::VERBOSE << "done building LArRawChannel" << endmsg;
       m_params->curr_id=0;
 
       /*
 	#ifndef NDEBUG
 	if(bool(pLog))
 	(*pLog) << MSG::DEBUG << "Finished computing energy : " 
-	<< energy << " time : " << time << endreq;
+	<< energy << " time : " << time << endmsg;
 	#endif
       */
       return true;
@@ -253,7 +253,7 @@ float LArCellBuilderDriver::pedestal(MsgStream* pLog)
   
   while( !(*it)->pedestal(m_oldPedestal, pLog) && ++it != itEnd )
     if(bool(pLog))
-      (*pLog) << MSG::DEBUG << "One PedestalTool failed" << endreq;
+      (*pLog) << MSG::DEBUG << "One PedestalTool failed" << endmsg;
   
   // remember for which channel we retrieved the pedestal
   m_oldIdentifier=m_params->curr_chid;
@@ -268,7 +268,7 @@ void LArCellBuilderDriver::ADC2energy(MsgStream* pLog)
   
   while( !(*it)->ADC2E(m_ramps, pLog) && ++it != itEnd )
     if(bool(pLog))
-      (*pLog) << MSG::DEBUG << "One ADC2Energy Tool failed" << endreq;
+      (*pLog) << MSG::DEBUG << "One ADC2Energy Tool failed" << endmsg;
   
   return;
 }

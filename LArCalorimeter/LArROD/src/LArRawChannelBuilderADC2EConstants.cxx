@@ -53,7 +53,7 @@ LArRawChannelBuilderADC2EConstants::ADC2E(std::vector<float>& Ramps, MsgStream* 
     GainFactor = 1.0;
     if(bool(pLog))
       (*pLog) << MSG::WARNING << "Channel " << std::hex << m_parent->curr_chid << std::dec
-	   << "unknown gain: " << m_parent->curr_gain << endreq;
+	   << "unknown gain: " << m_parent->curr_gain << endmsg;
   }
   Ramps[1]*=GainFactor;
   
@@ -93,7 +93,7 @@ LArRawChannelBuilderADC2EConstants::ADC2E(std::vector<float>& Ramps, MsgStream* 
   } else if (m_hecId->is_lar_hec(id)) {
     Ramps[1] *= ADCtoMeVHEC[0];
   }
-  // (*pLog) << MSG::VERBOSE << "ADC2EConstants tool - energy : " << energy << endreq;
+  // (*pLog) << MSG::VERBOSE << "ADC2EConstants tool - energy : " << energy << endmsg;
   m_helper->incrementErrorCount(0);
   m_parent->qualityBitPattern |= m_helper->returnBitPattern();
   

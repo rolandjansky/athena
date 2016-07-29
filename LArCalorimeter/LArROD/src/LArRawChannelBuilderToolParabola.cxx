@@ -37,7 +37,7 @@ StatusCode LArRawChannelBuilderToolParabola::initTool()
   if(m_parabolaRecoTool.retrieve().isFailure() )
     {
       MsgStream log(msgSvc(), name());
-      log << MSG::ERROR << "Unable to find tool LArParabolaPeakRecoTool" << endreq;
+      log << MSG::ERROR << "Unable to find tool LArParabolaPeakRecoTool" << endmsg;
       return StatusCode::FAILURE;
     }
   

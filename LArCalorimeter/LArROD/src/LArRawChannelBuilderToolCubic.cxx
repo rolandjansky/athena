@@ -78,7 +78,7 @@ bool LArRawChannelBuilderToolCubic::buildRawChannel(const LArDigit* digit,
   if(m_fcalId->is_lar_fcal(currentID()))
     {
       if(bool(pLog))
-	(*pLog) << MSG::VERBOSE << "FCAL using special reconstuction !" << endreq;
+	(*pLog) << MSG::VERBOSE << "FCAL using special reconstuction !" << endmsg;
       
       unsigned int it0;
       
