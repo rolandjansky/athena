@@ -21,8 +21,6 @@
 namespace LVL1TGCTrigger {
 
  extern bool        g_DEBUGLEVEL;
- extern bool        g_FULL_CW;
-
 
 bool TGCRPhiCoincidenceMap::test(int octantId, int moduleId, int subsector, 
 				 int type, int pt, 
@@ -113,11 +111,7 @@ bool TGCRPhiCoincidenceMap::checkVersion()
   file.close();
 
   // use full CW (i.e. different maps for each octant and side)
-  m_fullCW = g_FULL_CW &&
-             (m_verName == "setK" ||
-              m_verName == "v0014" ||
-              m_verName == "v0016" ||
-              m_verName == "v0017");
+  m_fullCW = (m_verName == "v0016" || m_verName == "v0017");
 
   ///////////  
   log << MSG::INFO 
@@ -231,7 +225,7 @@ bool TGCRPhiCoincidenceMap::readMap()
 	if(mod!=ModuleNumber[iModule] || ptLevel>N_PT_THRESH || type<0 ) {
 	  log << MSG::WARNING 
 	      << " illegal parameter in database header : "
-	      << header
+	      << header.str()
 	      << " in file " << fn 
 	      << endreq;
 	  break;

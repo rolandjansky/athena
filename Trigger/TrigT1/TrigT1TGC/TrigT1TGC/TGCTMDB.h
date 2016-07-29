@@ -15,7 +15,6 @@ namespace LVL1TGCTrigger {
 
 class TGCTMDBOut;
 
-
 // ====================================================================
 //
 // class definition

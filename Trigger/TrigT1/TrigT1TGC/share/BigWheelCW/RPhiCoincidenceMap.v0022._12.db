@@ -6,9 +6,8 @@
 //
 //                  Date      Who      Explanation of Changes
 //               --------- ---------  -----------------------
-// Verson   0.01 4-August-2015 J.Maeda   Creation for RUN2
-//  v0010 is full CW for 2015 50ns.
-//   new CW taking into account corss-talk effects in MC
+// Verson   0.01 25-July-2016 J.Maeda   Creation for 3-station-strip
+//  v0022 is default CW for 2016 running after MD1
 //-------------------------------------------------------
 //
 # 0     0

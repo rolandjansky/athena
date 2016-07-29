@@ -47,7 +47,7 @@ bool TGCConnectionPPToSL::readData(TGCRegionType type)
   //  fn = "PP2SL.db" ;
   fn = TGCDatabaseManager::getFilename(2);
 
-  fullName = PathResolver::find_file (fn.c_str(), "PWD");
+  fullName = PathResolver::find_file(fn.c_str(), "PWD");
   if( fullName.length() == 0 ) 
     fullName = PathResolver::find_file (fn.c_str(), "DATAPATH");
   std::ifstream inputfile(fullName.c_str() ,std::ios::in);
@@ -72,11 +72,12 @@ bool TGCConnectionPPToSL::readData(TGCRegionType type)
               || (Region=="Forward"&&type==Forward);
     if (isMatched) break;
   } 
+
   if (!isMatched) {
 #ifdef TGCDEBUG
     std::cout << "TGCConnectionPPToSL::readData : fail to read out"
 	      << std::endl;
-#endif    
+#endif
     delete [] aNHPB;
     delete [] aNSB;
     delete [] aNPP;
@@ -90,8 +91,8 @@ bool TGCConnectionPPToSL::readData(TGCRegionType type)
 #ifdef TGCDEBUG
     std::cout<<Name<<" "<<aNHPB[WHPB]<<" "<<aNHPB[SHPB]<<std::endl;
 #endif
-    for(int i=0; i<NHPB; i+=1){
-      HPBToSL.setNumber(i,aNHPB[i]);
+    for(int i=0; i<NHPB; i++) {
+      HPBToSL.setNumber(i, aNHPB[i]);
       for (int j=0; j<aNHPB[i]; j+=1) {
 	inputfile.getline(buf,BufferSize);
 	std::istringstream infileS2(buf);
@@ -112,7 +113,8 @@ bool TGCConnectionPPToSL::readData(TGCRegionType type)
 #ifdef TGCDEBUG
     std::cout<<Name<<" "<<aNSB[WTSB]<<" "<<aNSB[WDSB]<<" "<<aNSB[STSB]<<" "<<aNSB[SDSB]<<std::endl;
 #endif
-    for(int i=0; i<NSB; i+=1){
+    for(int i=0; i<NSB; i++){
+      if(i>=TotalNumSlaveBoardType) continue;   // for temporary coverity fix
       // No HPB for Inner
       if ( i == WISB ) continue;
       if ( i == SISB ) continue;

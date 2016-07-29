@@ -5,12 +5,8 @@
 #ifndef TGCElectronicsSystem_hh
 #define TGCElectronicsSystem_hh
 
-#include "TrigT1TGC/TGCNumbering.hh"
-#include "TrigT1TGC/TGCEvent.h"
+//#include "TrigT1TGC/TGCNumbering.hh"
 #include "TrigT1TGC/TGCReadoutIndex.h"
-
-//TileMu
-#include "TrigT1TGC/TGCTMDB.h"
 
 namespace LVL1TGCTrigger {
 
@@ -21,9 +17,11 @@ const int NumberOfSignalTypes = 2; // 1=WireGroup, 2=Strip
 const int NumberOfLayers = 9;      // 0,1,2: Tpl, 3,4: Dbl, 5,6: Inner 8,9
 const int NumberOfRegions = 2;     // 1=Forward, 2=ENdcap 
 
-class TGCASDOut;
+class TGCEvent;
+//class TGCASDOut;
 class TGCDatabaseManager;
 class TGCSector;
+class TGCTMDB;
 
 class TGCElectronicsSystem {
 public:

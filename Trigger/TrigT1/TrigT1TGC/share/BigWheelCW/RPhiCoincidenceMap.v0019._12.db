@@ -6,10 +6,8 @@
 //
 //                  Date      Who      Explanation of Changes
 //               --------- ---------  -----------------------
-// Verson   0.01 1-Oct-2013 H.Kurashige   Creation for RUN2
-//  setM is default CW for 2015
-//   new CW taking into account corss-talk effects in MC
-//  pt=1 is partially 2-st coincidence (i.e. MU4') 
+// Verson   0.01 6-June-2016 J.Maeda   Creation for 2016 pp
+//  v0019 is default CW for 2015
 //-------------------------------------------------------
 //
 # 0     0

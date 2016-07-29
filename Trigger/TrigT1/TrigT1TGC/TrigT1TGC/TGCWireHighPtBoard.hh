@@ -6,12 +6,10 @@
 #define TGCWireHighPtBoard_hh
 
 #include "TrigT1TGC/TGCHighPtBoard.hh"
-#include "TrigT1TGC/TGCHighPtBoardOut.hh"
-#include "TrigT1TGC/TGCDoubletSB.hh"
-#include "TrigT1TGC/TGCWireTripletSB.hh"
-#include "TrigT1TGC/TGCSlaveBoardOut.hh"
 
 namespace LVL1TGCTrigger {
+
+class TGCHitPattern;
 
 class TGCWireHighPtBoard: public TGCHighPtBoard {
 public:
