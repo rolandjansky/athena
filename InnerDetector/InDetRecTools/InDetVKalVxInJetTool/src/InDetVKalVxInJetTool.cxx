@@ -162,6 +162,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_massLam =1115.683  ;
     m_massB   =5279.400  ;
     m_WorkArray = 0;
+    m_compatibilityGraph = nullptr;
     m_instanceName=name;
 
    }
@@ -169,8 +170,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 //Destructor---------------------------------------------------------------
     InDetVKalVxInJetTool::~InDetVKalVxInJetTool(){
      //MsgStream log( msgSvc(), name() ) ;
-     //log << MSG::DEBUG << "InDetVKalVxInJetTool destructor called" << endreq;
-     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetVKalVxInJetTool destructor called" << endreq;
+     //log << MSG::DEBUG << "InDetVKalVxInJetTool destructor called" << endmsg;
+     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetVKalVxInJetTool destructor called" << endmsg;
      if(m_WorkArray) delete m_WorkArray;
      if(m_compatibilityGraph)delete m_compatibilityGraph;
    }
@@ -178,52 +179,52 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 //Initialize---------------------------------------------------------------
    StatusCode InDetVKalVxInJetTool::initialize(){
      //MsgStream log( msgSvc(), name() ) ;
-     //log << MSG::DEBUG << "InDetVKalVxInJetTool initialize() called" << endreq;
-     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetVKalVxInJetTool initialize() called" << endreq;
+     //log << MSG::DEBUG << "InDetVKalVxInJetTool initialize() called" << endmsg;
+     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetVKalVxInJetTool initialize() called" << endmsg;
      m_WorkArray = new VKalVxInJetTemp;
      m_compatibilityGraph = new boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS>();
 
 //     IToolSvc* toolSvc;                    //needed for old style TrkVKalVrtFitter retrieval
 //     StatusCode sc = service("ToolSvc",toolSvc);
 //     if (sc.isFailure()) { 
-//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " No ToolSvc for InDetVKalVxInJetTool !" << endreq;
+//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " No ToolSvc for InDetVKalVxInJetTool !" << endmsg;
 //        return StatusCode::SUCCESS;
 //     }
 
  
      if (m_fitterSvc.retrieve().isFailure()) {
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Could not find Trk::TrkVKalVrtFitter" << endreq;
+        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Could not find Trk::TrkVKalVrtFitter" << endmsg;
         return StatusCode::SUCCESS;
      } else {
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetVKalVxInJetTool TrkVKalVrtFitter found" << endreq;
+        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetVKalVxInJetTool TrkVKalVrtFitter found" << endmsg;
      }
      m_fitSvc = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_fitterSvc));
      if(!m_fitSvc){
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" No implemented Trk::ITrkVKalVrtFitter interface" << endreq;
+        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" No implemented Trk::ITrkVKalVrtFitter interface" << endmsg;
         return StatusCode::SUCCESS;
      }
 //------
 //     if ( m_trackToVertexIP.retrieve().isFailure() ) {
-//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve trackToVertexIPEstimator tool. Used for tests only, so safe!" << endreq;
+//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve trackToVertexIPEstimator tool. Used for tests only, so safe!" << endmsg;
 //     } else {
-//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved Trk::TrackToVertexIPEstimator tool. Only for tests!" << m_trackToVertexIP<<endreq;
+//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved Trk::TrackToVertexIPEstimator tool. Only for tests!" << m_trackToVertexIP<<endmsg;
 //     }
 //-------
 //     if(m_MultiVertex && m_MultiWithOneTrkVrt) {
 //       if ( m_trkPartCreator.retrieve().isFailure() ) {
-//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve TrackParticleCreator tool " << endreq;
+//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve TrackParticleCreator tool " << endmsg;
 //       } else {
-//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved Trk::TrackParticleCreator tool" << m_trkPartCreator<<endreq;
+//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved Trk::TrackParticleCreator tool" << m_trkPartCreator<<endmsg;
 //       }
 //     }
 //-------
 //     Trk::IVertexFitter * tmp;
 //     sc = toolSvc->retrieveTool("Trk::TrkVKalVrtFitter",tmp,this);
 //     if (sc.isFailure()) { 
-//        log << MSG::DEBUG << " No Trk::TrkVKalVrtFitter for InDetVKalVxInJetTool !" << endreq;
+//        log << MSG::DEBUG << " No Trk::TrkVKalVrtFitter for InDetVKalVxInJetTool !" << endmsg;
 //     }else{
 //        m_fitSvc = dynamic_cast<Trk::TrkVKalVrtFitter*>(tmp);
-//        if(!m_fitSvc)log<<MSG::DEBUG<<" No Trk::TrkVKalVrtFitter" << endreq;
+//        if(!m_fitSvc)log<<MSG::DEBUG<<" No Trk::TrkVKalVrtFitter" << endmsg;
 //     }
 
 //------------------------------------------
@@ -233,7 +234,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        if( m_RlayerB  ==0.)  m_RlayerB  =34.0;
        if( m_Rlayer1  ==0.)  m_Rlayer1  =51.6;
        if( m_Rlayer2  ==0.)  m_Rlayer2  =90.0;
-                             m_Rlayer3  =122.5;
+       m_Rlayer3  =122.5;
      } else {   // 3-layer pixel detector
        if( m_Rbeampipe==0.)  m_Rbeampipe=29.4;    
        if( m_RlayerB  ==0.)  m_RlayerB  =51.5;
@@ -248,9 +249,9 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
        StatusCode sc = service( "THistSvc", hist_root); 
        if( sc.isFailure() ) {
-          if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<< "Could not find THistSvc service" << endreq;
+          if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<< "Could not find THistSvc service" << endmsg;
        }
-       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetVKalVxInJetTool Histograms found" << endreq;
+       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDetVKalVxInJetTool Histograms found" << endmsg;
  
        m_hb_massPiPi   = new TH1D("massPiPi"," massPiPi",160,200., 1000.);
        m_hb_massPPi    = new TH1D("massPPi"," massPPi", 100,1000., 1250.);
@@ -356,22 +357,23 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        sc = hist_root->regHist(histDir+"PSEUDST_JetTrkSV", m_hb_DST_JetTrkSV);
        sc = hist_root->regHist(histDir+"PSEUnTrkJetTrkSV", m_hb_NImpJetTrkSV);
        if( sc.isFailure() ) {     // Check of StatusCode
-         if(msgLvl(MSG::INFO))msg(MSG::INFO) << "BTagVrtSec Histogram registration failure!!!" << endreq;
+         if(msgLvl(MSG::INFO))msg(MSG::INFO) << "BTagVrtSec Histogram registration failure!!!" << endmsg;
        }
-       w_1 = 1.;
+       m_w_1 = 1.;
 
      }
 
      if(!m_MultiVertex)m_MultiWithPrimary = false; 
 
      if(m_getNegativeTag){
-        if(msgLvl(MSG::INFO))msg(MSG::INFO) << " Negative TAG is requested! " << endreq;
-        if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Not compatible with negativeTAIL option, so getNegativeTail is set to FALSE." << endreq;
+        if(msgLvl(MSG::INFO))msg(MSG::INFO) << " Negative TAG is requested! " << endmsg;
+        if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Not compatible with negativeTAIL option, so getNegativeTail is set to FALSE." << endmsg;
         m_getNegativeTail=false;
      }
 
      //for(int ntv=2; ntv<=10; ntv++) m_chiScale[ntv]=chisin_(0.9,2*ntv-3)/ntv; m_chiScale[0]=m_chiScale[2];
-     for(int ntv=2; ntv<=10; ntv++) m_chiScale[ntv]=TMath::ChisquareQuantile(0.9,2.*ntv-3.)/ntv; m_chiScale[0]=m_chiScale[2];
+     for(int ntv=2; ntv<=10; ntv++) m_chiScale[ntv]=TMath::ChisquareQuantile(0.9,2.*ntv-3.)/ntv;
+     m_chiScale[0]=m_chiScale[2];
      for(int ntv=2; ntv<=10; ntv++) m_chiScale[ntv]/=m_chiScale[0];
 
      if(m_RobustFit>7)m_RobustFit=7;
@@ -387,7 +389,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
   StatusCode InDetVKalVxInJetTool::finalize()
   {
     //MsgStream log( msgSvc(), name() );
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<"InDetVKalVxInJetTool finalize()" << endreq;
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<"InDetVKalVxInJetTool finalize()" << endmsg;
     return StatusCode::SUCCESS; 
   }
   
