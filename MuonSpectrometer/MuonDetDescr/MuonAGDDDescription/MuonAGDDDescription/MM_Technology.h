@@ -17,17 +17,16 @@ public:
 	int nlayers;
 	double gasThickness;
 	double pcbThickness;
-        double f1Thickness;
-        double f2Thickness;
-        double f3Thickness;
-     
+	double roThickness;
+	double f1Thickness;
+	double f2Thickness;
+	double f3Thickness;
 
-	
 	int geoLevel;
-	
+
 
 	// inner structure parameters (to be defined)
-	
+
 	// constructor
 	inline MM_Technology(std::string s);
 	inline double Thickness() ;
@@ -35,7 +34,7 @@ public:
 
 MM_Technology::MM_Technology(std::string s): AGDDTechnology(s),
   thickness(0.), nlayers(0), gasThickness(0.), pcbThickness(0.),
-  f1Thickness(0.), f2Thickness(0.), f3Thickness(0.),
+  roThickness(0), f1Thickness(0.), f2Thickness(0.), f3Thickness(0.),
   geoLevel(0)
 {
 }
