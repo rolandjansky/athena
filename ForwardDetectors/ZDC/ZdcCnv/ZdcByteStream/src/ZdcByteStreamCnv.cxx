@@ -94,18 +94,18 @@ StatusCode ZdcByteStreamCnv::initialize()
 
 	m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
 	m_log << MSG::DEBUG << "Initializing " << m_name << " - package version " << PACKAGE_VERSION
-			<< endreq;
+			<< endmsg;
 
 	//Gaudi Converter Factory
 	StatusCode sc = Converter::initialize();
 	if (sc.isFailure())
 	{
-		m_log << MSG::ERROR << "ZDC: Failed to initialize Converter " << endreq;
+		m_log << MSG::ERROR << "ZDC: Failed to initialize Converter " << endmsg;
 		return sc;
 	}
 	else
 	{
-		m_log << MSG::DEBUG << "ZDC: Converter initialized " << endreq;
+		m_log << MSG::DEBUG << "ZDC: Converter initialized " << endmsg;
 	}
 
 
@@ -113,32 +113,32 @@ StatusCode ZdcByteStreamCnv::initialize()
 	sc = m_ByteStreamEventAccess.retrieve();
 	if (sc.isFailure())
 	{
-		m_log << MSG::ERROR << "ZDC: Failed to retrieve service " << m_ByteStreamEventAccess << endreq;
+		m_log << MSG::ERROR << "ZDC: Failed to retrieve service " << m_ByteStreamEventAccess << endmsg;
 		return sc;
 	}
 	else
 	{
-		m_log << MSG::DEBUG << "ZDC: Retrieved service " << m_ByteStreamEventAccess << endreq;
+		m_log << MSG::DEBUG << "ZDC: Retrieved service " << m_ByteStreamEventAccess << endmsg;
 	}
 
 	// Retrieve Tool
 	sc = m_tool.retrieve();
 	if (sc.isFailure())
 	{
-		m_log << MSG::ERROR << "ZDC: Failed to retrieve tool " << m_tool << endreq;
+		m_log << MSG::ERROR << "ZDC: Failed to retrieve tool " << m_tool << endmsg;
 		return sc;
 	}
-	else m_log << MSG::DEBUG << "ZDC: Retrieved tool " << m_tool << endreq;
+	else m_log << MSG::DEBUG << "ZDC: Retrieved tool " << m_tool << endmsg;
 
 	// Get ROBDataProvider
 	sc = m_robDataProvider.retrieve();
 	if (sc.isFailure())
 	{
-		m_log << MSG::WARNING << "ZDC: Failed to retrieve service " << m_robDataProvider << endreq;
+		m_log << MSG::WARNING << "ZDC: Failed to retrieve service " << m_robDataProvider << endmsg;
 	}
 	else
 	{
-		m_log << MSG::DEBUG << "ZDC: Retrieved service " << m_robDataProvider << endreq;
+		m_log << MSG::DEBUG << "ZDC: Retrieved service " << m_robDataProvider << endmsg;
 	}
 
 	return StatusCode::SUCCESS;
@@ -150,18 +150,18 @@ StatusCode ZdcByteStreamCnv::initialize()
 StatusCode ZdcByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 {
 	/// Create the RDO from bytestream.
-	m_log << MSG::DEBUG << "ZDC: createObj() called" << endreq;
+	m_log << MSG::DEBUG << "ZDC: createObj() called" << endmsg;
 	ByteStreamAddress *pBS_Addr;
 	pBS_Addr = dynamic_cast<ByteStreamAddress *> (pAddr);
 	if (!pBS_Addr)
 	{
-		m_log << MSG::ERROR << "ZDC: Can not cast to ByteStreamAddress " << endreq;
+		m_log << MSG::ERROR << "ZDC: Can not cast to ByteStreamAddress " << endmsg;
 		return StatusCode::FAILURE;
 	}
 
 	const std::string nm = *(pBS_Addr->par());
 
-	if (m_debug) m_log << MSG::DEBUG << "ZDC: Creating Objects " << nm << endreq;
+	if (m_debug) m_log << MSG::DEBUG << "ZDC: Creating Objects " << nm << endmsg;
 
 	// Get SourceIDs; This is NOT related to the ZDC Identifiers
 	//const std::vector<uint32_t>& vID(m_tool->sourceIDs()); // old style
@@ -174,7 +174,7 @@ StatusCode ZdcByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 	// size check
 	if (m_debug)
 	{
-		m_log << MSG::DEBUG << "ZDC: Number of ROB fragments is " << robFrags.size() << endreq;
+		m_log << MSG::DEBUG << "ZDC: Number of ROB fragments is " << robFrags.size() << endmsg;
 	}
 
 	//ZdcDigitsCollection* const ttCollection = new ZdcDigitsCollection;
@@ -195,7 +195,7 @@ StatusCode ZdcByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 
 	if (sc.isFailure())
 	{
-		m_log << MSG::ERROR << "ZDC: Failed to create Objects   " << nm << endreq;
+		m_log << MSG::ERROR << "ZDC: Failed to create Objects   " << nm << endmsg;
 		//delete ttCollection;
 		delete TTCollection; // new style
 		return sc;
@@ -215,14 +215,14 @@ StatusCode ZdcByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 /*
 StatusCode ZdcByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
 {
-	m_log << MSG::DEBUG << "ZDC: createRep() called" << endreq;
+	m_log << MSG::DEBUG << "ZDC: createRep() called" << endmsg;
 
 	RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
 
 	ZdcDigitsCollection* ttCollection = 0;
 	if (!SG::fromStorable(pObj, ttCollection))
 	{
-		m_log << MSG::ERROR << "ZDC: Cannot cast to ZdcDigitsCollection" << endreq;
+		m_log << MSG::ERROR << "ZDC: Cannot cast to ZdcDigitsCollection" << endmsg;
 		return StatusCode::FAILURE;
 	}
 
