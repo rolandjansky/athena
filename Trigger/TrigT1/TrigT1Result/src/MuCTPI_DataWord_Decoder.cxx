@@ -246,20 +246,20 @@ void MuCTPI_DataWord_Decoder::dumpData( MsgStream& log ) const {
   std::string olString = "NO";
   if( ol ) olString = "YES";
 
-  log << MSG::DEBUG << "Data word         :   0x" << MSG::hex << m_dataWord << MSG::dec << endreq;
-  log << MSG::DEBUG << "BCID              :   " << getBCID() << endreq;
-  log << MSG::DEBUG << "Pt                :   " << getPt() << endreq;
-  log << MSG::DEBUG << "Is highest Pt     :   " << isHigh << endreq;
-  log << MSG::DEBUG << "RoI ID            :   " << getRoiNumber() << endreq;
-  log << MSG::DEBUG << "Sent RoI          :   " << sentRoi << endreq;
-  log << MSG::DEBUG << "Sector address    :   0x" << MSG::hex << getSectorAddress() << MSG::dec << endreq;
-  log << MSG::DEBUG << "Sector ID         :   " << getSectorID() << endreq;
-  log << MSG::DEBUG << "Sector location   :   " << locString << endreq;
-  log << MSG::DEBUG << "Sector overflow   :   " << ofString << endreq;
-  log << MSG::DEBUG << "RoI overflow      :   " << roiString << endreq;
-  log << MSG::DEBUG << "Overlap found     :   " << olString << endreq;
-  log << MSG::DEBUG << "Hemisphere        :   " << getHemisphere() << endreq;
-  log << MSG::DEBUG << "=================================================" << endreq;
+  log << MSG::DEBUG << "Data word         :   0x" << MSG::hex << m_dataWord << MSG::dec << endmsg;
+  log << MSG::DEBUG << "BCID              :   " << getBCID() << endmsg;
+  log << MSG::DEBUG << "Pt                :   " << getPt() << endmsg;
+  log << MSG::DEBUG << "Is highest Pt     :   " << isHigh << endmsg;
+  log << MSG::DEBUG << "RoI ID            :   " << getRoiNumber() << endmsg;
+  log << MSG::DEBUG << "Sent RoI          :   " << sentRoi << endmsg;
+  log << MSG::DEBUG << "Sector address    :   0x" << MSG::hex << getSectorAddress() << MSG::dec << endmsg;
+  log << MSG::DEBUG << "Sector ID         :   " << getSectorID() << endmsg;
+  log << MSG::DEBUG << "Sector location   :   " << locString << endmsg;
+  log << MSG::DEBUG << "Sector overflow   :   " << ofString << endmsg;
+  log << MSG::DEBUG << "RoI overflow      :   " << roiString << endmsg;
+  log << MSG::DEBUG << "Overlap found     :   " << olString << endmsg;
+  log << MSG::DEBUG << "Hemisphere        :   " << getHemisphere() << endmsg;
+  log << MSG::DEBUG << "=================================================" << endmsg;
 
   return;
 }

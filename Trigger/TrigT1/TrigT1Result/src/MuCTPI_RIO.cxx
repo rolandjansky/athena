@@ -153,21 +153,21 @@ void MuCTPI_RIO::dumpData() const {
  */
 void MuCTPI_RIO::dumpData( MsgStream& log ) const {
 
-  log << MSG::DEBUG << "=================================================" << endreq;
-  log << MSG::DEBUG << "MUCTPI ROD Header / Trailer data" << endreq;
-  log << MSG::DEBUG << "Source ID               :  0x" << MSG::hex << getHeaderSourceId() << MSG::dec << endreq;
-  log << MSG::DEBUG << "Run number              :  " << getHeaderRunNumber() << endreq;
-  log << MSG::DEBUG << "Ext. LVL1 ID            :  " << getHeaderLVL1ID() << endreq;
-  log << MSG::DEBUG << "BCID                    :  " << getHeaderBCID() << endreq;
-  log << MSG::DEBUG << "Trigger type            :  " << getHeaderLVL1TriggerType() << endreq;
-  log << MSG::DEBUG << "Det. event type         :  " << getHeaderDetectorEventType() << endreq;
-  log << MSG::DEBUG << "No data words           :  " << getHeaderNumberDataWords() << endreq;
-  log << MSG::DEBUG << "No status words         :  " << getHeaderNumberStatusWords() << endreq;
+  log << MSG::DEBUG << "=================================================" << endmsg;
+  log << MSG::DEBUG << "MUCTPI ROD Header / Trailer data" << endmsg;
+  log << MSG::DEBUG << "Source ID               :  0x" << MSG::hex << getHeaderSourceId() << MSG::dec << endmsg;
+  log << MSG::DEBUG << "Run number              :  " << getHeaderRunNumber() << endmsg;
+  log << MSG::DEBUG << "Ext. LVL1 ID            :  " << getHeaderLVL1ID() << endmsg;
+  log << MSG::DEBUG << "BCID                    :  " << getHeaderBCID() << endmsg;
+  log << MSG::DEBUG << "Trigger type            :  " << getHeaderLVL1TriggerType() << endmsg;
+  log << MSG::DEBUG << "Det. event type         :  " << getHeaderDetectorEventType() << endmsg;
+  log << MSG::DEBUG << "No data words           :  " << getHeaderNumberDataWords() << endmsg;
+  log << MSG::DEBUG << "No status words         :  " << getHeaderNumberStatusWords() << endmsg;
   for( uint32_t i = 0 ; i < getHeaderNumberStatusWords(); ++i ) {
     log << MSG::DEBUG << "Status word " << i << "           :  0x" << MSG::hex << getHeaderStatusWords()[i]
-        << MSG::dec << endreq;
+        << MSG::dec << endmsg;
   }
-  log << MSG::DEBUG << "=================================================" << endreq;
+  log << MSG::DEBUG << "=================================================" << endmsg;
 
   std::vector<MyRoI>::const_iterator it = m_roI.begin();
   for( ; it != m_roI.end(); ++it ) it->dumpData( log );
@@ -229,23 +229,23 @@ void MuCTPI_RIO::MyRoI::dumpData() const {
  */
 void MuCTPI_RIO::MyRoI::dumpData( MsgStream& log ) const {
 
-  log << MSG::DEBUG << "=================================================" << endreq;
-  log << MSG::DEBUG << "MUCTPI RoI data" << endreq;
-  log << MSG::DEBUG << "BCID                    :  " << m_bcId << endreq;
-  log << MSG::DEBUG << "Pt value                :  " << m_pTvalue << endreq;
-  log << MSG::DEBUG << "Pt threshold number     :  " << m_pTnumber << endreq;
-  log << MSG::DEBUG << "Eta                     :  " << m_eta << endreq;
-  log << MSG::DEBUG << "Phi                     :  " << m_phi << endreq;
-  log << MSG::DEBUG << "RoI number              :  " << m_roINumber << endreq;
-  log << MSG::DEBUG << "Sector ID               :  " << m_sectorID << endreq;
-  log << MSG::DEBUG << "System ID               :  " << m_sysId << endreq;
-  log << MSG::DEBUG << "Hemisphere              :  " << m_hemisphere << endreq;
-  log << MSG::DEBUG << "Flags " << endreq;
-  log << MSG::DEBUG << "Accepted                :  " << m_accepted << endreq;
-  log << MSG::DEBUG << "First                   :  " << m_first << endreq;
-  log << MSG::DEBUG << "Duplicated sector       :  " << m_duplicatedSector << endreq;
-  log << MSG::DEBUG << "Duplicated RoI          :  " << m_duplicatedRoI << endreq;
-  log << MSG::DEBUG << "=================================================" << endreq;
+  log << MSG::DEBUG << "=================================================" << endmsg;
+  log << MSG::DEBUG << "MUCTPI RoI data" << endmsg;
+  log << MSG::DEBUG << "BCID                    :  " << m_bcId << endmsg;
+  log << MSG::DEBUG << "Pt value                :  " << m_pTvalue << endmsg;
+  log << MSG::DEBUG << "Pt threshold number     :  " << m_pTnumber << endmsg;
+  log << MSG::DEBUG << "Eta                     :  " << m_eta << endmsg;
+  log << MSG::DEBUG << "Phi                     :  " << m_phi << endmsg;
+  log << MSG::DEBUG << "RoI number              :  " << m_roINumber << endmsg;
+  log << MSG::DEBUG << "Sector ID               :  " << m_sectorID << endmsg;
+  log << MSG::DEBUG << "System ID               :  " << m_sysId << endmsg;
+  log << MSG::DEBUG << "Hemisphere              :  " << m_hemisphere << endmsg;
+  log << MSG::DEBUG << "Flags " << endmsg;
+  log << MSG::DEBUG << "Accepted                :  " << m_accepted << endmsg;
+  log << MSG::DEBUG << "First                   :  " << m_first << endmsg;
+  log << MSG::DEBUG << "Duplicated sector       :  " << m_duplicatedSector << endmsg;
+  log << MSG::DEBUG << "Duplicated RoI          :  " << m_duplicatedRoI << endmsg;
+  log << MSG::DEBUG << "=================================================" << endmsg;
 
   return;
 }
