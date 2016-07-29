@@ -36,56 +36,56 @@ namespace D3PD
 		void ClearData(const int nPileUpCnt);
 
 	private:
-		//vector<float>* m_pvecVtx_g;
-		vector<float>* m_pvecVtx_g_x;
-		vector<float>* m_pvecVtx_g_y;
-		vector<float>* m_pvecVtx_g_z;
+		//std::vector<float>* m_pvecVtx_g;
+		std::vector<float>* m_pvecVtx_g_x;
+		std::vector<float>* m_pvecVtx_g_y;
+		std::vector<float>* m_pvecVtx_g_z;
 
-		//vector<float>* m_pvecVtx_a;
-		vector<float>* m_pvecVtx_a_x;
-		vector<float>* m_pvecVtx_a_y;
-		vector<float>* m_pvecVtx_a_z;
+		//std::vector<float>* m_pvecVtx_a;
+		std::vector<float>* m_pvecVtx_a_x;
+		std::vector<float>* m_pvecVtx_a_y;
+		std::vector<float>* m_pvecVtx_a_z;
 
-		//vector<float>* m_pvecVtx_c;
-		vector<float>* m_pvecVtx_c_x;
-		vector<float>* m_pvecVtx_c_y;
-		vector<float>* m_pvecVtx_c_z;
+		//std::vector<float>* m_pvecVtx_c;
+		std::vector<float>* m_pvecVtx_c_x;
+		std::vector<float>* m_pvecVtx_c_y;
+		std::vector<float>* m_pvecVtx_c_z;
 
-		//vector<float>* m_pvecP_a;
-		vector<float>* m_pvecPa_pt;
-		vector<float>* m_pvecPa_phi;
-		vector<float>* m_pvecPa_pz;
-		vector<float>* m_pvecPa_m;
+		//std::vector<float>* m_pvecP_a;
+		std::vector<float>* m_pvecPa_pt;
+		std::vector<float>* m_pvecPa_phi;
+		std::vector<float>* m_pvecPa_pz;
+		std::vector<float>* m_pvecPa_m;
 
-		//vector<float>* m_pvecP_c;
-		vector<float>* m_pvecPc_pt;
-		vector<float>* m_pvecPc_phi;
-		vector<float>* m_pvecPc_pz;
-		vector<float>* m_pvecPc_m;
+		//std::vector<float>* m_pvecP_c;
+		std::vector<float>* m_pvecPc_pt;
+		std::vector<float>* m_pvecPc_phi;
+		std::vector<float>* m_pvecPc_pz;
+		std::vector<float>* m_pvecPc_m;
 
-		//vector<float>* m_pvecPBeam1_i;
-		vector<float>* m_pvecPBeam1_i_pt;
-		vector<float>* m_pvecPBeam1_i_phi;
-		vector<float>* m_pvecPBeam1_i_pz;
-		vector<float>* m_pvecPBeam1_i_E;
+		//std::vector<float>* m_pvecPBeam1_i;
+		std::vector<float>* m_pvecPBeam1_i_pt;
+		std::vector<float>* m_pvecPBeam1_i_phi;
+		std::vector<float>* m_pvecPBeam1_i_pz;
+		std::vector<float>* m_pvecPBeam1_i_E;
 
-		//vector<float>* m_pvecPBeam1_f;
-		vector<float>* m_pvecPBeam1_f_pt;
-		vector<float>* m_pvecPBeam1_f_phi;
-		vector<float>* m_pvecPBeam1_f_pz;
-		vector<float>* m_pvecPBeam1_f_E;
+		//std::vector<float>* m_pvecPBeam1_f;
+		std::vector<float>* m_pvecPBeam1_f_pt;
+		std::vector<float>* m_pvecPBeam1_f_phi;
+		std::vector<float>* m_pvecPBeam1_f_pz;
+		std::vector<float>* m_pvecPBeam1_f_E;
 
-		//vector<float>* m_pvecPBeam2_i;
-		vector<float>* m_pvecPBeam2_i_pt;
-		vector<float>* m_pvecPBeam2_i_phi;
-		vector<float>* m_pvecPBeam2_i_pz;
-		vector<float>* m_pvecPBeam2_i_E;
+		//std::vector<float>* m_pvecPBeam2_i;
+		std::vector<float>* m_pvecPBeam2_i_pt;
+		std::vector<float>* m_pvecPBeam2_i_phi;
+		std::vector<float>* m_pvecPBeam2_i_pz;
+		std::vector<float>* m_pvecPBeam2_i_E;
 
-		//vector<float>* m_pvecPBeam2_f;
-		vector<float>* m_pvecPBeam2_f_pt;
-		vector<float>* m_pvecPBeam2_f_phi;
-		vector<float>* m_pvecPBeam2_f_pz;
-		vector<float>* m_pvecPBeam2_f_E;
+		//std::vector<float>* m_pvecPBeam2_f;
+		std::vector<float>* m_pvecPBeam2_f_pt;
+		std::vector<float>* m_pvecPBeam2_f_phi;
+		std::vector<float>* m_pvecPBeam2_f_pz;
+		std::vector<float>* m_pvecPBeam2_f_E;
 
 	}; // class AlfaTruthInfoFillerTool
 

@@ -164,9 +164,8 @@ namespace D3PD {
 	StatusCode AlfaTruthInfoFillerTool::fill(const McEventCollection& EventCollection)
 	{
 		MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::TruthInfo()");
-		LogStream << MSG::DEBUG << "begin ALFA_Ntuple::TruthInfo(), tom version" << endreq;
+		LogStream << MSG::DEBUG << "begin ALFA_Ntuple::TruthInfo(), tom version" << endmsg;
 
-		float px, py, pz, E, phi, m;
 		int coll_counter = 0;
 
 		McEventCollection::const_iterator mcTruBeg = EventCollection.begin(); // = (*mcTru).begin()
@@ -178,7 +177,7 @@ namespace D3PD {
 		int vtx_counter[MAXPILEUP];
 		memset(&vtx_counter, 0, sizeof(vtx_counter));
 
-		LogStream << MSG::INFO << "MARK01" << endreq;
+		LogStream << MSG::INFO << "MARK01" << endmsg;
 		//loop over collection (container)
 		for(;mcTruBeg!=mcTruEnd;++mcTruBeg){
 
@@ -200,13 +199,13 @@ namespace D3PD {
 
 			//particles at IP and IP vertex properties
 
-			LogStream << MSG::INFO << "MARK02" << endreq;
+			LogStream << MSG::INFO << "MARK02" << endmsg;
 			//loop over verteces belonging to one event
 			for(;begGenVtxItr!=endGenVtxItr;++begGenVtxItr){
 
-				LogStream << MSG::DEBUG << " * collection no: " << coll_counter << endreq;
-				LogStream << MSG::DEBUG << " * vertex no: " << vtx_counter[coll_counter-1] << endreq;
-				LogStream << MSG::DEBUG << " * position x = " << (**begGenVtxItr).position().x() << ", y = " << (**begGenVtxItr).position().y()<< ", z =" << (**begGenVtxItr).position().z() << endreq;
+				LogStream << MSG::DEBUG << " * collection no: " << coll_counter << endmsg;
+				LogStream << MSG::DEBUG << " * vertex no: " << vtx_counter[coll_counter-1] << endmsg;
+				LogStream << MSG::DEBUG << " * position x = " << (**begGenVtxItr).position().x() << ", y = " << (**begGenVtxItr).position().y()<< ", z =" << (**begGenVtxItr).position().z() << endmsg;
 
 				if (fabs((**begGenVtxItr).position().z()) > 500.){  // the IP vertex should be max +/-50 cm from z=0.
 					continue;
@@ -221,17 +220,15 @@ namespace D3PD {
 
 				for(; child != child_end; ++child){
 
-					px = (*child)->momentum().px();
-					py = (*child)->momentum().py();
-					pz = (*child)->momentum().pz();
-					E  = (*child)->momentum().e();
-					phi= (*child)->momentum().phi();
+                                        //double px = (*child)->momentum().px();
+                                        //double py = (*child)->momentum().py();
+					double pz = (*child)->momentum().pz();
 
-					//LogStream << MSG::DEBUG << "particle barcode = " << (*child)->barcode() << endreq;
-					//LogStream << MSG::DEBUG << "particle pdg = " << (*child)->pdg_id() << endreq;
-					//LogStream << MSG::DEBUG << "particle status = " << (*child)->status() << endreq;
-					//LogStream << MSG::DEBUG << " *  px = " << px << ", py = " << py << ", pz =" << pz << endreq;
-					//LogStream << MSG::DEBUG << " " << endreq;
+					//LogStream << MSG::DEBUG << "particle barcode = " << (*child)->barcode() << endmsg;
+					//LogStream << MSG::DEBUG << "particle pdg = " << (*child)->pdg_id() << endmsg;
+					//LogStream << MSG::DEBUG << "particle status = " << (*child)->status() << endmsg;
+					//LogStream << MSG::DEBUG << " *  px = " << px << ", py = " << py << ", pz =" << pz << endmsg;
+					//LogStream << MSG::DEBUG << " " << endmsg;
 
 					//if ((*child == genEvt->beam_particles().first) || (*child == genEvt->beam_particles().second))
 					//{
@@ -255,8 +252,8 @@ namespace D3PD {
 								(*m_pvecPBeam1_i_phi)[coll_counter-1] = pi1->momentum().phi();
 								(*m_pvecPBeam1_i_pz)[coll_counter-1] = pi1->momentum().pz();
 								(*m_pvecPBeam1_i_E)[coll_counter-1] = pi1->momentum().e();
-								//LogStream << MSG::DEBUG << "initial particle 1: px = " <<(*m_pvecPBeam1_i)[1] << ", py = " << (*m_pvecPBeam1_i)[2] << ", pz = " << (*m_pvecPBeam1_i)[3] << ", E = " << (*m_pvecPBeam1_i)[0] << endreq;
-								//LogStream << MSG::DEBUG << " ** " << endreq;
+								//LogStream << MSG::DEBUG << "initial particle 1: px = " <<(*m_pvecPBeam1_i)[1] << ", py = " << (*m_pvecPBeam1_i)[2] << ", pz = " << (*m_pvecPBeam1_i)[3] << ", E = " << (*m_pvecPBeam1_i)[0] << endmsg;
+								//LogStream << MSG::DEBUG << " ** " << endmsg;
 							}
 
 							if(pz < 0){
@@ -265,12 +262,12 @@ namespace D3PD {
 								(*m_pvecPBeam2_i_phi)[coll_counter-1] = pi2->momentum().phi();
 								(*m_pvecPBeam2_i_pz)[coll_counter-1] = pi2->momentum().pz();
 								(*m_pvecPBeam2_i_E)[coll_counter-1] = pi2->momentum().e();
-								//LogStream << MSG::DEBUG << "initial particle 2: px = " << (*m_pvecPBeam2_i)[1] << ", py = " << (*m_pvecPBeam2_i)[2] << ", pz = " << (*m_pvecPBeam2_i)[3] << ", E = " << (*m_pvecPBeam2_i)[0] << endreq;
-								//LogStream << MSG::DEBUG << " ** " << endreq;
+								//LogStream << MSG::DEBUG << "initial particle 2: px = " << (*m_pvecPBeam2_i)[1] << ", py = " << (*m_pvecPBeam2_i)[2] << ", pz = " << (*m_pvecPBeam2_i)[3] << ", E = " << (*m_pvecPBeam2_i)[0] << endmsg;
+								//LogStream << MSG::DEBUG << " ** " << endmsg;
 							}
 
-							if(pint > 2) {LogStream << MSG::DEBUG << "Strange: More than two incoming protons in this event! (depends what is simulated)" << endreq;}
-							LogStream << MSG::DEBUG << "pint = " << pint << endreq;
+							if(pint > 2) {LogStream << MSG::DEBUG << "Strange: More than two incoming protons in this event! (depends what is simulated)" << endmsg;}
+							LogStream << MSG::DEBUG << "pint = " << pint << endmsg;
 
 							// we know we have interaction vertex (==4), outgoing protons at the interaction point; 2 will be just in case of elastic or exlusive processes(and if no additional protons are produced)
 
@@ -305,14 +302,14 @@ namespace D3PD {
 								}
 							}
 
-							if(pcount > 2) {LogStream << MSG::DEBUG << "More than two outcoming protons in this event; not possible for elastic scaterring!" << endreq;}
-							LogStream << MSG::DEBUG << "pcount = " << pcount << endreq;
+							if(pcount > 2) {LogStream << MSG::DEBUG << "More than two outcoming protons in this event; not possible for elastic scaterring!" << endmsg;}
+							LogStream << MSG::DEBUG << "pcount = " << pcount << endmsg;
 						}
 					}
 				}
 			}
 
-			LogStream << MSG::INFO << "MARK03" << endreq;
+			LogStream << MSG::INFO << "MARK03" << endmsg;
 			//transported/simulated particles and vertices
 			begGenVtxItr = (**mcTruBeg).vertices_begin();
 
@@ -333,18 +330,18 @@ namespace D3PD {
 				child = (*begGenVtxItr)->particles_begin(HepMC::family);
 				child_end = (*begGenVtxItr)->particles_end(HepMC::family);
 
-				px = (*child)->momentum().px();
-				py = (*child)->momentum().py();
-				pz = (*child)->momentum().pz();
-				E  = (*child)->momentum().e();
-				phi= (*child)->momentum().phi();
-				m  = (*child)->momentum().m();
+				double px = (*child)->momentum().px();
+				double py = (*child)->momentum().py();
+				double pz = (*child)->momentum().pz();
+				double E  = (*child)->momentum().e();
+				double phi= (*child)->momentum().phi();
+				double m  = (*child)->momentum().m();
 
-				LogStream << MSG::DEBUG << "particle barcode = " << (*child)->barcode() << endreq;
-				LogStream << MSG::DEBUG << "particle pdg = " << (*child)->pdg_id() << endreq;
-				LogStream << MSG::DEBUG << "particle status = " << (*child)->status() << endreq;
-				LogStream << MSG::DEBUG << " *  px = " << px << ", py = " << py << ", pz =" << pz << endreq;
-				LogStream << MSG::DEBUG << " " << endreq;
+				LogStream << MSG::DEBUG << "particle barcode = " << (*child)->barcode() << endmsg;
+				LogStream << MSG::DEBUG << "particle pdg = " << (*child)->pdg_id() << endmsg;
+				LogStream << MSG::DEBUG << "particle status = " << (*child)->status() << endmsg;
+				LogStream << MSG::DEBUG << " *  px = " << px << ", py = " << py << ", pz =" << pz << endmsg;
+				LogStream << MSG::DEBUG << " " << endmsg;
 
 				for(; child != child_end; ++child) {
 
@@ -391,7 +388,7 @@ namespace D3PD {
 				}
 			}
 
-			LogStream << MSG::INFO << "MARK04" << endreq;
+			LogStream << MSG::INFO << "MARK04" << endmsg;
 			if ((pi1 != 0) && (pi2 != 0) && (p1 != 0) && (p2 != 0) && (pint == 2) && (pcount == 2)){ //this check works only for elastic
 
 				//b_vtx_kin_fill_flag = true;
@@ -409,18 +406,18 @@ namespace D3PD {
 
 					t_13 = (hp1-hp3).m2();
 					t_24 = (hp2-hp4).m2();
-					LogStream << MSG::DEBUG << " ******************************************************* " << endreq;
-					LogStream << MSG::DEBUG << " " << endreq;
-					LogStream << MSG::DEBUG << " t_13 = " << t_13 << endreq;
-					LogStream << MSG::DEBUG << " t_24 = " << t_24 << endreq;
-					LogStream << MSG::DEBUG << " " << endreq;
-					LogStream << MSG::DEBUG << " ******************************************************* " << endreq;
+					LogStream << MSG::DEBUG << " ******************************************************* " << endmsg;
+					LogStream << MSG::DEBUG << " " << endmsg;
+					LogStream << MSG::DEBUG << " t_13 = " << t_13 << endmsg;
+					LogStream << MSG::DEBUG << " t_24 = " << t_24 << endmsg;
+					LogStream << MSG::DEBUG << " " << endmsg;
+					LogStream << MSG::DEBUG << " ******************************************************* " << endmsg;
 					*/
 
 			}
 		}
 
-		LogStream << MSG::INFO << "MARK05" << endreq;
+		LogStream << MSG::INFO << "MARK05" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 

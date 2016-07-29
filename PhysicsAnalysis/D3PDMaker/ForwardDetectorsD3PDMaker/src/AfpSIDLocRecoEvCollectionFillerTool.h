@@ -27,15 +27,15 @@ namespace D3PD
 
     private:
         int* m_pnTotTracksCnt;
-        vector<int>* m_pvecTrackStationID;
-        vector<float>* m_pvecTrackXPos;
-        vector<float>* m_pvecTrackYPos;
-        vector<float>* m_pvecTrackZPos;
-        vector<float>* m_pvecTrackXSlope;
-        vector<float>* m_pvecTrackYSlope;
-        vector<int>* m_pvecTrackUsedPixels;
-        vector<int>* m_pvecTrackHoles;
-        vector<float>* m_pvecTrackQuality;
+        std::vector<int>* m_pvecTrackStationID;
+        std::vector<float>* m_pvecTrackXPos;
+        std::vector<float>* m_pvecTrackYPos;
+        std::vector<float>* m_pvecTrackZPos;
+        std::vector<float>* m_pvecTrackXSlope;
+        std::vector<float>* m_pvecTrackYSlope;
+        std::vector<int>* m_pvecTrackUsedPixels;
+        std::vector<int>* m_pvecTrackHoles;
+        std::vector<float>* m_pvecTrackQuality;
     };
 }
 

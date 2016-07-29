@@ -27,12 +27,12 @@ namespace D3PD
 
     private:
         int* m_pnTotTracksCnt;
-        vector<int>* m_pvecTrackStationID;
-        vector<int>* m_pvecTrackQuarticID;
-        vector<int>* m_pvecTrackTrainID;
-        vector<float>* m_pvecTrackTrainTime;
-        vector<float>* m_pvecTrackTrainAmplitude;
-        vector<int>* m_pvecTrackSaturatedBars;
+        std::vector<int>* m_pvecTrackStationID;
+        std::vector<int>* m_pvecTrackQuarticID;
+        std::vector<int>* m_pvecTrackTrainID;
+        std::vector<float>* m_pvecTrackTrainTime;
+        std::vector<float>* m_pvecTrackTrainAmplitude;
+        std::vector<int>* m_pvecTrackSaturatedBars;
     };
 }
 
