@@ -2,7 +2,7 @@
 
 from AthenaCommon import CfgMgr
 from AthenaCommon import CfgGetter
-
+#FIXME no need for all these getPrivateTool calls.
 def getPileUpMergeSvc(name="PileUpMergeSvc", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
     if not digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
@@ -48,8 +48,8 @@ def getPileUpMergeSvc(name="PileUpMergeSvc", **kwargs):
             IntervalsList += [ CfgGetter.getPrivateTool("LArRangeEM",     checkType=True) ]
             IntervalsList += [ CfgGetter.getPrivateTool("LArRangeHEC",    checkType=True) ]
             IntervalsList += [ CfgGetter.getPrivateTool("LArRangeFCAL",   checkType=True) ]
-        if hasattr(DetFlags.pileup, 'HGTD_on') and DetFlags.pileup.HGTD_on():
-            IntervalsList += [ CfgGetter.getPrivateTool("HGTDRange",      checkType=True) ]
+        if hasattr(DetFlags.pileup, 'HGTD_on') and DetFlags.pileup.HGTD_on(): # No HGTD in Overlay samples (yet!)
+            IntervalsList += [ CfgGetter.getPrivateTool("LArRangeHGTD",   checkType=True) ]
         if DetFlags.pileup.Tile_on():
             IntervalsList += [ CfgGetter.getPrivateTool("TileRange",      checkType=True) ]
         ## Muon System Digitization
