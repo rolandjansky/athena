@@ -44,6 +44,7 @@ atlas_add_library( Pythia8_iLib
                    src/UserHooks/ISRVetoedShower.cxx
                    src/UserHooks/PTRelVetoedShower.cxx
                    src/UserHooks/WprimeFlat.cxx
+                   src/UserHooks/ZprimeFlatpT.cxx
                    src/UserHooks/WprimeWZFlat.cxx
                    src/UserHooks/main31.cxx
                    src/UserResonances/ResonanceExcitedCI.cxx
