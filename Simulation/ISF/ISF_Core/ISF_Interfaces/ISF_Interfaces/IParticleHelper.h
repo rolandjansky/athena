@@ -16,7 +16,7 @@
 #include "ISF_Event/SimSvcID.h" 
 
 // Barcode includes
-#include "BarcodeInterfaces/Barcode.h"
+#include "BarcodeEvent/Barcode.h"
 
 // Amg includes
 #include "GeoPrimitives/GeoPrimitives.h"
