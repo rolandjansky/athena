@@ -205,7 +205,7 @@ StatusCode JetMomentFillerTool::fill(const Jet& p)
         if(fabs(momentValNow)<1e-50)
           momentValNow = calculateOotFracMoment(&p,momentNameNow);
         else
-          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Out-of-time cluster/cell moemnt already computed: " << momentNameNow <<"\t"<< momentValNow << endreq;
+          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Out-of-time cluster/cell moemnt already computed: " << momentNameNow <<"\t"<< momentValNow << endmsg;
       }
       *m_momentValues[i]  = momentValNow;
     }
@@ -238,7 +238,7 @@ double JetMomentFillerTool::calculateOotFracMoment(const Jet* jet, std::string m
     momentVal = jetOutOfTimeEnergyFractionClusters(jet,timeCut,m_timingMomentsOnlyPosE);
 
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Compute out-of-time cluster energy fraction moment: "
-                                           << momentName <<" \twith time-cut " << timeCut << " : "<< momentVal << endreq;
+                                           << momentName <<" \twith time-cut " << timeCut << " : "<< momentVal << endmsg;
   }
 
   // if calculating cell moment such as with name ootFracCells5
@@ -250,7 +250,7 @@ double JetMomentFillerTool::calculateOotFracMoment(const Jet* jet, std::string m
     momentVal = jetOutOfTimeEnergyFraction(jet,timeCut,m_timingMomentsOnlyPosE);
 
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Compute out-of-time cell energy fraction moment: "
-                                           << momentName <<" \twith time-cut " << timeCut << " : "<< momentVal << endreq;
+                                           << momentName <<" \twith time-cut " << timeCut << " : "<< momentVal << endmsg;
   }
 
   return  momentVal;

@@ -86,7 +86,7 @@ const Rec::TrackParticle* FlavorAssociationTool::next()
   else
     {
       const Rec::TrackParticle* obj= *m_trkItr;
-      *m_trkItr++;
+      ++m_trkItr;
       return obj;
     }
   return 0;
