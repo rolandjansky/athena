@@ -99,7 +99,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
         if(m_msgSvc) {
             MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
             log << MSG::WARNING << "initialize_from_dictionary - cannot access InnerDetector dictionary "
-                << endreq;
+                << endmsg;
         }
         else {
             std::cout << " AtlasDetectorIDHelper::initialize_from_dictionary - Warning: cannot access InnerDetector dictionary "
@@ -117,7 +117,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::WARNING << "initialize_from_dictionary - unable to find pixel region index: id, reg "  
                     << (std::string)id << " " << m_pixel_region_index
-                    << endreq;
+                    << endmsg;
             }
             else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find pixel region index: id, reg "  
@@ -137,7 +137,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
                     MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                     log << MSG::WARNING << "initialize_from_dictionary - unable to find sct region index: id, reg "  
                         << (std::string)id << " " << m_sct_region_index
-                        << endreq;
+                        << endmsg;
                 }
                 else {
                     std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find sct region index: id, reg "  
@@ -153,7 +153,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
                     MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                     log << MSG::WARNING << "initialize_from_dictionary - unable to find trt region index: id, reg "  
                         << (std::string)id << " " << m_trt_region_index
-                        << endreq;
+                        << endmsg;
                 }
                 else {
                     std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find trt region index: id, reg "  
@@ -169,7 +169,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
         if(m_msgSvc) {
             MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
             log << MSG::WARNING << "initialize_from_dictionary - cannot access LArCalorimeter dictionary "
-                << endreq;
+                << endmsg;
         }
         else {
             std::cout << " AtlasDetectorIDHelper::initialize_from_dictionary - Warning: cannot access LArCalorimeter dictionary "
@@ -185,7 +185,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::WARNING << "initialize_from_dictionary - unable to find lar_em region index: id, reg "  
                     << (std::string)id << " " << m_lar_em_region_index
-                    << endreq;
+                    << endmsg;
             }
             else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find lar_em region index: id, reg "  
@@ -201,7 +201,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::WARNING << "initialize_from_dictionary - unable to find lar_hec region index: id, reg "  
                     << (std::string)id << " " << m_lar_hec_region_index
-                    << endreq;
+                    << endmsg;
             }
             else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find lar_hec region index: id, reg "  
@@ -217,7 +217,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::WARNING << "initialize_from_dictionary - unable to find lar_fcal region index: id, reg "  
                     << (std::string)id << " " << m_lar_fcal_region_index
-                    << endreq;
+                    << endmsg;
             }
             else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find lar_fcal region index: id, reg "  
@@ -233,7 +233,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
         if(m_msgSvc) {
             MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
             log << MSG::WARNING << "initialize_from_dictionary - cannot access Calorimeter dictionary "
-                << endreq;
+                << endmsg;
         }
         else {
             std::cout << " AtlasDetectorIDHelper::initialize_from_dictionary - Warning: cannot access Calorimeter dictionary "
@@ -251,7 +251,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
             if(m_msgSvc) {
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::WARNING << "initialize_from_dictionary - unable to find lvl1 region "  
-                    << endreq;
+                    << endmsg;
             }
             else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find lvl1 region "  
@@ -268,7 +268,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
             if(m_msgSvc) {
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::WARNING << "initialize_from_dictionary - unable to find dead material region "  
-                    << endreq;
+                    << endmsg;
             }
             else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find dead material region "  
@@ -282,7 +282,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
         if(m_msgSvc) {
             MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
             log << MSG::WARNING << "initialize_from_dictionary - cannot access TileCalorimeter dictionary "
-                << endreq;
+                << endmsg;
         }
         else {
             std::cout << " AtlasDetectorIDHelper::initialize_from_dictionary - Warning: cannot access TileCalorimeter dictionary "
@@ -297,7 +297,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
             if(m_msgSvc) {
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::WARNING << "initialize_from_dictionary - unable to find tile region index: id, reg "  
-                    << endreq;
+                    << endmsg;
             }
             else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find tile region index: id, reg "  
@@ -312,7 +312,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
         if(m_msgSvc) {
             MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
             log << MSG::WARNING << "initialize_from_dictionary - cannot access MuonSpectrometer dictionary "
-                << endreq;
+                << endmsg;
         }
         else {
             std::cout << " AtlasDetectorIDHelper::initialize_from_dictionary - Warning: cannot access MuonSpectrometer dictionary "
@@ -326,7 +326,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
             if(m_msgSvc) {
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::WARNING << "initialize_from_dictionary - cannot access stationName field "
-                    << endreq;
+                    << endmsg;
             }
             else {
                 std::cout << " AtlasDetectorIDHelper::initialize_from_dictionary - Warning: cannot access stationName field "
@@ -357,7 +357,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::WARNING << "initialize_from_dictionary - unable to find mdt region index: group, region size "  
                     << group << " " << size
-                    << endreq;
+                    << endmsg;
             }
             else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mdt region index: group, region size "  
@@ -382,7 +382,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::DEBUG << "initialize_from_dictionary - unable to find csc region index: group, region size "  
                     << group << " " << size
-                    << endreq;
+                    << endmsg;
             }
             else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find csc region index: group, region size "  
@@ -407,7 +407,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::WARNING << "initialize_from_dictionary - unable to find rpc region index: group, region size "  
                     << group << " " << size
-                    << endreq;
+                    << endmsg;
             }
             else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find rpc region index: group, region size "  
@@ -432,7 +432,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::WARNING << "initialize_from_dictionary - unable to find tgc region index: group, region size "  
                     << group << " " << size
-                    << endreq;
+                    << endmsg;
             }
             else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find tgc region index: group, region size "  
@@ -457,7 +457,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::DEBUG << "initialize_from_dictionary - unable to find mm region index: group, region size "  
                     << group << " " << size
-                    << endreq;
+                    << endmsg;
             }
             else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size "  
@@ -482,7 +482,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::DEBUG << "initialize_from_dictionary - unable to find stgc region index: group, region size "  
                     << group << " " << size
-                    << endreq;
+                    << endmsg;
             }
             else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size "  
@@ -498,7 +498,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
         if(m_msgSvc) {
             MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
             log << MSG::WARNING << "initialize_from_dictionary - cannot access ForwardDetectors dictionary "
-                << endreq;
+                << endmsg;
         }
         else {
             std::cout << " AtlasDetectorIDHelper::initialize_from_dictionary - Warning: cannot access ForwardDetectors dictionary "
@@ -514,7 +514,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::WARNING << "initialize_from_dictionary - unable to find alfa region index: id, reg "  
                     << (std::string)id << " " << m_alfa_region_index
-                    << endreq;
+                    << endmsg;
             }
             else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find alfa region index: id, reg "  
@@ -530,7 +530,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::WARNING << "initialize_from_dictionary - unable to find bcm region index: id, reg "  
                     << (std::string)id << " " << m_bcm_region_index
-                    << endreq;
+                    << endmsg;
             }
             else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find bcm region index: id, reg "  
@@ -546,7 +546,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::WARNING << "initialize_from_dictionary - unable to find lucid region index: id, reg "  
                     << (std::string)id << " " << m_lucid_region_index
-                    << endreq;
+                    << endmsg;
             }
             else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find lucid region index: id, reg "  
@@ -562,7 +562,7 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::WARNING << "initialize_from_dictionary - unable to find zdc region index: id, reg "  
                     << (std::string)id << " " << m_zdc_region_index
-                    << endreq;
+                    << endmsg;
             }
             else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find zdc region index: id, reg "  
