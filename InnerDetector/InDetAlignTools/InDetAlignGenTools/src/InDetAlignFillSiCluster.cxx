@@ -72,16 +72,16 @@ StatusCode InDetAlignFillSiCluster::initialize() {
   // ID Helper
   
   if (detStore()->retrieve(m_sctID, "SCT_ID").isFailure()){
-    msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
-  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT ID is : "<< m_sctID <<endreq ;
+  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT ID is : "<< m_sctID <<endmsg ;
   
   if (detStore()->retrieve(m_pixelid, "PixelID").isFailure()){
-    msg(MSG::FATAL) << "Could not get PIXEL ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get PIXEL ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
-  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel ID is : " << m_pixelid << endreq;
+  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel ID is : " << m_pixelid << endmsg;
   
   // get SCTDetectorManager
   const InDetDD::SCT_DetectorManager* mgr;
@@ -90,7 +90,7 @@ StatusCode InDetAlignFillSiCluster::initialize() {
     return StatusCode::FAILURE;
   }
   else ATH_MSG_DEBUG ("Manager found!");
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"SCT ID is : "<< m_sctID << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"SCT ID is : "<< m_sctID << endmsg;
   
   // get PixelDetectorManager
   const InDetDD::PixelDetectorManager* pixelmgr;
@@ -109,7 +109,7 @@ StatusCode InDetAlignFillSiCluster::initialize() {
   
   bookNtuple();
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialize() of FillSiCluster successful" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialize() of FillSiCluster successful" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -120,12 +120,12 @@ StatusCode InDetAlignFillSiCluster::initialize() {
 StatusCode InDetAlignFillSiCluster::finalize() {
   
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "Finalize() of FillSiCluster" << endreq;
-    msg(MSG::DEBUG) << "________________________________________________________" << endreq;
-    msg(MSG::DEBUG) << endreq;
-    msg(MSG::DEBUG) << " InDetAlignFillSiCluster Summary: " << endreq;
-    msg(MSG::DEBUG) << "________________________________________________________" << endreq;
-    msg(MSG::DEBUG) << endreq;   
+    msg(MSG::DEBUG) << "Finalize() of FillSiCluster" << endmsg;
+    msg(MSG::DEBUG) << "________________________________________________________" << endmsg;
+    msg(MSG::DEBUG) << endmsg;
+    msg(MSG::DEBUG) << " InDetAlignFillSiCluster Summary: " << endmsg;
+    msg(MSG::DEBUG) << "________________________________________________________" << endmsg;
+    msg(MSG::DEBUG) << endmsg;   
   }
 
   return StatusCode::SUCCESS;
@@ -137,7 +137,7 @@ StatusCode InDetAlignFillSiCluster::finalize() {
 //===================================================================== 
 StatusCode InDetAlignFillSiCluster::FillSiCluster() {
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In FillSiCluster()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In FillSiCluster()" << endmsg;
 
   StatusCode sc;
 
@@ -149,7 +149,7 @@ StatusCode InDetAlignFillSiCluster::FillSiCluster() {
     
   std::string nt0id = m_ntupleName + "/SiCluster";
   sc = m_ntupleSvc->writeRecord(nt0id);
-  if (sc.isFailure()) if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not write " << nt0id << "!" << endreq;
+  if (sc.isFailure()) if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not write " << nt0id << "!" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -206,7 +206,7 @@ void InDetAlignFillSiCluster::bookNtuple() {
       m_sct_nclusters = 0;
       // ----------------------------------------------------------------------
     
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ntuple " << nt0id << " has been booked successfully! " << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ntuple " << nt0id << " has been booked successfully! " << endmsg;
     }
     else
       ATH_MSG_ERROR ("Error booking ntuple");
@@ -304,20 +304,20 @@ void InDetAlignFillSiCluster::FillSCTSiNtuple() {
 	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " strips: (" << m_sctID->strip(clId) - GroupSize
 		<< "," << m_sctID->strip(clId)
 		<< ") - GroupSize: " << GroupSize
-		<< endreq;
+		<< endmsg;
 	}
 	else {
 	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " strip: (" << m_sctID->strip(clId)
 		<< ") - GroupSize: " << GroupSize
-		<< endreq;
+		<< endmsg;
 	}
 
       }
       m_sct_nclusters++;
     }
-    // if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "number of clusters: " << m_sct_nclusters << endreq;
+    // if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "number of clusters: " << m_sct_nclusters << endmsg;
   }
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT Clusters: " << m_sct_nclusters << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT Clusters: " << m_sct_nclusters << endmsg;
   return;
 }
 
@@ -374,14 +374,14 @@ void InDetAlignFillSiCluster::FillPixelSiNtuple() {
 		<< m_pixel_phi[m_pixel_nclusters] << "] - ("
 		<< m_pixel_LocX[m_pixel_nclusters] << ","
 		<< m_pixel_LocY[m_pixel_nclusters] << ")"
-		<< " Groupsize: " << GroupSize << endreq;
+		<< " Groupsize: " << GroupSize << endmsg;
 	}
 
       }
       m_pixel_nclusters++;
     }
   }
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel Clusters: " << m_pixel_nclusters << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel Clusters: " << m_pixel_nclusters << endmsg;
   
   return;
 }
