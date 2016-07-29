@@ -2,10 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
+#include "ALFA_RawDataByteStreamCnv/ALFAEventBitInfo.h"
 #include "ALFA_RawDataByteStreamCnv/ALFA_Decoder.h"
-
+#include "eformat/Issue.h"
+#include "xAODEventInfo/EventInfo.h"
 #include <algorithm>
+
+using xAOD::EventInfo;
 
 static const InterfaceID IID_IALFA_Decoder ("ALFA_Decoder", 1, 0);
 const InterfaceID& ALFA_Decoder::interfaceID()
@@ -20,7 +23,7 @@ const InterfaceID& ALFA_Decoder::interfaceID()
 ALFA_Decoder::ALFA_Decoder ( const std::string& type, const std::string& name,const IInterface* parent)
   : AthAlgTool(type,name,parent),
     m_robDataProvider ("ROBDataProviderSvc",name)
-				 //,m_EvtStore(0) , m_ALFA_RawDataContainerReadOut(0), m_ALFA_RawDataCollectionReadOut(0), m_ALFA_RawDataReadOut(0)
+    //,m_EvtStore(0) , m_ALFA_RawDataContainerReadOut(0), m_ALFA_RawDataCollectionReadOut(0), m_ALFA_RawDataReadOut(0)
 {
   declareInterface<ALFA_Decoder>(this);
 
@@ -45,21 +48,21 @@ StatusCode ALFA_Decoder::initialize()
 
   StatusCode sc;
   sc = AthAlgTool::initialize();
-  msg(MSG::DEBUG) << " ALFA_RoDDecoder::initialize" << endreq;
+  msg(MSG::DEBUG) << " ALFA_RoDDecoder::initialize" << endmsg;
   if (sc.isFailure()) return sc;
 
   // Get ROBDataProviderSvc
   if (m_robDataProvider.retrieve().isFailure())
     {
-      msg(MSG::FATAL) << "Failed to retrieve service " << m_robDataProvider << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve service " << m_robDataProvider << endmsg;
       return StatusCode::FAILURE;
     } else
-    msg(MSG::DEBUG) << "Retrieved service " << m_robDataProvider << endreq;
+    msg(MSG::DEBUG) << "Retrieved service " << m_robDataProvider << endmsg;
 
 
   if(StatusCode::SUCCESS !=serviceLocator()->service("StoreGateSvc", m_EvtStore))
     {
-      msg(MSG::FATAL) <<"Can't get StoreGateSvc "<< endreq;
+      msg(MSG::FATAL) <<"Can't get StoreGateSvc "<< endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -87,9 +90,9 @@ StatusCode ALFA_Decoder::initialize()
 StatusCode ALFA_Decoder::finalize()
 {
 
-  msg(MSG::DEBUG) << " ALFA_RoDDecoder::FINALIZE" << endreq;
+  msg(MSG::DEBUG) << " ALFA_RoDDecoder::FINALIZE" << endmsg;
 
-  msg(MSG::DEBUG) << " Bytestream summary:" << m_fragment_number << " fragments found" << endreq;
+  msg(MSG::DEBUG) << " Bytestream summary:" << m_fragment_number << " fragments found" << endmsg;
 
 
   delete m_ALFA_RawDataReadOut;
@@ -106,7 +109,7 @@ StatusCode ALFA_Decoder::finalize()
 ////////////////////////
 StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawDataContainer* rdoCont, std::vector<unsigned int>* )
 {
-  msg(MSG::DEBUG) << " ALFA_RoDDecoder::fillCollection" << endreq;
+  msg(MSG::DEBUG) << " ALFA_RoDDecoder::fillCollection" << endmsg;
 
   ALFA_RawDataCollection* collection = 0;
 
@@ -133,7 +136,7 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
 
   std::vector<bool> tmpLvl1Pattern;
   std::vector<bool> tmpLvl2Pattern;
-	std::vector<bool> tmpEFPattern;
+  std::vector<bool> tmpEFPattern;
   uint32_t wo=0;
 
   uint32_t EcrId=1;
@@ -141,39 +144,56 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
 
   uint32_t Count_evt=0;
 
-
   int n=0;
 
+
+  // retrieve EventInfo
+  const EventInfo* eventInfo_c=0;
+  StatusCode sc = evtStore()->retrieve(eventInfo_c);
+  if (sc.isFailure()) {
+    ATH_MSG_WARNING (" cannot retrieve EventInfo, will not set ALFA bit information ");
+  }
+  
+  EventInfo* eventInfo=0;
+  if (eventInfo_c)
+    eventInfo = const_cast<EventInfo*>(eventInfo_c);
+
   // Check the ROB and ROD fragment for lenght and version consistency
-  /*
-    try
+
+  try
     {
-    robFrag->check();
+      robFrag->check();
     }
 
-    catch (eformat::Issue &ex)
+  catch (eformat::Issue &ex)
     {
-    msg(MSG::DEBUG) <<ex.what ()<< endreq;
-    return StatusCode::FAILURE;  // error in fragment - we search for no collection
+      msg(MSG::WARNING) <<ex.what ()<< endmsg;
+      if (!eventInfo->setErrorState(EventInfo::ForwardDet, EventInfo::Error))
+	msg(MSG::WARNING) <<"Cannot set ALFA error state"<< endmsg;
+      return StatusCode::SUCCESS;  // error in fragment - we search for no collection
     }
 
-    // Check the ROB status word for truncation or corruption.
+  // Check the ROB status word for truncation or corruption.
 
-    uint32_t nstat = robFrag->nstatus();
+  uint32_t nstat = robFrag->nstatus();
 
-    if (nstat)
+  if (nstat)
     {
-    const uint32_t *it;
-    robFrag->status (it);
+      const uint32_t *it;
+      robFrag->status (it);
 
 
-    if (*it)
-    {
-    msg(MSG::DEBUG) << " Error in ROB status word: 0x" << endreq;
-    return StatusCode::FAILURE;
+      if (*it)
+	{
+	  msg(MSG::WARNING) << " Error in ROB status word: 0x" << endmsg;
+	  if (!eventInfo->setErrorState(EventInfo::ForwardDet, EventInfo::Error))
+	    msg(MSG::WARNING) <<"Cannot set ALFA error state"<< endmsg;
+	  if (!eventInfo->setEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::ROB_ERROR))
+	    msg(MSG::WARNING) <<"Cannot set event bit info for ALFA"<< endmsg;
+
+	  return StatusCode::SUCCESS;
+	}
     }
-    }
-  */
 
   // set the data pointer type
 
@@ -191,33 +211,33 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
   uint32_t ROD_LVL1_ID  = robFrag->rod_lvl1_id();
 
   msg(MSG::DEBUG) << "============================" << std::endl;
-  msg(MSG::DEBUG) << "Frag Size  : " << robFrag->rod_fragment_size_word() << endreq;
-  msg(MSG::DEBUG) << "Header Size: " << robFrag->rod_header_size_word() << endreq;
-  msg(MSG::DEBUG) << "Source  ID : " << m_ROD_source_ID << endreq;
-  msg(MSG::DEBUG) << "Run num    : " << robFrag->rod_run_no() << endreq;
-  msg(MSG::DEBUG) << "Version    : " << robFrag->rod_version() << endreq;
-  msg(MSG::DEBUG) << " ROD_LVL1_ID " << ROD_LVL1_ID <<  endreq;
+  msg(MSG::DEBUG) << "Frag Size  : " << robFrag->rod_fragment_size_word() << endmsg;
+  msg(MSG::DEBUG) << "Header Size: " << robFrag->rod_header_size_word() << endmsg;
+  msg(MSG::DEBUG) << "Source  ID : " << m_ROD_source_ID << endmsg;
+  msg(MSG::DEBUG) << "Run num    : " << robFrag->rod_run_no() << endmsg;
+  msg(MSG::DEBUG) << "Version    : " << robFrag->rod_version() << endmsg;
+  msg(MSG::DEBUG) << " ROD_LVL1_ID " << ROD_LVL1_ID <<  endmsg;
   msg(MSG::DEBUG) << "============================" << std::endl;
 
-  // msg(MSG::INFO) << "ROD Time_StampID " <<robFrag->bc_time_seconds() <<  endreq;
+  // msg(MSG::INFO) << "ROD Time_StampID " <<robFrag->bc_time_seconds() <<  endmsg;
 
 
   uint32_t evt_Id = ((robFrag->rod_lvl1_id()) & 0xFF000000) >> 24;
   uint32_t lvl1_Id = ((robFrag->rod_lvl1_id()) & 0x00FFFFFF) ;
 
 
-  msg(MSG::DEBUG) <<" evt_Id    : " <<  evt_Id << " lvl1_Id    : " <<  lvl1_Id <<endreq;
+  msg(MSG::DEBUG) <<" evt_Id    : " <<  evt_Id << " lvl1_Id    : " <<  lvl1_Id <<endmsg;
 
-  /*msg(MSG::DEBUG) << " **********Decoder dumping the words******** "<< endreq;
+  /*msg(MSG::DEBUG) << " **********Decoder dumping the words******** "<< endmsg;
 
-  if (size > 0) {
-  msg(MSG::DEBUG) << " The size of this ROD-read is "<< endreq;
-  for (unsigned int i=0; i < size; i++)
-  msg(MSG::DEBUG) << " word " << i << " = " << MSG::hex << vint[i] << MSG::dec<< endreq;
-  } else {
-  msg(MSG::DEBUG) << " Buffer size 0 ! "<< endreq;
-  return StatusCode::FAILURE;
-  }*/
+    if (size > 0) {
+    msg(MSG::DEBUG) << " The size of this ROD-read is "<< endmsg;
+    for (unsigned int i=0; i < size; i++)
+    msg(MSG::DEBUG) << " word " << i << " = " << MSG::hex << vint[i] << MSG::dec<< endmsg;
+    } else {
+    msg(MSG::DEBUG) << " Buffer size 0 ! "<< endmsg;
+    return StatusCode::FAILURE;
+    }*/
 
 
   m_ALFA_RawDataCollectionReadOut->decodeWord(vint[wordPos]);
@@ -245,20 +265,20 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
   Count_evt++;
   //if (Count_evt == maxEvt) break;
 
-  msg(MSG::DEBUG) << " Event_num " << Event_num << " Count_evt " << Count_evt <<  endreq;
+  msg(MSG::DEBUG) << " Event_num " << Event_num << " Count_evt " << Count_evt <<  endmsg;
 
 
 
 
   if (m_ALFA_RawDataCollectionReadOut->is_BOB())
     {
-      msg(MSG::DEBUG) << " Found the beginning of buffer "<< endreq;
+      msg(MSG::DEBUG) << " Found the beginning of buffer "<< endmsg;
       // Check that Lvl1d matches the one from the ROD header. this is the number of event.it corresponds to m_ALFA_RawDataReadOut->ecnt_BOT() and m_ALFA_RawDataReadOut->ecnt_EOT()
-      msg(MSG::DEBUG) << " Level 1 Id : " << m_ALFA_RawDataCollectionReadOut->lvl1Id()<< endreq;
+      msg(MSG::DEBUG) << " Level 1 Id : " << m_ALFA_RawDataCollectionReadOut->lvl1Id()<< endmsg;
     }
   else
     {
-      msg(MSG::DEBUG) << " Beginning of block not found BOB "<< endreq;
+      msg(MSG::DEBUG) << " Beginning of block not found BOB "<< endmsg;
     } // BOB
 
 
@@ -272,8 +292,13 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
 	  wordPos += 1;
 	  if (wordPos >= size)
 	    {
-	      msg(MSG::ERROR)<<" Error: data corrupted" << endreq;
-	      return StatusCode::FAILURE;
+	      msg(MSG::WARNING)<<" Error: data corrupted" << endmsg;
+	      if (!eventInfo->setErrorState(EventInfo::ForwardDet, EventInfo::Error))
+		msg(MSG::WARNING) <<"Cannot set ALFA error state"<< endmsg;
+	      if (!eventInfo->setEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::CORRUPTION))
+		msg(MSG::WARNING) <<"Cannot set event bit info for ALFA"<< endmsg;
+	      
+	      return StatusCode::SUCCESS;
 	    }
 	  m_ALFA_RawDataCollectionReadOut->decodeWord(vint[wordPos]);
 	}
@@ -281,23 +306,32 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
 
       if (m_ALFA_RawDataCollectionReadOut->is_BOL())
 	{
-	  msg(MSG::DEBUG) << " Found the beginning of Link BOL"<< endreq;
-	  msg(MSG::DEBUG) << " MrodNum BOL : " << m_ALFA_RawDataCollectionReadOut->MrodNum()<< " RODinput BOL : " <<m_ALFA_RawDataCollectionReadOut->RODinput()<< endreq;
+	  msg(MSG::DEBUG) << " Found the beginning of Link BOL"<< endmsg;
+	  msg(MSG::DEBUG) << " MrodNum BOL : " << m_ALFA_RawDataCollectionReadOut->MrodNum()<< " RODinput BOL : " <<m_ALFA_RawDataCollectionReadOut->RODinput()<< endmsg;
 
 	} // is_BOL()
 
       else if (m_ALFA_RawDataCollectionReadOut->is_EOB())
 	{
-	  msg(MSG::DEBUG)<<" Error: collection not found " << endreq;
-	  return StatusCode::FAILURE;
+	  msg(MSG::WARNING)<<" Error: collection not found " << endmsg;
+	  if (!eventInfo->setErrorState(EventInfo::ForwardDet, EventInfo::Error))
+	    msg(MSG::WARNING) <<"Cannot set ALFA error state"<< endmsg;
+	  if (!eventInfo->setEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::COLL_NOT_FOUND))
+	    msg(MSG::WARNING) <<"Cannot set event bit info for ALFA"<< endmsg;
+	      
+	  return StatusCode::SUCCESS;
 	} // is_EOB()
 
 
       wordPos += 1;
       if (wordPos >= size)
 	{
-	  msg(MSG::ERROR)<<" Error: data corrupted"<< endreq;
-	  return StatusCode::FAILURE;
+	  msg(MSG::WARNING)<<" Error: data corrupted"<< endmsg;
+	  if (!eventInfo->setErrorState(EventInfo::ForwardDet, EventInfo::Error))
+	    msg(MSG::WARNING) <<"Cannot set ALFA error state"<< endmsg;
+	  if (!eventInfo->setEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::CORRUPTION))
+	    msg(MSG::WARNING) <<"Cannot set event bit info for ALFA"<< endmsg;
+	  return StatusCode::SUCCESS;
 	}
 
 
@@ -309,7 +343,7 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
 
 	  uint16_t slotIdNum  = m_ALFA_RawDataReadOut->SlotId();
 
-	  msg(MSG::DEBUG)<<"  Decoding data from Slot Id number : " <<  slotIdNum << endreq;
+	  msg(MSG::DEBUG)<<"  Decoding data from Slot Id number : " <<  slotIdNum << endmsg;
 
 	  ALFA_RawData* rawData;
 
@@ -320,8 +354,13 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
 	      wordPos += 1;
 	      if (wordPos >= size)
 		{
-		  msg(MSG::DEBUG)<<" Error: data corrupted" << endreq;
-		  return StatusCode::FAILURE;
+		  msg(MSG::WARNING)<<" Error: data corrupted" << endmsg;
+		  if (!eventInfo->setErrorState(EventInfo::ForwardDet, EventInfo::Error))
+		    msg(MSG::WARNING) <<"Cannot set ALFA error state"<< endmsg;
+		  if (!eventInfo->setEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::CORRUPTION))
+		    msg(MSG::WARNING) <<"Cannot set event bit info for ALFA"<< endmsg;
+
+		  return StatusCode::SUCCESS;
 		}
 
 	      m_ALFA_RawDataReadOut->decodeWord(vint[wordPos]);
@@ -330,19 +369,16 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
 	      uint16_t WordIdNum;
 	      uint16_t FiberNum;
 
-	      //int  WordId_count;
-
-
 	      if (m_ALFA_RawDataReadOut->is_TDCt() && m_ALFA_RawDataReadOut->bit26_27()==0 &&  m_ALFA_RawDataReadOut->bit16()==false && m_ALFA_RawDataReadOut->bit18()==false )
 		{
 
-		  //msg(MSG::DEBUG)<<" DECODER : PMFId  " <<  m_ALFA_RawDataReadOut->PMFId() <<  " MBId  " << m_ALFA_RawDataReadOut->MBId() << endreq;
+		  //msg(MSG::DEBUG)<<" DECODER : PMFId  " <<  m_ALFA_RawDataReadOut->PMFId() <<  " MBId  " << m_ALFA_RawDataReadOut->MBId() << endmsg;
 
 
 		  if(m_ALFA_RawDataReadOut->PMFId() ==0 && m_ALFA_RawDataReadOut->WordId() ==0)  //PMF0 contains the information on wich MB is readen
 		    {
 
-		      msg(MSG::DEBUG) << " Creation of the new collection"<< endreq;
+		      msg(MSG::DEBUG) << " Creation of the new collection"<< endmsg;
 
 		      tmpMB = m_ALFA_RawDataReadOut->fiber();
 
@@ -360,7 +396,7 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
 			      collection = getCollection(MBIdNum,rdoCont );
 			      if(collection) collection->SetMBId_POT(MBIdNum);
 
-			      msg(MSG::DEBUG)<<"  DECODER : MBIdNum  " <<  MBIdNum << endreq;
+			      msg(MSG::DEBUG)<<"  DECODER : MBIdNum  " <<  MBIdNum << endmsg;
 
 
 			    }
@@ -404,7 +440,7 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
 			    {
 			      FiberNum=m_ALFA_RawDataReadOut->WordId()*16+i;
 			      hitId.push_back(FiberNum);
-			      //msg(MSG::DEBUG)<<" fiberNum = " <<  FiberNum <<",  fiber_hit = " << fiber_hit << "  PMFIdNum = " << PMFIdNum <<"  WordIdNum = " << WordIdNum <<endreq;
+			      //msg(MSG::DEBUG)<<" fiberNum = " <<  FiberNum <<",  fiber_hit = " << fiber_hit << "  PMFIdNum = " << PMFIdNum <<"  WordIdNum = " << WordIdNum <<endmsg;
 			    }
 			  else 	hitId.push_back(100);
 
@@ -433,17 +469,17 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
 			  tmpPattern=m_ALFA_RawDataReadOut->pattern();
 			  if(collection) collection->Set_pattern_POT(tmpPattern);
 
-// 			  // TEST of the readed trigger pattern
-// 			  std::vector<bool> testpattern = m_ALFA_RawDataReadOut->pattern();
-// 			  //uint16_t testMBid = m_ALFA_RawDataReadOut->MBId();
-// 			  uint16_t testPMFid = m_ALFA_RawDataReadOut->PMFId();
-// 			  msg() << MSG::DEBUG << "MB :  " << MBIdNum << endreq;
-// 			  msg(MSG::DEBUG) << "PMF :  " << testPMFid << endreq;
-// 			  for (unsigned int i = 0; i < (unsigned int) testpattern.size(); i++)
-// 			    {
-// 			      msg(MSG::DEBUG) << "Trig pattern " << i << " :  " << testpattern[i] << endreq;
-// 			    }
-// 			  // end of TEST of the readed trigger pattern
+			  // 			  // TEST of the readed trigger pattern
+			  // 			  std::vector<bool> testpattern = m_ALFA_RawDataReadOut->pattern();
+			  // 			  //uint16_t testMBid = m_ALFA_RawDataReadOut->MBId();
+			  // 			  uint16_t testPMFid = m_ALFA_RawDataReadOut->PMFId();
+			  // 			  msg() << MSG::DEBUG << "MB :  " << MBIdNum << endmsg;
+			  // 			  msg(MSG::DEBUG) << "PMF :  " << testPMFid << endmsg;
+			  // 			  for (unsigned int i = 0; i < (unsigned int) testpattern.size(); i++)
+			  // 			    {
+			  // 			      msg(MSG::DEBUG) << "Trig pattern " << i << " :  " << testpattern[i] << endmsg;
+			  // 			    }
+			  // 			  // end of TEST of the readed trigger pattern
 
 
 			} // m_ALFA_RawDataReadOut->WordId()==0
@@ -460,14 +496,14 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
 			    {
 			      tmpADC1=m_ALFA_RawDataReadOut->ADC();
 			      if(collection) collection->Set_ADC1_POT(tmpADC1);
-			      if(collection) msg(MSG::DEBUG) <<" tmpADC1 = " <<  tmpADC1 << endreq;
+			      if(collection) msg(MSG::DEBUG) <<" tmpADC1 = " <<  tmpADC1 << endmsg;
 			    }
 			  else
 			    if(m_ALFA_RawDataReadOut->WordId()==3)
 			      {
 				tmpADC2=m_ALFA_RawDataReadOut->ADC();
 				if(collection) collection->Set_ADC2_POT(tmpADC2);
-				if(collection) msg(MSG::DEBUG)<<" tmpADC2 = " <<  tmpADC2 << endreq;
+				if(collection) msg(MSG::DEBUG)<<" tmpADC2 = " <<  tmpADC2 << endmsg;
 			      }
 
 		      if(collection) collection->SetTrigSyncErr(m_ALFA_RawDataReadOut->error_bit17());
@@ -483,14 +519,19 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
 
 	  if (m_ALFA_RawDataReadOut->is_EOT() && m_ALFA_RawDataReadOut->bit24_27()!=0)
 	    {
-	      msg(MSG::DEBUG) << " Event Counter EOT : " << m_ALFA_RawDataReadOut->ecnt_EOT()<< endreq;
+	      msg(MSG::DEBUG) << " Event Counter EOT : " << m_ALFA_RawDataReadOut->ecnt_EOT()<< endmsg;
 	    }
 
 	  wordPos += 1;
 	  if (wordPos >= size)
 	    {
-	      msg(MSG::DEBUG)<<" Error: data corrupted" << endreq;
-	      return StatusCode::FAILURE;
+	      msg(MSG::WARNING)<<" Error: data corrupted" << endmsg;
+	      if (!eventInfo->setErrorState(EventInfo::ForwardDet, EventInfo::Error))
+		msg(MSG::WARNING) <<"Cannot set ALFA error state"<< endmsg;
+	      if (!eventInfo->setEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::CORRUPTION))
+		msg(MSG::WARNING) <<"Cannot set event bit info for ALFA"<< endmsg;
+
+	      return StatusCode::SUCCESS;
 	    }
 
 
@@ -502,8 +543,13 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
       wordPos += 1;
       if (wordPos >= size)
 	{
-	  msg(MSG::DEBUG)<<" Error: data corrupted" << endreq;
-	  return StatusCode::FAILURE;
+	  msg(MSG::WARNING)<<" Error: data corrupted" << endmsg;
+	  if (!eventInfo->setErrorState(EventInfo::ForwardDet, EventInfo::Error))
+	    msg(MSG::WARNING) <<"Cannot set ALFA error state"<< endmsg;
+	  if (!eventInfo->setEventFlagBit(EventInfo::ForwardDet, ALFAEventBitInfo::CORRUPTION))
+	    msg(MSG::WARNING) <<"Cannot set event bit info for ALFA"<< endmsg;
+
+	  return StatusCode::SUCCESS;
 	}
 
       m_ALFA_RawDataCollectionReadOut->decodeWord(vint[wordPos]);
@@ -525,8 +571,8 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
   msg(MSG::DEBUG) << "BCID:             " << (uint32_t)event->bc_id() << std::endl;
   msg(MSG::DEBUG) << "Level1 trig type: " << (uint32_t)event->lvl1_trigger_type() << std::endl;
   msg(MSG::DEBUG) << "Level1 Nwords:    " << (uint32_t)event->nlvl1_trigger_info() << std::endl;
-	msg(MSG::DEBUG) << "Level2 Nwords:    " << (uint32_t)event->nlvl2_trigger_info() << std::endl;
-	msg(MSG::DEBUG) << "EF Nwords:    		" << (uint32_t)event->nevent_filter_info() << std::endl;
+  msg(MSG::DEBUG) << "Level2 Nwords:    " << (uint32_t)event->nlvl2_trigger_info() << std::endl;
+  msg(MSG::DEBUG) << "EF Nwords:    		" << (uint32_t)event->nevent_filter_info() << std::endl;
   msg(MSG::DEBUG) << "============================" << std::endl;
 
   uint32_t Time_StampID  = event->bc_time_seconds();
@@ -539,59 +585,59 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
   if(rdoCont) rdoCont->SetBCId(BC_ID);
   if(rdoCont) rdoCont->SetLumiBlock(LumiBlock_ID);
 
-	/*
-	For the LVL1 trigger there are three consecutive blocks of 256 bits (8 ints):
-	256 bits for the TBP (trigger before prescale)
-	256 bits for the TAP (trigger after prescale
-	256 bits for the TAV (trigger after veto)
-	*/
+  /*
+    For the LVL1 trigger there are three consecutive blocks of 256 bits (8 ints):
+    256 bits for the TBP (trigger before prescale)
+    256 bits for the TAP (trigger after prescale
+    256 bits for the TAV (trigger after veto)
+  */
   const uint32_t *point_lvl1 = event->lvl1_trigger_info();
   uint32_t point_lvl1_end = event->nlvl1_trigger_info();
   for(uint32_t i = 0; i <= point_lvl1_end; ++i)
-  {
-  	wo = *(point_lvl1 + i);
-  	for(uint32_t j = 0; j < 32; ++j)
-		{
-	  	tmpLvl1Pattern.push_back((wo & 0x1));
-	  	wo >>= 1;
-		}
+    {
+      wo = *(point_lvl1 + i);
+      for(uint32_t j = 0; j < 32; ++j)
+	{
+	  tmpLvl1Pattern.push_back((wo & 0x1));
+	  wo >>= 1;
 	}
+    }
   if(rdoCont) rdoCont->SetLvl1Pattern(tmpLvl1Pattern);
 
-	wo=0;
+  wo=0;
 
-	//It's not defined how many LVL2 and EF words are there
-	const uint32_t *point_lvl2 = event->lvl2_trigger_info();
+  //It's not defined how many LVL2 and EF words are there
+  const uint32_t *point_lvl2 = event->lvl2_trigger_info();
   uint32_t point_lvl2_end = event->nlvl2_trigger_info();
-	for(uint32_t i = 0; i <= point_lvl2_end; ++i)
-  {
-  	wo = *(point_lvl2 + i);
-  	for(uint32_t j = 0; j < 32; ++j)
-		{
-	  	tmpLvl2Pattern.push_back((wo & 0x1));
-	  	wo >>= 1;
-		}
+  for(uint32_t i = 0; i <= point_lvl2_end; ++i)
+    {
+      wo = *(point_lvl2 + i);
+      for(uint32_t j = 0; j < 32; ++j)
+	{
+	  tmpLvl2Pattern.push_back((wo & 0x1));
+	  wo >>= 1;
 	}
+    }
   //std::cout << std::dec << std::endl;
   if(rdoCont) rdoCont->SetLvl2Pattern(tmpLvl2Pattern);
 
-	wo=0;
+  wo=0;
 
-	//std::cout << "Event num  " << event->global_id() << std::endl;
+  //std::cout << "Event num  " << event->global_id() << std::endl;
   //std::cout << "EF pat:" << std::endl;
-	const uint32_t *point_ef = event->event_filter_info();
+  const uint32_t *point_ef = event->event_filter_info();
   uint32_t point_ef_end = event->nevent_filter_info();
-	for(uint32_t i = 0; i <= point_ef_end; ++i)
-  {
-  	wo = *(point_ef + i);
-  	//std::cout << std::dec << i << ": ";
-  	//std::cout << std::hex << wo << "  ";
-  	for(uint32_t j = 0; j < 32; ++j)
-		{
-	  	tmpEFPattern.push_back((wo & 0x1));
-	  	wo >>= 1;
-		}
+  for(uint32_t i = 0; i <= point_ef_end; ++i)
+    {
+      wo = *(point_ef + i);
+      //std::cout << std::dec << i << ": ";
+      //std::cout << std::hex << wo << "  ";
+      for(uint32_t j = 0; j < 32; ++j)
+	{
+	  tmpEFPattern.push_back((wo & 0x1));
+	  wo >>= 1;
 	}
+    }
   //std::cout << std::dec << std::endl;
   if(rdoCont) rdoCont->SetEFPattern(tmpEFPattern);
 
@@ -599,7 +645,7 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
 
   if (m_ALFA_RawDataCollectionReadOut->is_EOB())
     {
-      msg(MSG::DEBUG) << " Found the end of block EOB ---------------------- "<<  endreq;
+      msg(MSG::DEBUG) << " Found the end of block EOB ---------------------- "<<  endmsg;
     }
 
   wordPos += 1;
@@ -618,7 +664,7 @@ StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawData
 ALFA_RawDataCollection* ALFA_Decoder::getCollection(unsigned int MBIdNum, ALFA_RawDataContainer* cont)
 {
 
-  msg(MSG::DEBUG) << " ALFA_RoDDecoder::getCollection" << endreq;
+  msg(MSG::DEBUG) << " ALFA_RoDDecoder::getCollection" << endmsg;
 
   ALFA_RawDataCollection* coll;
 
@@ -639,14 +685,14 @@ ALFA_RawDataCollection* ALFA_Decoder::getCollection(unsigned int MBIdNum, ALFA_R
   if (collExists)
     {
       coll = const_cast<ALFA_RawDataCollection*>(&**cont_it);
-      msg(MSG::DEBUG) << " Collection exists " << endreq;
+      msg(MSG::DEBUG) << " Collection exists " << endmsg;
       return 0;
 
     }
   else // if collection does not exist create it
     {
       coll = new ALFA_RawDataCollection(MBIdNum);
-      msg(MSG::DEBUG) << " create collection; MBId  " << MBIdNum <<endreq;
+      msg(MSG::DEBUG) << " create collection; MBId  " << MBIdNum <<endmsg;
       cont->push_back(coll);  // add collection to container
 
 

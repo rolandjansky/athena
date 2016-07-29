@@ -78,14 +78,14 @@ void ALFA_RawDataContainerReadOut::decodeHeader(std::vector<uint32_t>& vData)
   if (vData[0] != RODmarker) 
     {
 #ifndef NDEBUG
-      log << MSG::ERROR << "ROD Start of header marker not found" << endreq;
+      log << MSG::ERROR << "ROD Start of header marker not found" << endmsg;
 #endif
       assert(0);
     }
   if (vData[1] != RODheadersize) 
     {
 #ifndef NDEBUG
-      log << MSG::ERROR << "ROD header size doesn't match " << endreq;
+      log << MSG::ERROR << "ROD header size doesn't match " << endmsg;
 #endif
       assert(0);
     }

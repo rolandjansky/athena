@@ -13,7 +13,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/ByteStreamCnvSvcBase
                           Event/ByteStreamData
                           ForwardDetectors/ALFA/ALFA_RawEv
-                          GaudiKernel )
+                          GaudiKernel
+				  PRIVATE
+				  Event/xAOD/xAODEventInfo)
 
 # External dependencies:
 find_package( tdaq-common )
