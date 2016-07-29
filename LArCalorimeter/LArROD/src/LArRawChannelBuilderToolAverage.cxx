@@ -55,7 +55,7 @@ StatusCode LArRawChannelBuilderToolAverage::initTool()
   
 
   if (detStore()->retrieve(m_onlineHelper, "LArOnlineID").isFailure()){
-    msg(MSG::ERROR) << "Could not get LArOnlineID m_helper !" << endreq;
+    msg(MSG::ERROR) << "Could not get LArOnlineID m_helper !" << endmsg;
     return StatusCode::FAILURE;
   }
   

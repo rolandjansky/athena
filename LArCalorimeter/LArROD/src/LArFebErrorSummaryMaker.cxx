@@ -16,6 +16,7 @@
 #include "LArIdentifier/LArOnlineID.h" 
 #include "LArRecConditions/ILArBadChanTool.h"
 #include "LArRecConditions/LArBadFeb.h"
+#include "CxxUtils/make_unique.h"
 
 #include <bitset>
 
@@ -51,25 +52,10 @@ LArFebErrorSummaryMaker::~LArFebErrorSummaryMaker()
 
 StatusCode LArFebErrorSummaryMaker::initialize()
 {
-
-  MsgStream  log(messageService(),name());
-
-  log <<MSG::DEBUG<<" initialize "<<endreq; 
+  ATH_MSG_DEBUG(" initialize " );
 
 
-  StoreGateSvc* detStore; 
-  StatusCode sc = service("DetectorStore", detStore ); 
-  if(!sc.isSuccess() ) {
-       log << MSG::ERROR << " Can't retrieve DetectorStore " << endreq;
-       return sc;
-  }
-
-
-  sc = detStore->retrieve( m_onlineHelper ) ; 
-  if(sc!=::StatusCode::SUCCESS) {
-   log<<MSG::ERROR<<" Failed to LArOnlineID" << endreq; 
-   return sc; 
-  }
+  ATH_CHECK( detStore()->retrieve( m_onlineHelper ) );
 
   m_errors.resize(LArFebErrorSummary::N_LArFebErrorType,0 ); 
 
@@ -83,7 +69,7 @@ StatusCode LArFebErrorSummaryMaker::initialize()
       for (;it!=it_e;++it){
           m_all_febs.insert((*it).get_identifier32().get_compact());
       }
-      log<<MSG::INFO<<" number of FEBs from LArOnlineID  "<< m_all_febs.size() << endreq; 
+      ATH_MSG_INFO(" number of FEBs from LArOnlineID  "<< m_all_febs.size()  );
     }
   else { // We should chack partition id
      if(m_partition.size() > 0) {
@@ -107,10 +93,10 @@ StatusCode LArFebErrorSummaryMaker::initialize()
         }
      }
      if(isHec || isFcal || isEmb || isEmec || isEmPS) {
-        log<<MSG::DEBUG<<"isHec: "<<isHec<<" isFcal: "<< isFcal <<" isEmb: "<< isEmb <<" isEmec: "<< isEmec <<" isEmbPS: "<<  isEmPS<<endreq;
+       ATH_MSG_DEBUG("isHec: "<<isHec<<" isFcal: "<< isFcal <<" isEmb: "<< isEmb <<" isEmec: "<< isEmec <<" isEmbPS: "<<  isEmPS );
      } else {
-        log<<MSG::WARNING<<"Wrong PartitionId property: "<<m_partition<<endreq;
-        log<<MSG::WARNING<<"Missing FEB's will be not checked "<<endreq;
+       ATH_MSG_WARNING("Wrong PartitionId property: "<<m_partition );
+       ATH_MSG_WARNING("Missing FEB's will be not checked " );
      }
      // Now let's build the list of FEB's according partition
      std::vector<HWIdentifier>::const_iterator it = m_onlineHelper->feb_begin();
@@ -127,16 +113,12 @@ StatusCode LArFebErrorSummaryMaker::initialize()
         }
      }
   }
-  log<<MSG::INFO<<"Number of expected FEB's: "<<m_all_febs.size()<<endreq;
+  ATH_MSG_INFO("Number of expected FEB's: "<<m_all_febs.size() );
 
-  log<<MSG::INFO<<" initialized " << endreq; 
+  ATH_MSG_INFO(" initialized "  );
 
   if (!m_badChannelTool.empty()) {
-     sc = m_badChannelTool.retrieve();
-     if (sc.isFailure()) {
-       log << MSG::ERROR << " Failed to retrieve LArBadChanTool" << endreq;
-       return sc;
-     }
+    ATH_CHECK( m_badChannelTool.retrieve() );
   }
 
   return StatusCode::SUCCESS ; 
@@ -146,9 +128,7 @@ StatusCode LArFebErrorSummaryMaker::initialize()
 
 StatusCode LArFebErrorSummaryMaker::execute()
 {
-  MsgStream  log(messageService(),name());
-
-  log <<MSG::DEBUG<<" execute "<<endreq; 
+  ATH_MSG_DEBUG(" execute " );
 
   const LArFebHeaderContainer* hdrCont;
   StatusCode sc = evtStore()->retrieve(hdrCont);
@@ -156,31 +136,25 @@ StatusCode LArFebErrorSummaryMaker::execute()
     if (m_nwarns < m_warnLimit) 
       {
 	m_nwarns++;
-	log << MSG::WARNING << "No LArFebHeaderContainer found in TDS, LArFebErrorSummary not created " << endreq; 
+	ATH_MSG_WARNING( "No LArFebHeaderContainer found in TDS, LArFebErrorSummary not created "  );
       }
     return StatusCode::SUCCESS;
   }
   
 
-  LArFebErrorSummary* febErrorSummary = new LArFebErrorSummary() ;
-
-  sc = evtStore()->record(febErrorSummary,"LArFebErrorSummary");
-
-  if ( sc.isFailure() ) {
-	log << MSG::ERROR << "Can not record LArFebErrorSummary, new LArFebErrorSummary not created " << endreq; 
-	delete febErrorSummary; 
-	return StatusCode::SUCCESS;
-  }
+  auto febErrorSummary_ptr = CxxUtils::make_unique<LArFebErrorSummary>();
+  LArFebErrorSummary* febErrorSummary = febErrorSummary_ptr.get();
+  ATH_CHECK( evtStore()->record(std::move(febErrorSummary_ptr),"LArFebErrorSummary") );
 
   sc = evtStore()->setConst(febErrorSummary);
   if ( sc.isFailure() ) {
-	log << MSG::ERROR << "Can not set const for LArFebErrorSummary" << endreq; 
-	// return sc;
+    ATH_MSG_ERROR( "Can not set const for LArFebErrorSummary"  );
+    // return sc;
   }
   unsigned int nbSamplesFirst=0;
   uint32_t eventTypeFirst = 999;
 
-  log << MSG::DEBUG << " LArFebHeaderContainer Size = "<< hdrCont->size()  << endreq; 
+  ATH_MSG_DEBUG( " LArFebHeaderContainer Size = "<< hdrCont->size()   );
 
   LArFebHeaderContainer::const_iterator it = hdrCont->begin(); 
   LArFebHeaderContainer::const_iterator it_e = hdrCont->end(); 
@@ -252,15 +226,15 @@ StatusCode LArFebErrorSummaryMaker::execute()
 	  int expSize1 = 0;
 	  if (((*it)->FormatVersion()&0xF)<=11) expSize1 = (*it)->NbSweetCells1() + 83 + (int) ceilf(((*it)->NbSamples()+1)/2.0); // Old DSP version
 	  if (((*it)->FormatVersion()&0xF)>=12) expSize1 = (*it)->NbSweetCells1() + 84 + (int) ceilf(((*it)->NbSamples()+1)/2.0); // New DSP version after 07/11 with new extra word SumE
-	  //	  log << MSG::ERROR << "Version  " << ((*it)->FormatVersion()&0xF) << " Expected size " << expSize1 << " " << (*it)->RodResults1Size() << endreq; 
+	  //	  log << MSG::ERROR << "Version  " << ((*it)->FormatVersion()&0xF) << " Expected size " << expSize1 << " " << (*it)->RodResults1Size() << endmsg; 
 	  if (expSize1 != (*it)->RodResults1Size()) {
 		checkSumErr = true; 
-	//	log << MSG::ERROR << "Version 1  " << ((*it)->FormatVersion()&0xF) << " Expected size " << expSize1 << " " << (*it)->RodResults1Size() << endreq;
+	//	log << MSG::ERROR << "Version 1  " << ((*it)->FormatVersion()&0xF) << " Expected size " << expSize1 << " " << (*it)->RodResults1Size() << endmsg;
 	  }
 	  int nbOf32bits = ((*it)->NbSweetCells2() * (*it)->NbSamples() +1) / 2.0;
 	  if ( nbOf32bits != (*it)->RodResults2Size()) {
 		checkSumErr = true; 
-	//	log << MSG::ERROR << "Version 2  " << nbOf32bits << " " << (*it)->RodResults2Size() << endreq;
+	//	log << MSG::ERROR << "Version 2  " << nbOf32bits << " " << (*it)->RodResults2Size() << endmsg;
 	  }
 	}
       }
@@ -331,11 +305,11 @@ StatusCode LArFebErrorSummaryMaker::execute()
 	    m_errors[i]+=1; 
 	    }
 	}
-	log<<MSG::DEBUG<< " Error for this FEB id  "<<std::hex<< int_id << " is " <<errw<<endreq;
+	ATH_MSG_DEBUG( " Error for this FEB id  "<<std::hex<< int_id << " is " <<errw );
 	
 	if ( ! febErrorSummary->set_feb_error(int_id, errw) ) {
 	
-	  log<<MSG::DEBUG<< " failed to insert the error into LArFebErrorSummary  "<< std::hex << febid << std::dec << endreq;
+	  ATH_MSG_DEBUG( " failed to insert the error into LArFebErrorSummary  "<< std::hex << febid << std::dec  );
 
 	}
 
@@ -354,17 +328,17 @@ StatusCode LArFebErrorSummaryMaker::execute()
       const HWIdentifier febid =  HWIdentifier( Identifier32(*it) ) ; 
       const LArBadFeb febStatus = m_badChannelTool->febStatus(febid);
       if ( febStatus.deadReadout() || febStatus.deadAll() || febStatus.deactivatedInOKS() ) {
-	log<<MSG::DEBUG<< " This FEB is not read out  "<< std::hex << *it << std::dec << endreq;
+	ATH_MSG_DEBUG( " This FEB is not read out  "<< std::hex << *it << std::dec  );
       }
       else {
 	//Print warning only for first couple of events and if we have at least one FEB read out
 	//(dont' flood log with useless message is LAr is not in the run)
 	//if (this->outputLevel()<=MSG::WARNING && m_missingFebsWarns < m_warnLimit &&  hdrCont->size()>0) {
-	if (log.level()<=MSG::WARNING && m_missingFebsWarns < m_warnLimit &&  hdrCont->size()>0) {
+	if (msgLvl(MSG::WARNING) && m_missingFebsWarns < m_warnLimit &&  hdrCont->size()>0) {
 	  warn=true;
 	  const std::string bec= m_onlineHelper->barrel_ec(febid)==0 ? "BARREL/" : "ENDCAP/";
 	  const std::string side=m_onlineHelper->pos_neg(febid)==0 ? "C/" : "A/";
-	  log<<MSG::WARNING << "FEB [" <<bec<<side<<m_onlineHelper->feedthrough(febid)<<"/"<<m_onlineHelper->slot(febid)<<"] not read out!" << endreq;
+	  ATH_MSG_WARNING( "FEB [" <<bec<<side<<m_onlineHelper->feedthrough(febid)<<"/"<<m_onlineHelper->slot(febid)<<"] not read out!"  );
 	}	
 
 	febErrorSummary->set_feb_error((*it),errw); 
@@ -375,7 +349,7 @@ StatusCode LArFebErrorSummaryMaker::execute()
     if (warn) {
       ++m_missingFebsWarns;
       if (m_missingFebsWarns==m_warnLimit)
-	log << MSG::WARNING << "No more warnings about FEBs not read out!" << endreq;
+	ATH_MSG_WARNING( "No more warnings about FEBs not read out!"  );
     }
   }//end if checkCompletness
   
@@ -403,13 +377,11 @@ bool LArFebErrorSummaryMaker::masked (unsigned int hid, const std::vector<unsign
 StatusCode LArFebErrorSummaryMaker::finalize()
 {
 
-  MsgStream  log(messageService(),name());
-  
-  log<<MSG::INFO<<" In finalize:  Number of Errors for each type" <<endreq; 
+  ATH_MSG_INFO(" In finalize:  Number of Errors for each type"  );
 
   for (unsigned int i=0;i<LArFebErrorSummary::N_LArFebErrorType;++i){
     uint16_t err = 1<<i; 
-    log<< MSG::INFO << " type, name, count = " << i << " " << LArFebErrorSummary::error_to_string(err) << " " << m_errors[i] << endreq; 
+    ATH_MSG_INFO( " type, name, count = " << i << " " << LArFebErrorSummary::error_to_string(err) << " " << m_errors[i]  );
   }
   
   return StatusCode::SUCCESS;

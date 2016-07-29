@@ -57,19 +57,19 @@ StatusCode LArDigitPreProcessor<DIGITCONTAINER>::initialize()
 
   sc = service("ToolSvc", toolSvc);
   if (sc.isFailure()) {
-    log << MSG::ERROR << " Tool Service not found " << endreq; 
+    log << MSG::ERROR << " Tool Service not found " << endmsg; 
     return StatusCode::FAILURE;
   }
   
   if ( m_useOscillationCorrTool) {
     sc = toolSvc->retrieveTool("LArDigitOscillationCorrTool",algtool);
     if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to find tool LArDigitOscillationCorrTool" << endreq;
+      log << MSG::ERROR << "Unable to find tool LArDigitOscillationCorrTool" << endmsg;
       return StatusCode::FAILURE; 
     }
     m_corrTool=dynamic_cast<ILArDigitOscillationCorrTool*>(algtool);
     if (!m_corrTool) {
-      log << MSG::ERROR << "Unable to d-cast LArDigitOscillationCorrTool" << endreq;
+      log << MSG::ERROR << "Unable to d-cast LArDigitOscillationCorrTool" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -86,11 +86,11 @@ StatusCode LArDigitPreProcessor<DIGITCONTAINER>::execute()
   StatusCode sc;
   //prepare output container;
   LArDigitContainer* outputContainer=new LArDigitContainer();
-  log << MSG::DEBUG << "Making LArDigitContainer with key " << m_outputContainer << endreq;
+  log << MSG::DEBUG << "Making LArDigitContainer with key " << m_outputContainer << endmsg;
   sc=evtStore()->record(outputContainer,m_outputContainer);
   if (sc.isFailure()) {
     log << MSG::WARNING << "Cannot record LArDigitContainer with key " << m_outputContainer
-        << " to StoreGate." << endreq;
+        << " to StoreGate." << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -104,7 +104,7 @@ StatusCode LArDigitPreProcessor<DIGITCONTAINER>::execute()
     sc=evtStore()->retrieve(inputContainer,*cont_it);
     if (sc.isFailure()) {
       log << MSG::WARNING << "Cannot retrieve DIGITCONTAINER with key " << *cont_it
-          << " from StoreGate." << endreq;
+          << " from StoreGate." << endmsg;
       continue;
     }
     
@@ -131,7 +131,7 @@ StatusCode LArDigitPreProcessor<DIGITCONTAINER>::execute()
 	if (m_firstSample>0) { //fixed subset of samples
 	  if (m_firstSample+m_NumberOfSamples>samples.size()) {
 	    log << MSG::ERROR << "Not enough samples! Have " << samples.size() << ", can't select samples " 
-                << m_firstSample << " to " << m_firstSample+m_NumberOfSamples << "." << endreq;
+                << m_firstSample << " to " << m_firstSample+m_NumberOfSamples << "." << endmsg;
 	    continue;
           }
 	  std::vector<short>::const_iterator first=samples.begin()+m_firstSample;
@@ -159,20 +159,20 @@ StatusCode LArDigitPreProcessor<DIGITCONTAINER>::execute()
   if ( m_useOscillationCorrTool) {
     sc=m_corrTool->calculateEventPhase(*outputContainer);
     if (sc.isFailure()) 
-      log << MSG::WARNING << "LArDigitOscillationCorrTool::calculateEventPhase failed." << endreq;
+      log << MSG::WARNING << "LArDigitOscillationCorrTool::calculateEventPhase failed." << endmsg;
     else {
       sc=m_corrTool->correctLArDigits(*outputContainer);
       if (sc.isFailure()) 
-	log << MSG::WARNING << "LArDigitOscillationCorrTool::correctLArDigits failed." << endreq;
+	log << MSG::WARNING << "LArDigitOscillationCorrTool::correctLArDigits failed." << endmsg;
     }
   }
   
   if (outputContainer->size()) {
-    log << MSG::DEBUG << "Made LArDigitContainer with key " << m_outputContainer << " and size " << outputContainer->size() << endreq;
+    log << MSG::DEBUG << "Made LArDigitContainer with key " << m_outputContainer << " and size " << outputContainer->size() << endmsg;
     return StatusCode::SUCCESS;
   }
   else
-    {log << MSG::ERROR << "Resulting Container is empty!" << endreq;
+    {log << MSG::ERROR << "Resulting Container is empty!" << endmsg;
     return StatusCode::FAILURE;
     }
 }

@@ -39,14 +39,14 @@ LArRawChannelBuilderToolBaseClass::printSummary()
   for( unsigned int i=0; i<m_helper->returnMaxErrors(); i++ )
     sum+=m_helper->returnErrorCount(i);
   
-  log << MSG::INFO << "Printing Summary for tool " << name() << " :" << endreq;
+  log << MSG::INFO << "Printing Summary for tool " << name() << " :" << endmsg;
   log << MSG::INFO
       << std::setw(40) << " " << " : "
       << std::setw(12) << " total "
       << std::setw(10) << " percent " << "  "
       << std::setw(12) << " per event "
       << std::setw(12) << " RMS "
-      << endreq;
+      << endmsg;
 
   double inv_sum = sum > 0 ? 1./sum : 1;
   for( unsigned int i=0; i<m_helper->returnMaxErrors(); i++ )
@@ -81,7 +81,7 @@ LArRawChannelBuilderToolBaseClass::printSummary()
 	  << std::fixed
 	  << std::setprecision(4)
 	  << rmsPerEv
-	  << endreq;
+	  << endmsg;
     }
 }
 
@@ -103,8 +103,8 @@ LArRawChannelBuilderToolBaseClass::currentID( void )
 	MsgStream log(msgSvc(), name());
         log << MSG::INFO
 	    << "A larCablingSvc exception was caught for channel 0x!"
-	    << MSG::hex << m_parent->curr_chid.get_compact() << MSG::dec << endreq;
-        // log << MSG::INFO<<m_onlineHelper->print_to_string(curr_chid)<<endreq;
+	    << MSG::hex << m_parent->curr_chid.get_compact() << MSG::dec << endmsg;
+        // log << MSG::INFO<<m_onlineHelper->print_to_string(curr_chid)<<endmsg;
         m_parent->curr_id=0;
       }
     }

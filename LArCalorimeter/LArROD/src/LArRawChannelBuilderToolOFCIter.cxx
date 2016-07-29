@@ -72,41 +72,41 @@ StatusCode LArRawChannelBuilderToolOFCIter::initTool()
   StatusCode sc=m_peakReco.retrieve();
   
   if( sc.isFailure() ) {
-    log << MSG::ERROR << "Unable to retrieve LArOFPeakRecoTool" <<endreq;
+    log << MSG::ERROR << "Unable to retrieve LArOFPeakRecoTool" <<endmsg;
     return StatusCode::FAILURE;
   }
   
   sc = m_storeGate.retrieve();
   if (sc.isFailure()) {
-    log << MSG::ERROR << "StoreGate service not found" << endreq;
+    log << MSG::ERROR << "StoreGate service not found" << endmsg;
     return sc;
   }
 
   if (m_minADCforIterInSigma>0) {//threshold given in terms of pedestal-rms, get pedestal
     if (m_doMC) {
       if (detStore()->regHandle(m_larNoise,"LArNoise").isFailure()) {
-         log << MSG::ERROR << " no LArNoise found " << endreq;
+         log << MSG::ERROR << " no LArNoise found " << endmsg;
          m_minADCforIterInSigma=-1;
       }
       else
-        log << MSG::INFO << " Min ADC for iteration " << m_minADCforIterInSigma << "* LArNoise " <<endreq;
+        log << MSG::INFO << " Min ADC for iteration " << m_minADCforIterInSigma << "* LArNoise " <<endmsg;
     }
     else {
       if (detStore()->regHandle(m_larPedestal,m_pedestalKey).isFailure()) {
         log << MSG::ERROR << "No pedestals with key <" << m_pedestalKey << "> found in DetectorStore." 
   	    << "Will only use property minADCforIter ("<<m_minADCforIter <<") as iteration threshold."
-  	    << endreq;
+  	    << endmsg;
         m_minADCforIterInSigma=-1;
       }
       else
-        log << MSG::INFO << " Min ADC for iteration " << m_minADCforIterInSigma << "* pedestalRMS " <<endreq;
+        log << MSG::INFO << " Min ADC for iteration " << m_minADCforIterInSigma << "* pedestalRMS " <<endmsg;
     }
   }
   else
-    log << MSG::INFO << " Min ADC for iteration "<<m_minADCforIter <<endreq;
+    log << MSG::INFO << " Min ADC for iteration "<<m_minADCforIter <<endmsg;
 
-  log << MSG::INFO << " DefaultPhase  "<<m_defaultPhase <<endreq;
-  log << MSG::INFO << " Min and Max Sample "<<m_minSample<< " "<<m_maxSample<<endreq;
+  log << MSG::INFO << " DefaultPhase  "<<m_defaultPhase <<endmsg;
+  log << MSG::INFO << " Min and Max Sample "<<m_minSample<< " "<<m_maxSample<<endmsg;
 
 
   return StatusCode::SUCCESS;
@@ -119,7 +119,7 @@ void LArRawChannelBuilderToolOFCIter::initEvent() {
     StatusCode sc=m_storeGate->record(m_larOFIterCont,m_timingContKey);
     if (sc.isFailure()) {
       MsgStream log(msgSvc(), name());
-      log << MSG::ERROR << "Failed to record a LArOFIterResultsContainer with key " << m_timingContKey << " to StoreGate." << endreq;
+      log << MSG::ERROR << "Failed to record a LArOFIterResultsContainer with key " << m_timingContKey << " to StoreGate." << endmsg;
       delete m_larOFIterCont;
       m_larOFIterCont=NULL;
     }
@@ -143,7 +143,7 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
   }
 
   if(debugPrint)
-    (*pLog) << MSG::DEBUG << "Start " <<MSG::hex<< chid.get_compact() <<MSG::dec<< endreq;
+    (*pLog) << MSG::DEBUG << "Start " <<MSG::hex<< chid.get_compact() <<MSG::dec<< endmsg;
 
 
   // Loop over samples, to find maximum, check for saturation and subtract pedestal
@@ -160,12 +160,12 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
 			     << "Saturation on channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
 			     << " ADC=" << samples[ii];
       if ( m_skipSaturatedCells ) {
-	  if(debugPrint) (*pLog) << " Skipping channel." << endreq; 
+	  if(debugPrint) (*pLog) << " Skipping channel." << endmsg; 
 	  m_helper->incrementErrorCount(1);
 	  return false;
       }
       else
-	if(debugPrint) (*pLog) << endreq;
+	if(debugPrint) (*pLog) << endmsg;
 
       iprovenance = iprovenance | 0x0400;
     } //end if saturated
@@ -174,7 +174,7 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
     if ((ii >= m_minSample)&&(ii <= m_maxSample)&&(currval > peakval)) { ipeak = ii; peakval = currval; }
   }
 
-  if(debugPrint) (*pLog) << MSG::DEBUG << "Peak value: " << peakval << ", peak sample:" << ipeak << endreq;
+  if(debugPrint) (*pLog) << MSG::DEBUG << "Peak value: " << peakval << ", peak sample:" << ipeak << endmsg;
 
   int nIteration = m_nIterProp;
   bool doIter=false;
@@ -232,12 +232,12 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
     // FIXME: this time definition still misses the tstart from the OFC to be absolutely computed
     time = (25.*((int)(results.getPeakSample_final())-2-m_parent->curr_shiftTimeSamples)-(results.getDelay_final()-results.getTau()));
     //log << MSG::DEBUG << "Peak and time properly retrieved with OFPeakRecoTool:";
-    //log << MSG::DEBUG << "ADCPeak = " << ADCPeak <<", time = "<< time << endreq;
+    //log << MSG::DEBUG << "ADCPeak = " << ADCPeak <<", time = "<< time << endmsg;
   }
   else {
   //  log << MSG::DEBUG << ". OFC iteration not valid for channel 0x"
   // 	<< MSG::hex << chid.get_compact() << MSG::dec 
-  // 	<< " Gain = " << gain << ". Skipping channel." << endreq;
+  // 	<< " Gain = " << gain << ". Skipping channel." << endmsg;
     m_helper->incrementErrorCount(2);
     return false;
   }
@@ -253,7 +253,7 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
 
 
   //log << MSG::DEBUG << "ADCPeak = " << ADCPeak <<", time = "<< time<<
-  //	" energy "<<energy <<endreq;
+  //	" energy "<<energy <<endmsg;
 
   uint16_t iquality=0;
 

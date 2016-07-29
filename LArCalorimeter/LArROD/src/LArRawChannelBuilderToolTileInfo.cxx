@@ -66,23 +66,23 @@ StatusCode LArRawChannelBuilderToolTileInfo::initTool()
   
   StatusCode sc=m_peakReco.retrieve();
   if( sc.isFailure() ) {
-    log << MSG::ERROR << "Unable to retrieve LArOFPeakRecoTool" <<endreq;
+    log << MSG::ERROR << "Unable to retrieve LArOFPeakRecoTool" <<endmsg;
     return StatusCode::FAILURE;
   }
   
-  log << MSG::INFO << " DefaultPhase  "<<m_defaultPhase <<endreq;
+  log << MSG::INFO << " DefaultPhase  "<<m_defaultPhase <<endmsg;
   
   sc = service("StoreGateSvc", m_storeGate);
   if ( sc.isFailure() ) {
     log << MSG::ERROR
-	<< "Unable to get pointer to StoreGate Service" << endreq;
+	<< "Unable to get pointer to StoreGate Service" << endmsg;
     return sc;
   }
   
   sc = service("DetectorStore", m_detStore);
   if ( sc.isFailure() ) {
     log << MSG::ERROR
-        << "Unable to get pointer to DetectorStore Service" << endreq;
+        << "Unable to get pointer to DetectorStore Service" << endmsg;
     return sc;
   }
 
@@ -91,7 +91,7 @@ StatusCode LArRawChannelBuilderToolTileInfo::initTool()
   sc = m_detStore->retrieve(m_man);
   if (sc.isFailure()) {
     log << MSG::ERROR
-        << "Unable to retrieve CaloDetDescrManager from DetectorStore" << endreq;
+        << "Unable to retrieve CaloDetDescrManager from DetectorStore" << endmsg;
     return sc;
   }
 
@@ -107,7 +107,7 @@ bool LArRawChannelBuilderToolTileInfo::buildRawChannel(const LArDigit* digit,
 
   HWIdentifier chid=m_parent->curr_chid;
   if(bool(pLog))
-    (*pLog) << MSG::DEBUG << "Start " <<MSG::hex<< chid<<MSG::dec<< endreq;
+    (*pLog) << MSG::DEBUG << "Start " <<MSG::hex<< chid<<MSG::dec<< endmsg;
   CaloGain::CaloGain gain=m_parent->curr_gain;
   
   if ( m_parent->curr_maximum > m_AdcMax )
@@ -118,12 +118,12 @@ bool LArRawChannelBuilderToolTileInfo::buildRawChannel(const LArDigit* digit,
       if ( m_skipSaturatedCells )
 	{
 	  if(bool(pLog))
-	    (*pLog) << "Skipping channel." << endreq; 
+	    (*pLog) << "Skipping channel." << endmsg; 
 	  m_helper->incrementErrorCount(1);
 	  return false;
 	}
       if(bool(pLog))
-	(*pLog) << endreq;
+	(*pLog) << endmsg;
     }
 
   const std::vector < short >& samples = digit->samples();
@@ -149,7 +149,7 @@ bool LArRawChannelBuilderToolTileInfo::buildRawChannel(const LArDigit* digit,
   if (sc.isFailure()) {
     if(bool(pLog))
       (*pLog) << MSG::ERROR
-	      << "Unable to retrieve ComTime from StoreGate" << endreq;
+	      << "Unable to retrieve ComTime from StoreGate" << endmsg;
     return sc;
   }
   
@@ -239,7 +239,7 @@ bool LArRawChannelBuilderToolTileInfo::buildRawChannel(const LArDigit* digit,
     if(bool(pLog))
       (*pLog) << MSG::DEBUG << ". OFC not valid for channel 0x"
 	      << MSG::hex << chid.get_compact() << MSG::dec 
-	      << " Gain = " << gain << ". Skipping channel." << endreq;
+	      << " Gain = " << gain << ". Skipping channel." << endmsg;
     m_helper->incrementErrorCount(2);
     return false;
   }
@@ -253,7 +253,7 @@ bool LArRawChannelBuilderToolTileInfo::buildRawChannel(const LArDigit* digit,
     }
 
   //(*pLog) << MSG::DEBUG << "ADCPeak = " << ADCPeak <<", time = "<< time<<
-  //	" energy "<<energy <<endreq;
+  //	" energy "<<energy <<endmsg;
 
   uint16_t iquality=0;
   uint16_t iprovenance=0;

@@ -22,6 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArRecUtils
                           TestBeam/TBEvent
                           PRIVATE
+                          Control/CxxUtils
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloEvent
                           Commission/CommissionEvent

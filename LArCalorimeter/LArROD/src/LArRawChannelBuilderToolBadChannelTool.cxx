@@ -29,7 +29,7 @@ StatusCode LArRawChannelBuilderToolBadChannelTool::initTool()
   if(m_badChannelMask.retrieve().isFailure())
     {
       log << MSG::ERROR << "Could not retrieve private BadChannelMask "
-	  << m_badChannelMask << endreq;
+	  << m_badChannelMask << endmsg;
       return StatusCode::FAILURE;
     }
   

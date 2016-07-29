@@ -48,13 +48,13 @@ StatusCode LArRawChannelBuilderToolOFC::initTool()
   if (detStore()->retrieve(m_larShape,m_keyShape).isFailure()) {
     //MsgStream log(msgSvc(), name());
     msg(MSG::WARNING) << "Can't retrieve LArShape from Conditions Store"
-	<< ". Trying later." <<  endreq;
+	<< ". Trying later." <<  endmsg;
     m_larShape=NULL;
   }
   if(m_OFCTool.retrieve().isFailure())
     {
       //MsgStream log(msgSvc(), name());
-      msg(MSG::ERROR) << "Could not retrieve OFCTool" << endreq;
+      msg(MSG::ERROR) << "Could not retrieve OFCTool" << endmsg;
       return StatusCode::FAILURE;
     }
   
@@ -68,7 +68,7 @@ bool LArRawChannelBuilderToolOFC::buildRawChannel(const LArDigit* digit,
 {
   HWIdentifier chid=m_parent->curr_chid;
   if(bool(pLog))
-    (*pLog) << MSG::DEBUG << "Start " <<MSG::hex<< chid<<MSG::dec<< endreq;
+    (*pLog) << MSG::DEBUG << "Start " <<MSG::hex<< chid<<MSG::dec<< endmsg;
   CaloGain::CaloGain gain=m_parent->curr_gain;
   
   if ( m_parent->curr_maximum > m_AdcMax )
@@ -79,12 +79,12 @@ bool LArRawChannelBuilderToolOFC::buildRawChannel(const LArDigit* digit,
       if ( m_skipSaturatedCells )
 	{
       if(bool(pLog))
-	(*pLog) << "Skipping channel." << endreq; 
+	(*pLog) << "Skipping channel." << endmsg; 
 	  m_helper->incrementErrorCount(1);
 	  return false;
 	}
       if(bool(pLog))
-	(*pLog) << endreq;
+	(*pLog) << endmsg;
     }
   
   // Optimal Filtering Coefficients  
@@ -101,7 +101,7 @@ bool LArRawChannelBuilderToolOFC::buildRawChannel(const LArDigit* digit,
 	(*pLog) << MSG::DEBUG << ". No OFC's found for channel 0x"
 	     << MSG::hex << chid.get_compact() << MSG::dec 
 	     << " Time bin = " << OFCTimeBin << ", Gain = " << gain
-	     << ". Skipping channel." << endreq;
+	     << ". Skipping channel." << endmsg;
       m_helper->incrementErrorCount(2);
       return false;
     }
@@ -114,7 +114,7 @@ bool LArRawChannelBuilderToolOFC::buildRawChannel(const LArDigit* digit,
     ADCPeak+=(digit->samples()[i+m_parent->curr_shiftTimeSamples]-
 	      pedestal)*ofc_a->at(i);
     if(bool(pLog))
-      (*pLog) << MSG::DEBUG << "OFC i, a= " <<i<<" "<< ofc_a->at(i) << endreq;
+      (*pLog) << MSG::DEBUG << "OFC i, a= " <<i<<" "<< ofc_a->at(i) << endmsg;
     
   }  
   float power=1;
@@ -139,12 +139,12 @@ bool LArRawChannelBuilderToolOFC::buildRawChannel(const LArDigit* digit,
 	      if(bool(pLog))
 		(*pLog) << MSG::DEBUG << "No time-OFC's found for channel 0x"
 		     << MSG::hex << chid.get_compact() << MSG::dec 
-		     << " Gain "<< gain << " found. Time not calculated." << endreq;
+		     << " Gain "<< gain << " found. Time not calculated." << endmsg;
 	    }else{
 	      if(bool(pLog))
 		(*pLog) << MSG::DEBUG << "OFC for time size " << ofc_b->size() 
 		     << " not equal to OFC for energy size " << ofc_a->size() 
-		     << "   Time not calculated " << endreq;
+		     << "   Time not calculated " << endmsg;
 	    }
 	}else{
 	  for (unsigned i=0;i<(ofc_b->size());i++) 
@@ -154,7 +154,7 @@ bool LArRawChannelBuilderToolOFC::buildRawChannel(const LArDigit* digit,
 	}
       if(bool(pLog))
 	(*pLog) << MSG::VERBOSE << "Time calculated " << time
-	     << " TimeBin=" << OFCTimeBin  << endreq;
+	     << " TimeBin=" << OFCTimeBin  << endmsg;
       
       //Calculate Quality factor
       if (this->larShape())
@@ -174,13 +174,13 @@ bool LArRawChannelBuilderToolOFC::buildRawChannel(const LArDigit* digit,
 		    (*pLog) << MSG::DEBUG << "No Shape found for channel 0x"
 			 << MSG::hex << chid.get_compact() << MSG::dec 
 			 << " Gain "<< gain
-			 << ". Quality factor not calculated." << endreq;
+			 << ". Quality factor not calculated." << endmsg;
 		}else{
 		  if(bool(pLog))
 		    (*pLog) << MSG::DEBUG << "Shape size " << shape.size() 
 			 << "smaller than OFC size " << ofc_a->size() 
 			 << "for channel 0x" << MSG::hex << chid.get_compact() 
-			 << MSG::dec << ". Quality factor not calculated." << endreq;
+			 << MSG::dec << ". Quality factor not calculated." << endmsg;
 		}
 	      quality=0;
 	    } else {
@@ -194,7 +194,7 @@ bool LArRawChannelBuilderToolOFC::buildRawChannel(const LArDigit* digit,
 			 << MSG::hex << chid.get_compact() << MSG::dec 
 			 << "."
 			 << " Derivative not taken into accout for quality factor."
-			 << endreq;
+			 << endmsg;
 		} 
 	      if (time==0 || shapeDer.size()!=shape.size() )
 		{
@@ -276,7 +276,7 @@ LArRawChannelBuilderToolOFC::larShape()
 	MsgStream log(msgSvc(), name());
 	log << MSG::WARNING << "Can't retrieve LArShape from Conditions Store"
 	    << std::endl
-	    << "Quality factor will not be caluclated." << endreq;
+	    << "Quality factor will not be caluclated." << endmsg;
 	m_larShape=NULL;
       }
     }

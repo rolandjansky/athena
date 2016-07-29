@@ -38,7 +38,7 @@ StatusCode LArCalibDigitPreProcessor<CALIBDIGITCONTAINER>::initialize()
 /*---------------------------------------------------------*/
 {
   MsgStream logstr(msgSvc(), name());
-  logstr << MSG::DEBUG << "In LArCalibDigitPreProcessor<CALIBDIGITCONTAINER>::initialize()" << endreq;
+  logstr << MSG::DEBUG << "In LArCalibDigitPreProcessor<CALIBDIGITCONTAINER>::initialize()" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -51,15 +51,15 @@ StatusCode LArCalibDigitPreProcessor<CALIBDIGITCONTAINER>::execute()
   MsgStream logstr(msgSvc(), name());
   StatusCode sc;
 
-  logstr << MSG::DEBUG << "About to make LArCalibDigitContainer with key " << m_outputContainer << endreq;
+  logstr << MSG::DEBUG << "About to make LArCalibDigitContainer with key " << m_outputContainer << endmsg;
   
   LArCalibDigitContainer* outputContainer=new LArCalibDigitContainer();
   
-  logstr << MSG::DEBUG << "Making LArCalibDigitContainer with key " << m_outputContainer << endreq;
+  logstr << MSG::DEBUG << "Making LArCalibDigitContainer with key " << m_outputContainer << endmsg;
   sc=evtStore()->record(outputContainer,m_outputContainer);
   if (sc.isFailure()) {
     logstr << MSG::WARNING << "Cannot record LArCalibDigitContainer with key " << m_outputContainer
-        << " to StoreGate." << endreq;
+        << " to StoreGate." << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -68,11 +68,11 @@ StatusCode LArCalibDigitPreProcessor<CALIBDIGITCONTAINER>::execute()
   std::vector<std::string>::const_iterator cont_it_e=m_inputContainers.end();
   for(;cont_it!=cont_it_e;cont_it++) {
     const CALIBDIGITCONTAINER* inputContainer;
-    logstr << MSG::DEBUG << "About to retrieve CALIBDIGITCONTAINER with key " << *cont_it << endreq;
+    logstr << MSG::DEBUG << "About to retrieve CALIBDIGITCONTAINER with key " << *cont_it << endmsg;
     sc=evtStore()->retrieve(inputContainer,*cont_it);
     if (sc.isFailure()) {
       logstr << MSG::WARNING << "Cannot retrieve CALIBDIGITCONTAINER with key " << *cont_it
-          << " from StoreGate." << endreq;
+          << " from StoreGate." << endmsg;
       continue;
     }
     
@@ -82,7 +82,7 @@ StatusCode LArCalibDigitPreProcessor<CALIBDIGITCONTAINER>::execute()
     
     for(;it!=it_e;it++) {
 
-      logstr << MSG::VERBOSE << "In loop over CALIBDIGITCONTAINER with key " << *cont_it << endreq;
+      logstr << MSG::VERBOSE << "In loop over CALIBDIGITCONTAINER with key " << *cont_it << endmsg;
       
       const std::vector<short>& samples=(*it)->samples();
       HWIdentifier chid((*it)->channelID());
@@ -95,13 +95,13 @@ StatusCode LArCalibDigitPreProcessor<CALIBDIGITCONTAINER>::execute()
       if (m_NumberOfSamples and samples.size()>m_NumberOfSamples) {
         
         logstr << MSG::VERBOSE << "  Selecting subset of samples: Number/First/samples.size = "
-               << m_NumberOfSamples << "/" << m_firstSample << "/"  << samples.size() << endreq;
+               << m_NumberOfSamples << "/" << m_firstSample << "/"  << samples.size() << endmsg;
         
         std::vector<short> newSamples;
         if (m_firstSample>0) { //fixed subset of samples
           if (m_firstSample+m_NumberOfSamples>samples.size()) {
             logstr << MSG::ERROR << "Not enough samples! Have " << samples.size() << ", can't select samples " 
-                << m_firstSample << " to " << m_firstSample+m_NumberOfSamples << "." << endreq;
+                << m_firstSample << " to " << m_firstSample+m_NumberOfSamples << "." << endmsg;
             continue;
           }
           std::vector<short>::const_iterator first=samples.begin()+m_firstSample;
@@ -120,7 +120,7 @@ StatusCode LArCalibDigitPreProcessor<CALIBDIGITCONTAINER>::execute()
         LArCalibDigit* larcalibdigit=new LArCalibDigit(chid,gain,newSamples,DAC,delay,isPulsed);
         outputContainer->push_back(larcalibdigit);
       } else {
-        logstr << MSG::VERBOSE << "   Straight copy of calib digit" << endreq;
+        logstr << MSG::VERBOSE << "   Straight copy of calib digit" << endmsg;
         LArCalibDigit* larcalibdigit=new LArCalibDigit(chid,gain,samples,DAC,delay,isPulsed);
         outputContainer->push_back(larcalibdigit);
       }
@@ -128,11 +128,11 @@ StatusCode LArCalibDigitPreProcessor<CALIBDIGITCONTAINER>::execute()
   }
   
   if (outputContainer->size()) {
-    logstr << MSG::DEBUG << "Made LArCalibDigitContainer with key " << m_outputContainer << " and size " << outputContainer->size() << endreq;
+    logstr << MSG::DEBUG << "Made LArCalibDigitContainer with key " << m_outputContainer << " and size " << outputContainer->size() << endmsg;
     return StatusCode::SUCCESS;
   }
   else {
-    logstr << MSG::ERROR << "Resulting Container is empty!" << endreq;
+    logstr << MSG::ERROR << "Resulting Container is empty!" << endmsg;
     return StatusCode::FAILURE;
   }
 }

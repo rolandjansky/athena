@@ -42,7 +42,7 @@ LArRawChannelBuilderADC2EDataBase::LArRawChannelBuilderADC2EDataBase(const std::
 StatusCode LArRawChannelBuilderADC2EDataBase::initTool()
 {
   if( m_adc2mevTool.retrieve().isFailure() ){
-    msg(MSG::ERROR) << "Could not retrieve LArADC2MeVTool" << endreq;
+    msg(MSG::ERROR) << "Could not retrieve LArADC2MeVTool" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -114,7 +114,7 @@ LArRawChannelBuilderADC2EDataBase::ADC2E(std::vector<float>& Ramps, MsgStream* /
     
     return false;
   */
-  //  (*pLog) << MSG::VERBOSE << "ADC2EDataBase tool - energy : " << energy << endreq;
+  //  (*pLog) << MSG::VERBOSE << "ADC2EDataBase tool - energy : " << energy << endmsg;
   m_helper->incrementErrorCount(0);
   m_parent->qualityBitPattern |= m_helper->returnBitPattern();
   
