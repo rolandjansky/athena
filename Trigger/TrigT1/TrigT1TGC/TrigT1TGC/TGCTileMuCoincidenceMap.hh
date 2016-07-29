@@ -5,10 +5,7 @@
 #ifndef TGCTileMuCoincidenceMap_hh
 #define TGCTileMuCoincidenceMap_hh
 
-#include <vector>
 #include <string>
-
-#include "TrigT1TGC/TGCTMDBOut.h"
 
 namespace LVL1TGCTrigger {
  

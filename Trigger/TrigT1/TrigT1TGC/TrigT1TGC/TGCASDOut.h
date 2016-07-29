@@ -16,7 +16,7 @@
 #ifndef TGC_ASDOUT_H
 #define TGC_ASDOUT_H
 
-#include "TrigT1TGC/TGCIndex.h"
+//#include "TrigT1TGC/TGCIndex.h"
 #include "TrigT1TGC/TGCReadoutIndex.h"
 
 namespace LVL1TGCTrigger {

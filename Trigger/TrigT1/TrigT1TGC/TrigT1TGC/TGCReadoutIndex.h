@@ -15,8 +15,6 @@
 
 namespace LVL1TGCTrigger {
 
-//using namespace std;
-
 // ====================================================================
 //
 // class definition
@@ -73,8 +71,8 @@ public:
 
   // get functions
   TGCZDirection GetZDirection() const { return zDirection; }
-  int GetSideNumber() const { if(zDirection==Z_FORWARD) return 0;
-                              if(zDirection==Z_BACKWARD) return 1;
+  int GetSideNumber() const { if(zDirection==kZ_FORWARD) return 0;
+                              if(zDirection==kZ_BACKWARD) return 1;
                               return -1;}
   int GetOctantNumber() const { return octantNumber; }
   int GetModuleNumber() const { return moduleNumber; }
