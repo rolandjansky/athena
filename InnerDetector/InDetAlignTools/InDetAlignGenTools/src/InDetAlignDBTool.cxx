@@ -805,7 +805,7 @@ void InDetAlignDBTool::writeIBLDistFile( const std::string file)
   }
   else {
     if (msgLvl(MSG::INFO))
-      msg(MSG::INFO) << "Cannot find IBLDist Container - cannot write IBLDist DB in text file " << endreq;
+      msg(MSG::INFO) << "Cannot find IBLDist Container - cannot write IBLDist DB in text file " << endmsg;
   }
 
   outfile->close();
@@ -851,7 +851,7 @@ void InDetAlignDBTool::writeGlobalFolderFile( const std::string file)
       }
       else {
 	if (msgLvl(MSG::INFO))
-	  msg(MSG::INFO) << "Cannot find " << *it << " Container - cannot write DB in text file " << endreq;
+	  msg(MSG::INFO) << "Cannot find " << *it << " Container - cannot write DB in text file " << endmsg;
       }
     }
     outfile->close();
@@ -1577,14 +1577,14 @@ bool InDetAlignDBTool::tweakIBLDist(const int stave, const float bowx) const {
 	  msg(MSG::DEBUG) << "IBLDist DB -- channel before update: " << citr->first
 			 << " ,stave: " << atrlist2["stave"].data<int>()
 			 << " ,mag: " << atrlist2["mag"].data<float>()
-			 << " ,base: " << atrlist2["base"].data<float>() << endreq;
+			 << " ,base: " << atrlist2["base"].data<float>() << endmsg;
 
 	  atrlist2["mag"].data<float>() += bowx;
 	  result = true;
 	  msg(MSG::DEBUG) << "IBLDist DB -- channel after update: " << citr->first
 			 << " ,stave: " << atrlist2["stave"].data<int>()
 			 << " ,mag: " << atrlist2["mag"].data<float>()
-			 << " ,base: " << atrlist2["base"].data<float>() << endreq;
+			 << " ,base: " << atrlist2["base"].data<float>() << endmsg;
 	  
 	}	
       }
@@ -1640,7 +1640,7 @@ bool InDetAlignDBTool::tweakGlobalFolder(const Identifier& ident, const int leve
                           << " ,Tz: "     << atrlist2["Tz"].data<float>()
                           << " ,Rx: "     << atrlist2["Rx"].data<float>()
                           << " ,Ry: "     << atrlist2["Ry"].data<float>()
-                          << " ,Rz: "     << atrlist2["Rz"].data<float>() << endreq;
+                          << " ,Rz: "     << atrlist2["Rz"].data<float>() << endmsg;
 
 
 	  // Order of rotations is defined as around z, then y, then x.  
@@ -1677,7 +1677,7 @@ bool InDetAlignDBTool::tweakGlobalFolder(const Identifier& ident, const int leve
                           << " ,Tz: "     << atrlist2["Tz"].data<float>()
                           << " ,Rx: "     << atrlist2["Rx"].data<float>()
                           << " ,Ry: "     << atrlist2["Ry"].data<float>()
-                          << " ,Rz: "     << atrlist2["Rz"].data<float>() << endreq;
+                          << " ,Rz: "     << atrlist2["Rz"].data<float>() << endmsg;
 	  
 	}	
       }

@@ -59,16 +59,16 @@ StatusCode InDetAlignHitQualSelTool::initialize() {
     ATH_MSG_DEBUG( "DetectorStore retrieved!" );
   }
   if (detStore()->retrieve(m_sctID, "SCT_ID").isFailure()){
-    msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
-  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT ID is : "<< m_sctID <<endreq ;
+  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT ID is : "<< m_sctID <<endmsg ;
   
   if (detStore()->retrieve(m_pixelid, "PixelID").isFailure()){
-    msg(MSG::FATAL) << "Could not get PIXEL ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get PIXEL ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
-  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel ID is : " << m_pixelid << endreq;
+  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel ID is : " << m_pixelid << endmsg;
   
   // get pixel manager
   sc = detStore()->retrieve( m_PIXManager, "Pixel" ) ;

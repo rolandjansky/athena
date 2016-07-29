@@ -51,7 +51,7 @@ StatusCode InDetAlignOverlapTool::initialize() {
   
   // get pointer to AlignSiModuleList; after setup has created it
   if (StatusCode::SUCCESS!=detStore()->retrieve(p_modlist,"InDetAlignNt"))
-    msg(MSG::WARNING) << "Could not retrieve Modlist in execute" << endreq;
+    msg(MSG::WARNING) << "Could not retrieve Modlist in execute" << endmsg;
   
   
   ATH_MSG_DEBUG( "initialize() successful in " << name() ) ; 
@@ -94,7 +94,7 @@ int InDetAlignOverlapTool::getNumberOverlapPIX( const AlignTrk& trk ) const{
       if((p_modlist->vec[index]).bec()==0 && (p_modlist->vec[index]).dettype()==1 ){
       	msg().setColor(MSG::GREEN); 
 	msg(MSG::VERBOSE)<<"Index "<< index<<" Detector: "<< (p_modlist->vec[index]).dettype()<< " layer : " <<(p_modlist->vec[index]).layer() << " ring : " 
-			 <<(p_modlist->vec[index]).ring() <<" sector : "<<(p_modlist->vec[index]).sector()<< endreq;
+			 <<(p_modlist->vec[index]).ring() <<" sector : "<<(p_modlist->vec[index]).sector()<< endmsg;
       }
     }	
     
@@ -109,7 +109,7 @@ int InDetAlignOverlapTool::getNumberOverlapPIX( const AlignTrk& trk ) const{
       if(msgLvl(MSG::VERBOSE)){
 	if((p_modlist->vec[Allindex]).bec()==0 && (p_modlist->vec[Allindex]).dettype()==1 ){
 	  msg().setColor(MSG::BLUE);
-	  msg(MSG::VERBOSE)<<"Index "<< Allindex << endreq;
+	  msg(MSG::VERBOSE)<<"Index "<< Allindex << endmsg;
 	}
       }
       
@@ -128,12 +128,12 @@ int InDetAlignOverlapTool::getNumberOverlapPIX( const AlignTrk& trk ) const{
 	    if(msgLvl(MSG::DEBUG)){
 	      msg().setColor(MSG::RED); 
 	      msg(MSG::DEBUG)<<" Index:"<< index << " layer " << (p_modlist->vec[index]).layer()<<" ring "<<(p_modlist->vec[index]).ring() << 
-		" sector "<<(p_modlist->vec[index]).sector()<<endreq;//<<"rPhi Residuals: " << hit->rphi_resid() <<" eta Residuals: " << hit->z_resid());
+		" sector "<<(p_modlist->vec[index]).sector()<<endmsg;//<<"rPhi Residuals: " << hit->rphi_resid() <<" eta Residuals: " << hit->z_resid());
 	      msg().setColor(MSG::RED); 
 	      msg(MSG::DEBUG)<< " AllIndex:"<< Allindex <<" layer "<<(p_modlist->vec[Allindex]).layer()<<" ring "<<(p_modlist->vec[Allindex]).ring() <<
-		" sector "<<(p_modlist->vec[Allindex]).sector() <<endreq;//<<" rPhi Residuals: " << Allhit->rphi_resid() <<"  eta Residuals: " << Allhit->z_resid());
+		" sector "<<(p_modlist->vec[Allindex]).sector() <<endmsg;//<<" rPhi Residuals: " << Allhit->rphi_resid() <<"  eta Residuals: " << Allhit->z_resid());
 	      msg().setColor(MSG::RED); 
-	      msg(MSG::DEBUG)<<"Pixel Overlap in Phi found"<<endreq;
+	      msg(MSG::DEBUG)<<"Pixel Overlap in Phi found"<<endmsg;
 	    } //msg() end
 
 	    nPixelBarrelOverlapPhi++;
@@ -146,12 +146,12 @@ int InDetAlignOverlapTool::getNumberOverlapPIX( const AlignTrk& trk ) const{
 	    if(msgLvl(MSG::DEBUG)){
 	      msg().setColor(MSG::RED); 
 	      msg(MSG::DEBUG)<<" Index:"<< index << " layer " << (p_modlist->vec[index]).layer()<<" ring "<<(p_modlist->vec[index]).ring() << 
-		" sector "<<(p_modlist->vec[index]).sector()<<endreq;//<<"rPhi Residuals: " << hit->rphi_resid() <<" eta Residuals: " << hit->z_resid());
+		" sector "<<(p_modlist->vec[index]).sector()<<endmsg;//<<"rPhi Residuals: " << hit->rphi_resid() <<" eta Residuals: " << hit->z_resid());
 	      msg().setColor(MSG::RED); 
 	      msg(MSG::DEBUG)<<" AllIndex:"<< Allindex <<" layer "<<(p_modlist->vec[Allindex]).layer()<<" ring "<<(p_modlist->vec[Allindex]).ring() <<
-		" sector "<<(p_modlist->vec[Allindex]).sector()<<endreq;// <<" rPhi Residuals: " << Allhit->rphi_resid() <<"  eta Residuals: " << Allhit->z_resid());
+		" sector "<<(p_modlist->vec[Allindex]).sector()<<endmsg;// <<" rPhi Residuals: " << Allhit->rphi_resid() <<"  eta Residuals: " << Allhit->z_resid());
 	      msg().setColor(MSG::RED); 
-	      msg(MSG::DEBUG)<<"Pixel Overlap in Eta found"<<endreq;
+	      msg(MSG::DEBUG)<<"Pixel Overlap in Eta found"<<endmsg;
 	    } //msg() end
 
 	    nPixelBarrelOverlapEta++;
@@ -167,10 +167,10 @@ int InDetAlignOverlapTool::getNumberOverlapPIX( const AlignTrk& trk ) const{
 	    if(msgLvl(MSG::DEBUG)){
 	      msg().setColor(MSG::RED); 
 	      msg(MSG::DEBUG)<<" Index:"<< index << " layer " << (p_modlist->vec[index]).layer()<<" ring "<<(p_modlist->vec[index]).ring() << 
-		" sector "<<(p_modlist->vec[index]).sector()<<endreq;
+		" sector "<<(p_modlist->vec[index]).sector()<<endmsg;
 	      msg(MSG::DEBUG)<<" AllIndex:"<< Allindex <<" layer "<<(p_modlist->vec[Allindex]).layer()<<" ring "<<(p_modlist->vec[Allindex]).ring() <<
-		" sector "<<(p_modlist->vec[Allindex]).sector()<<endreq;
-	      msg(MSG::DEBUG)<<"EC Pixel Overlap in Phi found"<<endreq;
+		" sector "<<(p_modlist->vec[Allindex]).sector()<<endmsg;
+	      msg(MSG::DEBUG)<<"EC Pixel Overlap in Phi found"<<endmsg;
 	    }// msg() end
 
 	    nPixelECOverlapPhi++;
@@ -226,7 +226,7 @@ int InDetAlignOverlapTool::getNumberOverlapSCT( const AlignTrk& trk ) const{
       if((p_modlist->vec[index]).bec()==0 && (p_modlist->vec[index]).dettype()==1 ){
       	msg().setColor(MSG::GREEN); 
 	msg(MSG::VERBOSE)<<"Index "<< index<<" Detector: "<< (p_modlist->vec[index]).dettype()<< " layer : " <<(p_modlist->vec[index]).layer() << " ring : " 
-			 <<(p_modlist->vec[index]).ring() <<" sector : "<<(p_modlist->vec[index]).sector()<< endreq;
+			 <<(p_modlist->vec[index]).ring() <<" sector : "<<(p_modlist->vec[index]).sector()<< endmsg;
       }
     }	
 
@@ -242,7 +242,7 @@ int InDetAlignOverlapTool::getNumberOverlapSCT( const AlignTrk& trk ) const{
       if(msgLvl(MSG::VERBOSE)){
 	if((p_modlist->vec[Allindex]).bec()==0 && (p_modlist->vec[Allindex]).dettype()==1 ){
 	  msg().setColor(MSG::BLUE);
-	  msg(MSG::VERBOSE)<<"Index "<< Allindex << endreq;
+	  msg(MSG::VERBOSE)<<"Index "<< Allindex << endmsg;
 	}
       }
       
@@ -260,12 +260,12 @@ int InDetAlignOverlapTool::getNumberOverlapSCT( const AlignTrk& trk ) const{
 	    if(msgLvl(MSG::DEBUG)){
 	      msg().setColor(MSG::RED); 
 	      msg(MSG::DEBUG)<<" Index:"<< index << " layer " << (p_modlist->vec[index]).layer()<<" ring "<<(p_modlist->vec[index]).ring() << 
-		" sector "<<(p_modlist->vec[index]).sector()<<endreq;
+		" sector "<<(p_modlist->vec[index]).sector()<<endmsg;
 	      msg().setColor(MSG::RED); 
 	      msg(MSG::DEBUG)<<" AllIndex:"<< Allindex <<" layer "<<(p_modlist->vec[Allindex]).layer()<<" ring "<<(p_modlist->vec[Allindex]).ring() <<
-		" sector "<<(p_modlist->vec[Allindex]).sector()<< endreq;
+		" sector "<<(p_modlist->vec[Allindex]).sector()<< endmsg;
 	      msg().setColor(MSG::RED); 
-	      msg(MSG::DEBUG)<<"SCT Overlap in Phi found"<< endreq;
+	      msg(MSG::DEBUG)<<"SCT Overlap in Phi found"<< endmsg;
 	    }
 	    nSCTBarrelOverlapPhi++;
 	  }
@@ -275,12 +275,12 @@ int InDetAlignOverlapTool::getNumberOverlapSCT( const AlignTrk& trk ) const{
 	    if(msgLvl(MSG::DEBUG)){
 	      msg().setColor(MSG::RED); 
 	      msg(MSG::DEBUG)<<" Index:"<< index << " layer " << (p_modlist->vec[index]).layer()<<" ring "<<(p_modlist->vec[index]).ring() << 
-		" sector "<<(p_modlist->vec[index]).sector()<<endreq;
+		" sector "<<(p_modlist->vec[index]).sector()<<endmsg;
 	      msg().setColor(MSG::RED); 
 	      msg(MSG::DEBUG)<<" AllIndex:"<< Allindex <<" layer "<<(p_modlist->vec[Allindex]).layer()<<" ring "<<(p_modlist->vec[Allindex]).ring() <<
-		" sector "<<(p_modlist->vec[Allindex]).sector()<<endreq;
+		" sector "<<(p_modlist->vec[Allindex]).sector()<<endmsg;
 	      msg().setColor(MSG::RED); 
-	      msg(MSG::DEBUG)<<"SCT Overlap in Eta found"<<endreq;
+	      msg(MSG::DEBUG)<<"SCT Overlap in Eta found"<<endmsg;
 	    }
 	    nSCTBarrelOverlapEta++;
 	  }
@@ -294,12 +294,12 @@ int InDetAlignOverlapTool::getNumberOverlapSCT( const AlignTrk& trk ) const{
 	    if(msgLvl(MSG::DEBUG)){
 	      msg().setColor(MSG::RED);  
 	      msg(MSG::DEBUG)<<" Index:"<< index << " layer " << (p_modlist->vec[index]).layer()<<" ring "<<(p_modlist->vec[index]).ring() << 
-		" sector "<<(p_modlist->vec[index]).sector()<<endreq;
+		" sector "<<(p_modlist->vec[index]).sector()<<endmsg;
 	      msg().setColor(MSG::RED); 
 	      msg(MSG::DEBUG)<<" AllIndex:"<< Allindex <<" layer "<<(p_modlist->vec[Allindex]).layer()<<" ring "<<(p_modlist->vec[Allindex]).ring() <<
-		" sector "<<(p_modlist->vec[Allindex]).sector()<<endreq;
+		" sector "<<(p_modlist->vec[Allindex]).sector()<<endmsg;
 	      
-	      msg(MSG::DEBUG)<<"EC SCT Overlap in Phi found"<<endreq;
+	      msg(MSG::DEBUG)<<"EC SCT Overlap in Phi found"<<endmsg;
 	    }
 	    nSCTECOverlapPhi++;
 	  }
@@ -309,12 +309,12 @@ int InDetAlignOverlapTool::getNumberOverlapSCT( const AlignTrk& trk ) const{
 	    if(msgLvl(MSG::DEBUG)){
 	      msg().setColor(MSG::GREEN);  
 	      msg(MSG::DEBUG)<<" Index:"<< index << " layer " << (p_modlist->vec[index]).layer()<<" ring "<<(p_modlist->vec[index]).ring() << 
-		" sector "<<(p_modlist->vec[index]).sector()<<endreq;
+		" sector "<<(p_modlist->vec[index]).sector()<<endmsg;
 	      msg().setColor(MSG::GREEN); 
 	      msg(MSG::DEBUG)<<" AllIndex:"<< Allindex <<" layer "<<(p_modlist->vec[Allindex]).layer()<<" ring "<<(p_modlist->vec[Allindex]).ring() <<
-		" sector "<<(p_modlist->vec[Allindex]).sector()<<endreq;
+		" sector "<<(p_modlist->vec[Allindex]).sector()<<endmsg;
 	      
-	      msg(MSG::DEBUG)<<"EC SCT Overlap in Eta found"<<endreq;
+	      msg(MSG::DEBUG)<<"EC SCT Overlap in Eta found"<<endmsg;
 	    }
 	    nSCTECOverlapEta++;
 	  }

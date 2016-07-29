@@ -115,36 +115,36 @@ InDetAlignFillTrack::~InDetAlignFillTrack() {}
 // initialize()
 //===================================================================== 
 StatusCode InDetAlignFillTrack::initialize() {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialize() of FillTrack" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialize() of FillTrack" << endmsg;
   
   // retrieve the NTuple Service
   if (StatusCode::SUCCESS != service("NTupleSvc", m_ntupleSvc)) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "NTupleSvc service not found" << endreq;
+    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "NTupleSvc service not found" << endmsg;
     return StatusCode::FAILURE;
   }
 
   // get TrackSummaryTool
   if ( m_trackSumTool.retrieve().isFailure() ) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackSumTool << endreq;
+    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackSumTool << endmsg;
     return StatusCode::FAILURE;
   } 
-  else { if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSumTool << endreq; }
+  else { if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSumTool << endmsg; }
   
   // if Truth...
   if (m_doTruth) {
     // Get TruthToTrack
     if ( m_truthToTrack.retrieve().isFailure() ) {
-      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve tool " << m_truthToTrack << endreq;
+      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve tool " << m_truthToTrack << endmsg;
       return StatusCode::FAILURE;
     }
-    else { if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_truthToTrack << endreq; }
+    else { if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_truthToTrack << endmsg; }
 
     // Get Extrapolator Tool
     if ( m_extrapolator.retrieve().isFailure() ) {
-      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
+      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
       return StatusCode::FAILURE;
     }
-    else { if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_extrapolator << endreq; }
+    else { if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_extrapolator << endmsg; }
     
     // retrieve the PartPropSvc service (need for Cosmics)
     IPartPropSvc* p_PartPropSvc;
@@ -152,12 +152,12 @@ StatusCode InDetAlignFillTrack::initialize() {
     StatusCode PartPropStatus = svcLoc()->service( "PartPropSvc", p_PartPropSvc, CREATEIFNOTTHERE );
     
     if (!PartPropStatus.isSuccess() || 0 == p_PartPropSvc) {
-      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "FillTrack: could not find PartPropSvc" << endreq;
+      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "FillTrack: could not find PartPropSvc" << endmsg;
       return StatusCode::FAILURE;
     }   
     m_mctable = const_cast<HepPDT::ParticleDataTable*>(p_PartPropSvc->PDT());
     if(m_mctable == 0){
-      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "FillTrack: PDG table not found" << endreq;
+      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "FillTrack: PDG table not found" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -168,7 +168,7 @@ StatusCode InDetAlignFillTrack::initialize() {
   if (m_inputLowCol!="") bookLowNtuple(); 
   if (m_doMatching && m_inputUpCol!="" && m_inputLowCol!="") bookMatchingNtuple();
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialize() of FillTrack successful" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialize() of FillTrack successful" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -180,40 +180,40 @@ StatusCode InDetAlignFillTrack::finalize() {
 
   if (msgLvl(MSG::DEBUG)) {
 
-    msg(MSG::DEBUG) << "Finalize() of FillTrack" << endreq;
+    msg(MSG::DEBUG) << "Finalize() of FillTrack" << endmsg;
 
-    msg(MSG::DEBUG) << "________________________________________________________" << endreq;
-    msg(MSG::DEBUG) << endreq;
-    msg(MSG::DEBUG) << " InDetAlignFillTrack Summary: " << endreq;
-    msg(MSG::DEBUG) << " - " << m_events << " events" << endreq;
-    msg(MSG::DEBUG) << " - " << m_totaltrks << " tracks" << endreq;
-    msg(MSG::DEBUG) << " - " << m_totalhits << " hits" << endreq;
-    msg(MSG::DEBUG) << "  - " << m_totalPixhits << " Pixel hits" << endreq;
-    msg(MSG::DEBUG) << "  - " << m_totalSCThits << " SCT hits" << endreq;
-    msg(MSG::DEBUG) << "  - " << m_totalTRThits << " TRT hits" << endreq;
-    msg(MSG::DEBUG) << "________________________________________________________" << endreq;
+    msg(MSG::DEBUG) << "________________________________________________________" << endmsg;
+    msg(MSG::DEBUG) << endmsg;
+    msg(MSG::DEBUG) << " InDetAlignFillTrack Summary: " << endmsg;
+    msg(MSG::DEBUG) << " - " << m_events << " events" << endmsg;
+    msg(MSG::DEBUG) << " - " << m_totaltrks << " tracks" << endmsg;
+    msg(MSG::DEBUG) << " - " << m_totalhits << " hits" << endmsg;
+    msg(MSG::DEBUG) << "  - " << m_totalPixhits << " Pixel hits" << endmsg;
+    msg(MSG::DEBUG) << "  - " << m_totalSCThits << " SCT hits" << endmsg;
+    msg(MSG::DEBUG) << "  - " << m_totalTRThits << " TRT hits" << endmsg;
+    msg(MSG::DEBUG) << "________________________________________________________" << endmsg;
 
     if (m_inputUpCol!="") {
-      msg(MSG::DEBUG) << " Up Track Summary: " << endreq;
-      msg(MSG::DEBUG) << " - " << m_totalUptrks << " tracks" << endreq;
-      msg(MSG::DEBUG) << " - " << m_totalUphits << " hits" << endreq;
-      msg(MSG::DEBUG) << "  - " << m_totalUpPixhits << " Pixel hits" << endreq;
-      msg(MSG::DEBUG) << "  - " << m_totalUpSCThits << " SCT hits" << endreq;
-      msg(MSG::DEBUG) << "  - " << m_totalUpTRThits << " TRT hits" << endreq;
-      msg(MSG::DEBUG) << "________________________________________________________" << endreq;
+      msg(MSG::DEBUG) << " Up Track Summary: " << endmsg;
+      msg(MSG::DEBUG) << " - " << m_totalUptrks << " tracks" << endmsg;
+      msg(MSG::DEBUG) << " - " << m_totalUphits << " hits" << endmsg;
+      msg(MSG::DEBUG) << "  - " << m_totalUpPixhits << " Pixel hits" << endmsg;
+      msg(MSG::DEBUG) << "  - " << m_totalUpSCThits << " SCT hits" << endmsg;
+      msg(MSG::DEBUG) << "  - " << m_totalUpTRThits << " TRT hits" << endmsg;
+      msg(MSG::DEBUG) << "________________________________________________________" << endmsg;
     }
   
     if (m_inputLowCol!="") {
-      msg(MSG::DEBUG) << " Low Track Summary: " << endreq;
-      msg(MSG::DEBUG) << " - " << m_totalLowtrks << " tracks" << endreq;
-      msg(MSG::DEBUG) << " - " << m_totalLowhits << " hits" << endreq;
-      msg(MSG::DEBUG) << "  - " << m_totalLowPixhits << " Pixel hits" << endreq;
-      msg(MSG::DEBUG) << "  - " << m_totalLowSCThits << " SCT hits" << endreq;
-      msg(MSG::DEBUG) << "  - " << m_totalLowTRThits << " TRT hits" << endreq;
-      msg(MSG::DEBUG) << "________________________________________________________" << endreq;
+      msg(MSG::DEBUG) << " Low Track Summary: " << endmsg;
+      msg(MSG::DEBUG) << " - " << m_totalLowtrks << " tracks" << endmsg;
+      msg(MSG::DEBUG) << " - " << m_totalLowhits << " hits" << endmsg;
+      msg(MSG::DEBUG) << "  - " << m_totalLowPixhits << " Pixel hits" << endmsg;
+      msg(MSG::DEBUG) << "  - " << m_totalLowSCThits << " SCT hits" << endmsg;
+      msg(MSG::DEBUG) << "  - " << m_totalLowTRThits << " TRT hits" << endmsg;
+      msg(MSG::DEBUG) << "________________________________________________________" << endmsg;
     }
 
-    msg(MSG::DEBUG) << endreq;
+    msg(MSG::DEBUG) << endmsg;
 
   }
 
@@ -227,8 +227,8 @@ StatusCode InDetAlignFillTrack::finalize() {
 StatusCode InDetAlignFillTrack::FillTrack() {
 
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "In FillTrack()" << endreq;
-    msg(MSG::DEBUG) << " event " << m_events << endreq;    
+    msg(MSG::DEBUG) << "In FillTrack()" << endmsg;
+    msg(MSG::DEBUG) << " event " << m_events << endmsg;    
   }
 
   StatusCode sc;
@@ -239,14 +239,14 @@ StatusCode InDetAlignFillTrack::FillTrack() {
 
   // retrieve all tracks from TDS  
   if (StatusCode::SUCCESS!=evtStore()->retrieve(tracks,m_inputCol)) {
-    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Cannot find " << m_inputCol  << endreq;
+    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Cannot find " << m_inputCol  << endmsg;
     return StatusCode::FAILURE;
   }
 
   // retrieve all Up tracks from TDS
   if (m_inputUpCol!="") {
     if (StatusCode::SUCCESS!=evtStore()->retrieve(Uptracks,m_inputUpCol)) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Cannot find " << m_inputUpCol  << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Cannot find " << m_inputUpCol  << endmsg;
       return StatusCode::FAILURE;
     }
     else ATH_MSG_DEBUG( "Collection with name "<< m_inputUpCol <<" found in StoreGate" );
@@ -255,26 +255,26 @@ StatusCode InDetAlignFillTrack::FillTrack() {
   // retrieve all Low tracks from TDS
   if (m_inputLowCol!="") {
     if (StatusCode::SUCCESS!=evtStore()->retrieve(Lowtracks,m_inputLowCol)) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Cannot find " << m_inputLowCol  << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Cannot find " << m_inputLowCol  << endmsg;
       return StatusCode::FAILURE;
     }
     else ATH_MSG_DEBUG( "Collection with name "<< m_inputLowCol <<" found in StoreGate" );
   }
 
   nt_ntracks = tracks->size();
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved Track Collection size: " << tracks->size() << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved Track Collection size: " << tracks->size() << endmsg;
 
   if (m_inputUpCol!="") {
     nt_nUptracks = Uptracks->size();
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved Up Track Collection size: " << Uptracks->size() << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved Up Track Collection size: " << Uptracks->size() << endmsg;
   }
 
   if (m_inputLowCol!="") {
     nt_nLowtracks = Lowtracks->size();
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved Low Track Collection size: " << Lowtracks->size() << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved Low Track Collection size: " << Lowtracks->size() << endmsg;
   }
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Printing input track collection" << endreq; 
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Printing input track collection" << endmsg; 
   m_totaltrks += dumpTrackCol(tracks);
   if (m_inputUpCol!="") m_totalUptrks += dumpTrackCol(Uptracks,"Up");
   if (m_inputLowCol!="") m_totalLowtrks += dumpTrackCol(Lowtracks,"Low");
@@ -282,7 +282,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
   // matching
   if (m_doMatching && m_inputUpCol!="" && m_inputLowCol!="") 
     if(StatusCode::SUCCESS!=dumpMatching(Uptracks,Lowtracks)) { 
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "dumpMatching failure" << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "dumpMatching failure" << endmsg;
       return StatusCode::FAILURE;
     }
       
@@ -296,19 +296,19 @@ StatusCode InDetAlignFillTrack::FillTrack() {
     
     // retrieve all track truth collection from TDS  
     if (StatusCode::SUCCESS!=evtStore()->retrieve(truthCol, m_TruthTrkCol)) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Cannot find " << m_inputCol  << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Cannot find " << m_inputCol  << endmsg;
       return StatusCode::FAILURE;
     }
     else {
       if (!truthCol)
 	{
-	  if (msgLvl(MSG::ERROR)) {msg(MSG::ERROR) <<  "Failure retrieving " << m_TruthTrkCol << endreq;}
+	  if (msgLvl(MSG::ERROR)) {msg(MSG::ERROR) <<  "Failure retrieving " << m_TruthTrkCol << endmsg;}
 	  return StatusCode::FAILURE;
 	}
       
       if (msgLvl(MSG::DEBUG)) {
-	msg(MSG::DEBUG) << "Collection with name "<< m_TruthTrkCol <<" found in StoreGate" << endreq;
-	msg(MSG::DEBUG) << "Retrieved "<< truthCol->size() <<" truth tracks from StoreGate" << endreq;
+	msg(MSG::DEBUG) << "Collection with name "<< m_TruthTrkCol <<" found in StoreGate" << endmsg;
+	msg(MSG::DEBUG) << "Retrieved "<< truthCol->size() <<" truth tracks from StoreGate" << endmsg;
       }
       
       nt_nmctracks = truthCol->size();
@@ -322,7 +322,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
         const Trk::Track* track = *trackItr;
         if(track == NULL){
           if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No associated Trk::Track object found for track "
-                  << nTracks << endreq;
+                  << nTracks << endmsg;
           continue;
         }
 	//Coverity fix: 14309: useless check. Commented out
@@ -342,7 +342,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
 	  
 	  // getting the TrackTruth object - the map element
 	  TrackTruth trkTruth = found->second;
-	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "got trkTruth" << endreq;
+	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "got trkTruth" << endmsg;
 	  
 	  // probability of the reco<->truth match
 	  float trkTruthProb =  trkTruth.probability();
@@ -360,11 +360,11 @@ StatusCode InDetAlignFillTrack::FillTrack() {
 					   genParticle->production_vertex()->position().z() );
 	    
 	    if (msgLvl(MSG::DEBUG)) {
-	      msg(MSG::DEBUG) << nTracks << ". Generated Particle "<< endreq;
+	      msg(MSG::DEBUG) << nTracks << ". Generated Particle "<< endmsg;
 	      msg(MSG::DEBUG) << "   * PDG " << genParticle->pdg_id() 
 			      << ", Status " << genParticle->status() 
 			      << ", mass " << genParticle->momentum().m() << " CLHEP::MeV/c"
-			      << endreq;
+			      << endmsg;
 	    }
 	    
 	    float genPt = sqrt((genParticle->momentum().x())*(genParticle->momentum().x()) 
@@ -374,7 +374,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
 						    << ", p " << genParticle->momentum().e()/CLHEP::GeV << " CLHEP::GeV/c"
 						    << ", eta " << genParticle->momentum().eta() 
 						    << ", phi "<< genParticle->momentum().phi() << " CLHEP::rad"
-						    << endreq;
+						    << endmsg;
 	    
 	    nt_mc_trkistruth[nTracks] = 1;
 	    nt_mc_Trk_pdg[nTracks] = genParticle->pdg_id();
@@ -399,19 +399,19 @@ StatusCode InDetAlignFillTrack::FillTrack() {
 	      
 	      if (!generatedTrackPerigee) {
 		if (msgLvl(MSG::DEBUG)) {
-		  msg(MSG::DEBUG) <<  "Unable to extrapolate genParticle to perigee!" << endreq;   
-		  msg(MSG::DEBUG) <<  "Trying to extrapolate directly to exclude material effects!" << endreq;   
+		  msg(MSG::DEBUG) <<  "Unable to extrapolate genParticle to perigee!" << endmsg;   
+		  msg(MSG::DEBUG) <<  "Trying to extrapolate directly to exclude material effects!" << endmsg;   
 		}
 		
 		const TrackRecordCollection* recordCollection;
 		
 		sc = evtStore()->retrieve(recordCollection, "CaloEntryLayer");
 		if (sc==StatusCode::FAILURE) {
-		  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get track record!" << endreq;
+		  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get track record!" << endmsg;
 		  return sc;
 		}
 		if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "reading from track record, size = " 
-							<< recordCollection->size() << endreq;
+							<< recordCollection->size() << endmsg;
 		
 		int m_nmctracks = 0;
 		
@@ -446,7 +446,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
 							  << productionVertex.x() << ", " 
 							  << productionVertex.y() << ", " 
 							  << productionVertex.z() << ")" 
-							  << endreq;
+							  << endmsg;
 		  
 		  double genPar_theta  = direction.theta();
 		  
@@ -478,7 +478,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
 							  << perigeeGlobalPosition.x() << ", " 
 							  << perigeeGlobalPosition.y() << ", " 
 							  << perigeeGlobalPosition.z() << ")"
-							  << endreq;
+							  << endmsg;
 		  
 		  // Extrapolate the TrackParameters object to the perigee
 		  
@@ -488,7 +488,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
 		  
 		  double distance = sqrt( difference.x() * difference.x() + difference.y() * difference.y() );
 		  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Distance between perigee point and generated vertex: " 
-							  << distance/CLHEP::m << " m" << endreq;
+							  << distance/CLHEP::m << " m" << endmsg;
 		  
 		  const Trk::TrackParameters* generatedTrackPerigee = 0;
 		  
@@ -496,7 +496,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
 		  if ( distance > 1.e-4 ) {
 		    
 		    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Distance between perigee and generated vertex exceeds tolerance (" 
-							    << 1.e-4 << " mm)... Extrapolating!" << endreq;
+							    << 1.e-4 << " mm)... Extrapolating!" << endmsg;
 		    
 		    generatedTrackPerigee = m_extrapolator->extrapolateDirectly( *productionVertexTrackParams,
 										 perigeeSurface,
@@ -508,7 +508,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
 		  
 		  else {
 		    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Distance between perigee and generated vertex is less than tolerance (" 
-							    << 1.e-4 << " CLHEP::mm)... " << "No propagation to perigee required" << endreq;
+							    << 1.e-4 << " CLHEP::mm)... " << "No propagation to perigee required" << endmsg;
 		    
 		    // Clone the parameters from the AtaPlane object on to perigee
 		    generatedTrackPerigee = new Trk::Perigee( 0., 0.,
@@ -554,27 +554,27 @@ StatusCode InDetAlignFillTrack::FillTrack() {
   // Store TrkTrack branch
   std::string nt0id = m_ntupleName + "/TrkTrack";
   sc = m_ntupleSvc->writeRecord(nt0id);
-  if (sc.isFailure()) if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not write " << nt0id << "!" << endreq;
+  if (sc.isFailure()) if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not write " << nt0id << "!" << endmsg;
   
   if (m_inputUpCol!="") {
     // Store TrkTrack_Up branch
     std::string nt1id = m_ntupleName + "/TrkTrack_Up";
     sc = m_ntupleSvc->writeRecord(nt1id);
-    if (sc.isFailure()) if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not write " << nt1id << "!" << endreq;
+    if (sc.isFailure()) if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not write " << nt1id << "!" << endmsg;
   }
   
   if (m_inputLowCol!="") {
     // Store TrkTrack_Low branch
     std::string nt2id = m_ntupleName + "/TrkTrack_Low";
     sc = m_ntupleSvc->writeRecord(nt2id);
-    if (sc.isFailure()) if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not write " << nt2id << "!" << endreq;
+    if (sc.isFailure()) if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not write " << nt2id << "!" << endmsg;
   }
   
   if (m_doMatching && m_inputUpCol!="" && m_inputLowCol!="") {
     // Store Matching Up/Low TrkTracks branch
     std::string nt3id = m_ntupleName + "/TrkTrack_Matching";
     sc = m_ntupleSvc->writeRecord(nt3id);
-    if (sc.isFailure()) if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not write " << nt3id << "!" << endreq;
+    if (sc.isFailure()) if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not write " << nt3id << "!" << endmsg;
   }
   
 
@@ -614,16 +614,16 @@ StatusCode InDetAlignFillTrack::FillTrack() {
 //===================================================================== 
 void InDetAlignFillTrack::bookNtuple() {
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Booking Trk::Track Info..." << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Booking Trk::Track Info..." << endmsg;
     
   NTupleFilePtr file1(m_ntupleSvc, m_ntupleName);
   std::string nt0id    = m_ntupleName + "/TrkTrack";
   std::string comments = "Trk::Track Information";
   
   NTuplePtr nt0(m_ntupleSvc, nt0id);
-  if (nt0) {if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ntuple is already booked" << endreq;}
+  if (nt0) {if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ntuple is already booked" << endmsg;}
   else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Attempting to book general ntuple" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Attempting to book general ntuple" << endmsg;
     nt0 = m_ntupleSvc->book(nt0id,CLID_ColumnWiseTuple,comments);
     
     if (nt0) {
@@ -690,12 +690,12 @@ void InDetAlignFillTrack::bookNtuple() {
 	// ----------------------------------------------------------------------
       }
 
-      if (sc.isFailure()) msg(MSG::FATAL) << "Failed ntupleSvc()" << endreq;
-      else  msg(MSG::DEBUG) << "Ntuple " << nt0id << " has been booked successfully! " << endreq;
-      //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ntuple " << nt0id << " has been booked successfully! " << endreq;
+      if (sc.isFailure()) msg(MSG::FATAL) << "Failed ntupleSvc()" << endmsg;
+      else  msg(MSG::DEBUG) << "Ntuple " << nt0id << " has been booked successfully! " << endmsg;
+      //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ntuple " << nt0id << " has been booked successfully! " << endmsg;
     }
 
-    else { if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Error booking ntuple" << endreq; }
+    else { if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Error booking ntuple" << endmsg; }
   }
 
   // return;
@@ -707,15 +707,15 @@ void InDetAlignFillTrack::bookNtuple() {
 //===================================================================== 
 void InDetAlignFillTrack::bookUpNtuple() {
   
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Booking Up Trk::Track Info..." << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Booking Up Trk::Track Info..." << endmsg;
     
   std::string nt1id    = m_ntupleName + "/TrkTrack_Up";
   std::string comments = "Trk::UpTrack Information";
     
   NTuplePtr nt1(m_ntupleSvc, nt1id);
-  if (nt1) {if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ntuple is already booked" << endreq;}
+  if (nt1) {if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ntuple is already booked" << endmsg;}
   else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Attempting to book general ntuple" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Attempting to book general ntuple" << endmsg;
     nt1 = m_ntupleSvc->book(nt1id,CLID_ColumnWiseTuple,comments);
     
     if (nt1) {
@@ -753,10 +753,10 @@ void InDetAlignFillTrack::bookUpNtuple() {
       sc = nt1->addItem("Trk_chi2Prob_Up", nt_nUptracks, nt_Trk_chi2Prob_Up);
       // ----------------------------------------------------------------------
      
-      if (sc.isFailure()) msg(MSG::FATAL) << "Failed ntupleSvc()" << endreq;
-      else  msg(MSG::DEBUG) << "Ntuple " << nt1id << " has been booked successfully! " << endreq;
+      if (sc.isFailure()) msg(MSG::FATAL) << "Failed ntupleSvc()" << endmsg;
+      else  msg(MSG::DEBUG) << "Ntuple " << nt1id << " has been booked successfully! " << endmsg;
     }
-    else { if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Error booking ntuple" << endreq; }
+    else { if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Error booking ntuple" << endmsg; }
   }
 
 }
@@ -767,15 +767,15 @@ void InDetAlignFillTrack::bookUpNtuple() {
 //===================================================================== 
 void InDetAlignFillTrack::bookLowNtuple() {
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Booking Low Trk::Track Info..." << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Booking Low Trk::Track Info..." << endmsg;
     
   std::string nt2id    = m_ntupleName + "/TrkTrack_Low";
   std::string comments = "Trk::LowTrack Information";
     
   NTuplePtr nt2(m_ntupleSvc, nt2id);
-  if (nt2) {if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ntuple is already booked" << endreq;}
+  if (nt2) {if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ntuple is already booked" << endmsg;}
   else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Attempting to book general ntuple" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Attempting to book general ntuple" << endmsg;
     nt2 = m_ntupleSvc->book(nt2id,CLID_ColumnWiseTuple,comments);
     
     if (nt2) {
@@ -812,11 +812,11 @@ void InDetAlignFillTrack::bookLowNtuple() {
       sc = nt2->addItem("Trk_ndof_Low",     nt_nLowtracks, nt_Trk_ndof_Low);
       sc = nt2->addItem("Trk_chi2Prob_Low", nt_nLowtracks, nt_Trk_chi2Prob_Low);
       // ----------------------------------------------------------------------
-      if (sc.isFailure()) msg(MSG::FATAL) << "Failed ntupleSvc()" << endreq;
-      else  msg(MSG::DEBUG) << "Ntuple " << nt2id << " has been booked successfully! " << endreq;
+      if (sc.isFailure()) msg(MSG::FATAL) << "Failed ntupleSvc()" << endmsg;
+      else  msg(MSG::DEBUG) << "Ntuple " << nt2id << " has been booked successfully! " << endmsg;
       
     }
-    else { if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Error booking ntuple" << endreq; }
+    else { if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Error booking ntuple" << endmsg; }
   }
 }
 
@@ -826,15 +826,15 @@ void InDetAlignFillTrack::bookLowNtuple() {
 //===================================================================== 
 void InDetAlignFillTrack::bookMatchingNtuple() {
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Booking Matching between Up and Low Trk::Track Collections..." << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Booking Matching between Up and Low Trk::Track Collections..." << endmsg;
     
   std::string nt3id    = m_ntupleName + "/TrkTrack_Matching";
   std::string comments = "Matching between Up and Low Trk::Track Collections";
   
   NTuplePtr nt3(m_ntupleSvc, nt3id);
-  if (nt3) {if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ntuple is already booked" << endreq;}
+  if (nt3) {if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ntuple is already booked" << endmsg;}
   else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Attempting to book general ntuple" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Attempting to book general ntuple" << endmsg;
     m_ntupleSvc->book(nt3id,CLID_ColumnWiseTuple,comments);
     
     if (nt3) {
@@ -855,11 +855,11 @@ void InDetAlignFillTrack::bookMatchingNtuple() {
       sc = nt3->addItem("Trk_delta_charge",    nt_matchingTrk, nt_Trk_delta_charge);
       // ----------------------------------------------------------------------
       
-      if (sc.isFailure()) msg(MSG::FATAL) << "Failed ntupleSvc()" << endreq;
-      else msg(MSG::DEBUG) << "Ntuple " << nt3id << " has been booked successfully! " << endreq;
+      if (sc.isFailure()) msg(MSG::FATAL) << "Failed ntupleSvc()" << endmsg;
+      else msg(MSG::DEBUG) << "Ntuple " << nt3id << " has been booked successfully! " << endmsg;
       
     }
-    else { if (msgLvl(MSG::ERROR)) msg(MSG::DEBUG) << "Error booking ntuple" << endreq; }
+    else { if (msgLvl(MSG::ERROR)) msg(MSG::DEBUG) << "Error booking ntuple" << endmsg; }
   }
   
   return;
@@ -879,7 +879,7 @@ int InDetAlignFillTrack::dumpTrackCol(const TrackCollection* tracks) {
 int InDetAlignFillTrack::dumpTrackCol(const TrackCollection* tracks,
 				      const std::string TrkColName) { 
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In dump" << TrkColName << "TrackCol()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In dump" << TrkColName << "TrackCol()" << endmsg;
   
   int itrk = 0;
   
@@ -904,12 +904,12 @@ int InDetAlignFillTrack::dumpTrackCol(const TrackCollection* tracks,
 //=====================================================================
 void InDetAlignFillTrack::dumpTrack(int itrk, const Trk::Track* trk,
 				    std::string TrkColName) {
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In dump" << TrkColName << "Track()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In dump" << TrkColName << "Track()" << endmsg;
 
   const Trk::Perigee *aMeasPer =trk->perigeeParameters();
   
   if (aMeasPer==0){
-    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get Trk::MeasuredPerigee" << endreq;}
+    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get Trk::MeasuredPerigee" << endmsg;}
   else {
     double d0 = aMeasPer->parameters()[Trk::d0];
     double z0 = aMeasPer->parameters()[Trk::z0];
@@ -919,20 +919,20 @@ void InDetAlignFillTrack::dumpTrack(int itrk, const Trk::Track* trk,
     
     if (msgLvl(MSG::DEBUG)) {
     	msg(MSG::DEBUG) << itrk << ". " << TrkColName 
-			<< " Track Parameters (d0, z0, phi0, theta, q/p)"  << endreq;
+			<< " Track Parameters (d0, z0, phi0, theta, q/p)"  << endmsg;
 	    msg(MSG::DEBUG) << " " << d0 << ", " << z0  << ", " 
-			<< phi0 << ", " << theta  << ", " << qOverP << endreq;
+			<< phi0 << ", " << theta  << ", " << qOverP << endmsg;
     }
     
     float transverseMomentum = sqrt((aMeasPer->momentum().x())*(aMeasPer->momentum().x()) 
             + (aMeasPer->momentum().y())*(aMeasPer->momentum().y()));
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  p = " << aMeasPer->momentum().mag()/CLHEP::GeV << " CLHEP::GeV/c, "
-              << " pT = " << transverseMomentum/CLHEP::GeV << " CLHEP::GeV/c" << endreq;
+              << " pT = " << transverseMomentum/CLHEP::GeV << " CLHEP::GeV/c" << endmsg;
 
     // number of hits
     int nHits = (*trk).measurementsOnTrack()->size();
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " - number of hits : " << nHits << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " - number of hits : " << nHits << endmsg;
     if (nHits!=0) {
       if (TrkColName=="Up") m_totalUphits += nHits;
       else if (TrkColName=="Low") m_totalLowhits += nHits;
@@ -956,9 +956,9 @@ void InDetAlignFillTrack::dumpTrack(int itrk, const Trk::Track* trk,
       nhitstrt = summary->get(Trk::numberOfTRTHits);
 
       if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG)  << "   -- number of Pixel hits : " << nhitspix << endreq;
-        msg(MSG::DEBUG)  << "   -- number of SCT hits : " << nhitssct << endreq;
-        msg(MSG::DEBUG)  << "   -- number of TRT hits : " << nhitstrt << endreq;
+        msg(MSG::DEBUG)  << "   -- number of Pixel hits : " << nhitspix << endmsg;
+        msg(MSG::DEBUG)  << "   -- number of SCT hits : " << nhitssct << endmsg;
+        msg(MSG::DEBUG)  << "   -- number of TRT hits : " << nhitstrt << endmsg;
       }
 
       if (nhitspix!=0) {
@@ -987,9 +987,9 @@ void InDetAlignFillTrack::dumpTrack(int itrk, const Trk::Track* trk,
       if (nshared<0) nshared=0;
 
       if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG)  << " - number of shared hits : " << nshared << endreq;
-        msg(MSG::DEBUG)  << "  -- number of Pixel shared hits : " << nshpix << endreq;
-        msg(MSG::DEBUG)  << "  -- number of SCT shared hits : " << nshsct << endreq;
+        msg(MSG::DEBUG)  << " - number of shared hits : " << nshared << endmsg;
+        msg(MSG::DEBUG)  << "  -- number of Pixel shared hits : " << nshpix << endmsg;
+        msg(MSG::DEBUG)  << "  -- number of SCT shared hits : " << nshsct << endmsg;
       }
 
       // holes
@@ -1002,9 +1002,9 @@ void InDetAlignFillTrack::dumpTrack(int itrk, const Trk::Track* trk,
       if (nholes<0) nholes=0;
 
       if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG)  << " - number of Pixel holes : " << nhpix << endreq;
-        msg(MSG::DEBUG)  << "  -- number of SCT holes : " << nhsct << endreq;
-        msg(MSG::DEBUG)  << "  -- number of holes : " << nholes << endreq;
+        msg(MSG::DEBUG)  << " - number of Pixel holes : " << nhpix << endmsg;
+        msg(MSG::DEBUG)  << "  -- number of SCT holes : " << nhsct << endmsg;
+        msg(MSG::DEBUG)  << "  -- number of holes : " << nholes << endmsg;
       }
 
     }
@@ -1016,7 +1016,7 @@ void InDetAlignFillTrack::dumpTrack(int itrk, const Trk::Track* trk,
     double chi2Prob=0.;
     const Trk::FitQuality* fitQual = (*trk).fitQuality();
     if (fitQual==0) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "No fit quality assigned to the track" << endreq; 
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "No fit quality assigned to the track" << endmsg; 
       chi2Prob = -1e12; // return big value
     }
     else {
@@ -1025,9 +1025,9 @@ void InDetAlignFillTrack::dumpTrack(int itrk, const Trk::Track* trk,
         chi2Prob = 1 - probabilityFunction( fitQual->chiSquared() );
   
         if (msgLvl(MSG::DEBUG)) {
-          msg(MSG::DEBUG)  << "  - chi2             : " << fitQual->chiSquared() << endreq;
-          msg(MSG::DEBUG)  << "  - ndof             : " << fitQual->numberDoF() << endreq;
-          msg(MSG::DEBUG)  << "  - chi2 propability : " << chi2Prob << endreq;
+          msg(MSG::DEBUG)  << "  - chi2             : " << fitQual->chiSquared() << endmsg;
+          msg(MSG::DEBUG)  << "  - ndof             : " << fitQual->numberDoF() << endmsg;
+          msg(MSG::DEBUG)  << "  - chi2 propability : " << chi2Prob << endmsg;
         }
 	
     	}
@@ -1120,7 +1120,7 @@ void InDetAlignFillTrack::dumpTrack(int itrk, const Trk::Track* trk,
 void InDetAlignFillTrack::dumpPerigee(const Trk::TrackParameters* generatedTrackPerigee, 
 				      int index) {
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In dumpPerigee()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In dumpPerigee()" << endmsg;
 
   float d0 = generatedTrackPerigee->parameters()[Trk::d0];
   float z0 = generatedTrackPerigee->parameters()[Trk::z0];           
@@ -1135,12 +1135,12 @@ void InDetAlignFillTrack::dumpPerigee(const Trk::TrackParameters* generatedTrack
   
   if (msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << " - Extrapolated genParticle perigee parameters " 
-	  << "(d0, z0, phi0, theta, q/p)"  << endreq;
+	  << "(d0, z0, phi0, theta, q/p)"  << endmsg;
     msg(MSG::DEBUG) << " " << d0 << ", " << z0  << ", " 
-	  << phi0 << ", " << theta  << ", " << qoverp << endreq;
+	  << phi0 << ", " << theta  << ", " << qoverp << endmsg;
   
     msg(MSG::DEBUG) << "  p = " << fabs(1/qoverp)/CLHEP::GeV << " CLHEP::GeV/c, "
-	  << " pT = " << pt/CLHEP::GeV << " CLHEP::GeV/c" << endreq;
+	  << " pT = " << pt/CLHEP::GeV << " CLHEP::GeV/c" << endmsg;
   }
 
   nt_mc_Trk_d0[index] = d0;
@@ -1162,7 +1162,7 @@ void InDetAlignFillTrack::dumpPerigee(const Trk::TrackParameters* generatedTrack
 //=====================================================================
 StatusCode InDetAlignFillTrack::dumpMatching(const TrackCollection* tracksUpper,
 					     const TrackCollection* tracksLower) {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In dumpMatching()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In dumpMatching()" << endmsg;
   
   int nTracksUpper = 0;
 
@@ -1173,7 +1173,7 @@ StatusCode InDetAlignFillTrack::dumpMatching(const TrackCollection* tracksUpper,
     
     const Trk::Track* trackUpper = *trackItrUpper;
     if(trackUpper == NULL) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No associated Trk::Track object found for track "<< nTracksUpper << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No associated Trk::Track object found for track "<< nTracksUpper << endmsg;
       continue;
     }
     
@@ -1190,9 +1190,9 @@ StatusCode InDetAlignFillTrack::dumpMatching(const TrackCollection* tracksUpper,
     float ptUp      = measUpperPer->pT()/1000.; 
     
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << nTracksUpper << ". UpTrack -> Track Parameters:"  << endreq;
+      msg(MSG::DEBUG) << nTracksUpper << ". UpTrack -> Track Parameters:"  << endmsg;
       msg(MSG::DEBUG) << "     d0, z0, phi0, theta, q/p" << d0Up << ", " << z0Up  << ", " 
-		      << phi0Up << ", " << thetaUp  << ", " << qOverPtUp << endreq;
+		      << phi0Up << ", " << thetaUp  << ", " << qOverPtUp << endmsg;
     }
     
     int nTracksLower = 0;
@@ -1215,7 +1215,7 @@ StatusCode InDetAlignFillTrack::dumpMatching(const TrackCollection* tracksUpper,
       
       const Trk::Track* trackLower = *trackItrLower;
       if(trackLower == NULL){
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No associated Trk::Track object found for track "<< nTracksLower << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No associated Trk::Track object found for track "<< nTracksLower << endmsg;
 	continue;
       }
       
@@ -1256,16 +1256,16 @@ StatusCode InDetAlignFillTrack::dumpMatching(const TrackCollection* tracksUpper,
         if(dR < m_matchedRcut) {
 
           if (msgLvl(MSG::DEBUG)) {
-            msg(MSG::DEBUG) << nTracksLower << ". LowTrack -> Track Parameters:"  << endreq;
+            msg(MSG::DEBUG) << nTracksLower << ". LowTrack -> Track Parameters:"  << endmsg;
             msg(MSG::DEBUG) << "     d0, z0, phi0, theta, q/p: " << d0Low << ", " << z0Low  << ", " 
-            << phi0Low << ", " << thetaLow  << ", " << qOverPtLow << endreq;
+            << phi0Low << ", " << thetaLow  << ", " << qOverPtLow << endmsg;
           }
 
           matchFound = true;
         }
       }
       else {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No matching low track found!!"  << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No matching low track found!!"  << endmsg;
       }
       nTracksLower++;
       
@@ -1273,7 +1273,7 @@ StatusCode InDetAlignFillTrack::dumpMatching(const TrackCollection* tracksUpper,
     
     if(matchFound) {
       
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Match found!" <<endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Match found!" <<endmsg;
       nt_matchingTrk = 1;
       nt_Trk_delta_d0[nTracksUpper] = d0Up - Matched_Low_d0;
       nt_Trk_delta_phi0[nTracksUpper] = phi0Up - Matched_Low_phi0;
