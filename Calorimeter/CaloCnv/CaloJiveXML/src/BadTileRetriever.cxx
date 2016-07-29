@@ -61,7 +61,7 @@ namespace JiveXML {
 
   StatusCode BadTileRetriever::initialize() {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endmsg;
 
     return StatusCode::SUCCESS;	
   }
@@ -71,23 +71,23 @@ namespace JiveXML {
    */
   StatusCode BadTileRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endmsg;
 
     const CaloCellContainer* cellContainer;
     if (!evtStore()->retrieve(cellContainer,m_sgKey))
       {
 	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << 
-	  "Could not retrieve Calorimeter Cells for Tile " << endreq;
+	  "Could not retrieve Calorimeter Cells for Tile " << endmsg;
 //        return StatusCode::SUCCESS;
       }
 
     if(m_tile){
       DataMap data = getBadTileData(cellContainer);
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey, &data).isFailure()){
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Error reading Tile data" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Error reading Tile data" << endmsg;
 //        return StatusCode::SUCCESS;
       } else {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tile retrieved" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tile retrieved" << endmsg;
       }
     }
     //Tile cells retrieved okay
@@ -101,7 +101,7 @@ namespace JiveXML {
    */
   const DataMap BadTileRetriever::getBadTileData(const CaloCellContainer* cellContainer) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getBadTileData()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getBadTileData()" << endmsg;
     char rndStr[30];
     DataMap DataMap;
 
@@ -112,7 +112,7 @@ namespace JiveXML {
 
 //    m_sub; m_sub.reserve(cellContainer->size());
     m_sub.clear();
-//     msg(MSG::INFO)  << "Size of CellC =  " << cellContainer->size() << endreq;
+//     msg(MSG::INFO)  << "Size of CellC =  " << cellContainer->size() << endmsg;
 	  
 //Loop Over CaloCellContainer to retrieve TileCell information
 
@@ -124,7 +124,7 @@ namespace JiveXML {
       double energyGeV;
       //int cellInd;
 
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Start iterator loop over cells" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Start iterator loop over cells" << endmsg;
 
       for(;it1!=it2;it1++){
       
@@ -155,7 +155,7 @@ namespace JiveXML {
     
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endreq;
+      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay

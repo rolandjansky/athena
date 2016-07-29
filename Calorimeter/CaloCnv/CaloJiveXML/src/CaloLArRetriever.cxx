@@ -63,7 +63,7 @@ namespace JiveXML {
 
   StatusCode CaloLArRetriever::initialize() {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endmsg;
 
     return StatusCode::SUCCESS;	
   }
@@ -73,12 +73,12 @@ namespace JiveXML {
    */
   StatusCode CaloLArRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endmsg;
 
     const CaloCellContainer* cellContainer;
     if ( !evtStore()->retrieve(cellContainer,m_sgKey))
       {
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Could not retrieve Calorimeter Cells " << endreq;
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Could not retrieve Calorimeter Cells " << endmsg;
 	return false;
       }
 
@@ -87,7 +87,7 @@ namespace JiveXML {
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey, &data).isFailure()){
         return false;
       } else {
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "LAr retrieved" << endreq;
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "LAr retrieved" << endmsg;
       }
     }
     //LAr cells retrieved okay
@@ -101,7 +101,7 @@ namespace JiveXML {
    */
   const DataMap CaloLArRetriever::getLArData(const CaloCellContainer* cellContainer) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getLArData()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getLArData()" << endmsg;
 
     DataMap DataMap;
 
@@ -131,20 +131,20 @@ namespace JiveXML {
     const ILArPedestal* larPedestal = nullptr;
     if(m_doLArCellDetails){
 	if( detStore()->retrieve(larPedestal).isFailure() ){
-	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArData(), Could not retrieve LAr Pedestal" << endreq;
+	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArData(), Could not retrieve LAr Pedestal" << endmsg;
 	}
       }
       
     const LArOnlineID* onlineId = nullptr;
     if ( detStore()->retrieve(onlineId, "LArOnlineID").isFailure()) {
-     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArData(),Could not get LArOnlineID!" << endreq;
+     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArData(),Could not get LArOnlineID!" << endmsg;
      }
     
       IAlgTool* algtool;
       ILArADC2MeVTool* adc2mevTool=0;
       if(m_doLArCellDetails){
 	if( toolSvc()->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
-	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArData(), Could not retrieve LAr ADC2MeV Tool" <<endreq;
+	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArData(), Could not retrieve LAr ADC2MeV Tool" <<endmsg;
 	} else {
 	  adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
 	}
@@ -153,7 +153,7 @@ namespace JiveXML {
       double energyGeV,cellTime;
       double energyAllLArBarrel = 0.;
 
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Start iterator loop over cells" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Start iterator loop over cells" << endmsg;
       
      
 
@@ -192,7 +192,7 @@ namespace JiveXML {
        	  slot.push_back(DataType(onlineId->slot(LArhwid))); 
 
 	  //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cell with ID " << (Identifier::value_type)(*it1)->ID().get_compact() <<  
-          //                 " retrieved" << endreq;
+          //                 " retrieved" << endmsg;
 
 	  if ( m_doLArCellDetails){
 	    cellTime = (*it1)->time();
@@ -216,7 +216,7 @@ namespace JiveXML {
 	  }
       }
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Total energy in LAr barrel in GeV : " <<  energyAllLArBarrel << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Total energy in LAr barrel in GeV : " <<  energyAllLArBarrel << endmsg;
 
     // write values into DataMap
     DataMap["phi"] = phi;
@@ -242,7 +242,7 @@ namespace JiveXML {
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << dataTypeName() << " , collection: " << dataTypeName();
-      msg(MSG::DEBUG) << " retrieved with " << phi.size() << " entries"<< endreq;
+      msg(MSG::DEBUG) << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay

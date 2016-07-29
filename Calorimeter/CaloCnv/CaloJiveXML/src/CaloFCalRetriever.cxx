@@ -63,7 +63,7 @@ namespace JiveXML {
 
   StatusCode CaloFCalRetriever::initialize() {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endmsg;
 
     return StatusCode::SUCCESS;	
   }
@@ -73,12 +73,12 @@ namespace JiveXML {
    */
   StatusCode CaloFCalRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endmsg;
 
     const CaloCellContainer* cellContainer;
     if ( !evtStore()->retrieve(cellContainer,m_sgKey))
       {
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Could not retrieve Calorimeter Cells " << endreq;
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Could not retrieve Calorimeter Cells " << endmsg;
 	return false;
       }
 
@@ -87,7 +87,7 @@ namespace JiveXML {
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey, &data).isFailure()){
         return false;
       } else {
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "FCal retrieved" << endreq;
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "FCal retrieved" << endmsg;
       }
     }
     //FCal cells retrieved okay
@@ -101,7 +101,7 @@ namespace JiveXML {
    */
   const DataMap CaloFCalRetriever::getFCalData(const CaloCellContainer* cellContainer) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getFCalData()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getFCalData()" << endmsg;
 
     DataMap DataMap;
 
@@ -135,20 +135,20 @@ namespace JiveXML {
     const ILArPedestal* larPedestal = nullptr;
     if(m_doFCalCellDetails){
 	if( detStore()->retrieve(larPedestal).isFailure() ){
-	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getFCalData(), Could not retrieve LAr Pedestal" << endreq;
+	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getFCalData(), Could not retrieve LAr Pedestal" << endmsg;
 	}
       }
       
     const LArOnlineID* onlineId;
     if ( detStore()->retrieve(onlineId, "LArOnlineID").isFailure()) {
-     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getFCalData(),Could not get LArOnlineID!" << endreq;
+     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getFCalData(),Could not get LArOnlineID!" << endmsg;
      }
     
       IAlgTool* algtool;
       ILArADC2MeVTool* adc2mevTool=0;
       if(m_doFCalCellDetails){
 	if( toolSvc()->retrieveTool("LArADC2MeVTool", algtool).isFailure()){
-	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getFCalData(), Could not retrieve LAr ADC2MeV Tool" <<endreq;
+	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getFCalData(), Could not retrieve LAr ADC2MeV Tool" <<endmsg;
 	} else {
 	  adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
 	}
@@ -213,7 +213,7 @@ namespace JiveXML {
             }else{
                adc2Mev.push_back(DataType(-1)); // write placeholder
 	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) 
- 		<< "LArADC2MeVTool dynamic cast failed" << endreq;
+ 		<< "LArADC2MeVTool dynamic cast failed" << endmsg;
 	    }
 	  }
 
@@ -230,7 +230,7 @@ namespace JiveXML {
 	    sub.push_back(DataType(0));
       }
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Total energy in FCAL (LAr) in GeV : " <<  energyAllLArFcal << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Total energy in FCAL (LAr) in GeV : " <<  energyAllLArFcal << endmsg;
 
     // write values into DataMap
     DataMap["x"] = x;
@@ -256,7 +256,7 @@ namespace JiveXML {
     }
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << x.size() << " entries"<< endreq;
+      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << x.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay
