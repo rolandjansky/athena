@@ -20,6 +20,11 @@ void mm_readoutHandler::ElementHandle()
     MM->roParameters.stripPitch            = getAttributeAsDouble    ("stripPitch", ret);
     MM->roParameters.gasThickness          = getAttributeAsDouble    ("gasThickness", ret);
     MM->roParameters.pcbThickness          = getAttributeAsDouble    ("pcbThickness", ret);
+    MM->roParameters.driftThickness        = getAttributeAsDouble    ("driftThickness", ret);
     MM->roParameters.stereoAngel           = getAttributeAsVector    ("stereoAngle", ret);
     MM->roParameters.readoutSide           = getAttributeAsIntVector ("readoutSide", ret);
+    MM->roParameters.zpos                  = getAttributeAsDouble    ("zPos", ret);
+    MM->roParameters.distanceFromZAxis     = getAttributeAsDouble    ("distanceFromZAxis", ret);
+    MM->roParameters.roLength              = getAttributeAsDouble    ("roLength", ret);
+
 }
