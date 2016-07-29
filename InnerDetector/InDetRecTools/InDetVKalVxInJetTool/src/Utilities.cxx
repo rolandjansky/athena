@@ -546,7 +546,7 @@ namespace InDet{
 	  //   if(NPlay<=1) { l2Hit=0; }  // no fired layer except for IBL/BL
           //}
           uint32_t HitPattern=Part->hitPattern();
-	  l2Hit=0; if( HitPattern&((int)pow(2,Trk::pixelBarrel2)) ) l2Hit=1;
+	  l2Hit=0; if( HitPattern&((1<<Trk::pixelBarrel2)) ) l2Hit=1;
 	  //   bitH=HitPattern&((int)pow(2,Trk::pixelBarrel1));
         } else {                     // 3-layer pixel detector
           uint8_t BLhit,NPlay,NHoles,IBLhit;
@@ -566,8 +566,8 @@ namespace InDet{
           //   }
           //}
           uint32_t HitPattern=Part->hitPattern();
-	  l1Hit=0; if( HitPattern&((int)pow(2,Trk::pixelBarrel1)) ) l1Hit=1;
-	  l2Hit=0; if( HitPattern&((int)pow(2,Trk::pixelBarrel2)) ) l2Hit=1;
+	  l1Hit=0; if( HitPattern&((1<<Trk::pixelBarrel1)) ) l1Hit=1;
+	  l2Hit=0; if( HitPattern&((1<<Trk::pixelBarrel2)) ) l2Hit=1;
         }
 
   }
@@ -575,9 +575,9 @@ namespace InDet{
   void   InDetVKalVxInJetTool::getPixelDiscs(const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const
   {
         uint32_t HitPattern=Part->hitPattern();
-	d0Hit=0; if( HitPattern&((int)pow(2,Trk::pixelEndCap0)) ) d0Hit=1;
-	d1Hit=0; if( HitPattern&((int)pow(2,Trk::pixelEndCap1)) ) d1Hit=1;
-	d2Hit=0; if( HitPattern&((int)pow(2,Trk::pixelEndCap2)) ) d2Hit=1;
+	d0Hit=0; if( HitPattern&((1<<Trk::pixelEndCap0)) ) d0Hit=1;
+	d1Hit=0; if( HitPattern&((1<<Trk::pixelEndCap1)) ) d1Hit=1;
+	d2Hit=0; if( HitPattern&((1<<Trk::pixelEndCap2)) ) d2Hit=1;
   }
   void   InDetVKalVxInJetTool::getPixelDiscs(const  Rec::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const
   {

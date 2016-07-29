@@ -130,7 +130,7 @@ namespace InDet {
 
     private:
 
-      double w_1;
+      double m_w_1;
       TH1D* m_hb_massPiPi;
       TH1D* m_hb_massPiPi1;
       TH1D* m_hb_massPiPi2;
