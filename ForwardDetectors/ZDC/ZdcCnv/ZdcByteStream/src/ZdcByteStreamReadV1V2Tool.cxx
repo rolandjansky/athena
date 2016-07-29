@@ -106,11 +106,11 @@ StatusCode ZdcByteStreamReadV1V2Tool::initialize() {
 
   const ZdcID* zdcID = 0;
   if (detStore()->retrieve( zdcID ).isFailure() ) {
-    msg(MSG::ERROR) << "execute: Could not retrieve ZdcID object from the detector store" << endreq;
+    msg(MSG::ERROR) << "execute: Could not retrieve ZdcID object from the detector store" << endmsg;
     return StatusCode::FAILURE;
   }
   else {
-    msg(MSG::DEBUG) << "execute: retrieved ZdcID" << endreq;
+    msg(MSG::DEBUG) << "execute: retrieved ZdcID" << endmsg;
   }
   m_zdcID = zdcID;
   ZdcCablingService::getInstance()->setZdcID(m_zdcID);
@@ -285,12 +285,12 @@ StatusCode ZdcByteStreamReadV1V2Tool::processRobFragment_(
   }
 
   ATH_MSG_DEBUG(
-      "Run number: " << MSG::dec << m_rodRunNumber << endreq
+      "Run number: " << MSG::dec << m_rodRunNumber << endmsg
           << "Version code: 0x" << MSG::hex << int(m_verCode) << MSG::dec
-          << endreq << "LUT triggered slice offset:  "
-          << int(m_caloUserHeader.lut()) << endreq
+          << endmsg << "LUT triggered slice offset:  "
+          << int(m_caloUserHeader.lut()) << endmsg
           << "FADC triggered slice offset: " << int(m_caloUserHeader.ppFadc())
-          << endreq << "FADC baseline lower bound:   "
+          << endmsg << "FADC baseline lower bound:   "
           << int(m_caloUserHeader.ppLowerBound()));
 
   int indata = 0;
@@ -352,7 +352,7 @@ StatusCode ZdcByteStreamReadV1V2Tool::processPpmWord_(uint32_t word,
     return processPpmStandardR3V1_(word, indata);
   } else {
     ATH_MSG_ERROR("Unsupported PPM version:format (" 
-      << m_verCode << ":" << format 
+      << m_verCode << ":" << m_subBlockHeader.format() 
       <<") combination");
     return StatusCode::FAILURE;
   }
