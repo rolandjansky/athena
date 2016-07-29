@@ -20,10 +20,10 @@ SourceCompAlg::~SourceCompAlg()
 
 StatusCode SourceCompAlg::initialize()
 {
-  msg(MSG::INFO) << " in initialize()" << endreq;
+  msg(MSG::INFO) << " in initialize()" << endmsg;
 
   if(m_globalTag.empty()) {
-    msg(MSG::FATAL) << "Global Tag is empty!" << endreq;
+    msg(MSG::FATAL) << "Global Tag is empty!" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -33,7 +33,7 @@ StatusCode SourceCompAlg::initialize()
   IRDBAccessSvc* rdbAccess = 0;
   StatusCode sc = service("RDBAccessSvc",rdbAccess);
   if(sc.isFailure()) {
-    msg(MSG::FATAL) << "Unable to get RDBaccessSvc!" << endreq;
+    msg(MSG::FATAL) << "Unable to get RDBaccessSvc!" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -44,17 +44,17 @@ StatusCode SourceCompAlg::initialize()
     std::ostringstream streamConnInd;
     streamConnInd << iConn;
     std::string connName = "Session" + streamConnInd.str();
-    msg(MSG::INFO) << "Working with " << connName << endreq;
+    msg(MSG::INFO) << "Working with " << connName << endmsg;
 
     // Connect to the database
     if(!rdbAccess->connect(connName)) {
-      msg(MSG::FATAL) << "Unable to get connection for " << connName << endreq;
+      msg(MSG::FATAL) << "Unable to get connection for " << connName << endmsg;
       return StatusCode::FAILURE;
     }
 
     // Check existence of the global tag in the database
     if(rdbAccess->getChildTag("ATLAS",m_globalTag,"ATLAS",false,connName)=="") {
-      msg(MSG::FATAL) << "Unable to find " << m_globalTag << " in the connection " << connName << endreq;
+      msg(MSG::FATAL) << "Unable to find " << m_globalTag << " in the connection " << connName << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -63,7 +63,7 @@ StatusCode SourceCompAlg::initialize()
     std::ostringstream tagDetailStream;
     tagDetailStream << atlasTagDetails << std::endl;
     if(msgLvl(MSG::DEBUG))
-      msg(MSG::DEBUG) << "Global tag in connection " << connName << ": " << tagDetailStream.str() << endreq;
+      msg(MSG::DEBUG) << "Global tag in connection " << connName << ": " << tagDetailStream.str() << endmsg;
 
     // Get the list of all leaf nodes
     RDBAccessSvc* rdbAccessConc = dynamic_cast<RDBAccessSvc*>(rdbAccess);
@@ -73,7 +73,7 @@ StatusCode SourceCompAlg::initialize()
       for(size_t ii=0; ii<leafNodes.size(); ++ii) {
 	std::string nodeName = leafNodes[ii];
 	int perc = ii*100/leafNodes.size();
-	msg(MSG::INFO) << "\t ** Node: " << nodeName << "\t" << perc << "%" << endreq;
+	msg(MSG::INFO) << "\t ** Node: " << nodeName << "\t" << perc << "%" << endmsg;
 	IRDBRecordset_ptr recPtr = rdbAccess->getRecordsetPtr(nodeName,m_globalTag,"ATLAS",connName);
 	if(recPtr->size())
 	  (*map)[nodeName] = recPtr;
@@ -136,13 +136,13 @@ StatusCode SourceCompAlg::initialize()
 StatusCode SourceCompAlg::execute()
 {
   if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) <<" in execute()" <<endreq;
+    msg(MSG::DEBUG) <<" in execute()" <<endmsg;
   return StatusCode::SUCCESS;
 }
 
 StatusCode SourceCompAlg::finalize()
 {
   if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) <<" in finalize()" <<endreq;
+    msg(MSG::DEBUG) <<" in finalize()" <<endmsg;
   return StatusCode::SUCCESS;
 }

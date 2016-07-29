@@ -58,10 +58,10 @@ void RDBRecordset::getData(coral::ISessionProxy* session,
   if(m_accessSvc->msg().level() <= MSG::DEBUG)
     m_accessSvc->msg() << MSG::DEBUG << "Recordset get data " << nodeName << ", " 
 		       << tagName << ", " 
-		       << tagId << endreq;
+		       << tagId << endmsg;
 
   if(session==0) {
-    m_accessSvc->msg() << MSG::ERROR << "RT: No connection to database!" << endreq;
+    m_accessSvc->msg() << MSG::ERROR << "RT: No connection to database!" << endmsg;
     return;
   }
 
@@ -72,7 +72,7 @@ void RDBRecordset::getData(coral::ISessionProxy* session,
     if(tagId.empty()) {
       if(m_accessSvc->msg().level() <= MSG::DEBUG)
 	m_accessSvc->msg() << MSG::DEBUG << "RT: Could not get the tag for " << m_tableName 
-			   << " node. Returning empty recordset" << endreq;
+			   << " node. Returning empty recordset" << endmsg;
       return;
     }
 
@@ -121,13 +121,13 @@ void RDBRecordset::getData(coral::ISessionProxy* session,
     delete queryStructure;
   }
   catch(coral::SchemaException& se) {
-     m_accessSvc->msg() << MSG::ERROR<< "RT: Schema Exception : " << se.what() << endreq;
+     m_accessSvc->msg() << MSG::ERROR<< "RT: Schema Exception : " << se.what() << endmsg;
   }
   catch(std::exception& e) {
-    m_accessSvc->msg() << MSG::ERROR << e.what() << endreq;
+    m_accessSvc->msg() << MSG::ERROR << e.what() << endmsg;
   }
   catch(...) {
-    m_accessSvc->msg() << MSG::ERROR << "RT: Exception caught(...)" << endreq;
+    m_accessSvc->msg() << MSG::ERROR << "RT: Exception caught(...)" << endmsg;
   }
 
 }
