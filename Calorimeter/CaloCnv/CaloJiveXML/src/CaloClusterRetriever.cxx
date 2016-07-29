@@ -41,22 +41,22 @@ namespace JiveXML {
    */
   StatusCode CaloClusterRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endmsg;
     
     const DataHandle<CaloClusterContainer> iterator, end;
     const CaloClusterContainer* ccc;
 
     //obtain the default collection first
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKeyFavourite << ")" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKeyFavourite << ")" << endmsg;
 
     if ( evtStore()->retrieve(ccc, m_sgKeyFavourite).isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Favourite Collection " << m_sgKeyFavourite << " not found in SG " << endreq; 
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Favourite Collection " << m_sgKeyFavourite << " not found in SG " << endmsg; 
     }else{
       DataMap data = getData(ccc);
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKeyFavourite+"_ESD", &data).isFailure()){
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Favourite Collection " << m_sgKeyFavourite << " not found in SG " << endreq;
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Favourite Collection " << m_sgKeyFavourite << " not found in SG " << endmsg;
       }else{
-         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKeyFavourite << ") CaloCluster retrieved" << endreq;
+         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKeyFavourite << ") CaloCluster retrieved" << endmsg;
       }
     }
 
@@ -64,7 +64,7 @@ namespace JiveXML {
       //obtain all other collections from StoreGate
       if (( evtStore()->retrieve(iterator, end)).isFailure()){
          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << 
-	 "Unable to retrieve iterator for CaloCluster collection" << endreq;
+	 "Unable to retrieve iterator for CaloCluster collection" << endmsg;
 //        return false;
       }
       
@@ -74,15 +74,15 @@ namespace JiveXML {
         if ( m_doWriteHLT ){ position = 99; } // override SG key find
 
 //      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " CaloCluster: HLTAutoKey in " << iterator.key() << " at position " 
-//	    << position << endreq;
+//	    << position << endmsg;
         if ( position != 0 ){  // SG key doesn't contain HLTAutoKey         
 	  if (iterator.key()!=m_sgKeyFavourite) {
-             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all " << dataTypeName() << " (" << iterator.key() << ")" << endreq;
+             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all " << dataTypeName() << " (" << iterator.key() << ")" << endmsg;
              DataMap data = getData(iterator);
              if ( FormatTool->AddToEvent(dataTypeName(), iterator.key()+"_ESD", &data).isFailure()){
-	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endreq;
+	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endmsg;
 	    }else{
-	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") CaloCluster retrieved" << endreq;
+	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") CaloCluster retrieved" << endmsg;
 	    }
           }
 	}
@@ -93,12 +93,12 @@ namespace JiveXML {
       for ( keyIter=m_otherKeys.begin(); keyIter!=m_otherKeys.end(); ++keyIter ){
        if ( evtStore()->contains<CaloClusterContainer>(*keyIter) ){ // to avoid some SG dumps
 	if ( !evtStore()->retrieve( ccc, (*keyIter) ).isFailure()) {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve selected " << dataTypeName() << " (" << (*keyIter) << ")" << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve selected " << dataTypeName() << " (" << (*keyIter) << ")" << endmsg;
           DataMap data = getData(ccc);
           if ( FormatTool->AddToEvent(dataTypeName(), (*keyIter)+"_ESD", &data).isFailure()){
-	    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << (*keyIter) << " not found in SG " << endreq;
+	    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << (*keyIter) << " not found in SG " << endmsg;
 	  }else{
-	     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endreq;
+	     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endmsg;
 	  }
 	}
        }
@@ -117,7 +117,7 @@ namespace JiveXML {
    */
   const DataMap CaloClusterRetriever::getData(const CaloClusterContainer* ccc) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getData()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getData()" << endmsg;
 
     DataMap DataMap;
 
@@ -172,7 +172,7 @@ namespace JiveXML {
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << dataTypeName() << " , collection: " << dataTypeName();
-      msg(MSG::DEBUG) << " retrieved with " << phi.size() << " entries"<< endreq;
+      msg(MSG::DEBUG) << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay

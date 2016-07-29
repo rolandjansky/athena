@@ -56,7 +56,7 @@ namespace JiveXML {
 
   StatusCode CaloMBTSRetriever::initialize() {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endmsg;
 
     return StatusCode::SUCCESS;
   }
@@ -66,12 +66,12 @@ namespace JiveXML {
    */
   StatusCode CaloMBTSRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endmsg;
 
     const TileCellContainer* cellContainerMBTS;
     if ( !evtStore()->retrieve(cellContainerMBTS,m_sgKeyMBTS))
     {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Could not retrieve Calorimeter Cells " << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Could not retrieve Calorimeter Cells " << endmsg;
       return false;
     }
 
@@ -80,7 +80,7 @@ namespace JiveXML {
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKeyMBTS, &data).isFailure()) {
         return false;
       } else {
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "MBTS retrieved" << endreq;
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "MBTS retrieved" << endmsg;
       }
     }
     //MBTS cells retrieved okay
@@ -94,7 +94,7 @@ namespace JiveXML {
    */
   const DataMap CaloMBTSRetriever::getMBTSData(const TileCellContainer* tileMBTSCellContainer) {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getMBTSData()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getMBTSData()" << endmsg;
 
     DataMap DataMap;
 
@@ -127,18 +127,18 @@ namespace JiveXML {
     bool offlineRch = false;
 
     if ( detStore()->retrieve(m_tileTBID).isFailure() )
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<< "in getMBTSData(), Could not retrieve m_tileTBID" <<endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<< "in getMBTSData(), Could not retrieve m_tileTBID" <<endmsg;
 
     if ( detStore()->retrieve(tileHWID).isFailure() )
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<< "in getMBTSData(), Could not retrieve TileHWID" <<endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<< "in getMBTSData(), Could not retrieve TileHWID" <<endmsg;
 
     //=== get TileInfo
     if ( detStore()->retrieve(tileInfo, "TileInfo").isFailure() )
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getMBTSData(), Could not retrieve TileInfo"<< endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getMBTSData(), Could not retrieve TileInfo"<< endmsg;
 
     //=== get TileCondToolEmscale
     if ( tileToolEmscale.retrieve().isFailure())
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<< "in getMBTSData(), Could not retrieve " << tileToolEmscale << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<< "in getMBTSData(), Could not retrieve " << tileToolEmscale << endmsg;
 
     std::string RchName[7] = {"TileRawChannelOpt2","TileRawChannelOpt","TileRawChannelFixed",
                               "TileRawChannelFitCool","TileRawChannelFit",
@@ -157,7 +157,7 @@ namespace JiveXML {
     }
 
     if (scTileRawChannel.isFailure())
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)<< "in getMBTSData(), Could not retrieve TileRawchannel" << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)<< "in getMBTSData(), Could not retrieve TileRawchannel" << endmsg;
 
     std::string DigiName[2] = {"TileDigitsCnt","TileDigitsFlt"};
     int icntd=2;
@@ -169,7 +169,7 @@ namespace JiveXML {
     }
 
     if (scTileDigit.isFailure()) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)<< "in getMBTSData(), Could not retrieve TileDigits" << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)<< "in getMBTSData(), Could not retrieve TileDigits" << endmsg;
     }
     // from: TileCalorimeter/TileRec/src/TileCellToNtuple.cxx
 
@@ -319,7 +319,7 @@ namespace JiveXML {
 
         //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << " Capture nan for cellRawTime: "  
 	//	<< theMbtsrawtime[id.get_identifier32().get_compact()] 
-	//	<< " " << myCellRawTimeStr << " " << myCellRawTimeStr.find("n") << endreq;
+	//	<< " " << myCellRawTimeStr << " " << myCellRawTimeStr.find("n") << endmsg;
 
         if ( myCellRawTimeStr.find("n") == 1 )  myCellRawTimeStr="0."; 
         cellRawTime.push_back( myCellRawTimeStr );
@@ -378,7 +378,7 @@ namespace JiveXML {
 
 
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "MBTS no: " << nchan << ", type_chan_mod: " << MBTS_ID
-                                               << ", energy MeV pC: " << energyMeV << endreq;
+                                               << ", energy MeV pC: " << energyMeV << endmsg;
 
       nchan++;
 
@@ -408,7 +408,7 @@ namespace JiveXML {
 
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endreq;
+      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay

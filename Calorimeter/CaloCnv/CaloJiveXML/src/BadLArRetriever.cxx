@@ -59,7 +59,7 @@ namespace JiveXML {
 
   StatusCode BadLArRetriever::initialize() {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialising Tool" << endmsg;
 
     return StatusCode::SUCCESS;	
   }
@@ -69,12 +69,12 @@ namespace JiveXML {
    */
   StatusCode BadLArRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve()" << endmsg;
 
     const CaloCellContainer* cellContainer;
     if ( !evtStore()->retrieve(cellContainer,m_sgKey))
       {
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Could not retrieve Calorimeter Cells " << endreq;
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Could not retrieve Calorimeter Cells " << endmsg;
 	return false;
       }
 
@@ -83,7 +83,7 @@ namespace JiveXML {
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey, &data).isFailure()){
         return false;
       } else {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Bad cell retrieved" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Bad cell retrieved" << endmsg;
       }
     }
     //LAr cells retrieved okay
@@ -97,7 +97,7 @@ namespace JiveXML {
    */
   const DataMap BadLArRetriever::getBadLArData(const CaloCellContainer* cellContainer) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getBadLArData()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "getBadLArData()" << endmsg;
 
     DataMap DataMap;
 
@@ -120,14 +120,14 @@ namespace JiveXML {
       
     const LArOnlineID* onlineId;
     if ( detStore()->retrieve(onlineId, "LArOnlineID").isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getBadLArData(),Could not get LArOnlineID!" << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getBadLArData(),Could not get LArOnlineID!" << endmsg;
     }
 
     if (m_doBadLAr==true) {
 
       double energyGeV;
 
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Start iterator loop over cells" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Start iterator loop over cells" << endmsg;
       
       for(;it1!=it2;it1++){
 
@@ -165,7 +165,7 @@ namespace JiveXML {
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << dataTypeName() << " , collection: " << dataTypeName();
-      msg(MSG::DEBUG) << " retrieved with " << phi.size() << " entries"<< endreq;
+      msg(MSG::DEBUG) << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay
