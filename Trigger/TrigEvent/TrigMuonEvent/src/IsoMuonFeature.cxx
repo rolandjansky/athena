@@ -180,7 +180,7 @@ void IsoMuonFeature::print ( MsgStream& log ) {
  log << MSG::DEBUG  << "m_QMu:              " << m_QMu        << "; ";
  log << MSG::DEBUG  << "m_EtaMu:            " << m_EtaMu      << "; ";
  log << MSG::DEBUG  << "m_PhiMu:            " << m_PhiMu      << "; ";
- log << endreq;
+ log << endmsg;
 }
 
 //////////////////////////////////////////////////////////////////
