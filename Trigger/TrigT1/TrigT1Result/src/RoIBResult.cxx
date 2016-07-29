@@ -158,11 +158,11 @@ namespace ROIB {
   
   void RoIBResult::dumpData(MsgStream& log) const
   {
-    log << MSG::DEBUG << "=================================================" << endreq;
-    log << MSG::DEBUG << "Dump of available RoIB Results" << endreq;
+    log << MSG::DEBUG << "=================================================" << endmsg;
+    log << MSG::DEBUG << "Dump of available RoIB Results" << endmsg;
     m_RoIBResultMuCTPI.dumpData(log);
     m_RoIBResultCTP.dumpData(log);
-    log << MSG::DEBUG << "=================================================" << endreq;
+    log << MSG::DEBUG << "=================================================" << endmsg;
   }
 
   unsigned int RoIBResult::GetOverflowMask(bool setMu, bool setEM, bool setJE) const {

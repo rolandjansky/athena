@@ -167,7 +167,7 @@ namespace ROIB {
    */
   void MuCTPIResult::dumpData( MsgStream& log ) const {
 
-    log << MSG::DEBUG << "*BEGIN* MuCTPIResult" << endreq;
+    log << MSG::DEBUG << "*BEGIN* MuCTPIResult" << endmsg;
 
     m_MuCTPIResultHeader.dumpData( log );
     int counter = 0;
@@ -183,21 +183,21 @@ namespace ROIB {
 	loc = "BARREL";
 
       log << MSG::DEBUG << "RoI word[" << counter << "]        : 0x"
-	  << MSG::hex << it->roIWord() << MSG::dec << endreq;
-      log << MSG::DEBUG << "Threshold               :  pt" << it->pt() << endreq;
-      log << MSG::DEBUG << "Sector location         :  " << loc << endreq;
-      log << MSG::DEBUG << "Sector ID               :  " << it->getSectorID() << endreq;
+	  << MSG::hex << it->roIWord() << MSG::dec << endmsg;
+      log << MSG::DEBUG << "Threshold               :  pt" << it->pt() << endmsg;
+      log << MSG::DEBUG << "Sector location         :  " << loc << endmsg;
+      log << MSG::DEBUG << "Sector ID               :  " << it->getSectorID() << endmsg;
       log << MSG::DEBUG << "Sector addr             :  0x" << MSG::hex
-	  << it->getSectorID() << MSG::dec << endreq;
-      log << MSG::DEBUG << "Sector overflow         :  " << it->getSectorOverflow() << endreq;
-      log << MSG::DEBUG << "RoI overflow            :  " << it->getRoiOverflow() << endreq;
-      log << MSG::DEBUG << "RoI number              :  " << it->getRoiNumber() << endreq;
-      log << MSG::DEBUG << "IsHighestPt             :  " << it->getCandidateIsHighestPt() << endreq;
-      log << MSG::DEBUG << "Overlap                 :  " << it->getOverlapBits() << endreq;
+	  << it->getSectorID() << MSG::dec << endmsg;
+      log << MSG::DEBUG << "Sector overflow         :  " << it->getSectorOverflow() << endmsg;
+      log << MSG::DEBUG << "RoI overflow            :  " << it->getRoiOverflow() << endmsg;
+      log << MSG::DEBUG << "RoI number              :  " << it->getRoiNumber() << endmsg;
+      log << MSG::DEBUG << "IsHighestPt             :  " << it->getCandidateIsHighestPt() << endmsg;
+      log << MSG::DEBUG << "Overlap                 :  " << it->getOverlapBits() << endmsg;
 
     }
     m_MuCTPIResultTrailer.dumpData( log );
-    log << MSG::DEBUG << "*END* MuCTPIResult" << endreq;
+    log << MSG::DEBUG << "*END* MuCTPIResult" << endmsg;
 
     return;
   }

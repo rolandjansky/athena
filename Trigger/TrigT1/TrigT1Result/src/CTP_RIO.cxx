@@ -30,18 +30,18 @@ void CTP_RIO::dumpData() const
 
 void CTP_RIO::dumpData(MsgStream& log) const
 {
-  log << MSG::DEBUG << "=================================================" << endreq;
-  log << MSG::DEBUG << "CTP ROD Header / Trailer data" << endreq;
-  log << MSG::DEBUG << "Source ID               :  0x" << MSG::hex << getSourceId() << MSG::dec << endreq;
-  log << MSG::DEBUG << "Run number              :  " << getRunNumber() << endreq;
-  log << MSG::DEBUG << "Ext. LVL1 ID            :  " << getLvl1Id() << endreq;
-  log << MSG::DEBUG << "BCID                    :  " << getBCID() << endreq;
-  log << MSG::DEBUG << "Trigger type            :  " << getLvl1TriggerType() << endreq;
-  log << MSG::DEBUG << "Det. event type         :  " << getDetectorEventType() << endreq;
-  log << MSG::DEBUG << "No data words           :  " << getNumberDataWords() << endreq;
-  log << MSG::DEBUG << "No status words         :  " << getNumberStatusWords() << endreq;
+  log << MSG::DEBUG << "=================================================" << endmsg;
+  log << MSG::DEBUG << "CTP ROD Header / Trailer data" << endmsg;
+  log << MSG::DEBUG << "Source ID               :  0x" << MSG::hex << getSourceId() << MSG::dec << endmsg;
+  log << MSG::DEBUG << "Run number              :  " << getRunNumber() << endmsg;
+  log << MSG::DEBUG << "Ext. LVL1 ID            :  " << getLvl1Id() << endmsg;
+  log << MSG::DEBUG << "BCID                    :  " << getBCID() << endmsg;
+  log << MSG::DEBUG << "Trigger type            :  " << getLvl1TriggerType() << endmsg;
+  log << MSG::DEBUG << "Det. event type         :  " << getDetectorEventType() << endmsg;
+  log << MSG::DEBUG << "No data words           :  " << getNumberDataWords() << endmsg;
+  log << MSG::DEBUG << "No status words         :  " << getNumberStatusWords() << endmsg;
   for(uint32_t i = 0 ; i<getNumberStatusWords(); ++i)    
     log << MSG::DEBUG << "Status word " << i << "           :  0x" << MSG::hex 
-	<< getStatusWords()[i] << MSG::dec << endreq;
-  log << MSG::DEBUG << "=================================================" << endreq;
+	<< getStatusWords()[i] << MSG::dec << endmsg;
+  log << MSG::DEBUG << "=================================================" << endmsg;
 }

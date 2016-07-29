@@ -114,14 +114,14 @@ namespace ROIB {
   
   void Header::dumpData(MsgStream& log) const
   {
-    log << MSG::DEBUG << "*BEGIN* ROIB::Header" << endreq;
-    log << MSG::DEBUG << "Header marker           :  " << MSG::hex << headerMarker() << MSG::dec << endreq;
-    log << MSG::DEBUG << "Header size             :  " << headerSize() << endreq;
-    log << MSG::DEBUG << "Source ID               :  0x" << MSG::hex << sourceID() << MSG::dec << endreq;
-    log << MSG::DEBUG << "Ext. LVL1 ID            :  " << L1ID() << endreq;
-    log << MSG::DEBUG << "BCID                    :  " << BCID() << endreq;
-    log << MSG::DEBUG << "Trigger type            :  " << triggerType() << endreq;
-    log << MSG::DEBUG << "Det. event type         :  " << eventType() << endreq;
-    log << MSG::DEBUG << "*END* ROIB::Header" << endreq;
+    log << MSG::DEBUG << "*BEGIN* ROIB::Header" << endmsg;
+    log << MSG::DEBUG << "Header marker           :  " << MSG::hex << headerMarker() << MSG::dec << endmsg;
+    log << MSG::DEBUG << "Header size             :  " << headerSize() << endmsg;
+    log << MSG::DEBUG << "Source ID               :  0x" << MSG::hex << sourceID() << MSG::dec << endmsg;
+    log << MSG::DEBUG << "Ext. LVL1 ID            :  " << L1ID() << endmsg;
+    log << MSG::DEBUG << "BCID                    :  " << BCID() << endmsg;
+    log << MSG::DEBUG << "Trigger type            :  " << triggerType() << endmsg;
+    log << MSG::DEBUG << "Det. event type         :  " << eventType() << endmsg;
+    log << MSG::DEBUG << "*END* ROIB::Header" << endmsg;
   }
 } // namespace ROIB

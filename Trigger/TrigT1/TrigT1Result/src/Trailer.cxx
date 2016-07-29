@@ -87,11 +87,11 @@ namespace ROIB {
   
   void Trailer::dumpData(MsgStream& log) const
   {
-    log << MSG::DEBUG << "*BEGIN* ROIB::Trailer" << endreq;
-    log << MSG::DEBUG << "Trailer size            :  " << size() << endreq;
-    log << MSG::DEBUG << "Error status            :  " << errorStatus() << endreq;
-    log << MSG::DEBUG << "Status info             :  " << statusInfo() << endreq;
-    log << MSG::DEBUG << "No data words           :  " << numDataWords() << endreq;    
-    log << MSG::DEBUG << "*END* ROIB::Trailer" << endreq;
+    log << MSG::DEBUG << "*BEGIN* ROIB::Trailer" << endmsg;
+    log << MSG::DEBUG << "Trailer size            :  " << size() << endmsg;
+    log << MSG::DEBUG << "Error status            :  " << errorStatus() << endmsg;
+    log << MSG::DEBUG << "Status info             :  " << statusInfo() << endmsg;
+    log << MSG::DEBUG << "No data words           :  " << numDataWords() << endmsg;    
+    log << MSG::DEBUG << "*END* ROIB::Trailer" << endmsg;
   }
 } // namespace ROIB

@@ -180,16 +180,16 @@ namespace ROIB {
 
    void CTPResult::dumpData(MsgStream& log) const
    {
-      log << MSG::DEBUG << "*BEGIN* CTPResult" << endreq;
+      log << MSG::DEBUG << "*BEGIN* CTPResult" << endmsg;
       m_CTPResultHeader.dumpData(log);
       int counter = 0;
       std::vector< CTPRoI >::const_iterator it = m_CTPResultRoIVec.begin();
       for(; it != m_CTPResultRoIVec.end(); ++it,++counter) {
          log << MSG::DEBUG << "RoI word[" << counter << "]             : 0x"
-             << MSG::hex << it->roIWord() << MSG::dec << endreq;
+             << MSG::hex << it->roIWord() << MSG::dec << endmsg;
       }
       m_CTPResultTrailer.dumpData(log);
-      log << MSG::DEBUG << "*END* CTPResult" << endreq;
+      log << MSG::DEBUG << "*END* CTPResult" << endmsg;
    }
 
    // convert vector of ints into bitset

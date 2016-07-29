@@ -112,15 +112,15 @@ void MuCTPI_MultiplicityWord_Decoder::dumpData() const {
  */
 void MuCTPI_MultiplicityWord_Decoder::dumpData( MsgStream& log ) const {
 
-  log << MSG::DEBUG << "=================================================" << endreq;
-  log << MSG::DEBUG << "Candidate Multiplicity word 0x" << MSG::hex << m_multiplicityWord << MSG::dec << endreq;
+  log << MSG::DEBUG << "=================================================" << endmsg;
+  log << MSG::DEBUG << "Candidate Multiplicity word 0x" << MSG::hex << m_multiplicityWord << MSG::dec << endmsg;
   for( uint16_t i = 0; i < MuCTPI_RDO::MULT_THRESH_NUM; ++i ) {
-    log << MSG::DEBUG << "Pt threshold " << ( i + 1 ) << ", multiplicity " << getMultiplicity( i ) << endreq;
+    log << MSG::DEBUG << "Pt threshold " << ( i + 1 ) << ", multiplicity " << getMultiplicity( i ) << endmsg;
   }
-  log << MSG::DEBUG << "Number of candidates: " << getNCandidates() << endreq;
+  log << MSG::DEBUG << "Number of candidates: " << getNCandidates() << endmsg;
   log << MSG::DEBUG << "MICTP BCID: 0x" << MSG::hex
-      << getBCID() << MSG::dec << " ( " << getBCID() << " )" << endreq;
-  log << MSG::DEBUG << "=================================================" << endreq;
+      << getBCID() << MSG::dec << " ( " << getBCID() << " )" << endmsg;
+  log << MSG::DEBUG << "=================================================" << endmsg;
 
   return;
 }
