@@ -105,7 +105,7 @@ CaloSuperCellMgrDetDescrCnv::finalize()
 StatusCode
 CaloSuperCellMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
 {
-    MsgStream log(messageService(), "CaloSCMgrDetDescrCnv");
+    MsgStream log(msgSvc(), "CaloSCMgrDetDescrCnv");
     int outputLevel = msgSvc()->outputLevel( "CaloSCMgrDetDescrCnv" );
 
     // Create a new CaloSCDescrManager
@@ -113,7 +113,7 @@ CaloSuperCellMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     DetDescrAddress* ddAddr;
     ddAddr = dynamic_cast<DetDescrAddress*> (pAddr);
     if(!ddAddr) {
-	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endreq;
+	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endmsg;
 	return StatusCode::FAILURE;
     }
 
@@ -122,10 +122,10 @@ CaloSuperCellMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     
     if (outputLevel <= MSG::DEBUG) {
     if ("" == mgrKey) {
-	log << MSG::DEBUG << "No Manager key " << endreq;
+	log << MSG::DEBUG << "No Manager key " << endmsg;
     }
     else {
-	log << MSG::DEBUG << "Manager key is " << mgrKey << endreq;
+	log << MSG::DEBUG << "Manager key is " << mgrKey << endmsg;
     }
     }
     
