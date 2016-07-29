@@ -228,6 +228,7 @@ void DataHeaderCnv_p5::persToTrans(const DataHeader_p5* pers, DataHeader* trans)
          m_elemCnv.persToTrans(&(*pit), &(*it), *pers->m_dhForm);
       }
    }
+   pers->m_dhForm = 0; // Converter has ownership reuses form for next events and deletes it
 }
 //______________________________________________________________________________
 void DataHeaderCnv_p5::transToPers(const DataHeader* trans, DataHeader_p5* pers) {
