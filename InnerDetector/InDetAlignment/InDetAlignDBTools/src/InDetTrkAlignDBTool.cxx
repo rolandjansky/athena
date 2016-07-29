@@ -35,14 +35,14 @@ StatusCode InDetTrkAlignDBTool::initialize() {
 
   // get SiTrkAlignDBTool
   if( m_siDBtool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << " Could not retrieve " << m_siDBtool << endreq;
+    msg(MSG::FATAL) << " Could not retrieve " << m_siDBtool << endmsg;
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("retrieved " << m_siDBtool);
 
   // get TRTTrkAlignDBTool
   if( m_trtDBtool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << " Could not retrieve " << m_trtDBtool << endreq;
+    msg(MSG::FATAL) << " Could not retrieve " << m_trtDBtool << endmsg;
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("retrieved " << m_trtDBtool);
