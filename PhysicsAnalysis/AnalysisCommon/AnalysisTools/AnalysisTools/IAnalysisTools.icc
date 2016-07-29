@@ -200,7 +200,7 @@ template <class CALLER, class CRITERIA, class COLL> inline StatusCode IAnalysisT
   StatusCode sc = evtStore()->record(newColl, key);
   if (sc.isFailure())
     {
-      log << MSG::ERROR << "Unable to record Container in SG with key=" << key << endreq; 
+      log << MSG::ERROR << "Unable to record Container in SG with key=" << key << endmsg; 
       return sc;
     }
 

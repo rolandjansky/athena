@@ -484,7 +484,7 @@ StatusCode AANTupleStream::splitAddress( const std::string& address,
 					 std::string&       address_header,
 					 std::string&       address_data ) const
 {
-  ATH_MSG_DEBUG ("splitAddress " << endreq
+  ATH_MSG_DEBUG ("splitAddress " << endmsg
 		 << "   address :  " << address
 		 << "   match :  " << match);
   
@@ -503,7 +503,7 @@ StatusCode AANTupleStream::splitAddress( const std::string& address,
     }
 
   ATH_MSG_DEBUG ("   address_header :  " << address_header
-		 << endreq
+		 << endmsg
 		 << "   address_data   :  " << address_data);
 
   return StatusCode::SUCCESS;
