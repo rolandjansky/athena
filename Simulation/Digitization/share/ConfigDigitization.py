@@ -10,6 +10,8 @@ checkDetFlagConfiguration()
 from AthenaCommon.AppMgr import ServiceMgr
 if not hasattr(ServiceMgr, 'EventSelector'):
     import AthenaPoolCnvSvc.ReadAthenaPool
+if hasattr(ServiceMgr, 'PoolSvc'):
+    ServiceMgr.PoolSvc.MaxFilesOpen = 0 # Never close Input Files
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 if not athenaCommonFlags.DoFullChain:
     ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.PoolHitsInput()
