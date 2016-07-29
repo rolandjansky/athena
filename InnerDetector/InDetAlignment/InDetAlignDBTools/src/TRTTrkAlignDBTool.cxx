@@ -77,7 +77,7 @@ StatusCode TRTTrkAlignDBTool::initialize()
 
    // get TRT db service
    if( m_trtAlignDbSvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << " Could not retrieve " << m_trtAlignDbSvc << endreq;
+      msg(MSG::FATAL) << " Could not retrieve " << m_trtAlignDbSvc << endmsg;
       return StatusCode::FAILURE;
    }
    else
@@ -85,7 +85,7 @@ StatusCode TRTTrkAlignDBTool::initialize()
 
    // get AlignModuleTool
    if( m_alignModuleTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << " Could not retrieve " << m_alignModuleTool << endreq;
+      msg(MSG::FATAL) << " Could not retrieve " << m_alignModuleTool << endmsg;
       return StatusCode::FAILURE;
    }
    else
@@ -93,7 +93,7 @@ StatusCode TRTTrkAlignDBTool::initialize()
 
    // get TRT ID Helper
    if ( detStore()->retrieve(m_trtHelper, "TRT_ID").isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve TRT ID Helper" << endreq;
+      msg(MSG::FATAL) << " Cannot retrieve TRT ID Helper" << endmsg;
       return StatusCode::FAILURE;
    }
    else
@@ -101,7 +101,7 @@ StatusCode TRTTrkAlignDBTool::initialize()
 
    // get Pixel ID Helper
    if ( detStore()->retrieve(m_pixHelper).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve TRT ID Helper" << endreq;
+      msg(MSG::FATAL) << " Cannot retrieve TRT ID Helper" << endmsg;
       return StatusCode::FAILURE;
    }
    else
@@ -110,7 +110,7 @@ StatusCode TRTTrkAlignDBTool::initialize()
    // get TRTGeometryManagerTool
    if( !m_trtGeoManager.empty() ) {
       if( m_trtGeoManager.retrieve().isFailure() ) {
-         msg(MSG::FATAL) << " Could not retrieve " << m_trtGeoManager << endreq;
+         msg(MSG::FATAL) << " Could not retrieve " << m_trtGeoManager << endmsg;
          return StatusCode::FAILURE;
       }
 
@@ -138,7 +138,7 @@ StatusCode TRTTrkAlignDBTool::initialize()
    // check alignment level but don't stop on error
    // if unknown level given, set to -1
    if(!checkAlignLevel()) {
-      msg(MSG::FATAL) << " No geometry manager available or alignment level not given. " << endreq;
+      msg(MSG::FATAL) << " No geometry manager available or alignment level not given. " << endmsg;
       // we don't want to stop if there's errors
       // so we comment out the return statement
 //      return StatusCode::FAILURE;
@@ -170,7 +170,7 @@ bool TRTTrkAlignDBTool::checkAlignLevel()
          ok = true;
          break;
       default:
-         msg(MSG::ERROR)<<" Storing of alignment constants for level "<<m_trtAlignLevelBarrel<<" for TRT Barrel is not implemented."<<endreq;
+         msg(MSG::ERROR)<<" Storing of alignment constants for level "<<m_trtAlignLevelBarrel<<" for TRT Barrel is not implemented."<<endmsg;
          m_trtAlignLevelBarrel = -1;
          ok = false;
          break;
@@ -181,7 +181,7 @@ bool TRTTrkAlignDBTool::checkAlignLevel()
          ok = ok && true;
          break;
       default:
-         msg(MSG::ERROR)<<" Storing of alignment constants for level "<<m_trtAlignLevelEndcaps<<" for TRT Endcaps is not implemented."<<endreq;
+         msg(MSG::ERROR)<<" Storing of alignment constants for level "<<m_trtAlignLevelEndcaps<<" for TRT Endcaps is not implemented."<<endmsg;
          m_trtAlignLevelEndcaps = -1;
          ok = false;
          break;
@@ -205,9 +205,9 @@ void TRTTrkAlignDBTool::writeAlignPar()
    if(m_writeOldConstants) {
       ATH_MSG_INFO("Writing old TRT alignment constants to file "<<m_oldAlignFile);
       if( m_trtAlignDbSvc -> writeAlignTextFile(m_oldAlignFile) != StatusCode::SUCCESS )
-         msg(MSG::ERROR)<<"Cannot write to file "<<m_oldAlignFile<< endreq;
+         msg(MSG::ERROR)<<"Cannot write to file "<<m_oldAlignFile<< endmsg;
       if( m_trtAlignDbSvc -> writeStrawAlignTextFile(m_oldStrawAlignFile) != StatusCode::SUCCESS )
-         msg(MSG::ERROR)<<"Cannot write to file "<<m_oldStrawAlignFile<< endreq;
+         msg(MSG::ERROR)<<"Cannot write to file "<<m_oldStrawAlignFile<< endmsg;
    }
 
    // now update the DB
@@ -216,12 +216,12 @@ void TRTTrkAlignDBTool::writeAlignPar()
    // and write the final alignment constants
    if(m_writeTextFile) {
      if( m_trtAlignDbSvc->writeAlignTextFile(m_outputAlignFile) != StatusCode::SUCCESS )
-         msg(MSG::ERROR)<<"Cannot write to file "<<m_outputAlignFile<< endreq;
+         msg(MSG::ERROR)<<"Cannot write to file "<<m_outputAlignFile<< endmsg;
       else
          ATH_MSG_INFO("Wrote final TRT alignment constants into "<<m_outputAlignFile);
 
      if( m_trtAlignDbSvc->writeStrawAlignTextFile(m_outputStrawAlignFile) != StatusCode::SUCCESS )
-        msg(MSG::ERROR)<<"Cannot write to file "<<m_outputStrawAlignFile<< endreq;
+        msg(MSG::ERROR)<<"Cannot write to file "<<m_outputStrawAlignFile<< endmsg;
      else
         ATH_MSG_INFO("Wrote final TRT Straw alignment constants into "<<m_outputStrawAlignFile);
    }
@@ -251,8 +251,8 @@ void TRTTrkAlignDBTool::updateDB()
    ATH_MSG_DEBUG("Endcap alignment level: "<<m_trtAlignLevelEndcaps);
 
    if(m_trtAlignLevel<0 && (m_trtAlignLevelBarrel<0 || m_trtAlignLevelEndcaps<0)) {
-      msg(MSG::ERROR)<<" No geometry manager available or alignment level not given."<<endreq;
-      msg(MSG::ERROR)<<" DB not updated."<<endreq;
+      msg(MSG::ERROR)<<" No geometry manager available or alignment level not given."<<endmsg;
+      msg(MSG::ERROR)<<" DB not updated."<<endmsg;
       return;
    }
 
@@ -379,7 +379,7 @@ void TRTTrkAlignDBTool::updateDB()
       // tweak applies the transform onto already existing transform in the DB
       // or sets it if it doesn't exist yet
       if(m_trtAlignDbSvc->tweakAlignTransform(modID,dbtransform,level).isFailure())
-         msg(MSG::ERROR)<<"Error setting constants for module \'"<<module->name()<<"\'"<<endreq;
+         msg(MSG::ERROR)<<"Error setting constants for module \'"<<module->name()<<"\'"<<endmsg;
       else
          ATH_MSG_DEBUG("Module \'"<<module->name()<<"\': Level "<<level<<" constants updated.");
    }
@@ -396,9 +396,9 @@ void TRTTrkAlignDBTool::updateL0asL1(Identifier idL0, const Amg::Transform3D & t
    // - L1 TRT barrel Identifier for TRT level 0 update
    // - L1 Pixel Identifier for Inner Detector level 0 update
    if( idL0 != m_pixHelper->wafer_id(0,0,0,0) && idL0 != m_trtHelper->barrel_ec_id(-1) ) {
-      msg(MSG::ERROR)<<"wrong identifier for L0 TRT in updateL0asL1() : "<<idL0<<endreq;
-      msg(MSG::ERROR)<<"allowed are "<<m_trtHelper->barrel_ec_id(-1)<<" for TRT L0"<<endreq;
-      msg(MSG::ERROR)<<"        and "<<m_pixHelper->wafer_id(0,0,0,0)<<" for InDet L0"<<endreq;
+      msg(MSG::ERROR)<<"wrong identifier for L0 TRT in updateL0asL1() : "<<idL0<<endmsg;
+      msg(MSG::ERROR)<<"allowed are "<<m_trtHelper->barrel_ec_id(-1)<<" for TRT L0"<<endmsg;
+      msg(MSG::ERROR)<<"        and "<<m_pixHelper->wafer_id(0,0,0,0)<<" for InDet L0"<<endmsg;
       return;
    }
 
@@ -416,7 +416,7 @@ void TRTTrkAlignDBTool::updateL0asL1(Identifier idL0, const Amg::Transform3D & t
    for(unsigned int i=0; i<ids.size(); ++i) {
       // tweak applies the transform onto already existing transform in the DB
       if(m_trtAlignDbSvc->tweakAlignTransform(ids[i],transform,1).isFailure())
-         msg(MSG::ERROR)<<"Error setting constants."<<endreq;
+         msg(MSG::ERROR)<<"Error setting constants."<<endmsg;
       else
          ATH_MSG_INFO("Module "<<i<<". - id "<<ids[i]<<": Constants updated.");
    }
