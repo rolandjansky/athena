@@ -94,7 +94,7 @@ namespace LVL1TGCTrigger {
     declareProperty("MaskFileName",        m_MaskFileName="");
     declareProperty("MaskFileName12",      m_MaskFileName12="");
     declareProperty("LVL1ConfigSvc",       m_configSvc, "LVL1 Config Service");
-    declareProperty("VersionCW",           m_VerCW="00_07_0019"); // TILE_EIFI_BW
+    declareProperty("VersionCW",           m_VerCW="00_07_0022"); // TILE_EIFI_BW
     declareProperty("STRICTWD",            m_STRICTWD            =false);
     declareProperty("STRICTWT",            m_STRICTWT            =false);
     declareProperty("STRICTSD",            m_STRICTSD            =false);
@@ -133,7 +133,10 @@ namespace LVL1TGCTrigger {
   StatusCode LVL1TGCTrigger::initialize()
   {
     // init message stram
-    m_log.setLevel(msgLevel());  // inidividual output level not known before initialize
+
+//    m_log.setLevel(msgLevel());  // inidividual output level not known before initialize
+// msgLevel() is only available in rel.21. Previously, we used outputLevel() which is obsolete in rel.21
+// so we don't call setLevel(). (still works fine)
     m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug
 
     g_DEBUGLEVEL          =  m_debuglevel;
@@ -1398,8 +1401,8 @@ StatusCode LVL1TGCTrigger::getCabling()
   // Here don't overwrite by any version if proper version number is provided.
   std::string ver=m_VerCW.value();
   if((ver.size() != 10)) { 
-    // default CW is v00070019
-    ver= "00_07_0019";
+    // default CW is v00070022
+    ver= "00_07_0022";
     m_VerCW = ver;
   }
 
