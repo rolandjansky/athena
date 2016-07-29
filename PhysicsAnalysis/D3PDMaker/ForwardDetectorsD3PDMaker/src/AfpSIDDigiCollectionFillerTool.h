@@ -29,24 +29,24 @@ namespace D3PD
     private:
         //items per hit pixels
         int* m_pnTotPixelsCnt;
-        vector<int>* m_pvecPixStationIDs;
-        vector<int>* m_pvecPixLayerIDs;
-        vector<int>* m_pvecPixRow;
-        vector<int>* m_pvecPixColumn;
-        vector<float>* m_pvecPixEAmp;
+        std::vector<int>* m_pvecPixStationIDs;
+        std::vector<int>* m_pvecPixLayerIDs;
+        std::vector<int>* m_pvecPixRow;
+        std::vector<int>* m_pvecPixColumn;
+        std::vector<float>* m_pvecPixEAmp;
 
         //items per hit layers
         int* m_pnTotLayersCnt;
-        vector<int>* m_pvecLarStationIDs;
-        vector<int>* m_pvecLarLayerIDs;
-        vector<int>* m_pvecLarHitsPerLayer;
-        vector<float>* m_pvecLarEAmpPerLayer;
+        std::vector<int>* m_pvecLarStationIDs;
+        std::vector<int>* m_pvecLarLayerIDs;
+        std::vector<int>* m_pvecLarHitsPerLayer;
+        std::vector<float>* m_pvecLarEAmpPerLayer;
 
         //items per hit stations
         int* m_pnTotStationsCnt;
-        vector<int>* m_pvecStaStationIDs;
-        vector<int>* m_pvecStaHitsPerStation;
-        vector<float>* m_pvecStaEAmpPerStation;
+        std::vector<int>* m_pvecStaStationIDs;
+        std::vector<int>* m_pvecStaHitsPerStation;
+        std::vector<float>* m_pvecStaEAmpPerStation;
     };
 }
 

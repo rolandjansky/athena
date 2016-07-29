@@ -27,23 +27,23 @@ namespace D3PD
 
     private:
 		int* m_pnTotHitsCnt;
-		vector<int>* m_pvecHitID;
-		vector<int>* m_pvecTrackID;
-		vector<int>* m_pvecParticleEncoding;
-		vector<float>* m_pvecKineticEnergy;
-		vector<float>* m_pvecEnergyDeposit;
-		vector<float>* m_pvecPreStepX;
-		vector<float>* m_pvecPreStepY;
-		vector<float>* m_pvecPreStepZ;
-		vector<float>* m_pvecPostStepX;
-		vector<float>* m_pvecPostStepY;
-		vector<float>* m_pvecPostStepZ;
-		vector<float>* m_pvecGlobalTime;
-		vector<int>* m_pvecStationID;
-		vector<int>* m_pvecDetectorID;
-		vector<int>* m_pvecIsAuxVSID;
-		vector<int>* m_pvecPixelRow;
-		vector<int>* m_pvecPixelCol;
+		std::vector<int>* m_pvecHitID;
+		std::vector<int>* m_pvecTrackID;
+		std::vector<int>* m_pvecParticleEncoding;
+		std::vector<float>* m_pvecKineticEnergy;
+		std::vector<float>* m_pvecEnergyDeposit;
+		std::vector<float>* m_pvecPreStepX;
+		std::vector<float>* m_pvecPreStepY;
+		std::vector<float>* m_pvecPreStepZ;
+		std::vector<float>* m_pvecPostStepX;
+		std::vector<float>* m_pvecPostStepY;
+		std::vector<float>* m_pvecPostStepZ;
+		std::vector<float>* m_pvecGlobalTime;
+		std::vector<int>* m_pvecStationID;
+		std::vector<int>* m_pvecDetectorID;
+		std::vector<int>* m_pvecIsAuxVSID;
+		std::vector<int>* m_pvecPixelRow;
+		std::vector<int>* m_pvecPixelCol;
     };
 }
 

@@ -9,6 +9,7 @@
 // Local include(s):
 #include "AfpTruthInfoFillerTool.h"
 //#include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include <cmath>
 
 namespace D3PD {
 
@@ -110,7 +111,7 @@ namespace D3PD {
 	StatusCode AfpTruthInfoFillerTool::fill(const McEventCollection& EventCollection)
 	{
 		MsgStream LogStream(Athena::getMessageSvc(), "AfpTruthInfoFillerTool::fill()");
-		LogStream << MSG::DEBUG << "begin " << endreq;
+		LogStream << MSG::DEBUG << "begin " << endmsg;
 
 		//float px, py, pz, E, phi;
 		float pz;
@@ -136,15 +137,15 @@ namespace D3PD {
 			int pint = 0;
 			int pcount = 0;
 			
-			LogStream << MSG::DEBUG << " just before " << endreq;
+			LogStream << MSG::DEBUG << " just before " << endmsg;
 			//HepMC::GenParticle* beam_p1 = (**mcTruBeg).beam_particle_1;
 			HepMC::GenParticle* beam_p1 = (**mcTruBeg).beam_particles().first;
 			//HepMC::GenParticle* beam_p2 = (**mcTruBeg).beam_particle_2;
 			HepMC::GenParticle* beam_p2 = (**mcTruBeg).beam_particles().second;
 			
-			LogStream << MSG::DEBUG << " beam1 pointer " << beam_p1 << endreq;
-			LogStream << MSG::DEBUG << " beam2 pointer " << beam_p2 << endreq;
-			LogStream << MSG::DEBUG << " just after " << endreq;
+			LogStream << MSG::DEBUG << " beam1 pointer " << beam_p1 << endmsg;
+			LogStream << MSG::DEBUG << " beam2 pointer " << beam_p2 << endmsg;
+			LogStream << MSG::DEBUG << " just after " << endmsg;
 			
 			//double beam1_energy = beam_p1->momentum().e();
 			//double beam2_energy = beam_p2->momentum().e();
@@ -152,7 +153,7 @@ namespace D3PD {
 			double beam1_energy = 0.; //MeV
 			double beam2_energy = 0.; //MeV
 			
-			LogStream << MSG::DEBUG << " beam1_energy = " << beam1_energy << ", beam2_energy = " << beam2_energy << endreq;
+			LogStream << MSG::DEBUG << " beam1_energy = " << beam1_energy << ", beam2_energy = " << beam2_energy << endmsg;
 			
 
 			//b_vtx_kin_fill_flag = false;
@@ -167,9 +168,9 @@ namespace D3PD {
 			//loop over verteces belonging to one event in the given collection
 			for(;begGenVtxItr!=endGenVtxItr;++begGenVtxItr){
 
-				//LogStream << MSG::DEBUG << " * collection no: " << coll_counter << endreq;
-				//LogStream << MSG::DEBUG << " * vertex no: " << vtx_counter[coll_counter-1] << endreq;
-				//LogStream << MSG::DEBUG << " * position x = " << (**begGenVtxItr).position().x() << ", y = " << (**begGenVtxItr).position().y()<< ", z =" << (**begGenVtxItr).position().z() << endreq;
+				//LogStream << MSG::DEBUG << " * collection no: " << coll_counter << endmsg;
+				//LogStream << MSG::DEBUG << " * vertex no: " << vtx_counter[coll_counter-1] << endmsg;
+				//LogStream << MSG::DEBUG << " * position x = " << (**begGenVtxItr).position().x() << ", y = " << (**begGenVtxItr).position().y()<< ", z =" << (**begGenVtxItr).position().z() << endmsg;
 
 				// tom sykora: following 3 lines (cut on z-vertex position) remained here from the historical/old code with no cut on *primary* vertices...
 				//if (fabs((**begGenVtxItr).position().z()) > 500.){  // the IP vertex should be max +/-50 cm from z=0.
@@ -192,11 +193,11 @@ namespace D3PD {
 					//phi=      (*child)->momentum().phi();
 					//barcode = (*child)->barcode();
 
-					//LogStream << MSG::DEBUG << "particle barcode = " << (*child)->barcode() << endreq;
-					//LogStream << MSG::DEBUG << "particle pdg = " << (*child)->pdg_id() << endreq;
-					//LogStream << MSG::DEBUG << "particle status = " << (*child)->status() << endreq;
-					//LogStream << MSG::DEBUG << " *  px = " << px << ", py = " << py << ", pz =" << pz << endreq;
-					//LogStream << MSG::DEBUG << " " << endreq;
+					//LogStream << MSG::DEBUG << "particle barcode = " << (*child)->barcode() << endmsg;
+					//LogStream << MSG::DEBUG << "particle pdg = " << (*child)->pdg_id() << endmsg;
+					//LogStream << MSG::DEBUG << "particle status = " << (*child)->status() << endmsg;
+					//LogStream << MSG::DEBUG << " *  px = " << px << ", py = " << py << ", pz =" << pz << endmsg;
+					//LogStream << MSG::DEBUG << " " << endmsg;
 
 					// incoming protons (status code = 4) at the interaction point; 
 					if( (*child)->status() == 4){ // note, it can be any colliding particle, hopefully Pb too
@@ -217,8 +218,8 @@ namespace D3PD {
 							m_pvecPBeam1_i_pz->push_back(pi1->momentum().pz());
 							m_pvecPBeam1_i_E->push_back(pi1->momentum().e());
 							beam1_energy = pi1->momentum().e();
-							//LogStream << MSG::DEBUG << "initial particle 1: px = " <<(*m_pvecPBeam1_i)[1] << ", py = " << (*m_pvecPBeam1_i)[2] << ", pz = " << (*m_pvecPBeam1_i)[3] << ", E = " << (*m_pvecPBeam1_i)[0] << endreq;
-							//LogStream << MSG::DEBUG << " ** " << endreq;
+							//LogStream << MSG::DEBUG << "initial particle 1: px = " <<(*m_pvecPBeam1_i)[1] << ", py = " << (*m_pvecPBeam1_i)[2] << ", pz = " << (*m_pvecPBeam1_i)[3] << ", E = " << (*m_pvecPBeam1_i)[0] << endmsg;
+							//LogStream << MSG::DEBUG << " ** " << endmsg;
 						}
 
 						if(pz < 0){
@@ -228,12 +229,12 @@ namespace D3PD {
 							m_pvecPBeam2_i_pz->push_back(pi2->momentum().pz());
 							m_pvecPBeam2_i_E->push_back(pi2->momentum().e());
 							beam2_energy = pi2->momentum().e();
-							//LogStream << MSG::DEBUG << "initial particle 2: px = " << (*m_pvecPBeam2_i)[1] << ", py = " << (*m_pvecPBeam2_i)[2] << ", pz = " << (*m_pvecPBeam2_i)[3] << ", E = " << (*m_pvecPBeam2_i)[0] << endreq;
-							//LogStream << MSG::DEBUG << " ** " << endreq;
+							//LogStream << MSG::DEBUG << "initial particle 2: px = " << (*m_pvecPBeam2_i)[1] << ", py = " << (*m_pvecPBeam2_i)[2] << ", pz = " << (*m_pvecPBeam2_i)[3] << ", E = " << (*m_pvecPBeam2_i)[0] << endmsg;
+							//LogStream << MSG::DEBUG << " ** " << endmsg;
 						}
 
-						if(pint > 2) {LogStream << MSG::DEBUG << "Strange: More than two incoming protons in this event! (depends what is simulated, in particle generator or gun, ...)" << endreq;}
-						LogStream << MSG::DEBUG << "pint = " << pint << endreq;
+						if(pint > 2) {LogStream << MSG::DEBUG << "Strange: More than two incoming protons in this event! (depends what is simulated, in particle generator or gun, ...)" << endmsg;}
+						LogStream << MSG::DEBUG << "pint = " << pint << endmsg;
 
 						// we know we have interaction vertex (==4), outgoing protons at the interaction point; 2 will be just in case of elastic or exlusive processes(and if no additional protons are produced)
 
@@ -250,18 +251,18 @@ namespace D3PD {
 							p2=(*childik);
 							double pt = sqrt(p2->momentum().px()*p2->momentum().px()+p2->momentum().py()*p2->momentum().py());
 							double pz = p2->momentum().pz();
-							double eta = -log(abs(pt/(2.*pz))); //approximation !
+							double eta = -log(std::abs(pt/(2.*pz))); //approximation !
 							int pdg = p2->pdg_id();
 							double xi = 1. - sqrt(pt*pt+pz*pz)/beam1_energy;
 							
-							LogStream << MSG::DEBUG << " *************************** " << endreq;
-							LogStream << MSG::DEBUG << " forward particle eta = " << eta << endreq;
-							LogStream << MSG::DEBUG << " forward particle xi = " << xi << endreq;
-							LogStream << MSG::DEBUG << " forward particle pdg = " << pdg << endreq;
+							LogStream << MSG::DEBUG << " *************************** " << endmsg;
+							LogStream << MSG::DEBUG << " forward particle eta = " << eta << endmsg;
+							LogStream << MSG::DEBUG << " forward particle xi = " << xi << endmsg;
+							LogStream << MSG::DEBUG << " forward particle pdg = " << pdg << endmsg;
 							
 							
 							//if( (*childik)->pdg_id() == 2212){ // can be elastic, diffractive, exclusive, p-Pb; do not know how to filter on elastic Pb
-							if ((pdg == 2212) || ((xi > 0.01) && (xi < 0.25 ) && (abs(eta)) > 8.))
+							if ((pdg == 2212) || ((xi > 0.01) && (xi < 0.25 ) && (std::abs(eta)) > 8.))
 							{
 							// du to this conditions only protons will be registered -> has to be changed
 
@@ -278,8 +279,8 @@ namespace D3PD {
 							}
 						}
 
-						LogStream << MSG::DEBUG << "Number of outgoing protons (proton like) in this event " << endreq;}
-						LogStream << MSG::DEBUG << "pcount = " << pcount << endreq;
+						LogStream << MSG::DEBUG << "Number of outgoing protons (proton like) in this event " << endmsg;}
+						LogStream << MSG::DEBUG << "pcount = " << pcount << endmsg;
 					}
 					
 				}

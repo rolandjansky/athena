@@ -42,37 +42,37 @@ namespace D3PD
   private:
 
 	//LocRecEvCollection & LocRecODEvCollection
-	vector<float>* m_pvecXDetCS;
-	vector<float>* m_pvecYDetCS;
-	vector<int>* m_pvecDetectorPartID;
+	std::vector<float>* m_pvecXDetCS;
+	std::vector<float>* m_pvecYDetCS;
+	std::vector<int>* m_pvecDetectorPartID;
 	int* m_pnMaxTrackCnt;
-	vector<float>* m_pvecOverU;
-	vector<float>* m_pvecOverV;
-	vector<float>* m_pvecOverY;
-	vector<int>* m_pvecNumU;
-	vector<int>* m_pvecNumV;
-	vector<int>* m_pvecNumY;
-	vector<int>* m_pvecMDFibSel;
-	vector<int>* m_pvecODFibSel;
+	std::vector<float>* m_pvecOverU;
+	std::vector<float>* m_pvecOverV;
+	std::vector<float>* m_pvecOverY;
+	std::vector<int>* m_pvecNumU;
+	std::vector<int>* m_pvecNumV;
+	std::vector<int>* m_pvecNumY;
+	std::vector<int>* m_pvecMDFibSel;
+	std::vector<int>* m_pvecODFibSel;
 
 	//LocRecCorrEvCollection & LocRecCorrODEvCollection
-	vector<float>* m_pvecXLhcCS;
-	vector<float>* m_pvecYLhcCS;
-	vector<float>* m_pvecZLhcCS;
-	vector<float>* m_pvecXRPotCS;
-	vector<float>* m_pvecYRPotCS;
-	vector<float>* m_pvecXStatCS;
-	vector<float>* m_pvecYStatCS;
-	vector<float>* m_pvecXBeamCS;
-	vector<float>* m_pvecYBeamCS;
+	std::vector<float>* m_pvecXLhcCS;
+	std::vector<float>* m_pvecYLhcCS;
+	std::vector<float>* m_pvecZLhcCS;
+	std::vector<float>* m_pvecXRPotCS;
+	std::vector<float>* m_pvecYRPotCS;
+	std::vector<float>* m_pvecXStatCS;
+	std::vector<float>* m_pvecYStatCS;
+	std::vector<float>* m_pvecXBeamCS;
+	std::vector<float>* m_pvecYBeamCS;
 
 	//GloRecEvCollection
 // 	int* m_pnMaxGloTrackCnt;
-// 	vector<int>* m_pvecGloArm;
-// 	vector<float>* m_pvecGloXLhcCS;
-// 	vector<float>* m_pvecGloYLhcCS;
-// 	vector<float>* m_pvecGloXSlopeLhcCS;
-// 	vector<float>* m_pvecGloYSlopeLhcCS;
+// 	std::vector<int>* m_pvecGloArm;
+// 	std::vector<float>* m_pvecGloXLhcCS;
+// 	std::vector<float>* m_pvecGloYLhcCS;
+// 	std::vector<float>* m_pvecGloXSlopeLhcCS;
+// 	std::vector<float>* m_pvecGloYSlopeLhcCS;
 
 
    }; // class AlfaTrackingDataFillerTool

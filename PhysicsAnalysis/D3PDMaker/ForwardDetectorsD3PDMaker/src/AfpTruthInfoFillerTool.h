@@ -35,31 +35,31 @@ namespace D3PD
 		//***	information about vertex and incoming protons for each collision, pileup considered
 		//int* m_pnPrimaryIPs;
 		
-		vector<float>* m_pvecVtx_g_x;
-		vector<float>* m_pvecVtx_g_y;
-		vector<float>* m_pvecVtx_g_z;
-		vector<float>* m_pvecVtx_g_t;
+		std::vector<float>* m_pvecVtx_g_x;
+		std::vector<float>* m_pvecVtx_g_y;
+		std::vector<float>* m_pvecVtx_g_z;
+		std::vector<float>* m_pvecVtx_g_t;
 
-		vector<float>* m_pvecPBeam1_i_pt;
-		vector<float>* m_pvecPBeam1_i_phi;
-		vector<float>* m_pvecPBeam1_i_pz;
-		vector<float>* m_pvecPBeam1_i_E;
+		std::vector<float>* m_pvecPBeam1_i_pt;
+		std::vector<float>* m_pvecPBeam1_i_phi;
+		std::vector<float>* m_pvecPBeam1_i_pz;
+		std::vector<float>* m_pvecPBeam1_i_E;
 		
-		vector<float>* m_pvecPBeam2_i_pt;
-		vector<float>* m_pvecPBeam2_i_phi;
-		vector<float>* m_pvecPBeam2_i_pz;
-		vector<float>* m_pvecPBeam2_i_E;
+		std::vector<float>* m_pvecPBeam2_i_pt;
+		std::vector<float>* m_pvecPBeam2_i_phi;
+		std::vector<float>* m_pvecPBeam2_i_pz;
+		std::vector<float>* m_pvecPBeam2_i_E;
 
 		//***   information about leading particles (protons and proton like particles)
 		
 		//int*   m_pnProtons_f;
 		
-		vector<float>* m_pvecParticle_f_pt;
-		vector<float>* m_pvecParticle_f_phi;
-		vector<float>* m_pvecParticle_f_pz;
-		vector<float>* m_pvecParticle_f_m;
-		vector<int>* m_pvecParticle_f_pdg;
-		vector<int>* m_pvecParticle_f_barcode;
+		std::vector<float>* m_pvecParticle_f_pt;
+		std::vector<float>* m_pvecParticle_f_phi;
+		std::vector<float>* m_pvecParticle_f_pz;
+		std::vector<float>* m_pvecParticle_f_m;
+		std::vector<int>* m_pvecParticle_f_pdg;
+		std::vector<int>* m_pvecParticle_f_barcode;
 
 	}; // class AfpTruthInfoFillerTool
 
