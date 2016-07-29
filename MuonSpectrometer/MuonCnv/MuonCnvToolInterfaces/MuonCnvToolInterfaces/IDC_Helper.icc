@@ -12,7 +12,7 @@ Muon::IDC_Helper::getCollection( const Identifier collId,  IDC* idc, const IDHEL
     if (idHelper->get_module_hash( collId, idHash )) {
         log << MSG::ERROR << "Unable to get CSC hash id from CSC RDO collection " 
             << " the identifier is "
-            << endreq;
+            << endmsg;
         collId.show();
     }
     
@@ -23,7 +23,7 @@ Muon::IDC_Helper::getCollection( const Identifier collId,  IDC* idc, const IDHEL
         collection->setIdentifier(collId);
         StatusCode status = idc->addCollection(collection, idHash );
         if (status.isFailure())
-            log << MSG::ERROR << "Couldn't add collection to IDC" << endreq;
+            log << MSG::ERROR << "Couldn't add collection to IDC" << endmsg;
     } else {  
         collection = const_cast<typename IDC::IDENTIFIABLE*>( &(**collIt) );
         //cscHashId = collection->identifyHash();
