@@ -112,19 +112,19 @@ StatusCode JetVariablesTool::retrieveContainers() {
 
   sc = retrieveJetContainer(m_jetCollectionKey);
   if (sc.isFailure()) {
-    msg() << MSG::WARNING << "JetVariablesTool: failed retrieving " << m_jetCollectionKey << endreq; 
+    msg() << MSG::WARNING << "JetVariablesTool: failed retrieving " << m_jetCollectionKey << endmsg; 
     return sc;
   }
 
   sc = retrieveTrackContainer(m_trackParticleKey);
   if (sc.isFailure()) {
-    msg() << MSG::WARNING << "JetVariablesTool: failed retrieving " << m_trackParticleKey << endreq; 
+    msg() << MSG::WARNING << "JetVariablesTool: failed retrieving " << m_trackParticleKey << endmsg; 
     return sc;
   }
 
   sc = retrieveTruthJetContainer(m_jetTruthCollectionKey);
   if (sc.isFailure()) {
-    msg() << MSG::WARNING << "JetVariablesTool: failed retrieving " << m_jetTruthCollectionKey << endreq; 
+    msg() << MSG::WARNING << "JetVariablesTool: failed retrieving " << m_jetTruthCollectionKey << endmsg; 
     return sc;
   }
 
@@ -138,7 +138,7 @@ StatusCode JetVariablesTool::retrieveJetContainer(std::string jetContainerKey) {
   if (evtStore()->contains<JetCollection>(jetContainerKey)) {
     sc=evtStore()->retrieve( jet, jetContainerKey );
     if( sc.isFailure()  ||  !jet ) {
-      msg() << MSG::WARNING << "JetVariablesTool: No JetCollection found in StoreGate, key:" << jetContainerKey << endreq; 
+      msg() << MSG::WARNING << "JetVariablesTool: No JetCollection found in StoreGate, key:" << jetContainerKey << endmsg; 
       return sc;
     }
   } else {jet = m_dummyJetColl;}
@@ -155,7 +155,7 @@ StatusCode JetVariablesTool::retrieveTrackContainer(std::string trackContainerKe
   if (evtStore()->contains<Rec::TrackParticleContainer>(trackContainerKey)) {
     sc=evtStore()->retrieve( tracks, trackContainerKey );
     if( sc.isFailure()  ||  !tracks ) {
-      msg() << MSG::DEBUG << "JetVariablesTool: No TrackParticleContainer found in StoreGate, key:" << trackContainerKey << endreq;
+      msg() << MSG::DEBUG << "JetVariablesTool: No TrackParticleContainer found in StoreGate, key:" << trackContainerKey << endmsg;
       return sc;
     }
   } else { tracks = m_dummyTracks;}
@@ -172,7 +172,7 @@ StatusCode JetVariablesTool::retrieveTruthJetContainer(std::string truthJetConta
   if (evtStore()->contains<JetCollection>(truthJetContainerKey)) {
     sc=evtStore()->retrieve( jetTruth, truthJetContainerKey );
     if( sc.isFailure()  ||  !jetTruth ) {
-      msg() << MSG::DEBUG << "JetVariablesTool: No Truth JetCollection found in StoreGate, key:" << truthJetContainerKey << endreq;
+      msg() << MSG::DEBUG << "JetVariablesTool: No Truth JetCollection found in StoreGate, key:" << truthJetContainerKey << endmsg;
       return sc;
     }
   } else { jetTruth = m_dummyJetColl;}
@@ -204,7 +204,7 @@ float JetVariablesTool::EventEMFraction()
    //
    const CaloClusterContainer* clusters;   
    if ( evtStore()->retrieve(clusters,"CaloCalTopoCluster").isFailure() ) {
-      msg() << MSG::WARNING << " Could not get pointer to CaloClusterContainer " << endreq;
+      msg() << MSG::WARNING << " Could not get pointer to CaloClusterContainer " << endmsg;
       return StatusCode::SUCCESS;
    }
    

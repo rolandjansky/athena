@@ -32,6 +32,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigMissingEtEvent
                           Trigger/TrigEvent/TrigMuonEvent
                           PRIVATE
+                          Control/AthenaKernel
                           Calorimeter/CaloGeoHelpers
                           Event/FourMom
                           Event/FourMomUtils
@@ -59,12 +60,12 @@ atlas_add_library( MissingETPerformanceLib
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloEvent AthenaBaseComps SGTools GaudiKernel GeneratorObjects LArRecConditions AnalysisTriggerEvent McParticleEvent JetEvent JetUtils MissingETEvent muonEvent Particle egammaEvent TrigCaloEvent TrigInDetEvent TrigMissingEtEvent TrigMuonEvent StoreGateLib SGtests AthAnalysisToolsLib MissingETGoodnessLib TrigDecisionToolLib
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPMC_LIBRARIES} CaloGeoHelpers FourMom FourMomUtils xAODEventInfo TruthHelper tauEvent VxVertex TrigConfL1Data )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPMC_LIBRARIES} AthenaKernel CaloGeoHelpers FourMom FourMomUtils xAODEventInfo TruthHelper tauEvent VxVertex TrigConfL1Data )
 
 atlas_add_component( MissingETPerformance
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} CaloConditions CaloEvent AthenaBaseComps SGTools StoreGateLib SGtests GaudiKernel GeneratorObjects LArRecConditions AthAnalysisToolsLib AnalysisTriggerEvent McParticleEvent JetEvent JetUtils MissingETEvent MissingETGoodnessLib muonEvent Particle egammaEvent TrigDecisionToolLib TrigCaloEvent TrigInDetEvent TrigMissingEtEvent TrigMuonEvent CaloGeoHelpers FourMom FourMomUtils xAODEventInfo TruthHelper tauEvent VxVertex TrigConfL1Data MissingETPerformanceLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} CaloConditions CaloEvent AthenaBaseComps SGTools StoreGateLib SGtests GaudiKernel GeneratorObjects LArRecConditions AthAnalysisToolsLib AnalysisTriggerEvent McParticleEvent JetEvent JetUtils MissingETEvent MissingETGoodnessLib muonEvent Particle egammaEvent TrigDecisionToolLib TrigCaloEvent TrigInDetEvent TrigMissingEtEvent TrigMuonEvent AthenaKernel CaloGeoHelpers FourMom FourMomUtils xAODEventInfo TruthHelper tauEvent VxVertex TrigConfL1Data MissingETPerformanceLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

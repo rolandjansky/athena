@@ -95,15 +95,15 @@ class TrigVsOfflineMissingETTool: public AthAlgTool {
     /** check if the triggers specified by user are defined in
       trigger menu, and put the correct ones in a map to be used
       (maps in case of met triggers) */
-    void checkTriggers(std::vector<std::string>& m_triggers,
+    void checkTriggers(std::vector<std::string>& triggers,
         bool isInputMetTriggers);
 
     void printMetTriggerStats();
 
     /** histogram ranges and bins */
-    double low[4];
-    double high[4];
-    int nbins[4];
+    double m_low[4];
+    double m_high[4];
+    int m_nbins[4];
 
     bool m_debuglevel; //!< private member to control debug messages
 

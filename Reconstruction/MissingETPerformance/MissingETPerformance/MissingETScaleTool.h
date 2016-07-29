@@ -95,8 +95,8 @@ public:
         float m_upmass;
 
         //scale plots
-        std::vector<TH1F*> h_scale_plots; 
-	TH1F*  hs2_[20];
+        std::vector<TH1F*> m_h_scale_plots; 
+	TH1F*  m_hs2[20];
 };
 
 

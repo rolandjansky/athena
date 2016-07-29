@@ -55,8 +55,8 @@ protected:
   std::string m_folderName;
 
   //storegate key names
-  std::string _JetCollectionKey;
-  std::string _CaloMuonCollectionKey;
+  std::string m_JetCollectionKey;
+  std::string m_CaloMuonCollectionKey;
 
   /** a handle on the Hist/TTree registration service */
   ITHistSvc * m_thistSvc;
@@ -65,95 +65,95 @@ protected:
 
   //[0] = MuonBoy, [1] = MuTag [2] = CaloMuons
 
-  TH2D *h_MC_2D_truthMatched_IsolationVsPt_LogLogMuonBoy;
-  TH2D *h_MC_2D_truthMatched_IsolationVsPtMuonBoy;
-  TH2D *h_MC_2D_truthUnmatched_IsolationVsPt_LogLogMuonBoy;
-  TH2D *h_MC_2D_truthUnmatched_IsolationVsPtMuonBoy;
-  TH2D *h_2D_jetMatched_IsolationVsPt_LogLogMuonBoy;
-  TH2D *h_2D_jetMatched_IsolationVsPtMuonBoy;
+  TH2D *m_h_MC_2D_truthMatched_IsolationVsPt_LogLogMuonBoy;
+  TH2D *m_h_MC_2D_truthMatched_IsolationVsPtMuonBoy;
+  TH2D *m_h_MC_2D_truthUnmatched_IsolationVsPt_LogLogMuonBoy;
+  TH2D *m_h_MC_2D_truthUnmatched_IsolationVsPtMuonBoy;
+  TH2D *m_h_2D_jetMatched_IsolationVsPt_LogLogMuonBoy;
+  TH2D *m_h_2D_jetMatched_IsolationVsPtMuonBoy;
 
-  TH1D *h_eta_dist_allMuonBoy;
-  TH1D *h_phi_dist_allMuonBoy;
-  TH1D *h_Pt_dist_allMuonBoy;
-  TH2D *h_2D_phiVsEta_allMuonBoy;
+  TH1D *m_h_eta_dist_allMuonBoy;
+  TH1D *m_h_phi_dist_allMuonBoy;
+  TH1D *m_h_Pt_dist_allMuonBoy;
+  TH2D *m_h_2D_phiVsEta_allMuonBoy;
 
-  TH1D *h_MC_eta_dist_truthMatchedMuonBoy;
-  TH1D *h_MC_phi_dist_truthMatchedMuonBoy;
-  TH1D *h_MC_Pt_dist_truthMatchedMuonBoy;
-  TH2D *h_MC_2D_phiVsEta_truthMatchedMuonBoy;
+  TH1D *m_h_MC_eta_dist_truthMatchedMuonBoy;
+  TH1D *m_h_MC_phi_dist_truthMatchedMuonBoy;
+  TH1D *m_h_MC_Pt_dist_truthMatchedMuonBoy;
+  TH2D *m_h_MC_2D_phiVsEta_truthMatchedMuonBoy;
 
-  TH1D *h_MC_eta_dist_truthUnmatchedMuonBoy;
-  TH1D *h_MC_phi_dist_truthUnmatchedMuonBoy;
-  TH1D *h_MC_Pt_dist_truthUnmatchedMuonBoy;
-  TH2D *h_MC_2D_phiVsEta_truthUnmatchedMuonBoy;
+  TH1D *m_h_MC_eta_dist_truthUnmatchedMuonBoy;
+  TH1D *m_h_MC_phi_dist_truthUnmatchedMuonBoy;
+  TH1D *m_h_MC_Pt_dist_truthUnmatchedMuonBoy;
+  TH2D *m_h_MC_2D_phiVsEta_truthUnmatchedMuonBoy;
 
-  TH1D *h_eta_dist_jetMatchedMuonBoy;
-  TH1D *h_phi_dist_jetMatchedMuonBoy;
-  TH1D *h_Pt_dist_jetMatchedMuonBoy;
-  TH2D *h_2D_phiVsEta_jetMatchedMuonBoy;
+  TH1D *m_h_eta_dist_jetMatchedMuonBoy;
+  TH1D *m_h_phi_dist_jetMatchedMuonBoy;
+  TH1D *m_h_Pt_dist_jetMatchedMuonBoy;
+  TH2D *m_h_2D_phiVsEta_jetMatchedMuonBoy;
 
-  TH2D *h_MC_2D_truthMatched_IsolationVsPt_LogLogMutag;
-  TH2D *h_MC_2D_truthMatched_IsolationVsPtMutag;
-  TH2D *h_MC_2D_truthUnmatched_IsolationVsPt_LogLogMutag;
-  TH2D *h_MC_2D_truthUnmatched_IsolationVsPtMutag;
-  TH2D *h_2D_jetMatched_IsolationVsPt_LogLogMutag;
-  TH2D *h_2D_jetMatched_IsolationVsPtMutag;
+  TH2D *m_h_MC_2D_truthMatched_IsolationVsPt_LogLogMutag;
+  TH2D *m_h_MC_2D_truthMatched_IsolationVsPtMutag;
+  TH2D *m_h_MC_2D_truthUnmatched_IsolationVsPt_LogLogMutag;
+  TH2D *m_h_MC_2D_truthUnmatched_IsolationVsPtMutag;
+  TH2D *m_h_2D_jetMatched_IsolationVsPt_LogLogMutag;
+  TH2D *m_h_2D_jetMatched_IsolationVsPtMutag;
 
-  TH1D *h_eta_dist_allMutag;
-  TH1D *h_phi_dist_allMutag;
-  TH1D *h_Pt_dist_allMutag;
-  TH2D *h_2D_phiVsEta_allMutag;
+  TH1D *m_h_eta_dist_allMutag;
+  TH1D *m_h_phi_dist_allMutag;
+  TH1D *m_h_Pt_dist_allMutag;
+  TH2D *m_h_2D_phiVsEta_allMutag;
 
-  TH1D *h_MC_eta_dist_truthMatchedMutag;
-  TH1D *h_MC_phi_dist_truthMatchedMutag;
-  TH1D *h_MC_Pt_dist_truthMatchedMutag;
-  TH2D *h_MC_2D_phiVsEta_truthMatchedMutag;
+  TH1D *m_h_MC_eta_dist_truthMatchedMutag;
+  TH1D *m_h_MC_phi_dist_truthMatchedMutag;
+  TH1D *m_h_MC_Pt_dist_truthMatchedMutag;
+  TH2D *m_h_MC_2D_phiVsEta_truthMatchedMutag;
 
-  TH1D *h_MC_eta_dist_truthUnmatchedMutag;
-  TH1D *h_MC_phi_dist_truthUnmatchedMutag;
-  TH1D *h_MC_Pt_dist_truthUnmatchedMutag;
-  TH2D *h_MC_2D_phiVsEta_truthUnmatchedMutag;
+  TH1D *m_h_MC_eta_dist_truthUnmatchedMutag;
+  TH1D *m_h_MC_phi_dist_truthUnmatchedMutag;
+  TH1D *m_h_MC_Pt_dist_truthUnmatchedMutag;
+  TH2D *m_h_MC_2D_phiVsEta_truthUnmatchedMutag;
 
-  TH1D *h_eta_dist_jetMatchedMutag;
-  TH1D *h_phi_dist_jetMatchedMutag;
-  TH1D *h_Pt_dist_jetMatchedMutag;
-  TH2D *h_2D_phiVsEta_jetMatchedMutag;
+  TH1D *m_h_eta_dist_jetMatchedMutag;
+  TH1D *m_h_phi_dist_jetMatchedMutag;
+  TH1D *m_h_Pt_dist_jetMatchedMutag;
+  TH2D *m_h_2D_phiVsEta_jetMatchedMutag;
 
-  TH2D *h_MC_2D_truthMatched_IsolationVsPt_LogLogCaloMuons;
-  TH2D *h_MC_2D_truthMatched_IsolationVsPtCaloMuons;
-  TH2D *h_MC_2D_truthUnmatched_IsolationVsPt_LogLogCaloMuons;
-  TH2D *h_MC_2D_truthUnmatched_IsolationVsPtCaloMuons;
-  TH2D *h_2D_jetMatched_IsolationVsPt_LogLogCaloMuons;
-  TH2D *h_2D_jetMatched_IsolationVsPtCaloMuons;
+  TH2D *m_h_MC_2D_truthMatched_IsolationVsPt_LogLogCaloMuons;
+  TH2D *m_h_MC_2D_truthMatched_IsolationVsPtCaloMuons;
+  TH2D *m_h_MC_2D_truthUnmatched_IsolationVsPt_LogLogCaloMuons;
+  TH2D *m_h_MC_2D_truthUnmatched_IsolationVsPtCaloMuons;
+  TH2D *m_h_2D_jetMatched_IsolationVsPt_LogLogCaloMuons;
+  TH2D *m_h_2D_jetMatched_IsolationVsPtCaloMuons;
 
-  TH1D *h_eta_dist_allCaloMuons;
-  TH1D *h_phi_dist_allCaloMuons;
-  TH1D *h_Pt_dist_allCaloMuons;
-  TH2D *h_2D_phiVsEta_allCaloMuons;
+  TH1D *m_h_eta_dist_allCaloMuons;
+  TH1D *m_h_phi_dist_allCaloMuons;
+  TH1D *m_h_Pt_dist_allCaloMuons;
+  TH2D *m_h_2D_phiVsEta_allCaloMuons;
 
-  TH1D *h_MC_eta_dist_truthMatchedCaloMuons;
-  TH1D *h_MC_phi_dist_truthMatchedCaloMuons;
-  TH1D *h_MC_Pt_dist_truthMatchedCaloMuons;
-  TH2D *h_MC_2D_phiVsEta_truthMatchedCaloMuons;
+  TH1D *m_h_MC_eta_dist_truthMatchedCaloMuons;
+  TH1D *m_h_MC_phi_dist_truthMatchedCaloMuons;
+  TH1D *m_h_MC_Pt_dist_truthMatchedCaloMuons;
+  TH2D *m_h_MC_2D_phiVsEta_truthMatchedCaloMuons;
 
-  TH1D *h_MC_eta_dist_truthUnmatchedCaloMuons;
-  TH1D *h_MC_phi_dist_truthUnmatchedCaloMuons;
-  TH1D *h_MC_Pt_dist_truthUnmatchedCaloMuons;
-  TH2D *h_MC_2D_phiVsEta_truthUnmatchedCaloMuons;
+  TH1D *m_h_MC_eta_dist_truthUnmatchedCaloMuons;
+  TH1D *m_h_MC_phi_dist_truthUnmatchedCaloMuons;
+  TH1D *m_h_MC_Pt_dist_truthUnmatchedCaloMuons;
+  TH2D *m_h_MC_2D_phiVsEta_truthUnmatchedCaloMuons;
 
-  TH1D *h_eta_dist_jetMatchedCaloMuons;
-  TH1D *h_phi_dist_jetMatchedCaloMuons;
-  TH1D *h_Pt_dist_jetMatchedCaloMuons;
-  TH2D *h_2D_phiVsEta_jetMatchedCaloMuons;
+  TH1D *m_h_eta_dist_jetMatchedCaloMuons;
+  TH1D *m_h_phi_dist_jetMatchedCaloMuons;
+  TH1D *m_h_Pt_dist_jetMatchedCaloMuons;
+  TH2D *m_h_2D_phiVsEta_jetMatchedCaloMuons;
 
-  TH1D *h_MC_eta_dist_Truth;
-  TH1D *h_MC_phi_dist_Truth;
-  TH1D *h_MC_Pt_dist_Truth;
-  TH2D *h_MC_2D_phiVsEta_Truth;
+  TH1D *m_h_MC_eta_dist_Truth;
+  TH1D *m_h_MC_phi_dist_Truth;
+  TH1D *m_h_MC_Pt_dist_Truth;
+  TH2D *m_h_MC_2D_phiVsEta_Truth;
 
-  TH1D *h_eta_dist_Jets;
-  TH1D *h_phi_dist_Jets;
-  TH1D *h_Pt_dist_Jets;
-  TH2D *h_2D_phiVsEta_Jets;
+  TH1D *m_h_eta_dist_Jets;
+  TH1D *m_h_phi_dist_Jets;
+  TH1D *m_h_Pt_dist_Jets;
+  TH2D *m_h_2D_phiVsEta_Jets;
 };
 #endif // MUON_TOOL_H

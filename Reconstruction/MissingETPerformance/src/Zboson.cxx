@@ -5,10 +5,10 @@
 #include "MissingETPerformance/Zboson.h"
 
 Zboson::Zboson(TLorentzVector a, TLorentzVector b) {
-  daughter1 = a;
-  daughter2 = b;
+  m_daughter1 = a;
+  m_daughter2 = b;
 
-  Z = a + b;
+  m_Z = a + b;
 }
 
 TVector2 Zboson::GetVec() {
@@ -18,8 +18,8 @@ TVector2 Zboson::GetVec() {
 
 
 TVector2 Zboson::GetPerpendicular(){
-  TVector2 Object1(daughter1.Px(),daughter1.Py());
-  TVector2 Object2(daughter2.Px(),daughter2.Py());
+  TVector2 Object1(m_daughter1.Px(),m_daughter1.Py());
+  TVector2 Object2(m_daughter2.Px(),m_daughter2.Py());
   TVector2 perp=(Object1/Object1.Mod())+(Object2/Object2.Mod());
   TVector2 Perpendicular=perp/perp.Mod();
   return Perpendicular;
@@ -31,8 +31,8 @@ TVector2 Zboson::GetParallel(){
 }
 
 TVector2 Zboson::GetPtAxis(){
-  TVector2 Object1(daughter1.Px(),daughter1.Py());
-  TVector2 Object2(daughter2.Px(),daughter2.Py());
+  TVector2 Object1(m_daughter1.Px(),m_daughter1.Py());
+  TVector2 Object2(m_daughter2.Px(),m_daughter2.Py());
   TVector2 Sum=(Object1+Object2);
   TVector2 PtAxis=Sum/Sum.Mod();
   return PtAxis;
@@ -44,8 +44,8 @@ TVector2 Zboson::GetAntiPtAxis(){
 }
 
 TVector2 Zboson::GetThrust(){
-  TVector2 Object1(daughter1.Px(),daughter1.Py());
-  TVector2 Object2(daughter2.Px(),daughter2.Py());
+  TVector2 Object1(m_daughter1.Px(),m_daughter1.Py());
+  TVector2 Object2(m_daughter2.Px(),m_daughter2.Py());
   TVector2 difference=Object1-Object2;
   TVector2 Thrust=difference/difference.Mod();
   return Thrust;
@@ -86,16 +86,16 @@ TVector2 Zboson::GetAntiAxis(){
 
 double Zboson::GetDiLeptonPerp(){
   TVector2 perp=GetPerpendicular();
-  TVector2 Object1(daughter1.Px(),daughter1.Py());
-  TVector2 Object2(daughter2.Px(),daughter2.Py());
+  TVector2 Object1(m_daughter1.Px(),m_daughter1.Py());
+  TVector2 Object2(m_daughter2.Px(),m_daughter2.Py());
   double diLepPerp=perp*Object1+perp*Object2;
   return diLepPerp/perp.Mod();
 }
 
 double Zboson::GetDiLeptonPar(){
   TVector2 par=GetParallel();
-  TVector2 Object1(daughter1.Px(),daughter1.Py());
-  TVector2 Object2(daughter2.Px(),daughter2.Py());
+  TVector2 Object1(m_daughter1.Px(),m_daughter1.Py());
+  TVector2 Object2(m_daughter2.Px(),m_daughter2.Py());
   double diLepPar=fabs(par*Object1+par*Object2);
   return diLepPar/par.Mod();
 }

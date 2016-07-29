@@ -13,11 +13,13 @@
 #include <vector>
 #include "MissingETPerformance/MissingETScaleTool.h"
 #include "MissingETPerformance/Zboson.h"
+#include "AthenaKernel/Units.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 
 using namespace std;
+using Athena::Units::GeV;
 
 //------------------------------------------------------------------------------
 MissingETScaleTool::MissingETScaleTool( const std::string& type,
@@ -45,7 +47,7 @@ StatusCode MissingETScaleTool::CBNT_initialize() {
   if (sc.isFailure()) {
      msg() << MSG::ERROR
           << "Unable to retrieve pointer to THistSvc"
-          << endreq;
+          << endmsg;
      return sc;
   }
 
@@ -60,8 +62,8 @@ StatusCode MissingETScaleTool::CBNT_initialize() {
   char name2[20];
   for (int ih2= 0; ih2< 20 ; ih2++){
     sprintf(name2,"hs2_%d",ih2);
-    hs2_[ih2] = new TH1F(name2, " name2 ", 50, 0.,m_upmass);
-    sc = m_thistSvc->regHist("/AANT/" + m_folderName + "METScale/MET_"+name2, hs2_[ih2]);
+    m_hs2[ih2] = new TH1F(name2, " name2 ", 50, 0.,m_upmass);
+    sc = m_thistSvc->regHist("/AANT/" + m_folderName + "METScale/MET_"+name2, m_hs2[ih2]);
   }
   return StatusCode::SUCCESS;
 }//end CBNT_initialize()
@@ -75,7 +77,7 @@ StatusCode MissingETScaleTool::execute(MissingETData *data) {
   /** check that the input and the output containers are defined */
   StatusCode sc = StatusCode::SUCCESS;
 
-  msg() << MSG::DEBUG << "execute() has been called" << endreq;
+  msg() << MSG::DEBUG << "execute() has been called" << endmsg;
 
   sc = MissingETScale(data);
 
@@ -83,21 +85,21 @@ StatusCode MissingETScaleTool::execute(MissingETData *data) {
 }
 StatusCode MissingETScaleTool::MissingETScale(MissingETData *data) {
 
-  msg() << MSG::DEBUG <<" -- MissingETScaleTool::execute() -- "<<endreq;
+  msg() << MSG::DEBUG <<" -- MissingETScaleTool::execute() -- "<<endmsg;
 
   bool passed_preconditions = true;
-  msg() << MSG::DEBUG << "Sono qui " << endreq;
+  msg() << MSG::DEBUG << "Sono qui " << endmsg;
   // getting tau container from SG 
   const INavigable4MomentumCollection* tau_cont = 0;
 
   if( evtStore()->retrieve(tau_cont, m_tau_container).isFailure() || !tau_cont )
     {
-      msg() << MSG::DEBUG <<"Failed to retrieve " << m_tau_container <<endreq;
+      msg() << MSG::DEBUG <<"Failed to retrieve " << m_tau_container <<endmsg;
       return StatusCode::FAILURE;
     }
   if(tau_cont->size() == 0)
     {
-      msg() << MSG::DEBUG <<"Event does not have any chosen tau-jets."<<endreq; 
+      msg() << MSG::DEBUG <<"Event does not have any chosen tau-jets."<<endmsg; 
       passed_preconditions = false;
     }
 
@@ -105,12 +107,12 @@ StatusCode MissingETScaleTool::MissingETScale(MissingETData *data) {
   const INavigable4MomentumCollection* lepton_cont = 0;
   if( evtStore()->retrieve(lepton_cont, m_lepton_container).isFailure() || !lepton_cont )
     {
-      msg() << MSG::DEBUG <<"Failed to retrieve " << m_lepton_container<<endreq; 
+      msg() << MSG::DEBUG <<"Failed to retrieve " << m_lepton_container<<endmsg; 
       return StatusCode::FAILURE;
     }
   if(lepton_cont->size() != 1)
     {
-      msg() << MSG::DEBUG <<"Event does not have a single chosen lepton. lepton_cont->size() = " << lepton_cont->size()<< endreq; 
+      msg() << MSG::DEBUG <<"Event does not have a single chosen lepton. lepton_cont->size() = " << lepton_cont->size()<< endmsg; 
       passed_preconditions = false;
     }
 
@@ -156,7 +158,7 @@ StatusCode MissingETScaleTool::MissingETScale(MissingETData *data) {
       //ATH_MSG_DEBUG("calculating scaled mass for each tau, num taus = " << num_taus);
       for(unsigned int i=0; i < num_taus; i++)
         { 
-	  msg() << MSG::WARNING << "Num taus " <<num_taus<< endreq;
+	  msg() << MSG::WARNING << "Num taus " <<num_taus<< endmsg;
 	  // if((*flags)[i])
 	  // {
 	  //this->mCurva2((*lepton_cont)[0], (*tau_cont)[i], met, (*weights)[i] * event_weight ); 
@@ -176,18 +178,18 @@ StatusCode MissingETScaleTool::finalize()
 
 void MissingETScaleTool::mCurva2( const INavigable4Momentum* lep, const INavigable4Momentum* tau, double metx, double mety, float weight )
 {
-  msg() << MSG::DEBUG <<" -- MissingETScaleTool::mCurva() -- " <<endreq;
+  msg() << MSG::DEBUG <<" -- MissingETScaleTool::mCurva() -- " <<endmsg;
   float riscaptmi;
   float  myTTmasssca;
   double metxr;
   double metyr;
 
   //fill histos for curva2 in real life --loose cuts--
-  msg() << MSG::DEBUG <<"looping over scale increments"<<endreq;
+  msg() << MSG::DEBUG <<"looping over scale increments"<<endmsg;
   for (int ih=0; ih<m_nsca; ih++)
   {
-    msg() << MSG::DEBUG <<"ih=" << ih <<endreq;
-    //  msg() << MSG::DEBUG <<"hist: " << h_scale_plots.at(ih)->GetName() );
+    msg() << MSG::DEBUG <<"ih=" << ih <<endmsg;
+    //  msg() << MSG::DEBUG <<"hist: " << m_h_scale_plots.at(ih)->GetName() );
 
     // rescale etmiss vector
 
@@ -206,9 +208,9 @@ void MissingETScaleTool::mCurva2( const INavigable4Momentum* lep, const INavigab
 			    tau->px(),tau->py(),tau->pz(),tau->p());
 		
     // m_mass_tool->calculate( lep, tau, &temp_met ); 
-    if (ih ==10) {msg() << MSG::WARNING << "massa" <<myTTmasssca<< endreq;}			
-    // h_scale_plots.at(ih)->Fill(myTTmasssca / GeV, weight);
-    hs2_[ih]->Fill(myTTmasssca, weight);
+    if (ih ==10) {msg() << MSG::WARNING << "massa" <<myTTmasssca<< endmsg;}			
+    // m_h_scale_plots.at(ih)->Fill(myTTmasssca / GeV, weight);
+    m_hs2[ih]->Fill(myTTmasssca, weight);
   }
 }//end mCurva2()
 
@@ -226,27 +228,20 @@ double MissingETScaleTool::invTTmass(double pxMiss, double pyMiss,
 
   double myTTmassd;
   myTTmassd=-100.;
-    
-  double rexy;
-  double rex;
-  double rcx;
-  double rcy;
-  double ta;  
-  double tb;  
-  double eNu1;
-  double eNu2;
+
+  const double inv_pLept   = 1. / pLept;
+  const double rexy        = pyTauJet/pxTauJet;
+  const double rex         = pxTauJet/pTauJet;
+  const double rcx         = pxLept * inv_pLept;
+  const double rcy         = pyLept * inv_pLept;
+  const double ta          = pyMiss-rexy*pxMiss;
+  const double tb          = rcy-rexy*rcx;
+  const double eNu1        = ta/tb;
+  const double eNu2        = (pxMiss-rcx*eNu1)/rex;
+
   double eTau1; 
   double eTau2; 
   double cosTheta;
-
-  rexy        = pyTauJet/pxTauJet;
-  rex         = pxTauJet/pTauJet;
-  rcx         = pxLept/pLept;
-  rcy         = pyLept/pLept;
-  ta          = pyMiss-rexy*pxMiss;
-  tb          = rcy-rexy*rcx;
-  eNu1        = ta/tb;
-  eNu2        = (pxMiss-rcx*eNu1)/rex;
 
 //       std::cout <<  " eNu1 " <<  eTau1<< "  eTau2 " << eTau2<<
   if(eNu1>0 && eNu2>0) {
@@ -259,7 +254,7 @@ double MissingETScaleTool::invTTmass(double pxMiss, double pyMiss,
 //              " cosTheta " << cosTheta<<  std::endl;
  
     myTTmassd= 2*eTau1*eTau2*(1-cosTheta);
-    myTTmassd= sqrt(myTTmassd)/1000.;
+    myTTmassd= sqrt(myTTmassd)/GeV;
   }//end of positive neutrinos
 
   return myTTmassd;

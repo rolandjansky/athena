@@ -11,26 +11,26 @@
 
 class Zboson {
  private:
-  TLorentzVector Z;
+  TLorentzVector m_Z;
 
-  TLorentzVector daughter1;
-  TLorentzVector daughter2;
+  TLorentzVector m_daughter1;
+  TLorentzVector m_daughter2;
 
  public:
   Zboson() {;}
   Zboson(TLorentzVector a, TLorentzVector b);
 
-  double mass() {return Z.M();}
-  double Px() {return Z.Px();}
-  double Py() {return Z.Py();}
-  double Pt() {return Z.Pt();}
-  double Phi() {return Z.Phi();}
-  double Eta() {return Z.Eta();}
-  double SignedDeltaPhi() {return daughter1.DeltaPhi(daughter2);}
-  double DeltaPhi() {return fabs(daughter1.DeltaPhi(daughter2));}
+  double mass() {return m_Z.M();}
+  double Px() {return m_Z.Px();}
+  double Py() {return m_Z.Py();}
+  double Pt() {return m_Z.Pt();}
+  double Phi() {return m_Z.Phi();}
+  double Eta() {return m_Z.Eta();}
+  double SignedDeltaPhi() {return m_daughter1.DeltaPhi(m_daughter2);}
+  double DeltaPhi() {return fabs(m_daughter1.DeltaPhi(m_daughter2));}
 
-  const TLorentzVector &get_daughter1() {return daughter1;}
-  const TLorentzVector &get_daughter2() {return daughter2;}
+  const TLorentzVector &get_daughter1() {return m_daughter1;}
+  const TLorentzVector &get_daughter2() {return m_daughter2;}
 
   TVector2 GetVec();
   TVector2 GetPerpendicular();

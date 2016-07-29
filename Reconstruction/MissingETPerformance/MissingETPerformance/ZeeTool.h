@@ -59,54 +59,54 @@ protected:
   ITHistSvc * m_thistSvc;
 
   //storegate key names
-  std::string _selectedElectronKey;
+  std::string m_selectedElectronKey;
 
-  double Zboson_lower;
-  double Zboson_upper;
-  int Zboson_NSplits;
+  double m_Zboson_lower;
+  double m_Zboson_upper;
+  int m_Zboson_NSplits;
 
   //ELW
-  double DiLepton_lower;
-  double DiLepton_upper;
-  int DiLepton_NSplits;
+  double m_DiLepton_lower;
+  double m_DiLepton_upper;
+  int m_DiLepton_NSplits;
 
-  int Pt_Res_NBins;
-  double Pt_Res_lower;
-  double Pt_Res_upper;
-  double Pt_lower;
-  double Pt_upper;
-  int Pt_NSplits;
+  int m_Pt_Res_NBins;
+  double m_Pt_Res_lower;
+  double m_Pt_Res_upper;
+  double m_Pt_lower;
+  double m_Pt_upper;
+  int m_Pt_NSplits;
 
-  double HadActivity_lower;
-  double HadActivity_upper;
-  int HadActivity_NSplits;
+  double m_HadActivity_lower;
+  double m_HadActivity_upper;
+  int m_HadActivity_NSplits;
 
-  Fits Fit_Perp_Zboson;
-  Fits Fit_Par_Zboson;
-  Fits Fit_Pt_Zboson;
-  Fits Fit_ZPt_Zboson;
-  Fits Fit_Pt_Perp;
-  Fits Fit_Pt_Par;
-  Fits Fit_Pt;
-  Fits Fit_Perp_DiLepton;
-  Fits Fit_Par_DiLepton;
-  Fits Fit_Res_DiLepton;
-  Fits Fit_AntiRes_DiLepton;
+  Fits m_Fit_Perp_Zboson;
+  Fits m_Fit_Par_Zboson;
+  Fits m_Fit_Pt_Zboson;
+  Fits m_Fit_ZPt_Zboson;
+  Fits m_Fit_Pt_Perp;
+  Fits m_Fit_Pt_Par;
+  Fits m_Fit_Pt;
+  Fits m_Fit_Perp_DiLepton;
+  Fits m_Fit_Par_DiLepton;
+  Fits m_Fit_Res_DiLepton;
+  Fits m_Fit_AntiRes_DiLepton;
 
   //data
-  Fits Fit_Data_Perp_Zboson;  
-  Fits Fit_Data_Par_Zboson;
-  Fits Fit_Data_Perp_HadActivity;
-  Fits Fit_Data_Par_HadActivity;
-  Fits Fit_Data_ZPt_Zboson;
+  Fits m_Fit_Data_Perp_Zboson;  
+  Fits m_Fit_Data_Par_Zboson;
+  Fits m_Fit_Data_Perp_HadActivity;
+  Fits m_Fit_Data_Par_HadActivity;
+  Fits m_Fit_Data_ZPt_Zboson;
 
-  Fits Fit_Data_Perp_DiLepton;
-  Fits Fit_Data_Par_DiLepton;
-  Fits Fit_Data_Res_DiLepton;
-  Fits Fit_Data_AntiRes_DiLepton;
+  Fits m_Fit_Data_Perp_DiLepton;
+  Fits m_Fit_Data_Par_DiLepton;
+  Fits m_Fit_Data_Res_DiLepton;
+  Fits m_Fit_Data_AntiRes_DiLepton;
 
   //histograms
-  TH1D *z_mass;
+  TH1D *m_z_mass;
 };
 
 #endif // ZEE_TOOL_H 

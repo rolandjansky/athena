@@ -14,13 +14,13 @@
 
 #include <string>
 #include <sstream>
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
 #include "VxVertex/VxContainer.h"
 #include "MissingETEvent/MissingET.h"
 #include "TF1.h"
 
 
-using CLHEP::GeV;
+using Athena::Units::GeV;
 
 
 PileUpTool::PileUpTool( const std::string& type,
@@ -50,74 +50,74 @@ StatusCode PileUpTool::CBNT_initialize()
   // get pointer to THistSvc
   StatusCode sc = service("THistSvc", m_thistSvc);
   if ( sc.isFailure() ) {
-    msg() << MSG::ERROR << "Unable to retrieve pointer to THistSvc" << endreq;
+    msg() << MSG::ERROR << "Unable to retrieve pointer to THistSvc" << endmsg;
     return sc;
   }
   
   // Allocate dynamic arrays
-  h2_RefFinal_SumEt_RatioEt_vtx = new TH2F*[m_vtxBins];
-  h2_RefFinal_SumEt_DeltaEt_vtx = new TH2F*[m_vtxBins];
-  h2_RefFinal_SumEt_DeltaEx_vtx = new TH2F*[m_vtxBins];
-  h2_RefFinal_SumEt_DeltaEy_vtx = new TH2F*[m_vtxBins];
-  h1_RefFinal_SumEt_ResponseEt_vtx   = new TH1F*[m_vtxBins];
-  h1_RefFinal_SumEt_OffsetEt_vtx     = new TH1F*[m_vtxBins];
-  h1_RefFinal_SumEt_ResolutionEt_vtx = new TH1F*[m_vtxBins];
-  h1_RefFinal_SumEt_ResolutionEx_vtx = new TH1F*[m_vtxBins];
-  h1_RefFinal_SumEt_ResolutionEy_vtx = new TH1F*[m_vtxBins];
+  m_h2_RefFinal_SumEt_RatioEt_vtx = new TH2F*[m_vtxBins];
+  m_h2_RefFinal_SumEt_DeltaEt_vtx = new TH2F*[m_vtxBins];
+  m_h2_RefFinal_SumEt_DeltaEx_vtx = new TH2F*[m_vtxBins];
+  m_h2_RefFinal_SumEt_DeltaEy_vtx = new TH2F*[m_vtxBins];
+  m_h1_RefFinal_SumEt_ResponseEt_vtx   = new TH1F*[m_vtxBins];
+  m_h1_RefFinal_SumEt_OffsetEt_vtx     = new TH1F*[m_vtxBins];
+  m_h1_RefFinal_SumEt_ResolutionEt_vtx = new TH1F*[m_vtxBins];
+  m_h1_RefFinal_SumEt_ResolutionEx_vtx = new TH1F*[m_vtxBins];
+  m_h1_RefFinal_SumEt_ResolutionEy_vtx = new TH1F*[m_vtxBins];
   
   // Book histograms
   
   // Total number of reconstructed primary vertices
-  h1_Nvtx = new TH1F("h1_Nvtx","",m_vtxRange,-0.5,m_vtxRange-0.5);
-  h1_Nvtx->GetXaxis()->SetTitle("Vertex multiplicity");
-  h1_Nvtx->GetYaxis()->SetTitle("Events (arbitrary units)");
-  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h1_Nvtx",h1_Nvtx).ignore();
+  m_h1_Nvtx = new TH1F("h1_Nvtx","",m_vtxRange,-0.5,m_vtxRange-0.5);
+  m_h1_Nvtx->GetXaxis()->SetTitle("Vertex multiplicity");
+  m_h1_Nvtx->GetYaxis()->SetTitle("Events (arbitrary units)");
+  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h1_Nvtx",m_h1_Nvtx).ignore();
   
   // Histograms as function of Number of vertices
-  h2_RefFinal_Nvtx_RatioEt = new TH2F("h2_RefFinal_Nvtx_RatioEt","",m_vtxRange,-0.5,m_vtxRange-0.5,m_rtBins,0.0,m_rtRange);
-  h2_RefFinal_Nvtx_RatioEt->GetXaxis()->SetTitle("Vertex multiplicity");
-  h2_RefFinal_Nvtx_RatioEt->GetYaxis()->SetTitle("E_{T}^{miss}/True E_{T}^{miss}");
-  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h2_RefFinal_Nvtx_RatioEt",h2_RefFinal_Nvtx_RatioEt).ignore();
+  m_h2_RefFinal_Nvtx_RatioEt = new TH2F("h2_RefFinal_Nvtx_RatioEt","",m_vtxRange,-0.5,m_vtxRange-0.5,m_rtBins,0.0,m_rtRange);
+  m_h2_RefFinal_Nvtx_RatioEt->GetXaxis()->SetTitle("Vertex multiplicity");
+  m_h2_RefFinal_Nvtx_RatioEt->GetYaxis()->SetTitle("E_{T}^{miss}/True E_{T}^{miss}");
+  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h2_RefFinal_Nvtx_RatioEt",m_h2_RefFinal_Nvtx_RatioEt).ignore();
   
-  h2_RefFinal_Nvtx_DeltaEt = new TH2F("h2_RefFinal_Nvtx_DeltaEt","",m_vtxRange,-0.5,m_vtxRange-0.5,m_etBins,-m_etRange,m_etRange);
-  h2_RefFinal_Nvtx_DeltaEt->GetXaxis()->SetTitle("Vertex multiplicity");
-  h2_RefFinal_Nvtx_DeltaEt->GetYaxis()->SetTitle("E_{T}^{miss} - True E_{T}^{miss} (GeV)");
-  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h2_RefFinal_Nvtx_DeltaEt",h2_RefFinal_Nvtx_DeltaEt).ignore();
+  m_h2_RefFinal_Nvtx_DeltaEt = new TH2F("h2_RefFinal_Nvtx_DeltaEt","",m_vtxRange,-0.5,m_vtxRange-0.5,m_etBins,-m_etRange,m_etRange);
+  m_h2_RefFinal_Nvtx_DeltaEt->GetXaxis()->SetTitle("Vertex multiplicity");
+  m_h2_RefFinal_Nvtx_DeltaEt->GetYaxis()->SetTitle("E_{T}^{miss} - True E_{T}^{miss} (GeV)");
+  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h2_RefFinal_Nvtx_DeltaEt",m_h2_RefFinal_Nvtx_DeltaEt).ignore();
   
-  h2_RefFinal_Nvtx_DeltaEx = new TH2F("h2_RefFinal_Nvtx_DeltaEx","",m_vtxRange,-0.5,m_vtxRange-0.5,m_etBins,-m_etRange,m_etRange);
-  h2_RefFinal_Nvtx_DeltaEx->GetXaxis()->SetTitle("Vertex multiplicity");
-  h2_RefFinal_Nvtx_DeltaEx->GetYaxis()->SetTitle("E_{x}^{miss} - True E_{x}^{miss} (GeV)");
-  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h2_RefFinal_Nvtx_DeltaEx",h2_RefFinal_Nvtx_DeltaEx).ignore();
+  m_h2_RefFinal_Nvtx_DeltaEx = new TH2F("h2_RefFinal_Nvtx_DeltaEx","",m_vtxRange,-0.5,m_vtxRange-0.5,m_etBins,-m_etRange,m_etRange);
+  m_h2_RefFinal_Nvtx_DeltaEx->GetXaxis()->SetTitle("Vertex multiplicity");
+  m_h2_RefFinal_Nvtx_DeltaEx->GetYaxis()->SetTitle("E_{x}^{miss} - True E_{x}^{miss} (GeV)");
+  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h2_RefFinal_Nvtx_DeltaEx",m_h2_RefFinal_Nvtx_DeltaEx).ignore();
   
-  h2_RefFinal_Nvtx_DeltaEy = new TH2F("h2_RefFinal_Nvtx_DeltaEy","",m_vtxRange,-0.5,m_vtxRange-0.5,m_etBins,-m_etRange,m_etRange);
-  h2_RefFinal_Nvtx_DeltaEy->GetXaxis()->SetTitle("Vertex multiplicity");
-  h2_RefFinal_Nvtx_DeltaEy->GetYaxis()->SetTitle("E_{y}^{miss} - True E_{y}^{miss} (GeV)");
-  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h2_RefFinal_Nvtx_DeltaEy",h2_RefFinal_Nvtx_DeltaEy).ignore();
+  m_h2_RefFinal_Nvtx_DeltaEy = new TH2F("h2_RefFinal_Nvtx_DeltaEy","",m_vtxRange,-0.5,m_vtxRange-0.5,m_etBins,-m_etRange,m_etRange);
+  m_h2_RefFinal_Nvtx_DeltaEy->GetXaxis()->SetTitle("Vertex multiplicity");
+  m_h2_RefFinal_Nvtx_DeltaEy->GetYaxis()->SetTitle("E_{y}^{miss} - True E_{y}^{miss} (GeV)");
+  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h2_RefFinal_Nvtx_DeltaEy",m_h2_RefFinal_Nvtx_DeltaEy).ignore();
   
-  h1_RefFinal_Nvtx_ResponseEt = new TH1F("h1_RefFinal_Nvtx_ResponseEt","",m_vtxRange,-0.5,m_vtxRange-0.5);
-  h1_RefFinal_Nvtx_ResponseEt->GetXaxis()->SetTitle("Vertex multiplicity");
-  h1_RefFinal_Nvtx_ResponseEt->GetYaxis()->SetTitle("E_{T}^{miss} response");
-  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h1_RefFinal_Nvtx_ResponseEt",h1_RefFinal_Nvtx_ResponseEt).ignore();
+  m_h1_RefFinal_Nvtx_ResponseEt = new TH1F("h1_RefFinal_Nvtx_ResponseEt","",m_vtxRange,-0.5,m_vtxRange-0.5);
+  m_h1_RefFinal_Nvtx_ResponseEt->GetXaxis()->SetTitle("Vertex multiplicity");
+  m_h1_RefFinal_Nvtx_ResponseEt->GetYaxis()->SetTitle("E_{T}^{miss} response");
+  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h1_RefFinal_Nvtx_ResponseEt",m_h1_RefFinal_Nvtx_ResponseEt).ignore();
     
-  h1_RefFinal_Nvtx_OffsetEt = new TH1F("h1_RefFinal_Nvtx_OffsetEt","",m_vtxRange,-0.5,m_vtxRange-0.5);
-  h1_RefFinal_Nvtx_OffsetEt->GetXaxis()->SetTitle("Vertex multiplicity");
-  h1_RefFinal_Nvtx_OffsetEt->GetYaxis()->SetTitle("E_{T}^{miss} offset (GeV)");
-  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h1_RefFinal_Nvtx_OffsetEt",h1_RefFinal_Nvtx_OffsetEt).ignore();
+  m_h1_RefFinal_Nvtx_OffsetEt = new TH1F("h1_RefFinal_Nvtx_OffsetEt","",m_vtxRange,-0.5,m_vtxRange-0.5);
+  m_h1_RefFinal_Nvtx_OffsetEt->GetXaxis()->SetTitle("Vertex multiplicity");
+  m_h1_RefFinal_Nvtx_OffsetEt->GetYaxis()->SetTitle("E_{T}^{miss} offset (GeV)");
+  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h1_RefFinal_Nvtx_OffsetEt",m_h1_RefFinal_Nvtx_OffsetEt).ignore();
   
-  h1_RefFinal_Nvtx_ResolutionEt = new TH1F("h1_RefFinal_Nvtx_ResolutionEt","",m_vtxRange,-0.5,m_vtxRange-0.5);
-  h1_RefFinal_Nvtx_ResolutionEt->GetXaxis()->SetTitle("Vertex multiplicity");
-  h1_RefFinal_Nvtx_ResolutionEt->GetYaxis()->SetTitle("E_{T}^{miss} resolution (GeV)");
-  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h1_RefFinal_Nvtx_ResolutionEt",h1_RefFinal_Nvtx_ResolutionEt).ignore();
+  m_h1_RefFinal_Nvtx_ResolutionEt = new TH1F("h1_RefFinal_Nvtx_ResolutionEt","",m_vtxRange,-0.5,m_vtxRange-0.5);
+  m_h1_RefFinal_Nvtx_ResolutionEt->GetXaxis()->SetTitle("Vertex multiplicity");
+  m_h1_RefFinal_Nvtx_ResolutionEt->GetYaxis()->SetTitle("E_{T}^{miss} resolution (GeV)");
+  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h1_RefFinal_Nvtx_ResolutionEt",m_h1_RefFinal_Nvtx_ResolutionEt).ignore();
   
-  h1_RefFinal_Nvtx_ResolutionEx = new TH1F("h1_RefFinal_Nvtx_ResolutionEx","",m_vtxRange,-0.5,m_vtxRange-0.5);
-  h1_RefFinal_Nvtx_ResolutionEx->GetXaxis()->SetTitle("Vertex multiplicity");
-  h1_RefFinal_Nvtx_ResolutionEx->GetYaxis()->SetTitle("E_{x}^{miss} resolution (GeV)");
-  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h1_RefFinal_Nvtx_ResolutionEx",h1_RefFinal_Nvtx_ResolutionEx).ignore();
+  m_h1_RefFinal_Nvtx_ResolutionEx = new TH1F("h1_RefFinal_Nvtx_ResolutionEx","",m_vtxRange,-0.5,m_vtxRange-0.5);
+  m_h1_RefFinal_Nvtx_ResolutionEx->GetXaxis()->SetTitle("Vertex multiplicity");
+  m_h1_RefFinal_Nvtx_ResolutionEx->GetYaxis()->SetTitle("E_{x}^{miss} resolution (GeV)");
+  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h1_RefFinal_Nvtx_ResolutionEx",m_h1_RefFinal_Nvtx_ResolutionEx).ignore();
   
-  h1_RefFinal_Nvtx_ResolutionEy = new TH1F("h1_RefFinal_Nvtx_ResolutionEy","",m_vtxRange,-0.5,m_vtxRange-0.5);
-  h1_RefFinal_Nvtx_ResolutionEy->GetXaxis()->SetTitle("Vertex multiplicity");
-  h1_RefFinal_Nvtx_ResolutionEy->GetYaxis()->SetTitle("E_{y}^{miss} resolution (GeV)");
-  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h1_RefFinal_Nvtx_ResolutionEy",h1_RefFinal_Nvtx_ResolutionEy).ignore();
+  m_h1_RefFinal_Nvtx_ResolutionEy = new TH1F("h1_RefFinal_Nvtx_ResolutionEy","",m_vtxRange,-0.5,m_vtxRange-0.5);
+  m_h1_RefFinal_Nvtx_ResolutionEy->GetXaxis()->SetTitle("Vertex multiplicity");
+  m_h1_RefFinal_Nvtx_ResolutionEy->GetYaxis()->SetTitle("E_{y}^{miss} resolution (GeV)");
+  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/h1_RefFinal_Nvtx_ResolutionEy",m_h1_RefFinal_Nvtx_ResolutionEy).ignore();
   
   // Histograms as function of SumEt --- In bins of vertex multiplicities
   for ( int i = 0; i < m_vtxBins; i++ ) {
@@ -127,91 +127,91 @@ StatusCode PileUpTool::CBNT_initialize()
     oss.str("");
     oss << "h2_RefFinal_SumEt_RatioEt_vtx" << i;
     name = oss.str();
-    h2_RefFinal_SumEt_RatioEt_vtx[i] = new TH2F(name.c_str(),"",m_stBins,0.0,m_stRange,m_rtBins,0.0,m_rtRange);
-    h2_RefFinal_SumEt_RatioEt_vtx[i]->GetXaxis()->SetTitle("#Sigma E_{T} (GeV)");
-    h2_RefFinal_SumEt_RatioEt_vtx[i]->GetYaxis()->SetTitle("E_{T}^{miss}/True E_{T}^{miss}");
+    m_h2_RefFinal_SumEt_RatioEt_vtx[i] = new TH2F(name.c_str(),"",m_stBins,0.0,m_stRange,m_rtBins,0.0,m_rtRange);
+    m_h2_RefFinal_SumEt_RatioEt_vtx[i]->GetXaxis()->SetTitle("#Sigma E_{T} (GeV)");
+    m_h2_RefFinal_SumEt_RatioEt_vtx[i]->GetYaxis()->SetTitle("E_{T}^{miss}/True E_{T}^{miss}");
     name.insert(0,"/AANT/" + m_folderName + "PileUp/");
-    m_thistSvc->regHist(name.c_str(),h2_RefFinal_SumEt_RatioEt_vtx[i]).ignore();
+    m_thistSvc->regHist(name.c_str(),m_h2_RefFinal_SumEt_RatioEt_vtx[i]).ignore();
     
     oss.str("");
     oss << "h2_RefFinal_SumEt_DeltaEt_vtx" << i;
     name = oss.str();
-    h2_RefFinal_SumEt_DeltaEt_vtx[i] = new TH2F(name.c_str(),"",m_stBins,0.0,m_stRange,m_etBins,-m_etRange,m_etRange);
-    h2_RefFinal_SumEt_DeltaEt_vtx[i]->GetXaxis()->SetTitle("#Sigma E_{T} (GeV)");
-    h2_RefFinal_SumEt_DeltaEt_vtx[i]->GetYaxis()->SetTitle("E_{T}^{miss} - True E_{T}^{miss} (GeV)");
+    m_h2_RefFinal_SumEt_DeltaEt_vtx[i] = new TH2F(name.c_str(),"",m_stBins,0.0,m_stRange,m_etBins,-m_etRange,m_etRange);
+    m_h2_RefFinal_SumEt_DeltaEt_vtx[i]->GetXaxis()->SetTitle("#Sigma E_{T} (GeV)");
+    m_h2_RefFinal_SumEt_DeltaEt_vtx[i]->GetYaxis()->SetTitle("E_{T}^{miss} - True E_{T}^{miss} (GeV)");
     name.insert(0,"/AANT/" + m_folderName + "PileUp/");
-    m_thistSvc->regHist(name.c_str(),h2_RefFinal_SumEt_DeltaEt_vtx[i]).ignore();
+    m_thistSvc->regHist(name.c_str(),m_h2_RefFinal_SumEt_DeltaEt_vtx[i]).ignore();
     
     oss.str("");
     oss << "h2_RefFinal_SumEt_DeltaEx_vtx" << i;
     name = oss.str();
-    h2_RefFinal_SumEt_DeltaEx_vtx[i] = new TH2F(name.c_str(),"",m_stBins,0.0,m_stRange,m_etBins,-m_etRange,m_etRange);
-    h2_RefFinal_SumEt_DeltaEx_vtx[i]->GetXaxis()->SetTitle("#Sigma E_{T} (GeV)");
-    h2_RefFinal_SumEt_DeltaEx_vtx[i]->GetYaxis()->SetTitle("E_{x}^{miss} - True E_{x}^{miss} (GeV)");
+    m_h2_RefFinal_SumEt_DeltaEx_vtx[i] = new TH2F(name.c_str(),"",m_stBins,0.0,m_stRange,m_etBins,-m_etRange,m_etRange);
+    m_h2_RefFinal_SumEt_DeltaEx_vtx[i]->GetXaxis()->SetTitle("#Sigma E_{T} (GeV)");
+    m_h2_RefFinal_SumEt_DeltaEx_vtx[i]->GetYaxis()->SetTitle("E_{x}^{miss} - True E_{x}^{miss} (GeV)");
     name.insert(0,"/AANT/" + m_folderName + "PileUp/");
-    m_thistSvc->regHist(name.c_str(),h2_RefFinal_SumEt_DeltaEx_vtx[i]).ignore();
+    m_thistSvc->regHist(name.c_str(),m_h2_RefFinal_SumEt_DeltaEx_vtx[i]).ignore();
     
     oss.str("");
     oss << "h2_RefFinal_SumEt_DeltaEy_vtx" << i;
     name = oss.str();
-    h2_RefFinal_SumEt_DeltaEy_vtx[i] = new TH2F(name.c_str(),"",m_stBins,0.0,m_stRange,m_etBins,-m_etRange,m_etRange);
-    h2_RefFinal_SumEt_DeltaEy_vtx[i]->GetXaxis()->SetTitle("#Sigma E_{T} (GeV)");
-    h2_RefFinal_SumEt_DeltaEy_vtx[i]->GetYaxis()->SetTitle("E_{y}^{miss} - True E_{y}^{miss} (GeV)");
+    m_h2_RefFinal_SumEt_DeltaEy_vtx[i] = new TH2F(name.c_str(),"",m_stBins,0.0,m_stRange,m_etBins,-m_etRange,m_etRange);
+    m_h2_RefFinal_SumEt_DeltaEy_vtx[i]->GetXaxis()->SetTitle("#Sigma E_{T} (GeV)");
+    m_h2_RefFinal_SumEt_DeltaEy_vtx[i]->GetYaxis()->SetTitle("E_{y}^{miss} - True E_{y}^{miss} (GeV)");
     name.insert(0,"/AANT/" + m_folderName + "PileUp/");
-    m_thistSvc->regHist(name.c_str(),h2_RefFinal_SumEt_DeltaEy_vtx[i]).ignore();
+    m_thistSvc->regHist(name.c_str(),m_h2_RefFinal_SumEt_DeltaEy_vtx[i]).ignore();
     
     oss.str("");
     oss << "h1_RefFinal_SumEt_ResponseEt_vtx" << i;
     name = oss.str();
-    h1_RefFinal_SumEt_ResponseEt_vtx[i] = new TH1F(name.c_str(),"",m_stBins,0.0,m_stRange);
-    h1_RefFinal_SumEt_ResponseEt_vtx[i]->GetXaxis()->SetTitle("#Sigma E_{T} (GeV)");
-    h1_RefFinal_SumEt_ResponseEt_vtx[i]->GetYaxis()->SetTitle("E_{T}^{miss} response");
+    m_h1_RefFinal_SumEt_ResponseEt_vtx[i] = new TH1F(name.c_str(),"",m_stBins,0.0,m_stRange);
+    m_h1_RefFinal_SumEt_ResponseEt_vtx[i]->GetXaxis()->SetTitle("#Sigma E_{T} (GeV)");
+    m_h1_RefFinal_SumEt_ResponseEt_vtx[i]->GetYaxis()->SetTitle("E_{T}^{miss} response");
     name.insert(0,"/AANT/" + m_folderName + "PileUp/");
-    m_thistSvc->regHist(name.c_str(),h1_RefFinal_SumEt_ResponseEt_vtx[i]).ignore();
+    m_thistSvc->regHist(name.c_str(),m_h1_RefFinal_SumEt_ResponseEt_vtx[i]).ignore();
         
     oss.str("");
     oss << "h1_RefFinal_SumEt_OffsetEt_vtx" << i;
     name = oss.str();
-    h1_RefFinal_SumEt_OffsetEt_vtx[i] = new TH1F(name.c_str(),"",m_stBins,0.0,m_stRange);
-    h1_RefFinal_SumEt_OffsetEt_vtx[i]->GetXaxis()->SetTitle("#Sigma E_{T} (GeV)");
-    h1_RefFinal_SumEt_OffsetEt_vtx[i]->GetYaxis()->SetTitle("E_{T}^{miss} offset (GeV)");
+    m_h1_RefFinal_SumEt_OffsetEt_vtx[i] = new TH1F(name.c_str(),"",m_stBins,0.0,m_stRange);
+    m_h1_RefFinal_SumEt_OffsetEt_vtx[i]->GetXaxis()->SetTitle("#Sigma E_{T} (GeV)");
+    m_h1_RefFinal_SumEt_OffsetEt_vtx[i]->GetYaxis()->SetTitle("E_{T}^{miss} offset (GeV)");
     name.insert(0,"/AANT/" + m_folderName + "PileUp/");
-    m_thistSvc->regHist(name.c_str(),h1_RefFinal_SumEt_OffsetEt_vtx[i]).ignore();
+    m_thistSvc->regHist(name.c_str(),m_h1_RefFinal_SumEt_OffsetEt_vtx[i]).ignore();
     
     oss.str("");
     oss << "h1_RefFinal_SumEt_ResolutionEt_vtx" << i;
     name = oss.str();
-    h1_RefFinal_SumEt_ResolutionEt_vtx[i] = new TH1F(name.c_str(),"",m_stBins,0.0,m_stRange);
-    h1_RefFinal_SumEt_ResolutionEt_vtx[i]->GetXaxis()->SetTitle("#Sigma E_{T} (GeV)");
-    h1_RefFinal_SumEt_ResolutionEt_vtx[i]->GetYaxis()->SetTitle("E_{T}^{miss} resolution (GeV)");
+    m_h1_RefFinal_SumEt_ResolutionEt_vtx[i] = new TH1F(name.c_str(),"",m_stBins,0.0,m_stRange);
+    m_h1_RefFinal_SumEt_ResolutionEt_vtx[i]->GetXaxis()->SetTitle("#Sigma E_{T} (GeV)");
+    m_h1_RefFinal_SumEt_ResolutionEt_vtx[i]->GetYaxis()->SetTitle("E_{T}^{miss} resolution (GeV)");
     name.insert(0,"/AANT/" + m_folderName + "PileUp/");
-    m_thistSvc->regHist(name.c_str(),h1_RefFinal_SumEt_ResolutionEt_vtx[i]).ignore();
+    m_thistSvc->regHist(name.c_str(),m_h1_RefFinal_SumEt_ResolutionEt_vtx[i]).ignore();
     
     oss.str("");
     oss << "h1_RefFinal_SumEt_ResolutionEx_vtx" << i;
     name = oss.str();
-    h1_RefFinal_SumEt_ResolutionEx_vtx[i] = new TH1F(name.c_str(),"",m_stBins,0.0,m_stRange);
-    h1_RefFinal_SumEt_ResolutionEx_vtx[i]->GetXaxis()->SetTitle("#Sigma E_{T} (GeV)");
-    h1_RefFinal_SumEt_ResolutionEx_vtx[i]->GetYaxis()->SetTitle("E_{x}^{miss} resolution (GeV)");
+    m_h1_RefFinal_SumEt_ResolutionEx_vtx[i] = new TH1F(name.c_str(),"",m_stBins,0.0,m_stRange);
+    m_h1_RefFinal_SumEt_ResolutionEx_vtx[i]->GetXaxis()->SetTitle("#Sigma E_{T} (GeV)");
+    m_h1_RefFinal_SumEt_ResolutionEx_vtx[i]->GetYaxis()->SetTitle("E_{x}^{miss} resolution (GeV)");
     name.insert(0,"/AANT/" + m_folderName + "PileUp/");
-    m_thistSvc->regHist(name.c_str(),h1_RefFinal_SumEt_ResolutionEx_vtx[i]).ignore();
+    m_thistSvc->regHist(name.c_str(),m_h1_RefFinal_SumEt_ResolutionEx_vtx[i]).ignore();
     
     oss.str("");
     oss << "h1_RefFinal_SumEt_ResolutionEy_vtx" << i;
     name = oss.str();
-    h1_RefFinal_SumEt_ResolutionEy_vtx[i] = new TH1F(name.c_str(),"",m_stBins,0.0,m_stRange);
-    h1_RefFinal_SumEt_ResolutionEy_vtx[i]->GetXaxis()->SetTitle("#Sigma E_{T} (GeV)");
-    h1_RefFinal_SumEt_ResolutionEy_vtx[i]->GetYaxis()->SetTitle("E_{y}^{miss} resolution (GeV)");
+    m_h1_RefFinal_SumEt_ResolutionEy_vtx[i] = new TH1F(name.c_str(),"",m_stBins,0.0,m_stRange);
+    m_h1_RefFinal_SumEt_ResolutionEy_vtx[i]->GetXaxis()->SetTitle("#Sigma E_{T} (GeV)");
+    m_h1_RefFinal_SumEt_ResolutionEy_vtx[i]->GetYaxis()->SetTitle("E_{y}^{miss} resolution (GeV)");
     name.insert(0,"/AANT/" + m_folderName + "PileUp/");
-    m_thistSvc->regHist(name.c_str(),h1_RefFinal_SumEt_ResolutionEy_vtx[i]).ignore();
+    m_thistSvc->regHist(name.c_str(),m_h1_RefFinal_SumEt_ResolutionEy_vtx[i]).ignore();
     
   }
   
   // Profile of SumEt as function of vertex multiplicity
-  hp_RefFinal_Nvtx_SumEt = new TProfile("hp_RefFinal_Nvtx_SumEt","",m_vtxRange,-0.5,m_vtxRange-0.5);
-  hp_RefFinal_Nvtx_SumEt->GetXaxis()->SetTitle("Vertex multiplicity");
-  hp_RefFinal_Nvtx_SumEt->GetYaxis()->SetTitle("#Sigma E_{T} (GeV)");
-  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/hp_RefFinal_Nvtx_SumEt",hp_RefFinal_Nvtx_SumEt).ignore();
+  m_hp_RefFinal_Nvtx_SumEt = new TProfile("hp_RefFinal_Nvtx_SumEt","",m_vtxRange,-0.5,m_vtxRange-0.5);
+  m_hp_RefFinal_Nvtx_SumEt->GetXaxis()->SetTitle("Vertex multiplicity");
+  m_hp_RefFinal_Nvtx_SumEt->GetYaxis()->SetTitle("#Sigma E_{T} (GeV)");
+  m_thistSvc->regHist("/AANT/" + m_folderName + "PileUp/hp_RefFinal_Nvtx_SumEt",m_hp_RefFinal_Nvtx_SumEt).ignore();
   
   return StatusCode::SUCCESS;
 }
@@ -225,7 +225,7 @@ StatusCode PileUpTool::initialize()
 
 StatusCode PileUpTool::execute(MissingETData *data)
 {
-  msg() << MSG::DEBUG << "PileUpTool execute() has been called" << endreq;
+  msg() << MSG::DEBUG << "PileUpTool execute() has been called" << endmsg;
   
   StatusCode sc = pileUp(data);
   
@@ -235,7 +235,7 @@ StatusCode PileUpTool::execute(MissingETData *data)
 
 StatusCode PileUpTool::pileUp(MissingETData *data)
 {
-  msg() << MSG::DEBUG << "in pileUp()" << endreq;
+  msg() << MSG::DEBUG << "in pileUp()" << endmsg;
   
   // Get vertex multiplicity
   
@@ -243,10 +243,10 @@ StatusCode PileUpTool::pileUp(MissingETData *data)
   const VxContainer *vtxCont = 0;
   StatusCode sc = evtStore()->retrieve( vtxCont, m_vtxContName );
   if ( sc.isFailure() ) {
-    msg() << MSG::ERROR << "Could not retrieve VxCandidate container" << endreq;
+    msg() << MSG::ERROR << "Could not retrieve VxCandidate container" << endmsg;
     return sc;
   }
-  msg() << MSG::DEBUG << "VxCandidate container successfully retrieved" << endreq;
+  msg() << MSG::DEBUG << "VxCandidate container successfully retrieved" << endmsg;
   
   // Loop on vertices and count valide ones
   int nVtx = 0;
@@ -255,39 +255,39 @@ StatusCode PileUpTool::pileUp(MissingETData *data)
   for ( ; vtxItr != vtxEnd; vtxItr++ ) {
     if ( (*vtxItr)->vxTrackAtVertex()->size() >= m_minTracksPerVertex ) nVtx++;
   }
-  msg() << MSG::DEBUG << "Numer of valid vertices = " << nVtx << endreq;
-  msg() << MSG::DEBUG << "Numer of total vertices = " << vtxCont->size() << endreq;
+  msg() << MSG::DEBUG << "Numer of valid vertices = " << nVtx << endmsg;
+  msg() << MSG::DEBUG << "Numer of total vertices = " << vtxCont->size() << endmsg;
   
   // Vertex bin index
   int iVtx = nVtx*m_vtxBins/m_vtxRange;
   if ( iVtx >= m_vtxBins ) iVtx = m_vtxBins-1;
   
   // Fill 1-D histograms
-  h1_Nvtx->Fill( float(nVtx) );
+  m_h1_Nvtx->Fill( float(nVtx) );
   
   // Fill 2-D histograms
   const MissingET *missingET = data->refFinal();
   if ( missingET == 0 || data->truth_nonInt() == 0 ) {
-    msg() << MSG::ERROR << "Could not retrieve MissingET data" << endreq;
+    msg() << MSG::ERROR << "Could not retrieve MissingET data" << endmsg;
     return StatusCode::FAILURE;
   }
   float exNonInt = data->truth_nonInt()->etx();
   float eyNonInt = data->truth_nonInt()->ety();
   float etNonInt = sqrt( exNonInt*exNonInt+eyNonInt*eyNonInt );
   if ( etNonInt > 1.0E-05*GeV ) {
-    h2_RefFinal_Nvtx_RatioEt->Fill( float(nVtx), (missingET->et()/etNonInt) );
-    h2_RefFinal_SumEt_RatioEt_vtx[iVtx]->Fill( missingET->sumet()/GeV, (missingET->et()/etNonInt) );
+    m_h2_RefFinal_Nvtx_RatioEt->Fill( float(nVtx), (missingET->et()/etNonInt) );
+    m_h2_RefFinal_SumEt_RatioEt_vtx[iVtx]->Fill( missingET->sumet()/GeV, (missingET->et()/etNonInt) );
   }
-  h2_RefFinal_Nvtx_DeltaEt->Fill( float(nVtx), (missingET->et()-etNonInt)/GeV );
-  h2_RefFinal_Nvtx_DeltaEx->Fill( float(nVtx), (missingET->etx()-exNonInt)/GeV );
-  h2_RefFinal_Nvtx_DeltaEy->Fill( float(nVtx), (missingET->ety()-eyNonInt)/GeV );
-  h2_RefFinal_SumEt_RatioEt_vtx[iVtx]->Fill( missingET->sumet()/GeV, (missingET->et()/etNonInt) );
-  h2_RefFinal_SumEt_DeltaEt_vtx[iVtx]->Fill( missingET->sumet()/GeV, (missingET->et()-etNonInt)/GeV );
-  h2_RefFinal_SumEt_DeltaEx_vtx[iVtx]->Fill( missingET->sumet()/GeV, (missingET->etx()-exNonInt)/GeV );
-  h2_RefFinal_SumEt_DeltaEy_vtx[iVtx]->Fill( missingET->sumet()/GeV, (missingET->ety()-eyNonInt)/GeV );
+  m_h2_RefFinal_Nvtx_DeltaEt->Fill( float(nVtx), (missingET->et()-etNonInt)/GeV );
+  m_h2_RefFinal_Nvtx_DeltaEx->Fill( float(nVtx), (missingET->etx()-exNonInt)/GeV );
+  m_h2_RefFinal_Nvtx_DeltaEy->Fill( float(nVtx), (missingET->ety()-eyNonInt)/GeV );
+  m_h2_RefFinal_SumEt_RatioEt_vtx[iVtx]->Fill( missingET->sumet()/GeV, (missingET->et()/etNonInt) );
+  m_h2_RefFinal_SumEt_DeltaEt_vtx[iVtx]->Fill( missingET->sumet()/GeV, (missingET->et()-etNonInt)/GeV );
+  m_h2_RefFinal_SumEt_DeltaEx_vtx[iVtx]->Fill( missingET->sumet()/GeV, (missingET->etx()-exNonInt)/GeV );
+  m_h2_RefFinal_SumEt_DeltaEy_vtx[iVtx]->Fill( missingET->sumet()/GeV, (missingET->ety()-eyNonInt)/GeV );
   
   //Fill profile histograms
-  hp_RefFinal_Nvtx_SumEt->Fill( float(nVtx), missingET->sumet()/GeV );
+  m_hp_RefFinal_Nvtx_SumEt->Fill( float(nVtx), missingET->sumet()/GeV );
   
   return StatusCode::SUCCESS;
 }
@@ -295,20 +295,20 @@ StatusCode PileUpTool::pileUp(MissingETData *data)
 
 StatusCode PileUpTool::CBNT_finalize()
 {
-  msg() << MSG::DEBUG << "PileUpTool CBNT_finalize() has been called" << endreq;
+  msg() << MSG::DEBUG << "PileUpTool CBNT_finalize() has been called" << endmsg;
   
-  getMeanProfile( h2_RefFinal_Nvtx_RatioEt, h1_RefFinal_Nvtx_ResponseEt );
-  getMeanProfile( h2_RefFinal_Nvtx_DeltaEt, h1_RefFinal_Nvtx_OffsetEt );
-  getResolutionProfile( h2_RefFinal_Nvtx_DeltaEt, h1_RefFinal_Nvtx_ResolutionEt );
-  getResolutionProfile( h2_RefFinal_Nvtx_DeltaEx, h1_RefFinal_Nvtx_ResolutionEx );
-  getResolutionProfile( h2_RefFinal_Nvtx_DeltaEy, h1_RefFinal_Nvtx_ResolutionEy );
+  getMeanProfile( m_h2_RefFinal_Nvtx_RatioEt, m_h1_RefFinal_Nvtx_ResponseEt );
+  getMeanProfile( m_h2_RefFinal_Nvtx_DeltaEt, m_h1_RefFinal_Nvtx_OffsetEt );
+  getResolutionProfile( m_h2_RefFinal_Nvtx_DeltaEt, m_h1_RefFinal_Nvtx_ResolutionEt );
+  getResolutionProfile( m_h2_RefFinal_Nvtx_DeltaEx, m_h1_RefFinal_Nvtx_ResolutionEx );
+  getResolutionProfile( m_h2_RefFinal_Nvtx_DeltaEy, m_h1_RefFinal_Nvtx_ResolutionEy );
   
   for ( int i = 0; i < m_vtxBins; i++ ) {
-    getMeanProfile( h2_RefFinal_SumEt_RatioEt_vtx[i], h1_RefFinal_SumEt_ResponseEt_vtx[i] );
-    getMeanProfile( h2_RefFinal_SumEt_DeltaEt_vtx[i], h1_RefFinal_SumEt_OffsetEt_vtx[i] );
-    getResolutionProfile( h2_RefFinal_SumEt_DeltaEt_vtx[i], h1_RefFinal_SumEt_ResolutionEt_vtx[i] );
-    getResolutionProfile( h2_RefFinal_SumEt_DeltaEx_vtx[i], h1_RefFinal_SumEt_ResolutionEx_vtx[i] );
-    getResolutionProfile( h2_RefFinal_SumEt_DeltaEy_vtx[i], h1_RefFinal_SumEt_ResolutionEy_vtx[i] );
+    getMeanProfile( m_h2_RefFinal_SumEt_RatioEt_vtx[i], m_h1_RefFinal_SumEt_ResponseEt_vtx[i] );
+    getMeanProfile( m_h2_RefFinal_SumEt_DeltaEt_vtx[i], m_h1_RefFinal_SumEt_OffsetEt_vtx[i] );
+    getResolutionProfile( m_h2_RefFinal_SumEt_DeltaEt_vtx[i], m_h1_RefFinal_SumEt_ResolutionEt_vtx[i] );
+    getResolutionProfile( m_h2_RefFinal_SumEt_DeltaEx_vtx[i], m_h1_RefFinal_SumEt_ResolutionEx_vtx[i] );
+    getResolutionProfile( m_h2_RefFinal_SumEt_DeltaEy_vtx[i], m_h1_RefFinal_SumEt_ResolutionEy_vtx[i] );
   }
   
   return StatusCode::SUCCESS;
@@ -324,7 +324,7 @@ bool PileUpTool::getProfile( TH2F *hIn, TH1F *hOut, bool doMean )
   
   // Check consistency of output histogram
   if ( nBinsX != hOut->GetNbinsX() ) {
-    msg() << MSG::WARNING << "in getProfile(): input and output histograms have inconsitent binnings" << endreq;
+    msg() << MSG::WARNING << "in getProfile(): input and output histograms have inconsitent binnings" << endmsg;
     return false;
   }
   
@@ -382,15 +382,15 @@ bool PileUpTool::getProfile( TH2F *hIn, TH1F *hOut, bool doMean )
 StatusCode PileUpTool::finalize()
 {
   // Deallocate dynamic arrays
-  delete [] h2_RefFinal_SumEt_RatioEt_vtx;
-  delete [] h2_RefFinal_SumEt_DeltaEt_vtx;
-  delete [] h2_RefFinal_SumEt_DeltaEx_vtx;
-  delete [] h2_RefFinal_SumEt_DeltaEy_vtx;
-  delete [] h1_RefFinal_SumEt_ResponseEt_vtx;
-  delete [] h1_RefFinal_SumEt_OffsetEt_vtx;
-  delete [] h1_RefFinal_SumEt_ResolutionEt_vtx;
-  delete [] h1_RefFinal_SumEt_ResolutionEx_vtx;
-  delete [] h1_RefFinal_SumEt_ResolutionEy_vtx;
+  delete [] m_h2_RefFinal_SumEt_RatioEt_vtx;
+  delete [] m_h2_RefFinal_SumEt_DeltaEt_vtx;
+  delete [] m_h2_RefFinal_SumEt_DeltaEx_vtx;
+  delete [] m_h2_RefFinal_SumEt_DeltaEy_vtx;
+  delete [] m_h1_RefFinal_SumEt_ResponseEt_vtx;
+  delete [] m_h1_RefFinal_SumEt_OffsetEt_vtx;
+  delete [] m_h1_RefFinal_SumEt_ResolutionEt_vtx;
+  delete [] m_h1_RefFinal_SumEt_ResolutionEx_vtx;
+  delete [] m_h1_RefFinal_SumEt_ResolutionEy_vtx;
   
   return StatusCode::SUCCESS;
 }

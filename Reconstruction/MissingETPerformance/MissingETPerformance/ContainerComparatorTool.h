@@ -57,7 +57,7 @@ protected:
   ITHistSvc * m_thistSvc;
 
   //vector of vectors - each vector is a vector of container names to compare
-  std::vector<std::vector<std::string> > containers_to_compare;
+  std::vector<std::vector<std::string> > m_containers_to_compare;
 
 /*
   //vector of pairs of names of MissingETData objects and names of BasicPlotsTools to call execute(data) on
@@ -69,52 +69,52 @@ protected:
 */
 
   //vector of pairs of names of MissingETData objects and names of BasicPlotsTools to call execute(data) on
-  std::vector<std::vector<std::string> > data_basictool_pairs;
+  std::vector<std::vector<std::string> > m_data_basictool_pairs;
   //vector of pairs of names of MissingETData objects and names of ResolutionTools to call execute(data) on
-  std::vector<std::vector<std::string> > data_resolution_pairs;
+  std::vector<std::vector<std::string> > m_data_resolution_pairs;
   //vector of pairs of names of MissingETData objects and names of LinearityTools to call execute(data) on
-  std::vector<std::vector<std::string> > data_linearity_pairs;
+  std::vector<std::vector<std::string> > m_data_linearity_pairs;
 
   //array of MissingETData
-  ToolHandleArray<MissingETData> the_data;
+  ToolHandleArray<MissingETData> m_the_data;
 
   //array of BasicPlotsTools, will call execute on each one as requested, giving it the correct MissingETData object specified by data_basictool_pairs
-  ToolHandleArray<BasicPlotsTool> basicplots_tools;
+  ToolHandleArray<BasicPlotsTool> m_basicplots_tools;
   //array of ResolutionTool, will call execute on each one as requested, giving it the correct MissingETData object specified by data_resolution_pairs
-  ToolHandleArray<ResolutionTool> resolution_tools;
+  ToolHandleArray<ResolutionTool> m_resolution_tools;
   //array of LinearityTool, will call execute on each one as requested, giving it the correct MissingETData object specified by data_linearity_pairs
-  ToolHandleArray<LinearityTool> linearity_tools;
+  ToolHandleArray<LinearityTool> m_linearity_tools;
 
   //histograms
-  class _diffContainers {
+  class DiffContainers {
   public:
-    _diffContainers() {}
-    ~_diffContainers();
-    _diffContainers(const std::string &, const std::string &,ITHistSvc * );
+    DiffContainers() {}
+    ~DiffContainers();
+    DiffContainers(const std::string &, const std::string &,ITHistSvc * );
     void fillHistos(std::pair<const MissingET *, const MissingET *>);
   private:
-    TH1D *met;
-    TH1D *metx;
-    TH1D *mety;
-    TH1D *metphi;
-    TH1D *set;
+    TH1D *m_met;
+    TH1D *m_metx;
+    TH1D *m_mety;
+    TH1D *m_metphi;
+    TH1D *m_set;
   };
-  std::vector<_diffContainers *> diffContainers;
+  std::vector<DiffContainers *> m_diffContainers;
 
-  class _vsContainers {
+  class VsContainers {
   public:
-    _vsContainers() {}
-    ~_vsContainers();
-    _vsContainers(const std::string &, const std::string &,ITHistSvc * );
+    VsContainers() {}
+    ~VsContainers();
+    VsContainers(const std::string &, const std::string &,ITHistSvc * );
     void fillHistos(std::pair<const MissingET *, const MissingET *>);
   private:
-    TH2D *met;
-    TH2D *metx;
-    TH2D *mety;
-    TH2D *metphi;
-    TH2D *set;
+    TH2D *m_met;
+    TH2D *m_metx;
+    TH2D *m_mety;
+    TH2D *m_metphi;
+    TH2D *m_set;
   };
-  std::vector<_vsContainers *> vsContainers;
+  std::vector<VsContainers *> m_vsContainers;
 };
 
 #endif // CONTAINERCOMPARATORTOOL_H

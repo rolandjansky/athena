@@ -90,67 +90,67 @@ class MissingET {
   bool isValid() {return _isValid;}
 
  private:
-  Float_t *_etx;
-  Float_t *_ety;
-  Float_t *_sumet;
-  Float_t *_et;
-  Float_t *_phi;
-  bool _isValid;
+  Float_t *_etx = nullptr;
+  Float_t *_ety = nullptr;
+  Float_t *_sumet = nullptr;
+  Float_t *_et = nullptr;
+  Float_t *_phi = nullptr;
+  bool _isValid = false;
 
-  Float_t *_etx_CentralReg;
-  Float_t *_ety_CentralReg;
-  Float_t *_sumet_CentralReg;
-  Float_t *_phi_CentralReg;
-  Float_t *_etx_EndcapRegion;
-  Float_t *_ety_EndcapRegion;
-  Float_t *_sumet_EndcapRegion;
-  Float_t *_phi_EndcapRegion;
-  Float_t *_etx_ForwardReg;
-  Float_t *_ety_ForwardReg;
-  Float_t *_sumet_ForwardReg;
-  Float_t *_phi_ForwardReg;
+  Float_t *_etx_CentralReg = nullptr;
+  Float_t *_ety_CentralReg = nullptr;
+  Float_t *_sumet_CentralReg = nullptr;
+  Float_t *_phi_CentralReg = nullptr;
+  Float_t *_etx_EndcapRegion = nullptr;
+  Float_t *_ety_EndcapRegion = nullptr;
+  Float_t *_sumet_EndcapRegion = nullptr;
+  Float_t *_phi_EndcapRegion = nullptr;
+  Float_t *_etx_ForwardReg = nullptr;
+  Float_t *_ety_ForwardReg = nullptr;
+  Float_t *_sumet_ForwardReg = nullptr;
+  Float_t *_phi_ForwardReg = nullptr;
 
-  Float_t *_etx_FCAL;
-  Float_t *_ety_FCAL;
-  Float_t *_sumet_FCAL;
-  Float_t *_phi_FCAL;
-  Float_t *_nCell_FCAL;
+  Float_t *_etx_FCAL = nullptr;
+  Float_t *_ety_FCAL = nullptr;
+  Float_t *_sumet_FCAL = nullptr;
+  Float_t *_phi_FCAL = nullptr;
+  Float_t *_nCell_FCAL = nullptr;
 
-  Float_t *_etx_PEMB ;
-  Float_t *_ety_PEMB;
-  Float_t *_sumet_PEMB;
-  Float_t *_phi_PEMB;
-  Float_t *_nCell_PEMB;
+  Float_t *_etx_PEMB = nullptr ;
+  Float_t *_ety_PEMB = nullptr;
+  Float_t *_sumet_PEMB = nullptr;
+  Float_t *_phi_PEMB = nullptr;
+  Float_t *_nCell_PEMB = nullptr;
 
-  Float_t *_etx_EMB;
-  Float_t *_ety_EMB;
-  Float_t *_sumet_EMB;
-  Float_t *_phi_EMB;
-  Float_t *_nCell_EMB;
+  Float_t *_etx_EMB = nullptr;
+  Float_t *_ety_EMB = nullptr;
+  Float_t *_sumet_EMB = nullptr;
+  Float_t *_phi_EMB = nullptr;
+  Float_t *_nCell_EMB = nullptr;
 
-  Float_t *_etx_EME;
-  Float_t *_ety_EME;
-  Float_t *_sumet_EME;
-  Float_t *_phi_EME;
-  Float_t *_nCell_EME;
+  Float_t *_etx_EME = nullptr;
+  Float_t *_ety_EME = nullptr;
+  Float_t *_sumet_EME = nullptr;
+  Float_t *_phi_EME = nullptr;
+  Float_t *_nCell_EME = nullptr;
 
-  Float_t *_etx_PEME;
-  Float_t *_ety_PEME;
-  Float_t *_sumet_PEME;
-  Float_t *_phi_PEME;
-  Float_t *_nCell_PEME;
+  Float_t *_etx_PEME = nullptr;
+  Float_t *_ety_PEME = nullptr;
+  Float_t *_sumet_PEME = nullptr;
+  Float_t *_phi_PEME = nullptr;
+  Float_t *_nCell_PEME = nullptr;
 
-  Float_t *_etx_TILE;
-  Float_t *_ety_TILE;
-  Float_t *_sumet_TILE;
-  Float_t *_phi_TILE;
-  Float_t *_nCell_TILE;
+  Float_t *_etx_TILE = nullptr;
+  Float_t *_ety_TILE = nullptr;
+  Float_t *_sumet_TILE = nullptr;
+  Float_t *_phi_TILE = nullptr;
+  Float_t *_nCell_TILE = nullptr;
   
-  Float_t *_etx_HEC;
-  Float_t *_ety_HEC;
-  Float_t *_sumet_HEC;
-  Float_t *_phi_HEC;
-  Float_t *_nCell_HEC;
+  Float_t *_etx_HEC = nullptr;
+  Float_t *_ety_HEC = nullptr;
+  Float_t *_sumet_HEC = nullptr;
+  Float_t *_phi_HEC = nullptr;
+  Float_t *_nCell_HEC = nullptr;
 
   friend class MissingETData;
 };

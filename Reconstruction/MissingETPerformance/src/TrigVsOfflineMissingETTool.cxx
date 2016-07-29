@@ -17,7 +17,7 @@
 #include "MissingETPerformance/TrigVsOfflineMissingETTool.h"
 #include "MissingETPerformance/MissingETData.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
 
 #include "boost/tokenizer.hpp"
 
@@ -32,7 +32,7 @@ using boost::char_separator;
 
 using std::string;
 using std::vector;
-using CLHEP::GeV;
+using Athena::Units::GeV;
 
 namespace metfit {
 
@@ -167,28 +167,28 @@ TrigVsOfflineMissingETTool::TrigVsOfflineMissingETTool(const std::string & type,
   declareProperty("DeltaRCut", m_deltaRCut = 0.3); // not yet used
   declareProperty("FolderName",           m_folderName="");
 
-  vector<string> m_procTrig;
+  vector<string> procTrig;
 
-  m_procTrig.push_back("L1_XE20");  // L1 met triggers
-  m_procTrig.push_back("L1_XE50");
-  m_procTrig.push_back("L1_TE360");
+  procTrig.push_back("L1_XE20");  // L1 met triggers
+  procTrig.push_back("L1_XE50");
+  procTrig.push_back("L1_TE360");
 
-  m_procTrig.push_back("L2_xe20");  // L2 met triggers
-  m_procTrig.push_back("L2_xe50");
-  m_procTrig.push_back("L2_te360");
+  procTrig.push_back("L2_xe20");  // L2 met triggers
+  procTrig.push_back("L2_xe50");
+  procTrig.push_back("L2_te360");
 
-  m_procTrig.push_back("EF_xe20");
-  m_procTrig.push_back("EF_xe50");
-  m_procTrig.push_back("EF_te360"); // EF met triggers
+  procTrig.push_back("EF_xe20");
+  procTrig.push_back("EF_xe50");
+  procTrig.push_back("EF_te360"); // EF met triggers
 
-  vector<string> m_selTrig;
+  vector<string> selTrig;
 
-  m_selTrig.push_back("EF_J10");
-  m_selTrig.push_back("EF_MinBiasSpacePoints");
-  m_selTrig.push_back("EF_mu10");
+  selTrig.push_back("EF_J10");
+  selTrig.push_back("EF_MinBiasSpacePoints");
+  selTrig.push_back("EF_mu10");
 
-  if(m_met_triggers.empty()) m_met_triggers = m_procTrig;
-  if(m_selectTriggers.empty()) m_selectTriggers = m_selTrig;
+  if(m_met_triggers.empty()) m_met_triggers = procTrig;
+  if(m_selectTriggers.empty()) m_selectTriggers = selTrig;
 
   m_name = (m_name == "") ? this->name() : m_name;
   size_t pos;
@@ -215,21 +215,20 @@ StatusCode TrigVsOfflineMissingETTool::CBNT_initialize()
   if (sc.isFailure()) {
     msg() << MSG::ERROR
       << "Unable to retrieve pointer to THistSvc"
-      << endreq;
+      << endmsg;
     return sc;
   }
 
 
   // init message stream
-  msg().setLevel(outputLevel());
   m_debuglevel = (msg().level() <= MSG::DEBUG);
 
-  msg() << MSG::DEBUG << "TrigVsOfflineMissingETTool : in initialize()" << endreq;
+  msg() << MSG::DEBUG << "TrigVsOfflineMissingETTool : in initialize()" << endmsg;
 
   // retrive the trigger decision tool
   sc = m_trigDec.retrieve();
   if ( sc.isFailure() ){
-    msg() << MSG::ERROR << "Could not retrieve TrigDecisionTool!" << endreq;
+    msg() << MSG::ERROR << "Could not retrieve TrigDecisionTool!" << endmsg;
     return sc;
   }
 
@@ -253,14 +252,14 @@ StatusCode TrigVsOfflineMissingETTool::addHistogram(TH1 *h1) {
   if(!h1) return StatusCode::FAILURE;
 
   StatusCode sc = StatusCode::SUCCESS;
-  std::string m_dir = m_curdir;
-  std::string m_name = h1->GetName();
-  std::string m_reg = m_dir + m_name;
-  if(m_thistSvc->regHist(m_reg,h1).isFailure()) {
-    msg() << MSG::ERROR << "Couldn't register 1d histogram \"" << m_name << "\" in " << m_dir << endreq;
+  std::string dir = m_curdir;
+  std::string name = h1->GetName();
+  std::string reg = dir + name;
+  if(m_thistSvc->regHist(reg,h1).isFailure()) {
+    msg() << MSG::ERROR << "Couldn't register 1d histogram \"" << name << "\" in " << dir << endmsg;
     sc = StatusCode::FAILURE;
   }
-  msg() << MSG::DEBUG << "Registered 1d histogram \"" << m_name << "\" in " << m_dir << endreq;
+  msg() << MSG::DEBUG << "Registered 1d histogram \"" << name << "\" in " << dir << endmsg;
   return sc;
 }
 
@@ -269,34 +268,34 @@ StatusCode TrigVsOfflineMissingETTool::addHistogram(TH2 *h2) {
   if(!h2) return StatusCode::FAILURE;
 
   StatusCode sc = StatusCode::SUCCESS;
-  std::string m_dir = m_curdir;
-  std::string m_name = h2->GetName();
-  std::string m_reg = m_dir + m_name;
-  if(m_thistSvc->regHist(m_reg,h2).isFailure()) {
-    msg() << MSG::ERROR << "Couldn't register 2d histogram \"" << m_name << "\" in " << m_dir << endreq;
+  std::string dir = m_curdir;
+  std::string name = h2->GetName();
+  std::string reg = dir + name;
+  if(m_thistSvc->regHist(reg,h2).isFailure()) {
+    msg() << MSG::ERROR << "Couldn't register 2d histogram \"" << name << "\" in " << dir << endmsg;
   }
-  msg() << MSG::DEBUG << "Registered 2d histogram \"" << m_name << "\" in " << m_dir << endreq;
+  msg() << MSG::DEBUG << "Registered 2d histogram \"" << name << "\" in " << dir << endmsg;
   return sc;
 }
 
-TH1* TrigVsOfflineMissingETTool::hist(const std::string& m_hist) {
-  std::string m_dir = m_curdir;
-  m_dir += m_hist;
+TH1* TrigVsOfflineMissingETTool::hist(const std::string& hist) {
+  std::string dir = m_curdir;
+  dir += hist;
   TH1 *h(0);
-  if (m_thistSvc->getHist(m_dir,h).isSuccess()) {
+  if (m_thistSvc->getHist(dir,h).isSuccess()) {
   } else {
-    msg() << MSG::ERROR << "Couldn't retrieve 1d histogram \"" << m_hist << "\" from " << m_dir << endreq;
+    msg() << MSG::ERROR << "Couldn't retrieve 1d histogram \"" << hist << "\" from " << dir << endmsg;
   }
   return h;
 }
 
-TH2* TrigVsOfflineMissingETTool::hist2(const std::string& m_hist) {
-  std::string m_dir = m_curdir;
-  m_dir += m_hist;
+TH2* TrigVsOfflineMissingETTool::hist2(const std::string& hist) {
+  std::string dir = m_curdir;
+  dir += hist;
   TH2 *h(0);
-  if (m_thistSvc->getHist(m_dir,h).isSuccess()) {
+  if (m_thistSvc->getHist(dir,h).isSuccess()) {
   } else {
-    msg() << MSG::ERROR << "Couldn't retrieve 2d histogram \"" << m_hist << "\" from " << m_dir << endreq;
+    msg() << MSG::ERROR << "Couldn't retrieve 2d histogram \"" << hist << "\" from " << dir << endmsg;
   }
   return h;
 }
@@ -305,43 +304,43 @@ std::string& TrigVsOfflineMissingETTool::getDir() {
   return m_curdir;
 }
 
-void TrigVsOfflineMissingETTool::setDir(const std::string& m_grp) {
+void TrigVsOfflineMissingETTool::setDir(const std::string& grp) {
 
   m_curdir  = "/AANT/" + m_folderName + m_name + '/';
-  std::string m_add = "";
+  std::string add = "";
 
   // Parse input string and extract folder names
-  std::vector<std::string> m_dirList;
+  std::vector<std::string> dirList;
   const char* separator="/";
   typedef  tokenizer<char_separator<char> > Tokenizer;
-  Tokenizer tokComp(m_grp, char_separator<char>(separator));
+  Tokenizer tokComp(grp, char_separator<char>(separator));
   Tokenizer::iterator it = tokComp.begin();
 
-  // Set directory to m_grp (relative to basedir)
+  // Set directory to grp (relative to basedir)
   while(it != tokComp.end()) {
     msg() << MSG::DEBUG << *(it) << ";";
-    m_dirList.push_back(*(it++));
+    dirList.push_back(*(it++));
   }
-  size_t m_dsize = m_dirList.size();
-  if(!m_dsize) return ;
+  size_t dsize = dirList.size();
+  if(!dsize) return ;
   else {
-    for(size_t j = 0; j < m_dsize; j++) {
-      if (j == 0 && m_dirList[j] == "AANT") ;
-      else if((/*j == 1 &&*/ m_dirList[j] == m_name)) ;
+    for(size_t j = 0; j < dsize; j++) {
+      if (j == 0 && dirList[j] == "AANT") ;
+      else if((/*j == 1 &&*/ dirList[j] == m_name)) ;
       else {
-        m_add += m_dirList[j];
-        m_add += '/';
+        add += dirList[j];
+        add += '/';
       }
     }
   }
-  m_curdir += m_add;
+  m_curdir += add;
 }
 
 /*-----------------------------------------------------*/
 StatusCode TrigVsOfflineMissingETTool::bookHistograms()
   /*-----------------------------------------------------*/
 {
-  if (m_debuglevel) msg() << MSG::DEBUG << "TrigVsOfflineMissingETTool : in book()" << endreq;
+  if (m_debuglevel) msg() << MSG::DEBUG << "TrigVsOfflineMissingETTool : in book()" << endmsg;
 
   // get all met triggers
   if(m_useAllTriggers) // get all met trigger items
@@ -366,24 +365,24 @@ StatusCode TrigVsOfflineMissingETTool::bookHistograms()
   /** histogram ranges and bins */
 
   // et
-  low[0] = -13.5;
-  high[0] = 601.5;
-  nbins[0] = 205;
+  m_low[0] = -13.5;
+  m_high[0] = 601.5;
+  m_nbins[0] = 205;
 
   // sumet
-  low[1] = -27.;
-  high[1] = 1803.;
-  nbins[1] = 305;
+  m_low[1] = -27.;
+  m_high[1] = 1803.;
+  m_nbins[1] = 305;
 
   // phi, dPhi
-  low[2] = -3.1416;
-  high[2] = 3.1416;
-  nbins[2] = 64;
+  m_low[2] = -3.1416;
+  m_high[2] = 3.1416;
+  m_nbins[2] = 64;
 
   // dEt, dEx, dEy
-  low[3] = -150.;
-  high[3] = 150.;
-  nbins[3] = 60;
+  m_low[3] = -150.;
+  m_high[3] = 150.;
+  m_nbins[3] = 60;
 
   bookHistograms_allStats();
 
@@ -409,9 +408,9 @@ void TrigVsOfflineMissingETTool::addBasicL1Histograms()
 {
   // L1MET
   // et sumet phi histograms
-  addHistogram(new TH1F("L1met_et", "et_L1met ; Et", nbins[0],low[0],high[0]));
-  addHistogram(new TH1F("L1met_sumet", "sumet_L1met ; sumEt", nbins[1],low[1],high[1]));
-  addHistogram(new TH1F("L1met_phi", "phi_L1met ; Phi", nbins[2],low[2],high[2]));
+  addHistogram(new TH1F("L1met_et", "et_L1met ; Et", m_nbins[0],m_low[0],m_high[0]));
+  addHistogram(new TH1F("L1met_sumet", "sumet_L1met ; sumEt", m_nbins[1],m_low[1],m_high[1]));
+  addHistogram(new TH1F("L1met_phi", "phi_L1met ; Phi", m_nbins[2],m_low[2],m_high[2]));
 }
 
 
@@ -421,9 +420,9 @@ void TrigVsOfflineMissingETTool::addBasicL2Histograms()
 {
   // L2 MET
   // et sumet phi histograms
-  addHistogram(new TH1F("L2met_et", "et_L2met ; Et", nbins[0],low[0],high[0]));
-  addHistogram(new TH1F("L2met_sumet", "sumet_L2met ; sumEt", nbins[1],low[1],high[1]));
-  addHistogram(new TH1F("L2met_phi", "phi_L2met ; Phi", nbins[2],low[2],high[2]));
+  addHistogram(new TH1F("L2met_et", "et_L2met ; Et", m_nbins[0],m_low[0],m_high[0]));
+  addHistogram(new TH1F("L2met_sumet", "sumet_L2met ; sumEt", m_nbins[1],m_low[1],m_high[1]));
+  addHistogram(new TH1F("L2met_phi", "phi_L2met ; Phi", m_nbins[2],m_low[2],m_high[2]));
 }
 
 
@@ -433,9 +432,9 @@ void TrigVsOfflineMissingETTool::addBasicEFHistograms()
 {
   // EF MET
   // et sumet phi histograms
-  addHistogram(new TH1F("EFmet_et", "et_EFmet ; Et", nbins[0],low[0],high[0]));
-  addHistogram(new TH1F("EFmet_sumet", "sumet_EFmet ; sumEt", nbins[1],low[1],high[1]));
-  addHistogram(new TH1F("EFmet_phi", "phi_EFmet ; Phi", nbins[2],low[2],high[2]));
+  addHistogram(new TH1F("EFmet_et", "et_EFmet ; Et", m_nbins[0],m_low[0],m_high[0]));
+  addHistogram(new TH1F("EFmet_sumet", "sumet_EFmet ; sumEt", m_nbins[1],m_low[1],m_high[1]));
+  addHistogram(new TH1F("EFmet_phi", "phi_EFmet ; Phi", m_nbins[2],m_low[2],m_high[2]));
 }
 
 
@@ -445,9 +444,9 @@ void TrigVsOfflineMissingETTool::addBasicRecHistograms()
 {
   // RecMET
   // et sumet phi histograms
-  addHistogram(new TH1F("Recmet_et", "et_Recmet ; Et", nbins[0],low[0],high[0]));
-  addHistogram(new TH1F("Recmet_sumet", "sumet_Recmet ; sumEt", nbins[1],low[1],high[1]));
-  addHistogram(new TH1F("Recmet_phi", "phi_Recmet ; Phi", nbins[2],low[2],high[2]));
+  addHistogram(new TH1F("Recmet_et", "et_Recmet ; Et", m_nbins[0],m_low[0],m_high[0]));
+  addHistogram(new TH1F("Recmet_sumet", "sumet_Recmet ; sumEt", m_nbins[1],m_low[1],m_high[1]));
+  addHistogram(new TH1F("Recmet_phi", "phi_Recmet ; Phi", m_nbins[2],m_low[2],m_high[2]));
 }
 
 
@@ -468,35 +467,35 @@ void TrigVsOfflineMissingETTool::bookHistograms_allStats()
 void TrigVsOfflineMissingETTool::bookL1Histograms()
   /*----------------------------------------------------*/
 {
-  std::string m_generic_path_trigmetmonitoring = "";
+  std::string generic_path_trigmetmonitoring = "";
 
   std::map<std::string,int>::const_iterator it;
 
   for (it = m_l1_met_signatures_tolook->begin(); it != m_l1_met_signatures_tolook->end(); it++) {
 
-    std::string m_expert_path_trigmetmonitoring = m_generic_path_trigmetmonitoring + "/Detail/" + it->first;
+    std::string expert_path_trigmetmonitoring = generic_path_trigmetmonitoring + "/Detail/" + it->first;
 
-    setDir(m_expert_path_trigmetmonitoring);
+    setDir(expert_path_trigmetmonitoring);
 
     addBasicL1Histograms();
     addBasicRecHistograms();
 
-    setDir(m_expert_path_trigmetmonitoring);
+    setDir(expert_path_trigmetmonitoring);
     // correlation histograms -- L1MET vs RecMET
-    addHistogram(new TH2F("L1met_Recmet_EtCor", "EtCor_L1met_Recmet ; RecMET_Et ; L1MET_Et", nbins[0],low[0],high[0], nbins[0],low[0],high[0]));
-    addHistogram(new TH2F("L1met_Recmet_PhiCor", "PhiCor_L1met_Recmet ; RecMET_Phi ; L1MET_Phi", nbins[2],low[2],high[2], nbins[2],low[2],high[2]));
-    addHistogram(new TH1F("L1met_Recmet_dEt", "dEt_L1met_Recmet ; dEt", nbins[3],low[3],high[3]));
-    addHistogram(new TH1F("L1met_Recmet_dPhi", "dPhi_L1met_Recmet ; dPhi", nbins[2],low[2],high[2]));
-    addHistogram(new TH1F("L1met_Recmet_dEx", "dEx_L1met_Recmet ; dEx", nbins[3],low[3],high[3]));
-    addHistogram(new TH1F("L1met_Recmet_dEy", "dEy_L1met_Recmet ; dEy", nbins[3],low[3],high[3]));
+    addHistogram(new TH2F("L1met_Recmet_EtCor", "EtCor_L1met_Recmet ; RecMET_Et ; L1MET_Et", m_nbins[0],m_low[0],m_high[0], m_nbins[0],m_low[0],m_high[0]));
+    addHistogram(new TH2F("L1met_Recmet_PhiCor", "PhiCor_L1met_Recmet ; RecMET_Phi ; L1MET_Phi", m_nbins[2],m_low[2],m_high[2], m_nbins[2],m_low[2],m_high[2]));
+    addHistogram(new TH1F("L1met_Recmet_dEt", "dEt_L1met_Recmet ; dEt", m_nbins[3],m_low[3],m_high[3]));
+    addHistogram(new TH1F("L1met_Recmet_dPhi", "dPhi_L1met_Recmet ; dPhi", m_nbins[2],m_low[2],m_high[2]));
+    addHistogram(new TH1F("L1met_Recmet_dEx", "dEx_L1met_Recmet ; dEx", m_nbins[3],m_low[3],m_high[3]));
+    addHistogram(new TH1F("L1met_Recmet_dEy", "dEy_L1met_Recmet ; dEy", m_nbins[3],m_low[3],m_high[3]));
 
     // trigger efficiency histograms
-    addHistogram(new TH1F("L1_et_effi_wrt_RecMET", "et_effi_wrt_RecMET_L1 ; Et", nbins[0],low[0],high[0]));
-    addHistogram(new TH1F("L1_phi_effi_wrt_RecMET", "phi_effi_wrt_RecMET_L1 ; Phi", nbins[2],low[2],high[2]));
+    addHistogram(new TH1F("L1_et_effi_wrt_RecMET", "et_effi_wrt_RecMET_L1 ; Et", m_nbins[0],m_low[0],m_high[0]));
+    addHistogram(new TH1F("L1_phi_effi_wrt_RecMET", "phi_effi_wrt_RecMET_L1 ; Phi", m_nbins[2],m_low[2],m_high[2]));
 
     if (m_debuglevel) {
-      msg() << MSG::DEBUG << "INSIDE TrigVsOfflineMissingETTool : " << m_expert_path_trigmetmonitoring
-        << "/" << " Histograms" << " booked successfully" << endreq;
+      msg() << MSG::DEBUG << "INSIDE TrigVsOfflineMissingETTool : " << expert_path_trigmetmonitoring
+        << "/" << " Histograms" << " booked successfully" << endmsg;
     }
   }
 }
@@ -506,33 +505,33 @@ void TrigVsOfflineMissingETTool::bookL1Histograms()
 void TrigVsOfflineMissingETTool::bookL2Histograms()
   /*----------------------------------------------------*/
 {
-  std::string m_generic_path_trigmetmonitoring = "";
+  std::string generic_path_trigmetmonitoring = "";
 
   std::map<std::string,int>::const_iterator it;
 
   for (it = m_l2_met_signatures_tolook->begin(); it != m_l2_met_signatures_tolook->end(); it++) {
 
-    std::string m_expert_path_trigmetmonitoring = m_generic_path_trigmetmonitoring + "/Detail/" + it->first;
-    setDir(m_expert_path_trigmetmonitoring);
+    std::string expert_path_trigmetmonitoring = generic_path_trigmetmonitoring + "/Detail/" + it->first;
+    setDir(expert_path_trigmetmonitoring);
 
     addBasicL2Histograms();
     addBasicRecHistograms();         
 
     // correlation histograms -- L2MET vs RecMET
-    addHistogram(new TH2F("L2met_Recmet_EtCor", "EtCor_L2met_Recmet ; RecMET_Et ; L2MET_Et", nbins[0],low[0],high[0], nbins[0],low[0],high[0]));
-    addHistogram(new TH2F("L2met_Recmet_PhiCor", "PhiCor_L2met_Recmet ; RecMET_Phi ; L2MET_Phi", nbins[2],low[2],high[2], nbins[2],low[2],high[2]));
-    addHistogram(new TH1F("L2met_Recmet_dEt", "dEt_L2met_Recmet ; dEt", nbins[3],low[3],high[3]));
-    addHistogram(new TH1F("L2met_Recmet_dPhi", "dPhi_L2met_Recmet ; dPhi", nbins[2],low[2],high[2]));
-    addHistogram(new TH1F("L2met_Recmet_dEx", "dEx_L2met_Recmet ; dEx", nbins[3],low[3],high[3]));
-    addHistogram(new TH1F("L2met_Recmet_dEy", "dEy_L2met_Recmet ; dEy", nbins[3],low[3],high[3]));
+    addHistogram(new TH2F("L2met_Recmet_EtCor", "EtCor_L2met_Recmet ; RecMET_Et ; L2MET_Et", m_nbins[0],m_low[0],m_high[0], m_nbins[0],m_low[0],m_high[0]));
+    addHistogram(new TH2F("L2met_Recmet_PhiCor", "PhiCor_L2met_Recmet ; RecMET_Phi ; L2MET_Phi", m_nbins[2],m_low[2],m_high[2], m_nbins[2],m_low[2],m_high[2]));
+    addHistogram(new TH1F("L2met_Recmet_dEt", "dEt_L2met_Recmet ; dEt", m_nbins[3],m_low[3],m_high[3]));
+    addHistogram(new TH1F("L2met_Recmet_dPhi", "dPhi_L2met_Recmet ; dPhi", m_nbins[2],m_low[2],m_high[2]));
+    addHistogram(new TH1F("L2met_Recmet_dEx", "dEx_L2met_Recmet ; dEx", m_nbins[3],m_low[3],m_high[3]));
+    addHistogram(new TH1F("L2met_Recmet_dEy", "dEy_L2met_Recmet ; dEy", m_nbins[3],m_low[3],m_high[3]));
 
     // trigger efficiency histograms
-    addHistogram(new TH1F("L2_et_effi_wrt_RecMET", "et_effi_wrt_RecMET_L2 ; Et", nbins[0],low[0],high[0]));
-    addHistogram(new TH1F("L2_phi_effi_wrt_RecMET", "phi_effi_wrt_RecMET_L2 ; Phi", nbins[2],low[2],high[2]));
+    addHistogram(new TH1F("L2_et_effi_wrt_RecMET", "et_effi_wrt_RecMET_L2 ; Et", m_nbins[0],m_low[0],m_high[0]));
+    addHistogram(new TH1F("L2_phi_effi_wrt_RecMET", "phi_effi_wrt_RecMET_L2 ; Phi", m_nbins[2],m_low[2],m_high[2]));
 
     if (m_debuglevel) {
-      msg() << MSG::DEBUG << "INSIDE TrigVsOfflineMissingETTool : " << m_expert_path_trigmetmonitoring
-        << "/" << " Histograms" << " booked successfully" << endreq;
+      msg() << MSG::DEBUG << "INSIDE TrigVsOfflineMissingETTool : " << expert_path_trigmetmonitoring
+        << "/" << " Histograms" << " booked successfully" << endmsg;
     }
   }
 }
@@ -542,34 +541,34 @@ void TrigVsOfflineMissingETTool::bookL2Histograms()
 void TrigVsOfflineMissingETTool::bookEFHistograms()
   /*----------------------------------------------------*/
 {
-  std::string m_generic_path_trigmetmonitoring = "";
+  std::string generic_path_trigmetmonitoring = "";
 
   std::map<std::string,int>::const_iterator it;
 
   for (it = m_ef_met_signatures_tolook->begin(); it != m_ef_met_signatures_tolook->end(); it++) {
 
-    std::string m_expert_path_trigmetmonitoring = m_generic_path_trigmetmonitoring + "/Detail/" + it->first;
-    setDir(m_expert_path_trigmetmonitoring);
+    std::string expert_path_trigmetmonitoring = generic_path_trigmetmonitoring + "/Detail/" + it->first;
+    setDir(expert_path_trigmetmonitoring);
 
     addBasicEFHistograms();
     addBasicRecHistograms();
 
     // correlation histograms -- EFMET vs RecMET
 
-    addHistogram(new TH2F("EFmet_Recmet_EtCor", "EtCor_EFmet_Recmet ; RecMET_Et ; EFMET_Et", nbins[0],low[0],high[0], nbins[0],low[0],high[0]));
-    addHistogram(new TH2F("EFmet_Recmet_PhiCor", "PhiCor_EFmet_Recmet ; RecMET_Phi ; EFMET_Phi", nbins[2],low[2],high[2], nbins[2],low[2],high[2]));
-    addHistogram(new TH1F("EFmet_Recmet_dEt", "dEt_EFmet_Recmet ; dEt", nbins[3],low[3],high[3]));
-    addHistogram(new TH1F("EFmet_Recmet_dPhi", "dPhi_EFmet_Recmet ; dPhi", nbins[2],low[2],high[2]));
-    addHistogram(new TH1F("EFmet_Recmet_dEx", "dEx_EFmet_Recmet ; dEx", nbins[3],low[3],high[3]));
-    addHistogram(new TH1F("EFmet_Recmet_dEy", "dEy_EFmet_Recmet ; dEy", nbins[3],low[3],high[3]));   
+    addHistogram(new TH2F("EFmet_Recmet_EtCor", "EtCor_EFmet_Recmet ; RecMET_Et ; EFMET_Et", m_nbins[0],m_low[0],m_high[0], m_nbins[0],m_low[0],m_high[0]));
+    addHistogram(new TH2F("EFmet_Recmet_PhiCor", "PhiCor_EFmet_Recmet ; RecMET_Phi ; EFMET_Phi", m_nbins[2],m_low[2],m_high[2], m_nbins[2],m_low[2],m_high[2]));
+    addHistogram(new TH1F("EFmet_Recmet_dEt", "dEt_EFmet_Recmet ; dEt", m_nbins[3],m_low[3],m_high[3]));
+    addHistogram(new TH1F("EFmet_Recmet_dPhi", "dPhi_EFmet_Recmet ; dPhi", m_nbins[2],m_low[2],m_high[2]));
+    addHistogram(new TH1F("EFmet_Recmet_dEx", "dEx_EFmet_Recmet ; dEx", m_nbins[3],m_low[3],m_high[3]));
+    addHistogram(new TH1F("EFmet_Recmet_dEy", "dEy_EFmet_Recmet ; dEy", m_nbins[3],m_low[3],m_high[3]));   
 
     // trigger efficiency histograms
-    addHistogram(new TH1F("EF_et_effi_wrt_RecMET", "et_effi_wrt_RecMET_EF ; Et", nbins[0],low[0],high[0]));
-    addHistogram(new TH1F("EF_phi_effi_wrt_RecMET", "phi_effi_wrt_RecMET_EF ; Phi", nbins[2],low[2],high[2]));
+    addHistogram(new TH1F("EF_et_effi_wrt_RecMET", "et_effi_wrt_RecMET_EF ; Et", m_nbins[0],m_low[0],m_high[0]));
+    addHistogram(new TH1F("EF_phi_effi_wrt_RecMET", "phi_effi_wrt_RecMET_EF ; Phi", m_nbins[2],m_low[2],m_high[2]));
 
     if (m_debuglevel) {
-      msg() << MSG::DEBUG << "INSIDE TrigVsOfflineMissingETTool : " << m_expert_path_trigmetmonitoring
-        << "/" << " Histograms" << " booked successfully" << endreq;
+      msg() << MSG::DEBUG << "INSIDE TrigVsOfflineMissingETTool : " << expert_path_trigmetmonitoring
+        << "/" << " Histograms" << " booked successfully" << endmsg;
     }
   }
 }
@@ -583,40 +582,40 @@ void TrigVsOfflineMissingETTool::bookEffiHistograms()
   std::map<std::string,int>::const_iterator it;
 
   for (it_s = m_sample_selection_signatures.begin(); it_s != m_sample_selection_signatures.end(); it_s++) {
-    std::string m_generic_path_trigmetmonitoring = "";
-    std::string m_expert_path_trigmetmonitoring = m_generic_path_trigmetmonitoring + "/Detail/" + it_s->first;
+    std::string generic_path_trigmetmonitoring = "";
+    std::string expert_path_trigmetmonitoring = generic_path_trigmetmonitoring + "/Detail/" + it_s->first;
 
-    setDir(m_expert_path_trigmetmonitoring);
+    setDir(expert_path_trigmetmonitoring);
 
     addBasicRecHistograms();  
 
-    std::vector<std::map<std::string,int>*> m_met_signatures_tolook;
-    m_met_signatures_tolook.push_back(m_l1_met_signatures_tolook);
-    m_met_signatures_tolook.push_back(m_l2_met_signatures_tolook);
-    m_met_signatures_tolook.push_back(m_ef_met_signatures_tolook);
-    unsigned int size = m_met_signatures_tolook.size();
+    std::vector<std::map<std::string,int>*> met_signatures_tolook;
+    met_signatures_tolook.push_back(m_l1_met_signatures_tolook);
+    met_signatures_tolook.push_back(m_l2_met_signatures_tolook);
+    met_signatures_tolook.push_back(m_ef_met_signatures_tolook);
+    unsigned int size = met_signatures_tolook.size();
 
     std::string levels[3] = {"L1", "L2", "EF"};
 
     for (unsigned int i=0; i<size; i++) {
-      for (it = m_met_signatures_tolook[i]->begin(); it != m_met_signatures_tolook[i]->end(); it++) {
-        std::string m_expert_path_trigmetmonitoring = m_generic_path_trigmetmonitoring + "/Detail/" + it_s->first + "/" + it->first;
+      for (it = met_signatures_tolook[i]->begin(); it != met_signatures_tolook[i]->end(); it++) {
+        std::string expert_path_trigmetmonitoring = generic_path_trigmetmonitoring + "/Detail/" + it_s->first + "/" + it->first;
 
-        setDir(m_expert_path_trigmetmonitoring);
+        setDir(expert_path_trigmetmonitoring);
 
         addBasicRecHistograms();
 
         // trigger efficiency histograms
         std::string name = levels[i] + "_et_effi_wrt_RecMET";
         std::string title = "et_effi_wrt_RecMET_" + levels[i] + " ; Et";
-        addHistogram(new TH1F(name.c_str(), title.c_str(), nbins[0],low[0],high[0]));
+        addHistogram(new TH1F(name.c_str(), title.c_str(), m_nbins[0],m_low[0],m_high[0]));
         name = levels[i] + "_phi_effi_wrt_RecMET";
         title = "phi_effi_wrt_RecMET_" + levels[i] + " ; Phi";
-        addHistogram(new TH1F(name.c_str(), title.c_str(), nbins[2],low[2],high[2]));
+        addHistogram(new TH1F(name.c_str(), title.c_str(), m_nbins[2],m_low[2],m_high[2]));
 
         if (m_debuglevel) {
-          msg() << MSG::DEBUG << "INSIDE TrigVsOfflineMissingETTool : " << m_expert_path_trigmetmonitoring
-            << "/" << " Histograms" << " booked successfully" << endreq;
+          msg() << MSG::DEBUG << "INSIDE TrigVsOfflineMissingETTool : " << expert_path_trigmetmonitoring
+            << "/" << " Histograms" << " booked successfully" << endmsg;
         }
       } // end of loop over l* met signatures to look
     } // end of loop over levels
@@ -632,7 +631,7 @@ StatusCode TrigVsOfflineMissingETTool::execute(MissingETData *data) {
   /** check that the input and the output containers are defined */
   StatusCode sc = StatusCode::SUCCESS;
 
-  msg() << MSG::DEBUG << "execute() has been called" << endreq;
+  msg() << MSG::DEBUG << "execute() has been called" << endmsg;
 
   trigger_decision();
   sc = trigVsOfflineMissingETPlots(data);
@@ -648,15 +647,15 @@ void TrigVsOfflineMissingETTool::trigger_decision()
 {
   // fill maps of met triggers to look with trigger statistics
 
-  std::vector<std::map<std::string,int>*> m_met_signatures_tolook;
-  m_met_signatures_tolook.push_back(m_l1_met_signatures_tolook);
-  m_met_signatures_tolook.push_back(m_l2_met_signatures_tolook);
-  m_met_signatures_tolook.push_back(m_ef_met_signatures_tolook);
+  std::vector<std::map<std::string,int>*> met_signatures_tolook;
+  met_signatures_tolook.push_back(m_l1_met_signatures_tolook);
+  met_signatures_tolook.push_back(m_l2_met_signatures_tolook);
+  met_signatures_tolook.push_back(m_ef_met_signatures_tolook);
 
   if(m_printTrigStats) {
     std::map<std::string,int>::iterator iter;
-    for (unsigned int i = 0; i<m_met_signatures_tolook.size(); i++) {
-      for ( iter = m_met_signatures_tolook[i]->begin(); iter != m_met_signatures_tolook[i]->end(); ++iter) {
+    for (unsigned int i = 0; i<met_signatures_tolook.size(); i++) {
+      for ( iter = met_signatures_tolook[i]->begin(); iter != met_signatures_tolook[i]->end(); ++iter) {
         std::string name = iter->first;
         if (m_trigDec->isPassed(name)) {
           iter->second +=1;
@@ -672,7 +671,7 @@ void TrigVsOfflineMissingETTool::trigger_decision()
 StatusCode TrigVsOfflineMissingETTool::trigVsOfflineMissingETPlots(MissingETData *data)
   /*----------------------------------------------------*/
 {
-  if (m_debuglevel) msg() << MSG::DEBUG << "in met()" << endreq;
+  if (m_debuglevel) msg() << MSG::DEBUG << "in met()" << endmsg;
 
   StatusCode sc = StatusCode::SUCCESS;
 
@@ -688,14 +687,14 @@ StatusCode TrigVsOfflineMissingETTool::trigVsOfflineMissingETPlots(MissingETData
   double et_RecMET=0., sumet_RecMET=0., ex_RecMET=0., ey_RecMET=0., phi_RecMET=0.;
   missET_rec = data->getMissingETbyName(m_met_ref); // data->refFinal();
   if (!missET_rec){
-    msg() << MSG::DEBUG << "Could not retrieve Reconstructed MET term" << endreq;
+    msg() << MSG::DEBUG << "Could not retrieve Reconstructed MET term" << endmsg;
   } else {
     et_RecMET = (missET_rec->et())/GeV;
     sumet_RecMET = (missET_rec->sumet())/GeV;
     ex_RecMET = (missET_rec->etx())/GeV;
     ey_RecMET = (missET_rec->ety())/GeV;
     phi_RecMET = missET_rec->phi();
-    msg() << MSG::DEBUG << "Rec MET: "<< et_RecMET << " Rec SumEt: " << sumet_RecMET << endreq;  
+    msg() << MSG::DEBUG << "Rec MET: "<< et_RecMET << " Rec SumEt: " << sumet_RecMET << endmsg;  
 
     setDir(allStatsMonGroup);
     hist("Recmet_et")->Fill(et_RecMET);
@@ -703,11 +702,11 @@ StatusCode TrigVsOfflineMissingETTool::trigVsOfflineMissingETPlots(MissingETData
     hist("Recmet_phi")->Fill(phi_RecMET);
 
     std::map<std::string,int>::const_iterator it_s;
-    std::vector<std::map<std::string,int>*> m_met_signatures_tolook;
-    m_met_signatures_tolook.push_back(m_l1_met_signatures_tolook);
-    m_met_signatures_tolook.push_back(m_l2_met_signatures_tolook);
-    m_met_signatures_tolook.push_back(m_ef_met_signatures_tolook);
-    unsigned int size = m_met_signatures_tolook.size();
+    std::vector<std::map<std::string,int>*> met_signatures_tolook;
+    met_signatures_tolook.push_back(m_l1_met_signatures_tolook);
+    met_signatures_tolook.push_back(m_l2_met_signatures_tolook);
+    met_signatures_tolook.push_back(m_ef_met_signatures_tolook);
+    unsigned int size = met_signatures_tolook.size();
 
     for (it_s = m_sample_selection_signatures.begin(); it_s != m_sample_selection_signatures.end(); it_s++) {
       if (m_trigDec->isPassed(it_s->first)) {
@@ -719,7 +718,7 @@ StatusCode TrigVsOfflineMissingETTool::trigVsOfflineMissingETPlots(MissingETData
         hist("Recmet_phi")->Fill(phi_RecMET);
 
         for (unsigned int i=0; i<size; i++) {
-          for (it = m_met_signatures_tolook[i]->begin(); it != m_met_signatures_tolook[i]->end(); it++) {
+          for (it = met_signatures_tolook[i]->begin(); it != met_signatures_tolook[i]->end(); it++) {
             std::string name = it->first;
             if (m_trigDec->isPassed(name)) {
               setDir(tmp_partialMonGroup + name);
@@ -742,22 +741,22 @@ StatusCode TrigVsOfflineMissingETTool::trigVsOfflineMissingETPlots(MissingETData
   if( !lvl1_roi ) {
     msg() << MSG::DEBUG
       << "No LVL1 ROI found in TDS"
-      << endreq;
+      << endmsg;
   }
   else {
     LVL1_ROI::energysums_type L1METROI = lvl1_roi->getEnergySumROIs();
     int l1metroi_size = L1METROI.size();
     if (l1metroi_size > 1)
-      msg() << MSG::DEBUG << "Number of L1METROI's " << l1metroi_size << ", should be 1!" << endreq;
+      msg() << MSG::DEBUG << "Number of L1METROI's " << l1metroi_size << ", should be 1!" << endmsg;
     if (m_debuglevel)
       msg() << MSG::DEBUG << " Number of L1METROI's " << l1metroi_size
-        << endreq;
+        << endmsg;
 
     LVL1_ROI::energysums_type::const_iterator it_L1 = L1METROI.begin();
     LVL1_ROI::energysums_type::const_iterator it_e_L1 = L1METROI.end();
 
     if (l1metroi_size == 0) { 
-      msg() << MSG::DEBUG << "Could not retrieve L1 term" << endreq;
+      msg() << MSG::DEBUG << "Could not retrieve L1 term" << endmsg;
     } else{
       for( ; it_L1 != it_e_L1; it_L1++) {
         double ex = it_L1->getEnergyX();
@@ -771,7 +770,7 @@ StatusCode TrigVsOfflineMissingETTool::trigVsOfflineMissingETPlots(MissingETData
         //double ex = (it_L1->getExMiss())/GeV;
         //double ey = (it_L1->getEyMiss())/GeV;
         //double phi = atan2(ey, ex);
-        msg() << MSG::DEBUG << "L1 MET: " << et << " L1 SumEt: " << sumet << endreq;
+        msg() << MSG::DEBUG << "L1 MET: " << et << " L1 SumEt: " << sumet << endmsg;
 
         setDir(allStatsMonGroup);
         hist("L1met_et")->Fill(et);
@@ -810,7 +809,7 @@ StatusCode TrigVsOfflineMissingETTool::trigVsOfflineMissingETPlots(MissingETData
   const TrigMissingET *missETL2=0;
   trigMETcont = data->getL2MET();
   if (!trigMETcont) {
-    msg() << MSG::DEBUG << "Could not retrieve L2 term : trigMETcont = 0" << endreq;
+    msg() << MSG::DEBUG << "Could not retrieve L2 term : trigMETcont = 0" << endmsg;
   } else {
     TrigMissingETContainer::const_iterator trigMETfirst  = trigMETcont->begin();
     TrigMissingETContainer::const_iterator trigMETlast = trigMETcont->end();
@@ -819,14 +818,14 @@ StatusCode TrigVsOfflineMissingETTool::trigVsOfflineMissingETPlots(MissingETData
   }
 
   if (!missETL2) { 
-    msg() << MSG::DEBUG << "Could not retrieve L2 term" << endreq;
+    msg() << MSG::DEBUG << "Could not retrieve L2 term" << endmsg;
   } else {
     double et = (missETL2->et())/GeV;
     double sumet = (missETL2->sumEt())/GeV;
     double ex = (missETL2->ex())/GeV;
     double ey = (missETL2->ey())/GeV;
     double phi = atan2(ey, ex);
-    msg() << MSG::DEBUG << "HLT L2 MET: "<< et << " HLT L2 SumEt: " << sumet << endreq;
+    msg() << MSG::DEBUG << "HLT L2 MET: "<< et << " HLT L2 SumEt: " << sumet << endmsg;
 
     setDir(allStatsMonGroup);
     hist("L2met_et")->Fill(et);
@@ -861,7 +860,7 @@ StatusCode TrigVsOfflineMissingETTool::trigVsOfflineMissingETPlots(MissingETData
   trigMETcont = 0;
   trigMETcont = data->getEFMET_default(); //, METTags[1]);
   if (!trigMETcont){
-    msg() << MSG::DEBUG << "Could not retrieve EF term : trigMETcont = 0" << endreq;
+    msg() << MSG::DEBUG << "Could not retrieve EF term : trigMETcont = 0" << endmsg;
   } else {
     TrigMissingETContainer::const_iterator trigMETfirst  = trigMETcont->begin();
     TrigMissingETContainer::const_iterator trigMETlast = trigMETcont->end();
@@ -870,14 +869,14 @@ StatusCode TrigVsOfflineMissingETTool::trigVsOfflineMissingETPlots(MissingETData
   }
 
   if (!missETEF) { 
-    msg() << MSG::DEBUG << "Could not retrieve EF term" << endreq;
+    msg() << MSG::DEBUG << "Could not retrieve EF term" << endmsg;
   } else{
     double et = (missETEF->et())/GeV;
     double sumet = (missETEF->sumEt())/GeV;
     double ex = (missETEF->ex())/GeV;
     double ey = (missETEF->ey())/GeV;
     double phi = atan2(ey,ex);
-    msg() << MSG::DEBUG << "HLT EF MET: "<< et << " HLT EF SumEt: " << sumet << endreq;
+    msg() << MSG::DEBUG << "HLT EF MET: "<< et << " HLT EF SumEt: " << sumet << endmsg;
     setDir(allStatsMonGroup);
     hist("EFmet_et")->Fill(et);
     hist("EFmet_sumet")->Fill(sumet);
@@ -911,16 +910,16 @@ StatusCode TrigVsOfflineMissingETTool::trigVsOfflineMissingETPlots(MissingETData
 StatusCode TrigVsOfflineMissingETTool::finalize()
   /*---------------------------------------------------------*/
 {
-  if (m_debuglevel) msg() << MSG::DEBUG << "TrigVsOfflineMissingETTool : in procHistograms()" << endreq;
-  msg() << MSG::DEBUG << "finalize() has been called" << endreq;
+  if (m_debuglevel) msg() << MSG::DEBUG << "TrigVsOfflineMissingETTool : in procHistograms()" << endmsg;
+  msg() << MSG::DEBUG << "finalize() has been called" << endmsg;
 
   std::map<std::string, int>::const_iterator it_s;
   std::map<std::string, int>::const_iterator it;
 
-  TH1 *m_Recmet_et_denom;
-  TH1 *m_Recmet_phi_denom;
-  TH1 *m_Recmet_et_num;
-  TH1 *m_Recmet_phi_num;
+  TH1 *Recmet_et_denom;
+  TH1 *Recmet_phi_denom;
+  TH1 *Recmet_et_num;
+  TH1 *Recmet_phi_num;
 
   if(m_printTrigStats)
     printMetTriggerStats();
@@ -929,82 +928,82 @@ StatusCode TrigVsOfflineMissingETTool::finalize()
   //double pars[5] = {22.00,0.7,0.6,20.,2.3};
 
   setDir("Summary/allStats");
-  m_Recmet_et_denom = hist("Recmet_et");
-  m_Recmet_phi_denom = hist("Recmet_phi");
-  m_Recmet_et_denom->Sumw2();
-  m_Recmet_phi_denom->Sumw2();
+  Recmet_et_denom = hist("Recmet_et");
+  Recmet_phi_denom = hist("Recmet_phi");
+  Recmet_et_denom->Sumw2();
+  Recmet_phi_denom->Sumw2();
 
   for(it = m_l1_met_signatures_tolook->begin(); it != m_l1_met_signatures_tolook->end(); it++) {
     setDir(std::string("Detail/")+it->first);
-    m_Recmet_et_num = hist("Recmet_et");
-    m_Recmet_phi_num = hist("Recmet_phi");
-    m_Recmet_et_num->Sumw2();
-    m_Recmet_phi_num->Sumw2();
-    hist("L1_et_effi_wrt_RecMET")->Divide(m_Recmet_et_num, m_Recmet_et_denom, 1.0, 1.0, "B");
-    hist("L1_phi_effi_wrt_RecMET")->Divide(m_Recmet_phi_num, m_Recmet_phi_denom, 1.0, 1.0, "B");
+    Recmet_et_num = hist("Recmet_et");
+    Recmet_phi_num = hist("Recmet_phi");
+    Recmet_et_num->Sumw2();
+    Recmet_phi_num->Sumw2();
+    hist("L1_et_effi_wrt_RecMET")->Divide(Recmet_et_num, Recmet_et_denom, 1.0, 1.0, "B");
+    hist("L1_phi_effi_wrt_RecMET")->Divide(Recmet_phi_num, Recmet_phi_denom, 1.0, 1.0, "B");
 
     //metfit::Efficiency(hist("Recmet_et"), hist("Recmet_et", "Summary/allStats"), ranges, pars);
   }
 
   for(it = m_l2_met_signatures_tolook->begin(); it != m_l2_met_signatures_tolook->end(); it++) {
     setDir(std::string("Detail/")+it->first);
-    m_Recmet_et_num = hist("Recmet_et");
-    m_Recmet_phi_num = hist("Recmet_phi");
-    m_Recmet_et_num->Sumw2();
-    m_Recmet_phi_num->Sumw2();
-    hist("L2_et_effi_wrt_RecMET")->Divide(m_Recmet_et_num, m_Recmet_et_denom, 1.0, 1.0, "B");
-    hist("L2_phi_effi_wrt_RecMET")->Divide(m_Recmet_phi_num, m_Recmet_phi_denom, 1.0, 1.0, "B");
+    Recmet_et_num = hist("Recmet_et");
+    Recmet_phi_num = hist("Recmet_phi");
+    Recmet_et_num->Sumw2();
+    Recmet_phi_num->Sumw2();
+    hist("L2_et_effi_wrt_RecMET")->Divide(Recmet_et_num, Recmet_et_denom, 1.0, 1.0, "B");
+    hist("L2_phi_effi_wrt_RecMET")->Divide(Recmet_phi_num, Recmet_phi_denom, 1.0, 1.0, "B");
 
     //metfit::Efficiency(hist("Recmet_et"), hist("Recmet_et", "Summary/allStats"), ranges, pars);
   }
 
   for(it = m_ef_met_signatures_tolook->begin(); it != m_ef_met_signatures_tolook->end(); it++) {
     setDir(std::string("Detail/")+it->first);
-    m_Recmet_et_num = hist("Recmet_et");
-    m_Recmet_phi_num = hist("Recmet_phi");
-    m_Recmet_et_num->Sumw2();
-    m_Recmet_phi_num->Sumw2();
-    hist("EF_et_effi_wrt_RecMET")->Divide(m_Recmet_et_num, m_Recmet_et_denom, 1.0, 1.0, "B");
-    hist("EF_phi_effi_wrt_RecMET")->Divide(m_Recmet_phi_num, m_Recmet_phi_denom, 1.0, 1.0, "B");
+    Recmet_et_num = hist("Recmet_et");
+    Recmet_phi_num = hist("Recmet_phi");
+    Recmet_et_num->Sumw2();
+    Recmet_phi_num->Sumw2();
+    hist("EF_et_effi_wrt_RecMET")->Divide(Recmet_et_num, Recmet_et_denom, 1.0, 1.0, "B");
+    hist("EF_phi_effi_wrt_RecMET")->Divide(Recmet_phi_num, Recmet_phi_denom, 1.0, 1.0, "B");
 
     //metfit::Efficiency(hist("Recmet_et"), hist("Recmet_et", "Summary/allStats"), ranges, pars);
   }
 
   for(it_s = m_sample_selection_signatures.begin(); it_s != m_sample_selection_signatures.end(); it_s++) {
     setDir(std::string("Detail/")+it_s->first);
-    m_Recmet_et_denom = hist("Recmet_et");
-    m_Recmet_phi_denom = hist("Recmet_phi");
-    m_Recmet_et_denom->Sumw2();
-    m_Recmet_phi_denom->Sumw2();
+    Recmet_et_denom = hist("Recmet_et");
+    Recmet_phi_denom = hist("Recmet_phi");
+    Recmet_et_denom->Sumw2();
+    Recmet_phi_denom->Sumw2();
 
     for(it = m_l1_met_signatures_tolook->begin(); it != m_l1_met_signatures_tolook->end(); it++) {
       setDir(std::string("Detail/")+it_s->first+std::string("/")+it->first);
-      m_Recmet_et_num = hist("Recmet_et");
-      m_Recmet_phi_num = hist("Recmet_phi");
-      m_Recmet_et_num->Sumw2();
-      m_Recmet_phi_num->Sumw2();
-      hist("L1_et_effi_wrt_RecMET")->Divide(hist("Recmet_et"), m_Recmet_et_denom, 1.0, 1.0, "B");
-      hist("L1_phi_effi_wrt_RecMET")->Divide(hist("Recmet_phi"), m_Recmet_phi_denom, 1.0, 1.0, "B");
+      Recmet_et_num = hist("Recmet_et");
+      Recmet_phi_num = hist("Recmet_phi");
+      Recmet_et_num->Sumw2();
+      Recmet_phi_num->Sumw2();
+      hist("L1_et_effi_wrt_RecMET")->Divide(hist("Recmet_et"), Recmet_et_denom, 1.0, 1.0, "B");
+      hist("L1_phi_effi_wrt_RecMET")->Divide(hist("Recmet_phi"), Recmet_phi_denom, 1.0, 1.0, "B");
     }
 
     for(it = m_l2_met_signatures_tolook->begin(); it != m_l2_met_signatures_tolook->end(); it++) {
       setDir(std::string("Detail/")+it_s->first+std::string("/")+it->first);
-      m_Recmet_et_num = hist("Recmet_et");
-      m_Recmet_phi_num = hist("Recmet_phi");
-      m_Recmet_et_num->Sumw2();
-      m_Recmet_phi_num->Sumw2();
-      hist("L2_et_effi_wrt_RecMET")->Divide(m_Recmet_et_num, m_Recmet_et_denom, 1.0, 1.0, "B");
-      hist("L2_phi_effi_wrt_RecMET")->Divide(m_Recmet_phi_num, m_Recmet_phi_denom, 1.0, 1.0, "B");
+      Recmet_et_num = hist("Recmet_et");
+      Recmet_phi_num = hist("Recmet_phi");
+      Recmet_et_num->Sumw2();
+      Recmet_phi_num->Sumw2();
+      hist("L2_et_effi_wrt_RecMET")->Divide(Recmet_et_num, Recmet_et_denom, 1.0, 1.0, "B");
+      hist("L2_phi_effi_wrt_RecMET")->Divide(Recmet_phi_num, Recmet_phi_denom, 1.0, 1.0, "B");
     }
 
     for(it = m_ef_met_signatures_tolook->begin(); it != m_ef_met_signatures_tolook->end(); it++) {
       setDir(std::string("Detail/")+it_s->first+std::string("/")+it->first);
-      m_Recmet_et_num = hist("Recmet_et");
-      m_Recmet_phi_num = hist("Recmet_phi");
-      m_Recmet_et_num->Sumw2();
-      m_Recmet_phi_num->Sumw2();
-      hist("EF_et_effi_wrt_RecMET")->Divide(m_Recmet_et_num, m_Recmet_et_denom, 1.0, 1.0, "B");
-      hist("EF_phi_effi_wrt_RecMET")->Divide(m_Recmet_phi_num, m_Recmet_phi_denom, 1.0, 1.0, "B");
+      Recmet_et_num = hist("Recmet_et");
+      Recmet_phi_num = hist("Recmet_phi");
+      Recmet_et_num->Sumw2();
+      Recmet_phi_num->Sumw2();
+      hist("EF_et_effi_wrt_RecMET")->Divide(Recmet_et_num, Recmet_et_denom, 1.0, 1.0, "B");
+      hist("EF_phi_effi_wrt_RecMET")->Divide(Recmet_phi_num, Recmet_phi_denom, 1.0, 1.0, "B");
     }
   }
 
@@ -1028,7 +1027,7 @@ void TrigVsOfflineMissingETTool::getAllMetTriggers()
   for (iter = TrigL1Items.begin(); iter != TrigL1Items.end(); ++iter) {
     std::string L1name = *iter;
     std::string tmp_trigType = L1name.substr(0,5);
-    msg() << MSG::INFO  << "Trigger Item " << L1name  << " defined " << endreq;
+    msg() << MSG::INFO  << "Trigger Item " << L1name  << " defined " << endmsg;
     // store L1 MET trigger item names
     if (tmp_trigType=="L1_TE" || tmp_trigType=="L1_XE")
       m_all_l1_met_triggers.insert(std::map<std::string,int>::value_type(L1name,0));
@@ -1042,7 +1041,7 @@ void TrigVsOfflineMissingETTool::getAllMetTriggers()
     float prescale = m_trigDec->getPrescale(*chain);
     // store HLT MET trigger item names divided in L2 and EF
     std::string tmp_trigType =  HLTname.substr(0,5);
-    msg() << MSG::INFO  << "Trigger Item " << HLTname  << " defined with prescale " << prescale << " , " << tmp_trigType<< endreq;
+    msg() << MSG::INFO  << "Trigger Item " << HLTname  << " defined with prescale " << prescale << " , " << tmp_trigType<< endmsg;
     if (tmp_trigType=="L2_te" || tmp_trigType=="L2_xe") {
       m_all_l2_met_triggers.insert(std::map<std::string,int>::value_type(HLTname,0));
     } else if (tmp_trigType=="EF_te" || tmp_trigType=="EF_xe") {
@@ -1053,7 +1052,7 @@ void TrigVsOfflineMissingETTool::getAllMetTriggers()
 
 
 /*-----------------------------------------------------*/
-void TrigVsOfflineMissingETTool::checkTriggers(std::vector<std::string>& m_triggers,
+void TrigVsOfflineMissingETTool::checkTriggers(std::vector<std::string>& triggers,
     bool isInputMetTriggers)
 /*-----------------------------------------------------*/
 {
@@ -1063,11 +1062,11 @@ void TrigVsOfflineMissingETTool::checkTriggers(std::vector<std::string>& m_trigg
   const std::vector<std::string> TrigHLTItems = m_trigDec->getListOfTriggers("L2_.*|EF_.*");
   std::vector<std::string>::const_iterator chain;
 
-  for(unsigned int it = 0; it < m_triggers.size(); ++it) { // Loop over trigger items
-    std::string item = m_triggers[it];
+  for(unsigned int it = 0; it < triggers.size(); ++it) { // Loop over trigger items
+    std::string item = triggers[it];
     std::string tmp_trigLevel =  item.substr(0,3);
     if(m_debuglevel)
-      msg() << MSG::DEBUG  << "signature " << item << " requested" << endreq;
+      msg() << MSG::DEBUG  << "signature " << item << " requested" << endmsg;
     // check your trigger is defined in the menu
     bool triggerFound = false;
     if (tmp_trigLevel == "L1_") {
@@ -1080,7 +1079,7 @@ void TrigVsOfflineMissingETTool::checkTriggers(std::vector<std::string>& m_trigg
         }
       }
       if (!triggerFound) {
-        msg() << MSG::DEBUG  << "L1 signature " << item << " requested but not found in the menu" << endreq;
+        msg() << MSG::DEBUG  << "L1 signature " << item << " requested but not found in the menu" << endmsg;
       }
     } 
     else if (tmp_trigLevel == "L2_" || tmp_trigLevel == "EF_") {
@@ -1099,7 +1098,7 @@ void TrigVsOfflineMissingETTool::checkTriggers(std::vector<std::string>& m_trigg
         }
       }
       if (!triggerFound)
-        msg() << MSG::DEBUG << "HLT signature " << item << " requested but not found in the menu" << endreq;
+        msg() << MSG::DEBUG << "HLT signature " << item << " requested but not found in the menu" << endmsg;
     }
     if(triggerFound && !isInputMetTriggers)
       m_sample_selection_signatures.insert(std::map<std::string,int>::value_type(item,0));
@@ -1112,21 +1111,21 @@ void TrigVsOfflineMissingETTool::printMetTriggerStats()
   /*-----------------------------------------------------*/
 {
   // L1
-  msg() << MSG::INFO  << "Level-1 Met Triggers to look: " << m_l1_met_signatures_tolook->size() << endreq;
+  msg() << MSG::INFO  << "Level-1 Met Triggers to look: " << m_l1_met_signatures_tolook->size() << endmsg;
   std::map<std::string,int>::iterator iter;
   for (iter = m_l1_met_signatures_tolook->begin(); iter!= m_l1_met_signatures_tolook->end(); ++iter) {
-    msg() << MSG::INFO  << "Events passing " << iter->first << ": " << iter->second << endreq;
+    msg() << MSG::INFO  << "Events passing " << iter->first << ": " << iter->second << endmsg;
   }
 
   // L2
-  msg() << MSG::INFO  << "Level-2 Met Triggers to look: " << m_l2_met_signatures_tolook->size()<<endreq;
+  msg() << MSG::INFO  << "Level-2 Met Triggers to look: " << m_l2_met_signatures_tolook->size()<<endmsg;
   for (iter = m_l2_met_signatures_tolook->begin(); iter != m_l2_met_signatures_tolook->end(); ++iter) {
-    msg() << MSG::INFO  << "Events passing " << iter->first << ": " << iter->second << endreq;
+    msg() << MSG::INFO  << "Events passing " << iter->first << ": " << iter->second << endmsg;
   }
 
   // EF
-  msg() << MSG::INFO  << "EF Met Triggers to look: "  << m_ef_met_signatures_tolook->size() << endreq;
+  msg() << MSG::INFO  << "EF Met Triggers to look: "  << m_ef_met_signatures_tolook->size() << endmsg;
   for (iter = m_ef_met_signatures_tolook->begin(); iter != m_ef_met_signatures_tolook->end(); ++iter) {
-    msg() << MSG::INFO  << "Events passing " << iter->first << ": " << iter->second << endreq;
+    msg() << MSG::INFO  << "Events passing " << iter->first << ": " << iter->second << endmsg;
   }
 }
