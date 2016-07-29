@@ -29,17 +29,17 @@ int main() {
   atest.addObject("o1", TrigFeatureLink(6421, 0, 0)); 
   atest.addObject("o2", TrigFeatureLink(456578, 0, 0)); 
   if ( atest.getObjectsByType<ATest>().size() == 1 ) {
-    log << MSG::INFO  << "By type Feature Links access works"  <<  endreq;
+    log << MSG::INFO  << "By type Feature Links access works"  <<  endmsg;
   } else {
-    log << MSG::WARNING << "By type Feature access does not work" << endreq;
+    log << MSG::WARNING << "By type Feature access does not work" << endmsg;
   }
 
 
   try {
     atest.setDetail("bla", 45);
-    log << MSG::WARNING << "The exception is not thrown when setting inexisting detail" << endreq;
+    log << MSG::WARNING << "The exception is not thrown when setting inexisting detail" << endmsg;
   } catch ( const std::invalid_argument& exc ) {
-    log << MSG::INFO  << "correctly the exception is thrown"  << exc.what() << endreq;
+    log << MSG::INFO  << "correctly the exception is thrown"  << exc.what() << endmsg;
   }
 
 
@@ -51,15 +51,15 @@ int main() {
   btest.setFormat<int>(intnames, true);
   btest.lockFormat();
   if ( btest.isValid() )
-    log << MSG::WARNING << "b object validity is true while shoudl be fale " << btest.isValid() << endreq;
+    log << MSG::WARNING << "b object validity is true while shoudl be fale " << btest.isValid() << endmsg;
   else
-    log << MSG::INFO << "b object validity is rightly false " << btest.isValid() << endreq;
+    log << MSG::INFO << "b object validity is rightly false " << btest.isValid() << endmsg;
   
   try {
     btest.addDetail("ibla", 14);
-    log << MSG::WARNING << "The exception is not thrown when adding the detail to the fixed format" << endreq;
+    log << MSG::WARNING << "The exception is not thrown when adding the detail to the fixed format" << endmsg;
   } catch ( const std::invalid_argument& exc ) {
-    log << MSG::INFO  << "correctly the exception is thrown" << exc.what() << endreq;
+    log << MSG::INFO  << "correctly the exception is thrown" << exc.what() << endmsg;
   }
 
 
@@ -67,7 +67,7 @@ int main() {
 
 
   
-  log << atest << endreq;
+  log << atest << endmsg;
   
   
   
