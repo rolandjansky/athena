@@ -6,10 +6,7 @@
                         TrkV0VertexFitter.cxx  -  Description
  ***************************************************************************/
 #include "TrkV0Fitter/TrkV0VertexFitter.h"
-#include "VxVertex/RecVertex.h"
 #include "VxVertex/VxTrackAtVertex.h"
-#include "VxVertex/VxCandidate.h"
-#include "VxVertex/ExtendedVxCandidate.h"
 #include "GaudiKernel/ToolFactory.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkSurfaces/CylinderSurface.h"
@@ -22,7 +19,7 @@
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
-#include "TrkVxEdmCnv/IVxCandidateXAODVertex.h" 
+//#include "TrkVxEdmCnv/IVxCandidateXAODVertex.h" 
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h" 
 
@@ -70,237 +67,66 @@ namespace Trk
   StatusCode TrkV0VertexFitter::initialize()
   {
     if ( m_extrapolator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
     }
 
   /* Get the magnetic field tool from ToolSvc */
     if ( m_magFieldSvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve service " << m_magFieldSvc << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve service " << m_magFieldSvc << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved service " << m_magFieldSvc << endreq;
+      msg(MSG::INFO) << "Retrieved service " << m_magFieldSvc << endmsg;
     }
 
-    msg(MSG::INFO) << "Initialize successful" << endreq;
+    msg(MSG::INFO) << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   StatusCode TrkV0VertexFitter::finalize()
   {
-    msg(MSG::INFO) << "Finalize successful" << endreq;
+    msg(MSG::INFO) << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
 
 
-  /** Interface for Track with starting point */
-  VxCandidate * TrkV0VertexFitter::fit(const std::vector<const Trk::Track*> & vectorTrk,
-                                       const Vertex& firstStartingPoint)
+  /** Interface for Trk::Track with Amg::Vector3D starting point */
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::Track*> & vectorTrk,
+                                        const Amg::Vector3D& firstStartingPoint)
   {
     std::vector<double> masses;
-    double constraintMass = - 9999.;
-    Trk::RecVertex * pointingVertex = 0;
+    double constraintMass = -9999.;
+    xAOD::Vertex * pointingVertex = 0;
     return fit(vectorTrk, masses, constraintMass, pointingVertex, firstStartingPoint );
   }
 
-  /** Interface for Track with RecVertex starting point */
-  VxCandidate * TrkV0VertexFitter::fit(const std::vector<const Trk::Track*> & vectorTrk,
-                                       const RecVertex& firstStartingPoint)
+  /** Interface for Trk::Track with xAOD::Vertex starting point */
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::Track*> & vectorTrk,
+                                        const xAOD::Vertex& firstStartingPoint)
   {
     std::vector<double> masses;
-    double constraintMass = - 9999.;
-    Trk::RecVertex * pointingVertex = 0;
-    return fit(vectorTrk, masses, constraintMass, pointingVertex, firstStartingPoint );
+    double constraintMass = -9999.;
+    xAOD::Vertex * pointingVertex = 0;
+    const Amg::Vector3D startingPoint = firstStartingPoint.position();
+    return fit(vectorTrk, masses, constraintMass, pointingVertex, startingPoint );
   }
 
-  /** Interface for TrackParticleBase with starting point */
-  VxCandidate * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
-                                       const Vertex& firstStartingPoint)
+  /** Interface for Trk::Track with no starting point. (0,0,0) will be assumed */
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::Track*>& vectorTrk)
   {
-    std::vector<double> masses;
-    double constraintMass = - 9999.;
-    Trk::RecVertex * pointingVertex = 0;
-    return fit(vectorTrk, masses, constraintMass, pointingVertex, firstStartingPoint );
-  }
-
-  /** Interface for TrackParticleBase with RecVertex starting point */
-  VxCandidate * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
-                                       const RecVertex& firstStartingPoint)
-  {
-    std::vector<double> masses;
-    double constraintMass = - 9999.;
-    Trk::RecVertex * pointingVertex = 0;
-    return fit(vectorTrk, masses, constraintMass, pointingVertex, firstStartingPoint );
-  }
-
-  /** Interface for ParametersBase with starting point */
-  VxCandidate * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParameters*> & originalPerigees,
-                                       const Vertex& firstStartingPoint)
-  {
-    std::vector<double> masses;
-    double constraintMass = - 9999.;
-    Trk::RecVertex * pointingVertex = 0;
-    return fit(originalPerigees, masses, constraintMass, pointingVertex, firstStartingPoint);
-  }
-
-  /** Interface for ParametersBase with RecVertex starting point */
-  VxCandidate * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParameters*> & originalPerigees,
-                                       const RecVertex& firstStartingPoint)
-  {
-    std::vector<double> masses;
-    double constraintMass = - 9999.;
-    Trk::RecVertex * pointingVertex = 0;
-    return fit(originalPerigees, masses, constraintMass, pointingVertex, firstStartingPoint);
-  }	      
-
-  /** Interfaces with no starting point. (0,0,0) will be assumed */
-  VxCandidate * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParameters*>& perigeeList)
-  {
-    Vertex tmpVtx;
-    return fit(perigeeList, tmpVtx);
-  }
-
-  VxCandidate * TrkV0VertexFitter::fit(const std::vector<const Trk::Track*>& vectorTrk)
-  {
-    Vertex tmpVtx;
+    Amg::Vector3D tmpVtx;
     return fit(vectorTrk, tmpVtx);
   }
 
-  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
-                                        const Vertex& firstStartingPoint)
-  {
-    std::vector<double> masses;
-    double constraintMass = - 9999.;
-    Trk::RecVertex * pointingVertex = 0;
-    return fit(vectorTrk, masses, constraintMass, pointingVertex, firstStartingPoint);
-  }
-
-  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
-                                        const RecVertex& firstStartingPoint)
-  {
-    std::vector<double> masses;
-    double constraintMass = - 9999.;
-    Trk::RecVertex * pointingVertex = 0;
-    return fit(vectorTrk, masses, constraintMass, pointingVertex, firstStartingPoint);
-
-  }
-
-  VxCandidate * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParticleBase*>& vectorTrk)
-  {
-    Vertex tmpVtx;
-    return fit(vectorTrk, tmpVtx);
-  }
-  
-  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const xAOD::TrackParticle*> & vectorTrk,
-					const std::vector<double> masses,
-					const double& constraintMass,
-					const Trk::RecVertex* pointingVertex,
-					const Trk::Vertex& firstStartingPoint)
-  {
-    std::vector<const Trk::TrackParameters*> measuredPerigees;
-    std::vector<const Trk::TrackParameters*> measuredPerigees_delete;
-    for (const xAOD::TrackParticle* p : vectorTrk)
-    {
-      if (m_firstMeas) {
-        unsigned int indexFMP;
-        if (p->indexOfParameterAtPosition(indexFMP, xAOD::FirstMeasurement)) {
-          measuredPerigees.push_back(new CurvilinearParameters(p->curvilinearParameters(indexFMP)));
-          msg(MSG::DEBUG) << "first measurement on track exists" << endreq;
-          msg(MSG::DEBUG) << "first measurement " << p->curvilinearParameters(indexFMP) << endreq;
-          msg(MSG::DEBUG) << "first measurement covariance " << *(p->curvilinearParameters(indexFMP)).covariance() << endreq;
-        } else {
-          Amg::Transform3D * CylTrf = new Amg::Transform3D;
-          CylTrf->setIdentity();
-          Trk::CylinderSurface estimationCylinder(CylTrf, p->radiusOfFirstHit(), 10e10);
-          const Trk::TrackParameters* chargeParameters = &p->perigeeParameters();
-          MaterialUpdateMode mode = Trk::removeNoise;
-          const Trk::TrackParameters* extrapolatedPerigee(0);
-          extrapolatedPerigee = m_extrapolator->extrapolate(*chargeParameters, estimationCylinder, Trk::alongMomentum, true, Trk::pion, mode);
-          if (extrapolatedPerigee!=0) {
-            msg(MSG::DEBUG) << "extrapolated to first measurement" << endreq;
-            measuredPerigees.push_back (extrapolatedPerigee);
-            measuredPerigees_delete.push_back (extrapolatedPerigee);
-          } else {
-            extrapolatedPerigee = m_extrapolator->extrapolateDirectly(*chargeParameters, estimationCylinder, Trk::alongMomentum, true, Trk::pion);
-            if (extrapolatedPerigee!=0) {
-              msg(MSG::DEBUG) << "extrapolated (direct) to first measurement" << endreq;
-              measuredPerigees.push_back (extrapolatedPerigee);
-              measuredPerigees_delete.push_back (extrapolatedPerigee);
-            } else {
-              msg(MSG::DEBUG) << "Failed to extrapolate to the first measurement on track, using Perigee parameters" << endreq;
-              measuredPerigees.push_back (&p->perigeeParameters());
-              //delete extrapolatedPerigee;
-            }
-          }
-        }
-      } else {
-        measuredPerigees.push_back (&p->perigeeParameters());
-      }
-    }
-
-    Trk::VxCandidate* fitVxCandidate = fit(measuredPerigees, masses, constraintMass, pointingVertex, firstStartingPoint);
-    
-    if (fitVxCandidate == 0) return 0;
-    const Trk::ExtendedVxCandidate* vxCandidate = dynamic_cast<const Trk::ExtendedVxCandidate*>(fitVxCandidate);
-    if (vxCandidate == 0) return 0;
-    const Trk::RecVertex& rv = vxCandidate->recVertex();
-
-    xAOD::Vertex* vx = new xAOD::Vertex;
-    vx->makePrivateStore();
-    vx->setPosition (rv.position());
-    vx->setCovariancePosition (rv.covariancePosition());
-    vx->setFitQuality(rv.fitQuality().chiSquared(),
-                      static_cast<float>(rv.fitQuality().doubleNumberDoF ())); 
-    //vx->setVertexType((xAOD::VxType::VertexType)vxCandidate->vertexType());
-    vx->setVertexType(xAOD::VxType::V0Vtx);
-    
-    // assign the used tracks to the V0Candidate
-    for (const xAOD::TrackParticle* p : vectorTrk)
-    {
-      ElementLink<xAOD::TrackParticleContainer> el;
-      el.setElement(p);
-      vx->addTrackAtVertex (el);
-    }
-
-    std::vector<VxTrackAtVertex> & tmpVTAV = vx->vxTrackAtVertex(); tmpVTAV.clear();
-    unsigned int VTAVsize = vxCandidate->vxTrackAtVertex()->size();
-    for (unsigned int i = 0 ; i < VTAVsize ; ++i)
-    {
-      const Trk::VxTrackAtVertex* VTAV = vxCandidate->vxTrackAtVertex()->at(i);
-      tmpVTAV.push_back( *VTAV );
-    }
-
-    std::vector<float> floatErrMtx;
-    int DIM = 0;
-    if (vxCandidate->fullCovariance()) DIM = (*(vxCandidate->fullCovariance())).innerSize();
-    floatErrMtx.resize(DIM*(DIM+1)/2);
-    int ipnt = 0;
-    for (int i=0;i<DIM;i++)
-    {
-      for (int j=0;j<=i;j++)
-      {
-        floatErrMtx[ipnt++]=(*(vxCandidate->fullCovariance()))(i,j);
-      }
-    }
-    vx->setCovariance(floatErrMtx);
-
-    for (auto ptr : measuredPerigees_delete){ delete ptr; }
-    delete vxCandidate;
-
-    return vx;
-  }
-  
-
-
-  /** Interfaces with mass and pointing constraints */
-  VxCandidate * TrkV0VertexFitter::fit(const std::vector<const Trk::Track*>& vectorTrk, 
-                      const std::vector<double> masses,
-		      const double& constraintMass,
-		      const Trk::RecVertex* pointingVertex,
-		      const Trk::Vertex& firstStartingPoint)
+  /** Interface for Trk::Track with mass and pointing constraints */
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::Track*>& vectorTrk, 
+                                        const std::vector<double> masses,
+                                        const double& constraintMass,
+                                        const xAOD::Vertex* pointingVertex,
+                                        const Amg::Vector3D& firstStartingPoint)
   {
     // push_back measured perigees at first measurements into vector<const Trk::ParametersBase*>
     std::vector<const Trk::TrackParameters*> measuredPerigees;
@@ -327,29 +153,59 @@ namespace Trk
           ntp++;
         }
         measuredPerigees.push_back(firstTrkPar);
-        //measuredPerigees.push_back((*trItr)->perigeeParameters());
       }
     }
 
-    Trk::VxCandidate* fittedVxCandidate = fit(measuredPerigees, masses, constraintMass, pointingVertex, firstStartingPoint);
+    xAOD::Vertex * fittedVxCandidate = fit(measuredPerigees, masses, constraintMass, pointingVertex, firstStartingPoint);
+    if ( fittedVxCandidate == 0 ) return fittedVxCandidate;
 
-    if (fittedVxCandidate == 0) return fittedVxCandidate;
-
-    // assign the used tracks to the VxCandidate
+    // assign the used tracks to the VxCandidate // needs fixing!
     for (unsigned int k = 0 ; k < vectorTrk.size() ; ++k)
     {
-        LinkToTrack* link = new LinkToTrack;
-        link->setElement(vectorTrk[k]);
-        (*(fittedVxCandidate->vxTrackAtVertex()))[k]->setOrigTrack(link);
+      LinkToTrack* link = new LinkToTrack;
+      link->setElement(vectorTrk[k]);
+      (fittedVxCandidate->vxTrackAtVertex())[k].setOrigTrack(link);
     }
+
     return fittedVxCandidate;
   }
 
-  VxCandidate * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
-                      const std::vector<double> masses,
-		      const double& constraintMass,
-		      const Trk::RecVertex* pointingVertex,
-		      const Trk::Vertex& firstStartingPoint)
+
+
+  /** Interface for Trk::TrackParticleBase with Amg::Vector3D starting point */
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
+                                        const Amg::Vector3D& firstStartingPoint)
+  {
+    std::vector<double> masses;
+    double constraintMass = -9999.;
+    xAOD::Vertex * pointingVertex = 0;
+    return fit(vectorTrk, masses, constraintMass, pointingVertex, firstStartingPoint );
+  }
+
+  /** Interface for Trk::TrackParticleBase with xAOD::Vertex starting point */
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
+                                        const xAOD::Vertex& firstStartingPoint)
+  {
+    std::vector<double> masses;
+    double constraintMass = -9999.;
+    xAOD::Vertex * pointingVertex = 0;
+    const Amg::Vector3D startingPoint = firstStartingPoint.position();
+    return fit(vectorTrk, masses, constraintMass, pointingVertex, startingPoint );
+  }
+
+  /** Interface for Trk::TrackParticleBase with no starting point. (0,0,0) will be assumed */
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParticleBase*>& vectorTrk)
+  {
+    Amg::Vector3D tmpVtx;
+    return fit(vectorTrk, tmpVtx);
+  }
+
+  /** Interface for Trk::TrackParticleBase with mass and pointing constraints */
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
+                                        const std::vector<double> masses,
+                                        const double& constraintMass,
+                                        const xAOD::Vertex* pointingVertex,
+                                        const Amg::Vector3D& firstStartingPoint)
   {
     // push_back measured perigees at first measurements into vector<const Trk::ParametersBase*>
     std::vector<const Trk::TrackParameters*> measuredPerigees;
@@ -367,25 +223,149 @@ namespace Trk
       //measuredPerigees.push_back(&((*trItr)->definingParameters()));
     }
 
-    Trk::VxCandidate* fittedVxCandidate = fit(measuredPerigees, masses, constraintMass, pointingVertex, firstStartingPoint);
+    xAOD::Vertex* fittedVxCandidate = fit(measuredPerigees, masses, constraintMass, pointingVertex, firstStartingPoint);
+    if ( fittedVxCandidate == 0 ) return fittedVxCandidate;
 
-    if (fittedVxCandidate == 0) return fittedVxCandidate;
-
-    // assign the used tracks to the V0Candidate
+    // assign the used tracks to the V0Candidate // needs fixing!
     for (unsigned int k = 0 ; k < vectorTrk.size() ; ++k)
     {
-        LinkToTrackParticleBase* link = new LinkToTrackParticleBase;
-        link->setElement(vectorTrk[k]);
-        (*(fittedVxCandidate->vxTrackAtVertex()))[k]->setOrigTrack(link);
+      LinkToTrackParticleBase* link = new LinkToTrackParticleBase;
+      link->setElement(vectorTrk[k]);
+      (fittedVxCandidate->vxTrackAtVertex())[k].setOrigTrack(link);
     }
+
     return fittedVxCandidate;
   }
 
-  VxCandidate * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParameters*>& originalPerigees,
-                      const std::vector<double> masses,
-		      const double& constraintMass,
-		      const Trk::RecVertex* pointingVertex,
-		      const Trk::Vertex& firstStartingPoint)
+
+  /** Interface for xAOD::TrackParticle with Amg::Vector3D starting point */
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
+                                        const Amg::Vector3D& firstStartingPoint)
+  {
+    std::vector<double> masses;
+    double constraintMass = -9999.;
+    xAOD::Vertex * pointingVertex = 0;
+    return fit(vectorTrk, masses, constraintMass, pointingVertex, firstStartingPoint);
+  }
+
+  /** Interface for xAOD::TrackParticle with xAOD::Vertex starting point */
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
+                                        const xAOD::Vertex& firstStartingPoint)
+  {
+    std::vector<double> masses;
+    double constraintMass = -9999.;
+    xAOD::Vertex * pointingVertex = 0;
+    const Amg::Vector3D startingPoint = firstStartingPoint.position();
+    return fit(vectorTrk, masses, constraintMass, pointingVertex, startingPoint);
+  }
+
+  /** Interface for xAOD::TrackParticle with no starting point. (0,0,0) will be assumed */
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk)
+  {
+    Amg::Vector3D tmpVtx;
+    return fit(vectorTrk, tmpVtx);
+  }
+
+  /** Interface for xAOD::TrackParticle with mass and pointing constraints */
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const xAOD::TrackParticle*> & vectorTrk,
+                                        const std::vector<double> masses,
+                                        const double& constraintMass,
+                                        const xAOD::Vertex* pointingVertex,
+                                        const Amg::Vector3D& firstStartingPoint)
+  {
+    std::vector<const Trk::TrackParameters*> measuredPerigees;
+    std::vector<const Trk::TrackParameters*> measuredPerigees_delete;
+    for (const xAOD::TrackParticle* p : vectorTrk)
+    {
+      if (m_firstMeas) {
+        unsigned int indexFMP;
+        if (p->indexOfParameterAtPosition(indexFMP, xAOD::FirstMeasurement)) {
+          measuredPerigees.push_back(new CurvilinearParameters(p->curvilinearParameters(indexFMP)));
+          msg(MSG::DEBUG) << "first measurement on track exists" << endmsg;
+          msg(MSG::DEBUG) << "first measurement " << p->curvilinearParameters(indexFMP) << endmsg;
+          msg(MSG::DEBUG) << "first measurement covariance " << *(p->curvilinearParameters(indexFMP)).covariance() << endmsg;
+        } else {
+          Amg::Transform3D * CylTrf = new Amg::Transform3D;
+          CylTrf->setIdentity();
+          Trk::CylinderSurface estimationCylinder(CylTrf, p->radiusOfFirstHit(), 10e10);
+          const Trk::TrackParameters* chargeParameters = &p->perigeeParameters();
+          MaterialUpdateMode mode = Trk::removeNoise;
+          const Trk::TrackParameters* extrapolatedPerigee(0);
+          extrapolatedPerigee = m_extrapolator->extrapolate(*chargeParameters, estimationCylinder, Trk::alongMomentum, true, Trk::pion, mode);
+          if (extrapolatedPerigee!=0) {
+            msg(MSG::DEBUG) << "extrapolated to first measurement" << endmsg;
+            measuredPerigees.push_back (extrapolatedPerigee);
+            measuredPerigees_delete.push_back (extrapolatedPerigee);
+          } else {
+            extrapolatedPerigee = m_extrapolator->extrapolateDirectly(*chargeParameters, estimationCylinder, Trk::alongMomentum, true, Trk::pion);
+            if (extrapolatedPerigee!=0) {
+              msg(MSG::DEBUG) << "extrapolated (direct) to first measurement" << endmsg;
+              measuredPerigees.push_back (extrapolatedPerigee);
+              measuredPerigees_delete.push_back (extrapolatedPerigee);
+            } else {
+              msg(MSG::DEBUG) << "Failed to extrapolate to the first measurement on track, using Perigee parameters" << endmsg;
+              measuredPerigees.push_back (&p->perigeeParameters());
+            }
+          }
+        }
+      } else {
+        measuredPerigees.push_back (&p->perigeeParameters());
+      }
+    }
+
+    xAOD::Vertex * fittedVxCandidate = fit(measuredPerigees, masses, constraintMass, pointingVertex, firstStartingPoint);
+    
+    // assign the used tracks to the V0Candidate
+    if (fittedVxCandidate) {
+      for (const xAOD::TrackParticle* p : vectorTrk)
+      {
+        ElementLink<xAOD::TrackParticleContainer> el;
+        el.setElement(p);
+        fittedVxCandidate->addTrackAtVertex (el);
+      }
+    }
+
+    for (auto ptr : measuredPerigees_delete){ delete ptr; }
+
+    return fittedVxCandidate;
+  }
+  
+
+
+  /** Interface for Trk::TrackParameters with Amg::Vector3D starting point */
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParameters*> & originalPerigees,
+                                        const Amg::Vector3D& firstStartingPoint)
+  {
+    std::vector<double> masses;
+    double constraintMass = -9999.;
+    xAOD::Vertex * pointingVertex = 0;
+    return fit(originalPerigees, masses, constraintMass, pointingVertex, firstStartingPoint);
+  }
+
+  /** Interface for Trk::TrackParameters with xAOD::Vertex starting point */
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParameters*> & originalPerigees,
+                                        const xAOD::Vertex& firstStartingPoint)
+  {
+    std::vector<double> masses;
+    double constraintMass = -9999.;
+    xAOD::Vertex * pointingVertex = 0;
+    const Amg::Vector3D startingPoint = firstStartingPoint.position();
+    return fit(originalPerigees, masses, constraintMass, pointingVertex, startingPoint);
+  }
+
+  /** Interface for Trk::TrackParameters with no starting point. (0,0,0) will be assumed */
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParameters*>& originalPerigees)
+  {
+    Amg::Vector3D tmpVtx;
+    return fit(originalPerigees, tmpVtx);
+  }
+
+  /** Interface for Trk::TrackParameters with mass and pointing constraints */
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParameters*>& originalPerigees,
+                                        const std::vector<double> masses,
+                                        const double& constraintMass,
+                                        const xAOD::Vertex* pointingVertex,
+                                        const Amg::Vector3D& firstStartingPoint)
   {
 
     if ( originalPerigees.empty() )
@@ -402,28 +382,23 @@ namespace Trk
     bool conversion = false;
     if(constraintMass == 0. && originalPerigees.size() == 2) conversion = true;
     double x_point=0., y_point=0., z_point=0.;
-    AmgSymMatrix(3) pointingVertexCov;
-     pointingVertexCov.setIdentity();
-    //if(pointingVertex != 0){
-    if (pointingVertex != 0 && pointingVertex->covariancePosition().trace() != 0.) {
-      pointingConstraint = true;
-      Amg::Vector3D pv = pointingVertex->position();
-      x_point = pv.x();
-      y_point = pv.y();
-      z_point = pv.z();
-      pointingVertexCov = pointingVertex->covariancePosition().inverse();
+    AmgSymMatrix(3) pointingVertexCov; pointingVertexCov.setIdentity();
+    if (pointingVertex != 0) {
+      if (pointingVertex->covariancePosition().trace() != 0.) {
+        pointingConstraint = true;
+        Amg::Vector3D pv = pointingVertex->position();
+        x_point = pv.x();
+        y_point = pv.y();
+        z_point = pv.z();
+        pointingVertexCov = pointingVertex->covariancePosition().inverse();
+      }
     }
 
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "massConstraint " << massConstraint << " pointingConstraint " << pointingConstraint << " conversion " << conversion << endreq;
-      msg(MSG::DEBUG) << "V0Fitter called with: " << endreq;
-      if(massConstraint && masses.size() != 0) {
-        msg(MSG::DEBUG) << "mass constraint, V0Mass = " << constraintMass << " particle masses " << masses << endreq;
-      }
-      if (pointingVertex != 0 && pointingVertex->covariancePosition().trace() != 0.) {
-        msg(MSG::DEBUG) << "pointing constraint, x = " << x_point << " y = " << y_point << " z = " << z_point << endreq;
-        msg(MSG::DEBUG) << "pointingVertex: " << *pointingVertex << endreq;
-      }
+      msg(MSG::DEBUG) << "massConstraint " << massConstraint << " pointingConstraint " << pointingConstraint << " conversion " << conversion << endmsg;
+      msg(MSG::DEBUG) << "V0Fitter called with: " << endmsg;
+      if (massConstraint && masses.size() != 0) msg(MSG::DEBUG) << "mass constraint, V0Mass = " << constraintMass << " particle masses " << masses << endmsg;
+      if (pointingConstraint) msg(MSG::DEBUG) << "pointing constraint, x = " << x_point << " y = " << y_point << " z = " << z_point << endmsg;
     }
 
     m_iter = 0;
@@ -486,7 +461,7 @@ namespace Trk
     AmgSymMatrix(1) ChiItr_mat; ChiItr_mat.setZero();
     Amg::VectorX F_fac_vec(m_dim); F_fac_vec.setZero();
 
-    const Amg::Vector3D * globalPosition = &(firstStartingPoint.position());
+    const Amg::Vector3D * globalPosition = &(firstStartingPoint);
     ATH_MSG_DEBUG("globalPosition of starting point: " << globalPosition[0] << ", " << globalPosition[1] << ", " << globalPosition[2]);
     if (globalPosition->perp() > m_maxR && globalPosition->z() > m_maxZ) return 0;
 
@@ -553,8 +528,8 @@ namespace Trk
     double chi2New=0.; double chi2Old=chi2;
     double sumConstr=0.;
     bool onConstr = false;
-    Amg::Vector3D frameOrigin = firstStartingPoint.position();
-    Amg::Vector3D frameOriginItr = firstStartingPoint.position();
+    Amg::Vector3D frameOrigin = firstStartingPoint;
+    Amg::Vector3D frameOriginItr = firstStartingPoint;
     for (m_iter=0; m_iter < m_maxIterations; ++m_iter)
     {
       ATH_MSG_DEBUG("Iteration number: " << m_iter);
@@ -610,20 +585,18 @@ namespace Trk
 
       double SigE=0., SigPx=0., SigPy=0., SigPz=0., Px=0., Py=0., Pz=0.;
       Amg::VectorX rho(nTrk), Phi(nTrk), charge(nTrk);
-	rho.setZero(); Phi.setZero(); charge.setZero();
+        rho.setZero(); Phi.setZero(); charge.setZero();
       Amg::VectorX d0Cor(nTrk), d0Fac(nTrk), xcphiplusysphi(nTrk), xsphiminusycphi(nTrk);
-	d0Cor.setZero();  d0Fac.setZero(); xcphiplusysphi.setZero(); xsphiminusycphi.setZero();
+        d0Cor.setZero();  d0Fac.setZero(); xcphiplusysphi.setZero(); xsphiminusycphi.setZero();
       AmgVector(2) conv_sign;
-	 conv_sign[0] = -1; conv_sign[1] = 1;
+        conv_sign[0] = -1; conv_sign[1] = 1;
       for (unsigned int i=0; i<nTrk; ++i) 
       {
         charge[i] = (Y_vec(4+5*i) < 0.) ? -1. : 1.;
         rho[i] = sin(Y_vec(3+5*i))/(B_z*Y_vec(4+5*i));
-	xcphiplusysphi[i]  = A_vec(0)*cos(Y_vec(2+5*i))+A_vec(1)*sin(Y_vec(2+5*i));
+        xcphiplusysphi[i]  = A_vec(0)*cos(Y_vec(2+5*i))+A_vec(1)*sin(Y_vec(2+5*i));
         xsphiminusycphi[i] = A_vec(0)*sin(Y_vec(2+5*i))-A_vec(1)*cos(Y_vec(2+5*i));
-        if(fabs(-xcphiplusysphi[i]/rho[i]) > 1.) {
-          return 0;
-        }
+        if(fabs(-xcphiplusysphi[i]/rho[i]) > 1.) return 0;
         d0Cor[i] = 0.5*asin(-xcphiplusysphi[i]/rho[i]);
         double d0Facsq = 1. - xcphiplusysphi[i]*xcphiplusysphi[i]/(rho[i]*rho[i]);
         d0Fac[i] = (d0Facsq>0.) ? sqrt(d0Facsq) : 0;
@@ -644,27 +617,27 @@ namespace Trk
       double FPxy=0., dFPxydxs=0., dFPxydys=0., dFPxydzs=0., dFPxydxp=0., dFPxydyp=0., dFPxydzp=0.;
       double FPxz=0., dFPxzdxs=0., dFPxzdys=0., dFPxzdzs=0., dFPxzdxp=0., dFPxzdyp=0., dFPxzdzp=0.;
       Amg::VectorX Fxy(nTrk), Fxz(nTrk), dFMassdPhi(nTrk);
-	Fxy.setZero(); Fxz.setZero(); dFMassdPhi.setZero();
+        Fxy.setZero(); Fxz.setZero(); dFMassdPhi.setZero();
       Amg::VectorX drhodtheta(nTrk), drhodqOverP(nTrk), csplusbc(nTrk), ccminusbs(nTrk);
-      drhodtheta.setZero(); drhodqOverP.setZero(); csplusbc.setZero(); ccminusbs.setZero();
+        drhodtheta.setZero(); drhodqOverP.setZero(); csplusbc.setZero(); ccminusbs.setZero();
       Amg::VectorX dFxydd0(nTrk), dFxydz0(nTrk), dFxydphi(nTrk), dFxydtheta(nTrk), dFxydqOverP(nTrk);
-      dFxydd0.setZero(); dFxydz0.setZero(); dFxydphi.setZero(); dFxydtheta.setZero(); dFxydqOverP.setZero();
+        dFxydd0.setZero(); dFxydz0.setZero(); dFxydphi.setZero(); dFxydtheta.setZero(); dFxydqOverP.setZero();
       Amg::VectorX dFxydxs(nTrk), dFxydys(nTrk), dFxydzs(nTrk);
-      dFxydxs.setZero(); dFxydys.setZero(); dFxydzs.setZero();
+        dFxydxs.setZero(); dFxydys.setZero(); dFxydzs.setZero();
       Amg::VectorX dFxzdd0(nTrk), dFxzdz0(nTrk), dFxzdphi(nTrk), dFxzdtheta(nTrk), dFxzdqOverP(nTrk);
-      dFxzdd0.setZero(); dFxzdz0.setZero(); dFxzdphi.setZero(); dFxzdtheta.setZero(); dFxzdqOverP.setZero();
+        dFxzdd0.setZero(); dFxzdz0.setZero(); dFxzdphi.setZero(); dFxzdtheta.setZero(); dFxzdqOverP.setZero();
       Amg::VectorX dFxzdxs(nTrk), dFxzdys(nTrk), dFxzdzs(nTrk);
-      dFxzdxs.setZero(); dFxzdys.setZero(); dFxzdzs.setZero();
+        dFxzdxs.setZero(); dFxzdys.setZero(); dFxzdzs.setZero();
       Amg::VectorX dFMassdd0(nTrk), dFMassdz0(nTrk), dFMassdphi(nTrk), dFMassdtheta(nTrk), dFMassdqOverP(nTrk);
-      dFMassdd0.setZero(); dFMassdz0.setZero(); dFMassdphi.setZero(); dFMassdtheta.setZero(); dFMassdqOverP.setZero();
+        dFMassdd0.setZero(); dFMassdz0.setZero(); dFMassdphi.setZero(); dFMassdtheta.setZero(); dFMassdqOverP.setZero();
       Amg::VectorX dFPxydd0(nTrk), dFPxydz0(nTrk), dFPxydphi(nTrk), dFPxydtheta(nTrk), dFPxydqOverP(nTrk);
-      dFPxydd0.setZero(); dFPxydz0.setZero(); dFPxydphi.setZero(); dFPxydtheta.setZero(); dFPxydqOverP.setZero();
+        dFPxydd0.setZero(); dFPxydz0.setZero(); dFPxydphi.setZero(); dFPxydtheta.setZero(); dFPxydqOverP.setZero();
       Amg::VectorX dFPxzdd0(nTrk), dFPxzdz0(nTrk), dFPxzdphi(nTrk), dFPxzdtheta(nTrk), dFPxzdqOverP(nTrk);
-      dFPxzdd0.setZero(); dFPxzdz0.setZero(); dFPxzdphi.setZero(); dFPxzdtheta.setZero(); dFPxzdqOverP.setZero();
+        dFPxzdd0.setZero(); dFPxzdz0.setZero(); dFPxzdphi.setZero(); dFPxzdtheta.setZero(); dFPxzdqOverP.setZero();
       Amg::VectorX dPhidd0(nTrk), dPhidz0(nTrk), dPhidphi0(nTrk), dPhidtheta(nTrk), dPhidqOverP(nTrk);
-      dPhidd0.setZero(); dPhidz0.setZero(); dPhidphi0.setZero(); dPhidtheta.setZero(); dPhidqOverP.setZero();
+        dPhidd0.setZero(); dPhidz0.setZero(); dPhidphi0.setZero(); dPhidtheta.setZero(); dPhidqOverP.setZero();
       Amg::VectorX dPhidxs(nTrk), dPhidys(nTrk), dPhidzs(nTrk);
-      dPhidxs.setZero(); dPhidys.setZero(); dPhidzs.setZero();
+        dPhidxs.setZero(); dPhidys.setZero(); dPhidzs.setZero();
       //
       // constraint equations for V0vertex fitter
       //
@@ -912,8 +885,8 @@ namespace Trk
       frameOriginItr[1] += DeltaA_vec(1);
       frameOriginItr[2] += DeltaA_vec(2);
       if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << "New vertex, global coordinates: " << frameOriginItr.transpose() << endreq;
-        msg(MSG::DEBUG) << "chi2Old: " << chi2Old << " chi2New: " << chi2New << " fabs(chi2Old-chi2New): " << fabs(chi2Old-chi2New) << endreq;
+        msg(MSG::DEBUG) << "New vertex, global coordinates: " << frameOriginItr.transpose() << endmsg;
+        msg(MSG::DEBUG) << "chi2Old: " << chi2Old << " chi2New: " << chi2New << " fabs(chi2Old-chi2New): " << fabs(chi2Old-chi2New) << endmsg;
       }
 
       const Amg::Vector3D * globalPositionItr = &frameOriginItr;
@@ -1043,7 +1016,6 @@ namespace Trk
     V_mat.block(n_dim,n_dim,3,3) = C22_mat;
     V_mat.block(n_dim,0,3,n_dim) = C21_mat;
     V_mat.block(0,n_dim,n_dim,3) = C21_mat.transpose();
-    ATH_MSG_DEBUG("V_mat " << V_mat);
 
     // ===> loop over tracks
     std::vector<V0FitterTrack>::iterator BTIter;
@@ -1061,14 +1033,15 @@ namespace Trk
     }
 
     // Store the vertex 
-    Trk::ExtendedVxCandidate * fittedVxCandidate = 0;
-    RecVertex * fittedVertex; 
-    fittedVertex = new RecVertex( frameOrigin, C22_mat, ndf, chi2 );
-
-    std::vector<VxTrackAtVertex*> * tracksAtVertex;
-    tracksAtVertex = new std::vector<VxTrackAtVertex*>();
+    xAOD::Vertex* vx = new xAOD::Vertex;
+    vx->makePrivateStore();
+    vx->setPosition (frameOrigin);
+    vx->setCovariancePosition (C22_mat);
+    vx->setFitQuality(chi2,static_cast<float>(ndf));
+    vx->setVertexType(xAOD::VxType::V0Vtx);
 
     // Store the tracks at vertex 
+    std::vector<VxTrackAtVertex> & tracksAtVertex = vx->vxTrackAtVertex(); tracksAtVertex.clear();
     Amg::Vector3D Vertex(frameOrigin[0],frameOrigin[1],frameOrigin[2]);
     const Trk::PerigeeSurface Surface(Vertex);
     Trk::Perigee * refittedPerigee(0);
@@ -1085,26 +1058,23 @@ namespace Trk
         }
       }
       refittedPerigee = new Trk::Perigee (Y_vec(0+5*iterf),Y_vec(1+5*iterf),Y_vec(2+5*iterf),Y_vec(3+5*iterf),Y_vec(4+5*iterf), Surface, CovMtxP);
-      VxTrackAtVertex* trkV = new VxTrackAtVertex((*BTIterf).chi2, refittedPerigee, (*BTIterf).originalPerigee);
-      tracksAtVertex->push_back(trkV);
+      tracksAtVertex.emplace_back((*BTIterf).chi2, refittedPerigee, (*BTIterf).originalPerigee);
       iterf++;
     }
 
     // Full Covariance Matrix
-    Amg::MatrixX * newFullCovarianceMatrix = new Amg::MatrixX(nPar,nPar);
-    newFullCovarianceMatrix->setIdentity();
+    unsigned int sfcmv = nPar*(nPar+1)/2;
+    std::vector<float> floatErrMtx(sfcmv,0.);
+    unsigned int ipnt = 0;
     for (unsigned int i=0; i<nPar; ++i) {
       for (unsigned int j=0; j<i+1; ++j) {
-        double val = V_mat(i,j);
-        newFullCovarianceMatrix->fillSymmetric(i,j,val);
+        floatErrMtx[ipnt++]=V_mat(i,j);
       }
     }
-    fittedVxCandidate = new Trk::ExtendedVxCandidate(*fittedVertex, *tracksAtVertex, newFullCovarianceMatrix);
+    vx->setCovariance(floatErrMtx);
 
-    delete fittedVertex;
-    delete tracksAtVertex;
-    return fittedVxCandidate;
+    return vx;
   }
 
-            
-}//end of namespace definitions
+
+} //end of namespace definitions

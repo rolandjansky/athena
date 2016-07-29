@@ -20,17 +20,16 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParticleBase
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/VxVertex
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkVertexFitter/TrkVxEdmCnv )
+                          Tracking/TrkExtrapolation/TrkExInterfaces )
 
 # Component(s) in the package:
 atlas_add_library( TrkV0FitterLib
                    src/*.cxx
                    PUBLIC_HEADERS TrkV0Fitter
-                   LINK_LIBRARIES AthenaBaseComps xAODTracking GaudiKernel MagFieldInterfaces TrkParameters TrkVertexFitterInterfaces TrkVxEdmCnvLib
+                   LINK_LIBRARIES AthenaBaseComps xAODTracking GaudiKernel MagFieldInterfaces TrkParameters TrkVertexFitterInterfaces
                    PRIVATE_LINK_LIBRARIES TrkDetDescrUtils TrkSurfaces TrkLinks TrkParticleBase TrkTrack VxVertex TrkExInterfaces )
 
 atlas_add_component( TrkV0Fitter
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps xAODTracking GaudiKernel MagFieldInterfaces TrkParameters TrkVertexFitterInterfaces TrkDetDescrUtils TrkSurfaces TrkLinks TrkParticleBase TrkTrack VxVertex TrkExInterfaces TrkVxEdmCnvLib TrkV0FitterLib )
+                     LINK_LIBRARIES AthenaBaseComps xAODTracking GaudiKernel MagFieldInterfaces TrkParameters TrkVertexFitterInterfaces TrkDetDescrUtils TrkSurfaces TrkLinks TrkParticleBase TrkTrack VxVertex TrkExInterfaces TrkV0FitterLib )
 

@@ -19,7 +19,7 @@ use TrkSurfaces         TrkSurfaces-*        Tracking/TrkDetDescr
 use TrkDetDescrUtils    TrkDetDescrUtils-*   Tracking/TrkDetDescr
 use TrkExInterfaces     TrkExInterfaces-*    Tracking/TrkExtrapolation
 use TrkLinks            TrkLinks-*           Tracking/TrkEvent		
-use TrkVxEdmCnv         TrkVxEdmCnv-*        Tracking/TrkVertexFitter 
+#use TrkVxEdmCnv         TrkVxEdmCnv-*        Tracking/TrkVertexFitter 
 
 public
 use MagFieldInterfaces    MagFieldInterfaces-*   MagneticField
