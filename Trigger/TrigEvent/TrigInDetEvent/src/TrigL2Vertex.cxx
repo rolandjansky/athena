@@ -331,14 +331,14 @@ MsgStream& TrigVertexFitInputTrack::m_report( MsgStream& out ) const
 {
   int i;
 
-  out<<"Track "<<m_index<<" : mass="<<m_mass<<endreq;
+  out<<"Track "<<m_index<<" : mass="<<m_mass<<endmsg;
   for(i=0;i<2;i++)
     {
-      out<<"  u"<<i<<" = "<<m_u[i]<<"      "<<m_Vuu[i][0]<<"   "<<m_Vuu[i][1]<<endreq;
+      out<<"  u"<<i<<" = "<<m_u[i]<<"      "<<m_Vuu[i][0]<<"   "<<m_Vuu[i][1]<<endmsg;
     }
   for(i=0;i<3;i++)
     {
-      out<<"  q"<<i<<" = "<<m_q[i]<<"      "<<m_Vqq[i][0]<<"   "<<m_Vqq[i][1]<<"   "<<m_Vqq[i][2]<<endreq;
+      out<<"  q"<<i<<" = "<<m_q[i]<<"      "<<m_Vqq[i][0]<<"   "<<m_Vqq[i][1]<<"   "<<m_Vqq[i][2]<<endmsg;
     }
   return out;
 }
@@ -536,7 +536,7 @@ void TrigVertexFitConstraint::m_updateVertex(TrigL2Vertex* pV)
 
 MsgStream& TrigVertexFitConstraint::m_report( MsgStream& out) const
 {
-  out<<"Mass constraint with "<<m_trackList.size()<<" : mass="<<m_value<<endreq;
+  out<<"Mass constraint with "<<m_trackList.size()<<" : mass="<<m_value<<endmsg;
   return out;
 }
 
@@ -699,7 +699,7 @@ MsgStream& TrigL2Vertex::m_report( MsgStream& msg) const
     {
       msg<<m_Rk[i]<<"   ";
       for(j=0;j<nSize;j++) msg<<m_Gk[i][j]<<"  ";
-      msg<<endreq;
+      msg<<endmsg;
     }
   return msg;
 }
