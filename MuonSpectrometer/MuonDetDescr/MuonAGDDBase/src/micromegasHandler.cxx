@@ -31,6 +31,13 @@ void micromegasHandler::ElementHandle()
 	b->SetXYZ(vvv);
 	b->subType(sType);
 	b->tech=technology;
+
+	double xf=getAttributeAsDouble("xFrame",0.);
+	b->xFrame(xf);
+	double ysf=getAttributeAsDouble("ysFrame",0.);
+	b->ysFrame(ysf);
+	double ylf=getAttributeAsDouble("ylFrame",0.);
+	b->ylFrame(ylf);
 	
 //	std::string col=getAttributeAsString("color",ret);
 //	if (ret)

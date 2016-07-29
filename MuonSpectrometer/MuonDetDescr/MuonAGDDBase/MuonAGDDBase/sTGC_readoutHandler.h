@@ -4,15 +4,14 @@
 
 #ifndef sTGC_readoutHandler_H
 #define sTGC_readoutHandler_H
-
 #include "AGDDControl/XMLHandler.h"
+
 #include <string>
 
 class sTGC_readoutHandler:public XMLHandler {
-public:
+ public:
 	sTGC_readoutHandler(std::string);
 	void ElementHandle();
-
 };
 
 #endif
