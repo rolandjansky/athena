@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <boost/foreach.hpp>	
 #include "TrigCombinedEvent/TrigComposite.h"
+#include "CxxUtils/unused.h"
 
 
 using namespace std;
@@ -135,13 +136,15 @@ void TrigComposite::eraseDetail(const std::string& key) {
 template<typename T>
 std::map<std::string, T>& TrigComposite::detailsMap() {
   // this should never be needed, need to add compile error here
-  int z = sizeof(struct TrigComposite_does_not_support_that_type_as_a_detail);
+  int UNUSED(z) =
+    sizeof(struct TrigComposite_does_not_support_that_type_as_a_detail);
 }
 
 template<typename T>
 const std::map<std::string, T>& TrigComposite::detailsMap() const {
   // this should never be needed, need to add compile error here
-  int z = sizeof(struct TrigComposite_does_not_support_that_type_as_a_detail);
+  int UNUSED(z) =
+    sizeof(struct TrigComposite_does_not_support_that_type_as_a_detail);
 
 }
 
@@ -183,7 +186,7 @@ MsgStream& print(MsgStream& log, const TrigComposite& d, const std::string& deta
     BOOST_FOREACH( const key_value& kv, d.allDetails<T>()) {
       log << "(" << kv.first << ", " << kv.second << ")   ";
     }
-    log << endreq;
+    log << endmsg;
   }
   
   return log;
@@ -192,7 +195,7 @@ MsgStream& print(MsgStream& log, const TrigComposite& d, const std::string& deta
 
 
 MsgStream& operator<< ( MsgStream& log, const TrigComposite& d ) {
-  log << "TrigComposite object: " << d.name() << endreq;
+  log << "TrigComposite object: " << d.name() << endmsg;
   print<float> (log, d, "floats");
   print<int> (log, d, "ints");
   print<std::string> (log, d, "strings");
@@ -209,7 +212,7 @@ MsgStream& operator<< ( MsgStream& log, const TrigComposite& d ) {
     }
     
   } else {
-    log << "There are no objects assocuiated with this TrigComposite object" << endreq;
+    log << "There are no objects assocuiated with this TrigComposite object" << endmsg;
   }
 
 

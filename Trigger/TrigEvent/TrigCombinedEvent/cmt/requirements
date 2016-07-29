@@ -27,6 +27,7 @@ private
 use AtlasReflex         AtlasReflex-*        External -no_auto_imports
 use TrigSerializeUtils  TrigSerializeUtils-*    Trigger/TrigDataAccess
 use AthenaKernel 	AthenaKernel-*          Control
+use CxxUtils            CxxUtils-*           Control
 
 #use TrigSerializeCnvSvc TrigSerializeCnvSvc-*   Trigger/TrigDataAccess
 
