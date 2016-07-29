@@ -53,11 +53,11 @@ float &RingerRings::operator [](const unsigned int i) {
 }
 
 void RingerRings::print(MsgStream &log) const {
-  log << MSG::DEBUG << "Dumping RingerRings information for debugging. There are " << m_rings.size()  << " rings." << endreq;
+  log << MSG::DEBUG << "Dumping RingerRings information for debugging. There are " << m_rings.size()  << " rings." << endmsg;
   log << MSG::DEBUG << "Ringer values: ";
   for (std::vector<float>::const_iterator i = m_rings.begin(); i != m_rings.end(); ++i) {
     log << (*i) << "   ";
   }
-  log << endreq;
+  log << endmsg;
 }
 

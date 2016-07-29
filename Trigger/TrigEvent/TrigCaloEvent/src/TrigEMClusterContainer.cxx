@@ -36,7 +36,7 @@ TrigEMClusterContainer::print ( void ) const {
 void
 TrigEMClusterContainer::print ( MsgStream& log ) const {
 	log <<MSG::DEBUG<< "TrigEMClusterContainer with ";
-	log <<MSG::DEBUG<< size() << " TrigEMClusters" << endreq;
+	log <<MSG::DEBUG<< size() << " TrigEMClusters" << endmsg;
 	for ( TrigEMClusterContainer::const_iterator i = begin(); i!=end();i++)
 		(*i)->print(log);
 }

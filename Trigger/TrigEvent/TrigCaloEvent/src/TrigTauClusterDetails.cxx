@@ -102,11 +102,11 @@ TrigTauClusterDetails::print ( MsgStream& log ) const {
 	log <<MSG::DEBUG<< "m_EMenergyNarrow : ";
         for ( int i = 0 ; i < NUMEMSAMP ; i++ )
                 log <<MSG::DEBUG<< EMenergyNarrow(i) << "; ";
-	log << endreq;
+	log << endmsg;
 	log <<MSG::DEBUG<< "m_HADenergyNarrow : ";
         for ( int i = 0 ; i < NUMHADSAMP ; i++ )
                 log <<MSG::DEBUG<< HADenergyNarrow(i) << "; ";
-	log << endreq;
+	log << endmsg;
 }
 
 

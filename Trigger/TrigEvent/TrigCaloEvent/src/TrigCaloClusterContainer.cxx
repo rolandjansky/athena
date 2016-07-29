@@ -34,7 +34,7 @@ TrigCaloClusterContainer::print ( void ) const {
 void
 TrigCaloClusterContainer::print ( MsgStream& log ) const {
 	log <<MSG::DEBUG<< "TrigCaloClusterContainer with ";
-	log <<MSG::DEBUG<< size() << " TrigCaloClusters" << endreq;
+	log <<MSG::DEBUG<< size() << " TrigCaloClusters" << endmsg;
 	for ( TrigCaloClusterContainer::const_iterator i = begin(); i!=end();i++)
 		(*i)->print(log);
 }
