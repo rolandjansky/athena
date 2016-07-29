@@ -12,7 +12,9 @@ use DataModel            DataModel-*                    Control
 use GaudiInterface       GaudiInterface-*               External
 use StoreGate            StoreGate-*                    Control
 use ByteStreamData       ByteStreamData-*               Event
-
+private
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
+end_private
 
 branches src src/components run 
 
