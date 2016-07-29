@@ -56,156 +56,156 @@ protected:
 
   StatusCode zmumu(MissingETData *data, MissingETMuonData *muondata);
   void fillAllMETHistograms(MissingETData *data, Zboson &Z);
-  bool _doAllMETCalculations;
+  bool m_doAllMETCalculations;
 
   /** a handle on the Hist/TTree registration service */
   ITHistSvc * m_thistSvc;
 
   //storegate key names
-  std::string _selectedMuonKey;
+  std::string m_selectedMuonKey;
 
-  double Zboson_lower;
-  double Zboson_upper;
-  int Zboson_NSplits;
+  double m_Zboson_lower;
+  double m_Zboson_upper;
+  int m_Zboson_NSplits;
 
-  double DiLepton_lower;
-  double DiLepton_upper;
-  int DiLepton_NSplits;
+  double m_DiLepton_lower;
+  double m_DiLepton_upper;
+  int m_DiLepton_NSplits;
 
-  int Pt_Res_NBins;
-  double Pt_Res_lower;
-  double Pt_Res_upper;
-  double Pt_lower;
-  double Pt_upper;
-  int Pt_NSplits;
+  int m_Pt_Res_NBins;
+  double m_Pt_Res_lower;
+  double m_Pt_Res_upper;
+  double m_Pt_lower;
+  double m_Pt_upper;
+  int m_Pt_NSplits;
 
-  double HadActivity_lower;
-  double HadActivity_upper;
-  int HadActivity_NSplits;
+  double m_HadActivity_lower;
+  double m_HadActivity_upper;
+  int m_HadActivity_NSplits;
 
-  Fits Fit_Perp_Zboson;
-  Fits Fit_Par_Zboson;
-  Fits Fit_Pt_Zboson;
-  Fits Fit_ZPt_Zboson;
-  Fits Fit_Pt_Perp;
-  Fits Fit_Pt_Par;
-  Fits Fit_Pt;
+  Fits m_Fit_Perp_Zboson;
+  Fits m_Fit_Par_Zboson;
+  Fits m_Fit_Pt_Zboson;
+  Fits m_Fit_ZPt_Zboson;
+  Fits m_Fit_Pt_Perp;
+  Fits m_Fit_Pt_Par;
+  Fits m_Fit_Pt;
 
-  Fits Fit_Perp_DiLepton;
-  Fits Fit_Par_DiLepton;
-  Fits Fit_Res_DiLepton;
-  Fits Fit_AntiRes_DiLepton;
+  Fits m_Fit_Perp_DiLepton;
+  Fits m_Fit_Par_DiLepton;
+  Fits m_Fit_Res_DiLepton;
+  Fits m_Fit_AntiRes_DiLepton;
 
   //data
-  Fits Fit_Data_Perp_Zboson;
-  Fits Fit_Data_Par_Zboson;
-  Fits Fit_Data_Perp_HadActivity;
-  Fits Fit_Data_Par_HadActivity;
-  Fits Fit_Data_ZPt_Zboson;
+  Fits m_Fit_Data_Perp_Zboson;
+  Fits m_Fit_Data_Par_Zboson;
+  Fits m_Fit_Data_Perp_HadActivity;
+  Fits m_Fit_Data_Par_HadActivity;
+  Fits m_Fit_Data_ZPt_Zboson;
 
-  Fits Fit_Data_Perp_DiLepton;
-  Fits Fit_Data_Par_DiLepton;
-  Fits Fit_Data_Res_DiLepton;
-  Fits Fit_Data_AntiRes_DiLepton;
+  Fits m_Fit_Data_Perp_DiLepton;
+  Fits m_Fit_Data_Par_DiLepton;
+  Fits m_Fit_Data_Res_DiLepton;
+  Fits m_Fit_Data_AntiRes_DiLepton;
 
 
   //additional met calculations
-  Fits Final_Fit_Pt_Perp;
-  Fits Final_Fit_Pt_Par;
-  Fits Final_Fit_Pt;
+  Fits m_Final_Fit_Pt_Perp;
+  Fits m_Final_Fit_Pt_Par;
+  Fits m_Final_Fit_Pt;
 
-  Fits Final_Fit_Perp_Zboson;
-  Fits Final_Fit_Par_Zboson;
-  Fits Final_Fit_Pt_Zboson;
-  Fits Final_Fit_ZPt_Zboson;
+  Fits m_Final_Fit_Perp_Zboson;
+  Fits m_Final_Fit_Par_Zboson;
+  Fits m_Final_Fit_Pt_Zboson;
+  Fits m_Final_Fit_ZPt_Zboson;
 
-  Fits Final_Fit_Data_Perp_Zboson;
-  Fits Final_Fit_Data_Par_Zboson;
-  Fits Final_Fit_Data_Perp_HadActivity;
-  Fits Final_Fit_Data_Par_HadActivity;
-  Fits Final_Fit_Data_ZPt_Zboson;
-
-
-  Fits EmScale_Fit_Pt_Perp;
-  Fits EmScale_Fit_Pt_Par;
-  Fits EmScale_Fit_Pt;
-  Fits EmScale_Fit_Perp_Zboson;
-  Fits EmScale_Fit_Par_Zboson;
-  Fits EmScale_Fit_Pt_Zboson;
-  Fits EmScale_Fit_ZPt_Zboson;
+  Fits m_Final_Fit_Data_Perp_Zboson;
+  Fits m_Final_Fit_Data_Par_Zboson;
+  Fits m_Final_Fit_Data_Perp_HadActivity;
+  Fits m_Final_Fit_Data_Par_HadActivity;
+  Fits m_Final_Fit_Data_ZPt_Zboson;
 
 
-
-  Fits EmScale_Fit_Data_Perp_Zboson;
-  Fits EmScale_Fit_Data_Par_Zboson;
-  Fits EmScale_Fit_Data_Perp_HadActivity;
-  Fits EmScale_Fit_Data_Par_HadActivity;
-  Fits EmScale_Fit_Data_ZPt_Zboson;
-
-
-  Fits BaseGlobCalib_Fit_Pt_Perp;
-  Fits BaseGlobCalib_Fit_Pt_Par;
-  Fits BaseGlobCalib_Fit_Pt;
-  Fits BaseGlobCalib_Fit_Perp_Zboson;
-  Fits BaseGlobCalib_Fit_Par_Zboson;
-  Fits BaseGlobCalib_Fit_Pt_Zboson;
-  Fits BaseGlobCalib_Fit_ZPt_Zboson;
+  Fits m_EmScale_Fit_Pt_Perp;
+  Fits m_EmScale_Fit_Pt_Par;
+  Fits m_EmScale_Fit_Pt;
+  Fits m_EmScale_Fit_Perp_Zboson;
+  Fits m_EmScale_Fit_Par_Zboson;
+  Fits m_EmScale_Fit_Pt_Zboson;
+  Fits m_EmScale_Fit_ZPt_Zboson;
 
 
-  Fits BaseGlobCalib_Fit_Data_Perp_Zboson;
-  Fits BaseGlobCalib_Fit_Data_Par_Zboson;
-  Fits BaseGlobCalib_Fit_Data_Perp_HadActivity;
-  Fits BaseGlobCalib_Fit_Data_Par_HadActivity;
-  Fits BaseGlobCalib_Fit_Data_ZPt_Zboson;
+
+  Fits m_EmScale_Fit_Data_Perp_Zboson;
+  Fits m_EmScale_Fit_Data_Par_Zboson;
+  Fits m_EmScale_Fit_Data_Perp_HadActivity;
+  Fits m_EmScale_Fit_Data_Par_HadActivity;
+  Fits m_EmScale_Fit_Data_ZPt_Zboson;
 
 
-  Fits GlobCalib_Fit_Pt_Perp;
-  Fits GlobCalib_Fit_Pt_Par;
-  Fits GlobCalib_Fit_Pt;
-  Fits GlobCalib_Fit_Perp_Zboson;
-  Fits GlobCalib_Fit_Par_Zboson;
-  Fits GlobCalib_Fit_Pt_Zboson;
-  Fits GlobCalib_Fit_ZPt_Zboson;
-
-  Fits GlobCalib_Fit_Data_Perp_Zboson;
-  Fits GlobCalib_Fit_Data_Par_Zboson;
-  Fits GlobCalib_Fit_Data_Perp_HadActivity;
-  Fits GlobCalib_Fit_Data_Par_HadActivity;
-  Fits GlobCalib_Fit_Data_ZPt_Zboson;
-
-  Fits FinalLocHad_Fit_Pt_Perp;
-  Fits FinalLocHad_Fit_Pt_Par;
-  Fits FinalLocHad_Fit_Pt;
-  Fits FinalLocHad_Fit_Perp_Zboson;
-  Fits FinalLocHad_Fit_Par_Zboson;
-  Fits FinalLocHad_Fit_Pt_Zboson;
-  Fits FinalLocHad_Fit_ZPt_Zboson;
+  Fits m_BaseGlobCalib_Fit_Pt_Perp;
+  Fits m_BaseGlobCalib_Fit_Pt_Par;
+  Fits m_BaseGlobCalib_Fit_Pt;
+  Fits m_BaseGlobCalib_Fit_Perp_Zboson;
+  Fits m_BaseGlobCalib_Fit_Par_Zboson;
+  Fits m_BaseGlobCalib_Fit_Pt_Zboson;
+  Fits m_BaseGlobCalib_Fit_ZPt_Zboson;
 
 
-  Fits FinalLocHad_Fit_Data_Perp_Zboson;
-  Fits FinalLocHad_Fit_Data_Par_Zboson;
-  Fits FinalLocHad_Fit_Data_Perp_HadActivity;
-  Fits FinalLocHad_Fit_Data_Par_HadActivity;
-  Fits FinalLocHad_Fit_Data_ZPt_Zboson;
+  Fits m_BaseGlobCalib_Fit_Data_Perp_Zboson;
+  Fits m_BaseGlobCalib_Fit_Data_Par_Zboson;
+  Fits m_BaseGlobCalib_Fit_Data_Perp_HadActivity;
+  Fits m_BaseGlobCalib_Fit_Data_Par_HadActivity;
+  Fits m_BaseGlobCalib_Fit_Data_ZPt_Zboson;
 
 
-  Fits BaseEm_Fit_Pt_Perp;
-  Fits BaseEm_Fit_Pt_Par;
-  Fits BaseEm_Fit_Pt;
-  Fits BaseEm_Fit_Perp_Zboson;
-  Fits BaseEm_Fit_Par_Zboson;
-  Fits BaseEm_Fit_Pt_Zboson;
-  Fits BaseEm_Fit_ZPt_Zboson;
+  Fits m_GlobCalib_Fit_Pt_Perp;
+  Fits m_GlobCalib_Fit_Pt_Par;
+  Fits m_GlobCalib_Fit_Pt;
+  Fits m_GlobCalib_Fit_Perp_Zboson;
+  Fits m_GlobCalib_Fit_Par_Zboson;
+  Fits m_GlobCalib_Fit_Pt_Zboson;
+  Fits m_GlobCalib_Fit_ZPt_Zboson;
 
-  Fits BaseEm_Fit_Data_Perp_Zboson;
-  Fits BaseEm_Fit_Data_Par_Zboson;
-  Fits BaseEm_Fit_Data_Perp_HadActivity;
-  Fits BaseEm_Fit_Data_Par_HadActivity;
-  Fits BaseEm_Fit_Data_ZPt_Zboson;
+  Fits m_GlobCalib_Fit_Data_Perp_Zboson;
+  Fits m_GlobCalib_Fit_Data_Par_Zboson;
+  Fits m_GlobCalib_Fit_Data_Perp_HadActivity;
+  Fits m_GlobCalib_Fit_Data_Par_HadActivity;
+  Fits m_GlobCalib_Fit_Data_ZPt_Zboson;
+
+  Fits m_FinalLocHad_Fit_Pt_Perp;
+  Fits m_FinalLocHad_Fit_Pt_Par;
+  Fits m_FinalLocHad_Fit_Pt;
+  Fits m_FinalLocHad_Fit_Perp_Zboson;
+  Fits m_FinalLocHad_Fit_Par_Zboson;
+  Fits m_FinalLocHad_Fit_Pt_Zboson;
+  Fits m_FinalLocHad_Fit_ZPt_Zboson;
+
+
+  Fits m_FinalLocHad_Fit_Data_Perp_Zboson;
+  Fits m_FinalLocHad_Fit_Data_Par_Zboson;
+  Fits m_FinalLocHad_Fit_Data_Perp_HadActivity;
+  Fits m_FinalLocHad_Fit_Data_Par_HadActivity;
+  Fits m_FinalLocHad_Fit_Data_ZPt_Zboson;
+
+
+  Fits m_BaseEm_Fit_Pt_Perp;
+  Fits m_BaseEm_Fit_Pt_Par;
+  Fits m_BaseEm_Fit_Pt;
+  Fits m_BaseEm_Fit_Perp_Zboson;
+  Fits m_BaseEm_Fit_Par_Zboson;
+  Fits m_BaseEm_Fit_Pt_Zboson;
+  Fits m_BaseEm_Fit_ZPt_Zboson;
+
+  Fits m_BaseEm_Fit_Data_Perp_Zboson;
+  Fits m_BaseEm_Fit_Data_Par_Zboson;
+  Fits m_BaseEm_Fit_Data_Perp_HadActivity;
+  Fits m_BaseEm_Fit_Data_Par_HadActivity;
+  Fits m_BaseEm_Fit_Data_ZPt_Zboson;
 
 
   //histograms
-  TH1D *z_mass;
+  TH1D *m_z_mass;
 };
 
 #endif // ZMUMU_TOOL_H 

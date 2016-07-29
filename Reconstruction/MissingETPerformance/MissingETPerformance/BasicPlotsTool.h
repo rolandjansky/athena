@@ -85,18 +85,16 @@ protected:
   void fill_missingETCaloHists (MissingETCaloHists& h, const MissingEtCalo* m);
 
   
-  MsgStream *mLog;
-
   StatusCode basicPlots(MissingETData *data);
 
   /** a handle on the Hist/TTree registration service */
   ITHistSvc * m_thistSvc;
 
-  ToolHandle<JetVariablesTool> _jetVariables;
-  bool _plotJetVariables;
+  ToolHandle<JetVariablesTool> m_jetVariables;
+  bool m_plotJetVariables;
 
-  ToolHandle<TopoClusterVariablesTool> _clusterVariables;
-  bool _plotClusterVariables;
+  ToolHandle<TopoClusterVariablesTool> m_clusterVariables;
+  bool m_plotClusterVariables;
 
   std::string m_folderName;
   std::string m_evtInfoKey;
@@ -135,103 +133,103 @@ protected:
   float m_upMU;
 
   //histograms
-  TH2F *h_MET_Topo_METx_V_lbn;
-  TH2F *h_MET_Topo_METy_V_lbn;
-  TH2F *h_MET_RefFinal_METx_V_lbn;
-  TH2F *h_MET_RefFinal_METy_V_lbn;
+  TH2F *m_h_MET_Topo_METx_V_lbn;
+  TH2F *m_h_MET_Topo_METy_V_lbn;
+  TH2F *m_h_MET_RefFinal_METx_V_lbn;
+  TH2F *m_h_MET_RefFinal_METy_V_lbn;
 
-  TH1D *h_jetPtWeightedEventEMfraction;
-  TH1D *h_jetPtWeightedNumAssociatedTracks;
-  TH1D *h_jetPtWeightedSize;
+  TH1D *m_h_jetPtWeightedEventEMfraction;
+  TH1D *m_h_jetPtWeightedNumAssociatedTracks;
+  TH1D *m_h_jetPtWeightedSize;
 
-  TH1D *h_RefFinal_simple_Significance;
-  TH2D *h_RefFinal_simple_Significance_v_leadJetEta;
-  TH2D *h_RefFinal_simple_Significance_v_secondJetEta;
+  TH1D *m_h_RefFinal_simple_Significance;
+  TH2D *m_h_RefFinal_simple_Significance_v_leadJetEta;
+  TH2D *m_h_RefFinal_simple_Significance_v_secondJetEta;
 
-  TH1F *h_cluster_n;
-  TH1F *h_cluster_et;
-  TH1F *h_cluster_eta;
-  TH1F *h_cluster_phi;
-  TH2F *h_cluster_n_V_MET_Topo_MET;
-  TH2F *h_cluster_n_V_MET_RefFinal_MET;
-  TH2F *h_cluster_n_V_MET_Topo_SET;
-  TH2F *h_cluster_n_V_MET_RefFinal_SET;
-  TH2F *h_cluster_eta_V_phi;
-  TH2F *h_cluster_et_V_eta;
-  TH2F *h_cluster_et_V_phi;
+  TH1F *m_h_cluster_n;
+  TH1F *m_h_cluster_et;
+  TH1F *m_h_cluster_eta;
+  TH1F *m_h_cluster_phi;
+  TH2F *m_h_cluster_n_V_MET_Topo_MET;
+  TH2F *m_h_cluster_n_V_MET_RefFinal_MET;
+  TH2F *m_h_cluster_n_V_MET_Topo_SET;
+  TH2F *m_h_cluster_n_V_MET_RefFinal_SET;
+  TH2F *m_h_cluster_eta_V_phi;
+  TH2F *m_h_cluster_et_V_eta;
+  TH2F *m_h_cluster_et_V_phi;
 
-  TH1F *h_jet_n;
-  TH1F *h_jet_et;
-  TH1F *h_jet_eta;
-  TH1F *h_jet_phi;
+  TH1F *m_h_jet_n;
+  TH1F *m_h_jet_et;
+  TH1F *m_h_jet_eta;
+  TH1F *m_h_jet_phi;
 
-  TH2F *h_jet_n_V_MET_Topo_MET;
-  TH2F *h_jet_n_V_MET_Topo_SET;
-  TH2F *h_jet_leadjet_et_V_MET_Topo_MET;
-  TH2F *h_jet_leadjet_eta_V_MET_Topo_MET;
-  TH2F *h_jet_leadjet_phi_V_MET_Topo_MET;
-  TH2F *h_jet_secondjet_et_V_MET_Topo_MET;
-  TH2F *h_jet_secondjet_eta_V_MET_Topo_MET;
-  TH2F *h_jet_secondjet_phi_V_MET_Topo_MET;
+  TH2F *m_h_jet_n_V_MET_Topo_MET;
+  TH2F *m_h_jet_n_V_MET_Topo_SET;
+  TH2F *m_h_jet_leadjet_et_V_MET_Topo_MET;
+  TH2F *m_h_jet_leadjet_eta_V_MET_Topo_MET;
+  TH2F *m_h_jet_leadjet_phi_V_MET_Topo_MET;
+  TH2F *m_h_jet_secondjet_et_V_MET_Topo_MET;
+  TH2F *m_h_jet_secondjet_eta_V_MET_Topo_MET;
+  TH2F *m_h_jet_secondjet_phi_V_MET_Topo_MET;
 
-  TH2F *h_jet_n_V_MET_RefFinal_MET;
-  TH2F *h_jet_n_V_MET_RefFinal_SET;
-  TH2F *h_jet_leadjet_et_V_MET_RefFinal_MET;
-  TH2F *h_jet_leadjet_eta_V_MET_RefFinal_MET;
-  TH2F *h_jet_leadjet_phi_V_MET_RefFinal_MET;
-  TH2F *h_jet_secondjet_et_V_MET_RefFinal_MET;
-  TH2F *h_jet_secondjet_eta_V_MET_RefFinal_MET;
-  TH2F *h_jet_secondjet_phi_V_MET_RefFinal_MET;
+  TH2F *m_h_jet_n_V_MET_RefFinal_MET;
+  TH2F *m_h_jet_n_V_MET_RefFinal_SET;
+  TH2F *m_h_jet_leadjet_et_V_MET_RefFinal_MET;
+  TH2F *m_h_jet_leadjet_eta_V_MET_RefFinal_MET;
+  TH2F *m_h_jet_leadjet_phi_V_MET_RefFinal_MET;
+  TH2F *m_h_jet_secondjet_et_V_MET_RefFinal_MET;
+  TH2F *m_h_jet_secondjet_eta_V_MET_RefFinal_MET;
+  TH2F *m_h_jet_secondjet_phi_V_MET_RefFinal_MET;
 
-  TH1D *h_ETmissTruthInt_plus_Muons;
+  TH1D *m_h_ETmissTruthInt_plus_Muons;
 
-  TH1D *h_ETmissCorrFinal;
-  TH1D *h_SumETCorrFinal;
+  TH1D *m_h_ETmissCorrFinal;
+  TH1D *m_h_SumETCorrFinal;
 
-  TH1D *h_EtMissH1calibrated;
+  TH1D *m_h_EtMissH1calibrated;
 
-  MissingETHists h_RefFinal;
-  MissingETHists h_RefEle;
-  MissingETHists h_RefJet;
-  MissingETHists h_SoftJets;
-  MissingETHists h_MuonBoy;
-  MissingETHists h_MuID;
-  MissingETHists h_RefMuon;
-  MissingETHists h_RefMuon_Track;
-  MissingETHists h_RefGamma;
-  MissingETHists h_RefTau;
-  MissingETHists h_CellOut;
-  MissingETHists h_CellOutEFlow;
-  MissingETCaloHists h_Base;
-  MissingETCaloHists h_CorrTopo;
-  MissingETCaloHists h_Calib;
-  MissingETHists h_CryoCone;
-  MissingETHists h_TruthInt;
-  MissingETHists h_TruthNonInt;
-  MissingETHists h_TruthMuons;
-  MissingETHists h_Cryo;
-  MissingETHists h_DM_All;
-  MissingETHists h_DM_Crack1;
-  MissingETHists h_DM_Crack2;
-  MissingETHists h_DM_Cryo;
-  MissingETHists h_Final;
-  MissingETHists h_LocHadTopoObj;
-  MissingETHists h_TopoObj;
-  MissingETHists h_MuonBoy_Spectro;
-  MissingETHists h_MuonBoy_Track;
-  MissingETHists h_Muon;
-  MissingETHists h_MuonMuons;
-  MissingETCaloHists h_Base0;
-  MissingETCaloHists h_Topo;
-  MissingETCaloHists h_LocHadTopo;
+  MissingETHists m_h_RefFinal;
+  MissingETHists m_h_RefEle;
+  MissingETHists m_h_RefJet;
+  MissingETHists m_h_SoftJets;
+  MissingETHists m_h_MuonBoy;
+  MissingETHists m_h_MuID;
+  MissingETHists m_h_RefMuon;
+  MissingETHists m_h_RefMuon_Track;
+  MissingETHists m_h_RefGamma;
+  MissingETHists m_h_RefTau;
+  MissingETHists m_h_CellOut;
+  MissingETHists m_h_CellOutEFlow;
+  MissingETCaloHists m_h_Base;
+  MissingETCaloHists m_h_CorrTopo;
+  MissingETCaloHists m_h_Calib;
+  MissingETHists m_h_CryoCone;
+  MissingETHists m_h_TruthInt;
+  MissingETHists m_h_TruthNonInt;
+  MissingETHists m_h_TruthMuons;
+  MissingETHists m_h_Cryo;
+  MissingETHists m_h_DM_All;
+  MissingETHists m_h_DM_Crack1;
+  MissingETHists m_h_DM_Crack2;
+  MissingETHists m_h_DM_Cryo;
+  MissingETHists m_h_Final;
+  MissingETHists m_h_LocHadTopoObj;
+  MissingETHists m_h_TopoObj;
+  MissingETHists m_h_MuonBoy_Spectro;
+  MissingETHists m_h_MuonBoy_Track;
+  MissingETHists m_h_Muon;
+  MissingETHists m_h_MuonMuons;
+  MissingETCaloHists m_h_Base0;
+  MissingETCaloHists m_h_Topo;
+  MissingETCaloHists m_h_LocHadTopo;
 
-  TH1F *h_METBase_EMfraction;
+  TH1F *m_h_METBase_EMfraction;
 
-  TH1F *h_MU;
-  TH1F *h_BCID;
+  TH1F *m_h_MU;
+  TH1F *m_h_BCID;
 
-  TH1D *h_Resolution_TruthNonInt_RefFinal_METx;
-  TH1D *h_Resolution_TruthNonInt_RefFinal_METy;
+  TH1D *m_h_Resolution_TruthNonInt_RefFinal_METx;
+  TH1D *m_h_Resolution_TruthNonInt_RefFinal_METy;
 
 };
 

@@ -58,13 +58,13 @@ public:
   virtual StatusCode finalize();
 
   StatusCode retrieveContainers();
-  void passMissingETData(MissingETData *data) {_METdata = data;}
-  MissingETData *METData() {return _METdata;}
+  void passMissingETData(MissingETData *data) {m_METdata = data;}
+  MissingETData *METData() {return m_METdata;}
 
   bool isSelectedEvent();
 
   inline void SetFolderName(const std::string& folderName) { m_folderName=folderName; }
-  inline void SetGoodnessConfig(const std::string& goodnessConfig) { _goodnessConfig=goodnessConfig; }
+  inline void SetGoodnessConfig(const std::string& goodnessConfig) { m_goodnessConfig=goodnessConfig; }
 
  private:
   std::string m_folderName;
@@ -75,45 +75,45 @@ public:
   /** tool handles */
 /*   ToolHandle<MBTSTimeFilterTool> m_mbtsfilter; */
 /*   ToolHandle<CaloTimeFilterTool> m_calofilter; */
-  ToolHandle<JetVariablesTool> _jetVariables;
+  ToolHandle<JetVariablesTool> m_jetVariables;
   ToolHandle<AnalysisTools> m_analysisTools;
 
-  const ElectronContainer *electrons;
-  const JetCollection *jet;
-  const Analysis::MuonContainer *muons;
-  MissingETData *_METdata;
+  const ElectronContainer *m_electrons;
+  const JetCollection *m_jet;
+  const Analysis::MuonContainer *m_muons;
+  MissingETData *m_METdata;
 
-  float _minEventEMfraction;
-  float _minPerJetEMfraction;
-  float _maxelecIsolCone;
-  float _maxmuonIsolCone;
-  float _jetPtCut;
-  float _jetElDeltaR;
-  int _minNjets;
-  int _maxNjets;
-  float _elecPtCut;
-  unsigned int _isEM;
-  float _muonPtCut;
-  float _minRefFinalMET;
-  float _minNonIntMET;
-  float _minInvMass;
-  float _maxInvMass;
-  int _N90CellsCut;
+  float m_minEventEMfraction;
+  float m_minPerJetEMfraction;
+  float m_maxelecIsolCone;
+  float m_maxmuonIsolCone;
+  float m_jetPtCut;
+  float m_jetElDeltaR;
+  int m_minNjets;
+  int m_maxNjets;
+  float m_elecPtCut;
+  unsigned int m_isEM;
+  float m_muonPtCut;
+  float m_minRefFinalMET;
+  float m_minNonIntMET;
+  float m_minInvMass;
+  float m_maxInvMass;
+  int m_N90CellsCut;
 
-  std::vector<std::string> _selectionList;
+  std::vector<std::string> m_selectionList;
 
   //storegate input keys
-  std::string _muonContainerKey;
-  std::string _electronContainerName;
-  std::string _jetKey;
+  std::string m_muonContainerKey;
+  std::string m_electronContainerName;
+  std::string m_jetKey;
   
-  std::string _passflagZtautau;
-  std::string _lepton_container;
-  std::string _tau_container;
-  std::string _selectionType;
-  std::string _selectionZtautau;
+  std::string m_passflagZtautau;
+  std::string m_lepton_container;
+  std::string m_tau_container;
+  std::string m_selectionType;
+  std::string m_selectionZtautau;
   
-  std::string _goodnessConfig;
+  std::string m_goodnessConfig;
 
   bool ANDedSelection();
   bool hasOneJet();
@@ -133,18 +133,18 @@ public:
   bool passesN90CellsCut();
   bool hasgoodZ_tautau();
   
-  std::string _selectedMuonKey;
-  std::string _selectedElectronKey;
+  std::string m_selectedMuonKey;
+  std::string m_selectedElectronKey;
 
-  TH1D *hasZboson_mumu_nmuons;
-  TH1D *hasZboson_mumu_leadpt;
-  TH1D *hasZboson_mumu_secondpt;
-  TH1D *hasZboson_mumu_InvMass;
+  TH1D *m_hasZboson_mumu_nmuons;
+  TH1D *m_hasZboson_mumu_leadpt;
+  TH1D *m_hasZboson_mumu_secondpt;
+  TH1D *m_hasZboson_mumu_InvMass;
 
-  TH1D *hasZboson_ee_nelecs;
-  TH1D *hasZboson_ee_leadpt;
-  TH1D *hasZboson_ee_secondpt;
-  TH1D *hasZboson_ee_InvMass;
+  TH1D *m_hasZboson_ee_nelecs;
+  TH1D *m_hasZboson_ee_leadpt;
+  TH1D *m_hasZboson_ee_secondpt;
+  TH1D *m_hasZboson_ee_InvMass;
 
   MET::EtmissGoodness m_metgoodness;
 };

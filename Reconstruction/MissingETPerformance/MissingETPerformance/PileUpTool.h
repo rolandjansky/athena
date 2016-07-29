@@ -67,31 +67,31 @@ class PileUpTool : public AthAlgTool
     bool         m_doFit;
     
     // Histograms
-    TH1F *h1_Nvtx;
+    TH1F *m_h1_Nvtx;
     
-    TH2F *h2_RefFinal_Nvtx_RatioEt;
-    TH2F *h2_RefFinal_Nvtx_DeltaEt;
-    TH2F *h2_RefFinal_Nvtx_DeltaEx;
-    TH2F *h2_RefFinal_Nvtx_DeltaEy;
+    TH2F *m_h2_RefFinal_Nvtx_RatioEt;
+    TH2F *m_h2_RefFinal_Nvtx_DeltaEt;
+    TH2F *m_h2_RefFinal_Nvtx_DeltaEx;
+    TH2F *m_h2_RefFinal_Nvtx_DeltaEy;
     
-    TH1F *h1_RefFinal_Nvtx_ResponseEt;
-    TH1F *h1_RefFinal_Nvtx_OffsetEt;
-    TH1F *h1_RefFinal_Nvtx_ResolutionEt;
-    TH1F *h1_RefFinal_Nvtx_ResolutionEx;
-    TH1F *h1_RefFinal_Nvtx_ResolutionEy;
+    TH1F *m_h1_RefFinal_Nvtx_ResponseEt;
+    TH1F *m_h1_RefFinal_Nvtx_OffsetEt;
+    TH1F *m_h1_RefFinal_Nvtx_ResolutionEt;
+    TH1F *m_h1_RefFinal_Nvtx_ResolutionEx;
+    TH1F *m_h1_RefFinal_Nvtx_ResolutionEy;
     
-    TH2F **h2_RefFinal_SumEt_RatioEt_vtx;
-    TH2F **h2_RefFinal_SumEt_DeltaEt_vtx;
-    TH2F **h2_RefFinal_SumEt_DeltaEx_vtx;
-    TH2F **h2_RefFinal_SumEt_DeltaEy_vtx;
+    TH2F **m_h2_RefFinal_SumEt_RatioEt_vtx;
+    TH2F **m_h2_RefFinal_SumEt_DeltaEt_vtx;
+    TH2F **m_h2_RefFinal_SumEt_DeltaEx_vtx;
+    TH2F **m_h2_RefFinal_SumEt_DeltaEy_vtx;
     
-    TH1F **h1_RefFinal_SumEt_ResponseEt_vtx;
-    TH1F **h1_RefFinal_SumEt_OffsetEt_vtx;
-    TH1F **h1_RefFinal_SumEt_ResolutionEt_vtx;
-    TH1F **h1_RefFinal_SumEt_ResolutionEx_vtx;
-    TH1F **h1_RefFinal_SumEt_ResolutionEy_vtx;
+    TH1F **m_h1_RefFinal_SumEt_ResponseEt_vtx;
+    TH1F **m_h1_RefFinal_SumEt_OffsetEt_vtx;
+    TH1F **m_h1_RefFinal_SumEt_ResolutionEt_vtx;
+    TH1F **m_h1_RefFinal_SumEt_ResolutionEx_vtx;
+    TH1F **m_h1_RefFinal_SumEt_ResolutionEy_vtx;
     
-    TProfile *hp_RefFinal_Nvtx_SumEt;
+    TProfile *m_hp_RefFinal_Nvtx_SumEt;
 };
 
 

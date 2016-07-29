@@ -89,76 +89,76 @@ protected:
   float m_lowET;
   float m_suET;
 
-  TGraphErrors* grres;
-  std::vector<TH1F *> h_;
-  std::vector<TH1F *> h2_;
-  std::vector<TH1F *> h3_;
-  std::vector<TH1F *> h4_;
-  std::vector<TH1F *> h5_;
-  std::vector<TH1F *> h6_;
-  std::vector<TH1F *> h7_;
-  TH2F *he_resvset;
+  TGraphErrors* m_grres;
+  std::vector<TH1F *> m_h;
+  std::vector<TH1F *> m_h2;
+  std::vector<TH1F *> m_h3;
+  std::vector<TH1F *> m_h4;
+  std::vector<TH1F *> m_h5;
+  std::vector<TH1F *> m_h6;
+  std::vector<TH1F *> m_h7;
+  TH2F *m_he_resvset;
 
   //histograms
-  TH1D *h_tot;
-  TH1D *h2_tot;
-  TH1D *h3_tot;
-  TH1D *h4_tot;
-  TH1D *h5_tot;
-  TH1D *h6_tot;
-  TH1D *h7_tot;
+  TH1D *m_h_tot;
+  TH1D *m_h2_tot;
+  TH1D *m_h3_tot;
+  TH1D *m_h4_tot;
+  TH1D *m_h5_tot;
+  TH1D *m_h6_tot;
+  TH1D *m_h7_tot;
 
-  TH1D *h_sumetT;
-  TH1D *h_sumetHT;
-  TH1D *h_sumet;
-  TH1D *h2_sumet;
-  TH1D *h3_sumet;
-  TH1D *h4_sumet;
-  TH1D *h5_sumet;
-  TH1D *h6_sumet;
-  TH1D *h7_sumet;
+  TH1D *m_h_sumetT;
+  TH1D *m_h_sumetHT;
+  TH1D *m_h_sumet;
+  TH1D *m_h2_sumet;
+  TH1D *m_h3_sumet;
+  TH1D *m_h4_sumet;
+  TH1D *m_h5_sumet;
+  TH1D *m_h6_sumet;
+  TH1D *m_h7_sumet;
 
-  TH1D *h_RefFinalHTResolution_x;
-  TH1D *h_RefFinalHTResolution_y;
-  TH1D *h_RefFinalHTResolution_EtMiss;
+  TH1D *m_h_RefFinalHTResolution_x;
+  TH1D *m_h_RefFinalHTResolution_y;
+  TH1D *m_h_RefFinalHTResolution_EtMiss;
 
 
-  TH1D *h_DetOnlyRefFinalResolution_x;
-  TH1D *h_DetOnlyRefFinalResolution_y;
-  TH1D *h_DetOnlyRefFinalResolution_EtMiss;
+  TH1D *m_h_DetOnlyRefFinalResolution_x;
+  TH1D *m_h_DetOnlyRefFinalResolution_y;
+  TH1D *m_h_DetOnlyRefFinalResolution_EtMiss;
 
-  TH2D *h_DetOnlyRefFinalResolution_V_truth_x;
-  TH2D *h_DetOnlyRefFinalResolution_V_truth_y;
-  TH2D *h_DetOnlyRefFinalReco_V_truth_x;
-  TH2D *h_DetOnlyRefFinalReco_V_truth_y;
+  TH2D *m_h_DetOnlyRefFinalResolution_V_truth_x;
+  TH2D *m_h_DetOnlyRefFinalResolution_V_truth_y;
+  TH2D *m_h_DetOnlyRefFinalReco_V_truth_x;
+  TH2D *m_h_DetOnlyRefFinalReco_V_truth_y;
 
-  TH1D *h_RefFinalResolution_x;
-  TH1D *h_RefFinalResolution_y;
-  TH1D *h_RefFinalResolution_EtMiss;
-  TH1D *h_RefFinalResolution_phi;
-  TH2D *h_RefFinalResolution_phi_V_truth_EtMiss;
+  TH1D *m_h_RefFinalResolution_x;
+  TH1D *m_h_RefFinalResolution_y;
+  TH1D *m_h_RefFinalResolution_EtMiss;
+  TH1D *m_h_RefFinalResolution_phi;
+  TH2D *m_h_RefFinalResolution_phi_V_truth_EtMiss;
 
-  TH2D *h_RefFinalResolution_V_truth_x;
-  TH2D *h_RefFinalResolution_V_truth_y;
-  TH2D *h_RefFinalReco_V_truth_x;
-  TH2D *h_RefFinalReco_V_truth_y;
+  TH2D *m_h_RefFinalResolution_V_truth_x;
+  TH2D *m_h_RefFinalResolution_V_truth_y;
+  TH2D *m_h_RefFinalReco_V_truth_x;
+  TH2D *m_h_RefFinalReco_V_truth_y;
 
-  TH1D *h_DetOnlyCorrResolution_x;
-  TH1D *h_DetOnlyCorrResolution_y;
-  TH1D *h_DetOnlyCorrResolution_EtMiss;
+  TH1D *m_h_DetOnlyCorrResolution_x;
+  TH1D *m_h_DetOnlyCorrResolution_y;
+  TH1D *m_h_DetOnlyCorrResolution_EtMiss;
 
-  TH1D *h_FinalCorrResolution_x;
-  TH1D *h_FinalCorrResolution_y;
-  TH1D *h_FinalCorrResolution_EtMiss;
+  TH1D *m_h_FinalCorrResolution_x;
+  TH1D *m_h_FinalCorrResolution_y;
+  TH1D *m_h_FinalCorrResolution_EtMiss;
 
-  TH1D *h_MuonBoyResolution_x;
-  TH1D *h_MuonBoyResolution_y;
-  TH1D *h_MuonBoyResolution_EtMiss;
+  TH1D *m_h_MuonBoyResolution_x;
+  TH1D *m_h_MuonBoyResolution_y;
+  TH1D *m_h_MuonBoyResolution_EtMiss;
 
-  TH2D *h_MuonBoyResolution_V_truth_x;
-  TH2D *h_MuonBoyResolution_V_truth_y;
-  TH2D *h_MuonBoyReco_V_truth_x;
-  TH2D *h_MuonBoyReco_V_truth_y;
+  TH2D *m_h_MuonBoyResolution_V_truth_x;
+  TH2D *m_h_MuonBoyResolution_V_truth_y;
+  TH2D *m_h_MuonBoyReco_V_truth_x;
+  TH2D *m_h_MuonBoyReco_V_truth_y;
 
 };
 

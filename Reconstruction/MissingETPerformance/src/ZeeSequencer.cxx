@@ -16,7 +16,7 @@
 ZeeSequencer::ZeeSequencer(const std::string& name,
 								       ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  _eventSelector ( "MissingETEventSelector" ) 
+  m_eventSelector ( "MissingETEventSelector" ) 
 {
 
 }
@@ -36,10 +36,10 @@ StatusCode ZeeSequencer::finalize()
 StatusCode ZeeSequencer::execute()
 {
   // Retrive the containers for the EventSelector
-  _eventSelector->retrieveContainers();
+  m_eventSelector->retrieveContainers();
 
   // Activate the sequence if passed
-  setFilterPassed(_eventSelector->isSelectedEvent() );
+  setFilterPassed(m_eventSelector->isSelectedEvent() );
     
   return StatusCode::SUCCESS;
 }

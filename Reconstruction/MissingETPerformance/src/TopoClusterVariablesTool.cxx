@@ -9,13 +9,13 @@ TopoClusterVariablesTool::TopoClusterVariablesTool( const std::string& type,
 			      const IInterface* parent ) : AthAlgTool( type, name, parent ) {
   declareInterface<TopoClusterVariablesTool>( this );
 
-  declareProperty("CaloClusterContainerKey",           _caloClusterContainerKey          = "CaloCalTopoCluster" );
+  declareProperty("CaloClusterContainerKey",           m_caloClusterContainerKey          = "CaloCalTopoCluster" );
 
-  _dummyClusterCont = new CaloClusterContainer;
+  m_dummyClusterCont = new CaloClusterContainer;
 }
 
 TopoClusterVariablesTool::~TopoClusterVariablesTool() {
-  if (_dummyClusterCont) delete _dummyClusterCont;
+  if (m_dummyClusterCont) delete m_dummyClusterCont;
 }
 
 StatusCode TopoClusterVariablesTool::initialize() {
@@ -30,11 +30,11 @@ StatusCode TopoClusterVariablesTool::retrieveContainers() {
   StatusCode sc = StatusCode::SUCCESS;
 
   const CaloClusterContainer *cluster = 0;
-  sc=evtStore()->retrieve( cluster, _caloClusterContainerKey );
+  sc=evtStore()->retrieve( cluster, m_caloClusterContainerKey );
   if( sc.isFailure()  ||  !cluster ) {
     msg() << MSG::WARNING << "TopoClusterVariablesTool: No CaloClusterContainer found in StoreGate, key:" 
-	  << _caloClusterContainerKey << endreq; 
-    cluster = _dummyClusterCont;
+	  << m_caloClusterContainerKey << endmsg; 
+    cluster = m_dummyClusterCont;
   }
   setCaloClusterContainer(cluster);
 

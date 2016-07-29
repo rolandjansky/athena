@@ -57,50 +57,50 @@ protected:
   /** a handle on the Hist/TTree registration service */
   ITHistSvc * m_thistSvc;
 
-  float linplot_x;
-  float linplot_y;
-  std::string linplot_text;
+  float m_linplot_x;
+  float m_linplot_y;
+  std::string m_linplot_text;
 
   std::string m_folderName;
 
   //histograms
-  TH1D *hl_tot;
-  TH1D *hl2_tot;
-  TH1D *hl3_tot;
-  TH1D *hl4_tot;
-  TH1D *hl5_tot;
-  TH1D *hl6_tot;
-  TH1D *hl7_tot;
+  TH1D *m_hl_tot;
+  TH1D *m_hl2_tot;
+  TH1D *m_hl3_tot;
+  TH1D *m_hl4_tot;
+  TH1D *m_hl5_tot;
+  TH1D *m_hl6_tot;
+  TH1D *m_hl7_tot;
 
-  TH1D *hletmi;
-  TH1D *hl2etmi;
-  TH1D *hl3etmi;
-  TH1D *hl4etmi;
-  TH1D *hl5etmi;
-  TH1D *hl6etmi;
-  TH1D *hl7etmi;
+  TH1D *m_hletmi;
+  TH1D *m_hl2etmi;
+  TH1D *m_hl3etmi;
+  TH1D *m_hl4etmi;
+  TH1D *m_hl5etmi;
+  TH1D *m_hl6etmi;
+  TH1D *m_hl7etmi;
 
-  TH1D *h_RefEle_METup;
-  TH1D *h_RefJet_METup;
-  TH1D *h_CellOut_METup;
-  TH1D *h_refjetpoutup; 
-  TH1D *h_RefEle_METlow;
-  TH1D *h_RefJet_METlow;
-  TH1D *h_CellOut_METlow;
-  TH1D *h_refjetpoutlow; 
+  TH1D *m_h_RefEle_METup;
+  TH1D *m_h_RefJet_METup;
+  TH1D *m_h_CellOut_METup;
+  TH1D *m_h_refjetpoutup; 
+  TH1D *m_h_RefEle_METlow;
+  TH1D *m_h_RefJet_METlow;
+  TH1D *m_h_CellOut_METlow;
+  TH1D *m_h_refjetpoutlow; 
 
-  TH1D *hcount_threshold;
+  TH1D *m_hcount_threshold;
 
   //donatella curvalin
-  TGraphErrors *grlin;
-  std::vector<TH1F *> hl_;
-  std::vector<TH1F *> hl2_;
-  std::vector<TH1F *> hl3_;
-  std::vector<TH1F *> hl4_;
-  std::vector<TH1F *> hl5_;
-  std::vector<TH1F *> hl6_;
-  std::vector<TH1F *> hl7_;
-  TH2F *he_linvset;
+  TGraphErrors *m_grlin;
+  std::vector<TH1F *> m_hl;
+  std::vector<TH1F *> m_hl2;
+  std::vector<TH1F *> m_hl3;
+  std::vector<TH1F *> m_hl4;
+  std::vector<TH1F *> m_hl5;
+  std::vector<TH1F *> m_hl6;
+  std::vector<TH1F *> m_hl7;
+  TH2F *m_he_linvset;
 
   int m_lnbini;
   int m_lnumptt;
