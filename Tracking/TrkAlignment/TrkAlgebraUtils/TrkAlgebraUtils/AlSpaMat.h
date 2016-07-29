@@ -85,8 +85,8 @@ class AlSpaMat : public AlSymMatBase {
     std::string m_pathbin;
     std::string m_pathtxt;
 
-    int* ptr_row;
-    int* ptr_col;
+    int* m_ptr_row;
+    int* m_ptr_col;
 
 };
 
@@ -101,9 +101,9 @@ inline void AlSpaMat::elem(const indices& key, long int& i, long int& j) const {
 
 inline long int AlSpaMat::nele() {
   // first check for intrinsic consistency:
-  if( int(ptr_map.size()) != _nele ) std::cerr << "AlSpaMat::_nele has been corrupted!" << std::endl;
-  _nele = ptr_map.size();
-  return _nele;
+  if( int(m_ptr_map.size()) != m_nele ) std::cerr << "AlSpaMat::m_nele has been corrupted!" << std::endl;
+  m_nele = m_ptr_map.size();
+  return m_nele;
 }
 
 inline std::string AlSpaMat::pathBin() const {

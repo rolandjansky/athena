@@ -85,7 +85,7 @@ class IPCMat {
         double   v;
       } matrix;
     } data;
- } ipcmat_msgp;
+ } m_ipcmat_msgp;
 
 
 };

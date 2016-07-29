@@ -38,10 +38,10 @@ namespace Trk {
 //______________________________________________________________________________
 AlSymMat::AlSymMat()
 {
-  _matrix_type = 1;
-  _size = 0;
-  _nele = 0;
-  ptr_data = NULL;  // set pointer to null
+  m_matrix_type = 1;
+  m_size = 0;
+  m_nele = 0;
+  m_ptr_data = NULL;  // set pointer to null
   m_pathbin="./";
   m_pathtxt="./";
 }
@@ -50,15 +50,15 @@ AlSymMat::AlSymMat()
 //______________________________________________________________________________
 AlSymMat::AlSymMat(long int N)
 {
-  _matrix_type = 1;
-  _size = N;
-  _nele = N*(N+1)/2;
-  ptr_data = new double[_nele];
+  m_matrix_type = 1;
+  m_size = N;
+  m_nele = N*(N+1)/2;
+  m_ptr_data = new double[m_nele];
   m_pathbin="./";
   m_pathtxt="./";
 
-  double*  p = ptr_data + _nele;
-  while (p > ptr_data) *(--p) = 0.;
+  double*  p = m_ptr_data + m_nele;
+  while (p > m_ptr_data) *(--p) = 0.;
 
 }
 
@@ -66,12 +66,12 @@ AlSymMat::AlSymMat(long int N)
 AlSymMat::AlSymMat(const AlSymMat& m)
   : AlSymMatBase(m)
 {
-  _matrix_type = 1;
-  _size      = m.size();
-  _nele      = m._nele;
+  m_matrix_type = 1;
+  m_size      = m.size();
+  m_nele      = m.m_nele;
   m_pathbin = m.m_pathbin;
   m_pathtxt = m.m_pathtxt;
-  ptr_data = new double[_nele];
+  m_ptr_data = new double[m_nele];
   copy(m);
 }
 
@@ -79,25 +79,25 @@ AlSymMat::AlSymMat(const AlSymMat& m)
 //______________________________________________________________________________
 AlSymMat::AlSymMat(const AlSpaMat& m)
 {
-  _matrix_type = 1;
-  _size      = m.size();
-  _nele      = _size*(_size+1)/2;
+  m_matrix_type = 1;
+  m_size      = m.size();
+  m_nele      = m_size*(m_size+1)/2;
   m_pathbin = m.pathBin();
   m_pathtxt = m.pathTxt();
-  ptr_data = new double[_nele];
+  m_ptr_data = new double[m_nele];
   copy(m);
 }
 
 //______________________________________________________________________________
 AlSymMat& AlSymMat::operator=(const AlSpaMat& m)
 {
-  _matrix_type = 1;
-  _size = m.size();
-  _nele = _size*(_size+1)/2;
+  m_matrix_type = 1;
+  m_size = m.size();
+  m_nele = m_size*(m_size+1)/2;
   m_pathbin = m.pathBin();
   m_pathtxt = m.pathTxt();
 
-  ptr_data = new double[_nele];
+  m_ptr_data = new double[m_nele];
   copy(m);
   return *this;
 }
@@ -105,7 +105,7 @@ AlSymMat& AlSymMat::operator=(const AlSpaMat& m)
 //______________________________________________________________________________
 AlSymMat::~AlSymMat()
 {
-  if( ptr_data != NULL ) delete [] ptr_data;
+  if( m_ptr_data != NULL ) delete [] m_ptr_data;
   //ptr_map.clear();
 }
 
@@ -118,9 +118,9 @@ void AlSymMat::copy(const AlSymMat& m)
     return;
   }
 
-  double * p = ptr_data + _nele;
-  double*  r = m.ptr_data + _nele;
-  while (p > ptr_data) *(--p) = *(--r);
+  double * p = m_ptr_data + m_nele;
+  double*  r = m.m_ptr_data + m_nele;
+  while (p > m_ptr_data) *(--p) = *(--r);
 
   return;
 }
@@ -167,7 +167,7 @@ AlSymMat& AlSymMat::operator=(const AlSymMat& m)
   if (this==&m)
     return *this;
 
-  if ( ptr_data != m.ptr_data ) {
+  if ( m_ptr_data != m.m_ptr_data ) {
     reSize(m.size());
     copy(m);
   }
@@ -191,8 +191,8 @@ AlSymMat& AlSymMat::operator=(const AlMat& m)
 //______________________________________________________________________________
 AlSymMat& AlSymMat::operator=(const double& d)
 {
-  double * p = ptr_data + _nele;
-  while (p > ptr_data) *(--p) = d;
+  double * p = m_ptr_data + m_nele;
+  while (p > m_ptr_data) *(--p) = d;
 
   return *this;
 }
@@ -206,10 +206,10 @@ AlSymMat AlSymMat::operator+(const AlSymMat& m) const
   }
 
   AlSymMat b(size());
-  double * p = ptr_data + _nele;
-  double * q = m.ptr_data + _nele;
-  double * r = b.ptr_data + _nele;
-  while (p > ptr_data) *(--r) = (*(--p))+(*(--q));
+  double * p = m_ptr_data + m_nele;
+  double * q = m.m_ptr_data + m_nele;
+  double * r = b.m_ptr_data + m_nele;
+  while (p > m_ptr_data) *(--r) = (*(--p))+(*(--q));
 
   return b;
 }
@@ -222,9 +222,9 @@ AlSymMat&  AlSymMat::operator+=(const AlSymMat& m)
     return *this;
   }
 
-  double * p = ptr_data + _nele;
-  double * q = m.ptr_data + _nele;
-  while (p > ptr_data) *(--p) += *(--q);
+  double * p = m_ptr_data + m_nele;
+  double * q = m.m_ptr_data + m_nele;
+  while (p > m_ptr_data) *(--p) += *(--q);
 
   return *this;
 }
@@ -238,10 +238,10 @@ AlSymMat AlSymMat::operator-(const AlSymMat& m) const
   }
 
   AlSymMat b(size());
-  double * p = ptr_data + _nele;
-  double * q = m.ptr_data + _nele;
-  double * r = b.ptr_data + _nele;
-  while (p > ptr_data) *(--r) = (*(--p))-(*(--q));
+  double * p = m_ptr_data + m_nele;
+  double * q = m.m_ptr_data + m_nele;
+  double * r = b.m_ptr_data + m_nele;
+  while (p > m_ptr_data) *(--r) = (*(--p))-(*(--q));
 
   return b;
 }
@@ -254,9 +254,9 @@ AlSymMat&  AlSymMat::operator-=(const AlSymMat& m)
     return *this;
   }
 
-  double * p = ptr_data + _nele;
-  double * q = m.ptr_data + _nele;
-  while (p > ptr_data) *(--p) -= *(--q);
+  double * p = m_ptr_data + m_nele;
+  double * q = m.m_ptr_data + m_nele;
+  while (p > m_ptr_data) *(--p) -= *(--q);
 
   return *this;
 }
@@ -284,17 +284,17 @@ AlMat AlSymMat::operator*(const AlSymMat& m) const
       ii = (i+1)*i/2;
       jj = (j+1)*j/2;
       for( k=0; k<l; k++)
-        x += (*(ptr_data+ii+k))*(*(m.ptr_data+jj+k));
+        x += (*(m_ptr_data+ii+k))*(*(m.m_ptr_data+jj+k));
       if( i<j ) {
         for( k=l; k<n; k++)
-          x += (*(ptr_data+(k+1)*k/2+i))*(*(m.ptr_data+jj+k));
+          x += (*(m_ptr_data+(k+1)*k/2+i))*(*(m.m_ptr_data+jj+k));
       }
       else {
         for( k=l; k<n; k++)
-          x += (*(ptr_data+ii+k))*(*(m.ptr_data+(k+1)*k/2+j));
+          x += (*(m_ptr_data+ii+k))*(*(m.m_ptr_data+(k+1)*k/2+j));
       }
       for( k=n; k<siz; k++)
-        x += (*(ptr_data+(k+1)*k/2+i))*(*(m.ptr_data+(k+1)*k/2+j));
+        x += (*(m_ptr_data+(k+1)*k/2+i))*(*(m.m_ptr_data+(k+1)*k/2+j));
       b.elemr(i,j) = x;
     }
 
@@ -321,9 +321,9 @@ AlMat AlSymMat::operator*(const AlMat& m) const
       x = 0.;
       ii = (i+1)*i/2;
       for( k=0; k<i; k++)
-        x += (*(ptr_data+ii+k))*m.elemc(k,j);
+        x += (*(m_ptr_data+ii+k))*m.elemc(k,j);
       for( k=i; k<siz; k++)
-        x += (*(ptr_data+(k+1)*k/2+i))*m.elemc(k,j);
+        x += (*(m_ptr_data+(k+1)*k/2+i))*m.elemc(k,j);
       b.elemr(i,j) = x;
     }
 
@@ -345,9 +345,9 @@ AlVec AlSymMat::operator*(const AlVec& v) const
   for( long int i=0; i<size(); i++ ) {
     ii = (i+1)*i/2;
     for( long int j=0; j<i; j++ )
-      b[i] += (*(ptr_data+ii+j))*v[j];
+      b[i] += (*(m_ptr_data+ii+j))*v[j];
     for( long int j=i; j<size(); j++ )
-      b[i] += (*(ptr_data+(j+1)*j/2+i))*v[j];
+      b[i] += (*(m_ptr_data+(j+1)*j/2+i))*v[j];
   }
 
   return b;
@@ -356,8 +356,8 @@ AlVec AlSymMat::operator*(const AlVec& v) const
 //______________________________________________________________________________
 AlSymMat&  AlSymMat::operator*=(const double& d)
 {
-  double * p = ptr_data + _nele;
-  while (p > ptr_data) *(--p) *= d;
+  double * p = m_ptr_data + m_nele;
+  while (p > m_ptr_data) *(--p) *= d;
 
   return *this;
 }
@@ -366,9 +366,9 @@ AlSymMat&  AlSymMat::operator*=(const double& d)
 AlSymMat  AlSymMat::operator*(const double& d) const
 {
   AlSymMat a(size());
-  double * p = ptr_data + _nele;
-  double * q = a.ptr_data + _nele;
-  while (p > ptr_data) *(--q) = (*(--p))*d;
+  double * p = m_ptr_data + m_nele;
+  double * q = a.m_ptr_data + m_nele;
+  while (p > m_ptr_data) *(--q) = (*(--p))*d;
 
   return a;
 }
@@ -387,7 +387,7 @@ int AlSymMat::invert()
   int   N = size();
   int    * ipiv =  new int[N];
   double * work =  new double[N];
-  double * mx = ptr_data;
+  double * mx = m_ptr_data;
 
   dsptrf_(&uplo, &N, mx, ipiv, &ierr);
 
@@ -475,7 +475,7 @@ int AlSymMat::diagonalize(char jobz, AlVec &w, AlMat &z)
   int   N = size();
   double * work =  new double[3*N];
 
-  double * ap = ptr_data;
+  double * ap = m_ptr_data;
 
   dspev_(&jobz, &uplo, &N, ap, w.ptrData(), z.ptrData(), &N, work, &info);
 
@@ -494,12 +494,12 @@ void AlSymMat::RemoveModule(int index)
     for(int row=(shift*index); row<(size()-shift); row+=shift) {
       for(int k=0; k<shift; k++) {
         for(int col=0; col<row+k+1; col++) {
-          //  cout << "(" << row+k << "," << col << ") -> " << *(ptr_data+elem(row+k,col)) << endl;
+          //  cout << "(" << row+k << "," << col << ") -> " << *(m_ptr_data+elem(row+k,col)) << endl;
 
           if(col<shift*index)
-            *(ptr_data+elem(row+k,col))=*(ptr_data+elem(row+k+shift,col));
+            *(m_ptr_data+elem(row+k,col))=*(m_ptr_data+elem(row+k+shift,col));
           else
-            *(ptr_data+elem(row+k,col))=*(ptr_data+elem(row+k+shift,col+shift));
+            *(m_ptr_data+elem(row+k,col))=*(m_ptr_data+elem(row+k+shift,col+shift));
         }
       }
     }
@@ -513,11 +513,11 @@ int AlSymMat::RemoveCollsRows(std::vector<int> indices)
   int n = indices.size();
   if (n==0) {
     std::cerr<<"Vector of indices to remove is empty."<<std::endl;
-    return _size;
+    return m_size;
   }
-  if (n>_size) {
+  if (n>m_size) {
     std::cerr<<"Vector of indices larger than matrix size."<<std::endl;
-    return _size;
+    return m_size;
   }
 
   // first sort the list of indices descending
@@ -533,22 +533,22 @@ int AlSymMat::RemoveCollsRows(std::vector<int> indices)
   // remove rows and columns starting from largest indices
   for (int i=0;i<n;i++) {
     int index = indices[i];
-    if (index > _size-1) {
-      std::cerr<<"Index "<<index<<" goes beyond matrix (size "<<_size<<")."<<std::endl;
+    if (index > m_size-1) {
+      std::cerr<<"Index "<<index<<" goes beyond matrix (size "<<m_size<<")."<<std::endl;
       continue;
     }
 
-    for (int j=index; j<_size-1; j++)
+    for (int j=index; j<m_size-1; j++)
       for (int col=0; col<=j; col++)
         if(col<index)
-          *(ptr_data+elem(j,col)) = *(ptr_data+elem(j+1,col));
+          *(m_ptr_data+elem(j,col)) = *(m_ptr_data+elem(j+1,col));
         else
-          *(ptr_data+elem(j,col)) = *(ptr_data+elem(j+1,col+1));
+          *(m_ptr_data+elem(j,col)) = *(m_ptr_data+elem(j+1,col+1));
 
-    _size--;
+    m_size--;
   }
 
-  return _size;
+  return m_size;
 }
 
 //______________________________________________________________________________
@@ -577,7 +577,7 @@ void AlSymMat::RemoveAlignPar(int index, int control)
         counterCol=0;
       }
 
-      *(ptr_data+elem(row,col))=*(ptr_data+elem(row+shiftRow,col+shiftCol));
+      *(m_ptr_data+elem(row,col))=*(m_ptr_data+elem(row+shiftRow,col+shiftCol));
 
       counterCol++;
       if (counterCol==5-control) {
@@ -639,7 +639,7 @@ StatusCode AlSymMat::Write(const std::string &filename, bool binary,
   if (!square) {
     for( int i=0; i<size(); i++) {
       for( int j=0; j<=i; j++) {
-        melem = *(ptr_data+(i+1)*i/2+j);
+        melem = *(m_ptr_data+(i+1)*i/2+j);
         if(binary)
           outmat.write((char*)&(melem), sizeof (melem));
         else
@@ -652,8 +652,8 @@ StatusCode AlSymMat::Write(const std::string &filename, bool binary,
   else {
     for( int i=0; i<size(); i++) {
       for( int j=0; j<size(); j++) {
-        if(i>=j) melem =  *(ptr_data+(i+1)*i/2+j);
-        else     melem =  *(ptr_data+(j+1)*j/2+i);
+        if(i>=j) melem =  *(m_ptr_data+(i+1)*i/2+j);
+        else     melem =  *(m_ptr_data+(j+1)*j/2+i);
         if(binary)
           outmat.write((char*)&(melem), sizeof (melem));
         else
@@ -696,11 +696,11 @@ StatusCode AlSymMat::CheckMatVersion(const std::string filename, bool &StdUnits)
 StatusCode AlSymMat::Read(const std::string &filename, int &dofs,
                           bool &triang, float &version)
 {
-  bool m_StdUnits = true;
-  if (StatusCode::SUCCESS != CheckMatVersion(m_pathbin+filename, m_StdUnits))
+  bool stdUnits = true;
+  if (StatusCode::SUCCESS != CheckMatVersion(m_pathbin+filename, stdUnits))
     return StatusCode::FAILURE;
 
-  // std::cout << "AlSymMat::StdUnits: " << m_StdUnits << std::endl;
+  // std::cout << "AlSymMat::StdUnits: " << stdUnits << std::endl;
 
   std::ifstream inmat((m_pathbin+filename).c_str(), std::ios::binary);
   if(inmat.fail())
@@ -709,9 +709,9 @@ StatusCode AlSymMat::Read(const std::string &filename, int &dofs,
   int32_t msiz=0;
   inmat.read((char*)&msiz, sizeof (msiz));
   dofs = abs(msiz);
-  _size = abs(msiz);
+  m_size = abs(msiz);
 
-  if (m_StdUnits)
+  if (stdUnits)
     inmat.read((char*)&version, sizeof (version));
 
   double melem=0;
@@ -722,7 +722,7 @@ StatusCode AlSymMat::Read(const std::string &filename, int &dofs,
       for(int j=0; j<msiz; j++) {
         inmat.read((char*)&melem, sizeof (melem));
         if( i>=j )
-          *(ptr_data+(i+1)*i/2+j) = melem;
+          *(m_ptr_data+(i+1)*i/2+j) = melem;
       }
     }
   }
@@ -733,7 +733,7 @@ StatusCode AlSymMat::Read(const std::string &filename, int &dofs,
     for( int i=0; i<msiz; i++) {
       for( int j=0; j<=i; j++) {
         inmat.read((char*)&melem, sizeof (melem));
-        *(ptr_data+(i+1)*i/2+j) = melem;
+        *(m_ptr_data+(i+1)*i/2+j) = melem;
       }
     }
   }
@@ -753,7 +753,7 @@ StatusCode AlSymMat::ReadProjected(const std::string &filename, int &dofs,
   int32_t msiz=0;
   inmat.read((char*)&msiz, sizeof (msiz));
   dofs = abs(msiz);
-  _size = abs(msiz);
+  m_size = abs(msiz);
 
   inmat.read((char*)&version, sizeof (version));
 
@@ -765,7 +765,7 @@ StatusCode AlSymMat::ReadProjected(const std::string &filename, int &dofs,
       for(int j=0; j<msiz; j++) {
         inmat.read((char*)&melem, sizeof (melem));
         if( i>=j )
-          *(ptr_data+(i+1)*i/2+j) = melem;
+          *(m_ptr_data+(i+1)*i/2+j) = melem;
       }
     }
   }
@@ -776,7 +776,7 @@ StatusCode AlSymMat::ReadProjected(const std::string &filename, int &dofs,
     for( int i=0; i<msiz; i++) {
       for( int j=0; j<=i; j++) {
         inmat.read((char*)&melem, sizeof (melem));
-        *(ptr_data+(i+1)*i/2+j) = melem;
+        *(m_ptr_data+(i+1)*i/2+j) = melem;
       }
     }
   }
@@ -789,18 +789,18 @@ StatusCode AlSymMat::ReadProjected(const std::string &filename, int &dofs,
 void AlSymMat::reSize(long int Nnew)
 {
   if ( Nnew != size() ) {
-    double * p = ptr_data;
+    double * p = m_ptr_data;
     long int ii;
 
-    _nele = Nnew*(Nnew+1)/2;
-    ptr_data = new double[_nele];
+    m_nele = Nnew*(Nnew+1)/2;
+    m_ptr_data = new double[m_nele];
     long int Size_old = size();
-    _size = Nnew;
+    m_size = Nnew;
     long int k = size() <= Size_old ? size() : Size_old;
     for( long int i=0; i<k; i++ ) {
       ii = (i+1)*i/2;
       for( long int j=0; j<=i; j++ )
-        *(ptr_data+ii+j) = *(p+ii+j);
+        *(m_ptr_data+ii+j) = *(p+ii+j);
     }
     delete [] p;
   }
@@ -812,25 +812,25 @@ double& AlSymMat::elemr(long int i,long int j)
 #ifdef _DEBUG
   if( i<0 ) {
     std::cerr << "AlSymMat::elemr: Index 1 < zero! " << i << std::endl;
-    return *(ptr_data);
+    return *(m_ptr_data);
   }
   if( i>=size() ) {
     std::cerr << "AlSymMat::elemr: Index 1 too large! " << i << std::endl;
-    return *(ptr_data);
+    return *(m_ptr_data);
   }
   if( j<0 ) {
     std::cerr << "AlSymMat::elemr: Index 2 < zero! " << j << std::endl;
-    return *(ptr_data);
+    return *(m_ptr_data);
   }
   if( j>=size() ) {
     std::cerr << "AlSymMat::elemr: Index 2 too large! " << j << std::endl;
-    return *(ptr_data);
+    return *(m_ptr_data);
   }
 #endif
   if( j<=i )
-    return  *(ptr_data+(i+1)*i/2+j);
+    return  *(m_ptr_data+(i+1)*i/2+j);
 
-  return  *(ptr_data+(j+1)*j/2+i);
+  return  *(m_ptr_data+(j+1)*j/2+i);
 }
 
 //______________________________________________________________________________
@@ -839,25 +839,25 @@ double AlSymMat::elemc(long int i,long int j) const
 #ifdef _DEBUG
   if( i<0 ) {
     std::cerr << "AlSymMat::elemc: Index 1 < zero! " << i << std::endl;
-    return *(ptr_data);
+    return *(m_ptr_data);
   }
   if( i>=size() ) {
     std::cerr << "AlSymMat::elemc: Index 1 too large! " << i << std::endl;
-    return *(ptr_data);
+    return *(m_ptr_data);
   }
   if( j<0 ) {
     std::cerr << "AlSymMat::elemc: Index 2 < zero! " << j << std::endl;
-    return *(ptr_data);
+    return *(m_ptr_data);
   }
   if( j>=size() ) {
     std::cerr << "AlSymMat::elemc: Index 2 too large! " << j << std::endl;
-    return *(ptr_data);
+    return *(m_ptr_data);
   }
 #endif
   if( j<=i )
-    return  *(ptr_data+(i+1)*i/2+j);
+    return  *(m_ptr_data+(i+1)*i/2+j);
 
-  return  *(ptr_data+(j+1)*j/2+i);
+  return  *(m_ptr_data+(j+1)*j/2+i);
 }
 
 
@@ -869,7 +869,7 @@ TMatrixDSparse* AlSymMat::makeTMatrix(){
 
   for( int i=0; i<si; i++ )
     for( int j=0; j<=i; j++ )
-			if( *(ptr_data+(i+1)*i/2+j)  != 0 ) 
+			if( *(m_ptr_data+(i+1)*i/2+j)  != 0 ) 
 				++nnz;
 
 	
@@ -880,10 +880,10 @@ TMatrixDSparse* AlSymMat::makeTMatrix(){
   
   for (int i=0;i<si;i++) {
     for (int j=0;j<=i;j++) {
-      if ( *(ptr_data+(i+1)*i/2+j) != 0.) {
+      if ( *(m_ptr_data+(i+1)*i/2+j) != 0.) {
         irow[n] = i;
         icol[n] = j;
-        val[n]  = *(ptr_data+(i+1)*i/2+j);
+        val[n]  = *(m_ptr_data+(i+1)*i/2+j);
         ++n;
       }
     }
