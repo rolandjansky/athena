@@ -57,9 +57,6 @@ public:
    */
   virtual StatusCode fill (const Jet& p);
   
-protected:
-  MsgStream m_log;
-  
 private:
   /// Property: DeltaR of jet shape annulus
   float m_deltaR;

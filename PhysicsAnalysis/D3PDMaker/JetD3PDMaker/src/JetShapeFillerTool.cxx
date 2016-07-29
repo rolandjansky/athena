@@ -37,8 +37,7 @@ JetShapeFillerTool::JetShapeFillerTool
   (const std::string& type,
    const std::string& name,
    const IInterface* parent)
-    : BlockFillerTool<Jet> (type, name, parent),
-      m_log( msgSvc(),name )
+    : BlockFillerTool<Jet> (type, name, parent)
 {
 
   // Properties
@@ -61,8 +60,6 @@ JetShapeFillerTool::JetShapeFillerTool
  */
 StatusCode JetShapeFillerTool::book()
 {
-  m_log.setLevel( outputLevel() );
-
   if (m_prefix == "")
     CHECK( addVariable ("shapeBins" , m_shape));
   else
@@ -94,11 +91,11 @@ StatusCode JetShapeFillerTool::fill(const Jet& p)
     std::string jet_author = p.jetAuthor();
     for (unsigned int ic = 0; ic < jet_author.size(); ic++) {
       if (!isdigit(jet_author.at(ic))) continue;
-      m_Rmax = atof(&jet_author.at(ic))/10.;
+      m_Rmax = atof(&jet_author.at(ic))*0.1;
       break;
     } 
-    m_log << MSG::INFO << "jetAuthor=" << p.jetAuthor() 
-          << " is used to define Rmax=" << m_Rmax << endreq;
+    //m_log << MSG::INFO << "jetAuthor=" << p.jetAuthor() 
+    //<< " is used to define Rmax=" << m_Rmax << endmsg;
     
     if (m_Rmax > 0. && m_deltaR > 0. && m_deltaR < m_Rmax) {
       m_shape->resize(int(m_Rmax/m_deltaR));
