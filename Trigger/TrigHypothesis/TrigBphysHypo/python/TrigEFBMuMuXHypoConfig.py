@@ -147,6 +147,35 @@ class EFBMuMuXHypo_BsMuMuPhi (EFBMuMuXHypo_1):
         self.AcceptBs = True
         self.AcceptLb = False
         self.AcceptBc = False
+        # Bs
+        self.LowerBsMassCut = 5000.
+        self.UpperBsMassCut = 5800.
+        self.BsChi2Cut = 60.
+        self.LowerPhi1020MassCut = 980.
+        self.UpperPhi1020MassCut = 1050.
+        self.Phi1020Chi2Cut = 400.
+        
+class EFBMuMuXHypo_BsJpsiPhi (EFBMuMuXHypo_BsMuMuPhi):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuXHypo_BsJpsiPhi"):
+        EFBMuMuXHypo_BsMuMuPhi.__init__(self, name)
+        #super( TrigEFBMuMuXHypo, self ).__init__( name )
+
+        # Currently identical to EFBMuMuXHypo_BsMuMuPhi,
+        # as we don't re-check the dimuon mass in HYPO
+        # decay modes flags
+        self.AcceptBplus = False
+        self.AcceptBd = False
+        self.AcceptBs = True
+        self.AcceptLb = False
+        self.AcceptBc = False        
+        # Bs
+        self.LowerBsMassCut = 5000.
+        self.UpperBsMassCut = 5800.
+        self.BsChi2Cut = 60.
+        self.LowerPhi1020MassCut = 980.
+        self.UpperPhi1020MassCut = 1050.
+        self.Phi1020Chi2Cut = 400.
         
 class EFBMuMuXHypo_LbMuMuLambda (EFBMuMuXHypo_1):
     __slots__ = []
