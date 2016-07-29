@@ -81,7 +81,7 @@ bool RDBAccessSvc::connect(const std::string& connName)
   if(m_sessions.find(connName)==m_sessions.end())
   {
     if(msgLvl(MSG::DEBUG))
-      msg(MSG::DEBUG) << " Trying to open the connection " << connName << " for the first time" << endreq;
+      msg(MSG::DEBUG) << " Trying to open the connection " << connName << " for the first time" << endmsg;
     // Add initial entries for this connection to three maps
     // 1. Sessions
     // 2. open connections
@@ -97,7 +97,7 @@ bool RDBAccessSvc::connect(const std::string& connName)
   {
     if(msgLvl(MSG::DEBUG))
       msg(MSG::DEBUG) << " Connection " << connName << " already open, sessions = " 
-		      << m_openConnections[connName] << endreq;
+		      << m_openConnections[connName] << endmsg;
     return true;
   }
 
@@ -107,10 +107,10 @@ bool RDBAccessSvc::connect(const std::string& connName)
   try {
     proxy = conSvcH.connect(connName,coral::ReadOnly);
     if(msgLvl(MSG::DEBUG))
-      msg(MSG::DEBUG) << " Proxy for connection "  << connName << " obtained" << endreq;
+      msg(MSG::DEBUG) << " Proxy for connection "  << connName << " obtained" << endmsg;
   }
   catch(std::exception& e) {
-    msg(MSG::ERROR) <<"Exception caught: " << e.what() << endreq;
+    msg(MSG::ERROR) <<"Exception caught: " << e.what() << endmsg;
     m_openConnections[connName]--;
     return false;
   }
@@ -123,7 +123,7 @@ bool RDBAccessSvc::connect(const std::string& connName)
 bool RDBAccessSvc::disconnect(const std::string& connName)
 {
   if(m_openConnections.find(connName)==m_openConnections.end()) {
-    msg(MSG::ERROR) << "Wrong name for the connection: " << connName << endreq;
+    msg(MSG::ERROR) << "Wrong name for the connection: " << connName << endmsg;
     return false;
   }
 
@@ -131,7 +131,7 @@ bool RDBAccessSvc::disconnect(const std::string& connName)
     m_openConnections[connName]--;
     if(msgLvl(MSG::DEBUG))
       msg(MSG::DEBUG) << "Connection " << connName
-		      << " Sessions = " << m_openConnections[connName] << endreq;
+		      << " Sessions = " << m_openConnections[connName] << endmsg;
 
     if(m_openConnections[connName]==0) {
 
@@ -141,7 +141,7 @@ bool RDBAccessSvc::disconnect(const std::string& connName)
       }
 
       if(msgLvl(MSG::DEBUG))
-	msg(MSG::DEBUG) << connName << " Disconnected!" << endreq;
+	msg(MSG::DEBUG) << connName << " Disconnected!" << endmsg;
 
       // clean up all shared recordsets for this connection
       if(m_recordsetptrs.find(connName)!=m_recordsetptrs.end())
@@ -157,7 +157,7 @@ bool RDBAccessSvc::shutdown(const std::string& connName)
     for(const auto& ii : m_openConnections) {
       if(ii.second != 0) {
 	msg(MSG::WARNING) << "Close everything: Connection: " << ii.first 
-			  << " with reference count = " << ii.second << " will be closed." <<endreq;
+			  << " with reference count = " << ii.second << " will be closed." <<endmsg;
 	return shutdown_connection(ii.first);
       }
     }
@@ -171,20 +171,20 @@ bool RDBAccessSvc::shutdown_connection(const std::string& connName)
 {
   if(m_openConnections.find(connName)==m_openConnections.end())
   {
-    msg(MSG::ERROR) << "Wrong name for the connection: " << connName << endreq;
+    msg(MSG::ERROR) << "Wrong name for the connection: " << connName << endmsg;
     return false;
   }
 
   m_openConnections[connName]=0;
   if(msgLvl(MSG::DEBUG))
     msg(MSG::DEBUG) << "Connection " << connName 
-		    << " Sessions = " << m_openConnections[connName] << endreq;
+		    << " Sessions = " << m_openConnections[connName] << endmsg;
   if(m_sessions.find(connName)!=m_sessions.end()) {
     delete m_sessions[connName];
     m_sessions[connName] = 0;
   }
   if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << connName << " Disconnected!" << endreq;
+    msg(MSG::DEBUG) << connName << " Disconnected!" << endmsg;
 
   // clean up all shared recordsets for this connection
   if(m_recordsetptrs.find(connName)!=m_recordsetptrs.end())
@@ -206,7 +206,7 @@ const IRDBRecordset* RDBAccessSvc::getRecordset(const std::string& node,
   if(it_maps==m_recordsets.end()) {
     if(msgLvl(MSG::DEBUG))
       msg(MSG::DEBUG) << "Wrong name for connection " << connName
-		      << ". Unable to find recordset map. Returning empty recordset" << endreq;
+		      << ". Unable to find recordset map. Returning empty recordset" << endmsg;
 
     return &m_empty;
   }
@@ -243,7 +243,7 @@ const IRDBRecordset* RDBAccessSvc::getRecordset(const std::string& node,
 	  else {
 	    if(msgLvl(MSG::DEBUG))
 	      msg(MSG::DEBUG) << "Unable to find tag for the node " << node
-			      << " in the cache of global tag " << tag << ". Returning empty recordset" << endreq;
+			      << " in the cache of global tag " << tag << ". Returning empty recordset" << endmsg;
 	  }
 	}
 
@@ -264,23 +264,23 @@ const IRDBRecordset* RDBAccessSvc::getRecordset(const std::string& node,
 	session->transaction().commit();
       }
       catch(coral::SchemaException& se) {
-	msg(MSG::ERROR) << "Schema Exception : " << se.what() << endreq;
+	msg(MSG::ERROR) << "Schema Exception : " << se.what() << endmsg;
       }
       catch(std::exception& e) {
-	msg(MSG::ERROR) << e.what() << endreq;
+	msg(MSG::ERROR) << e.what() << endmsg;
       }
       catch(...) {
-	msg(MSG::ERROR) << "Exception caught(...)" << endreq;
+	msg(MSG::ERROR) << "Exception caught(...)" << endmsg;
       }
     }
     else {
       msg(MSG::ERROR) << "Connection " << connName << " is not open." 
-		      << " Returning empty recordset" << endreq;
+		      << " Returning empty recordset" << endmsg;
     }
   }
   else
     msg(MSG::ERROR) << "Wrong name for connection " << connName
-		    << ". Unable to find session. Returning empty recordset" << endreq;
+		    << ". Unable to find session. Returning empty recordset" << endmsg;
 
   (*recordsets)[key] = rec;
   return rec;
@@ -296,13 +296,13 @@ IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node,
     key += ("::" + tag2node);
 
   if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "Getting RecordsetPtr with key " << key << endreq;
+    msg(MSG::DEBUG) << "Getting RecordsetPtr with key " << key << endmsg;
 
   RecordsetPtrsByConn::const_iterator it_maps = m_recordsetptrs.find(connName);
   if(it_maps==m_recordsetptrs.end()) {
     if(msgLvl(MSG::DEBUG))
       msg(MSG::DEBUG) << "Wrong name for connection " << connName
-		      << ". Unable to find recordset map. Returning empty recordset" << endreq;
+		      << ". Unable to find recordset map. Returning empty recordset" << endmsg;
 
     return IRDBRecordset_ptr(new RDBRecordset(this));
   }
@@ -311,7 +311,7 @@ IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node,
   RecordsetPtrMap::const_iterator it = recordsets->find(key);
   if(it != recordsets->end()) {
     if(msgLvl(MSG::DEBUG))
-      msg(MSG::DEBUG) << "Reusing existing recordset" << endreq;
+      msg(MSG::DEBUG) << "Reusing existing recordset" << endmsg;
     return it->second;
   }
 
@@ -343,7 +343,7 @@ IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node,
 	      recConcrete->setNodeName(node);
 	      if(msgLvl(MSG::DEBUG))
 		msg(MSG::DEBUG) << "Unable to find tag for the node " << node
-				<< " in the cache of global tag " << tag << ". Returning empty recordset" << endreq;
+				<< " in the cache of global tag " << tag << ". Returning empty recordset" << endmsg;
 	    }
 	  }
 	}
@@ -369,23 +369,23 @@ IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node,
 	session->transaction().commit();
       }
       catch(coral::SchemaException& se) {
-	msg(MSG::ERROR) << "Schema Exception : " << se.what() << endreq;
+	msg(MSG::ERROR) << "Schema Exception : " << se.what() << endmsg;
       }
       catch(std::exception& e) {
-	msg(MSG::ERROR) << e.what() << endreq;
+	msg(MSG::ERROR) << e.what() << endmsg;
       }
       catch(...) {
-	msg(MSG::ERROR) << "Exception caught(...)" << endreq;
+	msg(MSG::ERROR) << "Exception caught(...)" << endmsg;
       }
     }
     else {
       msg(MSG::ERROR) << "Connection " << connName << " is not open." 
-	  << " Returning empty recordset" << endreq;
+	  << " Returning empty recordset" << endmsg;
     }
   }
   else
     msg(MSG::ERROR) << "Wrong name for connection " << connName
-	<< ". Unable to find session. Returning empty recordset" << endreq;
+	<< ". Unable to find session. Returning empty recordset" << endmsg;
 
   (*recordsets)[key] = rec;
   return rec;
@@ -437,7 +437,7 @@ IRDBQuery* RDBAccessSvc::getQuery(const std::string& node,
 	if(childTagId.empty()) {
 	  if(msgLvl(MSG::DEBUG))
 	    msg(MSG::DEBUG) << "Could not get the tag for " << node
-			    << " node. Returning 0 pointer to IRDBQuery" << endreq;
+			    << " node. Returning 0 pointer to IRDBQuery" << endmsg;
 	}
 	else {
 	  query = new RDBQuery(this,session,node,childTagId);
@@ -445,22 +445,22 @@ IRDBQuery* RDBAccessSvc::getQuery(const std::string& node,
 
       }
       catch(coral::SchemaException& se) {
-	msg(MSG::ERROR) << "Schema Exception : " << se.what() << endreq;
+	msg(MSG::ERROR) << "Schema Exception : " << se.what() << endmsg;
       }
       catch(std::exception& e) {
-	msg(MSG::ERROR) << e.what() << endreq;
+	msg(MSG::ERROR) << e.what() << endmsg;
       }
       catch(...) {
-	msg(MSG::ERROR) << "Exception caught(...)" << endreq;
+	msg(MSG::ERROR) << "Exception caught(...)" << endmsg;
       }
     }
     else {
-      msg(MSG::ERROR) << "Connection " << connName << " is not open." << endreq; 
+      msg(MSG::ERROR) << "Connection " << connName << " is not open." << endmsg; 
     }
   }
   else
     msg(MSG::ERROR) << "Wrong name for connection " << connName
-	<< ". Unable to find session." << endreq;
+	<< ". Unable to find session." << endmsg;
 
   return query;
 }
@@ -478,7 +478,7 @@ std::string RDBAccessSvc::getChildTag(const std::string& childNode,
   // Based on all above I'm going to make fetchData obsolete and keep it around only for backwards compatibility
 
   if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "getChildTag for " << childNode << " " << parentTag << " " << parentNode << " " << (fetchData?"Fetch":"Nofetch") << endreq;
+    msg(MSG::DEBUG) << "getChildTag for " << childNode << " " << parentTag << " " << parentNode << " " << (fetchData?"Fetch":"Nofetch") << endmsg;
 
   SessionMap::const_iterator it_sessions = m_sessions.find(connName);
 
@@ -511,21 +511,21 @@ std::string RDBAccessSvc::getChildTag(const std::string& childNode,
 	return versionAccessor.getTagName();
       }
       catch(coral::SchemaException& se) {
-	msg(MSG::ERROR) << "Schema Exception : " << se.what() << endreq;
+	msg(MSG::ERROR) << "Schema Exception : " << se.what() << endmsg;
       }
       catch(std::exception& e) {
-	msg(MSG::ERROR) << e.what() << endreq;
+	msg(MSG::ERROR) << e.what() << endmsg;
       }
       catch(...) {
-	msg(MSG::ERROR) << "Exception caught(...)" << endreq;
+	msg(MSG::ERROR) << "Exception caught(...)" << endmsg;
       }
     }
     else {
-      msg(MSG::ERROR) << "Connection " << connName << " is not open." << endreq;
+      msg(MSG::ERROR) << "Connection " << connName << " is not open." << endmsg;
     }
   }
   else
-    msg(MSG::ERROR) << "Wrong name for connection " << connName << endreq;
+    msg(MSG::ERROR) << "Wrong name for connection " << connName << endmsg;
 
   return std::string("");
 }
@@ -599,13 +599,13 @@ RDBTagDetails RDBAccessSvc::getTagDetails(const std::string& tag,
 	}
       }
       catch(coral::SchemaException& se) {
-	msg(MSG::INFO) << "Schema Exception : " << se.what() << endreq;
+	msg(MSG::INFO) << "Schema Exception : " << se.what() << endmsg;
       }
       catch(std::exception& e) {
-	msg(MSG::ERROR) << e.what() << endreq;
+	msg(MSG::ERROR) << e.what() << endmsg;
       }
       catch(...) {
-	msg(MSG::ERROR) << "Exception caught(...)" << endreq;
+	msg(MSG::ERROR) << "Exception caught(...)" << endmsg;
       }
 
       // Finish the transaction
@@ -613,11 +613,11 @@ RDBTagDetails RDBAccessSvc::getTagDetails(const std::string& tag,
 	session->transaction().commit();
     }
     else {
-      msg(MSG::ERROR) << "Connection " << connName << " is not open." << endreq;
+      msg(MSG::ERROR) << "Connection " << connName << " is not open." << endmsg;
     }
   }
   else {
-    msg(MSG::ERROR) << "Wrong name for connection " << connName << endreq;
+    msg(MSG::ERROR) << "Wrong name for connection " << connName << endmsg;
   }
 
   return tagDetails;
@@ -655,13 +655,13 @@ void RDBAccessSvc::getAllLeafNodes(std::vector<std::string>& list,
 	delete queryNode;
       }
       catch(coral::SchemaException& se) {
-	msg(MSG::INFO) << "Schema Exception : " << se.what() << endreq;
+	msg(MSG::INFO) << "Schema Exception : " << se.what() << endmsg;
       }
       catch(std::exception& e) {
-	msg(MSG::ERROR) << e.what() << endreq;
+	msg(MSG::ERROR) << e.what() << endmsg;
       }
       catch(...) {
-	msg(MSG::ERROR) << "Exception caught(...)" << endreq;
+	msg(MSG::ERROR) << "Exception caught(...)" << endmsg;
       }
 
       // Finish the transaction
@@ -669,11 +669,11 @@ void RDBAccessSvc::getAllLeafNodes(std::vector<std::string>& list,
 	session->transaction().commit();
     }
     else {
-      msg(MSG::ERROR) << "Connection " << connName << " is not open." << endreq;
+      msg(MSG::ERROR) << "Connection " << connName << " is not open." << endmsg;
     }
   }
   else {
-    msg(MSG::ERROR) << "Wrong name for connection " << connName << endreq;
+    msg(MSG::ERROR) << "Wrong name for connection " << connName << endmsg;
   }
 
 }
@@ -686,12 +686,12 @@ StatusCode RDBAccessSvc::initialize()
   StatusCode result = service("PoolSvc", poolSvc);
   if(result.isFailure())
   {
-    msg(MSG::ERROR) << "Could not find IPoolSvc" << endreq;
+    msg(MSG::ERROR) << "Could not find IPoolSvc" << endmsg;
     return result;
   }
 
   if(msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "Successfully initialized" << endreq;
+    msg(MSG::DEBUG) << "Successfully initialized" << endmsg;
 
   return result;
 }

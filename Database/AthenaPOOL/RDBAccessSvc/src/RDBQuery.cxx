@@ -49,7 +49,7 @@ void RDBQuery::execute()
     m_accessSvc->msg() << MSG::DEBUG << "Query execute " << m_nodeName << ", "
 		       << m_tagId << ", "
 		       << m_orderField << ", "
-		       << m_fields.size() << endreq;
+		       << m_fields.size() << endmsg;
 
   try
   {
@@ -123,13 +123,13 @@ void RDBQuery::execute()
     return;
   }
   catch(coral::SchemaException& se) {
-    m_accessSvc->msg() << MSG::WARNING << "QUERY: Schema Exception : " + std::string(se.what()) << endreq;
+    m_accessSvc->msg() << MSG::WARNING << "QUERY: Schema Exception : " + std::string(se.what()) << endmsg;
   }
   catch(std::exception& e) {
-    m_accessSvc->msg() << MSG::WARNING << "QUERY: Exception : " + std::string(e.what()) << endreq;
+    m_accessSvc->msg() << MSG::WARNING << "QUERY: Exception : " + std::string(e.what()) << endmsg;
   }
   catch(...) {
-    m_accessSvc->msg() << MSG::WARNING << "QUERY: Exception caught... "  << endreq;
+    m_accessSvc->msg() << MSG::WARNING << "QUERY: Exception caught... "  << endmsg;
   }
 
   m_size = 0; // This indicates that there was a problem with query execution
@@ -151,10 +151,10 @@ void RDBQuery::finalize()
       m_session->transaction().commit();
     }
     catch(std::exception& e) {
-      m_accessSvc->msg() << MSG::WARNING << "QUERY Finalize: Exception : " + std::string(e.what()) << endreq;
+      m_accessSvc->msg() << MSG::WARNING << "QUERY Finalize: Exception : " + std::string(e.what()) << endmsg;
     }
     catch(...) {
-      m_accessSvc->msg() << MSG::WARNING << "QUERY Finalize : Exception caught... "  << endreq;
+      m_accessSvc->msg() << MSG::WARNING << "QUERY Finalize : Exception caught... "  << endmsg;
     }
   }
 }
