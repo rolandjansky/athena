@@ -114,7 +114,7 @@ TrigEMCluster::print ( MsgStream& log ) const {
 	log <<MSG::DEBUG<< "m_EnergyS : ";
         for ( int i = 0 ; i < MAXSIZE ; i++ )
                 log <<MSG::DEBUG<< energy((CaloSampling::CaloSample)i) << "; ";
-	log << endreq;
+	log << endmsg;
 }
 
 bool TrigEMCluster::isValid() const {

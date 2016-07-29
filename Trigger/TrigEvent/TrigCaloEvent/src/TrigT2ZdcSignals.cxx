@@ -63,7 +63,7 @@ void TrigT2ZdcSignals::print(MsgStream& log) const {
   for(;itr != itr_end; ++itr) {
     log << MSG::DEBUG << (*itr) << ",";
   }
-  log << MSG::DEBUG << "}" << endreq;  
+  log << MSG::DEBUG << "}" << endmsg;  
 
   itr = m_triggerTimes.begin();
   itr_end = m_triggerTimes.end();
@@ -71,7 +71,7 @@ void TrigT2ZdcSignals::print(MsgStream& log) const {
   for(;itr != itr_end; ++itr) {
     log << MSG::DEBUG << (*itr) << ",";
   }
-  log << MSG::DEBUG << "}" << endreq;
+  log << MSG::DEBUG << "}" << endmsg;
 }
 
 // Simple string conversion method.

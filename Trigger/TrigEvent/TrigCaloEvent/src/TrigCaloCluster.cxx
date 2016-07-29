@@ -98,7 +98,7 @@ TrigCaloCluster::print ( MsgStream& log ) const {
 	log <<MSG::DEBUG<<"m_rawEnergyS : ";
 	for ( int i = 0 ; i < MAXSIZE ; i++ )
 		log <<MSG::DEBUG<< rawEnergy((CaloSampling::CaloSample)i) << "; ";
-	log << endreq;
+	log << endmsg;
 }
 
 // stream output
