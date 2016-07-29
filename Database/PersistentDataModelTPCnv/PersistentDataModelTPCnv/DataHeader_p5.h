@@ -91,7 +91,7 @@ friend class DataHeaderCnv_p5;
 
 private:
    std::vector<DataHeaderElement_p5> m_dataHeader;
-   DataHeaderForm_p5* m_dhForm;
+   mutable DataHeaderForm_p5* m_dhForm;
    std::string m_dhFormToken;
    std::string m_dhFormMdx;
 };

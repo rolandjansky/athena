@@ -89,7 +89,9 @@ DataHeader_p5::DataHeader_p5(const DataHeader_p5& rhs) : m_dataHeader(rhs.m_data
 	m_dhForm(0),
 	m_dhFormToken(rhs.m_dhFormToken),
 	m_dhFormMdx(rhs.m_dhFormMdx) {}
-DataHeader_p5::~DataHeader_p5() {}
+DataHeader_p5::~DataHeader_p5() {
+   delete m_dhForm;
+}
 
 DataHeader_p5& DataHeader_p5::operator=(const DataHeader_p5& rhs) {
    if (this != &rhs) {
