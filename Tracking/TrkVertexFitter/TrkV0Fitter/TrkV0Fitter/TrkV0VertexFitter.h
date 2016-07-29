@@ -83,7 +83,7 @@ namespace Trk
 
     xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
                                const std::vector<const xAOD::NeutralParticle*>& /*vectorNeut*/, 
-                               const Amg::Vector3D& startingPoint){msg(MSG::WARNING) << "TrkV0VertexFitter::fit(fit(const std::vector<const TrackParticle*>&,const std::vector<const Trk::NeutralParticle*>&,const Amg::Vector3D&) ignoring neutrals" << endreq; return fit(vectorTrk, startingPoint);}; 
+                               const Amg::Vector3D& startingPoint){msg(MSG::WARNING) << "TrkV0VertexFitter::fit(fit(const std::vector<const TrackParticle*>&,const std::vector<const Trk::NeutralParticle*>&,const Amg::Vector3D&) ignoring neutrals" << endmsg; return fit(vectorTrk, startingPoint);}; 
 
     /** Interface for xAOD::TrackParticle with xAOD::Vertex starting point */
     virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
@@ -91,7 +91,7 @@ namespace Trk
 
     xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
                                const std::vector<const xAOD::NeutralParticle*>& /*vectorNeut*/, 
-                               const xAOD::Vertex& constraint){msg(MSG::WARNING) << "TrkV0VertexFitter::fit(fit(const std::vector<const TrackParticle*>&,const std::vector<const Trk::NeutralParticle*>&,const xAOD::Vertex&) ignoring neutrals" << endreq; return fit(vectorTrk, constraint);}; 
+                               const xAOD::Vertex& constraint){msg(MSG::WARNING) << "TrkV0VertexFitter::fit(fit(const std::vector<const TrackParticle*>&,const std::vector<const Trk::NeutralParticle*>&,const xAOD::Vertex&) ignoring neutrals" << endmsg; return fit(vectorTrk, constraint);}; 
 
     /** Fit interface for xAOD::TrackParticle with no starting point. (0,0,0) will be assumed */
     virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk);
@@ -105,7 +105,7 @@ namespace Trk
     /** Interface for Trk::TrackParameters and NeutralParameters with Amg::Vector3D starting point */
     xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
                                const std::vector<const Trk::NeutralParameters*> & /*neutralPerigeeList*/,
-                               const Amg::Vector3D& startingPoint) {msg(MSG::WARNING) << "TrkV0VertexFitter::fit(fit(const std::vector<const Trk::TrackParameters*>&,const std::vector<const Trk::NeutralParameters*>&,const Amg::Vector3D&) ignoring neutrals" << endreq; return fit(perigeeList, startingPoint);};
+                               const Amg::Vector3D& startingPoint) {msg(MSG::WARNING) << "TrkV0VertexFitter::fit(fit(const std::vector<const Trk::TrackParameters*>&,const std::vector<const Trk::NeutralParameters*>&,const Amg::Vector3D&) ignoring neutrals" << endmsg; return fit(perigeeList, startingPoint);};
  
     /** Interface for TrackParameters with xAOD::Vertex starting point */
     virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
@@ -114,12 +114,12 @@ namespace Trk
     /** Interface for TrackParameters and NeutralParameters with xAOD::Vertex starting point */
     xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
                                const std::vector<const Trk::NeutralParameters*> & /*neutralPerigeeList*/,
-                               const xAOD::Vertex& constraint){msg(MSG::WARNING) << "TrkV0VertexFitter::fit(fit(const std::vector<const Trk::TrackParameters*>&,const std::vector<const Trk::NeutralParameters*>&,const xAOD::Vertex&) ignoring neutrals" << endreq; return fit(perigeeList, constraint);};
+                               const xAOD::Vertex& constraint){msg(MSG::WARNING) << "TrkV0VertexFitter::fit(fit(const std::vector<const Trk::TrackParameters*>&,const std::vector<const Trk::NeutralParameters*>&,const xAOD::Vertex&) ignoring neutrals" << endmsg; return fit(perigeeList, constraint);};
 
     /** Fit interface for TrackParameters with no starting point. (0,0,0) will be assumed. */
     virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*>& perigeeList);
 
-    xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*>& perigeeList,const std::vector<const Trk::NeutralParameters*> & /*neutralPerigeeList*/){msg(MSG::WARNING) << "TrkV0VertexFitter::fit(fit(const std::vector<const Trk::TrackParameters*>&,const std::vector<const Trk::NeutralParameters*>&) ignoring neutrals" << endreq; return fit(perigeeList);};
+    xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*>& perigeeList,const std::vector<const Trk::NeutralParameters*> & /*neutralPerigeeList*/){msg(MSG::WARNING) << "TrkV0VertexFitter::fit(fit(const std::vector<const Trk::TrackParameters*>&,const std::vector<const Trk::NeutralParameters*>&) ignoring neutrals" << endmsg; return fit(perigeeList);};
 
 
 

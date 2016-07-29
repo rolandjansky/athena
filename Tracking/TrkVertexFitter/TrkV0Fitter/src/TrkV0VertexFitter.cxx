@@ -67,27 +67,27 @@ namespace Trk
   StatusCode TrkV0VertexFitter::initialize()
   {
     if ( m_extrapolator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
     }
 
   /* Get the magnetic field tool from ToolSvc */
     if ( m_magFieldSvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve service " << m_magFieldSvc << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve service " << m_magFieldSvc << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved service " << m_magFieldSvc << endreq;
+      msg(MSG::INFO) << "Retrieved service " << m_magFieldSvc << endmsg;
     }
 
-    msg(MSG::INFO) << "Initialize successful" << endreq;
+    msg(MSG::INFO) << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   StatusCode TrkV0VertexFitter::finalize()
   {
-    msg(MSG::INFO) << "Finalize successful" << endreq;
+    msg(MSG::INFO) << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -281,9 +281,9 @@ namespace Trk
         unsigned int indexFMP;
         if (p->indexOfParameterAtPosition(indexFMP, xAOD::FirstMeasurement)) {
           measuredPerigees.push_back(new CurvilinearParameters(p->curvilinearParameters(indexFMP)));
-          msg(MSG::DEBUG) << "first measurement on track exists" << endreq;
-          msg(MSG::DEBUG) << "first measurement " << p->curvilinearParameters(indexFMP) << endreq;
-          msg(MSG::DEBUG) << "first measurement covariance " << *(p->curvilinearParameters(indexFMP)).covariance() << endreq;
+          msg(MSG::DEBUG) << "first measurement on track exists" << endmsg;
+          msg(MSG::DEBUG) << "first measurement " << p->curvilinearParameters(indexFMP) << endmsg;
+          msg(MSG::DEBUG) << "first measurement covariance " << *(p->curvilinearParameters(indexFMP)).covariance() << endmsg;
         } else {
           Amg::Transform3D * CylTrf = new Amg::Transform3D;
           CylTrf->setIdentity();
@@ -293,17 +293,17 @@ namespace Trk
           const Trk::TrackParameters* extrapolatedPerigee(0);
           extrapolatedPerigee = m_extrapolator->extrapolate(*chargeParameters, estimationCylinder, Trk::alongMomentum, true, Trk::pion, mode);
           if (extrapolatedPerigee!=0) {
-            msg(MSG::DEBUG) << "extrapolated to first measurement" << endreq;
+            msg(MSG::DEBUG) << "extrapolated to first measurement" << endmsg;
             measuredPerigees.push_back (extrapolatedPerigee);
             measuredPerigees_delete.push_back (extrapolatedPerigee);
           } else {
             extrapolatedPerigee = m_extrapolator->extrapolateDirectly(*chargeParameters, estimationCylinder, Trk::alongMomentum, true, Trk::pion);
             if (extrapolatedPerigee!=0) {
-              msg(MSG::DEBUG) << "extrapolated (direct) to first measurement" << endreq;
+              msg(MSG::DEBUG) << "extrapolated (direct) to first measurement" << endmsg;
               measuredPerigees.push_back (extrapolatedPerigee);
               measuredPerigees_delete.push_back (extrapolatedPerigee);
             } else {
-              msg(MSG::DEBUG) << "Failed to extrapolate to the first measurement on track, using Perigee parameters" << endreq;
+              msg(MSG::DEBUG) << "Failed to extrapolate to the first measurement on track, using Perigee parameters" << endmsg;
               measuredPerigees.push_back (&p->perigeeParameters());
             }
           }
@@ -395,10 +395,10 @@ namespace Trk
     }
 
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "massConstraint " << massConstraint << " pointingConstraint " << pointingConstraint << " conversion " << conversion << endreq;
-      msg(MSG::DEBUG) << "V0Fitter called with: " << endreq;
-      if (massConstraint && masses.size() != 0) msg(MSG::DEBUG) << "mass constraint, V0Mass = " << constraintMass << " particle masses " << masses << endreq;
-      if (pointingConstraint) msg(MSG::DEBUG) << "pointing constraint, x = " << x_point << " y = " << y_point << " z = " << z_point << endreq;
+      msg(MSG::DEBUG) << "massConstraint " << massConstraint << " pointingConstraint " << pointingConstraint << " conversion " << conversion << endmsg;
+      msg(MSG::DEBUG) << "V0Fitter called with: " << endmsg;
+      if (massConstraint && masses.size() != 0) msg(MSG::DEBUG) << "mass constraint, V0Mass = " << constraintMass << " particle masses " << masses << endmsg;
+      if (pointingConstraint) msg(MSG::DEBUG) << "pointing constraint, x = " << x_point << " y = " << y_point << " z = " << z_point << endmsg;
     }
 
     m_iter = 0;
@@ -885,8 +885,8 @@ namespace Trk
       frameOriginItr[1] += DeltaA_vec(1);
       frameOriginItr[2] += DeltaA_vec(2);
       if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << "New vertex, global coordinates: " << frameOriginItr.transpose() << endreq;
-        msg(MSG::DEBUG) << "chi2Old: " << chi2Old << " chi2New: " << chi2New << " fabs(chi2Old-chi2New): " << fabs(chi2Old-chi2New) << endreq;
+        msg(MSG::DEBUG) << "New vertex, global coordinates: " << frameOriginItr.transpose() << endmsg;
+        msg(MSG::DEBUG) << "chi2Old: " << chi2Old << " chi2New: " << chi2New << " fabs(chi2Old-chi2New): " << fabs(chi2Old-chi2New) << endmsg;
       }
 
       const Amg::Vector3D * globalPositionItr = &frameOriginItr;
