@@ -40,7 +40,7 @@ void TileRawDataContainer<_TCollection>::initialize(bool createColl, TYPE type,
                 } else {
                     MsgStream log(msgSvc, "TileRawDataContainer");
                     log << MSG::ERROR <<" Can not create collection for frag 0x" << MSG::hex << frag
-                        << " in container with CLID " << MSG::dec << this->clID() << endreq;
+                        << " in container with CLID " << MSG::dec << this->clID() << endmsg;
                 }
             }
         }
@@ -136,7 +136,7 @@ void TileRawDataContainer<_TCollection>::add(_TElement* rc, bool createColl,
                 } else {
                     MsgStream log(msgSvc, "TileRawDataContainer");
                     log << MSG::ERROR <<" Can not create collection for frag 0x" << MSG::hex << frag
-                        << " in container with CLID " << MSG::dec << this->clID() << endreq;
+                        << " in container with CLID " << MSG::dec << this->clID() << endmsg;
                 }
                 return ;
             }
@@ -155,7 +155,7 @@ void TileRawDataContainer<_TCollection>::add(_TElement* rc, bool createColl,
                 MsgStream log(msgSvc, "TileRawDataContainer");
                 log << MSG::ERROR <<" Collection for frag 0x" << MSG::hex << frag 
                     << " in container with CLID " << MSG::dec << this->clID()
-                    << " does not exist " << endreq; 
+                    << " does not exist " << endmsg; 
             }
             return ;
           } 

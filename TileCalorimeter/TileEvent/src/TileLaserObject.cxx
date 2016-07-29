@@ -305,7 +305,7 @@ void TileLaserObject::setDiode(const unsigned int diode,
       m_diodesHG[diode].setDiode(diodeAdc, diodePedestal, diodeSigmaPedestal, alpha, sigmaAlpha, pedestalAlpha, sigmaPedAlpha);
     } // IF
   }else{
-    //   log<<MSG::ERROR<<"Exit code in method TileLaserObject::setDiode"<<endreq;
+    //   log<<MSG::ERROR<<"Exit code in method TileLaserObject::setDiode"<<endmsg;
     exit(0);
   }
 }
@@ -325,7 +325,7 @@ void TileLaserObject::setPmt(const unsigned int pmt,
       m_pmtsHG[pmt].setPmt(pmAdc, tdc, pmPedestal, pmSigmaPedestal);
     } // IF
   }else{
-    //    log<<MSG::ERROR<<"Exit code in method TileLaserObject::setPmt"<<endreq;
+    //    log<<MSG::ERROR<<"Exit code in method TileLaserObject::setPmt"<<endmsg;
     exit(0);
   }
 }
