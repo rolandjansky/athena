@@ -58,24 +58,24 @@ namespace InDet {
   InDetLowBetaCandidate::~InDetLowBetaCandidate() {}
 
   MsgStream& InDetLowBetaCandidate::dump(MsgStream& sl) const {
-	    sl << "Printing InDet::InDetLowBetaCandidate: " << endreq;
-	    sl << "TRTCorrBitsOverThreshold: " << m_TRTCorrBitsOverThreshold << endreq;
-	    sl << "TRTTrailingEdge: " << m_TRTTrailingEdge << endreq;
-	    sl << "TRTTrailingEdgeError: " << m_TRTTrailingEdgeError << endreq;
-	    sl << "TRTNLastBits: " << m_TRTNLastBits << endreq;
-	    sl << "TRTdEdx: " << m_TRTdEdx << endreq;
-	    sl << "TRTLikelihoodBeta: " << m_TRTLikelihoodBeta << endreq;
-	    sl << "TRTLikelihoodError: " << m_TRTLikelihoodError << endreq;
-	    sl << "TRTHighTbits: " << m_TRTHighTbits << endreq;
+	    sl << "Printing InDet::InDetLowBetaCandidate: " << endmsg;
+	    sl << "TRTCorrBitsOverThreshold: " << m_TRTCorrBitsOverThreshold << endmsg;
+	    sl << "TRTTrailingEdge: " << m_TRTTrailingEdge << endmsg;
+	    sl << "TRTTrailingEdgeError: " << m_TRTTrailingEdgeError << endmsg;
+	    sl << "TRTNLastBits: " << m_TRTNLastBits << endmsg;
+	    sl << "TRTdEdx: " << m_TRTdEdx << endmsg;
+	    sl << "TRTLikelihoodBeta: " << m_TRTLikelihoodBeta << endmsg;
+	    sl << "TRTLikelihoodError: " << m_TRTLikelihoodError << endmsg;
+	    sl << "TRTHighTbits: " << m_TRTHighTbits << endmsg;
 	    return sl;
 	  }
 
   //std::ostrem& InDetLowBetaCandidate::dump(std::ostrem sl) const {
-  //	    sl << "Printing InDet::InDetLowBetaCandidate: " << endreq;
-  //	    sl << "TRTCorrBitsOverThreshold: " << m_TRTCorrBitsOverThreshold << endreq;
-  //    sl << "TRTTrailingEdge: " << m_TRTTrailingEdge << endreq;
-  //    sl << "TRTTrailingEdgeError: " << m_TRTTrailingEdgeError << endreq;
-  //    sl << "TRTNLastBits: " << m_TRTNLastBits << endreq;
+  //	    sl << "Printing InDet::InDetLowBetaCandidate: " << endmsg;
+  //	    sl << "TRTCorrBitsOverThreshold: " << m_TRTCorrBitsOverThreshold << endmsg;
+  //    sl << "TRTTrailingEdge: " << m_TRTTrailingEdge << endmsg;
+  //    sl << "TRTTrailingEdgeError: " << m_TRTTrailingEdgeError << endmsg;
+  //    sl << "TRTNLastBits: " << m_TRTNLastBits << endmsg;
   //    return sl;
   //	  }
 
