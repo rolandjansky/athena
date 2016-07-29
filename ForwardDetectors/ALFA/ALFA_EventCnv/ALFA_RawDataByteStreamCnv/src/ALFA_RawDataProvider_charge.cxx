@@ -38,21 +38,21 @@ ALFA_RawDataProvider_charge::~ALFA_RawDataProvider_charge(){
 ////////////////////////
 StatusCode ALFA_RawDataProvider_charge::initialize() {
 
-  msg(MSG::DEBUG) << "ALFA_RawDataProvider_charge::initialize" << endreq;
+  msg(MSG::DEBUG) << "ALFA_RawDataProvider_charge::initialize" << endmsg;
 
   // Get ROBDataProviderSvc
   if (m_robDataProvider.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve service " << m_robDataProvider << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve service " << m_robDataProvider << endmsg;
     return StatusCode::FAILURE;
   } else
-    msg(MSG::DEBUG) << "Retrieved service " << m_robDataProvider << endreq;
+    msg(MSG::DEBUG) << "Retrieved service " << m_robDataProvider << endmsg;
 
   // Get ALFARawDataProviderTool
   if (m_rawDataTool_charge.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve service " << m_rawDataTool_charge << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve service " << m_rawDataTool_charge << endmsg;
     return StatusCode::FAILURE;
   } else
-    msg(MSG::DEBUG) << "Retrieved service " << m_rawDataTool_charge << endreq;
+    msg(MSG::DEBUG) << "Retrieved service " << m_rawDataTool_charge << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -66,21 +66,21 @@ StatusCode ALFA_RawDataProvider_charge::initialize() {
 ////////////////////////
 StatusCode ALFA_RawDataProvider_charge::execute() {
 
-msg(MSG::DEBUG) << "ALFA_RawDataProvider_charge::EXECUTE" << endreq;
+msg(MSG::DEBUG) << "ALFA_RawDataProvider_charge::EXECUTE" << endmsg;
 
 
   ALFA_RawDataContainer_charge *container = new ALFA_RawDataContainer_charge();
-   msg(MSG::DEBUG) << " Created ALFA RDO Container_charge" << endreq;
+   msg(MSG::DEBUG) << " Created ALFA RDO Container_charge" << endmsg;
 
  StatusCode sc;
 
  sc = evtStore()->record(container, m_ALFA_RawDataCollectionKey_charge);
 
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Unable to record ALFA RDO Container_charge" << endreq;
+    msg(MSG::FATAL) << "Unable to record ALFA RDO Container_charge" << endmsg;
     return StatusCode::FAILURE;
    } else if (sc.isSuccess()){
-  msg(MSG::DEBUG) << "ALFA RDO Container_charge recorded" << endreq;
+  msg(MSG::DEBUG) << "ALFA RDO Container_charge recorded" << endmsg;
   }
 
 
@@ -93,16 +93,16 @@ msg(MSG::DEBUG) << "ALFA_RawDataProvider_charge::EXECUTE" << endreq;
   m_robDataProvider->getROBData(ROBIDs, listOfRobf);
 
 
-    msg(MSG::DEBUG) << "  ROB ID " << std::hex <<ROBIDs <<MSG::dec<< endreq;
+    msg(MSG::DEBUG) << "  ROB ID " << std::hex <<ROBIDs <<MSG::dec<< endmsg;
 
-    msg(MSG::DEBUG) << " Number of ROB fragments is " << listOfRobf.size() << endreq;
+    msg(MSG::DEBUG) << " Number of ROB fragments is " << listOfRobf.size() << endmsg;
 
   // ask ALFA_RawDataProviderTool to decode it and to fill the container
 
  if (m_rawDataTool_charge->convert_charge(listOfRobf,container).isFailure()){
-    msg(MSG::ERROR) << "BS conversion into RDOs failed" << endreq;
+    msg(MSG::ERROR) << "BS conversion into RDOs failed" << endmsg;
 } else
-    msg(MSG::DEBUG) << " Number of collections in container is " << container->size() << endreq;
+    msg(MSG::DEBUG) << " Number of collections in container is " << container->size() << endmsg;
 
 
   // check retrieve from StoreGate ///////////////////////////////////////////////////////////
@@ -110,7 +110,7 @@ msg(MSG::DEBUG) << "ALFA_RawDataProvider_charge::EXECUTE" << endreq;
   sc = evtStore()->retrieve(container, m_ALFA_RawDataCollectionKey_charge);
   if (sc.isSuccess())
   {
-	msg(MSG::DEBUG) << "ALFA RDO Container retrieved" << endreq;
+	msg(MSG::DEBUG) << "ALFA RDO Container retrieved" << endmsg;
   } // end check
 
   return StatusCode::SUCCESS;

@@ -43,19 +43,19 @@ StatusCode ALFA_Decoder_charge::initialize() {
    
   StatusCode sc;
   sc = AthAlgTool::initialize(); 
-  msg(MSG::DEBUG) << " ALFA_RoDDecoder_charge::initialize" << endreq;
+  msg(MSG::DEBUG) << " ALFA_RoDDecoder_charge::initialize" << endmsg;
   if (sc.isFailure()) return sc;
 
  // Get ROBDataProviderSvc
   if (m_robDataProvider.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve service " << m_robDataProvider << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve service " << m_robDataProvider << endmsg;
     return StatusCode::FAILURE;
   } else
-    msg(MSG::DEBUG) << "Retrieved service " << m_robDataProvider << endreq;
+    msg(MSG::DEBUG) << "Retrieved service " << m_robDataProvider << endmsg;
  
 
   if(StatusCode::SUCCESS !=serviceLocator()->service("StoreGateSvc", m_EvtStore)) {
-   msg(MSG::FATAL) <<"Can't get StoreGateSvc "<< endreq;
+   msg(MSG::FATAL) <<"Can't get StoreGateSvc "<< endmsg;
     return StatusCode::FAILURE; 
   }
 
@@ -82,9 +82,9 @@ StatusCode ALFA_Decoder_charge::initialize() {
 ////////////////////////
 StatusCode ALFA_Decoder_charge::finalize() { 
 
-msg(MSG::DEBUG) << " ALFA_RoDDecoder_charge::FINALIZE" << endreq;
+msg(MSG::DEBUG) << " ALFA_RoDDecoder_charge::FINALIZE" << endmsg;
 
-msg(MSG::DEBUG) << " Bytestream summary:" << m_fragment_number << " fragments found" << endreq;
+msg(MSG::DEBUG) << " Bytestream summary:" << m_fragment_number << " fragments found" << endmsg;
 
 
   delete m_ALFA_RawDataReadOut_charge;
@@ -100,7 +100,7 @@ msg(MSG::DEBUG) << " Bytestream summary:" << m_fragment_number << " fragments fo
 // fillCollection() -
 ////////////////////////
 StatusCode ALFA_Decoder_charge::fillCollection(const ROBFragment *robFrag, ALFA_RawDataContainer_charge* rdoCont, std::vector<unsigned int>* ) {
- msg(MSG::DEBUG) << " ALFA_RoDDecoder_charge::fillCollection" << endreq;
+ msg(MSG::DEBUG) << " ALFA_RoDDecoder_charge::fillCollection" << endmsg;
 
 StatusCode sc = StatusCode::SUCCESS;
 
@@ -139,7 +139,7 @@ uint16_t CountPMF0=0;
 
  catch (eformat::Issue &ex)
   {
-  msg(MSG::DEBUG) <<ex.what ()<< endreq; 
+  msg(MSG::DEBUG) <<ex.what ()<< endmsg; 
      return StatusCode::FAILURE;  // error in fragment - we search for no collection
    }
 
@@ -155,7 +155,7 @@ uint16_t CountPMF0=0;
  
      if (*it)
     {
-      msg(MSG::DEBUG) << " Error in ROB status word: 0x" << endreq; 
+      msg(MSG::DEBUG) << " Error in ROB status word: 0x" << endmsg; 
         return StatusCode::FAILURE;
      }
   }
@@ -177,12 +177,12 @@ uint16_t CountPMF0=0;
   uint32_t ROD_LVL1_ID  = robFrag->rod_lvl1_id(); 
   
 msg(MSG::DEBUG) << "============================" << std::endl;
-msg(MSG::DEBUG) <<"Frag Size  : " << robFrag->rod_fragment_size_word() << endreq;
-msg(MSG::DEBUG) <<"Header Size: " << robFrag->rod_header_size_word() << endreq;
-msg(MSG::DEBUG) <<"Source  ID : " << m_ROD_source_ID << endreq;
-msg(MSG::DEBUG) <<"Run num    : " << robFrag->rod_run_no() << endreq;
-msg(MSG::DEBUG) <<"Version    : " << robFrag->rod_version() << endreq;
-msg(MSG::DEBUG) << " ROD_LVL1_ID " <<ROD_LVL1_ID<<  endreq; 
+msg(MSG::DEBUG) <<"Frag Size  : " << robFrag->rod_fragment_size_word() << endmsg;
+msg(MSG::DEBUG) <<"Header Size: " << robFrag->rod_header_size_word() << endmsg;
+msg(MSG::DEBUG) <<"Source  ID : " << m_ROD_source_ID << endmsg;
+msg(MSG::DEBUG) <<"Run num    : " << robFrag->rod_run_no() << endmsg;
+msg(MSG::DEBUG) <<"Version    : " << robFrag->rod_version() << endmsg;
+msg(MSG::DEBUG) << " ROD_LVL1_ID " <<ROD_LVL1_ID<<  endmsg; 
 msg(MSG::DEBUG) << "============================" << std::endl;
  
 
@@ -190,16 +190,16 @@ uint32_t evt_Id = ((robFrag->rod_lvl1_id()) & 0xFF000000) >> 24;
 uint32_t lvl1_Id = ((robFrag->rod_lvl1_id()) & 0x00FFFFFF) ; 
 
 
-msg(MSG::DEBUG) <<" evt_Id    : " <<  evt_Id << " lvl1_Id    : " <<  lvl1_Id <<endreq;   
+msg(MSG::DEBUG) <<" evt_Id    : " <<  evt_Id << " lvl1_Id    : " <<  lvl1_Id <<endmsg;   
 
- /*msg(MSG::DEBUG) << " **********Decoder dumping the words******** "<< endreq; 
+ /*msg(MSG::DEBUG) << " **********Decoder dumping the words******** "<< endmsg; 
    
 if (size > 0) {
-msg(MSG::DEBUG) << " The size of this ROD-read is "<< endreq; 
+msg(MSG::DEBUG) << " The size of this ROD-read is "<< endmsg; 
     for (unsigned int i=0; i < size; i++)
- msg(MSG::DEBUG) << " word " << i << " = " << MSG::hex << vint[i] << MSG::dec<< endreq; 
+ msg(MSG::DEBUG) << " word " << i << " = " << MSG::hex << vint[i] << MSG::dec<< endmsg; 
    } else {
-msg(MSG::DEBUG) << " Buffer size 0 ! "<< endreq; 
+msg(MSG::DEBUG) << " Buffer size 0 ! "<< endmsg; 
         return StatusCode::FAILURE;
    }*/
 
@@ -228,18 +228,18 @@ msg(MSG::DEBUG) << " Buffer size 0 ! "<< endreq;
 		Count_evt++;
 		//if (Count_evt == maxEvt) break;		
 	
-	msg(MSG::INFO) << " Event_num " << Event_num << " Count_evt " << Count_evt <<  endreq; 
+	msg(MSG::INFO) << " Event_num " << Event_num << " Count_evt " << Count_evt <<  endmsg; 
 	
 
 
 	
  	if (m_ALFA_RawDataCollectionReadOut->is_BOB()) 
    	 {
-		msg(MSG::DEBUG) << " Found the beginning of buffer "<< endreq;     
+		msg(MSG::DEBUG) << " Found the beginning of buffer "<< endmsg;     
   		  // Check that Lvl1d matches the one from the ROD header. this is the number of event.it corresponds to m_ALFA_RawDataReadOut_charge->ecnt_BOT() and m_ALFA_RawDataReadOut_charge->ecnt_EOT()
-		msg(MSG::DEBUG) << " Level 1 Id : " << m_ALFA_RawDataCollectionReadOut->lvl1Id()<< endreq; 
+		msg(MSG::DEBUG) << " Level 1 Id : " << m_ALFA_RawDataCollectionReadOut->lvl1Id()<< endmsg; 
    	  } else {
-		msg(MSG::DEBUG) << " Beginning of block not found BOB "<< endreq; 
+		msg(MSG::DEBUG) << " Beginning of block not found BOB "<< endmsg; 
   	  } // BOB
 
 	
@@ -252,7 +252,7 @@ msg(MSG::DEBUG) << " Buffer size 0 ! "<< endreq;
     	  		wordPos += 1;
     	  		if (wordPos >= size) 
     	  			{
-    		    		msg(MSG::ERROR)<<" Error: data corrupted" << endreq;
+    		    		msg(MSG::ERROR)<<" Error: data corrupted" << endmsg;
     		    		return StatusCode::FAILURE;
     	  			}
     	  		m_ALFA_RawDataCollectionReadOut->decodeWord(vint[wordPos]);
@@ -261,21 +261,21 @@ msg(MSG::DEBUG) << " Buffer size 0 ! "<< endreq;
     
     			if (m_ALFA_RawDataCollectionReadOut->is_BOL())  
     			{			
-			msg(MSG::DEBUG) << " Found the beginning of Link BOL"<< endreq;  
-			msg(MSG::DEBUG) << " MrodNum BOL : " << m_ALFA_RawDataCollectionReadOut->MrodNum()<< " RODinput BOL : " <<m_ALFA_RawDataCollectionReadOut->RODinput()<< endreq; 
+			msg(MSG::DEBUG) << " Found the beginning of Link BOL"<< endmsg;  
+			msg(MSG::DEBUG) << " MrodNum BOL : " << m_ALFA_RawDataCollectionReadOut->MrodNum()<< " RODinput BOL : " <<m_ALFA_RawDataCollectionReadOut->RODinput()<< endmsg; 
 	   
 			} // is_BOL()
     			
     			else if (m_ALFA_RawDataCollectionReadOut->is_EOB()) 
     			{
-      			msg(MSG::DEBUG)<<" Error: collection not found " << endreq;
+      			msg(MSG::DEBUG)<<" Error: collection not found " << endmsg;
       			return StatusCode::FAILURE;
     			} // is_EOB()
     
     		
 			wordPos += 1;
 			if (wordPos >= size) {
-			msg(MSG::ERROR)<<" Error: data corrupted"<< endreq;
+			msg(MSG::ERROR)<<" Error: data corrupted"<< endmsg;
   			return StatusCode::FAILURE;
       			}
 		
@@ -287,7 +287,7 @@ msg(MSG::DEBUG) << " Buffer size 0 ! "<< endreq;
 			
 			uint16_t slotIdNum  = m_ALFA_RawDataReadOut_charge->SlotId();
 	        							
-	       		msg(MSG::DEBUG)<<"  Decoding data from Slot Id number : " <<  slotIdNum << endreq;
+	       		msg(MSG::DEBUG)<<"  Decoding data from Slot Id number : " <<  slotIdNum << endmsg;
 						
 			ALFA_RawData_charge* rawData_charge; 
 
@@ -298,7 +298,7 @@ msg(MSG::DEBUG) << " Buffer size 0 ! "<< endreq;
 					wordPos += 1;
 				  	if (wordPos >= size) 
 	          			{
-	            			msg(MSG::DEBUG)<<" Error: data corrupted" << endreq;
+	            			msg(MSG::DEBUG)<<" Error: data corrupted" << endmsg;
 	            			return StatusCode::FAILURE;
 	          			}
 	          		
@@ -311,13 +311,13 @@ msg(MSG::DEBUG) << " Buffer size 0 ! "<< endreq;
 	
 	if (m_ALFA_RawDataReadOut_charge->is_TDCch() ) {
 							
-		// if(m_ALFA_RawDataReadOut_charge->ChannelNumId() ==1) msg(MSG::DEBUG)<<" DECODER : PMFId  " <<  m_ALFA_RawDataReadOut_charge->PMFId() <<  " ChannelNumId  " << m_ALFA_RawDataReadOut_charge->ChannelNumId() << " ChargeChanId "<< m_ALFA_RawDataReadOut_charge->ChargeChanId() <<endreq;
+		// if(m_ALFA_RawDataReadOut_charge->ChannelNumId() ==1) msg(MSG::DEBUG)<<" DECODER : PMFId  " <<  m_ALFA_RawDataReadOut_charge->PMFId() <<  " ChannelNumId  " << m_ALFA_RawDataReadOut_charge->ChannelNumId() << " ChargeChanId "<< m_ALFA_RawDataReadOut_charge->ChargeChanId() <<endmsg;
 							
 				
 																	
 		if(m_ALFA_RawDataReadOut_charge->PMFId() ==0){
 		//  && m_ALFA_RawDataReadOut_charge->bit27_24()==1 					
-			// msg(MSG::DEBUG) << " Creation of the new collection"<< endreq;     
+			// msg(MSG::DEBUG) << " Creation of the new collection"<< endmsg;     
     			
 			
 			CountPMF0++;
@@ -335,7 +335,7 @@ msg(MSG::DEBUG) << " Buffer size 0 ! "<< endreq;
 					if(CountPMF0==1) collection = getCollection(MBIdNum,rdoCont );
 					if(collection) collection->SetMBId_POT(MBIdNum);
 							
-					if(CountPMF0==1) msg(MSG::DEBUG)<<"  DECODER : MBIdNum  " <<  MBIdNum << endreq;
+					if(CountPMF0==1) msg(MSG::DEBUG)<<"  DECODER : MBIdNum  " <<  MBIdNum << endmsg;
 					
 						
 				}
@@ -364,7 +364,7 @@ msg(MSG::DEBUG) << " Buffer size 0 ! "<< endreq;
 			rawData_charge->SetChargeChan_PMF(ChargeNum);
 			
 			
-			msg(MSG::DEBUG)<<"  PMFIdNum = " << PMFIdNum <<"  ChannelIdNum = " << ChannelIdNum <<" chargeNum = " <<  ChargeNum << endreq;
+			msg(MSG::DEBUG)<<"  PMFIdNum = " << PMFIdNum <<"  ChannelIdNum = " << ChannelIdNum <<" chargeNum = " <<  ChargeNum << endmsg;
 					
 			std::vector<uint16_t> ChargeHitId;
 			ChargeHitId.push_back(ChargeNum);
@@ -394,12 +394,12 @@ msg(MSG::DEBUG) << " Buffer size 0 ! "<< endreq;
 				
 					 
 			if (m_ALFA_RawDataReadOut_charge->is_EOT() && m_ALFA_RawDataReadOut_charge->bit24_27()!=0) {
-			msg(MSG::DEBUG) << " Event Counter EOT : " << m_ALFA_RawDataReadOut_charge->ecnt_EOT()<< endreq; 
+			msg(MSG::DEBUG) << " Event Counter EOT : " << m_ALFA_RawDataReadOut_charge->ecnt_EOT()<< endmsg; 
 			}
 	
 			wordPos += 1;
  			if (wordPos >= size) {
-	            	msg(MSG::DEBUG)<<" Error: data corrupted" << endreq;
+	            	msg(MSG::DEBUG)<<" Error: data corrupted" << endmsg;
 	            	return StatusCode::FAILURE;
 	          	}
 					
@@ -412,7 +412,7 @@ msg(MSG::DEBUG) << " Buffer size 0 ! "<< endreq;
 		wordPos += 1;
                 if (wordPos >= size) 
 	        {
-	        msg(MSG::DEBUG)<<" Error: data corrupted" << endreq;
+	        msg(MSG::DEBUG)<<" Error: data corrupted" << endmsg;
 	       	return StatusCode::FAILURE;
 	       	}
 					
@@ -452,7 +452,7 @@ if(collection) collection->SetBCId_POT(BC_ID);
 	
 	if (m_ALFA_RawDataCollectionReadOut->is_EOB()) 
    	{	
-	 msg(MSG::DEBUG) << " Found the end of block EOB ---------------------- "<<  endreq; 
+	 msg(MSG::DEBUG) << " Found the end of block EOB ---------------------- "<<  endmsg; 
 	} 
 	
 	wordPos += 1;
@@ -470,7 +470,7 @@ if(collection) collection->SetBCId_POT(BC_ID);
 
 ALFA_RawDataCollection_charge* ALFA_Decoder_charge::getCollection(unsigned int MBIdNum, ALFA_RawDataContainer_charge* cont) {
 
-msg(MSG::DEBUG) << " ALFA_RoDDecoder_charge::getCollection" << endreq;
+msg(MSG::DEBUG) << " ALFA_RoDDecoder_charge::getCollection" << endmsg;
 
   ALFA_RawDataCollection_charge* coll;
   
@@ -488,12 +488,12 @@ msg(MSG::DEBUG) << " ALFA_RoDDecoder_charge::getCollection" << endreq;
   }
   if (collExists) {
     coll = const_cast<ALFA_RawDataCollection_charge*>(&**cont_it);
-    msg(MSG::DEBUG) << " Collection exists " << endreq;
+    msg(MSG::DEBUG) << " Collection exists " << endmsg;
     return 0;
 
   } else {  // if collection does not exist create it
     coll = new ALFA_RawDataCollection_charge(MBIdNum);
-    msg(MSG::DEBUG) << " create collection; MBId  " << MBIdNum <<endreq;
+    msg(MSG::DEBUG) << " create collection; MBId  " << MBIdNum <<endmsg;
     cont->push_back(coll);  // add collection to container
   }
   
