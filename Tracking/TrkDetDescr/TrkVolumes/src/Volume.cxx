@@ -86,7 +86,7 @@ const Trk::ObjectAccessor& Trk::Volume::boundarySurfaceAccessor(const Amg::Vecto
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
 MsgStream& Trk::operator << ( MsgStream& sl, const Trk::Volume& vol)
 { 
-  sl << "Trk::Volume with VolumeBounds :" << vol.volumeBounds() << endreq; 
+  sl << "Trk::Volume with VolumeBounds :" << vol.volumeBounds() << endmsg; 
   return sl;
 }
 
