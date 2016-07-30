@@ -157,14 +157,14 @@ namespace MuonCalib {
   {
     MsgStream mLog( msgSvc(), name() );
 
-    mLog << MSG::INFO << "CscCalcSlope::initialize() called" << endreq;
+    mLog << MSG::INFO << "CscCalcSlope::initialize() called" << endmsg;
 
     //*******Register services and tools *********/ 	
     // Store Gate active store
     StatusCode sc = serviceLocator()->service("StoreGateSvc", m_storeGate);
     if (sc != StatusCode::SUCCESS )
     {
-      mLog << MSG::FATAL << " Cannot get StoreGateSvc " << endreq;
+      mLog << MSG::FATAL << " Cannot get StoreGateSvc " << endmsg;
       return StatusCode::FAILURE ;
     }
 
@@ -174,7 +174,7 @@ cerr << "detstore" << endl;
 
     if(!sc.isSuccess()) 
     {
-      mLog << MSG::FATAL << " DetectorStore not found" << endreq;
+      mLog << MSG::FATAL << " DetectorStore not found" << endmsg;
       return StatusCode::FAILURE;
     }
     
@@ -182,7 +182,7 @@ cerr << "idhelper" << endl;
     sc = detStore->retrieve(m_cscId,"CSCIDHELPER");
     if( sc.isFailure())
     {
-      mLog << MSG::ERROR << " Cannot retrieve CscIdHelper " << endreq;
+      mLog << MSG::ERROR << " Cannot retrieve CscIdHelper " << endmsg;
       return sc;
     }
 
@@ -190,14 +190,14 @@ cerr << "chorno" << endl;
     sc = service("ChronoStatSvc",m_chronoSvc);    
     if(sc.isFailure())
     {
-      mLog << MSG::FATAL << "Cannot retrieve ChronoStatSvc!" << endreq;
+      mLog << MSG::FATAL << "Cannot retrieve ChronoStatSvc!" << endmsg;
       return StatusCode::FAILURE;
     }
 
     /*sc = service("THistSvc", m_thistSvc);
       if(sc.isFailure())
       {
-      mLog << MSG::FATAL << "Cannot retrieve THistSvc!" << endreq;
+      mLog << MSG::FATAL << "Cannot retrieve THistSvc!" << endmsg;
       return StatusCode::FAILURE;
       }*/
 
@@ -206,7 +206,7 @@ cerr << "toolsvc" << endl;
     sc = service("ToolSvc",toolSvc);
     if(sc.isFailure())
     {
-      mLog << MSG::FATAL << "Unable to retrieve ToolSvc" << endreq;
+      mLog << MSG::FATAL << "Unable to retrieve ToolSvc" << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -214,7 +214,7 @@ cerr << "calibtool" << endl;
     sc = toolSvc->retrieveTool("CscCalibTool",m_cscCalibTool);
     if(sc.isFailure())
     {
-      mLog << MSG::FATAL << "Unable to retrieve CscCalibTool" << endreq;
+      mLog << MSG::FATAL << "Unable to retrieve CscCalibTool" << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -222,11 +222,11 @@ cerr << "calibtool" << endl;
 
 cerr << "decoder tool" << endl;
     if (m_cscRdoDecoderTool.retrieve().isFailure()){
-      mLog << MSG::FATAL << "Cannot retrieve Csc_Rdo_Decoder Tool!" << endreq;
+      mLog << MSG::FATAL << "Cannot retrieve Csc_Rdo_Decoder Tool!" << endmsg;
       return StatusCode::FAILURE;
     }
 
-    mLog << MSG::INFO <<"Finished initializing services. " << endreq; 
+    mLog << MSG::INFO <<"Finished initializing services. " << endmsg; 
 cerr << "done init services" << endl;
     //*****Initialize internal variables and histograms*******/	
     m_ampProfs = new std::map<int, TProfile* >();
@@ -322,7 +322,7 @@ cerr << "done init services" << endl;
 
     if(m_pedFile)
     {
-      mLog << MSG::INFO << "Opening pedestal file" << endreq;
+      mLog << MSG::INFO << "Opening pedestal file" << endmsg;
       ifstream in(m_pedFileName.c_str());
       int stripHash;
       double ped,noise;//,pedError,noiseError;
@@ -334,9 +334,9 @@ cerr << "done init services" << endl;
       while(!in.eof())
       {
         in >> stripHash >> buff >> buff >> ped >> noise;
-        mLog << MSG::INFO << stripHash << "\t" << ped << "\t" << noise << endreq;
+        mLog << MSG::INFO << stripHash << "\t" << ped << "\t" << noise << endmsg;
         if( stripHash < 0 || (unsigned int) stripHash > m_maxStripHash ) {
-          mLog << MSG::FATAL << "The hash "<< (int) stripHash << " is out of range for the Ped-Vector - Crashing!" << endreq;
+          mLog << MSG::FATAL << "The hash "<< (int) stripHash << " is out of range for the Ped-Vector - Crashing!" << endmsg;
           return StatusCode::FAILURE;
         }
         m_peds[stripHash] = ped;
@@ -347,7 +347,7 @@ cerr << "done init services" << endl;
     {
       if(m_cscCoolStrSvc.retrieve().isFailure())
       {
-        mLog << MSG::FATAL << "Unable to retrieve CscCoolStrSvc" << endreq;
+        mLog << MSG::FATAL << "Unable to retrieve CscCoolStrSvc" << endmsg;
         return StatusCode::FAILURE;
       }
     }
@@ -358,7 +358,7 @@ cerr << "done init services" << endl;
       m_adcValues->push_back(new std::vector<double> );
       m_adcErrors->push_back(new std::vector<double> );
       }//End strip loop*/
-    mLog << MSG::INFO << "Counted " << m_maxStripHash +1 << " strips." << endreq;
+    mLog << MSG::INFO << "Counted " << m_maxStripHash +1 << " strips." << endmsg;
 
     //m_fracProfs = new DataVector<DataVector<TProfile> >();
     //m_fracGraphs = new DataVector<DataVector<TGraph> >();
@@ -375,7 +375,7 @@ cerr << "done init services" << endl;
     m_pulsedChambers = new std::set<int>;
 
 
-    mLog <<MSG::DEBUG << "End initialize" << endreq;
+    mLog <<MSG::DEBUG << "End initialize" << endmsg;
     return StatusCode::SUCCESS;
   }//end initialize
 
@@ -383,23 +383,23 @@ cerr << "done init services" << endl;
   StatusCode CscCalcSlope::execute()
   {
     MsgStream mLog( msgSvc(), name() );
-    mLog << MSG::INFO << "Begin execute" << endreq;	
+    mLog << MSG::INFO << "Begin execute" << endmsg;	
     //collectEventInfo collects infomation about each event by filling ampHistCollection and peaktHist.
     StatusCode sc = collectEventInfo();
 
     if(!sc.isSuccess())
     {
-      mLog << MSG::WARNING << "There was an error collecting information from the RDO this event." << endreq;
+      mLog << MSG::WARNING << "There was an error collecting information from the RDO this event." << endmsg;
       return sc;
     }
-    mLog << MSG::INFO << "End execute" << endreq;	
+    mLog << MSG::INFO << "End execute" << endmsg;	
     return StatusCode::SUCCESS;
   } //end execute()
 
   StatusCode CscCalcSlope::finalize()
   {
     MsgStream mLog( msgSvc(), name() );
-    mLog << MSG::INFO << "In finalize()" << endreq;
+    mLog << MSG::INFO << "In finalize()" << endmsg;
 
     StatusCode sc;
 
@@ -412,22 +412,22 @@ cerr << "done init services" << endl;
     sc =calculateParameters();
     if(sc.isFailure())
     {
-      mLog << MSG::WARNING << "Calculation of parameters failed!" << endreq;
+      mLog << MSG::WARNING << "Calculation of parameters failed!" << endmsg;
     }
-    mLog << MSG::DEBUG << "Finished calculating parameters" << endreq;
+    mLog << MSG::DEBUG << "Finished calculating parameters" << endmsg;
 
     //writeCalibrationFile() writes the calculated parameters into a calibration fie.
     sc = writeCalibrationFile();
     if(!sc.isSuccess())
     {
-      mLog << MSG::FATAL << "Failed to write parameters to disk!" << endreq;
+      mLog << MSG::FATAL << "Failed to write parameters to disk!" << endmsg;
       thereIsAFatal = true; //Not quiting yet to ensure memory is properly deleted
     }
 
     sc = storeGateRecord();
     if(sc.isFailure())
     {
-      mLog <<MSG::FATAL << "Failed to record parameters in StoreGate " << endreq;
+      mLog <<MSG::FATAL << "Failed to record parameters in StoreGate " << endmsg;
       thereIsAFatal = true;
     }
 
@@ -457,17 +457,17 @@ cerr << "done init services" << endl;
     // bool thereIsAnError = false;
 
     Chrono chrono(m_chronoSvc,"collectEventInfo");
-    mLog << MSG::DEBUG <<"Collecting event info for event " << m_eventCnt << endreq;
+    mLog << MSG::DEBUG <<"Collecting event info for event " << m_eventCnt << endmsg;
     //Below might need to be changed depending on how we get data
     const CscRawDataContainer* fullRDO;
     StatusCode sc_read = m_storeGate->retrieve(fullRDO, "CSCRDO"); 
     if (sc_read != StatusCode::SUCCESS)
     {
-      mLog << MSG::FATAL << "Could not find event" << endreq;
+      mLog << MSG::FATAL << "Could not find event" << endmsg;
       return StatusCode::FAILURE;
     }
 
-    //	mLog << MSG::INFO <<"Got raw data " << endreq;
+    //	mLog << MSG::INFO <<"Got raw data " << endmsg;
     //Loop over RODs (data from 2 chambers), each of which is in
     //a single CscRawaData collection
     CscRawDataContainer::const_iterator rodItr = fullRDO->begin();
@@ -481,10 +481,10 @@ cerr << "done init services" << endl;
         uint16_t pulsedWireLayer = rod->calLayer();
 
         int pulserLevel = rod->calAmplitude(); 
-        mLog << MSG::VERBOSE << "Pulser level is " << pulserLevel << endreq;
+        mLog << MSG::VERBOSE << "Pulser level is " << pulserLevel << endmsg;
         if( pulserLevel != m_lastPulserLevel)
         {
-          mLog <<MSG::INFO << "New pulser level found. (" << pulserLevel <<")." << endreq;
+          mLog <<MSG::INFO << "New pulser level found. (" << pulserLevel <<")." << endmsg;
 
           //m_ampHists->clear();
           map<int,TProfile*>::iterator alreadyExistingProfile = m_ampProfs->find(pulserLevel);
@@ -492,7 +492,7 @@ cerr << "done init services" << endl;
           if(alreadyExistingProfile == m_ampProfs->end())
           {//No previous profile for this amplitude exists
 
-            mLog << MSG::DEBUG << " creating new amplitude profile" << endreq;
+            mLog << MSG::DEBUG << " creating new amplitude profile" << endmsg;
             stringstream name, title;
             name << "ampProf_" << pulserLevel;
             title << m_titlePrefix << "Amplitudes For Pulser Level " << pulserLevel << m_titlePostfix;
@@ -500,12 +500,12 @@ cerr << "done init services" << endl;
                 m_maxStripHash+1, 0, m_maxStripHash);
             m_currentAmpProf->GetXaxis()->SetTitle("Channel (Hash Id)");
             m_currentAmpProf->GetYaxis()->SetTitle("Amplitude (ADC value)");
-            mLog << MSG::DEBUG << "Adding new amplitude profile" << endreq;
+            mLog << MSG::DEBUG << "Adding new amplitude profile" << endmsg;
             m_ampProfs->insert(pair<int, TProfile*>( pulserLevel, m_currentAmpProf));
           }
           else
           {
-            mLog << MSG::DEBUG << " using existing amplitude profile" << endreq;
+            mLog << MSG::DEBUG << " using existing amplitude profile" << endmsg;
             m_currentAmpProf = alreadyExistingProfile->second;
           }
 
@@ -521,7 +521,7 @@ cerr << "done init services" << endl;
         CscRawDataCollection::const_iterator clusEnd = rod->end();
         for(; clusItr!=clusEnd ; clusItr++)
         {
-          //mLog << MSG::INFO<< " converting cluster" << endreq;
+          //mLog << MSG::INFO<< " converting cluster" << endmsg;
           const CscRawData * cluster = (*clusItr); //Note: For a pulser or ped run, the "cluster" 
           //is the size of an entire layer
           int numStrips = cluster->width();
@@ -533,11 +533,11 @@ cerr << "done init services" << endl;
              m_cscId->get_id(hashStart, startId, &channelContex);
 
           //check the chamber layer.
-          int chamberLayer = m_cscId->chamberLayer(startId) << endreq;
+          int chamberLayer = m_cscId->chamberLayer(startId) << endmsg;
           if(chamberLayer != m_expectedChamberLayer)
           {
           m_log << MSG::ERROR << "A chamber with a chamber layer of " << chamberLayer << " was found. "
-          << m_expectedChamberLayer << " was expected. Something is probably wrong." << endreq;
+          << m_expectedChamberLayer << " was expected. Something is probably wrong." << endmsg;
           continue;
           } */
 
@@ -547,14 +547,14 @@ cerr << "done init services" << endl;
             IdentifierHash cscChannelHashId;
             m_cscId->get_channel_hash(stripId, cscChannelHashId);
             int stripHash = cscChannelHashId;
-            mLog << MSG::VERBOSE << "The eta of this strip is: " << m_cscId->stationEta(stripId) << endreq;
+            mLog << MSG::VERBOSE << "The eta of this strip is: " << m_cscId->stationEta(stripId) << endmsg;
 
             int chamberLayer = m_cscId->chamberLayer(stripId);
             if(chamberLayer != m_expectedChamberLayer)
             {
               mLog << MSG::FATAL << "Cluster includes strip in chamber layer "
                 << chamberLayer << ". Only " << m_expectedChamberLayer 
-                << " is valid." << endreq;
+                << " is valid." << endmsg;
               // thereIsAnError = true;
               return StatusCode::FAILURE;
             }
@@ -563,7 +563,7 @@ cerr << "done init services" << endl;
             if( currentWireLayer < 0 || currentWireLayer > 3)
             {
               mLog << MSG::FATAL << "Problem in getting wire layer! - Current value is " 
-                   << m_cscId->wireLayer(stripId) << " while only values between 1-4 are allowed." << endreq;
+                   << m_cscId->wireLayer(stripId) << " while only values between 1-4 are allowed." << endmsg;
               return StatusCode::FAILURE;
             }
             bool isThisLayerPulsed = (pulsedWireLayer >> currentWireLayer)&0x1;
@@ -572,7 +572,7 @@ cerr << "done init services" << endl;
               /*Usefull for debug, but slows things down a surprising amount
                 if(!m_cscId->valid(stripId))
                 {
-                mLog << MSG::ERROR << stripId.getString() << " is not a valid id!" << endreq;
+                mLog << MSG::ERROR << stripId.getString() << " is not a valid id!" << endmsg;
                 }*/
 
               vector<uint16_t> samples;
@@ -591,21 +591,21 @@ cerr << "done init services" << endl;
                 {
                   ped = 2054;
                   mLog << (m_ignoreDatabaseError ? MSG::WARNING :  MSG::ERROR) 
-                    << "Failed at getting pedestal from COOL for hash " << stripHash << endreq;
+                    << "Failed at getting pedestal from COOL for hash " << stripHash << endmsg;
                   if(!m_ignoreDatabaseError)
                     return StatusCode::RECOVERABLE;
-                  mLog << MSG::WARNING << "Setting to " << ped << endreq;
+                  mLog << MSG::WARNING << "Setting to " << ped << endmsg;
                 }
                 else
-                  mLog << MSG::VERBOSE << "Got pedestal of " << ped << endreq;
+                  mLog << MSG::VERBOSE << "Got pedestal of " << ped << endmsg;
                 if(StatusCode::SUCCESS != m_cscCoolStrSvc->getParameter(
                       noise, "noise", stripHash))
                 {
                   noise = .001;
-                  mLog << (m_ignoreDatabaseError ? MSG::WARNING : MSG::ERROR) << "Failed at getting noise from COOL for hash " << stripHash << endreq;
+                  mLog << (m_ignoreDatabaseError ? MSG::WARNING : MSG::ERROR) << "Failed at getting noise from COOL for hash " << stripHash << endmsg;
                   if(!m_ignoreDatabaseError)
                     return StatusCode::FAILURE;
-                  mLog << MSG::WARNING << "Setting to " << noise << endreq;
+                  mLog << MSG::WARNING << "Setting to " << noise << endmsg;
                 }
 
               }
@@ -623,7 +623,7 @@ cerr << "done init services" << endl;
                   floatSamples.push_back((*sampItr)-ped);
                   if(m_bitHists){
                     if(!fillBitHist((*m_bitHists)[stripHash],*sampItr)){
-                      mLog << MSG::WARNING << "Failed recording bits for strip " << stripHash << endreq;
+                      mLog << MSG::WARNING << "Failed recording bits for strip " << stripHash << endmsg;
                     }
 
                   }
@@ -657,15 +657,15 @@ cerr << "done init services" << endl;
               }	
               else
               {
-                mLog << MSG::WARNING << "Failed at fitting pulse shape. Debug info: " <<endreq;
-                mLog << MSG::WARNING << "stripHash "   << stripHash << endreq;
-                mLog << MSG::WARNING << "strip in chamber " << stripItr << endreq;
+                mLog << MSG::WARNING << "Failed at fitting pulse shape. Debug info: " <<endmsg;
+                mLog << MSG::WARNING << "stripHash "   << stripHash << endmsg;
+                mLog << MSG::WARNING << "strip in chamber " << stripItr << endmsg;
                 mLog << MSG::WARNING
                   << " and detailed id " <<  m_cscId->show_to_string(stripId,&channelContext)
-                  << endreq;
-                mLog	<< "Pulsed layer " << pulsedWireLayer <<endreq;
+                  << endmsg;
+                mLog	<< "Pulsed layer " << pulsedWireLayer <<endmsg;
                 mLog << ", Samples: "  << samples[0] <<", " << samples[1] << ", " 
-                  << samples[2] << ", " << samples[3] <<  endreq;
+                  << samples[2] << ", " << samples[3] <<  endmsg;
               }
             }//end if (islayerPulsedand and is precision layer)
           }//end strip loop
@@ -675,7 +675,7 @@ cerr << "done init services" << endl;
     }//end rod loop
 
 
-    mLog << MSG::DEBUG << "end collectEventInfo()" << endreq;
+    mLog << MSG::DEBUG << "end collectEventInfo()" << endmsg;
     m_eventCnt++;
 
     // at this part of the code thereIsAnError is always false - if true it would exit earlier
@@ -693,14 +693,14 @@ cerr << "done init services" << endl;
     MsgStream mLog( msgSvc(), name() );
     Chrono chrono(m_chronoSvc,"calculateParameters");
     StatusCode sc; 
-    mLog << MSG::INFO << "Calculating calibration constants." << endreq;
+    mLog << MSG::INFO << "Calculating calibration constants." << endmsg;
 
     if(!m_ampProfs){
-      mLog << MSG::FATAL << "m_ampProfs empty!" << endreq;
+      mLog << MSG::FATAL << "m_ampProfs empty!" << endmsg;
       return StatusCode::FAILURE;
     }
     unsigned int numCalibPoints = m_ampProfs->size();	
-    mLog << MSG::INFO << "There are " << numCalibPoints << " pulser levels to evaluate." << endreq;
+    mLog << MSG::INFO << "There are " << numCalibPoints << " pulser levels to evaluate." << endmsg;
 
     IdContext channelContext = m_cscId->channel_context();	
 
@@ -713,8 +713,8 @@ cerr << "done init services" << endl;
 
       if(true)//stripHash < 50 || stripHash%1000 == 0)
       {
-        mLog << MSG::INFO << "Analyzing strip with hash " << stripHash << " out of " << m_maxStripHash << endreq; 
-        //mLog <<MSG::DEBUG << (float)clock()/((float)CLOCKS_PER_SEC) << " is the time " << endreq;
+        mLog << MSG::INFO << "Analyzing strip with hash " << stripHash << " out of " << m_maxStripHash << endmsg; 
+        //mLog <<MSG::DEBUG << (float)clock()/((float)CLOCKS_PER_SEC) << " is the time " << endmsg;
       }
 
       //**Now tackle slope calculation
@@ -786,7 +786,7 @@ cerr << "done init services" << endl;
       calGraph->GetXaxis()->SetTitle("Attenuation (-db)");
 
       //
-      mLog << MSG::DEBUG << " Generating " << title << endreq;   
+      mLog << MSG::DEBUG << " Generating " << title << endmsg;   
 
       bool isGoodStrip = false;
 
@@ -794,26 +794,26 @@ cerr << "done init services" << endl;
       //for this strip 
       //m_ampProfs checked before since already dereferenced earlier
       //if(!m_ampProfs){
-      //  mLog << MSG::FATAL << "m_ampProfs empty!" << endreq;
+      //  mLog << MSG::FATAL << "m_ampProfs empty!" << endmsg;
       //  return StatusCode::FAILURE;
       //}
-      mLog << MSG::DEBUG << "Number of ampProfs " << m_ampProfs->size() << endreq;
+      mLog << MSG::DEBUG << "Number of ampProfs " << m_ampProfs->size() << endmsg;
       int calPointItr = 0;
       map<int, TProfile*>::const_iterator ampProfItr = m_ampProfs->begin();
       map<int, TProfile*>::const_iterator ampProfEnd = m_ampProfs->end();
       for(; ampProfItr != ampProfEnd; ampProfItr++)
       {
         if(!ampProfItr->second){
-          mLog << MSG::FATAL << "Failed at accessing ampProf!" << endreq;
+          mLog << MSG::FATAL << "Failed at accessing ampProf!" << endmsg;
           return StatusCode::FAILURE;
         }
         mLog << MSG::DEBUG << "\tLooking for data for pulser level "
-           << ampProfItr->first << endreq;
+           << ampProfItr->first << endmsg;
 
         if(ampProfItr->second->GetBinEntries(stripHash+1))
         {
 
-          mLog << MSG::VERBOSE << "\nHave data for strip " << stripHash<< endreq;
+          mLog << MSG::VERBOSE << "\nHave data for strip " << stripHash<< endmsg;
 
           isGoodStrip = true;
 
@@ -822,7 +822,7 @@ cerr << "done init services" << endl;
           float adcError = ampProfItr->second->GetBinError(stripHash+1); 
           if(m_doCrossTalkFix)
           {
-            mLog <<MSG::VERBOSE << "\tCrosstalk fix " << m_crossTalkFix[crossTalkCnt] << endreq;
+            mLog <<MSG::VERBOSE << "\tCrosstalk fix " << m_crossTalkFix[crossTalkCnt] << endmsg;
             adcValue /= m_crossTalkFix[crossTalkCnt];
             adcError /= m_crossTalkFix[crossTalkCnt];
           }
@@ -838,7 +838,7 @@ cerr << "done init services" << endl;
           else 
             attenValue = db;
 
-          mLog << MSG::DEBUG << "\tStoring at db of " << db << " with attenValue " << attenValue << " from pulser level of " << pulserLevel << " and adcValue " << adcValue << endreq;
+          mLog << MSG::DEBUG << "\tStoring at db of " << db << " with attenValue " << attenValue << " from pulser level of " << pulserLevel << " and adcValue " << adcValue << endmsg;
 
 
           
@@ -847,7 +847,7 @@ cerr << "done init services" << endl;
             thisDrop = lastVal - adcValue;
             mLog << MSG::DEBUG << "\tFinding fit min:" 
              << "\tlastVal = " << lastVal
-             << ";lastDrop " << lastDrop << "; thisDrop " << thisDrop << endreq;
+             << ";lastDrop " << lastDrop << "; thisDrop " << thisDrop << endmsg;
             if(thisDrop > m_minDeltaAdc && lastDrop > m_minDeltaAdc){
               mLog << MSG::DEBUG << "Found fitMin!" << std::endl;
               foundMin = true;
@@ -875,14 +875,14 @@ cerr << "done init services" << endl;
       }//Done ampProfItr loop
 
       if(!foundMin && isGoodStrip){
-        mLog << MSG::WARNING << "Failed to find minium for " << title << endreq; 
+        mLog << MSG::WARNING << "Failed to find minium for " << title << endmsg; 
       }
 
       //***Do a simple fit to calGraph***
       //Here we only fit the linear part of the plot. m_fitCutoff can be set by user.			
       if(isGoodStrip)
       {
-        mLog << MSG::INFO << "we have a good stripHash at " << stripHash << endreq; 
+        mLog << MSG::INFO << "we have a good stripHash at " << stripHash << endmsg; 
 
         m_pulsedChambers->insert(chamHash); //Programer note: Only gets filled on x-axis. Probably OK.
 
@@ -920,7 +920,7 @@ cerr << "done init services" << endl;
         float invertedSlope;
         if(abs(slope) < 0.00001 || slope == -999) //watch out for slope==0 
         {
-          mLog << MSG::WARNING <<  "Slope invalid " << endreq;
+          mLog << MSG::WARNING <<  "Slope invalid " << endmsg;
           continue;
         }
 
@@ -931,7 +931,7 @@ cerr << "done init services" << endl;
 
         mLog << MSG::DEBUG << "StripHash: " << stripHash << "; slope: " <<slope  
           << "; intercept: " << intercept
-          << "; chi^2/ndf: " << chiSquared << "/" << ndf << endreq;
+          << "; chi^2/ndf: " << chiSquared << "/" << ndf << endmsg;
         CscCalibResult * slopeResult = new CscCalibResult(stripHash,invertedSlope,slopeError,chiSquared,ndf);
         CscCalibResult * interceptResult = new CscCalibResult(stripHash, intercept, interceptError, chiSquared, ndf);                
 
@@ -946,9 +946,9 @@ cerr << "done init services" << endl;
         crossTalkCnt = 0;
       else
         crossTalkCnt++;
-      mLog << MSG::DEBUG << "Looping over next strip..." << endreq;
+      mLog << MSG::DEBUG << "Looping over next strip..." << endmsg;
     }//end loop over strips
-    mLog << MSG::INFO << "Completed calculating parameters for each strip" << endreq;
+    mLog << MSG::INFO << "Completed calculating parameters for each strip" << endmsg;
     return StatusCode::SUCCESS;
   }//End calculateParameters()
 
@@ -958,15 +958,15 @@ cerr << "done init services" << endl;
     MsgStream mLog( msgSvc(), name() );
     Chrono chrono(m_chronoSvc,"writeCalibrationFile");
     if(m_calOutputVersion == "00-00"){
-      mLog << MSG::INFO << "Printing output file version 00-00" << endreq;
+      mLog << MSG::INFO << "Printing output file version 00-00" << endmsg;
       return calOutput0();
     }
     else if(m_calOutputVersion == "03-00") {
-      mLog << MSG::INFO << "Printing output file version 03-00" << endreq;
+      mLog << MSG::INFO << "Printing output file version 03-00" << endmsg;
       return calOutput3();
     }
     else{
-      mLog << "Don't know how to write calibration file version " << m_calOutputVersion << endreq;
+      mLog << "Don't know how to write calibration file version " << m_calOutputVersion << endmsg;
       return StatusCode::RECOVERABLE;
     }
   }
@@ -974,12 +974,12 @@ cerr << "done init services" << endl;
   StatusCode CscCalcSlope::calOutput0(){
     MsgStream mLog( msgSvc(), name() );
     //***Take conditions data held in summary histograms and  print to the calibration file***//
-    mLog << MSG::INFO << "Parameters calculated, preparing to outputing to file: " << m_outputFileName << endreq;
+    mLog << MSG::INFO << "Parameters calculated, preparing to outputing to file: " << m_outputFileName << endmsg;
     ofstream out;
     out.open(m_outputFileName.c_str());
     if(!out.is_open())
     {
-      mLog << MSG::FATAL << "Can't open file " << m_outputFileName.c_str() << "for writing" <<  endreq;
+      mLog << MSG::FATAL << "Can't open file " << m_outputFileName.c_str() << "for writing" <<  endmsg;
       return StatusCode::FAILURE;
     }
     //Start by writing file version number (mainly for COOL program to read)
@@ -991,7 +991,7 @@ cerr << "done init services" << endl;
     if(m_findPeakTime) out << "peakt ";
     out << "END_HEADER\n";			
     //Now we loop over each strip's parameters and print them out
-    mLog << MSG::DEBUG <<  "Begining loop over all " << m_maxStripHash  << " hash ids." << endreq;
+    mLog << MSG::DEBUG <<  "Begining loop over all " << m_maxStripHash  << " hash ids." << endmsg;
 
     //form is:
     //hashID chamber LayerOrientationStrip  parametervalue parametervalue 
@@ -1008,7 +1008,7 @@ cerr << "done init services" << endl;
     {
       if(m_findPeakTime && (peaktItr == peaktEnd) )
       {
-        mLog << MSG::FATAL << "Peaktimes out of sync with slopes. Quiting write." << endreq;
+        mLog << MSG::FATAL << "Peaktimes out of sync with slopes. Quiting write." << endmsg;
 
         return StatusCode::FAILURE;
       }
@@ -1026,8 +1026,8 @@ cerr << "done init services" << endl;
       Identifier chamberId = m_cscId->elementID(id);
       if(!m_cscId->valid(chamberId))
       {
-        mLog << MSG::FATAL << chamberId.getString() << " is not a valid id!" << endreq;
-        mLog << MSG::FATAL << "identifier is: " << m_cscId->show_to_string(chamberId) << endreq;
+        mLog << MSG::FATAL << chamberId.getString() << " is not a valid id!" << endmsg;
+        mLog << MSG::FATAL << "identifier is: " << m_cscId->show_to_string(chamberId) << endmsg;
         return StatusCode::FAILURE;
       }
 
@@ -1051,7 +1051,7 @@ cerr << "done init services" << endl;
   StatusCode CscCalcSlope::storeGateRecord()
   {
     MsgStream mLog( msgSvc(), name() );
-    mLog << MSG::INFO << "Recording csc calibration report." << endreq;
+    mLog << MSG::INFO << "Recording csc calibration report." << endmsg;
 
     StatusCode sc = StatusCode::SUCCESS;
 
@@ -1059,7 +1059,7 @@ cerr << "done init services" << endl;
 
     string histKey = "cscSlopeCalibReport";
     mLog <<MSG::DEBUG << "Recording calibration graphs to TDS with key " 
-      << histKey << endreq;
+      << histKey << endmsg;
 
     CscCalibReportSlope * report = new CscCalibReportSlope("calGraphs");
 
@@ -1075,7 +1075,7 @@ cerr << "done init services" << endl;
     sc = m_storeGate->record(repCont, histKey);
     if(sc.isFailure())
     {
-      mLog << MSG::ERROR << "Failed to record CscCalibReportSlope to storegate" << endreq;
+      mLog << MSG::ERROR << "Failed to record CscCalibReportSlope to storegate" << endmsg;
       thereIsAnError = true;
       //Since storegate isn't taking ownership, we'll delete it:
       delete repCont; 
@@ -1090,7 +1090,7 @@ cerr << "done init services" << endl;
     sc = m_storeGate->record(calibResults,"CscCalibResultSlope");
     if(sc.isFailure())
     {
-      mLog << MSG::ERROR << "Failed to record results to storegate" << endreq;
+      mLog << MSG::ERROR << "Failed to record results to storegate" << endmsg;
       thereIsAnError = true;
       //Since storegate isn't taking ownership, we'll delete it
       delete calibResults;
@@ -1111,7 +1111,7 @@ cerr << "done init services" << endl;
     out.open(m_outputFileName.c_str());
     if(!out.is_open())
     {
-      mLog << MSG::ERROR << "Can't open file " << m_outputFileName.c_str() << endreq;
+      mLog << MSG::ERROR << "Can't open file " << m_outputFileName.c_str() << endmsg;
       return StatusCode::RECOVERABLE;
     }
     out << "03-00 <END_HEADER>";
@@ -1123,7 +1123,7 @@ cerr << "done init services" << endl;
     out << "\n<END_FILE>";
     out.close();
 
-    mLog << MSG::INFO << "Successfully opened file " << m_outputFileName << endreq;
+    mLog << MSG::INFO << "Successfully opened file " << m_outputFileName << endmsg;
 
     return StatusCode::SUCCESS;
   }
@@ -1132,7 +1132,7 @@ cerr << "done init services" << endl;
   void CscCalcSlope::outputParameter3(const CscCalibResultCollection & results, ofstream & out){
     MsgStream mLog( msgSvc(), name() );
 
-    mLog << MSG::INFO << "Printing out parameter " << results.parName() << endreq;
+    mLog << MSG::INFO << "Printing out parameter " << results.parName() << endmsg;
 
     out << "\n";
     out << "<NEW_PAR> " << results.parName() << "\n";
