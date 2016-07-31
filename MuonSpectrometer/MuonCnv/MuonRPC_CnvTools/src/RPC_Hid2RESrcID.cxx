@@ -53,7 +53,7 @@ std::vector<uint32_t> RPC_Hid2RESrcID::getRodIDFromCollID(const Identifier& offl
   CablingRPCBase::RDOmap::const_iterator pad_beg = (pad_map).begin(); 
   CablingRPCBase::RDOmap::const_iterator pad_end = (pad_map).end();
 
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Looking for collection ID: " + std::string(m_rpcHelper->show_to_string(offlineId)) <<endreq;
+  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Looking for collection ID: " + std::string(m_rpcHelper->show_to_string(offlineId)) <<endmsg;
 
   int stationName = m_rpcHelper->stationName(offlineId);
   int stationEta  = m_rpcHelper->stationEta(offlineId);
@@ -75,7 +75,7 @@ std::vector<uint32_t> RPC_Hid2RESrcID::getRodIDFromCollID(const Identifier& offl
       uint16_t side    = index.side();
       if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) <<"In getRODIdFromCollID .. The side is 0x" 
         << MSG::hex << side 
-        << MSG::dec <<endreq;
+        << MSG::dec <<endmsg;
 
       eformat::SubDetector detid =  (side == eformat::MUON_RPC_BARREL_A_SIDE) ? 
         eformat::MUON_RPC_BARREL_A_SIDE
@@ -98,7 +98,7 @@ std::vector<uint32_t> RPC_Hid2RESrcID::getRodIDFromCollID(const Identifier& offl
         if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Found a RodId for this collection : 0x" 
           << MSG::hex
           << rodId 
-          << MSG::dec <<endreq;
+          << MSG::dec <<endmsg;
 
         rodIDs.push_back(rodId); 
       }
@@ -109,7 +109,7 @@ std::vector<uint32_t> RPC_Hid2RESrcID::getRodIDFromCollID(const Identifier& offl
   if (rodIDs.size() == 0) {
     msg(MSG::ERROR) 
       << "RPC_Hid2RESrcID: RPC_Could not find Rod ID for the collection "
-      << m_rpcHelper->show_to_string(offlineId) << endreq;
+      << m_rpcHelper->show_to_string(offlineId) << endmsg;
   }
 
   // FIXME Temp Fix for sector13 test data
@@ -124,7 +124,7 @@ std::vector<uint32_t> RPC_Hid2RESrcID::getRodIDFromCollID(const Identifier& offl
         << MSG::hex 
         << m_specialROBNumber
         << MSG::dec 
-        << " for this collection" <<endreq;
+        << " for this collection" <<endmsg;
     }
     else if ( stationPhi==3 && stationEta>0 && (stationName==2 || stationName==4) ) {
       rodIDs.clear();
@@ -168,7 +168,7 @@ uint32_t RPC_Hid2RESrcID::getRodID(const Identifier& offlineId) {
         << RXid 
         << " " 
         << PADid 
-        << MSG::dec <<endreq;
+        << MSG::dec <<endmsg;
     
     eformat::SubDetector detid =  (side == eformat::MUON_RPC_BARREL_A_SIDE) ? 
       eformat::MUON_RPC_BARREL_A_SIDE
@@ -179,14 +179,14 @@ uint32_t RPC_Hid2RESrcID::getRodID(const Identifier& offlineId) {
     uint32_t rod_id = sid.code();
     
     msg(MSG::DEBUG) << "Found RodID: " << MSG::hex 
-        << rod_id << MSG::dec << endreq;
+        << rod_id << MSG::dec << endmsg;
 
     // TEMP FIXME temp fix for the sector 13 pulse tests ---- added fix for M3 
     if ( (m_specialROBNumber>0) ) {
       if (side==0x65 && (SLid==23 || SLid == 24)) {
         //  rod_id=0x650001;
         rod_id = m_specialROBNumber;
-        if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Setting special ROD number"<<endreq;
+        if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Setting special ROD number"<<endmsg;
       }
       else if (side==0x65 && SLid==7) {
         rod_id = 0x650001;
@@ -205,7 +205,7 @@ uint32_t RPC_Hid2RESrcID::getRodID(const Identifier& offlineId) {
   }
   
   if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "RPC_Hid2RESrcID: Could not find a pad with Id = "   
-      << m_rpcHelper->show_to_string(offlineId)<<endreq;
+      << m_rpcHelper->show_to_string(offlineId)<<endmsg;
   return 0xffffffff;
 }
 
