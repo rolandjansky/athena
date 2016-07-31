@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BeamBackgroundFiller.cxx 693118 2015-09-04 07:27:46Z salekd $
+// $Id: BeamBackgroundFiller.cxx 765686 2016-08-01 01:06:35Z ssnyder $
 #include "RecBackgroundAlgs/BeamBackgroundFiller.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -91,7 +91,7 @@ StatusCode BeamBackgroundFiller::execute() {
 
   p_cscSegmentContainer=evtStore()->tryConstRetrieve<Trk::SegmentCollection>(m_cscSegmentContainerKey);
   if(!p_cscSegmentContainer ) {
-    msg(MSG::WARNING) << "Could not retrieve const Trk::SegmentCollection " << m_cscSegmentContainerKey << endreq;
+    msg(MSG::WARNING) << "Could not retrieve const Trk::SegmentCollection " << m_cscSegmentContainerKey << endmsg;
     return StatusCode::SUCCESS;
   }
   else {
@@ -100,7 +100,7 @@ StatusCode BeamBackgroundFiller::execute() {
 
   p_mdtSegmentContainer=evtStore()->tryConstRetrieve<Trk::SegmentCollection>(m_mdtSegmentContainerKey);
   if(!p_mdtSegmentContainer ) {
-    msg(MSG::WARNING) << "Could not retrieve const Trk::SegmentCollection " << m_mdtSegmentContainerKey << endreq;
+    msg(MSG::WARNING) << "Could not retrieve const Trk::SegmentCollection " << m_mdtSegmentContainerKey << endmsg;
     return StatusCode::SUCCESS;
   }
   else {
@@ -109,7 +109,7 @@ StatusCode BeamBackgroundFiller::execute() {
 
   p_clusContainer=evtStore()->tryConstRetrieve<xAOD::CaloClusterContainer>(m_caloClusterContainerKey);
   if (!p_clusContainer) {
-    msg(MSG::WARNING) << m_caloClusterContainerKey << " could not be retrieved from StoreGate !" << endreq;
+    msg(MSG::WARNING) << m_caloClusterContainerKey << " could not be retrieved from StoreGate !" << endmsg;
     return StatusCode::SUCCESS;
   } else {
     ATH_MSG_DEBUG( m_caloClusterContainerKey << " retrieved from StoreGate");
@@ -117,7 +117,7 @@ StatusCode BeamBackgroundFiller::execute() {
 
   p_jetContainer=evtStore()->tryConstRetrieve<xAOD::JetContainer>(m_jetContainerKey);
   if (!p_jetContainer) {
-    msg(MSG::WARNING) << m_jetContainerKey << " could not be retrieved from StoreGate !" << endreq;
+    msg(MSG::WARNING) << m_jetContainerKey << " could not be retrieved from StoreGate !" << endmsg;
     return StatusCode::SUCCESS;
   } else {
     ATH_MSG_DEBUG( m_jetContainerKey << " retrieved from StoreGate");
@@ -129,7 +129,7 @@ StatusCode BeamBackgroundFiller::execute() {
 
   StatusCode sc = evtStore()->record(p_beamBackgroundData, m_beamBackgroundDataKey);
   if (sc.isFailure())  {
-    msg(MSG::ERROR) << "Unable to record BeamBackgroundData/" << m_beamBackgroundDataKey << " in StoreGate" << endreq;
+    msg(MSG::ERROR) << "Unable to record BeamBackgroundData/" << m_beamBackgroundDataKey << " in StoreGate" << endmsg;
     delete p_beamBackgroundData;
     return sc;
   } else {
@@ -216,7 +216,7 @@ void BeamBackgroundFiller::FillMatchMatrix()
     double thetaPos = globalPos.theta();
     double thetaDir = globalDir.theta();
 
-    double d2r = TMath::Pi()/180.;
+    double d2r = M_PI/180.;
     if( TMath::Cos(2.*(thetaPos-thetaDir)) > TMath::Cos(2.*m_cutThetaMdtI*d2r) ) continue;
     
     ElementLink<Trk::SegmentCollection> segLink;
@@ -293,7 +293,7 @@ void BeamBackgroundFiller::FillMatchMatrix()
       double rSeg = globalPos.perp();
 
       // match in phi
-      double d2r = TMath::Pi()/180.;
+      double d2r = M_PI/180.;
       if( TMath::Cos(phiClus-phiSeg) < TMath::Cos(m_cutPhiCsc*d2r) && isCsc ) continue;
       if( TMath::Cos(phiClus-phiSeg) < TMath::Cos(m_cutPhiMdtI*d2r) && !isCsc ) continue;
 
@@ -352,8 +352,8 @@ void BeamBackgroundFiller::SegmentMethod()
 
     // muon segment: in-time (1), early (2), ambiguous (0)
     int timeStatus = 0;
-    double inTime = -(-TMath::Abs(zSeg) + globalPos.mag())*1e-3/3e8/1e-9;
-    double early  = -( TMath::Abs(zSeg) + globalPos.mag())*1e-3/3e8/1e-9;
+    double inTime = -(-TMath::Abs(zSeg) + globalPos.mag())*(1e-3/3e8/1e-9);
+    double early  = -( TMath::Abs(zSeg) + globalPos.mag())*(1e-3/3e8/1e-9);
     if( TMath::Abs(tSeg - inTime) < m_cutMuonTime ) timeStatus = 1;
     if( TMath::Abs(tSeg - early ) < m_cutMuonTime ) timeStatus = 2;
 /*
@@ -396,8 +396,8 @@ void BeamBackgroundFiller::SegmentMethod()
 
       // muon segment: in-time (1), early (2), ambiguous (0)
       int timeStatusC = 0;
-      double inTime = -(-TMath::Abs(zSegC) + globalPos.mag())*1e-3/3e8/1e-9;
-      double early  = -( TMath::Abs(zSegC) + globalPos.mag())*1e-3/3e8/1e-9;
+      double inTime = -(-TMath::Abs(zSegC) + globalPos.mag())*(1e-3/3e8/1e-9);
+      double early  = -( TMath::Abs(zSegC) + globalPos.mag())*(1e-3/3e8/1e-9);
       if( TMath::Abs(tSegC - inTime) < m_cutMuonTime ) timeStatusC = 1;
       if( TMath::Abs(tSegC - early ) < m_cutMuonTime ) timeStatusC = 2;
 /*
@@ -411,7 +411,7 @@ void BeamBackgroundFiller::SegmentMethod()
       double phiSegC = globalPos.phi();
 
       // match in phi
-      double d2r = TMath::Pi()/180.;
+      double d2r = M_PI/180.;
       if( TMath::Cos(phiSegA-phiSegC) < TMath::Cos(m_cutPhiSeg*d2r) ) continue;
 
 
@@ -467,8 +467,8 @@ void BeamBackgroundFiller::OneSidedMethod()
     double tClus = clus->time();
 
     // calculate expected cluster time
-    double expectedClusterTimeAC = -( zClus + TMath::Sqrt(rClus*rClus + zClus*zClus))*1e-3/3e8/1e-9;
-    double expectedClusterTimeCA = -(-zClus + TMath::Sqrt(rClus*rClus + zClus*zClus))*1e-3/3e8/1e-9;
+    double expectedClusterTimeAC = -( zClus + TMath::Sqrt(rClus*rClus + zClus*zClus))*(1e-3/3e8/1e-9);
+    double expectedClusterTimeCA = -(-zClus + TMath::Sqrt(rClus*rClus + zClus*zClus))*(1e-3/3e8/1e-9);
 
     for(unsigned int segIndex=0; segIndex<m_indexSeg.size(); segIndex++) {
 
@@ -484,8 +484,8 @@ void BeamBackgroundFiller::OneSidedMethod()
 
       // muon segment: in-time (1), early (2), ambiguous (0)
       int timeStatus = 0;
-      double inTime = -(-TMath::Abs(zSeg) + globalPos.mag())*1e-3/3e8/1e-9;
-      double early  = -( TMath::Abs(zSeg) + globalPos.mag())*1e-3/3e8/1e-9;
+      double inTime = -(-TMath::Abs(zSeg) + globalPos.mag())*(1e-3/3e8/1e-9);
+      double early  = -( TMath::Abs(zSeg) + globalPos.mag())*(1e-3/3e8/1e-9);
       if( TMath::Abs(tSeg - inTime) < m_cutMuonTime ) timeStatus = 1;
       if( TMath::Abs(tSeg - early ) < m_cutMuonTime ) timeStatus = 2;
 /*
@@ -587,8 +587,8 @@ void BeamBackgroundFiller::TwoSidedMethod()
 
       // muon segment: in-time (1), early (2), ambiguous (0)
       int timeStatusA = 0;
-      double inTime = -(-TMath::Abs(zSegA) + globalPos.mag())*1e-3/3e8/1e-9;
-      double early  = -( TMath::Abs(zSegA) + globalPos.mag())*1e-3/3e8/1e-9;
+      double inTime = -(-TMath::Abs(zSegA) + globalPos.mag())*(1e-3/3e8/1e-9);
+      double early  = -( TMath::Abs(zSegA) + globalPos.mag())*(1e-3/3e8/1e-9);
       if( TMath::Abs(tSegA - inTime) < m_cutMuonTime ) timeStatusA = 1;
       if( TMath::Abs(tSegA - early ) < m_cutMuonTime ) timeStatusA = 2;
 /*
@@ -617,8 +617,8 @@ void BeamBackgroundFiller::TwoSidedMethod()
 
         // muon segment: in-time (1), early (2), ambiguous (0)
         int timeStatusC = 0;
-        double inTime = -(-TMath::Abs(zSegC) + globalPos.mag())*1e-3/3e8/1e-9;
-        double early  = -( TMath::Abs(zSegC) + globalPos.mag())*1e-3/3e8/1e-9;
+        double inTime = -(-TMath::Abs(zSegC) + globalPos.mag())*(1e-3/3e8/1e-9);
+        double early  = -( TMath::Abs(zSegC) + globalPos.mag())*(1e-3/3e8/1e-9);
         if( TMath::Abs(tSegC - inTime) < m_cutMuonTime ) timeStatusC = 1;
         if( TMath::Abs(tSegC - early ) < m_cutMuonTime ) timeStatusC = 2;
 /*
