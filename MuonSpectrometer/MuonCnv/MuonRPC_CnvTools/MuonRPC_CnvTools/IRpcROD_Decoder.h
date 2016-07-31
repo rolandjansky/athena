@@ -10,12 +10,12 @@
 #include "eformat/SourceIdentifier.h"
 
 
-using eformat::helper::SourceIdentifier;
+//using eformat::helper::SourceIdentifier;
 
 
 class RpcPadContainer;
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+//using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 namespace Muon
 {
@@ -31,7 +31,7 @@ public:
     }
 
     // enter declaration of your interface-defining member functions here
-    virtual StatusCode fillCollections(const ROBFragment& robFrag, 
+    virtual StatusCode fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, 
                          RpcPadContainer& rdoIdc,
 			 std::vector<IdentifierHash>collections) const = 0;
 
