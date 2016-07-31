@@ -198,6 +198,7 @@ namespace Muon {
       double mooreErrorStrategyTight(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
       double mboyErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR) const;
       
+      double muonErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
       
       ToolHandle<Muon::MuonIdHelperTool>   m_idHelper;
       ServiceHandle<MdtCalibrationSvc>     m_mdtCalibSvc;
@@ -208,7 +209,7 @@ namespace Muon {
       // Configuration variables
       bool                                 m_doMdt; //!< Process MDT ROTs
       int                                  m_timeCorrectionType; //!< Defined in TimingMode enum.
-      bool                                 m_scaleErrorManually; //!< if set to true errors will be scaled with 'FixedErrorScale' + FixedError
+      //bool                                 m_scaleErrorManually; //!< if set to true errors will be scaled with 'FixedErrorScale' + FixedError
       bool                                 m_discardMaskedHits; //!< if set to true, do not create ROTs for masked hits
 
       // Constants for use during calculations
