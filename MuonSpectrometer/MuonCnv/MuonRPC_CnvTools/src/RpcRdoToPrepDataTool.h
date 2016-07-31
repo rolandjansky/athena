@@ -87,11 +87,11 @@ private:
 
 
 private:
-  double m_factor;
+  //double m_factor;
 
   // configurable options
-  int   m_rpcOffset;                    //!< Identifier hash offset
-  int   m_print_prepData;               //!< if 1 write a summary at the collections found
+  //int   m_rpcOffset;                    //!< Identifier hash offset
+  //int   m_print_prepData;               //!< if 1 write a summary at the collections found
   float m_etaphi_coincidenceTime;       //!< time for phi*eta coincidence 
   float m_overlap_timeTolerance;        //!< tolerance of the timing calibration 
   bool  m_processingData;               //!< data or MC 
