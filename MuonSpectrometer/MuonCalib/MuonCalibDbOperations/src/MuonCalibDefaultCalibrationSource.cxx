@@ -39,16 +39,16 @@ StatusCode MuonCalibDefaultCalibrationSource::initialize() {
   //get region selection service
   StatusCode sc=service("RegionSelectionSvc", p_reg_sel_svc);
   if(!sc.isSuccess()) {
-    log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endreq;
+    log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endmsg;
     return sc;
   }		
 //check matching lengths
   if(m_t0_region_str.size() != m_t0.size()) {
-    log << MSG::FATAL << "Configuration error: T0Regions and T0 have different size!" << endreq;
+    log << MSG::FATAL << "Configuration error: T0Regions and T0 have different size!" << endmsg;
     return StatusCode::FAILURE;
   }
   if(m_rt_region_str.size() != m_rt_files.size()) {
-    log << MSG::FATAL << "Configuration error: RtRegions and RtFiles have different size!" << endreq;
+    log << MSG::FATAL << "Configuration error: RtRegions and RtFiles have different size!" << endmsg;
     return StatusCode::FAILURE;
   }
 //initialize regions
@@ -82,7 +82,7 @@ StatusCode MuonCalibDefaultCalibrationSource::initialize_regions(const std::vect
   for(std::vector<std::string>::const_iterator it=reg_str.begin(); it!=reg_str.end(); it++) {
     RegionSelectorBase * r(RegionSelectorBase::GetRegion(*it));
     if(r==NULL) {
-      log<<MSG::FATAL<<"Error in region "<<*it<<endreq;
+      log<<MSG::FATAL<<"Error in region "<<*it<<endmsg;
       return StatusCode::FAILURE;
     }
     reg.push_back(r);
@@ -110,7 +110,7 @@ inline StatusCode MuonCalibDefaultCalibrationSource::load_rt_files() {
     std::string line;
     std::ifstream rtf(fname.c_str());
     if(!rtf.good()) {
-      log<<MSG::FATAL<<"Cannot open rt file '" <<fname<< "'!" <<endreq;
+      log<<MSG::FATAL<<"Cannot open rt file '" <<fname<< "'!" <<endmsg;
       return StatusCode::FAILURE;
     }
     std::map<int, SamplePoint> pts;
