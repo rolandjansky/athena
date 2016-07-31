@@ -66,32 +66,32 @@ StatusCode CoolInserter::initialize() {
   MsgStream log(msgSvc(), name());
 //check jo
   if(m_tagt0.size() != m_t0_folder.size() || m_tagrt.size() != 	m_rt_folder.size()) {
-    log << MSG::FATAL << "Configuration error: Number of folders and tags do not match!"<< endreq;
+    log << MSG::FATAL << "Configuration error: Number of folders and tags do not match!"<< endmsg;
     return StatusCode::FAILURE;
   }
   StoreGateSvc * detStore;
   StatusCode sc=service("DetectorStore", detStore);
   if(!sc.isSuccess()) {
-    log << MSG::FATAL << "Cannot retrieve Store Gate!" << endreq;
+    log << MSG::FATAL << "Cannot retrieve Store Gate!" << endmsg;
     return sc;
   }
      
   sc = detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
   if (!sc.isSuccess()) {
-    log << MSG::FATAL << "Can't retrieve MdtIdHelper" << endreq;
+    log << MSG::FATAL << "Can't retrieve MdtIdHelper" << endmsg;
     return sc;
   }
   
   sc = detStore->retrieve( m_detMgr );
   if (!sc.isSuccess()) {
-    log << MSG::FATAL << "Can't retrieve MuonDetectorManager" << endreq;
+    log << MSG::FATAL << "Can't retrieve MuonDetectorManager" << endmsg;
     return sc;	 
   }   
   
 //get region selection service
   sc=service("RegionSelectionSvc", p_reg_sel_svc);
   if(!sc.isSuccess()) {
-    log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endreq;
+    log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endmsg;
     return sc;
   }		
 //connect to cool database
@@ -99,12 +99,12 @@ StatusCode CoolInserter::initialize() {
     m_db = app.databaseService().openDatabase(m_cool_connection_string ,false );
   }
   catch ( cool::DatabaseDoesNotExist  & e ) {
-    log<<MSG::INFO<<"Creating new database."<<endreq;
+    log<<MSG::INFO<<"Creating new database."<<endmsg;
     try {
       m_db = app.databaseService().createDatabase(m_cool_connection_string);
     }
     catch(cool::Exception & e) {
-      log << MSG::FATAL << "Cannot create database and datbasae does not exist!" << endreq;
+      log << MSG::FATAL << "Cannot create database and datbasae does not exist!" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -114,19 +114,19 @@ StatusCode CoolInserter::initialize() {
     for(unsigned int i=0; i<m_t0_folder.size(); i++) {
       log<<m_t0_folder[i] << "(" << m_tagt0[i] << ") ";
     }
-    log<<endreq;
+    log<<endmsg;
   }
   if(m_rt_folder.size()) {
     log << MSG::INFO <<"Replication into rt folders: ";
     for(unsigned int i=0; i<m_rt_folder.size(); i++) {
       log<<m_rt_folder[i] << "(" << m_tagrt[i] << ") ";
     }
-    log<<endreq;
+    log<<endmsg;
   }
 //retrieve calibration sources
   sc=m_calibration_sources.retrieve();
   if(!sc.isSuccess()) {
-    log << MSG::FATAL <<"Cannot retrieve calibration sources!"<<endreq;
+    log << MSG::FATAL <<"Cannot retrieve calibration sources!"<<endmsg;
     return sc;
   }	
 //get iov
@@ -139,7 +139,7 @@ StatusCode CoolInserter::initialize() {
       m_iov_end = iov_end;
   }
   if(m_iov_start<0 || m_iov_end==-1) {
-    log << MSG::FATAL << "IOV has to be set, if no calibration source provides it!"<<endreq;
+    log << MSG::FATAL << "IOV has to be set, if no calibration source provides it!"<<endmsg;
     return StatusCode::FAILURE;
   }
   IOVTime start(m_iov_start, 0);
@@ -151,7 +151,7 @@ StatusCode CoolInserter::initialize() {
     IOVTime end(m_iov_end, 0);
     m_iovt_end = end.re_time();
   }
-  log << MSG::INFO << "IOV is "<<m_iov_start<<" to "<<m_iov_end<<endreq;
+  log << MSG::INFO << "IOV is "<<m_iov_start<<" to "<<m_iov_end<<endmsg;
 //fill compressed flags
   if(m_compressed_t0.size() < m_t0_folder.size())	
     for(unsigned int i=m_compressed_t0.size(); i<m_t0_folder.size(); i++)
@@ -164,7 +164,7 @@ StatusCode CoolInserter::initialize() {
 		
 StatusCode CoolInserter::finalize() {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "finalizing "<<endreq;
+  log << MSG::INFO << "finalizing "<<endmsg;
   try {
     for(unsigned int i=0; i<m_mdtt0_fld.size(); i++)
       m_mdtt0_fld[i]->flushStorageBuffer();	
@@ -172,7 +172,7 @@ StatusCode CoolInserter::finalize() {
       m_mdtrt_fld[i]->flushStorageBuffer();
   }
   catch(std::exception & e) {
-    log << MSG::FATAL << "Exception in finalize: " << e.what() <<endreq;
+    log << MSG::FATAL << "Exception in finalize: " << e.what() <<endmsg;
     return StatusCode::FAILURE;
   }	
   return StatusCode::SUCCESS;	
@@ -181,9 +181,9 @@ StatusCode CoolInserter::finalize() {
 StatusCode CoolInserter::execute() {
   MsgStream log(msgSvc(), name());
   for(unsigned int i=0; i<m_calibration_sources.size(); i++) {
-    log << MSG::INFO << "Now running " <<m_calibration_sources[i] <<endreq;
+    log << MSG::INFO << "Now running " <<m_calibration_sources[i] <<endmsg;
     if (!m_calibration_sources[i]->InstertCalibration(this, static_cast<bool>(m_t0_folder.size()), static_cast<bool>(m_rt_folder.size()))) {
-      log << MSG::FATAL << "Calibration Source " << m_calibration_sources[i].name() << " failed!" << endreq;
+      log << MSG::FATAL << "Calibration Source " << m_calibration_sources[i].name() << " failed!" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -239,7 +239,7 @@ bool CoolInserter::StoreT0Chamber(const NtupleStationId & id,  const std::string
   m_t0_filled.insert(id);
 //check number of added tubes
   if (m_n_tubes_added < m_n_tubes_chamber) {
-    log << MSG::WARNING << "Filling missing tubes with average for chamber" << m_sid.regionId()<<endreq;
+    log << MSG::WARNING << "Filling missing tubes with average for chamber" << m_sid.regionId()<<endmsg;
     m_aver_t0/=m_n_tubes_added;
     m_aver_adc/=m_n_tubes_added;
     for(int i=m_n_tubes_added; i<m_n_tubes_chamber; i++) {
@@ -251,7 +251,7 @@ bool CoolInserter::StoreT0Chamber(const NtupleStationId & id,  const std::string
     for(unsigned int i=0; i<m_t0_folder.size(); i++) {
       if(!m_db->existsFolder(m_t0_folder[i])) {
 	if(!create_folder(i, false)) {
-	  log << MSG::FATAL << "Cannot create folder '" << m_t0_folder[i] <<"'!"<<endreq;
+	  log << MSG::FATAL << "Cannot create folder '" << m_t0_folder[i] <<"'!"<<endmsg;
 	  return false;
 	}
       }
@@ -334,7 +334,7 @@ bool CoolInserter::StoreRtChamber(const NtupleStationId & id, const std::map<int
       
       if(!m_db->existsFolder(m_rt_folder[i]))	{
 	if(!create_folder(i, true)) {
-	  log << MSG::FATAL << "Cannot create folder '" << m_rt_folder[i] <<"'!"<<endreq;
+	  log << MSG::FATAL << "Cannot create folder '" << m_rt_folder[i] <<"'!"<<endmsg;
 	  return false;
 	}
       }

@@ -5,6 +5,7 @@ import readline
 import sys
 import traceback
 import os
+import fnmatch
 import getopt
 import re
 import fileinput
@@ -111,7 +112,7 @@ def ask_confirm():
 	else:
 		return True
 
-def perr(error,exit=False,exc=None):
+def perr(error,exc=None,exit=False,):
 	if quiet == False:
 		output = error
 		if isinstance(exc,KeyboardInterrupt):
@@ -169,7 +170,7 @@ def parse_date_dir(upload_arg):
 	elif (lowtime != None and uptime != None):
 		upload_date = find.findall(uptime)
 	else:
-		pout("Upload dir %s name does not contain date in format: 20091021 and you did not specify lowtime/uptime in arguments.  Today's date will be used." % upload_arg) 
+		pout("Upload directory name does not contain date in format: 20091021 and you did not specify lowtime/uptime in arguments.  Today's date will be used.") 
 		today = time.strftime('%Y%m%d')
 		lowtime = today + " 00:00:00" 
 		uptime = today + " 23:59:59"
@@ -389,20 +390,19 @@ try:
 			elif upload_arg == 'createid':
 				files = ["idloop"]
 			else:
-				try:
+				if os.path.isfile(upload_arg):
+					files = [upload_arg]
+					dirprep = ''
+				else:
 					files = os.listdir(upload_arg)
 					dirprep = upload_arg + "/"
-				except OSError, exc:
-					if exc.errno == 20:
-						if os.path.isfile(upload_arg):
-							files = [upload_arg]
-							dirprep = ''
-						else:
-							raise
-							
-				upload_date = parse_date_dir(upload_arg)
+				
+				if head_id == None:			
+					upload_date = parse_date_dir(upload_arg)
 
 			for filename in files:
+				if not fnmatch.fnmatch(filename, '*.dat'):
+					continue
 				constant_type = constant_arg
 				# upload is initially false, becomes set to a string 
 				if filename != 'copyloop' and filename != 'idloop':
@@ -433,12 +433,10 @@ try:
 							fieldcount = 17
 						else:
 							raise Exception("Unrecognized algorithm type '%s' in T0 or ADC header in file %s" % (rts[3], filename))
-						if implementation == None:
-							implementation = "CALIB_" + constant_type + '_' + upload_date[0]
-							pout("No implementation specified, generating automatically: %s " % implementation)
 
 					# if len == 3 it is RT with no header.  If len == 12 it is RT with standard header
 					elif len(rts) == 3 or len(rts) == 12:
+						upload = 'rt'
 						fieldcount = 3
 						if len(rts) == 12:
 							# pull constant_type/algorithm from header.  There isn't really a known standard for this so I'll use the one I invented for gas monitor RT uploads.
@@ -450,17 +448,18 @@ try:
 							else:
 								raise Exception("Unable to find algorithm type from RT header field '%s' in file %s" % (rts[2],filename))
 						else:	
-							 f.seek(f_start) 
-						if constant_type == None:
-							raise Exception("\nSpecifying a constant type (aka ALGO_FLAG) is required for uploads if the files do not have a header.")
-							
-						# only if no implementation argument on command line, set implementation from date defined by directory name of uploadrt argument
-						if implementation == None:
-							implementation = "RT_" + constant_type + '_' + upload_date[0] 
-							pout("No implementation specified, generating automatically: %s " % implementation)
-						upload = 'rt'
-					else:
-						raise Exception("Unable to determine upload type from file contents")
+							f.seek(f_start) 
+					if constant_type == None:
+						raise Exception("Unable to determine upload type from file contents: %s\nSpecifying a constant type with --type (aka ALGO_FLAG) is required for uploads if any files do not have a header." % filename)
+
+					# only if no implementation argument on command line, set implementation from date defined by directory name of upload path
+					if implementation == None and head_id == None:
+						if upload == 'rt':
+							implementation = "RT_" 
+						elif upload == 'adc' or upload == 't0':
+							implementation = "CALIB_"
+						implementation += constant_type + '_' + upload_date[0] 
+						pout("No implementation specified, generating automatically: %s " % implementation)
 
 			# end of specific to upload stuff......
 
@@ -492,7 +491,7 @@ try:
 								output += "ID %s" % head_id
 							if "cdsource" in locals():
 								output += " ID " + copysrc
-							perr(output,exc)
+							perr(error=output,exception=exc)
 							sys.exit(1)
 
 						if cd.head_id != None:
@@ -607,8 +606,8 @@ try:
 							raise
 						point_nr += 1
 					
-					if upload == 'rt' and point_nr != 100:
-						raise Exception("Found %s data points in file %s.  RT must have 100 data points." % (point_nr,filename))	
+					if upload == 'rt' and point_nr != 100 and point_nr != 200:
+						raise Exception("Found %s data points in file %s.  RT must have either 100 or 200 data points." % (point_nr,filename))	
 						# reset all values or might validate values from this iteration on next one
 					chamber = None
 					chamber_id = None
@@ -651,7 +650,7 @@ try:
 				cd.implementation = implementation
 				cd.write_headid
 			pout("RT Copy complete")
-		except T0RTCopyError:
+		except DataCopyError:
 			perr("Problem copying RT values from %s to %s@%s" % (copysrc, cd.head_id, cd.database))
 			raise
 		except DataUniqueError:

@@ -76,28 +76,28 @@ StatusCode CalibrationDbIOTool::initialize() {
 
   StatusCode sc= serviceLocator()->service("RegionSelectionSvc", p_reg_sel_svc);
   if(!sc.isSuccess()) {
-    log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endreq;
+    log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endmsg;
     return sc;
   }
   region_ids=p_reg_sel_svc->GetStationsInRegions();
-  log<< MSG::INFO << " CalibrationDbIOTool::initialize() - number of selected regions: "<<region_ids.size()<<endreq;
+  log<< MSG::INFO << " CalibrationDbIOTool::initialize() - number of selected regions: "<<region_ids.size()<<endmsg;
 	    
-  log<< MSG::INFO << "open connection" <<endreq;
+  log<< MSG::INFO << "open connection" <<endmsg;
   m_connection = new CalibDbConnection(m_db_ConnectionString, m_db_WorkingSchema);
-  log<< MSG::INFO << "." <<endreq;
+  log<< MSG::INFO << "." <<endmsg;
   if(m_reader_account!="") {
     m_connection->SetLogin(m_reader_account, m_reader_password);
   }
   if (!m_connection->OpenConnection()) {
-    log<< MSG::FATAL << "Cannot open connection to database!" <<endreq;
+    log<< MSG::FATAL << "Cannot open connection to database!" <<endmsg;
     return StatusCode::FAILURE;
   }
-  log<< MSG::INFO << ".." <<endreq;
+  log<< MSG::INFO << ".." <<endmsg;
   m_head_ops = new CalibHeadOperations(*m_connection);
   if (m_headid<0) {
     m_headid=m_head_ops->GetLatestHeadId();
     if (m_headid<0) {
-      log<< MSG::FATAL << "Cannot get latest head_id for site "<< m_sitename<<endreq;
+      log<< MSG::FATAL << "Cannot get latest head_id for site "<< m_sitename<<endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -106,7 +106,7 @@ StatusCode CalibrationDbIOTool::initialize() {
 
 StatusCode CalibrationDbIOTool::finalize() {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO <<"CalibrationDbIOTool finalize"<<endreq;
+  log << MSG::INFO <<"CalibrationDbIOTool finalize"<<endmsg;
 
   try {
     if(m_head_ops!=NULL) delete m_head_ops;
@@ -116,7 +116,7 @@ StatusCode CalibrationDbIOTool::finalize() {
       if (m_data_connections[i]!=NULL) delete m_data_connections[i];
     }
   } catch(std::exception & e) {
-    log << MSG::FATAL << "Exception in finalize: " << e.what() <<endreq;
+    log << MSG::FATAL << "Exception in finalize: " << e.what() <<endmsg;
     return StatusCode::FAILURE;
   }	
   
@@ -125,9 +125,9 @@ StatusCode CalibrationDbIOTool::finalize() {
 
 StatusCode CalibrationDbIOTool::WriteT0(MdtTubeFitContainer* t0, const NtupleStationId & it, int /*iov_start*/, int /*iov_end*/) {
   MsgStream log(msgSvc(), name());
-  log<<MSG::INFO<<"Writing to database"<<endreq;
+  log<<MSG::INFO<<"Writing to database"<<endmsg;
   if(!m_connection->OpenConnection()) {
-    log << MSG::FATAL <<"Open Connection failed!"<<endreq;
+    log << MSG::FATAL <<"Open Connection failed!"<<endmsg;
     return StatusCode::FAILURE;
   } else {
     if(get_connection(1)==NULL) {
@@ -141,7 +141,7 @@ StatusCode CalibrationDbIOTool::WriteT0(MdtTubeFitContainer* t0, const NtupleSta
     std::cout<<"."<<std::endl;
     if(!t0_op.WriteT0Chamber(it, t0, val, m_headid, m_sitename)) {
       std::cout<<"."<<std::endl;
-      log << MSG::FATAL <<"Writing t0 failed!"<<endreq;
+      log << MSG::FATAL <<"Writing t0 failed!"<<endmsg;
       std::cout<<"."<<std::endl;
       return StatusCode::FAILURE;
     }
@@ -152,7 +152,7 @@ StatusCode CalibrationDbIOTool::WriteT0(MdtTubeFitContainer* t0, const NtupleSta
 StatusCode  CalibrationDbIOTool::LoadT0(std::map<NtupleStationId, MdtStationT0Container *> &t0s, int /*iov_id*/) {
   MsgStream log(msgSvc(), name()); 
   if(!m_connection->OpenConnection()) {
-    log << MSG::FATAL <<"Open Connection failed!"<<endreq;
+    log << MSG::FATAL <<"Open Connection failed!"<<endmsg;
     return StatusCode::FAILURE;
   } else {
     if(!get_connection(0)) {
@@ -164,7 +164,7 @@ StatusCode  CalibrationDbIOTool::LoadT0(std::map<NtupleStationId, MdtStationT0Co
  
     //loop on all the ids in the selected calibration region
     for (std::vector<MuonCalib::NtupleStationId>::iterator it=region_ids.begin(); it!=region_ids.end(); it++) {
-      log << MSG::INFO << "Reading t0s for region " << it->regionId() << endreq;
+      log << MSG::INFO << "Reading t0s for region " << it->regionId() << endmsg;
       MdtStationT0Container * t0;
       t0=t0_op.LoadT0Calibration(*it, m_headid, m_sitename);
       if(t0!=NULL)
@@ -187,7 +187,7 @@ StatusCode CalibrationDbIOTool::WriteRt(const RtCalibrationOutput *rt_relation, 
     points.push_back(point);
   }
   if(!m_connection->OpenConnection()) {
-    log << MSG::FATAL <<"Open Connection failed!"<<endreq;
+    log << MSG::FATAL <<"Open Connection failed!"<<endmsg;
     return StatusCode::FAILURE;
   } else {
     if(get_connection(1)==NULL) {
@@ -196,7 +196,7 @@ StatusCode CalibrationDbIOTool::WriteRt(const RtCalibrationOutput *rt_relation, 
     m_data_connections[1]->OpenConnection();
     CalibRtDbOperations rt_op(*m_data_connections[1]);
     if(!rt_op.WriteUpdateRt(station_id, m_headid, m_sitename, points, 0, rt_relation->fullInfo())) {
-      log << MSG::FATAL <<"Writing rt failed!"<<endreq;
+      log << MSG::FATAL <<"Writing rt failed!"<<endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -206,7 +206,7 @@ StatusCode CalibrationDbIOTool::WriteRt(const RtCalibrationOutput *rt_relation, 
 StatusCode CalibrationDbIOTool::LoadRt(std::map<NtupleStationId, IRtRelation *> & rts, std::map<NtupleStationId, IRtResolution *> &res, int /*iov_id*/) {
   MsgStream log(msgSvc(), name()); 
   if(!m_connection->OpenConnection()) {
-    log << MSG::FATAL <<"Open Connection failed!"<<endreq;
+    log << MSG::FATAL <<"Open Connection failed!"<<endmsg;
     return StatusCode::FAILURE;
   } else {
     if(!get_connection(0)) {
@@ -222,7 +222,7 @@ StatusCode CalibrationDbIOTool::LoadRt(std::map<NtupleStationId, IRtRelation *> 
       RtFullInfo full_info;
       if(!rt_op.LoadRt(*it, m_headid, m_use_validated_rt, m_sitename, in_points, &full_info))
 	continue;
-      log << MSG::INFO << "Reading rts for region " << it->regionId() << endreq;
+      log << MSG::INFO << "Reading rts for region " << it->regionId() << endmsg;
       std::vector<SamplePoint> outpoints;
       float tmax_diff(-9e9);
       for (unsigned int k=0; k<in_points.size(); k++) {
@@ -264,7 +264,7 @@ inline void CalibrationDbIOTool::fillRtPoints( const IRtRelation*  rt, std::vect
     for (unsigned int k=0; k<nb_points; k++) {
       double radius(rt_param[k+2]);
       if(std::isnan(radius)) {
-	log<<MSG::WARNING<<"Skipping NAN"<<endreq;
+	log<<MSG::WARNING<<"Skipping NAN"<<endmsg;
 	continue;
       }	
       SamplePoint point(t_min+bin_size*k, rt_param[k+2], -1);
