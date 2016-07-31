@@ -96,9 +96,9 @@ void RpcROD_Encoder::fillROD(std::vector<uint32_t>& v) {
  v.push_back(0); // Level1TriggerType
  v.push_back(0); // DetectorEventType
 
- //msg(MSG::DEBUG) << "The ROB and ROD IDs are " << theROB << " " << theROD << endreq;
+ //msg(MSG::DEBUG) << "The ROB and ROD IDs are " << theROB << " " << theROD << endmsg;
 
- //msg(MSG::DEBUG) << "The side and rodId are " << side << " " << rodId << endreq;
+ //msg(MSG::DEBUG) << "The side and rodId are " << side << " " << rodId << endmsg;
 
  // make the body of the ROD
  for (; re!=re_end; ++re) {
@@ -111,7 +111,7 @@ void RpcROD_Encoder::fillROD(std::vector<uint32_t>& v) {
    
    uint16_t receiverHeader = rxReadout.makeHeader(rxHeader);
    // msg(MSG::DEBUG) << "The receiver header word is " << hex 
-   //  << receiverHeader << dec << endreq;
+   //  << receiverHeader << dec << endmsg;
 
    v16.push_back(receiverHeader);
 
@@ -191,13 +191,13 @@ void RpcROD_Encoder::fillROD(std::vector<uint32_t>& v) {
  v.push_back(0); // StatusBlockPosition
  
  /*
-   msg(MSG::DEBUG) << "**********Encoder dumping the words******** " << endreq;
+   msg(MSG::DEBUG) << "**********Encoder dumping the words******** " << endmsg;
    if (v.size() > 0 ) {
-   msg(MSG::DEBUG) << "The size of this ROD-write is " << v.size() << endreq;
+   msg(MSG::DEBUG) << "The size of this ROD-write is " << v.size() << endmsg;
    for (int i=0; (uint32_t)i < v.size(); i++)
    msg(MSG::DEBUG) << "word " << i << " = " << std::hex << v[i] << dec 
-   << endreq;
-   // msg(MSG::DEBUG) << "word " << i << " = " << v[i] << endreq;
+   << endmsg;
+   // msg(MSG::DEBUG) << "word " << i << " = " << v[i] << endmsg;
  }
 */
  

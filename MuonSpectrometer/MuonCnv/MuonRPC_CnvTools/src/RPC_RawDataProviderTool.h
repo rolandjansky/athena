@@ -47,13 +47,13 @@ class RPC_RawDataProviderTool : virtual public IMuonRawDataProviderTool,
 private:
 
 
-    const RpcPadIdHash*                 m_hashfunc;
+    //const RpcPadIdHash*                 m_hashfunc;
 
     //    ServiceHandle<StoreGateSvc>         m_eventStore;
     ToolHandle<IRpcROD_Decoder>         m_decoder;
     std::string                         m_rdoContainerKey;
     
-    std::vector<IdentifierHash> to_be_converted(const ROBFragment& robFrag,
+    std::vector<IdentifierHash> to_be_converted(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                             const std::vector<IdentifierHash>& coll) const;
     ActiveStoreSvc*                     m_activeStore;
 

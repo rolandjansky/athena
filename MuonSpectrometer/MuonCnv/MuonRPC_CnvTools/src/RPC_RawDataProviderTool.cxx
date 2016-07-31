@@ -26,7 +26,7 @@
 
 
 using eformat::helper::SourceIdentifier;
-
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 Muon::RPC_RawDataProviderTool::RPC_RawDataProviderTool(
     const std::string& t,
@@ -115,7 +115,7 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
     IJobOptionsSvc* TrigConfSvc;
     sc = service("TrigConf::HLTJobOptionsSvc", TrigConfSvc, false);
     if (sc.isFailure()) {
-      msg(MSG::DEBUG) << "Could not find TrigConf::HLTJobOptionsSvc" << endreq;
+      msg(MSG::DEBUG) << "Could not find TrigConf::HLTJobOptionsSvc" << endmsg;
       TrigConfSvc = 0;
     } else {
       IService* svc = dynamic_cast<IService*>(TrigConfSvc);
@@ -156,7 +156,7 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
     } 
     else has_bytestream = true;
     //{
-    //    msg(MSG::FATAL) << "Cannot get the job configuration" << endreq;
+    //    msg(MSG::FATAL) << "Cannot get the job configuration" << endmsg;
   //return StatusCode::FAILURE;
     //}
     
@@ -165,15 +165,15 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
     m_activeStore->setStore( &*evtStore() ); 
     if( has_bytestream || m_rdoContainerKey != "RPCPAD" )
     {
-        RpcPadContainer* m_container = 
+        RpcPadContainer* container = 
       Muon::MuonRdoContainerAccess::retrieveRpcPad(m_rdoContainerKey);
       
   // create and register the container only once
-        if(m_container==0)
+        if(container==0)
         {
             try 
             {
-                m_container = new RpcPadContainer(padMaxIndex);
+                container = new RpcPadContainer(padMaxIndex);
             } 
             catch(std::bad_alloc) 
             {
@@ -183,7 +183,7 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
 
             // record the container for being used by the convert method
 
-            if( Muon::MuonRdoContainerAccess::record(m_container,
+            if( Muon::MuonRdoContainerAccess::record(container,
                                                      m_rdoContainerKey,
                                                      serviceLocator(), msg(), 
                                                      (&*evtStore())).isFailure() )
@@ -328,7 +328,7 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
                 uint32_t sourceId= (**itFrag).source_id();
                 msg(MSG::DEBUG) << " ROB " << MSG::hex << sourceId
         << " is delivered with an empty payload" << MSG::dec 
-        << endreq;
+        << endmsg;
             }
             // store the error condition into the StatusCode and continue
         }

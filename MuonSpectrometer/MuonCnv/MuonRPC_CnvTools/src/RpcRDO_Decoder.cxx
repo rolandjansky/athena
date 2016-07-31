@@ -47,27 +47,27 @@ StatusCode Muon::RpcRDO_Decoder::initialize()
   if (detStore()->retrieve( m_muonMgr ).isFailure())
   {
       msg(MSG::ERROR) << "Can't retrieve MuonGM::MuonDetectorManager" 
-		      << endreq;
+		      << endmsg;
   }
-  else msg(MSG::DEBUG) << "Found MuonGM::MuonDetectorManager "<<endreq;
+  else msg(MSG::DEBUG) << "Found MuonGM::MuonDetectorManager "<<endmsg;
       
     // get RPC cablingSvc
     const IRPCcablingServerSvc* RpcCabGet = 0;
     StatusCode sc = service("RPCcablingServerSvc", RpcCabGet);
     if (sc.isFailure()) {
-	msg (MSG::FATAL) << "Could not get RPCcablingServerSvc !" << endreq;
+	msg (MSG::FATAL) << "Could not get RPCcablingServerSvc !" << endmsg;
 	return StatusCode::FAILURE;
     }
-    else msg (MSG::VERBOSE) << " RPCcablingServerSvc retrieved" << endreq;
+    else msg (MSG::VERBOSE) << " RPCcablingServerSvc retrieved" << endmsg;
   
     sc = RpcCabGet->giveCabling(m_cablingSvc);
     if (sc.isFailure()) {
-	msg (MSG::FATAL) << "Could not get RPCcablingSvc from the Server !" << endreq;
+	msg (MSG::FATAL) << "Could not get RPCcablingSvc from the Server !" << endmsg;
 	m_cablingSvc = 0;
 	return StatusCode::FAILURE;
     } 
     else {
-	msg (MSG::VERBOSE) << " RPCcablingSvc obtained " << endreq;
+	msg (MSG::VERBOSE) << " RPCcablingSvc obtained " << endmsg;
     }
 
     return sc;
