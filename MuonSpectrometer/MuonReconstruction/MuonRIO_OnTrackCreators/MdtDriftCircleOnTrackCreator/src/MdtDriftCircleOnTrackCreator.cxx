@@ -158,7 +158,7 @@ StatusCode Muon::MdtDriftCircleOnTrackCreator::initialize()
   if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::SlewCorrection ) ) msg(MSG::INFO) << " Slew";
   if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::BackgroundCorrection ) ) msg(MSG::INFO) << " Back";
   if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::Segment ) ) msg(MSG::INFO) << " Seg";
-  msg(MSG::INFO) << endreq;
+  msg(MSG::INFO) << endmsg;
   
   if( !m_isMC && m_looseErrors )  ATH_MSG_INFO( "Using Data Loose error tuning");
   if( !m_isMC && !m_looseErrors ) ATH_MSG_INFO( "Using Data Tight error tuning");
@@ -166,51 +166,51 @@ StatusCode Muon::MdtDriftCircleOnTrackCreator::initialize()
   ATH_MSG_VERBOSE( "A correction is made if set to true: do_MDT = " << m_doMdt ); 
   
   if (m_idHelper.retrieve().isFailure()) {  
-    msg(MSG::ERROR) << " Cannot retrieve " << m_idHelper << endreq;
+    msg(MSG::ERROR) << " Cannot retrieve " << m_idHelper << endmsg;
     return StatusCode::FAILURE;
   }
   
   if (m_doMdt) {
     if( m_mdtCalibSvc.retrieve().isFailure() ) {
-      msg(MSG::ERROR) << " Could not initialize MdtCalibration Service" << endreq;
+      msg(MSG::ERROR) << " Could not initialize MdtCalibration Service" << endmsg;
       return StatusCode::FAILURE;
     }
     // Get pointer to MdtCalibrationDbSvc and cache it :
     if ( m_mdtCalibDbSvc.retrieve().isFailure() ) {
-      msg(MSG::ERROR) << MSG::ERROR << "Unable to retrieve pointer to MdtCalibrationDbSvc" << endreq;
+      msg(MSG::ERROR) << MSG::ERROR << "Unable to retrieve pointer to MdtCalibrationDbSvc" << endmsg;
       return StatusCode::FAILURE;
     }
     
   } else {
     msg(MSG::WARNING) << " tool is configured such that MDT_DCs are only copied!"
-    << endreq;
+    << endmsg;
   }
   
   // get error scaling tool
   if(m_errorScalingTool.retrieve().isFailure())   {
     msg(MSG::WARNING) << "Can not get error scaling tool " << m_errorScalingTool
-    << ", will trigger failure." << endreq;
+    << ", will trigger failure." << endmsg;
     return StatusCode::SUCCESS;
   } 
   
   if( m_timeCorrectionType == COSMICS_TOF ){
     if( m_tofTool.empty() ) {
-      msg(MSG::ERROR) << "The time of flight tool is not configured. Please check your configuration"  << endreq;
+      msg(MSG::ERROR) << "The time of flight tool is not configured. Please check your configuration"  << endmsg;
       return StatusCode::FAILURE;
     }
     if( m_tofTool.retrieve().isSuccess() ){
-      ATH_MSG_DEBUG("Retrieved " << m_tofTool << endreq);
+      ATH_MSG_DEBUG("Retrieved " << m_tofTool << endmsg);
     }else{
-      msg(MSG::ERROR)<<"Could not get " << m_tofTool <<endreq; 
+      msg(MSG::ERROR)<<"Could not get " << m_tofTool <<endmsg; 
       return StatusCode::FAILURE;
     }
     if( !m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::TofCorrection) ){
-      msg(MSG::WARNING) << "Detected bad default configuration, using Cosmic TOF witout time of flight corrections does not work" << endreq;
+      msg(MSG::WARNING) << "Detected bad default configuration, using Cosmic TOF witout time of flight corrections does not work" << endmsg;
     }
   }
-  ATH_MSG_DEBUG("Timing mode set to  " << m_timeCorrectionType << endreq);
+  ATH_MSG_DEBUG("Timing mode set to  " << m_timeCorrectionType << endmsg);
   if (m_timeCorrectionType>=NumberOfTimingModes) {
-    msg(MSG::ERROR)<<"Time Correction Type too large! Aborting."<<endreq;
+    msg(MSG::ERROR)<<"Time Correction Type too large! Aborting."<<endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -252,7 +252,7 @@ const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO
   // Local position for calculation of postion along the tube, used for wire sag treatment
  const Amg::Vector2D* tempLocOnWire = nominalSurf->Trk::Surface::globalToLocal(GP,m_globalToLocalTolerance);
   if( !tempLocOnWire ){
-    msg(MSG::WARNING) << "globalToLocal failed! " << endreq;
+    msg(MSG::WARNING) << "globalToLocal failed! " << endmsg;
     return 0;
   }
   
@@ -261,7 +261,7 @@ const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO
   if (myStrategy->creationParameter(MuonDriftCircleErrorStrategy::WireSagGeomCorrection)) {
     saggedSurf = nominalSurf->correctedSurface(*tempLocOnWire); // sagged surface
     if( !saggedSurf ){
-      msg(MSG::WARNING) << "DistortedSurface failed to create sagged surface, using nominal surface " << endreq;
+      msg(MSG::WARNING) << "DistortedSurface failed to create sagged surface, using nominal surface " << endmsg;
       saggedSurf = nominalSurf;
     }
     
@@ -269,7 +269,7 @@ const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO
     const Amg::Vector2D* tempLocOnSaggedWire = saggedSurf->Trk::Surface::globalToLocal(GP,m_globalToLocalTolerance);
     delete tempLocOnWire; 
     if( !tempLocOnSaggedWire ){
-      msg(MSG::WARNING) << "globalToLocal failed for sagged surface, not applying sagging! " << endreq;
+      msg(MSG::WARNING) << "globalToLocal failed for sagged surface, not applying sagging! " << endmsg;
       return 0;
     }else{
       // replace tempLocOnWire with tempLocOnSaggedWire
@@ -310,7 +310,7 @@ const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO
     
     // check this might still fail....
     if( !pos ){
-      msg(MSG::WARNING) << "Unexpected globalToLocal failure, cannot create MDT ROT " << endreq;
+      msg(MSG::WARNING) << "Unexpected globalToLocal failure, cannot create MDT ROT " << endmsg;
       // clean up memory
       delete saggedSurf;
       return 0;
@@ -333,7 +333,7 @@ const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO
     // double tolerance=0.01;
     // if ( m_debug && (GP.x()-rot->globalPosition().x())>tolerance
     //     && (GP.y()-rot->globalPosition().y())>tolerance 
-    //     && (GP.z()-rot->globalPosition().z())>tolerance  ) *m_log<<MSG::WARNING<<"Global position differs: before = "<<GP<<"\t after="<<rot->globalPosition()<<endreq;    
+    //     && (GP.z()-rot->globalPosition().z())>tolerance  ) *m_log<<MSG::WARNING<<"Global position differs: before = "<<GP<<"\t after="<<rot->globalPosition()<<endmsg;    
   }else{
     // If the track direction is missing, the B-field correction was not applied 
     if (inputData.trackDirection) {
@@ -406,7 +406,7 @@ Muon::MdtDriftCircleOnTrackCreator::getLocalMeasurement(const MdtPrepData& DC,
   if ( m_doMdt ) {
     const MuonGM::MdtReadoutElement* detEl = DC.detectorElement();
     if(!detEl){
-      msg(MSG::WARNING) << "MdtPrepData without not a MdtReadoutElement" << endreq;
+      msg(MSG::WARNING) << "MdtPrepData without not a MdtReadoutElement" << endmsg;
   
 Amg::MatrixX  localCov(1,1);
   localCov(0,0) = 0.0;
@@ -447,7 +447,7 @@ return CalibrationOutput(Amg::Vector2D(),localCov,0.,false);
         break;
       default:
         // default, no tof. Indicates wrong configuration
-        msg(MSG::WARNING) << "No valid mode selected, cannot apply tof correction"  << endreq;
+        msg(MSG::WARNING) << "No valid mode selected, cannot apply tof correction"  << endmsg;
         inputData.tof = 0.;
         break;
     }
@@ -475,8 +475,8 @@ return CalibrationOutput(Amg::Vector2D(),localCov,0.,false);
     
     // check consistency of error matrix
     if( DC.localCovariance().cols() > 1) {
-      msg(MSG::WARNING) << "Error matrix of DC doesn't have dimension 1 " << DC.localCovariance() << endreq;
-      msg(MSG::WARNING) << "Reducing size to 1 dim" << endreq;
+      msg(MSG::WARNING) << "Error matrix of DC doesn't have dimension 1 " << DC.localCovariance() << endmsg;
+      msg(MSG::WARNING) << "Reducing size to 1 dim" << endmsg;
     }
   } 
   
@@ -532,7 +532,7 @@ const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::correct(
 {
   const MdtPrepData* mdtPrd = dynamic_cast<const MdtPrepData*>(&prd);
   if( !mdtPrd ){
-    msg(MSG::WARNING) << " Incorrect hit type:  Trk::PrepRawData not a Muon::MdtPrepData!! No rot created " << endreq;
+    msg(MSG::WARNING) << " Incorrect hit type:  Trk::PrepRawData not a Muon::MdtPrepData!! No rot created " << endmsg;
     return 0;
   }
   
@@ -546,13 +546,13 @@ const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::correct(
 {
   const MdtPrepData* mdtPrd = dynamic_cast<const MdtPrepData*>(&prd);
   if( !mdtPrd ){
-    msg(MSG::WARNING) << " Incorrect hit type:  Trk::PrepRawData not a Muon::MdtPrepData!! No rot created " << endreq;
+    msg(MSG::WARNING) << " Incorrect hit type:  Trk::PrepRawData not a Muon::MdtPrepData!! No rot created " << endmsg;
     return 0;
   }
   
   static bool firstTime = true;
   if (firstTime){
-   ATH_MSG_DEBUG( "Called correct using the base class implementation.  Will use the default error strategy" << endreq);
+   ATH_MSG_DEBUG( "Called correct using the base class implementation.  Will use the default error strategy" << endmsg);
     firstTime = false;
   }
   
@@ -1010,7 +1010,7 @@ double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyMC(const MuonDriftC
   } // End of segment or track
   // static bool first = true;
   // if (first){
-  //   msg(MSG::WARNING) << "Unknown error strategy combination - check your configuration please! "<<(*myStrategy)<<endreq;
+  //   msg(MSG::WARNING) << "Unknown error strategy combination - check your configuration please! "<<(*myStrategy)<<endmsg;
   //   first = false;
   // }
   return sigmaR2;
@@ -1097,7 +1097,7 @@ double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyLoose(const MuonDri
   } // End of segment or track
   // static bool first = true;
   // if (first){
-  //   msg(MSG::WARNING) << "Unknown error strategy combination - check your configuration please! "<<(*myStrategy)<<endreq;
+  //   msg(MSG::WARNING) << "Unknown error strategy combination - check your configuration please! "<<(*myStrategy)<<endmsg;
   //   first = false;
   // }
   return sigmaR2;
@@ -1202,14 +1202,14 @@ double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyTight(const MuonDri
   } // End of segment or track
   // static bool first = true;
   // if (first){
-  //   msg(MSG::WARNING) << "Unknown error strategy combination - check your configuration please! "<<(*myStrategy)<<endreq;
+  //   msg(MSG::WARNING) << "Unknown error strategy combination - check your configuration please! "<<(*myStrategy)<<endmsg;
   //   first = false;
   // }
   return sigmaR2;
 }
 
 double Muon::MdtDriftCircleOnTrackCreator::muonErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, 
-                                                              double sigmaR2, const Identifier& id) const {
+                                                             double sigmaR2, const Identifier& /*id*/) const {
 
 //
 //   the new muonErrorStrategy is identical for Data and MC
@@ -1281,7 +1281,7 @@ double Muon::MdtDriftCircleOnTrackCreator::mboyErrorStrategy(const MuonDriftCirc
   // dead code never reached - should be kept nevertheless to remember default
   // static bool first = true;
   // if (first){
-  //   msg(MSG::WARNING) << "Unknown error strategy combination - check your configuration please! "<<(*myStrategy)<<endreq;
+  //   msg(MSG::WARNING) << "Unknown error strategy combination - check your configuration please! "<<(*myStrategy)<<endmsg;
   //   first = false;
   // }
   // return sigmaR*sigmaR;
