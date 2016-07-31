@@ -232,7 +232,7 @@ class CalibData:
 
 	def dbgout(self, output):
 		if self.debug:
-			print output
+			print output + '\n'
 
 	# returns False if no class attributes in list are unset
 	def missing_attributes(self,checkvars):
@@ -389,7 +389,7 @@ class CalibData:
 			sql_del_limit = ""
 		while loop:
 			esql = sql + sql_del_limit
-			self.dbgout("SQL executed in exec_delete: %s\n" % esql)
+			self.dbgout("SQL executed in exec_delete: %s" % esql)
 			if ctype == "data":
 				self.dcursor.execute(esql)
 				if self.dcursor.rowcount > 0:
@@ -602,7 +602,7 @@ class CalibData:
         
 		sql += "ORDER BY head.head_id DESC"
         
-		self.dbgout("SQL from get_head_info: %s \n" % sql)
+		self.dbgout("SQL from get_head_info: %s" % sql)
 
 		try:
 				self.mcursor.execute(sql)
@@ -934,13 +934,17 @@ class CalibData:
 		self.connect("write","data")
 		sql_map = "INSERT INTO %s.MDT_RT_MAP(HEAD_ID, REGION_ID,CALIBFLAG,POINT_NR,S,T,R) VALUES (%s,%s,%s,%s,%s,%s,%s)" % ( self.dschema, self.head_id,self.regionid,self.calibflag,point_nr,s,t,r)
 		if self.debug == True:
-				self.dbgout("SQL from insert_rt_map: %s \n" % sql_map)
+			self.dbgout("SQL from insert_rt_map: %s" % sql_map)
 		try: 
-				self.exec_insert(sql_map)
+			if point_nr == 99 or point_nr == 199:
+                                tmax = float(t)
+				if tmax > 800. or tmax < 700.:
+					raise Exception("Tmax value %s: Tmax must be in range 700 to 800 ns" % t)
+			self.exec_insert(sql_map)
 		except cx_Oracle.IntegrityError, exc:
-				raise DataUniqueError(self,exc)
+			raise DataUniqueError(self,exc)
 		except Exception, exc:
-				raise MapInsertError(self,exc)
+			raise MapInsertError(self,exc)
     
 	def insert_rt(self,regionid):
 		if self.type == None:
@@ -965,8 +969,8 @@ class CalibData:
 		sql_tube_c = "INSERT INTO %s.MDT_TUBE_C (HEAD_ID,TUBE_ID,ADC_0_ERR,ADC_1_ERR,ADC_2_ERR,ADC_3_ERR,ADC_CHISQUARE) VALUES (%s,%s,%s,%s,%s,%s,%s)" % (self.dschema,self.head_id,tube_id, adc_0_err, adc_1_err, adc_2_err, adc_3_err, adc_chisquare) 
 
 		if self.debug == True:
-			self.dbgout("SQL from insert_adc: %s \n" % sql_tube)
-			self.dbgout("SQL from insert_adc: %s \n" % sql_tube_c)
+			self.dbgout("SQL from insert_adc: %s" % sql_tube)
+			self.dbgout("SQL from insert_adc: %s" % sql_tube_c)
 
 		try:
 			self.exec_insert(sql_tube)
@@ -985,6 +989,11 @@ class CalibData:
 		#V.algo_flag,V.chisquare_1,V.P4_err,V.P5,V.P5_err,V.P0,V.P6,V.p6_err, V.tube_grouping)
 		sql_tube_c = "INSERT INTO %s.MDT_TUBE_C (HEAD_ID,TUBE_ID,CALIBFLAG,P0_ERR) VALUES (%s,%s,%s,%s)" % (self.dschema,self.head_id,tube_id,calibflag,noise_err)
 		sql_tube_v = "INSERT INTO %s.MDT_TUBE_V (HEAD_ID,TUBE_ID,CALIBFLAG,CHISQUARE_1,P4_ERR,P5,P5_ERR,P0,P6,P6_ERR,ALGO_FLAG,TUBE_GROUPING) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'%s','%s')" % (self.dschema,self.head_id,tube_id,calibflag,chi2,t0err,tmax,tmax_err,noise,slope,slope_err,self.type,self.t0_tube_grouping)
+
+		if self.debug == True:
+			self.dbgout("SQL from insert_t0: %s" % sql_tube)
+			self.dbgout("SQL from insert_t0: %s" % sql_tube_c)
+			self.dbgout("SQL from insert_t0: %s" % sql_tube_v)
 
 		try:
 			self.exec_insert(sql_tube)
@@ -1041,9 +1050,9 @@ class CalibData:
 			sql_tube_c += " AND TUBE_ID=%s" % tube_id
 			sql_tube += " AND TUBE_ID=%s" % tube_id
        
-		self.dbgout("SQL from delete_t0: %s \n" % sql_tube_v)
-		self.dbgout("SQL from delete_t0: %s \n" % sql_tube_c)
-		self.dbgout("SQL from delete_t0: %s \n" % sql_tube)
+		self.dbgout("SQL from delete_t0: %s" % sql_tube_v)
+		self.dbgout("SQL from delete_t0: %s" % sql_tube_c)
+		self.dbgout("SQL from delete_t0: %s" % sql_tube)
 
 		try:
 			self.exec_delete(sql_tube_v)
@@ -1058,7 +1067,7 @@ class CalibData:
 		if tube != None:
 			sql_valid += "AND REGION_ID=%s" % tube
 
-		self.dbgout("SQL from set_rt_valid: %s \n" % sql_valid)
+		self.dbgout("SQL from set_rt_valid: %s" % sql_valid)
 
 		try:
 			self.exec_insert(sql_valid)
@@ -1071,7 +1080,7 @@ class CalibData:
 		if tube != None:
 			sql_valid += "AND TUBE_ID=%s" % tube
 
-		self.dbgout("SQL from set_t0_valid: %s \n" % sql_valid)
+		self.dbgout("SQL from set_t0_valid: %s" % sql_valid)
 
 		try:
 			self.exec_insert(sql_valid)

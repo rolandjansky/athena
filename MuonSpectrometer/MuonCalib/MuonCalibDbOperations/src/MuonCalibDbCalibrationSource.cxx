@@ -65,20 +65,20 @@ StatusCode MuonCalibDbCalibrationSource::initialize() {
 //process region
   m_region = RegionSelectorBase::GetRegion(m_region_str);
   if(m_region == NULL) {
-    log<<MSG::FATAL<<"Error initializing RegionSelectorBase::GetRegion with region string: '"<<m_region_str<<"' "<<endreq;
+    log<<MSG::FATAL<<"Error initializing RegionSelectorBase::GetRegion with region string: '"<<m_region_str<<"' "<<endmsg;
     return StatusCode::FAILURE;
   }
 //open conneciton to calibration db
   m_connection = new CalibDbConnection(m_calib_connection_string, m_calib_working_schema);
   m_connection->SetLogin(m_username, m_password);
   if (!m_connection->OpenConnection()) {
-    log << MSG::FATAL << "Cannot open connection to calibration database!" <<endreq;
+    log << MSG::FATAL << "Cannot open connection to calibration database!" <<endmsg;
     return StatusCode::FAILURE;
   }
   m_head_ops=new CalibHeadOperations(*m_connection);
   int lowrun, uprun, lowtime, uptime;
   if(!m_head_ops->GetHeadInfo(m_head_id, lowrun, uprun, lowtime, uptime)) {
-    log<<MSG::FATAL<<"Cannot get header "<<m_head_id << "from calib datbase"<<endreq;
+    log<<MSG::FATAL<<"Cannot get header "<<m_head_id << "from calib datbase"<<endmsg;
     return StatusCode::FAILURE;
   }
   m_iov_start = lowrun;
@@ -86,11 +86,11 @@ StatusCode MuonCalibDbCalibrationSource::initialize() {
   m_iov_end++;
   m_data_connection = m_head_ops->GetDataConnection(m_head_id, false);
   if(m_data_connection==NULL) {
-    log<<MSG::FATAL<<"Cannot open data connection!"<<endreq;
+    log<<MSG::FATAL<<"Cannot open data connection!"<<endmsg;
     return StatusCode::FAILURE;
   }
   if(!m_data_connection->OpenConnection()) {
-    log<<MSG::FATAL<<"Cannot open data connection!"<<endreq;
+    log<<MSG::FATAL<<"Cannot open data connection!"<<endmsg;
     return StatusCode::FAILURE;
   }
   m_creation_flags=0;
@@ -103,7 +103,7 @@ StatusCode MuonCalibDbCalibrationSource::initialize() {
 
 StatusCode MuonCalibDbCalibrationSource::finalize() {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "finalizing "<<endreq;
+  log << MSG::INFO << "finalizing "<<endmsg;
   try {
     if(m_head_ops!=NULL) {
       delete m_head_ops;
@@ -116,7 +116,7 @@ StatusCode MuonCalibDbCalibrationSource::finalize() {
     }
   }
   catch(std::exception & e) {
-    log << MSG::FATAL << "Exception in finalize: " << e.what() <<endreq;
+    log << MSG::FATAL << "Exception in finalize: " << e.what() <<endmsg;
     return StatusCode::FAILURE;
   }	
   return StatusCode::SUCCESS;	
@@ -134,12 +134,12 @@ bool MuonCalibDbCalibrationSource::StoreT0Chamber(const int & chamber, const std
   std::ostringstream f;
   f<<chamber<<m_site_name<<m_head_id;
   if (!m_inserter->StartT0Chamber(sid))	{
-    log<< MSG::WARNING <<"Cannot insert chamber "<<chamber<<endreq;
+    log<< MSG::WARNING <<"Cannot insert chamber "<<chamber<<endmsg;
     return StatusCode::SUCCESS;
   }
   for(std::map<TubeId, coral::AttributeList>::const_iterator it=rows.begin(); it!=rows.end(); it++) {
     if(!m_inserter->AppendT0(it->second["P4"].data<float>() + m_t0_offset, it->second["VALIDFLAG"].data<short>(), it->second["ADC_1"].data<float>())) {
-      log << MSG::WARNING << "Wrong number of tubes in database for " << sid.regionId() << "!" <<endreq;
+      log << MSG::WARNING << "Wrong number of tubes in database for " << sid.regionId() << "!" <<endmsg;
       break;
     }
   }
@@ -180,20 +180,20 @@ bool MuonCalibDbCalibrationSource::insert_calibration( bool store_t0, bool store
     if(store_t0 && m_store_t0) {
       CalibT0DbOperations t0_op(*m_data_connection);
       if(!t0_op.ReadForConditions(m_site_name, m_head_id, *this)) {
-	log << MSG::FATAL <<"T0 insert failed!" << endreq;
+	log << MSG::FATAL <<"T0 insert failed!" << endmsg;
 	return false;
       }
     }
     if(store_rt&& m_store_rt) {
       CalibRtDbOperations rt_op(*m_data_connection);
       if(!rt_op.ReadForConditions(m_site_name, m_head_id, *this)) {
-	log << MSG::FATAL <<"RT insert failed!" << endreq;
+	log << MSG::FATAL <<"RT insert failed!" << endmsg;
 	return false;
       }
     }
   } //try
   catch(std::exception & e) {
-    log << MSG::FATAL << "Exception: " << e.what() <<endreq;
+    log << MSG::FATAL << "Exception: " << e.what() <<endmsg;
     return false;
   }
   return true;
