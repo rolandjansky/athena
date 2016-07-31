@@ -141,6 +141,33 @@ SiCellId StripAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) const 
     return SiCellId(strip1D, 0);
 }
 
+
+
+
+void closestStripRowOfPositionForStripAnnulusDesign(SiLocalPosition const &pos, std::vector<double> const & stripEndRadius, std::vector<int> const & firstStrip,  std::vector<double> const & pitch, std::vector<int> const nStrips, int nRows, int & strip, int & row )  {
+	double r = pos.r()						;
+	double phi = pos.phi()						;	
+	
+	////    Find the row
+	////
+	vector<double>::const_iterator endPtr = upper_bound( stripEndRadius.begin(),  stripEndRadius.end(), r);
+	row = distance( stripEndRadius.begin(), endPtr)			;
+    	if ( row < 0 ) row = 0						; 
+	if ( row >= nRows) row = nRows					;
+
+	//    Find the strip
+    	strip = floor(phi / pitch[row]) +nStrips[row]/2.0		;
+    	if (strip <  firstStrip[row])  		strip = firstStrip[row]	;       
+	if (strip >= firstStrip[row + 1]) strip = firstStrip[row + 1]	;
+
+}
+
+
+
+
+
+
+
 SiLocalPosition StripAnnulusDesign::localPositionOfCell(SiCellId const &cellId) const {
 
     int strip, row;
@@ -175,10 +202,10 @@ SiLocalPosition StripAnnulusDesign::localPositionOfCluster(SiCellId const &cellI
 /// Give end points of the strip that covers the given position
 std::pair<SiLocalPosition, SiLocalPosition> StripAnnulusDesign::endsOfStrip(SiLocalPosition const &pos) const {
 
-    SiCellId cellId = cellIdOfPosition(pos);
-
-    int strip, row;
-    getStripRow(cellId, &strip, &row);
+    int strip, row; 
+    // void closestStripRowOfPosition(SiLocalPosition const &pos, std::vector<double> const & stripEndRadius, std::vector<int> const & firstStrip,  std::vector<double> const & pitch, int nStrips, int nRows, int & strip, int & row       ) const {
+      
+    closestStripRowOfPositionForStripAnnulusDesign(pos, m_stripEndRadius, m_firstStrip, m_pitch, m_nStrips, m_nRows, strip, row);
 
     double rStart = m_stripStartRadius[row];
     double rEnd = m_stripEndRadius[row];

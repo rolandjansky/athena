@@ -174,6 +174,43 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
     return SiCellId(strip1D, 0);
 }
 
+
+
+void closestStripRowOfPositionForStripStereoAnnulusDesign(SiLocalPosition const &pos, std::vector<double> const & stripStartRadius, std::vector<double> const & stripEndRadius,  std::vector<double> const & pitch, std::vector<int> const nStrips, const int nRows, const double mR, const double stereo, int & strip, int & row )  {
+
+
+   // Find the row
+   //
+    double r = pos.r()							;
+
+    if (r < stripStartRadius[0] )	r = stripStartRadius[0]		;  
+    if (r >= stripEndRadius.back()) 	r = stripEndRadius.back()	; 
+
+    vector<double>::const_iterator endPtr = upper_bound( stripStartRadius.begin(),  stripStartRadius.end(), r);
+    row = distance( stripStartRadius.begin(), endPtr) - 1		;
+    // Following should never happen, check is done on r above
+    if (row < 0 	) row = 0 					;
+    if (row >= nRows	) row = nRows 					;
+       
+    //
+    //    Find the strip   
+    //
+    double x = pos.xEta();
+    double y = pos.xPhi();
+//
+//    Transform to strip frame SF (eq. 36 in ver G, combined with eq. 2 since we are in beam frame)
+//
+    double xSF = cos( -stereo ) * (x - mR) - sin(-stereo) * y + mR	;
+    double ySF = sin( -stereo ) * (x - mR) + cos(-stereo) * y		;
+    double phiPrime = atan2(ySF, xSF)					;
+
+    strip = floor(phiPrime / pitch[row]) + nStrips[row] / 2.0		;
+    if (strip < 0)   			strip  = 0 			; 
+    if (strip >= nStrips[row]) 		strip  = nStrips[row]		;	
+}
+
+
+
 SiLocalPosition StripStereoAnnulusDesign::localPositionOfCell(SiCellId const &cellId) const {
     int strip, row;
     getStripRow(cellId, &strip, &row);
@@ -224,16 +261,17 @@ SiLocalPosition StripStereoAnnulusDesign::localPositionOfCluster(SiCellId const 
 /// Give end points of the strip that covers the given position
 std::pair<SiLocalPosition, SiLocalPosition> StripStereoAnnulusDesign::endsOfStrip(SiLocalPosition const &pos) const {
 
-    SiCellId cellId = cellIdOfPosition(pos);
 
     int strip, row;
-    getStripRow(cellId, &strip, &row);
+   closestStripRowOfPositionForStripStereoAnnulusDesign(pos, m_stripStartRadius, m_stripEndRadius, m_pitch, m_nStrips, m_nRows, m_R, m_stereo, strip, row ) ;
 
     SiLocalPosition innerEnd = stripPosAtR(strip, row, m_stripStartRadius[row]);
     SiLocalPosition outerEnd = stripPosAtR(strip, row, m_stripEndRadius[row]);
 
     return pair<SiLocalPosition, SiLocalPosition>(innerEnd, outerEnd);
 }
+
+
 
 bool StripStereoAnnulusDesign::inActiveArea(SiLocalPosition const &pos, bool /*checkBondGap*/) const {
 

@@ -108,6 +108,30 @@ SiCellId StripBoxDesign::cellIdOfPosition(SiLocalPosition const &pos) const {
     return SiCellId(strip1D, 0);
 }
 
+
+
+
+
+
+void closestStripRowOfPosition(SiLocalPosition const &pos, double pitch, double length, int nStrips, int nRows, int & strip, int & row){
+  
+  
+	strip = (int) floor(pos.xPhi() / pitch) + nStrips / 2;
+	if (strip < 0 )  strip = 0;
+	if (strip >= nStrips) strip = nStrips;
+ 
+	row = (int) floor(pos.xEta() / length) + nRows / 2;
+	if (row < 0) row = 0;
+	if (row >= nRows) row = nRows;
+}
+  
+
+
+
+
+
+
+
 SiLocalPosition StripBoxDesign::localPositionOfCell(SiCellId const &cellId) const {
 
     int row, strip;
@@ -134,25 +158,23 @@ SiLocalPosition StripBoxDesign::localPositionOfCluster(SiCellId const &cellId,
 /// Give end points of the strip that covers the given position
 std::pair<SiLocalPosition, SiLocalPosition> StripBoxDesign::endsOfStrip(SiLocalPosition const &pos) const {
 
-    SiCellId cellId = cellIdOfPosition(pos);
-    if (!cellId.isValid()) {
-        cerr << "StripBoxDesign::endsOfStrip: (eta, phi, depth) = (" << pos.xEta() << ", " << 
-                 pos.xPhi() << ", " <<  pos.xDepth() << ") was outside\n";
-        return std::pair<SiLocalPosition, SiLocalPosition> (SiLocalPosition(0., 0., 0.), SiLocalPosition(0., 0., 0.));
-    }
-    int strip, row;
-    getStripRow(cellId, &strip, &row);
 
-    double etaStart = (row - m_nRows / 2.) * m_length;
-    double etaEnd = etaStart + m_length;
+int strip, row;
+closestStripRowOfPosition(pos,m_pitch, m_nStrips, m_nRows, m_length, strip, row);
 
-    double phi = (strip - m_nStrips / 2. + 0.5) * m_pitch;
+double etaStart = (row - m_nRows / 2.) * m_length;
+double etaEnd = etaStart + m_length;
 
-    SiLocalPosition end1(etaStart, phi, 0.0);
-    SiLocalPosition end2(etaEnd, phi, 0.0);
+SiLocalPosition end1(etaStart	, pos.xPhi(), 0.0);
+SiLocalPosition end2(etaEnd	, pos.xPhi(), 0.0);
 
-    return pair<SiLocalPosition, SiLocalPosition>(end1, end2);
+return pair<SiLocalPosition, SiLocalPosition>(end1, end2);
+
 }
+
+
+
+
 
 bool StripBoxDesign::inActiveArea(SiLocalPosition const &pos,
                                   bool /*checkBondGap*/) const {

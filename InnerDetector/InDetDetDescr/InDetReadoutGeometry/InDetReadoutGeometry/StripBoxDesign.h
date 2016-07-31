@@ -91,6 +91,7 @@ public:
 
     // position -> id
     SiCellId cellIdOfPosition(const SiLocalPosition &localPos) const;
+
     // id to position
     SiLocalPosition positionFromStrip(const SiCellId &cellId) const;
     SiLocalPosition positionFromStrip(const int stripNumber) const;
