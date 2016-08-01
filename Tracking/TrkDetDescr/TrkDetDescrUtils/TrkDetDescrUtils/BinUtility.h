@@ -247,21 +247,21 @@ namespace Trk {
                   
         /** Output Method for MsgStream, to be overloaded by child classes */
         MsgStream& dump(MsgStream& sl) const {
-           sl << "BinUtility for " << m_binningData.size() << "-dimensional array:" << endreq;
+           sl << "BinUtility for " << m_binningData.size() << "-dimensional array:" << endmsg;
            std::vector<BinningData>::const_iterator bdIter = m_binningData.begin();
            for (size_t ibd = 0 ; bdIter != m_binningData.end(); ++bdIter, ++ibd ){
-               sl << "dimension     : " << ibd << endreq                                << endreq;
-               sl << " - type       : " << size_t((*bdIter).type)                       << endreq;
-               sl << " - option     : " << size_t((*bdIter).option)                     << endreq;
-               sl << " - value      : " << size_t((*bdIter).binvalue)                   << endreq;
-               sl << " - bins       : " << (*bdIter).bins                               << endreq;
-               sl << " - min/max    : " << (*bdIter).min << " / " << (*bdIter).max      << endreq;
-               sl << " - step/sub   : " << (*bdIter).step << " / " << (*bdIter).subStep << endreq;
+               sl << "dimension     : " << ibd << endmsg                                << endmsg;
+               sl << " - type       : " << size_t((*bdIter).type)                       << endmsg;
+               sl << " - option     : " << size_t((*bdIter).option)                     << endmsg;
+               sl << " - value      : " << size_t((*bdIter).binvalue)                   << endmsg;
+               sl << " - bins       : " << (*bdIter).bins                               << endmsg;
+               sl << " - min/max    : " << (*bdIter).min << " / " << (*bdIter).max      << endmsg;
+               sl << " - step/sub   : " << (*bdIter).step << " / " << (*bdIter).subStep << endmsg;
                sl << " - boundaries : | ";
                std::vector<float>::const_iterator bIter = (*bdIter).boundaries.begin();
                for ( ; bIter != (*bdIter).boundaries.end(); ++bIter )
                    sl << (*bIter) << " | ";
-               sl << endreq;
+               sl << endmsg;
            }
            return sl;
        }
