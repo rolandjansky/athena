@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 750885 2016-05-30 16:41:48Z krasznaa $
+# $Id: CMakeLists.txt 765747 2016-08-01 09:00:33Z will $
 ################################################################################
 # Package: AsgExampleTools
 ################################################################################
@@ -42,7 +42,8 @@ atlas_add_test( gt_AnaToolHandle_test
    INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
    LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools )
 
-atlas_add_test( gt_UnitTest_test
-   SOURCES test/gt_UnitTest_test.cxx
-   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools )
+#atlas_add_test( gt_UnitTest_test
+#   SOURCES test/gt_UnitTest_test.cxx
+#   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+#   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools )
+
