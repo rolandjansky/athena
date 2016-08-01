@@ -65,7 +65,7 @@ inline bool TBCheckBCIDs::check_valid (const T* frag, MsgStream& log)
     }
   catch (...)
     {
-      log << MSG::FATAL << "Invalid Fragment" << endreq;
+      log << MSG::FATAL << "Invalid Fragment" << endmsg;
       return false;
     }
   return true;

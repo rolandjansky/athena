@@ -26,4 +26,3 @@ use LArRawEvent           LArRawEvent-*          LArCalorimeter
 apply_pattern dual_use_library files=*.cxx
 
 apply_pattern declare_joboptions files="*.txt *.py"
-

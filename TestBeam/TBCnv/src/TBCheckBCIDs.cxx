@@ -29,67 +29,41 @@ TBCheckBCIDs::~TBCheckBCIDs() {}
 
 StatusCode TBCheckBCIDs::initialize()
 {
-  StatusCode sc;
-  MsgStream log(messageService(), name());
-  log << MSG::DEBUG<< " initialize " <<endreq; 
+  ATH_MSG_DEBUG( " initialize "  );
   IService* svc;
   //Get ByteStreamInputSvc (only necessary for reading of digits, not for writing and for channels)
   
   if(StatusCode::SUCCESS != serviceLocator()->getService("ROBDataProviderSvc",svc)){
-    log << MSG::WARNING << " Can't get ByteStreamInputSvc interface." << endreq;
+     ATH_MSG_WARNING( " Can't get ByteStreamInputSvc interface."  );
      return StatusCode::FAILURE;
   }
   m_rdpSvc=dynamic_cast<IROBDataProviderSvc*>(svc);
   if(m_rdpSvc == 0 ) {
-    log<<MSG::ERROR<< "  LArDigitContByteStreamCnv: Can't cast to  ByteStreamInputSvc " <<endreq; 
+     ATH_MSG_ERROR( "  LArDigitContByteStreamCnv: Can't cast to  ByteStreamInputSvc "  );
     return StatusCode::FAILURE;
   }
   //Book Ntuple
 
   
   NTupleFilePtr file1(ntupleSvc(),"/NTUPLES/FILE1");
-  if (!file1)
-    {log << MSG::ERROR << "Booking of NTuple failed" << endreq;
+  if (!file1) {
+    ATH_MSG_ERROR( "Booking of NTuple failed"  );
     return StatusCode::FAILURE;
    }
   NTuplePtr nt(ntupleSvc(),"/NTUPLES/FILE1/BCIDS");
   if (!nt) {
     nt=ntupleSvc()->book("/NTUPLES/FILE1/BCIDS",CLID_ColumnWiseTuple,"BCIDs");
   }
-  if (!nt)
-    {log << MSG::ERROR << "Booking of NTuple failed" << endreq;
-     return StatusCode::FAILURE;
-    }
+  if (!nt) {
+    ATH_MSG_ERROR( "Booking of NTuple failed"  );
+    return StatusCode::FAILURE;
+  }
 
-  sc=nt->addItem("GlobalEvtID",m_EventID,0,50000);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'GlobalEvtID' failed" << endreq;
-     return StatusCode::FAILURE;
-    }
-
-  sc=nt->addItem("LVL1ID",m_LVL1ID,0,50000);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'LVL1ID' failed" << endreq;
-     return StatusCode::FAILURE;
-    }
-
-  sc=nt->addItem("RODIndex",m_RODIndex,0,100);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'ROD Index' failed" << endreq;
-     return StatusCode::FAILURE;
-    }
-
-  sc=nt->addItem("RODID",m_RODIndex,m_RODID);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'RODID' failed" << endreq;
-     return StatusCode::FAILURE;
-    }
-  
-  sc=nt->addItem("BCID",m_RODIndex,m_BCID);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'BCID' failed" << endreq;
-     return StatusCode::FAILURE;
-    }
+  ATH_CHECK( nt->addItem("GlobalEvtID",m_EventID,0,50000) );
+  ATH_CHECK( nt->addItem("LVL1ID",m_LVL1ID,0,50000) );
+  ATH_CHECK( nt->addItem("RODIndex",m_RODIndex,0,100) );
+  ATH_CHECK( nt->addItem("RODID",m_RODIndex,m_RODID) );
+  ATH_CHECK( nt->addItem("BCID",m_RODIndex,m_BCID) );
   m_ntuplePtr=nt;
   return StatusCode::SUCCESS;
 }
@@ -97,16 +71,16 @@ StatusCode TBCheckBCIDs::initialize()
 
 //LArRawDataContByteStreamTool::ReadLArDigits(const RawEvent* re,LArDigitContainer* digitCont, const int gain, MsgStream& log)
 StatusCode TBCheckBCIDs::execute()
-{ MsgStream logstr(msgSvc(), name());
-  logstr <<MSG::DEBUG<< "Executing event #"<< m_count++ <<endreq;
+{ 
+  ATH_MSG_DEBUG( "Executing event #"<< m_count++  );
 
   unsigned RODCounter=0;
   const RawEvent* re = m_rdpSvc->getEvent();
 
-  if (!re)
-    {logstr <<MSG::FATAL << "RawEvent retrieved by TBCheckBCIDs is a null pointer!" << endreq;
-     return StatusCode::FAILURE;
-    }
+  if (!re) {
+    ATH_MSG_FATAL( "RawEvent retrieved by TBCheckBCIDs is a null pointer!"  );
+    return StatusCode::FAILURE;
+  }
   
   //Get ROB fragements from the raw event. 
   const size_t MAX_ROBFRAGMENTS = 2048*1024;
@@ -116,7 +90,7 @@ StatusCode TBCheckBCIDs::execute()
   size_t robcount = re->children(robF,MAX_ROBFRAGMENTS);
   if (robcount == MAX_ROBFRAGMENTS)
     {
-      logstr <<MSG::FATAL << "ROB buffer overflow" << endreq;
+      ATH_MSG_FATAL( "ROB buffer overflow"  );
       return StatusCode::FAILURE;
     }
   
@@ -136,26 +110,22 @@ StatusCode TBCheckBCIDs::execute()
 	}
       catch (...)
 	{
-	  logstr << MSG::ERROR << "Got invalid ROB fragment!" << endreq;
+	  ATH_MSG_ERROR( "Got invalid ROB fragment!"  );
 	  return StatusCode::FAILURE;
 	}
       
-      logstr << MSG::VERBOSE << MSG::hex << "\t\tFull source ID: " << rob.source_id()<<MSG::dec<< endreq;
-      logstr << MSG::VERBOSE << "This ROD-Fragment consists of " << rob.rod_fragment_size_word() << " words\n";
+      ATH_MSG_VERBOSE( MSG::hex << "\t\tFull source ID: " << rob.source_id()<<MSG::dec );
+      ATH_MSG_VERBOSE( "This ROD-Fragment consists of " << rob.rod_fragment_size_word() << " words"  );
       
       m_RODIndex=RODCounter;
       m_RODID[m_RODIndex]=rob.rod_source_id();
       m_BCID[m_RODIndex] =rob.rod_bc_id();
-      logstr << MSG::DEBUG << "RODID 0x" << MSG::hex << rob.rod_source_id() << " BCID 0x" 
-	     << rob.rod_bc_id() << MSG::dec << endreq;
+      ATH_MSG_DEBUG( "RODID 0x" << MSG::hex << rob.rod_source_id() << " BCID 0x" 
+                     << rob.rod_bc_id() << MSG::dec  );
       RODCounter++;
     }
   
-  StatusCode sc=ntupleSvc()->writeRecord(m_ntuplePtr);
-  if (sc!=StatusCode::SUCCESS) {
-    logstr << MSG::ERROR << "writeRecord failed" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( ntupleSvc()->writeRecord(m_ntuplePtr) );
   return StatusCode::SUCCESS;
 }
 

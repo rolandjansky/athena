@@ -23,11 +23,11 @@ ReadTBLArCalibDigits::~ReadTBLArCalibDigits()
 StatusCode ReadTBLArCalibDigits::initialize()
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "Initialize" << endreq;
+  log << MSG::INFO << "Initialize" << endmsg;
   
   StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper" << endreq;
+    log << MSG::ERROR << "Could not get LArOnlineID helper" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -36,7 +36,7 @@ StatusCode ReadTBLArCalibDigits::initialize()
 
   m_count=0;
   
-  log << MSG::INFO << "======== ReadTBLArCalibDigits initialize successfully ========" << endreq;
+  log << MSG::INFO << "======== ReadTBLArCalibDigits initialize successfully ========" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -50,33 +50,33 @@ StatusCode ReadTBLArCalibDigits::execute() {
   
   StatusCode sc;
   
-  log << MSG::DEBUG << "======== executing event "<< m_count << " ========" << endreq;
-  log << MSG::DEBUG << "Retrieving TBLArCalibDigitContainer. Key= " << m_containerKey << endreq; 
+  log << MSG::DEBUG << "======== executing event "<< m_count << " ========" << endmsg;
+  log << MSG::DEBUG << "Retrieving TBLArCalibDigitContainer. Key= " << m_containerKey << endmsg; 
   TBLArCalibDigitContainer* larCalibDigitCont;
   sc = evtStore()->retrieve(larCalibDigitCont ,m_containerKey);
 
   if (sc.isFailure()) {
-    log << MSG::FATAL << " Cannot read TBLArCalibDigitContainer from StoreGate! key=" << m_containerKey << endreq;
+    log << MSG::FATAL << " Cannot read TBLArCalibDigitContainer from StoreGate! key=" << m_containerKey << endmsg;
     return StatusCode::FAILURE;
   }
   
   TBLArCalibDigitContainer::const_iterator it=larCalibDigitCont->begin();
   TBLArCalibDigitContainer::const_iterator it_end=larCalibDigitCont->end();
   
-  log << MSG::VERBOSE << "Now loop over container " << endreq;
+  log << MSG::VERBOSE << "Now loop over container " << endmsg;
   
   for (;it!=it_end;it++) {
 
-    log << MSG::VERBOSE << " Get hardware ID " << endreq;
+    log << MSG::VERBOSE << " Get hardware ID " << endmsg;
     
     HWIdentifier chid=(*it)->hardwareID();
     
-    log << MSG::VERBOSE << "  chid =  " << chid << endreq;
+    log << MSG::VERBOSE << "  chid =  " << chid << endmsg;
 
     const std::vector<short>& vSamples=(*it)->samples();    
     int nSamples=vSamples.size();
     
-    log << MSG::VERBOSE << "  nSamples =  " << nSamples << endreq;
+    log << MSG::VERBOSE << "  nSamples =  " << nSamples << endmsg;
 
     if (m_outfile.is_open()) {
       m_outfile << "Evt="<< m_count << " ";
@@ -90,11 +90,11 @@ StatusCode ReadTBLArCalibDigits::execute() {
 
     cellCounter++;
 
-    log << MSG::VERBOSE << "  cellCounter =  " << cellCounter << endreq;
+    log << MSG::VERBOSE << "  cellCounter =  " << cellCounter << endmsg;
     
   }
   
-  log << MSG::DEBUG  << "Event " << m_count << " contains " << cellCounter << " channels" << endreq;
+  log << MSG::DEBUG  << "Event " << m_count << " contains " << cellCounter << " channels" << endmsg;
   
   return StatusCode::SUCCESS;
   
@@ -105,6 +105,6 @@ StatusCode ReadTBLArCalibDigits::finalize()
   MsgStream log(msgSvc(), name());
   if (m_outfile.is_open()) 
     m_outfile.close();
-  log << MSG::INFO << "finalize ReadTBLArCalibDigits" << endreq;
+  log << MSG::INFO << "finalize ReadTBLArCalibDigits" << endmsg;
   return StatusCode::SUCCESS;
 }
