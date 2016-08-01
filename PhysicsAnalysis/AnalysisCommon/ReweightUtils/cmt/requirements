@@ -2,18 +2,24 @@ package ReweightUtils
 
 author Olivier Arnaez (olivier.arnaez@cern.ch)
 
+
 use AtlasPolicy                 AtlasPolicy-*
 
 use AtlasROOT			AtlasROOT-*			External
 
 public
+use  AthAnalysisBaseComps       AthAnalysisBaseComps-*          Control
 use  AsgTools                   AsgTools-*                      Control/AthToolSupport
 use  PATInterfaces              PATInterfaces-*                 PhysicsAnalysis/AnalysisCommon
 use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
+use  xAODCutFlow		xAODCutFlow-*			Event/xAOD
+
+use  Lhapdf                     Lhapdf-*                        External
 
 private
 use  GaudiInterface             GaudiInterface-*                External
 use  xAODParticleEvent          xAODParticleEvent-*             Event/xAOD
+use  xAODTruth                  xAODTruth-*                 Event/xAOD
 
 public
 branches python src src/components Root share
