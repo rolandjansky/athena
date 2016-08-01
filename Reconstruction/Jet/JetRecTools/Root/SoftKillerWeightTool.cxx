@@ -26,10 +26,13 @@ using namespace std;
 
 
 SoftKillerWeightTool::SoftKillerWeightTool(const std::string& name) : JetConstituentModifierBase(name)
-                                                                      //m_initCount(0)
                                                                     , m_lambdaCalDivide(317)
+                                                                    , m_gridSpacing(0.6)
+                                                                    , m_rapmin(0.0)
+                                                                    , m_rapmax(2.5)
                                                                     , m_isCaloSplit(false)
-                                                                    , m_gridSpacing(0.45)
+                                                                    , m_eCalGrid(0.5)
+                                                                    , m_hCalGrid(0.5)
                                                                       
 {
 
@@ -37,7 +40,7 @@ SoftKillerWeightTool::SoftKillerWeightTool(const std::string& name) : JetConstit
   declareInterface<IJetConstituentModifier>(this);
 #endif
 
-  declareProperty("SKGridSize", m_gridSpacing = 0.45);
+  declareProperty("SKGridSize", m_gridSpacing = 0.6);
   declareProperty("SKRapMin", m_rapmin = 0);
   declareProperty("SKRapMax", m_rapmax = 2.5); 
   declareProperty("isCaloSplit", m_isCaloSplit = false);
@@ -136,7 +139,7 @@ float SoftKillerWeightTool::calculateSplitWeight(xAOD::CaloCluster* cl) const{
   if( abs(cl->eta()) < m_rapmin || abs(cl->eta()) > m_rapmax) return 1;
   double m_center_lambda;
 
-  cl->retrieveMoment(xAOD::CaloCluster::CENTER_LAMBDA,m_center_lambda);
+ 	if(!cl->retrieveMoment(xAOD::CaloCluster::CENTER_LAMBDA,m_center_lambda)) m_center_lambda = 0;
 
   //Make a separate pT cut for the ECal and HCal
   if( m_center_lambda < m_lambdaCalDivide && cl->pt() < m_minPtECal) return 0;

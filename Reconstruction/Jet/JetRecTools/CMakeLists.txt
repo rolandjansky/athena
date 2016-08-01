@@ -25,7 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies
 find_package( FastJet )
-find_package( FastJetContrib COMPONENTS SoftKiller )
+find_package( FastJetContrib COMPONENTS SoftKiller ConstituentSubtractor )
 
 # Component(s) in the package:
 # JAF tried adding library

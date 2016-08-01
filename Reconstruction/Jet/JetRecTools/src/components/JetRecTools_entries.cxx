@@ -12,6 +12,7 @@
 #include "JetRecTools/CaloClusterConstituentsOrigin.h"
 #include "JetRecTools/SoftKillerWeightTool.h"
 #include "JetRecTools/VoronoiWeightTool.h"
+#include "JetRecTools/ConstituentSubtractorTool.h"
 
 DECLARE_TOOL_FACTORY(JetTrackSelectionTool)
 DECLARE_TOOL_FACTORY(SimpleJetTrackSelectionTool)
@@ -24,6 +25,7 @@ DECLARE_TOOL_FACTORY(CaloClusterConstituentsWeight)
 DECLARE_TOOL_FACTORY(CaloClusterConstituentsOrigin)
 DECLARE_TOOL_FACTORY(SoftKillerWeightTool)
 DECLARE_TOOL_FACTORY( VoronoiWeightTool )
+DECLARE_TOOL_FACTORY( ConstituentSubtractorTool )
 
 DECLARE_FACTORY_ENTRIES(JetRecTools) {
   DECLARE_TOOL(JetTrackSelectionTool)
@@ -36,5 +38,6 @@ DECLARE_FACTORY_ENTRIES(JetRecTools) {
   DECLARE_TOOL(CaloClusterConstituentsWeight)
   DECLARE_TOOL(CaloClusterConstituentsOrigin)
   DECLARE_TOOL(SoftKillerWeightTool)
+  DECLARE_TOOL( ConstituentSubtractorTool )
   DECLARE_TOOL( VoronoiWeightTool )
 }
