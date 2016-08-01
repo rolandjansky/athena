@@ -85,6 +85,9 @@ namespace met {
     std::string m_forcoll;
     double m_foreta;
 
+    double m_cenTrackPtThr;
+    double m_forTrackPtThr;
+
     // reconstruction process to be defined in the individual tools
     // pure virtual -- we have no default
     virtual StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) = 0;

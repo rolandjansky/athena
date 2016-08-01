@@ -65,9 +65,11 @@ namespace met {
     declareProperty( "TrackSelectorTool",  m_trkseltool                         );
     declareProperty( "TrackVxAssocTool",   m_trkToVertexTool                    );
     declareProperty( "DoLepRecovery",      m_doLepRecovery=false                );
-    declareProperty( "UseIsolationTools",  m_useIsolationTools=false            );
+    declareProperty( "UseIsolationTools",  m_useIsolationTools=true             );
     declareProperty( "TrackIsolationTool", m_trkIsolationTool                   );
     declareProperty( "CaloIsolationTool",  m_caloIsolationTool                  );
+    declareProperty( "CentralTrackPtThr",  m_cenTrackPtThr = 200e+3             );
+    declareProperty( "ForwardTrackPtThr",  m_forTrackPtThr = 120e+3             );
   }
 
   // Destructor
@@ -124,8 +126,8 @@ namespace met {
 					const std::vector<const xAOD::TrackParticle*>& trkList,
 					const xAOD::CaloClusterContainer* clusters) const {
 
-    if( (fabs(trk->eta())<1.5 && trk->pt()>200e3) ||
-    	(fabs(trk->eta())>=1.5 && trk->pt()>120e3) ) {
+    if( (fabs(trk->eta())<1.5 && trk->pt()>m_cenTrackPtThr) ||
+    	(fabs(trk->eta())>=1.5 && trk->pt()>m_forTrackPtThr) ) {
 
       // Get relative error on qoverp
       float Rerr = Amg::error(trk->definingParametersCovMatrix(),4)/fabs(trk->qOverP());
@@ -190,7 +192,7 @@ namespace met {
       if(isolfrac<0.1) {
 		// isolated track cuts
 		if(Rerr>0.4) return false;
-		else if (EoverP<0.65 && (EoverP>0.1 || Rerr>0.1)) return false;
+		else if (EoverP<0.65 && ((EoverP>0.1 && Rerr>0.05) || Rerr>0.1)) return false;
           } else {
 		// non-isolated track cuts
 		float trkptsum = ptcone20+trk->pt();

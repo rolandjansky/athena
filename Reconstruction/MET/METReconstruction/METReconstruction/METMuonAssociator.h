@@ -71,6 +71,8 @@ namespace met{
 
     private:
 
+    bool m_doMuonClusterMatch;
+
     /// Default constructor: 
     METMuonAssociator();    
 
