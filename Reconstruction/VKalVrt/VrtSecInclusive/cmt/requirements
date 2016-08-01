@@ -8,28 +8,20 @@ use StoreGate        StoreGate-*          Control
 use AtlasROOT        AtlasROOT-*          External
 use AtlasBlas        AtlasBlas-*          External
 use AtlasLapack      AtlasLapack-*        External
-#use AthenaKernel        AthenaKernel-*          Control
 use AthenaBaseComps     AthenaBaseComps-*       Control
-#use SGTools             SGTools-*               Control
 
 
 #
-use TrkVKalVrtFitter    TrkVKalVrtFitter-*      Tracking/TrkVertexFitter
-use TrkTrack            TrkTrack-*              Tracking/TrkEvent
-use TrkParticleBase     TrkParticleBase-*       Tracking/TrkEvent
-use TrkParameters       TrkParameters-*         Tracking/TrkEvent
-#use TrkTrackSummary     TrkTrackSummary-*       Tracking/TrkEvent
-use TrkToolInterfaces   TrkToolInterfaces-*     Tracking/TrkTools
-#use TrkTruthToTrack     TrkTruthToTrack-*       Tracking/TrkTools
-use ITrackToVertex      ITrackToVertex-*        Reconstruction/RecoTools
+use TrkVKalVrtFitter          TrkVKalVrtFitter-*          Tracking/TrkVertexFitter
+use TrkToolInterfaces         TrkToolInterfaces-*         Tracking/TrkTools
 use TrkVertexFitterInterfaces TrkVertexFitterInterfaces-* Tracking/TrkVertexFitter
-use TrkExInterfaces     TrkExInterfaces-*       Tracking/TrkExtrapolation
-use TrkSurfaces           TrkSurfaces-*         Tracking/TrkDetDescr
-
-use ParticleTruth               ParticleTruth-*                 Reconstruction
-use TrkEventUtils       TrkEventUtils-*         Tracking/TrkEvent
-use Particle            Particle-*              Reconstruction
-# use CBNT_Utils                  CBNT_Utils-*                    Reconstruction
+use TrkExInterfaces           TrkExInterfaces-*           Tracking/TrkExtrapolation
+use TrkSurfaces               TrkSurfaces-*               Tracking/TrkDetDescr
+use TrkDetDescrInterfaces     TrkDetDescrInterfaces-*     Tracking/TrkDetDescr
+use ITrackToVertex            ITrackToVertex-*            Reconstruction/RecoTools
+use xAODEventInfo             xAODEventInfo-*             Event/xAOD
+use xAODTracking              xAODTracking-*              Event/xAOD
+use xAODTruth                 xAODTruth-*                 Event/xAOD
 
 # for McTruth
 use GeneratorObjects            GeneratorObjects-*               Generators
@@ -37,16 +29,10 @@ use GeneratorObjects            GeneratorObjects-*               Generators
 
 private
 
-use McParticleEvent             McParticleEvent-*               PhysicsAnalysis/TruthParticleID
-#use McParticleKernel            McParticleKernel-*              PhysicsAnalysis/TruthParticleID
 #use TruthHelper                 TruthHelper-*                   Generators/GenAnalysisTools
+use TrkTrackSummary     TrkTrackSummary-*       Tracking/TrkEvent
 use VxVertex            VxVertex-*              Tracking/TrkEvent
-use AtlasHepMC                  AtlasHepMC-*                     External
-#use TrkEventPrimitives  TrkEventPrimitives-*    Tracking/TrkEvent
-#use AtlasCLHEP       AtlasCLHEP-*         External
 
-#use EventKernel			EventKernel-*			Event
-#use NavFourMom   		NavFourMom-*  			Event
 use xAODEventInfo			xAODEventInfo-*			    Event/xAOD
 
 
