@@ -74,78 +74,78 @@ namespace Trk
     StatusCode s = AlgTool::initialize();
     if (s.isFailure()) 
     {
-      msg(MSG::FATAL) << "AlgTool::initialize() failed" << endreq;
+      msg(MSG::FATAL) << "AlgTool::initialize() failed" << endmsg;
       return StatusCode::FAILURE;
     }
     if ( m_SeedFinder.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_SeedFinder << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_SeedFinder << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_SeedFinder << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_SeedFinder << endmsg;
     }
 
     if ( m_LinearizedTrackFactory.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_LinearizedTrackFactory << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_LinearizedTrackFactory << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_LinearizedTrackFactory << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_LinearizedTrackFactory << endmsg;
     }
 
     if ( m_TrackCompatibilityEstimator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_TrackCompatibilityEstimator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_TrackCompatibilityEstimator << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_TrackCompatibilityEstimator << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_TrackCompatibilityEstimator << endmsg;
     }
     
     if ( m_ImpactPoint3dEstimator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_ImpactPoint3dEstimator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_ImpactPoint3dEstimator << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_ImpactPoint3dEstimator << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_ImpactPoint3dEstimator << endmsg;
     }
     
     if ( m_VertexUpdator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexUpdator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexUpdator << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_VertexUpdator << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_VertexUpdator << endmsg;
     }
     
    //loading smoother in case required   
    if(m_doSmoothing)
    {
     if ( m_VertexSmoother.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexSmoother << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexSmoother << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_VertexSmoother << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_VertexSmoother << endmsg;
     }
    }//end of smoothing options
    
   if ( m_AnnealingMaker.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_AnnealingMaker << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_AnnealingMaker << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_AnnealingMaker << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_AnnealingMaker << endmsg;
   }
   
   //XAOD Converter  
   if ( m_xaodConverter.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_xaodConverter << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_xaodConverter << endmsg;
     return StatusCode::FAILURE;
    } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_xaodConverter << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_xaodConverter << endmsg;
    }
   
   
-    msg(MSG::INFO)  << "Initialize successful" << endreq;
+    msg(MSG::INFO)  << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
   
   StatusCode AdaptiveVertexFitter::finalize()
   {
-    msg(MSG::INFO)  << "Finalize successful" << endreq;
+    msg(MSG::INFO)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -160,11 +160,11 @@ namespace Trk
 
     //check the number of tracks
     if ( (perigeeList.size() + neutralPerigeeList.size())<2 && IsConstraint==false ) {
-      msg(MSG::WARNING) << "Not enough tracks (>2) to fit in this event (without constraint)." << endreq;
+      msg(MSG::WARNING) << "Not enough tracks (>2) to fit in this event (without constraint)." << endmsg;
       return 0;
     }
     if ((perigeeList.size() + neutralPerigeeList.size())<1 && IsConstraint==true) {
-      msg(MSG::WARNING) << "Not enough tracks (>1) to fit in this event (with constraint)." << endreq;
+      msg(MSG::WARNING) << "Not enough tracks (>1) to fit in this event (with constraint)." << endmsg;
       return 0;
     }
 
@@ -207,7 +207,7 @@ namespace Trk
     for (std::vector<const Trk::TrackParameters*>::const_iterator perigeesIter=perigeesBegin;perigeesIter!=perigeesEnd;++perigeesIter) {
       //      const MeasuredPerigee* castToMP=dynamic_cast<const MeasuredPerigee*>(*perigeesIter);
       //      if (castToMP==0) {
-      //        msg << MSG::ERROR << "Cast to MeasuredPerigee not successfull. Treatment of neutrals not supported. Skipping track..." << endreq;
+      //        msg << MSG::ERROR << "Cast to MeasuredPerigee not successfull. Treatment of neutrals not supported. Skipping track..." << endmsg;
       //        continue;
       //      }
 
@@ -219,7 +219,7 @@ namespace Trk
       bool success=m_ImpactPoint3dEstimator->addIP3dAtaPlane(*LinTrackToAdd,*SeedPoint);
       if (!success)
       {
-	msg(MSG::WARNING) << "Adding compatibility to vertex information failed. Newton distance finder didn't converge..." << endreq;
+	msg(MSG::WARNING) << "Adding compatibility to vertex information failed. Newton distance finder didn't converge..." << endmsg;
       }
 
       theLinTracks.push_back(*LinTrackToAdd);
@@ -245,7 +245,7 @@ namespace Trk
       bool success = m_ImpactPoint3dEstimator->addIP3dAtaPlane(*LinTrackToAdd,*SeedPoint);
       if (!success)
       {
-	msg(MSG::WARNING) << "Adding compatibility to vertex information failed. Newton distance finder didn't converge..." << endreq;
+	msg(MSG::WARNING) << "Adding compatibility to vertex information failed. Newton distance finder didn't converge..." << endmsg;
       }
       
       theLinTracks.push_back(*LinTrackToAdd);
@@ -259,7 +259,7 @@ namespace Trk
     //not really prior information in it)
     if(msgLvl(MSG::VERBOSE))
     {
-      msg(MSG::VERBOSE) << "Error at the beginning is set to " << m_initialError << endreq;
+      msg(MSG::VERBOSE) << "Error at the beginning is set to " << m_initialError << endmsg;
     }
 
 
@@ -442,8 +442,8 @@ namespace Trk
 
     if(msgLvl(MSG::VERBOSE))
     {
-      msg(MSG::VERBOSE) << "Num max of steps is " << m_maxIterations << endreq;
-      msg(MSG::VERBOSE) << "m_AnnealingMaker->isEquilibrium() is " << m_AnnealingMaker->isEquilibrium() << endreq;
+      msg(MSG::VERBOSE) << "Num max of steps is " << m_maxIterations << endmsg;
+      msg(MSG::VERBOSE) << "m_AnnealingMaker->isEquilibrium() is " << m_AnnealingMaker->isEquilibrium() << endmsg;
     }
 
     std::vector<Trk::VxTrackAtVertex>::iterator lintracksBegin = ActualVertex->vxTrackAtVertex().begin();
@@ -461,13 +461,13 @@ namespace Trk
 
       if(msgLvl(MSG::DEBUG))
       {
-        msg(MSG::DEBUG) << "Correction applied to constraint weight is: " << m_AnnealingMaker->getWeight(1.) << endreq;
+        msg(MSG::DEBUG) << "Correction applied to constraint weight is: " << m_AnnealingMaker->getWeight(1.) << endmsg;
       }
 
       //To reweight here through an extrapolation is not ideal, but maybe I'll change this in the future...
       if(msgLvl(MSG::DEBUG))
       {
-        msg(MSG::DEBUG) << "New fit step: step number " << num_steps << endreq;
+        msg(MSG::DEBUG) << "New fit step: step number " << num_steps << endmsg;
       }
 
       //consider relinearization if you are too far away from the old lin point
@@ -478,7 +478,7 @@ namespace Trk
         relinearization=true;
         if(msgLvl(MSG::DEBUG))
         {
-          msg(MSG::DEBUG) << "Actual vertex too far away from linearization point: have to linearize tracks again" << endreq;
+          msg(MSG::DEBUG) << "Actual vertex too far away from linearization point: have to linearize tracks again" << endmsg;
         }
 
         //collect all measured perigees
@@ -488,7 +488,7 @@ namespace Trk
           bool success=m_ImpactPoint3dEstimator->addIP3dAtaPlane(*iter,NewVertex);
           if (!success)
           {
-            msg(MSG::WARNING) << "Adding compatibility to vertex information failed. Newton distance finder didn't converge..." << endreq;
+            msg(MSG::WARNING) << "Adding compatibility to vertex information failed. Newton distance finder didn't converge..." << endmsg;
           }
         }
         
@@ -511,7 +511,7 @@ namespace Trk
         {
           msg(MSG::VERBOSE) << "Before annealing: " << iter->vtxCompatibility() <<
               " Annealing RESULT is:" << iter->weight() << " at T: " <<
-              m_AnnealingMaker->actualTemp() << endreq;
+              m_AnnealingMaker->actualTemp() << endmsg;
         }
 
 
@@ -521,7 +521,7 @@ namespace Trk
       for (iter=lintracksBegin;iter!=lintracksEnd;iter++) {
         if(msgLvl(MSG::VERBOSE))
         {
-          msg(MSG::VERBOSE) << "Updating vertex with a new track" << endreq;
+          msg(MSG::VERBOSE) << "Updating vertex with a new track" << endmsg;
         }
         try {
 
@@ -532,7 +532,7 @@ namespace Trk
               //linearization has not been done so far: do it now!
               if(msgLvl(MSG::VERBOSE))
               {
-                msg(MSG::VERBOSE) << "Linearizing track for the first time" << endreq;
+                msg(MSG::VERBOSE) << "Linearizing track for the first time" << endmsg;
               }
 
               m_LinearizedTrackFactory->linearize( *iter, ActualVertex->position() );
@@ -541,7 +541,7 @@ namespace Trk
               //do it again in case of updated vertex too far from previous one 
               if(msgLvl(MSG::VERBOSE))
               {
-                msg(MSG::VERBOSE) << "Relinearizing track " << endreq;
+                msg(MSG::VERBOSE) << "Relinearizing track " << endmsg;
               }
 
               m_LinearizedTrackFactory->linearize( *iter, NewVertex );
@@ -552,12 +552,12 @@ namespace Trk
           } else {
             if(msgLvl(MSG::VERBOSE))
             {
-              msg(MSG::VERBOSE) << "Weight lower than 1e-3, so the track will not be considered anymore" << endreq;
+              msg(MSG::VERBOSE) << "Weight lower than 1e-3, so the track will not be considered anymore" << endmsg;
             }
 
           }
         } catch (...) {
-          msg(MSG::WARNING) << "You have just lost a track" << endreq;
+          msg(MSG::WARNING) << "You have just lost a track" << endmsg;
         }
       }
 
@@ -565,7 +565,7 @@ namespace Trk
       if(msgLvl(MSG::DEBUG))
       {
         msg(MSG::DEBUG) << "New position x: " << ActualVertex->position().x() << " y: " << ActualVertex->position().y()
-                        << " z: " << ActualVertex->position().z() << endreq;
+                        << " z: " << ActualVertex->position().z() << endmsg;
       }
 
 
@@ -574,7 +574,7 @@ namespace Trk
       //now go one step down in the annealing process (lower the temperature - single step)
       if(msgLvl(MSG::VERBOSE))
       {
-        msg(MSG::VERBOSE) << "Now calling one step of annealing" << endreq;
+        msg(MSG::VERBOSE) << "Now calling one step of annealing" << endmsg;
       }
 
       m_AnnealingMaker->anneal();
@@ -595,7 +595,7 @@ namespace Trk
         //      const MeasuredPerigee* castToMP=dynamic_cast<const MeasuredPerigee*>(iter->initialPerigee());
         //      if (castToMP==0) {
         //        msg(MSG::WARNING) << "Couldn't cast a track to MeasuredPerigee to smooth it. Neutrals not supported. " <<
-        //          " Skipping track. .. " << endreq;
+        //          " Skipping track. .. " << endmsg;
         //        continue;
         //      }
         if ( iter->initialPerigee() )
@@ -608,7 +608,7 @@ namespace Trk
     if(msgLvl(MSG::DEBUG))
     {
       msg(MSG::DEBUG) << "chi2: " << ActualVertex->chiSquared()
-                      << "the ndf of the vertex is at fit end: " << ActualVertex->numberDoF() << endreq;
+                      << "the ndf of the vertex is at fit end: " << ActualVertex->numberDoF() << endmsg;
     }
 
     delete &ConstraintVertex;
@@ -718,13 +718,13 @@ namespace Trk
 
    if(vectorTrk.size() == 0)
    {
-    msg(MSG::INFO)<<"Empty vector of tracks passed"<<endreq;
+    msg(MSG::INFO)<<"Empty vector of tracks passed"<<endmsg;
     return 0;
    }
 
    if(vectorNeut.size() == 0)
    {
-    msg(MSG::VERBOSE)<<"Empty vector of neutrals passed"<<endreq;
+    msg(MSG::VERBOSE)<<"Empty vector of neutrals passed"<<endmsg;
    }
    
    //making a list of perigee out of the vector of tracks
@@ -735,7 +735,7 @@ namespace Trk
      const Trk::TrackParameters * tmpMeasPer = &((*i)->perigeeParameters());
 
      if(tmpMeasPer!=0) measuredPerigees.push_back(tmpMeasPer);
-     else  msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endreq; //TODO: Failed to implicit cast the perigee parameters to track parameters?
+     else  msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endmsg; //TODO: Failed to implicit cast the perigee parameters to track parameters?
    }
 
    //making a list of perigee out of the vector of neutrals
@@ -746,7 +746,7 @@ namespace Trk
      const Trk::NeutralParameters * tmpMeasPer = &((*i)->perigeeParameters());
 
      if(tmpMeasPer!=0) measuredNeutralPerigees.push_back(tmpMeasPer);
-     else  msg(MSG::INFO)<<"Failed to dynamic_cast this neutral parameters to perigee"<<endreq; //TODO: Failed to implicit cast the perigee parameters to neutral parameters?
+     else  msg(MSG::INFO)<<"Failed to dynamic_cast this neutral parameters to perigee"<<endmsg; //TODO: Failed to implicit cast the perigee parameters to neutral parameters?
    }
 
 
@@ -769,10 +769,10 @@ namespace Trk
            {
              if( ! linkTT->toIndexedElement( *cont, vectorTrk[ i ]->index() ) )
              {
-               msg(MSG::WARNING)<<"Failed to set the EL for this particle correctly"<<endreq;
+               msg(MSG::WARNING)<<"Failed to set the EL for this particle correctly"<<endmsg;
              }
            } else {
-             msg(MSG::WARNING)<<"Failed to identify a  container for this TP"<<endreq;
+             msg(MSG::WARNING)<<"Failed to identify a  container for this TP"<<endmsg;
            }//end of the dynamic cast check
 
 
@@ -788,10 +788,10 @@ namespace Trk
            {
              if( ! linkTT->toIndexedElement( *cont, vectorNeut[ i ]->index() ) )
              {
-               msg(MSG::WARNING)<<"Failed to set the EL for this particle correctly"<<endreq;
+               msg(MSG::WARNING)<<"Failed to set the EL for this particle correctly"<<endmsg;
              }
            } else {
-             msg(MSG::WARNING)<<"Failed to identify a  container for this TP"<<endreq;
+             msg(MSG::WARNING)<<"Failed to identify a  container for this TP"<<endmsg;
            }//end of the dynamic cast check
 
            // vxtrackatvertex takes ownership!
@@ -848,13 +848,13 @@ namespace Trk
 
    if(vectorTrk.size() == 0)
    {
-     msg(MSG::INFO)<<"Empty vector of tracks passed"<<endreq;
+     msg(MSG::INFO)<<"Empty vector of tracks passed"<<endmsg;
      return 0;
    }
 
    if(vectorNeut.size() == 0)
    {
-     msg(MSG::INFO)<<"Empty vector of neutrals passed"<<endreq;
+     msg(MSG::INFO)<<"Empty vector of neutrals passed"<<endmsg;
    }
    
    //making a list of perigee out of the vector of tracks
@@ -865,7 +865,7 @@ namespace Trk
      const Trk::TrackParameters * tmpMeasPer = &((*i)->perigeeParameters());
   
      if(tmpMeasPer!=0) measuredPerigees.push_back(tmpMeasPer);
-     else  msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endreq; //TODO: Failed to implicit cast the perigee parameters to track parameters?
+     else  msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endmsg; //TODO: Failed to implicit cast the perigee parameters to track parameters?
    }
 
    //making a list of perigee out of the vector of neutrals
@@ -876,7 +876,7 @@ namespace Trk
      const Trk::NeutralParameters * tmpMeasPer = &((*i)->perigeeParameters());
   
      if(tmpMeasPer!=0) measuredNeutralPerigees.push_back(tmpMeasPer);
-     else  msg(MSG::INFO)<<"Failed to dynamic_cast this neutral parameters to perigee"<<endreq; //TODO: Failed to implicit cast the perigee parameters to neutral parameters?
+     else  msg(MSG::INFO)<<"Failed to dynamic_cast this neutral parameters to perigee"<<endmsg; //TODO: Failed to implicit cast the perigee parameters to neutral parameters?
    }
    
    
@@ -899,10 +899,10 @@ namespace Trk
            {
              if( ! linkTT->toIndexedElement( *cont, vectorTrk[ i ]->index() ) )
              {
-	       msg(MSG::WARNING)<<"Failed to set the EL for this particle correctly"<<endreq;
+	       msg(MSG::WARNING)<<"Failed to set the EL for this particle correctly"<<endmsg;
              }
            } else {
-             msg(MSG::WARNING)<<"Failed to identify a  container for this TP"<<endreq;
+             msg(MSG::WARNING)<<"Failed to identify a  container for this TP"<<endmsg;
            }//end of the dynamic cast check 
 
 
@@ -918,10 +918,10 @@ namespace Trk
            {
              if( ! linkTT->toIndexedElement( *cont, vectorNeut[ i ]->index() ) )
              {
-	       msg(MSG::WARNING)<<"Failed to set the EL for this particle correctly"<<endreq;
+	       msg(MSG::WARNING)<<"Failed to set the EL for this particle correctly"<<endmsg;
 	     }
            } else {
-             msg(MSG::WARNING)<<"Failed to identify a  container for this NP"<<endreq;
+             msg(MSG::WARNING)<<"Failed to identify a  container for this NP"<<endmsg;
            }//end of the dynamic cast check 
 
            // vxtrackatvertex takes ownership!

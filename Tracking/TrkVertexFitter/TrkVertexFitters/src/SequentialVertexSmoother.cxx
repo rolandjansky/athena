@@ -15,19 +15,19 @@ namespace  Trk
   
 //uploading the corresponding tools
   if ( m_vertexTrackUpdator.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_vertexTrackUpdator << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_vertexTrackUpdator << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_vertexTrackUpdator << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_vertexTrackUpdator << endmsg;
   }
   
-  msg(MSG::INFO)<<"Initialization successfull"<<endreq;
+  msg(MSG::INFO)<<"Initialization successfull"<<endmsg;
   return StatusCode::SUCCESS;
  }//end of initialize method
  
  StatusCode SequentialVertexSmoother::finalize()
  {
-  msg(MSG::INFO)  << "Finalize successful" << endreq;
+  msg(MSG::INFO)  << "Finalize successful" << endmsg;
   return StatusCode::SUCCESS;
  }//end of finalize method
  
@@ -72,12 +72,12 @@ namespace  Trk
      else{
 
        //something wrong: notification to user
-       msg(MSG::ERROR)  << "Vertex to be smoothed containes no tracks!" << endreq;
-       msg(MSG::ERROR)  << "No action taken; Initial xAOD::Vertex returned." << endreq;
+       msg(MSG::ERROR)  << "Vertex to be smoothed containes no tracks!" << endmsg;
+       msg(MSG::ERROR)  << "No action taken; Initial xAOD::Vertex returned." << endmsg;
      }//end of protection statement
    }else{
-     msg(MSG::ERROR)  << "Vertex to be smoothed has no vxTrackAtVertices available!" << endreq;
-     msg(MSG::ERROR)  << "No action taken; Initial xAOD::Vertex returned." << endreq;
+     msg(MSG::ERROR)  << "Vertex to be smoothed has no vxTrackAtVertices available!" << endmsg;
+     msg(MSG::ERROR)  << "No action taken; Initial xAOD::Vertex returned." << endmsg;
    }//end of protection check whether vxTrackAtVertices are attached to the object
  }//end of smooth method
  
