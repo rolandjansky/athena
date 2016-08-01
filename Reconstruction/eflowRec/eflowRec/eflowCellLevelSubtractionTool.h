@@ -78,7 +78,7 @@ public:
   eflowLayerIntegrator* m_integrator;
   ToolHandle<IEFlowCellEOverPTool> m_theEOverPTool;
 
-  double m_rCell;
+  //double m_rCell;
 
   double m_subtractionSigmaCut;
   double m_consistencySigmaCut;

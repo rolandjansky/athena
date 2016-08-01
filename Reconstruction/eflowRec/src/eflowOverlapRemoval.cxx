@@ -24,7 +24,7 @@
 #include "FourMomUtils/P4Helpers.h"
 
 eflowOverlapRemoval::eflowOverlapRemoval(const std::string& name,ISvcLocator* pSvcLocator): 
-  eflowBaseAlg(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_PFOName("JetETMissNeutralParticleFlowObjects"),
   m_storeGate(nullptr),  
   m_egammaContainerName("Photons"),

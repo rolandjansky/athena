@@ -29,10 +29,11 @@ CREATED: 16 January 2014
 #include "eflowRec/eflowRingSubtractionManager.h"
 #include "eflowRec/eflowCellSubtractionFacilitator.h"
 #include "eflowRec/eflowSubtractor.h"
-using namespace eflowSubtract;
 
 #include "CaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
+
+using namespace eflowSubtract;
 
 eflowRecoverSplitShowersTool::eflowRecoverSplitShowersTool(const std::string& type,const std::string& name,const IInterface* parent):
 AthAlgTool(type, name, parent),

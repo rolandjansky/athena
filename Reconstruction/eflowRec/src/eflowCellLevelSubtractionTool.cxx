@@ -26,11 +26,9 @@ CREATED:  25th January, 2005
 #include "eflowRec/eflowLayerIntegrator.h"
 #include "eflowRec/PFTrackClusterMatchingTool.h"
 #include "eflowRec/cycle.h"
-#include "eflowRec/phicorr.h"
 #include "eflowRec/eflowRingSubtractionManager.h"
 #include "eflowRec/eflowCellSubtractionFacilitator.h"
 #include "eflowRec/eflowSubtractor.h"
-using namespace eflowSubtract;
 
 #include "CaloEvent/CaloCluster.h"
 
@@ -49,6 +47,8 @@ using namespace eflowSubtract;
 #include <vector>
 
 
+using namespace eflowSubtract;
+
 eflowCellLevelSubtractionTool::eflowCellLevelSubtractionTool(const std::string& type,const std::string& name,const IInterface* parent) :
   AthAlgTool( type, name, parent),
   m_eflowCaloObjectContainer(0),
@@ -60,7 +60,7 @@ eflowCellLevelSubtractionTool::eflowCellLevelSubtractionTool(const std::string& 
   m_binnedParameters(0),
   m_integrator(0),
   m_theEOverPTool("eflowCellEOverPTool",this),
-  m_rCell(0.75),
+  //m_rCell(0.75),
   m_subtractionSigmaCut(1.5),
   m_consistencySigmaCut(1.0),
   m_calcEOverP(false),

@@ -17,7 +17,6 @@ CREATED:  10th November, 2001
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-class eflowBaseAlg;
 class StoreGateSvc;
 
 class eflowBuilder : public AthAlgorithm
@@ -42,9 +41,9 @@ class eflowBuilder : public AthAlgorithm
   std::string m_eflowQuantitiesAlgName;
 
   // Pointers to the corresponding sub-algorithms:
-  eflowBaseAlg* m_eflowPreparationAlg;   // Build calo objects
-  eflowBaseAlg* m_eflowObjectBuilderAlg;       // Build eflow objects
-  eflowBaseAlg* m_eflowQuantitiesAlg;          // Calculate eflow, pTmiss
+  AthAlgorithm* m_eflowPreparationAlg;   // Build calo objects
+  AthAlgorithm* m_eflowObjectBuilderAlg;       // Build eflow objects
+  AthAlgorithm* m_eflowQuantitiesAlg;          // Calculate eflow, pTmiss
 
 };
 #endif

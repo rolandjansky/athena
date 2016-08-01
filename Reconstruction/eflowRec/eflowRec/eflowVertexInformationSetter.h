@@ -15,13 +15,13 @@ Created: 19 April 2013
 */
 
 //Athena
-#include "eflowRec/eflowBaseAlg.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include <string>
 
 class StoreGateSvc;
 
-class eflowVertexInformationSetter : public eflowBaseAlg {
+class eflowVertexInformationSetter : public AthAlgorithm {
   
  public:
 

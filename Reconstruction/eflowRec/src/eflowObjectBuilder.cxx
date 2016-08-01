@@ -27,7 +27,7 @@ using namespace std;
 
 
 eflowObjectBuilder::eflowObjectBuilder(const std::string& name,  ISvcLocator* pSvcLocator):
-  eflowBaseAlg(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_eflowClustersOutputName("PFOClusters_JetETMiss"),
   m_eflowCaloObjectsName("eflowCaloObjects01"),
   m_storeGate(nullptr),
