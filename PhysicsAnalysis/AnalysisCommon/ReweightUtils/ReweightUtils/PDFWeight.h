@@ -4,30 +4,31 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Get the mcEventWeight with index #McEventWeightIndex from
-// EventInfo
-//
-// Author: Olivier Arnaez <olivier.arnaez@cern.ch>
+// Author: Danilo Ferreira de Lima <dferreir@cern.ch>
 ///////////////////////////////////////////////////////////////////
 
-#ifndef MCEVENTWEIGHT_H
-#define MCEVENTWEIGHT_H 1
+#ifndef PDFWEIGHT_H
+#define PDFWEIGHT_H
 
 // Include the base class
 #include "ReweightUtils/WeightToolBase.h"
 
+#include "LHAPDF/LHAPDF.h"
+#include "LHAPDF/PDFSet.h"
 
-class McEventWeight : public WeightToolBase
+class PDFWeight : public WeightToolBase
   {
     /// Create a proper constructor for Athena
-    ASG_TOOL_CLASS2( McEventWeight, IWeightTool, IObservableTool )
+    ASG_TOOL_CLASS2( PDFWeight, IWeightTool, IObservableTool )
 
    public:
     /// The default constructor with the instance name of the tool class
-    McEventWeight( const std::string& name );
+    PDFWeight( const std::string& name );
 
     /// Default destructor
-    virtual ~McEventWeight() {};
+    virtual ~PDFWeight() {};
+
+    StatusCode initialize() override;
 
     /// returns: the value that was calculated from the xAOD::IParticle (composite built event object for instance)
     virtual double evaluate( const xAOD::IParticle* part ) const override;
@@ -40,11 +41,14 @@ class McEventWeight : public WeightToolBase
     //internal function "computing" the weight
     double computeWeight(const xAOD::EventInfo*) const;
 
-    unsigned int m_McEventWeightIndex;
-
+    std::string m_pdfName;
+    std::string m_truthEventContainerName;
     std::string m_eventInfoName;
-    bool m_useTruthEvents = false;
+    float m_weight;
 
+    std::unique_ptr<LHAPDF::PDF> m_pdf;
+
+    int m_index;
 };
 
-#endif //> !MCEVENTWEIGHT_H
+#endif //> !PDFWEIGHT_H

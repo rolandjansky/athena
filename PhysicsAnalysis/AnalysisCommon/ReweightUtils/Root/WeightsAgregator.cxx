@@ -19,6 +19,7 @@ WeightsAgregator::WeightsAgregator( const std::string& name )
 
 StatusCode WeightsAgregator::initialize() {
   ATH_MSG_DEBUG ("Initializing " << name() << "...");
+  ATH_CHECK(WeightToolBase::initialize());
 
   // Retrieve the needed weight tools
   ATH_CHECK(m_toolArray.retrieve());
@@ -36,10 +37,12 @@ double WeightsAgregator::evaluate( const xAOD::IParticle* part ) const
   double weight=1.0;
   for ( const auto& wToolHandle : m_toolArray ){
     const IWeightTool* wtool = &(*wToolHandle);
+    ATH_MSG_DEBUG ("  In WeightsAgregator::evaluate(), having tool to deal with called " << wtool->name());
     if( const IObservableTool* obstool = dynamic_cast< const IObservableTool* >( wtool ) )
       weight *= obstool->evaluate(part);
   }
 
+  ATH_MSG_DEBUG ("Got weight in WeightsAgregator::evaluate() = " << weight << ".");
   return weight;
 }
 

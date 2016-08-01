@@ -3,6 +3,7 @@
 */
 
 #include <ReweightUtils/McEventWeight.h>
+#include <ReweightUtils/PDFWeight.h>
 #include <ReweightUtils/WeightsAgregator.h>
 #include <ReweightUtils/APWeightEntry.h>
 #include <ReweightUtils/APReweightBase.h>
@@ -21,6 +22,7 @@
 #pragma link C++ nestedclass;
 
 #pragma link C++ class McEventWeight+;
+#pragma link C++ class PDFWeight+;
 #pragma link C++ class WeightsAgregator+;
 #pragma link C++ class APWeightEntry+;
 #pragma link C++ class APReweightBase+;

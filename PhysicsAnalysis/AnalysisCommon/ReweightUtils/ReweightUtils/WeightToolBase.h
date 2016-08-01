@@ -42,7 +42,11 @@ class WeightToolBase : public asg::AsgTool, virtual public IWeightTool, virtual 
     virtual StatusCode  initialize() override;
 
     /// Usual finalize method of the framework
-    virtual StatusCode  finalize();
+#ifndef XAOD_STANDALONE
+    virtual StatusCode  finalize() override;
+#else
+    virtual StatusCode finalize();
+#endif
 
     /*/// returns: the value that was calculated from the xAOD::IParticle (composite built event object for instance)
       virtual double evaluate( const xAOD::IParticle* part ) const=0;*/
