@@ -155,8 +155,12 @@ namespace TrigCostRootAnalysis {
 
       } else if (checkPatternExponentialWithMu(getName())) { // SPECIAL CASE #4
 
-        m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalExpo); // Exponential mu, bunch and deadtime
-        m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal);
+        if (m_level == 1) { // We allow for different slopes at L1 and HLT
+          m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalExpoL1);
+        } else {
+          m_lumiExtrapolationFactor = Config::config().getFloat(kPredictionLumiFinalExpoHLT); 
+        }
+        m_lumiExtrapolationFactor *= Config::config().getFloat(kDeadtimeScalingFinal); // Exponential mu, bunch and deadtime
         Config::config().addVecEntry(kListOfExpoMuLumiWeightChains, getName());
 
       } else if (m_bunchGroupType == kBG_EMPTY || m_bunchGroupType == kBG_FIRSTEMPTY) {
@@ -380,6 +384,15 @@ namespace TrigCostRootAnalysis {
     m_inEvent = kTRUE;
     static Bool_t _largeJetWindow = Config::config().getInt(kUpgradeJetLargeWindow);
 
+    // For random seeded triggers where the HLT was re-run, we need to check that we only run over unbiased events in the sample
+    if (m_matchRandomToOnline == kTRUE && m_iAmRandom == kTRUE) {
+      if ( Config::config().getInt(kCurrentEventWasRandomOnline) == kFALSE ) {
+        m_passRaw = kFALSE;
+        m_inEvent = kFALSE;
+        return;
+      }
+    }
+
     // Loop over logic
     m_passRaw = kTRUE; // Assume we passed, see if we didn't
     for (const TriggerCondition& _condition : getTriggerLogic()->conditions()) {
@@ -398,7 +411,7 @@ namespace TrigCostRootAnalysis {
 
         UInt_t _tobsPassingCondition = 0;
         for (const auto& _tob : _eventTOBs->TOBs() ) {
-          if (_tob.m_type != _condition.m_type) continue; // Incorrect type (EM/TAU/MU etc.)
+          if (_tob.m_type != _condition.m_type) continue; // Incorrect type (EM/TAU/MU etc.). Don't discriminate on this one
           Float_t _et = _tob.m_et;
           if (_tob.m_type == kJetString && _largeJetWindow == kTRUE) _et = _tob.m_etLarge;
           // Energy too low ?
@@ -419,7 +432,12 @@ namespace TrigCostRootAnalysis {
             if (_pass == kFALSE) continue; // A required isolation bit was not found
           }
           ++_tobsPassingCondition; // All requirements met
-          if (_tobsPassingCondition == _condition.m_multi) break; // Do we have enough TOBs passing this condition? Bail out if so, don't need more
+          // Histogram
+          if (_tob.m_type == kJetString) m_bufferJetRoIEta.push_back(_tob.m_eta);
+          else if (_tob.m_type == kMuonString) m_bufferMuRoIEta.push_back(_tob.m_eta);
+          else if (_tob.m_type == kEmString) m_bufferEmRoIEta.push_back(_tob.m_eta);
+          else if (_tob.m_type == kTauString) m_bufferTauRoIEta.push_back(_tob.m_eta);
+          //if (_tobsPassingCondition == _condition.m_multi) break; // Do we have enough TOBs passing this condition? Bail out if so, don't need more
         }
         if (_tobsPassingCondition < _condition.m_multi) {
           m_passRaw = kFALSE; // A condition was not satisfied :( all must be satisfied. We cannot accept this event.
@@ -430,14 +448,21 @@ namespace TrigCostRootAnalysis {
     }
 
     //Info("RatesChainItem::beginEvent","%s applying logic to %i TOBs (passed - %i) MET is %f HT is %f", getName().c_str(), _eventTOBs->TOBs().size(), (Int_t)m_passRaw, _eventTOBs->MET(), _eventTOBs->HT());
+  }
 
-    // For random seeded triggers where the HLT was re-run, we need to check that we only run over unbiased events in the sample
-    if (m_matchRandomToOnline == kTRUE && m_iAmRandom == kTRUE) {
-      if ( Config::config().getInt(kCurrentEventWasRandomOnline) == kFALSE ) {
-        m_passRaw = kFALSE;
-        m_inEvent = kFALSE;
-      }
-    }
+  /**
+   * Used in Upgrade Rates mode - we plot the eta distribution of the thresholds we pass and the multiplicity
+   */
+  void RatesChainItem::fillHistograms(DataStore& _dataStore, Float_t _weight) {
+    for (const Float_t _value : m_bufferJetRoIEta) _dataStore.store(kVarJetEta, _value, _weight);
+    for (const Float_t _value : m_bufferMuRoIEta)  _dataStore.store(kVarMuEta, _value, _weight);
+    for (const Float_t _value : m_bufferEmRoIEta)  _dataStore.store(kVarEmEta, _value, _weight);
+    for (const Float_t _value : m_bufferTauRoIEta) _dataStore.store(kVarTauEta, _value, _weight);
+
+    if (m_bufferJetRoIEta.size() > 0) _dataStore.store(kVarJetNThresh, m_bufferJetRoIEta.size(), _weight);
+    if (m_bufferMuRoIEta.size() > 0)  _dataStore.store(kVarMuNThresh, m_bufferMuRoIEta.size() , _weight);
+    if (m_bufferEmRoIEta.size() > 0)  _dataStore.store(kVarEmNThresh, m_bufferEmRoIEta.size() , _weight);
+    if (m_bufferTauRoIEta.size() > 0) _dataStore.store(kVarTauNThresh, m_bufferTauRoIEta.size(), _weight);
   }
 
 
@@ -448,6 +473,11 @@ namespace TrigCostRootAnalysis {
     m_passRaw = kFALSE;
     m_passPS = kFALSE;
     m_inEvent = kFALSE;
+
+    m_bufferJetRoIEta.clear();
+    m_bufferMuRoIEta.clear();
+    m_bufferEmRoIEta.clear();
+    m_bufferTauRoIEta.clear();
   }
 
   /**

@@ -246,7 +246,8 @@ namespace TrigCostRootAnalysis {
     kUpgradeJetLargeWindow,
     kNoOnlineDeadtimeCorrection,
     kOnlineDeadtime,
-    kExpoRateScaleModifier,
+    kExpoRateScaleModifierL1,
+    kExpoRateScaleModifierHLT,
     kDeadtimeScalingFinal, // Final scaling factor used for online deadtime
     kDoUniqueRates,
     kRatesOnly,
@@ -258,9 +259,11 @@ namespace TrigCostRootAnalysis {
     kPredictionLumiRunXML, // From the EB XML (prioirty 3)
     kPredictionLumiMenuXML, // From the prescales XML (priority 2)
     kPredictionLumiFinal, // The value actually chosen to be used
-    kPredictionLumiFinalExpo, // The final value with exponential mu extrapolation
+    kPredictionLumiFinalExpoL1, // The final value with exponential mu extrapolation
+    kPredictionLumiFinalExpoHLT, // The final value with exponential mu extrapolation
     kPredictionLumiFinalMuComponent, // What part of PredictionLumiFinal is due to increased mu
-    kPredictionLumiFinalMuExpoComponent, // What mu extrapolation chains with an exponential mu dependence should get
+    kPredictionLumiFinalMuExpoL1Component, // What mu extrapolation chains with an exponential mu dependence should get
+    kPredictionLumiFinalMuExpoHLTComponent, // What mu extrapolation chains with an exponential mu dependence should get
     kPredictionLumiFinalBunchComponent, // What part of PredictionLumiFinal is due to extra bunches
     kEmptyBunchgroupExtrapolaion, // How much we extrapolate empty items
     kDoAdvancedLumiScaling,
@@ -405,6 +408,14 @@ namespace TrigCostRootAnalysis {
     kVarHLTEvents,
     kVarHLTPassEvents,
     kVarHLTPUs,
+    kVarJetEta,
+    kVarMuEta,
+    kVarEmEta,
+    kVarTauEta,
+    kVarJetNThresh,
+    kVarMuNThresh,
+    kVarEmNThresh,
+    kVarTauNThresh,
     kVarROI,
     kVarType,
     kVarEta,

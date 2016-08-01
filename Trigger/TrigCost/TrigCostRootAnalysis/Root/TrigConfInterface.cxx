@@ -717,7 +717,7 @@ namespace TrigCostRootAnalysis {
 
   Bool_t TrigConfInterface::getChainIsMainStream(UInt_t _c) {
     for (UInt_t _s = 0; _s < getChainStreamNameSize(_c); ++_s) {
-      if (getChainStreamName(_c, _s) == "STREAM_Main") return kTRUE;
+      if (getChainStreamName(_c, _s) == "Main") return kTRUE;
     }
     return kFALSE;
   }

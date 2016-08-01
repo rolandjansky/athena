@@ -44,7 +44,6 @@
 #ifndef ROOTCORE
 #include "PathResolver/PathResolver.h"
 #endif // not ROOTCORE
-
 namespace TrigCostRootAnalysis {
 
   Int_t ChainInfo::m_instances = 0; // Static
@@ -59,7 +58,7 @@ namespace TrigCostRootAnalysis {
     : MonitorBase(_costData, "RateUpgrade"),
       m_R3(0)
   {
-    m_dummyCounter = static_cast<CounterBase*>(new CounterRatesChain(_costData, Config::config().getStr(kDummyString), INT_MIN));
+    m_dummyCounter = static_cast<CounterBase*>(new CounterRatesChain(_costData, Config::config().getStr(kDummyString), 10));
     m_globalRateL1Counter = nullptr;
     m_globalRateL2Counter = nullptr;
     m_globalRateL3Counter = nullptr;
@@ -117,10 +116,62 @@ namespace TrigCostRootAnalysis {
       Warning("MonitorRatesUpgrade::populateChainItemMaps","Upgrade rates will not be scaled for online EB deadtime.");
     }
 
-    Float_t m_upgradePredictionL = Config::config().getFloat(kRunLumiXML) * m_collidingBunchFactor * m_pileupFactor * m_upgradeDeadtimeScaling;
+    Float_t m_upgradePredictionL = Config::config().getFloat(kRunLumiXML) * m_collidingBunchFactor * m_pileupFactor;
     Info("MonitorRatesUpgrade::populateChainItemMaps", "*** THIS UPGRADE RATES PREDICTION IS PERFORMING A L EXTRAPOLATION OF %.2e -> %.2e ***",
       Config::config().getFloat(kRunLumiXML), m_upgradePredictionL);
     Config::config().setFloat(kPredictionLumiMenuXML, m_upgradePredictionL, "PredictionLumiMenuXML");
+
+
+    if (Config::config().getInt(kDoUpgradeRatesScan) == kTRUE) {
+      // Scan over a set of energies
+      for (UInt_t _e = 5; _e <= 500; _e += 5) { // Energy
+        for (UInt_t _n = 1; _n <= 8; ++_n) {
+          if (_n >= 5 && _n <= 7) continue; // Don't do N of 5,6,7
+          if      (_e > 100) { if (_e % 25 != 0) continue; }
+          else if (_e > 50)  { if (_e % 10 != 0) continue; }
+          for (UInt_t _t = 0; _t < 12; ++_t) {
+            if (_n > 1 && (_t == 9 || _t == 10)) continue; // No multiplicity in TE or XE
+            if ((_t == 2 || _t == 3) && _e > 100) continue; // No EM after 100 GeV
+            if ((_t >=4 && _t <= 7) && _e > 100) continue; // No TAU after 100 GeV
+            if (_t == 8 && _e > 20) continue; // No MU after 20
+            std::stringstream _name;
+            std::stringstream _group;
+            std::string _type, _isoStr;
+            Int_t _iso = 0;
+            Int_t _etaMin = 0, _etaMax = 49;
+            switch (_t) {
+              case 0: _type = "J"; _etaMax = 31; break;
+              case 1: _type = "EM"; break;
+              case 2: _type = "EM"; _isoStr= "I"; _iso = m_isoBits["EM_I"]; break;
+              case 3: _type = "EM"; _isoStr= "VHI"; _iso = m_isoBits["EM_VHI"]; break;
+              case 4: _type = "TAU"; break;
+              case 5: _type = "TAU"; _isoStr= "IL"; _iso = m_isoBits["TAU_IL"]; break;
+              case 6: _type = "TAU"; _isoStr= "IM"; _iso = m_isoBits["TAU_IM"]; break;
+              case 7: _type = "TAU"; _isoStr= "IT"; _iso = m_isoBits["TAU_IT"]; break;
+              case 8: _type = "MU"; break;
+              case 9: _type = "XE"; break;
+              case 10: _type = "TE"; break;
+              case 11: _type = "J"; _isoStr = "_32ETA49"; _etaMin = 32; _etaMax = 49; break;
+
+            }
+            std::string _nStr = std::to_string(_n);
+            if (_n == 1) _nStr = "";
+            _name << "L1_" << _nStr << _type << _e << _isoStr;
+            _group << "RATE_Test_" << _nStr << _type << _isoStr; 
+            if (m_chainItemsL1.count( _name.str() ) == 1) continue; // Already has
+
+            TriggerLogic _triggerLogic;
+            _triggerLogic.addCondition(_type, _n, _e, _iso, _etaMin, _etaMax);
+            auto _it = m_upgradeChains.insert( ChainInfo(_name.str(), 1, _triggerLogic, _group.str(), "", 1., 1.) );
+            TriggerLogic* _tl = const_cast<TriggerLogic*>( &(_it->m_triggerLogic) ); //Why is this const in the first place?
+
+            RatesChainItem* _L1 = new RatesChainItem(_name.str(), /*chainLevel=*/ 1, 1.);
+            m_chainItemsL1[ _name.str() ] = _L1;
+            _L1->setTriggerLogic( _tl );
+          }
+        }
+      }
+    }
 
     for (std::multiset<ChainInfo>::iterator _it = m_upgradeChains.begin(); _it != m_upgradeChains.end(); ++_it) {
     //for (auto _item : m_upgradeChains) {
@@ -128,6 +179,9 @@ namespace TrigCostRootAnalysis {
         continue; // not doing HLT yet
       }
       const std::string _nameL1 = _it->m_name;
+
+      if (m_chainItemsL1.count( _nameL1 ) == 1) continue; // Already has
+
       Double_t _chainPrescale = 1.; //TODO - nonzero prescales?
       RatesChainItem* _L1 = new RatesChainItem(_nameL1, /*chainLevel=*/ 1, _chainPrescale);
       _L1->setRateReductionFactor( _it->m_weight0 );
@@ -147,46 +201,6 @@ namespace TrigCostRootAnalysis {
       _L2->setTriggerLogic( _tl );
     }
 
-    if (Config::config().getInt(kDoUpgradeRatesScan) == kTRUE) {
-      // Scan over a set of energies
-      for (UInt_t _e = 5; _e <= 500; _e += 5) {
-        if      (_e > 100) { if (_e % 50 != 0) continue; }
-        else if (_e > 50)  { if (_e % 20 != 0) continue; }
-        else if (_e > 20)  { if (_e % 10 != 0) continue; } //reduce granularity
-        for (UInt_t _t = 0; _t < 11; ++_t) {
-          std::stringstream _name;
-          std::stringstream _group;
-          std::string _type, _isoStr;
-          Int_t _iso = 0;
-          Int_t _etaMin = 0, _etaMax = 49;
-          switch (_t) {
-            case 0: _type = "J"; _etaMax = 31; break;
-            case 1: _type = "EM"; break;
-            case 2: _type = "EM"; _isoStr= "I"; _iso = m_isoBits["EM_I"]; break;
-            case 3: _type = "EM"; _isoStr= "VHI"; _iso = m_isoBits["EM_VHI"]; break;
-            case 4: _type = "TAU"; break;
-            case 5: _type = "TAU"; _isoStr= "IL"; _iso = m_isoBits["TAU_IL"]; break;
-            case 6: _type = "TAU"; _isoStr= "IM"; _iso = m_isoBits["TAU_IM"]; break;
-            case 7: _type = "TAU"; _isoStr= "IT"; _iso = m_isoBits["TAU_IT"]; break;
-            case 8: _type = "MU"; break;
-            case 9: _type = "XE"; break;
-            case 10: _type = "TE"; break;
-          }
-          _name << "L1_" << _type << _e << _isoStr;
-          _group << "RATE_Test_" << _type << _isoStr; 
-          if (m_chainItemsL1.count( _name.str() ) == 1) continue; // Already has
-
-          TriggerLogic _triggerLogic;
-          _triggerLogic.addCondition(_type, 1, _e, _iso, _etaMin, _etaMax);
-          auto _it = m_upgradeChains.insert( ChainInfo(_name.str(), 1, _triggerLogic, _group.str(), "", 1., 1.) );
-          TriggerLogic* _tl = const_cast<TriggerLogic*>( &(_it->m_triggerLogic) ); //Why is this const in the first place?
-
-          RatesChainItem* _L1 = new RatesChainItem(_name.str(), /*chainLevel=*/ 1, 1.);
-          m_chainItemsL1[ _name.str() ] = _L1;
-          _L1->setTriggerLogic( _tl );
-        }
-      }
-    }
 
     for (const auto _chainItem : m_chainItemsL1)  _chainItem.second->classifyLumiAndRandom(); // should not be needed, do different lumi scaling here
     for (const auto _chainItem : m_chainItemsL2)  _chainItem.second->classifyLumiAndRandom();
@@ -422,11 +436,12 @@ namespace TrigCostRootAnalysis {
     static std::vector<std::string> _validationItems;
     if (_validationItems.size() == 0) {
       _validationItems.push_back("L1_MU15");
-      _validationItems.push_back("L1_2MU10");
+      //_validationItems.push_back("L1_2MU10"); // Know broken
       _validationItems.push_back("L1_EM15");
       _validationItems.push_back("L1_TAU20");
       _validationItems.push_back("L1_TE30");
       _validationItems.push_back("L1_XE300");
+      _validationItems.push_back("L1_J100");
       //_validationItems.push_back("L1_2EM10VH"); // Known broken
     }
     Int_t _checkTrigEmulation[10] = {0};
@@ -535,8 +550,11 @@ namespace TrigCostRootAnalysis {
       CounterMapIt_t _it = _counterMap->begin();
       for (; _it != _counterMap->end(); ++_it) {
         _it->second->processEventCounter(0, 1, _weightUpgrade);
+        m_countersInEvent.insert( _it->second );
       }
       if (m_upgradePileupScaling == kFALSE) validateTriggerEmulation(_counterMap, _thisEvent, kFALSE /*print*/);
+
+      endEvent(0);
     }
 
     for (const auto _chainItem : m_chainItemsL1) _chainItem.second->endEvent();
@@ -659,7 +677,7 @@ namespace TrigCostRootAnalysis {
 
     if (Config::config().getInt(kOutputRatesGraph) == kTRUE) saveRateGraphs();
 
-    VariableOptionVector_t _toSavePlots;// = m_dummyCounter->getAllHistograms();
+    VariableOptionVector_t _toSavePlots = m_dummyCounter->getAllHistograms();
 
     std::vector<TableColumnFormatter> _toSaveTable;
 
