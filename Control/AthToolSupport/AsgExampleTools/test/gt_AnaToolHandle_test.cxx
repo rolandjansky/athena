@@ -821,7 +821,7 @@ namespace asg
     AnaToolHandle<IAsgTool> tool1("asg::UnitTestTool1/myTool");
     ASSERT_SUCCESS (tool1.initialize());
 #ifndef ROOTCORE
-    EXPECT_EQ (3u, tool1->refCount());
+    EXPECT_EQ (2u, tool1->refCount());
 #endif
 
     asg::AnaToolHandle<asg::IAsgTool> tool3;
@@ -830,16 +830,16 @@ namespace asg
       asg::AnaToolHandle<asg::IAsgTool> tool2("asg::UnitTestTool1/myTool");
       ASSERT_SUCCESS (tool2.initialize());
 #ifndef ROOTCORE
-      EXPECT_EQ (4u, tool2->refCount());
+      EXPECT_EQ (3u, tool2->refCount());
 #endif
       tool3 = std::move(tool2);
 #ifndef ROOTCORE
-      EXPECT_EQ (4u, tool3->refCount());
+      EXPECT_EQ (3u, tool3->refCount());
 #endif
     }
 #ifndef ROOTCORE
-    EXPECT_EQ (4u, tool3->refCount());
-    EXPECT_EQ (4u, tool1->refCount());
+    EXPECT_EQ (3u, tool3->refCount());
+    EXPECT_EQ (3u, tool1->refCount());
 #endif
   }
 }
