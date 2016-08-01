@@ -116,7 +116,7 @@ private:
   Pixel_detElement_RIO_map* m_pixelClusterMap;
 
   std::string                           m_prdTruthNamePixel;
-  PRD_MultiTruthCollection*             m_pixPrdTruth;              //!< the PRD truth map for SCT measurements
+  PRD_MultiTruthCollection*             m_pixPrdTruth;              //!< the PRD truth map for Pixel measurements
 
   //  ServiceHandle<IInDetConditionsSvc>    m_pixelCondSummarySvc;   //!< Handle to pixel conditions service
 
@@ -140,7 +140,10 @@ private:
   std::vector<double>                   m_pixPhiError;              //!< phi error when not using the ClusterMaker
   std::vector<double>                   m_pixEtaError;              //!< eta error when not using the ClusterMaker
   int                                   m_pixErrorStrategy;         //!< error strategy for the  ClusterMaker
-
+  
+  bool m_mergeCluster; //!< enable the merging of neighbour Pixel clusters >  
+  bool m_splitClusters; //!< merging parameter used to define two clusters as neighbour >  
+  bool m_acceptDiagonalClusters; //!< merging parameter used to define two clusters as neighbour >  
   std::string                           m_pixelClusterAmbiguitiesMapName;
   InDet::PixelGangedClusterAmbiguities* m_ambiguitiesMap;
 

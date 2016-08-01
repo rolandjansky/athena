@@ -98,6 +98,9 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   m_pixModuleDistortion(true), // default: false
   m_pixDistortionTool("PixelDistortionsTool/PixelDistortionsTool"),
   m_pixErrorStrategy(2),
+  m_mergeCluster(true),
+  m_splitClusters(0),
+  m_acceptDiagonalClusters(1),
   m_pixelClusterAmbiguitiesMapName("PixelClusterAmbiguitiesMap"),
   m_ambiguitiesMap(0)
 {
@@ -508,6 +511,8 @@ StatusCode PixelFastDigitizationTool::digitize()
       if (!hitSiDetElement) {ATH_MSG_ERROR( " could not get detector element "); continue;}
 
       if (!(hitSiDetElement->isPixel())) {continue;}
+      
+      std::vector<HepMcParticleLink> hit_vector; //Store the hits in merged cluster
 
       const IdentifierHash waferID = m_pixel_ID->wafer_hash(hitSiDetElement->identify());
 
@@ -1014,37 +1019,49 @@ StatusCode PixelFastDigitizationTool::digitize()
       // merging clusters
 
       bool merged = false;
-
-      for(Pixel_detElement_RIO_map::iterator currentClusIter = PixelDetElClusterMap.begin(); currentClusIter != PixelDetElClusterMap.end();) {
-        //make a temporary to use within the loop and possibly erase - increment the main interator at the same time.
-        Pixel_detElement_RIO_map::iterator clusIter = currentClusIter++;
-        InDet::PixelCluster* currentCluster = clusIter->second;
-        std::vector<Identifier> currentRdoList = currentCluster->rdoList();
-        bool areNb = false;
-        for (std::vector<Identifier>::const_iterator rdoIter = rdoList.begin(); rdoIter != rdoList.end(); ++rdoIter) {
-          areNb = this->areNeighbours(currentRdoList, *rdoIter, const_cast<InDetDD::SiDetectorElement*>(hitSiDetElement),*m_pixel_ID);
-          if (areNb) { break; }
-        }
-        if (areNb) {
-            std::vector<int> currentTotList = currentCluster->totList();
-            rdoList.insert(rdoList.end(), currentRdoList.begin(), currentRdoList.end() );
-            totList.insert(totList.end(), currentTotList.begin(), currentTotList.end() );
-            Amg::Vector2D       currentClusterPosition(currentCluster->localPosition());
-            float c1 = (float)currentRdoList.size();
-            float c2 = (float)rdoList.size();
-            clusterPosition = (clusterPosition*c2 + currentClusterPosition*c1)/((c1 + c2));
-            clusterId = hitSiDetElement->identifierOfPosition(clusterPosition);
-            merged = true;
-            PixelDetElClusterMap.erase(clusIter);
-            delete currentCluster;
-           //break; //commenting out this break statement allows for multiple existing clusters to be merged.
-        }
+      if(m_mergeCluster){ // merge to the current cluster "near" cluster in the cluster map, in the current detector element
+	
+	for(Pixel_detElement_RIO_map::iterator currentClusIter = PixelDetElClusterMap.begin(); currentClusIter != PixelDetElClusterMap.end();) {
+	  //make a temporary to use within the loop and possibly erase - increment the main interator at the same time.
+	  Pixel_detElement_RIO_map::iterator clusIter = currentClusIter++;
+	  InDet::PixelCluster* currentCluster = clusIter->second;
+	  std::vector<Identifier> currentRdoList = currentCluster->rdoList();
+	  bool areNb = false;
+	  for (std::vector<Identifier>::const_iterator rdoIter = rdoList.begin(); rdoIter != rdoList.end(); ++rdoIter) {
+	    areNb = this->areNeighbours(currentRdoList, *rdoIter, const_cast<InDetDD::SiDetectorElement*>(hitSiDetElement),*m_pixel_ID);
+	    if (areNb) { break; }
+	  }
+	  if (areNb) {
+	    std::vector<int> currentTotList = currentCluster->totList();
+	    rdoList.insert(rdoList.end(), currentRdoList.begin(), currentRdoList.end() );
+	    totList.insert(totList.end(), currentTotList.begin(), currentTotList.end() );
+	    Amg::Vector2D       currentClusterPosition(currentCluster->localPosition());
+	    float c1 = (float)currentRdoList.size();
+	    float c2 = (float)rdoList.size();
+	    clusterPosition = (clusterPosition*c2 + currentClusterPosition*c1)/((c1 + c2));
+	    clusterId = hitSiDetElement->identifierOfPosition(clusterPosition);
+	    merged = true;
+	    PixelDetElClusterMap.erase(clusIter);
+	    
+	    //Store HepMcParticleLink connected to the cluster removed from the collection
+	    std::pair<PRD_MultiTruthCollection::iterator,PRD_MultiTruthCollection::iterator> saved_hit = m_pixPrdTruth->equal_range(currentCluster->identify());	    
+	    for (PRD_MultiTruthCollection::iterator this_hit = saved_hit.first; this_hit != saved_hit.second; this_hit++)
+	    {
+	      hit_vector.push_back(this_hit->second);
+	    }
+	    //Delete all the occurency of the currentCluster from the multi map
+	    if (saved_hit.first != saved_hit.second) m_pixPrdTruth->erase(currentCluster->identify());
+	    delete currentCluster;
+	    //break; //commenting out this break statement allows for multiple existing clusters to be merged.
+	  }
+	}
       }
-
+      
       bool not_valid = false;
       for (unsigned int entry=0; entry < rdoList.size(); entry++) {
         if (!(rdoList[entry].is_valid())) { not_valid = true; break;}
       }
+      
       if (not_valid) continue;
 
       if(merged) {
@@ -1205,9 +1222,17 @@ StatusCode PixelFastDigitizationTool::digitize()
       }else{
         ATH_MSG_DEBUG("Particle link NOT valid!! Truth map NOT filled with cluster" << pixelCluster << " and link = " << hit->particleLink());
       }
-
+      
+      //Add all hit that was connected to the cluster
+      for(HepMcParticleLink p: hit_vector){
+	
+	 m_pixPrdTruth->insert(std::make_pair(pixelCluster->identify(), p ));
+      }
+ 
+      hit_vector.clear();
     } // end hit while
-
+     
+    
     (void) m_pixelClusterMap->insert(PixelDetElClusterMap.begin(), PixelDetElClusterMap.end());
 
 
@@ -1299,9 +1324,7 @@ bool PixelFastDigitizationTool::areNeighbours
  const PixelID& pixelID) const
 {
 
-  int m_splitClusters = 0;
-  int m_acceptDiagonalClusters = 1;
-
+ 
   std::vector<Identifier>::const_iterator groupBegin = group.begin();
   std::vector<Identifier>::const_iterator groupEnd = group.end();
 
