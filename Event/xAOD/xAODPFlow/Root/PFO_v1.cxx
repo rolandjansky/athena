@@ -13,10 +13,29 @@
 
 namespace xAOD {
 
-   PFO_v1::PFO_v1()
-     : IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false), m_floatCompressionFactor(1000) {
+  struct PFOParticleTypeMapper_temp {
+    static const SG::AuxElement::Accessor<std::vector<ElementLink<IParticleContainer > > >* getAccessor(PFODetails::PFOParticleType type) {
+      switch (type){
+      case PFODetails::CaloCluster:
+	const static SG::AuxElement::Accessor<std::vector<ElementLink<IParticleContainer > > > acc_cc("pfo_ClusterLinks");
+	return &acc_cc;
+      case PFODetails::Track:
+	const static SG::AuxElement::Accessor<std::vector<ElementLink<IParticleContainer > > > acc_tp("pfo_TrackLinks");
+	return &acc_tp;
+	// Note - clients should NEVER set both links to TauShot and HadroniCaloCluster - Tau WG agreed they NEVER will do such a thing (and they are only client)
+      case PFODetails::TauShot:
+      case PFODetails::HadronicCalo:
+	const static SG::AuxElement::Accessor<std::vector<ElementLink<IParticleContainer > > > acc_ts("pfo_TauShotLinks");
+	return &acc_ts;
+      }//switch
+      return NULL;
+    }//getAccessor
+  };
 
-   }
+  PFO_v1::PFO_v1()
+    : IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false), m_floatCompressionFactor(1000) {
+    
+  }
 
   PFO_v1::PFO_v1(const PFO_v1& other) :  IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false), m_floatCompressionFactor(1000) {
     this->makePrivateStore(other);
@@ -272,13 +291,13 @@ namespace xAOD {
       return isValid;
     }
     else{
-      Accessor<float>* acc = PFOAttributesAccessor_v1<float>::accessor(AttributeType);
+      Accessor<float>* p_acc = PFOAttributesAccessor_v1<float>::accessor(AttributeType);
       //check if accessor pointer is NULL
-      if( ! acc ) {  return false ;}
+      if( ! p_acc ) {  return false ;}
       //check if variable is avaialable
-      if( ! acc->isAvailable( *this ) ) return false;
+      if( ! p_acc->isAvailable( *this ) ) return false;
       //set variable and return true
-      anAttribute =( *acc )( *this );
+      anAttribute =( *p_acc )( *this );
       return true;
        
     }
@@ -286,10 +305,56 @@ namespace xAOD {
   }
   
   bool PFO_v1::isJetETMissFloatForCompression(PFODetails::PFOAttributes AttributeType) const{
-    if (PFODetails::PFOAttributes::eflowRec_LATERAL == AttributeType || PFODetails::PFOAttributes::eflowRec_LONGITUDINAL == AttributeType || PFODetails::PFOAttributes::eflowRec_SECOND_R == AttributeType || PFODetails::PFOAttributes::eflowRec_CENTER_LAMBDA == AttributeType || PFODetails::PFOAttributes::eflowRec_FIRST_ENG_DENS == AttributeType || PFODetails::PFOAttributes::eflowRec_ENG_FRAC_MAX == AttributeType || PFODetails::PFOAttributes::eflowRec_ISOLATION == AttributeType || PFODetails::PFOAttributes::eflowRec_ENG_BAD_CELLS == AttributeType || PFODetails::PFOAttributes::eflowRec_N_BAD_CELLS == AttributeType || PFODetails::PFOAttributes::eflowRec_BADLARQ_FRAC == AttributeType || PFODetails::PFOAttributes::eflowRec_ENG_POS == AttributeType || PFODetails::PFOAttributes::eflowRec_SIGNIFICANCE == AttributeType || PFODetails::PFOAttributes::eflowRec_AVG_LAR_Q == AttributeType || PFODetails::PFOAttributes::eflowRec_AVG_TILE_Q == AttributeType || PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EM3 == AttributeType || PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC0 == AttributeType || PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC == AttributeType || PFODetails::PFOAttributes::eflowRec_LAYERENERGY_Tile0 == AttributeType || PFODetails::PFOAttributes::eflowRec_TIMING == AttributeType ) {
+    switch (AttributeType) {
+    case PFODetails::PFOAttributes::eflowRec_LATERAL:
+    case PFODetails::PFOAttributes::eflowRec_LONGITUDINAL:
+    case PFODetails::PFOAttributes::eflowRec_SECOND_R:
+    case PFODetails::PFOAttributes::eflowRec_CENTER_LAMBDA:
+    case PFODetails::PFOAttributes::eflowRec_FIRST_ENG_DENS:
+    case PFODetails::PFOAttributes::eflowRec_ENG_FRAC_MAX:
+    case PFODetails::PFOAttributes::eflowRec_ISOLATION:
+    case PFODetails::PFOAttributes::eflowRec_ENG_BAD_CELLS:
+    case PFODetails::PFOAttributes::eflowRec_N_BAD_CELLS:
+    case PFODetails::PFOAttributes::eflowRec_BADLARQ_FRAC:
+    case PFODetails::PFOAttributes::eflowRec_ENG_POS:
+    case PFODetails::PFOAttributes::eflowRec_SIGNIFICANCE:
+    case PFODetails::PFOAttributes::eflowRec_AVG_LAR_Q:
+    case PFODetails::PFOAttributes::eflowRec_AVG_TILE_Q:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EM:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EM3:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC0:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_Tile0:
+    case PFODetails::PFOAttributes::eflowRec_TIMING:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_PreSamplerB:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EMB1:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EMB2:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EMB3:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_PreSamplerE:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EME1:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EME2:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EME3:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC1:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC2:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC3:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_TileBar0:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_TileBar1:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_TileBar2:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_TileGap1:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_TileGap2:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_TileGap3:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_TileExt0:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_TileExt1:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_TileExt2:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_FCAL0:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_FCAL1:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_FCAL2:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_MINIFCAL0:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_MINIFCAL1:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_MINIFCAL2:
+    case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_MINIFCAL3:
       return true;
-    }
-    else {
+    default:
       return false;
     }
   }
@@ -439,15 +504,16 @@ namespace xAOD {
   }
 
   bool PFO_v1::setVertexLink(const ElementLink< xAOD::VertexContainer>& theVertexLink){
-    ElementLink< xAOD::VertexContainer > tempVertexLink;
+    // ElementLink< xAOD::VertexContainer > tempVertexLink;
 
-    if (theVertexLink.isValid()){
-      tempVertexLink.setElement(*theVertexLink);
-      tempVertexLink.setStorableObject(theVertexLink.getStorableObjectRef());
-      tempVertexLink.toPersistent();
-    }
+    // if (theVertexLink.isValid()){
+    //   tempVertexLink.setElement(*theVertexLink);
+    //   tempVertexLink.setStorableObject(theVertexLink.getStorableObjectRef());
+    //   tempVertexLink.toPersistent();
+    // }
     const static Accessor<ElementLink<xAOD::VertexContainer> > acc("pfo_vertex");
-    acc(*this) = tempVertexLink;
+    acc(*this) = theVertexLink;
+    acc(*this).toPersistent();
     return true;
   }
   
@@ -484,29 +550,23 @@ namespace xAOD {
 
   bool PFO_v1::setAssociatedParticleLinks(PFODetails::PFOParticleType ParticleType,  const std::vector<ElementLink<IParticleContainer> >& theParticles) {
 
-    PFOParticleTypeMapper_v1 typeMapper;
-    std::string particleTypeName = "";
-    bool result = typeMapper.getValue(ParticleType, particleTypeName);
-    if (false == result) return false;
+    const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(ParticleType);
+    if (!p_acc) return false;
     else{
-      Accessor<std::vector<ElementLink<IParticleContainer > > > acc(particleTypeName);
-      acc(*this) = theParticles;
+      (*p_acc)(*this) = theParticles;
       return true;
     }
   }
   
   bool PFO_v1::associatedParticles(PFODetails::PFOParticleType ParticleType, std::vector<const IParticle*>& theParticles ) const{
 
-    PFOParticleTypeMapper_v1 typeMapper;
-    std::string particleTypeName = "";
-    bool result = typeMapper.getValue(ParticleType, particleTypeName);
-    if (false == result) return false;
+    const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(ParticleType);
+    if (!p_acc) return false;
     else{
-      Accessor<std::vector<ElementLink<IParticleContainer > > > acc(particleTypeName);
-      if (!acc.isAvailable(*this)) return false;
+      if (!p_acc->isAvailable(*this)) return false;
       else{
-	std::vector<ElementLink<IParticleContainer> > theLinks = acc(*this);
-	std::vector<ElementLink<IParticleContainer> >::iterator firstLink = theLinks.begin();
+	const std::vector<ElementLink<IParticleContainer> >& theLinks = (*p_acc)(*this);
+	std::vector<ElementLink<IParticleContainer> >::const_iterator firstLink = theLinks.begin();
 	for (; firstLink != theLinks.end(); ++firstLink) {
 	  if ( (*firstLink).isValid()) theParticles.push_back(**firstLink);
 	  else theParticles.push_back(NULL);
@@ -540,8 +600,8 @@ namespace xAOD {
     Accessor<std::vector<ElementLink<IParticleContainer > > > acc(ParticleType);
     if (!acc.isAvailable(*this)) return false;
     else{
-      std::vector<ElementLink<IParticleContainer> > theLinks = acc(*this);
-      std::vector<ElementLink<IParticleContainer> >::iterator firstLink = theLinks.begin();
+      const std::vector<ElementLink<IParticleContainer> >& theLinks = acc(*this);
+      std::vector<ElementLink<IParticleContainer> >::const_iterator firstLink = theLinks.begin();
       for (; firstLink != theLinks.end(); ++firstLink) {
 	if ( (*firstLink).isValid()) theParticles.push_back(**firstLink);
 	else theParticles.push_back(NULL);
@@ -552,38 +612,35 @@ namespace xAOD {
 
   const CaloCluster* PFO_v1::cluster(unsigned int index) const {
 
-    std::vector<const IParticle*> theParticles;
-    bool haveGot = this->associatedParticles(PFODetails::CaloCluster,theParticles);
-
-    if (false == haveGot) return NULL;
-    else{
-      if (index < theParticles.size()) {
-
-	const IParticle *theParticle = theParticles[index];
+    const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(PFODetails::CaloCluster);
+    if (!p_acc) return false;
+    else if (!p_acc->isAvailable(*this)) {return false;}
+    else {
+      const std::vector<ElementLink<IParticleContainer> >& theLinks = (*p_acc)(*this);
+      if(index<=theLinks.size()) {
+        const IParticle *theParticle = *theLinks[index];
 
 	if (NULL == theParticle) return NULL;
-	else if (Type::CaloCluster == theParticle->type()) return dynamic_cast<const CaloCluster*>(theParticle);
-	else return NULL; 
+	else if (Type::CaloCluster == theParticle->type()) return static_cast<const CaloCluster*>(theParticle);
+        else return NULL;
       }
       else return NULL;
     }
-
 
   }
 
   const TrackParticle* PFO_v1::track(unsigned int index) const {
 
-    std::vector<const IParticle*> theParticles;
-    bool haveGot = this->associatedParticles(PFODetails::Track,theParticles);
-
-    if (false == haveGot) return NULL;
-    else{
-      if (index < theParticles.size()) {
-
-        const IParticle *theParticle = theParticles[index];
+    const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(PFODetails::Track);
+    if (!p_acc) return false;
+    else if (!p_acc->isAvailable(*this)) {return false;}
+    else {
+      const std::vector<ElementLink<IParticleContainer> >& theLinks = (*p_acc)(*this);
+      if(index<=theLinks.size()) {
+        const IParticle *theParticle = *theLinks[index];
 
 	if (NULL == theParticle) return NULL;
-	else if (Type::TrackParticle == theParticle->type()) return dynamic_cast<const TrackParticle*>(theParticle);
+	else if (Type::TrackParticle == theParticle->type()) return static_cast<const TrackParticle*>(theParticle);
         else return NULL;
       }
       else return NULL;
@@ -658,11 +715,9 @@ namespace xAOD {
     //if you added your own consituents the links will not be correctly persistified
 
     //clusters
-    PFOParticleTypeMapper_v1 typeMapper;
-    std::string particleTypeName = "";
-    bool result = typeMapper.getValue(PFODetails::CaloCluster, particleTypeName);
-    if (true == result){
-      Accessor<std::vector<ElementLink<IParticleContainer > > > accClusters(particleTypeName);
+    const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_accClusters = PFOParticleTypeMapper_temp::getAccessor(PFODetails::CaloCluster);
+    if (p_accClusters){
+      const Accessor<std::vector<ElementLink<IParticleContainer > > >& accClusters = *p_accClusters;
       if ( accClusters.isAvailableWritable(*this) ){
 	std::vector<ElementLink<IParticleContainer> >& theClusterLinks = accClusters(*this);
 	std::vector< ElementLink< IParticleContainer > >::iterator  firstClus = theClusterLinks.begin();
@@ -672,9 +727,9 @@ namespace xAOD {
     }
     
     //tracks
-    result = typeMapper.getValue(PFODetails::Track, particleTypeName);
-    if (true == result){
-      Accessor<std::vector<ElementLink<IParticleContainer > > > accTracks(particleTypeName);
+    const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_accTracks = PFOParticleTypeMapper_temp::getAccessor(PFODetails::Track);
+    if (p_accTracks){
+      const Accessor<std::vector<ElementLink<IParticleContainer > > >& accTracks = *p_accTracks;
       if ( accTracks.isAvailableWritable(*this) ){
 	std::vector<ElementLink<IParticleContainer> >& theTrackLinks = accTracks(*this);
 	std::vector< ElementLink< IParticleContainer > >::iterator  firstTrack = theTrackLinks.begin();
@@ -685,9 +740,9 @@ namespace xAOD {
     }
 
     //shots    
-    result = typeMapper.getValue(PFODetails::TauShot, particleTypeName);
-    if (true == result){
-      Accessor<std::vector<ElementLink<IParticleContainer > > > accShots(particleTypeName);
+    const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_accShots = PFOParticleTypeMapper_temp::getAccessor(PFODetails::TauShot);
+    if (p_accShots){
+      const Accessor<std::vector<ElementLink<IParticleContainer > > >& accShots = *p_accShots;
       if ( accShots.isAvailableWritable(*this) ){
 	std::vector<ElementLink<IParticleContainer> >& theShotLinks = accShots(*this);
 	std::vector< ElementLink< IParticleContainer > >::iterator  firstShot = theShotLinks.begin();
@@ -695,7 +750,6 @@ namespace xAOD {
 	for (; firstShot != lastShot; ++firstShot) firstShot->toPersistent();
       }
     }
-
 
   }
   
