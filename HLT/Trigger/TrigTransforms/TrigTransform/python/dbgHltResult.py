@@ -99,7 +99,7 @@ def print_ranges(l):
 
 def print_chain(counter, s):
   ch = cppyy.makeClass('HLT::Chain')(s)
-  #ch.deserialize(s)
+  ch.deserialize(s)
   print ".... chain %-3d Counter:%-4d Passed: %d (Raw:%d Prescaled: %d PassThrough:%d) Rerun: %d LastStep: %d Err: %s"\
         % ( counter, ch.getChainCounter(), ch.chainPassed(), ch.chainPassedRaw(), ch.isPrescaled(), ch.isPassedThrough(),\
             ch.isResurrected(), ch.getChainStep(), ch.getErrorCode().str())
