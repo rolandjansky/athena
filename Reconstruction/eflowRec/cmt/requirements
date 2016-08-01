@@ -13,7 +13,6 @@ use AthContainers       AthContainers-*         Control
 
 use CaloIdentifier      CaloIdentifier-*        Calorimeter
 use CaloRec             CaloRec-*               Calorimeter
-use CaloClusterCorrection CaloClusterCorrection-* Calorimeter
 use CaloEvent           CaloEvent-*             Calorimeter
 
 use Particle		Particle-*		Reconstruction
@@ -45,7 +44,6 @@ use TrkCaloExtension	TrkCaloExtension-*	Tracking/TrkEvent
 use TrkParametersIdentificationHelpers	TrkParametersIdentificationHelpers-* Tracking/TrkEvent
 
 use CaloDetDescr   	CaloDetDescr-*   	Calorimeter
-use CaloInterface       CaloInterface-*         Calorimeter
 use CaloUtils           CaloUtils-*             Calorimeter
 
 use FourMomUtils        FourMomUtils-*          Event

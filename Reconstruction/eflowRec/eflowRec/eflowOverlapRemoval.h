@@ -16,7 +16,7 @@ Created: 10 October 2013
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODEgamma/EgammaContainer.h"
 //Athena
-#include "eflowRec/eflowBaseAlg.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -25,7 +25,7 @@ class StoreGateSvc;
 //C++
 #include <string>
 
-class eflowOverlapRemoval : public eflowBaseAlg {
+class eflowOverlapRemoval : public AthAlgorithm {
   
  public:
 

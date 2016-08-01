@@ -20,8 +20,6 @@ PURPOSE:  Loop over tracks and clusters to build calo objects, then
 
 #include "eflowRec/eflowBuilder.h"
 
-#include "eflowRec/eflowBaseAlg.h"
-
 // INCLUDE GAUDI HEADER FILES:
  
 #include "GaudiKernel/MsgStream.h"
@@ -87,7 +85,7 @@ StatusCode eflowBuilder::initialize()
   } 
   else
   {
-    m_eflowPreparationAlg = dynamic_cast<eflowBaseAlg*>(pAlg);
+    m_eflowPreparationAlg = dynamic_cast<AthAlgorithm*>(pAlg);
   }
   
   //////////////////////////////////////////////////////////////////
@@ -105,7 +103,7 @@ StatusCode eflowBuilder::initialize()
   } 
   else
   {
-    m_eflowObjectBuilderAlg = dynamic_cast<eflowBaseAlg*>(pAlg);
+    m_eflowObjectBuilderAlg = dynamic_cast<AthAlgorithm*>(pAlg);
   }
 
   //////////////////////////////////////////////////////////////////
@@ -122,7 +120,7 @@ StatusCode eflowBuilder::initialize()
   } 
   else
   {
-    m_eflowQuantitiesAlg = dynamic_cast<eflowBaseAlg*>(pAlg);
+    m_eflowQuantitiesAlg = dynamic_cast<AthAlgorithm*>(pAlg);
   }
 
 /////////////////////////////////////////////////////////////////

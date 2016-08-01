@@ -9,8 +9,6 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
-#include "CaloRec/CaloClusterMomentsMaker.h"
-#include "CaloClusterCorrection/CaloClusterLocalCalib.h"
 #include "CaloRec/CaloClusterProcessor.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -120,12 +118,12 @@ void eflowLCCalibTool::applyLocalWeight(eflowRecCluster* theEFRecClusters) {
 
   /* Iterate over cells of old cluster and replicate them with energy weighted by -1 if negative and add it to the new cluster */
   const std::map<IdentifierHash, double> weightMap = theEFRecClusters->getCellsWeight();
-  const CaloCell_ID* m_calo_id = CaloDetDescrManager::instance()->getCaloCell_ID();
+  const CaloCell_ID* calo_id = CaloDetDescrManager::instance()->getCaloCell_ID();
   xAOD::CaloCluster::cell_iterator cellIter = theCluster->cell_begin();
 
   for (int cellIndex = 0; cellIter != theCluster->cell_end(); cellIter++) {
     const CaloCell* pCell = *cellIter;
-    IdentifierHash myHashId = m_calo_id->calo_cell_hash(pCell->ID());
+    IdentifierHash myHashId = calo_id->calo_cell_hash(pCell->ID());
     double weight = weightMap.find(myHashId)->second;
     theCluster->reweightCell(cellIter, weight);
     cellIndex++;

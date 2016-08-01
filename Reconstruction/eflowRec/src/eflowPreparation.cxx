@@ -27,7 +27,6 @@ CREATED:  8th November, 2001
 #include "eflowRec/PFTrackClusterMatchingTool.h"
 
 #include "eflowRec/eflowCaloObject.h"
-#include "eflowRec/eflowBaseAlg.h"
 #include "eflowRec/eflowTrackExtrapolatorBaseAlgTool.h"
 
 #include "CaloEvent/CaloClusterContainer.h"
@@ -58,7 +57,7 @@ CREATED:  8th November, 2001
 //  CONSTRUCTOR:
     
 eflowPreparation::eflowPreparation(const std::string& name, ISvcLocator* pSvcLocator):
-  eflowBaseAlg(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_tracksName("InDetTrackParticles"),
   m_eflowCaloObjectsOutputName("eflowCaloObjects01"),
   m_caloObjectContainer(0),
@@ -232,7 +231,7 @@ void eflowPreparation::retrieveLCCalCellWeight(double energy, unsigned index, st
   /* match CaloCluster with CaloCalCluster to obtain cell weight */
   /* first try the position at 'index'. If we are lucky, the loop can be avoided. */
   const xAOD::CaloCluster* matchedCalCluster = CaloCalClusterContainer->at(index);
-  if (!fabs(energy - matchedCalCluster->rawE()) < 0.001) {
+  if (!(fabs(energy - matchedCalCluster->rawE()) < 0.001)) {
     matchedCalCluster = 0;
     for (unsigned iCalCalCluster = 0; iCalCalCluster < CaloCalClusterContainer->size();
         ++iCalCalCluster) {
@@ -245,14 +244,14 @@ void eflowPreparation::retrieveLCCalCellWeight(double energy, unsigned index, st
   assert (matchedCalCluster);
 
   /* obtain cell index and cell weight */
-  const CaloDetDescrManager*   m_calo_dd_man  = CaloDetDescrManager::instance();
-  const CaloCell_ID*               m_calo_id  = m_calo_dd_man->getCaloCell_ID();
+  const CaloDetDescrManager*   calo_dd_man  = CaloDetDescrManager::instance();
+  const CaloCell_ID*               calo_id  = calo_dd_man->getCaloCell_ID();
   xAOD::CaloCluster::const_cell_iterator itCell = matchedCalCluster->cell_begin();
   xAOD::CaloCluster::const_cell_iterator endCell = matchedCalCluster->cell_end();
   for (; itCell != endCell; ++itCell) {
     const CaloCell* pCell = *itCell;
     Identifier myId = pCell->ID();
-    IdentifierHash myHashId = m_calo_id->calo_cell_hash(myId);
+    IdentifierHash myHashId = calo_id->calo_cell_hash(myId);
     cellsWeight[myHashId] = itCell.weight();
   }
 
