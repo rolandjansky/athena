@@ -38,47 +38,47 @@ namespace Trk{
 //uploading the corresponding tools
 //updator 
   if ( m_Updator.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_Updator << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_Updator << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_Updator << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_Updator << endmsg;
   }
   
 //smoother
   if(m_doSmoothing)
   {
     if ( m_Smoother.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_Smoother << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_Smoother << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_Smoother << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_Smoother << endmsg;
     }
-  } else msg(MSG::DEBUG) << "Smoothing turned off" << endreq;
+  } else msg(MSG::DEBUG) << "Smoothing turned off" << endmsg;
 
 //Linearized Track Factory 
   if ( m_LinTrkFactory.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_LinTrkFactory << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_LinTrkFactory << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_LinTrkFactory << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_LinTrkFactory << endmsg;
   }
   
 //XAOD Converter  
   if ( m_xaodConverter.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_xaodConverter << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_xaodConverter << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_xaodConverter << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_xaodConverter << endmsg;
   }
   
-  msg(MSG::INFO)<<"Initialization successfull"<<endreq;
+  msg(MSG::INFO)<<"Initialization successfull"<<endmsg;
   return StatusCode::SUCCESS;
  }//end of initialize method
 
 
  StatusCode SequentialVertexFitter::finalize()
  {
-  msg(MSG::INFO)  << "Finalize successful" << endreq;
+  msg(MSG::INFO)  << "Finalize successful" << endmsg;
   return StatusCode::SUCCESS;
  }
 
@@ -132,7 +132,7 @@ namespace Trk{
     xAOD::Vertex constraint;
     constraint.makePrivateStore();
     constraint.setPosition( startingPoint );
-    constraint.setCovariancePosition( AmgSymMatrix(3)(3,3) );
+    constraint.setCovariancePosition( AmgSymMatrix(3)::Zero(3,3) );
     constraint.setFitQuality( 0.,0.);
     return fit(vectorTrk, constraint);
   }   
@@ -143,7 +143,7 @@ namespace Trk{
   {
     if(vectorTrk.size() == 0)
     {
-     msg(MSG::INFO)<<"Empty vector of tracks passed"<<endreq;
+     msg(MSG::INFO)<<"Empty vector of tracks passed"<<endmsg;
      return 0;
     }
    
@@ -172,7 +172,7 @@ namespace Trk{
         trkToFit.push_back(*i);
         measuredPerigees.push_back(tmpMeasPer);
       } else  {
-        msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endreq; //TODO: Failed to implicit cast the perigee parameters to track parameters?
+        msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endmsg; //TODO: Failed to implicit cast the perigee parameters to track parameters?
       }
     }
 
@@ -216,7 +216,7 @@ namespace Trk{
    xAOD::Vertex constraint;
    constraint.makePrivateStore();
    constraint.setPosition( startingPoint );
-   constraint.setCovariancePosition( AmgSymMatrix(3)(3,3) );
+   constraint.setCovariancePosition( AmgSymMatrix(3)::Zero(3,3) );
    constraint.setFitQuality( 0.,0.);
    return fit(vectorTrk, constraint);
   }   
@@ -227,7 +227,7 @@ namespace Trk{
   {
     if(vectorTrk.size() == 0)
     {
-     msg(MSG::INFO)<<"Empty vector of tracks passed"<<endreq;
+     msg(MSG::INFO)<<"Empty vector of tracks passed"<<endmsg;
      return 0;
     }
 
@@ -256,7 +256,7 @@ namespace Trk{
         trkToFit.push_back(*i);
         measuredPerigees.push_back(tmpMeasPer);
       } else  {
-        msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endreq; //TODO: Failed to implicit cast the perigee parameters to track parameters?
+        msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endmsg; //TODO: Failed to implicit cast the perigee parameters to track parameters?
       }
     }
 
@@ -303,7 +303,7 @@ namespace Trk{
     xAOD::Vertex constraint;
     constraint.makePrivateStore();
     constraint.setPosition( startingPoint );
-    constraint.setCovariancePosition( AmgSymMatrix(3)(3,3) );
+    constraint.setCovariancePosition( AmgSymMatrix(3)::Zero(3,3) );
     constraint.setFitQuality( 0.,0.);
     xAOD::Vertex * FittedVertex  = fit(perigeeList, neutralPerigeeList, constraint);
    
@@ -355,7 +355,7 @@ namespace Trk{
     xAOD::Vertex constraint;
     constraint.makePrivateStore();
     constraint.setPosition( start_point );
-    constraint.setCovariancePosition( AmgSymMatrix(3)(3,3) );
+    constraint.setCovariancePosition( AmgSymMatrix(3)::Zero(3,3) );
     constraint.setFitQuality( 0.,0.);
     return fit(vectorTrk, constraint);
   }
@@ -369,7 +369,7 @@ namespace Trk{
     //security check
     if( perigeeList.size() == 0 )
     {
-      msg() << "Empty vector of tracks passed, returning 0" << endreq;
+      msg() << "Empty vector of tracks passed, returning 0" << endmsg;
       return 0;
     }
 
@@ -499,7 +499,7 @@ namespace Trk{
                 || ( m_useLooseConvergence == false && fabs((newChi2-previousChi2)*2./(newChi2+previousChi2+2.)) > m_maxDeltaChi2 ) ) );
 
     if (n_iter==m_maxStep) msg(MSG::DEBUG) << " Fit didn't converge after " << m_maxStep << " steps. Deltachi2: " <<
-                                           fabs((newChi2-previousChi2)*2./(newChi2+previousChi2+2.)) << " DeltaR " << (previousPosition - newPosition).perp() << endreq;
+                                           fabs((newChi2-previousChi2)*2./(newChi2+previousChi2+2.)) << " DeltaR " << (previousPosition - newPosition).perp() << endmsg;
 
     /*
     if (n_iter!=m_maxStep)
@@ -527,7 +527,7 @@ namespace Trk{
     //FIT FAILED
     if (n_iter==m_maxStep)
     {
-      msg(MSG::DEBUG) << " Fit failed. " << endreq;
+      msg(MSG::DEBUG) << " Fit failed. " << endmsg;
       delete returnVertex;
       returnVertex=0;
       return 0;
@@ -538,7 +538,7 @@ namespace Trk{
     {
       if(m_doSmoothing)m_Smoother->smooth(*returnVertex);
       //std::cout << " after smoothing: " << *returnVertex << std::endl; //TODO: operator << not defined for xAOD::Vertex
-    } else msg(MSG::INFO)<<"Sequential vertex fit fails:: zero pointer returned"<<endreq;
+    } else msg(MSG::INFO)<<"Sequential vertex fit fails:: zero pointer returned"<<endmsg;
 
     //here the vertex is returned. It is foreseen that a vertex is _always_
     //returned (initial guess in worst case) unless there is a runtime crash
@@ -598,7 +598,7 @@ namespace Trk{
         // Added the following line during EDM Migration
         delete vTrack; //TODO: is this ok? 
       } else {
-        msg(MSG::WARNING) << "Cannot linearize tracks; treatment of neutrals not yet supported" << endreq;
+        msg(MSG::WARNING) << "Cannot linearize tracks; treatment of neutrals not yet supported" << endmsg;
       }
     }//end of loop over all the perigee states
 
@@ -624,7 +624,7 @@ namespace Trk{
         // Added the following line during EDM Migration
         delete vTrack; //TODO: is this ok?
       } else {
-        msg(MSG::WARNING) << "Cannot linearize tracks; treatment of neutrals not yet supported" << endreq;
+        msg(MSG::WARNING) << "Cannot linearize tracks; treatment of neutrals not yet supported" << endmsg;
       }
     }//end of loop over all the neutral perigee states
 
@@ -638,7 +638,7 @@ namespace Trk{
    Amg::Vector3D linVertexPos = vrt;
    if ( linVertexPos.perp() > m_maxR || fabs(linVertexPos.z()) > m_maxZ )
    {
-     msg(MSG::DEBUG) << " Linearization position outside ID. Setting back to (0,0,0) " << endreq;
+     msg(MSG::DEBUG) << " Linearization position outside ID. Setting back to (0,0,0) " << endmsg;
      linVertexPos.x()=0;
      linVertexPos.y()=0;
      linVertexPos.z()=0;
@@ -671,13 +671,13 @@ namespace Trk{
 
    if(vectorTrk.size() == 0)
    {
-     msg(MSG::INFO)<<"Empty vector of tracks passed"<<endreq;
+     msg(MSG::INFO)<<"Empty vector of tracks passed"<<endmsg;
      return 0;
    }
 
    if(vectorNeut.size() == 0)
    {
-     msg(MSG::INFO)<<"Empty vector of neutrals passed"<<endreq;
+     msg(MSG::INFO)<<"Empty vector of neutrals passed"<<endmsg;
    }
    
    //making a list of perigee out of the vector of tracks
@@ -706,7 +706,7 @@ namespace Trk{
        trkToFit.push_back(*i);
        measuredPerigees.push_back(tmpMeasPer);
      } else {
-       msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endreq; //TODO: Failed to implicit cast the perigee parameters to track parameters?
+       msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endmsg; //TODO: Failed to implicit cast the perigee parameters to track parameters?
      }
    }
 
@@ -732,7 +732,7 @@ namespace Trk{
        neutToFit.push_back(*i);
        measuredNeutralPerigees.push_back(tmpMeasPer);
      } else {
-       msg(MSG::INFO)<<"Failed to dynamic_cast this neutral parameters to perigee"<<endreq; //TODO: Failed to implicit cast the perigee parameters to neutral parameters?
+       msg(MSG::INFO)<<"Failed to dynamic_cast this neutral parameters to perigee"<<endmsg; //TODO: Failed to implicit cast the perigee parameters to neutral parameters?
      }
    }
 
@@ -756,10 +756,10 @@ namespace Trk{
            {
              if( ! linkTT->toIndexedElement( *cont, trkToFit[ i ]->index() ) )
       	     {
-	       msg(MSG::WARNING)<<"Failed to set the EL for this particle correctly"<<endreq;
+	       msg(MSG::WARNING)<<"Failed to set the EL for this particle correctly"<<endmsg;
 	     }
            } else{
-             msg(MSG::WARNING)<<"Failed to identify a  container for this TP"<<endreq;
+             msg(MSG::WARNING)<<"Failed to identify a  container for this TP"<<endmsg;
            }//end of the dynamic cast check 
 
 
@@ -775,10 +775,10 @@ namespace Trk{
            {
              if( ! linkTT->toIndexedElement( *cont, neutToFit[ i ]->index() ) )
              {
-               msg(MSG::WARNING)<<"Failed to set the EL for this particle correctly"<<endreq;
+               msg(MSG::WARNING)<<"Failed to set the EL for this particle correctly"<<endmsg;
              }
            } else{
-             msg(MSG::WARNING)<<"Failed to identify a  container for this NP"<<endreq;
+             msg(MSG::WARNING)<<"Failed to identify a  container for this NP"<<endmsg;
            }//end of the dynamic cast check 
 
            // vxtrackatvertex takes ownership!

@@ -68,57 +68,57 @@ namespace Trk
   {
     
     if ( m_LinearizedTrackFactory.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_LinearizedTrackFactory << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_LinearizedTrackFactory << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_LinearizedTrackFactory << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_LinearizedTrackFactory << endmsg;
     }
 
     if ( m_TrackCompatibilityEstimator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_TrackCompatibilityEstimator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_TrackCompatibilityEstimator << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_TrackCompatibilityEstimator << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_TrackCompatibilityEstimator << endmsg;
     }
     
     if ( m_ImpactPoint3dEstimator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_ImpactPoint3dEstimator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_ImpactPoint3dEstimator << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_ImpactPoint3dEstimator << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_ImpactPoint3dEstimator << endmsg;
     }
    
     if ( m_VertexUpdator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexUpdator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexUpdator << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_VertexUpdator << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_VertexUpdator << endmsg;
     }
    
     //loading smoother in case required   
     if(m_doSmoothing) {
       if ( m_VertexSmoother.retrieve().isFailure() ) {
-        msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexSmoother << endreq;
+        msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexSmoother << endmsg;
         return StatusCode::FAILURE;
       } else {
-        msg(MSG::INFO) << "Retrieved tool " << m_VertexSmoother << endreq;
+        msg(MSG::INFO) << "Retrieved tool " << m_VertexSmoother << endmsg;
       }
     }//end of smoothing options
    
     if ( m_AnnealingMaker.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_AnnealingMaker << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_AnnealingMaker << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_AnnealingMaker << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_AnnealingMaker << endmsg;
     }
    
-    msg(MSG::INFO)  << "Initialize successful" << endreq;
+    msg(MSG::INFO)  << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
   
   StatusCode AdaptiveMultiVertexFitter::finalize()
   {
-    msg(MSG::INFO)  << "Finalize successful" << endreq;
+    msg(MSG::INFO)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -132,7 +132,7 @@ namespace Trk
     xAOD::Vertex::Decorator< bool > isInitialized("isInitialized");
     xAOD::Vertex::Decorator< std::vector<Trk::VxTrackAtVertex*> > VTAV("VTAV");
  
-    msg(MSG::DEBUG) << " Now fitting all vertices " << endreq;
+    msg(MSG::DEBUG) << " Now fitting all vertices " << endmsg;
  
     std::vector<xAOD::Vertex*>::iterator vtxbegin=allvertexes.begin();
     std::vector<xAOD::Vertex*>::iterator vtxend=allvertexes.end();
@@ -183,13 +183,13 @@ namespace Trk
 	  std::cout << "Candidate has no position so far: using as old position the seedVertex" << std::endl;
           #endif
 	  if (MvfFitInfo( *(*iter) )->seedVertex()==0) { // TODO: Is there a way of checking whether a decoration exists on an object?
-	    msg(MSG::ERROR) << "Candidate has no seed...CRASHING now!!!" << endreq;
+	    msg(MSG::ERROR) << "Candidate has no seed...CRASHING now!!!" << endmsg;
 	  }
 	  oldpositions[*iter] = *(MvfFitInfo( *(*iter) )->seedVertex());
 	  //	(*iter)->recVertex()=new RecVertex(*((*iter)->constraintVertex)); // TODO: outdated, but already previously commented out
 	}
 	if (MvfFitInfo( *(*iter) )->linearizationVertex()==0) { // TODO: Is there a way of checking whether a decoration exists on an object?
-	  msg(MSG::ERROR) << " Candidate has no linearization point...CRASHING now!!! "<<endreq;
+	  msg(MSG::ERROR) << " Candidate has no linearization point...CRASHING now!!! "<<endmsg;
 	}
 	//std::cout << "linearization (z) position is: " << MvfFitInfo( *(*iter) ).linearizationVertex()->z() << std::endl;
 	if ((oldpositions[*iter] - *MvfFitInfo( *(*iter) )->linearizationVertex()).perp()>m_maxDistToLinPoint) {
@@ -232,8 +232,8 @@ namespace Trk
           /*
 	  if (dynamic_cast<Trk::MVFVxTrackAtVertex*>(*trkiter)==0) {
 	    msg(MSG::ERROR) << "You provided wrong VxTrackAtVertex objects to the adaptive multi vertex fitter " << 
-	      endreq << "They should be MVFVxTrackAtVertex objects, check the finder please" << endreq <<
-	      "------>>>>>>>>>>>>>>    NO FIT done" << endreq;
+	      endmsg << "They should be MVFVxTrackAtVertex objects, check the finder please" << endmsg <<
+	      "------>>>>>>>>>>>>>>    NO FIT done" << endmsg;
 	    return;
 	  }
           */
@@ -246,7 +246,7 @@ namespace Trk
             bool success=m_ImpactPoint3dEstimator->addIP3dAtaPlane( **trkiter, *MvfFitInfo( *(*iter) )->linearizationVertex() );
             if (!success)
             {
-              msg(MSG::WARNING) << "Adding compatibility to vertex information failed. Newton distance finder didn't converge..." << endreq;
+              msg(MSG::WARNING) << "Adding compatibility to vertex information failed. Newton distance finder didn't converge..." << endmsg;
             }
           }
 
@@ -278,7 +278,7 @@ namespace Trk
         std::vector<Trk::VxTrackAtVertex*>::iterator trkbegin = VTAV( *(*iter) ).begin();
         std::vector<Trk::VxTrackAtVertex*>::iterator trkend = VTAV( *(*iter) ).end();
 	
-	msg(MSG::VERBOSE) << "Beginning lin&update of vertex with pointer: " << *iter << endreq;
+	msg(MSG::VERBOSE) << "Beginning lin&update of vertex with pointer: " << *iter << endmsg;
         #ifdef MULTIFITTER_DEBUG
 	std::cout << "Beginning lin&update of vertex with pointer: " << *iter << std::endl;
         #endif
@@ -313,16 +313,16 @@ namespace Trk
 	      std::cout << "first linearization of the track" << std::endl;
               #endif
 	      //linearization never done so far: do it now!
-	      msg(MSG::VERBOSE) << "Linearizing track for the first time" << endreq;
+	      msg(MSG::VERBOSE) << "Linearizing track for the first time" << endmsg;
 	      m_LinearizedTrackFactory->linearize(**trkiter,oldpositions[*iter]);
 	      
 	    } else if (relinearizations[*iter]==true) {
-	      msg(MSG::VERBOSE) << "Relinearizing track " << endreq;
+	      msg(MSG::VERBOSE) << "Relinearizing track " << endmsg;
 	      m_LinearizedTrackFactory->linearize(**trkiter,oldpositions[*iter]);
               MvfFitInfo( *(*iter) )->setLinearizationVertex( new Amg::Vector3D(oldpositions[*iter]) );
 	    }
 	    //now you can proceed with the update
-	    msg(MSG::VERBOSE) << "Update vertex with new track " << endreq;
+	    msg(MSG::VERBOSE) << "Update vertex with new track " << endmsg;
             #ifdef MULTIFITTER_DEBUG
 	    std::cout << "Update of the track " << *trkiter << " to the vertex " << *iter << std::endl;
             #endif
@@ -339,7 +339,7 @@ namespace Trk
             //(*trkiter)->setTrackQuality( tracksOfVertex->end()->trackQuality() );
 
 	  } else {
-	    msg(MSG::VERBOSE) << "Weight lower than " << m_minweight << ", so the track will not be considered in this turn" << endreq;
+	    msg(MSG::VERBOSE) << "Weight lower than " << m_minweight << ", so the track will not be considered in this turn" << endmsg;
             #ifdef MULTIFITTER_DEBUG
             std::cout << "Weight lower than " << m_minweight << ", so the track will not be considered in this turn" << std::endl; // TODO: get rid of this
             #endif
@@ -352,7 +352,7 @@ namespace Trk
 	//show some info about the position
 	msg(MSG::DEBUG) << "Vertex pointer " << *iter << 
 	  " New position x: " << (*iter)->position().x() << " y: " << (*iter)->position().y()
-	    << " z: " << (*iter)->position().z() << endreq;
+	    << " z: " << (*iter)->position().z() << endmsg;
       } //iterator on vertexes
       
       //call now one more step of annealing
@@ -396,10 +396,10 @@ namespace Trk
 
     if (num_steps>=m_maxIterations)
     {
-      msg(MSG::WARNING) << "Didn't converge fully after " << num_steps << endreq;
+      msg(MSG::WARNING) << "Didn't converge fully after " << num_steps << endmsg;
     }
     
-    msg(MSG::VERBOSE) << "In principle the big multivertex fit step is finished now..." << endreq;
+    msg(MSG::VERBOSE) << "In principle the big multivertex fit step is finished now..." << endmsg;
 
     // TODO: get rid of this line
     //std::cout << "In principle the big multivertex fit step is finished now..." << std::endl;
@@ -407,7 +407,7 @@ namespace Trk
     // TODO: I don't think that I need to fiddle with updating MVFVxTracksAtVertex - vector of VxTrackAtVertex should be available in the usual way now and be enough
     // TODO: maybe try commenting this out
     if(m_doSmoothing) {
-      msg(MSG::VERBOSE) << "Now SMOOTHING!" << endreq;
+      msg(MSG::VERBOSE) << "Now SMOOTHING!" << endmsg;
       for (std::vector<xAOD::Vertex*>::iterator iter=vtxbegin;iter!=vtxend;++iter) {   
 	m_VertexSmoother->smooth(**iter);
       }
@@ -465,7 +465,7 @@ namespace Trk
   {
 
  
-    msg(MSG::VERBOSE) << " Now entered addVtxTofit " << endreq;
+    msg(MSG::VERBOSE) << " Now entered addVtxTofit " << endmsg;
 
     // TODO: put this in a better place
     // Prepare objects holding the decoration of xAOD::Vertex with MVF auxdata
@@ -473,14 +473,14 @@ namespace Trk
     xAOD::Vertex::Decorator< std::vector<Trk::VxTrackAtVertex*> > VTAV("VTAV");
 
     if (VTAV( *newvertex ).size()==0) {
-      msg(MSG::ERROR) << "The candidate you're adding has no tracks: please fix the problem" << endreq;
+      msg(MSG::ERROR) << "The candidate you're adding has no tracks: please fix the problem" << endmsg;
     }
 
     std::vector<xAOD::Vertex*> allvertexestofit;
 
     prepareCompatibility(newvertex);
 
-    msg(MSG::VERBOSE) << " Finished prepareCompatibility " << endreq;
+    msg(MSG::VERBOSE) << " Finished prepareCompatibility " << endmsg;
 
     #ifdef MULTIFITTER_DEBUG
     std::cout << "Finished to prepare compatibility" << std::endl;
@@ -492,7 +492,7 @@ namespace Trk
     std::vector<xAOD::Vertex*>::iterator vtxbeginIter;
     std::vector<xAOD::Vertex*>::iterator vtxendIter;
 
-    msg(MSG::VERBOSE) << "Iterating on tracks" << endreq;
+    msg(MSG::VERBOSE) << "Iterating on tracks" << endmsg;
     #ifdef MULTIFITTER_DEBUG
     std::cout << "Starting to iterate on tracks" << std::endl;
     #endif
@@ -528,7 +528,7 @@ namespace Trk
             #ifdef MULTIFITTER_DEBUG
             std::cout << "One vertex" << std::endl;
             #endif
-            msg(MSG::VERBOSE) << "Iterating on vertices" << endreq;
+            msg(MSG::VERBOSE) << "Iterating on vertices" << endmsg;
             //add the vertex if it's still not there
             if (findAmongVertexes(*vtxiter,allvertexestofit)==false) {
               allvertexestofit.push_back(*vtxiter);
@@ -536,7 +536,7 @@ namespace Trk
               {
                 addedVerticesNewIteration.push_back(*vtxiter);
               }
-              msg(MSG::VERBOSE) << "adding a vertex to the fit " << endreq;
+              msg(MSG::VERBOSE) << "adding a vertex to the fit " << endmsg;
               #ifdef MULTIFITTER_DEBUG
               std::cout << "Adding one vertex to the fit" << std::endl;
               #endif
@@ -552,7 +552,7 @@ namespace Trk
     } while (addedVerticesLastIteration.size()>0);
     
     
-    msg(MSG::VERBOSE) << "now fitting everything together" << endreq;
+    msg(MSG::VERBOSE) << "now fitting everything together" << endmsg;
     #ifdef MULTIFITTER_DEBUG
     std::cout << "now fitting everything together " << std::endl;
     #endif
@@ -563,7 +563,7 @@ namespace Trk
 
   void AdaptiveMultiVertexFitter::prepareCompatibility(xAOD::Vertex* newvertex) {
     
-    msg(MSG::VERBOSE) << "Entered prepareCompatibility() " << endreq;
+    msg(MSG::VERBOSE) << "Entered prepareCompatibility() " << endmsg;
 
     // TODO: put this in a better place
     // Prepare objects holding the decoration of xAOD::Vertex with MVF auxdata
@@ -576,7 +576,7 @@ namespace Trk
     std::vector<Trk::VxTrackAtVertex*>::iterator begin = VTAV(*newvertex).begin();
     std::vector<Trk::VxTrackAtVertex*>::iterator end = VTAV(*newvertex).end();
     
-    msg(MSG::VERBOSE) << "Now adding compatibility info to the track" << endreq;
+    msg(MSG::VERBOSE) << "Now adding compatibility info to the track" << endmsg;
     #ifdef MULTIFITTER_DEBUG
     std::cout <<  "Now adding compatibility info to the tracks" << std::endl;                                                 
     #endif
@@ -587,7 +587,7 @@ namespace Trk
       bool success=m_ImpactPoint3dEstimator->addIP3dAtaPlane( **iter, *seedPoint );
        if (!success)
        {
-         msg(MSG::WARNING) << "Adding compatibility to vertex information failed. Newton distance finder didn't converge..." << endreq;
+         msg(MSG::WARNING) << "Adding compatibility to vertex information failed. Newton distance finder didn't converge..." << endmsg;
        }
     }
   }

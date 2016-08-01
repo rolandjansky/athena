@@ -31,16 +31,16 @@ namespace Trk
    sc = toolSvc()->retrieveTool(m_extrapolatorName, m_extrapolatorInstance, m_extrapolator);
    if (sc.isFailure())
    {
-    msg(MSG::FATAL)<<"Could not find extrapolator tool." << endreq;
+    msg(MSG::FATAL)<<"Could not find extrapolator tool." << endmsg;
     return sc;
    }   
-   msg(MSG::INFO)  << "Initialize successful" << endreq;
+   msg(MSG::INFO)  << "Initialize successful" << endmsg;
    return StatusCode::SUCCESS;
   }
 
   StatusCode DummyVertexSmoother::finalize() 
   {
-    msg(MSG::INFO)  << "Initialize successful" << endreq;
+    msg(MSG::INFO)  << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -80,10 +80,10 @@ namespace Trk
             {
               (*t_it).setPerigeeAtVertex(const_cast<Trk::TrackParameters*>(extrapolatedPerigee));
             } else {
-              msg(MSG::ERROR)  << " Extrapolation failed; VxTrackAtertex will not be updated" << endreq;
+              msg(MSG::ERROR)  << " Extrapolation failed; VxTrackAtertex will not be updated" << endmsg;
             }//end of successfull extrapolation check
           } else {
-            msg(MSG::WARNING) << " The VxTrackAtVertex passed has no initial Parameters? This track will not be refitted" << endreq;
+            msg(MSG::WARNING) << " The VxTrackAtVertex passed has no initial Parameters? This track will not be refitted" << endmsg;
           }//end of initial parameters protection check
 
           /*     
@@ -105,7 +105,7 @@ namespace Trk
 	      (*t_it)->setPerigeeAtVertex(const_cast<Trk::TrackParameters*>(extrapolatedPerigee));
 	    }else{
 	      MsgStream msg(msgSvc(), name());
-              msg(MSG::ERROR)  << " Extrapolation failed; VxTrackAtertex will not be updated" << endreq;
+              msg(MSG::ERROR)  << " Extrapolation failed; VxTrackAtertex will not be updated" << endmsg;
 	    }//end of successfull extrapolation check	
           }else{
        
@@ -120,24 +120,24 @@ namespace Trk
 	        (*t_it)->setPerigeeAtVertex(const_cast<Trk::MeasuredPerigee*>(extrapolatedPerigee));
 	      }else{
 	        MsgStream msg(msgSvc(), name());
-                msg(MSG::ERROR)  << " Extrapolation failed; VxTrackAtertex will not be updated" << endreq;
+                msg(MSG::ERROR)  << " Extrapolation failed; VxTrackAtertex will not be updated" << endmsg;
 	      }//end of non-zero extrapolated perigee check
 	    }else{
 	      MsgStream msg(msgSvc(), name());
-              msg(MSG::ERROR)  << " The VxTrackAtVertex passed has no LinearizedTrack neither Initial perigee???" << endreq;
+              msg(MSG::ERROR)  << " The VxTrackAtVertex passed has no LinearizedTrack neither Initial perigee???" << endmsg;
 	    }//end of non-zero initial perigee check 
           }//end of non zero linearized state check
           */
 
         }//end of loop over all fitted tracks
       } else {
-        msg(MSG::ERROR)  << "xAOD::Vertex with empty vector of tracks is passed to the Vertex Smoother" << endreq;
-        msg(MSG::ERROR)  << "No action taken; Input xAOD::Vertex stays unchanged " << endreq;
+        msg(MSG::ERROR)  << "xAOD::Vertex with empty vector of tracks is passed to the Vertex Smoother" << endmsg;
+        msg(MSG::ERROR)  << "No action taken; Input xAOD::Vertex stays unchanged " << endmsg;
       }//end of empty vector check
 
     } else {
-      msg(MSG::ERROR)  << "Vertex to be smoothed has no vxTrackAtVertices available!" << endreq;
-      msg(MSG::ERROR)  << "No action taken; Initial xAOD::Vertex returned." << endreq;
+      msg(MSG::ERROR)  << "Vertex to be smoothed has no vxTrackAtVertices available!" << endmsg;
+      msg(MSG::ERROR)  << "No action taken; Initial xAOD::Vertex returned." << endmsg;
     }//end of protection check whether vxTrackAtVertices are attached to the object
   }//end of smooth method
   
