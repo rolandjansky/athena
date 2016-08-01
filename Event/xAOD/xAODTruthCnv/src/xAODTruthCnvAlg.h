@@ -6,9 +6,23 @@
 #define XAODCREATORALGS_XAODTRUTHCNVALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GeneratorObjects/xAODTruthParticleLink.h"
+#define private public
+#   include "GeneratorObjects/McEventCollection.h"
+#undef private
 
-#include "xAODTruth/TruthEvent.h"
-#include "xAODTruth/TruthPileupEvent.h"
+#include "xAODTruth/TruthMetaDataContainer.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "xAODTruth/TruthEventContainer.h"
+#include "xAODTruth/TruthEventAuxContainer.h"
+#include "xAODTruth/TruthPileupEventContainer.h"
+#include "xAODTruth/TruthPileupEventAuxContainer.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthParticleAuxContainer.h"
+#include "xAODTruth/TruthVertexContainer.h"
+#include "xAODTruth/TruthVertexAuxContainer.h"
+
+#include <unordered_set>
 
 namespace HepMC {
   class GenVertex;
@@ -54,17 +68,49 @@ namespace xAODMaker {
     static void fillParticle(xAOD::TruthParticle *tp, const HepMC::GenParticle *gp);
 
     /// The key of the input AOD truth container
-    std::string m_aodContainerName;
+//    std::string m_aodContainerName;
+    SG::ReadHandle<McEventCollection> m_mcColl;
+
 
     /// The key for the output xAOD truth containers
-    std::string m_xaodTruthEventContainerName;
-    std::string m_xaodTruthPUEventContainerName;
-    std::string m_xaodTruthParticleContainerName;
-    std::string m_xaodTruthVertexContainerName;
-    std::string m_truthLinkContainerName;
+//    std::string m_xaodTruthEventContainerName;
+    //SG::ReadHandle<xAOD::TruthEventContainer> m_xTruthEventContainer;
+
+    SG::WriteHandle<xAOD::TruthEventContainer> m_xTruthEventContainer;
+    SG::WriteHandle<xAOD::TruthEventAuxContainer> m_xTruthEventContainerAux;
+    
+    
+//    std::string m_xaodTruthPUEventContainerName;
+    
+    SG::WriteHandle<xAOD::TruthPileupEventContainer> m_xTruthPileupEventContainer;
+    SG::WriteHandle<xAOD::TruthPileupEventAuxContainer> m_xTruthPileupEventAuxContainer;
+    
+//    std::string m_xaodTruthParticleContainerName;
+    SG::WriteHandle<xAOD::TruthParticleContainer> m_xTruthParticleContainer;
+    SG::WriteHandle<xAOD::TruthParticleAuxContainer> m_xTruthParticleAuxContainer;
+    
+//    std::string m_xaodTruthVertexContainerName;
+    
+    SG::WriteHandle<xAOD::TruthVertexContainer> m_xTruthVertexContainer;
+    SG::WriteHandle<xAOD::TruthVertexAuxContainer> m_xTruthVertexContainerAUX;
+    
+//    std::string m_truthLinkContainerName;
+    
+    SG::WriteHandle<xAODTruthParticleLinkVector> m_truthLinkVec;
+    
     /// Pile-up options
     bool m_doAllPileUp;
     bool m_doInTimePileUp;
+
+    /// Connection to the metadata store
+    ServiceHandle< StoreGateSvc > m_metaStore;
+    ServiceHandle<StoreGateSvc> inputMetaStore;
+    /// The meta data container to be written out
+    xAOD::TruthMetaDataContainer* m_tmd;
+    /// SG key and name for meta data
+    std::string m_metaName;
+    /// Set for tracking the mc channels for which we already added meta data 
+    std::unordered_set<uint32_t> m_existingMetaDataChan;
 
     /// a flag to force rerunning (useful for rerunning on ESDs)
     bool m_forceRerun;

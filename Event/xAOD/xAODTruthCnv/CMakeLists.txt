@@ -11,6 +11,8 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaKernel
                           Control/DataModel
                           Control/StoreGate
+                          Event/EventInfo
+                          Control/CxxUtils
                           Event/xAOD/xAODTruth
                           GaudiKernel
                           Generators/GeneratorObjects )
@@ -23,7 +25,7 @@ atlas_add_component( xAODTruthCnv
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel DataModel StoreGateLib SGtests xAODTruth GaudiKernel GeneratorObjects )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel DataModel StoreGateLib SGtests EventInfo xAODEventInfo xAODTruth GaudiKernel GeneratorObjects )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
