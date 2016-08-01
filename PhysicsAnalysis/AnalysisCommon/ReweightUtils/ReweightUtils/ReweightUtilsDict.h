@@ -10,6 +10,7 @@
 
 // Include all tool headers here
 #include "../ReweightUtils/McEventWeight.h"
+#include "../ReweightUtils/PDFWeight.h"
 #include "../ReweightUtils/WeightsAgregator.h"
 
 #endif //> !REWEIGHTUTILS_H
