@@ -109,23 +109,28 @@ class PhysValMET
 
   // Hists
   // TODO: use map (each one for met, set, mpx, ...)
-  TH1D *m_Resolution_TruthNonInt_RefFinal_METx, *m_Resolution_TruthNonInt_RefFinal_METy;
+  TH1D *m_Resolution_TruthNonInt_RebLC_METx, *m_Resolution_TruthNonInt_RebLC_METy, *m_Resolution_TruthNonInt_RebEM_METx, *m_Resolution_TruthNonInt_RebEM_METy, *m_Resolution_TruthNonInt_RebEMPFlow_METx, *m_Resolution_TruthNonInt_RebEMPFlow_METy;
   TH1D *m_MET_Track, *m_MET_Track_x, *m_MET_Track_y, *m_MET_Track_phi, *m_MET_Track_sum;
   TH1D *m_MET_PVTrack_Nominal, *m_MET_PVTrack_Nominal_x, *m_MET_PVTrack_Nominal_y, *m_MET_PVTrack_Nominal_phi, *m_MET_PVTrack_Nominal_sum;
   TH1D *m_MET_PVTrack_Pileup, *m_MET_PVTrack_Pileup_x, *m_MET_PVTrack_Pileup_y, *m_MET_PVTrack_Pileup_phi, *m_MET_PVTrack_Pileup_sum;
   TH1D *m_dPhi_leadJetMET, *m_dPhi_subleadJetMET, *m_dPhi_LepMET;
-  TH1D *m_MET_significance;
+  TH1D *m_MET_significance_RebLC, *m_MET_significance_RebEM, *m_MET_significance_RebEMPFlow;
 
-  std::vector<TH1D*> m_MET_RefFinal;
-  std::vector<TH1D*> m_MET_RefFinal_x;
-  std::vector<TH1D*> m_MET_RefFinal_y;
-  std::vector<TH1D*> m_MET_RefFinal_phi;
-  std::vector<TH1D*> m_MET_RefFinal_sum;
-  std::vector<TH1D*> m_MET_EM;
-  std::vector<TH1D*> m_MET_EM_x;
-  std::vector<TH1D*> m_MET_EM_y;
-  std::vector<TH1D*> m_MET_EM_phi;
-  std::vector<TH1D*> m_MET_EM_sum;
+  std::vector<TH1D*> m_MET_RefLC;
+  std::vector<TH1D*> m_MET_RefLC_x;
+  std::vector<TH1D*> m_MET_RefLC_y;
+  std::vector<TH1D*> m_MET_RefLC_phi;
+  std::vector<TH1D*> m_MET_RefLC_sum;
+  std::vector<TH1D*> m_MET_RefEM;
+  std::vector<TH1D*> m_MET_RefEM_x;
+  std::vector<TH1D*> m_MET_RefEM_y;
+  std::vector<TH1D*> m_MET_RefEM_phi;
+  std::vector<TH1D*> m_MET_RefEM_sum;
+  std::vector<TH1D*> m_MET_RefEMPFlow;
+  std::vector<TH1D*> m_MET_RefEMPFlow_x;
+  std::vector<TH1D*> m_MET_RefEMPFlow_y;
+  std::vector<TH1D*> m_MET_RefEMPFlow_phi;
+  std::vector<TH1D*> m_MET_RefEMPFlow_sum;
   std::vector<TH1D*> m_MET_RebLC;
   std::vector<TH1D*> m_MET_RebLC_x;
   std::vector<TH1D*> m_MET_RebLC_y;
@@ -136,6 +141,11 @@ class PhysValMET
   std::vector<TH1D*> m_MET_RebEM_y;
   std::vector<TH1D*> m_MET_RebEM_phi;
   std::vector<TH1D*> m_MET_RebEM_sum;
+  std::vector<TH1D*> m_MET_RebEMPFlow;
+  std::vector<TH1D*> m_MET_RebEMPFlow_x;
+  std::vector<TH1D*> m_MET_RebEMPFlow_y;
+  std::vector<TH1D*> m_MET_RebEMPFlow_phi;
+  std::vector<TH1D*> m_MET_RebEMPFlow_sum;
   std::vector<TH1D*> m_MET_DiffRef;
   std::vector<TH1D*> m_MET_DiffRef_x;
   std::vector<TH1D*> m_MET_DiffRef_y;
@@ -146,6 +156,13 @@ class PhysValMET
   std::vector<TH1D*> m_MET_DiffReb_y;
   std::vector<TH1D*> m_MET_DiffReb_phi;
   std::vector<TH1D*> m_MET_DiffReb_sum;
+  std::vector<TH2D*> m_MET_LC_CorrFinalTrk;
+  std::vector<TH2D*> m_MET_EM_CorrFinalTrk;
+  std::vector<TH2D*> m_MET_EMPFlow_CorrFinalTrk;
+  std::vector<TH2D*> m_MET_LC_CorrFinalClus;
+  std::vector<TH2D*> m_MET_EM_CorrFinalClus;
+  std::vector<TH2D*> m_MET_EMPFlow_CorrFinalClus;
+  std::vector<TH1D*> m_MET_Cumu;
   std::vector<std::string> dir_met;
 
   ToolHandle<CP::IMuonSelectionTool> m_muonSelTool;
