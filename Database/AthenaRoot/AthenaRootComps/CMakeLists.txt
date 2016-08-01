@@ -23,9 +23,12 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/APR/StorageSvc
                           Database/AthenaRoot/AthenaRootKernel
                           Database/PersistentDataModel
+                          Database/AthenaPOOL/PoolSvc
                           Event/EventInfo
+			  Event/xAOD/xAODEventInfo
                           GaudiKernel
-                          TestPolicy )
+                          TestPolicy 
+			  Control/xAODRootAccess)
 
 # External dependencies:
 find_package( ROOT COMPONENTS RIO Core Graf Tree MathCore Hist pthread )
@@ -35,11 +38,12 @@ atlas_add_component( AthenaRootComps
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} SGTools AthenaBaseComps AthenaKernel CxxUtils DataModelRoot RootUtils RootUtilsPyROOT StoreGateLib SGtests CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc AthenaRootKernel PersistentDataModel EventInfo GaudiKernel )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} SGTools AthenaBaseComps AthenaKernel CxxUtils DataModelRoot RootUtils RootUtilsPyROOT StoreGateLib SGtests CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc AthenaRootKernel PersistentDataModel EventInfo GaudiKernel xAODRootAccess xAODEventInfo)
 
 # Install files from the package:
 atlas_install_headers( AthenaRootComps )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/tests/*.py )
 atlas_install_scripts( test/*.sh test/ref.* )
+
 
