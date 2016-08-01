@@ -32,8 +32,8 @@ public:
 private:
 
   /// The keys for the input xAOD truth containers
-  std::string m_hepMCContainerName;
-
+  SG::ReadHandle<McEventCollection> m_mcColl;
+  
   void printEvent(const HepMC::GenEvent*);
   void printVertex(const HepMC::GenVertex*);
   void printParticle(const HepMC::GenParticle*);

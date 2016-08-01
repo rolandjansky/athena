@@ -16,16 +16,17 @@
 using namespace std;
 
 HepMCTruthReader::HepMCTruthReader(const string& name, ISvcLocator* svcLoc)
-  : AthAlgorithm(name, svcLoc)
+  : AthAlgorithm(name, svcLoc),
+  m_mcColl("GEN_EVENT")
 {
   /// @todo Provide these names centrally in a Python module and remove these hard-coded versions?
-  declareProperty( "HepMCContainerName", m_hepMCContainerName="GEN_EVENT" );
+  declareProperty( "HepMCContainerName", m_mcColl );
 }
 
 
 StatusCode HepMCTruthReader::initialize() {
   ATH_MSG_INFO("Initializing; package version = " << PACKAGE_VERSION );
-  ATH_MSG_INFO("HepMC container name = " << m_hepMCContainerName );
+  ATH_MSG_INFO("HepMC container name = " << m_mcColl.name() );
   return StatusCode::SUCCESS;
 }
 
@@ -33,13 +34,15 @@ StatusCode HepMCTruthReader::initialize() {
 StatusCode HepMCTruthReader::execute() {
 
   // Retrieve the HepMC truth:
-  const McEventCollection* mcColl = 0;
-  CHECK( evtStore()->retrieve( mcColl, m_hepMCContainerName ) );
-  ATH_MSG_INFO("Number of pile-up events in this Athena event: " << mcColl->size()-1);
+  if(!m_mcColl.isValid()){
+      ATH_MSG_INFO("Failed to get " << m_mcColl.name());
+      return StatusCode::FAILURE;
+  }
+  ATH_MSG_INFO("Number of pile-up events in this Athena event: " << m_mcColl->size()-1);
 
   // Loop over events
-  for (unsigned int cntr = 0; cntr < mcColl->size(); ++cntr) {
-    const HepMC::GenEvent* genEvt = (*mcColl)[cntr]; 
+  for (unsigned int cntr = 0; cntr < m_mcColl->size(); ++cntr) {
+    const HepMC::GenEvent* genEvt = (*m_mcColl)[cntr]; 
 
     // Print PDF info if found
     /*xAOD::TruthEvent::PdfInfo pdfi = evt->pdfInfo();
