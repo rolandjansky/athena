@@ -300,7 +300,7 @@ StatusCode HepMCAnalysis::finalize()
   
   StatusCode sc = Algorithm::finalize();
   if (sc.isFailure()) {
-    msg(MSG::INFO) << "Error in finalizing of HepMCAnalysis_i" << endreq;
+    msg(MSG::INFO) << "Error in finalizing of HepMCAnalysis_i" << endmsg;
     return sc;
     //return StatusCode::FAILURE;
   }
