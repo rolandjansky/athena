@@ -9,28 +9,24 @@ atlas_subdir( VrtSecInclusive )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/StoreGate
+                          Event/xAOD/xAODTracking
+                          Event/xAOD/xAODTruth
                           GaudiKernel
                           Generators/GeneratorObjects
-                          Reconstruction/Particle
-                          Reconstruction/ParticleTruth
                           Reconstruction/RecoTools/ITrackToVertex
+                          Tracking/TrkDetDescr/TrkDetDescrInterfaces
                           Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkEventUtils
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkParticleBase
-                          Tracking/TrkEvent/TrkTrack
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkTools/TrkToolInterfaces
                           Tracking/TrkVertexFitter/TrkVKalVrtFitter
                           Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
                           PRIVATE
                           Event/xAOD/xAODEventInfo
-                          PhysicsAnalysis/TruthParticleID/McParticleEvent
+                          Tracking/TrkEvent/TrkTrackSummary
                           Tracking/TrkEvent/VxVertex )
 
 # External dependencies:
 find_package( BLAS )
-find_package( HepMC )
 find_package( LAPACK )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
@@ -39,14 +35,13 @@ atlas_add_library( VrtSecInclusiveLib
                    src/*.cxx
                    PUBLIC_HEADERS VrtSecInclusive
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${LAPACK_INCLUDE_DIRS} ${BLAS_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} AthenaBaseComps GaudiKernel GeneratorObjects Particle ParticleTruth ITrackToVertex TrkSurfaces TrkEventUtils TrkParameters TrkParticleBase TrkTrack TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces StoreGateLib SGtests TrkVKalVrtFitterLib
-                   PRIVATE_LINK_LIBRARIES ${HEPMC_LIBRARIES} xAODEventInfo McParticleEvent VxVertex )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} AthenaBaseComps xAODTracking xAODTruth GaudiKernel GeneratorObjects ITrackToVertex TrkDetDescrInterfaces TrkSurfaces TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces StoreGateLib SGtests TrkVKalVrtFitterLib
+                   PRIVATE_LINK_LIBRARIES xAODEventInfo TrkTrackSummary VxVertex )
 
 atlas_add_component( VrtSecInclusive
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${LAPACK_INCLUDE_DIRS} ${BLAS_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GaudiKernel GeneratorObjects Particle ParticleTruth ITrackToVertex TrkSurfaces TrkEventUtils TrkParameters TrkParticleBase TrkTrack TrkExInterfaces TrkToolInterfaces TrkVKalVrtFitterLib TrkVertexFitterInterfaces xAODEventInfo McParticleEvent VxVertex VrtSecInclusiveLib )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${LAPACK_INCLUDE_DIRS} ${BLAS_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} AthenaBaseComps StoreGateLib SGtests xAODTracking xAODTruth GaudiKernel GeneratorObjects ITrackToVertex TrkDetDescrInterfaces TrkSurfaces TrkExInterfaces TrkToolInterfaces TrkVKalVrtFitterLib TrkVertexFitterInterfaces xAODEventInfo TrkTrackSummary VxVertex VrtSecInclusiveLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
