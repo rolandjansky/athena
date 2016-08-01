@@ -148,7 +148,8 @@ private:
   bool m_sctAnalogStripClustering; //!< not being done in ATLAS: analog strip clustering
   int m_sctErrorStrategy;         //!< error strategy for the  ClusterMaker
   bool m_sctRotateEC;
-
+ 
+  bool m_mergeCluster; //!< enable the merging of neighbour SCT clusters >  
   double m_sctMinimalPathCut;        //!< the 1. model parameter: minimal 3D path in strip
 
   Amg::Vector3D stepToStripBorder(const InDetDD::SiDetectorElement& sidetel,
