@@ -28,7 +28,8 @@ def get_photon_collection(tree):
     return collection
 
 
-def xAOD_particle_generator(tree, collection_getter, event_numbers=None,
+def xAOD_particle_generator(tree, collection_getter, newevent_function=None, endevent_function=None,
+                            event_numbers=None,
                             min_pt=None, min_abseta=None, max_abseta=None):
     if event_numbers is None:
         event_numbers = []
@@ -43,6 +44,8 @@ def xAOD_particle_generator(tree, collection_getter, event_numbers=None,
             if not event_number in event_numbers:
                 continue
         logging.debug("=== event number %d ievent = %d", event_number, ievent)
+        if newevent_function is not None:
+            newevent_function()
 
         collection = collection_getter(tree)
 
@@ -56,6 +59,9 @@ def xAOD_particle_generator(tree, collection_getter, event_numbers=None,
                 continue
             yield p
 
+        if endevent_function is not None:
+            endevent_function()
+
 
 xAOD_photon_generator = partial(xAOD_particle_generator, collection_getter=get_photon_collection)
 xAOD_electron_generator = partial(xAOD_particle_generator, collection_getter=get_electron_collection)
@@ -64,7 +70,7 @@ xAOD_electron_generator = partial(xAOD_particle_generator, collection_getter=get
 def main(filename, **args):
     logging.debug("initializing xAOD")
     if (not ROOT.xAOD.Init().isSuccess()):
-        raise IOErrror("Failed xAOD.Init()")
+        raise IOError("Failed xAOD.Init()")
 
 
     tree = None
@@ -95,6 +101,8 @@ def main(filename, **args):
         tool.setProperty("int")("doSmearing", 0).ignore()
     if args['debug']:
         tool.msg().setLevel(0)
+    if args['use_afii'] is not None:
+        tool.setProperty("bool")("useAFII", bool(args['use_afii'])).ignore()
 
     tool.initialize()
 
@@ -104,7 +112,19 @@ def main(filename, **args):
     tree_out = ROOT.TNtuple(args["tree_name"], args["tree_name"], "eventNumber:eta:phi:true_e:pdgId:e:xAOD_e:raw_e:raw_ps")
 
     logging.debug("looping on electron container")
-    generator = xAOD_photon_generator(tree, min_pt=args['min_pt'],
+
+    def newevent_function():
+        logging.debug("executing new event function")
+        tool.beginInputFile()
+        tool.beginEvent()
+
+    def endevent_function():
+        logging.debug("executing end event function")
+        tool.endInputFile()
+
+    generator = xAOD_photon_generator(tree, newevent_function = newevent_function,
+                                      endevent_function = endevent_function,
+                                      min_pt=args['min_pt'],
                                       min_abseta=args['min_abseta'], max_abseta=args['max_abseta'],
                                       event_numbers=args['event_number'])
 
@@ -145,7 +165,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Run on xAOD and dump calibrated energy for electron and photons',
                                      formatter_class=argparse.RawTextHelpFormatter,
-                                     epilog='example: ./run_xAOD_ElectronPhotonFourMomentumCorrection.py root://eosatlas.cern.ch//eos/atlas/user/t/turra/DAOD_EGAM1.04186716._000048.pool.root.1')
+                                     epilog='example: ./run_xAOD_ElectronPhotonFourMomentumCorrection.py root://eosatlas.cern.ch//eos/atlas/user/t/turra/Hgamgam_20.7/mc15_13TeV:AOD.07922786._000014.pool.root.1')
     parser.add_argument('filename', type=str, help='path to xAOD')
     parser.add_argument('--nparticles', type=int, help='number of particles')
     parser.add_argument('--tree-name', type=str, default='CollectionTree')
@@ -157,6 +177,7 @@ if __name__ == '__main__':
     parser.add_argument('--no-layer-correction', action='store_true', default=False)
     parser.add_argument('--no-smearing', action='store_true')
     parser.add_argument('--esmodel', default="es2015c_summer")
+    parser.add_argument('--use-afii', type=int)
 
     args = parser.parse_args()
     if args.debug:

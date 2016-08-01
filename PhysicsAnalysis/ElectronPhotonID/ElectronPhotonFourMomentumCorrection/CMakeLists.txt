@@ -47,7 +47,7 @@ atlas_add_dictionary( ElectronPhotonFourMomentumCorrectionDict
                       ElectronPhotonFourMomentumCorrection/ElectronPhotonFourMomentumCorrectionDict.h
                       ElectronPhotonFourMomentumCorrection/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma xAODEventInfo PATCoreLib PATInterfaces AthenaBaseComps xAODBase xAODCore xAODTracking GaudiKernel AthAnalysisBaseComps egammaLayerRecalibTool egammaMVACalibLib PathResolver ElectronPhotonFourMomentumCorrectionLib )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma xAODEventInfo PATCoreLib PATInterfaces AthenaBaseComps xAODBase xAODCore xAODTracking GaudiKernel AthAnalysisBaseCompsLib egammaLayerRecalibTool egammaMVACalibLib PathResolver ElectronPhotonFourMomentumCorrectionLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
