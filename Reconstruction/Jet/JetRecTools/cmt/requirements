@@ -13,7 +13,7 @@ private
 
 use AtlasFastJet            AtlasFastJet-*              External
 use AtlasFastJetContrib     AtlasFastJetContrib-*       External
-macro AtlasFastJetContrib_linkopts "-L$(AtlasFastJetContrib_lib) -lSoftKiller"
+macro AtlasFastJetContrib_linkopts "-L$(AtlasFastJetContrib_lib) -lSoftKiller -lConstituentSubtractor"
 
 public
 
