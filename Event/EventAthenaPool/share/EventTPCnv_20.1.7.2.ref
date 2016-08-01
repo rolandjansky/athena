@@ -1,0 +1,470 @@
+Mon Aug  1 16:44:49 CEST 2016
+Preloading tcmalloc_minimal.so
+Py:Athena            INFO including file "AthenaCommon/Preparation.py"
+Py:Athena            INFO using release [WorkDir-22.0.0] [x86_64-slc6-gcc49-dbg] [private/private] -- built on [2016-08-01 16:23]
+Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Warning in <TInterpreter::ReadRootmapFile>: class  UCharDbArray found in libStorageSvcDict.so  is already in libRootCnvDict.so 
+Py:Athena            INFO executing ROOT6Setup
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "EventAthenaPool/EventTPCnv_20.1.7.2_test.py"
+Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolTestDump.py"
+[?1034hPy:Athena            INFO including file "AthenaPoolUtilities/TPCnvTest.py"
+Py:ConfigurableDb    INFO Read module info for 419 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
+                                          running on lxplus058.cern.ch on Mon Aug  1 16:45:06 2016
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : AthenaServices
+ApplicationMgr       INFO Application Manager Configured successfully
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+StatusCodeSvc        INFO initialize
+AthDictLoaderSvc     INFO in initialize...
+AthDictLoaderSvc     INFO acquired Dso-registry
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-21
+ClassIDSvc           INFO  getRegistryEntries: read 2244 CLIDRegistry entries for module ALL
+ChronoStatSvc        INFO  Number of skipped events for MemStat-1
+CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
+CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-60-25
+AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
+AthAlgSeq            INFO Member list: PyAthena::Alg/dumper
+PyComponentMgr       INFO Initializing PyComponentMgr...
+dumper               INFO Initializing dumper...
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-01-60-25
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-28-25
+PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-25-03
+PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
+PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc              INFO Frontier compression level set to 5
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://aiatlas036.cern.ch:8000/atlr)(serverurl=http://aiatlas034.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli02.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca18.cern.ch:3128)(proxyurl=http://ca17.cern.ch:3128)(proxyurl=http://atlast0fsquid.cern.ch:3128)(proxyurl=http://atlassquid1.cern.ch:3128)(proxyurl=http://atlassquid2.cern.ch:3128)(proxyurl=http://atlassquid4.cern.ch:3128) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_1/InstallArea/x86_64-slc6-gcc49-dbg/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus058.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+PoolSvc              INFO Successfully setup replica sorting algorithm
+PoolSvc              INFO Re-initializing PoolSvc
+PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
+XMLFileCatalog Info Connecting to the catalog
+PoolXMLFileCatalog Info Xerces-c initialization Number 0
+PoolXMLFileCatalog Info File PoolFileCatalog.xml does not exist, a new one is created
+EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-19-16
+EventSelector        INFO reinitialization...
+EventSelector        INFO EventSelection with query 
+PoolSvc              INFO File is not in Catalog! Attempt to open it anyway.
+RootCollection Info Opening Collection File /afs/cern.ch/atlas/maxidisk/d33/referencefiles/esd/ESD-20.1.7.2.pool.root in mode: READ
+TClass::Init:0: RuntimeWarning: no dictionary for class TileTTL1Container_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TileTTL1_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TileL2Container_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TileL2_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class HepMcParticleLink_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class BCM_RDO_Container_p0 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class BCM_RDO_Collection_p0 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class BCM_RawData_p0 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrackRecordCollection_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrackRecord_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TileDigitsContainer_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TileDigits_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class InDet::PixelClusterContainer_p3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class InDet::SCT_ClusterContainer_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class CaloCompactCellContainer is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TileCellVec is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TileMuContainer_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class RoIBResult_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class SubSysResult_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class CTP_RDO_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class MuCTPI_RDO_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class McEventCollection_p5 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class JEMEtSumsCollection_tlp1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigConfKeys_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MuonSimDataCollection_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigDecisionAuxInfo_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::EnergySumRoI_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigInDetTrackTruthMap_tlp2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigNavigationAuxInfo_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigDecision_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::JetEtRoI_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TPCnv::MuonMeasurements_tlp2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::SegmentCollection_tlp3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::MissingETAuxAssociationMap_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class HLT::HLTResult_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class LArNoisyROSummary_p3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class InDet::Track_tlp2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class MuonCaloEnergyContainer_tlp1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::TrackCollection_tlp5 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::EventShapeAuxInfo_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class InDet::PixelGangedClusterAmbiguities_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigNavigation_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ComTime is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::MissingETAuxComponentMap_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::EventShape_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class RawInfoSummaryForTag_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::JetEtRoIAuxInfo_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::EnergySumRoIAuxInfo_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::CscPrepDataContainer_tlp1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class CombinedMuonFeatureContainer_p4 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::BTagVertexAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigRingerRingsAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TriggerTowerAuxContainer_v2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigSpacePointCountsAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigVertexCountsCollection_tlp1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigBphysAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::CPMTowerAuxContainer_v2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::CscSimDataCollection_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigRoiDescriptorCollection_p3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TruthParticleAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrackParticleClusterAssociationAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigEMClusterAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigCaloClusterAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::ElectronAuxContainer_v3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigTrackCountsCollection_tlp1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigSpacePointCountsCollection_p4 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::L2IsoMuonAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class InDet::TRT_DriftCircleContainer_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::JetElementAuxContainer_v2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class CaloClusterCellLinkContainer is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<CaloClusterCellLink> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigEFBjetContainer_tlp2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::MuonAuxContainer_v2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MuonPRD_Container_p2<Muon::MdtPrepData_p2> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::HIEventShape_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::SlowMuonAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::PRD_MultiTruthCollection_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::HIEventShapeAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigMuonEFInfoContainer_tlp2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigMuonEFIsolationContainer_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigCompositeAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::ByteStreamAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigElectronAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigT2MbtsBitsContainer_p3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::TgcCoinDataContainer_tlp3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MuonPRD_Container_p2<Muon::RpcCoinData_p1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class IsoMuonFeatureContainer_p3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class MuonFeatureContainer_p3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::L2CombinedMuonAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::L2StandAloneMuonAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrackParticleAuxContainer_v2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigPassFlagsCollection_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigEMClusterContainer_p4 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::PFOAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class MuonFeatureDetailsContainer_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::MissingETAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::TrackTruthCollection_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::CscStripPrepDataContainer_tlp1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::BTaggingAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::PhotonAuxContainer_v3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::EmTauRoIAuxContainer_v2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigTrackCountsAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MuonPRD_Container_p2<Muon::RpcPrepData_p3> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TruthVertexAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigT2MbtsBitsAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigRNNOutputAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigMissingETContainer_p3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TruthEventAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigMuonClusterFeatureContainer_tlp1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::JetTrigAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::JetRoIAuxContainer_v2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::DetailedTrackTruthCollection_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigMissingETAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::MuonRoIAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TileTrackMuFeatureContainer_p3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::JetAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TileMuFeatureContainer_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigVertexCollection_tlp2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigInDetTrackCollection_tlp4 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::CaloClusterAuxContainer_v2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigT2ZdcSignalsAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TauJetAuxContainer_v2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigPassBitsCollection_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigPhotonAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigVertexCountsAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::VertexAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class CosmicMuonCollection_tlp1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class MdtTrackSegmentCollection_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::MuonSegmentAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MuonPRD_Container_p2<Muon::TgcPrepData_p3> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class MuonCaloEnergyContainer_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<CaloClusterCellLinkContainer> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<DataVector<xAOD::CaloCluster_v1> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<DataVector<xAOD::TruthParticle_v1> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<DataVector<xAOD::Vertex_v1> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<DataVector<xAOD::BTagging_v1> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<DataVector<xAOD::Jet_v1> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<DataVector<Trk::Segment> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<DataVector<xAOD::MuonSegment_v1> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<DataVector<Trk::Track> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<DataVector<xAOD::TrackParticle_v1> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<DataVector<xAOD::TrigEMCluster_v1> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<DataVector<xAOD::Muon_v1> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class InDet::PixelClusterOnTrack_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class InDet::SCT_ClusterOnTrack_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class InDet::TRT_DriftCircleOnTrack_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class CaloEnergy_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::EnergyLoss_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::CscClusterOnTrack_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::RpcClusterOnTrack_p3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::TgcClusterOnTrack_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MdtDriftCircleOnTrack_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::CompetingMuonClustersOnTrack_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MuonSegment_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::LocalDirection_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MuonSegmentQuality_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class InDet::InDetPRD_Collection_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class InDet::PixelCluster_p3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class InDet::SiWidth_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::LocalPosition_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class InDet::SCT_Cluster_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TileMu_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class GenEvent_p5 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class GenVertex_p5 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class GenParticle_p5 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigMissingET_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class JEMEtSumsCollection_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class JEMEtSums_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::MissingETComponent_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class pair<unsigned int,Muon::MuonSimData_p1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MuonSimData_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class pair<HepMcParticleLink_p1,Muon::MuonMCData_p1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MuonMCData_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigInDetTrackTruthMap_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::SegmentCollection_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::Segment_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::Surface_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::FitQuality_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::LocalParameters_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::HepSymMatrix_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::PseudoMeasurementOnTrack_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::CompetingRIOsOnTrack_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<DataVector<xAOD::IParticle> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::TrackCollection_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::Track_p4 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::TrackStateOnSurface_p3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::TrackParameters_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::MaterialEffectsBase_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::MaterialEffectsOnTrack_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::MissingETAssociation_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<xAOD::MissingETContainer_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MuonPRD_Container_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MuonPRD_Collection_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::CscPrepData_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class IdentifierHash is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::PrepRawData_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class CombinedMuonFeature_p4 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::EmTauRoI_v2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::Electron_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::Egamma_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::IParticle is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigVertexCountsCollection_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::Vertex_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class pair<unsigned int,Muon::CscSimData_p1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::CscSimData_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class pair<HepMcParticleLink_p1,Muon::CscMcData_p1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::CscMcData_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigRoiDescriptor_p3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::MissingET_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::Photon_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigRNNOutput_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<DataVector<xAOD::TruthVertex_v1> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigTrackCountsCollection_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigElectron_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class InDet::TRT_DriftCircle_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::MuonSegment_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::JetRoI_v2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class CaloClusterCellLink is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataLink<CaloCellContainer> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigPhoton_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigEFBjetContainer_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigEFBjet_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class P4PtEtaPhiM_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MuonPRD_Collection_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MdtPrepData_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::BTagVertex_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::PRD_MultiTruthCollection_p2::Entry is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigMuonEFInfoContainer_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TriggerTower_v2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TauJet_v2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::PFO_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::Muon_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MuonCoinDataContainer_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::MuonCoinDataCollection_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::TgcCoinData_p3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::RpcCoinData_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TruthEvent_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TruthEventBase_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::L2CombinedMuon_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<DataVector<xAOD::L2StandAloneMuon_v1> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::CaloCluster_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::TrackTruthCollection_p1::Entry is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TruthParticle_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TruthVertex_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::CscStripPrepData_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::Jet_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrackParticleClusterAssociation_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::RpcPrepData_p3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::JetElement_v2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::BTagging_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigEMCluster_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigCaloCluster_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::CPMTower_v2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigMuonClusterFeatureContainer_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrackParticle_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::DetailedTrackTruthCollection_p2::Entry is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::TrackTruthKey_p0 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::DetailedTrackTruth_p2 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::SubDetHitStatistics_p0 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Trk::TruthTrajectory_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigVertexCollection_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigInDetTrackCollection_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TrigRingerRings_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::L2StandAloneMuon_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<DataVector<xAOD::PFO_v1> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class TrigPassBits_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::MuonRoI_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class CosmicMuonCollection_p1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class Muon::TgcPrepData_p3 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<DataVector<xAOD::BTagVertex_v1> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::CaloClusterBadChannelData_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<DataVector<xAOD::Electron_v1> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<DataVector<xAOD::Photon_v1> > is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::EventFormat_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::CutBookkeeperAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TriggerMenuAuxContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::TriggerMenu_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class ElementLink<xAOD::CutBookkeeperContainer_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::CutBookkeeper_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TrigBphys_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::Vertex_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::L2IsoMuon_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::Jet_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TrigTrackCounts_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::L2CombinedMuon_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::BTagging_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TrigElectron_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TrigSpacePointCounts_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::Electron_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::L2StandAloneMuon_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::BTagVertex_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::Muon_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TrigT2MbtsBits_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::MuonSegment_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TriggerMenu_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::CaloCluster_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TauJet_v2> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::JetRoI_v2> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::MuonRoI_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TrigT2ZdcSignals_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TrigMissingET_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::Photon_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TrigVertexCounts_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::SlowMuon_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TrigComposite_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TrigEMCluster_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TrackParticle_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::EmTauRoI_v2> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TrigPhoton_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::MissingETComponentMap_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::MissingETAssociationMap_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::MissingETContainer_v1 is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TrigRNNOutput_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TriggerTower_v2> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::PFO_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TruthEvent_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TruthParticle_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TruthVertex_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TrackParticleClusterAssociation_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::JetElement_v2> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::CPMTower_v2> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class DataVector<xAOD::TrigRingerRings_v1> is available
+TClass::Init:0: RuntimeWarning: no dictionary for class xAOD::CutBookkeeperContainer_v1 is available
+RootCollection Info File /afs/cern.ch/atlas/maxidisk/d33/referencefiles/esd/ESD-20.1.7.2.pool.root opened
+PoolSvc              INFO File is not in Catalog! Attempt to open it anyway.
+PoolSvc              INFO Failed to open container to check POOL collection - trying.
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 61EF9A6E-73FC-5F4B-F284-1F9FB2DD4FE6
+Domain[ROOT_All] Info                           /afs/cern.ch/atlas/maxidisk/d33/referencefiles/esd/ESD-20.1.7.2.pool.root
+RootDatabase.open Success /afs/cern.ch/atlas/maxidisk/d33/referencefiles/esd/ESD-20.1.7.2.pool.root File version:53425
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/esd/ESD-20.1.7.2.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 61EF9A6E-73FC-5F4B-F284-1F9FB2DD4FE6
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] B844C45F-3B55-3444-8A2D-5093FBECF354
+Domain[ROOT_All] Info                           /afs/cern.ch/atlas/maxidisk/d33/referencefiles/esd/ESD-20.1.7.2.pool.root
+RootDatabase.open Success /afs/cern.ch/atlas/maxidisk/d33/referencefiles/esd/ESD-20.1.7.2.pool.root File version:53425
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:/afs/cern.ch/atlas/maxidisk/d33/referencefiles/esd/ESD-20.1.7.2.pool.root"
+ImplicitCollection Info and a name "POOLContainer(DataHeader)"
+PoolSvc              INFO Failed to find container MetaDataHdrDataHeader to get Token.
+EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
+AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-19-16
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-10
+HistogramPersis...WARNING Histograms saving not required.
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-07-06
+ApplicationMgr       INFO Application Manager Initialized successfully
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/esd/ESD-20.1.7.2.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] B844C45F-3B55-3444-8A2D-5093FBECF354
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
+RootCollection Info Opening Collection File /afs/cern.ch/atlas/maxidisk/d33/referencefiles/esd/ESD-20.1.7.2.pool.root in mode: READ
+RootCollection Info File /afs/cern.ch/atlas/maxidisk/d33/referencefiles/esd/ESD-20.1.7.2.pool.root opened
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] B844C45F-3B55-3444-8A2D-5093FBECF354
+Domain[ROOT_All] Info                           /afs/cern.ch/atlas/maxidisk/d33/referencefiles/esd/ESD-20.1.7.2.pool.root
+RootDatabase.open Success /afs/cern.ch/atlas/maxidisk/d33/referencefiles/esd/ESD-20.1.7.2.pool.root File version:53425
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:/afs/cern.ch/atlas/maxidisk/d33/referencefiles/esd/ESD-20.1.7.2.pool.root"
+ImplicitCollection Info and a name "POOLContainer(DataHeader)"
+ApplicationMgr       INFO Application Manager Started successfully
+PoolSvc              INFO Failed to find container MetaDataHdrDataHeader to get Token.
+AthenaEventLoopMgr   INFO   ===>>>  start of run 189751    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #35002, run #189751 0 events processed so far  <<<===
+ClassIDSvc           INFO  getRegistryEntries: read 2299 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 5 CLIDRegistry entries for module ALL
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #35002, run #189751 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #35003, run #189751 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #35003, run #189751 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #35004, run #189751 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #35004, run #189751 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #35005, run #189751 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #35005, run #189751 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #35006, run #189751 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #35006, run #189751 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #35007, run #189751 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #35007, run #189751 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #35008, run #189751 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #35008, run #189751 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #35009, run #189751 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #35009, run #189751 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #35010, run #189751 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #35010, run #189751 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #35011, run #189751 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #35011, run #189751 10 events processed so far  <<<===
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/esd/ESD-20.1.7.2.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] B844C45F-3B55-3444-8A2D-5093FBECF354
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
+AthenaEventLoopMgr   INFO No more events in event selection 
+ApplicationMgr       INFO Application Manager Stopped successfully
+dumper               INFO Finalizing dumper...
+AthAlgSeq            INFO Finalizing AthAlgSeq...
+AthOutSeq            INFO Finalizing AthOutSeq...
+AthRegSeq            INFO Finalizing AthRegSeq...
+AthMasterSeq         INFO Finalizing AthMasterSeq...
+XMLFileCatalog Info Updating the catalog
+PoolXMLFileCatalog Info XercesC termination number 0
+PoolSvc              INFO I/O finalization...
+PyComponentMgr       INFO Finalizing PyComponentMgr...
+AthDictLoaderSvc     INFO in finalize...
+ToolSvc              INFO Removing all tools created by ToolSvc
+*****Chrono*****     INFO ****************************************************************************************************
+*****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
+*****Chrono*****     INFO ****************************************************************************************************
+AthenaSealSvc::...   INFO Time User   : Tot=   28 [ms]                                             #=  1
+ChronoStatSvc        INFO Time User   : Tot= 26.8  [s]                                             #=  1
+*****Chrono*****     INFO ****************************************************************************************************
+ChronoStatSvc.f...   INFO  Service finalized successfully 
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully
+Py:Athena            INFO leaving with code 0: "successful run"
+CORAL/Services/ConnectionService Info Deleting the ConnectionPool

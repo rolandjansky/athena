@@ -48,9 +48,9 @@ EventInfoCnv::EventInfoCnv(ISvcLocator* svcloc)
 }
 
 EventInfo_PERS* EventInfoCnv::createPersistent(EventInfo* transObj) {
-    MsgStream log(messageService(), "EventInfoCnv" ); 
+    MsgStream log(msgSvc(), "EventInfoCnv" ); 
     EventInfo_PERS *persObj = TPconverter_p4.createPersistent( transObj, log );
-    log << MSG::DEBUG << "EventInfo write Success" << endreq;
+    log << MSG::DEBUG << "EventInfo write Success" << endmsg;
     return persObj; 
 }
     
@@ -62,31 +62,31 @@ EventInfo* EventInfoCnv::createTransient() {
     static pool::Guid   p1_guid("A3053CD9-47F4-4C0F-B73A-A6F93F5CC7B7");
     static pool::Guid   p0_guid("380D8BB9-B34F-470F-92CC-06C3D60F7BE4");
     if( compareClassGuid(p4_guid) ) {
-        // using auto_ptr ensures deletion of the persistent object
-        std::auto_ptr< EventInfo_p4 > col_vect( poolReadObject< EventInfo_p4 >() );
-        MsgStream log(messageService(), "EventInfoCnv" );
-        //log << MSG::DEBUG << "Reading EventInfo_p4" << endreq; 
+        // using unique_ptr ensures deletion of the persistent object
+        std::unique_ptr< EventInfo_p4 > col_vect( poolReadObject< EventInfo_p4 >() );
+        MsgStream log(msgSvc(), "EventInfoCnv" );
+        //log << MSG::DEBUG << "Reading EventInfo_p4" << endmsg; 
         return massageEventInfo(TPconverter_p4.createTransient( col_vect.get(), log ));
     }
     else if( compareClassGuid(p3_guid) ) {
-        // using auto_ptr ensures deletion of the persistent object
-        std::auto_ptr< EventInfo_p3 > col_vect( poolReadObject< EventInfo_p3 >() );
-        MsgStream log(messageService(), "EventInfoCnv" );
-        //log << MSG::DEBUG << "Reading EventInfo_p3" << endreq; 
+        // using unique_ptr ensures deletion of the persistent object
+        std::unique_ptr< EventInfo_p3 > col_vect( poolReadObject< EventInfo_p3 >() );
+        MsgStream log(msgSvc(), "EventInfoCnv" );
+        //log << MSG::DEBUG << "Reading EventInfo_p3" << endmsg; 
         return massageEventInfo(TPconverter_p3.createTransient( col_vect.get(), log ));
     }
     else if( compareClassGuid(p2_guid) ) {
-        // using auto_ptr ensures deletion of the persistent object
-        std::auto_ptr< EventInfo_p2 > col_vect( poolReadObject< EventInfo_p2 >() );
-        MsgStream log(messageService(), "EventInfoCnv" );
-        // log << MSG::DEBUG << "ILIJA Reading EventInfo_p2" << endreq; 
+        // using unique_ptr ensures deletion of the persistent object
+        std::unique_ptr< EventInfo_p2 > col_vect( poolReadObject< EventInfo_p2 >() );
+        MsgStream log(msgSvc(), "EventInfoCnv" );
+        // log << MSG::DEBUG << "ILIJA Reading EventInfo_p2" << endmsg; 
         return massageEventInfo(TPconverter_p2.createTransient( col_vect.get(), log ));
     }
     else if( compareClassGuid(p1_guid) ) {
-        // using auto_ptr ensures deletion of the persistent object
-        std::auto_ptr< EventInfo_p1 > col_vect( poolReadObject< EventInfo_p1 >() );
-        MsgStream log(messageService(), "EventInfoCnv" );
-        //log << MSG::DEBUG << "Reading EventInfo_p1" << endreq; 
+        // using unique_ptr ensures deletion of the persistent object
+        std::unique_ptr< EventInfo_p1 > col_vect( poolReadObject< EventInfo_p1 >() );
+        MsgStream log(msgSvc(), "EventInfoCnv" );
+        //log << MSG::DEBUG << "Reading EventInfo_p1" << endmsg; 
         return massageEventInfo(TPconverter_p1.createTransient( col_vect.get(), log ));
     }
     else if( compareClassGuid(p0_guid) ) {
@@ -148,28 +148,28 @@ EventInfoCnv::massageEventInfo (EventInfo* ei)
     if (!m_checkedEventSelector) {
         // Get run number parameter from the EventSelector 
         m_checkedEventSelector = true;
-        MsgStream log(messageService(), "EventInfoCnv" );
-        log << MSG::DEBUG << "massageEventInfo: check if tag is set in jobOpts" << endreq;
+        MsgStream log(msgSvc(), "EventInfoCnv" );
+        log << MSG::DEBUG << "massageEventInfo: check if tag is set in jobOpts" << endmsg;
 
         // Get name of event selector from the application manager to
         // make sure we get the one for MC signal events
         IProperty* propertyServer(0); 
         StatusCode sc = serviceLocator()->service("ApplicationMgr", propertyServer); 
         if (sc != StatusCode::SUCCESS ) {
-            log << MSG::ERROR << "massageEventInfo: Cannot get ApplicationMgr " << endreq; 
+            log << MSG::ERROR << "massageEventInfo: Cannot get ApplicationMgr " << endmsg; 
             throw std::runtime_error("Cannot get ApplicationMgr");
         }
         StringProperty property("EvtSel", "");
         sc = propertyServer->getProperty(&property);
         if (!sc.isSuccess()) {
-            log << MSG::ERROR << "unable to get EvtSel: found " << property.value() << endreq;
+            log << MSG::ERROR << "unable to get EvtSel: found " << property.value() << endmsg;
             throw std::runtime_error("Cannot get property EvtSel from the ApplicationMgr");
         }
         // Get EventSelector for ApplicationMgr
         std::string eventSelector = property.value();
         sc = serviceLocator()->service(eventSelector, propertyServer); 
         if (sc != StatusCode::SUCCESS ) {
-            log << MSG::ERROR << "massageEventInfo: Cannot get EventSelector " << eventSelector << endreq; 
+            log << MSG::ERROR << "massageEventInfo: Cannot get EventSelector " << eventSelector << endmsg; 
             throw std::runtime_error("Cannot get EventSelector");
         }
         BooleanProperty overrideRunNumber = IntegerProperty("OverrideRunNumberFromInput", false);
@@ -186,62 +186,62 @@ EventInfoCnv::massageEventInfo (EventInfo* ei)
             if (!sc.isSuccess()) {
                 log << MSG::ERROR << "massageEventInfo: unable to get RunNumber from EventSelector: found " 
                     << runNumber.value()
-                    << endreq;
+                    << endmsg;
                 throw std::runtime_error("Cannot get RunNumber");
             }
             else {
                 m_simRunNumber = (unsigned int)runNumber.value();
                 log << MSG::DEBUG << "massageEventInfo: Run number:  " << m_simRunNumber 
-                    << " obtained from " << eventSelector << endreq;
+                    << " obtained from " << eventSelector << endmsg;
             }
             IntegerProperty lumiBlockNumber = IntegerProperty("FirstLB", 0);
             sc = propertyServer->getProperty(&lumiBlockNumber);
             if (!sc.isSuccess()) {
                 log << MSG::INFO << "massageEventInfo: unable to get FirstLB from EventSelector. Using "
-                    << m_lumiBlockNumber << endreq;
+                    << m_lumiBlockNumber << endmsg;
             }
             else {
                 m_lumiBlockNumber = (unsigned int)lumiBlockNumber.value();
                 log << MSG::DEBUG << "massageEventInfo: LumiBlock number:  " << m_lumiBlockNumber 
-                    << " obtained from " << eventSelector << endreq;
+                    << " obtained from " << eventSelector << endmsg;
             }
             IntegerProperty evtsPerLumiBlock = IntegerProperty("EventsPerLB", 0);
             sc = propertyServer->getProperty(&evtsPerLumiBlock);
             if (!sc.isSuccess()) {
                 log << MSG::INFO << "massageEventInfo: unable to get EventsPerLB from EventSelector. Using "
-                    << m_evtsPerLumiBlock << endreq;
+                    << m_evtsPerLumiBlock << endmsg;
             }
             else {
                 m_evtsPerLumiBlock = (unsigned int)evtsPerLumiBlock.value();
                 log << MSG::DEBUG << "massageEventInfo: EventsPerLB:  " << m_evtsPerLumiBlock 
-                    << " obtained from " << eventSelector << endreq;
+                    << " obtained from " << eventSelector << endmsg;
             }
             IntegerProperty timeStamp = IntegerProperty("InitialTimeStamp", 0);
             sc = propertyServer->getProperty(&timeStamp);
             if (!sc.isSuccess()) {
                 log << MSG::INFO << "massageEventInfo: unable to get InitialTimeStamp from EventSelector. Using "
-                    << m_timeStamp << endreq;
+                    << m_timeStamp << endmsg;
             }
             else {
                 m_timeStamp = (unsigned int)timeStamp.value();
                 log << MSG::DEBUG << "massageEventInfo: InitialTimeStamp:  " << m_timeStamp  
-                    << " obtained from " << eventSelector << endreq;
+                    << " obtained from " << eventSelector << endmsg;
             }
             IntegerProperty timeStampInterval = IntegerProperty("TimeStampInterval", 0);
             sc = propertyServer->getProperty(&timeStampInterval);
             if (!sc.isSuccess()) {
                 log << MSG::INFO << "massageEventInfo: unable to get TimeStampInterval from EventSelector. Using "
-                    << m_timeStampInterval << endreq;
+                    << m_timeStampInterval << endmsg;
             }
             else {
                 m_timeStampInterval = (unsigned int)timeStampInterval.value();
                 log << MSG::DEBUG << "massageEventInfo: TimeStampInterval:  " << m_timeStampInterval              
-                    << " obtained from " << eventSelector << endreq;
+                    << " obtained from " << eventSelector << endmsg;
             }
         }
         else {
             log << MSG::DEBUG << "massageEventInfo: OverrideRunNumberFromInput from EventSelector is false " 
-                << endreq;
+                << endmsg;
         }
     }
 
@@ -250,9 +250,9 @@ EventInfoCnv::massageEventInfo (EventInfo* ei)
 
         // First make sure we're dealing with simulation events - if not, this is an error
         if (!(ei->event_type()->test(EventType::IS_SIMULATION))) {
-            MsgStream log(messageService(), "EventInfoCnv" );
-            log << MSG::ERROR << "massageEventInfo: trying to reset run number for data!!! " << endreq;
-            log << MSG::ERROR << "    Job option EventSelector.RunNumber should NOT be set, found it set to: " << m_simRunNumber << endreq;
+            MsgStream log(msgSvc(), "EventInfoCnv" );
+            log << MSG::ERROR << "massageEventInfo: trying to reset run number for data!!! " << endmsg;
+            log << MSG::ERROR << "    Job option EventSelector.RunNumber should NOT be set, found it set to: " << m_simRunNumber << endmsg;
             throw std::runtime_error("Trying to reset run number for DATA!!!");
         }
 
