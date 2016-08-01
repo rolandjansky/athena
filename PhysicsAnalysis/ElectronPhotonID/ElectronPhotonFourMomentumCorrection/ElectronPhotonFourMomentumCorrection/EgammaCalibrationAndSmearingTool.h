@@ -76,11 +76,13 @@ class EgammaCalibrationAndSmearingTool : virtual public IEgammaCalibrationAndSme
 
 public:
 
+	enum class ScaleDecorrelation {FULL, ONENP, FULL_ETA_CORRELATED, ONENP_PLUS_UNCONR};
+	enum class ResolutionDecorrelation {FULL, ONENP};
   static const int AUTO = 2;  // this is used as a third state for boolean propertis (true/false/automatic)
   typedef unsigned int RandomNumber;
   typedef std::function<int(const EgammaCalibrationAndSmearingTool&, const xAOD::Egamma&, const xAOD::EventInfo&)> IdFunction;
   typedef std::function<bool(const xAOD::Egamma&)> EgammaPredicate;
-  
+
   EgammaCalibrationAndSmearingTool(const std::string& name);
   ~EgammaCalibrationAndSmearingTool();
 
@@ -121,6 +123,10 @@ private:
   bool m_metadata_retrieved = false;
   std::string m_ESModel;
   std::string m_decorrelation_model_name;
+	std::string m_decorrelation_model_scale_name;
+	std::string m_decorrelation_model_resolution_name;
+	ScaleDecorrelation m_decorrelation_model_scale;
+	ResolutionDecorrelation m_decorrelation_model_resolution;
   egEnergyCorr::ESModel m_TESModel;
   int m_doScaleCorrection;
   int m_doSmearing;
@@ -184,7 +190,7 @@ private:
 		}
 		return result;
 	}
-  
+
   PATCore::ParticleType::Type xAOD2ptype(const xAOD::Egamma& particle) const;
 public:
   virtual double getEnergy(xAOD::Egamma*, const xAOD::EventInfo*);
