@@ -196,19 +196,19 @@ StatusCode Trk::RIO_OnTrackErrorScalingTool::initialize()
         regFcn(&Trk::RIO_OnTrackErrorScalingTool::callback,
                this,colptr,m_idFolder)) {
       msg(MSG::ERROR) << "Found the folder, but could not register a callback"
-          << " on " << m_idFolder << endreq;
+          << " on " << m_idFolder << endmsg;
       return StatusCode::FAILURE;
     } else
-      msg(MSG::INFO) << "Registered callback on COOL folder " << m_idFolder << endreq;
+      msg(MSG::INFO) << "Registered callback on COOL folder " << m_idFolder << endmsg;
   } else {
     msg(MSG::INFO) << "Folder " << m_idFolder << " is not loaded, "
-          << "intrinsic meas't errors will be used for ID tracks." << endreq;
+          << "intrinsic meas't errors will be used for ID tracks." << endmsg;
     m_do_pix = false;
     m_do_sct = false;
     m_do_trt = false;
   }
   if (m_override_database_id_errors) {
-    msg(MSG::INFO) << " ignoring COOL; forcing scaling of intrinsic measurment errors in ID." << endreq;
+    msg(MSG::INFO) << " ignoring COOL; forcing scaling of intrinsic measurment errors in ID." << endmsg;
     m_do_pix = true;
     m_do_sct = true;
     m_do_trt = true;
@@ -220,21 +220,21 @@ StatusCode Trk::RIO_OnTrackErrorScalingTool::initialize()
         regFcn(&Trk::RIO_OnTrackErrorScalingTool::callback,
                this,colptr,m_muonFolder)) {
       msg(MSG::ERROR) << "Found the folder, but could not register a callback"
-          << " on " << m_muonFolder << endreq;
+          << " on " << m_muonFolder << endmsg;
       return StatusCode::FAILURE;
     } else
       msg(MSG::INFO) << "Registered callback on COOL folder " 
-         << m_muonFolder << endreq;
+         << m_muonFolder << endmsg;
   } else {
     msg(MSG::INFO) << "Folder " << m_muonFolder << " is not loaded, "
-       << "intrinsic meas't errors will be used for Muon RIOs_OnTrack." << endreq;
+       << "intrinsic meas't errors will be used for Muon RIOs_OnTrack." << endmsg;
     m_do_mdt = false;
     m_do_tgc = false;
     m_do_rpc = false;
     m_do_csc = false;
   }
 
-  msg(MSG::INFO) << "initialize successful in " << name() << endreq;
+  msg(MSG::INFO) << "initialize successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -303,7 +303,8 @@ const std::string Trk::RIO_OnTrackErrorScalingTool::makeInfoString
   }
 
   int n = nformat-s1.size();
-  for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
+  for(int i=0; i<n; ++i) s1.append(" ");
+  s1.append("|");
   return s1;
 }
 
@@ -329,7 +330,7 @@ void Trk::RIO_OnTrackErrorScalingTool::registerParameters
 //finalise
 StatusCode Trk::RIO_OnTrackErrorScalingTool::finalize()
 {
-  msg(MSG::INFO)  << "finalize() successful in " << name() << endreq;
+  msg(MSG::INFO)  << "finalize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -393,12 +394,12 @@ Trk::RIO_OnTrackErrorScalingTool::createScaledPixelCovariance
 
   scale2by2(*newCov,m_scaling_pix[idx] /* phi */ ,m_scaling_pix[idx+1] /* eta */);
   if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "changing original Pix-" << (idx==kPixEndcapPhi ? "EC " : (idx==kPixIBLPhi ? "IBL" : "BR " )) << " cov " << endreq;
+    msg(MSG::VERBOSE) << "changing original Pix-" << (idx==kPixEndcapPhi ? "EC " : (idx==kPixIBLPhi ? "IBL" : "BR " )) << " cov " << endmsg;
     msg(MSG::VERBOSE) << inputCov << " to "<< *newCov
                       <<" by:" << m_scaling_pix[idx][0]
                       <<", " << m_scaling_pix[idx][1]
                       <<" / "<< m_scaling_pix[idx+1][0]
-                      <<", " << m_scaling_pix[idx+1][1] << endreq;
+                      <<", " << m_scaling_pix[idx+1][1] << endmsg;
   }
 
   return newCov;
@@ -485,9 +486,9 @@ Trk::RIO_OnTrackErrorScalingTool::createScaledTgcCovariance
     b = m_scaling_tgcEta[1];
   } else {
     delete newCov;
-    msg(MSG::WARNING) << "Wrong TGC measurement coordinate definition given to RIO_OnTrackErrorScalingTool." << endreq;
-    msg(MSG::WARNING) << "Error scaling cancelled, cov=NULL." << endreq;
-    msg(MSG::INFO) << "Allowed definitions: Trk::distPhi, Trk::distEta." << endreq;
+    msg(MSG::WARNING) << "Wrong TGC measurement coordinate definition given to RIO_OnTrackErrorScalingTool." << endmsg;
+    msg(MSG::WARNING) << "Error scaling cancelled, cov=NULL." << endmsg;
+    msg(MSG::INFO) << "Allowed definitions: Trk::distPhi, Trk::distEta." << endmsg;
     return 0;
   }
   (*newCov)(0,0) *= a*a;
@@ -510,9 +511,9 @@ Trk::RIO_OnTrackErrorScalingTool::createScaledRpcCovariance
     b = m_scaling_rpcEta[1];
   } else {
     delete newCov;
-    msg(MSG::WARNING) << "Wrong RPC measurement coordinate definition given to RIO_OnTrackErrorScalingTool." << endreq;
-    msg(MSG::WARNING) << "Error scaling cancelled, cov=NULL." << endreq;
-    msg(MSG::INFO) << "Allowed definitions: Trk::distPhi, Trk::distEta." << endreq;
+    msg(MSG::WARNING) << "Wrong RPC measurement coordinate definition given to RIO_OnTrackErrorScalingTool." << endmsg;
+    msg(MSG::WARNING) << "Error scaling cancelled, cov=NULL." << endmsg;
+    msg(MSG::INFO) << "Allowed definitions: Trk::distPhi, Trk::distEta." << endmsg;
     return 0;
   }
   (*newCov)(0,0) *= a*a;
@@ -535,9 +536,9 @@ Trk::RIO_OnTrackErrorScalingTool::createScaledCscCovariance
     b = m_scaling_cscEta[1];
   } else {
     delete newCov;
-    msg(MSG::WARNING) << "Wrong CSC measurement coordinate definition given to RIO_OnTrackErrorScalingTool." << endreq;
-    msg(MSG::WARNING) << "Error scaling cancelled, cov=NULL." << endreq;
-    msg(MSG::INFO) << "Allowed definitions: Trk::distPhi, Trk::distEta." << endreq;
+    msg(MSG::WARNING) << "Wrong CSC measurement coordinate definition given to RIO_OnTrackErrorScalingTool." << endmsg;
+    msg(MSG::WARNING) << "Error scaling cancelled, cov=NULL." << endmsg;
+    msg(MSG::INFO) << "Allowed definitions: Trk::distPhi, Trk::distEta." << endmsg;
     return 0;
   }
   (*newCov)(0,0) *= a*a;
@@ -583,12 +584,12 @@ StatusCode Trk::RIO_OnTrackErrorScalingTool::callback(
           }
           // catch problems with the attributelist accesses
           catch (coral::Exception& e) {
-            msg(MSG::ERROR) << "Problem with AttributeList decoding: " << e.what() << endreq;
+            msg(MSG::ERROR) << "Problem with AttributeList decoding: " << e.what() << endmsg;
             return StatusCode::FAILURE;
           }
         }
       } else {
-        msg(MSG::ERROR) << "Problem reading conditions object " << *itr << endreq;
+        msg(MSG::ERROR) << "Problem reading conditions object " << *itr << endmsg;
         return StatusCode::FAILURE;
       }
     }
@@ -609,7 +610,7 @@ StatusCode Trk::RIO_OnTrackErrorScalingTool::callback(
   // if requested, scale up the ID errors by the values in job options
   if (m_override_database_id_errors) {
     msg(MSG::WARNING) << "WARNING overriding database error scaling parameters with values specified by job options; see "
-                      << __FILE__ << " at line " << __LINE__ << endreq;
+                      << __FILE__ << " at line " << __LINE__ << endmsg;
     m_do_pix = true;
     m_do_sct = true;
     m_do_trt = true;
