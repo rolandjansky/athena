@@ -1222,6 +1222,13 @@ RootNtupleEventSelector::find_coll_idx(int evtidx)
   return -1;
 }
 
+///return total number of events in all TTree
+int RootNtupleEventSelector::size() {
+  //use find_coll_idx to trigger a population of the m_collEvts 
+  find_coll_idx(-1);
+  return m_collEvts.back().max_entries;
+}
+
 
 void RootNtupleEventSelector::handle(const Incident& incident) {
    if(m_fireBIF && incident.type() == IncidentType::BeginEvent) {
