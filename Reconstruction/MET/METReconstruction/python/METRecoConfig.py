@@ -98,7 +98,8 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
         tool.InputComposition = 'PFlow'
         pfotool = CfgMgr.CP__RetrievePFOTool('MET_PFOTool_'+suffix)
         from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += pfotool
+        if not hasattr(ToolSvc,pfotool.name()):
+            ToolSvc += pfotool
         tool.PFOTool = pfotool
     if suffix == 'Truth':
         tool = CfgMgr.met__METTruthTool('MET_TruthTool_'+config.objType)
@@ -130,7 +131,8 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
         else:
             tool.MissingETKey = config.outputKey
     from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += tool
+    if not hasattr(ToolSvc,tool.name()):
+       ToolSvc += tool
     return tool
 
 #################################################################################
@@ -163,7 +165,8 @@ def getRefiner(config,suffix,trkseltool=None,trkvxtool=None,trkisotool=None,calo
     if config.type == 'MuonEloss':
         tool = CfgMgr.met__METMuonElossTool('MET_MuonElossTool_'+suffix)
     tool.MissingETKey = config.outputKey
-    ToolSvc += tool
+    if not hasattr(ToolSvc,tool.name()):
+        ToolSvc += tool
     return tool
 
 #################################################################################
@@ -178,7 +181,8 @@ def getRegions(config,suffix):
     tool.InputMETKey = config.outputKey
     tool.RegionValues = [ 1.5, 3.2, 10 ]
     from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += tool
+    if not hasattr(ToolSvc,tool.name()):
+        ToolSvc += tool
     return tool
 
 #################################################################################
@@ -258,20 +262,24 @@ class METConfig:
         #
         from AthenaCommon.AppMgr import ToolSvc
         self.trkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_MET",
-                                                         CutLevel="TightPrimary",
-                                                         maxZ0SinTheta=3,
-                                                         maxD0=2)
-        ToolSvc += self.trkseltool
+                                                              CutLevel="TightPrimary",
+                                                              maxZ0SinTheta=3,
+                                                              maxD0=2)
+        if not hasattr(ToolSvc,self.trkseltool.name()):
+            ToolSvc += self.trkseltool
         #
         self.trkvxtool=CfgMgr.CP__TightTrackVertexAssociationTool("TightTrackVertexAssociationTool_MET", dzSinTheta_cut=1.5, doPV=False)
-        ToolSvc += self.trkvxtool
+        if not hasattr(ToolSvc,self.trkvxtool.name()):
+            ToolSvc += self.trkvxtool
         #
         self.trkisotool = CfgMgr.xAOD__TrackIsolationTool("TrackIsolationTool_MET")
         self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above
-        ToolSvc += self.trkisotool
+        if not hasattr(ToolSvc,self.trkisotool.name()):
+            ToolSvc += self.trkisotool
         #
         self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET")
-        ToolSvc += self.caloisotool
+        if not hasattr(ToolSvc,self.caloisotool.name()):
+            ToolSvc += self.caloisotool
 
         self.setupBuilders(buildconfigs)
         self.setupRefiners(refconfigs)
@@ -283,7 +291,8 @@ def getMETRecoTool(topconfig):
                                        METRefiners = topconfig.reflist,
                                        METContainer = topconfig.outputCollection(),
                                        METComponentMap = topconfig.outputMap(),
-                                       WarnIfDuplicate = topconfig.duplicateWarning)
+                                       WarnIfDuplicate = topconfig.duplicateWarning,
+                                       TimingDetail=0)
     if topconfig.doSum:
         recoTool.METFinalName = defaultOutputKey['Total']    
 

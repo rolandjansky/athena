@@ -55,7 +55,7 @@ namespace met {
     declareProperty( "PFlow",              m_pflow       = false                 );
     declareProperty( "UseRapidity",        m_useRapidity = false                 );
     declareProperty( "PFOTool",            m_pfotool                             );
-    declareProperty( "UseIsolationTools",  m_useIsolationTools=false             );
+    declareProperty( "UseIsolationTools",  m_useIsolationTools=true              );
     declareProperty( "TrackSelectorTool",  m_trkseltool                          );
     declareProperty( "TrackIsolationTool", m_trkIsolationTool                    );
     declareProperty( "CaloIsolationTool",  m_caloIsolationTool                   );
@@ -63,6 +63,8 @@ namespace met {
     declareProperty( "IgnoreJetConst",     m_skipconst = false                   );
     declareProperty( "ForwardColl",        m_forcoll   = ""            );
     declareProperty( "ForwardDef",         m_foreta    = 2.5                     );
+    declareProperty( "CentralTrackPtThr",  m_cenTrackPtThr = 200e+3              );
+    declareProperty( "ForwardTrackPtThr",  m_forTrackPtThr = 120e+3              );
   }
 
   // Destructor
@@ -334,8 +336,8 @@ namespace met {
   bool METAssociator::isGoodEoverP(const xAOD::TrackParticle* trk,const xAOD::IParticleContainer*& tcCont) const
   {
 
-    if( (fabs(trk->eta())<1.5 && trk->pt()>200e3) ||
-	(fabs(trk->eta())>=1.5 && trk->pt()>120e3) ) {
+    if( (fabs(trk->eta())<1.5 && trk->pt()>m_cenTrackPtThr) ||
+	(fabs(trk->eta())>=1.5 && trk->pt()>m_forTrackPtThr) ) {
 
       // Get relative error on qoverp
       float Rerr = Amg::error(trk->definingParametersCovMatrix(),4)/fabs(trk->qOverP());
@@ -398,7 +400,7 @@ namespace met {
       if(isolfrac<0.1) {
 	    // isolated track cuts
 	    if(Rerr>0.4) return false;
-	    else if (EoverP<0.65 && (EoverP>0.1 || Rerr>0.1)) return false;
+	    else if (EoverP<0.65 && ((EoverP>0.1 && Rerr>0.05) || Rerr>0.1)) return false;
       } else {
 	    // non-isolated track cuts
 	    float trkptsum = ptcone20+trk->pt();

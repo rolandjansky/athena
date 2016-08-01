@@ -199,10 +199,10 @@ namespace met {
       // time builders
       for(ToolHandleArray<IMETToolBase>::const_iterator iBuilder=m_metbuilders.begin();
 	  iBuilder != m_metbuilders.end(); ++iBuilder) {
-	ToolHandle<IMETToolBase> tool = *iBuilder;
+	ToolHandle<IMETToolBase> th = *iBuilder;
 	double tctime = m_toolclocks[itool].CpuTime()/double(m_nevt)*1000;
 	double twtime = m_toolclocks[itool].RealTime()/double(m_nevt)*1000;
-	ATH_MSG_INFO("    " << setw(30) << tool->name()
+	ATH_MSG_INFO("    " << setw(30) << th.typeAndName()
 		     << fixed << setprecision(3) << setw(10) << tctime
 		     << fixed << setprecision(3) << setw(10) << twtime);
 	++itool;
@@ -211,10 +211,10 @@ namespace met {
       // time refiners
       for(ToolHandleArray<IMETToolBase>::const_iterator iRefiner=m_metrefiners.begin();
 	  iRefiner != m_metrefiners.end(); ++iRefiner) {
-	ToolHandle<IMETToolBase> tool = *iRefiner;
+	ToolHandle<IMETToolBase> th = *iRefiner;
 	double tctime = m_toolclocks[itool].CpuTime()/double(m_nevt)*1000;
 	double twtime = m_toolclocks[itool].RealTime()/double(m_nevt)*1000;
-	ATH_MSG_INFO("    " << setw(30) << tool->name()
+	ATH_MSG_INFO("    " << setw(30) << th.typeAndName()
 		     << fixed << setprecision(3) << setw(10) << tctime
 		     << fixed << setprecision(3) << setw(10) << twtime);
 	++itool;

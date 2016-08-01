@@ -32,7 +32,9 @@ namespace met {
   METMuonAssociator::METMuonAssociator(const std::string& name) : 
     AsgTool(name),
     METAssociator(name)
-  {}
+  {
+    declareProperty("DoClusterMatch", m_doMuonClusterMatch=true);
+  }
 
   // Destructor
   ///////////////
@@ -91,7 +93,7 @@ namespace met {
   {
     const xAOD::Muon *mu = static_cast<const xAOD::Muon*>(obj);
     const CaloCluster* muclus = mu->cluster();
-    if(muclus) {
+    if(muclus && m_doMuonClusterMatch) {
       ATH_MSG_VERBOSE("Muon " << mu->index() << " with pt " << mu->pt()
 		   << ", eta "   << mu->eta()
 		   << ", phi " << mu->phi()

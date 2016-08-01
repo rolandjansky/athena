@@ -30,6 +30,22 @@ defaultInputKey = {
    'EMOCClusColl':'EMOriginTopoClusters',
    }
 
+# # old naming scheme
+# defaultInputKey = {
+#     'Ele'       :'ElectronCollection',
+#     'Gamma'     :'PhotonCollection',
+#     'Tau'       :'TauRecContainer',
+#     'LCJet'     :'AntiKt4LCTopoJets',
+#     'EMJet'     :'AntiKt4EMTopoJets',
+#     'PFlowJet'  :'AntiKt4EMPFlowJets',
+#     'Muon'      :'Muons',
+#     'Soft'      :'',
+#     'ClusColl'  :'CaloCalTopoCluster',
+#     'TrkColl'   :'InDetTrackParticles',
+#     'PrimVxColl':'PrimaryVertices',
+#     'Truth'     :'TruthParticle',
+#     }
+
 prefix = 'METAssocConfig:   '
 
 #################################################################################
@@ -53,10 +69,10 @@ def getAssociator(config,suffix,doPFlow=False,
     # Construct tool and set defaults for case-specific configuration
     if config.objType == 'Ele':
         from ROOT import met
-        tool = CfgMgr.met__METElectronAssociator('MET_ElectronAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
+        tool = CfgMgr.met__METElectronAssociator('MET_ElectronAssociator_'+suffix,TCMatchMethod=met.DeltaR)
     if config.objType == 'Gamma':
         from ROOT import met
-        tool = CfgMgr.met__METPhotonAssociator('MET_PhotonAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
+        tool = CfgMgr.met__METPhotonAssociator('MET_PhotonAssociator_'+suffix,TCMatchMethod=met.DeltaR)
     if config.objType == 'Tau':
         tool = CfgMgr.met__METTauAssociator('MET_TauAssociator_'+suffix)
     if config.objType == 'LCJet':
@@ -66,15 +82,15 @@ def getAssociator(config,suffix,doPFlow=False,
     if config.objType == 'PFlowJet':
         tool = CfgMgr.met__METJetAssocTool('MET_PFlowJetAssocTool_'+suffix)
     if config.objType == 'Muon':
-        tool = CfgMgr.met__METMuonAssociator('MET_MuonAssociator_'+suffix)
+        tool = CfgMgr.met__METMuonAssociator('MET_MuonAssociator_'+suffix,DoClusterMatch=False)
     if config.objType == 'Soft':
         tool = CfgMgr.met__METSoftAssociator('MET_SoftAssociator_'+suffix)
-        tool.DecorateSoftConst = True
         if doOriginCorrClus:
             tool.LCModClusterKey = defaultInputKey['LCOCClusColl']
             tool.EMModClusterKey = defaultInputKey['EMOCClusColl']
     if config.objType == 'Truth':
         tool = CfgMgr.met__METTruthAssociator('MET_TruthAssociator_'+suffix)
+        ToolSvc == tool
         tool.RecoJetKey = config.inputKey
     if doPFlow:
         pfotool = CfgMgr.CP__RetrievePFOTool('MET_PFOTool_'+suffix)
@@ -103,9 +119,9 @@ def getAssociator(config,suffix,doPFlow=False,
     tool.UseIsolationTools = True
     tool.TrackIsolationTool = trkisotool
     tool.CaloIsolationTool = caloisotool
+    #tool.UseLowThreshold = False
 
-    if not hasattr(ToolSvc,tool.name()):
-       ToolSvc += tool
+    ToolSvc += tool
     return tool
 
 #################################################################################
@@ -160,17 +176,15 @@ class METAssocConfig:
                                                                   CutLevel="TightPrimary",
                                                                   maxZ0SinTheta=3,
                                                                   maxD0=2)
-            if not hasattr(ToolSvc,self.trkseltool.name()):
-                ToolSvc += self.trkseltool
+            ToolSvc += self.trkseltool
 
         self.trkisotool = CfgMgr.xAOD__TrackIsolationTool("TrackIsolationTool_MET")
         self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above
-        if not hasattr(ToolSvc,self.trkisotool.name()):
-            ToolSvc += self.trkisotool
+        ToolSvc += self.trkisotool
 
         self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET")
-        if not hasattr(ToolSvc,self.caloisotool.name()):
-            ToolSvc += self.caloisotool
+        self.caloisotool.addCaloExtensionDecoration = False
+        ToolSvc += self.caloisotool
 
         self.associators = {}
         self.assoclist = [] # need an ordered list
@@ -193,8 +207,7 @@ def getMETAssocTool(topconfig):
         assocTool = CfgMgr.met__METAssociationTool('MET_AssociationTool_'+topconfig.suffix,
                                                    METAssociators = topconfig.assoclist,
                                                    METSuffix = topconfig.suffix,
-                                                   TCSignalState=tcstate,
-                                                   TimingDetail=0)
+                                                   TCSignalState=tcstate)
         if metFlags.AllowOverwrite:
             assocTool.AllowOverwrite = True
     return assocTool

@@ -24,7 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/MET/METRecoInterface
                           Reconstruction/PFlow/PFlowUtils
                           Reconstruction/RecoTools/CaloClusterMatching
-			  Reconstruction/RecoTools/RecoToolInterfaces
+                          Reconstruction/RecoTools/RecoToolInterfaces
                           PRIVATE
                           Calorimeter/CaloEvent
                           Control/AthContainers

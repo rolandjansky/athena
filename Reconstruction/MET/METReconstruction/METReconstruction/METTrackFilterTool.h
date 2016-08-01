@@ -117,6 +117,9 @@ namespace met{
 
     bool m_trk_doEoverPsel;
     std::string m_cl_inputkey;
+
+    double m_cenTrackPtThr;
+    double m_forTrackPtThr;
   }; 
 
 }

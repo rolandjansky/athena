@@ -106,6 +106,12 @@ namespace met{
 
     ToolHandleArray<IMETAssocToolBase> m_metassociators;
 
+    // Monitor timing
+    int m_timedetail;
+
+    mutable unsigned int m_nevt;
+    mutable TStopwatch m_clock;
+    mutable std::vector<TStopwatch> m_toolclocks;
   }; 
 
 }
