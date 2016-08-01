@@ -9,8 +9,8 @@
 import logging
 msg = logging.getLogger("PyJobTransforms." + __name__)
 
-
 import os
+import re
 import eformat
 from TrigTransform.dbgEventInfo import dbgEventInfo
 from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil
@@ -64,9 +64,11 @@ def dbgPreRun(inputFileList,outputFileList):
     #close output TFile
     hfile.Write()
     hfile.Close() 
- #   if len(set(runInfo)) != 1 :
- #       msg.error('Processing runs files taken with different releases is not allowed : %s' % relInfo )
-
+    #Release format should be good, if relInfo is 'uknown' then print this error 
+    if not re.match(r'(\d+\.{0,1})+$',relInfo):
+        msg.error('Not able to find release from DB (or it was badly formatted), release : %s' % relInfo )
+        msg.error('Problem with DB configuration in COOL DB, most likely during data-taking' )
+        
     msg.info('Finished running debug_stream analysis PreRun operations')     
     #returns the local asetupString from runs in input files and to be used by asetup 
     return getAsetupString(relInfo)
@@ -86,7 +88,10 @@ def dbgPostRun(inputFileList,outputFileList):
     hltInfo = []
     relInfo = str()
     for inputFile in inputFileList.value:
-        
+    
+        if not os.path.isfile(inputFile):
+            msg.error('No BS file created with file name :{0} '.format(inputFileList))
+            continue        
         bsfile = eformat.istream(inputFile)
         events = len(bsfile)
         total += events
