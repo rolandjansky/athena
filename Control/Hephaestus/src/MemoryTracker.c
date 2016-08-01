@@ -528,7 +528,6 @@ static void captureTrace( void *result, long size, int isrealloc ) {
             b = hhh_MemoryTrace_new();
             if ( b == 0 ) {
                hhh_Hooks_stop();
-               free( addresses );
                fprintf( stderr, "Hephaestus ERROR: MemoryTrace_new allocation failed ... tracing stopped\n" );
                return;
             }
