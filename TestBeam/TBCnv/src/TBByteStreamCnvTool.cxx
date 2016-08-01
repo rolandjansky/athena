@@ -57,55 +57,55 @@ StatusCode TBByteStreamCnvTool::initialize()
  if (sc!=StatusCode::SUCCESS)
    return sc;
  MsgStream logstr(msgSvc(), name());
- logstr << MSG::DEBUG << "Initialize" << endreq;
+ logstr << MSG::DEBUG << "Initialize" << endmsg;
 
  const LArOnlineID* online_id;
  sc = detStore()->retrieve(online_id, "LArOnlineID");
  if (sc.isFailure()) {
-   logstr << MSG::FATAL << "Could not get LArOnlineID helper !" << endreq;
+   logstr << MSG::FATAL << "Could not get LArOnlineID helper !" << endmsg;
     return StatusCode::FAILURE;
  } 
  else {
    m_onlineHelper=online_id;
-   logstr << MSG::DEBUG << " Found the LArOnlineID helper. " << endreq;
+   logstr << MSG::DEBUG << " Found the LArOnlineID helper. " << endmsg;
  }
 
  IToolSvc* toolSvc;
  sc=service( "ToolSvc",toolSvc  );
  if (sc.isFailure()) {
-   logstr << MSG::ERROR << "Unable to retrieve ToolSvc" << endreq;
+   logstr << MSG::ERROR << "Unable to retrieve ToolSvc" << endmsg;
    return StatusCode::FAILURE;
  }
  
  sc=toolSvc->retrieveTool("LArCablingService",m_larCablingSvc);
  if (sc.isFailure()) {
-   logstr << MSG::ERROR << "Unable to retrieve LArCablingService" << endreq;
+   logstr << MSG::ERROR << "Unable to retrieve LArCablingService" << endmsg;
    return StatusCode::FAILURE;
  }
  
  IService* svc;
  sc= service("ByteStreamCnvSvc",svc);
  if (sc!=StatusCode::SUCCESS)
-   {logstr << MSG::ERROR << " Can't get ByteStreamEventAccess interface " << endreq;
+   {logstr << MSG::ERROR << " Can't get ByteStreamEventAccess interface " << endmsg;
     return StatusCode::FAILURE;
    }
  
   m_ByteStreamEventAccess=dynamic_cast<ByteStreamCnvSvc*>(svc);
   if (m_ByteStreamEventAccess==NULL)
     {
-      logstr <<MSG::ERROR<< " Can't cast to  ByteStreamCnvSvc " <<endreq; 
+      logstr <<MSG::ERROR<< " Can't cast to  ByteStreamCnvSvc " <<endmsg; 
       return StatusCode::FAILURE ;
     }
  
   sc=service("ROBDataProviderSvc",svc);
   if (sc!=StatusCode::SUCCESS)
-   {logstr << MSG::WARNING << " Can't get ROBDataProviderSvc. Reading of ByteStream Data not possible " << endreq;
+   {logstr << MSG::WARNING << " Can't get ROBDataProviderSvc. Reading of ByteStream Data not possible " << endmsg;
      m_rdpSvc=0;
    }
   else
     {m_rdpSvc=dynamic_cast<IROBDataProviderSvc*>(svc);
      if(m_rdpSvc == 0 )
-       {logstr <<MSG::ERROR<< "Can't cast to ROBDataProviderSvc " <<endreq; 
+       {logstr <<MSG::ERROR<< "Can't cast to ROBDataProviderSvc " <<endmsg; 
         return StatusCode::FAILURE;
        }
     }
@@ -119,7 +119,7 @@ StatusCode TBByteStreamCnvTool::initialize()
     ListItem item(*it);
     std::string t = item.type();
     std::string nm = item.name();
-    logstr << MSG::DEBUG << " type "<<t<<" name="<<nm<<endreq;
+    logstr << MSG::DEBUG << " type "<<t<<" name="<<nm<<endmsg;
     if(t=="TBTDC") keys[0]=nm;
     if(t=="TBTriggerPatternUnit") keys[1]=nm;
     if(t=="TBTDCRawCont") keys[2]=nm;
@@ -168,19 +168,18 @@ StatusCode TBByteStreamCnvTool::WriteFragment()
       calling BuildRodBlock method   **/
 
   MsgStream logstr(msgSvc(), name());
- logstr << MSG::DEBUG << "WriteFragment" << endreq;
+ logstr << MSG::DEBUG << "WriteFragment" << endmsg;
  //Check if Fragment is already written
- EventID *thisEvent;           //EventID is a part of EventInfo
  const DataHandle<EventInfo> thisEventInfo;
    StatusCode sc=evtStore()->retrieve(thisEventInfo);
    if (sc!=StatusCode::SUCCESS)
-     {logstr << MSG::WARNING << "No EventInfo object found!" << endreq;
+     {logstr << MSG::WARNING << "No EventInfo object found!" << endmsg;
       return sc;
      }
-   thisEvent=thisEventInfo->event_ID();
+   const EventID* thisEvent=thisEventInfo->event_ID();
    if (m_lastEventID==*thisEvent)
      {logstr << MSG::WARNING << "LArByteStrem persistency representation for Event #"<<thisEvent->event_number() 
-	     << " already created!" << endreq;
+	     << " already created!" << endmsg;
      return StatusCode::SUCCESS;
      }
    else //New event ID
@@ -217,7 +216,7 @@ StatusCode TBByteStreamCnvTool::WriteFragment()
       &(*m_theRodBlock)[0],status_place);
 
    re->append(m_theROB); //Append the newly created Subdetector-Fragment to the full event
-   logstr << MSG::DEBUG << "Appended TestBeam fragment to ByteStream" << endreq;
+   logstr << MSG::DEBUG << "Appended TestBeam fragment to ByteStream" << endmsg;
    return StatusCode::SUCCESS;
 }
      
@@ -235,7 +234,7 @@ StatusCode TBByteStreamCnvTool::BuildRODBlock(std::vector<uint32_t> *theRodBlock
   std::string tbtdc_Key("TBTDC");
   sc=evtStore()->retrieve(tbtdc,tbtdc_Key);
   if (sc!=StatusCode::SUCCESS)
-    {logstr << MSG::ERROR << "Can't retrieve TBTDC with key "<< tbtdc_Key << " from StoreGate" << endreq;
+    {logstr << MSG::ERROR << "Can't retrieve TBTDC with key "<< tbtdc_Key << " from StoreGate" << endmsg;
      return sc;
     }
   else {
@@ -250,7 +249,7 @@ StatusCode TBByteStreamCnvTool::BuildRODBlock(std::vector<uint32_t> *theRodBlock
 //   TBBPCRawCont *  bpcrawCont;
 //   sc = m_storeGate->retrieve(bpcrawCont, "BPCRawCont");
 //   if (sc.isFailure()){
-//     logstr << MSG::DEBUG << "BeamDetectorMonitoring: Retrieval of BPCRaw failed" << endreq;   
+//     logstr << MSG::DEBUG << "BeamDetectorMonitoring: Retrieval of BPCRaw failed" << endmsg;   
 //   }else {
 //     TBBPCRawCont::const_iterator it_bc   = bpcrawCont->begin();
 //     TBBPCRawCont::const_iterator last_bc   = bpcrawCont->end();
@@ -271,7 +270,7 @@ StatusCode TBByteStreamCnvTool::BuildRODBlock(std::vector<uint32_t> *theRodBlock
 //   TBTriggerPatternUnit *trigpat;
 //     sc = m_storeGate->retrieve(trigpat, "TBTrigPat");
 //   if (sc.isFailure()){
-//     logstr << MSG::DEBUG << "BeamDetectorMonitoring: Retrieval of TrigPat failed" << endreq;
+//     logstr << MSG::DEBUG << "BeamDetectorMonitoring: Retrieval of TrigPat failed" << endmsg;
     
 //   }else {
 //     theRodBlock->push_back(3);           // TrigPat_SIZE
@@ -304,19 +303,19 @@ StatusCode TBByteStreamCnvTool::ReadFragment(TBTDC*& tbtdc,std::string key)
 {
   /** This method is used only for testing **/
   MsgStream logstr(msgSvc(), name());
-  logstr << MSG::DEBUG <<" in ReadFragment (TBTDC) key="<<key<<endreq;
+  logstr << MSG::DEBUG <<" in ReadFragment (TBTDC) key="<<key<<endmsg;
   StatusCode sc=GetRODBlock(m_subdet_id); //Possible improvement: Check if vector is already valid. 
   if (sc!=StatusCode::SUCCESS)
     return sc;
   if (m_rodBlock.size()<2)
     {
-      logstr << "ReadRodBlock: RodBlock too small!" << endreq;
+      logstr << "ReadRodBlock: RodBlock too small!" << endmsg;
       return StatusCode::FAILURE;
    }
   int tdc=m_rodBlock[0];
   int tdcmin=m_rodBlock[1];
-  logstr << MSG::DEBUG <<" tdc =  "<< tdc <<endreq;
-  logstr << MSG::DEBUG <<" tdcmin =  "<< tdcmin <<endreq;
+  logstr << MSG::DEBUG <<" tdc =  "<< tdc <<endmsg;
+  logstr << MSG::DEBUG <<" tdcmin =  "<< tdcmin <<endmsg;
   tbtdc=new TBTDC(tdc,tdcmin);
   return StatusCode::SUCCESS;
   // return sc;
@@ -324,16 +323,16 @@ StatusCode TBByteStreamCnvTool::ReadFragment(TBTDC*& tbtdc,std::string key)
 
 StatusCode TBByteStreamCnvTool::ReadFragment(TBBPCRawCont*& bpcrawCont,std::string key)
 {MsgStream logstr(msgSvc(), name());
-  logstr << MSG::DEBUG <<" in ReadFragment (TBBPCRawCont) key="<<key<<endreq;
+  logstr << MSG::DEBUG <<" in ReadFragment (TBBPCRawCont) key="<<key<<endmsg;
   StatusCode sc=ReadFragment(5);
   if(sc) bpcrawCont = m_bpcrawCont;
-  logstr << MSG::DEBUG <<" End ReadFragment (TBBPCRawCont) key="<<key<<endreq;
+  logstr << MSG::DEBUG <<" End ReadFragment (TBBPCRawCont) key="<<key<<endmsg;
   return sc;
 }
 
 StatusCode TBByteStreamCnvTool::ReadFragment(TBMWPCRawCont*& mwpcrawCont,std::string key)
 {MsgStream logstr(msgSvc(), name());
-  logstr << MSG::DEBUG <<" in ReadFragment (TBMWPCRawCont) key="<<key<<endreq;
+  logstr << MSG::DEBUG <<" in ReadFragment (TBMWPCRawCont) key="<<key<<endmsg;
   StatusCode sc=ReadFragment(7);
   if(sc) mwpcrawCont = m_mwpcrawCont;
   return sc;
@@ -341,14 +340,14 @@ StatusCode TBByteStreamCnvTool::ReadFragment(TBMWPCRawCont*& mwpcrawCont,std::st
 
 StatusCode TBByteStreamCnvTool::ReadFragment(TBADCRawCont*& adcrawCont,std::string key)
 {MsgStream logstr(msgSvc(), name());
-  logstr << MSG::DEBUG <<" in ReadFragment (TBADCRawCont) key="<<key<<endreq;
+  logstr << MSG::DEBUG <<" in ReadFragment (TBADCRawCont) key="<<key<<endmsg;
   StatusCode sc=ReadFragment(3);
   if(sc) adcrawCont = m_adcrawCont;
   return sc;
 }
 StatusCode TBByteStreamCnvTool::ReadFragment(TBTDCRawCont*& tdcrawCont,std::string key)
 {MsgStream logstr(msgSvc(), name());
-  logstr << MSG::DEBUG <<" in ReadFragment (TBTDCRawCont) key="<<key<<endreq;
+  logstr << MSG::DEBUG <<" in ReadFragment (TBTDCRawCont) key="<<key<<endmsg;
   StatusCode sc=ReadFragment(2);
   if(sc) tdcrawCont = m_tdcrawCont;
   return sc;
@@ -356,7 +355,7 @@ StatusCode TBByteStreamCnvTool::ReadFragment(TBTDCRawCont*& tdcrawCont,std::stri
 
 StatusCode TBByteStreamCnvTool::ReadFragment(TBTriggerPatternUnit*& trigpat,std::string key)
 {MsgStream logstr(msgSvc(), name());
-  logstr << MSG::DEBUG <<" in ReadFragment (TBTriggerPatternUnit) key="<<key<<endreq;
+  logstr << MSG::DEBUG <<" in ReadFragment (TBTriggerPatternUnit) key="<<key<<endmsg;
   StatusCode sc=ReadFragment(1);
   if(sc) trigpat = m_trigpat;
   return sc;
@@ -364,7 +363,7 @@ StatusCode TBByteStreamCnvTool::ReadFragment(TBTriggerPatternUnit*& trigpat,std:
 
 StatusCode TBByteStreamCnvTool::ReadFragment(TBScintillatorRawCont*& scintrawCont,std::string key)
 {MsgStream logstr(msgSvc(), name());
-  logstr << MSG::DEBUG <<" in ReadFragment (TBScintrawcont) key="<<key<<endreq;
+  logstr << MSG::DEBUG <<" in ReadFragment (TBScintrawcont) key="<<key<<endmsg;
   StatusCode sc=ReadFragment(6);
   if(sc) scintrawCont = m_scintrawCont;
   return sc;
@@ -372,14 +371,14 @@ StatusCode TBByteStreamCnvTool::ReadFragment(TBScintillatorRawCont*& scintrawCon
 
 StatusCode TBByteStreamCnvTool::ReadFragment(TBTailCatcherRaw*& tailcatchraw,std::string key)
 {MsgStream logstr(msgSvc(), name());
-  logstr << MSG::DEBUG <<" in ReadFragment (TBTailCatcherRaw) key="<<key<<endreq;
+  logstr << MSG::DEBUG <<" in ReadFragment (TBTailCatcherRaw) key="<<key<<endmsg;
   StatusCode sc=ReadFragment(4);
   if(sc) tailcatchraw = m_tailcatchraw;
   return sc;
 }
 StatusCode TBByteStreamCnvTool::ReadFragment(TBEventInfo*& tbeventinfo,std::string key)
 {MsgStream logstr(msgSvc(), name());
-  logstr << MSG::DEBUG <<" in ReadFragment (TBEventInfo) key="<<key<<endreq;
+  logstr << MSG::DEBUG <<" in ReadFragment (TBEventInfo) key="<<key<<endmsg;
   StatusCode sc=ReadFragment(30);
   if(sc) tbeventinfo = m_eventinfo;
   return sc;
@@ -387,7 +386,7 @@ StatusCode TBByteStreamCnvTool::ReadFragment(TBEventInfo*& tbeventinfo,std::stri
 
 StatusCode TBByteStreamCnvTool::ReadFragment(TBLArDigitContainer*& tblardigitcont,std::string key)
 {MsgStream logstr(msgSvc(), name());
-  logstr << MSG::DEBUG <<" in ReadFragment (TBLArDigitContainer) key="<<key<<endreq;
+  logstr << MSG::DEBUG <<" in ReadFragment (TBLArDigitContainer) key="<<key<<endmsg;
   int code=0;
   if(key=="FREE") code = 10;
   if(key=="LOW") code = 11;
@@ -398,7 +397,7 @@ StatusCode TBByteStreamCnvTool::ReadFragment(TBLArDigitContainer*& tblardigitcon
     if(sc) tblardigitcont = m_tblardigitcont[code-10];
     return sc;
   }else{
-    logstr << MSG::ERROR <<" Can not create a LArDigitContainer with key="<<key<<endreq;
+    logstr << MSG::ERROR <<" Can not create a LArDigitContainer with key="<<key<<endmsg;
     tblardigitcont =0;
     return StatusCode::FAILURE;
   }
@@ -406,7 +405,7 @@ StatusCode TBByteStreamCnvTool::ReadFragment(TBLArDigitContainer*& tblardigitcon
 
 StatusCode TBByteStreamCnvTool::ReadFragment(TBLArCalibDigitContainer*& tblarcalibdigitcont,std::string key)
 {MsgStream logstr(msgSvc(), name());
-  logstr << MSG::DEBUG <<" in ReadFragment (TBLArCalibDigitContainer) key="<<key<<endreq;
+  logstr << MSG::DEBUG <<" in ReadFragment (TBLArCalibDigitContainer) key="<<key<<endmsg;
   int code=0;
   if(key=="FREE") code = 20;
   if(key=="LOW")  code = 21;
@@ -417,7 +416,7 @@ StatusCode TBByteStreamCnvTool::ReadFragment(TBLArCalibDigitContainer*& tblarcal
     if(sc) tblarcalibdigitcont = m_tblarcalibdigitcont[code-20];
     return sc;
   }else{
-    logstr << MSG::ERROR <<" Can not create a LArCalibDigitContainer with key="<<key<<endreq;
+    logstr << MSG::ERROR <<" Can not create a LArCalibDigitContainer with key="<<key<<endmsg;
     tblarcalibdigitcont =0;
     return StatusCode::FAILURE;
   }
@@ -429,16 +428,16 @@ StatusCode TBByteStreamCnvTool::GetRODBlock(eformat::SubDetector subdet_id,
 					    eformat::SubDetector subdet_rod_id)//=m_DontCheckRodSubDetID)
 
 {MsgStream logstr(msgSvc(), name());
- logstr << MSG::DEBUG << "GetRODBlock" << endreq;
+ logstr << MSG::DEBUG << "GetRODBlock" << endmsg;
  if (!m_rdpSvc)
-   {logstr << MSG::ERROR << "ROBDataProviderSvc not loaded. Can't read ByteStream" << endreq;
+   {logstr << MSG::ERROR << "ROBDataProviderSvc not loaded. Can't read ByteStream" << endmsg;
     return StatusCode::FAILURE;
    }
 
   const RawEvent* re = m_rdpSvc->getEvent();
  
   if (!re)
-    {logstr <<MSG::FATAL << "Can't get RawEvent!" << endreq;
+    {logstr <<MSG::FATAL << "Can't get RawEvent!" << endmsg;
     return StatusCode::FAILURE;
     }
   
@@ -448,7 +447,7 @@ StatusCode TBByteStreamCnvTool::GetRODBlock(eformat::SubDetector subdet_id,
   //  re->start(robF);
   if (robcount == MAX_ROBFRAGMENTS)
     {
-      logstr <<MSG::FATAL << "ROB buffer overflow" << endreq;
+      logstr <<MSG::FATAL << "ROB buffer overflow" << endmsg;
       return StatusCode::FAILURE;
     }
   
@@ -456,47 +455,47 @@ StatusCode TBByteStreamCnvTool::GetRODBlock(eformat::SubDetector subdet_id,
     {
       OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment rob(robF[irob]);
       
-      logstr << MSG::DEBUG << "ROB Frag *****************************" << endreq;
-      MSG::hex(logstr) << MSG::DEBUG <<"Marker     : " << rob.marker() << endreq;
-      MSG::hex(logstr) << MSG::DEBUG <<"Frag Size  : " << rob.fragment_size_word() << endreq;
-      MSG::hex(logstr) << MSG::DEBUG <<"Header Size: " << rob.header_size_word() << endreq;
-      MSG::hex(logstr) << MSG::DEBUG <<"Source  ID : " << rob.source_id() << endreq;
-      MSG::hex(logstr) << MSG::DEBUG <<"Version    : " << rob.version() << endreq;
+      logstr << MSG::DEBUG << "ROB Frag *****************************" << endmsg;
+      MSG::hex(logstr) << MSG::DEBUG <<"Marker     : " << rob.marker() << endmsg;
+      MSG::hex(logstr) << MSG::DEBUG <<"Frag Size  : " << rob.fragment_size_word() << endmsg;
+      MSG::hex(logstr) << MSG::DEBUG <<"Header Size: " << rob.header_size_word() << endmsg;
+      MSG::hex(logstr) << MSG::DEBUG <<"Source  ID : " << rob.source_id() << endmsg;
+      MSG::hex(logstr) << MSG::DEBUG <<"Version    : " << rob.version() << endmsg;
       try
 	{
 	  rob.check();
 	}
       catch (...)
 	{
-	  logstr << MSG::ERROR << "Got invalid ROB fragment!" << endreq;
+	  logstr << MSG::ERROR << "Got invalid ROB fragment!" << endmsg;
 	  return StatusCode::FAILURE;
 	}
       
-      logstr << MSG::DEBUG << "ROD Frag *****************************" << endreq;
-      MSG::hex(logstr) << MSG::DEBUG <<"Frag Size  : " << rob.rod_fragment_size_word() << endreq;
-      MSG::hex(logstr) << MSG::DEBUG <<"Header Size: " << rob.rod_header_size_word() << endreq;
-      MSG::hex(logstr) << MSG::DEBUG <<"Source  ID : " << rob.rod_source_id() << endreq;
-      MSG::hex(logstr) << MSG::DEBUG <<"Run num    : " << rob.rod_run_no() << endreq;
-      MSG::hex(logstr) << MSG::DEBUG <<"Version    : " << rob.rod_version() << endreq;
+      logstr << MSG::DEBUG << "ROD Frag *****************************" << endmsg;
+      MSG::hex(logstr) << MSG::DEBUG <<"Frag Size  : " << rob.rod_fragment_size_word() << endmsg;
+      MSG::hex(logstr) << MSG::DEBUG <<"Header Size: " << rob.rod_header_size_word() << endmsg;
+      MSG::hex(logstr) << MSG::DEBUG <<"Source  ID : " << rob.rod_source_id() << endmsg;
+      MSG::hex(logstr) << MSG::DEBUG <<"Run num    : " << rob.rod_run_no() << endmsg;
+      MSG::hex(logstr) << MSG::DEBUG <<"Version    : " << rob.rod_version() << endmsg;
       
       eformat::helper::SourceIdentifier rod_sid(rob.rod_source_id());
       if (subdet_rod_id==m_DontCheckRodSubDetID || rod_sid.subdetector_id()==subdet_rod_id)
 	{
 	  MSG::hex(logstr) << MSG::DEBUG << "Found requested ROD (id=" 
-			   << rod_sid.subdetector_id() << ")"  << endreq;
+			   << rod_sid.subdetector_id() << ")"  << endmsg;
 	  // Set H6 or H8 mode :
 	  if (!m_force_Hchoice)
 	    {
 	      logstr<< MSG::INFO << "Guessing from ROD header -> " ;
 	      if (rob.rod_detev_type()&1)
 		{
-		  logstr<< " H6 !" << endreq;
+		  logstr<< " H6 !" << endmsg;
 		  m_H6run = true;
 		  m_H8run = false;
 		}
 	      else 
 		{
-		  logstr<< " H8 !" << endreq;
+		  logstr<< " H8 !" << endmsg;
 		  m_H6run = false;
 		  m_H8run = true;
 		}
@@ -504,7 +503,7 @@ StatusCode TBByteStreamCnvTool::GetRODBlock(eformat::SubDetector subdet_id,
 	  m_h8_triggword = rob.rod_lvl1_trigger_type();
 	  // Event number ? 
 	  m_ev_number = rob.rod_lvl1_id();
-	  if(m_dump) MSG::dec(logstr) << MSG::INFO << " Ev. number(header)=" << m_ev_number <<endreq;
+	  if(m_dump) MSG::dec(logstr) << MSG::INFO << " Ev. number(header)=" << m_ev_number <<endmsg;
 	  
 	  OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodPointer;
 	  rob.rod_data(rodPointer);
@@ -518,15 +517,15 @@ StatusCode TBByteStreamCnvTool::GetRODBlock(eformat::SubDetector subdet_id,
 	  if (m_rodBlock.size()==0)
 	    {
 	      logstr << MSG::FATAL << "Error reading bytestream event: "
-		     << "Empty ROD block" << endreq;
+		     << "Empty ROD block" << endmsg;
 	      return StatusCode::FAILURE;
 	    }
-	  logstr << MSG::DEBUG << "Got Rod Block for Test Beam Instrumentation data from ByteStream" << endreq;
+	  logstr << MSG::DEBUG << "Got Rod Block for Test Beam Instrumentation data from ByteStream" << endmsg;
 	  return StatusCode::SUCCESS;
 	}// end if requested ROD
     }//end loop over ROBs
 
-  MSG::hex(logstr) << MSG::WARNING << " Didn't find SubDet ID for Beam Instruments. Should be "<< subdet_id<<endreq;
+  MSG::hex(logstr) << MSG::WARNING << " Didn't find SubDet ID for Beam Instruments. Should be "<< subdet_id<<endmsg;
   return StatusCode::FAILURE;
 }
 
@@ -544,7 +543,7 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
   **/
 
   MsgStream logstr(msgSvc(), name());
-  logstr << MSG::DEBUG << "H6BuildObject called for " << unrec_code<< endreq;
+  logstr << MSG::DEBUG << "H6BuildObject called for " << unrec_code<< endmsg;
 
   StatusCode sc=StatusCode::FAILURE;
   //bool gotobject=false;
@@ -559,7 +558,7 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
     return sc;
   if (m_rodBlock.size()<2)
     {MsgStream logstr(msgSvc(), name());
-      logstr << MSG::ERROR << "ReadRodBlock: RodBlock too small!" << endreq;
+      logstr << MSG::ERROR << "ReadRodBlock: RodBlock too small!" << endmsg;
       return StatusCode::FAILURE;
    }
  
@@ -590,20 +589,20 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
   m_subfrag_size=2;    
   m_subfrag_firstdata=0;
   while(NextSubFrag()){
-    MSG::dec(logstr) << MSG::DEBUG << "size   "<<m_subfrag_size<<endreq;
-    MSG::hex(logstr) << MSG::DEBUG << "ID "<< m_subfrag_id<<endreq;    
+    MSG::dec(logstr) << MSG::DEBUG << "size   "<<m_subfrag_size<<endmsg;
+    MSG::hex(logstr) << MSG::DEBUG << "ID "<< m_subfrag_id<<endmsg;    
     switch(m_subfrag_id){
     case 0x01: // HEADER_ID -----------------------------------------
       {
-	logstr << MSG::DEBUG << "H6BuildObject : HEADER_ID "<< m_subfrag_size << endreq;
+	logstr << MSG::DEBUG << "H6BuildObject : HEADER_ID "<< m_subfrag_size << endmsg;
 	//m_trigpat = new TBTriggerPatternUnit();
 	m_trigpat->setTriggerWord(m_rodBlock[m_subfrag_firstdata+3]);
 	MSG::hex(logstr) << MSG::DEBUG << "Header   "<<m_rodBlock[m_subfrag_firstdata];
 	MSG::hex(logstr) <<" "<<m_rodBlock[m_subfrag_firstdata+1];
 	MSG::hex(logstr) <<" "<<m_rodBlock[m_subfrag_firstdata+2];
-	MSG::hex(logstr) <<" "<<m_rodBlock[m_subfrag_firstdata+3]<<endreq;
+	MSG::hex(logstr) <<" "<<m_rodBlock[m_subfrag_firstdata+3]<<endmsg;
         // if(unrec_code == 30 ) gotobject=true;
-	if(m_dump) MSG::dec(logstr) << MSG::INFO << " Ev. number(0x01)="<< m_rodBlock[m_subfrag_firstdata] <<endreq;
+	if(m_dump) MSG::dec(logstr) << MSG::INFO << " Ev. number(0x01)="<< m_rodBlock[m_subfrag_firstdata] <<endmsg;
 	m_eventinfo = new TBEventInfo(m_ev_number,
 				      m_rodBlock[m_subfrag_firstdata+2],
 				      m_rodBlock[m_subfrag_firstdata+1],
@@ -618,7 +617,7 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 
     case 0x02: // MINI-ROD Data Fragment ... oh what fun ... ------------
       {
-        logstr << MSG::DEBUG << " Found mini-ROD data in beam crate fragment, size " <<  m_subfrag_size << endreq;
+        logstr << MSG::DEBUG << " Found mini-ROD data in beam crate fragment, size " <<  m_subfrag_size << endmsg;
 
 	//     bool calibdigit_requested = (unrec_code==20)||(unrec_code==21)||(unrec_code==22)||(unrec_code==23);
 	// 
@@ -645,7 +644,7 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	int pos=m_subfrag_firstdata;
 	for(unsigned int nfeb=0;nfeb<m_boards.size();nfeb++){ // FEB loop ----------------------------------
 	  pos += NWREC*3;    // skip FEB header
-	  if(m_dump) logstr << MSG::DEBUG << " Board "<< nfeb << endreq;
+	  if(m_dump) logstr << MSG::DEBUG << " Board "<< nfeb << endmsg;
 	  for(int s=0;s<m_samples[0];s++){                   // sample loop ----------------------------------
 	    pos +=NWREC;
 	    int samp;
@@ -689,11 +688,11 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 		pos++;
 	      } // end channel loop
 
-	      if(m_dump&&(gainmode==2)) logstr << MSG::DEBUG <<endreq;
+	      if(m_dump&&(gainmode==2)) logstr << MSG::DEBUG <<endmsg;
 	    }  // end gain loop
 	  }// end sample loop
 	  pos+= NWREC*2;
-	  logstr << MSG::DEBUG << " Creating LArDigit for board  "<< nfeb << ".  m_febgain=" << m_febgain[nfeb] <<endreq;
+	  logstr << MSG::DEBUG << " Creating LArDigit for board  "<< nfeb << ".  m_febgain=" << m_febgain[nfeb] <<endmsg;
 	  // create and store LArDigit.
 	  for(unsigned int g=0;g<m_gains.size();g++){ // loop on reqested gains
 	    int gainmode;
@@ -703,7 +702,7 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	      gainmode=0;
 	    }
 
-	    logstr << MSG::DEBUG << "Gain mode="<< gainmode <<endreq; 
+	    logstr << MSG::DEBUG << "Gain mode="<< gainmode <<endmsg; 
 	    for(int i=0;i<128;i++) { // loop on channels
          
               std::vector<short> samplevec(m_arrayofsample[i][gainmode]);
@@ -747,13 +746,13 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
       
     case 0x03: // TIME_ID -----------------------------------------
       { 
-	logstr << MSG::DEBUG << "H6BuildObject : TIME_ID "<< m_subfrag_size << endreq;
+	logstr << MSG::DEBUG << "H6BuildObject : TIME_ID "<< m_subfrag_size << endmsg;
 	name1="word1frag0x03chan";
 	name2="word2frag0x03chan";
 
         
         if(m_subfrag_size!=5) {
-          logstr<<MSG::ERROR<< "Beam counter subfrag (0x03) has not expected size" <<endreq;
+          logstr<<MSG::ERROR<< "Beam counter subfrag (0x03) has not expected size" <<endmsg;
           sc=StatusCode::FAILURE;
           break;
         }
@@ -763,7 +762,7 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	tmp1 = firstword(m_rodBlock[pos]);
 	tmp2 = secondword(m_rodBlock[pos]);
 	
-	if(m_dump) logstr << MSG::INFO << " sub frag 0x03 : word1="<<tmp1<<"    word2="<< tmp2 <<endreq;
+	if(m_dump) logstr << MSG::INFO << " sub frag 0x03 : word1="<<tmp1<<"    word2="<< tmp2 <<endmsg;
 
 	TBTDCRaw * clocktdc = new TBTDCRaw(name1+'0',false,tmp1,false);	
 	TBTDCRaw * clock_deltdc = new TBTDCRaw(name2+'0',false,tmp2,false);	
@@ -773,7 +772,7 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	tmp1 = firstword(m_rodBlock[pos+1]);
 	tmp2 = secondword(m_rodBlock[pos+1]);
 
-	if(m_dump) logstr << MSG::INFO << " sub frag 0x03 : word1="<<tmp1<<"    word2="<< tmp2 <<endreq;
+	if(m_dump) logstr << MSG::INFO << " sub frag 0x03 : word1="<<tmp1<<"    word2="<< tmp2 <<endmsg;
 
 	TBTDCRaw * scale1 = new TBTDCRaw(name1+'1',false,tmp1,false);	
 	TBTDCRaw * scale1bis = new TBTDCRaw(name2+'1',false,tmp2,false);	
@@ -783,7 +782,7 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	tmp1 = firstword(m_rodBlock[pos+2]);
 	tmp2 = secondword(m_rodBlock[pos+2]);
 
-	if(m_dump) logstr << MSG::INFO << " sub frag 0x03 : word1="<<tmp1<<"    word2="<< tmp2 <<endreq;
+	if(m_dump) logstr << MSG::INFO << " sub frag 0x03 : word1="<<tmp1<<"    word2="<< tmp2 <<endmsg;
 
 	TBTDCRaw * scale2 = new TBTDCRaw(name1+'2',false,tmp1,false);	
 	TBTDCRaw * scale2bis = new TBTDCRaw(name2+'2',false,tmp2,false);	
@@ -799,11 +798,11 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	std::string tcname="tc";
 	std::vector<TBScintillatorRaw *> theScints;
 	if(m_subfrag_size!=26) {
-          logstr<<MSG::ERROR<< "Beam counter subfrag (0x04) has not expected size" <<endreq;
+          logstr<<MSG::ERROR<< "Beam counter subfrag (0x04) has not expected size" <<endmsg;
           sc=StatusCode::FAILURE;
           break;
         }
-        logstr << MSG::DEBUG << "H6BuildObject : building tailcatcher " << endreq;
+        logstr << MSG::DEBUG << "H6BuildObject : building tailcatcher " << endmsg;
 	for(unsigned int i=0;i<24;i++){
 	  int tmp1,tmp2;
 	  int pos=m_subfrag_firstdata+i;
@@ -844,7 +843,7 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	name2="word2frag0x05chan";
 	//m_bpcrawCont = new TBBPCRawCont();
 	int bpcnum = (m_subfrag_size - 2) / 3; // cause we store 6 tdc/adc in 16bits word
-	logstr << MSG::DEBUG << "H6BuildObject : number of BPCRaw "<< bpcnum << endreq;
+	logstr << MSG::DEBUG << "H6BuildObject : number of BPCRaw "<< bpcnum << endmsg;
 	// get bpc raw information for each chamber:
 	for(int i=0;i<bpcnum;i++){
           std::string bpcname = "BPC";
@@ -894,7 +893,7 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	  m_tdcrawCont->push_back(tbtdcU);
 	  m_tdcrawCont->push_back(tbtdcD);
 	  MSG::hex(logstr) << MSG::DEBUG << bpcname<< "  "<< tmp1;
-	  MSG::hex(logstr)                      << "  "<< tmp2<<endreq;
+	  MSG::hex(logstr)                      << "  "<< tmp2<<endmsg;
 	  
 
 	  theTDCs.push_back(tbtdcL);
@@ -916,12 +915,12 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
       name1="word1frag0x06chan";
       name2="word2frag0x06chan";
       if(m_subfrag_size!=11) {
-        logstr<<MSG::ERROR<< "Beam counter subfrag (0x06) has not expected size" <<endreq;
+        logstr<<MSG::ERROR<< "Beam counter subfrag (0x06) has not expected size" <<endmsg;
         sc=StatusCode::FAILURE;
         break;
       }
 
-      logstr << MSG::DEBUG << " Building TBScintillatorRawCont with key " << m_keys[6] << endreq;
+      logstr << MSG::DEBUG << " Building TBScintillatorRawCont with key " << m_keys[6] << endmsg;
       
       TBScintillatorRaw * S1 = new TBScintillatorRaw("S1");
       TBScintillatorRaw * S2 = new TBScintillatorRaw("S2");
@@ -940,7 +939,7 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
           logstr << MSG::DEBUG << " " << scintname;
 	  muon[i] =  new TBScintillatorRaw(scintname);
       }
-      logstr << endreq;
+      logstr << endmsg;
       
       int tmp1,tmp2;
       int pos=m_subfrag_firstdata;
@@ -1016,8 +1015,8 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
       S2->setSignals(m_tdcrawCont,S2tdc,m_adcrawCont,S2adc);
 
 
-      //       logstr << MSG::INFO << "S1 adc ovf = "<< S1->isADCOverflow() << " // S1adc = "<< S1adc->isOverflow() <<endreq;
-      //       logstr << MSG::INFO << "S2 adc ovf = "<< S2->isADCOverflow() << " // S2adc = "<< S2adc->isOverflow() <<endreq;
+      //       logstr << MSG::INFO << "S1 adc ovf = "<< S1->isADCOverflow() << " // S1adc = "<< S1adc->isOverflow() <<endmsg;
+      //       logstr << MSG::INFO << "S2 adc ovf = "<< S2->isADCOverflow() << " // S2adc = "<< S2adc->isOverflow() <<endmsg;
 
       S3->setSignals(m_tdcrawCont,S3tdc,m_adcrawCont,S3adc);
       Veto->setSignals(m_tdcrawCont,VetoORtdc,m_adcrawCont,dummyadc);
@@ -1034,7 +1033,7 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	  m_scintrawCont->push_back(muon[i]);
       }
 
-      logstr << MSG::DEBUG << " Should I record TBScintillatorRawCont with key " << m_keys[6] << " ? " << endreq;
+      logstr << MSG::DEBUG << " Should I record TBScintillatorRawCont with key " << m_keys[6] << " ? " << endmsg;
       //if(unrec_code == 6 ) gotobject=true;
       }
       break;
@@ -1043,7 +1042,7 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
       {
 	int pos=m_subfrag_firstdata;
 	int nword = m_subfrag_size - 2;
-	logstr << MSG::DEBUG << " Found MWPC subfragment. Nword= "<<nword << endreq;
+	logstr << MSG::DEBUG << " Found MWPC subfragment. Nword= "<<nword << endmsg;
 
 	std::string mwpcnames[8]= {"X2","Y2","X3","Y3","X4","Y4","X5","Y5"};
 	bool isX[9]={true,false,true,false,true,false,true,false};
@@ -1066,16 +1065,16 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	  if( c < 768 ) {chamber = c/128; wire=c-chamber*128;} 
 	  else {chamber=6+(c-768)/64; wire=c-768-(chamber-6)*64;}
 
-	  if(chamber>7){logstr << MSG::DEBUG << "Wrong MWPC chamber number : "<< chamber   <<endreq;}
+	  if(chamber>7){logstr << MSG::DEBUG << "Wrong MWPC chamber number : "<< chamber   <<endmsg;}
 	  else{
 	    mwpcraw[chamber]->addCwireno(wire);
 	    mwpcraw[chamber]->addNwires(w);
 	    mwpcraw[chamber]->setXchambers(isX[chamber]);
-	    logstr << MSG::DEBUG << " MWPC chamber="<< chamber<< "  wire=" << wire << " (w="<<w<<")" << "  c="<<c<< endreq;
+	    logstr << MSG::DEBUG << " MWPC chamber="<< chamber<< "  wire=" << wire << " (w="<<w<<")" << "  c="<<c<< endmsg;
 	  }
 	}
 	
-	if(status != 0x1000) {MSG::hex(logstr)<< MSG::DEBUG << "MWPC status word error =" << status <<endreq; /*error=true;*/}
+	if(status != 0x1000) {MSG::hex(logstr)<< MSG::DEBUG << "MWPC status word error =" << status <<endmsg; /*error=true;*/}
 
 	for( int i=0;i<m_subfrag_size-2;i++){ // "-2" because last full word contains status word (see above)
 	  unsigned short word1=firstword(m_rodBlock[pos+i]);
@@ -1089,12 +1088,12 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	  if( c < 768 ) {chamber = c/128; wire=c-chamber*128;} 
 	  else {chamber=6+(c-768)/64; wire=c-768-(chamber-6)*64;}
 
-	  if(chamber>7){logstr << MSG::DEBUG << "Wrong MWPC chamber number : "<< chamber   <<endreq;}
+	  if(chamber>7){logstr << MSG::DEBUG << "Wrong MWPC chamber number : "<< chamber   <<endmsg;}
 	  else{
 	    mwpcraw[chamber]->addCwireno(wire);
 	    mwpcraw[chamber]->addNwires(w);
 	    mwpcraw[chamber]->setXchambers(isX[chamber]);
-	    logstr << MSG::DEBUG << " MWPC chamber="<< chamber<< "  wire=" << wire << " (w="<<w<<")" << "  c="<<c<< endreq;
+	    logstr << MSG::DEBUG << " MWPC chamber="<< chamber<< "  wire=" << wire << " (w="<<w<<")" << "  c="<<c<< endmsg;
 	  }
 
 	  w = (int) (word2>>12); c = (int) ((0xfff & word2) - w/2 + !(w&1)); 
@@ -1102,12 +1101,12 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	  else {chamber=6+(c-768)/64; wire=c-768-(chamber-6)*64;}
 
 
-	  if(chamber>7){logstr << MSG::INFO << "Wrong MWPC chamber number : "<< chamber  <<endreq;}
+	  if(chamber>7){logstr << MSG::INFO << "Wrong MWPC chamber number : "<< chamber  <<endmsg;}
 	  else{
 	    mwpcraw[chamber]->addCwireno(wire);
 	    mwpcraw[chamber]->addNwires(w);
 	    mwpcraw[chamber]->setXchambers(isX[chamber]);
-	    logstr << MSG::DEBUG << " MWPC chamber="<< chamber<< "  wire=" << wire << " (w="<<w<<")" << "  c="<<c<< endreq;
+	    logstr << MSG::DEBUG << " MWPC chamber="<< chamber<< "  wire=" << wire << " (w="<<w<<")" << "  c="<<c<< endmsg;
 	  }
 
 	}
@@ -1116,7 +1115,7 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	  m_mwpcrawCont->push_back(mwpcraw[i]);
 	}
 	
-	logstr << MSG::DEBUG << " End of MWPC subfragment " << endreq;	
+	logstr << MSG::DEBUG << " End of MWPC subfragment " << endmsg;	
         //if(unrec_code == 7 ) gotobject=true;
 
       }
@@ -1127,7 +1126,7 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	char *strw;
 	int nword = m_subfrag_size - 2;
 	if(nword%16){
-	  logstr << MSG::ERROR << "bad number of lines. nwords=" << nword <<endreq;
+	  logstr << MSG::ERROR << "bad number of lines. nwords=" << nword <<endmsg;
 	  break;
 	}
 	int nline= nword / 16;
@@ -1140,78 +1139,82 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	    if(strw[i*64+j]==0) break;
 	    sline+=strw[i*64+j];
 	  }
-	  //logstr << MSG::INFO  << sline << endreq;
+	  //logstr << MSG::INFO  << sline << endmsg;
 	  std::istringstream iss (sline);
 	  iss >> skey;	  
 	  if(skey=="RunNumber") {
-	    MSG::dec(logstr) << MSG::DEBUG  << sline << endreq;
+	    MSG::dec(logstr) << MSG::DEBUG  << sline << endmsg;
 	    iss >> m_run_num;
 	  }
 	  if(skey=="BeamMomentum") {
-	    MSG::dec(logstr) << MSG::DEBUG  << sline << endreq;
+	    MSG::dec(logstr) << MSG::DEBUG  << sline << endmsg;
 	    iss >> m_beam_moment;
 	  }
 	  if(skey=="BeamParticle") {
-	    MSG::dec(logstr) << MSG::DEBUG  << sline << endreq;
+	    MSG::dec(logstr) << MSG::DEBUG  << sline << endmsg;
 	    iss >> m_beam_part;
 	  }
 	  if(skey=="CryoX") {
-	    MSG::dec(logstr) << MSG::DEBUG  << sline << endreq;
+	    MSG::dec(logstr) << MSG::DEBUG  << sline << endmsg;
 	    iss >> m_cryoX;
 	  }
 	  if(skey=="CryoAngle") {
-	    MSG::dec(logstr) << MSG::DEBUG  << sline << endreq;
+	    MSG::dec(logstr) << MSG::DEBUG  << sline << endmsg;
 	    iss >> m_cryoAngle;
 	  }
 	  if(skey=="TableY") {
-	    MSG::dec(logstr) << MSG::DEBUG  << sline << endreq;
+	    MSG::dec(logstr) << MSG::DEBUG  << sline << endmsg;
 	    iss >> m_tableY;
 	  }
 	  if(skey=="miniROD")  {
-	    logstr << MSG::DEBUG  << sline << endreq;
+	    logstr << MSG::DEBUG  << sline << endmsg;
 	    m_boards.clear();
 	    int board;
 	    //	    iss>>board; 
 	    while(iss.good()) {iss>>board;m_boards.push_back(board);}
-	    logstr << MSG::DEBUG  << "Found nboards="<< m_boards.size() << endreq;
-	    for(unsigned i=0;i<m_boards.size();i++)logstr << MSG::DEBUG << m_boards[i]<<" ";logstr << MSG::DEBUG<<endreq;
+	    logstr << MSG::DEBUG  << "Found nboards="<< m_boards.size() << endmsg;
+	    for(unsigned i=0;i<m_boards.size();i++)logstr << MSG::DEBUG << m_boards[i]<<" ";
+            logstr << MSG::DEBUG<<endmsg;
 	  }
 	  if(skey=="FebSamples") {
-	    MSG::dec(logstr) << MSG::DEBUG  << sline << endreq;
+	    MSG::dec(logstr) << MSG::DEBUG  << sline << endmsg;
 	    m_samples.clear();
 	    int sample;
 	    // iss>>sample;
 	    while(iss.good()) {iss>>sample;m_samples.push_back(sample);}
-	    MSG::dec(logstr) << MSG::DEBUG  << "nsample="<< m_samples.size() << endreq;
-	    for(unsigned i=0;i<m_samples.size();i++)logstr << MSG::DEBUG << m_samples[i]<<" ";logstr << MSG::DEBUG<<endreq;
+	    MSG::dec(logstr) << MSG::DEBUG  << "nsample="<< m_samples.size() << endmsg;
+	    for(unsigned i=0;i<m_samples.size();i++)logstr << MSG::DEBUG << m_samples[i]<<" ";
+            logstr << MSG::DEBUG<<endmsg;
 	  }
 	  if(skey=="FebGains")  {
-	    MSG::dec(logstr) << MSG::DEBUG  << sline << endreq;
+	    MSG::dec(logstr) << MSG::DEBUG  << sline << endmsg;
 	    m_gains.clear();
 	    int gain;
 	    //	    iss>>gain;
 	    while(iss.good()) {iss>>gain;m_gains.push_back(gain);}
 	    int gs=m_gains.size() ;
 	    if(gs>1) if(m_gains[gs-1]==m_gains[gs-2])m_gains.resize(gs-1);
-	    MSG::dec(logstr) << MSG::DEBUG  << "numb of gains="<< m_gains.size()  <<  endreq;
-	    for(unsigned i=0;i<m_gains.size();i++)logstr << MSG::DEBUG << m_gains[i]<<" ";logstr << MSG::DEBUG<<endreq;
+	    MSG::dec(logstr) << MSG::DEBUG  << "numb of gains="<< m_gains.size()  <<  endmsg;
+	    for(unsigned i=0;i<m_gains.size();i++)logstr << MSG::DEBUG << m_gains[i]<<" ";
+            logstr << MSG::DEBUG<<endmsg;
 	  }
 	  if(skey=="FebAuto")  {
-	    MSG::dec(logstr) << MSG::DEBUG  << sline << endreq;
+	    MSG::dec(logstr) << MSG::DEBUG  << sline << endmsg;
 	    m_febgain.clear();
 	    int gain;
 	    //	    iss>>gain;
 	    while(iss.good()) {iss>>gain;m_febgain.push_back(gain);}
-	    MSG::dec(logstr) << MSG::DEBUG  << "n febauto="<< m_febgain.size()  << " " <<  endreq;
-	    for(unsigned i=0;i<m_febgain.size();i++)logstr << MSG::DEBUG << m_febgain[i]<<" ";logstr << MSG::DEBUG<<endreq;
+	    MSG::dec(logstr) << MSG::DEBUG  << "n febauto="<< m_febgain.size()  << " " <<  endmsg;
+	    for(unsigned i=0;i<m_febgain.size();i++)logstr << MSG::DEBUG << m_febgain[i]<<" ";
+            logstr << MSG::DEBUG<<endmsg;
 	  }
 	  if(skey=="FebFirstSample")  {
-	    MSG::dec(logstr) << MSG::DEBUG  << sline << endreq;
+	    MSG::dec(logstr) << MSG::DEBUG  << sline << endmsg;
 	    m_firstsamples.clear();
 	    int firstsample;
 	    //	    iss>>firstsample;
 	    while(iss.good()) {iss>>firstsample;m_firstsamples.push_back(firstsample);}
-	    MSG::dec(logstr) << MSG::DEBUG  << "firstsample="<< m_firstsamples.size()   << endreq;
+	    MSG::dec(logstr) << MSG::DEBUG  << "firstsample="<< m_firstsamples.size()   << endmsg;
 	  }
 	}
 
@@ -1242,9 +1245,9 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
       {
 	int pos=m_subfrag_firstdata;
 	int nword = m_subfrag_size - 2;
-	logstr << MSG::DEBUG << " Found Calib_ID subfragment. Nword= "<<nword << endreq;
+	logstr << MSG::DEBUG << " Found Calib_ID subfragment. Nword= "<<nword << endmsg;
 	if(nword!=6) { // expect 6 words (to hold 22 bytes)
-	  logstr<<MSG::ERROR<< "Calibration subfrag (0xff) has not expected size" <<endreq;
+	  logstr<<MSG::ERROR<< "Calibration subfrag (0xff) has not expected size" <<endmsg;
 	  sc=StatusCode::FAILURE;
 	  break;
 	}
@@ -1261,8 +1264,8 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
 	  m_calib_pattern[4*i+3] = second16 >> 8;
 	}
 
-        logstr << MSG::DEBUG << "Found calibration header information " << endreq;
-        logstr << MSG::DEBUG << " Calib pattern: " << endreq;
+        logstr << MSG::DEBUG << "Found calibration header information " << endmsg;
+        logstr << MSG::DEBUG << " Calib pattern: " << endmsg;
         for(int byte=0; byte<16; byte++) {
           logstr << MSG::DEBUG << " byte " << byte << "  : " ;
           for(int bit=0; bit<8; bit++) {
@@ -1270,7 +1273,7 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
             bool onoff = 128>>bit & m_calib_pattern[byte];
             logstr << MSG::DEBUG << onoff << "/" ;
           }
-          logstr << MSG::DEBUG << endreq;
+          logstr << MSG::DEBUG << endmsg;
         }
         
 	char dac[4];
@@ -1295,13 +1298,13 @@ StatusCode TBByteStreamCnvTool::H6BuildObjects(int unrec_code)
         // logstr << MSG::DEBUG << "       Pattern 0/1/2/3 = "  << m_calib_pattern[0]
         //                                                       << "/" <<  m_calib_pattern[1]
         //                                                       << "/" <<  m_calib_pattern[2]
-        //                                                       << "/" <<  m_calib_pattern[3] << endreq;
-        logstr << MSG::DEBUG << "                   DAC = "  <<  m_calib_dac        << endreq;
-        logstr << MSG::DEBUG << "                 DELAY = "  <<  m_calib_delay      << endreq;
+        //                                                       << "/" <<  m_calib_pattern[3] << endmsg;
+        logstr << MSG::DEBUG << "                   DAC = "  <<  m_calib_dac        << endmsg;
+        logstr << MSG::DEBUG << "                 DELAY = "  <<  m_calib_delay      << endmsg;
       }
       break;
     default : // -----------------------------------------
-      logstr << MSG::DEBUG << "Found undefined subfragment id= "<< m_subfrag_id << endreq;
+      logstr << MSG::DEBUG << "Found undefined subfragment id= "<< m_subfrag_id << endmsg;
       break;
     }
   }
@@ -1327,7 +1330,7 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 
 
   MsgStream logstr(msgSvc(), name());
-  logstr << MSG::DEBUG << "H8BuildObject invoked for code " << unrec_code<< endreq;
+  logstr << MSG::DEBUG << "H8BuildObject invoked for code " << unrec_code<< endmsg;
   
   StatusCode sc=StatusCode::FAILURE;
   bool gotobject=false;
@@ -1344,11 +1347,11 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
   
   if (sc!=StatusCode::SUCCESS) {
     // return sc;          
-    logstr << MSG::ERROR << "ReadRodBlock: RodBlock error!  Will try to fill SG with empty objects." << endreq;
+    logstr << MSG::ERROR << "ReadRodBlock: RodBlock error!  Will try to fill SG with empty objects." << endmsg;
     goodRodBlock=false;
   }
   if (m_rodBlock.size()<2)  {
-    logstr << MSG::ERROR << "ReadRodBlock: RodBlock too small!  Will try to fill SG with empty objects." << endreq;
+    logstr << MSG::ERROR << "ReadRodBlock: RodBlock too small!  Will try to fill SG with empty objects." << endmsg;
     // return StatusCode::FAILURE;
     goodRodBlock=false;
   }
@@ -1437,7 +1440,7 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
       {
 	name="frag0x10chan";
 	logstr << MSG::DEBUG << "Got SubFragment " << MSG::hex << m_subfrag_id << " name=" << name   
-	       << " Data words = " << MSG::dec << m_subfrag_size-2<<endreq;
+	       << " Data words = " << MSG::dec << m_subfrag_size-2<<endmsg;
 	
 	int pos=m_subfrag_firstdata;
 	
@@ -1446,41 +1449,41 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 	S1adc = new TBADCRaw(name+"0",false,m_rodBlock[pos] & 0xfff);
 	// do not set signal here cause we also need TDC (in 0x11)
 	logstr << MSG::DEBUG << "S1adc: 0x" << MSG::hex << (int)(m_rodBlock[pos] & 0xfff) << " [0x" << m_rodBlock[pos] << "]" 
-	       << MSG::dec << endreq;
+	       << MSG::dec << endmsg;
 	m_adcrawCont->push_back(S1adc);
 
 	pos++; // 2
 	S2upadc = new TBADCRaw(name+"1",false,m_rodBlock[pos] & 0xfff);
 	logstr << MSG::DEBUG << "S2 :" << MSG::hex << (m_rodBlock[pos] & 0xfff) << " [0x" << m_rodBlock[pos] << "]" 
-	       << MSG::dec << endreq;
+	       << MSG::dec << endmsg;
 	m_adcrawCont->push_back(S2upadc);
 
 
 	pos++; // 2
 	S3rightadc = new TBADCRaw(name+"2",false,m_rodBlock[pos] & 0xfff);
 	logstr << MSG::DEBUG << "S3 :" << MSG::hex << (m_rodBlock[pos] & 0xfff) << " [0x" << m_rodBlock[pos] << "]"
-	       << MSG::dec << endreq;
+	       << MSG::dec << endmsg;
 	m_adcrawCont->push_back(S3rightadc);
 
 
 	pos++; // 2
 	muTagadc = new TBADCRaw(name+"3",false,m_rodBlock[pos] & 0xfff);
 	logstr << MSG::DEBUG << "muTag :" << MSG::hex << (m_rodBlock[pos] & 0xfff) << " [0x" << m_rodBlock[pos] << "]" 
-	      << MSG::dec << endreq;
+	      << MSG::dec << endmsg;
 	m_adcrawCont->push_back(muTagadc);
 	//muTag->setSignals(m_tdcrawCont,dummytdc,m_adcrawCont,muTagadc);  
 
 	pos++; // 2
 	C1adc = new TBADCRaw(name+"4",false,m_rodBlock[pos] & 0xfff);
 	logstr << MSG::DEBUG << "C1 :" << MSG::hex << (m_rodBlock[pos] & 0xfff) << " [0x" << m_rodBlock[pos] << "]"
-	       << MSG::dec << endreq;
+	       << MSG::dec << endmsg;
 	m_adcrawCont->push_back(C1adc);
 	//C1->setSignals(m_tdcrawCont,dummytdc,m_adcrawCont,C1adc);  
 
 	pos++; // 2
 	C2adc = new TBADCRaw(name+"5",false,m_rodBlock[pos] & 0xfff);
 	logstr << MSG::DEBUG << "C2 :" << MSG::hex << (m_rodBlock[pos] & 0xfff) << " [0x" << m_rodBlock[pos] << "]"
-	       << MSG::dec << endreq;
+	       << MSG::dec << endmsg;
 	m_adcrawCont->push_back(C2adc);
 	//C2->setSignals(m_tdcrawCont,dummytdc,m_adcrawCont,C2adc);  
 
@@ -1488,14 +1491,14 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 	pos++; // 2
 	muHaloadc = new TBADCRaw(name+"6",false,m_rodBlock[pos] & 0xfff);
 	logstr << MSG::DEBUG << "muHalo :" << MSG::hex << (m_rodBlock[pos] & 0xfff) << " [0x" << m_rodBlock[pos] << "]"
-	       << MSG::dec << endreq;
+	       << MSG::dec << endmsg;
 	m_adcrawCont->push_back(muHaloadc);
 	//muHalo->setSignals(m_tdcrawCont,dummytdc,m_adcrawCont,muHaloadc);  
 
 	pos++; // 2
 	muVetoadc = new TBADCRaw(name+"7",false,m_rodBlock[pos] & 0xfff);
 	logstr << MSG::DEBUG << "muVeto :" << MSG::hex << (m_rodBlock[pos] & 0xfff) << " [0x" << m_rodBlock[pos] << "]"
-	       << MSG::dec << endreq;
+	       << MSG::dec << endmsg;
 	m_adcrawCont->push_back(muVetoadc);
 	//muVeto->setSignals(m_tdcrawCont,dummytdc,m_adcrawCont,muVetoadc);  
 	
@@ -1503,7 +1506,7 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 	  logstr << MSG::INFO << " DUMP : ";
 	  logstr << name << " "<< m_subfrag_size-2 <<" words -  " <<  S1adc->getADC() << " " <<  S2upadc->getADC();
 	  logstr << " " << S3rightadc->getADC()<< " " << muTagadc->getADC() << " " << C1adc->getADC();
-	  logstr << " " << C2adc->getADC() << " " << muHaloadc->getADC() << " "<< muVetoadc->getADC() <<endreq ;
+	  logstr << " " << C2adc->getADC() << " " << muHaloadc->getADC() << " "<< muVetoadc->getADC() <<endmsg ;
 
 	}
 
@@ -1513,7 +1516,7 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
       {
 	name="frag0x11chan";
 	logstr << MSG::DEBUG << "Got SubFragment " << MSG::hex << m_subfrag_id << " name=" << name   
-	       << " Data words = " << MSG::dec << m_subfrag_size-2<<endreq;
+	       << " Data words = " << MSG::dec << m_subfrag_size-2<<endmsg;
 	
 	int pos=m_subfrag_firstdata;
 
@@ -1521,22 +1524,22 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 	// Modification: 2005/01/27 W.L. channel 0 used by TRT Scintillator
 	sTRTadc = new TBADCRaw(name+"0",false,m_rodBlock[pos] & 0xfff);
 	logstr << MSG::DEBUG << "sTRT:" << MSG::hex << (m_rodBlock[pos] & 0xfff) << " [0x" << m_rodBlock[pos] << "]"
-	       << MSG::dec << endreq;
+	       << MSG::dec << endmsg;
 	pos++; //1
 	S2downadc = new TBADCRaw(name+"1",false,m_rodBlock[pos] & 0xfff);
 	logstr << MSG::DEBUG << "S2 :" << MSG::hex << (m_rodBlock[pos] & 0xfff) << " [0x" << m_rodBlock[pos] << "]"
-	       << MSG::dec << endreq;
+	       << MSG::dec << endmsg;
 	m_adcrawCont->push_back(S2downadc);
 
 	pos++; // 2
 	S3leftadc = new TBADCRaw(name+"2",false,m_rodBlock[pos] & 0xfff);
 	logstr << MSG::DEBUG << "S3 :" << MSG::hex << (m_rodBlock[pos] & 0xfff) << " [0x" << m_rodBlock[pos] << "]"
-	       << MSG::dec << endreq;
+	       << MSG::dec << endmsg;
 	m_adcrawCont->push_back(S3leftadc);
 	
 	if(m_dump){
 	  logstr << MSG::INFO << " DUMP : ";
-	  logstr << name << " "<< m_subfrag_size-2 <<" words -  " << S2downadc->getADC() << " " << S3leftadc->getADC()<<endreq;
+	  logstr << name << " "<< m_subfrag_size-2 <<" words -  " << S2downadc->getADC() << " " << S3leftadc->getADC()<<endmsg;
 	}
 
       }
@@ -1545,7 +1548,7 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
       {
 	name="frag0x12chan";
 	logstr << MSG::DEBUG << "Got SubFragment " << MSG::hex << m_subfrag_id << " name=" << name  
-	       << " Data words = " << MSG::dec << m_subfrag_size-2<<endreq;
+	       << " Data words = " << MSG::dec << m_subfrag_size-2<<endmsg;
 	int pos=m_subfrag_firstdata;
 	if(m_dump) logstr << MSG::INFO << " DUMP : "<< name<< " "<< m_subfrag_size-2 <<" words - " ;
 
@@ -1561,7 +1564,7 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 	  const bool underthresh=(m_rodBlock[pos]>>13)&1;
 	  logstr << MSG::DEBUG << MSG::dec << "Pos=" << pos <<" Chan "<< chan << "=" << tdc << ", OV=" << overflow 
 		 << ", UN=" <<underthresh << " EOD="<< endofdata << ", corrupt=" << corrup 
-		 << " [0x" << MSG::hex << m_rodBlock[pos] << "]" << MSG::dec <<endreq; 
+		 << " [0x" << MSG::hex << m_rodBlock[pos] << "]" << MSG::dec <<endmsg; 
 	  if(m_dump)
  	    MSG::dec(logstr) << " "<< (m_rodBlock[pos] & 0xfff);
 	  
@@ -1606,23 +1609,23 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 
 	    if (endofdata) {
 	      if (i==m_subfrag_size-3)
-		logstr << MSG::DEBUG << " End of data word found at pos " << pos <<endreq;
+		logstr << MSG::DEBUG << " End of data word found at pos " << pos <<endmsg;
 	      else
-		logstr << MSG::ERROR << " Unexpected end-of-data word found at pos " << pos <<endreq;
+		logstr << MSG::ERROR << " Unexpected end-of-data word found at pos " << pos <<endmsg;
 	    }
 	    else // corrupt
 	      logstr<< MSG::ERROR << "Corrupted data in SubFragment 0x12 pos=" << pos << "channel=" <<chan << " [0x" <<
-		MSG::hex << m_rodBlock[pos] << "]" << MSG::dec<<endreq;
+		MSG::hex << m_rodBlock[pos] << "]" << MSG::dec<<endmsg;
 	} //end loop over subfrags
- 	if(m_dump) logstr << endreq;
+ 	if(m_dump) logstr << endmsg;
       }
       break;
     case 0x13:  // ns TDC (for BPC)  --------------------------------------
       {
 	name="frag0x13chan";
 	logstr << MSG::DEBUG << "Got SubFragment " << MSG::hex << m_subfrag_id << " name=" << name 
-	       << " Data words = " << MSG::dec << m_subfrag_size-2<<endreq;
-	if(m_dump) logstr << MSG::INFO << " DUMP : "<< name<< " "<< m_subfrag_size-2 <<" words - " << endreq;
+	       << " Data words = " << MSG::dec << m_subfrag_size-2<<endmsg;
+	if(m_dump) logstr << MSG::INFO << " DUMP : "<< name<< " "<< m_subfrag_size-2 <<" words - " << endmsg;
 	for( int i=0;i<m_subfrag_size-2;i++){
 	  int pos=m_subfrag_firstdata+i;
 	  // get channel number
@@ -1632,7 +1635,7 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 	  const bool endofdata=!((m_rodBlock[pos] >> 23)&0x1); // test bit 23
 	  logstr << MSG::DEBUG << MSG::dec <<"Pos=" << pos << " Chan "<< chan << "=" << tdc 
 		 << " EOD="<< endofdata << ", corrupt=" << corrup 
-		 << " [0x" << MSG::hex << m_rodBlock[pos] << "]" << MSG::dec <<endreq; 
+		 << " [0x" << MSG::hex << m_rodBlock[pos] << "]" << MSG::dec <<endmsg; 
 	  if (!endofdata && !corrup) {
 	    os.str("");
 	    os << name << chan;
@@ -1640,7 +1643,7 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 	    m_tdcrawCont->push_back(tbtdc);
 	    const short bpc_ind = chan / 4 ;
 	    if(bpc_ind>4) {
-	      logstr<< MSG::DEBUG << "Error in 0x13 : found chan="<<chan<<" corresponding to bpc "<<bpc_ind<<endreq;
+	      logstr<< MSG::DEBUG << "Error in 0x13 : found chan="<<chan<<" corresponding to bpc "<<bpc_ind<<endmsg;
 	      continue;
 	    }
 	    const short signaltype = tdc_order[chan % 4];
@@ -1650,13 +1653,13 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 	  else 
 	    if (endofdata) {
 	      if (i==m_subfrag_size-3)
-		logstr << MSG::DEBUG << " End of data word found at pos " << pos <<endreq;
+		logstr << MSG::DEBUG << " End of data word found at pos " << pos <<endmsg;
 	      else
-		logstr << MSG::ERROR << " Unexpected end-of-data word found at pos " << pos <<endreq;
+		logstr << MSG::ERROR << " Unexpected end-of-data word found at pos " << pos <<endmsg;
 	    }
 	    else // corrupt
 	      logstr<< MSG::ERROR << "Corrupted data in SubFragment 0x13 pos=" << pos << "channel=" <<chan << " [0x" <<
-		MSG::hex << m_rodBlock[pos] << "]" << MSG::dec<<endreq;
+		MSG::hex << m_rodBlock[pos] << "]" << MSG::dec<<endmsg;
 	} // end for loop
 	
       }
@@ -1665,10 +1668,10 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
       {
 	name="frag0x14chan";
 	logstr << MSG::DEBUG << "Got SubFragment " << MSG::hex << m_subfrag_id << " name=" << name 
-	       << " Data words = " << MSG::dec << m_subfrag_size-2<<endreq;
+	       << " Data words = " << MSG::dec << m_subfrag_size-2<<endmsg;
 
 
-	if(m_dump) logstr << MSG::INFO << " DUMP : "<< name<< " "<< m_subfrag_size-2 <<" words - " << endreq;
+	if(m_dump) logstr << MSG::INFO << " DUMP : "<< name<< " "<< m_subfrag_size-2 <<" words - " << endmsg;
 
 
 	for( int i=0;i<m_subfrag_size-2;i++){
@@ -1683,7 +1686,7 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 	  //const bool underthresh=(m_rodBlock[pos]>>13)&1;
 	  logstr << MSG::DEBUG << MSG::dec << "Pos=" << pos << " Chan "<< chan << "=" << tdc 
 		 << " EOD="<< endofdata << ", corrupt=" << corrup 
-		 << " [0x" << MSG::hex << m_rodBlock[pos] << "]" << MSG::dec <<endreq; 
+		 << " [0x" << MSG::hex << m_rodBlock[pos] << "]" << MSG::dec <<endmsg; 
 
 	  if (!endofdata && !corrup) {
 	    os.str("");
@@ -1691,7 +1694,7 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 	    TBTDCRaw * tbtdc = new TBTDCRaw(os.str(),false,tdc,false);
 	    m_tdcrawCont->push_back(tbtdc);
 	    const short bpc_ind = chan / 4 + 3;
-	    if(bpc_ind>4) { logstr<< MSG::DEBUG << "Error in 0x14 : found chan="<<chan<<" corresponding to bpc "<<bpc_ind<<endreq;continue;}
+	    if(bpc_ind>4) { logstr<< MSG::DEBUG << "Error in 0x14 : found chan="<<chan<<" corresponding to bpc "<<bpc_ind<<endmsg;continue;}
 	    const short signaltype = tdc_order[chan % 4];
 	    if (BPCtdc[bpc_ind][signaltype]==NULL)
 	      BPCtdc[bpc_ind][signaltype] = tbtdc;
@@ -1699,23 +1702,23 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 	  else 
 	    if (endofdata) {
 	      if (i==m_subfrag_size-3)
-		logstr << MSG::DEBUG << " End of data word found at pos " << pos <<endreq;
+		logstr << MSG::DEBUG << " End of data word found at pos " << pos <<endmsg;
 	      else
-		logstr << MSG::ERROR << " Unexpected end-of-data word found at pos " << pos <<endreq;
+		logstr << MSG::ERROR << " Unexpected end-of-data word found at pos " << pos <<endmsg;
 	    }
 	    else // corrupt
 	      logstr<< MSG::ERROR << "Corrupted data in SubFragment 0x14 pos=" << pos << "channel=" <<chan << " [0x" <<
-		MSG::hex << m_rodBlock[pos] << "]" << MSG::dec<<endreq;
+		MSG::hex << m_rodBlock[pos] << "]" << MSG::dec<<endmsg;
 	} // end for loop
       }
       break;
     case 0x15:  // trigger word --------------------------------------
       {
-	logstr << MSG::INFO << "Found trigger word fragment" << endreq;
+	logstr << MSG::INFO << "Found trigger word fragment" << endmsg;
       }
       break;
     default :
-      logstr << MSG::DEBUG << "Found undefined subfragment id= "<< m_subfrag_id << endreq;
+      logstr << MSG::DEBUG << "Found undefined subfragment id= "<< m_subfrag_id << endmsg;
       break;
     
     }
@@ -1723,12 +1726,12 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
   
 
 
-  logstr << MSG::DEBUG << "Filling Scint" << endreq;
+  logstr << MSG::DEBUG << "Filling Scint" << endmsg;
 
   // fill scint container
   m_scintrawCont = new TBScintillatorRawCont();
   //m_scintrawCont->push_back(S0);
-  //logstr << MSG::DEBUG << "S1 " << endreq
+  //logstr << MSG::DEBUG << "S1 " << endmsg
 
   // Here some tdc maybe missing, so test for them :
   if(S0tdc) S0->setSignals(m_tdcrawCont,S0tdc,m_adcrawCont,dummyadc); //Scintillator 0 has only TDC
@@ -1770,7 +1773,7 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 
 
   // fill bpc container
-  logstr << MSG::DEBUG << "Filling BPC" << endreq;
+  logstr << MSG::DEBUG << "Filling BPC" << endmsg;
   m_bpcrawCont = new TBBPCRawCont();
 
   for(int i=0;i<BPCNum;i++){
@@ -1795,10 +1798,10 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
   if (sc!=StatusCode::SUCCESS) {
     // return sc;
     goodRodBlock = false;
-    logstr << MSG::ERROR << "Tile laser crate ROD block error!  Nothing valid in SG." << endreq;
+    logstr << MSG::ERROR << "Tile laser crate ROD block error!  Nothing valid in SG." << endmsg;
   }
   if (m_rodBlock.size()<2) {
-      logstr << MSG::ERROR << "Tile laser crate ROD block too small!  Nothing valid in SG" << endreq;
+      logstr << MSG::ERROR << "Tile laser crate ROD block too small!  Nothing valid in SG" << endmsg;
       // return StatusCode::FAILURE;
       goodRodBlock = false;
    }  
@@ -1826,7 +1829,7 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 	m_adcrawCont->push_back(SC2adc);
 	SC2->setSignals(m_tdcrawCont,dummytdc,m_adcrawCont,SC2adc);  
 	m_scintrawCont->push_back(SC2);
-	logstr << MSG::DEBUG << "Found Scintillator SC1 and SC2" << endreq;
+	logstr << MSG::DEBUG << "Found Scintillator SC1 and SC2" << endmsg;
 	break;
       }
     case 0x2: // ADC2 block --------------------------------------
@@ -1846,7 +1849,7 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 	  MuWallScint->setSignals(m_tdcrawCont,dummytdc,m_adcrawCont,MuWalladc);
 	  m_scintrawCont->push_back(MuWallScint);
 	}	
-	logstr << MSG::DEBUG << "Found first muWall block" << endreq; 
+	logstr << MSG::DEBUG << "Found first muWall block" << endmsg; 
 	break;
       }
     case 0x3: // ADC3 block --------------------------------------
@@ -1867,12 +1870,12 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 	  MuWallScint->setSignals(m_tdcrawCont,dummytdc,m_adcrawCont,MuWalladc);
 	  m_scintrawCont->push_back(MuWallScint);
 	}
-	logstr << MSG::DEBUG << "Found second muWall block" << endreq; 
+	logstr << MSG::DEBUG << "Found second muWall block" << endmsg; 
 	break;
       }
     default :
       if (m_subfrag_id!=3 && m_subfrag_id!=5 && m_subfrag_id!=7) 
-	logstr << MSG::DEBUG << "Found undefined subfragment id= "<< m_subfrag_id << endreq;
+	logstr << MSG::DEBUG << "Found undefined subfragment id= "<< m_subfrag_id << endmsg;
       break;
 
     }
@@ -1888,7 +1891,7 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
 //   if(unrec_code!=1){ //  If object was not requested by the converter, store it in SG
 //     sc = m_storeGate->record(m_trigpat,m_keys[1]);
 //     if ( sc.isFailure( ) ) {recordfailure=true;
-//       logstr << MSG::FATAL << "Cannot record TBTrigPat " << endreq;
+//       logstr << MSG::FATAL << "Cannot record TBTrigPat " << endmsg;
 //     }
 //   }else {sc=StatusCode::SUCCESS; gotobject=true;} // else return success to converter
 
@@ -1896,7 +1899,7 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
   if(unrec_code!=5){ //  If object was not requested by the converter, store it in SG
     sc = evtStore()->record(m_bpcrawCont,m_keys[5]);
     if ( sc.isFailure( ) ) {recordfailure=true;
-      logstr << MSG::FATAL << "Cannot record BPCRawCont" << endreq;
+      logstr << MSG::FATAL << "Cannot record BPCRawCont" << endmsg;
     }
   }else {sc=StatusCode::SUCCESS; gotobject=true;} // else return success to converter
 
@@ -1904,7 +1907,7 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
   if(unrec_code!=6){ //  If object was not requested by the converter, store it in SG
     sc = evtStore()->record(m_scintrawCont,m_keys[6]);
     if ( sc.isFailure( ) ) {recordfailure=true;
-      logstr << MSG::FATAL << "Cannot record ScintRawCont " << endreq;
+      logstr << MSG::FATAL << "Cannot record ScintRawCont " << endmsg;
     }
   } else {sc=StatusCode::SUCCESS; gotobject=true;} // else return success to converter
 
@@ -1912,14 +1915,14 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
   if(unrec_code!=2){ //  If object was not requested by the converter, store it in SG
     sc = evtStore()->record(m_tdcrawCont,m_keys[2]);
     if ( sc.isFailure( ) ) {recordfailure=true;
-      logstr << MSG::FATAL << "Cannot record TDCCont " << endreq;
+      logstr << MSG::FATAL << "Cannot record TDCCont " << endmsg;
     }  
   }else {sc=StatusCode::SUCCESS; gotobject=true;} // else return success to converter
   
   if(unrec_code!=3){ //  If object was not requested by the converter, store it in SG
     sc = evtStore()->record(m_adcrawCont,m_keys[3]);
     if ( sc.isFailure( ) ) {recordfailure=true;
-      logstr << MSG::FATAL << "Cannot record ADCCont " << endreq;
+      logstr << MSG::FATAL << "Cannot record ADCCont " << endmsg;
     }  
   }else {sc=StatusCode::SUCCESS; gotobject=true;} // else return success to converter
 
@@ -1927,11 +1930,11 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
   m_trigpat      = new TBTriggerPatternUnit();
   m_trigpat->setTriggerWord(m_h8_triggword);
   if(unrec_code!=1) { //  If object was not requested by the converter, store it in SG
-    logstr << MSG::DEBUG << "Recording TBTriggerPatternUnit with key " << m_keys[1] << endreq;
+    logstr << MSG::DEBUG << "Recording TBTriggerPatternUnit with key " << m_keys[1] << endmsg;
     //    if(! evtStore()->contains<TBTriggerPatternUnit>(m_keys[1])) {
     sc = evtStore()->record(m_trigpat,m_keys[1]);
     if ( sc.isFailure( ) ) {
-      logstr << MSG::ERROR << "Cannot record TBTrigPat " << endreq;
+      logstr << MSG::ERROR << "Cannot record TBTrigPat " << endmsg;
     }
   } else {
     sc=StatusCode::SUCCESS;
@@ -1939,9 +1942,9 @@ StatusCode TBByteStreamCnvTool::H8BuildObjects(int unrec_code)
   } // else return success to converter
 
 
-  logstr << MSG::DEBUG << " End of H8 Build " << endreq;
-  if(!gotobject) {logstr<< MSG::ERROR<< " Could not find object of type "<<unrec_code << endreq; sc=StatusCode::FAILURE;}
-  if(recordfailure) {logstr<< MSG::ERROR<< " One object could not be recorded "<< endreq; sc=StatusCode::FAILURE;}
+  logstr << MSG::DEBUG << " End of H8 Build " << endmsg;
+  if(!gotobject) {logstr<< MSG::ERROR<< " Could not find object of type "<<unrec_code << endmsg; sc=StatusCode::FAILURE;}
+  if(recordfailure) {logstr<< MSG::ERROR<< " One object could not be recorded "<< endmsg; sc=StatusCode::FAILURE;}
 
 
   return sc;
@@ -1952,62 +1955,62 @@ StatusCode TBByteStreamCnvTool::H6RecordObjects(int unrec_code)
 
   StatusCode sc;
   MsgStream logstr(msgSvc(), name());
-  logstr << MSG::DEBUG << "About to try recording.  unrec_code = " << unrec_code << endreq;
+  logstr << MSG::DEBUG << "About to try recording.  unrec_code = " << unrec_code << endmsg;
 
   if( !m_tailcatchraw) {
-    logstr << MSG::DEBUG << " WARNING! Did not find TailCatcher. Returning an empty one : this may crash every attempt to use it" << endreq;
+    logstr << MSG::DEBUG << " WARNING! Did not find TailCatcher. Returning an empty one : this may crash every attempt to use it" << endmsg;
     m_tailcatchraw = new TBTailCatcherRaw();
   }
   
   if(unrec_code!=1) { //  If object was not requested by the converter, store it in SG
-    logstr << MSG::DEBUG << "Recording TBTriggerPatternUnit with key " << m_keys[1] << endreq;
+    logstr << MSG::DEBUG << "Recording TBTriggerPatternUnit with key " << m_keys[1] << endmsg;
     sc = evtStore()->record(m_trigpat,m_keys[1]);
     if ( sc.isFailure( ) ) {
-      logstr << MSG::ERROR << "Cannot record TBTrigPat " << endreq;
+      logstr << MSG::ERROR << "Cannot record TBTrigPat " << endmsg;
     }
   }
 
   if(unrec_code!=4){ //  If object was not requested by the converter, store it in SG
-    logstr << MSG::DEBUG << "Recording TBTailCatcherRaw with key " << m_keys[4] << endreq;
+    logstr << MSG::DEBUG << "Recording TBTailCatcherRaw with key " << m_keys[4] << endmsg;
     sc = evtStore()->record(m_tailcatchraw,m_keys[4]);
     if ( sc.isFailure( ) ) {
-      logstr << MSG::ERROR << "Cannot record TailCatcherRaw " << endreq;
+      logstr << MSG::ERROR << "Cannot record TailCatcherRaw " << endmsg;
     }
   }
     
   if(unrec_code!=5) { //  If object was not requested by the converter, store it in SG
-    logstr << MSG::DEBUG << "Recording TBBPCRawCont with key " << m_keys[5] << endreq;
+    logstr << MSG::DEBUG << "Recording TBBPCRawCont with key " << m_keys[5] << endmsg;
     //    if(! evtStore()->contains<TBBPCRawCont>(m_keys[5])) {
       sc = evtStore()->record(m_bpcrawCont,m_keys[5]);
       if ( sc.isFailure( ) ) {
-        logstr << MSG::ERROR << "Cannot record BPCRawCont" << endreq;
+        logstr << MSG::ERROR << "Cannot record BPCRawCont" << endmsg;
       }
       //    } else {
-      //      logstr << MSG::ERROR << " Object TBBPCRawCont already in SG (memory leak!)" << endreq;
+      //      logstr << MSG::ERROR << " Object TBBPCRawCont already in SG (memory leak!)" << endmsg;
       //    }
   }
   
   if(unrec_code!=6){ //  If object was not requested by the converter, store it in SG
-    logstr << MSG::DEBUG << "Recording TBScintillatorRawCont with key " << m_keys[6] << endreq;
+    logstr << MSG::DEBUG << "Recording TBScintillatorRawCont with key " << m_keys[6] << endmsg;
     //    if(! evtStore()->contains<TBScintillatorRawCont>(m_keys[6])) {
       sc = evtStore()->record(m_scintrawCont,m_keys[6]);
       if ( sc.isFailure( ) ) {
-        logstr << MSG::ERROR << "Cannot record ScintRawCont " << endreq;
+        logstr << MSG::ERROR << "Cannot record ScintRawCont " << endmsg;
       }
       //    } else {
-      //      logstr << MSG::ERROR << " Object TBScintillatorRawCont already in SG (memory leak!)" << endreq;
+      //      logstr << MSG::ERROR << " Object TBScintillatorRawCont already in SG (memory leak!)" << endmsg;
       //    }
   }
   
   if(unrec_code!=7){ //  If object was not requested by the converter, store it in SG
     //    if(! evtStore()->contains<TBMWPCRawCont>(m_keys[7])) {
-      logstr << MSG::DEBUG << "record TBMWPCRawCont with key " << m_keys[7] <<endreq;
+      logstr << MSG::DEBUG << "record TBMWPCRawCont with key " << m_keys[7] <<endmsg;
       sc = evtStore()->record(m_mwpcrawCont,m_keys[7]);
       if ( sc.isFailure( ) ) {
-        logstr << MSG::ERROR << "Cannot record MWPCRawCont " << endreq;
+        logstr << MSG::ERROR << "Cannot record MWPCRawCont " << endmsg;
       }
       //    } else {
-      //      logstr << MSG::ERROR << " Object TBMWPCRawCont already in SG (memory leak!)" << endreq;
+      //      logstr << MSG::ERROR << " Object TBMWPCRawCont already in SG (memory leak!)" << endmsg;
       //    }
   }
 
@@ -2015,37 +2018,37 @@ StatusCode TBByteStreamCnvTool::H6RecordObjects(int unrec_code)
   // subfragments in H6.  Record them slightly differently.
   
   if(unrec_code!=2){ //  If object was not requested by the converter, store it in SG
-    logstr << MSG::DEBUG << "record TDC cont with key " << m_keys[2] << endreq;
+    logstr << MSG::DEBUG << "record TDC cont with key " << m_keys[2] << endmsg;
     //    if(! evtStore()->contains<TBTDCRawCont>(m_keys[2])) {
       sc = evtStore()->record(m_tdcrawCont,m_keys[2]);
       if ( sc.isFailure( ) ) {
-        logstr << MSG::ERROR << "Cannot record TDCCont " << endreq;
+        logstr << MSG::ERROR << "Cannot record TDCCont " << endmsg;
       }
   }
       //    } else {
-      //      logstr << MSG::ERROR << " Object TBTDCRawCont already in SG (memory leak!)" << endreq;
+      //      logstr << MSG::ERROR << " Object TBTDCRawCont already in SG (memory leak!)" << endmsg;
       //    }
 
   
   if(unrec_code!=3){ //  If object was not requested by the converter, store it in SG
-    logstr << MSG::DEBUG << "record ADC cont with key " << m_keys[3] << endreq;
+    logstr << MSG::DEBUG << "record ADC cont with key " << m_keys[3] << endmsg;
     //    if(! evtStore()->contains<TBADCRawCont>(m_keys[3])) {
       sc = evtStore()->record(m_adcrawCont,m_keys[3]);
       if ( sc.isFailure( ) ) {
-        logstr << MSG::FATAL << "Cannot record ADCCont " << endreq;
+        logstr << MSG::FATAL << "Cannot record ADCCont " << endmsg;
       }
   }
   //    } else {
-      //      logstr << MSG::ERROR << " Object TBADCRawCont already in SG (memory leak!)" << endreq;
+      //      logstr << MSG::ERROR << " Object TBADCRawCont already in SG (memory leak!)" << endmsg;
       //    }
 
   for(int c=10;c<14;c++){
     if(unrec_code!=c){ //  If object was not requested by the converter, store it in SG
       
-      logstr << MSG::DEBUG << "record TBLArDigitContainer with key " << m_keys[c] << " and size " << m_tblardigitcont[c-10]->size() << endreq;
+      logstr << MSG::DEBUG << "record TBLArDigitContainer with key " << m_keys[c] << " and size " << m_tblardigitcont[c-10]->size() << endmsg;
       sc = evtStore()->record(m_tblardigitcont[c-10],m_keys[c]);
       if ( sc.isFailure( ) ) {
-        logstr << MSG::FATAL << "Cannot record  " <<m_keys[c-10]<< endreq;
+        logstr << MSG::FATAL << "Cannot record  " <<m_keys[c-10]<< endmsg;
       }
     }
   }
@@ -2053,10 +2056,10 @@ StatusCode TBByteStreamCnvTool::H6RecordObjects(int unrec_code)
   for(int c=10;c<14;c++){
     if(unrec_code!=c){ //  If object was not requested by the converter, store it in SG
       
-      logstr << MSG::DEBUG << "record TBLArCalibDigitContainer with key " << m_keys[c] << " and size " << m_tblarcalibdigitcont[c-10]->size() << endreq;
+      logstr << MSG::DEBUG << "record TBLArCalibDigitContainer with key " << m_keys[c] << " and size " << m_tblarcalibdigitcont[c-10]->size() << endmsg;
       sc = evtStore()->record(m_tblarcalibdigitcont[c-10],m_keys[c]);
       if ( sc.isFailure( ) ) {
-        logstr << MSG::FATAL << "Cannot record  " <<m_keys[c-10]<< endreq;
+        logstr << MSG::FATAL << "Cannot record  " <<m_keys[c-10]<< endmsg;
       }
     }
   }
@@ -2064,14 +2067,14 @@ StatusCode TBByteStreamCnvTool::H6RecordObjects(int unrec_code)
   if(unrec_code!=30){ //  If object was not requested by the converter, store it in SG
     sc = evtStore()->record(m_eventinfo,"TBEventInfo");
     if ( sc.isFailure( ) ) {
-      logstr << MSG::FATAL << "Cannot record TBEventInfo "<< endreq;
+      logstr << MSG::FATAL << "Cannot record TBEventInfo "<< endmsg;
     }
   }
   //    } else {
-  //      logstr << MSG::ERROR << " Object TBADCRawCont already in SG (memory leak!)" << endreq;
+  //      logstr << MSG::ERROR << " Object TBADCRawCont already in SG (memory leak!)" << endmsg;
   //    }
 
-  logstr << MSG::DEBUG << " End of H6 Record " << endreq;
+  logstr << MSG::DEBUG << " End of H6 Record " << endmsg;
 
   // Print run summary in text file
 

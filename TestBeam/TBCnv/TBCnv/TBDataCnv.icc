@@ -26,16 +26,16 @@ StatusCode TBDataCnv<DATATYPE>::initialize()
 {StatusCode sc = Converter::initialize(); 
  if (sc!=StatusCode::SUCCESS)
     return sc; 
- MsgStream logstr(messageService(), "TBDataCnv");
+ MsgStream logstr(msgSvc(), "TBDataCnv");
  IToolSvc* toolSvc;
  sc=service("ToolSvc",toolSvc);
  if(sc!=StatusCode::SUCCESS)
-   {logstr << MSG::ERROR << " Can't get ToolSvc " << endreq;
+   {logstr << MSG::ERROR << " Can't get ToolSvc " << endmsg;
     return sc;
    }
  sc=toolSvc->retrieveTool("TBByteStreamCnvTool",m_tool);
   if(sc!=StatusCode::SUCCESS)
-   {logstr << MSG::ERROR << " Can't get TBByteStreamCnvTool" << endreq;
+   {logstr << MSG::ERROR << " Can't get TBByteStreamCnvTool" << endmsg;
     return sc;
    }
   return StatusCode::SUCCESS;
@@ -43,11 +43,11 @@ StatusCode TBDataCnv<DATATYPE>::initialize()
 
 template< class DATATYPE >
 StatusCode TBDataCnv<DATATYPE>::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
-{ MsgStream logstr(messageService(), "TBDataCnv");
+{ MsgStream logstr(msgSvc(), "TBDataCnv");
   ByteStreamAddress *pRE_Addr;
   pRE_Addr = dynamic_cast<ByteStreamAddress*>(pAddr); //Cast from OpaqueAddress to ByteStreamAddress
   if (!pRE_Addr)
-    {logstr << MSG::ERROR << "dynamic_cast of IOpaqueAdress to ByteStreamAddress failed!" << endreq;
+    {logstr << MSG::ERROR << "dynamic_cast of IOpaqueAdress to ByteStreamAddress failed!" << endmsg;
      return StatusCode::FAILURE;
     }
   DATATYPE* tbdata = 0;
