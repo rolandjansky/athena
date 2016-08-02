@@ -76,9 +76,9 @@ HLT::ErrorCode T2CaloJet::hltInitialize()
 
   // Create helper tools
   if ( m_tools.retrieve().isFailure() ) {
-    msg() << MSG::ERROR << "Failed to retreive helper tools: " << m_tools << endreq;
+    msg() << MSG::ERROR << "Failed to retreive helper tools: " << m_tools << endmsg;
   } else {
-    msg() << MSG::INFO << "Retrieved " << m_tools << endreq;
+    msg() << MSG::INFO << "Retrieved " << m_tools << endmsg;
   }
 
   if (timerSvc()) {
@@ -87,7 +87,7 @@ HLT::ErrorCode T2CaloJet::hltInitialize()
     for (  ; itTool != itToolEnd; ++itTool ) {
 
       if(msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG <<"Tool with name " << (*itTool).name()<< endreq;
+	msg() << MSG::DEBUG <<"Tool with name " << (*itTool).name()<< endmsg;
 
       m_timer.push_back(addTimer((*itTool).name()));
 
@@ -99,7 +99,7 @@ HLT::ErrorCode T2CaloJet::hltInitialize()
 				 &TrigTimer::lastElapsed);
 	  if(msgLvl() <= MSG::DEBUG)
 	    msg() << MSG::DEBUG << "Found LArUnpck timer. Added to monitoring "
-		  << endreq;
+		  << endmsg;
 	}
 	
 	m_timeHECUnpck = (*itTool)->getTimer("HECUnpck");
@@ -108,7 +108,7 @@ HLT::ErrorCode T2CaloJet::hltInitialize()
 				 &TrigTimer::lastElapsed);
 	  if(msgLvl() <= MSG::DEBUG)
 	    msg() << MSG::DEBUG << "Found HECUnpck timer. Added to monitoring "
-		  << endreq;
+		  << endmsg;
 	}
 
 	m_timeTileUnpck = (*itTool)->getTimer("TileUnpck");
@@ -117,7 +117,7 @@ HLT::ErrorCode T2CaloJet::hltInitialize()
 				 &TrigTimer::lastElapsed);
 	  if(msgLvl() <= MSG::DEBUG)
 	    msg() << MSG::DEBUG << "Found HECUnpck timer. Added to monitoring "
-		  << endreq;
+		  << endmsg;
 	}
       }
     }
@@ -153,19 +153,19 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   //  m_storeGate = getStore(); // not needed anymore
 
   if(msgLvl() <= MSG::DEBUG)
-     msg() << MSG::DEBUG << "in execute()" << endreq;
+     msg() << MSG::DEBUG << "in execute()" << endmsg;
 
   // Some debug output:
   if(msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG
 	  << "outputTE->getId(): "
 	  << outputTE->getId()
-	  << endreq;
+	  << endmsg;
 
     msg() << MSG::DEBUG
 	  << "inputTE->getId(): "
 	  << inputTE->getId()
-	  << endreq;
+	  << endmsg;
   }
   // Note: new TriggerElement has no label() anymore !
 
@@ -183,10 +183,10 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
 
   if ( hltStatus == HLT::OK ) {
     if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG  << *roiDescriptor << endreq;
+      msg() << MSG::DEBUG  << *roiDescriptor << endmsg;
     
   } else {
-    msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endreq;
+    msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endmsg;
     return hltStatus;
   }
 
@@ -196,7 +196,7 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
 	  << roiDescriptor->phi()
 	  << " & LVL1 eta="
 	  << roiDescriptor->eta()
-	  << endreq;
+	  << endmsg;
   }
 
   /*** obsolete 
@@ -223,16 +223,16 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   }
 
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG  << " etamin = "<< etamin << endreq;
-    msg() << MSG::DEBUG  << " etamax = "<< etamax << endreq;
-    msg() << MSG::DEBUG  << " phimin = "<< phimin << endreq;
-    msg() << MSG::DEBUG  << " phimax = "<< phimax << endreq;
+    msg() << MSG::DEBUG  << " etamin = "<< etamin << endmsg;
+    msg() << MSG::DEBUG  << " etamax = "<< etamax << endmsg;
+    msg() << MSG::DEBUG  << " phimin = "<< phimin << endmsg;
+    msg() << MSG::DEBUG  << " phimax = "<< phimax << endmsg;
   }
 
   ***/
 
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG  << " roi = "<< *roiDescriptor << endreq;
+    msg() << MSG::DEBUG  << " roi = "<< *roiDescriptor << endmsg;
   }
 
   // =========================
@@ -241,7 +241,7 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   //  if(status) status = makeJet(outputTE);
 
   if(msgLvl() <= MSG::DEBUG)
-     msg() << MSG::DEBUG  << " Making TrigT2Jet "<< endreq;
+     msg() << MSG::DEBUG  << " Making TrigT2Jet "<< endmsg;
 
   m_jet = new TrigT2Jet();
 
@@ -255,7 +255,7 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
     if(msgLvl() <= MSG::DEBUG){
        msg() << MSG::DEBUG
            <<" Create jetObjectMinimal container"
-           <<endreq;
+           <<endmsg;
     }
     jetContainer = new TrigT2JetContainer();
     sc = m_storeGate->record(jetContainer,m_jetOutputKey);
@@ -264,7 +264,7 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
     {
        msg() << MSG::ERROR
            << "Could not record TrigT2JetContainer in TDS"
-           << endreq;
+           << endmsg;
     }
   }
   else{
@@ -273,7 +273,7 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
        msg() << MSG::ERROR
            << "Could not retrieve TrigT2JetContainer " << m_jetOutputKey
            << "from SG. Exiting..."
-           << endreq;
+           << endmsg;
        return false;
       }
   }
@@ -298,7 +298,7 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
     if (timerSvc()) m_timer[courant]->start();
     ///    if ((*it)->execute(m_jet, etamin, etamax, phimin, phimax).isFailure()){
     if ((*it)->execute(m_jet, *roiDescriptor ).isFailure()){
-      msg() << MSG::WARNING << "T2CaloJet AlgToolJets returned Failure" << endreq;
+      msg() << MSG::WARNING << "T2CaloJet AlgToolJets returned Failure" << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,HLT::Reason::USERDEF_1);
     }
     uint32_t in_error = (*it)->report_error();
@@ -310,10 +310,10 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   }
 
   if(msgLvl() <= MSG::DEBUG){
-     msg() << MSG::DEBUG << " Values of T2CaloJet produced: " << endreq;
-     msg() << MSG::DEBUG << " REGTEST: Jet eta = " << m_jet->eta() << endreq;
-     msg() << MSG::DEBUG << " REGTEST: Jet phi = " << m_jet->phi() << endreq;
-     msg() << MSG::DEBUG << " REGTEST: Jet energy = " << m_jet->e() << endreq;
+     msg() << MSG::DEBUG << " Values of T2CaloJet produced: " << endmsg;
+     msg() << MSG::DEBUG << " REGTEST: Jet eta = " << m_jet->eta() << endmsg;
+     msg() << MSG::DEBUG << " REGTEST: Jet phi = " << m_jet->phi() << endmsg;
+     msg() << MSG::DEBUG << " REGTEST: Jet energy = " << m_jet->e() << endmsg;
   }
 
 
@@ -347,7 +347,7 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   //   std::string jetKey = key2keyStore::getKey(m_jet);
   //   sc = m_storeGate->record( m_jet, jetKey, false, false );
   //   if (sc.isFailure()){
-  //     msg() << MSG::ERROR << "Record of individual T2CaloJet into StoreGate failed" << endreq;
+  //     msg() << MSG::ERROR << "Record of individual T2CaloJet into StoreGate failed" << endmsg;
   //     return false;
   //   };
 
@@ -357,7 +357,7 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   if (hltStatus != HLT::OK) {
     if(msgLvl() <= MSG::DEBUG) {
       msg() << MSG::ERROR << "Write of TrigT2Jet into outputTE failed"
-	    << endreq;
+	    << endmsg;
     }
     return hltStatus;
   }
@@ -367,12 +367,12 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   // =========================
 
   if(msgLvl() <= MSG::DEBUG){
-     msg() << MSG::DEBUG << "fillLayerInfo is set to "<< m_fillLayerInfo << endreq;
+     msg() << MSG::DEBUG << "fillLayerInfo is set to "<< m_fillLayerInfo << endmsg;
   }
 
   if (m_fillLayerInfo) {
     if(msgLvl() <= MSG::DEBUG){
-       msg() << MSG::DEBUG << "Making TrigCaloCluster "<< endreq;
+       msg() << MSG::DEBUG << "Making TrigCaloCluster "<< endmsg;
     }
     m_layerInfo = new TrigCaloCluster();
 
@@ -405,11 +405,11 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
     }
  
     if(msgLvl() <= MSG::DEBUG){
-      msg() << MSG::DEBUG << " Values of TrigCaloCluster produced: " << endreq;
-      msg() << MSG::DEBUG << " REGTEST: Cluster raw eta = " << m_layerInfo->rawEta() << endreq;
-      msg() << MSG::DEBUG << " REGTEST: Cluster raw phi = " << m_layerInfo->rawPhi() << endreq;
-      msg() << MSG::DEBUG << " REGTEST: Cluster raw energy = " << m_layerInfo->rawEnergy() << endreq;
-      msg() << MSG::DEBUG << " REGTEST: Cluster nb. of cells = " << m_layerInfo->nCells() << endreq;
+      msg() << MSG::DEBUG << " Values of TrigCaloCluster produced: " << endmsg;
+      msg() << MSG::DEBUG << " REGTEST: Cluster raw eta = " << m_layerInfo->rawEta() << endmsg;
+      msg() << MSG::DEBUG << " REGTEST: Cluster raw phi = " << m_layerInfo->rawPhi() << endmsg;
+      msg() << MSG::DEBUG << " REGTEST: Cluster raw energy = " << m_layerInfo->rawEnergy() << endmsg;
+      msg() << MSG::DEBUG << " REGTEST: Cluster nb. of cells = " << m_layerInfo->nCells() << endmsg;
       double totalE=0;
       for (int iSample=CaloSampling::PreSamplerB; iSample<=CaloSampling::Unknown; ++iSample){
         const CaloSampling::CaloSample s = static_cast<CaloSampling::CaloSample> (iSample);
@@ -417,7 +417,7 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
         totalE=totalE+layerE;
         msg() << MSG::DEBUG << " REGTEST: Layer = " << iSample << " raw energy = " << layerE;
       }
-      msg() << MSG::DEBUG << " REGTEST: Total = " << totalE << endreq;
+      msg() << MSG::DEBUG << " REGTEST: Total = " << totalE << endmsg;
     }
 
     // attach TrigCaloCluster
@@ -425,7 +425,7 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
     if (hltStatus != HLT::OK) {
       if(msgLvl() <= MSG::DEBUG) {
         msg() << MSG::ERROR << "Write of TrigCaloCluster into outputTE failed"
-	      << endreq;
+	      << endmsg;
       }
       return hltStatus;
     }
@@ -454,12 +454,12 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
 
   if ( hltStatus != HLT::OK ) {
     msg() << MSG::ERROR << "Write of update TrigRoiDescriptor into outputTE failed"
-	  << endreq;
+	  << endmsg;
     return hltStatus;
   }
 
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG  << "Recorded an RoiDescriptor " << *newRoiDescriptor << endreq;
+    msg() << MSG::DEBUG  << "Recorded an RoiDescriptor " << *newRoiDescriptor << endmsg;
   }
 
   // Some debug output:
@@ -468,7 +468,7 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
 	  << "We assume success, set TE with Id "
 	  << outputTE->getId()
 	  << " active to signal positive result."
-	  << endreq;
+	  << endmsg;
   }
 
 
@@ -485,7 +485,7 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
 HLT::ErrorCode T2CaloJet::hltFinalize()
 {
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endreq;
+    msg() << MSG::INFO << "in finalize()" << endmsg;
 
   return HLT::OK;
 }

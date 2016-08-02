@@ -55,7 +55,7 @@ StatusCode T2CaloJetConeTool::initialize()
   // Initialize timing service
   if( service( "TrigTimerSvc", m_pTimerService).isFailure() ) {
     log << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" 
-	<< endreq;
+	<< endmsg;
   } 
 
   if (m_pTimerService){
@@ -87,7 +87,7 @@ StatusCode T2CaloJetConeTool::execute(TrigT2Jet* jet, const IRoiDescriptor& /*ro
   MsgStream mLog(msgSvc(), name());
   int outputLevel = msgSvc()->outputLevel( name() );
   if(outputLevel <= MSG::DEBUG)
-     mLog << MSG::DEBUG << " executing T2CaloJetConeTool " << endreq;
+     mLog << MSG::DEBUG << " executing T2CaloJetConeTool " << endmsg;
 
 
   // reset error
@@ -100,7 +100,7 @@ StatusCode T2CaloJetConeTool::execute(TrigT2Jet* jet, const IRoiDescriptor& /*ro
   for(int i=0; i<m_nIterations; i++){
     this->coneIteration(jet,i);
     if ( Athena::Timeout::instance().reached() ) {
-       mLog << MSG::ERROR << "Timeout reached in coneIteration" << endreq;
+       mLog << MSG::ERROR << "Timeout reached in coneIteration" << endmsg;
        return StatusCode::FAILURE;
     }
   }
@@ -108,7 +108,7 @@ StatusCode T2CaloJetConeTool::execute(TrigT2Jet* jet, const IRoiDescriptor& /*ro
   else{ m_other_timer->stop(); }
   
   if(m_fj_cone_sizes.size()==0||m_fj_cone_sizes.size()>3){
-    mLog << MSG::WARNING << "FJ cone sizes are incorrectly setup.  Using 1/7/4 technique." << endreq;
+    mLog << MSG::WARNING << "FJ cone sizes are incorrectly setup.  Using 1/7/4 technique." << endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -129,7 +129,7 @@ void T2CaloJetConeTool::coneIteration(TrigT2Jet* jet, int coneIter)
   /////////////////////////
   if(fabs(jet->eta())>3.2){
     if(m_fj_cone_sizes.size()==0||m_fj_cone_sizes.size()>3){
-      mLog << MSG::DEBUG << "FJ cone sizes are incorrectly setup.  Using 1/7/4 technique." << endreq;
+      mLog << MSG::DEBUG << "FJ cone sizes are incorrectly setup.  Using 1/7/4 technique." << endmsg;
       // Cone 1.0/0.7/0.4 Technique
       //  -Find inital seed looking at the full eta window
       //  -Subsequent iterations reduce cone size to 0.7 then 0.4 (or default)
@@ -142,7 +142,7 @@ void T2CaloJetConeTool::coneIteration(TrigT2Jet* jet, int coneIter)
       coneR = m_fj_cone_sizes.at(coneIter);
     }
     mLog << MSG::DEBUG << "Iteration " << coneIter 
-	 << ", using cone size: " << coneR << endreq;
+	 << ", using cone size: " << coneR << endmsg;
   }
   double dEta = 0, dPhi=0;
   
