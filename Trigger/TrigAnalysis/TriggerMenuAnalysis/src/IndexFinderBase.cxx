@@ -47,24 +47,24 @@ void IndexFinderBase::fillIndexes(std::vector<FeatureIndex>& index,
   //  (*logger) << MSG::DEBUG 
   //	    << "  N helpers for TE (" << te_label
   //	    << "): " << v.size() 
-  //	    << " clid=" << clid << endreq;
+  //	    << " clid=" << clid << endmsg;
   HLT::TriggerElement::FeatureVec::const_iterator p_f;
   for (p_f=v.begin(); p_f!=v.end(); ++p_f) {
     //    (*logger) << MSG::DEBUG << "    comparing against clid=" << p_f->getCLID() 
-    //	      << " (ref=" << clid << ")" << endreq;
+    //	      << " (ref=" << clid << ")" << endmsg;
     if (p_f->getCLID() == clid) {
       //      (*logger) << MSG::DEBUG << "    found FeatureAccessHelper for CLID: " 
-      //		<< clid << endreq;
+      //		<< clid << endmsg;
       const HLT::TriggerElement::ObjectIndex& oi = p_f->getIndex();
       if (label.empty() || oi.subTypeIndex() == subtypeOfLabel) {
 	//	(*logger) << MSG::DEBUG << "    objectsBegin/End = " 
-	//	       << oi.objectsBegin() << "/" << oi.objectsEnd() << endreq;
+	//	       << oi.objectsBegin() << "/" << oi.objectsEnd() << endmsg;
 	for (i=oi.objectsBegin(); i!=oi.objectsEnd(); ++i) {
 	  index.push_back(FeatureIndex(i, status));
 	}
       }
     } else {
-      //(*logger) << MSG::DEBUG << "    Wrong CLID: " << p_f->getCLID() << endreq;
+      //(*logger) << MSG::DEBUG << "    Wrong CLID: " << p_f->getCLID() << endmsg;
     }
   }
 }

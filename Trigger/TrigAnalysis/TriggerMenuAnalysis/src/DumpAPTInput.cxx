@@ -34,7 +34,7 @@ DumpAPTInput::~DumpAPTInput() {
 
 StatusCode DumpAPTInput::initialize() {
   if (m_trigDecisionTool.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Cannot retrieve TrigDecisionTool" << endreq;
+    msg(MSG::WARNING) << "Cannot retrieve TrigDecisionTool" << endmsg;
   }
 
   m_outputFile.open(m_outputFileName.c_str());
@@ -71,7 +71,7 @@ void DumpAPTInput::readL1Map(const std::vector<std::string>& names,
 			     std::map<int, std::string>& name_map) {
   Trig::ExpertMethods* m = m_trigDecisionTool->ExperimentalAndExpertMethods();
   if (m==0) {
-    msg(MSG::WARNING) << "Cannot get TDT expert methods" << endreq;
+    msg(MSG::WARNING) << "Cannot get TDT expert methods" << endmsg;
   } else {
     m->enable();
     std::vector<std::string>::const_iterator p;
@@ -82,7 +82,7 @@ void DumpAPTInput::readL1Map(const std::vector<std::string>& names,
 	name_map[id] = *p;
       } else {
 	msg(MSG::WARNING) << "Cannot find TrigConif::TriggerItem for " 
-			  << *p << endreq;
+			  << *p << endmsg;
       }
     }
   }
@@ -92,7 +92,7 @@ void DumpAPTInput::readHLTMap(const std::vector<std::string>& names,
 			    std::map<int, std::string>& name_map) {
   Trig::ExpertMethods* m = m_trigDecisionTool->ExperimentalAndExpertMethods();
   if (m==0) {
-    msg(MSG::WARNING) << "Cannot get TDT expert methods for HLT" << endreq;
+    msg(MSG::WARNING) << "Cannot get TDT expert methods for HLT" << endmsg;
   } else {
     m->enable();
     std::vector<std::string>::const_iterator p;
@@ -103,7 +103,7 @@ void DumpAPTInput::readHLTMap(const std::vector<std::string>& names,
 	name_map[id] = *p;
       } else {
 	msg(MSG::WARNING) << "Cannot find TrigConif::HLTDChain for " 
-			  << *p << endreq;
+			  << *p << endmsg;
       }
     }
   }
@@ -119,7 +119,7 @@ void DumpAPTInput::processL1(int id, const std::string& name) {
   m_L1_TBP.set(id, a);
   m_L1_TAP.set(id, b);
   m_L1_TAV.set(id, c);
-  msg(MSG::DEBUG) << "Getting bits for " << name << endreq;
+  msg(MSG::DEBUG) << "Getting bits for " << name << endmsg;
 }
 
 void DumpAPTInput::processL2(int id, const std::string& name) {
@@ -129,7 +129,7 @@ void DumpAPTInput::processL2(int id, const std::string& name) {
     m_L2_Raw.set(id, a);
     m_L2_Rerun.set(id, b);
   }
-  msg(MSG::DEBUG) << "Getting bits for " << name << endreq;
+  msg(MSG::DEBUG) << "Getting bits for " << name << endmsg;
 }
 
 void DumpAPTInput::processEF(int id, const std::string& name) {
@@ -139,7 +139,7 @@ void DumpAPTInput::processEF(int id, const std::string& name) {
     m_EF_Raw.set(id, a);
     m_EF_Rerun.set(id, b);
   }
-  msg(MSG::DEBUG) << "Getting bits for " << name << endreq;
+  msg(MSG::DEBUG) << "Getting bits for " << name << endmsg;
 }
 
 void DumpAPTInput::dump() {

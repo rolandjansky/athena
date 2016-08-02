@@ -25,7 +25,7 @@ StatusCode FlatHltNaviMaker::initialize() {
   AthAlgorithm::initialize().ignore();
   
   if (m_RoILinksCnvTool.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Cannot retrieve RoILinksCnvTool" << endreq;
+    msg(MSG::WARNING) << "Cannot retrieve RoILinksCnvTool" << endmsg;
   }
   return StatusCode::SUCCESS;
 }

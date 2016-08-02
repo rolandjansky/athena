@@ -187,14 +187,14 @@ void HltMuonNtComponent::fillHltData() {
 void HltMuonNtComponent::fillEventInfo() {
   //  MsgStream log(msgSvc(), name());
 
-  log() << MSG::DEBUG << " fillEventInfo start " << endreq;
+  log() << MSG::DEBUG << " fillEventInfo start " << endmsg;
 
   //get Event Info
   EventInfo* eventInfo;
   StatusCode sc = (*m_activeStore) -> retrieve( eventInfo, m_eventInfoName );
   //StatusCode sc = (*m_activeStore) -> retrieve( m_eventInfo, "McEventInfo" );
   if ( sc.isFailure() || 0 == eventInfo ) {
-    log() << MSG::ERROR << " Cannot retrieve EventInfo " << endreq;
+    log() << MSG::ERROR << " Cannot retrieve EventInfo " << endmsg;
     return;
   }
 
@@ -214,20 +214,20 @@ void HltMuonNtComponent::fillEventInfo() {
   }
   m_trigEventInfo -> setTrigEventInfo( run_number, lumi_block,  event_number, time, BCID);
 
-  log() << MSG::DEBUG << " fillEventInfo end " << endreq;
+  log() << MSG::DEBUG << " fillEventInfo end " << endmsg;
 }
 
 void HltMuonNtComponent::fillTgcHpt() {
   //  MsgStream log(msgSvc(), name());
 
-  log() << MSG::DEBUG << " fillTgcHpt start " << endreq;
+  log() << MSG::DEBUG << " fillTgcHpt start " << endmsg;
 
   //TGC trigger PRD
   const Muon::TgcCoinDataContainer* tgc_container(0);
 
   StatusCode sc = (*m_activeStore) -> retrieve( tgc_container, "TrigT1CoinDataCollection" );
   if ( sc.isFailure() || 0 == tgc_container ) {
-    log() << MSG::ERROR << " Cannot retrieve TgcCoinDataContainer " << endreq;
+    log() << MSG::ERROR << " Cannot retrieve TgcCoinDataContainer " << endmsg;
     return;
   }
 
@@ -238,7 +238,7 @@ void HltMuonNtComponent::fillTgcHpt() {
        ++ it ){ 
        
     if ( it == tgc_container->end() || (*it)->size()==0) continue;  //check if there are counts      
-    log() << MSG::DEBUG << "size of tgc collection is " << (*it) -> size() << endreq;
+    log() << MSG::DEBUG << "size of tgc collection is " << (*it) -> size() << endmsg;
 
 
     //loop over collection
@@ -250,7 +250,7 @@ void HltMuonNtComponent::fillTgcHpt() {
       const Muon::TgcCoinData* tcd = *itc;
 
       //if not HPT continue
-      log() << MSG::ERROR << "type " << Muon::TgcCoinData::TYPE_HIPT<<" "<< tcd -> type() << endreq;
+      log() << MSG::ERROR << "type " << Muon::TgcCoinData::TYPE_HIPT<<" "<< tcd -> type() << endmsg;
       if( tcd -> type() != Muon::TgcCoinData::TYPE_HIPT ) continue;
 
       TgcHpt hpt;
@@ -264,12 +264,12 @@ void HltMuonNtComponent::fillTgcHpt() {
 
       if( tcd -> isStrip() == true ){//strip HPT
 
-        log() << MSG::ERROR << "push back hpt strip" <<endreq;
+        log() << MSG::ERROR << "push back hpt strip" <<endmsg;
         m_tgcHptStrip -> push_back(hpt);
 
       }else{//wire HPT
 
-        log() << MSG::ERROR << "push back hpt wire" <<endreq;
+        log() << MSG::ERROR << "push back hpt wire" <<endmsg;
         m_tgcHptWire -> push_back(hpt);
 
       }
@@ -278,7 +278,7 @@ void HltMuonNtComponent::fillTgcHpt() {
 
   }//loop over container end
 
-  log() << MSG::DEBUG << " fillTGC end " << endreq;
+  log() << MSG::DEBUG << " fillTGC end " << endmsg;
 }
 
 void HltMuonNtComponent::fillOfflineMuon() {
@@ -321,11 +321,11 @@ void HltMuonNtComponent::fillOfflineMuon() {
   //TileL2Muon
   const TileL2Container* mutags_ROD;
   sc=(*m_activeStore)->retrieve(mutags_ROD, "TileL2Cnt" );
-  log() << MSG::DEBUG << " filling TileL2" << endreq;
+  log() << MSG::DEBUG << " filling TileL2" << endmsg;
   if(sc == StatusCode::FAILURE) {
     log() << MSG::WARNING
         << "cannot retrieve TileL2Container in TDS"
-        << endreq;
+        << endmsg;
     return;
   }
 
@@ -370,10 +370,10 @@ void HltMuonNtComponent::fillOfflineMuon() {
   // step1: read  from TDS
   const TileMuContainer*  mutags_cont;
   sc=(*m_activeStore)->retrieve(mutags_cont, "TileMuObj");
-  log() << MSG::DEBUG << " filling TileMu" << endreq;
+  log() << MSG::DEBUG << " filling TileMu" << endmsg;
 
   if(sc == StatusCode::FAILURE) {
-    log()<<MSG::WARNING<<"cannot retrieve TileMuContainer in TDS"<<endreq;
+    log()<<MSG::WARNING<<"cannot retrieve TileMuContainer in TDS"<<endmsg;
     return;
   }
 
@@ -418,7 +418,7 @@ void HltMuonNtComponent::createChainGroups(const std::vector<std::string>& v) {
 
   std::vector<std::string>::const_iterator p;
   for (p=v.begin(); p!=v.end(); ++p) {
-    log() << MSG::DEBUG << "Create chaingroup for chain: " << (*p) << endreq;
+    log() << MSG::DEBUG << "Create chaingroup for chain: " << (*p) << endmsg;
     m_trigAccessTool->createChainGroup(*p);
   }
 }

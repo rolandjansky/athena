@@ -41,11 +41,11 @@ StatusCode TestNewTDT::initialize() {
   MsgStream log(msgSvc(), name());
 
   if (m_trigDecisionTool.retrieve().isFailure()) {
-    log << MSG::WARNING << "Cannot retrieve TrigDecisionTool" << endreq;
+    log << MSG::WARNING << "Cannot retrieve TrigDecisionTool" << endmsg;
     return StatusCode::FAILURE;
   }
   if (m_classIDSvc.retrieve().isFailure()) {
-    log << MSG::WARNING << "Cannot retrieve ClassIDSvc" << endreq;
+    log << MSG::WARNING << "Cannot retrieve ClassIDSvc" << endmsg;
     return StatusCode::FAILURE;
   }
   std::vector<std::string>::const_iterator p;
@@ -65,7 +65,7 @@ StatusCode TestNewTDT::execute() {
   std::vector<std::string> efchains = m_chainGroup_EF->getListOfTriggers();
 
   log << MSG::INFO << "In execute: N L2 chains " << l2chains.size() 
-      << ", N EF chains " << efchains.size() << endreq;
+      << ", N EF chains " << efchains.size() << endmsg;
 
 //   std::set<std::string> chainList;
 //   chainList.insert("L2_mu6_MSonly");
@@ -85,10 +85,10 @@ StatusCode TestNewTDT::execute() {
 
   const TrigMuonEFInfoContainer* tmeic=0;
   if (sgSvc()->retrieve(tmeic, "HLT_MuonEFInfo").isFailure()) {
-    log << MSG::DEBUG << "Cannot retrieve HLT_MuonEFInfo" << endreq;
+    log << MSG::DEBUG << "Cannot retrieve HLT_MuonEFInfo" << endmsg;
   } else {
     log << MSG::DEBUG << "TrigMuonEFInfoContainer size: " << tmeic->size() 
-	<< endreq;
+	<< endmsg;
   }
 
   for_each(m_chainGroups.begin(), m_chainGroups.end(), 
@@ -101,10 +101,10 @@ StatusCode TestNewTDT::finalize() {
   MsgStream log(msgSvc(), name());
   std::map<std::string, std::multiset<std::string> >::const_iterator p;
   for (p=m_chainCombMap.begin(); p!=m_chainCombMap.end(); ++p) {
-    log << MSG::INFO << "Features in chain: " << p->first << endreq;
+    log << MSG::INFO << "Features in chain: " << p->first << endmsg;
     std::set<std::string>::const_iterator s;
     for (s=p->second.begin(); s!=p->second.end(); ++s) {
-      log << MSG::INFO << "  Comb: " << (*s) << endreq;
+      log << MSG::INFO << "  Comb: " << (*s) << endmsg;
     }
   }
   return StatusCode::SUCCESS;
@@ -114,45 +114,45 @@ void TestNewTDT::printTDT(const Trig::ChainGroup* cg) {
   MsgStream log(msgSvc(), name());
 
   if (cg == 0) {
-    log << MSG::DEBUG << "Chain group is null" << endreq;
+    log << MSG::DEBUG << "Chain group is null" << endmsg;
     return;
   }
 
-  log << MSG::INFO << "Print ChainGroup : " << cg->patterns() << endreq;
-  log << MSG::INFO << "List of triggers: " << cg->getListOfTriggers() << endreq;
-  log << MSG::INFO << "passed? : " <<  cg->isPassed() << endreq;
+  log << MSG::INFO << "Print ChainGroup : " << cg->patterns() << endmsg;
+  log << MSG::INFO << "List of triggers: " << cg->getListOfTriggers() << endmsg;
+  log << MSG::INFO << "passed? : " <<  cg->isPassed() << endmsg;
 
-  log << MSG::INFO << "Print TDT structure for ChainGroup: " << cg << endreq;
+  log << MSG::INFO << "Print TDT structure for ChainGroup: " << cg << endmsg;
   Trig::FeatureContainer fc = cg->features();
-  log << MSG::INFO << "Got feature container" << endreq;
+  log << MSG::INFO << "Got feature container" << endmsg;
   std::vector<Trig::Combination> combs = fc.getCombinations();
   
-  log << MSG::INFO << "Number of combinations: " << combs.size() << endreq;
+  log << MSG::INFO << "Number of combinations: " << combs.size() << endmsg;
 
   std::vector<Trig::Combination>::iterator p_comb;
   for (p_comb=combs.begin(); p_comb!=combs.end(); ++p_comb) {
     const std::vector<const HLT::TriggerElement*>& tes = p_comb->tes();
-    log << MSG::INFO << "Checking combination: N_TE=" << tes.size() << endreq;
+    log << MSG::INFO << "Checking combination: N_TE=" << tes.size() << endmsg;
     for (unsigned int i=0; i<tes.size(); ++i) {
-      //log << MSG::INFO << "TE[" << i << "] = " << p_comb->getTEName(*tes[i]) << endreq;
-      log << MSG::INFO << "TE[" << i << "] = " << Trig::getTEName(*tes[i]) << endreq;
+      //log << MSG::INFO << "TE[" << i << "] = " << p_comb->getTEName(*tes[i]) << endmsg;
+      log << MSG::INFO << "TE[" << i << "] = " << Trig::getTEName(*tes[i]) << endmsg;
     }
     std::vector<Trig::Feature<MuonFeature> > muon_features = p_comb->get<MuonFeature>();
     muon_features = p_comb->get<MuonFeature>( (const std::string&)"", (unsigned int)TrigDefs::alsoDeactivateTEs);
     log << MSG::INFO << "Got vector of MuonFeature feature: " 
-	<< muon_features.size() << endreq;
+	<< muon_features.size() << endmsg;
   }
-  log << MSG::INFO << "Done printTDT" << endreq;
+  log << MSG::INFO << "Done printTDT" << endmsg;
 }
 
 void TestNewTDT::inspectChain(const std::string& chain_name) {
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "Inspecting chain: " << chain_name << endreq;
+  log << MSG::DEBUG << "Inspecting chain: " << chain_name << endmsg;
   const Trig::FeatureContainer fc = 
     m_trigDecisionTool->features(chain_name, TrigDefs::alsoDeactivateTEs);
   std::vector<Trig::Combination> combs = fc.getCombinations();
   std::vector<Trig::Combination>::const_iterator p_comb; 
-  log << MSG::DEBUG << "  N combinations: " << combs.size() << endreq;
+  log << MSG::DEBUG << "  N combinations: " << combs.size() << endmsg;
   for (p_comb=combs.begin(); p_comb!=combs.end(); ++p_comb) {
     inspectCombination(*p_comb, chain_name);
   }
@@ -193,7 +193,7 @@ void TestNewTDT::inspectCombination(const Trig::Combination& comb,
 	  << ") index.subType=" << index.subTypeIndex() 
 	  << " index.begin=" << index.objectsBegin()
 	  << " index.end=" << index.objectsEnd()
-	  << endreq;
+	  << endmsg;
 
       clids.insert(clid);
     }

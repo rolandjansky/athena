@@ -107,7 +107,7 @@ IndexFinder<Feature_t,Cont_t,Elem_t>::findIndex(const Trig::Combination& comb,
 
   int index = 0;
   bool status(false);
-  //(*m_log) << MSG::DEBUG << "Feature size is: " << fs.size() << endreq;
+  //(*m_log) << MSG::DEBUG << "Feature size is: " << fs.size() << endmsg;
   if (fs.size() > 0) {
     //    const Feature_t* x = fs[0].cptr();
     HLT::TriggerElement* te = NULL;
@@ -117,7 +117,7 @@ IndexFinder<Feature_t,Cont_t,Elem_t>::findIndex(const Trig::Combination& comb,
 	break;
       }
     }
-    //(*m_log) << MSG::DEBUG << "TE = " << te << endreq;
+    //(*m_log) << MSG::DEBUG << "TE = " << te << endmsg;
     if( te ) {
       te_label="";
       TrigConf::HLTTriggerElement::getLabel(te->getId(), te_label);
@@ -127,7 +127,7 @@ IndexFinder<Feature_t,Cont_t,Elem_t>::findIndex(const Trig::Combination& comb,
       unsigned int clid = ClassID_traits<Feature_t>::ID();
       index = -2;
       //(*m_log) << MSG::DEBUG << "Size of feature access helper (clid="
-      //<< clid << " : " << v.size() << endreq;
+      //<< clid << " : " << v.size() << endmsg;
       for (p_f=v.begin(); p_f!=v.end(); ++p_f) {
 	if (p_f->getCLID() == clid) {
 	  const HLT::TriggerElement::ObjectIndex& oi = p_f->getIndex();
@@ -210,10 +210,10 @@ int IndexFinder<Feature_t,Cont_t,Elem_t>::findIndex(const Elem_t* addr) {
 
   if (m_cont == 0) {
     if (m_sgsvc->retrieve(m_cont, m_contKey).isFailure()) {
-      (*m_log) << MSG::WARNING << "Cannot retrieve Container " << m_contKey << endreq;
+      (*m_log) << MSG::WARNING << "Cannot retrieve Container " << m_contKey << endmsg;
     } else {
       (*m_log) << MSG::VERBOSE 
-	     << "Successfully retrieved container: " << m_contKey << endreq;
+	     << "Successfully retrieved container: " << m_contKey << endmsg;
     }
   }
 
@@ -221,14 +221,14 @@ int IndexFinder<Feature_t,Cont_t,Elem_t>::findIndex(const Elem_t* addr) {
     typename Cont_t::const_iterator q;
 //     (*m_log) << MSG::VERBOSE << "Search element with pointer "
 // 	   << std::hex << addr << std::dec 
-// 	   << " in container (size: " << m_cont->size() << ")" << endreq;
+// 	   << " in container (size: " << m_cont->size() << ")" << endmsg;
     index = -1;
     for (q=m_cont->begin(); q!=m_cont->end(); ++q) {
       index ++;
       if (addr == (*q)) {
 // 	(*m_log) << MSG::VERBOSE
 // 	       << "Found element in the container with the same pointer" 
-// 	       << endreq;
+// 	       << endmsg;
 	foundit = true;
 	break;
       }
@@ -251,14 +251,14 @@ IndexFinder<Feature_t,Cont_t,Elem_t>::findIndexes(const Trig::Combination& comb,
   std::string clsnm = ClassID_traits<Feature_t>::typeName();
   
   //  (*m_log) << MSG::DEBUG << "Looking for feature with label " << m_label
-  //	 << " class: " << clsnm << endreq;
+  //	 << " class: " << clsnm << endmsg;
 
   std::vector<Trig::Feature<Feature_t> > fs = 
     comb.get<Feature_t>(m_label, TrigDefs::alsoDeactivateTEs);
   uint16_t subtypeOfLabel = subTypeIndex(clid, m_label, comb);
 
   //  (*m_log) << MSG::DEBUG 
-  //	 << "  N(feature from Combination::get):" <<  fs.size() << endreq;
+  //	 << "  N(feature from Combination::get):" <<  fs.size() << endmsg;
 
   typename std::vector<Trig::Feature<Feature_t> >::const_iterator f;
   for (f=fs.begin(); f!=fs.end(); ++f) {
@@ -270,7 +270,7 @@ IndexFinder<Feature_t,Cont_t,Elem_t>::findIndexes(const Trig::Combination& comb,
 // 	   << " id=" << te->getId()
 // 	   << " name=" << lbl
 // 	   << " label=" << f->label()
-// 	   << " cptr=" << f->cptr() << endreq;
+// 	   << " cptr=" << f->cptr() << endmsg;
     if( !checkROIWord( te ) ) { continue; }
 
     te_label = "";

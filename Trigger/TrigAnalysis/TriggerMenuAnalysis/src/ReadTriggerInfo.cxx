@@ -47,7 +47,7 @@ StatusCode ReadTriggerInfo::initialize() {
     ATH_MSG_WARNING ("Cannot retrieve TrigAccessTool");
   }
 //   if (mTrigMenuHists.retrieve().isFailure()) {
-//     log << MSG::WARNING << "Cannot retrieve TrigMenuHists" << endreq;
+//     log << MSG::WARNING << "Cannot retrieve TrigMenuHists" << endmsg;
 //   }
 
   m_event = TrigMenuEvent::getInstance();
@@ -57,7 +57,7 @@ StatusCode ReadTriggerInfo::initialize() {
 
 StatusCode ReadTriggerInfo::execute() {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "ReadTriggerInfo::execute()" << endreq;
+  log << MSG::INFO << "ReadTriggerInfo::execute()" << endmsg;
 
   m_event->clear();
 
@@ -70,36 +70,36 @@ StatusCode ReadTriggerInfo::execute() {
 
   std::vector<std::string>::const_iterator s1;
 
-  log << MSG::DEBUG << "Get chain objects in RoI" << endreq;
+  log << MSG::DEBUG << "Get chain objects in RoI" << endmsg;
   for (s1=m_muonChains.begin(); s1!=m_muonChains.end(); ++s1) {
     m_trigAccessTool->getChainObjects<MuonObjectsInRoI>(*s1, mu_objs);
     log << "Checking RoI size after chain: " << (*s1) 
-	<< " objs.size: " << mu_objs.size() << endreq;
+	<< " objs.size: " << mu_objs.size() << endmsg;
   }
   for (s1=m_electronChains.begin(); s1!=m_electronChains.end(); ++s1) {
     m_trigAccessTool->getChainObjects<ElectronObjectsInRoI>(*s1, e_objs);
     log << "Checking RoI size after chain: " << (*s1) 
-	<< " objs.size: " << e_objs.size() << endreq;
+	<< " objs.size: " << e_objs.size() << endmsg;
   }
   for (s1=m_tauChains.begin(); s1!=m_tauChains.end(); ++s1) {
     m_trigAccessTool->getChainObjects<TauObjectsInRoI>(*s1, tau_objs);
     log << "Checking RoI size after chain: " << (*s1) 
-	<< " objs.size: " << tau_objs.size() << endreq;
+	<< " objs.size: " << tau_objs.size() << endmsg;
   }
   for (s1=m_jetChains.begin(); s1!=m_jetChains.end(); ++s1) {
     m_trigAccessTool->getChainObjects<JetObjectsInRoI>(*s1, j_objs);
     log << "Checking RoI size after chain: " << (*s1) 
-	<< " objs.size: " << j_objs.size() << endreq;
+	<< " objs.size: " << j_objs.size() << endmsg;
   }
   for (s1=m_metChains.begin(); s1!=m_metChains.end(); ++s1) {
     m_trigAccessTool->getChainObjects<MissingETObjectsInRoI>(*s1, met_objs);
     log << "Checking RoI size after chain: " << (*s1) 
-	<< " objs.size: " << met_objs.size() << endreq;
+	<< " objs.size: " << met_objs.size() << endmsg;
   }
   for (s1=m_tileMuChains.begin(); s1!=m_tileMuChains.end(); ++s1) {
     m_trigAccessTool->getChainObjects<TileMuObjectsInRoI>(*s1, tilemu_objs);
     log << "Checking RoI size after chain: " << (*s1) 
-	<< " objs.size: " << tilemu_objs.size() << endreq;
+	<< " objs.size: " << tilemu_objs.size() << endmsg;
   }
 
   if (mu_objs.size() > 0) {
@@ -107,7 +107,7 @@ StatusCode ReadTriggerInfo::execute() {
     if (muroi) {
       const MuonFeature* x = muroi->getMuonFeature();
       if (x) {
-	log << MSG::DEBUG << "muFast pt: " << x->pt() << endreq;
+	log << MSG::DEBUG << "muFast pt: " << x->pt() << endmsg;
       }
     }
   }
@@ -117,7 +117,7 @@ StatusCode ReadTriggerInfo::execute() {
 
 StatusCode ReadTriggerInfo::finalize() {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "finalize()" << endreq;
+  log << MSG::INFO << "finalize()" << endmsg;
 
   return StatusCode::SUCCESS;
 }

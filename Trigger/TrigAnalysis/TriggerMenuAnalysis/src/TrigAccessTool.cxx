@@ -49,7 +49,7 @@ StatusCode TrigAccessTool::initialize() {
     ATH_MSG_WARNING ("Cannot retrieve service TrigDecisionTool");
   }
 //   if (mNavigation.retrieve().isFailure()) {
-//     log << MSG::WARNING << "Cannot retrieve service HLT::Navigation" << endreq;
+//     log << MSG::WARNING << "Cannot retrieve service HLT::Navigation" << endmsg;
 //   }
   return StatusCode::SUCCESS;
 }
@@ -71,8 +71,8 @@ HLTObjectsInRoI* TrigAccessTool::findRoI(int isig,
 					HLTObjectsInRoI* (*func)(), int level) {
   HLT::NavigationCore* navitool = 0;
 
-//   log << MSG::DEBUG << "navitool = " << navitool << endreq;
-//   log << MSG::DEBUG << "te = " << te << endreq;
+//   log << MSG::DEBUG << "navitool = " << navitool << endmsg;
+//   log << MSG::DEBUG << "te = " << te << endmsg;
   ATH_MSG_DEBUG ("Look for an roi (already found " 
                  << objs.size() << " objs)");
 
@@ -83,7 +83,7 @@ HLTObjectsInRoI* TrigAccessTool::findRoI(int isig,
   std::vector<HLTObjectsInRoI*>::iterator p;
   for (p=objs.begin(); p!=objs.end(); ++p) {
     if (*p) {
-      //      log << MSG::DEBUG << "roi ok" << endreq;
+      //      log << MSG::DEBUG << "roi ok" << endmsg;
 
       HLTObjectsInRoI* y = func();
       y->setDataFromTE(isig, te, navitool, level);
@@ -281,7 +281,7 @@ void TrigAccessTool::printL1Results() const {
 //   std::vector<std::string>::const_iterator p;
 //   for (p=configured_chains.begin(); p!=configured_chains.end(); ++p) {
 //     bool result = m_trigDecisionTool->isPassed(*p);
-//     log << MSG::INFO << "chain: " << (*p) << " : " << result << endreq;
+//     log << MSG::INFO << "chain: " << (*p) << " : " << result << endmsg;
 //   }
   
 }
