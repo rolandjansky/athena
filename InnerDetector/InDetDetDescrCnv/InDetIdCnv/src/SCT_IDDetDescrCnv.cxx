@@ -50,11 +50,11 @@ SCT_IDDetDescrCnv::initialize()
 {
     // First call parent init
     StatusCode sc = DetDescrConverter::initialize();
-    MsgStream log(messageService(), "SCT_IDDetDescrCnv");
-    log << MSG::DEBUG << "in initialize" << endreq;
+    MsgStream log(msgSvc(), "SCT_IDDetDescrCnv");
+    log << MSG::DEBUG << "in initialize" << endmsg;
 
     if (sc.isFailure()) {
-        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endreq;
+        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endmsg;
 	return sc;
     }
     
@@ -69,7 +69,7 @@ SCT_IDDetDescrCnv::initialize()
 //      // - this is ONLY needed for the manager of each system
 //      sc = addToDetStore(classID(), "PidelID");
 //      if (sc.isFailure()) {
-//  	log << MSG::FATAL << "Unable to add proxy for SCT_ID to the Detector Store!" << endreq;
+//  	log << MSG::FATAL << "Unable to add proxy for SCT_ID to the Detector Store!" << endmsg;
 //  	return StatusCode::FAILURE;
 //      } else {}
 
@@ -81,8 +81,8 @@ SCT_IDDetDescrCnv::initialize()
 StatusCode 
 SCT_IDDetDescrCnv::finalize()
 {
-    MsgStream log(messageService(), "SCT_IDDetDescrCnv");
-    log << MSG::DEBUG << "in finalize" << endreq;
+    MsgStream log(msgSvc(), "SCT_IDDetDescrCnv");
+    log << MSG::DEBUG << "in finalize" << endmsg;
 
     return StatusCode::SUCCESS; 
 }
@@ -93,25 +93,25 @@ StatusCode
 SCT_IDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
 {
     //StatusCode sc = StatusCode::SUCCESS;
-    MsgStream log(messageService(), "SCT_IDDetDescrCnv");
-    log << MSG::INFO << "in createObj: creating a SCT_ID helper object in the detector store" << endreq;
+    MsgStream log(msgSvc(), "SCT_IDDetDescrCnv");
+    log << MSG::INFO << "in createObj: creating a SCT_ID helper object in the detector store" << endmsg;
 
     // Create a new SCT_ID
 
     DetDescrAddress* ddAddr;
     ddAddr = dynamic_cast<DetDescrAddress*> (pAddr);
     if(!ddAddr) {
-	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endreq;
+	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endmsg;
 	return StatusCode::FAILURE;
     }
 
     // Get the StoreGate key of this container.
     std::string helperKey  = *( ddAddr->par() );
     if ("" == helperKey) {
-	log << MSG::DEBUG << "No Helper key " << endreq;
+	log << MSG::DEBUG << "No Helper key " << endmsg;
     }
     else {
-	log << MSG::DEBUG << "Helper key is " << helperKey << endreq;
+	log << MSG::DEBUG << "Helper key is " << helperKey << endmsg;
     }
     
 
@@ -119,7 +119,7 @@ SCT_IDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     StoreGateSvc * detStore;
     StatusCode status = serviceLocator()->service("DetectorStore", detStore);
     if (status.isFailure()) {
-	log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+	log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
 	return StatusCode::FAILURE;
     } else {}
  
@@ -127,11 +127,11 @@ SCT_IDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     const DataHandle<IdDictManager> idDictMgr;
     status = detStore->retrieve(idDictMgr, "IdDict");
     if (status.isFailure()) {
-	log << MSG::FATAL << "Could not get IdDictManager !" << endreq;
+	log << MSG::FATAL << "Could not get IdDictManager !" << endmsg;
 	return StatusCode::FAILURE;
     } 
     else {
-	log << MSG::DEBUG << " Found the IdDictManager. " << endreq;
+	log << MSG::DEBUG << " Found the IdDictManager. " << endmsg;
     }
 
     // Only create new helper if it is the first pass or if there is a
@@ -150,7 +150,7 @@ SCT_IDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     if (!dict) {
 	log << MSG::ERROR 
 	    << "unable to find idDict for InnerDetector" 
-	    << endreq;
+	    << endmsg;
 	return StatusCode::FAILURE;
     }
 
@@ -169,39 +169,40 @@ SCT_IDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 	    // Internal InDet id tag
 	    initHelper = true;
 	    log << MSG::DEBUG << " Changed internal InDet id tag: " 
-		<< inDetIDTag << endreq;
+		<< inDetIDTag << endmsg;
 	}
 	if (inDetIDFileName != m_inDetIDFileName) {
 	    // File to be read for InDet ids
 	    initHelper = true;
 	    log << MSG::DEBUG << " Changed InDetFileName:" 
-		<< inDetIDFileName << endreq;
+		<< inDetIDFileName << endmsg;
 	}
 	if (inDetIdDictTag != m_inDetIdDictTag) {
 	    // Tag of RDB record for InDet ids
 	    initHelper = true;
 	    log << MSG::DEBUG << " Changed InDetIdDictTag: "
 		<< inDetIdDictTag 
-		<< endreq;
+		<< endmsg;
 	}
-	if (doChecks != m_doChecks)
+	if (doChecks != m_doChecks) {
 	    // DoChecks flag
 	    initHelper = true;
 	    log << MSG::DEBUG << " Changed doChecks flag: "
 		<< doChecks
-		<< endreq;
+		<< endmsg;
+        }
     }
     else {
 	// create the helper
 	m_sctId = new SCT_ID;
 	initHelper = true;
         // add in message service for printout
-        m_sctId->setMessageSvc(messageService());
+        m_sctId->setMessageSvc(msgSvc());
     }
     
     if (initHelper) {
 	if (idDictMgr->initializeHelper(*m_sctId)) {
-	    log << MSG::ERROR << "Unable to initialize SCT_ID" << endreq;
+	    log << MSG::ERROR << "Unable to initialize SCT_ID" << endmsg;
 	    return StatusCode::FAILURE;
 	} 
 	// Save state:
