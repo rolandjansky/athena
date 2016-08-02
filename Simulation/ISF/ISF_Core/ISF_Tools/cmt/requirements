@@ -15,6 +15,7 @@ use GaudiInterface              GaudiInterface-*        External
 private
 use AthenaBaseComps             AthenaBaseComps-*       Control
 use AtlasDetDescr               AtlasDetDescr-*         DetectorDescription
+use BarcodeEvent                BarcodeEvent-*          Simulation/Barcode
 use BarcodeInterfaces           BarcodeInterfaces-*     Simulation/Barcode
 use ISF_Event                   ISF_Event-*             Simulation/ISF/ISF_Core
 use ISF_Interfaces              ISF_Interfaces-*        Simulation/ISF/ISF_Core
