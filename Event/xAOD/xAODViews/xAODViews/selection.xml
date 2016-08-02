@@ -1,0 +1,10 @@
+<lcgdict>
+<class name="TrigFTK_TrackParticleViewVector"         id="5795EB85-1551-49D1-B52D-1198A7B94F59"/>
+<class name="TrigFTK_TrackParticleViewVector::Pers_t" id="F7CD75E8-C8E6-42E7-9ECC-2FAEAF532828"/>
+<class name="TrigFTK_TrackViewVector"                 id="0C9D90C3-6721-4BA9-BEDE-4C164E385EBD"/>
+<class name="TrigFTK_TrackViewVector::Pers_t"         id="FBAE722E-DF5B-4811-8132-4D80DBB2688C"/>
+<class name="TrigFTK_VxVertexViewVector"              id="878BAE32-E219-4EA2-824E-0592E21706A8"/>
+<class name="TrigFTK_VxVertexViewVector::Pers_t"      id="81372994-49C5-44E3-8D0E-4E233E20F755"/>
+<class name="TrigFTK_VertexViewVector"                id="B6DC5837-4506-439F-B6C7-88EF5F6E1BB9"/>
+<class name="TrigFTK_VertexViewVector::Pers_t"        id="4EF54511-EC5B-4E35-8769-D4C6F2B28FA7"/>
+</lcgdict>

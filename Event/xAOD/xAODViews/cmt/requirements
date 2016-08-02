@@ -1,0 +1,20 @@
+package xAODViews
+author John Baines <john.baines@stfc.ac.uk>
+
+use AtlasPolicy     	AtlasPolicy-*
+use AthContainers  	AthContainers-* 	Control
+use xAODCore       	xAODCore-*      	Event/xAOD
+
+private
+use AtlasROOT           AtlasROOT-*             External
+end_private
+
+use xAODTracking        xAODTracking-*          Event/xAOD
+
+
+private
+use AtlasReflex         AtlasReflex-*            External -no_auto_imports
+
+apply_pattern lcgdict dict=xAODViews \
+	      selectionfile=selection.xml \
+	      headerfiles="../xAODViews/xAODViewsDict.h" 
