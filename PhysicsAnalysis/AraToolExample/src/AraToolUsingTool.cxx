@@ -15,7 +15,7 @@ AraToolUsingTool::AraToolUsingTool(PropertyMgr *pmgr)
  
 StatusCode AraToolUsingTool::initialize()
 {
-  if(RunningARA) {
+  if(runningARA()) {
     std::cout<<"AraToolUsingTool::initialize()"<<std::endl;
     m_alsoToolAra=new AnExampleAraTool();
     assert(m_alsoToolAra&&"AnExampleAraTool Initialization Failed");
@@ -34,7 +34,7 @@ StatusCode AraToolUsingTool::initialize()
 
 StatusCode AraToolUsingTool::finalize()
 {
-  if(RunningARA) {
+  if(runningARA()) {
     std::cout<<"AraToolUsingTool::finalize()"<<std::endl;
     delete m_alsoToolAra;
   } else {
@@ -52,7 +52,7 @@ StatusCode AraToolUsingTool::alsoPerformTask(float &inp, float &out)
 	   <<"\t Start Calling AnExampleAraTool::performTask()\n"
 	   <<"\t  - - - - - - - - - - - - - - - - - - - - \n";
   
-  if(RunningARA) {
+  if(runningARA()) {
     m_alsoToolAra->performTask(inp,out);
   } else {
     m_alsoTool->getTool()->performTask(inp,out);
