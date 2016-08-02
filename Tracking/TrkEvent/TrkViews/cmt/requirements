@@ -1,0 +1,21 @@
+package TrkViews
+author John Baines <john.baines@stfc.ac.uk>
+
+use AtlasPolicy         AtlasPolicy-*
+use AthContainers  	AthContainers-* 	Control
+use xAODCore       	xAODCore-*      	Event/xAOD
+
+private
+use AtlasROOT           AtlasROOT-*             External
+use AthContainers 	AthContainers-* 	Control
+end_private
+
+use TrkTrack		TrkTrack-*		Tracking/TrkEvent
+
+
+private
+use AtlasReflex         AtlasReflex-*           External -no_auto_imports
+
+apply_pattern lcgdict dict=TrkViews \
+	      selectionfile=selection.xml \
+	      headerfiles="../TrkViews/TrkViewsDict.h" 
