@@ -105,26 +105,26 @@ LArRodDecoder::initialize()
 
   StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endreq;
+    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
     return sc;
   } 
 
   IToolSvc* toolSvc;
   sc = service( "ToolSvc",toolSvc);
   if (sc.isFailure())
-    {msg(MSG::ERROR) << "Unable to get ToolSvc" << endreq;
+    {msg(MSG::ERROR) << "Unable to get ToolSvc" << endmsg;
     return sc;
    }
   
   sc=m_larCablingSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve LArCablingService" << endreq;
+    msg(MSG::ERROR) << "Unable to retrieve LArCablingService" << endmsg;
     return StatusCode::FAILURE;
   }
   
  sc = toolSvc->retrieveTool("LArBadChannelMasker/LArRodDecoder_Masker", m_badChannelMasker);
  if(sc.isFailure()) {
-   msg(MSG::ERROR) << "Failed to retrieve the LArBadChannelMasker named 'LArRodDecoder_Masker'." << endreq;
+   msg(MSG::ERROR) << "Failed to retrieve the LArBadChannelMasker named 'LArRodDecoder_Masker'." << endmsg;
    return sc;
  }
  m_doBadChanMasking = m_badChannelMasker->isMaskingOn();
@@ -137,14 +137,14 @@ LArRodDecoder::initialize()
     CaloCellCorrection* corr; 
     ListItem li(*it);
     if((toolSvc->retrieveTool(li.type(), li.name(), tool)).isFailure() ) 
-      {msg(MSG::ERROR) << " Can't get AlgTool for CaloCellCorrection " << endreq;
+      {msg(MSG::ERROR) << " Can't get AlgTool for CaloCellCorrection " << endmsg;
       //std::cout << " Can't get AlgTool for CaloCellCorrection\n ";
        return StatusCode::FAILURE; 
       }
 
     corr = dynamic_cast<CaloCellCorrection*> (tool); 
     if(!corr  ) 
-      {msg(MSG::ERROR) << " Can't d-cast to CaloCellCorrection*  " << endreq;
+      {msg(MSG::ERROR) << " Can't d-cast to CaloCellCorrection*  " << endmsg;
       //std::cout << " Can't d-cast to CaloCellCorrection* \n";
        return StatusCode::FAILURE; 
       }
@@ -154,7 +154,7 @@ LArRodDecoder::initialize()
  if(m_larCell) {  
    LArRoI_Map* roiMap;
    if((toolSvc->retrieveTool("LArRoI_Map", roiMap )).isFailure() )
-     {msg(MSG::ERROR) << " Can't get AlgTool LArRoI_Map " << endreq;
+     {msg(MSG::ERROR) << " Can't get AlgTool LArRoI_Map " << endmsg;
       return StatusCode::FAILURE; 
      }
      m_makeCell.setThreshold(m_LArCellEthreshold);
@@ -265,18 +265,18 @@ LArRodDecoder::initialize()
      IAlgTool* algTool;
      sc=toolSvc->retrieveTool("LArCellBuilderDriver",algTool);
      if (sc.isFailure()) {
-       msg(MSG::ERROR) << "Unable to retrieve LArCellBuilderDriver" << endreq;
-       msg(MSG::ERROR) << "No LArDigit to LArCell conversion" << endreq;
+       msg(MSG::ERROR) << "Unable to retrieve LArCellBuilderDriver" << endmsg;
+       msg(MSG::ERROR) << "No LArDigit to LArCell conversion" << endmsg;
        // This should not prevent the tool to be initialized
        sc = StatusCode::SUCCESS;
      } else {
        if(!(m_larCellFromDigit=dynamic_cast<LArCellBuilderDriver*>(algTool))){
-	 msg(MSG::ERROR) << "Unable to dynamic cast LArCellBuilderDriver" <<endreq;
+	 msg(MSG::ERROR) << "Unable to dynamic cast LArCellBuilderDriver" <<endmsg;
 	 return StatusCode::FAILURE;
        }
        sc = m_larCellFromDigit->initialize();
        if (sc.isFailure()) {
-	 msg(MSG::ERROR) << "Unable to initialize LArCellBuilderDriver" << endreq;
+	 msg(MSG::ERROR) << "Unable to initialize LArCellBuilderDriver" << endmsg;
        }
        // Warn the tools that they are not supposed to fill
        // the LArRawChannelCollection
@@ -308,8 +308,8 @@ LArRodDecoder::initialize()
    }//end if something set
    else {
      if (m_vBEPreselection.size() ||  m_vPosNegPreselection.size() || m_vFTPreselection.size()) {
-       msg(MSG::ERROR) << "Feedthrough preselection: jobOption inconsistency! "<< endreq;
-       msg(MSG::ERROR) << "Need to set all three jobOptions BEPreselection PNPreselecton and FTPreselection" << endreq;
+       msg(MSG::ERROR) << "Feedthrough preselection: jobOption inconsistency! "<< endmsg;
+       msg(MSG::ERROR) << "Need to set all three jobOptions BEPreselection PNPreselecton and FTPreselection" << endmsg;
        return StatusCode::FAILURE;
      }
      ATH_MSG_DEBUG("No feedthrough preselection by jobOptions.");
@@ -362,7 +362,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArDigitContai
       HWIdentifier fId( Identifier32(BlStruct->getFEBID()) );
       unsigned int fId32 = fId.get_identifier32().get_compact();
       if (!m_onlineHelper->isValidId(fId)) {
-	msg(MSG::WARNING) << "Invalid FEB identifer 0x" << std::hex << fId32 << std::dec << ". Skipping" << endreq;
+	msg(MSG::WARNING) << "Invalid FEB identifer 0x" << std::hex << fId32 << std::dec << ". Skipping" << endmsg;
 	continue;
       }
       // std::cout << "digit FEBID=" << std::hex<<  " " <<fId32 << std::dec<<std::endl;
@@ -396,7 +396,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArDigitContai
       if(do_check) {
 	//WL 31.10.2007 //check RodStatus-word to catch corrupt events
 	if (BlStruct->getStatus() & m_StatusNMask) {
-	  msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endreq;
+	  msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endmsg;
 	  continue;
 	}
       }
@@ -405,9 +405,9 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArDigitContai
 	const uint32_t onsum  = BlStruct->onlineCheckSum();
 	const uint32_t offsum = BlStruct->offlineCheckSum();
 	if(onsum!=offsum) {
-	  msg(MSG::WARNING) << "Checksum error for FEB: " << MSG::hex << fId32 << endreq;
-	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endreq;
-	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << MSG::dec << endreq;
+	  msg(MSG::WARNING) << "Checksum error for FEB: " << MSG::hex << fId32 << endmsg;
+	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endmsg;
+	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << MSG::dec << endmsg;
 	  continue;
 	}
       }
@@ -463,7 +463,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArRawChannelC
       HWIdentifier fId( Identifier32(BlStruct->getFEBID()) );
       unsigned int fId32 = fId.get_identifier32().get_compact();
       if (!m_onlineHelper->isValidId(fId)) {
-	msg(MSG::WARNING) << "Invalid FEB identifer " << std::hex << fId32 << std::dec << ". Skipping" << endreq;
+	msg(MSG::WARNING) << "Invalid FEB identifer " << std::hex << fId32 << std::dec << ". Skipping" << endmsg;
 	continue;
       }
       // std::cout << "rawChan FEBID=" << std::hex <<fId32 << std::dec<<std::endl;
@@ -495,7 +495,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArRawChannelC
       if(do_check) {
 	//WL 31.10.2007 //check RodStatus-word to catch corrupt events
 	if (BlStruct->getStatus() & m_StatusNMask) {
-	  msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endreq;
+	  msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endmsg;
 	  continue;
 	}
       }
@@ -505,9 +505,9 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArRawChannelC
 	const uint32_t onsum  = BlStruct->onlineCheckSum();
 	const uint32_t offsum = BlStruct->offlineCheckSum();
 	if(onsum!=offsum) {
-	  msg(MSG::WARNING) << "Checksum error:" << endreq;
-	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endreq;
-	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << endreq;
+	  msg(MSG::WARNING) << "Checksum error:" << endmsg;
+	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endmsg;
+	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << endmsg;
 	  continue;
 	}
       }
@@ -589,7 +589,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArCalibDigitC
 	if(do_check) {
 	  //WL 31.10.2007 //check RodStatus-word to catch corrupt events
 	  if (BlStruct->getStatus() & m_StatusNMask) {
-	    msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endreq;
+	    msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endmsg;
 	    continue;
 	  }
 	}
@@ -598,9 +598,9 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArCalibDigitC
 	  uint32_t onsum  = BlStruct->onlineCheckSum();
 	  uint32_t offsum = BlStruct->offlineCheckSum();
 	  if(onsum!=offsum) {
-	    msg(MSG::WARNING) << "Checksum error:" << endreq;
-	    msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endreq;
-	    msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << endreq;
+	    msg(MSG::WARNING) << "Checksum error:" << endmsg;
+	    msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endmsg;
+	    msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << endmsg;
 	    continue;
 	  }
 	}
@@ -649,7 +649,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArCalibDigitC
     const DataHandle<LArCalibParams> calibParams;
     StatusCode sc=detStore()->retrieve(calibParams);
     if (sc.isFailure())
-      {msg(MSG::ERROR) << "Cannot load LArCalibParams from DetStore!" << endreq;
+      {msg(MSG::ERROR) << "Cannot load LArCalibParams from DetStore!" << endmsg;
       return;
       }
     //2st step, get Event number
@@ -699,7 +699,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArCalibDigitC
       while ( (!m_larCablingSvc->isOnlineConnected(cId) || calibChannelIDs->size()==0) && fcNb<128); // This is the right  conditions to exit the loop!
       
       if ( calibChannelIDs->size()==0 ) {
-	msg(MSG::ERROR) << "Cannot get calibration Channel ID for FEB " << std::hex << fId32 << std::dec << endreq;
+	msg(MSG::ERROR) << "Cannot get calibration Channel ID for FEB " << std::hex << fId32 << std::dec << endmsg;
 	return;
       }
 
@@ -799,7 +799,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArAccumulated
       if(do_check) {
 	//WL 31.10.2007 //check RodStatus-word to catch corrupt events
 	if (BlStruct->getStatus() & m_StatusNMask) {
-	  msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endreq;
+	  msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endmsg;
 	  continue;
 	}
       }
@@ -808,9 +808,9 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArAccumulated
 	uint32_t onsum  = BlStruct->onlineCheckSum();
 	uint32_t offsum = BlStruct->offlineCheckSum();
 	if(onsum!=offsum) {
-	  msg(MSG::WARNING) << "Checksum error:" << endreq;
-	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endreq;
-	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << endreq;
+	  msg(MSG::WARNING) << "Checksum error:" << endmsg;
+	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endmsg;
+	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << endmsg;
 	  continue;
 	}
       }
@@ -915,7 +915,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArAccumulated
       if(do_check) {
 	//WL 31.10.2007 //check RodStatus-word to catch corrupt events
 	if (BlStruct->getStatus() & m_StatusNMask) {
-	  msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endreq;
+	  msg(MSG::WARNING) << "RodStatus&0x" << std::hex << m_StatusNMask << " indicates corrupt data for FEB  "<< std::hex << fId32 << std::dec <<".  Ignored." << endmsg;
 	  continue;
 	}
       }
@@ -924,9 +924,9 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArAccumulated
 	uint32_t onsum  = BlStruct->onlineCheckSum();
 	uint32_t offsum = BlStruct->offlineCheckSum();
 	if(onsum!=offsum) {
-	  msg(MSG::WARNING) << "Checksum error:" << endreq;
-	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endreq;
-	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << endreq;
+	  msg(MSG::WARNING) << "Checksum error:" << endmsg;
+	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endmsg;
+	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << endmsg;
 	  continue;
 	}
       }
@@ -987,7 +987,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArFebHeaderCo
     FEBID=HWIdentifier(Identifier32(BlStruct->getFEBID()));
     unsigned int FEBID32 = FEBID.get_identifier32().get_compact();
     if (!m_onlineHelper->isValidId(FEBID)) {
-      msg(MSG::WARNING) << "Invalid FEB identifer " << std:: hex << FEBID32 << std::dec << ". Skipping" << endreq;
+      msg(MSG::WARNING) << "Invalid FEB identifer " << std:: hex << FEBID32 << std::dec << ". Skipping" << endmsg;
       continue;
     }
 
@@ -1068,12 +1068,12 @@ LArRodBlockStructure* LArRodDecoder::prepareBlockStructure(const uint32_t* p, ui
   ATH_MSG_DEBUG("Prepare LArRodBlockStructure. Got a fragement of size " << n);
 #endif
   //if (n<2) //Avoid segmentation fault
-  //  {msg(MSG::WARNING) << "Got empty Rod Fragment!" << endreq;
+  //  {msg(MSG::WARNING) << "Got empty Rod Fragment!" << endmsg;
   //   return NULL;
   //  }  
   //uint32_t blocksize=p[0]; //First word contains block size
   //if (blocksize>n)
-  //  {(*m_log) << MSG::ERROR << "Got truncated ROD Fragment!" << endreq;
+  //  {(*m_log) << MSG::ERROR << "Got truncated ROD Fragment!" << endmsg;
   //   return NULL;
   //  }
   //Get version and blocktype form header
@@ -1081,11 +1081,11 @@ LArRodBlockStructure* LArRodDecoder::prepareBlockStructure(const uint32_t* p, ui
   const uint16_t rodMinorVersion=ver.minor_version();
   const uint32_t rodBlockType=m_robFrag->rod_detev_type()&0xff;
   if (rodBlockType>=m_BlStructArray.size() || m_BlStructArray[rodBlockType].size()==0)
-    {msg(MSG::ERROR) << "Unknown Rod block type " <<  rodBlockType << endreq;
+    {msg(MSG::ERROR) << "Unknown Rod block type " <<  rodBlockType << endmsg;
      return NULL;
     }
   if (rodMinorVersion>=m_BlStructArray[rodBlockType].size() || m_BlStructArray[rodBlockType][rodMinorVersion]==NULL)
-    {msg(MSG::ERROR) << "No version " << rodMinorVersion <<  " of Rod Block Type  " <<  rodBlockType << "known." << endreq;
+    {msg(MSG::ERROR) << "No version " << rodMinorVersion <<  " of Rod Block Type  " <<  rodBlockType << "known." << endmsg;
     return NULL;
     }
 #ifndef NDEBUG
@@ -1098,10 +1098,10 @@ LArRodBlockStructure* LArRodDecoder::prepareBlockStructure(const uint32_t* p, ui
   if (!BlStruct->setFragment(p,n)) {
     static int nMess = 1, maxMess = 100;
     if (nMess < maxMess) {
-      msg(MSG::ERROR) << "Could not set fragment (wrong number of samples in data ?) - container will not be filled" << endreq;
+      msg(MSG::ERROR) << "Could not set fragment (wrong number of samples in data ?) - container will not be filled" << endmsg;
       nMess++;
       if (nMess == maxMess)
-        msg(MSG::ERROR) << "This message will not be repeated" << endreq;
+        msg(MSG::ERROR) << "This message will not be repeated" << endmsg;
     }
     return NULL;
   }

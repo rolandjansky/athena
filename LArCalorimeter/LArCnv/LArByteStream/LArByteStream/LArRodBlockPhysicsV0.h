@@ -39,7 +39,7 @@
 
 //#define LARBSDBGOUTPUT
 #ifdef  LARBSDBGOUTPUT
-#define LARBSDBG(text) m_logstr<<MSG::DEBUG<<text<<endreq
+#define LARBSDBG(text) m_logstr<<MSG::DEBUG<<text<<endmsg
 #else
 #define LARBSDBG(text)
 #endif
