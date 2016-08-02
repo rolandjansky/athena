@@ -59,6 +59,3 @@ apply_pattern static_use use=IdDictDetDescrCnv     container=DetectorDescription
 apply_pattern static_use use=TDRDetDescrAthenaRoot container=DetectorDescription
 
 apply_pattern static_athena_app 
-
-
-

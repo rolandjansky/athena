@@ -55,30 +55,30 @@ LArDigitContByteStreamCnv::initialize()
     return sc; 
    } 
    m_log = new MsgStream(msgSvc(),"LArDigitBSCnv");
-   (*m_log) << MSG::DEBUG<< " initialize " <<endreq; 
+   (*m_log) << MSG::DEBUG<< " initialize " <<endmsg; 
    IService* svc;
   //Get ByteStreamCnvSvc
   if(StatusCode::SUCCESS != serviceLocator()->getService("ByteStreamCnvSvc",svc)){
-    (*m_log) << MSG::ERROR << " Can't get ByteStreamEventAccess interface " << endreq;
+    (*m_log) << MSG::ERROR << " Can't get ByteStreamEventAccess interface " << endmsg;
     return StatusCode::FAILURE;
   }
   m_ByteStreamEventAccess=dynamic_cast<ByteStreamCnvSvc*>(svc);
   if (m_ByteStreamEventAccess==NULL)
     {
-      (*m_log) <<MSG::ERROR<< "  LArDigitContByteStreamCnv: Can't cast to  ByteStreamCnvSvc " <<endreq; 
+      (*m_log) <<MSG::ERROR<< "  LArDigitContByteStreamCnv: Can't cast to  ByteStreamCnvSvc " <<endmsg; 
       return StatusCode::FAILURE ;
     }
 
   //Get ByteStreamInputSvc (only necessary for reading of digits, not for writing and for channels)
   
   if(StatusCode::SUCCESS != serviceLocator()->getService("ROBDataProviderSvc",svc)){
-    (*m_log) << MSG::WARNING << " Can't get ByteStreamInputSvc interface Reading of ByteStream Data not possible. " << endreq;
+    (*m_log) << MSG::WARNING << " Can't get ByteStreamInputSvc interface Reading of ByteStream Data not possible. " << endmsg;
     m_rdpSvc=0;
   }
   else {
     m_rdpSvc=dynamic_cast<IROBDataProviderSvc*>(svc);
     if(m_rdpSvc == 0 ) {
-      (*m_log) <<MSG::ERROR<< "  LArDigitContByteStreamCnv: Can't cast to  ByteStreamInputSvc " <<endreq; 
+      (*m_log) <<MSG::ERROR<< "  LArDigitContByteStreamCnv: Can't cast to  ByteStreamInputSvc " <<endmsg; 
       return StatusCode::FAILURE;
     }
   }
@@ -87,7 +87,7 @@ LArDigitContByteStreamCnv::initialize()
   IToolSvc* toolSvc;
 
   if(StatusCode::SUCCESS != service("ToolSvc",toolSvc)){
-    (*m_log) << MSG::ERROR << " Can't get ToolSvc " << endreq;
+    (*m_log) << MSG::ERROR << " Can't get ToolSvc " << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -95,7 +95,7 @@ LArDigitContByteStreamCnv::initialize()
   std::string toolType = "LArRawDataContByteStreamTool" ; 
   if(StatusCode::SUCCESS !=toolSvc->retrieveTool(toolType,m_tool))
   {
-    (*m_log) << MSG::ERROR << " Can't get LArRawDataByteStreamTool " << endreq;
+    (*m_log) << MSG::ERROR << " Can't get LArRawDataByteStreamTool " << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -107,23 +107,23 @@ LArDigitContByteStreamCnv::initialize()
 StatusCode
 LArDigitContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
 {//Convert Digits from ByteStream to StoreGate
-  (*m_log) << MSG::VERBOSE << "Executing CreateObj method for LArDigitContainer " << endreq;
+  (*m_log) << MSG::VERBOSE << "Executing CreateObj method for LArDigitContainer " << endmsg;
   
 
   if (!m_rdpSvc)
-    {(*m_log) << MSG::ERROR << " ROBDataProviderSvc not loaded. Can't read ByteStream." << endreq;
+    {(*m_log) << MSG::ERROR << " ROBDataProviderSvc not loaded. Can't read ByteStream." << endmsg;
      return StatusCode::FAILURE;
     }
   ByteStreamAddress *pRE_Addr;
   pRE_Addr = dynamic_cast<ByteStreamAddress*>(pAddr); //Cast from OpaqueAddress to ByteStreamAddress
   if (!pRE_Addr)
-    {(*m_log) << MSG::ERROR << "dynamic_cast of OpaqueAdress to ByteStreamAddress failed!" << endreq;
+    {(*m_log) << MSG::ERROR << "dynamic_cast of OpaqueAdress to ByteStreamAddress failed!" << endmsg;
      return StatusCode::FAILURE;
     }
 
   const RawEvent* re = m_rdpSvc->getEvent();
   if (!re)
-    {(*m_log) << MSG::ERROR << "Could not get raw event from ByteStreamInputSvc" << endreq;
+    {(*m_log) << MSG::ERROR << "Could not get raw event from ByteStreamInputSvc" << endmsg;
      return StatusCode::FAILURE;
     }
   const std::string& key = *(pAddr->par()); // Get key used in the StoreGateSvc::retrieve function
@@ -137,11 +137,11 @@ LArDigitContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     gain=CaloGain::LARLOWGAIN;
 
   // Convert the RawEvent to  LArDigitContainer
-  (*m_log) << MSG::DEBUG << "Converting LArDigits (from ByteStream). key=" << key << " ,gain=" << gain << endreq; 
+  (*m_log) << MSG::DEBUG << "Converting LArDigits (from ByteStream). key=" << key << " ,gain=" << gain << endmsg; 
   LArDigitContainer *DigitContainer=new LArDigitContainer;
   StatusCode sc=m_tool->convert(re,DigitContainer,gain);
   if (sc!=StatusCode::SUCCESS)
-    (*m_log) << MSG::WARNING << "Conversion tool returned an error. LArDigitContainer might be empty." << endreq;
+    (*m_log) << MSG::WARNING << "Conversion tool returned an error. LArDigitContainer might be empty." << endmsg;
     
   pObj = SG::asStorable(DigitContainer) ;
 
@@ -151,7 +151,7 @@ LArDigitContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
  StatusCode 
 LArDigitContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) 
 {// convert LArDigits from StoreGate into ByteStream
-  (*m_log) << MSG::VERBOSE << "Execute CreateRep method of LArDigitContainer " << endreq;
+  (*m_log) << MSG::VERBOSE << "Execute CreateRep method of LArDigitContainer " << endmsg;
   StatusCode sc;
 
   // Get the already existing part of the RawEvent 
@@ -161,7 +161,7 @@ LArDigitContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
   std::string key("LAr");
   sc=m_ByteStreamEventAccess->getFullEventAssembler(fea,key);
   if (sc.isFailure())
-    {(*m_log) << MSG::ERROR << "Cannot get full event assember with key \"LAr\" from ByteStreamEventAccess." << endreq;
+    {(*m_log) << MSG::ERROR << "Cannot get full event assember with key \"LAr\" from ByteStreamEventAccess." << endmsg;
      return sc;
     }
 //  fea=new  FullEventAssembler<Hid2RESrcID>;
@@ -169,7 +169,7 @@ LArDigitContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
   {
    sc = fea->idMap().initialize(); 
    if (sc.isFailure())
-    {(*m_log) << MSG::ERROR << "Cannot initialize Hid2RESrcID " << endreq;
+    {(*m_log) << MSG::ERROR << "Cannot initialize Hid2RESrcID " << endmsg;
      return sc;
     }
   }
@@ -177,11 +177,11 @@ LArDigitContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
   LArDigitContainer* DigitContainer=0;
   sc=m_storeGate->fromStorable(pObj, DigitContainer ); 
   if (sc==StatusCode::FAILURE)
-    {(*m_log) << MSG::ERROR << "StoreGateSvc::fromStorable failed!" << endreq;
+    {(*m_log) << MSG::ERROR << "StoreGateSvc::fromStorable failed!" << endmsg;
      return sc;
     }
   if(!DigitContainer){
-     (*m_log) << MSG::ERROR << "Cannot get LArDigitContainer for DataObject. Key=" << pObj->registry()->name() << endreq ;
+     (*m_log) << MSG::ERROR << "Cannot get LArDigitContainer for DataObject. Key=" << pObj->registry()->name() << endmsg ;
      return StatusCode::FAILURE;    
   }
    std::string nm = pObj->registry()->name(); 
@@ -190,7 +190,7 @@ LArDigitContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
 
    pAddr = addr; 
 
-   //(*m_log) << MSG::VERBOSE << "Start conversion of LArDigitContainer requested. Writing channels and digits. " << endreq;
+   //(*m_log) << MSG::VERBOSE << "Start conversion of LArDigitContainer requested. Writing channels and digits. " << endmsg;
    //return m_tool->convert(ChannelContainer, DigitContainer, DigitContainerArray, re, log); 
    sc=m_tool->WriteLArDigits(DigitContainer, fea);
    if (sc.isFailure())
