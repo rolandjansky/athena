@@ -33,8 +33,7 @@
 class ISvcLocator;
 
 T2CaloTileMon::T2CaloTileMon(const std::string & name, ISvcLocator* pSvcLocator) :
-               T2CaloBase(name, pSvcLocator),
-               m_log(0)
+               T2CaloBase(name, pSvcLocator)
 {
    declareProperty("TrigEMClusterKey",m_trigEmClusterKey = "T2CaloTrigEMCluster");
    declareProperty("L1ForceEta",m_l1eta = -10.0);
@@ -48,14 +47,11 @@ T2CaloTileMon::T2CaloTileMon(const std::string & name, ISvcLocator* pSvcLocator)
 
 T2CaloTileMon::~T2CaloTileMon()
 {
-   delete m_log;
 }
 
 
 HLT::ErrorCode T2CaloTileMon::hltInitialize()
 {
-   if (!m_log) m_log = new MsgStream(messageService(), name());
-   // Support for new monitoring
    return HLT::OK;
 }
 
@@ -67,7 +63,7 @@ HLT::ErrorCode T2CaloTileMon::hltExecute(const HLT::TriggerElement* inputTE,
    if ( m_timersvc ) m_timer[0]->start();
 
 #ifndef NDEBUG
-   (*m_log) << MSG::INFO << "in execute()" << endreq;
+   ATH_MSG_INFO( "in execute()"  );
 #endif
 
    const TrigRoiDescriptor* roiDescriptor = 0;
@@ -75,12 +71,12 @@ HLT::ErrorCode T2CaloTileMon::hltExecute(const HLT::TriggerElement* inputTE,
 
    if ( hltStatus == HLT::OK ) {
 #ifndef NDEBUG
-      (*m_log) << MSG::DEBUG  << *roiDescriptor << endreq;
+     ATH_MSG_DEBUG( *roiDescriptor  );
 #endif
    }
    else
    {
-      (*m_log) <<  MSG::WARNING << " Failed to find RoiDescriptor " << endreq;
+      ATH_MSG_WARNING( " Failed to find RoiDescriptor "  );
       return hltStatus;
    }
 
@@ -99,10 +95,10 @@ HLT::ErrorCode T2CaloTileMon::hltExecute(const HLT::TriggerElement* inputTE,
    }
 
 #ifndef NDEBUG
-   (*m_log) << MSG::DEBUG  << " etamin = "<< etamin << endreq;
-   (*m_log) << MSG::DEBUG  << " etamax = "<< etamax << endreq;
-   (*m_log) << MSG::DEBUG  << " phimin = "<< phimin << endreq;
-   (*m_log) << MSG::DEBUG  << " phimax = "<< phimax << endreq;
+   ATH_MSG_DEBUG( " etamin = "<< etamin  );
+   ATH_MSG_DEBUG( " etamax = "<< etamax  );
+   ATH_MSG_DEBUG( " phimin = "<< phimin  );
+   ATH_MSG_DEBUG( " phimax = "<< phimax  );
 #endif
 
    ///   TrigRoiDescriptor* newroi = new TrigRoiDescriptor( roiDescriptor->eta(), etamin, etamax, 
@@ -117,11 +113,11 @@ HLT::ErrorCode T2CaloTileMon::hltExecute(const HLT::TriggerElement* inputTE,
 
 
 #ifndef NDEBUG
-   (*m_log) << MSG::DEBUG  << " Making TrigEMCluster "<< endreq;
+   ATH_MSG_DEBUG( " Making TrigEMCluster " );
 #endif
 
 
-   std::vector<xAOD::TrigEMCluster*> m_vec_clus;
+   //std::vector<xAOD::TrigEMCluster*> vec_clus;
    // Ok, ignoring LVL1 and forcing a position
 
    ToolHandleArray<IAlgToolCalo>::iterator it = m_emAlgTools.begin();
@@ -135,7 +131,7 @@ HLT::ErrorCode T2CaloTileMon::hltExecute(const HLT::TriggerElement* inputTE,
      //      if ((*it)->execute(*ptrigEmCluster,etamin,etamax,phimin,phimax).isFailure() )
      if ((*it)->execute(*ptrigEmCluster,newroi).isFailure() )
        {
-         (*m_log) << MSG::WARNING << "T2Calo AlgToolTileMon returned Failure" << endreq;
+         ATH_MSG_WARNING( "T2Calo AlgToolTileMon returned Failure"  );
          return HLT::TOOL_FAILURE;
       }
    }
@@ -153,7 +149,7 @@ HLT::ErrorCode T2CaloTileMon::hltExecute(const HLT::TriggerElement* inputTE,
 HLT::ErrorCode T2CaloTileMon::hltFinalize(){
 
 #ifndef NDEBUG
-   (*m_log) << MSG::INFO << "in finalize()" << endreq;
+    ATH_MSG_INFO( "in finalize()"  );
 #endif
 
    return HLT::OK;

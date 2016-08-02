@@ -48,21 +48,19 @@ class T2CaloTileMon: public T2CaloBase {
       HLT::ErrorCode hltFinalize();
 
    private:
-      /** log output cached to avoid fetching MsgStream once per RoI */
-      MsgStream* m_log;
       /** To support new monitoring. Values must be copied to
       this monitored Cluster for each RoI. */
-      const TrigEMCluster* m_monitoredCluster;
+      //const TrigEMCluster* m_monitoredCluster;
       /** To monitor rCore */
-      float m_rCore;
+      //float m_rCore;
       /** To monitor eRatio */
-      float m_eRatio;
+      //float m_eRatio;
       /** Forced LVL1 eta */
       float m_l1eta;
       /** Forced LVL1 phi */
       float m_l1phi;
 
-      int m_index;
+      //int m_index;
 
       // Properties:
       std::string m_trigEmClusterKey;
