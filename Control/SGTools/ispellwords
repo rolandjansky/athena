@@ -484,6 +484,7 @@ tAddr
 ims
 gLog
 MsgStream
+endmsg
 endreq
 queryInterface
 pTransient

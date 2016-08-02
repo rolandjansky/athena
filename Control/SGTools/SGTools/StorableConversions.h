@@ -227,7 +227,7 @@ namespace SG {
       pTrans=0;
 #ifndef NDEBUG
       MsgStream gLog(Athena::getMessageSvc(), "SG::fromStorable");
-      gLog << MSG::WARNING << "null input pointer " << endreq;
+      gLog << MSG::WARNING << "null input pointer " << endmsg;
 #endif
       return false;
     }
@@ -257,7 +257,7 @@ namespace SG {
 		<< ")\n Unless you are following a symlink,"
 	        << " it probably means you have a duplicate "
 		<< "CLID = "  << pDObj->clID() 
-		<< endreq;
+		<< endmsg;
     }
 #endif
     return success;

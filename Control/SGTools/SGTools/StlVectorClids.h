@@ -28,6 +28,7 @@ CLASS_DEF( std::vector<long> ,             6675975 , 1 )
 CLASS_DEF( std::vector<float> ,          202242136 , 1 )
 CLASS_DEF( std::vector<double> ,         219400222 , 1 )
 CLASS_DEF( std::vector<std::string> ,     25884436 , 1 )
+CLASS_DEF( std::vector<char> , 206378829 , 1 )
 
 CLASS_DEF( std::vector<unsigned short> , 238793770 , 1 )
 CLASS_DEF( std::vector<unsigned int> ,   177480351 , 1 )
