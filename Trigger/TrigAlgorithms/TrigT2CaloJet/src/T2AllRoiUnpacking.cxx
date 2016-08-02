@@ -76,7 +76,7 @@ HLT::ErrorCode T2AllRoiUnpacking::hltInitialize() {
   MsgStream &logStream = *m_log;
   
   if(logStream.level() <= MSG::INFO)
-    logStream << MSG::INFO << " Initalizing FEX algorithm: " << name() << endreq;
+    logStream << MSG::INFO << " Initalizing FEX algorithm: " << name() << endmsg;
 
   initializeTimers();    
   initializeHelperTools();
@@ -130,7 +130,7 @@ HLT::ErrorCode T2AllRoiUnpacking::hltExecute(std::vector<std::vector<HLT::Trigge
   logStream<<MSG::DEBUG
 	   <<"Processed "<<tev.size()<<" TriggerElements"
 	   <<" and filled the grid with "<<m_grid->size()<<" cells."
-	   <<endreq;
+	   <<endmsg;
   // finalize the output and the monitoring variables
   {
     HLT::ErrorCode stat(finalizeOutput(outputTE));
@@ -146,7 +146,7 @@ HLT::ErrorCode T2AllRoiUnpacking::hltFinalize()
 {
   MsgStream &logStream = *m_log;
     if ( logStream.level() <= MSG::DEBUG )
-        logStream << MSG::DEBUG << "Finalizing T2AllRoiUnpacking FEX " << name() << endreq;
+        logStream << MSG::DEBUG << "Finalizing T2AllRoiUnpacking FEX " << name() << endmsg;
 
     delete m_log;
           
@@ -160,7 +160,7 @@ HLT::ErrorCode T2AllRoiUnpacking::processTriggerElement(const HLT::TriggerElemen
   if(!te || !grid){
     logStream<<MSG::ERROR
 	     <<"Invalid TriggerElement ("<<te<<") or grid ("<<grid<<") pointers"
-	     <<endreq;
+	     <<endmsg;
     return HLT::ERROR;
   } // end if(!te || !grid)
 
@@ -169,7 +169,7 @@ HLT::ErrorCode T2AllRoiUnpacking::processTriggerElement(const HLT::TriggerElemen
   HLT::ErrorCode hltStatus = getFeature(te, roiDescriptor);
   if(HLT::OK != hltStatus){
     logStream<<MSG::ERROR
-	     <<" Failed to find RoiDescriptor "<<endreq;
+	     <<" Failed to find RoiDescriptor "<<endmsg;
     return hltStatus;
   } // end if(not OK)
   L2CaloRoiBoundsCalculator bcalc(roiDescriptor, m_roiEtaHalfWidth, m_roiPhiHalfWidth);
@@ -227,7 +227,7 @@ HLT::ErrorCode T2AllRoiUnpacking::processTriggerElement(const HLT::TriggerElemen
   if(sc.isFailure()){
     if(logStream.level() <= MSG::DEBUG)
       logStream<<MSG::DEBUG
-	       <<" Failure of addCells. Empty grid, or some missing cells! "<<endreq;
+	       <<" Failure of addCells. Empty grid, or some missing cells! "<<endmsg;
     return StatusCode::FAILURE;
   } // end if(isFailure)
   m_processedRegions.push_back(l2Roi);
@@ -241,10 +241,10 @@ bool T2AllRoiUnpacking::initializeTimers(){
       || !pTimerService){
     logStream<<MSG::ERROR
 	     <<name()<<": Unable to locate TrigTimer Service"
-	     <<endreq;
+	     <<endmsg;
     return false;
   }
-  logStream << MSG::DEBUG << " Adding timers" << endreq;
+  logStream << MSG::DEBUG << " Adding timers" << endmsg;
   //Add timers
   m_cell_unpacking_timer = addTimer("cell_unpacking_time");
   m_unpacking_timer    = addTimer("unpacking_time");
@@ -257,12 +257,12 @@ bool T2AllRoiUnpacking::initializeHelperTools(){
   using namespace boost::assign;
   MsgStream &logStream = *m_log;
   if ( m_caloGridFromCellsTool.retrieve().isFailure() ) {
-    logStream << MSG::ERROR << "Failed to retreive CaloGridFromCells tool: " << m_caloGridFromCellsTool << endreq;
+    logStream << MSG::ERROR << "Failed to retreive CaloGridFromCells tool: " << m_caloGridFromCellsTool << endmsg;
     m_retrievedGridTool = false;
     return false;
   }
   m_retrievedGridTool = true;
-  logStream << MSG::DEBUG << "Retrieved " << m_caloGridFromCellsTool << endreq;
+  logStream << MSG::DEBUG << "Retrieved " << m_caloGridFromCellsTool << endmsg;
 
   // not strictly 'helpers' but have to be initialized too
   m_ttEmSamplings += 0,1,2,3;
@@ -284,7 +284,7 @@ bool T2AllRoiUnpacking::inputIsValid(const std::vector<std::vector<HLT::TriggerE
   if(logStream.level() <= MSG::DEBUG)
     logStream<< MSG::DEBUG << "T2AllRoiUnpacking "<<name()<<"\n"
 	     <<input.size()<<" input trigger elements for T2AllRoiUnpacking"
-	     <<endreq;
+	     <<endmsg;
   // sanity check on the input
   if(1!=input.size()){
     logStream<<MSG::ERROR<<"T2AllRoiUnpacking "<<name()<<"\n"
@@ -292,7 +292,7 @@ bool T2AllRoiUnpacking::inputIsValid(const std::vector<std::vector<HLT::TriggerE
 	     <<" that should contain the L1 jets."
 	     <<" (got "<<input.size()<<" vectors instead)\n"
 	     <<"Exiting hltExecute."
-	     <<endreq;
+	     <<endmsg;
     return false;
   } // end if(1!=input.size())
   return true;
@@ -325,14 +325,14 @@ HLT::ErrorCode T2AllRoiUnpacking::finalizeOutput(HLT::TriggerElement* outputTE){
   if (stat != HLT::OK){
     logStream<<MSG::ERROR
 	     <<" recording of TrigT2Jets into StoreGate failed"
-	     <<endreq;
+	     <<endmsg;
     return stat;
   }
   if(m_RoI_timer) m_RoI_timer->stop();
   if(logStream.level() <= MSG::DEBUG)
     logStream<<MSG::DEBUG
 	     <<" Unpacking done. "<<name()
-	     <<endreq;
+	     <<endmsg;
   return stat;
 }
 //--------------------------------------------------------------

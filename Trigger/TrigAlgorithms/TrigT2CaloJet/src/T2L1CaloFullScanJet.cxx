@@ -64,10 +64,10 @@ HLT::ErrorCode T2L1CaloFullScanJet::hltInitialize()
     m_log = new MsgStream(msgSvc(), name());
     
     if((*m_log).level() <= MSG::INFO){
-        (*m_log) << MSG::INFO << " Initalizing FEX algorithm: " << name() << endreq;
-        (*m_log) << MSG::DEBUG << "Options: " << endreq;
-        (*m_log) << MSG::DEBUG << "   jetOutputKey:     " << m_jetOutputKey << endreq;
-        (*m_log) << MSG::DEBUG << "   recordOutput:     " << m_recordOutput << endreq;
+        (*m_log) << MSG::INFO << " Initalizing FEX algorithm: " << name() << endmsg;
+        (*m_log) << MSG::DEBUG << "Options: " << endmsg;
+        (*m_log) << MSG::DEBUG << "   jetOutputKey:     " << m_jetOutputKey << endmsg;
+        (*m_log) << MSG::DEBUG << "   recordOutput:     " << m_recordOutput << endmsg;
     }
     
     if (timerSvc()) {
@@ -76,9 +76,9 @@ HLT::ErrorCode T2L1CaloFullScanJet::hltInitialize()
     }
     
     if ( m_tools.retrieve().isFailure() ) {
-        (*m_log) << MSG::ERROR << "Failed to retreive helper tools: " << m_tools << endreq;
+        (*m_log) << MSG::ERROR << "Failed to retreive helper tools: " << m_tools << endmsg;
     } else {
-        (*m_log) << MSG::DEBUG << "Retrieved l1.5 full scan tools: " << m_tools << endreq;
+        (*m_log) << MSG::DEBUG << "Retrieved l1.5 full scan tools: " << m_tools << endmsg;
     }
     
     // add timers for the tools
@@ -87,7 +87,7 @@ HLT::ErrorCode T2L1CaloFullScanJet::hltInitialize()
         itToolEnd = m_tools.end();
         for (  ; itTool != itToolEnd; ++itTool ) {
             if((*m_log).level() <= MSG::DEBUG)
-                (*m_log) << MSG::DEBUG <<"Tool with name " << (*itTool).name()<< endreq;
+                (*m_log) << MSG::DEBUG <<"Tool with name " << (*itTool).name()<< endmsg;
             
             m_timer.push_back(addTimer((*itTool).name()));
         }
@@ -143,8 +143,8 @@ HLT::ErrorCode T2L1CaloFullScanJet::hltExecute(std::vector<std::vector<HLT::Trig
 
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "================= Executing T2L1CaloFullScanJet FEX " << name() << endreq;
-        //(*m_log) << MSG::DEBUG << "m_jetOutputKey: " << m_jetOutputKey << endreq;
+        (*m_log) << MSG::DEBUG << "================= Executing T2L1CaloFullScanJet FEX " << name() << endmsg;
+        //(*m_log) << MSG::DEBUG << "m_jetOutputKey: " << m_jetOutputKey << endmsg;
     }
 #endif
 
@@ -160,15 +160,15 @@ HLT::ErrorCode T2L1CaloFullScanJet::hltExecute(std::vector<std::vector<HLT::Trig
   
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "Looping over tools vector" << endreq;
+        (*m_log) << MSG::DEBUG << "Looping over tools vector" << endmsg;
     }
 #endif
   
     for (  ; itTool != itToolEnd; ++itTool ) {
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG << "Running tool: [" << currant_tool+1 << "] of " << m_tools.size() << endreq;
-            (*m_log) << MSG::DEBUG << "Alg name: " << (*itTool)->name() << endreq;
+            (*m_log) << MSG::DEBUG << "Running tool: [" << currant_tool+1 << "] of " << m_tools.size() << endmsg;
+            (*m_log) << MSG::DEBUG << "Alg name: " << (*itTool)->name() << endmsg;
         } 
 #endif
         
@@ -176,7 +176,7 @@ HLT::ErrorCode T2L1CaloFullScanJet::hltExecute(std::vector<std::vector<HLT::Trig
     
         if ((*itTool)->execute(m_jets,m_nTowers,m_L1_UnpckTime,m_UnpckTime,m_FastJetTime,m_JetFindingTime).isFailure()){
             if((*m_log).level() <= MSG::DEBUG){
-                (*m_log) << MSG::WARNING << "T2L1CaloJet AlgTool returned Failure" << endreq;
+                (*m_log) << MSG::WARNING << "T2L1CaloJet AlgTool returned Failure" << endmsg;
             }
             return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,HLT::Reason::USERDEF_1);
         }
@@ -189,11 +189,11 @@ HLT::ErrorCode T2L1CaloFullScanJet::hltExecute(std::vector<std::vector<HLT::Trig
     }
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "=== Finished jet finding" << endreq;
-        (*m_log) << MSG::DEBUG << " Towers unpacked:  " << m_nTowers << " in " << m_UnpckTime << " ms, of this L1 unpacking took "<< m_L1_UnpckTime << " ms" << endreq;
-        (*m_log) << MSG::DEBUG << " T2CaloJets found: " << m_jets->size() << " in " << m_JetFindingTime << " ms, of this FastJet took " << m_FastJetTime << " ms" << endreq; 
+        (*m_log) << MSG::DEBUG << "=== Finished jet finding" << endmsg;
+        (*m_log) << MSG::DEBUG << " Towers unpacked:  " << m_nTowers << " in " << m_UnpckTime << " ms, of this L1 unpacking took "<< m_L1_UnpckTime << " ms" << endmsg;
+        (*m_log) << MSG::DEBUG << " T2CaloJets found: " << m_jets->size() << " in " << m_JetFindingTime << " ms, of this FastJet took " << m_FastJetTime << " ms" << endmsg; 
         if (m_UnpckTime > 50){
-            (*m_log) << MSG::DEBUG << " That was a long time " << endreq;
+            (*m_log) << MSG::DEBUG << " That was a long time " << endmsg;
         }
         
         begin_jet = m_jets->begin();
@@ -203,7 +203,7 @@ HLT::ErrorCode T2L1CaloFullScanJet::hltExecute(std::vector<std::vector<HLT::Trig
             (*m_log) << MSG::DEBUG << " T2CaloJet["<<jet_counter
                                    << "]: Et: " << (*begin_jet)->et() 
                                    << " MeV, eta: " << (*begin_jet)->eta() 
-                                   << ", phi; " << (*begin_jet)->phi() << endreq;
+                                   << ", phi; " << (*begin_jet)->phi() << endmsg;
             jet_counter++;
         }
     }
@@ -214,8 +214,8 @@ HLT::ErrorCode T2L1CaloFullScanJet::hltExecute(std::vector<std::vector<HLT::Trig
   
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "Monitoring, recording and attaching features" << endreq;
-        (*m_log) << MSG::DEBUG << "Using L2 output jet key = " << m_jetOutputKey << endreq;
+        (*m_log) << MSG::DEBUG << "Monitoring, recording and attaching features" << endmsg;
+        (*m_log) << MSG::DEBUG << "Using L2 output jet key = " << m_jetOutputKey << endmsg;
     }
 #endif
   
@@ -253,14 +253,14 @@ HLT::ErrorCode T2L1CaloFullScanJet::hltExecute(std::vector<std::vector<HLT::Trig
         if (m_recordOutput){
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-                (*m_log) << MSG::DEBUG << " recording T2CaloJet["<<recorded_jet_counter<<"]"<<endreq;
+                (*m_log) << MSG::DEBUG << " recording T2CaloJet["<<recorded_jet_counter<<"]"<<endmsg;
             }
 #endif
             // store each jet as we go along so they're in the standard T2JetContainer
           
             HLT::ErrorCode hltStatus = recordAndAttachFeature(outputTE, m_jet, key, m_jetOutputKey);
             if (hltStatus != HLT::OK){
-                (*m_log) << MSG::ERROR << "recording of TrigT2Jet into StoreGate failed" << endreq;
+                (*m_log) << MSG::ERROR << "recording of TrigT2Jet into StoreGate failed" << endmsg;
                 return hltStatus;
             }
       
@@ -279,12 +279,12 @@ HLT::ErrorCode T2L1CaloFullScanJet::hltExecute(std::vector<std::vector<HLT::Trig
 
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "RoI making time: " << m_timer[1]->elapsed() << " ms " << endreq;
-        (*m_log) << MSG::DEBUG << "Total time: " << m_timer[0]->elapsed() << " ms " << endreq;
+        (*m_log) << MSG::DEBUG << "RoI making time: " << m_timer[1]->elapsed() << " ms " << endmsg;
+        (*m_log) << MSG::DEBUG << "Total time: " << m_timer[0]->elapsed() << " ms " << endmsg;
         if (m_timer[0]->elapsed() > 50){
-            (*m_log) << MSG::DEBUG << "That was a long time " << endreq;
+            (*m_log) << MSG::DEBUG << "That was a long time " << endmsg;
         }
-        (*m_log) << MSG::DEBUG << "================= Finished T2L1CaloFullScanJet FEX " << name() << endreq;
+        (*m_log) << MSG::DEBUG << "================= Finished T2L1CaloFullScanJet FEX " << name() << endmsg;
     }
 #endif
   
@@ -301,7 +301,7 @@ HLT::ErrorCode T2L1CaloFullScanJet::hltExecute(std::vector<std::vector<HLT::Trig
 HLT::ErrorCode T2L1CaloFullScanJet::hltFinalize()
 {
     if ( (*m_log).level() <= MSG::DEBUG )
-        (*m_log) << MSG::DEBUG << "Finalizing T2L1CaloFullScanJet FEX " << name() << endreq;
+        (*m_log) << MSG::DEBUG << "Finalizing T2L1CaloFullScanJet FEX " << name() << endmsg;
     
     m_jets->clear();
     delete m_jets;

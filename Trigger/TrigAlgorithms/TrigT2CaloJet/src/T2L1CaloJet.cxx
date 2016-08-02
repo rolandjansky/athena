@@ -53,7 +53,7 @@ HLT::ErrorCode T2L1CaloJet::hltInitialize()
   m_log = new MsgStream(msgSvc(), name());
   
   if((*m_log).level() <= MSG::DEBUG){
-     (*m_log) << MSG::DEBUG << " Intializing: " << name() <<endreq;
+     (*m_log) << MSG::DEBUG << " Intializing: " << name() <<endmsg;
   }
 
   if (timerSvc()) {
@@ -65,17 +65,17 @@ HLT::ErrorCode T2L1CaloJet::hltInitialize()
 
   // Create helper tools
   if ( m_dataL1.retrieve().isFailure() ) {
-    (*m_log) << MSG::ERROR << "Failed to retreive helper tools: " << m_dataL1 << endreq;
+    (*m_log) << MSG::ERROR << "Failed to retreive helper tools: " << m_dataL1 << endmsg;
     m_retrievedJetTool = false;
   } else {
     m_retrievedJetTool = true;
-    (*m_log) << MSG::INFO << "Retrieved " << m_dataL1 << endreq;
+    (*m_log) << MSG::INFO << "Retrieved " << m_dataL1 << endmsg;
   }
 
   if ( m_jetL1Tools.retrieve().isFailure() ) {
-    (*m_log) << MSG::ERROR << "Failed to retreive helper tools: " << m_jetL1Tools << endreq;
+    (*m_log) << MSG::ERROR << "Failed to retreive helper tools: " << m_jetL1Tools << endmsg;
   } else {
-    (*m_log) << MSG::INFO << "Retrieved " << m_jetL1Tools << endreq;
+    (*m_log) << MSG::INFO << "Retrieved " << m_jetL1Tools << endmsg;
   }
 
   m_storedJEs = new ConstDataVector<DataVector<LVL1::JetElement> >(SG::VIEW_ELEMENTS);
@@ -106,14 +106,14 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   
 #ifndef NDEBUG
   if((*m_log).level() <= MSG::DEBUG){
-     (*m_log) << MSG::DEBUG << " Executing T2L1CaloJet FEX " << name() << endreq;
-     (*m_log) << MSG::DEBUG << "m_jetOutputKey: " << m_jetOutputKey << endreq;
+     (*m_log) << MSG::DEBUG << " Executing T2L1CaloJet FEX " << name() << endmsg;
+     (*m_log) << MSG::DEBUG << "m_jetOutputKey: " << m_jetOutputKey << endmsg;
      (*m_log) << MSG::DEBUG
               << "outputTE->getId(): "
-              << outputTE->getId() << endreq;
+              << outputTE->getId() << endmsg;
      (*m_log) << MSG::DEBUG
               << "inputTE->getId(): "
-              << inputTE->getId() << endreq;
+              << inputTE->getId() << endmsg;
   }
 #endif
 
@@ -125,7 +125,7 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   // =========================
 #ifndef NDEBUG
   if((*m_log).level() <= MSG::DEBUG){
-     (*m_log) << MSG::DEBUG << "getting RoI" << endreq;
+     (*m_log) << MSG::DEBUG << "getting RoI" << endmsg;
   }
 #endif
 
@@ -136,13 +136,13 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   if ( hltStatus == HLT::OK ) {
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-      (*m_log) << "got the roi descriptor" << endreq;
-      (*m_log) << MSG::DEBUG  << *roiDescriptor << endreq;
+      (*m_log) << "got the roi descriptor" << endmsg;
+      (*m_log) << MSG::DEBUG  << *roiDescriptor << endmsg;
     }
 #endif
 
   } else {
-    (*m_log) <<  MSG::WARNING << " Failed to find RoiDescriptor " << endreq;
+    (*m_log) <<  MSG::WARNING << " Failed to find RoiDescriptor " << endmsg;
     return hltStatus;
   }
 
@@ -153,7 +153,7 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
 	  << roiDescriptor->phi()
 	  << ", LVL1 eta="
 	  << roiDescriptor->eta()
-	  << endreq;
+	  << endmsg;
   }
 #endif
 
@@ -162,7 +162,7 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   // =========================
 #ifndef NDEBUG
   if((*m_log).level() <= MSG::DEBUG){
-     (*m_log) << MSG::DEBUG  << " Making TrigT2Jet "<< endreq;
+     (*m_log) << MSG::DEBUG  << " Making TrigT2Jet "<< endmsg;
   }
 #endif
   m_jet = new TrigT2Jet();
@@ -181,7 +181,7 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   if ( m_retrievedJetTool ){
 #ifndef NDEBUG
       if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG  << "Loading the L1 data using ITrigT1CaloDataAccess tool, this loads the jet elements for the entire event"<< endreq;
+        (*m_log) << MSG::DEBUG  << "Loading the L1 data using ITrigT1CaloDataAccess tool, this loads the jet elements for the entire event"<< endmsg;
       }
 #endif
       (m_dataL1->loadCollection(begj,endj)).ignore();
@@ -191,14 +191,14 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   
 #ifndef NDEBUG
   if((*m_log).level() <= MSG::DEBUG){
-    (*m_log) << MSG::DEBUG  << "Looping over the jet elements"<< endreq;
+    (*m_log) << MSG::DEBUG  << "Looping over the jet elements"<< endmsg;
   }
 #endif
 
   for(; begj!=endj;begj++){
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG  << "JetElement["<<counter<<"]: ETs [GeV]: EM: "<< (*begj)->emEnergy()<<", HAD: "<< (*begj)->hadEnergy()<<", Total: "<<(*begj)->energy()<<", eta: "<<(*begj)->eta()<<", phi: "<<(*begj)->phi()<<endreq;
+            (*m_log) << MSG::DEBUG  << "JetElement["<<counter<<"]: ETs [GeV]: EM: "<< (*begj)->emEnergy()<<", HAD: "<< (*begj)->hadEnergy()<<", Total: "<<(*begj)->energy()<<", eta: "<<(*begj)->eta()<<", phi: "<<(*begj)->phi()<<endmsg;
         }        
 #endif
 
@@ -207,9 +207,9 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   }
 #ifndef NDEBUG
   if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "Stored L1 data as DataVector<LVL1::JetElement>* m_storedJEs" << endreq;
-        (*m_log) << MSG::DEBUG << "A total of " << counter << " elements were retreived" << endreq;
-        (*m_log) << MSG::DEBUG << "These will now be mapped onto a map of ints and LVL1::JetInput[s]" << endreq;
+        (*m_log) << MSG::DEBUG << "Stored L1 data as DataVector<LVL1::JetElement>* m_storedJEs" << endmsg;
+        (*m_log) << MSG::DEBUG << "A total of " << counter << " elements were retreived" << endmsg;
+        (*m_log) << MSG::DEBUG << "These will now be mapped onto a map of ints and LVL1::JetInput[s]" << endmsg;
   }
 #endif
   
@@ -224,7 +224,7 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   
 #ifndef NDEBUG
   if((*m_log).level() <= MSG::DEBUG){
-      (*m_log) << MSG::DEBUG << "RoI descriptor phi: "<<(roiDescriptor)->phi()<<", in L1 coordinates: "<<roiPhi<<endreq;
+      (*m_log) << MSG::DEBUG << "RoI descriptor phi: "<<(roiDescriptor)->phi()<<", in L1 coordinates: "<<roiPhi<<endmsg;
   }
 #endif
   
@@ -234,7 +234,7 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   if ( m_retrievedJetTool ) {
 #ifndef NDEBUG
           if((*m_log).level() <= MSG::DEBUG){
-             (*m_log) << MSG::DEBUG << "Using m_jetL1Tools to 'formSums' at the roi descriptor coordinates, this reproduces the L1 Jet object"<<endreq;
+             (*m_log) << MSG::DEBUG << "Using m_jetL1Tools to 'formSums' at the roi descriptor coordinates, this reproduces the L1 Jet object"<<endmsg;
           }
 #endif
           m_jetL1Tools->formSums( (roiDescriptor)->eta(), roiPhi, & jetInputs );
@@ -252,7 +252,7 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
           if ((roiDescriptor)->phi() >= M_PI){
 #ifndef NDEBUG
               if((*m_log).level() <= MSG::DEBUG){
-                  (*m_log) << MSG::DEBUG << "RoI descriptor phi >= M_PI, this causes issues with the creation of RoI descriptors: therefore setting phi to M_PI-0.001"<<endreq;
+                  (*m_log) << MSG::DEBUG << "RoI descriptor phi >= M_PI, this causes issues with the creation of RoI descriptors: therefore setting phi to M_PI-0.001"<<endmsg;
               }
 #endif
               m_jet->setPhi( M_PI-0.001 );
@@ -268,11 +268,11 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
 
 #ifndef NDEBUG
   if((*m_log).level() <= MSG::DEBUG){
-     (*m_log) << MSG::DEBUG << " Values of T2L1CaloJet produced: " << endreq;
-     (*m_log) << MSG::DEBUG << " REGTEST: Jet eta = " << m_jet->eta() << endreq;
-     (*m_log) << MSG::DEBUG << " REGTEST: Jet phi = " << m_jet->phi() << endreq;
-     (*m_log) << MSG::DEBUG << " REGTEST: Jet energy = " << m_jet->e() << endreq;
-     (*m_log) << MSG::DEBUG << " REGTEST: Jet et = " << m_jet->et() << endreq;
+     (*m_log) << MSG::DEBUG << " Values of T2L1CaloJet produced: " << endmsg;
+     (*m_log) << MSG::DEBUG << " REGTEST: Jet eta = " << m_jet->eta() << endmsg;
+     (*m_log) << MSG::DEBUG << " REGTEST: Jet phi = " << m_jet->phi() << endmsg;
+     (*m_log) << MSG::DEBUG << " REGTEST: Jet energy = " << m_jet->e() << endmsg;
+     (*m_log) << MSG::DEBUG << " REGTEST: Jet et = " << m_jet->et() << endmsg;
   }
 #endif
 
@@ -288,7 +288,7 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
 
 #ifndef NDEBUG
   if((*m_log).level() <= MSG::DEBUG){
-    (*m_log) << MSG::DEBUG << "Recording created features"<<endreq;
+    (*m_log) << MSG::DEBUG << "Recording created features"<<endmsg;
   }
 #endif
   
@@ -298,7 +298,7 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   if (hltStatus != HLT::OK) {
     if((*m_log).level() <= MSG::DEBUG) {
       (*m_log) << MSG::ERROR << "Write of TrigT2Jet into outputTE failed"
-	    << endreq;
+	    << endmsg;
     }
     return hltStatus;
   }
@@ -323,7 +323,7 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
 
   if ( hltStatus != HLT::OK ) {
     (*m_log) << MSG::ERROR << "Write of update TrigRoiDescriptor into outputTE failed"
-	  << endreq;
+	  << endmsg;
     return hltStatus;
   }
 
@@ -331,12 +331,12 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   if((*m_log).level() <= MSG::DEBUG) {
     (*m_log) << MSG::DEBUG  << "Recorded an RoiDescriptor "
 	  << " phi " <<  newRoiDescriptor->phi()
-	  << " eta " << newRoiDescriptor->eta() << endreq;
+	  << " eta " << newRoiDescriptor->eta() << endmsg;
     (*m_log) << MSG::DEBUG
 	  << "We assume success, set TE with Id "
 	  << outputTE->getId()
 	  << " active to signal positive result."
-	  << endreq;
+	  << endmsg;
   }
 #endif
   
@@ -347,7 +347,7 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
 
 #ifndef NDEBUG
   if((*m_log).level() <= MSG::DEBUG){
-    (*m_log) << MSG::DEBUG << " Finished T2L1CaloJet FEX " << name() << endreq;
+    (*m_log) << MSG::DEBUG << " Finished T2L1CaloJet FEX " << name() << endmsg;
   }
 #endif
   
@@ -361,7 +361,7 @@ HLT::ErrorCode T2L1CaloJet::hltFinalize()
   delete m_storedJEs;
  
   if ( (*m_log).level() <= MSG::INFO ){
-    (*m_log) << MSG::INFO << "Finalizing: " << name() << endreq;
+    (*m_log) << MSG::INFO << "Finalizing: " << name() << endmsg;
     
   }
   delete m_log;

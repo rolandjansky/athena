@@ -52,7 +52,7 @@ T2L1TowerCalibTool::~T2L1TowerCalibTool()
 StatusCode T2L1TowerCalibTool::initialize() 
 {
     m_log = new MsgStream(msgSvc(), name());   
-    (*m_log) << MSG::INFO << " Initalizing Tool: " << name () << endreq;
+    (*m_log) << MSG::INFO << " Initalizing Tool: " << name () << endmsg;
     
     // output
     m_grid_element = new Trig3Momentum();
@@ -73,7 +73,7 @@ StatusCode T2L1TowerCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
 
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "===== Executing: T2L1TowerCalibTool " << name() << endreq;
+        (*m_log) << MSG::DEBUG << "===== Executing: T2L1TowerCalibTool " << name() << endmsg;
     }
 #endif
 
@@ -85,7 +85,7 @@ StatusCode T2L1TowerCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
 
 #ifndef NDEBUG
    if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG  << "A total of " << old_grid->size()  << " particles are to be calibrated" << endreq;
+        (*m_log) << MSG::DEBUG  << "A total of " << old_grid->size()  << " particles are to be calibrated" << endmsg;
     }
 #endif
     
@@ -102,7 +102,7 @@ StatusCode T2L1TowerCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
                                    << " MeV, eta: "     << begin_grid->eta() 
                                    << ", phi: "         << begin_grid->phi() 
                                    << ", sampling: "    << std::hex << begin_grid->caloSample() << std::dec
-                                   << ", provenance: "  << begin_grid->provenance() << endreq;
+                                   << ", provenance: "  << begin_grid->provenance() << endmsg;
         }
 #endif
         // calibrate the towers
@@ -115,7 +115,7 @@ StatusCode T2L1TowerCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
             transverse_energy_uncorrected = transverse_energy_uncorrected + extra_energy;
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::VERBOSE){  
-                (*m_log) << MSG::VERBOSE << "    - EM + HAD ET:  "  << transverse_energy_uncorrected << endreq;
+                (*m_log) << MSG::VERBOSE << "    - EM + HAD ET:  "  << transverse_energy_uncorrected << endmsg;
             }
 #endif
         }
@@ -127,10 +127,10 @@ StatusCode T2L1TowerCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
         
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::VERBOSE){
-            (*m_log) << MSG::VERBOSE << "    - Eta Bin:     " << eta_bin << endreq;
-            (*m_log) << MSG::VERBOSE << "    - Phi Bin:     " << phi_bin << endreq;
-            (*m_log) << MSG::VERBOSE << "    - Et Bin:      " << et_bin  << endreq;
-            (*m_log) << MSG::VERBOSE << "    - CalibFactor: " << CalibFactor << endreq;
+            (*m_log) << MSG::VERBOSE << "    - Eta Bin:     " << eta_bin << endmsg;
+            (*m_log) << MSG::VERBOSE << "    - Phi Bin:     " << phi_bin << endmsg;
+            (*m_log) << MSG::VERBOSE << "    - Et Bin:      " << et_bin  << endmsg;
+            (*m_log) << MSG::VERBOSE << "    - CalibFactor: " << CalibFactor << endmsg;
         }
 #endif
         
@@ -151,7 +151,7 @@ StatusCode T2L1TowerCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
                                    << "]: Et: "         << m_grid_element->e()/cosh(m_grid_element->eta())
                                    << " MeV, eta: "     << m_grid_element->eta() 
                                    << ", phi: "         << m_grid_element->phi() 
-                                   << ", sampling: "    << std::hex << m_grid_element->caloSample() << std::dec << endreq;
+                                   << ", sampling: "    << std::hex << m_grid_element->caloSample() << std::dec << endmsg;
         }
 #endif
         jet_counter++;
@@ -160,7 +160,7 @@ StatusCode T2L1TowerCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
 
 #ifndef NDEBUG
    if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG  << "A total of " << new_grid->size()  << " particles were calibrated" << endreq;
+        (*m_log) << MSG::DEBUG  << "A total of " << new_grid->size()  << " particles were calibrated" << endmsg;
     }
 #endif
 
@@ -169,7 +169,7 @@ StatusCode T2L1TowerCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
 
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "===== Finished: T2L1TowerCalibTool " << name() << endreq;
+        (*m_log) << MSG::DEBUG << "===== Finished: T2L1TowerCalibTool " << name() << endmsg;
     }
 #endif
     
