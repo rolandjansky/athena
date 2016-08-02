@@ -52,11 +52,11 @@ SiliconIDDetDescrCnv::initialize()
 {
     // First call parent init
     StatusCode sc = DetDescrConverter::initialize();
-    MsgStream log(messageService(), "SiliconIDDetDescrCnv");
-    log << MSG::DEBUG << "in initialize" << endreq;
+    MsgStream log(msgSvc(), "SiliconIDDetDescrCnv");
+    log << MSG::DEBUG << "in initialize" << endmsg;
 
     if (sc.isFailure()) {
-        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endreq;
+        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endmsg;
 	return sc;
     }
 
@@ -71,7 +71,7 @@ SiliconIDDetDescrCnv::initialize()
 //      // - this is ONLY needed for the manager of each system
 //      sc = addToDetStore(classID(), "PidelID");
 //      if (sc.isFailure()) {
-//  	log << MSG::FATAL << "Unable to add proxy for SiliconID to the Detector Store!" << endreq;
+//  	log << MSG::FATAL << "Unable to add proxy for SiliconID to the Detector Store!" << endmsg;
 //  	return StatusCode::FAILURE;
 //      } else {}
 
@@ -83,8 +83,8 @@ SiliconIDDetDescrCnv::initialize()
 StatusCode 
 SiliconIDDetDescrCnv::finalize()
 {
-    MsgStream log(messageService(), "SiliconIDDetDescrCnv");
-    log << MSG::DEBUG << "in finalize" << endreq;
+    MsgStream log(msgSvc(), "SiliconIDDetDescrCnv");
+    log << MSG::DEBUG << "in finalize" << endmsg;
 
     return StatusCode::SUCCESS; 
 }
@@ -95,25 +95,25 @@ StatusCode
 SiliconIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
 {
     //StatusCode sc = StatusCode::SUCCESS;
-    MsgStream log(messageService(), "SiliconIDDetDescrCnv");
-    log << MSG::INFO << "in createObj: creating a SiliconID helper object in the detector store" << endreq;
+    MsgStream log(msgSvc(), "SiliconIDDetDescrCnv");
+    log << MSG::INFO << "in createObj: creating a SiliconID helper object in the detector store" << endmsg;
 
     // Create a new SiliconID
 
     DetDescrAddress* ddAddr;
     ddAddr = dynamic_cast<DetDescrAddress*> (pAddr);
     if(!ddAddr) {
-	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endreq;
+	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endmsg;
 	return StatusCode::FAILURE;
     }
 
     // Get the StoreGate key of this container.
     std::string helperKey  = *( ddAddr->par() );
     if ("" == helperKey) {
-	log << MSG::DEBUG << "No Helper key " << endreq;
+	log << MSG::DEBUG << "No Helper key " << endmsg;
     }
     else {
-	log << MSG::DEBUG << "Helper key is " << helperKey << endreq;
+	log << MSG::DEBUG << "Helper key is " << helperKey << endmsg;
     }
     
 
@@ -121,7 +121,7 @@ SiliconIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     StoreGateSvc * detStore;
     StatusCode status = serviceLocator()->service("DetectorStore", detStore);
     if (status.isFailure()) {
-	log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+	log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
 	return StatusCode::FAILURE;
     } else {}
  
@@ -129,47 +129,47 @@ SiliconIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     const DataHandle<IdDictManager> idDictMgr;
     status = detStore->retrieve(idDictMgr, "IdDict");
     if (status.isFailure()) {
-	log << MSG::FATAL << "Could not get IdDictManager !" << endreq;
+	log << MSG::FATAL << "Could not get IdDictManager !" << endmsg;
 	return StatusCode::FAILURE;
     } 
     else {
-	log << MSG::DEBUG << " Found the IdDictManager. " << endreq;
+	log << MSG::DEBUG << " Found the IdDictManager. " << endmsg;
     }
 
     // Get both Pixel and SCT id helpers
     const PixelID* pixelID;
     status = detStore->retrieve(pixelID, "PixelID");
     if (status.isFailure()) {
-	log << MSG::FATAL << "Could not get PixelID helper !" << endreq;
+	log << MSG::FATAL << "Could not get PixelID helper !" << endmsg;
 	return StatusCode::FAILURE;
     } 
     else {
-	log << MSG::DEBUG << " Found the PixelID. " << endreq;
+	log << MSG::DEBUG << " Found the PixelID. " << endmsg;
     }
 
     const SCT_ID* sctID;
     status = detStore->retrieve(sctID, "SCT_ID");
     if (status.isFailure()) {
-	log << MSG::FATAL << "Could not get SCT_ID helper !" << endreq;
+	log << MSG::FATAL << "Could not get SCT_ID helper !" << endmsg;
 	return StatusCode::FAILURE;
     } 
     else {
-	log << MSG::DEBUG << " Found the SCT_ID. " << endreq;
+	log << MSG::DEBUG << " Found the SCT_ID. " << endmsg;
     }
 
     if (!m_siliconId) {
 	// create the helper only once
-	log << MSG::DEBUG << " Create SiliconID. " << endreq;
+	log << MSG::DEBUG << " Create SiliconID. " << endmsg;
 	m_siliconId = new SiliconID(pixelID, sctID);
-        m_siliconId->setMessageSvc(messageService());
+        m_siliconId->setMessageSvc(msgSvc());
     }
     
     if (idDictMgr->initializeHelper(*m_siliconId)) {
-	log << MSG::ERROR << "Unable to initialize SiliconID" << endreq;
+	log << MSG::ERROR << "Unable to initialize SiliconID" << endmsg;
 	return StatusCode::FAILURE;
     } 
     else {
-	log << MSG::DEBUG << " Initialized SiliconID. " << endreq;
+	log << MSG::DEBUG << " Initialized SiliconID. " << endmsg;
     }
     
     // Pass a pointer to the container to the Persistency service by reference.
