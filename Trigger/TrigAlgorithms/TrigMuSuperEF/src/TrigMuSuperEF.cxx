@@ -1365,7 +1365,7 @@ HLT::ErrorCode TrigMuSuperEF::buildCombinedTracks(const MuonCandidateCollection*
   // call the combiner
   ATH_MSG_DEBUG("Call  m_muonCombinedTool->combine, n(muon cand)=" << muonCandidates->size() << " n(ID cand)=" << inDetCandidates.size());
 
-  m_muonCombinedTool->combine( *muonCandidates,  inDetCandidates ) ;
+  if(muonCandidates) m_muonCombinedTool->combine( *muonCandidates,  inDetCandidates ) ;
 
   if(trackFinderTime) trackFinderTime->stop();
   if(dataOutputTime) dataOutputTime->start();
