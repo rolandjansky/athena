@@ -62,31 +62,31 @@ TrigMenuNtupleAlg::~TrigMenuNtupleAlg() {
 }
 
 StatusCode TrigMenuNtupleAlg::initialize() {
-  msg(MSG::INFO) << "entering intialize()" << endreq;
+  msg(MSG::INFO) << "entering intialize()" << endmsg;
 
 //   ROOT::Cintex::Cintex::Enable();
-//   log << MSG::DEBUG << "after Cintex" << endreq;
+//   log << MSG::DEBUG << "after Cintex" << endmsg;
 //   System::ImageHandle handle = 0;
 //   const std::string libname = "TriggerMenuNtupleDict";
 //   if ( System::loadDynamicLib(libname, &handle) != 1) {
-//     log << MSG::WARNING << "Cannot load " << libname << endreq;
+//     log << MSG::WARNING << "Cannot load " << libname << endmsg;
 //   } else {
-//     log << MSG::INFO << "loaded : " << libname << endreq;
+//     log << MSG::INFO << "loaded : " << libname << endmsg;
 //   }
 
   if (serviceLocator()->service("ActiveStoreSvc", m_activeStoreSvc).isFailure()) {
-    msg(MSG::WARNING) << "Cannot retrieve ActiveStoreSvc" << endreq;
+    msg(MSG::WARNING) << "Cannot retrieve ActiveStoreSvc" << endmsg;
   }
   if (m_trigAccessTool.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Cannot retrieve TrigAccessTool" << endreq;
+    msg(MSG::WARNING) << "Cannot retrieve TrigAccessTool" << endmsg;
   }
   if (m_RoILinksCnvTool.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Cannot retrieve RoILinksCnvTool" << endreq;
+    msg(MSG::WARNING) << "Cannot retrieve RoILinksCnvTool" << endmsg;
   }
 
   // Needed by design of NtupleAlgorithm
   if(NtupleAlgorithm::parseNtupleComponentStrings().isFailure()) {
-    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't initialize NtupleAlgorithm base class." << endreq;
+    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't initialize NtupleAlgorithm base class." << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -95,7 +95,7 @@ StatusCode TrigMenuNtupleAlg::initialize() {
   para_itr = m_ntupleComponentParameters.begin();
   para_itr_end = m_ntupleComponentParameters.end();
   for(;para_itr!=para_itr_end;para_itr++) {
-    msg(MSG::INFO) << "Initialize NtComponent: " << para_itr->name << endreq;
+    msg(MSG::INFO) << "Initialize NtComponent: " << para_itr->name << endmsg;
     if (para_itr->name == "HltMuon") {
       m_ntupleComponents.push_back(new HltMuonNtComponent(this, *para_itr));
     } else if (para_itr->name == "TrigMenu") {
@@ -118,14 +118,14 @@ StatusCode TrigMenuNtupleAlg::initialize() {
       m_ntupleComponents.push_back(new NtComponent::TriggerDecisionNtComponent(this, *para_itr));
     } else {
       msg(MSG::WARNING) << "The NtComponent " << para_itr->name 
-			<< " has not been implemented." << endreq;
+			<< " has not been implemented." << endmsg;
     }
   }
 
 
   // Needed by design of NtupleAlgorithm
   if(NtupleAlgorithm::initialize().isFailure()) {
-    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't initialize NtupleAlgorithm base class." << endreq;
+    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't initialize NtupleAlgorithm base class." << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -159,19 +159,19 @@ StatusCode TrigMenuNtupleAlg::finalize() {
   t->Branch("Chain", "TClonesArray", &c1);
   t->Branch("Feature", "TClonesArray", &c2);
 
-  msg(MSG::INFO) << "ChainEntry::chainIdMap(): " << endreq;
+  msg(MSG::INFO) << "ChainEntry::chainIdMap(): " << endmsg;
   const std::map<int, std::string>& m1 = ChainEntry::chainIdMap();
   for (i=0,p=m1.begin(); p!=m1.end(); ++p,++i) {
     msg(MSG::INFO) << "  Chain: " << p->first << ": " << p->second
-		   << endreq;
+		   << endmsg;
     new ( (*c1)[i]) TObjString(p->second.c_str());
   }
 
-  msg(MSG::INFO) << "CombLinks::featureIdMap(): " << endreq;
+  msg(MSG::INFO) << "CombLinks::featureIdMap(): " << endmsg;
   const std::map<int, std::string>& m = CombLinks::featureIdMap();
   for (i=0,p=m.begin(); p!=m.end(); ++p,++i) {
     msg(MSG::INFO) << "  Feature: " << p->first << ": " << p->second
-		   << endreq;
+		   << endmsg;
     new ( (*c2)[i]) TObjString(p->second.c_str());
   }
 

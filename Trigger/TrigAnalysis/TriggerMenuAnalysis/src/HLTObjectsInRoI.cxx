@@ -105,7 +105,7 @@ void HLTObjectsInRoI::addRoITE(const HLT::TriggerElement* te) {
 void HLTObjectsInRoI::addRoITEs(const std::vector<HLT::TriggerElement*>& tes) {
   std::vector<HLT::TriggerElement*>::const_iterator p;
   for (p=tes.begin(); p!=tes.end(); ++p) {
-    log() << MSG::DEBUG << "Adding RoITE : " << (*p) << endreq;
+    log() << MSG::DEBUG << "Adding RoITE : " << (*p) << endmsg;
     addRoITE(*p);
   }
 }
@@ -164,14 +164,14 @@ bool HLTObjectsInRoI::runBySameFex(const  HLTObjectsInRoI* x) const {
     lsid = p->first;
     if ( (q=xx.find(lsid)) == xx.end()) {
       // Different object definitions
-      log() << MSG::DEBUG << "Different object definitions" << endreq;
+      log() << MSG::DEBUG << "Different object definitions" << endmsg;
       status = false;
       break;
     }
     n = p->second.size();
     if (p->second.size() != q->second.size()) {
       // Different object definitions
-      log() << MSG::DEBUG << "Different object definitions" << endreq;
+      log() << MSG::DEBUG << "Different object definitions" << endmsg;
       status = false;
       break;
     }
@@ -182,7 +182,7 @@ bool HLTObjectsInRoI::runBySameFex(const  HLTObjectsInRoI* x) const {
 	// Both pointers are not null and they are different
 	log() << MSG::DEBUG << "Both pointers are not null and they are different, "
 	     << "step: " << (p->first).sig << " iobj: " << i 
-	     << endreq;
+	     << endmsg;
 	status = false;
 	break;
       }
@@ -202,20 +202,20 @@ bool HLTObjectsInRoI::setDataFromTE(int isig, const HLT::TriggerElement* te,
     for (p2=p->second.begin(); p2!=p->second.end(); ++p2) {
       if ( (*p2)->getObject(te, navitool) == 0) {
 	log() << MSG::DEBUG << "Successfully retrieved object from Navigation (level="
-	     << level << ", sig=" << isig << ")" << endreq;
+	     << level << ", sig=" << isig << ")" << endmsg;
       }
     }
   } else {
     log() << MSG::DEBUG << "TE is there at level="<< level << ", isig="<< isig 
-	 << " but not specified to read" << endreq;
-    log() << MSG::DEBUG << "Attached objects are the following: " << endreq;
+	 << " but not specified to read" << endmsg;
+    log() << MSG::DEBUG << "Attached objects are the following: " << endmsg;
     unsigned int n = te->getFeatureAccessHelpers().size();
     unsigned int clid = 0;
     for (unsigned int i=0; i<n; ++i) {
       clid = te->getFeatureAccessHelpers()[i].getCLID();
       std::string clsname="";
       log() << MSG::DEBUG << "TE["<<i<<"]: "
-	   << "clid=" << clid << "class_name=" << clsname << endreq;
+	   << "clid=" << clid << "class_name=" << clsname << endmsg;
     }
     return false;
   }
@@ -272,7 +272,7 @@ int HLTObjectsInRoI::setDataFromCombination(const Trig::Combination& comb,
       if (te1==0) {
 	te1 = (*q)->getTEforObj(comb);
       }
-      log() << MSG::DEBUG << "Is TE to get L1 RoI there? Te=" << te1 << endreq;
+      log() << MSG::DEBUG << "Is TE to get L1 RoI there? Te=" << te1 << endmsg;
       //      }
       if ( (*q)->objectAddress() != 0) {
 	(*q)->addChain(chain_name, passed);
@@ -291,7 +291,7 @@ int HLTObjectsInRoI::setDataFromCombination(const Trig::Combination& comb,
   if (!foundit) {
     log() << MSG::DEBUG 
 	  << "Couldn't find object for combination of chain: "
-	  << chain_name << endreq;
+	  << chain_name << endmsg;
   }
 
   return 0;
@@ -353,7 +353,7 @@ bool HLTObjectsInRoI::addFeatureChainStatus(const void* feature,
 }
 
 void HLTObjectsInRoI::dump() const {
-  log() << MSG::DEBUG << "Dump HLTObjectsInRoI" << endreq;
+  log() << MSG::DEBUG << "Dump HLTObjectsInRoI" << endmsg;
   std::map<LevelSigId, std::vector<HltFeature*> >::const_iterator p;
   std::vector<HltFeature*>::const_iterator q;
   for (p=m_hltFeatureDefs.begin(); p!=m_hltFeatureDefs.end(); ++p) {
@@ -362,13 +362,13 @@ void HLTObjectsInRoI::dump() const {
     }
   }
 //   std::vector<std::string>::const_iterator p;
-//   log() << MSG::DEBUG << "Associated chains: " << endreq;
+//   log() << MSG::DEBUG << "Associated chains: " << endmsg;
 //   for (p=m_associatedChains.begin(); p!=m_associatedChains.end(); ++p) {
-//     log() << MSG::DEBUG << "   - " << (*p) << endreq;
+//     log() << MSG::DEBUG << "   - " << (*p) << endmsg;
 //   }
-//   log() << MSG::DEBUG << "Passed chains: " << endreq;
+//   log() << MSG::DEBUG << "Passed chains: " << endmsg;
 //   for (p=m_passedChains.begin(); p!=m_passedChains.end(); ++p) {
-//     log() << MSG::DEBUG << "   - " << (*p) << endreq;
+//     log() << MSG::DEBUG << "   - " << (*p) << endmsg;
 //   }
 }
 
@@ -376,10 +376,10 @@ void HLTObjectsInRoI::dumpFeature(const HltFeature* feature) const {
   const std::vector<TrigStatus>& chains = feature->chains();
   std::vector<TrigStatus>::const_iterator p_chain;
 
-  log() << MSG::DEBUG << "  Feature: " << feature->name() << " pointer=" << feature->objectAddress() << endreq;
-  log() << MSG::DEBUG << "    Associated chains: " << endreq;
+  log() << MSG::DEBUG << "  Feature: " << feature->name() << " pointer=" << feature->objectAddress() << endmsg;
+  log() << MSG::DEBUG << "    Associated chains: " << endmsg;
   for (p_chain=chains.begin(); p_chain!=chains.end(); ++p_chain) {
-    log() << MSG::DEBUG << "    - " << p_chain->name() << " : " << p_chain->isPassed() << endreq;
+    log() << MSG::DEBUG << "    - " << p_chain->name() << " : " << p_chain->isPassed() << endmsg;
   }
 }
 

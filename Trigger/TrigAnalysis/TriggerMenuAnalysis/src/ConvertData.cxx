@@ -627,7 +627,7 @@ setMuComb(RoIData_Muon& m, const CombinedMuonFeature* f, std::vector<std::string
   const DataHandle<TrigInDetTrackCollection> lastTrackCollection;
   StatusCode sc_idtrk = m_storeGate->retrieve(trackCollection,lastTrackCollection);
   if ( sc_idtrk.isFailure() ) {
-    *m_log << MSG::VERBOSE << "Failed to retrieve ID tracks collections" << endreq;
+    *m_log << MSG::VERBOSE << "Failed to retrieve ID tracks collections" << endmsg;
     return StatusCode::SUCCESS;   
   }
 	

@@ -28,11 +28,11 @@ HltConfigNtComponent::~HltConfigNtComponent() {
 
 StatusCode HltConfigNtComponent::setupServices() {
   if (NtComponent::NtupleComponent::setupServices().isFailure()) {
-    (*m_msg) << MSG::DEBUG << "Cannot setup service " << endreq;
+    (*m_msg) << MSG::DEBUG << "Cannot setup service " << endmsg;
     return StatusCode::FAILURE;
   }
   if (m_trigConfigSvc.retrieve().isFailure()) {
-    (*m_msg) << MSG::DEBUG << "Cannot retrieve TrigConfigSvc" << endreq;
+    (*m_msg) << MSG::DEBUG << "Cannot retrieve TrigConfigSvc" << endmsg;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -45,7 +45,7 @@ StatusCode HltConfigNtComponent::book() {
     m_eventInfoKey = p->second;
   } else {
     (*m_msg) << MSG::INFO << "No EventInfo key specified, use " 
-	     << m_eventInfoKey << endreq;
+	     << m_eventInfoKey << endmsg;
   }
   
   m_chainNames = new std::vector<std::string>();
@@ -63,7 +63,7 @@ StatusCode HltConfigNtComponent::fill() {
   const EventInfo* ei=0;
   if ( (*m_evtStore)->retrieve(ei).isFailure()) {
     (*m_msg) << MSG::WARNING << "Failed to retrieve EventInfo "
-	     << endreq;
+	     << endmsg;
   }
   if (ei) {
     const EventID *eid = ei->event_ID();

@@ -38,7 +38,7 @@ namespace NtComponent {
 
     StatusCode sc = m_mainAlg->trigDecisionTool().retrieve();
     if ( sc.isFailure()   ) {  
-     	(*m_msg) << MSG::WARNING  << "TriggerDecisionNtComponent FATAL: Could not retrieve TrigDecisionTool!" << endreq;
+     	(*m_msg) << MSG::WARNING  << "TriggerDecisionNtComponent FATAL: Could not retrieve TrigDecisionTool!" << endmsg;
       m_useDecision = false;
       m_allL1 = 0; 
       m_allL2 = 0; 
@@ -69,30 +69,30 @@ namespace NtComponent {
     std::vector<std::string> names;
     if (m_allEF) names = m_allEF->getListOfTriggers();
     
-    (*m_msg) << MSG::DEBUG << "TriggerDecisionNtComponent: Number of EF triggers retrieved " << names.size() <<endreq;
+    (*m_msg) << MSG::DEBUG << "TriggerDecisionNtComponent: Number of EF triggers retrieved " << names.size() <<endmsg;
     for (unsigned int loop = 0 ; loop < names.size() ; loop++) {
       if ( m_mainAlg->trigDecisionTool()->isPassed(names[loop])){
-	(*m_msg) << MSG::VERBOSE << "TriggerDecisionNtComponent: Trigger '" << names[loop]<<"' passed and is being added to ntuple" <<endreq;
+	(*m_msg) << MSG::VERBOSE << "TriggerDecisionNtComponent: Trigger '" << names[loop]<<"' passed and is being added to ntuple" <<endmsg;
 	m_eventFilterTriggerPasses->push_back(names[loop]);
 	 }
     }
 
     names.clear();
     if (m_allL2) names = m_allL2->getListOfTriggers();
-    (*m_msg) << MSG::DEBUG << "TriggerDecisionNtComponent: Number of L2 triggers retrieved " << names.size() <<endreq;
+    (*m_msg) << MSG::DEBUG << "TriggerDecisionNtComponent: Number of L2 triggers retrieved " << names.size() <<endmsg;
     for (unsigned int loop = 0 ; loop < names.size() ; loop++) {
       if ( m_mainAlg->trigDecisionTool()->isPassed(names[loop])){
-	(*m_msg) << MSG::VERBOSE << "TriggerDecisionNtComponent: Trigger '" << names[loop]<<"' passed and is being added to ntuple" <<endreq;
+	(*m_msg) << MSG::VERBOSE << "TriggerDecisionNtComponent: Trigger '" << names[loop]<<"' passed and is being added to ntuple" <<endmsg;
 	m_level2TriggerPasses->push_back(names[loop]); 
 	 }
     }
 
     names.clear();
     if (m_allL1) names = m_allL1->getListOfTriggers();
-    (*m_msg) << MSG::DEBUG << "TriggerDecisionNtComponent: Number of L1 triggers retrieved " << names.size() <<endreq;
+    (*m_msg) << MSG::DEBUG << "TriggerDecisionNtComponent: Number of L1 triggers retrieved " << names.size() <<endmsg;
     for (unsigned int loop = 0 ; loop < names.size() ; loop++) {
       if ( m_mainAlg->trigDecisionTool()->isPassed(names[loop])){
-	(*m_msg) << MSG::VERBOSE << "TriggerDecisionNtComponent: Trigger '" << names[loop]<<"' passed and is being added to ntuple" <<endreq;
+	(*m_msg) << MSG::VERBOSE << "TriggerDecisionNtComponent: Trigger '" << names[loop]<<"' passed and is being added to ntuple" <<endmsg;
 	m_level1TriggerPasses->push_back(names[loop]); 
 	 }
     }

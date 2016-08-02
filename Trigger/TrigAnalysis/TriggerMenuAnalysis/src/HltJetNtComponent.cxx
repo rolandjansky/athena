@@ -74,7 +74,7 @@ StatusCode HltJetNtComponent::fill() {
   clear();
 
   if ( (*m_evtStore)->retrieve(l2jets, "HLT_TrigT2CaloJet").isFailure()) {
-    (*m_msg) << MSG::WARNING << "Cannot find TrigT2JetContainer" << endreq;
+    (*m_msg) << MSG::WARNING << "Cannot find TrigT2JetContainer" << endmsg;
   } else {
     TrigT2JetContainer::const_iterator p;
     for (p=l2jets->begin(); p!=l2jets->end(); ++p) {
@@ -88,7 +88,7 @@ StatusCode HltJetNtComponent::fill() {
     }
   }
   if ( (*m_evtStore)->retrieve(efjets, "HLT_TrigJetRec").isFailure()) {
-    (*m_msg) << MSG::WARNING << "Cannot find JetCollection" << endreq;
+    (*m_msg) << MSG::WARNING << "Cannot find JetCollection" << endmsg;
   } else {
     JetCollection::const_iterator p;
     for (p=efjets->begin(); p!=efjets->end(); ++p) {

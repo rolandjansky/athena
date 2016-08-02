@@ -54,10 +54,10 @@ StatusCode HltNaviChecker::initialize() {
   AthAlgorithm::initialize().ignore();
 
   if (m_trigDecisionTool.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Cannot retrieve TrigDecisionTool" << endreq;
+    msg(MSG::WARNING) << "Cannot retrieve TrigDecisionTool" << endmsg;
   }
   if (m_RoILinksCnvTool.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Cannot retrieve RoILinksCnvTool" << endreq;
+    msg(MSG::WARNING) << "Cannot retrieve RoILinksCnvTool" << endmsg;
   }
 
   m_file = TFile::Open("chk_passbit.root", "RECREATE");
@@ -79,7 +79,7 @@ StatusCode HltNaviChecker::execute() {
   RoILinks roi_links;
   static int ievent(0);
 
-  msg(MSG::INFO) << "Event " << ievent << endreq;
+  msg(MSG::INFO) << "Event " << ievent << endmsg;
   checkPassBits();
 
   m_RoILinksCnvTool->fill(chains, roi_links);
@@ -88,7 +88,7 @@ StatusCode HltNaviChecker::execute() {
   for (p_chain=m_chainNames.begin(); p_chain!=m_chainNames.end(); ++p_chain) {
     msg(MSG::INFO) << "Chain decision for " << (*p_chain) 
 		   << " ==> " << m_trigDecisionTool->isPassed(*p_chain) 
-		   << endreq;
+		   << endmsg;
     checkFeatures(*p_chain);
   }
 
@@ -102,16 +102,16 @@ void HltNaviChecker::checkPassBits() {
   const DataHandle<TrigPassBitsCollection> coll1, coll2;
 
   if (evtStore()->retrieve(coll1, coll2).isFailure()) {
-    msg(MSG::WARNING) << "Cannot retrieve TrigPassBitsCollection" << endreq;
+    msg(MSG::WARNING) << "Cannot retrieve TrigPassBitsCollection" << endmsg;
   }
   int n(0);
   for (; coll1!=coll2; ++coll1) {
     n ++;
   }
-  msg(MSG::INFO) << "N TrigPassBits collections: " << n << endreq;
+  msg(MSG::INFO) << "N TrigPassBits collections: " << n << endmsg;
 
   if (evtStore()->retrieve(coll, "HLT_passbits").isFailure()) {
-    msg(MSG::WARNING) << "Cannot retrieve TrigPassBitsCollection" << endreq;
+    msg(MSG::WARNING) << "Cannot retrieve TrigPassBitsCollection" << endmsg;
   }
 
   // Reset data
@@ -135,7 +135,7 @@ void HltNaviChecker::checkPassBits() {
 	if (q->getCLID() != ClassID_traits<egammaContainer>::ID()) continue;
 	const HLT::TriggerElement::ObjectIndex& oi = q->getIndex();
 	msg(MSG::INFO) << "Feature clid=" << q->getCLID()
-		       << " " << oi << endreq;
+		       << " " << oi << endmsg;
 	for (unsigned int i=oi.objectsBegin(); i!=oi.objectsEnd(); ++i) {
 	  m_EFElectronPassBitsIndex->push_back(i);
 	}
@@ -161,24 +161,24 @@ template<class T>
 void getAndDumpFeatures(Trig::FeatureContainer& fc, const std::string& cls, 
 			MsgStream& log) {
   vector<Trig::Feature<T> > v = fc.get<T>("", TrigDefs::alsoDeactivateTEs);
-  log << cls << " N=" << v.size() << endreq;
+  log << cls << " N=" << v.size() << endmsg;
   for (unsigned int i=0; i<v.size(); ++i) {
     Trig::Feature<T>& x = v[i];
     log << "  [" << i << "] cptr=" << x.cptr() << " TE=" << x.te() 
-	<< " label=" << x.label() << endreq;
+	<< " label=" << x.label() << endmsg;
   }
 }
 
 void HltNaviChecker::checkFeatures(const std::string& chain_name) {
-  msg(MSG::INFO) << "*** Check HLT features in chain: " << chain_name << endreq;
+  msg(MSG::INFO) << "*** Check HLT features in chain: " << chain_name << endmsg;
   Trig::FeatureContainer fc = 
     m_trigDecisionTool->features(chain_name, TrigDefs::alsoDeactivateTEs);
 
   std::vector<Trig::Combination> combs = fc.getCombinations();
   std::vector<Trig::Combination>::const_iterator p_comb;
   std::vector<const HLT::TriggerElement*>::const_iterator p_te;
-  msg(MSG::INFO) << "  Loop over combinations and look for L1 RoIs" << endreq;
-  msg(MSG::INFO) << "  N combinations: " << combs.size() << endreq;
+  msg(MSG::INFO) << "  Loop over combinations and look for L1 RoIs" << endmsg;
+  msg(MSG::INFO) << "  N combinations: " << combs.size() << endmsg;
   int icomb=0;
   for (p_comb=combs.begin(); p_comb!=combs.end(); ++p_comb, ++icomb) {
     HLT::NavigationCore* navi = dynamic_cast<HLT::NavigationCore*>(p_comb->navigation());
@@ -186,36 +186,36 @@ void HltNaviChecker::checkFeatures(const std::string& chain_name) {
     msg(MSG::INFO) << "  Combinatation[" << icomb 
 		   << "] N TEs: " << tes.size()
 		   << " active=" << p_comb->active()
-		   << endreq;
+		   << endmsg;
     int ite(0);
 
     for (p_te=tes.begin(); p_te!=tes.end(); ++p_te, ++ite) {
-      msg(MSG::INFO) << "    TE[" << ite << "] RoI via TDT ancestor" << endreq;
+      msg(MSG::INFO) << "    TE[" << ite << "] RoI via TDT ancestor" << endmsg;
 
       const vector<Trig::Feature<Jet_ROI> > xv1 = m_trigDecisionTool->ancestors<Jet_ROI>(*p_te);
       const vector<Trig::Feature<Muon_ROI> > xv2 = m_trigDecisionTool->ancestors<Muon_ROI>(*p_te);
-      msg(MSG::INFO) << "      N jet RoIs by ancestors(): " << xv1.size() << endreq;
+      msg(MSG::INFO) << "      N jet RoIs by ancestors(): " << xv1.size() << endmsg;
       for (unsigned int j=0; j<xv1.size(); ++j) {
 	msg(MSG::INFO) << "      Jet_ROI[" << j << "] cptr=" << xv1[j].cptr() 
 		       << " TE=" << xv1[j].te() 
-		       << " label=" << xv1[j].label() << endreq;
+		       << " label=" << xv1[j].label() << endmsg;
       }
-      msg(MSG::INFO) << "    N muon RoIs by ancestors(): " << xv2.size() << endreq;
+      msg(MSG::INFO) << "    N muon RoIs by ancestors(): " << xv2.size() << endmsg;
       for (unsigned int j=0; j<xv2.size(); ++j) {
 	msg(MSG::INFO) << "      Muon_ROI[" << j << "] cptr=" << xv2[j].cptr() 
 		       << " TE=" << xv2[j].te() 
-		       << " label=" << xv2[j].label() << endreq;
+		       << " label=" << xv2[j].label() << endmsg;
       }
 
       checkFeatures(*p_te, navi, "      ");
       //       const Trig::Feature<Jet_ROI> x = 
       // 	m_trigDecisionTool->ancestor<Jet_ROI>(*p_te);
       //       msg(MSG::INFO) << "    Jet_ROI via ancestor() cptr=" << x.cptr() << " TE=" << x.te() 
-      // 		     << " label=" << x.label() << endreq;
+      // 		     << " label=" << x.label() << endmsg;
       //       const Trig::Feature<Muon_ROI> x2 = 
       // 	m_trigDecisionTool->ancestor<Muon_ROI>(*p_te);
       //       msg(MSG::INFO) << "    Muon_ROI via ancestor() cptr=" << x2.cptr() << " TE=" << x2.te() 
-      // 		     << " label=" << x2.label() << endreq;
+      // 		     << " label=" << x2.label() << endmsg;
     }
   }
   // Show direct dump for some classes
@@ -247,7 +247,7 @@ void HltNaviChecker::checkFeatures(const HLT::TriggerElement* te,
 
   msg(MSG::INFO) << prefix << "TE: " << label << " status=" << status
 		 << " feature size: " << v.size()
-		 << endreq;
+		 << endmsg;
 
   int iii=0;
   for (p_f=v.begin(); p_f!=v.end(); ++p_f, ++iii) {
@@ -259,7 +259,7 @@ void HltNaviChecker::checkFeatures(const HLT::TriggerElement* te,
 		   << " subType: " << oi.subTypeIndex() 
 		   << " label: " << feature_label
 		   << " index=[" << oi.objectsBegin() 
-		   << "," << oi.objectsEnd() << ")" << endreq;
+		   << "," << oi.objectsEnd() << ")" << endmsg;
   }
   const std::vector<HLT::TriggerElement*>& tes = navi->getDirectPredecessors(te);
   std::vector<HLT::TriggerElement*>::const_iterator p;

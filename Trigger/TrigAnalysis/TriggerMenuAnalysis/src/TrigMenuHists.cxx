@@ -34,7 +34,7 @@ StatusCode TrigMenuHists::initialize() {
   MsgStream log(msgSvc(), name());
 
   if (m_THistSvc.retrieve().isFailure()) {
-    log << MSG::WARNING << "Cannot retrieve service THistSvc" << endreq;
+    log << MSG::WARNING << "Cannot retrieve service THistSvc" << endmsg;
   }
   
   m_histMuFastPt = new TH1F("MuFastPt", "MuFast p_{T}", 100, 0, 100);
@@ -62,12 +62,12 @@ bool TrigMenuHists::fillMuonObjects(const std::vector<HLTObjectsInRoI*>& objs) {
     if (mu_obj) {
       if (mu_obj->getMuonFeature()) {
 	log << MSG::INFO << "mufast pt: " 
-	    << mu_obj->getMuonFeature()->pt()*0.001 << endreq;
+	    << mu_obj->getMuonFeature()->pt()*0.001 << endmsg;
 	m_histMuFastPt->Fill(mu_obj->getMuonFeature()->pt()*0.001);
       }
       if (mu_obj->getCombinedMuonFeature()) {
 	log << MSG::INFO << "mufast pt: " 
-	    << mu_obj->getCombinedMuonFeature()->pt()*0.001 << endreq;
+	    << mu_obj->getCombinedMuonFeature()->pt()*0.001 << endmsg;
 	m_histMuCombPt->Fill(mu_obj->getCombinedMuonFeature()->pt());
       }
     }

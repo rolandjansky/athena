@@ -48,7 +48,7 @@ namespace NtComponent {
     // Connect to the LVL1ConfigSvc.
     if((sc = m_configSvc->retrieve()).isFailure()) {
       (*m_msg) << MSG::ERROR << "Could not connect to " 
-	       << m_configSvc->typeAndName() << endreq;
+	       << m_configSvc->typeAndName() << endmsg;
       return sc;
     }
 
@@ -93,7 +93,7 @@ namespace NtComponent {
     StatusCode sc=StatusCode::SUCCESS;
     sc=(*m_evtStore)->retrieve(evt, evtEnd);
     if( sc.isFailure()  || !evt ) {
-      (*m_msg) << MSG::ERROR << "Error retrieving EventInfo!"<<endreq;
+      (*m_msg) << MSG::ERROR << "Error retrieving EventInfo!"<<endmsg;
       return StatusCode::RECOVERABLE;
     }
 
@@ -104,7 +104,7 @@ namespace NtComponent {
     ctpConfig = (*m_configSvc)->ctpConfig();
     if(!ctpConfig) {
       if (!m_warningPrinted) {
-	(*m_msg) << MSG::WARNING << "Error retrieving CTPConfig from LVL1ConfigSvc" << endreq;
+	(*m_msg) << MSG::WARNING << "Error retrieving CTPConfig from LVL1ConfigSvc" << endmsg;
 	m_warningPrinted = true;
       }
       return StatusCode::SUCCESS;
@@ -115,11 +115,11 @@ namespace NtComponent {
     std::vector< TrigConf::PIT* >::const_iterator pit_itr_end = ctpConfig->menu().pitVector().end();
     
     //if(pit_itr==pit_itr_end) {
-      //(*m_msg) << MSG::INFO << "pitVector is empty." << endreq;
+      //(*m_msg) << MSG::INFO << "pitVector is empty." << endmsg;
     //}
 
     for(;pit_itr!=pit_itr_end;++pit_itr) {
-      //(*m_msg) << MSG::INFO << " pit name=" << (*pit_itr)->thresholdName() << " " << endreq;
+      //(*m_msg) << MSG::INFO << " pit name=" << (*pit_itr)->thresholdName() << " " << endmsg;
       m_pit_name->push_back((*pit_itr)->thresholdName());
       m_pit_number->push_back((*pit_itr)->pitNumber());
     }
@@ -127,7 +127,7 @@ namespace NtComponent {
     for(TrigConf::ItemContainer::iterator item = ctpConfig->menu().items().begin(); item != ctpConfig->menu().items().end(); ++item) {
       m_item_name->push_back((*item)->name());
       m_item_ctpId->push_back((*item)->ctpId());
-      //(*m_msg) << MSG::INFO << "name = " << (*item_itr)->name() << " ctpId=" << (*item_itr)->ctpId() << endreq;
+      //(*m_msg) << MSG::INFO << "name = " << (*item_itr)->name() << " ctpId=" << (*item_itr)->ctpId() << endmsg;
     }
 
     return StatusCode::SUCCESS;

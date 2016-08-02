@@ -131,7 +131,7 @@ StatusCode L1RoINtComponent::fill() {
   clear();
 
   if ( (*m_evtStore)->retrieve(rois).isFailure()) {
-    (*m_msg) << MSG::WARNING << "Cannot find LVL1_ROI" << endreq;
+    (*m_msg) << MSG::WARNING << "Cannot find LVL1_ROI" << endmsg;
   } else {
     const LVL1_ROI::muons_type& muon_rois = rois->getMuonROIs();
     LVL1_ROI::muons_type::const_iterator p_muon;

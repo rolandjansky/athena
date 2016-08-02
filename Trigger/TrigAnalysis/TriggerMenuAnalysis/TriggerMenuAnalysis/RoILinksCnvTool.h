@@ -167,7 +167,7 @@ int RoILinksCnvTool::findIndex(const Elem* p, const std::string& /*elemKey*/,
 
   if (force_retrieve || cont==0) {
     if (evtStore()->retrieve(cont, contKey).isFailure()) {
-      log() << MSG::WARNING << "Cannot retrieve Container " << contKey << endreq;
+      log() << MSG::WARNING << "Cannot retrieve Container " << contKey << endmsg;
     }
   }
 
@@ -175,7 +175,7 @@ int RoILinksCnvTool::findIndex(const Elem* p, const std::string& /*elemKey*/,
     if (msgLvl(MSG::DEBUG) ) {
       log() << MSG::DEBUG << "Search element with pointer "
 	    << std::hex << p << std::dec 
-	    << " : container size: " << cont->size() << endreq;
+	    << " : container size: " << cont->size() << endmsg;
     }
     index = -1;
     typename Cont::const_iterator q;
@@ -185,7 +185,7 @@ int RoILinksCnvTool::findIndex(const Elem* p, const std::string& /*elemKey*/,
 	if (msgLvl(MSG::DEBUG) ) {
 	  log() << MSG::DEBUG 
 		<< "Found element in the container with the same pointer" 
-		<< endreq;
+		<< endmsg;
 	}
 	foundit = true;
 	break;

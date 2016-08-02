@@ -147,9 +147,9 @@ std::vector<int> TrigMenuNtComponent::fillL2Muon(const std::string& chain_name) 
   std::vector<Trig::Combination>::const_iterator p_comb;
   (*m_msg) << MSG::DEBUG 
 	   << "Number of combinations for " << chain_name 
-	   << ": " << combs.size() << endreq;
+	   << ": " << combs.size() << endmsg;
   for (p_comb=combs.begin(); p_comb!=combs.end(); ++p_comb) {
-    (*m_msg) << MSG::DEBUG << "Getting links" << endreq;
+    (*m_msg) << MSG::DEBUG << "Getting links" << endmsg;
     if ( (index=m_RoILinksCnvTool->setMuonRoILinks(*m_RoILinks, *p_comb)) >= 0) {
       RoIIndex.push_back(index);
     }
@@ -167,9 +167,9 @@ std::vector<int> TrigMenuNtComponent::fillL2Electron(const std::string& chain_na
   std::vector<Trig::Combination>::const_iterator p_comb;
   (*m_msg) << MSG::DEBUG 
 	   << "Number of combinations for " << chain_name 
-	   << ": " << combs.size() << endreq;
+	   << ": " << combs.size() << endmsg;
   for (p_comb=combs.begin(); p_comb!=combs.end(); ++p_comb) {
-    (*m_msg) << MSG::DEBUG << "Getting links" << endreq;
+    (*m_msg) << MSG::DEBUG << "Getting links" << endmsg;
     index=m_RoILinksCnvTool->setElectronRoILinks(*m_RoILinks,*p_comb);
     if (index >= 0) {
       RoIIndex.push_back(index);

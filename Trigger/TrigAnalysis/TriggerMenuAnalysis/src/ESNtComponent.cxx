@@ -28,16 +28,16 @@ ESNtComponent::~ESNtComponent() {
 StatusCode ESNtComponent::setupServices() {
   if (NtComponent::NtupleComponent::setupServices().isFailure()) {
     (*m_msg) << MSG::DEBUG << "Failed to setupService the NtupleCompoent"
-	     << endreq;
+	     << endmsg;
     return StatusCode::FAILURE;
   }
 
   if (m_trigConfigSvc.retrieve().isFailure()) {
-    (*m_msg) << MSG::DEBUG << "Cannot retrieve TrigConfigSvc" << endreq;
+    (*m_msg) << MSG::DEBUG << "Cannot retrieve TrigConfigSvc" << endmsg;
     return StatusCode::FAILURE;
   }
   if (m_TDT.retrieve().isFailure()) {
-    (*m_msg) << MSG::DEBUG << "Cannot retrieve TrigDecisionTool" << endreq;
+    (*m_msg) << MSG::DEBUG << "Cannot retrieve TrigDecisionTool" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -51,7 +51,7 @@ StatusCode ESNtComponent::book() {
     m_eventInfoKey = p->second;
   } else {
     (*m_msg) << MSG::INFO << "No EventInfo key specified, use " 
-	     << m_eventInfoKey << endreq;
+	     << m_eventInfoKey << endmsg;
   }
 
   m_chainNames = new std::vector<std::string>();
@@ -70,7 +70,7 @@ StatusCode ESNtComponent::fill() {
    const EventInfo* ei=0;
    if ( (*m_evtStore)->retrieve(ei).isFailure()) {
       (*m_msg) << MSG::WARNING << "Failed to retrieve EventInfo "
-               << endreq;
+               << endmsg;
    } else if (ei) {
       const TriggerInfo *ti = ei->trigger_info();
       if (ti) {
@@ -92,7 +92,7 @@ StatusCode ESNtComponent::fill() {
       if ( (*m_evtStore)->retrieve(coll, k).isFailure()) {
          (*m_msg) << MSG::DEBUG 
                   << "Cannot retrieve TrigOperationalInfoCollection: "
-                  << k << endreq;
+                  << k << endmsg;
       } else if (coll) {
          const TrigConf::HLTChainList* chainlist = m_trigConfigSvc->chainList();
       
@@ -103,10 +103,10 @@ StatusCode ESNtComponent::fill() {
                pair<vector<string>, vector<float> > m = opi->infos();
                (*m_msg) << MSG::DEBUG 
                         << "Number of chains lead to express stream: "
-                        << m.first.size() << endreq;
+                        << m.first.size() << endmsg;
                for (unsigned int j=0; j<m.first.size(); ++j) {
                   (*m_msg) << MSG::DEBUG 
-                           << "Express stream chain: " << m.first[j] << endreq;
+                           << "Express stream chain: " << m.first[j] << endmsg;
                   int counter=-1;
                   if (chainlist) {
                      BOOST_FOREACH(const TrigConf::HLTChain* c, *chainlist) {

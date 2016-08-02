@@ -55,7 +55,7 @@ void RoINtComponent::book(TTree* t) {
     std::vector<std::string>::const_iterator p;
 
     (*m_log) << MSG::INFO << "Booking branches for RoIType: " << m_RoIType 
-	    << endreq;
+	    << endmsg;
     
     m_type = new vi_t();
     m_lastStep = new vi_t();
@@ -86,7 +86,7 @@ void RoINtComponent::book(TTree* t) {
   } else {
     (*m_log) << MSG::INFO 
 	    << "Cannot retrieve CombLinksDef for RoI type: " << m_RoIType 
-	    << endreq;
+	    << endmsg;
   }
 }
 
@@ -102,10 +102,10 @@ void RoINtComponent::fill(const RoILinks& links) {
 
     (*m_log) << MSG::DEBUG 
 	    << "Number of CombLinks for RoI=" << m_RoIType 
-	    << " is " << comblinks.size() << endreq;
+	    << " is " << comblinks.size() << endmsg;
 
     for (p_cl=comblinks.begin(); p_cl!=comblinks.end(); ++p_cl) {
-      (*m_log) << MSG::DEBUG << "CombLink type: " << p_cl->RoIType() << endreq;
+      (*m_log) << MSG::DEBUG << "CombLink type: " << p_cl->RoIType() << endmsg;
       if (p_cl->RoIType() != m_RoIType) continue;
 
       m_type->push_back(static_cast<int>(m_RoIType));
@@ -117,7 +117,7 @@ void RoINtComponent::fill(const RoILinks& links) {
 	int tmp_s = -1;
 	if (fi) {
 	  (*m_log) << MSG::DEBUG << "Feature " << (*p) << ": " << (*fi) 
-		  << endreq;
+		  << endmsg;
 	  tmp_i = fi->getIndex();
 	  tmp_s = fi->getStatus();
 	}
@@ -131,7 +131,7 @@ void RoINtComponent::fill(const RoILinks& links) {
 	vi_t vs;
 	if (fiv) {
 	  (*m_log) << MSG::DEBUG << "Feature " << (*p) << ": " << (*fiv) 
-		  << endreq;
+		  << endmsg;
 	  for (unsigned int j=0; j<fiv->size(); ++j) {
 	    vi.push_back( (*fiv)[j].getIndex());
 	    vs.push_back( (*fiv)[j].getStatus());
@@ -197,7 +197,7 @@ StatusCode TrigMenuFlatNtComponent::book() {
   m_tree->Branch("Chain_RoIType", &m_RoIType);
   m_tree->Branch("Chain_RoIIndex", &m_RoIIndex);
 
-  (*m_msg) << MSG::INFO << "Creating branches" << endreq;
+  (*m_msg) << MSG::INFO << "Creating branches" << endmsg;
   addRoINtComponent("RoI_L2_mu_", ChainEntry::kRoIType_L2_mu);
   addRoINtComponent("RoI_EF_mu_", ChainEntry::kRoIType_EF_mu);
   addRoINtComponent("RoI_L2_TileMu_", ChainEntry::kRoIType_L2_TileMu);
@@ -212,13 +212,13 @@ StatusCode TrigMenuFlatNtComponent::book() {
   addRoINtComponent("RoI_L2_j_", ChainEntry::kRoIType_L2_j);
   addRoINtComponent("RoI_EF_j_", ChainEntry::kRoIType_EF_j);
 
-  (*m_msg) << MSG::INFO << "Creating branches for RoI Links" << endreq;
+  (*m_msg) << MSG::INFO << "Creating branches for RoI Links" << endmsg;
   std::vector<RoINtComponent>::iterator p;
   for (p=m_RoINtComponents.begin(); p!=m_RoINtComponents.end(); ++p) {
     p->book(m_tree);
   }
 
-  (*m_msg) << MSG::INFO << "Done booking branches" << endreq;
+  (*m_msg) << MSG::INFO << "Done booking branches" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -261,7 +261,7 @@ void TrigMenuFlatNtComponent::clear() {
 void TrigMenuFlatNtComponent::addRoINtComponent(const std::string& brname, 
 						ChainEntry::RoIType roi_type) {
   
-  (*m_msg) << MSG::INFO << "Create RoINtComponent: " << brname << endreq;
+  (*m_msg) << MSG::INFO << "Create RoINtComponent: " << brname << endmsg;
   m_RoINtComponents.push_back(RoINtComponent(brname, roi_type, 
 					    m_RoILinksCnvTool, m_msg));
 }
