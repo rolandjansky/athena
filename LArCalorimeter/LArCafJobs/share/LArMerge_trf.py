@@ -2,15 +2,16 @@
 
 #########################################################################
 ##
-## Tier-0 TAG file merging transformation
+## Tier-0 LAr SamplesMon file merging transformation
+## Adapted from TAG merging one
 ##
 ##  - input parameter: file containing a pickled dictionary consisting of the key/value pairs
-##     1) 'inputTagFiles': python list ['datasetname#filename1','datasetname#filename2',...]
+##     1) 'inputLArFiles': python list ['datasetname#filename1','datasetname#filename2',...]
 ##        (input dataset + file names)
-##     2) 'outputTagFile': string 'datasetname#filename'
+##     2) 'outputLArFile': string 'datasetname#filename'
 ##        (output dataset name + file)
 ##
-##  - generates merged TAG output file
+##  - generates merged NTUP_SAMPLESMON output file
 ##
 ## (C) Jack Cranshaw, Luc Goossens, David Malon, Armin Nairz, Nicolas Berger
 ##     (July 2008, April 2009, July 2010, May 2011)
@@ -66,56 +67,76 @@ def larMerge(dataMap) :
   print '\nOutput file name:', outputFile
 
   retcode = 0
-
-  # Load ROOT and the LArCafJobs library 
-  import ROOT, PyCintex
-  from ROOT import gSystem
-  gSystem.Load("libLArCafJobsDict");
-
-  fileList = ROOT.std.vector('TString')()
-  inFiles = []
-
-  for fileName in inputList :
-    accessor = ROOT.LArSamples.PersistentAccessor.open(fileName)
-    print 'Opened file', fileName, 'nevents = ', accessor.nEvents()
-    if accessor == 0 :
-      print 'ERROR : could not open file', fileName
-      retcode = 74001
-      break
-    fileList.push_back(fileName)
-    inFiles.append(getFileMap(fileName, None, nevts=accessor.nEvents()))
-  
-  if retcode == 0 :
-    output = ROOT.LArSamples.PersistentAccessor.merge(fileList, outputFile)
-    if accessor == 0 :
-      print 'ERROR : could not merge to file ', outputFile
-      retcode = 74002
-
-  # get info for report gpickle file
-  if retcode == 0 :
-    outputMap = getFileMap(outputFile, outputDSName, nevts=output.nEvents())
-    outFiles = [ outputMap ]
-        
-  retcode = 0
   acronym = 'OK'
   txt = 'trf finished OK'
 
-  if retcode != 0 : 
-    print "ERROR: problem in LAr ntuple merging!"
-    if retcode == 62600 :
+  outFiles = []
+  inFiles = []
+  nEvents=0
+
+  cmdline=["LArSamplesMerge.exe"]
+  for fileName in inputList:
+    if os.access(fileName,os.R_OK):
+      cmdline.append(fileName)
+    else:
+      print 'ERROR : could not open file', fileName
+      retcode = 74001
       acronym = 'TRF_LAR_FILE_INPUT_ERROR'
       txt = 'LAr input file not accessible'
-    elif retcode == 62601 :  
+      break
+    pass
+  
+  if (retcode==0):
+    writepath=os.path.split(outputFile)[0]
+    if writepath=="": writepath="./"
+    if (os.access(writepath,os.W_OK)):
+      cmdline.append(outputFile)
+    else:
+      print "ERROR, not allowed to write to oututfile", outputFile
+      retcode = 74002
       acronym = 'TRF_LAR_MERGE_ERROR'
       txt = 'LAR merging error'
+      pass
+    pass
+  
+  if (retcode==0):
 
+    logfile=open("log.LArMerge","w")
+
+    try:
+      subprocess.check_call(cmdline,stdout=logfile,stderr=subprocess.STDOUT)
+    except Exception,e:
+      print "ERROR exectution of subprocess failed"
+      print e
+      acronym = 'TRF_LAR_MERGE_ERROR'
+      txt = 'LAR merging error'
+      pass
+
+    logfile.close()
+    logfile=open("log.LArMerge","r")
+
+    for line in logfile:
+      print line,
+      if line.startswith("Open file "):
+        linetok=line.split(" ")
+        inFiles.append(getFileMap(linetok[2], None, nevts=int(linetok[4])))
+        pass
+      if line.startswith("Wrote output file "):
+        linetok=line.split(" ")
+        nEvents=int(linetok[5])
+        outFiles=[getFileMap(linetok[3], outputDSName, nevts=nEvents),]
+        pass
+      
+    logfile.close()
+
+    
 
   # assemble job report map, pickle it
   outMap = { 'prodsys': { 'trfCode': retcode,
                           'trfAcronym': acronym,  
                           'jobOutputs': outFiles,
                           'jobInputs': inFiles,
-                          'nevents': output.nEvents(),              
+                          'nevents': nEvents,              
                         }
            }              
   f = open('jobReport.gpickle', 'w')
@@ -126,54 +147,13 @@ def larMerge(dataMap) :
   print   "## End of job."
   print   "##################################################################\n"
 
-
+  print outMap
 
 ########################################
 ## main()
 ########################################
 
 if __name__ == "__main__":
-
-  #inputs = {
-    #'inputLArFiles': ['data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-10._0001.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-10._0002.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-10._0003.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-10._0004.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-10._0005.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-10._0006.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-10._0007.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-11._0001.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-11._0002.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-11._0003.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-11._0004.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-11._0005.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-11._0006.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-11._0007.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-12._0001.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-12._0002.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-12._0003.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-12._0004.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-12._0005.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-12._0006.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-12._0007.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-4._0001.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-4._0002.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-4._0003.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-4._0004.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-4._0005.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-4._0006.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-4._0007.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-9._0001.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-9._0002.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-9._0003.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-9._0004.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-9._0005.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-9._0006.1',
-                    #'data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784#data11_hi.00193558.calibration_LArCellsEmpty.recon.NTUP_SAMPLESMON.c784._lb0000._SFO-9._0007.1'],
-    #'outputLArFile': 'data11_hi.00193558.calibration_LArCellsEmpty.merge.NTUP_SAMPLESMON.c784_c785#data11_hi.00193558.calibration_LArCellsEmpty.merge.NTUP_SAMPLESMON.c784_c785._0001'}
-
-  #larMerge(inputs)
-  #exit(0)
 
   if len(sys.argv) == 2 and sys.argv[1].startswith('--argdict=') :
     picklefile = sys.argv[1][len('--argdict='):]

@@ -33,6 +33,7 @@
 #include "TTree.h"
 #include "TRandom.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
+#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "LArCafJobs/ILArShapeDumperTool.h"
 
 class MsgStream;
@@ -79,8 +80,14 @@ class LArShapeDumper : public AthAlgorithm
   std::string m_fileName;
 
   int m_prescale;  
-  int m_count;  
-  int m_maxChannels;
+  unsigned m_count;  
+  unsigned m_maxChannels;
+  unsigned m_nWrongBunchGroup;
+  unsigned m_nPrescaledAway;
+  unsigned m_nLArError;
+  unsigned m_nNoDigits;
+
+
   std::string m_digitsKey, m_channelsKey;
   std::string m_caloType; // EM, HEC, FCAL
   double m_energyCut, m_noiseSignifCut;
@@ -97,8 +104,11 @@ class LArShapeDumper : public AthAlgorithm
   ToolHandle<ILArADC2MeVTool> m_adc2mevTool; 
   ToolHandle<LArOFPeakRecoTool> m_peakReco;
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
-  
+
+
   ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;  // for tests...
+
+  ToolHandle<Trig::IBunchCrossingTool> m_bcidTool;
  
   const ILArPedestal* m_larPedestal;
   const CaloDetDescrManager* m_caloDetDescrMgr;
@@ -110,6 +120,8 @@ class LArShapeDumper : public AthAlgorithm
 	m_doAllEvents, m_doRoIs, m_doAllLvl1, m_dumpChannelInfos;
   bool m_doEM, m_doHEC, m_doFCAL;
   bool m_gains[CaloGain::LARNGAIN];
+
+  bool m_onlyEmptyBC;
 
   LArSamples::DataStore* m_samples;
   LArSamples::RunData* m_runData;
