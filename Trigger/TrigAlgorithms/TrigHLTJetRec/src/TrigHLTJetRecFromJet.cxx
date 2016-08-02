@@ -13,3 +13,7 @@ TrigHLTJetRecFromJet::TrigHLTJetRecFromJet(const std::string& name,
   TrigHLTJetRecBase<xAOD::JetContainer>(name, pSvcLocator) {}
 
 TrigHLTJetRecFromJet::~TrigHLTJetRecFromJet(){}
+
+const xAOD::JetContainer* TrigHLTJetRecFromJet::build() const{
+  return TrigHLTJetRecBase<xAOD::JetContainer>::defaultBuild();
+}

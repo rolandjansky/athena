@@ -8,8 +8,8 @@
 #include "TrigHLTJetRec/TrigHLTJetRecBase.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
-using InputContainer = xAOD::CaloClusterContainer;
-class TrigHLTJetRecFromCluster: public TrigHLTJetRecBase<InputContainer>{
+class TrigHLTJetRecFromCluster: 
+public TrigHLTJetRecBase<xAOD::CaloClusterContainer>{
 
  public:
   TrigHLTJetRecFromCluster(const std::string & name, ISvcLocator* pSvcLocator);
@@ -19,6 +19,16 @@ class TrigHLTJetRecFromCluster: public TrigHLTJetRecBase<InputContainer>{
   HLT::ErrorCode getPseudoJets(const xAOD::CaloClusterContainer*,
                                LabelIndex* indexMap,
                                PseudoJetVector& pjv) override;
+
+
+  const xAOD::JetContainer* build() const override; 
+
+ private:
+  bool m_doTrimming{false};
+  //ToolHandle<IJetBuildTool> m_jetTrimmerTool;
+  ToolHandle<JetRecTool> m_jetTrimmerTool; 
+  
+  bool m_doxAODoutPut{false};
 
 }; 
 #endif

@@ -5,7 +5,7 @@ from AthenaCommon.SystemOfUnits import GeV
 import TrigHLTJetRecConf
 from JetRec.JetRecConf import JetRecTool
 from JetRec.JetRecConf import (JetFromPseudojet,
-                               JetFinder)
+                               JetFinder,JetToolRunner)
 
 from EventShapeTools.EventDensityConfig import configEventDensityTool
 
@@ -155,7 +155,7 @@ def _getJetBuildTool(merge_param,
         return None
 
     jetBuildTool = findjetBuildTool()
-
+        
     if jetBuildTool is None:
         print 'adding new jet finder ', name
         try:
@@ -172,14 +172,16 @@ def _getJetBuildTool(merge_param,
                                             ptmin=ptmin,
                                             ptminFilter=ptminFilter
                                             )
+            
+            
         except Exception, e:
             print 'error adding new jet finder %s' % name
             for jr in jtm.trigjetrecs:
                 print jr
             raise e
 
-    else:
-        print 'found jet finder ', name
+   # else:
+    #    print 'found jet finder ', name
 
     # jetBuildTool = jtm.trigjetrecs[-1]
     
@@ -199,6 +201,80 @@ def _getJetBuildTool(merge_param,
 
     return jetBuildTool
 
+#define _getTrimmerTool as _getJetBuildTool
+# parameters rclus = 0.2 , ptfrac = 0.05 , isTrigger = True
+def _getTrimmerTool (rclus, 
+                     ptfrac,
+                     merge_param,
+                     jet_calib, 
+                     cluster_calib, 
+                     isTrigger, 
+                     doArea,
+                     name=""
+                     ):
+    
+    global jtm
+
+    msg = 'Naming convention breaks with merge param %d' % merge_param
+    int_merge_param = int(10 * merge_param)
+    assert 10 * merge_param == int_merge_param, msg
+
+    assert merge_param > 0.
+
+    # PS, SSchramm - hack until 2016 lcw constants are available. 
+    # until then change jet calib from subjesIS to subjes     
+    if jet_calib == 'subjesIS' and cluster_calib == 'LC':
+        jet_calib = 'subjes'
+
+    _is_calibration_supported(int_merge_param, jet_calib, cluster_calib)
+    
+    # tell the offline code which calibration is requested 
+    calib_str = {'jes': 'calib:j:triggerNoPileup:HLTKt4',
+                 'subjes': 'calib:aj:trigger:HLTKt4',
+                 'sub': 'calib:a:trigger:HLTKt4',
+                 'subjesIS': 'calib:ajgi:trigger2016:HLTKt4'}.get(jet_calib, '')
+
+
+    if not name:
+        name = 'TrigAntiKt%d%s%sTopoJets' % (int_merge_param,
+                                             cluster_calib,
+                                             jet_calib)
+        
+    def findJetTrimmerTool():
+        for jr in jtm.trigjetrecs:
+            if jr.OutputContainer == name:
+                # jr.OutputContainer is a string, here used to identify the
+                # object
+                print 'Trimmer has been found'
+                return jr
+            return None
+        
+    jetTrimmerTool = findJetTrimmerTool()
+        
+    if jetTrimmerTool is None:
+        print 'adding new jet finder ', name
+        try:
+            
+            jetTrimmerTool = jtm.addJetTrimmer(name,
+                                               rclus,
+                                               ptfrac,
+                                               isTrigger,
+                                               doArea
+                                               )
+        except Exception, e:
+            print 'error adding new jet trimmer %s' % name
+            for jr in jtm.trigjetrecs:
+                print jr
+                raise e    
+
+    return jetTrimmerTool
+            
+            
+            
+            
+        
+        
+        
 
 def _is_calibration_supported(int_merge_param, jet_calib, cluster_calib):
     """Check if the calibration is supported by the offline code"""
@@ -384,17 +460,25 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
                  cluster_calib='EM',
                  do_minimalist_setup=True,
                  output_collection_label='defaultJetCollection',
-                 pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromCluster'
+                 pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromCluster',
+                 doTrimming= False,
+                 rclus= 0.2,
+                 ptfrac=0.05,
+                 isTrigger= True,
+                 doArea= True,
+                 doxAODoutPut= True
                  ):
+        
         TrigHLTJetRecConf.TrigHLTJetRecFromCluster.__init__(self, name = name)
-
+        
+      
         self.cluster_calib = cluster_calib
         self.pseudoJetGetter = _getTriggerPseudoJetGetter(cluster_calib)
-
+        
         
         self.iPseudoJetSelector = _getPseudoJetSelectorAll(
             'iPseudoJetSelectorAll')
-
+        
         self.jetBuildTool = _getJetBuildTool(
             float(int(merge_param))/10.,
             ptmin=ptmin,
@@ -402,11 +486,26 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
             jet_calib=jet_calib,
             cluster_calib=cluster_calib,
             do_minimalist_setup=do_minimalist_setup,
-            name=name
+            name=name,
             )
+ 
+        self.doTrimming = doTrimming
+        self.jetTrimmerTool = None
+        if self.doTrimming:
+            print 'applying trimming' 
+            self.jetTrimmerTool = _getTrimmerTool(rclus=rclus,
+                                                  ptfrac=ptfrac,
+                                                  merge_param=float(int(merge_param))/10.,
+                                                  jet_calib=jet_calib,
+                                                  cluster_calib=cluster_calib,
+                                                  isTrigger=isTrigger,
+                                                  doArea=doArea,
+                                                  name=name)
+ 
 
         self.output_collection_label = output_collection_label
         self.pseudojet_labelindex_arg = pseudojet_labelindex_arg
+        #if doxAODoutPut: jtm.addJetOutputs(name)  #TODO revisit this later
 
 class TrigHLTJetRecFromJet(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
     """Run jet reclustering. Jet calibration is off, merge parameter 10."""
@@ -446,7 +545,7 @@ class TrigHLTJetRecFromJet(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
 
         self.output_collection_label = output_collection_label
         self.pseudojet_labelindex_arg = pseudojet_labelindex_arg
-
+        print 'Jet from jets'
 
 class TrigHLTJetRecFromTriggerTower(
         TrigHLTJetRecConf.TrigHLTJetRecFromTriggerTower):
