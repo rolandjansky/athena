@@ -28,20 +28,20 @@
 TileMonHadEnFex::TileMonHadEnFex(const std::string & type, const std::string & name,
                                  const IInterface* parent) :
                IAlgToolCalo(type, name, parent),
-               thistSvc("THistSvc/THistSvc","TileMonHadEnFex"),
+               m_thistSvc("THistSvc/THistSvc","TileMonHadEnFex"),
                m_THR_1(400),
                m_THR_2(100),
 	       m_hists(NULL),
-	       m_hist_TB0(NULL),
-	       m_hist_TB1(NULL),
-	       m_hist_TB2(NULL),
+	       //m_hist_TB0(NULL),
+	       //m_hist_TB1(NULL),
+	       //m_hist_TB2(NULL),
 	       m_2dhists(NULL),
 	       m_2dhists_TB0(NULL),
 	       m_2dhists_TB1(NULL),
-	       m_2dhists_TB2(NULL),
-	       m_mainHist(NULL)
+	       m_2dhists_TB2(NULL)
+	       //m_mainHist(NULL)
 {
-   declareProperty("THistSvc",thistSvc,"THistSvc output");
+   declareProperty("THistSvc",m_thistSvc,"THistSvc output");
    declareProperty("HistogramsPath",m_histPath="/EXPERT/T2CaloTileMon");
    declareProperty("THR_1",m_THR_1);
    declareProperty("THR_2",m_THR_2);
@@ -49,7 +49,7 @@ TileMonHadEnFex::TileMonHadEnFex(const std::string & type, const std::string & n
    m_end_detec_phi = M_PI;
    m_eta_division =  0.1;
    m_phi_division =  M_PI/32.;
-   energyCell_Thr =  0.01; //Threshold in Gev
+   m_energyCell_Thr =  0.01; //Threshold in Gev
    m_configured=false;
 }
 
@@ -59,7 +59,7 @@ TileMonHadEnFex::~TileMonHadEnFex(){
 StatusCode TileMonHadEnFex::initialize(){ 
    if ( IAlgToolCalo::initialize().isFailure() )
       return StatusCode::FAILURE;
-   if ( thistSvc.retrieve().isFailure() )
+   if ( m_thistSvc.retrieve().isFailure() )
       return StatusCode::FAILURE;
    IIncidentSvc* p_incSvc;
    if ( service("IncidentSvc",p_incSvc, true).isFailure() ) {
@@ -226,21 +226,21 @@ void TileMonHadEnFex::handle( const Incident& )
       m_2dhists_TB2[hist_grid_eta]->SetXTitle("#phi[#circ]");
       m_2dhists_TB2[hist_grid_eta]->SetYTitle("ln(E_{T}) [GeV]");
 
-      if ( thistSvc->regHist(name_2dhist_toreg,m_2dhists[hist_grid_eta]).isFailure() )         msg() << MSG::ERROR << "Did not register hists" << endreq; //return StatusCode::FAILURE;
-      if ( thistSvc->regHist(name_2dhist_toreg_TB0,m_2dhists_TB0[hist_grid_eta]).isFailure() ) msg() << MSG::ERROR << "Did not register hists" << endreq; //return StatusCode::FAILURE;
-      if ( thistSvc->regHist(name_2dhist_toreg_TB1,m_2dhists_TB1[hist_grid_eta]).isFailure() ) msg() << MSG::ERROR << "Did not register hists" << endreq; //return StatusCode::FAILURE;
-      if ( thistSvc->regHist(name_2dhist_toreg_TB2,m_2dhists_TB2[hist_grid_eta]).isFailure() ) msg() << MSG::ERROR << "Did not register hists" << endreq; //return StatusCode::FAILURE;
+      if ( m_thistSvc->regHist(name_2dhist_toreg,m_2dhists[hist_grid_eta]).isFailure() )         msg() << MSG::ERROR << "Did not register hists" << endmsg; //return StatusCode::FAILURE;
+      if ( m_thistSvc->regHist(name_2dhist_toreg_TB0,m_2dhists_TB0[hist_grid_eta]).isFailure() ) msg() << MSG::ERROR << "Did not register hists" << endmsg; //return StatusCode::FAILURE;
+      if ( m_thistSvc->regHist(name_2dhist_toreg_TB1,m_2dhists_TB1[hist_grid_eta]).isFailure() ) msg() << MSG::ERROR << "Did not register hists" << endmsg; //return StatusCode::FAILURE;
+      if ( m_thistSvc->regHist(name_2dhist_toreg_TB2,m_2dhists_TB2[hist_grid_eta]).isFailure() ) msg() << MSG::ERROR << "Did not register hists" << endmsg; //return StatusCode::FAILURE;
    }
 
    //    m_mainHist = new
    //    TH2F("TT","TT",(int)floorf(2.*m_end_detec_eta/m_eta_division),-m_end_detec_eta,m_end_detec_eta,(int)floorf(2.*m_end_detec_phi/m_phi_division),-m_end_detec_phi,m_end_detec_phi);
-   //    if ( thistSvc->regHist("/NT/TT",m_mainHist).isFailure() ) {
+   //    if ( m_thistSvc->regHist("/NT/TT",m_mainHist).isFailure() ) {
    // 	return StatusCode::FAILURE;
    //    }
 
 
    if ( msg().level() <= MSG::DEBUG )
-     msg() << MSG::DEBUG << "Histograms correctly allocated" << endreq; //
+     msg() << MSG::DEBUG << "Histograms correctly allocated" << endmsg; //
    m_configured=true;
    //return StatusCode::SUCCESS;
 }
@@ -248,7 +248,7 @@ void TileMonHadEnFex::handle( const Incident& )
 StatusCode TileMonHadEnFex::finalize(){
 // Don't delete histograms. ROOT takes care of this.
   if ( msg().level() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << " REGTEST: HadEnFex:  call finalize()" << endreq;
+    msg() << MSG::DEBUG << " REGTEST: HadEnFex:  call finalize()" << endmsg;
 //  for(float eta=-m_end_detec_eta;eta<m_end_detec_eta;eta+=m_eta_division){
 //    int hist_grid_eta=(int)floorf(((eta)+m_end_detec_eta)/m_eta_division);
 //    for(float phi=-m_end_detec_phi;phi<m_end_detec_phi;phi+=m_phi_division){
@@ -269,18 +269,18 @@ StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double eta
 		double etamax, double phimin, double phimax)
 {
     if ( msg().level() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << " REGTEST: HadEnFex:  call execute()" << endreq;
+      msg() << MSG::DEBUG << " REGTEST: HadEnFex:  call execute()" << endmsg;
 
   // If there was a problem in configuration, stop now
   if ( !m_configured ) return StatusCode::SUCCESS;
-	tiledecoded=false;
+        tiledecoded=false;
         // Time total AlgTool time
         if (!m_timersvc.empty()) m_timer[0]->start();
 
         // MsgStream log(msgSvc(), name());
 #ifndef NDEBUG
 	if ( msg().level() <= MSG::DEBUG )
-	  msg() << MSG::DEBUG << "in execute(TrigEMCluster &)" << endreq;
+	  msg() << MSG::DEBUG << "in execute(TrigEMCluster &)" << endmsg;
 #endif
 
   CaloSampling::CaloSample samp;  
@@ -314,7 +314,7 @@ StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double eta
 
 #ifndef NDEBUG
    if ( msg().level() <= MSG::DEBUG )
-     msg() << MSG::DEBUG << " REGTEST:   TILE:  TileContSize()" << m_data->TileContSize() << endreq;
+     msg() << MSG::DEBUG << " REGTEST:   TILE:  TileContSize()" << m_data->TileContSize() << endmsg;
 #endif
 
    TrigT2TileJet* jet = new TrigT2TileJet();
@@ -376,7 +376,7 @@ StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double eta
    {
       
    if ( msg().level() <= MSG::DEBUG ){
-      msg() << MSG::DEBUG << " REGTEST: HOTTEST_TOWER:  print:" << endreq;
+      msg() << MSG::DEBUG << " REGTEST: HOTTEST_TOWER:  print:" << endmsg;
       hottest_tower.print(msg(),MSG::DEBUG);
    }
 
@@ -384,21 +384,21 @@ StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double eta
       int hist_grid_eta = (int) floorf( ((hottest_tower.eta()) + m_end_detec_eta)/m_eta_division);
       m_2dhists[hist_grid_eta]->Fill((float)hottest_tower.phi(), logEnergy(hottest_tower.e()) );
       if ( msg().level() <= MSG::DEBUG )
-        msg() << MSG::DEBUG << " REGTEST: HOTTEST_TOWER:  fill in histo: eta:" << hottest_tower.eta() << " phi:"<< (float)hottest_tower.phi() << " log(e):" << logEnergy(hottest_tower.e()) << endreq;
+        msg() << MSG::DEBUG << " REGTEST: HOTTEST_TOWER:  fill in histo: eta:" << hottest_tower.eta() << " phi:"<< (float)hottest_tower.phi() << " log(e):" << logEnergy(hottest_tower.e()) << endmsg;
 
       // CELLS
       if ( hottest_tower.cell(0).inCone() && hottest_tower.cell(0).e() > 0.0 )
       {
          m_2dhists_TB0[hist_grid_eta]->Fill((float)hottest_tower.cell(0).phi(), logEnergy(hottest_tower.cell(0).e()) );
    	 if ( msg().level() <= MSG::DEBUG )
-   	     msg() << MSG::DEBUG << " REGTEST: HOTTEST_CELL_0:  fill in histo: eta:" << hottest_tower.cell(0).eta() << " phi:"<< (float)hottest_tower.cell(0).phi() << " log(e):" << logEnergy(hottest_tower.cell(0).e()) << endreq;
+   	     msg() << MSG::DEBUG << " REGTEST: HOTTEST_CELL_0:  fill in histo: eta:" << hottest_tower.cell(0).eta() << " phi:"<< (float)hottest_tower.cell(0).phi() << " log(e):" << logEnergy(hottest_tower.cell(0).e()) << endmsg;
       }
       
       if ( hottest_tower.cell(1).inCone() && hottest_tower.cell(1).e() > 0.0 )
       {
          m_2dhists_TB1[hist_grid_eta]->Fill((float)hottest_tower.cell(1).phi(), logEnergy(hottest_tower.cell(1).e()) );
          if ( msg().level() <= MSG::DEBUG )
-  	     msg() << MSG::DEBUG << " REGTEST: HOTTEST_CELL_1:  fill in histo: eta:" << hottest_tower.cell(1).eta() << " phi:"<< (float)hottest_tower.cell(1).phi() << " log(e):" << logEnergy(hottest_tower.cell(1).e()) << endreq;
+  	     msg() << MSG::DEBUG << " REGTEST: HOTTEST_CELL_1:  fill in histo: eta:" << hottest_tower.cell(1).eta() << " phi:"<< (float)hottest_tower.cell(1).phi() << " log(e):" << logEnergy(hottest_tower.cell(1).e()) << endmsg;
       }
       
       if ( hottest_tower.cell(2).inCone() && hottest_tower.cell(2).e() > 0.0 )
@@ -407,7 +407,7 @@ StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double eta
          hist_grid_eta=(int)floorf( ((hottest_tower.cell(2).eta()) + m_end_detec_eta)/m_eta_division);
          m_2dhists_TB2[hist_grid_eta]->Fill((float)hottest_tower.cell(2).phi(), logEnergy(hottest_tower.cell(2).e()) );
          if ( msg().level() <= MSG::DEBUG )
-  	    msg() << MSG::DEBUG << " REGTEST: HOTTEST_CELL_2:  fill in histo: eta:" << hottest_tower.cell(2).eta() << " phi:"<< (float)hottest_tower.cell(2).phi() << " log(e):" << logEnergy(hottest_tower.cell(2).e()) << endreq;
+  	    msg() << MSG::DEBUG << " REGTEST: HOTTEST_CELL_2:  fill in histo: eta:" << hottest_tower.cell(2).eta() << " phi:"<< (float)hottest_tower.cell(2).phi() << " log(e):" << logEnergy(hottest_tower.cell(2).e()) << endmsg;
       }
    }
 

@@ -52,25 +52,25 @@ class TileMonHadEnFex: public IAlgToolCalo, virtual public IIncidentListener
 //       void BinLogY(TH2* h);
 
    private:
-      ServiceHandle<ITHistSvc> thistSvc;
+      ServiceHandle<ITHistSvc> m_thistSvc;
       float m_THR_1;
       float m_THR_2;
       float m_end_detec_eta;
       float m_end_detec_phi;
       float m_eta_division;
       float m_phi_division;
-      float energyCell_Thr;
+      float m_energyCell_Thr;
 
       //Monitoring
       TH1*** m_hists;
-      TH1*** m_hist_TB0; //TileBar0
-      TH1*** m_hist_TB1; //TileBar1
-      TH1*** m_hist_TB2; //TileBar2
+      //TH1*** m_hist_TB0; //TileBar0
+      //TH1*** m_hist_TB1; //TileBar1
+      //TH1*** m_hist_TB2; //TileBar2
       TH2F** m_2dhists;
       TH2F** m_2dhists_TB0; //TileBar0
       TH2F** m_2dhists_TB1; //TileBar1
       TH2F** m_2dhists_TB2; //TileBar2
-      TH2* m_mainHist;
+      //TH2* m_mainHist;
       std::string m_histPath;
       bool m_configured;
 
