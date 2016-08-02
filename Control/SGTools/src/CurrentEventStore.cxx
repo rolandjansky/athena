@@ -17,7 +17,7 @@
 namespace SG {
 
 
-thread_local IProxyDict* CurrentEventStore::m_curStore = nullptr;
+IProxyDict* CurrentEventStore::m_curStore = nullptr;
 
 
 /**

@@ -65,7 +65,7 @@ public:
 
 private:
   /// The current event store.
-  static thread_local IProxyDict* m_curStore;
+  static IProxyDict* m_curStore;
 };
 
 

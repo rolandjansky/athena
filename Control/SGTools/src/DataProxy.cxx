@@ -223,7 +223,7 @@ bool DataProxy::requestRelease(bool force, bool hard) {
 	 << (canRelease ? " release " : " reset")
 	 <<" object " 
 	 << name() << " CLID " << clID() << " address " << MSG::hex
-	 << object() << MSG::dec << endreq;
+	 << object() << MSG::dec << endmsg;
   }
 #endif
   if (canRelease)  release();
@@ -268,14 +268,14 @@ std::unique_ptr<DataObject> DataProxy::readData (ErrNo* errNo) const
   if (0 == m_dataLoader) {
     //MsgStream gLog(m_ims, "DataProxy");
     //gLog << MSG::WARNING
-    //	  << "accessData:  IConversionSvc ptr not set" <<endreq;
+    //	  << "accessData:  IConversionSvc ptr not set" <<endmsg;
     if (errNo) *errNo=NOCNVSVC;
     return nullptr;
   }
   if (!isValidAddress()) {
     //MsgStream gLog(m_ims, "DataProxy");
     //gLog << MSG::WARNING
-    //	 << "accessData:  IOA pointer not set" <<endreq;
+    //	 << "accessData:  IOA pointer not set" <<endmsg;
     if (errNo) *errNo=NOIOA;
     return nullptr;
   }
@@ -308,14 +308,14 @@ DataObject* DataProxy::accessData()
     if (m_errno == NOIOA) {
       MsgStream gLog(m_ims, "DataProxy");
       gLog << MSG::WARNING
-           << "accessData:  IOA pointer not set" <<endreq;
+           << "accessData:  IOA pointer not set" <<endmsg;
     }
     else if (m_errno == CNVFAILED) {
       MsgStream gLog(m_ims, "DataProxy");
       gLog << MSG::WARNING 
            << "accessData: conversion failed for data object " 
            <<m_tAddress->clID() << '/' << m_tAddress->name() << '\n'
-           <<" Returning NULL DataObject pointer  " << endreq;
+           <<" Returning NULL DataObject pointer  " << endmsg;
     }
     setObject(0);
     return 0;   
@@ -345,7 +345,7 @@ DataObject* DataProxy::accessData()
     gLog << MSG::ERROR
          << "accessData: ERROR registering object in t2p map" 
          <<m_tAddress->clID() << '/' << m_tAddress->name() << '\n'
-         <<" Returning NULL DataObject pointer  " << endreq;
+         <<" Returning NULL DataObject pointer  " << endmsg;
     obj=0; 
     setObject(0);
     m_errno=T2PREGFAILED;
