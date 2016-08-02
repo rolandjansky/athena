@@ -168,7 +168,7 @@ namespace Rec
       Trk::TrackParticleBase::dump( sl );
       std::ostringstream os;
       m_abc.dump(os);
-      sl<<endreq<<os.str();
+      sl<<std::endl<<os.str();
       return sl;
   }
   
