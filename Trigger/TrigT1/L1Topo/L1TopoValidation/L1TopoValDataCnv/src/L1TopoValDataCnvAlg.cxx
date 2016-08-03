@@ -75,7 +75,7 @@ namespace xAODMaker {
     const DataHandle<CTP_RDO> ctpRDO;
     CHECK( evtStore()->retrieve( ctpRDO , "CTP_RDO" ) );
 
-    if (ctpRDO){
+    if ((ctpRDO) && (ctpRDO->getNumberOfBunches() > 0)) {
       ATH_MSG_DEBUG( "Retrieve of CTP_RDO successful. \n" << ctpRDO->print(true) );
 
       // extract the information for L1A-1,L1A,L1A+1 bunches
@@ -88,6 +88,12 @@ namespace xAODMaker {
 	bunch_offset_start = -1;
 	bunch_offset_end   = 2;
       }
+
+      // Get the TIP/TBP/TAP/TAV words
+      std::vector<uint32_t> tipWords = ctpRDO->getTIPWords();
+      std::vector<uint32_t> tbpWords = ctpRDO->getTBPWords();
+      std::vector<uint32_t> tapWords = ctpRDO->getTAPWords();
+      std::vector<uint32_t> tavWords = ctpRDO->getTAVWords();
 
       for (int bunch_offset = bunch_offset_start; bunch_offset < bunch_offset_end; bunch_offset++) {
 	m_ctpTopoTIPWords.clear();
@@ -108,25 +114,33 @@ namespace xAODMaker {
 	  suffix = "";
 	}
 
-	// Get Topo TIP words for L1 accept bunch
-	auto itTIP_start = (ctpRDO->getTIPWords()).begin() + bunch*(ctpRDO->getCTPVersion()).getTIPwords() ; 
-	auto itTIP_end   = (ctpRDO->getTIPWords()).begin() + (bunch + 1)*(ctpRDO->getCTPVersion()).getTIPwords() ;
-	m_ctpTopoTIPWords.assign(itTIP_start, itTIP_end);
+	// Get Topo TIP words for the bunch
+	if ((tipWords.size() > 0) && (tipWords.size() >= (bunch + 1)*(ctpRDO->getCTPVersion()).getTIPwords())) { 
+	  m_ctpTopoTIPWords.assign( tipWords.begin() + bunch*(ctpRDO->getCTPVersion()).getTIPwords(),
+				    tipWords.begin() + (bunch + 1)*(ctpRDO->getCTPVersion()).getTIPwords()
+				    );
+	}
 
-	// Get Topo TBP words for L1 accept bunch
-	auto itTBP_start = (ctpRDO->getTBPWords()).begin() + bunch*(ctpRDO->getCTPVersion()).getTBPwords() ; 
-	auto itTBP_end   = (ctpRDO->getTBPWords()).begin() + (bunch + 1)*(ctpRDO->getCTPVersion()).getTBPwords() ;
-	m_ctpTopoTBPWords.assign(itTBP_start, itTBP_end);
+	// Get Topo TBP words for the bunch
+	if ((tbpWords.size() > 0) && (tbpWords.size() >= (bunch + 1)*(ctpRDO->getCTPVersion()).getTBPwords())) { 
+	  m_ctpTopoTBPWords.assign( tbpWords.begin() + bunch*(ctpRDO->getCTPVersion()).getTBPwords(),
+				    tbpWords.begin() + (bunch + 1)*(ctpRDO->getCTPVersion()).getTBPwords()
+				    );
+	}
 
-	// Get Topo TAP words for L1 accept bunch
-	auto itTAP_start = (ctpRDO->getTAPWords()).begin() + bunch*(ctpRDO->getCTPVersion()).getTAPwords() ; 
-	auto itTAP_end   = (ctpRDO->getTAPWords()).begin() + (bunch + 1)*(ctpRDO->getCTPVersion()).getTAPwords() ;
-	m_ctpTopoTAPWords.assign(itTAP_start, itTAP_end);
+	// Get Topo TAP words for the bunch
+	if ((tapWords.size() > 0) && (tapWords.size() >= (bunch + 1)*(ctpRDO->getCTPVersion()).getTAPwords())) { 
+	  m_ctpTopoTAPWords.assign( tapWords.begin() + bunch*(ctpRDO->getCTPVersion()).getTAPwords(),
+				    tapWords.begin() + (bunch + 1)*(ctpRDO->getCTPVersion()).getTAPwords()
+				    );
+	}
 
-	// Get Topo TAV words for L1 accept bunch
-	auto itTAV_start = (ctpRDO->getTAVWords()).begin() + bunch*(ctpRDO->getCTPVersion()).getTAVwords() ; 
-	auto itTAV_end   = (ctpRDO->getTAVWords()).begin() + (bunch + 1)*(ctpRDO->getCTPVersion()).getTAVwords() ;
-	m_ctpTopoTAVWords.assign(itTAV_start, itTAV_end);
+	// Get Topo TAV words for the bunch
+	if ((tavWords.size() > 0) && (tavWords.size() >= (bunch + 1)*(ctpRDO->getCTPVersion()).getTAVwords())) { 
+	  m_ctpTopoTAVWords.assign( tavWords.begin() + bunch*(ctpRDO->getCTPVersion()).getTAVwords(),
+				    tavWords.begin() + (bunch + 1)*(ctpRDO->getCTPVersion()).getTAVwords()
+				    );
+	}
 
 	ATH_MSG_DEBUG( " NumberOfBunches = " << ctpRDO->getNumberOfBunches() << 
 		       " L1AcceptBunchPosition = " << ctpRDO->getL1AcceptBunchPosition() << "\n" <<
