@@ -16,8 +16,8 @@ LArDigitContainerCnv::LArDigitContainerCnv(ISvcLocator* svcLoc) :
 
 
 LArDigitContainerPERS* LArDigitContainerCnv::createPersistent(LArDigitContainer* trans) {
-    MsgStream log(messageService(), "LArDigitContainerCnv");
-    log << MSG::DEBUG << "Writing LArDigitContainer_p2" << endreq;
+    MsgStream log(msgSvc(), "LArDigitContainerCnv");
+    log << MSG::DEBUG << "Writing LArDigitContainer_p2" << endmsg;
     LArDigitContainerPERS* pers=new LArDigitContainerPERS();
     m_converter.transToPers(trans,pers,log); 
     return pers;
@@ -26,15 +26,15 @@ LArDigitContainerPERS* LArDigitContainerCnv::createPersistent(LArDigitContainer*
 
 
 LArDigitContainer* LArDigitContainerCnv::createTransient() {
-   MsgStream log(messageService(), "LArDigitContainerCnv" );
+   MsgStream log(msgSvc(), "LArDigitContainerCnv" );
    if (compareClassGuid(m_p0_guid)) {
      log << MSG::DEBUG << "Read version p0 of LArDigitContainer. GUID=" 
-	 << m_classID.toString() << endreq;
+	 << m_classID.toString() << endmsg;
      return poolReadObject<LArDigitContainer>();
    }
    else if (compareClassGuid(m_p1_guid)) {
      log << MSG::DEBUG << "Reading LArDigitContainer_p1. GUID=" 
-	 << m_classID.toString() << endreq;
+	 << m_classID.toString() << endmsg;
      LArDigitContainer* trans=new LArDigitContainer();
      LArDigitContainer_p1* pers=poolReadObject<LArDigitContainer_p1>();
      m_converter.persToTrans(pers,trans, log);
@@ -43,7 +43,7 @@ LArDigitContainer* LArDigitContainerCnv::createTransient() {
    }
 
    log << MSG::ERROR << "Unsupported persistent version of LArDigitContainer. GUID="
-       << m_classID.toString() << endreq;
+       << m_classID.toString() << endmsg;
    throw std::runtime_error("Unsupported persistent version of Data Collection");
    // not reached
 }
