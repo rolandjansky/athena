@@ -213,6 +213,10 @@ class ByteStreamUnpackGetter(Configured):
         # Configure L1Topo validation data algorithm
         #
         if hasHLT and TriggerFlags.doMergedHLTResult() and TriggerFlags.writeL1TopoValData() :
+            # make sure that CTP_RDO is known (see also ATR-14683)
+            ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [
+                "CTP_RDO/CTP_RDO"
+                ]
             from L1TopoValDataCnv.L1TopoValDataCnvConf import xAODMaker__L1TopoValDataCnvAlg
             L1TopoValDataCvnAlg = xAODMaker__L1TopoValDataCnvAlg()
             topSequence += L1TopoValDataCvnAlg
