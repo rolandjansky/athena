@@ -8,14 +8,14 @@
 #include "GaudiKernel/MsgStream.h"
 
 TileDigitsContainer_PERS* TileDigitsContainerCnv::createPersistent(TileDigitsContainer* transCont) {
-    MsgStream mlog(messageService(), "TileDigitsContainerConverter" );
+    MsgStream mlog(msgSvc(), "TileDigitsContainerConverter" );
     TileDigitsContainerCnv_p1   converter;
     TileDigitsContainer_PERS *persObj = converter.createPersistent( transCont, mlog );
     return persObj;
 }
 
 TileDigitsContainer* TileDigitsContainerCnv::createTransient() {
-    MsgStream mlog(messageService(), "TileDigitsContainerConverter" );
+    MsgStream mlog(msgSvc(), "TileDigitsContainerConverter" );
     TileDigitsContainerCnv_p1   converter_p1;
 
     TileDigitsContainer       *trans_cont(0);
@@ -32,7 +32,7 @@ TileDigitsContainer* TileDigitsContainerCnv::createTransient() {
         TileDigitsCollectionVec* rdoV = this->poolReadObject<TileDigitsCollectionVec>();
 
         if (mlog.level()<=MSG::DEBUG)
-          mlog << MSG::DEBUG << "Read IDC, size " << rdoV->size() << endreq;
+          mlog << MSG::DEBUG << "Read IDC, size " << rdoV->size() << endmsg;
 
         // TileFragHash::TYPE type = rdoV->m_type; 
         
@@ -51,7 +51,7 @@ TileDigitsContainer* TileDigitsContainerCnv::createTransient() {
           TileDigitsCollection::ID id_coll = rdoColl->identify();
           StatusCode sc = trans_cont->addCollection(rdoColl,trans_cont->hashFunc()(id_coll));
           if(sc.isFailure()) {
-            mlog << MSG::ERROR << "Can't add collection " << id_coll << " to container " << endreq;
+            mlog << MSG::ERROR << "Can't add collection " << id_coll << " to container " << endmsg;
           }
         }
         delete rdoV;

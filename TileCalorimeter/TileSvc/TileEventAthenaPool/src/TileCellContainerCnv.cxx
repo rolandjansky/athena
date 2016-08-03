@@ -15,6 +15,8 @@
 // Athena
 #include "StoreGate/StoreGateSvc.h"
 
+// false positive
+// cppcheck-suppress uninitMemberVar
 TileCellContainerCnv::TileCellContainerCnv(ISvcLocator* svcloc)
   : TileCellContainerCnvBase::T_AthenaPoolCustCnv(svcloc)
  // Must create DataVector that does NOT own elements
@@ -46,15 +48,15 @@ StatusCode TileCellContainerCnv::initialize()
     m_version = 2;
     
     // Get the messaging service, print where you are
-    MsgStream log(messageService(), "TileCellContainerCnv");
-    log << MSG::INFO << "TileCellContainerCnv::initialize(), packing format version " << m_version << endreq;
+    MsgStream log(msgSvc(), "TileCellContainerCnv");
+    log << MSG::INFO << "TileCellContainerCnv::initialize(), packing format version " << m_version << endmsg;
 
     // get StoreGate service
     StatusCode sc=service("StoreGateSvc",m_storeGate);
     if (sc.isFailure()) {
       this->initIdToIndex();
-      log << MSG::ERROR << "StoreGate service not found !" << endreq;
-      // log << MSG::FATAL << "StoreGate service not found !" << endreq;
+      log << MSG::ERROR << "StoreGate service not found !" << endmsg;
+      // log << MSG::FATAL << "StoreGate service not found !" << endmsg;
       // return StatusCode::FAILURE;
     }
 
@@ -62,16 +64,16 @@ StatusCode TileCellContainerCnv::initialize()
     sc=service("DetectorStore",detStore);
     if (sc.isFailure()) {
       this->initIdToIndex();
-      log << MSG::ERROR << "DetectorStore service not found!" << endreq;
-      // log << MSG::FATAL << "DetectorStore service not found!" << endreq;
+      log << MSG::ERROR << "DetectorStore service not found!" << endmsg;
+      // log << MSG::FATAL << "DetectorStore service not found!" << endmsg;
       // return StatusCode::FAILURE;
     }
 
     sc = detStore->retrieve(m_tileTBID);
     if (sc.isFailure()) {
       this->initIdToIndex();
-      log << MSG::ERROR << "No TileTBID helper" << endreq;
-      // log << MSG::FATAL << "No TileTBID helper" << endreq;
+      log << MSG::ERROR << "No TileTBID helper" << endmsg;
+      // log << MSG::FATAL << "No TileTBID helper" << endmsg;
       // return StatusCode::FAILURE;
     } else {
       for (int side=0; side<NSIDE; ++side) {
@@ -85,7 +87,7 @@ StatusCode TileCellContainerCnv::initialize()
     
     sc = detStore->retrieve(m_mbtsMgr);
     if (sc.isFailure()) {
-      log << MSG::WARNING << "Unable to retrieve MbtsDetDescrManager from DetectorStore" << endreq;
+      log << MSG::WARNING << "Unable to retrieve MbtsDetDescrManager from DetectorStore" << endmsg;
       memset(m_dde,0,sizeof(m_dde));
     } else {
       for (int side=0; side<NSIDE; ++side) {
@@ -99,7 +101,8 @@ StatusCode TileCellContainerCnv::initialize()
     
 
     // set CaloGain <-> gain index mapping for all possible TileCal gains
-    for (int i=0; i<17; ++i)  m_gainIndex[i] = 8;  m_gain[0] = -2; // put non-existing gain here
+    for (int i=0; i<17; ++i)  m_gainIndex[i] = 8;
+    m_gain[0] = -2; // put non-existing gain here
     m_gainIndex[-CaloGain::TILELOWLOW]   = 8 + 1;  m_gain[1] = (int)CaloGain::TILELOWLOW;
     m_gainIndex[-CaloGain::TILELOWHIGH]  = 8 + 2;  m_gain[2] = (int)CaloGain::TILELOWHIGH;
     m_gainIndex[-CaloGain::TILEHIGHLOW]  = 8 + 3;  m_gain[3] = (int)CaloGain::TILEHIGHLOW;
@@ -126,7 +129,7 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
 {
     // Convert every TileCell to 3 32-bit integers: ID,Ene, and (time,qual,qain)
 
-    MsgStream log(messageService(),"TileCellContainerCnv" );
+    MsgStream log(msgSvc(),"TileCellContainerCnv" );
     MSG::Level logLevel = log.level();
     bool lDebug = (logLevel<=MSG::DEBUG);
     bool lVerbose = (logLevel<=MSG::VERBOSE);
@@ -137,7 +140,7 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
     }
     TileCellVec & vecCell = m_vecCellAll[name];
 
-    if (lDebug) log << MSG::DEBUG << "storing TileCells from " << name << " in POOL" << endreq;
+    if (lDebug) log << MSG::DEBUG << "storing TileCells from " << name << " in POOL" << endmsg;
 
     // Clear vector from previous write
     vecCell.clear();
@@ -158,7 +161,7 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
               << " time=" << cell->time() 
               << " qual=" << (int)cell->qual1()
               << " gain=" << (int)cell->gain()
-              << endreq;
+              << endmsg;
         unsigned int id  = cell->ID().get_identifier32().get_compact();
         int          ene = round32(cell->energy() * 1000.);
         unsigned int tim = 0x8000 + round16(cell->time()*100.);
@@ -170,7 +173,7 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
         vecCell.push_back(tqg);
         if (lVerbose)
           log << MSG::VERBOSE << "packing cell in three words " 
-              << MSG::hex << id << " " << ene << " " << tqg << MSG::dec << endreq;
+              << MSG::hex << id << " " << ene << " " << tqg << MSG::dec << endmsg;
       }
       break;
 
@@ -220,14 +223,14 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
                 << " time=" << cell->time() 
                 << " qual=" << (int)cell->qual1()
                << " gain=" << (int)cell->gain()
-                << endreq;
+                << endmsg;
         } 
         else {
           if (lVerbose)
             log << MSG::VERBOSE 
                 << "ind="  << ind
                 << " create MBTS cell with zero energy"
-                << endreq;
+                << endmsg;
         }
         
         // put correct MBTS cells in one word
@@ -243,7 +246,7 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
 
           if (lVerbose)
             log << MSG::VERBOSE << "packing cell " << ind << " in one word "
-                << MSG::hex << gqe << MSG::dec << endreq;
+                << MSG::hex << gqe << MSG::dec << endmsg;
 
         } else { // cells with time, use 2 words for channel
                  // but make sure that upper most bit in energy word is zero
@@ -258,7 +261,7 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
 
           if (lVerbose)
             log << MSG::VERBOSE << "packing cell " << ind << " in two words "
-                << MSG::hex << ene << " " << tqg << MSG::dec << endreq;
+                << MSG::hex << ene << " " << tqg << MSG::dec << endmsg;
         }
       }
 
@@ -279,7 +282,7 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
               << " time=" << cell->time() 
               << " qual=" << (int)cell->qual1()
               << " gain=" << (int)cell->gain()
-              << endreq;
+              << endmsg;
 
         unsigned int id  = cell->ID().get_identifier32().get_compact();
         int          ene = round32(cell->energy() * 1000.);
@@ -293,17 +296,17 @@ StatusCode TileCellContainerCnv::transToPers(TileCellContainer* cont, TileCellVe
 
         if (lVerbose)
           log << MSG::VERBOSE << "packing cell " << ind << " in three words "
-              << MSG::hex << id << " " << ene << " " << tqg << MSG::dec << endreq;
+              << MSG::hex << id << " " << ene << " " << tqg << MSG::dec << endmsg;
       }
       break;
 
     default:
 
-      log << MSG::ERROR << "Unknown version of TileCellVec, ver="<<m_version << endreq;
+      log << MSG::ERROR << "Unknown version of TileCellVec, ver="<<m_version << endmsg;
       return StatusCode::FAILURE;
     }
 
-    if (lDebug) log << MSG::DEBUG << "Storing data vector of size " << m_vecCellAll[name].size() << " with version " << m_vecCellAll[name][0] << endreq;
+    if (lDebug) log << MSG::DEBUG << "Storing data vector of size " << m_vecCellAll[name].size() << " with version " << m_vecCellAll[name][0] << endmsg;
     persObj = &vecCell;
 
     return StatusCode::SUCCESS; 
@@ -313,12 +316,12 @@ StatusCode TileCellContainerCnv::persToTrans(TileCellContainer*& cont, TileCellV
 {
     // Fill TileCellContainer from vector, creating cells from 3 integers 
 
-    MsgStream log(messageService(), "TileCellContainerCnv");
+    MsgStream log(msgSvc(), "TileCellContainerCnv");
     MSG::Level logLevel = log.level();
     bool lDebug = (logLevel<=MSG::DEBUG);
     bool lVerbose = (logLevel<=MSG::VERBOSE);
 
-    if (lDebug) log << MSG::DEBUG << "Read TileCell Vec, size " << vec->size() << endreq;
+    if (lDebug) log << MSG::DEBUG << "Read TileCell Vec, size " << vec->size() << endmsg;
 
     // create the TileCellContainer
     cont = new TileCellContainer();
@@ -347,9 +350,9 @@ StatusCode TileCellContainerCnv::persToTrans(TileCellContainer*& cont, TileCellV
         if (lVerbose) {
           log << MSG::VERBOSE << "reading cell " << (iCell++) << " "
               << MSG::hex << id << MSG::dec << " " << ene << " " 
-              << MSG::hex << tqg << MSG::dec << endreq;
+              << MSG::hex << tqg << MSG::dec << endmsg;
           log << MSG::VERBOSE << "ene=" << ener << " time=" << time 
-              << " qual=" << qual << " gain=" << gain << endreq;
+              << " qual=" << qual << " gain=" << gain << endmsg;
         }
         
         TileCell * cell = new TileCell(NULL,id,ener,time,qual,qbit,(CaloGain::CaloGain)gain);
@@ -385,7 +388,7 @@ StatusCode TileCellContainerCnv::persToTrans(TileCellContainer*& cont, TileCellV
           if (ene < 0 ) { // upper most bit is set, it means that everything is packed in one word
 
             if (lVerbose)
-              log << endreq;
+              log << endmsg;
 
             time = 0.0;   // time was zero and it was not saved
             ener = ((ene & 0xFFFFF) - 0x10000) * 1e-3;
@@ -396,7 +399,7 @@ StatusCode TileCellContainerCnv::persToTrans(TileCellContainer*& cont, TileCellV
           
             unsigned int tqg = *it++;
             if (lVerbose)
-              log << MSG::hex << tqg << MSG::dec << endreq;
+              log << MSG::hex << tqg << MSG::dec << endmsg;
 
             ener = (ene - 0x40000000) * 1e-3;
             time = ((int)(tqg>>16) - 0x8000 ) * 0.01;
@@ -412,7 +415,7 @@ StatusCode TileCellContainerCnv::persToTrans(TileCellContainer*& cont, TileCellV
       
           if (lVerbose)
             log << MSG::hex << id << MSG::dec << " " << ene << " " 
-                << MSG::hex << tqg << MSG::dec << endreq;
+                << MSG::hex << tqg << MSG::dec << endmsg;
 
           ener = ene*1e-3;
           time = ((int)(tqg>>16) - 0x8000 ) * 0.01;
@@ -422,7 +425,7 @@ StatusCode TileCellContainerCnv::persToTrans(TileCellContainer*& cont, TileCellV
 
         if (lVerbose)
           log << MSG::VERBOSE << "ene=" << ener << " time=" << time 
-              << " qual=" << qual << " gain=" << gain << endreq;
+              << " qual=" << qual << " gain=" << gain << endmsg;
 
         if (gain != m_gain[0]) { // don't create cells with non-existing gain
           TileCell * cell = new TileCell(dde,id,ener,time,qual,qbit,(CaloGain::CaloGain)gain);
@@ -430,7 +433,7 @@ StatusCode TileCellContainerCnv::persToTrans(TileCellContainer*& cont, TileCellV
         }
         else {
           if (lVerbose)
-            log << MSG::VERBOSE << "Don't create MBTS cell with invalid gain" << endreq;
+            log << MSG::VERBOSE << "Don't create MBTS cell with invalid gain" << endmsg;
         }
         ++iCell;
       }
@@ -438,7 +441,7 @@ StatusCode TileCellContainerCnv::persToTrans(TileCellContainer*& cont, TileCellV
       
     default:
 
-      log << MSG::ERROR << "Unknown version of TileCellVec, ver="<<version << endreq;
+      log << MSG::ERROR << "Unknown version of TileCellVec, ver="<<version << endmsg;
       return StatusCode::FAILURE;
 
     }
