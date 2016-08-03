@@ -561,7 +561,7 @@ void TileROD_Encoder::fillRODTileMuRcvDigi(std::vector<uint32_t>&  v) {
                         <<"\tSample "<<7-i<<" bits |" << std::setfill('0') << std::setw(2) 
                         << shift << "-" << std::setw(2) << shift+7 << std::setfill('0') 
                         << "| of 32-bit word "<<3 + nwc*i + wc<<" "<<digits[i]
-                        <<" "<<MSG::hex<<word[i]<<MSG::dec << endreq;
+                        <<" "<<MSG::hex<<word[i]<<MSG::dec << endmsg;
       }
     }
 
@@ -605,9 +605,9 @@ void TileROD_Encoder::fillRODTileMuRcvDigi(std::vector<uint32_t>&  v) {
   // dump fragment
   //	
   if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "Check content of ROD fragment after including sub-fragment (0x40)... " << v.size() << endreq;
+    msg(MSG::VERBOSE) << "Check content of ROD fragment after including sub-fragment (0x40)... " << v.size() << endmsg;
     for (size_t i=0; i<v.size(); ++i)
-      msg(MSG::VERBOSE) << i << "\t" << v.at(i) << MSG::hex << " 0x" << v.at(i) << MSG::dec << endreq;
+      msg(MSG::VERBOSE) << i << "\t" << v.at(i) << MSG::hex << " 0x" << v.at(i) << MSG::dec << endmsg;
   }
 
   return;
@@ -710,7 +710,7 @@ void TileROD_Encoder::fillRODTileMuRcvRawChannel(std::vector<uint32_t>&  v) {
         msg(MSG::DEBUG) << ros << "/" << drawer << "/" << channel << strchannel[j] 
                         <<"\tAmp " << f_amp << " " << i_amp << " " 
                         <<" ch cnt " << chc << " word cnt " << wc 
-                        << " word 0x" <<MSG::hex<< word <<MSG::dec<<endreq;
+                        << " word 0x" <<MSG::hex<< word <<MSG::dec<<endmsg;
     }
     
     ++chc;
@@ -729,9 +729,9 @@ void TileROD_Encoder::fillRODTileMuRcvRawChannel(std::vector<uint32_t>&  v) {
   ATH_MSG_DEBUG("Check version and counters: "<<MSG::hex<< verfrag <<MSG::dec<<" "<< chc <<" "<< wc <<" save in position: "<< savepos );
 
   if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "Check content of ROD fragment after including sub-fragment (0x41)... "<< m_vTileRC.size() <<" "<< v.size() << endreq;
+    msg(MSG::VERBOSE) << "Check content of ROD fragment after including sub-fragment (0x41)... "<< m_vTileRC.size() <<" "<< v.size() << endmsg;
     for (size_t i=0; i<v.size(); ++i) {
-      msg(MSG::VERBOSE) << i <<"\t"<< v.at(i) << MSG::hex << " 0x" << v.at(i) << MSG::dec << endreq;
+      msg(MSG::VERBOSE) << i <<"\t"<< v.at(i) << MSG::hex << " 0x" << v.at(i) << MSG::dec << endmsg;
     }
   }
   return;
@@ -801,7 +801,7 @@ void TileROD_Encoder::fillRODTileMuRcvObj(std::vector<uint32_t>& v) {
       for (const auto & val : slin) {
           ss<<std::setw(2)<<val;
       }
-      msg(MSG::DEBUG) << "Result for module: "<<modid<<" in TMDB board "<<modid%8<<MSG::hex<<": 0x"<<word4b<<MSG::dec<<" from "<<ss.str() << endreq; 
+      msg(MSG::DEBUG) << "Result for module: "<<modid<<" in TMDB board "<<modid%8<<MSG::hex<<": 0x"<<word4b<<MSG::dec<<" from "<<ss.str() << endmsg; 
     }
     
     switch (modid%8) {
@@ -826,9 +826,9 @@ void TileROD_Encoder::fillRODTileMuRcvObj(std::vector<uint32_t>& v) {
   ATH_MSG_DEBUG( "Check version and counters: "<<MSG::hex<< verfrag <<MSG::dec<<" "<< chc <<" "<< wc <<" save in position: "<< savepos );
 
   if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "Check content of ROD fragment after including sub-fragment (0x42)... " << v.size() << endreq;
+    msg(MSG::VERBOSE) << "Check content of ROD fragment after including sub-fragment (0x42)... " << v.size() << endmsg;
     for (size_t i=0; i<v.size(); ++i) {
-      msg(MSG::VERBOSE) << i << "\t" << v.at(i) << MSG::hex << " 0x" << v.at(i) << MSG::dec << endreq;
+      msg(MSG::VERBOSE) << i << "\t" << v.at(i) << MSG::hex << " 0x" << v.at(i) << MSG::dec << endmsg;
     }
   }
   
