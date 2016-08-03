@@ -99,13 +99,13 @@ SegMemSvc::handle(const Incident& inc) {
             << std::endl;
       std::ostringstream ost;
       m_ahead_evt.report(ost);
-      m_log << MSG::DEBUG << ost.str() << endreq;
-      //       m_log << MSG::DEBUG << "header: " << m_ahead.reportStr() << endreq;
+      m_log << MSG::DEBUG << ost.str() << endmsg;
+      //       m_log << MSG::DEBUG << "header: " << m_ahead.reportStr() << endmsg;
       
     }
 
     m_log << MSG::DEBUG << "freeing all memory allocated for Event"
-          << endreq;
+          << endmsg;
     m_arena_evt.reset();
     m_ahead_evt.reset();
 
@@ -113,11 +113,11 @@ SegMemSvc::handle(const Incident& inc) {
 
     if (m_log.level() <= MSG::DEBUG) {
       m_log << MSG::DEBUG << "defragmenting memory"
-            << endreq;
+            << endmsg;
     }
     m_log << MSG::DEBUG << "freeing all memory allocated associated with "
           << "DefragMemory incident"
-          << endreq;
+          << endmsg;
     m_arena_inc.reset();
     m_ahead_inc.reset();
   }

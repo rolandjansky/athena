@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: VarHandleBase.h 733875 2016-04-04 23:33:03Z leggett $
+// $Id: VarHandleBase.h 757253 2016-06-23 13:01:18Z ssnyder $
 /**
  * @file StoreGate/VarHandleBase.h
  * @author S. Binet, P. Calafiura, scott snyder <snyder@bnl.gov>
@@ -265,7 +265,7 @@ namespace SG {
      *
      * This implicitly does a reset().
      */
-    StatusCode setStore (IProxyDict* store);
+    StatusCode setProxyDict (IProxyDict* store);
 
 
     // FIXME: Remove this once IResetable is cleaned up.

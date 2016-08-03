@@ -110,7 +110,7 @@ void test2()
 
   SG::UpdateHandle<MyObj> h1 ("foo", "FooSvc");
   assert (h1.store() == "FooSvc");
-  assert (h1.setStore (&testStore).isSuccess());
+  assert (h1.setProxyDict (&testStore).isSuccess());
   assert (h1.store() == "TestStore");
   assert (h1.cptr() == fooptr);
   assert (foo_proxy->refCount() == 2);
@@ -134,7 +134,7 @@ void test2()
   assert (h2.cachedPtr() == nullptr);
 
   SG::UpdateHandle<MyObj> h4 ("bar", "FooSvc");
-  assert (h4.setStore (&testStore).isSuccess());
+  assert (h4.setProxyDict (&testStore).isSuccess());
   assert (h4.cptr() == barptr);
   assert (bar_proxy->refCount() == 2);
 
@@ -181,7 +181,7 @@ void test3()
 
   testStore.m_updated.clear();
   SG::UpdateHandle<MyObj> h1 ("foo", "FooSvc");
-  assert (h1.setStore (&testStore).isSuccess());
+  assert (h1.setProxyDict (&testStore).isSuccess());
   assert (!h1.isInitialized());
   assert (h1.cachedPtr() == nullptr);
   assert (h1.cptr() == fooptr);
@@ -204,7 +204,7 @@ void test3()
 
   testStore.m_updated.clear();
   SG::UpdateHandle<MyObj> h2 ("foox", "FooSvc");
-  assert (h2.setStore (&testStore).isSuccess());
+  assert (h2.setProxyDict (&testStore).isSuccess());
   assert (h2.cachedPtr() == nullptr);
   assert (!h2.isInitialized());
   assert (!h2.isValid());
@@ -217,7 +217,7 @@ void test3()
   assert (testStore.m_updated.empty());
 
   SG::UpdateHandle<MyObj> h3 ("foo", "FooSvc");
-  assert (h3.setStore (&testStore).isSuccess());
+  assert (h3.setProxyDict (&testStore).isSuccess());
   testStore.m_failUpdatedObject = true;
   EXPECT_EXCEPTION (SG::ExcUpdatedObjectFailure, h3.ptr());
 }

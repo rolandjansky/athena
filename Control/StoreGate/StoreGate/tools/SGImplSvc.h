@@ -82,7 +82,7 @@ class IHistorySvc;
 struct _object; typedef _object PyObject;
 class StoreGateSvc;
 namespace AthenaInternal {
-  PyObject* recordObjectToStore(PyObject*,PyObject*,PyObject*,bool,bool,bool);
+  PyObject* recordObjectToStore(StoreGateSvc*,PyObject*,PyObject*,bool,bool,bool);
   void py_sg_clearProxyPayload(StoreGateSvc* self, SG::DataProxy*);
 }
 
@@ -113,7 +113,7 @@ namespace PerfMon { class StorePayloadMon; }
  * @param "FolderNameList" property (default ""): data folders to be created 
  *                                                in this store
  * @author ATLAS Collaboration
- * $Id: SGImplSvc.h 754375 2016-06-13 02:59:46Z ssnyder $
+ * $Id: SGImplSvc.h 766223 2016-08-03 12:32:24Z will $
  **/
 class SGImplSvc :
   public Service, 
@@ -912,7 +912,7 @@ private:
 
   friend 
   PyObject* 
-  AthenaInternal::recordObjectToStore(PyObject*,PyObject*,PyObject*,bool,bool,bool);
+  AthenaInternal::recordObjectToStore(StoreGateSvc*,PyObject*,PyObject*,bool,bool,bool);
   /// type-less recording of an object with a key, allow possibility of
   /// specifying const-access and history record
   StatusCode typeless_record( DataObject* obj, const std::string& key,
