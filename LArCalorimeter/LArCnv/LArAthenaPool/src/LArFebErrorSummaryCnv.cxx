@@ -19,7 +19,7 @@ LArFebErrorSummaryCnv::LArFebErrorSummaryCnv(ISvcLocator* svcLoc) :
 LArFebErrorSummary_PERSISTENT*
 LArFebErrorSummaryCnv::createPersistent(LArFebErrorSummary* transCont)
 {
-  MsgStream log(messageService(), "LArFebErrorSummaryConverter" );
+  MsgStream log(msgSvc(), "LArFebErrorSummaryConverter" );
   LArFebErrorSummary_p1      *persObj = m_converter.createPersistent( transCont, log );
   return persObj; 
 }
@@ -38,7 +38,7 @@ LArFebErrorSummaryCnv::createTransient()
       trans = m_converter.createTransient( col_vect.get(), log );
   }
   else {
-    //      log << MSG::ERROR << "failed trying to read : " << m_token << endreq;
+    //      log << MSG::ERROR << "failed trying to read : " << m_token << endmsg;
       throw std::runtime_error("Unsupported persistent version of LArFebErrorSummary ") ;
     }
   return trans;

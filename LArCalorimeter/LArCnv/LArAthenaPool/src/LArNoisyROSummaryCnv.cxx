@@ -21,7 +21,7 @@ LArNoisyROSummaryCnv::LArNoisyROSummaryCnv(ISvcLocator* svcLoc) :
 LArNoisyROSummary_PERSISTENT*
 LArNoisyROSummaryCnv::createPersistent(LArNoisyROSummary* transCont)
 {
-  MsgStream log(messageService(), "LArNoisyROSummaryConverter" );
+  MsgStream log(msgSvc(), "LArNoisyROSummaryConverter" );
   LArNoisyROSummary_p4      *persObj = m_converter.createPersistent( transCont, log );
   return persObj; 
 }
@@ -58,7 +58,7 @@ LArNoisyROSummaryCnv::createTransient()
       trans = converter.createTransient( col_vect.get(), log );
   }
   else {
-    //      log << MSG::ERROR << "failed trying to read : " << m_token << endreq;
+    //      log << MSG::ERROR << "failed trying to read : " << m_token << endmsg;
       throw std::runtime_error("Unsupported persistent version of LArNoisyROSummary ") ;
     }
   return trans;
