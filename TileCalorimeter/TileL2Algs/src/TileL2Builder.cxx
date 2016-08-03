@@ -386,7 +386,7 @@ void TileL2Builder::MTagLB(int partition
 
   /* Repair for muons splitted */
 
-  if (cand >= 4) std::abort();
+  if (cand > 4) std::abort();
   for (int i = 0; i < cand; i++) {
     for (int j = 0; j < i; j++) {
       if ((cquality[i] + cquality[j]) == 0) {
@@ -567,7 +567,7 @@ void TileL2Builder::MTagEB(int partition
 
   /* Repair for muons splitted */
 
-  if (cand >= 4) std::abort();
+  if (cand > 4) std::abort();
   for (int i = 0; i < cand; i++) {
     for (int j = 0; j < i; j++) {
       if ((cquality[i] + cquality[j]) == 0) {
