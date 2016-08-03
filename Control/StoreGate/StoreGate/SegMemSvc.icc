@@ -37,7 +37,7 @@ SegMemSvc::allocate(SegMemSvc::LIFETIME life, bool cache) {
   if (m_log.level() <= MSG::DEBUG) {
     m_log << MSG::DEBUG << "allocating object size " << sizeof(T) 
           << " with lifetime/cache " << cvt(life) << "/" << cache << " at " 
-          << ptr  << endreq;
+          << ptr  << endmsg;
   }
 
 
@@ -52,7 +52,7 @@ bool
 SegMemSvc::del(T* ptr) {
 
   if (m_log.level() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG << "deleting object at " << ptr << endreq;
+    m_log << MSG::DEBUG << "deleting object at " << ptr << endmsg;
   }
   
 

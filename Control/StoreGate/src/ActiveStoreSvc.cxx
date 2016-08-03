@@ -32,14 +32,14 @@ StatusCode ActiveStoreSvc::initialize()    {
   // Initialize service:
   if(!(Service::initialize()).isSuccess()) return StatusCode::FAILURE;
 
-  MsgStream log( messageService(), name() );
+  MsgStream log( msgSvc(), name() );
   log << MSG::INFO << "Initializing " << name() 
-      << " - package version " << PACKAGE_VERSION << endreq ;
+      << " - package version " << PACKAGE_VERSION << endmsg ;
 
   const bool CREATEIF(true);
   StatusCode sc = service(m_storeName, p_activeStore, CREATEIF);
   if ( !sc.isSuccess() ) {
-    log << MSG::ERROR << "Could not locate default store" << endreq;
+    log << MSG::ERROR << "Could not locate default store" << endmsg;
     return sc;
   }
 

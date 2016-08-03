@@ -148,7 +148,7 @@ StatusCode StoreGateSvc::initialize()    {
 
   MsgStream log( messageService(), name() );
   log << MSG::VERBOSE << "Initializing " << name() 
-      << " - package version " << PACKAGE_VERSION << endreq ;
+      << " - package version " << PACKAGE_VERSION << endmsg ;
 
   // lifted from AlwaysPrivateToolSvc (see Wim comment about lack of global jo svc accessor
   // retrieve the job options svc (TODO: the code below relies heavily on
@@ -204,7 +204,7 @@ StatusCode StoreGateSvc::initialize()    {
 
 /// Service start
 StatusCode StoreGateSvc::stop()    {
-  msg() << MSG::VERBOSE << "Stop " << name() << endreq;
+  msg() << MSG::VERBOSE << "Stop " << name() << endmsg;
   //HACK ALERT: ID event store objects refer to det store objects
   //by setting an ad-hoc priority for event store(s) we make sure they are finalized and hence cleared first
   // see e.g. https://savannah.cern.ch/bugs/index.php?99993
@@ -225,7 +225,7 @@ IIOVSvc* StoreGateSvc::getIIOVSvc() {
   if (0 == m_pIOVSvc && !(service("IOVSvc", m_pIOVSvc)).isSuccess()) {
     msg() << MSG::WARNING
           << "Could not locate IOVSvc "
-          << endreq;
+          << endmsg;
   }
   return m_pIOVSvc;
 }
@@ -235,7 +235,7 @@ StoreGateSvc::finalize() {
   if(!(Service::finalize()).isSuccess()) return StatusCode::FAILURE;
   MsgStream log( messageService(), name() );
   log << MSG::VERBOSE << "Finalizing " << name() 
-      << " - package version " << PACKAGE_VERSION << endreq ;
+      << " - package version " << PACKAGE_VERSION << endmsg ;
   if (m_defaultStore) {
     // m_defaultStore is not active, so ServiceManager won't finalize it!
     CHECK( m_defaultStore->finalize());

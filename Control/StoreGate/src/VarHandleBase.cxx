@@ -439,7 +439,7 @@ namespace SG {
    *
    * This implicitly does a reset().
    */
-  StatusCode VarHandleBase::setStore (IProxyDict* store)
+  StatusCode VarHandleBase::setProxyDict (IProxyDict* store)
   {
     reset(true);
     m_store = store;

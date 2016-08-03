@@ -168,7 +168,7 @@ void test2()
 
   SG::WriteHandle<MyObj> h1 ("foo", "FooSvc");
   assert (h1.store() == "FooSvc");
-  assert (h1.setStore (&testStore).isSuccess());
+  assert (h1.setProxyDict (&testStore).isSuccess());
   assert (h1.store() == "TestStore");
 
   auto fooobj = CxxUtils::make_unique<MyObj>();
@@ -199,7 +199,7 @@ void test2()
   assert (h2.cptr() == nullptr);
 
   SG::WriteHandle<MyObj> h4 ("bar", "FooSvc");
-  assert (h4.setStore (&testStore).isSuccess());
+  assert (h4.setProxyDict (&testStore).isSuccess());
 
   auto barobj = CxxUtils::make_unique<MyObj>();
   MyObj* barptr = barobj.get();
@@ -247,7 +247,7 @@ void test3()
 
   SGTest::TestStore testStore;
   SG::WriteHandle<MyObj> h1 ("foo", "FooSvc");
-  assert (h1.setStore (&testStore).isSuccess());
+  assert (h1.setProxyDict (&testStore).isSuccess());
 
   assert (!h1.isValid());
   assert (h1.cachedPtr() == nullptr);
@@ -277,7 +277,7 @@ void test4()
   SGTest::TestStore testStore;
 
   SG::WriteHandle<MyObj> h1 ("foo1", "FooSvc");
-  assert (h1.setStore (&testStore).isSuccess());
+  assert (h1.setProxyDict (&testStore).isSuccess());
 
   assert (!h1.isInitialized());
   assert (!h1.isValid());
@@ -289,7 +289,7 @@ void test4()
   assert (!h1.isConst());
 
   SG::WriteHandle<MyObj> h4 ("foo4", "FooSvc");
-  assert (h4.setStore (&testStore).isSuccess());
+  assert (h4.setProxyDict (&testStore).isSuccess());
   assert (h4.record (CxxUtils::make_unique<MyObj>(23)).isSuccess());
   assert (h4.isInitialized());
   assert (h4.isValid());
@@ -299,7 +299,7 @@ void test4()
   // Record existing object --- should fail.
   MyObj::deleted.clear();
   SG::WriteHandle<MyObj> h5 ("foo1", "FooSvc");
-  assert (h5.setStore (&testStore).isSuccess());
+  assert (h5.setProxyDict (&testStore).isSuccess());
   assert (h5.record (CxxUtils::make_unique<MyObj>(25)).isFailure());
   assert (MyObj::deleted == std::vector<int>{25});
 }
@@ -312,7 +312,7 @@ void test5()
   SGTest::TestStore testStore;
 
   SG::WriteHandle<MyObj> h1 ("foo1", "FooSvc");
-  assert (h1.setStore (&testStore).isSuccess());
+  assert (h1.setProxyDict (&testStore).isSuccess());
   auto ptrs1 = makeWithAux(30);
   assert (h1.recordNonConst (std::move(ptrs1.first), std::move(ptrs1.second)).isSuccess());
   assert (h1.isInitialized());
@@ -321,7 +321,7 @@ void test5()
   assert (!h1.isConst());
 
   SG::ReadHandle<MyObjAux> h1a ("foo1Aux.", "FooSvc");
-  assert (h1a.setStore (&testStore).isSuccess());
+  assert (h1a.setProxyDict (&testStore).isSuccess());
   assert (h1a.isValid());
   assert (h1a.isInitialized());
   assert (h1a->x == 130);
@@ -329,7 +329,7 @@ void test5()
   assert (h1->aux->x == 130);
 
   SG::WriteHandle<MyObj> h4 ("foo4", "FooSvc");
-  assert (h4.setStore (&testStore).isSuccess());
+  assert (h4.setProxyDict (&testStore).isSuccess());
   auto ptrs4 = makeWithAux(33);
   assert (h4.record (std::move(ptrs4.first), std::move(ptrs4.second)).isSuccess());
   assert (h4.isInitialized());
@@ -338,7 +338,7 @@ void test5()
   assert (h4.isConst());
 
   SG::ReadHandle<MyObjAux> h4a ("foo4Aux.", "FooSvc");
-  assert (h4a.setStore (&testStore).isSuccess());
+  assert (h4a.setProxyDict (&testStore).isSuccess());
   assert (h4a.isValid());
   assert (h4a.isInitialized());
   assert (h4a->x == 133);
@@ -347,7 +347,7 @@ void test5()
   MyObj::deleted.clear();
   MyObjAux::deleted.clear();
   SG::WriteHandle<MyObj> h5 ("foo4", "FooSvc");
-  assert (h5.setStore (&testStore).isSuccess());
+  assert (h5.setProxyDict (&testStore).isSuccess());
   auto ptrs5 = makeWithAux(34);
   assert (h5.record (std::move(ptrs5.first), std::move(ptrs5.second)).isFailure());
   assert (!h5.isInitialized());
@@ -358,7 +358,7 @@ void test5()
   MyObj::deleted.clear();
   MyObjAux::deleted.clear();
   SG::WriteHandle<MyObj> h6 ("bar", "FooSvc");
-  assert (h6.setStore (&testStore).isSuccess());
+  assert (h6.setProxyDict (&testStore).isSuccess());
   auto ptrs6 = makeWithAux(35);
   assert (h6.record (std::move(ptrs6.first), std::move(ptrs6.second)).isFailure());
   assert (h6.isInitialized());
@@ -371,7 +371,7 @@ void test5()
   MyObjAux* paux = nullptr;
   {
     SG::WriteHandle<MyObj> h7 ("foo7", "FooSvc");
-    assert (h7.setStore (&testStore).isSuccess());
+    assert (h7.setProxyDict (&testStore).isSuccess());
     auto ptrs7 = makeWithAux(30);
     paux = ptrs7.second.get();
     assert (h7.record (std::move(ptrs7.first), std::move(ptrs7.second)).isSuccess());
@@ -391,7 +391,7 @@ void test6()
   assert (p1->refCount() == 1);
 
   SG::WriteHandle<MyDObj> h1 ("foo1", "FooSvc");
-  assert (h1.setStore (&testStore).isSuccess());
+  assert (h1.setProxyDict (&testStore).isSuccess());
   assert (h1.recordNonConst (p1).isSuccess());
   assert (p1->refCount() == 2);
   assert (h1.isValid());
@@ -400,7 +400,7 @@ void test6()
   assert (h1.ptr() == p1.get());
 
   SG::WriteHandle<MyDObj> h4 ("foo4", "FooSvc");
-  assert (h4.setStore (&testStore).isSuccess());
+  assert (h4.setProxyDict (&testStore).isSuccess());
   assert (h4.record (p1).isSuccess());
   assert (p1->refCount() == 3);
   assert (h4.isValid());
@@ -409,7 +409,7 @@ void test6()
   assert (h4.ptr() == p1.get());
 
   SG::WriteHandle<MyDObj> h5 ("foo4", "FooSvc");
-  assert (h5.setStore (&testStore).isSuccess());
+  assert (h5.setProxyDict (&testStore).isSuccess());
   assert (h5.record (p1).isFailure());
   assert (p1->refCount() == 3);
   assert (!h5.isValid());
@@ -424,7 +424,7 @@ void test7()
   SGTest::TestStore testStore;
 
   SG::WriteHandle<MyObj> h1 ("foo1", "FooSvc");
-  assert (h1.setStore (&testStore).isSuccess());
+  assert (h1.setProxyDict (&testStore).isSuccess());
   auto obj1 = CxxUtils::make_unique<MyObj>(400);
   MyObj* objptr = obj1.get();
   assert (h1.recordOrRetrieve (std::move(obj1)).isSuccess());
@@ -435,7 +435,7 @@ void test7()
 
   MyObj::deleted.clear();
   SG::WriteHandle<MyObj> h2 ("foo1", "FooSvc");
-  assert (h2.setStore (&testStore).isSuccess());
+  assert (h2.setProxyDict (&testStore).isSuccess());
   auto obj2 = CxxUtils::make_unique<MyObj>(401);
   assert (h2.recordOrRetrieve (std::move(obj2)).isSuccess());
   assert (h2.isValid());
@@ -447,7 +447,7 @@ void test7()
   MyObj::deleted.clear();
   assert (h1.setConst().isSuccess());
   SG::WriteHandle<MyObj> h3 ("foo1", "FooSvc");
-  assert (h3.setStore (&testStore).isSuccess());
+  assert (h3.setProxyDict (&testStore).isSuccess());
   auto obj3 = CxxUtils::make_unique<MyObj>(402);
   assert (h3.recordOrRetrieve (std::move(obj3)).isFailure());
   assert (MyObj::deleted == std::vector<int>{402});

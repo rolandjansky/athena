@@ -135,7 +135,7 @@ bool HiveMgrSvc::newDataObjectsPresent() {
 
 StatusCode HiveMgrSvc::initialize() {
   info() << "Initializing " << name() 
-         << " - package version " << PACKAGE_VERSION << endreq ;
+         << " - package version " << PACKAGE_VERSION << endmsg ;
 
   if ( !(Service::initialize().isSuccess()) )  {
     fatal() << "Unable to initialize base class" << endmsg;
@@ -169,7 +169,7 @@ StatusCode HiveMgrSvc::initialize() {
 }
 StatusCode HiveMgrSvc::finalize() {
   info() <<  "Finalizing " << name() 
-         << " - package version " << PACKAGE_VERSION << endreq ;
+         << " - package version " << PACKAGE_VERSION << endmsg ;
 
   for (SG::HiveEventSlot& s : m_slots) {
     // The impl services are not set to active, so ServiceMananger

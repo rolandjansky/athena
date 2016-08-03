@@ -182,10 +182,10 @@ SGImplSvc::~SGImplSvc()  {
 StatusCode SGImplSvc::initialize()    {
 
   msg() << MSG::VERBOSE << "Initializing " << name() 
-        << " - package version " << PACKAGE_VERSION << endreq ;
+        << " - package version " << PACKAGE_VERSION << endmsg ;
 
   if(!(Service::initialize()).isSuccess()) {
-    msg() << MSG::ERROR << "Could not initialize base Service !!" << endreq;
+    msg() << MSG::ERROR << "Could not initialize base Service !!" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -207,7 +207,7 @@ StatusCode SGImplSvc::initialize()    {
   if (!(m_pIncSvc.retrieve()).isSuccess()) {
     msg() << MSG::ERROR 
           << "Could not locate IncidentSvc "
-          << endreq;
+          << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -222,14 +222,14 @@ StatusCode SGImplSvc::initialize()    {
     m_pDataLoader = 0;
     msg() << MSG::ERROR
           << "Could not get pointer to Persistency Service"
-          << endreq;
+          << endmsg;
     return StatusCode::FAILURE;;
   }
 
   if (!(service("ClassIDSvc", m_pCLIDSvc, CREATEIF)).isSuccess()) {
     msg() << MSG::ERROR
           << "Could not get pointer to ClassID Service"
-          << endreq;
+          << endmsg;
     return StatusCode::FAILURE;;
   }
 
@@ -249,7 +249,7 @@ StatusCode SGImplSvc::initialize()    {
       !(service("HistorySvc", m_pHistorySvc, CREATEIF)).isSuccess()) {
     msg() << MSG::ERROR
           << "Could not locate History Service"
-          << endreq;
+          << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -258,14 +258,14 @@ StatusCode SGImplSvc::initialize()    {
 /// Service start
 StatusCode SGImplSvc::start()    {
 
-  msg() << MSG::VERBOSE << "Start " << name() << endreq;
+  msg() << MSG::VERBOSE << "Start " << name() << endmsg;
   /*
   // This will need regFcn clients to be updated first.
   if ( 0 == m_pPPS || (m_pPPS->preLoadProxies(*m_pStore)).isFailure() )
   {
   msg() << MSG::DEBUG
   << " Failed to preLoad proxies"
-  << endreq;
+  << endmsg;
   return StatusCode::FAILURE;
   }
   */
@@ -275,7 +275,7 @@ StatusCode SGImplSvc::start()    {
 /// Service stop
 StatusCode SGImplSvc::stop()    {
 
-  msg() << MSG::VERBOSE << "Stop " << name() << endreq;
+  msg() << MSG::VERBOSE << "Stop " << name() << endmsg;
   //HACK ALERT: ID event store objects refer to det store objects
   //by setting an ad-hoc priority for event store(s) we make sure they are finalized and hence cleared first
   // see e.g. https://savannah.cern.ch/bugs/index.php?99993
@@ -296,7 +296,7 @@ IIOVSvc* SGImplSvc::getIIOVSvc() {
   if (0 == m_pIOVSvc && !(service("IOVSvc", m_pIOVSvc)).isSuccess()) {
     msg() << MSG::WARNING
           << "Could not locate IOVSvc "
-          << endreq;
+          << endmsg;
   }
   return m_pIOVSvc;
 }
@@ -309,7 +309,7 @@ void SGImplSvc::handle(const Incident &inc) {
       SG_MSG_DEBUG("Dumping StoreGate Contents");
       msg() << MSG::INFO 
             << '\n' << dump() << endl 
-            << endreq;
+            << endmsg;
     }
   }
 }
@@ -370,7 +370,7 @@ StatusCode SGImplSvc::clearStore(bool forceRemove)
 /// Service finalisation
 StatusCode SGImplSvc::finalize()    {
   msg() << MSG::VERBOSE << "Finalizing " << name() 
-        << " - package version " << PACKAGE_VERSION << endreq ;
+        << " - package version " << PACKAGE_VERSION << endmsg ;
   
   // Incident service may not work in finalizea.
   // Clear this, so that we won't try to send an incident from clearStore.
@@ -398,7 +398,7 @@ StatusCode SGImplSvc::finalize()    {
 /// Service reinitialization
 StatusCode SGImplSvc::reinitialize()    {
   msg() << MSG::VERBOSE << "Reinitializing " << name() 
-        << " - package version " << PACKAGE_VERSION << endreq ;
+        << " - package version " << PACKAGE_VERSION << endmsg ;
   const bool FORCEREMOVE(true);
   clearStore(FORCEREMOVE).ignore();
   //not in v20r2p2! return Service::reinitialize();
@@ -456,7 +456,7 @@ StatusCode SGImplSvc::recordAddress(const std::string& skey,
       msg() << MSG::WARNING
             << "recordAddress: Invalid Class ID found in IOpaqueAddress @" 
             << pAddress << ". IOA will not be recorded"
-            << endreq;
+            << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -470,7 +470,7 @@ StatusCode SGImplSvc::recordAddress(const std::string& skey,
             << "recordAddress: failed for key="<< skey << ", type "  << clidTypeName
             << " (CLID " << dataID << ')' 
             << "\n there is already a persistent version of this object. Will not record a duplicate! "
-            << endreq;
+            << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -507,7 +507,7 @@ StatusCode SGImplSvc::recordAddress(const std::string& skey,
             << " with non-NULL IOA found for key " 
             << skey << " type " << errType << " (" << dataID << "). \n"
             << "Cannot record IOpaqueAddress @" << pAddress
-            << endreq;
+            << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -549,7 +549,7 @@ DataProxy* SGImplSvc::setupProxy(const CLID& dataID,
               << "\n Pre-existing valid DataProxy @"<< dp 
               << " found in Store for key " <<  dp->object()->name()
               << " with clid " << dp->object()->clID()
-              << endreq;
+              << endmsg;
         recycle(pDObj);      // commit this object to trash
         dp = 0;
       } else {
@@ -564,7 +564,7 @@ DataProxy* SGImplSvc::setupProxy(const CLID& dataID,
     if (!(m_pStore->addToStore(dataID, dp).isSuccess())) {
       msg() << MSG::WARNING
             << " setupProxy:: could not addToStore proxy @" << dp
-            << endreq;
+            << endmsg;
       recycle(pDObj);      // commit this object to trash
       delete dp;
       dp = 0;
@@ -659,7 +659,7 @@ SGImplSvc::addSymLink(const CLID& linkid, DataProxy* dp)
   if (0 == dp) {
     msg() << MSG::WARNING
           << "addSymLink: no target DataProxy found. Sorry, can't link to a non-existing data object"
-          << endreq;
+          << endmsg;
     return StatusCode::FAILURE;
   } 
   StatusCode sc = m_pStore->addSymLink(linkid, dp); 
@@ -681,7 +681,7 @@ SGImplSvc::addAlias(const std::string& aliasKey, DataProxy* proxy)
   if (0 == proxy) {
     msg() << MSG::WARNING
           << "addAlias: no target DataProxy given, Cannot alias to a non-existing object" 
-          << endreq;
+          << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -799,7 +799,7 @@ SG::DataProxy* SGImplSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
               << "SGImplSvc::recordObject: addAlias fails for object "
               << clid << "[" << clidTypeName << "] " << proxy->name()
               << " and new key " << key
-              << endreq;
+              << endmsg;
 
         proxy = nullptr;
       }
@@ -1029,7 +1029,7 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
                 << "record_impl: Could not setup alias key " 
                 << primaryVK.rawVersionKey() 
                 << " for unversioned object " << pTAName
-                << endreq;      
+                << endmsg;      
           return nullptr;
         }
       }
@@ -1054,7 +1054,7 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
             << rawKey << ", type "  << clidTypeName
             << " (CLID " << clid << ')' 
             << "\n There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead"
-            << endreq;
+            << endmsg;
     }
   }
   //now check whether raw_ptr has already been recorded
@@ -1069,7 +1069,7 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
           << "\n object @" << raw_ptr 
           << " already in store with key="<< dp->name()
           << ". Will not record a duplicate! "
-          << endreq;
+          << endmsg;
     if (pDObj != dp->object()) {
       DataBucketBase* pDBB(dynamic_cast<DataBucketBase*>(pDObj));
       pDBB->relinquish(); //don't own the data obj already recorded!
@@ -1089,7 +1089,7 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
           << "\n recorded with key " << rawKey 
           << " of type "  << clidTypeName
           << " (CLID " << clid << ") in DataObject @" << pDObj
-          << endreq;
+          << endmsg;
 
     return nullptr;
   }
@@ -1103,7 +1103,7 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
           << "\n with key " << rawKey 
           << " of type "  << clidTypeName
           << " (CLID " << clid << ')' 
-          << endreq;
+          << endmsg;
     return nullptr;
   }
 
@@ -1122,7 +1122,7 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
             << " for VersionedKey " << rawKey
             << ". Generic access to this object with clid" << clid 
             << " will not work"
-            << endreq;      
+            << endmsg;      
     }
   }
 
@@ -1208,7 +1208,7 @@ StatusCode SGImplSvc::setConst(const void* pObject)
     {
       msg() << MSG::WARNING
             << "setConst: NO Proxy for the dobj you want to set const"
-            << endreq;
+            << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -1247,7 +1247,7 @@ bool SGImplSvc::bindHandleToProxy(const CLID& id, const string& key,
           << " already bound to DataProxy with key " << ir->key() 
           << ". Cannot bind to proxy " << dp->name() << " as well\n"
           << "        You have probably registered multiple callbacks via regFcn with the same DataHandle using different keys (DataProxies)\n"
-          << endreq;
+          << endmsg;
     return false;
   }
     
@@ -1521,7 +1521,7 @@ void SGImplSvc::addAutoSymLinks (const std::string& key,
             << "record_impl: Could not find suitable SG::BaseInfoBase for CLID ["
             << clid << "] (" << key << ") !\t"
             << "No auto-symlink established !"
-            << endreq;
+            << endmsg;
     }
   }
 }
