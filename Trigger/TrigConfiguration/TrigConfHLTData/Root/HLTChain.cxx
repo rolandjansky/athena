@@ -350,9 +350,8 @@ TrigConf::HLTChain::print(const std::string& indent, unsigned int detail) const 
       cout.precision(3);
       //cout.setf(std::ios::fixed, std::ios::floatfield); 
 
-      cout << indent << "HLTChain " << name();
-      if(id()>0 || version()>0)
-         cout << " (id=" << id() << "/v=" << version() << ")";
+      cout << indent << "HLTChain chainid = " << chain_counter() << "  ";
+      printNameIdV();
       if(detail>=3) {
          cout << " | counter: " << chain_counter();
          if(level()!="HLT") {
