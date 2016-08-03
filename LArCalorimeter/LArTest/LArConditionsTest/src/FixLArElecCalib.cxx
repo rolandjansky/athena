@@ -871,11 +871,11 @@ StatusCode FixLArElecCalib::fix5() {
 	  int phi2 = m_fcal_idhelper->phi(id);
 
 	  HWIdentifier hid = m_cablingSvc->createSignalChannelID(id);
-	  log<<MSG::INFO<<" mod, phi,eta"<<module<<" "<<phi2<<" "<<eta2<<endreq;
+	  log<<MSG::INFO<<" mod, phi,eta"<<module<<" "<<phi2<<" "<<eta2<<endmsg;
 	  ++n2;
 
 	}
-     log<<MSG::INFO<<" number of channels in idhelper ="<<n2<<endreq;
+     log<<MSG::INFO<<" number of channels in idhelper ="<<n2<<endmsg;
 
      */
 
@@ -1275,7 +1275,7 @@ void FixLArElecCalib::print_object(const std::string& s, const LArAutoCorrMC::LA
       msg()<<MSG::DEBUG<<" LArAutoCorrMC" << s ;
       for (unsigned int i =0 ; i<obj.m_vAutoCorr.size();++i)
 	msg()<< " " << obj.m_vAutoCorr[i];
-      msg()<<endreq; 
+      msg()<<endmsg; 
     }
   return ; 
 }
@@ -1305,7 +1305,7 @@ void FixLArElecCalib::print_object(const std::string& s, const LArRampMC::LArCon
       msg()<<MSG::DEBUG<<" LArRampMC" << s ;
       for (unsigned int i =0 ; i<obj.m_vRamp.size();++i)
 	msg()<< " " << obj.m_vRamp[i];
-      msg()<<endreq; 
+      msg()<<endmsg; 
     }
   return ; 
 }
@@ -1334,12 +1334,12 @@ void FixLArElecCalib::print_object(const std::string& s, const LArShape32MC::LAr
       msg()<<MSG::DEBUG<<" LArShape" << s ;
       for (unsigned int i =0 ; i<obj.m_vShape.size();++i)
 	msg()<< " " << obj.m_vShape[i];
-      msg()<<endreq; 
+      msg()<<endmsg; 
 
       msg()<<MSG::DEBUG<<" LArShapeDer" << s ;
       for (unsigned int i =0 ; i<obj.m_vShapeDer.size();++i)
 	msg()<< " " << obj.m_vShapeDer[i];
-      msg()<<endreq; 
+      msg()<<endmsg; 
     }
   return ; 
 }
@@ -1995,6 +1995,10 @@ StatusCode FixLArElecCalib::fix13() {
     blobOnOff.resize(onlHashMax*sizeof(uint32_t));
     uint32_t* pBlobOnOff=static_cast<uint32_t*>(blobOnOff.startingAddress());
     unsigned nConn=0;
+
+    spec_onOff->release();
+    // cppcheck-suppress memleak
+    spec_onOff = nullptr;
 
     const uint32_t emptyId=Identifier().get_identifier32().get_compact();
     for(size_t ii=0;ii<onlHashMax;ii++) {
