@@ -7,12 +7,13 @@ atlas_subdir( ISF_PunchThroughTools )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           DetectorDescription/GeoPrimitives
+                          Simulation/Barcode/BarcodeEvent
                           Simulation/Barcode/BarcodeInterfaces
                           Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimInterfaces
-                          PRIVATE
                           AtlasGeometryCommon/SubDetectorEnvelopes
                           Control/DataModel
                           GaudiKernel
