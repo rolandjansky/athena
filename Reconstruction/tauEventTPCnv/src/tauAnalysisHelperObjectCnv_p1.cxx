@@ -109,6 +109,6 @@ void tauAnalysisHelperObjectCnv_p1 :: transToPers
 {
     log << MSG::WARNING << "tauAnalysisHelperObjectCnv_p1::transToPers"
 	"called this should not happen, as this method is deprecated"
-	<< endreq;
+	<< endmsg;
     return;
 }

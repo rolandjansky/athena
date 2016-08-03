@@ -53,6 +53,9 @@
   <class name="TauPi0Cluster_p1" />
   <class name="std::vector<TauPi0Cluster_p1>" />  
 
+  <class name="TauPi0Details_p1" />
+  <class name="std::vector<TauPi0Details_p1>" />
+
   <class name="TauPi0Details_p2" />
   <class name="std::vector<TauPi0Details_p2>" />
 
@@ -68,5 +71,18 @@
 
   <class name="tauAnalysisHelperObject_p1" />
   <class name="std::vector<tauAnalysisHelperObject_p1>" />
+
+  <read targetClass="TauPi0Details_p2"
+        target="m_pi0CandContainer, m_pi0ClusContainer, m_visTau_hlv"
+        sourceClass="TauPi0Details_p1"
+        source="std::vector< TPObjRef > m_pi0CandContainer; std::vector< TPObjRef > m_pi0ClusContainer; CLHEP::HepLorentzVector m_visTau_hlv"
+        include="Identifier/Identifier.h,stdint.h"
+        >
+  <![CDATA[
+    m_pi0CandContainer = onfile.m_pi0CandContainer;
+    m_pi0ClusContainer = onfile.m_pi0ClusContainer;
+    m_visTau_hlv = onfile.m_visTau_hlv;
+   ]]>
+  </read>
 
 </lcgdict>
