@@ -101,7 +101,7 @@ StatusCode LArConditionsTestAlg::initialize()
     ATH_CHECK( detStore()->retrieve(m_onlineID) );
 
     // Need to load authentication for RDBMS
-    // log << MSG::INFO << "Loading XMLAuthenticationService " << endreq;
+    // log << MSG::INFO << "Loading XMLAuthenticationService " << endmsg;
     // pool::POOLContext::loadComponent( "POOL/Services/XMLAuthenticationService" );
 
     const CaloCell_ID* calocell_id = nullptr;
@@ -152,7 +152,7 @@ StatusCode LArConditionsTestAlg::execute()
         ATH_CHECK(  testCondObjects() );
 // 	StatusCode sc = testDbObjectRead();
 // 	if(sc.isFailure()) {
-//   	    log << MSG::ERROR << "Failed testDbObjectRead " << endreq;
+//   	    log << MSG::ERROR << "Failed testDbObjectRead " << endmsg;
 //   	    return StatusCode::FAILURE;
 //   	}
 	
@@ -164,7 +164,7 @@ StatusCode LArConditionsTestAlg::execute()
 // 	const ILArRamp* ramp = 0 ;
 // 	m_detStore->retrieve(ramp, key);
 // 	if(!ramp) {
-// 	    log<< MSG::ERROR<<" Failed to get LArRamp in execute " << endreq;
+// 	    log<< MSG::ERROR<<" Failed to get LArRamp in execute " << endmsg;
 // 	    return StatusCode::FAILURE ; 
 // 	}
 //     } 
@@ -178,24 +178,24 @@ StatusCode LArConditionsTestAlg::execute()
     } 
 
 /* 
-   log << MSG::DEBUG << " retrieve DataHandle<ExampleData>  in execute " <<endreq;
+   log << MSG::DEBUG << " retrieve DataHandle<ExampleData>  in execute " <<endmsg;
    const ExampleData* example = 0 ;
    m_detStore->retrieve( example );
    if(!example) {
-   log<< MSG::ERROR<<" Failed to get ExampleData in execute " << endreq;
+   log<< MSG::ERROR<<" Failed to get ExampleData in execute " << endmsg;
    }
 */
 
 
 //      IToolSvc* toolSvc;
 //      if( service("ToolSvc", toolSvc) != StatusCode::SUCCESS){
-//  	log<< MSG::ERROR <<" Failed to get ToolSvc" <<endreq;     
+//  	log<< MSG::ERROR <<" Failed to get ToolSvc" <<endmsg;     
 //  	return StatusCode::FAILURE; 
 //      }
 
 //      LArRoI_Map* roiMap;
 //      if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArRoI_Map",roiMap )) {
-//  	log << MSG::ERROR << " Can't get LArRoI_Map " << endreq;
+//  	log << MSG::ERROR << " Can't get LArRoI_Map " << endmsg;
 //  	return StatusCode::FAILURE;
 //      }
 
@@ -492,7 +492,7 @@ LArConditionsTestAlg::testCondObjects()
     for (; iovIt != iovEnd; ++iovIt) {
       msg() << MSG::DEBUG << (*iovIt) << ", ";
     }
-    msg() << MSG::DEBUG << endreq;
+    msg() << MSG::DEBUG << endmsg;
     
     chan_const_iterator chIt  = ramps->chan_begin();
     chan_const_iterator chEnd = ramps->chan_end  ();
@@ -727,7 +727,7 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
                   msg() << MSG::DEBUG << m_onlineID->show_to_string(HWIdentifier(ids1[gain][i]))
 			<< " ";
 		}
-		msg() << MSG::DEBUG << endreq;
+		msg() << MSG::DEBUG << endmsg;
 	    }
 	    else if (febSet < 2*m_rampCache.size()/3) {
 		rampIt  = ramps->begin(gain, ids2[gain]);	    
@@ -738,7 +738,7 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
                   msg() << MSG::DEBUG << m_onlineID->show_to_string(HWIdentifier(ids2[gain][i]))
 			<< " ";
 		}
-                msg() << MSG::DEBUG << endreq;
+                msg() << MSG::DEBUG << endmsg;
 	    }
 	    else {
 		rampIt  = ramps->begin(gain, ids3[gain]);	    
@@ -749,7 +749,7 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
                   msg() << MSG::DEBUG << m_onlineID->show_to_string(HWIdentifier(ids3[gain][i]))
 			<< " ";
 		}
-		msg() << MSG::DEBUG << endreq;
+		msg() << MSG::DEBUG << endmsg;
 	    }
 	    
 	    rampEnd = ramps->end  (gain);
@@ -983,7 +983,7 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 
     /*
     log << MSG::DEBUG <<"Find each correction "
-	<< endreq;
+	<< endmsg;
 
     for (unsigned int i = 0; i < m_rampCorrections.size(); ++i) {
 	HWIdentifier id   = m_rampCorrections[i].m_channelID;
@@ -998,7 +998,7 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 	    LArRampComplete::LArCondObj rampP        = (*it).second;
 	    if (id != id1 || rampP != m_rampCorrections[i]) {
 		log << MSG::ERROR <<"Correction retrieved with findCorrection does not match: " 
-		    << " i = " << i << endreq;
+		    << " i = " << i << endmsg;
 		error = true;
 		log << MSG::DEBUG <<"New        : cool chan, chan id, gain, ramps "
 		    << coolChannel << " "
@@ -1007,7 +1007,7 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 		    << rampP.m_vRamp[0] << " " 
 		    << rampP.m_vRamp[1] << " " 
 		    << rampP.m_vRamp[2] << " " 
-		    << endreq;
+		    << endmsg;
 		log << MSG::DEBUG <<"Corrections: cool chan, chan id, gain, ramps "
 		    << coolChannel << " "
 		    << m_onlineID->show_to_string(m_rampCorrections[i].m_channelID) << " " 
@@ -1016,16 +1016,16 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 		    << m_rampCorrections[i].m_vRamp[1] << " " 
 		    << m_rampCorrections[i].m_vRamp[2] << " " 
 		    << " Compare = " << (rampP == m_rampCorrections[i])
-		    << endreq;
+		    << endmsg;
 	    }
 	}
 	else {
 	    log << MSG::DEBUG <<"No corrections found "
-		<< endreq;
+		<< endmsg;
 	}	    
     }
     log << MSG::DEBUG <<"End - Find each correction "
-	<< endreq;
+	<< endmsg;
 
 
     // Count the number of corrections per gain
@@ -1039,7 +1039,7 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 	    log << MSG::ERROR <<"Number of corrections not same as number inserted: " 
 		<< gains[i] << " " 
 		<< ramps->correctionsSize(i) << " gain " << i
-		<< endreq;
+		<< endmsg;
 	    error = true;
 	}
 
@@ -1060,7 +1060,7 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 		    << " gain  = " << i 
 		    << " icorr = " << icorr
 		    << " nit   = " << nit
-		    << endreq;
+		    << endmsg;
 		error = true;
 		log << MSG::DEBUG <<"New        : cool chan, chan id, gain, ramps "
 		    << coolChannel << " "
@@ -1069,7 +1069,7 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 		    << rampP.m_vRamp[0] << " " 
 		    << rampP.m_vRamp[1] << " " 
 		    << rampP.m_vRamp[2] << " " 
-		    << endreq;
+		    << endmsg;
 		log << MSG::DEBUG <<"Corrections: cool chan, chan id, gain, ramps "
 		    << coolChannel << " "
 		    << m_onlineID->show_to_string(m_rampCorrections[icorr].m_channelID) << " " 
@@ -1078,7 +1078,7 @@ LArConditionsTestAlg::testEachCondObject(const LArRampMC* ramps)
 		    << m_rampCorrections[icorr].m_vRamp[1] << " " 
 		    << m_rampCorrections[icorr].m_vRamp[2] << " " 
 		    << " Compare = " << (rampP == m_rampCorrections[icorr])
-		    << endreq;
+		    << endmsg;
 	    }
 	}
     }
@@ -1264,7 +1264,7 @@ LArConditionsTestAlg::testCallBack1( int& i , std::list<std::string>& l  )
 
 //     if(m_testCondObject){ 
 // 	const ILArRamp* ramp = m_ramp; 
-// 	log<< MSG::DEBUG<<" Pointer to Ramp = " << ramp <<endreq;
+// 	log<< MSG::DEBUG<<" Pointer to Ramp = " << ramp <<endmsg;
 //     }  
  
     return StatusCode::SUCCESS;
@@ -1287,7 +1287,7 @@ StatusCode LArConditionsTestAlg::testFillIOVDb()
 //      IFillNovaIOVTool* fill; 
 //      if(StatusCode::SUCCESS != toolSvc->retrieveTool("FillNovaIOVTool",fill ))
 //  	{
-//  	    log << MSG::ERROR << " Can't get FillNovaIOVTool " << endreq;
+//  	    log << MSG::ERROR << " Can't get FillNovaIOVTool " << endmsg;
 //  	    return StatusCode::FAILURE;
 //  	}
 
@@ -1318,9 +1318,9 @@ StatusCode LArConditionsTestAlg::testFillIOVDb()
 //      std::string folder = "/lar/test/ExampleData1/ExampleDataName"; 
 //      int nrow = v.size(); 
 
-//      log<< MSG::DEBUG <<" writing " <<  typenm <<" through FillNovaIOVTool " <<endreq;     
-//      log<< MSG::DEBUG <<" to folder  " << folder <<endreq;     
-//      log<< MSG::DEBUG <<" number of rows  " << nrow <<endreq; 
+//      log<< MSG::DEBUG <<" writing " <<  typenm <<" through FillNovaIOVTool " <<endmsg;     
+//      log<< MSG::DEBUG <<" to folder  " << folder <<endmsg;     
+//      log<< MSG::DEBUG <<" number of rows  " << nrow <<endmsg; 
 
     // Fill object to Nova_IOV, using validity specified in the tool. 
 //      StatusCode sc=  fill->fillNovaIOV(vArray, folder,typenm,nrow) ; 
@@ -1369,7 +1369,7 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
 //      const LArFebRodMap * febRodMap;
 //      sc=m_detStore->retrieve(febRodMap); 
 //      if(sc!=StatusCode::SUCCESS){ 
-//  	log<< MSG::ERROR<<" Can not find LArFedRodMap"<<endreq;
+//  	log<< MSG::ERROR<<" Can not find LArFedRodMap"<<endmsg;
 //  	// return sc;
 //      }
 
@@ -1377,7 +1377,7 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
 //      const LArOnOffIdMap * onOffIdMap;
 //      sc=m_detStore->retrieve(onOffIdMap); 
 //      if(sc!=StatusCode::SUCCESS){ 
-//  	log<< MSG::ERROR<<" Can not find LArOnOffIdMap"<<endreq;
+//  	log<< MSG::ERROR<<" Can not find LArOnOffIdMap"<<endmsg;
 //  	// return sc;
 //      }
 
@@ -1387,12 +1387,12 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
 // 	sc = m_detStore->retrieve(m_ramp, key);
 // 	//if(m_ramp) {
 // 	if(!sc.isSuccess()){
-// 	    log<< MSG::ERROR<<" Failed to get LArRamp in handle " << endreq;
+// 	    log<< MSG::ERROR<<" Failed to get LArRamp in handle " << endmsg;
 // 	    return;
 // 	    // return StatusCode::FAILURE ; 
 // 	}
 // 	else {
-// 	    log<< MSG::DEBUG << "Handle: Retrieved LArRamp " << endreq;
+// 	    log<< MSG::DEBUG << "Handle: Retrieved LArRamp " << endmsg;
 // 	}
 //     } 
 
@@ -1490,7 +1490,7 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
 
 
   		    if(!pShape) { 
-  			// log<< MSG::ERROR<< " ILArShape invalid " << endreq;
+  			// log<< MSG::ERROR<< " ILArShape invalid " << endmsg;
   			// skip if LArShape is not valid
   		    } 
  		    else {
@@ -1502,17 +1502,17 @@ void LArConditionsTestAlg::handle ( const Incident& /* inc*/ )
   			}
                         else {
                           if (msgLvl (MSG::VERBOSE)) {
-                            msg()<<MSG::VERBOSE<< " hdw id "<<sid.get_compact() <<endreq;
+                            msg()<<MSG::VERBOSE<< " hdw id "<<sid.get_compact() <<endmsg;
                             msg()<<MSG::VERBOSE<<" Shape= " ;
                             for (unsigned int i=0;i<vShape.size();++i){
                               msg()<<" " << vShape[i] ; 
                             }
-                            msg()<<endreq;
+                            msg()<<endmsg;
                             msg()<<MSG::VERBOSE<<" ShapeDer=" ;
                             for (unsigned int i=0;i<vShapeDer.size();++i){
                               msg()<<" " << vShapeDer[i] ; 
                             }
-                            msg()<<endreq;
+                            msg()<<endmsg;
                           }
 			}
 
@@ -1614,7 +1614,7 @@ StatusCode LArConditionsTestAlg::testDbObjectRead()
 		    for (unsigned int j = 0; j < (*first).second[k].m_vRamp.size(); ++j) {
                       msg() << MSG::DEBUG << (*first).second[k].m_vRamp[j] << " ";
 		    }
-		    msg() << MSG::DEBUG << endreq;
+		    msg() << MSG::DEBUG << endmsg;
 		}
 
 	    }
@@ -1629,7 +1629,7 @@ StatusCode LArConditionsTestAlg::testDbObjectRead()
     for (unsigned int gain = 0; gain < 3; ++gain) {
 	log << MSG::DEBUG << " Gain, size " 
 	    << gain << " "
-	    << ramp->correctionsSize(gain) << endreq;
+	    << ramp->correctionsSize(gain) << endmsg;
 	CONTAINER::ConstCorrectionIt  first = ramp->correctionsBegin(gain);
 	CONTAINER::ConstCorrectionIt  last  = ramp->correctionsEnd(gain);
 	for (int i = 0; i < 10 && first != last; ++i, ++first) {
@@ -1640,7 +1640,7 @@ StatusCode LArConditionsTestAlg::testDbObjectRead()
 	    for (unsigned int j = 0; j < (*first).second.m_vRamp.size(); ++j) {
 		log << MSG::DEBUG << (*first).second.m_vRamp[j] << " ";
 	    }
-	    log << MSG::DEBUG << endreq;
+	    log << MSG::DEBUG << endmsg;
 	}
     }
 
@@ -1656,15 +1656,15 @@ StatusCode LArConditionsTestAlg::testDCS_Objects()
 
 //      StatusCode sc;
 //      MsgStream log(msgSvc(), name());
-//      log << MSG::INFO <<"in testDCS_Objects()" <<endreq;
+//      log << MSG::INFO <<"in testDCS_Objects()" <<endmsg;
 
-//      log << MSG::DEBUG << "RETRIEVING ALL CONDDBMYSQLOBJECT" << endreq;
+//      log << MSG::DEBUG << "RETRIEVING ALL CONDDBMYSQLOBJECT" << endmsg;
 
 //      const DataHandle<GenericDbTable> dh_b, dh_e;
 
 //      sc = m_detStore->retrieve(dh_b, dh_e);
 //      if (sc.isFailure()) {
-//  	log << MSG::WARNING <<"Could not find GenericDbTable DetectorStore" <<endreq;
+//  	log << MSG::WARNING <<"Could not find GenericDbTable DetectorStore" <<endmsg;
 //  	return( StatusCode::SUCCESS);
 //      }
 
@@ -1677,7 +1677,7 @@ StatusCode LArConditionsTestAlg::testDCS_Objects()
 
 //  	log << MSG::INFO << " Object " << dh_b.ID() << " has "
 //  	    << obj1->getNumColumns() << " parameters and "
-//  	    << obj1->getNumRows() << " objects" << endreq;
+//  	    << obj1->getNumRows() << " objects" << endmsg;
 
 //  	std::vector<std::string> dNames;
 //  	std::vector<GenericDbTable::dataTypes> dTypes;
@@ -1687,14 +1687,14 @@ StatusCode LArConditionsTestAlg::testDCS_Objects()
 
 //  	if (!(dNames.size()))
 //  	    {
-//  		log << MSG::FATAL << "Esta tabela nao tem nada (This Table hasnothing =)" << endreq;
+//  		log << MSG::FATAL << "Esta tabela nao tem nada (This Table hasnothing =)" << endmsg;
 //  	    }
 
 //  	log << MSG::INFO << "X" << dNames.size() <<"X The parameters name/types are: |";
 //  	for (unsigned int i=0; i< dNames.size(); i++) { 
 //  	    log << dNames[i] << " / ";
 //  	    log << dTypes[i] << " | ";
-//  	    log << endreq;
+//  	    log << endmsg;
 //  	} 
 //  	printTable(obj1);
 
@@ -1725,13 +1725,13 @@ StatusCode LArConditionsTestAlg::testDCS_Objects()
 //  	table->getNames(names);                   //Retrieving column names
 //  	table->getTypes(types);                   //Retrieving column types
       
-//  	log << MSG::INFO  << "-------------------  Table BEGIN  -------------" << endreq;
-//  	log << MSG::INFO  << "Table [" << table->getNumRows() << "]x[" << table->getNumColumns() << "]" << endreq; 
+//  	log << MSG::INFO  << "-------------------  Table BEGIN  -------------" << endmsg;
+//  	log << MSG::INFO  << "Table [" << table->getNumRows() << "]x[" << table->getNumColumns() << "]" << endmsg; 
  
 //  	for (unsigned int i=0; i< table->getNumRows(); i++){  //for each row, 
 
 	    
-//  	    log << MSG::INFO << "{ Row  " << i+1 << " Begin }" << endreq;
+//  	    log << MSG::INFO << "{ Row  " << i+1 << " Begin }" << endmsg;
 	
 //  	    std::vector<std::string> tmpStr;        // temporary vector for row storage
 	
@@ -1741,7 +1741,7 @@ StatusCode LArConditionsTestAlg::testDCS_Objects()
 //  	    //tmpSrt vector
 	
 //  	    for (unsigned columnNumber=0;columnNumber<names.size();columnNumber++){
-//  		log << MSG::INFO << "Column name: " << names[columnNumber]  << endreq;
+//  		log << MSG::INFO << "Column name: " << names[columnNumber]  << endmsg;
 	  
 //  		table->getNull(columnNumber, nullVal);
 //  		int n_vals;
@@ -1770,15 +1770,15 @@ StatusCode LArConditionsTestAlg::testDCS_Objects()
 	  
 //  		pos+=n_vals;        //Incrementing the position in the 
 //  		//tmpStr vector
-//  		log << endreq;
+//  		log << endmsg;
 //  	    }
-//  	    log << MSG::INFO << "{ Row  " << i +1  << " End }" << endreq << endreq;
+//  	    log << MSG::INFO << "{ Row  " << i +1  << " End }" << endmsg << endmsg;
 //  	}
-//  	log << MSG::INFO << "------------------ Table END  --------------------" << endreq;
+//  	log << MSG::INFO << "------------------ Table END  --------------------" << endmsg;
       
 //      }
 //      else {
-//  	log << MSG::INFO << "Table empty" << endreq;
+//  	log << MSG::INFO << "Table empty" << endmsg;
 //      }
     
 //  }

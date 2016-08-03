@@ -109,13 +109,17 @@ StatusCode LArShapeToSCShape::execute()
   const unsigned blobSize=hashMax*nSamples;
   ATH_MSG_DEBUG("Shape blob has size " << blobSize);
   
-  coral::AttributeList* attrList = new coral::AttributeList(*spec);   
-  (*attrList)["version"].setValue(0U);
-  coral::Blob& shapeBlob=(*attrList)["Shape"].data<coral::Blob>();
-  coral::Blob& shapeDerBlob=(*attrList)["ShapeDer"].data<coral::Blob>();
-  coral::Blob& toBlob=(*attrList)["TimeOffset"].data<coral::Blob>();
+  coral::AttributeList attrList(*spec);   
+  attrList["version"].setValue(0U);
+  coral::Blob& shapeBlob=attrList["Shape"].data<coral::Blob>();
+  coral::Blob& shapeDerBlob=attrList["ShapeDer"].data<coral::Blob>();
+  coral::Blob& toBlob=attrList["TimeOffset"].data<coral::Blob>();
 
-  (*attrList)["nSamples"].setValue(nSamples);	
+  spec->release();
+  // cppcheck-suppress memleak
+  spec = nullptr;
+
+  attrList["nSamples"].setValue(nSamples);	
   shapeBlob.resize(blobSize*sizeof(float));
   shapeDerBlob.resize(blobSize*sizeof(float));
   toBlob.resize(hashMax*sizeof(float));
@@ -144,7 +148,7 @@ StatusCode LArShapeToSCShape::execute()
     ++nTotalIds;
     const Identifier scId=*scIt;
     if (caloSCID->is_tile(scId)) {
-      //msg(MSG::DEBUG) << "Encountered a Tile identifier" << endreq;
+      //msg(MSG::DEBUG) << "Encountered a Tile identifier" << endmsg;
       ++nTileIds;
       continue;
     }
@@ -152,7 +156,7 @@ StatusCode LArShapeToSCShape::execute()
     const std::vector<Identifier> cellIds=m_scidTool->superCellToOfflineID(scId);
     if (cellIds.empty()) {
       msg(MSG::ERROR) << "Got empty vector of cell ids for super cell id 0x" 
-		      << std::hex << scId.get_compact() << std::dec << endreq;
+		      << std::hex << scId.get_compact() << std::dec << endmsg;
     }
     const Identifier cellId=cellIds[0];
     
@@ -173,13 +177,13 @@ StatusCode LArShapeToSCShape::execute()
     auto shapeDer=cellShape->ShapeDer(cellId,0);
     //consistency check
     if (nSamples!=shape.size() || nSamples!=shapeDer.size()) {
-      msg(MSG::ERROR) << "Inconsistent number of samples!" << endreq;
-      msg(MSG::ERROR) << "Expected" << nSamples << ", Shape:" << shape.size() << ", ShapeDer:" << shapeDer.size() << endreq;
+      msg(MSG::ERROR) << "Inconsistent number of samples!" << endmsg;
+      msg(MSG::ERROR) << "Expected" << nSamples << ", Shape:" << shape.size() << ", ShapeDer:" << shapeDer.size() << endmsg;
       return StatusCode::FAILURE;
     }    
 #if 0
     if (nSamples==0)  {
-      msg(MSG::WARNING) << "Cell " << cellId.get_identifier32().get_compact() << " size 0" << endreq;
+      msg(MSG::WARNING) << "Cell " << cellId.get_identifier32().get_compact() << " size 0" << endmsg;
     }
 #endif
     for (unsigned i=0;i<nSamples;++i) {
@@ -195,15 +199,16 @@ StatusCode LArShapeToSCShape::execute()
   //Add to collection
   CondAttrListCollection* coll=new CondAttrListCollection(true);
   CHECK(detStore()->record(coll,"/LAR/ElecCalibSC/Shape"));
-  coll->add(0,*attrList);
+  coll->add(0,attrList);
 
-  msg(MSG::INFO) << "Total number of SuperCells:" << nTotalIds << ", Tile:" << nTileIds << ", LAr: " << nTotalIds-nTileIds << endreq;
+  msg(MSG::INFO) << "Total number of SuperCells:" << nTotalIds << ", Tile:" << nTileIds << ", LAr: " << nTotalIds-nTileIds << endmsg;
   LArShapeSC* scShape=new LArShapeSC(coll);
   CHECK(detStore()->record(scShape,"ShapeSC"));
 
   //for (unsigned i=0;i<hashMax;++i) 
-  //  msg(MSG::INFO) << "Cell hash " << i << " size " << scShape->ShapeByHash(i,0).size() << ", "  << scShape->ShapeByHash(i,0)[5] << endreq;
-  
+  //  msg(MSG::INFO) << "Cell hash " << i << " size " << scShape->ShapeByHash(i,0).size() << ", "  << scShape->ShapeByHash(i,0)[5] << endmsg;
+
+ 
   return StatusCode::SUCCESS;
 }
 

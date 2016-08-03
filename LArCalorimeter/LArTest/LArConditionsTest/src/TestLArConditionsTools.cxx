@@ -70,10 +70,10 @@ StatusCode TestLArConditionsTools::initialize() {
   
 
   /*
-  log<<MSG::INFO<<" testing LArRoI_Map in init "<<endreq;
+  log<<MSG::INFO<<" testing LArRoI_Map in init "<<endmsg;
   sc = testLArRoI_Map(); 
   if(!sc.isSuccess()) {
-    log<<MSG::ERROR<<" failed LArRoI_Map test "<<endreq;
+    log<<MSG::ERROR<<" failed LArRoI_Map test "<<endmsg;
   }
 
   */
@@ -116,7 +116,7 @@ StatusCode TestLArConditionsTools::testCaloCellNoise() {
       std::vector<float> totalNoises = m_noiseTool->elecNoiseRMS3gains(dde,1);
       if(totalNoises.size()==0){
 	log << MSG::ERROR << " fail to get noise for this channel" << 
-	  m_idHelper->print_to_string(id)<<endreq;
+	  m_idHelper->print_to_string(id)<<endmsg;
       }
       */
       ATH_MSG_DEBUG( " channel " << m_idHelper->print_to_string(id)

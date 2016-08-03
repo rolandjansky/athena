@@ -5,12 +5,12 @@
 #ifndef FIXLARIDMAP_H
 #define FIXLARIDMAP_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <string>
 
 #include "LArTools/LArOnOffId_P.h"
 
-class FixLArIdMap : public Algorithm
+class FixLArIdMap : public AthAlgorithm
 {
  public:
   FixLArIdMap(const std::string& name,ISvcLocator* pSvcLocator);

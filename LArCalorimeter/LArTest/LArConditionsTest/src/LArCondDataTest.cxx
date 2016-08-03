@@ -252,17 +252,17 @@ StatusCode LArCondDataTest::execute()
 		} else 
 		{
                   if (msgLvl(MSG::VERBOSE)) {
-                    msg()<<MSG::VERBOSE<< " hdw id "<<sid.get_compact() <<endreq;
+                    msg()<<MSG::VERBOSE<< " hdw id "<<sid.get_compact() <<endmsg;
                     msg()<<MSG::VERBOSE<<" Shape= " ;
                     for (unsigned int i=0; i < vShape.size(); ++i){
                       msg()<<" " << vShape[i] ; 
                     }
-                    msg()<<endreq;
+                    msg()<<endmsg;
                     msg()<<MSG::VERBOSE<<" ShapeDer=" ;
                     for (unsigned int i=0; i < vShapeDer.size(); ++i){
                       msg()<<" " << vShapeDer[i] ; 
                     }
-                    msg()<<endreq;
+                    msg()<<endmsg;
                   }
 		}
 
