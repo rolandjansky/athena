@@ -6,9 +6,11 @@
 
 # Helper function from transforms 
 from PyJobTransforms.trfUtils import findFile
-pmap_path = findFile(os.environ['DATAPATH'], 'ftk_configuration/map_files/raw_12Libl3D.pmap')
+#pmap_path = findFile(os.environ['DATAPATH'], 'ftk_configuration/map_files/raw_12LiblHW_Run2GEO.pmap')#HW
+pmap_path = findFile(os.environ['DATAPATH'], 'ftk_configuration/map_files/raw_12Libl3D.pmap')#offline
 print "Using PMAP:", pmap_path
-rmap_path = findFile(os.environ['DATAPATH'], 'ftk_configuration/map_files/raw_12Libl3DTempv0.tmap')
+rmap_path = findFile(os.environ['DATAPATH'], 'ftk_configuration/map_files/raw_12Libl64TmodB_3D_t1.tmap')#new!
+#rmap_path = findFile(os.environ['DATAPATH'], 'ftk_configuration/map_files/raw_12Libl3DTempv0.tmap')#old
 print "Using RMAP:", rmap_path
 
 
@@ -37,8 +39,8 @@ wrapper = FTKRegionalWrapper(OutputLevel = DEBUG,
                              RMapPath = rmap_path,
                              OutFileName = OutputNTUP_FTKIPFile)
 wrapper.IBLMode = 2
-wrapper.FixEndcapL0 = False
 wrapper.HitInputTool = FTKSGInput
+#wrapper.Clustering = True
 theJob += wrapper
 
 print theJob
