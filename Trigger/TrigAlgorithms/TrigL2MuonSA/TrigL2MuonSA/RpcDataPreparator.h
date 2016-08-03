@@ -75,6 +75,8 @@ class RpcDataPreparator: public AthAlgTool
 			     TrigL2MuonSA::RpcHits&      rpcHits,
 			     TrigL2MuonSA::RpcPatFinder* rpcPatFinder);
 
+      bool isFakeRoi() { return m_isFakeRoi; }
+
       inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
       inline void setMsgLvl(const MSG::Level& level) { if(m_msg != 0) m_msg->setLevel(level); }
       // void setOptions(const TrigL2MuonSA::RpcDataPreparatorOptions& options) { m_options = options; };
@@ -112,6 +114,8 @@ class RpcDataPreparator: public AthAlgTool
       ToolHandle <Muon::MuonIdHelperTool>  m_idHelperTool;  //!< Pointer to concrete tool
 
       bool m_use_RoIBasedDataAccess;
+      bool m_isFakeRoi;
+
 };
 
 } // namespace TrigL2MuonSA

@@ -87,6 +87,8 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   
   declareProperty("WinPt",m_winPt=4.0);
 
+  declareProperty("RpcErrToDebugStream",m_rpcErrToDebugStream = false);
+
   declareMonitoredVariable("InnMdtHits", m_inner_mdt_hits);
   declareMonitoredVariable("MidMdtHits", m_middle_mdt_hits);
   declareMonitoredVariable("OutMdtHits", m_outer_mdt_hits);
@@ -348,7 +350,9 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
   std::vector<const LVL1::RecMuonRoI*> muonRoIs;
   std::vector<const LVL1::RecMuonRoI*>::const_iterator p_roi;
   HLT::ErrorCode hec = getFeatures(inputTE, muonRoIs);
+
   if (hec != HLT::OK && hec2 != HLT::OK) {
+    msg() << MSG::ERROR << "Could not find input TE" << endreq;
     return hec2;
   }
   
@@ -400,6 +404,14 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
          return HLT::OK;
       }
       if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->pause();
+
+      if ( m_rpcErrToDebugStream && m_dataPreparator->isRpcFakeRoi() ) {
+	msg() << MSG::WARNING << "Invalid RoI in RPC data found: event to debug stream" << endreq;
+	updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+		       m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
+	return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::UNKNOWN);
+      } 
+
 
       // Pattern finding
       if (m_timerSvc) m_timers[ITIMER_PATTERN_FINDER]->resume();
@@ -1511,7 +1523,9 @@ HLT::ErrorCode MuFastSteering::prepareRobRequests(const HLT::TriggerElement* inp
   
   std::vector<const TrigRoiDescriptor*> roids;
   HLT::ErrorCode hec = getFeatures(inputTE, roids);
+
   if (hec != HLT::OK) {
+    msg() << MSG::ERROR << "Could not find input TE" << endreq;
     return hec;
   }
   

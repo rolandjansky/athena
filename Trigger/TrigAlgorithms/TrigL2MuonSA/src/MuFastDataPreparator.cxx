@@ -257,10 +257,15 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
     m_rpcPatFinder->clear();
 
     unsigned int roiWord = p_roi->roiWord();
+
     sc = m_rpcDataPreparator->prepareData(p_roids,
 					  roiWord,
                                           rpcHits,
                                           m_rpcPatFinder);
+
+    // check if the RoI is fake and se the flag
+    m_isRpcFakeRoi = m_rpcDataPreparator->isFakeRoi();
+
     if (!sc.isSuccess()) {
       msg() << MSG::DEBUG << "Error in RPC data prepapration. Continue using RoI" << endreq;
     }

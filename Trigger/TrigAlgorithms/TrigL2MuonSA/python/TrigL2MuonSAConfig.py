@@ -83,6 +83,8 @@ class TrigL2MuonSAConfig(MuFastSteering):
 
         self.USE_ROIBASEDACCESS_CSC = True
 
+        self.RpcErrToDebugStream = True
+
         if ( args[0]== '900GeV' ):
             self.WinPt = 4.0
             self.Scale_Road_BarrelInner  = 3

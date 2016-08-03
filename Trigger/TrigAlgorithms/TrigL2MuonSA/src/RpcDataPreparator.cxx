@@ -167,9 +167,10 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
 {
   // RPC data extraction referring TrigMuonEFStandaloneTrackTool and MuonHoughPatternFinderTool
   rpcHits.clear();
-  
-  // check the roi ID
-  
+  m_isFakeRoi = false;
+
+  // set to false the flag indicating whether the roi is a fake one.
+  // check the roi ID  
   //  decode  roIWord
   unsigned int sectorAddress = (roiWord & 0x003FC000) >> 14;
   unsigned int sectorRoIOvl  = (roiWord & 0x000007FC) >> 2;
@@ -184,6 +185,8 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
   if ( !m_rpcCablingSvc->give_PAD_address( side, sector, roiNumber, logic_sector, PADId, padIdHash) ) {
     msg() << MSG::WARNING << "Roi Number: " << roiNumber << " not compatible with side, sector: " << side 
 	  <<  " " << sector << endreq;
+    // set the bool flag to send the event to the debug stream
+    m_isFakeRoi = true;
     //    return StatusCode::FAILURE;
   }
   else {
@@ -359,7 +362,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
      }
    }
      
-     return StatusCode::SUCCESS; 
+   return StatusCode::SUCCESS; 
 }
 
 // --------------------------------------------------------------------------------
