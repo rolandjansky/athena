@@ -19,6 +19,8 @@
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "MuonTrackingGeometry/MuonStationBuilder.h"
 #include "MuonTrackingGeometry/MuonInertMaterialBuilder.h"
+// EnvelopeDefinitionService
+#include "SubDetectorEnvelopes/RZPair.h"
 
 namespace Trk {
  class TrackingGeometry;
@@ -115,8 +117,8 @@ namespace Muon {
       mutable double                      m_innerBarrelRadius;             //!< minimal extend in radial dimension of the muon barrel
       mutable double                      m_outerBarrelRadius;             //!< maximal extend in radial dimension of the muon barrel
       mutable double                      m_barrelZ;                  //!< maximal extend in z of the muon barrel
-      double                              m_innerEndcapZ;             //!< maximal extend in z of the inner part of muon endcap 
-      double                              m_outerEndcapZ;             //!< maximal extend in z of the outer part of muon endcap
+      mutable double                      m_innerEndcapZ;             //!< maximal extend in z of the inner part of muon endcap 
+      mutable double                      m_outerEndcapZ;             //!< maximal extend in z of the outer part of muon endcap
       double                              m_bigWheel;                 //!< maximal extend in z of the big wheel
       double                              m_outerWheel;               //!< minimal extend in z of the outer wheel (EO)
       double                              m_ectZ;                     //!< minimal extent in z of the ECT
@@ -147,6 +149,9 @@ namespace Muon {
 
       std::string                         m_entryVolume;
       std::string                         m_exitVolume;
+
+      mutable RZPairVector      m_msCutoutsIn;
+      mutable RZPairVector      m_msCutoutsOut;
       
       mutable const std::vector<const Trk::DetachedTrackingVolume*>*    m_stations;    // muon chambers 
       mutable const std::vector<const Trk::DetachedTrackingVolume*>*    m_inertObjs;   // muon inert material 
