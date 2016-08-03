@@ -57,7 +57,7 @@ StatusCode AthAnalysisAlgorithm::sysInitialize() {
 StatusCode AthAnalysisAlgorithm::sysExecute() {
   if(!m_doneFirstEvent) {
     m_doneFirstEvent=true;
-    if( firstEvent().isFailure() ) {
+    if( firstExecute().isFailure() ) {
       ATH_MSG_FATAL("Failure in firstEvent method");
       return StatusCode::FAILURE;
     }
@@ -95,7 +95,7 @@ StatusCode AthAnalysisAlgorithm::beginInputFile() {
 
 /// Dummy implementation that can be overridden by the derived tool.
 ///
-StatusCode AthAnalysisAlgorithm::firstEvent() {
+StatusCode AthAnalysisAlgorithm::firstExecute() {
 
    // Return gracefully:
    return StatusCode::SUCCESS;

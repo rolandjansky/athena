@@ -26,12 +26,17 @@
 
 #include "AthContainers/AuxElement.h"
 
+#include "GaudiKernel/IAppMgrUI.h"
 
 class AthAnalysisHelper { //thought about being a namespace but went for static methods instead, in case I want private data members in future
 
 public:
     AthAnalysisHelper(); //need a constructor to link the dictionary library with the implementation library
 
+   ///initGaudi method starts the gaudi ApplicationMgr ready for working with all the components
+   static IAppMgrUI* initGaudi(const char* options = "");
+
+   
    ///helper method for adding a property to the JobOptionsSvc
    ///to list all the properties in the catalogue, do: AthAnalysisHelper::dumpJobOptionProperties()
    template<typename W> static StatusCode addPropertyToCatalogue( const std::string& name , const std::string& property, const W& value) {
@@ -191,6 +196,19 @@ public:
       return out;
    }
 
+  
+  ///method that always returns as a string
+  ///you can use from, e.g, pyROOT with
+  ///evt = ROOT.POOL.TEvent()
+  ///...
+  ///ROOT.AAH.retrieveMetadata("/Folder","key",evt.inputMetaStore())
+  static std::string retrieveMetadata(const std::string& folder, const std::string& key, ServiceHandle<StoreGateSvc>& inputMetaStore) throw(std::exception) {
+    std::string out("");
+    StatusCode result = retrieveMetadata(folder,key,out,inputMetaStore);
+    if(result.isFailure()) { std::cout << "ERROR: Could not retrieve IOVMetadata with folder " << folder << " and key " << key << std::endl; }
+    return out;
+  }
+
 
    ///retrieve metadata from the input metadata storegate. Use checkMetaSG.py to see the 'folder' and 'key' values available
    ///always takes the first CondAttrListCollection (aka IOV) and the first channel number present in that IOV
@@ -279,12 +297,21 @@ public:
 
 
    ///Print the aux variables of an xAOD object (aux element)
+   ///An alternative to this method is the 'xAOD::dump' method
    static void printAuxElement(const SG::AuxElement& ae);
+
+
+   ///we keep a static handle to the joboptionsvc, since it's very useful
+   ///can e.g. do: AAH::joSvc->readOptions("myJob.opts","$JOBOPTSEARCHPATH")
+   static ServiceHandle<IJobOptionsSvc> joSvc; 
 
 
 }; //AthAnalysisHelper class
 
 
+class AAH : public AthAnalysisHelper {
+  
+};
 
 
 

@@ -41,7 +41,7 @@ class AthAnalysisAlgorithm : public ::AthHistogramAlgorithm, virtual public IInc
                const std::string& version=PACKAGE_VERSION);
 
 
-      virtual ~AthAnalysisAlgorithm();
+      virtual ~AthAnalysisAlgorithm() override;
 
       /// @name Functions providing access to the input/output metadata
       /// @{
@@ -54,7 +54,7 @@ class AthAnalysisAlgorithm : public ::AthHistogramAlgorithm, virtual public IInc
       /// @}
 
       /// Function initialising the tool in the correct way in Athena
-      virtual StatusCode sysInitialize();
+      virtual StatusCode sysInitialize() override;
       /// override to do firstEvent method
       virtual StatusCode sysExecute() override;
 
@@ -84,13 +84,13 @@ class AthAnalysisAlgorithm : public ::AthHistogramAlgorithm, virtual public IInc
       /// @{
 
       /// Function receiving incidents from IncidentSvc/TEvent
-      virtual void handle( const Incident& inc );
+      virtual void handle( const Incident& inc ) override;
 
       /// Function called when a new input file is opened
       virtual StatusCode beginInputFile();
       
-      /// Function called when first event is encountered
-      virtual StatusCode firstEvent();
+      /// Function called when first execute is encountered
+      virtual StatusCode firstExecute();
 
       virtual TFile* currentFile(const char* evtSelName="EventSelector") final;
  
