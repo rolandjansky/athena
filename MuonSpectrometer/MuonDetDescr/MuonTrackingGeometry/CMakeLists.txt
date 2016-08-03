@@ -7,6 +7,7 @@ atlas_subdir( MuonTrackingGeometry )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          AtlasGeometryCommon/SubDetectorEnvelopes
                           Control/AthenaBaseComps
                           DetectorDescription/GeoModel/GeoModelKernel
                           GaudiKernel
@@ -16,7 +17,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkDetDescr/TrkVolumes
                           PRIVATE
-                          AtlasGeometryCommon/SubDetectorEnvelopes
                           Control/StoreGate
                           DetectorDescription/GeoPrimitives
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
