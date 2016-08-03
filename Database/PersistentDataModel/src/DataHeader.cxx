@@ -29,7 +29,7 @@ DataHeaderElement::DataHeaderElement(const DataHeaderElement& rhs) : m_pClid(rhs
    }
 }
 //______________________________________________________________________________
-DataHeaderElement::DataHeaderElement(const SG::TransientAddress* sgAddress,
+DataHeaderElement::DataHeaderElement(const SG::TransientAddress* sgAddress, IOpaqueAddress* tokAddress,
 	const std::string& pTag) : m_pClid(0), m_clids(), m_key(), m_alias(), m_token(0), m_ownToken(false), m_hashes() {
    if (sgAddress != 0) {
       m_pClid = sgAddress->clID();
@@ -42,12 +42,20 @@ DataHeaderElement::DataHeaderElement(const SG::TransientAddress* sgAddress,
       m_clids.erase(m_pClid);
       m_key = (pTag.empty()) ? sgAddress->name() : pTag;
       m_alias = sgAddress->alias();
-      TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(sgAddress->address());
-      if (tokAddr == 0 || tokAddr->getToken() == 0) {
-         m_token = new Token; m_ownToken = true;
-         const_cast<Token*>(m_token)->fromString(*(sgAddress->address()->par()));
+      TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(tokAddress);
+      if (tokAddr != 0 && tokAddr->getToken() != 0) {
+         m_token = new Token(tokAddr->getToken()); m_ownToken = true;
       } else {
-         m_token = tokAddr->getToken();
+         tokAddr = dynamic_cast<TokenAddress*>(sgAddress->address());
+         if (tokAddr != 0 && tokAddr->getToken() != 0) {
+            m_token = tokAddr->getToken();
+         } else if (tokAddress != 0) {
+            m_token = new Token; m_ownToken = true;
+            const_cast<Token*>(m_token)->fromString(*(tokAddress->par()));
+         } else if (sgAddress->address() != 0) {
+            m_token = new Token; m_ownToken = true;
+            const_cast<Token*>(m_token)->fromString(*(sgAddress->address()->par()));
+         }
       }
    }
 }
@@ -217,9 +225,9 @@ const std::vector<DataHeaderElement>& DataHeader::elements() const {
    return m_dataHeader;
 }
 //______________________________________________________________________________
-void DataHeader::insert(const SG::TransientAddress* sgAddress, const std::string& pTag) {
+void DataHeader::insert(const SG::TransientAddress* sgAddress, IOpaqueAddress* tokAddress, const std::string& pTag) {
    if (sgAddress != 0) {
-      DataHeaderElement dhElement(sgAddress, pTag);
+      DataHeaderElement dhElement(sgAddress, tokAddress, pTag);
       m_dataHeader.push_back(dhElement);
    }
 }

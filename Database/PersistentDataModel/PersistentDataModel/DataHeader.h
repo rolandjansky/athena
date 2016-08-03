@@ -19,6 +19,7 @@
 #include <vector>
 
 // Forward declarations
+class IOpaqueAddress;
 namespace SG {
    class TransientAddress;
 }
@@ -39,7 +40,7 @@ public: // Constructor and Destructor
    /// Constructor
    /// @param sgAddress [IN] pointer to TransientAddress for which a DataHeaderElement is created.
    /// @param pTag [IN] string used as key element in DataHeader (SG key for DataObjects).
-   DataHeaderElement(const SG::TransientAddress* sgAddress, const std::string& pTag);
+   DataHeaderElement(const SG::TransientAddress* sgAddress, IOpaqueAddress* tokAddress, const std::string& pTag);
    /// Constructor
    /// @param classID [IN] Primary ClassID of the DataObject for which a DataHeaderElement is created.
    /// @param key [IN] SG Key of the DataObject for which a DataHeaderElement is created.
@@ -141,7 +142,7 @@ public: // Non-static members
    /// Insert a new element into the "DataObject" vector.
    /// @param sgAddress [IN] pointer to the TransientAddress of the DataObject.
    /// @param pTag [IN] string to overwrite key meber of the DataHeaderElement
-   void insert(const SG::TransientAddress* sgAddress, const std::string& pTag = "");
+   void insert(const SG::TransientAddress* sgAddress, IOpaqueAddress* tokAddress = 0, const std::string& pTag = "");
    /// Insert a new element into the "DataObject" vector.
    /// @param dhe [IN] reference to the DataHeaderElement to be inserted.
    void insert(const DataHeaderElement& dhe);
