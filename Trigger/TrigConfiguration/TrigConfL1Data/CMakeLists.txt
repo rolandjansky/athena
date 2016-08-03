@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 740755 2016-04-16 06:04:36Z krasznaa $
+# $Id: CMakeLists.txt 766241 2016-08-03 14:05:18Z will $
 ################################################################################
 # Package: TrigConfL1Data
 ################################################################################
@@ -20,3 +20,5 @@ atlas_add_library( TrigConfL1Data
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
   LINK_LIBRARIES ${Boost_LIBRARIES}
   PRIVATE_LINK_LIBRARIES TrigConfBase )
+
+#FIXME: Library for AthAnalysisBase??
