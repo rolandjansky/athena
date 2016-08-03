@@ -1,0 +1,32 @@
+
+#pragma print off //do not print
+ApplicationMgr.OutputLevel = 0; //NIL ... so ApplicationMgr is silent
+//MessageSvc.OutputLevel = 5; //ERROR
+EventPersistencySvc.CnvServices = {"Athena::xAODCnvSvc","AthenaPoolCnvSvc"};
+ProxyProviderSvc.ProviderNames = {"MetaDataSvc"};
+MetaDataSvc.MetaDataContainer = "MetaDataHdr";
+
+//make the MessageSvc display a bit wider
+MessageSvc.Format = "% F%30W%S%7W%R%T %0W%M";
+
+//disable chrono table in finalize
+ChronoStatSvc.ChronoPrintOutTable = false;
+ChronoStatSvc.PrintUserTime = false;
+
+//we hijack the joboptionsvc to signal to POOLTEvent we want to use this event selector type
+TEvent.EventSelectorType = "Athena::xAODEventSelector";
+
+//The following settings silence some services (although not entirely, sadly)
+//need to keep this here because a reinit will override the setWarning settings of MessageSvc
+HistogramPersistencySvc.OutputLevel = 5;
+ClassIDSvc.OutputLevel = 5;
+PoolSvc.OutputLevel = 5;
+AthDictLoaderSvc.OutputLevel = 5;
+ChronoStatSvc.OutputLevel = 5;
+AthenaPoolAddressProviderSvc.OutputLevel = 5;
+ProxyProviderSvc.OutputLevel = 5;
+DBReplicaSvc.OutputLevel = 5;
+EventPersistencySvc.OutputLevel = 5;
+TagMetaDataStore.OutputLevel = 5;
+
+MessageSvc.setWarning = {"HistogramPersistencySvc","ClassIDSvc","PoolSvc","AthDictLoaderSvc","AthenaPoolAddressProviderSvc","ProxyProviderSvc","DBReplicaSvc","MetaDataSvc","MetaDataStore","InputMetaDataStore","AthenaPoolCnvSvc","TagMetaDataStore"};
