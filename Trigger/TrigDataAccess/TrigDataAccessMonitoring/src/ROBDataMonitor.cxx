@@ -25,32 +25,32 @@ ROBDataStruct::ROBDataStruct(const uint32_t srcId)
     rob_status_words()
 {}
 
-bool ROBDataStruct::isUnclassified() {
+bool ROBDataStruct::isUnclassified() const {
   return ((rob_history == robmonitor::UNCLASSIFIED) ? true : false);
 }
 
-bool ROBDataStruct::isCached() {
+bool ROBDataStruct::isCached() const {
   return ((rob_history == robmonitor::CACHED) ? true : false);
 }
 
-bool ROBDataStruct::isRetrieved() {
+bool ROBDataStruct::isRetrieved() const {
   return ((rob_history == robmonitor::RETRIEVED) ? true : false);
 }
 
-bool ROBDataStruct::isIgnored() {
+bool ROBDataStruct::isIgnored() const {
   return ((rob_history == robmonitor::IGNORED) ? true : false);
 }
 
-bool ROBDataStruct::isDisabled() {
+bool ROBDataStruct::isDisabled() const {
   return ((rob_history == robmonitor::DISABLED) ? true : false);
 }
 
-bool ROBDataStruct::isScheduled() {
+bool ROBDataStruct::isScheduled() const {
   return ((rob_history == robmonitor::SCHEDULED) ? true : false);
 }
 
 
-bool ROBDataStruct::isStatusOk() {
+bool ROBDataStruct::isStatusOk() const {
   if (rob_status_words.size() == 0) return true;
   if ((rob_status_words.size() > 0) && (rob_status_words[0] == 0)) return true;
   return false;
@@ -89,74 +89,74 @@ ROBDataMonitorStruct::ROBDataMonitorStruct(const uint32_t l1_id,
   }
 }
 
-unsigned ROBDataMonitorStruct::allROBs() {
+unsigned ROBDataMonitorStruct::allROBs() const {
   return requested_ROBs.size(); 
 }
 
-unsigned ROBDataMonitorStruct::unclassifiedROBs() {
+unsigned ROBDataMonitorStruct::unclassifiedROBs() const {
   ptrdiff_t ret=0;
-  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::iterator it = requested_ROBs.begin();
+  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
         it != requested_ROBs.end(); it++ ) {
     if ((*it).second.isUnclassified()) ++ret;
   }     
   return ret;
 } 
 
-unsigned ROBDataMonitorStruct::cachedROBs() {
+unsigned ROBDataMonitorStruct::cachedROBs() const {
   ptrdiff_t ret=0;
-  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::iterator it = requested_ROBs.begin();
+  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
         it != requested_ROBs.end(); it++ ) {
     if ((*it).second.isCached()) ++ret;
   }     
   return ret;
 }
 
-unsigned ROBDataMonitorStruct::retrievedROBs() {
+unsigned ROBDataMonitorStruct::retrievedROBs() const {
   ptrdiff_t ret=0;
-  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::iterator it = requested_ROBs.begin();
+  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
         it != requested_ROBs.end(); it++ ) {
     if ((*it).second.isRetrieved()) ++ret;
   }     
   return ret;
 }
 
-unsigned ROBDataMonitorStruct::ignoredROBs() {
+unsigned ROBDataMonitorStruct::ignoredROBs() const {
   ptrdiff_t ret=0;
-  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::iterator it = requested_ROBs.begin();
+  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
         it != requested_ROBs.end(); it++ ) {
     if ((*it).second.isIgnored()) ++ret;
   }     
   return ret;
 }
 
-unsigned ROBDataMonitorStruct::disabledROBs() {
+unsigned ROBDataMonitorStruct::disabledROBs() const {
   ptrdiff_t ret=0;
-  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::iterator it = requested_ROBs.begin();
+  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
         it != requested_ROBs.end(); it++ ) {
     if ((*it).second.isDisabled()) ++ret;
   }     
   return ret;
 }
 
-unsigned ROBDataMonitorStruct::scheduledROBs() {
+unsigned ROBDataMonitorStruct::scheduledROBs() const {
   ptrdiff_t ret=0;
-  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::iterator it = requested_ROBs.begin();
+  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
         it != requested_ROBs.end(); it++ ) {
     if ((*it).second.isScheduled()) ++ret;
   }     
   return ret;
 }
 
-unsigned ROBDataMonitorStruct::statusOkROBs() {
+unsigned ROBDataMonitorStruct::statusOkROBs() const {
   ptrdiff_t ret=0;
-  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::iterator it = requested_ROBs.begin();
+  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
         it != requested_ROBs.end(); it++ ) {
     if ((*it).second.isStatusOk()) ++ret;
   }     
   return ret;
 }
 
-float ROBDataMonitorStruct::elapsedTime() {
+float ROBDataMonitorStruct::elapsedTime() const {
   int secs = 0 ;
   if (end_time_of_ROB_request.tv_sec >= start_time_of_ROB_request.tv_sec)
     secs = end_time_of_ROB_request.tv_sec - start_time_of_ROB_request.tv_sec;
