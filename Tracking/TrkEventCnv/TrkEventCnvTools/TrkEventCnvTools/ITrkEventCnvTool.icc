@@ -42,7 +42,7 @@ void Trk::ITrkEventCnvTool::prepareRIO_OnTrackElementLink(ROT* rot){
     if (rot->prepRawData()==0) 
     {
       MsgStream log(&(*m_msgSvc), name() ); 
-      log<<MSG::DEBUG<<"No PRD for this ROT: "<<(*rot)<<endreq; 
+      log<<MSG::DEBUG<<"No PRD for this ROT: "<<(*rot)<<endmsg; 
       return;
     } 
     // else {
@@ -54,7 +54,7 @@ void Trk::ITrkEventCnvTool::prepareRIO_OnTrackElementLink(ROT* rot){
     if (sc.isFailure())
     {
        MsgStream log(&(*m_msgSvc), name() );
-       log << MSG::WARNING <<"No containers found!"<< endreq;
+       log << MSG::WARNING <<"No containers found!"<< endmsg;
        return;
     }
 
@@ -101,7 +101,7 @@ void Trk::ITrkEventCnvTool::prepareRIO_OnTrackElementLink(ROT* rot){
     // so, we obviously didn't have the correct container (or something else went wrong)
     MsgStream log(&(*m_msgSvc), name() );
     log << MSG::ERROR<<"Could not find matching PRD container for this ROT. ROT will be written out in incomplete state. "
-        << "Dumping ROT: "<<*rot<<endreq;
+        << "Dumping ROT: "<<*rot<<endmsg;
 
     return;
 }

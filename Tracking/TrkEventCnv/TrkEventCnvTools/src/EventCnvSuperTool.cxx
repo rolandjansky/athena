@@ -43,11 +43,11 @@ Trk::EventCnvSuperTool::initialize(){
     StoreGateSvc *detStore = 0;
     StatusCode sc = service( "DetectorStore", detStore );
     if( sc.isFailure() ) {
-        msg(MSG::WARNING) << "Could not get DetectorStore, nor Id Helper, and so will be unable to do anything useful." << endreq;
+        msg(MSG::WARNING) << "Could not get DetectorStore, nor Id Helper, and so will be unable to do anything useful." << endmsg;
     } else {    
         sc = detStore->retrieve( m_detID, "AtlasID" );
         if( sc.isFailure() ) {
-            msg(MSG::WARNING) << "Could not get AtlasDetectorID " << endreq;
+            msg(MSG::WARNING) << "Could not get AtlasDetectorID " << endmsg;
         }
     }
         
@@ -56,10 +56,10 @@ Trk::EventCnvSuperTool::initialize(){
         if (m_idCnvTool.retrieve().isFailure() ) 
         {
             msg(MSG::DEBUG) << "Failed to retrieve InDet helper tool "<< m_idCnvTool 
-                  <<". Will not be able to recreate ID Surfaces / Det Elements."<<endreq;
+                  <<". Will not be able to recreate ID Surfaces / Det Elements."<<endmsg;
             m_doID=false;
         } else {
-            msg(MSG::VERBOSE) << "Retrieved tool " << m_idCnvTool << endreq;
+            msg(MSG::VERBOSE) << "Retrieved tool " << m_idCnvTool << endmsg;
             m_haveIdCnvTool=true;
         }
     }
@@ -68,17 +68,17 @@ Trk::EventCnvSuperTool::initialize(){
         if (m_muonCnvTool.retrieve().isFailure() ) 
         {
             msg(MSG::DEBUG) << "Failed to retrieve Muon helper tool "<< m_muonCnvTool 
-                  <<". Will not be able to recreate ID Surfaces / Det Elements."<<endreq;
+                  <<". Will not be able to recreate ID Surfaces / Det Elements."<<endmsg;
             m_doMuons=false;
         } else { 
-            msg(MSG::VERBOSE) << "Retrieved tool " << m_muonCnvTool << endreq;
+            msg(MSG::VERBOSE) << "Retrieved tool " << m_muonCnvTool << endmsg;
             m_haveMuonCnvTool=true;
         }
     }
 
     // Print an extra warning if neither tool found.
     if (!m_haveIdCnvTool && !m_haveMuonCnvTool){
-        msg(MSG::WARNING) << "Failed to retrieve either and InDet or a Muon tool. Will not be able to recreate surfaces / detector elements."<< endreq;
+        msg(MSG::WARNING) << "Failed to retrieve either and InDet or a Muon tool. Will not be able to recreate surfaces / detector elements."<< endmsg;
         m_maxErrCount=0; // No point in further WARNINGs
     }
     
@@ -89,7 +89,7 @@ StatusCode
 Trk::EventCnvSuperTool::finalize(){
     msg()<< "Finalize().";
     if (m_errCount>0) msg()<<" Tried to print "<<m_errCount<<" ERROR/WARNING messages (with maximum permissable = "<<m_maxErrCount<<")";
-    msg()<<endreq;
+    msg()<<endmsg;
     return StatusCode::SUCCESS;
 }
 
@@ -106,7 +106,7 @@ Trk::EventCnvSuperTool::getCnvTool(const Identifier& id){
         }else{
             if ( (m_errCount++)<m_maxErrCount) msg(MSG::WARNING)
                 << "ID RIO_OnTrack, but have no ID cnv tool!"
-                << endreq;
+                << endmsg;
             return 0;
         }
     }else{
@@ -119,7 +119,7 @@ Trk::EventCnvSuperTool::getCnvTool(const Identifier& id){
             }else{
                 if ( (m_errCount++)<m_maxErrCount) msg(MSG::WARNING)
                     << "Muon RIO_OnTrack, but have no muon cnv tool. Cannot set check RoT."
-                    << endreq;
+                    << endmsg;
                 return 0;
             }
         }
@@ -129,7 +129,7 @@ Trk::EventCnvSuperTool::getCnvTool(const Identifier& id){
         std::string ident = m_detID->show_to_string(id);        
         msg(MSG::WARNING)
         << "Unknown Identifier: ("<< ident<<"), that is ("<<id<<")"
-        << endreq;
+        << endmsg;
     }
     return 0;
     
@@ -144,9 +144,9 @@ Trk::EventCnvSuperTool::getSurface(const Identifier& id){
         if (detEl!=0)
             surface = &(detEl->surface(id));
         else
-            if ( (m_errCount++)<m_maxErrCount) msg(MSG::WARNING)<< "getSurface: could not get detector element from id:"<<id<<" Returning 0." << endreq;            
+            if ( (m_errCount++)<m_maxErrCount) msg(MSG::WARNING)<< "getSurface: could not get detector element from id:"<<id<<" Returning 0." << endmsg;            
     } else {
-        if ( (m_errCount++)<m_maxErrCount) msg(MSG::WARNING)<< "getSurface: could not get cnv tool for Identifier:"<<id<< endreq;
+        if ( (m_errCount++)<m_maxErrCount) msg(MSG::WARNING)<< "getSurface: could not get cnv tool for Identifier:"<<id<< endmsg;
     }
     return surface;
 }
@@ -161,7 +161,7 @@ Trk::EventCnvSuperTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT )
     } else {
         const type_info& info = typeid(*RoT);
         if ( (m_errCount++)<m_maxErrCount) 
-            msg(MSG::WARNING)<< "recreateRIO_OnTrack: could not get cnv tool. Returning without correctly filling ROT of type: "<< info.name()<< endreq;
+            msg(MSG::WARNING)<< "recreateRIO_OnTrack: could not get cnv tool. Returning without correctly filling ROT of type: "<< info.name()<< endmsg;
     }
     return;
 }
