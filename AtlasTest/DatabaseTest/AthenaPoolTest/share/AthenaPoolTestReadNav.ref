@@ -1,36 +1,36 @@
-Thu Mar 24 19:18:55 CET 2016
+Fri Jul 22 22:10:24 CEST 2016
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AtlasOffline-21.0.0] [x86_64-slc6-gcc49-dbg] [21.X.Y-VAL/rel_2] -- built on [2016-03-21 22:42]
+Py:Athena            INFO using release [WorkDir-22.0.0] [x86_64-slc6-gcc49-dbg] [private/private] -- built on [2016-07-22 22:06]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
-Warning in <TInterpreter::ReadRootmapFile>: class  CaloSampling found in CaloEventDict.so  is already in libISF_FastCaloSimParametrizationLib.so 
+Warning in <TInterpreter::ReadRootmapFile>: class  Event found in libG4AtlasControlDict.so  is already in libtest_GPyTestDict.so 
+Warning in <TInterpreter::ReadRootmapFile>: class  UCharDbArray found in libStorageSvcDict.so  is already in libRootCnvDict.so 
 Py:Athena            INFO executing ROOT6Setup
 [?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthenaPoolTest/AthenaPoolTestReadNav.py"
-Py:ConfigurableDb    INFO Read module info for 5049 configurables from 10 genConfDb files
-Py:ConfigurableDb WARNING Found 1 duplicates among the 10 genConfDb files :
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -TrigHLTJetHypo: TrigHLTJetHypo.TrigHLTJetHypoConf - ['TrigJetHypo.TrigJetHypoConf']
-Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+Py:ConfigurableDb    INFO Read module info for 5102 configurables from 11 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaPoolTest/NoStats_jobOptions.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r4)
-                                          running on lxplus0008.cern.ch on Thu Mar 24 19:19:01 2016
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
+                                          running on lxplus064.cern.ch on Fri Jul 22 22:10:33 2016
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 StatusCodeSvc        INFO initialize
-RootDatabase.open Success SimplePoolFile1.root File version:60414
+AthenaPoolTestD...  DEBUG Property update for OutputLevel : new value = 2
+AthenaPoolTestD...  DEBUG input handles: 0
+AthenaPoolTestD...  DEBUG output handles: 0
+AthenaPoolTestD...  DEBUG Data Deps for AthenaPoolTestDataReader
+RootDatabase.open Success SimplePoolFile1.root File version:60602
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
-RootDatabase.open Success SimplePoolFile1.root File version:60414
+RootDatabase.open Success SimplePoolFile1.root File version:60602
 ApplicationMgr       INFO Application Manager Started successfully
 AthenaPoolTestD...  DEBUG Executing AthenaPoolTestDataReader
 AthenaPoolTestD...  DEBUG Collection of A's
@@ -68,7 +68,7 @@ AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 25
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 25 26 fa, da 7 13
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 26 27 fa, da 7 13
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 26 27 fa, da 7 13
-RootDatabase.open Success SimplePoolFile.root File version:60414
+RootDatabase.open Success SimplePoolFile.root File version:60602
 AthenaPoolTestD...  DEBUG Collection of C's
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 3 4
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 3 4

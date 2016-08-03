@@ -328,8 +328,7 @@ StatusCode InDetRawDataFakeWriter::printRDOs() const
             rdo!=rdocoll->end() ; ++rdo) {
         
             ATH_MSG_DEBUG("RDO ID=" << m_sctId->show_to_string((*rdo)->identify()) 
-                          << "RDO grp=" << (*rdo)->getGroupSize() << " strip:" << 
-                          (*rdo)->getStrip() );
+                          << "RDO grp=" << (*rdo)->getGroupSize() );
         
         }
     }

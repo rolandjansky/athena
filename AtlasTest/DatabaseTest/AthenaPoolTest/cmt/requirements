@@ -237,4 +237,3 @@ macro_append EventInfoWriteStep5_test_dependencies " EventInfoWriteStep4_test "
 # EventInfoRead
 apply_pattern athenarun_test name="EventInfoRead" pre_script="../test/pre_check.sh EventInfoRead " options="AthenaPoolTest/EventInfoRead.py" post_script="../test/post_check_with_select.sh EventInfoRead ^..[TE][av][ge][In][nt][fI][on][Mf][go][rW] " 
 macro_append EventInfoRead_test_dependencies " EventInfoWriteStep5_test "
-

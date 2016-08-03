@@ -94,7 +94,7 @@ InDetRawDataFakeCreator::createPixelRawDataColl(IdentifierHash hashId,
 	<< MSG::hex << pixelId->wafer_id(hashId) << MSG::dec << " "
 	<< pixelId->show_to_string(waferId) << " "
 	<< pixelId->show_to_string(pixelId->wafer_id(hashId)) << " " 
-	<< endreq;
+	<< endmsg;
 
     int deltaPhi = pixelId->phi_index_max(waferId)/6;
     int deltaEta = pixelId->eta_index_max(waferId)/6;
@@ -103,7 +103,7 @@ InDetRawDataFakeCreator::createPixelRawDataColl(IdentifierHash hashId,
 	<< pixelId->eta_index_max(waferId) << " "
 	<< deltaPhi << " " 
 	<< deltaEta << " " 
-	<< endreq;
+	<< endmsg;
 
     int phi = deltaPhi;
     // loop on 16 digits
@@ -125,12 +125,12 @@ InDetRawDataFakeCreator::createPixelRawDataColl(IdentifierHash hashId,
 
 	    } else {
 		log << MSG::ERROR << "Could not create Pixel1RawData object !" 
-		    << endreq;
+		    << endmsg;
 	    }
 	    // Print out contents of RDO
 	    log << MSG::VERBOSE << "Created RDO: " 
 		<< pixelId->show_to_string(rdo->identify()) << " " 
-		<< MSG::hex << rdo->getWord() << endreq;
+		<< MSG::hex << rdo->getWord() << endmsg;
 	}
     }
 
@@ -156,7 +156,7 @@ InDetRawDataFakeCreator::createSCT_RawDataColl(IdentifierHash hashId,
     log << MSG::VERBOSE << "strip max, dstrip: " 
 	<< sctId->strip_max(waferId) << " " 
 	<< deltaStrip << " " 
-	<< endreq;
+	<< endmsg;
 
     int strip = deltaStrip;
     // loop on 4 digits
@@ -173,12 +173,12 @@ InDetRawDataFakeCreator::createSCT_RawDataColl(IdentifierHash hashId,
 
 	} else {
 	    log << MSG::ERROR << "Could not create SCT1_RawData object !" 
-		<< endreq;
+		<< endmsg;
 	}
 	// Print out contents of RDO
 	log << MSG::VERBOSE << "Created RDO: " 
 	    << sctId->show_to_string(rdo->identify()) << " " 
-	    << MSG::hex << rdo->getWord() << endreq;
+	    << MSG::hex << rdo->getWord() << endmsg;
     }
 
     return (rdocoll);
@@ -204,7 +204,7 @@ InDetRawDataFakeCreator::createTRT_RawDataColl(IdentifierHash hashId,
     log << MSG::VERBOSE << "straw max, dstraw: " 
 	<< trtId->straw_max(strLayId) << " " 
 	<< deltaStraw << " " 
-	<< endreq;
+	<< endmsg;
 
     int straw = deltaStraw;
     // loop on 16 digits
@@ -219,12 +219,12 @@ InDetRawDataFakeCreator::createTRT_RawDataColl(IdentifierHash hashId,
 
 	} else {
 	    log << MSG::ERROR << "Could not create TRT_LoLumRawData object !" 
-		<< endreq;
+		<< endmsg;
 	}
 	// Print out contents of RDO
 	log << MSG::VERBOSE << "Created RDO: " 
 	    << trtId->show_to_string(rdo->identify()) << " " 
-	    << MSG::hex << rdo->getWord() << endreq;
+	    << MSG::hex << rdo->getWord() << endmsg;
     }
     return (rdocoll);
 }
