@@ -19,3 +19,4 @@ atlas_add_library( TrigConfHLTData
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfL1Data )
 
+#FIXME: Dictionary for AthAnalysisBase???
