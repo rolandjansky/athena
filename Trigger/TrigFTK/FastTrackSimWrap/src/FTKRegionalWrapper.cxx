@@ -36,6 +36,7 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   m_pixelId(0),
   m_sctId(0),
   m_IBLMode(0),
+  m_fixEndcapL0(false),
   m_ITkMode(false),
   m_pmap_path(""),
   m_pmap(0x0),
@@ -55,6 +56,7 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   m_PixelClusteringMode(1),
   m_DuplicateGanged(true),
   m_GangedPatternRecognition(false),
+  m_WriteClustersToESD(false),
   m_outpath("ftksim_smartwrapper.root"),
   m_outfile(0x0),
   m_hittree(0x0),
@@ -85,7 +87,6 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
 
   m_pix_rodIdlist({0x130007, 0x111510, 0x111816, 0x111508,0x112414,0x1400a3,0x130010,0x130011,0x112508,0x112510}),
   m_sct_rodIdlist({0x21010a, 0x210000, 0x210109}),
-  m_WriteClustersToESD(false),
   m_FTKPxlClu_CollName("FTK_Pixel_Clusters"), 
   m_FTKPxlCluContainer(0x0),
   m_FTKSCTClu_CollName("FTK_SCT_Cluster"),
@@ -102,6 +103,7 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   declareProperty("OutFileName",m_outpath);
   declareProperty("HitInputTool",m_hitInputTool);
   declareProperty("IBLMode",m_IBLMode);
+  declareProperty("FixEndcapL0", m_fixEndcapL0);
   declareProperty("ITkMode",m_ITkMode);
   declareProperty("PixelCablingSvc", m_pix_cabling_svc);
   declareProperty("ISCT_CablingSvc",m_sct_cabling_svc);
@@ -144,48 +146,49 @@ FTKRegionalWrapper::~FTKRegionalWrapper ()
 StatusCode FTKRegionalWrapper::initialize()
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "FTKRegionalWrapper::initialize()" << endreq;
+  log << MSG::INFO << "FTKRegionalWrapper::initialize()" << endmsg;
 
   // FTK library global setup variables
   FTKSetup::getFTKSetup().setIBLMode(m_IBLMode);
+  FTKSetup::getFTKSetup().setfixEndcapL0(m_fixEndcapL0);
   FTKSetup::getFTKSetup().setITkMode(m_ITkMode);
 
-  log << MSG::INFO << "Read the logical layer definitions" << endreq;
+  log << MSG::INFO << "Read the logical layer definitions" << endmsg;
   // Look for the main plane-map
   if (m_pmap_path.empty()) {
-    log << MSG::FATAL << "Main plane map definition missing" << endreq;
+    log << MSG::FATAL << "Main plane map definition missing" << endmsg;
     return StatusCode::FAILURE;
   }
   else {
     m_pmap = new FTKPlaneMap(m_pmap_path.c_str());
     if (!(*m_pmap)) {
-      log << MSG::FATAL << "Error using plane map: " << m_pmap_path << endreq;
+      log << MSG::FATAL << "Error using plane map: " << m_pmap_path << endmsg;
       return StatusCode::FAILURE;
     }
   }
 
   // initialize the tower/region map
-  log << MSG::INFO << "Creating region map" << endreq;
+  log << MSG::INFO << "Creating region map" << endmsg;
   m_rmap = new FTKRegionMap(m_pmap, m_rmap_path.c_str());
   if (!(*m_rmap)) {
-    log << MSG::FATAL << "Error creating region map from: " << m_rmap_path.c_str() << endreq;
+    log << MSG::FATAL << "Error creating region map from: " << m_rmap_path.c_str() << endmsg;
     return StatusCode::FAILURE;
   }
 
   StatusCode schit = m_hitInputTool.retrieve();
   if (schit.isFailure()) {
-    log << MSG::FATAL << "Could not retrieve FTK_SGHitInput tool" << endreq;
+    log << MSG::FATAL << "Could not retrieve FTK_SGHitInput tool" << endmsg;
     return StatusCode::FAILURE;
   }
   else {
-    log << MSG::INFO << "Setting FTK_SGHitInput tool" << endreq;
+    log << MSG::INFO << "Setting FTK_SGHitInput tool" << endmsg;
     // set the pmap address to FTKDataInput to use in processEvent
     m_hitInputTool->reference()->setPlaneMaps(m_pmap,0x0);
   }
 
   // Get the cluster converter tool
   if (m_clusterConverterTool.retrieve().isFailure() ) {
-    log << MSG::ERROR << "Failed to retrieve tool " << m_clusterConverterTool << endreq;
+    log << MSG::ERROR << "Failed to retrieve tool " << m_clusterConverterTool << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -193,32 +196,32 @@ StatusCode FTKRegionalWrapper::initialize()
   if( m_ITkMode ) {
     // Pixel Cabling database not ready
     // Ignore this error but make sure everything that uses the cabling database is off
-    log << MSG::WARNING << "ITkMode is set to True --> not loading Pixel Cabling Svc" << endreq;
+    log << MSG::WARNING << "ITkMode is set to True --> not loading Pixel Cabling Svc" << endmsg;
     if( m_DumpTestVectors || m_EmulateDF ) {
-      log << MSG::FATAL << "PixelCabling not initialized so m_DumpTestVectors and m_EmulateDF must both be set to false!" << endreq;
+      log << MSG::FATAL << "PixelCabling not initialized so m_DumpTestVectors and m_EmulateDF must both be set to false!" << endmsg;
       return StatusCode::FAILURE;
     }
   } else if (m_pix_cabling_svc.retrieve().isFailure()) {
-    log << MSG::FATAL << "Failed to retrieve tool " << m_pix_cabling_svc << endreq;
+    log << MSG::FATAL << "Failed to retrieve tool " << m_pix_cabling_svc << endmsg;
     return StatusCode::FAILURE;
   } else {
-    log << MSG::INFO << "Retrieved tool " << m_pix_cabling_svc << endreq;
+    log << MSG::INFO << "Retrieved tool " << m_pix_cabling_svc << endmsg;
   }
   
   // Retrieve sct cabling service
   if( m_ITkMode ) {
     // SCT Cabling database not ready
     // Ignore this error but make sure everything that uses the cabling database is off
-    log << MSG::WARNING << "ITkMode is set to True --> not loading SCT Cabling Svc" << endreq;
+    log << MSG::WARNING << "ITkMode is set to True --> not loading SCT Cabling Svc" << endmsg;
     if( m_DumpTestVectors || m_EmulateDF ) {
-      log << MSG::FATAL << "SCT_Cabling not initialized so m_DumpTestVectors and m_EmulateDF must both be set to false!" << endreq;
+      log << MSG::FATAL << "SCT_Cabling not initialized so m_DumpTestVectors and m_EmulateDF must both be set to false!" << endmsg;
       return StatusCode::FAILURE;
     }
   } else if (m_sct_cabling_svc.retrieve().isFailure()) {
-    log << MSG::FATAL << "Failed to retrieve tool " << m_sct_cabling_svc << endreq;
+    log << MSG::FATAL << "Failed to retrieve tool " << m_sct_cabling_svc << endmsg;
     return StatusCode::FAILURE;
   } else {
-    log << MSG::INFO << "Retrieved tool " << m_sct_cabling_svc << endreq;
+    log << MSG::INFO << "Retrieved tool " << m_sct_cabling_svc << endmsg;
   }
 
   if (!m_SaveRawHits && !m_SaveHits) {
@@ -228,19 +231,19 @@ StatusCode FTKRegionalWrapper::initialize()
 
   // This part retrieves the neccessary pixel/SCT Id helpers. They are intialized by the StoreGateSvc
   if( service("StoreGateSvc", m_storeGate).isFailure() ) {
-     log << MSG::FATAL << "StoreGate service not found" << endreq;
+     log << MSG::FATAL << "StoreGate service not found" << endmsg;
      return StatusCode::FAILURE;
    }
   if( service("DetectorStore",m_detStore).isFailure() ) {
-     log << MSG::FATAL <<"DetectorStore service not found" << endreq;
+     log << MSG::FATAL <<"DetectorStore service not found" << endmsg;
      return StatusCode::FAILURE;
    }
   if( m_detStore->retrieve(m_pixelId, "PixelID").isFailure() ) {
-    log << MSG::ERROR << "Unable to retrieve Pixel helper from DetectorStore" << endreq;
+    log << MSG::ERROR << "Unable to retrieve Pixel helper from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
   if( m_detStore->retrieve(m_sctId, "SCT_ID").isFailure() ) {
-    log << MSG::ERROR << "Unable to retrieve Pixel helper from DetectorStore" << endreq;
+    log << MSG::ERROR << "Unable to retrieve Pixel helper from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -253,7 +256,7 @@ StatusCode FTKRegionalWrapper::initialize()
     m_FTKPxlCluContainer->addRef();
     sc = m_storeGate->record(m_FTKPxlCluContainer,m_FTKPxlClu_CollName);
     if (sc.isFailure()) {
-      log << MSG::FATAL << "Error registering the FTK pixel container in the SG" << endreq;
+      log << MSG::FATAL << "Error registering the FTK pixel container in the SG" << endmsg;
       return StatusCode::FAILURE;
     }
     
@@ -261,7 +264,7 @@ StatusCode FTKRegionalWrapper::initialize()
     const InDet::SiClusterContainer *symSiContainerPxl(0x0);
     sc = m_storeGate->symLink(m_FTKPxlCluContainer,symSiContainerPxl);
     if (sc.isFailure()) {
-      log << MSG::FATAL << "Error creating the sym-link to the Pixel clusters" << endreq;
+      log << MSG::FATAL << "Error creating the sym-link to the Pixel clusters" << endmsg;
       return StatusCode::FAILURE;
     }
     
@@ -270,14 +273,14 @@ StatusCode FTKRegionalWrapper::initialize()
     m_FTKSCTCluContainer->addRef();
     sc = m_storeGate->record(m_FTKSCTCluContainer,m_FTKSCTClu_CollName);
     if (sc.isFailure()) {
-      log << MSG::FATAL << "Error registering the FTK SCT container in the SG" << endreq;
+      log << MSG::FATAL << "Error registering the FTK SCT container in the SG" << endmsg;
       return StatusCode::FAILURE;
     }
     // Generic format link for the pixel clusters
     const InDet::SiClusterContainer *symSiContainerSCT(0x0);
     sc = m_storeGate->symLink(m_FTKSCTCluContainer,symSiContainerSCT);
     if (sc.isFailure()) {
-      log << MSG::FATAL << "Error creating the sym-link to the SCT clusters" << endreq;
+      log << MSG::FATAL << "Error creating the sym-link to the SCT clusters" << endmsg;
       return StatusCode::FAILURE;
     }
     
@@ -309,12 +312,6 @@ StatusCode FTKRegionalWrapper::initialize()
     }  
   }
 
-
-
-  // create a TTree to store the truth tracks
-  m_trackstree = new TTree("truthtracks","Truth tracks");
-  // add the branch related to the truth tracks
-  m_trackstree->Branch("TruthTracks",&m_truth_tracks);
 
   /* initialize the clustering global variables, decalred in TrigFTKSim/atlClusteringLNF.h */
   SAVE_CLUSTER_CONTENT = m_SaveClusterContent;
@@ -384,11 +381,19 @@ StatusCode FTKRegionalWrapper::initOutputFile() {
    */
 
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "FTKRegionalWrapper::initOutputFile()" << endreq;
+  log << MSG::INFO << "FTKRegionalWrapper::initOutputFile()" << endmsg;
+
 
   // create the output files
-  log << MSG::INFO << "Creating output file: "  << m_outpath << endreq;
+  log << MSG::INFO << "Creating output file: "  << m_outpath << endmsg;
   m_outfile = TFile::Open(m_outpath.c_str(),"recreate");
+
+
+  // create a TTree to store the truth tracks
+  m_trackstree = new TTree("truthtracks","Truth tracks");
+  // add the branch related to the truth tracks
+  m_trackstree->Branch("TruthTracks",&m_truth_tracks);
+
 
   // create a TTree to store event information
   m_evtinfo = new TTree("evtinfo","Events info");
@@ -456,7 +461,6 @@ StatusCode FTKRegionalWrapper::execute()
     }
   }
 
-
   // retrieve the pointer to the datainput object
   FTKDataInput *datainput = m_hitInputTool->reference();
 
@@ -492,7 +496,6 @@ StatusCode FTKRegionalWrapper::execute()
     return StatusCode::SUCCESS;
 
   m_evtinfo->Fill();
-
   // retrieve the original list of hits, the list is copied because the clustering will change it
   vector<FTKRawHit> fulllist;
 
@@ -585,7 +588,6 @@ StatusCode FTKRegionalWrapper::execute()
     atlClusteringLNF(fulllist);
   }
 
-
   //get all the containers to write clusters
   if(m_WriteClustersToESD){
     if(!m_storeGate->contains<PRD_MultiTruthCollection>(m_ftkSctTruthName)) { 
@@ -625,7 +627,6 @@ StatusCode FTKRegionalWrapper::execute()
       }
     }
   }
-
 
 
 
@@ -713,6 +714,7 @@ StatusCode FTKRegionalWrapper::execute()
     }
   } // end hit loop
   
+
   // fill the branches
   m_hittree->Fill();
   if (m_SavePerPlane) { m_hittree_perplane->Fill(); }
@@ -723,7 +725,6 @@ StatusCode FTKRegionalWrapper::execute()
   m_truth_tracks.insert(m_truth_tracks.end(),truthtracks.begin(),truthtracks.end());
   // Write the tracks
   m_trackstree->Fill();
-
   if (m_DumpTestVectors) {
       // Dumps the data, needed to be placed here in order to make sure that StoreGateSvc has loaded
       dumpFTKTestVectors(m_pmap,m_rmap);
@@ -841,7 +842,7 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rma
 	  }
       }
       else{
-	 log << MSG::ERROR << "Couldn't open file to store online-/offlinehashid" << endreq;
+	 log << MSG::ERROR << "Couldn't open file to store online-/offlinehashid" << endmsg;
 	 return false;
       }
       // Clear the stringstream and close file
@@ -955,7 +956,7 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rma
       
       }
       else {
-	log << MSG::ERROR << "Couldn't open file to store online-/offlinehashid" << endreq;
+	log << MSG::ERROR << "Couldn't open file to store online-/offlinehashid" << endmsg;
 	 return false;
 	}
       // Clear the stringstream and close file
@@ -963,7 +964,7 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rma
       myfile.close();
     }
 
-    log << MSG::INFO << "Dumped FTKTestvectors" << endreq;
+    log << MSG::INFO << "Dumped FTKTestvectors" << endmsg;
     return true;
     
 }
