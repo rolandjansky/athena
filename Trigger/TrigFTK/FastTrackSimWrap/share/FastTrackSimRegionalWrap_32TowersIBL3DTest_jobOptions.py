@@ -37,6 +37,7 @@ wrapper = FTKRegionalWrapper(OutputLevel = DEBUG,
                              RMapPath = rmap_path,
                              OutFileName = OutputNTUP_FTKIPFile)
 wrapper.IBLMode = 2
+wrapper.FixEndcapL0 = False
 wrapper.HitInputTool = FTKSGInput
 theJob += wrapper
 
