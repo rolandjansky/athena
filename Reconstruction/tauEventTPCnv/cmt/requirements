@@ -8,6 +8,7 @@ use AthenaPoolCnvSvc	   AthenaPoolCnvSvc-*	    Database/AthenaPOOL
 use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
 use DataModelAthenaPool	 DataModelAthenaPool-*  Control
 use EventCommonTPCnv     EventCommonTPCnv-*     Event
+use PanTauEvent          PanTauEvent-*          Reconstruction/PanTau
 use ParticleEventTPCnv   ParticleEventTPCnv-*   PhysicsAnalysis/AnalysisCommon
 use RootConversions      RootConversions-*      Database/AthenaPOOL
 use tauEvent             tauEvent-*             Reconstruction

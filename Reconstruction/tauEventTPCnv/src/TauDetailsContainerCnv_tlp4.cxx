@@ -17,6 +17,7 @@ TauDetailsContainerCnv_tlp4 :: TauDetailsContainerCnv_tlp4(){
     addTPConverter(&m_errorMatrixCnv );
     addTPConverter(&m_tauCommonDetailsCnv );
     addTPConverter(&m_tauCommonExtraDetailsCnv );
+    addTPConverter(&m_PanTauDetailsCnv);
     addTPConverter(&m_TauPi0ClusterCnv);
     addTPConverter(&m_TauPi0CandidateCnv);
     addTPConverter(&m_TauShotCnv);
@@ -32,6 +33,7 @@ void TauDetailsContainerCnv_tlp4 :: setPStorage(TauDetailsContainer_tlp4 *storag
     m_errorMatrixCnv.setPStorage(&storage->m_errorMatrices);
     m_tauCommonDetailsCnv.setPStorage(&storage->m_tauCommonDetails);
     m_tauCommonExtraDetailsCnv.setPStorage(&storage->m_tauCommonExtraDetails);
+    m_PanTauDetailsCnv.setPStorage(&storage->m_PanTauDetails);
     m_TauPi0ClusterCnv.setPStorage(&storage->m_TauPi0Cluster);
     m_TauPi0CandidateCnv.setPStorage(&storage->m_TauPi0Candidate);
     m_TauShotCnv.setPStorage(&storage->m_TauShot);

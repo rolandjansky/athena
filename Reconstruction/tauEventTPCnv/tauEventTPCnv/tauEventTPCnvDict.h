@@ -29,6 +29,7 @@
 #include "tauEventTPCnv/TauCommonDetails_p1.h"
 #include "tauEventTPCnv/TauCommonDetails_p2.h"
 #include "tauEventTPCnv/TauCommonExtraDetails_p1.h"
+#include "tauEventTPCnv/PanTauDetails_p1.h"
 #include "tauEventTPCnv/TauPi0Details_p1.h"
 #include "tauEventTPCnv/TauPi0Details_p2.h"
 #include "tauEventTPCnv/TauPi0Candidate_p1.h"

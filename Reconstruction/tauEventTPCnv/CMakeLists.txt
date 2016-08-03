@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/RootConversions
                           Event/EventCommonTPCnv
                           PhysicsAnalysis/AnalysisCommon/ParticleEventTPCnv
+                          Reconstruction/PanTau/PanTauEvent
                           Reconstruction/tauEvent
                           Tracking/TrkEventCnv/TrkEventTPCnv
                           PRIVATE
@@ -29,11 +30,11 @@ atlas_add_tpcnv_library( tauEventTPCnv
                          INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                          DEFINITIONS ${CLHEP_DEFINITIONS}
-                         LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities RootConversions EventCommonTPCnv ParticleEventTPCnv tauEvent TrkEventTPCnv AthenaKernel )
+                         LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities RootConversions EventCommonTPCnv ParticleEventTPCnv PanTauEvent tauEvent TrkEventTPCnv AthenaKernel )
 
 atlas_add_dictionary( tauEventTPCnvDict
                       tauEventTPCnv/tauEventTPCnvDict.h
                       tauEventTPCnv/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities RootConversions EventCommonTPCnv ParticleEventTPCnv tauEvent TrkEventTPCnv AthenaKernel tauEventTPCnv )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities RootConversions EventCommonTPCnv ParticleEventTPCnv PanTauEvent tauEvent TrkEventTPCnv AthenaKernel tauEventTPCnv )
 

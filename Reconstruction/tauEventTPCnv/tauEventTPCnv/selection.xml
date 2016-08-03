@@ -43,6 +43,9 @@
 
   <class name="TauCommonExtraDetails_p1" />
   <class name="std::vector<TauCommonExtraDetails_p1>" />
+      
+  <class name="PanTauDetails_p1" />
+  <class name="std::vector<PanTauDetails_p1>" />
 
   <class name="TauPi0Candidate_p1" />
   <class name="std::vector<TauPi0Candidate_p1>" />

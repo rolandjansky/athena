@@ -16,6 +16,7 @@
 #include "TauDetailsContainerCnv_p1.h"
 #include "tauEventTPCnv/TauCommonDetailsCnv_p2.h"
 #include "tauEventTPCnv/TauCommonExtraDetailsCnv_p1.h"
+#include "tauEventTPCnv/PanTauDetailsCnv_p1.h"
 #include "TrkEventTPCnv/VxVertex/RecVertexCnv_p1.h"
 #include "TrkEventTPCnv/VxVertex/VertexCnv_p1.h"
 #include "TrkEventTPCnv/TrkEventPrimitives/FitQualityCnv_p1.h"
@@ -40,6 +41,9 @@ protected:
     ///Extra common details converter
     TauCommonExtraDetailsCnv_p1 m_tauCommonExtraDetailsCnv;
 
+    ///PanTauDetails Converter
+    PanTauDetailsCnv_p1 m_PanTauDetailsCnv;
+    
     ///Rec vertex converter
     RecVertexCnv_p1 m_recVertexCnv;
     

@@ -41,26 +41,26 @@ class TauShot_p1
    
   //std::vector<float> m_clusterValueVector1;
   // declare ints or floats here
-  int m_nCellsInEta;
-  float m_pt1;
-  float m_pt3;
-  float m_pt5;
-  float m_ws5;
-  float m_sdevEta5_WRTmean;
-  float m_sdevEta5_WRTmode;
-  float m_sdevPt5;
-  float m_deltaPt12_min;
-  float m_Fside_3not1;
-  float m_Fside_5not1;
-  float m_Fside_5not3;
-  float m_fracSide_3not1;
-  float m_fracSide_5not1;
-  float m_fracSide_5not3;
-  float m_pt1OverPt3;
-  float m_pt3OverPt5;
-  float m_mergedScore;
-  float m_signalScore;
-  int m_nPhotons;
+  int m_nCellsInEta=-1111;
+  float m_pt1=-1111;
+  float m_pt3=-1111;
+  float m_pt5=-1111;
+  float m_ws5=-1111;
+  float m_sdevEta5_WRTmean=-1111;
+  float m_sdevEta5_WRTmode=-1111;
+  float m_sdevPt5=-1111;
+  float m_deltaPt12_min=-1111;
+  float m_Fside_3not1=-1111;
+  float m_Fside_5not1=-1111;
+  float m_Fside_5not3=-1111;
+  float m_fracSide_3not1=-1111;
+  float m_fracSide_5not1=-1111;
+  float m_fracSide_5not3=-1111;
+  float m_pt1OverPt3=-1111;
+  float m_pt3OverPt5=-1111;
+  float m_mergedScore=-1111;
+  float m_signalScore=-1111;
+  int m_nPhotons=-1111;
 };
 
 
