@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef StripsResponse_H
-#define StripsResponse_H
+#ifndef MM_DIGITIZATION_STRIPRESPONSE_H
+#define MM_DIGITIZATION_STRIPRESPONSE_H
 /** @class StripsResponse
 
 // ------------
@@ -37,8 +37,10 @@ Comments to be added here...
 
 /// Projects
 #include "MM_Digitization/MmDigitToolInput.h"
-#include "MM_Digitization/MmDigitToolOutput.h"
-#include "MM_Digitization/GarfieldGas.h" // 28/05/2015 T.Saito
+#include "MM_Digitization/MmStripToolOutput.h"
+//#include "MM_Digitization/MmElectronicsToolInput.h"
+#include "MM_Digitization/MM_IonizationCluster.h"
+#include "MM_Digitization/GarfieldGas.h" 
 
 /// STD'S
 #include <algorithm>
@@ -62,9 +64,11 @@ class TRandom3;
 
 class ElectronicsResponse;
 class MmDigitToolInput;
-class MmDigitToolOutput;
+class MmStripToolOutput;
+//class MmElectronicsToolInput;
+//class MmDigitToolOutput;
 
-class GarfieldGas; // 28/05/2015 T.Saito
+class GarfieldGas; 
 
 class StripsResponse {
   
@@ -84,12 +88,20 @@ private:
   float crossTalk2;//0.03; 
   /** // (degrees) Magnetic Field 0.5 T */
   float Lorentz_Angle; 
+  // Avalanche gain
+  float gain;
 
   /// ToDo: random number from custom functions
   TF1 *polya, *conv_gaus;
+  TF1 *LongitudinalDiffusionFunction, *TransverseDiffusionFunction;
 
-  GarfieldGas* gas; // 27/05/2015 T.Saito
- 
+  GarfieldGas* gas; 
+
+  StripsResponse & operator=(const StripsResponse &right);
+  StripsResponse(const StripsResponse&);
+
+  std::vector<MM_IonizationCluster> IonizationClusters;
+
 public :
 
   float driftGap;  
@@ -99,16 +111,16 @@ public :
   StripsResponse();
    
   virtual ~StripsResponse();
-  MmDigitToolOutput GetResponceFrom(const MmDigitToolInput & digiInput);
+  MmStripToolOutput GetResponceFrom(const MmDigitToolInput & digiInput);
+  //  MmElectronicsToolInput GetResponceFrom(const MmDigitToolInput & digiInput);
+  //  MmDigitToolOutput GetResponseFrom(const MmDigitToolInput & digiInput);
     
-  void calculateResponceFrom (const float & hitx, const int & stripOffest, const float & thetaD, const int & stripMaxID);
   void initializationFrom ();
-  void testRandomNumGens (UInt_t sd);
   void writeHistos();
   void initHistos ();
   void clearValues ();
   void initFunctions ();
-  void whichStrips(const float & hitx, const int & stripOffest, const float & thetaD, const int & stripMaxID);
+  void whichStrips(const float & hitx, const int & stripOffest, const float & thetaD, const int & stripMaxID, const MmDigitToolInput & digiInput);
 
   void loadGasFile      (const std::string fileName); // 27/05/2015 T.Saito
   
@@ -136,15 +148,15 @@ public :
   vector <float> get_tStripElectronicsAbThr() const { return tStripElectronicsAbThr;};
   vector <float> get_qStripElectronics() const { return qStripElectronics;};
   vector <float> get_finaltStripNoSlewing() const { return finaltStripNoSlewing;};
-  vector <float> get_finalqStrip() const { return finalqStrip;};
-  vector <float> get_finaltStrip() const { return finaltStrip;};
+  vector < vector <float> > get_finalqStrip() const { return finalqStrip;};
+  vector < vector <float> > get_finaltStrip() const { return finaltStrip;};
   vector <int>   get_nStripElectronics() const { return nStripElectronics;};
   vector <int>   get_finalNumberofStrip() const { return finalNumberofStrip;};
 
   vector <int>   finalNumberofStrip;
   vector <int>   nStripElectronics;
-  vector <float> finalqStrip;
-  vector <float> finaltStrip;
+  vector < vector <float> > finalqStrip;
+  vector < vector <float> > finaltStrip;
   vector <float> finaltStripNoSlewing;
   vector <float> tStripElectronicsAbThr;
   vector <float> qStripElectronics;

@@ -2,6 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// ----------------------------------------------
+// GarfieldGas
+// ----------------------------------------------
 
 #include "MM_Digitization/GarfieldGas.h"
 
@@ -697,7 +700,23 @@ GarfieldGas::GarfieldGas() :
   temperature(293.15), pressure(760.), 
   nComponents(1),
   nExcListElements(0), nIonListElements(0),
-  map2d(false)
+  nEfields(0), nBfields(0), nAngles(0),
+  map2d(false),
+  hasElectronVelocityE(false), hasElectronVelocityB(false), hasElectronVelocityExB(false),
+  hasElectronDiffLong(false), hasElectronDiffTrans(false),
+  extrLowVelocity(0), extrHighVelocity(0),
+  extrLowDiffusion(0), extrHighDiffusion(0),
+  extrLowTownsend(0), extrHighTownsend(0),
+  extrLowAttachment(0), extrHighAttachment(0),
+  extrLowMobility(0), extrHighMobility(0),
+  extrLowDissociation(0), extrHighDissociation(0),
+  intpVelocity(0),
+  intpDiffusion(0),
+  intpTownsend(0),
+  intpAttachment(0),
+  intpMobility(0),
+  intpDissociation(0),
+  pressureTable(0), temperatureTable(0)
 {
   for (int i = nMaxGases; i--;) {
     fraction[i] = 0.;
@@ -1285,7 +1304,9 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
   double diff = 0.;
   double rate = 0.;
   double waste = 0.;
-  
+
+  (void)lor; (void)alpha; (void)alpha0; (void)eta; (void)mu; (void)diss; (void)diff; (void)rate; (void)waste;//to suppress unused warnings
+
   if (map2d) {
     for (int i = 0; i < eFieldRes; i++) {
       for (int j = 0; j < angRes; j++) {
@@ -1361,6 +1382,7 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
       }
     }
   }
+
   
   // Extrapolation methods
   int hExtrap[13], lExtrap[13];
@@ -1445,6 +1467,7 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
 	done = true;
 	break;
       }     
+      (void)token; // to suppress unused warning
       token = strtok(NULL, " :,%=\t"); 
     }
   }    

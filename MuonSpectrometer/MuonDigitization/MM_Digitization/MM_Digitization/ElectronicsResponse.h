@@ -43,8 +43,11 @@ Comments to be added here....
 
 /// Projects
 #include "MM_Digitization/MmElectronicsToolInput.h"
+#include "MM_Digitization/MmElectronicsToolTriggerOutput.h"
 #include "MM_Digitization/MmDigitToolOutput.h"
 #include "MM_Digitization/StripsResponse.h"
+//VMM Mapping
+#include "MM_Digitization/MMStripVmmMappingTool.h"
 
 using std::vector;
 using std::cout;
@@ -64,7 +67,11 @@ private:
   /**  */
   float RC ;
   /** hreshold "Voltage" for histoBNL */
+  float timeWindowLowerOffset;
+  float timeWindowUpperOffset;
   float electronicsThreshold;
+  float stripdeadtime;
+  float ARTdeadtime;
   float m_StripResponse_qThreshold;
   float m_StripResponse_driftGap;
   float m_StripResponse_driftVelocity;
@@ -78,8 +85,17 @@ public :
   ElectronicsResponse();
   virtual ~ElectronicsResponse();
   void clearValues ();
-  void bnlResponceFunction(const vector <int> & numberofStrip, const vector <float> & qStrip, const vector <float> & tStrip);
-  MmDigitToolOutput GetResponceFrom(const MmElectronicsToolInput & digiInput);
+  void bnlPeakResponceFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
+  void bnlThresholdResponceFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
+  MmDigitToolOutput GetPeakResponceFrom(const MmElectronicsToolInput & digiInput);
+  MmDigitToolOutput GetThresholdResponceFrom(const MmElectronicsToolInput & digiInput);
+
+  MmElectronicsToolTriggerOutput GetTheFastestSignalInVMM(const MmDigitToolOutput & ElectronicThresholdOutput, const int chMax, const int stationEta);
+  int GetIdTheFastestSignalInVMM(float time, int VMM_id, std::vector<int> trigger_VMM_id, const std::vector<float> ElectronicsThreshold_stripTime, float timeWindowLower, float timeWindowUpper);
+  void GetVMMId(const std::vector< int > & ElectronicsThreshold_stripPos, const int chMax, const int stationEta, std::vector< int > & trigger_VMM_id, std::vector< int > & trigger_MMFE_VMM_id);
+  MmDigitToolOutput ApplyDeadTimeStrip(const MmDigitToolOutput & ElectronicsTriggerOutput);
+  MmElectronicsToolTriggerOutput ApplyDeadTimeART(const MmElectronicsToolTriggerOutput & ElectronicsTriggerOutput);
+  bool DeadChannel(int id, float time, std::vector<int> & v_id, const std::vector<float> & v_time, float deadtime);
 
   float tMinFromIntegration;
   float tminFromIntegrationAboveThreshold;
@@ -90,11 +106,19 @@ public :
 
   inline void set_alpha(float val) {alpha = val;};
   inline void set_RC (float val) {RC = val;};
+  inline void set_timeWindowLowerOffset(float val) { timeWindowLowerOffset = val;};
+  inline void set_timeWindowUpperOffset(float val) { timeWindowUpperOffset = val;};
   inline void set_electronicsThreshold(float val) {electronicsThreshold = val;};
+  inline void set_stripdeadtime(float val) {stripdeadtime = val;};
+  inline void set_ARTdeadtime(float val) {ARTdeadtime = val;};
  
   float get_alpha() const { return alpha;};
   float get_RC () const { return RC;};
+  float get_timeWindowLowerOffset() const { return timeWindowLowerOffset ;};
+  float get_timeWindowUpperOffset() const { return timeWindowUpperOffset ;};
   float get_electronicsThreshold() const { return electronicsThreshold;};
+  float get_stripdeadtime() const { return stripdeadtime;};
+  float get_ARTdeadtime() const { return ARTdeadtime;};
    
   float get_tMinFromIntegration () const { return tMinFromIntegration;};
   float get_tminFromIntegrationAboveThreshold () const { return tminFromIntegrationAboveThreshold;};
