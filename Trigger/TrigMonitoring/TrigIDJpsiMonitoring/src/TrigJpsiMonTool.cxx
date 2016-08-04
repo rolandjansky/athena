@@ -28,7 +28,7 @@ TrigJpsiMonTool::TrigJpsiMonTool(const std::string & type, const std::string & n
      m_buildNtuple(false),
      m_countBook(true)
 {
-  //  msg(MSG::DEBUG) << "TrigJpsiMonTool::TrigJpsiMonTool() compiled: " << __DATE__ << " " << __TIME__ << endreq;
+  //  msg(MSG::DEBUG) << "TrigJpsiMonTool::TrigJpsiMonTool() compiled: " << __DATE__ << " " << __TIME__ << endmsg;
 
   declareProperty( "pTCut",   m_pTCut   = 0 );
   declareProperty( "etaCut",  m_etaCut  = 5 );
@@ -98,7 +98,7 @@ TrigJpsiMonTool::~TrigJpsiMonTool() {
 
 StatusCode TrigJpsiMonTool::init() {
 
-  //  msg(MSG::DEBUG) << " ----- enter init() ----- " << endreq;
+  //  msg(MSG::DEBUG) << " ----- enter init() ----- " << endmsg;
 
   // roi width information
   //  m_roiInfo.etaHalfWidth(m_etaWidth);
@@ -154,7 +154,7 @@ StatusCode TrigJpsiMonTool::init() {
 
     m_countBook = true;
 
-    //    msg(MSG::DEBUG) << " -----  exit init() ----- " << endreq;
+    //    msg(MSG::DEBUG) << " -----  exit init() ----- " << endmsg;
     
     return StatusCode::SUCCESS; 
 }
@@ -166,7 +166,7 @@ StatusCode TrigJpsiMonTool::book() {
 #else
 StatusCode TrigJpsiMonTool::book(bool /*newEventsBlock*/, bool /*newLumiBlock*/, bool /*newRun*/) {
 #endif
-  //  msg(MSG::DEBUG) << " ----- enter book() ----- " << endreq;
+  //  msg(MSG::DEBUG) << " ----- enter book() ----- " << endmsg;
   if( m_countBook ){
     for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) { 
       m_sequences[i]->initialize(this, &m_tdt);
@@ -174,14 +174,14 @@ StatusCode TrigJpsiMonTool::book(bool /*newEventsBlock*/, bool /*newLumiBlock*/,
     }
   }
   m_countBook=false;
-  //  msg(MSG::DEBUG) << " ----- exit book() ----- " << endreq;
+  //  msg(MSG::DEBUG) << " ----- exit book() ----- " << endmsg;
   return StatusCode::SUCCESS; 
 }
 
 StatusCode TrigJpsiMonTool::fill() { 
-  //  msg(MSG::DEBUG) << " ----- enter fill() ----- " << endreq;  
+  //  msg(MSG::DEBUG) << " ----- enter fill() ----- " << endmsg;  
   for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->execute();
-  //  msg(MSG::DEBUG) << " ----- exit fill() ----- " << endreq;
+  //  msg(MSG::DEBUG) << " ----- exit fill() ----- " << endmsg;
   return StatusCode::SUCCESS; 
 }
 
@@ -190,11 +190,11 @@ StatusCode TrigJpsiMonTool::proc() {
 #else
 StatusCode TrigJpsiMonTool::proc(bool /*endOfEventsBlock*/, bool /*endOfLumiBlock*/, bool endOfRun) {
 #endif
-  //  msg(MSG::DEBUG) << " ----- enter proc() ----- " << endreq;
+  //  msg(MSG::DEBUG) << " ----- enter proc() ----- " << endmsg;
   if(endOfRun) {
     for( unsigned i=0 ; i<m_sequences.size() ; i++ ) { m_sequences[i]->finalize(); }
   }
-  //  msg(MSG::DEBUG) << " ====== exit proc() ====== " << endreq;
+  //  msg(MSG::DEBUG) << " ====== exit proc() ====== " << endmsg;
   return StatusCode::SUCCESS; 
 }
 
