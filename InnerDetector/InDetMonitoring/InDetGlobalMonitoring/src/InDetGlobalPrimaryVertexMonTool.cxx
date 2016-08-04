@@ -102,12 +102,12 @@ StatusCode InDetGlobalPrimaryVertexMonTool::bookHistogramsRecurrent() {
     m_hPvX          = makeAndRegisterTH1F(al_primaryvertex_shift,"pvX","Primary vertex: x;x (mm)",500,-5.,5.);
     m_hPvY          = makeAndRegisterTH1F(al_primaryvertex_shift,"pvY","Primary vertex: y;y (mm)",500,-5.,5.);
     m_hPvZ          = makeAndRegisterTH1F(al_primaryvertex_shift,"pvZ","Primary vertex: z;z (mm)",100,-200.,200.);
-    m_hPvN          = makeAndRegisterTH1F(al_primaryvertex_shift,"pvN","Total number of vertices (primary and pile up);Total number of vertices",20,0.,20.);
+    m_hPvN          = makeAndRegisterTH1F(al_primaryvertex_shift,"pvN","Total number of vertices (primary and pile up);Total number of vertices",50,0.,50.);
     if ( al_primaryvertex_shift.regHist( m_hPvN_LB = TProfile_LW::create("pvN_LB", "Total number of vertices (primary and pile up) vs LB", 2000, 0.5, 2000.5 ) ).isFailure() )
 	ATH_MSG_WARNING ("Unable to book histogram with name = "+std::string("pvN_LB"));
     
     m_hPvNPriVtx    = makeAndRegisterTH1F(al_primaryvertex_expert,"pvNPriVtx","Number of primary vertices;Number of primary vertices",3,0.,3.);
-    m_hPvNPileupVtx = makeAndRegisterTH1F(al_primaryvertex_expert,"pvNPileupVtx","Number of pileup vertices;Number of pile up vertices",20,0.,20.);
+    m_hPvNPileupVtx = makeAndRegisterTH1F(al_primaryvertex_expert,"pvNPileupVtx","Number of pileup vertices;Number of pile up vertices",40,0.,40.);
     if ( AthenaMonManager::environment() != AthenaMonManager::online )
     {
 	m_hPvNaveMu     = makeAndRegisterTH2F(al_primaryvertex_shift,"m_hPvNaveMu","Number of vertices vs <#mu>", 50, 0.,50., 40, 0.,40.);

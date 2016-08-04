@@ -40,6 +40,10 @@
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
 
+#include "xAODJet/JetContainer.h"
+
+#include "EventPrimitives/EventPrimitivesHelpers.h"
+
 //Root
 #include "TMath.h"
 
@@ -61,6 +65,8 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
       m_doHolePlots(false),
       m_DoHoles_Search(false),
       m_doHitMaps(false),
+      m_doTide(true),
+      m_doTideResiduals(false),
       m_doForwardTracks(m_dataType == AthenaMonManager::collisions),
       m_doIBL(true),
       m_nBinsEta( 50 ),
@@ -70,13 +76,17 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
       c_etaTrackletsMin(2.4),
       c_etaTrackletsMax(2.7),
       c_etaRangeTRT(2.0),
-      c_range_LB(2000),
+      c_range_LB(3000),
       c_detector_labels{ "IBL", "PIX", "SCT", "TRT" },
       m_IBLParameterSvc("IBLParameterSvc",name),
       m_holes_search_tool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
       m_trkSummaryTool("Trk::TrackSummaryTool/InDetTrackSummaryTool"),
+      m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
+      m_trackToVertexIPEstimator("Trk::TrackToVertexIPEstimator"),
+      m_iUpdator("Trk::KalmanUpdator"),
       m_CombinedTracksName("Tracks"),
       m_ForwardTracksName("ResolvedForwardTracks"),
+      m_JetsName("AntiKt4EMTopoJets"),
       sct_holes(nullptr),
       trt_holes(nullptr),
       pixel_holes(nullptr),
@@ -126,6 +136,8 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
       m_trk_shared_pix_eta_phi(nullptr),
       m_trk_split_pix_eta_phi(nullptr),
       m_trk_shared_sct_eta_phi(nullptr),
+      m_trk_holes_pix_eta_phi(nullptr),
+      m_trk_holes_sct_eta_phi(nullptr),
       m_Trk_FORW_FA_eta_phi(nullptr),
       m_Trk_FORW_FC_eta_phi(nullptr),
       m_Trk_FORW_qoverp(nullptr),
@@ -134,14 +146,20 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
       m_Trk_FORW_FC_nPIXhits(nullptr)
 {
     declareProperty("DoHoleSearch",m_DoHoles_Search,"Write hole data?");
+    declareProperty("DoTide",m_doTide,"Make TIDE plots?");
+    declareProperty("DoTideResiduals",m_doTideResiduals,"Make TIDE residual plots?");
     declareProperty("HoleSearchTool", m_holes_search_tool,"Tool to search for holes on track");	
+    declareProperty("UpdatorTool"                  , m_iUpdator);
     declareProperty("TrackCollection",m_CombinedTracksName,"Name of the forward tracklet collection");
     declareProperty("ForwardTrackCollection",m_ForwardTracksName,"Name of the combined track collection");
+    declareProperty("VertexCollection",m_VxPrimContainerName,"Name of primary vertex collection");
+    declareProperty("JetCollection",m_JetsName,"Name of the jets collection");
     declareProperty("DoHitMaps", m_doHitMaps,"Produce hit maps?");	
     declareProperty("DoForwardTracks", m_doForwardTracks,"Run over forward tracks?");	
     declareProperty("DoIBL", m_doIBL,"IBL present?");	
     declareProperty("trackMax",m_trackMax,"Maximum number of tracks in track histograms");
     declareProperty("trackBin",m_trackBin,"Number of bins for the track histograms");
+    declareProperty("ResidualPullCalculatorTool", m_residualPullCalculator);
 
     declareProperty( "LoosePrimary_SelTool", m_loosePri_selTool );
     declareProperty( "Tight_SelTool", m_tight_selTool );
@@ -170,11 +188,25 @@ StatusCode InDetGlobalTrackMonTool::initialize() {
   }
 
   if (m_IBLParameterSvc.retrieve().isFailure()) {
-      if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not retrieve IBLParameterSvc" << endreq;
+      if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not retrieve " << m_IBLParameterSvc << endreq;
       return StatusCode::FAILURE;
   } else {
       if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Retrieved tool " << m_IBLParameterSvc << endreq;
   }
+
+  if ( m_residualPullCalculator.retrieve().isFailure() )
+  {
+      if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not retrieve " << m_residualPullCalculator << endreq;
+      return StatusCode::FAILURE;
+  } else {
+      if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Retrieved tool " << m_residualPullCalculator << endreq;
+  }
+  
+  ATH_CHECK( m_iUpdator.retrieve() );
+
+  
+  ATH_CHECK ( m_trackToVertexIPEstimator.retrieve());
+
   
   m_doIBL = m_IBLParameterSvc->containsIBL();
   
@@ -292,13 +324,93 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
 		     m_nBinsEta, -c_etaRange, c_etaRange,
 		     m_nBinsPhi,-M_PI,M_PI,
 		     "#eta", "#phi" ).ignore();
+    
+    registerManHist( m_trk_jetassoc_d0_reso_dr, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_d0_dr", "IP resolution  per ghost associated track vs #DeltaR of track and jet",
+		     20, 0, 0.4, "#Delta R", "Fraction" ).ignore();
+    registerManHist( m_trk_jetassoc_z0_reso_dr, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_z0_dr", "IP resolution  per ghost associated track vs #DeltaR of track and jet",
+		     20, 0, 0.4, "#Delta R", "Fraction" ).ignore();
+
+    registerManHist( m_trk_jetassoc_split_pix_dr, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_split_pix_dr", "Fraction of split Pixel hits per ghost associated track vs #DeltaR of track and jet",
+		     20, 0, 0.4, "#Delta R", "Fraction" ).ignore();
+
+    registerManHist( m_trk_jetassoc_shared_pix_dr, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_shared_pix_dr", "Fraction of shared Pixel hits  per ghost associated track vs #DeltaR of jet",
+		     20, 0, 0.4, "#DeltaR", "Fraction" ).ignore();
+
+    registerManHist( m_trk_jetassoc_res_pix_l0_x_dr, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_res_pix_x_l0_dr", "Average Pixel L0 residual (X) per ghost associated track vs #DeltaR of jet",
+		     20, 0, 0.4, "#DeltaR", "Biased Residual" ).ignore();
+    registerManHist( m_trk_jetassoc_res_pix_l1_x_dr, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_res_pix_x_l1_dr", "Average Pixel L1 residual (X) per ghost associated track vs #DeltaR of jet",
+		     20, 0, 0.4, "#DeltaR", "Biased Residual" ).ignore();
+    registerManHist( m_trk_jetassoc_res_pix_l2_x_dr, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_res_pix_x_l2_dr", "Average Pixel L2 residual (X) per ghost associated track vs #DeltaR of jet",
+		     20, 0, 0.4, "#DeltaR", "Biased Residual" ).ignore();
+    registerManHist( m_trk_jetassoc_res_pix_l3_x_dr, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_res_pix_x_l3_dr", "Average Pixel L3 residual (X) per ghost associated track vs #DeltaR of jet",
+		     20, 0, 0.4, "#DeltaR", "Biased Residual" ).ignore();
+
+    registerManHist( m_trk_jetassoc_res_pix_eca_x_dr, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_res_pix_x_eca_dr", "Average Pixel ECA residual (X) per ghost associated track vs #DeltaR of jet",
+		     20, 0, 0.4, "#DeltaR", "Biased Residual" ).ignore();
+    registerManHist( m_trk_jetassoc_res_pix_ecc_x_dr, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_res_pix_x_ecc_dr", "Average Pixel ECC residual (X) per ghost associated track vs #DeltaR of jet",
+		     20, 0, 0.4, "#DeltaR", "Biased Residual" ).ignore();
+
+    registerManHist( m_trk_jetassoc_res_pix_l0_y_dr, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_res_pix_y_l0_dr", "Average Pixel L0 residual (Y) per ghost associated track vs #DeltaR of jet",
+		     20, 0, 0.4, "#DeltaR", "Biased Residual" ).ignore();
+    registerManHist( m_trk_jetassoc_res_pix_l1_y_dr, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_res_pix_y_l1_dr", "Average Pixel L1 residual (Y) per ghost associated track vs #DeltaR of jet",
+		     20, 0, 0.4, "#DeltaR", "Biased Residual" ).ignore();
+    registerManHist( m_trk_jetassoc_res_pix_l2_y_dr, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_res_pix_y_l2_dr", "Average Pixel L2 residual (Y) per ghost associated track vs #DeltaR of jet",
+		     20, 0, 0.4, "#DeltaR", "Biased Residual" ).ignore();
+    registerManHist( m_trk_jetassoc_res_pix_l3_y_dr, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_res_pix_y_l3_dr", "Average Pixel L3 residual (Y) per ghost associated track vs #DeltaR of jet",
+		     20, 0, 0.4, "#DeltaR", "Biased Residual" ).ignore();
+
+    registerManHist( m_trk_jetassoc_res_pix_eca_y_dr, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_res_pix_y_eca_dr", "Average Pixel ECA residual (Y) per ghost associated track vs #DeltaR of jet",
+		     20, 0, 0.4, "#DeltaR", "Biased Residual" ).ignore();
+    registerManHist( m_trk_jetassoc_res_pix_ecc_y_dr, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_res_pix_y_ecc_dr", "Average Pixel ECC residual (Y) per ghost associated track vs #DeltaR of jet",
+		     20, 0, 0.4, "#DeltaR", "Biased Residual" ).ignore();
+
+
+    registerManHist( m_trk_jetassoc_ip_reso_lb, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_ip_reso_lb", "IP resolution  per ghost associated track vs LB",
+		     c_range_LB, 0, c_range_LB, "#Delta R", "Fraction" ).ignore();
+
+    registerManHist( m_trk_jetassoc_split_pix_lb, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_split_pix_lb", "Fraction of split Pixel hits vs LB",
+		     c_range_LB, 0, c_range_LB, "#Delta R", "Fraction" ).ignore();
+
+    registerManHist( m_trk_jetassoc_shared_pix_lb, "InDetGlobal/Hits", detailsInterval,
+		     "Trk_jetassoc_shared_pix_lb", "Fraction of shared Pixel hits vs LB",
+		     c_range_LB, 0, c_range_LB, "#DeltaR", "Fraction" ).ignore();
 
     registerManHist( m_trk_shared_sct_eta_phi,  "InDetGlobal/Hits", detailsInterval,
 		     "Trk_nSCTShared_eta_phi","Number of SCT shared hits per track, eta-phi profile",
 		     m_nBinsEta, -c_etaRange, c_etaRange,
 		     m_nBinsPhi,-M_PI,M_PI,
 		     "#eta", "#phi" ).ignore();
-    
+
+    registerManHist( m_trk_holes_pix_eta_phi,  "InDetGlobal/Hits", detailsInterval,
+		     "Trk_nPixHoles_eta_phi","Number of Pixel holes per track, eta-phi profile",
+		     m_nBinsEta, -c_etaRange, c_etaRange,
+		     m_nBinsPhi,-M_PI,M_PI,
+		     "#eta", "#phi" ).ignore();
+
+    registerManHist( m_trk_holes_sct_eta_phi,  "InDetGlobal/Hits", detailsInterval,
+		     "Trk_nSCTHoles_eta_phi","Number of SCT holes per track, eta-phi profile",
+		     m_nBinsEta, -c_etaRange, c_etaRange,
+		     m_nBinsPhi,-M_PI,M_PI,
+		     "#eta", "#phi" ).ignore();
+
     // Forward Pixel tracks
     if ( m_doForwardTracks )
     {	
@@ -521,130 +633,145 @@ StatusCode InDetGlobalTrackMonTool::bookHistogramsRecurrent()
 StatusCode InDetGlobalTrackMonTool::fillHistograms() 
 {   
     const TrackCollection * combined_tracks = 0;
-    if ( evtStore()->contains<TrackCollection>( m_CombinedTracksName ) ) 
+    if ( ! evtStore()->contains<TrackCollection>( m_CombinedTracksName ) || evtStore()->retrieve(combined_tracks,m_CombinedTracksName).isFailure() ) 
     {
-	if ( evtStore()->retrieve(combined_tracks,m_CombinedTracksName).isFailure() )
-	{
-	    ATH_MSG_DEBUG( "Failed to retrieve combined tracks in StoreGate " + m_CombinedTracksName );
-	    return StatusCode::SUCCESS;
-	}
+	ATH_MSG_WARNING( "Failed to retrieve combined tracks in StoreGate " + m_CombinedTracksName );
     }
     else
     {
-	ATH_MSG_DEBUG( "No combined tracks in StoreGate " + m_CombinedTracksName );
-	return StatusCode::SUCCESS;
-    }
+	
+	int nLoose = 0;
+	int nLP = 0;
+	int nTight = 0;
+	int nNoIBL = 0;
+	int nNoBL = 0;
+	int nNoTRText = 0;
+	m_pvtx = nullptr;
 
-    int nLoose = 0;
-    int nLP = 0;
-    int nTight = 0;
-    int nNoIBL = 0;
-    int nNoBL = 0;
-    int nNoTRText = 0;
-
-    TrackCollection::const_iterator itrack = combined_tracks->begin();
-    TrackCollection::const_iterator itrack_end = combined_tracks->end();
-    for ( ; itrack!= itrack_end; ++itrack)
-    {
-	const Trk::Track * track = (*itrack);
-	if ( !track || track->perigeeParameters() == 0 )
-	{
-	    ATH_MSG_DEBUG( "NULL track pointer in collection" );
-	    continue;
+	const xAOD::VertexContainer* vxContainer(0);
+	StatusCode sc = evtStore()->retrieve(vxContainer, m_VxPrimContainerName);
+	if (sc.isFailure()) {
+	    ATH_MSG_DEBUG("Could not retrieve primary vertex info: " << m_VxPrimContainerName);
 	}
+	if(vxContainer) {
+	    ATH_MSG_VERBOSE("Nb of reco primary vertex for coll "
+			    << " = " << vxContainer->size() );
 	
-	// Skip tracks that are not inside out
-	if ( m_dataType == AthenaMonManager::collisions
-	     && ( ! (track->info().patternRecoInfo( Trk::TrackInfo::SiSPSeededFinder ) )
-		  || track->perigeeParameters()->pT() < 5000. ) )
-	    continue;
-	
-	// Create a new summary or get copy of the cached one
-	const Trk::TrackSummary * summary = m_trkSummaryTool->createSummary( * track );
-	
-	if ( !summary )
-	{
-	    ATH_MSG_DEBUG( "NULL pointer to track summary" );
-	    continue;
+	    xAOD::VertexContainer::const_iterator vxI = vxContainer->begin();
+	    xAOD::VertexContainer::const_iterator vxE = vxContainer->end();
+	    for(; vxI!=vxE; ++vxI) {
+		if ((*vxI)->vertexType()==xAOD::VxType::PriVtx) {
+		    m_pvtx=(*vxI);
+		}
+	    }
 	}
-	
-	// Skip tracks without Pixel or SCT hits in cosmics
-	if ( m_dataType == AthenaMonManager::cosmics  && 
-	     summary->get(Trk::numberOfPixelHits) + summary->get(Trk::numberOfSCTHits) <= 0 )
+    
+	TrackCollection::const_iterator itrack = combined_tracks->begin();
+	TrackCollection::const_iterator itrack_end = combined_tracks->end();
+	for ( ; itrack!= itrack_end; ++itrack)
 	{
-	    continue;
-	}
-
-	FillHits( track, summary );
-	FillEtaPhi( track , summary );
-	
-	nLoose++;
-	
-	if ( m_loosePri_selTool->accept(*track) )
-	{
-	    nLP++;
-	}
-	if ( m_tight_selTool->accept(*track) )
-	{
-	    nTight++;
-	    
-	    if ( m_doIBL )
+	    const Trk::Track * track = (*itrack);
+	    if ( !track || track->perigeeParameters() == 0 )
 	    {
-		if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) )
+		ATH_MSG_DEBUG( "NULL track pointer in collection" );
+		continue;
+	    }
+	
+	    // Skip tracks that are not inside out
+	    if ( m_dataType == AthenaMonManager::collisions
+		 && ( ! (track->info().patternRecoInfo( Trk::TrackInfo::SiSPSeededFinder ) )
+		      || track->perigeeParameters()->pT() < 5000. ) )
+		continue;
+	
+	    // Create a new summary or get copy of the cached one
+	    const Trk::TrackSummary * summary = m_trkSummaryTool->createSummary( * track );
+	
+	    if ( !summary )
+	    {
+		ATH_MSG_DEBUG( "NULL pointer to track summary" );
+		continue;
+	    }
+	
+	    // Skip tracks without Pixel or SCT hits in cosmics
+	    if ( m_dataType == AthenaMonManager::cosmics  && 
+		 summary->get(Trk::numberOfPixelHits) + summary->get(Trk::numberOfSCTHits) <= 0 )
+	    {
+		continue;
+	    }	
+
+	    FillHits( track, summary );
+	    FillEtaPhi( track , summary );
+	
+	    nLoose++;
+	
+	    if ( m_loosePri_selTool->accept(*track) )
+	    {
+		nLP++;
+		if ( m_doIBL )
 		{
-		    nNoIBL++;
-		    m_Trk_noIBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 1 );
+		    if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) )
+		    {
+			nNoIBL++;
+			m_Trk_noIBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 1 );
+		    }
+		    else
+		    {
+			m_Trk_noIBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 0 );
+		    }
+		}
+	    
+		if ( summary->get( ( m_doIBL ) ? Trk::expectNextToInnermostPixelLayerHit : Trk::expectInnermostPixelLayerHit ) && !summary->get( ( m_doIBL ) ? Trk::numberOfNextToInnermostPixelLayerHits : Trk::numberOfInnermostPixelLayerHits ) )
+		{
+		    nNoBL++;
+		    m_Trk_noBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 1 );
 		}
 		else
 		{
-		    m_Trk_noIBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 0 );
+		    m_Trk_noBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 0 );
+		}
+		if ( summary->get(Trk::numberOfTRTHits) + summary->get(Trk::numberOfTRTOutliers) == 0 )
+		{
+		    nNoTRText++;;
+		    m_Trk_noTRText_frac_LB->Fill(m_manager->lumiBlockNumber(), 1);
+		}
+		else
+		{
+		    m_Trk_noTRText_frac_LB->Fill(m_manager->lumiBlockNumber(), 0);
 		}
 	    }
-	    
-	    if ( summary->get( ( m_doIBL ) ? Trk::expectNextToInnermostPixelLayerHit : Trk::expectInnermostPixelLayerHit ) && !summary->get( ( m_doIBL ) ? Trk::numberOfNextToInnermostPixelLayerHits : Trk::numberOfInnermostPixelLayerHits ) )
+	    if ( m_tight_selTool->accept(*track) )
 	    {
-		nNoBL++;
-		m_Trk_noBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 1 );
-	    }
-	    else
-	    {
-		m_Trk_noBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 0 );
-	    }
-	    if ( summary->get(Trk::numberOfTRTHits) + summary->get(Trk::numberOfTRTOutliers) == 0 )
-	    {
-		nNoTRText++;;
-		m_Trk_noTRText_frac_LB->Fill(m_manager->lumiBlockNumber(), 1);
-	    }
-	    else
-	    {
-		m_Trk_noTRText_frac_LB->Fill(m_manager->lumiBlockNumber(), 0);
-	    }
-	} 
+		nTight++;
+	    } 
 	
-	if ( m_doHitMaps ) 
-	{
-	    FillHitMaps( track );
-	}
+	    if ( m_doHitMaps ) 
+	    {
+		FillHitMaps( track );
+	    }
 	
-	if ( m_doHolePlots )  
-	{
-	    FillHoles( track, summary );
-	}
+	    if ( m_doHolePlots )  
+	    {
+		FillHoles( track, summary );
+	    }
 
-	// Delete our copy
-	delete summary;
+	    // Delete our copy
+	    delete summary;
+	}
+	
+	m_Trk_nLoose->Fill( nLoose );
+	m_Trk_nLoose_LB->Fill( m_manager->lumiBlockNumber(), nLoose );
+	
+	m_Trk_nLoosePrimary_LB->Fill( m_manager->lumiBlockNumber(), nLP );
+	m_Trk_nTight_LB->Fill( m_manager->lumiBlockNumber(), nTight );
+	if ( m_doIBL )
+	    m_Trk_noIBLhits_LB->Fill( m_manager->lumiBlockNumber(), nNoIBL );
+	
+	m_Trk_noBLhits_LB->Fill( m_manager->lumiBlockNumber(), nNoBL );
+	m_Trk_noTRText_LB->Fill( m_manager->lumiBlockNumber(), nNoTRText );
     }
     
-    m_Trk_nLoose->Fill( nLoose );
-    m_Trk_nLoose_LB->Fill( m_manager->lumiBlockNumber(), nLoose );
-
-    m_Trk_nLoosePrimary_LB->Fill( m_manager->lumiBlockNumber(), nLP );
-    m_Trk_nTight_LB->Fill( m_manager->lumiBlockNumber(), nTight );
-    if ( m_doIBL )
-	m_Trk_noIBLhits_LB->Fill( m_manager->lumiBlockNumber(), nNoIBL );
-    
-    m_Trk_noBLhits_LB->Fill( m_manager->lumiBlockNumber(), nNoBL );
-    m_Trk_noTRText_LB->Fill( m_manager->lumiBlockNumber(), nNoTRText );
+    if ( m_doTide )
+	FillTIDE();
     
     if ( m_doForwardTracks )
     {
@@ -716,6 +843,8 @@ void InDetGlobalTrackMonTool::FillHits( const Trk::Track *track, const Trk::Trac
     m_trk_hits_LB[1]->Fill( m_manager->lumiBlockNumber(), pixHits );
     m_trk_shared_pix_eta_phi->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],
 				    ( summary->get(Trk::numberOfPixelSharedHits) >= 0 ) ? summary->get(Trk::numberOfPixelSharedHits) : 0 );
+    m_trk_holes_pix_eta_phi->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],
+				   ( summary->get(Trk::numberOfPixelHoles) >= 0 ) ? summary->get(Trk::numberOfPixelHoles) : 0 );
     m_trk_split_pix_eta_phi->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],
 				   ( summary->get(Trk::numberOfPixelSplitHits) >= 0 ) ? summary->get(Trk::numberOfPixelSplitHits) : 0 );
     
@@ -725,6 +854,9 @@ void InDetGlobalTrackMonTool::FillHits( const Trk::Track *track, const Trk::Trac
     m_trk_hits_LB[2]->Fill( m_manager->lumiBlockNumber(), sctHits );
     m_trk_shared_sct_eta_phi->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],
 				    ( summary->get(Trk::numberOfSCTSharedHits) >= 0 ) ? summary->get(Trk::numberOfSCTSharedHits) : 0 );
+    
+    m_trk_holes_sct_eta_phi->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],
+				   ( summary->get(Trk::numberOfSCTHoles) >= 0 ) ? summary->get(Trk::numberOfSCTHoles) : 0 );
     
     m_trk_hits_eta_phi[3]->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],trtHits );
     m_trk_disabled_eta_phi[3]->Fill( perigee->eta(), perigee->parameters()[Trk::phi0], 
@@ -743,32 +875,11 @@ void InDetGlobalTrackMonTool::FillEtaPhi( const Trk::Track *track, const Trk::Tr
 
     /// Map of all extended tracks
     m_Trk_eta_phi->Fill( eta, phi );
-    bool isTight = false;
 
     // Loose primary tracks
     if ( m_loosePri_selTool->accept(*track) )
     {
 	m_Trk_eta_phi_LoosePrimary_ratio->Fill( eta, phi, 1 );
-    }
-    else
-    {
-	m_Trk_eta_phi_LoosePrimary_ratio->Fill( eta, phi, 0 );
-    }
-    
-    /// TRACKSEL: Tight
-    if ( m_tight_selTool->accept(*track) )
-    {
-	isTight = true;
-	m_Trk_eta_phi_Tight_ratio->Fill( eta, phi, 1 );
-    }
-    else
-    {
-	m_Trk_eta_phi_Tight_ratio->Fill( eta, phi, 0 );
-    }
-
-    /// Innermost layer
-    if ( isTight )
-    {
 	if ( m_doIBL )
 	{
 	    if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) )
@@ -808,6 +919,21 @@ void InDetGlobalTrackMonTool::FillEtaPhi( const Trk::Track *track, const Trk::Tr
 	else
 	    m_Trk_eta_phi_noTRText_ratio->Fill( eta, phi, 0 );
     }
+    else
+    {
+	m_Trk_eta_phi_LoosePrimary_ratio->Fill( eta, phi, 0 );
+    }
+    
+    /// TRACKSEL: Tight
+    if ( m_tight_selTool->accept(*track) )
+    {
+	m_Trk_eta_phi_Tight_ratio->Fill( eta, phi, 1 );
+    }
+    else
+    {
+	m_Trk_eta_phi_Tight_ratio->Fill( eta, phi, 0 );
+    }
+
     return;
 }
 
@@ -837,6 +963,145 @@ void InDetGlobalTrackMonTool::FillForwardTracks( const Trk::Track *track, const 
 	m_Trk_FORW_chi2->Fill(track->fitQuality()->chiSquared()/track->fitQuality()->numberDoF());
     
     return;    
+}
+
+void InDetGlobalTrackMonTool::FillTIDE()
+{
+    const xAOD::JetContainer* jets = 0;
+    StatusCode sc = evtStore()->retrieve( jets, m_JetsName ); // jetcollname is a std::string containing the SG key
+    if( sc.isSuccess() ) {
+	for ( auto jetItr = jets->begin(); jetItr != jets->end(); ++jetItr )
+	{
+	    if ( (*jetItr)->pt() < 20000. )
+		continue;
+	    
+	    std::vector<const xAOD::IParticle*> trackVector;
+	    if ( !(*jetItr)->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack, trackVector) )
+		continue;
+	    
+	    for ( std::vector<const xAOD::IParticle*>::const_iterator trkItr = trackVector.begin(); trkItr != trackVector.end() ; trkItr++ )
+	    {
+		const xAOD::TrackParticle* trackPart = dynamic_cast<const xAOD::TrackParticle*>(*trkItr);
+
+		if ( !trackPart )
+		    continue;
+		
+		uint8_t split;
+		uint8_t shared;
+		uint8_t pix;
+
+		if ( trackPart->summaryValue(pix, xAOD::numberOfPixelHits) && pix )
+		{
+		    const Trk::Perigee perigee = trackPart->perigeeParameters();
+		    if ( trackPart->vertex() )
+		    {
+			const Trk::ImpactParametersAndSigma * myIPandSigma = m_trackToVertexIPEstimator->estimate(trackPart, trackPart->vertex()); //(trackPart->vertex())? ... :m_pvtx
+			if ( myIPandSigma )
+			{
+			    m_trk_jetassoc_d0_reso_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), fabs( myIPandSigma->IPd0 / sqrt( myIPandSigma->sigmad0*myIPandSigma->sigmad0 + myIPandSigma->PVsigmad0*myIPandSigma->PVsigmad0 ) ) );
+			    m_trk_jetassoc_z0_reso_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), fabs( myIPandSigma->IPz0 / sqrt( myIPandSigma->sigmaz0*myIPandSigma->sigmaz0 + myIPandSigma->PVsigmaz0*myIPandSigma->PVsigmaz0 ) ) );
+			    m_trk_jetassoc_ip_reso_lb->Fill( m_manager->lumiBlockNumber(), fabs( myIPandSigma->IPd0 / sqrt( myIPandSigma->sigmad0*myIPandSigma->sigmad0 + myIPandSigma->PVsigmad0*myIPandSigma->PVsigmad0 ) )  );
+			}
+		    }
+		    if ( trackPart->summaryValue( split, xAOD::numberOfPixelSplitHits) )
+		    {
+			float frac = (double)split / pix;
+			m_trk_jetassoc_split_pix_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), frac );
+			m_trk_jetassoc_split_pix_lb->Fill( m_manager->lumiBlockNumber(), frac );
+		    }
+		    
+		    if ( trackPart->summaryValue( shared, xAOD::numberOfPixelSharedHits) )
+		    {
+			float frac = (float)shared / pix;
+			m_trk_jetassoc_shared_pix_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), frac );
+			m_trk_jetassoc_shared_pix_lb->Fill( m_manager->lumiBlockNumber(), frac );
+		    }
+		    
+		    if ( m_doTideResiduals )
+		    {
+			auto track = trackPart->track();
+			if ( ! track )
+			    continue;
+			
+			const DataVector<const Trk::TrackStateOnSurface>* trackStates = track->trackStateOnSurfaces();
+			if ( trackStates == 0 ) return;
+			
+			DataVector<const Trk::TrackStateOnSurface>::const_iterator it = trackStates->begin();
+			DataVector<const Trk::TrackStateOnSurface>::const_iterator it_end = trackStates->end();
+			for (;it!=it_end; ++it) {
+			    const Trk::TrackStateOnSurface* tsos=(*it);
+			    
+			    if (tsos == 0) continue;
+			    
+			    //SILICON (SCT + Pixel)
+			    const InDet::SiClusterOnTrack *clus = dynamic_cast<const InDet::SiClusterOnTrack*>( tsos->measurementOnTrack() );
+			    if ( !clus ) continue;
+			    
+			    const InDet::SiCluster *RawDataClus = dynamic_cast<const InDet::SiCluster*>(clus->prepRawData());
+			    if (!RawDataClus) continue;
+			    
+			    if ( RawDataClus->detectorElement()->isPixel() ) {
+				const Trk::RIO_OnTrack* hit = dynamic_cast <const Trk::RIO_OnTrack*>( tsos->measurementOnTrack() );
+				
+				if (hit && tsos->trackParameters()) {
+				    const Trk::TrackParameters* PropagatedTrackParams = tsos->trackParameters()->clone();
+				    const Trk::TrackParameters* UnbiasedTrackParams = m_iUpdator->removeFromState(*PropagatedTrackParams, tsos->measurementOnTrack()->localParameters(), tsos->measurementOnTrack()->localCovariance());
+				    delete PropagatedTrackParams;
+				    if ( !UnbiasedTrackParams )
+					if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "RemoveFromState did not work, using original TrackParameters" << endreq;
+				    
+				    const Trk::ResidualPull * residualPull = m_residualPullCalculator->residualPull(tsos->measurementOnTrack(), ( UnbiasedTrackParams ) ? UnbiasedTrackParams:tsos->trackParameters(), Trk::ResidualPull::Unbiased);
+				    if (residualPull) {
+					{
+					    switch ( m_pixelID->barrel_ec( RawDataClus->identify() ) )
+					    {
+					    case 0:
+						switch ( m_pixelID->layer_disk( RawDataClus->identify() ) )
+						{
+						case 0:
+						    m_trk_jetassoc_res_pix_l0_x_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), residualPull->pull()[Trk::loc1] );
+						    m_trk_jetassoc_res_pix_l0_y_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), residualPull->pull()[Trk::loc2] );
+						    break;
+						case 1:
+						    m_trk_jetassoc_res_pix_l1_x_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), residualPull->pull()[Trk::loc1] );
+						    m_trk_jetassoc_res_pix_l1_y_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), residualPull->pull()[Trk::loc2] );
+						    break;
+						case 2:
+						    m_trk_jetassoc_res_pix_l2_x_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), residualPull->pull()[Trk::loc1] );
+						    m_trk_jetassoc_res_pix_l2_y_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), residualPull->pull()[Trk::loc2] );
+						    break;
+						case 3:
+						    m_trk_jetassoc_res_pix_l3_x_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), residualPull->pull()[Trk::loc1] );
+						    m_trk_jetassoc_res_pix_l3_y_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), residualPull->pull()[Trk::loc2] );
+						    break;
+						}
+						break;
+					    case -2:
+						m_trk_jetassoc_res_pix_ecc_x_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), residualPull->pull()[Trk::loc1] );
+						m_trk_jetassoc_res_pix_ecc_y_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), residualPull->pull()[Trk::loc2] );
+						break;
+					    case 2:
+						m_trk_jetassoc_res_pix_eca_x_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), residualPull->pull()[Trk::loc1] );
+						m_trk_jetassoc_res_pix_eca_y_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), residualPull->pull()[Trk::loc2] );
+						break;
+					    }
+					}
+				    }
+				}
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
+    else
+    {
+	ATH_MSG_WARNING( "Unable to get jets, turning TIDE plots off!" );
+	m_doTide = false;
+    }
+    
+    return;
 }
 
 void InDetGlobalTrackMonTool::FillHitMaps( const Trk::Track *track )

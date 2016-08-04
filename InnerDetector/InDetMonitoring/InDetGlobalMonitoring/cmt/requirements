@@ -22,6 +22,8 @@ use InDetRIO_OnTrack		InDetRIO_OnTrack-*                InnerDetector/InDetRecEv
 use InDetRawData		InDetRawData-* 	        	  InnerDetector/InDetRawEvent
 use InDetReadoutGeometry	InDetReadoutGeometry-*	          InnerDetector/InDetDetDescr
 use InDetTrackSelectionTool 	InDetTrackSelectionTool-* 	  InnerDetector/InDetRecTools
+use xAODJet			xAODJet-* 	  		  Event/xAOD
+
 use LWHists                     LWHists-*                         Tools
 use PixelConditionsServices        PixelConditionsServices*        InnerDetector/InDetConditions
 use PixelGeoModel               PixelGeoModel-*                   InnerDetector/InDetDetDescr
@@ -38,6 +40,7 @@ use TrkTrackSummary		TrkTrackSummary-*                 Tracking/TrkEvent
 use TrkTruthData		TrkTruthData-*                    Tracking/TrkEvent
 use VxVertex 			VxVertex-*			  Tracking/TrkEvent
 use xAODTracking		xAODTracking-*			  Event/xAOD
+use TrkVertexFitterInterfaces  TrkVertexFitterInterfaces-*     Tracking/TrkVertexFitter
 
 public
 use AtlasPolicy			AtlasPolicy-*
