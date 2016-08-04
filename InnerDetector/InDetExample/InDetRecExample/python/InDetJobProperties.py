@@ -1437,7 +1437,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.useExistingTracksAsInput, True              )
        self.checkThenSet(self.preProcessing           , True              )
        self.checkThenSet(self.doSpacePointFormation   , True              )
-       self.checkThenSet(self.postProcessing          , True              )
+       self.checkThenSet(self.postProcessing          , False             )
        # --- enable prim/sec vertexing ?? Probably yes, but a DV-vertexing
        # --- instead primary vertex setup 
        self.checkThenSet(self.doVertexFinding         , False             )
@@ -1450,8 +1450,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doV0Finder              , False             )
        self.checkThenSet(self.doSimpleV0Finder        , False             )
        self.checkThenSet(self.doConversions           , False             )
-       self.checkThenSet(self.doParticleCreation      , True              )
-       self.checkThenSet(self.doStatistics            , True              )
+       self.checkThenSet(self.doParticleCreation      , False             )
+       self.checkThenSet(self.doStatistics            , False             )
        self.checkThenSet(self.doTrackSegmentsPixel    , False             )
        self.checkThenSet(self.doTrackSegmentsSCT      , False             )
        self.checkThenSet(self.doTrackSegmentsTRT      , False             )
@@ -1609,6 +1609,8 @@ class InDetJobProperties(JobPropertyContainer):
       # --------------------------------------------------------------------
       # ---- Large-d0 re-tracking setup
       # --------------------------------------------------------------------      
+      # no Large radius tracking if pixel or sct off (new tracking = inside out only)
+      self.doDVRetracking = self.doDVRetracking() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
       if self.doDVRetracking():
           self.setDVRetracking()
       
@@ -1635,6 +1637,9 @@ class InDetJobProperties(JobPropertyContainer):
       # new forward tracklets
       self.doForwardTracks = self.doForwardTracks() and self.doNewTracking()
       #
+      # no Large radius tracking if pixel or sct off (new tracking = inside out only)
+      self.doLargeD0 = self.doLargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
+      
       # no BeamGas tracking if no new tracking before (but only if beamtype is not single beam!)      
       if (jobproperties.Beam.beamType()!="singlebeam"):
         self.doBeamGas     = self.doBeamGas() and self.doNewTracking()

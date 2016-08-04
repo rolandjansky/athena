@@ -59,12 +59,20 @@ if InDetFlags.doMonitoringGlobal():
   # TRACK MONITORING                               #
   #                                                #
   ##################################################
-      
+  do_tide=False
+  try :
+      from JetRec.JetRecFlags import jobproperties
+      do_tide=jobproperties.JetRecFlags.useTracks()
+  except :
+      print 'WARNING Failed to get useTracks flag from JetRec. Continuing anyway.'
+      pass
+   
   from InDetGlobalMonitoring.InDetGlobalMonitoringConf import InDetGlobalTrackMonTool
   InDetGlobalTrackMonTool=InDetGlobalTrackMonTool( name          = "InDetGlobalTrackMonTool",
                                                    histoPathBase = "/GLOBAL",
                                                    DoIBL         = InDetFlags.doIBL(),
-                                                   trackMax      = 75)
+                                                   trackMax      = 75,
+                                                   DoTide        = do_tide)
 
   TrackCollection = InDetKeys.UnslimmedTracks()
 
@@ -211,7 +219,7 @@ if InDetFlags.doMonitoringGlobal():
 
   from AthenaMonitoring.DQMonFlags import DQMonFlags
   if rec.doTrigger == True and hasattr(ToolSvc, DQMonFlags.nameTrigDecTool()):
-    InDetVertexMonitoring.TrigDecisionTool = monTrigDecTool
+    InDetVertexMonitoring.TrigDecisionTool = getattr(ToolSvc,DQMonFlags.nameTrigDecTool())
     InDetVertexMonitoring.TriggerChain = "EF_rd0_filled_NoAlg"
   
   ToolSvc += InDetVertexMonitoring
