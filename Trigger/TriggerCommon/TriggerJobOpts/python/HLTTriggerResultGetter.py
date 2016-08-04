@@ -105,7 +105,8 @@ class xAODConversionGetter(Configured):
         from TrigNavigation.TrigNavigationConfig import HLTNavigationOffline
         xaodconverter.Navigation = HLTNavigationOffline()
 
-        from TrigEDMConfig.TriggerEDM import getPreregistrationList,getL2PreregistrationList,getEFPreregistrationList#,getHLTPreregistrationList
+        from TrigEDMConfig.TriggerEDM import getPreregistrationList,getL2PreregistrationList,getEFPreregistrationList
+        from TrigEDMConfig.TriggerEDM import getEFRun1BSList,getEFRun2EquivalentList,getL2Run1BSList,getL2Run2EquivalentList#,getHLTPreregistrationList
         xaodconverter.Navigation.ClassesToPreregister = getPreregistrationList(TriggerFlags.EDMDecodingVersion())
         ## if TriggerFlags.EDMDecodingVersion() == 2:
         ##     #        if TriggerFlags.doMergedHLTResult():
@@ -115,7 +116,10 @@ class xAODConversionGetter(Configured):
         ##     xaodconverter.Navigation.ClassesToPreregister = list(set(getL2PreregistrationList()+getEFPreregistrationList()+getHLTPreregistrationList()))
 
         #we attempt to convert the entire old navigation (L2+EF)
-        xaodconverter.BStoxAOD.ContainersToConvert = list(set(getL2PreregistrationList()+getEFPreregistrationList()))
+        #xaodconverter.BStoxAOD.ContainersToConvert = list(set(getL2PreregistrationList()+getEFPreregistrationList()))
+        # we want only containers from Run 1 with the BS tag
+        xaodconverter.BStoxAOD.ContainersToConvert = getL2Run1BSList() + getEFRun1BSList()
+        xaodconverter.BStoxAOD.NewContainers = getL2Run2EquivalentList() + getEFRun2EquivalentList()
 
         xaodconverter.HLTResultKey="HLTResult_EF"
         topSequence += xaodconverter
@@ -213,6 +217,10 @@ class ByteStreamUnpackGetter(Configured):
         # Configure L1Topo validation data algorithm
         #
         if hasHLT and TriggerFlags.doMergedHLTResult() and TriggerFlags.writeL1TopoValData() :
+            # make sure that CTP_RDO is known (see also ATR-14683)
+            ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [
+                "CTP_RDO/CTP_RDO"
+                ]
             from L1TopoValDataCnv.L1TopoValDataCnvConf import xAODMaker__L1TopoValDataCnvAlg
             L1TopoValDataCvnAlg = xAODMaker__L1TopoValDataCnvAlg()
             topSequence += L1TopoValDataCvnAlg
@@ -431,18 +439,15 @@ class HLTTriggerResultGetter(Configured):
         from AthenaServices.Configurables import ThinningSvc, createThinningSvc
         
         _doSlimming = True
-        if _doSlimming and rec.doWriteAOD() and not (rec.readAOD() or rec.readESD()): 
+        if _doSlimming and rec.readRDO() and rec.doWriteAOD():
             if not hasattr(svcMgr, 'ThinningSvc'): # if the default is there it is configured for AODs
                 svcMgr += ThinningSvc(name='ThinningSvc', Streams=['StreamAOD'])             
-            _addSlimming('StreamAOD', svcMgr.ThinningSvc, _TriggerAODList )
+            _addSlimming('StreamAOD', svcMgr.ThinningSvc, _TriggerESDList ) #Use ESD item list also for AOD!
             log.info("configured navigation slimming for AOD output")
             
-        if _doSlimming and rec.doWriteESD() and not rec.readESD(): 
-            svcMgr += ThinningSvc(name='ESDThinningSvc', Streams=['StreamESD']) # the default is configured for AODs
-            # this was recommended but does not work
-            # from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-            # svcMgr += createThinningSvc(svcName="ESDThinningSvc", outStreams=[MSMgr.GetStream('StreamESD').GetEventStream()])
-
+        if _doSlimming and rec.readRDO() and rec.doWriteESD(): #rec.doWriteESD() and not rec.readESD(): 
+            if not  hasattr(svcMgr, 'ESDThinningSvc'):
+                svcMgr += ThinningSvc(name='ESDThinningSvc', Streams=['StreamESD']) # the default is configured for AODs
             _addSlimming('StreamESD', svcMgr.ESDThinningSvc, _TriggerESDList )                
             log.info("configured navigation slimming for ESD output")              
             
