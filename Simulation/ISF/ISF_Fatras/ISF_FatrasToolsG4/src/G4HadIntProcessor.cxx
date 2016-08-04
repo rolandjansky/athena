@@ -63,9 +63,6 @@
 #include "CLHEP/Random/RandExponential.h"
 #include "CLHEP/Random/RandFlat.h"
 
-// Generators
-#include "GeneratorObjects/HepMcParticleLink.h"
-
 
 // using namespace std;
 
@@ -535,23 +532,13 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
       // create the particle to be put into ISF stack
       const G4ThreeVector &momG4 = dynPar->GetMomentum();
       Amg::Vector3D mom( momG4.x(), momG4.y(), momG4.z() );
-
-
-      const HepMcParticleLink * partLink = NULL;
-      if (parent->getParticleLink()) 
-	partLink = new HepMcParticleLink(*parent->getParticleLink());
-      else 
-	ATH_MSG_WARNING("Could not retrieve original HepMcParticleLink from ISFParticle, creating one from the parent's barcode " << parent->barcode());   
       ISF::ISFParticle* cParticle = new ISF::ISFParticle( position,
                                                           mom,
                                                           parDef->GetPDGMass(),
                                                           parDef->GetPDGCharge(),
                                                           parDef->GetPDGEncoding(),
                                                           time, 
-                                                          *parent,
-							  parent->barcode(),
-							  parent->truthBinding() ? parent->truthBinding()->clone() : NULL,
-							  partLink);
+                                                          *parent );
       cParticle->setNextGeoID( parent->nextGeoID() );
       cParticle->setNextSimID( parent->nextSimID() );
       // process sampling tool takes care of validation info
@@ -595,10 +582,7 @@ bool iFatras::G4HadIntProcessor::doHadronicInteraction(double time, const Amg::V
   // push onto ParticleStack
 
   if (processSecondaries) {
-    for (unsigned int ic=0; ic<ispVec.size(); ic++) {
-      //std::cout << "iFatras::G4HadIntProcessor::doHadronicInteraction calling ParticleBroker->push(" << ispVec[ic] << " ; parent was " << *parent << std::endl;
-      m_particleBroker->push(ispVec[ic], parent);
-    }
+    for (unsigned int ic=0; ic<ispVec.size(); ic++) m_particleBroker->push(ispVec[ic], parent);
   }
 
   return true;

@@ -34,9 +34,6 @@
 #include "G4DecayProducts.hh"
 #include <cmath>
 
-// Generators
-#include "GeneratorObjects/HepMcParticleLink.h"
-
 double iFatras::G4ParticleDecayHelper::s_speedOfLightSI =  CLHEP::c_light*CLHEP::s/CLHEP::mm;
 
 /*=========================================================================
@@ -251,7 +248,6 @@ void iFatras::G4ParticleDecayHelper::handleDecayParticles(const ISF::ISFParticle
 	// register next geo (is current), next flavor can be defined by filter
 	(*decayProductsItr)->setNextGeoID( particle.nextGeoID() );
 	// feed it the particle broker with parent information
-	//std::cout << "iFatras::G4ParticleDecayHelper::handleDecayParticles calling ParticleBroker->push(" << *decayProductsItr << " ; parent was " << particle << std::endl;
 	m_particleBroker->push(*decayProductsItr, &particle);
       }//loop over all decay products
       ATH_MSG_VERBOSE(  productSummaryString.str() );     
@@ -381,21 +377,13 @@ iFatras::G4ParticleDecayHelper::decayParticle(const ISF::ISFParticle& parent,
     Amg::Vector3D amgMom( mom.x(), mom.y(), mom.z() );
 
     // !< @TODO : insert truth binding 
-    const HepMcParticleLink * partLink = NULL;
-    if (parent.getParticleLink()) 
-      partLink = new HepMcParticleLink(*parent.getParticleLink());
-    else 
-      ATH_MSG_WARNING("Could not retrieve original HepMcParticleLink from ISFParticle, creating one from parent's barcode " << parent.barcode());   
     ISF::ISFParticle* childParticle = new ISF::ISFParticle( vertex,
                                                             amgMom,
                                                             prod->GetMass(),
                                                             prod->GetCharge(),
                                                             prod->GetPDGcode(),
                                                             timeStamp, 
-                                                            parent,
-							    parent.barcode(),
-							    parent.truthBinding() ? parent.truthBinding()->clone() : NULL,
-							    partLink );
+                                                            parent );
 
     children.push_back( childParticle);
   }
