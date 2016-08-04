@@ -12,6 +12,7 @@
 #include <limits>
 #include <algorithm>
 #include <limits>       // std::numeric_limits 
+#include <array>
 
 
 
@@ -65,7 +66,7 @@
 #define VERBOSE(x) ATH_MSG_VERBOSE(x)
 
 using namespace SCT_Monitoring;
-using boost::array;
+
 
 
 //fwd declares
@@ -226,85 +227,85 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string& type,const string& name, const 
 
   m_countEvent=0;
 
-  m_Eff_summaryHisto.assign(0);
-  m_Eff_summaryHistoFirstBCID.assign(0);
-  m_Eff_summaryHisto_old.assign(0);
-  m_holesPerTrackHisto.assign(0);
-  m_holesDistPerTrackHisto.assign(0);
-  m_Unas_summaryHisto.assign(0);
-  m_Eff_etaHisto.assign(0);
-  m_Eff_etaPhiCutHisto.assign(0);
-  m_Eff_ptiHisto.assign(0);
-  m_Eff_ptHisto.assign(0);
-  m_Unas_ptiHisto.assign(0);
-  m_Eff_phiHisto.assign(0);
-  m_Eff_phiEtaCutHisto.assign(0);
-  m_Eff_phiHistoFinal.assign(0);
-  m_Unas_phiHisto.assign(0);
-  m_Eff_d0Histo.assign(0);
-  m_Eff_d0PrecHisto.assign(0);
-  m_Eff_z0Histo.assign(0);
-  m_Eff_xlocHisto.assign(0);
-  m_Eff_ylocHistos.assign(0);
-  m_Unas_xlocHisto.assign(0);
-  m_Unas_ylocHisto.assign(0);
-  m_Eff_nSCTHisto.assign(0);
-  m_Eff_nTRTHisto.assign(0);
-  m_Eff_nOtherHisto.assign(0);
-  m_Eff_otherFaceHisto.assign(0);
-  m_Unas_otherFaceHisto.assign(0);
-  m_Eff_timecorHisto.assign(0);
-  m_probEnclosedHisto.assign(0);
-  m_Eff_SelectionHisto.assign(0);
-  m_Eff_EventHisto.assign(0);
-  m_Eff_LumiBlockHisto.assign(0);
-  m_Eff_chi2Histo.assign(0);
-  m_Eff_chi2HistoFinal.assign(0);
-  m_chi2vPhiHisto.assign(0);
-  m_EventHisto.assign(0);
-  m_SelectionHisto.assign(0);
-  m_ResidualHisto.assign(0);
-  m_ResidualUnasHisto.assign(0);
-  m_ResidualMissHisto.assign(0);
-  m_timecorHisto.assign(0);
-  m_nOtherHisto.assign(0);
-  m_etaTkUsedHisto.assign(0);
-  m_phiTkUsedHisto.assign(0);
-  m_ptiTkUsedHisto.assign(0);
-  m_ptTkUsedHisto.assign(0);
-  m_d0TkUsedHisto.assign(0);
-  m_d0PrecTkUsedHisto.assign(0);
-  m_nTrkUsedHisto.assign(0);
-  m_z0TkUsedHisto.assign(0);
-  m_phiLocalHisto.assign(0);
-  m_phiLocalCutHisto.assign(0);
-  m_chi2Histo.assign(0);
-  m_localHitXHisto.assign(0);
-  m_localHitYHistos.assign(0); 
-  m_localHitHisto.assign(0);
-  m_localMissHisto.assign(0);
-  m_localUnasHisto.assign(0);
-  m_localHitGHisto.assign(0);
-  m_TwoSidesResiduals.assign(0);
-  m_TwoSidesResidualsIneff.assign(0);
-  m_chi2ResidualHisto.assign(0);
-  m_accMap.assign(0);
-  m_accPhysMap.assign(0);
-  m_inEffChip.assign(0);
-  m_inEffStrip.assign(0);
-  m_badModPerSide.assign(0);
-  m_Eff_summaryIncBadMod.assign(0);
-  m_Eff_nTrk.assign(0);    
-  m_Eff_nGoodTrk.assign(0);
+  m_Eff_summaryHisto.fill(0);
+  m_Eff_summaryHistoFirstBCID.fill(0);
+  m_Eff_summaryHisto_old.fill(0);
+  m_holesPerTrackHisto.fill(0);
+  m_holesDistPerTrackHisto.fill(0);
+  m_Unas_summaryHisto.fill(0);
+  m_Eff_etaHisto.fill(0);
+  m_Eff_etaPhiCutHisto.fill(0);
+  m_Eff_ptiHisto.fill(0);
+  m_Eff_ptHisto.fill(0);
+  m_Unas_ptiHisto.fill(0);
+  m_Eff_phiHisto.fill(0);
+  m_Eff_phiEtaCutHisto.fill(0);
+  m_Eff_phiHistoFinal.fill(0);
+  m_Unas_phiHisto.fill(0);
+  m_Eff_d0Histo.fill(0);
+  m_Eff_d0PrecHisto.fill(0);
+  m_Eff_z0Histo.fill(0);
+  m_Eff_xlocHisto.fill(0);
+  m_Eff_ylocHistos.fill(0);
+  m_Unas_xlocHisto.fill(0);
+  m_Unas_ylocHisto.fill(0);
+  m_Eff_nSCTHisto.fill(0);
+  m_Eff_nTRTHisto.fill(0);
+  m_Eff_nOtherHisto.fill(0);
+  m_Eff_otherFaceHisto.fill(0);
+  m_Unas_otherFaceHisto.fill(0);
+  m_Eff_timecorHisto.fill(0);
+  m_probEnclosedHisto.fill(0);
+  m_Eff_SelectionHisto.fill(0);
+  m_Eff_EventHisto.fill(0);
+  m_Eff_LumiBlockHisto.fill(0);
+  m_Eff_chi2Histo.fill(0);
+  m_Eff_chi2HistoFinal.fill(0);
+  m_chi2vPhiHisto.fill(0);
+  m_EventHisto.fill(0);
+  m_SelectionHisto.fill(0);
+  m_ResidualHisto.fill(0);
+  m_ResidualUnasHisto.fill(0);
+  m_ResidualMissHisto.fill(0);
+  m_timecorHisto.fill(0);
+  m_nOtherHisto.fill(0);
+  m_etaTkUsedHisto.fill(0);
+  m_phiTkUsedHisto.fill(0);
+  m_ptiTkUsedHisto.fill(0);
+  m_ptTkUsedHisto.fill(0);
+  m_d0TkUsedHisto.fill(0);
+  m_d0PrecTkUsedHisto.fill(0);
+  m_nTrkUsedHisto.fill(0);
+  m_z0TkUsedHisto.fill(0);
+  m_phiLocalHisto.fill(0);
+  m_phiLocalCutHisto.fill(0);
+  m_chi2Histo.fill(0);
+  m_localHitXHisto.fill(0);
+  m_localHitYHistos.fill(0); 
+  m_localHitHisto.fill(0);
+  m_localMissHisto.fill(0);
+  m_localUnasHisto.fill(0);
+  m_localHitGHisto.fill(0);
+  m_TwoSidesResiduals.fill(0);
+  m_TwoSidesResidualsIneff.fill(0);
+  m_chi2ResidualHisto.fill(0);
+  m_accMap.fill(0);
+  m_accPhysMap.fill(0);
+  m_inEffChip.fill(0);
+  m_inEffStrip.fill(0);
+  m_badModPerSide.fill(0);
+  m_Eff_summaryIncBadMod.fill(0);
+  m_Eff_nTrk.fill(0);    
+  m_Eff_nGoodTrk.fill(0);
   //assume zero inefficiency
-  for (unsigned int i(0) ; i != m_ineffMap.size() ; ++i) m_ineffMap[i].assign(0);    
-  for (unsigned int i(0) ; i != m_effMap.size() ; ++i) m_effMap[i].assign(0);
-  for (unsigned int i(0) ; i != m_effLumiBlock.size() ; ++i) m_effLumiBlock[i].assign(0);
-  for (unsigned int i(0) ; i != m_layerResidualHistos.size() ; ++i) m_layerResidualHistos[i].assign(0);
-  for (unsigned int i(0) ; i != m_xlResidualHisto.size() ; ++i) m_xlResidualHisto[i].assign(0);
-  for (unsigned int i(0) ; i != m_xlResidualE0Histo.size() ; ++i) m_xlResidualE0Histo[i].assign(0);
-  for (unsigned int i(0) ; i != m_xlResidualE1Histo.size() ; ++i) m_xlResidualE1Histo[i].assign(0);
-  for (unsigned int i(0) ; i != m_xlResidualUnasHisto.size() ; ++i) m_xlResidualUnasHisto[i].assign(0);
+  for (unsigned int i(0) ; i != m_ineffMap.size() ; ++i) m_ineffMap[i].fill(0);    
+  for (unsigned int i(0) ; i != m_effMap.size() ; ++i) m_effMap[i].fill(0);
+  for (unsigned int i(0) ; i != m_effLumiBlock.size() ; ++i) m_effLumiBlock[i].fill(0);
+  for (unsigned int i(0) ; i != m_layerResidualHistos.size() ; ++i) m_layerResidualHistos[i].fill(0);
+  for (unsigned int i(0) ; i != m_xlResidualHisto.size() ; ++i) m_xlResidualHisto[i].fill(0);
+  for (unsigned int i(0) ; i != m_xlResidualE0Histo.size() ; ++i) m_xlResidualE0Histo[i].fill(0);
+  for (unsigned int i(0) ; i != m_xlResidualE1Histo.size() ; ++i) m_xlResidualE1Histo[i].fill(0);
+  for (unsigned int i(0) ; i != m_xlResidualUnasHisto.size() ; ++i) m_xlResidualUnasHisto[i].fill(0);
 }
 
 /*---------------------------------------------------------*/
@@ -340,7 +341,7 @@ StatusCode SCTHitEffMonTool::initialize(){
 
   if (m_superDetailed) m_detailed = true;
 
-  if (m_minSCTHits == -1 and m_minTRTHits == -1 and m_minOtherHits == -1) {
+  if ((m_minSCTHits == -1) and (m_minTRTHits == -1) and (m_minOtherHits == -1)) {
     if (m_isCosmic) {
       m_minTRTHits = 45;
       m_minSCTHits = 7;
@@ -371,21 +372,21 @@ StatusCode SCTHitEffMonTool::bookHistograms()
     for (std::map<Identifier, unsigned int>::const_iterator chip(m_badChips->begin()) ; chip != m_badChips->end(); ++ chip)
       VERBOSE ("Module " << m_sctId->wafer_hash(chip->first) << ", chip " << chip->second);
 
-    array < MonGroup, N_REGIONS + 1 > histGroupE = {{MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED), 
+    std::array < MonGroup, N_REGIONS + 1 > histGroupE = {MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED), 
       MonGroup(this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED), 
       MonGroup(this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED),
-      MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)}};
+      MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)};
 
-    array < MonGroup, N_REGIONS > histGroupL = {{MonGroup(this, m_path + histogramPathRe[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED), 
+    std::array < MonGroup, N_REGIONS > histGroupL = {MonGroup(this, m_path + histogramPathRe[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED), 
       MonGroup(this, m_path + histogramPathRe[BARREL_INDEX], run, ATTRIB_UNMANAGED), 
-      MonGroup(this, m_path + histogramPathRe[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED)}};//23.01.2015
+      MonGroup(this, m_path + histogramPathRe[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED)};//23.01.2015
 
-    array < MonGroup, N_REGIONS + 1 > histGroupShift = {{MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED), 
+    std::array < MonGroup, N_REGIONS + 1 > histGroupShift = {MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED), 
       MonGroup(this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED), 
       MonGroup(this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED),
-      MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)}};
+      MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)};
 
-    CHECK (bookEffHisto(m_Eff_Total, histGroupE[GENERAL_INDEX], "SctTotalEff", "SctTotalEff", N_REGIONS, 0, N_REGIONS));
+    CHECK (bookEffHisto(m_Eff_Total, histGroupE[GENERAL_INDEX], "SctTotalEff", "SCT Total Efficiency", N_REGIONS, 0, N_REGIONS));
     for (Int_t i(0) ; i != 3 ; ++i) m_Eff_Total->GetXaxis()->SetBinLabel(i+1, subDetName[i]);
     CHECK (bookEffHisto(m_Eff_TotalBCID, histGroupE[GENERAL_INDEX], "SctTotalEffBCID", "SCT Total Efficiency for First BCID", N_REGIONS, 0, N_REGIONS));
     for (Int_t i(0) ; i != 3 ; ++i) m_Eff_TotalBCID->GetXaxis()->SetBinLabel(i+1, subDetName[i]);
@@ -425,15 +426,15 @@ StatusCode SCTHitEffMonTool::bookHistograms()
     }
     // Booking efficiency maps
     //inefficiency plots, i.e. 1 - efficiency
-    array < TString, N_REGIONS > mapName     = {{"m_effm_", "m_eff_", "m_effp_"}};
-    array < TString, N_REGIONS > ineffMapName= {{"ineffm_", "ineff_", "ineffp_"}};
-    array < TString, N_REGIONS > effLumiName = {{"m_eff_Lumi_", "eff_Lumi_", "p_eff_Lumi_"}};//23.01.2015
-    array < TString, N_REGIONS > sumeff      = {{"summaryeffm", "summaryeff", "summaryeffp"}};
-    array < TString, N_REGIONS > sumeffBCID      = {{"summaryeffmBCID", "summaryeffBCID", "summaryeffpBCID"}};
-    array < TString, N_REGIONS > sumeff_old  = {{"summaryeffm_old", "summaryeff_old", "summaryeffp_old"}};
+    std::array < TString, N_REGIONS > mapName     = {"m_effm_", "m_eff_", "m_effp_"};
+    std::array < TString, N_REGIONS > ineffMapName= {"ineffm_", "ineff_", "ineffp_"};
+    std::array < TString, N_REGIONS > effLumiName = {"m_eff_Lumi_", "eff_Lumi_", "p_eff_Lumi_"};//23.01.2015
+    std::array < TString, N_REGIONS > sumeff      = {"summaryeffm", "summaryeff", "summaryeffp"};
+    std::array < TString, N_REGIONS > sumeffBCID      = {"summaryeffmBCID", "summaryeffBCID", "summaryeffpBCID"};
+    std::array < TString, N_REGIONS > sumeff_old  = {"summaryeffm_old", "summaryeff_old", "summaryeffp_old"};
     TString sumefftitle[3]={"Summary Module Efficiency in Endcap C","Summary Module Efficiency in Barrel","Summary Module Efficiency in Endcap A"};//30.11.2014
     TString sumefftitleBCID[3]={"Summary Module Efficiency in Endcap C for First BC","Summary Module Efficiency in Barrel for First BC","Summary Module Efficiency in Endcap A for First BC"};//30.11.2014
-    array < TString, 12 > selecName = {{"All", "Module", "nHits", "TRTPhase", "Enclosed", "Phi", "Chi2", "Face", "Guard", "Bad chip", "d0", "pT"}};
+    std::array < TString, 12 > selecName = {"All", "Module", "nHits", "TRTPhase", "Enclosed", "Phi", "Chi2", "Face", "Guard", "Bad chip", "d0", "pT"};
     for (Int_t isub(0) ; isub != N_REGIONS ; ++isub) {
       for (Long_t i(0) ; i != n_layers[isub] ; ++i){
         const int detIndex=becIdxLayer2Index(isub, i);
@@ -608,19 +609,19 @@ StatusCode SCTHitEffMonTool::bookHistogramsRecurrent()                          
     for (std::map<Identifier, unsigned int>::const_iterator chip(m_badChips->begin()) ; chip != m_badChips->end(); ++ chip)
       VERBOSE ("Module " << m_sctId->wafer_hash(chip->first) << ", chip " << chip->second);
 
-    array < MonGroup, N_REGIONS + 1 > histGroupE = {{MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED), 
+    std::array < MonGroup, N_REGIONS + 1 > histGroupE = {MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED), 
       MonGroup(this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED), 
       MonGroup(this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED),
-      MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)}};
+      MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)};
 
-    array < MonGroup, N_REGIONS > histGroupL = {{MonGroup(this, m_path + histogramPathRe[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED), 
+    std::array < MonGroup, N_REGIONS > histGroupL = {MonGroup(this, m_path + histogramPathRe[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED), 
       MonGroup(this, m_path + histogramPathRe[BARREL_INDEX], run, ATTRIB_UNMANAGED), 
-      MonGroup(this, m_path + histogramPathRe[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED)}};//23.01.2015
+      MonGroup(this, m_path + histogramPathRe[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED)};//23.01.2015
 
-    array < MonGroup, N_REGIONS + 1 > histGroupShift = {{MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED), 
+    std::array < MonGroup, N_REGIONS + 1 > histGroupShift = {MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED), 
       MonGroup(this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED), 
       MonGroup(this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED),
-      MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)}};
+      MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)};
 
     CHECK (bookEffHisto(m_Eff_Total, histGroupE[GENERAL_INDEX], "SctTotalEff", "SctTotalEff", N_REGIONS, 0, N_REGIONS));
     for (Int_t i(0) ; i != 3 ; ++i) m_Eff_Total->GetXaxis()->SetBinLabel(i+1, subDetName[i]);
@@ -661,17 +662,17 @@ StatusCode SCTHitEffMonTool::bookHistogramsRecurrent()                          
       CHECK (bookEffHisto(m_badModFineMap, histGroupE[GENERAL], "FineMapOfDisabledModules", "", 60, -3, 3, 64, -3.2, 3.2));
     }
     // Booking efficiency maps
-    array < TString, N_REGIONS > mapName = {{"m_eff_", "eff_", "p_eff_"}};
-    array < TString, N_REGIONS > effLumiName = {{"m_eff_Lumi_", "eff_Lumi_", "p_eff_Lumi_"}};//23.01.2015
+    std::array < TString, N_REGIONS > mapName = {"m_eff_", "eff_", "p_eff_"};
+    std::array < TString, N_REGIONS > effLumiName = {"m_eff_Lumi_", "eff_Lumi_", "p_eff_Lumi_"};//23.01.2015
     //inefficiency plots, i.e. 1 - efficiency
-    array< TString, N_REGIONS > ineffMapName={{"ineffm_", "ineff_", "ineffp_"}};
+    std::array< TString, N_REGIONS > ineffMapName={"ineffm_", "ineff_", "ineffp_"};
     //
-    array < TString, N_REGIONS > sumeff = {{"summaryeffm", "summaryeff", "summaryeffp"}};
-    array < TString, N_REGIONS > sumeffBCID = {{"summaryeffmBCID", "summaryeffBCID", "summaryeffpBCID"}};
-    array < TString, N_REGIONS > sumeff_old = {{"summaryeffm_old", "summaryeff_old", "summaryeffp_old"}};
+    std::array < TString, N_REGIONS > sumeff = {"summaryeffm", "summaryeff", "summaryeffp"};
+    std::array < TString, N_REGIONS > sumeffBCID = {"summaryeffmBCID", "summaryeffBCID", "summaryeffpBCID"};
+    std::array < TString, N_REGIONS > sumeff_old = {"summaryeffm_old", "summaryeff_old", "summaryeffp_old"};
     TString sumefftitle[3]={"Summary Module Efficiency in Endcap C","Summary Module Efficiency in Barrel","Summary Module Efficiency in Endcap A"};
     TString sumefftitleBCID[3]={"Summary Module Efficiency in Endcap C for First BC","Summary Module Efficiency in Barrel for First BC","Summary Module Efficiency in Endcap A for First BC"};
-    array < TString, 12 > selecName = {{"All", "Module", "nHits", "TRTPhase", "Enclosed", "Phi", "Chi2", "Face", "Guard", "Bad chip", "d0", "pT"}};
+    std::array < TString, 12 > selecName = {"All", "Module", "nHits", "TRTPhase", "Enclosed", "Phi", "Chi2", "Face", "Guard", "Bad chip", "d0", "pT"};
     for (Int_t isub(0) ; isub != N_REGIONS ; ++isub) {
       for (Long_t i(0) ; i != n_layers[isub] ; ++i){
         const int detIndex(becIdxLayer2Index(isub,i));
@@ -1266,8 +1267,14 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
       std::map<Identifier, unsigned int>::const_iterator badChip(m_badChips->find(module_id));
       if (badChip != m_badChips->end()){
         status = (*badChip).second;
-        nearBadChip = status & (1 << chipPos) or //Veto if either of closest two chips is dead
-          (chipPos != 5 and chipPos != 11 and status & (1 << (chipPos + 1)));
+        //Veto if either of closest two chips is dead
+        const bool nearBadChipDead = (status & (1 <<chipPos))!=0;
+        const bool nextBadChipDead = (status & (1 <<(chipPos+1)))!=0;
+        const bool isNotEndChip = (chipPos != 5) and (chipPos != 11); //cant have a 'next' if its the end chip on that side
+        //nearBadChip = status & (1 << chipPos) or 
+        //  (chipPos != 5 and chipPos != 11 and status & (1 << (chipPos + 1)));
+        //clarify logic:
+        nearBadChip = nearBadChipDead or (isNotEndChip and nextBadChipDead);
       }
       if (m_vetoBadChips and failCut(not nearBadChip, "hit cut: not near bad chip")) continue;
       VERBOSE ("Candidate passed all cuts");
@@ -1382,14 +1389,14 @@ StatusCode SCTHitEffMonTool::procHistograms(){                                  
   if (m_superDetailed) {
     std::set<Identifier> * m_badModules = m_configConditions->badModules();  
     INFO ("Found " << m_badModules->size() << " bad modules");  
-    array < array < double, N_ENDCAPS >, N_REGIONS > MaxEta;
-    array < array < double, N_ENDCAPS >, N_REGIONS > MaxPhi;
+    std::array < std::array < double, N_ENDCAPS >, N_REGIONS > MaxEta;
+    std::array < std::array < double, N_ENDCAPS >, N_REGIONS > MaxPhi;
     for (int isub(0) ; isub < N_REGIONS ; ++isub){
-      MaxEta[isub].assign(-1e3);
-      MaxPhi[isub].assign(-1e3);
+      MaxEta[isub].fill(-1e3);
+      MaxPhi[isub].fill(-1e3);
     }
-    array < array < std::vector<double>, N_ENDCAPS >, N_REGIONS > etabins;
-    array < array < std::vector<double>, N_ENDCAPS >, N_REGIONS > phibins;
+    std::array < std::array < std::vector<double>, N_ENDCAPS >, N_REGIONS > etabins;
+    std::array < std::array < std::vector<double>, N_ENDCAPS >, N_REGIONS > phibins;
     double etaMin(0.), etaMax(0.), phiMin(0.), phiMax(0.), rz(0.);
     std::map < Identifier, Float_t > mapOfInEff;
     for (std::vector<Identifier>::const_iterator wafItr(m_sctId->wafer_begin()); wafItr != m_sctId->wafer_end() ; ++wafItr){ 
@@ -1426,15 +1433,15 @@ StatusCode SCTHitEffMonTool::procHistograms(){                                  
         m_badModMap->GetXaxis()->SetRangeUser(-3, 3);
         m_badModMap->GetYaxis()->SetRangeUser(-3.4, 3.4);
         for (int i(1) ; i <= m_badModFineMap->GetNbinsX() ; ++i){
+          Float_t binx(m_badModFineMap->GetXaxis()->GetBinCenter(i));
           for (int j(1) ; j <= m_badModFineMap->GetNbinsY() ; ++j){
-            Float_t binx(m_badModFineMap->GetXaxis()->GetBinCenter(i));
             Float_t biny(m_badModFineMap->GetYaxis()->GetBinCenter(j));
-            if (binx > etaMin and binx < etaMax and biny > phiMin and biny < phiMax)
+            if ((binx > etaMin) and (binx < etaMax) and (biny > phiMin) and (biny < phiMax))
               m_badModFineMap->Fill(binx, biny);
           }
         }
       }
-      for (int i(0) ; i != 2 ; ++i) m_badModPerSide[isub]->Fill(layer + i * 1. / 2, accSide[i]);
+      for (int i(0) ; i != 2 ; ++i) m_badModPerSide[isub]->Fill(layer + i * 0.5, accSide[i]);
       if (eff == 1) continue;
       mapOfInEff[*wafItr] = eff;
       Int_t histnumber(becIdxLayer2Index(isub, layer));
@@ -1449,10 +1456,10 @@ StatusCode SCTHitEffMonTool::procHistograms(){                                  
       m_badChipMap->GetYaxis()->SetRangeUser(-3.4, 3.4);
     }
 
-    array < MonGroup, N_REGIONS + 1 > histGroupE = {{MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED), 
+    std::array < MonGroup, N_REGIONS + 1 > histGroupE = {MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED), 
       MonGroup(this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED), 
       MonGroup(this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED),
-      MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)}};
+      MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)};
 
     for (Int_t isub(0) ; isub != N_REGIONS ; ++isub){
       for (Long_t i(0) ; i != n_layers[isub] ; ++i){
