@@ -117,11 +117,11 @@ namespace TrigInDetAnalysis {
 
 
       virtual ~AnalysisConfig_Jpsi() { 
-        if(m_jpsi         ) delete m_jpsi; m_jpsi=NULL;
-        if(m_remover      ) delete m_remover; m_remover=NULL;
-        if(m_analysis     ) delete m_analysis; m_analysis=NULL;
-        if(m_selectorTestA) delete m_selectorTestA; m_selectorTestA=NULL;
-        if(m_selectorTestB) delete m_selectorTestA; m_selectorTestB=NULL;
+        delete m_jpsi;
+        delete m_remover;
+        delete m_analysis;
+        delete m_selectorTestA;
+        delete m_selectorTestB;
         //if ( m_associator ){delete m_associator; m_associator=NULL;}
       }
 
@@ -138,7 +138,7 @@ namespace TrigInDetAnalysis {
       JpsiAnalysis* m_analysisJ; 
 
       template<class TrackCollection> void selectTracks(const std::string& key="", unsigned index=0,const std::string& chain="") {   
-        m_provider->msg(MSG::DEBUG) << "Starting selectTracks ..." << endreq;
+        m_provider->msg(MSG::DEBUG) << "Starting selectTracks ..." << endmsg;
 
         Trig::ExpertMethods* em = (*m_tdt)->ExperimentalAndExpertMethods();
         em->enable();
@@ -166,7 +166,7 @@ namespace TrigInDetAnalysis {
 
         m_provider->msg(MSG::DEBUG) << "chain= " << chain 
                                     << " idChainName= " << idChainName 
-                                    << " key= " << key << endreq;
+                                    << " key= " << key << endmsg;
 
         for( ; c_itr != c_end; ++c_itr ) {
           // Now we iterate over accepted "combinations". (Single or multiple
@@ -193,12 +193,12 @@ namespace TrigInDetAnalysis {
             /// if there are > 3 combinations, roiID can be > 1; ie. there are > 2 RoIs
             /// currently we ignore them
             int roiID = roid1->roiId();
-            m_provider->msg(MSG::DEBUG) << "roi ID: " << roiID << endreq;
+            m_provider->msg(MSG::DEBUG) << "roi ID: " << roiID << endmsg;
 
             const HLT::TriggerElement* te = trackfeature.te();
             std::string TEName = "";
             TEName = (Trig::getTEName(*te).c_str());
-            m_provider->msg(MSG::DEBUG) << "TE name: " << TEName << endreq;
+            m_provider->msg(MSG::DEBUG) << "TE name: " << TEName << endmsg;
               
             // get all the named collections attached to the TE
             //if(TEName == "L2_mu4T_IDTrkNoCut"){
@@ -225,11 +225,11 @@ namespace TrigInDetAnalysis {
             //}//specify TEname
           }
         }
-        m_provider->msg(MSG::DEBUG) << "... end of selectTracks." << endreq;
+        m_provider->msg(MSG::DEBUG) << "... end of selectTracks." << endmsg;
       }
 
       template<class TrackCollection> void selectTracks0(const std::string &key="", unsigned index=0, const std::string& chain="") {   
-        m_provider->msg(MSG::DEBUG) << "Starting selectTracks0 ..." << endreq;
+        m_provider->msg(MSG::DEBUG) << "Starting selectTracks0 ..." << endmsg;
 
         Trig::ExpertMethods* em = (*m_tdt)->ExperimentalAndExpertMethods();
         em->enable();
@@ -279,7 +279,7 @@ namespace TrigInDetAnalysis {
           else idChainName = "L2_e15_NoCutcl";
         }
 
-        m_provider->msg(MSG::DEBUG) << "EF idChainName = " << idChainName  << "  key = " << key << endreq;
+        m_provider->msg(MSG::DEBUG) << "EF idChainName = " << idChainName  << "  key = " << key << endmsg;
 
         for( ; c_itr != c_end; ++c_itr ) {
           // Now we iterate over accepted "combinations". (Single or multiple
@@ -329,12 +329,12 @@ namespace TrigInDetAnalysis {
             // if there are > 3 combinations, roiID can be > 1; ie. there are > 2 RoIs
             // currently we ignore them
             int roiID = roid1->roiId();
-            m_provider->msg(MSG::DEBUG) << "EF roi ID: " << roiID << "eta = " << roid1->eta() << " phi = " << roid1->phi() << endreq;
+            m_provider->msg(MSG::DEBUG) << "EF roi ID: " << roiID << "eta = " << roid1->eta() << " phi = " << roid1->phi() << endmsg;
 
             const HLT::TriggerElement* te = trackfeature.te();
             std::string TEName = "";
             TEName = (Trig::getTEName(*te).c_str());
-            m_provider->msg(MSG::DEBUG) << "EF TE name: " << TEName << endreq;
+            m_provider->msg(MSG::DEBUG) << "EF TE name: " << TEName << endmsg;
         
             // get all the named collections attached to the TE
             std::vector<const TrackCollection*> collectionVector;
@@ -358,7 +358,7 @@ namespace TrigInDetAnalysis {
             }
           }
         }
-        m_provider->msg(MSG::DEBUG) << "... end of selectTracks0." << endreq;
+        m_provider->msg(MSG::DEBUG) << "... end of selectTracks0." << endmsg;
       }
 
       ///PW modified for 2 RoIs
@@ -410,7 +410,7 @@ namespace TrigInDetAnalysis {
 
         template<class TrackCollection> void getL2tracks(const TrackCollection *collection, int roi) {
 
-          m_provider->msg(MSG::DEBUG) << "Starting getL2tracks ..." << endreq;
+          m_provider->msg(MSG::DEBUG) << "Starting getL2tracks ..." << endmsg;
           typename TrackCollection::const_iterator trackitr = collection->begin();
           typename TrackCollection::const_iterator trackend = collection->end();
           for( ; trackitr != trackend; ++trackitr) {
@@ -463,11 +463,11 @@ namespace TrigInDetAnalysis {
               //if( !addTrack( t ) ) delete t;
             } // if(track)
           } // loop over collection
-          m_provider->msg(MSG::DEBUG) << "... end of getL2tracks." << endreq;
+          m_provider->msg(MSG::DEBUG) << "... end of getL2tracks." << endmsg;
         }
 
         template<class TrackCollection> void getEFtracks(const TrackCollection *collection, int roi) {
-          m_provider->msg(MSG::DEBUG) << "Starting getEFtracks ..." << endreq;
+          m_provider->msg(MSG::DEBUG) << "Starting getEFtracks ..." << endmsg;
     
           typename TrackCollection::const_iterator trackitr = collection->begin();
           typename TrackCollection::const_iterator trackend = collection->end();
@@ -489,7 +489,7 @@ namespace TrigInDetAnalysis {
               double z0    = measPer->parameters()[Trk::z0];
               double d0    = measPer->parameters()[Trk::d0];
 
-              m_provider->msg(MSG::DEBUG) << "current track -- eta = " << eta << " phi = " << phi << endreq;
+              m_provider->msg(MSG::DEBUG) << "current track -- eta = " << eta << " phi = " << phi << endmsg;
 
               if( measPer->parameters()[Trk::qOverP]<0 ) pT *= -1;
 
@@ -542,7 +542,7 @@ namespace TrigInDetAnalysis {
                                                                    bitmap, 0, trackAuthor, expectBL) );  
 
               const Trk::TrackParticleBase trk = (Trk::TrackParticleBase)*track;
-              m_provider->msg(MSG::DEBUG) << "original track?? " << trk.originalTrack() << endreq;
+              m_provider->msg(MSG::DEBUG) << "original track?? " << trk.originalTrack() << endmsg;
 
 /* #ifndef TIDA_NEWTRACKING_H
               double phiAtCalo = eta, etaAtCalo = phi; //(*trackitr),
@@ -561,7 +561,7 @@ namespace TrigInDetAnalysis {
               }
               m_provider->msg(MSG::DEBUG) << "key: " << int(m_trigTracks.size() - 1) << " track: " << track
                                           << " trackitr: " << (*trackitr) << " r& = " << result
-                                          << " phi = " << phiAtCalo  << " eta = " << etaAtCalo << endreq;
+                                          << " phi = " << phiAtCalo  << " eta = " << etaAtCalo << endmsg;
               m_phiAtCalo[ int(m_trigTracks.size() - 1) ] = phiAtCalo;
               m_etaAtCalo[ int(m_trigTracks.size() - 1) ] = etaAtCalo; --> see also line w/ delete!!*/
               m_trackRois[ int(m_trigTracks.size() - 1) ] = roi;
@@ -571,11 +571,11 @@ namespace TrigInDetAnalysis {
             } // if(track)
           } // end of loop over collection
           //delete m_test;
-          m_provider->msg(MSG::DEBUG) << "... end of getEFtracks." << endreq;
+          m_provider->msg(MSG::DEBUG) << "... end of getEFtracks." << endmsg;
         }
 
         void makeClean() {
-          m_provider->msg(MSG::DEBUG) << "Start cleaning... " << endreq;
+          m_provider->msg(MSG::DEBUG) << "Start cleaning... " << endmsg;
           for(unsigned i=0; i < m_trigTracks.size(); i++) delete m_trigTracks[i];
           m_trigTracks.clear();
           m_trackRois.clear();
@@ -584,7 +584,7 @@ namespace TrigInDetAnalysis {
           if(m_selectorJ)  m_selectorJ->clear();
           if(m_selectorTestA)  m_selectorTestA->clear();
           if(m_jpsi)  m_jpsi->clear();
-          m_provider->msg(MSG::DEBUG) << "... all clear." << endreq;
+          m_provider->msg(MSG::DEBUG) << "... all clear." << endmsg;
         }
 
       private:
