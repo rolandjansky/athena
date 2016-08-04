@@ -18,7 +18,7 @@
 #include "ISF_FatrasInterfaces/IHadronicInteractionProcessor.h"
 
 //Barcode
-#include "BarcodeInterfaces/PhysicsProcessCode.h"
+#include "BarcodeEvent/PhysicsProcessCode.h"
 
 // Geant4
 #include "G4ThreeVector.hh"
