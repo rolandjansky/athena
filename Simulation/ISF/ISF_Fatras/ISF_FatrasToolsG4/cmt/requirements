@@ -11,7 +11,7 @@ use AthenaBaseComps          AthenaBaseComps-*          Control
 use GaudiInterface           GaudiInterface-*           External
 
 ########## Barcode ##########################################################
-use BarcodeInterfaces        BarcodeInterfaces-*        Simulation/Barcode/ 
+use BarcodeEvent             BarcodeEvent-*             Simulation/Barcode/ 
 
 ########## ISF ##############################################################
 use ISF_Event                ISF_Event-*                Simulation/ISF/ISF_Core
@@ -41,7 +41,6 @@ use TrkGeometry              TrkGeometry-*              Tracking/TrkDetDescr
 
 ########## ISF ##############################################################
 use ISF_Interfaces           ISF_Interfaces-*           Simulation/ISF/ISF_Core   
-use BarcodeInterfaces        BarcodeInterfaces-*        Simulation/Barcode
 use ISF_Geant4Tools          ISF_Geant4Tools-*          Simulation/ISF/ISF_Geant4
 
 ########## SUSY particles ######################################################
