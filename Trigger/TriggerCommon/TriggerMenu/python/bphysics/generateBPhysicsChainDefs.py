@@ -625,6 +625,14 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
         L2TEname = L2TEname.replace("bBmumux_BpmumuKp","bBmumuxv2")
         if topo2StartFrom:
             topo2StartFrom = L2TEname
+    if 'BsmumuPhi' in topoAlgs:
+        L2TEname = L2TEname.replace("bBmumux_BsmumuPhi","bBmumuxv2")
+        if topo2StartFrom:
+            topo2StartFrom = L2TEname
+    if 'BsJpsiPhi' in topoAlgs:
+        L2TEname = L2TEname.replace("bBmumux_BsJpsiPhi","bBmumuxv2")
+        if topo2StartFrom:
+            topo2StartFrom = L2TEname
         
     if 'Ftk' in topoAlgs:
         from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
@@ -655,6 +663,22 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
         #L2Fex = L2BMuMuXFex_BplusMuMuKplus()
         EFFex = EFBMuMuXFex_BplusMuMuKplus()
         EFHypo = EFBMuMuXHypo_BplusMuMuKplus()
+        
+    elif 'BsmumuPhi' in topoAlgs:
+        #from TrigBphysHypo.TrigL2BMuMuXFexConfig import L2BMuMuXFex_BplusMuMuKplus
+        from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_BsMuMuPhi
+        from TrigBphysHypo.TrigEFBMuMuXHypoConfig import EFBMuMuXHypo_BsMuMuPhi
+        #L2Fex = L2BMuMuXFex_BplusMuMuKplus()
+        EFFex = EFBMuMuXFex_BsMuMuPhi()
+        EFHypo = EFBMuMuXHypo_BsMuMuPhi()
+        
+    elif 'BsJpsiPhi' in topoAlgs:
+        #from TrigBphysHypo.TrigL2BMuMuXFexConfig import L2BMuMuXFex_BplusMuMuKplus
+        from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_BsJpsiPhi
+        from TrigBphysHypo.TrigEFBMuMuXHypoConfig import EFBMuMuXHypo_BsJpsiPhi
+        #L2Fex = L2BMuMuXFex_BplusMuMuKplus()
+        EFFex = EFBMuMuXFex_BsJpsiPhi()
+        EFHypo = EFBMuMuXHypo_BsJpsiPhi()
 
     elif 'Taumumux' in topoAlgs:
         #from TrigBphysHypo.TrigL2BMuMuXFexConfig import L2BMuMuXFex_TauMuMuX
