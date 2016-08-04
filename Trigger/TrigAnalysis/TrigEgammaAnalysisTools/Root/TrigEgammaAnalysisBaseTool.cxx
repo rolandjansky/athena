@@ -35,8 +35,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaAnalysisBaseTool.h"
 #include "TrigEgammaAnalysisTools/ValidationException.h"
-#include "TrigSteeringEvent/TrigPassBits.h"
-#include "TrigSteeringEvent/TrigPassBitsCollection.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -49,7 +47,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     : AsgTool(myname),
     m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool"),
     m_matchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool"),
-    m_lumiTool("LuminosityTool/OnlLuminosity"),//online mu
+    m_lumiTool("LuminosityTool/OnlLuminosityTool"),//online mu
     m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool") //offline mu
 {
     declareProperty("MatchTool",m_matchTool);
@@ -59,8 +57,8 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     declareProperty("PhotonKey",m_offPhContKey="Photons");
     declareProperty("File",m_file="");
     declareProperty("UseLuminosityTool", m_useLumiTool=true);
-    declareProperty("LuminosityTool", m_lumiTool, "Luminosity Tool");
-    declareProperty("LuminosityToolOnline", m_lumiBlockMuTool, "Luminosity Tool Online");
+    declareProperty("LuminosityTool", m_lumiBlockMuTool, "Luminosity Tool Online");
+    declareProperty("LuminosityToolOnline", m_lumiTool, "Luminosity Tool");
     declareProperty("DetailedHistograms", m_detailedHists=false)->declareUpdateHandler(&TrigEgammaAnalysisBaseTool::updateDetail,this);
     declareProperty("DefaultProbePid", m_defaultProbePid="Loose");
     declareProperty("doJpsiee",m_doJpsiee=false)->declareUpdateHandler(&TrigEgammaAnalysisBaseTool::updateAltBinning,this);
@@ -72,7 +70,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     m_parent = nullptr;
     
     // just for compile
-    HLT::TriggerElement* t = NULL;
+    HLT::TriggerElement* t = nullptr;
     const xAOD::TrigElectronContainer* a = getFeature<xAOD::TrigElectronContainer>(t);
     const xAOD::ElectronContainer* b = getFeature<xAOD::ElectronContainer>(t);
     bool a1 = ancestorPassed<xAOD::TrigElectronContainer>(t);
@@ -82,6 +80,8 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     // Coverity fix
     m_nGoodVtx=0;
     m_nPileupPrimaryVtx=0;
+    m_offmu=0.;
+    m_onlmu=0.;
 
     
 }
@@ -121,7 +121,21 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
     if( sc.isFailure() ) {
         ATH_MSG_ERROR("Unable to locate Service THistSvc");
         return sc;
+
     }
+    
+    if (m_lumiTool.retrieve().isFailure()) {
+        ATH_MSG_WARNING("Unable to retrieve LuminosityToolOnline");
+    } else {
+        ATH_MSG_INFO("Successfully retrieved LuminosityToolOnline");
+    }
+
+    if (m_lumiBlockMuTool.retrieve().isFailure()) {                                     
+        ATH_MSG_WARNING("Unable to retrieve LumiBlockMuTool");
+    } else {                                                                     
+        ATH_MSG_INFO("Successfully retrieved LumiBlockMuTool");
+    }  
+    
     if ( (m_trigdec.retrieve()).isFailure() ){
         ATH_MSG_ERROR("Could not retrieve Trigger Decision Tool! Can't work");
         return StatusCode::FAILURE;
@@ -193,6 +207,9 @@ StatusCode TrigEgammaAnalysisBaseTool::execute() {
     ATH_MSG_DEBUG( "Executing tool " << name() );
 
     StatusCode sc = StatusCode::FAILURE;
+    // Cache Event quantities
+    setAvgOnlineMu();
+    setAvgOfflineMu();
     try {
         ATH_MSG_DEBUG("Running execute() for " << name());
         sc = childExecute();
@@ -478,12 +495,15 @@ bool TrigEgammaAnalysisBaseTool::isPrescaled(const std::string trigger){
         rerun=bit&TrigDefs::EF_resurrected; //Rerun, only check for HLT
     }
 
+
+    ATH_MSG_DEBUG("Checking prescale for " << trigger << " " << l1item);
     const unsigned int l1bit=tdt()->isPassedBits(l1item);
     bool l1_afterpre=l1bit&TrigDefs::L1_isPassedAfterPrescale;
     bool l1_beforepre=l1bit&TrigDefs::L1_isPassedBeforePrescale;
     l1prescale=l1_beforepre && !l1_afterpre;
-
     prescale=efprescale || l1prescale;
+    ATH_MSG_DEBUG("L1 prescale " << l1item << " " << l1prescale << " before " << l1_beforepre << " after " << l1_afterpre);
+    ATH_MSG_DEBUG("EF prescale " << trigger << " " << efprescale << " Prescale " << prescale);
     if(rerun) return false; // Rerun use the event
     if(prescale) return true; // Prescaled, reject event
     return false; // Not prescaled, use event
@@ -667,10 +687,47 @@ float TrigEgammaAnalysisBaseTool::getE0Eaccordion(const xAOD::Egamma *eg){
     else return 0.;
 }
 
-float TrigEgammaAnalysisBaseTool::getAvgMu() {
-  return m_lumiBlockMuTool->averageInteractionsPerCrossing();
+void TrigEgammaAnalysisBaseTool::setAvgOfflineMu() {
+   float mu=0.;
+   
+   if(m_lumiBlockMuTool)
+       mu=(float)m_lumiBlockMuTool->averageInteractionsPerCrossing();
+   else
+       ATH_MSG_WARNING("Missing LumiBlockMuTool");
+   
+   ATH_MSG_DEBUG("Offline Lumi " << mu);
+   m_offmu=mu;
 }
 
+void TrigEgammaAnalysisBaseTool::setAvgOnlineMu(){
+    float mu=0.;
+    
+    if(m_lumiTool)
+        mu=(float)m_lumiTool->lbAverageInteractionsPerCrossing();
+    else 
+        ATH_MSG_WARNING("Missing lumiTool");
+    
+    ATH_MSG_DEBUG("Online Lumi " << mu);
+    m_onlmu=mu;
+}
+
+// Check online/offline mu
+// Return at least 1 value
+float TrigEgammaAnalysisBaseTool::getAvgMu(){
+    // Get the cached values
+    // Return online Lumi if non-zero
+    if(m_onlmu != 0.)
+        return m_onlmu;
+    else if(m_offmu!=0.){
+        ATH_MSG_DEBUG("Using Offline Lumi info");
+        return m_offmu; 
+    } 
+    else if(m_onlmu==0. && m_offmu==0.){
+        ATH_MSG_DEBUG("Average Pileup 0., no Lumi info");
+        return 0.;
+    }
+    return 0.;
+}
 /*! Macros for plotting */  
 #define GETTER(_name_) float TrigEgammaAnalysisBaseTool::getShowerShape_##_name_(const xAOD::Egamma* eg) \
 { float val{-99}; \
@@ -821,7 +878,7 @@ GETTER(deltaPhiRescaled3)
 std::string TrigEgammaAnalysisBaseTool::getL1Item(std::string trigger){
     auto trig_conf = m_trigdec->ExperimentalAndExpertMethods()->getChainConfigurationDetails(trigger);
     std::string L1_seed = "";
-    if(trig_conf != NULL){
+    if(trig_conf != nullptr){
         ATH_MSG_DEBUG("TrigConf available");
         L1_seed = trig_conf->lower_chain_name(); //L1 trigger seed             
     }

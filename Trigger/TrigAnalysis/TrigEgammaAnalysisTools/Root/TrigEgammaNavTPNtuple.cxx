@@ -24,6 +24,8 @@ TrigEgammaNavTPNtuple::TrigEgammaNavTPNtuple( const std::string& myname ): TrigE
   m_eventCounter = 0;
   declareProperty("CutLabels",m_cutlabels);
   declareProperty("DirectoryPath",m_dir="NavTPNtuple");
+  m_el_ringsE=nullptr;
+  m_trig_L1_thrNames=nullptr;          
   m_trig_L2_calo_energySample=nullptr;
   m_trig_L2_calo_rings=nullptr;
   m_trig_L2_el_trackAlgID=nullptr;
@@ -37,28 +39,6 @@ TrigEgammaNavTPNtuple::TrigEgammaNavTPNtuple( const std::string& myname ): TrigE
   m_trig_L2_el_etOverPt=nullptr;
   m_trig_L2_el_trkClusDeta=nullptr;
   m_trig_L2_el_trkClusDphi=nullptr;
-  m_mc_hasMC=false     ;
-  m_mc_pt=-999        ;
-  m_mc_eta=-999       ;
-  m_mc_phi=-999       ;
-  m_mc_isTop=false     ;
-  m_mc_isParton=false  ;
-  m_mc_isMeson=false   ;
-  m_mc_isQuark=false   ;
-  m_mc_isTau=false     ;
-  m_mc_isMuon=false    ;
-  m_mc_isPhoton=false  ;
-  m_mc_isElectron=false;
-  m_mc_hasZMother=false;
-  m_mc_hasWMother=false;
-  m_el_nGoodVtx=0;
-  m_el_nPileupPrimaryVtx=0;
-  m_calo_et=-999.;
-  m_calo_eta=-999.;
-  m_calo_phi=-999.;;
-  m_trig_EF_el_accept=false;
-
-
 }
 
 StatusCode TrigEgammaNavTPNtuple::childInitialize(){
@@ -276,7 +256,7 @@ bool TrigEgammaNavTPNtuple::fillTrigEMCluster( const xAOD::TrigEMCluster *emClus
 bool TrigEgammaNavTPNtuple::fillTrigElectron( const xAOD::TrigElectron *trigEl ){
 
    const xAOD::TrackParticle* trkIter = trigEl->trackParticle();
-   if (trkIter==NULL) return false; // disconsider candidates without track
+   if (trkIter==nullptr) return false; // disconsider candidates without track
    int algoId = 0;
    if ( trkIter->patternRecoInfo()[xAOD::TrackPatternRecoInfo::FastTrackFinderSeed] ) algoId=9;
    if ( trkIter->patternRecoInfo()[xAOD::TrackPatternRecoInfo::strategyA] )           algoId=5;

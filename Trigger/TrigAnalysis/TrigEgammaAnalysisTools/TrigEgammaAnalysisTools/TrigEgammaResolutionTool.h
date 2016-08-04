@@ -40,8 +40,7 @@ private:
   void resolutionL2Photon(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
   void resolutionL2Electron(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
   void resolutionEFCalo(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
-  
-  /*! Include more detailed histograms */
+   /*! Include more detailed histograms */
   bool m_detailedHists;
 };
 

@@ -34,10 +34,8 @@ private:
   void fillL2Calo(const std::string,const xAOD::TrigEMCluster *);
   void fillRinger(const std::string,const xAOD::TrigEMCluster *);
   void fillL1Calo(const std::string,const xAOD::EmTauRoI *);
-  
-  /*! Include more detailed histograms */
+   /*! Include more detailed histograms */
   bool m_detailedHists;
-
 };
 
 #endif
