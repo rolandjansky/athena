@@ -1,5 +1,6 @@
 package JetResolution
-# $Id$
+# $Id: requirements 766594 2016-08-04 23:13:11Z will $
+
 
 public
 
@@ -40,3 +41,4 @@ apply_pattern declare_joboptions files=../share/*.py
 private
 apply_pattern lcgdict dict=JetResolution selectionfile=selection.xml headerfiles="../JetResolution/JetResolutionDict.h"
 end_private
+
