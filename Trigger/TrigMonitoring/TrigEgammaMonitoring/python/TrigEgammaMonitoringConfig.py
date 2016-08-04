@@ -5,9 +5,14 @@
 # Configuration should be updated and kept in this package for monitoring
 # Provide all triggers to be monitored
 # Provide list of categories and shifter plots
+def TrigEgammaMonToolLoader():
+    from TrigEgammaMonitoring.TrigEgammaMonToolBuilder import TrigEgammaMonToolBuilder
+    builder = TrigEgammaMonToolBuilder()
+    return builder.monTool
 
 def TrigEgammaMonitoringTool():
     from AthenaCommon.AppMgr import ToolSvc
+    from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR
     from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavAnalysisTool,TrigEgammaNavTPAnalysisTool,TrigEgammaNavTPJpsieeAnalysisTool
     from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import EfficiencyTool, ResolutionTool, DistTool, TrigEgammaPlotTool
 
@@ -19,7 +24,7 @@ def TrigEgammaMonitoringTool():
     basePath = '/HLT/Egamma'
     # Define the outputLevel 
     # WARNING only change for debugging
-    debugLevel=0
+    debugLevel=INFO
     #Configure the TrigEgammaPlotTool
     #MaM maps a category name (creates a directory) to a trigger (copies histos from trigger dir to category dir)
     #Efficiency,Distribution,Resolution -- list of plots to monitor for shifter MaM categories
