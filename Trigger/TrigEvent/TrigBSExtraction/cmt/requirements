@@ -17,7 +17,7 @@ use xAODTrigMuonCnv		xAODTrigMuonCnv-*	Event/xAOD
 use xAODJetCnv			xAODJetCnv-*		Event/xAOD
 # use xAODTrigRingerCnv		xAODTrigRingerCnv-*	Event/xAOD # not configurable algtool
 use xAODTrigCaloCnv		xAODTrigCaloCnv-*	Event/xAOD
-# use xAODBTaggingCnv		xAODBTaggingCnv-*	Event/xAOD # not in devval yet
+use xAODBTaggingCnv		xAODBTaggingCnv-*	Event/xAOD 
 use xAODTrigBphysCnv		xAODTrigBphysCnv-*	Event/xAOD
 # use xAODTrigEgammaCnv		xAODTrigEgammaCnv-*	Event/xAOD # not in devval yet
 use xAODTrigMissingETCnv	xAODTrigMissingETCnv-*	Event/xAOD
@@ -25,6 +25,7 @@ use xAODTrigMinBiasCnv		xAODTrigMinBiasCnv-*	Event/xAOD
 use xAODTrackingCnv             xAODTrackingCnv-*       Event/xAOD
 use xAODEgammaCnv               xAODEgammaCnv-*         Event/xAOD
 use xAODCaloEventCnv		xAODCaloEventCnv-*      Event/xAOD
+use xAODTriggerCnv              xAODTriggerCnv-*        Event/xAOD
 
 private
 
@@ -45,6 +46,8 @@ use xAODTrigMinBias	  xAODTrigMinBias-*	  Event/xAOD
 use xAODTau               xAODTau-*               Event/xAOD
 use xAODCaloEvent	  xAODCaloEvent-*	  Event/xAOD
 use xAODEgamma            xAODEgamma-*            Event/xAOD
+use xAODTrigger           xAODTrigger-*           Event/xAOD
+use xAODBTagging          xAODBTagging-*          Event/xAOD
 
 use TrigStorageDefinitions TrigStorageDefinitions-* Trigger/TrigEvent
 use TrigMissingEtEvent	  TrigMissingEtEvent-*	  Trigger/TrigEvent
@@ -56,6 +59,7 @@ use TrkTrack              TrkTrack-*              Tracking/TrkEvent
 use tauEvent              tauEvent-*              Reconstruction
 use egammaEvent           egammaEvent-*           Reconstruction/egamma
 use CaloEvent		  CaloEvent-*		  Calorimeter
+
 
 use TrigParticle	  TrigParticle-*	  Trigger/TrigEvent
 
