@@ -14,7 +14,7 @@ use GaudiInterface              GaudiInterface-*        External
 # private use statements
 private
 use AthenaBaseComps             AthenaBaseComps-*           Control
-use BarcodeInterfaces           BarcodeInterfaces-*         Simulation/Barcode
+use BarcodeEvent                BarcodeEvent-*              Simulation/Barcode
 use CaloInterface               CaloInterface-*             Calorimeter
 use ISF_Interfaces              ISF_Interfaces-*            Simulation/ISF/ISF_Core
 use AtlasCLHEP                  AtlasCLHEP-*            	External
