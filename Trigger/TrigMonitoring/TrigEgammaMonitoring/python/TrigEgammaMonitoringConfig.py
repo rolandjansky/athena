@@ -5,9 +5,14 @@
 # Configuration should be updated and kept in this package for monitoring
 # Provide all triggers to be monitored
 # Provide list of categories and shifter plots
+def TrigEgammaMonToolLoader():
+    from TrigEgammaMonitoring.TrigEgammaMonToolBuilder import TrigEgammaMonToolBuilder
+    builder = TrigEgammaMonToolBuilder()
+    return builder.monTool
 
 def TrigEgammaMonitoringTool():
     from AthenaCommon.AppMgr import ToolSvc
+    from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR
     from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavAnalysisTool,TrigEgammaNavTPAnalysisTool,TrigEgammaNavTPJpsieeAnalysisTool
     from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import EfficiencyTool, ResolutionTool, DistTool, TrigEgammaPlotTool
 
@@ -19,7 +24,7 @@ def TrigEgammaMonitoringTool():
     basePath = '/HLT/Egamma'
     # Define the outputLevel 
     # WARNING only change for debugging
-    debugLevel=0
+    debugLevel=INFO
     #Configure the TrigEgammaPlotTool
     #MaM maps a category name (creates a directory) to a trigger (copies histos from trigger dir to category dir)
     #Efficiency,Distribution,Resolution -- list of plots to monitor for shifter MaM categories
@@ -35,20 +40,14 @@ def TrigEgammaMonitoringTool():
     HLTEgammaResTool = ResolutionTool(name="HLTEgammaResTool",PlotTool=HLTEgammaPlotTool,OutputLevel=debugLevel)
     HLTEgammaDistTool = DistTool(name="HLTEgammaDistTool",PlotTool=HLTEgammaPlotTool,OutputLevel=debugLevel)
 
-    tagItems = ['HLT_e26_lhtight_nod0',
+    tagItems = ['HLT_e24_lhtight_nod0_ivarloose',
         'HLT_e26_lhtight_nod0_ivarloose']
 
-    JpsitagItems = ['HLT_e5_tight_e4_etcut',
-                    'HLT_e9_tight_e4_etcut',
-                    'HLT_e14_tight_e4_etcut',
-                    'HLT_e9_etcut_e5_tight',
-                    'HLT_e14_etcut_e5_tight',
-                    # Primary cut-based electron triggers
-                    'HLT_e5_tight_e4_etcut_Jpsiee',
-                    'HLT_e9_tight_e4_etcut_Jpsiee',
-                    'HLT_e14_tight_e4_etcut_Jpsiee',
-                    'HLT_e9_etcut_e5_tight_Jpsiee',
-                    'HLT_e14_etcut_e5_tight_Jpsiee']
+    JpsitagItems = ['HLT_e5_lhtight_nod0_e4_etcut',
+                    'HLT_e9_lhtight_nod0_e4_etcut',
+                    'HLT_e14_lhtight_nod0_e4_etcut',
+                    'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee',
+                    'HLT_e9_lhtight_nod0_e4_etcut_Jpsiee']
 
     # For MaM, most important is the list of triggers to monitor
     # Currently these are found in TRigEgammProbelist

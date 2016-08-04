@@ -37,8 +37,12 @@ from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 topSequence += AthenaMonManager( "HLTMonManager")
 HLTMonManager = topSequence.HLTMonManager
 
-from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonitoringTool
-HLTMonManager.AthenaMonTools += TrigEgammaMonitoringTool()
+if('useLoader' in dir()):
+    from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonToolLoader
+    HLTMonManager.AthenaMonTools += TrigEgammaMonToolLoader()
+else:
+    from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonitoringTool
+    HLTMonManager.AthenaMonTools += TrigEgammaMonitoringTool()
 
 HLTMonManager.FileKey = "GLOBAL"
 
