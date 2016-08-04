@@ -348,15 +348,16 @@ TrigEgammaAnalysisBaseTool::closestObject(const std::pair<const xAOD::Egamma *,c
     if(dRmax < 0.15) dRmax = 0.15;
     const auto *cont=getFeature<T2>(pairObj.second,key);
     if(cont==nullptr) return nullptr;
-    const xAOD::TrigPassBits *bits = nullptr;
+    const TrigPassBits *bits = nullptr;
     if(usePassbits){ 
-        bits=getFeature<xAOD::TrigPassBits>(pairObj.second);
+        bits=getFeature<TrigPassBits>(pairObj.second);
         if(bits==nullptr) return nullptr;
     }
     const T1 *cl = nullptr;
     float dr=0.; 
     for(const auto& obj : *cont){
-        if( usePassbits && !bits->isPassing(obj,cont) ) continue; 
+        if( usePassbits && !HLT::isPassing(bits,obj,cont) ) continue;
+        //if( usePassbits && bits->isPassing(obj,cont) ) continue; 
         if(obj==nullptr) continue;
         dr=dR(eta,phi,obj->eta(),obj->phi());
         if ( dr<dRmax){

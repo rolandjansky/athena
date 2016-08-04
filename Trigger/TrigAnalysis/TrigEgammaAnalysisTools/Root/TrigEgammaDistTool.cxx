@@ -120,7 +120,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 for (const auto feat : vec_el){
                     if(feat.te()==nullptr) continue;
                     const auto* cont = getFeature<xAOD::ElectronContainer>(feat.te());
-                    const auto *bits = getFeature<xAOD::TrigPassBits>(feat.te());
+                    const auto *bits = getFeature<TrigPassBits>(feat.te());
                     if(cont==nullptr) continue; 
                     cd(dir+"HLT");
                     if(ancestorPassed<xAOD::ElectronContainer>(feat.te()))
@@ -132,7 +132,8 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                             fillTracking(dir+"HLT",obj); // Fill HLT shower shapes
                         }
                         // Only consider passing objects if bits available
-                        else if(!bits->isPassing(obj,cont)) continue;
+                        //else if(!bits->isPassing(obj,cont)) continue;
+                        else if(!HLT::isPassing(bits,obj,cont) ) continue;
                         fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
                         fillTracking(dir+"HLT",obj); // Fill HLT shower shapes
                     }
@@ -160,7 +161,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
             for(const auto feat : vec_clus){
                 if(feat.te()==nullptr) continue;
                 const auto *cont = getFeature<xAOD::CaloClusterContainer>(feat.te());
-                const auto *bits = getFeature<xAOD::TrigPassBits>(feat.te());
+                const auto *bits = getFeature<TrigPassBits>(feat.te());
                 if(cont==nullptr) continue;
                 cd(dir+"HLT");
                 if(ancestorPassed<xAOD::CaloClusterContainer>(feat.te()))
@@ -168,7 +169,9 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 for(const auto& clus : *cont){
                     if(clus==nullptr) continue;
                     if(bits!=nullptr)
-                        if(!bits->isPassing(clus,cont)) continue;
+                        if(!HLT::isPassing(bits,clus,cont) ) continue;
+                        //if(!bits->isPassing(clus,cont)) continue;
+                    
                     fillEFCalo(dir+"EFCalo",clus);           
                 }
             }
@@ -180,7 +183,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 for (const auto feat : vec_l2el){
                     if(feat.te()==nullptr) continue;
                     const auto* cont = getFeature<xAOD::TrigElectronContainer>(feat.te());
-                    const auto *bits = getFeature<xAOD::TrigPassBits>(feat.te());
+                    const auto *bits = getFeature<TrigPassBits>(feat.te());
                     if(bits==nullptr) continue; 
                     if(cont==nullptr) continue;
                     cd(dir+"HLT");
@@ -189,7 +192,8 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                     for(const auto& obj : *cont){
                         // Only consider passing objects
                         if(!obj) continue;
-                        if(!bits->isPassing(obj,cont)) continue;
+                        if(!HLT::isPassing(bits,obj,cont) ) continue;
+                        //if(!bits->isPassing(obj,cont)) continue;
                         fillL2Electron(dir+"L2Electron",obj); // Fill HLT shower shapes
                     }
                 }
@@ -197,7 +201,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 for (const auto feat : vec_el){
                     if(feat.te()==nullptr) continue;
                     const auto* cont = getFeature<xAOD::ElectronContainer>(feat.te());
-                    const auto *bits = getFeature<xAOD::TrigPassBits>(feat.te());
+                    const auto *bits = getFeature<TrigPassBits>(feat.te());
                     if(cont==nullptr) continue; 
                     cd(dir+"HLT");
                     if(ancestorPassed<xAOD::ElectronContainer>(feat.te()))
@@ -209,7 +213,8 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                             fillTracking(dir+"HLT",obj); // Fill HLT shower shapes
                         }
                         // Only consider passing objects if bits available
-                        else if(!bits->isPassing(obj,cont)) continue;
+                        else if(!HLT::isPassing(bits,obj,cont) ) continue;
+                        //else if(!bits->isPassing(obj,cont)) continue;
                         fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
                         fillTracking(dir+"HLT",obj); // Fill HLT shower shapes
                     }
@@ -220,7 +225,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 for (const auto feat : vec_ph){
                     if(feat.te()==nullptr) continue;
                     const auto* cont = getFeature<xAOD::PhotonContainer>(feat.te());
-                    const auto *bits = getFeature<xAOD::TrigPassBits>(feat.te());
+                    const auto *bits = getFeature<TrigPassBits>(feat.te());
                     if(cont==nullptr) continue;
                     cd(dir+"HLT");
                     if(ancestorPassed<xAOD::PhotonContainer>(feat.te()))
@@ -232,7 +237,8 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                             fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
                         }
                         // Only consider passing objects if bits available
-                        else if(!bits->isPassing(obj,cont)) continue;
+                        //else if(!bits->isPassing(obj,cont)) continue;
+                        else if(!HLT::isPassing(bits,obj,cont) ) continue;
                         fillShowerShapes(dir+"HLT",obj); // Fill HLT shower shapes
                     }
                 }
