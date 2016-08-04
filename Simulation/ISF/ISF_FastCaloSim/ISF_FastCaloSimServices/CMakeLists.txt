@@ -7,20 +7,21 @@ atlas_subdir( ISF_FastCaloSimServices )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloInterface
-                          Control/AthenaBaseComps
                           GaudiKernel
-                          Simulation/Barcode/BarcodeInterfaces
+                          PRIVATE
+                          Control/AthenaBaseComps
+                          Simulation/Barcode/BarcodeEvent
                           Simulation/ISF/ISF_Core/ISF_Interfaces
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkExtrapolation/TrkExInterfaces
-                          PRIVATE
+                          Calorimeter/CaloInterface
                           Calorimeter/CaloEvent
                           Control/StoreGate
                           Event/NavFourMom
                           Generators/GeneratorObjects
                           Simulation/FastShower/FastCaloSim
                           Simulation/ISF/ISF_Core/ISF_Event
+                          Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimEvent
                           Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimInterfaces )
 
 # External dependencies:
@@ -32,7 +33,7 @@ atlas_add_component( ISF_FastCaloSimServices
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel ISF_Interfaces TrkEventPrimitives TrkExInterfaces CaloEvent StoreGateLib SGtests NavFourMom GeneratorObjects FastCaloSimLib ISF_Event ISF_FastCaloSimInterfaces )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel ISF_Interfaces TrkEventPrimitives TrkExInterfaces CaloEvent StoreGateLib SGtests NavFourMom GeneratorObjects FastCaloSimLib ISF_Event ISF_FastCaloSimEvent ISF_FastCaloSimInterfaces )
 
 # Install files from the package:
 atlas_install_headers( ISF_FastCaloSimServices )
