@@ -50,9 +50,10 @@ ToolSvc+=TightLHSelector
 #from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
 #lumiTool = LuminosityToolDefault()
 #ToolSvc += lumiTool
-#from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-#lumiOnlineTool = LuminosityToolOnline("LuminosityToolOnline")
-#ToolSvc += lumiOnlineTool
+from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
+lumiOnlineTool = LuminosityToolOnline("OnlLuminosityTool")
+if not hasattr(ToolSvc,lumiOnlineTool.getName()):
+    ToolSvc += lumiOnlineTool
 
 IneffLabels=["ClusterEtaRange","ConversionMatch","ClusterHadronicLeakage","ClusterMiddleEnergy","ClusterMiddleEratio37","ClusterMiddleEratio33","ClusterMiddleWidth","f3","ClusterStripsEratio","ClusterStripsDeltaEmax2","ClusterStripsDeltaE","ClusterStripsWtot","ClusterStripsFracm","ClusterStripsWeta1c","empty14","ClusterStripsDEmaxs1","TrackBlayer","TrackPixel","TrackSi","TrackA0","TrackMatchEta","TrackMatchPhi","TrackMatchEoverP","TrackTRTeProbabilityHT_Electron","TrackTRThits","TrackTRTratio","TrackTRTratio90","TrackA0Tight","TrackMatchEtaTight","Isolation","ClusterIsolation","TrackIsolation","No Track","No Cluster","No Object"]
 
@@ -213,37 +214,6 @@ TrigEgammaNavAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNa
         PhotonFilterType="Loose", 
         )
 
-
-TrigEgammaEmulationTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaEmulationTool, name = "TrigEgammaEmulationTool",
-        DirectoryPath='Emulation',
-        ElectronKey = 'Electrons',
-        MatchTool = EgammaMatchTool,
-        PlotTool=TrigEgammaPlotTool,
-        Tools=[EfficiencyTool],
-        TriggerList=monitoring_electron + monitoring_photon,
-        PhotonOnlPPSelector=[ ToolSvc.AsgPhotonIsEMTightSelector,
-            ToolSvc.AsgPhotonIsEMMediumSelector,
-            ToolSvc.AsgPhotonIsEMLooseSelector],
-        ElectronOnlPPSelector=[ ToolSvc.AsgElectronIsEMTightHypoSelector,
-            ToolSvc.AsgElectronIsEMMediumHypoSelector,
-            ToolSvc.AsgElectronIsEMLooseHypoSelector,
-            ToolSvc.AsgElectronIsEMVLooseHypoSelector ],
-        ElectronOnlLHSelector=[ ToolSvc.AsgElectronLHTightSelector,
-            ToolSvc.AsgElectronLHMediumSelector,
-            ToolSvc.AsgElectronLHLooseSelector,
-            ToolSvc.AsgElectronLHVLooseSelector ],
-        PhotonCaloPPSelector=[ ToolSvc.AsgPhotonIsEMTightSelector,
-            ToolSvc.AsgPhotonIsEMMediumSelector,
-            ToolSvc.AsgPhotonIsEMLooseSelector],
-        ElectronCaloPPSelector=[ ToolSvc.AsgElectronIsEMTightCaloHypoSelector,
-            ToolSvc.AsgElectronIsEMMediumCaloHypoSelector,
-            ToolSvc.AsgElectronIsEMLooseCaloHypoSelector,
-            ToolSvc.AsgElectronIsEMVLooseCaloHypoSelector ],
-        ElectronCaloLHSelector=[ ToolSvc.AsgElectronLHTightCaloSelector,
-            ToolSvc.AsgElectronLHMediumCaloSelector,
-            ToolSvc.AsgElectronLHLooseCaloSelector,
-            ToolSvc.AsgElectronLHVLooseCaloSelector ],
-        )
 
 # Function to return triggerlist tools
 def getAllTools():

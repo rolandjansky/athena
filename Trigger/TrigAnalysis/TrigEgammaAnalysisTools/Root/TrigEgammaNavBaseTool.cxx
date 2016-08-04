@@ -229,7 +229,7 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
 
   const std::string decor="is"+pidname;
   for(const auto& eg : *m_offElectrons ){
-      const HLT::TriggerElement *te = NULL;
+      const HLT::TriggerElement *te = nullptr;
       if(!eg->trackParticle()){
           ATH_MSG_DEBUG("No track Particle");
           continue;
@@ -265,7 +265,7 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
           m_objTEList.push_back(pair);
       }
       else {
-          std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,NULL);
+          std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,nullptr);
           m_objTEList.push_back(pair);
       }
   }
@@ -283,7 +283,7 @@ StatusCode TrigEgammaNavBaseTool::executePhotonNavigation( std::string trigItem,
 
 
   for(const auto& eg : *m_offPhotons ){
-      const HLT::TriggerElement *te = NULL;
+      const HLT::TriggerElement *te = nullptr;
       if(!eg->caloCluster()){
           ATH_MSG_DEBUG("No caloCluster");
           continue;
@@ -303,7 +303,7 @@ StatusCode TrigEgammaNavBaseTool::executePhotonNavigation( std::string trigItem,
           m_objTEList.push_back(pair);
       }
       else {
-          std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,NULL);
+          std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,nullptr);
           m_objTEList.push_back(pair);
       }
 

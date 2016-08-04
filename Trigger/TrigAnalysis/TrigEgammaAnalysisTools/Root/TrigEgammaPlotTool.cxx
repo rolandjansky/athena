@@ -564,7 +564,7 @@ TH1 *TrigEgammaPlotTool::hist1(const std::string &histName, const std::string &d
     if (histItr == m_hist1.end())
         throw ValidationException(std::string(std::string("Getting histogram with path ") + fullPath) + std::string(" failed! No such object!"));
     if (!histItr->second)
-        throw ValidationException(std::string(std::string("Getting histogram with path ") + fullPath) + std::string(" failed! It is a NULL pointer!"));
+        throw ValidationException(std::string(std::string("Getting histogram with path ") + fullPath) + std::string(" failed! It is a nullptr pointer!"));
 
     return histItr->second;
 }
@@ -575,7 +575,7 @@ TH2 *TrigEgammaPlotTool::hist2(const std::string &histName, const std::string &d
     if (histItr == m_hist2.end())
         throw ValidationException(std::string(std::string("Getting histogram with path ") + fullPath) + std::string(" failed! No such object!"));
     if (!histItr->second)
-        throw ValidationException(std::string(std::string("Getting histogram with path ") + fullPath) + std::string(" failed! It is a NULL pointer!"));
+        throw ValidationException(std::string(std::string("Getting histogram with path ") + fullPath) + std::string(" failed! It is a nullptr pointer!"));
 
     return histItr->second;
 }
@@ -585,7 +585,7 @@ TTree *TrigEgammaPlotTool::tree(const std::string &treeName, const std::string &
     if (treeItr == m_tree.end())
         throw ValidationException(std::string(std::string("Getting tree with path ") + fullPath) + std::string(" failed! No such object!"));
     if (!treeItr->second)
-        throw ValidationException(std::string(std::string("Getting tree with path ") + fullPath) + std::string(" failed! It is a NULL pointer!"));
+        throw ValidationException(std::string(std::string("Getting tree with path ") + fullPath) + std::string(" failed! It is a nullptr pointer!"));
 
     return treeItr->second;
 }
@@ -1058,12 +1058,12 @@ void TrigEgammaPlotTool::bookEfficiency2DHistos(const std::string directory){
 
 void TrigEgammaPlotTool::bookEfficiencyTProfile(const std::string directory){
     cd(directory);
-    addHistogram(new TProfile("eff_pt", "#epsilon(p_T); p_{T} ; #epsilon",m_nEtbins,m_etbins.data())); 
-    addHistogram(new TProfile("eff_et", "#epsilon(E_T); E_{T} [GeV] ; Count", m_nEtbins,m_etbins.data())); 
-    addHistogram(new TProfile("eff_highet", "#epsilon(E_T); E_{T} [GeV] ; Count", 40, 0., 1000.));
-    addHistogram(new TProfile("eff_eta", "#epsilon(#eta); #eta ; Count", m_nEtabins, m_etabins.data()));
-    addHistogram(new TProfile("eff_phi", "#epsilon(#phi); #phi ; Count", 20, -3.2, 3.2));
-    addHistogram(new TProfile("eff_mu", "#epsilon(<#mu>; <#mu> ; Count", 16, 0, 80));
+    addHistogram(new TProfile("eff_pt", "#epsilon(p_T); p_{T} ; Efficiency",m_nEtbins,m_etbins.data())); 
+    addHistogram(new TProfile("eff_et", "#epsilon(E_T); E_{T} [GeV] ; Efficiency", m_nEtbins,m_etbins.data())); 
+    addHistogram(new TProfile("eff_highet", "#epsilon(E_T); E_{T} [GeV] ; Efficiency", 40, 0., 1000.));
+    addHistogram(new TProfile("eff_eta", "#epsilon(#eta); #eta ; Efficiency", m_nEtabins, m_etabins.data()));
+    addHistogram(new TProfile("eff_phi", "#epsilon(#phi); #phi ; Efficiency", 20, -3.2, 3.2));
+    addHistogram(new TProfile("eff_mu", "#epsilon(<#mu>); <#mu> ; Efficiency", 16, 0, 80));
 }
 
 void TrigEgammaPlotTool::bookEfficiencyHistos(const std::string directory){ 
