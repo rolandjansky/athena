@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCluster_v1.h 749805 2016-05-26 08:03:45Z wlampl $
+// $Id: CaloCluster_v1.h 753412 2016-06-07 16:25:07Z ssnyder $
 #ifndef XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 #define XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 
@@ -44,8 +44,8 @@ namespace xAOD {
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    /// @author Walter Lampl <Walter.Lampl@cern.ch>
    ///
-   /// $Revision: 749805 $
-   /// $Date: 2016-05-26 10:03:45 +0200 (Thu, 26 May 2016) $
+   /// $Revision: 753412 $
+   /// $Date: 2016-06-07 18:25:07 +0200 (Tue, 07 Jun 2016) $
    ///
    class CaloCluster_v1 : public IParticle {
      friend class ::CaloClusterChangeSignalState;
@@ -734,7 +734,7 @@ namespace xAOD {
 
   inline double CaloCluster_v1::getMomentValue( CaloCluster_v1::MomentType type) const {
     double value=-999;
-    this->retrieveMoment(type,value);
+    (void)this->retrieveMoment(type,value);
     return value;
   }
 
