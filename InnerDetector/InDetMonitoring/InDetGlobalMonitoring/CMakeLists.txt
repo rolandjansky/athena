@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           Event/EventInfo
                           Event/EventPrimitives
+			  Event/xAOD/xAODJet
                           Event/xAOD/xAODTracking
                           Generators/GeneratorObjects
                           InnerDetector/InDetConditions/InDetBeamSpotService
@@ -42,7 +43,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTruthData
                           Tracking/TrkEvent/VxVertex
                           Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkTools/TrkToolInterfaces )
+                          Tracking/TrkTools/TrkToolInterfaces
+			  Tracking/TrkVertexFitter/TrkVertexFitterInterfaces )
 
 # External dependencies:
 find_package( CLHEP )
@@ -53,7 +55,7 @@ atlas_add_component( InDetGlobalMonitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel CommissionEvent AthenaBaseComps AthenaMonitoringLib AtlasDetDescr IdDictDetDescr Identifier EventInfo EventPrimitives xAODTracking GeneratorObjects InDetIdentifier InDetReadoutGeometry InDetBCM_RawData InDetRawData InDetPrepRawData InDetRIO_OnTrack LWHists TrkSurfaces TrkEventPrimitives TrkMeasurementBase TrkParameters TrkParticleBase TrkTrack TrkTrackSummary TrkTruthData VxVertex TrkExInterfaces TrkToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel CommissionEvent AthenaBaseComps AthenaMonitoringLib AtlasDetDescr IdDictDetDescr Identifier EventInfo EventPrimitives xAODJet xAODTracking GeneratorObjects InDetIdentifier InDetReadoutGeometry InDetBCM_RawData InDetRawData InDetPrepRawData InDetRIO_OnTrack LWHists TrkSurfaces TrkEventPrimitives TrkMeasurementBase TrkParameters TrkParticleBase TrkTrack TrkTrackSummary TrkTruthData VxVertex TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces )
 
 # Install files from the package:
 atlas_install_headers( InDetGlobalMonitoring )
