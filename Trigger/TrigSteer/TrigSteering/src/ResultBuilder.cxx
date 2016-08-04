@@ -10,7 +10,7 @@
 #include "TrigInterfaces/AlgoConfig.h"
 #include "TrigSteering/SteeringChain.h"
 #include "TrigNavigation/Navigation.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
+//#include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigSteeringEvent/PartialEventBuildingInfo.h"
 #include "TrigConfHLTData/HLTTriggerType.h"
 #include "EventInfo/EventInfo.h"
@@ -18,6 +18,8 @@
 #include "eformat/SourceIdentifier.h"
 
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
+#include "xAODTrigger/TrigCompositeAuxContainer.h"
 
 using namespace HLT;
 
@@ -298,13 +300,25 @@ struct StreamTagCollectionHelper {
 
 ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& activeChains) {
    // record express stream PS decisions in new TrigOperationalInfo object
-   TrigOperationalInfo* streamOPI = 0;
+   xAOD::TrigCompositeContainer* streamContainer=0;
+   xAOD::TrigComposite* streamInfo=0;
+   xAOD::TrigCompositeAuxContainer aux;
+
+   //   TrigOperationalInfo* streamOPI = 0;
    if(m_config->getHLTLevel() == HLT::EF || m_config->getHLTLevel() == HLT::HLT) {
-      streamOPI = new TrigOperationalInfo();
-      std::string key;
-      m_config->getNavigation()->attachFeature(m_config->getNavigation()->getInitialNode(), 
-                                               streamOPI, HLT::Navigation::ObjectCreatedByNew, key, 
-                                               "EXPRESS_OPI"+m_config->getInstance() );
+     std::string key;
+     // streamOPI = new TrigOperationalInfo();
+     // m_config->getNavigation()->attachFeature(m_config->getNavigation()->getInitialNode(), 
+     //                                          streamOPI, HLT::Navigation::ObjectCreatedByNew, key, 
+     //                                          "EXPRESS_OPI"+m_config->getInstance() );
+     streamContainer = new xAOD::TrigCompositeContainer();
+     streamContainer->setStore(&aux);
+     streamInfo = new xAOD::TrigComposite();
+     streamContainer->push_back(streamInfo);
+     streamInfo->setName("Express_stream");
+     m_config->getNavigation()->attachFeature(m_config->getNavigation()->getInitialNode(), 
+					      streamContainer, HLT::Navigation::ObjectCreatedByNew, key, 
+					      "Express_stream"+m_config->getInstance() );
    }
 
    // the Chain's StreamTags
@@ -336,6 +350,9 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
       typedef std::map<std::string, StreamTagCollectionHelper> StreamTagCollectionHelperMap;
       StreamTagCollectionHelperMap collectionHelper;
       StreamTagCollectionHelperMap::iterator strIt;
+
+      //      std::vector<int> es_chain_counters; // chain_counters of chains which sent the event to the express stream
+      int chid;
 
       if ( m_uniqueStreams.size() == 0 ) { // it means no debug stream
          // list of all StreamTags
@@ -375,11 +392,17 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
                         }
                      }
                      
-                     if(streamOPI && chain_stream.getType() == "express") {
-                        streamOPI->set(chain->getChainName(), chain_stream.prescaleFactor());
+                     // if(streamOPI && chain_stream.getType() == "express") {
+                     //    streamOPI->set(chain->getChainName(), chain_stream.prescaleFactor());
                         
-                        ATH_MSG_VERBOSE("Set expressOPI to 1 for: " << chain->getChainName());
-                     }
+                     //    ATH_MSG_VERBOSE("Set expressOPI to 1 for: " << chain->getChainName());
+                     // }
+		     if (streamInfo && chain_stream.getType() == "express") {
+		       chid = chain->getChainCounter();
+		       streamInfo->setDetail(chain->getChainName(), chain_stream.prescaleFactor());
+		       //		       es_chain_counters.push_back(chid);
+		       ATH_MSG_VERBOSE("Set express stream prescale to 1 for: " << chain->getChainName());
+		     }
                   }
                }
             }
