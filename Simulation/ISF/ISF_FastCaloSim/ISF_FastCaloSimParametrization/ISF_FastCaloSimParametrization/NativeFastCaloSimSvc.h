@@ -24,7 +24,7 @@
 #include "ISF_Interfaces/BaseSimulationSvc.h"
 
 // Barcode includes
-#include "BarcodeInterfaces/Barcode.h"
+#include "BarcodeEvent/Barcode.h"
 
 // forward declarations
 class ITrackingGeometrySvc;
