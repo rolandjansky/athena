@@ -73,6 +73,8 @@ LArFEBMon::LArFEBMon(const std::string& type,
   declareProperty("ExcludeCosmicCalo",m_excoscalo);
  
   declareProperty("IsOnline",m_isOnline=true);
+
+  declareProperty("m_lumi_blocks", m_lumi_blocks = 3000 );
   
   m_onlineHelper	= NULL;
   m_strHelper		= NULL;
@@ -166,7 +168,9 @@ StatusCode LArFEBMon::bookHistograms() {
     (m_rejectedHisto->GetXaxis())->SetBinLabel(1,"Whole event corrupted");
     (m_rejectedHisto->GetXaxis())->SetBinLabel(2,"Single FEB corrupted");
     (m_rejectedHisto->GetXaxis())->SetBinLabel(3,"Accepted");
-    sc = sc && summaryGroup.regHist(m_rejectedHisto);
+    //sc = sc && summaryGroup.regHist(m_rejectedHisto);
+    
+    sc = regHist(m_rejectedHisto,  "/LAr/FEBMon/Summary", run);
     
     m_rejectedYield = TH1F_LW::create("EventsRejectedYield","Data corruption yield",3,0.5,3.5);
     (m_rejectedYield->GetXaxis())->SetBinLabel(1,"Whole event corrupted");
@@ -212,25 +216,25 @@ StatusCode LArFEBMon::bookHistograms() {
     sc = sc && summaryGroup.regHist(m_LArAllErrors_dE);    
         
     // Number of events per minute vs LB
-    m_eventsLB = TH1I_LW::create("NbOfEventsVsLB","Nb of events per LB",1500,-0.5,1499.5);
+    m_eventsLB = TH1I_LW::create("NbOfEventsVsLB","Nb of events per LB",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5);
     (m_eventsLB->GetXaxis())->SetTitle("Luminosity Block");
     sc = sc && summaryGroup.regHist(m_eventsLB);
     
     // Number of events rejected per LB
-    m_rejectedYieldLB = TProfile_LW::create("YieldOfRejectedEventsVsLB","Yield of corrupted events",1500,-0.5,1499.5);
+    m_rejectedYieldLB = TProfile_LW::create("YieldOfRejectedEventsVsLB","Yield of corrupted events",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5);
     (m_rejectedYieldLB->GetXaxis())->SetTitle("Luminosity Block");
     (m_rejectedYieldLB->GetYaxis())->SetTitle("Yield(%)");
     m_rejectedYieldLB->SetMinimum(-5.);
     sc = sc && summaryGroup.regHist(m_rejectedYieldLB);
     
     // Number of events rejected per LB outside time veto window
-    m_rejectedYieldLBout = TProfile_LW::create("YieldOfRejectedEventsVsLBout","Yield of corrupted events not vetoed by time window",1500,-0.5,1499.5);
+    m_rejectedYieldLBout = TProfile_LW::create("YieldOfRejectedEventsVsLBout","Yield of corrupted events not vetoed by time window",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5);
     (m_rejectedYieldLBout->GetXaxis())->SetTitle("Luminosity Block");
     m_rejectedYieldLBout->SetMinimum(-5.);
     sc = sc && summaryGroup.regHist(m_rejectedYieldLBout);
     
     // Mean event size per LB
-    m_eventSizeLB = TProfile_LW::create("eventSizeVsLB","LAr event size (w/o ROS headers)",1500,-0.5,1499.5);
+    m_eventSizeLB = TProfile_LW::create("eventSizeVsLB","LAr event size (w/o ROS headers)",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5);
     (m_eventSizeLB->GetXaxis())->SetTitle("Luminosity Block");
     (m_eventSizeLB->GetYaxis())->SetTitle("Megabytes");
     sc = sc && summaryGroup.regHist(m_eventSizeLB);
@@ -239,7 +243,7 @@ StatusCode LArFEBMon::bookHistograms() {
        // Mean event size per stream per LB
        int nStreams = m_streams.size();
        if(nStreams > 0) {
-          m_stream_eventSizeLB = TProfile2D_LW::create("eventSizeStreamVsLB","LAr event size per stream per LB (w/o ROS headers)",1500,-0.5,1499.5,nStreams+1,-0.5,nStreams+0.5);
+          m_stream_eventSizeLB = TProfile2D_LW::create("eventSizeStreamVsLB","LAr event size per stream per LB (w/o ROS headers)",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5,nStreams+1,-0.5,nStreams+0.5);
           (m_stream_eventSizeLB->GetXaxis())->SetTitle("Luminosity Block");
           for (int str = 0; str < nStreams; str++) {
              (m_stream_eventSizeLB->GetYaxis())->SetBinLabel(str+1,m_streams[str].c_str());
@@ -1044,7 +1048,7 @@ StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string su
   if(m_isOnline && nStreams > 0) { // book 2d histo with asked streams 
     hName = "eventSizeStreamVsLB"+summName;
     hTitle = "LAr event size per stream per LB (w/o ROS headers)" + summName;  
-    summ.stream_eventSizeLB = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),1500,-0.5,1499.5,nStreams+1,-0.5,nStreams+0.5);
+    summ.stream_eventSizeLB = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),m_lumi_blocks,-0.5,(float)m_lumi_blocks+0.5,nStreams+1,-0.5,nStreams+0.5);
     (summ.stream_eventSizeLB)->GetXaxis()->SetTitle("Luminosity Block");
     for (int str = 0; str < nStreams; str++) {
          (summ.stream_eventSizeLB->GetYaxis())->SetBinLabel(str+1,m_streams[str].c_str());
@@ -1054,7 +1058,7 @@ StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string su
   } else { // book simple profile
     hName = "eventSizeVsLB"+summName;
     hTitle = "LAr event size per LB (w/o ROS headers)" + summName;  
-    summ.eventSizeLB = TProfile_LW::create(hName.c_str(),hTitle.c_str(),1500,-0.5,1499.5);
+    summ.eventSizeLB = TProfile_LW::create(hName.c_str(),hTitle.c_str(),m_lumi_blocks,-0.5,(float)m_lumi_blocks+0.5);
     (summ.eventSizeLB)->GetXaxis()->SetTitle("Luminosity Block");
     sc = sc && perPartitionDataGroup.regHist(summ.eventSizeLB);
   }

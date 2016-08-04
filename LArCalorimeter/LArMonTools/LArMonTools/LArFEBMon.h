@@ -62,7 +62,7 @@ private:
   bool m_ignoreMissingHeaderPS;
   std::string m_keyDSPThresholds;
   bool m_isOnline;
-  
+  unsigned int m_lumi_blocks; 
   bool m_eventRejected;
   std::bitset<13> m_rejectionBits;
   bool m_currentFebStatus;

@@ -711,7 +711,7 @@ void LArDigitMon::BookPartitions(partition& sub, const std::string& PartitionNam
   hName = "MaxVsTime_";
   hName =hName+PartitionName;
   hTitle="Average Max Sample vs LumiBlock - "+PartitionName+expectedSamp;
-  sub.m_MaxVsTime  = TProfile_LW::create(hName.c_str(),hTitle.c_str(), 2000, 0.5, 2000.5);
+  sub.m_MaxVsTime  = TProfile_LW::create(hName.c_str(),hTitle.c_str(), 3000, 0.5, 3000.5);
   sub.m_MaxVsTime->GetXaxis()->SetTitle("Luminosity Block");
   sub.m_MaxVsTime->GetYaxis()->SetTitle("Average Max Sample");
   ShiftGroup.regHist(sub.m_MaxVsTime).ignore(); 

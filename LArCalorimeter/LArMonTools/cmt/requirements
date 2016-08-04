@@ -44,6 +44,7 @@ use AthenaKernel        AthenaKernel-*        Control
 use xAODEventInfo       xAODEventInfo-*       Event/xAOD
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 use LArCOOLConditions  LArCOOLConditions-*   LArCalorimeter
+use TrigAnalysisInterfaces    TrigAnalysisInterfaces-*  Trigger/TrigAnalysis
 
 apply_tag ROOTGraphicsLibs
 end_private
