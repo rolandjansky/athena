@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/AthenaBaseComps
-                          Simulation/Barcode/BarcodeInterfaces
+                          Simulation/Barcode/BarcodeEvent
                           Simulation/ISF/ISF_Core/ISF_Interfaces
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkExtrapolation/TrkExInterfaces

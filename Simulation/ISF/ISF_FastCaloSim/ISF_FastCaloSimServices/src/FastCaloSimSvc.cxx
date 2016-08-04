@@ -28,6 +28,8 @@
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
+// Barcode
+#include "BarcodeEvent/Barcode.h"
 // use FastShowerCellBuilderTool for actual simulation
 //#include "FastSimulationEvent/GenParticleEnergyDepositMap.h"
 #include "FastCaloSim/FastShowerCellBuilderTool.h"

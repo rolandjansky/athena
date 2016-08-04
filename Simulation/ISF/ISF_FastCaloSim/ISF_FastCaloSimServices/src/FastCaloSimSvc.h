@@ -27,9 +27,6 @@
 #include "TrkExInterfaces/ITimedExtrapolator.h"
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 
-// Barcode includes
-#include "BarcodeInterfaces/Barcode.h"
-
 // forward declarations
 class ITrackingGeometrySvc;
 class CaloCellContainer;
