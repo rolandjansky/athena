@@ -975,7 +975,9 @@ void InDetGlobalTrackMonTool::FillTIDE()
 	    if ( (*jetItr)->pt() < 20000. )
 		continue;
 	    
-	    std::vector<const xAOD::IParticle*> trackVector = (*jetItr)->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack);
+	    std::vector<const xAOD::IParticle*> trackVector;
+	    if ( !(*jetItr)->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack, trackVector) )
+		continue;
 	    
 	    for ( std::vector<const xAOD::IParticle*>::const_iterator trkItr = trackVector.begin(); trkItr != trackVector.end() ; trkItr++ )
 	    {
