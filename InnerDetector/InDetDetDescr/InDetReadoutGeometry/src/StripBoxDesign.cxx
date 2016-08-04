@@ -118,11 +118,11 @@ void closestStripRowOfPosition(SiLocalPosition const &pos, double pitch, double 
   
 	strip = (int) floor(pos.xPhi() / pitch) + nStrips / 2;
 	if (strip < 0 )  strip = 0;
-	if (strip >= nStrips) strip = nStrips;
+	if (strip >= nStrips) strip = (nStrips -1);
  
 	row = (int) floor(pos.xEta() / length) + nRows / 2;
 	if (row < 0) row = 0;
-	if (row >= nRows) row = nRows;
+	if (row >= nRows) row = (nRows -1);
 }
   
 

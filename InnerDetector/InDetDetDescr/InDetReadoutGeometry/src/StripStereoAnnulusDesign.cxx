@@ -190,7 +190,7 @@ void closestStripRowOfPositionForStripStereoAnnulusDesign(SiLocalPosition const 
     row = distance( stripStartRadius.begin(), endPtr) - 1		;
     // Following should never happen, check is done on r above
     if (row < 0 	) row = 0 					;
-    if (row >= nRows	) row = nRows 					;
+    if (row >= nRows	) row = (nRows-1) 					;
        
     //
     //    Find the strip   
@@ -206,7 +206,7 @@ void closestStripRowOfPositionForStripStereoAnnulusDesign(SiLocalPosition const 
 
     strip = floor(phiPrime / pitch[row]) + nStrips[row] / 2.0		;
     if (strip < 0)   			strip  = 0 			; 
-    if (strip >= nStrips[row]) 		strip  = nStrips[row]		;	
+    if (strip >= nStrips[row]) 		strip  = (nStrips[row]-1)	;	
 }
 
 

@@ -153,12 +153,12 @@ void closestStripRowOfPositionForStripAnnulusDesign(SiLocalPosition const &pos, 
 	vector<double>::const_iterator endPtr = upper_bound( stripEndRadius.begin(),  stripEndRadius.end(), r);
 	row = distance( stripEndRadius.begin(), endPtr)			;
     	if ( row < 0 ) row = 0						; 
-	if ( row >= nRows) row = nRows					;
+	if ( row >= nRows) row = (nRows-1)				;
 
 	//    Find the strip
     	strip = floor(phi / pitch[row]) +nStrips[row]/2.0		;
     	if (strip <  firstStrip[row])  		strip = firstStrip[row]	;       
-	if (strip >= firstStrip[row + 1]) strip = firstStrip[row + 1]	;
+	if (strip >= firstStrip[row + 1]) strip = (firstStrip[row +1] -1);
 
 }
 
