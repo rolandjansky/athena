@@ -32,7 +32,7 @@ StatusCode LArTTCellMapCnv::initialize()
 
    // Get the messaging service, print where you are
    MsgStream log(msgSvc(), "LArTTCellMapCnv");
-   log << MSG::INFO << "initialize()" << endreq;
+   log << MSG::INFO << "initialize()" << endmsg;
 
    return StatusCode::SUCCESS;
 }
@@ -45,11 +45,11 @@ StatusCode LArTTCellMapCnv::transToPers(LArTTCellMap* obj, LArTTCell_P*& persObj
    persObj = (obj->getP()) ; 
 
    if(persObj == 0 ) {
-	log<<MSG::ERROR<<" no persistent object from LArTTCellMap " <<endreq;
+	log<<MSG::ERROR<<" no persistent object from LArTTCellMap " <<endmsg;
 	return StatusCode::FAILURE; 
    }
 
-   log<<MSG::DEBUG<<"  LArTTCell size =  "<< persObj->m_v.size() <<endreq;
+   log<<MSG::DEBUG<<"  LArTTCell size =  "<< persObj->m_v.size() <<endmsg;
    std::cout <<"  LArTTCell_P pointer " << persObj  <<std::endl;
 
    return StatusCode::SUCCESS;
@@ -59,7 +59,7 @@ StatusCode LArTTCellMapCnv::persToTrans(LArTTCellMap*& transObj,LArTTCell_P* obj
 
   MsgStream log(msgSvc(),"LArTTCellMapCnv")  ;
 
-  log<<MSG::DEBUG<<"  LArTTCell size =  "<< obj->m_v.size() <<endreq;
+  log<<MSG::DEBUG<<"  LArTTCell size =  "<< obj->m_v.size() <<endmsg;
 
   transObj=new LArTTCellMap();
   transObj->set( *obj ) ; 
