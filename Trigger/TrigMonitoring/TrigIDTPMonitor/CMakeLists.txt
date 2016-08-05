@@ -9,14 +9,17 @@ atlas_subdir( TrigIDTPMonitor )
 atlas_depends_on_subdirs( PRIVATE
                           Control/DataModel
                           Control/StoreGate
+			  Control/AthLinks
                           Event/EventInfo
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTrigBphys
+		          Event/xAOD/xAODEgamma
                           GaudiKernel
                           Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigEvent/TrigBphysicsEvent
+			  Trigger/TrigEvent/TrigParticle
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/TrigInterfaces )
 
