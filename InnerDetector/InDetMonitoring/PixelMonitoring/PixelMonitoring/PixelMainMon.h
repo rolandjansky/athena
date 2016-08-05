@@ -87,6 +87,11 @@ class PixLayer{
     enum PixLayerID {kECA = 0, kECC, kB0, kB1, kB2, kIBL, COUNT};
 };
 
+class PixLayerDisk{
+  public:
+    enum PixLayerDiskID {kECA0 = 0, kECA1, kECA2, kECC0, kECC1, kECC2, kB0, kB1, kB2, kIBL, COUNT};
+};
+
 class IBLStave{
   public:
     enum IBLStaveID {kS01 = 0, kS02, kS03, kS04, kS05, kS06, kS07, kS08, kS09, kS10, kS11, kS12, kS13, kS14, COUNT};
@@ -94,12 +99,12 @@ class IBLStave{
 
 class PixLayerDBM{
   public:
-    enum PixLayerDBMID {kECA = 0, kECC, kB0, kB1, kB2, kDBMA, kDBMC, kIBL, COUNT};
+    enum PixLayerDBMID {kECA0 = 0, kECA1, kECA2, kECC0, kECC1, kECC2, kB0, kB1, kB2, kDBMA, kDBMC, kIBL, COUNT};
 };
 
 class PixLayerIBL2D3DDBM{
   public:
-    enum PixLayerIBL2D3DDBMID {kECA = 0, kECC, kB0, kB1, kB2, kDBMA, kDBMC, kIBL, kIBL2D, kIBL3D, COUNT};
+    enum PixLayerIBL2D3DDBMID {kECA0 = 0, kECA1, kECA2, kECC0, kECC1, kECC2, kB0, kB1, kB2, kDBMA, kDBMC, kIBL, kIBL2D, kIBL3D, COUNT};
 };
 
 class PixelMainMon:public ManagedMonitorToolBase 
@@ -123,6 +128,7 @@ class PixelMainMon:public ManagedMonitorToolBase
     int GetPixLayerIDIBL2D3D(int ec, int ld, int eta, bool ibl);
     int GetPixLayerIDIBL2D3DDBM(int ec, int ld, int eta, bool ibl);
     int GetPixLayerIDDBM(int ec, int ld, bool ibl);
+    int GetPixLayerDiskID(int ec, int ld, bool ibl);
     int GetPhiID(Identifier &id, const PixelID* pixID);
     int GetEtaID(Identifier &id, const PixelID* pixID, bool doIBL, bool doIBL2D3D);
     void TH1FFillMonitoring(TH1F_LW* mon, TH1F_LW* tmp);
@@ -132,8 +138,9 @@ class PixelMainMon:public ManagedMonitorToolBase
     int ParseDetailsString(std::string & detailsMod);
     bool OnTrack(Identifier id, bool isCluster);
     int getErrorCategory(int bit, bool isibl);
-	std::string makeHistname(std::string set, bool ontrk);
-	std::string makeHisttitle(std::string set, std::string axis, bool ontrk);
+	 std::string makeHistname(std::string set, bool ontrk);
+	 std::string makeHisttitle(std::string set, std::string axis, bool ontrk);
+    bool GetFEID( int pixlayer, int phiid, int etaid, int &oufephi, int &outfeeta);
 
     StatusCode BookClustersMon(void);
     StatusCode BookClustersLumiBlockMon(void);
@@ -275,7 +282,7 @@ class PixelMainMon:public ManagedMonitorToolBase
     bool m_isNewRun;
     bool m_isNewLumiBlock;
     bool m_newLowStatInterval;
-    TH1F_LW*              m_hit_ToT_dbm[PixLayerDBM::COUNT];
+    //TH1F_LW*              m_hit_ToT_dbm[PixLayerDBM::COUNT];
 
     double m_occupancy_cut;
 
@@ -289,7 +296,7 @@ class PixelMainMon:public ManagedMonitorToolBase
     ///
     /// Hitmap  histograms  
     ///
-    TH1F_LW*              m_mu_vs_lumi;
+    TProfile_LW*          m_mu_vs_lumi;
     TProfile_LW*          m_mu_vs_bcid;
     TH1F_LW*              m_events_per_lumi;
     TProfile_LW*          m_hits_per_lumi;
@@ -310,8 +317,9 @@ class PixelMainMon:public ManagedMonitorToolBase
     PixelMon2DMaps*       m_hitmap_mon;
     PixelMon2DMaps*       m_hitmap_tmp;
     PixelMonModulesProf*  m_hiteff_mod;
-    TProfile_LW*          m_hiteff_incl_mod[PixLayer::COUNT];
-    TProfile_LW*          m_hiteff_actv_mod[PixLayer::COUNT];
+    TProfile_LW*          m_hiteff_incl_mod[PixLayerDBM::COUNT];
+    TProfile_LW*          m_hiteff_actv_mod[PixLayerDBM::COUNT];
+    TProfile2D_LW*        m_hiteff_incl_L0_B11_S2_C6;
 
     TProfile_LW*          m_hits_per_lumi_mod[PixLayer::COUNT];
     //TProfile_LW*          m_avgocc_per_lumi_mod[PixLayer::COUNT];
@@ -458,13 +466,13 @@ class PixelMainMon:public ManagedMonitorToolBase
     TH1I_LW*              m_totalclusters_per_lumi_mod[PixLayerIBL2D3D::COUNT];
     TH1I_LW*              m_totalclusters_per_bcid_mod[PixLayerIBL2D3D::COUNT];
     TH1I_LW*              m_highNclusters_per_lumi;
-    TH1F_LW*              m_cluster_ToT1d_mod[PixLayerIBL2D3D::COUNT];
+    TH1F_LW*              m_cluster_ToT1d_mod[PixLayerIBL2D3DDBM::COUNT];
     TH1F_LW*              m_1cluster_ToT_mod[PixLayer::COUNT];
     TH1F_LW*              m_2cluster_ToT_mod[PixLayer::COUNT];
     TH1F_LW*              m_3cluster_ToT_mod[PixLayer::COUNT];
     TH1F_LW*              m_bigcluster_ToT_mod[PixLayer::COUNT];
 
-    TH1F_LW*              m_cluster_Q_mod[PixLayerIBL2D3D::COUNT];
+    TH1F_LW*              m_cluster_Q_mod[PixLayerIBL2D3DDBM::COUNT];
     TH1F_LW*              m_1cluster_Q_mod[PixLayer::COUNT];
     TH1F_LW*              m_2cluster_Q_mod[PixLayer::COUNT];
     TH1F_LW*              m_3cluster_Q_mod[PixLayer::COUNT];
@@ -496,6 +504,9 @@ class PixelMainMon:public ManagedMonitorToolBase
     //TH2F_LW*              m_clussize_vs_eta_mod[PixLayer::COUNT];
     TProfile_LW*          m_clussize_vs_eta_mod[PixLayer::COUNT];
     PixelMon2DMaps*       m_cluster_occupancy;
+    //TH2F_LW*              m_cluster_occupancy_FE_B0;
+    TH2F_LW*              m_cluster_occupancy_FE_B0_mon;
+    TH2F_LW*              m_cluster_occupancy_FE_L0_B11_S2_C6;
     //DBMMon2DMaps  *       m_clusocc_DBM;
     PixelMon2DMaps*       m_clusocc_sizenot1; 
     PixelMonModulesProf*  m_cluseff_mod;

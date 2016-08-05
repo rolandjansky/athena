@@ -61,6 +61,12 @@ StatusCode PixelMainMon::BookTrackMon(void)
    modlabel[0]="ECA"; modlabel[1]="ECC";
    modlabel[2]="B0";  modlabel[3]="B1";    modlabel[4]="B2"; 
    modlabel[5]="IBL"; modlabel[6]="IBL2D"; modlabel[7]="IBL3D"; 
+   std::string modlabel2[PixLayerIBL2D3DDBM::COUNT];
+   modlabel2[0]="ECA0"; modlabel2[1]="ECA1"; modlabel2[2]="ECA2"; 
+   modlabel2[3]="ECC0"; modlabel2[4]="ECC1"; modlabel2[5]="ECC2"; 
+   modlabel2[6]="B0";  modlabel2[7]="B1";  modlabel2[8]="B2"; 
+   modlabel2[9]="DBMA";modlabel2[10]="DBMC";
+   modlabel2[11]="IBL"; modlabel2[12]="IBL2D"; modlabel2[13]="IBL3D"; 
    std::string hname;
    std::string htitles;
 
@@ -170,25 +176,26 @@ StatusCode PixelMainMon::BookTrackMon(void)
      //sc=trackHistos.regHist(m_track_theta     = TH1F_LW::create("m_Pixel_track_theta", ("Reconstructed theta of track" + m_histTitleExt + "; #theta;").c_str(), 40,-0.,4.));
      //sc=trackHistos.regHist(m_track_eta       = TH1F_LW::create("m_Pixel_track_eta", ("Reconstructed eta of track" + m_histTitleExt + "; #eta;").c_str(), 40,-4.,4.));
      //sc=trackHistos.regHist(m_tracks_per_lumi = TH1I_LW::create("tracks_per_lumi", ("Number of tracks per LB" + m_histTitleExt + ";lumi block;# tracks").c_str(),2500,-0.5,2499.5));
-     sc=trackHistos.regHist(m_tracksPerEvt_per_lumi = TProfile_LW::create("tracksPerEvt_per_lumi", ("Number of tracks per event per LB" + m_histTitleExt + ";lumi block;tracks/event").c_str(), m_lbRange, -0.5,-0.5+(float)m_lbRange));
-     sc=trackHistos.regHist(m_tracksPerEvtPerMu_per_lumi = TProfile_LW::create("tracksPerEvtPerMu_per_lumi", ("Number of tracks per event per mu per LB (pixel tracks)" + m_histTitleExt + ";lumi block;tracks/event").c_str(), m_lbRange, -0.5, -0.5+(float)m_lbRange));
+     //sc=trackHistos.regHist(m_tracksPerEvt_per_lumi = TProfile_LW::create("tracksPerEvt_per_lumi", ("Number of tracks per event per LB" + m_histTitleExt + ";lumi block;tracks/event").c_str(), m_lbRange, -0.5,-0.5+(float)m_lbRange));
+     //sc=trackHistos.regHist(m_tracksPerEvtPerMu_per_lumi = TProfile_LW::create("tracksPerEvtPerMu_per_lumi", ("Number of tracks per event per mu per LB (pixel tracks)" + m_histTitleExt + ";lumi block;tracks/event").c_str(), m_lbRange, -0.5, -0.5+(float)m_lbRange));
      //sc=trackHistos.regHist(m_trackRate_per_lumi    = TH1F_LW::create("trackRate_per_lumi", ("Track rate per LB" + m_histTitleExt + ";lumi block;#tracks/sec").c_str(),2500,-0.5,2499.5));
      //sc=trackHistos.regHist(m_track_dedx      = TH2F_LW::create("m_Pixel_track_dedx", ("Reconstructed dE/dx of track" + m_histTitleExt + "; momentum [MeV]; dE/dx [MeV g cm^{-2}]").c_str(),125,-2500,2500,100,0,10));
      //sc=trackHistos.regHist(m_track_mass_dedx = TH1F_LW::create("m_Pixel_track_mass_dedx", ("Reconstructed mass using dE/dx of track" + m_histTitleExt + "; mass [MeV]; ").c_str(),125,0,2500));
      
-     sc=trackHistos.regHist(m_degFactorMap = TProfile2D_LW::create("degFactorMap", ("degradation factor map for IP resolution" + m_histTitleExt + ";track #eta;track #phi").c_str(), 60, -3.0, 3.0, 80, -4.0, 4.0));
-     m_degFactorMap->SetOption("colz");
-     sc=trackHistos.regHist(m_degFactorMap_per_lumi = TProfile_LW::create("degFactorMap_per_lumi", ("overall degradation factor for IP resolution per lumi" + m_histTitleExt + ";lumi block;overall avg deg. factor").c_str(), m_lbRange, -0.5, -0.5+(float)m_lbRange));
-     sc=trackHistos.regHist(m_degFactorMap_eta_per_lumi = TProfile2D_LW::create("degFactorMap_eta_per_lumi", ("degradation factor (eta) for IP resolution per lumi" + m_histTitleExt + ";lumi block;track #eta").c_str(),  m_lbRange, -0.5, -0.5+(float)m_lbRange, 60, -3.0, 3.0 ));
-     m_degFactorMap_eta_per_lumi->SetOption("colz");
+     //sc=trackHistos.regHist(m_degFactorMap = TProfile2D_LW::create("degFactorMap", ("degradation factor map for IP resolution" + m_histTitleExt + ";track #eta;track #phi").c_str(), 60, -3.0, 3.0, 80, -4.0, 4.0));
+     //m_degFactorMap->SetOption("colz");
+     //sc=trackHistos.regHist(m_degFactorMap_per_lumi = TProfile_LW::create("degFactorMap_per_lumi", ("overall degradation factor for IP resolution per lumi" + m_histTitleExt + ";lumi block;overall avg deg. factor").c_str(), m_lbRange, -0.5, -0.5+(float)m_lbRange));
+     //sc=trackHistos.regHist(m_degFactorMap_eta_per_lumi = TProfile2D_LW::create("degFactorMap_eta_per_lumi", ("degradation factor (eta) for IP resolution per lumi" + m_histTitleExt + ";lumi block;track #eta").c_str(),  m_lbRange, -0.5, -0.5+(float)m_lbRange, 60, -3.0, 3.0 ));
+     //m_degFactorMap_eta_per_lumi->SetOption("colz");
      //sc=trackHistos.regHist(m_degFactorMap_phi_per_lumi = TProfile2D_LW::create("degFactorMap_phi_per_lumi", ("degradation factor (phi) for IP resolution per lumi" + m_histTitleExt + ";lumi block;track #phi").c_str(),  2500, -0.5, 2499.5, 80, -4.0, 4.0 ));
      //m_degFactorMap_phi_per_lumi->SetOption("colz");
-      for(int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
-         hname = makeHistname(("HitEff_all_"+modlabel[i]), false);
-         htitles = makeHisttitle(("hit efficiency, "+modlabel[i]), ";lumi block;hit efficiency", false);
+      for(int i=0; i<PixLayerDBM::COUNT; i++){
+         hname = makeHistname(("HitEff_all_"+modlabel2[i]), false);
+         htitles = makeHisttitle(("hit efficiency, "+modlabel2[i]), ";lumi block;hit efficiency", false);
          sc = trackHistos.regHist(m_hiteff_incl_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), m_lbRange, -0.5, -0.5+(float)m_lbRange));
-         hname = makeHistname(("HitEff_actv_"+modlabel[i]), false);
-         htitles = makeHisttitle(("hit efficiency for active modules, "+modlabel[i]), ";lumi block;hit efficiency", false);
+
+         hname = makeHistname(("HitEff_actv_"+modlabel2[i]), false);
+         htitles = makeHisttitle(("hit efficiency for active modules, "+modlabel2[i]), ";lumi block;hit efficiency", false);
          sc = trackHistos.regHist(m_hiteff_actv_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), m_lbRange, -0.5, -0.5+(float)m_lbRange));
          
          /// clusters
@@ -199,32 +206,37 @@ StatusCode PixelMainMon::BookTrackMon(void)
          //htitles = makeHisttitle(("cluster size  for outliers , "+modlabel[i]), ";cluster size;#clusters", false);
          //sc = trackHistos.regHist(m_clusize_outlier_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), 300, -0.5, -0.5+300.0));
       }
+      hname = makeHistname("HitEff_all_L0_B11_S2_C6", false);
+      htitles = makeHisttitle("hit efficiency, L0_B11_S2_C6", ";lumi block;FE ID (8*(pix_phi/164) + (eta_pix/18);hit efficiency", false);
+      sc = trackHistos.regHist(m_hiteff_incl_L0_B11_S2_C6 = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), m_lbRange, -0.5, -0.5+(float)m_lbRange, 16, -0.5, -0.5+16.0));
+      m_hiteff_incl_L0_B11_S2_C6->SetOption("colz");
 
-      hname = makeHistname("LorentzAngle_IBL", false);
-      htitles = makeHisttitle("Lorentz angle IBL", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
-      sc = trackHistos.regHist(m_LorentzAngle_IBL = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 160, -4, 4, 14, -0.5, 13.5));
-      hname = makeHistname("LorentzAngle_IBL2D", false);
-      htitles = makeHisttitle("Lorentz angle IBL2D", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
-      sc = trackHistos.regHist(m_LorentzAngle_IBL2D = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 160, -4, 4, 14, -0.5, 13.5));
-      hname = makeHistname("LorentzAngle_IBL3D", false);
-      htitles = makeHisttitle("Lorentz angle IBL3D", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
-      sc = trackHistos.regHist(m_LorentzAngle_IBL3D = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 160, -4, 4, 14, -0.5, 13.5));
-      hname = makeHistname("LorentzAngle_B0", false);
-      htitles = makeHisttitle("Lorentz angle B0", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
-      sc = trackHistos.regHist(m_LorentzAngle_B0 = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 160, -4, 4, 22, -0.5, 21.5));
-      hname = makeHistname("LorentzAngle_B1", false);
-      htitles = makeHisttitle("Lorentz angle B1", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
-      sc = trackHistos.regHist(m_LorentzAngle_B1 = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 160, -4, 4, 38, -0.5, 37.5));
-      hname = makeHistname("LorentzAngle_B2", false);
-      htitles = makeHisttitle("Lorentz angle B2", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
-      sc = trackHistos.regHist(m_LorentzAngle_B2 = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 160, -4, 4, 52, -0.5, 51.5));
 
-      m_LorentzAngle_IBL->SetOption("colz");
-      m_LorentzAngle_IBL2D->SetOption("colz");
-      m_LorentzAngle_IBL3D->SetOption("colz");
-      m_LorentzAngle_B0->SetOption("colz");
-      m_LorentzAngle_B1->SetOption("colz");
-      m_LorentzAngle_B2->SetOption("colz");
+      //hname = makeHistname("LorentzAngle_IBL", false);
+      //htitles = makeHisttitle("Lorentz angle IBL", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
+      //sc = trackHistos.regHist(m_LorentzAngle_IBL = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 60, -1.5, 1.5, 14, -0.5, 13.5));
+      //hname = makeHistname("LorentzAngle_IBL2D", false);
+      //htitles = makeHisttitle("Lorentz angle IBL2D", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
+      //sc = trackHistos.regHist(m_LorentzAngle_IBL2D = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 60, -1.5, 1.5, 14, -0.5, 13.5));
+      //hname = makeHistname("LorentzAngle_IBL3D", false);
+      //htitles = makeHisttitle("Lorentz angle IBL3D", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
+      //sc = trackHistos.regHist(m_LorentzAngle_IBL3D = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 60, -1.5, 1.5, 14, -0.5, 13.5));
+      //hname = makeHistname("LorentzAngle_B0", false);
+      //htitles = makeHisttitle("Lorentz angle B0", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
+      //sc = trackHistos.regHist(m_LorentzAngle_B0 = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 60, -1.5, 1.5, 22, -0.5, 21.5));
+      //hname = makeHistname("LorentzAngle_B1", false);
+      //htitles = makeHisttitle("Lorentz angle B1", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
+      //sc = trackHistos.regHist(m_LorentzAngle_B1 = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 60, -1.5, 1.5, 38, -0.5, 37.5));
+      //hname = makeHistname("LorentzAngle_B2", false);
+      //htitles = makeHisttitle("Lorentz angle B2", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
+      //sc = trackHistos.regHist(m_LorentzAngle_B2 = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 60, -1.5, 1.5, 52, -0.5, 51.5));
+
+      //m_LorentzAngle_IBL->SetOption("colz");
+      //m_LorentzAngle_IBL2D->SetOption("colz");
+      //m_LorentzAngle_IBL3D->SetOption("colz");
+      //m_LorentzAngle_B0->SetOption("colz");
+      //m_LorentzAngle_B1->SetOption("colz");
+      //m_LorentzAngle_B2->SetOption("colz");
       
    }
 
@@ -258,6 +270,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
    ///
    if(m_doOnTrack || m_doOnPixelTrack)m_RDOIDs.clear();//reset these so you can fill them with the new id's
    if(m_doOnTrack || m_doOnPixelTrack)m_ClusterIDs.clear();
+
    
    ///
    /// Track Loop
@@ -272,14 +285,14 @@ StatusCode PixelMainMon::FillTrackMon(void)
 
       //double mass = 0;
       //double dedx = 0;
-      float degradationFactor = 1.0;
+      //float degradationFactor = 1.0;
       unsigned int hitslayer = 0;
-      bool isEndcaps = false;
+      //bool isEndcaps = false;
       int nholes=-1;
       int nbadclus=0;
       int ngoodclus=0;
       bool passQualityCut = false;
-      bool passTightCut = false;
+      //bool passTightCut = false;
       
       const Trk::TrackParameters *trkParameters = 0;
       const Trk::TrackSummary* summary = track0->trackSummary();
@@ -306,14 +319,15 @@ StatusCode PixelMainMon::FillTrackMon(void)
       ///
 
       if( measPerigee->pT()/1000.0 > 5.0 && fabs(measPerigee->eta()) < 2.5) passQualityCut = true;
-      if( ((fabs(measPerigee->eta()) <= 1.65 && summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits) >= 9) ||
-          (fabs(measPerigee->eta()) >  1.65 && summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits) >= 11) ) &&
-          (summary->get(Trk::numberOfNextToInnermostPixelLayerHits)+summary->get(Trk::numberOfInnermostPixelLayerHits ) > 0 ) &&
-          (summary->get(Trk::numberOfPixelHoles) == 0 ) && 
-          (fabs(measPerigee->parameters()[Trk::d0]) < 2.0) && 
-          (fabs(measPerigee->parameters()[Trk::z0]) < 150.0) ){
-         passTightCut = true;
-      }
+
+      //if( ((fabs(measPerigee->eta()) <= 1.65 && summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits) >= 9) ||
+      //    (fabs(measPerigee->eta()) >  1.65 && summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits) >= 11) ) &&
+      //    (summary->get(Trk::numberOfNextToInnermostPixelLayerHits)+summary->get(Trk::numberOfInnermostPixelLayerHits ) > 0 ) &&
+      //    (summary->get(Trk::numberOfPixelHoles) == 0 ) && 
+      //    (fabs(measPerigee->parameters()[Trk::d0]) < 2.0) && 
+      //    (fabs(measPerigee->parameters()[Trk::z0]) < 150.0) ){
+      //   passTightCut = true;
+      //}
 
       ///
       /// TSOS Loop
@@ -327,7 +341,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
          Identifier surfaceID;
          IdentifierHash id_hash;
          const InDet::SiClusterOnTrack *clus=0;
-         const InDetDD::SiDetectorElement *side = 0;
+         //const InDetDD::SiDetectorElement *side = 0;
          const Trk::MeasurementBase* mesb=(*trackStateOnSurfaceIterator)->measurementOnTrack();
 	 
          const Trk::RIO_OnTrack* hit = mesb ? dynamic_cast<const Trk::RIO_OnTrack*>(mesb) : 0;
@@ -337,9 +351,9 @@ StatusCode PixelMainMon::FillTrackMon(void)
          float nHole = 0.;
          float npixHitsInCluster = 0;
          //float colWidthOfCluster = 0;
-         float rowWidthOfCluster = 0;
+         //float rowWidthOfCluster = 0;
          float totalToTOfCluster = 0;
-         bool  passClusterSelection = false;
+         //bool  passClusterSelection = false;
 
          ///
          /// Requiements
@@ -347,7 +361,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
          if(mesb && !hit) continue;  // skip pseudomeasurements etc.                                         
          if(mesb && mesb->associatedSurface().associatedDetectorElement()) {
             surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
-            side = dynamic_cast<const InDetDD::SiDetectorElement *>( mesb->associatedSurface().associatedDetectorElement() );
+            //side = dynamic_cast<const InDetDD::SiDetectorElement *>( mesb->associatedSurface().associatedDetectorElement() );
          }else{ // holes, perigee                                                                              
             if(not (*trackStateOnSurfaceIterator)->trackParameters() ) {
                msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endreq;
@@ -359,6 +373,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
          if( !m_idHelper->is_pixel(surfaceID)) continue;
 
          int pixlayer = GetPixLayerID(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_doIBL);
+         int pixlayerdbm = GetPixLayerIDDBM(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_doIBL);
          int pixlayeribl2d3d = pixlayer;
          if( pixlayeribl2d3d == PixLayer::kIBL ){
             pixlayeribl2d3d = GetPixLayerIDIBL2D3D(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_pixelid->eta_module(surfaceID), m_doIBL);
@@ -366,18 +381,29 @@ StatusCode PixelMainMon::FillTrackMon(void)
          if( pixlayer == 99) continue;
          
          id_hash = m_pixelid->wafer_hash(surfaceID);
-         if( pixlayer == PixLayer::kECA || pixlayer == PixLayer::kECC ) isEndcaps = true;
+         //if( pixlayer == PixLayer::kECA || pixlayer == PixLayer::kECC ) isEndcaps = true;
          bool active = m_pixelCondSummarySvc->isActive(id_hash);
 
          if((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){
-            clus = dynamic_cast< const InDet::SiClusterOnTrack*>(mesb);
-            if(clus) clusID = clus->identify();
-            //nMeasurement = 1.0;
+           clus = dynamic_cast< const InDet::SiClusterOnTrack*>(mesb);
+           if(clus) clusID = clus->identify();
+           //nMeasurement = 1.0;
 
-            if( m_tsos_hitmap ) m_tsos_hitmap->Fill(surfaceID,m_pixelid,m_doIBL,false);
-            if( m_tsos_hiteff_vs_lumi ) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),1.,surfaceID,m_pixelid,m_doIBL);
-            if( m_hiteff_incl_mod[pixlayer] && passQualityCut ) m_hiteff_incl_mod[pixlayer]->Fill( m_manager->lumiBlockNumber(), 1.0 );
-            if( m_hiteff_actv_mod[pixlayer] && passQualityCut && active) m_hiteff_actv_mod[pixlayer]->Fill( m_manager->lumiBlockNumber(), 1.0 );
+           if( m_tsos_hitmap ) m_tsos_hitmap->Fill(surfaceID,m_pixelid,m_doIBL,false);
+           if( m_tsos_hiteff_vs_lumi ) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),1.,surfaceID,m_pixelid,m_doIBL);
+           if( m_hiteff_incl_mod[pixlayerdbm] && passQualityCut ) m_hiteff_incl_mod[pixlayerdbm]->Fill( m_manager->lumiBlockNumber(), 1.0 );
+           if( m_hiteff_actv_mod[pixlayerdbm] && passQualityCut && active) m_hiteff_actv_mod[pixlayerdbm]->Fill( m_manager->lumiBlockNumber(), 1.0 ); 
+           ///
+           /// Study for Quick Status
+           ///
+           int fephi=0; int feeta=0;
+           if( pixlayer == PixLayer::kB0 && GetFEID( pixlayer, m_pixelid->phi_index(surfaceID), m_pixelid->eta_index(surfaceID), fephi, feeta) ){
+              if(passQualityCut &&
+                 m_hiteff_incl_L0_B11_S2_C6 &&
+                 m_pixelid->phi_module(surfaceID) == 0 &&
+                 m_pixelid->eta_module(surfaceID) == -6)
+                 m_hiteff_incl_L0_B11_S2_C6->Fill( m_manager->lumiBlockNumber(), (8.0*m_pixelid->eta_module(surfaceID)+(1.0*feeta)), 1.0 );
+           }
          }
          
          if((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)){
@@ -389,6 +415,17 @@ StatusCode PixelMainMon::FillTrackMon(void)
            if( m_tsos_hiteff_vs_lumi ) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),0.,surfaceID,m_pixelid,m_doIBL);
            if( m_hiteff_incl_mod[pixlayer] && passQualityCut ) m_hiteff_incl_mod[pixlayer]->Fill( m_manager->lumiBlockNumber(), 0.0 );
            if( m_hiteff_actv_mod[pixlayer] && passQualityCut && active) m_hiteff_actv_mod[pixlayer]->Fill( m_manager->lumiBlockNumber(), 0.0 );
+           ///
+           /// Study for Quick Status
+           ///
+           int fephi=0; int feeta=0;
+           if( pixlayer == PixLayer::kB0 && GetFEID( pixlayer, m_pixelid->phi_index(surfaceID), m_pixelid->eta_index(surfaceID), fephi, feeta) ){
+              if(passQualityCut &&
+                 m_hiteff_incl_L0_B11_S2_C6 &&
+                 m_pixelid->phi_module(surfaceID) == 0 &&
+                 m_pixelid->eta_module(surfaceID) == -6)
+                 m_hiteff_incl_L0_B11_S2_C6->Fill( m_manager->lumiBlockNumber(), (8.0*m_pixelid->eta_module(surfaceID))+(1.0*feeta), 0.0 );
+           }
          }
           
          if((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)){
@@ -396,10 +433,21 @@ StatusCode PixelMainMon::FillTrackMon(void)
            if(clus) clusID = clus->identify();
            nHole = 1.0;
 
-           if(m_tsos_outliermap)m_tsos_outliermap->Fill(surfaceID,m_pixelid,m_doIBL,false);
-           if(m_tsos_hiteff_vs_lumi) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),0.,surfaceID,m_pixelid,m_doIBL);
+           if( m_tsos_outliermap)m_tsos_outliermap->Fill(surfaceID,m_pixelid,m_doIBL,false);
+           if( m_tsos_hiteff_vs_lumi) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),0.,surfaceID,m_pixelid,m_doIBL);
            if( m_hiteff_incl_mod[pixlayer] && passQualityCut ) m_hiteff_incl_mod[pixlayer]->Fill( m_manager->lumiBlockNumber(), 0.0 );
            if( m_hiteff_actv_mod[pixlayer] && passQualityCut && active) m_hiteff_actv_mod[pixlayer]->Fill( m_manager->lumiBlockNumber(), 0.0 );
+           ///
+           /// Study for Quick Status
+           ///
+           int fephi=0; int feeta=0;
+           if( pixlayer == PixLayer::kB0 && GetFEID( pixlayer, m_pixelid->phi_index(surfaceID), m_pixelid->eta_index(surfaceID), fephi, feeta) ){
+              if(passQualityCut &&
+                 m_hiteff_incl_L0_B11_S2_C6 &&
+                 m_pixelid->phi_module(surfaceID) == 0 &&
+                 m_pixelid->eta_module(surfaceID) == -6)
+                 m_hiteff_incl_L0_B11_S2_C6->Fill( m_manager->lumiBlockNumber(), (8.0*m_pixelid->eta_module(surfaceID))+(1.0*feeta), 0.0 );
+           }
          }
 
 
@@ -429,7 +477,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	      for(unsigned int loopSize=0;loopSize < RawDataClus->rdoList().size(); loopSize++) {
 	        if(m_doOnTrack || m_doOnPixelTrack) m_RDOIDs.push_back(RawDataClus->rdoList().at(loopSize));
 	      }
-         if(m_doOnTrack || m_doOnPixelTrack)m_ClusterIDs.push_back( clus->identify());
+         if(m_doOnTrack || m_doOnPixelTrack) m_ClusterIDs.push_back( clus->identify());
 
          const InDet::PixelCluster* pixelCluster=dynamic_cast<const InDet::PixelCluster*>(RawDataClus);
          
@@ -437,22 +485,22 @@ StatusCode PixelMainMon::FillTrackMon(void)
             ///
             /// Pixel Cluster Selection
             ///
-            if( !RawDataClus->gangedPixel() && /// not include ganged-pixel
-                !pixelCluster->isFake() &&     /// not fake
-                ( (pixlayer == PixLayer::kIBL && fabs(clus->localParameters()[Trk::locX])<8.3)
-                  || (pixlayer != PixLayer::kIBL && fabs(clus->localParameters()[Trk::locX])<8.1) ) &&
-                (    (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL2D && fabs(clus->localParameters()[Trk::locY])<19.7)
-                  || (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL3D && fabs(clus->localParameters()[Trk::locY])<9.5) 
-                  || (pixlayer        != PixLayer::kIBL          && fabs(clus->localParameters()[Trk::locY])<28.7) )
-                ){
-              passClusterSelection = true;
-            }
+            //if( !RawDataClus->gangedPixel() && /// not include ganged-pixel
+            //    !pixelCluster->isFake() &&     /// not fake
+            //    ( (pixlayer == PixLayer::kIBL && fabs(clus->localParameters()[Trk::locX])<8.3)
+            //      || (pixlayer != PixLayer::kIBL && fabs(clus->localParameters()[Trk::locX])<8.1) ) &&
+            //    (    (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL2D && fabs(clus->localParameters()[Trk::locY])<19.7)
+            //      || (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL3D && fabs(clus->localParameters()[Trk::locY])<9.5) 
+            //      || (pixlayer        != PixLayer::kIBL          && fabs(clus->localParameters()[Trk::locY])<28.7) )
+            //    ){
+            //  passClusterSelection = true;
+            //}
             ///
             /// Cluster Variables
             ///
             npixHitsInCluster = pixelCluster->rdoList().size();
             //colWidthOfCluster = pixelCluster->width().colRow().y();
-            rowWidthOfCluster = pixelCluster->width().colRow().x();
+            //rowWidthOfCluster = pixelCluster->width().colRow().x();
             totalToTOfCluster = pixelCluster->totalToT();
             
             if( npixHitsInCluster == 1 && totalToTOfCluster < 8) { nbadclus++; }
@@ -473,6 +521,9 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	             }
 	           }
             }
+            ///
+            /// Hole module map
+            ///
 
             ///
             /// Categorize tracks for IP resolution degradation
@@ -513,43 +564,43 @@ StatusCode PixelMainMon::FillTrackMon(void)
             if(m_track_pull_eta) m_track_pull_eta->Fill(pull);
 
             /// LorentzAngle
-            Amg::Vector3D mynormal = side->normal();
-            Amg::Vector3D myphiax = side->phiAxis();
-            Amg::Vector3D mytrack = trackAtPlane->momentum();
-            float trkphicomp = mytrack.dot(myphiax);
-            float trknormcomp = mytrack.dot(mynormal); 
-            double phiIncident =  atan2(trkphicomp,trknormcomp);
-            if(npixHitsInCluster > 0 && passTightCut && passClusterSelection){
-               if(pixlayer == PixLayer::kIBL && m_LorentzAngle_IBL) m_LorentzAngle_IBL->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
-               if(pixlayeribl2d3d == PixLayerIBL2D3D::kIBL2D && m_LorentzAngle_IBL2D) m_LorentzAngle_IBL2D->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
-               if(pixlayeribl2d3d == PixLayerIBL2D3D::kIBL3D && m_LorentzAngle_IBL3D) m_LorentzAngle_IBL3D->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
-               if(pixlayer == PixLayer::kB0 && m_LorentzAngle_B0) m_LorentzAngle_B0->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
-               if(pixlayer == PixLayer::kB1 && m_LorentzAngle_B1) m_LorentzAngle_B1->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
-               if(pixlayer == PixLayer::kB2 && m_LorentzAngle_B2) m_LorentzAngle_B2->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
-            }
+            //Amg::Vector3D mynormal = side->normal();
+            //Amg::Vector3D myphiax = side->phiAxis();
+            //Amg::Vector3D mytrack = trackAtPlane->momentum();
+            //float trkphicomp = mytrack.dot(myphiax);
+            //float trknormcomp = mytrack.dot(mynormal); 
+            //double phiIncident =  atan2(trkphicomp,trknormcomp);
+            //if(npixHitsInCluster > 0 && passTightCut && passClusterSelection){
+            //   if(pixlayer == PixLayer::kIBL && m_LorentzAngle_IBL) m_LorentzAngle_IBL->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
+            //   if(pixlayeribl2d3d == PixLayerIBL2D3D::kIBL2D && m_LorentzAngle_IBL2D) m_LorentzAngle_IBL2D->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
+            //   if(pixlayeribl2d3d == PixLayerIBL2D3D::kIBL3D && m_LorentzAngle_IBL3D) m_LorentzAngle_IBL3D->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
+            //   if(pixlayer == PixLayer::kB0 && m_LorentzAngle_B0) m_LorentzAngle_B0->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
+            //   if(pixlayer == PixLayer::kB1 && m_LorentzAngle_B1) m_LorentzAngle_B1->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
+            //   if(pixlayer == PixLayer::kB2 && m_LorentzAngle_B2) m_LorentzAngle_B2->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
+            //}
          }
       } // end of TSOS loop
     
       if(!m_doOnline && m_doModules){
 	      float pt = measPerigee->pT()/1000.0;
 	      if(nbadclus==1){
-	         if(m_track_chi2_bcl1) m_track_chi2_bcl1->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
+	         if(m_track_chi2_bcl1 && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bcl1->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
 	      }
 	      if(nbadclus==0){
-	         if(m_track_chi2_bcl0) m_track_chi2_bcl0->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
+	         if(m_track_chi2_bcl0 && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bcl0->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
 	      } 
 	      if(nbadclus>1){
-	         if(m_track_chi2_bclgt1) m_track_chi2_bclgt1->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
+	         if(m_track_chi2_bclgt1 && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bclgt1->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
 	      } 
 	      if(pt>=10){
 	         if(nbadclus==1){
-	            if(m_track_chi2_bcl1_highpt) m_track_chi2_bcl1_highpt->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
+	            if(m_track_chi2_bcl1_highpt && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bcl1_highpt->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
 	         }
 	         if(nbadclus==0){
-	            if(m_track_chi2_bcl1_highpt) m_track_chi2_bcl0_highpt->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
+	            if(m_track_chi2_bcl1_highpt && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bcl0_highpt->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
 	         } 
 	         if(nbadclus>1){
-	            if(m_track_chi2_bclgt1_highpt) m_track_chi2_bclgt1_highpt->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
+	            if(m_track_chi2_bclgt1_highpt && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bclgt1_highpt->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
 	         } 
 	      }
       }
@@ -586,47 +637,47 @@ StatusCode PixelMainMon::FillTrackMon(void)
       if( m_doDegFactorMap ){
          if (measPerigee){
 
-            double eta = measPerigee->eta();
-            double phi = measPerigee->parameters()[Trk::phi0];
-            double pt = measPerigee->pT();
+            //double eta = measPerigee->eta();
+            //double phi = measPerigee->parameters()[Trk::phi0];
+            //double pt = measPerigee->pT();
 
-            if(isEndcaps){
-               degradationFactor = 1.0;
-            }else{
-               unsigned int alllayers =  0x1<<PixLayer::kIBL | 0x1<<PixLayer::kB0 | 0x1<<PixLayer::kB1 | 0x1<<PixLayer::kB2;
-               unsigned int IBL       =  0x0<<PixLayer::kIBL | 0x1<<PixLayer::kB0 | 0x1<<PixLayer::kB1 | 0x1<<PixLayer::kB2;
-               unsigned int B0        =  0x1<<PixLayer::kIBL | 0x0<<PixLayer::kB0 | 0x1<<PixLayer::kB1 | 0x1<<PixLayer::kB2;
-               unsigned int B1        =  0x1<<PixLayer::kIBL | 0x1<<PixLayer::kB0 | 0x0<<PixLayer::kB1 | 0x1<<PixLayer::kB2;
-               unsigned int B2        =  0x1<<PixLayer::kIBL | 0x1<<PixLayer::kB0 | 0x1<<PixLayer::kB1 | 0x0<<PixLayer::kB2;
-               unsigned int IBLB0     =  0x0<<PixLayer::kIBL | 0x0<<PixLayer::kB0 | 0x1<<PixLayer::kB1 | 0x1<<PixLayer::kB2;
-               unsigned int IBLB2     =  0x0<<PixLayer::kIBL | 0x1<<PixLayer::kB0 | 0x1<<PixLayer::kB1 | 0x0<<PixLayer::kB2;
-               unsigned int B0B2      =  0x1<<PixLayer::kIBL | 0x0<<PixLayer::kB0 | 0x1<<PixLayer::kB1 | 0x0<<PixLayer::kB2;
-               unsigned int B1B2      =  0x1<<PixLayer::kIBL | 0x1<<PixLayer::kB0 | 0x0<<PixLayer::kB1 | 0x0<<PixLayer::kB2;
-               unsigned int IBLB0B1   =  0x0<<PixLayer::kIBL | 0x0<<PixLayer::kB0 | 0x0<<PixLayer::kB1 | 0x1<<PixLayer::kB2;
-               unsigned int IBLB0B1B2 =  0x0<<PixLayer::kIBL | 0x0<<PixLayer::kB0 | 0x0<<PixLayer::kB1 | 0x0<<PixLayer::kB2;
-               if( hitslayer == alllayers ) degradationFactor = 1.0; // All hits
-               else{
-                  if( hitslayer == IBL ) degradationFactor = 1.8; // IBL
-                  else if( hitslayer == B0 ) degradationFactor = 1.16; // B0
-                  else if( hitslayer == B1 ) degradationFactor = 1.0; // B1
-                  else if( hitslayer == B2 ) degradationFactor = 1.0; // B2
-                  else if( hitslayer == IBLB0 ) degradationFactor = 3.5; // IBL & B0
-                  else if( hitslayer == IBLB2 ) degradationFactor = 1.8; // IBL & B2
-                  else if( hitslayer == B0B2 ) degradationFactor = 1.17; // B & B2
-                  else if( hitslayer == B1B2 ) degradationFactor = 1.0;  // B1 & B2
-                  else if( hitslayer == IBLB0B1 ) degradationFactor = 6.0;  // IBL & B0 & B1
-                  else if( hitslayer == IBLB0B1B2 ) degradationFactor = 6.0;  // IBL & B0 & B1
-                  else degradationFactor = 1.0;
-               }
-               //std::cout << hitslayer << " " << tests << " " << degradationFactor << std::endl;
-            }
+            //if(isEndcaps){
+            //   degradationFactor = 1.0;
+            //}else{
+            //   unsigned int alllayers =  0x1<<PixLayer::kIBL | 0x1<<PixLayer::kB0 | 0x1<<PixLayer::kB1 | 0x1<<PixLayer::kB2;
+            //   unsigned int IBL       =  0x0<<PixLayer::kIBL | 0x1<<PixLayer::kB0 | 0x1<<PixLayer::kB1 | 0x1<<PixLayer::kB2;
+            //   unsigned int B0        =  0x1<<PixLayer::kIBL | 0x0<<PixLayer::kB0 | 0x1<<PixLayer::kB1 | 0x1<<PixLayer::kB2;
+            //   unsigned int B1        =  0x1<<PixLayer::kIBL | 0x1<<PixLayer::kB0 | 0x0<<PixLayer::kB1 | 0x1<<PixLayer::kB2;
+            //   unsigned int B2        =  0x1<<PixLayer::kIBL | 0x1<<PixLayer::kB0 | 0x1<<PixLayer::kB1 | 0x0<<PixLayer::kB2;
+            //   unsigned int IBLB0     =  0x0<<PixLayer::kIBL | 0x0<<PixLayer::kB0 | 0x1<<PixLayer::kB1 | 0x1<<PixLayer::kB2;
+            //   unsigned int IBLB2     =  0x0<<PixLayer::kIBL | 0x1<<PixLayer::kB0 | 0x1<<PixLayer::kB1 | 0x0<<PixLayer::kB2;
+            //   unsigned int B0B2      =  0x1<<PixLayer::kIBL | 0x0<<PixLayer::kB0 | 0x1<<PixLayer::kB1 | 0x0<<PixLayer::kB2;
+            //   unsigned int B1B2      =  0x1<<PixLayer::kIBL | 0x1<<PixLayer::kB0 | 0x0<<PixLayer::kB1 | 0x0<<PixLayer::kB2;
+            //   unsigned int IBLB0B1   =  0x0<<PixLayer::kIBL | 0x0<<PixLayer::kB0 | 0x0<<PixLayer::kB1 | 0x1<<PixLayer::kB2;
+            //   unsigned int IBLB0B1B2 =  0x0<<PixLayer::kIBL | 0x0<<PixLayer::kB0 | 0x0<<PixLayer::kB1 | 0x0<<PixLayer::kB2;
+            //   if( hitslayer == alllayers ) degradationFactor = 1.0; // All hits
+            //   else{
+            //      if( hitslayer == IBL ) degradationFactor = 1.8; // IBL
+            //      else if( hitslayer == B0 ) degradationFactor = 1.16; // B0
+            //      else if( hitslayer == B1 ) degradationFactor = 1.0; // B1
+            //      else if( hitslayer == B2 ) degradationFactor = 1.0; // B2
+            //      else if( hitslayer == IBLB0 ) degradationFactor = 3.5; // IBL & B0
+            //      else if( hitslayer == IBLB2 ) degradationFactor = 1.8; // IBL & B2
+            //      else if( hitslayer == B0B2 ) degradationFactor = 1.17; // B & B2
+            //      else if( hitslayer == B1B2 ) degradationFactor = 1.0;  // B1 & B2
+            //      else if( hitslayer == IBLB0B1 ) degradationFactor = 6.0;  // IBL & B0 & B1
+            //      else if( hitslayer == IBLB0B1B2 ) degradationFactor = 6.0;  // IBL & B0 & B1
+            //      else degradationFactor = 1.0;
+            //   }
+            //   //std::cout << hitslayer << " " << tests << " " << degradationFactor << std::endl;
+            //}
 
-            if( fabs(eta) < 2.5 && pt > 400.0 ){ // requirement of tracks
-               if(m_degFactorMap) m_degFactorMap->Fill( eta, phi, degradationFactor);
-               if(m_degFactorMap_per_lumi) m_degFactorMap_per_lumi->Fill(m_manager->lumiBlockNumber(), degradationFactor);
-               if(m_degFactorMap_eta_per_lumi) m_degFactorMap_eta_per_lumi->Fill(m_manager->lumiBlockNumber(), eta, degradationFactor);
-               //if(m_degFactorMap_phi_per_lumi) m_degFactorMap_phi_per_lumi->Fill(m_manager->lumiBlockNumber(), measPerigee->parameters()[Trk::phi0], degradationFactor);
-            }
+            //if( fabs(eta) < 2.5 && pt > 400.0 ){ // requirement of tracks
+            //   if(m_degFactorMap) m_degFactorMap->Fill( eta, phi, degradationFactor);
+            //   if(m_degFactorMap_per_lumi) m_degFactorMap_per_lumi->Fill(m_manager->lumiBlockNumber(), degradationFactor);
+            //   if(m_degFactorMap_eta_per_lumi) m_degFactorMap_eta_per_lumi->Fill(m_manager->lumiBlockNumber(), eta, degradationFactor);
+            //   //if(m_degFactorMap_phi_per_lumi) m_degFactorMap_phi_per_lumi->Fill(m_manager->lumiBlockNumber(), measPerigee->parameters()[Trk::phi0], degradationFactor);
+            //}
          }
       }
 
@@ -637,10 +688,10 @@ StatusCode PixelMainMon::FillTrackMon(void)
    /// Fill histograms per event
    ///
    
-   if(m_tracksPerEvt_per_lumi) m_tracksPerEvt_per_lumi->Fill(m_manager->lumiBlockNumber(), nTracks);
-   if(m_tracksPerEvtPerMu_per_lumi && m_lumiTool->lbAverageInteractionsPerCrossing() > 0 ){
-      m_tracksPerEvtPerMu_per_lumi->Fill(m_manager->lumiBlockNumber(),nTracks/m_lumiTool->lbAverageInteractionsPerCrossing());
-   }
+   //if(m_tracksPerEvt_per_lumi) m_tracksPerEvt_per_lumi->Fill(m_manager->lumiBlockNumber(), nTracks);
+   //if(m_tracksPerEvtPerMu_per_lumi && m_lumiTool->lbAverageInteractionsPerCrossing() > 0 ){
+   //   m_tracksPerEvtPerMu_per_lumi->Fill(m_manager->lumiBlockNumber(),nTracks/m_lumiTool->lbAverageInteractionsPerCrossing());
+   //}
    if(m_doOnTrack || m_doOnPixelTrack)sort (m_RDOIDs.begin(), m_RDOIDs.end());
    if(m_doOnTrack || m_doOnPixelTrack)sort (m_ClusterIDs.begin(), m_ClusterIDs.end());
 
@@ -650,6 +701,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
          if(m_misshits_ratio_mon && m_misshits_ratio_tmp) m_misshits_ratio_mon->Fill2DMon(m_misshits_ratio_tmp);
       }
    }//end of doOnline loop processing
+
 
    return StatusCode::SUCCESS;
 }      

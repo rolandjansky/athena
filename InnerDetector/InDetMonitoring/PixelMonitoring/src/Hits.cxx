@@ -67,11 +67,12 @@ StatusCode PixelMainMon::BookHitsMon(void)
    modlabel[0]="ECA"; modlabel[1]="ECC";
    modlabel[2]="B0";  modlabel[3]="B1";  modlabel[4]="B2"; 
    modlabel[5]="IBL"; modlabel[6]="IBL2D"; modlabel[7]="IBL3D"; 
-   std::string modlabel2[10];
-   modlabel2[0]="ECA"; modlabel2[1]="ECC";
-   modlabel2[2]="B0";  modlabel2[3]="B1";  modlabel2[4]="B2"; 
-   modlabel2[5]="DBMA";modlabel2[6]="DBMC";
-   modlabel2[7]="IBL"; modlabel2[8]="IBL2D"; modlabel2[9]="IBL3D"; 
+   std::string modlabel2[PixLayerIBL2D3DDBM::COUNT];
+   modlabel2[0]="ECA0"; modlabel2[1]="ECA1"; modlabel2[2]="ECA2"; 
+   modlabel2[3]="ECC0"; modlabel2[4]="ECC1"; modlabel2[5]="ECC2"; 
+   modlabel2[6]="B0";  modlabel2[7]="B1";  modlabel2[8]="B2"; 
+   modlabel2[9]="DBMA";modlabel2[10]="DBMC";
+   modlabel2[11]="IBL"; modlabel2[12]="IBL2D"; modlabel2[13]="IBL3D"; 
    std::string tmp;
    std::string tmp2;
    std::string atitles; 
@@ -97,7 +98,7 @@ StatusCode PixelMainMon::BookHitsMon(void)
   
    hname = makeHistname("Interactions_vs_lumi", false);
    htitles = makeHisttitle("<Interactions> vs LB", (atext_LB+";<#Interactions/event>"), false);
-   sc = rdoExpert.regHist(m_mu_vs_lumi = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
+   sc = rdoExpert.regHist(m_mu_vs_lumi = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
 
    hname = makeHistname("Events_per_lumi", false);
    htitles = makeHisttitle("Number of events in a LB", (atext_LB+atext_nevt), false);
@@ -440,7 +441,8 @@ StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
 
 StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 {
-   if(newLumiBlock && m_mu_vs_lumi){
+   //if(newLumiBlock && m_mu_vs_lumi){
+   if(m_mu_vs_lumi){
       if(m_lumiTool){
          float mu = m_lumiTool->lbAverageInteractionsPerCrossing();
          m_mu_vs_lumi->Fill(m_manager->lumiBlockNumber(),mu);
@@ -758,7 +760,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 
    //for( int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
    for( int i=0; i<PixLayerIBL2D3D::COUNT; i++){
-      if(nactivechannels_mod[i] > 0){
+      if(nactivechannels_mod[i] > 0 && nactivechannels_wSync_mod[i] > 0){
          avgocc_mod[i] = nhits_mod[i]/nactivechannels_mod[i];
          avgocc_wSync_mod[i] = nhits_mod[i]/nactivechannels_wSync_mod[i];
       }
