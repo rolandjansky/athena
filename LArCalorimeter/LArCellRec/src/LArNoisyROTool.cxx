@@ -33,7 +33,8 @@ LArNoisyROTool::LArNoisyROTool( const std::string& type,
   declareProperty( "BadChanPerPA", m_BadChanPerPA=2 );
   declareProperty( "CellQualityCut", m_CellQualityCut=4000 );
   declareProperty( "IgnoreMaskedCells", m_ignore_masked_cells=false );
-  declareProperty( "BadFEBCut", m_MinBadFEB=5 );
+  declareProperty( "IgnoreFrontInnerWheelCells", m_ignore_front_innerwheel_cells=true );
+  declareProperty( "BadFEBCut", m_MinBadFEB=3 );
   declareProperty( "KnownBADFEBs", m_knownBadFEBsVec={0x3a188000, 0x3a480000, 0x3a490000, 0x3a498000, 0x3a790000, 0x3aa90000, 0x3aa98000, 0x3b108000, 0x3b110000, 0x3b118000, 0x3ba80000, 0x3ba88000, 0x3ba90000, 0x3ba98000, 0x3bb08000, 0x3bc00000});
   // list agreed on LAr weekly meeting : https://indico.cern.ch/event/321653/
   // 3a188000   EndcapCFT06LEMInner2        ECC06LEMI2       EndcapCFT03Slot02     [4.4.1.0.3.2]   
@@ -69,7 +70,7 @@ LArNoisyROTool::LArNoisyROTool( const std::string& type,
   declareProperty( "OutputKey", m_outputKey="LArNoisyROSummary");
   declareProperty( "SaturatedCellQualityCut", m_SaturatedCellQualityCut=65535);
   declareProperty( "SaturatedCellEnergyTightCut", m_SaturatedCellEnergyTightCut=1000.);
-  declareProperty( "SaturatedCellTightCut", m_SaturatedCellTightCut=50);
+  declareProperty( "SaturatedCellTightCut", m_SaturatedCellTightCut=20);
   declareProperty( "PrintSummary", m_printSummary=false);
 
 }
@@ -139,8 +140,8 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
     // they should not matter for physics so don't consider them
     if ( m_ignore_masked_cells && std::abs(cell->e()) < 0.1 ) continue; //Fixme: use provenance
 
-
     Identifier id = cell->ID();
+    if (m_ignore_front_innerwheel_cells && m_calo_id->is_em_endcap_inner(id) && m_calo_id->sampling(id) == 1) continue; // Front inner wheel cells are ignored
 
     // saturated Qfactor ? Tight cuts.
     if ( cell->quality()>=m_SaturatedCellQualityCut && 
