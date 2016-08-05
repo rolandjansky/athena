@@ -39,6 +39,14 @@ from TrigInDetConf.TrackingAlgCfgble import TrigFastTrackFinder
 
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
+def vertexXAODCnvNeeded():
+  # temporary check whether the release have a new version of TrigVxPrimary capable of producing 
+  # xAOD::Vertex natively
+
+  from InDetTrigPriVxFinder.InDetTrigPriVxFinderConf import InDet__TrigVxPrimary
+  a = InDet__TrigVxPrimary("dummy")
+  return not hasattr(a, "BeamCondSvc")     
+
 
 class TrigInDetSequenceBase:
   """
@@ -211,9 +219,9 @@ class TrigInDetSequence(TrigInDetSequenceBase):
                 ("InDetTrigTrackingxAODCnv",cnvname),
                 ]
       if sequenceFlavour=="2step" and self.__signature__=="bjet":
-        algos += [("TrigVxPrimary",""),
-                  #("InDetTrigVertexxAODCnv","")
-                  ]
+        algos += [("TrigVxPrimary","")]
+        if vertexXAODCnvNeeded(): 
+           algos += [("InDetTrigVertexxAODCnv","")]
 
       fullseq.append(algos)
  
@@ -233,7 +241,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
                  ("InDetTrigPRD_MultiTruthMaker",""), 
                  ("TRTTrackExtAlg",""),
                  ("TrigExtProcessor",""),
-                 ("InDetTrigTrackSlimmer",""),
+                 #("InDetTrigTrackSlimmer",""),
                  ("InDetTrigTrackingxAODCnv",""),
                  ("InDetTrigDetailedTrackTruthMaker",""),
                  #("TrigVxPrimary",""),
@@ -242,9 +250,10 @@ class TrigInDetSequence(TrigInDetSequenceBase):
                  #("InDetTrigVertexxAODCnv","")
                  ]
         if self.__signature__ != "bjet":
-          algos += [("TrigVxPrimary",""),
-                    #("InDetTrigVertexxAODCnv","")
-                    ]
+          algos += [("TrigVxPrimary","")]
+          if vertexXAODCnvNeeded(): 
+            algos += [("InDetTrigVertexxAODCnv","")]
+
         fullseq.append(algos)
 
       
