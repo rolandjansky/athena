@@ -53,11 +53,9 @@ StatusCode LArNoisyROAlg::execute()
   bool badFEBFlag=noisyRO->BadFEBFlaggedPartitions();
   bool badFEBFlag_W=noisyRO->BadFEB_WFlaggedPartitions();
   bool badSaturatedTightCut=noisyRO->SatTightFlaggedPartitions();
-  bool MNBLooseCut=noisyRO->MNBLooseFlaggedPartititions();
-  bool MNBTightCut=noisyRO->MNBTightFlaggedPartititions();
+  bool MNBLooseCut=noisyRO->MNBLooseFlaggedPartitions();
+  bool MNBTightCut=noisyRO->MNBTightFlaggedPartitions();
   
-
-
   if ( badFEBFlag || badFEBFlag_W || badSaturatedTightCut || MNBLooseCut || MNBTightCut) 
   {
     // retrieve EventInfo

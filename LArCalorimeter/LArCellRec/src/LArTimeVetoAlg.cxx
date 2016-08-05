@@ -83,11 +83,18 @@ StatusCode LArTimeVetoAlg::execute()
       if (!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Error)) {
 	msg(MSG::WARNING) << " cannot set error state for LAr " << endreq;
       }
-      if (vetoWord & 0xFFFF) {
+      if (vetoWord & 0x1FFFF) {
 	ATH_MSG_DEBUG("Event flagged as Noise Burst!");
 	if (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO)) {
 	  msg(MSG::WARNING) << " cannot set flag bit for LAr " << endreq;
 	} 
+	
+      if (vetoWord & 0x10000) {
+	ATH_MSG_DEBUG("Event flagged as Mini-Noise Burst!");
+	if (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::MININOISEBURSTTIGHT)) {
+	  msg(MSG::WARNING) << " cannot set flag bit for LAr " << endreq;
+	} 
+      }
 	
 	//std::cout << " after first event flag " << std::hex << eventInfo->eventFlags(EventInfo::LAr) << std::dec << std::endl;
 	//Record location (partition) of noise burst
@@ -99,7 +106,7 @@ StatusCode LArTimeVetoAlg::execute()
 	  }
 	}
       }//end if one of the first 16 bits set
-      if (vetoWord & 0xFFFF0000) {
+      if (vetoWord & 0xFFF80000) {
 	ATH_MSG_DEBUG("Event flagged as DataCorruption!");
 	if (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)) {
 	  msg(MSG::WARNING) << " cannot set flag bit for LAr " << endreq;
