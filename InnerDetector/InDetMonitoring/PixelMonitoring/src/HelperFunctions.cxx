@@ -59,8 +59,8 @@ int PixelMainMon :: GetPixLayerID(int ec, int ld, bool ibl)
 int PixelMainMon :: GetPixLayerIDDBM(int ec, int ld, bool ibl)
 {
    int layer = 99;
-   if(ec==2) layer = PixLayerDBM::kECA;
-   else if(ec==-2) layer = PixLayerDBM::kECC;
+   if(ec==2) layer = PixLayerDBM::kECA0 + ld;
+   else if(ec==-2) layer = PixLayerDBM::kECC0 + ld;
    else if(ec==0) {
       if(ibl && ld==0) layer = PixLayerDBM::kIBL;
       if(ld==0+ibl) layer = PixLayerDBM::kB0;
@@ -102,6 +102,26 @@ int PixelMainMon :: GetPixLayerIDIBL2D3DDBM(int ec, int ld, int eta, bool ibl)
    }
    return layer;
 }
+
+int PixelMainMon :: GetPixLayerDiskID(int ec, int ld, bool ibl)
+{
+   int layer = 99;
+   if(ec==2)       layer = PixLayerDisk::kECA0 + ld;
+   else if(ec==-2) layer = PixLayerDisk::kECC0 + ld;
+   else if(ec==0) {
+      if(ibl && ld==0) layer = PixLayerDisk::kIBL;
+      if(ld==0+ibl)    layer = PixLayerDisk::kB0;
+      if(ld==1+ibl)    layer = PixLayerDisk::kB1;
+      if(ld==2+ibl)    layer = PixLayerDisk::kB2;
+   }else{
+      if( ec == 4 || ec == -4){
+         //std::cout << "[GetPixLayerID] layer == +- 4 : DBM!!" << std::endl;
+      }
+      //std::cout << "[ERROR: GetPixLayerID] layer == 99!!" << std::endl;
+   }
+   return layer;
+}
+
 
 int PixelMainMon :: GetPhiID(Identifier &id, const PixelID* pixID)
 {
@@ -457,4 +477,28 @@ int PixelMainMon::ParseDetailsString(std::string & detailsMod)
 
    delete[] pch; 
    return (1000000 + (modID[0] + 2)*100000 + (modID[1])*10000 + (modID[2])*100 + (modID[3] + 6));
+}
+
+
+bool PixelMainMon :: GetFEID( int pixlayer, int phiid, int etaid, int &oufephi, int &outfeeta)
+{
+   bool dodebug = false;
+   bool isValid = true;
+   int npixPerFe_phi, npixPerFe_eta;
+   if( pixlayer == PixLayer::kECA || pixlayer == PixLayer::kECC) {
+      npixPerFe_phi = 1;
+      npixPerFe_eta = 1;
+      isValid = false;
+   }else if(pixlayer != PixLayer::kIBL) { /// for pixel
+      npixPerFe_phi = 160 + 4;
+      npixPerFe_eta = 18;
+   }else{
+      npixPerFe_phi = 336;
+      npixPerFe_eta = 80;
+      isValid = false;
+   }
+   oufephi = phiid/npixPerFe_phi;
+   outfeeta= etaid/npixPerFe_eta;
+   if(dodebug) std::cout << "pix phi id=" << phiid << "==> fe:" << oufephi << "  pix eta id=" << etaid << "==> fe:" << outfeeta << std::endl;
+   return isValid;
 }

@@ -182,7 +182,7 @@ StatusCode PixelMainMon::FillStatusMon(void)
    static float nmod2[PixLayerIBL2D3D::COUNT] = {144., 144., 286., 494., 676., 280., 168., 112.};
 
    for(int i=0 ; i<PixLayerIBL2D3D::COUNT ; i++){
-     if(m_badModules_per_lumi_mod[i]) m_badModules_per_lumi_mod[i]->Fill( m_manager->lumiBlockNumber(), nBad_mod[i]/nmod2[i] );
+     if(m_badModules_per_lumi_mod[i] && nmod2[i] > 0) m_badModules_per_lumi_mod[i]->Fill( m_manager->lumiBlockNumber(), nBad_mod[i]/nmod2[i] );
      if(m_disabledModules_per_lumi_mod[i]) m_disabledModules_per_lumi_mod[i]->Fill( m_manager->lumiBlockNumber(), nDisabled_mod[i] );
      if(m_baddisabledModules_per_lumi_mod[i]) m_baddisabledModules_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(),nDisabled_mod[i]+nBad_mod[i]); 
    }
