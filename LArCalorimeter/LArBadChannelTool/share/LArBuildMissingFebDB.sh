@@ -192,7 +192,7 @@ fi
 
 if [ $online -eq 1 ]; then
    echo "Copying UPD3 to UPD1 tag..."
-   AtlCoolCopy.exe "sqlite://;schema=${outputSqlite}.tmp;dbname=CONDBR2" "sqlite://;schema=${outputSqlite};dbname=CONDBR2" -f /LAR/BadChannelsOfl/MissingFEBs -t LARBadChannelsOflMissingFEBs-UPD3-01 -ot LARBadChannelsOflMissingFEBs-UPD1-01 -r 2147483647 -a  > AtlCoolCopy.upd3.log 2>&1
+   AtlCoolCopy.exe "sqlite://;schema=${outputSqlite}.tmp;dbname=CONDBR2" "sqlite://;schema=${outputSqlite};dbname=CONDBR2" -f /LAR/BadChannelsOfl/MissingFEBs -t LARBadChannelsOflMissingFEBs-RUN2-UPD3-01 -ot LARBadChannelsOflMissingFEBs-RUN2-UPD1-01 -r 2147483647 -a  > AtlCoolCopy.upd3.log 2>&1
 
    if [ $? -ne 0 ];  then
        echo "AtlCoolCopy reported an error! Please check AtlCoolCopy.upd3.log!"
@@ -201,7 +201,7 @@ if [ $online -eq 1 ]; then
 fi
 
 echo "Copying UPD3 to UPD4 tag..."
-AtlCoolCopy.exe "sqlite://;schema=${outputSqlite}.tmp;dbname=CONDBR2" "sqlite://;schema=${outputSqlite};dbname=CONDBR2" -f /LAR/BadChannelsOfl/MissingFEBs -t LARBadChannelsOflMissingFEBs-UPD3-01 -ot LARBadChannelsOflMissingFEBs-$upd4TagName  > AtlCoolCopy.upd4.log 2>&1
+AtlCoolCopy.exe "sqlite://;schema=${outputSqlite}.tmp;dbname=CONDBR2" "sqlite://;schema=${outputSqlite};dbname=CONDBR2" -f /LAR/BadChannelsOfl/MissingFEBs -t LARBadChannelsOflMissingFEBs-RUN2-UPD3-01 -ot LARBadChannelsOflMissingFEBs-RUN2-$upd4TagName  > AtlCoolCopy.upd4.log 2>&1
 
 if [ $? -ne 0 ];  then
     echo "AtlCoolCopy reported an error! Please check AtlCoolCopy.upd4.log!"
@@ -216,7 +216,7 @@ fi
 
 if [ $online -eq 1 ]; then
    echo "Copying to for online database..."
-   AtlCoolCopy.exe "sqlite://;schema=${outputSqlite}.tmp;dbname=CONDBR2" "sqlite://;schema=${outputSqliteOnl};dbname=CONDBR2" -f /LAR/BadChannelsOfl/MissingFEBs -t LARBadChannelsOflMissingFEBs-UPD3-01 -of  /LAR/BadChannels/MissingFEBs -ot LARBadChannelsMissingFEBs-UPD1-01 -r 2147483647 -a -c > AtlCoolCopy.onl.log 2>&1
+   AtlCoolCopy.exe "sqlite://;schema=${outputSqlite}.tmp;dbname=CONDBR2" "sqlite://;schema=${outputSqliteOnl};dbname=CONDBR2" -f /LAR/BadChannelsOfl/MissingFEBs -t LARBadChannelsOflMissingFEBs-RUN2-UPD3-01 -of  /LAR/BadChannels/MissingFEBs -ot LARBadChannelsMissingFEBs-RUN2-UPD1-01 -r 2147483647 -a -c > AtlCoolCopy.onl.log 2>&1
 
 
    if [ $? -ne 0 ];  then

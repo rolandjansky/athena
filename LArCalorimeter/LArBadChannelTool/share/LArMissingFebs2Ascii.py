@@ -53,7 +53,7 @@ from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
 
 if "sqlite" in dir():
-    conddb.addFolder("","/LAR/BadChannelsOfl/MissingFEBs<db>sqlite://;schema="+sqlite+";dbname="+DBInstance+"</db><tag>LARBadChannelsOflMissingFEBs-UPD3-01</tag>")
+    conddb.addFolder("","/LAR/BadChannelsOfl/MissingFEBs<db>sqlite://;schema="+sqlite+";dbname="+DBInstance+"</db><tag>LARBadChannelsOflMissingFEBs-RUN2-UPD3-01</tag>")
 else:
     conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/MissingFEBs")#<tag>LARBadChannelsMissingFEBs-empty</tag>")
                  
