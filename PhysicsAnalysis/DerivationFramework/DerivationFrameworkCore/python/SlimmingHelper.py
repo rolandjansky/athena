@@ -37,6 +37,7 @@
 from DerivationFrameworkCore.CompulsoryContent import *
 from DerivationFrameworkCore.ContentHandler import *
 from AthenaCommon.BeamFlags import jobproperties
+from AthenaCommon.GlobalFlags  import globalflags
 import PyUtils.Logging as L
 msg = L.logging.getLogger('DerivationFramework__SlimmingHelper')
 msg.setLevel(L.logging.INFO)
@@ -62,11 +63,15 @@ class lockable_list(list):
         def lock(self):
                 self.__dict__["_locked"] = True
 
+###This Include builds some Truth Information needed by the smart slimming list
+if globalflags.DataSource()=='geant4':
+	from DerivationFrameworkMCTruth.MCTruthCommon import *
+
 
 def buildNamesAndTypes():
         from RecExConfig.InputFilePeeker import inputFileSummary
         namesAndTypes = {}
-        if inputFileSummary is not None:
+        if inputFileSummary['eventdata_items'] is not None:
                 for item in inputFileSummary['eventdata_items']:
                         namesAndTypes[item[1].strip('.')] = item[0]
         else:
@@ -191,6 +196,21 @@ class SlimmingHelper:
                         for item in self.ExtraVariables:
                                 masterItemList.extend(self.GetExtraItems(item))
                 
+                #Add extra dictionaries need by the newly built Truth Content
+                for _cont,_type in [
+                        ["TruthMuons","xAOD::TruthParticleContainer"],
+                        ["TruthMuonsAux","xAOD::TruthParticleAuxContainer"],
+                        ["TruthElectrons","xAOD::TruthParticleContainer"],
+                        ["TruthElectronsAux","xAOD::TruthParticleAuxContainer"],
+                        ["TruthPhotons","xAOD::TruthParticleContainer"],
+                        ["TruthPhotonsAux","xAOD::TruthParticleAuxContainer"],
+                        ["TruthNeutrinos","xAOD::TruthParticleContainer"],
+                        ["TruthNeutrinosAux","xAOD::TruthParticleAuxContainer"], 
+                        ["TruthTaus","xAOD::TruthParticleContainer"],
+                        ["TruthTausAux","xAOD::TruthParticleAuxContainer"]
+			]:
+                        if not self.AppendToDictionary.has_key(_cont):
+                                self.AppendToDictionary[_cont]=_type
                 # Process the master list...
                                                                        
                 # Main containers (this is a simple list of lines, one per container X collection)
@@ -334,6 +354,12 @@ class SlimmingHelper:
                 elif collectionName=="AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets":
                         from DerivationFrameworkJetEtMiss.AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent
                         #from DerivationFrameworkCore.AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent
+                        if not self.AppendToDictionary.has_key("AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"):
+                                self.AppendToDictionary["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]='xAOD::JetContainer'
+                                self.AppendToDictionary["AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux"]='xAOD::JetAuxContainer'
+                        if not self.AppendToDictionary.has_key("AntiKt10TruthTrimmedPtFrac5SmallR20Jets"):
+                                self.AppendToDictionary["AntiKt10TruthTrimmedPtFrac5SmallR20Jets"]="xAOD::JetContainer"
+                                self.AppendToDictionary["AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux"]='xAOD::JetAuxContainer'
                         items.extend(AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent)
                 elif collectionName=="AntiKt4EMPFlowJets":
                         from DerivationFrameworkJetEtMiss.AntiKt4EMPFlowJetsCPContent import AntiKt4EMPFlowJetsCPContent

@@ -8,6 +8,7 @@
 #-------------------------------------------------------------
 
 from AthenaCommon.AppMgr import ToolSvc
+from AthenaCommon.AppMgr import theApp
 # Output file name handling
 from D2PDMaker.D2PDFlags import D2PDFlags
 from D2PDMaker.D2PDHelpers import buildFileName
@@ -22,6 +23,10 @@ from AthenaCommon import CfgMgr
 from AthenaCommon.AlgSequence import AlgSequence 
 from JetRec.JetRecFlags import jetFlags 
 from AthenaCommon.GlobalFlags  import globalflags
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+# Trap for ROOT6 errors
+theApp.CreateSvc += ["AthROOTErrorHandlerSvc"]
+
 # Trigger navigation slimming
 #from TrigNavTools.TrigNavToolsConf import HLT__TrigNavigationSlimmingTool, TrigNavigationThinningTool, HLT__StreamTrigNavSlimming
 #from TrigNavTools.TrigNavToolsConfig import navigationSlimming
@@ -33,7 +38,10 @@ AuxStoreWrapperSequence = CfgMgr.AthSequencer("AuxStoreWrapperSequence")
 DerivationFrameworkJob = AlgSequence()
 DerivationFrameworkJob += AuxStoreWrapperSequence
 
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+# Special sequence run after the algsequence
+# Being used here to reset ElementLinks
+athOutSeq = CfgMgr.AthSequencer("AthOutSeq")
+athOutSeq += CfgMgr.xAODMaker__ElementLinkResetAlg( "ELReset" )
 
 ###ON HOLD FOR NOW
 ##use pileupreweighting provider to generate a df.metadata.root prw config file
