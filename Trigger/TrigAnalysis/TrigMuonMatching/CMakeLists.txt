@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigAnalysis/TrigDecisionTool
                           PRIVATE
                           Control/AthenaBaseComps
+                          Event/xAOD/xAODTrigMuon
                           Event/xAOD/xAODTrigger
                           GaudiKernel
                           Trigger/TrigConfiguration/TrigConfxAOD )
@@ -26,12 +27,12 @@ atlas_add_library( TrigMuonMatchingLib
                    PUBLIC_HEADERS TrigMuonMatching
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AsgTools xAODMuon TrigDecisionToolLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODTrigger GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODTrigMuon xAODTrigger GaudiKernel )
 
 atlas_add_component( TrigMuonMatching
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODMuon TrigDecisionToolLib AthenaBaseComps xAODTrigger GaudiKernel TrigMuonMatchingLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODMuon TrigDecisionToolLib AthenaBaseComps xAODTrigMuon xAODTrigger GaudiKernel TrigMuonMatchingLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
