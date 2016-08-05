@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TrigIDTPMonitor.TrigIDTPMonitorConf import TrigIDTPMonitor
+from TrigIDTPMonitor.TrigIDTPMonitorConf import TrigIDTPMonitor, TrigIDTPMonitorElectron
 
 from AthenaCommon.AppMgr import ToolSvc
 
@@ -16,3 +16,17 @@ class IDTPMonitor (TrigIDTPMonitor):
         validation = TrigIDTPMonitorValidationMonitor()
 
         self.AthenaMonTools = [ validation, online ]
+
+class IDTPMonitorElectron (TrigIDTPMonitorElectron):
+    __slots__ = []
+    def __init__(self, name = "IDTPMonitorElectron"):
+        super( TrigIDTPMonitorElectron, self ).__init__( name )
+        
+        from TrigIDTPMonitor.TrigIDTPMonitorMonitoring import TrigIDTPMonitorElectronOnlineMonitor
+        online = TrigIDTPMonitorElectronOnlineMonitor()
+
+        from TrigIDTPMonitor.TrigIDTPMonitorMonitoring import TrigIDTPMonitorElectronValidationMonitor
+        validation = TrigIDTPMonitorElectronValidationMonitor()
+
+        self.AthenaMonTools = [ validation, online ]
+
